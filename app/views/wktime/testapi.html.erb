@@ -1,0 +1,463 @@
+<title>Time & Expense</title>
+<script type="text/javascript">
+var url = 'http://adhi14/redmine/';
+	$(document).ready(function(){	
+	 $('.datePicker').datepicker({        
+		   dateFormat: 'yy-mm-dd'
+        });
+		showAndHideDiv();
+		$('#doOperation').click(function() {
+			var operation = $('#ddlOperations').val();
+			$('#response_data').val('');//Clear prev response
+			//$('#request_data').val(''); //clear prev request if any
+			
+			if(operation != 'invalid'){
+				$('#requestURL').val(''); //Clear prev Request URL
+			}
+			if(operation == 'list' || operation == 'edit'){
+				getTE();				
+			}
+			else if(operation == 'wktime_save' || operation == 'wktime_submit' || operation == 'wktime_unsubmit'
+			|| operation == 'wktime_approve' || operation == 'wktime_reject' || operation == 'wktime_unapprove'){
+				updateTE();
+			}
+			else if(operation == 'delete'){
+				deleteTE();
+			}
+			else if(operation=='delete_entries'){
+				deleteCell();
+			}
+			else if(operation == 'invalid'){
+				notFoundCall();
+			}
+		});
+	});
+	
+	function getTE(){
+		var response = '';
+		var username = $('#user_name').val();
+		var pwd = $('#password').val();		
+		if(isValidCall()){
+			var userID = $('#txtUserId').val();
+			var startDay,endDay;
+			var operation = $('#ddlOperations').val();
+			if(userID == null || userID == '')
+			{
+				alert('Please Provide UserID to get');
+			}
+			else
+			{		
+			if(operation == 'edit')
+			{				
+				startDay=$('#txtStartday').val();										
+			}
+			if(operation == 'edit' && (startDay==null || startDay==''))
+			{	
+				alert('Please Provide startDay');
+			}	
+			else 
+			{				
+				var module = $('#ddModule').val();					
+				
+				var responseType = $('#response_type').val();		
+				var urlList;
+				if(operation == 'list')
+				{
+					startDay=$('#txtFrom').val();
+					endDay=$('#txtTo').val();
+					urlList = url + module + '/index.' + responseType + '?user_id=' + userID ;
+					
+					if(startDay!=null && startDay!='')
+					{
+						urlList=urlList+'&from=' + startDay;
+					}
+					if(endDay!=null && endDay!='')
+					{
+						urlList=urlList+'&to=' + endDay;
+					}
+				}
+				else
+				{
+					startDay=$('#txtStartday').val();				
+					urlList = url + module + '/edit.' + responseType + '?user_id=' + userID ;
+						
+					if(startDay!=null && startDay!='')
+					{
+						urlList=urlList+'&startday=' + startDay;
+					}					
+				}	
+				
+				 $.ajax({
+						type: "GET",
+						url: urlList,
+						dataType: responseType,
+						beforeSend: function (request)
+						{
+							request.setRequestHeader("username", username);
+							request.setRequestHeader("password", pwd);
+						},
+						success: function(data) 
+						{							
+							if(responseType == 'xml')
+							{
+								response = XMLtoString(data);								
+							} 
+							else if(responseType == 'json')
+							{
+								response = JSON.stringify(data);								
+							}
+							$('#response_data').val(response);
+							//console.log(data);	
+						} ,
+						error: function( xhr, tStatus, err ) 
+						{
+							if( xhr.status === 401) {
+								 alert(' Got HTTP status:401 Unauthorized' );
+							  } else if( xhr.status === 404){
+								  alert(' Got HTTP status 404 NotFound' ); 
+							  } else {
+								alert('Error Occurred' );
+							  }
+						}
+					});
+			}
+			}
+		}
+		else 
+		{
+			alert('Please Provide Username and Password');
+		}
+	}	
+	
+	function updateTE(){
+		var username = $('#user_name').val();
+		var pwd = $('#password').val();
+		if(isValidCall()){
+			var responseType = $('#response_type').val();
+			var module = $('#ddModule').val();
+			var opVal = $('#ddlOperations').val();
+			var opTxt = $("#ddlOperations").children("option").filter(":selected").text();				
+			
+			var urlUpdate = url + module + '/update.' + responseType + '?' + opVal + '=' + opTxt;	
+		
+			var responseType = $('#response_type').val();
+			var postData = $('#request_data').val();
+			
+			var conType = "application/xml";
+			if(responseType == 'json'){
+				conType = "application/json";
+			}
+			
+			if(postData == '' || postData == '[]' || postData == '{}'){
+				alert('Please provide data to be posted')
+			} else {
+				$.ajax({
+					type: "POST",
+					url: urlUpdate,
+					data:  postData,
+					contentType: conType,
+					dataType: responseType,
+					beforeSend: function (request)
+					{
+						request.setRequestHeader("username", username);
+						request.setRequestHeader("password", pwd);
+					},
+					success: function(data) {				
+					
+						if(responseType == 'xml')
+						{
+							response = XMLtoString(data);							
+						} 
+						else if(responseType == 'json')
+						{
+							response = JSON.stringify(data);							
+						}
+						$('#response_data').val(response);							
+					} ,
+					error: function( xhr, tStatus, err ) {	
+						var msg = '';
+					 msg = xhr.responseText;					
+						//if(responseType == 'xml')
+					//	{
+							//msg = XMLtoString(xhr.responseText);							
+						//} 
+						//else if(responseType == 'json')
+						//{
+							//msg = JSON.stringify(xhr.responseText);							
+						//}
+						$('#response_data').val(msg);
+					}
+				});
+			}
+		}else {
+			alert('Please Provide Username and Password');
+		}
+	}
+	
+	function deleteTE()
+	{
+		var username = $('#user_name').val();
+		var pwd = $('#password').val();
+		var startDay;
+		if(isValidCall()){
+			var userID = $('#txtUserId').val();
+			if(userID == null || userID == '')
+			{
+				alert('Please Provide UserID to get');
+			} 
+			else
+			{		
+				startDay=$('#txtStartday').val();
+				if(startDay==null || startDay=='')
+				{	
+					alert('Please Provide startDay');
+				}	
+			else 
+			{	
+				var module = $('#ddModule').val();					
+			
+				var responseType = $('#response_type').val();				
+			
+				var urlDelete = url + module + '/destroy.' + responseType + '?user_id=' + userID +'&startday=' + startDay;	
+								
+				 $.ajax({
+						type: "DELETE",
+						url: urlDelete,
+						dataType: responseType,
+						beforeSend: function (request)
+						{
+							request.setRequestHeader("username", username);
+							request.setRequestHeader("password", pwd);
+						},
+						success: function(data) 
+						{
+							//if(responseType == 'xml')
+							//{
+								response="Successfully Deleted";
+							//}							
+							//else if(responseType == 'xml')
+							//{
+								//response = XMLtoString(data);									
+							//} 
+							//else if(responseType == 'json')
+							//{
+								//response = JSON.stringify(data);								
+							//}
+							$('#response_data').val(response);
+							//console.log(data);						
+						} ,
+						error: function( xhr, tStatus, err ) 
+						{
+							if( xhr.status === 401) {
+								 alert(' Got HTTP status:401 Unauthorized' );
+							  } else if( xhr.status === 404){
+								  alert(' Got HTTP status 404 NotFound' ); 
+							  } else {
+								alert('Error Occurred' );
+							  }
+						}
+					});
+			}
+			}
+		}
+		else 
+		{
+			alert('Please Provide Username and Password');
+		}
+	}
+	
+	function deleteCell()
+	{	
+		var username = $('#user_name').val();
+		var pwd = $('#password').val();
+		if(isValidCall()){			
+				var module = $('#ddModule').val();	
+				var responseType = $('#response_type').val();	
+				var urlDelete = url + module + '/deleteEntries.' + responseType ;	
+				var postData = $('#request_data').val();
+				var conType = "application/xml";
+				if(responseType == 'json'){
+					conType = "application/json";
+				}
+				if(postData == '' || postData == '[]' || postData == '{}'){
+					alert('Please provide data to be posted')
+				} else {			
+				 $.ajax({
+						type: "delete",
+						url: urlDelete,
+						data:  postData,
+						contentType: conType,
+						dataType: responseType,					
+					
+						beforeSend: function (request)
+						{
+							request.setRequestHeader("username", username);
+							request.setRequestHeader("password", pwd);
+						},
+						success: function(data) 
+						{							
+							
+							//if(data == null)
+							//{
+								response="Successfully Deleted";
+							//}							
+							//if(responseType == 'xml')
+							//{
+								//response = XMLtoString(data);									
+							//} 
+							//else if(responseType == 'json')
+							//{
+								//response = JSON.stringify(data);								
+							//}
+							$('#response_data').val(response);
+							//console.log(data);						
+						} ,
+						error: function( xhr, tStatus, err ) 
+						{
+							if( xhr.status === 401) {
+								 alert(' Got HTTP status:401 Unauthorized' );
+							  } else if( xhr.status === 404){
+								  alert(' Got HTTP status 404 NotFound' ); 
+							  } else {
+								alert('Error Occurred' );
+							  }
+						}
+					});
+			}
+		}
+		else 
+		{
+			alert('Please Provide Username and Password');
+		}
+	}
+	
+	function XMLtoString(elem)
+	{
+		var serialized;
+		try {
+			// XMLSerializer exists in current Mozilla browsers
+			serializer = new XMLSerializer();
+			serialized = serializer.serializeToString(elem);			
+		} 
+		catch (e) {
+			// Internet Explorer has a different approach to serializing XML
+			serialized = elem.xml;
+		}		
+		return serialized;
+	}
+
+	function isValidCall(){
+		var username = $('#user_name').val();
+		var pwd = $('#password').val();
+		var isValid = false;
+		if(username == null || username == '' || pwd == null || pwd == '')
+		{
+			isValid = false;
+		} 
+		else 
+		{
+			isValid = true;
+		}
+		return isValid;
+	}
+	
+	function showAndHideDiv()
+	{
+		resetControls();
+		var operation = $('#ddlOperations').val();
+		if(operation=='list')
+		{
+			$('#divDateRange').show();
+			$('#divStartDay').hide();
+		}
+		else if(operation=='edit' || operation=='delete')
+		{
+			$('#divDateRange').hide();
+			$('#divStartDay').show();
+		}
+		else 
+		{
+			$('#divDateRange').hide();
+			$('#divStartDay').hide();
+		}
+	}
+	
+	function resetControls()
+	{
+		$('#txtStartday').val('');
+		$('#txtFrom').val('');
+		$('#txtTo').val('');
+		$('#request_data').val('');
+		$('#response_data').val('');
+	}
+</script>
+
+	<h4>Time & Expense API</h4>
+	<br>
+	<div id="activity_pane">
+		<form name="timeNexpense" action="">
+			<div style="width:100%;background-color:#628DB6;font-weight:bold;">Time & Expense</div>
+			<hr/>	
+				Module  : 
+				<select name="ddModule" id="ddModule">
+					<option value="wktime">Time</option>
+					<option value="wkexpense">Expense</option>					
+				</select><br>			
+				Operation  : 
+				<select name="ddlOperations" id="ddlOperations" onchange="showAndHideDiv();">
+					<option value="list">List </option>
+					<option value="edit">Get Time/Expense sheet</option>
+					<option value="wktime_save">Save</option>
+					<option value="wktime_submit">Submit</option>
+					<option value="wktime_unsubmit">Unsubmit</option>
+					<option value="wktime_approve">Approve</option>
+					<option value="wktime_reject">Reject</option>
+					<option value="wktime_unapprove">Unapprove</option>
+					<option value="delete">Delete</option>
+					<option value="delete_entries">Delete Entries</option>
+				</select><br>
+				<!--Request URL : <input type="text" id="requestURL" disabled="disabled"  name="requestURL"  style="width:930px;">
+				<br><b>(To Be Filled  with unmatching URL When testing Operation : 404 Test)</b><br>
+				HTTP Method : <input type="text" style="width:50px;" disabled="disabled"  name="httpMethod" id="httpMethod"><br>-->
+				Response Type: 
+				<select name="response_type" id="response_type">
+					<option value="xml">XML</option>
+					<option value="json">JSON</option>
+				</select>
+				<br><br>
+				<div style="margin-left:20px;">
+					<div style="width:100%;background-color:#628DB6;font-weight:bold;">Request Parameters</div>	
+					<hr/>
+					<div id="divListRP">
+						User Id: <input type="text" name="txtUserId" id="txtUserId"><br>
+					</div>
+					<div id="divDateRange">
+						From : <input type="text" name="txtFrom" id="txtFrom" class = "datePicker"><br>
+						To : <input type="text" name="txtTo" id="txtTo" class="datePicker">
+					</div>
+					<div id="divStartDay">
+						Start Day : <input type="text" name="txtStartday" id="txtStartday" class = "datePicker"><br>						
+					</div>
+					<br>					
+					<div style="width:100%;background-color:#628DB6;font-weight:bold;">Authentication</div>	
+					<hr />
+					User Name: <input type="text" name="user_name" id="user_name" value=""><br>
+					Password: <input type="text" name="password" id="password" value=""><br>
+				</div>				
+			</form>	
+			<br>
+			<div id = "divRequest">
+				<div style="width:100%;background-color:#628DB6;font-weight:bold;">Request</div>
+		        <hr/>		        
+				<textarea id="request_data" style="width:100%;height:250px;border:solid 1px;">						
+				</textarea>
+			</div>
+			<br/>
+			<input type="button" id="doOperation" name="doOperation" value="Do Operation" style="height:32px;font-weight:bold;"><br><br>
+			<div>
+				<div style="width:100%;background-color:#628DB6;font-weight:bold;">Response</div>
+		        <hr/>		        
+				<textarea id="response_data" style="width:100%;height:250px;border:solid 1px;">						
+				</textarea>
+			</div>
+	</div>

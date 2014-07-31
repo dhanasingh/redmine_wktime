@@ -1,0 +1,24 @@
+api.wk_expense do
+  api.user(:id => @user.id, :name => @user.name)
+  api.startday @startday
+  api.status statusString(@wktime.status) unless @wktime.nil?
+  api.total @wktime.amount unless @wktime.nil?
+  if !@wktime.nil? && !@wktime.notes.blank? && @wktime.status == 'r'
+	api.notes @wktime.notes
+  end
+  api.array :wk_expense_entries do
+	  @entries.each do |wk_expense_entry|
+		api.wk_expense_entry do
+		  api.id wk_expense_entry.id
+		  api.project(:id => wk_expense_entry.project_id, :name => wk_expense_entry.project.name) unless wk_expense_entry.project.nil?
+		  api.issue(:id => wk_expense_entry.issue_id) unless wk_expense_entry.issue.nil?
+		  api.user(:id => wk_expense_entry.user_id, :name => wk_expense_entry.user.name) unless wk_expense_entry.user.nil?
+		  api.activity(:id => wk_expense_entry.activity_id, :name => wk_expense_entry.activity.name) unless wk_expense_entry.activity.nil?
+		  api.amount wk_expense_entry.amount
+		  api.currency wk_expense_entry.currency
+		  api.comments wk_expense_entry.comments
+		  api.spent_on wk_expense_entry.spent_on
+		end
+	  end
+  end
+end

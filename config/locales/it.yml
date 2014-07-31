@@ -1,0 +1,110 @@
+# Italian strings for wktime
+# Author Francesco Rossi
+it:
+  my_label: "My label"
+  label_wktime: Time
+  label_wk_project_dd_width: Larghezza dropdown dei progetti
+  label_wk_issue_dd_width: Larghezza dropdown degli issues
+  label_wk_actv_dd_width: Larghezza dropdown attività
+  label_wk_restr_max_hour: Forza ore massime per giorno
+  label_wk_max_hour_day: Ore massime per giorno
+  label_wk_restr_min_hour: Enforce Min hour per day
+  label_wk_min_hour_day: Min hour per day
+  label_wk_page_width: Larghezza Pagina
+  label_wk_page_height: Altezza Pagina
+  label_wk_margin_top: Margine dall\'alto
+  label_wk_margin_bottom: Margine dal basso
+  label_wk_margin_left: Margine da sinistra
+  label_wk_margin_right: Margine da destra
+  label_wk_line_space: Linea di spaziatura
+  label_wk_header_logo: Logo header
+  label_wk_purchase_order: Ordine d\'acquisto
+  label_wk_signature: Firma
+  label_wk_submitted_by: Inserito da
+  label_wk_approved_by: Approvato da
+  
+  label_wk_enter_issue_id: Enter issue as ID
+  label_wk_work_time_header: Show work time header
+  label_wk_allow_blank_issue: Allow Blank Issue
+  
+  label_wk_enter_comment_in_row: Enter Comment in row
+  label_wk_enter_cf_in_row: Enter Custom Field in row
+  label_wk_use_detail_popup: Use Detail Time Entry Popup
+  label_wk_approval_system: Approval System
+  label_wk_use_approval_system: Use Approval System
+  label_wk_auto_approve: "Auto approve"
+  label_wk_submission_ack: Submission Acknowledgement Text  
+  label_wk_reject_reason: Reject Reason
+  label_wk_enter_issue_As: Enter Issue As
+  label_wk_enter_issue_Description: Enter issue as Subject
+  label_wk_own_approve: "Approver Can Approve their own %{value}"
+  label_wk_reject_timesheet: Rejected Time Sheet
+  label_wk_reject_expense: Rejected expense
+  label_wk_submittedon: Submitted on
+  label_wk_rejectedby: Rejected by
+  label_wk_rejectedon: Rejected on
+  label_wk_timesheet_reject: Your time sheet has been rejected
+  label_wk_expense_reject: Your expense has been rejected
+  label_wk_previous_template_week: Number of Weeks to consider for previous week template
+  label_wk_dropdown: Dropdown
+  label_wk_issueid: Issue ID
+  label_start: Inizio
+  label_end: Fine
+  label_remaining_hours: Ore rimanenti
+  label_warning_wktime_time_entry: "Please Note: The timesheet for this period is locked, you cannot log time. It will lead to an error"  
+
+  label_wk_first_day_of_week: First day of week
+  label_wk_prev_week_tip: Previous Week
+  label_wk_next_week_tip: Next Week
+  label_wkexpense: Expense
+  label_te: Time & Expense
+  label_wk_allow_user_filter_tracker: Allow User Filtering by Tracker
+  label_wk_filter_issue_tracker: Filter Issue by Tracker
+  label_wk_currency: Currency
+  label_wk_time: Weekly Time  
+ 
+  label_wkexpense_reports: Expense Report
+  label_spent_expense: Spent Expense
+  label_wk_submission_deadline: Submission Deadline
+  label_wk_nonsub_mail_subject: Non submission time notification
+  label_wk_nonsub_mail_notification: Send email for non submission
+  label_wk_nonsub_mail_message: Non submission email message
+  label_wk_warning_nonsub_notification: "Note: Any change to the below settings require redmine restart"
+  label_wk_minutes: Minutes
+  label_wkexpense_entry_projects: Restrict Expense Entry to these projects
+  
+  label_wk_public_holiday: Public Holidays
+  label_wk_description: Description 
+  label_wk_date_exists: This date already exists
+  label_wk_select_holiday: Please select a holiday
+
+  button_new_wktime: Nuovo Timesheet
+  button_continue: Continua
+  button_add_row: Aggiungi riga
+  button_new_wkexpense: New Expensesheet
+  
+  button_wk_unsubmit: Unsubmit
+  button_wk_approve: Approve
+  button_wk_reject: Reject
+  button_wk_unapprove: Unapprove
+  chkbox_prev_tmpl: Modello della settimana precedente
+  chkbox_closed_issues: Includi gli issues chiusi della settimana precedente
+  
+  error_te_save_failed: "Could not save %{label}: %{error}"
+  error_wktime_save_nothing: Niente da salvare
+  error_not_permitted_save: Not permitted to Save 
+
+  wk_status_new: New
+  wk_status_submitted: Submitted
+  wk_status_approved: Approved
+  wk_status_rejected: Rejected
+  text_start_of_week_confirmation: "Are you Sure? Status will be lost on the previously submitted %{value}"
+  text_wk_warning_min_hour: "You have not entered the Minimum hours (%{value}) required per day"
+  text_wk_warning_max_hour: "You have entered hours above Maximum hours (%{value}) allowed per day"  
+  field_amount: Amount  
+  
+  label_wk_allow_filter_issue: Allow User filtering to My Issues
+  label_wk_no_user_current_project: no users in selected project
+  
+  permission_approve_time_entries: Approve time logs
+

@@ -1,0 +1,58 @@
+<fieldset class="box tabular">
+	<legend><%= l(:label_wktime) %></legend>
+	<p>
+		<%= check_box_tag('settings[wktime_restr_max_hour]', 1, @settings['wktime_restr_max_hour'].to_i == 1) %> <label><%= l(:label_wk_restr_max_hour) %></label>
+	</p>
+	<p>
+		<label><%= l(:label_wk_max_hour_day) %></label><%= text_field_tag 'settings[wktime_max_hour_day]', @settings['wktime_max_hour_day'], :size => 3 %>
+	</p>
+	<p>
+		<%= check_box_tag('settings[wktime_restr_min_hour]', 1, @settings['wktime_restr_min_hour'].to_i == 1) %> <label><%= l(:label_wk_restr_min_hour) %></label>
+	</p>
+	<p>
+		<label><%= l(:label_wk_min_hour_day) %></label><%= text_field_tag 'settings[wktime_min_hour_day]', @settings['wktime_min_hour_day'], :size => 3 %>
+	</p>
+	<%
+	custom_fields = TimeEntryCustomField.find(:all, :order => 'name')
+	unless custom_fields.blank?
+		cfs = custom_fields.collect {|cf| [cf.name, cf.id] }
+		cfs.unshift(["",0])
+	%>
+
+	 <p>
+		<label><%= l(:label_wk_enter_cf_in_row) + "[1]" %> </label><%=h select_tag('settings[wktime_enter_cf_in_row1]', 
+			options_for_select(cfs, :selected =>  @settings['wktime_enter_cf_in_row1']),
+			:onchange => "updateCustFldDD(this,'settings_wktime_enter_cf_in_row2');") %>
+	</p>
+	 <p>	 
+		<label><%= l(:label_wk_enter_cf_in_row) + "[2]" %> </label><%=h select_tag('settings[wktime_enter_cf_in_row2]', 
+			options_for_select(cfs, :selected =>  @settings['wktime_enter_cf_in_row2']),
+			:onchange => "updateCustFldDD(this,'settings_wktime_enter_cf_in_row1');")%>
+	</p>
+	<% end %>
+	<%
+		tracker = Tracker.find(:all, :order =>'name')
+		unless tracker.blank?
+			trackers = tracker.collect {|t| [t.name, t.id] }
+			trackers.unshift(["",0])
+		end
+	%>
+	<p>
+		<label><%=l(:label_wk_filter_issue_tracker)%></label>
+		<%=  select_tag('settings[wktime_issues_filter_tracker]',
+				options_for_select(trackers, :selected => @settings['wktime_issues_filter_tracker'].blank? ? 0 : @settings['wktime_issues_filter_tracker']), :multiple=> true)%>
+	</p>
+
+	<p>
+		<label><%=l(:label_wk_allow_user_filter_tracker)%></label>
+		 <%= check_box_tag('settings[wktime_allow_user_filter_tracker]',1,@settings['wktime_allow_user_filter_tracker'].to_i == 1) %>
+	</p>
+
+</fieldset>
+
+<%custom_fields = TimeEntryCustomField.find(:all, :order => 'name')%>
+<% if !custom_fields.blank? %>
+<div style = "display:none">
+	<%=h select_tag('template_custFldDD', options_for_select(cfs))%>
+</div>
+<% end %>

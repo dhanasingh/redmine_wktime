@@ -1,0 +1,31 @@
+<div class="splitcontent">
+	<fieldset class="box tabular">
+		<legend><%= l(:label_te) %></legend>
+		<p>
+		<%= check_box_tag('settings[wktime_closed_issue_ind]', 1, @settings['wktime_closed_issue_ind'].to_i == 1) %> <label><%= l(:chkbox_closed_issues) %></label>
+		</p>
+		<p>
+			<label><%= l(:label_wk_previous_template_week) %></label>
+			
+			<%=     select_tag('settings[wktime_previous_template_week]',
+					   options_for_select([[1, 1],[2, 2],[3, 3],[4, 4],[5, 5]],
+										   
+											:selected => @settings['wktime_previous_template_week'].blank? ? 1 : @settings['wktime_previous_template_week'])) %>
+		</p>
+		<p>
+			<%= check_box_tag('settings[wktime_enter_issue_as]', 1, @settings['wktime_enter_issue_as'].to_i == 1) %><label><%= "#{l(:label_wk_enter_issue_id)}/#{l(:field_subject)}" %></label>
+		</p>
+		<p>
+			<%= check_box_tag('settings[wktime_allow_filter_issue]', 1, @settings['wktime_allow_filter_issue'].to_i == 1) %> <label><%= l(:label_wk_allow_filter_issue) %> </label>
+		</p>
+		<p>
+		<%= check_box_tag('settings[wktime_allow_blank_issue]', 1, @settings['wktime_allow_blank_issue'].to_i == 1) %> <label><%= l(:label_wk_allow_blank_issue) %> </label>
+		</p>
+		<p>
+		<%= check_box_tag('settings[wktime_enter_comment_in_row]', 1, @settings['wktime_enter_comment_in_row'].to_i == 1) %> <label><%= l(:label_wk_enter_comment_in_row) %> </label>
+		</p>
+		<p>
+		<%= check_box_tag('settings[wktime_use_detail_popup]', 1, @settings['wktime_use_detail_popup'].to_i == 1) %> <label><%= l(:label_wk_use_detail_popup) %> </label>
+		</p>
+	</fieldset>		
+</div>

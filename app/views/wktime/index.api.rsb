@@ -1,0 +1,10 @@
+api.array :wk_times, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+  @entries.each do |wk_time|
+    api.wk_time do
+      api.user(:id => wk_time.user_id, :name => wk_time.user.name) unless wk_time.user.nil?
+      api.hours wk_time.hours
+      api.startdate wk_time.spent_on
+      api.status wk_time.status
+    end
+  end
+end

@@ -1,0 +1,80 @@
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<script type="text/javascript"> 
+	prevTab = 'tab-<%= "#{controller_name}" %>';
+	grpUrl="<%= "#{url_for(:controller => controller_name, :action => 'getMembersbyGroup')}" %>";
+	userUrl="<%= "#{url_for(:controller => controller_name, :action => 'getusers')}" %>";
+</script>
+<% if (!@currentUser_loggable_projects.blank? || !@manage_projects.blank?) %>
+<div class="contextual">
+<%= link_to l(:"button_new_#{controller_name}"), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
+</div>
+<% end %>
+<p />
+<%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
+
+<%=h hidden_field_tag('tab', "#{controller_name}") %>
+
+<% if !@manage_view_spenttime_projects.blank? %>
+<table>
+
+<tr>
+<th><%= radio_button_tag 'projgrp_type', '1', !@use_group,
+ :onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#group_id").attr("disabled", true);$("#project_id").removeAttr("disabled");' %>
+<%=l(:field_project)%></th>
+<td class="project" align="left"><%=h select_tag('project_id', 
+	options_for_select(options_for_wktime_project(@manage_view_spenttime_projects),
+	:selected => @selected_project.id),:disabled => @use_group,
+	:onchange => "projChanged(this, #{User.current.id}, true);") %></td>
+</tr>
+<% if !@groups.blank? %>
+<tr>
+<th><%= radio_button_tag 'projgrp_type', '2', @use_group, 
+:onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#group_id").removeAttr("disabled");$("#project_id").attr("disabled", true);' %>
+<%=l(:label_group_plural)%></th>
+<td>
+	<%=h select_tag('group_id',
+	options_for_select( @groups.collect {|p| [p.name, p.id ]},
+	:selected => (params[:group_id].nil? ? 0 : params[:group_id])),:disabled => !@use_group,
+	:onchange => "grpChanged(this, #{User.current.id}, true);") %>
+</td>
+</tr>
+<% end %>
+<tr>
+<th><%=l(:label_member)%></th>
+<td>
+<%# show the blank value if more than one user is in the list %>
+<%=h select_tag('user_id',
+	options_for_select( [["All Users","0"]] + (@members.blank? ? [] : @members),
+		:selected =>  @user.nil? ? (params[:user_id].nil? ? User.current.id : params[:user_id]) : @user.id),
+	:onchange => 'this.form.submit();') %></td>
+</tr>
+<tr>
+<th><%=l(:field_status)%></th>
+<td class="status" align="left"><%=h select_tag('status', 
+	options_for_select(options_wk_status_select(params[:status]),
+	:selected => params[:status].nil? ? 0 : params[:status] ),
+	:onchange => "this.form.submit();") %></td>
+</tr>
+</table>
+
+<% end %>
+
+<%= render :partial => 'wktime/date_range' %>
+
+<% end %>
+
+<div class="total-hours">
+<p><%= l(:label_total) %>: <%= "#{@unit}" %>&nbsp;<%= controller.total_all(@total_hours) %></p>
+</div>
+
+<% unless @entries.empty? %>
+<%= render :partial => 'wktime/list', :locals => { :entries => @entries }%>
+<p class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></p>
+
+<% end %>
+
+<% html_title l(:label_spent_time), l(:label_details) %>
+
+<% content_for :header_tags do %>
+    <%= auto_discovery_link_tag(:atom, {:issue_id => @issue, :format => 'atom', :key => User.current.rss_key}, :title => l(:label_spent_time)) %>
+<% end %>

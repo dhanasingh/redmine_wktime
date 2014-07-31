@@ -1,0 +1,19 @@
+
+<tr>
+	<td ></td>
+	<td ></td>
+	<td ></td>
+	<td ></td>
+	<td ></td>
+	<td ></td>
+
+	<td align = "right"><%= l(:"label_#{str}") %></td>
+	<% for i in 0..6%>
+		<% if (isEditable) %>
+			<td align = "center"><%= text_field_tag "#{str}_#{(i+1)}" ,'0:00',:size => 7, :onchange => "validateHr(this,#{(i+1)});" %></td>
+		<% else %>
+			<td align = "center"><%= value %></td>
+		<% end %>
+	<% end %>
+	<td ></td>
+</tr>

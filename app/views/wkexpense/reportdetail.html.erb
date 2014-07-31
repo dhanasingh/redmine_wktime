@@ -1,0 +1,16 @@
+<%= form_tag({:controller => controller_name, :action => 'reportdetail', :project_id => @project, :issue_id => @issue}, :method => :get, :id => 'query_form') do %>
+	<%= render :partial => 'report_index'%>	
+<%end%>
+<div class="total-hours">
+	<p><%= l(:label_total) %>:&nbsp;<%= html_hours("%.2f" % @total_amount) %></p>
+</div>
+
+<% unless @entries.blank? %>
+	<%= render :partial => 'report_list', :locals => { :entries => @entries }%>
+	<p class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></p>
+
+	<% other_formats_links do |f| %>
+		<%= f.link_to 'Atom', :url => params.merge({:issue_id => @issue, :key => User.current.rss_key}) %>
+		<%= f.link_to 'CSV', :url => params %>
+	<% end %>
+<% end %>

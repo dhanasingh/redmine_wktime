@@ -1,0 +1,45 @@
+<div class="splitcontent">
+		<fieldset class="box tabular">
+			<legend><%= l(:label_display) %></legend>
+			<p>
+			  <label><%= l(:label_wk_project_dd_width) %></label><%= text_field_tag 'settings[wktime_project_dd_width]', @settings['wktime_project_dd_width'], :size => 3 %> px
+			</p>
+			<p>
+			  <label><%= l(:label_wk_issue_dd_width) %></label><%= text_field_tag 'settings[wktime_issue_dd_width]', @settings['wktime_issue_dd_width'], :size => 3 %> px
+			</p>
+			<p>
+			  <label><%= l(:label_wk_actv_dd_width) %></label><%= text_field_tag 'settings[wktime_actv_dd_width]', @settings['wktime_actv_dd_width'], :size => 3 %> px
+			</p>
+			<p>
+			<%= check_box_tag('settings[wktime_work_time_header]', 1, @settings['wktime_work_time_header'].to_i == 1) %> <label><%= l(:label_wk_work_time_header) %></label>
+			</p>
+		</fieldset>
+		<fieldset class="box tabular">
+			<legend><%= l(:button_export) %></legend>
+			<p>
+			  <label><%= l(:label_wk_page_width) %></label><%= text_field_tag 'settings[wktime_page_width]', @settings['wktime_page_width'], :size => 3 %> mm
+			</p>
+			<p>
+			  <label><%= l(:label_wk_page_height) %></label><%= text_field_tag 'settings[wktime_page_height]', @settings['wktime_page_height'], :size => 3 %> mm
+			</p>
+			<p>
+			  <label><%= l(:label_wk_margin_top) %></label><%= text_field_tag 'settings[wktime_margin_top]', @settings['wktime_margin_top'], :size => 3 %> mm
+			</p>
+			<p>
+			  <label><%= l(:label_wk_margin_bottom) %></label><%= text_field_tag 'settings[wktime_margin_bottom]', @settings['wktime_margin_bottom'], :size => 3 %> mm
+			</p>
+			<p>
+			  <label><%= l(:label_wk_margin_left) %></label><%= text_field_tag 'settings[wktime_margin_left]', @settings['wktime_margin_left'], :size => 3 %> mm
+			</p>
+			<p>
+			  <label><%= l(:label_wk_margin_right) %></label><%= text_field_tag 'settings[wktime_margin_right]', @settings['wktime_margin_right'], :size => 3 %> mm
+			</p>
+			<p>
+			  <label><%= l(:label_wk_line_space) %></label><%= text_field_tag 'settings[wktime_line_space]', @settings['wktime_line_space'], :size => 3 %> mm
+			</p>
+			<p>
+			  <label><%= l(:label_wk_header_logo) %></label><%= text_field_tag 'settings[wktime_header_logo]', @settings['wktime_header_logo']%>
+			</p>
+		</fieldset>
+	
+</div>

@@ -1,0 +1,13 @@
+#divError, div.flash{
+  padding: 4px 4px 4px 30px;
+  margin-bottom: 12px;
+  font-size: 1.1em;
+  border: 2px solid;
+}
+div.flash {margin-top: 8px;}
+
+div.flash.error, #divError { 
+  background-color: #ffe3e3;
+  border-color: #dd0000;
+  color: #880000;
+}

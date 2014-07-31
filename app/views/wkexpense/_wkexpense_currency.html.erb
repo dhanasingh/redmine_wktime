@@ -1,0 +1,6 @@
+<% if @editable %>	
+	<%=h select_tag('time_entry[][currency]', 
+	options_for_select(options_for_currency,entry.nil? ? l('number.currency.format.unit') : entry.currency)) %>
+<% else %>
+	<%= entry.currency unless entry.nil? %>
+<% end %>

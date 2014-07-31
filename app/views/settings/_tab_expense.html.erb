@@ -1,0 +1,24 @@
+<fieldset class="box tabular">
+	<legend><%= l(:label_wkexpense) %></legend>
+	<%
+		tracker = Tracker.find(:all, :order =>'name')
+		unless tracker.blank?
+			trackers = tracker.collect {|t| [t.name, t.id] }
+			trackers.unshift(["",0])
+		end
+	%>
+	<p>
+		<label><%=l(:label_wk_filter_issue_tracker)%></label>
+		<%= select_tag('settings[wkexpense_issues_filter_tracker]', options_for_select(trackers, :selected => @settings['wkexpense_issues_filter_tracker'].blank? ? 0 : 		@settings['wkexpense_issues_filter_tracker']), :multiple=> true)%>		  
+	</p>
+
+	<%
+		projects = Project.find(:all, :conditions => "#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})", :order =>'name')
+		wktime_helper = Object.new.extend(WktimeHelper)
+		projArr = wktime_helper.options_for_wktime_project(projects,true)	
+	%>
+	<p>
+		<label><%=l(:label_wkexpense_entry_projects)%></label>
+		<%= select_tag('settings[wkexpense_projects]', options_for_select(projArr, :selected => @settings['wkexpense_projects'].blank? ? "" : @settings['wkexpense_projects']), :multiple => true) %>
+	</p>
+</fieldset>

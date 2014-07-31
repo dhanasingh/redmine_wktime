@@ -1,0 +1,10 @@
+api.array :wk_expenses, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+  @entries.each do |wk_expense|
+    api.wk_expense do
+      api.user(:id => wk_expense.user_id, :name => wk_expense.user.name) unless wk_expense.user.nil?
+      api.amount wk_expense.amount
+      api.startdate wk_expense.spent_on
+      api.status wk_expense.status
+    end
+  end
+end

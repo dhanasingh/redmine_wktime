@@ -1,0 +1,113 @@
+# French strings for wktime
+# Author Sylvain Hamel
+fr:
+  my_label: "Mon libellé"
+  label_wktime: Feuilles de temps
+  label_wk_project_dd_width: Largeur de la liste déroulante des projets
+  label_wk_issue_dd_width: Largeur de la liste déroulante des demandes
+  label_wk_actv_dd_width: Largeur de la liste déroulantes des activités
+  label_wk_restr_max_hour: Restreindre le maximum d'heures par jour
+  label_wk_max_hour_day: Maximum d'heures par jour  
+  label_wk_restr_min_hour: Obliger un minimum d'heure par jour
+  label_wk_min_hour_day: Heures minimum par jour
+  label_wk_page_width: Largeur de page
+  label_wk_page_height: Hauteur de page
+  label_wk_margin_top: Marge supérieure
+  label_wk_margin_bottom: Marge inférieure
+  label_wk_margin_left: Marge gauche
+  label_wk_margin_right: Marge droite
+  label_wk_line_space: Ligne d'espacement
+  label_wk_header_logo: Logo en-tête
+  label_wk_purchase_order: Commande
+  label_wk_signature: Signature
+  label_wk_submitted_by: Soumis par
+  label_wk_approved_by: Approuvé par
+  
+  label_wk_enter_issue_id: Utiliser l'ID pour saisir la demande
+  label_wk_work_time_header: Affichez l'entête effort
+  label_wk_allow_blank_issue: Permettre une demande vierge 
+  
+  label_wk_enter_comment_in_row: Saisir le commentaire sur la ligne
+  label_wk_enter_cf_in_row: Saisir le champ personalisé sur la ligne
+  label_wk_use_detail_popup: Utiliser la fenêtre de saisie détaillée du temps
+  label_wk_approval_system: Système d'approbation
+  label_wk_use_approval_system: Utiliser le système d'approbation
+  label_wk_auto_approve: "Approbation automatique"
+  label_wk_submission_ack: Texte de l'accusé de soumission
+  label_wk_reject_reason: Raison du rejet
+  label_wk_enter_issue_As: Saisir la demande en tant que
+  label_wk_enter_issue_Description: Saisir la demande comme Sujet
+  label_wk_own_approve: "L'approbateur peut approuver sa propre %{value}"
+  label_wk_reject_timesheet: Feuille de temps rejetée
+  label_wk_reject_expense: Dépense rejetée
+  label_wk_submittedon: Soumis le
+  label_wk_rejectedby: Rejeté par
+  label_wk_rejectedon: Rejeté le
+  label_wk_timesheet_reject: Votre feuille de temps a été rejetée
+  label_wk_expense_reject: Votre dépense a été rejetée
+  label_wk_previous_template_week: Nombre de semaines a considérer comme gabarit de semaine précédente
+  label_wk_dropdown: Liste déroulante
+  label_wk_issueid: Identifiant de la demande
+  label_start: Début
+  label_end: Fin
+  label_remaining_hours: Heures restantes
+  label_warning_wktime_time_entry: "Veuillez noter: La feuille de temps pour cette période est vérouillée, vous ne pouvez saisir de temps. Ceci causera une erreur." 
+ 
+  label_wk_first_day_of_week: Premier jour de la semaine
+  label_wk_prev_week_tip: Semaine précédente
+  label_wk_next_week_tip: Semaine suivante
+  label_wkexpense: Dépense
+  label_te: Temps & Dépense
+  label_wk_allow_user_filter_tracker: Permettre à l'utilisateur de filtrer par Tracker
+  label_wk_filter_issue_tracker: Filtrer les demandes par Tracker
+  label_wk_currency: Devise
+  label_wk_time: Temps hebdomadaire  
+
+  label_wkexpense_reports: Rapport de dépense
+  label_spent_expense: Dépenses
+  label_wk_submission_deadline: Date limite de soumission
+  label_wk_nonsub_mail_subject: Notification de retard
+  label_wk_nonsub_mail_notification: Envoyer un courriel pour les retards  
+  label_wk_nonsub_mail_message: Corps du courriel de retard
+  label_wk_warning_nonsub_notification: "Note: une modification des paramètres de configuration sous-jacents demandera un redémarrage de Redmine"
+  label_wk_minutes: Minutes  
+  label_wkexpense_entry_projects: Limiter la saisie de dépense à ces projets
+  
+  label_wk_public_holiday: Public Holidays
+  label_wk_description: Description 
+  label_wk_date_exists: This date already exists
+  label_wk_select_holiday: Please select a holiday
+  
+  button_new_wktime: Nouvelle feuille de temps
+  button_continue: Continuer
+  button_add_row: Ajouter ligne
+  button_new_wkexpense: Nouvelle feuille de dépense
+  
+  button_wk_unsubmit: Dé-soumettre
+  button_wk_approve: Approuver
+  button_wk_reject: Rejeter
+  button_wk_unapprove: Dé-approuver
+  
+  chkbox_prev_tmpl: Utiliser la semaine précédente comme gabarit
+  chkbox_closed_issues: Inclure demandes fermées
+  
+  error_te_save_failed: "Échec de la sauvegarde %{label}: %{error}"
+  error_wktime_save_nothing: Rien à enregistrer
+  error_not_permitted_save: Sauvegarde interdite  
+  
+  wk_status_new: Nouvelle
+  wk_status_submitted: Soumise
+  wk_status_approved: Approuvée
+  wk_status_rejected: Rejetée
+  
+  text_start_of_week_confirmation: "Etes-vous certain? Le statut de la %{value} précédemment soumise sera perdu."
+  text_wk_warning_min_hour: "Vous n'avez pas saisi le minimum d'heures (%{value}) requis par jour"
+  text_wk_warning_max_hour: "You have entered hours above Maximum hours (%{value}) allowed per day"
+  field_amount: Montant  
+  
+  label_wk_allow_filter_issue: Allow User filtering to My Issues
+  label_wk_no_user_current_project: no users in selected project
+  
+  permission_approve_time_entries: Approve time logs
+  
+

@@ -1,0 +1,54 @@
+<div class="splitcontent">
+	<fieldset class="box tabular">
+		<legend><%= l(:label_wk_approval_system) %></legend>
+
+		<p>
+		<%= check_box_tag('settings[wktime_use_approval_system]', 1, @settings['wktime_use_approval_system'].to_i == 1) %> <label><%= l(:label_wk_use_approval_system) %></label>
+		</p>
+
+		<p>
+		<%= check_box_tag('settings[wktime_uuto_approve]', 1, @settings['wktime_uuto_approve'].to_i == 1) %> <label><%= "#{l(:label_wk_auto_approve)} #{l(:label_te)}"%></label>
+		</p>
+		<p>
+		<%= check_box_tag('settings[wktime_own_approval]', 1, @settings['wktime_own_approval'].to_i == 1) %> <label><%= l(:label_wk_own_approve,l(:label_te)) %></label>
+		</p>
+		<p>
+		  <label><%= l(:label_wk_submission_ack) %></label><%= text_area_tag 'settings[wktime_submission_ack]', @settings['wktime_submission_ack']%>
+		</p>
+		<%= l(:label_wk_warning_nonsub_notification) %>
+
+		<p>	
+			<%= check_box_tag('settings[wktime_nonsub_mail_notification]', 1, @settings['wktime_nonsub_mail_notification'].to_i == 1) %>
+			<label><%= l(:label_wk_nonsub_mail_notification) %></label>
+		</p>
+		<p>	
+			<label><%= l(:label_wk_submission_deadline) %></label><%= l('date.order')[2] %>
+			<%= select_tag('settings[wktime_submission_deadline]', options_for_select([[l('date.day_names')[0], 0],
+										   [l('date.day_names')[1], 1],
+										   [l('date.day_names')[2], 2],
+										   [l('date.day_names')[3], 3],
+										   [l('date.day_names')[4], 4],
+										   [l('date.day_names')[5], 5],
+										   [l('date.day_names')[6], 6]], :selected => @settings['wktime_submission_deadline']))%>
+			<%
+			hr = []
+			for i in 0..23
+				if i < 10
+					hr << ['0' + i.to_s,i]
+				else
+					hr << [i,i]
+				end
+			end
+			%>
+			<%= l(:field_hours) %>&nbsp;<%= select_tag('settings[wktime_nonsub_sch_hr]', options_for_select(hr, 
+			:selected => @settings['wktime_nonsub_sch_hr'].blank? ? 23 : @settings['wktime_nonsub_sch_hr']))%>
+			<%= l(:label_wk_minutes) %>&nbsp;<%= select_tag('settings[wktime_nonsub_sch_min]', options_for_select([['00',0],
+										   [15, 15],
+										   [30, 30],
+										   [45, 45]], :selected => @settings['wktime_nonsub_sch_min'].blank? ? 0 : @settings['wktime_nonsub_sch_min']))%>								   
+		</p>
+		<p>
+		  <label><%= l(:label_wk_nonsub_mail_message) %></label><%= text_area_tag 'settings[wktime_nonsub_mail_message]', @settings['wktime_nonsub_mail_message']%>
+		</p>
+	</fieldset>
+</div>

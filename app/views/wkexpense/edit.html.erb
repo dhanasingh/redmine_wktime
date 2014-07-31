@@ -1,0 +1,67 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+
+<%= javascript_include_tag 'edit', :plugin => "redmine_wktime" %>
+
+	<script type="text/javascript"> 
+		decSeparator = '<%=l(:general_csv_decimal_separator) %>';
+		issueField = '<%= l(:field_issue) %>';
+		submissionack="<%= Setting.plugin_redmine_wktime[:wktime_submission_ack] %>";
+		editUrl = '<%=url_for(:controller => controller.controller_name, :action => "edit", :startday => @startday, :user_id => params[:user_id])%>';
+		
+		<% if !Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 1 %>
+				allowBlankIssue = true;
+		<% end %>
+		<% if !Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 1 %>
+				commentInRow = true;
+		<% end %>
+	
+	</script>
+
+	<div id="comment-dlg" title="<%= l(:label_attribute_plural) %>">
+	<!-- modified class .ui-widget-header to change the header color -->
+		<span id="_edit_comm_proj_">project</span>, 
+		<span id="_edit_comm_iss_">issue</span>,
+		<span id="_edit_comm_act_">activity)</span>
+		<fieldset>
+		<% if Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 0 %>
+			<p> <label><%= l(:field_comments) %></label>
+			<textarea name="_edit_comments_" id="_edit_comments_" value="" cols="25" rows="2"> </textarea> </p>
+		<% end %>
+		</fieldset>
+	</div>
+	
+	<div id="notes-dlg" title="<%= l(:button_wk_reject) %>">
+		<fieldset>
+			<p> <label><%= l(:label_wk_reject_reason) %></label>
+			<textarea name="_edit_notes_" id="_edit_notes_" value="" cols="25" rows="2"> </textarea> </p>
+		</fieldset>
+	</div>
+
+<%= render :partial => 'wktime/row_template' %>
+
+<%= form_tag({:controller => 'wkexpense', :action => 'update'}, :method => :post, :id => 'wktime_edit') do %>
+<%=h hidden_field_tag('tab', "#{controller_name}") %>
+<h2><%= l(:label_wkexpense) %></h2>
+
+<%= render :partial => 'wktime/edit_header' %>
+
+<% # Martin Dube Contribution: show previous and next time entry %>
+<tr>
+	<td colspan="2">
+	<%= link_to("\xc2\xab " + l(:label_previous ), {:controller => controller.controller_name, :action => 'edit', :startday => @startday-7, :user_id => @user.id, :project_id => params[:project_id]},
+                  :title => l(:label_wk_prev_week_tip)) %>
+      |
+     <%= link_to(l(:label_next) + " \xc2\xbb", {:controller => controller.controller_name, :action => 'edit', :startday => @startday+7, :user_id => @user.id, :project_id => params[:project_id]},
+                  :title => l(:label_wk_next_week_tip)) %> 	
+	</td>
+</tr>
+</table>
+
+<%= render :partial => 'wktime/edit_issues', :locals => { :entries => @prev_template ? @prev_entries : @entries }%>
+
+<%= render :partial => 'wktime/edit_footer' %>
+
+<% end %>

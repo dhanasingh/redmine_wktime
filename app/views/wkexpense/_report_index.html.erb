@@ -1,0 +1,19 @@
+<div class="contextual">
+	<%= link_to l(:button_new_wkexpense), url_for(:controller => controller_name, :action => 'new' , :project_id => nil), 
+	:class => 'icon icon-time-add' if User.current.allowed_to?(:log_time, @project, :global => true) %>
+</div>
+
+<%= render_wkexpense_breadcrumb %>
+
+<h2><%= l(:label_spent_expense) %></h2>
+<%= render :partial => 'date_range' %>
+<div class="tabs">
+	<% url_params = @free_period ? { :from => @from, :to => @to } : { :period => params[:period] } %>
+	<ul>
+		<li><%= link_to(l(:label_details), url_params.merge({:controller => controller_name, :action => 'reportdetail', :project_id => @project, :issue_id => @issue }),
+                                       :class => (action_name == 'reportdetail' ? 'selected' : nil)) %></li>
+		<li><%= link_to(l(:label_report), url_params.merge({:controller => controller_name, :action => 'report', :project_id => @project, :issue_id => @issue}),
+                                       :class => (action_name == 'report' ? 'selected' : nil)) %></li>
+	</ul>
+</div>
+

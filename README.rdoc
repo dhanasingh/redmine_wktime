@@ -1,0 +1,92 @@
+= wktime
+This Plugin provides the capability to submit Time & Expense within redmine. The user must be a 
+member of a project with permission to log time.  If the user has permission to manage other team
+members, he can manage their Time & Expense as well.
+
+This plugin uses the existing Time Entry model for Time sheets and has its own model called 
+Wk Expense Entry for Expense Sheets.  New Time & Expense sheets can be entered using the link 
+‘New sheet’, new issues can be added to the Sheets using the ‘Add Row’ link.  Users without 
+Edit permissions cannot edit/delete time & expense entries.  
+The time & expense sheets can be exported into pdf and csv format.
+
+The following configurations can be made on the plugin
+	- size of the dropdown components
+	- inclusion of previous week's closed issues
+	- check for max daily hours
+	- check for min daily hours
+	- parameters of pdf export	
+	- Allow Blank Issue
+	- Show Work time Header
+	- Enter comment in Row
+	- Enter Custom Field in Row
+	- Use Detail Time Entry Popup
+	- Use Approval System
+	- Enter Issue as id / subject
+	- Filter issues by tracker
+	- Allow Own Time & Expense Sheet Approval
+	- Number of weeks to consider for previous week template
+	- Send email for non submission
+	- Set submission deadline
+	- Set projects for expense
+	- Allow User filtering to My Issues
+	- Public holidays can be configured
+	- 'Approve time log' permission is introduced
+	
+The Time & Expense sheets can be approved/rejected by supervisors after it is submitted by Project Members.
+Here is the workflow of Approval system..
+i) In addition to the Save button there is also a submit button
+ii) A team member can save a time & expense sheet any number of times, but can only submit once.
+iii) Once a time & expense sheet is submitted, the user with "Approve time log" permission can approve / reject it.
+In the mean time if he wants to take back his submission, he can unsubmit his time & expense sheet
+iv) Once approved, the time & expense sheet can never be edited.
+v) If the time & expense sheet is rejected, then it goes back to the project member for re-submission
+   An email about the rejection is sent to the Project Member.
+vi) Once approved, a time & expense sheet can be unapproved, it sends the time & expense sheet back to submitted state.
+vii) If the timesheet is not submitted before deadline, then a email notification will be sent to the project memeber.
+
+Time & Expense plugin supports REST API. It supports both xml and json. Using the api we can list
+time/expense sheets for a user, create, update and delete time/expense sheets.  User with approve time log 
+permission can approve, unapprove, reject time/expense sheets.
+
+Unpack the zip file to the plugins folder of Redmine.
+Starting from version 1.2, it requires db migration.
+So run the following command for db migration
+
+  rake redmine:plugins:migrate NAME=redmine_wktime RAILS_ENV=production
+  
+When uninstalling the plugin, be sure to remove the db changes by running
+
+	rake redmine:plugins:migrate NAME=redmine_wktime VERSION=0 RAILS_ENV=production
+
+This plugin uses js and css assets and it will be copied to public/plugin_asset/redmine_wktime
+folder upon server startup, so please make sure public/plugin_asset/redmine_wktime has proper access.
+The pdf export requires rmagick gem.
+
+Starting from version 1.5, it requires the gem rufus-scheduler.
+so run the following command to install the gem
+	bundle install
+	
+For rufus-scheduler to work , the rails application should be up all the time.
+If an apache passenger module is used then make sure the following settings are made
+	a) PassengerMinInstances 1
+	b) RailsAppSpawnerIdleTime 0
+	c) PassengerPreStart http://rails-app-url/	
+
+Release Notes for 1.6
+	Features:
+		Supports REST Api 
+		Separate Permission for Approving Time Logs
+		Filter timesheets by groups 
+		Filter Issues assigned to me 
+		Configure Public Holidays 
+		Support for MS SQL Server
+		User with View Spent time permission can only see the list page.
+	Bugs:
+		wrap Settings object within Rails.configuration.to_prepare inside init.rb
+		Show the message “no users in the selected project" in new time/expense sheet 
+		Expense report link does not shows up by default
+		Allow 0 for time/expense entry
+
+
+
+	  

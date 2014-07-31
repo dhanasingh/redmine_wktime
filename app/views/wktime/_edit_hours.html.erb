@@ -1,0 +1,79 @@
+	<% if @trOpen %>
+		<% # close the previously opened tr %>
+		<% while @wday_index < padTill %>
+			<% 
+			disable = !@editable
+			if @editable
+				disable = !@prev_template && !entry.nil? && !entry.editable_by?(@user)
+			end
+			%>
+			<%#if this is from a previous template, don't print the hours%>
+			<td class="hours">
+				<%=h text_field_tag('hours' + @row.to_s() +'[]', entry.nil? || @prev_template ? '' : ("%.2f" % entry.hours) ,:size => 7,
+				:disabled => disable,
+				:onchange => "validateTotal(this, #{@wday_index},'#{controller.maxHour}');") %>
+				
+				<%=h hidden_field_tag('ids' + @row.to_s() +'[]', entry.nil? || @prev_template ? '' : entry.id) %>
+				<%=h hidden_field_tag('disabled' + @row.to_s() +'[]', disable ) %>
+				
+				<% cvs = [] %>
+				<% show_custfield_img = false %>
+				<% if Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? ||
+					Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 0 %>
+					
+					<% show_custfield_img = true %>
+					<%=h hidden_field_tag('comments' + @row.to_s() +'[]', entry.nil? || @prev_template ? '' : entry.comments) %>
+					<% comment = nil %>
+					<% comment = entry.nil? || @prev_template ? '' : entry.comments %>
+					<% cvs << comment unless comment.blank? %>
+					
+				<% end %>
+				
+				<% if !Setting.plugin_redmine_wktime['wktime_use_detail_popup'].blank? &&
+					Setting.plugin_redmine_wktime['wktime_use_detail_popup'].to_i == 1 %>
+					
+					<% show_custfield_img = true %>
+					<% if !@new_custom_field_values.blank? %>
+						<% custom_field_values = entry.nil? || @prev_template ?  @new_custom_field_values : entry.custom_field_values %>
+						<% custom_field_values.each do |custom_value| %>
+							
+							<%if !((!Setting.plugin_redmine_wktime['wktime_enter_cf_in_row1'].blank? &&
+								Setting.plugin_redmine_wktime['wktime_enter_cf_in_row1'].to_i == custom_value.custom_field.id) ||
+								(!Setting.plugin_redmine_wktime['wktime_enter_cf_in_row2'].blank? &&
+								Setting.plugin_redmine_wktime['wktime_enter_cf_in_row2'].to_i == custom_value.custom_field.id))%>	
+								
+								<% cv = custom_value.custom_field.multiple? ?  custom_value.value.join(',') : custom_value.value %>
+								<%=h hidden_field_tag('_custom_field_values_' + custom_value.custom_field.id.to_s + @row.to_s() +'[]', cv) %>
+								<% cvs << cv unless cv.blank? %>
+							
+							<% end %>
+						<% end %>
+					<% end %>
+				
+				
+					<% if show_custfield_img %>
+						<% image_tg = image_tag('text_list_bullets.png', :id => 'custfield_img' + @row.to_s() +'_', :name => 'custfield_img' + @row.to_s() +'[]',
+							:title => "#{entry.nil? || @prev_template || cvs.blank? ? l(:label_custom_field_plural) : cvs.join(',')}") %>
+						<% if disable %>
+							<%= image_tg %>
+						<% else %>
+							<%= link_to image_tg, "javascript:showComment(#{@row.to_s}, #{@wday_index});"	%>
+						<% end %>
+					<% end %>
+				
+				<% end %>
+			</td>
+			<% @wday_index += 1 %>
+		<% end %>
+		<% if padAt == 'end' %>
+			<td align="center">
+			<% if @editable %>
+				<%= link_to image_tag('delete.png'), "javascript:deleteRow(#{@row.to_s}, '#{l(:notice_unable_delete_time_entry)}');",
+						:confirm => l(:text_are_you_sure),	# :method => :delete,
+						:title => l(:button_delete) %>
+			<% end %>
+			</td>
+			</tr>
+			<% @trOpen = false %>
+		<% end %>
+	<% end %>
