@@ -1,7 +1,7 @@
 = wktime
 This Plugin provides the capability to submit Time & Expense within redmine. The user must be a 
-member of a project with permission to log time.  If the user has permission to manage other team
-members, he can manage their Time & Expense as well.
+member of a project with permission to log time.  If the user has 'Edit time logs' permission, 
+then he can manage other team member's Time & Expense as well.
 
 This plugin uses the existing Time Entry model for Time sheets and has its own model called 
 Wk Expense Entry for Expense Sheets.  New Time & Expense sheets can be entered using the link 
@@ -30,7 +30,7 @@ The following configurations can be made on the plugin
 	- Set projects for expense
 	- Allow User filtering to My Issues
 	- Public holidays can be configured
-	- 'Approve time log' permission is introduced
+	- 'Approve time log' permission
 	
 The Time & Expense sheets can be approved/rejected by supervisors after it is submitted by Project Members.
 Here is the workflow of Approval system..
@@ -72,21 +72,16 @@ If an apache passenger module is used then make sure the following settings are 
 	b) RailsAppSpawnerIdleTime 0
 	c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for 1.6
+Release Notes for 1.7
 	Features:
-		Supports REST Api 
-		Separate Permission for Approving Time Logs
-		Filter timesheets by groups 
-		Filter Issues assigned to me 
-		Configure Public Holidays 
-		Support for MS SQL Server
-		User with View Spent time permission can only see the list page.
+		- Made compatible with Redmine 2.5.2
+		
+		- Following permission changes were made:
+			- The user with 'Log spent time' or 'View spent time' permissions will be able to see the Time & Expense list page.
+			- The user with 'Edit time logs' permission is allowed to manage other member time/expense sheet.
+
+		- Following functionalities are available through REST api:
+			- List time/expense sheet of all user
+			- Delete entries in time/expense sheet
 	Bugs:
-		wrap Settings object within Rails.configuration.to_prepare inside init.rb
-		Show the message “no users in the selected project" in new time/expense sheet 
-		Expense report link does not shows up by default
-		Allow 0 for time/expense entry
-
-
-
-	  
+		- Hours summed up for different custom values
