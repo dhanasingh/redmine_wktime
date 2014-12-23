@@ -1,6 +1,5 @@
 require 'redmine'
 require_dependency 'custom_fields_helper'
-
 module WktimeHelperPatch
 	def self.included(base)
 		CustomFieldsHelper::CUSTOM_FIELDS_TABS << {:name => 'WktimeCustomField', :partial => 'custom_fields/index', :label => :label_wk_time}

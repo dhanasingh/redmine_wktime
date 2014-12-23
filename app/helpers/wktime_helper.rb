@@ -44,10 +44,10 @@ module WktimeHelper
 		end
 		
 		#Project.project_tree(projects) do |proj_name, level|
-		project_tree(projects) do |proj, level|
+		Project.project_tree_with_order(projects,true) do |proj, level|
 			indent_level = (level > 0 ? ('&nbsp;' * 2 * level + '&#187; ').html_safe : '')
 			sel_project = projects.select{ |p| p.id == proj.id }
-			projArr << [ (indent_level + sel_project[0].name), sel_project[0].id ]
+			projArr << [ (indent_level + sel_project[0].to_s), sel_project[0].id ]
 		end
 		projArr
 	end
@@ -236,7 +236,7 @@ module WktimeHelper
 		# write the cells on page
 		wktime_to_pdf_write_cells(pdf, col_values, col_width, row_height)
 		issues_to_pdf_draw_borders(pdf, base_x, base_y, base_y + max_height, 0, col_width)
-		pdf.SetY(base_y + max_height);
+		pdf.SetY(base_y + max_height)
 		if !unitLabel.blank?
 			unit=matrix_values[0][4]
 		end
@@ -269,6 +269,7 @@ module WktimeHelper
 		end
 		return max_height
 	end
+
 	#new page logo
 	def render_newpage(pdf,orientation,logo,page_width)
 		pdf.AddPage(orientation)
@@ -611,7 +612,7 @@ end
 		elsif ActiveRecord::Base.connection.adapter_name == 'SQLServer'		
 			sqlStr = "DateAdd(d, (((((DATEPART(dw," + dtfield + ")-1)%7)-1)+(8-" + startOfWeek.to_s + ")) % 7)*-1," + dtfield + ")"
 		else
-			# mysql - the weekday index for date (0 = Monday, 1 = Tuesday, … 6 = Sunday)
+			# mysql - the weekday index for date (0 = Monday, 1 = Tuesday, ï¿½ 6 = Sunday)
 			sqlStr = "adddate(" + dtfield + ",mod(weekday(" + dtfield + ")+(8-" + startOfWeek.to_s + "),7)*-1)"
 		end		
 		sqlStr

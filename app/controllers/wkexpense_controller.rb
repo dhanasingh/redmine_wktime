@@ -31,7 +31,7 @@ class WkexpenseController < WktimeController
   end
   
   def getUnit(entry)
-	entry.nil? ? l('number.currency.format.unit') : entry[:currency]
+	entry.nil? ? number_currency_format_unit : entry[:currency]
   end
   
   def getUnitDDHTML
@@ -159,7 +159,7 @@ private
 	@entries = WkExpenseEntry.find_by_sql(wkSelectStr + " ,exp.currency" + sqlStr + 
 			" inner join wk_expense_entries exp on v1.id = exp.id " + wkSqlStr + rangeStr)			
 
-	@unit = @entries.blank? ? l('number.currency.format.unit') : @entries[0][:currency]
+	@unit = @entries.blank? ? number_currency_format_unit : @entries[0][:currency]
 	
 	#@total_hours = TimeEntry.visible.sum(:hours, :include => [:user], :conditions => cond.conditions).to_f
 		
