@@ -1,6 +1,6 @@
 $(document).ready(function(){
 	var txtEntryDate;
-	if(document.getElementById('divError') != null){	
+	if(document.getElementById('divError') != null){
 		if(document.getElementById('time_entry_spent_on')!=null){
 			txtEntryDate = document.getElementById('time_entry_spent_on');	
 		}
@@ -20,7 +20,8 @@ $(document).ready(function(){
 function showEntryWarning(entrydate){
 	var $this = $(this);				
 	var divID =document.getElementById('divError');	
-	var statusUrl = document.getElementById('getstatus_url').value;		
+	var statusUrl = document.getElementById('getstatus_url').value.replace('http', 'https');
+
 	divID.style.display ='none';
 	$.ajax({
 		url: statusUrl,
