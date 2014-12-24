@@ -263,11 +263,12 @@ module WktimeHelper
 		max_height = row_height
 		col_values.each_with_index do |val, i|
 			col_x = pdf.GetX
+			val = '' if val.nil?
 			pdf.RDMMultiCell(col_widths[i], row_height, val, "T", 'L', 1)
 			max_height = (pdf.GetY - base_y) if (pdf.GetY - base_y) > max_height
-			pdf.SetXY(col_x + col_widths[i], base_y);
+			pdf.SetXY(col_x + col_widths[i], base_y)
 		end
-		return max_height
+		max_height
 	end
 
 	#new page logo
