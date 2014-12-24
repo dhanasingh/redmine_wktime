@@ -463,6 +463,7 @@ helper :custom_fields
 		findWkTE(@startday)
 		unitLabel = getUnitLabel
 		format.pdf {
+
 			send_data(wktime_to_pdf(@entries, @user, @startday,unitLabel), :type => 'application/pdf', :filename => "#{@startday}-#{params[:user_id]}.pdf")
 		}
 		format.csv {
@@ -523,7 +524,8 @@ helper :custom_fields
 	end
 	
 	 def getStatus	
-		status = getTimeEntryStatus(params[:startDate].to_date,User.current.id)	
+		status = getTimeEntryStatus(params[:startDate].to_date,User.current.id)
+
 		respond_to do |format|
 			format.text  { render :text => status }
 		end	
