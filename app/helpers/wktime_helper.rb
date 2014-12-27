@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 module WktimeHelper 
   include Redmine::Export::PDF
   include Redmine::Utils::DateCalculation
@@ -142,7 +143,7 @@ module WktimeHelper
 	end
 	
 	# column widths
-	table_width = page_width - right_margin - left_margin
+	table_width = (page_width - right_margin - left_margin) * 1.1
 	
 	columns = ["#",l(:field_project), l(:field_issue), l(:field_activity)]
 	
@@ -150,11 +151,11 @@ module WktimeHelper
 	col_width = []
 	orientation = "P"
 	unit=nil
-	# 20% for project, 60% for issue, 20% for activity
+	# 40% for project, 45% for issue, 15% for activity
 	col_width[0]=col_id_width
-	col_width[1] = (table_width - (8*10))*0.2
-	col_width[2] = (table_width - (8*10))*0.6
-	col_width[3] = (table_width - (8*10))*0.2
+	col_width[1] = (table_width - (8*10))*0.4
+	col_width[2] = (table_width - (8*10))*0.45
+	col_width[3] = (table_width - (8*10))*0.15
 	title=l(:label_wktime)
 	if !unitLabel.blank?
 		columns << l(:label_wk_currency)
@@ -260,7 +261,7 @@ module WktimeHelper
 	def wktime_to_pdf_write_cells(pdf, col_values, col_widths,
 								row_height)
 		base_y = pdf.GetY
-		max_height = row_height
+		max_height = row_height * 2.5
 		col_values.each_with_index do |val, i|
 			col_x = pdf.GetX
 			pdf.RDMMultiCell(col_widths[i], row_height, val, "T", 'L', 1)
@@ -371,7 +372,7 @@ def getColumnValues(matrix, totals, unitLabel,rowNumberRequired, j=0)
 			rows.each.with_index do |entry, i|
 				unless entry.blank?
 					if !issueWritten
-						col_values[k] = entry.project.name
+						col_values[k] = entry.project.to_s
 						col_values[k+1] = entry.issue.blank? ? "" : entry.issue.subject
 						col_values[k+2] = entry.activity.name
 						if !unitLabel.blank?
