@@ -548,7 +548,8 @@ end
 	end
 	
 	def getTimeEntryStatus(spent_on,user_id)
-		result = Wktime.find(:all, :conditions => [ 'begin_date = ? AND user_id = ?', getStartDay(spent_on), user_id])	
+
+		result = Wktime.find(:all, :conditions => [ 'begin_date = ? AND user_id = ?', getStartDay(spent_on), user_id])
 		return result[0].blank? ? 'n' : result[0].status			
 	end
 	

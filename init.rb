@@ -64,6 +64,9 @@ Redmine::Plugin.register :redmine_wktime do
   end
 
 end
+Rails.application.config.to_prepare do
+	TimelogController.send(:include, Patches::TimelogControllerPatch)
+end
 
 
 Rails.configuration.to_prepare do
@@ -95,16 +98,7 @@ Rails.configuration.to_prepare do
 end
 
 class WktimeHook < Redmine::Hook::ViewListener
-	def controller_timelog_edit_before_save(context={ })			
-		if !context[:time_entry].hours.blank? && !context[:time_entry].activity_id.blank?
-			wktime_helper = Object.new.extend(WktimeHelper)				
-			status= wktime_helper.getTimeEntryStatus(context[:time_entry].spent_on,context[:time_entry].user_id)		
-			if !status.blank? && ('a' == status || 's' == status)					
-				 raise "#{l(:label_warning_wktime_time_entry)}"
-			end			
-		end	
-	end
-	
+
 	def view_layouts_base_html_head(context={})	
 		javascript_include_tag('wkstatus', :plugin => 'redmine_wktime') + "\n" +
 		stylesheet_link_tag('lockwarning', :plugin => 'redmine_wktime')		
