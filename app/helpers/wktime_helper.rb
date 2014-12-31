@@ -2,6 +2,7 @@
 module WktimeHelper 
   include Redmine::Export::PDF
   include Redmine::Utils::DateCalculation
+  include Redmine::I18n
 
 	def options_for_period_select(value)
 		options_for_select([[l(:label_all_time), 'all'],
