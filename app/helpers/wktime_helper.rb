@@ -153,7 +153,7 @@ module WktimeHelper
 	unit=nil
 	# 40% for project, 45% for issue, 15% for activity
 	col_width[0]=col_id_width
-	col_width[1] = (table_width - (8*10))*0.4
+	col_width[1] = (table_width - (8*10))*0.40
 	col_width[2] = (table_width - (8*10))*0.45
 	col_width[3] = (table_width - (8*10))*0.15
 	title=l(:label_wktime)
@@ -161,10 +161,10 @@ module WktimeHelper
 		columns << l(:label_wk_currency)
 		col_id_width  = 14
 		col_width[0]=col_id_width
-		col_width[1] = (table_width - (8*14))*0.20
-		col_width[2] = (table_width - (8*14))*0.45
+		col_width[1] = (table_width - (8*14))*0.35
+		col_width[2] = (table_width - (8*14))*0.35
 		col_width[3] = (table_width - (8*14))*0.15
-		col_width[4] = (table_width - (8*14))*0.20
+		col_width[4] = (table_width - (8*14))*0.15
 		title= l(:label_wkexpense)
 	end	
 	
