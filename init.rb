@@ -123,7 +123,7 @@ class WktimeHook < Redmine::Hook::ViewListener
 		wktime_helper = Object.new.extend(WktimeHelper)		
 		host_with_subdir = wktime_helper.getHostAndDir(req)				
 		"<div id='divError'><font color='red'>#{l(:label_warning_wktime_time_entry)}</font>	
-			<input type='hidden' id='getstatus_url' value='#{url_for(:controller => 'wktime', :action => 'getStatus',:host => host_with_subdir)}'>	
+			<input type='hidden' id='getstatus_url' value='#{url_for(:controller => 'wktime', :action => 'getStatus',:host => host_with_subdir, :only_path=>true)}'>
 		</div>"		
 	end
 	
@@ -134,7 +134,7 @@ class WktimeHook < Redmine::Hook::ViewListener
 			host_with_subdir = wktime_helper.getHostAndDir(context[:request])	
 			project_ids = Setting.plugin_redmine_wktime['wkexpense_projects']		
 			if project_ids.blank? || (!project_ids.blank? && (project_ids == [""] || project_ids.include?("#{context[:project].id}"))) && User.current.allowed_to?(:view_time_entries, context[:project])
-				"#{link_to(l(:label_wkexpense_reports), url_for(:controller => 'wkexpense', :action => 'reportdetail', :project_id => context[:project], :host => host_with_subdir))}"
+				"#{link_to(l(:label_wkexpense_reports), url_for(:controller => 'wkexpense', :action => 'reportdetail', :project_id => context[:project], :host => host_with_subdir, :only_path=>true))}"
 			end
 		end
 	end
