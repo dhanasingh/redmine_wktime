@@ -1,6 +1,13 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 
 <%= javascript_include_tag 'edit', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'select2', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'select2', :plugin => "redmine_wktime" %>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $(".time-entry").children('.project').children('select').select2();
+    });
+</script>
 
 	<script type="text/javascript"> 
 		decSeparator = '<%=l(:general_csv_decimal_separator) %>';
