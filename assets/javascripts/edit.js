@@ -504,7 +504,15 @@ function addRow(){
 		cell.innerHTML = issueTemplate.rows[0].cells[i].innerHTML.replace(/__template__/g, '');
 		cell.className = issueTemplate.rows[0].cells[i].className;
 		cell.align = issueTemplate.rows[0].cells[i].align;
+		if(i == 0)
+		{
+			cell.removeChild(cell.firstChild);
+			cell.removeChild(cell.firstChild);
+			cell.firstChild.style.display = "block";
+
+		}
 	}
+
 	renameElemProperties(row, 0, rowCount- (headerRows + footerRows - 1));
 	saveButton.disabled = false;
 	if(submitButton!=undefined)
