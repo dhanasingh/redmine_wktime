@@ -1,7 +1,7 @@
 <fieldset class="box tabular">
 	<legend><%= l(:label_wkexpense) %></legend>
 	<%
-		tracker = Tracker.find(:all, :order =>'name')
+		tracker = Tracker.order('name')
 		unless tracker.blank?
 			trackers = tracker.collect {|t| [t.name, t.id] }
 			trackers.unshift(["",0])
@@ -13,7 +13,7 @@
 	</p>
 
 	<%
-		projects = Project.find(:all, :conditions => "#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})", :order =>'name')
+		projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name')
 		wktime_helper = Object.new.extend(WktimeHelper)
 		projArr = wktime_helper.options_for_wktime_project(projects,true)	
 	%>

@@ -168,12 +168,13 @@ private
   end
   
   def findWkTEByCond(cond)
-	@wktimes = Wkexpense.find(:all, :conditions => cond)
+	#@wktimes = Wkexpense.find(:all, :conditions => cond)
+	@wktimes = Wkexpense.where(cond)
   end
   
   def findEntriesByCond(cond)
-	WkExpenseEntry.find(:all, :conditions => cond,
-		:order => 'project_id, issue_id, activity_id, spent_on')
+	#WkExpenseEntry.find(:all, :conditions => cond, :order => 'project_id, issue_id, activity_id, spent_on')
+	WkExpenseEntry.where(cond).order('project_id, issue_id, activity_id, spent_on')
   end
   
   def setValueForSpField(teEntry,spValue,decimal_separator,entry)
@@ -227,7 +228,7 @@ private
       @issue = Issue.find(params[:issue_id])
       @project = @issue.project
     elsif !params[:project_id].blank?	
-      @project = Project.find(params[:project_id])	
+      @project = Project.find(params[:project_id])
     end
   end
   

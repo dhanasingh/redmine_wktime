@@ -37,7 +37,7 @@ module WkexpenseHelper
 	
 	def entries_to_csv(entries)
 		decimal_separator = l(:general_csv_decimal_separator)   
-		export = FCSV.generate(:col_sep => l(:general_csv_separator)) do |csv|
+		export = CSV.generate(:col_sep => l(:general_csv_separator)) do |csv|
 			# csv header fields
 			headers = [l(:field_spent_on),
 					 l(:field_user),
@@ -91,7 +91,7 @@ module WkexpenseHelper
   
 	def report_to_csv(report) 
 		decimal_separator = l(:general_csv_decimal_separator)
-		export = FCSV.generate(:col_sep => l(:general_csv_separator)) do |csv|
+		export = CSV.generate(:col_sep => l(:general_csv_separator)) do |csv|
 			# Column headers
 			headers = report.criteria.collect {|criteria| l(report.available_criteria[criteria][:label]) }
 			headers += report.periods

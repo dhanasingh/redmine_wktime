@@ -13,7 +13,7 @@ Redmine::Plugin.register :redmine_wktime do
   name 'Time & Expense'
   author 'Adhi Software Pvt Ltd'
   description 'This plugin is for entering Time & Expense'
-  version '1.7'
+  version '1.7.1'
   url 'http://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
   
