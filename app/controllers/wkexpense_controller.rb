@@ -217,7 +217,8 @@ private
   def setTEProjects(projects)	
 	expense_project_ids =  Setting.plugin_redmine_wktime['wkexpense_projects']	
 	if(!expense_project_ids.blank? && expense_project_ids != [""])
-		expense_projects = Project.find_all_by_id(expense_project_ids) 
+		#expense_projects = Project.find_all_by_id(expense_project_ids)
+		expense_projects = Project.find(expense_project_ids) 
 		projects = projects & expense_projects
 	end	
 	projects
