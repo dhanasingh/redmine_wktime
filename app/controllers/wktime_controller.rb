@@ -341,10 +341,12 @@ helper :custom_fields
 		if Setting.plugin_redmine_wktime['wktime_closed_issue_ind'].to_i == 1
 			if !params[:tracker_id].blank? && params[:tracker_id] != ["0"] && params[:term].blank?
 				#issues = Issue.find_all_by_project_id(params[:project_id] || params[:project_ids] , #:conditions =>  ["#{Issue.table_name}.tracker_id in ( ?) #{issueAssignToUsrCond}", params[:tracker_id]] , :order => 'project_id')
-				projCond =  "AND #{Issue.table_name}.project_id in (#{params[:project_id] || params[:project_ids]})"
+				projIds = "#{(params[:project_id] || !params[:project_ids].blank? ? params[:project_ids].join(",") : '')}"
+				projCond = !projIds.blank? ? "AND #{Issue.table_name}.project_id in (#{projIds})" : ""				
 				issues = Issue.where(["(#{Issue.table_name}.tracker_id in ( ?) #{issueAssignToUsrCond}) #{projCond}", params[:tracker_id]]).order('project_id')
 			elsif !params[:term].blank?
-					projCond = "AND #{Issue.table_name}.project_id in (#{params[:project_id] || params[:project_ids] || projectids})"
+					projIds = "#{(params[:project_id] || !params[:project_ids].blank? ? params[:project_ids].join(",") : '' || projectids)}"
+					projCond = !projIds.blank? ? "AND #{Issue.table_name}.project_id in (#{projIds})" : ""
 					if subjectPart.present?
 						if subjectPart.match(/^\d+$/)						
 							cond = ["((LOWER(#{Issue.table_name}.subject) LIKE ? OR #{Issue.table_name}.id=?) #{issueAssignToUsrCond} #{trackerIDCond}) #{projCond}", "%#{subjectPart.downcase}%","#{subjectPart.to_i}"]
@@ -356,7 +358,8 @@ helper :custom_fields
 					end  
 			else
 				if (!params[:issue_assign_user].blank? && params[:issue_assign_user].to_i == 1)
-					projCond = "AND #{Issue.table_name}.project_id in (#{params[:project_id] || params[:project_ids] || projectids})"
+					projIds = "#{(params[:project_id] || !params[:project_ids].blank? ? params[:project_ids].join(",") : '' || projectids)}"
+					projCond = !projIds.blank? ? "AND #{Issue.table_name}.project_id in (#{projIds})" : ""
 					#issues = Issue.find_all_by_project_id(params[:project_id] || params[:project_ids]|| projectids,:conditions =>["(#{Issue.table_name}.assigned_to_id= ? OR #{Issue.table_name}.author_id= ?)#{trackerIDCond}", params[:user_id],params[:user_id]], :order => 'project_id')
 					issues = Issue.where(["((#{Issue.table_name}.assigned_to_id= ? OR #{Issue.table_name}.author_id= ?) #{trackerIDCond}) #{projCond}", params[:user_id], params[:user_id]]).order('project_id')
 				else
@@ -366,8 +369,8 @@ helper :custom_fields
 			end
 		else	
 			@startday = params[:startday].to_s.to_date
-			projCond = "AND #{Issue.table_name}.project_id in (#{(params[:project_id] || params[:project_ids] || projectids)})"
-			
+			projIds = "#{(params[:project_id] || !params[:project_ids].blank? ? params[:project_ids].join(",") : '' || projectids)}"
+			projCond = !projIds.blank? ? "AND #{Issue.table_name}.project_id in (#{projIds})" : ""			
 			if !params[:tracker_id].blank? && params[:tracker_id] != ["0"]	&& params[:term].blank?
 				cond = ["((#{IssueStatus.table_name}.is_closed = ? OR #{Issue.table_name}.updated_on >= ?) AND  #{Issue.table_name}.tracker_id in ( ?) #{issueAssignToUsrCond}) #{projCond}", false, @startday,params[:tracker_id]]			
 			elsif !params[:term].blank? 
