@@ -14,6 +14,8 @@ accept_api_auth :index, :edit, :update, :destroy, :deleteEntries
 helper :custom_fields
  
   def index
+  
+  
     retrieve_date_range	
 	@from = getStartDay(@from)
 	@to = getEndDay(@to)
