@@ -150,7 +150,7 @@ private
   
   def findBySql(selectStr,sqlStr,wkSelectStr,wkSqlStr)
 	spField = getSpecificField()		
-	result = WkExpenseEntry.find_by_sql("select count(*) as id from (" + selectStr + sqlStr + ") as v2")
+	result = WkExpenseEntry.find_by_sql("select count(*) as id from (" + selectStr + sqlStr + wkSqlStr + ") as v2")
 	@entry_count = result[0].id
 	
 	setLimitAndOffset()	
@@ -163,7 +163,7 @@ private
 	
 	#@total_hours = TimeEntry.visible.sum(:hours, :include => [:user], :conditions => cond.conditions).to_f
 		
-	result = WkExpenseEntry.find_by_sql("select sum(v2." + spField + ") as " + spField + " from (" + selectStr + sqlStr + ") as v2")	
+	result = WkExpenseEntry.find_by_sql("select sum(v2." + spField + ") as " + spField + " from (" + selectStr + sqlStr + wkSqlStr +") as v2")	
 	@total_hours = result[0].amount
   end
   

@@ -1199,7 +1199,7 @@ private
 	
 	def findBySql(selectStr,sqlStr,wkSelectStr,wkSqlStr)
 		spField = getSpecificField()
-		result = TimeEntry.find_by_sql("select count(*) as id from (" + selectStr + sqlStr + ") as v2")
+		result = TimeEntry.find_by_sql("select count(*) as id from (" + selectStr + sqlStr + wkSqlStr + ") as v2")
 		@entry_count = result[0].id
         setLimitAndOffset()		
 		rangeStr = formPaginationCondition()		
@@ -1207,7 +1207,7 @@ private
 		@unit = nil	
         #@total_hours = TimeEntry.visible.sum(:hours, :include => [:user], :conditions => cond.conditions).to_f
 		
-		result = TimeEntry.find_by_sql("select sum(v2." + spField + ") as " + spField + " from (" + selectStr + sqlStr + ") as v2")		
+		result = TimeEntry.find_by_sql("select sum(v2." + spField + ") as " + spField + " from (" + selectStr + sqlStr + wkSqlStr + ") as v2")		
 		@total_hours = result[0].hours
 	end
 	
