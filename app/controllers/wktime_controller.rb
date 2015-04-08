@@ -137,7 +137,7 @@ helper :custom_fields
 						
 	@wktime.transaction do
 		begin				
-			if errorMsg.blank? && (!params[:wktime_save].blank? ||
+			if errorMsg.blank? && (!params[:wktime_save].blank? || !params[:wktime_save_continue].blank? ||
 				(!params[:wktime_submit].blank? && @wkvalidEntry && useApprovalSystem))		
 				if !@wktime.nil? && ( @wktime.status == 'n' || @wktime.status == 'r')			
 					@wktime.status = :n
@@ -217,7 +217,12 @@ helper :custom_fields
 			if errorMsg.nil?
 				flash[:notice] = respMsg
 				#redirect_back_or_default :action => 'index'
-				redirect_to :action => 'index' , :tab => params[:tab]
+				#redirect_to :action => 'index' , :tab => params[:tab]
+                if params[:wktime_save_continue] 
+				      redirect_to :action => 'edit' , :startday => !@entries.present? ? @startday  : @startday+ 7, :user_id => @user.id, :project_id => params[:project_id]  
+				else                                                                                                
+				      redirect_to :action => 'index' , :tab => params[:tab]                   
+				end 
 			else
 				flash[:error] = respMsg
 				if !params[:enter_issue_id].blank? && params[:enter_issue_id].to_i == 1					

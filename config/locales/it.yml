@@ -84,6 +84,7 @@ it:
   button_new_wkexpense: New Expensesheet
   
   button_wk_unsubmit: Unsubmit
+  button_save_continue: Save and continue
   button_wk_approve: Approve
   button_wk_reject: Reject
   button_wk_unapprove: Unapprove
