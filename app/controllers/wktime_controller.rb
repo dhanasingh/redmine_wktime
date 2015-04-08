@@ -547,9 +547,9 @@ helper :custom_fields
 				@offset = params[:offset]
 			end
 		else
-			@entry_pages = Paginator.new self, @entry_count, per_page_option, params['page']
-			@limit = @entry_pages.items_per_page
-			@offset = @entry_pages.current.offset
+			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
+			@limit = @entry_pages.per_page
+			@offset = @entry_pages.offset
 		end	
 	end
 	
