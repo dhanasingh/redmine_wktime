@@ -1,0 +1,36 @@
+<div id="query_form_with_buttons" class="hide-when-print">
+<div id="query_form_content">
+	<fieldset id="filters" class="collapsible <%= @query.new_record? ? "" : "collapsed" %>">
+		<legend onclick="toggleFieldset(this);"><%= l(:label_filter_plural) %></legend>
+		<div style="<%= @query.new_record? ? "" : "display: none;" %>">
+			<%= render :partial => 'filters', :locals => {:query => @query} %>
+		</div>
+  </fieldset>
+   <fieldset class="collapsible collapsed">
+    <legend onclick="toggleFieldset(this);"><%= l(:label_options) %></legend>
+    <div style="display: none;">
+      <table>
+        <tr>
+          <td><%= l(:field_column_names) %></td>
+          <td><%= render_query_columns_selection(@query) %></td>
+        </tr>
+      </table>
+    </div>
+  </fieldset>
+</div>
+
+<p class="buttons">
+  <%= link_to_function l(:button_apply), '$("#query_form").submit()', :class => 'icon icon-checked' %>
+  <%= link_to l(:button_clear), {:project_id => @project, :issue_id => @issue}, :class => 'icon icon-reload'  %>
+</p>
+</div>
+
+<div class="tabs hide-when-print">
+<% query_params = params.slice(:f, :op, :v, :sort) %>
+<ul>
+    <li><%= link_to(l(:label_details),{:controller => controller_name, :action => 'reportdetail', :project_id => @project, :issue_id => @issue},
+                                       :class => (action_name == 'reportdetail' ? 'selected' : nil)) %></li>
+    <li><%= link_to(l(:label_report),{:controller => controller_name, :action => 'report', :project_id => @project, :issue_id => @issue},
+                                       :class => (action_name == 'report' ? 'selected' : nil)) %></li>
+</ul>
+</div>
