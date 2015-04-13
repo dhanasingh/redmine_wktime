@@ -27,7 +27,7 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_min_hour_day' => '0',
 			 'wktime_restr_max_hour' => '0',
 			 'wktime_max_hour_day' => '8',
-			 'wktime_page_width' => '250',
+			 'wktime_page_width' => '210',
 			 'wktime_page_height' => '297',
 			 'wktime_margin_top' => '20',
 			 'wktime_margin_bottom' => '20',
