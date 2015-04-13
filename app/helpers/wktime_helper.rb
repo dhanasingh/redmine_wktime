@@ -269,7 +269,8 @@ module WktimeHelper
                 val =''
             end
 			pdf.RDMMultiCell(col_widths[i], row_height, val, "T", 'L', 1)
-			max_height = (pdf.GetY - base_y) if (pdf.GetY - base_y) > max_height
+			max_height = max_height < pdf.getStringHeight(col_widths[i], val, "T") ? pdf.getStringHeight(col_widths[i], val, "T") : max_height
+			#max_height = (pdf.GetY - base_y) if (pdf.GetY - base_y) > max_height
 			pdf.SetXY(col_x + col_widths[i], base_y);
 		end
 		return max_height
