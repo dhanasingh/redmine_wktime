@@ -65,6 +65,8 @@ class WkexpenseController < WktimeController
     scope = expense_entry_scope(:order => sort_clause).
       includes(:project, :user, :issue).
       preload(:issue => [:project, :tracker, :status, :assigned_to, :priority])
+	  Rails.logger.info "@query"
+	Rails.logger.info "@query: #{@query.inspect}"
     respond_to do |format|
       format.html {
         @entry_count = scope.count
@@ -91,16 +93,10 @@ class WkexpenseController < WktimeController
 	
   end
   
-   def report   
-	#retrieve_date_range
-    #@report = WkexpenseHelper::WKExpenseReport.new(@project, @issue, params[:criteria], params[:columns], @from, @to)
+   def report
 	@query = WkExpenseEntryQuery.build_from_params(params, :project => @project, :name => '_')
     scope = expense_entry_scope
-
-    @report = WkexpenseHelper::WKExpenseReport.new(@project, @issue, params[:criteria], params[:columns], scope)
-	
-	Rails.logger.info "@report"
-	Rails.logger.info "@report: #{@report.inspect}"
+    @report = WkexpenseHelper::WKExpenseReport.new(@project, @issue, params[:criteria], params[:columns], scope)	
     respond_to do |format|
       format.html { render :layout => !request.xhr? }
       format.csv  { send_data(report_to_csv(@report), :type => 'text/csv; header=present', :filename => 'wkexpense.csv') }

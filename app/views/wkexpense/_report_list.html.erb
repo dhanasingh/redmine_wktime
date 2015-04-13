@@ -10,8 +10,9 @@
         :onclick => 'toggleIssuesSelection(this); return false;',
         :title => "#{l(:button_check_all)}/#{l(:button_uncheck_all)}" %>
     </th>
-    <% @query.inline_columns.each do |column| %>
-      <%= column_header(column) %>
+    <% @query.inline_columns.each do |column| %>	
+      <%= column_header(column) %>	  
+	  
     <% end %>
     <th></th>
   </tr>

@@ -137,40 +137,7 @@ module WkexpenseHelper
 				report_criteria_to_csv(csv, available_criteria, columns, criteria, periods, amount_for_value, level + 1)
 			end
 		end
-	end  
-	
-	def _expense_entries_path(project, issue, *args)
-    if issue
-      issue_time_entries_path(issue, *args)
-    elsif project
-      project_time_entries_path(project, *args)
-    else
-      time_entries_path(*args)
-    end
-  end
-   def _report_expense_entries_path(project, issue, *args)
-    if issue
-      report_issue_expense_entries_path(issue, *args)
-    elsif project
-      report_project_expense_entries_path(project, *args)
-    else
-      report_expense_entries_path(*args)
-    end
-  end
-   def select_hours(data, criteria, value)
-    if value.to_s.empty?
-      data.select {|row| row[criteria].blank? }
-    else
-      data.select {|row| row[criteria].to_s == value.to_s}
-    end
-  end
-   def sum_hours(data)
-    sum = 0
-    data.each do |row|
-      sum += row['amount'].to_f
-    end
-    sum
-  end
+	end 	
   
 	class WKExpenseReport
 		 attr_reader :criteria, :columns, :amount, :total_amount, :periods
@@ -280,25 +247,7 @@ module WkexpenseHelper
                                  'issue' => {:sql => "#{WkExpenseEntry.table_name}.issue_id",
                                              :klass => Issue,
                                              :label => :label_issue}
-                               }
-
-        # Add time entry custom fields
-      #  custom_fields = TimeEntryCustomField.all
-        # Add project custom fields
-       # custom_fields += ProjectCustomField.all
-        # Add issue custom fields
-       # custom_fields += (@project.nil? ? IssueCustomField.for_all : @project.all_issue_custom_fields)
-        # Add time entry activity custom fields
-      #  custom_fields += TimeEntryActivityCustomField.all
-
-        # Add list and boolean custom fields as available criteria
-      #  custom_fields.select {|cf| %w(list bool).include?(cf.field_format) && !cf.multiple?}.each do |cf|
-       #   @available_criteria["cf_#{cf.id}"] = {:sql => cf.group_statement,
-        #                                         :joins => cf.join_for_order_statement,
-       #                                          :format => cf.field_format,
-       #                                          :custom_field => cf,
-        #                                         :label => cf.name}
-      #  end
+                               }       
 
         @available_criteria
       end

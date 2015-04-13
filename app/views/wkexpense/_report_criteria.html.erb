@@ -1,5 +1,5 @@
 <% @report.amount.collect {|h| h[criterias[level]].to_s}.uniq.each do |value| %>
-<% amount_for_value = select_hours(amount, criterias[level], value) -%>
+<% amount_for_value = select_amount(amount, criterias[level], value) -%>
 <% next if amount_for_value.empty? -%>
 <tr class="<%= cycle('odd', 'even') %> <%= criterias.length > level+1 ? 'subtotal' : 'last-level' %>">
 <%= ("<td></td>" * level).html_safe %>
@@ -7,7 +7,7 @@
 <%= ("<td></td>" * (criterias.length - level - 1)).html_safe -%>
   <% total = 0 -%>
   <% @report.periods.each do |period| -%>
-    <% sum = sum_hours(select_hours(amount_for_value, @report.columns, period.to_s)); total += sum -%>
+    <% sum = sum_amount(select_amount(amount_for_value, @report.columns, period.to_s)); total += sum -%>
     <td class="hours"><%= html_hours("%.2f" % sum) if sum > 0 %></td>
   <% end -%>
   <td class="hours"><%= html_hours("%.2f" % total) if total > 0 %></td>

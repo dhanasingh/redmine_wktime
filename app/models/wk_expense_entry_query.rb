@@ -9,7 +9,9 @@ class WkExpenseEntryQuery < Query
     QueryColumn.new(:activity, :sortable => "#{TimeEntryActivity.table_name}.position", :groupable => true),
     QueryColumn.new(:issue, :sortable => "#{Issue.table_name}.id"),
     QueryColumn.new(:comments),
+	QueryColumn.new(:currency, :sortable => "#{WkExpenseEntry.table_name}.currency"),
     QueryColumn.new(:amount, :sortable => "#{WkExpenseEntry.table_name}.amount"),
+	
   ]
 
   def initialize(attributes=nil, *args)
@@ -81,7 +83,7 @@ class WkExpenseEntryQuery < Query
   end
 
   def default_columns_names
-    @default_columns_names ||= [:project, :spent_on, :user, :activity, :issue, :comments, :amount]
+    @default_columns_names ||= [:project, :spent_on, :user, :activity, :issue, :comments,:currency, :amount ]
   end
 
   def results_scope(options={})
