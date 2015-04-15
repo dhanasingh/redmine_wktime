@@ -69,7 +69,7 @@
 			<td align="center">
 			<% if @editable %>
 				<%= link_to image_tag('delete.png'), "javascript:deleteRow(#{@row.to_s}, '#{l(:notice_unable_delete_time_entry)}');",
-						:confirm => l(:text_are_you_sure),	# :method => :delete,
+						:data => {:confirm => l(:text_are_you_sure)},	# :method => :delete,
 						:title => l(:button_delete) %>
 			<% end %>
 			</td>
