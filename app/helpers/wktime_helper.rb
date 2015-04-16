@@ -163,8 +163,8 @@ module WktimeHelper
 		col_id_width  = 14
 		col_width[0]=col_id_width
 		col_width[1] = (table_width - (8*14))*0.20
-		col_width[2] = (table_width - (8*14))*0.45
-		col_width[3] = (table_width - (8*14))*0.15
+		col_width[2] = (table_width - (8*14))*0.44
+		col_width[3] = (table_width - (8*14))*0.16
 		col_width[4] = (table_width - (8*14))*0.20
 		title= l(:label_wkexpense)
 	end	
