@@ -72,16 +72,11 @@ If an apache passenger module is used then make sure the following settings are 
 	b) RailsAppSpawnerIdleTime 0
 	c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for 1.7
+Release Notes for 1.8
 	Features:
-		- Made compatible with Redmine 2.5.2
-		
-		- Following permission changes were made:
-			- The user with 'Log spent time' or 'View spent time' permissions will be able to see the Time & Expense list page.
-			- The user with 'Edit time logs' permission is allowed to manage other member time/expense sheet.
-
-		- Following functionalities are available through REST api:
-			- List time/expense sheet of all user
-			- Delete entries in time/expense sheet
+		- Made compatible with Redmine 3.0.1.
 	Bugs:
-		- Hours summed up for different custom values
+		- "wktime/getstatus" loading over HTTP on site served over HTTPS.
+		- Users can delete submitted & approved timesheets.
+		- Email notification not sent due to upper case in file name.
+		- Pdf broken issue
