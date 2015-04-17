@@ -123,7 +123,7 @@ class WktimeHook < Redmine::Hook::ViewListener
 		wktime_helper = Object.new.extend(WktimeHelper)		
 		host_with_subdir = wktime_helper.getHostAndDir(req)				
 		"<div id='divError'><font color='red'>#{l(:label_warning_wktime_time_entry)}</font>	
-			<input type='hidden' id='getstatus_url' value='#{url_for(:controller => 'wktime', :action => 'getStatus',:host => host_with_subdir)}'>	
+			<input type='hidden' id='getstatus_url' value='#{url_for(:controller => 'wktime', :action => 'getStatus',:host => host_with_subdir,:protocol => req.protocol)}'>	
 		</div>"		
 	end
 	
