@@ -1,5 +1,7 @@
-module WktimeHelper 
+module WktimeHelper
+  include ApplicationHelper
   include Redmine::Export::PDF
+  include Redmine::Export::PDF::IssuesPdfHelper
   include Redmine::Utils::DateCalculation
 
 	def options_for_period_select(value)
@@ -55,8 +57,9 @@ module WktimeHelper
   # Returns a CSV string of a weekly timesheet
   def wktime_to_csv(entries, user, startday, unitLabel)
     decimal_separator = l(:general_csv_decimal_separator)
-    custom_fields = WktimeCustomField.find(:all)
-    export = FCSV.generate(:col_sep => l(:general_csv_separator)) do |csv|
+    #custom_fields = WktimeCustomField.find(:all)
+	custom_fields = WktimeCustomField.all
+    export = CSV.generate(:col_sep => l(:general_csv_separator)) do |csv|
       # csv header fields
       headers = [l(:field_user),
                  l(:field_project),
@@ -78,8 +81,7 @@ module WktimeHelper
 			#Martin Dube contribution: 'start of the week' configuration		
 			headers << (l('date.abbr_day_names')[(i+startOfWeek)%7] + "\n" + I18n.localize(@startday+i, :format=>:short)) unless @startday.nil?
 		end
-      csv << headers.collect {|c| Redmine::CodesetUtil.from_utf8(
-                  c.to_s, l(:general_csv_encoding) )  }
+		csv << headers.collect {|c| Redmine::CodesetUtil.from_utf8(c.to_s, l(:general_csv_encoding) )  }
 		weeklyHash = getWeeklyView(entries, unitLabel, true) #should send false and form unique rows
 		col_values = []
 		matrix_values = nil
@@ -161,8 +163,8 @@ module WktimeHelper
 		col_id_width  = 14
 		col_width[0]=col_id_width
 		col_width[1] = (table_width - (8*14))*0.20
-		col_width[2] = (table_width - (8*14))*0.45
-		col_width[3] = (table_width - (8*14))*0.15
+		col_width[2] = (table_width - (8*14))*0.44
+		col_width[3] = (table_width - (8*14))*0.16
 		col_width[4] = (table_width - (8*14))*0.20
 		title= l(:label_wkexpense)
 	end	
@@ -263,8 +265,12 @@ module WktimeHelper
 		max_height = row_height
 		col_values.each_with_index do |val, i|
 			col_x = pdf.GetX
+			if val.nil?
+                val =''
+            end
 			pdf.RDMMultiCell(col_widths[i], row_height, val, "T", 'L', 1)
-			max_height = (pdf.GetY - base_y) if (pdf.GetY - base_y) > max_height
+			max_height = max_height < pdf.getStringHeight(col_widths[i], val, "T") ? pdf.getStringHeight(col_widths[i], val, "T") : max_height
+			#max_height = (pdf.GetY - base_y) if (pdf.GetY - base_y) > max_height
 			pdf.SetXY(col_x + col_widths[i], base_y);
 		end
 		return max_height
@@ -545,7 +551,8 @@ end
 	end
 	
 	def getTimeEntryStatus(spent_on,user_id)
-		result = Wktime.find(:all, :conditions => [ 'begin_date = ? AND user_id = ?', getStartDay(spent_on), user_id])	
+		#result = Wktime.find(:all, :conditions => [ 'begin_date = ? AND user_id = ?', getStartDay(spent_on), user_id])
+		result = Wktime.where(['begin_date = ? AND user_id = ?', getStartDay(spent_on), user_id])
 		return result[0].blank? ? 'n' : result[0].status			
 	end
 	
@@ -695,9 +702,11 @@ end
 	
 	def checkViewPermission
 		ret =  false
-		if User.current.logged? 
-			viewProjects = Project.find(:all, :conditions => Project.allowed_to_condition(User.current, :view_time_entries ))
-			loggableProjects ||= Project.find(:all, :conditions => Project.allowed_to_condition(User.current, :log_time))
+		if User.current.logged?
+			#viewProjects = Project.find(:all, :conditions => Project.allowed_to_condition(User.current, :view_time_entries ))
+			viewProjects = Project.where(Project.allowed_to_condition(User.current, :view_time_entries ))
+			#loggableProjects ||= Project.find(:all, :conditions => Project.allowed_to_condition(User.current, :log_time))
+			loggableProjects ||= Project.where(Project.allowed_to_condition(User.current, :log_time))
 			ret = (!viewProjects.blank? && viewProjects.size > 0) || (!loggableProjects.blank? && loggableProjects.size > 0)
 		end
 		ret

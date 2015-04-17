@@ -13,7 +13,7 @@ Redmine::Plugin.register :redmine_wktime do
   name 'Time & Expense'
   author 'Adhi Software Pvt Ltd'
   description 'This plugin is for entering Time & Expense'
-  version '1.7'
+  version '1.8'
   url 'http://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
   
@@ -27,7 +27,7 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_min_hour_day' => '0',
 			 'wktime_restr_max_hour' => '0',
 			 'wktime_max_hour_day' => '8',
-			 'wktime_page_width' => '250',
+			 'wktime_page_width' => '210',
 			 'wktime_page_height' => '297',
 			 'wktime_margin_top' => '20',
 			 'wktime_margin_bottom' => '20',
@@ -123,7 +123,7 @@ class WktimeHook < Redmine::Hook::ViewListener
 		wktime_helper = Object.new.extend(WktimeHelper)		
 		host_with_subdir = wktime_helper.getHostAndDir(req)				
 		"<div id='divError'><font color='red'>#{l(:label_warning_wktime_time_entry)}</font>	
-			<input type='hidden' id='getstatus_url' value='#{url_for(:controller => 'wktime', :action => 'getStatus',:host => host_with_subdir)}'>	
+			<input type='hidden' id='getstatus_url' value='#{url_for(:controller => 'wktime', :action => 'getStatus',:host => host_with_subdir,:protocol => req.protocol)}'>	
 		</div>"		
 	end
 	

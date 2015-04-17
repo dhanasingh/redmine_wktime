@@ -48,7 +48,8 @@
 	<% status = @wktime.status unless @wktime.blank? %>	
 	<% if controller.filterTrackerVisible && 'a' != status && 's' != status && (params[:enter_issue_id].blank? || (!params[:enter_issue_id].blank? && !params[:enter_issue_id].to_i == 1)) %>		
 	<%
-		tracker = Tracker.find(:all, :order =>'name')
+		#tracker = Tracker.find(:all, :order =>'name')
+		tracker = Tracker.order('name')
 		unless tracker.blank?
 			trackers = tracker.collect {|t| [t.name, t.id] }
 			trackers.unshift(["",0])
