@@ -65,8 +65,6 @@ class WkexpenseController < WktimeController
     scope = expense_entry_scope(:order => sort_clause).
       includes(:project, :user, :issue).
       preload(:issue => [:project, :tracker, :status, :assigned_to, :priority])
-	  Rails.logger.info "@query"
-	Rails.logger.info "@query: #{@query.inspect}"
     respond_to do |format|
       format.html {
         @entry_count = scope.count
