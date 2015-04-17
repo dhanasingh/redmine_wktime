@@ -458,7 +458,7 @@ helper :custom_fields
 	def getusers
 		project = Project.find(params[:project_id])
 		userStr =""
-		projmembers = project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
+		projmembers = project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC").distinct("#{User.table_name}.id")
 		projmembers.each do |m|
 			userStr << m.user_id.to_s() + ',' + m.name + "\n"
 		end
@@ -1067,7 +1067,7 @@ private
 		else
 			@use_group=false
 			#@members=@selected_project.members.collect{|m| [ m.name, m.user_id ] }.sort
-			projmem= @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
+			projmem= @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC").distinct("#{User.table_name}.id")
 			@members=projmem.collect{|m| [ m.name, m.user_id ] }
 		end
 	end
