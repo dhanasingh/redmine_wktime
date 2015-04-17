@@ -75,6 +75,7 @@ If an apache passenger module is used then make sure the following settings are 
 Release Notes for 1.8
 	Features:
 		- Made compatible with Redmine 3.0.1.
+		- Implemented 'Save and Continue' button on time/expense sheet edit page.
 	Bugs:
 		- "wktime/getstatus" loading over HTTP on site served over HTTPS.
 		- Users can delete submitted & approved timesheets.

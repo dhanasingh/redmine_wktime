@@ -355,7 +355,7 @@ helper :custom_fields
 					if subjectPart.present?
 						if subjectPart.match(/^\d+$/)						
 							cond = ["((LOWER(#{Issue.table_name}.subject) LIKE ? OR #{Issue.table_name}.id=?) #{issueAssignToUsrCond} #{trackerIDCond}) #{projCond}", "%#{subjectPart.downcase}%","#{subjectPart.to_i}"]
-							else
+						else
 							cond = ["(LOWER(#{Issue.table_name}.subject) LIKE ? #{issueAssignToUsrCond} #{trackerIDCond}) #{projCond}", "%#{subjectPart.downcase}%"]
 						end
 						#issues = Issue.find_all_by_project_id(params[:project_id] || params[:project_ids] || projectids, :conditions => cond , :order => 'project_id')	
@@ -1155,8 +1155,8 @@ private
         if @projectIssues[project_id].blank?
             allIssues = Array.new
 			trackerids=nil
-			if(!params[:tracker_ids].blank?)
-				trackerids =" AND #{Issue.table_name}.tracker_id in(#{params[:tracker_ids]})"
+			if(!params[:tracker_ids].blank? && params[:tracker_ids] != "0")
+				trackerids = " AND #{Issue.table_name}.tracker_id in(#{params[:tracker_ids]})"
 			end
             if Setting.plugin_redmine_wktime['wktime_closed_issue_ind'].to_i == 1                
                 if !Setting.plugin_redmine_wktime[getTFSettingName()].blank? &&  Setting.plugin_redmine_wktime[getTFSettingName()] != ["0"] && params[:tracker_ids].blank?
