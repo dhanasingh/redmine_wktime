@@ -15,10 +15,11 @@
 <%=h hidden_field_tag('tab', "#{controller_name}") %>
 
 <% if !@manage_view_spenttime_projects.blank? %>
+<%= call_hook(:view_te_filter) %>
 <table>
 
 <tr>
-<th><%= radio_button_tag 'projgrp_type', '1', !@use_group,
+<th><%= radio_button_tag 'projgrp_type', '1', @use_proj,
  :onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#group_id").attr("disabled", true);$("#project_id").removeAttr("disabled");' %>
 <%=l(:field_project)%></th>
 <td class="project" align="left"><%=h select_tag('project_id', 

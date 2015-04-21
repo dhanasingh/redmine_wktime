@@ -43,7 +43,9 @@ helper :custom_fields
 				ids +=',' + users.id.to_s
 			end
 		end		
-		ids = user_id if ids.nil?
+		user_ids = call_hook(:controller_te_user_ids, {:params => params})		
+		ids  = user_ids.blank? ? ids: (user_ids.is_a?(Array) ? (user_ids[0].blank? ? ids: user_ids[0].to_s) : user_ids.to_s) 		
+		#ids = user_id if ids.nil?
 	else
 		ids = user_id
 	end
@@ -1055,6 +1057,8 @@ private
 
 	# show all groups and project/group members show
 	def setgroups
+		@use_group=false
+		@use_proj=false
 		@groups = Group.sorted.all
 		@members = Array.new
 		if params[:projgrp_type] == '2'
@@ -1065,11 +1069,13 @@ private
 				@members << [users.name,users.id.to_s()]
 			end
 		else
-			@use_group=false
+			@use_proj=true
 			#@members=@selected_project.members.collect{|m| [ m.name, m.user_id ] }.sort
 			projmem= @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC").distinct("#{User.table_name}.id")
 			@members=projmem.collect{|m| [ m.name, m.user_id ] }
 		end
+		userList = call_hook(:controller_te_user_filter,{ :params => params})	
+		@members   = userList.blank? ? @members : (userList.is_a?(Array) ? (userList[0].blank? ? @members : userList[0]) : userList)
 	end
 	
   	def setup
