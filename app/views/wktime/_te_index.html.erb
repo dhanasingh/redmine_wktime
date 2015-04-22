@@ -20,7 +20,7 @@
 
 <tr>
 <th><%= radio_button_tag 'projgrp_type', '1', @use_proj,
- :onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#group_id").attr("disabled", true);$("#project_id").removeAttr("disabled");' %>
+ :onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#user_id").removeAttr("disabled");$("#group_id").attr("disabled", true);$("#project_id").removeAttr("disabled");' %>
 <%=l(:field_project)%></th>
 <td class="project" align="left"><%=h select_tag('project_id', 
 	options_for_select(options_for_wktime_project(@manage_view_spenttime_projects),
@@ -30,7 +30,7 @@
 <% if !@groups.blank? %>
 <tr>
 <th><%= radio_button_tag 'projgrp_type', '2', @use_group, 
-:onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#group_id").removeAttr("disabled");$("#project_id").attr("disabled", true);' %>
+:onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#user_id").removeAttr("disabled");$("#group_id").removeAttr("disabled");$("#project_id").attr("disabled", true);' %>
 <%=l(:label_group_plural)%></th>
 <td>
 	<%=h select_tag('group_id',
