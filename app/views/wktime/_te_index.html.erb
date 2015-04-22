@@ -50,6 +50,10 @@
 	:onchange => 'this.form.submit();') %></td>
 </tr>
 <tr>
+
+</table>
+<% end %>
+<table>
 <th><%=l(:field_status)%></th>
 <td class="status" align="left"><%=h select_tag('status', 
 	options_for_select(options_wk_status_select(params[:status]),
@@ -57,9 +61,6 @@
 	:onchange => "this.form.submit();") %></td>
 </tr>
 </table>
-
-<% end %>
-
 <%= render :partial => 'wktime/date_range' %>
 
 <% end %>
