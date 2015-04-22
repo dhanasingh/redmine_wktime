@@ -461,6 +461,8 @@ helper :custom_fields
 		project = Project.find(params[:project_id])
 		userStr =""
 		projmembers = project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC").distinct("#{User.table_name}.id")
+		userList = call_hook(:controller_project_member,{ :params => params, :projmembers => projmembers})		
+		projmembers   = userList.blank? ? projmembers : (userList.is_a?(Array) ? (userList[0].blank? ? projmembers : userList[0]) : projmembers)
 		projmembers.each do |m|
 			userStr << m.user_id.to_s() + ',' + m.name + "\n"
 		end
@@ -1075,7 +1077,7 @@ private
 			@members=projmem.collect{|m| [ m.name, m.user_id ] }
 		end
 		userList = call_hook(:controller_te_user_filter,{ :params => params})	
-		@members   = userList.blank? ? @members : (userList.is_a?(Array) ? (userList[0].blank? ? @members : userList[0]) : userList)
+		@members   = userList.blank? ? @members : (userList.is_a?(Array) ? (userList[0].blank? ? @members : userList[0]) : @members)
 	end
 	
   	def setup
