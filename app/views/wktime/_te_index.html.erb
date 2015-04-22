@@ -14,8 +14,9 @@
 
 <%=h hidden_field_tag('tab', "#{controller_name}") %>
 
-<% if !@manage_view_spenttime_projects.blank? %>
 <%= call_hook(:view_te_filter) %>
+
+<% if !@manage_view_spenttime_projects.blank? %>
 <table>
 
 <tr>
