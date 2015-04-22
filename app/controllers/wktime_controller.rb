@@ -461,7 +461,7 @@ helper :custom_fields
 		project = Project.find(params[:project_id])
 		userStr =""
 		projmembers = project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC").distinct("#{User.table_name}.id")
-		userList = call_hook(:controller_project_member,{ :params => params, :projmembers => projmembers})		
+		userList = call_hook(:controller_project_or_group_member,{ :params => params})		
 		projmembers   = userList.blank? ? projmembers : (userList.is_a?(Array) ? (userList[0].blank? ? projmembers : userList[0]) : projmembers)
 		projmembers.each do |m|
 			userStr << m.user_id.to_s() + ',' + m.name + "\n"
@@ -566,7 +566,9 @@ helper :custom_fields
 		group_by_users=""
 		userList=[]
 		set_managed_projects
-		userList = getMembers
+		userList = getMembers		
+		grpMember = call_hook(:controller_project_or_group_member,{ :params => params})	
+		userList   = grpMember.blank? ? userList : (grpMember.is_a?(Array) ? (grpMember[0].blank? ? userList : grpMember[0]) : userList)
 		userList.each do |users|
 			group_by_users << users.id.to_s() + ',' + users.name + "\n"
 		end
