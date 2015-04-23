@@ -14,8 +14,10 @@
 
 <%=h hidden_field_tag('tab', "#{controller_name}") %>
 
-<%= call_hook(:view_te_filter) %>
-
+<% filters = call_hook(:view_te_filter) %>
+<% if !filters.blank? %>	 
+<%=	filters %>
+<% else %>
 <% if !@manage_view_spenttime_projects.blank? %>
 <table>
 
@@ -50,11 +52,12 @@
 		:selected =>  @user.nil? ? (params[:user_id].nil? ? User.current.id : params[:user_id]) : @user.id),
 	:onchange => 'this.form.submit();') %></td>
 </tr>
-<tr>
 
 </table>
 <% end %>
+<% end %>
 <table>
+<tr>
 <th><%=l(:field_status)%></th>
 <td class="status" align="left"><%=h select_tag('status', 
 	options_for_select(options_wk_status_select(params[:status]),

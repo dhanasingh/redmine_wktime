@@ -23,7 +23,7 @@ helper :custom_fields
 	set_user_projects
 	if (!@manage_view_spenttime_projects.blank? && @manage_view_spenttime_projects.size > 0)
 		@selected_project = getSelectedProject(@manage_view_spenttime_projects)
-		setgroups 
+		setMembers 
 	end
 	ids = nil		
 	if user_id.blank?
@@ -1059,8 +1059,8 @@ private
 
   end  
 
-	# show all groups and project/group members show
-	def setgroups
+	# set project/group members
+	def setMembers
 		@use_group=false
 		@use_proj=false
 		@groups = Group.sorted.all
