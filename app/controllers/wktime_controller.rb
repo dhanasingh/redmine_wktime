@@ -1107,27 +1107,20 @@ private
 	
 	def set_managed_projects
 		# from version 1.7, the project member with 'edit time logs' permission is considered as managers
-		#@manage_projects ||= Project.find(:all, :order => 'name', :conditions => Project.allowed_to_condition(User.current, :edit_time_entries))
 		@manage_projects ||= Project.where(Project.allowed_to_condition(User.current, :edit_time_entries)).order('name')		
 		@manage_projects =	setTEProjects(@manage_projects)	
 		
 		# @manage_view_spenttime_projects contains project list of current user with edit_time_entries and view_time_entries permission
-		# @manage_view_spenttime_projects is used to fill up the dropdown in list page for managers		
-		#view_spenttime_projects ||= Project.find(:all, :order => 'name', :conditions => Project.allowed_to_condition(User.current, :view_time_entries))
+		# @manage_view_spenttime_projects is used to fill up the dropdown in list page for managers
 		view_spenttime_projects ||= Project.where(Project.allowed_to_condition(User.current, :view_time_entries)).order('name')
 		@manage_view_spenttime_projects = @manage_projects & view_spenttime_projects
+		@manage_view_spenttime_projects = view_projects.blank? ? @manage_view_spenttime_projects : view_projects[0]
 		@manage_view_spenttime_projects = setTEProjects(@manage_view_spenttime_projects)
 
 		# @currentUser_loggable_projects contains project list of current user with log_time permission
 		# @currentUser_loggable_projects is used to show/hide new time & expense sheet link	
-		#@currentUser_loggable_projects ||= Project.find(:all, :order => 'name', :conditions => Project.allowed_to_condition(User.current, :log_time))
 		@currentUser_loggable_projects ||= Project.where(Project.allowed_to_condition(User.current, :log_time)).order('name')
-		@currentUser_loggable_projects = setTEProjects(@currentUser_loggable_projects)		
-		
-		# @manage_log_time_projects contains project list of current user with edit_time_entries and log_time permission
-		# @manage_log_time_projects is used to fill up the dropdown in new page for managers
-		#@manage_log_time_projects = @manage_projects & @currentUser_loggable_projects
-		#@manage_log_time_projects = setTEProjects(@manage_log_time_projects)
+		@currentUser_loggable_projects = setTEProjects(@currentUser_loggable_projects)	
 	end
 
 	def set_loggable_projects
