@@ -1114,6 +1114,7 @@ private
 		# @manage_view_spenttime_projects is used to fill up the dropdown in list page for managers
 		view_spenttime_projects ||= Project.where(Project.allowed_to_condition(User.current, :view_time_entries)).order('name')
 		@manage_view_spenttime_projects = @manage_projects & view_spenttime_projects
+		view_projects = call_hook(:controller_set_view_projects)
 		@manage_view_spenttime_projects = view_projects.blank? ? @manage_view_spenttime_projects : view_projects[0]
 		@manage_view_spenttime_projects = setTEProjects(@manage_view_spenttime_projects)
 
