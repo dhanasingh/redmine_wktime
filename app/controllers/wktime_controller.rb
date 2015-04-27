@@ -589,8 +589,11 @@ helper :custom_fields
 			@te_projects = @entries.collect{|entry| entry.project}.uniq
 			te_projects = @approvable_projects & @te_projects if !@te_projects.blank?			
 		end	
-		(!te_projects.blank? && (@user.id != User.current.id ||(!Setting.plugin_redmine_wktime[:wktime_own_approval].blank? && 
-							Setting.plugin_redmine_wktime[:wktime_own_approval].to_i == 1 )))? true: false
+		approvableStatus = call_hook(:controller_check_approvable, {:params => params})
+		approvableStatus  = approvableStatus.blank? ? '' : (approvableStatus.is_a?(Array) ? (approvableStatus[0].blank? ? '': approvableStatus[0].to_s) : approvableStatus.to_s)
+		ret =  ( !approvableStatus.blank? && approvableStatus == "true")
+		(ret ||(!te_projects.blank? && (@user.id != User.current.id ||(!Setting.plugin_redmine_wktime[:wktime_own_approval].blank? && 
+							Setting.plugin_redmine_wktime[:wktime_own_approval].to_i == 1 ))))? true: false
 	end
 	
 	def testapi
