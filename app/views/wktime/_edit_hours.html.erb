@@ -3,8 +3,12 @@
 		<% while @wday_index < padTill %>
 			<% 
 			disable = !@editable
+			Rails.logger.info "disable: #{disable}"
 			if @editable
 				disable = !@prev_template && !entry.nil? && !entry.editable_by?(@user)
+			end
+			if @edittimelogs && @editable
+				disable =false
 			end
 			%>
 			<%#if this is from a previous template, don't print the hours%>

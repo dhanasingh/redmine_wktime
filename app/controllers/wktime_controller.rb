@@ -630,7 +630,8 @@ private
 		end
 		editPermission = call_hook(:controller_check_permission,{:params => params})
 		editPermission  = editPermission.blank? ? '' : (editPermission.is_a?(Array) ? (editPermission[0].blank? ? '': editPermission[0].to_s) : editPermission.to_s)
-		ret = ret || ( !editPermission.blank? && editPermission == "true")				 		
+		@edittimelogs = ( !editPermission.blank? && editPermission == "true")
+		ret = ret || @edittimelogs				 		
 		return ret
 		
 	  end
