@@ -464,7 +464,7 @@ helper :custom_fields
 		project = Project.find(params[:project_id])
 		userStr =""
 		projmembers = project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC").distinct("#{User.table_name}.id")
-		userList = call_hook(:controller_project_or_group_member,{ :params => params})		
+		userList = call_hook(:controller_project_member,{ :params => params})		
 		projmembers   = userList.blank? ? projmembers : (userList.is_a?(Array) ? (userList[0].blank? ? projmembers : userList[0]) : projmembers)
 		projmembers.each do |m|
 			userStr << m.user_id.to_s() + ',' + m.name + "\n"
@@ -570,7 +570,7 @@ helper :custom_fields
 		userList=[]
 		set_managed_projects
 		userList = getMembers		
-		grpMember = call_hook(:controller_project_or_group_member,{ :params => params})	
+		grpMember = call_hook(:controller_group_member,{ :params => params})	
 		userList   = grpMember.blank? ? userList : (grpMember.is_a?(Array) ? (grpMember[0].blank? ? userList : grpMember[0]) : userList)
 		userList.each do |users|
 			group_by_users << users.id.to_s() + ',' + users.name + "\n"
@@ -632,9 +632,8 @@ private
 			end
 		end
 		editPermission = call_hook(:controller_check_permission,{:params => params})
-		editPermission  = editPermission.blank? ? '' : (editPermission.is_a?(Array) ? (editPermission[0].blank? ? '': editPermission[0].to_s) : editPermission.to_s)
-		@edittimelogs = ( !editPermission.blank? && editPermission == "true")
-		ret = ret || @edittimelogs				 		
+		editPermission  = editPermission.blank? ? '' : (editPermission.is_a?(Array) ? (editPermission[0].blank? ? '': editPermission[0].to_s) : editPermission.to_s)		
+		ret = ret || (!editPermission.blank? && editPermission == "true")		
 		return ret
 		
 	  end
