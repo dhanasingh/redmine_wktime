@@ -94,6 +94,9 @@ helper :custom_fields
 	setup
 	findWkTE(@startday)
 	@editable = @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r'
+	editPermission = call_hook(:controller_edit_timelog_permission,{:params => params})
+	editPermission  = editPermission.blank? ? '' : (editPermission.is_a?(Array) ? (editPermission[0].blank? ? '': editPermission[0].to_s) : editPermission.to_s)
+	@edittimelogs = (!editPermission.blank? && editPermission == "true")
 	@entries = findEntries()
 	set_project_issues(@entries)
 	if @entries.blank? && !params[:prev_template].blank?
