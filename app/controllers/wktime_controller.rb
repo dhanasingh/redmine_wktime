@@ -1119,6 +1119,8 @@ private
 	def set_managed_projects
 		# from version 1.7, the project member with 'edit time logs' permission is considered as managers
 		@manage_projects ||= Project.where(Project.allowed_to_condition(User.current, :edit_time_entries)).order('name')		
+		mng_projects = call_hook(:controller_set_manage_projects)
+		@manage_projects = mng_projects.blank? ? @manage_projects : mng_projects[0]
 		@manage_projects =	setTEProjects(@manage_projects)	
 		
 		# @manage_view_spenttime_projects contains project list of current user with edit_time_entries and view_time_entries permission
