@@ -94,9 +94,7 @@ helper :custom_fields
 	setup
 	findWkTE(@startday)
 	@editable = @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r'
-	editPermission = call_hook(:controller_edit_timelog_permission,{:params => params})
-	editPermission  = editPermission.blank? ? '' : (editPermission.is_a?(Array) ? (editPermission[0].blank? ? '': editPermission[0].to_s) : editPermission.to_s)
-	@edittimelogs = (!editPermission.blank? && editPermission == "true")
+	set_edit_time_logs
 	@entries = findEntries()
 	set_project_issues(@entries)
 	if @entries.blank? && !params[:prev_template].blank?
@@ -118,6 +116,7 @@ helper :custom_fields
   def update
 	setup	
 	set_loggable_projects
+	set_edit_time_logs
 	@wktime = nil
 	errorMsg = nil
 	respMsg = nil	
@@ -149,12 +148,15 @@ helper :custom_fields
 					# save each entry
 					entrycount=0
 					entrynilcount=0
-					@entries.each do |entry|
+					@entries.each do |entry|					
 						entrycount += 1
 						entrynilcount += 1 if (entry.hours).blank?
 						allowSave = true
 						if (!entry.id.blank? && !entry.editable_by?(@user))
 							allowSave = false
+						end
+						if @edittimelogs
+							allowSave = true
 						end						
 						errorMsg = updateEntry(entry) if allowSave
 						break unless errorMsg.blank?
@@ -957,7 +959,7 @@ private
 	end
 	
 	def updateEntry(entry)
-		errorMsg = nil
+		errorMsg = nil		
 		if entry.hours.blank?
 			# delete the time_entry
 			# if the hours is empty but id is valid
@@ -970,7 +972,7 @@ private
 		else
 			#if id is there it should be update otherwise create
 			#the UI disables editing of
-			if can_log_time?(entry.project_id) 
+			if can_log_time?(entry.project_id) || @edittimelogs
 				if !entry.save()
 					errorMsg = entry.errors.full_messages.join('\n')
 				end
@@ -1382,5 +1384,10 @@ private
 			rangeStr = 	" LIMIT " + @limit.to_s +	" OFFSET " + @offset.to_s
 		end
 		rangeStr
+	end
+	def set_edit_time_logs
+		editPermission = call_hook(:controller_edit_timelog_permission,{:params => params})
+		editPermission  = editPermission.blank? ? '' : (editPermission.is_a?(Array) ? (editPermission[0].blank? ? '': editPermission[0].to_s) : editPermission.to_s)
+		@edittimelogs = (!editPermission.blank? && editPermission == "true")
 	end
 end
