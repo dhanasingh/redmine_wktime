@@ -474,10 +474,13 @@ helper :custom_fields
 	
 	def getusers
 		project = Project.find(params[:project_id])
-		userStr =""
-		projmembers = project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC").distinct("#{User.table_name}.id")
-		userList = call_hook(:controller_project_member,{ :params => params})		
-		projmembers   = userList.blank? ? projmembers : (userList.is_a?(Array) ? (userList[0].blank? ? projmembers : userList[0]) : projmembers)
+		userStr = ""
+		userList = call_hook(:controller_project_member,{ :params => params})
+		if !userList.blank?
+			projmembers = userList[0].blank? ? nil : userList[0]
+		else
+			projmembers = project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC").distinct("#{User.table_name}.id")
+		end
 		projmembers.each do |m|
 			userStr << m.user_id.to_s() + ',' + m.name + "\n"
 		end
@@ -1173,17 +1176,23 @@ private
 	
 	def set_managed_projects
 		# from version 1.7, the project member with 'edit time logs' permission is considered as managers
-		@manage_projects ||= Project.where(Project.allowed_to_condition(User.current, :edit_time_entries)).order('name')		
 		mng_projects = call_hook(:controller_set_manage_projects)
-		@manage_projects = mng_projects.blank? ? @manage_projects : mng_projects[0]
+		if !mng_projects.blank?
+			@manage_projects = mng_projects[0].blank? ? nil : mng_projects[0]
+		else
+			@manage_projects ||= Project.where(Project.allowed_to_condition(User.current, :edit_time_entries)).order('name')
+		end		
 		@manage_projects =	setTEProjects(@manage_projects)	
 		
 		# @manage_view_spenttime_projects contains project list of current user with edit_time_entries and view_time_entries permission
 		# @manage_view_spenttime_projects is used to fill up the dropdown in list page for managers
-		view_spenttime_projects ||= Project.where(Project.allowed_to_condition(User.current, :view_time_entries)).order('name')
-		@manage_view_spenttime_projects = @manage_projects & view_spenttime_projects
 		view_projects = call_hook(:controller_set_view_projects)
-		@manage_view_spenttime_projects = view_projects.blank? ? @manage_view_spenttime_projects : view_projects[0]
+		if !view_projects.blank?
+			@manage_view_spenttime_projects = view_projects[0].blank? ? nil : view_projects[0]
+		else
+			view_spenttime_projects ||= Project.where(Project.allowed_to_condition(User.current, :view_time_entries)).order('name')
+			@manage_view_spenttime_projects = @manage_projects & view_spenttime_projects
+		end
 		@manage_view_spenttime_projects = setTEProjects(@manage_view_spenttime_projects)
 
 		# @currentUser_loggable_projects contains project list of current user with log_time permission
