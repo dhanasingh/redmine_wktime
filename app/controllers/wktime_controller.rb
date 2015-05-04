@@ -1126,28 +1126,27 @@ private
 			filter_type = session[:wkexpense][:filter_type]
 		else
 			filter_type = session[:wktimes][:filter_type]
-		end	
+		end
+		if filter_type == '2'
+			userList = []
+			userList = getGrpMembers
+			@use_group = true
+			userList.each do |users|
+				@members << [users.name,users.id.to_s()]
+			end
+		elsif filter_type == '1'
+			@use_proj = true
+			hookProjMem = call_hook(:controller_project_member, { :params => params})
+			if !hookProjMem.blank?
+				projMem = hookProjMem[0].blank? ? [] : hookProjMem[0]
+			else
+				projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC").distinct("#{User.table_name}.id")
+			end				
+			@members = projMem.collect{|m| [ m.name, m.user_id ] }
+		end
 		hookMem = call_hook(:controller_get_member, { :params => params})
 		if !hookMem.blank?
-			@members = hookMem[0].blank? ? @members : hookMem[0]
-		else
-			if filter_type == '2'
-				userList = []
-				userList = getGrpMembers
-				@use_group = true
-				userList.each do |users|
-					@members << [users.name,users.id.to_s()]
-				end
-			else
-				@use_proj = true
-				hookProjMem = call_hook(:controller_project_member, { :params => params})
-				if !hookProjMem.blank?
-					projMem = hookProjMem[0].blank? ? [] : hookProjMem[0]
-				else
-					projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC").distinct("#{User.table_name}.id")
-				end				
-				@members = projMem.collect{|m| [ m.name, m.user_id ] }
-			end
+			@members = hookMem[0].blank? ? @members : hookMem[0]		
 		end
 	end
 	
