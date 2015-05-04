@@ -571,12 +571,7 @@ helper :custom_fields
 		group_by_users=""
 		userList=[]
 		set_managed_projects				
-		grpMember = call_hook(:controller_group_member,{ :params => params})
-		if !grpMember.blank?
-			userList = grpMember[0].blank? ? userList : grpMember[0]
-		else
-			userList = getGrpMembers
-		end		
+		userList = getGrpMembers
 		userList.each do |users|
 			group_by_users << users.id.to_s() + ',' + users.name + "\n"
 		end
@@ -653,13 +648,6 @@ private
 		end			
 		return ret		
 	  end
-	
-
-	#def getUsersbyGroup
-	#	groupusers= nil
-	#	scope=User.in_group(params[:group_id])  if params[:group_id].present?
-	#	groupusers =scope.all
-	#end
 	
 	def getGrpMembers
 		grpMember = call_hook(:controller_group_member,{ :params => params})
