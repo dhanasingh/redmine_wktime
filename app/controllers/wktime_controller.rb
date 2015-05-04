@@ -590,15 +590,22 @@ helper :custom_fields
 	
 	def check_approvable_status		
 		te_projects=[]
+		ret = false
 		if !@entries.blank?		
 			@te_projects = @entries.collect{|entry| entry.project}.uniq
 			te_projects = @approvable_projects & @te_projects if !@te_projects.blank?			
 		end	
 		approvableStatus = call_hook(:controller_check_approvable, {:params => params})
-		approvableStatus  = approvableStatus.blank? ? '' : (approvableStatus.is_a?(Array) ? (approvableStatus[0].blank? ? '': approvableStatus[0].to_s) : approvableStatus.to_s)
-		ret =  ( !approvableStatus.blank? && approvableStatus == "true")
-		(ret ||(!te_projects.blank? && (@user.id != User.current.id ||(!Setting.plugin_redmine_wktime[:wktime_own_approval].blank? && 
-							Setting.plugin_redmine_wktime[:wktime_own_approval].to_i == 1 ))))? true: false
+		approvableStatus  = approvableStatus.blank? ? '' : (approvableStatus.is_a?(Array) ? (approvableStatus[0].blank? ? '': approvableStatus[0]) : approvableStatus)
+		if !approvableStatus.blank?
+			if approvableStatus
+			ret = true
+			end
+		else
+			ret = !te_projects.blank? && (@user.id != User.current.id ||(!Setting.plugin_redmine_wktime[:wktime_own_approval].blank? && 
+							Setting.plugin_redmine_wktime[:wktime_own_approval].to_i == 1 ))? true: false
+		end
+		ret 
 	end
 	
 	def testapi
@@ -613,7 +620,7 @@ private
 
 
 	def check_permission
-		ret = false;
+		ret = false
 		setup
 		set_user_projects
 		status = getTimeEntryStatus(@startday,@user_id)
@@ -634,10 +641,14 @@ private
 			end
 		end
 		editPermission = call_hook(:controller_check_permission,{:params => params})
-		editPermission  = editPermission.blank? ? '' : (editPermission.is_a?(Array) ? (editPermission[0].blank? ? '': editPermission[0].to_s) : editPermission.to_s)		
-		ret = ret || (!editPermission.blank? && editPermission == "true")		
-		return ret
-		
+		editPermission  = editPermission.blank? ? '' : (editPermission.is_a?(Array) ? (editPermission[0].blank? ? '': editPermission[0]) : editPermission)	
+		if	!editPermission.blank? 
+			ret = false
+			if editPermission
+				ret = true
+			end
+		end			
+		return ret		
 	  end
 	
 
@@ -1076,7 +1087,7 @@ private
 		@use_proj=false
 		@groups = Group.sorted.all
 		@members = Array.new
-		if params[:projgrp_type] == '2'
+		if params[:filter_type] == '2'
 			userLists=[]
 			userLists = getMembers
 			@use_group=true
@@ -1389,7 +1400,7 @@ private
 	end
 	def set_edit_time_logs
 		editPermission = call_hook(:controller_edit_timelog_permission,{:params => params})
-		editPermission  = editPermission.blank? ? '' : (editPermission.is_a?(Array) ? (editPermission[0].blank? ? '': editPermission[0].to_s) : editPermission.to_s)
-		@edittimelogs = (!editPermission.blank? && editPermission == "true")
+		editPermission  = editPermission.blank? ? '' : (editPermission.is_a?(Array) ? (editPermission[0].blank? ? '': editPermission[0]) : editPermission)
+		@edittimelogs = (!editPermission.blank? && editPermission)
 	end
 end
