@@ -34,7 +34,7 @@ helper :custom_fields
 		if group_id.blank?
 			userList = Principal.member_of(@selected_project) 
 		else
-			userList = getMembers
+			userList = getGrpMembers
 		end
 		userList.each_with_index do |users,i|
 			if i == 0
@@ -575,7 +575,7 @@ helper :custom_fields
 		if !grpMember.blank?
 			userList = grpMember[0].blank? ? userList : grpMember[0]
 		else
-			userList = getMembers
+			userList = getGrpMembers
 		end		
 		userList.each do |users|
 			group_by_users << users.id.to_s() + ',' + users.name + "\n"
@@ -655,19 +655,28 @@ private
 	  end
 	
 
-	def getUsersbyGroup
-		groupusers= nil
-		scope=User.in_group(params[:group_id])  if params[:group_id].present?
-		groupusers =scope.all
-	end
+	#def getUsersbyGroup
+	#	groupusers= nil
+	#	scope=User.in_group(params[:group_id])  if params[:group_id].present?
+	#	groupusers =scope.all
+	#end
 	
-	def getMembers
-		projMembers = []
-		groupbyusers = []
-		groupusers = getUsersbyGroup
-		projMembers = Principal.member_of(@manage_view_spenttime_projects)
-		groupbyusers = groupusers & projMembers
-		groupbyusers=groupbyusers.sort
+	def getGrpMembers
+		grpMember = call_hook(:controller_group_member,{ :params => params})
+		if !grpMember.blank?
+			userList = grpMember[0].blank? ? userList : grpMember[0]
+		else
+			projMembers = []
+			userList = []
+			groupusers = nil
+			scope = User.in_group(params[:group_id])  if params[:group_id].present?
+			groupusers = scope.all
+			#groupusers = getUsersbyGroup
+			projMembers = Principal.member_of(@manage_view_spenttime_projects)
+			userList = groupusers & projMembers
+			userList = userList.sort
+		end	
+		userList
 	end
 	
 	def getCondition(date_field, user_id, start_date, end_date=nil)
@@ -1086,30 +1095,32 @@ private
 
 	# set project/group members
 	def setMembers
-		@use_group=false
-		@use_proj=false
+		@use_group = false
+		@use_proj = false
 		@groups = Group.sorted.all
 		@members = Array.new
-		hookMem = call_hook(:controller_te_user_filter,{ :params => params})
+		hookMem = call_hook(:controller_get_member, { :params => params})
 		if !hookMem.blank?
 			@members = hookMem[0].blank? ? @members : hookMem[0]
 		else
 			if params[:projgrp_type] == '2'
-				userLists=[]
-				userLists = getMembers
-				@use_group=true
-				userLists.each do |users|
+				userList = []
+				userList = getGrpMembers
+				@use_group = true
+				userList.each do |users|
 					@members << [users.name,users.id.to_s()]
 				end
 			else
-				@use_proj=true
-				#@members=@selected_project.members.collect{|m| [ m.name, m.user_id ] }.sort
-				projmem= @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC").distinct("#{User.table_name}.id")
-				@members=projmem.collect{|m| [ m.name, m.user_id ] }
+				@use_proj = true
+				hookProjMem = call_hook(:controller_project_member, { :params => params})
+				if !hookProjMem.blank?
+					projMem = hookProjMem[0].blank? ? [] : hookProjMem[0]
+				else
+					projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC").distinct("#{User.table_name}.id")
+				end				
+				@members = projMem.collect{|m| [ m.name, m.user_id ] }
 			end
 		end
-		#userList = call_hook(:controller_te_user_filter,{ :params => params})	
-		#@members   = userList.blank? ? @members : (userList.is_a?(Array) ? (userList[0].blank? ? @members : userList[0]) : @members)
 	end
 	
   	def setup
