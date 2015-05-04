@@ -570,10 +570,13 @@ helper :custom_fields
 	def getMembersbyGroup
 		group_by_users=""
 		userList=[]
-		set_managed_projects
-		userList = getMembers		
-		grpMember = call_hook(:controller_group_member,{ :params => params})	
-		userList   = grpMember.blank? ? userList : (grpMember.is_a?(Array) ? (grpMember[0].blank? ? userList : grpMember[0]) : userList)
+		set_managed_projects				
+		grpMember = call_hook(:controller_group_member,{ :params => params})
+		if !grpMember.blank?
+			userList = grpMember[0].blank? ? userList : grpMember[0]
+		else
+			userList = getMembers
+		end		
 		userList.each do |users|
 			group_by_users << users.id.to_s() + ',' + users.name + "\n"
 		end
@@ -1087,9 +1090,9 @@ private
 		@use_proj=false
 		@groups = Group.sorted.all
 		@members = Array.new
-		hook = call_hook(:controller_te_user_filter,{ :params => params})
-		if !hook.blank?
-			@members  = hook[0]
+		hookMem = call_hook(:controller_te_user_filter,{ :params => params})
+		if !hookMem.blank?
+			@members = hookMem[0].blank? ? @members : hookMem[0]
 		else
 			if params[:projgrp_type] == '2'
 				userLists=[]
