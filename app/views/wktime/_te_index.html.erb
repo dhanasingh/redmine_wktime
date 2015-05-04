@@ -13,7 +13,23 @@
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
 
 <%=h hidden_field_tag('tab', "#{controller_name}") %>
+<%= hidden_field_tag "searchlist", "#{controller_name}" %>
 
+<%
+	if params[:tab] == 'wkexpense'
+		projectid = session[:wkexpense][:project_id]
+		groupid =session[:wkexpense][:group_id]
+		userid = session[:wkexpense][:user_id]
+		status = session[:wkexpense][:status]
+		filter_type = session[:wkexpense][:filter_type]
+	else
+		projectid = session[:wktimes][:project_id]
+		groupid =session[:wktimes][:group_id]
+		userid = session[:wktimes][:user_id]
+		status = session[:wktimes][:status]
+		filter_type = session[:wktimes][:filter_type]
+	end
+%>
 <% filters = call_hook(:view_te_filter) %>
 <% if !filters.blank? %>	 
 <%=	filters %>
@@ -27,7 +43,7 @@
 <%=l(:field_project)%></th>
 <td class="project" align="left"><%=h select_tag('project_id', 
 	options_for_select(options_for_wktime_project(@manage_view_spenttime_projects),
-	:selected => @selected_project.id),:disabled => @use_group,
+	:selected => !projectid.nil? ? projectid.to_i: @selected_project.id),:disabled => @use_group,
 	:onchange => "projChanged(this, #{User.current.id}, true);") %></td>
 </tr>
 <% if !@groups.blank? %>
@@ -38,7 +54,7 @@
 <td>
 	<%=h select_tag('group_id',
 	options_for_select( @groups.collect {|p| [p.name, p.id ]},
-	:selected => (params[:group_id].nil? ? 0 : params[:group_id])),:disabled => !@use_group,
+	:selected => (groupid.nil? ? 0 : groupid)),:disabled => !@use_group,
 	:onchange => "grpChanged(this, #{User.current.id}, true);") %>
 </td>
 </tr>
@@ -49,7 +65,7 @@
 <%# show the blank value if more than one user is in the list %>
 <%=h select_tag('user_id',
 	options_for_select( [["All Users","0"]] + (@members.blank? ? [] : @members),
-		:selected =>  @user.nil? ? (params[:user_id].nil? ? User.current.id : params[:user_id]) : @user.id),
+		:selected => userid.nil? ? (@user.nil? ? User.current.id : @user.id) : userid),
 	:onchange => 'this.form.submit();') %></td>
 </tr>
 
@@ -60,8 +76,8 @@
 <tr>
 <th><%=l(:field_status)%></th>
 <td class="status" align="left"><%=h select_tag('status', 
-	options_for_select(options_wk_status_select(params[:status]),
-	:selected => params[:status].nil? ? 0 : params[:status] ),
+	options_for_select(options_wk_status_select(status),
+	:selected => status.nil? ? 0 : status.to_s ),
 	:onchange => "this.form.submit();") %></td>
 </tr>
 </table>
