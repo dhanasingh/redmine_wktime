@@ -25,10 +25,12 @@ helper :custom_fields
 		user_id = session[:wkexpense][:user_id]
 		group_id = session[:wkexpense][:group_id]
 		status = session[:wkexpense][:status]
+		filter_type = session[:wkexpense][:filter_type]
 	else
 		user_id = session[:wktimes][:user_id]#params[:user_id]
 		group_id = session[:wktimes][:group_id]#group_id = params[:group_id]
 		status = session[:wktimes][:status]
+		filter_type = session[:wktimes][:filter_type]
 	end
 	set_user_projects
 	if (!@manage_view_spenttime_projects.blank? && @manage_view_spenttime_projects.size > 0)
@@ -53,7 +55,7 @@ helper :custom_fields
 				ids +=',' + users.id.to_s
 			end
 		end		
-		user_ids = call_hook(:controller_te_user_ids, {:params => params})		
+		user_ids = call_hook(:controller_te_user_ids, {:params => params,:filter_type => filter_type})		
 		ids  = user_ids.blank? ? ids: (user_ids.is_a?(Array) ? (user_ids[0].blank? ? ids: user_ids[0].to_s) : user_ids.to_s) 		
 		ids = '0' if ids.nil?
 	else
@@ -1149,7 +1151,7 @@ private
 			end				
 			@members = projMem.collect{|m| [ m.name, m.user_id ] }
 		else
-			hookMem = call_hook(:controller_get_member, { :params => params})
+			hookMem = call_hook(:controller_get_member, { :params => params,:filter_type => filter_type})
 			if !hookMem.blank?
 				@members = hookMem[0].blank? ? @members : hookMem[0]		
 			end
