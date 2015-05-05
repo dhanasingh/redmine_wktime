@@ -475,7 +475,7 @@ helper :custom_fields
 	def getusers
 		project = Project.find(params[:project_id])
 		userStr = ""
-		userList = call_hook(:controller_project_member,{ :params => params})
+		userList = call_hook(:controller_project_member,{ :params => params,:project_id => params[:project_id]})
 		if !userList.blank?
 			projmembers = userList[0].blank? ? nil : userList[0]
 		else
@@ -664,17 +664,20 @@ private
 	
 	def getGrpMembers
 		userList = []
-		grpMember = call_hook(:controller_group_member,{ :params => params})
+		if !params[:group_id].blank?
+			group_id = params[:group_id]
+		elsif !params[:tab].blank? && params[:tab] =='wkexpense'
+			group_id = session[:wkexpense][:group_id]
+		else
+			group_id = session[:wktimes][:group_id]
+		end
+		grpMember = call_hook(:controller_group_member,{ :params => params,:group_id => group_id})
 		if !grpMember.blank?
 			userList = grpMember[0].blank? ? userList : grpMember[0]
 		else
 			projMembers = []			
 			groupusers = nil
-			if !params[:tab].blank? && params[:tab] =='wkexpense'
-				group_id = session[:wkexpense][:group_id]
-			else
-				group_id = session[:wktimes][:group_id]
-			end
+			
 			scope=User.in_group(group_id)  if !group_id.nil?
 		
 			groupusers = scope.all
@@ -1124,8 +1127,10 @@ private
 		@members = Array.new
 		if !params[:tab].blank? && params[:tab] =='wkexpense'
 			filter_type = session[:wkexpense][:filter_type]
+			project_id = session[:wkexpense][:project_id]
 		else
 			filter_type = session[:wktimes][:filter_type]
+			project_id = session[:wktimes][:project_id]
 		end
 		if filter_type == '2'
 			userList = []
@@ -1136,7 +1141,7 @@ private
 			end
 		elsif filter_type == '1'
 			@use_proj = true
-			hookProjMem = call_hook(:controller_project_member, { :params => params})
+			hookProjMem = call_hook(:controller_project_member, { :params => params, :project_id => project_id})
 			if !hookProjMem.blank?
 				projMem = hookProjMem[0].blank? ? [] : hookProjMem[0]
 			else
