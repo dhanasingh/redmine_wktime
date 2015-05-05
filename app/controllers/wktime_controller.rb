@@ -25,12 +25,10 @@ helper :custom_fields
 		user_id = session[:wkexpense][:user_id]
 		group_id = session[:wkexpense][:group_id]
 		status = session[:wkexpense][:status]
-		filter_type = session[:wkexpense][:filter_type]
 	else
 		user_id = session[:wktimes][:user_id]#params[:user_id]
 		group_id = session[:wktimes][:group_id]#group_id = params[:group_id]
 		status = session[:wktimes][:status]
-		filter_type = session[:wktimes][:filter_type]
 	end
 	set_user_projects
 	if (!@manage_view_spenttime_projects.blank? && @manage_view_spenttime_projects.size > 0)
@@ -468,7 +466,7 @@ helper :custom_fields
 	def getusers
 		project = Project.find(params[:project_id])
 		userStr = ""
-		userList = call_hook(:controller_project_member,{ :params => params,:project_id => params[:project_id]})
+		userList = call_hook(:controller_project_member,{ :project_id => params[:project_id]})
 		if !userList.blank?
 			projmembers = userList[0].blank? ? nil : userList[0]
 		else
@@ -664,7 +662,7 @@ private
 		else
 			group_id = session[:wktimes][:group_id]
 		end
-		grpMember = call_hook(:controller_group_member,{ :params => params,:group_id => group_id})
+		grpMember = call_hook(:controller_group_member,{ :group_id => group_id})
 		if !grpMember.blank?
 			userList = grpMember[0].blank? ? userList : grpMember[0]
 		else
@@ -1134,7 +1132,7 @@ private
 			end
 		elsif filter_type == '1'
 			@use_proj = true
-			hookProjMem = call_hook(:controller_project_member, { :params => params, :project_id => project_id})
+			hookProjMem = call_hook(:controller_project_member, {  :project_id => project_id})
 			if !hookProjMem.blank?
 				projMem = hookProjMem[0].blank? ? [] : hookProjMem[0]
 			else
@@ -1142,7 +1140,7 @@ private
 			end				
 			@members = projMem.collect{|m| [ m.name, m.user_id ] }
 		else
-			hookMem = call_hook(:controller_get_member, { :params => params,:filter_type => filter_type})
+			hookMem = call_hook(:controller_get_member, { :filter_type => filter_type})
 			if !hookMem.blank?
 				@members = hookMem[0].blank? ? @members : hookMem[0]		
 			end
