@@ -22,13 +22,13 @@ helper :custom_fields
 	#user_id = params[:user_id]
 	#group_id = params[:group_id]
 	if !params[:tab].blank? && params[:tab] =='wkexpense'
-			user_id = session[:wkexpense][:user_id]
-			group_id = session[:wkexpense][:group_id]
-			status = session[:wkexpense][:status]
+		user_id = session[:wkexpense][:user_id]
+		group_id = session[:wkexpense][:group_id]
+		status = session[:wkexpense][:status]
 	else
-			user_id = session[:wktimes][:user_id]#params[:user_id]
-			group_id = session[:wktimes][:group_id]#group_id = params[:group_id]
-			status = session[:wktimes][:status]
+		user_id = session[:wktimes][:user_id]#params[:user_id]
+		group_id = session[:wktimes][:group_id]#group_id = params[:group_id]
+		status = session[:wktimes][:status]
 	end
 	set_user_projects
 	if (!@manage_view_spenttime_projects.blank? && @manage_view_spenttime_projects.size > 0)
@@ -1143,10 +1143,11 @@ private
 				projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC").distinct("#{User.table_name}.id")
 			end				
 			@members = projMem.collect{|m| [ m.name, m.user_id ] }
-		end
-		hookMem = call_hook(:controller_get_member, { :params => params})
-		if !hookMem.blank?
-			@members = hookMem[0].blank? ? @members : hookMem[0]		
+		else
+			hookMem = call_hook(:controller_get_member, { :params => params})
+			if !hookMem.blank?
+				@members = hookMem[0].blank? ? @members : hookMem[0]		
+			end
 		end
 	end
 	
