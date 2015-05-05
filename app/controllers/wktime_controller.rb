@@ -40,23 +40,14 @@ helper :custom_fields
 	ids = nil		
 	if user_id.blank?
 		ids = User.current.id.to_s
-	elsif user_id.to_i == 0
-		#all users
-		userList=[]
-		if group_id.blank?
-			userList = Principal.member_of(@selected_project) 
-		else
-			userList = getGrpMembers
-		end
-		userList.each_with_index do |users,i|
+	elsif user_id.to_i == 0	
+		@members.each_with_index do |users,i|			
 			if i == 0
-				ids =  users.id.to_s
+				ids =  users[1].to_s
 			else
-				ids +=',' + users.id.to_s
-			end
-		end		
-		user_ids = call_hook(:controller_te_user_ids, {:params => params,:filter_type => filter_type})		
-		ids  = user_ids.blank? ? ids: (user_ids.is_a?(Array) ? (user_ids[0].blank? ? ids: user_ids[0].to_s) : user_ids.to_s) 		
+				ids +=',' + users[1].to_s
+			end				
+		end			
 		ids = '0' if ids.nil?
 	else
 		ids = user_id
