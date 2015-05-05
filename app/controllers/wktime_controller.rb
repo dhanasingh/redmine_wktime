@@ -55,7 +55,7 @@ helper :custom_fields
 		end		
 		user_ids = call_hook(:controller_te_user_ids, {:params => params})		
 		ids  = user_ids.blank? ? ids: (user_ids.is_a?(Array) ? (user_ids[0].blank? ? ids: user_ids[0].to_s) : user_ids.to_s) 		
-		#ids = user_id if ids.nil?
+		ids = '0' if ids.nil?
 	else
 		ids = user_id
 	end
@@ -663,12 +663,12 @@ private
 	  end
 	
 	def getGrpMembers
+		userList = []
 		grpMember = call_hook(:controller_group_member,{ :params => params})
 		if !grpMember.blank?
 			userList = grpMember[0].blank? ? userList : grpMember[0]
 		else
-			projMembers = []
-			userList = []
+			projMembers = []			
 			groupusers = nil
 			if !params[:tab].blank? && params[:tab] =='wkexpense'
 				group_id = session[:wkexpense][:group_id]
