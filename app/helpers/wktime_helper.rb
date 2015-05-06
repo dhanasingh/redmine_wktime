@@ -716,4 +716,8 @@ end
 	def is_number(val)
 		true if Float(val) rescue false
 	end
+	
+	def to_boolean(str)
+      str == 'true'
+    end
 end

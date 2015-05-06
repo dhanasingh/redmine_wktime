@@ -156,7 +156,7 @@ helper :custom_fields
 						if (!entry.id.blank? && !entry.editable_by?(@user))
 							allowSave = false
 						end
-						if @edittimelogs
+						if to_boolean(@edittimelogs)
 							allowSave = true
 						end						
 						errorMsg = updateEntry(entry) if allowSave
@@ -1003,7 +1003,7 @@ private
 		else
 			#if id is there it should be update otherwise create
 			#the UI disables editing of
-			if can_log_time?(entry.project_id) || @edittimelogs
+			if can_log_time?(entry.project_id) || to_boolean(@edittimelogs)
 				if !entry.save()
 					errorMsg = entry.errors.full_messages.join('\n')
 				end
@@ -1464,11 +1464,12 @@ private
 		end
 		rangeStr
 	end
+	
 	def set_edit_time_logs
-		editPermission = call_hook(:controller_edit_timelog_permission,{:params => params})
-		editPermission  = editPermission.blank? ? '' : (editPermission.is_a?(Array) ? (editPermission[0].blank? ? '': editPermission[0]) : editPermission)
-		@edittimelogs = (!editPermission.blank? && editPermission)
+		editPermission = call_hook(:controller_edit_timelog_permission, {:params => params})
+		@edittimelogs  = editPermission.blank? ? '' : editPermission[0].to_s
 	end
+	
 	def set_filter_session
 	 
 		if params[:searchlist].blank? && (session[:wktimes].nil? || session[:wkexpense].nil?)
