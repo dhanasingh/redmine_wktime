@@ -953,7 +953,13 @@ private
   
   
     def check_editperm_redirect
-		unless check_editPermission
+		hookPerm = call_hook(:controller_edit_timelog_permission)
+		if !hookPerm.blank?
+			allow = hookPerm[0] || check_editPermission
+		else
+			allow = check_editPermission
+		end
+		unless allow
 			render_403
 			return false
 		end

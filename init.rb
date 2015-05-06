@@ -138,8 +138,6 @@ class WktimeHook < Redmine::Hook::ViewListener
 			end
 		end
 	end
-	
-	#render_on :view_te_filter, :partial => "wktime/te_index_filter"
 end
 
 
