@@ -29,6 +29,10 @@
 		status = session[:wktimes][:status]
 		filter_type = session[:wktimes][:filter_type]
 	end
+	projGrp =false
+	if filter_type == '1' || filter_type.blank?
+		projGrp = true	
+	end
 %>
 <% filters = call_hook(:view_te_filter) %>
 <% if !filters.blank? %>	 
@@ -36,9 +40,21 @@
 <% else %>
 <% if !@manage_view_spenttime_projects.blank? %>
 <table>
-
+<script type="text/javascript"> 
+$(document).ready(function()
+{
+	<% if projGrp %> 
+		$("#group_id").attr("disabled", true);
+		$("#project_id").removeAttr("disabled");
+	<% else %>
+		$("#project_id").attr("disabled", true);
+		$("#group_id").removeAttr("disabled");
+	<% end %>  
+  
+});
+ </script>
 <tr>
-<th><%= radio_button_tag 'filter_type', '1', @use_proj,
+<th><%= radio_button_tag 'filter_type', '1', projGrp,
  :onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#user_id").removeAttr("disabled");$("#group_id").attr("disabled", true);$("#project_id").removeAttr("disabled");' %>
 <%=l(:field_project)%></th>
 <td class="project" align="left"><%=h select_tag('project_id', 
@@ -48,7 +64,7 @@
 </tr>
 <% if !@groups.blank? %>
 <tr>
-<th><%= radio_button_tag 'filter_type', '2', @use_group, 
+<th><%= radio_button_tag 'filter_type', '2', !projGrp, 
 :onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#user_id").removeAttr("disabled");$("#group_id").removeAttr("disabled");$("#project_id").attr("disabled", true);' %>
 <%=l(:label_group_plural)%></th>
 <td>
