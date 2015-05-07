@@ -4,15 +4,18 @@
 			<% 
 			disable = !@editable			
 			if @editable
+				#hookCellEditPerm = call_hook(:view_cell_edit, :entry => entry)
 				if @edittimelogs.blank?
 					disable = !@prev_template && !entry.nil? && !entry.editable_by?(@user)										
-				elsif (@edittimelogs == 'true')
-					disable = !@prev_template && !entry.nil? && !(to_boolean(@edittimelogs))
-				elsif (@edittimelogs == 'false')
-					if (!@manage_projects.blank? && @manage_projects.size > 0 && User.current.id != @user.id)
+				else
+					if (@edittimelogs == 'true')
 						disable = !@prev_template && !entry.nil? && !(to_boolean(@edittimelogs))
-					else
-						disable = !@prev_template && !entry.nil? && !entry.editable_by?(@user)
+					elsif (@edittimelogs == 'false')
+						if (!@manage_projects.blank? && @manage_projects.size > 0 && User.current.id != @user.id)
+							disable = !@prev_template && !entry.nil? && !(to_boolean(@edittimelogs))
+						else
+							disable = !@prev_template && !entry.nil? && !entry.editable_by?(@user)
+						end
 					end
 				end
 			end
