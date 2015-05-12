@@ -14,36 +14,39 @@ accept_api_auth :index, :edit, :update, :destroy, :deleteEntries
 helper :custom_fields
  
   def index
+	set_filter_session
     retrieve_date_range	
 	@from = getStartDay(@from)
 	@to = getEndDay(@to)
 	# Paginate results
-	user_id = params[:user_id]
-	group_id = params[:group_id]
+	#user_id = params[:user_id]
+	#group_id = params[:group_id]
+	if !params[:tab].blank? && params[:tab] =='wkexpense'
+		user_id = session[:wkexpense][:user_id]
+		group_id = session[:wkexpense][:group_id]
+		status = session[:wkexpense][:status]
+	else
+		user_id = session[:wktimes][:user_id]#params[:user_id]
+		group_id = session[:wktimes][:group_id]#group_id = params[:group_id]
+		status = session[:wktimes][:status]
+	end
 	set_user_projects
 	if (!@manage_view_spenttime_projects.blank? && @manage_view_spenttime_projects.size > 0)
 		@selected_project = getSelectedProject(@manage_view_spenttime_projects)
-		setgroups 
+		setMembers 
 	end
 	ids = nil		
 	if user_id.blank?
 		ids = User.current.id.to_s
-	elsif user_id.to_i == 0
-		#all users
-		userList=[]
-		if group_id.blank?
-			userList = Principal.member_of(@selected_project) 
-		else
-			userList = getMembers
-		end
-		userList.each_with_index do |users,i|
+	elsif user_id.to_i == 0	
+		@members.each_with_index do |users,i|			
 			if i == 0
-				ids =  users.id.to_s
+				ids =  users[1].to_s
 			else
-				ids +=',' + users.id.to_s
-			end
-		end		
-		ids = user_id if ids.nil?
+				ids +=',' + users[1].to_s
+			end				
+		end			
+		ids = '0' if ids.nil?
 	else
 		ids = user_id
 	end
@@ -69,7 +72,7 @@ helper :custom_fields
 	end		
 
 	wkSqlStr = " left outer join " + entityNames[0] + " w on v1.startday = w.begin_date and v1.user_id = w.user_id"	
-	status = params[:status]
+	#status = params[:status]
 	if !status.blank? && status != 'all'
 		wkSqlStr += " WHERE w.status = '#{status}'" 
 		if status == 'n'
@@ -92,6 +95,7 @@ helper :custom_fields
 	setup
 	findWkTE(@startday)
 	@editable = @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r'
+	set_edit_time_logs
 	@entries = findEntries()
 	set_project_issues(@entries)
 	if @entries.blank? && !params[:prev_template].blank?
@@ -113,6 +117,7 @@ helper :custom_fields
   def update
 	setup	
 	set_loggable_projects
+	set_edit_time_logs
 	@wktime = nil
 	errorMsg = nil
 	respMsg = nil	
@@ -144,12 +149,15 @@ helper :custom_fields
 					# save each entry
 					entrycount=0
 					entrynilcount=0
-					@entries.each do |entry|
+					@entries.each do |entry|					
 						entrycount += 1
 						entrynilcount += 1 if (entry.hours).blank?
 						allowSave = true
 						if (!entry.id.blank? && !entry.editable_by?(@user))
 							allowSave = false
+						end
+						if to_boolean(@edittimelogs)
+							allowSave = true
 						end						
 						errorMsg = updateEntry(entry) if allowSave
 						break unless errorMsg.blank?
@@ -457,8 +465,13 @@ helper :custom_fields
 	
 	def getusers
 		project = Project.find(params[:project_id])
-		userStr =""
-		projmembers = project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC").distinct("#{User.table_name}.id")
+		userStr = ""
+		userList = call_hook(:controller_project_member,{ :project_id => params[:project_id]})
+		if !userList.blank?
+			projmembers = userList[0].blank? ? nil : userList[0]
+		else
+			projmembers = project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC").distinct("#{User.table_name}.id")
+		end
 		projmembers.each do |m|
 			userStr << m.user_id.to_s() + ',' + m.name + "\n"
 		end
@@ -561,8 +574,8 @@ helper :custom_fields
 	def getMembersbyGroup
 		group_by_users=""
 		userList=[]
-		set_managed_projects
-		userList = getMembers
+		set_managed_projects				
+		userList = getGrpMembers
 		userList.each do |users|
 			group_by_users << users.id.to_s() + ',' + users.name + "\n"
 		end
@@ -579,12 +592,23 @@ helper :custom_fields
 	
 	def check_approvable_status		
 		te_projects=[]
-		if !@entries.blank?		
-			@te_projects = @entries.collect{|entry| entry.project}.uniq
-			te_projects = @approvable_projects & @te_projects if !@te_projects.blank?			
-		end	
-		(!te_projects.blank? && (@user.id != User.current.id ||(!Setting.plugin_redmine_wktime[:wktime_own_approval].blank? && 
+		ret = false		
+		hookPerm = call_hook(:controller_check_approvable, {:params => params})		
+		if !hookPerm.blank?
+			ret = hookPerm[0]
+			#if (approvable[0].to_s)=='true'
+			#	ret = true
+			#end
+		else		
+			if !@entries.blank?		
+				@te_projects = @entries.collect{|entry| entry.project}.uniq
+				te_projects = @approvable_projects & @te_projects if !@te_projects.blank?			
+			end				
+		end
+		ret = ((ret || !te_projects.blank?) && (@user.id != User.current.id || (!Setting.plugin_redmine_wktime[:wktime_own_approval].blank? && 
 							Setting.plugin_redmine_wktime[:wktime_own_approval].to_i == 1 )))? true: false
+		
+		ret 
 	end
 	
 	def testapi
@@ -599,7 +623,7 @@ private
 
 
 	def check_permission
-		ret = false;
+		ret = false
 		setup
 		set_user_projects
 		status = getTimeEntryStatus(@startday,@user_id)
@@ -619,24 +643,42 @@ private
 				ret = (@user.id == User.current.id && @logtime_projects.size > 0)
 			end
 		end
-		return ret
-		
+		editPermission = call_hook(:controller_check_permission,{:params => params})
+		editPermission  = editPermission.blank? ? '' : (editPermission.is_a?(Array) ? (editPermission[0].blank? ? '': editPermission[0]) : editPermission)	
+		if	!editPermission.blank? 
+			ret = false
+			if editPermission
+				ret = true
+			end
+		end			
+		return ret		
 	  end
 	
-
-	def getUsersbyGroup
-		groupusers= nil
-		scope=User.in_group(params[:group_id])  if params[:group_id].present?
-		groupusers =scope.all
-	end
-	
-	def getMembers
-		projMembers = []
-		groupbyusers = []
-		groupusers = getUsersbyGroup
-		projMembers = Principal.member_of(@manage_view_spenttime_projects)
-		groupbyusers = groupusers & projMembers
-		groupbyusers=groupbyusers.sort
+	def getGrpMembers
+		userList = []
+		if !params[:group_id].blank?
+			group_id = params[:group_id]
+		elsif !params[:tab].blank? && params[:tab] =='wkexpense'
+			group_id = session[:wkexpense][:group_id]
+		else
+			group_id = session[:wktimes][:group_id]
+		end
+		grpMember = call_hook(:controller_group_member,{ :group_id => group_id})
+		if !grpMember.blank?
+			userList = grpMember[0].blank? ? userList : grpMember[0]
+		else
+			projMembers = []			
+			groupusers = nil
+			
+			scope=User.in_group(group_id)  if !group_id.nil?
+		
+			groupusers = scope.all
+			#groupusers = getUsersbyGroup
+			projMembers = Principal.member_of(@manage_view_spenttime_projects)
+			userList = groupusers & projMembers
+			userList = userList.sort
+		end	
+		userList
 	end
 	
 	def getCondition(date_field, user_id, start_date, end_date=nil)
@@ -912,7 +954,13 @@ private
   
   
     def check_editperm_redirect
-		unless check_editPermission
+		hookPerm = call_hook(:controller_edit_timelog_permission)
+		if !hookPerm.blank?
+			allow = hookPerm[0] || check_editPermission
+		else
+			allow = check_editPermission
+		end
+		unless allow
 			render_403
 			return false
 		end
@@ -942,7 +990,7 @@ private
 	end
 	
 	def updateEntry(entry)
-		errorMsg = nil
+		errorMsg = nil		
 		if entry.hours.blank?
 			# delete the time_entry
 			# if the hours is empty but id is valid
@@ -955,7 +1003,7 @@ private
 		else
 			#if id is there it should be update otherwise create
 			#the UI disables editing of
-			if can_log_time?(entry.project_id) 
+			if can_log_time?(entry.project_id) || to_boolean(@edittimelogs)
 				if !entry.save()
 					errorMsg = entry.errors.full_messages.join('\n')
 				end
@@ -1009,9 +1057,24 @@ private
   def retrieve_date_range
     @free_period = false
     @from, @to = nil, nil
+	if params[:control] =='reportdetail' || params[:control] =='report'
+		period_type =  params[:period_type]
+		period = params[:period]
+		fromdate = todate= nil
+	elsif params[:tab] == 'wkexpense'
+		period_type = session[:wkexpense][:period_type]
+		period = session[:wkexpense][:period]
+		fromdate = session[:wkexpense][:from]
+		todate = session[:wkexpense][:to]
+	else
+		period_type = session[:wktimes][:period_type]
+		period = session[:wktimes][:period]
+		fromdate = session[:wktimes][:from]
+		todate = session[:wktimes][:to]
+	end
 
-    if params[:period_type] == '1' || (params[:period_type].nil? && !params[:period].nil?)
-      case params[:period].to_s
+    if (period_type == '1' || (period_type.nil? && !period.nil?)) 
+      case period.to_s
       when 'today'
         @from = @to = Date.today
       when 'yesterday'
@@ -1038,9 +1101,10 @@ private
         @from = Date.civil(Date.today.year, 1, 1)
         @to = Date.civil(Date.today.year, 12, 31)
       end
-    elsif params[:period_type] == '2' || (params[:period_type].nil? && (!params[:from].nil? || !params[:to].nil?))
-      begin; @from = params[:from].to_s.to_date unless params[:from].blank?; rescue; end
-      begin; @to = params[:to].to_s.to_date unless params[:to].blank?; rescue; end
+    #elsif params[:period_type] == '2' || (params[:period_type].nil? && (!params[:from].nil? || !params[:to].nil?))
+	elsif period_type == '2' || (period_type.nil? && (!fromdate.nil? || !todate.nil?))
+      begin; @from = fromdate.to_s.to_date unless fromdate.blank?; rescue; end
+      begin; @to = todate.to_s.to_date unless todate.blank?; rescue; end
       @free_period = true
     else
       # default
@@ -1053,22 +1117,36 @@ private
 
   end  
 
-	# show all groups and project/group members show
-	def setgroups
+	# set project/group members
+	def setMembers		
 		@groups = Group.sorted.all
 		@members = Array.new
-		if params[:projgrp_type] == '2'
-			userLists=[]
-			userLists = getMembers
-			@use_group=true
-			userLists.each do |users|
-				@members << [users.name,users.id.to_s()]
-			end
+		if !params[:tab].blank? && params[:tab] =='wkexpense'
+			filter_type = session[:wkexpense][:filter_type]
+			project_id = session[:wkexpense][:project_id]
 		else
-			@use_group=false
-			#@members=@selected_project.members.collect{|m| [ m.name, m.user_id ] }.sort
-			projmem= @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC").distinct("#{User.table_name}.id")
-			@members=projmem.collect{|m| [ m.name, m.user_id ] }
+			filter_type = session[:wktimes][:filter_type]
+			project_id = session[:wktimes][:project_id]
+		end
+		hookMem = call_hook(:controller_get_member, { :filter_type => filter_type})
+		if filter_type == '1' || (hookMem.blank? && filter_type !='2')
+			hookProjMem = call_hook(:controller_project_member, {  :project_id => project_id})
+			if !hookProjMem.blank?
+				projMem = hookProjMem[0].blank? ? [] : hookProjMem[0]
+			else
+				projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC").distinct("#{User.table_name}.id")
+			end				
+			@members = projMem.collect{|m| [ m.name, m.user_id ] }
+		elsif filter_type == '2'
+			userList = []
+			userList = getGrpMembers			
+			userList.each do |users|
+				@members << [users.name,users.id.to_s()]
+			end		
+		else			
+			if !hookMem.blank?
+				@members = hookMem[0].blank? ? @members : hookMem[0]		
+			end
 		end
 	end
 	
@@ -1097,27 +1175,29 @@ private
 	
 	def set_managed_projects
 		# from version 1.7, the project member with 'edit time logs' permission is considered as managers
-		#@manage_projects ||= Project.find(:all, :order => 'name', :conditions => Project.allowed_to_condition(User.current, :edit_time_entries))
-		@manage_projects ||= Project.where(Project.allowed_to_condition(User.current, :edit_time_entries)).order('name')		
+		mng_projects = call_hook(:controller_set_manage_projects)
+		if !mng_projects.blank?
+			@manage_projects = mng_projects[0].blank? ? nil : mng_projects[0]
+		else
+			@manage_projects ||= Project.where(Project.allowed_to_condition(User.current, :edit_time_entries)).order('name')
+		end		
 		@manage_projects =	setTEProjects(@manage_projects)	
 		
 		# @manage_view_spenttime_projects contains project list of current user with edit_time_entries and view_time_entries permission
-		# @manage_view_spenttime_projects is used to fill up the dropdown in list page for managers		
-		#view_spenttime_projects ||= Project.find(:all, :order => 'name', :conditions => Project.allowed_to_condition(User.current, :view_time_entries))
-		view_spenttime_projects ||= Project.where(Project.allowed_to_condition(User.current, :view_time_entries)).order('name')
-		@manage_view_spenttime_projects = @manage_projects & view_spenttime_projects
+		# @manage_view_spenttime_projects is used to fill up the dropdown in list page for managers
+		view_projects = call_hook(:controller_set_view_projects)
+		if !view_projects.blank?
+			@manage_view_spenttime_projects = view_projects[0].blank? ? nil : view_projects[0]
+		else
+			view_spenttime_projects ||= Project.where(Project.allowed_to_condition(User.current, :view_time_entries)).order('name')
+			@manage_view_spenttime_projects = @manage_projects & view_spenttime_projects
+		end
 		@manage_view_spenttime_projects = setTEProjects(@manage_view_spenttime_projects)
 
 		# @currentUser_loggable_projects contains project list of current user with log_time permission
 		# @currentUser_loggable_projects is used to show/hide new time & expense sheet link	
-		#@currentUser_loggable_projects ||= Project.find(:all, :order => 'name', :conditions => Project.allowed_to_condition(User.current, :log_time))
 		@currentUser_loggable_projects ||= Project.where(Project.allowed_to_condition(User.current, :log_time)).order('name')
-		@currentUser_loggable_projects = setTEProjects(@currentUser_loggable_projects)		
-		
-		# @manage_log_time_projects contains project list of current user with edit_time_entries and log_time permission
-		# @manage_log_time_projects is used to fill up the dropdown in new page for managers
-		#@manage_log_time_projects = @manage_projects & @currentUser_loggable_projects
-		#@manage_log_time_projects = setTEProjects(@manage_log_time_projects)
+		@currentUser_loggable_projects = setTEProjects(@currentUser_loggable_projects)	
 	end
 
 	def set_loggable_projects
@@ -1328,7 +1408,12 @@ private
 	end	
 	
 	def getSelectedProject(projList)
-		selected_proj_id = params[:project_id]
+		#selected_proj_id = params[:project_id]
+		if !params[:tab].blank? && params[:tab] =='wkexpense'		
+			selected_proj_id = session[:wkexpense][:project_id].blank? ? params[:project_id] : session[:wkexpense][:project_id]
+		elsif !session[:wktimes].blank?
+			selected_proj_id = session[:wktimes][:project_id]
+		end
 		if !selected_proj_id.blank?
 			sel_project = projList.select{ |proj| proj.id == selected_proj_id.to_i }	
 			selected_project ||= sel_project[0] if !sel_project.blank?
@@ -1359,7 +1444,12 @@ private
 	def formPaginationCondition
 		rangeStr = ""
 		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'				
-			status = params[:status]
+			#status = params[:status]
+			if !params[:tab].blank? && params[:tab] =='wkexpense'
+				status = session[:wkexpense][:status]
+			else
+				status = session[:wktimes][:status]
+			end
 			if !status.blank? && status != 'all'
 				rangeStr = " AND (rownum > " + @offset.to_s  + " AND rownum <= " + (@offset  + @limit ).to_s + ")"
 			else			
@@ -1370,4 +1460,39 @@ private
 		end
 		rangeStr
 	end
+	
+	def set_edit_time_logs
+		editPermission = call_hook(:controller_edit_timelog_permission, {:params => params})
+		@edittimelogs  = editPermission.blank? ? '' : editPermission[0].to_s
+	end
+	
+	def set_filter_session
+	 
+		if params[:searchlist].blank? && (session[:wktimes].nil? || session[:wkexpense].nil?)
+			
+			session[:wktimes] = {:period_type => params[:period_type], :period => params[:period],:from => params[:from],:to => params[:to],:project_id => params[:project_id], :filter_type => params[:filter_type],:user_id => params[:user_id],:status => params[:status],:group_id => params[:group_id] }
+			session[:wkexpense] = {:period_type => params[:period_type], :period => params[:period],:from => params[:from],:to => params[:to],:project_id => params[:project_id], :filter_type => params[:filter_type],:user_id => params[:user_id],:status => params[:status],:group_id => params[:group_id] }
+			#session[:wkexpense]  = session[:wktimes] 
+		elsif params[:searchlist] =='wktime'
+			session[:wktimes][:period_type] = params[:period_type]
+			session[:wktimes][:period] = params[:period]
+			session[:wktimes][:from] = params[:from]
+			session[:wktimes][:to] = params[:to]
+			session[:wktimes][:project_id] = params[:project_id]
+			session[:wktimes][:filter_type] = params[:filter_type]
+			session[:wktimes][:user_id] = params[:user_id]
+			session[:wktimes][:status] = params[:status]
+			session[:wktimes][:group_id] = params[:group_id]
+		elsif params[:searchlist] =='wkexpense'
+			session[:wkexpense][:period_type] = params[:period_type]
+			session[:wkexpense][:period] = params[:period]
+			session[:wkexpense][:from] = params[:from]
+			session[:wkexpense][:to] = params[:to]
+			session[:wkexpense][:project_id] = params[:project_id]
+			session[:wkexpense][:filter_type] = params[:filter_type]
+			session[:wkexpense][:user_id] = params[:user_id]
+			session[:wkexpense][:status] = params[:status]
+			session[:wkexpense][:group_id] = params[:group_id]
+		end		
+	 end
 end

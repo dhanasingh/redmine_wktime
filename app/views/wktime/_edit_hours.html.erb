@@ -2,9 +2,22 @@
 		<% # close the previously opened tr %>
 		<% while @wday_index < padTill %>
 			<% 
-			disable = !@editable
+			disable = !@editable			
 			if @editable
-				disable = !@prev_template && !entry.nil? && !entry.editable_by?(@user)
+				#hookCellEditPerm = call_hook(:view_cell_edit, :entry => entry)
+				if @edittimelogs.blank?
+					disable = !@prev_template && !entry.nil? && !entry.editable_by?(@user)										
+				else
+					if (@edittimelogs == 'true')
+						disable = !@prev_template && !entry.nil? && !(to_boolean(@edittimelogs))
+					elsif (@edittimelogs == 'false')
+						if (!@manage_projects.blank? && @manage_projects.size > 0 && User.current.id != @user.id)
+							disable = !@prev_template && !entry.nil? && !(to_boolean(@edittimelogs))
+						else
+							disable = !@prev_template && !entry.nil? && !entry.editable_by?(@user)
+						end
+					end
+				end
 			end
 			%>
 			<%#if this is from a previous template, don't print the hours%>

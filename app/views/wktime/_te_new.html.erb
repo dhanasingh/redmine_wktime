@@ -17,12 +17,18 @@
 <tr>
 <th><%=l(:label_member)%></th>
 <td>
+<% ddMember = call_hook(:view_member_dropdown, {:project_id => @selected_project.id}) %>
+<% if !ddMember.blank? %>	 
+<%=	ddMember %>
+<% else %>
 <% 
-	projmem= @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
+	projmem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
 %>
 <%=h select_tag('user_id',
 	options_for_select( projmem.collect{|m| [ m.name, m.user_id ] },
-		:selected =>  @user.nil? ? User.current.id : @user.id)) %></td>
+		:selected =>  @user.nil? ? User.current.id : @user.id)) %>
+		
+<% end %>		
 </td>
 </tr>
 <% else %>

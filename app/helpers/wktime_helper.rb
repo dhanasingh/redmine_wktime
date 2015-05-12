@@ -703,11 +703,12 @@ end
 	def checkViewPermission
 		ret =  false
 		if User.current.logged?
-			#viewProjects = Project.find(:all, :conditions => Project.allowed_to_condition(User.current, :view_time_entries ))
 			viewProjects = Project.where(Project.allowed_to_condition(User.current, :view_time_entries ))
-			#loggableProjects ||= Project.find(:all, :conditions => Project.allowed_to_condition(User.current, :log_time))
 			loggableProjects ||= Project.where(Project.allowed_to_condition(User.current, :log_time))
-			ret = (!viewProjects.blank? && viewProjects.size > 0) || (!loggableProjects.blank? && loggableProjects.size > 0)
+			viewMenu = call_hook(:view_wktime_menu)
+			viewMenu  = viewMenu.blank? ? '' : (viewMenu.is_a?(Array) ? (viewMenu[0].blank? ? '': viewMenu[0]) : viewMenu) 
+			@manger_user = ( !viewMenu.blank? && viewMenu)
+			ret = (!viewProjects.blank? && viewProjects.size > 0) || (!loggableProjects.blank? && loggableProjects.size > 0) || @manger_user
 		end
 		ret
 	end
@@ -715,4 +716,8 @@ end
 	def is_number(val)
 		true if Float(val) rescue false
 	end
+	
+	def to_boolean(str)
+      str == 'true'
+    end
 end
