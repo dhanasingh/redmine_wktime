@@ -1298,7 +1298,8 @@ private
 	
 	def findEntriesByCond(cond)
 		#TimeEntry.find(:all, :conditions => cond, :order => 'project_id, issue_id, activity_id, spent_on')
-		TimeEntry.where(cond).order('project_id, issue_id, activity_id, spent_on')
+		#TimeEntry.where(cond).order('project_id, issue_id, activity_id, spent_on')
+		TimeEntry.joins(:project).joins(:activity).joins("LEFT OUTER JOIN issues ON issues.id = time_entries.issue_id").where(cond).order('projects.name, issues.subject, enumerations.name, time_entries.spent_on')
 	end
 	
 	def setValueForSpField(teEntry,spValue,decimal_separator,entry)
