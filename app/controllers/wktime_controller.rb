@@ -549,7 +549,7 @@ helper :custom_fields
 	end
 	
 	 def getStatus	
-		status = getTimeEntryStatus(params[:startDate].to_date,User.current.id)	
+		status = getTimeEntryStatus(params[:startDate].to_date,params[:user_id])
 		respond_to do |format|
 			format.text  { render :text => status }
 		end	
@@ -775,7 +775,8 @@ private
 								end
 								#timeEntry.hours = hours[j].blank? ? nil : hours[j].to_f
 								#to allow for internationalization on decimal separator
-								setValueForSpField(teEntry,hours[j],decimal_separator,entry)
+								#setValueForSpField(teEntry,hours[j],decimal_separator,entry)
+								teEntry.hours = hours[j].blank? ? nil : hours[j]#.to_f
 								
 								unless custom_fields.blank?
 									teEntry.custom_field_values.each do |custom_value|

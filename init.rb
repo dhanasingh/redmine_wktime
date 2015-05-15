@@ -112,18 +112,18 @@ class WktimeHook < Redmine::Hook::ViewListener
 	end
 	
 	def view_timelog_edit_form_bottom(context={ })		
-		showWarningMsg(context[:request])
+		showWarningMsg(context[:request],context[:time_entry].user_id)
 	end
 	
 	def view_issues_edit_notes_bottom(context={})	
-		showWarningMsg(context[:request])	
+		showWarningMsg(context[:request],User.current.id)
 	end
 
-	def showWarningMsg(req)		
+	def showWarningMsg(req,user_id)		
 		wktime_helper = Object.new.extend(WktimeHelper)		
 		host_with_subdir = wktime_helper.getHostAndDir(req)				
 		"<div id='divError'><font color='red'>#{l(:label_warning_wktime_time_entry)}</font>	
-			<input type='hidden' id='getstatus_url' value='#{url_for(:controller => 'wktime', :action => 'getStatus',:host => host_with_subdir,:protocol => req.protocol)}'>	
+			<input type='hidden' id='getstatus_url' value='#{url_for(:controller => 'wktime', :action => 'getStatus',:host => host_with_subdir,:protocol => req.protocol,:user_id => user_id)}'>	
 		</div>"		
 	end
 	
@@ -136,6 +136,17 @@ class WktimeHook < Redmine::Hook::ViewListener
 			if project_ids.blank? || (!project_ids.blank? && (project_ids == [""] || project_ids.include?("#{context[:project].id}"))) && User.current.allowed_to?(:view_time_entries, context[:project])
 				"#{link_to(l(:label_wkexpense_reports), url_for(:controller => 'wkexpense', :action => 'reportdetail', :project_id => context[:project], :host => host_with_subdir))}"
 			end
+		end
+	end
+	def controller_issues_edit_before_save(context={})	
+		if !context[:time_entry].blank?
+			if !context[:time_entry].hours.blank? && !context[:time_entry].activity_id.blank?
+				wktime_helper = Object.new.extend(WktimeHelper)				
+				status= wktime_helper.getTimeEntryStatus(context[:time_entry].spent_on,context[:time_entry].user_id)		
+				if !status.blank? && ('a' == status || 's' == status)					
+					 raise "#{l(:label_warning_wktime_time_entry)}"
+				end			
+			end	
 		end
 	end
 end
