@@ -46,7 +46,7 @@ vii) If the timesheet is not submitted before deadline, then a email notificatio
 
 Time & Expense plugin supports REST API. It supports both xml and json. Using the api we can list
 time/expense sheets for a user, create, update and delete time/expense sheets.  User with approve time log 
-permission can approve, unapprove, reject time/expense sheets.
+permission can approve, unapprove, reject time/expense sheets. This plugin also supports code hooks.
 
 Unpack the zip file to the plugins folder of Redmine.
 Starting from version 1.2, it requires db migration.
@@ -74,5 +74,7 @@ If an apache passenger module is used then make sure the following settings are 
 
 Release Notes for 1.8.1
 	Features:
-		- Added hooks
-		- Implemented remembering of filter in time/expense list page.
+		- Support for code hooks
+		- Filters will be remembered in list page.
+		
+Please provide your rating at http://www.redmine.org/plugins/wk-time		

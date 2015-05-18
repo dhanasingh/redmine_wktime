@@ -731,8 +731,9 @@ function validateTotal(hourField, day, maxHour){
 	}
 	maxHour= Number(maxHour);
 	if (maxHour > 0 && dayTotal > maxHour){
-		val = val.replace(decSeparator, '\.');
-		val = Number(val);
+		//val = val.replace(decSeparator, '\.');
+		//#val = Number(val);
+		val = validateHours(val, hourField)
 		val = val - (dayTotal - maxHour);
 		/*if(val == 0)
 		{
@@ -753,6 +754,7 @@ function validateTotal(hourField, day, maxHour){
 function calculateTotal(day){
 	var issueTable = document.getElementById("issueTable");
 	var totalSpan = document.getElementById("total_hours");
+	var tab = document.getElementById("tab");
 	var rowCount = issueTable.rows.length;
 	var dayTotal = 0.0;
 	var hours, i, j, k, val, children;
@@ -765,17 +767,126 @@ function calculateTotal(day){
 			
 		val = myTrim(hours[day-1].value);
 		//replace any . with . for internationalization
-		val = val.replace(decSeparator, '\.');
-		if(isNaN(val)) //if(val == 0 || isNaN(val))
+		if (tab.value =="wkexpense")
 		{
-			hours[day-1].value = "";
-		}
-		
-		if( val != '' && !isNaN(val)){
-			dayTotal += Number(val);
+			val = val.replace(decSeparator, '\.');
+			if(isNaN(val)) //if(val == 0 || isNaN(val))
+			{
+				hours[day-1].value = "";
+			}
+			
+			if( val != '' && !isNaN(val)){
+				dayTotal += Number(val);
+			} 
+		}else{
+		dayTotal += validateHours(val,hours[day-1])
 		}
 	}
 	return dayTotal;
+}
+
+function validateHours(hoursValue,hoursDay){
+	var valid =false
+	hoursValue = hoursValue.trim();			
+	var indexStr='',indexNextStr='',contcatStr='';					
+	var hours ='',mins='',timeValue='',concatvalue ='';
+	var total=0;
+	if (!isNaN(hoursValue))	{
+		hours = hoursValue;		
+	}else if (hoursValue.indexOf('.') ==1){
+		valid = checkStr(hoursValue,'.')				
+	}else if (hoursValue.indexOf(",")==1){
+		valid = checkStr(hoursValue,",")
+		if(!valid){				
+			hours = hoursValue.replace(",", ".");
+		}
+	}else if (hoursValue.indexOf(":")==1){
+		valid = checkStr(hoursValue,":")
+		if(!valid){
+			var val = hoursValue.split(":");
+			hours= val[0];
+			mins = val[1];
+		}
+	}else{
+		for (i = 0; i < hoursValue.length-1; i++){ 
+			indexStr = hoursValue[i];
+			indexNextStr = hoursValue[i+1]									
+			if (!indexNextStr.trim() && indexStr && !contcatStr){									
+				if (isNaN(indexStr)){
+					valid = true
+					break;
+				}else{
+					timeValue += indexStr;
+				}
+			}else{
+				if (!isNaN(indexStr)){
+					timeValue += indexStr;
+				}if (isNaN(indexNextStr)){
+					contcatStr += indexNextStr;							
+				}else if (indexNextStr){							
+					if (contcatStr =="h" || contcatStr =="hour" || contcatStr =="hours" ){
+						contcatStr ='';
+						hours = timeValue
+						timeValue=''
+						concatvalue=''
+					}else if (contcatStr =="m" || contcatStr =="min"){
+						contcatStr ='';
+						mins = timeValue
+						timeValue=''
+						concatvalue=''
+					}
+					 concatvalue +=indexNextStr;
+				}
+			}					
+		}
+	}
+	if (contcatStr =="h" || contcatStr =="hour" || contcatStr =="hours" ){
+		contcatStr ='';
+		hours = timeValue
+		timeValue= ''
+		concatvalue=''
+	}else if (contcatStr =="m" || contcatStr =="min"){
+		mins = timeValue
+		timeValue=''
+		concatvalue=''
+	}else if (contcatStr){
+		valid = true				
+	}
+	if (!mins.trim()){
+		mins = concatvalue				
+	}
+	if (hours && mins){
+		if(parseInt(mins) >60){
+			valid = true;
+		}
+	}
+	if (valid){
+		hoursDay.value='';
+	}else{
+		 total = totalHours(hours,mins)				
+	}
+	return total;
+}
+function checkStr(hoursValue,type){
+	var valid =true;			
+	hoursValue = hoursValue.replace(type, ".");
+	if (!isNaN(hoursValue))	{
+		valid = false
+	}
+	return valid
+}
+function totalHours(hours,mins){		
+	var minhour =0,total=0;
+	if (!isNaN(hours) && hours.trim())
+	{			
+		total = parseFloat(hours)
+	}
+	if (!isNaN(mins) && mins.trim())
+	{
+		minhour = parseFloat(mins)/60;
+		total +=parseFloat(minhour)
+	}			
+	return total
 }
 
 //There is a bug in IE7, the getElementsByName doesn't get the new elements

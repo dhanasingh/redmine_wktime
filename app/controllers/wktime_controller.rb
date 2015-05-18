@@ -549,7 +549,7 @@ helper :custom_fields
 	end
 	
 	 def getStatus	
-		status = getTimeEntryStatus(params[:startDate].to_date,User.current.id)	
+		status = getTimeEntryStatus(params[:startDate].to_date,params[:user_id])
 		respond_to do |format|
 			format.text  { render :text => status }
 		end	
@@ -744,7 +744,9 @@ private
 		@teEntrydisabled=false
 		unless entryHash.nil?
 			entryHash.each_with_index do |entry, i|
-				if !entry['project_id'].blank?
+				if !entry['project_id'].blank? && !((Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? ||
+								Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 0) && 
+								entry['issue_id'].blank?)
 					hours = params['hours' + (i+1).to_s()]					
 					ids = params['ids' + (i+1).to_s()]
 					comments = params['comments' + (i+1).to_s()]
@@ -775,7 +777,8 @@ private
 								end
 								#timeEntry.hours = hours[j].blank? ? nil : hours[j].to_f
 								#to allow for internationalization on decimal separator
-								setValueForSpField(teEntry,hours[j],decimal_separator,entry)
+								#setValueForSpField(teEntry,hours[j],decimal_separator,entry)
+								teEntry.hours = hours[j].blank? ? nil : hours[j]#.to_f
 								
 								unless custom_fields.blank?
 									teEntry.custom_field_values.each do |custom_value|
@@ -1298,7 +1301,8 @@ private
 	
 	def findEntriesByCond(cond)
 		#TimeEntry.find(:all, :conditions => cond, :order => 'project_id, issue_id, activity_id, spent_on')
-		TimeEntry.where(cond).order('project_id, issue_id, activity_id, spent_on')
+		#TimeEntry.where(cond).order('project_id, issue_id, activity_id, spent_on')
+		TimeEntry.joins(:project).joins(:activity).joins("LEFT OUTER JOIN issues ON issues.id = time_entries.issue_id").where(cond).order('projects.name, issues.subject, enumerations.name, time_entries.spent_on')
 	end
 	
 	def setValueForSpField(teEntry,spValue,decimal_separator,entry)
