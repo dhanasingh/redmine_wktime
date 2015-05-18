@@ -25,8 +25,7 @@ fr:
   
   label_wk_enter_issue_id: Utiliser l'ID pour saisir la demande
   label_wk_work_time_header: Affichez l'entête effort
-  label_wk_allow_blank_issue: Permettre une demande vierge
-  label_wk_account_groups: Account Groups
+  label_wk_allow_blank_issue: Permettre une demande vierge 
   
   label_wk_enter_comment_in_row: Saisir le commentaire sur la ligne
   label_wk_enter_cf_in_row: Saisir le champ personalisé sur la ligne
@@ -70,7 +69,7 @@ fr:
   label_wk_nonsub_mail_subject: Notification de retard
   label_wk_nonsub_mail_notification: Envoyer un courriel pour les retards  
   label_wk_nonsub_mail_message: Corps du courriel de retard
-  label_wk_warning_nonsub_notification: "Note: une modification des paramètres de configuration sous-jacents demandera un redémarrage de Redmine"
+  label_redmine_restart_warning: "Note: une modification des paramètres de configuration sous-jacents demandera un redémarrage de Redmine"
   label_wk_minutes: Minutes  
   label_wkexpense_entry_projects: Limiter la saisie de dépense à ces projets
   

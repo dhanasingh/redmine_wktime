@@ -26,7 +26,6 @@ it:
   label_wk_enter_issue_id: Enter issue as ID
   label_wk_work_time_header: Show work time header
   label_wk_allow_blank_issue: Allow Blank Issue
-  label_wk_account_groups: Account Groups
   
   label_wk_enter_comment_in_row: Enter Comment in row
   label_wk_enter_cf_in_row: Enter Custom Field in row
@@ -70,7 +69,7 @@ it:
   label_wk_nonsub_mail_subject: Non submission time notification
   label_wk_nonsub_mail_notification: Send email for non submission
   label_wk_nonsub_mail_message: Non submission email message
-  label_wk_warning_nonsub_notification: "Note: Any change to the below settings require redmine restart"
+  label_redmine_restart_warning: "Note: Any change to the below settings require redmine restart"
   label_wk_minutes: Minutes
   label_wkexpense_entry_projects: Restrict Expense Entry to these projects
   
