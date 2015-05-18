@@ -27,6 +27,7 @@ en:
   label_wk_enter_comment_in_row: Enter Comment in row
   label_wk_enter_cf_in_row: Enter Custom Field in row
   label_wk_use_detail_popup: Use Detail Time Entry Popup
+  label_wk_account_groups: Account Groups
   label_wk_approval_system: Approval System
   label_wk_use_approval_system: Use Approval System
   label_wk_auto_approve: "Auto approve"
@@ -110,9 +111,6 @@ en:
  
   permission_approve_time_entries: Approve time logs
   field_currency: Currency
-
-  
-  
 
 
   

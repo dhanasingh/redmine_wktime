@@ -25,7 +25,8 @@ fr:
   
   label_wk_enter_issue_id: Utiliser l'ID pour saisir la demande
   label_wk_work_time_header: Affichez l'entête effort
-  label_wk_allow_blank_issue: Permettre une demande vierge 
+  label_wk_allow_blank_issue: Permettre une demande vierge
+  label_wk_account_groups: Account Groups
   
   label_wk_enter_comment_in_row: Saisir le commentaire sur la ligne
   label_wk_enter_cf_in_row: Saisir le champ personalisé sur la ligne

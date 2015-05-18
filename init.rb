@@ -56,7 +56,8 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_nonsub_sch_hr' => '23',
 			 'wktime_nonsub_sch_min' => '0',
 			 'wkexpense_projects' => [''],			
-			 'wktime_allow_filter_issue' => '0'
+			 'wktime_allow_filter_issue' => '0',
+			 'wktime_account_groups' => ['0']
   })  
  
   menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_te, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 	
