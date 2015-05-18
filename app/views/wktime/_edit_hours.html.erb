@@ -65,8 +65,17 @@
 				
 				
 					<% if show_custfield_img %>
-						<% image_tg = image_tag('text_list_bullets.png', :id => 'custfield_img' + @row.to_s() +'_', :name => 'custfield_img' + @row.to_s() +'[]',
-							:title => "#{entry.nil? || @prev_template || cvs.blank? ? l(:label_custom_field_plural) : cvs.join(',')}") %>
+					  					   
+					    <% imgname ="" %>
+						
+					    <% if !cvs.blank?  || !comment.blank? %>
+							<% imgname = "withcommand.png" %>
+						<% else %>
+							<% imgname = "withoutcommand.png" %>
+						<% end %>
+						<% image_tg = image_tag("#{imgname}", :id => 'custfield_img' + @row.to_s() +'_', :name => 'custfield_img' + @row.to_s() +'[]',
+							:plugin => "redmine_wktime",:title => "#{entry.nil? || @prev_template || cvs.blank? ? l(:label_custom_field_plural) : cvs.join(',')}") %>
+							
 						<% if disable %>
 							<%= image_tg %>
 						<% else %>
