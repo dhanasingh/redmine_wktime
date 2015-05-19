@@ -3,12 +3,6 @@
 <table class="list time-entries">
 <thead>
 <tr>
-<th class="checkbox hide-when-print">
-  <%= link_to image_tag('toggle_check.png'), 
-    {}, 
-    :onclick => 'toggleIssuesSelection(this); return false;', 
-    :title => "#{l(:button_check_all)}/#{l(:button_uncheck_all)}" %>
-</th>
 <th><%= l(:field_start_date) %></th>
 <th><%= l(:field_user) %></th>
 <th><%= controller.getLabelforSpField %></th>
@@ -20,8 +14,6 @@
 <% @entries.each do |entry| -%>
 
 <tr class="time-entry <%= cycle("odd", "even") %>">
-<td class="checkbox hide-when-print"><%= check_box_tag("ids[]", entry.spent_on, false, :id => nil) %></td>
-
 <td class="start_date"><%=h format_date(entry.spent_on) %></td>
 <td class="user"><%=h entry.user.login %></td>
 <td class="user"><%= controller.getUnit(entry) %>&nbsp;<%=h html_hours("%.2f" % entry.hours) %></td>
