@@ -22,6 +22,7 @@ fr:
   label_wk_signature: Signature
   label_wk_submitted_by: Soumis par
   label_wk_approved_by: Approuvé par
+  label_wk_account_groups: Account Groups
   
   label_wk_enter_issue_id: Utiliser l'ID pour saisir la demande
   label_wk_work_time_header: Affichez l'entête effort

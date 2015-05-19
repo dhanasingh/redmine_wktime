@@ -32,6 +32,7 @@ en:
   label_wk_auto_approve: "Auto approve"
   label_wk_submission_ack: Submission Acknowledgement Text
   label_wk_reject_reason: Reject Reason
+  label_wk_account_groups: Account Groups
 
   label_wk_enter_issue_As: Enter Issue As
   label_wk_enter_issue_Description: Enter issue as Subject
