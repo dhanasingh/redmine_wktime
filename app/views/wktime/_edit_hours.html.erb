@@ -22,7 +22,8 @@
 			%>
 			<%#if this is from a previous template, don't print the hours%>
 			<td class="hours">
-				<%=h text_field_tag('hours' + @row.to_s() +'[]', entry.nil? || @prev_template ? '' : ("%.2f" % entry.hours) ,:size => 7,
+			
+				<%=h text_field_tag('hours' + @row.to_s() +'[]', entry.nil? || @prev_template ? '' : ("%.2f" % entry.hours) ,:size => "#{controller.Hourtextfieldsize}",
 				:disabled => disable,
 				:onchange => "validateTotal(this, #{@wday_index},'#{controller.maxHour}');") %>
 				

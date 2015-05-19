@@ -535,6 +535,16 @@ helper :custom_fields
 		Setting.plugin_redmine_wktime['wktime_work_time_header'].to_i == 1
 	end
 	
+	def Hourtextfieldsize
+	    hrtextfiledsize = 0
+		if params[:controller] == "wktime" 
+			hrtextfiledsize = 4
+		else 
+			hrtextfiledsize = 7
+		end
+		return hrtextfiledsize
+	end
+	
 	def maxHour
 		Setting.plugin_redmine_wktime['wktime_restr_max_hour'].to_i == 1 ?  
 		(Setting.plugin_redmine_wktime['wktime_max_hour_day'].blank? ? 8 : Setting.plugin_redmine_wktime['wktime_max_hour_day']) : 0
@@ -1498,5 +1508,5 @@ private
 			session[:wkexpense][:status] = params[:status]
 			session[:wkexpense][:group_id] = params[:group_id]
 		end		
-	 end
+	 end	
 end
