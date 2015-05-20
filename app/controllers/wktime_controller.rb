@@ -470,8 +470,9 @@ helper :custom_fields
 		if !userList.blank?
 			projmembers = userList[0].blank? ? nil : userList[0]
 		else
-			projmembers = project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC").distinct("#{User.table_name}.id")
+			projmembers = project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
 		end
+		projmembers = projmembers.to_a.uniq if !projmembers.nil?
 		projmembers.each do |m|
 			userStr << m.user_id.to_s() + ',' + m.name + "\n"
 		end
@@ -1147,7 +1148,7 @@ private
 			if !hookProjMem.blank?
 				projMem = hookProjMem[0].blank? ? [] : hookProjMem[0]
 			else
-				projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC").distinct("#{User.table_name}.id")
+				projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
 			end				
 			@members = projMem.collect{|m| [ m.name, m.user_id ] }
 		elsif filter_type == '2'
@@ -1161,6 +1162,7 @@ private
 				@members = hookMem[0].blank? ? @members : hookMem[0]		
 			end
 		end
+		@members = @members.uniq
 	end
 	
   	def setup
