@@ -39,13 +39,15 @@ helper :custom_fields
 	if user_id.blank?
 		ids = User.current.id.to_s
 	elsif user_id.to_i == 0	
-		@members.each_with_index do |users,i|			
-			if i == 0
-				ids =  users[1].to_s
-			else
-				ids +=',' + users[1].to_s
-			end				
-		end			
+		unless @members.blank?
+			@members.each_with_index do |users,i|			
+				if i == 0
+					ids =  users[1].to_s
+				else
+					ids +=',' + users[1].to_s
+				end				
+			end	
+		end
 		ids = '0' if ids.nil?
 	else
 		ids = user_id
