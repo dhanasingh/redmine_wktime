@@ -53,25 +53,32 @@ helper :custom_fields
 	spField = getSpecificField()
 	entityNames = getEntityNames()
 	selectStr = "select v1.user_id, v1.startday as spent_on, v1." + spField
-	wkSelectStr = selectStr + ", w.status "		
+	wkSelectStr = selectStr + ", w.status "	
 	sqlStr = " from "
 	sDay = getDateSqlString('t.spent_on')
 	#Martin Dube contribution: 'start of the week' configuration
 	if ActiveRecord::Base.connection.adapter_name == 'SQLServer'	
+		wkSelectStr = wkSelectStr +", un.firstname + ' ' + un.lastname as status_updater "	
 		sqlStr += "(select  ROW_NUMBER() OVER (ORDER BY  " + sDay + " desc, user_id) AS rownum," + sDay + " as startday, "	
 		sqlStr += " t.user_id, sum(t." + spField + ") as " + spField + " ,max(t.id) as id" + " from " + entityNames[1] + " t, users u" +
 			" where u.id = t.user_id and u.id in (#{ids})"
 		sqlStr += " and t.spent_on between '#{@from}' and '#{@to}'" unless @from.blank? && @to.blank?	
 		sqlStr += " group by " + sDay + ", user_id ) as v1"
 	else
+		if ActiveRecord::Base.connection.adapter_name == 'SQLite'
+			wkSelectStr = wkSelectStr +", un.firstname || ' ' || un.lastname as status_updater "
+		else
+			wkSelectStr = wkSelectStr +", concat(un.firstname,' ' ,un.lastname) as status_updater "
+		end
 		sqlStr += "(select " + sDay + " as startday, "
 		sqlStr += " t.user_id, sum(t." + spField + ") as " + spField + " ,max(t.id) as id" + " from " + entityNames[1] + " t, users u" +
 			" where u.id = t.user_id and u.id in (#{ids})"
 		sqlStr += " and t.spent_on between '#{@from}' and '#{@to}'" unless @from.blank? && @to.blank?	
 		sqlStr += " group by startday, user_id order by startday desc, user_id ) as v1"
+		
 	end		
 
-	wkSqlStr = " left outer join " + entityNames[0] + " w on v1.startday = w.begin_date and v1.user_id = w.user_id"	
+	wkSqlStr = " left outer join " + entityNames[0] + " w on v1.startday = w.begin_date and v1.user_id = w.user_id left outer join users un on un.id = w.statusupdater_id"	
 	#status = params[:status]
 	if !status.blank? && status != 'all'
 		wkSqlStr += " WHERE w.status = '#{status}'" 
