@@ -45,18 +45,17 @@ $(document).ready(function() {
 						edits[comment_col-1].title = custFldToolTip;
 						
 					}
-					//show detail popup dialog ok button to change image 
+					//show detail popup dialog ok button to change image 					
 					var x = document.getElementsByName("custfield_img"+comment_row+"[]");
-					if( e_comments.val() != "" || custFldToolTip )
-					{
+					if( (e_comments.val() != "" || custFldToolTip)  && (!commentInRow  || custFldToolTip )   ) 
+					{						
 						$(x[comment_col-1]).attr({src: "/plugin_assets/redmine_wktime/images/withcommand.png"});
 						
 					}
 					else
-					{
+					{					
 						$(x[comment_col-1]).attr({src: "/plugin_assets/redmine_wktime/images/withoutcommand.png"});
-					}
-					
+					}					
 					$( this ).dialog( "close" );				
 					//unregister this event since this is showing a 'don't leave' message
 					//loosk like this is not supported in Opera
@@ -168,6 +167,7 @@ function showCustomField() {
 }
 
 function updateCustomField() {
+
 	if(cf_ids != ''){
 		var cust_fids = cf_ids.split(',');
 		var i, j,cust_field, ck_cust_field, custom_fields;
