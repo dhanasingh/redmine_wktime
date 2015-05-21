@@ -31,11 +31,12 @@
 	</p>
 	<% end %>
 	<%
+		trackers = Array.new
 		tracker = Tracker.order('name')
 		unless tracker.blank?
 			trackers = tracker.collect {|t| [t.name, t.id] }
-			trackers.unshift(["",0])
 		end
+		trackers.unshift(["",0])
 	%>
 	<p>
 		<label><%=l(:label_wk_filter_issue_tracker)%></label>
