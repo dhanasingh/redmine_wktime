@@ -23,7 +23,7 @@
 			<%#if this is from a previous template, don't print the hours%>
 			<td class="hours">
 			
-				<%=h text_field_tag('hours' + @row.to_s() +'[]', entry.nil? || @prev_template ? '' : ("%.2f" % entry.hours) ,:size => "#{controller.Hourtextfieldsize}",
+				<%=h text_field_tag('hours' + @row.to_s() +'[]', entry.nil? || @prev_template ? '' : ("%.2f" % entry.hours) ,:size => "#{controller.textfield_size}",
 				:disabled => disable,
 				:onchange => "validateTotal(this, #{@wday_index},'#{controller.maxHour}');") %>
 				
@@ -68,9 +68,9 @@
 					<% if show_custfield_img %>
 					  	<% imgname ="" %>
 						<% if !cvs.blank?  || !comment.blank? %>
-							<% imgname = "withcommand.png" %>
+							<% imgname = "withcommant.png" %>
 						<% else %>
-							<% imgname = "withoutcommand.png" %>
+							<% imgname = "withoutcommant.png" %>
 						<% end %>
 						<% if !@new_custom_field_values.blank? || ( Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? ||
 									Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 0)  %>
