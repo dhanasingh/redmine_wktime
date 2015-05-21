@@ -111,6 +111,7 @@ en:
  
   permission_approve_time_entries: Approve time logs
   field_currency: Currency
+  error_project_issue_associate: Cannot be deleted because time/expense entries associated
 
   
   

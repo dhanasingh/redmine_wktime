@@ -720,4 +720,24 @@ end
 	def to_boolean(str)
       str == 'true'
     end
+	def getStatus_Project_Issue(issue_id,project_id)
+		if !issue_id.blank?
+			cond = getIssueSqlString(issue_id)
+		end
+		if !project_id.blank?
+			cond = getProjectSqlString(project_id)
+		end		
+		sDay = getDateSqlString('t.spent_on')
+		time_sqlStr = " SELECT t.* FROM time_entries t inner join wktimes w on w.begin_date =  #{ sDay} and w.user_id =t.user_id #{cond}"		
+		time_entry = TimeEntry.find_by_sql(time_sqlStr)
+		expense_sqlStr = " SELECT t.* FROM wk_expense_entries t inner join wkexpenses w on w.begin_date =  #{ sDay} and w.user_id =t.user_id #{cond}"
+		expense_entry = WkExpenseEntry.find_by_sql(expense_sqlStr)
+		ret = (!time_entry.blank? && time_entry.size > 0) ||  (!expense_entry.blank? && expense_entry.size > 0)
+	end
+	def getIssueSqlString(issue_id)
+		" where t.issue_id = #{issue_id} and (w.status ='s' OR w.status ='a')"
+	end
+	def getProjectSqlString(project_id)
+		" where t.project_id = #{project_id} and (w.status ='s' OR w.status ='a')"
+	end
 end
