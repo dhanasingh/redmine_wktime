@@ -606,18 +606,14 @@ helper :custom_fields
 	
 	def check_approvable_status		
 		te_projects=[]
-		ret = false		
+		ret = false
+		if !@entries.blank?		
+			@te_projects = @entries.collect{|entry| entry.project}.uniq
+			te_projects = @approvable_projects & @te_projects if !@te_projects.blank?			
+		end
 		hookPerm = call_hook(:controller_check_approvable, {:params => params})		
 		if !hookPerm.blank?
 			ret = hookPerm[0]
-			#if (approvable[0].to_s)=='true'
-			#	ret = true
-			#end
-		else		
-			if !@entries.blank?		
-				@te_projects = @entries.collect{|entry| entry.project}.uniq
-				te_projects = @approvable_projects & @te_projects if !@te_projects.blank?			
-			end				
 		end
 		ret = ((ret || !te_projects.blank?) && (@user.id != User.current.id || (!Setting.plugin_redmine_wktime[:wktime_own_approval].blank? && 
 							Setting.plugin_redmine_wktime[:wktime_own_approval].to_i == 1 )))? true: false
