@@ -707,7 +707,7 @@ end
 			loggableProjects ||= Project.where(Project.allowed_to_condition(User.current, :log_time))
 			viewMenu = call_hook(:view_wktime_menu)
 			viewMenu  = viewMenu.blank? ? '' : (viewMenu.is_a?(Array) ? (viewMenu[0].blank? ? '': viewMenu[0]) : viewMenu) 
-			@manger_user = ( !viewMenu.blank? && viewMenu)
+			@manger_user = ( !viewMenu.blank? && to_boolean(viewMenu))			
 			ret = (!viewProjects.blank? && viewProjects.size > 0) || (!loggableProjects.blank? && loggableProjects.size > 0) || @manger_user
 		end
 		ret
