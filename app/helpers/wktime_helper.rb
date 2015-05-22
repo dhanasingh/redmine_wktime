@@ -551,9 +551,18 @@ end
 	end
 	
 	def getTimeEntryStatus(spent_on,user_id)
-		#result = Wktime.find(:all, :conditions => [ 'begin_date = ? AND user_id = ?', getStartDay(spent_on), user_id])
-		result = Wktime.where(['begin_date = ? AND user_id = ?', getStartDay(spent_on), user_id])
-		return result[0].blank? ? 'n' : result[0].status			
+		#result = Wktime.find(:all, :conditions => [ 'begin_date = ? AND user_id = ?', getStartDay(spent_on), user_id])	
+		start_day = getStartDay(spent_on)		
+		locked = call_hook(:controller_lock_sheet,{ :startday => start_day})
+		locked  = locked.blank? ? '' : (locked.is_a?(Array) ? (locked[0].blank? ? '': locked[0].to_s) : locked.to_s) 
+		locked = ( !locked.blank? && to_boolean(locked))
+		if locked
+			result = 'l'
+		else		
+			result = Wktime.where(['begin_date = ? AND user_id = ?', start_day, user_id])
+			result = result[0].blank? ? 'n' : result[0].status
+		end
+		return 	result		
 	end
 	
 	def time_expense_tabs			   
@@ -706,8 +715,8 @@ end
 			viewProjects = Project.where(Project.allowed_to_condition(User.current, :view_time_entries ))
 			loggableProjects ||= Project.where(Project.allowed_to_condition(User.current, :log_time))
 			viewMenu = call_hook(:view_wktime_menu)
-			viewMenu  = viewMenu.blank? ? '' : (viewMenu.is_a?(Array) ? (viewMenu[0].blank? ? '': viewMenu[0]) : viewMenu) 
-			@manger_user = ( !viewMenu.blank? && to_boolean(viewMenu))			
+			viewMenu  = viewMenu.blank? ? '' : (viewMenu.is_a?(Array) ? (viewMenu[0].blank? ? '': viewMenu[0].to_s) : viewMenu.to_s) 
+			@manger_user = ( !viewMenu.blank? && to_boolean(viewMenu))	
 			ret = (!viewProjects.blank? && viewProjects.size > 0) || (!loggableProjects.blank? && loggableProjects.size > 0) || @manger_user
 		end
 		ret

@@ -94,7 +94,7 @@ currencySym = ""
 	<% end %>
 </tbody>
 </table>
-
+<%  if !@lockedsheet %>
 <% if @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r' %>
 		<%= submit_tag l(:button_save), :id => 'wktime_save', :name => 'wktime_save',  :disabled => !(@row > 0)%>
         <%= submit_tag l(:button_save_continue), :id => 'wktime_save_continue', :name => 'wktime_save_continue' , :disabled => !(@row > 0)%>
@@ -121,7 +121,7 @@ currencySym = ""
 		<% end %>
 	<% end %>
 <% end %>
-
+<% end %>
 <div class="splitcontentright">
 <div class="contextual">
 <% if @editable %>

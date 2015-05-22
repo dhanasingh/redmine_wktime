@@ -114,6 +114,10 @@ helper :custom_fields
 			@prev_template = true
 		end
 	end
+	locked = call_hook(:controller_lock_sheet,{ :startday => @startday})
+	locked = locked[0].blank? ? '' : locked[0]
+	@lockedsheet = !locked.blank? && locked
+	@editable = false if @lockedsheet
 	respond_to do |format|
 		format.html {
 			render :layout => !request.xhr?

@@ -178,7 +178,7 @@ class WktimeHook < Redmine::Hook::ViewListener
 		if !context[:time_entry].hours.blank? && !context[:time_entry].activity_id.blank?
 			wktime_helper = Object.new.extend(WktimeHelper)				
 			status= wktime_helper.getTimeEntryStatus(context[:time_entry].spent_on,context[:time_entry].user_id)		
-			if !status.blank? && ('a' == status || 's' == status)					
+			if !status.blank? && ('a' == status || 's' == status || 'l' == status)					
 				 raise "#{l(:label_warning_wktime_time_entry)}"
 			end			
 		end	
@@ -221,7 +221,7 @@ class WktimeHook < Redmine::Hook::ViewListener
 			if !context[:time_entry].hours.blank? && !context[:time_entry].activity_id.blank?
 				wktime_helper = Object.new.extend(WktimeHelper)				
 				status= wktime_helper.getTimeEntryStatus(context[:time_entry].spent_on,context[:time_entry].user_id)		
-				if !status.blank? && ('a' == status || 's' == status)					
+				if !status.blank? && ('a' == status || 's' == status || 'l' == status)				
 					 raise "#{l(:label_warning_wktime_time_entry)}"					
 				end			
 			end	
