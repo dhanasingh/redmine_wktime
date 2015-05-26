@@ -717,7 +717,7 @@ end
 			viewMenu = call_hook(:view_wktime_menu)
 			viewMenu  = viewMenu.blank? ? '' : (viewMenu.is_a?(Array) ? (viewMenu[0].blank? ? '': viewMenu[0].to_s) : viewMenu.to_s) 
 			@manger_user = ( !viewMenu.blank? && to_boolean(viewMenu))	
-			ret = (!viewProjects.blank? && viewProjects.size > 0) || (!loggableProjects.blank? && loggableProjects.size > 0) || @manger_user
+			ret = (!viewProjects.blank? && viewProjects.size > 0) || (!loggableProjects.blank? && loggableProjects.size > 0) || isAccountUser || @manger_user
 		end
 		ret
 	end
@@ -729,6 +729,7 @@ end
 	def to_boolean(str)
       str == 'true'
     end
+	
 	def getStatus_Project_Issue(issue_id,project_id)
 		if !issue_id.blank?
 			cond = getIssueSqlString(issue_id)
@@ -743,10 +744,29 @@ end
 		expense_entry = WkExpenseEntry.find_by_sql(expense_sqlStr)
 		ret = (!time_entry.blank? && time_entry.size > 0) ||  (!expense_entry.blank? && expense_entry.size > 0)
 	end
+	
 	def getIssueSqlString(issue_id)
 		" where t.issue_id = #{issue_id} and (w.status ='s' OR w.status ='a')"
 	end
+	
 	def getProjectSqlString(project_id)
 		" where t.project_id = #{project_id} and (w.status ='s' OR w.status ='a')"
+	end
+	
+	def isAccountUser
+		group = nil
+		isAccountUser = false
+		groupusers = Array.new
+		accountGrpIds = Setting.plugin_redmine_wktime['wktime_account_groups'] if !Setting.plugin_redmine_wktime['wktime_account_groups'].blank?
+		accountGrpIds = accountGrpIds.collect{|i| i.to_i}
+
+		if !accountGrpIds.blank?
+			accountGrpIds.each do |group_id|
+				scope = User.in_group(group_id)	
+				groupusers << scope.all
+			end
+		end
+		grpUserIds = groupusers[0].collect{|user| user.id}.uniq
+		isAccountUser = grpUserIds.include?(User.current.id)
 	end
 end
