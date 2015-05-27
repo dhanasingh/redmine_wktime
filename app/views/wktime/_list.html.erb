@@ -16,7 +16,7 @@
 
 <tr class="time-entry <%= cycle("odd", "even") %>">
 <td class="start_date"><%=h format_date(entry.spent_on) %></td>
-<td class="user"><%=h entry.user.login %></td>
+<td><class="user"><%=h entry.user.lastname %>&nbsp;<class="user"><%=h entry.user.firstname %></td>
 <td class="user"><%= controller.getUnit(entry) %>&nbsp;<%=h html_hours("%.2f" % entry.hours) %></td>
 <td class="status"><%=h statusString(entry.status) unless entry.status.blank? %></td>
 <td class="status_updater"><%=h entry.status_updater %></td>
