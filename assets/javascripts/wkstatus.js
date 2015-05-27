@@ -14,7 +14,7 @@ $(document).ready(function(){
 	if(txtEntryDate!=null){		
 		showEntryWarning(txtEntryDate.value);
 		txtEntryDate.onchange=function(){showEntryWarning(this.value)};	
-	}
+	}	
 });
 
 function showEntryWarning(entrydate){
@@ -32,7 +32,7 @@ function showEntryWarning(entrydate){
 }
 
 function showMessage(data,divID){							
-	if(data!=null && ('s'== data || 'a'== data)){
+	if(data!=null && ('s'== data || 'a'== data || 'l'== data)){
 		divID.style.display = 'block';
 	}
 	else{				

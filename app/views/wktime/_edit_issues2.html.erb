@@ -66,7 +66,7 @@ if params[:enter_issue_id].blank?
 			options_for_select(issues, :selected =>  entry.nil? ? 0 : entry.issue_id, :required => true),
 			:style=> "width:#{Setting.plugin_redmine_wktime['wktime_issue_dd_width']}px" ) %>
 		<% else %>
-			<%= entry.issue.subject if !entry.nil? && !entry.issue.nil? %>
+			<%=  entry.issue.tracker.to_s() +  " #" + entry.issue.id.to_s() + ": " + entry.issue.subject if !entry.nil? && !entry.issue.nil? %>
 		<% end %>
 	</td>
 <% else %>
@@ -110,8 +110,9 @@ if params[:enter_issue_id].blank?
 	Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 1 %>
 	<td class="comments" align="left">
 	<% if @editable %>
-		<%=h text_field_tag(isTemplate ? '__template__time_entry[][comments]' : 'time_entry[][comments]', 
-			 entry.nil? ? '' : entry.comments)%>
+	
+		<%=h text_field_tag(isTemplate ? '__template__time_entry[][comments]' : 'time_entry[][comments]',  
+			 (entry.nil? ? '' : entry.comments),:size => 35)%>
 	<% else %>
 		<%=h entry.nil? ? '' : entry.comments%>
 	<% end %>

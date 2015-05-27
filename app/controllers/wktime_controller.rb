@@ -39,13 +39,15 @@ helper :custom_fields
 	if user_id.blank?
 		ids = User.current.id.to_s
 	elsif user_id.to_i == 0	
-		@members.each_with_index do |users,i|			
-			if i == 0
-				ids =  users[1].to_s
-			else
-				ids +=',' + users[1].to_s
-			end				
-		end			
+		unless @members.blank?
+			@members.each_with_index do |users,i|			
+				if i == 0
+					ids =  users[1].to_s
+				else
+					ids +=',' + users[1].to_s
+				end				
+			end	
+		end
 		ids = '0' if ids.nil?
 	else
 		ids = user_id
@@ -53,25 +55,32 @@ helper :custom_fields
 	spField = getSpecificField()
 	entityNames = getEntityNames()
 	selectStr = "select v1.user_id, v1.startday as spent_on, v1." + spField
-	wkSelectStr = selectStr + ", w.status "		
+	wkSelectStr = selectStr + ", w.status "	
 	sqlStr = " from "
 	sDay = getDateSqlString('t.spent_on')
 	#Martin Dube contribution: 'start of the week' configuration
 	if ActiveRecord::Base.connection.adapter_name == 'SQLServer'	
+		wkSelectStr = wkSelectStr +", un.firstname + ' ' + un.lastname as status_updater "	
 		sqlStr += "(select  ROW_NUMBER() OVER (ORDER BY  " + sDay + " desc, user_id) AS rownum," + sDay + " as startday, "	
 		sqlStr += " t.user_id, sum(t." + spField + ") as " + spField + " ,max(t.id) as id" + " from " + entityNames[1] + " t, users u" +
 			" where u.id = t.user_id and u.id in (#{ids})"
 		sqlStr += " and t.spent_on between '#{@from}' and '#{@to}'" unless @from.blank? && @to.blank?	
 		sqlStr += " group by " + sDay + ", user_id ) as v1"
 	else
+		if ActiveRecord::Base.connection.adapter_name == 'SQLite'
+			wkSelectStr = wkSelectStr +", un.firstname || ' ' || un.lastname as status_updater "
+		else
+			wkSelectStr = wkSelectStr +", concat(un.firstname,' ' ,un.lastname) as status_updater "
+		end
 		sqlStr += "(select " + sDay + " as startday, "
 		sqlStr += " t.user_id, sum(t." + spField + ") as " + spField + " ,max(t.id) as id" + " from " + entityNames[1] + " t, users u" +
 			" where u.id = t.user_id and u.id in (#{ids})"
 		sqlStr += " and t.spent_on between '#{@from}' and '#{@to}'" unless @from.blank? && @to.blank?	
 		sqlStr += " group by startday, user_id order by startday desc, user_id ) as v1"
+		
 	end		
 
-	wkSqlStr = " left outer join " + entityNames[0] + " w on v1.startday = w.begin_date and v1.user_id = w.user_id"	
+	wkSqlStr = " left outer join " + entityNames[0] + " w on v1.startday = w.begin_date and v1.user_id = w.user_id left outer join users un on un.id = w.statusupdater_id"	
 	#status = params[:status]
 	if !status.blank? && status != 'all'
 		wkSqlStr += " WHERE w.status = '#{status}'" 
@@ -105,6 +114,10 @@ helper :custom_fields
 			@prev_template = true
 		end
 	end
+	locked = call_hook(:controller_lock_sheet,{ :startday => @startday})
+	locked = locked[0].blank? ? '' : locked[0]
+	@lockedsheet = !locked.blank? && locked
+	@editable = false if @lockedsheet
 	respond_to do |format|
 		format.html {
 			render :layout => !request.xhr?
@@ -153,7 +166,8 @@ helper :custom_fields
 						entrycount += 1
 						entrynilcount += 1 if (entry.hours).blank?
 						allowSave = true
-						if (!entry.id.blank? && !entry.editable_by?(@user))
+						#if (!entry.id.blank? && !entry.editable_by?(@user))
+						if (!entry.id.blank? && !entry.editable_by?(User.current))
 							allowSave = false
 						end
 						if to_boolean(@edittimelogs)
@@ -470,12 +484,14 @@ helper :custom_fields
 		if !userList.blank?
 			projmembers = userList[0].blank? ? nil : userList[0]
 		else
-			projmembers = project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC").distinct("#{User.table_name}.id")
+			projmembers = project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
 		end
-		projmembers.each do |m|
-			userStr << m.user_id.to_s() + ',' + m.name + "\n"
+		if !projmembers.nil?
+			projmembers = projmembers.to_a.uniq 
+			projmembers.each do |m|
+				userStr << m.user_id.to_s() + ',' + m.name + "\n"
+			end
 		end
-	
 		respond_to do |format|
 			format.text  { render :text => userStr }
 		end
@@ -534,7 +550,7 @@ helper :custom_fields
 		!Setting.plugin_redmine_wktime['wktime_work_time_header'].blank? &&
 		Setting.plugin_redmine_wktime['wktime_work_time_header'].to_i == 1
 	end
-	
+		
 	def maxHour
 		Setting.plugin_redmine_wktime['wktime_restr_max_hour'].to_i == 1 ?  
 		(Setting.plugin_redmine_wktime['wktime_max_hour_day'].blank? ? 8 : Setting.plugin_redmine_wktime['wktime_max_hour_day']) : 0
@@ -549,7 +565,7 @@ helper :custom_fields
 	end
 	
 	 def getStatus	
-		status = getTimeEntryStatus(params[:startDate].to_date,User.current.id)	
+		status = getTimeEntryStatus(params[:startDate].to_date,params[:user_id])
 		respond_to do |format|
 			format.text  { render :text => status }
 		end	
@@ -592,18 +608,14 @@ helper :custom_fields
 	
 	def check_approvable_status		
 		te_projects=[]
-		ret = false		
+		ret = false
+		if !@entries.blank?		
+			@te_projects = @entries.collect{|entry| entry.project}.uniq
+			te_projects = @approvable_projects & @te_projects if !@te_projects.blank?			
+		end
 		hookPerm = call_hook(:controller_check_approvable, {:params => params})		
 		if !hookPerm.blank?
 			ret = hookPerm[0]
-			#if (approvable[0].to_s)=='true'
-			#	ret = true
-			#end
-		else		
-			if !@entries.blank?		
-				@te_projects = @entries.collect{|entry| entry.project}.uniq
-				te_projects = @approvable_projects & @te_projects if !@te_projects.blank?			
-			end				
 		end
 		ret = ((ret || !te_projects.blank?) && (@user.id != User.current.id || (!Setting.plugin_redmine_wktime[:wktime_own_approval].blank? && 
 							Setting.plugin_redmine_wktime[:wktime_own_approval].to_i == 1 )))? true: false
@@ -619,6 +631,9 @@ helper :custom_fields
 		end
 	end
 	
+	def textfield_size
+	    4
+	end
 private
 
 
@@ -744,7 +759,9 @@ private
 		@teEntrydisabled=false
 		unless entryHash.nil?
 			entryHash.each_with_index do |entry, i|
-				if !entry['project_id'].blank?
+				if !entry['project_id'].blank? && !((Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? ||
+								Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 0) && 
+								entry['issue_id'].blank?)
 					hours = params['hours' + (i+1).to_s()]					
 					ids = params['ids' + (i+1).to_s()]
 					comments = params['comments' + (i+1).to_s()]
@@ -775,7 +792,8 @@ private
 								end
 								#timeEntry.hours = hours[j].blank? ? nil : hours[j].to_f
 								#to allow for internationalization on decimal separator
-								setValueForSpField(teEntry,hours[j],decimal_separator,entry)
+								#setValueForSpField(teEntry,hours[j],decimal_separator,entry)
+								teEntry.hours = hours[j].blank? ? nil : hours[j]#.to_f
 								
 								unless custom_fields.blank?
 									teEntry.custom_field_values.each do |custom_value|
@@ -942,7 +960,8 @@ private
   def can_log_time?(project_id)
 	ret = false
 	set_loggable_projects
-	@logtime_projects.each do |lp|
+	#@logtime_projects.each do |lp|
+	@currentUser_loggable_projects.each do |lp|
 		if lp.id == project_id
 			ret = true
 			break
@@ -1134,7 +1153,7 @@ private
 			if !hookProjMem.blank?
 				projMem = hookProjMem[0].blank? ? [] : hookProjMem[0]
 			else
-				projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC").distinct("#{User.table_name}.id")
+				projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
 			end				
 			@members = projMem.collect{|m| [ m.name, m.user_id ] }
 		elsif filter_type == '2'
@@ -1148,6 +1167,7 @@ private
 				@members = hookMem[0].blank? ? @members : hookMem[0]		
 			end
 		end
+		@members = @members.uniq
 	end
 	
   	def setup
@@ -1189,8 +1209,12 @@ private
 		if !view_projects.blank?
 			@manage_view_spenttime_projects = view_projects[0].blank? ? nil : view_projects[0]
 		else
-			view_spenttime_projects ||= Project.where(Project.allowed_to_condition(User.current, :view_time_entries)).order('name')
-			@manage_view_spenttime_projects = @manage_projects & view_spenttime_projects
+			if isAccountUser
+				@manage_view_spenttime_projects = Project.all
+			else
+				view_spenttime_projects ||= Project.where(Project.allowed_to_condition(User.current, :view_time_entries)).order('name')
+				@manage_view_spenttime_projects = @manage_projects & view_spenttime_projects
+			end
 		end
 		@manage_view_spenttime_projects = setTEProjects(@manage_view_spenttime_projects)
 
@@ -1298,7 +1322,8 @@ private
 	
 	def findEntriesByCond(cond)
 		#TimeEntry.find(:all, :conditions => cond, :order => 'project_id, issue_id, activity_id, spent_on')
-		TimeEntry.where(cond).order('project_id, issue_id, activity_id, spent_on')
+		#TimeEntry.where(cond).order('project_id, issue_id, activity_id, spent_on')
+		TimeEntry.joins(:project).joins(:activity).joins("LEFT OUTER JOIN issues ON issues.id = time_entries.issue_id").where(cond).order('projects.name, issues.subject, enumerations.name, time_entries.spent_on')
 	end
 	
 	def setValueForSpField(teEntry,spValue,decimal_separator,entry)
@@ -1494,5 +1519,5 @@ private
 			session[:wkexpense][:status] = params[:status]
 			session[:wkexpense][:group_id] = params[:group_id]
 		end		
-	 end
+	 end	
 end

@@ -111,6 +111,9 @@ class WkexpenseController < WktimeController
 	end
   end
  
+	def textfield_size
+	    7
+	end
 private
   def getSpecificField
 	"amount"
@@ -146,7 +149,8 @@ private
   
   def findEntriesByCond(cond)
 	#WkExpenseEntry.find(:all, :conditions => cond, :order => 'project_id, issue_id, activity_id, spent_on')
-	WkExpenseEntry.where(cond).order('project_id, issue_id, activity_id, spent_on')
+	#WkExpenseEntry.where(cond).order('project_id, issue_id, activity_id, spent_on')
+	WkExpenseEntry.joins(:project).joins(:activity).joins("LEFT OUTER JOIN issues ON issues.id = wk_expense_entries.issue_id").where(cond).order('projects.name, issues.subject, enumerations.name, wk_expense_entries.spent_on')
   end
   
   def setValueForSpField(teEntry,spValue,decimal_separator,entry)

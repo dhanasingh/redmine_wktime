@@ -23,6 +23,7 @@
 <% else %>
 <% 
 	projmem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
+	projmem = projmem.to_a.uniq if !projmem.nil?
 %>
 <%=h select_tag('user_id',
 	options_for_select( projmem.collect{|m| [ m.name, m.user_id ] },

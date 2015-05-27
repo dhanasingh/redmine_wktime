@@ -22,6 +22,7 @@ fr:
   label_wk_signature: Signature
   label_wk_submitted_by: Soumis par
   label_wk_approved_by: Approuvé par
+  label_wk_account_groups: Account Groups
   
   label_wk_enter_issue_id: Utiliser l'ID pour saisir la demande
   label_wk_work_time_header: Affichez l'entête effort
@@ -69,7 +70,7 @@ fr:
   label_wk_nonsub_mail_subject: Notification de retard
   label_wk_nonsub_mail_notification: Envoyer un courriel pour les retards  
   label_wk_nonsub_mail_message: Corps du courriel de retard
-  label_wk_warning_nonsub_notification: "Note: une modification des paramètres de configuration sous-jacents demandera un redémarrage de Redmine"
+  label_redmine_restart_warning: "Note: une modification des paramètres de configuration sous-jacents demandera un redémarrage de Redmine"
   label_wk_minutes: Minutes  
   label_wkexpense_entry_projects: Limiter la saisie de dépense à ces projets
   
@@ -105,6 +106,7 @@ fr:
   text_wk_warning_min_hour: "Vous n'avez pas saisi le minimum d'heures (%{value}) requis par jour"
   text_wk_warning_max_hour: "You have entered hours above Maximum hours (%{value}) allowed per day"
   field_amount: Montant  
+  field_status_updater: Status updated by
   
   label_wk_allow_filter_issue: Allow User filtering to My Issues
   label_wk_no_user_current_project: no users in selected project

@@ -77,4 +77,4 @@ Release Notes for 1.8.1
 		- Support for code hooks
 		- Filters will be remembered in list page.
 		
-Please provide your review at http://www.redmine.org/plugins/wk-time		
+Please provide your rating at http://www.redmine.org/plugins/wk-time		
