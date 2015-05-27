@@ -486,11 +486,12 @@ helper :custom_fields
 		else
 			projmembers = project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
 		end
-		projmembers = projmembers.to_a.uniq if !projmembers.nil?
-		projmembers.each do |m|
-			userStr << m.user_id.to_s() + ',' + m.name + "\n"
+		if !projmembers.nil?
+			projmembers = projmembers.to_a.uniq 
+			projmembers.each do |m|
+				userStr << m.user_id.to_s() + ',' + m.name + "\n"
+			end
 		end
-	
 		respond_to do |format|
 			format.text  { render :text => userStr }
 		end
@@ -1208,8 +1209,12 @@ private
 		if !view_projects.blank?
 			@manage_view_spenttime_projects = view_projects[0].blank? ? nil : view_projects[0]
 		else
-			view_spenttime_projects ||= Project.where(Project.allowed_to_condition(User.current, :view_time_entries)).order('name')
-			@manage_view_spenttime_projects = @manage_projects & view_spenttime_projects
+			if isAccountUser
+				@manage_view_spenttime_projects = Project.all
+			else
+				view_spenttime_projects ||= Project.where(Project.allowed_to_condition(User.current, :view_time_entries)).order('name')
+				@manage_view_spenttime_projects = @manage_projects & view_spenttime_projects
+			end
 		end
 		@manage_view_spenttime_projects = setTEProjects(@manage_view_spenttime_projects)
 

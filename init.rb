@@ -90,7 +90,7 @@ Redmine::Plugin.register :redmine_wktime do
   name 'Time & Expense'
   author 'Adhi Software Pvt Ltd'
   description 'This plugin is for entering Time & Expense'
-  version '1.8.1'
+  version '1.9'
   url 'http://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
   
@@ -216,6 +216,7 @@ class WktimeHook < Redmine::Hook::ViewListener
 			end
 		end
 	end
+	
 	def controller_issues_edit_before_save(context={})	
 		if !context[:time_entry].blank?
 			if !context[:time_entry].hours.blank? && !context[:time_entry].activity_id.blank?
