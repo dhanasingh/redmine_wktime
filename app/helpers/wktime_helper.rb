@@ -769,4 +769,8 @@ end
 		grpUserIds = groupusers[0].collect{|user| user.id}.uniq
 		isAccountUser = grpUserIds.include?(User.current.id)
 	end
+	
+	def getAccountUserProjects
+		Project.where(:status => "#{Project::STATUS_ACTIVE}")
+	end
 end

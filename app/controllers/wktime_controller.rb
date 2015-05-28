@@ -1219,7 +1219,8 @@ private
 			@manage_view_spenttime_projects = view_projects[0].blank? ? nil : view_projects[0]
 		else
 			if isAccountUser
-				@manage_view_spenttime_projects = Project.all
+				#@manage_view_spenttime_projects = Project.all
+				@manage_view_spenttime_projects = getAccountUserProjects
 			else
 				view_spenttime_projects ||= Project.where(Project.allowed_to_condition(User.current, :view_time_entries)).order('name')
 				@manage_view_spenttime_projects = @manage_projects & view_spenttime_projects
