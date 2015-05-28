@@ -105,7 +105,7 @@ en:
   text_wk_warning_min_hour: "You have not entered the Minimum hours (%{value}) required per day"
   text_wk_warning_max_hour: "You have entered hours above Maximum hours (%{value}) allowed per day"
   field_amount: Amount
-  field_status_updater: "Status updated by"
+  field_status_updater: "Modified by"
   
 
   label_wk_allow_filter_issue: Allow User filtering to My Issues
