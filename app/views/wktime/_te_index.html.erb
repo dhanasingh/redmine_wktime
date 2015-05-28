@@ -94,8 +94,7 @@ $(document).ready(function()
 <td class="status" align="left"><%=h select_tag('status', 
 	options_for_select(options_wk_status_select(status),
 	:selected => status.nil? ? 0 : status.to_s ),
-	:multiple=> true,
-	:onchange => "this.form.submit();") %></td>
+	:multiple=> true) %></td>
 </tr>
 </table>
 <%= render :partial => 'wktime/date_range' %>
