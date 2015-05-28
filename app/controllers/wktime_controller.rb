@@ -104,6 +104,11 @@ helper :custom_fields
 	setup
 	findWkTE(@startday)
 	@editable = @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r'
+	hookPerm = call_hook(:controller_check_editable, {:editable => @editable})
+	@editable = hookPerm.blank? ? @editable : hookPerm[0]
+	hookPerm = call_hook(:controller_check_locked, {:startdate => @startday})
+	@locked = hookPerm.blank? ? false : hookPerm[0]
+	@editable = false if @locked
 	set_edit_time_logs
 	@entries = findEntries()
 	set_project_issues(@entries)
@@ -114,10 +119,6 @@ helper :custom_fields
 			@prev_template = true
 		end
 	end
-	locked = call_hook(:controller_lock_sheet,{ :startday => @startday})
-	locked = locked[0].blank? ? '' : locked[0]
-	@lockedsheet = !locked.blank? && locked
-	@editable = false if @lockedsheet
 	respond_to do |format|
 		format.html {
 			render :layout => !request.xhr?
@@ -213,6 +214,14 @@ helper :custom_fields
 					end
 				elsif !params[:wktime_unapprove].blank? && !@wktime.nil? && @wktime.status == 'a' && allowApprove
 					errorMsg = updateStatus(:s)
+				elsif !params[:wktime_submit].blank? && !@wktime.nil?
+					#if TE sheet is read only mode with submit button				
+					if !Setting.plugin_redmine_wktime['wktime_uuto_approve'].blank? &&
+						Setting.plugin_redmine_wktime['wktime_uuto_approve'].to_i == 1
+						errorMsg = updateStatus(:a)
+					else
+						errorMsg = updateStatus(:s)
+					end
 				end
 			end
 		rescue Exception => e			
@@ -224,7 +233,7 @@ helper :custom_fields
 			if !@entries.blank? || !params[:wktime_approve].blank? || 
 				(!params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank?) ||
 				!params[:wktime_unsubmit].blank? || !params[:wktime_unapprove].blank? ||
-				((!params[:wktime_submit].blank? || !cvParams.blank?) && total > 0.0 && @wkvalidEntry)						
+				((!params[:wktime_submit].blank? || !cvParams.blank?) && total > 0.0) # && @wkvalidEntry
 				respMsg = l(:notice_successful_update)
 			else
 				respMsg = l(:error_wktime_save_nothing)

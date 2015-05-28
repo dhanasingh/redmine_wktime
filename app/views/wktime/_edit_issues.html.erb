@@ -94,33 +94,33 @@ currencySym = ""
 	<% end %>
 </tbody>
 </table>
-<%  if !@lockedsheet %>
-<% if @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r' %>
-		<%= submit_tag l(:button_save), :id => 'wktime_save', :name => 'wktime_save',  :disabled => !(@row > 0)%>
-        <%= submit_tag l(:button_save_continue), :id => 'wktime_save_continue', :name => 'wktime_save_continue' , :disabled => !(@row > 0)%>
+<% if !@locked %>
+	<% if @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r' %>
+			<%= submit_tag l(:button_save), :id => 'wktime_save', :name => 'wktime_save',  :disabled => !(@row > 0)%>
+			<%= submit_tag l(:button_save_continue), :id => 'wktime_save_continue', :name => 'wktime_save_continue' , :disabled => !(@row > 0)%>
+		<% if !Setting.plugin_redmine_wktime[:wktime_use_approval_system].blank? &&
+				Setting.plugin_redmine_wktime[:wktime_use_approval_system].to_i == 1 %>		
+				<%= submit_tag l(:button_submit),:id => 'wktime_submit', :name => 'wktime_submit', :onclick => "return validateMinhour('#{controller.minHour}','#{getNonWorkingDayColumn(params[:startday])}');" , :disabled => !(@row > 0)%>
+		<% end %>
+	<% end %>
 	<% if !Setting.plugin_redmine_wktime[:wktime_use_approval_system].blank? &&
-			Setting.plugin_redmine_wktime[:wktime_use_approval_system].to_i == 1 %>		
-			<%= submit_tag l(:button_submit),:id => 'wktime_submit', :name => 'wktime_submit', :onclick => "return validateMinhour('#{controller.minHour}','#{getNonWorkingDayColumn(params[:startday])}');" , :disabled => !(@row > 0)%>
-	<% end %>
-<% end %>
-<% if !Setting.plugin_redmine_wktime[:wktime_use_approval_system].blank? &&
-	Setting.plugin_redmine_wktime[:wktime_use_approval_system].to_i == 1 %>
-	<% if !@wktime.nil? && @wktime.status == 's' %>
-		<%= submit_tag l(:button_wk_unsubmit), :name => 'wktime_unsubmit', :disabled => !(@row > 0)%>
+		Setting.plugin_redmine_wktime[:wktime_use_approval_system].to_i == 1 %>
+		<% if !@wktime.nil? && @wktime.status == 's' %>
+			<%= submit_tag l(:button_wk_unsubmit), :name => 'wktime_unsubmit', :disabled => !(@row > 0)%>
 			<% if controller.check_approvable_status() %>		
-			<%= submit_tag l(:button_wk_approve), :name => 'wktime_approve', :disabled => !(@row > 0)%>
-			<%=h hidden_field_tag('wktime_notes', "") %>
-			<% # the jquery dialog box doesn't port the reject button value%>
-			<%=h hidden_field_tag('hidden_wk_reject', "") %>
-			<%= submit_tag l(:button_wk_reject), :name => 'wktime_reject', :disabled => !(@row > 0),
-				:onclick => "return showNotes();" %>
-		<% end %>
-	<% elsif  !@wktime.nil? && @wktime.status == 'a' %>
-	<% if controller.check_approvable_status()  %>		
-			<%= submit_tag l(:button_wk_unapprove), :id => 'wktime_unapprove', :name => 'wktime_unapprove'%>
+				<%= submit_tag l(:button_wk_approve), :name => 'wktime_approve', :disabled => !(@row > 0)%>
+				<%=h hidden_field_tag('wktime_notes', "") %>
+				<% # the jquery dialog box doesn't port the reject button value%>
+				<%=h hidden_field_tag('hidden_wk_reject', "") %>
+				<%= submit_tag l(:button_wk_reject), :name => 'wktime_reject', :disabled => !(@row > 0),
+					:onclick => "return showNotes();" %>
+			<% end %>
+		<% elsif  !@wktime.nil? && @wktime.status == 'a' %>
+			<% if controller.check_approvable_status()  %>		
+				<%= submit_tag l(:button_wk_unapprove), :id => 'wktime_unapprove', :name => 'wktime_unapprove'%>
+			<% end %>
 		<% end %>
 	<% end %>
-<% end %>
 <% end %>
 <div class="splitcontentright">
 <div class="contextual">
