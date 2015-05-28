@@ -17,9 +17,9 @@ module WktimeHelper
 	def options_wk_status_select(value)
 		options_for_select([[l(:wk_status_empty), 'empty'],
 							[l(:wk_status_new), 'n'],
-							[l(:wk_status_rejected), 'r']],
+							[l(:wk_status_rejected), 'r'],
 							[l(:wk_status_submitted), 's'],
-							[l(:wk_status_approved), 'a'],
+							[l(:wk_status_approved), 'a']],
 							value.blank? ? 'n' : value)
 	end
 	
