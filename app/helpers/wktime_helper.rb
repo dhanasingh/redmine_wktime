@@ -15,12 +15,12 @@ module WktimeHelper
 	end
 
 	def options_wk_status_select(value)
-		options_for_select([[l(:label_all), 'all'],
+		options_for_select([[l(:wk_status_empty), 'empty'],
 							[l(:wk_status_new), 'n'],
+							[l(:wk_status_rejected), 'r']],
 							[l(:wk_status_submitted), 's'],
 							[l(:wk_status_approved), 'a'],
-							[l(:wk_status_rejected), 'r']],
-							value.blank? ? 'all' : value)
+							value.blank? ? 'n' : value)
 	end
 	
 	def statusString(status)	

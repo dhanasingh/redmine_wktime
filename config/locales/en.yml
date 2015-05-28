@@ -96,6 +96,7 @@ en:
   error_not_permitted_save: Not permitted to Save
   
   wk_status_new: New
+  wk_status_empty: Empty
   wk_status_submitted: Submitted
   wk_status_approved: Approved
   wk_status_rejected: Rejected

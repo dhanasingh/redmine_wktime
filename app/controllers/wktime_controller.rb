@@ -82,9 +82,9 @@ helper :custom_fields
 
 	wkSqlStr = " left outer join " + entityNames[0] + " w on v1.startday = w.begin_date and v1.user_id = w.user_id left outer join users un on un.id = w.statusupdater_id"	
 	#status = params[:status]
-	if !status.blank? && status != 'all'
-		wkSqlStr += " WHERE w.status = '#{status}'" 
-		if status == 'n'
+	if !status.blank?
+		wkSqlStr += " WHERE w.status in ('#{status.join("','")}')" 
+		if status.include?('n')
 			wkSqlStr += " OR  w.status IS NULL"
 		end
 	end
