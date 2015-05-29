@@ -15,12 +15,12 @@ module WktimeHelper
 	end
 
 	def options_wk_status_select(value)
-		options_for_select([[l(:wk_status_empty), 'empty'],
+		options_for_select([[l(:wk_status_empty), 'e'],
 							[l(:wk_status_new), 'n'],
 							[l(:wk_status_rejected), 'r'],
 							[l(:wk_status_submitted), 's'],
 							[l(:wk_status_approved), 'a']],
-							value.blank? ? 'n' : value)
+							value.blank? ? ['e','n','r','s','a'] : value)
 	end
 	
 	def statusString(status)	
@@ -31,7 +31,9 @@ module WktimeHelper
 		when 'r'
 			statusStr = l(:wk_status_rejected)
 		when 's'
-			statusStr = l(:wk_status_submitted)	
+			statusStr = l(:wk_status_submitted)
+		when 'e'
+			statusStr = l(:wk_status_empty)
 		else
 			statusStr = l(:wk_status_new)
 		end
@@ -776,13 +778,13 @@ end
 	
 	def getAddDateStr(dtfield,noOfDays)
 		if ActiveRecord::Base.connection.adapter_name == 'PostgreSQL'			 
-			dateSqlStr = "date(#{dtfield}) + "	+ noOfDays.to_s
+			dateSqlStr = "date('#{dtfield}') + "	+ noOfDays.to_s
 		elsif ActiveRecord::Base.connection.adapter_name == 'SQLite'			 
-			dateSqlStr = "date(#{dtfield} , '+' || " + noOfDays.to_s + " || ' days')"
+			dateSqlStr = "date('#{dtfield}' , '+' || " + noOfDays.to_s + " || ' days')"
 		elsif ActiveRecord::Base.connection.adapter_name == 'SQLServer'		
-			dateSqlStr = "DateAdd(d, " + noOfDays.to_s + ", " + dtfield +")"
+			dateSqlStr = "DateAdd(d, " + noOfDays.to_s + ",'#{dtfield}')"
 		else
-			dateSqlStr = "adddate(" + dtfield + ", " + noOfDays.to_s + ")"
+			dateSqlStr = "adddate('#{dtfield}', " + noOfDays.to_s + ")"
 		end		
 		dateSqlStr
 	end

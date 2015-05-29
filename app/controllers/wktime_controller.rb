@@ -53,9 +53,9 @@ helper :custom_fields
 		ids = user_id
 	end
 	spField = getSpecificField()
-	entityNames = getEntityNames()
-	selectStr = "select v1.user_id, v1.startday as spent_on, v1." + spField
-	wkSelectStr = selectStr + ", w.status "	
+	entityNames = getEntityNames()	
+	teSelectStr = "select v1.user_id, v1.startday as spent_on, v1." + spField
+	wkSelectStr = teSelectStr + ", case when w.status is null then 'n' else w.status end as status "	
 	sqlStr = " from "
 	sDay = getDateSqlString('t.spent_on')
 	#Martin Dube contribution: 'start of the week' configuration
@@ -82,14 +82,14 @@ helper :custom_fields
 
 	wkSqlStr = " left outer join " + entityNames[0] + " w on v1.startday = w.begin_date and v1.user_id = w.user_id left outer join users un on un.id = w.statusupdater_id"	
 	#status = params[:status]
-	if !status.blank?
-		wkSqlStr += " WHERE w.status in ('#{status.join("','")}')" 
-		if status.include?('n')
-			wkSqlStr += " OR  w.status IS NULL"
-		end
-	end
+	#if !status.blank?
+	#	wkSqlStr += " WHERE w.status in ('#{status.join("','")}')" 
+	#	if status.include?('n')
+	#		wkSqlStr += " OR  w.status IS NULL"
+	#	end
+	#end
 	
-	findBySql(selectStr,sqlStr,wkSelectStr,wkSqlStr)	
+	findBySql(teSelectStr,sqlStr,wkSelectStr,wkSqlStr, status, ids)	
     respond_to do |format|
       format.html {        
         render :layout => !request.xhr?
@@ -1311,18 +1311,43 @@ private
 		["#{Wktime.table_name}", "#{TimeEntry.table_name}"]
 	end
 	
-	def findBySql(selectStr,sqlStr,wkSelectStr,wkSqlStr)
+	def findBySql(selectStr,sqlStr,wkSelectStr,wkSqlStr, status, ids)
 		spField = getSpecificField()
-		result = TimeEntry.find_by_sql("select count(*) as id from (" + selectStr + sqlStr + wkSqlStr + ") as v2")
+		
+		dtRangeForUsrSqlStr =  "(" + getAllWeekSql(@from, @to) + ") tmp1"
+			
+		teSqlStr = "(" + wkSelectStr + sqlStr + wkSqlStr + ") tmp2"
+		query = "select * from (select tmp1.id as user_id, tmp1.selected_date as spent_on, " + 
+				"case when tmp2.#{spField} is null then 0 else tmp2.#{spField} end as #{spField}, " +
+				"case when tmp2.status is null then 'e' else tmp2.status end as status, tmp2.status_updater from "
+		query = query + dtRangeForUsrSqlStr + " left join " + teSqlStr
+		query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids}) ) tmp3"
+		if !status.blank?
+			query += " WHERE tmp3.status in ('#{status.join("','")}')"
+		end
+		query = query + " order by tmp3.spent_on desc, tmp3.user_id "
+			
+		result = TimeEntry.find_by_sql("select count(*) as id from (" + query + ") as v2")
 		@entry_count = result[0].id
         setLimitAndOffset()		
-		rangeStr = formPaginationCondition()		
-		@entries = TimeEntry.find_by_sql(wkSelectStr + sqlStr + wkSqlStr + rangeStr)
-		@unit = nil	
-        #@total_hours = TimeEntry.visible.sum(:hours, :include => [:user], :conditions => cond.conditions).to_f
+		rangeStr = formPaginationCondition()
 		
-		result = TimeEntry.find_by_sql("select sum(v2." + spField + ") as " + spField + " from (" + selectStr + sqlStr + wkSqlStr + ") as v2")		
+		@entries = TimeEntry.find_by_sql(query + rangeStr)
+		@unit = nil
+		result = TimeEntry.find_by_sql("select sum(v2." + spField + ") as " + spField + " from (" + query + ") as v2")		
 		@total_hours = result[0].hours
+	end
+	
+	def getAllWeekSql(from, to)
+		noOfDays = 't4.i*7*10000 + t3.i*7*1000 + t2.i*7*100 + t1.i*7*10 + t0.i*7'
+		sqlStr = "select u.id, v.* from " +
+		"(select " + getAddDateStr(from, noOfDays) + "selected_date from " +
+		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t0, " +
+		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t1, " +
+		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t2, " +
+		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t3, " +
+		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t4) v, users u " +
+		"where selected_date between '#{from}' and '#{to}'"
 	end
 	
 	def findWkTEByCond(cond)
