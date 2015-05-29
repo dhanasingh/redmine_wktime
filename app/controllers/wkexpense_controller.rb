@@ -150,6 +150,14 @@ private
 	@total_hours = result[0].amount
   end
   
+  def getAllTimeRange(ids)
+	query = "select #{getDateSqlString('t.spent_on')} as startday " +
+			"from wk_expense_entries t where user_id in (#{ids}) group by startday order by startday"
+	result = WkExpenseEntry.find_by_sql(query)
+	@from = result[0].startday
+	@to = result[result.size - 1].startday
+  end
+  
   def findWkTEByCond(cond)
 	@wktimes = Wkexpense.where(cond)
   end

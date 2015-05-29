@@ -52,6 +52,11 @@ helper :custom_fields
 	else
 		ids = user_id
 	end
+	
+	if @from.blank? && @to.blank?
+		getAllTimeRange(ids)
+	end
+	
 	spField = getSpecificField()
 	entityNames = getEntityNames()	
 	teSelectStr = "select v1.user_id, v1.startday as spent_on, v1." + spField
@@ -1348,6 +1353,14 @@ private
 		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t3, " +
 		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t4) v, users u " +
 		"where selected_date between '#{from}' and '#{to}'"
+	end
+	
+	def getAllTimeRange(ids)
+		query = "select #{getDateSqlString('t.spent_on')} as startday " +
+				"from time_entries t where user_id in (#{ids}) group by startday order by startday"
+		result = TimeEntry.find_by_sql(query)
+		@from = result[0].startday
+		@to = result[result.size - 1].startday
 	end
 	
 	def findWkTEByCond(cond)
