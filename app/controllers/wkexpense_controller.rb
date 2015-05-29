@@ -155,7 +155,7 @@ private
 			"from wk_expense_entries t where user_id in (#{ids}) group by startday order by startday"
 	result = WkExpenseEntry.find_by_sql(query)
 	@from = result[0].startday
-	@to = result[result.size - 1].startday
+	@to = result[result.size - 1].startday + 6
   end
   
   def findWkTEByCond(cond)
