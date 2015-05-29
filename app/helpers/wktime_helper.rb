@@ -773,4 +773,17 @@ end
 	def getAccountUserProjects
 		Project.where(:status => "#{Project::STATUS_ACTIVE}")
 	end
+	
+	def getAddDateStr(dtfield,noOfDays)
+		if ActiveRecord::Base.connection.adapter_name == 'PostgreSQL'			 
+			dateSqlStr = "date(#{dtfield}) + "	+ noOfDays.to_s
+		elsif ActiveRecord::Base.connection.adapter_name == 'SQLite'			 
+			dateSqlStr = "date(#{dtfield} , '+' || " + noOfDays.to_s + " || ' days')"
+		elsif ActiveRecord::Base.connection.adapter_name == 'SQLServer'		
+			dateSqlStr = "DateAdd(d, " + noOfDays.to_s + ", " + dtfield +")"
+		else
+			dateSqlStr = "adddate(" + dtfield + ", " + noOfDays.to_s + ")"
+		end		
+		dateSqlStr
+	end
 end
