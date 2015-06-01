@@ -109,7 +109,7 @@ helper :custom_fields
 	setup
 	findWkTE(@startday)
 	@editable = @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r'
-	hookPerm = call_hook(:controller_check_editable, {:editable => @editable})
+	hookPerm = call_hook(:controller_check_editable, {:editable => @editable, :user => @user})
 	@editable = hookPerm.blank? ? @editable : hookPerm[0]
 	hookPerm = call_hook(:controller_check_locked, {:startdate => @startday})
 	@locked = hookPerm.blank? ? false : hookPerm[0]
