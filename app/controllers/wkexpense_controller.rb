@@ -156,10 +156,11 @@ private
 	result = WkExpenseEntry.find_by_sql(query)
 	if !result.blank?
 		@from = result[0].startday
-		@to = result[result.size - 1].startday + 6
+		#@to = result[result.size - 1].startday + 6
+		@to = getEndDay(Date.today)
 	else
-		@from = Date.today - 30
-		@to = Date.today
+		@from = Date.civil(Date.today.year, Date.today.month, 1)
+		@to = (@from >> 1) - 1
 	end
   end
   
