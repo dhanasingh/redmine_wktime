@@ -154,8 +154,13 @@ private
 	query = "select #{getDateSqlString('t.spent_on')} as startday " +
 			"from wk_expense_entries t where user_id in (#{ids}) group by startday order by startday"
 	result = WkExpenseEntry.find_by_sql(query)
-	@from = result[0].startday
-	@to = result[result.size - 1].startday + 6
+	if !result.blank?
+		@from = result[0].startday
+		@to = result[result.size - 1].startday + 6
+	else
+		@from = Date.today - 30
+		@to = Date.today
+	end
   end
   
   def findWkTEByCond(cond)
