@@ -555,7 +555,7 @@ end
 	def getTimeEntryStatus(spent_on,user_id)
 		#result = Wktime.find(:all, :conditions => [ 'begin_date = ? AND user_id = ?', getStartDay(spent_on), user_id])	
 		start_day = getStartDay(spent_on)		
-		locked = call_hook(:controller_lock_sheet,{ :startday => start_day})
+		locked = call_hook(:controller_check_locked,{ :startdate => start_day})
 		locked  = locked.blank? ? '' : (locked.is_a?(Array) ? (locked[0].blank? ? '': locked[0].to_s) : locked.to_s) 
 		locked = ( !locked.blank? && to_boolean(locked))
 		if locked
