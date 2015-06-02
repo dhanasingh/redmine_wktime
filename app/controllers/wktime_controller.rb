@@ -1322,7 +1322,7 @@ private
 		dtRangeForUsrSqlStr =  "(" + getAllWeekSql(@from, @to) + ") tmp1"
 			
 		teSqlStr = "(" + wkSelectStr + sqlStr + wkSqlStr + ") tmp2"
-		query = "select * from (select tmp1.id as user_id, tmp1.selected_date as spent_on, " + 
+		query = "select user_id, spent_on, #{spField}, status, status_updater from (select tmp1.id as user_id, tmp1.selected_date as spent_on, " + 
 				"case when tmp2.#{spField} is null then 0 else tmp2.#{spField} end as #{spField}, " +
 				"case when tmp2.status is null then 'e' else tmp2.status end as status, tmp2.status_updater from "
 		query = query + dtRangeForUsrSqlStr + " left join " + teSqlStr
@@ -1352,7 +1352,7 @@ private
 		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t2, " +
 		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t3, " +
 		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t4) v, users u " +
-		"where selected_date between '#{from}' and '#{to}'"
+		"where selected_date between (case when u.created_on > '#{from}' then (#{getDateSqlString('date(u.created_on)')}) else '#{from}' end) and '#{to}'"
 	end
 	
 	def getAllTimeRange(ids)
