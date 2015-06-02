@@ -1546,9 +1546,9 @@ private
 	end
 	
 	def is_member_of_any_project
-		querystr = "select count(user_id) as id_count from members where user_id = " + User.current.id.to_s
-		result = Member.find_by_sql(querystr)
-		ret = result[0].id_count > 0 ? true : false
+		cond =	"user_id = " + User.current.id.to_s
+		projMember = Member.where(cond)
+		ret = projMember.size > 0
 	end
 	
 	def set_filter_session
