@@ -37,7 +37,7 @@ helper :custom_fields
 	end
 	ids = nil		
 	if user_id.blank?
-		ids = User.current.id.to_s
+		ids = is_member_of_any_project() ? User.current.id.to_s : '0'
 	elsif user_id.to_i == 0	
 		unless @members.blank?
 			@members.each_with_index do |users,i|			
@@ -50,7 +50,7 @@ helper :custom_fields
 		end
 		ids = '0' if ids.nil?
 	else
-		ids = user_id
+		ids = user_id 
 	end
 	
 	if @from.blank? && @to.blank?
@@ -1543,6 +1543,12 @@ private
 	def set_edit_time_logs
 		editPermission = call_hook(:controller_edit_timelog_permission, {:params => params})
 		@edittimelogs  = editPermission.blank? ? '' : editPermission[0].to_s
+	end
+	
+	def is_member_of_any_project
+		querystr = "select count(user_id) as id_count from members where user_id = " + User.current.id.to_s
+		result = Member.find_by_sql(querystr)
+		ret = result[0].id_count > 0 ? true : false
 	end
 	
 	def set_filter_session
