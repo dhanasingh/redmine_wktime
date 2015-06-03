@@ -329,6 +329,12 @@ helper :custom_fields
 		setup
 		#cond = getCondition('spent_on', @user.id, @startday, @startday+6)
 		#TimeEntry.delete_all(cond)
+		hookPerm = call_hook(:controller_check_locked, {:startdate => @startday})
+		locked = hookPerm.blank? ? false : hookPerm[0]
+		if locked
+			flash[:error] = l(:error_time_entry_delete)
+			redirect_to :action => 'index' , :tab => params[:tab] 			
+		else
 		@entries = findEntries()
 		@entries.each do |entry|
 			entry.destroy()
@@ -343,6 +349,7 @@ helper :custom_fields
 			format.api  {
 				render_api_ok
 			}
+		end
 		end
 	end
 	
