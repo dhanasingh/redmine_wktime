@@ -1162,8 +1162,8 @@ private
 			project_id = session[:wktimes][:project_id]
 		end
 		hookMem = call_hook(:controller_get_member, { :filter_type => filter_type})
-		if filter_type == '1' || (hookMem.blank? && filter_type !='2')
-			hookProjMem = call_hook(:controller_project_member, {  :project_id => project_id})
+		if  ( filter_type !='2')
+			hookProjMem = call_hook(:controller_project_member, {  :project_id => @selected_project})
 			if !hookProjMem.blank?
 				projMem = hookProjMem[0].blank? ? [] : hookProjMem[0]
 			else
