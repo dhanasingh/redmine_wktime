@@ -1365,8 +1365,8 @@ private
 			#@to = result[result.size - 1].startday + 6
 			@to = getEndDay(Date.today)
 		else
-			@from = Date.civil(Date.today.year, Date.today.month, 1)
-			@to = (@from >> 1) - 1
+			@from = getStartDay(Date.civil(Date.today.year, Date.today.month, 1))
+			@to = getEndDay((@from >> 1) - 1)
 		end
 	end
 	
