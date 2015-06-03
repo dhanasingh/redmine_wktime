@@ -494,7 +494,7 @@ helper :custom_fields
 	def getusers
 		project = Project.find(params[:project_id])
 		userStr = ""
-		userList = call_hook(:controller_project_member,{ :project_id => params[:project_id]})
+		userList = call_hook(:controller_project_member, {:project_id => params[:project_id], :page => params[:page]})
 		if !userList.blank?
 			projmembers = userList[0].blank? ? nil : userList[0]
 		else
@@ -672,16 +672,17 @@ private
 				ret = (@user.id == User.current.id && @logtime_projects.size > 0)
 			end
 		end
-		editPermission = call_hook(:controller_check_permission,{:params => params})
-		editPermission  = editPermission.blank? ? '' : (editPermission.is_a?(Array) ? (editPermission[0].blank? ? '': editPermission[0]) : editPermission)	
+		editPermission = call_hook(:controller_check_permission, {:params => params})
+		#editPermission  = editPermission.blank? ? '' : (editPermission.is_a?(Array) ? (editPermission[0].blank? ? '': editPermission[0]) : editPermission)
 		if	!editPermission.blank? 
-			ret = false
-			if editPermission
-				ret = true
-			end
-		end			
+			#ret = false
+			#if editPermission
+			#	ret = true
+			#end
+			ret = editPermission[0] || (@user.id == User.current.id && @logtime_projects.size > 0)
+		end
 		return ret		
-	  end
+	end
 	
 	def getGrpMembers
 		userList = []
