@@ -1373,7 +1373,8 @@ private
 		#result = TimeEntry.find_by_sql(query)
 		query = "select date(min(created_on)) as startday from users where id in (#{ids})"
 		result = User.find_by_sql(query)
-		if !result.blank?
+		stDate = result[0].startday if !result.blank?
+		if !stDate.blank?
 			@from = getStartDay(result[0].startday)
 			#@to = result[result.size - 1].startday + 6
 			@to = getEndDay(Date.today)
