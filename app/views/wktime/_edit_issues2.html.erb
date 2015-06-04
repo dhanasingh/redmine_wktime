@@ -20,7 +20,11 @@ if params[:enter_issue_id].blank?
 			:onchange => "projectChanged(this,#{@row.to_s()});", :style=> "width:#{Setting.plugin_redmine_wktime['wktime_project_dd_width']}px" ) %>
 		<% else %>
 			<% if project.blank? %>
-				<%= project_id %>
+				<% if entry.nil? %>
+					<%= '' %>
+				<% else %>
+					<%= project_id %>
+				<% end %>
 			<% else %>
 				<%= project[0] %>
 			<% end %>
