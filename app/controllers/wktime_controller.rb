@@ -1507,7 +1507,7 @@ private
 		elsif !session[:wktimes].blank?
 			selected_proj_id = session[:wktimes][:project_id]
 		end
-		if !selected_proj_id.blank?
+		if !selected_proj_id.blank? && !isAccountUser
 			sel_project = projList.select{ |proj| proj.id == selected_proj_id.to_i }	
 			selected_project ||= sel_project[0] if !sel_project.blank?
 		else
