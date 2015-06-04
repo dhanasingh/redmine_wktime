@@ -150,19 +150,19 @@ private
 	@total_hours = result[0].amount
   end
   
-  def getAllTimeRange(ids)
-	query = "select #{getDateSqlString('t.spent_on')} as startday " +
-			"from wk_expense_entries t where user_id in (#{ids}) group by startday order by startday"
-	result = WkExpenseEntry.find_by_sql(query)
-	if !result.blank?
-		@from = result[0].startday
-		#@to = result[result.size - 1].startday + 6
-		@to = getEndDay(Date.today)
-	else
-		@from = getStartDay(Date.civil(Date.today.year, Date.today.month, 1))
-		@to = getEndDay((@from >> 1) - 1)
-	end
-  end
+  #def getAllTimeRange(ids)
+	#query = "select #{getDateSqlString('t.spent_on')} as startday " +
+	#		"from wk_expense_entries t where user_id in (#{ids}) group by startday order by startday"
+	#result = WkExpenseEntry.find_by_sql(query)
+	#if !result.blank?
+	#	@from = result[0].startday
+	#	#@to = result[result.size - 1].startday + 6
+	#	@to = getEndDay(Date.today)
+	#else
+	#	@from = getStartDay(Date.civil(Date.today.year, Date.today.month, 1))
+	#	@to = getEndDay((@from >> 1) - 1)
+	#end
+  #end
   
   def findWkTEByCond(cond)
 	@wktimes = Wkexpense.where(cond)

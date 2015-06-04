@@ -1170,8 +1170,8 @@ private
 			project_id = session[:wktimes][:project_id]
 		end
 		hookMem = call_hook(:controller_get_member, { :filter_type => filter_type})
-		if  ( filter_type !='2')
-			hookProjMem = call_hook(:controller_project_member, {  :project_id => @selected_project})
+		if filter_type == '1' || (hookMem.blank? && filter_type !='2')
+			hookProjMem = call_hook(:controller_project_member, {  :project_id => project_id})
 			if !hookProjMem.blank?
 				projMem = hookProjMem[0].blank? ? [] : hookProjMem[0]
 			else
@@ -1352,6 +1352,7 @@ private
 	end
 	
 	def getAllWeekSql(from, to)
+		to = to.blank? || to > Date.today  ? getEndDay(Date.today) : to
 		noOfDays = 't4.i*7*10000 + t3.i*7*1000 + t2.i*7*100 + t1.i*7*10 + t0.i*7'
 		sqlStr = "select u.id, v.* from " +
 		"(select " + getAddDateStr(from, noOfDays) + "selected_date from " +
@@ -1364,11 +1365,13 @@ private
 	end
 	
 	def getAllTimeRange(ids)
-		query = "select #{getDateSqlString('t.spent_on')} as startday " +
-				"from time_entries t where user_id in (#{ids}) group by startday order by startday"
-		result = TimeEntry.find_by_sql(query)
+		#query = "select #{getDateSqlString('t.spent_on')} as startday " +
+		#		"from time_entries t where user_id in (#{ids}) group by startday order by startday"
+		#result = TimeEntry.find_by_sql(query)
+		query = "select date(min(created_on)) as startday from users where id in (#{ids})"
+		result = User.find_by_sql(query)
 		if !result.blank?
-			@from = result[0].startday
+			@from = getStartDay(result[0].startday)
 			#@to = result[result.size - 1].startday + 6
 			@to = getEndDay(Date.today)
 		else
