@@ -680,12 +680,7 @@ private
 			end
 		end
 		editPermission = call_hook(:controller_check_permission, {:params => params})
-		#editPermission  = editPermission.blank? ? '' : (editPermission.is_a?(Array) ? (editPermission[0].blank? ? '': editPermission[0]) : editPermission)
 		if	!editPermission.blank? 
-			#ret = false
-			#if editPermission
-			#	ret = true
-			#end
 			ret = editPermission[0] || (@user.id == User.current.id && @logtime_projects.size > 0)
 		end
 		return ret		
@@ -995,7 +990,7 @@ private
   
   
     def check_editperm_redirect
-		hookPerm = call_hook(:controller_edit_timelog_permission)
+		hookPerm = call_hook(:controller_edit_timelog_permission, {:params => params})
 		if !hookPerm.blank?
 			allow = hookPerm[0] || check_editPermission
 		else
