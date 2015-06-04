@@ -10,10 +10,11 @@ if params[:enter_issue_id].blank?
 	project = projects.detect {|p| p[1].to_i == entry.project_id} unless entry.nil?
 	#check if the project, which was previously reported time, is still visible
 	#if it is not visible, just show the id alone
-	projects.unshift( [ entry.project_id, entry.project_id ] ) if !entry.nil? && project.blank?
+	projects.unshift( [ entry.project.name, entry.project_id ] ) if !entry.nil? && project.blank?
 %>
 
 	<td class="project" align="left">
+<% project_name = entry.nil? ? (@logtime_projects.blank? ? 0 : @logtime_projects[0].id) : entry.project.name %>
 		<% if @editable %>
 			<%=h select_tag(isTemplate ? '__template__time_entry[][project_id]' : 'time_entry[][project_id]', 
 			options_for_select(projects, :selected =>  project_id),
@@ -23,7 +24,7 @@ if params[:enter_issue_id].blank?
 				<% if entry.nil? %>
 					<%= '' %>
 				<% else %>
-					<%= project_id %>
+					<%= project_name %>
 				<% end %>
 			<% else %>
 				<%= project[0] %>
