@@ -37,7 +37,8 @@ helper :custom_fields
 	end
 	ids = nil		
 	if user_id.blank?
-		ids = is_member_of_any_project() ? User.current.id.to_s : '0'
+		#ids = is_member_of_any_project() ? User.current.id.to_s : '0'
+		ids = User.current.id.to_s
 	elsif user_id.to_i == 0	
 		unless @members.blank?
 			@members.each_with_index do |users,i|			
@@ -1356,9 +1357,10 @@ private
 		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t2, " +
 		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t3, " +
 		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t4) v, " +
-		"(select distinct u.* from projects p " +
-		"inner join members m on p.id = m.project_id and p.status not in (#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED}) " +
-		"inner join users u on m.user_id = u.id) u " +
+		"(select distinct u.id, u.created_on from projects p " +
+		"inner join members m on p.id = m.project_id " + #and p.status not in (#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})
+		"inner join users u on m.user_id = u.id " +
+		"union select u.id, u.created_on from users u where admin = 1) u " +
 		"where selected_date between (case when u.created_on > '#{from}' then (#{getDateSqlString('date(u.created_on)')}) else '#{from}' end) and '#{to}'"
 	end
 	
