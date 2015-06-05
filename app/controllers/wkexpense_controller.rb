@@ -161,7 +161,10 @@ private
 	if !result.blank?
 		@from = result[0].startday
 		@to = result[result.size - 1].startday + 6
-		#@to = getEndDay(Date.today)
+		currentWeekEndDay = getEndDay(Date.today)
+		if currentWeekEndDay > @to
+			@to = currentWeekEndDay
+		end
 	else
 		@from = getStartDay(Date.civil(Date.today.year, Date.today.month, 1))
 		@to = getEndDay((@from >> 1) - 1)
