@@ -1325,16 +1325,22 @@ private
 	def findBySql(selectStr,sqlStr,wkSelectStr,wkSqlStr, status, ids)
 		spField = getSpecificField()
 		
+		current_date = Date.today
+		
 		dtRangeForUsrSqlStr =  "(" + getAllWeekSql(@from, @to) + ") tmp1"
 			
 		teSqlStr = "(" + wkSelectStr + sqlStr + wkSqlStr + ") tmp2"
-		query = "select user_id, spent_on, #{spField}, status, status_updater from (select tmp1.id as user_id, tmp1.selected_date as spent_on, " + 
+		query = "select tmp3.user_id, tmp3.spent_on, tmp3.#{spField}, tmp3.status, tmp3.status_updater from (select tmp1.id as user_id, tmp1.selected_date as spent_on, " + 
 				"case when tmp2.#{spField} is null then 0 else tmp2.#{spField} end as #{spField}, " +
 				"case when tmp2.status is null then 'e' else tmp2.status end as status, tmp2.status_updater from "
 		query = query + dtRangeForUsrSqlStr + " left join " + teSqlStr
-		query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids}) ) tmp3"
+		query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids}) ) tmp3 "
+		query = query + " left outer join (select min( #{getDateSqlString('t.spent_on')} ) as min_spent_on, t.user_id from time_entries t, users u "
+		query = query + " where u.id = t.user_id and u.id in (#{ids}) group by user_id ) vw on vw.user_id = tmp3.user_id"
+		query += " WHERE not (tmp3.spent_on not between vw.min_spent_on and '#{Date.today}' and tmp3.status = 'e') " +
+				"and vw.min_spent_on is not null "
 		if !status.blank?
-			query += " WHERE tmp3.status in ('#{status.join("','")}')"
+			query += " and  tmp3.status in ('#{status.join("','")}') "
 		end
 		query = query + " order by tmp3.spent_on desc, tmp3.user_id "
 			
@@ -1350,7 +1356,7 @@ private
 	end
 	
 	def getAllWeekSql(from, to)
-		to = to.blank? || to > Date.today  ? getEndDay(Date.today) : to
+		#to = to.blank? || to > Date.today  ? getEndDay(Date.today) : to
 		noOfDays = 't4.i*7*10000 + t3.i*7*1000 + t2.i*7*100 + t1.i*7*10 + t0.i*7'
 		sqlStr = "select u.id, v.* from " +
 		"(select " + getAddDateStr(from, noOfDays) + " selected_date from " +
@@ -1362,21 +1368,21 @@ private
 		"(select distinct u.id, u.created_on from projects p " +
 		"inner join members m on p.id = m.project_id " + #and p.status not in (#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})
 		"inner join users u on m.user_id = u.id " +
-		"union select u.id, u.created_on from users u where admin = 1) u " +
-		"where selected_date between (case when u.created_on > '#{from}' then (#{getDateSqlString('date(u.created_on)')}) else '#{from}' end) and '#{to}'"
+		"union select u.id, u.created_on from users u where admin = '1') u " +
+		"where selected_date between '#{from}' and '#{to}'"
 	end
 	
 	def getAllTimeRange(ids)
-		#query = "select #{getDateSqlString('t.spent_on')} as startday " +
-		#		"from time_entries t where user_id in (#{ids}) group by startday order by startday"
-		#result = TimeEntry.find_by_sql(query)
-		query = "select date(min(created_on)) as startday from users where id in (#{ids})"
-		result = User.find_by_sql(query)
-		stDate = result[0].startday if !result.blank?
-		if !stDate.blank?
+		query = "select #{getDateSqlString('t.spent_on')} as startday " +
+				"from time_entries t where user_id in (#{ids}) group by startday order by startday"
+		result = TimeEntry.find_by_sql(query)
+		#query = "select date(min(created_on)) as startday from users where id in (#{ids})"
+		#result = User.find_by_sql(query)
+		#stDate = result[0].startday if !result.blank?
+		if !result.blank?
 			@from = getStartDay(result[0].startday)
-			#@to = result[result.size - 1].startday + 6
-			@to = getEndDay(Date.today)
+			@to = result[result.size - 1].startday + 6
+			#@to = getEndDay(Date.today)
 		else
 			@from = getStartDay(Date.civil(Date.today.year, Date.today.month, 1))
 			@to = getEndDay((@from >> 1) - 1)
