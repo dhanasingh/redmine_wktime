@@ -233,7 +233,6 @@ helper :custom_fields
 		rescue Exception => e			
 			errorMsg = e.message
 		end
-		
 		if errorMsg.nil?			
 			#when the are entries or it is not a save action
 			if !@entries.blank? || !params[:wktime_approve].blank? || 
@@ -663,7 +662,7 @@ private
 		ret = false
 		setup
 		set_user_projects
-		status = getTimeEntryStatus(@startday,@user_id)
+		status = getTimeEntryStatus(@startday, @user_id)
 		approve_projects = @approvable_projects & @logtime_projects
 		if (status != 'n' && (!approve_projects.blank? && approve_projects.size > 0))
 			#for approver			
@@ -993,7 +992,7 @@ private
     def check_editperm_redirect
 		hookPerm = call_hook(:controller_edit_timelog_permission, {:params => params})
 		if !hookPerm.blank?
-			allow = hookPerm[0] || check_editPermission
+			allow = hookPerm[0] || (check_editPermission && @user.id == User.current.id)
 		else
 			allow = check_editPermission
 		end
