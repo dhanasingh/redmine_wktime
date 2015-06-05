@@ -1335,8 +1335,8 @@ private
 				"case when tmp2.status is null then 'e' else tmp2.status end as status, tmp2.status_updater from "
 		query = query + dtRangeForUsrSqlStr + " left join " + teSqlStr
 		query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids}) ) tmp3 "
-		query = query + " left outer join (select min( #{getDateSqlString('t.spent_on')} ) as min_spent_on, t.user_id from time_entries t, users u "
-		query = query + " where u.id = t.user_id and u.id in (#{ids}) group by user_id ) vw on vw.user_id = tmp3.user_id"
+		query = query + " left outer join (select min( #{getDateSqlString('t.spent_on')} ) as min_spent_on, t.user_id as usrid from time_entries t, users u "
+		query = query + " where u.id = t.user_id and u.id in (#{ids}) group by t.user_id ) vw on vw.usrid = tmp3.user_id"
 		query += " WHERE not (tmp3.spent_on not between vw.min_spent_on and '#{Date.today}' and tmp3.status = 'e') " +
 				"and vw.min_spent_on is not null "
 		if !status.blank?
@@ -1382,7 +1382,10 @@ private
 		if !result.blank?
 			@from = getStartDay(result[0].startday)
 			@to = result[result.size - 1].startday + 6
-			#@to = getEndDay(Date.today)
+			currentWeekEndDay = getEndDay(Date.today)
+			if currentWeekEndDay > @to
+				@to = currentWeekEndDay
+			end
 		else
 			@from = getStartDay(Date.civil(Date.today.year, Date.today.month, 1))
 			@to = getEndDay((@from >> 1) - 1)
