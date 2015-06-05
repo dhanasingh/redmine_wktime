@@ -1180,7 +1180,9 @@ private
 			userList.each do |users|
 				@members << [users.name,users.id.to_s()]
 			end		
-		else			
+		else		
+			projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")		
+			@members = projMem.collect{|m| [ m.name, m.user_id ] }
 			if !hookMem.blank?
 				@members = hookMem[0].blank? ? @members : hookMem[0]		
 			end
