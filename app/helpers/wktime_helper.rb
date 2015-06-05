@@ -773,7 +773,7 @@ end
 	end
 	
 	def getAccountUserProjects
-		Project.where(:status => "#{Project::STATUS_ACTIVE}")
+		Project.where(:status => "#{Project::STATUS_ACTIVE}").order('name')
 	end
 	
 	def getAddDateStr(dtfield,noOfDays)
