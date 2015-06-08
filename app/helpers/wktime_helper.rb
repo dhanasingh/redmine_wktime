@@ -48,10 +48,12 @@ module WktimeHelper
 		end
 		
 		#Project.project_tree(projects) do |proj_name, level|
-		project_tree(projects) do |proj, level|
-			indent_level = (level > 0 ? ('&nbsp;' * 2 * level + '&#187; ').html_safe : '')
-			sel_project = projects.select{ |p| p.id == proj.id }
-			projArr << [ (indent_level + sel_project[0].name), sel_project[0].id ]
+		if !projects.blank?
+			project_tree(projects) do |proj, level|
+				indent_level = (level > 0 ? ('&nbsp;' * 2 * level + '&#187; ').html_safe : '')
+				sel_project = projects.select{ |p| p.id == proj.id }
+				projArr << [ (indent_level + sel_project[0].name), sel_project[0].id ]
+			end
 		end
 		projArr
 	end
@@ -760,7 +762,9 @@ end
 		isAccountUser = false
 		groupusers = Array.new
 		accountGrpIds = Setting.plugin_redmine_wktime['wktime_account_groups'] if !Setting.plugin_redmine_wktime['wktime_account_groups'].blank?
-		accountGrpIds = accountGrpIds.collect{|i| i.to_i}
+		if !accountGrpIds.blank?
+			accountGrpIds = accountGrpIds.collect{|i| i.to_i}
+		end
 
 		if !accountGrpIds.blank?
 			accountGrpIds.each do |group_id|
@@ -768,7 +772,8 @@ end
 				groupusers << scope.all
 			end
 		end
-		grpUserIds = groupusers[0].collect{|user| user.id}.uniq
+		grpUserIds = Array.new
+		grpUserIds = groupusers[0].collect{|user| user.id}.uniq if !groupusers.blank? && !groupusers[0].blank?
 		isAccountUser = grpUserIds.include?(User.current.id)
 	end
 	

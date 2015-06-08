@@ -1172,7 +1172,7 @@ private
 			else
 				projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
 			end				
-			@members = projMem.collect{|m| [ m.name, m.user_id ] }
+			@members = projMem.collect{|m| [ m.name, m.user_id ] } if !projMem.blank?
 		elsif filter_type == '2'
 			userList = []
 			userList = getGrpMembers			
