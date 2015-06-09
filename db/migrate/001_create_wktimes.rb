@@ -10,7 +10,7 @@ class CreateWktimes < ActiveRecord::Migration
 	  t.references :submitter, :class => "User", :null => true
 	  t.references :statusupdater, :class => "User"
 	  t.string :notes
-	  t.timestamps
+	  t.timestamps null: false
     end
 	add_index  :wktimes, :user_id
 	add_index  :wktimes, :begin_date
