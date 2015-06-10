@@ -32,7 +32,7 @@ helper :custom_fields
 	end
 	set_user_projects
 	if (!@manage_view_spenttime_projects.blank? && @manage_view_spenttime_projects.size > 0)
-		@selected_project = getSelectedProject(@manage_view_spenttime_projects)
+		@selected_project = getSelectedProject(@manage_view_spenttime_projects,true)
 		setMembers 
 	end
 	ids = nil		
@@ -355,7 +355,7 @@ helper :custom_fields
 	
 	def new
 		set_user_projects
-		@selected_project = getSelectedProject(@manage_projects)
+		@selected_project = getSelectedProject(@manage_projects,false)
 		# get the startday for current week
 		@startday = getStartDay(Date.today)
 		render :action => 'new'
@@ -1169,7 +1169,7 @@ private
 			hookProjMem = call_hook(:controller_project_member, {  :project_id => project_id})
 			if !hookProjMem.blank?
 				projMem = hookProjMem[0].blank? ? [] : hookProjMem[0]
-			else
+			else				
 				projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
 			end				
 			@members = projMem.collect{|m| [ m.name, m.user_id ] } if !projMem.blank?
@@ -1508,14 +1508,14 @@ private
 		"time"
 	end	
 	
-	def getSelectedProject(projList)
+	def getSelectedProject(projList,projstatus)
 		#selected_proj_id = params[:project_id]
 		if !params[:tab].blank? && params[:tab] =='wkexpense'		
 			selected_proj_id = session[:wkexpense][:project_id].blank? ? params[:project_id] : session[:wkexpense][:project_id]
 		elsif !session[:wktimes].blank?
 			selected_proj_id = session[:wktimes][:project_id]
 		end
-		if !selected_proj_id.blank? && !isAccountUser
+		if !selected_proj_id.blank? && projstatus #( !isAccountUser || !projList.blank? )
 			sel_project = projList.select{ |proj| proj.id == selected_proj_id.to_i }	
 			selected_project ||= sel_project[0] if !sel_project.blank?
 		else
