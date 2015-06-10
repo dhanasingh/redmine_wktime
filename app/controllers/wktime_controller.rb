@@ -220,7 +220,7 @@ helper :custom_fields
 					end
 				elsif !params[:wktime_unapprove].blank? && !@wktime.nil? && @wktime.status == 'a' && allowApprove
 					errorMsg = updateStatus(:s)
-				elsif !params[:wktime_submit].blank? && !@wktime.nil?
+				elsif !params[:wktime_submit].blank? && !@wktime.nil? && ( @wktime.status == 'n' || @wktime.status == 'r')	
 					#if TE sheet is read only mode with submit button				
 					if !Setting.plugin_redmine_wktime['wktime_uuto_approve'].blank? &&
 						Setting.plugin_redmine_wktime['wktime_uuto_approve'].to_i == 1
