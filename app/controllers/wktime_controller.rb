@@ -179,9 +179,16 @@ helper :custom_fields
 						end
 						if to_boolean(@edittimelogs)
 							allowSave = true
-						end						
-						errorMsg = updateEntry(entry) if allowSave
-						break unless errorMsg.blank?
+						end
+						if !((Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? ||
+								Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 0) && 
+								entry.issue.blank?)
+							errorMsg = updateEntry(entry) if allowSave
+							break unless errorMsg.blank?
+						else
+							errorMsg = "#{l(:field_issue)} #{l('activerecord.errors.messages.blank')} "
+							break unless errorMsg.blank?
+						end
 					end				
 					if !params[:wktime_submit].blank? && useApprovalSystem 
 						@wktime.submitted_on = Date.today
@@ -776,9 +783,7 @@ private
 		@teEntrydisabled=false
 		unless entryHash.nil?
 			entryHash.each_with_index do |entry, i|
-				if !entry['project_id'].blank? && !((Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? ||
-								Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 0) && 
-								entry['issue_id'].blank?)
+				if !entry['project_id'].blank?
 					hours = params['hours' + (i+1).to_s()]					
 					ids = params['ids' + (i+1).to_s()]
 					comments = params['comments' + (i+1).to_s()]
