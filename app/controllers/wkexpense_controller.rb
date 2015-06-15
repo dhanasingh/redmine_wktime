@@ -47,6 +47,10 @@ class WkexpenseController < WktimeController
 	false
   end 
   
+  def enterCustomFieldInRow(row)
+	false
+  end 
+  
   def maxHour
 	0
   end

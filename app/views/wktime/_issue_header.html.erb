@@ -5,12 +5,12 @@
 <% if !Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? &&
 	Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 1 %>
 	<th align="left"><%= l(:field_comments)%></th>
-<% else %>
-	<th align="left"></th>
 <% end %>
 
 <!-- For currency -->
-<th align="left"><%= controller.getUnitLabel %></th>
+<% if !controller.getUnitLabel.blank? %>
+	<th align="left"><%= controller.getUnitLabel %></th>
+<% end %>
 
 <%= render :partial => controller.getCFInRowHeaderHTML %>
 <% startOfWeek = getStartOfWeek %>

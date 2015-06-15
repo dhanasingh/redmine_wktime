@@ -122,17 +122,14 @@ if params[:enter_issue_id].blank?
 		<%=h entry.nil? ? '' : entry.comments%>
 	<% end %>
 	</td>
-<% else %>
-<% # leave a blank td %>
-<td class="comments" align="left"></td>
 <% end %>
 
 <!-- dropdown for currency -->
-<td align="left">
-	<% if !(controller.getUnitDDHTML).blank? %>
-		<%= render :partial => controller.getUnitDDHTML , :locals => {:entry => entry} %>
-	<% end %>
-</td>
+<% if !(controller.getUnitDDHTML).blank? %>
+	<td align="left">
+			<%= render :partial => controller.getUnitDDHTML , :locals => {:entry => entry} %>
+	</td>
+<% end %>
 
 <%= render :partial => controller.getCFInRowHTML , :locals => {:entry => entry, :isTemplate => false }%>
 

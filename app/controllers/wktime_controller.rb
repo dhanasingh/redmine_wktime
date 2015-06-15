@@ -578,6 +578,26 @@ helper :custom_fields
 		!Setting.plugin_redmine_wktime['wktime_work_time_header'].blank? &&
 		Setting.plugin_redmine_wktime['wktime_work_time_header'].to_i == 1
 	end
+	
+	def enterCommentInRow
+		!Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? &&
+		Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 1
+	end
+	
+	def enterCustomFieldInRow(row)
+		entry = nil 
+		custom_field_values = entry.nil? ? @new_custom_field_values : entry.custom_field_values
+		cf_value = nil
+		if row.to_i == 1
+			!Setting.plugin_redmine_wktime['wktime_enter_cf_in_row1'].blank? &&
+			(cf_value = custom_field_values.detect { |cfv| 
+				cfv.custom_field.id == Setting.plugin_redmine_wktime['wktime_enter_cf_in_row1'].to_i }) != nil
+		else
+			!Setting.plugin_redmine_wktime['wktime_enter_cf_in_row2'].blank? &&
+			(cf_value = custom_field_values.detect { |cfv| 
+				cfv.custom_field.id == Setting.plugin_redmine_wktime['wktime_enter_cf_in_row2'].to_i }) != nil
+		end
+	end
 		
 	def maxHour
 		Setting.plugin_redmine_wktime['wktime_restr_max_hour'].to_i == 1 ?  

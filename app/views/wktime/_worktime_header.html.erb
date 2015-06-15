@@ -1,16 +1,23 @@
-
 <tr>
 	<td ></td>
 	<td ></td>
-	<td ></td>
-	<td ></td>
-	<td ></td>
-	<td ></td>
+	<% if controller.enterCommentInRow %>
+		<td ></td>
+	<% end %>
+	<% if controller.getUnitLabel.blank? %>
+		<% if controller.enterCustomFieldInRow(1) %>
+			<td ></td>
+		<% end %>
+		<% if controller.enterCustomFieldInRow(2) %>
+			<td ></td>
+		<% end %>
+	<% end %>
+	
 
 	<td align = "right"><%= l(:"label_#{str}") %></td>
 	<% for i in 0..6%>
 		<% if (isEditable) %>
-			<td align = "center"><%= text_field_tag "#{str}_#{(i+1)}" ,'0:00',:size => 7, :onchange => "validateHr(this,#{(i+1)});" %></td>
+			<td align = "center"><%= text_field_tag "#{str}_#{(i+1)}" ,'0:00',:size => 4, :onchange => "validateHr(this,#{(i+1)});" %></td>
 		<% else %>
 			<td align = "center"><%= value %></td>
 		<% end %>
