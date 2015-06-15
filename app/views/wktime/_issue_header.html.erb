@@ -1,6 +1,6 @@
-<th align="left"><%= params[:enter_issue_id].blank? ? l(:field_project) : '' %></th>
-<th align="left"><%= l(:field_issue) %></th>
-<th align="left"><%= l(:field_activity) %></th>
+<th align="left" width="<%= Setting.plugin_redmine_wktime['wktime_project_dd_width'] %>"><%= params[:enter_issue_id].blank? ? l(:field_project) : '' %></th>
+<th align="left" width="<%= Setting.plugin_redmine_wktime['wktime_issue_dd_width']   %>"><%= l(:field_issue)  %></th>
+<th align="left" width="<%= Setting.plugin_redmine_wktime['wktime_actv_dd_width']    %>" ><%= l(:field_activity) %></th>
 
 <% if !Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? &&
 	Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 1 %>
