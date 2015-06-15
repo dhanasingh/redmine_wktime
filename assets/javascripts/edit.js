@@ -434,7 +434,10 @@ function updateDropdown(itemStr, row, dropdown, showId, needBlankOption, skipFir
 {
 	var items = itemStr.split('\n');
 	var selectedValSet = false;
-	var selectedText = dropdown[row-1].options[dropdown[row-1].selectedIndex].text;
+	var selectedText = "";
+	if (selectedVal) {
+		selectedText = dropdown[row-1].options[dropdown[row-1].selectedIndex].text;
+	}
 	dropdown[row-1].options.length = 0;
 	if(needBlankOption){
 		dropdown[row-1].options[0] = new Option( "", "", false, false); 
