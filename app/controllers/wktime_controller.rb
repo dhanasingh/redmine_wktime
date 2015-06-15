@@ -1371,7 +1371,7 @@ private
 		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t3, " +
 		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t4) v, " +
 		"(select distinct u.id, u.created_on from users u " +
-		"inner join #{entityNames[0]} t on u.id = t.user_id) u " +
+		"inner join #{entityNames[1]} t on u.id = t.user_id) u " +
 		"where selected_date between '#{from}' and '#{to}'"
 	end
 	
