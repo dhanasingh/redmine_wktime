@@ -52,7 +52,7 @@ if params[:enter_issue_id].blank?
 	if !curr_issue_found
 		if !entry.nil?
 			if !entry.issue_id.nil?
-				issues.unshift([ entry.issue.subject, entry.issue_id ])
+				issues.unshift([ entry.issue.tracker.to_s() +  " #" + entry.issue.id.to_s() + ": " + entry.issue.subject, entry.issue_id ])
 			else
 				if Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? ||
 					Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 0

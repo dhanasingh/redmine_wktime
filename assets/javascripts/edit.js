@@ -252,7 +252,7 @@ function projectChanged(projDropdown, row){
 			url: issUrl,
 			type: 'get',
 			data: {project_id: id, user_id: uid,tracker_id: trackerListArr, format:fmt,startday:startday, issue_assign_user: issue_assign_user},
-			success: function(data){ updateDropdown(data, row, issDropdown, true, allowBlankIssue, true,null); },
+			success: function(data){ updateDropdown(data, row, issDropdown, true, allowBlankIssue, true, null); },
 			beforeSend: function(){ $this.addClass('ajax-loading'); },
 			complete: function(){ $this.removeClass('ajax-loading'); }
 		});
@@ -354,7 +354,7 @@ function issueIdChanged(id, row){
 
 function updateIssDropdowns(itemStr, projDropdowns,projIds)
 {	
-	var items = itemStr.split('\n');	
+	var items = itemStr.split('\n');
 	var i, index, itemStr2='', val, text;
 	var prev_project_id=0, project_id=0;
 	var j, id;	
@@ -398,14 +398,14 @@ function updateIssueDD(itemStr, project_id, projDropdowns, issDropdowns)
 		for (j=0; j < projDropdowns.length; j++){		
 			proj_id = projDropdowns[j].options[projDropdowns[j].selectedIndex].value;
 			if(proj_id != '' && project_id == proj_id){			
-				if(issDropdowns[j]){									
+				if(issDropdowns[j]){
 					if(issDropdowns[j].value != ""){						
 						issue_id = issDropdowns[j].options[issDropdowns[j].selectedIndex].value;
 					}	
-					else{
-						issue_id=null;
+					else {
+						issue_id = null;
 					}
-					updateDropdown(itemStr, j+1, issDropdowns, true, allowBlankIssue, true, issue_id);					
+					updateDropdown(itemStr, j+1, issDropdowns, true, allowBlankIssue, true, issue_id);
 				}
 			}
 		}
@@ -433,7 +433,8 @@ function updateActDropdown(data, row, actDropdown){
 function updateDropdown(itemStr, row, dropdown, showId, needBlankOption, skipFirst, selectedVal)
 {
 	var items = itemStr.split('\n');
-	var selectedValSet = false;	
+	var selectedValSet = false;
+	var selectedText = dropdown[row-1].options[dropdown[row-1].selectedIndex].text;
 	dropdown[row-1].options.length = 0;
 	if(needBlankOption){
 		dropdown[row-1].options[0] = new Option( "", "", false, false); 
@@ -465,7 +466,7 @@ function updateDropdown(itemStr, row, dropdown, showId, needBlankOption, skipFir
 	}
 	if(selectedVal && !selectedValSet){
 		dropdown[row-1].options[needBlankOption ? i+1 : i] = new Option( 
-				selectedVal, selectedVal, false, true);
+				selectedText, selectedVal, false, true);
 	}
 }
 
