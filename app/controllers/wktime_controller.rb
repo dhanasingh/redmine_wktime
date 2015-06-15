@@ -1361,6 +1361,7 @@ private
 	
 	def getAllWeekSql(from, to)
 		#to = to.blank? || to > Date.today  ? getEndDay(Date.today) : to
+		entityNames = getEntityNames()
 		noOfDays = 't4.i*7*10000 + t3.i*7*1000 + t2.i*7*100 + t1.i*7*10 + t0.i*7'
 		sqlStr = "select u.id, v.* from " +
 		"(select " + getAddDateStr(from, noOfDays) + " selected_date from " +
@@ -1369,10 +1370,8 @@ private
 		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t2, " +
 		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t3, " +
 		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t4) v, " +
-		"(select distinct u.id, u.created_on from projects p " +
-		"inner join members m on p.id = m.project_id " + #and p.status not in (#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})
-		"inner join users u on m.user_id = u.id " +
-		"union select u.id, u.created_on from users u where admin = '1') u " +
+		"(select distinct u.id, u.created_on from users u " +
+		"inner join #{entityNames[0]} t on u.id = t.user_id) u " +
 		"where selected_date between '#{from}' and '#{to}'"
 	end
 	
