@@ -98,7 +98,7 @@ if params[:enter_issue_id].blank?
 		#if it is not visible, just show the id alone
 	
 		activities = projActList.collect {|a| [a.name, a.id]}
-		activities.unshift( [ entry.activity_id, entry.activity_id ] )if !entry.nil? && activity.blank?
+		activities.unshift( [ entry.activity.name, entry.activity_id ] )if !entry.nil? && activity.blank?
 	end
 %>
 <td class="activity" align="left">
