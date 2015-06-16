@@ -16,9 +16,9 @@
 <% startOfWeek = getStartOfWeek %>
 <% for i in 0..6%>
 <!-- Martin Dube contribution: 'start of the week' configuration -->
-<th width = "5"><%= l('date.abbr_day_names')[(i+(startOfWeek))%7] %><br /><%= I18n.localize(@startday+i, :format=>:short) unless @startday.nil? %></th>
+<th width="5"><%= l('date.abbr_day_names')[(i+(startOfWeek))%7] %><br /><%= I18n.localize(@startday+i, :format=>:short) unless @startday.nil? %></th>
 <% end %>
-<th width = "95"></th>
+<th></th>
 
 <% if controller.showWorktimeHeader %>
 
