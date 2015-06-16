@@ -32,9 +32,9 @@ helper :custom_fields
 	end
 	set_user_projects
 	if (!@manage_view_spenttime_projects.blank? && @manage_view_spenttime_projects.size > 0)
-		@selected_project = getSelectedProject(@manage_view_spenttime_projects, false)
-		setMembers 
+		@selected_project = getSelectedProject(@manage_view_spenttime_projects, false)		 
 	end
+	setMembers
 	ids = nil		
 	if user_id.blank?
 		#ids = is_member_of_any_project() ? User.current.id.to_s : '0'
@@ -1182,6 +1182,7 @@ private
 	def setMembers		
 		@groups = Group.sorted.all
 		@members = Array.new
+		projMem = nil
 		if !params[:tab].blank? && params[:tab] =='wkexpense'
 			filter_type = session[:wkexpense][:filter_type]
 			project_id = session[:wkexpense][:project_id]
@@ -1195,7 +1196,7 @@ private
 			if !hookProjMem.blank?
 				projMem = hookProjMem[0].blank? ? [] : hookProjMem[0]
 			else				
-				projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
+				projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC") if !@selected_project.blank?
 			end				
 			@members = projMem.collect{|m| [ m.name, m.user_id ] } if !projMem.blank?
 		elsif filter_type == '2'
@@ -1205,8 +1206,8 @@ private
 				@members << [users.name,users.id.to_s()]
 			end		
 		else		
-			projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")		
-			@members = projMem.collect{|m| [ m.name, m.user_id ] }
+			projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC") if !@selected_project.blank?		
+			@members = projMem.collect{|m| [ m.name, m.user_id ] } if !projMem.blank?
 			if !hookMem.blank?
 				@members = hookMem[0].blank? ? @members : hookMem[0]		
 			end
@@ -1540,7 +1541,7 @@ private
 			selected_proj_id = session[:wktimes][:project_id]
 		end
 		if !selected_proj_id.blank? && !setFirstProj #( !isAccountUser || !projList.blank? )
-			sel_project = projList.select{ |proj| proj.id == selected_proj_id.to_i }	
+			sel_project = projList.select{ |proj| proj.id == selected_proj_id.to_i } if !projList.blank?	
 			selected_project ||= sel_project[0] if !sel_project.blank?
 		else
 			selected_project ||= projList[0] if !projList.blank?
