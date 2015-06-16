@@ -467,9 +467,22 @@ function updateDropdown(itemStr, row, dropdown, showId, needBlankOption, skipFir
 			}
 		}
 	}
-	if(selectedVal && !selectedValSet){
-		dropdown[row-1].options[needBlankOption ? i+1 : i] = new Option( 
-				selectedText, selectedVal, false, true);
+	
+	var addExistingOption = true;
+	if(showId) { //for issue dropdown
+		var hoursFld = document.getElementsByName("hours" + row + "[]");
+		addExistingOption = false;
+		for(var j = 0; j < hoursFld.length; j++) {
+			if(hoursFld[j].value) {
+				addExistingOption = true;			
+				break;
+			}
+		}
+	}
+	if (addExistingOption === true) {
+		if(selectedVal && !selectedValSet){
+			dropdown[row-1].options[needBlankOption ? i+1 : i] = new Option(selectedText, selectedVal, false, true);
+		}
 	}
 }
 
