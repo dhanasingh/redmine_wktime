@@ -1376,9 +1376,9 @@ private
 	def getWhereCond(status)
 		current_date = getEndDay(Date.today)
 		query = "WHERE ((tmp3.spent_on between "
-		query = query + "case when vw.min_spent_on is null then date(#{getDateSqlString('tmp3.created_on')}) else vw.min_spent_on end "
+		query = query + "case when vw.min_spent_on is null then #{getDateSqlString('date(tmp3.created_on)')} else vw.min_spent_on end "
 		query = query + "and '#{current_date}') OR "
-		query = query + "((tmp3.spent_on < case when vw.min_spent_on is null then date(#{getDateSqlString('tmp3.created_on')}) else vw.min_spent_on end "
+		query = query + "((tmp3.spent_on < case when vw.min_spent_on is null then #{getDateSqlString('date(tmp3.created_on)')} else vw.min_spent_on end "
 		query = query + "and tmp3.status <> 'e') "
 		query = query + "OR (tmp3.spent_on > '#{current_date}' and tmp3.status <> 'e'))) "
 		if !status.blank?
