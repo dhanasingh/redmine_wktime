@@ -128,51 +128,33 @@ private
   end
   
   def findBySql(selectStr,sqlStr,wkSelectStr,wkSqlStr, status, ids) 
-	spField = getSpecificField()	
-
+	spField = getSpecificField()
 	dtRangeForUsrSqlStr =  "(" + getAllWeekSql(@from, @to) + ") tmp1"			
 	teSqlStr = "(" + wkSelectStr + " ,exp.currency" + sqlStr + " inner join wk_expense_entries exp on v1.id = exp.id " + wkSqlStr + ") tmp2"			
-	query = "select * from (select tmp1.id as user_id, tmp1.selected_date as spent_on, " +
+	query = "select tmp3.user_id, tmp3.spent_on, tmp3.#{spField}, tmp3.status, tmp3.status_updater, tmp3.created_on, tmp3.currency from (select tmp1.id as user_id, tmp1.created_on, tmp1.selected_date as spent_on, " +
 				"case when tmp2.#{spField} is null then 0 else tmp2.#{spField} end as #{spField}, " +
 				"case when tmp2.status is null then 'e' else tmp2.status end as status, tmp2.currency, tmp2.status_updater from "
 	query = query + dtRangeForUsrSqlStr + " left join " + teSqlStr
 	query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids}) ) tmp3 "
 	query = query + " left outer join (select min( #{getDateSqlString('t.spent_on')} ) as min_spent_on, t.user_id as usrid from wk_expense_entries t, users u "
-	query = query + " where u.id = t.user_id and u.id in (#{ids}) group by t.user_id ) vw on vw.usrid = tmp3.user_id"
-	query += " WHERE not (tmp3.spent_on not between vw.min_spent_on and '#{Date.today}' and tmp3.status = 'e') " +
-				"and vw.min_spent_on is not null "
-	if !status.blank?
-		query += " and  tmp3.status in ('#{status.join("','")}') "
-	end
+	query = query + " where u.id = t.user_id and u.id in (#{ids}) group by t.user_id ) vw on vw.usrid = tmp3.user_id "
+	query = query + getWhereCond(status)
 	query = query + " order by tmp3.spent_on desc, tmp3.user_id "
 	
 	result = WkExpenseEntry.find_by_sql("select count(*) as id from (" + query + ") as v2")
-	@entry_count = result[0].id
-	
+	@entry_count = result[0].id	
 	setLimitAndOffset()	
 	rangeStr = formPaginationCondition()
-
 	@entries = WkExpenseEntry.find_by_sql(query + rangeStr)
 	@unit = @entries.blank? ? l('number.currency.format.unit') : @entries[0][:currency]
 	result = WkExpenseEntry.find_by_sql("select sum(v2." + spField + ") as " + spField + " from (" + query + ") as v2")	
 	@total_hours = result[0].amount
   end
   
-  def getAllTimeRange(ids)
-	query = "select #{getDateSqlString('t.spent_on')} as startday " +
+  def getTEAllTimeRange(ids)
+	teQuery = "select #{getDateSqlString('t.spent_on')} as startday " +
 			"from wk_expense_entries t where user_id in (#{ids}) group by startday order by startday"
-	result = WkExpenseEntry.find_by_sql(query)
-	if !result.blank?
-		@from = result[0].startday
-		@to = result[result.size - 1].startday + 6
-		currentWeekEndDay = getEndDay(Date.today)
-		if currentWeekEndDay > @to
-			@to = currentWeekEndDay
-		end
-	else
-		@from = getStartDay(Date.civil(Date.today.year, Date.today.month, 1))
-		@to = getEndDay((@from >> 1) - 1)
-	end
+	teResult = WkExpenseEntry.find_by_sql(teQuery)
   end
   
   def findWkTEByCond(cond)
