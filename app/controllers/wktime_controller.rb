@@ -1398,7 +1398,7 @@ private
 		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t2, " +
 		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t3, " +
 		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t4) v, " +
-		"(select distinct u.id, u.created_on from users u )u " +		
+		"(select distinct u.id, u.created_on from users u) u " +		
 		"where selected_date between '#{from}' and '#{to}'"
 	end
 	
@@ -1417,18 +1417,19 @@ private
 		teResult = getTEAllTimeRange(ids)
 		usrResult = getUserAllTimeRange(ids)
 		currentWeekEndDay = getEndDay(Date.today)
+		@from = getStartDay(Date.today)
 		@to = currentWeekEndDay
-		if !teResult.blank?
+		if !teResult.blank? && teResult.size > 0
 			@from = teResult[0].startday
 			@to = teResult[teResult.size - 1].startday + 6			
 			if currentWeekEndDay > @to
 				@to = currentWeekEndDay
 			end
 		end
-		if !usrResult.blank?
-			stDate = usrResult[0].startday if !usrResult.blank?
-			stDate = getStartDay(stDate)
-			if ((!@from.blank? && stDate < @from) || @from.blank?)
+		if !usrResult.blank? && usrResult.size > 0
+			stDate = usrResult[0].startday
+			stDate = getStartDay(stDate) if !stDate.blank?
+			if (!stDate.blank? && stDate < @from)
 				@from = stDate
 			end
 		end		
