@@ -22,7 +22,7 @@ it:
   label_wk_signature: Firma
   label_wk_submitted_by: Inserito da
   label_wk_approved_by: Approvato da
-  label_wk_account_groups: Account Groups
+  label_wk_account_groups: T&E Admin Groups
   
   label_wk_enter_issue_id: Enter issue as ID
   label_wk_work_time_header: Show work time header
