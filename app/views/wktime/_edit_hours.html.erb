@@ -21,10 +21,9 @@
 			end
 			%>
 			<%#if this is from a previous template, don't print the hours%>
-			<td class="hours">
-			
+			<td class="hours" width="6%" >
 				<%=h text_field_tag('hours' + @row.to_s() +'[]', entry.nil? || @prev_template ? '' : ("%.2f" % entry.hours) ,:size => "#{controller.textfield_size}",
-				:disabled => disable,
+				:disabled => disable,:width => "80%",
 				:onchange => "validateTotal(this, #{@wday_index},'#{controller.maxHour}');") %>
 				
 				<%=h hidden_field_tag('ids' + @row.to_s() +'[]', entry.nil? || @prev_template ? '' : entry.id) %>
@@ -75,7 +74,7 @@
 						<% if !@new_custom_field_values.blank? || ( Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? ||
 									Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 0)  %>
 								<% image_tg = image_tag("#{imgname}", :id => 'custfield_img' + @row.to_s() +'_', :name => 'custfield_img' + @row.to_s() +'[]',
-									:plugin => "redmine_wktime",:title => "#{entry.nil? || @prev_template || cvs.blank? ? '' : cvs.join(',')}") %>
+									:width => "20%",:plugin => "redmine_wktime",:title => "#{entry.nil? || @prev_template || cvs.blank? ? '' : cvs.join(',')}") %>
 							<% else %>
 								<%= image_tg ="" %>
 							<% end %>
@@ -87,7 +86,7 @@
 						<% end %>
 					<% end %>
 				
-				<% end %>
+				<% end %>				
 			</td>
 			<% @wday_index += 1 %>
 		<% end %>
