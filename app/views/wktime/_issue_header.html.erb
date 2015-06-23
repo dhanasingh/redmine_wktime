@@ -1,6 +1,6 @@
-<th align="left" width="<%= Setting.plugin_redmine_wktime['wktime_project_dd_width'] %>%"><%= params[:enter_issue_id].blank? ? l(:field_project) : '' %></th>
-<th align="left" width="<%= Setting.plugin_redmine_wktime['wktime_issue_dd_width'] %>%"><%= l(:field_issue)  %></th>
-<th align="left" width="<%= Setting.plugin_redmine_wktime['wktime_actv_dd_width']    %>%" ><%= l(:field_activity) %></th>
+<th align="left" width="<%= Setting.plugin_redmine_wktime['wktime_project_dd_width'] %>"><%= params[:enter_issue_id].blank? ? l(:field_project) : '' %></th>
+<th align="left" width="<%= Setting.plugin_redmine_wktime['wktime_issue_dd_width']   %>"><%= l(:field_issue)  %></th>
+<th align="left" width="<%= Setting.plugin_redmine_wktime['wktime_actv_dd_width']    %>" ><%= l(:field_activity) %></th>
 
 <% if !Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? &&
 	Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 1 %>
@@ -9,13 +9,14 @@
 
 <!-- For currency -->
 <% if !controller.getUnitLabel.blank? %>
-	<th align="left" ><%= controller.getUnitLabel %></th>
+	<th align="left"><%= controller.getUnitLabel %></th>
 <% end %>
+
 <%= render :partial => controller.getCFInRowHeaderHTML %>
 <% startOfWeek = getStartOfWeek %>
 <% for i in 0..6%>
 <!-- Martin Dube contribution: 'start of the week' configuration -->
-<th width="6%" align="center"><%= l('date.abbr_day_names')[(i+(startOfWeek))%7] %><br /><%= I18n.localize(@startday+i, :format=>:short) unless @startday.nil? %></th>
+<th width="5"><%= l('date.abbr_day_names')[(i+(startOfWeek))%7] %><br /><%= I18n.localize(@startday+i, :format=>:short) unless @startday.nil? %></th>
 <% end %>
 <th></th>
 
