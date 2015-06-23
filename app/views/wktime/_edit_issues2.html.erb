@@ -88,23 +88,25 @@ if params[:enter_issue_id].blank?
 <%
 	activity = nil
 	activities = nil
+	selectedActId = entry.nil? ? 0 : entry.activity_id
 	projActList = @projActivities[project_id]
 	#activities = activities.sort_by{|name, id| name} unless activities.blank?
 	unless projActList.blank?
 		projActList = projActList.sort_by{|name| name}
-
-		activity = projActList.detect {|a| a.id == entry.activity_id} unless entry.nil?
+		activityName = entry.activity.name unless entry.nil?
+		activity = projActList.detect {|a| a.name == activityName} unless entry.nil?
+		selectedActId = activity.id if !activity.blank?
 		#check if the activity, which was previously reported time, is still visible
 		#if it is not visible, just show the id alone
 	
 		activities = projActList.collect {|a| [a.name, a.id]}
-		activities.unshift( [ entry.activity.name, entry.activity_id ] )if !entry.nil? && activity.blank?
+		activities.unshift( [ activityName, entry.activity_id ] )if !entry.nil? && activity.blank?
 	end
 %>
 <td class="activity" align="left">
 <% if @editable %>
 	<%=h select_tag(isTemplate ? '__template__time_entry[][activity_id]' : 'time_entry[][activity_id]', 
-	activities.blank? ? nil : options_for_select(activities, :selected => entry.nil? ? 0 : entry.activity_id),
+	activities.blank? ? nil : options_for_select(activities, :selected => selectedActId),
 	:style=> "width:#{Setting.plugin_redmine_wktime['wktime_actv_dd_width']}px" ) %>
 <% else %>
 	<%= entry.activity.name unless entry.nil?%>
