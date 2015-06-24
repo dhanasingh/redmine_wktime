@@ -1,10 +1,7 @@
-<% if controller.checkDDWidth
-check = true 
-end  
-%>
-<th align="left" width="<%= check ? Setting.plugin_redmine_wktime['wktime_project_dd_width'] : 15 %>%" ><%= params[:enter_issue_id].blank? ? l(:field_project) : '' %></th>
-<th align="left" width="<%= check ? Setting.plugin_redmine_wktime['wktime_issue_dd_width'] : 25 %>%"><%= l(:field_issue)  %></th>
-<th align="left" width="<%= check ? Setting.plugin_redmine_wktime['wktime_actv_dd_width']  : 10  %>%" ><%= l(:field_activity) %></th>
+<% ddwidth = controller.checkDDWidth %>
+<th align="left" width="<%= ddwidth ? Setting.plugin_redmine_wktime['wktime_project_dd_width'] : 15 %>%" ><%= params[:enter_issue_id].blank? ? l(:field_project) : '' %></th>
+<th align="left" width="<%= ddwidth ? Setting.plugin_redmine_wktime['wktime_issue_dd_width'] : 25 %>%"><%= l(:field_issue)  %></th>
+<th align="left" width="<%= ddwidth ? Setting.plugin_redmine_wktime['wktime_actv_dd_width']  : 10  %>%" ><%= l(:field_activity) %></th>
 
 <% if !Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? &&
 	Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 1 %>
