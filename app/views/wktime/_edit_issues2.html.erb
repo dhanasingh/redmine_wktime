@@ -12,13 +12,16 @@ if params[:enter_issue_id].blank?
 	#if it is not visible, just show the id alone
 	projects.unshift( [ entry.project.name, entry.project_id ] ) if !entry.nil? && project.blank?
 %>
-
-	<td class="project" align="left">
+<% if controller.checkDDWidth
+ddwidth = true 
+end  
+%>
+	<td class="project" align="left" width="<%= ddwidth ? Setting.plugin_redmine_wktime['wktime_project_dd_width'] : 15 %>%">
 		<% project_name = entry.nil? ? (@logtime_projects.blank? ? 0 : @logtime_projects[0].id) : entry.project.name %>
 		<% if @editable %>
 			<%=h select_tag(isTemplate ? '__template__time_entry[][project_id]' : 'time_entry[][project_id]', 
 			options_for_select(projects, :selected =>  project_id),
-			:onchange => "projectChanged(this,#{@row.to_s()});", :style=> "width:#{Setting.plugin_redmine_wktime['wktime_project_dd_width']}px" ) %>
+			:onchange => "projectChanged(this,#{@row.to_s()});", :style=> "width:100%" ) %>
 		<% else %>
 			<% if project.blank? %>
 				<% if entry.nil? %>
@@ -65,49 +68,47 @@ if params[:enter_issue_id].blank?
 			
 	%>
 	
-	<td class="issue" align="left">
+	<td class="issue" align="left" width="<%= ddwidth ? Setting.plugin_redmine_wktime['wktime_issue_dd_width'] : 25  %>%">
 		<% if @editable %>
 			<%=h select_tag(isTemplate ? '__template__time_entry[][issue_id]' : 'time_entry[][issue_id]', 
 			options_for_select(issues, :selected =>  entry.nil? ? 0 : entry.issue_id, :required => true),
-			:style=> "width:#{Setting.plugin_redmine_wktime['wktime_issue_dd_width']}px" ) %>
+			:style=> "width:100%" ) %>
 		<% else %>
 			<%=  entry.issue.tracker.to_s() +  " #" + entry.issue.id.to_s() + ": " + entry.issue.subject if !entry.nil? && !entry.issue.nil? %>
 		<% end %>
 	</td>
 <% else %>
-	<td class="project" align="left">
+	<td class="project" align="left" >
 		<%=h hidden_field_tag(isTemplate ? '__template__time_entry[][project_id]' : 'time_entry[][project_id]', 
-		entry.nil? ? '' : entry.project_id.to_s ) %>
+		(entry.nil? ? '' : entry.project_id.to_s)  ) %>
 	</td>
-<td class="issue" align="left">
+<td class="issue" colspan="-1" align="left" width="<%= ddwidth ? Setting.plugin_redmine_wktime['wktime_issue_dd_width'] : 25  %>%">
 		<%=h text_field_tag(isTemplate ? '__template__time_entry[][issue_id]' : 'time_entry[][issue_id]', 
-		entry.nil? ? '' : entry.issue_id, :onkeypress => "issueAutocomplete(this,#{@row.to_s()});") %>
+		entry.nil? ? '' : entry.issue_id, :onkeypress => "issueAutocomplete(this,#{@row.to_s()});", :style => "width:100%" ) %>
 </td>
 <% end %>
 
 <%
 	activity = nil
 	activities = nil
-	selectedActId = entry.nil? ? 0 : entry.activity_id
 	projActList = @projActivities[project_id]
 	#activities = activities.sort_by{|name, id| name} unless activities.blank?
 	unless projActList.blank?
 		projActList = projActList.sort_by{|name| name}
-		activityName = entry.activity.name unless entry.nil?
-		activity = projActList.detect {|a| a.name == activityName} unless entry.nil?
-		selectedActId = activity.id if !activity.blank?
+
+		activity = projActList.detect {|a| a.id == entry.activity_id} unless entry.nil?
 		#check if the activity, which was previously reported time, is still visible
 		#if it is not visible, just show the id alone
 	
 		activities = projActList.collect {|a| [a.name, a.id]}
-		activities.unshift( [ activityName, entry.activity_id ] )if !entry.nil? && activity.blank?
+		activities.unshift( [ entry.activity.name, entry.activity_id ] )if !entry.nil? && activity.blank?
 	end
 %>
-<td class="activity" align="left">
+<td class="activity" align="left" width="<%= ddwidth ? Setting.plugin_redmine_wktime['wktime_actv_dd_width'] : 10   %>%">
 <% if @editable %>
 	<%=h select_tag(isTemplate ? '__template__time_entry[][activity_id]' : 'time_entry[][activity_id]', 
-	activities.blank? ? nil : options_for_select(activities, :selected => selectedActId),
-	:style=> "width:#{Setting.plugin_redmine_wktime['wktime_actv_dd_width']}px" ) %>
+	activities.blank? ? nil : options_for_select(activities, :selected => entry.nil? ? 0 : entry.activity_id),
+	:style=> "width:100%" ) %>
 <% else %>
 	<%= entry.activity.name unless entry.nil?%>
 <% end %>

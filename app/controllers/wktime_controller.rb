@@ -682,6 +682,18 @@ helper :custom_fields
 	def textfield_size
 	    4
 	end
+	
+	def checkDDWidth
+		ret = true
+		project_dd_width  = Setting.plugin_redmine_wktime['wktime_project_dd_width'].to_i
+		issue_dd_width  = Setting.plugin_redmine_wktime['wktime_issue_dd_width'].to_i
+		actv_dd_width  = Setting.plugin_redmine_wktime['wktime_actv_dd_width'].to_i
+		ddtotal = project_dd_width  + issue_dd_width  + actv_dd_width 
+		if ddtotal > 50
+		    ret = false
+		end
+		ret
+	end
 private
 
 
