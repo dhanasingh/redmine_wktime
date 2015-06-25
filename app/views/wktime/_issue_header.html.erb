@@ -1,5 +1,7 @@
 <% ddwidth = controller.checkDDWidth %>
-<th align="left" width="<%= ddwidth ? Setting.plugin_redmine_wktime['wktime_project_dd_width'] : 15 %>%" ><%= params[:enter_issue_id].blank? ? l(:field_project) : '' %></th>
+<% if params[:enter_issue_id].blank? %>
+<th align="left" width="<%= ddwidth ? Setting.plugin_redmine_wktime['wktime_project_dd_width'] : 15 %>%" ><%= l(:field_project) %></th>
+<% end %>
 <th align="left" width="<%= ddwidth ? Setting.plugin_redmine_wktime['wktime_issue_dd_width'] : 25 %>%"><%= l(:field_issue)  %></th>
 <th align="left" width="<%= ddwidth ? Setting.plugin_redmine_wktime['wktime_actv_dd_width']  : 10  %>%" ><%= l(:field_activity) %></th>
 

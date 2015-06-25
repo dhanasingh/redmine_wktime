@@ -71,7 +71,9 @@ currencySym = ""
 
 	<!-- row for putting the total -->
 	<tr>
-	<td class="project"></td>
+	<% if params[:enter_issue_id].blank? %>
+		<td class="project"></td>
+	<% end %>
 	<td class="issue"></td>
 	<td class="activity"></td>
 	<% if controller.enterCommentInRow %>	
