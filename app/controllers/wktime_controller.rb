@@ -173,7 +173,6 @@ helper :custom_fields
 						entrycount += 1
 						entrynilcount += 1 if (entry.hours).blank?
 						allowSave = true
-						#if (!entry.id.blank? && !entry.editable_by?(@user))
 						if (!entry.id.blank? && !entry.editable_by?(User.current))
 							allowSave = false
 						end
@@ -1014,8 +1013,11 @@ private
   def can_log_time?(project_id)
 	ret = false
 	set_loggable_projects
-	#@logtime_projects.each do |lp|
-	@currentUser_loggable_projects.each do |lp|
+	loggable_projects = @logtime_projects
+	if !@manage_projects.blank? && @user != User.current
+		loggable_projects = @manage_projects & @logtime_projects
+	end
+	loggable_projects.each do |lp|
 		if lp.id == project_id
 			ret = true
 			break
