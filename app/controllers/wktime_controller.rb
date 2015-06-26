@@ -182,7 +182,11 @@ helper :custom_fields
 						if !((Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? ||
 								Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 0) && 
 								entry.issue.blank?)
-							errorMsg = updateEntry(entry) if allowSave
+							if allowSave
+								errorMsg = updateEntry(entry) 
+							else
+								errorMsg = l(:error_not_permitted_save)
+							end
 							break unless errorMsg.blank?
 						else
 							errorMsg = "#{l(:field_issue)} #{l('activerecord.errors.messages.blank')} "
