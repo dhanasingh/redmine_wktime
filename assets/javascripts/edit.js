@@ -49,12 +49,12 @@ $(document).ready(function() {
 					var x = document.getElementsByName("custfield_img"+comment_row+"[]");
 					if( (e_comments.val() != "" || custFldToolTip)  && (!commentInRow  || custFldToolTip )   ) 
 					{						
-						$(x[comment_col-1]).attr({src: "/plugin_assets/redmine_wktime/images/withcommant.png"});
+						$(x[comment_col-1]).attr({src: "../plugin_assets/redmine_wktime/images/withcommant.png"});
 						
 					}
 					else
 					{					
-						$(x[comment_col-1]).attr({src: "/plugin_assets/redmine_wktime/images/withoutcommant.png"});
+						$(x[comment_col-1]).attr({src: "../plugin_assets/redmine_wktime/images/withoutcommant.png"});
 					}					
 					$( this ).dialog( "close" );				
 					//unregister this event since this is showing a 'don't leave' message
