@@ -1,5 +1,7 @@
 <tr>
-	<td ></td>
+	<% if params[:enter_issue_id].blank? %>
+		<td ></td>
+	<% end %>
 	<td ></td>
 	<% if controller.enterCommentInRow %>
 		<td ></td>

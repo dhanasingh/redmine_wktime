@@ -23,6 +23,9 @@
 				<% if controller.enterCustomFieldInRow(2) %>
 					hStartIndex = hStartIndex + 1 ;
 				<% end %>
+				<% if !params[:enter_issue_id].blank? %>
+					hStartIndex = hStartIndex - 1 ;
+				<% end %>
 		<% end %>
 		<% if !Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? &&
 			Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 1 %>
