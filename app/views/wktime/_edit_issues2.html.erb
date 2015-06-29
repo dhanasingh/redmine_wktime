@@ -75,6 +75,10 @@ if params[:enter_issue_id].blank?
 		<% end %>
 	</td>
 <% else %>
+	<td class="project" align="left" >
+		<%=h hidden_field_tag(isTemplate ? '__template__time_entry[][project_id]' : 'time_entry[][project_id]', 
+		(entry.nil? ? '' : entry.project_id.to_s)  ) %>
+	</td>
 <td class="issue" colspan="-1" align="left" width="<%= ddwidth ? Setting.plugin_redmine_wktime['wktime_issue_dd_width'] : 25  %>%">
 		<%=h text_field_tag(isTemplate ? '__template__time_entry[][issue_id]' : 'time_entry[][issue_id]', 
 		entry.nil? ? '' : entry.issue_id, :onkeypress => "issueAutocomplete(this,#{@row.to_s()});", :style => "width:100%" ) %>
