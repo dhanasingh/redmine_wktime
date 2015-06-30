@@ -341,25 +341,33 @@ helper :custom_fields
 		#TimeEntry.delete_all(cond)
 		hookPerm = call_hook(:controller_check_locked, {:startdate => @startday})
 		locked = hookPerm.blank? ? false : hookPerm[0]
+		findWkTE(@startday)	
 		if locked
 			flash[:error] = l(:error_time_entry_delete)
 			redirect_to :action => 'index' , :tab => params[:tab] 			
 		else
-		@entries = findEntries()
-		@entries.each do |entry|
-			entry.destroy()
-		end
-		cond = getCondition('begin_date', @user.id, @startday)
-		deleteWkEntity(cond)
-		respond_to do |format|
-			format.html {				
-				flash[:notice] = l(:notice_successful_delete)
-				redirect_back_or_default :action => 'index', :tab => params[:tab]
-			} 
-			format.api  {
-				render_api_ok
-			}
-		end
+			deletable = @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r'
+			if deletable
+				@entries = findEntries()
+				@entries.each do |entry|
+					entry.destroy()
+				end
+				cond = getCondition('begin_date', @user.id, @startday)
+				deleteWkEntity(cond)
+			end
+			respond_to do |format|
+				format.html {				
+					flash[:notice] = l(:notice_successful_delete)
+					redirect_back_or_default :action => 'index', :tab => params[:tab]
+				} 
+				format.api  {
+					if deletable
+						render_api_ok
+					else
+						render_403
+					end
+				}
+			end
 		end
 	end
 	
