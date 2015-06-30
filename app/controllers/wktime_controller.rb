@@ -185,7 +185,7 @@ helper :custom_fields
 							if allowSave
 								errorMsg = updateEntry(entry) 
 							else
-								errorMsg = l(:error_not_permitted_save)
+								errorMsg = l(:error_not_permitted_save) if !api_request?
 							end
 							break unless errorMsg.blank?
 						else
