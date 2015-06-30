@@ -89,7 +89,7 @@ en:
   button_wk_reject: Reject
   button_wk_unapprove: Unapprove
   chkbox_prev_tmpl: Previous Week's Template
-  chkbox_closed_issues: Include Previous Week's Closed Issues
+  chkbox_closed_issues: Include Previous Weeks' Closed Issues
   
   error_te_save_failed: "Could not save %{label}: %{error}"
   error_wktime_save_nothing: Nothing to Save

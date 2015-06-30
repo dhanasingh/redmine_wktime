@@ -1056,9 +1056,10 @@ function validateHr(hrFld,day)
 
 function issueAutocomplete(txtissue,row){    
         var uid = document.getElementById("user_id").value;
+		var startday = document.getElementById("startday").value;
 		var issUrl = document.getElementById("getissues_url").value;
 		issue_assign_user=issueAssignUser();
-       	issUrl= issUrl +"?user_id="+ uid +"&issue_assign_user=" +issue_assign_user;
+       	issUrl= issUrl + "?user_id=" + uid + "&issue_assign_user=" + issue_assign_user + "&startday=" + startday;
         $(txtissue).autocomplete({                    
 			source: issUrl ,
 			minLength:2,
