@@ -1643,7 +1643,7 @@ private
 			session[:wktimes] = {:period_type => params[:period_type], :period => params[:period],:from => params[:from],:to => params[:to],:project_id => params[:project_id], :filter_type => params[:filter_type],:user_id => params[:user_id],:status => params[:status],:group_id => params[:group_id] }
 			session[:wkexpense] = {:period_type => params[:period_type], :period => params[:period],:from => params[:from],:to => params[:to],:project_id => params[:project_id], :filter_type => params[:filter_type],:user_id => params[:user_id],:status => params[:status],:group_id => params[:group_id] }
 			#session[:wkexpense]  = session[:wktimes] 
-		elsif params[:searchlist] =='wktime'
+		elsif params[:searchlist] =='wktime' || api_request?
 			session[:wktimes][:period_type] = params[:period_type]
 			session[:wktimes][:period] = params[:period]
 			session[:wktimes][:from] = params[:from]
@@ -1653,7 +1653,7 @@ private
 			session[:wktimes][:user_id] = params[:user_id]
 			session[:wktimes][:status] = params[:status]
 			session[:wktimes][:group_id] = params[:group_id]
-		elsif params[:searchlist] =='wkexpense'
+		elsif params[:searchlist] =='wkexpense' || api_request?
 			session[:wkexpense][:period_type] = params[:period_type]
 			session[:wkexpense][:period] = params[:period]
 			session[:wkexpense][:from] = params[:from]
