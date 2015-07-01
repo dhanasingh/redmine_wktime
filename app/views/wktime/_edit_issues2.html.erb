@@ -117,7 +117,7 @@ if params[:enter_issue_id].blank?
 	<% if @editable %>
 	
 		<%=h text_field_tag(isTemplate ? '__template__time_entry[][comments]' : 'time_entry[][comments]',  
-			 (entry.nil? ? '' : entry.comments),:size => 35)%>
+			 (entry.nil? ? '' : entry.comments),:size => 32)%>
 	<% else %>
 		<%=h entry.nil? ? '' : entry.comments%>
 	<% end %>

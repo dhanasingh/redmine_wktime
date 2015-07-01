@@ -20,7 +20,7 @@
 <% startOfWeek = getStartOfWeek %>
 <% for i in 0..6%>
 <!-- Martin Dube contribution: 'start of the week' configuration -->
-<th width="6%" align="center"><%= l('date.abbr_day_names')[(i+(startOfWeek))%7] %><br /><%= I18n.localize(@startday+i, :format=>:short) unless @startday.nil? %></th>
+<th align="center"><%= l('date.abbr_day_names')[(i+(startOfWeek))%7] %><br /><%= I18n.localize(@startday+i, :format=>:short) unless @startday.nil? %></th>
 <% end %>
 <th></th>
 
