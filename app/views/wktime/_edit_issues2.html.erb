@@ -69,7 +69,7 @@ if params[:enter_issue_id].blank?
 		<% if @editable %>
 			<%=h select_tag(isTemplate ? '__template__time_entry[][issue_id]' : 'time_entry[][issue_id]', 
 			options_for_select(issues, :selected =>  entry.nil? ? 0 : entry.issue_id, :required => true),
-			:style=> "#{Setting.plugin_redmine_wktime['wktime_issue_dd_width']}px" ) %>
+			:style=> "width:#{Setting.plugin_redmine_wktime['wktime_issue_dd_width']}px" ) %>
 		<% else %>
 			<%=  entry.issue.tracker.to_s() +  " #" + entry.issue.id.to_s() + ": " + entry.issue.subject if !entry.nil? && !entry.issue.nil? %>
 		<% end %>
