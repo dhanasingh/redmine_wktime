@@ -78,7 +78,6 @@ it:
   label_wk_description: Description 
   label_wk_date_exists: This date already exists
   label_wk_select_holiday: Please select a holiday
-  label_display_note: "Note: Please make sure the sum of Project, Issue and Activity dropdown width not exceed 50%"
 
   button_new_wktime: Nuovo Timesheet
   button_continue: Continua
