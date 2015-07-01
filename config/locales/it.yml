@@ -22,6 +22,7 @@ it:
   label_wk_signature: Firma
   label_wk_submitted_by: Inserito da
   label_wk_approved_by: Approvato da
+  label_wk_account_groups: T&E Admin Groups
   
   label_wk_enter_issue_id: Enter issue as ID
   label_wk_work_time_header: Show work time header
@@ -69,7 +70,7 @@ it:
   label_wk_nonsub_mail_subject: Non submission time notification
   label_wk_nonsub_mail_notification: Send email for non submission
   label_wk_nonsub_mail_message: Non submission email message
-  label_wk_warning_nonsub_notification: "Note: Any change to the below settings require redmine restart"
+  label_redmine_restart_warning: "Note: Any change to the below settings require redmine restart"
   label_wk_minutes: Minutes
   label_wkexpense_entry_projects: Restrict Expense Entry to these projects
   
@@ -103,9 +104,13 @@ it:
   text_wk_warning_min_hour: "You have not entered the Minimum hours (%{value}) required per day"
   text_wk_warning_max_hour: "You have entered hours above Maximum hours (%{value}) allowed per day"  
   field_amount: Amount  
+  field_status_modified_by: Modified by
   
   label_wk_allow_filter_issue: Allow User filtering to My Issues
   label_wk_no_user_current_project: no users in selected project
   
   permission_approve_time_entries: Approve time logs
+  field_currency: Currency
+  error_project_issue_associate: Cannot be deleted because time/expense entries associated
+  error_time_entry_delete: "Cannot be deleted. The timesheet with this entry is locked"  
 

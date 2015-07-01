@@ -2,7 +2,7 @@
 <%= back_url_hidden_field_tag %>
 <script type="text/javascript"> 
 	no_user = '<%=l(:label_wk_no_user_current_project) %>';
-	userUrl="<%= "#{url_for(:controller => controller_name, :action => 'getusers')}" %>";
+	userUrl="<%= "#{url_for(:controller => controller_name, :action => 'getusers', :page => 'new')}" %>";
 </script>
 <table>
 
@@ -17,12 +17,13 @@
 <tr>
 <th><%=l(:label_member)%></th>
 <td>
-<% ddMember = call_hook(:view_member_dropdown, {:project_id => @selected_project.id}) %>
+<% ddMember = call_hook(:view_member_dropdown, {:project_id => @selected_project.id, :page => 'new'}) %>
 <% if !ddMember.blank? %>	 
 <%=	ddMember %>
 <% else %>
 <% 
 	projmem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
+	projmem = projmem.to_a.uniq if !projmem.nil?
 %>
 <%=h select_tag('user_id',
 	options_for_select( projmem.collect{|m| [ m.name, m.user_id ] },

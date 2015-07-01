@@ -10,17 +10,22 @@ if params[:enter_issue_id].blank?
 	project = projects.detect {|p| p[1].to_i == entry.project_id} unless entry.nil?
 	#check if the project, which was previously reported time, is still visible
 	#if it is not visible, just show the id alone
-	projects.unshift( [ entry.project_id, entry.project_id ] ) if !entry.nil? && project.blank?
+	projects.unshift( [ entry.project.name, entry.project_id ] ) if !entry.nil? && project.blank?
 %>
 
-	<td class="project" align="left">
+	<td class="issue" align="left" width="<%= Setting.plugin_redmine_wktime['wktime_project_dd_width'] %>px">
+		<% project_name = entry.nil? ? (@logtime_projects.blank? ? 0 : @logtime_projects[0].id) : entry.project.name %>
 		<% if @editable %>
 			<%=h select_tag(isTemplate ? '__template__time_entry[][project_id]' : 'time_entry[][project_id]', 
 			options_for_select(projects, :selected =>  project_id),
 			:onchange => "projectChanged(this,#{@row.to_s()});", :style=> "width:#{Setting.plugin_redmine_wktime['wktime_project_dd_width']}px" ) %>
 		<% else %>
 			<% if project.blank? %>
-				<%= project_id %>
+				<% if entry.nil? %>
+					<%= '' %>
+				<% else %>
+					<%= project_name %>
+				<% end %>
 			<% else %>
 				<%= project[0] %>
 			<% end %>
@@ -47,7 +52,7 @@ if params[:enter_issue_id].blank?
 	if !curr_issue_found
 		if !entry.nil?
 			if !entry.issue_id.nil?
-				issues.unshift([ entry.issue_id, entry.issue_id ])
+				issues.unshift([ entry.issue.tracker.to_s() +  " #" + entry.issue.id.to_s() + ": " + entry.issue.subject, entry.issue_id ])
 			else
 				if Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? ||
 					Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 0
@@ -60,23 +65,24 @@ if params[:enter_issue_id].blank?
 			
 	%>
 	
-	<td class="issue" align="left">
+	<td class="issue" align="left" width="<%= Setting.plugin_redmine_wktime['wktime_issue_dd_width'] %>px">
 		<% if @editable %>
 			<%=h select_tag(isTemplate ? '__template__time_entry[][issue_id]' : 'time_entry[][issue_id]', 
 			options_for_select(issues, :selected =>  entry.nil? ? 0 : entry.issue_id, :required => true),
 			:style=> "width:#{Setting.plugin_redmine_wktime['wktime_issue_dd_width']}px" ) %>
 		<% else %>
-			<%= entry.issue.subject if !entry.nil? && !entry.issue.nil? %>
+			<%=  entry.issue.tracker.to_s() +  " #" + entry.issue.id.to_s() + ": " + entry.issue.subject if !entry.nil? && !entry.issue.nil? %>
 		<% end %>
 	</td>
 <% else %>
-	<td class="project" align="left">
+	<td class="project" align="left" >
 		<%=h hidden_field_tag(isTemplate ? '__template__time_entry[][project_id]' : 'time_entry[][project_id]', 
-		entry.nil? ? '' : entry.project_id.to_s ) %>
+		(entry.nil? ? '' : entry.project_id.to_s)  ) %>
 	</td>
-<td class="issue" align="left">
+<td class="issue" colspan="-1" align="left" width="<%= Setting.plugin_redmine_wktime['wktime_issue_dd_width'] %>px">
 		<%=h text_field_tag(isTemplate ? '__template__time_entry[][issue_id]' : 'time_entry[][issue_id]', 
-		entry.nil? ? '' : entry.issue_id, :onkeypress => "issueAutocomplete(this,#{@row.to_s()});") %>
+		entry.nil? ? '' : entry.issue_id, :onkeypress => "issueAutocomplete(this,#{@row.to_s()});", 
+		:style => "width:#{Setting.plugin_redmine_wktime['wktime_issue_dd_width']}px" ) %>
 </td>
 <% end %>
 
@@ -93,10 +99,10 @@ if params[:enter_issue_id].blank?
 		#if it is not visible, just show the id alone
 	
 		activities = projActList.collect {|a| [a.name, a.id]}
-		activities.unshift( [ entry.activity_id, entry.activity_id ] )if !entry.nil? && activity.blank?
+		activities.unshift( [ entry.activity.name, entry.activity_id ] )if !entry.nil? && activity.blank?
 	end
 %>
-<td class="activity" align="left">
+<td class="issue" align="left" width="<%= Setting.plugin_redmine_wktime['wktime_actv_dd_width'] %>px">
 <% if @editable %>
 	<%=h select_tag(isTemplate ? '__template__time_entry[][activity_id]' : 'time_entry[][activity_id]', 
 	activities.blank? ? nil : options_for_select(activities, :selected => entry.nil? ? 0 : entry.activity_id),
@@ -110,23 +116,21 @@ if params[:enter_issue_id].blank?
 	Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 1 %>
 	<td class="comments" align="left">
 	<% if @editable %>
-		<%=h text_field_tag(isTemplate ? '__template__time_entry[][comments]' : 'time_entry[][comments]', 
-			 entry.nil? ? '' : entry.comments)%>
+	
+		<%=h text_field_tag(isTemplate ? '__template__time_entry[][comments]' : 'time_entry[][comments]',  
+			 (entry.nil? ? '' : entry.comments),:size => 35)%>
 	<% else %>
 		<%=h entry.nil? ? '' : entry.comments%>
 	<% end %>
 	</td>
-<% else %>
-<% # leave a blank td %>
-<td class="comments" align="left"></td>
 <% end %>
 
 <!-- dropdown for currency -->
-<td align="left">
-	<% if !(controller.getUnitDDHTML).blank? %>
-		<%= render :partial => controller.getUnitDDHTML , :locals => {:entry => entry} %>
-	<% end %>
-</td>
+<% if !(controller.getUnitDDHTML).blank? %>
+	<td align="left">
+			<%= render :partial => controller.getUnitDDHTML , :locals => {:entry => entry} %>
+	</td>
+<% end %>
 
 <%= render :partial => controller.getCFInRowHTML , :locals => {:entry => entry, :isTemplate => false }%>
 

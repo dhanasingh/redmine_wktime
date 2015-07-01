@@ -31,6 +31,7 @@ The following configurations can be made on the plugin
 	- Allow User filtering to My Issues
 	- Public holidays can be configured
 	- 'Approve time log' permission
+	- T&E Admin groups can be configured
 	
 The Time & Expense sheets can be approved/rejected by supervisors after it is submitted by Project Members.
 Here is the workflow of Approval system..
@@ -72,9 +73,20 @@ If an apache passenger module is used then make sure the following settings are 
 	b) RailsAppSpawnerIdleTime 0
 	c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for 1.8.1
+Release Notes for 1.9
 	Features:
-		- Support for code hooks
-		- Filters will be remembered in list page.
+		- Permission changes
+			-- The project member with 'Edit time logs' can edit other member time/expense sheet with his permission.
+		- TE Admin users is introduced
+		- Empty time/expense sheet can be viewed.
+		- Sorting of timesheet rows.
+		- Allow entering time in different format.
+		- Non empty icon if detail time entry popup has no values.
+		- Comment box size increased.
+		- Name is shown for closed or inactive project, issue and activity.
+	
+	Bugs:
+		- Error message is shown if issue is blank when "Allow blank issue" is OFF.
+		- Closed date is considered instead of updated date for closed issues.
 		
-Please provide your review at http://www.redmine.org/plugins/wk-time		
+Please provide your rating at http://www.redmine.org/plugins/wk-time		

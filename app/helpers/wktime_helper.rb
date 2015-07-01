@@ -15,12 +15,12 @@ module WktimeHelper
 	end
 
 	def options_wk_status_select(value)
-		options_for_select([[l(:label_all), 'all'],
+		options_for_select([[l(:wk_status_empty), 'e'],
 							[l(:wk_status_new), 'n'],
+							[l(:wk_status_rejected), 'r'],
 							[l(:wk_status_submitted), 's'],
-							[l(:wk_status_approved), 'a'],
-							[l(:wk_status_rejected), 'r']],
-							value.blank? ? 'all' : value)
+							[l(:wk_status_approved), 'a']],
+							value.blank? ? ['e','n','r','s','a'] : value)
 	end
 	
 	def statusString(status)	
@@ -31,7 +31,9 @@ module WktimeHelper
 		when 'r'
 			statusStr = l(:wk_status_rejected)
 		when 's'
-			statusStr = l(:wk_status_submitted)	
+			statusStr = l(:wk_status_submitted)
+		when 'e'
+			statusStr = l(:wk_status_empty)
 		else
 			statusStr = l(:wk_status_new)
 		end
@@ -46,10 +48,12 @@ module WktimeHelper
 		end
 		
 		#Project.project_tree(projects) do |proj_name, level|
-		project_tree(projects) do |proj, level|
-			indent_level = (level > 0 ? ('&nbsp;' * 2 * level + '&#187; ').html_safe : '')
-			sel_project = projects.select{ |p| p.id == proj.id }
-			projArr << [ (indent_level + sel_project[0].name), sel_project[0].id ]
+		if !projects.blank?
+			project_tree(projects) do |proj, level|
+				indent_level = (level > 0 ? ('&nbsp;' * 2 * level + '&#187; ').html_safe : '')
+				sel_project = projects.select{ |p| p.id == proj.id }
+				projArr << [ (indent_level + sel_project[0].name), sel_project[0].id ]
+			end
 		end
 		projArr
 	end
@@ -551,9 +555,18 @@ end
 	end
 	
 	def getTimeEntryStatus(spent_on,user_id)
-		#result = Wktime.find(:all, :conditions => [ 'begin_date = ? AND user_id = ?', getStartDay(spent_on), user_id])
-		result = Wktime.where(['begin_date = ? AND user_id = ?', getStartDay(spent_on), user_id])
-		return result[0].blank? ? 'n' : result[0].status			
+		#result = Wktime.find(:all, :conditions => [ 'begin_date = ? AND user_id = ?', getStartDay(spent_on), user_id])	
+		start_day = getStartDay(spent_on)		
+		locked = call_hook(:controller_check_locked,{ :startdate => start_day})
+		locked  = locked.blank? ? '' : (locked.is_a?(Array) ? (locked[0].blank? ? '': locked[0].to_s) : locked.to_s) 
+		locked = ( !locked.blank? && to_boolean(locked))
+		if locked
+			result = 'l'
+		else		
+			result = Wktime.where(['begin_date = ? AND user_id = ?', start_day, user_id])
+			result = result[0].blank? ? 'n' : result[0].status
+		end
+		return 	result		
 	end
 	
 	def time_expense_tabs			   
@@ -706,9 +719,9 @@ end
 			viewProjects = Project.where(Project.allowed_to_condition(User.current, :view_time_entries ))
 			loggableProjects ||= Project.where(Project.allowed_to_condition(User.current, :log_time))
 			viewMenu = call_hook(:view_wktime_menu)
-			viewMenu  = viewMenu.blank? ? '' : (viewMenu.is_a?(Array) ? (viewMenu[0].blank? ? '': viewMenu[0]) : viewMenu) 
-			@manger_user = ( !viewMenu.blank? && viewMenu)
-			ret = (!viewProjects.blank? && viewProjects.size > 0) || (!loggableProjects.blank? && loggableProjects.size > 0) || @manger_user
+			viewMenu  = viewMenu.blank? ? '' : (viewMenu.is_a?(Array) ? (viewMenu[0].blank? ? '': viewMenu[0].to_s) : viewMenu.to_s) 
+			#@manger_user = (!viewMenu.blank? && to_boolean(viewMenu))	
+			ret = (!viewProjects.blank? && viewProjects.size > 0) || (!loggableProjects.blank? && loggableProjects.size > 0) || isAccountUser || (!viewMenu.blank? && to_boolean(viewMenu))
 		end
 		ret
 	end
@@ -720,4 +733,64 @@ end
 	def to_boolean(str)
       str == 'true'
     end
+	
+	def getStatus_Project_Issue(issue_id,project_id)
+		if !issue_id.blank?
+			cond = getIssueSqlString(issue_id)
+		end
+		if !project_id.blank?
+			cond = getProjectSqlString(project_id)
+		end		
+		sDay = getDateSqlString('t.spent_on')
+		time_sqlStr = " SELECT t.* FROM time_entries t inner join wktimes w on w.begin_date =  #{ sDay} and w.user_id =t.user_id #{cond}"		
+		time_entry = TimeEntry.find_by_sql(time_sqlStr)
+		expense_sqlStr = " SELECT t.* FROM wk_expense_entries t inner join wkexpenses w on w.begin_date =  #{ sDay} and w.user_id =t.user_id #{cond}"
+		expense_entry = WkExpenseEntry.find_by_sql(expense_sqlStr)
+		ret = (!time_entry.blank? && time_entry.size > 0) ||  (!expense_entry.blank? && expense_entry.size > 0)
+	end
+	
+	def getIssueSqlString(issue_id)
+		" where t.issue_id = #{issue_id} and (w.status ='s' OR w.status ='a')"
+	end
+	
+	def getProjectSqlString(project_id)
+		" where t.project_id = #{project_id} and (w.status ='s' OR w.status ='a')"
+	end
+	
+	def isAccountUser
+		group = nil
+		isAccountUser = false
+		groupusers = Array.new
+		accountGrpIds = Setting.plugin_redmine_wktime['wktime_account_groups'] if !Setting.plugin_redmine_wktime['wktime_account_groups'].blank?
+		if !accountGrpIds.blank?
+			accountGrpIds = accountGrpIds.collect{|i| i.to_i}
+		end
+
+		if !accountGrpIds.blank?
+			accountGrpIds.each do |group_id|
+				scope = User.in_group(group_id)	
+				groupusers << scope.all
+			end
+		end
+		grpUserIds = Array.new
+		grpUserIds = groupusers[0].collect{|user| user.id}.uniq if !groupusers.blank? && !groupusers[0].blank?
+		isAccountUser = grpUserIds.include?(User.current.id)
+	end
+	
+	def getAccountUserProjects
+		Project.where(:status => "#{Project::STATUS_ACTIVE}").order('name')
+	end
+	
+	def getAddDateStr(dtfield,noOfDays)
+		if ActiveRecord::Base.connection.adapter_name == 'PostgreSQL'			 
+			dateSqlStr = "date('#{dtfield}') + "	+ noOfDays.to_s
+		elsif ActiveRecord::Base.connection.adapter_name == 'SQLite'			 
+			dateSqlStr = "date('#{dtfield}' , '+' || " + noOfDays.to_s + " || ' days')"
+		elsif ActiveRecord::Base.connection.adapter_name == 'SQLServer'		
+			dateSqlStr = "DateAdd(d, " + noOfDays.to_s + ",'#{dtfield}')"
+		else
+			dateSqlStr = "adddate('#{dtfield}', " + noOfDays.to_s + ")"
+		end		
+		dateSqlStr
+	end
 end

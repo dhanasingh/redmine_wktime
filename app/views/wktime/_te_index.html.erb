@@ -9,7 +9,6 @@
 <%= link_to l(:"button_new_#{controller_name}"), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
 </div>
 <% end %>
-<p />
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
 
 <%=h hidden_field_tag('tab', "#{controller_name}") %>
@@ -94,7 +93,7 @@ $(document).ready(function()
 <td class="status" align="left"><%=h select_tag('status', 
 	options_for_select(options_wk_status_select(status),
 	:selected => status.nil? ? 0 : status.to_s ),
-	:onchange => "this.form.submit();") %></td>
+	:multiple=> true) %></td>
 </tr>
 </table>
 <%= render :partial => 'wktime/date_range' %>

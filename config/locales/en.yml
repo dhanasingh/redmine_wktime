@@ -32,6 +32,7 @@ en:
   label_wk_auto_approve: "Auto approve"
   label_wk_submission_ack: Submission Acknowledgement Text
   label_wk_reject_reason: Reject Reason
+  label_wk_account_groups: T&E Admin Groups
 
   label_wk_enter_issue_As: Enter Issue As
   label_wk_enter_issue_Description: Enter issue as Subject
@@ -67,7 +68,7 @@ en:
   label_wk_nonsub_mail_subject: Non submission time notification
   label_wk_nonsub_mail_notification: Send email for non submission
   label_wk_nonsub_mail_message: Non submission email message
-  label_wk_warning_nonsub_notification: "Note: Any change to the below settings require redmine restart"
+  label_redmine_restart_warning: "Note: Any change to the below settings require redmine restart"
   label_wk_minutes: Minutes  
   label_wkexpense_entry_projects: Restrict Expense Entry to these projects
   
@@ -75,7 +76,6 @@ en:
   label_wk_description: Description 
   label_wk_date_exists: This date already exists
   label_wk_select_holiday: Please select a holiday
-
 
   button_new_wktime: New Timesheet
   button_continue: Continue
@@ -88,13 +88,14 @@ en:
   button_wk_reject: Reject
   button_wk_unapprove: Unapprove
   chkbox_prev_tmpl: Previous Week's Template
-  chkbox_closed_issues: Include Previous Week's Closed Issues
+  chkbox_closed_issues: Include Previous Weeks' Closed Issues
   
   error_te_save_failed: "Could not save %{label}: %{error}"
   error_wktime_save_nothing: Nothing to Save
   error_not_permitted_save: Not permitted to Save
   
   wk_status_new: New
+  wk_status_empty: Empty
   wk_status_submitted: Submitted
   wk_status_approved: Approved
   wk_status_rejected: Rejected
@@ -103,6 +104,7 @@ en:
   text_wk_warning_min_hour: "You have not entered the Minimum hours (%{value}) required per day"
   text_wk_warning_max_hour: "You have entered hours above Maximum hours (%{value}) allowed per day"
   field_amount: Amount
+  field_status_modified_by: "Modified by"
   
 
   label_wk_allow_filter_issue: Allow User filtering to My Issues
@@ -110,6 +112,8 @@ en:
  
   permission_approve_time_entries: Approve time logs
   field_currency: Currency
+  error_project_issue_associate: Cannot be deleted because time/expense entries associated
+  error_time_entry_delete: "Cannot be deleted. The timesheet with this entry is locked"
 
   
   

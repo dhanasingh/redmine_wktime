@@ -47,6 +47,10 @@ class WkexpenseController < WktimeController
 	false
   end 
   
+  def enterCustomFieldInRow(row)
+	false
+  end 
+  
   def maxHour
 	0
   end
@@ -111,6 +115,9 @@ class WkexpenseController < WktimeController
 	end
   end
  
+	def textfield_size
+	    6
+	end
 private
   def getSpecificField
 	"amount"
@@ -120,33 +127,42 @@ private
 	["#{Wkexpense.table_name}", "#{WkExpenseEntry.table_name}"]
   end
   
-  def findBySql(selectStr,sqlStr,wkSelectStr,wkSqlStr)
-	spField = getSpecificField()		
-	result = WkExpenseEntry.find_by_sql("select count(*) as id from (" + selectStr + sqlStr + wkSqlStr + ") as v2")
-	@entry_count = result[0].id
+  def findBySql(selectStr,sqlStr,wkSelectStr,wkSqlStr, status, ids) 
+	spField = getSpecificField()
+	dtRangeForUsrSqlStr =  "(" + getAllWeekSql(@from, @to) + ") tmp1"			
+	teSqlStr = "(" + wkSelectStr + " ,exp.currency" + sqlStr + " inner join wk_expense_entries exp on v1.id = exp.id " + wkSqlStr + ") tmp2"			
+	query = "select tmp3.user_id, tmp3.spent_on, tmp3.#{spField}, tmp3.status, tmp3.status_updater, tmp3.created_on, tmp3.currency from (select tmp1.id as user_id, tmp1.created_on, tmp1.selected_date as spent_on, " +
+				"case when tmp2.#{spField} is null then 0 else tmp2.#{spField} end as #{spField}, " +
+				"case when tmp2.status is null then 'e' else tmp2.status end as status, tmp2.currency, tmp2.status_updater from "
+	query = query + dtRangeForUsrSqlStr + " left join " + teSqlStr
+	query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids}) ) tmp3 "
+	query = query + " left outer join (select min( #{getDateSqlString('t.spent_on')} ) as min_spent_on, t.user_id as usrid from wk_expense_entries t, users u "
+	query = query + " where u.id = t.user_id and u.id in (#{ids}) group by t.user_id ) vw on vw.usrid = tmp3.user_id "
+	query = query + getWhereCond(status)
+	query = query + " order by tmp3.spent_on desc, tmp3.user_id "
 	
+	result = WkExpenseEntry.find_by_sql("select count(*) as id from (" + query + ") as v2")
+	@entry_count = result[0].id	
 	setLimitAndOffset()	
 	rangeStr = formPaginationCondition()
-
-	@entries = WkExpenseEntry.find_by_sql(wkSelectStr + " ,exp.currency" + sqlStr + 
-			" inner join wk_expense_entries exp on v1.id = exp.id " + wkSqlStr + rangeStr)			
-
+	@entries = WkExpenseEntry.find_by_sql(query + rangeStr)
 	@unit = @entries.blank? ? l('number.currency.format.unit') : @entries[0][:currency]
-	
-	#@total_hours = TimeEntry.visible.sum(:hours, :include => [:user], :conditions => cond.conditions).to_f
-		
-	result = WkExpenseEntry.find_by_sql("select sum(v2." + spField + ") as " + spField + " from (" + selectStr + sqlStr + wkSqlStr +") as v2")	
+	result = WkExpenseEntry.find_by_sql("select sum(v2." + spField + ") as " + spField + " from (" + query + ") as v2")	
 	@total_hours = result[0].amount
   end
   
+  def getTEAllTimeRange(ids)
+	teQuery = "select #{getDateSqlString('t.spent_on')} as startday " +
+			"from wk_expense_entries t where user_id in (#{ids}) group by startday order by startday"
+	teResult = WkExpenseEntry.find_by_sql(teQuery)
+  end
+  
   def findWkTEByCond(cond)
-	#@wktimes = Wkexpense.find(:all, :conditions => cond)
 	@wktimes = Wkexpense.where(cond)
   end
   
   def findEntriesByCond(cond)
-	#WkExpenseEntry.find(:all, :conditions => cond, :order => 'project_id, issue_id, activity_id, spent_on')
-	WkExpenseEntry.where(cond).order('project_id, issue_id, activity_id, spent_on')
+	WkExpenseEntry.joins(:project).joins(:activity).joins("LEFT OUTER JOIN issues ON issues.id = wk_expense_entries.issue_id").where(cond).order('projects.name, issues.subject, enumerations.name, wk_expense_entries.spent_on')
   end
   
   def setValueForSpField(teEntry,spValue,decimal_separator,entry)
@@ -212,6 +228,7 @@ private
   def getTEName
 	"expense"
   end
+  
   # Returns the ExpenseEntry scope for index and report actions
   def expense_entry_scope(options={})
     scope = @query.results_scope(options)

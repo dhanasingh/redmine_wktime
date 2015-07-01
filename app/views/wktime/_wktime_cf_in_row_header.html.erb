@@ -1,19 +1,19 @@
-<th align="left">
 <%	cf_value = nil
 if !Setting.plugin_redmine_wktime['wktime_enter_cf_in_row1'].blank? &&
 		(cf_value = @new_custom_field_values.detect { |cfv| 
 			cfv.custom_field.id == Setting.plugin_redmine_wktime['wktime_enter_cf_in_row1'].to_i }) != nil %>
-		
+		<th align="left">
 			<%= cf_value.custom_field.name %>
+		</th>
 <%	end %>
-</th>
 
-<th align="left">
+
+
 <%	cf_value = nil
 if !Setting.plugin_redmine_wktime['wktime_enter_cf_in_row2'].blank? &&
 		(cf_value = @new_custom_field_values.detect { |cfv| 
 			cfv.custom_field.id == Setting.plugin_redmine_wktime['wktime_enter_cf_in_row2'].to_i }) != nil %>
-		
+		<th align="left">
 			<%= cf_value.custom_field.name %>
+		</th>
 <%	end %>
-</th>
