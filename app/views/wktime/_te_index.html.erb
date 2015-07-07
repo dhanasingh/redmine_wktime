@@ -89,7 +89,7 @@ $(document).ready(function()
 <% end %>
 <table>
 <tr>
-<th><%=l(:field_status)%></th>
+<th align="right" width="75px><%=l(:field_status)%></th>
 <td class="status" align="left"><%=h select_tag('status', 
 	options_for_select(options_wk_status_select(status),
 	:selected => status.nil? ? 0 : status.to_s ),
