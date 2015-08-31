@@ -4,10 +4,11 @@
 <thead>
 <tr>
 <th><%= l(:field_start_date) %></th>
-<th><%= l(:field_user) %></th>
+<th style="text-align:left;"><%= l(:field_user) %></th>
+<%= call_hook(:view_list_column_header) %>
 <th><%= controller.getLabelforSpField %></th>
 <th><%= l(:field_status) %></th>
-<th><%= l(:field_status_modified_by) %></th>
+<th style="text-align:left;"><%= l(:field_status_modified_by) %></th>
 <th></th>
 </tr>
 </thead>
@@ -16,10 +17,11 @@
 
 <tr class="time-entry <%= cycle("odd", "even") %>">
 <td class="start_date"><%=h format_date(entry.spent_on) %></td>
-<td class="user"><%=h entry.user.name %></td>
-<td class="user"><%= controller.getUnit(entry) %>&nbsp;<%=h html_hours("%.2f" % entry.hours) %></td>
+<td style="text-align:left;"><%=h entry.user.name %></td>
+<%= call_hook(:view_list_column_data, :entry => entry) %>
+<td ><%= controller.getUnit(entry) %>&nbsp;<%=h html_hours("%.2f" % entry.hours) %></td>
 <td class="status"><%=h statusString(entry.status) unless entry.status.blank? %></td>
-<td class="status_updater"><%=h entry.status_updater %></td>
+<td style="text-align:left;"><%=h entry.status_updater %></td>
 <td align="center">
 <%  #if entry.editable_by?(User.current) %>
     <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :startday => entry.spent_on, :user_id => entry.user_id, :tab => controller.controller_name},

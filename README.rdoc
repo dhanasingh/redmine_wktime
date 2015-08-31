@@ -76,13 +76,13 @@ If an apache passenger module is used then make sure the following settings are 
 Release Notes for 1.9
 	Features:
 		- Permission changes
-			-- The project member with 'Edit time logs' can edit other member time/expense sheet with his permission.
-		- TE Admin users is introduced
-		- Empty time/expense sheet can be viewed.
+			- When a Manager edits a Member T&E, his permission will be checked rather than the member's permission
+		- TE Admin users is introduced, they need not be a member of a Project to View T&E
+		- A person who has never submitted any T&E (Empty T&E) can be viewed in the list page
 		- Sorting of timesheet rows.
-		- Allow entering time in different format.
-		- Non empty icon if detail time entry popup has no values.
-		- Comment box size increased.
+		- Allow entering time in different format(1.5, 1h, 1 h, 1 hour, 2 hours, 30m, 30min, 1h30, 1h30m, 1:30).
+		- A new non empty icon is introduced for empty detail time entry popup.
+		- Comment box size is increased.
 		- Name is shown for closed or inactive project, issue and activity.
 	
 	Bugs:
