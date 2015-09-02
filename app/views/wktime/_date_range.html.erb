@@ -1,4 +1,5 @@
 <fieldset id="date-range" class="collapsible">
+<div id="query_form_content">
 <legend onclick="toggleFieldset(this);"><%= l(:label_date_range) %></legend>
 <div>
 <%
@@ -27,6 +28,10 @@
 <% if action_name =='reportdetail' || action_name =='report' %>
 <%=h hidden_field_tag('control', "#{action_name}") %>
 <% end %>
+</div>
+<div style="<%= @query.new_record? ? "" : "display: none;" %>">
+  <%= render :partial => 'queries/filters', :locals => {:query => @query} %>
+</div>
 </div>
 </fieldset>
 <p class="buttons">

@@ -12,8 +12,12 @@ before_filter :check_log_time_redirect, :only => [:new]
 accept_api_auth :index, :edit, :update, :destroy, :deleteEntries
 
 helper :custom_fields
+helper :queries
+include QueriesHelper
  
-  def index
+  def index	
+	@query = WkTimeEntryQuery.build_from_params(params, :project => nil, :name => '_') #TimeEntryQuery
+	
 	set_filter_session
     retrieve_date_range	
 	@from = getStartDay(@from)
@@ -86,7 +90,8 @@ helper :custom_fields
 		
 	end		
 
-	wkSqlStr = " left outer join " + entityNames[0] + " w on v1.startday = w.begin_date and v1.user_id = w.user_id left outer join users un on un.id = w.statusupdater_id"	
+	wkSqlStr = " left outer join " + entityNames[0] + " w on v1.startday = w.begin_date and v1.user_id = w.user_id " +
+				"left outer join users un on un.id = w.statusupdater_id"	
 	#status = params[:status]
 	#if !status.blank?
 	#	wkSqlStr += " WHERE w.status in ('#{status.join("','")}')" 
@@ -1401,7 +1406,7 @@ private
 		query = query + "and tmp3.status <> 'e') "
 		query = query + "OR (tmp3.spent_on > '#{current_date}' and tmp3.status <> 'e'))) "
 		if !status.blank?
-			query += " and  tmp3.status in ('#{status.join("','")}') "
+			query += " and tmp3.status in ('#{status.join("','")}') "
 		end
 		query
 	end
