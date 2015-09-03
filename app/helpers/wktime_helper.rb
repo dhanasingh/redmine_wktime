@@ -197,10 +197,10 @@ module WktimeHelper
 	pdf.alias_nb_pages
 	pdf.footer_date = format_date(Date.today)
 	pdf.SetAutoPageBreak(false)
-	pdf.AddPage(orientation)	
+	pdf.AddPage(orientation)
 	
 	if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo))
-		pdf.Image(Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo, page_width-50, 10,40,25)
+		pdf.Image(Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo, page_width-10-20, 10)
 	end
 	
 	render_header(pdf, entries, user, startday, row_height,title)
@@ -283,9 +283,9 @@ module WktimeHelper
 	def render_newpage(pdf,orientation,logo,page_width)
 		pdf.AddPage(orientation)
 		if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo))
-			pdf.Image(Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo, page_width-50, 10,40,25)
+			pdf.Image(Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo, page_width-10-20, 10)
 			pdf.Ln
-			pdf.SetY(pdf.GetY+25)
+			pdf.SetY(pdf.GetY+10)
 		end
 	end
 	
