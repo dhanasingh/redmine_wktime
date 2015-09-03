@@ -4,11 +4,7 @@
 	grpUrl="<%= "#{url_for(:controller => controller_name, :action => 'getMembersbyGroup')}" %>";
 	userUrl="<%= "#{url_for(:controller => controller_name, :action => 'getusers')}" %>";
 </script>
-<% if (!@currentUser_loggable_projects.blank? || !@manage_projects.blank?) %>
-<div class="contextual">
-<%= link_to l(:"button_new_#{controller_name}"), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
-</div>
-<% end %>
+
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
 
 <%=h hidden_field_tag('tab', "#{controller_name}") %>
@@ -33,6 +29,13 @@
 		projGrp = true	
 	end
 %>
+<div>
+<div id="leftMenu" style="float: left; position: relative; width: 100%;  ">
+<% if (!@currentUser_loggable_projects.blank? || !@manage_projects.blank?) %>
+<div class="contextual">
+<%= link_to l(:"button_new_#{controller_name}"), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
+</div>
+<% end %>
 <% filters = call_hook(:view_te_filter) %>
 <% if !filters.blank? %>	 
 <%=	filters %>
@@ -87,15 +90,20 @@ $(document).ready(function()
 </table>
 <% end %>
 <% end %>
+</div>
+<div id="rightMenu" style="float: left; position: absolute; left: 280px;">
 <table>
 <tr>
-<th><%=l(:field_status)%></th>
+<th valign="top"><%=l(:field_status)%></th>
 <td class="status" align="left"><%=h select_tag('status', 
 	options_for_select(options_wk_status_select(status),
 	:selected => status.nil? ? 0 : status.to_s ),
 	:multiple=> true) %></td>
 </tr>
 </table>
+</div>
+</div>
+<div style="clear:both">
 <%= render :partial => 'wktime/date_range' %>
 
 <% end %>
