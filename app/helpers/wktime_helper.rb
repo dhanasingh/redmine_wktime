@@ -197,9 +197,7 @@ module WktimeHelper
 	pdf.alias_nb_pages
 	pdf.footer_date = format_date(Date.today)
 	pdf.SetAutoPageBreak(false)
-	pdf.AddPage(orientation)
-	
-	Rails.logger.info "==========page_width====== #{ page_width}===="	
+	pdf.AddPage(orientation)	
 	
 	if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo))
 		pdf.Image(Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo, page_width-50, 10,40,25)
