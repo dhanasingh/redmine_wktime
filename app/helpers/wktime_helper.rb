@@ -199,8 +199,10 @@ module WktimeHelper
 	pdf.SetAutoPageBreak(false)
 	pdf.AddPage(orientation)
 	
+	Rails.logger.info "==========page_width====== #{ page_width}===="	
+	
 	if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo))
-		pdf.Image(Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo, page_width-10-20, 10)
+		pdf.Image(Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo, page_width-50, 10,40,25)
 	end
 	
 	render_header(pdf, entries, user, startday, row_height,title)
@@ -283,9 +285,9 @@ module WktimeHelper
 	def render_newpage(pdf,orientation,logo,page_width)
 		pdf.AddPage(orientation)
 		if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo))
-			pdf.Image(Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo, page_width-10-20, 10)
+			pdf.Image(Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo, page_width-50, 10,40,25)
 			pdf.Ln
-			pdf.SetY(pdf.GetY+10)
+			pdf.SetY(pdf.GetY+25)
 		end
 	end
 	
