@@ -1646,8 +1646,8 @@ private
 	 
 		if params[:searchlist].blank? && (session[:wktimes].nil? || session[:wkexpense].nil?)
 			
-			session[:wktimes] = {:period_type => params[:period_type], :period => params[:period],:from => params[:from],:to => params[:to],:project_id => params[:project_id], :filter_type => params[:filter_type],:user_id => params[:user_id],:status => params[:status],:group_id => params[:group_id], :filters => @query.blank? ? [] : @query.filters }
-			session[:wkexpense] = {:period_type => params[:period_type], :period => params[:period],:from => params[:from],:to => params[:to],:project_id => params[:project_id], :filter_type => params[:filter_type],:user_id => params[:user_id],:status => params[:status],:group_id => params[:group_id], :filters => @query.blank? ? [] : @query.filters }
+			session[:wktimes] = {:period_type => params[:period_type], :period => params[:period],:from => params[:from],:to => params[:to],:project_id => params[:project_id], :filter_type => params[:filter_type],:user_id => params[:user_id],:status => params[:status],:group_id => params[:group_id], :filters => @query.blank? ? nil : @query.filters }
+			session[:wkexpense] = {:period_type => params[:period_type], :period => params[:period],:from => params[:from],:to => params[:to],:project_id => params[:project_id], :filter_type => params[:filter_type],:user_id => params[:user_id],:status => params[:status],:group_id => params[:group_id], :filters => @query.blank? ? nil : @query.filters }
 			#session[:wkexpense]  = session[:wktimes] 
 		elsif params[:searchlist] =='wktime' || api_request?
 			session[:wktimes][:period_type] = params[:period_type]
@@ -1659,7 +1659,7 @@ private
 			session[:wktimes][:user_id] = params[:user_id]
 			session[:wktimes][:status] = params[:status]
 			session[:wktimes][:group_id] = params[:group_id]
-			session[:wktimes][:filters] = @query.blank? ? [] : @query.filters
+			session[:wktimes][:filters] = @query.blank? ? nil : @query.filters
 		elsif params[:searchlist] =='wkexpense' || api_request?
 			session[:wkexpense][:period_type] = params[:period_type]
 			session[:wkexpense][:period] = params[:period]
@@ -1670,7 +1670,7 @@ private
 			session[:wkexpense][:user_id] = params[:user_id]
 			session[:wkexpense][:status] = params[:status]
 			session[:wkexpense][:group_id] = params[:group_id]
-			session[:wkexpense][:filters] = @query.blank? ? [] : @query.filters
+			session[:wkexpense][:filters] = @query.blank? ? nil : @query.filters
 		end		
 	 end	
 end

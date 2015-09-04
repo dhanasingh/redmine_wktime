@@ -5,7 +5,11 @@
 	grpUrl="<%= "#{url_for(:controller => controller_name, :action => 'getMembersbyGroup')}" %>";
 	userUrl="<%= "#{url_for(:controller => controller_name, :action => 'getusers')}" %>";
 </script>
-
+<% if (!@currentUser_loggable_projects.blank? || !@manage_projects.blank?) %>
+<div class="contextual">
+<%= link_to l(:"button_new_#{controller_name}"), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
+</div>
+<% end %>
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
 
 <%=h hidden_field_tag('tab', "#{controller_name}") %>
@@ -30,18 +34,13 @@
 		projGrp = true	
 	end
 %>
-<div>
-<div id="leftMenu" class="div-rel">
-<% if (!@currentUser_loggable_projects.blank? || !@manage_projects.blank?) %>
-<div class="contextual">
-<%= link_to l(:"button_new_#{controller_name}"), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
-</div>
-<% end %>
+
 <% filters = call_hook(:view_te_filter) %>
 <% if !filters.blank? %>	 
 <%=	filters %>
 <% else %>
 <% if !@manage_view_spenttime_projects.blank? %>
+<div id="leftMenu" class="div-rel">
 <table>
 <script type="text/javascript"> 
 $(document).ready(function()
@@ -89,9 +88,10 @@ $(document).ready(function()
 </tr>
 
 </table>
-<% end %>
-<% end %>
 </div>
+<% end %>
+<% end %>
+
 <div id="rightMenu" class="div-abs">
 <table>
 <tr>
@@ -103,8 +103,7 @@ $(document).ready(function()
 </tr>
 </table>
 </div>
-</div>
-<div style="clear:both">
+<div style="clear:both"></div>
 <%= render :partial => 'wktime/date_range' %>
 
 <% end %>
