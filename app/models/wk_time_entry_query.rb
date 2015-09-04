@@ -55,12 +55,12 @@ class WkTimeEntryQuery < Query
 			value.push User.current.id.to_s
 		  end
 		end
-		not_in = nil
-		if operator == '!'
+		#not_in = nil
+		#if operator == '!'
 		  # Makes ! operator work for custom fields with multiple values
-		  operator = '='
-		  not_in = 'NOT'
-		end
+		#  operator = '!'
+		#  not_in = 'NOT'
+		#end
 		customized_key = "id"
 		customized_class = queried_class
 		if field =~ /^(.+)\.cf_/
