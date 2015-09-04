@@ -19,7 +19,7 @@ include QueriesHelper
 	user_custom_fields = CustomField.where(['is_filter = ? AND type = ?', true, "UserCustomField"])
 	@query = nil
 	unless user_custom_fields.blank?
-		@query = WkTimeEntryQuery.build_from_params(params, :project => nil, :name => '_') #TimeEntryQuery
+		@query = WkTimeEntryQuery.build_from_params(params, :project => nil, :name => '_')
 	end
 	
 	set_filter_session
@@ -29,14 +29,15 @@ include QueriesHelper
 	if !params[:tab].blank? && params[:tab] =='wkexpense'
 		user_id = session[:wkexpense][:user_id]
 		group_id = session[:wkexpense][:group_id]
-		status = session[:wkexpense][:status]
-		userfilter = session[:wkexpense][:filters]
+		status = session[:wktimes][:status]
+		userfilter = getValidUserCF(session[:wkexpense][:filters], user_custom_fields)
 	else
 		user_id = session[:wktimes][:user_id]
 		group_id = session[:wktimes][:group_id]
 		status = session[:wktimes][:status]
-		userfilter = session[:wktimes][:filters]
+		userfilter = getValidUserCF(session[:wktimes][:filters], user_custom_fields)
 	end
+	
 	unless userfilter.blank? || @query.blank?
 		@query.filters = userfilter
 	end

@@ -793,4 +793,20 @@ end
 		end		
 		dateSqlStr
 	end
+	
+	def getValidUserCF(userCFHash, userCF)
+		tmpUserCFHash = userCFHash
+		if !userCF.blank? && !userCFHash.blank?
+			cfHash = Hash.new
+			userCF.each do |cf|
+				cfHash["user.cf_#{cf.id}"] = "#{cf.name}"
+			end
+			userCFHash.each_key do |key|
+				if !cfHash.has_key?(key)
+					tmpUserCFHash.delete(key)
+				end
+			end
+		end
+		tmpUserCFHash
+	end	
 end
