@@ -34,8 +34,8 @@
 <%=h hidden_field_tag('control', "#{action_name}") %>
 <% end %>
 </div>
-
 </fieldset>
+<% if !@manage_view_spenttime_projects.blank? %>
 <% if !@query.blank? %>
 <fieldset id="filters" class="collapsible <%= @query.new_record? ? "" : "collapsed" %>">
     <legend onclick="toggleFieldset(this);"><%= l(:label_user_filters) %></legend>
@@ -43,6 +43,7 @@
       <%= render :partial => 'queries/filters', :locals => {:query => @query} %>
     </div>
 </fieldset>
+<% end %>
 <% end %>
 <p class="buttons">
 	<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
