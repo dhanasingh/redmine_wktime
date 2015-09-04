@@ -18,6 +18,11 @@ include QueriesHelper
   def index	
 	@query = WkTimeEntryQuery.build_from_params(params, :project => nil, :name => '_') #TimeEntryQuery
 	
+	#statement1 = @query.statement #(options)
+	
+	#Rails.logger.info("===================statement========================")
+	#Rails.logger.info("statement : #{statement1}")	
+	
 	set_filter_session
     retrieve_date_range	
 	@from = getStartDay(@from)
@@ -1412,8 +1417,9 @@ private
 	end
 	
 	def getAllWeekSql(from, to)
-		#to = to.blank? || to > Date.today  ? getEndDay(Date.today) : to
-		entityNames = getEntityNames()
+		entityNames = getEntityNames()		
+		user_cf_sql = @query.user_cf_statement('u')
+		
 		noOfDays = 't4.i*7*10000 + t3.i*7*1000 + t2.i*7*100 + t1.i*7*10 + t0.i*7'
 		sqlStr = "select u.id, u.created_on, v.selected_date from " +
 		"(select " + getAddDateStr(from, noOfDays) + " selected_date from " +
@@ -1422,8 +1428,9 @@ private
 		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t2, " +
 		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t3, " +
 		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t4) v, " +
-		"(select distinct u.id, u.created_on from users u) u " +		
-		"where selected_date between '#{from}' and '#{to}'"
+		"(select distinct u.id, u.created_on from users u) u "		
+		sqlStr += " #{user_cf_sql} " if !user_cf_sql.blank?
+		sqlStr += (!user_cf_sql.blank? ? " AND " : " WHERE ") + " v.selected_date between '#{from}' and '#{to}' "
 	end
 	
 	def getTEAllTimeRange(ids)
