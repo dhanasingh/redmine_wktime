@@ -1,4 +1,5 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
 	prevTab = 'tab-<%= "#{controller_name}" %>';
 	grpUrl="<%= "#{url_for(:controller => controller_name, :action => 'getMembersbyGroup')}" %>";
@@ -30,7 +31,7 @@
 	end
 %>
 <div>
-<div id="leftMenu" style="float: left; position: relative; width: 100%;  ">
+<div id="leftMenu" class="div-rel">
 <% if (!@currentUser_loggable_projects.blank? || !@manage_projects.blank?) %>
 <div class="contextual">
 <%= link_to l(:"button_new_#{controller_name}"), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
@@ -91,7 +92,7 @@ $(document).ready(function()
 <% end %>
 <% end %>
 </div>
-<div id="rightMenu" style="float: left; position: absolute; left: 280px;">
+<div id="rightMenu" class="div-abs">
 <table>
 <tr>
 <th valign="top"><%=l(:field_status)%></th>
