@@ -16,7 +16,11 @@ helper :queries
 include QueriesHelper
  
   def index	
-	@query = WkTimeEntryQuery.build_from_params(params, :project => nil, :name => '_') #TimeEntryQuery
+	user_custom_fields = CustomField.where(['is_filter = ? AND type = ?', true, "UserCustomField"])
+	@query = nil
+	unless user_custom_fields.blank?
+		@query = WkTimeEntryQuery.build_from_params(params, :project => nil, :name => '_') #TimeEntryQuery
+	end
 	
 	set_filter_session
     retrieve_date_range	
@@ -26,10 +30,15 @@ include QueriesHelper
 		user_id = session[:wkexpense][:user_id]
 		group_id = session[:wkexpense][:group_id]
 		status = session[:wkexpense][:status]
+		userfilter = session[:wkexpense][:filters]
 	else
 		user_id = session[:wktimes][:user_id]
 		group_id = session[:wktimes][:group_id]
 		status = session[:wktimes][:status]
+		userfilter = session[:wktimes][:filters]
+	end
+	unless userfilter.blank? || @query.blank?
+		@query.filters = userfilter
 	end
 	set_user_projects
 	if (!@manage_view_spenttime_projects.blank? && @manage_view_spenttime_projects.size > 0)
@@ -1402,7 +1411,7 @@ private
 	
 	def getAllWeekSql(from, to)
 		entityNames = getEntityNames()		
-		user_cf_sql = @query.user_cf_statement('u')
+		user_cf_sql = @query.user_cf_statement('u') if !@query.blank?
 		
 		noOfDays = 't4.i*7*10000 + t3.i*7*1000 + t2.i*7*100 + t1.i*7*10 + t0.i*7'
 		sqlStr = "select u.id, u.created_on, v.selected_date from " +
@@ -1636,8 +1645,8 @@ private
 	 
 		if params[:searchlist].blank? && (session[:wktimes].nil? || session[:wkexpense].nil?)
 			
-			session[:wktimes] = {:period_type => params[:period_type], :period => params[:period],:from => params[:from],:to => params[:to],:project_id => params[:project_id], :filter_type => params[:filter_type],:user_id => params[:user_id],:status => params[:status],:group_id => params[:group_id] }
-			session[:wkexpense] = {:period_type => params[:period_type], :period => params[:period],:from => params[:from],:to => params[:to],:project_id => params[:project_id], :filter_type => params[:filter_type],:user_id => params[:user_id],:status => params[:status],:group_id => params[:group_id] }
+			session[:wktimes] = {:period_type => params[:period_type], :period => params[:period],:from => params[:from],:to => params[:to],:project_id => params[:project_id], :filter_type => params[:filter_type],:user_id => params[:user_id],:status => params[:status],:group_id => params[:group_id], :filters => @query.blank? ? [] : @query.filters }
+			session[:wkexpense] = {:period_type => params[:period_type], :period => params[:period],:from => params[:from],:to => params[:to],:project_id => params[:project_id], :filter_type => params[:filter_type],:user_id => params[:user_id],:status => params[:status],:group_id => params[:group_id], :filters => @query.blank? ? [] : @query.filters }
 			#session[:wkexpense]  = session[:wktimes] 
 		elsif params[:searchlist] =='wktime' || api_request?
 			session[:wktimes][:period_type] = params[:period_type]
@@ -1649,6 +1658,7 @@ private
 			session[:wktimes][:user_id] = params[:user_id]
 			session[:wktimes][:status] = params[:status]
 			session[:wktimes][:group_id] = params[:group_id]
+			session[:wktimes][:filters] = @query.blank? ? [] : @query.filters
 		elsif params[:searchlist] =='wkexpense' || api_request?
 			session[:wkexpense][:period_type] = params[:period_type]
 			session[:wkexpense][:period] = params[:period]
@@ -1659,6 +1669,7 @@ private
 			session[:wkexpense][:user_id] = params[:user_id]
 			session[:wkexpense][:status] = params[:status]
 			session[:wkexpense][:group_id] = params[:group_id]
+			session[:wkexpense][:filters] = @query.blank? ? [] : @query.filters
 		end		
 	 end	
 end
