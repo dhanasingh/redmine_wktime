@@ -18,25 +18,17 @@ include QueriesHelper
   def index	
 	@query = WkTimeEntryQuery.build_from_params(params, :project => nil, :name => '_') #TimeEntryQuery
 	
-	#statement1 = @query.statement #(options)
-	
-	#Rails.logger.info("===================statement========================")
-	#Rails.logger.info("statement : #{statement1}")	
-	
 	set_filter_session
     retrieve_date_range	
 	@from = getStartDay(@from)
 	@to = getEndDay(@to)
-	# Paginate results
-	#user_id = params[:user_id]
-	#group_id = params[:group_id]
 	if !params[:tab].blank? && params[:tab] =='wkexpense'
 		user_id = session[:wkexpense][:user_id]
 		group_id = session[:wkexpense][:group_id]
 		status = session[:wkexpense][:status]
 	else
-		user_id = session[:wktimes][:user_id]#params[:user_id]
-		group_id = session[:wktimes][:group_id]#group_id = params[:group_id]
+		user_id = session[:wktimes][:user_id]
+		group_id = session[:wktimes][:group_id]
 		status = session[:wktimes][:status]
 	end
 	set_user_projects
@@ -91,19 +83,11 @@ include QueriesHelper
 		sqlStr += " t.user_id, sum(t." + spField + ") as " + spField + " ,max(t.id) as id" + " from " + entityNames[1] + " t, users u" +
 			" where u.id = t.user_id and u.id in (#{ids})"
 		sqlStr += " and t.spent_on between '#{@from}' and '#{@to}'" unless @from.blank? && @to.blank?	
-		sqlStr += " group by startday, user_id order by startday desc, user_id ) as v1"
-		
+		sqlStr += " group by startday, user_id order by startday desc, user_id ) as v1"		
 	end		
 
 	wkSqlStr = " left outer join " + entityNames[0] + " w on v1.startday = w.begin_date and v1.user_id = w.user_id " +
-				"left outer join users un on un.id = w.statusupdater_id"	
-	#status = params[:status]
-	#if !status.blank?
-	#	wkSqlStr += " WHERE w.status in ('#{status.join("','")}')" 
-	#	if status.include?('n')
-	#		wkSqlStr += " OR  w.status IS NULL"
-	#	end
-	#end
+				"left outer join users un on un.id = w.statusupdater_id"
 	
 	findBySql(teSelectStr,sqlStr,wkSelectStr,wkSqlStr, status, ids)	
     respond_to do |format|
