@@ -62,7 +62,7 @@ $(document).ready(function()
 <td class="project" align="left"><%=h select_tag('project_id', 
 	options_for_select(options_for_wktime_project(@manage_view_spenttime_projects),
 	:selected => !projectid.nil? ? projectid.to_i: @selected_project.id),:disabled => @use_group,
-	:onchange => "projChanged(this, #{User.current.id}, true);") %></td>
+	:onchange => "projChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %></td>
 </tr>
 <% if !@groups.blank? %>
 <tr>
@@ -73,7 +73,7 @@ $(document).ready(function()
 	<%=h select_tag('group_id',
 	options_for_select( @groups.collect {|p| [p.name, p.id ]},
 	:selected => (groupid.nil? ? 0 : groupid)),:disabled => !@use_group,
-	:onchange => "grpChanged(this, #{User.current.id}, true);") %>
+	:onchange => "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %>
 </td>
 </tr>
 <% end %>
@@ -84,7 +84,7 @@ $(document).ready(function()
 <%=h select_tag('user_id',
 	options_for_select( [["All Users","0"]] + (@members.blank? ? [] : @members),
 		:selected => userid.nil? ? (@user.nil? ? User.current.id : @user.id) : userid),
-	:onchange => 'this.form.submit();') %></td>
+	:onchange => 'this.form.submit();', :style=> "width:200px;") %></td>
 </tr>
 
 </table>
