@@ -116,7 +116,8 @@ en:
   error_time_entry_delete: "Cannot be deleted. The timesheet with this entry is locked"
   
   label_user_filters: User filters
-
+  label_submitted_by: Submitted by
+  label_approved_by:  Approved by
   
   
 

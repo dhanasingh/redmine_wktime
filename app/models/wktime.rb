@@ -3,8 +3,8 @@ unloadable
 include Redmine::SafeAttributes
 
   belongs_to :user
-  belongs_to :user, :class_name => 'User', :foreign_key => 'submitter_id'
-  belongs_to :user, :class_name => 'User', :foreign_key => 'statusupdater_id'
+  belongs_to :submitter, :class_name => 'User', :foreign_key => 'submitter_id'
+  belongs_to :updater, :class_name => 'User', :foreign_key => 'statusupdater_id'
   
   acts_as_customizable
   

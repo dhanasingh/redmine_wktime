@@ -73,5 +73,23 @@
 		<% end %>
 	</td>
 </tr>
-
+<tr>
+	<th><%=l(:label_submitted_by)%></th>
+	<td>	
+	<% if (status != 'n' && status != 'r'  )  %>
+	<%=h @wktime.submitter.name unless @wktime.blank? %>
+	<% end %>	
+	</td>
+	<td width="30px"></td>
+			
+</tr>
+<tr>
+	<th><%=l(:label_approved_by)%></th>
+	<td><% if (status == 'a')  %>
+	<%=h  @wktime.updater.name unless @wktime.blank? %>
+		<% end %>
+	</td>
+	<td width="30px"></td>
+				
+</tr>
 
