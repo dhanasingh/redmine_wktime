@@ -16,6 +16,7 @@ var issueField = 'Issue';
 var submissionack="";
 var minHourAlertMsg="";
 var decSeparator = ".";
+var lblPleaseSelect = "";
 $(document).ready(function() {
 //$(function() {
 	var e_comments = $( "#_edit_comments_" );
@@ -252,7 +253,11 @@ function projectChanged(projDropdown, row){
 			url: issUrl,
 			type: 'get',
 			data: {project_id: id, user_id: uid,tracker_id: trackerListArr, format:fmt,startday:startday, issue_assign_user: issue_assign_user},
-			success: function(data){ updateDropdown(data, row, issDropdown, true, allowBlankIssue, true, null); },
+			success: function(data){
+				var items = data.split('\n');
+				var needBlankOption = items.length-1 > 1 || allowBlankIssue ;
+				updateDropdown(data, row, issDropdown, true, needBlankOption, true, null); 
+			},
 			beforeSend: function(){ $this.addClass('ajax-loading'); },
 			complete: function(){ $this.removeClass('ajax-loading'); }
 		});
@@ -260,7 +265,12 @@ function projectChanged(projDropdown, row){
 			url: actUrl,
 			type: 'get',
 			data: {project_id: id, user_id: uid, format:fmt},
-			success: function(data){ updateDropdown(data, row, actDropdown, false, false, true,null); },
+			success: function(data){
+				var actId = getDefaultActId(data);
+				var items = data.split('\n');
+				var needBlankOption = !(items.length-1 == 1 || actId != null);
+				updateDropdown(data, row, actDropdown, false, needBlankOption, true, actId);
+			},
 			beforeSend: function(){ $this.addClass('ajax-loading'); },
 			complete: function(){ $this.removeClass('ajax-loading'); }
 		});
@@ -394,6 +404,8 @@ function updateIssDropdowns(itemStr, projDropdowns,projIds)
 function updateIssueDD(itemStr, project_id, projDropdowns, issDropdowns)
 {
 	var proj_id, issue_id=null;
+	var items = itemStr.split('\n');
+	var needBlankOption = items.length-1 > 1 || allowBlankIssue ;
 	if(projDropdowns){	
 		for (j=0; j < projDropdowns.length; j++){		
 			proj_id = projDropdowns[j].options[projDropdowns[j].selectedIndex].value;
@@ -405,7 +417,7 @@ function updateIssueDD(itemStr, project_id, projDropdowns, issDropdowns)
 					else {
 						issue_id = null;
 					}
-					updateDropdown(itemStr, j+1, issDropdowns, true, allowBlankIssue, true, issue_id);
+					updateDropdown(itemStr, j+1, issDropdowns, true, needBlankOption, true, issue_id);
 				}
 			}
 		}
@@ -414,10 +426,11 @@ function updateIssueDD(itemStr, project_id, projDropdowns, issDropdowns)
 function updateActDropdown(data, row, actDropdown){
 	
 	var enterIsueIdChk = document.getElementById("enter_issue_id");
+	var items = data.split('\n');
 	if(enterIsueIdChk && enterIsueIdChk.checked){
 		//set the project id
 		var projectIdHFs = document.getElementsByName("time_entry[][project_id]");
-		var items = data.split('\n');
+		//var items = data.split('\n');
 		var index;
 		if(items.length > 0){
 			index = items[0].indexOf('|');
@@ -427,7 +440,10 @@ function updateActDropdown(data, row, actDropdown){
 			}
 		}
 	}
-	updateDropdown(data, row, actDropdown, false, false, true,null);
+	var actId = getDefaultActId(data);
+	//var items = data.split('\n');
+	var needBlankOption = !(items.length-1 == 1 || actId != null);
+	updateDropdown(data, row, actDropdown, false, needBlankOption, true, actId);
 }
 
 function updateDropdown(itemStr, row, dropdown, showId, needBlankOption, skipFirst, selectedVal)
@@ -440,7 +456,11 @@ function updateDropdown(itemStr, row, dropdown, showId, needBlankOption, skipFir
 	}
 	dropdown[row-1].options.length = 0;
 	if(needBlankOption){
-		dropdown[row-1].options[0] = new Option( "", "", false, false); 
+		if (showId && allowBlankIssue){
+			dropdown[row-1].options[0] = new Option( "", "", false, false);
+		}else{
+			dropdown[row-1].options[0] = new Option( "---" + lblPleaseSelect + "---", "", false, false);
+		}
 	}
 	var i, index, val, text, start;
 	for(i=0; i < items.length-1; i++){
@@ -456,12 +476,12 @@ function updateDropdown(itemStr, row, dropdown, showId, needBlankOption, skipFir
 		if(index != -1){
 			val = items[i].substring(start, index);
 			text = items[i].substring(index+1);
-			if(showId)
-			{
+			//if(showId)
+			//{
 				text = text.split('|');
-			}
+			//}
 			dropdown[row-1].options[needBlankOption ? i+1 : i] = new Option( 
-				showId ? text[0] + ' #' + val + ': ' + text[1] : text, val, false, val == selectedVal);			
+				showId ? text[0] + ' #' + val + ': ' + text[1] : text[1], val, false, val == selectedVal);			
 			if(val == selectedVal){
 				selectedValSet = true;
 			}
@@ -1108,4 +1128,16 @@ function issueAssignUser()
 		issue_assign_user=1;
 	}
 	return issue_assign_user
+}
+
+function getDefaultActId(actStr)
+{
+	var index, actId = null;
+	index = actStr.indexOf('|true|', 0);
+	if(index != -1){
+		actStr = actStr.substring(0,index);
+		index = actStr.lastIndexOf('|');
+		actId = actStr.substring(index+1);
+	}
+	return actId
 }

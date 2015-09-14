@@ -183,19 +183,19 @@ include QueriesHelper
 						if to_boolean(@edittimelogs)
 							allowSave = true
 						end
-						if !((Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? ||
-								Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 0) && 
-								entry.issue.blank?)
+						#if !((Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? ||
+						#		Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 0) && 
+						#		entry.issue.blank?)
 							if allowSave
 								errorMsg = updateEntry(entry) 
 							else
 								errorMsg = l(:error_not_permitted_save) if !api_request?
 							end
 							break unless errorMsg.blank?
-						else
-							errorMsg = "#{l(:field_issue)} #{l('activerecord.errors.messages.blank')} "
-							break unless errorMsg.blank?
-						end
+						#else
+						#	errorMsg = "#{l(:field_issue)} #{l('activerecord.errors.messages.blank')} "
+						#	break unless errorMsg.blank?
+						#end
 					end				
 					if !params[:wktime_submit].blank? && useApprovalSystem 
 						@wktime.submitted_on = Date.today
@@ -501,7 +501,7 @@ include QueriesHelper
 		end
 		actStr =""
 		project.activities.each do |a|
-			actStr << project_id.to_s() + '|' + a.id.to_s() + '|' + a.name + "\n"
+			actStr << project_id.to_s() + '|' + a.id.to_s() + '|' + a.is_default.to_s() + '|' + a.name + "\n"
 		end
 	
 		respond_to do |format|
@@ -1090,8 +1090,15 @@ private
 			#if id is there it should be update otherwise create
 			#the UI disables editing of
 			if can_log_time?(entry.project_id) || to_boolean(@edittimelogs)
+				if ((Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? ||
+						Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 0) && 
+						entry.issue.blank?)
+					errorMsg = "#{l(:field_issue)} #{l('activerecord.errors.messages.blank')} "
+				end
+				
 				if !entry.save()
-					errorMsg = entry.errors.full_messages.join('\n')
+					errorMsg = errorMsg.blank? ? entry.errors.full_messages : entry.errors.full_messages.unshift(errorMsg)
+					errorMsg = errorMsg.join("<br>")
 				end
 			else
 				errorMsg = l(:error_not_permitted_save)

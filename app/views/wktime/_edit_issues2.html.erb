@@ -34,12 +34,14 @@ if params[:enter_issue_id].blank?
 	<% 
 	curr_issue_found = false
 	issues = Array.new
+	allIssues = @projectIssues[project_id]
 	if !Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? &&
 		Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 1
 		# add an empty issue to the array
 		issues << [ "", ""]
+	else
+		issues << [ "--- #{l(:actionview_instancetag_blank_option)} ---", '' ] if allIssues.count >1
 	end	
-	allIssues = @projectIssues[project_id]
 	unless allIssues.blank?
 		allIssues.each do |i|
 			#issues << [ i.id.to_s + ' - ' + i.subject, i.id ] 			
@@ -89,17 +91,22 @@ if params[:enter_issue_id].blank?
 <%
 	activity = nil
 	activities = nil
+	isDefaultAct = false
 	projActList = @projActivities[project_id]
 	#activities = activities.sort_by{|name, id| name} unless activities.blank?
 	unless projActList.blank?
 		projActList = projActList.sort_by{|name| name}
-
+		isDefaultAct = true if projActList.detect(&:is_default) || projActList.size == 1
 		activity = projActList.detect {|a| a.id == entry.activity_id} unless entry.nil?
 		#check if the activity, which was previously reported time, is still visible
 		#if it is not visible, just show the id alone
 	
 		activities = projActList.collect {|a| [a.name, a.id]}
 		activities.unshift( [ entry.activity.name, entry.activity_id ] )if !entry.nil? && activity.blank?
+	# add an Please select to the activities array
+		if !isDefaultAct
+			activities.unshift([ "--- #{l(:actionview_instancetag_blank_option)} ---", '' ])
+		end
 	end
 %>
 <td class="issue" align="left" width="<%= Setting.plugin_redmine_wktime['wktime_actv_dd_width'] %>px">
