@@ -102,7 +102,7 @@ if params[:enter_issue_id].blank?
 		#if it is not visible, just show the id alone
 	
 		activities = projActList.collect {|a| [a.name, a.id]}
-		activities.unshift( [ entry.activity.name, entry.activity_id ] )if !entry.nil? && activity.blank?
+		activities.unshift( [ entry.activity.name, entry.activity_id ] )if !entry.nil? && activity.blank? && !entry.activity_id.nil?
 	# add an Please select to the activities array
 		if !isDefaultAct
 			activities.unshift([ "--- #{l(:actionview_instancetag_blank_option)} ---", '' ])

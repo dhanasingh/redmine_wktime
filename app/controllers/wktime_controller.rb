@@ -121,6 +121,15 @@ include QueriesHelper
 	@editable = false if @locked
 	set_edit_time_logs
 	@entries = findEntries()
+	isError = params[:isError].blank? ? false : to_boolean(params[:isError])
+	if (!$tempEntries.blank? && isError)
+		@entries.each do |entry|	
+			if !entry.editable_by?(User.current)
+				$tempEntries << entry
+			end
+		end
+		@entries = $tempEntries
+	end
 	set_project_issues(@entries)
 	if @entries.blank? && !params[:prev_template].blank?
 		@prev_entries = prevTemplate(@user.id)
@@ -268,6 +277,7 @@ include QueriesHelper
 		format.html {
 			if errorMsg.nil?
 				flash[:notice] = respMsg
+				$tempEntries = nil
 				#redirect_back_or_default :action => 'index'
 				#redirect_to :action => 'index' , :tab => params[:tab]
                 if params[:wktime_save_continue] 
@@ -277,11 +287,12 @@ include QueriesHelper
 				end 
 			else
 				flash[:error] = respMsg
+				$tempEntries = @entries
 				if !params[:enter_issue_id].blank? && params[:enter_issue_id].to_i == 1					
-				redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday,
+				redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday, :isError => true,
 				:enter_issue_id => 1	
 				else
-					redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday
+					redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday, :isError => true
 				end
 			end
 		}

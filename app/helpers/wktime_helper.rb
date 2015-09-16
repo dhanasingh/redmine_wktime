@@ -292,7 +292,7 @@ module WktimeHelper
 	def getKey(entry,unitLabel)
 		cf_in_row1_value = nil
 		cf_in_row2_value = nil
-		key = entry.project.id.to_s + (entry.issue.blank? ? '' : entry.issue.id.to_s) + entry.activity.id.to_s + (unitLabel.blank? ? '' : entry.currency)
+		key = entry.project.id.to_s + (entry.issue.blank? ? '' : entry.issue.id.to_s) + (entry.activity.blank? ? '' : entry.activity.id.to_s) + (unitLabel.blank? ? '' : entry.currency)
 		entry.custom_field_values.each do |custom_value|			
 			custom_field = custom_value.custom_field
 			if (!Setting.plugin_redmine_wktime['wktime_enter_cf_in_row1'].blank? &&	Setting.plugin_redmine_wktime['wktime_enter_cf_in_row1'].to_i == custom_field.id)
@@ -382,7 +382,7 @@ def getColumnValues(matrix, totals, unitLabel,rowNumberRequired, j=0)
 					if !issueWritten
 						col_values[k] = entry.project.name
 						col_values[k+1] = entry.issue.blank? ? "" : entry.issue.subject
-						col_values[k+2] = entry.activity.name
+						col_values[k+2] = entry.issue.blank? ? "" : entry.activity.name
 						if !unitLabel.blank?
 							col_values[k+3]= entry.currency
 						end
