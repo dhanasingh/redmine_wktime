@@ -4,11 +4,31 @@
 	prevTab = 'tab-<%= "#{controller_name}" %>';
 	grpUrl="<%= "#{url_for(:controller => controller_name, :action => 'getMembersbyGroup')}" %>";
 	userUrl="<%= "#{url_for(:controller => controller_name, :action => 'getusers')}" %>";
+	rSubEmailUrl="<%= "#{url_for(:controller => controller_name, :action => 'sendSubReminderEmail')}" %>";
+	rAppEmailUrl="<%= "#{url_for(:controller => controller_name, :action => 'sendApprReminderEmail')}" %>";
 </script>
 <% if (!@currentUser_loggable_projects.blank? || !@manage_projects.blank?) %>
 <div class="contextual">
 <%= link_to l(:"button_new_#{controller_name}"), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
 </div>
+<% end %>
+<% if !@manage_projects.blank? %>
+
+<div id="reminder-email-dlg" title="Send Reminder Email">
+	<fieldset>
+		<p> <label>Email Message</label>
+		<textarea name="email_notes" id="email_notes" value="" cols="25" rows="2"> </textarea> </p>
+		<%= radio_button_tag 'submission', '1' %>
+		<span>
+		Send submission email reminder
+		</span></br></br>
+		<%= radio_button_tag 'submission', '2' %>
+		<span>
+		Send approval email reminder
+		</span>
+	</fieldset>
+</div>
+
 <% end %>
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
 

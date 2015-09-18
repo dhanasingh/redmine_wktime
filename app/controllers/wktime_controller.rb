@@ -189,9 +189,7 @@ include QueriesHelper
 						if (!entry.id.blank? && !entry.editable_by?(User.current))
 							allowSave = false
 						end
-						if to_boolean(@edittimelogs)
-							allowSave = true
-						end
+						allowSave = true if (to_boolean(@edittimelogs) || isAccountUser)
 						#if !((Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? ||
 						#		Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 0) && 
 						#		entry.issue.blank?)
@@ -686,6 +684,7 @@ include QueriesHelper
 		if !hookPerm.blank?
 			ret = hookPerm[0]
 		end
+		ret = true if isAccountUser
 		ret = ((ret || !te_projects.blank?) && (@user.id != User.current.id || (!Setting.plugin_redmine_wktime[:wktime_own_approval].blank? && 
 							Setting.plugin_redmine_wktime[:wktime_own_approval].to_i == 1 )))? true: false
 		
@@ -737,6 +736,97 @@ include QueriesHelper
 			format.text  { render :text => ret }
 		end	
 	end
+	
+	def sendSubReminderEmail
+		weekQuery = getAllWeekSql(params[:from].to_date, params[:to].to_date)
+
+		queryStr = "select u.*, v1.selected_date as begin_date from ( #{weekQuery} ) v1" +
+					" left join users u on v1.id = u.id" +
+					" left join wktimes w on v1.selected_date = w.begin_date and u.id = w.user_id" +
+					" where v1.id in (#{session[:wktimes][:user_id]}) and (w.status in ('n', 'r') or w.status is null)" +
+					" and v1.selected_date < '#{Date.today.to_s}'"
+					
+		users = User.find_by_sql(queryStr)
+		userList = ""		
+		users.each do |user|
+			hookMgr = call_hook(:controller_get_manager, {:user => user})
+			mngr = hookMgr.blank? ? nil : hookMgr[0]
+			WkMailer.submissionReminder(user, mngr,  params[:email_notes]).deliver
+			userList += user.name + "\n"
+		end
+		WkMailer.sendConfirmationMail(userList, true).deliver if !userList.blank?
+		
+		respond_to do |format|
+			format.text  { render :text => 'OK' }
+		end
+	end
+	
+	def sendApprReminderEmail
+		userList = ""
+		mgrList = ""
+		userHash = Hash.new
+		mgrHash = Hash.new
+	
+		queryStr = "select distinct u.* from users u " +
+					"left outer join wktimes w on u.id = w.user_id " +
+					"and (w.begin_date between '#{params[:from]}}' and '#{params[:to]}') " +
+					"where u.id in (#{session[:wktimes][:user_id]}) and w.status = 's'"
+					
+		users = User.find_by_sql(queryStr)
+		users.each do |user|
+			mngrArr = getManager(user)			
+			if !mngrArr.blank?
+				mngrArr.each do |m|
+					if mgrHash.has_key?(m.id)
+						userArr = userHash[m.id]
+						userHash[m.id] = userArr << user						
+					else						
+						mgrHash[m.id] = m
+						userHash[m.id] = [user]
+					end
+				end
+			end			
+		end
+		if !mgrHash.blank?
+			mgrHash.each_key do |key|
+				subOrd = userHash[key]
+				subOrd.each do |user|
+					userList += user.name + "\n"
+				end
+				WkMailer.approvalReminder(mgrHash[key], userList,  params[:email_notes]).deliver
+				mgrList += mgrHash[key].name + "\n"
+			end		
+			WkMailer.sendConfirmationMail(mgrList, false).deliver
+		end
+		
+		respond_to do |format|
+			format.text  { render :text => 'OK' }
+		end
+	end
+	
+	def getManager(user)
+		#user.supervisor
+		hookMgr = call_hook(:controller_get_manager, {:user => user})
+		mngrArr = [] #nil
+		if !hookMgr.blank?
+			mngrArr << hookMgr[0] if !hookMgr[0].blank?
+		else
+			#TODO : Include approver can approve their own timesheet logic
+			queryStr = "select distinct u.* from projects p" +
+					" inner join members m on p.id = m.project_id and p.status = 1 and m.user_id <> #{user.id}" +
+					" inner join member_roles mr on m.id = mr.member_id" +
+					" inner join roles r on mr.role_id = r.id and (r.permissions like '%edit_time_entries%' and r.permissions like '%approve_time_entries%')" +
+					" inner join users u on m.user_id = u.id" +
+					" left join members m1 on p.id = m.project_id and m1.user_id = #{user.id}"
+			
+			mngrs = User.find_by_sql(queryStr)
+			mngrs.each do |m|
+				mngrArr << m				
+			end
+		end
+		mngrArr
+	end
+	
 private
 
 
@@ -765,7 +855,7 @@ private
 		if	!editPermission.blank? 
 			ret = editPermission[0] || (@user.id == User.current.id && @logtime_projects.size > 0)
 		end
-		return ret		
+		return (ret || isAccountUser)		
 	end
 	
 	def getGrpMembers
@@ -1075,7 +1165,7 @@ private
     def check_editperm_redirect
 		hookPerm = call_hook(:controller_edit_timelog_permission, {:params => params})
 		if !hookPerm.blank?
-			allow = hookPerm[0] || (check_editPermission && @user.id == User.current.id)
+			allow = hookPerm[0] || (check_editPermission && @user.id == User.current.id) || isAccountUser
 		else
 			allow = check_editPermission
 		end
@@ -1105,6 +1195,7 @@ private
 				break
 			end
 		end
+		allowed = true if isAccountUser
 		return allowed
 	end
 	
@@ -1309,7 +1400,11 @@ private
 		if !mng_projects.blank?
 			@manage_projects = mng_projects[0].blank? ? nil : mng_projects[0]
 		else
-			@manage_projects ||= Project.where(Project.allowed_to_condition(User.current, :edit_time_entries)).order('name')
+			if isAccountUser
+				@manage_projects = getAccountUserProjects
+			else
+				@manage_projects ||= Project.where(Project.allowed_to_condition(User.current, :edit_time_entries)).order('name')
+			end
 		end		
 		@manage_projects =	setTEProjects(@manage_projects)	
 		
@@ -1320,7 +1415,6 @@ private
 			@manage_view_spenttime_projects = view_projects[0].blank? ? nil : view_projects[0]
 		else
 			if isAccountUser
-				#@manage_view_spenttime_projects = Project.all
 				@manage_view_spenttime_projects = getAccountUserProjects
 			else
 				view_spenttime_projects ||= Project.where(Project.allowed_to_condition(User.current, :view_time_entries)).order('name')

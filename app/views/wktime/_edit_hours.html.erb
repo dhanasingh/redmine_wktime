@@ -21,6 +21,7 @@
 				if !entry.nil?
 					disable = disable && !entry.id.blank?
 				end
+				disable = false if isAccountUser
 			end
 			%>
 			<%#if this is from a previous template, don't print the hours%>

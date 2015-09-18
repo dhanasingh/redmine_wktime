@@ -32,6 +32,37 @@ include Redmine::I18n
 		body += "\n #{l(:field_name)} : #{user.firstname} #{user.lastname} "
 		body += "\n #{ l(:label_week) }" + " : " + startDate.to_s + " - " + (startDate+6).to_s
 		
-		mail :from => Setting.mail_from ,:to => user.mail, :subject => subject,:body => body
+		mail :from => Setting.mail_from ,:to => user.mail, :subject => subject, :body => body
+	end
+	
+	def submissionReminder(user, mngr, emailNotes)
+		set_language_if_valid(user.language)
+		
+		subject = l(:wk_submission_reminder)
+		body = l(:wk_sub_reminder_text)
+		body += "\n" + emailNotes if !emailNotes.blank?
+		
+		mail :from => User.current.mail, :to => user.mail, :reply_to => User.current.mail, 
+		:cc => mngr.blank? ? nil : mngr.mail, :subject => subject, :body => body
+	end
+	
+	def approvalReminder(mgr, userList, emailNotes)
+		set_language_if_valid(mgr.language)
+		
+		subject = l(:wk_approval_reminder)
+		body = "#{l(:wk_appr_reminder_text)}" + "\n"
+		body += userList
+		body += "\n" + emailNotes if !emailNotes.blank?
+		
+		mail :from => User.current.mail, :to => mgr.mail, :reply_to => User.current.mail, :subject => subject, :body => body
+	end
+	
+	def sendConfirmationMail(userList, isSub)
+		set_language_if_valid(User.current.language)
+		
+		subject = isSub ? l(:wk_submission_reminder) : l(:wk_approval_reminder)
+		body = (isSub ? "#{l(:wk_sub_confirmation_text)}" : "#{l(:wk_appr_confirmation_text)}" ) + "\n" + userList
+		
+		mail :from => User.current.mail, :to => User.current.mail, :subject => subject, :body => body
 	end
  end

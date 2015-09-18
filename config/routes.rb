@@ -26,6 +26,10 @@
   
   delete 'wktime/deleteEntries', :to => 'wktime#deleteEntries'
   
+  get 'wktime/sendSubReminderEmail', :to => 'wktime#sendSubReminderEmail'
+  
+  get 'wktime/sendApprReminderEmail', :to => 'wktime#sendApprReminderEmail'
+  
   get 'wktime/testapi', :to => 'wktime#testapi' 
   
   #For Weekly expenses

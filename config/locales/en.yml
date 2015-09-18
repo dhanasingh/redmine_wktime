@@ -120,6 +120,14 @@ en:
   label_submitted_by: Submitted by
   label_approved_by:  Approved by
   
+  label_wk_reminder: Send Reminder
+  wk_submission_reminder: Timesheet submission reminder
+  wk_sub_reminder_text: "This is a reminder to submit your timesheet."
+  wk_approval_reminder: Timesheet approval reminder
+  wk_appr_reminder_text: "This is a reminder to approve timesheets for:"
+  wk_sub_confirmation_text: "Timesheet submission reminder sent to:"
+  wk_appr_confirmation_text: "Timesheet approval reminder sent to:"  
+  
   
 
 

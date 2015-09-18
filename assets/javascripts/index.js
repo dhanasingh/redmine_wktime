@@ -2,6 +2,60 @@ var wktimeIndexUrl,wkexpIndexUrl;
 var no_user ="";
 var grpUrl="";
 var userUrl="";
+var userList = new Array();
+var rSubEmailUrl = "";
+var rAppEmailUrl = "";
+
+$(document).ready(function() {
+	$( "#reminder-email-dlg" ).dialog({
+		autoOpen: false,
+		resizable: false,
+		modal: true,
+		buttons: {
+			"Ok": function() {				
+				var email_notes = document.getElementById('email_notes').value
+				alert("email_notes : " + email_notes);
+				var commandEl = document.getElementsByName('submission');
+				var reminder_command = 0;
+				for(var i = 0; i < commandEl.length; i++) {
+					if(commandEl[i].checked) {
+						reminder_command = commandEl[i].value;
+					}
+				}
+				var rUrl = "";
+				if (reminder_command == 1) {
+					rUrl = rSubEmailUrl;
+				} else {
+					rUrl = rAppEmailUrl;
+				}
+				alert("reminder_command : " + reminder_command + ", rUrl : " + rUrl);
+				var from = document.getElementById('from').value;
+				var to = document.getElementById('to').value;
+				
+				$.ajax({
+					url: rUrl,
+					type: 'get',
+					//data: {user_ids: strUserIds, status: strStatus, from: from, to: to, email_notes: email_notes},
+					data: {from: from, to: to, email_notes: email_notes},
+					success: function(data){ alert("Email sent successfully") },
+					beforeSend: function(){ $(this).parent().addClass('ajax-loading'); },
+					complete: function(){ $(this).parent().removeClass('ajax-loading'); }
+				});
+				$( this ).dialog( "close" );
+			},
+			Cancel: function() {
+				$( this ).dialog( "close" );
+			}
+		}
+	});
+});
+
+function showReminderEmailDlg() {
+	$( "#reminder-email-dlg" ).dialog( "open" );
+	//return false so the form is not posted
+	//return false;
+}
+
 function projChanged(projDropdown, userid, needBlankOption){
 	
 	var id = projDropdown.options[projDropdown.selectedIndex].value;
