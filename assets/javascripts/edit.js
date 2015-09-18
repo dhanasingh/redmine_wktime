@@ -88,6 +88,43 @@ $(document).ready(function() {
 	
 });
 
+$(window).load(function(){
+	warnLeavingUnsavedTE('#{escape_javascript l(:text_warn_on_leaving_unsaved)}'); 
+});
+
+var warnLeavingUnsavedTEMsg;
+function warnLeavingUnsavedTE(message) {
+  warnLeavingUnsavedTEMsg = message;
+  $(document).on('submit', 'form', function(){
+    $('textarea').removeData('changed');
+    $('input').removeData('changed');
+    $('select').removeData('changed');
+  });
+  setElementData('textarea');
+  setElementData('input');
+  setElementData('select');
+  window.onbeforeunload = function(){
+	var warn = (isChanged('textarea') || isChanged('input') || isChanged('select'));
+    if (warn) {return warnLeavingUnsavedTEMsg;}
+  };
+}
+
+function setElementData(elType) {
+  $(document).on('change', elType, function(){
+    $(this).data('changed', 'changed');
+  });
+}
+
+function isChanged(elType) {
+    var warn = false;
+    $(elType).blur().each(function(){
+      if ($(this).data('changed')) {
+        warn = true;
+      }
+    });
+	return warn;
+}
+
 function showComment(row, col) {
 	var images = $( 'img[name="custfield_img'+row+'[]"]' );
 	var width = 300;
