@@ -809,4 +809,8 @@ end
 		end
 		tmpUserCFHash
 	end	
+	
+	#def getAllowedTrackerId
+	#	Setting.plugin_redmine_wktime['wktime_issues_filter_tracker']
+	#end
 end

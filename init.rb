@@ -224,14 +224,24 @@ Rails.configuration.to_prepare do
 end
 
 class WktimeHook < Redmine::Hook::ViewListener
-	def controller_timelog_edit_before_save(context={ })			
-		if !context[:time_entry].hours.blank? && !context[:time_entry].activity_id.blank?
-			wktime_helper = Object.new.extend(WktimeHelper)				
+	def controller_timelog_edit_before_save(context={ })	
+		wktime_helper = Object.new.extend(WktimeHelper)	
+		if !context[:time_entry].hours.blank? && !context[:time_entry].activity_id.blank?				
 			status = wktime_helper.getTimeEntryStatus(context[:time_entry].spent_on,context[:time_entry].user_id)		
 			if !status.blank? && ('a' == status || 's' == status || 'l' == status)					
 				 raise "#{l(:label_warning_wktime_time_entry)}"
 			end			
-		end	
+		end
+		# if !context[:time_entry].issue.blank? 
+		#	trackerid = wktime_helper.getAllowedTrackerId
+		#	if trackerid != ['0']
+		#		if ["#{context[:time_entry].issue.tracker.id}"] != trackerid
+		#			raise "#{l(:label_warning_wktime_issue_tracker)}"
+		#		end	
+		#	end
+		#elsif context[:time_entry].issue.blank? && trackerid != ['0'] 
+		#	raise "#{l(:label_warning_wktime_time_entry)}"
+		#end		
 	end
 	
 	def view_layouts_base_html_head(context={})	
@@ -250,8 +260,14 @@ class WktimeHook < Redmine::Hook::ViewListener
 	def showWarningMsg(req,user_id)		
 		wktime_helper = Object.new.extend(WktimeHelper)
 		host_with_subdir = wktime_helper.getHostAndDir(req)	
-		"<div id='divError'><font color='red'>#{l(:label_warning_wktime_time_entry)}</font>	
+		"<div id='divError' syle='padding: 0px 0px 0px 0px; ' >		
+		<dl>
+		<dd style='display: inline-block; padding-left:80px;'>Please Note :</dd>
+		<dd id ='lbltimeentry' style='display: inline-block; marginLeft: 0px; word-wrap: break-word;'  >#{l(:label_warning_wktime_time_entry)}</dd>
+		<dd id='lblissuetracker' style='display: inline-block; marginLeft: 0px; white-space: nowrap;' >#{l(:label_warning_wktime_issue_tracker)} </dd>
+		</dl>
 			<input type='hidden' id='getstatus_url' value='#{url_for(:controller => 'wktime', :action => 'getStatus', :host => host_with_subdir, :only_path => true, :user_id => user_id)}'>	
+			<input type='hidden' id='getissuetracker_url' value='#{url_for(:controller => 'wktime', :action => 'getTracker', :host => host_with_subdir, :only_path => true, :user_id => user_id)}' >
 		</div>"		
 	end
 	

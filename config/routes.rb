@@ -22,6 +22,8 @@
   
   get 'wktime/getStatus', :to => 'wktime#getStatus' 
   
+  get 'wktime/getTracker', :to => 'wktime#getTracker'
+  
   delete 'wktime/deleteEntries', :to => 'wktime#deleteEntries'
   
   get 'wktime/testapi', :to => 'wktime#testapi' 

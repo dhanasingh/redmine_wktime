@@ -715,6 +715,28 @@ include QueriesHelper
 		end
 		ret
 	end
+	
+	def getTracker
+		ret = false;
+		tracker = getTrackerbyIssue(params[:issue_id])
+		settingstracker = Setting.plugin_redmine_wktime[getTFSettingName()]
+		allowtracker = Setting.plugin_redmine_wktime['wktime_allow_user_filter_tracker'].to_i
+		if settingstracker != ["0"] 
+			if ["#{tracker}"] ==  settingstracker || tracker == '0'
+				ret = true
+			end			
+		else 
+			ret = true
+		end	
+		
+		if allowtracker == 1
+		ret = true
+		end
+		
+		respond_to do |format|
+			format.text  { render :text => ret }
+		end	
+	end
 private
 
 
@@ -1660,6 +1682,12 @@ private
 		cond =	"user_id = " + User.current.id.to_s
 		projMember = Member.where(cond)
 		ret = projMember.size > 0
+	end
+	
+	def getTrackerbyIssue(issue_id)
+		result = Issue.where(['id = ?',issue_id])
+		result = result[0].blank? ? '0' : result[0].tracker_id
+		return result
 	end
 	
 	def set_filter_session
