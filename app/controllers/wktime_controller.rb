@@ -738,20 +738,64 @@ include QueriesHelper
 	end
 	
 	def sendSubReminderEmail
+		userList = ""
+		weekHash = Hash.new
+		userHash = Hash.new
+		mngrHash = Hash.new
+		
 		weekQuery = getAllWeekSql(params[:from].to_date, params[:to].to_date)
+		user_id = session[:wktimes][:user_id]
+		setMembers
+		ids = nil		
+		if user_id.blank?
+			ids = User.current.id.to_s
+		elsif user_id.to_i == 0
+
+			unless @members.blank?
+				Rails.logger.info("test inside loop")
+				@members.each_with_index do |users,i|			
+					if i == 0
+						ids =  users[1].to_s
+					else
+						ids +=',' + users[1].to_s
+					end				
+				end	
+			end
+			ids = '0' if ids.nil?
+		else
+			Rails.logger.info("======================")
+			Rails.logger.info("user_id : #{user_id}")
+
+			ids = user_id 
+		end
+		
+		Rails.logger.info("======================")
+		Rails.logger.info("ids : #{ids}")
 
 		queryStr = "select u.*, v1.selected_date as begin_date from ( #{weekQuery} ) v1" +
 					" left join users u on v1.id = u.id" +
 					" left join wktimes w on v1.selected_date = w.begin_date and u.id = w.user_id" +
-					" where v1.id in (#{session[:wktimes][:user_id]}) and (w.status in ('n', 'r') or w.status is null)" +
-					" and v1.selected_date < '#{Date.today.to_s}'"
+					" where v1.id in (#{ids})" + 
+					" and (w.status in ('n', 'r') or w.status is null)" +
+					" and v1.selected_date < '#{Date.today.to_s}' order by u.id"
 					
 		users = User.find_by_sql(queryStr)
-		userList = ""		
+		
 		users.each do |user|
-			hookMgr = call_hook(:controller_get_manager, {:user => user})
-			mngr = hookMgr.blank? ? nil : hookMgr[0]
-			WkMailer.submissionReminder(user, mngr,  params[:email_notes]).deliver
+			if !userHash.has_key?(user.id)
+				userHash[user.id] = user
+				weekHash[user.id] = [user.begin_date]
+				hookMgr = call_hook(:controller_get_manager, {:user => user})
+				mngr = hookMgr.blank? ? nil : hookMgr[0]
+				mngrHash[user.id] = mngr
+			else
+				weekArr = weekHash[user.id]
+				weekHash[user.id] = weekArr << user.begin_date
+			end
+		end
+		userHash.each_key do |key|
+			user = userHash[key]
+			WkMailer.submissionReminder(user, mngrHash[key], weekHash[key], params[:email_notes]).deliver
 			userList += user.name + "\n"
 		end
 		WkMailer.sendConfirmationMail(userList, true).deliver if !userList.blank?
@@ -762,7 +806,7 @@ include QueriesHelper
 	end
 	
 	def sendApprReminderEmail
-		userList = ""
+		userList = []
 		mgrList = ""
 		userHash = Hash.new
 		mgrHash = Hash.new
@@ -779,7 +823,7 @@ include QueriesHelper
 				mngrArr.each do |m|
 					if mgrHash.has_key?(m.id)
 						userArr = userHash[m.id]
-						userHash[m.id] = userArr << user						
+						userHash[m.id] = userArr << user
 					else						
 						mgrHash[m.id] = m
 						userHash[m.id] = [user]
@@ -791,9 +835,9 @@ include QueriesHelper
 			mgrHash.each_key do |key|
 				subOrd = userHash[key]
 				subOrd.each do |user|
-					userList += user.name + "\n"
+					userList << user.name
 				end
-				WkMailer.approvalReminder(mgrHash[key], userList,  params[:email_notes]).deliver
+				WkMailer.approvalReminder(mgrHash[key], userList.uniq.join("\n"), params[:email_notes]).deliver
 				mgrList += mgrHash[key].name + "\n"
 			end		
 			WkMailer.sendConfirmationMail(mgrList, false).deliver
@@ -837,7 +881,7 @@ private
 		status = getTimeEntryStatus(@startday, @user_id)
 		approve_projects = @approvable_projects & @logtime_projects
 		if (status != 'n' && (!approve_projects.blank? && approve_projects.size > 0))
-			#for approver			
+			#for approver
 			ret = true
 		else
 			if !@manage_projects.blank? && @manage_projects.size > 0
@@ -855,7 +899,7 @@ private
 		if	!editPermission.blank? 
 			ret = editPermission[0] || (@user.id == User.current.id && @logtime_projects.size > 0)
 		end
-		return (ret || isAccountUser)		
+		return (ret || isAccountUser)
 	end
 	
 	def getGrpMembers
@@ -1437,10 +1481,16 @@ private
 			u_id = params[:user_id]
 		end
 		if !u_id.blank?	&& u_id.to_i != 0
-			@user ||= User.find(u_id)	
-			#@logtime_projects ||= Project.find(:all, :order => 'name', :conditions => Project.allowed_to_condition(@user, :log_time))
-			@logtime_projects ||= Project.where(Project.allowed_to_condition(@user, :log_time)).order('name')			
-			@logtime_projects = setTEProjects(@logtime_projects)			
+			@user ||= User.find(u_id)
+			if User.current == @user
+				@logtime_projects ||= Project.where(Project.allowed_to_condition(@user, :log_time)).order('name')
+			else
+				@logtime_projects ||= Project
+				.joins("INNER JOIN #{Member.table_name} ON projects.id = members.project_id")
+				.where("#{Member.table_name}.user_id = #{@user.id} AND #{Project.table_name}.status = #{Project::STATUS_ACTIVE}")
+			end
+			@logtime_projects = @logtime_projects & @manage_projects if !@manage_projects.blank?
+			@logtime_projects = setTEProjects(@logtime_projects)
 		end
 	end
 	

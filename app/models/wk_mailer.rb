@@ -32,14 +32,14 @@ include Redmine::I18n
 		body += "\n #{l(:field_name)} : #{user.firstname} #{user.lastname} "
 		body += "\n #{ l(:label_week) }" + " : " + startDate.to_s + " - " + (startDate+6).to_s
 		
-		mail :from => Setting.mail_from ,:to => user.mail, :subject => subject, :body => body
+		mail :from => Setting.mail_from, :to => user.mail, :subject => subject, :body => body
 	end
 	
-	def submissionReminder(user, mngr, emailNotes)
+	def submissionReminder(user, mngr, weeks, emailNotes)
 		set_language_if_valid(user.language)
 		
 		subject = l(:wk_submission_reminder)
-		body = l(:wk_sub_reminder_text)
+		body = l(:wk_sub_reminder_text) + "\n" + weeks.join("\n")
 		body += "\n" + emailNotes if !emailNotes.blank?
 		
 		mail :from => User.current.mail, :to => user.mail, :reply_to => User.current.mail, 
