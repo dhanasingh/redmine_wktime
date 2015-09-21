@@ -17,6 +17,7 @@ var submissionack="";
 var minHourAlertMsg="";
 var decSeparator = ".";
 var lblPleaseSelect = "";
+var lblWarnUnsavedTE = "";
 $(document).ready(function() {
 //$(function() {
 	var e_comments = $( "#_edit_comments_" );
@@ -89,7 +90,7 @@ $(document).ready(function() {
 });
 
 $(window).load(function(){
-	warnLeavingUnsavedTE('#{escape_javascript l(:text_warn_on_leaving_unsaved)}'); 
+	warnLeavingUnsavedTE(lblWarnUnsavedTE); 
 });
 
 var warnLeavingUnsavedTEMsg;
