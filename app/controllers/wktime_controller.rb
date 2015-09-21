@@ -744,7 +744,8 @@ include QueriesHelper
 		mngrHash = Hash.new
 		
 		weekQuery = getAllWeekSql(params[:from].to_date, params[:to].to_date)
-		user_id = session[:wktimes][:user_id]
+		entityNames = getEntityNames
+		user_id = entityNames[0] == 'wktimes' ? session[:wktimes][:user_id] : session[:wkexpense][:user_id]
 		#setMembers
 		ids = nil		
 		if user_id.blank?
@@ -768,7 +769,7 @@ include QueriesHelper
 
 		queryStr = "select u.*, v1.selected_date as begin_date from ( #{weekQuery} ) v1" +
 					" left join users u on v1.id = u.id" +
-					" left join wktimes w on v1.selected_date = w.begin_date and u.id = w.user_id" +
+					" left join #{entityNames[0]} w on v1.selected_date = w.begin_date and u.id = w.user_id" +
 					" where v1.id in (#{ids})" + 
 					" and (w.status in ('n', 'r') or w.status is null)" +
 					" and v1.selected_date < '#{Date.today.to_s}' order by u.id"
@@ -804,11 +805,24 @@ include QueriesHelper
 		mgrList = ""
 		userHash = Hash.new
 		mgrHash = Hash.new
+		
+		entityNames = getEntityNames
+		user_id = entityNames[0] == 'wktimes' ? session[:wktimes][:user_id] : session[:wkexpense][:user_id]
+		
+		ids = nil		
+		if user_id.blank?
+			ids = User.current.id.to_s
+		elsif user_id.to_i == 0
+			ids = params[:user_ids].to_s			
+			ids = '0' if ids.nil?
+		else
+			ids = user_id 
+		end
 	
 		queryStr = "select distinct u.* from users u " +
-					"left outer join wktimes w on u.id = w.user_id " +
+					"left outer join #{entityNames[0]} w on u.id = w.user_id " +
 					"and (w.begin_date between '#{params[:from]}}' and '#{params[:to]}') " +
-					"where u.id in (#{session[:wktimes][:user_id]}) and w.status = 's'"
+					"where u.id in (#{ids}) and w.status = 's'"
 					
 		users = User.find_by_sql(queryStr)
 		users.each do |user|

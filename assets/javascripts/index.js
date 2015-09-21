@@ -49,7 +49,8 @@ $(document).ready(function() {
 					success: function(data){ 
 						//alert("Email sent successfully")
 						document.getElementById('email_notes').value = "";
-						document.getElementsByName('submission')[0].checked = true;						
+						document.getElementsByName('submission')[0].checked = true;
+						$('textarea').removeData('changed');
 					}//,
 					//beforeSend: function(){ $(this).parent().addClass('ajax-loading'); },
 					//complete: function(){ $(this).parent().removeClass('ajax-loading'); }

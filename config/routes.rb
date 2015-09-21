@@ -54,7 +54,11 @@
   
   get 'wkexpense/getissues', :to => 'wkexpense#getissues'
 
-  get 'wkexpense/getactivities', :to => 'wkexpense#getactivities'  
+  get 'wkexpense/getactivities', :to => 'wkexpense#getactivities'
+  
+  get 'wkexpense/sendSubReminderEmail', :to => 'wkexpense#sendSubReminderEmail'
+  
+  get 'wkexpense/sendApprReminderEmail', :to => 'wkexpense#sendApprReminderEmail'
   
   #For Weekly expense report
   
