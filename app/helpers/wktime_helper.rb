@@ -382,7 +382,7 @@ def getColumnValues(matrix, totals, unitLabel,rowNumberRequired, j=0)
 					if !issueWritten
 						col_values[k] = entry.project.name
 						col_values[k+1] = entry.issue.blank? ? "" : entry.issue.subject
-						col_values[k+2] = entry.issue.blank? ? "" : entry.activity.name
+						col_values[k+2] = entry.activity.blank? ? "" : entry.activity.name
 						if !unitLabel.blank?
 							col_values[k+3]= entry.currency
 						end

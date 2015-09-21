@@ -124,7 +124,7 @@ include QueriesHelper
 	isError = params[:isError].blank? ? false : to_boolean(params[:isError])
 	if (!$tempEntries.blank? && isError)
 		@entries.each do |entry|	
-			if !entry.editable_by?(User.current)
+			if !entry.editable_by?(User.current) && !isAccountUser
 				$tempEntries << entry
 			end
 		end
