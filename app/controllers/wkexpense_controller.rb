@@ -237,4 +237,8 @@ private
     end
     scope
   end
+  
+  def getTELabel
+	l(:label_wk_expensesheet)
+  end
 end

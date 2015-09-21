@@ -14,8 +14,7 @@ $(document).ready(function() {
 		buttons: {
 			"Ok": function() {				
 				var email_notes = document.getElementById('email_notes').value;
-				//alert("email_notes : " + email_notes);
-				var commandEl = document.getElementsByName('submission');
+				var commandEl = document.getElementsByName('reminder');
 				var reminder_command = 0;
 				for(var i = 0; i < commandEl.length; i++) {
 					if(commandEl[i].checked) {
@@ -28,10 +27,8 @@ $(document).ready(function() {
 				} else {
 					rUrl = rAppEmailUrl;
 				}
-				//alert("reminder_command : " + reminder_command + ", rUrl : " + rUrl);
 				var from = document.getElementById('from').value;
 				var to = document.getElementById('to').value;
-				//var selectedValue = document.getElementById('user_id').value;
 				var userOpt = document.getElementById('user_id').options;
 				var strUserIds = "";
 				var arrUserId = []
@@ -44,21 +41,21 @@ $(document).ready(function() {
 				$.ajax({
 					url: rUrl,
 					type: 'get',
-					//data: {user_ids: strUserIds, status: strStatus, from: from, to: to, email_notes: email_notes},
 					data: {user_ids: strUserIds, from: from, to: to, email_notes: email_notes},
-					success: function(data){ 
-						//alert("Email sent successfully")
-						document.getElementById('email_notes').value = "";
-						document.getElementsByName('submission')[0].checked = true;
-						$('textarea').removeData('changed');
-					}//,
-					//beforeSend: function(){ $(this).parent().addClass('ajax-loading'); },
-					//complete: function(){ $(this).parent().removeClass('ajax-loading'); }
+					success: function(data){
+						resetReminderEmailDlg();
+					},
+					error: function(xhr,status,error) {
+						resetReminderEmailDlg();
+					},
+					beforeSend: function(){ $(this).parent().addClass('ajax-loading'); },
+					complete: function(){ $(this).parent().removeClass('ajax-loading'); }
 				});
 				$( this ).dialog( "close" );
 			},
 			Cancel: function() {
 				$( this ).dialog( "close" );
+				resetReminderEmailDlg();
 			}
 		}
 	});
@@ -66,8 +63,12 @@ $(document).ready(function() {
 
 function showReminderEmailDlg() {
 	$( "#reminder-email-dlg" ).dialog( "open" );
-	//return false so the form is not posted
-	//return false;
+}
+
+function resetReminderEmailDlg() {
+	document.getElementById('email_notes').value = "";
+	document.getElementsByName('reminder')[0].checked = true;
+	$('textarea').removeData('changed');
 }
 
 function projChanged(projDropdown, userid, needBlankOption){

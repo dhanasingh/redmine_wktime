@@ -16,16 +16,12 @@
 
 <div id="reminder-email-dlg" title="Send Reminder Email">
 	<fieldset>
-		<p> <label>Reminder Notes</label>
+		<p> <label><%= l(:label_wk_reminder_notes) %></label>
 		<textarea name="email_notes" id="email_notes" value="" cols="25" rows="2"> </textarea> </p>
-		<%= radio_button_tag 'submission', '1' %>
-		<span>
-		Send submission email reminder
-		</span></br></br>
-		<%= radio_button_tag 'submission', '2' %>
-		<span>
-		Send approval email reminder
-		</span>
+		<%= radio_button_tag 'reminder', '1', true %>
+		<span><%= l(:label_wk_sub_reminder) %></span></br></br>
+		<%= radio_button_tag 'reminder', '2' %>
+		<span><%= l(:label_wk_appr_reminder) %></span>
 	</fieldset>
 </div>
 

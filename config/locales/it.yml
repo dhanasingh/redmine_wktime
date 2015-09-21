@@ -120,9 +120,14 @@ it:
   label_approved_by:  Approved by
   
   label_wk_reminder: Send Reminder
-  wk_submission_reminder: Timesheet submission reminder
-  wk_sub_reminder_text: "This is a reminder to submit your timesheet."
-  wk_approval_reminder: Timesheet approval reminder
-  wk_appr_reminder_text: "This is a reminder to approve timesheets for:"
-  wk_sub_confirmation_text: "Timesheet submission reminder sent to:"
-  wk_appr_confirmation_text: "Timesheet approval reminder sent to:"  
+  label_wk_reminder_notes: Reminder Notes
+  label_wk_sub_reminder: Send submission email reminder
+  label_wk_appr_reminder: Send approval email reminder
+  wk_submission_reminder: "%{value} submission reminder"
+  wk_sub_reminder_text: "This is a reminder to submit your %{value} for"
+  wk_approval_reminder: "%{value} approval reminder"
+  wk_appr_reminder_text: "This is a reminder to approve %{value}s for:"
+  wk_sub_confirmation_text: "%{value} submission reminder sent to:"
+  wk_appr_confirmation_text: "%{value} approval reminder sent to:"
+  label_wk_timesheet: Timesheet
+  label_wk_expensesheet: Expensesheet 

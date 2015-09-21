@@ -746,6 +746,7 @@ include QueriesHelper
 		weekQuery = getAllWeekSql(params[:from].to_date, params[:to].to_date)
 		entityNames = getEntityNames
 		user_id = entityNames[0] == 'wktimes' ? session[:wktimes][:user_id] : session[:wkexpense][:user_id]
+		label_te = getTELabel
 		#setMembers
 		ids = nil		
 		if user_id.blank?
@@ -790,10 +791,10 @@ include QueriesHelper
 		end
 		userHash.each_key do |key|
 			user = userHash[key]
-			WkMailer.submissionReminder(user, mngrHash[key], weekHash[key], params[:email_notes]).deliver
+			WkMailer.submissionReminder(user, mngrHash[key], weekHash[key], params[:email_notes], label_te).deliver
 			userList += user.name + "\n"
 		end
-		WkMailer.sendConfirmationMail(userList, true).deliver if !userList.blank?
+		WkMailer.sendConfirmationMail(userList, true, label_te).deliver if !userList.blank?
 		
 		respond_to do |format|
 			format.text  { render :text => 'OK' }
@@ -808,7 +809,7 @@ include QueriesHelper
 		
 		entityNames = getEntityNames
 		user_id = entityNames[0] == 'wktimes' ? session[:wktimes][:user_id] : session[:wkexpense][:user_id]
-		
+		label_te = getTELabel
 		ids = nil		
 		if user_id.blank?
 			ids = User.current.id.to_s
@@ -845,10 +846,10 @@ include QueriesHelper
 				subOrd.each do |user|
 					userList << user.name
 				end
-				WkMailer.approvalReminder(mgrHash[key], userList.uniq.join("\n"), params[:email_notes]).deliver
+				WkMailer.approvalReminder(mgrHash[key], userList.uniq.join("\n"), params[:email_notes], label_te).deliver
 				mgrList += mgrHash[key].name + "\n"
 			end		
-			WkMailer.sendConfirmationMail(mgrList, false).deliver
+			WkMailer.sendConfirmationMail(mgrList, false, label_te).deliver
 		end
 		
 		respond_to do |format|
@@ -1872,5 +1873,9 @@ private
 			session[:wkexpense][:group_id] = params[:group_id]
 			session[:wkexpense][:filters] = @query.blank? ? nil : @query.filters
 		end		
-	 end	
+	 end
+
+	def getTELabel
+		l(:label_wk_timesheet)
+	end
 end
