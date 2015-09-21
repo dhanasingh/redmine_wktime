@@ -745,32 +745,26 @@ include QueriesHelper
 		
 		weekQuery = getAllWeekSql(params[:from].to_date, params[:to].to_date)
 		user_id = session[:wktimes][:user_id]
-		setMembers
+		#setMembers
 		ids = nil		
 		if user_id.blank?
 			ids = User.current.id.to_s
 		elsif user_id.to_i == 0
-
-			unless @members.blank?
-				Rails.logger.info("test inside loop")
-				@members.each_with_index do |users,i|			
-					if i == 0
-						ids =  users[1].to_s
-					else
-						ids +=',' + users[1].to_s
-					end				
-				end	
-			end
+			ids = params[:user_ids].to_s
+			#unless @members.blank?
+			#	Rails.logger.info("test inside loop")
+			#	@members.each_with_index do |users,i|			
+			#		if i == 0
+			#			ids =  users[1].to_s
+			#		else
+			#			ids +=',' + users[1].to_s
+			#		end				
+			#	end	
+			#end
 			ids = '0' if ids.nil?
 		else
-			Rails.logger.info("======================")
-			Rails.logger.info("user_id : #{user_id}")
-
 			ids = user_id 
 		end
-		
-		Rails.logger.info("======================")
-		Rails.logger.info("ids : #{ids}")
 
 		queryStr = "select u.*, v1.selected_date as begin_date from ( #{weekQuery} ) v1" +
 					" left join users u on v1.id = u.id" +

@@ -31,17 +31,26 @@ $(document).ready(function() {
 				//alert("reminder_command : " + reminder_command + ", rUrl : " + rUrl);
 				var from = document.getElementById('from').value;
 				var to = document.getElementById('to').value;
+				//var selectedValue = document.getElementById('user_id').value;
+				var userOpt = document.getElementById('user_id').options;
+				var strUserIds = "";
+				var arrUserId = []
+				for(var i = 1; i < userOpt.length; i++) {
+				    //0 -- All User
+					arrUserId.push(userOpt[i].value);
+				}
+				strUserIds = arrUserId.toString();
 				
 				$.ajax({
 					url: rUrl,
 					type: 'get',
 					//data: {user_ids: strUserIds, status: strStatus, from: from, to: to, email_notes: email_notes},
-					data: {from: from, to: to, email_notes: email_notes},
+					data: {user_ids: strUserIds, from: from, to: to, email_notes: email_notes},
 					success: function(data){ 
 						//alert("Email sent successfully")
 						document.getElementById('email_notes').value = "";
 						document.getElementsByName('submission')[0].checked = true;						
-					},
+					}//,
 					//beforeSend: function(){ $(this).parent().addClass('ajax-loading'); },
 					//complete: function(){ $(this).parent().removeClass('ajax-loading'); }
 				});
