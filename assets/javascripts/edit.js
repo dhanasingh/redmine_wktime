@@ -862,7 +862,7 @@ function calculateTotal(day){
 
 function validateHours(hoursValue,hoursDay){
 	var valid =false
-	hoursValue = hoursValue.trim();			
+	hoursValue = myTrim(hoursValue);			
 	var indexStr='',indexNextStr='',contcatStr='';					
 	var hours ='',mins='',timeValue='',concatvalue ='';
 	var total=0;
@@ -886,7 +886,7 @@ function validateHours(hoursValue,hoursDay){
 		for (i = 0; i < hoursValue.length-1; i++){ 
 			indexStr = hoursValue[i];
 			indexNextStr = hoursValue[i+1]									
-			if (!indexNextStr.trim() && indexStr && !contcatStr){									
+			if (!myTrim(indexNextStr) && indexStr && !contcatStr){									
 				if (isNaN(indexStr)){
 					valid = true
 					break;
@@ -927,7 +927,7 @@ function validateHours(hoursValue,hoursDay){
 	}else if (contcatStr){
 		valid = true				
 	}
-	if (!mins.trim()){
+	if (!myTrim(mins)){
 		mins = concatvalue				
 	}
 	if (hours && mins){
@@ -952,11 +952,11 @@ function checkStr(hoursValue,type){
 }
 function totalHours(hours,mins){		
 	var minhour =0,total=0;
-	if (!isNaN(hours) && hours.trim())
+	if (!isNaN(hours) && myTrim(hours))
 	{			
 		total = parseFloat(hours)
 	}
-	if (!isNaN(mins) && mins.trim())
+	if (!isNaN(mins) && myTrim(mins))
 	{
 		minhour = parseFloat(mins)/60;
 		total +=parseFloat(minhour)
