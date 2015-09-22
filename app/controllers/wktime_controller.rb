@@ -47,10 +47,10 @@ include QueriesHelper
 	end
 	setMembers
 	ids = nil
-	if user_id.blank?		
-		user_id = ((!@currentUser_loggable_projects.blank? && @currentUser_loggable_projects.size > 0) ? User.current.id.to_s : (!@manage_projects.blank? && @manage_projects.size > 0) ? '0' : '-1')		
-	end
-	if user_id.to_i == 0	
+	if user_id.blank?
+		#ids = is_member_of_any_project() ? User.current.id.to_s : '0'
+		ids = User.current.id.to_s
+	elsif user_id.to_i == 0	
 		unless @members.blank?
 			@members.each_with_index do |users,i|			
 				if i == 0
@@ -1843,7 +1843,8 @@ private
 		return result
 	end
 	
-	def set_filter_session	 
+	def set_filter_session
+	 
 		if params[:searchlist].blank? && (session[:wktimes].nil? || session[:wkexpense].nil?)
 			session[:wktimes] = {:period_type => params[:period_type], :period => params[:period],:from => params[:from],:to => params[:to],
 			:project_id => params[:project_id], :filter_type => params[:filter_type],:user_id => params[:user_id],:status => params[:status],
