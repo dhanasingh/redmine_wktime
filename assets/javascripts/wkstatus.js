@@ -20,15 +20,19 @@ $(document).ready(function(){
 	if( txtissuetracker != null)
 	{
 		showIssueWarning(txtissuetracker.value);
+		var cnt = 0;
 		//txtissuetracker.onblur=function(){showIssueWarning(this.value)};
-		$("#time_entry_issue_id").blur(function(event){
+		$("#time_entry_issue_id").change(function(event){
 			var tb = this;
-			event.preventDefault();
-			  if( this.value >= 0)
-		  {
-			 showIssueWarning(this.value)			
-		  }
-		 setTimeout( function() { $(tb).focus();}, 1);			
+			event.preventDefault();						
+			setTimeout(function() {
+				var issId = document.getElementById('time_entry_issue_id').value;
+				if(issId >= 0)
+				{
+					showIssueWarning(issId);
+					return;					
+				}
+			}, 500);		
 		});	
 	}		
 	if(txtEntryDate!=null){		
