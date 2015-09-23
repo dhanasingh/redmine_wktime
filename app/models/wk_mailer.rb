@@ -35,7 +35,7 @@ include Redmine::I18n
 		mail :from => Setting.mail_from, :to => user.mail, :subject => subject, :body => body
 	end
 	
-	def submissionReminder(user, mngr, weeks, emailNotes, label_te)
+	def submissionReminder(user, mngrArr, weeks, emailNotes, label_te)
 		set_language_if_valid(user.language)
 		
 		subject = l(:wk_submission_reminder, label_te)
@@ -43,7 +43,7 @@ include Redmine::I18n
 		body += "\n" + emailNotes if !emailNotes.blank?
 		
 		mail :from => User.current.mail, :to => user.mail, :reply_to => User.current.mail, 
-		:cc => mngr.blank? ? nil : mngr.mail, :subject => subject, :body => body
+		:cc => (mngrArr.blank? ? nil : (mngrArr[0].blank? ? nil : mngrArr[0].mail)), :subject => subject, :body => body
 	end
 	
 	def approvalReminder(mgr, userList, emailNotes, label_te)

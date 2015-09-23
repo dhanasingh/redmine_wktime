@@ -48,11 +48,15 @@ include QueriesHelper
 	setMembers
 	ids = nil
 	if user_id.blank?
+		user_id = @currentUser_loggable_projects.blank? ? '-1' : User.current.id.to_s
+	end
+	#if user_id.blank?
 		#ids = is_member_of_any_project() ? User.current.id.to_s : '0'
-		ids = User.current.id.to_s
-	elsif user_id.to_i == 0	
+	#	ids = User.current.id.to_s
+	#elsif user_id.to_i == 0
+	if user_id.to_i == 0
 		unless @members.blank?
-			@members.each_with_index do |users,i|			
+			@members.each_with_index do |users,i|
 				if i == 0
 					ids =  users[1].to_s
 				else
@@ -68,38 +72,9 @@ include QueriesHelper
 	if @from.blank? && @to.blank?
 		getAllTimeRange(ids)
 	end
-	
-	spField = getSpecificField()
-	entityNames = getEntityNames()	
-	teSelectStr = "select v1.user_id, v1.startday as spent_on, v1." + spField
-	wkSelectStr = teSelectStr + ", case when w.status is null then 'n' else w.status end as status "	
-	sqlStr = " from "
-	sDay = getDateSqlString('t.spent_on')
-	#Martin Dube contribution: 'start of the week' configuration
-	if ActiveRecord::Base.connection.adapter_name == 'SQLServer'	
-		wkSelectStr = wkSelectStr +", un.firstname + ' ' + un.lastname as status_updater "	
-		sqlStr += "(select  ROW_NUMBER() OVER (ORDER BY  " + sDay + " desc, user_id) AS rownum," + sDay + " as startday, "	
-		sqlStr += " t.user_id, sum(t." + spField + ") as " + spField + " ,max(t.id) as id" + " from " + entityNames[1] + " t, users u" +
-			" where u.id = t.user_id and u.id in (#{ids})"
-		sqlStr += " and t.spent_on between '#{@from}' and '#{@to}'" unless @from.blank? && @to.blank?	
-		sqlStr += " group by " + sDay + ", user_id ) as v1"
-	else
-		if ActiveRecord::Base.connection.adapter_name == 'SQLite'
-			wkSelectStr = wkSelectStr +", un.firstname || ' ' || un.lastname as status_updater "
-		else
-			wkSelectStr = wkSelectStr +", concat(un.firstname,' ' ,un.lastname) as status_updater "
-		end
-		sqlStr += "(select " + sDay + " as startday, "
-		sqlStr += " t.user_id, sum(t." + spField + ") as " + spField + " ,max(t.id) as id" + " from " + entityNames[1] + " t, users u" +
-			" where u.id = t.user_id and u.id in (#{ids})"
-		sqlStr += " and t.spent_on between '#{@from}' and '#{@to}'" unless @from.blank? && @to.blank?	
-		sqlStr += " group by startday, user_id order by startday desc, user_id ) as v1"		
-	end		
-
-	wkSqlStr = " left outer join " + entityNames[0] + " w on v1.startday = w.begin_date and v1.user_id = w.user_id " +
-				"left outer join users un on un.id = w.statusupdater_id"
-	
-	findBySql(teSelectStr,sqlStr,wkSelectStr,wkSqlStr, status, ids)	
+	teQuery = getTEQuery(@from, @to, ids)
+	query = getQuery(teQuery, ids, @from, @to, status)
+	findBySql(query)
     respond_to do |format|
       format.html {        
         render :layout => !request.xhr?
@@ -742,57 +717,48 @@ include QueriesHelper
 		weekHash = Hash.new
 		userHash = Hash.new
 		mngrHash = Hash.new
-		
-		weekQuery = getAllWeekSql(params[:from].to_date, params[:to].to_date)
+
 		entityNames = getEntityNames
 		user_id = entityNames[0] == 'wktimes' ? session[:wktimes][:user_id] : session[:wkexpense][:user_id]
 		label_te = getTELabel
-		#setMembers
+
 		ids = nil		
 		if user_id.blank?
 			ids = User.current.id.to_s
 		elsif user_id.to_i == 0
 			ids = params[:user_ids].to_s
-			#unless @members.blank?
-			#	Rails.logger.info("test inside loop")
-			#	@members.each_with_index do |users,i|			
-			#		if i == 0
-			#			ids =  users[1].to_s
-			#		else
-			#			ids +=',' + users[1].to_s
-			#		end				
-			#	end	
-			#end
 			ids = '0' if ids.nil?
 		else
 			ids = user_id 
 		end
-
-		queryStr = "select u.*, v1.selected_date as begin_date from ( #{weekQuery} ) v1" +
-					" left join users u on v1.id = u.id" +
-					" left join #{entityNames[0]} w on v1.selected_date = w.begin_date and u.id = w.user_id" +
-					" where v1.id in (#{ids})" + 
-					" and (w.status in ('n', 'r') or w.status is null)" +
-					" and v1.selected_date < '#{Date.today.to_s}' order by u.id"
-					
-		users = User.find_by_sql(queryStr)
 		
-		users.each do |user|
+		teQuery = getTEQuery(params[:from].to_date, params[:to].to_date, ids)
+		query = getQuery(teQuery, ids, params[:from].to_date, params[:to].to_date, ['e','r','n'])
+					
+		wkentries = TimeEntry.find_by_sql(query)
+		
+		wkentries.each do |entries|
+			user = entries.user
 			if !userHash.has_key?(user.id)
 				userHash[user.id] = user
-				weekHash[user.id] = [user.begin_date]
-				hookMgr = call_hook(:controller_get_manager, {:user => user})
-				mngr = hookMgr.blank? ? nil : hookMgr[0]
-				mngrHash[user.id] = mngr
+				weekHash[user.id] = [entries.spent_on]
+				hookMgr = call_hook(:controller_get_manager, {:user => user, :approver => false})
+				mngrArr = hookMgr.blank? ? nil : hookMgr[0]
+				mngrHash[user.id] = mngrArr
 			else
 				weekArr = weekHash[user.id]
-				weekHash[user.id] = weekArr << user.begin_date
+				weekHash[user.id] = weekArr << entries.spent_on
 			end
 		end
 		userHash.each_key do |key|
 			user = userHash[key]
-			WkMailer.submissionReminder(user, mngrHash[key], weekHash[key], params[:email_notes], label_te).deliver
-			userList += user.name + "\n"
+			errMsg = ""
+			begin
+				WkMailer.submissionReminder(user, mngrHash[key], weekHash[key], params[:email_notes], label_te).deliver
+			rescue Exception => e
+				errMsg = e.message
+			end
+			userList += user.name + "\n" if errMsg.blank?
 		end
 		WkMailer.sendConfirmationMail(userList, true, label_te).deliver if !userList.blank?
 		
@@ -805,8 +771,7 @@ include QueriesHelper
 		userList = []
 		mgrList = ""
 		userHash = Hash.new
-		mgrHash = Hash.new
-		
+		mgrHash = Hash.new		
 		entityNames = getEntityNames
 		user_id = entityNames[0] == 'wktimes' ? session[:wktimes][:user_id] : session[:wkexpense][:user_id]
 		label_te = getTELabel
@@ -818,8 +783,7 @@ include QueriesHelper
 			ids = '0' if ids.nil?
 		else
 			ids = user_id 
-		end
-	
+		end	
 		queryStr = "select distinct u.* from users u " +
 					"left outer join #{entityNames[0]} w on u.id = w.user_id " +
 					"and (w.begin_date between '#{params[:from]}}' and '#{params[:to]}') " +
@@ -827,7 +791,7 @@ include QueriesHelper
 					
 		users = User.find_by_sql(queryStr)
 		users.each do |user|
-			mngrArr = getManager(user)			
+			mngrArr = getManager(user, true)			
 			if !mngrArr.blank?
 				mngrArr.each do |m|
 					if mgrHash.has_key?(m.id)
@@ -846,10 +810,15 @@ include QueriesHelper
 				subOrd.each do |user|
 					userList << user.name
 				end
-				WkMailer.approvalReminder(mgrHash[key], userList.uniq.join("\n"), params[:email_notes], label_te).deliver
-				mgrList += mgrHash[key].name + "\n"
+				errMsg = ""
+				begin
+					WkMailer.approvalReminder(mgrHash[key], userList.uniq.join("\n"), params[:email_notes], label_te).deliver
+				rescue Exception => e
+					errMsg = e.message
+				end
+				mgrList += mgrHash[key].name + "\n" if errMsg.blank?
 			end		
-			WkMailer.sendConfirmationMail(mgrList, false, label_te).deliver
+			WkMailer.sendConfirmationMail(mgrList, false, label_te).deliver if !mgrList.blank?
 		end
 		
 		respond_to do |format|
@@ -857,18 +826,20 @@ include QueriesHelper
 		end
 	end
 	
-	def getManager(user)
-		#user.supervisor
-		hookMgr = call_hook(:controller_get_manager, {:user => user})
+	def getManager(user, approver)
+		hookMgr = call_hook(:controller_get_manager, {:user => user, :approver => approver})
 		mngrArr = [] #nil
 		if !hookMgr.blank?
-			mngrArr << hookMgr[0] if !hookMgr[0].blank?
+			mngrArr = hookMgr[0] if !hookMgr[0].blank?
 		else
-			#TODO : Include approver can approve their own timesheet logic
+			includeAppr = (!Setting.plugin_redmine_wktime[:wktime_own_approval].blank? && Setting.plugin_redmine_wktime[:wktime_own_approval].to_i == 1 )
+			apprPerm = "and r.permissions like '%approve_time_entries%'"
 			queryStr = "select distinct u.* from projects p" +
-					" inner join members m on p.id = m.project_id and p.status = 1 and m.user_id <> #{user.id}" +
+					" inner join members m on p.id = m.project_id and p.status = 1 " +
+					" #{!includeAppr ? ('and m.user_id <> ' + user.id) : ''}" +
 					" inner join member_roles mr on m.id = mr.member_id" +
-					" inner join roles r on mr.role_id = r.id and (r.permissions like '%edit_time_entries%' and r.permissions like '%approve_time_entries%')" +
+					" inner join roles r on mr.role_id = r.id and (r.permissions like '%edit_time_entries%' " +
+					" #{approver ? apprPerm : ''}" + ')' +
 					" inner join users u on m.user_id = u.id" +
 					" left join members m1 on p.id = m.project_id and m1.user_id = #{user.id}"
 			
@@ -1565,10 +1536,44 @@ private
 		["#{Wktime.table_name}", "#{TimeEntry.table_name}"]
 	end
 	
-	def findBySql(selectStr,sqlStr,wkSelectStr,wkSqlStr, status, ids)
-		spField = getSpecificField()				
-		dtRangeForUsrSqlStr =  "(" + getAllWeekSql(@from, @to) + ") tmp1"			
-		teSqlStr = "(" + wkSelectStr + sqlStr + wkSqlStr + ") tmp2"
+	def getTEQuery(from, to, ids)
+		spField = getSpecificField()
+		entityNames = getEntityNames()	
+		teSelectStr = "select v1.user_id, v1.startday as spent_on, v1." + spField
+		wkSelectStr = teSelectStr + ", case when w.status is null then 'n' else w.status end as status "	
+		sqlStr = " from "
+		sDay = getDateSqlString('t.spent_on')
+		#Martin Dube contribution: 'start of the week' configuration
+		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'	
+			wkSelectStr = wkSelectStr +", un.firstname + ' ' + un.lastname as status_updater "	
+			sqlStr += "(select  ROW_NUMBER() OVER (ORDER BY  " + sDay + " desc, user_id) AS rownum," + sDay + " as startday, "	
+			sqlStr += " t.user_id, sum(t." + spField + ") as " + spField + " ,max(t.id) as id" + " from " + entityNames[1] + " t, users u" +
+				" where u.id = t.user_id and u.id in (#{ids})"
+			sqlStr += " and t.spent_on between '#{from}' and '#{to}'" unless from.blank? && to.blank?	
+			sqlStr += " group by " + sDay + ", user_id ) as v1"
+		else
+			if ActiveRecord::Base.connection.adapter_name == 'SQLite'
+				wkSelectStr = wkSelectStr +", un.firstname || ' ' || un.lastname as status_updater "
+			else
+				wkSelectStr = wkSelectStr +", concat(un.firstname,' ' ,un.lastname) as status_updater "
+			end
+			sqlStr += "(select " + sDay + " as startday, "
+			sqlStr += " t.user_id, sum(t." + spField + ") as " + spField + " ,max(t.id) as id" + " from " + entityNames[1] + " t, users u" +
+				" where u.id = t.user_id and u.id in (#{ids})"
+			sqlStr += " and t.spent_on between '#{from}' and '#{to}'" unless from.blank? && to.blank?	
+			sqlStr += " group by startday, user_id order by startday desc, user_id ) as v1"		
+		end		
+
+		wkSqlStr = " left outer join " + entityNames[0] + " w on v1.startday = w.begin_date and v1.user_id = w.user_id " +
+					"left outer join users un on un.id = w.statusupdater_id"
+					
+		query = formQuery(wkSelectStr, sqlStr, wkSqlStr)
+	end
+	
+	def getQuery(teQuery, ids, from, to, status)
+		spField = getSpecificField()
+		dtRangeForUsrSqlStr =  "(" + getAllWeekSql(from, to) + ") tmp1"			
+		teSqlStr = "(" + teQuery + ") tmp2"
 		
 		query = "select tmp3.user_id, tmp3.spent_on, tmp3.#{spField}, tmp3.status, tmp3.status_updater, tmp3.created_on from (select tmp1.id as user_id, tmp1.created_on, tmp1.selected_date as spent_on, " + 
 				"case when tmp2.#{spField} is null then 0 else tmp2.#{spField} end as #{spField}, " +
@@ -1579,7 +1584,10 @@ private
 		query = query + " where u.id = t.user_id and u.id in (#{ids}) group by t.user_id ) vw on vw.usrid = tmp3.user_id "
 		query = query + getWhereCond(status)
 		query = query + " order by tmp3.spent_on desc, tmp3.user_id "
-			
+	end
+	
+	def findBySql(query)
+		spField = getSpecificField()		
 		result = TimeEntry.find_by_sql("select count(*) as id from (" + query + ") as v2")
 		@entry_count = result[0].id
         setLimitAndOffset()		
@@ -1880,5 +1888,13 @@ private
 
 	def getTELabel
 		l(:label_wk_timesheet)
+	end
+	
+	def findTEEntryBySql(query)
+		TimeEntry.find_by_sql(query)
+	end
+	
+	def formQuery(wkSelectStr, sqlStr, wkSqlStr)
+		query = wkSelectStr + sqlStr + wkSqlStr
 	end
 end

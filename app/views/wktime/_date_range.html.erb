@@ -45,9 +45,11 @@
 	<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
 	<%#= link_to l(:button_apply), {:controller => controller_name, :action => action_name, :project_id => @project, :issue_id => @issue}, :class => 'icon icon-checked' %>
   <%= link_to l(:button_clear), {:controller => controller_name, :action => action_name, :project_id => @project, :issue_id => @issue,:tab => controller_name}, :class => 'icon icon-reload' %>
+  <% if (!Setting.plugin_redmine_wktime['wktime_use_approval_system'].blank? && Setting.plugin_redmine_wktime['wktime_use_approval_system'].to_i == 1) %>
     <% if !@manage_projects.blank? %>
 		<%#= image_tag('email.png') %>
 		<%= link_to l(:label_wk_reminder), "javascript:showReminderEmailDlg();", :class => 'icon icon-email-add'%> 
 	<% end %>
+  <% end %>
 </p>
 
