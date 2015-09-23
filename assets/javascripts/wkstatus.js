@@ -20,7 +20,16 @@ $(document).ready(function(){
 	if( txtissuetracker != null)
 	{
 		showIssueWarning(txtissuetracker.value);
-		txtissuetracker.onblur=function(){showIssueWarning(this.value)};
+		//txtissuetracker.onblur=function(){showIssueWarning(this.value)};
+		$("#time_entry_issue_id").blur(function(event){
+			var tb = this;
+			event.preventDefault();
+			  if( this.value >= 0)
+		  {
+			 showIssueWarning(this.value)			
+		  }
+		 setTimeout( function() { $(tb).focus();}, 1);			
+		});	
 	}		
 	if(txtEntryDate!=null){		
 		showEntryWarning(txtEntryDate.value);
