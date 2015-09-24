@@ -606,8 +606,12 @@ include QueriesHelper
 		html_hours(l_hours(total))
 	end
 	
-	 def getStatus	
-		status = getTimeEntryStatus(params[:startDate].to_date,params[:user_id])
+	 def getStatus
+		if !params[:startDate].blank?
+			status = getTimeEntryStatus(params[:startDate].to_date,params[:user_id])
+		else
+			status = nil
+		end
 		respond_to do |format|
 			format.text  { render :text => status }
 		end	
@@ -719,7 +723,13 @@ include QueriesHelper
 		mngrHash = Hash.new
 
 		entityNames = getEntityNames
-		user_id = entityNames[0] == 'wktimes' ? session[:wktimes][:user_id] : session[:wkexpense][:user_id]
+		if entityNames[0] == 'wktimes'
+			user_id = session[:wktimes][:user_id]
+			userfilters = session[:wktimes][:filters]
+		else
+			user_id = session[:wkexpense][:user_id]
+			userfilters = session[:wkexpense][:filters]
+		end
 		label_te = getTELabel
 
 		ids = nil		
@@ -731,7 +741,12 @@ include QueriesHelper
 		else
 			ids = user_id 
 		end
-		
+		user_custom_fields = CustomField.where(['is_filter = ? AND type = ?', true, "UserCustomField"])
+		@query = nil
+		unless user_custom_fields.blank?
+			@query = WkTimeEntryQuery.build_from_params(params, :project => nil, :name => '_')
+		end
+		@query.filters = userfilters
 		teQuery = getTEQuery(params[:from].to_date, params[:to].to_date, ids)
 		query = getQuery(teQuery, ids, params[:from].to_date, params[:to].to_date, ['e','r','n'])
 					
@@ -772,7 +787,13 @@ include QueriesHelper
 		userHash = Hash.new
 		mgrHash = Hash.new		
 		entityNames = getEntityNames
-		user_id = entityNames[0] == 'wktimes' ? session[:wktimes][:user_id] : session[:wkexpense][:user_id]
+		if entityNames[0] == 'wktimes'
+			user_id = session[:wktimes][:user_id]
+			userfilters = session[:wktimes][:filters]
+		else
+			user_id = session[:wkexpense][:user_id]
+			userfilters = session[:wkexpense][:filters]
+		end
 		label_te = getTELabel
 		ids = nil		
 		if user_id.blank?
@@ -782,11 +803,20 @@ include QueriesHelper
 			ids = '0' if ids.nil?
 		else
 			ids = user_id 
-		end	
+		end
+		user_custom_fields = CustomField.where(['is_filter = ? AND type = ?', true, "UserCustomField"])
+		@query = nil
+		unless user_custom_fields.blank?
+			@query = WkTimeEntryQuery.build_from_params(params, :project => nil, :name => '_')
+		end
+		@query.filters = userfilters
+		user_cf_sql = @query.user_cf_statement('u') if !@query.blank?
 		queryStr = "select distinct u.* from users u " +
 					"left outer join #{entityNames[0]} w on u.id = w.user_id " +
-					"and (w.begin_date between '#{params[:from]}}' and '#{params[:to]}') " +
-					"where u.id in (#{ids}) and w.status = 's'"
+					"and (w.begin_date between '#{params[:from]}}' and '#{params[:to]}') " #+
+					#"where u.id in (#{ids}) and w.status = 's'"
+		queryStr += " #{user_cf_sql} " if !user_cf_sql.blank?
+		queryStr += (!user_cf_sql.blank? ? " AND " : " WHERE ") + " u.id in (#{ids}) and w.status = 's' "
 					
 		users = User.find_by_sql(queryStr)
 		users.each do |user|
@@ -1626,7 +1656,7 @@ private
 		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t2, " +
 		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t3, " +
 		"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t4) v, " +
-		"(select distinct u.id, u.created_on from users u) u "		
+		"(select u.id, u.created_on from users u) u "		
 		sqlStr += " #{user_cf_sql} " if !user_cf_sql.blank?
 		sqlStr += (!user_cf_sql.blank? ? " AND " : " WHERE ") + " v.selected_date between '#{from}' and '#{to}' "
 	end
