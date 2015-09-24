@@ -1,11 +1,14 @@
+var warnMsg = ['The timesheet for this period is locked, you cannot log time.', 'The issue of this tracker type is not allowed.'];
+var hasEntryError = false;
+var hasTrackerError = false;
+
 $(document).ready(function(){
 	var txtEntryDate;
 	var txtissuetracker;
-
 	if(document.getElementById('divError') != null){
 		if(document.getElementById('time_entry_issue_id')!=null){
 			txtissuetracker = document.getElementById('time_entry_issue_id');		
-		}	
+		}
 		if(document.getElementById('time_entry_spent_on')!=null){
 			txtEntryDate = document.getElementById('time_entry_spent_on');	
 		}
@@ -16,11 +19,13 @@ $(document).ready(function(){
 			showEntryWarning(today);
 		}		
 	}	
-	
+	if(txtEntryDate!=null){		
+		showEntryWarning(txtEntryDate.value);
+		txtEntryDate.onchange=function(){showEntryWarning(this.value)};	
+	}
 	if( txtissuetracker != null)
 	{
 		showIssueWarning(txtissuetracker.value);
-		var cnt = 0;
 		//txtissuetracker.onblur=function(){showIssueWarning(this.value)};
 		$("#time_entry_issue_id").change(function(event){
 			var tb = this;
@@ -34,17 +39,12 @@ $(document).ready(function(){
 				}
 			}, 500);		
 		});	
-	}		
-	if(txtEntryDate!=null){		
-		showEntryWarning(txtEntryDate.value);
-		txtEntryDate.onchange=function(){showEntryWarning(this.value)};
-			
 	}	
 });
 
 function showEntryWarning(entrydate){
 	var $this = $(this);				
-	var divID =document.getElementById('divError');	
+	var divID = document.getElementById('divError');	
 	var statusUrl = document.getElementById('getstatus_url').value;		
 	divID.style.display ='none';
 	$.ajax({
@@ -56,95 +56,74 @@ function showEntryWarning(entrydate){
 	});		
 }
 
+function showMessage(data,divID){
+	var errMsg = "";
+	if(data!=null && ('s'== data || 'a'== data || 'l'== data)){		
+		if (hasTrackerError) {
+			errMsg = warnMsg[0] + "<br>" + warnMsg[1];
+		}
+		else {
+			errMsg = warnMsg[0];
+		}
+		hasEntryError = true;
+	}
+	else {
+		if (hasTrackerError) {
+			errMsg = warnMsg[1];
+		}
+		hasEntryError = false;
+	}
+
+	if (errMsg != "") {	
+		divID.innerHTML = errMsg;
+		$('input[type="submit"]').prop('disabled', true);
+		divID.style.display = 'block';
+	}
+	else {
+		$('input[type="submit"]').prop('disabled', false);
+		divID.style.display ='none';
+	}
+}
+
 function showIssueWarning(issue_id){
 	var $this = $(this);
-	var divID =document.getElementById('divError');
+	var divID = document.getElementById('divError');
 	var trackerUrl = document.getElementById('getissuetracker_url').value;		
 	divID.style.display ='none';
 	$.ajax({
 		data: 'issue_id=' + issue_id,
 		url: trackerUrl,
 		type: 'get',		
-		success: function(data){ showIssueMessage(data,divID); },
+		success: function(data){ showIssueMessage(data, divID); },
 		complete: function(){ $this.removeClass('ajax-loading'); }
 	});	
 }
-function showIssueMessage(data,divID)
-{
-		if(data == "true")
-		{
-			document.getElementById('lblissuetracker').style.display = 'none';
-		}
-		else
-		{
-			document.getElementById('lblissuetracker').style.display = 'inline-block';
-		}
-			
-		if ($('#lbltimeentry').is(':visible')) {  	
-			divID.style.display = 'none';
-			$('input[type="submit"]').prop('disabled', false);
-		}
-		else
-		{
-			divID.style.display = 'block';
-			document.getElementById("lblissuetracker").style.paddingLeft = "0px";
-			$('input[type="submit"]').prop('disabled', true);
-			if (!($('#lblissuetracker').is(':visible')) && !($('#lbltimeentry').is(':visible')) )
-			{
-				divID.style.display = 'block';
-				$('input[type="submit"]').prop('disabled', true);
-				if (!($('#lblissuetracker').is(':visible')))
-				{
-				divID.style.display = 'none';
-				$('input[type="submit"]').prop('disabled', false);
-				}		
-			}	
-		};	
 
-		if(($('#lblissuetracker').is(':visible')) && ($('#lbltimeentry').is(':visible')))
-		{
-			document.getElementById("lblissuetracker").style.paddingLeft = "210px"; // warning msg alignment for issue
+function showIssueMessage(data,divID) {
+	var errMsg = "";
+	if (data == "false") {		
+		if (hasEntryError) {
+			errMsg = warnMsg[0] + "<br>" + warnMsg[1];
 		}
-		
+		else {
+			errMsg = warnMsg[1];
+		}		
+		hasTrackerError = true;		
 	}
-
-function showMessage(data,divID){	
-	if (data!=null && ('s'== data || 'a'== data || 'l'== data)) {
-		
-		document.getElementById('lbltimeentry').style.display = 'inline-block';
-	}
-	else{				
-		document.getElementById('lbltimeentry').style.display = 'none';
-	}
+	else {
+		if (hasEntryError) {
+			errMsg = warnMsg[0];
+		}
+		hasTrackerError = false;		
+	}	
 	
-	if (($('#lblissuetracker').is(':visible') )  ) 
-	{   
-		divID.style.display = 'none';
-		$('input[type="submit"]').prop('disabled', false);
-	}
-	else
-	{
+	if (errMsg != "") {	
+		divID.innerHTML = errMsg;
+		$('input[type="submit"]').prop('disabled', true);
 		divID.style.display = 'block';
-		$('input[type="submit"]').prop('disabled', true);		
-	};
-	
-	if ( !($('#lblissuetracker').is(':visible')) && !($('#lbltimeentry').is(':visible')) ) 
-	{
-		divID.style.display = 'none'; // when current date is new hide the div
-		$('input[type="submit"]').prop('disabled', false);
-		if (data!=null && ('s'== data || 'a'== data || 'l'== data)) {
-			divID.style.display = 'block'; // this loop when current date is submitted show warning msg
-			$('input[type="submit"]').prop('disabled', true);
-		}
 	}
-	
-	if(($('#lblissuetracker').is(':visible')) && ($('#lbltimeentry').is(':visible')))
-		{
-		document.getElementById("lblissuetracker").style.paddingLeft = "210px"; // warning msg alignment for status
-		}
-		else
-		{
-			document.getElementById("lblissuetracker").style.paddingLeft = "0px";
-		}
-			
+	else {
+		$('input[type="submit"]').prop('disabled', false);
+		divID.style.display = 'none';
+	}
 }

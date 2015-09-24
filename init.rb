@@ -259,16 +259,13 @@ class WktimeHook < Redmine::Hook::ViewListener
 
 	def showWarningMsg(req,user_id)		
 		wktime_helper = Object.new.extend(WktimeHelper)
-		host_with_subdir = wktime_helper.getHostAndDir(req)	
-		"<div id='divError' syle='padding: 0px 0px 0px 0px; ' >		
-		<dl>
-		<dd style='display: inline-block; padding-left:80px;'>Please Note :</dd>
-		<dd id ='lbltimeentry' style='display: inline-block; marginLeft: 0px; word-wrap: break-word;'  >#{l(:label_warning_wktime_time_entry)}</dd>
-		<dd id='lblissuetracker' style='display: inline-block; marginLeft: 0px; white-space: nowrap;' >#{l(:label_warning_wktime_issue_tracker)} </dd>
-		</dl>
-			<input type='hidden' id='getstatus_url' value='#{url_for(:controller => 'wktime', :action => 'getStatus', :host => host_with_subdir, :only_path => true, :user_id => user_id)}'>	
-			<input type='hidden' id='getissuetracker_url' value='#{url_for(:controller => 'wktime', :action => 'getTracker', :host => host_with_subdir, :only_path => true, :user_id => user_id)}' >
-		</div>"		
+		host_with_subdir = wktime_helper.getHostAndDir(req)
+
+		"<div id='divError'>
+			<font color='red'></font>			
+		</div>
+		<input type='hidden' id='getstatus_url' value='#{url_for(:controller => 'wktime', :action => 'getStatus', :host => host_with_subdir, :only_path => true, :user_id => user_id)}'>
+		<input type='hidden' id='getissuetracker_url' value='#{url_for(:controller => 'wktime', :action => 'getTracker', :host => host_with_subdir, :only_path => true)}'>"		
 	end
 	
 	# Added expense report link in redmine core 'projects/show.html' using hook
