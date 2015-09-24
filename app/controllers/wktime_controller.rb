@@ -767,8 +767,7 @@ include QueriesHelper
 		end
 	end
 	
-	def sendApprReminderEmail
-		userList = []
+	def sendApprReminderEmail		
 		mgrList = ""
 		userHash = Hash.new
 		mgrHash = Hash.new		
@@ -794,6 +793,7 @@ include QueriesHelper
 			mngrArr = getManager(user, true)			
 			if !mngrArr.blank?
 				mngrArr.each do |m|
+					userArr = []
 					if mgrHash.has_key?(m.id)
 						userArr = userHash[m.id]
 						userHash[m.id] = userArr << user
@@ -806,6 +806,7 @@ include QueriesHelper
 		end
 		if !mgrHash.blank?
 			mgrHash.each_key do |key|
+				userList = []
 				subOrd = userHash[key]
 				subOrd.each do |user|
 					userList << user.name
