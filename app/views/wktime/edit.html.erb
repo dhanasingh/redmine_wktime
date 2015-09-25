@@ -103,7 +103,7 @@
 
 <% if !@wktime.blank? && @wktime.status == 'r' && !@wktime.notes.blank? %>
 	<tr>
-	<th><%=l(:label_wk_reject_reason)%></th>
+	<th align="left"><%=l(:label_wk_reject_reason)%></th>
 	<td><%=h @wktime.notes %>
 	</td>
 	</tr>

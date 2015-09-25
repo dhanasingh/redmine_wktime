@@ -50,6 +50,14 @@
 
 <%= render :partial => 'wktime/edit_header' %>
 
+<% if !@wktime.blank? && @wktime.status == 'r' && !@wktime.notes.blank? %>
+	<tr>
+	<th align="left"><%=l(:label_wk_reject_reason)%></th>
+	<td><%=h @wktime.notes %>
+	</td>
+	</tr>
+<% end %>
+
 <% # Martin Dube Contribution: show previous and next time entry %>
 <tr>
 	<td colspan="2">
