@@ -745,8 +745,9 @@ include QueriesHelper
 		@query = nil
 		unless user_custom_fields.blank?
 			@query = WkTimeEntryQuery.build_from_params(params, :project => nil, :name => '_')
+			@query.filters = userfilters if !@query.blank?
 		end
-		@query.filters = userfilters
+		
 		teQuery = getTEQuery(params[:from].to_date, params[:to].to_date, ids)
 		query = getQuery(teQuery, ids, params[:from].to_date, params[:to].to_date, ['e','r','n'])
 					
@@ -808,8 +809,9 @@ include QueriesHelper
 		@query = nil
 		unless user_custom_fields.blank?
 			@query = WkTimeEntryQuery.build_from_params(params, :project => nil, :name => '_')
+			@query.filters = userfilters if !@query.blank?
 		end
-		@query.filters = userfilters
+		
 		user_cf_sql = @query.user_cf_statement('u') if !@query.blank?
 		queryStr = "select distinct u.* from users u " +
 					"left outer join #{entityNames[0]} w on u.id = w.user_id " +

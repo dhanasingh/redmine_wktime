@@ -58,6 +58,7 @@ function showEntryWarning(entrydate){
 
 function showMessage(data,divID){
 	var errMsg = "";
+	var log_time_page = document.getElementById('log_time_page').value;
 	if(data!=null && ('s'== data || 'a'== data || 'l'== data)){		
 		if (hasTrackerError) {
 			errMsg = warnMsg[0] + "<br>" + warnMsg[1];
@@ -76,11 +77,15 @@ function showMessage(data,divID){
 
 	if (errMsg != "") {	
 		divID.innerHTML = errMsg;
-		$('input[type="submit"]').prop('disabled', true);
+		if(log_time_page == "true") {
+			$('input[type="submit"]').prop('disabled', true);
+		}
 		divID.style.display = 'block';
 	}
 	else {
-		$('input[type="submit"]').prop('disabled', false);
+		if(log_time_page == "true") {
+			$('input[type="submit"]').prop('disabled', false);
+		}
 		divID.style.display ='none';
 	}
 }
@@ -100,6 +105,7 @@ function showIssueWarning(issue_id){
 }
 
 function showIssueMessage(data,divID) {
+	var log_time_page = document.getElementById('log_time_page').value;
 	var errMsg = "";
 	if (data == "false") {		
 		if (hasEntryError) {
@@ -119,11 +125,15 @@ function showIssueMessage(data,divID) {
 	
 	if (errMsg != "") {	
 		divID.innerHTML = errMsg;
-		$('input[type="submit"]').prop('disabled', true);
+		if(log_time_page == "true") {
+			$('input[type="submit"]').prop('disabled', true);
+		}
 		divID.style.display = 'block';
 	}
 	else {
-		$('input[type="submit"]').prop('disabled', false);
+		if(log_time_page == "true") {
+			$('input[type="submit"]').prop('disabled', false);
+		}
 		divID.style.display = 'none';
 	}
 }

@@ -250,14 +250,14 @@ class WktimeHook < Redmine::Hook::ViewListener
 	end
 	
 	def view_timelog_edit_form_bottom(context={ })		
-		showWarningMsg(context[:request],context[:time_entry].user_id)
+		showWarningMsg(context[:request],context[:time_entry].user_id, true)
 	end
 	
 	def view_issues_edit_notes_bottom(context={})	
-		showWarningMsg(context[:request],User.current.id)
+		showWarningMsg(context[:request], User.current.id, false)
 	end
 
-	def showWarningMsg(req,user_id)		
+	def showWarningMsg(req, user_id, log_time_page)
 		wktime_helper = Object.new.extend(WktimeHelper)
 		host_with_subdir = wktime_helper.getHostAndDir(req)
 
@@ -265,7 +265,8 @@ class WktimeHook < Redmine::Hook::ViewListener
 			<font color='red'></font>			
 		</div>
 		<input type='hidden' id='getstatus_url' value='#{url_for(:controller => 'wktime', :action => 'getStatus', :host => host_with_subdir, :only_path => true, :user_id => user_id)}'>
-		<input type='hidden' id='getissuetracker_url' value='#{url_for(:controller => 'wktime', :action => 'getTracker', :host => host_with_subdir, :only_path => true)}'>"		
+		<input type='hidden' id='getissuetracker_url' value='#{url_for(:controller => 'wktime', :action => 'getTracker', :host => host_with_subdir, :only_path => true)}'>
+		<input type='hidden' id='log_time_page' value='#{log_time_page}'>"
 	end
 	
 	# Added expense report link in redmine core 'projects/show.html' using hook
