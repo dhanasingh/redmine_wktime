@@ -73,20 +73,17 @@ If an apache passenger module is used then make sure the following settings are 
 	b) RailsAppSpawnerIdleTime 0
 	c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for 1.9
+Release Notes for 2.0
+	Thanks to Fotonation for sponsoring this release.
 	Features:
-		- Permission changes
-			- When a Manager edits a Member T&E, his permission will be checked rather than the member's permission
-		- TE Admin users is introduced, they need not be a member of a Project to View T&E
-		- A person who has never submitted any T&E (Empty T&E) can be viewed in the list page
-		- Sorting of timesheet rows.
-		- Allow entering time in different format(1.5, 1h, 1 h, 1 hour, 2 hours, 30m, 30min, 1h30, 1h30m, 1:30).
-		- A new non empty icon is introduced for empty detail time entry popup.
-		- Comment box size is increased.
-		- Name is shown for closed or inactive project, issue and activity.
+		- Reminder email for submission and approval can be send by manager or TE admins.
+		- TE admins are allowed to modify and approve time/expense.
+		- User custom field as filters in list page.
+		- "Please select" option is added in Issue and Activity dropdown.
+		- In log time page, error message is shown for restricted tracker type and on TE related error, the Create/Save button is disabled.
+		- A warning message is shown when the user leaves an unsaved time/expense sheet page.
 	
 	Bugs:
-		- Error message is shown if issue is blank when "Allow blank issue" is OFF.
-		- Closed date is considered instead of updated date for closed issues.
+		- Permission changes -  When a Manager edits a Member T&E, his permission will be checked rather than the member's permission.
 		
 Please provide your rating at http://www.redmine.org/plugins/wk-time		
