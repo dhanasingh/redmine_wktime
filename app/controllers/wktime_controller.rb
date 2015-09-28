@@ -1281,6 +1281,16 @@ private
 			#if id is there it should be update otherwise create
 			#the UI disables editing of
 			if can_log_time?(entry.project_id) || to_boolean(@edittimelogs)
+				issueId = entry.issue_id
+				if entry.issue_id == -1					
+					entry.issue_id = ''
+				end
+				
+				activityId = entry.activity_id
+				if entry.activity_id == -1					
+					entry.activity_id = ''
+				end
+			
 				if ((Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? ||
 						Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 0) && 
 						entry.issue.blank?)
@@ -1290,6 +1300,14 @@ private
 				if !entry.save()
 					errorMsg = errorMsg.blank? ? entry.errors.full_messages : entry.errors.full_messages.unshift(errorMsg)
 					errorMsg = errorMsg.join("<br>")
+				end
+				
+				if issueId == -1
+					entry.issue_id = -1
+				end
+				
+				if activityId == -1
+					entry.activity_id = -1
 				end
 			else
 				errorMsg = l(:error_not_permitted_save)

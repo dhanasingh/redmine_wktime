@@ -497,7 +497,7 @@ function updateDropdown(itemStr, row, dropdown, showId, needBlankOption, skipFir
 		if (showId && allowBlankIssue){
 			dropdown[row-1].options[0] = new Option( "", "", false, false);
 		}else{
-			dropdown[row-1].options[0] = new Option( "---" + lblPleaseSelect + "---", "", false, false);
+			dropdown[row-1].options[0] = new Option( "---" + lblPleaseSelect + "---", "-1", false, false);
 		}
 	}
 	var i, index, val, text, start;
