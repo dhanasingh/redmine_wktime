@@ -53,7 +53,7 @@ fr:
   label_end: Fin
   label_remaining_hours: Heures restantes
   label_warning_wktime_time_entry: "La feuille de temps pour cette période est vérouillée, vous ne pouvez saisir de temps." 
-  label_warning_wktime_issue_tracker: "The issue of this tracker type is not allowed."
+  label_warning_wktime_issue_tracker: "The tracker of this issue is not allowed for time logging."
   
   label_wk_first_day_of_week: Premier jour de la semaine
   label_wk_prev_week_tip: Semaine précédente

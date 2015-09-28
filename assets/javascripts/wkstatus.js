@@ -1,10 +1,11 @@
-var warnMsg = ['The timesheet for this period is locked, you cannot log time.', 'The issue of this tracker type is not allowed.'];
+var warnMsg;
 var hasEntryError = false;
 var hasTrackerError = false;
 
 $(document).ready(function(){
 	var txtEntryDate;
 	var txtissuetracker;
+	warnMsg = [document.getElementById('label_time_warn').value, document.getElementById('label_issue_warn').value];
 	if(document.getElementById('divError') != null){
 		if(document.getElementById('time_entry_issue_id')!=null){
 			txtissuetracker = document.getElementById('time_entry_issue_id');		
