@@ -61,7 +61,7 @@ $(document).ready(function() {
 					$( this ).dialog( "close" );				
 					//unregister this event since this is showing a 'don't leave' message
 					//loosk like this is not supported in Opera
-					window.onbeforeunload = null;
+					//window.onbeforeunload = null;
 			},
 			Cancel: function() {
 				$( this ).dialog( "close" );
