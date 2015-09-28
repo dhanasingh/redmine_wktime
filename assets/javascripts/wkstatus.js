@@ -5,7 +5,11 @@ var hasTrackerError = false;
 $(document).ready(function(){
 	var txtEntryDate;
 	var txtissuetracker;
-	warnMsg = [document.getElementById('label_time_warn').value, document.getElementById('label_issue_warn').value];
+	var timeWarnMsg = document.getElementById('label_time_warn');
+	var issueWarnMsg = document.getElementById('label_issue_warn');
+	if (timeWarnMsg != null && issueWarnMsg != null) {
+		warnMsg = [timeWarnMsg.value, issueWarnMsg.value];
+	}
 	if(document.getElementById('divError') != null){
 		if(document.getElementById('time_entry_issue_id')!=null){
 			txtissuetracker = document.getElementById('time_entry_issue_id');		
