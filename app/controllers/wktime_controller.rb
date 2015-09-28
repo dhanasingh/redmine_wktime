@@ -96,6 +96,16 @@ include QueriesHelper
 	@editable = false if @locked
 	set_edit_time_logs
 	@entries = findEntries()
+	if !$tempEntries.blank?
+		newEntries = $tempEntries - @entries
+		if !newEntries.blank?
+			$tempEntries = $tempEntries - newEntries
+			newEntries.each do |entry|
+				entry.id = ""
+				$tempEntries << entry
+			end
+		end
+	end
 	isError = params[:isError].blank? ? false : to_boolean(params[:isError])
 	if (!$tempEntries.blank? && isError)
 		@entries.each do |entry|	
