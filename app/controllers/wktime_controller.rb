@@ -1037,6 +1037,7 @@ private
 								teEntry.attributes = entry
 								# since project_id and user_id is protected
 								teEntry.project_id = entry['project_id']
+								teEntry.issue_id = nil if entry['issue_id'].blank?
 								teEntry.user_id = @user.id
 								teEntry.spent_on = @startday + k
 								#for one comment, it will be automatically loaded into the object
