@@ -1531,7 +1531,7 @@ private
 				.joins("INNER JOIN #{Member.table_name} ON projects.id = members.project_id")
 				.where("#{Member.table_name}.user_id = #{@user.id} AND #{Project.table_name}.status = #{Project::STATUS_ACTIVE}")
 			end
-			@logtime_projects = @logtime_projects & @manage_projects if !@manage_projects.blank?
+			#@logtime_projects = @logtime_projects & @manage_projects if !@manage_projects.blank?
 			@logtime_projects = setTEProjects(@logtime_projects)
 		end
 	end
