@@ -40,7 +40,7 @@ $(document).ready(function() {
 				
 				$.ajax({
 					url: rUrl,
-					type: 'get',
+					type: 'post',
 					data: {user_ids: strUserIds, from: from, to: to, email_notes: email_notes},
 					success: function(data){
 						resetReminderEmailDlg();

@@ -26,9 +26,9 @@
   
   delete 'wktime/deleteEntries', :to => 'wktime#deleteEntries'
   
-  get 'wktime/sendSubReminderEmail', :to => 'wktime#sendSubReminderEmail'
+  post 'wktime/sendSubReminderEmail', :to => 'wktime#sendSubReminderEmail'
   
-  get 'wktime/sendApprReminderEmail', :to => 'wktime#sendApprReminderEmail'
+  post 'wktime/sendApprReminderEmail', :to => 'wktime#sendApprReminderEmail'
   
   get 'wktime/testapi', :to => 'wktime#testapi' 
   
@@ -56,9 +56,9 @@
 
   get 'wkexpense/getactivities', :to => 'wkexpense#getactivities'
   
-  get 'wkexpense/sendSubReminderEmail', :to => 'wkexpense#sendSubReminderEmail'
+  post 'wkexpense/sendSubReminderEmail', :to => 'wkexpense#sendSubReminderEmail'
   
-  get 'wkexpense/sendApprReminderEmail', :to => 'wkexpense#sendApprReminderEmail'
+  post 'wkexpense/sendApprReminderEmail', :to => 'wkexpense#sendApprReminderEmail'
   
   #For Weekly expense report
   

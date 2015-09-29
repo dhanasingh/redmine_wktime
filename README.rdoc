@@ -76,11 +76,12 @@ If an apache passenger module is used then make sure the following settings are 
 Release Notes for 2.0
 	Thanks to Fotonation for sponsoring this release.
 	Features:
-		- Reminder email for submission and approval can be send by manager or TE admins.
+		- Made compatible with Redmine 3.1.0.
+		- Reminder email for submission and approval can be send by manager and TE admins.
 		- TE admins are allowed to modify and approve time/expense.
-		- User custom field as filters in list page.
+		- User custom field filters in list page.
 		- "Please select" option is added in Issue and Activity dropdown.
-		- In log time page, error message is shown for restricted tracker type and on TE related error, the Create/Save button is disabled.
+		- In log time page, error message is shown for restricted tracker type and on TE related error, the Create/Save button will be disabled.
 		- A warning message is shown when the user leaves an unsaved time/expense sheet page.
 	
 	Bugs:
