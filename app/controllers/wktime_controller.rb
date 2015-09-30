@@ -1527,7 +1527,7 @@ private
 			if User.current == @user
 				@logtime_projects ||= Project.where(Project.allowed_to_condition(@user, :log_time)).order('name')
 			else
-				hookProjs = call_hook(:controller_get_logtime_projects, {:user => @user})
+				hookProjs = call_hook(:controller_get_permissible_projs, {:user => @user})
 				if !hookProjs.blank?	
 					@logtime_projects = hookProjs[0].blank? ? [] : hookProjs[0]
 				else
