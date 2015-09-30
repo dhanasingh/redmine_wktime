@@ -41,6 +41,7 @@ include Redmine::I18n
 		subject = l(:wk_submission_reminder, label_te)
 		body = l(:wk_sub_reminder_text, label_te) + "\n" + weeks.join("\n")
 		body += "\n" + emailNotes if !emailNotes.blank?
+		body += "\n"
 		
 		mail :from => User.current.mail, :to => user.mail, :reply_to => User.current.mail, 
 		:cc => (mngrArr.blank? ? nil : (mngrArr[0].blank? ? nil : mngrArr[0].mail)), :subject => subject, :body => body
@@ -53,6 +54,7 @@ include Redmine::I18n
 		body = "#{l(:wk_appr_reminder_text, label_te)}" + "\n"
 		body += userList
 		body += "\n" + emailNotes if !emailNotes.blank?
+		body += "\n"
 		
 		mail :from => User.current.mail, :to => mgr.mail, :reply_to => User.current.mail, :subject => subject, :body => body
 	end
