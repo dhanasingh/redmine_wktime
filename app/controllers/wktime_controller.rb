@@ -1529,10 +1529,11 @@ private
 			else
 				hookProjs = call_hook(:controller_get_logtime_projects, {:user => @user})
 				if !hookProjs.blank?	
-					@logtime_projects = hookProjs[0].blank? ? nil : hookProjs[0]
+					@logtime_projects = hookProjs[0].blank? ? [] : hookProjs[0]
 				else
 					user_projects ||= Project
-					.joins("INNER JOIN #{Member.table_name} ON projects.id = members.project_id")
+					.joins("INNER JOIN #{EnabledModule.table_name} ON projects.id = enabled_modules.project_id and enabled_modules.name='time_tracking'")
+					.joins("INNER JOIN #{Member.table_name} ON projects.id = members.project_id")				
 					.where("#{Member.table_name}.user_id = #{@user.id} AND #{Project.table_name}.status = #{Project::STATUS_ACTIVE}")
 					logtime_projects ||= Project.where(Project.allowed_to_condition(@user, :log_time)).order('name')
 					@logtime_projects = logtime_projects | user_projects
