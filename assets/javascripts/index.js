@@ -11,64 +11,129 @@ $(document).ready(function() {
 		autoOpen: false,
 		resizable: false,
 		modal: true,
-		buttons: {
-			"Ok": function() {				
-				var email_notes = document.getElementById('email_notes').value;
-				var commandEl = document.getElementsByName('reminder');
-				var reminder_command = 0;
-				for(var i = 0; i < commandEl.length; i++) {
-					if(commandEl[i].checked) {
-						reminder_command = commandEl[i].value;
+		buttons: [
+			{
+				text: 'Ok',
+				id: 'btnOk',
+				click: function() {				
+					var email_notes = document.getElementById('email_notes').value;
+					var commandEl = document.getElementsByName('reminder');
+					var reminder_command = 0;
+					for(var i = 0; i < commandEl.length; i++) {
+						if(commandEl[i].checked) {
+							reminder_command = commandEl[i].value;
+						}
 					}
+					var rUrl = "";
+					if(reminder_command == 1) {
+						rUrl = rSubEmailUrl;
+					} 
+					else if(reminder_command == 2) {
+						rUrl = rAppEmailUrl;
+					}
+					var from = document.getElementById('from').value;
+					var to = document.getElementById('to').value;
+					/*var userOpt = document.getElementById('user_id').options;
+					var strUserIds = "";
+					var arrUserId = []
+					for(var i = 1; i < userOpt.length; i++) {
+						//0 -- All User
+						arrUserId.push(userOpt[i].value);
+					}
+					strUserIds = arrUserId.toString();*/
+					
+					/*var teStatusOpt = document.getElementById('status').options;
+					var strStatus = "";
+					var arrStatus = []
+					for(var i = 0; i < teStatusOpt.length; i++) {
+						if (teStatusOpt[i].selected) {
+							arrStatus.push(teStatusOpt[i].value);
+						}
+					}
+					strStatus = arrStatus.toString();
+					alert("strStatus : " + strStatus);*/
+					if(rUrl != "") {
+						$.ajax({
+							url: rUrl,
+							type: 'post',
+							data: {/*user_ids: strUserIds,*/ from: from, to: to, /*status: strStatus, */email_notes: email_notes},
+							success: function(data){
+								resetReminderEmailDlg();
+								if(data != "OK") {
+									alert(data);
+								}							
+							},
+							error: function(xhr,status,error) {
+								resetReminderEmailDlg();
+							},
+							beforeSend: function(){ $(this).parent().addClass('ajax-loading'); },
+							complete: function(){ $(this).parent().removeClass('ajax-loading'); }
+						});
+					}
+					$( this ).dialog( "close" );
 				}
-				var rUrl = "";
-				if (reminder_command == 1) {
-					rUrl = rSubEmailUrl;
-				} else {
-					rUrl = rAppEmailUrl;
-				}
-				var from = document.getElementById('from').value;
-				var to = document.getElementById('to').value;
-				var userOpt = document.getElementById('user_id').options;
-				var strUserIds = "";
-				var arrUserId = []
-				for(var i = 1; i < userOpt.length; i++) {
-				    //0 -- All User
-					arrUserId.push(userOpt[i].value);
-				}
-				strUserIds = arrUserId.toString();
-				
-				$.ajax({
-					url: rUrl,
-					type: 'post',
-					data: {user_ids: strUserIds, from: from, to: to, email_notes: email_notes},
-					success: function(data){
-						resetReminderEmailDlg();
-					},
-					error: function(xhr,status,error) {
-						resetReminderEmailDlg();
-					},
-					beforeSend: function(){ $(this).parent().addClass('ajax-loading'); },
-					complete: function(){ $(this).parent().removeClass('ajax-loading'); }
-				});
-				$( this ).dialog( "close" );
 			},
-			Cancel: function() {
-				$( this ).dialog( "close" );
-				resetReminderEmailDlg();
+			{
+				text: 'Cancel',
+				id: 'btnCancel',
+				click: function() {
+					$( this ).dialog( "close" );
+					resetReminderEmailDlg();
+				}
 			}
-		}
+		]
 	});
 });
 
 function showReminderEmailDlg() {
+	var teStatusOpt = document.getElementById('status').options;	
+	var isSubm = false;
+	var isAppr = false;
+	for(var i = 0; i < teStatusOpt.length; i++) {
+		if (teStatusOpt[i].selected) {
+			isSubm = (teStatusOpt[i].value == 'e' || teStatusOpt[i].value == 'n' || teStatusOpt[i].value == 'r');
+			if(isSubm) {
+				break;
+			}
+		}
+	}
+	for(var i = 0; i < teStatusOpt.length; i++) {
+		if (teStatusOpt[i].selected) {
+			isAppr = (teStatusOpt[i].value == 's');
+			if(isAppr) {
+				break;
+			}
+		}
+	}
+	var reminderEl = document.getElementsByName('reminder');
+	if(!isSubm) {
+		reminderEl[0].disabled = true;
+	}
+	if(!isAppr) {
+		reminderEl[1].disabled = true;
+	}
+	if(!isSubm && !isAppr) {
+		//disable Ok button if both submission and approval reminders is not applicable
+		$("#btnOk").attr('disabled', true).addClass("ui-state-disabled");
+	}
+	for(var i = 0; i < reminderEl.length; i++) {
+		if(!reminderEl[i].disabled) {
+			reminderEl[i].checked = true;
+			break;
+		}
+	}
 	$( "#reminder-email-dlg" ).dialog( "open" );
 }
 
 function resetReminderEmailDlg() {
 	document.getElementById('email_notes').value = "";
-	document.getElementsByName('reminder')[0].checked = true;
-	$('textarea').removeData('changed');
+	var reminderEl = document.getElementsByName('reminder');
+	for(var i = 0; i < reminderEl.length; i++) {
+		reminderEl[i].checked = false;
+		reminderEl[i].disabled = false;
+	}
+	$("#btnOk").attr('disabled', false).removeClass("ui-state-disabled");
+	$('textarea').removeData('changed'); //for removing 'leave this page' warning
 }
 
 function projChanged(projDropdown, userid, needBlankOption){

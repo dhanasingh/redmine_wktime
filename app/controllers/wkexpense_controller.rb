@@ -252,4 +252,26 @@ private
   def formQuery(wkSelectStr, sqlStr, wkSqlStr)
 	query =  wkSelectStr + " ,exp.currency" + sqlStr + " inner join wk_expense_entries exp on v1.id = exp.id " + wkSqlStr
   end
+  
+  def getUserCFFromSession
+	#return user custom field filters from session
+	session[:wkexpense][:filters]
+  end
+  
+  def getUserIdFromSession
+	#return user_id from session
+	session[:wkexpense][:user_id]
+  end
+  
+  def getStatusFromSession
+	session[:wkexpense][:status]
+  end
+  
+  def setUserIdsInSession(ids)
+	session[:wkexpense][:all_user_ids] = ids
+  end
+  
+  def getUserIdsFromSession
+	session[:wkexpense][:all_user_ids]
+  end
 end

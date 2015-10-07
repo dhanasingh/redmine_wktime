@@ -29,7 +29,7 @@ include QueriesHelper
 	if !params[:tab].blank? && params[:tab] =='wkexpense'
 		user_id = session[:wkexpense][:user_id]
 		group_id = session[:wkexpense][:group_id]
-		status = session[:wktimes][:status]
+		status = session[:wkexpense][:status]
 		userfilter = getValidUserCF(session[:wkexpense][:filters], user_custom_fields)
 	else
 		user_id = session[:wktimes][:user_id]
@@ -62,7 +62,8 @@ include QueriesHelper
 				else
 					ids +=',' + users[1].to_s
 				end				
-			end	
+			end
+			setUserIdsInSession(ids) #set user ids in session if "All User" is chosen
 		end
 		ids = '0' if ids.nil?
 	else
@@ -731,65 +732,47 @@ include QueriesHelper
 		weekHash = Hash.new
 		userHash = Hash.new
 		mngrHash = Hash.new
-
-		entityNames = getEntityNames
-		if entityNames[0] == 'wktimes'
-			user_id = session[:wktimes][:user_id]
-			userfilters = session[:wktimes][:filters]
-		else
-			user_id = session[:wkexpense][:user_id]
-			userfilters = session[:wkexpense][:filters]
-		end
-		label_te = getTELabel
-
-		ids = nil		
-		if user_id.blank?
-			ids = User.current.id.to_s
-		elsif user_id.to_i == 0
-			ids = params[:user_ids].to_s
-			ids = '0' if ids.nil?
-		else
-			ids = user_id 
-		end
-		user_custom_fields = CustomField.where(['is_filter = ? AND type = ?', true, "UserCustomField"])
-		@query = nil
-		unless user_custom_fields.blank?
-			@query = WkTimeEntryQuery.build_from_params(params, :project => nil, :name => '_')
-			@query.filters = userfilters if !@query.blank?
-		end
-		
-		teQuery = getTEQuery(params[:from].to_date, params[:to].to_date, ids)
-		query = getQuery(teQuery, ids, params[:from].to_date, params[:to].to_date, ['e','r','n'])
-					
-		wkentries = TimeEntry.find_by_sql(query)
-		
-		wkentries.each do |entries|
-			user = entries.user
-			if !userHash.has_key?(user.id)
-				userHash[user.id] = user
-				weekHash[user.id] = [entries.spent_on]
-				hookMgr = call_hook(:controller_get_manager, {:user => user, :approver => false})
-				mngrArr = hookMgr.blank? ? nil : hookMgr[0]
-				mngrHash[user.id] = mngrArr
-			else
-				weekArr = weekHash[user.id]
-				weekHash[user.id] = weekArr << entries.spent_on
+		respMsg = "OK"
+		allowedStatus = ['e','r','n'];
+		pStatus = getStatusFromSession #params[:status].split(',')
+		status = pStatus.blank? ? allowedStatus : (allowedStatus & pStatus)
+		wkentries = nil
+		if !status.blank?
+			ids = getUserIds
+			setUserCFQuery
+			label_te = getTELabel
+			teQuery = getTEQuery(params[:from].to_date, params[:to].to_date, ids)
+			query = getQuery(teQuery, ids, params[:from].to_date, params[:to].to_date, status) #['e','r','n']
+						
+			wkentries = findTEEntryBySql(query)			
+			wkentries.each do |entries|
+				user = entries.user
+				if !userHash.has_key?(user.id)
+					userHash[user.id] = user
+					weekHash[user.id] = [entries.spent_on]
+					hookMgr = call_hook(:controller_get_manager, {:user => user, :approver => false})
+					mngrArr = hookMgr.blank? ? nil : hookMgr[0]
+					mngrHash[user.id] = mngrArr
+				else
+					weekArr = weekHash[user.id]
+					weekHash[user.id] = weekArr << entries.spent_on
+				end
 			end
-		end
-		userHash.each_key do |key|
-			user = userHash[key]
-			errMsg = ""
-			begin
-				WkMailer.submissionReminder(user, mngrHash[key], weekHash[key], params[:email_notes], label_te).deliver
-			rescue Exception => e
-				errMsg = e.message
+			userHash.each_key do |key|
+				user = userHash[key]
+				errMsg = ""
+				begin
+					WkMailer.submissionReminder(user, mngrHash[key], weekHash[key], params[:email_notes], label_te).deliver
+				rescue Exception => e
+					errMsg = e.message
+				end
+				userList += user.name + "\n" if errMsg.blank?
 			end
-			userList += user.name + "\n" if errMsg.blank?
+			WkMailer.sendConfirmationMail(userList, true, label_te).deliver if !userList.blank?
 		end
-		WkMailer.sendConfirmationMail(userList, true, label_te).deliver if !userList.blank?
-		
+		respMsg = l(:text_wk_no_reminder) if (wkentries.blank? || (!wkentries.blank? && wkentries.size == 0))
 		respond_to do |format|
-			format.text  { render :text => 'OK' }
+			format.text  { render :text => respMsg }
 		end
 	end
 	
@@ -797,89 +780,78 @@ include QueriesHelper
 		mgrList = ""
 		userHash = Hash.new
 		mgrHash = Hash.new		
-		entityNames = getEntityNames
-		if entityNames[0] == 'wktimes'
-			user_id = session[:wktimes][:user_id]
-			userfilters = session[:wktimes][:filters]
-		else
-			user_id = session[:wkexpense][:user_id]
-			userfilters = session[:wkexpense][:filters]
-		end
-		label_te = getTELabel
-		ids = nil		
-		if user_id.blank?
-			ids = User.current.id.to_s
-		elsif user_id.to_i == 0
-			ids = params[:user_ids].to_s			
-			ids = '0' if ids.nil?
-		else
-			ids = user_id 
-		end
-		user_custom_fields = CustomField.where(['is_filter = ? AND type = ?', true, "UserCustomField"])
-		@query = nil
-		unless user_custom_fields.blank?
-			@query = WkTimeEntryQuery.build_from_params(params, :project => nil, :name => '_')
-			@query.filters = userfilters if !@query.blank?
-		end
-		
-		user_cf_sql = @query.user_cf_statement('u') if !@query.blank?
-		queryStr = "select distinct u.* from users u " +
-					"left outer join #{entityNames[0]} w on u.id = w.user_id " +
-					"and (w.begin_date between '#{params[:from]}}' and '#{params[:to]}') " #+
-					#"where u.id in (#{ids}) and w.status = 's'"
-		queryStr += " #{user_cf_sql} " if !user_cf_sql.blank?
-		queryStr += (!user_cf_sql.blank? ? " AND " : " WHERE ") + " u.id in (#{ids}) and w.status = 's' "
-					
-		users = User.find_by_sql(queryStr)
-		users.each do |user|
-			mngrArr = getManager(user, true)			
-			if !mngrArr.blank?
-				mngrArr.each do |m|
-					userArr = []
-					if mgrHash.has_key?(m.id)
-						userArr = userHash[m.id]
-						userHash[m.id] = userArr << user
-					else						
-						mgrHash[m.id] = m
-						userHash[m.id] = [user]
+		respMsg = "OK"
+		allowedStatus = ['s'];
+		pStatus = getStatusFromSession
+		status = pStatus.blank? ? allowedStatus : (allowedStatus & pStatus)
+		users = nil
+		if !status.blank?
+			entityNames = getEntityNames
+			ids = getUserIds
+			setUserCFQuery
+			label_te = getTELabel
+			user_cf_sql = @query.user_cf_statement('u') if !@query.blank?
+			queryStr = "select distinct u.* from users u " +
+						"left outer join #{entityNames[0]} w on u.id = w.user_id " +
+						"and (w.begin_date between '#{params[:from]}}' and '#{params[:to]}') " #+
+						#"where u.id in (#{ids}) and w.status = 's'"
+			queryStr += " #{user_cf_sql} " if !user_cf_sql.blank?
+			queryStr += (!user_cf_sql.blank? ? " AND " : " WHERE ") + " u.id in (#{ids}) and w.status = 's' "
+						
+			users = User.find_by_sql(queryStr)			
+			users.each do |user|
+				mngrArr = getManager(user, true)			
+				if !mngrArr.blank?
+					mngrArr.each do |m|
+						userArr = []
+						if mgrHash.has_key?(m.id)
+							userArr = userHash[m.id]
+							userHash[m.id] = userArr << user
+						else						
+							mgrHash[m.id] = m
+							userHash[m.id] = [user]
+						end
 					end
-				end
-			end			
+				end			
+			end
+			if !mgrHash.blank?			
+				mgrHash.each_key do |key|
+					userList = []
+					subOrd = userHash[key]
+					subOrd.each do |user|
+						userList << user.name
+					end
+					errMsg = ""
+					begin
+						WkMailer.approvalReminder(mgrHash[key], userList.uniq.join("\n"), params[:email_notes], label_te).deliver
+					rescue Exception => e
+						errMsg = e.message
+					end
+					mgrList += mgrHash[key].name + "\n" if errMsg.blank?
+				end		
+				WkMailer.sendConfirmationMail(mgrList, false, label_te).deliver if !mgrList.blank?			
+			end
 		end
-		if !mgrHash.blank?
-			mgrHash.each_key do |key|
-				userList = []
-				subOrd = userHash[key]
-				subOrd.each do |user|
-					userList << user.name
-				end
-				errMsg = ""
-				begin
-					WkMailer.approvalReminder(mgrHash[key], userList.uniq.join("\n"), params[:email_notes], label_te).deliver
-				rescue Exception => e
-					errMsg = e.message
-				end
-				mgrList += mgrHash[key].name + "\n" if errMsg.blank?
-			end		
-			WkMailer.sendConfirmationMail(mgrList, false, label_te).deliver if !mgrList.blank?
-		end
-		
+		respMsg = l(:text_wk_no_reminder) if (users.blank? || (!users.blank? && users.size == 0))
 		respond_to do |format|
-			format.text  { render :text => 'OK' }
+			format.text  { render :text => respMsg }
 		end
 	end
 	
+	
+private
+
 	def getManager(user, approver)
 		hookMgr = call_hook(:controller_get_manager, {:user => user, :approver => approver})
 		mngrArr = [] #nil
 		if !hookMgr.blank?
 			mngrArr = hookMgr[0] if !hookMgr[0].blank?
 		else
-			includeAppr = (!Setting.plugin_redmine_wktime[:wktime_own_approval].blank? && Setting.plugin_redmine_wktime[:wktime_own_approval].to_i == 1 )
+			#includeAppr = (!Setting.plugin_redmine_wktime[:wktime_own_approval].blank? && Setting.plugin_redmine_wktime[:wktime_own_approval].to_i == 1 )
 			apprPerm = "and r.permissions like '%approve_time_entries%'"
 			queryStr = "select distinct u.* from projects p" +
 					" inner join members m on p.id = m.project_id and p.status = 1 " +
-					" #{!includeAppr ? ('and m.user_id <> ' + user.id) : ''}" +
+					#" #{!includeAppr ? ('and m.user_id <> ' + user.id.to_s) : ''}" +
 					" inner join member_roles mr on m.id = mr.member_id" +
 					" inner join roles r on mr.role_id = r.id and (r.permissions like '%edit_time_entries%' " +
 					" #{approver ? apprPerm : ''}" + ')' +
@@ -894,7 +866,31 @@ include QueriesHelper
 		mngrArr
 	end
 	
-private
+	def setUserCFQuery
+		userfilters = getUserCFFromSession
+		user_custom_fields = CustomField.where(['is_filter = ? AND type = ?', true, "UserCustomField"])
+		@query = nil
+		unless user_custom_fields.blank?
+			@query = WkTimeEntryQuery.build_from_params(params, :project => nil, :name => '_')
+			@query.filters = userfilters if !@query.blank?
+		end
+	end
+	
+	def getUserIds		
+		user_id = getUserIdFromSession
+		label_te = getTELabel
+
+		ids = nil		
+		if user_id.blank?
+			ids = User.current.id.to_s
+		elsif user_id.to_i == 0
+			ids = getUserIdsFromSession
+			ids = '0' if ids.nil?
+		else
+			ids = user_id 
+		end
+		ids
+	end
 
 
 	def check_permission
@@ -1966,5 +1962,26 @@ private
 	
 	def formQuery(wkSelectStr, sqlStr, wkSqlStr)
 		query = wkSelectStr + sqlStr + wkSqlStr
+	end
+	
+	def getUserCFFromSession
+		session[:wktimes][:filters]
+	end
+	
+	def getUserIdFromSession
+		#return user_id from session
+		session[:wktimes][:user_id]
+	end
+	
+	def getStatusFromSession
+		session[:wktimes][:status]
+	end
+	
+	def setUserIdsInSession(ids)
+		session[:wktimes][:all_user_ids] = ids
+	end
+	
+	def getUserIdsFromSession
+		session[:wktimes][:all_user_ids]
 	end
 end

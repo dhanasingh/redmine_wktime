@@ -133,3 +133,4 @@ fr:
   wk_appr_confirmation_text: "%{value} approval reminder sent to:"
   label_wk_timesheet: Timesheet
   label_wk_expensesheet: Expensesheet  
+  text_wk_no_reminder: No reminders to send
