@@ -127,20 +127,23 @@ private
 	["#{Wkexpense.table_name}", "#{WkExpenseEntry.table_name}"]
   end
   
-  def findBySql(selectStr,sqlStr,wkSelectStr,wkSqlStr, status, ids) 
-	spField = getSpecificField()
-	dtRangeForUsrSqlStr =  "(" + getAllWeekSql(@from, @to) + ") tmp1"			
-	teSqlStr = "(" + wkSelectStr + " ,exp.currency" + sqlStr + " inner join wk_expense_entries exp on v1.id = exp.id " + wkSqlStr + ") tmp2"			
-	query = "select tmp3.user_id, tmp3.spent_on, tmp3.#{spField}, tmp3.status, tmp3.status_updater, tmp3.created_on, tmp3.currency from (select tmp1.id as user_id, tmp1.created_on, tmp1.selected_date as spent_on, " +
+  def getQuery(teQuery, ids, from, to, status)
+		spField = getSpecificField()
+		dtRangeForUsrSqlStr =  "(" + getAllWeekSql(from, to) + ") tmp1"			
+		teSqlStr = "(" + teQuery + ") tmp2"
+		query = "select tmp3.user_id, tmp3.spent_on, tmp3.#{spField}, tmp3.status, tmp3.status_updater, tmp3.created_on, tmp3.currency from (select tmp1.id as user_id, tmp1.created_on, tmp1.selected_date as spent_on, " +
 				"case when tmp2.#{spField} is null then 0 else tmp2.#{spField} end as #{spField}, " +
 				"case when tmp2.status is null then 'e' else tmp2.status end as status, tmp2.currency, tmp2.status_updater from "
-	query = query + dtRangeForUsrSqlStr + " left join " + teSqlStr
-	query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids}) ) tmp3 "
-	query = query + " left outer join (select min( #{getDateSqlString('t.spent_on')} ) as min_spent_on, t.user_id as usrid from wk_expense_entries t, users u "
-	query = query + " where u.id = t.user_id and u.id in (#{ids}) group by t.user_id ) vw on vw.usrid = tmp3.user_id "
-	query = query + getWhereCond(status)
-	query = query + " order by tmp3.spent_on desc, tmp3.user_id "
-	
+		query = query + dtRangeForUsrSqlStr + " left join " + teSqlStr
+		query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids}) ) tmp3 "
+		query = query + " left outer join (select min( #{getDateSqlString('t.spent_on')} ) as min_spent_on, t.user_id as usrid from wk_expense_entries t, users u "
+		query = query + " where u.id = t.user_id and u.id in (#{ids}) group by t.user_id ) vw on vw.usrid = tmp3.user_id "
+		query = query + getWhereCond(status)
+		query = query + " order by tmp3.spent_on desc, tmp3.user_id "		
+	end
+  
+  def findBySql(query) 
+	spField = getSpecificField()
 	result = WkExpenseEntry.find_by_sql("select count(*) as id from (" + query + ") as v2")
 	@entry_count = result[0].id	
 	setLimitAndOffset()	
@@ -236,5 +239,39 @@ private
       scope = scope.on_issue(@issue)
     end
     scope
+  end
+  
+  def getTELabel
+	l(:label_wk_expensesheet)
+  end
+  
+  def findTEEntryBySql(query)
+	WkExpenseEntry.find_by_sql(query)
+  end
+  
+  def formQuery(wkSelectStr, sqlStr, wkSqlStr)
+	query =  wkSelectStr + " ,exp.currency" + sqlStr + " inner join wk_expense_entries exp on v1.id = exp.id " + wkSqlStr
+  end
+  
+  def getUserCFFromSession
+	#return user custom field filters from session
+	session[:wkexpense][:filters]
+  end
+  
+  def getUserIdFromSession
+	#return user_id from session
+	session[:wkexpense][:user_id]
+  end
+  
+  def getStatusFromSession
+	session[:wkexpense][:status]
+  end
+  
+  def setUserIdsInSession(ids)
+	session[:wkexpense][:all_user_ids] = ids
+  end
+  
+  def getUserIdsFromSession
+	session[:wkexpense][:all_user_ids]
   end
 end

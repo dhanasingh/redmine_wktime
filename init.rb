@@ -140,7 +140,7 @@ Redmine::Plugin.register :redmine_wktime do
   name 'Time & Expense'
   author 'Adhi Software Pvt Ltd'
   description 'This plugin is for entering Time & Expense'
-  version '1.9'
+  version '2.0'
   url 'http://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
   
@@ -224,14 +224,24 @@ Rails.configuration.to_prepare do
 end
 
 class WktimeHook < Redmine::Hook::ViewListener
-	def controller_timelog_edit_before_save(context={ })			
-		if !context[:time_entry].hours.blank? && !context[:time_entry].activity_id.blank?
-			wktime_helper = Object.new.extend(WktimeHelper)				
+	def controller_timelog_edit_before_save(context={ })	
+		wktime_helper = Object.new.extend(WktimeHelper)	
+		if !context[:time_entry].hours.blank? && !context[:time_entry].activity_id.blank?				
 			status = wktime_helper.getTimeEntryStatus(context[:time_entry].spent_on,context[:time_entry].user_id)		
 			if !status.blank? && ('a' == status || 's' == status || 'l' == status)					
 				 raise "#{l(:label_warning_wktime_time_entry)}"
 			end			
-		end	
+		end
+		# if !context[:time_entry].issue.blank? 
+		#	trackerid = wktime_helper.getAllowedTrackerId
+		#	if trackerid != ['0']
+		#		if ["#{context[:time_entry].issue.tracker.id}"] != trackerid
+		#			raise "#{l(:label_warning_wktime_issue_tracker)}"
+		#		end	
+		#	end
+		#elsif context[:time_entry].issue.blank? && trackerid != ['0'] 
+		#	raise "#{l(:label_warning_wktime_time_entry)}"
+		#end		
 	end
 	
 	def view_layouts_base_html_head(context={})	
@@ -240,19 +250,27 @@ class WktimeHook < Redmine::Hook::ViewListener
 	end
 	
 	def view_timelog_edit_form_bottom(context={ })		
-		showWarningMsg(context[:request],context[:time_entry].user_id)
+		showWarningMsg(context[:request],context[:time_entry].user_id, true)
 	end
 	
 	def view_issues_edit_notes_bottom(context={})	
-		showWarningMsg(context[:request],User.current.id)
+		showWarningMsg(context[:request], User.current.id, false)
 	end
 
-	def showWarningMsg(req,user_id)		
+	def showWarningMsg(req, user_id, log_time_page)
 		wktime_helper = Object.new.extend(WktimeHelper)
-		host_with_subdir = wktime_helper.getHostAndDir(req)	
-		"<div id='divError'><font color='red'>#{l(:label_warning_wktime_time_entry)}</font>	
-			<input type='hidden' id='getstatus_url' value='#{url_for(:controller => 'wktime', :action => 'getStatus', :host => host_with_subdir, :only_path => true, :user_id => user_id)}'>	
-		</div>"		
+		host_with_subdir = wktime_helper.getHostAndDir(req)
+		
+		
+
+		"<div id='divError'>
+			<font color='red'></font>			
+		</div>
+		<input type='hidden' id='getstatus_url' value='#{url_for(:controller => 'wktime', :action => 'getStatus', :host => host_with_subdir, :only_path => true, :user_id => user_id)}'>
+		<input type='hidden' id='getissuetracker_url' value='#{url_for(:controller => 'wktime', :action => 'getTracker', :host => host_with_subdir, :only_path => true)}'>
+		<input type='hidden' id='log_time_page' value='#{log_time_page}'>
+		<input type='hidden' id='label_issue_warn' value='#{l(:label_warning_wktime_issue_tracker)}'>
+		<input type='hidden' id='label_time_warn' value='#{l(:label_warning_wktime_time_entry)}'>"
 	end
 	
 	# Added expense report link in redmine core 'projects/show.html' using hook

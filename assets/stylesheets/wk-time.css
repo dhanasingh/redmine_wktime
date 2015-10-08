@@ -1,1 +1,4 @@
 .wk-contextual {text-align: right; white-space: nowrap; line-height:1.4em;margin-top:5px; margin-bottom:10px; padding-left: 10px; font-size:0.9em;}
+.div-left{float: left; padding-right: 50px;}
+.div-right{float: left; }
+.lbl-txt-align{text-align:left !important}

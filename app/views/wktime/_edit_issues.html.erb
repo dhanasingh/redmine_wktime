@@ -11,7 +11,7 @@ currencySym = ""
 
 <div class="wk-contextual">
 <% if @editable %>
-	<%= link_to l(:button_add_row), "javascript:addRow();projectChanged(document.getElementsByName('time_entry[][project_id]'),0);", :class => 'icon icon-time-add' %>
+	<%= link_to l(:button_add_row), "#", { :onclick => "javascript:addRow();projectChanged(document.getElementsByName('time_entry[][project_id]'),0);", :class => 'icon icon-time-add' }%>
 <% end %>
 </div>
 
@@ -135,7 +135,7 @@ currencySym = ""
 <div class="splitcontentright">
 <div class="contextual">
 <% if @editable %>
-	<%= link_to l(:button_add_row), "javascript:addRow();projectChanged(document.getElementsByName('time_entry[][project_id]'),0);", :class => 'icon icon-time-add' %>
+	<%= link_to l(:button_add_row), "#", { :onclick => "javascript:addRow();projectChanged(document.getElementsByName('time_entry[][project_id]'),0);", :class => 'icon icon-time-add' } %>
 <% end %>
 </div>
 </div>

@@ -63,7 +63,7 @@ module WktimeHelper
     decimal_separator = l(:general_csv_decimal_separator)
     #custom_fields = WktimeCustomField.find(:all)
 	custom_fields = WktimeCustomField.all
-    export = CSV.generate(:col_sep => l(:general_csv_separator)) do |csv|
+    export = Redmine::Export::CSV.generate do |csv|
       # csv header fields
       headers = [l(:field_user),
                  l(:field_project),
@@ -200,7 +200,7 @@ module WktimeHelper
 	pdf.AddPage(orientation)
 	
 	if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo))
-		pdf.Image(Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo, page_width-10-20, 10)
+		pdf.Image(Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo, page_width-50, 10,40,25)
 	end
 	
 	render_header(pdf, entries, user, startday, row_height,title)
@@ -283,16 +283,16 @@ module WktimeHelper
 	def render_newpage(pdf,orientation,logo,page_width)
 		pdf.AddPage(orientation)
 		if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo))
-			pdf.Image(Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo, page_width-10-20, 10)
+			pdf.Image(Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo, page_width-50, 10,40,25)
 			pdf.Ln
-			pdf.SetY(pdf.GetY+10)
+			pdf.SetY(pdf.GetY+25)
 		end
 	end
 	
 	def getKey(entry,unitLabel)
 		cf_in_row1_value = nil
 		cf_in_row2_value = nil
-		key = entry.project.id.to_s + (entry.issue.blank? ? '' : entry.issue.id.to_s) + entry.activity.id.to_s + (unitLabel.blank? ? '' : entry.currency)
+		key = entry.project.id.to_s + (entry.issue.blank? ? '' : entry.issue.id.to_s) + (entry.activity.blank? ? '' : entry.activity.id.to_s) + (unitLabel.blank? ? '' : entry.currency)
 		entry.custom_field_values.each do |custom_value|			
 			custom_field = custom_value.custom_field
 			if (!Setting.plugin_redmine_wktime['wktime_enter_cf_in_row1'].blank? &&	Setting.plugin_redmine_wktime['wktime_enter_cf_in_row1'].to_i == custom_field.id)
@@ -382,7 +382,7 @@ def getColumnValues(matrix, totals, unitLabel,rowNumberRequired, j=0)
 					if !issueWritten
 						col_values[k] = entry.project.name
 						col_values[k+1] = entry.issue.blank? ? "" : entry.issue.subject
-						col_values[k+2] = entry.activity.name
+						col_values[k+2] = entry.activity.blank? ? "" : entry.activity.name
 						if !unitLabel.blank?
 							col_values[k+3]= entry.currency
 						end
@@ -793,4 +793,24 @@ end
 		end		
 		dateSqlStr
 	end
+	
+	def getValidUserCF(userCFHash, userCF)
+		tmpUserCFHash = userCFHash
+		if !userCF.blank? && !userCFHash.blank?
+			cfHash = Hash.new
+			userCF.each do |cf|
+				cfHash["user.cf_#{cf.id}"] = "#{cf.name}"
+			end
+			userCFHash.each_key do |key|
+				if !cfHash.has_key?(key)
+					tmpUserCFHash.delete(key)
+				end
+			end
+		end
+		tmpUserCFHash
+	end	
+	
+	#def getAllowedTrackerId
+	#	Setting.plugin_redmine_wktime['wktime_issues_filter_tracker']
+	#end
 end

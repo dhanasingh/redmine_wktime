@@ -1,13 +1,30 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
 	prevTab = 'tab-<%= "#{controller_name}" %>';
 	grpUrl="<%= "#{url_for(:controller => controller_name, :action => 'getMembersbyGroup')}" %>";
 	userUrl="<%= "#{url_for(:controller => controller_name, :action => 'getusers')}" %>";
+	rSubEmailUrl="<%= "#{url_for(:controller => controller_name, :action => 'sendSubReminderEmail')}" %>";
+	rAppEmailUrl="<%= "#{url_for(:controller => controller_name, :action => 'sendApprReminderEmail')}" %>";
 </script>
 <% if (!@currentUser_loggable_projects.blank? || !@manage_projects.blank?) %>
 <div class="contextual">
 <%= link_to l(:"button_new_#{controller_name}"), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
 </div>
+<% end %>
+<% if !@manage_projects.blank? %>
+
+<div id="reminder-email-dlg" title="Send Reminder Email">
+	<fieldset>
+		<p> <label><%= l(:label_wk_reminder_notes) %></label>
+		<textarea name="email_notes" id="email_notes" value="" cols="25" rows="2"> </textarea> </p>
+		<%= radio_button_tag 'reminder', '1' %>
+		<span><%= l(:label_wk_sub_reminder) %></span></br></br>
+		<%= radio_button_tag 'reminder', '2' %>
+		<span><%= l(:label_wk_appr_reminder) %></span>
+	</fieldset>
+</div>
+
 <% end %>
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
 
@@ -33,11 +50,13 @@
 		projGrp = true	
 	end
 %>
+
 <% filters = call_hook(:view_te_filter) %>
 <% if !filters.blank? %>	 
 <%=	filters %>
 <% else %>
 <% if !@manage_view_spenttime_projects.blank? %>
+<div class="div-left">
 <table>
 <script type="text/javascript"> 
 $(document).ready(function()
@@ -59,7 +78,7 @@ $(document).ready(function()
 <td class="project" align="left"><%=h select_tag('project_id', 
 	options_for_select(options_for_wktime_project(@manage_view_spenttime_projects),
 	:selected => !projectid.nil? ? projectid.to_i: @selected_project.id),:disabled => @use_group,
-	:onchange => "projChanged(this, #{User.current.id}, true);") %></td>
+	:onchange => "projChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %></td>
 </tr>
 <% if !@groups.blank? %>
 <tr>
@@ -70,7 +89,7 @@ $(document).ready(function()
 	<%=h select_tag('group_id',
 	options_for_select( @groups.collect {|p| [p.name, p.id ]},
 	:selected => (groupid.nil? ? 0 : groupid)),:disabled => !@use_group,
-	:onchange => "grpChanged(this, #{User.current.id}, true);") %>
+	:onchange => "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %>
 </td>
 </tr>
 <% end %>
@@ -81,21 +100,26 @@ $(document).ready(function()
 <%=h select_tag('user_id',
 	options_for_select( [["All Users","0"]] + (@members.blank? ? [] : @members),
 		:selected => userid.nil? ? (@user.nil? ? User.current.id : @user.id) : userid),
-	:onchange => 'this.form.submit();') %></td>
+	:onchange => 'this.form.submit();', :style=> "width:200px;") %></td>
 </tr>
 
 </table>
+</div>
 <% end %>
 <% end %>
+
+<div id="rightMenu" class="div-right">
 <table>
 <tr>
-<th><%=l(:field_status)%></th>
+<th valign="top"><%=l(:field_status)%></th>
 <td class="status" align="left"><%=h select_tag('status', 
 	options_for_select(options_wk_status_select(status),
 	:selected => status.nil? ? 0 : status.to_s ),
 	:multiple=> true) %></td>
 </tr>
 </table>
+</div>
+<div style="clear:both"></div>
 <%= render :partial => 'wktime/date_range' %>
 
 <% end %>

@@ -3,6 +3,8 @@
 <%= javascript_include_tag 'edit', :plugin => "redmine_wktime" %>
 
 	<script type="text/javascript"> 
+		lblPleaseSelect = '<%=l(:actionview_instancetag_blank_option) %>'
+		lblWarnUnsavedTE = '<%=l(:text_warn_on_leaving_unsaved) %>'
 		decSeparator = '<%=l(:general_csv_decimal_separator) %>';
 		issueField = '<%= l(:field_issue) %>';
 		submissionack="<%= Setting.plugin_redmine_wktime[:wktime_submission_ack] %>";
@@ -47,6 +49,14 @@
 <h2><%= l(:label_wkexpense) %></h2>
 
 <%= render :partial => 'wktime/edit_header' %>
+
+<% if !@wktime.blank? && @wktime.status == 'r' && !@wktime.notes.blank? %>
+	<tr>
+	<th align="left"><%=l(:label_wk_reject_reason)%></th>
+	<td><%=h @wktime.notes %>
+	</td>
+	</tr>
+<% end %>
 
 <% # Martin Dube Contribution: show previous and next time entry %>
 <tr>

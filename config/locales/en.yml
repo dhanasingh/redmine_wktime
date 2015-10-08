@@ -50,7 +50,8 @@ en:
   label_start: Start
   label_end: End
   label_remaining_hours: Remaining Hours
-  label_warning_wktime_time_entry: "Please Note: The timesheet for this period is locked, you cannot log time. It will lead to an error"  
+  label_warning_wktime_time_entry: "The timesheet for this period is locked, you cannot log time."  
+  label_warning_wktime_issue_tracker: "The tracker of this issue is not allowed for time logging."
   
   label_wk_first_day_of_week: First day of week
   label_wk_prev_week_tip: Previous Week
@@ -114,7 +115,24 @@ en:
   field_currency: Currency
   error_project_issue_associate: Cannot be deleted because time/expense entries associated
   error_time_entry_delete: "Cannot be deleted. The timesheet with this entry is locked"
-
+  
+  label_user_filters: User filters
+  label_submitted_by: Submitted by
+  label_approved_by:  Approved by
+  
+  label_wk_reminder: Send Reminder
+  label_wk_reminder_notes: Reminder Notes
+  label_wk_sub_reminder: Send submission email reminder
+  label_wk_appr_reminder: Send approval email reminder
+  wk_submission_reminder: "%{value} submission reminder"
+  wk_sub_reminder_text: "This is a reminder to submit your %{value} for"
+  wk_approval_reminder: "%{value} approval reminder"
+  wk_appr_reminder_text: "This is a reminder to approve %{value}s for:"
+  wk_sub_confirmation_text: "%{value} submission reminder sent to:"
+  wk_appr_confirmation_text: "%{value} approval reminder sent to:"
+  label_wk_timesheet: Timesheet
+  label_wk_expensesheet: Expensesheet
+  text_wk_no_reminder: No reminders to send
   
   
 
