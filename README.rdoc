@@ -74,17 +74,33 @@ If an apache passenger module is used then make sure the following settings are 
 	c) PassengerPreStart http://rails-app-url/	
 
 Release Notes for 2.0
-	Thanks to Fotonation for sponsoring this release.
 	Features:
-		- Made compatible with Redmine 3.1.1.
-		- Reminder email for submission and approval can be send by manager and TE admins.
-		- TE admins are allowed to modify and approve time/expense.
-		- User custom field filters in list page.
-		- "Please select" option is added in Issue and Activity dropdown.
-		- In log time page, error message is shown for restricted tracker type and on TE related error, the Create/Save button will be disabled.
-		- A warning message is shown when the user leaves an unsaved time/expense sheet page.
-	
-	Bugs:
-		- Permission changes -  When a Manager edits a Member T&E, his permission will be checked rather than the member's permission.
+        - Made compatible with Redmine 3.1.1.
+        - Reminder email for submission and approval can be send by manager and TE admins.
+        - TE admins are allowed to modify and approve time/expense.
+        - Added User custom field filters in list page.
+        - "Please select" option is added in Issue and Activity dropdown.
+        - In log time page, error message is shown for restricted tracker type and on TE related error, the Create/Save button will be disabled.
+        - A warning message is shown when the user leaves an unsaved time/expense sheet page.
+    
+    Bugs:
+        - Permission changes -  When a Manager edits a Member T&E, his permission will be checked rather than the member's permission.
+
+We would like to thank Fotonation(http://www.fotonation.com) for sponsoring this release.
+
+Customization:
+	For any Customization/Support, please contact us, our consulting team will be happy to help you
+
+	Adhi Software Pvt Ltd
+	http://www.adhisoftware.co.in
+	info@adhisoftware.co.in
+	+1 732 661 8294
+	+91 44 27470401
+	+91 44 27470402
+
+	Here are the Customizations we have done for our clients:
+		1.	Monthly Calendar - Puny Human
+		2.	Supervisor Approvals - Fotonation
+
 		
 Please provide your rating at http://www.redmine.org/plugins/wk-time		
