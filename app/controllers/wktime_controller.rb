@@ -62,10 +62,10 @@ include QueriesHelper
 				else
 					ids +=',' + users[1].to_s
 				end				
-			end
-			setUserIdsInSession(ids) #set user ids in session if "All User" is chosen
-		end
+			end			
+		end		
 		ids = '0' if ids.nil?
+		setUserIdsInSession(ids) #set user ids in session if "All User" is chosen
 	else
 		ids = user_id 
 	end

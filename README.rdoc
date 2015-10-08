@@ -76,7 +76,7 @@ If an apache passenger module is used then make sure the following settings are 
 Release Notes for 2.0
 	Thanks to Fotonation for sponsoring this release.
 	Features:
-		- Made compatible with Redmine 3.1.0.
+		- Made compatible with Redmine 3.1.1.
 		- Reminder email for submission and approval can be send by manager and TE admins.
 		- TE admins are allowed to modify and approve time/expense.
 		- User custom field filters in list page.
