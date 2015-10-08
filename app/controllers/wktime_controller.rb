@@ -856,7 +856,7 @@ private
 					" inner join roles r on mr.role_id = r.id and (r.permissions like '%edit_time_entries%' " +
 					" #{approver ? apprPerm : ''}" + ')' +
 					" inner join users u on m.user_id = u.id" +
-					" left join members m1 on p.id = m.project_id and m1.user_id = #{user.id}"
+					" inner join members m1 on p.id = m1.project_id and m1.user_id = #{user.id}"
 			
 			mngrs = User.find_by_sql(queryStr)
 			mngrs.each do |m|
