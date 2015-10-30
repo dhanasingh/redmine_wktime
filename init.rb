@@ -184,7 +184,11 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_nonsub_sch_min' => '0',
 			 'wkexpense_projects' => [''],			
 			 'wktime_allow_filter_issue' => '0',
-			 'wktime_account_groups' => ['0']
+			 'wktime_account_groups' => ['0'],
+			 'wktime_enable_clock_in_out' => '0',
+			 'wktime_sick_leave_accrual' => '0',
+			 'wktime_paid_leave_accrual' => '0',
+			 'wktime_leave_accrual_after' => '0'
   })  
  
   menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_te, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 	

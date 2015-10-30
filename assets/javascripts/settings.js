@@ -50,6 +50,52 @@ function dialogAction()
 			}
 		}
 	});	
+	
+	$( "#breaktime-dlg" ).dialog({
+		autoOpen: false,
+		resizable: false,
+		modal: false,		
+		buttons: {
+			"Ok": function() {
+				var opt,desc="",opttext="";
+				var listBox = document.getElementById("settings_wktime_break_time");
+				var fromHrEl = document.getElementById("settings_wktime_break_from_hr");
+				var fromMinEl = document.getElementById("settings_wktime_break_from_min");
+				var toHrEl = document.getElementById("settings_wktime_break_to_hr");
+				var toMinEl = document.getElementById("settings_wktime_break_to_min");
+				if('Add'== holiDayAction){	
+					opt = document.createElement("option");
+					listBox.options.add(opt);
+				}
+				else if('Edit' == holiDayAction){
+					opt = listBox.options[listBox.selectedIndex];
+				}			
+				if (fromHrEl.value != ""){
+					desc = fromHrEl.value;
+					opttext = fromHrEl.options[fromHrEl.selectedIndex].text;
+				}					
+				if (fromMinEl.value != ""){
+					desc = desc + " | "  + fromMinEl.value;
+					opttext = opttext + ":"  + fromMinEl.options[fromMinEl.selectedIndex].text;
+				}					
+				if (toHrEl.value != ""){
+					desc = desc + " | "  + toHrEl.value;
+					opttext = opttext + " to "  + toHrEl.options[toHrEl.selectedIndex].text;
+				}					
+				if (toMinEl.value != ""){
+					desc = desc + " | "  + toMinEl.value;
+					opttext = opttext + ":"  + toMinEl.options[toMinEl.selectedIndex].text;
+				}
+				opt.text =  opttext;
+				opt.value = desc;
+				Sort('settings_wktime_break_time');
+				$( this ).dialog( "close" );
+			},
+			Cancel: function() {
+				$( this ).dialog( "close" );
+			}
+		}
+	});	
 }
 
 function updateCustFldDD(currCFDD,anotherCFDD)
@@ -108,14 +154,42 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 		{		
 			alert(selectListAlertMsg);				
 		}
+	}
+
+	function showBreakTimeDialog(action)
+	{
+		var listbox = document.getElementById("settings_wktime_break_time");
+		var breakFromHr = document.getElementById("settings_wktime_break_from_hr");
+		var breakToHr = document.getElementById("settings_wktime_break_to_hr");
+		var breakFromMin = document.getElementById("settings_wktime_break_from_min");
+		var breakToMin = document.getElementById("settings_wktime_break_to_min");
+		if('Add' == action)
+		{	
+			holiDayAction = action;
+			$( "#breaktime-dlg" ).dialog( "open" )	
+		}
+		else if('Edit' == action && listbox != null && listbox.options.selectedIndex >=0)
+		{				
+			var listboxArr = listbox.options[listbox.selectedIndex].value.split('|');
+			breakFromHr.value = listboxArr[0].trim();
+			breakFromMin.value = listboxArr[1].trim();
+			breakToHr.value = listboxArr[2].trim();
+			breakToMin.value = listboxArr[3].trim();
+			holiDayAction = action;
+			$( "#breaktime-dlg" ).dialog( "open" )	
+		}
+		else if(listbox != null && listbox.options.length >0)
+		{		
+			alert(selectListAlertMsg);				
+		}
 	}	
 	
-	function removeSelectedValue()
+	function removeSelectedValue(elementId)
 	{
-		var listbox=document.getElementById("settings_wktime_public_holiday");
+		var listbox=document.getElementById(elementId);
 		if(listbox != null && listbox.options.selectedIndex >= 0)
          { 				
-			if (confirm(holidayAlertMsg))
+			if (confirm(attendanceAlertMsg))
 			{
 				//removes options from listbox			
 				//listbox.remove(listbox.options.selectedIndex);
@@ -140,6 +214,14 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 			for(i = 0; i < listbox.options.length; i++)
 			{
 				listbox.options[i].selected = true;
+			}						
+		}
+		var btlistbox=document.getElementById("settings_wktime_break_time");
+		if(btlistbox != null)
+         { 
+			for(i = 0; i < btlistbox.options.length; i++)
+			{
+				btlistbox.options[i].selected = true;
 			}						
 		}
 	});

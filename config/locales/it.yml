@@ -132,3 +132,10 @@ it:
   label_wk_timesheet: Timesheet
   label_wk_expensesheet: Expensesheet 
   text_wk_no_reminder: No reminders to send
+  
+  label_wk_attendance: Attendance
+  label_wk_enable_clock_in_out: Enable Clock In / Clock Out
+  label_wk_sick_leave_accrual: Sick Leave Accrual
+  label_wk_paid_leave_accrual: Paid Leave Accrual
+  label_wk_leave_accrual_after: Leave Accrual after
+  label_wk_select_break_time: Please select a break time
