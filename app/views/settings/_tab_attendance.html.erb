@@ -22,7 +22,7 @@ selectListAlertMsg = "<%=l(:label_wk_select_break_time) %>";
 			  fromMin = listboxArr[1].to_i>9 ? listboxArr[1].strip : "0"+listboxArr[1].strip
 			  toHr = listboxArr[2].to_i>9 ? listboxArr[2].strip : "0"+listboxArr[2].strip
 			  toMin = listboxArr[3].to_i>9 ? listboxArr[3].strip : "0"+listboxArr[3].strip
-			  optionText = fromHr + ":"  + fromMin + " to "  + toHr + ":"  + toMin
+			  optionText = fromHr + ":"  + fromMin + " - "  + toHr + ":"  + toMin
 			  breakTime << [optionText,element]
 			end
 		end
@@ -88,10 +88,10 @@ selectListAlertMsg = "<%=l(:label_wk_select_break_time) %>";
 			<%= select_tag('settings[wktime_break_from_hr]', options_for_select(hr, 
 			:selected => @settings['wktime_break_from_hr'].blank? ? 23 : @settings['wktime_break_from_hr']))%>&nbsp<%= l(:field_hours) %>&nbsp;	
 			<%= select_tag('settings[wktime_break_from_min]', options_for_select(min, 
-			:selected => @settings['wktime_break_from_min'].blank? ? 0 : @settings['wktime_break_from_min']))%><%= l(:label_wk_minutes) %>								   	
+			:selected => @settings['wktime_break_from_min'].blank? ? 0 : @settings['wktime_break_from_min']))%>&nbsp<%= l(:label_wk_minutes) %>								   	
 		</p>
 		<p>
-			<label><%= l(:label_date_to) %></label><span style="margin-left:0.5em;"></span>
+			<span style="margin-left:1.1em;"></span><label><%= l(:label_date_to) %></label><span style="margin-left:0.5em;"></span>
 			<%
 			hr = []
 			for i in 0..23
@@ -105,7 +105,7 @@ selectListAlertMsg = "<%=l(:label_wk_select_break_time) %>";
 			<%= select_tag('settings[wktime_break_to_hr]', options_for_select(hr, 
 			:selected => @settings['wktime_break_to_hr'].blank? ? 23 : @settings['wktime_break_to_hr']))%>&nbsp<%= l(:field_hours) %>&nbsp;	
 			<%= select_tag('settings[wktime_break_to_min]', options_for_select(min,
-			:selected => @settings['wktime_break_to_min'].blank? ? 0 : @settings['wktime_break_to_min']))%><%= l(:label_wk_minutes) %>								   	
+			:selected => @settings['wktime_break_to_min'].blank? ? 0 : @settings['wktime_break_to_min']))%>&nbsp<%= l(:label_wk_minutes) %>								   	
 		</p>
 		<p>
 			<%= hidden_field_tag :hdnAction, "" %>
@@ -113,12 +113,12 @@ selectListAlertMsg = "<%=l(:label_wk_select_break_time) %>";
 	</div>
 	
 	<p>
-		<label><%= l(:label_wk_sick_leave_accrual) %></label><%= text_field_tag 'settings[wktime_sick_leave_accrual]', @settings['wktime_sick_leave_accrual'], :size => 3 %>
+		<label><%= l(:label_wk_sick_leave_accrual) %></label><%= text_field_tag 'settings[wktime_sick_leave_accrual]', @settings['wktime_sick_leave_accrual'], :size => 3 %>&nbsp<%= l(:label_per_month) %>
 	</p>
 	<p>
-		<label><%= l(:label_wk_paid_leave_accrual) %></label><%= text_field_tag 'settings[wktime_paid_leave_accrual]', @settings['wktime_paid_leave_accrual'], :size => 3 %>
+		<label><%= l(:label_wk_paid_leave_accrual) %></label><%= text_field_tag 'settings[wktime_paid_leave_accrual]', @settings['wktime_paid_leave_accrual'], :size => 3 %>&nbsp<%= l(:label_per_month) %>
 	</p>
 	<p>
-		<label><%= l(:label_wk_leave_accrual_after) %></label><%= text_field_tag 'settings[wktime_leave_accrual_after]', @settings['wktime_leave_accrual_after'], :size => 3 %>
+		<label><%= l(:label_wk_leave_accrual_after) %></label><%= text_field_tag 'settings[wktime_leave_accrual_after]', @settings['wktime_leave_accrual_after'], :size => 3 %>&nbsp<%= l(:label_year) %>
 	</p>
 </fieldset>

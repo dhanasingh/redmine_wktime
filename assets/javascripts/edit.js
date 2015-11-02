@@ -1094,7 +1094,6 @@ function validateHr(hrFld,day)
 {		
 	var hrFldID = hrFld.id;
 	var hrVal = document.getElementById(hrFldID).value;	
-	
 	if(hrVal == "")
 	{
 		hrFld.value = "0:00";
@@ -1110,6 +1109,16 @@ function validateHr(hrFld,day)
 		updateRemainingHr(day);	
 		updateTotalHr(day);
 	}
+}
+
+function startTime(strid,id) {
+       var d = new Date();
+	   var hh = d.getHours();
+	   var mm = d.getMinutes();
+	   id++;
+	   document.getElementById(strid + '_' + id).value = hh + ":" + mm;
+	   updateRemainingHr(id);	
+	   updateTotalHr(id);
 }
 
 function issueAutocomplete(txtissue,row){    

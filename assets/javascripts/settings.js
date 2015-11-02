@@ -80,7 +80,7 @@ function dialogAction()
 				}					
 				if (toHrEl.value != ""){
 					desc = desc + " | "  + toHrEl.value;
-					opttext = opttext + " to "  + toHrEl.options[toHrEl.selectedIndex].text;
+					opttext = opttext + " - "  + toHrEl.options[toHrEl.selectedIndex].text;
 				}					
 				if (toMinEl.value != ""){
 					desc = desc + " | "  + toMinEl.value;

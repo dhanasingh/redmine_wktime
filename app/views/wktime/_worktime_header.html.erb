@@ -13,11 +13,31 @@
 		<% end %>
 	<% end %>
 	
-
-	<td align = "right"><%= l(:"label_#{str}") %></td>
+	<% getid = "" %>
+	<% str1 = "" %>
+	<td align = "right">	
+	<% startOfWeek = getStartOfWeek %>
+	<% for i in 0..6%>
+		<% startdate = I18n.localize(@startday+i) %>
+		<% getdate = Time.now.strftime("%m/%d/%Y") %>
+		<% if startdate == getdate %>
+			<% getid = "#{(i+(startOfWeek))%7}" %>
+		<% end %>
+	<% end %>
+	<%  if ("#{str}" == "start" || "#{str}" == "end" ) && (!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? &&
+				Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1 ) && !getid.blank? %>			
+			<%= link_to l(:"label_#{str}"), "#", { :onclick => "javascript:startTime('#{str}','#{getid}');", :class => 'icon icon-time-add' }%>	
+	<% else %>
+		<%= l(:"label_#{str}") %>
+	<% end %>
+	</td>
 	<% for i in 0..6%>
 		<% if (isEditable) %>
-			<td align = "center"><%= text_field_tag "#{str}_#{(i+1)}" ,'0:00',:size => 4, :onchange => "validateHr(this,#{(i+1)});" %></td>
+			<% if User.current.admin? %>
+					<td align = "center"><%= text_field_tag "#{str}_#{(i+1)}" ,"0:00",:size => 4,  :onchange => "validateHr(this,#{(i+1)});" %></td>			
+			<% else %>
+				<td align = "center"><%= text_field_tag "#{str}_#{(i+1)}" ,"0:00",:size => 4, :disabled => true, :onchange => "validateHr(this,#{(i+1)});" %></td>
+			<% end %>
 		<% else %>
 			<td align = "center"><%= value %></td>
 		<% end %>
