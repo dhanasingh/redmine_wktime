@@ -47,8 +47,8 @@ en:
   label_wk_previous_template_week: Number of Weeks to consider for previous week template
   label_wk_dropdown: Dropdown
   label_wk_issueid: Issue ID
-  label_start: Start
-  label_end: End
+  label_start: Clock in
+  label_end: Clock out
   label_remaining_hours: Remaining Hours
   label_warning_wktime_time_entry: "The timesheet for this period is locked, you cannot log time."  
   label_warning_wktime_issue_tracker: "The tracker of this issue is not allowed for time logging."
