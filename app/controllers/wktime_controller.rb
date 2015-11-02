@@ -158,7 +158,7 @@ include QueriesHelper
 	cvParams = wktimeParams[:custom_field_values] unless wktimeParams.blank?	
 	useApprovalSystem = (!Setting.plugin_redmine_wktime['wktime_use_approval_system'].blank? &&
 							Setting.plugin_redmine_wktime['wktime_use_approval_system'].to_i == 1)
-						
+	#updateAttendance()					
 	@wktime.transaction do
 		begin				
 			if errorMsg.blank? && (!params[:wktime_save].blank? || !params[:wktime_save_continue].blank? ||
@@ -168,7 +168,7 @@ include QueriesHelper
 					# save each entry
 					entrycount=0
 					entrynilcount=0
-					@entries.each do |entry|					
+					@entries.each do |entry|			
 						entrycount += 1
 						entrynilcount += 1 if (entry.hours).blank?
 						allowSave = true
@@ -841,6 +841,18 @@ include QueriesHelper
 	
 private
 
+	def updateAttendance
+		startday = getStartDay(Date.today)
+		for i in 0..6
+			wkattendance = WkAttendance.new
+			wkattendance.user_id = 25
+			wkattendance.start_time = params["start_#{i}"]
+			wkattendance.end_time = params["end_#{i}"]
+			wkattendance.week_date = startday + i #change
+			wkattendance.save()
+		end
+	end
+
 	def getManager(user, approver)
 		hookMgr = call_hook(:controller_get_manager, {:user => user, :approver => approver})
 		mngrArr = [] #nil
@@ -1206,6 +1218,7 @@ private
   def user_allowed_to?(privilege, entity)
 	setup
 	return @user.allowed_to?(privilege, entity)
+	#return User.current.allowed_to?(privilege, entity)
   end
   
   def can_log_time?(project_id)
