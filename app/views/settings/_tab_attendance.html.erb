@@ -112,6 +112,26 @@ selectListAlertMsg = "<%=l(:label_wk_select_break_time) %>";
 		</p>
 	</div>
 	
+	<%
+		issue_list = Issue.order('subject')
+		unless issue_list.blank?
+			issueslist = issue_list.collect {|issue| [issue.subject, issue.id] }
+			issueslist.unshift(["",0])
+	%>
+
+	 <p>
+		<label><%= l(:label_wk_sick_leave) %> </label><%=h select_tag('settings[wktime_sick_leave]', 
+			options_for_select(issueslist, :selected =>  @settings['wktime_sick_leave'])) %>
+	</p>
+	 <p>	 
+		<label><%= l(:label_wk_holiday) %> </label><%=h select_tag('settings[wktime_holiday]', 
+			options_for_select(issueslist, :selected =>  @settings['wktime_holiday']))%>
+	</p>
+	<p>
+		<label><%= l(:label_wk_paid_leave) %> </label><%=h select_tag('settings[wktime_paid_leave]', 
+			options_for_select(issueslist, :selected =>  @settings['wktime_paid_leave'])) %>
+	</p>
+	<% end %>
 	<p>
 		<label><%= l(:label_wk_sick_leave_accrual) %></label><%= text_field_tag 'settings[wktime_sick_leave_accrual]', @settings['wktime_sick_leave_accrual'], :size => 3 %>&nbsp<%= l(:label_per_month) %>
 	</p>
