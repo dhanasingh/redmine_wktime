@@ -22,6 +22,7 @@ fr:
   label_wk_signature: Signature
   label_wk_submitted_by: Soumis par
   label_wk_approved_by: Approuvé par
+  label_wk_account_groups: T&E Admin Groups
   
   label_wk_enter_issue_id: Utiliser l'ID pour saisir la demande
   label_wk_work_time_header: Affichez l'entête effort
@@ -51,8 +52,9 @@ fr:
   label_start: Début
   label_end: Fin
   label_remaining_hours: Heures restantes
-  label_warning_wktime_time_entry: "Veuillez noter: La feuille de temps pour cette période est vérouillée, vous ne pouvez saisir de temps. Ceci causera une erreur." 
- 
+  label_warning_wktime_time_entry: "La feuille de temps pour cette période est vérouillée, vous ne pouvez saisir de temps." 
+  label_warning_wktime_issue_tracker: "The tracker of this issue is not allowed for time logging."
+  
   label_wk_first_day_of_week: Premier jour de la semaine
   label_wk_prev_week_tip: Semaine précédente
   label_wk_next_week_tip: Semaine suivante
@@ -69,7 +71,7 @@ fr:
   label_wk_nonsub_mail_subject: Notification de retard
   label_wk_nonsub_mail_notification: Envoyer un courriel pour les retards  
   label_wk_nonsub_mail_message: Corps du courriel de retard
-  label_wk_warning_nonsub_notification: "Note: une modification des paramètres de configuration sous-jacents demandera un redémarrage de Redmine"
+  label_redmine_restart_warning: "Note: une modification des paramètres de configuration sous-jacents demandera un redémarrage de Redmine"
   label_wk_minutes: Minutes  
   label_wkexpense_entry_projects: Limiter la saisie de dépense à ces projets
   
@@ -84,6 +86,7 @@ fr:
   button_new_wkexpense: Nouvelle feuille de dépense
   
   button_wk_unsubmit: Dé-soumettre
+  button_save_continue: Save and continue
   button_wk_approve: Approuver
   button_wk_reject: Rejeter
   button_wk_unapprove: Dé-approuver
@@ -104,10 +107,30 @@ fr:
   text_wk_warning_min_hour: "Vous n'avez pas saisi le minimum d'heures (%{value}) requis par jour"
   text_wk_warning_max_hour: "You have entered hours above Maximum hours (%{value}) allowed per day"
   field_amount: Montant  
+  field_status_modified_by: Modified by
   
   label_wk_allow_filter_issue: Allow User filtering to My Issues
   label_wk_no_user_current_project: no users in selected project
   
   permission_approve_time_entries: Approve time logs
-  
+  field_currency: Currency
+  error_project_issue_associate: Cannot be deleted because time/expense entries associated
+  error_time_entry_delete: "Cannot be deleted. The timesheet with this entry is locked"
 
+  label_user_filters: User filters  
+  label_submitted_by: Submitted by
+  label_approved_by:  Approved by
+  
+  label_wk_reminder: Send Reminder
+  label_wk_reminder_notes: Reminder Notes
+  label_wk_sub_reminder: Send submission email reminder
+  label_wk_appr_reminder: Send approval email reminder
+  wk_submission_reminder: "%{value} submission reminder"
+  wk_sub_reminder_text: "This is a reminder to submit your %{value} for"
+  wk_approval_reminder: "%{value} approval reminder"
+  wk_appr_reminder_text: "This is a reminder to approve %{value}s for:"
+  wk_sub_confirmation_text: "%{value} submission reminder sent to:"
+  wk_appr_confirmation_text: "%{value} approval reminder sent to:"
+  label_wk_timesheet: Timesheet
+  label_wk_expensesheet: Expensesheet  
+  text_wk_no_reminder: No reminders to send

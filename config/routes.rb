@@ -22,7 +22,13 @@
   
   get 'wktime/getStatus', :to => 'wktime#getStatus' 
   
+  get 'wktime/getTracker', :to => 'wktime#getTracker'
+  
   delete 'wktime/deleteEntries', :to => 'wktime#deleteEntries'
+  
+  post 'wktime/sendSubReminderEmail', :to => 'wktime#sendSubReminderEmail'
+  
+  post 'wktime/sendApprReminderEmail', :to => 'wktime#sendApprReminderEmail'
   
   get 'wktime/testapi', :to => 'wktime#testapi' 
   
@@ -48,7 +54,11 @@
   
   get 'wkexpense/getissues', :to => 'wkexpense#getissues'
 
-  get 'wkexpense/getactivities', :to => 'wkexpense#getactivities'  
+  get 'wkexpense/getactivities', :to => 'wkexpense#getactivities'
+  
+  post 'wkexpense/sendSubReminderEmail', :to => 'wkexpense#sendSubReminderEmail'
+  
+  post 'wkexpense/sendApprReminderEmail', :to => 'wkexpense#sendApprReminderEmail'
   
   #For Weekly expense report
   

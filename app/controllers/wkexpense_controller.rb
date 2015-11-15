@@ -8,7 +8,8 @@ class WkexpenseController < WktimeController
   
   include WkexpenseHelper
   include SortHelper  
-  helper :sort  
+  helper :sort 
+
 
   def getLabelforSpField
 	l(:field_amount)
@@ -31,7 +32,7 @@ class WkexpenseController < WktimeController
   end
   
   def getUnit(entry)
-	entry.nil? ? number_currency_format_unit : entry[:currency]
+	entry.nil? ? l('number.currency.format.unit') : entry[:currency]
   end
   
   def getUnitDDHTML
@@ -46,6 +47,10 @@ class WkexpenseController < WktimeController
 	false
   end 
   
+  def enterCustomFieldInRow(row)
+	false
+  end 
+  
   def maxHour
 	0
   end
@@ -57,72 +62,43 @@ class WkexpenseController < WktimeController
 	total.nil? ? html_hours("%.2f" % 0.00) : html_hours("%.2f" % total)
   end
   
-  def reportdetail
-	sort_init 'spent_on', 'desc'
-    sort_update 'spent_on' => ['spent_on', "#{WkExpenseEntry.table_name}.created_on"],
-                'user' => 'user_id',
-                'activity' => 'activity_id',
-                'project' => "#{Project.table_name}.name",
-                'issue' => 'issue_id',
-                'amount' => 'amount'
-
-    retrieve_date_range
-	@from = getStartDay(@from)
-	@to = getEndDay(@to)
-    wkexpense = WkExpenseEntry.visible.spent_between(@from, @to)
-    if @issue
-      wkexpense = wkexpense.on_issue(@issue)
-    elsif @project		  
-      wkexpense = wkexpense.on_project(@project, Setting.display_subprojects_issues?)	  
-    end
+  def reportdetail	
+	 @query = WkExpenseEntryQuery.build_from_params(params, :project => @project, :name => '_')
+	 sort_init(@query.sort_criteria.empty? ? [['spent_on', 'desc']] : @query.sort_criteria)
+    sort_update(@query.sortable_columns)
+    scope = expense_entry_scope(:order => sort_clause).
+      includes(:project, :user, :issue).
+      preload(:issue => [:project, :tracker, :status, :assigned_to, :priority])
     respond_to do |format|
       format.html {
-        # Paginate results
-        @entry_count = wkexpense.count
-        @entry_pages = Paginator.new self, @entry_count, per_page_option, params['page']		
-        @entries = wkexpense.all(
-          :include => [:project, :activity, :user, {:issue => :tracker}],
-          :order => sort_clause,
-          :limit  =>  @entry_pages.items_per_page,
-          :offset =>  @entry_pages.current.offset
-        )
-        @total_amount = wkexpense.sum(:amount).to_f
+        @entry_count = scope.count
+        @entry_pages = Paginator.new @entry_count, per_page_option, params['page']
+        @entries = scope.offset(@entry_pages.offset).limit(@entry_pages.per_page).to_a
+        @total_hours = scope.sum(:amount).to_f
         render :layout => !request.xhr?
       }
       format.api  {
-        @entry_count = wkexpense.count
+         @entry_count = scope.count
         @offset, @limit = api_offset_and_limit
-        @entries = wkexpense.all(
-          :include => [:project, :activity, :user, {:issue => :tracker}],
-          :order => sort_clause,
-          :limit  => @limit,
-          :offset => @offset
-        )
+        @entries = scope.offset(@offset).limit(@limit).preload(:custom_values => :custom_field).to_a
       }
       format.atom {
-        entries = wkexpense.all(
-          :include => [:project, :activity, :user, {:issue => :tracker}],
-          :order => "#{WkExpenseEntry.table_name}.created_on DESC",
-          :limit => Setting.feeds_limit.to_i
-        )	
-        render_feed(entries, :title => l(:label_spent_expense))
+        entries = scope.limit(Setting.feeds_limit.to_i).reorder("#{WkExpenseEntry.table_name}.created_on DESC").to_a
+        render_feed(entries, :title => l(:label_spent_time))
       }
       format.csv {
         # Export all entries
-        @entries = wkexpense.all(
-          :include => [:project, :activity, :user, {:issue => [:tracker, :assigned_to, :priority]}],
-          :order => sort_clause
-        )
-        send_data(entries_to_csv(@entries), :type => 'text/csv; header=present', :filename => 'wkexpense.csv')
+        @entries = scope.to_a
+        send_data(query_to_csv(@entries, @query, params), :type => 'text/csv; header=present', :filename => 'expenselog.csv')
       }
     end 
 	
   end
   
-   def report   
-	retrieve_date_range
-    @report = WkexpenseHelper::WKExpenseReport.new(@project, @issue, params[:criteria], params[:columns], @from, @to)
-
+   def report
+	@query = WkExpenseEntryQuery.build_from_params(params, :project => @project, :name => '_')
+    scope = expense_entry_scope
+    @report = WkexpenseHelper::WKExpenseReport.new(@project, @issue, params[:criteria], params[:columns], scope)	
     respond_to do |format|
       format.html { render :layout => !request.xhr? }
       format.csv  { send_data(report_to_csv(@report), :type => 'text/csv; header=present', :filename => 'wkexpense.csv') }
@@ -139,6 +115,9 @@ class WkexpenseController < WktimeController
 	end
   end
  
+	def textfield_size
+	    6
+	end
 private
   def getSpecificField
 	"amount"
@@ -148,32 +127,45 @@ private
 	["#{Wkexpense.table_name}", "#{WkExpenseEntry.table_name}"]
   end
   
-  def findBySql(selectStr,sqlStr,wkSelectStr,wkSqlStr)
-	spField = getSpecificField()		
-	result = WkExpenseEntry.find_by_sql("select count(*) as id from (" + selectStr + sqlStr + ") as v2")
-	@entry_count = result[0].id
-	
+  def getQuery(teQuery, ids, from, to, status)
+		spField = getSpecificField()
+		dtRangeForUsrSqlStr =  "(" + getAllWeekSql(from, to) + ") tmp1"			
+		teSqlStr = "(" + teQuery + ") tmp2"
+		query = "select tmp3.user_id, tmp3.spent_on, tmp3.#{spField}, tmp3.status, tmp3.status_updater, tmp3.created_on, tmp3.currency from (select tmp1.id as user_id, tmp1.created_on, tmp1.selected_date as spent_on, " +
+				"case when tmp2.#{spField} is null then 0 else tmp2.#{spField} end as #{spField}, " +
+				"case when tmp2.status is null then 'e' else tmp2.status end as status, tmp2.currency, tmp2.status_updater from "
+		query = query + dtRangeForUsrSqlStr + " left join " + teSqlStr
+		query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids}) ) tmp3 "
+		query = query + " left outer join (select min( #{getDateSqlString('t.spent_on')} ) as min_spent_on, t.user_id as usrid from wk_expense_entries t, users u "
+		query = query + " where u.id = t.user_id and u.id in (#{ids}) group by t.user_id ) vw on vw.usrid = tmp3.user_id "
+		query = query + getWhereCond(status)
+		query = query + " order by tmp3.spent_on desc, tmp3.user_id "		
+	end
+  
+  def findBySql(query) 
+	spField = getSpecificField()
+	result = WkExpenseEntry.find_by_sql("select count(*) as id from (" + query + ") as v2")
+	@entry_count = result[0].id	
 	setLimitAndOffset()	
 	rangeStr = formPaginationCondition()
-
-	@entries = WkExpenseEntry.find_by_sql(wkSelectStr + " ,exp.currency" + sqlStr + 
-			" inner join wk_expense_entries exp on v1.id = exp.id " + wkSqlStr + rangeStr)			
-
-	@unit = @entries.blank? ? number_currency_format_unit : @entries[0][:currency]
-	
-	#@total_hours = TimeEntry.visible.sum(:hours, :include => [:user], :conditions => cond.conditions).to_f
-		
-	result = WkExpenseEntry.find_by_sql("select sum(v2." + spField + ") as " + spField + " from (" + selectStr + sqlStr + ") as v2")	
+	@entries = WkExpenseEntry.find_by_sql(query + rangeStr)
+	@unit = @entries.blank? ? l('number.currency.format.unit') : @entries[0][:currency]
+	result = WkExpenseEntry.find_by_sql("select sum(v2." + spField + ") as " + spField + " from (" + query + ") as v2")	
 	@total_hours = result[0].amount
   end
   
+  def getTEAllTimeRange(ids)
+	teQuery = "select #{getDateSqlString('t.spent_on')} as startday " +
+			"from wk_expense_entries t where user_id in (#{ids}) group by startday order by startday"
+	teResult = WkExpenseEntry.find_by_sql(teQuery)
+  end
+  
   def findWkTEByCond(cond)
-	@wktimes = Wkexpense.find(:all, :conditions => cond)
+	@wktimes = Wkexpense.where(cond)
   end
   
   def findEntriesByCond(cond)
-	WkExpenseEntry.find(:all, :conditions => cond,
-		:order => 'project_id, issue_id, activity_id, spent_on')
+	WkExpenseEntry.joins(:project).joins(:activity).joins("LEFT OUTER JOIN issues ON issues.id = wk_expense_entries.issue_id").where(cond).order('projects.name, issues.subject, enumerations.name, wk_expense_entries.spent_on')
   end
   
   def setValueForSpField(teEntry,spValue,decimal_separator,entry)
@@ -216,7 +208,8 @@ private
   def setTEProjects(projects)	
 	expense_project_ids =  Setting.plugin_redmine_wktime['wkexpense_projects']	
 	if(!expense_project_ids.blank? && expense_project_ids != [""])
-		expense_projects = Project.find_all_by_id(expense_project_ids) 
+		#expense_projects = Project.find_all_by_id(expense_project_ids)
+		expense_projects = Project.find(expense_project_ids) 
 		projects = projects & expense_projects
 	end	
 	projects
@@ -227,7 +220,7 @@ private
       @issue = Issue.find(params[:issue_id])
       @project = @issue.project
     elsif !params[:project_id].blank?	
-      @project = Project.find(params[:project_id])	
+      @project = Project.find(params[:project_id])
     end
   end
   
@@ -237,5 +230,48 @@ private
   
   def getTEName
 	"expense"
+  end
+  
+  # Returns the ExpenseEntry scope for index and report actions
+  def expense_entry_scope(options={})
+    scope = @query.results_scope(options)
+    if @issue
+      scope = scope.on_issue(@issue)
+    end
+    scope
+  end
+  
+  def getTELabel
+	l(:label_wk_expensesheet)
+  end
+  
+  def findTEEntryBySql(query)
+	WkExpenseEntry.find_by_sql(query)
+  end
+  
+  def formQuery(wkSelectStr, sqlStr, wkSqlStr)
+	query =  wkSelectStr + " ,exp.currency" + sqlStr + " inner join wk_expense_entries exp on v1.id = exp.id " + wkSqlStr
+  end
+  
+  def getUserCFFromSession
+	#return user custom field filters from session
+	session[:wkexpense][:filters]
+  end
+  
+  def getUserIdFromSession
+	#return user_id from session
+	session[:wkexpense][:user_id]
+  end
+  
+  def getStatusFromSession
+	session[:wkexpense][:status]
+  end
+  
+  def setUserIdsInSession(ids)
+	session[:wkexpense][:all_user_ids] = ids
+  end
+  
+  def getUserIdsFromSession
+	session[:wkexpense][:all_user_ids]
   end
 end

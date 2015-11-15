@@ -134,10 +134,14 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 	}
 	
 	$("form").submit(function() {
-		if(document.getElementById("settings_wktime_public_holiday") !=null)
-		{
-			selectAllOptions("settings_wktime_public_holiday");
-		 }
+		var listbox=document.getElementById("settings_wktime_public_holiday");
+		if(listbox != null)
+         { 
+			for(i = 0; i < listbox.options.length; i++)
+			{
+				listbox.options[i].selected = true;
+			}						
+		}
 	});
 	
 	function validateDate(date)

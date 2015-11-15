@@ -2,6 +2,5 @@
 <script type="text/javascript"> 
 	invalidDate = "<%=l('activerecord.errors.messages.not_a_date') %>";
 </script>
-<%= javascript_include_tag 'select_list_move' %>
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
 <%= render_tabs wktime_helper.settings_tabs %>

@@ -27,5 +27,18 @@
 		<p>
 		<%= check_box_tag('settings[wktime_use_detail_popup]', 1, @settings['wktime_use_detail_popup'].to_i == 1) %> <label><%= l(:label_wk_use_detail_popup) %> </label>
 		</p>
+		<%
+			accountGroups = Array.new
+			accGroup = Group.order('lastname')
+			unless accGroup.blank?
+				accountGroups = accGroup.collect {|t| [t.lastname, t.id] }
+			end
+			accountGroups.unshift(["",0])
+		%>
+		<p>
+			<label><%=l(:label_wk_account_groups)%></label>
+			<%=  select_tag('settings[wktime_account_groups]',
+					options_for_select(accountGroups, :selected => @settings['wktime_account_groups'].blank? ? 0 : @settings['wktime_account_groups']), :multiple=> true)%>
+		</p>	
 	</fieldset>		
 </div>

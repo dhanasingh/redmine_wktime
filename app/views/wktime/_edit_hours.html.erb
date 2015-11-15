@@ -2,14 +2,32 @@
 		<% # close the previously opened tr %>
 		<% while @wday_index < padTill %>
 			<% 
-			disable = !@editable
+			disable = !@editable			
 			if @editable
-				disable = !@prev_template && !entry.nil? && !entry.editable_by?(@user)
+				#hookCellEditPerm = call_hook(:view_cell_edit, :entry => entry)
+				if @edittimelogs.blank?
+					disable = !@prev_template && !entry.nil? && !entry.editable_by?(User.current)										
+				else
+					if (@edittimelogs == 'true')
+						disable = !@prev_template && !entry.nil? && !(to_boolean(@edittimelogs))
+					elsif (@edittimelogs == 'false')
+						if (!@manage_projects.blank? && @manage_projects.size > 0 && User.current.id != @user.id)
+							disable = !@prev_template && !entry.nil? && !(to_boolean(@edittimelogs))
+						else
+							disable = !@prev_template && !entry.nil? && !entry.editable_by?(User.current)
+						end
+					end
+				end
+				if !entry.nil?
+					disable = disable && !entry.id.blank?
+				end
+				disable = false if isAccountUser
 			end
 			%>
 			<%#if this is from a previous template, don't print the hours%>
 			<td class="hours">
-				<%=h text_field_tag('hours' + @row.to_s() +'[]', entry.nil? || @prev_template ? '' : ("%.2f" % entry.hours) ,:size => 7,
+			
+				<%=h text_field_tag('hours' + @row.to_s() +'[]', entry.nil? || @prev_template ? '' : ("%.2f" % entry.hours) ,:size => "#{controller.textfield_size}",
 				:disabled => disable,
 				:onchange => "validateTotal(this, #{@wday_index},'#{controller.maxHour}');") %>
 				
@@ -52,8 +70,20 @@
 				
 				
 					<% if show_custfield_img %>
-						<% image_tg = image_tag('text_list_bullets.png', :id => 'custfield_img' + @row.to_s() +'_', :name => 'custfield_img' + @row.to_s() +'[]',
-							:title => "#{entry.nil? || @prev_template || cvs.blank? ? l(:label_custom_field_plural) : cvs.join(',')}") %>
+					  	<% imgname ="" %>
+						<% if !cvs.blank?  || !comment.blank? %>
+							<% imgname = "withcommant.png" %>
+						<% else %>
+							<% imgname = "withoutcommant.png" %>
+						<% end %>
+						<% if !@new_custom_field_values.blank? || ( Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? ||
+									Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 0)  %>
+								<% image_tg = image_tag("#{imgname}", :id => 'custfield_img' + @row.to_s() +'_', :name => 'custfield_img' + @row.to_s() +'[]',
+									:plugin => "redmine_wktime",:title => "#{entry.nil? || @prev_template || cvs.blank? ? '' : cvs.join(',')}") %>
+							<% else %>
+								<%= image_tg ="" %>
+							<% end %>
+						
 						<% if disable %>
 							<%= image_tg %>
 						<% else %>
@@ -69,7 +99,7 @@
 			<td align="center">
 			<% if @editable %>
 				<%= link_to image_tag('delete.png'), "javascript:deleteRow(#{@row.to_s}, '#{l(:notice_unable_delete_time_entry)}');",
-						:confirm => l(:text_are_you_sure),	# :method => :delete,
+						:data => {:confirm => l(:text_are_you_sure)},	# :method => :delete,
 						:title => l(:button_delete) %>
 			<% end %>
 			</td>

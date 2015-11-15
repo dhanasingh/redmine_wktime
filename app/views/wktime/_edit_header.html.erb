@@ -8,14 +8,14 @@
 
 <table>
 <tr>
-	<th><%=l(:field_user)%></th>
-	<td><%=h @user.login %>
+	<th align="left"><%=l(:field_user)%></th>
+	<td><%=h @user.name %>
 		<%=h hidden_field_tag('user_id', @user.id) %>
 	</td>
 	<td width="30px"></td>
 	<% if @editable %>
 		<% if !Setting.plugin_redmine_wktime['wktime_enter_issue_as'].blank? && Setting.plugin_redmine_wktime['wktime_enter_issue_as'].to_i == 1 %>
-				<th><%= "#{l(:label_wk_enter_issue_id)}/#{l(:field_subject)}" %></th>
+				<th align="left"><%= "#{l(:label_wk_enter_issue_id)}/#{l(:field_subject)}" %></th>
 				<td>
 					<%= check_box_tag('enter_issue_id', 1, (!params[:enter_issue_id].blank? && params[:enter_issue_id].to_i == 1), 
 					:onclick => "enterIssueIdorAssignUser();") %>
@@ -24,14 +24,14 @@
 	<% end %>			
 </tr>
 <tr>
-	<th><%=l(:field_start_date)%></th>
+	<th align="left"><%=l(:field_start_date)%></th>
 	<td><%=h format_date(@startday) %>
 		<%=h hidden_field_tag('startday',@startday) %>
 	</td>
 	<td width="30px"></td>
 	<% if @editable %>
 		<% if !Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].blank? && Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].to_i == 1 %>
-			<th><%= l(:label_issues_visibility_own) %></th>
+			<th align="left"><%= l(:label_issues_visibility_own) %></th>
 			<td>
 				<%= check_box_tag('issue_assign_user', 1, (!params[:issue_assign_user].blank? && params[:issue_assign_user].to_i == 1),:onclick => "enterIssueIdorAssignUser();") %>
 			</td>
@@ -39,7 +39,7 @@
 	<% end %>
 </tr>
 <tr>
-	<th><%=l(:field_status)%></th>
+	<th align="left"><%=l(:field_status)%></th>
 	<% # the default status on new wktime object is 'new' %>
 	<td>
 		<%=h statusString(@wktime.status) unless @wktime.blank? %>
@@ -48,13 +48,14 @@
 	<% status = @wktime.status unless @wktime.blank? %>	
 	<% if controller.filterTrackerVisible && 'a' != status && 's' != status && (params[:enter_issue_id].blank? || (!params[:enter_issue_id].blank? && !params[:enter_issue_id].to_i == 1)) %>		
 	<%
-		tracker = Tracker.find(:all, :order =>'name')
+		#tracker = Tracker.find(:all, :order =>'name')
+		tracker = Tracker.order('name')
 		unless tracker.blank?
 			trackers = tracker.collect {|t| [t.name, t.id] }
 			trackers.unshift(["",0])
 		end
 	%>
-	<th valign="top">
+	<th valign="top" align="left">
 		<%= l(:label_wk_filter_issue_tracker) %>
 	</th>		
 	<%
@@ -72,5 +73,22 @@
 		<% end %>
 	</td>
 </tr>
-
-
+<tr>
+	<th align="left"><%=l(:label_submitted_by)%></th>
+	<td>	
+	<% if (status != 'n' && status != 'r'  )  %>
+	<%=h @wktime.blank? ? "" : (@wktime.submitter.name unless @wktime.submitter.blank?) %>
+	<% end %>	
+	</td>
+	<td width="30px"></td>
+			
+</tr>
+<tr>
+	<th align="left"><%=l(:label_approved_by)%></th>
+	<td><% if (status == 'a')  %>
+	<%=h @wktime.blank? ? "" : (@wktime.updater.name unless @wktime.updater.blank?) %>
+		<% end %>
+	</td>
+	<td width="30px"></td>
+				
+</tr>
