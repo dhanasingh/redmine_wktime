@@ -794,6 +794,16 @@ end
 		dateSqlStr
 	end
 	
+	def getConvertDateStr(dtfield)		
+		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'		
+			dateSqlStr = "cast(#{dtfield} as date)"
+		else
+			# For MySQL, PostgreSQL, SQLite
+			dateSqlStr = "date('#{dtfield}')"
+		end
+		dateSqlStr
+	end
+	
 	def getValidUserCF(userCFHash, userCF)
 		tmpUserCFHash = userCFHash
 		if !userCF.blank? && !userCFHash.blank?

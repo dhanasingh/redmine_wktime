@@ -1625,7 +1625,7 @@ private
 		#Martin Dube contribution: 'start of the week' configuration
 		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'	
 			wkSelectStr = wkSelectStr +", un.firstname + ' ' + un.lastname as status_updater "	
-			sqlStr += "(select  ROW_NUMBER() OVER (ORDER BY  " + sDay + " desc, user_id) AS rownum," + sDay + " as startday, "	
+			sqlStr += "(select " + sDay + " as startday, "	
 			sqlStr += " t.user_id, sum(t." + spField + ") as " + spField + " ,max(t.id) as id" + " from " + entityNames[1] + " t, users u" +
 				" where u.id = t.user_id and u.id in (#{ids})"
 			sqlStr += " and t.spent_on between '#{from}' and '#{to}'" unless from.blank? && to.blank?	
@@ -1656,34 +1656,34 @@ private
 		
 		query = "select tmp3.user_id, tmp3.spent_on, tmp3.#{spField}, tmp3.status, tmp3.status_updater, tmp3.created_on from (select tmp1.id as user_id, tmp1.created_on, tmp1.selected_date as spent_on, " + 
 				"case when tmp2.#{spField} is null then 0 else tmp2.#{spField} end as #{spField}, " +
-				"case when tmp2.status is null then 'e' else tmp2.status end as status, tmp2.status_updater from "
-		query = query + dtRangeForUsrSqlStr + " left join " + teSqlStr
-		query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids}) ) tmp3 "
+				"case when tmp2.status is null then 'e' else tmp2.status end as status, tmp2.status_updater "
+		query = query + " from " + dtRangeForUsrSqlStr + " left join " + teSqlStr
+		query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids})) tmp3 "
 		query = query + " left outer join (select min( #{getDateSqlString('t.spent_on')} ) as min_spent_on, t.user_id as usrid from time_entries t, users u "
 		query = query + " where u.id = t.user_id and u.id in (#{ids}) group by t.user_id ) vw on vw.usrid = tmp3.user_id "
 		query = query + getWhereCond(status)
-		query = query + " order by tmp3.spent_on desc, tmp3.user_id "
 	end
 	
-	def findBySql(query)
-		spField = getSpecificField()		
+	def findBySql(query)		
+		spField = getSpecificField()
 		result = TimeEntry.find_by_sql("select count(*) as id from (" + query + ") as v2")
-		@entry_count = result[0].id
+		@entry_count = result.blank? ? 0 : result[0].id
         setLimitAndOffset()		
 		rangeStr = formPaginationCondition()
 		
-		@entries = TimeEntry.find_by_sql(query + rangeStr)
+		@entries = TimeEntry.find_by_sql(query + " order by tmp3.spent_on desc, tmp3.user_id " + rangeStr )
 		@unit = nil
 		result = TimeEntry.find_by_sql("select sum(v2." + spField + ") as " + spField + " from (" + query + ") as v2")		
-		@total_hours = result[0].hours
+		@total_hours = result.blank? ? 0 : result[0].hours
 	end
 	
 	def getWhereCond(status)
 		current_date = getEndDay(Date.today)
+		dateStr = getConvertDateStr('tmp3.created_on')
 		query = "WHERE ((tmp3.spent_on between "
-		query = query + "case when vw.min_spent_on is null then #{getDateSqlString('date(tmp3.created_on)')} else vw.min_spent_on end "
+		query = query + "case when vw.min_spent_on is null then #{getDateSqlString(dateStr)} else vw.min_spent_on end "
 		query = query + "and '#{current_date}') OR "
-		query = query + "((tmp3.spent_on < case when vw.min_spent_on is null then #{getDateSqlString('date(tmp3.created_on)')} else vw.min_spent_on end "
+		query = query + "((tmp3.spent_on < case when vw.min_spent_on is null then #{getDateSqlString(dateStr)} else vw.min_spent_on end "
 		query = query + "and tmp3.status <> 'e') "
 		query = query + "OR (tmp3.spent_on > '#{current_date}' and tmp3.status <> 'e'))) "
 		if !status.blank?
@@ -1710,13 +1710,14 @@ private
 	end
 	
 	def getTEAllTimeRange(ids)
-		teQuery = "select #{getDateSqlString('t.spent_on')} as startday " +
-				"from time_entries t where user_id in (#{ids}) group by startday order by startday"
+		teQuery = "select v.startday from (select #{getDateSqlString('t.spent_on')} as startday " +
+				"from time_entries t where user_id in (#{ids})) v group by v.startday order by v.startday"
 		teResult = TimeEntry.find_by_sql(teQuery)
 	end
 	
 	def getUserAllTimeRange(ids)
-		usrQuery = "select date(min(created_on)) as startday from users where id in (#{ids})"
+		dateStr = getConvertDateStr('min(created_on)')
+		usrQuery = "select (#{dateStr}) as startday from users where id in (#{ids})"
 		usrResult = User.find_by_sql(usrQuery)
 	end
 	
@@ -1727,14 +1728,14 @@ private
 		@from = getStartDay(Date.today)
 		@to = currentWeekEndDay
 		if !teResult.blank? && teResult.size > 0
-			@from = teResult[0].startday
-			@to = teResult[teResult.size - 1].startday + 6			
+			@from = (teResult[0].startday).to_date
+			@to = (teResult[teResult.size - 1].startday).to_date + 6			
 			if currentWeekEndDay > @to
 				@to = currentWeekEndDay
 			end
 		end
 		if !usrResult.blank? && usrResult.size > 0
-			stDate = usrResult[0].startday
+			stDate = (usrResult[0].startday).to_date
 			stDate = getStartDay(stDate) if !stDate.blank?
 			if (!stDate.blank? && stDate < @from)
 				@from = stDate
@@ -1896,19 +1897,9 @@ private
 	def formPaginationCondition
 		rangeStr = ""
 		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'				
-			#status = params[:status]
-			if !params[:tab].blank? && params[:tab] =='wkexpense'
-				status = session[:wkexpense][:status]
-			else
-				status = session[:wktimes][:status]
-			end
-			if !status.blank? && status != 'all'
-				rangeStr = " AND (rownum > " + @offset.to_s  + " AND rownum <= " + (@offset  + @limit ).to_s + ")"
-			else			
-				rangeStr =" WHERE rownum > " + @offset.to_s  + " AND rownum <= " + (@offset  + @limit ).to_s
-			end   
+			rangeStr = " OFFSET " + @offset.to_s + " ROWS FETCH NEXT " + @limit.to_s + " ROWS ONLY "
 		else		
-			rangeStr = 	" LIMIT " + @limit.to_s +	" OFFSET " + @offset.to_s
+			rangeStr = " LIMIT " + @limit.to_s +	" OFFSET " + @offset.to_s
 		end
 		rangeStr
 	end
