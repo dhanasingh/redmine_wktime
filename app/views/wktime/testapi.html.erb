@@ -1,6 +1,6 @@
 <title>Time & Expense</title>
 <script type="text/javascript">
-var url = 'http://adhi14/redmine/';
+var url = 'http://adhi45/redmine/';
 	$(document).ready(function(){	
 	 $('.datePicker').datepicker({        
 		   dateFormat: 'yy-mm-dd'
@@ -116,7 +116,7 @@ var url = 'http://adhi14/redmine/';
 							  } else if( xhr.status === 404){
 								  alert(' Got HTTP status 404 NotFound' ); 
 							  } else {
-								alert('Error Occurred' );
+								alert(xhr.status + " " + err);
 							  }
 						}
 					});
@@ -253,7 +253,7 @@ var url = 'http://adhi14/redmine/';
 							  } else if( xhr.status === 404){
 								  alert(' Got HTTP status 404 NotFound' ); 
 							  } else {
-								alert('Error Occurred' );
+								alert(xhr.status + " " + err);
 							  }
 						}
 					});
@@ -319,7 +319,7 @@ var url = 'http://adhi14/redmine/';
 							  } else if( xhr.status === 404){
 								  alert(' Got HTTP status 404 NotFound' ); 
 							  } else {
-								alert('Error Occurred' );
+								alert(xhr.status + " " + err);
 							  }
 						}
 					});

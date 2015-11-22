@@ -13,10 +13,10 @@
 		<label><%= l(:label_wk_min_hour_day) %></label><%= text_field_tag 'settings[wktime_min_hour_day]', @settings['wktime_min_hour_day'], :size => 3 %>
 	</p>
 	<%
-	custom_fields = TimeEntryCustomField.find(:all, :order => 'name')
-	unless custom_fields.blank?
-		cfs = custom_fields.collect {|cf| [cf.name, cf.id] }
-		cfs.unshift(["",0])
+		custom_fields = TimeEntryCustomField.order('name')
+		unless custom_fields.blank?
+			cfs = custom_fields.collect {|cf| [cf.name, cf.id] }
+			cfs.unshift(["",0])
 	%>
 
 	 <p>
@@ -31,11 +31,12 @@
 	</p>
 	<% end %>
 	<%
-		tracker = Tracker.find(:all, :order =>'name')
+		trackers = Array.new
+		tracker = Tracker.order('name')
 		unless tracker.blank?
 			trackers = tracker.collect {|t| [t.name, t.id] }
-			trackers.unshift(["",0])
 		end
+		trackers.unshift(["",0])
 	%>
 	<p>
 		<label><%=l(:label_wk_filter_issue_tracker)%></label>
@@ -50,7 +51,7 @@
 
 </fieldset>
 
-<%custom_fields = TimeEntryCustomField.find(:all, :order => 'name')%>
+<%custom_fields = TimeEntryCustomField.order('name')%>
 <% if !custom_fields.blank? %>
 <div style = "display:none">
 	<%=h select_tag('template_custFldDD', options_for_select(cfs))%>

@@ -1,26 +1,27 @@
-<td align="left">
 <%	custom_field_values = entry.nil? ? @new_custom_field_values : entry.custom_field_values
 cf_value = nil
 if !Setting.plugin_redmine_wktime['wktime_enter_cf_in_row1'].blank? &&
 		(cf_value = custom_field_values.detect { |cfv| 
 			cfv.custom_field.id == Setting.plugin_redmine_wktime['wktime_enter_cf_in_row1'].to_i }) != nil %>
-	<% if @editable %>
-		<%= custom_field_tag "time_entry[]", cf_value %>
-	<% else %>
-		<%= cf_value.value %>
-	<% end %>
+	<td align="left">
+		<% if @editable %>
+			<%= custom_field_tag "time_entry[]", cf_value %>
+		<% else %>
+			<%= cf_value.value %>
+		<% end %>
+	</td>
 <%	end %>
-</td>
 
-<td align="left">
+
 <%	cf_value = nil
 if !Setting.plugin_redmine_wktime['wktime_enter_cf_in_row2'].blank? &&
 		(cf_value = custom_field_values.detect { |cfv| 
 			cfv.custom_field.id == Setting.plugin_redmine_wktime['wktime_enter_cf_in_row2'].to_i }) != nil %>
-	<% if @editable %>
-		<%= custom_field_tag "time_entry[]", cf_value %>
-	<% else %>
-		<%= cf_value.value %>
-	<% end %>		
+	<td align="left">		
+		<% if @editable %>
+			<%= custom_field_tag "time_entry[]", cf_value %>
+		<% else %>
+			<%= cf_value.value %>
+		<% end %>
+	</td>	
 <%	end %>
-</td>

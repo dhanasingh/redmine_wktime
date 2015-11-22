@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
-module WktimeHelper 
+module WktimeHelper
+  include ApplicationHelper
   include Redmine::Export::PDF
+  # include Redmine::Export::PDF::IssuesPdfHelper
   include Redmine::Utils::DateCalculation
-  include Redmine::I18n
-
+	include Redmine::I18n
 	def options_for_period_select(value)
 		options_for_select([[l(:label_all_time), 'all'],
 							[l(:label_this_week), 'current_week'],
@@ -15,12 +15,12 @@ module WktimeHelper
 	end
 
 	def options_wk_status_select(value)
-		options_for_select([[l(:label_all), 'all'],
+		options_for_select([[l(:wk_status_empty), 'e'],
 							[l(:wk_status_new), 'n'],
+							[l(:wk_status_rejected), 'r'],
 							[l(:wk_status_submitted), 's'],
-							[l(:wk_status_approved), 'a'],
-							[l(:wk_status_rejected), 'r']],
-							value.blank? ? 'all' : value)
+							[l(:wk_status_approved), 'a']],
+							value.blank? ? ['e','n','r','s','a'] : value)
 	end
 	
 	def statusString(status)	
@@ -31,7 +31,9 @@ module WktimeHelper
 		when 'r'
 			statusStr = l(:wk_status_rejected)
 		when 's'
-			statusStr = l(:wk_status_submitted)	
+			statusStr = l(:wk_status_submitted)
+		when 'e'
+			statusStr = l(:wk_status_empty)
 		else
 			statusStr = l(:wk_status_new)
 		end
@@ -46,11 +48,13 @@ module WktimeHelper
 		end
 		
 		#Project.project_tree(projects) do |proj_name, level|
-		Project.project_tree_with_order(projects,true) do |proj, level|
-			indent_level = (level > 0 ? ('&nbsp;' * 2 * level + '&#187; ').html_safe : '')
-			sel_project = projects.select{ |p| p.id == proj.id }
-
-			projArr << [ (indent_level + sel_project[0].to_s), sel_project[0].id ] if sel_project[0]
+		if !projects.blank?
+			Project.project_tree_with_order(projects,true) do |proj, level|
+			 # project_tree(projects) do |proj, level|
+				indent_level = (level > 0 ? ('&nbsp;' * 2 * level + '&#187; ').html_safe : '')
+				sel_project = projects.select{ |p| p.id == proj.id }
+				projArr << [ (indent_level + sel_project[0].to_s), sel_project[0].id ] if sel_project[0]
+			end
 		end
 		projArr
 	end
@@ -58,8 +62,9 @@ module WktimeHelper
   # Returns a CSV string of a weekly timesheet
   def wktime_to_csv(entries, user, startday, unitLabel)
     decimal_separator = l(:general_csv_decimal_separator)
-    custom_fields = WktimeCustomField.find(:all)
-    export = FCSV.generate(:col_sep => l(:general_csv_separator)) do |csv|
+    #custom_fields = WktimeCustomField.find(:all)
+	custom_fields = WktimeCustomField.all
+    export = Redmine::Export::CSV.generate do |csv|
       # csv header fields
       headers = [l(:field_user),
                  l(:field_project),
@@ -81,8 +86,7 @@ module WktimeHelper
 			#Martin Dube contribution: 'start of the week' configuration		
 			headers << (l('date.abbr_day_names')[(i+startOfWeek)%7] + "\n" + I18n.localize(@startday+i, :format=>:short)) unless @startday.nil?
 		end
-      csv << headers.collect {|c| Redmine::CodesetUtil.from_utf8(
-                  c.to_s, l(:general_csv_encoding) )  }
+		csv << headers.collect {|c| Redmine::CodesetUtil.from_utf8(c.to_s, l(:general_csv_encoding) )  }
 		weeklyHash = getWeeklyView(entries, unitLabel, true) #should send false and form unique rows
 		col_values = []
 		matrix_values = nil
@@ -145,7 +149,7 @@ module WktimeHelper
 	end
 	
 	# column widths
-	table_width = (page_width - right_margin - left_margin) * 1.1
+	table_width = page_width - right_margin - left_margin
 	
 	columns = ["#",l(:field_project), l(:field_issue), l(:field_activity)]
 	
@@ -153,20 +157,20 @@ module WktimeHelper
 	col_width = []
 	orientation = "P"
 	unit=nil
-	# 40% for project, 45% for issue, 15% for activity
+	# 20% for project, 60% for issue, 20% for activity
 	col_width[0]=col_id_width
-	col_width[1] = (table_width - (8*10))*0.40
-	col_width[2] = (table_width - (8*10))*0.45
-	col_width[3] = (table_width - (8*10))*0.15
+	col_width[1] = (table_width - (8*10))*0.2
+	col_width[2] = (table_width - (8*10))*0.6
+	col_width[3] = (table_width - (8*10))*0.2
 	title=l(:label_wktime)
 	if !unitLabel.blank?
 		columns << l(:label_wk_currency)
 		col_id_width  = 14
 		col_width[0]=col_id_width
-		col_width[1] = (table_width - (8*14))*0.35
-		col_width[2] = (table_width - (8*14))*0.35
-		col_width[3] = (table_width - (8*14))*0.15
-		col_width[4] = (table_width - (8*14))*0.15
+		col_width[1] = (table_width - (8*14))*0.20
+		col_width[2] = (table_width - (8*14))*0.44
+		col_width[3] = (table_width - (8*14))*0.16
+		col_width[4] = (table_width - (8*14))*0.20
 		title= l(:label_wkexpense)
 	end	
 	
@@ -197,7 +201,7 @@ module WktimeHelper
 	pdf.AddPage(orientation)
 	
 	if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo))
-		pdf.Image(Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo, page_width-10-20, 10)
+		pdf.Image(Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo, page_width-50, 10,40,25)
 	end
 	
 	render_header(pdf, entries, user, startday, row_height,title)
@@ -239,7 +243,7 @@ module WktimeHelper
 		# write the cells on page
 		wktime_to_pdf_write_cells(pdf, col_values, col_width, row_height)
 		issues_to_pdf_draw_borders(pdf, base_x, base_y, base_y + max_height, 0, col_width)
-		pdf.SetY(base_y + max_height)
+		pdf.SetY(base_y + max_height);
 		if !unitLabel.blank?
 			unit=matrix_values[0][4]
 		end
@@ -263,31 +267,33 @@ module WktimeHelper
 	def wktime_to_pdf_write_cells(pdf, col_values, col_widths,
 								row_height)
 		base_y = pdf.GetY
-		max_height = row_height * 2.5
+		max_height = row_height
 		col_values.each_with_index do |val, i|
 			col_x = pdf.GetX
-			val = '' if val.nil?
+			if val.nil?
+                val =''
+            end
 			pdf.RDMMultiCell(col_widths[i], row_height, val, "T", 'L', 1)
-			max_height = (pdf.GetY - base_y) if (pdf.GetY - base_y) > max_height
-			pdf.SetXY(col_x + col_widths[i], base_y)
+			max_height = max_height < pdf.getStringHeight(col_widths[i], val, "T") ? pdf.getStringHeight(col_widths[i], val, "T") : max_height
+			#max_height = (pdf.GetY - base_y) if (pdf.GetY - base_y) > max_height
+			pdf.SetXY(col_x + col_widths[i], base_y);
 		end
-		max_height
+		return max_height
 	end
-
 	#new page logo
 	def render_newpage(pdf,orientation,logo,page_width)
 		pdf.AddPage(orientation)
 		if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo))
-			pdf.Image(Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo, page_width-10-20, 10)
+			pdf.Image(Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo, page_width-50, 10,40,25)
 			pdf.Ln
-			pdf.SetY(pdf.GetY+10)
+			pdf.SetY(pdf.GetY+25)
 		end
 	end
 	
 	def getKey(entry,unitLabel)
 		cf_in_row1_value = nil
 		cf_in_row2_value = nil
-		key = entry.project.id.to_s + (entry.issue.blank? ? '' : entry.issue.id.to_s) + entry.activity.id.to_s + (unitLabel.blank? ? '' : entry.currency)
+		key = entry.project.id.to_s + (entry.issue.blank? ? '' : entry.issue.id.to_s) + (entry.activity.blank? ? '' : entry.activity.id.to_s) + (unitLabel.blank? ? '' : entry.currency)
 		entry.custom_field_values.each do |custom_value|			
 			custom_field = custom_value.custom_field
 			if (!Setting.plugin_redmine_wktime['wktime_enter_cf_in_row1'].blank? &&	Setting.plugin_redmine_wktime['wktime_enter_cf_in_row1'].to_i == custom_field.id)
@@ -375,9 +381,9 @@ def getColumnValues(matrix, totals, unitLabel,rowNumberRequired, j=0)
 			rows.each.with_index do |entry, i|
 				unless entry.blank?
 					if !issueWritten
-						col_values[k] = entry.project.to_s
+						col_values[k] = entry.project.name
 						col_values[k+1] = entry.issue.blank? ? "" : entry.issue.subject
-						col_values[k+2] = entry.activity.name
+						col_values[k+2] = entry.activity.blank? ? "" : entry.activity.name
 						if !unitLabel.blank?
 							col_values[k+3]= entry.currency
 						end
@@ -550,9 +556,18 @@ end
 	end
 	
 	def getTimeEntryStatus(spent_on,user_id)
-
-		result = Wktime.find(:all, :conditions => [ 'begin_date = ? AND user_id = ?', getStartDay(spent_on), user_id])
-		return result[0].blank? ? 'n' : result[0].status			
+		#result = Wktime.find(:all, :conditions => [ 'begin_date = ? AND user_id = ?', getStartDay(spent_on), user_id])	
+		start_day = getStartDay(spent_on)		
+		locked = call_hook(:controller_check_locked,{ :startdate => start_day})
+		locked  = locked.blank? ? '' : (locked.is_a?(Array) ? (locked[0].blank? ? '': locked[0].to_s) : locked.to_s) 
+		locked = ( !locked.blank? && to_boolean(locked))
+		if locked
+			result = 'l'
+		else		
+			result = Wktime.where(['begin_date = ? AND user_id = ?', start_day, user_id])
+			result = result[0].blank? ? 'n' : result[0].status
+		end
+		return 	result		
 	end
 	
 	def time_expense_tabs			   
@@ -701,10 +716,13 @@ end
 	
 	def checkViewPermission
 		ret =  false
-		if User.current.logged? 
-			viewProjects = Project.find(:all, :conditions => Project.allowed_to_condition(User.current, :view_time_entries ))
-			loggableProjects ||= Project.find(:all, :conditions => Project.allowed_to_condition(User.current, :log_time))
-			ret = (!viewProjects.blank? && viewProjects.size > 0) || (!loggableProjects.blank? && loggableProjects.size > 0)
+		if User.current.logged?
+			viewProjects = Project.where(Project.allowed_to_condition(User.current, :view_time_entries ))
+			loggableProjects ||= Project.where(Project.allowed_to_condition(User.current, :log_time))
+			viewMenu = call_hook(:view_wktime_menu)
+			viewMenu  = viewMenu.blank? ? '' : (viewMenu.is_a?(Array) ? (viewMenu[0].blank? ? '': viewMenu[0].to_s) : viewMenu.to_s) 
+			#@manger_user = (!viewMenu.blank? && to_boolean(viewMenu))	
+			ret = (!viewProjects.blank? && viewProjects.size > 0) || (!loggableProjects.blank? && loggableProjects.size > 0) || isAccountUser || (!viewMenu.blank? && to_boolean(viewMenu))
 		end
 		ret
 	end
@@ -712,4 +730,88 @@ end
 	def is_number(val)
 		true if Float(val) rescue false
 	end
+	
+	def to_boolean(str)
+      str == 'true'
+    end
+	
+	def getStatus_Project_Issue(issue_id,project_id)
+		if !issue_id.blank?
+			cond = getIssueSqlString(issue_id)
+		end
+		if !project_id.blank?
+			cond = getProjectSqlString(project_id)
+		end		
+		sDay = getDateSqlString('t.spent_on')
+		time_sqlStr = " SELECT t.* FROM time_entries t inner join wktimes w on w.begin_date =  #{ sDay} and w.user_id =t.user_id #{cond}"		
+		time_entry = TimeEntry.find_by_sql(time_sqlStr)
+		expense_sqlStr = " SELECT t.* FROM wk_expense_entries t inner join wkexpenses w on w.begin_date =  #{ sDay} and w.user_id =t.user_id #{cond}"
+		expense_entry = WkExpenseEntry.find_by_sql(expense_sqlStr)
+		ret = (!time_entry.blank? && time_entry.size > 0) ||  (!expense_entry.blank? && expense_entry.size > 0)
+	end
+	
+	def getIssueSqlString(issue_id)
+		" where t.issue_id = #{issue_id} and (w.status ='s' OR w.status ='a')"
+	end
+	
+	def getProjectSqlString(project_id)
+		" where t.project_id = #{project_id} and (w.status ='s' OR w.status ='a')"
+	end
+	
+	def isAccountUser
+		group = nil
+		isAccountUser = false
+		groupusers = Array.new
+		accountGrpIds = Setting.plugin_redmine_wktime['wktime_account_groups'] if !Setting.plugin_redmine_wktime['wktime_account_groups'].blank?
+		if !accountGrpIds.blank?
+			accountGrpIds = accountGrpIds.collect{|i| i.to_i}
+		end
+
+		if !accountGrpIds.blank?
+			accountGrpIds.each do |group_id|
+				scope = User.in_group(group_id)	
+				groupusers << scope.all
+			end
+		end
+		grpUserIds = Array.new
+		grpUserIds = groupusers[0].collect{|user| user.id}.uniq if !groupusers.blank? && !groupusers[0].blank?
+		isAccountUser = grpUserIds.include?(User.current.id)
+	end
+	
+	def getAccountUserProjects
+		Project.where(:status => "#{Project::STATUS_ACTIVE}").order('name')
+	end
+	
+	def getAddDateStr(dtfield,noOfDays)
+		if ActiveRecord::Base.connection.adapter_name == 'PostgreSQL'			 
+			dateSqlStr = "date('#{dtfield}') + "	+ noOfDays.to_s
+		elsif ActiveRecord::Base.connection.adapter_name == 'SQLite'			 
+			dateSqlStr = "date('#{dtfield}' , '+' || " + noOfDays.to_s + " || ' days')"
+		elsif ActiveRecord::Base.connection.adapter_name == 'SQLServer'		
+			dateSqlStr = "DateAdd(d, " + noOfDays.to_s + ",'#{dtfield}')"
+		else
+			dateSqlStr = "adddate('#{dtfield}', " + noOfDays.to_s + ")"
+		end		
+		dateSqlStr
+	end
+	
+	def getValidUserCF(userCFHash, userCF)
+		tmpUserCFHash = userCFHash
+		if !userCF.blank? && !userCFHash.blank?
+			cfHash = Hash.new
+			userCF.each do |cf|
+				cfHash["user.cf_#{cf.id}"] = "#{cf.name}"
+			end
+			userCFHash.each_key do |key|
+				if !cfHash.has_key?(key)
+					tmpUserCFHash.delete(key)
+				end
+			end
+		end
+		tmpUserCFHash
+	end	
+	
+	#def getAllowedTrackerId
+	#	Setting.plugin_redmine_wktime['wktime_issues_filter_tracker']
+	#end
 end

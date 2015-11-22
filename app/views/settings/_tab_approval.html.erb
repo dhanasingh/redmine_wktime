@@ -15,7 +15,7 @@
 		<p>
 		  <label><%= l(:label_wk_submission_ack) %></label><%= text_area_tag 'settings[wktime_submission_ack]', @settings['wktime_submission_ack']%>
 		</p>
-		<%= l(:label_wk_warning_nonsub_notification) %>
+		<%= l(:label_redmine_restart_warning) %>
 
 		<p>	
 			<%= check_box_tag('settings[wktime_nonsub_mail_notification]', 1, @settings['wktime_nonsub_mail_notification'].to_i == 1) %>

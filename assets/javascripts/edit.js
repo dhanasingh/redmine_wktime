@@ -11,11 +11,13 @@ var allowBlankIssue = false;
 var commentInRow = false;
 var footerRows = 1;
 var headerRows = 1;
-var hStartIndex = 6;
+var hStartIndex = 2;
 var issueField = 'Issue';
 var submissionack="";
 var minHourAlertMsg="";
 var decSeparator = ".";
+var lblPleaseSelect = "";
+var lblWarnUnsavedTE = "";
 $(document).ready(function() {
 //$(function() {
 	var e_comments = $( "#_edit_comments_" );
@@ -38,16 +40,28 @@ $(document).ready(function() {
 					if(	!commentInRow && e_comments.val() != "")
 					{
 						edits[comment_col-1].title = e_comments.val() + "," +custFldToolTip;
+						
 					}
 					else
 					{
 						edits[comment_col-1].title = custFldToolTip;
+						
 					}
-
+					//show detail popup dialog ok button to change image 					
+					var x = document.getElementsByName("custfield_img"+comment_row+"[]");
+					if( (e_comments.val() != "" || custFldToolTip)  && (!commentInRow  || custFldToolTip )   ) 
+					{						
+						$(x[comment_col-1]).attr({src: "../plugin_assets/redmine_wktime/images/withcommant.png"});
+						
+					}
+					else
+					{					
+						$(x[comment_col-1]).attr({src: "../plugin_assets/redmine_wktime/images/withoutcommant.png"});
+					}					
 					$( this ).dialog( "close" );				
 					//unregister this event since this is showing a 'don't leave' message
 					//loosk like this is not supported in Opera
-					window.onbeforeunload = null;
+					//window.onbeforeunload = null;
 			},
 			Cancel: function() {
 				$( this ).dialog( "close" );
@@ -75,6 +89,43 @@ $(document).ready(function() {
 	
 });
 
+$(window).load(function(){
+	warnLeavingUnsavedTE(lblWarnUnsavedTE); 
+});
+
+var warnLeavingUnsavedTEMsg;
+function warnLeavingUnsavedTE(message) {
+  warnLeavingUnsavedTEMsg = message;
+  $(document).on('submit', 'form', function(){
+    $('textarea').removeData('changed');
+    $('input').removeData('changed');
+    $('select').removeData('changed');
+  });
+  setElementData('textarea');
+  setElementData('input');
+  setElementData('select');
+  window.onbeforeunload = function(){
+	var warn = (isChanged('textarea') || isChanged('input') || isChanged('select'));
+    if (warn) {return warnLeavingUnsavedTEMsg;}
+  };
+}
+
+function setElementData(elType) {
+  $(document).on('change', elType, function(){
+    $(this).data('changed', 'changed');
+  });
+}
+
+function isChanged(elType) {
+    var warn = false;
+    $(elType).blur().each(function(){
+      if ($(this).data('changed')) {
+        warn = true;
+      }
+    });
+	return warn;
+}
+
 function showComment(row, col) {
 	var images = $( 'img[name="custfield_img'+row+'[]"]' );
 	var width = 300;
@@ -100,12 +151,12 @@ function showComment(row, col) {
 		$( "#_edit_comm_iss_" ).html(issueIds[i].value);
 	}else{
 		$( "#_edit_comm_proj_" ).html(projDropdowns[i].selectedIndex >= 0 ? 
-			projDropdowns[i].options[projDropdowns[i].selectedIndex].text : '');
+			projDropdowns[i].options[projDropdowns[i].selectedIndex].text : '');			
 		$( "#_edit_comm_iss_" ).html(issDropdowns[i].selectedIndex >= 0 ?
-			issDropdowns[i].options[issDropdowns[i].selectedIndex].text : '');
+			(issDropdowns[i].options[issDropdowns[i].selectedIndex].value == -1 ? '' : issDropdowns[i].options[issDropdowns[i].selectedIndex].text) : '');
 	}
 	$( "#_edit_comm_act_" ).html(actDropdowns[i].selectedIndex >= 0 ?
-		actDropdowns[i].options[actDropdowns[i].selectedIndex].text : '');
+		(actDropdowns[i].options[actDropdowns[i].selectedIndex].value == -1 ? '' : actDropdowns[i].options[actDropdowns[i].selectedIndex].text) : '');
 	
 	showCustomField();		
 	
@@ -155,6 +206,7 @@ function showCustomField() {
 }
 
 function updateCustomField() {
+
 	if(cf_ids != ''){
 		var cust_fids = cf_ids.split(',');
 		var i, j,cust_field, ck_cust_field, custom_fields;
@@ -239,7 +291,11 @@ function projectChanged(projDropdown, row){
 			url: issUrl,
 			type: 'get',
 			data: {project_id: id, user_id: uid,tracker_id: trackerListArr, format:fmt,startday:startday, issue_assign_user: issue_assign_user},
-			success: function(data){ updateDropdown(data, row, issDropdown, true, allowBlankIssue, true,null); },
+			success: function(data){
+				var items = data.split('\n');
+				var needBlankOption = items.length-1 > 1 || allowBlankIssue ;
+				updateDropdown(data, row, issDropdown, true, needBlankOption, true, null); 
+			},
 			beforeSend: function(){ $this.addClass('ajax-loading'); },
 			complete: function(){ $this.removeClass('ajax-loading'); }
 		});
@@ -247,7 +303,12 @@ function projectChanged(projDropdown, row){
 			url: actUrl,
 			type: 'get',
 			data: {project_id: id, user_id: uid, format:fmt},
-			success: function(data){ updateDropdown(data, row, actDropdown, false, false, true,null); },
+			success: function(data){
+				var actId = getDefaultActId(data);
+				var items = data.split('\n');
+				var needBlankOption = !(items.length-1 == 1 || actId != null);
+				updateDropdown(data, row, actDropdown, false, needBlankOption, true, actId);
+			},
 			beforeSend: function(){ $this.addClass('ajax-loading'); },
 			complete: function(){ $this.removeClass('ajax-loading'); }
 		});
@@ -341,7 +402,7 @@ function issueIdChanged(id, row){
 
 function updateIssDropdowns(itemStr, projDropdowns,projIds)
 {	
-	var items = itemStr.split('\n');	
+	var items = itemStr.split('\n');
 	var i, index, itemStr2='', val, text;
 	var prev_project_id=0, project_id=0;
 	var j, id;	
@@ -381,18 +442,20 @@ function updateIssDropdowns(itemStr, projDropdowns,projIds)
 function updateIssueDD(itemStr, project_id, projDropdowns, issDropdowns)
 {
 	var proj_id, issue_id=null;
+	var items = itemStr.split('\n');
+	var needBlankOption = items.length-1 > 1 || allowBlankIssue ;
 	if(projDropdowns){	
 		for (j=0; j < projDropdowns.length; j++){		
 			proj_id = projDropdowns[j].options[projDropdowns[j].selectedIndex].value;
 			if(proj_id != '' && project_id == proj_id){			
-				if(issDropdowns[j]){									
+				if(issDropdowns[j]){
 					if(issDropdowns[j].value != ""){						
 						issue_id = issDropdowns[j].options[issDropdowns[j].selectedIndex].value;
 					}	
-					else{
-						issue_id=null;
+					else {
+						issue_id = null;
 					}
-					updateDropdown(itemStr, j+1, issDropdowns, true, allowBlankIssue, true, issue_id);					
+					updateDropdown(itemStr, j+1, issDropdowns, true, needBlankOption, true, issue_id);
 				}
 			}
 		}
@@ -401,10 +464,11 @@ function updateIssueDD(itemStr, project_id, projDropdowns, issDropdowns)
 function updateActDropdown(data, row, actDropdown){
 	
 	var enterIsueIdChk = document.getElementById("enter_issue_id");
+	var items = data.split('\n');
 	if(enterIsueIdChk && enterIsueIdChk.checked){
 		//set the project id
 		var projectIdHFs = document.getElementsByName("time_entry[][project_id]");
-		var items = data.split('\n');
+		//var items = data.split('\n');
 		var index;
 		if(items.length > 0){
 			index = items[0].indexOf('|');
@@ -414,16 +478,27 @@ function updateActDropdown(data, row, actDropdown){
 			}
 		}
 	}
-	updateDropdown(data, row, actDropdown, false, false, true,null);
+	var actId = getDefaultActId(data);
+	//var items = data.split('\n');
+	var needBlankOption = !(items.length-1 == 1 || actId != null);
+	updateDropdown(data, row, actDropdown, false, needBlankOption, true, actId);
 }
 
 function updateDropdown(itemStr, row, dropdown, showId, needBlankOption, skipFirst, selectedVal)
 {
 	var items = itemStr.split('\n');
-	var selectedValSet = false;	
+	var selectedValSet = false;
+	var selectedText = "";
+	if (selectedVal) {
+		selectedText = dropdown[row-1].options[dropdown[row-1].selectedIndex].text;
+	}
 	dropdown[row-1].options.length = 0;
 	if(needBlankOption){
-		dropdown[row-1].options[0] = new Option( "", "", false, false); 
+		if (showId && allowBlankIssue){
+			dropdown[row-1].options[0] = new Option( "", "", false, false);
+		}else{
+			dropdown[row-1].options[0] = new Option( "---" + lblPleaseSelect + "---", "-1", false, false);
+		}
 	}
 	var i, index, val, text, start;
 	for(i=0; i < items.length-1; i++){
@@ -439,20 +514,33 @@ function updateDropdown(itemStr, row, dropdown, showId, needBlankOption, skipFir
 		if(index != -1){
 			val = items[i].substring(start, index);
 			text = items[i].substring(index+1);
-			if(showId)
-			{
+			//if(showId)
+			//{
 				text = text.split('|');
-			}
+			//}
 			dropdown[row-1].options[needBlankOption ? i+1 : i] = new Option( 
-				showId ? text[0] + ' #' + val + ': ' + text[1] : text, val, false, val == selectedVal);			
+				showId ? text[0] + ' #' + val + ': ' + text[1] : text[1], val, false, val == selectedVal);			
 			if(val == selectedVal){
 				selectedValSet = true;
 			}
 		}
 	}
-	if(selectedVal && !selectedValSet){
-		dropdown[row-1].options[needBlankOption ? i+1 : i] = new Option( 
-				selectedVal, selectedVal, false, true);
+	
+	var addExistingOption = true;
+	if(showId) { //for issue dropdown
+		var hoursFld = document.getElementsByName("hours" + row + "[]");
+		addExistingOption = false;
+		for(var j = 0; j < hoursFld.length; j++) {
+			if(hoursFld[j].value) {
+				addExistingOption = true;			
+				break;
+			}
+		}
+	}
+	if (addExistingOption === true) {
+		if(selectedVal && !selectedValSet){
+			dropdown[row-1].options[needBlankOption ? i+1 : i] = new Option(selectedText, selectedVal, false, true);
+		}
 	}
 }
 
@@ -512,7 +600,6 @@ function addRow(){
 
 		}
 	}
-
 	renameElemProperties(row, 0, rowCount- (headerRows + footerRows - 1));
 	saveButton.disabled = false;
 	if(submitButton!=undefined)
@@ -726,8 +813,9 @@ function validateTotal(hourField, day, maxHour){
 	}
 	maxHour= Number(maxHour);
 	if (maxHour > 0 && dayTotal > maxHour){
-		val = val.replace(decSeparator, '\.');
-		val = Number(val);
+		//val = val.replace(decSeparator, '\.');
+		//#val = Number(val);
+		val = validateHours(val, hourField)
 		val = val - (dayTotal - maxHour);
 		/*if(val == 0)
 		{
@@ -748,6 +836,7 @@ function validateTotal(hourField, day, maxHour){
 function calculateTotal(day){
 	var issueTable = document.getElementById("issueTable");
 	var totalSpan = document.getElementById("total_hours");
+	var tab = document.getElementById("tab");
 	var rowCount = issueTable.rows.length;
 	var dayTotal = 0.0;
 	var hours, i, j, k, val, children;
@@ -760,17 +849,126 @@ function calculateTotal(day){
 			
 		val = myTrim(hours[day-1].value);
 		//replace any . with . for internationalization
-		val = val.replace(decSeparator, '\.');
-		if(isNaN(val)) //if(val == 0 || isNaN(val))
+		if (tab.value =="wkexpense")
 		{
-			hours[day-1].value = "";
-		}
-		
-		if( val != '' && !isNaN(val)){
-			dayTotal += Number(val);
+			val = val.replace(decSeparator, '\.');
+			if(isNaN(val)) //if(val == 0 || isNaN(val))
+			{
+				hours[day-1].value = "";
+			}
+			
+			if( val != '' && !isNaN(val)){
+				dayTotal += Number(val);
+			} 
+		}else{
+		dayTotal += validateHours(val,hours[day-1])
 		}
 	}
 	return dayTotal;
+}
+
+function validateHours(hoursValue,hoursDay){
+	var valid =false
+	hoursValue = myTrim(hoursValue);			
+	var indexStr='',indexNextStr='',contcatStr='';					
+	var hours ='',mins='',timeValue='',concatvalue ='';
+	var total=0;
+	if (!isNaN(hoursValue))	{
+		hours = hoursValue;		
+	}else if (hoursValue.indexOf('.') ==1){
+		valid = checkStr(hoursValue,'.')				
+	}else if (hoursValue.indexOf(",")==1){
+		valid = checkStr(hoursValue,",")
+		if(!valid){				
+			hours = hoursValue.replace(",", ".");
+		}
+	}else if (hoursValue.indexOf(":")==1){
+		valid = checkStr(hoursValue,":")
+		if(!valid){
+			var val = hoursValue.split(":");
+			hours= val[0];
+			mins = val[1];
+		}
+	}else{
+		for (i = 0; i < hoursValue.length-1; i++){ 
+			indexStr = hoursValue[i];
+			indexNextStr = hoursValue[i+1]									
+			if (!myTrim(indexNextStr) && indexStr && !contcatStr){									
+				if (isNaN(indexStr)){
+					valid = true
+					break;
+				}else{
+					timeValue += indexStr;
+				}
+			}else{
+				if (!isNaN(indexStr)){
+					timeValue += indexStr;
+				}if (isNaN(indexNextStr)){
+					contcatStr += indexNextStr;							
+				}else if (indexNextStr){							
+					if (contcatStr =="h" || contcatStr =="hour" || contcatStr =="hours" ){
+						contcatStr ='';
+						hours = timeValue
+						timeValue=''
+						concatvalue=''
+					}else if (contcatStr =="m" || contcatStr =="min"){
+						contcatStr ='';
+						mins = timeValue
+						timeValue=''
+						concatvalue=''
+					}
+					 concatvalue +=indexNextStr;
+				}
+			}					
+		}
+	}
+	if (contcatStr =="h" || contcatStr =="hour" || contcatStr =="hours" ){
+		contcatStr ='';
+		hours = timeValue
+		timeValue= ''
+		concatvalue=''
+	}else if (contcatStr =="m" || contcatStr =="min"){
+		mins = timeValue
+		timeValue=''
+		concatvalue=''
+	}else if (contcatStr){
+		valid = true				
+	}
+	if (!myTrim(mins)){
+		mins = concatvalue				
+	}
+	if (hours && mins){
+		if(parseInt(mins) >60){
+			valid = true;
+		}
+	}
+	if (valid){
+		hoursDay.value='';
+	}else{
+		 total = totalHours(hours,mins)				
+	}
+	return total;
+}
+function checkStr(hoursValue,type){
+	var valid =true;			
+	hoursValue = hoursValue.replace(type, ".");
+	if (!isNaN(hoursValue))	{
+		valid = false
+	}
+	return valid
+}
+function totalHours(hours,mins){		
+	var minhour =0,total=0;
+	if (!isNaN(hours) && myTrim(hours))
+	{			
+		total = parseFloat(hours)
+	}
+	if (!isNaN(mins) && myTrim(mins))
+	{
+		minhour = parseFloat(mins)/60;
+		total +=parseFloat(minhour)
+	}			
+	return total
 }
 
 //There is a bug in IE7, the getElementsByName doesn't get the new elements
@@ -923,9 +1121,10 @@ function validateHr(hrFld,day)
 
 function issueAutocomplete(txtissue,row){    
         var uid = document.getElementById("user_id").value;
+		var startday = document.getElementById("startday").value;
 		var issUrl = document.getElementById("getissues_url").value;
 		issue_assign_user=issueAssignUser();
-       	issUrl= issUrl +"?user_id="+ uid +"&issue_assign_user=" +issue_assign_user;
+       	issUrl= issUrl + "?user_id=" + uid + "&issue_assign_user=" + issue_assign_user + "&startday=" + startday;
         $(txtissue).autocomplete({                    
 			source: issUrl ,
 			minLength:2,
@@ -974,4 +1173,16 @@ function issueAssignUser()
 		issue_assign_user=1;
 	}
 	return issue_assign_user
+}
+
+function getDefaultActId(actStr)
+{
+	var index, actId = null;
+	index = actStr.indexOf('|true|', 0);
+	if(index != -1){
+		actStr = actStr.substring(0,index);
+		index = actStr.lastIndexOf('|');
+		actId = actStr.substring(index+1);
+	}
+	return actId
 }
