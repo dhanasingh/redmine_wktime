@@ -13,7 +13,7 @@ if params[:enter_issue_id].blank?
 	projects.unshift( [ entry.project.name, entry.project_id ] ) if !entry.nil? && project.blank?
 %>
 
-	<td class="issue" align="left" width="<%= Setting.plugin_redmine_wktime['wktime_project_dd_width'] %>px">
+	<td class="issue project" align="left" width="<%= Setting.plugin_redmine_wktime['wktime_project_dd_width'] %>px">
 		<% project_name = entry.nil? ? (@logtime_projects.blank? ? 0 : @logtime_projects[0].id) : entry.project.name %>
 		<% if @editable %>
 			<%=h select_tag(isTemplate ? '__template__time_entry[][project_id]' : 'time_entry[][project_id]', 
