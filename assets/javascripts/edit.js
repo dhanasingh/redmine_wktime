@@ -596,7 +596,8 @@ function addRow(){
 		{
 			cell.removeChild(cell.firstChild);
 			cell.removeChild(cell.firstChild);
-			cell.firstChild.style.display = "block";
+			if(cell.firstChild.hasChildNodes())
+			  cell.firstChild.style.display = "block";
 
 		}
 	}

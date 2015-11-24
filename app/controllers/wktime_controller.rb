@@ -449,7 +449,8 @@ include QueriesHelper
 				cond =["((#{IssueStatus.table_name}.is_closed = ? OR #{Issue.table_name}.closed_on >= ?) #{issueAssignToUsrCond} #{trackerIDCond}) #{projCond}", false, @startday]
 			end	
 			
-			issues = Issue.includes(:status).references(:status).where(cond).order('project_id')
+			# issues = Issue.includes(:status).references(:status).where(cond).order('project_id')
+			issues = Issue.includes(:status).where(cond).order('project_id')
 		end
 		#issues.compact!
 		issues = issues.select(&:present?)
