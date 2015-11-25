@@ -793,7 +793,7 @@ include QueriesHelper
 			user_cf_sql = @query.user_cf_statement('u') if !@query.blank?
 			queryStr = "select distinct u.* from users u " +
 						"left outer join #{entityNames[0]} w on u.id = w.user_id " +
-						"and (w.begin_date between '#{params[:from]}}' and '#{params[:to]}') " #+
+						"and (w.begin_date between '#{params[:from]}' and '#{params[:to]}') " #+
 						#"where u.id in (#{ids}) and w.status = 's'"
 			queryStr += " #{user_cf_sql} " if !user_cf_sql.blank?
 			queryStr += (!user_cf_sql.blank? ? " AND " : " WHERE ") + " u.id in (#{ids}) and w.status = 's' "
