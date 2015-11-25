@@ -1735,8 +1735,8 @@ private
 			end
 		end
 		if !usrResult.blank? && usrResult.size > 0
-			stDate = (usrResult[0].startday).to_date
-			stDate = getStartDay(stDate) if !stDate.blank?
+			stDate = (usrResult[0].startday)
+			stDate = getStartDay(stDate.to_date) if !stDate.blank?
 			if (!stDate.blank? && stDate < @from)
 				@from = stDate
 			end

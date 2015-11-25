@@ -799,7 +799,7 @@ end
 			dateSqlStr = "cast(#{dtfield} as date)"
 		else
 			# For MySQL, PostgreSQL, SQLite
-			dateSqlStr = "date('#{dtfield}')"
+			dateSqlStr = "date(#{dtfield})"
 		end
 		dateSqlStr
 	end
