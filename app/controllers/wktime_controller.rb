@@ -158,7 +158,7 @@ include QueriesHelper
 	cvParams = wktimeParams[:custom_field_values] unless wktimeParams.blank?	
 	useApprovalSystem = (!Setting.plugin_redmine_wktime['wktime_use_approval_system'].blank? &&
 							Setting.plugin_redmine_wktime['wktime_use_approval_system'].to_i == 1)
-	#updateAttendance()					
+							
 	@wktime.transaction do
 		begin				
 			if errorMsg.blank? && (!params[:wktime_save].blank? || !params[:wktime_save_continue].blank? ||
@@ -838,21 +838,30 @@ include QueriesHelper
 		end
 	end
 	
+	def updateAttendance		
+		wkattendance = WkAttendance.new
+		if !params["starttime"].blank? || !params["endtime"].blank? 		
+			if 	!params["starttime"].blank? 
+				wkattendance.user_id = User.current.id
+				wkattendance.start_time = params["starttime"]
+				wkattendance.week_date = Time.now.strftime("%Y-%m-%d") 
+				wkattendance.save()
+			else			
+				cond = "week_date = '#{Time.now.strftime("%Y-%m-%d")}' AND user_id = #{User.current.id} AND end_time is null"
+				attid = WkAttendance.find_by(cond)
+				endtime = WkAttendance.find_by(id: attid.id)
+				endtime.end_time = params["endtime"]
+				endtime.save()	
+			end
+		end	
+		ret = 'ok'
+		respond_to do |format|
+			format.text  { render :text => ret }
+		end
+	end	
 	
 private
-
-	def updateAttendance
-		startday = getStartDay(Date.today)
-		for i in 0..6
-			wkattendance = WkAttendance.new
-			wkattendance.user_id = 25
-			wkattendance.start_time = params["start_#{i}"]
-			wkattendance.end_time = params["end_#{i}"]
-			wkattendance.week_date = startday + i #change
-			wkattendance.save()
-		end
-	end
-
+	
 	def getManager(user, approver)
 		hookMgr = call_hook(:controller_get_manager, {:user => user, :approver => approver})
 		mngrArr = [] #nil
@@ -1306,7 +1315,6 @@ private
 						entry.issue.blank?)
 					errorMsg = "#{l(:field_issue)} #{l('activerecord.errors.messages.blank')} "
 				end
-				
 				if !entry.save()
 					errorMsg = errorMsg.blank? ? entry.errors.full_messages : entry.errors.full_messages.unshift(errorMsg)
 					errorMsg = errorMsg.join("<br>")

@@ -1116,9 +1116,29 @@ function startTime(strid,id) {
 	   var hh = d.getHours();
 	   var mm = d.getMinutes();
 	   id++;
-	   document.getElementById(strid + '_' + id).value = hh + ":" + mm;
+	   elementid = document.getElementById(strid + '_' + id);
+	   elementid.value = hh + ":" + mm;
+	   if( strid == 'start')
+	   {
+		  document.getElementById( 'end_' + id).disabled  = false;
+	   }
+	   document.getElementById(strid + '_' + id).disabled  = true;
 	   updateRemainingHr(id);	
 	   updateTotalHr(id);
+	   updateClockInOut(elementid.value, strid, id);
+	   elementid.onclick=function(){updateClockInOut(this.value, strid, id)};
+}
+
+function updateClockInOut(entrytime, strid, id){
+	var $this = $(this);				
+	var params = strid == 'start' ? {starttime: entrytime} 	: {endtime :entrytime};
+	$.ajax({
+		url: 'updateAttendance',
+		type: 'get',
+		data: params,
+		success: function(data){  },
+		complete: function(){ $this.removeClass('ajax-loading'); }
+	});		
 }
 
 function issueAutocomplete(txtissue,row){    

@@ -147,3 +147,5 @@ it:
   label_wk_leave_issue: Leave issue
   label_wk_leave_accural: Accrual
   label_wk_attendance_start_date: Attendance start date
+  label_clock_in: Clock in
+  label_clock_out: Clock out

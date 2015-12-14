@@ -32,6 +32,8 @@
   
   get 'wktime/testapi', :to => 'wktime#testapi' 
   
+  get 'wktime/updateAttendance', :to => 'wktime#updateAttendance' 
+  
   #For Weekly expenses
   
   get 'wkexpense/index', :to => 'wkexpense#index'
