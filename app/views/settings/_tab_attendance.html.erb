@@ -26,27 +26,6 @@ selectListAlertMsg = "<%=l(:label_wk_select_break_time) %>";
 			  breakTime << [optionText,element]
 			end
 		end
-		hr = []
-		min = []
-		for i in 0..23
-			if i < 10
-				hr << ['0' + i.to_s,i]
-			else
-				hr << [i,i]
-			end
-		end
-		i = 0
-		num = 5
-
-		until i > 55  do
-			if i < 10
-				min << ['0' + i.to_s,i]
-			else
-				min << [i,i]
-			end
-		
-		   i +=5;
-		end
 		%>
 	<label><%= l(:label_wk_break_time) %></label>
 		<%=  select_tag('settings[wktime_break_time]',
@@ -92,16 +71,6 @@ selectListAlertMsg = "<%=l(:label_wk_select_break_time) %>";
 		</p>
 		<p>
 			<span style="margin-left:1.1em;"></span><label><%= l(:label_date_to) %></label><span style="margin-left:0.5em;"></span>
-			<%
-			hr = []
-			for i in 0..23
-				if i < 10
-					hr << ['0' + i.to_s,i]
-				else
-					hr << [i,i]
-				end
-			end
-			%>
 			<%= select_tag('settings[wktime_break_to_hr]', options_for_select(hr, 
 			:selected => @settings['wktime_break_to_hr'].blank? ? 23 : @settings['wktime_break_to_hr']))%>&nbsp<%= l(:field_hours) %>&nbsp;	
 			<%= select_tag('settings[wktime_break_to_min]', options_for_select(min,
@@ -112,32 +81,55 @@ selectListAlertMsg = "<%=l(:label_wk_select_break_time) %>";
 		</p>
 	</div>
 	
-	<%
-		issue_list = Issue.order('subject')
-		unless issue_list.blank?
-			issueslist = issue_list.collect {|issue| [issue.subject, issue.id] }
-			issueslist.unshift(["",0])
-	%>
+	<p>
+		<%
+		leave = []
+		if(@settings['wktime_leave'].blank?)
+			leave = ''
+		else
+			@settings['wktime_leave'].each do |element|
+			  listboxArr = element.split('|')
+			  issueId = listboxArr[0]
+			  issueName = listboxArr[1]
+			  leaveAccural = listboxArr[2]
+			  optionText = issueName + ":"  + leaveAccural + " " + l(:label_per_month);
+			  leave << [optionText,element]
+			end
+		end
+		%>
+		<label><%= l(:label_wk_leave) %></label>
+			<%=  select_tag('settings[wktime_leave]',
+				options_for_select(leave, :selected => 'settings[wktime_leave]'), :multiple=> true, :style => "width:200px; height:150px;")%>	
 
-	 <p>
-		<label><%= l(:label_wk_sick_leave) %> </label><%=h select_tag('settings[wktime_sick_leave]', 
-			options_for_select(issueslist, :selected =>  @settings['wktime_sick_leave'])) %>
-	</p>
-	 <p>	 
-		<label><%= l(:label_wk_holiday) %> </label><%=h select_tag('settings[wktime_holiday]', 
-			options_for_select(issueslist, :selected =>  @settings['wktime_holiday']))%>
-	</p>
-	<p>
-		<label><%= l(:label_wk_paid_leave) %> </label><%=h select_tag('settings[wktime_paid_leave]', 
-			options_for_select(issueslist, :selected =>  @settings['wktime_paid_leave'])) %>
-	</p>
-	<% end %>
-	<p>
-		<label><%= l(:label_wk_sick_leave_accrual) %></label><%= text_field_tag 'settings[wktime_sick_leave_accrual]', @settings['wktime_sick_leave_accrual'], :size => 3 %>&nbsp<%= l(:label_per_month) %>
-	</p>
-	<p>
-		<label><%= l(:label_wk_paid_leave_accrual) %></label><%= text_field_tag 'settings[wktime_paid_leave_accrual]', @settings['wktime_paid_leave_accrual'], :size => 3 %>&nbsp<%= l(:label_per_month) %>
-	</p>
+		</p>			
+		<p>
+			<%= link_to "Add", "javascript:showLeaveDialog('Add');", :class => "button"%>  |
+			<%= link_to "Edit", "javascript:showLeaveDialog('Edit');", :class => "button"%>  |
+			<%= link_to "Delete", "javascript:removeSelectedValue('settings_wktime_leave');", :class => "button" %>
+		</p>
+	
+	<div id="leave-dlg" title="<%= l(:label_wk_leave) %>">
+		<p>
+			<label><%= l(:label_wk_leave_issue) %></label><span style="margin-left:0.5em;"></span>
+			
+	
+			<%
+				issue_list = Issue.order('subject')
+				unless issue_list.blank?
+					issueslist = issue_list.collect {|issue| [issue.subject, issue.id] }
+					issueslist.unshift(["",0])
+				end
+			%>
+			<%=h select_tag('settings[wktime_leave_issue]', 
+			options_for_select(issueslist, :selected =>  @settings['wktime_leave_issue'])) %>								   	
+		</p>
+		<p>
+			<span style="margin-left:2.5em;"></span><label><%= l(:label_wk_leave_accural) %></label><span style="margin-left:0.5em;"></span><%= text_field_tag('leave_accural','',:size => 14, :maxlength => 3) %> 		
+		</p>
+		<p>
+			<%= hidden_field_tag :hdnAction, "" %>
+		</p>
+	</div>
 	<p>
 		<label><%= l(:label_wk_leave_accrual_after) %></label><%= text_field_tag 'settings[wktime_leave_accrual_after]', @settings['wktime_leave_accrual_after'], :size => 3 %>&nbsp<%= l(:label_year) %>
 	</p>

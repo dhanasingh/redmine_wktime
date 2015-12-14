@@ -96,6 +96,42 @@ function dialogAction()
 			}
 		}
 	});	
+	
+	$( "#leave-dlg" ).dialog({
+		autoOpen: false,
+		resizable: false,
+		modal: false,		
+		buttons: {
+			"Ok": function() {
+				var opt,desc="",opttext="";
+				var listBox = document.getElementById("settings_wktime_leave");
+				var leaveIssue = document.getElementById("settings_wktime_leave_issue");
+				var leaveAccural = document.getElementById("leave_accural");
+				if('Add'== holiDayAction){	
+					opt = document.createElement("option");
+					listBox.options.add(opt);
+				}
+				else if('Edit' == holiDayAction){
+					opt = listBox.options[listBox.selectedIndex];
+				}			
+				if (leaveIssue.value != ""){
+					desc = leaveIssue.value + " | "  + leaveIssue.options[leaveIssue.selectedIndex].text;
+					opttext = leaveIssue.options[leaveIssue.selectedIndex].text;
+				}					
+				if (leaveAccural.value != ""){
+					desc = desc + " | "  + leaveAccural.value;
+					opttext = opttext + ":"  + leaveAccural.value + " per month";
+				}	
+				opt.text =  opttext;
+				opt.value = desc;
+				Sort('settings_wktime_leave');
+				$( this ).dialog( "close" );
+			},
+			Cancel: function() {
+				$( this ).dialog( "close" );
+			}
+		}
+	});	
 }
 
 function updateCustFldDD(currCFDD,anotherCFDD)
@@ -183,6 +219,30 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 			alert(selectListAlertMsg);				
 		}
 	}	
+
+	function showLeaveDialog(action)
+	{
+		var listbox = document.getElementById("settings_wktime_leave");
+		var leaveIssue = document.getElementById("settings_wktime_leave_issue");
+		var leaveAccural = document.getElementById("leave_accural");
+		if('Add' == action)
+		{	
+			holiDayAction = action;
+			$( "#leave-dlg" ).dialog( "open" )	
+		}
+		else if('Edit' == action && listbox != null && listbox.options.selectedIndex >=0)
+		{				
+			var listboxArr = listbox.options[listbox.selectedIndex].value.split('|');
+			leaveIssue.value = listboxArr[0].trim();
+			leaveAccural.value = listboxArr[2].trim();
+			holiDayAction = action;
+			$( "#leave-dlg" ).dialog( "open" )	
+		}
+		else if(listbox != null && listbox.options.length >0)
+		{		
+			alert(selectListAlertMsg);				
+		}
+	}	
 	
 	function removeSelectedValue(elementId)
 	{
@@ -222,6 +282,14 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 			for(i = 0; i < btlistbox.options.length; i++)
 			{
 				btlistbox.options[i].selected = true;
+			}						
+		}
+		var lvlistbox=document.getElementById("settings_wktime_leave");
+		if(lvlistbox != null)
+         { 
+			for(i = 0; i < lvlistbox.options.length; i++)
+			{
+				lvlistbox.options[i].selected = true;
 			}						
 		}
 	});

@@ -143,3 +143,6 @@ it:
   label_wk_sick_leave: Sick Leave
   label_wk_holiday: Holiday
   label_wk_paid_leave: Paid Leave
+  label_wk_leave: Leave
+  label_wk_leave_issue: Leave issue
+  label_wk_leave_accural: Accrual
