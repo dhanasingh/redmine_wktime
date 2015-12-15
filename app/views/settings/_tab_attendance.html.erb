@@ -137,11 +137,15 @@ selectListAlertMsg = "<%=l(:label_wk_select_break_time) %>";
 		unless custom_fields.blank?
 			cfs = custom_fields.collect {|cf| [cf.name, cf.id] }
 			cfs.unshift(["",0])
+		else
+			cfs = Array.new
+			cfs << [ "", 0]
 		end
 	%>
 
 	 <p>
 		<label><%= l(:label_wk_attendance_start_date) %> </label><%=h select_tag('settings[wktime_att_start_date]', 
-			options_for_select(cfs, :selected =>  @settings['wktime_att_start_date'])) %>
+			options_for_select(cfs, :selected =>  @settings['wktime_att_start_date']), 
+			:style=> "min-width:80px" ) %>
 	</p>
 </fieldset>
