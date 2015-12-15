@@ -1111,7 +1111,7 @@ function validateHr(hrFld,day)
 	}
 }
 
-function startTime(strid,id) {
+function setClockInClockOut(strid,id) {
        var d = new Date();
 	   var hh = d.getHours();
 	   var mm = d.getMinutes();
@@ -1120,13 +1120,13 @@ function startTime(strid,id) {
 	   elementid.value = hh + ":" + mm;
 	   if( strid == 'start')
 	   {
-		  document.getElementById( 'end_' + id).disabled  = false;
+		  document.getElementById('end_' + id).disabled  = false;
 	   }
 	   document.getElementById(strid + '_' + id).disabled  = true;
 	   updateRemainingHr(id);	
 	   updateTotalHr(id);
 	   updateClockInOut(elementid.value, strid, id);
-	   elementid.onclick=function(){updateClockInOut(this.value, strid, id)};
+	   //elementid.onclick=function(){updateClockInOut(this.value, strid, id)};
 }
 
 function updateClockInOut(entrytime, strid, id){

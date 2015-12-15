@@ -838,25 +838,24 @@ include QueriesHelper
 		end
 	end
 	
-	def updateAttendance		
-		wkattendance = WkAttendance.new
-		if !params["starttime"].blank? || !params["endtime"].blank? 		
-			if 	!params["starttime"].blank? 
+	def updateAttendance
+		#TODO: Use id to determine whether insert or update
+		wkattendance = nil
+		if !params["starttime"].blank? || !params["endtime"].blank?	
+			if 	!params["starttime"].blank?
+				wkattendance = WkAttendance.new
 				wkattendance.user_id = User.current.id
 				wkattendance.start_time = params["starttime"]
-				wkattendance.week_date = Time.now.strftime("%Y-%m-%d") 
-				wkattendance.save()
+				wkattendance.week_date = Date.today			
 			else			
-				cond = "week_date = '#{Time.now.strftime("%Y-%m-%d")}' AND user_id = #{User.current.id} AND end_time is null"
-				attid = WkAttendance.find_by(cond)
-				endtime = WkAttendance.find_by(id: attid.id)
-				endtime.end_time = params["endtime"]
-				endtime.save()	
+				cond = "week_date = '#{Date.today}' AND user_id = #{User.current.id} AND end_time is null"
+				wkattendance = WkAttendance.find_by(cond)
+				wkattendance.end_time = params["endtime"]
 			end
-		end	
-		ret = 'ok'
+			wkattendance.save()
+		end
 		respond_to do |format|
-			format.text  { render :text => ret }
+			format.text  { render :text => 'OK' }
 		end
 	end	
 	
@@ -993,7 +992,7 @@ private
 	end
 	
 	def prevTemplate(user_id)	
-		prev_entries = nil		
+		prev_entries = nil
 		noOfWeek = Setting.plugin_redmine_wktime['wktime_previous_template_week']
 		
 		if !noOfWeek.blank?

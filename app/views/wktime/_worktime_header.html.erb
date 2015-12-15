@@ -13,48 +13,21 @@
 		<% end %>
 	<% end %>
 	
-
-	<% getid = "" %>
-	<% str1 = "" %>
-	<td align = "right">	
-	<% startOfWeek = getStartOfWeek %>
-	<% for i in 0..6%>
-		<% startdate = I18n.localize(@startday+i) %>
-		<% getdate = Time.now.strftime("%m/%d/%Y") %>
-		<% if startdate == getdate %>
-			<% getid = "#{(i+(startOfWeek))%7}" %>
-		<% end %>
-	<% end %>
+	<td align = "right">
 		<%= l(:"label_#{str}") %>
 	</td>
-
-	<% dis = true %>
-	<% i = "" %>
-<% for i in 0..6%>
+	<% col_num = (Date.today.wday).to_s %>
+	<% disable = true %>	
+	<% if (isAccountUser)  %>			
+		<% disable = false %>
+	<% end %>
+	<% for i in 0..6%>
 		<% if (isEditable) %>
-			<% if (( !isAccountUser) ) %>
-				<% if ((!@manage_projects.blank? && @manage_projects.size > 0 && User.current.id != @user.id) && (!User.current.admin?) ) %>
-					<% dis = true %>
-				<% else %>			
-					<% dis = true %>
-				<% end %>
-			<% else %>	
-					<% dis = false %>							
-			<% end %>
-			<% if dis %>
-				<%  if ("#{str}" == "start" || "#{str}" == "end" ) &&  (!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? &&
-					Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1 ) && !getid.blank? && ( "#{str}_#{(i)}" == str+"_"+getid  ) &&  User.current.id == @user.id   %>
-						<td align = "center"><%= submit_tag "#{str}" == "start" ? l(:"label_clock_in") : l(:"label_clock_out")  , :type => "button", :disabled => "#{str}" == "end" ? true : false, :id => "#{str}_#{(i+1)}",  :onclick => "javascript:startTime('#{str}','#{getid}');" %> </td>
-					<% else %>
-						<td align = "center"><%= text_field_tag "#{str}_#{(i+1)}" ,"0:00",:size => 4, :disabled => true,  :onchange => "validateHr(this,#{(i+1)});" %></td>
-					<% end %>
-			<% else %>		
-				<%  if ("#{str}" == "start" || "#{str}" == "end" ) &&  (!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? &&
-					Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1 ) && !getid.blank? && ( "#{str}_#{(i)}" == str+"_"+getid  ) &&  User.current.id == @user.id   %>
-						<td align = "center"><%= submit_tag l(:"label_#{str}"), :type => "button", :disabled => "#{str}" == "end" ? true : false, :id => "#{str}_#{(i+1)}",  :onclick => "javascript:startTime('#{str}','#{getid}');" %> </td>
-					<% else %>
-					<td align = "center"><%= text_field_tag "#{str}_#{(i+1)}" ,"0:00",:size => 4, :disabled => false,  :onchange => "validateHr(this,#{(i+1)});" %></td>	
-					<% end %>
+			<%  if ("#{str}" == "start" || "#{str}" == "end") && (!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? &&
+				Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1) && ("#{(i)}" == "#{col_num}") &&  User.current.id == @user.id   %>
+				<td align = "center"><%= submit_tag "#{str}" == "start" ? l(:"label_clock_in") : l(:"label_clock_out"), :type => "button", :disabled => "#{str}" == "end" ? true : false, :id => "#{str}_#{(i+1)}",  :onclick => "javascript:setClockInClockOut('#{str}','#{col_num}');" %> </td>
+			<% else %>
+				<td align = "center"><%= text_field_tag "#{str}_#{(i+1)}" ,"0:00",:size => 4, :disabled => disable,  :onchange => "validateHr(this,#{(i+1)});" %></td>
 			<% end %>
 		<% else %>
 			<td align = "center"><%= value %></td>
