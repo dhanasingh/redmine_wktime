@@ -1,6 +1,12 @@
 <script type="text/javascript"> 
 attendanceAlertMsg = "<%= l(:text_are_you_sure) %>";
-selectListAlertMsg = "<%=l(:label_wk_select_break_time) %>";
+selectListAlertMsg = "<%=l(:actionview_instancetag_blank_option) %>";
+issueExistsAlertMsg = "<%=l(:label_wk_leave_exists) %>";
+lblInvalid= "<%=l('activerecord.errors.messages.invalid') %>";
+lblDaysPerMonth = "<%=l(:label_days_per_month) %>";
+lblAccural = "<%=l(:label_wk_leave_accural) %>";
+lblAccuralAfter = "<%=l(:label_wk_leave_accrual_after) %>";
+lblYear = "<%=l(:label_year) %>";
 </script>
 <fieldset class="box tabular">
 	<legend><%= l(:label_wk_attendance) %></legend>
@@ -64,17 +70,13 @@ selectListAlertMsg = "<%=l(:label_wk_select_break_time) %>";
 			   i +=5;
 			end
 			%>
-			<%= select_tag('settings[wktime_break_from_hr]', options_for_select(hr, 
-			:selected => @settings['wktime_break_from_hr'].blank? ? 23 : @settings['wktime_break_from_hr']))%>&nbsp<%= l(:field_hours) %>&nbsp;	
-			<%= select_tag('settings[wktime_break_from_min]', options_for_select(min, 
-			:selected => @settings['wktime_break_from_min'].blank? ? 0 : @settings['wktime_break_from_min']))%>&nbsp<%= l(:label_wk_minutes) %>								   	
+			<%= select_tag('break_from_hr', options_for_select(hr))%>&nbsp<%= l(:field_hours) %>&nbsp;	
+			<%= select_tag('break_from_min', options_for_select(min))%>&nbsp<%= l(:label_wk_minutes) %>								   	
 		</p>
 		<p>
 			<span style="margin-left:1.1em;"></span><label><%= l(:label_date_to) %></label><span style="margin-left:0.5em;"></span>
-			<%= select_tag('settings[wktime_break_to_hr]', options_for_select(hr, 
-			:selected => @settings['wktime_break_to_hr'].blank? ? 23 : @settings['wktime_break_to_hr']))%>&nbsp<%= l(:field_hours) %>&nbsp;	
-			<%= select_tag('settings[wktime_break_to_min]', options_for_select(min,
-			:selected => @settings['wktime_break_to_min'].blank? ? 0 : @settings['wktime_break_to_min']))%>&nbsp<%= l(:label_wk_minutes) %>								   	
+			<%= select_tag('break_to_hr', options_for_select(hr))%>&nbsp<%= l(:field_hours) %>&nbsp;	
+			<%= select_tag('break_to_min', options_for_select(min))%>&nbsp<%= l(:label_wk_minutes) %>								   	
 		</p>
 		<p>
 			<%= hidden_field_tag :hdnAction, "" %>
@@ -84,22 +86,31 @@ selectListAlertMsg = "<%=l(:label_wk_select_break_time) %>";
 	<p>
 		<%
 		leave = []
+		issue_list = Issue.order('subject')
+		unless issue_list.blank?
+			issueslist = issue_list.collect {|issue| [issue.subject, issue.id] }
+			issuehash = Hash[issue_list.map { |u| [u.id, u.subject] }]
+		else
+			issueslist = Array.new
+			issueslist << [ "", 0]
+		end
 		if(@settings['wktime_leave'].blank?)
 			leave = ''
 		else
 			@settings['wktime_leave'].each do |element|
 			  listboxArr = element.split('|')
 			  issueId = listboxArr[0]
-			  issueName = listboxArr[1]
-			  leaveAccural = listboxArr[2]
-			  optionText = issueName + ":"  + leaveAccural + " " + l(:label_per_month);
+			  issueName = issuehash[issueId.to_i]
+			  leaveAccural = listboxArr[1].blank? ? "" : listboxArr[1]
+			  accuralAfter = listboxArr[2].blank? ? "" : listboxArr[2]
+			  optionText = leaveAccural.blank? ? issueName : issueName + " : "  + leaveAccural + " " + l(:label_days_per_month) + " " + l(:label_wk_leave_accrual_after) + " " + accuralAfter + " " + l(:label_year)
 			  leave << [optionText,element]
 			end
 		end
 		%>
 		<label><%= l(:label_wk_leave) %></label>
 			<%=  select_tag('settings[wktime_leave]',
-				options_for_select(leave, :selected => 'settings[wktime_leave]'), :multiple=> true, :style => "width:200px; height:150px;")%>	
+				options_for_select(leave, :selected => 'settings[wktime_leave]'), :multiple=> true, :style => "min-width:200px; height:150px;")%>	
 
 		</p>			
 		<p>
@@ -110,42 +121,18 @@ selectListAlertMsg = "<%=l(:label_wk_select_break_time) %>";
 	
 	<div id="leave-dlg" title="<%= l(:label_wk_leave) %>">
 		<p>
-			<label><%= l(:label_wk_leave_issue) %></label><span style="margin-left:0.5em;"></span>
-			
-	
-			<%
-				issue_list = Issue.order('subject')
-				unless issue_list.blank?
-					issueslist = issue_list.collect {|issue| [issue.subject, issue.id] }
-					issueslist.unshift(["",0])
-				end
-			%>
-			<%=h select_tag('settings[wktime_leave_issue]', 
-			options_for_select(issueslist, :selected =>  @settings['wktime_leave_issue'])) %>								   	
+			<label><%= l(:label_wk_leave_issue) %></label><span style="margin-left:0.8em;"></span>
+			<%=h select_tag('leave_issue', 
+			options_for_select(issueslist)) %>								   	
 		</p>
 		<p>
-			<span style="margin-left:2.5em;"></span><label><%= l(:label_wk_leave_accural) %></label><span style="margin-left:0.5em;"></span><%= text_field_tag('leave_accural','',:size => 14, :maxlength => 3) %> 		
+			<span style="margin-left:2.3em;"></span><label><%= l(:label_wk_leave_accural) %></label><span style="margin-left:1.0em;"></span><%= text_field_tag('leave_accural','', :size => 2.5, :maxlength => 3) %>&nbsp<%= l(:label_days_per_month) %>		
+		</p>
+		<p>
+			<label><%= l(:label_wk_leave_accrual_after) %></label><span style="margin-left:0.5em;"></span><%= text_field_tag 'leave_accrual_after','', :size => 2.5, :maxlength => 3 %>&nbsp<%= l(:label_year) %>
 		</p>
 		<p>
 			<%= hidden_field_tag :hdnAction, "" %>
 		</p>
 	</div>
-	<p>
-		<label><%= l(:label_wk_leave_accrual_after) %></label><%= text_field_tag 'settings[wktime_leave_accrual_after]', @settings['wktime_leave_accrual_after'], :size => 3 %>&nbsp<%= l(:label_year) %>
-	</p><%
-		custom_fields = UserCustomField.order('name').where("field_format = 'date'")
-		unless custom_fields.blank?
-			cfs = custom_fields.collect {|cf| [cf.name, cf.id] }
-			cfs.unshift(["",0])
-		else
-			cfs = Array.new
-			cfs << [ "", 0]
-		end
-	%>
-
-	 <p>
-		<label><%= l(:label_wk_attendance_start_date) %> </label><%=h select_tag('settings[wktime_att_start_date]', 
-			options_for_select(cfs, :selected =>  @settings['wktime_att_start_date']), 
-			:style=> "min-width:80px" ) %>
-	</p>
 </fieldset>
