@@ -868,14 +868,14 @@ function validateHours(hoursValue,hoursDay){
 	var total=0;
 	if (!isNaN(hoursValue))	{
 		hours = hoursValue;		
-	}else if (hoursValue.indexOf('.') ==1){
+	}else if (hoursValue.indexOf('.') > -1){
 		valid = checkStr(hoursValue,'.')				
-	}else if (hoursValue.indexOf(",")==1){
+	}else if (hoursValue.indexOf(",") > -1){
 		valid = checkStr(hoursValue,",")
 		if(!valid){				
 			hours = hoursValue.replace(",", ".");
 		}
-	}else if (hoursValue.indexOf(":")==1){
+	}else if (hoursValue.indexOf(":") > -1){
 		valid = checkStr(hoursValue,":")
 		if(!valid){
 			var val = hoursValue.split(":");
