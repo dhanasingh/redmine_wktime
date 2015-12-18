@@ -85,6 +85,12 @@ $(document).ready(function() {
 			}
 		}
 	});	
+	
+	for(i = 1; i <= 7; i++)
+	{
+		updateRemainingHr(i);	
+		updateTotalHr(i);
+	}
 
 	
 });
@@ -1111,34 +1117,48 @@ function validateHr(hrFld,day)
 	}
 }
 
-function setClockInClockOut(strid,id) {
+function setClockInOut(strid,id) {
        var d = new Date();
 	   var hh = d.getHours();
 	   var mm = d.getMinutes();
 	   id++;
-	   elementid = document.getElementById(strid + '_' + id);
-	   elementid.value = hh + ":" + mm;
-	   if( strid == 'start')
+	   //elementid = document.getElementById(strid + '_' + id);
+	   elementhour = hh + ":" + mm;
+	  /* if( strid == 'start')
 	   {
 		  document.getElementById('end_' + id).disabled  = false;
 	   }
-	   document.getElementById(strid + '_' + id).disabled  = true;
-	   updateRemainingHr(id);	
-	   updateTotalHr(id);
-	   updateClockInOut(elementid.value, strid, id);
+	   document.getElementById(strid + '_' + id).disabled  = true;*/
+	   updateClockInOut(elementhour, strid, id);
 	   //elementid.onclick=function(){updateClockInOut(this.value, strid, id)};
 }
 
 function updateClockInOut(entrytime, strid, id){
-	var $this = $(this);				
-	var params = strid == 'start' ? {starttime: entrytime} 	: {endtime :entrytime};
+	var $this = $(this);		
+	elementid = document.getElementById('hd'+strid + '_' + id).value;
+	var params = strid == 'start' ? {starttime: entrytime} 	: {endtime :entrytime, id: elementid};
 	$.ajax({
 		url: 'updateAttendance',
 		type: 'get',
 		data: params,
-		success: function(data){  },
+		success: function(data){ hiddenClockInOut(data, strid, id); },
 		complete: function(){ $this.removeClass('ajax-loading'); }
 	});		
+}
+
+function hiddenClockInOut(data,strid,id){
+	var array = data.split(',');
+	hdstart = document.getElementById('hdstart_' + id);
+	hdstart.value = array[0];
+	
+	hdend = document.getElementById('hdend_' + id);
+	hdend.value = array[0];
+	
+	elementid = document.getElementById(strid + '_' + id);
+	elementid.value = strid == 'start' ? array[1] : array[2];
+	updateRemainingHr(id);	
+	updateTotalHr(id);
+	
 }
 
 function issueAutocomplete(txtissue,row){    

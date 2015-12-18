@@ -21,16 +21,47 @@
 	<% if (isAccountUser)  %>			
 		<% disable = false %>
 	<% end %>
+	
+	<% hiddenid = Array.new %>
+	<% entrystart = Array.new %>
+	<% entryend = Array.new %>
+	<% entrydate = Array.new %>
+	<% @wkattendances.each do |entry| %>
+		<% hiddenid << (!(entry.id).blank? ?  (entry.id) : '') %>			
+		<% entrystart <<  (!(entry.start_time).blank? ?  (entry.start_time).strftime("%H:%M") : '00:00') %>
+		<% entryend << (!(entry.end_time).blank? ?  (entry.end_time).strftime("%H:%M") : '00:00') %>
+		<% entrydate << (entry.start_time).strftime('%Y-%m-%d') %>
+	<% end %>
+	<% hiddenvalue = Array.new %>
+	<% startvalue = Array.new %>
+	<% endvalue = Array.new %>
+	<% k = 0%>		
+	<% for j in 0..6%>
+		<%  if (@startday + j).to_s == (entrydate[k]).to_s    %>
+			<% startvalue[j] = entrystart[k] %>		
+			<% endvalue[j] = entryend[k] %>
+			<% hiddenvalue[j] = hiddenid[k] %>
+			<% k += 1 %>
+		<% else %>
+			<% startvalue[j] = '00:00' %>
+			<% endvalue[j] = '00:00' %>
+			<% hiddenvalue[j] = '' %>
+		<% end %>	
+	<% end %>
+	
 	<% for i in 0..6%>
 		<% if (@startday + i) == Date.today %>
 			<% col_num = Date.today.wday %>
 		<% end %>
 		<% if (isEditable) %>
-			<% if ("#{str}" == "start" || "#{str}" == "end") && (!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? &&
-				Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1) && (i == col_num) &&  User.current.id == @user.id   %>
-				<td align = "center"><%= submit_tag "#{str}" == "start" ? l(:"label_clock_in") : l(:"label_clock_out"), :type => "button", :disabled => "#{str}" == "end" ? true : false, :id => "#{str}_#{(i+1)}",  :onclick => "javascript:setClockInClockOut('#{str}','#{col_num}');" %> </td>
+			<% if ("#{str}" == "start" || "#{str}" == "end") && controller.showClockInOut && (i == col_num) &&  User.current.id == @user.id   %>
+				<td style="width: 70px"><%= text_field_tag "#{str}_#{(i+1)}" , "#{str}" == "start" ? startvalue[i] : endvalue[i],:size => 4, :disabled => disable,  :onchange => "validateHr(this,#{(i+1)});" %>
+				<%= link_to "", "#", { :onclick => "javascript:setClockInOut('#{str}','#{col_num}');", :class => 'icon icon-time-add'  }%>
+				<%=h hidden_field_tag('hd' + "#{str}_#{(i+1)}", hiddenvalue[i] )  %>
+				</td>
 			<% else %>
-				<td align = "center"><%= text_field_tag "#{str}_#{(i+1)}" ,"0:00",:size => 4, :disabled => disable,  :onchange => "validateHr(this,#{(i+1)});" %></td>
+				<td align = "center"><%= text_field_tag "#{str}_#{(i+1)}" , "#{str}" == "start" ? startvalue[i] : endvalue[i],:size => 4, :disabled => disable,  :onchange => "validateHr(this,#{(i+1)});"  %>
+				<%=h hidden_field_tag('hd' + "#{str}_#{(i+1)}", hiddenvalue[i])  %></td>
 			<% end %>
 		<% else %>
 			<td align = "center"><%= value %></td>
