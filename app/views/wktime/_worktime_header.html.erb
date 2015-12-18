@@ -53,7 +53,7 @@
 		<% if (@startday + i) == Date.today %>
 			<% col_num = Date.today.wday %>
 		<% end %>
-		<% if (isEditable) %>
+		<% if (isEditable) %>  
 			<% if ("#{str}" == "start" || "#{str}" == "end") && controller.showClockInOut && (i == col_num) &&  User.current.id == @user.id   %>
 				<td style="width: 70px"><%= text_field_tag "#{str}_#{(i+1)}" , "#{str}" == "start" ? startvalue[i] : endvalue[i],:size => 4, :disabled => disable,  :onchange => "validateHr(this,#{(i+1)});" %>
 				<%= link_to "", "#", { :onclick => "javascript:setClockInOut('#{str}','#{col_num}');", :class => 'icon icon-time-add'  }%>
