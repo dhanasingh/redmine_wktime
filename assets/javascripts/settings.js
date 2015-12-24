@@ -109,9 +109,9 @@ function dialogAction()
 				var opt,desc="",opttext="";
 				var listBox = document.getElementById("settings_wktime_leave");
 				var leaveIssue = document.getElementById("leave_issue");
-				var leaveAccural = document.getElementById("leave_accural");
-				var accuralAfter = document.getElementById("leave_accrual_after");
-				if(!checkDuplicate(listBox,leaveIssue.value) && !isNaN(leaveAccural.value) && !isNaN(accuralAfter.value)){
+				var leaveAccrual = document.getElementById("leave_accrual");
+				var accrualAfter = document.getElementById("leave_accrual_after");
+				if(!checkDuplicate(listBox,leaveIssue.value) && !isNaN(leaveAccrual.value) && !isNaN(accrualAfter.value)){
 					if('Add'== leaveAction){	
 						opt = document.createElement("option");
 						listBox.options.add(opt);
@@ -123,13 +123,13 @@ function dialogAction()
 						desc = leaveIssue.value
 						opttext = leaveIssue.options[leaveIssue.selectedIndex].text;
 					}	
-					desc = desc + "|"  + leaveAccural.value;				
-					if (leaveAccural.value != ""){
-						opttext = opttext + " : "  + leaveAccural.value + " " + lblDaysPerMonth;
+					desc = desc + "|"  + leaveAccrual.value;				
+					if (leaveAccrual.value != ""){
+						opttext = opttext + " : "  + leaveAccrual.value + " " + lblDaysPerMonth;
 					}
-					desc = desc + "|"  + accuralAfter.value;			
-					if (accuralAfter.value != ""){
-						opttext = opttext + " " + lblAccuralAfter + " " + accuralAfter.value + " " + lblYear;
+					desc = desc + "|"  + accrualAfter.value;			
+					if (accrualAfter.value != ""){
+						opttext = opttext + " " + lblAccrualAfter + " " + accrualAfter.value + " " + lblYear;
 					}		
 					opt.text =  opttext;
 					opt.value = desc;
@@ -141,11 +141,11 @@ function dialogAction()
 					if(checkDuplicate(listBox,leaveIssue.value)){
 						alertMsg = issueExistsAlertMsg + "\n";
 					}
-					if(isNaN(leaveAccural.value)){
-						alertMsg = alertMsg + lblAccural + " "+ lblInvalid + "\n";
+					if(isNaN(leaveAccrual.value)){
+						alertMsg = alertMsg + lblAccrual + " "+ lblInvalid + "\n";
 					}
-					if(isNaN(accuralAfter.value)){
-						alertMsg = alertMsg + lblAccuralAfter + " " + lblInvalid;
+					if(isNaN(accrualAfter.value)){
+						alertMsg = alertMsg + lblAccrualAfter + " " + lblInvalid;
 					}
 					alert(alertMsg);
 				}
@@ -247,14 +247,14 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 	{
 		var listbox = document.getElementById("settings_wktime_leave");
 		var leaveIssue = document.getElementById("leave_issue");
-		var leaveAccural = document.getElementById("leave_accural");
-		var accuralAfter = document.getElementById("leave_accrual_after");
+		var leaveAccrual = document.getElementById("leave_accrual");
+		var accrualAfter = document.getElementById("leave_accrual_after");
 		if('Add' == action)
 		{	
 			leaveAction = action;
 			leaveIssue.value = "";
-			leaveAccural.value = "";
-			accuralAfter.value = "";
+			leaveAccrual.value = "";
+			accrualAfter.value = "";
 			selectedIssue="";
 			$( "#leave-dlg" ).dialog( "open" )	
 		}
@@ -263,8 +263,8 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 			var listboxArr = listbox.options[listbox.selectedIndex].value.split('|');
 			leaveIssue.value = listboxArr[0];
 			selectedIssue=listboxArr[0];
-			leaveAccural.value = !listboxArr[1] ? "" : listboxArr[1];
-			accuralAfter.value = !listboxArr[2] ? "" : listboxArr[2];
+			leaveAccrual.value = !listboxArr[1] ? "" : listboxArr[1];
+			accrualAfter.value = !listboxArr[2] ? "" : listboxArr[2];
 			leaveAction = action;
 			$( "#leave-dlg" ).dialog( "open" )	
 		}

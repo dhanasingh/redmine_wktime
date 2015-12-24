@@ -72,6 +72,12 @@
   
   delete 'wkexpense/deleteEntries', :to => 'wkexpense#deleteEntries'
   
+   #For Attendance
+   get 'wkattendance/index', :to => 'wkattendance#index'
+   match 'wkattendance/edit', :to => 'wkattendance#edit', :via => [:get, :post]
+			  
+   post 'wkattendance/update', :to => 'wkattendance#update'
+  
     resources :projects do	
 	resources :wk_expense_entries, :controller => 'wkexpense' do
 		collection do

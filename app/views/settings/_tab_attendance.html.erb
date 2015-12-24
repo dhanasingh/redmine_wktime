@@ -4,8 +4,8 @@ selectListAlertMsg = "<%=l(:actionview_instancetag_blank_option) %>";
 issueExistsAlertMsg = "<%=l(:label_wk_leave_exists) %>";
 lblInvalid= "<%=l('activerecord.errors.messages.invalid') %>";
 lblDaysPerMonth = "<%=l(:label_days_per_month) %>";
-lblAccural = "<%=l(:label_wk_leave_accural) %>";
-lblAccuralAfter = "<%=l(:label_wk_leave_accrual_after) %>";
+lblAccrual = "<%=l(:label_wk_leave_accrual) %>";
+lblAccrualAfter = "<%=l(:label_wk_leave_accrual_after) %>";
 lblYear = "<%=l(:label_year) %>";
 </script>
 <fieldset class="box tabular">
@@ -101,9 +101,9 @@ lblYear = "<%=l(:label_year) %>";
 			  listboxArr = element.split('|')
 			  issueId = listboxArr[0]
 			  issueName = issuehash[issueId.to_i]
-			  leaveAccural = listboxArr[1].blank? ? "" : listboxArr[1]
-			  accuralAfter = listboxArr[2].blank? ? "" : listboxArr[2]
-			  optionText = leaveAccural.blank? ? issueName : issueName + " : "  + leaveAccural + " " + l(:label_days_per_month) + " " + l(:label_wk_leave_accrual_after) + " " + accuralAfter + " " + l(:label_year)
+			  leaveAccrual = listboxArr[1].blank? ? "" : listboxArr[1]
+			  accrualAfter = listboxArr[2].blank? ? "" : listboxArr[2]
+			  optionText = leaveAccrual.blank? ? issueName : issueName + " : "  + leaveAccrual + " " + l(:label_days_per_month) + " " + l(:label_wk_leave_accrual_after) + " " + accrualAfter + " " + l(:label_year)
 			  leave << [optionText,element]
 			end
 		end
@@ -126,7 +126,7 @@ lblYear = "<%=l(:label_year) %>";
 			options_for_select(issueslist)) %>								   	
 		</p>
 		<p>
-			<span style="margin-left:2.3em;"></span><label><%= l(:label_wk_leave_accural) %></label><span style="margin-left:1.0em;"></span><%= text_field_tag('leave_accural','', :size => 2.5, :maxlength => 3) %>&nbsp<%= l(:label_days_per_month) %>		
+			<span style="margin-left:2.3em;"></span><label><%= l(:label_wk_leave_accrual) %></label><span style="margin-left:1.0em;"></span><%= text_field_tag('leave_accrual','', :size => 2.5, :maxlength => 3) %>&nbsp<%= l(:label_days_per_month) %>		
 		</p>
 		<p>
 			<label><%= l(:label_wk_leave_accrual_after) %></label><span style="margin-left:0.5em;"></span><%= text_field_tag 'leave_accrual_after','', :size => 2.5, :maxlength => 3 %>&nbsp<%= l(:label_year) %>

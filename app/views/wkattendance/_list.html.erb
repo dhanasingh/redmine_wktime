@@ -1,0 +1,34 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<%= form_tag({}) do -%>	
+<%= hidden_field_tag 'back_url', url_for(params) %>
+<table class="list time-entries">
+<thead>
+<tr>
+<th class="lbl-txt-align"><%= l(:field_user) %></th>
+<%
+	isAvailable = false
+	isAvailable = true if @leave_entries[0].issue_id != -1 
+%>
+<% if isAvailable %>
+<th class="lbl-txt-align"><%= @leave_entries[0].issue.subject %></th>
+<% end %>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<% @leave_entries.each do |entry| -%>
+
+<tr class="time-entry <%= cycle("odd", "even") %>">
+<td class="lbl-txt-align"><%=h entry.user.name %></td>
+<% if isAvailable %>
+<td class="lbl-txt-align"><%=h entry.balance %></td>
+<% end %>
+<td align="center">
+    <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :user_id => entry.user_id, :tab => controller.controller_name},
+                                       :title => l(:button_edit) %>
+</td>
+</tr>
+<% end -%>
+</tbody>
+</table>
+<% end -%>

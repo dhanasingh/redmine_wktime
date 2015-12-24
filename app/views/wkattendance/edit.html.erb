@@ -1,0 +1,59 @@
+<h2><%= l(:label_wk_leave) %></h2>
+<%= form_tag({:controller => 'wkattendance', :action => 'update'}, :method => :post, :id => 'wkattendance_update') do %>
+	<table>
+	<thead>
+		<tr>
+		<th class="lbl-txt-align"><%= l(:label_wk_leave) %></th>
+		<th class="lbl-txt-align"><%= l(:wk_field_balance) %></th>
+		<th class="lbl-txt-align"><%= l(:label_wk_leave_accrual) %></th>
+		<th class="lbl-txt-align"><%= l(:wk_field_used) %></th>
+		<th class="lbl-txt-align"><%= l(:wk_field_remaining) %></th>
+		<th></th>
+		</tr>
+	</thead>
+	<%
+		disable = true
+		wktime_helper = Object.new.extend(WktimeHelper)
+		disable = false if wktime_helper.isAccountUser
+	%>
+	<% 
+		ids = ''
+		newIssueIds =''
+		userId = ''
+	%>
+	<tr>
+		<% @leave_details.each do |entry| -%>
+			<% 				
+				if entry.id.blank?
+					newIssueIds = newIssueIds +',' if newIssueIds!=''
+					newIssueIds = newIssueIds + entry.issue_id.to_s
+				else
+					ids = ids +',' if ids!=''
+					ids = ids + entry.id.to_s
+				end
+				userId = entry.user_id
+				remaining = (entry.balance.blank? ? 0 : entry.balance) + (entry.accrual.blank? ? 0 : entry.accrual) - (entry.used.blank? ? 0 : entry.used)
+			%>
+		
+	<tr>
+	<th width="220px"><%=h entry.issue.subject%></th>
+		<td><%=h text_field_tag('balance_'+entry.issue_id.to_s,entry.balance.blank? ? 0 : entry.balance,:size => 10, :disabled => disable, :required => true) %>
+		</td>
+		<td><%=h text_field_tag('accrual_'+entry.issue_id.to_s,entry.accrual.blank? ? 0 : entry.accrual,:size => 10, :disabled => disable, :required => true) %>
+		</td>
+		<td><%=h text_field_tag('used_'+entry.issue_id.to_s,entry.used.blank? ? 0 : entry.used,:size => 10, :disabled => disable, :required => true) %>
+		</td>
+		<th width="220px"><%=h remaining%></th>
+		<td><%= l(:field_hours) %></td>
+	<% end -%>
+	</tr>
+	</table>
+	
+	<%=h hidden_field_tag('user_id', userId) %>
+	
+	<%=h hidden_field_tag('new_issue_ids', newIssueIds) %>
+	
+	<%=h hidden_field_tag('ids', ids) %>
+	
+	<%= submit_tag l(:button_save), :hidden => disable, :id => 'wkattendance_save' %>
+<% end %>

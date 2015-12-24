@@ -1,0 +1,8 @@
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<script type="text/javascript"> 
+	prevTab = 'tab-<%= "#{controller_name}" %>';
+</script>
+<%= render :partial => 'wkattendance/list'%>
+<%=h hidden_field_tag('tab', "#{controller_name}") %>
+<%= hidden_field_tag "searchlist", "#{controller_name}" %>

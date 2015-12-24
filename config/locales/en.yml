@@ -148,8 +148,11 @@ en:
   label_wk_paid_leave: Paid Leave
   label_wk_leave: Leave
   label_wk_leave_issue: Leave issue
-  label_wk_leave_accural: Accrual
+  label_wk_leave_accrual: Accrual
   label_wk_attendance_start_date: Attendance start date
   label_clock_in: Clock in
   label_clock_out: Clock out
   label_wk_leave_exists: This leave already exists
+  wk_field_balance: Balance
+  wk_field_used: Used
+  wk_field_remaining: Remaining
