@@ -22,22 +22,58 @@
 		<% disable = false %>
 	<% end %>
 	
+	
 	<% hiddenid = Array.new %>
 	<% entrystart = Array.new %>
 	<% entryend = Array.new %>
 	<% entrydate = Array.new %>
+	<% entryenddate = Array.new %>
 	<% @wkattendances.each do |entry| %>
 		<% hiddenid << (!(entry.id).blank? ?  (entry.id) : '') %>			
-		<% entrystart <<  (!(entry.start_time).blank? ?  (entry.start_time).strftime("%H:%M") : '00:00') %>
-		<% entryend << (!(entry.end_time).blank? ?  (entry.end_time).strftime("%H:%M") : '00:00') %>
+		<% entrystart <<  (!(entry.start_time).blank? ?  (entry.start_time).strftime('%r') : '00:00') %>
+		<% entryend << (!(entry.end_time).blank? ?  (entry.end_time).strftime('%r') : '00:00') %>
 		<% entrydate << (entry.start_time).strftime('%Y-%m-%d') %>
+		<% entryenddate << (entry.end_time).strftime('%Y-%m-%d') %>
 	<% end %>
 	<% hiddenvalue = Array.new %>
 	<% startvalue = Array.new %>
 	<% endvalue = Array.new %>
-	<% k = 0%>		
+	<% k = 0%>
+	<% l = 1%>	
+	<% multiplestart11 = [] %>
+	<% multiplestart = "" %>
+	<% multiplestart1 = "" %>
+	<% multiplestart2 = "" %>
+	<% multiplestart3 = "" %>
+	<% multiplestart4 = "" %>
+	<% multiplestart5 = "" %>
+	<% multiplestart6 = "" %>
+	<% multiplefinal = "" %>
+	<% multipleend = Array.new %>
+	<% @wkmultiple = controller.multipleClockInOut %>
+	<% @wkmultiple.each do |entry| %>	
+	
+		<% for i in 1..7%>
+			
+				<% @wkmultiple.each do |entry| %>			
+					<% multipleid = (entry.start_time).strftime('%Y-%m-%d') %>
+					<% multiid = (entry.start_time).strftime('%Y-%m-%d').to_s.to_date.wday %>
+					<%  if multipleid.to_s.to_date.wday == (@startday + (i-1)).wday   %>
+						<% multiplestart11[i..multiid] = ( (entry.start_time).strftime('%r') +  (entry.end_time).strftime('%r') ).to_s %>
+					<% end %>
+				<% end %>
+			
+		<% end %>
+				
+			
+	<% end %>
+	<% Rails.logger.info("************ multiplestart #{multiplestart11[3]}   ************************") %>
+	<% multiplefinal << ',' + multiplestart + ',' + multiplestart1 + ',' + multiplestart2 + ',' + multiplestart3 + ',' + multiplestart4 + ',' + multiplestart5 + ',' + multiplestart6  %>
+	<%=h hidden_field_tag('hd', multiplefinal )  %>	
+	
 	<% for j in 0..6%>
-		<%  if (@startday + j).to_s == (entrydate[k]).to_s    %>
+	
+		<%  if (@startday + j).to_s == (entrydate[k]).to_s   %>
 			<% startvalue[j] = entrystart[k] %>		
 			<% endvalue[j] = entryend[k] %>
 			<% hiddenvalue[j] = hiddenid[k] %>
@@ -48,23 +84,30 @@
 			<% hiddenvalue[j] = '' %>
 		<% end %>	
 	<% end %>
-	
+		
 	<% for i in 0..6%>
+	
 		<% if (@startday + i) == Date.today %>
 			<% col_num = Date.today.wday %>
-		<% end %>
-		<% if (isEditable) %>  
+		<% end %>			
+		<% if (isEditable) %>  			
 			<% if ("#{str}" == "start" || "#{str}" == "end") && controller.showClockInOut && (i == col_num) &&  User.current.id == @user.id   %>
-				<td style="width: 70px"><%= text_field_tag "#{str}_#{(i+1)}" , "#{str}" == "start" ? startvalue[i] : endvalue[i],:size => 4, :disabled => disable,  :onchange => "validateHr(this,#{(i+1)});" %>
-				<%= link_to "", "#", { :onclick => "javascript:setClockInOut('#{str}','#{col_num}');", :class => 'icon icon-time-add'  }%>
+				<td style="width: 100px"><%= text_field_tag "#{str}_#{(i+1)}" , "#{str}" == "start" ? startvalue[i] : endvalue[i],:size => 4, :disabled => controller.showClockInOut ? disable : false,  :onchange => "validateHr(this,#{(i+1)});" %>
 				<%=h hidden_field_tag('hd' + "#{str}_#{(i+1)}", hiddenvalue[i] )  %>
+				<% imgname = "#{str}" == "start" ? "clock8.jpg" : "clockout8.jpg" %>
+				<% image_tg = image_tag("#{imgname}", :id => "#{str}" == "start" ? 'start_img' : 'end_img' , :plugin => "redmine_wktime") %>
+				<%= link_to image_tg, "javascript:setClockInOut('#{str}','#{col_num}');"	%>
 				</td>
 			<% else %>
-				<td align = "center"><%= text_field_tag "#{str}_#{(i+1)}" , "#{str}" == "start" ? startvalue[i] : endvalue[i],:size => 4, :disabled => disable,  :onchange => "validateHr(this,#{(i+1)});"  %>
-				<%=h hidden_field_tag('hd' + "#{str}_#{(i+1)}", hiddenvalue[i])  %></td>
+				<td align = "center"><%= text_field_tag "#{str}_#{(i+1)}" , "#{str}" == "start" ? startvalue[i] : endvalue[i],:size => 4, :disabled => controller.showClockInOut ? disable : false,  :onchange => "validateHr(this,#{(i+1)});"  %>
+				<%=h hidden_field_tag('hd' + "#{str}_#{(i+1)}", hiddenvalue[i])  %>				
+				</td>
 			<% end %>
+
 		<% else %>
-			<td align = "center"><%= value %></td>
+			<td style="width: 60px">
+				
+			</td>
 		<% end %>
 	<% end %>
 	<td ></td>

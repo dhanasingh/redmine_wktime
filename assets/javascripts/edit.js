@@ -22,6 +22,33 @@ $(document).ready(function() {
 //$(function() {
 	var e_comments = $( "#_edit_comments_" );
 	var e_notes = $( "#_edit_notes_" );
+	 $( "#clockInOut-dlg" ).dialog({
+		autoOpen: false,
+		resizable: false,
+		modal: false,
+		buttons: {
+			"Ok": function() {
+				var elementid;
+				var check = new Array();
+				for(i=0; i< 8 ; i++)
+				{
+					elementid = document.getElementById('popupstart_'+i);
+					alert("element val : " + elementid.value);
+					if (elementid.defaultValue !=  elementid.value   ) {
+						check[i] = elementid.value;
+					}  
+					alert("text : " + check[i]);
+					
+				}
+				
+				//
+				$( this ).dialog( "close" );
+			},
+			Cancel: function() {
+				$( this ).dialog( "close" );
+			}
+		}
+	});	
 
 	$( "#comment-dlg" ).dialog({
 		autoOpen: false,
@@ -85,8 +112,13 @@ $(document).ready(function() {
 			}
 		}
 	});	
-	
-	for(i = 1; i <= 7; i++)
+	/*var eles = document.getElementById('end_img');//.style.pointerEvents = 'none';
+	eles.onclick = function() {
+		$('end_img').attr({src: "../plugin_assets/redmine_wktime/images/changeclock.png"});
+     return false;
+   }*/
+
+   for(i = 1; i <= 7; i++)
 	{
 		updateRemainingHr(i);	
 		updateTotalHr(i);
@@ -1089,10 +1121,36 @@ function updateTotalHr(day)
 		{
 			totTime = tot_Hr + ":00";
 		};
+		//var setotval = document.getElementById("hd").value;
+		//var val = setotval.split(',');
+	//	for(var i = 1; i < val.length; i++) {
+	//	   val[i] = val[i];
+	//	}
 		
-		totHrCell = totTimeRow.cells[hStartIndex + day];		
-		totHrCell.innerHTML = totTime;
+		totHrCell = totTimeRow.cells[hStartIndex + day];
+		totHrCell.innerHTML = totTime + "     <a href='javascript:showclkDialog("+day+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockin.png' border=0 '/></a>";
 	/*}*/
+	//$( "#comment-dlg" ).dialog( "open" );
+}
+function showclkDialog(day)
+{
+	var i;
+	for(i = 1; i < 8 ; i++)
+	{
+		if(day == i)
+		{
+			document.getElementById('img_'+ i).style.display = 'block';
+			$( "#clockInOut-dlg" ).dialog( "open" );
+		}
+		else
+		{
+			document.getElementById('img_'+ i).style.display = 'none';
+		}
+		
+	}
+
+
+
 }
 
 //Validates the start and end time
@@ -1124,11 +1182,39 @@ function setClockInOut(strid,id) {
 	   id++;
 	   //elementid = document.getElementById(strid + '_' + id);
 	   elementhour = hh + ":" + mm;
-	  /* if( strid == 'start')
+	/*   if( strid == 'start')
 	   {
-		  document.getElementById('end_' + id).disabled  = false;
+		//  document.getElementById('end_' + id).disabled  = false;
+		//  document.getElementById('end_img').style.pointerEvents = 'auto';
+		//  document.getElementById('start_img').style.pointerEvents = 'none';
+			var eles = document.getElementById('start_img');//.style.pointerEvents = 'none';
+			eles.onclick = function() {
+			//	$(eles).attr({src: "../plugin_assets/redmine_wktime/images/changeclock.png"});
+			 return false;
+		   }
+		   
+		    var eles = document.getElementById('end_img');//.style.pointerEvents = 'none';
+		eles.onclick = function() {
+		//	$(eles).attr({src: "../plugin_assets/redmine_wktime/images/clockout8.png"});
+		return true;
+		}
 	   }
-	   document.getElementById(strid + '_' + id).disabled  = true;*/
+	   else{
+		   var eles = document.getElementById('end_img');//.style.pointerEvents = 'none';
+			eles.onclick = function() {
+		//		$(eles).attr({src: "../plugin_assets/redmine_wktime/images/changeclock.png"});
+			 return false;
+		   }
+		   
+		    var eles = document.getElementById('start_img');//.style.pointerEvents = 'none';
+		eles.onclick = function() {
+		//	$(eles).attr({src: "../plugin_assets/redmine_wktime/images/clock8.png"});
+		return true;
+		}
+	   }
+	  */
+	   
+	   //document.getElementById(strid + '_' + id).disabled  = true;)
 	   updateClockInOut(elementhour, strid, id);
 	   //elementid.onclick=function(){updateClockInOut(this.value, strid, id)};
 }

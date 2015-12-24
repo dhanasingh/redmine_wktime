@@ -92,6 +92,33 @@
 
 	</div>
 	
+	<div id="clockInOut-dlg" title="<%= l(:label_wk_attendance) %>">
+		<fieldset>
+			<p> <label><%= l(:label_clock_in) %></label> <label>     <label><%= l(:label_clock_out) %></label></p>
+			<% @wkmultiple = controller.multipleClockInOut %>			
+			<p>			
+			<% l = 0%>	
+			<% for i in 1..7%>
+			<div id="img_<%= i %>" >
+				<% @wkmultiple.each do |entry| %>			
+					<% multipleid = (entry.start_time).strftime('%Y-%m-%d') %>
+					<% multiid = (entry.start_time).strftime('%Y-%m-%d').to_s.to_date.wday %>
+					<%  if multipleid.to_s.to_date.wday == (@startday + (i-1)).wday   %>
+						
+						<%= text_field_tag "popupstart_#{l}" , ( (entry.start_time).strftime('%r')  ).to_s, :size => 12, :disabled => isAccountUser ? false : true   %> 
+						<%= text_field_tag "popupendend_#{l}"  , ( (entry.end_time).strftime('%r')  ).to_s, :size => 12, :disabled =>  isAccountUser ? false : true   %>
+						<%=h hidden_field_tag("hiddenpopup_#{l}", entry.id )  %>	
+						<% l += 1 %>
+					<% end %>
+						
+				<% end %>
+			</div>
+			<% l = 0%>
+			<% end %>
+			</p>			
+		</fieldset>
+	</div>
+	
 <%= render :partial => 'row_template' %>
 
 <%= form_tag({:controller => controller.controller_name, :action => 'update'}, :method => :post, :id => 'wktime_edit') do %>

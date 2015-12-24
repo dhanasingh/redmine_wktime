@@ -170,15 +170,15 @@ include QueriesHelper
 					# save each entry
 					entrycount=0
 					entrynilcount=0
-					for i in 0..6
-						id = !params["hdend_#{i}"].blank?  ? params["hdend_#{i}"] : nil	
-						if id != nil
-							wkattendance =  WkAttendance.find(id)  
-							wkattendance.start_time = params["start_#{i}"]  != '00:00' && params["start_#{i}"] != nil ? params["start_#{i}"] : ''
-							wkattendance.end_time = params["end_#{i}"]  != '00:00' && params["end_#{i}"] != nil ? params["end_#{i}"] : ''
-							wkattendance.save()
-						end
-					end
+				#	for i in 0..6
+				#		id = !params["hdend_#{i}"].blank?  ? params["hdend_#{i}"] : nil	
+				#		if id != nil && isAccountUser
+				#			wkattendance =  WkAttendance.find(id)  
+				#			wkattendance.start_time = params["start_#{i}"]  != '00:00' && params["start_#{i}"] != nil ? params["start_#{i}"] : ''
+				#			wkattendance.end_time = params["end_#{i}"]  != '00:00' && params["end_#{i}"] != nil ? params["end_#{i}"] : ''
+				#			wkattendance.save()
+				#		end
+				#	end
 					@entries.each do |entry|			
 						entrycount += 1
 						entrynilcount += 1 if (entry.hours).blank?
@@ -882,6 +882,10 @@ include QueriesHelper
 		Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1
 	end
 	
+	def multipleClockInOut
+		WkAttendance.where(" user_id = '#{params[:user_id]}'").having("date(start_time) between '#{@startday}'  and '#{@startday + 6}' ").order("time(start_time)")
+	end
+	
 private
 	
 	def getManager(user, approver)
@@ -1223,7 +1227,7 @@ private
 		
 		#WkAttendance.select("min(#{:start_time}),max(#{:end_time}),#{:week_date}").where("user_id = #{User.current.id}").group(cond).order("week_date")
 		#WkAttendance.find_by_sql("SELECT id, min(start_time) as start_time, max(end_time) as end_time FROM `wk_attendances` WHERE (user_id = #{params[:user_id]}) GROUP BY week_date having week_date BETWEEN '#{@startday}' AND '#{@startday+6}'  ORDER BY week_date;")
-		WkAttendance.find_by_sql("SELECT id, user_id, max(end_time) as end_time, min(start_time) as start_time FROM wk_attendances WHERE user_id = #{params[:user_id]} GROUP BY date(start_time) having date(start_time)  between '#{@startday}'  and '#{@startday+6}' order by date(start_time)  ")
+		WkAttendance.find_by_sql("SELECT id, user_id, max(end_time) as end_time, max(start_time) as start_time FROM wk_attendances WHERE user_id = #{params[:user_id]} GROUP BY date(start_time) having date(start_time)  between '#{@startday}'  and '#{@startday+6}' order by date(start_time)  ")
 	end
 	
 	def findWkTE(start_date, end_date=nil)
