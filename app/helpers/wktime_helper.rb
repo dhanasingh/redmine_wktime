@@ -824,4 +824,58 @@ end
 	#def getAllowedTrackerId
 	#	Setting.plugin_redmine_wktime['wktime_issues_filter_tracker']
 	#end
+	
+	def populateWkUserLeaves
+		#TODO : Null check, determine from and to
+		Rails.logger.info("========================================================")
+		Rails.logger.info("=================populateWkUserLeaves===================")
+		
+		leavesInfo = Setting.plugin_redmine_wktime['wktime_leave']
+		leaveAccrual = Hash.new
+		leaveAccAfter = Hash.new
+		strIssueIds = ""
+		leavesInfo.each do |leave|
+			 issue_id = leave.split('|')[0].strip
+			 strIssueIds = strIssueIds.blank? ? (strIssueIds + issue_id) : (strIssueIds + "," + issue_id)
+			 leaveAccrual[issue_id] = leave.split('|')[1].strip
+			 leaveAccAfter[issue_id] = leave.split('|')[2].strip
+		end
+		Rails.logger.info("=================#{leavesInfo}===================")
+		Rails.logger.info("=================#{leaveAccrual}===================")
+		Rails.logger.info("=================#{leaveAccAfter}===================")
+		
+		qryStr = "select v2.id, v1.user_id, v1.issue_id, v2.hours, ul.balance, ul.accrual_on from " +
+				"(select u.id as user_id, i.issue_id, u.status, u.type from users u , " +
+				"(select id as issue_id from issues where id in (#{strIssueIds})) i) v1 " +
+				"left join (select max(id) as id, user_id, issue_id, sum(hours) as hours from time_entries " +
+				"where spent_on between '2015-11-1' and '2015-11-30' group by user_id, issue_id) v2 " +
+				"on v2.user_id = v1.user_id and v2.issue_id = v1.issue_id " +				
+				"left join wk_user_leaves ul on ul.user_id = v1.user_id and ul.issue_id = v1.issue_id " +
+				"and ul.accrual_on between '2015-11-1' and '2015-11-30' " +
+				"where v1.status = 1 and v1.type = 'User'"
+				
+		entries = TimeEntry.find_by_sql(qryStr)
+		if !entries.blank?
+			#TODO: Consider accrual after with user creation date
+			entries.each do |entry|
+			Rails.logger.info("===================#{entry.issue_id}==============")
+				accrual = "#{leaveAccrual[entry.issue_id]}".to_i
+			Rails.logger.info("accrual : #{accrual}")
+				no_of_holidays = entry.balance.blank? ? accrual : entry.balance + accrual
+				if !entry.hours.blank? && entry.hours > 0
+					no_of_holidays = no_of_holidays - entry.hours
+				end
+				userLeave = WkUserLeave.new
+				userLeave.user_id = entry.user_id
+				userLeave.issue_id = entry.issue_id
+				userLeave.balance = no_of_holidays
+				userLeave.accrual = accrual
+				userLeave.used = entry.hours
+				userLeave.accrual_on = Date.civil(Date.today.year, Date.today.month, 1)
+				userLeave.save()
+			end
+		end
+		Rails.logger.info("=================#{entries}===================")
+		Rails.logger.info("========================================================")
+	end
 end
