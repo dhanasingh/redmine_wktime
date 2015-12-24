@@ -28,21 +28,7 @@ $(document).ready(function() {
 		modal: false,
 		buttons: {
 			"Ok": function() {
-				var elementid;
-				var check = new Array();
-				for(i=0; i< 8 ; i++)
-				{
-					elementid = document.getElementById('popupstart_'+i);
-					alert("element val : " + elementid.value);
-					if (elementid.defaultValue !=  elementid.value   ) {
-						check[i] = elementid.value;
-					}  
-					alert("text : " + check[i]);
-					
-				}
-				
-				//
-				$( this ).dialog( "close" );
+				var str = " this is my first dialog";
 			},
 			Cancel: function() {
 				$( this ).dialog( "close" );
@@ -1121,14 +1107,14 @@ function updateTotalHr(day)
 		{
 			totTime = tot_Hr + ":00";
 		};
-		//var setotval = document.getElementById("hd").value;
-		//var val = setotval.split(',');
+	//	var setotval = document.getElementById("hd").value;
+	//	var val = setotval.split(',');
 	//	for(var i = 1; i < val.length; i++) {
 	//	   val[i] = val[i];
 	//	}
 		
 		totHrCell = totTimeRow.cells[hStartIndex + day];
-		totHrCell.innerHTML = totTime + "     <a href='javascript:showclkDialog("+day+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockin.png' border=0 '/></a>";
+		totHrCell.innerHTML = totTime + "     <a href='javascript:showclkDialog("+day+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockin.png' border=0 title=''/></a>";
 	/*}*/
 	//$( "#comment-dlg" ).dialog( "open" );
 }

@@ -40,36 +40,7 @@
 	<% endvalue = Array.new %>
 	<% k = 0%>
 	<% l = 1%>	
-	<% multiplestart11 = [] %>
-	<% multiplestart = "" %>
-	<% multiplestart1 = "" %>
-	<% multiplestart2 = "" %>
-	<% multiplestart3 = "" %>
-	<% multiplestart4 = "" %>
-	<% multiplestart5 = "" %>
-	<% multiplestart6 = "" %>
-	<% multiplefinal = "" %>
-	<% multipleend = Array.new %>
-	<% @wkmultiple = controller.multipleClockInOut %>
-	<% @wkmultiple.each do |entry| %>	
-	
-		<% for i in 1..7%>
-			
-				<% @wkmultiple.each do |entry| %>			
-					<% multipleid = (entry.start_time).strftime('%Y-%m-%d') %>
-					<% multiid = (entry.start_time).strftime('%Y-%m-%d').to_s.to_date.wday %>
-					<%  if multipleid.to_s.to_date.wday == (@startday + (i-1)).wday   %>
-						<% multiplestart11[i..multiid] = ( (entry.start_time).strftime('%r') +  (entry.end_time).strftime('%r') ).to_s %>
-					<% end %>
-				<% end %>
-			
-		<% end %>
-				
-			
-	<% end %>
-	<% Rails.logger.info("************ multiplestart #{multiplestart11[3]}   ************************") %>
-	<% multiplefinal << ',' + multiplestart + ',' + multiplestart1 + ',' + multiplestart2 + ',' + multiplestart3 + ',' + multiplestart4 + ',' + multiplestart5 + ',' + multiplestart6  %>
-	<%=h hidden_field_tag('hd', multiplefinal )  %>	
+
 	
 	<% for j in 0..6%>
 	
@@ -95,7 +66,7 @@
 				<td style="width: 100px"><%= text_field_tag "#{str}_#{(i+1)}" , "#{str}" == "start" ? startvalue[i] : endvalue[i],:size => 4, :disabled => controller.showClockInOut ? disable : false,  :onchange => "validateHr(this,#{(i+1)});" %>
 				<%=h hidden_field_tag('hd' + "#{str}_#{(i+1)}", hiddenvalue[i] )  %>
 				<% imgname = "#{str}" == "start" ? "clock8.jpg" : "clockout8.jpg" %>
-				<% image_tg = image_tag("#{imgname}", :id => "#{str}" == "start" ? 'start_img' : 'end_img' , :plugin => "redmine_wktime") %>
+				<% image_tg = image_tag("#{imgname}", :id => "#{str}" == "start" ? 'start_img' : 'end_img' , :plugin => "redmine_wktime",:title => "#{str}" == "start" ? "clock in" : "clock out") %>
 				<%= link_to image_tg, "javascript:setClockInOut('#{str}','#{col_num}');"	%>
 				</td>
 			<% else %>
@@ -105,7 +76,7 @@
 			<% end %>
 
 		<% else %>
-			<td style="width: 60px">
+			<td style="width: 80px">
 				
 			</td>
 		<% end %>
