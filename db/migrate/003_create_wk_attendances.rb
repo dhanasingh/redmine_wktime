@@ -11,7 +11,9 @@ class CreateWkAttendances < ActiveRecord::Migration
 	create_table :wk_user_leaves do |t|
       t.references :user, :null => false
 	  t.references :issue, :null => false
-	  t.float :no_of_days
+	  t.float :balance
+	  t.float :accrual
+	  t.float :used
 	  t.date :accrual_on, :null => false
 	  t.timestamps null: false
     end
