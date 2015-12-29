@@ -16,13 +16,7 @@
 	<td align = "right">
 		<%= l(:"label_#{str}") %>
 	</td>
-	<% col_num = -1 %>
-	<% disable = true %>	
-	<% if (isAccountUser)  %>			
-		<% disable = false %>
-	<% end %>
-	
-	
+	<% col_num = -1 %>	
 	<% hiddenid = Array.new %>
 	<% entrystart = Array.new %>
 	<% entryend = Array.new %>
@@ -38,8 +32,7 @@
 	<% hiddenvalue = Array.new %>
 	<% startvalue = Array.new %>
 	<% endvalue = Array.new %>
-	<% k = 0%>
-	
+	<% k = 0%>	
 	<% for j in 0..6%>
 	
 		<%  if (@startday + j).to_s == (entrydate[k]).to_s   %>
@@ -52,33 +45,30 @@
 			<% endvalue[j] = '00:00' %>
 			<% hiddenvalue[j] = '' %>
 		<% end %>	
-	<% end %>
-	
-	<% for i in 0..6%>
-	
+	<% end %>	
+	<% for i in 0..6%>	
 		<% if (@startday + i) == Date.today %>
 			<% col_num = Date.today.wday %>
-		<% end %>			
+			<% if !(isAccountUser)  %>			
+				<%=h hidden_field_tag('imgdisable',  col_num )  %>
+			<% end %>
+		<% end %>
+							
 		<% if (isEditable) %>  			
 			<% if ("#{str}" == "start" || "#{str}" == "end") && controller.showClockInOut && (i == col_num) &&  User.current.id == @user.id   %>
-				<td style="width: 100px"><%= text_field_tag "#{str}_#{(i+1)}" , "#{str}" == "start" ? startvalue[i] : endvalue[i],:size => 4, :disabled => controller.showClockInOut ? disable : false,  :onchange => "validateHr(this,#{(i+1)});" %>
+				<td style="width: 100px"><%= text_field_tag "#{str}_#{(i+1)}" , "#{str}" == "start" ? startvalue[i] : endvalue[i],:size => 4, :disabled =>  true,  :onchange => "validateHr(this,#{(i+1)});" %>
 				<%=h hidden_field_tag('hd' + "#{str}_#{(i+1)}", hiddenvalue[i] )  %>				
 				<% imgname = "#{str}" == "start"  ? "clock8.jpg" : "clockout8.jpg" %>				
 				<% image_tg = image_tag("#{imgname}", :id => "#{str}" == "start" ? 'start_img' : 'end_img' , :plugin => "redmine_wktime",  :title => "#{str}" == "start" ? 'clock in' : 'clock out') %>
-				<%= link_to image_tg, "javascript:setClockInOut('#{str}','#{col_num}');", :disabled => true	%>
-				
+				<%= link_to image_tg, "javascript:setClockInOut('#{str}','#{col_num}');" %>				
 				</td>
 			<% else %>
-				<td align = "center"><%= text_field_tag "#{str}_#{(i+1)}" , "#{str}" == "start" ? startvalue[i] : endvalue[i],:size => 4, :disabled => controller.showClockInOut ? disable : false,  :onchange => "validateHr(this,#{(i+1)});"  %>
+				<td align = "center"><%= text_field_tag "#{str}_#{(i+1)}" , "#{str}" == "start" ? startvalue[i] : endvalue[i],:size => 4, :disabled =>  true,  :onchange => "validateHr(this,#{(i+1)});"  %>
 				<%=h hidden_field_tag('hd' + "#{str}_#{(i+1)}", hiddenvalue[i])  %>				
 				</td>
 			<% end %>
-			
-
 		<% else %>
-			<td style="width: 80px">
-				
-			</td>
+			<td style="width: 80px"></td>
 		<% end %>
 	<% end %>
 	<td ></td>

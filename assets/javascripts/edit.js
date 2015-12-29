@@ -31,7 +31,8 @@ $(document).ready(function() {
 				var elementid;
 				var startvalue,endvalue;
 				var paramval = "";
-				for(i=0; i< 8 ; i++)
+				textlength = document.getElementById('textlength').value;
+				for(i=0; i <= textlength ; i++)
 				{
 					startvalue = document.getElementById('popupstart_'+i);
 					endvalue = document.getElementById('popupend_'+i);
@@ -115,18 +116,35 @@ $(document).ready(function() {
 			}
 		}
 	});	
-/*	imghide = document.getElementById('imgdisable').value;
-	alert("img val : " + imghide );
-	if(imghide == 1)
+	var imgend,imghide,imgstart;
+	if(document.getElementById('imgdisable') != null)
 	{
-		document.getElementById('end_img').style.visibility = "visible";
+		imghide = document.getElementById('imgdisable').value;
+		imghide++;
+		if(document.getElementById('end_'+imghide) != null)
+		{
+		imgend = document.getElementById('end_'+imghide).value;
+		}
+		if(document.getElementById('start_'+imghide) != null)
+		{
+		imgstart = document.getElementById('start_'+imghide).value;
+		}
+		//alert("first : " + imgstart + " sec "+ imgend + " third " + document.getElementById('start_3').value + " fourth " + imghide)
+		if( imgend == "00:00" && imgstart != "00:00" )
+		{
+			document.getElementById('end_img').style.visibility = "visible";
+			document.getElementById('start_img').style.visibility = 'hidden';
+		}
+		else
+		{
+			document.getElementById('end_img').style.visibility = 'hidden';
+		}
 	}
-	else{
-		document.getElementById('end_img').style.visibility = 'hidden';
-	}*/
+	
+	
 	
    for(i = 1; i <= 7; i++)
-	{
+	{		
 		updateRemainingHr(i);	
 		updateTotalHr(i);
 	}
@@ -1178,6 +1196,7 @@ function setClockInOut(strid,id) {
 	   var mm = d.getMinutes();
 	   id++;
 	   //elementid = document.getElementById(strid + '_' + id);
+	   hh = hh % 12;
 	   elementhour = hh + ":" + mm;
 	   if( strid == 'start')
 	   {
