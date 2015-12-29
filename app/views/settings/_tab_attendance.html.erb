@@ -132,7 +132,15 @@ lblYear = "<%=l(:label_year) %>";
 			<label><%= l(:label_wk_leave_accrual_after) %></label><span style="margin-left:0.5em;"></span><%= text_field_tag 'leave_accrual_after','', :size => 2.5, :maxlength => 3 %>&nbsp<%= l(:label_year) %>
 		</p>
 		<p>
+			<span style="margin-left:2.3em;"></span><label><%= l(:button_reset) %></label><span style="margin-left:1.7em;"></span><%= check_box_tag('is_reset_leave', 1) %> 
+		</p>
+		<p>
 			<%= hidden_field_tag :hdnAction, "" %>
 		</p>
 	</div>
+	<p>
+		<label><%= l(:button_reset) %> <%= l(:label_month) %></label>
+		<%=h select_tag('settings[wktime_leave_reset_month]', 
+		options_for_select(l('date.month_names').collect.with_index.to_a, :selected =>  @settings['wktime_leave_reset_month'])) %>								   	
+	</p>
 </fieldset>

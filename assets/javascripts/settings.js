@@ -111,6 +111,7 @@ function dialogAction()
 				var leaveIssue = document.getElementById("leave_issue");
 				var leaveAccrual = document.getElementById("leave_accrual");
 				var accrualAfter = document.getElementById("leave_accrual_after");
+				var isReset = document.getElementById("is_reset_leave");
 				if(!checkDuplicate(listBox,leaveIssue.value) && !isNaN(leaveAccrual.value) && !isNaN(accrualAfter.value)){
 					if('Add'== leaveAction){	
 						opt = document.createElement("option");
@@ -130,7 +131,8 @@ function dialogAction()
 					desc = desc + "|"  + accrualAfter.value;			
 					if (accrualAfter.value != ""){
 						opttext = opttext + " " + lblAccrualAfter + " " + accrualAfter.value + " " + lblYear;
-					}		
+					}
+					desc = desc + "|"  + isReset.checked;					
 					opt.text =  opttext;
 					opt.value = desc;
 					Sort('settings_wktime_leave');
@@ -249,6 +251,7 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 		var leaveIssue = document.getElementById("leave_issue");
 		var leaveAccrual = document.getElementById("leave_accrual");
 		var accrualAfter = document.getElementById("leave_accrual_after");
+		var isReset = document.getElementById("is_reset_leave");
 		if('Add' == action)
 		{	
 			leaveAction = action;
@@ -265,6 +268,7 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 			selectedIssue=listboxArr[0];
 			leaveAccrual.value = !listboxArr[1] ? "" : listboxArr[1];
 			accrualAfter.value = !listboxArr[2] ? "" : listboxArr[2];
+			isReset.checked = listboxArr[3] == "true";
 			leaveAction = action;
 			$( "#leave-dlg" ).dialog( "open" )	
 		}
