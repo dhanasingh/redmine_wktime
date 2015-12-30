@@ -141,7 +141,7 @@ fr:
   label_wk_paid_leave_accrual: Paid Leave Accrual
   label_wk_leave_accrual_after: Accrual after
   label_wk_select_break_time: Please select a break time
-  label_days_per_month: day(s)/month
+  label_hours_per_month: hour(s)/month
   label_wk_sick_leave: Sick Leave
   label_wk_holiday: Holiday
   label_wk_paid_leave: Paid Leave

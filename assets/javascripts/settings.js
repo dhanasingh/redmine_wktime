@@ -111,7 +111,7 @@ function dialogAction()
 				var leaveIssue = document.getElementById("leave_issue");
 				var leaveAccrual = document.getElementById("leave_accrual");
 				var accrualAfter = document.getElementById("leave_accrual_after");
-				var isReset = document.getElementById("is_reset_leave");
+				var resetMonth = document.getElementById("wk_attn_leave_reset_month");
 				if(!checkDuplicate(listBox,leaveIssue.value) && !isNaN(leaveAccrual.value) && !isNaN(accrualAfter.value)){
 					if('Add'== leaveAction){	
 						opt = document.createElement("option");
@@ -132,7 +132,7 @@ function dialogAction()
 					if (accrualAfter.value != ""){
 						opttext = opttext + " " + lblAccrualAfter + " " + accrualAfter.value + " " + lblYear;
 					}
-					desc = desc + "|"  + isReset.checked;					
+					desc = desc + "|"  + resetMonth.value;					
 					opt.text =  opttext;
 					opt.value = desc;
 					Sort('settings_wktime_leave');
@@ -251,7 +251,7 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 		var leaveIssue = document.getElementById("leave_issue");
 		var leaveAccrual = document.getElementById("leave_accrual");
 		var accrualAfter = document.getElementById("leave_accrual_after");
-		var isReset = document.getElementById("is_reset_leave");
+		var resetMonth = document.getElementById("wk_attn_leave_reset_month");
 		if('Add' == action)
 		{	
 			leaveAction = action;
@@ -259,6 +259,7 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 			leaveAccrual.value = "";
 			accrualAfter.value = "";
 			selectedIssue="";
+			resetMonth.value = 0
 			$( "#leave-dlg" ).dialog( "open" )	
 		}
 		else if('Edit' == action && listbox != null && listbox.options.selectedIndex >=0)
@@ -268,7 +269,7 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 			selectedIssue=listboxArr[0];
 			leaveAccrual.value = !listboxArr[1] ? "" : listboxArr[1];
 			accrualAfter.value = !listboxArr[2] ? "" : listboxArr[2];
-			isReset.checked = listboxArr[3] == "true";
+			resetMonth.value = listboxArr[3];
 			leaveAction = action;
 			$( "#leave-dlg" ).dialog( "open" )	
 		}

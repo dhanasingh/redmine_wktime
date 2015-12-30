@@ -3,7 +3,7 @@ attendanceAlertMsg = "<%= l(:text_are_you_sure) %>";
 selectListAlertMsg = "<%=l(:actionview_instancetag_blank_option) %>";
 issueExistsAlertMsg = "<%=l(:label_wk_leave_exists) %>";
 lblInvalid= "<%=l('activerecord.errors.messages.invalid') %>";
-lblDaysPerMonth = "<%=l(:label_days_per_month) %>";
+lblDaysPerMonth = "<%=l(:label_hours_per_month) %>";
 lblAccrual = "<%=l(:label_wk_leave_accrual) %>";
 lblAccrualAfter = "<%=l(:label_wk_leave_accrual_after) %>";
 lblYear = "<%=l(:label_year) %>";
@@ -103,7 +103,7 @@ lblYear = "<%=l(:label_year) %>";
 			  issueName = issuehash[issueId.to_i]
 			  leaveAccrual = listboxArr[1].blank? ? "" : listboxArr[1]
 			  accrualAfter = listboxArr[2].blank? ? "" : listboxArr[2]
-			  optionText = leaveAccrual.blank? ? issueName : issueName + " : "  + leaveAccrual + " " + l(:label_days_per_month) + " " + l(:label_wk_leave_accrual_after) + " " + accrualAfter + " " + l(:label_year)
+			  optionText = leaveAccrual.blank? ? issueName : issueName + " : "  + leaveAccrual + " " + l(:label_hours_per_month) + " " + l(:label_wk_leave_accrual_after) + " " + accrualAfter + " " + l(:label_year)
 			  leave << [optionText,element]
 			end
 		end
@@ -126,21 +126,18 @@ lblYear = "<%=l(:label_year) %>";
 			options_for_select(issueslist)) %>								   	
 		</p>
 		<p>
-			<span style="margin-left:2.3em;"></span><label><%= l(:label_wk_leave_accrual) %></label><span style="margin-left:1.0em;"></span><%= text_field_tag('leave_accrual','', :size => 2.5, :maxlength => 3) %>&nbsp<%= l(:label_days_per_month) %>		
+			<span style="margin-left:2.3em;"></span><label><%= l(:label_wk_leave_accrual) %></label><span style="margin-left:1.0em;"></span><%= text_field_tag('leave_accrual','', :size => 2.5, :maxlength => 3) %>&nbsp<%= l(:label_hours_per_month) %>		
 		</p>
 		<p>
 			<label><%= l(:label_wk_leave_accrual_after) %></label><span style="margin-left:0.5em;"></span><%= text_field_tag 'leave_accrual_after','', :size => 2.5, :maxlength => 3 %>&nbsp<%= l(:label_year) %>
 		</p>
 		<p>
-			<span style="margin-left:2.3em;"></span><label><%= l(:button_reset) %></label><span style="margin-left:1.7em;"></span><%= check_box_tag('is_reset_leave', 1) %> 
+			<label><%= l(:button_reset) %> <%= l(:label_month) %></label>
+			<%=h select_tag('wk_attn_leave_reset_month', 
+			options_for_select(l('date.month_names').collect.with_index.to_a)) %>								   	
 		</p>
 		<p>
 			<%= hidden_field_tag :hdnAction, "" %>
 		</p>
 	</div>
-	<p>
-		<label><%= l(:button_reset) %> <%= l(:label_month) %></label>
-		<%=h select_tag('settings[wktime_leave_reset_month]', 
-		options_for_select(l('date.month_names').collect.with_index.to_a, :selected =>  @settings['wktime_leave_reset_month'])) %>								   	
-	</p>
 </fieldset>
