@@ -112,6 +112,7 @@ function dialogAction()
 				var leaveAccrual = document.getElementById("leave_accrual");
 				var accrualAfter = document.getElementById("leave_accrual_after");
 				var resetMonth = document.getElementById("wk_attn_leave_reset_month");
+				var shortName = document.getElementById("wk_leave_short_name");
 				if(!checkDuplicate(listBox,leaveIssue.value) && !isNaN(leaveAccrual.value) && !isNaN(accrualAfter.value)){
 					if('Add'== leaveAction){	
 						opt = document.createElement("option");
@@ -132,7 +133,8 @@ function dialogAction()
 					if (accrualAfter.value != ""){
 						opttext = opttext + " " + lblAccrualAfter + " " + accrualAfter.value + " " + lblYear;
 					}
-					desc = desc + "|"  + resetMonth.value;					
+					desc = desc + "|"  + resetMonth.value;	
+					desc = desc + "|"  + shortName.value;	
 					opt.text =  opttext;
 					opt.value = desc;
 					Sort('settings_wktime_leave');
@@ -252,6 +254,7 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 		var leaveAccrual = document.getElementById("leave_accrual");
 		var accrualAfter = document.getElementById("leave_accrual_after");
 		var resetMonth = document.getElementById("wk_attn_leave_reset_month");
+		var shortName = document.getElementById("wk_leave_short_name");
 		if('Add' == action)
 		{	
 			leaveAction = action;
@@ -260,6 +263,7 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 			accrualAfter.value = "";
 			selectedIssue="";
 			resetMonth.value = 0
+			shortName.value = "";
 			$( "#leave-dlg" ).dialog( "open" )	
 		}
 		else if('Edit' == action && listbox != null && listbox.options.selectedIndex >=0)
@@ -270,6 +274,7 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 			leaveAccrual.value = !listboxArr[1] ? "" : listboxArr[1];
 			accrualAfter.value = !listboxArr[2] ? "" : listboxArr[2];
 			resetMonth.value = listboxArr[3];
+			shortName.value = !listboxArr[4] ? "" : listboxArr[4];
 			leaveAction = action;
 			$( "#leave-dlg" ).dialog( "open" )	
 		}

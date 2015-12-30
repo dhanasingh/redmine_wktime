@@ -126,13 +126,16 @@ lblYear = "<%=l(:label_year) %>";
 			options_for_select(issueslist)) %>								   	
 		</p>
 		<p>
+			<label><%= l(:label_wk_leave_short_name) %></label><span style="margin-left:1.3em;"></span><%= text_field_tag 'wk_leave_short_name','', :size => 5, :maxlength => 4 %>
+		</p>
+		<p>
 			<span style="margin-left:2.3em;"></span><label><%= l(:label_wk_leave_accrual) %></label><span style="margin-left:1.0em;"></span><%= text_field_tag('leave_accrual','', :size => 2.5, :maxlength => 3) %>&nbsp<%= l(:label_hours_per_month) %>		
 		</p>
 		<p>
 			<label><%= l(:label_wk_leave_accrual_after) %></label><span style="margin-left:0.5em;"></span><%= text_field_tag 'leave_accrual_after','', :size => 2.5, :maxlength => 3 %>&nbsp<%= l(:label_year) %>
 		</p>
 		<p>
-			<label><%= l(:button_reset) %> <%= l(:label_month) %></label>
+			<label><%= l(:button_reset) %> <%= l(:label_month) %></label><span style="margin-left:0.4em;"></span>
 			<%=h select_tag('wk_attn_leave_reset_month', 
 			options_for_select(l('date.month_names').collect.with_index.to_a)) %>								   	
 		</p>
