@@ -94,31 +94,58 @@
 	
 <div id="clockInOut-dlg" title="<%= l(:label_wk_attendance) %>">
 		<fieldset>
-			<p> <label><%= l(:label_clock_in) %></label> <label>     <label><%= l(:label_clock_out) %></label></p>
-			<% @wkmultiple = controller.multipleClockInOut %>			
-			<p>			
+			 <table>
+				 <th><label><%= l(:label_clock_in) %></label></th> 
+				 <th><label><%= l(:label_clock_out) %></label></th>
+				 <th><label><%= l(:label_total) %></label></th>
+				<tbody>
+					 <td><%= text_field_tag "popupstart1" , "", :size => 4, :disabled => isAccountUser ? false : true   %></td>
+					 <td><%= text_field_tag "popupstart2" , "", :size => 4, :disabled => isAccountUser ? false : true   %></td>
+					 <td><%= text_field_tag "popupstart3" , "", :size => 4, :disabled => isAccountUser ? false : true   %></td>
+				</tbody>
+			</table>
+			<% totalid = Array.new %>
+			<% totalvalue =  " " %>
+			<% j = 0   %>
+			<% @wkmultiple = controller.multipleClockInOut %>							
 			<% l = 0%>	
 			<% for i in 1..7%>
-			<div id="img_<%= i %>" >
-				<% @wkmultiple.each do |entry| %>			
-					<% multipleid = (entry.start_time).strftime('%Y-%m-%d') %>
-					<% multiid = (entry.start_time).strftime('%Y-%m-%d').to_s.to_date.wday %>
-					<%  if multipleid.to_s.to_date.wday == (@startday + (i-1)).wday   %>
+				<div id="img_<%= i %>" >
+					<% @wkmultiple.each do |entry| %>			
+						<% multipleid = (entry.start_time).strftime('%Y-%m-%d') %>
+						<% multiid = (entry.start_time).strftime('%Y-%m-%d').to_s.to_date.wday %>
+						<%  if i != j    %>
+						<% totalvalue += '|'  %>
+						<% end %>
+						<% j = i   %>
+						<%  if multipleid.to_s.to_date.wday == (@startday + (i-1)).wday   %>
 						
-						<%= text_field_tag "popupstart_#{l}" , ( (entry.start_time).strftime('%r')  ).to_s, :size => 12, :disabled => isAccountUser ? false : true   %> 
-						<%= text_field_tag "popupend_#{l}"  , (!(entry.end_time).blank? ? ( (entry.end_time).strftime('%r')  ).to_s : '' ) , :size => 12, :disabled =>  isAccountUser ? false : true   %>
-						<%=h hidden_field_tag("hiddenpopup_#{l}", entry.id )  %>	
-												
-						<% l += 1 %>
+						<% totalid[i] = l   %>
+						<% totalvalue +=  l.to_s + ','  %>
 						
-					<% end %>
-						
-				<% end %>
-			</div>
-			
+							<table>
+							<tbody>		
+							<tr>
+							<td><%= text_field_tag "popupstart_#{l}" , ( (entry.start_time).strftime('%l:%M')  ).to_s, :size => 4, :disabled => isAccountUser ? false : true ,  :onchange => "hoursClockInOut(#{l});"  %></td> 
+							<td><%= text_field_tag "popupend_#{l}"  , (!(entry.end_time).blank? ? ( (entry.end_time).strftime('%l:%M')  ).to_s : '' ) , :size => 4, :disabled =>  isAccountUser ? false : true,  :onchange => "hoursClockInOut(#{l});"   %></td>
+							<td><%= text_field_tag "total_#{l}"  , "" , :size => 4, :disabled =>  isAccountUser ? false : true, :onchange => "totalClockInOut();"   %></td>
+							<td><%=h hidden_field_tag("hiddenpopup_#{l}", entry.id )  %></td>							
+							</tr>
+							<% l += 1 %>							
+						<% end %>							
+					<% end %>					
+					<tr><td></td>
+					<td><%= l(:label_grand_total) %></label></td>
+					<td><%= text_field_tag "grandTotal_#{i}"  , "" , :size => 4, :disabled =>  isAccountUser ? false : true   %></td></tr>
+					</tbody>
+					</table>
+				</div>	
+				
+				
+				
 			<% end %>
-			<%=h hidden_field_tag("textlength", l )  %>
-			</p>			
+			<%=h hidden_field_tag("textlength", l )  %>	
+			<%=h hidden_field_tag("grandtotal", totalvalue )  %>	
 		</fieldset>
 	</div>
 		
