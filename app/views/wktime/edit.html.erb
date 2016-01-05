@@ -92,57 +92,60 @@
 
 	</div>
 	
-<div id="clockInOut-dlg" title="<%= l(:label_wk_attendance) %>">
+	<div id="clockInOut-dlg" title="<%= l(:label_wk_attendance) %>">
 		<fieldset>
-			 <table>
-				 <th><label><%= l(:label_clock_in) %></label></th> 
+			 <table style="border-collapse:separate; border-spacing: 5px; 0px;">
+				 <th ><label><%= l(:label_clock_in) %></label></th> 
 				 <th><label><%= l(:label_clock_out) %></label></th>
 				 <th><label><%= l(:label_total) %></label></th>
 				<tbody>
-					 <td><%= text_field_tag "popupstart1" , "", :size => 4, :disabled => isAccountUser ? false : true   %></td>
-					 <td><%= text_field_tag "popupstart2" , "", :size => 4, :disabled => isAccountUser ? false : true   %></td>
-					 <td><%= text_field_tag "popupstart3" , "", :size => 4, :disabled => isAccountUser ? false : true   %></td>
-				</tbody>
-			</table>
+					</tbody>
+			</table>				
 			<% totalid = Array.new %>
 			<% totalvalue =  " " %>
 			<% j = 0   %>
 			<% @wkmultiple = controller.multipleClockInOut %>							
 			<% l = 0%>	
 			<% for i in 1..7%>
+				<% showtotal = false   %>
 				<div id="img_<%= i %>" >
+						
 					<% @wkmultiple.each do |entry| %>			
 						<% multipleid = (entry.start_time).strftime('%Y-%m-%d') %>
 						<% multiid = (entry.start_time).strftime('%Y-%m-%d').to_s.to_date.wday %>
 						<%  if i != j    %>
-						<% totalvalue += '|'  %>
+						<% totalvalue += '|'  %>										
 						<% end %>
-						<% j = i   %>
-						<%  if multipleid.to_s.to_date.wday == (@startday + (i-1)).wday   %>
-						
-						<% totalid[i] = l   %>
-						<% totalvalue +=  l.to_s + ','  %>
-						
-							<table>
+						<% j = i %>
+						<%  if multipleid.to_s.to_date.wday == (@startday + (i-1)).wday   %>		
+							<% showtotal = true   %>
+							<% totalid[i] = l   %>
+							<% totalvalue +=  l.to_s + ','  %>						
+							<table style="border-collapse:separate; border-spacing: 10px 0px;">
 							<tbody>		
 							<tr>
-							<td><%= text_field_tag "popupstart_#{l}" , ( (entry.start_time).strftime('%l:%M')  ).to_s, :size => 4, :disabled => isAccountUser ? false : true ,  :onchange => "hoursClockInOut(#{l});"  %></td> 
-							<td><%= text_field_tag "popupend_#{l}"  , (!(entry.end_time).blank? ? ( (entry.end_time).strftime('%l:%M')  ).to_s : '' ) , :size => 4, :disabled =>  isAccountUser ? false : true,  :onchange => "hoursClockInOut(#{l});"   %></td>
+							<td><%= text_field_tag "popupstart_#{l}" , ( (entry.start_time).strftime('%l:%M')  ).to_s, :size => 4, :disabled => isAccountUser ? false : true ,  :onchange => "hoursClockInOut(1,#{l});"  %></td> 
+							<td><%= text_field_tag "popupend_#{l}"  , (!(entry.end_time).blank? ? ( (entry.end_time).strftime('%l:%M')  ).to_s : '' ) , :size => 4, :disabled =>  isAccountUser ? false : true,  :onchange => "hoursClockInOut(1,#{l});"   %></td>
 							<td><%= text_field_tag "total_#{l}"  , "" , :size => 4, :disabled =>  isAccountUser ? false : true, :onchange => "totalClockInOut();"   %></td>
 							<td><%=h hidden_field_tag("hiddenpopup_#{l}", entry.id )  %></td>							
 							</tr>
+							</tbody>
+							</table>
 							<% l += 1 %>							
 						<% end %>							
-					<% end %>					
-					<tr><td></td>
-					<td><%= l(:label_grand_total) %></label></td>
-					<td><%= text_field_tag "grandTotal_#{i}"  , "" , :size => 4, :disabled =>  isAccountUser ? false : true   %></td></tr>
-					</tbody>
-					</table>
-				</div>	
-				
-				
-				
+					<% end %>	
+					<%  if showtotal    %>
+						<p style = "padding-left: 60px;">
+						<%= l(:label_grand_total) %></label>
+						<%= text_field_tag "grandTotal_#{i}"  , "" , :size => 4, :disabled =>  isAccountUser ? false : true   %></p>
+					<%  elsif isAccountUser     %>
+							 <table style="border-collapse:separate; border-spacing: 10px; 0px"> <tbody> <tr> <td><%= text_field_tag "newstart_#{j}" , "", :size => 4, :disabled => isAccountUser ? false : true , :onchange => "validateHr(this,#{(i)}); hoursClockInOut(2,#{j});"  %></td>
+							<td><%= text_field_tag "newend_#{j}" , "", :size => 4, :disabled => isAccountUser ? false : true , :onchange => "validateHr(this,#{(i)}); hoursClockInOut(2,#{j});"  %></td>
+							<td><%= text_field_tag "newdiff_#{j}" , "", :size => 4, :disabled => isAccountUser ? false : true , :onchange => "validateHr(this,#{(i)});"  %></td></tr></tbody>
+							</table>							
+						
+					<% end %>
+				</div>					
 			<% end %>
 			<%=h hidden_field_tag("textlength", l )  %>	
 			<%=h hidden_field_tag("grandtotal", totalvalue )  %>	

@@ -24,13 +24,16 @@ $(document).ready(function() {
 	var e_notes = $( "#_edit_notes_" );
 	 $( "#clockInOut-dlg" ).dialog({
 		autoOpen: false,
-		resizable: false,
+	//	resizable: false,
 		modal: false,
-		width:'auto',
+		width:'280',
+		height: '300',
+    overflow: 'auto', /* Or scroll, depending on your needs*/
+   // width: 300px;
 		buttons: {
 			"Ok": function() {
 				var elementid;
-				var startvalue,endvalue,textlength;
+				var startvalue,endvalue,textlength, newstartval, newendval;
 				var paramval = "";
 				textlength = document.getElementById('textlength').value;
 				for(i=0; i <= textlength ; i++)
@@ -45,6 +48,19 @@ $(document).ready(function() {
 					}
 					}
 					
+				}
+				
+				for(i=0; i < 7; i++)
+				{
+					newstartval = document.getElementById('newstart_'+i);
+					newendval = document.getElementById('newend_'+i);
+					//alert(hStartIndex+i);
+					if(newstartval || newendval)
+					{
+						if (newstartval.defaultValue !=  newstartval.value  || newendval.defaultValue !=  newendval.value ) {
+						paramval += "|" + i + "|" +  newstartval.value + "|" + newendval.value + ",";						
+					}
+					}
 				}
 				document.getElementById('hidden_clock_in_out').value = paramval;
 				$( this ).dialog( "close" );
@@ -157,11 +173,10 @@ $(document).ready(function() {
 	textlength = document.getElementById('textlength').value;
 	for(i=0; i < textlength ; i++)
 	{
-		hoursClockInOut(i);
+		hoursClockInOut(1,i);
 	}
 	
 	totalClockInOut();
-	//alert("add val : " + addval[0] + " 1 " + addval[1] + " 2 "+ addval[2] + " 3" + addval[3] + " 4" + addval[4] + " 5 " + addval[5] );
 });
 
 $(window).load(function(){
@@ -1116,7 +1131,13 @@ function getMinDiff(day,s)
 		st_min = getMinutes(day,'start_');
 		end_min = getMinutes(day,'end_');		
 	}
-	else{
+	else if(s == 2 )
+	{
+		st_min = getMinutes(day,'newstart_');
+		end_min = getMinutes(day,'newend_');		
+	}
+	else
+	{
 		st_min = getMinutes(day,'popupstart_');
 		end_min = getMinutes(day,'popupend_');
 	}
@@ -1134,12 +1155,6 @@ function getMinDiff(day,s)
 		}
 	}
 	
-	/*minadd = (end_min) + (st_min);
-	var tt = minadd/2;
-	var thr = parseInt(tt/60);
-	var tmin = tt%60;
-	document.getElementById('grandTotal_2').value = thr + ':' + tmin;*/
-	//alert("thr " + thr + " tmin :" + tmin );
 	minDiff = end_min - st_min;
 	return minDiff;
 }
@@ -1148,7 +1163,11 @@ function getMinDiff(day,s)
 function getMinutes(day,str)
 {
 	var fldVal,fldVal_min;
-	fldVal =  document.getElementById(str+day).value;		
+	fldVal =  document.getElementById(str+day).value;	
+	/*if(!fldVal)
+	{
+		fldVal = "00:00";
+	}*/
 	fldVal = fldVal.split(":");
 	fldVal_min = (fldVal[0] * 60) + parseInt(fldVal[1]);	
 	return fldVal_min;
@@ -1208,8 +1227,10 @@ function validateHr(hrFld,day)
 		hrVal = "0:00";
 	}
 	
+	
 	if(hrVal.match(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/) == null)
 	{
+		hrFld.value = "0:00";
 		alert("Not a valid time format");
 	}
 	else
@@ -1252,7 +1273,7 @@ function updateClockInOut(entrytime, strid, id){
 		url: 'updateAttendance',
 		type: 'get',
 		data: params,
-		success: function(data){ hiddenClockInOut(data, strid, id); },
+		success: function(data){ hiddenClockInOut(data, strid, id); },  
 		complete: function(){ $this.removeClass('ajax-loading'); }
 	});		
 }
@@ -1272,26 +1293,16 @@ function hiddenClockInOut(data,strid,id){
 	
 }
 
-function hoursClockInOut(id)
+function hoursClockInOut(s,id)
 {
 	
 	var startvalue,endvalue;
-	startvalue = document.getElementById('popupstart_' + id).value;
-	endvalue = document.getElementById('popupend_' + id).value;
-	//alert(" id " + id + " start : " + startvalue + " end :" + endvalue );
-	//document.getElementById('total_' + id).value = diff(startvalue, endvalue);
-	//textlength = document.getElementById('total_').value;
-	//for(i=0; i <= textlength ; i++)
-	//{
-		
-	//}
 	var tot_Hr = 0,tot_min = 0,totTime="";
-	var s =1;
 	var minDiff = getMinDiff(id,s);
 	
-	/*if(minDiff > 0)
-	{	*/	
 		tot_Hr = parseInt(minDiff/60) ;
+		//alert("tot_Hr " + tot_Hr);
+		tot_Hr = isNaN(tot_Hr) ? 0 : tot_Hr;
 		tot_min = minDiff%60;
 		if (tot_min > 0)
 		{ 
@@ -1301,8 +1312,15 @@ function hoursClockInOut(id)
 		{
 			totTime = tot_Hr + ":00";
 		};	
-		//alert("tottime " + totTime);
-		document.getElementById('total_' + id).value = totTime;
+		if(s == 1)
+		{
+			document.getElementById('total_' + id).value = totTime;
+		}			
+		else
+		{
+			document.getElementById('newdiff_' + id).value = totTime;
+		}
+			
 }
 
 function totalClockInOut()
@@ -1338,8 +1356,7 @@ function totalClockInOut()
 			}				 
 		  ch = i;
 		  if(addval[i])
-		  {
-			 
+		  {			 
 			var d;
 			d = Number(addval[i]);
 			var h = Math.floor(d / 3600);
@@ -1348,24 +1365,6 @@ function totalClockInOut()
 			document.getElementById('grandTotal_' + (i) ).value = addval[i];			
 		  }
 	}
-}
-
-function diff(start, end) {
-    start = start.split(":");
-    end = end.split(":");
-    var startDate = new Date(0, 0, 0, start[0], start[1], 0);
-    var endDate = new Date(0, 0, 0, end[0], end[1], 0);
-    var diff = endDate.getTime() - startDate.getTime();
-	
-    var hours = Math.floor(diff / 1000 / 60 / 60);
-    diff -= hours * 1000 * 60 * 60;
-    var minutes = Math.floor(diff / 1000 / 60);
-	
-	var sec_num = parseInt(3000000, 10); // don't forget the second param
-    var hours   = Math.floor(sec_num / 3600);
-    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);	
-    alert("diff " + diff + " hours " + hours + " minutes " + minutes);
-    return (hours < 9 ? "0" : "") + hours + ":" + (minutes < 9 ? "0" : "") + minutes;
 }
 
 function issueAutocomplete(txtissue,row){    
