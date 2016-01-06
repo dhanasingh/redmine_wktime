@@ -1194,8 +1194,8 @@ function updateTotalHr(day)
 		{
 			totTime = tot_Hr + ":00";
 		};	
-		totHrCell = totTimeRow.cells[hStartIndex + day];
-		totHrCell.innerHTML = totTime + "     <a href='javascript:showclkDialog("+day+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockin.png' border=0 title=''/></a>";
+		//totHrCell = totTimeRow.cells[hStartIndex + day];
+	//	totHrCell.innerHTML = totTime + "     <a href='javascript:showclkDialog("+day+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockin.png' border=0 title=''/></a>";
 	/*}*/	
 }
 function showclkDialog(day)
@@ -1354,16 +1354,25 @@ function totalClockInOut()
 				addval[i] =  adding;
 				adding = 0;
 			}				 
-		  ch = i;
+		  ch = i;			  
 		  if(addval[i])
 		  {			 
 			var d;
 			d = Number(addval[i]);
 			var h = Math.floor(d / 3600);
 			var m = Math.floor(d % 3600 / 60);
-			addval[i] =  ((h > 0 ? h + ":" + (m < 10 ? "0" : "") : "") + (h > 0 ? m : ("0:" + m)) );
+			addval[i] =  ((h > 0 ? h + ":" + (m < 10 ? "0" : "") : "") + (h > 0 ? m : ("0:" + m)) );		    	  
 			document.getElementById('grandTotal_' + (i) ).value = addval[i];			
-		  }
+		  }	 		  
+	}
+	for( i =1; i < 8 ; i++)
+	{
+		var issueTable = document.getElementById("issueTable");
+		var totTimeRow = issueTable.rows[3];		 
+		totHrCell = totTimeRow.cells[hStartIndex + (i+1) ];	
+		addval[i] = addval[i] ? addval[i] : "00:00"	
+		totHrCell.innerHTML = addval[i] + "     <a href='javascript:showclkDialog("+i+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockin.png' border=0 title=''/></a>";
+		 
 	}
 }
 

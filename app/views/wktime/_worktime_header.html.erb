@@ -49,15 +49,16 @@
 	<% for i in 0..6%>	
 		<% if (@startday + i) == Date.today %>
 			<% col_num = Date.today.wday %>
+			<script type="text/javascript"> clkhistory = '<%=col_num%>';</script>
 			<% if !(isAccountUser)  %>			
 				<%=h hidden_field_tag('imgdisable',  col_num )  %>
 			<% end %>
 		<% end %>
 							
 		<% if (isEditable) %>  			
-		<td >	
-			<div style="width: 3px; float: left;">
-				<%=h text_field_tag( "#{str}_#{(i+1)}" , "#{str}" == "start" ? startvalue[i] : endvalue[i],:size => 3, :disabled =>  true,  :onchange => "validateHr(this,#{(i+1)});") %>
+		<td>	
+			<div style="width: 3px; float: left; ">
+				<%=h text_field_tag( "#{str}_#{(i+1)}" , "#{str}" == "start" ? startvalue[i] : endvalue[i],:size => 3, :disabled =>  true, :class => (@startday + i).past? ? 'clock-textbox' : ((@startday + i).today? ? 'clock-todaytextbox' : '' ),  :onchange => "validateHr(this,#{(i+1)});") %>
 			 	<%=h hidden_field_tag('hd' + "#{str}_#{(i+1)}", hiddenvalue[i] )  %>  
 			</div>
 			
@@ -71,8 +72,8 @@
 			<% end %>
 			
 		</td>
-		<% else %>
-			<td style="width: 80px"></td>
+		<% else %>			
+				<td style="width: 80px"></td>			
 		<% end %>
 	<% end %>
 	<td ></td>
