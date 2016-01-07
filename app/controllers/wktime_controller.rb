@@ -172,28 +172,28 @@ include QueriesHelper
 					entrynilcount=0	
 									
 
-					paramvalues = Array.new
-					entryvalues = Array.new
-					paramvalues = params[:hidden_clock_in_out].split(',')	
-					for i in 0..paramvalues.length-1
-						entryvalues = paramvalues[i].split('|')
-						if !entryvalues[0].blank? && isAccountUser     #entryvalues[0] != nil
-							wkattendance =  WkAttendance.find(entryvalues[0])
-							entrydate = wkattendance.start_time
-							starttime = entrydate.change({ hour: entryvalues[1].to_time.strftime("%H"), min: entryvalues[1].to_time.strftime("%M"), sec: entryvalues[1].to_time.strftime("%S") })
-							endtime = entrydate.change({ hour: entryvalues[2].to_time.strftime("%H"), min: entryvalues[2].to_time.strftime("%M"), sec: entryvalues[2].to_time.strftime("%S") })
-							wkattendance.start_time = starttime     # DateTime.new(olddate.year, olddate.month, olddate.day, entryvalues[1].to_time.strftime("%l"), entryvalues[1].to_time.strftime("%m"), entryvalues[1].to_time.strftime("%s"))
-							wkattendance.end_time = endtime         #!entryvalues[2].blank? ? entryvalues[2] : '00:00'
+				#	paramvalues = Array.new
+				#	entryvalues = Array.new
+				#	paramvalues = params[:hidden_clock_in_out].split(',')	
+				#	for i in 0..paramvalues.length-1
+				#		entryvalues = paramvalues[i].split('|')
+				#		if !entryvalues[0].blank? && isAccountUser     #entryvalues[0] != nil
+				#			wkattendance =  WkAttendance.find(entryvalues[0])
+				#			entrydate = wkattendance.start_time
+				#			starttime = entrydate.change({ hour: entryvalues[1].to_time.strftime("%H"), min: entryvalues[1].to_time.strftime("%M"), sec: entryvalues[1].to_time.strftime("%S") })
+				#			endtime = entrydate.change({ hour: entryvalues[2].to_time.strftime("%H"), min: entryvalues[2].to_time.strftime("%M"), sec: entryvalues[2].to_time.strftime("%S") })
+				#			wkattendance.start_time = starttime     # DateTime.new(olddate.year, olddate.month, olddate.day, entryvalues[1].to_time.strftime("%l"), entryvalues[1].to_time.strftime("%m"), entryvalues[1].to_time.strftime("%s"))
+				#			wkattendance.end_time = endtime         #!entryvalues[2].blank? ? entryvalues[2] : '00:00'
 							
-						else
-							wkattendance = WkAttendance.new
-							entrydate =  @startday + entryvalues[1].to_i
-							wkattendance.user_id = @user.id
-							wkattendance.start_time = !(entryvalues[2].to_i).blank? ? "#{entrydate.to_s} #{ entryvalues[2].to_s}:00 " : '00:00'
-							wkattendance.end_time = !(entryvalues[3].to_i).blank? ? "#{entrydate.to_s} #{ entryvalues[3].to_s}:00 " : '00:00'
-						end
-						wkattendance.save()
-					end
+				#		else
+				#			wkattendance = WkAttendance.new
+				#			entrydate =  @startday + entryvalues[1].to_i
+				#			wkattendance.user_id = @user.id
+				#			wkattendance.start_time = !(entryvalues[2].to_i).blank? ? "#{entrydate.to_s} #{ entryvalues[2].to_s}:00 " : '00:00'
+				#			wkattendance.end_time = !(entryvalues[3].to_i).blank? ? "#{entrydate.to_s} #{ entryvalues[3].to_s}:00 " : '00:00'
+				#		end
+				#		wkattendance.save()
+				#	end
 					
 					@entries.each do |entry|			
 						entrycount += 1
@@ -865,8 +865,8 @@ include QueriesHelper
 		end
 	end
 	
-	def updateAttendance
-		#TODO: Use id to determine whether insert or update
+	def saveAttendance
+		#TODO: Use id to determine whether insert or update		
 		wkattendance = nil
 		ret = ""
 		if !params["starttime"].blank? || !params["endtime"].blank?	
@@ -892,6 +892,35 @@ include QueriesHelper
 			format.text  { render :text => ret }
 		end
 	end	
+	
+	def updateAttendance		
+		paramvalues = Array.new
+					entryvalues = Array.new
+					paramvalues = params[:editvalue].split(',')	
+					for i in 0..paramvalues.length-1
+						entryvalues = paramvalues[i].split('|')
+						if !entryvalues[0].blank? && isAccountUser     #entryvalues[0] != nil
+							wkattendance =  WkAttendance.find(entryvalues[0])
+							entrydate = wkattendance.start_time
+							starttime = entrydate.change({ hour: entryvalues[1].to_time.strftime("%H"), min: entryvalues[1].to_time.strftime("%M"), sec: entryvalues[1].to_time.strftime("%S") })
+							endtime = entrydate.change({ hour: entryvalues[2].to_time.strftime("%H"), min: entryvalues[2].to_time.strftime("%M"), sec: entryvalues[2].to_time.strftime("%S") })
+							wkattendance.start_time = starttime     # DateTime.new(olddate.year, olddate.month, olddate.day, entryvalues[1].to_time.strftime("%l"), entryvalues[1].to_time.strftime("%m"), entryvalues[1].to_time.strftime("%s"))
+							wkattendance.end_time = endtime         #!entryvalues[2].blank? ? entryvalues[2] : '00:00'
+							
+						else
+							wkattendance = WkAttendance.new
+							@startday = Date.parse params[:startdate] #getStartDay(params[:startdate].to_i)  #don't work
+							entrydate =  @startday  + ((entryvalues[1].to_i)- 1)
+							wkattendance.user_id = params[:user_id].to_i #@user.id
+							wkattendance.start_time = !(entryvalues[2].to_i).blank? ? "#{entrydate.to_s} #{ entryvalues[2].to_s}:00 " : '00:00'
+							wkattendance.end_time = !(entryvalues[3].to_i).blank? ? "#{entrydate.to_s} #{ entryvalues[3].to_s}:00 " : '00:00'
+						end
+						wkattendance.save()
+					end
+					respond_to do |format|
+						format.text  { render :text => "ok" }
+					end
+	end
 	
 	def showClockInOut
 		!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? &&
@@ -1241,7 +1270,7 @@ private
 	
 	def attendancefindEntries
 		dateStr = getConvertDateStr('start_time')
-		WkAttendance.find_by_sql("select a.* from wk_attendances a inner join ( select max(start_time) as start_time,user_id from wk_attendances where start_time  between '#{@startday}'  and '#{@startday+6}' and user_id = #{params[:user_id]} group by #{dateStr},user_id ) vw on a.start_time = vw.start_time and a.user_id = vw.user_id")
+		WkAttendance.find_by_sql("select a.* from wk_attendances a inner join ( select max(start_time) as start_time,user_id from wk_attendances where #{dateStr}  between '#{@startday}'  and '#{@startday+6}' and user_id = #{params[:user_id]} group by #{dateStr},user_id ) vw on a.start_time = vw.start_time and a.user_id = vw.user_id")
 	end
 	
 	def findWkTE(start_date, end_date=nil)

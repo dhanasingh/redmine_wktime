@@ -28,12 +28,12 @@ $(document).ready(function() {
 		modal: false,
 		width:'280',
 		height: '300',
-    overflow: 'auto', /* Or scroll, depending on your needs*/
+        overflow: 'auto', /* Or scroll, depending on your needs*/
    // width: 300px;
 		buttons: {
 			"Ok": function() {
 				var elementid;
-				var startvalue,endvalue,textlength, newstartval, newendval;
+				var startvalue,endvalue,textlength, newstartval, newendval,datevalue, userid;
 				var paramval = "";
 				textlength = document.getElementById('textlength').value;
 				for(i=0; i <= textlength ; i++)
@@ -46,15 +46,12 @@ $(document).ready(function() {
 						if (startvalue.defaultValue !=  startvalue.value  || endvalue.defaultValue !=  endvalue.value ) {
 						paramval += elementid.value + "|" +  startvalue.value + "|" + endvalue.value + ",";						
 					}
-					}
-					
-				}
-				
+					}					
+				}				
 				for(i=0; i < 7; i++)
 				{
 					newstartval = document.getElementById('newstart_'+i);
 					newendval = document.getElementById('newend_'+i);
-					//alert(hStartIndex+i);
 					if(newstartval || newendval)
 					{
 						if (newstartval.defaultValue !=  newstartval.value  || newendval.defaultValue !=  newendval.value ) {
@@ -62,7 +59,15 @@ $(document).ready(function() {
 					}
 					}
 				}
-				document.getElementById('hidden_clock_in_out').value = paramval;
+				datevalue = document.getElementById('startday').value;
+				userid = document.getElementById('user_id').value;
+				$.ajax({
+					url: 'updateAttendance',
+					type: 'get',
+					data: {editvalue : paramval, startdate : datevalue, user_id : userid},
+					success: function(data){  },  
+					//complete: function(){ $this.removeClass('ajax-loading'); }
+				});		
 				$( this ).dialog( "close" );
 			},
 			Cancel: function() {
@@ -1270,7 +1275,7 @@ function updateClockInOut(entrytime, strid, id){
 	elementid = document.getElementById('hd'+strid + '_' + id).value;
 	var params = strid == 'start' ? {starttime: entrytime} 	: {endtime :entrytime, id: elementid};
 	$.ajax({
-		url: 'updateAttendance',
+		url: 'saveAttendance',
 		type: 'get',
 		data: params,
 		success: function(data){ hiddenClockInOut(data, strid, id); },  

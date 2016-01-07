@@ -124,9 +124,9 @@
 							<table style="border-collapse:separate; border-spacing: 10px 0px;">
 							<tbody>		
 							<tr>
-							<td><%= text_field_tag "popupstart_#{l}" , ( (entry.start_time).strftime('%l:%M')  ).to_s, :size => 4, :disabled => isAccountUser ? false : true ,  :onchange => "hoursClockInOut(1,#{l});"  %></td> 
-							<td><%= text_field_tag "popupend_#{l}"  , (!(entry.end_time).blank? ? ( (entry.end_time).strftime('%l:%M')  ).to_s : '' ) , :size => 4, :disabled =>  isAccountUser ? false : true,  :onchange => "hoursClockInOut(1,#{l});"   %></td>
-							<td><%= text_field_tag "total_#{l}"  , "" , :size => 4, :disabled =>  isAccountUser ? false : true, :onchange => "totalClockInOut();"   %></td>
+							<td><%= text_field_tag "popupstart_#{l}" , ( (entry.start_time).strftime('%l:%M')  ).to_s, :size => 4, :disabled => isAccountUser ? false : true ,  :onchange => " validateHr(this,#{(l)}); hoursClockInOut(1,#{l});"  %></td> 
+							<td><%= text_field_tag "popupend_#{l}"  , (!(entry.end_time).blank? ? ( (entry.end_time).strftime('%l:%M')  ).to_s : '' ) , :size => 4, :disabled =>  isAccountUser ? false : true,  :onchange => " validateHr(this,#{(l)}); hoursClockInOut(1,#{l});"   %></td>
+							<td><%= text_field_tag "total_#{l}"  , "" , :size => 4, :disabled =>  isAccountUser ? false : true, :onchange => "validateHr(this,#{(l)}); totalClockInOut();"   %></td>
 							<td><%=h hidden_field_tag("hiddenpopup_#{l}", entry.id )  %></td>							
 							</tr>
 							</tbody>

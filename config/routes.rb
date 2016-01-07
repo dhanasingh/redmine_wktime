@@ -34,6 +34,8 @@
   
   get 'wktime/updateAttendance', :to => 'wktime#updateAttendance' 
   
+  get 'wktime/saveAttendance', :to => 'wktime#saveAttendance'
+  
   #For Weekly expenses
   
   get 'wkexpense/index', :to => 'wkexpense#index'
