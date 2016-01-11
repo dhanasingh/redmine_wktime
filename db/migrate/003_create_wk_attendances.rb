@@ -4,6 +4,7 @@ class CreateWkAttendances < ActiveRecord::Migration
 		t.references :user, :null => false
 		t.datetime :start_time
 		t.datetime :end_time
+		t.float :hours
 		t.timestamps null: false
     end
 	add_index  :wk_attendances, :user_id

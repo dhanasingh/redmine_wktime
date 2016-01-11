@@ -18,6 +18,8 @@ var minHourAlertMsg="";
 var decSeparator = ".";
 var lblPleaseSelect = "";
 var lblWarnUnsavedTE = "";
+var breakarray =  "";
+var st,ed;
 $(document).ready(function() {
 //$(function() {
 	var e_comments = $( "#_edit_comments_" );
@@ -33,18 +35,19 @@ $(document).ready(function() {
 		buttons: {
 			"Ok": function() {
 				var elementid;
-				var startvalue,endvalue,textlength, newstartval, newendval,datevalue, userid;
+				var startvalue,endvalue,textlength, newstartval, newendval,datevalue, userid,diff, newdiff;
 				var paramval = "";
 				textlength = document.getElementById('textlength').value;
 				for(i=0; i <= textlength ; i++)
 				{
 					startvalue = document.getElementById('popupstart_'+i);
 					endvalue = document.getElementById('popupend_'+i);
+					diff = document.getElementById('total_'+i);
 					elementid = document.getElementById('hiddenpopup_'+i);
 					if(startvalue || endvalue)
 					{
 						if (startvalue.defaultValue !=  startvalue.value  || endvalue.defaultValue !=  endvalue.value ) {
-						paramval += elementid.value + "|" +  startvalue.value + "|" + endvalue.value + ",";						
+						paramval += elementid.value + "|" +  startvalue.value + "|" + endvalue.value + "|" + diff.value + ",";						
 					}
 					}					
 				}				
@@ -52,10 +55,11 @@ $(document).ready(function() {
 				{
 					newstartval = document.getElementById('newstart_'+i);
 					newendval = document.getElementById('newend_'+i);
+					newdiff = document.getElementById('newdiff_'+i);
 					if(newstartval || newendval)
 					{
 						if (newstartval.defaultValue !=  newstartval.value  || newendval.defaultValue !=  newendval.value ) {
-						paramval += "|" + i + "|" +  newstartval.value + "|" + newendval.value + ",";						
+						paramval += "|" + i + "|" +  newstartval.value + "|" + newendval.value + "|" + newdiff.value + ",";						
 					}
 					}
 				}
@@ -182,6 +186,9 @@ $(document).ready(function() {
 	}
 	
 	totalClockInOut();
+	//calculatebreakTime()
+	//calculatebreakTime();
+	
 });
 
 $(window).load(function(){
@@ -1131,6 +1138,7 @@ function getMinDiff(day,s)
 {
 	var totTime,currDayTotal;
 	var st_min,end_min,minDiff,minadd;
+	var start, end;
 	if(s == 0)
 	{
 		st_min = getMinutes(day,'start_');
@@ -1145,8 +1153,9 @@ function getMinDiff(day,s)
 	{
 		st_min = getMinutes(day,'popupstart_');
 		end_min = getMinutes(day,'popupend_');
+		start = document.getElementById("popupstart_" + day).value ;
+		end = document.getElementById("popupend_" + day).value  ;
 	}
-	
 	
 	if(st_min > end_min)
 	{
@@ -1159,8 +1168,7 @@ function getMinDiff(day,s)
 			end_min += 1440;
 		}
 	}
-	
-	minDiff = end_min - st_min;
+	minDiff = end_min - st_min;	
 	return minDiff;
 }
 
@@ -1172,7 +1180,7 @@ function getMinutes(day,str)
 	/*if(!fldVal)
 	{
 		fldVal = "00:00";
-	}*/
+	}*/	
 	fldVal = fldVal.split(":");
 	fldVal_min = (fldVal[0] * 60) + parseInt(fldVal[1]);	
 	return fldVal_min;
@@ -1199,6 +1207,8 @@ function updateTotalHr(day)
 		{
 			totTime = tot_Hr + ":00";
 		};	
+		//alert("update total hours " + totTime);
+	//	timediff(day,totTime, "hoursstart_");
 		//totHrCell = totTimeRow.cells[hStartIndex + day];
 	//	totHrCell.innerHTML = totTime + "     <a href='javascript:showclkDialog("+day+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockin.png' border=0 title=''/></a>";
 	/*}*/	
@@ -1251,8 +1261,9 @@ function setClockInOut(strid,id) {
 	   var mm = d.getMinutes();
 	   id++;
 	   //elementid = document.getElementById(strid + '_' + id);
-	   hh = hh % 12;
+	  // hh = hh % 12;   convert 24 hours to 12 hours
 	   elementhour = hh + ":" + mm;
+	   elementend = hh + ":" + mm;
 	   if( strid == 'start')
 	   {
 		  document.getElementById('end_img' ).style.visibility = "visible";
@@ -1266,14 +1277,25 @@ function setClockInOut(strid,id) {
 	   
 	   
 	   //document.getElementById(strid + '_' + id).disabled  = true;)
-	   updateClockInOut(elementhour, strid, id);
+	   updateClockInOut(elementhour, strid, id, elementend );
 	   //elementid.onclick=function(){updateClockInOut(this.value, strid, id)};
 }
 
-function updateClockInOut(entrytime, strid, id){
+function updateClockInOut(entrytime, strid, id, elementend){
 	var $this = $(this);		
+	var hours,start,end, hoursdiff;
 	elementid = document.getElementById('hd'+strid + '_' + id).value;
-	var params = strid == 'start' ? {starttime: entrytime} 	: {endtime :entrytime, id: elementid};
+	if(strid == "end")
+	{
+		start = document.getElementById('start_' + id).value;
+		end = elementend //document.getElementById('end_' + id).value;
+		hoursdiff = diff(start, end);
+		timediff(id,hoursdiff, 'hoursstart_');
+		hours = document.getElementById('hoursstart_' + id).value;
+	}	
+	//hoursClockInOut(0,id)
+	
+	var params = strid == 'start' ? {starttime: entrytime} 	: {endtime :entrytime, id: elementid, differences: hours };
 	$.ajax({
 		url: 'saveAttendance',
 		type: 'get',
@@ -1294,7 +1316,7 @@ function hiddenClockInOut(data,strid,id){
 	elementid = document.getElementById(strid + '_' + id);
 	elementid.value = strid == 'start' ? array[1] : array[2];
 	updateRemainingHr(id);	
-	updateTotalHr(id);
+	updateTotalHr(id); //old place
 	
 }
 
@@ -1306,7 +1328,6 @@ function hoursClockInOut(s,id)
 	var minDiff = getMinDiff(id,s);
 	
 		tot_Hr = parseInt(minDiff/60) ;
-		//alert("tot_Hr " + tot_Hr);
 		tot_Hr = isNaN(tot_Hr) ? 0 : tot_Hr;
 		tot_min = minDiff%60;
 		if (tot_min > 0)
@@ -1317,15 +1338,218 @@ function hoursClockInOut(s,id)
 		{
 			totTime = tot_Hr + ":00";
 		};	
+		
 		if(s == 1)
 		{
-			document.getElementById('total_' + id).value = totTime;
-		}			
+			timediff(id,totTime, "total_");
+			
+		}
+		else if( s == 0)
+		{
+			alert("totime" + totTime);
+			timediff(id,totTime, 'hoursstart_');
+		}
 		else
 		{
-			document.getElementById('newdiff_' + id).value = totTime;
+			//document.getElementById('newdiff_' + id).value = totTime;
+			timediff(id,totTime, 'newdiff_');
 		}
 			
+}
+
+function timediff(id, totTime, str)
+{
+	var start,end, startBT,endBT;
+	var breakTime = new Array();
+	var breakValue = new Array();	
+	var count = 0, count1 = 0, count2 = 0  ;
+	var i =0, j = 0;
+	var minusdiff;
+	var oldtotal = "00:00:00" ;
+	if(str == "total_")
+	{
+	start = document.getElementById("popupstart_" + id).value ;
+	end = document.getElementById("popupend_" + id).value  ;
+	}
+	else if(str == "newdiff_")
+	{
+		start = document.getElementById("newstart_" + id).value ;
+		end = document.getElementById("newend_" + id).value  ;
+	}
+	else{
+		start = document.getElementById("start_" + id).value ;
+		end = document.getElementById("end_" + id).value  ;
+		alert(" start : " + start + " end : " + end);
+	}
+	if(start && end)
+	{					
+		breakTime = document.getElementById('break_time').value;
+		breakTime = breakTime.split(" ");	
+		var startBTime = new Array() ,endBTime = new Array();
+		for(i= 0; i < breakTime.length ; i++)
+		{				
+			breakValue =  breakTime[i].split('|');
+			startBTime[i]= breakValue[0] + ":" + breakValue[1] + ":00" ;
+			endBTime[i] = breakValue[2] + ":" + breakValue[3] + ":00";						
+		}
+		var diffbetween,diffbetween1, diffbetween4,diffbetween5;
+		var dbtotal , stdiff;				
+		start += ":00";
+		end += ":00";
+		for(j=0;j < startBTime.length ; j++)
+		{					
+			startBT = dateCompare(start,startBTime[j],0);
+			endBT = dateCompare(end,endBTime[j],0);
+			// calculate time from greater & less then break time and inbetween clock in/out
+			if((startBT == -1 && endBT == 1  ) || ( startBT == 0 && endBT == 0) || (startBT == 1 && endBT == -1  ) || 
+			(startBT == -1 && endBT == 0) || (startBT == 0 && endBT == 1) )  //|| (st1 == -1 && ed1 == -1  ) st ed
+			{
+				var oldval = stdiff;
+				stdiff  = diff(startBTime[j],endBTime[j]);
+				if(count == 1)
+				{
+					stdiff = MinutesDifferent(oldval,stdiff,1);
+				}
+				count = 1;						
+				minusdiff = MinutesDifferent(totTime,stdiff,0);						
+				if (startBT == 1 && endBT == -1 ) 
+				{
+					minusdiff = "0:00";
+				}						
+				document.getElementById(str + id).value =  minusdiff;
+			}
+			else
+			{
+				if(count != 1)
+				{
+					//break time greater then clock out time
+					
+					diffbetween = dateCompare(end,endBTime[j],1);
+					diffbetween1 = dateCompare(startBTime[j],end,1);
+					if(diffbetween == 2 && diffbetween1 == 2)
+					{
+						count1 = 1;
+						dbtotal = MinutesDifferent(startBTime[j],start, 0 );
+						document.getElementById(str + id).value =  dbtotal;
+					}
+					else{
+						if(count1 != 1 )
+						{
+							//break time less then clock in time							
+							diffbetween4 = dateCompare(start,startBTime[j],2);
+							diffbetween5 = dateCompare(start,endBTime[j],2);
+							if(diffbetween4 == 4 && diffbetween5 == 0)
+							{
+								count2 = 1;
+								dbtotal = MinutesDifferent(end, endBTime[j], 0 );
+								document.getElementById(str + id).value =  dbtotal;
+							}
+							else
+							{								
+								if(count2 != 1)
+								{
+									// 12 hours format to calculate all break time
+									/*	var twlevetotal = dateCompare(start,end, 3);
+										if(twlevetotal == 6)
+										{
+											if(diffbetween4 == 0 && diffbetween5 == 0)
+											{
+												var ttotal = MinutesDifferent(  endBTime[j], startBTime[j], 0 );
+												//alert("oldtt 1c " + oldtotal + " ttotal : " + ttotal);
+												oldtotal = MinutesDifferent( ttotal, oldtotal, 1 );
+												var overalltotal = MinutesDifferent(totTime, oldtotal, 0 );
+											}
+											document.getElementById('total_' + id).value = overalltotal;
+										}	*/								
+									//else{
+										document.getElementById(str + id).value = totTime;
+									//}
+									
+								}
+								
+								
+							
+							}
+							
+							
+						}
+					}
+					
+				}
+				
+			}				
+		}				
+	}		
+}
+
+function MinutesDifferent(totTime, stdiff, variation)
+{
+	var minusdiff;
+	var seconds,seconds1;	
+	var arr,arr1;
+	arr = totTime.split(':');	
+	arr1 = stdiff.split(':');
+	seconds = arr[0]*3600+arr[1]*60;
+	seconds1 = arr1[0]*3600+arr1[1]*60;
+	
+	if(variation == 1)
+	{
+		minusdiff = seconds + seconds1;
+	}
+	else{
+		minusdiff = seconds - seconds1;
+	}	 
+	var d;
+	d = Number(minusdiff);
+	var h = Math.floor(d / 3600);
+	var m = Math.floor(d % 3600 / 60);
+	minusdiff =  ((h > 0 ? h + ":" + (m < 10 ? "0" : "") : "") + (h > 0 ? m : ("0:" + m)) );
+	//alert(" minusdiff 12312  : " + minusdiff);
+	return minusdiff;
+}
+
+function dateCompare(time1,time2,s) {
+  var t1 = new Date();
+  var parts = time1.split(":");
+  t1.setHours(parts[0],parts[1],parts[2],0);
+  var t2 = new Date();
+  parts = time2.split(":");
+  t2.setHours(parts[0],parts[1],parts[2],0);  
+  // returns 1 if greater, -1 if less and 0 if the same  
+  if(s == 1)
+  {
+	if (t1.getTime()<t2.getTime()) return 2;
+	if (t1.getTime()<t2.getTime()) return 3;  
+  }
+  else if (s == 2)
+  {
+	  if (t1.getTime() > t2.getTime()) return 4;
+	  if (t1.getTime() > t2.getTime()) return 5;
+  }
+  else if (s == 3)
+  {
+	  if (t1.getTime() > t2.getTime()) return 6;
+	  
+  }
+  else
+  {
+	  if (t1.getTime()>t2.getTime()) return 1;
+      if (t1.getTime()<t2.getTime()) return -1;
+  }
+  return 0;
+}
+
+function diff(start, end) {
+    start = start.split(":");
+    end = end.split(":");
+    var startDate = new Date(0, 0, 0, start[0], start[1], 0);
+    var endDate = new Date(0, 0, 0, end[0], end[1], 0);
+    var diff = endDate.getTime() - startDate.getTime();
+    var hours = Math.floor(diff / 1000 / 60 / 60);
+    diff -= hours * 1000 * 60 * 60;
+    var minutes = Math.floor(diff / 1000 / 60);
+    
+    return (hours < 9 ? "0" : "") + hours + ":" + (minutes < 9 ? "0" : "") + minutes;
 }
 
 function totalClockInOut()

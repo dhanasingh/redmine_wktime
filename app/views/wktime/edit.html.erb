@@ -11,6 +11,7 @@
 		submissionack="<%= Setting.plugin_redmine_wktime[:wktime_submission_ack] %>";
 		minHourAlertMsg = "<%= l(:text_wk_warning_min_hour, :value => "#{controller.minHour}").html_safe %>";
 		editUrl = '<%= raw(url_for(:controller => controller.controller_name, :action => "edit", :startday => @startday, :user_id => params[:user_id]))%>';
+		breakvalue = '<%= Setting.plugin_redmine_wktime['wktime_break_time'] %>'
 		<% if !Setting.plugin_redmine_wktime['wktime_work_time_header'].blank? &&
 				Setting.plugin_redmine_wktime['wktime_work_time_header'].to_i == 1 %>
 				showWorkHeader = true;
@@ -106,6 +107,7 @@
 			<% j = 0   %>
 			<% @wkmultiple = controller.multipleClockInOut %>							
 			<% l = 0%>	
+			<%=h hidden_field_tag("break_time" , Setting.plugin_redmine_wktime['wktime_break_time'] )  %> 
 			<% for i in 1..7%>
 				<% showtotal = false   %>
 				<div id="img_<%= i %>" >
@@ -124,9 +126,9 @@
 							<table style="border-collapse:separate; border-spacing: 10px 0px;">
 							<tbody>		
 							<tr>
-							<td><%= text_field_tag "popupstart_#{l}" , ( (entry.start_time).strftime('%l:%M')  ).to_s, :size => 4, :disabled => isAccountUser ? false : true ,  :onchange => " validateHr(this,#{(l)}); hoursClockInOut(1,#{l});"  %></td> 
-							<td><%= text_field_tag "popupend_#{l}"  , (!(entry.end_time).blank? ? ( (entry.end_time).strftime('%l:%M')  ).to_s : '' ) , :size => 4, :disabled =>  isAccountUser ? false : true,  :onchange => " validateHr(this,#{(l)}); hoursClockInOut(1,#{l});"   %></td>
-							<td><%= text_field_tag "total_#{l}"  , "" , :size => 4, :disabled =>  isAccountUser ? false : true, :onchange => "validateHr(this,#{(l)}); totalClockInOut();"   %></td>
+							<td><%= text_field_tag "popupstart_#{l}" , ( (entry.start_time).strftime('%R')  ).to_s, :size => 4, :disabled => isAccountUser ? false : true ,  :onchange => "hoursClockInOut(1,#{l});"  %></td> 
+							<td><%= text_field_tag "popupend_#{l}"  , (!(entry.end_time).blank? ? ( (entry.end_time).strftime('%R')  ).to_s : '' ) , :size => 4, :disabled =>  isAccountUser ? false : true,  :onchange => "hoursClockInOut(1,#{l});"   %></td>
+							<td><%= text_field_tag "total_#{l}"  , "" , :size => 4, :disabled =>  isAccountUser ? false : true, :onchange => "totalClockInOut();"   %></td>
 							<td><%=h hidden_field_tag("hiddenpopup_#{l}", entry.id )  %></td>							
 							</tr>
 							</tbody>

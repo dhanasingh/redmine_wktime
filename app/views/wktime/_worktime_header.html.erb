@@ -24,8 +24,8 @@
 	<% entryenddate = Array.new %>
 	<% @wkattendances.each do |entry| %>
 		<% hiddenid <<   entry.id  %>			
-		<% entrystart <<  (!(entry.start_time).blank? ?  (entry.start_time).strftime('%l:%M') : '00:00') %>
-		<% entryend << (!(entry.end_time).blank? ?  (entry.end_time).strftime('%l:%M') : '00:00') %>
+		<% entrystart <<  (!(entry.start_time).blank? ?  (entry.start_time).strftime('%R') : '00:00') %>
+		<% entryend << (!(entry.end_time).blank? ?  (entry.end_time).strftime('%R') : '00:00') %>
 		<% entrydate << (entry.start_time).strftime('%Y-%m-%d') %>
 		<% entryenddate << (entry.end_time).strftime('%Y-%m-%d') if !(entry.end_time).blank? %>
 	<% end %>
@@ -60,6 +60,7 @@
 			<div style="width: 3px; float: left; ">
 				<%=h text_field_tag( "#{str}_#{(i+1)}" , "#{str}" == "start" ? startvalue[i] : endvalue[i],:size => 3, :disabled =>  true, :class => (@startday + i).past? ? 'clock-textbox' : ((@startday + i).today? ? 'clock-todaytextbox' : '' ),  :onchange => "validateHr(this,#{(i+1)});") %>
 			 	<%=h hidden_field_tag('hd' + "#{str}_#{(i+1)}", hiddenvalue[i] )  %>  
+				<%=h hidden_field_tag('hours' + "#{str}_#{(i+1)}", hiddenvalue[i] )  %>  
 			</div>
 			
 			<% if ("#{str}" == "start" || "#{str}" == "end") && controller.showClockInOut && (i == col_num) &&  User.current.id == @user.id   %>
