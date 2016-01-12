@@ -114,7 +114,7 @@ include WkattendanceHelper
 		  'SELECT user_id, accrual_on, issue_id, balance FROM (select u.id as user_id, i.id as issue_id, i.subject as issue_name, w.balance, w.accrual, w.used, w.accrual_on, w.id from users u 
 				cross join issues i left join (SELECT wl.* FROM wk_user_leaves wl inner join( select max(accrual_on) as accrual_on, user_id, issue_id from wk_user_leaves 
 					group by user_id, issue_id,accrual_on) t on wl.user_id = t.user_id and wl.issue_id = t.issue_id 
-					and wl.accrual_on = t.accrual_on) w on w.user_id = u.id and w.issue_id = i.id where i.id in (21,22,23) and accrual_on between ''#{from}'' and ''#{to}'') as vw ORDER BY 1',
+					and wl.accrual_on = t.accrual_on) w on w.user_id = u.id and w.issue_id = i.id where i.id in (#{getLeaveIssueIds}) and accrual_on between ''#{from}'' and ''#{to}'') as vw ORDER BY 1',
 		  'SELECT id as issue_id FROM issues where id in(#{getLeaveIssueIds}) ORDER BY 1'
 		)
 		AS
@@ -185,13 +185,14 @@ include WkattendanceHelper
 
 	def set_filter_session
 		if params[:searchlist].blank? && (session[:wkattnreport].nil?)			
-			session[:wkattnreport] = {:period_type => params[:period_type], :period => params[:period],:from => params[:from],:to => params[:to], :filters => @query.blank? ? nil : @query.filters }
+			session[:wkattnreport] = {:period_type => params[:period_type], :period => params[:period],:from => params[:from],:to => params[:to], :report_type => params[:report_type], :filters => @query.blank? ? nil : @query.filters }
 			#session[:wkexpense]  = session[:wktimes] 
 		elsif params[:searchlist] =='wkattnreport' || api_request?
 			session[:wkattnreport][:period_type] = params[:period_type]
 			session[:wkattnreport][:period] = params[:period]
 			session[:wkattnreport][:from] = params[:from]
 			session[:wkattnreport][:to] = params[:to]
+			session[:wkattnreport][:report_type] = params[:report_type]
 		end		
 	 end	  
 	

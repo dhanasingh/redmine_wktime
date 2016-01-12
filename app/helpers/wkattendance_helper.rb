@@ -25,4 +25,11 @@ module WkattendanceHelper
 							value.blank? ? 'current_month' : value)
 	end	
 
+	def options_for_report_select(value)
+		options_for_select([
+							[l(:label_wk_attendance), 'attendance_report'],
+							[l(:label_wk_time), 'wk_time']],
+							value.blank? ? 'attendance_report' : value)
+	end	
+
 end

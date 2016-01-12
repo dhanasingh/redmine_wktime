@@ -5,8 +5,20 @@
 </script>
 <%= form_tag({:controller => controller_name, :action => 'report'}, :method => :get, :id => 'query_form') do %>
 <div style="clear:both"></div>
+<table>
+<tr>
+<%
+	report_type = session[:wkattnreport][:report_type]
+%>
+<th><%= l(:label_report) + " " + l(:field_type) %> </th>
+<td><%= select_tag 'report_type', options_for_report_select(report_type),
+                         :onchange => 'this.form.submit();', :style=> "width:200px;" %></td>
+</tr>
+</table>
 <%= render :partial => 'wkattendance/date_range' %>
-<%= render :partial => 'wkattendance/list_attn_report'%>
+<% if report_type == 'attendance_report'%>
+	<%= render :partial => 'wkattendance/list_attn_report'%>
+<%end%>
 <%=h hidden_field_tag('tab', "wkattnreport") %>
 <%= hidden_field_tag "searchlist", "wkattnreport" %>
 <% end %>
