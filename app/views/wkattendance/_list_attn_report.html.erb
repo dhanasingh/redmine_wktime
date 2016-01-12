@@ -28,6 +28,7 @@
  <b><%= l(:label_year) %>:</b> <%= @from.strftime("%Y")%></caption>
 <thead bgcolor="#e6e6e6">
 <tr>
+<th rowspan="2"><%= l(:label_attn_sl_no) %></th>
 <th rowspan="2"><%= l(:field_user) %></th>
 <th rowspan="2"><%= "Date of entry into service" %></th>
 <th rowspan="2"><%= l(:label_age)+ " / " +l(:label_wk_attn_user_dob) %></th>
@@ -56,13 +57,24 @@
 </tr>
 </thead>
 <tbody>
-<% @attendance_entries.each do |entry| -%>
-
+<%
+	showSlno = true if Setting.plugin_redmine_wktime['wktime_attn_employee_id_cf'].blank? || Setting.plugin_redmine_wktime['wktime_attn_employee_id_cf'] = ""
+%>
+<% @attendance_entries.each_with_index do |entry,index| -%>
 <tr class="time-entry <%= cycle("odd", "even") %>">
+<%if showSlno %>
+	<td class="lbl-txt-align"><%=h index+1 %></td>
+<%else%>
+	<td class="lbl-txt-align"><%=h entry.user.custom_field_values.detect { |cfv| 
+					cfv.custom_field.id == Setting.plugin_redmine_wktime['wktime_attn_employee_id_cf'].to_i } %></td>
+<%end%>
 <td class="lbl-txt-align"><%=h entry.user_name %></td>
-<td class="lbl-txt-align"><%=h "03-03-2014" %></td>
-<td class="lbl-txt-align"><%=h "26-11-1989" %></td>
-<td class="lbl-txt-align"><%=h "Developer" %></td>
+<td class="lbl-txt-align"><%=h entry.user.custom_field_values.detect { |cfv| 
+				cfv.custom_field.id == Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].to_i } %></td>
+<td class="lbl-txt-align"><%=h entry.user.custom_field_values.detect { |cfv| 
+				cfv.custom_field.id == Setting.plugin_redmine_wktime['wktime_attn_user_dob_cf'].to_i } %></td>
+<td class="lbl-txt-align"><%=h entry.user.custom_field_values.detect { |cfv| 
+				cfv.custom_field.id == Setting.plugin_redmine_wktime['wktime_attn_desingnation_cf'].to_i } %></td>
 <td class="lbl-txt-align"><%=h entry.opening_leave1 %></td>
 <td class="lbl-txt-align"><%=h entry.opening_leave2 %></td>
 <td class="lbl-txt-align"><%=h entry.opening_leave3 %></td>
@@ -88,9 +100,9 @@
 		<% end -%>
 	<% end -%>
 <% end -%>
-<td class="lbl-txt-align"><%=h 20.0 %></td>
-<td class="lbl-txt-align"><%=h 25.0 %></td>
-<td class="lbl-txt-align"><%=h 15.0 %></td>
+<td class="lbl-txt-align"><%=h "" %></td>
+<td class="lbl-txt-align"><%=h "" %></td>
+<td class="lbl-txt-align"><%=h "" %></td>
 </tr>
 <% end -%>
 </tbody>
