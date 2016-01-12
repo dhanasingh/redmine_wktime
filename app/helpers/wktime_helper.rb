@@ -834,27 +834,21 @@ end
 	#	Setting.plugin_redmine_wktime['wktime_issues_filter_tracker']
 	#end
 	
-	def populateWkUserLeaves
-		#TODO : Null check
-		Rails.logger.info("========================================================")
-		Rails.logger.info("=================populateWkUserLeaves===================")
-		
+	def populateWkUserLeaves		
 		leavesInfo = Setting.plugin_redmine_wktime['wktime_leave']
 		leaveAccrual = Hash.new
 		leaveAccAfter = Hash.new
 		resetMonth = Hash.new
 		strIssueIds = ""
-		leavesInfo.each do |leave|
-			 issue_id = leave.split('|')[0].strip
-			 strIssueIds = strIssueIds.blank? ? (strIssueIds + issue_id) : (strIssueIds + "," + issue_id)
-			 leaveAccrual[issue_id] = leave.split('|')[1].strip
-			 leaveAccAfter[issue_id] = leave.split('|')[2].strip
-			 resetMonth[issue_id] = leave.split('|')[3].strip
+		if !leavesInfo.blank?
+			leavesInfo.each do |leave|
+				 issue_id = leave.split('|')[0].strip
+				 strIssueIds = strIssueIds.blank? ? (strIssueIds + issue_id) : (strIssueIds + "," + issue_id)
+				 leaveAccrual[issue_id] = leave.split('|')[1].strip
+				 leaveAccAfter[issue_id] = leave.split('|')[2].strip
+				 resetMonth[issue_id] = leave.split('|')[3].strip
+			end
 		end
-		Rails.logger.info("=================#{leavesInfo}===================")
-		Rails.logger.info("=================#{leaveAccrual}===================")
-		Rails.logger.info("=================#{leaveAccAfter}===================")
-		Rails.logger.info("=================#{resetMonth}===================")
 		
 		if !strIssueIds.blank?		
 			from = Date.civil(Date.today.year, Date.today.month, 1) << 1
@@ -874,13 +868,9 @@ end
 					"where v1.status = 1 and v1.type = 'User'"
 					
 			entries = TimeEntry.find_by_sql(qryStr)
-			if !entries.blank?
-				#TODO: Consider accrual after with user creation date
-				entries.each do |entry|
-				Rails.logger.info("===================#{entry.issue_id}==============")
-					accrual = "#{leaveAccrual[entry.issue_id]}".to_i
-				Rails.logger.info("accrual : #{accrual}")
-				#TODO : calculate number of working days
+			if !entries.blank?				
+				entries.each do |entry|				
+					accrual = "#{leaveAccrual[entry.issue_id]}".to_i							
 					if (entry.spent_hours.blank? || (!entry.spent_hours.blank? && entry.spent_hours < 88))
 						accrual = 0
 					end
@@ -903,7 +893,5 @@ end
 				end
 			end
 		end
-		Rails.logger.info("=================#{entries}===================")
-		Rails.logger.info("========================================================")
 	end
 end

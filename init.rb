@@ -226,9 +226,9 @@ Rails.configuration.to_prepare do
 		end
 		if (!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? && Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1)
 			require 'rufus/scheduler'
-			scheduler2 = Rufus::Scheduler.new #changed from start_new to new to make compatible with latest version rufus scheduler 3.0.3
-			#cronSt = "01 12 01 * *"
-			cronSt = "28 11 24 * *"
+			scheduler2 = Rufus::Scheduler.new
+			cronSt = "01 12 01 * *"
+			#cronSt = "27 17 12 * *"
 			scheduler2.cron cronSt do		
 				begin
 					Rails.logger.info "==========Scheduler2 Started=========="			
