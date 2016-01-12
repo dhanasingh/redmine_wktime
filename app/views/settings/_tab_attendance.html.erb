@@ -143,4 +143,30 @@ lblYear = "<%=l(:label_year) %>";
 			<%= hidden_field_tag :hdnAction, "" %>
 		</p>
 	</div>
+	<%
+		custom_fields = UserCustomField.order('name')
+		unless custom_fields.blank?
+			cfdate = custom_fields.select {|cf| cf.field_format == 'date' }
+			cfd = cfdate.collect {|cf| [cf.name, cf.id] }
+			cfd.unshift(["",0])
+			cfs = custom_fields.collect {|cf| [cf.name, cf.id] }
+			cfs.unshift(["",0])
+		end
+	%>
+	 <p>
+		<label><%= l(:label_wk_attn_join_date) %> </label><%=h select_tag('settings[wktime_attn_join_date_cf]', 
+			options_for_select(cfd, :selected =>  @settings['wktime_attn_join_date_cf'])) %>
+	</p>
+	 <p>
+		<label><%= l(:label_wk_attn_user_dob) %> </label><%=h select_tag('settings[wktime_attn_user_dob_cf]', 
+			options_for_select(cfd, :selected =>  @settings['wktime_attn_user_dob_cf'])) %>
+	</p>
+	 <p>
+		<label><%= l(:label_wk_designation) %> </label><%=h select_tag('settings[wktime_attn_desingnation_cf]', 
+			options_for_select(cfs, :selected =>  @settings['wktime_attn_desingnation_cf'])) %>
+	</p>
+	 <p>
+		<label><%= l(:label_employee_id) %> </label><%=h select_tag('settings[wktime_attn_employee_id_cf]', 
+			options_for_select(cfs, :selected =>  @settings['wktime_attn_employee_id_cf'])) %>
+	</p>
 </fieldset>

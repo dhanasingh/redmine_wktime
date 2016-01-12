@@ -573,7 +573,8 @@ end
 		tabs = [
 				{:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime},
 				{:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense},
-				{:name => 'wkattendance', :partial => 'wktime/tab_content', :label => :label_wk_attendance}
+				{:name => 'wkattendance', :partial => 'wktime/tab_content', :label => :label_wk_attendance},
+				{:name => 'wkattnreport', :partial => 'wktime/tab_content', :label => :label_report_plural}
 			   ]	
 	end		
 	

@@ -1,4 +1,4 @@
-var wktimeIndexUrl,wkexpIndexUrl,wkattnIndexUrl;
+var wktimeIndexUrl,wkexpIndexUrl,wkattnIndexUrl,wkattnReportUrl;
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -188,6 +188,7 @@ $(document).ready(function()
 	changeProp('tab-wktime',wktimeIndexUrl);
 	changeProp('tab-wkexpense',wkexpIndexUrl);
 	changeProp('tab-wkattendance',wkattnIndexUrl);
+	changeProp('tab-wkattnreport',wkattnReportUrl);
 });
 
 

@@ -76,6 +76,11 @@
   
    #For Attendance
    get 'wkattendance/index', :to => 'wkattendance#index'
+   
+   get 'wkattendance/report', :to => 'wkattendance#report'
+   
+   get 'wkattendance/reportPdf', :to => 'wkattendance#reportPdf'
+   
    match 'wkattendance/edit', :to => 'wkattendance#edit', :via => [:get, :post]
 			  
    post 'wkattendance/update', :to => 'wkattendance#update'
