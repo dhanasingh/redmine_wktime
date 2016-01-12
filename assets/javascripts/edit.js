@@ -28,14 +28,14 @@ $(document).ready(function() {
 		autoOpen: false,
 	//	resizable: false,
 		modal: false,
-		width:'280',
+		width:'300',
 		height: '300',
         overflow: 'auto', /* Or scroll, depending on your needs*/
    // width: 300px;
 		buttons: {
 			"Ok": function() {
 				var elementid;
-				var startvalue,endvalue,textlength, newstartval, newendval,datevalue, userid,diff, newdiff;
+				var startvalue,endvalue,textlength, newstartval, newendval,datevalue, userid,diff, newdiff, hours, newhours;
 				var paramval = "";
 				textlength = document.getElementById('textlength').value;
 				for(i=0; i <= textlength ; i++)
@@ -46,8 +46,10 @@ $(document).ready(function() {
 					elementid = document.getElementById('hiddenpopup_'+i);
 					if(startvalue || endvalue)
 					{
+						hours = timeStringToFloat(diff.value);
+						alert("hours ok : " + hours);
 						if (startvalue.defaultValue !=  startvalue.value  || endvalue.defaultValue !=  endvalue.value ) {
-						paramval += elementid.value + "|" +  startvalue.value + "|" + endvalue.value + "|" + diff.value + ",";						
+						paramval += elementid.value + "|" +  startvalue.value + "|" + endvalue.value + "|" + hours + ",";						
 					}
 					}					
 				}				
@@ -56,10 +58,16 @@ $(document).ready(function() {
 					newstartval = document.getElementById('newstart_'+i);
 					newendval = document.getElementById('newend_'+i);
 					newdiff = document.getElementById('newdiff_'+i);
+				/*	var hoursMinutes = newdiff.split(/[.:]/);
+					var hours = parseInt(hoursMinutes[0], 10);
+					var minutes = hoursMinutes[1] ? parseInt(hoursMinutes[1], 10) : 0;
+					var hoursval = hours + minutes / 60;*/					
 					if(newstartval || newendval)
 					{
+						newhours = timeStringToFloat(newdiff.value);
+						//alert("hours ok : " + hours);
 						if (newstartval.defaultValue !=  newstartval.value  || newendval.defaultValue !=  newendval.value ) {
-						paramval += "|" + i + "|" +  newstartval.value + "|" + newendval.value + "|" + newdiff.value + ",";						
+						paramval += "|" + i + "|" +  newstartval.value + "|" + newendval.value + "|" + newhours + ",";						
 					}
 					}
 				}
@@ -145,7 +153,7 @@ $(document).ready(function() {
 	
 	//when initially load the page hidden the clock in Clock out button
 	var imgend,imghide,imgstart;
-	if(document.getElementById('imgdisable') != null)
+	if(document.getElementById('imgdisable') != null && document.getElementById('end_img') != null &&  document.getElementById('start_img') != null)
 	{
 		imghide = document.getElementById('imgdisable').value;
 		imghide++;
@@ -159,8 +167,12 @@ $(document).ready(function() {
 		}
 		if( imgend == "00:00" && imgstart != "00:00" )
 		{
-			document.getElementById('end_img').style.visibility = "visible";
-			document.getElementById('start_img').style.visibility = 'hidden';
+			//if(document.getElementById('end_img') != null &&  document.getElementById('start_img') != null )
+			//{
+				document.getElementById('end_img').style.visibility = "visible";
+				document.getElementById('start_img').style.visibility = 'hidden';
+			//}
+			
 		}
 		else
 		{
@@ -1206,29 +1218,9 @@ function updateTotalHr(day)
 		else
 		{
 			totTime = tot_Hr + ":00";
-		};	
-		//alert("update total hours " + totTime);
-	//	timediff(day,totTime, "hoursstart_");
+		};		
 		//totHrCell = totTimeRow.cells[hStartIndex + day];
-	//	totHrCell.innerHTML = totTime + "     <a href='javascript:showclkDialog("+day+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockin.png' border=0 title=''/></a>";
-	/*}*/	
-}
-function showclkDialog(day)
-{
-	var i;
-	for(i = 1; i < 8 ; i++)
-	{
-		if(day == i)
-		{
-			document.getElementById('img_'+ i).style.display = 'block';
-			$( "#clockInOut-dlg" ).dialog( "open" );
-		}
-		else
-		{
-			document.getElementById('img_'+ i).style.display = 'none';
-		}
-		
-	}
+		//totHrCell.innerHTML = totTime + "     <a href='javascript:showclkDialog("+i+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockin.png' border=0 title=''/></a>";
 }
 
 //Validates the start and end time
@@ -1245,13 +1237,100 @@ function validateHr(hrFld,day)
 	
 	if(hrVal.match(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/) == null)
 	{
-		hrFld.value = "0:00";
+		hrFld.value = hrFld.defaultValue;
 		alert("Not a valid time format");
 	}
 	else
 	{	
 		updateRemainingHr(day);	
 		updateTotalHr(day);
+	}
+}
+
+function issueAutocomplete(txtissue,row){    
+        var uid = document.getElementById("user_id").value;
+		var startday = document.getElementById("startday").value;
+		var issUrl = document.getElementById("getissues_url").value;
+		issue_assign_user=issueAssignUser();
+       	issUrl= issUrl + "?user_id=" + uid + "&issue_assign_user=" + issue_assign_user + "&startday=" + startday;
+        $(txtissue).autocomplete({                    
+			source: issUrl ,
+			minLength:2,
+			select: function(event,ui){
+				issueIdChanged(ui.item.value, row);
+			}
+        });
+}
+
+function validateMinhour(minHour,nonWorkingDay){
+	var valid=true;
+	var totalhr = document.getElementById("total_hours").innerHTML;
+	totalhr = Number(totalhr);
+	 minHour=minHour.replace(decSeparator, '\.');
+	 if(isNaN(minHour)){
+		minHour=minHour.replace(',', '\.');
+	 }
+	 
+	 if (minHour!=0 && !isNaN(minHour)){	
+		 for (i=1;i<=7;i++){
+			var dayTotal= document.getElementById('day_total_'+i).innerHTML;
+			dayTotal = Number(dayTotal.replace(decSeparator, '\.'));
+			if(nonWorkingDay.indexOf(i.toString())== -1 || dayTotal > 0){				
+				
+				if (dayTotal< Number(minHour)){
+					alert(minHourAlertMsg);
+					valid=false
+					break;
+				}
+			}
+		 }
+	 }
+	 
+	if(valid  && submissionack!=''){
+		valid= confirm(submissionack);
+	}
+	return valid;
+}
+
+function issueAssignUser()
+{
+	var issueAssignUser = document.getElementById('issue_assign_user');
+	var issue_assign_user=0;
+	if(issueAssignUser && issueAssignUser.checked)
+	{
+		issue_assign_user=1;
+	}
+	return issue_assign_user
+}
+
+function getDefaultActId(actStr)
+{
+	var index, actId = null;
+	index = actStr.indexOf('|true|', 0);
+	if(index != -1){
+		actStr = actStr.substring(0,index);
+		index = actStr.lastIndexOf('|');
+		actId = actStr.substring(index+1);
+	}
+	return actId
+}
+
+
+function showclkDialog(day)
+{
+	var i;
+	for(i = 1; i < 8 ; i++)
+	{
+		if(day == i)
+		{
+			document.getElementById('img_'+ i).style.display = 'block';
+			$( "#clockInOut-dlg" ).dialog( "open" );
+		}
+		else
+		{
+			document.getElementById('img_'+ i).style.display = 'none';
+		}
+		
 	}
 }
 
@@ -1273,9 +1352,7 @@ function setClockInOut(strid,id) {
 	   {
 		  document.getElementById('start_img' ).style.visibility = "visible";
 		  document.getElementById('end_img').style.visibility = 'hidden';
-	   }
-	   
-	   
+	   }	   
 	   //document.getElementById(strid + '_' + id).disabled  = true;)
 	   updateClockInOut(elementhour, strid, id, elementend );
 	   //elementid.onclick=function(){updateClockInOut(this.value, strid, id)};
@@ -1283,7 +1360,7 @@ function setClockInOut(strid,id) {
 
 function updateClockInOut(entrytime, strid, id, elementend){
 	var $this = $(this);		
-	var hours,start,end, hoursdiff;
+	var hours,start,end, hoursdiff,hiddenvalue;
 	elementid = document.getElementById('hd'+strid + '_' + id).value;
 	if(strid == "end")
 	{
@@ -1291,10 +1368,11 @@ function updateClockInOut(entrytime, strid, id, elementend){
 		end = elementend //document.getElementById('end_' + id).value;
 		hoursdiff = diff(start, end);
 		timediff(id,hoursdiff, 'hoursstart_');
-		hours = document.getElementById('hoursstart_' + id).value;
+		hiddenvalue = document.getElementById('hoursstart_' + id).value;
+		hours = timeStringToFloat(hiddenvalue);
+		//alert("hours : " + hours + " hiddenvalue " + hiddenvalue);
 	}	
-	//hoursClockInOut(0,id)
-	
+	//hoursClockInOut(0,id)	
 	var params = strid == 'start' ? {starttime: entrytime} 	: {endtime :entrytime, id: elementid, differences: hours };
 	$.ajax({
 		url: 'saveAttendance',
@@ -1346,7 +1424,6 @@ function hoursClockInOut(s,id)
 		}
 		else if( s == 0)
 		{
-			alert("totime" + totTime);
 			timediff(id,totTime, 'hoursstart_');
 		}
 		else
@@ -1379,7 +1456,6 @@ function timediff(id, totTime, str)
 	else{
 		start = document.getElementById("start_" + id).value ;
 		end = document.getElementById("end_" + id).value  ;
-		alert(" start : " + start + " end : " + end);
 	}
 	if(start && end)
 	{					
@@ -1422,8 +1498,7 @@ function timediff(id, totTime, str)
 			{
 				if(count != 1)
 				{
-					//break time greater then clock out time
-					
+					//break time greater then clock out time					
 					diffbetween = dateCompare(end,endBTime[j],1);
 					diffbetween1 = dateCompare(startBTime[j],end,1);
 					if(diffbetween == 2 && diffbetween1 == 2)
@@ -1448,6 +1523,7 @@ function timediff(id, totTime, str)
 							{								
 								if(count2 != 1)
 								{
+									document.getElementById(str + id).value = totTime;
 									// 12 hours format to calculate all break time
 									/*	var twlevetotal = dateCompare(start,end, 3);
 										if(twlevetotal == 6)
@@ -1462,7 +1538,7 @@ function timediff(id, totTime, str)
 											document.getElementById('total_' + id).value = overalltotal;
 										}	*/								
 									//else{
-										document.getElementById(str + id).value = totTime;
+										//document.getElementById(str + id).value = totTime;
 									//}
 									
 								}
@@ -1605,70 +1681,11 @@ function totalClockInOut()
 	}
 }
 
-function issueAutocomplete(txtissue,row){    
-        var uid = document.getElementById("user_id").value;
-		var startday = document.getElementById("startday").value;
-		var issUrl = document.getElementById("getissues_url").value;
-		issue_assign_user=issueAssignUser();
-       	issUrl= issUrl + "?user_id=" + uid + "&issue_assign_user=" + issue_assign_user + "&startday=" + startday;
-        $(txtissue).autocomplete({                    
-			source: issUrl ,
-			minLength:2,
-			select: function(event,ui){
-				issueIdChanged(ui.item.value, row);
-			}
-        });
-}
-
-function validateMinhour(minHour,nonWorkingDay){
-	var valid=true;
-	var totalhr = document.getElementById("total_hours").innerHTML;
-	totalhr = Number(totalhr);
-	 minHour=minHour.replace(decSeparator, '\.');
-	 if(isNaN(minHour)){
-		minHour=minHour.replace(',', '\.');
-	 }
-	 
-	 if (minHour!=0 && !isNaN(minHour)){	
-		 for (i=1;i<=7;i++){
-			var dayTotal= document.getElementById('day_total_'+i).innerHTML;
-			dayTotal = Number(dayTotal.replace(decSeparator, '\.'));
-			if(nonWorkingDay.indexOf(i.toString())== -1 || dayTotal > 0){				
-				
-				if (dayTotal< Number(minHour)){
-					alert(minHourAlertMsg);
-					valid=false
-					break;
-				}
-			}
-		 }
-	 }
-	 
-	if(valid  && submissionack!=''){
-		valid= confirm(submissionack);
-	}
-	return valid;
-}
-
-function issueAssignUser()
-{
-	var issueAssignUser = document.getElementById('issue_assign_user');
-	var issue_assign_user=0;
-	if(issueAssignUser && issueAssignUser.checked)
-	{
-		issue_assign_user=1;
-	}
-	return issue_assign_user
-}
-
-function getDefaultActId(actStr)
-{
-	var index, actId = null;
-	index = actStr.indexOf('|true|', 0);
-	if(index != -1){
-		actStr = actStr.substring(0,index);
-		index = actStr.lastIndexOf('|');
-		actId = actStr.substring(index+1);
-	}
-	return actId
+function timeStringToFloat(time) {
+  var hoursMinutes = time.split(/[.:]/);
+  var hours = parseInt(hoursMinutes[0], 10);
+  var minutes = hoursMinutes[1] ? parseInt(hoursMinutes[1], 10) : 0;
+  var originalval = hours + minutes / 60;
+  var result = Math.round(originalval*100)/100 
+  return result;
 }

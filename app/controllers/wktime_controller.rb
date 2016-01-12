@@ -880,6 +880,7 @@ include QueriesHelper
 				id = params["id"]
 				wkattendance = WkAttendance.find(id)
 				wkattendance.end_time = params["endtime"]
+				wkattendance.hours = params["differences"]
 			end
 			wkattendance.save()
 			ret = wkattendance.id.to_s
@@ -904,10 +905,9 @@ include QueriesHelper
 							entrydate = wkattendance.start_time
 							starttime = entrydate.change({ hour: entryvalues[1].to_time.strftime("%H"), min: entryvalues[1].to_time.strftime("%M"), sec: entryvalues[1].to_time.strftime("%S") })
 							endtime = entrydate.change({ hour: entryvalues[2].to_time.strftime("%H"), min: entryvalues[2].to_time.strftime("%M"), sec: entryvalues[2].to_time.strftime("%S") })
-							Rails.logger.info("***************** hours diff #{entryvalues[3]} **********************************************")
 							wkattendance.start_time = starttime     # DateTime.new(olddate.year, olddate.month, olddate.day, entryvalues[1].to_time.strftime("%l"), entryvalues[1].to_time.strftime("%m"), entryvalues[1].to_time.strftime("%s"))
 							wkattendance.end_time = endtime         #!entryvalues[2].blank? ? entryvalues[2] : '00:00'
-							#wkattendance.hours = entryvalues[3] 
+							wkattendance.hours = entryvalues[3] 
 							
 						else
 							wkattendance = WkAttendance.new
@@ -916,7 +916,7 @@ include QueriesHelper
 							wkattendance.user_id = params[:user_id].to_i #@user.id
 							wkattendance.start_time = !(entryvalues[2].to_i).blank? ? "#{entrydate.to_s} #{ entryvalues[2].to_s}:00 " : '00:00'
 							wkattendance.end_time = !(entryvalues[3].to_i).blank? ? "#{entrydate.to_s} #{ entryvalues[3].to_s}:00 " : '00:00'
-							#wkattendance.hours = entryvalues[4]
+							wkattendance.hours = entryvalues[4]
 						end
 						wkattendance.save()
 					end
