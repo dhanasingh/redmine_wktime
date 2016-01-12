@@ -58,7 +58,7 @@
 </thead>
 <tbody>
 <%
-	showSlno = true if Setting.plugin_redmine_wktime['wktime_attn_employee_id_cf'].blank? || Setting.plugin_redmine_wktime['wktime_attn_employee_id_cf'] = ""
+	showSlno = true if Setting.plugin_redmine_wktime['wktime_attn_employee_id_cf'].blank? || Setting.plugin_redmine_wktime['wktime_attn_employee_id_cf'].to_i == 0
 %>
 <% @attendance_entries.each_with_index do |entry,index| -%>
 <tr class="time-entry <%= cycle("odd", "even") %>">
