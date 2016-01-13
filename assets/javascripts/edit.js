@@ -47,7 +47,6 @@ $(document).ready(function() {
 					if(startvalue || endvalue)
 					{
 						hours = timeStringToFloat(diff.value);
-						alert("hours ok : " + hours);
 						if (startvalue.defaultValue !=  startvalue.value  || endvalue.defaultValue !=  endvalue.value ) {
 						paramval += elementid.value + "|" +  startvalue.value + "|" + endvalue.value + "|" + hours + ",";						
 					}
@@ -1431,7 +1430,7 @@ function hoursClockInOut(s,id)
 			//document.getElementById('newdiff_' + id).value = totTime;
 			timediff(id,totTime, 'newdiff_');
 		}
-			
+		//totalClockInOut();	
 }
 
 function timediff(id, totTime, str)
@@ -1674,7 +1673,7 @@ function totalClockInOut()
 	{
 		var issueTable = document.getElementById("issueTable");
 		var totTimeRow = issueTable.rows[3];		 
-		totHrCell = totTimeRow.cells[hStartIndex + (i+1) ];	
+		totHrCell = totTimeRow.cells[hStartIndex + (i) ];	
 		addval[i] = addval[i] ? addval[i] : "00:00"	
 		totHrCell.innerHTML = addval[i] + "     <a href='javascript:showclkDialog("+i+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockin.png' border=0 title=''/></a>";
 		 
