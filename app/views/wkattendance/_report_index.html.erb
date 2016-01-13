@@ -16,7 +16,7 @@
 </tr>
 </table>
 <%= render :partial => 'wkattendance/date_range' %>
-<% if report_type == 'attendance_report'%>
+<% if report_type == 'attendance_report' || report_type.blank?%>
 	<%= render :partial => 'wkattendance/list_attn_report'%>
 <%end%>
 <%=h hidden_field_tag('tab', "wkattnreport") %>
