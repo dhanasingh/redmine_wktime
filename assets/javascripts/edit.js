@@ -1164,8 +1164,8 @@ function getMinDiff(day,s)
 	{
 		st_min = getMinutes(day,'popupstart_');
 		end_min = getMinutes(day,'popupend_');
-		start = document.getElementById("popupstart_" + day).value ;
-		end = document.getElementById("popupend_" + day).value  ;
+		//start = document.getElementById("popupstart_" + day).value ;
+		//end = document.getElementById("popupend_" + day).value  ;
 	}
 	
 	if(st_min > end_min)
@@ -1369,7 +1369,6 @@ function updateClockInOut(entrytime, strid, id, elementend){
 		timediff(id,hoursdiff, 'hoursstart_');
 		hiddenvalue = document.getElementById('hoursstart_' + id).value;
 		hours = timeStringToFloat(hiddenvalue);
-		//alert("hours : " + hours + " hiddenvalue " + hiddenvalue);
 	}	
 	//hoursClockInOut(0,id)	
 	var params = strid == 'start' ? {starttime: entrytime} 	: {endtime :entrytime, id: elementid, differences: hours };
@@ -1419,16 +1418,19 @@ function hoursClockInOut(s,id)
 		if(s == 1)
 		{
 			timediff(id,totTime, "total_");
+			totalClockInOut();
 			
 		}
 		else if( s == 0)
 		{
 			timediff(id,totTime, 'hoursstart_');
+			totalClockInOut();
 		}
 		else
 		{
-			//document.getElementById('newdiff_' + id).value = totTime;
-			timediff(id,totTime, 'newdiff_');
+			document.getElementById('newdiff_' + id).value = totTime;
+			//alert(totTime);
+			//timediff(id,totTime, 'newdiff_');
 		}
 		//totalClockInOut();	
 }
@@ -1479,7 +1481,7 @@ function timediff(id, totTime, str)
 			if((startBT == -1 && endBT == 1  ) || ( startBT == 0 && endBT == 0) || (startBT == 1 && endBT == -1  ) || 
 			(startBT == -1 && endBT == 0) || (startBT == 0 && endBT == 1) )  //|| (st1 == -1 && ed1 == -1  ) st ed
 			{
-				var oldval = stdiff;
+				var oldval = stdiff;				
 				stdiff  = diff(startBTime[j],endBTime[j]);
 				if(count == 1)
 				{
@@ -1490,7 +1492,11 @@ function timediff(id, totTime, str)
 				if (startBT == 1 && endBT == -1 ) 
 				{
 					minusdiff = "0:00";
-				}						
+				}	
+				if (startBT == 0 && endBT == 0 ) 
+				{
+					minusdiff = totTime;
+				}				
 				document.getElementById(str + id).value =  minusdiff;
 			}
 			else
@@ -1579,7 +1585,6 @@ function MinutesDifferent(totTime, stdiff, variation)
 	var h = Math.floor(d / 3600);
 	var m = Math.floor(d % 3600 / 60);
 	minusdiff =  ((h > 0 ? h + ":" + (m < 10 ? "0" : "") : "") + (h > 0 ? m : ("0:" + m)) );
-	//alert(" minusdiff 12312  : " + minusdiff);
 	return minusdiff;
 }
 
