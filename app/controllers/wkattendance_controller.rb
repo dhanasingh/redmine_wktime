@@ -85,6 +85,24 @@ include WkattendanceHelper
 		issueIds
 	end
 	
+	def getAttnLeaveIssueIds
+		issueIds = ''
+		if(Setting.plugin_redmine_wktime['wktime_leave'].blank?)
+			issueIds = '-1'
+		else
+			Setting.plugin_redmine_wktime['wktime_leave'].each_with_index do |element,index|
+				if index < 3
+					if issueIds!=''
+						issueIds = issueIds +','
+					end
+				  listboxArr = element.split('|')
+				  issueIds = issueIds + listboxArr[0]
+				end
+			end
+		end	
+		issueIds
+	end
+	
 	def getQueryStr
 		queryStr = ''
 		queryStr = "select u.id as user_id, i.id as issue_id,w.balance, w.accrual, w.used, w.accrual_on, w.id from users u 
@@ -102,20 +120,24 @@ include WkattendanceHelper
 		sqlStr = "select u.id as user_id,concat(u.firstname,' ' ,u.lastname) as user_name,vw.accrual_on,vw.leave1,vw.leave2,vw.leave3,vw1.opening_leave1,vw1.opening_leave2,vw1.opening_leave3,vw2.closing_leave1,vw2.closing_leave2,vw2.closing_leave3,vw3.* from users u left join 
 		(" + getLeaveBalanceQuery(@from, @to,'') + ") vw on vw.user_id=u.id full join 
 		(" + getLeaveBalanceQuery(@from<< 1, @to<< 1,'opening_') + ") vw1 on u.id = vw1.user_id full join 
-		(" + getLeaveBalanceQuery(@from>> 1, @to>> 1,'closing_') + ") vw2 on u.id = vw2.user_id inner join 
+		(" + getLeaveBalanceQuery(@from, @to,'closing_') + ") vw2 on u.id = vw2.user_id inner join 
 		(" + getUsrMonthlyAttnQuery + ") vw3 on vw3.user_id = u.id where u.type = 'User' order by u.id"
 		@attendance_entries = WkUserLeave.find_by_sql(sqlStr)
 		
 	end
 	
 	def getLeaveBalanceQuery(from, to, balanceType)
-		queryStr = " SELECT * FROM crosstab 
-		(
-		  'SELECT user_id, accrual_on, issue_id, balance FROM (select u.id as user_id, i.id as issue_id, i.subject as issue_name, w.balance, w.accrual, w.used, w.accrual_on, w.id from users u 
+		queryStr = " SELECT * FROM crosstab ('SELECT user_id, accrual_on, issue_id,"
+		if balanceType == ''
+			queryStr = queryStr + "  used "
+		else
+			queryStr = queryStr + "  balance "
+		end
+		queryStr = queryStr + "FROM (select u.id as user_id, i.id as issue_id, i.subject as issue_name, w.balance, w.accrual, w.used, w.accrual_on, w.id from users u 
 				cross join issues i left join (SELECT wl.* FROM wk_user_leaves wl inner join( select max(accrual_on) as accrual_on, user_id, issue_id from wk_user_leaves 
 					group by user_id, issue_id,accrual_on) t on wl.user_id = t.user_id and wl.issue_id = t.issue_id 
-					and wl.accrual_on = t.accrual_on) w on w.user_id = u.id and w.issue_id = i.id where i.id in (#{getLeaveIssueIds}) and accrual_on between ''#{from}'' and ''#{to}'') as vw ORDER BY 1',
-		  'SELECT id as issue_id FROM issues where id in(#{getLeaveIssueIds}) ORDER BY 1'
+					and wl.accrual_on = t.accrual_on) w on w.user_id = u.id and w.issue_id = i.id where i.id in (#{getAttnLeaveIssueIds}) and accrual_on between ''#{from}'' and ''#{to}'') as vw ORDER BY 1',
+		  'SELECT id as issue_id FROM issues where id in(#{getAttnLeaveIssueIds}) ORDER BY 1'
 		)
 		AS
 		(
