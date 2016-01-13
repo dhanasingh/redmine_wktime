@@ -13,12 +13,14 @@
 		issueslist = issue_list.collect {|issue| [issue.subject, issue.id] }
 		issuehash = Hash[issue_list.map { |u| [u.id, u.subject] }]
 	end
+	if !Setting.plugin_redmine_wktime['wktime_leave'].blank?
 	Setting.plugin_redmine_wktime['wktime_leave'].each_with_index do |element,index|
 	  listboxArr = element.split('|')
 	  issueId[index] = listboxArr[0]
 	  shortName[listboxArr[0].to_i] = listboxArr[4].blank? ? issuehash[listboxArr[0].to_i].first(2) : listboxArr[4]
 	end
 	issueId = issueId.sort_by(&:to_i)
+	end
 %>
 <div id="attn-dlg", style="overflow-x:auto;">
 <table  border="1" style="border-collapse:collapse;" cellspacing="0",frame="box">
@@ -60,6 +62,7 @@
 <%
 	showSlno = true if Setting.plugin_redmine_wktime['wktime_attn_employee_id_cf'].blank? || Setting.plugin_redmine_wktime['wktime_attn_employee_id_cf'].to_i == 0
 %>
+<% if !@attendance_entries.blank? %>
 <% @attendance_entries.each_with_index do |entry,index| -%>
 <tr class="time-entry <%= cycle("odd", "even") %>">
 <%if showSlno %>
@@ -104,6 +107,7 @@
 <td class="lbl-txt-align"><%=h "" %></td>
 <td class="lbl-txt-align"><%=h "" %></td>
 </tr>
+<% end -%>
 <% end -%>
 </tbody>
 </table>
