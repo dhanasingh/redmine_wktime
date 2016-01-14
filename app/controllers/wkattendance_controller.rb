@@ -115,15 +115,20 @@ include WkattendanceHelper
 	end
 	
 	def report
-		set_filter_session
 		retrieve_date_range
+		if params[:report_type] == 'attendance_report'
+			reportattn
+		end
+	end
+	
+	def reportattn
 		sqlStr = "select u.id as user_id,concat(u.firstname,' ' ,u.lastname) as user_name,vw.accrual_on,vw.leave1,vw.leave2,vw.leave3,vw1.opening_leave1,vw1.opening_leave2,vw1.opening_leave3,vw2.closing_leave1,vw2.closing_leave2,vw2.closing_leave3,vw3.* from users u left join 
 		(" + getLeaveBalanceQuery(@from, @to,'') + ") vw on vw.user_id=u.id full join 
 		(" + getLeaveBalanceQuery(@from<< 1, @to<< 1,'opening_') + ") vw1 on u.id = vw1.user_id full join 
 		(" + getLeaveBalanceQuery(@from, @to,'closing_') + ") vw2 on u.id = vw2.user_id inner join 
 		(" + getUsrMonthlyAttnQuery + ") vw3 on vw3.user_id = u.id where u.type = 'User' order by u.id"
 		@attendance_entries = WkUserLeave.find_by_sql(sqlStr)
-		
+		render :action => 'reportattn'
 	end
 	
 	def getLeaveBalanceQuery(from, to, balanceType)
@@ -174,10 +179,10 @@ include WkattendanceHelper
 	  def retrieve_date_range
 		@free_period = false
 		@from, @to = nil, nil
-		period_type = session[:wkattnreport][:period_type]
-		period = session[:wkattnreport][:period]
-		fromdate = session[:wkattnreport][:from]
-		todate = session[:wkattnreport][:to]
+		period_type = params[:period_type]
+		period = params[:period]
+		fromdate = params[:from]
+		todate = params[:to]
 
 		if (period_type == '1' || (period_type.nil? && !period.nil?)) 
 		  case period.to_s
@@ -189,7 +194,6 @@ include WkattendanceHelper
 			@to = (@from >> 1) - 1
 		  end
 		elsif period_type == '2' || (period_type.nil? && (!fromdate.nil? || !todate.nil?))
-			Rails.logger.info("===== From date y = #{(fromdate.to_s.to_date).year} to date m = #{(fromdate.to_s.to_date).month}")
 		  begin; @from = Date.civil((fromdate.to_s.to_date).year,(fromdate.to_s.to_date).month, 1) unless fromdate.blank?; rescue; end
 		  begin;  @to = (@from >> 1) - 1 unless @from.blank?; rescue; end
 		  #begin; @to = todate.to_s.to_date unless todate.blank?; rescue; end
@@ -204,19 +208,6 @@ include WkattendanceHelper
 		@from, @to = @to, @from if @from && @to && @from > @to
 
 	  end
-
-	def set_filter_session
-		if params[:searchlist].blank? && (session[:wkattnreport].nil?)			
-			session[:wkattnreport] = {:period_type => params[:period_type], :period => params[:period],:from => params[:from],:to => params[:to], :report_type => params[:report_type], :filters => @query.blank? ? nil : @query.filters }
-			#session[:wkexpense]  = session[:wktimes] 
-		elsif params[:searchlist] =='wkattnreport' || api_request?
-			session[:wkattnreport][:period_type] = params[:period_type]
-			session[:wkattnreport][:period] = params[:period]
-			session[:wkattnreport][:from] = params[:from]
-			session[:wkattnreport][:to] = params[:to]
-			session[:wkattnreport][:report_type] = params[:report_type]
-		end		
-	 end	  
 	
 	def reportPdf
 		send_data(wktime_report_to_pdf(), :type => 'application/pdf', :filename => "attendance.pdf")

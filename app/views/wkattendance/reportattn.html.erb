@@ -1,0 +1,118 @@
+<h2><%= "Attendance report" %></h2>
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<script type="text/javascript"> 
+	prevTab = 'tab-<%= "wkattnreport" %>';
+</script>
+<%
+	wktime_helper = Object.new.extend(WktimeHelper)
+	issueId = []
+	issue_list = Issue.order('subject')
+	shortName = Hash.new
+	unless issue_list.blank?
+		issueslist = issue_list.collect {|issue| [issue.subject, issue.id] }
+		issuehash = Hash[issue_list.map { |u| [u.id, u.subject] }]
+	end
+	if !Setting.plugin_redmine_wktime['wktime_leave'].blank?
+	Setting.plugin_redmine_wktime['wktime_leave'].each_with_index do |element,index|
+	  listboxArr = element.split('|')
+	  issueId[index] = listboxArr[0]
+	  shortName[listboxArr[0].to_i] = listboxArr[4].blank? ? issuehash[listboxArr[0].to_i].first(2) : listboxArr[4]
+	end
+	issueId = issueId.sort_by(&:to_i)
+	end
+%>
+<div id="attn-dlg", style="overflow-x:auto;">
+<table  border="1" style="border-collapse:collapse;" cellspacing="0",frame="box">
+ <caption><b>FORM-Q<br>REGISTER OF EMPLOYMENT FOR SHOPS AND ESTABLISHMENTS</b></br>
+ <b>Name and Address of the Establishment :</b> _______________________________________________
+ <b><%= l(:label_month) %>:</b> <%= @from.strftime("%B")%>
+ <b><%= l(:label_year) %>:</b> <%= @from.strftime("%Y")%></caption>
+<thead bgcolor="#e6e6e6">
+<tr>
+<th rowspan="2"><%= l(:label_attn_sl_no) %></th>
+<th rowspan="2"><%= l(:field_user) %></th>
+<th rowspan="2"><%= "Date of entry into service" %></th>
+<th rowspan="2"><%= l(:label_age)+ " / " +l(:label_wk_attn_user_dob) %></th>
+<th rowspan="2"><%= l(:label_wk_designation) %></th> 
+<th colspan="3"><%= l(:label_leave_beginning_of_mnth) %></th>
+<th colspan="3"><%= l(:label_leave_during_mnth) %></th>
+<th colspan="3"><%= l(:label_wk_leave)+" "+l(:wk_field_balance)  %></th>
+<th colspan="31"><%= l(:label_daily_workdone_inclede_ot) %></th>
+<th rowspan="2"><%= l(:label_total_hours_ot) %></th>
+<th rowspan="2"><%= l(:label_total_hours_during_mnth) %></th>
+<th rowspan="2"><%= l(:label_total_no_of_maternity_leave) %></th>
+</tr>
+<tr>
+<th class="lbl-txt-align"><%= shortName[issueId[0].to_i] %></th>
+<th class="lbl-txt-align"><%= shortName[issueId[1].to_i] %></th>
+<th class="lbl-txt-align"><%= shortName[issueId[2].to_i] %></th>
+<th class="lbl-txt-align"><%= shortName[issueId[0].to_i] %></th>
+<th class="lbl-txt-align"><%= shortName[issueId[1].to_i] %></th>
+<th class="lbl-txt-align"><%= shortName[issueId[2].to_i] %></th>
+<th class="lbl-txt-align"><%= shortName[issueId[0].to_i] %></th>
+<th class="lbl-txt-align"><%= shortName[issueId[1].to_i] %></th>
+<th class="lbl-txt-align"><%= shortName[issueId[2].to_i] %></th>
+<% for i in 1..31%>
+	<th style="width:0.01%"><%= i %></th>
+<% end -%>
+</tr>
+</thead>
+<tbody>
+<%
+	showSlno = true if Setting.plugin_redmine_wktime['wktime_attn_employee_id_cf'].blank? || Setting.plugin_redmine_wktime['wktime_attn_employee_id_cf'].to_i == 0
+%>
+<% if !@attendance_entries.blank? %>
+<% @attendance_entries.each_with_index do |entry,index| -%>
+<tr class="time-entry <%= cycle("odd", "even") %>">
+<%if showSlno %>
+	<td class="lbl-txt-align"><%=h index+1 %></td>
+<%else%>
+	<td class="lbl-txt-align"><%=h entry.user.custom_field_values.detect { |cfv| 
+					cfv.custom_field.id == Setting.plugin_redmine_wktime['wktime_attn_employee_id_cf'].to_i } %></td>
+<%end%>
+<td class="lbl-txt-align"><%=h entry.user_name %></td>
+<td class="lbl-txt-align"><%=h entry.user.custom_field_values.detect { |cfv| 
+				cfv.custom_field.id == Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].to_i } %></td>
+<td class="lbl-txt-align"><%=h entry.user.custom_field_values.detect { |cfv| 
+				cfv.custom_field.id == Setting.plugin_redmine_wktime['wktime_attn_user_dob_cf'].to_i } %></td>
+<td class="lbl-txt-align"><%=h entry.user.custom_field_values.detect { |cfv| 
+				cfv.custom_field.id == Setting.plugin_redmine_wktime['wktime_attn_desingnation_cf'].to_i } %></td>
+<td class="lbl-txt-align"><%=h entry.opening_leave1 %></td>
+<td class="lbl-txt-align"><%=h entry.opening_leave2 %></td>
+<td class="lbl-txt-align"><%=h entry.opening_leave3 %></td>
+<td class="lbl-txt-align"><%=h entry.leave1 %></td>
+<td class="lbl-txt-align"><%=h entry.leave2 %></td>
+<td class="lbl-txt-align"><%=h entry.leave3 %></td>
+<td class="lbl-txt-align"><%=h entry.closing_leave1 %></td>
+<td class="lbl-txt-align"><%=h entry.closing_leave2 %></td>
+<td class="lbl-txt-align"><%=h entry.closing_leave3 %></td>
+<% for i in 1..31%>
+	<% if wktime_helper.is_number(entry['a'+i.to_s]) || entry['a'+i.to_s].blank? %>
+		<td class="lbl-txt-align"><%=h entry['a'+i.to_s] %></td>
+	<% else 
+		entryArr = entry['a'+i.to_s].split('|')
+		issue_id = entryArr[1].to_i
+		entry_text = entryArr[0].blank? ? shortName[issue_id] : entryArr[0] + '/' + shortName[issue_id]
+		shortName[issue_id]
+		if entryArr[0].blank?
+		%>
+			<td class="lbl-txt-align"><%=h shortName[issue_id] %></td>
+		<% else -%>
+			<td class="lbl-txt-align"><%=h entryArr[0] %><br>/<%=h shortName[issue_id] %></td>
+		<% end -%>
+	<% end -%>
+<% end -%>
+<td class="lbl-txt-align"><%=h "" %></td>
+<td class="lbl-txt-align"><%=h "" %></td>
+<td class="lbl-txt-align"><%=h "" %></td>
+</tr>
+<% end -%>
+<% end -%>
+</tbody>
+</table>
+</div>
+  
+<%=h hidden_field_tag('tab', "wkattnreport") %>
+
+<% html_title(l(:label_te)) -%>

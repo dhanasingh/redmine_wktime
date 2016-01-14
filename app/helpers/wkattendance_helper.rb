@@ -18,18 +18,17 @@ module WkattendanceHelper
 		end
 	end	
 
-	def options_for_period_select(value)
+	def options_for_period_select
 		options_for_select([
 							[l(:label_this_month), 'current_month'],
 							[l(:label_last_month), 'last_month']],
-							value.blank? ? 'current_month' : value)
+							'current_month')
 	end	
 
-	def options_for_report_select(value)
+	def options_for_report_select
 		options_for_select([
-							[l(:label_wk_attendance), 'attendance_report'],
-							[l(:label_wk_time), 'wk_time']],
-							value.blank? ? 'attendance_report' : value)
+							[l(:label_wk_attendance), 'attendance_report']],
+							'attendance_report')
 	end	
 
 end

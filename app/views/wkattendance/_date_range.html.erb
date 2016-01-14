@@ -2,13 +2,9 @@
 <fieldset id="date-range" class="collapsible">
 <legend onclick="toggleFieldset(this);"><%= l(:label_date_range) %></legend>
 <div>
-<%
-	period = session[:wkattnreport][:period]
-%>
 <div class="div-left">
 <%= radio_button_tag 'period_type', '1', !@free_period, :onclick => '$("#from,#to").attr("disabled", true);$("#period").removeAttr("disabled");' %>
-<%= select_tag 'period', options_for_period_select(period),
-                         :onchange => 'this.form.submit();',
+<%= select_tag 'period', options_for_period_select,
                          :onfocus => '$("period_type_1").checked = true;',
                          :disabled => @free_period %>
 </div>
