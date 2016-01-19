@@ -126,7 +126,11 @@ include WkattendanceHelper
 		(" + getLeaveBalanceQuery(@from, @to,'') + ") vw on vw.user_id=u.id full join 
 		(" + getLeaveBalanceQuery(@from, @to,'opening_') + ") vw1 on u.id = vw1.user_id full join 
 		(" + getLeaveBalanceQuery(@from, @to,'closing_') + ") vw2 on u.id = vw2.user_id inner join 
-		(" + getUsrMonthlyAttnQuery + ") vw3 on vw3.user_id = u.id where u.type = 'User' order by u.id"
+		(" + getUsrMonthlyAttnQuery + ") vw3 on vw3.user_id = u.id where u.type = 'User'"
+		if !isAccountUser
+			sqlStr = sqlStr + " and u.id = #{User.current.id}" 
+		end
+		sqlStr = sqlStr + "  order by u.id "
 		@attendance_entries = WkUserLeave.find_by_sql(sqlStr)
 		render :action => 'reportattn', :layout => false
 	end
