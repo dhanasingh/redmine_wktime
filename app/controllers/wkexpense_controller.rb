@@ -118,6 +118,10 @@ class WkexpenseController < WktimeController
 	def textfield_size
 	    6
 	end
+	
+	def showClockInOut
+		false
+	end
 private
   def getSpecificField
 	"amount"
