@@ -1,6 +1,9 @@
 <fieldset class="box tabular">
 	<legend><%= l(:label_wktime) %></legend>
 	<p>
+		<label><%= l(:label_wk_default_work_time) %></label><%= text_field_tag 'settings[wktime_default_work_time]', @settings['wktime_default_work_time'], :size => 3 %>
+	</p>
+	<p>
 		<%= check_box_tag('settings[wktime_restr_max_hour]', 1, @settings['wktime_restr_max_hour'].to_i == 1) %> <label><%= l(:label_wk_restr_max_hour) %></label>
 	</p>
 	<p>

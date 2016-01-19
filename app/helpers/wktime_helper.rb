@@ -857,6 +857,11 @@ end
 			prev_mon_from = from << 1
 			prev_mon_to = (prev_mon_from >> 1) - 1
 			
+			defWorkTime = 8
+			if !Setting.plugin_redmine_wktime['wktime_default_work_time'].blank?
+				defWorkTime = Setting.plugin_redmine_wktime['wktime_default_work_time'].to_i
+			end
+			
 			qryStr = "select v2.id, v1.user_id, v1.created_on, v1.issue_id, v2.hours, ul.balance, ul.accrual_on, ul.used, ul.accrual, v3.spent_hours " +
 					"from (select u.id as user_id, i.issue_id, u.status, u.type, u.created_on from users u , " +
 					"(select id as issue_id from issues where id in (#{strIssueIds})) i) v1 " +
@@ -873,8 +878,9 @@ end
 			entries = TimeEntry.find_by_sql(qryStr)
 			if !entries.blank?				
 				entries.each do |entry|				
-					accrual = "#{leaveAccrual[entry.issue_id]}".to_i							
-					if (entry.spent_hours.blank? || (!entry.spent_hours.blank? && entry.spent_hours < 88))
+					accrual = "#{leaveAccrual[entry.issue_id]}".to_i
+					#Accrual will be given only when the user works atleast 11 days a month
+					if (entry.spent_hours.blank? || (!entry.spent_hours.blank? && entry.spent_hours < (defWorkTime * 11)))
 						accrual = 0
 					end
 					no_of_holidays = entry.balance.blank? ? entry.accrual : entry.balance + entry.accrual
