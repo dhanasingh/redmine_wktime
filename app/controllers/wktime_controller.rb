@@ -1273,7 +1273,8 @@ private
 	
 	def attendancefindEntries
 		dateStr = getConvertDateStr('start_time')
-		WkAttendance.find_by_sql("select a.* from wk_attendances a inner join ( select max(start_time) as start_time,user_id from wk_attendances where #{dateStr}  between '#{@startday}'  and '#{@startday+6}' and user_id = #{params[:user_id]} group by #{dateStr},user_id ) vw on a.start_time = vw.start_time and a.user_id = vw.user_id")
+		dateOrder = getConvertDateStr('end_time')
+		WkAttendance.find_by_sql("select a.* from wk_attendances a inner join ( select max(start_time) as start_time,user_id from wk_attendances where #{dateStr}  between '#{@startday}'  and '#{@startday+6}' and user_id = #{params[:user_id]} group by #{dateStr},user_id ) vw on a.start_time = vw.start_time and a.user_id = vw.user_id  order by #{dateOrder} ")
 	end
 	
 	def findWkTE(start_date, end_date=nil)

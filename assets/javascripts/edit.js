@@ -1437,7 +1437,7 @@ function hoursClockInOut(s,id)
 
 function timediff(id, totTime, str)
 {
-	var start,end, startBT,endBT;
+	var startval, endval, startBT,endBT;
 	var breakTime = new Array();
 	var breakValue = new Array();	
 	var count = 0, count1 = 0, count2 = 0  ;
@@ -1446,19 +1446,19 @@ function timediff(id, totTime, str)
 	var oldtotal = "00:00:00" ;
 	if(str == "total_")
 	{
-	start = document.getElementById("popupstart_" + id).value ;
-	end = document.getElementById("popupend_" + id).value  ;
+	startval = document.getElementById("popupstart_" + id).value ;
+	endval = document.getElementById("popupend_" + id).value  ;
 	}
 	else if(str == "newdiff_")
 	{
-		start = document.getElementById("newstart_" + id).value ;
-		end = document.getElementById("newend_" + id).value  ;
+		startval = document.getElementById("newstart_" + id).value ;
+		endval = document.getElementById("newend_" + id).value  ;
 	}
 	else{
-		start = document.getElementById("start_" + id).value ;
-		end = document.getElementById("end_" + id).value  ;
+		startval = document.getElementById("start_" + id).value ;
+		endval = document.getElementById("end_" + id).value  ;
 	}
-	if(start && end)
+	if(startval && endval)
 	{					
 		breakTime = document.getElementById('break_time').value;
 		breakTime = breakTime.split(" ");	
@@ -1471,12 +1471,12 @@ function timediff(id, totTime, str)
 		}
 		var diffbetween,diffbetween1, diffbetween4,diffbetween5;
 		var dbtotal , stdiff;				
-		start += ":00";
-		end += ":00";
+		startval += ":00";
+		endval += ":00";
 		for(j=0;j < startBTime.length ; j++)
 		{					
-			startBT = dateCompare(start,startBTime[j],0);
-			endBT = dateCompare(end,endBTime[j],0);
+			startBT = dateCompare(startval,startBTime[j],0);
+			endBT = dateCompare(endval,endBTime[j],0);
 			// calculate time from greater & less then break time and inbetween clock in/out
 			if((startBT == -1 && endBT == 1  ) || ( startBT == 0 && endBT == 0) || (startBT == 1 && endBT == -1  ) || 
 			(startBT == -1 && endBT == 0) || (startBT == 0 && endBT == 1) )  //|| (st1 == -1 && ed1 == -1  ) st ed
@@ -1504,24 +1504,24 @@ function timediff(id, totTime, str)
 				if(count != 1)
 				{
 					//break time greater then clock out time					
-					diffbetween = dateCompare(end,endBTime[j],1);
-					diffbetween1 = dateCompare(startBTime[j],end,1);
+					diffbetween = dateCompare(endval,endBTime[j],1);
+					diffbetween1 = dateCompare(startBTime[j],endval,1);
 					if(diffbetween == 2 && diffbetween1 == 2)
 					{
 						count1 = 1;
-						dbtotal = MinutesDifferent(startBTime[j],start, 0 );
+						dbtotal = MinutesDifferent(startBTime[j],startval, 0 );
 						document.getElementById(str + id).value =  dbtotal;
 					}
 					else{
 						if(count1 != 1 )
 						{
 							//break time less then clock in time							
-							diffbetween4 = dateCompare(start,startBTime[j],2);
-							diffbetween5 = dateCompare(start,endBTime[j],2);
+							diffbetween4 = dateCompare(startval,startBTime[j],2);
+							diffbetween5 = dateCompare(startval,endBTime[j],2);
 							if(diffbetween4 == 4 && diffbetween5 == 0)
 							{
 								count2 = 1;
-								dbtotal = MinutesDifferent(end, endBTime[j], 0 );
+								dbtotal = MinutesDifferent(endval, endBTime[j], 0 );
 								document.getElementById(str + id).value =  dbtotal;
 							}
 							else
@@ -1565,7 +1565,7 @@ function timediff(id, totTime, str)
 
 function MinutesDifferent(totTime, stdiff, variation)
 {
-	var minusdiff;
+	var minutessdiff;   // minusdiff
 	var seconds,seconds1;	
 	var arr,arr1;
 	arr = totTime.split(':');	
@@ -1575,17 +1575,17 @@ function MinutesDifferent(totTime, stdiff, variation)
 	
 	if(variation == 1)
 	{
-		minusdiff = seconds + seconds1;
+		minutessdiff = seconds + seconds1;
 	}
 	else{
-		minusdiff = seconds - seconds1;
+		minutessdiff = seconds - seconds1;
 	}	 
 	var d;
-	d = Number(minusdiff);
+	d = Number(minutessdiff);
 	var h = Math.floor(d / 3600);
 	var m = Math.floor(d % 3600 / 60);
-	minusdiff =  ((h > 0 ? h + ":" + (m < 10 ? "0" : "") : "") + (h > 0 ? m : ("0:" + m)) );
-	return minusdiff;
+	minutessdiff =  ((h > 0 ? h + ":" + (m < 10 ? "0" : "") : "") + (h > 0 ? m : ("0:" + m)) );
+	return minutessdiff;
 }
 
 function dateCompare(time1,time2,s) {
@@ -1620,14 +1620,15 @@ function dateCompare(time1,time2,s) {
 }
 
 function diff(start, end) {
-    start = start.split(":");
-    end = end.split(":");
-    var startDate = new Date(0, 0, 0, start[0], start[1], 0);
-    var endDate = new Date(0, 0, 0, end[0], end[1], 0);
-    var diff = endDate.getTime() - startDate.getTime();
-    var hours = Math.floor(diff / 1000 / 60 / 60);
-    diff -= hours * 1000 * 60 * 60;
-    var minutes = Math.floor(diff / 1000 / 60);
+	var diffstart, diffend;
+    diffstart = start.split(":");   
+    diffend = end.split(":");
+    var startDate = new Date(0, 0, 0, diffstart[0], diffstart[1], 0);
+    var endDate = new Date(0, 0, 0, diffend[0], diffend[1], 0);
+    var difference = endDate.getTime() - startDate.getTime();
+    var hours = Math.floor(difference / 1000 / 60 / 60);
+    difference -= hours * 1000 * 60 * 60;
+    var minutes = Math.floor(difference / 1000 / 60);
     
     return (hours < 9 ? "0" : "") + hours + ":" + (minutes < 9 ? "0" : "") + minutes;
 }
@@ -1643,6 +1644,7 @@ function totalClockInOut()
 	var start,ch;
 	var adding = 0;
 	var seconds;
+	var i = 0, j =1;
 	for(i=0; i < totalsplitvalues.length ; i++)
 	{		
 		  for(j=0;j< totalsplitvalues[i].length && totalsplitvalues[i].length > 1; j++)
@@ -1674,13 +1676,13 @@ function totalClockInOut()
 			document.getElementById('grandTotal_' + (i) ).value = addval[i];			
 		  }	 		  
 	}
-	for( i =1; i < 8 ; i++)
+	for( j =1; j < 8 ; j++)
 	{
 		var issueTable = document.getElementById("issueTable");
 		var totTimeRow = issueTable.rows[3];		 
-		totHrCell = totTimeRow.cells[hStartIndex + (i) ];	
-		addval[i] = addval[i] ? addval[i] : "00:00"	
-		totHrCell.innerHTML = addval[i] + "     <a href='javascript:showclkDialog("+i+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockin.png' border=0 title=''/></a>";
+		totHrCell = totTimeRow.cells[hStartIndex + (j) ];	
+		addval[j] = addval[j] ? addval[j] : "00:00"	
+		totHrCell.innerHTML = addval[j] + "     <a href='javascript:showclkDialog("+j+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockin.png' border=0 title=''/></a>";
 		 
 	}
 }
