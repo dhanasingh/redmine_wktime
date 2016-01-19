@@ -213,5 +213,27 @@ include WkattendanceHelper
 		send_data(wktime_report_to_pdf(), :type => 'application/pdf', :filename => "attendance.pdf")
 	end
 	
+	def getIsuuesbyProject
+		issue_by_project=""
+		issueList=[]				
+		issueList = getPrjIssues
+		issueList.each do |issue|
+			issue_by_project << issue.id.to_s() + ',' + issue.subject + "\n"
+		end
+		respond_to do |format|
+			format.text  { render :text => issue_by_project }
+		end
+	end	
+	
+	def getPrjIssues
+		issueList = []
+		project_id = 0
+		if !params[:project_id].blank?
+			project_id = params[:project_id]
+		end
+		userList = Issue.where(:project_id => project_id)
+		userList
+	end
+	
 	
 end

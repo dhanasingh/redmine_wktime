@@ -86,6 +86,8 @@
    match 'wkattendance/edit', :to => 'wkattendance#edit', :via => [:get, :post]
 			  
    post 'wkattendance/update', :to => 'wkattendance#update'
+   
+   get 'wkattendance/getIsuuesbyProject', :to => 'wkattendance#getIsuuesbyProject'
   
     resources :projects do	
 	resources :wk_expense_entries, :controller => 'wkexpense' do

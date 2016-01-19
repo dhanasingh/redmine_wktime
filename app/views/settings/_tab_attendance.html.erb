@@ -2,6 +2,7 @@
 attendanceAlertMsg = "<%= l(:text_are_you_sure) %>";
 selectListAlertMsg = "<%=l(:actionview_instancetag_blank_option) %>";
 issueExistsAlertMsg = "<%=l(:label_wk_leave_exists) %>";
+issueUrl="<%= "#{url_for(:controller => 'wkattendance', :action => 'getIsuuesbyProject')}" %>";
 lblInvalid= "<%=l('activerecord.errors.messages.invalid') %>";
 lblDaysPerMonth = "<%=l(:label_hours_per_month) %>";
 lblAccrual = "<%=l(:label_wk_leave_accrual) %>";
@@ -94,6 +95,13 @@ lblYear = "<%=l(:label_year) %>";
 			issueslist = Array.new
 			issueslist << [ "", 0]
 		end
+		project_list = Project.order('name')
+		unless project_list.blank?
+			projectlist = project_list.collect {|project| [project.name, project.id] }
+		else
+			projectlist = Array.new
+			projectlist << [ "", 0]
+		end
 		if(@settings['wktime_leave'].blank?)
 			leave = ''
 		else
@@ -120,6 +128,11 @@ lblYear = "<%=l(:label_year) %>";
 		</p>
 	
 	<div id="leave-dlg" title="<%= l(:label_wk_leave) %>">
+		<p>
+			<span style="margin-left:2.3em;"></span><label><%= l(:label_project) %></label><span style="margin-left:0.8em;"></span>
+			<%=h select_tag('leave_project', 
+			options_for_select(projectlist),:onchange => "projectChanged(this);") %>								   	
+		</p>
 		<p>
 			<label><%= l(:label_wk_leave_issue) %></label><span style="margin-left:0.8em;"></span>
 			<%=h select_tag('leave_issue', 
