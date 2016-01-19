@@ -58,6 +58,7 @@ en:
   label_wk_next_week_tip: Next Week
   label_wkexpense: Expense
   label_te: Time & Expense
+  label_ta: Time & Attendance
   label_wk_allow_user_filter_tracker: Allow User Filtering by Tracker
   label_wk_filter_issue_tracker: Filter Issue by Tracker
   label_wk_currency: Currency

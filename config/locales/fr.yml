@@ -60,6 +60,7 @@ fr:
   label_wk_next_week_tip: Semaine suivante
   label_wkexpense: Dépense
   label_te: Temps & Dépense
+  label_ta: Time & Attendance
   label_wk_allow_user_filter_tracker: Permettre à l'utilisateur de filtrer par Tracker
   label_wk_filter_issue_tracker: Filtrer les demandes par Tracker
   label_wk_currency: Devise
