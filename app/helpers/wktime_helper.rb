@@ -854,7 +854,10 @@ end
 			from = Date.civil(Date.today.year, Date.today.month, 1) << 1
 			to = (from >> 1) - 1
 			
-			qryStr = "select v2.id, v1.user_id, v1.created_on, v1.issue_id, v2.hours, ul.balance, ul.accrual_on, v3.spent_hours " +
+			prev_mon_from = from << 1
+			prev_mon_to = (prev_mon_from >> 1) - 1
+			
+			qryStr = "select v2.id, v1.user_id, v1.created_on, v1.issue_id, v2.hours, ul.balance, ul.accrual_on, ul.used, ul.accrual, v3.spent_hours " +
 					"from (select u.id as user_id, i.issue_id, u.status, u.type, u.created_on from users u , " +
 					"(select id as issue_id from issues where id in (#{strIssueIds})) i) v1 " +
 					"left join (select max(id) as id, user_id, issue_id, sum(hours) as hours from time_entries " +
@@ -864,7 +867,7 @@ end
 					"where spent_on between '#{from}' and '#{to}' and issue_id not in (#{strIssueIds}) " +
 					"group by user_id) v3 on v3.user_id = v1.user_id " +
 					"left join wk_user_leaves ul on ul.user_id = v1.user_id and ul.issue_id = v1.issue_id " +
-					"and ul.accrual_on between '#{from}' and '#{to}' " +
+					"and ul.accrual_on between '#{prev_mon_from}' and '#{prev_mon_to}' " +
 					"where v1.status = 1 and v1.type = 'User'"
 					
 			entries = TimeEntry.find_by_sql(qryStr)
@@ -874,9 +877,9 @@ end
 					if (entry.spent_hours.blank? || (!entry.spent_hours.blank? && entry.spent_hours < 88))
 						accrual = 0
 					end
-					no_of_holidays = entry.balance.blank? ? accrual : entry.balance + accrual
-					if !entry.hours.blank? && entry.hours > 0
-						no_of_holidays = no_of_holidays - entry.hours
+					no_of_holidays = entry.balance.blank? ? entry.accrual : entry.balance + entry.accrual
+					if !entry.used.blank? && entry.used > 0
+						no_of_holidays = no_of_holidays - entry.used
 					end
 					#Reset
 					if (Date.today.month - 1 == "#{resetMonth[entry.issue_id]}".to_i)

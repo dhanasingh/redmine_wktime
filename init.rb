@@ -215,7 +215,7 @@ Rails.configuration.to_prepare do
 				end
 				scheduler.cron cronSt do		
 					begin
-						Rails.logger.info "==========Scheduler Started=========="			
+						Rails.logger.info "==========Non submission mail job - Started=========="			
 						wktime_helper = Object.new.extend(WktimeHelper)
 						wktime_helper.sendNonSubmissionMail()
 					rescue Exception => e
@@ -228,10 +228,10 @@ Rails.configuration.to_prepare do
 			require 'rufus/scheduler'
 			scheduler2 = Rufus::Scheduler.new
 			cronSt = "01 12 01 * *"
-			#cronSt = "27 17 12 * *"
+			#cronSt = "20 18 19 * *"
 			scheduler2.cron cronSt do		
 				begin
-					Rails.logger.info "==========Scheduler2 Started=========="			
+					Rails.logger.info "==========Attendance job - Started=========="			
 					wktime_helper = Object.new.extend(WktimeHelper)
 					wktime_helper.populateWkUserLeaves()
 				rescue Exception => e
