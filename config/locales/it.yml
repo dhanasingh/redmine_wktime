@@ -146,6 +146,7 @@ it:
   label_wk_leave: Leave
   label_wk_leave_issue: Leave issue
   label_wk_leave_accrual: Accrual
+  label_wk_leave_accrual_on: Accrual on
   label_wk_attendance_start_date: Attendance start date
   label_clock_in: Clock in
   label_clock_out: Clock out
@@ -167,3 +168,5 @@ it:
   label_total_hours_during_mnth:  Total hours of work done during the month
   label_total_no_of_maternity_leave:  Total no. Of days Maternity leave availed
   label_attn_sl_no:  Sl. No.
+  wk_label_opening: Opening
+  wk_label_closing: Closing

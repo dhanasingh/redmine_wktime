@@ -6,7 +6,7 @@
 </script>
 <%
 	wktime_helper = Object.new.extend(WktimeHelper)
-	issueId = []
+	headIssueId = []
 	issue_list = Issue.order('subject')
 	shortName = Hash.new
 	unless issue_list.blank?
@@ -16,10 +16,12 @@
 	if !Setting.plugin_redmine_wktime['wktime_leave'].blank?
 	Setting.plugin_redmine_wktime['wktime_leave'].each_with_index do |element,index|
 	  listboxArr = element.split('|')
-	  issueId[index] = listboxArr[0]
+	  if index < 3
+		headIssueId[index] = listboxArr[0]
+	  end
 	  shortName[listboxArr[0].to_i] = listboxArr[4].blank? ? issuehash[listboxArr[0].to_i].first(2) : listboxArr[4]
 	end
-	issueId = issueId.sort_by(&:to_i)
+	headIssueId = headIssueId.sort_by(&:to_i)
 	end
 %>
 <div id="attn-dlg", style="overflow-x:auto;">
@@ -44,15 +46,15 @@
 <th rowspan="2"><%= l(:label_total_no_of_maternity_leave) %></th>
 </tr>
 <tr>
-<th class="lbl-txt-align"><%= shortName[issueId[0].to_i] %></th>
-<th class="lbl-txt-align"><%= shortName[issueId[1].to_i] %></th>
-<th class="lbl-txt-align"><%= shortName[issueId[2].to_i] %></th>
-<th class="lbl-txt-align"><%= shortName[issueId[0].to_i] %></th>
-<th class="lbl-txt-align"><%= shortName[issueId[1].to_i] %></th>
-<th class="lbl-txt-align"><%= shortName[issueId[2].to_i] %></th>
-<th class="lbl-txt-align"><%= shortName[issueId[0].to_i] %></th>
-<th class="lbl-txt-align"><%= shortName[issueId[1].to_i] %></th>
-<th class="lbl-txt-align"><%= shortName[issueId[2].to_i] %></th>
+<th class="lbl-txt-align"><%= shortName[headIssueId[0].to_i] %></th>
+<th class="lbl-txt-align"><%= shortName[headIssueId[1].to_i] %></th>
+<th class="lbl-txt-align"><%= shortName[headIssueId[2].to_i] %></th>
+<th class="lbl-txt-align"><%= shortName[headIssueId[0].to_i] %></th>
+<th class="lbl-txt-align"><%= shortName[headIssueId[1].to_i] %></th>
+<th class="lbl-txt-align"><%= shortName[headIssueId[2].to_i] %></th>
+<th class="lbl-txt-align"><%= shortName[headIssueId[0].to_i] %></th>
+<th class="lbl-txt-align"><%= shortName[headIssueId[1].to_i] %></th>
+<th class="lbl-txt-align"><%= shortName[headIssueId[2].to_i] %></th>
 <% for i in 1..31%>
 	<th style="width:0.01%"><%= i %></th>
 <% end -%>
@@ -84,9 +86,9 @@
 <td class="lbl-txt-align"><%=h entry.leave1 %></td>
 <td class="lbl-txt-align"><%=h entry.leave2 %></td>
 <td class="lbl-txt-align"><%=h entry.leave3 %></td>
-<td class="lbl-txt-align"><%=h entry.closing_leave1 %></td>
-<td class="lbl-txt-align"><%=h entry.closing_leave2 %></td>
-<td class="lbl-txt-align"><%=h entry.closing_leave3 %></td>
+<td class="lbl-txt-align"><%=h entry.opening_leave1.to_f + entry.closing_leave1.to_f - entry.leave1.to_f %></td>
+<td class="lbl-txt-align"><%=h entry.opening_leave2.to_f + entry.closing_leave2.to_f - entry.leave2.to_f %></td>
+<td class="lbl-txt-align"><%=h entry.opening_leave3.to_f + entry.closing_leave3.to_f - entry.leave3.to_f %></td>
 <% for i in 1..31%>
 	<% if wktime_helper.is_number(entry['a'+i.to_s]) || entry['a'+i.to_s].blank? %>
 		<td class="lbl-txt-align"><%=h entry['a'+i.to_s] %></td>

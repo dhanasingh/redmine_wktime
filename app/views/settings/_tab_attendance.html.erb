@@ -160,10 +160,20 @@ lblYear = "<%=l(:label_year) %>";
 		custom_fields = UserCustomField.order('name')
 		unless custom_fields.blank?
 			cfdate = custom_fields.select {|cf| cf.field_format == 'date' }
-			cfd = cfdate.collect {|cf| [cf.name, cf.id] }
-			cfd.unshift(["",0])
+			unless cfdate.blank?
+				cfd = cfdate.collect {|cf| [cf.name, cf.id] }
+				cfd.unshift(["",0])
+			else
+				cfd = Array.new
+				cfd << [ "", 0]
+			end
 			cfs = custom_fields.collect {|cf| [cf.name, cf.id] }
 			cfs.unshift(["",0])
+		else
+			cfd = Array.new
+			cfd << [ "", 0]
+			cfs = Array.new
+			cfs << [ "", 0]
 		end
 	%>
 	 <p>

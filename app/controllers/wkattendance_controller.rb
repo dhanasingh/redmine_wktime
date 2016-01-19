@@ -54,7 +54,7 @@ include WkattendanceHelper
 			wkuserleave.balance = params["balance_"+issueId]
 			wkuserleave.accrual = params["accrual_"+issueId]
 			wkuserleave.used = params["used_"+issueId]
-			wkuserleave.accrual_on = Date.today
+			wkuserleave.accrual_on = Date.civil(Date.today.year, Date.today.month, 1)
 			if !wkuserleave.save()
 				errorMsg = wkuserleave.errors.full_messages.join('\n')
 			end
@@ -124,19 +124,21 @@ include WkattendanceHelper
 	def reportattn
 		sqlStr = "select u.id as user_id,concat(u.firstname,' ' ,u.lastname) as user_name,vw.accrual_on,vw.leave1,vw.leave2,vw.leave3,vw1.opening_leave1,vw1.opening_leave2,vw1.opening_leave3,vw2.closing_leave1,vw2.closing_leave2,vw2.closing_leave3,vw3.* from users u left join 
 		(" + getLeaveBalanceQuery(@from, @to,'') + ") vw on vw.user_id=u.id full join 
-		(" + getLeaveBalanceQuery(@from<< 1, @to<< 1,'opening_') + ") vw1 on u.id = vw1.user_id full join 
+		(" + getLeaveBalanceQuery(@from, @to,'opening_') + ") vw1 on u.id = vw1.user_id full join 
 		(" + getLeaveBalanceQuery(@from, @to,'closing_') + ") vw2 on u.id = vw2.user_id inner join 
 		(" + getUsrMonthlyAttnQuery + ") vw3 on vw3.user_id = u.id where u.type = 'User' order by u.id"
 		@attendance_entries = WkUserLeave.find_by_sql(sqlStr)
-		render :action => 'reportattn'
+		render :action => 'reportattn', :layout => false
 	end
 	
 	def getLeaveBalanceQuery(from, to, balanceType)
 		queryStr = " SELECT * FROM crosstab ('SELECT user_id, accrual_on, issue_id,"
 		if balanceType == ''
-			queryStr = queryStr + "  used "
+			queryStr = queryStr + " used "
+		elsif balanceType == 'opening_'
+			queryStr = queryStr + " balance "
 		else
-			queryStr = queryStr + "  balance "
+			queryStr = queryStr + " accrual "
 		end
 		queryStr = queryStr + "FROM (select u.id as user_id, i.id as issue_id, i.subject as issue_name, w.balance, w.accrual, w.used, w.accrual_on, w.id from users u 
 				cross join issues i left join (SELECT wl.* FROM wk_user_leaves wl inner join( select max(accrual_on) as accrual_on, user_id, issue_id from wk_user_leaves 
