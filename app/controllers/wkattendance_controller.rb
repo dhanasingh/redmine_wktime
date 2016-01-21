@@ -15,6 +15,7 @@ include WkattendanceHelper
 		if !isAccountUser
 			sqlStr = sqlStr + " and u.id = #{User.current.id} " 
 		end
+		sqlStr = sqlStr + " order by u.firstname"
 			
 		@leave_entries = WkUserLeave.find_by_sql(sqlStr)
 	end

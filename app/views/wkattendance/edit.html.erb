@@ -1,4 +1,4 @@
-<h2><%= l(:label_wk_leave) %></h2>
+<h2><%= l(:label_wk_leave) + " " + l(:field_summary) %></h2>
 <%= form_tag({:controller => 'wkattendance', :action => 'update'}, :method => :post, :id => 'wkattendance_update') do %>
 	<%
 		accurual_entries = @leave_details.select{ |entry| !entry.accrual_on.blank? } 
@@ -13,6 +13,7 @@
 	%>
 	<label><b><%= l(:field_user) + ": " %></b><%= user_name %></label><br>
 	<label><b><%= l(:label_wk_attn_for)  + ": " %></b><%= accural_on %></label><br>
+	<br>
 	<table>
 	<thead>
 		<tr>
@@ -67,6 +68,6 @@
 	<%=h hidden_field_tag('new_issue_ids', newIssueIds) %>
 	
 	<%=h hidden_field_tag('ids', ids) %>
-	
-	<%= submit_tag l(:button_save), :hidden => disable, :id => 'wkattendance_save' %>
+	<br>
+	<span style="margin-left:27.5em;"></span><%= submit_tag l(:button_save), :hidden => disable, :id => 'wkattendance_save' %>
 <% end %>
