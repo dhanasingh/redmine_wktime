@@ -4,11 +4,14 @@
 		accurual_entries = @leave_details.select{ |entry| !entry.accrual_on.blank? } 
 		if accurual_entries.blank?
 			accural_on = ""
+			user_data = User.find(params[:user_id])
+			user_name = user_data.firstname + " " + user_data.lastname
 		else
 			accural_on = accurual_entries[0].accrual_on.strftime("%B") + ", " + accurual_entries[0].accrual_on.strftime("%Y")
+			user_name = @leave_details[0].user.name
 		end
 	%>
-	<label><b><%= l(:field_user) + ": " %></b><%=@leave_details[0].user.name%></label><br>
+	<label><b><%= l(:field_user) + ": " %></b><%= user_name %></label><br>
 	<label><b><%= l(:label_wk_attn_for)  + ": " %></b><%= accural_on %></label><br>
 	<table>
 	<thead>
