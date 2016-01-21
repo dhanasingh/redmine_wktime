@@ -195,7 +195,7 @@ include WkattendanceHelper
 		send_data(wktime_report_to_pdf(), :type => 'application/pdf', :filename => "attendance.pdf")
 	end
 	
-	def getIsuuesbyProject
+	def getIssuesbyProject
 		issue_by_project=""
 		issueList=[]				
 		issueList = getPrjIssues

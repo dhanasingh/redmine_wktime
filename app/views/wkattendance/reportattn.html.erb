@@ -2,7 +2,7 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
-	prevTab = 'tab-<%= "wkattnreport" %>';
+	prevTab = 'tab-<%= "wkreport" %>';
 </script>
 <%
 	wktime_helper = Object.new.extend(WktimeHelper)
@@ -116,6 +116,6 @@
 </table>
 </div>
   
-<%=h hidden_field_tag('tab', "wkattnreport") %>
+<%=h hidden_field_tag('tab', "wkreport") %>
 
 <% html_title(l(:label_ta)) -%>
