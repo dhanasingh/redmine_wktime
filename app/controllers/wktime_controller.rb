@@ -97,7 +97,7 @@ include QueriesHelper
 	@editable = false if @locked
 	set_edit_time_logs
 	@entries = findEntries()
-	@wkattendances  = attendancefindEntries()
+	@wkattendances  = findAttnEntries()
 	if !$tempEntries.blank?
 		newEntries = $tempEntries - @entries
 		if !newEntries.blank?
@@ -1243,7 +1243,7 @@ private
 		findEntriesByCond(cond)
 	end
 	
-	def attendancefindEntries
+	def findAttnEntries
 		dateStr = getConvertDateStr('start_time')
 		dateOrder = getConvertDateStr('end_time')
 		WkAttendance.find_by_sql("select a.* from wk_attendances a inner join ( select max(start_time) as start_time,user_id from wk_attendances where #{dateStr}  between '#{@startday}'  and '#{@startday+6}' and user_id = #{params[:user_id]} group by #{dateStr},user_id ) vw on a.start_time = vw.start_time and a.user_id = vw.user_id  order by #{dateOrder} ")
@@ -1279,8 +1279,15 @@ private
   
   def user_allowed_to?(privilege, entity)
 	setup
-	return @user.allowed_to?(privilege, entity)
-	#return User.current.allowed_to?(privilege, entity)
+	hookPerm = call_hook(:controller_check_permission, {:params => params})
+	allow = false
+	if !hookPerm.blank? && (@user != User.current)
+		allow = hookPerm[0]
+	else
+		allow = User.current.allowed_to?(privilege, entity)
+	end
+	#return @user.allowed_to?(privilege, entity)
+	return allow
   end
   
   def can_log_time?(project_id)
