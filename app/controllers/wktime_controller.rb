@@ -877,7 +877,9 @@ include QueriesHelper
 				wkattendance =  WkAttendance.find(entryvalues[0])
 				entrydate = wkattendance.start_time
 				starttime = entrydate.change({ hour: entryvalues[1].to_time.strftime("%H"), min: entryvalues[1].to_time.strftime("%M"), sec: entryvalues[1].to_time.strftime("%S") })
-				endtime = entrydate.change({ hour: entryvalues[2].to_time.strftime("%H"), min: entryvalues[2].to_time.strftime("%M"), sec: entryvalues[2].to_time.strftime("%S") })
+				if !entryvalues[2].blank?
+					endtime = entrydate.change({ hour: entryvalues[2].to_time.strftime("%H"), min: entryvalues[2].to_time.strftime("%M"), sec: entryvalues[2].to_time.strftime("%S") })
+				end
 				wkattendance.start_time = starttime     
 				wkattendance.end_time = endtime         
 				wkattendance.hours = entryvalues[3] 				

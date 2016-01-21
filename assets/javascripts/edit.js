@@ -34,6 +34,7 @@ $(document).ready(function() {
 				var elementid;
 				var startvalue,endvalue,textlength, newstartval, newendval,datevalue, userid,diff, newdiff, hours, newhours;
 				var paramval = "";
+				var allowUpdate = false;
 				textlength = document.getElementById('textlength').value;
 				for(i=0; i <= textlength ; i++)
 				{
@@ -45,7 +46,8 @@ $(document).ready(function() {
 					{
 						hours = timeStringToFloat(diff.value);
 						if (startvalue.defaultValue !=  startvalue.value  || endvalue.defaultValue !=  endvalue.value ) {
-						paramval += elementid.value + "|" +  startvalue.value + "|" + endvalue.value + "|" + hours + ",";						
+							allowUpdate = true;
+							paramval += elementid.value + "|" +  startvalue.value + "|" + endvalue.value + "|" + hours + ",";						
 					}
 					}					
 				}				
@@ -54,22 +56,28 @@ $(document).ready(function() {
 					newstartval = document.getElementById('newstart_'+i);
 					newendval = document.getElementById('newend_'+i);
 					newdiff = document.getElementById('newdiff_'+i);
-					if(newstartval || newendval)
+					if(newstartval && newendval)
 					{
+						
 						newhours = timeStringToFloat(newdiff.value);
-						if (newstartval.defaultValue !=  newstartval.value  || newendval.defaultValue !=  newendval.value ) {
-						paramval += "|" + i + "|" +  newstartval.value + "|" + newendval.value + "|" + newhours + ",";						
+						if ( (newstartval.defaultValue !=  newstartval.value  || newendval.defaultValue !=  newendval.value  ) && newstartval.value ) {
+							allowUpdate = true;
+							paramval += "|" + i + "|" +  newstartval.value + "|" + newendval.value + "|" + newhours + ",";						
 					}
 					}
 				}
 				datevalue = document.getElementById('startday').value;
 				userid = document.getElementById('user_id').value;
-				$.ajax({
+				if(allowUpdate)
+				{
+					$.ajax({
 					url: 'updateAttendance',
 					type: 'get',
 					data: {editvalue : paramval, startdate : datevalue, user_id : userid},
 					success: function(data){  },  
-				});		
+					});
+				}
+						
 				$( this ).dialog( "close" );
 			},
 			Cancel: function() {
