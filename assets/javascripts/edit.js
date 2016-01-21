@@ -19,19 +19,16 @@ var decSeparator = ".";
 var lblPleaseSelect = "";
 var lblWarnUnsavedTE = "";
 var breakarray =  "";
-var st,ed;
+var elementend;
 $(document).ready(function() {
-//$(function() {
 	var e_comments = $( "#_edit_comments_" );
 	var e_notes = $( "#_edit_notes_" );
 	 $( "#clockInOut-dlg" ).dialog({
 		autoOpen: false,
-	//	resizable: false,
 		modal: false,
 		width:'300',
 		height: '300',
         overflow: 'auto', /* Or scroll, depending on your needs*/
-   // width: 300px;
 		buttons: {
 			"Ok": function() {
 				var elementid;
@@ -57,14 +54,9 @@ $(document).ready(function() {
 					newstartval = document.getElementById('newstart_'+i);
 					newendval = document.getElementById('newend_'+i);
 					newdiff = document.getElementById('newdiff_'+i);
-				/*	var hoursMinutes = newdiff.split(/[.:]/);
-					var hours = parseInt(hoursMinutes[0], 10);
-					var minutes = hoursMinutes[1] ? parseInt(hoursMinutes[1], 10) : 0;
-					var hoursval = hours + minutes / 60;*/					
 					if(newstartval || newendval)
 					{
 						newhours = timeStringToFloat(newdiff.value);
-						//alert("hours ok : " + hours);
 						if (newstartval.defaultValue !=  newstartval.value  || newendval.defaultValue !=  newendval.value ) {
 						paramval += "|" + i + "|" +  newstartval.value + "|" + newendval.value + "|" + newhours + ",";						
 					}
@@ -77,7 +69,6 @@ $(document).ready(function() {
 					type: 'get',
 					data: {editvalue : paramval, startdate : datevalue, user_id : userid},
 					success: function(data){  },  
-					//complete: function(){ $this.removeClass('ajax-loading'); }
 				});		
 				$( this ).dialog( "close" );
 			},
@@ -166,19 +157,14 @@ $(document).ready(function() {
 		}
 		if( imgend == "00:00" && imgstart != "00:00" )
 		{
-			//if(document.getElementById('end_img') != null &&  document.getElementById('start_img') != null )
-			//{
 				document.getElementById('end_img').style.visibility = "visible";
 				document.getElementById('start_img').style.visibility = 'hidden';
-			//}
-			
 		}
 		else
 		{
 			document.getElementById('end_img').style.visibility = 'hidden';
 		}
-	}
-	
+	}	
 	
 	// when initially load the page update total and remaininghours
     for(i = 1; i <= 7; i++)
@@ -197,8 +183,6 @@ $(document).ready(function() {
 	}
 	
 	totalClockInOut();
-	//calculatebreakTime()
-	//calculatebreakTime();
 	
 });
 
@@ -1164,8 +1148,6 @@ function getMinDiff(day,s)
 	{
 		st_min = getMinutes(day,'popupstart_');
 		end_min = getMinutes(day,'popupend_');
-		//start = document.getElementById("popupstart_" + day).value ;
-		//end = document.getElementById("popupend_" + day).value  ;
 	}
 	
 	if(st_min > end_min)
@@ -1338,8 +1320,6 @@ function setClockInOut(strid,id) {
 	   var hh = d.getHours();
 	   var mm = d.getMinutes();
 	   id++;
-	   //elementid = document.getElementById(strid + '_' + id);
-	  // hh = hh % 12;   convert 24 hours to 12 hours
 	   elementhour = hh + ":" + mm;
 	   elementend = hh + ":" + mm;
 	   if( strid == 'start')
@@ -1352,9 +1332,7 @@ function setClockInOut(strid,id) {
 		  document.getElementById('start_img' ).style.visibility = "visible";
 		  document.getElementById('end_img').style.visibility = 'hidden';
 	   }	   
-	   //document.getElementById(strid + '_' + id).disabled  = true;)
 	   updateClockInOut(elementhour, strid, id, elementend );
-	   //elementid.onclick=function(){updateClockInOut(this.value, strid, id)};
 }
 
 function updateClockInOut(entrytime, strid, id, elementend){
@@ -1364,13 +1342,12 @@ function updateClockInOut(entrytime, strid, id, elementend){
 	if(strid == "end")
 	{
 		start = document.getElementById('start_' + id).value;
-		end = elementend //document.getElementById('end_' + id).value;
-		hoursdiff = diff(start, end);
+		end = elementend ;//document.getElementById('end_' + id).value;
+		hoursdiff = diff(start, end);		
 		timediff(id,hoursdiff, 'hoursstart_');
 		hiddenvalue = document.getElementById('hoursstart_' + id).value;
 		hours = timeStringToFloat(hiddenvalue);
 	}	
-	//hoursClockInOut(0,id)	
 	var params = strid == 'start' ? {starttime: entrytime} 	: {endtime :entrytime, id: elementid, differences: hours };
 	$.ajax({
 		url: 'saveAttendance',
@@ -1392,7 +1369,7 @@ function hiddenClockInOut(data,strid,id){
 	elementid = document.getElementById(strid + '_' + id);
 	elementid.value = strid == 'start' ? array[1] : array[2];
 	updateRemainingHr(id);	
-	updateTotalHr(id); //old place
+	updateTotalHr(id); 
 	
 }
 
@@ -1428,11 +1405,8 @@ function hoursClockInOut(s,id)
 		}
 		else
 		{
-			document.getElementById('newdiff_' + id).value = totTime;
-			//alert(totTime);
-			//timediff(id,totTime, 'newdiff_');
+			timediff(id,totTime, 'newdiff_');
 		}
-		//totalClockInOut();	
 }
 
 function timediff(id, totTime, str)
@@ -1456,7 +1430,7 @@ function timediff(id, totTime, str)
 	}
 	else{
 		startval = document.getElementById("start_" + id).value ;
-		endval = document.getElementById("end_" + id).value  ;
+		endval = elementend ;//document.getElementById("end_" + id).value  ;
 	}
 	if(startval && endval)
 	{					
@@ -1492,10 +1466,6 @@ function timediff(id, totTime, str)
 				if (startBT == 1 && endBT == -1 ) 
 				{
 					minusdiff = "0:00";
-				}	
-				if (startBT == 0 && endBT == 0 ) 
-				{
-					minusdiff = totTime;
 				}				
 				document.getElementById(str + id).value =  minusdiff;
 			}
@@ -1529,27 +1499,7 @@ function timediff(id, totTime, str)
 								if(count2 != 1)
 								{
 									document.getElementById(str + id).value = totTime;
-									// 12 hours format to calculate all break time
-									/*	var twlevetotal = dateCompare(start,end, 3);
-										if(twlevetotal == 6)
-										{
-											if(diffbetween4 == 0 && diffbetween5 == 0)
-											{
-												var ttotal = MinutesDifferent(  endBTime[j], startBTime[j], 0 );
-												//alert("oldtt 1c " + oldtotal + " ttotal : " + ttotal);
-												oldtotal = MinutesDifferent( ttotal, oldtotal, 1 );
-												var overalltotal = MinutesDifferent(totTime, oldtotal, 0 );
-											}
-											document.getElementById('total_' + id).value = overalltotal;
-										}	*/								
-									//else{
-										//document.getElementById(str + id).value = totTime;
-									//}
-									
-								}
-								
-								
-							
+								}							
 							}
 							
 							

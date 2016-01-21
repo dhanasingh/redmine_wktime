@@ -48,11 +48,8 @@
 	<% end %>	
 	<% for i in 0..6%>	
 		<% if (@startday + i) == Date.today %>
-			<% col_num = Date.today.wday %>
-			<script type="text/javascript"> clkhistory = '<%=col_num%>';</script>
-			<% if !(isAccountUser)  %>			
-				<%=h hidden_field_tag('imgdisable',  col_num )  %>
-			<% end %>
+			<% col_num = i %>			
+			<%=h hidden_field_tag('imgdisable',  col_num )  %>			
 		<% end %>
 							
 		<% if (isEditable) %>  			

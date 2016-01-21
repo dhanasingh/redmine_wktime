@@ -170,31 +170,6 @@ include QueriesHelper
 					# save each entry
 					entrycount=0
 					entrynilcount=0	
-									
-
-				#	paramvalues = Array.new
-				#	entryvalues = Array.new
-				#	paramvalues = params[:hidden_clock_in_out].split(',')	
-				#	for i in 0..paramvalues.length-1
-				#		entryvalues = paramvalues[i].split('|')
-				#		if !entryvalues[0].blank? && isAccountUser     #entryvalues[0] != nil
-				#			wkattendance =  WkAttendance.find(entryvalues[0])
-				#			entrydate = wkattendance.start_time
-				#			starttime = entrydate.change({ hour: entryvalues[1].to_time.strftime("%H"), min: entryvalues[1].to_time.strftime("%M"), sec: entryvalues[1].to_time.strftime("%S") })
-				#			endtime = entrydate.change({ hour: entryvalues[2].to_time.strftime("%H"), min: entryvalues[2].to_time.strftime("%M"), sec: entryvalues[2].to_time.strftime("%S") })
-				#			wkattendance.start_time = starttime     # DateTime.new(olddate.year, olddate.month, olddate.day, entryvalues[1].to_time.strftime("%l"), entryvalues[1].to_time.strftime("%m"), entryvalues[1].to_time.strftime("%s"))
-				#			wkattendance.end_time = endtime         #!entryvalues[2].blank? ? entryvalues[2] : '00:00'
-							
-				#		else
-				#			wkattendance = WkAttendance.new
-				#			entrydate =  @startday + entryvalues[1].to_i
-				#			wkattendance.user_id = @user.id
-				#			wkattendance.start_time = !(entryvalues[2].to_i).blank? ? "#{entrydate.to_s} #{ entryvalues[2].to_s}:00 " : '00:00'
-				#			wkattendance.end_time = !(entryvalues[3].to_i).blank? ? "#{entrydate.to_s} #{ entryvalues[3].to_s}:00 " : '00:00'
-				#		end
-				#		wkattendance.save()
-				#	end
-					
 					@entries.each do |entry|			
 						entrycount += 1
 						entrynilcount += 1 if (entry.hours).blank?
@@ -874,9 +849,7 @@ include QueriesHelper
 				wkattendance = WkAttendance.new
 				wkattendance.user_id = User.current.id
 				wkattendance.start_time = params["starttime"]
-				#wkattendance.week_date = Date.today			
 			else			
-				#cond = "week_date = '#{Date.today}' AND user_id = #{User.current.id} AND end_time is null"
 				id = params["id"]
 				wkattendance = WkAttendance.find(id)
 				wkattendance.end_time = params["endtime"]
@@ -896,33 +869,32 @@ include QueriesHelper
 	
 	def updateAttendance		
 		paramvalues = Array.new
-					entryvalues = Array.new
-					paramvalues = params[:editvalue].split(',')	
-					for i in 0..paramvalues.length-1
-						entryvalues = paramvalues[i].split('|')
-						if !entryvalues[0].blank? && isAccountUser     #entryvalues[0] != nil
-							wkattendance =  WkAttendance.find(entryvalues[0])
-							entrydate = wkattendance.start_time
-							starttime = entrydate.change({ hour: entryvalues[1].to_time.strftime("%H"), min: entryvalues[1].to_time.strftime("%M"), sec: entryvalues[1].to_time.strftime("%S") })
-							endtime = entrydate.change({ hour: entryvalues[2].to_time.strftime("%H"), min: entryvalues[2].to_time.strftime("%M"), sec: entryvalues[2].to_time.strftime("%S") })
-							wkattendance.start_time = starttime     # DateTime.new(olddate.year, olddate.month, olddate.day, entryvalues[1].to_time.strftime("%l"), entryvalues[1].to_time.strftime("%m"), entryvalues[1].to_time.strftime("%s"))
-							wkattendance.end_time = endtime         #!entryvalues[2].blank? ? entryvalues[2] : '00:00'
-							wkattendance.hours = entryvalues[3] 
-							
-						else
-							wkattendance = WkAttendance.new
-							@startday = Date.parse params[:startdate] #getStartDay(params[:startdate].to_i)  #don't work
-							entrydate =  @startday  + ((entryvalues[1].to_i)- 1)
-							wkattendance.user_id = params[:user_id].to_i #@user.id
-							wkattendance.start_time = !(entryvalues[2].to_i).blank? ? "#{entrydate.to_s} #{ entryvalues[2].to_s}:00 " : '00:00'
-							wkattendance.end_time = !(entryvalues[3].to_i).blank? ? "#{entrydate.to_s} #{ entryvalues[3].to_s}:00 " : '00:00'
-							wkattendance.hours = entryvalues[4]
-						end
-						wkattendance.save()
-					end
-					respond_to do |format|
-						format.text  { render :text => "ok" }
-					end
+		entryvalues = Array.new
+		paramvalues = params[:editvalue].split(',')	
+		for i in 0..paramvalues.length-1
+			entryvalues = paramvalues[i].split('|')
+			if !entryvalues[0].blank? && isAccountUser     
+				wkattendance =  WkAttendance.find(entryvalues[0])
+				entrydate = wkattendance.start_time
+				starttime = entrydate.change({ hour: entryvalues[1].to_time.strftime("%H"), min: entryvalues[1].to_time.strftime("%M"), sec: entryvalues[1].to_time.strftime("%S") })
+				endtime = entrydate.change({ hour: entryvalues[2].to_time.strftime("%H"), min: entryvalues[2].to_time.strftime("%M"), sec: entryvalues[2].to_time.strftime("%S") })
+				wkattendance.start_time = starttime     
+				wkattendance.end_time = endtime         
+				wkattendance.hours = entryvalues[3] 				
+			else
+				wkattendance = WkAttendance.new
+				@startday = Date.parse params[:startdate] 
+				entrydate =  @startday  + ((entryvalues[1].to_i)- 1)
+				wkattendance.user_id = params[:user_id].to_i 
+				wkattendance.start_time = !(entryvalues[2].to_i).blank? ? "#{entrydate.to_s} #{ entryvalues[2].to_s}:00 " : '00:00'
+				wkattendance.end_time = !(entryvalues[3].to_i).blank? ? "#{entrydate.to_s} #{ entryvalues[3].to_s}:00 " : '00:00'
+				wkattendance.hours = entryvalues[4]
+			end
+			wkattendance.save()
+		end
+		respond_to do |format|
+			format.text  { render :text => "ok" }
+		end
 	end
 	
 	def showClockInOut
