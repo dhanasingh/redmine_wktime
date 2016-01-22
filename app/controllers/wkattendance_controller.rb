@@ -3,6 +3,10 @@ unloadable
 
 include WktimeHelper
 include WkattendanceHelper
+
+before_filter :require_login
+before_filter :check_perm_and_redirect, :only => [:edit, :update]
+
 	def index
 		sqlStr = ""
 		if(Setting.plugin_redmine_wktime['wktime_leave'].blank?)
@@ -214,5 +218,17 @@ include WkattendanceHelper
 		userList
 	end
 	
+    def check_perm_and_redirect
+	  unless check_permission
+	    render_403
+	    return false
+	  end
+    end
+
+	def check_permission
+		ret = false
+		ret = params[:user_id] == User.current.id.to_s
+		return (ret || isAccountUser)
+	end
 	
 end
