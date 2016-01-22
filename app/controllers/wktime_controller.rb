@@ -914,6 +914,24 @@ include QueriesHelper
 		Setting.plugin_redmine_wktime['wktime_uuto_approve'].to_i == 1
 	end
 	
+	def getTotalBreakTime	
+		breakTimes = Setting.plugin_redmine_wktime['wktime_break_time']
+		totalBT = 0
+		if !breakTimes.blank?
+			breakTimes.each do |bt|
+				from_hr = bt.split('|')[0].strip
+				from_min = bt.split('|')[1].strip
+				to_hr = bt.split('|')[2].strip
+				to_min = bt.split('|')[3].strip
+				totalBT += (to_hr.to_i * 60 + to_min.to_i ) - (from_hr.to_i * 60 + from_min.to_i )			
+			end
+		end		
+		if totalBT > 0
+			totalBT = (totalBT/60.0)
+		end		
+		totalBT
+	end
+	
 private
 	
 	def getManager(user, approver)

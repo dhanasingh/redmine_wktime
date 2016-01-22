@@ -20,6 +20,7 @@ var lblPleaseSelect = "";
 var lblWarnUnsavedTE = "";
 var breakarray =  "";
 var elementend;
+var totalBreakTime = 0;
 $(document).ready(function() {
 	var e_comments = $( "#_edit_comments_" );
 	var e_notes = $( "#_edit_notes_" );
@@ -165,12 +166,12 @@ $(document).ready(function() {
 		}
 		if( imgend == "00:00" && imgstart != "00:00" )
 		{
-				document.getElementById('end_img').style.visibility = "visible";
-				document.getElementById('start_img').style.visibility = 'hidden';
+				document.getElementById('clock_end').style.visibility = "visible";
+				document.getElementById('clock_start').style.visibility = 'hidden';
 		}
 		else
 		{
-			document.getElementById('end_img').style.visibility = 'hidden';
+			document.getElementById('clock_end').style.visibility = 'hidden';
 		}
 	}	
 	
@@ -1332,13 +1333,13 @@ function setClockInOut(strid,id) {
 	   elementend = hh + ":" + mm;
 	   if( strid == 'start')
 	   {
-		  document.getElementById('end_img' ).style.visibility = "visible";
-		  document.getElementById('start_img').style.visibility = 'hidden';
+		  document.getElementById('clock_end' ).style.visibility = "visible";
+		  document.getElementById('clock_start').style.visibility = 'hidden';
 	   }
 	   else
 	   {
-		  document.getElementById('start_img' ).style.visibility = "visible";
-		  document.getElementById('end_img').style.visibility = 'hidden';
+		  document.getElementById('clock_start' ).style.visibility = "visible";
+		  document.getElementById('clock_end').style.visibility = 'hidden';
 	   }	   
 	   updateClockInOut(elementhour, strid, id, elementend );
 }

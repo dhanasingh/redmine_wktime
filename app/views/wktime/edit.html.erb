@@ -28,6 +28,7 @@
 				<% if controller.enterCustomFieldInRow(2) %>
 					hStartIndex = hStartIndex + 1 ;
 				<% end %>
+				totalBreakTime = <%= controller.getTotalBreakTime %>;
 		<% end %>
 		<% if !Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? &&
 			Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 1 %>
