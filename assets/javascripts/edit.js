@@ -175,13 +175,6 @@ $(document).ready(function() {
 		}
 	}	
 	
-	// when initially load the page update total and remaininghours
-    for(i = 1; i <= 7; i++)
-	{		
-		updateRemainingHr(i);	
-		updateTotalHr(i);
-	}
-	
 	//when initially load the page update the dialog box total
 	var textlength;
 	var paramval = "";
@@ -192,6 +185,13 @@ $(document).ready(function() {
 	}
 	
 	totalClockInOut();
+	
+	// when initially load the page update total and remaininghours
+    for(i = 1; i <= 7; i++)
+	{		
+		updateRemainingHr(i);	
+		updateTotalHr(i);
+	}
 	
 });
 
@@ -1113,12 +1113,16 @@ function updateRemainingHr(day)
 	var rowCount = issueTable.rows.length;
 	var totalRow = issueTable.rows[rowCount-2];
 	var rmTimeRow = issueTable.rows[rowCount-1];
-	var totTime,cell,rmTimeCell,dayTt,remainingTm = 0;
+	var totTime= "00:00:00",cell,rmTimeCell,dayTt,remainingTm = 0;
 	
-	totTime = getTotalTime(day);
-	
+	//totTime = getTotalTime(day);
+	if(document.getElementById('grandTotal_'+day))
+	{
+		totTime = document.getElementById('grandTotal_'+day) != null ? document.getElementById('grandTotal_'+day).value+":00" : totTime ;
+	}	
 	//cell = totalRow.cells[hStartIndex + day];
-	var day_total = document.getElementById('day_total_'+day);
+	totTime = timeStringToFloat(totTime);
+	var day_total = document.getElementById('day_total_'+day);	
 	dayTt = Number(day_total.innerHTML);	
 	rmTimeCell = rmTimeRow.cells[hStartIndex + day];
 	if(totTime >  0)
