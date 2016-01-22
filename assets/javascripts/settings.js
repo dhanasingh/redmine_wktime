@@ -114,7 +114,7 @@ function dialogAction()
 				var accrualAfter = document.getElementById("leave_accrual_after");
 				var resetMonth = document.getElementById("wk_attn_leave_reset_month");
 				var shortName = document.getElementById("wk_leave_short_name");
-				if(!checkDuplicate(listBox,leaveIssue.value) && !isNaN(leaveAccrual.value) && !isNaN(accrualAfter.value)){
+				if(!checkDuplicate(listBox,leaveIssue.value) && !isNaN(leaveAccrual.value) && !isNaN(accrualAfter.value) && leaveIssue.value != ""){
 					if('Add'== leaveAction){	
 						opt = document.createElement("option");
 						listBox.options.add(opt);
@@ -125,18 +125,18 @@ function dialogAction()
 					if (leaveIssue.value != ""){
 						desc = leaveIssue.value
 						opttext = leaveIssue.options[leaveIssue.selectedIndex].text;
+						desc = desc + "|"  + leaveAccrual.value;				
+						if (leaveAccrual.value != ""){
+							opttext = opttext + " : "  + leaveAccrual.value + " " + lblDaysPerMonth;
+						}
+						desc = desc + "|"  + accrualAfter.value;			
+						if (accrualAfter.value != ""){
+							opttext = opttext + " " + lblAccrualAfter + " " + accrualAfter.value + " " + lblYear;
+						}
+						desc = desc + "|"  + resetMonth.value;	
+						desc = desc + "|"  + shortName.value;	
+						desc = desc + "|"  + leaveProject.value;
 					}	
-					desc = desc + "|"  + leaveAccrual.value;				
-					if (leaveAccrual.value != ""){
-						opttext = opttext + " : "  + leaveAccrual.value + " " + lblDaysPerMonth;
-					}
-					desc = desc + "|"  + accrualAfter.value;			
-					if (accrualAfter.value != ""){
-						opttext = opttext + " " + lblAccrualAfter + " " + accrualAfter.value + " " + lblYear;
-					}
-					desc = desc + "|"  + resetMonth.value;	
-					desc = desc + "|"  + shortName.value;	
-					desc = desc + "|"  + leaveProject.value;
 					opt.text =  opttext;
 					opt.value = desc;
 					Sort('settings_wktime_leave');
@@ -144,6 +144,9 @@ function dialogAction()
 				}
 				else{
 					var alertMsg = "";
+					if(leaveIssue.value == ""){
+						alertMsg = lblLeaveIssue + " "+ lblInvalid + "\n";
+					}
 					if(checkDuplicate(listBox,leaveIssue.value)){
 						alertMsg = issueExistsAlertMsg + "\n";
 					}
