@@ -81,13 +81,11 @@
    
    get 'wkattendance/reportattn', :to => 'wkattendance#reportattn'
    
-   get 'wkattendance/reportPdf', :to => 'wkattendance#reportPdf'
-   
    match 'wkattendance/edit', :to => 'wkattendance#edit', :via => [:get, :post]
 			  
    post 'wkattendance/update', :to => 'wkattendance#update'
    
-   get 'wkattendance/getIssuesbyProject', :to => 'wkattendance#getIssuesbyProject'
+   get 'wkattendance/getIssuesByProject', :to => 'wkattendance#getIssuesByProject'
   
     resources :projects do	
 	resources :wk_expense_entries, :controller => 'wkexpense' do

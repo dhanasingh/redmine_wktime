@@ -86,7 +86,7 @@ include WkattendanceHelper
 		issueIds
 	end
 	
-	def getAttnLeaveIssueIds
+	def getReportLeaveIssueIds
 		issueIds = ''
 		if(Setting.plugin_redmine_wktime['wktime_leave'].blank?)
 			issueIds = '-1'
@@ -127,12 +127,12 @@ include WkattendanceHelper
 		sqlStr = ""
 		if isAccountUser
 			@userlist = User.where("type = ?", 'User')
-			leave_data = WkUserLeave.where("issue_id in (#{getAttnLeaveIssueIds}) and accrual_on between '#{@from}' and '#{@to}'")
+			leave_data = WkUserLeave.where("issue_id in (#{getReportLeaveIssueIds}) and accrual_on between '#{@from}' and '#{@to}'")
 			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}'")
 			sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where start_time between '#{@from}' and '#{@to}' group by user_id,#{dateStr}"
 		else
 			@userlist = User.where("type = ? AND id = ?", 'User', User.current.id)
-			leave_data = WkUserLeave.where("issue_id in (#{getAttnLeaveIssueIds}) and accrual_on between '#{@from}' and '#{@to}' and user_id = #{User.current.id} " )
+			leave_data = WkUserLeave.where("issue_id in (#{getReportLeaveIssueIds}) and accrual_on between '#{@from}' and '#{@to}' and user_id = #{User.current.id} " )
 			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}' and user_id = #{User.current.id} " )
 			sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where start_time between '#{@from}' and '#{@to}' and user_id = #{User.current.id} group by user_id,#{dateStr}"
 		end
@@ -192,11 +192,7 @@ include WkattendanceHelper
 
 	  end
 	
-	def reportPdf
-		send_data(wktime_report_to_pdf(), :type => 'application/pdf', :filename => "attendance.pdf")
-	end
-	
-	def getIssuesbyProject
+	def getIssuesByProject
 		issue_by_project=""
 		issueList=[]				
 		issueList = getPrjIssues
