@@ -35,7 +35,6 @@ $(document).ready(function() {
 				var elementid;
 				var startvalue,endvalue,textlength, newstartval, newendval,datevalue, userid,diff, newdiff, hours, newhours;
 				var paramval = "";
-				var allowUpdate = false;
 				textlength = document.getElementById('textlength').value;
 				for(i=0; i <= textlength ; i++)
 				{
@@ -47,29 +46,26 @@ $(document).ready(function() {
 					{
 						hours = timeStringToFloat(diff.value);
 						if (startvalue.defaultValue !=  startvalue.value  || endvalue.defaultValue !=  endvalue.value ) {
-							allowUpdate = true;
 							paramval += elementid.value + "|" +  startvalue.value + "|" + endvalue.value + "|" + hours + ",";						
 					}
 					}					
 				}				
-				for(i=0; i < 7; i++)
+				for(i=0; i < 8; i++)
 				{
 					newstartval = document.getElementById('newstart_'+i);
 					newendval = document.getElementById('newend_'+i);
 					newdiff = document.getElementById('newdiff_'+i);
 					if(newstartval && newendval)
 					{
-						
 						newhours = timeStringToFloat(newdiff.value);
 						if ( (newstartval.defaultValue !=  newstartval.value  || newendval.defaultValue !=  newendval.value  ) && newstartval.value ) {
-							allowUpdate = true;
 							paramval += "|" + i + "|" +  newstartval.value + "|" + newendval.value + "|" + newhours + ",";						
 					}
 					}
-				}
-				datevalue = document.getElementById('startday').value;
-				userid = document.getElementById('user_id').value;
-				if(allowUpdate)
+				}				
+				//var params1 = {editvalue : paramval};
+				updateAtt(paramval,true, "", -1);
+			/*	if(allowUpdate)
 				{
 					$.ajax({
 					url: 'updateAttendance',
@@ -77,7 +73,7 @@ $(document).ready(function() {
 					data: {editvalue : paramval, startdate : datevalue, user_id : userid},
 					success: function(data){  },  
 					});
-				}
+				}*/
 						
 				$( this ).dialog( "close" );
 			},
@@ -1221,7 +1217,14 @@ function updateTotalHr(day)
 function validateHr(hrFld,day)
 {		
 	var hrFldID = hrFld.id;
-	var hrVal = document.getElementById(hrFldID).value;	
+	if(document.getElementById(hrFldID) != null)
+	{
+		var hrVal = document.getElementById(hrFldID).value;	
+	}
+	else
+	{
+		hrVal = hrFld;
+	}
 	if(hrVal == "")
 	{
 		hrFld.value = "0:00";
@@ -1361,14 +1364,16 @@ function updateClockInOut(entrytime, strid, id, elementend){
 		hiddenvalue = document.getElementById('hoursstart_' + id).value;
 		hours = timeStringToFloat(hiddenvalue);
 	}	
-	var params = strid == 'start' ? {starttime: entrytime} 	: {endtime :entrytime, id: elementid, differences: hours };
-	$.ajax({
+	//var params = strid == 'start' ? {starttime: entrytime} 	: {endtime :entrytime, id: elementid, differences: hours };
+	var paramval = (strid == 'start' ? "|"+ id  : elementid ) + "|" +  (strid == 'end' ? start : entrytime) + "|" + (strid == 'end' ? entrytime : "") + "|" + (strid == 'end' ? hours : "") + ",";
+	updateAtt(paramval,false, strid, id);
+/*	$.ajax({
 		url: 'saveAttendance',
 		type: 'get',
 		data: params,
 		success: function(data){ hiddenClockInOut(data, strid, id); },  
 		complete: function(){ $this.removeClass('ajax-loading'); }
-	});		
+	});		*/
 }
 
 function hiddenClockInOut(data,strid,id){
@@ -1657,4 +1662,16 @@ function timeStringToFloat(time) {
   var originalval = hours + minutes / 60;
   var result = Math.round(originalval*100)/100 
   return result;
+}
+
+function updateAtt(param, diff,str,id)
+{
+	var datevalue = document.getElementById('startday').value;
+	var userid = document.getElementById('user_id').value;	
+	$.ajax({
+	url: 'updateAttendance',
+	type: 'get',
+	data: {editvalue : param, startdate : datevalue, user_id : userid},
+	success: function(data){ if(!diff){hiddenClockInOut(data, str, id);} },  
+	});
 }

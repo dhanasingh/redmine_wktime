@@ -840,40 +840,14 @@ include QueriesHelper
 		end
 	end
 	
-	def saveAttendance
-		#TODO: Use id to determine whether insert or update		
-		wkattendance = nil
-		ret = ""
-		if !params["starttime"].blank? || !params["endtime"].blank?	
-			if 	!params["starttime"].blank?
-				wkattendance = WkAttendance.new
-				wkattendance.user_id = User.current.id
-				wkattendance.start_time = params["starttime"]
-			else			
-				id = params["id"]
-				wkattendance = WkAttendance.find(id)
-				wkattendance.end_time = params["endtime"]
-				wkattendance.hours = params["differences"]
-			end
-			wkattendance.save()
-			ret = wkattendance.id.to_s
-			ret += ','
-			ret += ((wkattendance.start_time).to_formatted_s(:time)).to_s
-			ret += ','
-			ret += !((wkattendance.end_time)).blank? ?  ((wkattendance.end_time).to_formatted_s(:time)).to_s : '00:00'
-		end
-		respond_to do |format|
-			format.text  { render :text => ret }
-		end
-	end	
-	
 	def updateAttendance		
 		paramvalues = Array.new
 		entryvalues = Array.new
+		ret = ""
 		paramvalues = params[:editvalue].split(',')	
 		for i in 0..paramvalues.length-1
 			entryvalues = paramvalues[i].split('|')
-			if !entryvalues[0].blank? && isAccountUser     
+			if !entryvalues[0].blank? #&& isAccountUser    
 				wkattendance =  WkAttendance.find(entryvalues[0])
 				entrydate = wkattendance.start_time
 				starttime = entrydate.change({ hour: entryvalues[1].to_time.strftime("%H"), min: entryvalues[1].to_time.strftime("%M"), sec: entryvalues[1].to_time.strftime("%S") })
@@ -893,9 +867,14 @@ include QueriesHelper
 				wkattendance.hours = entryvalues[4]
 			end
 			wkattendance.save()
+			ret = wkattendance.id.to_s
+			ret += ','
+			ret += ((wkattendance.start_time).to_formatted_s(:time)).to_s
+			ret += ','
+			ret += !((wkattendance.end_time)).blank? ?  ((wkattendance.end_time).to_formatted_s(:time)).to_s : '00:00'
 		end
 		respond_to do |format|
-			format.text  { render :text => "ok" }
+			format.text  { render :text => ret }
 		end
 	end
 	

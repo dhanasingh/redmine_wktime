@@ -144,9 +144,9 @@
 						<%= l(:label_grand_total) %></label>
 						<%= text_field_tag "grandTotal_#{i}"  , "" , :size => 4, :disabled =>  isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true   %></p>
 					<%  elsif isAccountUser  && !(@startday + (i-1)).future?   %>
-							 <table> <tbody> <tr> <td style="width: 80px; padding-left: 10px;"><%= text_field_tag "newstart_#{j}" , "", :size => 4, :disabled => isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true , :onchange => "validateHr(this,#{(i)}); hoursClockInOut(2,#{j});"  %></td>
-							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "newend_#{j}" , "", :size => 4, :disabled => isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true , :onchange => "validateHr(this,#{(i)}); hoursClockInOut(2,#{j});"  %></td>
-							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "newdiff_#{j}" , "", :size => 4, :disabled => isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true , :onchange => "validateHr(this,#{(i)});"  %></td></tr></tbody>
+							 <table> <tbody> <tr> <td style="width: 80px; padding-left: 10px;"><%= text_field_tag "newstart_#{i}" , "", :size => 4, :disabled => isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true , :onchange => "validateHr(this.value,#{(i)}); hoursClockInOut(2,#{i});"  %></td>
+							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "newend_#{i}" , "", :size => 4, :disabled => isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true , :onchange => "validateHr(this.value,#{(i)}); hoursClockInOut(2,#{i});"  %></td>
+							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "newdiff_#{i}" , "", :size => 4, :disabled => isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true , :onchange => "validateHr(this.value,#{(i)});"  %></td></tr></tbody>
 							</table>							
 						
 					<% end %>
