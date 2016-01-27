@@ -865,9 +865,11 @@ include QueriesHelper
 				wkattendance.start_time = !(entryvalues[2].to_i).blank? ? "#{entrydate.to_s} #{ entryvalues[2].to_s}:00 " : '00:00'
 				wkattendance.end_time = !(entryvalues[3].to_i).blank? ? "#{entrydate.to_s} #{ entryvalues[3].to_s}:00 " : '00:00'
 				wkattendance.hours = entryvalues[4]
+				ret += entryvalues[1].to_s
+				ret += ','
 			end
 			wkattendance.save()
-			ret = wkattendance.id.to_s
+			ret += wkattendance.id.to_s
 			ret += ','
 			ret += ((wkattendance.start_time).to_formatted_s(:time)).to_s
 			ret += ','

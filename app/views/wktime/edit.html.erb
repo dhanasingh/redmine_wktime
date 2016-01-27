@@ -96,6 +96,7 @@
 
 	</div>	
 
+	<%=h hidden_field_tag('isAccountUser', isAccountUser )  %>  
 	<div id="clockInOut-dlg" title="<%= l(:label_wk_attendance) %>">
 		<fieldset>
 			 <table >
@@ -146,7 +147,8 @@
 					<%  elsif isAccountUser  && !(@startday + (i-1)).future?   %>
 							 <table> <tbody> <tr> <td style="width: 80px; padding-left: 10px;"><%= text_field_tag "newstart_#{i}" , "", :size => 4, :disabled => isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true , :onchange => "validateHr(this.value,#{(i)}); hoursClockInOut(2,#{i});"  %></td>
 							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "newend_#{i}" , "", :size => 4, :disabled => isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true , :onchange => "validateHr(this.value,#{(i)}); hoursClockInOut(2,#{i});"  %></td>
-							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "newdiff_#{i}" , "", :size => 4, :disabled => isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true , :onchange => "validateHr(this.value,#{(i)});"  %></td></tr></tbody>
+							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "newdiff_#{i}" , "", :size => 4, :disabled => isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true , :onchange => "validateHr(this.value,#{(i)});"  %></td>
+							<td><%=h hidden_field_tag("hiddennewid_#{i}", "" )  %></td></tr></tbody>	
 							</table>							
 						
 					<% end %>
