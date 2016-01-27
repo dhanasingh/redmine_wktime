@@ -130,7 +130,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		dateStr = getConvertDateStr('start_time')
 		sqlStr = ""
 		if isAccountUser
-			@userlist = User.where("type = ?", 'User')
+			@userlist = User.where("type = ?", 'User').order('id')
 			leave_data = WkUserLeave.where("issue_id in (#{getReportLeaveIssueIds}) and accrual_on between '#{@from}' and '#{@to}'")
 			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}'")
 			sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where start_time between '#{@from}' and '#{@to}' group by user_id,#{dateStr}"
