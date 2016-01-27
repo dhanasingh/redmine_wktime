@@ -20,6 +20,7 @@ var lblPleaseSelect = "";
 var lblWarnUnsavedTE = "";
 var breakarray =  "";
 var elementend;
+var rowid;
 var totalBreakTime = 0;
 $(document).ready(function() {
 	var e_comments = $( "#_edit_comments_" );
@@ -33,7 +34,7 @@ $(document).ready(function() {
 		buttons: {
 			"Ok": function() {
 				var elementid;
-				var startvalue,endvalue,textlength, newstartval, newendval,datevalue, userid,diff, newdiff, hours, newhours;
+				var startvalue,endvalue,textlength, newstartval, newendval,diff, newdiff, hours, newhours, newhiddenid;
 				var paramval = "";
 				textlength = document.getElementById('textlength').value;
 				for(i=0; i <= textlength ; i++)
@@ -49,17 +50,22 @@ $(document).ready(function() {
 							paramval += elementid.value + "|" +  startvalue.value + "|" + endvalue.value + "|" + hours + ",";						
 					}
 					}					
-				}				
+				}
+				
 				for(i=0; i < 8; i++)
 				{
 					newstartval = document.getElementById('newstart_'+i);
 					newendval = document.getElementById('newend_'+i);
 					newdiff = document.getElementById('newdiff_'+i);
-					if(newstartval && newendval)
+					if(document.getElementById('hiddennewid_'+i) != null)
 					{
+						newhiddenid = document.getElementById('hiddennewid_'+i).value;
+					}
+					if(newstartval && newendval)
+					{ 
 						newhours = timeStringToFloat(newdiff.value);
 						if ( (newstartval.defaultValue !=  newstartval.value  || newendval.defaultValue !=  newendval.value  ) && newstartval.value ) {
-							paramval += "|" + i + "|" +  newstartval.value + "|" + newendval.value + "|" + newhours + ",";						
+							paramval += (newhiddenid  ? newhiddenid : "|" + i ) + "|" +  newstartval.value + "|" + newendval.value + "|" + newhours + ",";						
 					}
 					}
 				}				
@@ -1379,13 +1385,13 @@ function updateClockInOut(entrytime, strid, id, elementend){
 function hiddenClockInOut(data,strid,id){
 	var array = data.split(',');
 	hdstart = document.getElementById('hdstart_' + id);
-	hdstart.value = array[0];
+	hdstart.value = strid == 'start' ? array[1] : array[0];
 	
 	hdend = document.getElementById('hdend_' + id);
-	hdend.value = array[0];
+	hdend.value = strid == 'start' ? array[1] : array[0];
 	
 	elementid = document.getElementById(strid + '_' + id);
-	elementid.value = strid == 'start' ? array[1] : array[2];
+	elementid.value = strid == 'start' ? array[2] : array[2];
 	updateRemainingHr(id);	
 	updateTotalHr(id); 
 	
@@ -1672,6 +1678,25 @@ function updateAtt(param, diff,str,id)
 	url: 'updateAttendance',
 	type: 'get',
 	data: {editvalue : param, startdate : datevalue, user_id : userid},
-	success: function(data){ if(!diff){hiddenClockInOut(data, str, id);} },  
+	success: function(data){ if(!diff){  hiddenClockInOut(data, str, id);}else{  newClockInOut(data); } },   
 	});
+}
+
+function newClockInOut(data)
+{
+	var saveid = data.split(',');
+	if(document.getElementById('hiddennewid_'+saveid[0]) != null)
+	{
+		document.getElementById('hiddennewid_'+saveid[0]).value = saveid[1];
+		document.getElementById('start_' + saveid[0]).value = saveid[2];
+		document.getElementById('end_' + saveid[0]).value = saveid[3];
+		rowid = saveid[0];		
+	}
+	else if(rowid != null)
+	{
+		document.getElementById('start_' + rowid).value = saveid[1];
+		document.getElementById('end_' + rowid).value = saveid[2];
+		
+	}
+	
 }
