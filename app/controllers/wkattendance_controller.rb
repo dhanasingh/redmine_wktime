@@ -227,7 +227,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 
 	def check_permission
 		ret = false
-		ret = params[:user_id] == User.current.id.to_s
+		ret = params[:user_id].to_i == User.current.id
 		return (ret || isAccountUser)
 	end
 	

@@ -28,7 +28,7 @@
 	<%
 		disable = true
 		wktime_helper = Object.new.extend(WktimeHelper)
-		disable = false if wktime_helper.isAccountUser
+		disable = false if wktime_helper.isAccountUser && User.current.id != params[:user_id].to_i
 	%>
 	<% 
 		ids = ''
