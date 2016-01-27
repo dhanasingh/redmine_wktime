@@ -85,6 +85,8 @@
    post 'wkattendance/update', :to => 'wkattendance#update'
    
    get 'wkattendance/getIssuesByProject', :to => 'wkattendance#getIssuesByProject'
+   
+   get 'wkattendance/getProjectByIssue', :to => 'wkattendance#getProjectByIssue'
   
     resources :projects do	
 	resources :wk_expense_entries, :controller => 'wkexpense' do

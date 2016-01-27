@@ -214,8 +214,8 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		if !params[:project_id].blank?
 			project_id = params[:project_id]
 		end
-		userList = Issue.where(:project_id => project_id)
-		userList
+		issueList = Issue.where(:project_id => project_id)
+		issueList
 	end
 	
     def check_perm_and_redirect
@@ -230,5 +230,17 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		ret = params[:user_id] == User.current.id.to_s
 		return (ret || isAccountUser)
 	end
+	
+	def getProjectByIssue
+		project_id=""
+		if !params[:issue_id].blank?
+			issue_id = params[:issue_id]
+			issues = Issue.where(:id => issue_id.to_i)
+			project_id = issues[0].project_id
+		end
+		respond_to do |format|
+			format.text  { render :text => project_id }
+		end
+	end	
 	
 end

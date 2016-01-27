@@ -109,7 +109,6 @@ function dialogAction()
 				var opt,desc="",opttext="";
 				var listBox = document.getElementById("settings_wktime_leave");
 				var leaveIssue = document.getElementById("leave_issue");
-				var leaveProject = document.getElementById("leave_project");
 				var leaveAccrual = document.getElementById("leave_accrual");
 				var accrualAfter = document.getElementById("leave_accrual_after");
 				var resetMonth = document.getElementById("wk_attn_leave_reset_month");
@@ -134,12 +133,10 @@ function dialogAction()
 							opttext = opttext + " " + lblAccrualAfter + " " + accrualAfter.value + " " + lblYear;
 						}
 						desc = desc + "|"  + resetMonth.value;	
-						desc = desc + "|"  + shortName.value;	
-						desc = desc + "|"  + leaveProject.value;
+						desc = desc + "|"  + shortName.value;
 					}	
 					opt.text =  opttext;
 					opt.value = desc;
-					Sort('settings_wktime_leave');
 					$( this ).dialog( "close" );
 				}
 				else{
@@ -265,7 +262,7 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 		{	
 			leaveAction = action;
 			leaveProject.selectedIndex = 0;
-			projectChanged(leaveProject);
+			projectChanged(leaveProject,-1);
 			leaveAccrual.value = "";
 			accrualAfter.value = "";
 			selectedIssue="";
@@ -276,9 +273,7 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 		else if('Edit' == action && listbox != null && listbox.options.selectedIndex >=0)
 		{				
 			var listboxArr = listbox.options[listbox.selectedIndex].value.split('|');
-			leaveProject.value = listboxArr[5];
-			projectChanged(leaveProject);
-			leaveIssue.value = listboxArr[0];
+			issueChanged(listboxArr[0]);
 			selectedIssue=listboxArr[0];
 			leaveAccrual.value = !listboxArr[1] ? "" : listboxArr[1];
 			accrualAfter.value = !listboxArr[2] ? "" : listboxArr[2];
@@ -379,7 +374,7 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 		$("#" + listboxId).empty().html(sortedList);
 	}
 	
-	function projectChanged(prjDropdown){
+	function projectChanged(prjDropdown,issueId){
 		var id = prjDropdown.options[prjDropdown.selectedIndex].value;
 		var fmt = 'text';
 		var issueDD = document.getElementById("leave_issue");
@@ -388,13 +383,13 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 			url: issueUrl,
 			type: 'get',
 			data: {format:fmt,project_id:id},
-			success: function(data){ updateIssueDD(data, issueDD); },
+			success: function(data){ updateIssueDD(data, issueDD,issueId); },
 			beforeSend: function(){ $this.addClass('ajax-loading'); },
 			complete: function(){ $this.removeClass('ajax-loading'); }
 		});
 	}
 
-	function updateIssueDD(itemStr, dropdown)
+	function updateIssueDD(itemStr, dropdown, issueId)
 	{
 		var items = itemStr.split('\n');
 		var i, index, val, text, start;
@@ -406,8 +401,28 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 				val = items[i].substring(start, index);
 				text = items[i].substring(index+1);
 				dropdown.options[i] = new Option( 
-					text, val, false);
+					text, val, val == issueId);
 			}
+		}
+		if(issueId<0){
+			dropdown.selectedIndex = 0;
 		}
 	}
 	
+	function issueChanged(issueId){
+		var fmt = 'text';
+		var projectDD = document.getElementById("leave_project");
+		var leaveIssue = document.getElementById("leave_issue");
+		var $this = $(this);
+		$.ajax({
+			url: projectUrl,
+			type: 'get',
+			data: {format:fmt,issue_id:issueId},
+			success: function(data){
+				projectDD.value = data;
+				projectChanged(projectDD,issueId);
+			},
+			beforeSend: function(){ $this.addClass('ajax-loading'); },
+			complete: function(){ $this.removeClass('ajax-loading');}
+		});
+	}
