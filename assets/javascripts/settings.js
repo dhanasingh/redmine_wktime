@@ -401,11 +401,13 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 				val = items[i].substring(start, index);
 				text = items[i].substring(index+1);
 				dropdown.options[i] = new Option( 
-					text, val, val == issueId);
+					text, val, false);
 			}
 		}
 		if(issueId<0){
 			dropdown.selectedIndex = 0;
+		}else{
+			dropdown.value = issueId;
 		}
 	}
 	
