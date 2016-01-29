@@ -183,7 +183,10 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		elsif period_type == '2' || (period_type.nil? && (!fromdate.nil? || !todate.nil?))
 		  begin; @from = Date.civil((fromdate.to_s.to_date).year,(fromdate.to_s.to_date).month, 1) unless fromdate.blank?; rescue; end
 		  begin;  @to = (@from >> 1) - 1 unless @from.blank?; rescue; end
-		  #begin; @to = todate.to_s.to_date unless todate.blank?; rescue; end
+		  if @from.blank?
+			@from = Date.civil(Date.today.year, Date.today.month, 1)
+			@to = (@from >> 1) - 1
+		  end
 		  @free_period = true
 		else
 		  # default
