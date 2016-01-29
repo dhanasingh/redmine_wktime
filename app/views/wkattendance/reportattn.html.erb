@@ -81,7 +81,8 @@
 <%if showSlno %>
 	<td class="lbl-txt-align"><%=h index+1 %></td>
 <%else%>
-	<td class="lbl-txt-align"><%=h entry.id %></td>
+	<td class="lbl-txt-align"><%=h entry.custom_field_values.detect { |cfv| 
+				cfv.custom_field.id == Setting.plugin_redmine_wktime['wktime_attn_employee_id_cf'].to_i } %></td>
 <%end%>
 <td class="lbl-txt-align"><%=h entry.firstname + " " + entry.lastname %></td>
 <td class="lbl-txt-align"><%=h entry.custom_field_values.detect { |cfv| 

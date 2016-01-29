@@ -48,7 +48,7 @@ $(document).ready(function() {
 						hours = timeStringToFloat(diff.value);
 						if (startvalue.defaultValue !=  startvalue.value  || endvalue.defaultValue !=  endvalue.value ) {
 							paramval += elementid.value + "|" +  startvalue.value + "|" + endvalue.value + "|" + hours + ",";						
-					}
+						}
 					}					
 				}
 				

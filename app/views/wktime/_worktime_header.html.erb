@@ -24,10 +24,10 @@
 	<% entryenddate = Array.new %>
 	<% @wkattendances.each do |entry| %>
 		<% hiddenid <<   entry.id  %>			
-		<% entrystart <<  (!(entry.start_time).blank? ?  (entry.start_time).strftime('%R') : '00:00') %>
-		<% entryend << (!(entry.end_time).blank? ?  (entry.end_time).strftime('%R') : '00:00') %>
-		<% entrydate << (entry.start_time).strftime('%Y-%m-%d') %>
-		<% entryenddate << (entry.end_time).strftime('%Y-%m-%d') if !(entry.end_time).blank? %>
+		<% entrystart <<  (!(entry.start_time).blank? ?  (entry.start_time.localtime).strftime('%R') : '00:00') %>
+		<% entryend << (!(entry.end_time).blank? ?  (entry.end_time.localtime).strftime('%R') : '00:00') %>
+		<% entrydate << (entry.start_time.localtime).strftime('%Y-%m-%d') %>
+		<% entryenddate << (entry.end_time.localtime).strftime('%Y-%m-%d') if !(entry.end_time).blank? %>
 	<% end %>
 	<% hiddenvalue = Array.new %>
 	<% startvalue = Array.new %>

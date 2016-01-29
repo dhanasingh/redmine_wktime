@@ -850,20 +850,23 @@ include QueriesHelper
 			if !entryvalues[0].blank? #&& isAccountUser    
 				wkattendance =  WkAttendance.find(entryvalues[0])
 				entrydate = wkattendance.start_time
-				starttime = entrydate.change({ hour: entryvalues[1].to_time.strftime("%H"), min: entryvalues[1].to_time.strftime("%M"), sec: entryvalues[1].to_time.strftime("%S") })
+				start_local = entrydate.localtime
+				starttime = start_local.change({ hour: entryvalues[1].to_time.strftime("%H"), min: entryvalues[1].to_time.strftime("%M"), sec: entryvalues[1].to_time.strftime("%S") })
 				if !entryvalues[2].blank?
-					endtime = entrydate.change({ hour: entryvalues[2].to_time.strftime("%H"), min: entryvalues[2].to_time.strftime("%M"), sec: entryvalues[2].to_time.strftime("%S") })
+					endtime = start_local.change({ hour: entryvalues[2].to_time.strftime("%H"), min: entryvalues[2].to_time.strftime("%M"), sec: entryvalues[2].to_time.strftime("%S") })
 				end
-				wkattendance.start_time = starttime     
-				wkattendance.end_time = endtime         
+				wkattendance.start_time = starttime
+				wkattendance.end_time = endtime 
 				wkattendance.hours = entryvalues[3] 				
 			else
 				wkattendance = WkAttendance.new
-				@startday = Date.parse params[:startdate] 
+				@startday = Date.parse params[:startdate]
 				entrydate =  @startday  + ((entryvalues[1].to_i)- 1)
 				wkattendance.user_id = params[:user_id].to_i 
-				wkattendance.start_time = !(entryvalues[2].to_i).blank? ? "#{entrydate.to_s} #{ entryvalues[2].to_s}:00 " : '00:00'
-				wkattendance.end_time = !(entryvalues[3].to_i).blank? ? "#{entrydate.to_s} #{ entryvalues[3].to_s}:00 " : '00:00'
+				wkattendance.start_time = !entryvalues[2].blank? ? Time.parse("#{entrydate.to_s} #{ entryvalues[2].to_s}:00 ").localtime.to_s : '00:00'
+				if !entryvalues[3].blank?
+					wkattendance.end_time = Time.parse("#{entrydate.to_s} #{ entryvalues[3].to_s}:00 ").localtime.to_s
+				end
 				wkattendance.hours = entryvalues[4]
 				ret += entryvalues[1].to_s
 				ret += ','
@@ -871,9 +874,9 @@ include QueriesHelper
 			wkattendance.save()
 			ret += wkattendance.id.to_s
 			ret += ','
-			ret += ((wkattendance.start_time).to_formatted_s(:time)).to_s
+			ret += ((wkattendance.start_time.localtime).to_formatted_s(:time)).to_s
 			ret += ','
-			ret += !((wkattendance.end_time)).blank? ?  ((wkattendance.end_time).to_formatted_s(:time)).to_s : '00:00'
+			ret += !((wkattendance.end_time)).blank? ?  ((wkattendance.end_time.localtime).to_formatted_s(:time)).to_s : '00:00'
 		end
 		respond_to do |format|
 			format.text  { render :text => ret }
