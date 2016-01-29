@@ -117,8 +117,8 @@
 				<div id="img_<%= i %>" >
 						
 					<% @wkmultiple.each do |entry| %>			
-						<% multipleid = (entry.start_time).strftime('%Y-%m-%d') %>
-						<% multiid = (entry.start_time).strftime('%Y-%m-%d').to_s.to_date.wday %>
+						<% multipleid = (entry.start_time.localtime).strftime('%Y-%m-%d') %>
+						<% multiid = (entry.start_time.localtime).strftime('%Y-%m-%d').to_s.to_date.wday %>
 						<%  if i != j    %>
 						<% totalvalue += '|'  %>										
 						<% end %>
@@ -130,8 +130,8 @@
 							<table >
 							<tbody>		
 							<tr>
-							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "popupstart_#{l}" , ( (entry.start_time).strftime('%R')  ).to_s, :size => 4, :disabled => isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true ,  :onchange => "hoursClockInOut(1,#{l}); validateHr(this,#{(i+1)});"  %></td> 
-							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "popupend_#{l}"  , (!(entry.end_time).blank? ? ( (entry.end_time).strftime('%R')  ).to_s : '' ) , :size => 4, :disabled =>  isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true,  :onchange => "hoursClockInOut(1,#{l}); validateHr(this,#{(i+1)});"   %></td>
+							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "popupstart_#{l}" , ( (entry.start_time.localtime).strftime('%R')  ).to_s, :size => 4, :disabled => isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true ,  :onchange => "hoursClockInOut(1,#{l}); validateHr(this,#{(i+1)});"  %></td> 
+							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "popupend_#{l}"  , (!(entry.end_time).blank? ? ( (entry.end_time.localtime).strftime('%R')  ).to_s : '' ) , :size => 4, :disabled =>  isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true,  :onchange => "hoursClockInOut(1,#{l}); validateHr(this,#{(i+1)});"   %></td>
 							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "total_#{l}"  , "0:00" , :size => 4, :disabled =>  isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true, :onchange => "totalClockInOut();"   %></td>
 							<td><%=h hidden_field_tag("hiddenpopup_#{l}", entry.id )  %></td>							
 							</tr>

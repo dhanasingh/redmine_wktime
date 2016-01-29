@@ -866,8 +866,8 @@ include QueriesHelper
 				wkattendance.start_time = !entryvalues[2].blank? ? Time.parse("#{entrydate.to_s} #{ entryvalues[2].to_s}:00 ").localtime.to_s : '00:00'
 				if !entryvalues[3].blank?
 					wkattendance.end_time = Time.parse("#{entrydate.to_s} #{ entryvalues[3].to_s}:00 ").localtime.to_s
+					wkattendance.hours = entryvalues[4]
 				end
-				wkattendance.hours = entryvalues[4]
 				ret += entryvalues[1].to_s
 				ret += ','
 			end
