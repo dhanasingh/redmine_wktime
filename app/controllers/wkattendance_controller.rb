@@ -21,7 +21,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		end
 		sqlStr = sqlStr + " order by u.firstname"
 			
-		@leave_entries = WkUserLeave.find_by_sql(sqlStr)
+		findBySql(sqlStr)
 	end
 	
 	def edit
@@ -245,5 +245,40 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 			format.text  { render :text => project_id }
 		end
 	end	
+
+	def setLimitAndOffset		
+		if api_request?
+			@offset, @limit = api_offset_and_limit
+			if !params[:limit].blank?
+				@limit = params[:limit]
+			end
+			if !params[:offset].blank?
+				@offset = params[:offset]
+			end
+		else
+			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
+			@limit = @entry_pages.per_page
+			@offset = @entry_pages.offset
+		end	
+	end
+	
+	def findBySql(query)
+		result = WkUserLeave.find_by_sql("select count(*) as id from (" + query + ") as v2")
+		@entry_count = result.blank? ? 0 : result[0].id
+        setLimitAndOffset()		
+		rangeStr = formPaginationCondition()
+		
+		@leave_entries = WkUserLeave.find_by_sql(query + rangeStr )
+	end
+	
+	def formPaginationCondition
+		rangeStr = ""
+		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'				
+			rangeStr = " OFFSET " + @offset.to_s + " ROWS FETCH NEXT " + @limit.to_s + " ROWS ONLY "
+		else		
+			rangeStr = " LIMIT " + @limit.to_s +	" OFFSET " + @offset.to_s
+		end
+		rangeStr
+	end
 	
 end
