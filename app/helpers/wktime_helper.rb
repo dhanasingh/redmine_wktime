@@ -834,11 +834,11 @@ end
 		strIssueIds = ""
 		if !leavesInfo.blank?
 			leavesInfo.each do |leave|
-				 issue_id = leave.split('|')[0].strip
-				 strIssueIds = strIssueIds.blank? ? (strIssueIds + issue_id) : (strIssueIds + "," + issue_id)
-				 leaveAccrual[issue_id] = leave.split('|')[1].strip
-				 leaveAccAfter[issue_id] = leave.split('|')[2].strip
-				 resetMonth[issue_id] = leave.split('|')[3].strip
+				issue_id = leave.split('|')[0].strip
+				strIssueIds = strIssueIds.blank? ? (strIssueIds + issue_id) : (strIssueIds + "," + issue_id)
+				leaveAccrual[issue_id] = leave.split('|')[1].blank? ? 0 : leave.split('|')[1].strip
+				leaveAccAfter[issue_id] = leave.split('|')[2].blank? ? 0 : leave.split('|')[2].strip
+				resetMonth[issue_id] = leave.split('|')[3].blank? ? 0 : leave.split('|')[3].strip
 			end
 		end
 		
@@ -854,14 +854,15 @@ end
 				defWorkTime = Setting.plugin_redmine_wktime['wktime_default_work_time'].to_i
 			end
 			
-			qryStr = "select v2.id, v1.user_id, v1.created_on, v1.issue_id, v2.hours, ul.balance, ul.accrual_on, ul.used, ul.accrual, v3.spent_hours " +
+			qryStr = "select v2.id, v1.user_id, v1.created_on, v1.issue_id, v2.hours, ul.balance, " +
+					"ul.accrual_on, ul.used, ul.accrual, v3.spent_hours " +
 					"from (select u.id as user_id, i.issue_id, u.status, u.type, u.created_on from users u , " +
 					"(select id as issue_id from issues where id in (#{strIssueIds})) i) v1 " +
 					"left join (select max(id) as id, user_id, issue_id, sum(hours) as hours from time_entries " +
 					"where spent_on between '#{from}' and '#{to}' group by user_id, issue_id) v2 " +
 					"on v2.user_id = v1.user_id and v2.issue_id = v1.issue_id " +
-					"left join (select user_id, sum(hours) as spent_hours from time_entries " +
-					"where spent_on between '#{from}' and '#{to}' and issue_id not in (#{strIssueIds}) " +
+					"left join (select user_id, sum(hours) as spent_hours from wk_attendances " +
+					"where start_time between '#{from}' and '#{to}' " +
 					"group by user_id) v3 on v3.user_id = v1.user_id " +
 					"left join wk_user_leaves ul on ul.user_id = v1.user_id and ul.issue_id = v1.issue_id " +
 					"and ul.accrual_on between '#{prev_mon_from}' and '#{prev_mon_to}' " +

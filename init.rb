@@ -228,7 +228,8 @@ Rails.configuration.to_prepare do
 		if (!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? && Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1)
 			require 'rufus/scheduler'
 			scheduler2 = Rufus::Scheduler.new
-			cronSt = "01 12 01 * *"
+			#Scheduler will run at 12:01 AM on 1st of every month
+			cronSt = "01 00 01 * *"
 			#cronSt = "20 18 19 * *"
 			scheduler2.cron cronSt do		
 				begin
