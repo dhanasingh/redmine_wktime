@@ -894,11 +894,6 @@ include QueriesHelper
 		WkAttendance.where(" user_id = '#{params[:user_id]}' and #{dateStr} between '#{@startday}'  and '#{@startday + 6}' ").order("start_time")
 	end
 	
-	def autoApprove
-		!Setting.plugin_redmine_wktime['wktime_uuto_approve'].blank? &&
-		Setting.plugin_redmine_wktime['wktime_uuto_approve'].to_i == 1
-	end
-	
 	def getTotalBreakTime	
 		breakTimes = Setting.plugin_redmine_wktime['wktime_break_time']
 		totalBT = 0

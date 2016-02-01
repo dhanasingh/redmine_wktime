@@ -28,7 +28,8 @@
 	<%
 		disable = true
 		wktime_helper = Object.new.extend(WktimeHelper)
-		disable = false if wktime_helper.isAccountUser && User.current.id != params[:user_id].to_i
+		disable = false if wktime_helper.isAccountUser && ( params[:user_id].to_i != User.current.id || (!Setting.plugin_redmine_wktime[:wktime_own_approval].blank? && 
+							Setting.plugin_redmine_wktime[:wktime_own_approval].to_i == 1 ))
 	%>
 	<% 
 		ids = ''
@@ -61,7 +62,7 @@
 	<% end -%>
 	</table>
 	<br>
-	<span style="margin-left:25.0em;"></span><%= submit_tag l(:button_save), :hidden => disable, :id => 'wkattendance_save' %>
+	<span style="margin-left:25.0em;"></span><%= submit_tag l(:button_save), :hidden => disable, :id => 'wkattendance_save', :disabled => disable %>
 	</div>
 	
 	<%=h hidden_field_tag('user_id', userId) %>

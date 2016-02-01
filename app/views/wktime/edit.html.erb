@@ -105,7 +105,11 @@
 				 <th style="width: 80px;"> <label><%= l(:label_difference) %></label></th>
 				<tbody>
 					</tbody>
-			</table>				
+			</table>
+			<%
+				disable = isAccountUser ? (User.current.id == @user.id ? !(!Setting.plugin_redmine_wktime[:wktime_own_approval].blank? && 
+									Setting.plugin_redmine_wktime[:wktime_own_approval].to_i == 1 ) : false) : true
+			%>				
 			<% totalid = Array.new %>
 			<% totalvalue =  " " %>
 			<% j = 0   %>
@@ -130,9 +134,9 @@
 							<table >
 							<tbody>		
 							<tr>
-							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "popupstart_#{l}" , ( (entry.start_time.localtime).strftime('%R')  ).to_s, :size => 4, :disabled => isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true ,  :onchange => "hoursClockInOut(1,#{l}); validateHr(this,#{(i+1)});"  %></td> 
-							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "popupend_#{l}"  , (!(entry.end_time).blank? ? ( (entry.end_time.localtime).strftime('%R')  ).to_s : '' ) , :size => 4, :disabled =>  isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true,  :onchange => "hoursClockInOut(1,#{l}); validateHr(this,#{(i+1)});"   %></td>
-							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "total_#{l}"  , "0:00" , :size => 4, :disabled =>  isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true, :onchange => "totalClockInOut();"   %></td>
+							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "popupstart_#{l}" , ( (entry.start_time.localtime).strftime('%R')  ).to_s, :size => 4, :disabled => disable ,  :onchange => "hoursClockInOut(1,#{l}); validateHr(this,#{(i+1)});"  %></td> 
+							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "popupend_#{l}"  , (!(entry.end_time).blank? ? ( (entry.end_time.localtime).strftime('%R')  ).to_s : '' ) , :size => 4, :disabled => disable,  :onchange => "hoursClockInOut(1,#{l}); validateHr(this,#{(i+1)});"   %></td>
+							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "total_#{l}"  , "0:00" , :size => 4, :disabled =>  disable, :onchange => "totalClockInOut();"   %></td>
 							<td><%=h hidden_field_tag("hiddenpopup_#{l}", entry.id )  %></td>							
 							</tr>
 							</tbody>
@@ -143,15 +147,15 @@
 					<%  if showtotal    %>
 						<p style = "padding-left: 90px;">
 						<%= l(:label_grand_total) %></label>
-						<%= text_field_tag "grandTotal_#{i}"  , "" , :size => 4, :disabled =>  isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true   %></p>
+						<%= text_field_tag "grandTotal_#{i}"  , "" , :size => 4, :disabled => disable %></p>
 					<%  elsif isAccountUser  && !(@startday + (i-1)).future?   %>
-							 <table> <tbody> <tr> <td style="width: 80px; padding-left: 10px;"><%= text_field_tag "newstart_#{i}" , "", :size => 4, :disabled => isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true , :onchange => "validateHr(this.value,#{(i)}); hoursClockInOut(2,#{i});"  %></td>
-							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "newend_#{i}" , "", :size => 4, :disabled => isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true , :onchange => "validateHr(this.value,#{(i)}); hoursClockInOut(2,#{i});"  %></td>
-							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "newdiff_#{i}" , "", :size => 4, :disabled => isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true , :onchange => "validateHr(this.value,#{(i)});"  %></td>
+							 <table> <tbody> <tr> <td style="width: 80px; padding-left: 10px;"><%= text_field_tag "newstart_#{i}" , "", :size => 4, :disabled => disable, :onchange => "validateHr(this.value,#{(i)}); hoursClockInOut(2,#{i});"  %></td>
+							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "newend_#{i}" , "", :size => 4, :disabled => disable, :onchange => "validateHr(this.value,#{(i)}); hoursClockInOut(2,#{i});"  %></td>
+							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "newdiff_#{i}" , "", :size => 4, :disabled => disable, :onchange => "validateHr(this.value,#{(i)});"  %></td>
 							<td><%=h hidden_field_tag("hiddennewid_#{i}", "" )  %></td></tr></tbody>	
 							</table>							
 							<p style = "padding-left: 90px;">						
-							<%= hidden_field_tag "newTotal_#{i}"  , "" , :size => 4, :disabled =>  isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true   %></p>
+							<%= hidden_field_tag "newTotal_#{i}"  , "" , :size => 4, :disabled => disable %></p>
 					<% end %>
 				</div>					
 			<% end %>
