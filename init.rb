@@ -230,7 +230,6 @@ Rails.configuration.to_prepare do
 			scheduler2 = Rufus::Scheduler.new
 			#Scheduler will run at 12:01 AM on 1st of every month
 			cronSt = "01 00 01 * *"
-			#cronSt = "20 18 19 * *"
 			scheduler2.cron cronSt do		
 				begin
 					Rails.logger.info "==========Attendance job - Started=========="			
@@ -253,16 +252,6 @@ class WktimeHook < Redmine::Hook::ViewListener
 				 raise "#{l(:label_warning_wktime_time_entry)}"
 			end			
 		end
-		# if !context[:time_entry].issue.blank? 
-		#	trackerid = wktime_helper.getAllowedTrackerId
-		#	if trackerid != ['0']
-		#		if ["#{context[:time_entry].issue.tracker.id}"] != trackerid
-		#			raise "#{l(:label_warning_wktime_issue_tracker)}"
-		#		end	
-		#	end
-		#elsif context[:time_entry].issue.blank? && trackerid != ['0'] 
-		#	raise "#{l(:label_warning_wktime_time_entry)}"
-		#end		
 	end
 	
 	def view_layouts_base_html_head(context={})	
@@ -281,11 +270,8 @@ class WktimeHook < Redmine::Hook::ViewListener
 	def showWarningMsg(req, user_id, log_time_page)
 		wktime_helper = Object.new.extend(WktimeHelper)
 		host_with_subdir = wktime_helper.getHostAndDir(req)
-		
-		
-
 		"<div id='divError'>
-			<font color='red'></font>			
+			<font color='red'></font>		
 		</div>
 		<input type='hidden' id='getstatus_url' value='#{url_for(:controller => 'wktime', :action => 'getStatus', :host => host_with_subdir, :only_path => true, :user_id => user_id)}'>
 		<input type='hidden' id='getissuetracker_url' value='#{url_for(:controller => 'wktime', :action => 'getTracker', :host => host_with_subdir, :only_path => true)}'>
