@@ -1728,8 +1728,8 @@ function newClockInOut(data)
 			if(document.getElementById('hiddennewid_'+columndata[0]) != null && rowid != columndata[0] )
 			{
 				 document.getElementById('hiddennewid_'+columndata[0]).value = columndata[1];
-				document.getElementById('start_' + columndata[0]).value = columndata[2];
-				document.getElementById('end_' + columndata[0]).value = columndata[3];
+				document.getElementById('start_' + columndata[0]).value = columndata[2].slice(0, 5);
+				document.getElementById('end_' + columndata[0]).value = columndata[3].slice(0, 5);
 				rowid = columndata[0];
 				document.getElementById('hoursstart_'+columndata[0]).value = document.getElementById('newdiff_'+columndata[0]).value;
 				totalClockInOut(columndata[0], 2);				
