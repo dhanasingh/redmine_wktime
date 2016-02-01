@@ -868,6 +868,7 @@ include QueriesHelper
 					wkattendance.end_time = Time.parse("#{entrydate.to_s} #{ entryvalues[3].to_s}:00 ").localtime.to_s
 					wkattendance.hours = entryvalues[4]
 				end
+				ret += '|'
 				ret += entryvalues[1].to_s
 				ret += ','
 			end

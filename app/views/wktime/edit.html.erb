@@ -150,7 +150,8 @@
 							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "newdiff_#{i}" , "", :size => 4, :disabled => isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true , :onchange => "validateHr(this.value,#{(i)});"  %></td>
 							<td><%=h hidden_field_tag("hiddennewid_#{i}", "" )  %></td></tr></tbody>	
 							</table>							
-						
+							<p style = "padding-left: 90px;">						
+							<%= hidden_field_tag "newTotal_#{i}"  , "" , :size => 4, :disabled =>  isAccountUser ? (User.current.id == @user.id ? !controller.autoApprove : false) : true   %></p>
 					<% end %>
 				</div>					
 			<% end %>
