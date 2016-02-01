@@ -1,4 +1,5 @@
 # German strings go here for Rails i18n
+# Atrasoftware contribution
 de:
   my_label: "My label"
   label_wktime: Zeit

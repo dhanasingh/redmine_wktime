@@ -898,4 +898,13 @@ end
 			end
 		end
 	end
+	
+	#Atrasoftware contribution
+	def number_currency_format_unit
+		begin
+			l('number.currency.format.unit')
+		rescue
+			'$'
+		end
+	end
 end

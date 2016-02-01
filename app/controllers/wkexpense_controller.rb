@@ -32,7 +32,7 @@ class WkexpenseController < WktimeController
   end
   
   def getUnit(entry)
-	entry.nil? ? l('number.currency.format.unit') : entry[:currency]
+	entry.nil? ? number_currency_format_unit : entry[:currency]
   end
   
   def getUnitDDHTML
@@ -152,7 +152,7 @@ private
 	setLimitAndOffset()	
 	rangeStr = formPaginationCondition()
 	@entries = WkExpenseEntry.find_by_sql(query + " order by tmp3.spent_on desc, tmp3.user_id " + rangeStr)
-	@unit = @entries.blank? ? l('number.currency.format.unit') : @entries[0][:currency]
+	@unit = @entries.blank? ? number_currency_format_unit : @entries[0][:currency]
 	result = WkExpenseEntry.find_by_sql("select sum(v2." + spField + ") as " + spField + " from (" + query + ") as v2")	
 	@total_hours = result[0].amount
   end
