@@ -18,9 +18,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		end
 		if !isAccountUser
 			sqlStr = sqlStr + " and u.id = #{User.current.id} " 
-		end
-		sqlStr = sqlStr + " order by u.firstname"
-			
+		end			
 		findBySql(sqlStr)
 	end
 	
@@ -266,9 +264,8 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		result = WkUserLeave.find_by_sql("select count(*) as id from (" + query + ") as v2")
 		@entry_count = result.blank? ? 0 : result[0].id
         setLimitAndOffset()		
-		rangeStr = formPaginationCondition()
-		
-		@leave_entries = WkUserLeave.find_by_sql(query + rangeStr )
+		rangeStr = formPaginationCondition()		
+		@leave_entries = WkUserLeave.find_by_sql(query + " order by u.firstname " + rangeStr )
 	end
 	
 	def formPaginationCondition
