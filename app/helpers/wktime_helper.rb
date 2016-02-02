@@ -899,7 +899,7 @@ end
 		end
 	end
 	
-	#Atrasoftware contribution
+	#Luna Lenardi contribution
 	def number_currency_format_unit
 		begin
 			l('number.currency.format.unit')
