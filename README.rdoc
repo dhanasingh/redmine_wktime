@@ -33,7 +33,7 @@ The following configurations can be made on the plugin
 	- T&E Admin groups can be configured
 	- Enable Clock In / Clock Out
 	- Break time and Leaves can be configured
-	- Join date, Date of birth, Designation, EmployeeId can be configured
+	- Join date, Date of birth, Designation, Employee Id can be configured
 	
 The Time & Expense sheets can be approved/rejected by supervisors after it is submitted by Project Members.
 Here is the workflow of Approval system..
@@ -45,14 +45,14 @@ iv) Once approved, the time & expense sheet can never be edited.
 v) If the time & expense sheet is rejected, then it goes back to the project member for re-submission
    An email about the rejection is sent to the Project Member.
 vi) Once approved, a time & expense sheet can be unapproved, it sends the time & expense sheet back to submitted state.
-vii) If the timesheet is not submitted before deadline, then a email notification will be sent to the project memeber.
+vii) If the timesheet is not submitted before deadline, then a email notification will be sent to the project member.
 
 Time & Attendance plugin supports REST API. It supports both xml and json. Using the api we can list
 time/expense sheets for a user, create, update and delete time/expense sheets.  User with approve time log 
 permission can approve, unapprove, reject time/expense sheets. This plugin also supports code hooks.
 
-Attendance module allow the user to clock in, clock out and view their leave status using report.
-T&E admin can manage other users attendance. A scheduler will be run at start of each month to calculate the opening balance.
+Attendance module allow the user to clock in, clock out and view their leave status.
+T&E admin can manage other users attendance. A scheduled job will be run at start of each month to calculate the leave accruals.
 
 Unpack the zip file to the plugins folder of Redmine.
 Starting from version 1.2, it requires db migration.
@@ -86,11 +86,11 @@ Release Notes for 2.1
         - Attendance module is introduced.
 		- German translation is included.
     Bugs:
-        - Fixed SQL Server iisue.
+        - Fixed SQL Server issue.
 		- Fixed time entering format issue.
 		- Fixed issue forbidden error on "Enter issue as ID/Subject".
 
-We would like to thank Luna Lenardi for contributing German Translation and bug fixing on currency.
+We would like to thank Luna Lenardi for contributing towards German Translation and for fixing a currency issue.
 
 Customization:
 	For any Customization/Support, please contact us, our consulting team will be happy to help you
