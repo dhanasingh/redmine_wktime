@@ -2,3 +2,5 @@
 .div-left{float: left; padding-right: 50px;}
 .div-right{float: left; }
 .lbl-txt-align{text-align:left !important}
+.clock-textbox{border-style: solid;    border-color: #FF7F50; }
+.clock-todaytextbox{border-style: solid;    border-color: #008000 ;}

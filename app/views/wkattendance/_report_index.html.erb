@@ -1,0 +1,17 @@
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<script type="text/javascript"> 
+	prevTab = 'tab-<%= "wkreport" %>';
+</script>
+<%= form_tag({:controller => controller_name, :action => 'report'}, :method => :get, :id => 'query_form') do %>
+<div style="clear:both"></div>
+<table>
+<tr>
+<th><%= l(:label_report) + " " + l(:field_type) %> </th>
+<td><%= select_tag 'report_type', options_for_report_select, :style=> "width:200px;" %></td>
+</tr>
+</table>
+<%= render :partial => 'wkattendance/date_range' %>
+<%=h hidden_field_tag('tab', "wkreport") %>
+<%= hidden_field_tag "searchlist", "wkreport" %>
+<% end %>

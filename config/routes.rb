@@ -32,6 +32,9 @@
   
   get 'wktime/testapi', :to => 'wktime#testapi' 
   
+  get 'wktime/updateAttendance', :to => 'wktime#updateAttendance' 
+  
+  
   #For Weekly expenses
   
   get 'wkexpense/index', :to => 'wkexpense#index'
@@ -69,6 +72,21 @@
   delete 'wkexpense/deleteEntry', :to => 'wkexpense#deleteEntry'
   
   delete 'wkexpense/deleteEntries', :to => 'wkexpense#deleteEntries'
+  
+   #For Attendance
+   get 'wkattendance/index', :to => 'wkattendance#index'
+   
+   get 'wkattendance/report', :to => 'wkattendance#report'
+   
+   get 'wkattendance/reportattn', :to => 'wkattendance#reportattn'
+   
+   match 'wkattendance/edit', :to => 'wkattendance#edit', :via => [:get, :post]
+			  
+   post 'wkattendance/update', :to => 'wkattendance#update'
+   
+   get 'wkattendance/getIssuesByProject', :to => 'wkattendance#getIssuesByProject'
+   
+   get 'wkattendance/getProjectByIssue', :to => 'wkattendance#getProjectByIssue'
   
     resources :projects do	
 	resources :wk_expense_entries, :controller => 'wkexpense' do

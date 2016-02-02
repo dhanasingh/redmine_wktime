@@ -58,6 +58,7 @@ en:
   label_wk_next_week_tip: Next Week
   label_wkexpense: Expense
   label_te: Time & Expense
+  label_ta: Time & Attendance
   label_wk_allow_user_filter_tracker: Allow User Filtering by Tracker
   label_wk_filter_issue_tracker: Filter Issue by Tracker
   label_wk_currency: Currency
@@ -135,7 +136,47 @@ en:
   text_wk_no_reminder: No reminders to send
   
   
-
-
-  
-
+  label_wk_attendance: Attendance
+  label_wk_break_time: Break Time
+  label_wk_enable_clock_in_out: Enable Clock In / Clock Out
+  label_wk_sick_leave_accrual: Sick Leave Accrual
+  label_wk_paid_leave_accrual: Paid Leave Accrual
+  label_wk_leave_accrual_after: Accrual after
+  label_wk_select_break_time: Please select a break time
+  label_hours_per_month: hour(s)/month
+  label_wk_sick_leave: Sick Leave
+  label_wk_holiday: Holiday
+  label_wk_paid_leave: Paid Leave
+  label_wk_leave: Leave
+  label_wk_leave_issue: Leave issue
+  label_wk_leave_accrual: Accrual
+  label_wk_leave_accrual_on: Accrual on
+  label_wk_attendance_start_date: Attendance start date
+  label_clock_in: Clock in
+  label_clock_out: Clock out
+  label_wk_leave_exists: This leave already exists
+  wk_field_balance: Balance
+  wk_field_used: Used
+  wk_field_remaining: Remaining
+  label_wk_leave_short_name: Short name
+  label_difference: Differences
+  label_grand_total:  Total Hours
+  label_wk_attn_join_date:  Joining date
+  label_wk_attn_user_dob:  Date of birth
+  label_wk_designation:  Designation
+  label_employee_id:  Employee Id
+  label_leave_beginning_of_mnth:  Leave Credit at the Beginning of the Month
+  label_leave_during_mnth:  Leave Availed During the Month
+  label_daily_workdone_inclede_ot:  Daily Hours of Work done including Overtime(If any)
+  label_total_hours_ot:  Total hours of Over-time worked
+  label_total_hours_during_mnth:  Total hours of work done during the month
+  label_total_no_of_maternity_leave:  Total no. Of days Maternity leave availed
+  label_attn_sl_no:  Sl. No.
+  wk_label_opening: Opening
+  wk_label_closing: Closing
+  label_wk_default_work_time: Default work time
+  label_wk_attn_for: For
+  label_wk_form_q: FORM-Q
+  label_wk_register_for_shops: REGISTER OF EMPLOYMENT FOR SHOPS AND ESTABLISHMENTS
+  label_wk_name_address: Name and Address of the Establishment
+  label_date_of_entry_into_service: Date of entry into service

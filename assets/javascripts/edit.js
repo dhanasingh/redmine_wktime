@@ -18,10 +18,70 @@ var minHourAlertMsg="";
 var decSeparator = ".";
 var lblPleaseSelect = "";
 var lblWarnUnsavedTE = "";
+var breakarray =  "";
+var elementend;
+var rowid;
+var clktot;
+var addval = new Array();
+var totalBreakTime = 0;
 $(document).ready(function() {
-//$(function() {
 	var e_comments = $( "#_edit_comments_" );
 	var e_notes = $( "#_edit_notes_" );
+	 $( "#clockInOut-dlg" ).dialog({
+		autoOpen: false,
+		modal: false,
+		width:'300',
+		height: '300',
+        overflow: 'auto', /* Or scroll, depending on your needs*/
+		buttons: {
+			"Ok": function() {
+				var elementid;
+				var startvalue,endvalue,textlength, newstartval, newendval,diff, newdiff, hours, newhours, newhiddenid;
+				var paramval = "";
+				textlength = document.getElementById('textlength').value;
+				for(i=0; i <= textlength ; i++)
+				{
+					startvalue = document.getElementById('popupstart_'+i);
+					endvalue = document.getElementById('popupend_'+i);
+					diff = document.getElementById('total_'+i);
+					elementid = document.getElementById('hiddenpopup_'+i);
+					if(startvalue || endvalue)
+					{
+						hours = timeStringToFloat(diff.value);
+						if (startvalue.defaultValue !=  startvalue.value  || endvalue.defaultValue !=  endvalue.value ) {
+							paramval += elementid.value + "|" +  startvalue.value + "|" + endvalue.value + "|" + hours + ",";						
+						}
+					}					
+				}
+				
+				for(i=0; i < 8; i++)
+				{
+					newstartval = document.getElementById('newstart_'+i);
+					newendval = document.getElementById('newend_'+i);
+					newdiff = document.getElementById('newdiff_'+i);
+					if(document.getElementById('hiddennewid_'+i) != null)
+					{
+						newhiddenid = document.getElementById('hiddennewid_'+i).value;
+					}
+					if(newstartval && newendval)
+					{ 
+						document.getElementById('newTotal_'+i).value = newdiff.value;
+						newhours = timeStringToFloat(newdiff.value);
+						if ( (newstartval.defaultValue !=  newstartval.value  || newendval.defaultValue !=  newendval.value  ) && newstartval.value ) {
+							paramval += (newhiddenid  ? newhiddenid : "|" + i ) + "|" +  newstartval.value + "|" + newendval.value + "|" + newhours + ",";						
+					}
+					}
+				}				
+				updateAtt(paramval,true, "", -1);
+				window.onbeforeunload = null;		
+				$( this ).dialog( "close" );
+			},
+			Cancel: function() {
+				window.onbeforeunload = null;
+				$( this ).dialog( "close" );
+			}
+		}
+	});	
 
 	$( "#comment-dlg" ).dialog({
 		autoOpen: false,
@@ -85,7 +145,49 @@ $(document).ready(function() {
 			}
 		}
 	});	
-
+	
+	//when initially load the page hidden the clock in Clock out button
+	var imgend,imghide,imgstart;
+	if(document.getElementById('imgdisable') != null && document.getElementById('end_img') != null &&  document.getElementById('start_img') != null)
+	{
+		imghide = document.getElementById('imgdisable').value;
+		imghide++;
+		if(document.getElementById('end_'+imghide) != null)
+		{
+		imgend = document.getElementById('end_'+imghide).value;
+		}
+		if(document.getElementById('start_'+imghide) != null)
+		{
+		imgstart = document.getElementById('start_'+imghide).value;
+		}
+		if( imgend == "00:00" && imgstart != "00:00" )
+		{
+				document.getElementById('clock_end').style.visibility = "visible";
+				document.getElementById('clock_start').style.visibility = 'hidden';
+		}
+		else
+		{
+			document.getElementById('clock_end').style.visibility = 'hidden';
+		}
+	}	
+	
+	//when initially load the page update the dialog box total
+	var textlength;
+	var paramval = "";
+	textlength = document.getElementById('textlength').value;
+	for(i=0; i < textlength ; i++)
+	{
+		hoursClockInOut(1,i);
+	}
+	
+	totalClockInOut(-1, 3);
+	
+	// when initially load the page update total and remaininghours
+    for(i = 1; i <= 7; i++)
+	{		
+		updateRemainingHr(i);	
+		updateTotalHr(i);
+	}
 	
 });
 
@@ -868,14 +970,14 @@ function validateHours(hoursValue,hoursDay){
 	var total=0;
 	if (!isNaN(hoursValue))	{
 		hours = hoursValue;		
-	}else if (hoursValue.indexOf('.') ==1){
+	}else if (hoursValue.indexOf('.') > -1){
 		valid = checkStr(hoursValue,'.')				
-	}else if (hoursValue.indexOf(",")==1){
+	}else if (hoursValue.indexOf(",") > -1){
 		valid = checkStr(hoursValue,",")
 		if(!valid){				
 			hours = hoursValue.replace(",", ".");
 		}
-	}else if (hoursValue.indexOf(":")==1){
+	}else if (hoursValue.indexOf(":") > -1){
 		valid = checkStr(hoursValue,":")
 		if(!valid){
 			var val = hoursValue.split(":");
@@ -1007,12 +1109,16 @@ function updateRemainingHr(day)
 	var rowCount = issueTable.rows.length;
 	var totalRow = issueTable.rows[rowCount-2];
 	var rmTimeRow = issueTable.rows[rowCount-1];
-	var totTime,cell,rmTimeCell,dayTt,remainingTm = 0;
+	var totTime= clktot ? clktot : "00:00:00",cell,rmTimeCell,dayTt,remainingTm = 0;
 	
-	totTime = getTotalTime(day);
-	
+	//totTime = getTotalTime(day);
+	if(document.getElementById('grandTotal_'+day))
+	{
+		totTime = document.getElementById('grandTotal_'+day) != null ? document.getElementById('grandTotal_'+day).value+":00" : totTime ;
+	}	
 	//cell = totalRow.cells[hStartIndex + day];
-	var day_total = document.getElementById('day_total_'+day);
+	totTime = timeStringToFloat(totTime);
+	var day_total = document.getElementById('day_total_'+day);	
 	dayTt = Number(day_total.innerHTML);	
 	rmTimeCell = rmTimeRow.cells[hStartIndex + day];
 	if(totTime >  0)
@@ -1024,19 +1130,34 @@ function updateRemainingHr(day)
 
 function getTotalTime(day)
 {
-	var minDiff = getMinDiff(day);			
+	var s = 0;
+	var minDiff = getMinDiff(day,s);			
 	//totTime = Math.round((minDiff/60)*100)/100;	
 	totTime = minDiff/60;
 	return totTime;
 }
 
 //Returns the minutes difference between start and end time
-function getMinDiff(day)
+function getMinDiff(day,s)
 {
 	var totTime,currDayTotal;
-	var st_min,end_min,minDiff;
-	st_min = getMinutes(day,'start_');
-	end_min = getMinutes(day,'end_');
+	var st_min,end_min,minDiff,minadd;
+	var start, end;
+	if(s == 0)
+	{
+		st_min = getMinutes(day,'start_');
+		end_min = getMinutes(day,'end_');		
+	}
+	else if(s == 2 )
+	{
+		st_min = getMinutes(day,'newstart_');
+		end_min = getMinutes(day,'newend_');		
+	}
+	else
+	{
+		st_min = getMinutes(day,'popupstart_');
+		end_min = getMinutes(day,'popupend_');
+	}
 	
 	if(st_min > end_min)
 	{
@@ -1049,7 +1170,7 @@ function getMinDiff(day)
 			end_min += 1440;
 		}
 	}
-	minDiff = end_min - st_min;
+	minDiff = end_min - st_min;	
 	return minDiff;
 }
 
@@ -1057,7 +1178,11 @@ function getMinDiff(day)
 function getMinutes(day,str)
 {
 	var fldVal,fldVal_min;
-	fldVal =  document.getElementById(str+day).value;		
+	fldVal =  document.getElementById(str+day).value;	
+	/*if(!fldVal)
+	{
+		fldVal = "00:00";
+	}*/	
 	fldVal = fldVal.split(":");
 	fldVal_min = (fldVal[0] * 60) + parseInt(fldVal[1]);	
 	return fldVal_min;
@@ -1069,7 +1194,8 @@ function updateTotalHr(day)
 	var issueTable = document.getElementById("issueTable");
 	var totTimeRow = issueTable.rows[3];
 	var tot_Hr = 0,tot_min = 0,totTime="";
-	var minDiff = getMinDiff(day);
+	var s =0;
+	var minDiff = getMinDiff(day,s);
 	
 	/*if(minDiff > 0)
 	{	*/	
@@ -1082,27 +1208,33 @@ function updateTotalHr(day)
 		else
 		{
 			totTime = tot_Hr + ":00";
-		};
-		
-		totHrCell = totTimeRow.cells[hStartIndex + day];		
-		totHrCell.innerHTML = totTime;
-	/*}*/
+		};		
+		//totHrCell = totTimeRow.cells[hStartIndex + day];
+		//totHrCell.innerHTML = totTime + "     <a href='javascript:showclkDialog("+i+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockin.png' border=0 title=''/></a>";
 }
 
 //Validates the start and end time
 function validateHr(hrFld,day)
 {		
 	var hrFldID = hrFld.id;
-	var hrVal = document.getElementById(hrFldID).value;	
-	
+	if(document.getElementById(hrFldID) != null)
+	{
+		var hrVal = document.getElementById(hrFldID).value;	
+	}
+	else
+	{
+		hrVal = hrFld;
+	}
 	if(hrVal == "")
 	{
 		hrFld.value = "0:00";
 		hrVal = "0:00";
 	}
 	
+	
 	if(hrVal.match(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/) == null)
 	{
+		hrFld.value = hrFld.defaultValue;
 		alert("Not a valid time format");
 	}
 	else
@@ -1178,4 +1310,432 @@ function getDefaultActId(actStr)
 		actId = actStr.substring(index+1);
 	}
 	return actId
+}
+
+
+function showclkDialog(day)
+{
+	var i;
+	for(i = 1; i < 8 ; i++)
+	{
+		if(day == i)
+		{
+			document.getElementById('img_'+ i).style.display = 'block';
+			$( "#clockInOut-dlg" ).dialog( "open" );
+		}
+		else
+		{
+			document.getElementById('img_'+ i).style.display = 'none';
+		}
+		
+	}
+}
+
+function setClockInOut(strid,id) {
+       var d = new Date();
+	   var hh = d.getHours();
+	   var mm = d.getMinutes();
+	   id++;
+	   elementhour = hh + ":" + mm;
+	   elementend = hh + ":" + mm;
+	   if( strid == 'start')
+	   {
+		  document.getElementById('clock_end' ).style.visibility = "visible";
+		  document.getElementById('clock_start').style.visibility = 'hidden';
+	   }
+	   else
+	   {
+		  document.getElementById('clock_start' ).style.visibility = "visible";
+		  document.getElementById('clock_end').style.visibility = 'hidden';
+	   }	   
+	   updateClockInOut(elementhour, strid, id, elementend );
+}
+
+function updateClockInOut(entrytime, strid, id, elementend){
+	var $this = $(this);		
+	var hours,start,end, hoursdiff,hiddenvalue;
+	elementid = document.getElementById('hd'+strid + '_' + id).value;
+	if(strid == "end")
+	{
+		start = document.getElementById('start_' + id).value;
+		end = elementend ;//document.getElementById('end_' + id).value;
+		hoursdiff = diff(start, end);		
+		timediff(id,hoursdiff, 'hoursstart_');
+		hiddenvalue = document.getElementById('hoursstart_' + id).value;
+		hours = timeStringToFloat(hiddenvalue);
+	}	
+	//var params = strid == 'start' ? {starttime: entrytime} 	: {endtime :entrytime, id: elementid, differences: hours };
+	var paramval = (strid == 'start' ? "|"+ id  : elementid ) + "|" +  (strid == 'end' ? start : entrytime) + "|" + (strid == 'end' ? entrytime : "") + "|" + (strid == 'end' ? hours : "") + ",";
+	updateAtt(paramval,false, strid, id);
+/*	$.ajax({
+		url: 'saveAttendance',
+		type: 'get',
+		data: params,
+		success: function(data){ hiddenClockInOut(data, strid, id); },  
+		complete: function(){ $this.removeClass('ajax-loading'); }
+	});		*/
+}
+
+function hiddenClockInOut(data,strid,id){
+	var array = data.split(',');
+	hdstart = document.getElementById('hdstart_' + id);
+	hdstart.value = strid == 'start' ? array[1] : array[0];
+	
+	hdend = document.getElementById('hdend_' + id);
+	hdend.value = strid == 'start' ? array[1] : array[0];
+	
+	elementid = document.getElementById(strid + '_' + id);
+	elementid.value = strid == 'start' ? array[2] : array[2];
+	if(strid == 'end')
+	{
+		totalClockInOut(id, 1);
+	}
+	updateRemainingHr(id);	
+	updateTotalHr(id); 
+	
+}
+
+function hoursClockInOut(s,id)
+{
+	
+	var startvalue,endvalue;
+	var tot_Hr = 0,tot_min = 0,totTime="";
+	var minDiff = getMinDiff(id,s);
+	
+		tot_Hr = parseInt(minDiff/60) ;
+		tot_Hr = isNaN(tot_Hr) ? 0 : tot_Hr;
+		tot_min = minDiff%60;
+		if (tot_min > 0)
+		{ 
+			totTime = tot_Hr + ":" + tot_min;
+		}
+		else
+		{
+			totTime = tot_Hr + ":00";
+		};	
+		
+		if(s == 1)
+		{
+			timediff(id,totTime, "total_");
+			totalClockInOut(-1, 3);
+			
+		}
+		else if( s == 0)
+		{
+			timediff(id,totTime, 'hoursstart_');
+			totalClockInOut(-1, 3);
+		}
+		else
+		{
+			timediff(id,totTime, 'newdiff_');
+		}
+}
+
+function timediff(id, totTime, str)
+{
+	var startval, endval, startBT,endBT;
+	var breakTime = new Array();
+	var breakValue = new Array();	
+	var count = 0, count1 = 0, count2 = 0  ;
+	var i =0, j = 0;
+	var minusdiff;
+	var oldtotal = "00:00:00" ;
+	if(str == "total_")
+	{
+	startval = document.getElementById("popupstart_" + id).value ;
+	endval = document.getElementById("popupend_" + id).value  ;
+	}
+	else if(str == "newdiff_")
+	{
+		startval = document.getElementById("newstart_" + id).value ;
+		endval = document.getElementById("newend_" + id).value  ;
+	}
+	else{
+		startval = document.getElementById("start_" + id).value ;
+		endval = elementend ;//document.getElementById("end_" + id).value  ;
+	}
+	if(startval && endval)
+	{					
+		breakTime = document.getElementById('break_time').value;
+		breakTime = breakTime.split(" ");	
+		var startBTime = new Array() ,endBTime = new Array();
+		for(i= 0; i < breakTime.length ; i++)
+		{				
+			breakValue =  breakTime[i].split('|');
+			startBTime[i]= breakValue[0] + ":" + breakValue[1] + ":00" ;
+			endBTime[i] = breakValue[2] + ":" + breakValue[3] + ":00";						
+		}
+		var diffbetween,diffbetween1, diffbetween4,diffbetween5;
+		var dbtotal , stdiff;				
+		startval += ":00";
+		endval += ":00";
+		for(j=0;j < startBTime.length ; j++)
+		{					
+			startBT = dateCompare(startval,startBTime[j],0);
+			endBT = dateCompare(endval,endBTime[j],0);
+			// calculate time from greater & less then break time and inbetween clock in/out
+			if((startBT == -1 && endBT == 1  ) || ( startBT == 0 && endBT == 0) || (startBT == 1 && endBT == -1  ) || 
+			(startBT == -1 && endBT == 0) || (startBT == 0 && endBT == 1) )  //|| (st1 == -1 && ed1 == -1  ) st ed
+			{
+				var oldval = stdiff;				
+				stdiff  = diff(startBTime[j],endBTime[j]);
+				if(count == 1)
+				{
+					stdiff = MinutesDifferent(oldval,stdiff,1);
+				}
+				count = 1;						
+				minusdiff = MinutesDifferent(totTime,stdiff,0);						
+				if (startBT == 1 && endBT == -1 ) 
+				{
+					minusdiff = "0:00";
+				}				
+				document.getElementById(str + id).value =  minusdiff;
+			}
+			else
+			{
+				if(count != 1)
+				{
+					//break time greater then clock out time					
+					diffbetween = dateCompare(endval,endBTime[j],1);
+					diffbetween1 = dateCompare(startBTime[j],endval,1);
+					if(diffbetween == 2 && diffbetween1 == 2)
+					{
+						count1 = 1;
+						dbtotal = MinutesDifferent(startBTime[j],startval, 0 );
+						document.getElementById(str + id).value =  dbtotal;
+					}
+					else{
+						if(count1 != 1 )
+						{
+							//break time less then clock in time							
+							diffbetween4 = dateCompare(startval,startBTime[j],2);
+							diffbetween5 = dateCompare(startval,endBTime[j],2);
+							if(diffbetween4 == 4 && diffbetween5 == 0)
+							{
+								count2 = 1;
+								dbtotal = MinutesDifferent(endval, endBTime[j], 0 );
+								document.getElementById(str + id).value =  dbtotal;
+							}
+							else
+							{								
+								if(count2 != 1)
+								{
+									document.getElementById(str + id).value = totTime;									
+									
+								}							
+							}
+							
+							
+						}
+					}
+					
+				}
+				
+			}				
+		}				
+	}		
+}
+
+function MinutesDifferent(totTime, stdiff, variation)
+{
+	var minutessdiff;   // minusdiff
+	var seconds,seconds1;	
+	var arr,arr1;
+	arr = totTime.split(':');	
+	arr1 = stdiff.split(':');
+	seconds = arr[0]*3600+arr[1]*60;
+	seconds1 = arr1[0]*3600+arr1[1]*60;
+	
+	if(variation == 1)
+	{
+		minutessdiff = seconds + seconds1;
+	}
+	else{
+		minutessdiff = seconds - seconds1;
+	}	 
+	var d;
+	d = Number(minutessdiff);
+	var h = Math.floor(d / 3600);
+	var m = Math.floor(d % 3600 / 60);
+	minutessdiff =  ((h > 0 ? h + ":" + (m < 10 ? "0" : "") : "") + (h > 0 ? m : ("0:" + m)) );
+	return minutessdiff;
+}
+
+function dateCompare(time1,time2,s) {
+  var t1 = new Date();
+  var parts = time1.split(":");
+  t1.setHours(parts[0],parts[1],parts[2],0);
+  var t2 = new Date();
+  parts = time2.split(":");
+  t2.setHours(parts[0],parts[1],parts[2],0);  
+  // returns 1 if greater, -1 if less and 0 if the same  
+  if(s == 1)
+  {
+	if (t1.getTime()<t2.getTime()) return 2;
+	if (t1.getTime()<t2.getTime()) return 3;  
+  }
+  else if (s == 2)
+  {
+	  if (t1.getTime() > t2.getTime()) return 4;
+	  if (t1.getTime() > t2.getTime()) return 5;
+  }
+  else if (s == 3)
+  {
+	  if (t1.getTime() > t2.getTime()) return 6;
+	  
+  }
+  else
+  {
+	  if (t1.getTime()>t2.getTime()) return 1;
+      if (t1.getTime()<t2.getTime()) return -1;
+  }
+  return 0;
+}
+
+function diff(start, end) {
+	var diffstart, diffend;
+    diffstart = start.split(":");   
+    diffend = end.split(":");
+    var startDate = new Date(0, 0, 0, diffstart[0], diffstart[1], 0);
+    var endDate = new Date(0, 0, 0, diffend[0], diffend[1], 0);
+    var difference = endDate.getTime() - startDate.getTime();
+    var hours = Math.floor(difference / 1000 / 60 / 60);
+    difference -= hours * 1000 * 60 * 60;
+    var minutes = Math.floor(difference / 1000 / 60);
+    
+    return (hours < 9 ? "0" : "") + hours + ":" + (minutes < 9 ? "0" : "") + minutes;
+}
+
+function totalClockInOut(id, flag)
+{
+	//when initially load the page update the dialog box  grand total
+	var splitid;
+	var totalsplitvalues;
+	var grandtotal = document.getElementById('grandtotal').value;
+	totalsplitvalues = grandtotal.split('|');	
+	var start,ch, tot;// = new Array();
+	var adding = 0;
+	var seconds;
+	var i = 0, j =1;
+	var clkdiff;
+	var gtflag = false;
+	if(document.getElementById('hoursstart_'+id) != null)
+	{
+		 clkdiff = document.getElementById('hoursstart_'+id).value;
+	}
+	for(i=0; i < totalsplitvalues.length ; i++)
+	{		
+		  for(j=0;j< totalsplitvalues[i].length && totalsplitvalues[i].length > 1; j++)
+		  {
+			  splitid = totalsplitvalues[i].split(',');
+			  var inval, outval;			 
+			  if(splitid[j])
+			  { 
+				// flag = true; 
+				 inval = document.getElementById('total_' + splitid[j]).value;
+				 start = inval.split(':');				 
+				 seconds = start[0]*3600+start[1]*60
+				 adding += seconds; 				
+			  }
+		  }
+		  if(ch != i )
+			{
+				addval[i] =  adding;
+				adding = 0;
+			}				 
+		  ch = i;			  
+		  if(addval[i])
+		  {	
+			var d;
+			d = Number(addval[i]);
+			var h = Math.floor(d / 3600);
+			var m = Math.floor(d % 3600 / 60);
+			addval[i] =  ((h > 0 ? h + ":" + (m < 10 ? "0" : "") : "") + (h > 0 ? m : ("0:" + m)) );
+			if(!flag )
+			{
+				addval[i] = MinutesDifferent(addval[i], clkdiff+":00", 1 );
+				flag = true;
+			}
+			document.getElementById('grandTotal_' + (i) ).value = addval[i];
+			updateRemainingHr(i)			
+		  }	 		  
+	}
+	if(flag == 1 )
+	{
+		var totalvalue = document.getElementById('grandtotal_'+id) != null ? document.getElementById('grandtotal_'+id).value+":00" : clktot;	
+	    tot = clktot != null ? MinutesDifferent(totalvalue, clkdiff+":00", 1 ) : clkdiff ;
+		clktot = tot;
+		addval[id] = clktot;
+		updateRemainingHr(id)
+	}
+	
+	if(flag == 2)
+	{
+		for( j =1; j < 8 ; j++)
+		{
+			if( document.getElementById('newTotal_'+j) != null)
+			{
+			addval[j] = document.getElementById('newTotal_'+j).value;
+			clktot = document.getElementById('newTotal_'+j).value;
+			updateRemainingHr(j);
+			clktot = "00:00:00";
+			}
+		}
+	}
+
+	for( j =1; j < 8 ; j++)
+	{
+		var issueTable = document.getElementById("issueTable");
+		var totTimeRow = issueTable.rows[3];		 
+		totHrCell = totTimeRow.cells[hStartIndex + j ];			
+		addval[j] = addval[j] ? addval[j] : "00:00"	;				
+		totHrCell.innerHTML = ( (flag == 1 && j == id) ? tot :  addval[j] ) + "     <a href='javascript:showclkDialog("+j+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockin.png' border=0 title=''/></a>";
+		
+	}
+	//}
+	
+}
+
+function timeStringToFloat(time) {
+  var hoursMinutes = time.split(/[.:]/);
+  var hours = parseInt(hoursMinutes[0], 10);
+  var minutes = hoursMinutes[1] ? parseInt(hoursMinutes[1], 10) : 0;
+  var originalval = hours + minutes / 60;
+  var result = Math.round(originalval*100)/100 
+  return result;
+}
+
+function updateAtt(param, diff,str,id)
+{
+	var datevalue = document.getElementById('startday').value;
+	var userid = document.getElementById('user_id').value;	
+	$.ajax({
+	url: 'updateAttendance',
+	type: 'get',
+	data: {editvalue : param, startdate : datevalue, user_id : userid},
+	success: function(data){ if(!diff){  hiddenClockInOut(data, str, id);}else{  newClockInOut(data); } },   
+	});
+}
+
+function newClockInOut(data)
+{
+	var savedata = data.split('|');
+	for(i=0;i<savedata.length; i++)
+	{
+		for(j=0;j< savedata[i].length ; j++)
+		  {
+			  columndata = savedata[i].split(',');
+			if(document.getElementById('hiddennewid_'+columndata[0]) != null && rowid != columndata[0] )
+			{
+				 document.getElementById('hiddennewid_'+columndata[0]).value = columndata[1];
+				document.getElementById('start_' + columndata[0]).value = columndata[2].slice(0, 5);
+				document.getElementById('end_' + columndata[0]).value = columndata[3].slice(0, 5);
+				rowid = columndata[0];
+				document.getElementById('hoursstart_'+columndata[0]).value = document.getElementById('newdiff_'+columndata[0]).value;
+				totalClockInOut(columndata[0], 2);				
+			}		
+		  }
+		
+	}
+	
 }

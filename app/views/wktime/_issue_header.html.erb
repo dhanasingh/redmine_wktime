@@ -23,8 +23,8 @@
 <% end %>
 <th></th>
 
-<% if controller.showWorktimeHeader %>
-
+<!--  if controller.showWorktimeHeader   -->
+	 <% if controller.showClockInOut %>
 <!-- Start, End and Total -->	
 
 	<%= render :partial => 'worktime_header', :locals => {:str => 'start', :isEditable => true, :value => '0:00'}%>

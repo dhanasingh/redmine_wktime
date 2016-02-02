@@ -32,7 +32,7 @@ class WkexpenseController < WktimeController
   end
   
   def getUnit(entry)
-	entry.nil? ? l('number.currency.format.unit') : entry[:currency]
+	entry.nil? ? number_currency_format_unit : entry[:currency]
   end
   
   def getUnitDDHTML
@@ -118,6 +118,10 @@ class WkexpenseController < WktimeController
 	def textfield_size
 	    6
 	end
+	
+	def showClockInOut
+		false
+	end
 private
   def getSpecificField
 	"amount"
@@ -139,7 +143,6 @@ private
 		query = query + " left outer join (select min( #{getDateSqlString('t.spent_on')} ) as min_spent_on, t.user_id as usrid from wk_expense_entries t, users u "
 		query = query + " where u.id = t.user_id and u.id in (#{ids}) group by t.user_id ) vw on vw.usrid = tmp3.user_id "
 		query = query + getWhereCond(status)
-		query = query + " order by tmp3.spent_on desc, tmp3.user_id "		
 	end
   
   def findBySql(query) 
@@ -148,15 +151,15 @@ private
 	@entry_count = result[0].id	
 	setLimitAndOffset()	
 	rangeStr = formPaginationCondition()
-	@entries = WkExpenseEntry.find_by_sql(query + rangeStr)
-	@unit = @entries.blank? ? l('number.currency.format.unit') : @entries[0][:currency]
+	@entries = WkExpenseEntry.find_by_sql(query + " order by tmp3.spent_on desc, tmp3.user_id " + rangeStr)
+	@unit = @entries.blank? ? number_currency_format_unit : @entries[0][:currency]
 	result = WkExpenseEntry.find_by_sql("select sum(v2." + spField + ") as " + spField + " from (" + query + ") as v2")	
 	@total_hours = result[0].amount
   end
   
-  def getTEAllTimeRange(ids)
-	teQuery = "select #{getDateSqlString('t.spent_on')} as startday " +
-			"from wk_expense_entries t where user_id in (#{ids}) group by startday order by startday"
+  def getTEAllTimeRange(ids)	
+	teQuery = "select v.startday from (select #{getDateSqlString('t.spent_on')} as startday " +
+				"from wk_expense_entries t where user_id in (#{ids})) v group by v.startday order by v.startday"
 	teResult = WkExpenseEntry.find_by_sql(teQuery)
   end
   

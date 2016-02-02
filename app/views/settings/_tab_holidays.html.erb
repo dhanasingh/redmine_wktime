@@ -14,7 +14,7 @@ selectListAlertMsg = "<%=l(:label_wk_select_holiday) %>";
 	<p>
 		<%= link_to "Add", "javascript:showDialog('Add');", :class => "button"%>  |
 		<%= link_to "Edit", "javascript:showDialog('Edit');", :class => "button"%>  |
-		<%= link_to "Delete", "javascript:removeSelectedValue();", :class => "button" %>
+		<%= link_to "Delete", "javascript:removeSelectedValue('settings_wktime_public_holiday');", :class => "button" %>
 	</p>
 	
 	<div id="holiday-dlg" title="<%= l(:label_wk_public_holiday) %>">

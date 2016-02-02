@@ -97,6 +97,7 @@ include QueriesHelper
 	@editable = false if @locked
 	set_edit_time_logs
 	@entries = findEntries()
+	@wkattendances  = findAttnEntries()
 	if !$tempEntries.blank?
 		newEntries = $tempEntries - @entries
 		if !newEntries.blank?
@@ -140,6 +141,7 @@ include QueriesHelper
 	@wktime = nil
 	errorMsg = nil
 	respMsg = nil	
+	wkattendance = nil
 	findWkTE(@startday)	
 	@wktime = getWkEntity if @wktime.nil?
 	allowApprove = false
@@ -158,7 +160,7 @@ include QueriesHelper
 	cvParams = wktimeParams[:custom_field_values] unless wktimeParams.blank?	
 	useApprovalSystem = (!Setting.plugin_redmine_wktime['wktime_use_approval_system'].blank? &&
 							Setting.plugin_redmine_wktime['wktime_use_approval_system'].to_i == 1)
-						
+							
 	@wktime.transaction do
 		begin				
 			if errorMsg.blank? && (!params[:wktime_save].blank? || !params[:wktime_save_continue].blank? ||
@@ -167,8 +169,8 @@ include QueriesHelper
 					@wktime.status = :n
 					# save each entry
 					entrycount=0
-					entrynilcount=0
-					@entries.each do |entry|					
+					entrynilcount=0	
+					@entries.each do |entry|			
 						entrycount += 1
 						entrynilcount += 1 if (entry.hours).blank?
 						allowSave = true
@@ -793,7 +795,7 @@ include QueriesHelper
 			user_cf_sql = @query.user_cf_statement('u') if !@query.blank?
 			queryStr = "select distinct u.* from users u " +
 						"left outer join #{entityNames[0]} w on u.id = w.user_id " +
-						"and (w.begin_date between '#{params[:from]}}' and '#{params[:to]}') " #+
+						"and (w.begin_date between '#{params[:from]}' and '#{params[:to]}') " #+
 						#"where u.id in (#{ids}) and w.status = 's'"
 			queryStr += " #{user_cf_sql} " if !user_cf_sql.blank?
 			queryStr += (!user_cf_sql.blank? ? " AND " : " WHERE ") + " u.id in (#{ids}) and w.status = 's' "
@@ -838,9 +840,80 @@ include QueriesHelper
 		end
 	end
 	
+	def updateAttendance		
+		paramvalues = Array.new
+		entryvalues = Array.new
+		ret = ""
+		paramvalues = params[:editvalue].split(',')	
+		for i in 0..paramvalues.length-1
+			entryvalues = paramvalues[i].split('|')
+			if !entryvalues[0].blank? #&& isAccountUser    
+				wkattendance =  WkAttendance.find(entryvalues[0])
+				entrydate = wkattendance.start_time
+				start_local = entrydate.localtime
+				starttime = start_local.change({ hour: entryvalues[1].to_time.strftime("%H"), min: entryvalues[1].to_time.strftime("%M"), sec: entryvalues[1].to_time.strftime("%S") })
+				if !entryvalues[2].blank?
+					endtime = start_local.change({ hour: entryvalues[2].to_time.strftime("%H"), min: entryvalues[2].to_time.strftime("%M"), sec: entryvalues[2].to_time.strftime("%S") })
+				end
+				wkattendance.start_time = starttime
+				wkattendance.end_time = endtime 
+				wkattendance.hours = entryvalues[3] 				
+			else
+				wkattendance = WkAttendance.new
+				@startday = Date.parse params[:startdate]
+				entrydate =  @startday  + ((entryvalues[1].to_i)- 1)
+				wkattendance.user_id = params[:user_id].to_i 
+				wkattendance.start_time = !entryvalues[2].blank? ? Time.parse("#{entrydate.to_s} #{ entryvalues[2].to_s}:00 ").localtime.to_s : '00:00'
+				if !entryvalues[3].blank?
+					wkattendance.end_time = Time.parse("#{entrydate.to_s} #{ entryvalues[3].to_s}:00 ").localtime.to_s
+					wkattendance.hours = entryvalues[4]
+				end
+				ret += '|'
+				ret += entryvalues[1].to_s
+				ret += ','
+			end
+			wkattendance.save()
+			ret += wkattendance.id.to_s
+			ret += ','
+			ret += ((wkattendance.start_time.localtime).to_formatted_s(:time)).to_s
+			ret += ','
+			ret += !((wkattendance.end_time)).blank? ?  ((wkattendance.end_time.localtime).to_formatted_s(:time)).to_s : '00:00'
+		end
+		respond_to do |format|
+			format.text  { render :text => ret }
+		end
+	end
+	
+	def showClockInOut
+		!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? &&
+		Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1
+	end
+	
+	def multipleClockInOut
+		dateStr = getConvertDateStr('start_time')
+		WkAttendance.where(" user_id = '#{params[:user_id]}' and #{dateStr} between '#{@startday}'  and '#{@startday + 6}' ").order("start_time")
+	end
+	
+	def getTotalBreakTime	
+		breakTimes = Setting.plugin_redmine_wktime['wktime_break_time']
+		totalBT = 0
+		if !breakTimes.blank?
+			breakTimes.each do |bt|
+				from_hr = bt.split('|')[0].strip
+				from_min = bt.split('|')[1].strip
+				to_hr = bt.split('|')[2].strip
+				to_min = bt.split('|')[3].strip
+				totalBT += (to_hr.to_i * 60 + to_min.to_i ) - (from_hr.to_i * 60 + from_min.to_i )			
+			end
+		end		
+		if totalBT > 0
+			totalBT = (totalBT/60.0)
+		end		
+		totalBT
+	end
 	
 private
-
+	
 	def getManager(user, approver)
 		hookMgr = call_hook(:controller_get_manager, {:user => user, :approver => approver})
 		mngrArr = [] #nil
@@ -972,7 +1045,7 @@ private
 	end
 	
 	def prevTemplate(user_id)	
-		prev_entries = nil		
+		prev_entries = nil
 		noOfWeek = Setting.plugin_redmine_wktime['wktime_previous_template_week']
 		
 		if !noOfWeek.blank?
@@ -1175,6 +1248,12 @@ private
 		findEntriesByCond(cond)
 	end
 	
+	def findAttnEntries
+		dateStr = getConvertDateStr('start_time')
+		dateOrder = getConvertDateStr('end_time')
+		WkAttendance.find_by_sql("select a.* from wk_attendances a inner join ( select max(start_time) as start_time,user_id from wk_attendances where #{dateStr}  between '#{@startday}'  and '#{@startday+6}' and user_id = #{params[:user_id]} group by #{dateStr},user_id ) vw on a.start_time = vw.start_time and a.user_id = vw.user_id order by a.start_time ")
+	end
+	
 	def findWkTE(start_date, end_date=nil)
 		setup
 		cond = getCondition('begin_date', @user.nil? ? nil : @user.id, start_date, end_date)
@@ -1205,7 +1284,15 @@ private
   
   def user_allowed_to?(privilege, entity)
 	setup
-	return @user.allowed_to?(privilege, entity)
+	hookPerm = call_hook(:controller_check_permission, {:params => params})
+	allow = false
+	if !hookPerm.blank? && (@user != User.current)
+		allow = hookPerm[0]
+	else
+		allow = User.current.allowed_to?(privilege, entity)
+	end
+	#return @user.allowed_to?(privilege, entity)
+	return allow
   end
   
   def can_log_time?(project_id)
@@ -1293,7 +1380,6 @@ private
 						entry.issue.blank?)
 					errorMsg = "#{l(:field_issue)} #{l('activerecord.errors.messages.blank')} "
 				end
-				
 				if !entry.save()
 					errorMsg = errorMsg.blank? ? entry.errors.full_messages : entry.errors.full_messages.unshift(errorMsg)
 					errorMsg = errorMsg.join("<br>")
@@ -1612,7 +1698,7 @@ private
 		#Martin Dube contribution: 'start of the week' configuration
 		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'	
 			wkSelectStr = wkSelectStr +", un.firstname + ' ' + un.lastname as status_updater "	
-			sqlStr += "(select  ROW_NUMBER() OVER (ORDER BY  " + sDay + " desc, user_id) AS rownum," + sDay + " as startday, "	
+			sqlStr += "(select " + sDay + " as startday, "	
 			sqlStr += " t.user_id, sum(t." + spField + ") as " + spField + " ,max(t.id) as id" + " from " + entityNames[1] + " t, users u" +
 				" where u.id = t.user_id and u.id in (#{ids})"
 			sqlStr += " and t.spent_on between '#{from}' and '#{to}'" unless from.blank? && to.blank?	
@@ -1643,34 +1729,34 @@ private
 		
 		query = "select tmp3.user_id, tmp3.spent_on, tmp3.#{spField}, tmp3.status, tmp3.status_updater, tmp3.created_on from (select tmp1.id as user_id, tmp1.created_on, tmp1.selected_date as spent_on, " + 
 				"case when tmp2.#{spField} is null then 0 else tmp2.#{spField} end as #{spField}, " +
-				"case when tmp2.status is null then 'e' else tmp2.status end as status, tmp2.status_updater from "
-		query = query + dtRangeForUsrSqlStr + " left join " + teSqlStr
-		query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids}) ) tmp3 "
+				"case when tmp2.status is null then 'e' else tmp2.status end as status, tmp2.status_updater "
+		query = query + " from " + dtRangeForUsrSqlStr + " left join " + teSqlStr
+		query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids})) tmp3 "
 		query = query + " left outer join (select min( #{getDateSqlString('t.spent_on')} ) as min_spent_on, t.user_id as usrid from time_entries t, users u "
 		query = query + " where u.id = t.user_id and u.id in (#{ids}) group by t.user_id ) vw on vw.usrid = tmp3.user_id "
 		query = query + getWhereCond(status)
-		query = query + " order by tmp3.spent_on desc, tmp3.user_id "
 	end
 	
-	def findBySql(query)
-		spField = getSpecificField()		
+	def findBySql(query)		
+		spField = getSpecificField()
 		result = TimeEntry.find_by_sql("select count(*) as id from (" + query + ") as v2")
-		@entry_count = result[0].id
+		@entry_count = result.blank? ? 0 : result[0].id
         setLimitAndOffset()		
 		rangeStr = formPaginationCondition()
 		
-		@entries = TimeEntry.find_by_sql(query + rangeStr)
+		@entries = TimeEntry.find_by_sql(query + " order by tmp3.spent_on desc, tmp3.user_id " + rangeStr )
 		@unit = nil
 		result = TimeEntry.find_by_sql("select sum(v2." + spField + ") as " + spField + " from (" + query + ") as v2")		
-		@total_hours = result[0].hours
+		@total_hours = result.blank? ? 0 : result[0].hours
 	end
 	
 	def getWhereCond(status)
 		current_date = getEndDay(Date.today)
+		dateStr = getConvertDateStr('tmp3.created_on')
 		query = "WHERE ((tmp3.spent_on between "
-		query = query + "case when vw.min_spent_on is null then #{getDateSqlString('date(tmp3.created_on)')} else vw.min_spent_on end "
+		query = query + "case when vw.min_spent_on is null then #{getDateSqlString(dateStr)} else vw.min_spent_on end "
 		query = query + "and '#{current_date}') OR "
-		query = query + "((tmp3.spent_on < case when vw.min_spent_on is null then #{getDateSqlString('date(tmp3.created_on)')} else vw.min_spent_on end "
+		query = query + "((tmp3.spent_on < case when vw.min_spent_on is null then #{getDateSqlString(dateStr)} else vw.min_spent_on end "
 		query = query + "and tmp3.status <> 'e') "
 		query = query + "OR (tmp3.spent_on > '#{current_date}' and tmp3.status <> 'e'))) "
 		if !status.blank?
@@ -1697,13 +1783,14 @@ private
 	end
 	
 	def getTEAllTimeRange(ids)
-		teQuery = "select #{getDateSqlString('t.spent_on')} as startday " +
-				"from time_entries t where user_id in (#{ids}) group by startday order by startday"
+		teQuery = "select v.startday from (select #{getDateSqlString('t.spent_on')} as startday " +
+				"from time_entries t where user_id in (#{ids})) v group by v.startday order by v.startday"
 		teResult = TimeEntry.find_by_sql(teQuery)
 	end
 	
 	def getUserAllTimeRange(ids)
-		usrQuery = "select date(min(created_on)) as startday from users where id in (#{ids})"
+		dateStr = getConvertDateStr('min(created_on)')
+		usrQuery = "select (#{dateStr}) as startday from users where id in (#{ids})"
 		usrResult = User.find_by_sql(usrQuery)
 	end
 	
@@ -1714,15 +1801,15 @@ private
 		@from = getStartDay(Date.today)
 		@to = currentWeekEndDay
 		if !teResult.blank? && teResult.size > 0
-			@from = teResult[0].startday
-			@to = teResult[teResult.size - 1].startday + 6			
+			@from = (teResult[0].startday).to_date
+			@to = (teResult[teResult.size - 1].startday).to_date + 6			
 			if currentWeekEndDay > @to
 				@to = currentWeekEndDay
 			end
 		end
 		if !usrResult.blank? && usrResult.size > 0
-			stDate = usrResult[0].startday
-			stDate = getStartDay(stDate) if !stDate.blank?
+			stDate = (usrResult[0].startday)
+			stDate = getStartDay(stDate.to_date) if !stDate.blank?
 			if (!stDate.blank? && stDate < @from)
 				@from = stDate
 			end
@@ -1883,19 +1970,9 @@ private
 	def formPaginationCondition
 		rangeStr = ""
 		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'				
-			#status = params[:status]
-			if !params[:tab].blank? && params[:tab] =='wkexpense'
-				status = session[:wkexpense][:status]
-			else
-				status = session[:wktimes][:status]
-			end
-			if !status.blank? && status != 'all'
-				rangeStr = " AND (rownum > " + @offset.to_s  + " AND rownum <= " + (@offset  + @limit ).to_s + ")"
-			else			
-				rangeStr =" WHERE rownum > " + @offset.to_s  + " AND rownum <= " + (@offset  + @limit ).to_s
-			end   
+			rangeStr = " OFFSET " + @offset.to_s + " ROWS FETCH NEXT " + @limit.to_s + " ROWS ONLY "
 		else		
-			rangeStr = 	" LIMIT " + @limit.to_s +	" OFFSET " + @offset.to_s
+			rangeStr = " LIMIT " + @limit.to_s +	" OFFSET " + @offset.to_s
 		end
 		rangeStr
 	end

@@ -97,8 +97,9 @@ currencySym = ""
 	<%=h hidden_field_tag('unit', currencySym) %>
 	</td>
 	</tr>	
-	
-	<% if controller.showWorktimeHeader %>
+	<%=h hidden_field_tag('hidden_clock_in_out', "" )  %>
+	<!--  if controller.showWorktimeHeader  -->
+	 <% if controller.showClockInOut %>
 		<!-- Remaining Hours -->
 		<%= render :partial => 'worktime_header', :locals => {:str => 'remaining_hours', :isEditable => false, :value => '0.0'}%>
 	<% end %>

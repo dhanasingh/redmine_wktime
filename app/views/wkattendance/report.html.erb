@@ -2,12 +2,10 @@
 <script type="text/javascript">
    wktimeIndexUrl = '<%=url_for(:controller => "wktime", :action => "index", :tab => "wktime")%>';
    wkexpIndexUrl = '<%=url_for(:controller => "wkexpense", :action => "index", :tab => "wkexpense")%>';   
-   wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "wkattendance")%>';    
+   wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "wkattendance")%>';     
    wkReportUrl = '<%=url_for(:controller => "wkattendance", :action => "report", :tab => "wkreport")%>'; 
 </script>
 
 <%= render_tabs time_expense_tabs %>
-
-<%= render :partial => 'wktime/te_index' %>
-
+<%= render :partial => 'report_index' %>
 <% html_title(l(:label_ta)) -%>

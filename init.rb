@@ -137,10 +137,10 @@ IssuesController.send(:include, IssuesControllerPatch)
 TimelogController.send(:include, TimelogControllerPatch)
 
 Redmine::Plugin.register :redmine_wktime do
-  name 'Time & Expense'
+  name 'Time & Attendance'
   author 'Adhi Software Pvt Ltd'
-  description 'This plugin is for entering Time & Expense'
-  version '2.0'
+  description 'This plugin is for entering Time & Attendance'
+  version '2.1'
   url 'http://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
   
@@ -184,10 +184,15 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_nonsub_sch_min' => '0',
 			 'wkexpense_projects' => [''],			
 			 'wktime_allow_filter_issue' => '0',
-			 'wktime_account_groups' => ['0']
+			 'wktime_account_groups' => ['0'],
+			 'wktime_enable_clock_in_out' => '0',
+			 'wktime_sick_leave_accrual' => '0',
+			 'wktime_paid_leave_accrual' => '0',
+			 'wktime_leave_accrual_after' => '0',
+			 'wktime_default_work_time' => '8'
   })  
  
-  menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_te, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 	
+  menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_ta, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 	
   project_module :time_tracking do
 	permission :approve_time_entries,  {:wktime => [:update]}, :require => :member	
   end
@@ -211,12 +216,27 @@ Rails.configuration.to_prepare do
 				end
 				scheduler.cron cronSt do		
 					begin
-						Rails.logger.info "==========Scheduler Started=========="			
+						Rails.logger.info "==========Non submission mail job - Started=========="			
 						wktime_helper = Object.new.extend(WktimeHelper)
 						wktime_helper.sendNonSubmissionMail()
 					rescue Exception => e
-						Rails.logger.info "Scheduler failed: #{e.message}"
+						Rails.logger.info "Job failed: #{e.message}"
 					end
+				end
+			end
+		end
+		if (!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? && Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1)
+			require 'rufus/scheduler'
+			scheduler2 = Rufus::Scheduler.new
+			#Scheduler will run at 12:01 AM on 1st of every month
+			cronSt = "01 00 01 * *"
+			scheduler2.cron cronSt do		
+				begin
+					Rails.logger.info "==========Attendance job - Started=========="			
+					wktime_helper = Object.new.extend(WktimeHelper)
+					wktime_helper.populateWkUserLeaves()
+				rescue Exception => e
+					Rails.logger.info "Job failed: #{e.message}"
 				end
 			end
 		end
@@ -232,16 +252,6 @@ class WktimeHook < Redmine::Hook::ViewListener
 				 raise "#{l(:label_warning_wktime_time_entry)}"
 			end			
 		end
-		# if !context[:time_entry].issue.blank? 
-		#	trackerid = wktime_helper.getAllowedTrackerId
-		#	if trackerid != ['0']
-		#		if ["#{context[:time_entry].issue.tracker.id}"] != trackerid
-		#			raise "#{l(:label_warning_wktime_issue_tracker)}"
-		#		end	
-		#	end
-		#elsif context[:time_entry].issue.blank? && trackerid != ['0'] 
-		#	raise "#{l(:label_warning_wktime_time_entry)}"
-		#end		
 	end
 	
 	def view_layouts_base_html_head(context={})	
@@ -260,11 +270,8 @@ class WktimeHook < Redmine::Hook::ViewListener
 	def showWarningMsg(req, user_id, log_time_page)
 		wktime_helper = Object.new.extend(WktimeHelper)
 		host_with_subdir = wktime_helper.getHostAndDir(req)
-		
-		
-
 		"<div id='divError'>
-			<font color='red'></font>			
+			<font color='red'></font>		
 		</div>
 		<input type='hidden' id='getstatus_url' value='#{url_for(:controller => 'wktime', :action => 'getStatus', :host => host_with_subdir, :only_path => true, :user_id => user_id)}'>
 		<input type='hidden' id='getissuetracker_url' value='#{url_for(:controller => 'wktime', :action => 'getTracker', :host => host_with_subdir, :only_path => true)}'>
