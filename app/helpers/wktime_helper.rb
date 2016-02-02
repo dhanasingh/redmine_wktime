@@ -884,7 +884,7 @@ end
 					#Reset					
 					lastMonth = (Date.civil(Date.today.year, Date.today.month, 1) - 1).month		
 					if (lastMonth == resetMonth["#{entry.issue_id}"].to_i)
-						no_of_holidays = 0 if no_of_holidays > 0
+						no_of_holidays = 0 if !no_of_holidays.blank? && no_of_holidays > 0
 					end				
 					userLeave = WkUserLeave.new
 					userLeave.user_id = entry.user_id
