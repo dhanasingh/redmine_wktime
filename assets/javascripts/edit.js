@@ -146,47 +146,49 @@ $(document).ready(function() {
 		}
 	});	
 	
-	//when initially load the page hidden the clock in Clock out button
-	var imgend,imghide,imgstart;
-	if(document.getElementById('imgdisable') != null && document.getElementById('end_img') != null &&  document.getElementById('start_img') != null)
-	{
-		imghide = document.getElementById('imgdisable').value;
-		imghide++;
-		if(document.getElementById('end_'+imghide) != null)
+	if(showWorkHeader) {
+		//when initially load the page hidden the clock in Clock out button
+		var imgend,imghide,imgstart;
+		if(document.getElementById('imgdisable') != null && document.getElementById('end_img') != null &&  document.getElementById('start_img') != null)
 		{
-		imgend = document.getElementById('end_'+imghide).value;
-		}
-		if(document.getElementById('start_'+imghide) != null)
+			imghide = document.getElementById('imgdisable').value;
+			imghide++;
+			if(document.getElementById('end_'+imghide) != null)
+			{
+			imgend = document.getElementById('end_'+imghide).value;
+			}
+			if(document.getElementById('start_'+imghide) != null)
+			{
+			imgstart = document.getElementById('start_'+imghide).value;
+			}
+			if( imgend == "00:00" && imgstart != "00:00" )
+			{
+					document.getElementById('clock_end').style.visibility = "visible";
+					document.getElementById('clock_start').style.visibility = 'hidden';
+			}
+			else
+			{
+				document.getElementById('clock_end').style.visibility = 'hidden';
+			}
+		}	
+		
+		//when initially load the page update the dialog box total
+		var textlength;
+		var paramval = "";
+		textlength = document.getElementById('textlength').value;
+		for(i=0; i < textlength ; i++)
 		{
-		imgstart = document.getElementById('start_'+imghide).value;
+			hoursClockInOut(1,i);
 		}
-		if( imgend == "00:00" && imgstart != "00:00" )
-		{
-				document.getElementById('clock_end').style.visibility = "visible";
-				document.getElementById('clock_start').style.visibility = 'hidden';
+		
+		totalClockInOut(-1, 3);
+		
+		// when initially load the page update total and remaininghours
+		for(i = 1; i <= 7; i++)
+		{		
+			updateRemainingHr(i);	
+			updateTotalHr(i);
 		}
-		else
-		{
-			document.getElementById('clock_end').style.visibility = 'hidden';
-		}
-	}	
-	
-	//when initially load the page update the dialog box total
-	var textlength;
-	var paramval = "";
-	textlength = document.getElementById('textlength').value;
-	for(i=0; i < textlength ; i++)
-	{
-		hoursClockInOut(1,i);
-	}
-	
-	totalClockInOut(-1, 3);
-	
-	// when initially load the page update total and remaininghours
-    for(i = 1; i <= 7; i++)
-	{		
-		updateRemainingHr(i);	
-		updateTotalHr(i);
 	}
 	
 });
