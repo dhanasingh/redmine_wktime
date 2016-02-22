@@ -105,6 +105,17 @@ Customization:
 	Here are the Customizations we have done for our clients:
 		1.	Monthly Calendar - Puny Human
 		2.	Supervisor Approvals - Fotonation
-
 		
-Please provide your rating at http://www.redmine.org/plugins/wk-time		
+Please provide your rating at http://www.redmine.org/plugins/wk-time
+	
+Resources:
+	User guide:
+	http://www.adhisoftware.co.in/wp-content/uploads/TE-User-Guide.pdf
+
+	Overview presentation in open office format:
+	http://www.adhisoftware.co.in/wp-content/uploads/TE-Overview.odp
+
+	Training Videos:
+	https://www.youtube.com/watch?v=BptCOCWgivY
+	https://www.youtube.com/watch?v=afdVgCj-TUc
+	https://www.youtube.com/watch?v=cTZ2FCqgdwQ
