@@ -127,22 +127,24 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 	def reportattn
 		dateStr = getConvertDateStr('start_time')
 		sqlStr = ""
+		leaveSql = "select u.id as user_id, i.id as issue_id, l.balance, l.accrual, l.used, l.accrual_on, lm.balance + lm.accrual - lm.used as open_bal from users u cross join (select id from issues where id in (#{getReportLeaveIssueIds})) i left join (#{getLeaveQueryStr(@from,@to)}) l on l.user_id = u.id and l.issue_id = i.id left join (#{getLeaveQueryStr(@from << 1,@from - 1)}) lm on lm.user_id = u.id and i.id = lm.issue_id"
 		if isAccountUser
 			@userlist = User.where("type = ?", 'User').order('id')
-			leave_data = WkUserLeave.where("issue_id in (#{getReportLeaveIssueIds}) and accrual_on between '#{@from}' and '#{@to}'")
+			#leave_data = WkUserLeave.where("issue_id in (#{getReportLeaveIssueIds}) and accrual_on between '#{@from}' and '#{@to}'")
 			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}'")
 			sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where start_time between '#{@from}' and '#{@to}' group by user_id,#{dateStr}"
 		else
 			@userlist = User.where("type = ? AND id = ?", 'User', User.current.id)
-			leave_data = WkUserLeave.where("issue_id in (#{getReportLeaveIssueIds}) and accrual_on between '#{@from}' and '#{@to}' and user_id = #{User.current.id} " )
+			#leave_data = WkUserLeave.where("issue_id in (#{getReportLeaveIssueIds}) and accrual_on between '#{@from}' and '#{@to}' and user_id = #{User.current.id} " )
 			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}' and user_id = #{User.current.id} " )
 			sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where start_time between '#{@from}' and '#{@to}' and user_id = #{User.current.id} group by user_id,#{dateStr}"
 		end
+		leave_data = WkUserLeave.find_by_sql(leaveSql)
 		daily_entries = WkAttendance.find_by_sql(sqlStr)
 		@attendance_entries = Hash.new
 		if !leave_data.blank?
 			leave_data.each_with_index do |entry,index|
-				@attendance_entries[entry.user_id.to_s + '_' + entry.issue_id.to_s + '_balance'] = entry.balance
+				@attendance_entries[entry.user_id.to_s + '_' + entry.issue_id.to_s + '_balance'] = entry.open_bal
 				@attendance_entries[entry.user_id.to_s + '_' + entry.issue_id.to_s + '_used'] = entry.used
 				@attendance_entries[entry.user_id.to_s + '_' + entry.issue_id.to_s + '_accrual'] = entry.accrual
 			end
@@ -158,6 +160,14 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 			end
 		end
 		render :action => 'reportattn'
+	end
+	
+	def getLeaveQueryStr(from,to)
+		queryStr = "select * from wk_user_leaves WHERE issue_id in (#{getLeaveIssueIds}) and accrual_on between '#{from}' and '#{to}'"
+		if !isAccountUser
+			queryStr = queryStr + " and user_id = #{User.current.id} "
+		end
+		queryStr
 	end
 	
 	# Retrieves the date range based on predefined ranges or specific from/to param dates

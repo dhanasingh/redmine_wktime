@@ -611,7 +611,7 @@ end
 					" inner join members m on p.id = m.project_id and p.status not in (#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})"  +
 					" inner join member_roles mr on m.id = mr.member_id" +
 					" inner join roles r on mr.role_id = r.id and r.permissions like '%:log_time%'" +
-					" inner join users u on m.user_id = u.id" +
+					" inner join users u on m.user_id = u.id and u.status = #{User::STATUS_ACTIVE}" +
 					" left outer join wktimes w on u.id = w.user_id and w.begin_date = '" + startDate.to_s + "'" +
 					" where (w.status is null or w.status = 'n')"			
 		
