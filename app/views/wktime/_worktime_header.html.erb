@@ -53,25 +53,27 @@
 		<% end %>
 							
 		<% if (isEditable) %>  			
-		<td>	
-			<div style="width: 3px; float: left; ">
-				<%=h text_field_tag( "#{str}_#{(i+1)}" , "#{str}" == "start" ? startvalue[i] : endvalue[i],:size => 3, :disabled =>  true, :class => (@startday + i).past? ? 'clock-textbox' : ((@startday + i).today? ? 'clock-todaytextbox' : '' ),  :onchange => "validateHr(this,#{(i+1)});") %>
+		<td class="hours">	
+			<div style="float: left; width: 75px;">
+			<div style="float: left;">
+				<%=h text_field_tag( "#{str}_#{(i+1)}" , "#{str}" == "start" ? startvalue[i] : endvalue[i],:size => 4, :disabled =>  true, :class => (@startday + i).past? ? 'clock-textbox' : ((@startday + i).today? ? 'clock-todaytextbox' : '' ),  :onchange => "validateHr(this,#{(i+1)});") %>
 			 	<%=h hidden_field_tag('hd' + "#{str}_#{(i+1)}", hiddenvalue[i] )  %>  
 				<%=h hidden_field_tag('hours' + "#{str}_#{(i+1)}", hiddenvalue[i] )  %>  
 			</div>
 			
 			<% if ("#{str}" == "start" || "#{str}" == "end") && controller.showClockInOut && (i == col_num) &&  User.current.id == @user.id   %>
 				<% imgname = "#{str}" == "start"  ? "clock8.jpg" : "clockout8.jpg" %>	
-				<div style="width: 3px; float: left;  padding-left: 51px;">				
+				<div style="float: left; padding-left: 2px;">		
 				<% image_tg = image_tag("#{imgname}", :id => "#{str}" == "start" ? 'start_img' : 'end_img' , :plugin => "redmine_wktime",  :title => "#{str}" == "start" ? l(:label_clock_in) : l(:label_clock_out) ) %>
 				<%= link_to image_tg, "javascript:setClockInOut('#{str}','#{col_num}');", {:id => "clock_#{str}"}  %>		
 				</div>
 				<div style="clear: both;"></div>
 			<% end %>
-			
+			<div style="clear: both;"></div>
+			</div>			
 		</td>
 		<% else %>			
-				<td style="width: 80px"></td>			
+				<td style="width: 75px;"></td>		
 		<% end %>
 	<% end %>
 	<td ></td>

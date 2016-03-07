@@ -1334,23 +1334,23 @@ function showclkDialog(day)
 }
 
 function setClockInOut(strid,id) {
-       var d = new Date();
-	   var hh = d.getHours();
-	   var mm = d.getMinutes();
-	   id++;
-	   elementhour = hh + ":" + mm;
-	   elementend = hh + ":" + mm;
-	   if( strid == 'start')
-	   {
-		  document.getElementById('clock_end' ).style.visibility = "visible";
-		  document.getElementById('clock_start').style.visibility = 'hidden';
-	   }
-	   else
-	   {
-		  document.getElementById('clock_start' ).style.visibility = "visible";
-		  document.getElementById('clock_end').style.visibility = 'hidden';
-	   }	   
-	   updateClockInOut(elementhour, strid, id, elementend );
+	var d = new Date();
+	var hh = d.getHours();
+	var mm = d.getMinutes();
+	id++;
+	elementhour = hh + ":" + mm;
+	elementend = hh + ":" + mm;
+	if( strid == 'start')
+	{
+	  document.getElementById('clock_end' ).style.visibility = "visible";
+	  document.getElementById('clock_start').style.visibility = 'hidden';
+	}
+	else
+	{
+	  document.getElementById('clock_start' ).style.visibility = "visible";
+	  document.getElementById('clock_end').style.visibility = 'hidden';
+	}
+	updateClockInOut(elementhour, strid, id, elementend );
 }
 
 function updateClockInOut(entrytime, strid, id, elementend){
@@ -1690,8 +1690,9 @@ function totalClockInOut(id, flag)
 		var issueTable = document.getElementById("issueTable");
 		var totTimeRow = issueTable.rows[3];		 
 		totHrCell = totTimeRow.cells[hStartIndex + j ];			
-		addval[j] = addval[j] ? addval[j] : "00:00"	;				
-		totHrCell.innerHTML = ( (flag == 1 && j == id) ? tot :  addval[j] ) + "     <a href='javascript:showclkDialog("+j+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockin.png' border=0 title=''/></a>";
+		addval[j] = addval[j] ? addval[j] : "00:00"	;	
+//TODO -- Move this to UI(HTML page)		
+		totHrCell.innerHTML = "<div style='float:left;'>" + ( (flag == 1 && j == id) ? tot :  addval[j] ) + "</div><div style='float:left;padding-left:10px;'><a href='javascript:showclkDialog("+j+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockin.png' border=0 title=''/></a></div>";
 		
 	}
 	//}
