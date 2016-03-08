@@ -81,16 +81,12 @@
 <%if showSlno %>
 	<td class="lbl-txt-align"><%=h index+1 %></td>
 <%else%>
-	<td class="lbl-txt-align"><%=h entry.custom_field_values.detect { |cfv| 
-				cfv.custom_field.id == Setting.plugin_redmine_wktime['wktime_attn_employee_id_cf'].to_i } %></td>
+	<td class="lbl-txt-align"><%=h entry.employee_id %></td>
 <%end%>
 <td class="lbl-txt-align"><%=h entry.firstname + " " + entry.lastname %></td>
-<td class="lbl-txt-align"><%=h entry.custom_field_values.detect { |cfv| 
-				cfv.custom_field.id == Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].to_i } %></td>
-<td class="lbl-txt-align"><%=h entry.custom_field_values.detect { |cfv| 
-				cfv.custom_field.id == Setting.plugin_redmine_wktime['wktime_attn_user_dob_cf'].to_i } %></td>
-<td class="lbl-txt-align"><%=h entry.custom_field_values.detect { |cfv| 
-				cfv.custom_field.id == Setting.plugin_redmine_wktime['wktime_attn_designation_cf'].to_i } %></td>
+<td class="lbl-txt-align"><%=h entry.joining_date %></td>
+<td class="lbl-txt-align"><%=h entry.date_of_birth %></td>
+<td class="lbl-txt-align"><%=h entry.designation %></td>
 <td class="lbl-txt-align"><%=h balance1 %></td>
 <td class="lbl-txt-align"><%=h balance2 %></td>
 <td class="lbl-txt-align"><%=h balance3 %></td>

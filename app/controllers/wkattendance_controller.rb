@@ -127,18 +127,16 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 	def reportattn
 		dateStr = getConvertDateStr('start_time')
 		sqlStr = ""
+		userSqlStr = getUserQueryStr
 		leaveSql = "select u.id as user_id, i.id as issue_id, l.balance, l.accrual, l.used, l.accrual_on, lm.balance + lm.accrual - lm.used as open_bal from users u cross join (select id from issues where id in (#{getReportLeaveIssueIds})) i left join (#{getLeaveQueryStr(@from,@to)}) l on l.user_id = u.id and l.issue_id = i.id left join (#{getLeaveQueryStr(@from << 1,@from - 1)}) lm on lm.user_id = u.id and i.id = lm.issue_id"
 		if isAccountUser
-			@userlist = User.where("type = ?", 'User').order('id')
-			#leave_data = WkUserLeave.where("issue_id in (#{getReportLeaveIssueIds}) and accrual_on between '#{@from}' and '#{@to}'")
 			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}'")
 			sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where start_time between '#{@from}' and '#{@to}' group by user_id,#{dateStr}"
 		else
-			@userlist = User.where("type = ? AND id = ?", 'User', User.current.id)
-			#leave_data = WkUserLeave.where("issue_id in (#{getReportLeaveIssueIds}) and accrual_on between '#{@from}' and '#{@to}' and user_id = #{User.current.id} " )
 			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}' and user_id = #{User.current.id} " )
 			sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where start_time between '#{@from}' and '#{@to}' and user_id = #{User.current.id} group by user_id,#{dateStr}"
 		end
+		@userlist = User.find_by_sql(userSqlStr)
 		leave_data = WkUserLeave.find_by_sql(leaveSql)
 		daily_entries = WkAttendance.find_by_sql(sqlStr)
 		@attendance_entries = Hash.new
@@ -160,6 +158,26 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 			end
 		end
 		render :action => 'reportattn'
+	end
+	
+	def getUserQueryStr
+		queryStr = "select u.id , u.firstname, u.lastname,cvt.value as termination_date, cvj.value as joining_date, " +
+			"cvdob.value as date_of_birth, cveid.value as employee_id, cvdesg.value as designation from users u " +
+			"left join custom_values cvt on (u.id = cvt.customized_id and cvt.custom_field_id = #{getSettingCfId('wktime_attn_terminate_date_cf')} ) " +
+			"left join custom_values cvj on (u.id = cvj.customized_id and cvj.custom_field_id = #{getSettingCfId('wktime_attn_join_date_cf')} ) " +
+			"left join custom_values cvdob on (u.id = cvdob.customized_id and cvdob.custom_field_id = #{getSettingCfId('wktime_attn_user_dob_cf')} ) " +
+			"left join custom_values cveid on (u.id = cveid.customized_id and cveid.custom_field_id = #{getSettingCfId('wktime_attn_employee_id_cf')} ) " +
+			"left join custom_values cvdesg on (u.id = cvdesg.customized_id and cvdesg.custom_field_id = #{getSettingCfId('wktime_attn_designation_cf')} ) " +
+			"where u.type = 'User' and (cvt.value is null or #{getConvertDateStr('cvt.value')} >= '#{@from}')"
+		if !isAccountUser
+			queryStr = queryStr + " and u.id = #{User.current.id} "
+		end
+		queryStr = queryStr + " order by u.created_on"
+	end
+	
+	def getSettingCfId(settingId)
+		cfId = Setting.plugin_redmine_wktime[settingId].blank? ? 0 : Setting.plugin_redmine_wktime[settingId].to_i
+		cfId
 	end
 	
 	def getLeaveQueryStr(from,to)

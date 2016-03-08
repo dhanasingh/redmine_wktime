@@ -162,6 +162,7 @@ en:
   label_difference: Differences
   label_grand_total:  Total Hours
   label_wk_attn_join_date:  Joining date
+  label_wk_attn_termination_date:  Termination date
   label_wk_attn_user_dob:  Date of birth
   label_wk_designation:  Designation
   label_employee_id:  Employee Id
