@@ -9,13 +9,13 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 
 	def index
 		sqlStr = ""
-		fromDate = Date.civil(Date.today.year, Date.today.month, 1) << 1
+		lastMonthStartDt = Date.civil(Date.today.year, Date.today.month, 1) << 1
 		if(Setting.plugin_redmine_wktime['wktime_leave'].blank?)
 			sqlStr = " select u.id as user_id, -1 as issue_id from users u where u.type = 'User' "
 		else
 			listboxArr = Setting.plugin_redmine_wktime['wktime_leave'][0].split('|')
 			issueId = listboxArr[0]
-			sqlStr = getQueryStr + " where i.id in (#{issueId}) and u.type = 'User' and (cvt.value is null or date(cvt.value) >= '#{fromDate}')"
+			sqlStr = getQueryStr + " where i.id in (#{issueId}) and u.type = 'User' and (cvt.value is null or date(cvt.value) >= '#{lastMonthStartDt}')"
 		end
 		if !isAccountUser
 			sqlStr = sqlStr + " and u.id = #{User.current.id} " 
@@ -109,16 +109,11 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 	
 	def getQueryStr
 		queryStr = ''
-		fromDate = Date.civil(Date.today.year, Date.today.month, 1) -1
+		lastAccrualOn = Date.civil(Date.today.year, Date.today.month, 1) -1
 		queryStr = "select u.id as user_id, i.id as issue_id,w.balance, w.accrual, w.used, w.accrual_on, w.id from users u " +
 			"left join custom_values cvt on (u.id = cvt.customized_id and cvt.custom_field_id = #{getSettingCfId('wktime_attn_terminate_date_cf')} ) " +
 			"cross join issues i left join wk_user_leaves w on w.user_id = u.id and w.issue_id = i.id
-			and w.accrual_on = '#{fromDate}'"
-		#"cross join issues i left join (SELECT wl.* FROM wk_user_leaves wl inner join"
-		#queryStr = queryStr + " ( select max(accrual_on) as accrual_on, user_id, issue_id from wk_user_leaves 
-			#group by user_id, issue_id) t"
-		#queryStr = queryStr + " on wl.user_id = t.user_id and wl.issue_id = t.issue_id 
-			#and wl.accrual_on = t.accrual_on) w on w.user_id = u.id and w.issue_id = i.id"
+			and w.accrual_on = '#{lastAccrualOn}'"
 		queryStr
 	end
 	
