@@ -7,6 +7,7 @@
 <th class="lbl-txt-align"><%= l(:field_user) %></th>
 <%
 	isAvailable = false
+	lastAccrualOn = Date.civil(Date.today.year, Date.today.month, 1) -1
 	isAvailable = true if @leave_entries[0].issue_id != -1 
 %>
 <% if isAvailable %>
@@ -19,12 +20,12 @@
 <% @leave_entries.each do |entry| -%>
 
 <tr class="time-entry <%= cycle("odd", "even") %>">
-<td class="lbl-txt-align"><%=h entry.user.name %></td>
+<td class="lbl-txt-align"><%=h entry.firstname + ' ' + entry.lastname%></td>
 <% if isAvailable %>
-<td class="lbl-txt-align"><%=h entry.balance %></td>
+<td class="lbl-txt-align"><%=h (entry.balance.blank? ? 0 : entry.balance) + (entry.accrual.blank? ? 0 : entry.accrual) - (entry.used.blank? ? 0 : entry.used) %></td>
 <% end %>
 <td align="center">
-    <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :user_id => entry.user_id, :tab => controller.controller_name},
+    <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :user_id => entry.user_id, :accrual_on => lastAccrualOn, :tab => controller.controller_name},
                                        :title => l(:button_edit) %>
 </td>
 </tr>

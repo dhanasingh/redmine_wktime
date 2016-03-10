@@ -11,7 +11,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		sqlStr = ""
 		lastMonthStartDt = Date.civil(Date.today.year, Date.today.month, 1) << 1
 		if(Setting.plugin_redmine_wktime['wktime_leave'].blank?)
-			sqlStr = " select u.id as user_id, -1 as issue_id from users u where u.type = 'User' "
+			sqlStr = " select u.id as user_id, u.firstname, u.lastname, -1 as issue_id from users u where u.type = 'User' "
 		else
 			listboxArr = Setting.plugin_redmine_wktime['wktime_leave'][0].split('|')
 			issueId = listboxArr[0]
@@ -24,7 +24,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 	end
 	
 	def edit
-		sqlStr = getQueryStr + " where i.id in (#{getLeaveIssueIds}) and u.type = 'User' and u.id = #{params[:user_id]}"
+		sqlStr = getQueryStr + " where i.id in (#{getLeaveIssueIds}) and u.type = 'User' and u.id = #{params[:user_id]} order by i.id"
 		@leave_details = WkUserLeave.find_by_sql(sqlStr)
 		render :action => 'edit'
 	end
@@ -33,6 +33,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		errorMsg =nil
 		wkuserleave = nil
 		ids = params[:ids]
+		accrualOn = params[:accrual_on]
 		newIssueIds = params[:new_issue_ids]
 		newIssueArr = newIssueIds.split(',')
 		userId = params[:user_id]
@@ -58,7 +59,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 			wkuserleave.balance = params["balance_"+issueId]
 			wkuserleave.accrual = params["accrual_"+issueId]
 			wkuserleave.used = params["used_"+issueId]
-			wkuserleave.accrual_on = Date.civil(Date.today.year, Date.today.month, 1) -1
+			wkuserleave.accrual_on = accrualOn #Date.civil(Date.today.year, Date.today.month, 1) -1
 			if !wkuserleave.save()
 				errorMsg = wkuserleave.errors.full_messages.join('\n')
 			end
@@ -109,11 +110,11 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 	
 	def getQueryStr
 		queryStr = ''
-		lastAccrualOn = Date.civil(Date.today.year, Date.today.month, 1) -1
-		queryStr = "select u.id as user_id, i.id as issue_id,w.balance, w.accrual, w.used, w.accrual_on, w.id from users u " +
+		accrualOn = params[:accrual_on].blank? ? Date.civil(Date.today.year, Date.today.month, 1) -1 : params[:accrual_on].to_s.to_date
+		queryStr = "select u.id as user_id, u.firstname, u.lastname, i.id as issue_id,w.balance, w.accrual, w.used, w.accrual_on, w.id from users u " +
 			"left join custom_values cvt on (u.id = cvt.customized_id and cvt.custom_field_id = #{getSettingCfId('wktime_attn_terminate_date_cf')} ) " +
 			"cross join issues i left join wk_user_leaves w on w.user_id = u.id and w.issue_id = i.id
-			and w.accrual_on = '#{lastAccrualOn}'"
+			and w.accrual_on = '#{accrualOn}'"
 		queryStr
 	end
 	

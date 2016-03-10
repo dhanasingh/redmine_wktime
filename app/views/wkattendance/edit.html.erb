@@ -1,18 +1,33 @@
 <h2><%= l(:label_wk_leave) + " " + l(:field_summary) %></h2>
 <%= form_tag({:controller => 'wkattendance', :action => 'update'}, :method => :post, :id => 'wkattendance_update') do %>
 	<%
-		accurual_entries = @leave_details.select{ |entry| !entry.accrual_on.blank? } 
-		if accurual_entries.blank?
-			accural_on = ""
-			user_data = User.find(params[:user_id])
-			user_name = user_data.firstname + " " + user_data.lastname
-		else
-			accural_on = accurual_entries[0].accrual_on.strftime("%B") + ", " + accurual_entries[0].accrual_on.strftime("%Y")
-			user_name = @leave_details[0].user.name
-		end
+		lastAccrualOn = Date.civil(Date.today.year, Date.today.month, 1) -1
+		accrual_on = params[:accrual_on].to_s.to_date
+		accrualOnStr = accrual_on.strftime("%B") + ", " + accrual_on.strftime("%Y")
+		user_name = @leave_details[0].firstname + ' ' + @leave_details[0].lastname
+		hasNext = accrual_on < lastAccrualOn
 	%>
-	<label><b><%= l(:field_user) + ": " %></b><%= user_name %></label><br>
-	<label><b><%= l(:label_wk_attn_for)  + ": " %></b><%= accural_on %></label><br>
+	<table>
+		<tr>
+			<th align="left"><%=l(:field_user)%></th>
+			<td><%=h user_name %></td>
+		</tr>
+		<tr>
+			<th align="left"><%=l(:label_wk_attn_for)%></th>
+			<td><%=h accrualOnStr %></td>
+		</tr>
+		<tr>	
+			<td colspan="2">
+				 <%= link_to("\xc2\xab " + l(:label_previous ), {:controller => controller.controller_name, :action => 'edit', :user_id => params[:user_id], :accrual_on => ((accrual_on + 1) << 1) -1, :tab => controller.controller_name},
+						  :title => l(:label_wk_prev_week_tip)) %>
+			<%if hasNext%>
+			  |
+			  <%= link_to(l(:label_next) + " \xc2\xbb", {:controller => controller.controller_name, :action => 'edit', :user_id => params[:user_id], :accrual_on => ((accrual_on + 1) >> 1) -1, :tab => controller.controller_name},
+						  :title => l(:label_wk_next_week_tip)) %> 
+			<%end%>
+			</td>
+		</tr>
+	</table>
 	<br>
 	<div  style="float:left;width=100%;">
 	<table class="list time-entries">
@@ -66,6 +81,8 @@
 	</div>
 	
 	<%=h hidden_field_tag('user_id', userId) %>
+	
+	<%=h hidden_field_tag('accrual_on', accrual_on) %>
 	
 	<%=h hidden_field_tag('new_issue_ids', newIssueIds) %>
 	
