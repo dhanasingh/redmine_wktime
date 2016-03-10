@@ -15,7 +15,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		else
 			listboxArr = Setting.plugin_redmine_wktime['wktime_leave'][0].split('|')
 			issueId = listboxArr[0]
-			sqlStr = getQueryStr + " where i.id in (#{issueId}) and u.type = 'User' and (cvt.value is null or date(cvt.value) >= '#{lastMonthStartDt}')"
+			sqlStr = getQueryStr + " where i.id in (#{issueId}) and u.type = 'User' and (cvt.value is null or #{getConvertDateStr('cvt.value')} >= '#{lastMonthStartDt}')"
 		end
 		if !isAccountUser
 			sqlStr = sqlStr + " and u.id = #{User.current.id} " 
