@@ -4,11 +4,22 @@
 	prevTab = 'tab-<%= "wkreport" %>';
 </script>
 <%= form_tag({:controller => controller_name, :action => 'report'}, :method => :get, :id => 'query_form') do %>
+<%
+	groupid =session[:wkattendance][:group_id]
+%>
 <div style="clear:both"></div>
 <table>
 <tr>
 <th><%= l(:label_report) + " " + l(:field_type) %> </th>
 <td><%= select_tag 'report_type', options_for_report_select, :style=> "width:200px;" %></td>
+<% if isAccountUser %>
+<th><%=l(:label_group_plural)%> </th>
+<td>
+	<%=h select_tag('group_id',
+	options_for_select( [[l(:label_all),0]] + (@groups.collect {|p| [p.name, p.id ]}),
+	:selected => !groupid.nil? ? groupid.to_i: 0), :style=> "width:300px;") %>
+</td>
+<% end %>
 </tr>
 </table>
 <%= render :partial => 'wkattendance/date_range' %>

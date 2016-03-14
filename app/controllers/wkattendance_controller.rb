@@ -24,7 +24,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 	end
 	
 	def edit
-		sqlStr = getQueryStr + " where i.id in (#{getLeaveIssueIds}) and u.type = 'User' and u.id = #{params[:user_id]} order by i.id"
+		sqlStr = getQueryStr + " where i.id in (#{getLeaveIssueIds}) and u.type = 'User' and u.id = #{params[:user_id]} order by i.subject"
 		@leave_details = WkUserLeave.find_by_sql(sqlStr)
 		render :action => 'edit'
 	end
@@ -119,6 +119,12 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 	end
 	
 	def report
+		@groups = Group.sorted.all
+		if params[:searchlist].blank? && session[:wkattendance].nil?
+			session[:wkattendance] = {:group_id => params[:group_id]}
+		elsif params[:searchlist] =='wkreport'
+			session[:wkattendance][:group_id] = params[:group_id]
+		end
 		retrieve_date_range
 		if params[:report_type] == 'attendance_report'
 			reportattn
@@ -126,10 +132,26 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 	end
 	
 	def reportattn
+		if !params[:group_id].blank?
+			group_id = params[:group_id]
+		else
+			group_id = session[:wkattendance][:group_id]
+		end
+		if group_id.blank?
+			group_id = 0
+		end	
 		dateStr = getConvertDateStr('start_time')
 		sqlStr = ""
-		userSqlStr = getUserQueryStr
-		leaveSql = "select u.id as user_id, i.id as issue_id, l.balance, l.accrual, l.used, l.accrual_on, lm.balance + lm.accrual - lm.used as open_bal from users u cross join (select id from issues where id in (#{getReportLeaveIssueIds})) i left join (#{getLeaveQueryStr(@from,@to)}) l on l.user_id = u.id and l.issue_id = i.id left join (#{getLeaveQueryStr(@from << 1,@from - 1)}) lm on lm.user_id = u.id and i.id = lm.issue_id"
+		userSqlStr = getUserQueryStr(group_id)
+		leaveSql = "select u.id as user_id, gu.group_id, i.id as issue_id, l.balance, l.accrual, l.used, l.accrual_on," + 
+		" lm.balance + lm.accrual - lm.used as open_bal from users u" + 
+		" left join groups_users gu on (gu.user_id = u.id and gu.group_id = #{group_id})" + 
+		" cross join (select id from issues where id in (#{getReportLeaveIssueIds})) i" + 
+		" left join (#{getLeaveQueryStr(@from,@to)}) l on l.user_id = u.id and l.issue_id = i.id" + 
+		" left join (#{getLeaveQueryStr(@from << 1,@from - 1)}) lm on lm.user_id = u.id and i.id = lm.issue_id"
+		if group_id.to_i > 0
+			leaveSql = leaveSql + " Where gu.group_id is not null"
+		end
 		if isAccountUser
 			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}'")
 			sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where start_time between '#{@from}' and '#{@to}' group by user_id,#{dateStr}"
@@ -161,15 +183,19 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		render :action => 'reportattn'
 	end
 	
-	def getUserQueryStr
-		queryStr = "select u.id , u.firstname, u.lastname,cvt.value as termination_date, cvj.value as joining_date, " +
+	def getUserQueryStr(group_id)
+		queryStr = "select u.id , gu.group_id, u.firstname, u.lastname,cvt.value as termination_date, cvj.value as joining_date, " +
 			"cvdob.value as date_of_birth, cveid.value as employee_id, cvdesg.value as designation from users u " +
+			"left join groups_users gu on (gu.user_id = u.id and gu.group_id = #{group_id}) " +
 			"left join custom_values cvt on (u.id = cvt.customized_id and cvt.custom_field_id = #{getSettingCfId('wktime_attn_terminate_date_cf')} ) " +
 			"left join custom_values cvj on (u.id = cvj.customized_id and cvj.custom_field_id = #{getSettingCfId('wktime_attn_join_date_cf')} ) " +
 			"left join custom_values cvdob on (u.id = cvdob.customized_id and cvdob.custom_field_id = #{getSettingCfId('wktime_attn_user_dob_cf')} ) " +
 			"left join custom_values cveid on (u.id = cveid.customized_id and cveid.custom_field_id = #{getSettingCfId('wktime_attn_employee_id_cf')} ) " +
 			"left join custom_values cvdesg on (u.id = cvdesg.customized_id and cvdesg.custom_field_id = #{getSettingCfId('wktime_attn_designation_cf')} ) " +
 			"where u.type = 'User' and (cvt.value is null or #{getConvertDateStr('cvt.value')} >= '#{@from}')"
+		if group_id.to_i > 0
+			queryStr = queryStr + " and gu.group_id is not null"
+		end
 		if !isAccountUser
 			queryStr = queryStr + " and u.id = #{User.current.id} "
 		end
@@ -271,7 +297,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		respond_to do |format|
 			format.text  { render :text => project_id }
 		end
-	end	
+	end
 
 	def setLimitAndOffset		
 		if api_request?
