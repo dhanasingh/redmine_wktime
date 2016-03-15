@@ -844,25 +844,41 @@ include QueriesHelper
 		paramvalues = Array.new
 		entryvalues = Array.new
 		ret = ""
+		count = 0
+		oldendvalue = ""
 		paramvalues = params[:editvalue].split(',')	
+		if (params[:nightshift] == "false")
+			count = 1
+		end
 		for i in 0..paramvalues.length-1
 			entryvalues = paramvalues[i].split('|')
+			begin
 			if !entryvalues[0].blank? #&& isAccountUser    
 				wkattendance =  WkAttendance.find(entryvalues[0])
 				entrydate = wkattendance.start_time
 				start_local = entrydate.localtime
 				starttime = start_local.change({ hour: entryvalues[1].to_time.strftime("%H"), min: entryvalues[1].to_time.strftime("%M"), sec: entryvalues[1].to_time.strftime("%S") })
+				oldendvalue = entryvalues[2]
+				if (params[:nightshift] == "true")
+					entryvalues[2] = "23:59"
+				end
 				if !entryvalues[2].blank?
 					endtime = start_local.change({ hour: entryvalues[2].to_time.strftime("%H"), min: entryvalues[2].to_time.strftime("%M"), sec: entryvalues[2].to_time.strftime("%S") })
 				end
 				wkattendance.start_time = starttime
 				wkattendance.end_time = endtime 
-				wkattendance.hours = entryvalues[3] 				
+				wkattendance.hours = entryvalues[3] 
+				entryvalues[0] = params[:nightshift] ? '' : entryvalues[0]
 			else
 				wkattendance = WkAttendance.new
 				@startday = Date.parse params[:startdate]
-				entrydate =  @startday  + ((entryvalues[1].to_i)- 1)
-				wkattendance.user_id = params[:user_id].to_i 
+				if(params[:nightshift] == "true")
+					entryvalues[1] = entryvalues[5]
+					entryvalues[2] = "00:00"
+					entryvalues[3] = oldendvalue										
+				end
+				entrydate =  @startday  +  ((entryvalues[1].to_i)- 1)
+				wkattendance.user_id = params[:user_id].to_i 				
 				wkattendance.start_time = !entryvalues[2].blank? ? Time.parse("#{entrydate.to_s} #{ entryvalues[2].to_s}:00 ").localtime.to_s : '00:00'
 				if !entryvalues[3].blank?
 					wkattendance.end_time = Time.parse("#{entrydate.to_s} #{ entryvalues[3].to_s}:00 ").localtime.to_s
@@ -871,8 +887,10 @@ include QueriesHelper
 				ret += '|'
 				ret += entryvalues[1].to_s
 				ret += ','
-			end
+				count = 1
+			end		
 			wkattendance.save()
+			end until count == 1
 			ret += wkattendance.id.to_s
 			ret += ','
 			ret += ((wkattendance.start_time.localtime).to_formatted_s(:time)).to_s
@@ -1116,8 +1134,8 @@ private
 								end
 								#timeEntry.hours = hours[j].blank? ? nil : hours[j].to_f
 								#to allow for internationalization on decimal separator
-								#setValueForSpField(teEntry,hours[j],decimal_separator,entry)
-								teEntry.hours = hours[j].blank? ? nil : hours[j]#.to_f
+								setValueForSpField(teEntry,hours[j],decimal_separator,entry)
+								#teEntry.hours = hours[j].blank? ? nil : hours[j]#.to_f
 								
 								unless custom_fields.blank?
 									teEntry.custom_field_values.each do |custom_value|
@@ -1828,11 +1846,12 @@ private
 	end
 	
 	def setValueForSpField(teEntry,spValue,decimal_separator,entry)
-		if (!spValue.blank? && is_number(spValue.gsub(decimal_separator, '.')))
-			teEntry.hours = spValue.gsub(decimal_separator, '.').to_f
-		else
-			teEntry.hours = nil
-		end		
+		teEntry.hours = spValue.blank? ? nil : spValue.to_hours
+		#if (!spValue.blank? && is_number(spValue.gsub(decimal_separator, '.')))
+		#	teEntry.hours = spValue.gsub(decimal_separator, '.').to_f
+		#else
+		#	teEntry.hours = nil
+		#end		
 	end
 	
 

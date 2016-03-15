@@ -180,3 +180,4 @@ fr:
   label_wk_register_for_shops: REGISTER OF EMPLOYMENT FOR SHOPS AND ESTABLISHMENTS
   label_wk_name_address: Name and Address of the Establishment
   label_date_of_entry_into_service: Date of entry into service
+  label_hours_note: "Note: Please enter time in 24 hours format."

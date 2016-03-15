@@ -100,9 +100,10 @@
 	<div id="clockInOut-dlg" title="<%= l(:label_wk_attendance) %>">
 		<fieldset>
 			 <table >
-				 <th  style="width: 80px;"><label><%= l(:label_clock_in) %></label></th> 
+			 <tr></tr>
+				<tr> <th  style="width: 80px;"><label><%= l(:label_clock_in) %></label></th> 
 				 <th style="width: 80px;"><label><%= l(:label_clock_out) %></label></th>
-				 <th style="width: 80px;"> <label><%= l(:label_difference) %></label></th>
+				 <th style="width: 80px;"> <label><%= l(:label_difference) %></label></th></tr>
 				<tbody>
 					</tbody>
 			</table>
@@ -156,12 +157,13 @@
 							</table>							
 							<p style = "padding-left: 90px;">						
 							<%= hidden_field_tag "newTotal_#{i}"  , "" , :size => 4, :disabled => disable %></p>
-					<% end %>
+					<% end %>					
 				</div>					
 			<% end %>
 			<%=h hidden_field_tag("textlength", l )  %>	
-			<%=h hidden_field_tag("grandtotal", totalvalue )  %>	
+			<%=h hidden_field_tag("grandtotal", totalvalue )  %>			
 		</fieldset>
+		<%= l(:label_hours_note) %>
 	</div>
 		
 <%= render :partial => 'row_template' %>

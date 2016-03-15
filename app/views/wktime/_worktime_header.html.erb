@@ -45,11 +45,27 @@
 			<% endvalue[j] = '00:00' %>
 			<% hiddenvalue[j] = '' %>
 		<% end %>	
-	<% end %>	
+	<% end %>
+	<% nightclkout = false %>
+	<% count = 0 %>
+	<% futureTime = Time.now %>
+	<% currentTime = Time.now %>	
 	<% for i in 0..6%>	
 		<% if (@startday + i) == Date.today %>
-			<% col_num = i %>			
-			<%=h hidden_field_tag('imgdisable',  col_num )  %>			
+			<% col_num = i %>
+			<% @wkmultiple = controller.multipleClockInOut %>
+			<% @wkmultiple.each do |entry| %>
+				<% multipleid = (entry.start_time.localtime).strftime('%Y-%m-%d') %>
+				<%  if multipleid.to_s.to_date.wday == (@startday + (i-1)).wday && count != 1   %>
+					<% futureTime = (entry.start_time.localtime)+1440.minutes %>
+					<% count = 1 %>
+				<% end %>
+			<% end %>
+			<%  if (endvalue[i-1] == '00:00' && startvalue[i-1] != '00:00') && (@startday + (i-1)) == Date.yesterday && futureTime.to_i > currentTime.to_i   %>
+				<% nightclkout = true %>
+				<%=h hidden_field_tag('nightshift' , nightclkout  )  %>  
+			<% end %>			
+			<%=h hidden_field_tag('imgdisable',  !nightclkout ? col_num : col_num-1 )  %>	
 		<% end %>
 							
 		<% if (isEditable) %>  			
@@ -57,15 +73,15 @@
 			<div style="float: left; width: 75px;">
 			<div style="float: left;">
 				<%=h text_field_tag( "#{str}_#{(i+1)}" , "#{str}" == "start" ? startvalue[i] : endvalue[i],:size => 4, :disabled =>  true, :class => (@startday + i).past? ? 'clock-textbox' : ((@startday + i).today? ? 'clock-todaytextbox' : '' ),  :onchange => "validateHr(this,#{(i+1)});") %>
-			 	<%=h hidden_field_tag('hd' + "#{str}_#{(i+1)}", hiddenvalue[i] )  %>  
-				<%=h hidden_field_tag('hours' + "#{str}_#{(i+1)}", hiddenvalue[i] )  %>  
+			 	<%=h hidden_field_tag('hd' + "#{str}_#{(i+1)}", !nightclkout ? hiddenvalue[i] : hiddenvalue[i-1] )  %>  
+				<%=h hidden_field_tag('hours' + "#{str}_#{(i+1)}", !nightclkout ? hiddenvalue[i] : hiddenvalue[i-1] )  %>  
 			</div>
 			
 			<% if ("#{str}" == "start" || "#{str}" == "end") && controller.showClockInOut && (i == col_num) &&  User.current.id == @user.id   %>
 				<% imgname = "#{str}" == "start"  ? "clock8.jpg" : "clockout8.jpg" %>	
 				<div style="float: left; padding-left: 2px;">		
 				<% image_tg = image_tag("#{imgname}", :id => "#{str}" == "start" ? 'start_img' : 'end_img' , :plugin => "redmine_wktime",  :title => "#{str}" == "start" ? l(:label_clock_in) : l(:label_clock_out) ) %>
-				<%= link_to image_tg, "javascript:setClockInOut('#{str}','#{col_num}');", {:id => "clock_#{str}"}  %>		
+				<%= link_to image_tg, "javascript:setClockInOut('#{str}','#{!nightclkout ? col_num : col_num-1}');", {:id => "clock_#{str}"}  %>		
 				</div>
 				<div style="clear: both;"></div>
 			<% end %>
