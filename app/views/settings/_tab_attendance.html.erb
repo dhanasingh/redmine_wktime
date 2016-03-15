@@ -96,14 +96,11 @@ lblYear = "<%=l(:label_year) %>";
 		else
 			issueslist = Array.new
 			issueslist << [ "", 0]
-		end
-		project_list = Project.order('name')
-		unless project_list.blank?
-			projectlist = project_list.collect {|project| [project.name, project.id] }
-		else
-			projectlist = Array.new
-			projectlist << [ "", 0]
-		end
+		end		
+		projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name')
+		wktime_helper = Object.new.extend(WktimeHelper)
+		projArr = wktime_helper.options_for_wktime_project(projects,false)
+		
 		if(@settings['wktime_leave'].blank?)
 			leave = ''
 		else
@@ -130,33 +127,35 @@ lblYear = "<%=l(:label_year) %>";
 		</p>
 	
 	<div id="leave-dlg" title="<%= l(:label_wk_leave) %>">
-		<p>
-			<span style="margin-left:2.3em;"></span><label><%= l(:label_project) %></label><span style="margin-left:0.8em;"></span>
-			<%=h select_tag('leave_project', 
-			options_for_select(projectlist),:onchange => "projectChanged(this,-1);") %>								   	
-		</p>
-		<p>
-			<label><%= l(:label_wk_leave_issue) %></label><span style="margin-left:0.8em;"></span>
-			<%=h select_tag('leave_issue', 
-			options_for_select(issueslist)) %>								   	
-		</p>
-		<p>
-			<label><%= l(:label_wk_leave_short_name) %></label><span style="margin-left:1.3em;"></span><%= text_field_tag 'wk_leave_short_name','', :size => 5, :maxlength => 4 %>
-		</p>
-		<p>
-			<span style="margin-left:2.3em;"></span><label><%= l(:label_wk_leave_accrual) %></label><span style="margin-left:1.0em;"></span><%= text_field_tag('leave_accrual','', :size => 2.5, :maxlength => 3) %>&nbsp<%= l(:label_hours_per_month) %>		
-		</p>
-		<p>
-			<label><%= l(:label_wk_leave_accrual_after) %></label><span style="margin-left:0.5em;"></span><%= text_field_tag 'leave_accrual_after','', :size => 2.5, :maxlength => 3 %>&nbsp<%= l(:label_year) %>
-		</p>
-		<p>
-			<label><%= l(:button_reset) %> <%= l(:label_month) %></label><span style="margin-left:0.4em;"></span>
-			<%=h select_tag('wk_attn_leave_reset_month', 
-			options_for_select(l('date.month_names').collect.with_index.to_a)) %>								   	
-		</p>
-		<p>
-			<%= hidden_field_tag :hdnAction, "" %>
-		</p>
+		<table>
+			<tr>
+				<th align="left"><label><%= l(:label_project) %></label></th>
+				<td class="project" align="left"><%=h select_tag('leave_project', options_for_select(projArr),:onchange => "projectChanged(this,-1);") %></td>
+			</tr>
+			<tr>
+				<th align="left"><label><%= l(:label_wk_leave_issue) %></label><span style="margin-left:0.8em;"></span></th>
+				<td class="issue" align="left"><%=h select_tag('leave_issue', options_for_select(issueslist)) %></td>
+			</tr>
+			<tr>
+				<th align="left"><label><%= l(:label_wk_leave_short_name) %></label></th>
+				<td><%= text_field_tag 'wk_leave_short_name','', :size => 4, :maxlength => 4 %></td>
+			</tr>
+			<tr>
+				<th align="left"><label><%= l(:label_wk_leave_accrual) %></label></th>
+				<td><%= text_field_tag('leave_accrual','', :size => 2.5, :maxlength => 3) %>&nbsp<%= l(:label_hours_per_month) %></td>		
+			</tr>
+			<tr>
+				<th align="left"><label><%= l(:label_wk_leave_accrual_after) %></label></th>
+				<td><%= text_field_tag 'leave_accrual_after','', :size => 2.5, :maxlength => 3 %>&nbsp<%= l(:label_year) %></td>
+			</tr>
+			<tr>
+				<th align="left"><label><%= l(:button_reset) %> <%= l(:label_month) %></label></th>
+				<td><%=h select_tag('wk_attn_leave_reset_month', options_for_select(l('date.month_names').collect.with_index.to_a)) %></td>								   	
+			</tr>
+			<tr>
+				<%= hidden_field_tag :hdnAction, "" %>
+			</tr>
+		</table>
 	</div>
 	<%
 		custom_fields = UserCustomField.order('name')
