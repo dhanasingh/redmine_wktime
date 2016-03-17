@@ -1,12 +1,14 @@
-<h2><%= l(:label_wk_leave) + " " + l(:field_summary) %></h2>
+
 <%= form_tag({:controller => 'wkattendance', :action => 'update'}, :method => :post, :id => 'wkattendance_update') do %>
 	<%
 		lastAccrualOn = Date.civil(Date.today.year, Date.today.month, 1) -1
 		accrual_on = params[:accrual_on].to_s.to_date
 		accrualOnStr = accrual_on.strftime("%B") + ", " + accrual_on.strftime("%Y")
-		user_name = @leave_details[0].firstname + ' ' + @leave_details[0].lastname
+		user_name = @leave_details[0].firstname + ' ' + @leave_details[0].lastname if !@leave_details[0].blank?
 		hasNext = accrual_on < lastAccrualOn
 	%>
+	<%if !@leave_details[0].blank?%>
+	<h2><%= l(:label_wk_leave) + " " + l(:field_summary) %></h2>
 	<table>
 		<tr>
 			<th align="left"><%=l(:field_user)%></th>
@@ -79,7 +81,9 @@
 	<br>
 	<span style="margin-left:25.0em;"></span><%= submit_tag l(:button_save), :hidden => disable, :id => 'wkattendance_save', :disabled => disable %>
 	</div>
-	
+	<%else%>
+		<th><b><%= l(:label_no_leaves_configured) %></b></th>
+	<%end%>
 	<%=h hidden_field_tag('user_id', userId) %>
 	
 	<%=h hidden_field_tag('accrual_on', accrual_on) %>

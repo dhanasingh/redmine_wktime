@@ -28,11 +28,17 @@
 <%
 	isAvailable = false
 	lastAccrualOn = Date.civil(Date.today.year, Date.today.month, 1) -1
-	isAvailable = true if !@leave_entries[0].blank? && @leave_entries[0].issue_id != -1 
+	isAvailable = true if(!Setting.plugin_redmine_wktime['wktime_leave'].blank?)
 %>
-<% if isAvailable %>
-<th class="lbl-txt-align"><%= @leave_entries[0].issue.subject %></th>
-<% end %>
+<% if isAvailable 
+	Setting.plugin_redmine_wktime['wktime_leave'].each_with_index do |element,index|
+		if index < 5
+		  listboxArr = element.split('|') %>
+		  <th class="lbl-txt-align"><%= Issue.find(listboxArr[0]).subject %></th>
+		  <%
+		end
+	end
+end %>
 <th></th>
 </tr>
 </thead>
@@ -41,9 +47,16 @@
 
 <tr class="time-entry <%= cycle("odd", "even") %>">
 <td class="lbl-txt-align"><%=h entry.firstname + ' ' + entry.lastname%></td>
-<% if isAvailable %>
-<td class="lbl-txt-align"><%=h (entry.balance.blank? ? 0 : entry.balance) + (entry.accrual.blank? ? 0 : entry.accrual) - (entry.used.blank? ? 0 : entry.used) %></td>
-<% end %>
+<% if isAvailable 
+	Setting.plugin_redmine_wktime['wktime_leave'].each_with_index do |element,index|
+		if index < 5
+		  listboxArr = element.split('|') 
+%>
+		<td class="lbl-txt-align"><%=h entry['total'+index.to_s] %></td> 
+<%
+		end
+	end
+end %>
 <td align="center">
     <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :user_id => entry.user_id, :accrual_on => lastAccrualOn, :tab => controller.controller_name},
                                        :title => l(:button_edit) %>

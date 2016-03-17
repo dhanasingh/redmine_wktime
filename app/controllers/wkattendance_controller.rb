@@ -17,7 +17,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		else
 			listboxArr = Setting.plugin_redmine_wktime['wktime_leave'][0].split('|')
 			issueId = listboxArr[0]
-			sqlStr = getQueryStr + " where i.id in (#{issueId}) and u.type = 'User' and (cvt.value is null or #{getConvertDateStr('cvt.value')} >= '#{lastMonthStartDt}')"
+			sqlStr = getListQueryStr + " where u.type = 'User' and (cvt.value is null or #{getConvertDateStr('cvt.value')} >= '#{lastMonthStartDt}')"
 		end
 		if !isAccountUser
 			sqlStr = sqlStr + " and u.id = #{User.current.id} " 
@@ -127,6 +127,22 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 			"cross join issues i left join wk_user_leaves w on w.user_id = u.id and w.issue_id = i.id
 			and w.accrual_on = '#{accrualOn}' " +
 			" left join groups_users gu on u.id = gu.user_id"
+		queryStr
+	end
+	
+	def getListQueryStr
+		accrualOn = params[:accrual_on].blank? ? Date.civil(Date.today.year, Date.today.month, 1) -1 : params[:accrual_on].to_s.to_date
+		selectColStr = "select u.id as user_id, u.firstname, u.lastname"
+		joinTableStr = ""
+		Setting.plugin_redmine_wktime['wktime_leave'].each_with_index do |element,index|
+			if index < 5
+				tAlias = "w#{index.to_s}"
+				listboxArr = element.split('|')
+				joinTableStr = joinTableStr + "left join wk_user_leaves #{tAlias} on #{tAlias}.user_id = u.id and #{tAlias}.issue_id =" + listboxArr[0] + "and #{tAlias}.accrual_on = '#{accrualOn}'"
+				selectColStr = selectColStr + ", (#{tAlias}.balance + #{tAlias}.accrual - #{tAlias}.used) as total#{index.to_s}"
+			end
+		end
+		queryStr = selectColStr + " from users u left join custom_values cvt on (u.id = cvt.customized_id and cvt.value != '' and cvt.custom_field_id = #{getSettingCfId('wktime_attn_terminate_date_cf')} ) " + joinTableStr + " left join groups_users gu on u.id = gu.user_id"
 		queryStr
 	end
 	
