@@ -8,6 +8,8 @@ before_filter :require_login
 before_filter :check_perm_and_redirect, :only => [:edit, :update]
 
 	def index
+		@status = params[:status] || 1
+		@groups = Group.all.sort
 		sqlStr = ""
 		lastMonthStartDt = Date.civil(Date.today.year, Date.today.month, 1) << 1
 		if(Setting.plugin_redmine_wktime['wktime_leave'].blank?)
@@ -19,7 +21,16 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		end
 		if !isAccountUser
 			sqlStr = sqlStr + " and u.id = #{User.current.id} " 
-		end			
+		end
+		if !params[:status].blank?
+			sqlStr = sqlStr + " and u.status = #{params[:status]}"
+		end
+		if !params[:group_id].blank?
+			sqlStr = sqlStr + " and gu.group_id = #{params[:group_id]}"
+		end
+		if !params[:name].blank?
+			sqlStr = sqlStr + " and (u.firstname like '%#{params[:name]}%' or u.lastname like '%#{params[:name]}%')"
+		end
 		findBySql(sqlStr)
 	end
 	
@@ -114,7 +125,8 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		queryStr = "select u.id as user_id, u.firstname, u.lastname, i.id as issue_id,w.balance, w.accrual, w.used, w.accrual_on, w.id from users u " +
 			"left join custom_values cvt on (u.id = cvt.customized_id and cvt.value != '' and cvt.custom_field_id = #{getSettingCfId('wktime_attn_terminate_date_cf')} ) " +
 			"cross join issues i left join wk_user_leaves w on w.user_id = u.id and w.issue_id = i.id
-			and w.accrual_on = '#{accrualOn}'"
+			and w.accrual_on = '#{accrualOn}' " +
+			" left join groups_users gu on u.id = gu.user_id"
 		queryStr
 	end
 	
