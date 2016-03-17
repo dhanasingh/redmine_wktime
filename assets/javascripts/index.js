@@ -88,7 +88,10 @@ $(document).ready(function() {
 function openReportPopup(){
 	var popupUrl, periodType;
 	var reportType = document.getElementById('report_type').value;
-	var groupId = document.getElementById('group_id').value;
+	var groupId = "";
+	if(document.getElementById('group_id')) {
+		groupId = document.getElementById('group_id').value;
+	}
 	var period = document.getElementById('period').value;
 	var searchlist = document.getElementById('searchlist').value;
 	var periodTypes = document.getElementsByName('period_type');
