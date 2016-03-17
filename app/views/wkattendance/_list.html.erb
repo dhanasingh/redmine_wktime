@@ -28,7 +28,7 @@
 <%
 	isAvailable = false
 	lastAccrualOn = Date.civil(Date.today.year, Date.today.month, 1) -1
-	isAvailable = true if @leave_entries[0].issue_id != -1 
+	isAvailable = true if !@leave_entries[0].blank? && @leave_entries[0].issue_id != -1 
 %>
 <% if isAvailable %>
 <th class="lbl-txt-align"><%= @leave_entries[0].issue.subject %></th>

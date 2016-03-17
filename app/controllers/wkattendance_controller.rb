@@ -22,8 +22,8 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		if !isAccountUser
 			sqlStr = sqlStr + " and u.id = #{User.current.id} " 
 		end
-		if !params[:status].blank?
-			sqlStr = sqlStr + " and u.status = #{params[:status]}"
+		if !@status.blank?
+			sqlStr = sqlStr + " and u.status = #{@status}"
 		end
 		if !params[:group_id].blank?
 			sqlStr = sqlStr + " and gu.group_id = #{params[:group_id]}"
