@@ -2,6 +2,7 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
 	prevTab = 'tab-<%= "wkreport" %>';
+	wkattnReportUrl = '<%=url_for(:controller => "wkattendance", :action => "report", :tab => "wkreport")%>';     
 </script>
 <%= form_tag({:controller => controller_name, :action => 'report'}, :method => :get, :id => 'query_form') do %>
 <%
@@ -23,6 +24,5 @@
 </tr>
 </table>
 <%= render :partial => 'wkattendance/date_range' %>
-<%=h hidden_field_tag('tab', "wkreport") %>
 <%= hidden_field_tag "searchlist", "wkreport" %>
 <% end %>

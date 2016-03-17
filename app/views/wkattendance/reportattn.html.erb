@@ -1,4 +1,3 @@
-<h2><%= l(:label_wk_attendance) + " " + l(:label_report) %></h2>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
@@ -25,25 +24,28 @@
 	end
 %>
 <div id="attn-dlg", style="overflow-x:auto;">
-<table  border="1" style="border-collapse:collapse;" cellspacing="0",frame="box">
+<table border="1" style="border-collapse:collapse;" cellspacing="0",frame="box">
+ <style type="text/css">
+        table { width : 100%; table-layout: fixed; word-wrap: break-word; text-align: center; white-space: line-height:1.4em;margin-top:5px; margin-bottom:10px; padding-left: 10px; font-size:0.9em; }
+ </style>
  <caption><b><%= l(:label_wk_form_q) %><br><%= l(:label_wk_register_for_shops) %></b></br>
  <b><%= l(:label_wk_name_address) %>:</b> <%= Setting.app_title %>
  <b><%= l(:label_month) %>:</b> <%= @from.strftime("%B")%>
  <b><%= l(:label_year) %>:</b> <%= @from.strftime("%Y")%></caption>
 <thead bgcolor="#e6e6e6">
 <tr>
-<th rowspan="2"><%= l(:label_attn_sl_no) %></th>
-<th rowspan="2"><%= l(:field_user) %></th>
-<th rowspan="2"><%= l(:label_date_of_entry_into_service) %></th>
-<th rowspan="2"><%= l(:label_age)+ " / " +l(:label_wk_attn_user_dob) %></th>
-<th rowspan="2"><%= l(:label_wk_designation) %></th> 
-<th colspan="3"><%= l(:label_leave_beginning_of_mnth) %></th>
-<th colspan="3"><%= l(:label_leave_during_mnth) %></th>
-<th colspan="3"><%= l(:label_wk_leave)+" "+l(:wk_field_balance)  %></th>
-<th colspan="31"><%= l(:label_daily_workdone_inclede_ot) %></th>
-<th rowspan="2"><%= l(:label_total_hours_ot) %></th>
-<th rowspan="2"><%= l(:label_total_hours_during_mnth) %></th>
-<th rowspan="2"><%= l(:label_total_no_of_maternity_leave) %></th>
+<th rowspan="2" width="2%"><%= l(:label_attn_sl_no) %></th>
+<th rowspan="2" width="10%"><%= l(:field_user) %></th>
+<th rowspan="2" width="6%"><%= l(:label_date_of_entry_into_service) %></th>
+<th rowspan="2" width="6%"><%= l(:label_age)+ " / " +l(:label_wk_attn_user_dob) %></th>
+<th rowspan="2" width="5%"><%= l(:label_wk_designation) %></th> 
+<th colspan="3" width="6%"><%= l(:label_leave_beginning_of_mnth) %></th>
+<th colspan="3" width="6%"><%= l(:label_leave_during_mnth) %></th>
+<th colspan="3" width="6%"><%= l(:label_wk_leave)+" "+l(:wk_field_balance)  %></th>
+<th colspan="31" width="62%"><%= l(:label_daily_workdone_inclede_ot) %></th>
+<th rowspan="2" width="3%"><%= l(:label_total_hours_ot) %></th>
+<th rowspan="2" width="3%"><%= l(:label_total_hours_during_mnth) %></th>
+<th rowspan="2" width="3%"><%= l(:label_total_no_of_maternity_leave) %></th>
 </tr>
 <tr>
 <th class="lbl-txt-align"><%= shortName[headIssueId[0].to_i] %></th>
@@ -56,7 +58,7 @@
 <th class="lbl-txt-align"><%= shortName[headIssueId[1].to_i] %></th>
 <th class="lbl-txt-align"><%= shortName[headIssueId[2].to_i] %></th>
 <% for i in 1..31%>
-	<th style="width:0.01%"><%= i %></th>
+	<th><%= i %></th>
 <% end -%>
 </tr>
 </thead>
@@ -101,7 +103,7 @@
 	leave = @attendance_entries[entry.id.to_s + '_' + i.to_s + '_leave']
 	attn_entry = shortName[leave].blank? ? hour : (hour.blank? ? shortName[leave] : hour.to_s + "/ " + shortName[leave])
 	%>
-		<td class="lbl-txt-align"><%=h attn_entry %></td>
+		<td class="fixed"><%=h attn_entry %></td>
 <% end -%>
 <td class="lbl-txt-align"><%=h "" %></td>
 <td class="lbl-txt-align"><%=h "" %></td>
@@ -114,5 +116,4 @@
 </div>
   
 <%=h hidden_field_tag('tab', "wkreport") %>
-
 <% html_title(l(:label_ta)) -%>
