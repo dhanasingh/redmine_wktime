@@ -24,10 +24,7 @@
 	end
 %>
 <div id="attn-dlg", style="overflow-x:auto;">
-<table border="1" style="border-collapse:collapse;" cellspacing="0",frame="box">
- <style type="text/css">
-        table { width : 100%; table-layout: fixed; word-wrap: break-word; text-align: center; white-space: line-height:1.4em;margin-top:5px; margin-bottom:10px; padding-left: 10px; font-size:0.9em; }
- </style>
+<table border="1" class="report-table" > 
  <caption><b><%= l(:label_wk_form_q) %><br><%= l(:label_wk_register_for_shops) %></b></br>
  <b><%= l(:label_wk_name_address) %>:</b> <%= Setting.app_title %>
  <b><%= l(:label_month) %>:</b> <%= @from.strftime("%B")%>
