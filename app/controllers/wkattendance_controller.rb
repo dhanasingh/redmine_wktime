@@ -104,7 +104,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 			if index < 5
 				tAlias = "w#{index.to_s}"
 				listboxArr = element.split('|')
-				joinTableStr = joinTableStr + "left join wk_user_leaves #{tAlias} on #{tAlias}.user_id = u.id and #{tAlias}.issue_id =" + listboxArr[0] + " and #{tAlias}.accrual_on = '#{accrualOn}'"
+				joinTableStr = joinTableStr + " left join wk_user_leaves #{tAlias} on #{tAlias}.user_id = u.id and #{tAlias}.issue_id = " + listboxArr[0] + " and #{tAlias}.accrual_on = '#{accrualOn}'"
 				selectColStr = selectColStr + ", (#{tAlias}.balance + #{tAlias}.accrual - #{tAlias}.used) as total#{index.to_s}"
 			end
 		end

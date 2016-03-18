@@ -3,7 +3,7 @@
 <%= hidden_field_tag 'back_url', url_for(params) %>
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
 <% if (wktime_helper.isAccountUser) %>
-<%= form_tag(users_path, :method => :get) do %>
+<%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get) do %>
 <fieldset><legend><%= l(:label_filter_plural) %></legend>
 <label for='status'><%= l(:field_status) %>:</label>
 <%= select_tag 'status', users_status_options_for_select(@status), :class => "small", :onchange => "this.form.submit(); return false;"  %>
@@ -16,8 +16,9 @@
 <label for='name'><%= l(:label_user) %>:</label>
 <%= text_field_tag 'name', params[:name], :size => 30 %>
 <%= submit_tag l(:button_apply), :class => "small", :name => nil %>
-<%= link_to l(:button_clear), users_path, :class => 'icon icon-reload' %>
+<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
 </fieldset>
+<%=h hidden_field_tag('tab', "#{controller_name}") %>
 <% end %>
 &nbsp;
 <% end %>
