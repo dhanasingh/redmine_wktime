@@ -87,10 +87,6 @@
   
   post 'wkattendance/index', :to => 'wkattendance#index'
    
-  get 'wkattendance/report', :to => 'wkattendance#report'
-   
-  get 'wkattendance/reportattn', :to => 'wkattendance#reportattn'
-   
   match 'wkattendance/edit', :to => 'wkattendance#edit', :via => [:get, :post]
 			  
   post 'wkattendance/update', :to => 'wkattendance#update'
@@ -98,4 +94,11 @@
   get 'wkattendance/getIssuesByProject', :to => 'wkattendance#getIssuesByProject'
    
   get 'wkattendance/getProjectByIssue', :to => 'wkattendance#getProjectByIssue'
+  
+  #For Report   
+  get 'wkreport/index', :to => 'wkreport#index'
+   
+  get 'wkreport/reportattn', :to => 'wkreport#reportattn'
+  
+  
   

@@ -2,11 +2,11 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
 	prevTab = 'tab-<%= "wkreport" %>';
-	wkattnReportUrl = '<%=url_for(:controller => "wkattendance", :action => "report", :tab => "wkreport")%>';     
+	wkattnReportUrl = '<%=url_for(:controller => "wkreport", :action => "index", :tab => "wkreport")%>';     
 </script>
-<%= form_tag({:controller => controller_name, :action => 'report'}, :method => :get, :id => 'query_form') do %>
+<%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
 <%
-	groupid =session[:wkattendance][:group_id]
+	groupid =session[:wkreport][:group_id]
 %>
 <div style="clear:both"></div>
 <table>
@@ -23,6 +23,6 @@
 <% end %>
 </tr>
 </table>
-<%= render :partial => 'wkattendance/date_range' %>
+<%= render :partial => 'wkreport/date_range' %>
 <%= hidden_field_tag "searchlist", "wkreport" %>
 <% end %>
