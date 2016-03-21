@@ -29,7 +29,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 			sqlStr = sqlStr + " and gu.group_id = #{params[:group_id]}"
 		end
 		if !params[:name].blank?
-			sqlStr = sqlStr + " and (u.firstname like '%#{params[:name]}%' or u.lastname like '%#{params[:name]}%')"
+			sqlStr = sqlStr + " and (LOWER(u.firstname) like LOWER('%#{params[:name]}%') or LOWER(u.lastname) like LOWER('%#{params[:name]}%'))"
 		end
 		findBySql(sqlStr)
 	end
