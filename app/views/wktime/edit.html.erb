@@ -163,7 +163,9 @@
 			<%=h hidden_field_tag("textlength", l )  %>	
 			<%=h hidden_field_tag("grandtotal", totalvalue )  %>			
 		</fieldset>
-		<%= l(:label_hours_note) %>
+		<%  if isAccountUser    %>
+			<p><%= l(:label_hours_note) %></p>
+		<% end %>	
 	</div>
 		
 <%= render :partial => 'row_template' %>

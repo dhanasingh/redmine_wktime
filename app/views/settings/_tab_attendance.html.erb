@@ -84,7 +84,10 @@ lblYear = "<%=l(:label_year) %>";
 		<p>
 			<%= hidden_field_tag :hdnAction, "" %>
 		</p>
-		<p><%= l(:label_hours_note) %></p>
+		<% wktime_helper = Object.new.extend(WktimeHelper) %>
+		<%  if (wktime_helper.isAccountUser)    %>
+			<p><%= l(:label_hours_note) %></p>
+		<% end %>
 	</div>
 	
 	<p>
