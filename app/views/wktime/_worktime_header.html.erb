@@ -55,17 +55,17 @@
 			<% col_num = i %>
 			<% @wkmultiple = controller.multipleClockInOut %>
 			<% @wkmultiple.each do |entry| %>
-				<% multipleid = (entry.start_time.localtime).strftime('%Y-%m-%d') %>
-				<%  if multipleid.to_s.to_date.wday == (@startday + (i-1)).wday && count != 1   %>
+				<% stday = (entry.start_time.localtime).strftime('%Y-%m-%d') %>
+				<%  if stday.to_s.to_date.wday == (@startday + (i-1)).wday && count != 1   %>
 					<% futureTime = (entry.start_time.localtime)+1440.minutes %>
 					<% count = 1 %>
 				<% end %>
 			<% end %>
-			<%  if (endvalue[i-1] == '00:00' && startvalue[i-1] != '00:00') && (@startday + (i-1)) == Date.yesterday && futureTime.to_i > currentTime.to_i   %>
+			<%  if (endvalue[i-1] == '00:00' && startvalue[i-1] != '00:00') && (@startday + (i-1)) == (@startday + i).yesterday && futureTime.to_i > currentTime.to_i   %>
 				<% nightclkout = true %>
 				<%=h hidden_field_tag('nightshift' , nightclkout  )  %>  
 			<% end %>			
-			<%=h hidden_field_tag('imgdisable',  !nightclkout ? col_num : col_num-1 )  %>	
+			<%=h hidden_field_tag('col_num',  !nightclkout ? col_num : col_num-1 )  %>	
 		<% end %>
 							
 		<% if (isEditable) %>  			

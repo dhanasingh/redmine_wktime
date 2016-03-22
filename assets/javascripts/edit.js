@@ -150,9 +150,9 @@ $(document).ready(function() {
 	if(showWorkHeader) {
 		//when initially load the page hidden the clock in Clock out button
 		var imgend,imghide,imgstart;
-		if(document.getElementById('imgdisable') != null && document.getElementById('end_img') != null &&  document.getElementById('start_img') != null)
+		if(document.getElementById('col_num') != null && document.getElementById('end_img') != null &&  document.getElementById('start_img') != null)
 		{
-			imghide = document.getElementById('imgdisable').value;
+			imghide = document.getElementById('col_num').value;
 			imghide++;
 			if(document.getElementById('end_'+imghide) != null)
 			{
@@ -1113,9 +1113,9 @@ function updateRemainingHr(day)
 	var totalRow = issueTable.rows[rowCount-2];
 	var rmTimeRow = issueTable.rows[rowCount-1];
 	var totTime= clktot ? clktot : "00:00:00",cell,rmTimeCell,dayTt,remainingTm = 0;
-	var nsvalue = document.getElementById('nightshift') != null ?  document.getElementById('nightshift').value : false;
+	//var nsvalue = document.getElementById('nightshift') != null ?  document.getElementById('nightshift').value : false;
 	//totTime = getTotalTime(day);
-	if(document.getElementById('grandTotal_'+day) && !nsvalue )
+	if(document.getElementById('grandTotal_'+day)  )
 	{
 		totTime = document.getElementById('grandTotal_'+day) != null ? document.getElementById('grandTotal_'+day).value+":00" : totTime ;
 	}	
@@ -1705,7 +1705,7 @@ function totalClockInOut(id, flag)
 		clktot = tot;
 		addval[id] = clktot;
 		updateRemainingHr(id);
-		if((nightshiftvalue && nscount == 0 ) || nscount == 1 )
+		if(nightshiftvalue && nscount == 0 ) 
 		{
 			prevdaytotal = document.getElementById('hoursstart_'+(id-1)).value;
 			addval[id-1] = prevdaytotal;
