@@ -57,7 +57,7 @@
 			<% @wkmultiple.each do |entry| %>
 				<% stday = (entry.start_time.localtime).strftime('%Y-%m-%d') %>
 				<%  if stday.to_s.to_date.wday == (@startday + (i-1)).wday && count != 1   %>
-					<% futureTime = (entry.start_time.localtime)+1440.minutes %>
+					<% futureTime = (entry.start_time.localtime)+1439.minutes %>
 					<% count = 1 %>
 				<% end %>
 			<% end %>
@@ -70,7 +70,7 @@
 							
 		<% if (isEditable) %>  			
 		<td class="hours">	
-			<div style="float: left; width: 75px;">
+			<div style="float: left; width: 80px;">
 			<div style="float: left;">
 				<%=h text_field_tag( "#{str}_#{(i+1)}" , "#{str}" == "start" ? startvalue[i] : endvalue[i],:size => 4, :disabled =>  true, :class => (@startday + i).past? ? 'clock-textbox' : ((@startday + i).today? ? 'clock-todaytextbox' : '' ),  :onchange => "validateHr(this,#{(i+1)});") %>
 			 	<%=h hidden_field_tag('hd' + "#{str}_#{(i+1)}", !nightclkout ? hiddenvalue[i] : hiddenvalue[i-1] )  %>  
@@ -89,7 +89,7 @@
 			</div>			
 		</td>
 		<% else %>			
-				<td style="width: 75px;"></td>		
+				<td style="width: 80px;"></td>		
 		<% end %>
 	<% end %>
 	<td ></td>
