@@ -86,6 +86,9 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		if group_id.to_i > 0
 			queryStr = queryStr + " and gu.group_id is not null"
 		end
+		if getSettingCfId('wktime_attn_terminate_date_cf') < 1
+			queryStr = queryStr + " and u.status = #{User::STATUS_ACTIVE}"
+		end
 		if !isAccountUser
 			queryStr = queryStr + " and u.id = #{User.current.id} "
 		end
