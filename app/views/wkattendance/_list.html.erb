@@ -35,7 +35,7 @@
 	Setting.plugin_redmine_wktime['wktime_leave'].each_with_index do |element,index|
 		if index < 5
 		  listboxArr = element.split('|') %>
-		  <th class="lbl-txt-align"><%= Issue.find(listboxArr[0]).subject %></th>
+		  <th class="lbl-num-align"><%= Issue.find(listboxArr[0]).subject %></th>
 		  <%
 		end
 	end
@@ -53,7 +53,7 @@ end %>
 		if index < 5
 		  listboxArr = element.split('|') 
 %>
-		<td class="lbl-txt-align"><%=h entry['total'+index.to_s] %></td> 
+		<td class="lbl-num-align"><%=h entry['total'+index.to_s] %></td> 
 <%
 		end
 	end
