@@ -45,8 +45,7 @@ end %>
 </thead>
 <tbody>
 <% @leave_entries.each do |entry| -%>
-
-<tr class="time-entry <%= cycle("odd", "even") %>">
+<tr class="time-entry <%= cycle("odd", "even") %> <%= entry.status == 3 ? "user locked" : "" %>" >
 <td class="lbl-txt-align"><%=h entry.firstname + ' ' + entry.lastname%></td>
 <% if isAvailable 
 	Setting.plugin_redmine_wktime['wktime_leave'].each_with_index do |element,index|

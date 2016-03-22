@@ -13,7 +13,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		sqlStr = ""
 		lastMonthStartDt = Date.civil(Date.today.year, Date.today.month, 1) << 1
 		if(Setting.plugin_redmine_wktime['wktime_leave'].blank?)
-			sqlStr = " select u.id as user_id, u.firstname, u.lastname, -1 as issue_id from users u where u.type = 'User' "
+			sqlStr = " select u.id as user_id, u.firstname, u.lastname, u.status, -1 as issue_id from users u where u.type = 'User' "
 		else
 			listboxArr = Setting.plugin_redmine_wktime['wktime_leave'][0].split('|')
 			issueId = listboxArr[0]
@@ -97,7 +97,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 	
 	def getListQueryStr
 		accrualOn = params[:accrual_on].blank? ? Date.civil(Date.today.year, Date.today.month, 1) -1 : params[:accrual_on].to_s.to_date
-		selectColStr = "select u.id as user_id, u.firstname, u.lastname"
+		selectColStr = "select u.id as user_id, u.firstname, u.lastname, u.status"
 		joinTableStr = ""
 		Setting.plugin_redmine_wktime['wktime_leave'].each_with_index do |element,index|
 			if index < 5
