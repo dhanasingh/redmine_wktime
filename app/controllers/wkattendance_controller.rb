@@ -91,8 +91,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		queryStr = "select u.id as user_id, u.firstname, u.lastname, i.id as issue_id,w.balance, w.accrual, w.used, w.accrual_on, w.id from users u " +
 			"left join custom_values cvt on (u.id = cvt.customized_id and cvt.value != '' and cvt.custom_field_id = #{getSettingCfId('wktime_attn_terminate_date_cf')} ) " +
 			"cross join issues i left join wk_user_leaves w on w.user_id = u.id and w.issue_id = i.id
-			and w.accrual_on = '#{accrualOn}' " +
-			" left join groups_users gu on u.id = gu.user_id"
+			and w.accrual_on = '#{accrualOn}' "
 		queryStr
 	end
 	
@@ -108,7 +107,11 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 				selectColStr = selectColStr + ", (#{tAlias}.balance + #{tAlias}.accrual - #{tAlias}.used) as total#{index.to_s}"
 			end
 		end
-		queryStr = selectColStr + " from users u left join custom_values cvt on (u.id = cvt.customized_id and cvt.value != '' and cvt.custom_field_id = #{getSettingCfId('wktime_attn_terminate_date_cf')} ) " + joinTableStr + " left join groups_users gu on u.id = gu.user_id"
+		queryStr = selectColStr + " from users u left join custom_values cvt on (u.id = cvt.customized_id and cvt.value != '' and cvt.custom_field_id = #{getSettingCfId('wktime_attn_terminate_date_cf')} ) " + joinTableStr 
+		
+		if !params[:group_id].blank?
+			queryStr = queryStr + " left join groups_users gu on u.id = gu.user_id"
+		end
 		queryStr
 	end
 	
