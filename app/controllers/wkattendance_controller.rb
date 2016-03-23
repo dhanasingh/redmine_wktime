@@ -152,13 +152,15 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 	
 	def getProjectByIssue
 		project_id=""
+		project_by_issue=""
 		if !params[:issue_id].blank?
 			issue_id = params[:issue_id]
 			issues = Issue.where(:id => issue_id.to_i)
 			project_id = issues[0].project_id
+			project_by_issue = issues[0].project_id.to_s + '|' + issues[0].project.name 
 		end
 		respond_to do |format|
-			format.text  { render :text => project_id }
+			format.text  { render :text => project_by_issue }
 		end
 	end
 

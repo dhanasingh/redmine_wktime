@@ -382,7 +382,7 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 		$.ajax({
 			url: issueUrl,
 			type: 'get',
-			data: {format:fmt,project_id:id},
+			data: {format:fmt,project_id:id,issue_id:issueId},
 			success: function(data){ updateIssueDD(data, issueDD,issueId); },
 			beforeSend: function(){ $this.addClass('ajax-loading'); },
 			complete: function(){ $this.removeClass('ajax-loading'); }
@@ -415,13 +415,31 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 		var fmt = 'text';
 		var projectDD = document.getElementById("leave_project");
 		var leaveIssue = document.getElementById("leave_issue");
+		var projOptions= projectDD.options;
 		var $this = $(this);
 		$.ajax({
 			url: projectUrl,
 			type: 'get',
 			data: {format:fmt,issue_id:issueId},
 			success: function(data){
-				projectDD.value = data;
+				var i, index, val, text, start;
+				index = data.indexOf('|');
+				start = 0;
+				if(index != -1){
+					val = data.substring(start, index);
+					text = data.substring(index+1);
+				}
+				for (var i= 0;i<projOptions.length; i++) {
+					if (projOptions[i].value===val) {
+						projOptions[i].selected= true;
+						break;
+					}
+				}
+				if(!projectDD.options.selectedIndex >=0){
+					projectDD.options[0] = new Option(text, val, false);
+					projectDD.options[0].selected= true;
+				}
+				//projectDD.value = data;
 				projectChanged(projectDD,issueId);
 			},
 			beforeSend: function(){ $this.addClass('ajax-loading'); },
