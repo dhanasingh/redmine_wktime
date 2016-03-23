@@ -72,7 +72,7 @@
 		<td class="hours">	
 			<div style="float: left; width: 80px;">
 			<div style="float: left;">
-				<%=h text_field_tag( "#{str}_#{(i+1)}" , "#{str}" == "start" ? startvalue[i] : endvalue[i],:size => 4, :disabled =>  true, :class => (@startday + i).past? ? 'clock-textbox' : ((@startday + i).today? ? 'clock-todaytextbox' : '' ),  :onchange => "validateHr(this,#{(i+1)});") %>
+				<%=h text_field_tag( "#{str}_#{(i+1)}" , "#{str}" == "start" ? startvalue[i] : endvalue[i],:size => 4, :disabled =>  true, :class => (@startday + i) < Date.today ? 'clock-textbox' : ((@startday + i) == Date.today ? 'clock-todaytextbox' : '' ),  :onchange => "validateHr(this,#{(i+1)});") %>
 			 	<%=h hidden_field_tag('hd' + "#{str}_#{(i+1)}", !nightclkout ? hiddenvalue[i] : hiddenvalue[i-1] )  %>  
 				<%=h hidden_field_tag('hours' + "#{str}_#{(i+1)}", !nightclkout ? hiddenvalue[i] : hiddenvalue[i-1] )  %>  
 			</div>
