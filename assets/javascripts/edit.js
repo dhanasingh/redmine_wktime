@@ -149,20 +149,21 @@ $(document).ready(function() {
 	
 	if(showWorkHeader) {
 		//when initially load the page hidden the clock in Clock out button
-		var imgend,imghide,imgstart;
+		var clkStart, clkEnd, colNum, attnId;
 		if(document.getElementById('col_num') != null && document.getElementById('end_img') != null &&  document.getElementById('start_img') != null)
 		{
-			imghide = document.getElementById('col_num').value;
-			imghide++;
-			if(document.getElementById('end_'+imghide) != null)
+			colNum = document.getElementById('col_num').value;
+			colNum++;
+			if(document.getElementById('end_' + colNum) != null)
 			{
-			imgend = document.getElementById('end_'+imghide).value;
+				clkEnd = document.getElementById('end_' + colNum).value;
 			}
-			if(document.getElementById('start_'+imghide) != null)
+			if(document.getElementById('start_'+colNum) != null)
 			{
-			imgstart = document.getElementById('start_'+imghide).value;
+				clkStart = document.getElementById('start_' + colNum).value;
 			}
-			if( imgend == "00:00" && imgstart != "00:00" )
+			attnId = document.getElementById('hdstart_' + colNum).value;
+			if(clkEnd == "00:00" && (clkStart != "00:00" || attnId > 0))
 			{
 					document.getElementById('clock_end').style.visibility = "visible";
 					document.getElementById('clock_start').style.visibility = 'hidden';
