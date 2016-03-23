@@ -82,7 +82,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 			"left join custom_values cvdob on (u.id = cvdob.customized_id and cvdob.custom_field_id = #{getSettingCfId('wktime_attn_user_dob_cf')} ) " +
 			"left join custom_values cveid on (u.id = cveid.customized_id and cveid.custom_field_id = #{getSettingCfId('wktime_attn_employee_id_cf')} ) " +
 			"left join custom_values cvdesg on (u.id = cvdesg.customized_id and cvdesg.custom_field_id = #{getSettingCfId('wktime_attn_designation_cf')} ) " +
-			"where u.type = 'User' and (#{getConvertDateStr('cvt.value')} >= '#{@from}' or u.status = #{User::STATUS_ACTIVE})"
+			"where u.type = 'User' and (#{getConvertDateStr('cvt.value')} >= '#{@from}' or (u.status = #{User::STATUS_ACTIVE} and cvt.value is null))"
 		if group_id.to_i > 0
 			queryStr = queryStr + " and gu.group_id is not null"
 		end
