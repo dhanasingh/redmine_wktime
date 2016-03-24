@@ -130,10 +130,16 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 	def getPrjIssues
 		issueList = []
 		project_id = 0
+		project = nil		
 		if !params[:project_id].blank?
 			project_id = params[:project_id]
+			project = Project.find(project_id)
 		end
-		issueList = Issue.where(:project_id => project_id)
+		if (!project.blank? && project.status == 5 && !params[:issue_id].blank?)
+			issueList = Issue.where(:id => params[:issue_id], :project_id => project_id)
+		else
+			issueList = Issue.where(:project_id => project_id)
+		end
 		issueList
 	end
 	

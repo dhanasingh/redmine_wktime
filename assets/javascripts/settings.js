@@ -261,6 +261,14 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 		if('Add' == action)
 		{	
 			leaveAction = action;
+			leaveProject.options.length = 0; //clear the existing values	
+			var templateDD = document.getElementById('template_projDD');
+			var ddlength = templateDD.options.length;			
+			//Refill the dropdown
+			for(i=0; i < ddlength; i++)
+			{
+				leaveProject.options[i] = new Option(templateDD.options[i].text,templateDD.options[i].value);
+			}
 			leaveProject.selectedIndex = 0;
 			projectChanged(leaveProject,-1);
 			leaveAccrual.value = "";

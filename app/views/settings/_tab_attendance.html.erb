@@ -199,3 +199,10 @@ lblYear = "<%=l(:label_year) %>";
 			options_for_select(cfs, :selected =>  @settings['wktime_attn_employee_id_cf'])) %>
 	</p>
 </fieldset>
+
+
+<% if !projArr.blank? %>
+<div style = "display:none">
+	<%=h select_tag('template_projDD', options_for_select(projArr))%>
+</div>
+<% end %>
