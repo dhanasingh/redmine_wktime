@@ -135,7 +135,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 			project_id = params[:project_id]
 			project = Project.find(project_id)
 		end
-		if (!project.blank? && project.status == 5 && !params[:issue_id].blank?)
+		if (!project.blank? && (project.status == "#{Project::STATUS_CLOSED}" || project.status == "#{Project::STATUS_ARCHIVED}") && !params[:issue_id].blank?)
 			issueList = Issue.where(:id => params[:issue_id], :project_id => project_id)
 		else
 			issueList = Issue.where(:project_id => project_id)
