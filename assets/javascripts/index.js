@@ -1,4 +1,4 @@
-var wktimeIndexUrl,wkexpIndexUrl,wkattnIndexUrl,wkReportUrl;
+var wktimeIndexUrl,wkexpIndexUrl,wkattnIndexUrl,wkReportUrl,wkattnReportUrl;
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -84,6 +84,33 @@ $(document).ready(function() {
 		]
 	});
 });
+
+function openReportPopup(){
+	var popupUrl, periodType;
+	var reportType = document.getElementById('report_type').value;
+	var groupId = "";
+	if(document.getElementById('group_id')) {
+		groupId = document.getElementById('group_id').value;
+	}
+	var period = document.getElementById('period').value;
+	var searchlist = document.getElementById('searchlist').value;
+	var periodTypes = document.getElementsByName('period_type');
+	var fromVal = document.getElementById('from').value;
+	var toVal = document.getElementById('to').value;
+	for (var i = 0, length = periodTypes.length; i < length; i++) {
+		if (periodTypes[i].checked) {
+			periodType = periodTypes[i].value
+			break;
+		}
+	}
+	popupUrl = wkattnReportUrl + '&report_type=' + reportType + '&group_id=' + groupId +'&period_type=' + periodType + '&searchlist=' + searchlist; 
+	if(periodType>1){
+		popupUrl = popupUrl + '&from=' + fromVal + '&to=' + toVal		
+	}else{
+		popupUrl = popupUrl + '&period=' + period 
+	}
+	window.open(popupUrl, '_blank', 'location=yes,scrollbars=yes,status=yes');
+}
 
 function showReminderEmailDlg() {
 	var teStatusOpt = document.getElementById('status').options;	

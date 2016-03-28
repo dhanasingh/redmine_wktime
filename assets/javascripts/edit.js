@@ -24,6 +24,7 @@ var rowid;
 var clktot;
 var addval = new Array();
 var totalBreakTime = 0;
+var nscount = 0;
 $(document).ready(function() {
 	var e_comments = $( "#_edit_comments_" );
 	var e_notes = $( "#_edit_notes_" );
@@ -148,20 +149,21 @@ $(document).ready(function() {
 	
 	if(showWorkHeader) {
 		//when initially load the page hidden the clock in Clock out button
-		var imgend,imghide,imgstart;
-		if(document.getElementById('imgdisable') != null && document.getElementById('end_img') != null &&  document.getElementById('start_img') != null)
+		var clkStart, clkEnd, colNum, attnId;
+		if(document.getElementById('col_num') != null && document.getElementById('end_img') != null &&  document.getElementById('start_img') != null)
 		{
-			imghide = document.getElementById('imgdisable').value;
-			imghide++;
-			if(document.getElementById('end_'+imghide) != null)
+			colNum = document.getElementById('col_num').value;
+			colNum++;
+			if(document.getElementById('end_' + colNum) != null)
 			{
-			imgend = document.getElementById('end_'+imghide).value;
+				clkEnd = document.getElementById('end_' + colNum).value;
 			}
-			if(document.getElementById('start_'+imghide) != null)
+			if(document.getElementById('start_'+colNum) != null)
 			{
-			imgstart = document.getElementById('start_'+imghide).value;
+				clkStart = document.getElementById('start_' + colNum).value;
 			}
-			if( imgend == "00:00" && imgstart != "00:00" )
+			attnId = document.getElementById('hdstart_' + colNum).value;
+			if(clkEnd == "00:00" && (clkStart != "00:00" || attnId > 0))
 			{
 					document.getElementById('clock_end').style.visibility = "visible";
 					document.getElementById('clock_start').style.visibility = 'hidden';
@@ -1112,9 +1114,9 @@ function updateRemainingHr(day)
 	var totalRow = issueTable.rows[rowCount-2];
 	var rmTimeRow = issueTable.rows[rowCount-1];
 	var totTime= clktot ? clktot : "00:00:00",cell,rmTimeCell,dayTt,remainingTm = 0;
-	
+	//var nsvalue = document.getElementById('nightshift') != null ?  document.getElementById('nightshift').value : false;
 	//totTime = getTotalTime(day);
-	if(document.getElementById('grandTotal_'+day))
+	if(document.getElementById('grandTotal_'+day)  )
 	{
 		totTime = document.getElementById('grandTotal_'+day) != null ? document.getElementById('grandTotal_'+day).value+":00" : totTime ;
 	}	
@@ -1333,68 +1335,95 @@ function showclkDialog(day)
 	}
 }
 
-function setClockInOut(strid,id) {
-       var d = new Date();
-	   var hh = d.getHours();
-	   var mm = d.getMinutes();
-	   id++;
-	   elementhour = hh + ":" + mm;
-	   elementend = hh + ":" + mm;
-	   if( strid == 'start')
-	   {
-		  document.getElementById('clock_end' ).style.visibility = "visible";
-		  document.getElementById('clock_start').style.visibility = 'hidden';
-	   }
-	   else
-	   {
-		  document.getElementById('clock_start' ).style.visibility = "visible";
-		  document.getElementById('clock_end').style.visibility = 'hidden';
-	   }	   
-	   updateClockInOut(elementhour, strid, id, elementend );
+function setClockInOut(strid,id) {	
+	if(nscount > 0)
+	{
+		id++;
+	}
+	var d = new Date();
+	var hh = d.getHours();
+	var mm = d.getMinutes();
+	id++;
+	elementhour = hh + ":" + mm;
+	elementend = hh + ":" + mm;	
+	if( strid == 'start' )
+	{
+	  document.getElementById('clock_end' ).style.visibility = "visible";
+	  document.getElementById('clock_start').style.visibility = 'hidden';
+	}
+	else
+	{
+	  document.getElementById('clock_start' ).style.visibility = "visible";
+	  document.getElementById('clock_end').style.visibility = 'hidden';
+	}
+	updateClockInOut(elementhour, strid, id, elementend );
 }
 
 function updateClockInOut(entrytime, strid, id, elementend){
 	var $this = $(this);		
-	var hours,start,end, hoursdiff,hiddenvalue;
+	var hours,start,end, hoursdiff,hiddenvalue,updateendvalue;
+	var nsdiff, nshiddenvalue, nshours;
+	var paramval;
+	updateendvalue = document.getElementById('nightshift') != null ?  document.getElementById('nightshift').value : false;
 	elementid = document.getElementById('hd'+strid + '_' + id).value;
+	start = document.getElementById('start_' + id).value;
 	if(strid == "end")
-	{
-		start = document.getElementById('start_' + id).value;
-		end = elementend ;//document.getElementById('end_' + id).value;
-		hoursdiff = diff(start, end);		
+	{				
+		end =  elementend ;
+		if(updateendvalue == "true")
+		{
+			end = "23:59";
+		}
+		hoursdiff = diff(start, end);			
 		timediff(id,hoursdiff, 'hoursstart_');
 		hiddenvalue = document.getElementById('hoursstart_' + id).value;
 		hours = timeStringToFloat(hiddenvalue);
 	}	
-	//var params = strid == 'start' ? {starttime: entrytime} 	: {endtime :entrytime, id: elementid, differences: hours };
-	var paramval = (strid == 'start' ? "|"+ id  : elementid ) + "|" +  (strid == 'end' ? start : entrytime) + "|" + (strid == 'end' ? entrytime : "") + "|" + (strid == 'end' ? hours : "") + ",";
+	
+	if(updateendvalue == "true")
+	{
+		nsdiff = diff("00:00", entrytime);
+		timediff(id+1,nsdiff, 'hoursstart_');
+		nshiddenvalue = document.getElementById('hoursstart_' + (id+1)).value;
+		nshours = timeStringToFloat(nshiddenvalue);
+		
+	}
+	paramval = (strid == 'start' ? "|"+ id  : elementid ) + "|" +  (strid == 'end' ? start : entrytime) + "|" + (strid == 'end' ? entrytime : "") + "|" + (strid == 'end' ? hours : "") + "|" + nshours + "|" + (id+1) + ",";
 	updateAtt(paramval,false, strid, id);
-/*	$.ajax({
-		url: 'saveAttendance',
-		type: 'get',
-		data: params,
-		success: function(data){ hiddenClockInOut(data, strid, id); },  
-		complete: function(){ $this.removeClass('ajax-loading'); }
-	});		*/
 }
 
 function hiddenClockInOut(data,strid,id){
 	var array = data.split(',');
+	
+	var updateendvalue = document.getElementById('nightshift') != null ?  document.getElementById('nightshift').value : false;
+	var setvalue = false;
+	if(updateendvalue && nscount == 0)
+	{
+		document.getElementById('end_' + (id)).value = "23:59";
+		id++;
+		setvalue = true;
+	}
 	hdstart = document.getElementById('hdstart_' + id);
-	hdstart.value = strid == 'start' ? array[1] : array[0];
+	hdstart.value = strid == 'start' ? array[1] : (setvalue ? array[1] : array[0] ) ;
 	
 	hdend = document.getElementById('hdend_' + id);
-	hdend.value = strid == 'start' ? array[1] : array[0];
+	hdend.value = strid == 'start' ? array[1] : (setvalue ? array[1] : array[0] ) ;
 	
 	elementid = document.getElementById(strid + '_' + id);
-	elementid.value = strid == 'start' ? array[2] : array[2];
+	elementid.value = strid == 'start' ? array[2] :  (setvalue ? array[3] : array[2] )  ;
+	
 	if(strid == 'end')
 	{
-		totalClockInOut(id, 1);
+		totalClockInOut(id, 1);		
 	}
 	updateRemainingHr(id);	
-	updateTotalHr(id); 
+	updateTotalHr(id);
 	
+	if(document.getElementById('nightshift') != null && updateendvalue )
+	{
+		document.getElementById('nightshift').value = false;
+		nscount = 1;
+	}
 }
 
 function hoursClockInOut(s,id)
@@ -1441,7 +1470,9 @@ function timediff(id, totTime, str)
 	var count = 0, count1 = 0, count2 = 0  ;
 	var i =0, j = 0;
 	var minusdiff;
+	var oldstartval, oldendvalue;
 	var oldtotal = "00:00:00" ;
+	var nsendvalue = document.getElementById('nightshift') != null ?  document.getElementById('nightshift').value : false;
 	if(str == "total_")
 	{
 	startval = document.getElementById("popupstart_" + id).value ;
@@ -1452,9 +1483,13 @@ function timediff(id, totTime, str)
 		startval = document.getElementById("newstart_" + id).value ;
 		endval = document.getElementById("newend_" + id).value  ;
 	}
-	else{
-		startval = document.getElementById("start_" + id).value ;
-		endval = elementend ;//document.getElementById("end_" + id).value  ;
+	else{	
+		startval =  document.getElementById("start_" + id).value ;
+		endval =  elementend ;
+		if(nsendvalue && startval != "00:00" && nscount == 0)
+		{
+			endval =  "23:59";
+		}
 	}
 	if(startval && endval)
 	{					
@@ -1490,7 +1525,7 @@ function timediff(id, totTime, str)
 				if (startBT == 1 && endBT == -1 ) 
 				{
 					minusdiff = "0:00";
-				}				
+				}
 				document.getElementById(str + id).value =  minusdiff;
 			}
 			else
@@ -1619,8 +1654,10 @@ function totalClockInOut(id, flag)
 	var adding = 0;
 	var seconds;
 	var i = 0, j =1;
-	var clkdiff;
+	var clkdiff, prevdaytotal;
 	var gtflag = false;
+	var nightshiftvalue = document.getElementById('nightshift') != null ?  document.getElementById('nightshift').value : false;
+
 	if(document.getElementById('hoursstart_'+id) != null)
 	{
 		 clkdiff = document.getElementById('hoursstart_'+id).value;
@@ -1662,13 +1699,21 @@ function totalClockInOut(id, flag)
 			updateRemainingHr(i)			
 		  }	 		  
 	}
-	if(flag == 1 )
-	{
+	if(flag == 1)
+	{		
 		var totalvalue = document.getElementById('grandtotal_'+id) != null ? document.getElementById('grandtotal_'+id).value+":00" : clktot;	
-	    tot = clktot != null ? MinutesDifferent(totalvalue, clkdiff+":00", 1 ) : clkdiff ;
+	    tot = clktot != null ? MinutesDifferent(totalvalue, clkdiff+":00", 1 ) : clkdiff ;		
 		clktot = tot;
 		addval[id] = clktot;
-		updateRemainingHr(id)
+		updateRemainingHr(id);
+		if(nightshiftvalue && nscount == 0 ) 
+		{
+			prevdaytotal = document.getElementById('hoursstart_'+(id-1)).value;
+			addval[id-1] = prevdaytotal;
+			clktot = prevdaytotal;
+			updateRemainingHr(id-1);
+		}
+		clktot = tot;
 	}
 	
 	if(flag == 2)
@@ -1689,9 +1734,10 @@ function totalClockInOut(id, flag)
 	{
 		var issueTable = document.getElementById("issueTable");
 		var totTimeRow = issueTable.rows[3];		 
-		totHrCell = totTimeRow.cells[hStartIndex + j ];			
-		addval[j] = addval[j] ? addval[j] : "00:00"	;				
-		totHrCell.innerHTML = ( (flag == 1 && j == id) ? tot :  addval[j] ) + "     <a href='javascript:showclkDialog("+j+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockin.png' border=0 title=''/></a>";
+		totHrCell = totTimeRow.cells[hStartIndex + j ];	
+		addval[j] = addval[j] ? addval[j] : "00:00"	;	
+		//TODO -- Move this to UI(HTML page)
+		totHrCell.innerHTML = "<div style='float:left;'>" + ( (flag == 1 && j == id) ? tot :  addval[j] ) + "</div><div style='float:left;padding-left:10px;'><a href='javascript:showclkDialog("+j+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockin.png' border=0 title=''/></a></div>";
 		
 	}
 	//}
@@ -1710,11 +1756,16 @@ function timeStringToFloat(time) {
 function updateAtt(param, diff,str,id)
 {
 	var datevalue = document.getElementById('startday').value;
-	var userid = document.getElementById('user_id').value;	
+	var userid = document.getElementById('user_id').value;
+	var nightshift = false;
+	if(document.getElementById('nightshift') != null && !diff )
+	{
+		 nightshift = document.getElementById('nightshift').value;	
+	}	
 	$.ajax({
 	url: 'updateAttendance',
 	type: 'get',
-	data: {editvalue : param, startdate : datevalue, user_id : userid},
+	data: {editvalue : param, startdate : datevalue, user_id : userid, nightshift : nightshift},
 	success: function(data){ if(!diff){  hiddenClockInOut(data, str, id);}else{  newClockInOut(data); } },   
 	});
 }

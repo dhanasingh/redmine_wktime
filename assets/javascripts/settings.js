@@ -260,7 +260,17 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 		var shortName = document.getElementById("wk_leave_short_name");
 		if('Add' == action)
 		{	
-			leaveAction = action;
+			leaveAction = action;				
+			var templateDD = document.getElementById('template_projDD');
+			if(templateDD) {
+				leaveProject.options.length = 0; //clear the existing values
+				var ddlength = templateDD.options.length;			
+				//Refill the dropdown
+				for(i=0; i < ddlength; i++)
+				{
+					leaveProject.options[i] = new Option(templateDD.options[i].text,templateDD.options[i].value);
+				}
+			}
 			leaveProject.selectedIndex = 0;
 			projectChanged(leaveProject,-1);
 			leaveAccrual.value = "";
@@ -382,7 +392,7 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 		$.ajax({
 			url: issueUrl,
 			type: 'get',
-			data: {format:fmt,project_id:id},
+			data: {format:fmt,project_id:id,issue_id:issueId},
 			success: function(data){ updateIssueDD(data, issueDD,issueId); },
 			beforeSend: function(){ $this.addClass('ajax-loading'); },
 			complete: function(){ $this.removeClass('ajax-loading'); }
@@ -415,13 +425,31 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 		var fmt = 'text';
 		var projectDD = document.getElementById("leave_project");
 		var leaveIssue = document.getElementById("leave_issue");
+		var projOptions= projectDD.options;
 		var $this = $(this);
 		$.ajax({
 			url: projectUrl,
 			type: 'get',
 			data: {format:fmt,issue_id:issueId},
 			success: function(data){
-				projectDD.value = data;
+				var i, index, val, text, start;
+				index = data.indexOf('|');
+				start = 0;
+				if(index != -1){
+					val = data.substring(start, index);
+					text = data.substring(index+1);
+				}
+				for (var i= 0;i<projOptions.length; i++) {
+					if (projOptions[i].value===val) {
+						projOptions[i].selected= true;
+						break;
+					}
+				}
+				if(!projectDD.options.selectedIndex >=0){
+					projectDD.options[0] = new Option(text, val, false);
+					projectDD.options[0].selected= true;
+				}
+				//projectDD.value = data;
 				projectChanged(projectDD,issueId);
 			},
 			beforeSend: function(){ $this.addClass('ajax-loading'); },

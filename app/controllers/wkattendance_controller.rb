@@ -8,22 +8,34 @@ before_filter :require_login
 before_filter :check_perm_and_redirect, :only => [:edit, :update]
 
 	def index
+		@status = params[:status] || 1
+		@groups = Group.all.sort
 		sqlStr = ""
+		lastMonthStartDt = Date.civil(Date.today.year, Date.today.month, 1) << 1
 		if(Setting.plugin_redmine_wktime['wktime_leave'].blank?)
-			sqlStr = " select u.id as user_id, -1 as issue_id from users u where u.type = 'User' "
+			sqlStr = " select u.id as user_id, u.firstname, u.lastname, u.status, -1 as issue_id from users u where u.type = 'User' "
 		else
 			listboxArr = Setting.plugin_redmine_wktime['wktime_leave'][0].split('|')
 			issueId = listboxArr[0]
-			sqlStr = getQueryStr + " where i.id in (#{issueId}) and u.type = 'User'"
+			sqlStr = getListQueryStr + " where u.type = 'User' and (cvt.value is null or #{getConvertDateStr('cvt.value')} >= '#{lastMonthStartDt}')"
 		end
 		if !isAccountUser
 			sqlStr = sqlStr + " and u.id = #{User.current.id} " 
-		end			
+		end
+		if !@status.blank?
+			sqlStr = sqlStr + " and u.status = #{@status}"
+		end
+		if !params[:group_id].blank?
+			sqlStr = sqlStr + " and gu.group_id = #{params[:group_id]}"
+		end
+		if !params[:name].blank?
+			sqlStr = sqlStr + " and (LOWER(u.firstname) like LOWER('%#{params[:name]}%') or LOWER(u.lastname) like LOWER('%#{params[:name]}%'))"
+		end
 		findBySql(sqlStr)
 	end
 	
 	def edit
-		sqlStr = getQueryStr + " where i.id in (#{getLeaveIssueIds}) and u.type = 'User' and u.id = #{params[:user_id]}"
+		sqlStr = getQueryStr + " where i.id in (#{getLeaveIssueIds}) and u.type = 'User' and u.id = #{params[:user_id]} order by i.subject"
 		@leave_details = WkUserLeave.find_by_sql(sqlStr)
 		render :action => 'edit'
 	end
@@ -32,6 +44,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		errorMsg =nil
 		wkuserleave = nil
 		ids = params[:ids]
+		accrualOn = params[:accrual_on]
 		newIssueIds = params[:new_issue_ids]
 		newIssueArr = newIssueIds.split(',')
 		userId = params[:user_id]
@@ -57,7 +70,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 			wkuserleave.balance = params["balance_"+issueId]
 			wkuserleave.accrual = params["accrual_"+issueId]
 			wkuserleave.used = params["used_"+issueId]
-			wkuserleave.accrual_on = Date.civil(Date.today.year, Date.today.month, 1) -1
+			wkuserleave.accrual_on = accrualOn #Date.civil(Date.today.year, Date.today.month, 1) -1
 			if !wkuserleave.save()
 				errorMsg = wkuserleave.errors.full_messages.join('\n')
 			end
@@ -72,130 +85,35 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		end		
 	end
 	
-	def getLeaveIssueIds
-		issueIds = ''
-		if(Setting.plugin_redmine_wktime['wktime_leave'].blank?)
-			issueIds = '-1'
-		else
-			Setting.plugin_redmine_wktime['wktime_leave'].each do |element|
-				if issueIds!=''
-					issueIds = issueIds +','
-				end
-			  listboxArr = element.split('|')
-			  issueIds = issueIds + listboxArr[0]
-			end
-		end	
-		issueIds
-	end
-	
-	def getReportLeaveIssueIds
-		issueIds = ''
-		if(Setting.plugin_redmine_wktime['wktime_leave'].blank?)
-			issueIds = '-1'
-		else
-			Setting.plugin_redmine_wktime['wktime_leave'].each_with_index do |element,index|
-				if index < 3
-					if issueIds!=''
-						issueIds = issueIds +','
-					end
-				  listboxArr = element.split('|')
-				  issueIds = issueIds + listboxArr[0]
-				end
-			end
-		end	
-		issueIds
-	end
-	
 	def getQueryStr
 		queryStr = ''
-		queryStr = "select u.id as user_id, i.id as issue_id,w.balance, w.accrual, w.used, w.accrual_on, w.id from users u 
-		cross join issues i left join (SELECT wl.* FROM wk_user_leaves wl inner join"
-		queryStr = queryStr + " ( select max(accrual_on) as accrual_on, user_id, issue_id from wk_user_leaves 
-			group by user_id, issue_id) t"
-		queryStr = queryStr + " on wl.user_id = t.user_id and wl.issue_id = t.issue_id 
-			and wl.accrual_on = t.accrual_on) w on w.user_id = u.id and w.issue_id = i.id"
+		accrualOn = params[:accrual_on].blank? ? Date.civil(Date.today.year, Date.today.month, 1) -1 : params[:accrual_on].to_s.to_date
+		queryStr = "select u.id as user_id, u.firstname, u.lastname, i.id as issue_id,w.balance, w.accrual, w.used, w.accrual_on, w.id from users u " +
+			"left join custom_values cvt on (u.id = cvt.customized_id and cvt.value != '' and cvt.custom_field_id = #{getSettingCfId('wktime_attn_terminate_date_cf')} ) " +
+			"cross join issues i left join wk_user_leaves w on w.user_id = u.id and w.issue_id = i.id
+			and w.accrual_on = '#{accrualOn}' "
 		queryStr
 	end
 	
-	def report
-		retrieve_date_range
-		if params[:report_type] == 'attendance_report'
-			reportattn
-		end
-	end
-	
-	def reportattn
-		dateStr = getConvertDateStr('start_time')
-		sqlStr = ""
-		if isAccountUser
-			@userlist = User.where("type = ?", 'User').order('id')
-			leave_data = WkUserLeave.where("issue_id in (#{getReportLeaveIssueIds}) and accrual_on between '#{@from}' and '#{@to}'")
-			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}'")
-			sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where start_time between '#{@from}' and '#{@to}' group by user_id,#{dateStr}"
-		else
-			@userlist = User.where("type = ? AND id = ?", 'User', User.current.id)
-			leave_data = WkUserLeave.where("issue_id in (#{getReportLeaveIssueIds}) and accrual_on between '#{@from}' and '#{@to}' and user_id = #{User.current.id} " )
-			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}' and user_id = #{User.current.id} " )
-			sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where start_time between '#{@from}' and '#{@to}' and user_id = #{User.current.id} group by user_id,#{dateStr}"
-		end
-		daily_entries = WkAttendance.find_by_sql(sqlStr)
-		@attendance_entries = Hash.new
-		if !leave_data.blank?
-			leave_data.each_with_index do |entry,index|
-				@attendance_entries[entry.user_id.to_s + '_' + entry.issue_id.to_s + '_balance'] = entry.balance
-				@attendance_entries[entry.user_id.to_s + '_' + entry.issue_id.to_s + '_used'] = entry.used
-				@attendance_entries[entry.user_id.to_s + '_' + entry.issue_id.to_s + '_accrual'] = entry.accrual
+	def getListQueryStr
+		accrualOn = params[:accrual_on].blank? ? Date.civil(Date.today.year, Date.today.month, 1) -1 : params[:accrual_on].to_s.to_date
+		selectColStr = "select u.id as user_id, u.firstname, u.lastname, u.status"
+		joinTableStr = ""
+		Setting.plugin_redmine_wktime['wktime_leave'].each_with_index do |element,index|
+			if index < 5
+				tAlias = "w#{index.to_s}"
+				listboxArr = element.split('|')
+				joinTableStr = joinTableStr + " left join wk_user_leaves #{tAlias} on #{tAlias}.user_id = u.id and #{tAlias}.issue_id = " + listboxArr[0] + " and #{tAlias}.accrual_on = '#{accrualOn}'"
+				selectColStr = selectColStr + ", (#{tAlias}.balance + #{tAlias}.accrual - #{tAlias}.used) as total#{index.to_s}"
 			end
 		end
-		if !leave_entry.blank?
-			 leave_entry.each_with_index do |entry,index|
-				 @attendance_entries[entry.user_id.to_s + '_' + entry.spent_on.to_date.strftime("%d").to_i.to_s + '_leave'] = entry.issue_id
-			end
-		end
-		if !daily_entries.blank?
-			 daily_entries.each_with_index do |entry,index|
-				 @attendance_entries[entry.user_id.to_s + '_' + entry.spent_on.to_date.strftime("%d").to_i.to_s  + '_hours'] = entry.hours
-			end
-		end
-		render :action => 'reportattn'
-	end
-	
-	# Retrieves the date range based on predefined ranges or specific from/to param dates
-	  def retrieve_date_range
-		@free_period = false
-		@from, @to = nil, nil
-		period_type = params[:period_type]
-		period = params[:period]
-		fromdate = params[:from]
-		todate = params[:to]
-
-		if (period_type == '1' || (period_type.nil? && !period.nil?)) 
-		  case period.to_s
-		  when 'current_month'
-			@from = Date.civil(Date.today.year, Date.today.month, 1)
-			@to = (@from >> 1) - 1
-		  when 'last_month'
-			@from = Date.civil(Date.today.year, Date.today.month, 1) << 1
-			@to = (@from >> 1) - 1
-		  end
-		elsif period_type == '2' || (period_type.nil? && (!fromdate.nil? || !todate.nil?))
-		  begin; @from = Date.civil((fromdate.to_s.to_date).year,(fromdate.to_s.to_date).month, 1) unless fromdate.blank?; rescue; end
-		  begin;  @to = (@from >> 1) - 1 unless @from.blank?; rescue; end
-		  if @from.blank?
-			@from = Date.civil(Date.today.year, Date.today.month, 1)
-			@to = (@from >> 1) - 1
-		  end
-		  @free_period = true
-		else
-		  # default
-		  # 'current_month'		
-			@from = Date.civil(Date.today.year, Date.today.month, 1)
-			@to = (@from >> 1) - 1
-		end    
+		queryStr = selectColStr + " from users u left join custom_values cvt on (u.id = cvt.customized_id and cvt.value != '' and cvt.custom_field_id = #{getSettingCfId('wktime_attn_terminate_date_cf')} ) " + joinTableStr 
 		
-		@from, @to = @to, @from if @from && @to && @from > @to
-
-	  end
+		if !params[:group_id].blank?
+			queryStr = queryStr + " left join groups_users gu on u.id = gu.user_id"
+		end
+		queryStr
+	end
 	
 	def getIssuesByProject
 		issue_by_project=""
@@ -212,10 +130,16 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 	def getPrjIssues
 		issueList = []
 		project_id = 0
+		project = nil		
 		if !params[:project_id].blank?
 			project_id = params[:project_id]
+			project = Project.find(project_id)
 		end
-		issueList = Issue.where(:project_id => project_id)
+		if ((!project.blank? && (project.status == Project::STATUS_CLOSED || project.status == Project::STATUS_ARCHIVED)) && !params[:issue_id].blank?)
+			issueList = Issue.where(:id => params[:issue_id], :project_id => project_id)
+		else
+			issueList = Issue.where(:project_id => project_id)
+		end
 		issueList
 	end
 	
@@ -234,15 +158,17 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 	
 	def getProjectByIssue
 		project_id=""
+		project_by_issue=""
 		if !params[:issue_id].blank?
 			issue_id = params[:issue_id]
 			issues = Issue.where(:id => issue_id.to_i)
 			project_id = issues[0].project_id
+			project_by_issue = issues[0].project_id.to_s + '|' + issues[0].project.name 
 		end
 		respond_to do |format|
-			format.text  { render :text => project_id }
+			format.text  { render :text => project_by_issue }
 		end
-	end	
+	end
 
 	def setLimitAndOffset		
 		if api_request?

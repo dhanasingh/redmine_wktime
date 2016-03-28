@@ -71,24 +71,9 @@
   
   delete 'wkexpense/deleteEntry', :to => 'wkexpense#deleteEntry'
   
-  delete 'wkexpense/deleteEntries', :to => 'wkexpense#deleteEntries'
-  
-   #For Attendance
-   get 'wkattendance/index', :to => 'wkattendance#index'
-   
-   get 'wkattendance/report', :to => 'wkattendance#report'
-   
-   get 'wkattendance/reportattn', :to => 'wkattendance#reportattn'
-   
-   match 'wkattendance/edit', :to => 'wkattendance#edit', :via => [:get, :post]
-			  
-   post 'wkattendance/update', :to => 'wkattendance#update'
-   
-   get 'wkattendance/getIssuesByProject', :to => 'wkattendance#getIssuesByProject'
-   
-   get 'wkattendance/getProjectByIssue', :to => 'wkattendance#getProjectByIssue'
-  
-    resources :projects do	
+  delete 'wkexpense/deleteEntries', :to => 'wkexpense#deleteEntries'  
+ 
+  resources :projects do	
 	resources :wk_expense_entries, :controller => 'wkexpense' do
 		collection do
 			get 'reportdetail' 
@@ -96,4 +81,24 @@
 		end
 	end   
   end
+  
+  #For Attendance
+  get 'wkattendance/index', :to => 'wkattendance#index'
+  
+  post 'wkattendance/index', :to => 'wkattendance#index'
+   
+  match 'wkattendance/edit', :to => 'wkattendance#edit', :via => [:get, :post]
+			  
+  post 'wkattendance/update', :to => 'wkattendance#update'
+   
+  get 'wkattendance/getIssuesByProject', :to => 'wkattendance#getIssuesByProject'
+   
+  get 'wkattendance/getProjectByIssue', :to => 'wkattendance#getProjectByIssue'
+  
+  #For Report   
+  get 'wkreport/index', :to => 'wkreport#index'
+   
+  get 'wkreport/reportattn', :to => 'wkreport#reportattn'
+  
+  
   
