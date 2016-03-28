@@ -1,4 +1,4 @@
-= wktime
+= Time & Attendance
 This Plugin provides the capability to submit Time, Expense and Attendance within redmine. The user must be a 
 member of a project with permission to log time.  If the user has 'Edit time logs' permission, 
 then he can manage other team member's Time & Expense as well.
