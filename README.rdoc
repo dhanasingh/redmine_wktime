@@ -84,7 +84,7 @@ Release Notes for 2.1.2
 		- Previous and Next link added in attendance detail page.
 		- Group filter introduced in Reports tab.
 	Bugs:
-		- Fixed decimals are not taken into account when registering expenses bug.
+		- Fixed decimals not taken into account when registering expenses.
 
 Customization:
 	For any Customization/Support, please contact us, our consulting team will be happy to help you
