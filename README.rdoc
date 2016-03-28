@@ -78,16 +78,13 @@ If an apache passenger module is used then make sure the following settings are 
 	c) PassengerPreStart http://rails-app-url/	
 
 Release Notes for 2.1.2
-
 	Features:
-	
-        - Made compatible with Redmine 3.2.1.
+		- Made compatible with Redmine 3.2.1.
 		- User filter introduced in Attendance tab.
-		- Previous and Next link added in attendance detail page.        
+		- Previous and Next link added in attendance detail page.
 		- Group filter introduced in Reports tab.
-    Bugs:
-	
-        - Fixed decimals are not taken into account when registering expenses bug.
+	Bugs:
+		- Fixed decimals are not taken into account when registering expenses bug.
 
 Customization:
 	For any Customization/Support, please contact us, our consulting team will be happy to help you
