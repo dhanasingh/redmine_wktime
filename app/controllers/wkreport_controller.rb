@@ -49,7 +49,8 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}' and user_id = #{User.current.id} " )
 			sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where start_time between '#{@from}' and '#{@to}' and user_id = #{User.current.id} group by user_id,#{dateStr}"
 		end
-		@userlist = User.find_by_sql(userSqlStr)
+		findBySql(userSqlStr)
+		#@userlist = User.find_by_sql(userSqlStr)
 		leave_data = WkUserLeave.find_by_sql(leaveSql)
 		daily_entries = WkAttendance.find_by_sql(sqlStr)
 		@attendance_entries = Hash.new
@@ -154,6 +155,40 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		@from, @to = @to, @from if @from && @to && @from > @to
 
 	  end
+	
+	def findBySql(query)
+		result = WkUserLeave.find_by_sql("select count(*) as id from (" + query + ") as v2")
+		@entry_count = result.blank? ? 0 : result[0].id
+        setLimitAndOffset()		
+		rangeStr = formPaginationCondition()		
+		@userlist = WkUserLeave.find_by_sql(query + rangeStr )
+	end
+	
+	def formPaginationCondition
+		rangeStr = ""
+		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'				
+			rangeStr = " OFFSET " + @offset.to_s + " ROWS FETCH NEXT " + @limit.to_s + " ROWS ONLY "
+		else		
+			rangeStr = " LIMIT " + @limit.to_s +	" OFFSET " + @offset.to_s
+		end
+		rangeStr
+	end
+
+	def setLimitAndOffset		
+		if api_request?
+			@offset, @limit = api_offset_and_limit
+			if !params[:limit].blank?
+				@limit = params[:limit]
+			end
+			if !params[:offset].blank?
+				@offset = params[:offset]
+			end
+		else
+			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
+			@limit = @entry_pages.per_page
+			@offset = @entry_pages.offset
+		end	
+	end
 	
     def check_perm_and_redirect
 	  unless check_permission
