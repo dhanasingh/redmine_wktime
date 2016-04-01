@@ -31,6 +31,7 @@
 		</tr>
 	</table>
 	<br>
+	<div class="autoscroll">
 	<div  style="float:left;width=100%;">
 	<table class="list time-entries">
 	<thead>
@@ -80,6 +81,7 @@
 	</table>
 	<br>
 	<span style="margin-left:25.0em;"></span><%= submit_tag l(:button_save), :hidden => disable, :id => 'wkattendance_save', :disabled => disable %>
+	</div>
 	</div>
 	<%else%>
 		<th><b><%= l(:label_no_leaves_configured) %></b></th>

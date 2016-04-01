@@ -14,7 +14,7 @@ currencySym = ""
 	<%= link_to l(:button_add_row), "#", { :onclick => "javascript:addRow();projectChanged(document.getElementsByName('time_entry[][project_id]'),0);", :class => 'icon icon-time-add' }%>
 <% end %>
 </div>
-
+<div style="overflow: auto">
 <table id="issueTable" class="list time-entries">
 <thead>
 <tr>
@@ -105,6 +105,7 @@ currencySym = ""
 	<% end %>
 </tbody>
 </table>
+</div>
 <% if !@locked %>
 	<% if @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r' %>
 			<%= submit_tag l(:button_save), :id => 'wktime_save', :name => 'wktime_save',  :disabled => !(@row > 0)%>
