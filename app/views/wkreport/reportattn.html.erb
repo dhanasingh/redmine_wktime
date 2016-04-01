@@ -37,6 +37,7 @@
 	headIssueId = headIssueId.sort_by(&:to_i)
 	end
 %>
+<% if !@userlist.blank? %>
 <div id="attn-dlg", style="overflow-x:auto;">
 <table class="tbl-report" border="1" style="border-collapse:collapse;" cellspacing="0",frame="box">
  <caption><b><%= l(:label_wk_form_q) %><br><%= l(:label_wk_register_for_shops) %></b></br>
@@ -78,7 +79,6 @@
 <%
 	showSlno = true if Setting.plugin_redmine_wktime['wktime_attn_employee_id_cf'].blank? || Setting.plugin_redmine_wktime['wktime_attn_employee_id_cf'].to_i == 0
 %>
-<% if !@userlist.blank? %>
 <% @userlist.each_with_index do |entry,index| -%>
 <%
 	balance1 = @attendance_entries[entry.id.to_s + '_' + headIssueId[0].to_s + '_balance']
@@ -127,10 +127,12 @@
 <%end%>
 </tr>
 <% end -%>
-<% end -%>
 </tbody>
 </table>
 </div>
-<%=h hidden_field_tag('tab', "wkreport") %>
 <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
+<% else %>
+	<label><b><%= l(:label_no_data) %></b></label>
+<% end -%>
+<%=h hidden_field_tag('tab', "wkreport") %>
 <% html_title(l(:label_ta)) -%>
