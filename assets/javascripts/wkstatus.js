@@ -64,7 +64,7 @@ function showEntryWarning(entrydate){
 function showMessage(data,divID){
 	var errMsg = "";
 	var log_time_page = document.getElementById('log_time_page').value;
-	if(data!=null && ('s'== data || 'a'== data || 'l'== data)){		
+	if(data!=null && ('s'== data || 'a'== data || 'l'== data)){
 		if (hasTrackerError) {
 			errMsg = warnMsg[0] + "<br>" + warnMsg[1];
 		}
@@ -81,6 +81,7 @@ function showMessage(data,divID){
 	}
 
 	if (errMsg != "") {	
+		document.getElementById('time_entry_hours').disabled = true;
 		divID.innerHTML = errMsg;
 		if(log_time_page == "true") {
 			$('input[type="submit"]').prop('disabled', true);
@@ -88,6 +89,7 @@ function showMessage(data,divID){
 		divID.style.display = 'block';
 	}
 	else {
+		document.getElementById('time_entry_hours').disabled = false;
 		if(log_time_page == "true") {
 			$('input[type="submit"]').prop('disabled', false);
 		}
@@ -129,6 +131,7 @@ function showIssueMessage(data,divID) {
 	}	
 	
 	if (errMsg != "") {	
+		document.getElementById('time_entry_hours').disabled = true;
 		divID.innerHTML = errMsg;
 		if(log_time_page == "true") {
 			$('input[type="submit"]').prop('disabled', true);
@@ -136,6 +139,7 @@ function showIssueMessage(data,divID) {
 		divID.style.display = 'block';
 	}
 	else {
+		document.getElementById('time_entry_hours').disabled = false;
 		if(log_time_page == "true") {
 			$('input[type="submit"]').prop('disabled', false);
 		}
