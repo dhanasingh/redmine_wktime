@@ -498,7 +498,7 @@ function issueIdChanged(id, row){
 			data: {issue_id: id, user_id: uid, format:fmt},
 			success: function(data){ updateActDropdown(data, row, actDropdown);},
 			error: function(jqXHR, textStatus, errorThrown){
-				alert(issueField + ' ' + id + ' ' + errorThrown);
+				alert(issueField + " " + id  + " " + invalidMsg);
 			},
 			beforeSend: function(){ $this.addClass('ajax-loading'); },
 			complete: function(){ $this.removeClass('ajax-loading'); }
