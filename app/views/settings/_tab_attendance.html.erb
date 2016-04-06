@@ -4,7 +4,7 @@ selectListAlertMsg = "<%=l(:actionview_instancetag_blank_option) %>";
 issueExistsAlertMsg = "<%=l(:label_wk_leave_exists) %>";
 issueUrl="<%= "#{url_for(:controller => 'wkattendance', :action => 'getIssuesByProject')}" %>";
 projectUrl="<%= "#{url_for(:controller => 'wkattendance', :action => 'getProjectByIssue')}" %>";
-lblInvalid= "<%=l('activerecord.errors.messages.invalid') %>";
+lblInvalid= " <%= (CGI.unescapeHTML l('activerecord.errors.messages.invalid')).html_safe %>";
 lblDaysPerMonth = "<%=l(:label_hours_per_month) %>";
 lblAccrual = "<%=l(:label_wk_leave_accrual) %>";
 lblAccrualAfter = "<%=l(:label_wk_leave_accrual_after) %>";

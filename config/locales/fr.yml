@@ -182,3 +182,4 @@ fr:
   label_date_of_entry_into_service: Date of entry into service
   label_hours_note: "Note: Please enter time in 24 hours format."
   label_no_leaves_configured : No leaves configured
+  label_max_min_hours_day_msg : Min hours is greater than Max hours.

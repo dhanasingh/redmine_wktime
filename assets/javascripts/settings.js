@@ -456,3 +456,19 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 			complete: function(){ $this.removeClass('ajax-loading');}
 		});
 	}
+	
+	function ValidateMinMaxHours(id, msg)
+	{
+		var maxhrfield = document.getElementById("settings_wktime_max_hour_day").value;
+		var minhrfield = document.getElementById("settings_wktime_min_hour_day").value;
+		if(Number(maxhrfield) < Number(minhrfield))
+		{
+			document.getElementById(id).value = "";
+			alert(msg);
+			window.setTimeout(function ()
+			{
+				document.getElementById(id).focus();
+			}, 0);
+			
+		}
+	}
