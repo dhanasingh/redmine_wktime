@@ -930,6 +930,14 @@ include QueriesHelper
 		totalBT
 	end
 	
+	def time_rpt
+		@user = User.current
+		@startday = getStartDay(Date.today)
+		@entries = findEntries()
+		
+		render :action => 'time_rpt', :layout => false
+	end
+	
 private
 	
 	def getManager(user, approver)

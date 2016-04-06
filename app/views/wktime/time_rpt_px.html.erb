@@ -1,0 +1,154 @@
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<style type="text/css">
+	table { 
+		table-layout: fixed; 
+		word-wrap: break-word; text-align: center; 
+		margin-top:5px; margin-bottom:10px; padding-left: 10px; color:#333333;
+		font-family:Verdana, sans-serif; font-size:12px; 
+	}		
+	.txt-align {
+		text-align: left; !important;
+	}
+</style>
+<div id="time-rpt-dlg" style="overflow-x:auto;">
+	<center><b><%= l(:label_wktime) %></b></center>
+	<div>
+	<div style="float:left">
+		<table>
+			<tr>
+				<td class="txt-align" width="100px"><b><%= l(:field_name) %></b></td>
+				<td class="txt-align" width="200px">: <%= @user.name %></td>
+			</tr>
+			<tr>
+				<td class="txt-align" width="100px"><b><%= l(:label_week) %></b></td>
+				<td class="txt-align" width="200px">: <%= @startday.to_s + " - " + (@startday+6).to_s %>
+			</tr>		
+		</table>
+	</div>
+	<div style="float:right">
+		<table>
+			<tr>
+				<td>
+					<% logo = Setting.plugin_redmine_wktime['wktime_header_logo'] %>					
+					<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>						
+						<%= image_tag("#{logo}", :plugin => "redmine_wktime") %>
+					<% end %>
+				</td>
+			</tr>
+		</table>
+	</div>
+	</div>
+	<div style="clear:both;"></div>
+	
+	<table width="1350px" border="1" style="border-collapse:collapse;" cellspacing="0", frame="box">
+	
+	<% startOfWeek = getStartOfWeek %>
+	<% columnCount = 2 %> <!-- Project - 0, Issue - 1, Activity - 2 -->
+	<thead bgcolor="#e6e6e6">
+		<tr>
+		<th align="left" width="150px"><%= l(:field_project) %></th>
+		<th align="left" width="250px"><%= l(:field_issue) %></th>
+		<th align="left" width="100px"><%= l(:field_activity) %></th>
+		<% if !Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 1 %>
+			<th align="left"><%= l(:field_comments)%></th>
+			<% columnCount = columnCount + 1 %>
+		<% end %>
+		<% @new_custom_field_values = TimeEntry.new.custom_field_values %>
+		<%	cf_value = nil
+		if !Setting.plugin_redmine_wktime['wktime_enter_cf_in_row1'].blank? &&
+				(cf_value = @new_custom_field_values.detect { |cfv| 
+					cfv.custom_field.id == Setting.plugin_redmine_wktime['wktime_enter_cf_in_row1'].to_i }) != nil %>
+				<th align="left">
+					<%= cf_value.custom_field.name %>
+				</th>
+				<% columnCount = columnCount + 1 %>
+		<%	end %>
+
+		<%	cf_value = nil
+		if !Setting.plugin_redmine_wktime['wktime_enter_cf_in_row2'].blank? &&
+				(cf_value = @new_custom_field_values.detect { |cfv| 
+					cfv.custom_field.id == Setting.plugin_redmine_wktime['wktime_enter_cf_in_row2'].to_i }) != nil %>
+				<th align="left">
+					<%= cf_value.custom_field.name %>
+				</th>
+				<% columnCount = columnCount + 1 %>
+		<%	end %>
+		
+		<%#= render :partial => controller.getCFInRowHeaderHTML %>
+		
+		<% for i in 0..6%>
+		<!-- Martin Dube contribution: 'start of the week' configuration -->
+		<th align="center" width="50px"><%= l('date.abbr_day_names')[(i+(startOfWeek))%7] %><br /><%= I18n.localize(@startday+i, :format=>:short) unless @startday.nil? %></th>
+		<% end %>
+		<% columnCount = columnCount + 7 %>
+		</tr>
+	</thead>
+	<tbody>
+		<%  
+		col_values = []
+		matrix_values = nil
+		totals = [0.0,0.0,0.0,0.0,0.0,0.0,0.0] 
+		wktime_helper = Object.new.extend(WktimeHelper)
+		%>
+		<% 
+		unless @entries.blank?			
+		weeklyHash = getWeeklyView(@entries, nil, false)	#controller.getUnitLabel
+		weeklyHash.each do |key, matrix|
+			matrix_values, j = wktime_helper.getColumnValues(matrix, totals, nil, false, 0, true) #unitLabel
+			col_values = matrix_values[0]
+			tmpColCount = 0
+		%>
+		<tr class="time-entry <%= cycle("odd", "even") %>">
+		<%	
+			col_values.each_with_index do |val, i|
+			tmpColCount = i
+		%>		
+			<td <% if (i < columnCount-6)%>class="txt-align"<% end %>><%= val %></td>
+		<% end %>
+		<% 
+			if tmpColCount < columnCount
+				remainingColCount = columnCount - tmpColCount
+				for colIndex in 0..remainingColCount - 1 
+		%>
+			<td></td>
+		<% 
+				end 
+			end 
+		%>		
+		</tr>
+		<% end %>
+		<% end %>
+		<tr>
+		<% 
+			total_values = getTotalValues(totals, columnCount - 6, nil) #nil 
+			total_values.each_with_index do |val, i|
+		%>
+			<td><%= val %></td>
+		<% end %>
+		</tr>
+	</tbody>		
+	</table>		
+	<% submissionAck = Setting.plugin_redmine_wktime['wktime_submission_ack'] %>
+	<p><%= submissionAck %></p>
+	<div style="float:right;">
+		
+		<table>
+			<tr>
+				<td class="txt-align" width="90px"><b><%= l(:label_wk_signature) %> : </b></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td class="txt-align" width="90px"><b><%= l(:label_wk_submitted_by) %></b></td>
+				<td>________________________________</td>
+			</tr>
+			<tr>
+				<td class="txt-align" width="90px"><b><%= l(:label_wk_approved_by) %></b></td>
+				<td>________________________________</td>
+			</tr>
+		</table>
+	</div>
+</div>
+  
+<% html_title(l(:label_ta)) -%>

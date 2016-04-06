@@ -1,13 +1,7 @@
-<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'application' , :media => "all" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-<script type="text/javascript"> 
-	prevTab = 'tab-<%= "wkreport" %>';
-</script>
-<style type="text/css">
-		.txt-align {
-			text-align: left; !important;
-		}
+
+<style type="text/css">		
 		.tbl-report{
 			width : 2200px;
 			table-layout: fixed; !important;
@@ -38,7 +32,7 @@
 	end
 %>
 <% if !@userlist.blank? %>
-<div id="attn-dlg", style="overflow-x:auto;">
+<div id="attn-rpt-dlg", style="overflow-x:auto;">
 <table class="tbl-report" border="1" style="border-collapse:collapse;" cellspacing="0",frame="box">
  <caption><b><%= l(:label_wk_form_q) %><br><%= l(:label_wk_register_for_shops) %></b></br>
  <b><%= l(:label_wk_name_address) %>:</b> <%= Setting.app_title %>
@@ -97,10 +91,10 @@
 <%else%>
 	<td class="lbl-txt-align"><%=h entry.employee_id %></td>
 <%end%>
-<td class="txt-align""><%=h entry.firstname + " " + entry.lastname %></td>
-<td class="txt-align"><%=h entry.joining_date.blank? ? '' : format_date(entry.joining_date.to_date) %></td>
-<td class="txt-align"><%=h entry.date_of_birth.blank? ? '' : format_date(entry.date_of_birth.to_date) %></td>
-<td class="txt-align"><%=h entry.designation %></td>
+<td class="lbl-txt-align"><%=h entry.firstname + " " + entry.lastname %></td>
+<td class="lbl-txt-align"><%=h entry.joining_date.blank? ? '' : format_date(entry.joining_date.to_date) %></td>
+<td class="lbl-txt-align"><%=h entry.date_of_birth.blank? ? '' : format_date(entry.date_of_birth.to_date) %></td>
+<td class="lbl-txt-align"><%=h entry.designation %></td>
 <td ><%=h balance1 %></td>
 <td ><%=h balance2 %></td>
 <td ><%=h balance3 %></td>
@@ -134,5 +128,3 @@
 <% else %>
 	<label><b><%= l(:label_no_data) %></b></label>
 <% end -%>
-<%=h hidden_field_tag('tab', "wkreport") %>
-<% html_title(l(:label_ta)) -%>

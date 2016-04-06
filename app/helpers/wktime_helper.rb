@@ -362,7 +362,7 @@ module WktimeHelper
 		return weeklyHash
 	end
 
-def getColumnValues(matrix, totals, unitLabel,rowNumberRequired, j=0)
+def getColumnValues(matrix, totals, unitLabel,rowNumberRequired, j=0, includeComments=false)
 	col_values = []
 	matrix_values = []
 	k=0
@@ -383,8 +383,14 @@ def getColumnValues(matrix, totals, unitLabel,rowNumberRequired, j=0)
 						col_values[k] = entry.project.name
 						col_values[k+1] = entry.issue.blank? ? "" : entry.issue.subject
 						col_values[k+2] = entry.activity.blank? ? "" : entry.activity.name
+						currencyColIndex = k+3
+						if includeComments && (!Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? &&
+						Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 1)
+							col_values[k+3]= entry.comments
+							currencyColIndex = k+4
+						end
 						if !unitLabel.blank?
-							col_values[k+3]= entry.currency
+							col_values[currencyColIndex]= entry.currency
 						end
 						custom_field_values = entry.custom_field_values
 						set_cf_value(col_values, custom_field_values, 'wktime_enter_cf_in_row1')	

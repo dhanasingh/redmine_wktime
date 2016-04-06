@@ -18,7 +18,19 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		retrieve_date_range
 		if params[:report_type] == 'attendance_report'
 			reportattn
+		elsif params[:report_type] == 'time_report'
+			time_rpt
+			#redirect_to :action => 'time_rpt', :controller => 'wktime'
 		end
+	end
+	
+	def time_rpt
+		#@user = User.current
+		#@startday = getStartDay(Date.today)
+		#@entries = findEntries()
+		
+		#render :action => 'time_rpt', :controller => 'wktime', :layout => false
+		redirect_to :action => 'time_rpt', :controller => 'wktime'
 	end
 	
 	def reportattn
@@ -44,7 +56,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		end
 		if isAccountUser
 			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}'")
-			sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where start_time between '#{@from}' and '#{@to}' group by user_id,#{dateStr}"
+			sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where #{dateStr} between '#{@from}' and '#{@to}' group by user_id,#{dateStr}"
 		else
 			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}' and user_id = #{User.current.id} " )
 			sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where #{dateStr} between '#{@from}' and '#{@to}' and user_id = #{User.current.id} group by user_id,#{dateStr}"
@@ -90,7 +102,8 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		if !isAccountUser
 			queryStr = queryStr + " and u.id = #{User.current.id} "
 		end
-		queryStr = queryStr + " order by u.created_on"
+		#queryStr = queryStr + " order by u.created_on"
+		queryStr
 	end
 	
 	def getReportLeaveIssueIds
@@ -161,7 +174,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		@entry_count = result.blank? ? 0 : result[0].id
         setLimitAndOffset()		
 		rangeStr = formPaginationCondition()		
-		@userlist = WkUserLeave.find_by_sql(query + rangeStr )
+		@userlist = WkUserLeave.find_by_sql(query + " order by u.created_on " + rangeStr )
 	end
 	
 	def formPaginationCondition
@@ -189,7 +202,6 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 			@offset = @entry_pages.offset
 		end	
 	end
-	
     def check_perm_and_redirect
 	  unless check_permission
 	    render_403

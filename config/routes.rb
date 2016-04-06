@@ -32,8 +32,9 @@
   
   get 'wktime/testapi', :to => 'wktime#testapi' 
   
-  get 'wktime/updateAttendance', :to => 'wktime#updateAttendance' 
-  
+  get 'wktime/updateAttendance', :to => 'wktime#updateAttendance'   
+    
+  get 'wktime/time_rpt', :to => 'wktime#time_rpt'  
   
   #For Weekly expenses
   
