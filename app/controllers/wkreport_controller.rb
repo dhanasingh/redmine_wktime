@@ -47,7 +47,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 			sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where start_time between '#{@from}' and '#{@to}' group by user_id,#{dateStr}"
 		else
 			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}' and user_id = #{User.current.id} " )
-			sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where start_time between '#{@from}' and '#{@to}' and user_id = #{User.current.id} group by user_id,#{dateStr}"
+			sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where #{dateStr} between '#{@from}' and '#{@to}' and user_id = #{User.current.id} group by user_id,#{dateStr}"
 		end
 		findBySql(userSqlStr)
 		#@userlist = User.find_by_sql(userSqlStr)
