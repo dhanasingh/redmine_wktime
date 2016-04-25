@@ -1,0 +1,76 @@
+<%=h hidden_field_tag('isAccountUser', isAccountUser )  %>  
+<% $entryId = Array.new %>
+<% entrydate = Array.new %>
+<% $entryStartTime = Array.new %>
+<% $entryEndTime = Array.new %>
+<% $entryHours = Array.new %>
+<% previousStartDate = 0 %>
+<% @wkmultiple = controller.findAttnEntries %>
+<% @wkmultiple.each do |entry| %>
+	<% startDate = (entry.start_time.localtime).strftime('%Y-%m-%d') %>
+	<% entrydate << startDate.to_s.to_date.wday %>
+	<%  previousStartDate == startDate.to_s.to_date.wday && startDate.to_s.to_date.wday != 0 ?  $entryId[startDate.to_s.to_date.wday] << ','+(entry.id).to_s  : $entryId[startDate.to_s.to_date.wday] = (entry.id).to_s %>
+	<%  previousStartDate == startDate.to_s.to_date.wday && startDate.to_s.to_date.wday != 0 ?  $entryStartTime[startDate.to_s.to_date.wday] << ','+( (entry.start_time.localtime).strftime('%R')  ).to_s  : $entryStartTime[startDate.to_s.to_date.wday] = ( (entry.start_time.localtime).strftime('%R')  ).to_s %>
+	<%  previousStartDate == startDate.to_s.to_date.wday && startDate.to_s.to_date.wday != 0 ?  $entryEndTime[startDate.to_s.to_date.wday] << ','+( (!(entry.end_time).blank? ?  (entry.end_time.localtime).strftime('%R') : '00:00')  ).to_s  : $entryEndTime[startDate.to_s.to_date.wday] = ( (!(entry.end_time).blank? ?  (entry.end_time.localtime).strftime('%R') : '00:00')  ).to_s %>
+	<%  previousStartDate == startDate.to_s.to_date.wday && startDate.to_s.to_date.wday != 0 ?  $entryHours[startDate.to_s.to_date.wday] << ','+(entry.hours).to_s  : $entryHours[startDate.to_s.to_date.wday] = (entry.hours).to_s %>
+	<%  previousStartDate = startDate.to_s.to_date.wday %>			
+<% end %>	
+
+<% attnEntriesId = Array.new %>
+<% attnstarttime = Array.new %>
+<% attnendtime = Array.new %>
+<% hoursdiff = Array.new %>
+<% st = Array.new %>
+<% disable = isAccountUser ? (User.current.id == @user.id ? !(!Setting.plugin_redmine_wktime[:wktime_own_approval].blank? && 
+	Setting.plugin_redmine_wktime[:wktime_own_approval].to_i == 1 ) : false) : true	%>
+<%=h hidden_field_tag("break_time" , Setting.plugin_redmine_wktime['wktime_break_time'] )  %> 
+<% for i in 1..7 %>
+	<div id="clockInOut-dlg<%= i %>" title="<%= l(:label_wk_attendance) %>">
+	<% if (@startday + (i-1)) < Date.today || (@startday + (i-1)) == Date.today  %>
+		<fieldset>				
+			<table >
+				<tr> <th  style="width: 80px;"><label><%= l(:label_clock_in) %></label></th> 
+				 <th style="width: 80px;"><label><%= l(:label_clock_out) %></label></th>
+				 <th style="width: 80px;"> <label><%= l(:label_difference) %></label></th></tr>
+				<tbody></tbody>
+			</table>			
+			<% j = 0  %>
+			<% loop do  %>
+				<% attnDayEntriesCnt = entrydate.count((@startday + (i-1)).wday)  %>
+				<% attnDayEntriesCnt = entrydate.count((@startday + (i-1)).wday) == 0 ? 1 : entrydate.count((@startday + (i-1)).wday) %>
+				<% break if j ==  attnDayEntriesCnt  %>
+					<% attnEntriesId = ( entrydate.count((@startday + (i-1)).wday) != 0) ? $entryId[(@startday + (i-1)).wday].split(",") : $entryId[(@startday + (i-1)).wday] %>
+					<% attnstarttime = ( entrydate.count((@startday + (i-1)).wday) != 0) ? $entryStartTime[(@startday + (i-1)).wday].split(",") : $entryStartTime[(@startday + (i-1)).wday] %>
+					<% attnendtime = ( entrydate.count((@startday + (i-1)).wday) != 0) ? $entryEndTime[(@startday + (i-1)).wday].split(",") : $entryEndTime[(@startday + (i-1)).wday] %>
+					<% hoursdiff = ( entrydate.count((@startday + (i-1)).wday) != 0) ? $entryHours[(@startday + (i-1)).wday].split(",") : $entryHours[(@startday + (i-1)).wday] %>
+					<table> 
+						<tbody> 
+							<tr> 
+								<td>
+									<%=h hidden_field_tag("attnEntriesId#{i}_#{j}",  entrydate.count((@startday + (i-1)).wday) != 0 ? attnEntriesId[j] : $entryId[(@startday + (i-1)).wday] )  %>
+								</td>
+								<td style="width: 80px; padding-left: 5px;">
+									<%= text_field_tag "attnstarttime#{i}_#{j}",  entrydate.count((@startday + (i-1)).wday) != 0 ? attnstarttime[j] : $entryStartTime[(@startday + (i-1)).wday] , :size => 4, :disabled => disable,  :onchange => "validateHr(this,#{(i-1)}, ['attnstarttime#{i}_#{j}', 'attnendtime#{i}_#{j}', 'hoursdiff#{i}_#{j}']);" %>
+								</td>
+								<td style="width: 80px;">
+									<%= text_field_tag "attnendtime#{i}_#{j}",  entrydate.count((@startday + (i-1)).wday) != 0 ? attnendtime[j] : $entryEndTime[(@startday + (i-1)).wday] , :size => 4, :disabled => disable,  :onchange => "validateHr(this,#{(i-1)}, ['attnstarttime#{i}_#{j}', 'attnendtime#{i}_#{j}', 'hoursdiff#{i}_#{j}']);"  %>
+								</td>
+								<td style="width: 80px; ">
+									<%= text_field_tag "hoursdiff#{i}_#{j}",  entrydate.count((@startday + (i-1)).wday) != 0 ? hoursdiff[j] : $entryHours[(@startday + (i-1)).wday] , :size => 4, :disabled => disable %>
+								</td>								
+							</tr>
+						</tbody>
+					</table>						
+					<% j += 1  %>
+				<% end %>
+				<%=h hidden_field_tag("attnDayEntriesCnt_#{i}",  j) %>
+				<p style = "padding-left: 90px;">
+					<%= l(:label_grand_total) %></label>
+					<%= text_field_tag "grandTotal_#{i}"  , "" , :size => 4, :disabled => disable %></p>
+		</fieldset>
+		<%  if isAccountUser    %>
+			<p><%= l(:label_hours_note) %></p>
+		<% end %>
+	<% end %>
+	</div>
+<% end %>

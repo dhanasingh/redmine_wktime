@@ -97,7 +97,6 @@ include QueriesHelper
 	@editable = false if @locked
 	set_edit_time_logs
 	@entries = findEntries()
-	@wkattendances  = findAttnEntries()
 	if !$tempEntries.blank?
 		newEntries = $tempEntries - @entries
 		if !newEntries.blank?
@@ -889,7 +888,12 @@ include QueriesHelper
 				ret += ','
 				count = 1
 			end		
-			wkattendance.save()
+			#wkattendance.save()
+			if(((wkattendance.start_time.localtime).to_formatted_s(:time)).to_s == "00:00" && ((wkattendance.end_time.localtime).to_formatted_s(:time)).to_s == "00:00" && wkattendance.id != nil)
+				wkattendance.destroy()				
+			else		
+				wkattendance.save()				
+			end
 			end until count == 1
 			ret += wkattendance.id.to_s
 			ret += ','
@@ -907,7 +911,7 @@ include QueriesHelper
 		Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1
 	end
 	
-	def multipleClockInOut
+	def findAttnEntries
 		dateStr = getConvertDateStr('start_time')
 		WkAttendance.where(" user_id = '#{params[:user_id]}' and #{dateStr} between '#{@startday}'  and '#{@startday + 6}' ").order("start_time")
 	end
@@ -1272,13 +1276,7 @@ private
 		setup	
 		cond = getCondition('spent_on', @user.id, @startday, @startday+6)		
 		findEntriesByCond(cond)
-	end
-	
-	def findAttnEntries
-		dateStr = getConvertDateStr('start_time')
-		dateOrder = getConvertDateStr('end_time')
-		WkAttendance.find_by_sql("select a.* from wk_attendances a inner join ( select max(start_time) as start_time,user_id from wk_attendances where #{dateStr}  between '#{@startday}'  and '#{@startday+6}' and user_id = #{params[:user_id]} group by #{dateStr},user_id ) vw on a.start_time = vw.start_time and a.user_id = vw.user_id order by a.start_time ")
-	end
+	end	
 	
 	def findWkTE(start_date, end_date=nil)
 		setup

@@ -97,77 +97,7 @@
 
 	</div>	
 
-	<%=h hidden_field_tag('isAccountUser', isAccountUser )  %>  
-	<div id="clockInOut-dlg" title="<%= l(:label_wk_attendance) %>">
-		<fieldset>
-			 <table >
-			 <tr></tr>
-				<tr> <th  style="width: 80px;"><label><%= l(:label_clock_in) %></label></th> 
-				 <th style="width: 80px;"><label><%= l(:label_clock_out) %></label></th>
-				 <th style="width: 80px;"> <label><%= l(:label_difference) %></label></th></tr>
-				<tbody>
-					</tbody>
-			</table>
-			<%
-				disable = isAccountUser ? (User.current.id == @user.id ? !(!Setting.plugin_redmine_wktime[:wktime_own_approval].blank? && 
-									Setting.plugin_redmine_wktime[:wktime_own_approval].to_i == 1 ) : false) : true
-			%>				
-			<% totalid = Array.new %>
-			<% totalvalue =  " " %>
-			<% j = 0   %>
-			<% @wkmultiple = controller.multipleClockInOut %>							
-			<% l = 0%>	
-			<%=h hidden_field_tag("break_time" , Setting.plugin_redmine_wktime['wktime_break_time'] )  %> 
-			<% for i in 1..7%>
-				<% showtotal = false   %>
-				<div id="img_<%= i %>" >
-						
-					<% @wkmultiple.each do |entry| %>			
-						<% multipleid = (entry.start_time.localtime).strftime('%Y-%m-%d') %>
-						<% multiid = (entry.start_time.localtime).strftime('%Y-%m-%d').to_s.to_date.wday %>
-						<%  if i != j    %>
-						<% totalvalue += '|'  %>										
-						<% end %>
-						<% j = i %>
-						<%  if multipleid.to_s.to_date.wday == (@startday + (i-1)).wday   %>		
-							<% showtotal = true   %>
-							<% totalid[i] = l   %>
-							<% totalvalue +=  l.to_s + ','  %>						
-							<table >
-							<tbody>		
-							<tr>
-							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "popupstart_#{l}" , ( (entry.start_time.localtime).strftime('%R')  ).to_s, :size => 4, :disabled => disable ,  :onchange => "hoursClockInOut(1,#{l}); validateHr(this,#{(i+1)});"  %></td> 
-							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "popupend_#{l}"  , (!(entry.end_time).blank? ? ( (entry.end_time.localtime).strftime('%R')  ).to_s : '' ) , :size => 4, :disabled => disable,  :onchange => "hoursClockInOut(1,#{l}); validateHr(this,#{(i+1)});"   %></td>
-							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "total_#{l}"  , "0:00" , :size => 4, :disabled =>  disable, :onchange => "totalClockInOut();"   %></td>
-							<td><%=h hidden_field_tag("hiddenpopup_#{l}", entry.id )  %></td>							
-							</tr>
-							</tbody>
-							</table>
-							<% l += 1 %>							
-						<% end %>							
-					<% end %>	
-					<%  if showtotal    %>
-						<p style = "padding-left: 90px;">
-						<%= l(:label_grand_total) %></label>
-						<%= text_field_tag "grandTotal_#{i}"  , "" , :size => 4, :disabled => disable %></p>
-					<%  elsif isAccountUser  && !(@startday + (i-1)).future?   %>
-							 <table> <tbody> <tr> <td style="width: 80px; padding-left: 10px;"><%= text_field_tag "newstart_#{i}" , "", :size => 4, :disabled => disable, :onchange => "validateHr(this.value,#{(i)}); hoursClockInOut(2,#{i});"  %></td>
-							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "newend_#{i}" , "", :size => 4, :disabled => disable, :onchange => "validateHr(this.value,#{(i)}); hoursClockInOut(2,#{i});"  %></td>
-							<td style="width: 80px; padding-left: 10px;"><%= text_field_tag "newdiff_#{i}" , "", :size => 4, :disabled => disable, :onchange => "validateHr(this.value,#{(i)});"  %></td>
-							<td><%=h hidden_field_tag("hiddennewid_#{i}", "" )  %></td></tr></tbody>	
-							</table>							
-							<p style = "padding-left: 90px;">						
-							<%= hidden_field_tag "newTotal_#{i}"  , "" , :size => 4, :disabled => disable %></p>
-					<% end %>					
-				</div>					
-			<% end %>
-			<%=h hidden_field_tag("textlength", l )  %>	
-			<%=h hidden_field_tag("grandtotal", totalvalue )  %>			
-		</fieldset>
-		<%  if isAccountUser    %>
-			<p><%= l(:label_hours_note) %></p>
-		<% end %>	
-	</div>
+	<%= render :partial => 'attendance' %>
 		
 <%= render :partial => 'row_template' %>
 

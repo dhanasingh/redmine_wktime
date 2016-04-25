@@ -17,35 +17,6 @@
 		<%= l(:"label_#{str}") %>
 	</td>
 	<% col_num = -1 %>	
-	<% hiddenid = Array.new %>
-	<% entrystart = Array.new %>
-	<% entryend = Array.new %>
-	<% entrydate = Array.new %>
-	<% entryenddate = Array.new %>
-	<% @wkattendances.each do |entry| %>
-		<% hiddenid <<   entry.id  %>			
-		<% entrystart <<  (!(entry.start_time).blank? ?  (entry.start_time.localtime).strftime('%R') : '00:00') %>
-		<% entryend << (!(entry.end_time).blank? ?  (entry.end_time.localtime).strftime('%R') : '00:00') %>
-		<% entrydate << (entry.start_time.localtime).strftime('%Y-%m-%d') %>
-		<% entryenddate << (entry.end_time.localtime).strftime('%Y-%m-%d') if !(entry.end_time).blank? %>
-	<% end %>
-	<% hiddenvalue = Array.new %>
-	<% startvalue = Array.new %>
-	<% endvalue = Array.new %>
-	<% k = 0%>	
-	<% for j in 0..6%>
-	
-		<%  if (@startday + j).to_s == (entrydate[k]).to_s   %>
-			<% startvalue[j] = entrystart[k] %>		
-			<% endvalue[j] = entryend[k] %>
-			<% hiddenvalue[j] = hiddenid[k] %>
-			<% k += 1 %>
-		<% else %>
-			<% startvalue[j] = '00:00' %>
-			<% endvalue[j] = '00:00' %>
-			<% hiddenvalue[j] = '' %>
-		<% end %>	
-	<% end %>
 	<% nightclkout = false %>
 	<% count = 0 %>
 	<% futureTime = Time.now %>
@@ -53,7 +24,7 @@
 	<% for i in 0..6%>	
 		<% if (@startday + i) == Date.today %>
 			<% col_num = i %>
-			<% @wkmultiple = controller.multipleClockInOut %>
+			<% @wkmultiple = controller.findAttnEntries %>
 			<% @wkmultiple.each do |entry| %>
 				<% stday = (entry.start_time.localtime).strftime('%Y-%m-%d') %>
 				<%  if stday.to_s.to_date.wday == (@startday + (i-1)).wday && count != 1   %>
@@ -61,7 +32,7 @@
 					<% count = 1 %>
 				<% end %>
 			<% end %>
-			<%  if (endvalue[i-1] == '00:00' && startvalue[i-1] != '00:00') && (@startday + (i-1)) == (@startday + i).yesterday && futureTime.to_i > currentTime.to_i   %>
+			<%  if ($entryEndTime[i-1] == '00:00' && $entryStartTime[i-1] != '00:00') && (@startday + (i-1)) == (@startday + i).yesterday && futureTime.to_i > currentTime.to_i   %>
 				<% nightclkout = true %>
 				<%=h hidden_field_tag('nightshift' , nightclkout  )  %>  
 			<% end %>			
@@ -71,10 +42,10 @@
 		<% if (isEditable) %>  			
 		<td class="hours">	
 			<div style="float: left; width: 80px;">
-			<div style="float: left;">
-				<%=h text_field_tag( "#{str}_#{(i+1)}" , "#{str}" == "start" ? startvalue[i] : endvalue[i],:size => 4, :disabled =>  true, :class => (@startday + i) < Date.today ? 'clock-textbox' : ((@startday + i) == Date.today ? 'clock-todaytextbox' : '' ),  :onchange => "validateHr(this,#{(i+1)});") %>
-			 	<%=h hidden_field_tag('hd' + "#{str}_#{(i+1)}", !nightclkout ? hiddenvalue[i] : hiddenvalue[i-1] )  %>  
-				<%=h hidden_field_tag('hours' + "#{str}_#{(i+1)}", !nightclkout ? hiddenvalue[i] : hiddenvalue[i-1] )  %>  
+			<div style="float: left;">	
+				<%=h text_field_tag( "#{str}_#{(i+1)}" , "#{str}" == "start" ? ( $entryStartTime[i] ?  $entryStartTime[i].split(",").last(1) : '00:00') : ( $entryEndTime[i] ?  $entryEndTime[i].split(",").last(1) : '00:00'),:size => 4, :disabled =>  true, :class => (@startday + i) < Date.today ? 'clock-textbox' : ((@startday + i) == Date.today ? 'clock-todaytextbox' : '' ),  :onchange => "validateHr(this,#{(i+1)});") %>
+			 	<%=h hidden_field_tag('hd' + "#{str}_#{(i+1)}", !nightclkout ? ( $entryId[i] ?  $entryId[i].split(",").last(1) : '') : ( $entryId[i-1] ?  $entryId[i-1].split(",").last(1) : '') )  %>  
+				<%=h hidden_field_tag('hours' + "#{str}_#{(i+1)}", ( $entryHours[i] ?  $entryHours[i].split(",").last(1) : '0.0') )  %>  
 			</div>
 			
 			<% if ("#{str}" == "start" || "#{str}" == "end") && controller.showClockInOut && (i == col_num) &&  User.current.id == @user.id   %>
