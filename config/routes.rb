@@ -33,6 +33,8 @@
   get 'wktime/testapi', :to => 'wktime#testapi' 
   
   get 'wktime/updateAttendance', :to => 'wktime#updateAttendance'   
+  
+  get 'wktime/signAttendance', :to => 'wktime#signAttendance' 
     
   get 'wktime/time_rpt', :to => 'wktime#time_rpt'  
   
