@@ -7,6 +7,12 @@ $(document).ready(function(){
 	var txtissuetracker;
 	var timeWarnMsg = document.getElementById('label_time_warn');
 	var issueWarnMsg = document.getElementById('label_issue_warn');
+	
+	$('#quick-search').append( $('<br>') );	
+	$('#quick-search').append( $('#appendlabel') );	
+	$('#quick-search').append( $('#startdiv') ); 
+	$('#quick-search').append( $('#enddiv') );
+	
 	if (timeWarnMsg != null && issueWarnMsg != null) {
 		warnMsg = [timeWarnMsg.value, issueWarnMsg.value];
 	}
@@ -145,4 +151,37 @@ function showIssueMessage(data,divID) {
 		}
 		divID.style.display = 'none';
 	}
+}
+
+
+function signAttendance(str)
+{
+	var d = new Date();
+	var hh = d.getHours();
+	var mm = d.getMinutes();
+	elementhour = hh + ":" + mm;
+	var datevalue = d;
+	if( str == 'start' )
+	{
+	  document.getElementById('clockin' ).hidden = true;
+	  document.getElementById('clockout').hidden = false;
+	}
+	else
+	{
+	  document.getElementById('clockin' ).hidden = false;
+	  document.getElementById('clockout').hidden = true;
+	}/*
+	var userid = document.getElementById('user_id').value;
+	var nightshift = false;
+	if(document.getElementById('nightshift') != null && !diff )
+	{
+		 nightshift = document.getElementById('nightshift').value;	
+	}	*/
+	var requrl = "";
+	$.ajax({	
+	url: 'updateClockInOut',
+	type: 'get',
+	data: {startdate : datevalue, str: str},
+	success: function(data){ }   
+	});
 }

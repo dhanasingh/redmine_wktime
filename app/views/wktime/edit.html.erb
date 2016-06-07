@@ -1,6 +1,5 @@
+ <%= render :partial => 'attendance_widget' %>
  <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-
-
   <%= javascript_include_tag 'edit', :plugin => "redmine_wktime" %>
  
 	<script type="text/javascript"> 
@@ -100,10 +99,13 @@
 	<%= render :partial => 'attendance' %>
 		
 <%= render :partial => 'row_template' %>
-
 <%= form_tag({:controller => controller.controller_name, :action => 'update'}, :method => :post, :id => 'wktime_edit') do %>
 
+
+<div style="float: left;">
 <h2><%= l(:label_wktime) %></h2>
+</div>
+<div style="clear: both;"></div>
 <%=h hidden_field_tag('tab', "#{controller_name}") %>
 
 <%= render :partial => 'edit_header' %>

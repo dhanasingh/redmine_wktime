@@ -1,4 +1,4 @@
-class WkreportController < ApplicationController	
+class WkreportController < WkbaseController	
 unloadable 
 
 include WktimeHelper
@@ -10,6 +10,9 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 	
 	def index
 		@groups = Group.sorted.all
+		if !findLastAttnEntry.blank?
+			@lastAttnEntry = findLastAttnEntry[0]
+		end
 		if params[:searchlist].blank? && session[:wkreport].nil?
 			session[:wkreport] = {:group_id => params[:group_id]}
 		elsif params[:searchlist] =='wkreport'
@@ -213,6 +216,6 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		ret = false
 		ret = params[:user_id].to_i == User.current.id
 		return (ret || isAccountUser)
-	end
+	end	
 	
 end

@@ -49,7 +49,7 @@
 <h2><%= l(:label_wkexpense) %></h2>
 
 <%= render :partial => 'wktime/edit_header' %>
-
+<%= render :partial => 'wktime/attendance_widget' %>
 <% if !@wktime.blank? && @wktime.status == 'r' && !@wktime.notes.blank? %>
 	<tr>
 	<th align="left"><%=l(:label_wk_reject_reason)%></th>

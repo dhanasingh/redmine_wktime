@@ -1,33 +1,8 @@
 <div style="float: left;">
 <h2><%= l(:label_ta) %></h2>
 </div>
-<%= javascript_include_tag 'edit', :plugin => "redmine_wktime" %>
-<% if controller.showClockInOut %>	
-	<% 
-		if(@lastAttnEntry.end_time.blank? && @lastAttnEntry.start_time > 24.hour.ago)
-			hideStart = true
-			hideEnd = false
-			str = "end"
-		else
-			hideStart = false
-			hideEnd = true
-		end
-		str = (@lastAttnEntry.end_time.blank? && @lastAttnEntry.start_time > 24.hour.ago ? "end" : "start") 
-		imgname = "#{str}" == "start" ? "clockin.jpg" : "clockout.jpg" 
-	%>	
-		<div style="float: right;" id='clock' style="background-color: #eee"></div>
-	<div style="float: right;margin-bottom: -30px;">
-	<% strt_image_tg = image_tag("clockin.jpg", :id => 'clockin' , :plugin => "redmine_wktime", :title => l(:label_clock_in), :hidden => hideStart ) %>
-	<%= link_to strt_image_tg, "javascript:signAttendance('start');", {:id => "clock_start"}  %>		
-	</div>
-	
-	<div style="float: right;margin-bottom: -30px;">
-	<% end_image_tg = image_tag("clockout.jpg", :id => 'clockout', :plugin => "redmine_wktime", :title => l(:label_clock_out),:hidden => hideEnd ) %>
-	<%= link_to end_image_tg, "javascript:signAttendance('end');", {:id => "clock_end"}  %>		
-	</div>
-	<div style="clear: both;"></div>
-<% end %>
-
+<%= render :partial => 'attendance_widget' %>
+<div style="clear: both;"></div>
 <script type="text/javascript">
    wktimeIndexUrl = '<%=url_for(:controller => "wktime", :action => "index", :tab => "wktime")%>';
    wkexpIndexUrl = '<%=url_for(:controller => "wkexpense", :action => "index", :tab => "wkexpense")%>';    

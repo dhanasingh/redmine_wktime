@@ -34,7 +34,7 @@
   
   get 'wktime/updateAttendance', :to => 'wktime#updateAttendance'   
   
-  get 'wktime/signAttendance', :to => 'wktime#signAttendance' 
+  get 'wktime/updateClockInOut', :to => 'wktime#updateClockInOut' 
     
   get 'wktime/time_rpt', :to => 'wktime#time_rpt'  
   
@@ -65,6 +65,8 @@
   post 'wkexpense/sendSubReminderEmail', :to => 'wkexpense#sendSubReminderEmail'
   
   post 'wkexpense/sendApprReminderEmail', :to => 'wkexpense#sendApprReminderEmail'
+  
+  get 'wkexpense/updateClockInOut', :to => 'wkexpense#updateClockInOut' 
   
   #For Weekly expense report
   
@@ -98,10 +100,15 @@
    
   get 'wkattendance/getProjectByIssue', :to => 'wkattendance#getProjectByIssue'
   
+  get 'wkattendance/updateClockInOut', :to => 'wkattendance#updateClockInOut' 
+  
   #For Report   
   get 'wkreport/index', :to => 'wkreport#index'
    
   get 'wkreport/reportattn', :to => 'wkreport#reportattn'
   
+  get 'wkreport/updateClockInOut', :to => 'wkreport#updateClockInOut' 
+  
+ 
   
   

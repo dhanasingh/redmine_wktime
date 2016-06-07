@@ -150,12 +150,12 @@ $(document).ready(function() {
 			attnId = document.getElementById('hdstart_' + colNum).value;
 			if(clkEnd == "00:00" && (clkStart != "00:00" || attnId > 0))
 			{
-					document.getElementById('clock_end').style.visibility = "visible";
-					document.getElementById('clock_start').style.visibility = 'hidden';
+					document.getElementById('end').style="display:inline; !important";
+					document.getElementById('start').style="display:none; !important";
 			}
 			else
 			{
-				document.getElementById('clock_end').style.visibility = 'hidden';
+				document.getElementById('end').style="display:none; !important";
 			}
 		}	
 		
@@ -1226,7 +1226,7 @@ function updateTotalHr(day, element)
 		document.getElementById("grandTotal_"+day).value = timeStringToFloat(totTime) ;
 	}			
 	totHrCell = totTimeRow.cells[hStartIndex + day];
-	totHrCell.innerHTML = totTime + "     <a href='javascript:showclkDialog("+day+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockin.png' border=0 title=''/></a>";
+	totHrCell.innerHTML = totTime + "     <a href='javascript:showclkDialog("+day+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockdetail.png' border=0 title=''/></a>";
 }
 
 //Validates the start and end time
@@ -1361,14 +1361,14 @@ function setClockInOut(strid,id) {
 	document.getElementById(strid + '_' + id).value = elementhour;
 	if( strid == 'start' )
 	{
-	  document.getElementById('clock_end' ).style.visibility = "visible";
-	  document.getElementById('clock_start').style.visibility = 'hidden';
+	  document.getElementById('end' ).style="display:inline; !important";
+	  document.getElementById('start').style="display:none; !important";
 	  document.getElementById('end_' + id).value = "00:00";
 	}
 	else
 	{
-	  document.getElementById('clock_start' ).style.visibility = "visible";
-	  document.getElementById('clock_end').style.visibility = 'hidden';
+	  document.getElementById('end' ).style="display:none; !important";
+	  document.getElementById('start').style="display:inline; !important";
 	}
 	updateClockInOut(elementhour, strid, id, elementend );
 }

@@ -273,34 +273,3 @@ function progrpChanged(btnoption, userid, needBlankOption){
 		grpChanged(document.getElementById("group_id"), userid, needBlankOption)
 	}
 }
-
-function signAttendance(str)
-{
-	var d = new Date();
-	var hh = d.getHours();
-	var mm = d.getMinutes();
-	elementhour = hh + ":" + mm;
-	var datevalue = d;
-	if( str == 'start' )
-	{
-	  document.getElementById('clockin' ).hidden = true;
-	  document.getElementById('clockout').hidden = false;
-	}
-	else
-	{
-	  document.getElementById('clockin' ).hidden = false;
-	  document.getElementById('clockout').hidden = true;
-	}/*
-	var userid = document.getElementById('user_id').value;
-	var nightshift = false;
-	if(document.getElementById('nightshift') != null && !diff )
-	{
-		 nightshift = document.getElementById('nightshift').value;	
-	}	*/
-	$.ajax({
-	url: 'signAttendance',
-	type: 'get',
-	data: {startdate : datevalue, str: str},
-	success: function(data){ }   
-	});
-}
