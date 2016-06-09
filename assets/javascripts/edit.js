@@ -26,6 +26,8 @@ var addval = new Array();
 var totalBreakTime = 0;
 var nscount = 0;
 var clkdialogid = 0;
+var minHourperWeekAlertMsg="";
+var maxHourperWeekAlertMsg="";
 $(document).ready(function() {
 	var e_comments = $( "#_edit_comments_" );
 	var e_notes = $( "#_edit_notes_" );	
@@ -1280,23 +1282,24 @@ function issueAutocomplete(txtissue,row){
         });
 }
 
-function validateMinhour(minHour,nonWorkingDay){
+function validateMinhour(minHour,nonWorkingDay, minHoursPerWeek, maxHoursPerWeek){
 	var valid=true;
 	var totalhr = document.getElementById("total_hours").innerHTML;
 	totalhr = Number(totalhr);
+	//alert("minHour : " + minHour + " minHoursPerWeek : " + minHoursPerWeek + " maxHoursPerWeek : " + maxHoursPerWeek);
 	 minHour=minHour.replace(decSeparator, '\.');
 	 if(isNaN(minHour)){
 		minHour=minHour.replace(',', '\.');
 	 }
 	 
-	 if (minHour!=0 && !isNaN(minHour)){	
+	 if (minHour!=0 && !isNaN(minHour) || (minHoursPerWeek!= 0 && !isNaN(minHoursPerWeek)) || (maxHoursPerWeek!= 0 && !isNaN(maxHoursPerWeek))){	
 		 for (i=1;i<=7;i++){
 			var dayTotal= document.getElementById('day_total_'+i).innerHTML;
 			dayTotal = Number(dayTotal.replace(decSeparator, '\.'));
 			if(nonWorkingDay.indexOf(i.toString())== -1 || dayTotal > 0){				
 				
-				if (dayTotal< Number(minHour)){
-					alert(minHourAlertMsg);
+				if (dayTotal< Number(minHour) || (totalhr < minHoursPerWeek) || (totalhr > maxHoursPerWeek) ){
+					alert((dayTotal< Number(minHour) ? minHourAlertMsg : '' ) + "\n" + (totalhr > maxHoursPerWeek ? maxHourperWeekAlertMsg : (totalhr < minHoursPerWeek ? minHourperWeekAlertMsg : '')) );
 					valid=false
 					break;
 				}

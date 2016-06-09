@@ -6,7 +6,7 @@
 				hideStart = true
 				hideEnd = false
 				imglabel = "end"
-				remaininghr =  (controller.computeWorkedHours(@lastAttnEntry.start_time, Time.now.localtime, false)).round(0)
+				remaininghr =  (controller.computeWorkedHours(@lastAttnEntry.start_time, Time.now.localtime, false))
 			else
 				hideStart = false
 				hideEnd = true
@@ -19,7 +19,7 @@
 		 
 		imgname = "#{imglabel}" == "start" ? "clockin1.jpg" : "clockout1.jpg" %>	
 	<% totalhours = (controller.totalhours)*3600 %>
-	<% totalhours = (hideStart ? remaininghr+totalhours : totalhours ) %>
+	<% totalhours = (hideStart ? ( !remaininghr.blank? ? remaininghr.round(0)+totalhours : totalhours) : totalhours ) %>
 	<% totalhours1 = Time.at(totalhours).utc.strftime("%H:%M:%S") %>
 	
 	<label id="appendlabel" style="float:right;"><br/><%= l(:label_grand_total) %><br/>

@@ -10,6 +10,8 @@
 		invalidMsg = " <%= (CGI.unescapeHTML l('activerecord.errors.messages.invalid')).html_safe %>";
 		submissionack="<%= Setting.plugin_redmine_wktime[:wktime_submission_ack] %>";
 		minHourAlertMsg = "<%= l(:text_wk_warning_min_hour, :value => "#{controller.minHour}").html_safe %>";
+		minHourperWeekAlertMsg = "<%= l(:text_wk_warning_min_hour_week, :value => "#{controller.minHourPerWeek}").html_safe %>";
+		maxHourperWeekAlertMsg = "<%= l(:text_wk_warning_max_hour_week, :value => "#{controller.maxHourPerWeek}").html_safe %>";
 		editUrl = '<%= raw(url_for(:controller => controller.controller_name, :action => "edit", :startday => @startday, :user_id => params[:user_id]))%>';
 		breakvalue = '<%= Setting.plugin_redmine_wktime['wktime_break_time'] %>'
 		<!--  if !Setting.plugin_redmine_wktime['wktime_work_time_header'].blank? &&  -->

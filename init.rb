@@ -194,7 +194,14 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_sick_leave_accrual' => '0',
 			 'wktime_paid_leave_accrual' => '0',
 			 'wktime_leave_accrual_after' => '0',
-			 'wktime_default_work_time' => '8'
+			 'wktime_default_work_time' => '8',
+			 'wktime_restr_max_hour_week' => '0',
+			 'wktime_max_hour_week' => '0',
+			 'wktime_restr_min_hour_week' => '0',
+			 'wktime_min_hour_week' => '0',
+			 'wktime_enable_expense_module' => '1',
+			 'wktime_enable_report_module' => '1',
+			 'wktime_enable_attendance_module' => '1'
   })  
  
   menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_ta, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 	

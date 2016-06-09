@@ -948,6 +948,15 @@ include QueriesHelper
 		Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1
 	end
 	
+	def maxHourPerWeek
+		Setting.plugin_redmine_wktime['wktime_restr_max_hour_week'].to_i == 1 ?  
+		(Setting.plugin_redmine_wktime['wktime_max_hour_week'].blank? ? 0 : Setting.plugin_redmine_wktime['wktime_max_hour_week']) : 0
+	end
+	def minHourPerWeek
+		Setting.plugin_redmine_wktime['wktime_restr_min_hour_week'].to_i == 1 ?  
+		(Setting.plugin_redmine_wktime['wktime_min_hour_week'].blank? ? 0 : Setting.plugin_redmine_wktime['wktime_min_hour_week']) : 0
+	end
+	
 private
 	
 	def getManager(user, approver)

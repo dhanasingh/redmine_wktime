@@ -461,7 +461,9 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 	{
 		var maxhrfield = document.getElementById("settings_wktime_max_hour_day").value;
 		var minhrfield = document.getElementById("settings_wktime_min_hour_day").value;
-		if(Number(maxhrfield) < Number(minhrfield))
+		var maxhrweekfield = document.getElementById("settings_wktime_max_hour_week").value;
+		var minhrweekfield = document.getElementById("settings_wktime_min_hour_week").value;
+		if((Number(maxhrfield) < Number(minhrfield)) || (Number(maxhrweekfield) < Number(minhrweekfield)))
 		{
 			document.getElementById(id).value = "";
 			alert(msg);

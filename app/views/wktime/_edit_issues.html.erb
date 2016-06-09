@@ -111,8 +111,8 @@ currencySym = ""
 			<%= submit_tag l(:button_save), :id => 'wktime_save', :name => 'wktime_save',  :disabled => !(@row > 0)%>
 			<%= submit_tag l(:button_save_continue), :id => 'wktime_save_continue', :name => 'wktime_save_continue' , :disabled => !(@row > 0)%>
 		<% if !Setting.plugin_redmine_wktime[:wktime_use_approval_system].blank? &&
-				Setting.plugin_redmine_wktime[:wktime_use_approval_system].to_i == 1 %>		
-				<%= submit_tag l(:button_submit),:id => 'wktime_submit', :name => 'wktime_submit', :onclick => "return validateMinhour('#{controller.minHour}','#{getNonWorkingDayColumn(params[:startday])}');" , :disabled => !(@row > 0)%>
+				Setting.plugin_redmine_wktime[:wktime_use_approval_system].to_i == 1 %>	
+				<%= submit_tag l(:button_submit),:id => 'wktime_submit', :name => 'wktime_submit', :onclick => "return validateMinhour('#{controller.minHour}','#{getNonWorkingDayColumn(params[:startday])}','#{controller.minHourPerWeek}', '#{controller.maxHourPerWeek}');" , :disabled => !(@row > 0)%>
 		<% end %>
 	<% end %>
 	<% if !Setting.plugin_redmine_wktime[:wktime_use_approval_system].blank? &&
