@@ -1,6 +1,6 @@
 <%= javascript_include_tag 'edit', :plugin => "redmine_wktime" %>
-<% if !Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? &&
-		Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1 %>	
+<% if (!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? &&
+		Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1) && (!Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].blank? && Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].to_i == 1 ) %>	
 	<%	if !@lastAttnEntry.blank?
 			if(@lastAttnEntry.end_time.blank? && @lastAttnEntry.start_time > 24.hour.ago)
 				hideStart = true

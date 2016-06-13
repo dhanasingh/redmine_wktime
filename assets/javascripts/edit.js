@@ -1291,23 +1291,39 @@ function validateMinhour(minHour,nonWorkingDay, minHoursPerWeek, maxHoursPerWeek
 	 if(isNaN(minHour)){
 		minHour=minHour.replace(',', '\.');
 	 }
-	 
-	 if (minHour!=0 && !isNaN(minHour) || (minHoursPerWeek!= 0 && !isNaN(minHoursPerWeek)) || (maxHoursPerWeek!= 0 && !isNaN(maxHoursPerWeek))){	
+	 var msg ="";
+	 if (minHour!=0 && !isNaN(minHour)) { // || (minHoursPerWeek!= 0 && !isNaN(minHoursPerWeek)) || (maxHoursPerWeek!= 0 && !isNaN(maxHoursPerWeek))){	
 		 for (i=1;i<=7;i++){
 			var dayTotal= document.getElementById('day_total_'+i).innerHTML;
 			dayTotal = Number(dayTotal.replace(decSeparator, '\.'));
 			if(nonWorkingDay.indexOf(i.toString())== -1 || dayTotal > 0){				
 				
-				if (dayTotal< Number(minHour) || (totalhr < minHoursPerWeek) || (totalhr > maxHoursPerWeek) ){
-					alert((dayTotal< Number(minHour) ? minHourAlertMsg : '' ) + "\n" + (totalhr > maxHoursPerWeek ? maxHourperWeekAlertMsg : (totalhr < minHoursPerWeek ? minHourperWeekAlertMsg : '')) );
-					valid=false
+				if (dayTotal< Number(minHour)){ // || (totalhr < minHoursPerWeek) || (totalhr > maxHoursPerWeek) ){
+					//alert((dayTotal< Number(minHour) ? minHourAlertMsg : '' ) + "\n" + (totalhr > maxHoursPerWeek ? maxHourperWeekAlertMsg : (totalhr < minHoursPerWeek ? minHourperWeekAlertMsg : '')) );
+					msg = minHourAlertMsg;
+					valid=false;
 					break;
 				}
 			}
 		 }
 	 }
 	 
-	if(valid  && submissionack!=''){
+	 if(minHoursPerWeek != 0 && !isNaN(minHoursPerWeek) && totalhr < minHoursPerWeek)
+	 {
+		msg += "\n" + minHourperWeekAlertMsg;
+		valid=false; 
+	 }
+	 if(maxHoursPerWeek != 0 && !isNaN(maxHoursPerWeek) && totalhr > maxHoursPerWeek)   
+	{
+		msg += "\n" + maxHourperWeekAlertMsg;
+		valid=false;
+	}
+	 
+	 if(!valid)
+	 {
+		 alert(msg);
+	 }
+	if(valid  && submissionack!=''){		
 		valid= confirm(submissionack);
 	}
 	return valid;

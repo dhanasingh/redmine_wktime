@@ -16,8 +16,8 @@
 		breakvalue = '<%= Setting.plugin_redmine_wktime['wktime_break_time'] %>'
 		<!--  if !Setting.plugin_redmine_wktime['wktime_work_time_header'].blank? &&  -->
 		<!-- 		Setting.plugin_redmine_wktime['wktime_work_time_header'].to_i == 1  -->
-		<% if !Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? &&
-		Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1 %>		
+		<% if (!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? &&
+		Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1) && (!Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].blank? && Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].to_i == 1 ) %>		
 				showWorkHeader = true;
 				footerRows = 2;
 				headerRows = 4;
