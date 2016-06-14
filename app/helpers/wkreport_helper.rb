@@ -10,9 +10,10 @@ module WkreportHelper
 
 	def options_for_report_select
 		options_for_select([
-			[l(:label_wk_attendance), 'attendance_report'], 
-			[l(:label_wktime), 'time_report'], 
-			[l(:label_wkexpense), 'expense_report']], 'attendance_report')
+			[l(:label_wk_attendance), 'attendance_report']#, 
+			#[l(:label_wktime), 'time_report'], 
+			#[l(:label_wkexpense), 'expense_report']
+			], 'attendance_report')
 	end
 
 end
