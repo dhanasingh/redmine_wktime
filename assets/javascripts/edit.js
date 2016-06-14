@@ -1190,7 +1190,9 @@ function updateTotalHr(day, element)
 	 {
 		 for(j = 0 ; j < attnDayEntriesCnt1 ; j++ )
 		 {
-			 minDiff  += getMinDiff(day, ['attnstarttime'+day+'_' + j,'attnendtime'+day+'_' + j, 'hoursdiff'+day+'_' + j]);
+			 sval =  document.getElementById('attnstarttime'+day+'_' + j).value; 
+			 eval = document.getElementById('attnendtime'+day+'_' + j).value ;
+			 minDiff  += !sval && !eval ? getMinDiff(day, ['attnstarttime'+day+'_' + j,'attnendtime'+day+'_' + j, 'hoursdiff'+day+'_' + j]) : 0;
 		 }
 		 
 	 }

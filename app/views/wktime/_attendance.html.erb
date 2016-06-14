@@ -11,7 +11,7 @@
 	<% entrydate << startDate.to_s.to_date.wday %>
 	<%  previousStartDate == startDate.to_s.to_date.wday && startDate.to_s.to_date.wday != 0 ?  $entryId[startDate.to_s.to_date.wday] << ','+(entry.id).to_s  : $entryId[startDate.to_s.to_date.wday] = (entry.id).to_s %>
 	<%  previousStartDate == startDate.to_s.to_date.wday && startDate.to_s.to_date.wday != 0 ?  $entryStartTime[startDate.to_s.to_date.wday] << ','+( (entry.start_time.localtime).strftime('%R')  ).to_s  : $entryStartTime[startDate.to_s.to_date.wday] = ( (entry.start_time.localtime).strftime('%R')  ).to_s %>
-	<%  previousStartDate == startDate.to_s.to_date.wday && startDate.to_s.to_date.wday != 0 ?  $entryEndTime[startDate.to_s.to_date.wday] << ','+( (!(entry.end_time).blank? ?  (entry.end_time.localtime).strftime('%R') : '00:00')  ).to_s  : $entryEndTime[startDate.to_s.to_date.wday] = ( (!(entry.end_time).blank? ?  (entry.end_time.localtime).strftime('%R') : '00:00')  ).to_s %>
+	<%  previousStartDate == startDate.to_s.to_date.wday && startDate.to_s.to_date.wday != 0 ?  $entryEndTime[startDate.to_s.to_date.wday] << ','+( (!(entry.end_time).blank? ?  (entry.end_time.localtime).strftime('%R') : '')  ).to_s  : $entryEndTime[startDate.to_s.to_date.wday] = ( (!(entry.end_time).blank? ?  (entry.end_time.localtime).strftime('%R') : '')  ).to_s %>
 	<%  previousStartDate == startDate.to_s.to_date.wday && startDate.to_s.to_date.wday != 0 ?  $entryHours[startDate.to_s.to_date.wday] << ','+(entry.hours).to_s  : $entryHours[startDate.to_s.to_date.wday] = (entry.hours).to_s %>
 	<%  previousStartDate = startDate.to_s.to_date.wday %>			
 <% end %>	
