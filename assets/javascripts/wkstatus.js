@@ -163,13 +163,13 @@ function signAttendance(str)
 	var datevalue = d;
 	if( str == 'start' )
 	{
-	  document.getElementById('clockin' ).hidden = true;
-	  document.getElementById('clockout').hidden = false;
+	  document.getElementById('clockin' ).style.display = "none";
+	  document.getElementById('clockout').style.display = "block";
 	}
 	else
 	{
-	  document.getElementById('clockin' ).hidden = false;
-	  document.getElementById('clockout').hidden = true;
+	  document.getElementById('clockin' ).style.display = "block";
+	  document.getElementById('clockout').style.display = "none";
 	}/*
 	var userid = document.getElementById('user_id').value;
 	var nightshift = false;

@@ -51,7 +51,7 @@
 			<% if ("#{str}" == "start" || "#{str}" == "end") && controller.showClockInOut && (i == col_num) &&  User.current.id == @user.id   %>
 				<% imgname = "#{str}" == "start"  ? "clockin.jpg" : "clockout.jpg" %>	
 				<div style="float: left; padding-left: 2px;" id="<%= str %>">		
-				<% image_tg = image_tag("#{imgname}", :id => "#{str}" == "start" ? 'start_img' : 'end_img' , :plugin => "redmine_wktime",  :title => "#{str}" == "start" ? l(:label_clock_in) : l(:label_clock_out),:hidden => true ) %>
+				<% image_tg = image_tag("#{imgname}", :id => "#{str}" == "start" ? 'start_img' : 'end_img' , :plugin => "redmine_wktime",  :title => "#{str}" == "start" ? l(:label_clock_in) : l(:label_clock_out), :style => "display:none;") %>
 				<%= link_to image_tg, "javascript:setClockInOut('#{str}','#{!nightclkout ? col_num : col_num-1}');", {:id => "clock_#{str}"}  %>		
 				</div>
 				<div style="clear: both;"></div>
