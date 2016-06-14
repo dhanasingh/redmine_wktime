@@ -1511,7 +1511,9 @@ function calculatebreakTime(totTime, day, element)
 		startval += ":00";
 		endval += ":00";
 		for(j=0;j < startBTime.length ; j++)
-		{					
+		{
+			startBTime[j] = startBTime[j] ? '00:00:00' : startBTime[j];
+			endBTime[j] = endBTime[j] ? '00:00:00' : endBTime[j];
 			startBT = dateCompare(startval,startBTime[j],0);
 			endBT = dateCompare(endval,endBTime[j],0);
 			// calculate time from greater & less then break time and inbetween clock in/out
