@@ -21,7 +21,7 @@ class WkExpenseEntry < TimeEntry
   #hours function of TimeEntry(base class) is overrided to use amount column of WkExpenseEntry
   
   def validate_time_entry
-    errors.add :amount, :invalid if amount && (amount < 0 || amount >= 100000)
+    errors.add :amount, :invalid if amount && (amount < 0 || amount >= 1000000)
     errors.add :project_id, :invalid if project.nil?
     errors.add :issue_id, :invalid if (issue_id && !issue) || (issue && project!=issue.project)
   end  
