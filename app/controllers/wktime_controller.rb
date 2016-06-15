@@ -381,6 +381,9 @@ include QueriesHelper
 	
 	def new
 		set_user_projects
+		if !findLastAttnEntry.blank?	
+			@lastAttnEntry = findLastAttnEntry[0]
+		end
 		@selected_project = getSelectedProject(@manage_projects, true)
 		# get the startday for current week
 		@startday = getStartDay(Date.today)

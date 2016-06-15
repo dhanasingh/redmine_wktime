@@ -122,6 +122,13 @@ class WkexpenseController < WktimeController
 	def showClockInOut
 		false
 	end
+	def maxHourPerWeek
+		0
+	end
+	
+	def minHourPerWeek
+		0
+	end
 private
   def getSpecificField
 	"amount"
