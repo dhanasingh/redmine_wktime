@@ -1192,7 +1192,7 @@ function updateTotalHr(day, element)
 		 {
 			 sval =  document.getElementById('attnstarttime'+day+'_' + j).value; 
 			 eval = document.getElementById('attnendtime'+day+'_' + j).value ;
-			 minDiff  += !sval && !eval ? getMinDiff(day, ['attnstarttime'+day+'_' + j,'attnendtime'+day+'_' + j, 'hoursdiff'+day+'_' + j]) : 0;
+			 minDiff  +=  sval && eval ? getMinDiff(day, ['attnstarttime'+day+'_' + j,'attnendtime'+day+'_' + j, 'hoursdiff'+day+'_' + j]) : 0 ;
 		 }
 		 
 	 }
@@ -1502,20 +1502,25 @@ function calculatebreakTime(totTime, day, element)
 		breakTime = document.getElementById('break_time').value;
 		breakTime = breakTime.split(" ");	
 		var startBTime = new Array() ,endBTime = new Array();
-		for(i= 0; i < breakTime.length ; i++)
-		{				
-			breakValue =  breakTime[i].split('|');
-			startBTime[i]= breakValue[0] + ":" + breakValue[1] + ":00" ;
-			endBTime[i] = breakValue[2] + ":" + breakValue[3] + ":00";						
+		if(breakTime !='')
+		{
+			for(i= 0; i < breakTime.length ; i++)
+			{				
+				breakValue =  breakTime[i].split('|');
+				if(breakValue[0]&&breakValue[1]&&breakValue[2]&&breakValue[3])
+				{
+					startBTime[i]= breakValue[0] + ":" + breakValue[1] + ":00" ;
+					endBTime[i] = breakValue[2] + ":" + breakValue[3] + ":00";	
+				}								
+			}
 		}
+		
 		var diffbetween,diffbetween1, diffbetween4,diffbetween5;
 		var dbtotal , stdiff;				
 		startval += ":00";
 		endval += ":00";
 		for(j=0;j < startBTime.length ; j++)
 		{
-			startBTime[j] = startBTime[j] ? '00:00:00' : startBTime[j];
-			endBTime[j] = endBTime[j] ? '00:00:00' : endBTime[j];
 			startBT = dateCompare(startval,startBTime[j],0);
 			endBT = dateCompare(endval,endBTime[j],0);
 			// calculate time from greater & less then break time and inbetween clock in/out
