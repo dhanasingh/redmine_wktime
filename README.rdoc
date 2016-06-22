@@ -77,15 +77,24 @@ If an apache passenger module is used then make sure the following settings are 
 	b) RailsAppSpawnerIdleTime 0
 	c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for 2.1.2
+Release Notes for 2.2
 	Features:
-		- Made compatible with Redmine 3.2.1.
-		- User filter introduced in Attendance tab.
-		- Previous and Next link added in attendance detail page.
-		- Group filter introduced in Reports tab.
+	  - Made compatible with Redmine 3.2.2.
+	  - Clock-in and clock-out widget in all pages.	  
+	  - Pagination in the report popup.
+	  - Allow TE Admin to Delete entry in attendance.
+	  - Hide Expense, Attendance and Reports modules.
+	  - Configuration for Min/Max hours per week.
+	  - Configuration for non submission mails to group of users.
 	Bugs:
-		- Fixed decimals not taken into account when registering expenses.
-
+	  - Fixed Does not support other language Issue Id Validation Message.
+	  - Fixed Log Time : Approved/submitted sheet don't allow time entry through edit issue screen.
+	  - Fixed Show 'No record to display' if there is no record in attendance report.
+	  - Fixed Mobile web compatibility.
+	  - Fixed Min Hours Per Day : validation for Min Hours is less then Max Hours.
+	  - Fixed Expense total does not show correctly in Deleted Projects.
+	  - Fixed last day of the month not shown in the attendance report.
+	  - Fixed Does not save expense amount greater then 100000. 
 Customization:
 	For any Customization/Support, please contact us, our consulting team will be happy to help you
 
@@ -99,6 +108,7 @@ Customization:
 	Here are the Customizations we have done for our clients:
 		1.	Monthly Calendar - Puny Human
 		2.	Supervisor Approvals - Fotonation
+		3.	Hide Modules and Limit Non Submission Mail - Lyra Network
 		
 Please provide your rating at http://www.redmine.org/plugins/wk-time
 	
