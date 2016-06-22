@@ -50,5 +50,18 @@
 		<p>
 		  <label><%= l(:label_wk_nonsub_mail_message) %></label><%= text_area_tag 'settings[wktime_nonsub_mail_message]', @settings['wktime_nonsub_mail_message']%>
 		</p>
+		<%
+			accountGroups = Array.new
+			accGroup = Group.order('lastname')
+			unless accGroup.blank?
+				accountGroups = accGroup.collect {|t| [t.lastname, t.id] }
+			end
+			accountGroups.unshift(["",0])
+		%>
+		<p>
+			<label><%=l(:label_group_non_submission_email)%></label>
+			<%=  select_tag('settings[wktime_approval_groups]',
+					options_for_select(accountGroups, :selected => @settings['wktime_approval_groups'].blank? ? 0 : @settings['wktime_approval_groups']), :multiple=> true)%>
+		</p>
 	</fieldset>
 </div>

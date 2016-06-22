@@ -1,4 +1,4 @@
-class WktimeController < ApplicationController
+class WktimeController < WkbaseController
 unloadable
 
 include WktimeHelper
@@ -36,6 +36,9 @@ include QueriesHelper
 		group_id = session[:wktimes][:group_id]
 		status = session[:wktimes][:status]
 		userfilter = getValidUserCF(session[:wktimes][:filters], user_custom_fields)
+	end
+	if !findLastAttnEntry.blank?	
+		@lastAttnEntry = findLastAttnEntry[0]
 	end
 	
 	unless userfilter.blank? || @query.blank?
@@ -97,7 +100,9 @@ include QueriesHelper
 	@editable = false if @locked
 	set_edit_time_logs
 	@entries = findEntries()
-	@wkattendances  = findAttnEntries()
+	if !findLastAttnEntry.blank?
+		@lastAttnEntry = findLastAttnEntry[0]
+	end
 	if !$tempEntries.blank?
 		newEntries = $tempEntries - @entries
 		if !newEntries.blank?
@@ -376,6 +381,9 @@ include QueriesHelper
 	
 	def new
 		set_user_projects
+		if !findLastAttnEntry.blank?	
+			@lastAttnEntry = findLastAttnEntry[0]
+		end
 		@selected_project = getSelectedProject(@manage_projects, true)
 		# get the startday for current week
 		@startday = getStartDay(Date.today)
@@ -889,7 +897,12 @@ include QueriesHelper
 				ret += ','
 				count = 1
 			end		
-			wkattendance.save()
+			#wkattendance.save()
+			if(((wkattendance.start_time.localtime).to_formatted_s(:time)).to_s == "00:00" && ((wkattendance.end_time.localtime).to_formatted_s(:time)).to_s == "00:00" && wkattendance.id != nil)
+				wkattendance.destroy()				
+			else		
+				wkattendance.save()				
+			end
 			end until count == 1
 			ret += wkattendance.id.to_s
 			ret += ','
@@ -902,12 +915,7 @@ include QueriesHelper
 		end
 	end
 	
-	def showClockInOut
-		!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? &&
-		Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1
-	end
-	
-	def multipleClockInOut
+	def findAttnEntries
 		dateStr = getConvertDateStr('start_time')
 		WkAttendance.where(" user_id = '#{params[:user_id]}' and #{dateStr} between '#{@startday}'  and '#{@startday + 6}' ").order("start_time")
 	end
@@ -928,6 +936,29 @@ include QueriesHelper
 			totalBT = (totalBT/60.0)
 		end		
 		totalBT
+	end
+	
+	def time_rpt
+		@user = User.current
+		@startday = getStartDay(Date.today)
+		@entries = findEntries()
+		
+		render :action => 'time_rpt', :layout => false
+	end	
+	
+	def showClockInOut
+		(!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? &&
+		Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1) && (!Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].blank? && Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].to_i == 1 )
+	end
+	
+	def maxHourPerWeek
+		Setting.plugin_redmine_wktime['wktime_restr_max_hour_week'].to_i == 1 ?  
+		(Setting.plugin_redmine_wktime['wktime_max_hour_week'].blank? ? 0 : Setting.plugin_redmine_wktime['wktime_max_hour_week']) : 0
+	end
+	
+	def minHourPerWeek
+		Setting.plugin_redmine_wktime['wktime_restr_min_hour_week'].to_i == 1 ?  
+		(Setting.plugin_redmine_wktime['wktime_min_hour_week'].blank? ? 0 : Setting.plugin_redmine_wktime['wktime_min_hour_week']) : 0
 	end
 	
 private
@@ -1264,13 +1295,7 @@ private
 		setup	
 		cond = getCondition('spent_on', @user.id, @startday, @startday+6)		
 		findEntriesByCond(cond)
-	end
-	
-	def findAttnEntries
-		dateStr = getConvertDateStr('start_time')
-		dateOrder = getConvertDateStr('end_time')
-		WkAttendance.find_by_sql("select a.* from wk_attendances a inner join ( select max(start_time) as start_time,user_id from wk_attendances where #{dateStr}  between '#{@startday}'  and '#{@startday+6}' and user_id = #{params[:user_id]} group by #{dateStr},user_id ) vw on a.start_time = vw.start_time and a.user_id = vw.user_id order by a.start_time ")
-	end
+	end	
 	
 	def findWkTE(start_date, end_date=nil)
 		setup

@@ -1,3 +1,4 @@
+<%= render :partial => 'wktime/attendance_widget' %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 
 <%= javascript_include_tag 'edit', :plugin => "redmine_wktime" %>
@@ -49,7 +50,6 @@
 <h2><%= l(:label_wkexpense) %></h2>
 
 <%= render :partial => 'wktime/edit_header' %>
-
 <% if !@wktime.blank? && @wktime.status == 'r' && !@wktime.notes.blank? %>
 	<tr>
 	<th align="left"><%=l(:label_wk_reject_reason)%></th>

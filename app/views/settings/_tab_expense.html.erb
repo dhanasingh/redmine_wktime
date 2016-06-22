@@ -9,6 +9,9 @@
 		trackers.unshift(["",0])
 	%>
 	<p>
+			<%= check_box_tag('settings[wktime_enable_expense_module]', 1, @settings['wktime_enable_expense_module'].to_i == 1) %> <label><%= l(:label_enable_expense_module) %></label>
+		</p>
+	<p>
 		<label><%=l(:label_wk_filter_issue_tracker)%></label>
 		<%= select_tag('settings[wkexpense_issues_filter_tracker]', options_for_select(trackers, :selected => @settings['wkexpense_issues_filter_tracker'].blank? ? 0 : 		@settings['wkexpense_issues_filter_tracker']), :multiple=> true)%>		  
 	</p>

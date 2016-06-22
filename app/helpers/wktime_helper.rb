@@ -362,7 +362,7 @@ module WktimeHelper
 		return weeklyHash
 	end
 
-def getColumnValues(matrix, totals, unitLabel,rowNumberRequired, j=0)
+def getColumnValues(matrix, totals, unitLabel,rowNumberRequired, j=0, includeComments=false)
 	col_values = []
 	matrix_values = []
 	k=0
@@ -383,8 +383,14 @@ def getColumnValues(matrix, totals, unitLabel,rowNumberRequired, j=0)
 						col_values[k] = entry.project.name
 						col_values[k+1] = entry.issue.blank? ? "" : entry.issue.subject
 						col_values[k+2] = entry.activity.blank? ? "" : entry.activity.name
+						currencyColIndex = k+3
+						if includeComments && (!Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? &&
+						Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 1)
+							col_values[k+3]= entry.comments
+							currencyColIndex = k+4
+						end
 						if !unitLabel.blank?
-							col_values[k+3]= entry.currency
+							col_values[currencyColIndex]= entry.currency
 						end
 						custom_field_values = entry.custom_field_values
 						set_cf_value(col_values, custom_field_values, 'wktime_enter_cf_in_row1')	
@@ -571,11 +577,23 @@ end
 	
 	def time_expense_tabs
 		tabs = [
-				{:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime},
-				{:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense},
-				{:name => 'wkattendance', :partial => 'wktime/tab_content', :label => :label_wk_attendance},
-				{:name => 'wkreport', :partial => 'wktime/tab_content', :label => :label_report_plural}
+				{:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime}				
 			   ]
+		if !Setting.plugin_redmine_wktime['wktime_enable_expense_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_expense_module'].to_i == 1 
+			tabs[tabs.length] = {:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense}
+		end
+		
+		if !Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].to_i == 1 
+			tabs[tabs.length] = {:name => 'wkattendance', :partial => 'wktime/tab_content', :label => :label_wk_attendance}
+		end
+		
+		if !Setting.plugin_redmine_wktime['wktime_enable_report_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_report_module'].to_i == 1 
+			tabs[tabs.length] = {:name => 'wkreport', :partial => 'wktime/tab_content', :label => :label_report_plural}
+		end
+		tabs
 	end		
 	
 	#change the date to first day of week
@@ -607,14 +625,18 @@ end
 			startDate = startDate-7
 		end
 		
+		nonSubmissionUserIds = getNonSubmissionUserIds
 		queryStr =  "select distinct u.* from projects p" +
-					" inner join members m on p.id = m.project_id and p.status not in (#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})"  +
-					" inner join member_roles mr on m.id = mr.member_id" +
-					" inner join roles r on mr.role_id = r.id and r.permissions like '%:log_time%'" +
-					" inner join users u on m.user_id = u.id and u.status = #{User::STATUS_ACTIVE}" +
-					" left outer join wktimes w on u.id = w.user_id and w.begin_date = '" + startDate.to_s + "'" +
-					" where (w.status is null or w.status = 'n')"			
+		 " inner join members m on p.id = m.project_id and p.status not in (#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})"  +
+		 " inner join member_roles mr on m.id = mr.member_id" +
+		 " inner join roles r on mr.role_id = r.id and r.permissions like '%:log_time%'" +
+		 " inner join users u on m.user_id = u.id and u.status = #{User::STATUS_ACTIVE}" +
+		 " left outer join wktimes w on u.id = w.user_id and w.begin_date = '" + startDate.to_s + "'" +
+		 " where (w.status is null or w.status = 'n') "
 		
+		if !nonSubmissionUserIds.blank?
+			queryStr += "and u.id in (#{nonSubmissionUserIds})"
+		end
 		users = User.find_by_sql(queryStr)
 		users.each do |user|
 			WkMailer.nonSubmissionNotification(user,startDate).deliver
@@ -774,7 +796,7 @@ end
 				groupusers << scope.all
 			end
 		end
-		grpUserIds = Array.new
+		grpUserIds = Array.new		
 		grpUserIds = groupusers[0].collect{|user| user.id}.uniq if !groupusers.blank? && !groupusers[0].blank?
 		isAccountUser = grpUserIds.include?(User.current.id)
 	end
@@ -906,5 +928,33 @@ end
 		rescue
 			'$'
 		end
+	end
+	
+	def getNonSubmissionUserIds
+		groupusers = Array.new
+		nonSubmissionUserIds = Array.new
+		userIds = ""
+		accountGrpIds = Setting.plugin_redmine_wktime['wktime_approval_groups'] if !Setting.plugin_redmine_wktime['wktime_approval_groups'].blank?
+		if !accountGrpIds.blank?
+			accountGrpIds = accountGrpIds.collect{|i| i.to_i}
+		end
+		if !accountGrpIds.blank?
+			accountGrpIds.each do |group_id|
+			scope = User.in_group(group_id) 
+			groupusers << scope.all
+			end
+		end
+		grpUserIds = Array.new
+		grpids = ""
+		count = 0
+		nonSubmissionUserIds = []
+		if !accountGrpIds.include?(0)
+			begin
+				nonSubmissionUserIds = nonSubmissionUserIds + groupusers[count].collect{|user| user.id}.uniq if !groupusers.blank? && !groupusers[count].blank?	
+				count += 1
+			end until count == groupusers.length
+			userIds = nonSubmissionUserIds.empty? ? -1 : nonSubmissionUserIds.join(",")
+		end
+		userIds
 	end
 end

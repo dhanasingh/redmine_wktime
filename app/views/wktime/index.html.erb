@@ -1,5 +1,8 @@
+<div style="float: left;">
 <h2><%= l(:label_ta) %></h2>
-
+</div>
+<%= render :partial => 'attendance_widget' %>
+<div style="clear: both;"></div>
 <script type="text/javascript">
    wktimeIndexUrl = '<%=url_for(:controller => "wktime", :action => "index", :tab => "wktime")%>';
    wkexpIndexUrl = '<%=url_for(:controller => "wkexpense", :action => "index", :tab => "wkexpense")%>';    

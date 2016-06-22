@@ -8,8 +8,8 @@ fr:
   label_wk_actv_dd_width: Largeur de la liste déroulantes des activités
   label_wk_restr_max_hour: Restreindre le maximum d'heures par jour
   label_wk_max_hour_day: Maximum d'heures par jour  
-  label_wk_restr_min_hour: Obliger un minimum d'heure par jour
-  label_wk_min_hour_day: Heures minimum par jour
+  label_wk_restr_min_hour: Obliger à un minimum d'heure par jour
+  label_wk_min_hour_day: Minium d'heures par jour
   label_wk_page_width: Largeur de page
   label_wk_page_height: Hauteur de page
   label_wk_margin_top: Marge supérieure
@@ -22,14 +22,14 @@ fr:
   label_wk_signature: Signature
   label_wk_submitted_by: Soumis par
   label_wk_approved_by: Approuvé par
-  label_wk_account_groups: T&E Admin Groups
+  label_wk_account_groups: Groupe d'admin T&E
   
   label_wk_enter_issue_id: Utiliser l'ID pour saisir la demande
   label_wk_work_time_header: Affichez l'entête effort
   label_wk_allow_blank_issue: Permettre une demande vierge 
   
   label_wk_enter_comment_in_row: Saisir le commentaire sur la ligne
-  label_wk_enter_cf_in_row: Saisir le champ personalisé sur la ligne
+  label_wk_enter_cf_in_row: Saisir le champ personnalisé sur la ligne
   label_wk_use_detail_popup: Utiliser la fenêtre de saisie détaillée du temps
   label_wk_approval_system: Système d'approbation
   label_wk_use_approval_system: Utiliser le système d'approbation
@@ -38,7 +38,7 @@ fr:
   label_wk_reject_reason: Raison du rejet
   label_wk_enter_issue_As: Saisir la demande en tant que
   label_wk_enter_issue_Description: Saisir la demande comme Sujet
-  label_wk_own_approve: "L'approbateur peut approuver sa propre %{value}"
+  label_wk_own_approve: "L'approbateur peut approuver sa propre feuille"
   label_wk_reject_timesheet: Feuille de temps rejetée
   label_wk_reject_expense: Dépense rejetée
   label_wk_submittedon: Soumis le
@@ -46,21 +46,21 @@ fr:
   label_wk_rejectedon: Rejeté le
   label_wk_timesheet_reject: Votre feuille de temps a été rejetée
   label_wk_expense_reject: Votre dépense a été rejetée
-  label_wk_previous_template_week: Nombre de semaines a considérer comme gabarit de semaine précédente
+  label_wk_previous_template_week: Nombre de semaines à considérer comme gabarit de semaine précédente
   label_wk_dropdown: Liste déroulante
   label_wk_issueid: Identifiant de la demande
   label_start: Début
   label_end: Fin
   label_remaining_hours: Heures restantes
-  label_warning_wktime_time_entry: "La feuille de temps pour cette période est vérouillée, vous ne pouvez saisir de temps." 
-  label_warning_wktime_issue_tracker: "The tracker of this issue is not allowed for time logging."
+  label_warning_wktime_time_entry: "La feuille de temps pour cette période est verrouillée, vous ne pouvez saisir de temps." 
+  label_warning_wktime_issue_tracker: "Le tracker pour cette demande n'autorise pas la gestion des temps."
   
   label_wk_first_day_of_week: Premier jour de la semaine
   label_wk_prev_week_tip: Semaine précédente
   label_wk_next_week_tip: Semaine suivante
   label_wkexpense: Dépense
   label_te: Temps & Dépense
-  label_ta: Time & Attendance
+  label_ta: Temps & Présence
   label_wk_allow_user_filter_tracker: Permettre à l'utilisateur de filtrer par Tracker
   label_wk_filter_issue_tracker: Filtrer les demandes par Tracker
   label_wk_currency: Devise
@@ -76,18 +76,18 @@ fr:
   label_wk_minutes: Minutes  
   label_wkexpense_entry_projects: Limiter la saisie de dépense à ces projets
   
-  label_wk_public_holiday: Public Holidays
+  label_wk_public_holiday: Congés publics
   label_wk_description: Description 
-  label_wk_date_exists: This date already exists
-  label_wk_select_holiday: Please select a holiday
+  label_wk_date_exists: Cette date existe déjà
+  label_wk_select_holiday: Merci de sélectionner un congé
   
   button_new_wktime: Nouvelle feuille de temps
   button_continue: Continuer
-  button_add_row: Ajouter ligne
+  button_add_row: Ajouter une ligne
   button_new_wkexpense: Nouvelle feuille de dépense
   
   button_wk_unsubmit: Dé-soumettre
-  button_save_continue: Save and continue
+  button_save_continue: Sauvegarder et continuer
   button_wk_approve: Approuver
   button_wk_reject: Rejeter
   button_wk_unapprove: Dé-approuver
@@ -105,80 +105,93 @@ fr:
   wk_status_rejected: Rejetée
   
   text_start_of_week_confirmation: "Etes-vous certain? Le statut de la %{value} précédemment soumise sera perdu."
-  text_wk_warning_min_hour: "Vous n'avez pas saisi le minimum d'heures (%{value}) requis par jour"
-  text_wk_warning_max_hour: "You have entered hours above Maximum hours (%{value}) allowed per day"
+  text_wk_warning_min_hour: "Vous n'avez pas saisi le minimum d'heures (%{value}) requis par jour" 
+  text_wk_warning_max_hour: "Vous avez saisi un nombre d'heure au-dessus du nombre d'heure maximum (%{value}) autorisé par jour"
   field_amount: Montant  
-  field_status_modified_by: Modified by
+  field_status_modified_by: Modifié par
   
-  label_wk_allow_filter_issue: Allow User filtering to My Issues
-  label_wk_no_user_current_project: no users in selected project
+  label_wk_allow_filter_issue: Autoriser l'utilisateur à enlever le filtre sur ses demandes
+  label_wk_no_user_current_project: Aucun utilisateur dans le projet sélectionné
   
-  permission_approve_time_entries: Approve time logs
-  field_currency: Currency
-  error_project_issue_associate: Cannot be deleted because time/expense entries associated
-  error_time_entry_delete: "Cannot be deleted. The timesheet with this entry is locked"
+  permission_approve_time_entries: Valider les temps passés
+  field_currency: Devise
+  error_project_issue_associate: Ne peut pas être effacé car des entrées de temps/dépenses y sont associés
+  error_time_entry_delete: "Ne peut pas être effacé. La feuille de temps liée est verrouillée"
 
-  label_user_filters: User filters  
-  label_submitted_by: Submitted by
-  label_approved_by:  Approved by
+  label_user_filters: Filtres utilisateur  
+  label_submitted_by: Soumis par
+  label_approved_by: Validé par
   
-  label_wk_reminder: Send Reminder
-  label_wk_reminder_notes: Reminder Notes
-  label_wk_sub_reminder: Send submission email reminder
-  label_wk_appr_reminder: Send approval email reminder
-  wk_submission_reminder: "%{value} submission reminder"
-  wk_sub_reminder_text: "This is a reminder to submit your %{value} for"
-  wk_approval_reminder: "%{value} approval reminder"
-  wk_appr_reminder_text: "This is a reminder to approve %{value}s for:"
-  wk_sub_confirmation_text: "%{value} submission reminder sent to:"
-  wk_appr_confirmation_text: "%{value} approval reminder sent to:"
-  label_wk_timesheet: Timesheet
-  label_wk_expensesheet: Expensesheet  
-  text_wk_no_reminder: No reminders to send
+  label_wk_reminder: Envoyer le rappel
+  label_wk_reminder_notes: Notes de rappel
+  label_wk_sub_reminder: Envoyer le courriel de rappel de soumission
+  label_wk_appr_reminder: Envoyer le courriel de rappel de validation
+  wk_submission_reminder: "%{value} rappel de soumission"
+  wk_sub_reminder_text: "Ceci est un rappel afin de soumette votre %{value} pour"
+  wk_approval_reminder: "%{value} rappel d'approbation"
+  wk_appr_reminder_text: "Ceci est un rappel afin d'approuver %{value}s pour:"
+  wk_sub_confirmation_text: "%{value} rappel de soumission envoyé à:"
+  wk_appr_confirmation_text: "%{value} rappel d'approbation envoyé à:"
+  label_wk_timesheet: Feuille de temps
+  label_wk_expensesheet: Feuille de dépenses  
+  text_wk_no_reminder: Aucun rappel à envoyer
   
-  label_wk_attendance: Attendance
-  label_wk_enable_clock_in_out: Enable Clock In / Clock Out
-  label_wk_sick_leave_accrual: Sick Leave Accrual
-  label_wk_paid_leave_accrual: Paid Leave Accrual
-  label_wk_leave_accrual_after: Accrual after
-  label_wk_select_break_time: Please select a break time
-  label_hours_per_month: hour(s)/month
-  label_wk_sick_leave: Sick Leave
-  label_wk_holiday: Holiday
-  label_wk_paid_leave: Paid Leave
-  label_wk_leave: Leave
-  label_wk_leave_issue: Leave issue
-  label_wk_leave_accrual: Accrual
-  label_wk_leave_accrual_on: Accrual on
-  label_wk_attendance_start_date: Attendance start date
-  label_clock_in: Clock in
-  label_clock_out: Clock out
-  label_wk_leave_exists: This leave already exists
+  label_wk_attendance: Présence
+  label_wk_break_time: Pause
+  label_wk_enable_clock_in_out: Activer le pointage
+  label_wk_sick_leave_accrual: Cumul de congés maladie
+  label_wk_paid_leave_accrual: Cumul de congés payés
+  label_wk_leave_accrual_after: Cumul après
+  label_wk_select_break_time: Merci de sélectionner une pause
+  label_hours_per_month: heures(s)/mois
+  label_wk_sick_leave: Congé maladie
+  label_wk_holiday: Jour férié
+  label_wk_paid_leave: Congés payés
+  label_wk_leave: Congés
+  label_wk_leave_issue: Demande de congé
+  label_wk_leave_accrual: Cumul
+  label_wk_leave_accrual_on: Cumul sur
+  label_wk_attendance_start_date: Date de début de présence
+  label_clock_in: Pointage d'entrée
+  label_clock_out: Pointage de sortie
+  label_wk_leave_exists: Ce congé existe déjà
   wk_field_balance: Balance
-  wk_field_used: Used
-  wk_field_remaining: Remaining
-  label_wk_leave_short_name: Short name
-  label_Difference: Differences
-  label_grand_total:  Total Hours
-  label_wk_attn_join_date:  Joining date
-  label_wk_attn_termination_date:  Termination date
-  label_wk_attn_user_dob:  Date of birth
-  label_wk_designation:  Designation
-  label_employee_id:  Employee Id
-  label_leave_beginning_of_mnth:  Leave Credit at the Beginning of the Month
-  label_leave_during_mnth:  Leave Availed During the Month
-  label_daily_workdone_inclede_ot:  Daily Hours of Work done including Overtime(If any)
-  label_total_hours_ot:  Total OT hours
-  label_total_hours_during_mnth:  Total hours for month
-  label_total_no_of_maternity_leave:  Total Maternity leave days
+  wk_field_used: Utilisé
+  wk_field_remaining: Restant
+  label_wk_leave_short_name: Libellé
+  label_Difference: Différences
+  label_grand_total:  Heures totales
+  label_wk_attn_join_date:  Date d'entrée
+  label_wk_attn_termination_date:  Date de fin
+  label_wk_attn_user_dob:  Date de naissance
+  label_wk_designation:  Désignation
+  label_employee_id:  Identifiant d'employé
+  label_leave_beginning_of_mnth:  Crédit de congé en début de mois
+  label_leave_during_mnth:  Congés utilisés durant le mois
+  label_daily_workdone_inclede_ot:  Heures de travail journalières avec les heures supplémentaires (s'il y en a)
+  label_total_hours_ot:  Nombre total d'heures supplémentaires
+  label_total_hours_during_mnth:  Nombre total d'heure par mois
+  label_total_no_of_maternity_leave:  Congé de maternité (total en jour)
   label_attn_sl_no:  Sl. No.
-  wk_label_opening: Opening
-  wk_label_closing: Closing
-  label_wk_default_work_time: Default work time
-  label_wk_attn_for: For
+  wk_label_opening: Ouverture
+  wk_label_closing: Fermeture
+  label_wk_default_work_time: Temps de travail par défaut
+  label_wk_attn_for: Pour
   label_wk_form_q: FORM-Q
-  label_wk_register_for_shops: REGISTER OF EMPLOYMENT FOR SHOPS AND ESTABLISHMENTS
-  label_wk_name_address: Name and Address of the Establishment
-  label_date_of_entry_into_service: Date of entry into service
-  label_hours_note: "Note: Please enter time in 24 hours format."
-  label_no_leaves_configured : No leaves configured
+  label_wk_register_for_shops: REGISTRE DES EMPLOYES POUR BOUTIQUES ET ETABLISSEMENTS 
+  label_wk_name_address: Nom et adresse de l'établissement
+  label_date_of_entry_into_service: Date d'entrée dans le service
+  label_hours_note: "Note: Merci de renseigner le temps au format 24 heures."
+  label_no_leaves_configured : Aucun congé n'est configuré
+  label_max_min_hours_day_msg : Le minum d'heure est plus grand que le maximum
+  
+  label_wk_restr_max_hour_week: Restreindre le maximum d'heures par semaine
+  label_wk_max_hour_week: Maximum d'heures par semaine
+  label_wk_restr_min_hour_week: Obliger à un minimum d'heure par semaine
+  label_wk_min_hour_week: Minimum d'heures par semaine
+  text_wk_warning_min_hour_week: "Vous n'avez pas saisi le minimum d'heures (%{value}) requis par semaine"
+  text_wk_warning_max_hour_week: "Vous avez saisi un nombre d'heure au-dessus du nombre d'heure maximum (%{value}) autorisé par semaine"
+  label_enable_expense_module: Activer le module des dépenses 
+  label_enable_attendance_module: Activer le module de présence
+  label_enable_report_module: Activer le module de rapports
+  label_group_non_submission_email: Groupe destinataire du courriel de rappel

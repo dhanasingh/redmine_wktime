@@ -21,6 +21,7 @@ module ProjectsControllerPatch
 					 flash.now[:error] = l(:error_project_issue_associate)
 					 return
 				else
+				  WkExpenseEntry.delete_all(['project_id = ?', @project_to_destroy.id])
 				  @project_to_destroy.destroy
 				  respond_to do |format|
 					format.html { redirect_to admin_projects_path }
@@ -40,31 +41,35 @@ module IssuesControllerPatch
   base.class_eval do
 	def destroy		
 		@hours = TimeEntry.where(:issue_id => @issues.map(&:id)).sum(:hours).to_f
-		if @hours > 0			
-		  case params[:todo]
-		  when 'destroy'
+		@amount = WkExpenseEntry.where(:issue_id => @issues.map(&:id)).sum(:amount).to_f
+		if @hours > 0 || @amount > 0
 			wktime_helper = Object.new.extend(WktimeHelper)
 			issue_id = @issues.map(&:id)
-			ret = wktime_helper.getStatus_Project_Issue(issue_id[0],nil)		
+		    ret = wktime_helper.getStatus_Project_Issue(issue_id[0],nil)
 			if ret				
 				flash.now[:error] = l(:error_project_issue_associate)
 				return
-			 end
-		  when 'nullify'
-			TimeEntry.where(['issue_id IN (?)', @issues]).update_all('issue_id = NULL')
-		  when 'reassign'
-			reassign_to = @project.issues.find_by_id(params[:reassign_to_id])
-			if reassign_to.nil?
-			  flash.now[:error] = l(:error_issue_not_found_in_project)
-			  return
 			else
-			  TimeEntry.where(['issue_id IN (?)', @issues]).
-				update_all("issue_id = #{reassign_to.id}")
+				case params[:todo]
+				when 'destroy'
+					WkExpenseEntry.delete_all(['issue_id = ?', issue_id[0]])
+				when 'nullify'
+					TimeEntry.where(['issue_id IN (?)', @issues]).update_all('issue_id = NULL')
+					WkExpenseEntry.where(['issue_id IN (?)', @issues]).update_all('issue_id = NULL')
+				when 'reassign'
+					reassign_to = @project.issues.find_by_id(params[:reassign_to_id])
+					if reassign_to.nil?
+						flash.now[:error] = l(:error_issue_not_found_in_project)
+						return
+					else
+						TimeEntry.where(['issue_id IN (?)', @issues]).update_all("issue_id = #{reassign_to.id}")
+						WkExpenseEntry.where(['issue_id IN (?)', @issues]).update_all("issue_id = #{reassign_to.id}")
+					end
+				else
+					# display the destroy form if it's a user request
+					return unless api_request?
+				end
 			end
-		  else
-			# display the destroy form if it's a user request
-			return unless api_request?
-		  end
 		end
 		@issues.each do |issue|
 		  begin
@@ -140,7 +145,7 @@ Redmine::Plugin.register :redmine_wktime do
   name 'Time & Attendance'
   author 'Adhi Software Pvt Ltd'
   description 'This plugin is for entering Time & Attendance'
-  version '2.1.2'
+  version '2.2'
   url 'http://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
   
@@ -189,7 +194,14 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_sick_leave_accrual' => '0',
 			 'wktime_paid_leave_accrual' => '0',
 			 'wktime_leave_accrual_after' => '0',
-			 'wktime_default_work_time' => '8'
+			 'wktime_default_work_time' => '8',
+			 'wktime_restr_max_hour_week' => '0',
+			 'wktime_max_hour_week' => '0',
+			 'wktime_restr_min_hour_week' => '0',
+			 'wktime_min_hour_week' => '0',
+			 'wktime_enable_expense_module' => '1',
+			 'wktime_enable_report_module' => '1',
+			 'wktime_enable_attendance_module' => '1'
   })  
  
   menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_ta, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 	

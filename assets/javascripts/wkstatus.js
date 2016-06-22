@@ -7,6 +7,12 @@ $(document).ready(function(){
 	var txtissuetracker;
 	var timeWarnMsg = document.getElementById('label_time_warn');
 	var issueWarnMsg = document.getElementById('label_issue_warn');
+	
+	$('#quick-search').append( $('<br>') );	
+	$('#quick-search').append( $('#appendlabel') );	
+	$('#quick-search').append( $('#startdiv') ); 
+	$('#quick-search').append( $('#enddiv') );
+	
 	if (timeWarnMsg != null && issueWarnMsg != null) {
 		warnMsg = [timeWarnMsg.value, issueWarnMsg.value];
 	}
@@ -64,7 +70,7 @@ function showEntryWarning(entrydate){
 function showMessage(data,divID){
 	var errMsg = "";
 	var log_time_page = document.getElementById('log_time_page').value;
-	if(data!=null && ('s'== data || 'a'== data || 'l'== data)){		
+	if(data!=null && ('s'== data || 'a'== data || 'l'== data)){
 		if (hasTrackerError) {
 			errMsg = warnMsg[0] + "<br>" + warnMsg[1];
 		}
@@ -81,6 +87,7 @@ function showMessage(data,divID){
 	}
 
 	if (errMsg != "") {	
+		document.getElementById('time_entry_hours').disabled = true;
 		divID.innerHTML = errMsg;
 		if(log_time_page == "true") {
 			$('input[type="submit"]').prop('disabled', true);
@@ -88,6 +95,7 @@ function showMessage(data,divID){
 		divID.style.display = 'block';
 	}
 	else {
+		document.getElementById('time_entry_hours').disabled = false;
 		if(log_time_page == "true") {
 			$('input[type="submit"]').prop('disabled', false);
 		}
@@ -129,6 +137,7 @@ function showIssueMessage(data,divID) {
 	}	
 	
 	if (errMsg != "") {	
+		document.getElementById('time_entry_hours').disabled = true;
 		divID.innerHTML = errMsg;
 		if(log_time_page == "true") {
 			$('input[type="submit"]').prop('disabled', true);
@@ -136,9 +145,43 @@ function showIssueMessage(data,divID) {
 		divID.style.display = 'block';
 	}
 	else {
+		document.getElementById('time_entry_hours').disabled = false;
 		if(log_time_page == "true") {
 			$('input[type="submit"]').prop('disabled', false);
 		}
 		divID.style.display = 'none';
 	}
+}
+
+
+function signAttendance(str)
+{
+	var d = new Date();
+	var hh = d.getHours();
+	var mm = d.getMinutes();
+	elementhour = hh + ":" + mm;
+	var datevalue = d;
+	if( str == 'start' )
+	{
+	  document.getElementById('clockin' ).style.display = "none";
+	  document.getElementById('clockout').style.display = "block";
+	}
+	else
+	{
+	  document.getElementById('clockin' ).style.display = "block";
+	  document.getElementById('clockout').style.display = "none";
+	}/*
+	var userid = document.getElementById('user_id').value;
+	var nightshift = false;
+	if(document.getElementById('nightshift') != null && !diff )
+	{
+		 nightshift = document.getElementById('nightshift').value;	
+	}	*/
+	var requrl = "";
+	$.ajax({	
+	url: 'updateClockInOut',
+	type: 'get',
+	data: {startdate : datevalue, str: str},
+	success: function(data){ }   
+	});
 }

@@ -5,7 +5,7 @@
 <%=h hidden_field_tag('getusers_url', "#{url_for(:controller => 'wktime', :action => 'getusers')}") %>
 
 <h2><%= l(:label_wktime) %></h2>
-
+<%= render :partial => 'attendance_widget' %>
 <%= render :partial => 'te_new' %>
 
 <% end %>

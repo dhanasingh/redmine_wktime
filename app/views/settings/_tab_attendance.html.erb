@@ -4,7 +4,7 @@ selectListAlertMsg = "<%=l(:actionview_instancetag_blank_option) %>";
 issueExistsAlertMsg = "<%=l(:label_wk_leave_exists) %>";
 issueUrl="<%= "#{url_for(:controller => 'wkattendance', :action => 'getIssuesByProject')}" %>";
 projectUrl="<%= "#{url_for(:controller => 'wkattendance', :action => 'getProjectByIssue')}" %>";
-lblInvalid= "<%=l('activerecord.errors.messages.invalid') %>";
+lblInvalid= " <%= (CGI.unescapeHTML l('activerecord.errors.messages.invalid')).html_safe %>";
 lblDaysPerMonth = "<%=l(:label_hours_per_month) %>";
 lblAccrual = "<%=l(:label_wk_leave_accrual) %>";
 lblAccrualAfter = "<%=l(:label_wk_leave_accrual_after) %>";
@@ -13,6 +13,9 @@ lblYear = "<%=l(:label_year) %>";
 </script>
 <fieldset class="box tabular">
 	<legend><%= l(:label_wk_attendance) %></legend>
+	<p>
+			<%= check_box_tag('settings[wktime_enable_attendance_module]', 1, @settings['wktime_enable_attendance_module'].to_i == 1) %> <label><%= l(:label_enable_attendance_module) %></label>
+		</p>
 	<!-- <p>
 	<%= check_box_tag('settings[wktime_work_time_header]', 1, @settings['wktime_work_time_header'].to_i == 1) %> <label><%= l(:label_wk_work_time_header) %></label>
 	</p> -->

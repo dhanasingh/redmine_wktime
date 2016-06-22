@@ -3,17 +3,29 @@
 	<p>
 		<label><%= l(:label_wk_default_work_time) %></label><%= text_field_tag 'settings[wktime_default_work_time]', @settings['wktime_default_work_time'], :size => 3 %>
 	</p>
-	<p>
-		<%= check_box_tag('settings[wktime_restr_max_hour]', 1, @settings['wktime_restr_max_hour'].to_i == 1) %> <label><%= l(:label_wk_restr_max_hour) %></label>
+	<p style="float:right; padding-right: 300px;">
+		<%= check_box_tag('settings[wktime_restr_max_hour_week]', 1, @settings['wktime_restr_max_hour_week'].to_i == 1, :onchange => "ValidateMinMaxHours('settings_wktime_max_hour_week', '#{l(:label_max_min_hours_day_msg)}');") %> <label><%= l(:label_wk_restr_max_hour_week) %></label>
 	</p>
 	<p>
-		<label><%= l(:label_wk_max_hour_day) %></label><%= text_field_tag 'settings[wktime_max_hour_day]', @settings['wktime_max_hour_day'], :size => 3 %>
+		<%= check_box_tag('settings[wktime_restr_max_hour]', 1, @settings['wktime_restr_max_hour'].to_i == 1, :onchange => "ValidateMinMaxHours('settings_wktime_max_hour_day', '#{l(:label_max_min_hours_day_msg)}');") %> <label><%= l(:label_wk_restr_max_hour) %></label>
+	</p>	
+	<p style="float:right; padding-right: 300px;">
+		<label><%= l(:label_wk_max_hour_week) %></label><%= text_field_tag 'settings[wktime_max_hour_week]', @settings['wktime_max_hour_week'], :size => 3, :onchange => "ValidateMinMaxHours(this.id, '#{l(:label_max_min_hours_day_msg)}');" %>
 	</p>
 	<p>
-		<%= check_box_tag('settings[wktime_restr_min_hour]', 1, @settings['wktime_restr_min_hour'].to_i == 1) %> <label><%= l(:label_wk_restr_min_hour) %></label>
+		<label><%= l(:label_wk_max_hour_day) %></label><%= text_field_tag 'settings[wktime_max_hour_day]', @settings['wktime_max_hour_day'], :size => 3, :onchange => "ValidateMinMaxHours(this.id, '#{l(:label_max_min_hours_day_msg)}');" %>
+	</p>
+	<p style="float:right; padding-right: 300px;">
+		<%= check_box_tag('settings[wktime_restr_min_hour_week]', 1, @settings['wktime_restr_min_hour_week'].to_i == 1, :onchange => "ValidateMinMaxHours('settings_wktime_min_hour_week', '#{l(:label_max_min_hours_day_msg)}');") %> <label><%= l(:label_wk_restr_min_hour_week) %></label>
 	</p>
 	<p>
-		<label><%= l(:label_wk_min_hour_day) %></label><%= text_field_tag 'settings[wktime_min_hour_day]', @settings['wktime_min_hour_day'], :size => 3 %>
+		<%= check_box_tag('settings[wktime_restr_min_hour]', 1, @settings['wktime_restr_min_hour'].to_i == 1, :onchange => "ValidateMinMaxHours('settings_wktime_min_hour_day', '#{l(:label_max_min_hours_day_msg)}');") %> <label><%= l(:label_wk_restr_min_hour) %></label>
+	</p>
+	<p style="float:right; padding-right: 300px;">
+		<label><%= l(:label_wk_min_hour_week) %></label><%= text_field_tag 'settings[wktime_min_hour_week]', @settings['wktime_min_hour_week'], :size => 3, :onchange => "ValidateMinMaxHours(this.id, '#{l(:label_max_min_hours_day_msg)}');" %>
+	</p>
+	<p>
+		<label><%= l(:label_wk_min_hour_day) %></label><%= text_field_tag 'settings[wktime_min_hour_day]', @settings['wktime_min_hour_day'], :size => 3, :onchange => "ValidateMinMaxHours(this.id, '#{l(:label_max_min_hours_day_msg)}');" %>
 	</p>
 	<%
 		custom_fields = TimeEntryCustomField.order('name')

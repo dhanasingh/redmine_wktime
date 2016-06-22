@@ -182,3 +182,15 @@ de:
   label_date_of_entry_into_service: Date of entry into service
   label_hours_note: "Note: Please enter time in 24 hours format."
   label_no_leaves_configured : No leaves configured
+  label_max_min_hours_day_msg : Min hours is greater than Max hours.
+  
+  label_wk_restr_max_hour_week: Enforce Max hour per week
+  label_wk_max_hour_week: Max hour per week
+  label_wk_restr_min_hour_week: Enforce Min hour per week
+  label_wk_min_hour_week: Min hour per week
+  text_wk_warning_min_hour_week: "You have not entered the Minimum hours (%{value}) required per week"
+  text_wk_warning_max_hour_week: "You have entered hours above Maximum hours (%{value}) allowed per week"
+  label_enable_expense_module: Enable Expense module 
+  label_enable_attendance_module: Enable Attendance module
+  label_enable_report_module: Enable Reports
+  label_group_non_submission_email: Target group of non submission email
