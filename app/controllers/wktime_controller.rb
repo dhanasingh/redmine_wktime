@@ -51,7 +51,8 @@ include QueriesHelper
 	setMembers
 	ids = nil
 	if user_id.blank?
-		user_id = @currentUser_loggable_projects.blank? ? '-1' : User.current.id.to_s
+		user_id = (@currentUser_loggable_projects.blank? && @view_spenttime_projects.blank?) ? '-1' : User.current.id.to_s
+		#user_id = User.current.id.to_s
 	end
 	#if user_id.blank?
 		#ids = is_member_of_any_project() ? User.current.id.to_s : '0'
@@ -1628,8 +1629,8 @@ private
 			if isAccountUser
 				@manage_view_spenttime_projects = getAccountUserProjects
 			else
-				view_spenttime_projects ||= Project.where(Project.allowed_to_condition(User.current, :view_time_entries)).order('name')
-				@manage_view_spenttime_projects = @manage_projects & view_spenttime_projects
+				@view_spenttime_projects ||= Project.where(Project.allowed_to_condition(User.current, :view_time_entries)).order('name')
+				@manage_view_spenttime_projects = @manage_projects & @view_spenttime_projects
 			end
 		end
 		@manage_view_spenttime_projects = setTEProjects(@manage_view_spenttime_projects)
