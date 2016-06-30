@@ -37,9 +37,6 @@ include QueriesHelper
 		status = session[:wktimes][:status]
 		userfilter = getValidUserCF(session[:wktimes][:filters], user_custom_fields)
 	end
-	if !findLastAttnEntry.blank?	
-		@lastAttnEntry = findLastAttnEntry[0]
-	end
 	
 	unless userfilter.blank? || @query.blank?
 		@query.filters = userfilter
@@ -101,9 +98,6 @@ include QueriesHelper
 	@editable = false if @locked
 	set_edit_time_logs
 	@entries = findEntries()
-	if !findLastAttnEntry.blank?
-		@lastAttnEntry = findLastAttnEntry[0]
-	end
 	if !$tempEntries.blank?
 		newEntries = $tempEntries - @entries
 		if !newEntries.blank?
@@ -382,9 +376,6 @@ include QueriesHelper
 	
 	def new
 		set_user_projects
-		if !findLastAttnEntry.blank?	
-			@lastAttnEntry = findLastAttnEntry[0]
-		end
 		@selected_project = getSelectedProject(@manage_projects, true)
 		# get the startday for current week
 		@startday = getStartDay(Date.today)

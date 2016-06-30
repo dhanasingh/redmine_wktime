@@ -314,7 +314,8 @@ class WktimeHook < Redmine::Hook::ViewListener
 				end			
 			end	
 		end
-	end	
+	end
+	render_on :view_layouts_base_content, :partial => 'wktime/attendance_widget'
 end
 
 
