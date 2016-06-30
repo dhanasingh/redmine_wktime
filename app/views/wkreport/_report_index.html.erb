@@ -18,7 +18,7 @@
 <th><%= l(:label_report) + " " + l(:field_type) %> </th>
 <td><%= select_tag 'report_type', options_for_report_select(rpttype),:onchange => "reportChanged(this, #{User.current.id});", :style=> "width:200px;" %></td>
 </tr>
-<% if isAccountUser %>
+<% if User.current.admin? || isAccountUser %>
 <tr>
 <th><%=l(:label_group_plural)%> </th>
 <td>
