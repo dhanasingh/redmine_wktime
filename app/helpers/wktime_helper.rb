@@ -898,8 +898,10 @@ end
 					#Accrual will be given only when the user works atleast 11 days a month
 					if (entry.spent_hours.blank? || (!entry.spent_hours.blank? && entry.spent_hours < (defWorkTime * 11)) || !includeAccrual)
 						accrual = 0
-					end		
-					no_of_holidays = entry.balance.blank? ? entry.accrual : entry.balance + entry.accrual
+					end
+					lastMntBalance = entry.balance.blank? ? 0 : entry.balance
+					lastMntAccrual = entry.accrual.blank? ? 0 : entry.accrual
+					no_of_holidays = lastMntBalance + lastMntAccrual #entry.balance.blank? ? entry.accrual : entry.balance + entry.accrual
 					if !entry.used.blank? && entry.used > 0
 						no_of_holidays = no_of_holidays - entry.used
 					end
@@ -913,7 +915,7 @@ end
 					userLeave.issue_id = entry.issue_id
 					userLeave.balance = no_of_holidays
 					userLeave.accrual = accrual
-					userLeave.used = entry.hours
+					userLeave.used = entry.hours.blank? ? 0 : entry.hours
 					userLeave.accrual_on = Date.civil(Date.today.year, Date.today.month, 1) - 1
 					userLeave.save()
 				end
