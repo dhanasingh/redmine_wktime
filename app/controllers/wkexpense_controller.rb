@@ -66,9 +66,26 @@ class WkexpenseController < WktimeController
 	 @query = WkExpenseEntryQuery.build_from_params(params, :project => @project, :name => '_')
 	 sort_init(@query.sort_criteria.empty? ? [['spent_on', 'desc']] : @query.sort_criteria)
     sort_update(@query.sortable_columns)
-    scope = expense_entry_scope(:order => sort_clause).
-      includes(:project, :user, :issue).
-      preload(:issue => [:project, :tracker, :status, :assigned_to, :priority])
+	set_managed_projects
+	projectid = -1
+	projectIdentifier = false
+	@projects = Project.where("identifier = '#{params[:project_id]}'") #User.current.projects.active.select(:id, :name, :identifier, :lft, :rgt).to_a
+	@projects.each{ |project| 
+			projectid = project.id
+	}	
+	@manage_view_spenttime_projects.each{ |manageproject| 
+		if projectid == manageproject.id
+			projectIdentifier = true
+		end	
+	}
+	if (!@manage_view_spenttime_projects.blank?  && projectIdentifier) || isAccountUser 
+		scope = expense_entry_scope(:order => sort_clause).
+		includes(:project, :user, :issue).
+		preload(:issue => [:project, :tracker, :status, :assigned_to, :priority])
+	else
+		cond = "user_id = #{User.current.id} and project_id = #{projectid}"
+		scope = WkExpenseEntry.where(cond)
+	end	
     respond_to do |format|
       format.html {
         @entry_count = scope.count
