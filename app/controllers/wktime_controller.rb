@@ -21,7 +21,6 @@ include QueriesHelper
 	unless user_custom_fields.blank?
 		@query = WkTimeEntryQuery.build_from_params(params, :project => nil, :name => '_')
 	end
-	
 	set_filter_session
     retrieve_date_range	
 	@from = getStartDay(@from)
@@ -49,7 +48,7 @@ include QueriesHelper
 	ids = nil
 	if user_id.blank?
 		user_id = (@currentUser_loggable_projects.blank? && @view_spenttime_projects.blank?) ? '-1' : User.current.id.to_s
-		#user_id = User.current.id.to_s
+		#user_id = @currentUser_loggable_projects.blank? ? '-1' : User.current.id.to_s
 	end
 	#if user_id.blank?
 		#ids = is_member_of_any_project() ? User.current.id.to_s : '0'
@@ -931,12 +930,31 @@ include QueriesHelper
 	end
 	
 	def time_rpt
-		@user = User.current
-		@startday = getStartDay(Date.today)
-		@entries = findEntries()
+		@user = (session[:wkreport][:user_id].blank? || (session[:wkreport][:user_id]).to_i < 1) ? User.current : User.find(session[:wkreport][:user_id])
+		#@user = User.find(session[:wkreport][:user_id].blank? ? User.current.id : session[:wkreport][:user_id])#User.current
+		@startday = getStartDay((session[:wkreport][:from]).to_s.to_date)
+		#@entries = findEntries()
 		
 		render :action => 'time_rpt', :layout => false
 	end	
+	
+		############ Moved from private ##############
+		
+	def findEntries
+		setup	
+		cond = getCondition('spent_on', @user.id, @startday, @startday+6)		
+		findEntriesByCond(cond)
+	end
+	
+	def getNewCustomField
+		TimeEntry.new.custom_field_values
+	end	
+	
+	def getTELabel
+		l(:label_wk_timesheet)
+	end
+	
+	############ Moved from private ##############
 	
 	def showClockInOut
 		(!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? &&
@@ -1282,12 +1300,6 @@ private
 		end
 		errorMsg
 	end
-	
-	def findEntries
-		setup	
-		cond = getCondition('spent_on', @user.id, @startday, @startday+6)		
-		findEntriesByCond(cond)
-	end	
 	
 	def findWkTE(start_date, end_date=nil)
 		setup
@@ -1885,11 +1897,6 @@ private
 		ActionMailer::Base.raise_delivery_errors = raise_delivery_errors_old
 	
 	end
-
-	def getNewCustomField
-		TimeEntry.new.custom_field_values
-	end
-
 	
 	def getWkEntity
 		Wktime.new 
@@ -2063,10 +2070,6 @@ private
 			session[:wkexpense][:group_id] = params[:group_id]
 			session[:wkexpense][:filters] = @query.blank? ? nil : @query.filters
 		end		
-	 end
-
-	def getTELabel
-		l(:label_wk_timesheet)
 	end
 	
 	def findTEEntryBySql(query)

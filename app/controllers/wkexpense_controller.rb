@@ -115,20 +115,29 @@ class WkexpenseController < WktimeController
 	end
   end
  
-	def textfield_size
-	    6
-	end
+  def textfield_size
+	6
+  end
 	
-	def showClockInOut
-		false
-	end
-	def maxHourPerWeek
-		0
-	end
+  def showClockInOut
+	false
+  end
+  
+  def getNewCustomField
+	nil
+  end
+  
+  def getTELabel
+	l(:label_wk_expensesheet)
+  end
+  
+  def maxHourPerWeek
+	0
+  end
 	
-	def minHourPerWeek
-		0
-	end
+  def minHourPerWeek
+	0
+  end
 private
   def getSpecificField
 	"amount"
@@ -181,10 +190,6 @@ private
   def setValueForSpField(teEntry,spValue,decimal_separator,entry)
 	teEntry.amount = spValue.blank? ? nil : spValue.gsub(decimal_separator, '.').to_f
 	teEntry.currency = getUnit(entry)
-  end
-  
-  def getNewCustomField
-	nil
   end
   
   def getWkEntity
@@ -249,10 +254,6 @@ private
       scope = scope.on_issue(@issue)
     end
     scope
-  end
-  
-  def getTELabel
-	l(:label_wk_expensesheet)
   end
   
   def findTEEntryBySql(query)

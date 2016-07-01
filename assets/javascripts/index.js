@@ -88,9 +88,10 @@ $(document).ready(function() {
 function openReportPopup(){
 	var popupUrl, periodType;
 	var reportType = document.getElementById('report_type').value;
-	var groupId = "";
+	var groupId = "", userId = "";
 	if(document.getElementById('group_id')) {
 		groupId = document.getElementById('group_id').value;
+		userId = document.getElementById('user_id').value;
 	}
 	var period = document.getElementById('period').value;
 	var searchlist = document.getElementById('searchlist').value;
@@ -103,7 +104,7 @@ function openReportPopup(){
 			break;
 		}
 	}
-	popupUrl = wkattnReportUrl + '&report_type=' + reportType + '&group_id=' + groupId +'&period_type=' + periodType + '&searchlist=' + searchlist; 
+	popupUrl = wkattnReportUrl + '&report_type=' + reportType + '&group_id=' + groupId + '&user_id=' + userId + '&period_type=' + periodType + '&searchlist=' + searchlist; 
 	if(periodType>1){
 		popupUrl = popupUrl + '&from=' + fromVal + '&to=' + toVal		
 	}else{
@@ -248,6 +249,11 @@ function validateMember()
 		alert(no_user);
 	}
 	return valid;
+}
+function reportChanged(reportDD, userid){
+	var id = reportDD.options[reportDD.selectedIndex].value;
+	var needBlankOption = (id!='attendance_report' ? false : true) ;
+	grpChanged(document.getElementById("group_id"), userid, needBlankOption)
 }
 
 function grpChanged(grpDropdown, userid, needBlankOption){

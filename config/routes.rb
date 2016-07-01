@@ -72,7 +72,9 @@
   
   delete 'wkexpense/deleteEntry', :to => 'wkexpense#deleteEntry'
   
-  delete 'wkexpense/deleteEntries', :to => 'wkexpense#deleteEntries'  
+  delete 'wkexpense/deleteEntries', :to => 'wkexpense#deleteEntries' 
+  
+  get 'wkexpense/time_rpt', :to => 'wkexpense#time_rpt' 
  
   resources :projects do	
 	resources :wk_expense_entries, :controller => 'wkexpense' do
@@ -102,4 +104,8 @@
   get 'wkreport/reportattn', :to => 'wkreport#reportattn'  
   
   match 'updateClockInOut', :controller => 'wkattendance', :action => 'updateClockInOut', :via => [:get]
+  
+  get 'wkreport/getGroupMembers', :to => 'wkreport#getGroupMembers'
+  
+  get 'wkreport/getMembersbyGroup', :to => 'wkreport#getMembersbyGroup'
   
