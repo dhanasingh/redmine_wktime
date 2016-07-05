@@ -104,8 +104,9 @@
 		weeklyHash = getWeeklyView(@entries, nil, false)
 		weeklyHash.each do |key, matrix|
 			matrix_values, j = wktime_helper.getColumnValues(matrix, totals, unitLabel, false, 0, true)
-			col_values = matrix_values[0]
-			tmpColCount = 0
+			matrix_values.each do |col_val|
+				col_values = col_val #matrix_values[1]
+				tmpColCount = 0
 		%>
 		<tr class="time-entry <%= cycle("odd", "even") %>">
 		<%	
@@ -115,14 +116,15 @@
 			<td <% if (i < columnCount-6)%>class="txt-align"<% end %>><%= val %></td>
 		<% end %>
 		<% 
-			if tmpColCount < columnCount
-				remainingColCount = columnCount - tmpColCount
-				for colIndex in 0..remainingColCount - 1 
+				if tmpColCount < columnCount
+					remainingColCount = columnCount - tmpColCount
+					for colIndex in 0..remainingColCount - 1 
 		%>
 			<td></td>
 		<% 
-				end 
+				end
 			end 
+		end 
 		%>		
 		</tr>
 		<% end %>
