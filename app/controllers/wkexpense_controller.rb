@@ -69,10 +69,17 @@ class WkexpenseController < WktimeController
 	set_managed_projects
 	projectid = -1
 	ismanagedProject = false
-	currentProject = Project.where(:identifier => params[:project_id]) 
-	projectid = currentProject[0].id
+	currentProject = Project.where(:identifier => params[:project_id])
+	if !currentProject.blank?
+		projectid = currentProject[0].id	
+	end
+	projectids = ''
 	@manage_view_spenttime_projects.each{ |manageproject| 
-		if projectid == manageproject.id
+		if projectids !=''
+			projectids += ', '
+		end
+		projectids += manageproject.id.to_s
+		if projectid == manageproject.id 
 			ismanagedProject = true
 		end	
 	}
@@ -81,7 +88,15 @@ class WkexpenseController < WktimeController
 		includes(:project, :user, :issue).
 		preload(:issue => [:project, :tracker, :status, :assigned_to, :priority])
 	else
-		scope = WkExpenseEntry.where(:user_id => User.current.id, :project_id => projectid)
+		cond =''
+		if projectid > 0  
+			cond = "user_id = #{User.current.id} and project_id in (#{projectid}) "
+		elsif !@manage_view_spenttime_projects.blank?
+			cond = "project_id in (#{projectids}) "
+		else
+			cond = "user_id = #{User.current.id}"
+		end
+		scope = WkExpenseEntry.where(cond)
 	end	
     respond_to do |format|
       format.html {
