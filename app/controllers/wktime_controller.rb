@@ -4,7 +4,7 @@ unloadable
 include WktimeHelper
 
 before_filter :require_login
-before_filter :check_perm_and_redirect, :only => [:edit, :update]
+before_filter :check_perm_and_redirect, :only => [:edit, :update, :destroy] # user without edit permission can't destroy
 before_filter :check_editperm_redirect, :only => [:destroy]
 before_filter :check_view_redirect, :only => [:index]
 before_filter :check_log_time_redirect, :only => [:new]
