@@ -195,3 +195,5 @@ fr:
   label_enable_attendance_module: Activer le module de présence
   label_enable_report_module: Activer le module de rapports
   label_group_non_submission_email: Groupe destinataire du courriel de rappel
+  
+  error_expense_entry_delete: "Cannot be deleted. The expensesheet with this entry is locked"

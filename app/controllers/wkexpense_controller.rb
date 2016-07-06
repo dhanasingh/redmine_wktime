@@ -137,8 +137,11 @@ class WkexpenseController < WktimeController
   def deleteEntry
 	respond_to do |format|
 		format.html {	
-			delete(params[:id])
-			flash[:notice] = l(:notice_successful_delete)
+			if delete(params[:id])
+				flash[:notice] = l(:notice_successful_delete)
+			else
+				flash[:error] = l(:error_expense_entry_delete)
+			end
 			redirect_to :action => 'reportdetail', :project_id => params[:project]
 		} 		
 	end
@@ -234,7 +237,28 @@ private
   end 
   
   def delete(ids)
-	WkExpenseEntry.delete(ids)
+	#WkExpenseEntry.delete(ids)
+	errMsg = false
+	@expense_entries = WkExpenseEntry.find_by_sql("SELECT * FROM wk_expense_entries w where id = #{ids} ;")
+	destroyed = WkExpenseEntry.transaction do
+	@expense_entries.each do |t|
+		status = getExpenseEntryStatus(t.spent_on, t.user_id)
+		if !status.blank? && ('a' == status || 's' == status || 'l' == status)					
+			 errMsg = false 
+		else
+			errMsg = true
+			WkExpenseEntry.delete(ids)
+		end		
+	  end
+	end
+	errMsg
+  end
+  
+  def getExpenseEntryStatus(spent_on, user_id)
+		start_day = getStartDay(spent_on)
+		result = Wkexpense.where(['begin_date = ? AND user_id = ?', start_day, user_id])
+		result = result[0].blank? ? 'n' : result[0].status
+		return 	result	  
   end
   
   def findTEEntries(ids)

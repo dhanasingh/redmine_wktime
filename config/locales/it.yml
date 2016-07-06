@@ -192,3 +192,5 @@ it:
   label_enable_attendance_module: Enable Attendance module
   label_enable_report_module: Enable Reports
   label_group_non_submission_email: Target group of non submission email
+  
+  error_expense_entry_delete: "Cannot be deleted. The expensesheet with this entry is locked"
