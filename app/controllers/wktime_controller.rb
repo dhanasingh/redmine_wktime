@@ -711,11 +711,11 @@ include QueriesHelper
 		tracker = getTrackerbyIssue(params[:issue_id])
 		settingstracker = Setting.plugin_redmine_wktime[getTFSettingName()]
 		allowtracker = Setting.plugin_redmine_wktime['wktime_allow_user_filter_tracker'].to_i
-		if settingstracker != ["0"] 
-			if ((["#{tracker}"] ==  settingstracker) || (tracker == '0'))
+		if settingstracker != ["0"]
+			if ((settingstracker.include?("#{tracker}")) || (tracker == '0'))
 				ret = true
 			end			
-		else 
+		else
 			ret = true
 		end	
 		
