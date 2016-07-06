@@ -5,7 +5,7 @@
 <%= render :partial => 'date_range' %>
 <% end %>
 <div class="total-hours">
-<p><%= l(:label_total) %>:&nbsp;<%= html_hours("%.2f" % @total_hours) %></p>
+<p><%= l(:label_total) %>: <%= "#{@total_hours == 0.0 ? '' : '$'}" %>&nbsp;<%= html_hours("%.2f" % @total_hours) %></p>
 </div>
 
 <% unless @entries.empty? %>
