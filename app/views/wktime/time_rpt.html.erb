@@ -133,7 +133,7 @@
 		<% 
 			unit = nil
 			if !unitLabel.blank? && !matrix_values.blank?
-				unit = matrix_values[0][4]
+				unit = matrix_values[0][columnCount-7]
 			end
 			total_values = getTotalValues(totals, columnCount - 6, unit)
 			total_values.each_with_index do |val, i|
