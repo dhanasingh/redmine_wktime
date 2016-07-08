@@ -75,7 +75,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		elsif user_id.to_i > 0
 			leaveSql = leaveSql + " Where u.id = #{user_id}"
 		end
-		if isAccountUser
+		if isAccountUser || User.current.admin?
 			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}'")
 			sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where #{dateStr} between '#{@from}' and '#{@to}' group by user_id,#{dateStr}"
 		else
@@ -155,7 +155,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 			queryStr = queryStr + " and u.id = #{user_id}"
 		end
 		
-		if !isAccountUser
+		if !(isAccountUser || User.current.admin?)
 			queryStr = queryStr + " and u.id = #{User.current.id} "
 		end
 		#queryStr = queryStr + " order by u.created_on"
@@ -182,7 +182,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 	
 	def getLeaveQueryStr(from,to)
 		queryStr = "select * from wk_user_leaves WHERE issue_id in (#{getLeaveIssueIds}) and accrual_on between '#{from}' and '#{to}'"
-		if !isAccountUser
+		if !(isAccountUser || User.current.admin?)
 			queryStr = queryStr + " and user_id = #{User.current.id} "
 		end
 		queryStr
@@ -276,7 +276,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 	def check_permission
 		ret = false
 		ret = params[:user_id].to_i == User.current.id
-		return (ret || isAccountUser)
+		return (ret || isAccountUser || User.current.admin?)
 	end	
 	
 end
