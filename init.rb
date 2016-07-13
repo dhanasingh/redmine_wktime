@@ -1,5 +1,7 @@
 require 'redmine'
 require_dependency 'custom_fields_helper'
+require 'wkpatch'
+require 'report_params'
 
 module WktimeHelperPatch
 	def self.included(base)
@@ -145,7 +147,7 @@ Redmine::Plugin.register :redmine_wktime do
   name 'Time & Attendance'
   author 'Adhi Software Pvt Ltd'
   description 'This plugin is for entering Time & Attendance'
-  version '2.2'
+  version '2.2.1'
   url 'http://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
   
@@ -211,6 +213,7 @@ Redmine::Plugin.register :redmine_wktime do
 
 end
 
+WkreportController.send(:include, WkreportControllerPatch)
 
 Rails.configuration.to_prepare do
 	if ActiveRecord::Base.connection.table_exists? "#{Setting.table_name}"
@@ -314,7 +317,8 @@ class WktimeHook < Redmine::Hook::ViewListener
 				end			
 			end	
 		end
-	end	
+	end
+	render_on :view_layouts_base_content, :partial => 'wktime/attendance_widget'
 end
 
 

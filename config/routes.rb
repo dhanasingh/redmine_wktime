@@ -32,9 +32,7 @@
   
   get 'wktime/testapi', :to => 'wktime#testapi' 
   
-  get 'wktime/updateAttendance', :to => 'wktime#updateAttendance'   
-  
-  get 'wktime/updateClockInOut', :to => 'wktime#updateClockInOut' 
+  get 'wktime/updateAttendance', :to => 'wktime#updateAttendance'     
     
   get 'wktime/time_rpt', :to => 'wktime#time_rpt'  
   
@@ -64,9 +62,7 @@
   
   post 'wkexpense/sendSubReminderEmail', :to => 'wkexpense#sendSubReminderEmail'
   
-  post 'wkexpense/sendApprReminderEmail', :to => 'wkexpense#sendApprReminderEmail'
-  
-  get 'wkexpense/updateClockInOut', :to => 'wkexpense#updateClockInOut' 
+  post 'wkexpense/sendApprReminderEmail', :to => 'wkexpense#sendApprReminderEmail'  
   
   #For Weekly expense report
   
@@ -76,7 +72,9 @@
   
   delete 'wkexpense/deleteEntry', :to => 'wkexpense#deleteEntry'
   
-  delete 'wkexpense/deleteEntries', :to => 'wkexpense#deleteEntries'  
+  delete 'wkexpense/deleteEntries', :to => 'wkexpense#deleteEntries' 
+  
+  get 'wkexpense/time_rpt', :to => 'wkexpense#time_rpt' 
  
   resources :projects do	
 	resources :wk_expense_entries, :controller => 'wkexpense' do
@@ -98,17 +96,16 @@
    
   get 'wkattendance/getIssuesByProject', :to => 'wkattendance#getIssuesByProject'
    
-  get 'wkattendance/getProjectByIssue', :to => 'wkattendance#getProjectByIssue'
-  
-  get 'wkattendance/updateClockInOut', :to => 'wkattendance#updateClockInOut' 
+  get 'wkattendance/getProjectByIssue', :to => 'wkattendance#getProjectByIssue'  
   
   #For Report   
   get 'wkreport/index', :to => 'wkreport#index'
    
-  get 'wkreport/reportattn', :to => 'wkreport#reportattn'
+  get 'wkreport/reportattn', :to => 'wkreport#reportattn'  
   
-  get 'wkreport/updateClockInOut', :to => 'wkreport#updateClockInOut' 
+  match 'updateClockInOut', :controller => 'wkattendance', :action => 'updateClockInOut', :via => [:get]
   
- 
+  get 'wkreport/getGroupMembers', :to => 'wkreport#getGroupMembers'
   
+  get 'wkreport/getMembersbyGroup', :to => 'wkreport#getMembersbyGroup'
   

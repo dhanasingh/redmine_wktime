@@ -11,12 +11,13 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		@status = params[:status] || 1
 		@groups = Group.all.sort
 		sqlStr = ""
-		if !findLastAttnEntry.blank?
-			@lastAttnEntry = findLastAttnEntry[0]
-		end
 		lastMonthStartDt = Date.civil(Date.today.year, Date.today.month, 1) << 1
 		if(Setting.plugin_redmine_wktime['wktime_leave'].blank?)
-			sqlStr = " select u.id as user_id, u.firstname, u.lastname, u.status, -1 as issue_id from users u where u.type = 'User' "
+			sqlStr = " select u.id as user_id, u.firstname, u.lastname, u.status, -1 as issue_id from users u"
+			if !params[:group_id].blank?
+				sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id"
+			end
+			sqlStr = sqlStr + " where u.type = 'User' "
 		else
 			listboxArr = Setting.plugin_redmine_wktime['wktime_leave'][0].split('|')
 			issueId = listboxArr[0]
@@ -37,10 +38,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		findBySql(sqlStr)
 	end
 	
-	def edit
-		if !findLastAttnEntry.blank?
-			@lastAttnEntry = findLastAttnEntry[0]
-		end
+	def edit		
 		sqlStr = getQueryStr + " where i.id in (#{getLeaveIssueIds}) and u.type = 'User' and u.id = #{params[:user_id]} order by i.subject"
 		@leave_details = WkUserLeave.find_by_sql(sqlStr)
 		render :action => 'edit'

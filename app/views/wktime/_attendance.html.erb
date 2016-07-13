@@ -15,11 +15,14 @@
 	<%  previousStartDate == startDate.to_s.to_date.wday && startDate.to_s.to_date.wday != 0 ?  $entryHours[startDate.to_s.to_date.wday] << ','+(entry.hours).to_s  : $entryHours[startDate.to_s.to_date.wday] = (entry.hours).to_s %>
 	<%  previousStartDate = startDate.to_s.to_date.wday %>			
 <% end %>	
-
 <% attnEntriesId = Array.new %>
 <% attnstarttime = Array.new %>
 <% attnendtime = Array.new %>
 <% hoursdiff = Array.new %>
+<% $headerStartTime = Array.new %>
+<% $headerEndTime = Array.new %>
+<% $headerEntriesId = Array.new %>
+<% $headerhoursdiff = Array.new %>
 <% st = Array.new %>
 <% disable = isAccountUser ? (User.current.id == @user.id ? !(!Setting.plugin_redmine_wktime[:wktime_own_approval].blank? && 
 	Setting.plugin_redmine_wktime[:wktime_own_approval].to_i == 1 ) : false) : true	%>
@@ -43,6 +46,10 @@
 					<% attnstarttime = ( entrydate.count((@startday + (i-1)).wday) != 0) ? $entryStartTime[(@startday + (i-1)).wday].split(",") : $entryStartTime[(@startday + (i-1)).wday] %>
 					<% attnendtime = ( entrydate.count((@startday + (i-1)).wday) != 0) ? $entryEndTime[(@startday + (i-1)).wday].split(",") : $entryEndTime[(@startday + (i-1)).wday] %>
 					<% hoursdiff = ( entrydate.count((@startday + (i-1)).wday) != 0) ? $entryHours[(@startday + (i-1)).wday].split(",") : $entryHours[(@startday + (i-1)).wday] %>
+					<% $headerStartTime[i] = (attnstarttime.blank? ? "" : attnstarttime) %>
+					<% $headerEndTime[i] = (attnendtime.blank? ? "" : attnendtime) %>
+					<% $headerEntriesId[i] = (attnEntriesId.blank? ? "" : attnEntriesId) %>
+					<% $headerhoursdiff[i] = (hoursdiff.blank? ? "" : hoursdiff) %>					
 					<table> 
 						<tbody> 
 							<tr> 

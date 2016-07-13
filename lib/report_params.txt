@@ -1,0 +1,8 @@
+#Report_Name,Controller, Method
+#time_report,ReportController, genReportTime
+
+#redirect_to action: 'time_rpt', controller: 'wktime'
+
+'attendance_report', 'Attendance', 'wkreport', 'reportattn'
+'time_report', 'Timesheet', 'wktime', 'time_rpt'
+'expense_report', 'Expensesheet', 'wkexpense', 'time_rpt'

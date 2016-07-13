@@ -170,16 +170,10 @@ function signAttendance(str)
 	{
 	  document.getElementById('clockin' ).style.display = "block";
 	  document.getElementById('clockout').style.display = "none";
-	}/*
-	var userid = document.getElementById('user_id').value;
-	var nightshift = false;
-	if(document.getElementById('nightshift') != null && !diff )
-	{
-		 nightshift = document.getElementById('nightshift').value;	
-	}	*/
-	var requrl = "";
+	}
+	
 	$.ajax({	
-	url: 'updateClockInOut',
+	url: '/updateClockInOut',
 	type: 'get',
 	data: {startdate : datevalue, str: str},
 	success: function(data){ }   

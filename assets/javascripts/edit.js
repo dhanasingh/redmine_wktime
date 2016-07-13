@@ -164,7 +164,6 @@ $(document).ready(function() {
 		// when initially load the page update total and remaininghours
 		for(i = 1; i <= 7; i++)
 		{		
-				
 			updateTotalHr(i, "");
 			updateRemainingHr(i, "");
 		}
@@ -1185,14 +1184,14 @@ function updateTotalHr(day, element)
 	var totTimeRow = issueTable.rows[3];
 	var tot_Hr = 0,tot_min = 0,totTime="";	
 	var minDiff = 0 ;
-	 var attnDayEntriesCnt1 =  document.getElementById('attnDayEntriesCnt_'+day) != null ? document.getElementById('attnDayEntriesCnt_'+day).value : -1;
-	 if(!element)
+	var attnDayEntriesCnt1 =  document.getElementById('attnDayEntriesCnt_'+day) != null ? document.getElementById('attnDayEntriesCnt_'+day).value : -1;
+	if(!element)
 	 {
 		 for(j = 0 ; j < attnDayEntriesCnt1 ; j++ )
 		 {
-			 sval =  document.getElementById('attnstarttime'+day+'_' + j).value; 
-			 eval = document.getElementById('attnendtime'+day+'_' + j).value ;
-			 minDiff  +=  sval && eval ? getMinDiff(day, ['attnstarttime'+day+'_' + j,'attnendtime'+day+'_' + j, 'hoursdiff'+day+'_' + j]) : 0 ;
+			var sval =  document.getElementById('attnstarttime'+day+'_' + j).value; 
+			var  eval1 = document.getElementById('attnendtime'+day+'_' + j).value ;
+			 minDiff  +=  sval && eval1 ? getMinDiff(day, ['attnstarttime'+day+'_' + j,'attnendtime'+day+'_' + j, 'hoursdiff'+day+'_' + j]) : 0 ;
 		 }
 		 
 	 }
@@ -1201,7 +1200,7 @@ function updateTotalHr(day, element)
 	 }
 	 
 	totTime = timeFormat(minDiff);
-	totTime = calculatebreakTime(totTime, day, element);		
+	totTime = calculatebreakTime(totTime, day, element);
 	if(element[0] == "start_"+day) 
 	{
 		var addtotal = document.getElementById(element[2]).value;			
@@ -1209,7 +1208,7 @@ function updateTotalHr(day, element)
 		if(!isnightshift && clktot == 1)
 		{
 			addtotal = addtotal ? addtotal : "00:00:00";
-			totTime = MinutesDifferent(addtotal, totTime+":00", 1 );				
+			totTime = MinutesDifferent(addtotal, totTime+":00", 1 );
 		}			
 		document.getElementById(element[2]).value = totTime ;
 		clktot = 1;
@@ -1224,13 +1223,28 @@ function updateTotalHr(day, element)
 		}
 		totTime = timeFormat(minDiff);
 		totTime = calculatebreakTime(totTime, day, element);
-	}
+	}	
 	if(document.getElementById("grandTotal_"+day) != null)
 	{
-		document.getElementById("grandTotal_"+day).value = timeStringToFloat(totTime) ;
-	}			
+		var thours = 0.0;
+		for(k = 0 ; k < attnDayEntriesCnt1 ; k++ )
+		{
+			var addhours =  document.getElementById('hoursdiff'+day+'_' + k).value; 
+			thours	= Number((thours + (addhours  ? parseFloat(addhours) : 0.0)).toFixed(2)) ;		
+		}
+		document.getElementById("grandTotal_"+day).value = thours; //timeStringToFloat(totTime) ;
+		totTime = convertHoursToMin(thours);
+	}
 	totHrCell = totTimeRow.cells[hStartIndex + day];
 	totHrCell.innerHTML = totTime + "     <a href='javascript:showclkDialog("+day+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockdetail.png' border=0 title=''/></a>";
+}
+
+function convertHoursToMin(thours)
+{
+	var sign = thours < 0 ? "-" : "";
+	var min = Math.floor(Math.abs(thours));
+	var sec = Math.floor((Math.abs(thours) * 60) % 60);
+	return sign + (min < 10 ? "0" : "") + min + ":" + (sec < 10 ? "0" : "") + sec;
 }
 
 //Validates the start and end time
@@ -1490,13 +1504,13 @@ function calculatebreakTime(totTime, day, element)
 	var breakValue = new Array();	
 	var count = 0, count1 = 0, count2 = 0  ;
 	var i =0, j = 0;
-	var minusdiff;
+	var minusdiff = 0;
 	var isminusdiff = false, isdbtotal = false, istottime = false;
 	var oldstartval, oldendvalue;
 	var nsendvalue = document.getElementById('nightshift') != null ?  document.getElementById('nightshift').value : false;
+	var attnDayEntriesCnt1 =  document.getElementById('attnDayEntriesCnt_'+day) != null ? document.getElementById('attnDayEntriesCnt_'+day).value : -1;
 	startval = document.getElementById(element ? element[0] : 'start_'+day).value;
-	endval = document.getElementById(element ? element[1] : 'end_'+day).value;
-	
+	endval = document.getElementById(element ? element[1] : 'end_'+day).value;	
 	if(startval && endval)
 	{					
 		breakTime = document.getElementById('break_time').value;
@@ -1573,7 +1587,6 @@ function calculatebreakTime(totTime, day, element)
 								if(count2 != 1)
 								{
 									istottime = true;
-									
 								}							
 							}
 							

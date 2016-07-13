@@ -66,9 +66,38 @@ class WkexpenseController < WktimeController
 	 @query = WkExpenseEntryQuery.build_from_params(params, :project => @project, :name => '_')
 	 sort_init(@query.sort_criteria.empty? ? [['spent_on', 'desc']] : @query.sort_criteria)
     sort_update(@query.sortable_columns)
-    scope = expense_entry_scope(:order => sort_clause).
-      includes(:project, :user, :issue).
-      preload(:issue => [:project, :tracker, :status, :assigned_to, :priority])
+	set_managed_projects
+	projectid = -1
+	ismanagedProject = false
+	currentProject = Project.where(:identifier => params[:project_id])
+	if !currentProject.blank?
+		projectid = currentProject[0].id	
+	end
+	projectids = ''
+	@manage_view_spenttime_projects.each{ |manageproject| 
+		if projectids !=''
+			projectids += ', '
+		end
+		projectids += manageproject.id.to_s
+		if projectid == manageproject.id 
+			ismanagedProject = true
+		end	
+	}
+	if (!@manage_view_spenttime_projects.blank?  && ismanagedProject) || isAccountUser 
+		scope = expense_entry_scope(:order => sort_clause).
+		includes(:project, :user, :issue).
+		preload(:issue => [:project, :tracker, :status, :assigned_to, :priority])
+	else
+		cond =''
+		if projectid > 0  
+			cond = "user_id = #{User.current.id} and project_id in (#{projectid}) "
+		elsif !@manage_view_spenttime_projects.blank?
+			cond = "project_id in (#{projectids}) "
+		else
+			cond = "user_id = #{User.current.id}"
+		end
+		scope = WkExpenseEntry.where(cond)
+	end	
     respond_to do |format|
       format.html {
         @entry_count = scope.count
@@ -108,27 +137,39 @@ class WkexpenseController < WktimeController
   def deleteEntry
 	respond_to do |format|
 		format.html {	
-			delete(params[:id])
-			flash[:notice] = l(:notice_successful_delete)
+			if delete(params[:id])
+				flash[:notice] = l(:notice_successful_delete)
+			else
+				flash[:error] = l(:error_expense_entry_delete)
+			end
 			redirect_to :action => 'reportdetail', :project_id => params[:project]
 		} 		
 	end
   end
  
-	def textfield_size
-	    6
-	end
+  def textfield_size
+	6
+  end
 	
-	def showClockInOut
-		false
-	end
-	def maxHourPerWeek
-		0
-	end
+  def showClockInOut
+	false
+  end
+  
+  def getNewCustomField
+	nil
+  end
+  
+  def getTELabel
+	l(:label_wk_expensesheet)
+  end
+  
+  def maxHourPerWeek
+	0
+  end
 	
-	def minHourPerWeek
-		0
-	end
+  def minHourPerWeek
+	0
+  end
 private
   def getSpecificField
 	"amount"
@@ -183,10 +224,6 @@ private
 	teEntry.currency = getUnit(entry)
   end
   
-  def getNewCustomField
-	nil
-  end
-  
   def getWkEntity
 	Wkexpense.new 
   end
@@ -200,7 +237,28 @@ private
   end 
   
   def delete(ids)
-	WkExpenseEntry.delete(ids)
+	#WkExpenseEntry.delete(ids)
+	errMsg = false
+	@expense_entries = WkExpenseEntry.find_by_sql("SELECT * FROM wk_expense_entries w where id = #{ids} ;")
+	destroyed = WkExpenseEntry.transaction do
+	@expense_entries.each do |t|
+		status = getExpenseEntryStatus(t.spent_on, t.user_id)
+		if !status.blank? && ('a' == status || 's' == status || 'l' == status)					
+			 errMsg = false 
+		else
+			errMsg = true
+			WkExpenseEntry.delete(ids)
+		end		
+	  end
+	end
+	errMsg
+  end
+  
+  def getExpenseEntryStatus(spent_on, user_id)
+		start_day = getStartDay(spent_on)
+		result = Wkexpense.where(['begin_date = ? AND user_id = ?', start_day, user_id])
+		result = result[0].blank? ? 'n' : result[0].status
+		return 	result	  
   end
   
   def findTEEntries(ids)
@@ -249,10 +307,6 @@ private
       scope = scope.on_issue(@issue)
     end
     scope
-  end
-  
-  def getTELabel
-	l(:label_wk_expensesheet)
   end
   
   def findTEEntryBySql(query)

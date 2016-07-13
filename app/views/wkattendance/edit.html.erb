@@ -1,4 +1,3 @@
-<%= render :partial => 'wktime/attendance_widget' %>
 <%= form_tag({:controller => 'wkattendance', :action => 'update'}, :method => :post, :id => 'wkattendance_update') do %>
 	<%
 		lastAccrualOn = Date.civil(Date.today.year, Date.today.month, 1) -1

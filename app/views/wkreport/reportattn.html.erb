@@ -34,7 +34,7 @@
 <% if !@userlist.blank? %>
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
 <table class="tbl-report" border="1" style="border-collapse:collapse;" cellspacing="0",frame="box">
- <caption><b><%= l(:label_wk_form_q) %><br><%= l(:label_wk_register_for_shops) %></b></br>
+ <caption style="text-align:left"><b><%= l(:label_wk_form_q) %><br><%= l(:label_wk_register_for_shops) %></b></br>
  <b><%= l(:label_wk_name_address) %>:</b> <%= Setting.app_title %>
  <b><%= l(:label_month) %>:</b> <%= @from.strftime("%B")%>
  <b><%= l(:label_year) %>:</b> <%= @from.strftime("%Y")%></caption>
