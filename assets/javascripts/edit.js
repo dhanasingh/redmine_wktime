@@ -164,7 +164,6 @@ $(document).ready(function() {
 		// when initially load the page update total and remaininghours
 		for(i = 1; i <= 7; i++)
 		{		
-				
 			updateTotalHr(i, "");
 			updateRemainingHr(i, "");
 		}
@@ -1185,14 +1184,14 @@ function updateTotalHr(day, element)
 	var totTimeRow = issueTable.rows[3];
 	var tot_Hr = 0,tot_min = 0,totTime="";	
 	var minDiff = 0 ;
-	 var attnDayEntriesCnt1 =  document.getElementById('attnDayEntriesCnt_'+day) != null ? document.getElementById('attnDayEntriesCnt_'+day).value : -1;
-	 if(!element)
+	var attnDayEntriesCnt1 =  document.getElementById('attnDayEntriesCnt_'+day) != null ? document.getElementById('attnDayEntriesCnt_'+day).value : -1;
+	if(!element)
 	 {
 		 for(j = 0 ; j < attnDayEntriesCnt1 ; j++ )
 		 {
-			 sval =  document.getElementById('attnstarttime'+day+'_' + j).value; 
-			 eval = document.getElementById('attnendtime'+day+'_' + j).value ;
-			 minDiff  +=  sval && eval ? getMinDiff(day, ['attnstarttime'+day+'_' + j,'attnendtime'+day+'_' + j, 'hoursdiff'+day+'_' + j]) : 0 ;
+			var sval =  document.getElementById('attnstarttime'+day+'_' + j).value; 
+			var  eval1 = document.getElementById('attnendtime'+day+'_' + j).value ;
+			 minDiff  +=  sval && eval1 ? getMinDiff(day, ['attnstarttime'+day+'_' + j,'attnendtime'+day+'_' + j, 'hoursdiff'+day+'_' + j]) : 0 ;
 		 }
 		 
 	 }
@@ -1201,7 +1200,7 @@ function updateTotalHr(day, element)
 	 }
 	 
 	totTime = timeFormat(minDiff);
-	totTime = calculatebreakTime(totTime, day, element);		
+	totTime = calculatebreakTime(totTime, day, element);
 	if(element[0] == "start_"+day) 
 	{
 		var addtotal = document.getElementById(element[2]).value;			
@@ -1209,7 +1208,7 @@ function updateTotalHr(day, element)
 		if(!isnightshift && clktot == 1)
 		{
 			addtotal = addtotal ? addtotal : "00:00:00";
-			totTime = MinutesDifferent(addtotal, totTime+":00", 1 );				
+			totTime = MinutesDifferent(addtotal, totTime+":00", 1 );
 		}			
 		document.getElementById(element[2]).value = totTime ;
 		clktot = 1;
@@ -1225,12 +1224,28 @@ function updateTotalHr(day, element)
 		totTime = timeFormat(minDiff);
 		totTime = calculatebreakTime(totTime, day, element);
 	}
-	if(document.getElementById("grandTotal_"+day) != null)
+	
+	var thours = 0.0;
+	for(k = 0 ; k < attnDayEntriesCnt1 ; k++ )
 	{
-		document.getElementById("grandTotal_"+day).value = timeStringToFloat(totTime) ;
-	}			
+		var addhours =  document.getElementById('hoursdiff'+day+'_' + k).value; 
+		thours	= Number((thours + (addhours  ? parseFloat(addhours) : 0.0)).toFixed(2)) ;		
+	}
+	if(document.getElementById("grandTotal_"+day) != null)
+	{		
+		document.getElementById("grandTotal_"+day).value = thours; //timeStringToFloat(totTime) ;
+		totTime = convertHoursToMin(thours);
+	}
 	totHrCell = totTimeRow.cells[hStartIndex + day];
 	totHrCell.innerHTML = totTime + "     <a href='javascript:showclkDialog("+day+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockdetail.png' border=0 title=''/></a>";
+}
+
+function convertHoursToMin(thours)
+{
+	var sign = thours < 0 ? "-" : "";
+	var min = Math.floor(Math.abs(thours));
+	var sec = Math.floor((Math.abs(thours) * 60) % 60);
+	return sign + (min < 10 ? "0" : "") + min + ":" + (sec < 10 ? "0" : "") + sec;
 }
 
 //Validates the start and end time
@@ -1490,101 +1505,105 @@ function calculatebreakTime(totTime, day, element)
 	var breakValue = new Array();	
 	var count = 0, count1 = 0, count2 = 0  ;
 	var i =0, j = 0;
-	var minusdiff;
+	var minusdiff = 0;
 	var isminusdiff = false, isdbtotal = false, istottime = false;
 	var oldstartval, oldendvalue;
 	var nsendvalue = document.getElementById('nightshift') != null ?  document.getElementById('nightshift').value : false;
-	startval = document.getElementById(element ? element[0] : 'start_'+day).value;
-	endval = document.getElementById(element ? element[1] : 'end_'+day).value;
-	
-	if(startval && endval)
-	{					
-		breakTime = document.getElementById('break_time').value;
-		breakTime = breakTime.split(" ");	
-		var startBTime = new Array() ,endBTime = new Array();
-		if(breakTime !='')
-		{
-			for(i= 0; i < breakTime.length ; i++)
-			{				
-				breakValue =  breakTime[i].split('|');
-				if(breakValue[0]&&breakValue[1]&&breakValue[2]&&breakValue[3])
-				{
-					startBTime[i]= breakValue[0] + ":" + breakValue[1] + ":00" ;
-					endBTime[i] = breakValue[2] + ":" + breakValue[3] + ":00";	
-				}								
-			}
-		}
-		
-		var diffbetween,diffbetween1, diffbetween4,diffbetween5;
-		var dbtotal , stdiff;				
-		startval += ":00";
-		endval += ":00";
-		for(j=0;j < startBTime.length ; j++)
-		{
-			startBT = dateCompare(startval,startBTime[j],0);
-			endBT = dateCompare(endval,endBTime[j],0);
-			// calculate time from greater & less then break time and inbetween clock in/out
-			if((startBT == -1 && endBT == 1  ) || ( startBT == 0 && endBT == 0) || (startBT == 1 && endBT == -1  ) || 
-			(startBT == -1 && endBT == 0) || (startBT == 0 && endBT == 1) )  //|| (st1 == -1 && ed1 == -1  ) st ed
+	var attnDayEntriesCnt1 =  document.getElementById('attnDayEntriesCnt_'+day) != null ? document.getElementById('attnDayEntriesCnt_'+day).value : -1;
+	for(k = 0 ; k < attnDayEntriesCnt1 ; k++ )
+	{
+		var startval =  document.getElementById('attnstarttime'+day+'_' + k) != null ? document.getElementById('attnstarttime'+day+'_' + k).value : document.getElementById('start_'+day).value; 
+		var  endval = document.getElementById('attnendtime'+day+'_' + k) != null ? document.getElementById('attnendtime'+day+'_' + k).value : document.getElementById('end_'+day).value ;
+		//startval = document.getElementById(element ? element[0] : 'start_'+day).value;
+		//endval = document.getElementById(element ? element[1] : 'end_'+day).value;	
+		if(startval && endval)
+		{					
+			breakTime = document.getElementById('break_time').value;
+			breakTime = breakTime.split(" ");	
+			var startBTime = new Array() ,endBTime = new Array();
+			if(breakTime !='')
 			{
-				var oldval = stdiff;				
-				//stdiff  = diff(startBTime[j],endBTime[j]);
-				stdiff = getMinDiff(-1, [startBTime[j],endBTime[j]]);
-				stdiff = timeFormat(stdiff);
-				if(count == 1)
-				{
-					stdiff = MinutesDifferent(oldval,stdiff,1);
-				}
-				count = 1;						
-				minusdiff = MinutesDifferent(totTime,stdiff,0);						
-				if (startBT == 1 && endBT == -1 ) 
-				{
-					minusdiff = "0:00";
-				}
-				isminusdiff = true;
-			}
-			else
-			{
-				if(count != 1)
-				{
-					//break time greater then clock out time					
-					diffbetween = dateCompare(endval,endBTime[j],1);
-					diffbetween1 = dateCompare(startBTime[j],endval,1);
-					if(diffbetween == 2 && diffbetween1 == 2)
+				for(i= 0; i < breakTime.length ; i++)
+				{				
+					breakValue =  breakTime[i].split('|');
+					if(breakValue[0]&&breakValue[1]&&breakValue[2]&&breakValue[3])
 					{
-						count1 = 1;
-						dbtotal = MinutesDifferent(startBTime[j],startval, 0 );
-						isdbtotal = true;
+						startBTime[i]= breakValue[0] + ":" + breakValue[1] + ":00" ;
+						endBTime[i] = breakValue[2] + ":" + breakValue[3] + ":00";	
+					}								
+				}
+			}
+			
+			var diffbetween,diffbetween1, diffbetween4,diffbetween5;
+			var dbtotal , stdiff;				
+			startval += ":00";
+			endval += ":00";
+			for(j=0;j < startBTime.length ; j++)
+			{
+				startBT = dateCompare(startval,startBTime[j],0);
+				endBT = dateCompare(endval,endBTime[j],0);
+				// calculate time from greater & less then break time and inbetween clock in/out
+				if((startBT == -1 && endBT == 1  ) || ( startBT == 0 && endBT == 0) || (startBT == 1 && endBT == -1  ) || 
+				(startBT == -1 && endBT == 0) || (startBT == 0 && endBT == 1) )  //|| (st1 == -1 && ed1 == -1  ) st ed
+				{
+					var oldval = stdiff;				
+					//stdiff  = diff(startBTime[j],endBTime[j]);
+					stdiff = getMinDiff(-1, [startBTime[j],endBTime[j]]);
+					stdiff = timeFormat(stdiff);
+					if(count == 1)
+					{
+						stdiff = MinutesDifferent(oldval,stdiff,1);
 					}
-					else{
-						if(count1 != 1 )
+					count = 1;						
+					minusdiff = MinutesDifferent(totTime,stdiff,0);						
+					if (startBT == 1 && endBT == -1 ) 
+					{
+						minusdiff = "0:00";
+					}
+					isminusdiff = true;
+				}
+				else
+				{
+					if(count != 1)
+					{
+						//break time greater then clock out time					
+						diffbetween = dateCompare(endval,endBTime[j],1);
+						diffbetween1 = dateCompare(startBTime[j],endval,1);
+						if(diffbetween == 2 && diffbetween1 == 2)
 						{
-							//break time less then clock in time							
-							diffbetween4 = dateCompare(startval,startBTime[j],2);
-							diffbetween5 = dateCompare(startval,endBTime[j],2);
-							if(diffbetween4 == 4 && diffbetween5 == 0)
-							{
-								count2 = 1;
-								dbtotal = MinutesDifferent(endval, endBTime[j], 0 );
-								isdbtotal = true;
-							}
-							else
-							{								
-								if(count2 != 1)
-								{
-									istottime = true;
-									
-								}							
-							}
-							
-							
+							count1 = 1;
+							dbtotal = MinutesDifferent(startBTime[j],startval, 0 );
+							isdbtotal = true;
 						}
+						else{
+							if(count1 != 1 )
+							{
+								//break time less then clock in time							
+								diffbetween4 = dateCompare(startval,startBTime[j],2);
+								diffbetween5 = dateCompare(startval,endBTime[j],2);
+								if(diffbetween4 == 4 && diffbetween5 == 0)
+								{
+									count2 = 1;
+									dbtotal = MinutesDifferent(endval, endBTime[j], 0 );
+									isdbtotal = true;
+								}
+								else
+								{								
+									if(count2 != 1)
+									{
+										istottime = true;
+									}							
+								}
+								
+								
+							}
+						}
+						
 					}
 					
-				}
-				
+				}				
 			}				
-		}				
+		}
 	}
 	if(isminusdiff)
 	{

@@ -44,8 +44,8 @@
 			<div style="float: left; width: 80px;">
 			<div style="float: left;">	
 				<%=h text_field_tag( "#{str}_#{(i+1)}" , "#{str}" == "start" ? ($headerStartTime[i+1].blank? ? '00:00' : $headerStartTime[i+1].first(1)) : ($headerEndTime[i+1].blank? ? '00:00' : $headerEndTime[i+1].last(1)),:size => 4, :disabled =>  true, :class => (@startday + i) < Date.today ? 'clock-textbox' : ((@startday + i) == Date.today ? 'clock-todaytextbox' : '' ),  :onchange => "validateHr(this,#{(i+1)});") %>
-			 	<%=h hidden_field_tag('hd' + "#{str}_#{(i+1)}", !nightclkout ? ( $headerEntriesId[i+1].blank?  ? '' : $headerEntriesId[i+1].last(1)) : ( $headerEntriesId[i].blank?  ? '' : $headerEntriesId[i].last(1)) )  %>  
-				<%=h hidden_field_tag('hours' + "#{str}_#{(i+1)}", ( $headerhoursdiff[i+1].blank?  ? '' : $headerhoursdiff[i+1].last(1)) )  %>  
+			  	<%=h hidden_field_tag('hd' + "#{str}_#{(i+1)}", !nightclkout ? ( $entryId[i] ?  $entryId[i].split(",").last(1) : '') : ( $entryId[i-1] ?  $entryId[i-1].split(",").last(1) : '') )  %>  
+				<%=h hidden_field_tag('hours' + "#{str}_#{(i+1)}", ( $entryHours[i] ?  $entryHours[i].split(",").last(1) : '0.0') )  %>   
 			</div>
 			
 			<% if ("#{str}" == "start" || "#{str}" == "end") && controller.showClockInOut && (i == col_num) &&  User.current.id == @user.id   %>
