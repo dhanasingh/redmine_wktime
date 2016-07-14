@@ -44,6 +44,16 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		render :action => 'edit'
 	end
 	
+	def runPeriodEndProcess
+		populateWkUserLeaves
+		respond_to do |format|
+			format.html {				
+				flash[:notice] = l(:notice_successful_update)
+				redirect_back_or_default :action => 'index', :tab => params[:tab]
+			} 
+		end
+	end
+	
 	def update	
 		errorMsg =nil
 		wkuserleave = nil

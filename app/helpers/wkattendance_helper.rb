@@ -30,5 +30,99 @@ module WkattendanceHelper
 		end	
 		issueIds
 	end
+	
+	def populateWkUserLeaves		
+		leavesInfo = Setting.plugin_redmine_wktime['wktime_leave']
+		leaveAccrual = Hash.new
+		leaveAccAfter = Hash.new
+		resetMonth = Hash.new
+		strIssueIds = ""
+		currentMonthStart = Date.civil(Date.today.year, Date.today.month, 1)
+		if !leavesInfo.blank?
+			leavesInfo.each do |leave|
+				issue_id = leave.split('|')[0].strip
+				strIssueIds = strIssueIds.blank? ? (strIssueIds + issue_id) : (strIssueIds + "," + issue_id)
+				leaveAccrual[issue_id] = leave.split('|')[1].blank? ? 0 : leave.split('|')[1].strip
+				leaveAccAfter[issue_id] = leave.split('|')[2].blank? ? 0 : leave.split('|')[2].strip
+				resetMonth[issue_id] = leave.split('|')[3].blank? ? 0 : leave.split('|')[3].strip
+			end
+		end
+		
+		deleteWkUserLeaves(nil, currentMonthStart - 1)
+		
+		joinDateCFID = !Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].blank? ? Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].to_i : 0
+		
+		if !strIssueIds.blank?		
+			from = currentMonthStart << 1
+			to = (from >> 1) - 1
+			
+			prev_mon_from = from << 1
+			prev_mon_to = (prev_mon_from >> 1) - 1
+			
+			defWorkTime = !Setting.plugin_redmine_wktime['wktime_default_work_time'].blank? ? Setting.plugin_redmine_wktime['wktime_default_work_time'].to_i : 8			
+			
+			qryStr = "select v2.id, v1.user_id, v1.created_on, v1.issue_id, v2.hours, ul.balance, " +
+					"ul.accrual_on, ul.used, ul.accrual, v3.spent_hours, c.value as join_date " +
+					"from (select u.id as user_id, i.issue_id, u.status, u.type, u.created_on from users u , " +
+					"(select id as issue_id from issues where id in (#{strIssueIds})) i) v1 " +
+					"left join (select max(id) as id, user_id, issue_id, sum(hours) as hours from time_entries " +
+					"where spent_on between '#{from}' and '#{to}' group by user_id, issue_id) v2 " +
+					"on v2.user_id = v1.user_id and v2.issue_id = v1.issue_id " +
+					"left join (select user_id, sum(hours) as spent_hours from wk_attendances " +
+					"where start_time between '#{from}' and '#{to}' " +
+					"group by user_id) v3 on v3.user_id = v1.user_id " +
+					"left join wk_user_leaves ul on ul.user_id = v1.user_id and ul.issue_id = v1.issue_id " +
+					"and ul.accrual_on between '#{prev_mon_from}' and '#{prev_mon_to}' " +
+					"left join custom_values c on c.customized_id = v1.user_id and c.custom_field_id = #{joinDateCFID} " +
+					"where v1.status = 1 and v1.type = 'User'"
+					
+			entries = TimeEntry.find_by_sql(qryStr)		
+			if !entries.blank?				
+				entries.each do |entry|				
+					userJoinDate = entry.join_date.blank? ? entry.created_on.to_date : entry.join_date.to_date
+					yearDiff = ((Date.today - userJoinDate).to_i / 365.0)
+					accrualAfter = leaveAccAfter["#{entry.issue_id}"].to_f						
+					includeAccrual = yearDiff >= accrualAfter ? true : false
+					accrual = leaveAccrual["#{entry.issue_id}"].to_i
+						
+					#Accrual will be given only when the user works atleast 11 days a month
+					if (entry.spent_hours.blank? || (!entry.spent_hours.blank? && entry.spent_hours < (defWorkTime * 11)) || !includeAccrual)
+						accrual = 0
+					end
+					lastMntBalance = entry.balance.blank? ? 0 : entry.balance
+					lastMntAccrual = entry.accrual.blank? ? 0 : entry.accrual
+					no_of_holidays = lastMntBalance + lastMntAccrual #entry.balance.blank? ? entry.accrual : entry.balance + entry.accrual
+					if !entry.used.blank? && entry.used > 0
+						no_of_holidays = no_of_holidays - entry.used
+					end
+					#Reset					
+					lastMonth = (currentMonthStart - 1).month		
+					if (lastMonth == resetMonth["#{entry.issue_id}"].to_i)
+						no_of_holidays = 0 if !no_of_holidays.blank? && no_of_holidays > 0
+					end				
+					userLeave = WkUserLeave.new
+					userLeave.user_id = entry.user_id
+					userLeave.issue_id = entry.issue_id
+					userLeave.balance = no_of_holidays
+					userLeave.accrual = accrual
+					userLeave.used = entry.hours.blank? ? 0 : entry.hours
+					userLeave.accrual_on = currentMonthStart - 1
+					userLeave.save()
+				end
+			end
+		end
+	end
+	
+	def deleteWkUserLeaves(userId, accrualOn)
+		if !(userId.blank? || accrualOn.blank?)
+			WkUserLeave.where(user_id: userId).where(accrual_on: accrualOn).delete_all
+		elsif !accrualOn.blank?
+			WkUserLeave.where(accrual_on: accrualOn).delete_all
+		elsif !userId.blank?
+			WkUserLeave.where(user_id: userId).delete_all
+		else
+			WkUserLeave.delete_all
+		end
+	end
 
 end

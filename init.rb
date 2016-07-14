@@ -248,8 +248,8 @@ Rails.configuration.to_prepare do
 			scheduler2.cron cronSt do		
 				begin
 					Rails.logger.info "==========Attendance job - Started=========="			
-					wktime_helper = Object.new.extend(WktimeHelper)
-					wktime_helper.populateWkUserLeaves()
+					wkattn_helper = Object.new.extend(WkattendanceHelper)
+					wkattn_helper.populateWkUserLeaves()
 				rescue Exception => e
 					Rails.logger.info "Job failed: #{e.message}"
 				end

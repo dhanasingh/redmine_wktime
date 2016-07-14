@@ -196,3 +196,5 @@ de:
   label_group_non_submission_email: Target group of non submission email
   
   error_expense_entry_delete: "Cannot be deleted. The expensesheet with this entry is locked"
+  button_populate_leave: "Run Period End Process"
+  text_are_you_sure_want_to_run: "Are you sure you want to run this process ?"

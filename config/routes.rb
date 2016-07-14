@@ -109,3 +109,5 @@
   
   get 'wkreport/getMembersbyGroup', :to => 'wkreport#getMembersbyGroup'
   
+   get 'wkattendance/runPeriodEndProcess', :to => 'wkattendance#runPeriodEndProcess'
+  
