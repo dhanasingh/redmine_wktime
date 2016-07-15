@@ -101,7 +101,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		end
 		if !daily_entries.blank?
 			 daily_entries.each_with_index do |entry,index|
-				 @attendance_entries[entry.user_id.to_s + '_' + entry.spent_on.to_date.strftime("%d").to_i.to_s  + '_hours'] = entry.hours.is_a?(Float) ? entry.hours.round(2) : entry.hours
+				 @attendance_entries[entry.user_id.to_s + '_' + entry.spent_on.to_date.strftime("%d").to_i.to_s  + '_hours'] = entry.hours.is_a?(Float) ? entry.hours.round(2) : (entry.hours.blank? ? '*' :  entry.hours)
 			end
 		end
 		render :action => 'reportattn', :layout => false
