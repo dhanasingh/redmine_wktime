@@ -252,7 +252,7 @@ function validateMember()
 }
 function reportChanged(reportDD, userid){
 	var id = reportDD.options[reportDD.selectedIndex].value;
-	var needBlankOption = (id!='attendance_report' ? false : true) ;
+	var needBlankOption = ((id == 'attendance_report' || id == 'spent_time_report') ? true : false) ;
 	grpChanged(document.getElementById("group_id"), userid, needBlankOption)
 }
 

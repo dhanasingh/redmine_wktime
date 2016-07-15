@@ -15,7 +15,9 @@ module WkreportControllerPatch
 				#Rails.logger.info("===============================")
 				#Rails.logger.info("#{@report_params}")
 				if params[:report_type] == 'attendance_report'
-					reportattn
+					reportattn(false)
+				elsif params[:report_type] == 'spent_time_report'
+					reportattn(true)
 				elsif params[:report_type] == 'time_report'
 					redirect_to action: 'time_rpt', controller: 'wktime'
 				elsif params[:report_type] == 'expense_report'
