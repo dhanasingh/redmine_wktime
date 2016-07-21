@@ -213,10 +213,10 @@ function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst)
 
 $(document).ready(function()
 {
-	changeProp('tab-wktime',wktimeIndexUrl);
-	changeProp('tab-wkexpense',wkexpIndexUrl);
-	changeProp('tab-wkattendance',wkattnIndexUrl);
-	changeProp('tab-wkreport',wkReportUrl);
+	//changeProp('tab-wktime',wktimeIndexUrl);
+	//changeProp('tab-wkexpense',wkexpIndexUrl);
+	changeProp('tab-leave',wkattnIndexUrl);
+	changeProp('tab-clock',wkReportUrl);
 });
 
 

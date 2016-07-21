@@ -38,6 +38,9 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		findBySql(sqlStr)
 	end
 	
+	def clockindex
+	end
+	
 	def edit		
 		sqlStr = getQueryStr + " where i.id in (#{getLeaveIssueIds}) and u.type = 'User' and u.id = #{params[:user_id]} order by i.subject"
 		@leave_details = WkUserLeave.find_by_sql(sqlStr)

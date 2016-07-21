@@ -96,7 +96,9 @@
    
   get 'wkattendance/getIssuesByProject', :to => 'wkattendance#getIssuesByProject'
    
-  get 'wkattendance/getProjectByIssue', :to => 'wkattendance#getProjectByIssue'  
+  get 'wkattendance/getProjectByIssue', :to => 'wkattendance#getProjectByIssue' 
+
+   get 'wkattendance/clockindex', :to => 'wkattendance#clockindex'  
   
   #For Report   
   get 'wkreport/index', :to => 'wkreport#index'

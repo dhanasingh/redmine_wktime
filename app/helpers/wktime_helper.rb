@@ -577,22 +577,23 @@ end
 	
 	def time_expense_tabs
 		tabs = [
-				{:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime}				
+				{:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave},
+				{:name => 'clock', :partial => 'wktime/tab_content', :label => :label_clock}
 			   ]
-		if !Setting.plugin_redmine_wktime['wktime_enable_expense_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_expense_module'].to_i == 1 
-			tabs[tabs.length] = {:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense}
-		end
+	#	if !Setting.plugin_redmine_wktime['wktime_enable_expense_module'].blank? &&
+	#		Setting.plugin_redmine_wktime['wktime_enable_expense_module'].to_i == 1 
+	#		tabs[tabs.length] = {:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense}
+	#	end
 		
-		if !Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].to_i == 1 
-			tabs[tabs.length] = {:name => 'wkattendance', :partial => 'wktime/tab_content', :label => :label_wk_attendance}
-		end
+	#	if !Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].blank? &&
+	#		Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].to_i == 1 
+	#		tabs[tabs.length] = {:name => 'wkattendance', :partial => 'wktime/tab_content', :label => :label_wk_attendance}
+	#	end
 		
-		if !Setting.plugin_redmine_wktime['wktime_enable_report_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_report_module'].to_i == 1 
-			tabs[tabs.length] = {:name => 'wkreport', :partial => 'wktime/tab_content', :label => :label_report_plural}
-		end
+	#	if !Setting.plugin_redmine_wktime['wktime_enable_report_module'].blank? &&
+	#		Setting.plugin_redmine_wktime['wktime_enable_report_module'].to_i == 1 
+	#		tabs[tabs.length] = {:name => 'wkreport', :partial => 'wktime/tab_content', :label => :label_report_plural}
+	#	end
 		tabs
 	end		
 	
@@ -919,5 +920,20 @@ end
 	def totalhours
 		dateStr = getConvertDateStr('start_time')
 		(WkAttendance.where("user_id = #{User.current.id} and #{dateStr} = '#{Time.now.strftime("%Y-%m-%d")}'").sum(:hours)).round(2)
+	end
+	
+	def showExpense
+		!Setting.plugin_redmine_wktime['wktime_enable_expense_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_expense_module'].to_i == 1
+	end
+	
+	def showAttendance
+		!Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].to_i == 1 
+	end
+	
+	def showReports
+		!Setting.plugin_redmine_wktime['wktime_enable_report_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_report_module'].to_i == 1
 	end
 end

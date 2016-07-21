@@ -2,6 +2,34 @@ require 'redmine'
 require_dependency 'custom_fields_helper'
 require 'wkpatch'
 require 'report_params'
+require_dependency '../lib/redmine/menu_manager'
+
+
+# redmine only differs between project_menu and application_menu! but we want to display the
+# time_tracker submenu only if the plugin specific controllers are called
+module Redmine::MenuManager::MenuHelper
+  def display_main_menu?(project)
+    Redmine::MenuManager.items(menu_name(project)).children.present?
+  end
+
+  def render_main_menu(project)
+    render_menu(menu_name(project), project)
+  end
+
+  private
+
+  def menu_name(project)
+    if project && !project.new_record?
+      :project_menu
+    else
+      if %w(wktime wkexpense wkattendance wkreport).include? params[:controller]
+        :wktime_menu
+      else
+        :application_menu
+      end
+    end
+  end
+end
 
 module WktimeHelperPatch
 	def self.included(base)
@@ -210,6 +238,14 @@ Redmine::Plugin.register :redmine_wktime do
   project_module :time_tracking do
 	permission :approve_time_entries,  {:wktime => [:update]}, :require => :member	
   end
+  
+  
+  Redmine::MenuManager.map :wktime_menu do |menu|
+	  menu.push :wktime, { :controller => 'wktime', :action => 'index' }, :caption => :label_wktime, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission }
+	  menu.push :wkexpense, { :controller => 'wkexpense', :action => 'index' }, :caption => :label_wkexpense, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showExpense }
+	  menu.push :wkattendance, { :controller => 'wkattendance', :action => 'index' }, :caption => :label_wk_attendance, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showAttendance}
+	  menu.push :wkreport, { :controller => 'wkreport', :action => 'index' }, :caption => :label_report_plural, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showReports}
+	end	
 
 end
 
@@ -318,7 +354,7 @@ class WktimeHook < Redmine::Hook::ViewListener
 			end	
 		end
 	end
-	render_on :view_layouts_base_content, :partial => 'wktime/attendance_widget'
+	render_on :view_layouts_base_content, :partial => 'wktime/attendance_widget'	
 end
 
 
