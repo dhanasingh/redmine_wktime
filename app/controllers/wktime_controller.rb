@@ -69,9 +69,8 @@ include QueriesHelper
 	else
 		ids = user_id 
 	end
-	
 	if @from.blank? && @to.blank?
-		getAllTimeRange(ids)
+		getAllTimeRange(ids, true)
 	end
 	teQuery = getTEQuery(@from, @to, ids)
 	query = getQuery(teQuery, ids, @from, @to, status)
@@ -866,7 +865,7 @@ include QueriesHelper
 				end
 				wkattendance.start_time = starttime
 				wkattendance.end_time = endtime 
-				wkattendance.hours = entryvalues[3] 
+				wkattendance.hours = computeWorkedHours(starttime, endtime, true)#entryvalues[3] 
 				entryvalues[0] = params[:nightshift] ? '' : entryvalues[0]
 			else
 				wkattendance = WkAttendance.new
@@ -876,12 +875,12 @@ include QueriesHelper
 					entryvalues[2] = "00:00"
 					entryvalues[3] = oldendvalue										
 				end
-				entrydate =  @startday  +  ((entryvalues[1].to_i)- 1)
+				entrydate = to_boolean(params[:isdate]) ? params[:startdate] : @startday  +  ((entryvalues[1].to_i)- 1)
 				wkattendance.user_id = params[:user_id].to_i 				
 				wkattendance.start_time = !entryvalues[2].blank? ? Time.parse("#{entrydate.to_s} #{ entryvalues[2].to_s}:00 ").localtime.to_s : '00:00'
 				if !entryvalues[3].blank?
 					wkattendance.end_time = Time.parse("#{entrydate.to_s} #{ entryvalues[3].to_s}:00 ").localtime.to_s
-					wkattendance.hours = entryvalues[4]
+					wkattendance.hours = computeWorkedHours(wkattendance.start_time , wkattendance.end_time, true)#entryvalues[4]
 				end
 				ret += '|'
 				ret += entryvalues[1].to_s
@@ -1090,18 +1089,7 @@ private
 			[ date_field + ' BETWEEN ? AND ? AND user_id = ?', start_date, end_date, user_id]
 		end
 		return cond
-	end	
-	
-	#change the date to a last day of week
-	def getEndDay(date)
-		start_of_week = getStartOfWeek
-		#Martin Dube contribution: 'start of the week' configuration
-		unless date.nil?
-			daylast_diff = (6 + start_of_week) - date.wday
-			date += (daylast_diff%7)
-		end
-		date
-	end
+	end		
 	
 	def prevTemplate(user_id)	
 		prev_entries = nil
@@ -1829,39 +1817,7 @@ private
 		sqlStr += (!user_cf_sql.blank? ? " AND " : " WHERE ") + " v.selected_date between '#{from}' and '#{to}' "
 	end
 	
-	def getTEAllTimeRange(ids)
-		teQuery = "select v.startday from (select #{getDateSqlString('t.spent_on')} as startday " +
-				"from time_entries t where user_id in (#{ids})) v group by v.startday order by v.startday"
-		teResult = TimeEntry.find_by_sql(teQuery)
-	end
 	
-	def getUserAllTimeRange(ids)
-		dateStr = getConvertDateStr('min(created_on)')
-		usrQuery = "select (#{dateStr}) as startday from users where id in (#{ids})"
-		usrResult = User.find_by_sql(usrQuery)
-	end
-	
-	def getAllTimeRange(ids)		
-		teResult = getTEAllTimeRange(ids)
-		usrResult = getUserAllTimeRange(ids)
-		currentWeekEndDay = getEndDay(Date.today)
-		@from = getStartDay(Date.today)
-		@to = currentWeekEndDay
-		if !teResult.blank? && teResult.size > 0
-			@from = (teResult[0].startday).to_date
-			@to = (teResult[teResult.size - 1].startday).to_date + 6			
-			if currentWeekEndDay > @to
-				@to = currentWeekEndDay
-			end
-		end
-		if !usrResult.blank? && usrResult.size > 0
-			stDate = (usrResult[0].startday)
-			stDate = getStartDay(stDate.to_date) if !stDate.blank?
-			if (!stDate.blank? && stDate < @from)
-				@from = stDate
-			end
-		end		
-	end
 	
 	def findWkTEByCond(cond)
 		#@wktimes = Wktime.find(:all, :conditions => cond)

@@ -32,7 +32,8 @@
   
   get 'wktime/testapi', :to => 'wktime#testapi' 
   
-  get 'wktime/updateAttendance', :to => 'wktime#updateAttendance'     
+  #get 'wktime/updateAttendance', :to => 'wktime#updateAttendance'
+match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance', :via => [:get]  
     
   get 'wktime/time_rpt', :to => 'wktime#time_rpt'  
   
@@ -98,7 +99,15 @@
    
   get 'wkattendance/getProjectByIssue', :to => 'wkattendance#getProjectByIssue' 
 
-   get 'wkattendance/clockindex', :to => 'wkattendance#clockindex'  
+   get 'wkattendance/clockindex', :to => 'wkattendance#clockindex'
+   
+   post 'wkattendance/clockindex', :to => 'wkattendance#clockindex'
+
+  match 'wkattendance/clockedit', :to => 'wkattendance#clockedit', :via => [:get, :post]  
+
+get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
+  
+  get 'wkattendance/getMembersbyGroup', :to => 'wkattendance#getMembersbyGroup'
   
   #For Report   
   get 'wkreport/index', :to => 'wkreport#index'

@@ -1,7 +1,7 @@
 <h2><%= l(:label_wk_attendance) %></h2>
 <script type="text/javascript">
    wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "leave")%>';     
-   wkReportUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>'; 
+   clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>'; 
 </script>
 
 <%= render_tabs time_expense_tabs %>

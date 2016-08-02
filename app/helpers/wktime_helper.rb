@@ -936,4 +936,56 @@ end
 		!Setting.plugin_redmine_wktime['wktime_enable_report_module'].blank? &&
 			Setting.plugin_redmine_wktime['wktime_enable_report_module'].to_i == 1
 	end
+	
+	def getTEAllTimeRange(ids)
+		teQuery = "select v.startday from (select #{getDateSqlString('t.spent_on')} as startday " +
+				"from time_entries t where user_id in (#{ids})) v group by v.startday order by v.startday"
+		teResult = TimeEntry.find_by_sql(teQuery)
+	end
+	
+	def getAttnAllTimeRange(ids)
+		dateStr = getConvertDateStr('start_time')
+		teQuery = "select (#{dateStr}) as startday from wk_attendances w where user_id in (#{ids}) order by #{dateStr} "
+		teResult = WkAttendance.find_by_sql(teQuery)
+	end
+	
+	def getUserAllTimeRange(ids)
+		dateStr = getConvertDateStr('min(created_on)')
+		usrQuery = "select (#{dateStr}) as startday from users where id in (#{ids})"
+		usrResult = User.find_by_sql(usrQuery)
+	end
+	
+	#This function used in Time & Attendance Module
+	def getAllTimeRange(ids, isTime)
+		teResult = isTime ? getTEAllTimeRange(ids) : getAttnAllTimeRange(ids)		
+		usrResult = getUserAllTimeRange(ids)
+		currentWeekEndDay = getEndDay(Date.today)
+		@from = getStartDay(Date.today)
+		@to = currentWeekEndDay
+		if !teResult.blank? && teResult.size > 0
+			@from = (teResult[0].startday).to_date
+			@to = (teResult[teResult.size - 1].startday).to_date + 6			
+			if currentWeekEndDay > @to
+				@to = currentWeekEndDay
+			end
+		end
+		if !usrResult.blank? && usrResult.size > 0
+			stDate = (usrResult[0].startday)
+			stDate = getStartDay(stDate.to_date) if !stDate.blank? && isTime
+			if (!stDate.blank? && stDate < @from)
+				@from = stDate
+			end
+		end		
+	end
+	
+	#change the date to a last day of week
+	def getEndDay(date)
+		start_of_week = getStartOfWeek
+		#Martin Dube contribution: 'start of the week' configuration
+		unless date.nil?
+			daylast_diff = (6 + start_of_week) - date.wday
+			date += (daylast_diff%7)
+		end
+		date
+	end
 end

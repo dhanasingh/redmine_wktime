@@ -1,4 +1,4 @@
-var wktimeIndexUrl,wkexpIndexUrl,wkattnIndexUrl,wkReportUrl,wkattnReportUrl;
+var wkattnIndexUrl,wkReportUrl,clockInOutUrl;
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -213,10 +213,8 @@ function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst)
 
 $(document).ready(function()
 {
-	//changeProp('tab-wktime',wktimeIndexUrl);
-	//changeProp('tab-wkexpense',wkexpIndexUrl);
 	changeProp('tab-leave',wkattnIndexUrl);
-	changeProp('tab-clock',wkReportUrl);
+	changeProp('tab-clock',clockInOutUrl);
 });
 
 
@@ -257,7 +255,6 @@ function reportChanged(reportDD, userid){
 }
 
 function grpChanged(grpDropdown, userid, needBlankOption){
-	
 	var id = grpDropdown.options[grpDropdown.selectedIndex].value;
 	var fmt = 'text';
 	var userDropdown = document.getElementById("user_id");

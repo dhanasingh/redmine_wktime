@@ -1,0 +1,85 @@
+	<%= javascript_include_tag 'edit', :plugin => "redmine_wktime" %>
+	<h2><%= l(:label_clock) + " " + l(:field_summary) %></h2>
+	<table>
+		<tr>
+			<th align="left"><%=l(:field_user)%></th>
+			<td><%= @wkattnEntries[0].firstname + ' ' + @wkattnEntries[0].lastname if !@wkattnEntries[0].blank? %></td>
+		</tr>
+		<tr>
+			<th align="left"><%=l(:label_wk_attn_for)%></th>
+			<td>
+			<%= params[:date].to_s  %>
+			</td>
+		</tr>
+		<tr>	
+			<td colspan="2">
+				 <%= link_to("\xc2\xab " + l(:label_previous ), {:controller => controller.controller_name, :action => 'clockedit', :user_id => params[:user_id], :date => (Date.parse params[:date])-1, :tab => controller.controller_name},
+						  :title => l(:label_wk_prev_week_tip)) %>
+			<% datetime = DateTime.now  %>
+			<% if (Date.parse params[:date]).past? %>
+			  |
+			  <%= link_to(l(:label_next) + " \xc2\xbb", {:controller => controller.controller_name, :action => 'clockedit', :user_id => params[:user_id], :date => (Date.parse params[:date])+1, :tab => controller.controller_name},
+						  :title => l(:label_wk_next_week_tip)) %> 
+			<%end%>
+			</td>
+		</tr>
+	</table>
+<br/>
+
+<div class="autoscroll">
+	<div  style="float:left;width=100%;">
+	<table class="list time-entries">
+	<thead>
+		<tr>
+		<th class="lbl-txt-align"><%= l(:label_clock_in) %></th>
+		<th class="lbl-txt-align"><%= l(:label_clock_out) %></th>
+		<th class="lbl-txt-align"><%= l(:label_hours) %></th>
+		</tr>
+		<tr></tr>
+	</thead>
+	<% entry_id = Array.new %>
+	<% start_time = Array.new %>
+	<% end_time = Array.new %>
+	<% hours = Array.new %>
+	<% @wkattnEntries.each do |entry| %>
+	<% entry_id << entry.id %>
+	<% start_time << (entry.start_time.blank? ? '' : entry.start_time.localtime.strftime('%R')) %>
+	<% end_time << (entry.end_time.blank? ? '' : entry.end_time.localtime.strftime('%R')) %>
+	<% hours <<  entry.hours %>
+	<% end %>
+	<%=h hidden_field_tag("break_time" , Setting.plugin_redmine_wktime['wktime_break_time'] )  %> 
+	<%=h hidden_field_tag('attnDayEntriesCnt', start_time.blank? ? 1 : start_time.length) %>
+	<%=h hidden_field_tag('startdate', params[:date] ) %>
+	<%=h hidden_field_tag('user_id', params[:user_id] ) %>
+	<% j = 0  %>
+	<% totalhours = 0  %>
+	<% loop do  %>	
+	<tr class="time-entry <%= cycle("odd", "even") %>">
+		<%=h hidden_field_tag("attnEntriesId#{j}",  (entry_id.blank? ? "" : entry_id[j]) )  %>
+		<td><%=h text_field_tag("attnstarttime#{j}", start_time.blank? ? "" : start_time[j] ,:onchange => "#{} ", :size => 10, :disabled => isAccountUser ? false : true, :required => true,  :onchange => "validateHr(this,#{(j)}, ['attnstarttime#{j}', 'attnendtime#{j}', 'hoursdiff#{j}', #{true}]);") %>
+		</td>
+		<td><%=h text_field_tag("attnendtime#{j}", end_time.blank? ? "" : end_time[j],:size => 10, :disabled => isAccountUser ? false : true, :required => true,  :onchange => "validateHr(this,#{(j)}, ['attnstarttime#{j}', 'attnendtime#{j}', 'hoursdiff#{j}', #{true}]);") %>
+		</td>		
+		<td><%=h text_field_tag("hoursdiff#{j}", hours.blank? ? 0 : hours[j].to_f,:size => 10, :disabled => isAccountUser ? false : true, :required => true) %>
+		</td>
+		<% totalhours += hours.blank? ? 0 : hours[j].to_f  %>
+		<% break if j ==  start_time.length-1 || start_time.blank?  %>
+		<% j += 1  %>		
+	</tr>	 
+	<% end %>
+	<tr class="time-entry <%= cycle("odd", "even") %>" >
+		<th><label><%= l(:label_grand_total) %></label></th><th></th>
+		<th><%=h text_field_tag("tothours", totalhours.round(2),:size => 10, :disabled => isAccountUser ? false : true, :required => true) %>
+		</th>
+	</tr>
+	</table>
+	<span style="margin-left:5.0em;">
+	<%  if isAccountUser    %>
+		<label style = "float:left;"><%= l(:label_hours_note) %></label>
+	<% end %>
+	</span>
+	<br>
+	<p style="float: left; padding-left: 90px;">
+	<%= submit_tag l(:button_save), :onclick => " updateAttendance();", :hidden => isAccountUser ? false : true, :id => 'wkattendance_save', :disabled => false %></p>
+	</div>
+	</div>
