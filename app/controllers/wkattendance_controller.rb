@@ -373,41 +373,13 @@ require 'csv'
 		rangeStr
 	end	
 	
-	def read_file
-		csv_text = File.read("E://Project/Internal/TimeAndAttendance/doc/attnEntries/attenEntriesEndHours.csv")
-		csv_options = {:headers => true}
-		csv_options[:encoding] = 'UTF-8'
-		separator = ';'
-		csv_options[:col_sep] = separator if separator.size == 1
-		wrapper = '"'
-		csv_options[:quote_char] = wrapper if wrapper.size == 1
-		csv = CSV.parse(csv_text, csv_options)
-		csv
-	end
-	
 	def show
-		importAttendance
-	end
-	
-	def getFormatedTimeEntry(entryDateTime)
-		entryDateTime = entryDateTime.change(:offset => Time.current.localtime.strftime("%:z"))
-		entryTime = Time.parse("#{entryDateTime.utc.to_date.to_s} #{entryDateTime.utc.to_time.to_s} ").localtime
-		entryTime
-	end
-	
-	def getUserIdCFHash(cfId)
-		cfValHash = Hash.new
-		cfValue = CustomValue.where("custom_field_id = #{cfId}")
-		unless cfValue.blank?
-			#cfs = custom_fields.collect {|cf| userCFHash[cf.name] = cf.id }
-			cfValHash = Hash[cfValue.map { |cfv| [cfv.value, cfv.customized_id] }]
+		begin
+			importAttendance
+		rescue Exception => e
+			@errorMsg = "Import failed: #{e.message}"
+			flash[:error] = @errorMsg
 		end
-		cfValHash
-	end
-	
-	def row_date(dateTimeStr)
-			format = "%m/%d/%y %T"
-			DateTime.strptime(dateTimeStr, format) rescue dateTimeStr
 	end
 	
 end
