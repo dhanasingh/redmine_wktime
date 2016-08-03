@@ -7,7 +7,7 @@
 <%= link_to l(:"button_populate_leave"), url_for(:controller => controller_name, :action => 'runPeriodEndProcess', :tab => controller.controller_name), :data => {:confirm => l(:text_are_you_sure_want_to_run)}%>
 </div>
 <div class="contextual">
-<%= link_to l(:"label_import_attendance"), url_for(:controller => controller_name, :action => 'importAttendance', :tab => controller.controller_name), :data => {:confirm => l(:text_are_you_sure_want_to_run)}%>
+<%= link_to l(:"label_import_attendance"), url_for(:controller => controller_name, :action => 'show', :tab => controller.controller_name), :data => {:confirm => l(:text_are_you_sure_want_to_run)}%>
 </div>
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get) do %>
 <fieldset><legend><%= l(:label_filter_plural) %></legend>

@@ -124,5 +124,122 @@ module WkattendanceHelper
 			WkUserLeave.delete_all
 		end
 	end
+	
+	def importAttendance
+		lastAttnEntriesHash = Hash.new
+		@errorHash = Hash.new
+		@importCount = 0
+		userCFHash = Hash.new
+		custom_fields = UserCustomField.order('name')
+		userIdCFHash = Hash.new
+		unless custom_fields.blank?
+			userCFHash = Hash[custom_fields.map { |cf| [cf.name, cf.id] }]
+		end
+		csv = read_file
+		lastAttnEntries = findLastAttnEntry(false)
+		lastAttnEntries.each do |entry|
+			lastAttnEntriesHash[entry.user_id] = entry
+		end
+		columnArr = ["Employee Id","start_time","end_time"]
+		csv.each_with_index do |row,index|
+			# rowValueHash - Have the data of the current row
+			rowValueHash = Hash.new
+			columnArr.each_with_index do |col,i|
+				case col when "user_id"
+					rowValueHash["user_id"] = row[i]
+				when "start_time","end_time"
+					if row_date(row[i]).is_a?(DateTime) || (row[i].blank? && col == "end_time")
+						rowValueHash[col] = row_date(row[i]) 
+					else
+						#isValid = false
+						@errorHash[index+1] = col + " " + l('activerecord.errors.messages.invalid')
+					end
+				when "hours"
+					rowValueHash[col] = row[i].to_f
+				else
+					if index < 1
+						cfId = userCFHash[col] 
+						userIdCFHash = getUserIdCFHash(cfId)
+					end
+					if userIdCFHash[row[i]].blank?
+						@errorHash[index+1] = col + " " + l('activerecord.errors.messages.invalid')
+					else
+						rowValueHash["user_id"] = userIdCFHash[row[i]]	
+					end
+				end
+			end
+			# Check the row has any invalid entries and skip that row from import
+			if @errorHash[index+1].blank?
+				@importCount = @importCount + 1
+				userId = rowValueHash["user_id"] #row[0].to_i
+				endEntry = nil
+				startEntry = getFormatedTimeEntry(rowValueHash["start_time"])
+				if !rowValueHash["end_time"].blank? && (rowValueHash["end_time"] != rowValueHash["start_time"]) 
+					endEntry = getFormatedTimeEntry(rowValueHash["end_time"]) 
+				end
+				
+				if (columnArr.include? "end_time") && (columnArr.include? "start_time")
+					#Get the imported records for particular user and start_time
+					importedEntry = WkAttendance.where(:user_id => userId, :start_time => startEntry)
+					if  importedEntry[0].blank? 
+						# There is no records for the given user on the given start_time
+						# Insert a new record to the database
+						lastAttnEntriesHash[userId] = addNewAttendance(startEntry,endEntry,userId)
+					else
+						# Update the record with end Entry
+						if importedEntry[0].end_time.blank? && !endEntry.blank?
+							lastAttnEntriesHash[userId] = saveAttendance(importedEntry[0], startEntry, endEntry, userId, true)
+						end
+					end
+				else
+					# Get the imported records for particular user and entry_time
+					# Skip the records which is already inserted by check importedEntry[0].blank? 
+					importedEntry = WkAttendance.where("user_id = ? AND (start_time = ? OR end_time = ?)", userId, startEntry, startEntry)
+					if importedEntry[0].blank? 
+						lastAttnEntriesHash[userId] = saveAttendance(lastAttnEntriesHash[userId], startEntry, endEntry, userId, false)	
+					end
+				end
+			end
+		end
+		
+		#render :action => 'show'
+	end
+	
+	def addNewAttendance(startEntry,endEntry,userId) 
+		wkattendance = WkAttendance.new
+		wkattendance.start_time = startEntry
+		wkattendance.end_time = endEntry
+		wkattendance.hours = computeWorkedHours(wkattendance.start_time,wkattendance.end_time, true) unless endEntry.blank?
+		wkattendance.user_id = userId
+		wkattendance.save()
+		wkattendance
+	end
+
+	def saveAttendance(attnObj, startTime, endTime, userId, hasStartEnd)
+		wkattendance = nil
+		if(!attnObj.blank? && ((attnObj.end_time.blank? && attnObj.start_time > (startTime -  1.day) )|| hasStartEnd))
+			if !hasStartEnd
+				entrydate = attnObj.start_time
+				start_local = entrydate.localtime
+				if ((startTime.to_date) != attnObj.start_time.to_date)
+					endtime = start_local.change({ hour: "23:59".to_time.strftime("%H"), min: "23:59".to_time.strftime("%M"), sec: '59' })
+					nextDayStart = Time.parse("#{startTime.to_date.to_s} 00:00:00 ").localtime.to_s
+					wkattendance = addNewAttendance(nextDayStart,startTime,userId)
+				else
+					endtime = start_local.change({ hour: startTime.localtime.strftime("%H"), min:startTime.localtime.strftime("%M"), sec: startTime.localtime.strftime("%S") })
+				end
+			else
+				endtime = endTime
+			end
+			
+			attnObj.end_time = endtime
+			attnObj.hours = computeWorkedHours(attnObj.start_time,attnObj.end_time, true)
+			attnObj.save()
+			wkattendance = attnObj if wkattendance.blank?
+		else
+			wkattendance = addNewAttendance(startTime,endTime,userId)
+		end
+		wkattendance
+	end
 
 end

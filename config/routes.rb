@@ -122,5 +122,5 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
   
   get 'wkattendance/runPeriodEndProcess', :to => 'wkattendance#runPeriodEndProcess'
    
-  get 'wkattendance/importAttendance', :to => 'wkattendance#importAttendance'
+  get 'wkattendance/show', :to => 'wkattendance#show'
   
