@@ -153,7 +153,7 @@ require 'csv'
 			@from = @to = Date.today - 1
 		  when 'current_week'
 			@from = getStartDay(Date.today - (Date.today.cwday - 1)%7)
-			@to = @from + 6
+			@to = Date.today #@from + 6
 		  when 'last_week'
 			@from =getStartDay(Date.today - 7 - (Date.today.cwday - 1)%7)
 			@to = @from + 6

@@ -15,7 +15,6 @@
 </thead>
 <tbody>
 <% @clk_entries.each do |entry| %>
-<% if (Date.parse entry.entry_date).past? || (Date.parse entry.entry_date).today? %>
 <tr class="time-entry <%= cycle("odd", "even") %> <%= !entry.start_time ? "user locked" : "" %>" >
 <td class="lbl-txt-align"><%=h entry.firstname %></td>
 <td class="lbl-txt-align"><%=h entry.entry_date %></td>
@@ -28,7 +27,6 @@
 
 </td>
 </tr>
-<% end %>
 <% end %>
 </tbody>
 </table>
