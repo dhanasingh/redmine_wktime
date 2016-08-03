@@ -48,7 +48,7 @@
 				<%=h hidden_field_tag('hours' + "#{str}_#{(i+1)}", ( $headerhoursdiff[i+1].blank?  ? '' : $headerhoursdiff[i+1].last(1)) )  %>   
 			</div>
 			
-			<% if ("#{str}" == "start" || "#{str}" == "end") && controller.showClockInOut && (i == col_num) &&  User.current.id == @user.id   %>
+			<% if ("#{str}" == "start" || "#{str}" == "end") && controller.showWorktimeHeader && (i == col_num) &&  User.current.id == @user.id   %>
 				<% imgname = "#{str}" == "start"  ? "clockin.jpg" : "clockout.jpg" %>	
 				<div style="float: left; padding-left: 2px;" id="<%= str %>">		
 				<% image_tg = image_tag("#{imgname}", :id => "#{str}" == "start" ? 'start_img' : 'end_img' , :plugin => "redmine_wktime",  :title => "#{str}" == "start" ? l(:label_clock_in) : l(:label_clock_out), :style => "display:none;") %>

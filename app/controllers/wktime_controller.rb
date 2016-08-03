@@ -957,7 +957,7 @@ include QueriesHelper
 	
 	def showClockInOut
 		(!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? &&
-		Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1) && (!Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].blank? && Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].to_i == 1 )
+		Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1) && (!Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].blank? && Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].to_i == 1 ) && showWorktimeHeader
 	end
 	
 	def maxHourPerWeek
