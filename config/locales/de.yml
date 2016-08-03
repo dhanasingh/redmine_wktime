@@ -200,3 +200,4 @@ de:
   text_are_you_sure_want_to_run: "Are you sure you want to run this process ?"
   label_clock: clock in/out
   label_hours: Hours
+  label_import_attendance: Import attendance

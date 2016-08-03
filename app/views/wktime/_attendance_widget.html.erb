@@ -1,7 +1,10 @@
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
-<% if !wktime_helper.findLastAttnEntry.blank? 
-  	  @lastAttnEntry = wktime_helper.findLastAttnEntry[0]
-   end %>
+<% 
+   lastAttnEntries = wktime_helper.findLastAttnEntry(true)
+   if !lastAttnEntries.blank? 
+  	  @lastAttnEntry = lastAttnEntries[0]
+   end   
+%>
 <% if (!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? &&
 		Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1) && (!Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].blank? && Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].to_i == 1 ) %>	
 	<%	if !@lastAttnEntry.blank?
