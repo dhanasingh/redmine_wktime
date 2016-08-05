@@ -231,7 +231,17 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_min_hour_week' => '0',
 			 'wktime_enable_expense_module' => '1',
 			 'wktime_enable_report_module' => '1',
-			 'wktime_enable_attendance_module' => '1'
+			 'wktime_enable_attendance_module' => '1',
+			 'wktime_auto_import' => '0',
+			 'wktime_field_separator' => ['0'],
+			 'wktime_field_wrapper'  => ['0'],
+			 'wktime_field_encoding' => ['0'],
+			 'wktime_field_datetime' => ['0'],
+			 'wktime_avialable_fields' => ['0'],
+			 'wktime_fields_in_file' => ['0'],
+			 'wktime_auto_import_time_hr' => '23',
+			 'wktime_auto_import_time_min' => '0',
+			 'wktime_file_to_import' => '0'
   })  
  
   menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_ta, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 	

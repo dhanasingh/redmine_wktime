@@ -11,18 +11,18 @@ lblAccrualAfter = "<%=l(:label_wk_leave_accrual_after) %>";
 lblLeaveIssue = "<%=l(:label_wk_leave_issue) %>";
 lblYear = "<%=l(:label_year) %>";
 </script>
-<fieldset class="box tabular">
+<fieldset style="display: inline-block; vertical-align: top;">
 	<legend><%= l(:label_wk_attendance) %></legend>
-	<p>
+	<p style="margin-left: -110px;">
 			<%= check_box_tag('settings[wktime_enable_attendance_module]', 1, @settings['wktime_enable_attendance_module'].to_i == 1) %> <label><%= l(:label_enable_attendance_module) %></label>
 	</p>	
-	<p>
+	<p style="margin-left: -110px;">
 	<%= check_box_tag('settings[wktime_enable_clock_in_out]', 1, @settings['wktime_enable_clock_in_out'].to_i == 1) %> <label><%= l(:label_wk_enable_clock_in_out) %></label>
 	</p>
-	<p>
+	<p style="margin-left: -110px;">
 	<%= check_box_tag('settings[wktime_work_time_header]', 1, @settings['wktime_work_time_header'].to_i == 1) %> <label><%= l(:label_wk_work_time_header) %></label>
 	</p> 
-	<p>
+	<p style="margin-left: -110px;">
 		<%
 		breakTime = []
 		if(@settings['wktime_break_time'].blank?)
@@ -44,7 +44,7 @@ lblYear = "<%=l(:label_year) %>";
 			options_for_select(breakTime, :selected => 'settings[wktime_break_time]'), :multiple=> true, :style => "width:200px; height:100px;")%>	
 
 	</p>			
-	<p>
+	<p style="margin-left: -110px;">
 		<%= link_to "Add", "javascript:showBreakTimeDialog('Add');", :class => "button"%>  |
 		<%= link_to "Edit", "javascript:showBreakTimeDialog('Edit');", :class => "button"%>  |
 		<%= link_to "Delete", "javascript:removeSelectedValue('settings_wktime_break_time');", :class => "button" %>
@@ -90,7 +90,7 @@ lblYear = "<%=l(:label_year) %>";
 			<p><%= l(:label_hours_note) %></p>		
 	</div>
 	
-	<p>
+	<p style="margin-left: -110px;">
 		<%
 		leave = []
 		issue_list = Issue.order('subject')
@@ -124,7 +124,7 @@ lblYear = "<%=l(:label_year) %>";
 				options_for_select(leave, :selected => 'settings[wktime_leave]'), :multiple=> true, :style => "min-width:200px; height:100px;")%>	
 
 		</p>			
-		<p>
+		<p style="margin-left: -110px;">
 			<%= link_to "Add", "javascript:showLeaveDialog('Add');", :class => "button"%>  |
 			<%= link_to "Edit", "javascript:showLeaveDialog('Edit');", :class => "button"%>  |
 			<%= link_to "Delete", "javascript:removeSelectedValue('settings_wktime_leave');", :class => "button" %>
@@ -163,8 +163,12 @@ lblYear = "<%=l(:label_year) %>";
 	</div>
 	<%
 		custom_fields = UserCustomField.order('name')
-		unless custom_fields.blank?
-			cfdate = custom_fields.select {|cf| cf.field_format == 'date' }
+		allFields = Hash.new()
+		fldInFiles = Hash.new()		
+		allFields = {"user_id" => "#{l(:label_user_id)}", "start_time" => "#{l(:label_start_time)}", "end_time" => "#{l(:label_end_time)}", "hours" => "#{l(:label_hours)}" }
+		unless custom_fields.blank?		
+			cfdate = custom_fields.select {|cf| cf.field_format == 'date'}
+			cfids = custom_fields.select {|cf| cf.field_format == 'string' || cf.field_format == 'int' }			
 			unless cfdate.blank?
 				cfd = cfdate.collect {|cf| [cf.name, cf.id] }
 				cfd.unshift(["",0])
@@ -172,38 +176,123 @@ lblYear = "<%=l(:label_year) %>";
 				cfd = Array.new
 				cfd << [ "", 0]
 			end
+			
+			unless cfids.blank?
+				 cfids.collect {|cf|
+				 allFields.store("#{cf.id}", cf.name)}
+			end
+			
 			cfs = custom_fields.collect {|cf| [cf.name, cf.id] }
 			cfs.unshift(["",0])
 		else
 			cfd = Array.new
-			cfd << [ "", 0]
+			cfd << [ "", 0]			
 			cfs = Array.new
 			cfs << [ "", 0]
 		end
+		available_fields = allFields
+		selectedfld = Setting.plugin_redmine_wktime['wktime_fields_in_file']
+		if !selectedfld.blank?
+			fldInFiles = allFields.select {|key,value|  selectedfld.include? key.to_s}
+			available_fields = allFields.select {|key,value|  !selectedfld.include? key.to_s}
+		end		
 	%>
-	 <p>
+	 <p style="margin-left: -110px;">
 		<label><%= l(:label_wk_attn_join_date) %> </label><%=h select_tag('settings[wktime_attn_join_date_cf]', 
 			options_for_select(cfd, :selected =>  @settings['wktime_attn_join_date_cf'])) %>
 	</p>
-	 <p>
+	 <p style="margin-left: -110px;">
 		<label><%= l(:label_wk_attn_termination_date) %> </label><%=h select_tag('settings[wktime_attn_terminate_date_cf]', 
 			options_for_select(cfd, :selected =>  @settings['wktime_attn_terminate_date_cf'])) %>
 	</p>
-	 <p>
+	 <p style="margin-left: -110px;">
 		<label><%= l(:label_wk_attn_user_dob) %> </label><%=h select_tag('settings[wktime_attn_user_dob_cf]', 
 			options_for_select(cfd, :selected =>  @settings['wktime_attn_user_dob_cf'])) %>
 	</p>
-	 <p>
+	 <p style="margin-left: -110px;">
 		<label><%= l(:label_wk_designation) %> </label><%=h select_tag('settings[wktime_attn_designation_cf]', 
 			options_for_select(cfs, :selected =>  @settings['wktime_attn_designation_cf'])) %>
 	</p>
-	 <p>
+	 <p style="margin-left: -110px;">
 		<label><%= l(:label_employee_id) %> </label><%=h select_tag('settings[wktime_attn_employee_id_cf]', 
 			options_for_select(cfs, :selected =>  @settings['wktime_attn_employee_id_cf'])) %>
 	</p>
 </fieldset>
 
+<fieldset style="display: inline-block; vertical-align: top;">
+       <legend><%= l(:button_import) %></legend>
+	    <p style="margin-left: -180px;">
+			<%= check_box_tag('settings[wktime_auto_import]', 1, @settings['wktime_auto_import'].to_i == 1) %> <label><%= l(:label_auto_import) %></label>
+		</p>
+	    <p style="margin-left: -180px;">
+		  <label><%= l(:label_fields_separator) %></label>
+		  <%= select_tag 'settings[wktime_field_separator]', 
+				options_for_select([[l(:label_comma_char), ','], [l(:label_semi_colon_char), ';']], :selected => @settings['wktime_field_separator'].blank? ? 0 : @settings['wktime_field_separator']) %>
+		</p>
+		<p style="margin-left: -180px;">
+		  <label><%= l(:label_fields_wrapper) %></label>
+		  <%= select_tag 'settings[wktime_field_wrapper]',
+			  options_for_select([[l(:label_quote_char), "'"], [l(:label_double_quote_char), '"']], :selected => @settings['wktime_field_wrapper'].blank? ? 0 : @settings['wktime_field_wrapper']) %>
+		</p>
+		<p style="margin-left: -180px;">
+		  <label><%= l(:label_encoding) %></label>
+		  <%= select_tag 'settings[wktime_field_encoding]', options_for_select(Setting::ENCODINGS, :selected => @settings['wktime_field_encoding'].blank? ? 0 : @settings['wktime_field_encoding']) %>
+		</p>
+		<p style="margin-left: -180px;">
+		  <label><%= l(:setting_date_format) %></label>
+		  <% wktime_helper = Object.new.extend(WktimeHelper) %>
+		  <%= select_tag 'settings[wktime_field_datetime]', options_for_select(wktime_helper.date_format_options, :selected => @settings['wktime_field_datetime'].blank? ? 0 : @settings['wktime_field_datetime'] ) %>
+		</p>	
+		<table>
+		<thead>
+		<tr>
+		<td></td>
+		<td><p style="margin-left: -190px;"><label><%= l(:label_available_fields) %></label></p></td>
+		<td></td>
+		<td><p style="margin-left: -200px;"><label><%= l(:label_fields_in_file) %></p></label></td>
+		</tr>
+		</thead>
+		<tbody>
+			<tr valign="top">
+				<td>&nbsp;&nbsp;&nbsp;</td>
+				<td>					
+					<%= select_tag('settings[wktime_avialable_fields]', options_for_select(available_fields.invert, :selected =>  @settings['wktime_avialable_fields'] ), :multiple => true, :size=> 10, :style => "min-width:100px; ") %>
+				</td>
+				<td valign="center">
+					<button type="button" onclick="listbox_moveacross('settings_wktime_avialable_fields', 'settings_wktime_fields_in_file')" id="rightmove" style="position:relative; top:40px;">&gt;&gt;</button>
+					<br>
+					<button type="button" onclick="listbox_moveacross('settings_wktime_fields_in_file', 'settings_wktime_avialable_fields')" id="rightmove" style="position:relative; top:50px;">&lt;&lt;</button>
+				</td>
+				<td>					
+					<%= select_tag('settings[wktime_fields_in_file]', options_for_select(fldInFiles.invert, :selected =>  @settings['wktime_fields_in_file'] ), multiple: true, size: 10, :style => "min-width:100px; ") %>
+				</td>
+			</tr>
+		</tbody>
+		</table>
 
+	<p style="margin-left: -180px;">	
+			<label><%= l(:label_auto_import_time) %></label>
+			<%
+			hr = []
+			for i in 0..23
+				if i < 10
+					hr << ['0' + i.to_s,i]
+				else
+					hr << [i,i]
+				end
+			end
+			%>
+			<%= l(:field_hours) %>&nbsp;<%= select_tag('settings[wktime_auto_import_time_hr]', options_for_select(hr, 
+			:selected => @settings['wktime_auto_import_time_hr'].blank? ? 23 : @settings['wktime_auto_import_time_hr']))%>
+			<%= l(:label_wk_minutes) %>&nbsp;<%= select_tag('settings[wktime_auto_import_time_min]', options_for_select([['00',0],
+										   [15, 15],
+										   [30, 30],
+										   [45, 45]], :selected => @settings['wktime_auto_import_time_min'].blank? ? 0 : @settings['wktime_auto_import_time_min']))%>								   
+		</p>		
+       <p style="margin-left: -180px;">
+			  <label><%= l(:label_path) %></label><%= text_field_tag 'settings[wktime_file_to_import]', @settings['wktime_file_to_import'], :size => 50 %> 
+		</p>  
+ </fieldset>
 <% if !projArr.blank? %>
 <div style = "display:none">
 	<%=h select_tag('template_projDD', options_for_select(projArr))%>

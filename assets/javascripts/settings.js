@@ -346,6 +346,14 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 				lvlistbox.options[i].selected = true;
 			}						
 		}
+		var fldInFiles=document.getElementById("settings_wktime_fields_in_file");
+		if(fldInFiles != null)
+         { 
+			for(i = 0; i < fldInFiles.options.length; i++)
+			{
+				fldInFiles.options[i].selected = true;
+			}						
+		}
 	});
 	
 	function validateDate(date)
@@ -478,3 +486,28 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 			
 		}
 	}
+	
+function listbox_moveacross(sourceID, destID) {
+	var src = document.getElementById(sourceID);
+	var dest = document.getElementById(destID);
+
+	for(var count=0; count < src.options.length; count++) {
+
+		if(src.options[count].selected == true) {
+				var option = src.options[count];
+
+				var newOption = document.createElement("option");
+				newOption.value = option.value;
+				newOption.text = option.text;
+				newOption.selected = true;				
+				try {
+						 dest.add(newOption, null); //Standard
+						 src.remove(count, null);
+				 }catch(error) {
+						 dest.add(newOption); // IE only
+						 src.remove(count);
+				 }
+				count--;
+		}
+	}
+}

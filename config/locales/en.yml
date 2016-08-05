@@ -202,3 +202,11 @@ en:
   label_clock: Clock in/out
   label_hours: Hours
   label_import_attendance: Import attendance
+  label_path: Import file path
+  label_auto_import: Auto Import
+  label_auto_import_time: Auto Import Every
+  label_start_time: Starttime
+  label_end_time: Endtime
+  label_user_id: Userid
+  label_available_fields: Available Fields
+  label_fields_in_file: Fields in File

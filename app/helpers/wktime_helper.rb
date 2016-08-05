@@ -993,4 +993,14 @@ end
 		end
 		date
 	end
+	
+	 # Returns the options for the date_format setting
+    def date_format_options
+    Import::DATE_FORMATS.map do |f|
+      format = f.gsub('%', '').gsub(/[dmY]/) do
+        {'d' => 'DD', 'm' => 'MM', 'Y' => 'YYYY'}[$&]
+      end
+      [format+" HH:MM:SS", f + " %T"]
+    end
+  end
 end
