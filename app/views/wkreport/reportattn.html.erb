@@ -104,15 +104,17 @@
 <td ><%=h (accrual1.blank? && used1.blank? ? '' : (balance1.blank? ? 0 : balance1) + (accrual1.blank? ? 0 : accrual1) - (used1.blank? ? 0 : used1)) %></td>
 <td ><%=h (accrual2.blank? && used2.blank? ? '' : (balance2.blank? ? 0 : balance2) + (accrual2.blank? ? 0 : accrual2) - (used2.blank? ? 0 : used2)) %></td>
 <td ><%=h (accrual3.blank? && used3.blank? ? '' : (balance3.blank? ? 0 : balance3) + (accrual3.blank? ? 0 : accrual3) - (used3.blank? ? 0 : used3)) %></td>
+<% totalhours = 0%>
 <% for i in 1..31
 	hour = @attendance_entries[entry.id.to_s + '_' + i.to_s + '_hours']
 	leave = @attendance_entries[entry.id.to_s + '_' + i.to_s + '_leave']
 	attn_entry = shortName[leave].blank? ? hour : (hour.blank? ? shortName[leave] : (hour.to_s) + "/ " + shortName[leave])
+	 totalhours += hour.blank? ? 0 : hour  
 	%>
 		<td class="fixed"><%=h attn_entry %></td>
 <% end -%>
 <td class="lbl-txt-align"><%=h "" %></td>
-<td class="lbl-txt-align"><%=h "" %></td>
+<td class="lbl-txt-align"><%=h totalhours.to_s %></td>
 <td class="lbl-txt-align"><%=h "" %></td>
 <%if showSlno %>
 	<td class="lbl-txt-align"><%=h index+1 %></td>
