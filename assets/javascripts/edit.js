@@ -1395,7 +1395,7 @@ function showclkDialog(day)
 		}		
 	}
 }
-
+/*
 function setClockInOut(strid,id) {	
 	if(nscount > 0)
 	{
@@ -1495,7 +1495,7 @@ function hiddenClockInOut(data,strid,id){
 		nscount = 1;
 	}
 }
-
+*/
 function timeFormat(minutes)
 {
 	var tot_Hr1 = 0,tot_min1 = 0,totTime1 ="";
@@ -1511,7 +1511,7 @@ function timeFormat(minutes)
 	};
 	return totTime1;
 }
-
+/*
 function calculatebreakTime(totTime, day, element)
 {
 	
@@ -1628,7 +1628,7 @@ function calculatebreakTime(totTime, day, element)
 	}
 	
 }
-
+*/
 function MinutesDifferent(totTime, stdiff, variation)
 {
 	var minutessdiff;   // minusdiff
@@ -1653,7 +1653,7 @@ function MinutesDifferent(totTime, stdiff, variation)
 	minutessdiff =  ((h > 0 ? h + ":" + (m < 10 ? "0" : "") : "") + (h > 0 ? m : ("0:" + m)) );
 	return minutessdiff;
 }
-
+/*
 function dateCompare(time1,time2,s) {
   var t1 = new Date();
   var parts = time1.split(":");
@@ -1684,7 +1684,7 @@ function dateCompare(time1,time2,s) {
   }
   return 0;
 }
-
+*/
 function timeStringToFloat(time) {
   var hoursMinutes = time.split(/[.:]/);
   var hours = parseInt(hoursMinutes[0], 10);
@@ -1708,7 +1708,7 @@ function updateAtt(param, diff,str,id)
 	url: '/updateAttendance',
 	type: 'get',
 	data: {editvalue : param, startdate : datevalue, user_id : userid, nightshift : nightshift, isdate : date},
-	success: function(data){ if(!diff){  hiddenClockInOut(data, str, id);}else{  newClockInOut(data); } },   
+	success: function(data){ if(diff){ newClockInOut(data); } },   
 	});
 }
 
