@@ -371,14 +371,21 @@ require 'csv'
 			rangeStr = " LIMIT " + @limit.to_s +	" OFFSET " + @offset.to_s
 		end
 		rangeStr
-	end	
+	end
+	
+	def new
+	end
 	
 	def show
+		file = params[:file]
+		filePath = file.path
 		begin
-			importAttendance
+			isSuccess = importAttendance(filePath, false)
+			#redirect_to :action => 'show'
 		rescue Exception => e
 			@errorMsg = "Import failed: #{e.message}"
 			flash[:error] = @errorMsg
+			redirect_to :action => 'new'
 		end
 	end
 	

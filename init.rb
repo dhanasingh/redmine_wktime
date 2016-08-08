@@ -3,6 +3,7 @@ require_dependency 'custom_fields_helper'
 require 'wkpatch'
 require 'report_params'
 require_dependency '../lib/redmine/menu_manager'
+require 'fileutils'
 
 
 # redmine only differs between project_menu and application_menu! but we want to display the
@@ -241,7 +242,8 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_fields_in_file' => ['0'],
 			 'wktime_auto_import_time_hr' => '23',
 			 'wktime_auto_import_time_min' => '0',
-			 'wktime_file_to_import' => '0'
+			 'wktime_file_to_import' => '0',
+			 'wktime_import_file_headers' => '0'
   })  
  
   menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_ta, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 	
@@ -298,6 +300,34 @@ Rails.configuration.to_prepare do
 					wkattn_helper.populateWkUserLeaves()
 				rescue Exception => e
 					Rails.logger.info "Job failed: #{e.message}"
+				end
+			end
+		end
+		if (!Setting.plugin_redmine_wktime['wktime_auto_import'].blank? && Setting.plugin_redmine_wktime['wktime_auto_import'].to_i == 1)
+			require 'rufus/scheduler'
+			importScheduler = Rufus::Scheduler.new		
+			wkattn_helper = Object.new.extend(WkattendanceHelper)
+			intervalMin = wkattn_helper.calcSchdulerInterval
+			#Scheduler will run at every intervalMin
+			importScheduler.every intervalMin do	
+				begin
+					Rails.logger.info "==========Import Attendance - Started=========="	
+					filePath = Setting.plugin_redmine_wktime['wktime_file_to_import']
+					# Sort the files by modified date ascending order
+					sortedFilesArr = Dir.entries(filePath).sort_by { |x| File.mtime(filePath + "/" +  x) }
+					sortedFilesArr.each do |filename|
+						next if File.directory? filePath + "/" + filename
+						isSuccess = wkattn_helper.importAttendance(filePath + "/" + filename, true )
+						if !Dir.exists?("Processed")
+							FileUtils::mkdir_p filePath+'/Processed'#Dir.mkdir("Processed")
+						end
+						if isSuccess
+							FileUtils.mv filePath + "/" + filename, filePath+'/Processed', :force => true
+							Rails.logger.info("====== #{filename} moved processed directory=========")
+						end	
+					end
+				rescue Exception => e
+					Rails.logger.info "Import failed: #{e.message}"
 				end
 			end
 		end

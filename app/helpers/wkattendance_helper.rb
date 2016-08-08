@@ -1,6 +1,6 @@
 module WkattendanceHelper	
 	include WktimeHelper
-	
+	require 'csv' 
 	#Copied from UserHelper
 	def users_status_options_for_select(selected)
 		user_count_by_status = User.group('status').count.to_hash
@@ -125,7 +125,7 @@ module WkattendanceHelper
 		end
 	end
 	
-	def importAttendance
+	def importAttendance(file,isAuto)
 		lastAttnEntriesHash = Hash.new
 		@errorHash = Hash.new
 		@importCount = 0
@@ -133,14 +133,14 @@ module WkattendanceHelper
 		custom_fields = UserCustomField.order('name')
 		userIdCFHash = Hash.new
 		unless custom_fields.blank?
-			userCFHash = Hash[custom_fields.map { |cf| [cf.name, cf.id] }]
+			userCFHash = Hash[custom_fields.map { |cf| [cf.id, cf.name] }]
 		end
-		csv = read_file
+		csv = read_file(file)
 		lastAttnEntries = findLastAttnEntry(false)
 		lastAttnEntries.each do |entry|
 			lastAttnEntriesHash[entry.user_id] = entry
 		end
-		columnArr = ["Employee Id","start_time","end_time"]
+		columnArr = Setting.plugin_redmine_wktime['wktime_fields_in_file']
 		csv.each_with_index do |row,index|
 			# rowValueHash - Have the data of the current row
 			rowValueHash = Hash.new
@@ -158,11 +158,11 @@ module WkattendanceHelper
 					rowValueHash[col] = row[i].to_f
 				else
 					if index < 1
-						cfId = userCFHash[col] 
+						cfId = col.to_i #userCFHash[col] 
 						userIdCFHash = getUserIdCFHash(cfId)
 					end
 					if userIdCFHash[row[i]].blank?
-						@errorHash[index+1] = col + " " + l('activerecord.errors.messages.invalid')
+						@errorHash[index+1] = userCFHash[col.to_i] + " " + l('activerecord.errors.messages.invalid')
 					else
 						rowValueHash["user_id"] = userIdCFHash[row[i]]	
 					end
@@ -201,15 +201,34 @@ module WkattendanceHelper
 				end
 			end
 		end
+		if isAuto
+			Rails.logger.info("====== File Name = #{File.basename file}=========")
+			if  @importCount > 0
+				Rails.logger.info("==== #{l(:notice_import_finished, :count => @importCount)} ====")
+			end
+			if !@errorHash.blank? && @errorHash.count > 0
+				Rails.logger.info("==== #{l(:notice_import_finished_with_errors, :count => @errorHash.count, :total => (@errorHash.count + @importCount))} ====")
+				Rails.logger.info("===============================================================")
+				Rails.logger.info("       Row           ||        Message            ")
+				Rails.logger.info("===============================================================")
+				@errorHash.each do |item|
+					Rails.logger.info("    #{item[0]}           || #{simple_format_without_paragraph item[1]}")
+					Rails.logger.info("---------------------------------------------------------------")
+				end
+				Rails.logger.info("===============================================================")
+			end
+		end
+		return @errorHash.blank? || @errorHash.count < 0
 	end
 	
-	def read_file
-		csv_text = File.read("E://Project/Internal/TimeAndAttendance/doc/attnEntries/attenEntriesEndHours.csv")
-		csv_options = {:headers => true}
-		csv_options[:encoding] = 'UTF-8'
-		separator = ';'
+	def read_file(file)
+		csv_text = File.read(file)
+		hasHeaders = (Setting.plugin_redmine_wktime['wktime_import_file_headers'].blank? || Setting.plugin_redmine_wktime['wktime_import_file_headers'].to_i == 0) ? false : true
+		csv_options = {:headers => hasHeaders}
+		csv_options[:encoding] = Setting.plugin_redmine_wktime['wktime_field_encoding']#'UTF-8'
+		separator = Setting.plugin_redmine_wktime['wktime_field_separator']#','
 		csv_options[:col_sep] = separator if separator.size == 1
-		wrapper = '"'
+		wrapper = Setting.plugin_redmine_wktime['wktime_field_wrapper']#'"'
 		csv_options[:quote_char] = wrapper if wrapper.size == 1
 		csv = CSV.parse(csv_text, csv_options)
 		csv
@@ -232,7 +251,7 @@ module WkattendanceHelper
 	end
 	
 	def row_date(dateTimeStr)
-			format = "%m/%d/%y %T"
+			format = Setting.plugin_redmine_wktime['wktime_field_datetime']#"%Y-%m-%d %T"
 			DateTime.strptime(dateTimeStr, format) rescue dateTimeStr
 	end
 	
@@ -271,6 +290,12 @@ module WkattendanceHelper
 			wkattendance = addNewAttendance(startTime,endTime,userId)
 		end
 		wkattendance
+	end
+	
+	def calcSchdulerInterval
+		interval = (Setting.plugin_redmine_wktime['wktime_auto_import_time_hr'].to_i*60) + (Setting.plugin_redmine_wktime['wktime_auto_import_time_min'].to_i)
+		intervalMin = interval>0 ? interval.to_s + 'm' : '60m'
+		intervalMin
 	end
 
 end

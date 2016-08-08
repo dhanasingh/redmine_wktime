@@ -193,7 +193,9 @@ lblYear = "<%=l(:label_year) %>";
 		available_fields = allFields
 		selectedfld = Setting.plugin_redmine_wktime['wktime_fields_in_file']
 		if !selectedfld.blank?
-			fldInFiles = allFields.select {|key,value|  selectedfld.include? key.to_s}
+			selectedfld.each do |field|
+				fldInFiles[field] = allFields[field]
+			end
 			available_fields = allFields.select {|key,value|  !selectedfld.include? key.to_s}
 		end		
 	%>
@@ -259,7 +261,7 @@ lblYear = "<%=l(:label_year) %>";
 			<tr valign="top">
 				<td>&nbsp;&nbsp;&nbsp;</td>
 				<td>					
-					<%= select_tag('settings[wktime_avialable_fields]', options_for_select(available_fields.invert, :selected =>  @settings['wktime_avialable_fields'] ), :multiple => true, :size=> 10, :style => "min-width:100px; ") %>
+					<%= select_tag('settings[wktime_avialable_fields]', options_for_select(available_fields.invert), :multiple => true, :size=> 10, :style => "min-width:100px; ") %>
 				</td>
 				<td valign="center">
 					<button type="button" onclick="listbox_moveacross('settings_wktime_avialable_fields', 'settings_wktime_fields_in_file')" id="rightmove" style="position:relative; top:40px;">&gt;&gt;</button>

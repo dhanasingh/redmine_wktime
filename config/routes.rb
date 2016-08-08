@@ -87,6 +87,9 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
   end
   
   #For Attendance
+	resources :wk_attendances, :controller => 'wkattendance'  do
+	  collection { post :show }
+	end
   get 'wkattendance/index', :to => 'wkattendance#index'
   
   post 'wkattendance/index', :to => 'wkattendance#index'
@@ -122,5 +125,7 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
   
   get 'wkattendance/runPeriodEndProcess', :to => 'wkattendance#runPeriodEndProcess'
    
-  get 'wkattendance/show', :to => 'wkattendance#show'
+  post 'wkattendance/manualImport', :to => 'wkattendance#manualImport'
+   
+  get 'wkattendance/new', :to => 'wkattendance#new'
   
