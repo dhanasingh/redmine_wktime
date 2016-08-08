@@ -209,3 +209,4 @@ de:
   label_user_id: Userid
   label_available_fields: Available Fields
   label_fields_in_file: Fields in File
+  label_import_file_headers: File Headers

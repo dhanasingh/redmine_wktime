@@ -224,6 +224,9 @@ lblYear = "<%=l(:label_year) %>";
 	    <p style="margin-left: -180px;">
 			<%= check_box_tag('settings[wktime_auto_import]', 1, @settings['wktime_auto_import'].to_i == 1) %> <label><%= l(:label_auto_import) %></label>
 		</p>
+		<p style="margin-left: -180px;">
+			<%= check_box_tag('settings[wktime_import_file_headers]', 1, @settings['wktime_import_file_headers'].to_i == 1) %> <label><%= l(:label_import_file_headers) %></label>
+		</p>
 	    <p style="margin-left: -180px;">
 		  <label><%= l(:label_fields_separator) %></label>
 		  <%= select_tag 'settings[wktime_field_separator]', 
