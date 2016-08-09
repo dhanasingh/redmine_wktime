@@ -109,7 +109,7 @@
 	hour = @attendance_entries[entry.id.to_s + '_' + i.to_s + '_hours']
 	leave = @attendance_entries[entry.id.to_s + '_' + i.to_s + '_leave']
 	attn_entry = shortName[leave].blank? ? hour : (hour.blank? ? shortName[leave] : (hour.to_s) + "/ " + shortName[leave])
-	 totalhours += hour.blank? ? 0 : hour  
+	totalhours = totalhours + (hour.blank? ? 0 : hour.to_f)    
 	%>
 		<td class="fixed"><%=h attn_entry %></td>
 <% end -%>
