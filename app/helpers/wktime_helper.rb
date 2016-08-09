@@ -810,7 +810,7 @@ end
 		if ActiveRecord::Base.connection.adapter_name == 'PostgreSQL'			 
 			dateSqlStr = "date('#{dtfield}') + "	+ noOfDays.to_s
 		elsif ActiveRecord::Base.connection.adapter_name == 'SQLite'			 
-			dateSqlStr = "date('#{dtfield}' , '+' || " + noOfDays.to_s + " || ' days')"
+			dateSqlStr = "date('#{dtfield}' , '+' || " + "(#{noOfDays.to_s})" + " || ' days')"
 		elsif ActiveRecord::Base.connection.adapter_name == 'SQLServer'		
 			dateSqlStr = "DateAdd(d, " + noOfDays.to_s + ",'#{dtfield}')"
 		else
@@ -943,7 +943,7 @@ end
 	end
 	
 	def getTEAllTimeRange(ids)
-		teQuery = "select v.startday from (select #{getDateSqlString('t.spent_on')} as startday " +
+		teQuery = "select v.startday as startday from (select #{getDateSqlString('t.spent_on')} as startday " +
 				"from time_entries t where user_id in (#{ids})) v group by v.startday order by v.startday"
 		teResult = TimeEntry.find_by_sql(teQuery)
 	end
@@ -977,7 +977,7 @@ end
 		if !usrResult.blank? && usrResult.size > 0
 			stDate = (usrResult[0].startday)
 			stDate = getStartDay(stDate.to_date) if !stDate.blank? && isTime
-			if (!stDate.blank? && stDate < @from)
+			if (!stDate.blank? && stDate.to_date < @from.to_date)
 				@from = stDate
 			end
 		end		

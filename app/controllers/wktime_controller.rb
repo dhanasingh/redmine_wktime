@@ -1763,7 +1763,7 @@ private
 		dtRangeForUsrSqlStr =  "(" + getAllWeekSql(from, to) + ") tmp1"			
 		teSqlStr = "(" + teQuery + ") tmp2"
 		
-		query = "select tmp3.user_id, tmp3.spent_on, tmp3.#{spField}, tmp3.status, tmp3.status_updater, tmp3.created_on from (select tmp1.id as user_id, tmp1.created_on, tmp1.selected_date as spent_on, " + 
+		query = "select tmp3.user_id as user_id , tmp3.spent_on as spent_on, tmp3.#{spField} as #{spField}, tmp3.status as status, tmp3.status_updater as status_updater, tmp3.created_on as created_on from (select tmp1.id as user_id, tmp1.created_on, tmp1.selected_date as spent_on, " + 
 				"case when tmp2.#{spField} is null then 0 else tmp2.#{spField} end as #{spField}, " +
 				"case when tmp2.status is null then 'e' else tmp2.status end as status, tmp2.status_updater "
 		query = query + " from " + dtRangeForUsrSqlStr + " left join " + teSqlStr
