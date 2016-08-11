@@ -1276,14 +1276,20 @@ function validateHr(hrFld,day, element)
 		hrFld.value = "0:00";
 		hrVal = "0:00";
 	}
-	
-	
+	clkinTime = convertTimeToSec(document.getElementById(element[0]).value);
+	clkoutTime = convertTimeToSec(document.getElementById(element[1]).value);
 	if(hrVal.match(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/) == null)
 	{
 		hrFld.value = hrFld.defaultValue;
 		alert("Not a valid time format");
 	}
-	else
+	else if((clkinTime > clkoutTime) || ( isNaN(clkinTime) && !isNaN(clkoutTime) ) )
+	{		 
+		var msg = ( isNaN(clkinTime) && !isNaN(clkoutTime) ) ? "Please enter Clock in." : "The Clock in time can't be greater then clock out.";
+		hrFld.value = hrFld.defaultValue;
+		alert(msg);
+	}
+	else if( !isNaN(clkinTime) && !isNaN(clkoutTime) )
 	{	
 		if(element[3] != null && element[3] )
 		{
