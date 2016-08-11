@@ -59,8 +59,8 @@
 <%=	filters %>
 <% else %>
 <% if !@manage_view_spenttime_projects.blank? %>
-<div class="div-left">
-<table>
+<div class="div-left autoscroll">
+<table class="list ">
 <script type="text/javascript"> 
 $(document).ready(function()
 {
@@ -111,7 +111,7 @@ $(document).ready(function()
 <% end %>
 <% end %>
 
-<div id="rightMenu" class="div-right">
+<div id="rightMenu " class="div-right autoscroll">
 <table>
 <tr>
 <th valign="top"><%=l(:field_status)%></th>
