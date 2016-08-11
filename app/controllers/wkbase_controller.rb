@@ -8,7 +8,7 @@ include WkattendanceHelper
 			@lastAttnEntry = lastAttnEntries[0]
 		end	
 		currentDate = (DateTime.parse params[:startdate])
-		entryTime  =  Time.parse("#{currentDate.utc.to_date.to_s} #{currentDate.utc.to_time.to_s} ").localtime
+		entryTime  =  Time.parse("#{currentDate.to_date.to_s} #{currentDate.utc.to_time.to_s} ").localtime
 		@lastAttnEntry = saveAttendance(@lastAttnEntry, entryTime, nil, User.current.id, false)
 		ret = 'done'
 		respond_to do |format|

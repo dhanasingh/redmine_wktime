@@ -119,8 +119,8 @@ module WkimportattendanceHelper
 	end
 	
 	def getFormatedTimeEntry(entryDateTime)
-		entryDateTime = entryDateTime.change(:offset => Time.current.localtime.strftime("%:z"))
-		entryTime = Time.parse("#{entryDateTime.utc.to_date.to_s} #{entryDateTime.utc.to_time.to_s} ").localtime
+		entryLocal = entryDateTime.change(:offset => Time.current.localtime.strftime("%:z"))
+		entryTime = Time.parse("#{entryLocal.to_date.to_s} #{entryLocal.utc.to_time.to_s} ").localtime
 		entryTime
 	end
 	
