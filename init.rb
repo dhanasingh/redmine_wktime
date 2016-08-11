@@ -306,8 +306,8 @@ Rails.configuration.to_prepare do
 		if (!Setting.plugin_redmine_wktime['wktime_auto_import'].blank? && Setting.plugin_redmine_wktime['wktime_auto_import'].to_i == 1)
 			require 'rufus/scheduler'
 			importScheduler = Rufus::Scheduler.new		
-			wkattn_helper = Object.new.extend(WkattendanceHelper)
-			intervalMin = wkattn_helper.calcSchdulerInterval
+			import_helper = Object.new.extend(WkimportattendanceHelper)
+			intervalMin = import_helper.calcSchdulerInterval
 			#Scheduler will run at every intervalMin
 			importScheduler.every intervalMin do	
 				begin
@@ -317,7 +317,7 @@ Rails.configuration.to_prepare do
 					sortedFilesArr = Dir.entries(filePath).sort_by { |x| File.mtime(filePath + "/" +  x) }
 					sortedFilesArr.each do |filename|
 						next if File.directory? filePath + "/" + filename
-						isSuccess = wkattn_helper.importAttendance(filePath + "/" + filename, true )
+						isSuccess = import_helper.importAttendance(filePath + "/" + filename, true )
 						if !Dir.exists?("Processed")
 							FileUtils::mkdir_p filePath+'/Processed'#Dir.mkdir("Processed")
 						end

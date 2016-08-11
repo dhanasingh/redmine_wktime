@@ -200,7 +200,7 @@ de:
   text_are_you_sure_want_to_run: "Are you sure you want to run this process ?"
   label_clock: clock in/out
   label_hours: Hours
-  label_import_attendance: Import attendance
+  label_import_attendance: Import Attendance
   label_path: Import file path
   label_auto_import: Auto Import
   label_auto_import_time: Auto Import Every
@@ -210,3 +210,4 @@ de:
   label_available_fields: Available Fields
   label_fields_in_file: Fields in File
   label_import_file_headers: File Headers
+  error_no_record_to_import: No Record to Import
