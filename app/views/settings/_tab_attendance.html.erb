@@ -223,9 +223,32 @@ lblYear = "<%=l(:label_year) %>";
 
 <fieldset style="display: inline-block; vertical-align: top;">
        <legend><%= l(:button_import) %></legend>
+		<%= l(:label_redmine_restart_warning) %>
 	    <p style="margin-left: -180px;">
 			<%= check_box_tag('settings[wktime_auto_import]', 1, @settings['wktime_auto_import'].to_i == 1) %> <label><%= l(:label_auto_import) %></label>
 		</p>
+			<p style="margin-left: -180px;">	
+			<label><%= l(:label_auto_import_time) %></label>
+			<%
+			hr = []
+			for i in 0..23
+				if i < 10
+					hr << ['0' + i.to_s,i]
+				else
+					hr << [i,i]
+				end
+			end
+			%>
+			<%= l(:field_hours) %>&nbsp;<%= select_tag('settings[wktime_auto_import_time_hr]', options_for_select(hr, 
+			:selected => @settings['wktime_auto_import_time_hr'].blank? ? 23 : @settings['wktime_auto_import_time_hr']))%>
+			<%= l(:label_wk_minutes) %>&nbsp;<%= select_tag('settings[wktime_auto_import_time_min]', options_for_select([['00',0],
+										   [15, 15],
+										   [30, 30],
+										   [45, 45]], :selected => @settings['wktime_auto_import_time_min'].blank? ? 0 : @settings['wktime_auto_import_time_min']))%>								   
+		</p>		
+       <p style="margin-left: -180px;">
+			  <label><%= l(:label_path) %></label><%= text_field_tag 'settings[wktime_file_to_import]', @settings['wktime_file_to_import'], :size => 40 %> 
+		</p> 
 		<p style="margin-left: -180px;">
 			<%= check_box_tag('settings[wktime_import_file_headers]', 1, @settings['wktime_import_file_headers'].to_i == 1) %> <label><%= l(:label_import_file_headers) %></label>
 		</p>
@@ -274,29 +297,6 @@ lblYear = "<%=l(:label_year) %>";
 			</tr>
 		</tbody>
 		</table>
-
-	<p style="margin-left: -180px;">	
-			<label><%= l(:label_auto_import_time) %></label>
-			<%
-			hr = []
-			for i in 0..23
-				if i < 10
-					hr << ['0' + i.to_s,i]
-				else
-					hr << [i,i]
-				end
-			end
-			%>
-			<%= l(:field_hours) %>&nbsp;<%= select_tag('settings[wktime_auto_import_time_hr]', options_for_select(hr, 
-			:selected => @settings['wktime_auto_import_time_hr'].blank? ? 23 : @settings['wktime_auto_import_time_hr']))%>
-			<%= l(:label_wk_minutes) %>&nbsp;<%= select_tag('settings[wktime_auto_import_time_min]', options_for_select([['00',0],
-										   [15, 15],
-										   [30, 30],
-										   [45, 45]], :selected => @settings['wktime_auto_import_time_min'].blank? ? 0 : @settings['wktime_auto_import_time_min']))%>								   
-		</p>		
-       <p style="margin-left: -180px;">
-			  <label><%= l(:label_path) %></label><%= text_field_tag 'settings[wktime_file_to_import]', @settings['wktime_file_to_import'], :size => 50 %> 
-		</p>  
  </fieldset>
 <% if !projArr.blank? %>
 <div style = "display:none">
