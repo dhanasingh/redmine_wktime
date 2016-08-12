@@ -181,7 +181,7 @@ en:
   label_wk_register_for_shops: REGISTER OF EMPLOYMENT FOR SHOPS AND ESTABLISHMENTS
   label_wk_name_address: Name and Address of the Establishment
   label_date_of_entry_into_service: Date of entry into service
-  label_hours_note: "Note: Please enter time in 24 hours format."
+  label_hours_note: "Note: Please enter time in 24 hours format(HH:MM)."
   label_no_leaves_configured : No leaves configured
   label_max_min_hours_day_msg : Min hours is greater than Max hours.
   

@@ -181,7 +181,7 @@ fr:
   label_wk_register_for_shops: REGISTRE DES EMPLOYES POUR BOUTIQUES ET ETABLISSEMENTS 
   label_wk_name_address: Nom et adresse de l'établissement
   label_date_of_entry_into_service: Date d'entrée dans le service
-  label_hours_note: "Note: Merci de renseigner le temps au format 24 heures."
+  label_hours_note: "Note: Merci de renseigner le temps au format(HH:MM) 24 heures."
   label_no_leaves_configured : Aucun congé n'est configuré
   label_max_min_hours_day_msg : Le minum d'heure est plus grand que le maximum
   

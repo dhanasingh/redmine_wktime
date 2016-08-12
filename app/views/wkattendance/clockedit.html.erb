@@ -59,7 +59,7 @@
 		<%=h hidden_field_tag("attnEntriesId#{j}",  (entry_id.blank? ? "" : entry_id[j]) )  %>
 		<td><%=h text_field_tag("attnstarttime#{j}", start_time.blank? ? "" : start_time[j] ,:onchange => "#{} ", :size => 10, :disabled => isAccountUser ? false : true, :required => true,  :onchange => "validateHr(this,#{(j)}, ['attnstarttime#{j}', 'attnendtime#{j}', 'hoursdiff#{j}', #{true}]);") %>
 		</td>
-		<td><%=h text_field_tag("attnendtime#{j}", end_time.blank? ? "" : end_time[j],:size => 10, :disabled => isAccountUser ? false : true, :required => true,  :onchange => "validateHr(this,#{(j)}, ['attnstarttime#{j}', 'attnendtime#{j}', 'hoursdiff#{j}', #{true}]);") %>
+		<td><%=h text_field_tag("attnendtime#{j}", end_time.blank? ? "" : end_time[j],:size => 10, :disabled => isAccountUser ? false : true, :onchange => "validateHr(this,#{(j)}, ['attnstarttime#{j}', 'attnendtime#{j}', 'hoursdiff#{j}', #{true}]);") %>
 		</td>		
 		<td><%=h text_field_tag("hoursdiff#{j}", hours.blank? ? 0 : hours[j].to_f,:size => 10, :disabled => isAccountUser ? false : true, :required => true) %>
 		</td>
@@ -69,9 +69,9 @@
 	</tr>	 
 	<% end %>
 	<tr class="time-entry <%= cycle("odd", "even") %>" >
-		<th><label><%= l(:label_grand_total) %></label></th><th></th>
-		<th><%=h text_field_tag("tothours", totalhours.round(2),:size => 10, :disabled => isAccountUser ? false : true, :required => true) %>
-		</th>
+		<td></td><td style="font-weight: bold; "><label><%= l(:label_grand_total) %></label></td>
+		<td><%=h text_field_tag("tothours", totalhours.round(2),:size => 10, :disabled => isAccountUser ? false : true, :required => true) %>
+		</td>
 	</tr>
 	</table>
 	<span style="margin-left:5.0em;">

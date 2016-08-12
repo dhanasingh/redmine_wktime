@@ -114,7 +114,7 @@
 		<td class="fixed"><%=h attn_entry %></td>
 <% end -%>
 <td class="lbl-txt-align"><%=h "" %></td>
-<td class="lbl-txt-align"><%=h totalhours.to_s %></td>
+<td class="lbl-txt-align"><%=h (totalhours.round(2)).to_s %></td>
 <td class="lbl-txt-align"><%=h "" %></td>
 <%if showSlno %>
 	<td class="lbl-txt-align"><%=h index+1 %></td>

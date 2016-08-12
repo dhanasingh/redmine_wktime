@@ -374,26 +374,28 @@ require 'csv'
 	def saveClockInOut
 		errorMsg =nil
 		sucessMsg = nil
+		endtime = nil
 		for i in 0..params[:attnDayEntriesCnt].to_i-1
-		starttime = params[:startdate] + " " +  params["attnstarttime#{i}"] + ":00"
-		entry_start_time = DateTime.strptime(starttime, "%Y-%m-%d %T") rescue starttime
-		endtime = params[:startdate] + " " +  params["attnendtime#{i}"] + ":00"
-		entry_end_time = DateTime.strptime(endtime, "%Y-%m-%d %T") rescue endtime
-			if !params["attnEntriesId#{i}"].blank?
-				wkattendance =  WkAttendance.find(params["attnEntriesId#{i}"].to_i)				
-				wkattendance.start_time =  getFormatedTimeEntry(entry_start_time)
-				wkattendance.end_time = getFormatedTimeEntry(entry_end_time) 
-				wkattendance.hours = computeWorkedHours(wkattendance.start_time, wkattendance.end_time, true)
-				wkattendance.save()
-				sucessMsg = l(:notice_successful_update) 				
-			else
-				addNewAttendance(getFormatedTimeEntry(entry_start_time),getFormatedTimeEntry(entry_end_time), params[:user_id].to_i)
-				sucessMsg = l(:notice_successful_update)
-			end
-			
-			if params["attnstarttime#{i}"] == '0:00' && params["attnendtime#{i}"] == '0:00'
+			starttime = params[:startdate] + " " +  params["attnstarttime#{i}"] + ":00"
+			entry_start_time = DateTime.strptime(starttime, "%Y-%m-%d %T") rescue starttime
+			endtime = params[:startdate] + " " +  params["attnendtime#{i}"] + ":00" if !params["attnendtime#{i}"].blank?
+			entry_end_time = DateTime.strptime(endtime, "%Y-%m-%d %T") rescue endtime
+			if params["attnstarttime#{i}"] == '0:00' && params["attnendtime#{i}"] == '0:00' 
+				wkattendance =  WkAttendance.find(params["attnEntriesId#{i}"].to_i)	if !params["attnEntriesId#{i}"].blank?
 				wkattendance.destroy()
-				sucessMsg = l(:notice_successful_delete)							
+				sucessMsg = l(:notice_successful_delete)
+			else
+				if !params["attnEntriesId#{i}"].blank?
+					wkattendance =  WkAttendance.find(params["attnEntriesId#{i}"].to_i)				
+					wkattendance.start_time =  getFormatedTimeEntry(entry_start_time)
+					wkattendance.end_time = getFormatedTimeEntry(entry_end_time) #if !entry_end_time.blank?
+					wkattendance.hours = computeWorkedHours(wkattendance.start_time, wkattendance.end_time, true) if !wkattendance.end_time.blank?
+					wkattendance.save()
+					sucessMsg = l(:notice_successful_update) 				
+				else
+					addNewAttendance(getFormatedTimeEntry(entry_start_time),getFormatedTimeEntry(entry_end_time), params[:user_id].to_i)
+					sucessMsg = l(:notice_successful_update)
+				end			
 			end
 		end
 		
