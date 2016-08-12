@@ -114,6 +114,8 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
   
   get 'wkattendance/getMembersbyGroup', :to => 'wkattendance#getMembersbyGroup'
   
+  post 'wkattendance/saveClockInOut', :to => 'wkattendance#saveClockInOut'
+  
   #For Report   
   get 'wkreport/index', :to => 'wkreport#index'
    

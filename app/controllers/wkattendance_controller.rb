@@ -3,6 +3,7 @@ unloadable
 
 include WktimeHelper
 include WkattendanceHelper
+include WkimportattendanceHelper
 
 before_filter :require_login
 before_filter :check_perm_and_redirect, :only => [:edit, :update]
@@ -369,5 +370,41 @@ require 'csv'
 		end
 		rangeStr
 	end
+	
+	def saveClockInOut
+		errorMsg =nil
+		sucessMsg = nil
+		for i in 0..params[:attnDayEntriesCnt].to_i-1
+		starttime = params[:startdate] + " " +  params["attnstarttime#{i}"] + ":00"
+		entry_start_time = DateTime.strptime(starttime, "%Y-%m-%d %T") rescue starttime
+		endtime = params[:startdate] + " " +  params["attnendtime#{i}"] + ":00"
+		entry_end_time = DateTime.strptime(endtime, "%Y-%m-%d %T") rescue endtime
+			if !params["attnEntriesId#{i}"].blank?
+				wkattendance =  WkAttendance.find(params["attnEntriesId#{i}"].to_i)				
+				wkattendance.start_time =  getFormatedTimeEntry(entry_start_time)
+				wkattendance.end_time = getFormatedTimeEntry(entry_end_time) 
+				wkattendance.hours = computeWorkedHours(wkattendance.start_time, wkattendance.end_time, true)
+				wkattendance.save()
+				sucessMsg = l(:notice_successful_update) 				
+			else
+				addNewAttendance(getFormatedTimeEntry(entry_start_time),getFormatedTimeEntry(entry_end_time), params[:user_id].to_i)
+				sucessMsg = l(:notice_successful_update)
+			end
+			
+			if params["attnstarttime#{i}"] == '0:00' && params["attnendtime#{i}"] == '0:00'
+				wkattendance.destroy()
+				sucessMsg = l(:notice_successful_delete)							
+			end
+		end
+		
+		if errorMsg.nil?	
+			redirect_to :controller => 'wkattendance',:action => 'clockindex' , :tab => 'clock'
+			flash[:notice] = sucessMsg #l(:notice_successful_update)
+		else
+			flash[:error] = errorMsg
+			redirect_to :action => 'edit'
+		end	
+	end
+	
 	
 end

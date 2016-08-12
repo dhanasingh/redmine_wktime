@@ -152,7 +152,7 @@ function showIssueMessage(data,divID) {
 		divID.style.display = 'none';
 	}
 }
-
+/*
 function updateAttendance()
 {
 	var attnEntriesId, attnStartTime, attnEndTime, attnhours;
@@ -188,7 +188,7 @@ function updateAttendance()
 	});
 }
 
-
+*/
 function signAttendance(str)
 {
 	var d = new Date();

@@ -876,7 +876,7 @@ include QueriesHelper
 					entryvalues[2] = "00:00"
 					entryvalues[3] = oldendvalue										
 				end
-				entrydate = to_boolean(params[:isdate]) ? params[:startdate] : @startday  +  ((entryvalues[1].to_i)- 1)
+				entrydate = @startday  +  ((entryvalues[1].to_i)- 1) #to_boolean(params[:isdate]) ? params[:startdate] : @startday  +  ((entryvalues[1].to_i)- 1)
 				wkattendance.user_id = params[:user_id].to_i 				
 				wkattendance.start_time = !entryvalues[2].blank? ? Time.parse("#{entrydate.to_s} #{ entryvalues[2].to_s}:00 ").localtime.to_s : '00:00'
 				if !entryvalues[3].blank?
