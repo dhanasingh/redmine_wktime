@@ -52,12 +52,16 @@ require 'csv'
 			userIds << users.id
 		end
 		ids = nil
-		 if params[:user_id].blank? && params[:user_id] != 0
-			ids = User.current.id
-		 elsif params[:user_id].to_i != 0 && params[:group_id].to_i == 0
-			ids = params[:user_id].to_i
-		 elsif params[:group_id].to_i != 0
-		   ids = params[:user_id].to_i == 0 ? (userIds.blank? ? 0 : userIds.join(',')) : params[:user_id].to_i
+		user_id = session[:wkattendance][:user_id]
+		group_id = session[:wkattendance][:group_id]
+		status = session[:wkattendance][:status]
+		
+		if user_id.blank?
+		   ids = User.current.id
+		elsif user_id.to_i != 0 && group_id.to_i == 0
+		   ids = user_id.to_i
+		elsif group_id.to_i != 0
+		   ids =user_id.to_i == 0 ? (userIds.blank? ? 0 : userIds.join(',')) : user_id.to_i
 		else
 		   ids = userIds.join(',')
 		end
@@ -77,14 +81,7 @@ require 'csv'
 			 WHERE  v.selected_date between '#{@from}' and '#{@to}' order by u.id, v.selected_date) vw left join
 			 (select min(start_time) as start_time, max(end_time) as end_time, " + getConvertDateStr('start_time') + "
 			 entry_date,sum(hours) as hours, user_id from wk_attendances WHERE " + getConvertDateStr('start_time') +" between '#{@from}' and '#{@to}'			
-			 group by user_id, " + getConvertDateStr('start_time') + ") evw on (vw.selected_date = evw.entry_date and vw.id = evw.user_id)"
-			 if params[:user_id].blank? && params[:user_id] != 0
-				sqlQuery += "where vw.id in(#{User.current.id})  "
-			 elsif params[:user_id].to_i != 0 && params[:group_id].to_i == 0
-				sqlQuery += "where vw.id in(#{params[:user_id].to_i}) "
-			 elsif params[:group_id].to_i != 0
-			   sqlQuery += "where vw.id in(#{params[:user_id].to_i == 0 ? (userIds.blank? ? 0 : userIds.join(',')) : params[:user_id].to_i }) "
-			 end			 
+			 group by user_id, " + getConvertDateStr('start_time') + ") evw on (vw.selected_date = evw.entry_date and vw.id = evw.user_id) where vw.id in(#{ids}) "
 			findBySql(sqlQuery, WkAttendance)
 	end
 	
