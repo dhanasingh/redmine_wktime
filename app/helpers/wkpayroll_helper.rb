@@ -36,18 +36,22 @@ module WkpayrollHelper
 		currency = Setting.plugin_redmine_wktime['wktime_payroll_currency']
 		errorMsg = nil
 		deleteWkSalaries(nil,salaryDate)
-		userSalaryHash.each do |userId, salary|
-			salary.each do |componentId, amount|
-				userSalary = WkSalary.new
-				userSalary.user_id = userId
-				userSalary.currency = currency
-				userSalary.amount = amount.round
-				userSalary.salary_component_id = componentId
-				userSalary.salary_date = salaryDate
-				if !userSalary.save()
-					errorMsg = wkuserleave.errors.full_messages.join('\n')
+		unless userSalaryHash.blank?
+			userSalaryHash.each do |userId, salary|
+				salary.each do |componentId, amount|
+					userSalary = WkSalary.new
+					userSalary.user_id = userId
+					userSalary.currency = currency
+					userSalary.amount = amount.round
+					userSalary.salary_component_id = componentId
+					userSalary.salary_date = salaryDate
+					if !userSalary.save()
+						errorMsg = wkuserleave.errors.full_messages.join('\n')
+					end
 				end
 			end
+		else	
+			errorMsg = l(:error_wktime_save_nothing)
 		end
 		errorMsg
 	end
@@ -55,7 +59,7 @@ module WkpayrollHelper
 	def getUserSalaryHash(salaryDate)
 		userSalaryHash = Hash.new()
 		payPeriod = getPayPeriod(salaryDate)
-		queryStr = getUserSalaryQueryStr + " Where u.type = 'User' and (cvt.value is null or #{getConvertDateStr('cvt.value')} >= '#{payPeriod[0]}')" + " order by u.id, sc.salary_type" 
+		queryStr = getUserSalaryQueryStr + " Where u.type = 'User' and (cvt.value is null or #{getConvertDateStr('cvt.value')} >= '#{payPeriod[0]}') and sc.id is not null " + " order by u.id, sc.salary_type" 
 		userSalaries = WkUserSalaryComponents.find_by_sql(queryStr)
 		salaryComponents = getSalaryComponentsArr
 		@userSalEntryHash = Hash[userSalaries.map { |cf| [cf.sc_id.to_s + '_' + cf.user_id.to_s, cf] }]
@@ -129,7 +133,7 @@ module WkpayrollHelper
 			startDate = entryObj.sc_start_date.to_date
 			for i in 0..1
 				if ((payPeriod[i].month - startDate.month).abs) % frequencyInMonths < 1
-					isAddComp = startDate.change(month: payPeriod[i].month, year: payPeriod[i].year).between?(payPeriod[0],payPeriod[1])
+					isAddComp = true#startDate.change(month: payPeriod[i].month, year: payPeriod[i].year).between?(payPeriod[0],payPeriod[1])
 				end
 			end
 		end
