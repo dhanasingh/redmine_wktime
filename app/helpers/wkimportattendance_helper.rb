@@ -21,10 +21,10 @@ module WkimportattendanceHelper
 		end
 		columnArr = Setting.plugin_redmine_wktime['wktime_fields_in_file']
 		if !(csv.length > 0)
-			@errorMsg = l('error_no_record_to_import')
+			@errorMsg = @errorMsg.blank? ? l('error_no_record_to_import') : @errorMsg.to_s + " <br/>" + l('error_no_record_to_import')
 		end
 		if columnArr.blank? || !(columnArr.length > 0)
-			@errorMsg = l('warning_fields_in_file_not_configured')
+			@errorMsg = @errorMsg.blank? ? l('warning_fields_in_file_not_configured') : @errorMsg.to_s + " <br/>" + l('warning_fields_in_file_not_configured')
 		end
 		if @errorMsg.blank?
 			csv.each_with_index do |row,index|

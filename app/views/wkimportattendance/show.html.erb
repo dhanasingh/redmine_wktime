@@ -25,5 +25,5 @@
 	  </table>
 	<% end %>
 <% else %>
-	<p style="color:red;"><%= @errorMsg %></p>
+	<p style="color:red;"><%= @errorMsg.html_safe %></p>
 <% end %>
