@@ -212,3 +212,4 @@ fr:
   label_fields_in_file: Fields in File
   label_import_file_headers: File Headers
   error_no_record_to_import: No Record to Import
+  warning_fields_in_file_not_configured: Fields in file not configured in plugin attendance settings
