@@ -49,8 +49,8 @@ module WktimeHelper
 		
 		#Project.project_tree(projects) do |proj_name, level|
 		if !projects.blank?
-			Project.project_tree_with_order(projects,true) do |proj, level|
-			 # project_tree(projects) do |proj, level|
+			# Project.project_tree_with_order(projects,true) do |proj, level|
+			 project_tree(projects) do |proj, level|
 				indent_level = (level > 0 ? ('&nbsp;' * 2 * level + '&#187; ').html_safe : '')
 				sel_project = projects.select{ |p| p.id == proj.id }
 				projArr << [ (indent_level + sel_project[0].to_s), sel_project[0].id ] if sel_project[0]
