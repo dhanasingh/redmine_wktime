@@ -7,9 +7,11 @@
 		//getMembersbyGroup
 </script>
 <%= hidden_field_tag 'back_url', url_for(params) %>
+<% if isAccountUser %>
 <div class="contextual">
 <%= link_to l(:"label_import_attendance"), url_for(:controller => "wkimportattendance", :action => 'new', :tab => controller.controller_name)%>
 </div>
+<% end %>
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
 	<%= form_tag({:controller => controller_name, :action => 'clockindex'}, :method => :get, :id => 'query_form') do %>
 	<%=h hidden_field_tag('tab', "clock") %>
@@ -17,7 +19,7 @@
 	<%	groupid =session[:wkattendance][:group_id]
 		userid =session[:wkattendance][:user_id] %>	
 		<table>
-			<% if User.current.admin? || isAccountUser %>
+			<% if isAccountUser %>
 			<tr>
 			<th><%=l(:label_group_plural)%> </th>
 			<% if !@groups.blank? %>
