@@ -137,7 +137,7 @@ module WkattendanceHelper
 
 	def saveAttendance(attnObj, startTime, endTime, userId, hasStartEnd)
 		wkattendance = nil
-		if(!attnObj.blank? && ((attnObj.end_time.blank? && ((startTime - attnObj.start_time.localtime)/3600) < 24 )|| hasStartEnd))
+		if(!attnObj.blank? && ((attnObj.end_time.blank? && ((startTime - attnObj.start_time.localtime)/3600) < 24 && ((startTime - attnObj.start_time.localtime)/3600) > 0 )|| hasStartEnd))
 			if !hasStartEnd
 				entrydate = attnObj.start_time
 				start_local = entrydate.localtime
