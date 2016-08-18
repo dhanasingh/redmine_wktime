@@ -11,13 +11,17 @@ require 'csv'
 	
 	def show
 		file = params[:file]
-		filePath = file.path
-		begin
-			isSuccess = importAttendance(filePath, false)
-			#redirect_to :action => 'show'
-		rescue Exception => e
-			@errorMsg = "Import failed: #{e.message}"
-			flash[:error] = @errorMsg
+		unless file.blank?
+			filePath = file.path 
+			begin
+				isSuccess = importAttendance(filePath, false)
+				#redirect_to :action => 'show'
+			rescue Exception => e
+				@errorMsg = "Import failed: #{e.message}"
+				flash[:error] = @errorMsg
+				redirect_to :action => 'new'
+			end
+		else
 			redirect_to :action => 'new'
 		end
 	end
