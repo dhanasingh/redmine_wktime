@@ -72,7 +72,7 @@ it:
   label_wk_nonsub_mail_subject: Non submission time notification
   label_wk_nonsub_mail_notification: Send email for non submission
   label_wk_nonsub_mail_message: Non submission email message
-  label_redmine_restart_warning: "Note: Any change to the below settings require redmine restart"
+  label_redmine_restart_warning: "Note: Any change to the below schduler settings require redmine restart"
   label_wk_minutes: Minutes
   label_wkexpense_entry_projects: Restrict Expense Entry to these projects
   
