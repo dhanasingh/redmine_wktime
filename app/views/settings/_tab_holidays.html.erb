@@ -19,7 +19,7 @@ selectListAlertMsg = "<%=l(:label_wk_select_holiday) %>";
 	
 	<div id="holiday-dlg" title="<%= l(:label_wk_public_holiday) %>">
 		<p>
-			<span style="margin-left:3.2em;"></span><label><%= l(:label_date) %></label><span style="margin-left:0.5em;"></span><%= text_field_tag('holiday_date',Date.today.to_s,:size => 15, :required => true, :maxlength => 15) %><%= calendar_for('holiday_date') %> 
+			<span style="margin-left:3.2em;"></span><label><%= l(:label_date) %></label><span style="margin-left:0.5em;"></span><%= date_field_tag('holiday_date',Date.today.to_s,:size => 15, :required => true, :maxlength => 15) %><%= calendar_for('holiday_date') %> 
 		</p>
 		<p>
 			<label><%= l(:label_wk_description) %></label><span style="margin-left:0.5em;"></span><%= text_field_tag('holiday_desc','',:size => 20, :maxlength => 200) %> 		
