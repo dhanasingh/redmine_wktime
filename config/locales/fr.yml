@@ -72,7 +72,7 @@ fr:
   label_wk_nonsub_mail_subject: Notification de retard
   label_wk_nonsub_mail_notification: Envoyer un courriel pour les retards  
   label_wk_nonsub_mail_message: Corps du courriel de retard
-  label_redmine_restart_warning: "Note: Any change to the below schduler settings require redmine restart"
+  label_redmine_restart_warning: "Note: Any change to the below scheduler settings require redmine restart"
   label_wk_minutes: Minutes  
   label_wkexpense_entry_projects: Limiter la saisie de dépense à ces projets
   
