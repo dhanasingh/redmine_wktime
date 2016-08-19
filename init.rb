@@ -2,6 +2,35 @@ require 'redmine'
 require_dependency 'custom_fields_helper'
 require 'wkpatch'
 require 'report_params'
+require_dependency '../lib/redmine/menu_manager'
+require 'fileutils'
+
+
+# redmine only differs between project_menu and application_menu! but we want to display the
+# time_tracker submenu only if the plugin specific controllers are called
+module Redmine::MenuManager::MenuHelper
+  def display_main_menu?(project)
+    Redmine::MenuManager.items(menu_name(project)).children.present?
+  end
+
+  def render_main_menu(project)
+    render_menu(menu_name(project), project)
+  end
+
+  private
+
+  def menu_name(project)
+    if project && !project.new_record?
+      :project_menu
+    else
+      if %w(wktime wkexpense wkattendance wkreport).include? params[:controller]
+        :wktime_menu
+      else
+        :application_menu
+      end
+    end
+  end
+end
 
 module WktimeHelperPatch
 	def self.included(base)
@@ -147,7 +176,7 @@ Redmine::Plugin.register :redmine_wktime do
   name 'Time & Attendance'
   author 'Adhi Software Pvt Ltd'
   description 'This plugin is for entering Time & Attendance'
-  version '2.2.1'
+  version '2.3'
   url 'http://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
   
@@ -203,13 +232,32 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_min_hour_week' => '0',
 			 'wktime_enable_expense_module' => '1',
 			 'wktime_enable_report_module' => '1',
-			 'wktime_enable_attendance_module' => '1'
+			 'wktime_enable_attendance_module' => '1',
+			 'wktime_auto_import' => '0',
+			 'wktime_field_separator' => ['0'],
+			 'wktime_field_wrapper'  => ['0'],
+			 'wktime_field_encoding' => ['0'],
+			 'wktime_field_datetime' => ['0'],
+			 'wktime_avialable_fields' => ['0'],
+			 'wktime_fields_in_file' => ['0'],
+			 'wktime_auto_import_time_hr' => '23',
+			 'wktime_auto_import_time_min' => '0',
+			 'wktime_file_to_import' => '0',
+			 'wktime_import_file_headers' => '0'
   })  
  
   menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_ta, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 	
   project_module :time_tracking do
 	permission :approve_time_entries,  {:wktime => [:update]}, :require => :member	
   end
+  
+  
+  Redmine::MenuManager.map :wktime_menu do |menu|
+	  menu.push :wktime, { :controller => 'wktime', :action => 'index' }, :caption => :label_wktime, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission }
+	  menu.push :wkexpense, { :controller => 'wkexpense', :action => 'index' }, :caption => :label_wkexpense, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showExpense }
+	  menu.push :wkattendance, { :controller => 'wkattendance', :action => 'index' }, :caption => :label_wk_attendance, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showAttendance}
+	  menu.push :wkreport, { :controller => 'wkreport', :action => 'index' }, :caption => :label_report_plural, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showReports}
+	end	
 
 end
 
@@ -248,10 +296,38 @@ Rails.configuration.to_prepare do
 			scheduler2.cron cronSt do		
 				begin
 					Rails.logger.info "==========Attendance job - Started=========="			
-					wktime_helper = Object.new.extend(WktimeHelper)
-					wktime_helper.populateWkUserLeaves()
+					wkattn_helper = Object.new.extend(WkattendanceHelper)
+					wkattn_helper.populateWkUserLeaves()
 				rescue Exception => e
 					Rails.logger.info "Job failed: #{e.message}"
+				end
+			end
+		end
+		if (!Setting.plugin_redmine_wktime['wktime_auto_import'].blank? && Setting.plugin_redmine_wktime['wktime_auto_import'].to_i == 1)
+			require 'rufus/scheduler'
+			importScheduler = Rufus::Scheduler.new		
+			import_helper = Object.new.extend(WkimportattendanceHelper)
+			intervalMin = import_helper.calcSchdulerInterval
+			#Scheduler will run at every intervalMin
+			importScheduler.every intervalMin do	
+				begin
+					Rails.logger.info "==========Import Attendance - Started=========="	
+					filePath = Setting.plugin_redmine_wktime['wktime_file_to_import']
+					# Sort the files by modified date ascending order
+					sortedFilesArr = Dir.entries(filePath).sort_by { |x| File.mtime(filePath + "/" +  x) }
+					sortedFilesArr.each do |filename|
+						next if File.directory? filePath + "/" + filename
+						isSuccess = import_helper.importAttendance(filePath + "/" + filename, true )
+						if !Dir.exists?("Processed")
+							FileUtils::mkdir_p filePath+'/Processed'#Dir.mkdir("Processed")
+						end
+						if isSuccess
+							FileUtils.mv filePath + "/" + filename, filePath+'/Processed', :force => true
+							Rails.logger.info("====== #{filename} moved processed directory=========")
+						end	
+					end
+				rescue Exception => e
+					Rails.logger.info "Import failed: #{e.message}"
 				end
 			end
 		end
@@ -318,7 +394,7 @@ class WktimeHook < Redmine::Hook::ViewListener
 			end	
 		end
 	end
-	render_on :view_layouts_base_content, :partial => 'wktime/attendance_widget'
+	render_on :view_layouts_base_content, :partial => 'wktime/attendance_widget'	
 end
 
 

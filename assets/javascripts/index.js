@@ -1,4 +1,4 @@
-var wktimeIndexUrl,wkexpIndexUrl,wkattnIndexUrl,wkReportUrl,wkattnReportUrl;
+var wkattnIndexUrl,wkReportUrl,clockInOutUrl;
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -213,10 +213,8 @@ function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst)
 
 $(document).ready(function()
 {
-	changeProp('tab-wktime',wktimeIndexUrl);
-	changeProp('tab-wkexpense',wkexpIndexUrl);
-	changeProp('tab-wkattendance',wkattnIndexUrl);
-	changeProp('tab-wkreport',wkReportUrl);
+	changeProp('tab-leave',wkattnIndexUrl);
+	changeProp('tab-clock',clockInOutUrl);
 });
 
 
@@ -252,12 +250,11 @@ function validateMember()
 }
 function reportChanged(reportDD, userid){
 	var id = reportDD.options[reportDD.selectedIndex].value;
-	var needBlankOption = (id!='attendance_report' ? false : true) ;
+	var needBlankOption = ((id == 'attendance_report' || id == 'spent_time_report') ? true : false) ;
 	grpChanged(document.getElementById("group_id"), userid, needBlankOption)
 }
 
 function grpChanged(grpDropdown, userid, needBlankOption){
-	
 	var id = grpDropdown.options[grpDropdown.selectedIndex].value;
 	var fmt = 'text';
 	var userDropdown = document.getElementById("user_id");

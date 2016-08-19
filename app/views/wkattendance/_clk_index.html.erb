@@ -1,0 +1,47 @@
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<script type="text/javascript"> 
+		prevTab = 'tab-<%= "clcok" %>';
+		clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>'; 
+		grpUrl="<%= "#{url_for(:controller => "wkattendance", :action => 'getMembersbyGroup')}" %>";
+		//getMembersbyGroup
+</script>
+<%= hidden_field_tag 'back_url', url_for(params) %>
+<% if isAccountUser %>
+<div class="contextual">
+<%= link_to l(:"label_import_attendance"), url_for(:controller => "wkimportattendance", :action => 'new', :tab => controller.controller_name)%>
+</div>
+<% end %>
+<% wktime_helper = Object.new.extend(WktimeHelper) %>
+	<%= form_tag({:controller => controller_name, :action => 'clockindex'}, :method => :get, :id => 'query_form') do %>
+	<%=h hidden_field_tag('tab', "clock") %>
+	<%= hidden_field_tag "searchlist", "#{controller_name}" %>
+	<%	groupid =session[:wkattendance][:group_id]
+		userid =session[:wkattendance][:user_id] %>	
+		<table>
+			<% if isAccountUser %>
+			<tr>
+			<th><%=l(:label_group_plural)%> </th>
+			<% if !@groups.blank? %>
+				<td>
+					<%=h select_tag('group_id',
+					options_for_select( [["",0]] + (@groups.collect {|p| [p.name, p.id ]}),
+					:selected => !groupid.nil? ? groupid.to_i: 0), :onchange => "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %>
+				</td>
+			<% end %>
+			<th><%=l(:label_member)%></th>
+			<td>
+			<%# show the blank value if more than one user is in the list %>
+			<%=h select_tag('user_id',
+				options_for_select( [["All Users","0"]] + @members,
+				:selected => userid.nil? ? (@user.nil? ? User.current.id : @user.id) : userid),
+				:style=> "width:200px;") %></td>
+			</tr>
+			<% end %>
+		</table>
+		<%= render :partial => 'wkattendance/date_range' %>
+	<% end %>
+&nbsp;
+<%= render :partial => 'wkattendance/clk_list'%>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
+<%=h hidden_field_tag('tab', "#{controller_name}") %>

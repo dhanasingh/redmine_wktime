@@ -72,7 +72,7 @@ fr:
   label_wk_nonsub_mail_subject: Notification de retard
   label_wk_nonsub_mail_notification: Envoyer un courriel pour les retards  
   label_wk_nonsub_mail_message: Corps du courriel de retard
-  label_redmine_restart_warning: "Note: une modification des paramètres de configuration sous-jacents demandera un redémarrage de Redmine"
+  label_redmine_restart_warning: "Note: Any change to the below scheduler settings require redmine restart"
   label_wk_minutes: Minutes  
   label_wkexpense_entry_projects: Limiter la saisie de dépense à ces projets
   
@@ -181,7 +181,7 @@ fr:
   label_wk_register_for_shops: REGISTRE DES EMPLOYES POUR BOUTIQUES ET ETABLISSEMENTS 
   label_wk_name_address: Nom et adresse de l'établissement
   label_date_of_entry_into_service: Date d'entrée dans le service
-  label_hours_note: "Note: Merci de renseigner le temps au format 24 heures."
+  label_hours_note: "Note: Merci de renseigner le temps au format(HH:MM) 24 heures."
   label_no_leaves_configured : Aucun congé n'est configuré
   label_max_min_hours_day_msg : Le minum d'heure est plus grand que le maximum
   
@@ -197,3 +197,19 @@ fr:
   label_group_non_submission_email: Groupe destinataire du courriel de rappel
   
   error_expense_entry_delete: "Cannot be deleted. The expensesheet with this entry is locked"
+  button_populate_leave: "Run Period End Process"
+  text_are_you_sure_want_to_run: "Are you sure you want to run this process ?"
+  label_clock: clock in/out
+  label_hours: Hours
+  label_import_attendance: Import Attendance
+  label_path: Import file path
+  label_auto_import: Auto Import
+  label_auto_import_time: Auto Import Every
+  label_start_time: Starttime
+  label_end_time: Endtime
+  label_user_id: Userid
+  label_available_fields: Available Fields
+  label_fields_in_file: Fields in File
+  label_import_file_headers: File Headers
+  error_no_record_to_import: No Record to Import
+  warning_fields_in_file_not_configured: Fields in file not configured in plugin attendance settings

@@ -152,8 +152,43 @@ function showIssueMessage(data,divID) {
 		divID.style.display = 'none';
 	}
 }
+/*
+function updateAttendance()
+{
+	var attnEntriesId, attnStartTime, attnEndTime, attnhours;
+	var attnDayEntriesCnt = new Array();
+	var paramval = "";
+	var j;
+	attnDayEntriesCnt = document.getElementById('attnDayEntriesCnt') != null ? document.getElementById('attnDayEntriesCnt').value : -1;
+	for(j = 0; j < attnDayEntriesCnt ; j++)
+	{
+		
+		attnEntriesId = document.getElementById('attnEntriesId'+ j);
+		attnStartTime = document.getElementById('attnstarttime'+ j);
+		attnEndTime = document.getElementById('attnendtime'+ j);					
+		if (attnStartTime.defaultValue !=  attnStartTime.value  || attnEndTime.defaultValue !=  attnEndTime.value ) {						
+			paramval += ( !attnEntriesId.value ? (( "|" + "" ) + "|") : (attnEntriesId.value + "|") ) +  (!attnStartTime.value ? "0:00" : attnStartTime.value)  + "|" + (!attnEndTime.value ? "0:00" : attnEndTime.value)  + ",";
+			if(!attnStartTime.value && !attnEndTime.value)
+			{
+				document.getElementById('attnEntriesId'+ j).value = '';
+			}
+		}
+		
+	}
+	var datevalue = document.getElementById('startdate').value;
+	var userid = document.getElementById('user_id').value;
+	var nightshift = false;
+	var date = true;
+	
+	$.ajax({
+	url: '/updateAttendance',
+	type: 'get',
+	data: {editvalue : paramval, user_id:userid, startdate : datevalue,  nightshift : nightshift, isdate : date},
+	success: function(data){ },   
+	});
+}
 
-
+*/
 function signAttendance(str)
 {
 	var d = new Date();

@@ -1,0 +1,29 @@
+<h2><%= l(:label_import_attendance) %></h2>
+<% if @errorMsg.blank? %>
+	<% if  @importCount > 0 %>
+	  <p style="color:green;"><%= l(:notice_import_finished, :count => @importCount) %></p>
+	<% end %>
+
+	<% if !@errorHash.blank? && @errorHash.count > 0 %>
+	  <p style="color:red;"><%= l(:notice_import_finished_with_errors, :count => @errorHash.count, :total => (@errorHash.count + @importCount)) %></p>
+
+	  <table id="unsaved-items" class="list">
+		<thead>
+		<tr>
+		  <th>Row</th>
+		  <th>Message</th>
+		</tr>
+		</thead>
+		<tbody>
+		<% @errorHash.each do |item| %>
+		<tr>
+		  <td><%= item[0] %></td>
+		  <td><%= simple_format_without_paragraph item[1] %></td>
+		</tr>
+		<% end %>
+		</tbody>
+	  </table>
+	<% end %>
+<% else %>
+	<p style="color:red;"><%= @errorMsg.html_safe %></p>
+<% end %>

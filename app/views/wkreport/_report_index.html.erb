@@ -25,7 +25,7 @@
 	<%=h select_tag('group_id',
 	options_for_select( [["",0]] + (@groups.collect {|p| [p.name, p.id ]}),
 	:selected => !groupid.nil? ? groupid.to_i: 0), :onchange => "var reportDD = document.getElementById('report_type');var id = reportDD.options[reportDD.selectedIndex].value;
-	var needBlankOption = (id!='attendance_report' ? false : true) ; grpChanged(this, #{User.current.id}, needBlankOption);", :style=> "width:300px;") %>
+	var needBlankOption = ((id=='attendance_report' || id=='spent_time_report') ? true : false) ; grpChanged(this, #{User.current.id}, needBlankOption);", :style=> "width:300px;") %>
 </td>
 <th><%=l(:label_member)%></th>
 <td>

@@ -13,6 +13,7 @@ module WkreportHelper
 	def options_for_report_select(selectedRpt)
 		options_for_select([
 			[l(:label_wk_attendance), 'attendance_report'], 
+			[l(:label_time_entry_plural), 'spent_time_report'], 
 			[l(:label_wk_timesheet), 'time_report'], 
 			[l(:label_wk_expensesheet), 'expense_report']], selectedRpt)
 	end

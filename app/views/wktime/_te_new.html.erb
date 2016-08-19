@@ -43,7 +43,7 @@
 <% end %>
 <tr>
 <th width="100px"><%=l(:field_start_date)%></th>
-<td><%=h text_field_tag('startday',@startday,:size => 10, :required => true) %><%= calendar_for('startday') %> 
+<td><%=h date_field_tag('startday',@startday,:size => 10, :required => true) %><%= calendar_for('startday') %> 
 </td>
 </tr>
 <tr>

@@ -1,0 +1,11 @@
+<h2><%= l(:label_import_attendance) %></h2>
+
+<%= form_tag wk_attendances_path, multipart: true do %>
+  <fieldset class="box">
+    <legend><%= l(:label_select_file_to_import) %> (CSV, txt)</legend>
+    <p>
+      <%= file_field_tag 'file' %>
+    </p>
+  </fieldset>
+  <p><%= submit_tag l(:label_next).html_safe + " &#187;".html_safe, :name => nil %></p>
+<% end %>

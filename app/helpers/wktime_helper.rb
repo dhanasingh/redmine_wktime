@@ -577,22 +577,23 @@ end
 	
 	def time_expense_tabs
 		tabs = [
-				{:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime}				
+				{:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave},
+				{:name => 'clock', :partial => 'wktime/tab_content', :label => :label_clock}
 			   ]
-		if !Setting.plugin_redmine_wktime['wktime_enable_expense_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_expense_module'].to_i == 1 
-			tabs[tabs.length] = {:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense}
-		end
+	#	if !Setting.plugin_redmine_wktime['wktime_enable_expense_module'].blank? &&
+	#		Setting.plugin_redmine_wktime['wktime_enable_expense_module'].to_i == 1 
+	#		tabs[tabs.length] = {:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense}
+	#	end
 		
-		if !Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].to_i == 1 
-			tabs[tabs.length] = {:name => 'wkattendance', :partial => 'wktime/tab_content', :label => :label_wk_attendance}
-		end
+	#	if !Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].blank? &&
+	#		Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].to_i == 1 
+	#		tabs[tabs.length] = {:name => 'wkattendance', :partial => 'wktime/tab_content', :label => :label_wk_attendance}
+	#	end
 		
-		if !Setting.plugin_redmine_wktime['wktime_enable_report_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_report_module'].to_i == 1 
-			tabs[tabs.length] = {:name => 'wkreport', :partial => 'wktime/tab_content', :label => :label_report_plural}
-		end
+	#	if !Setting.plugin_redmine_wktime['wktime_enable_report_module'].blank? &&
+	#		Setting.plugin_redmine_wktime['wktime_enable_report_module'].to_i == 1 
+	#		tabs[tabs.length] = {:name => 'wkreport', :partial => 'wktime/tab_content', :label => :label_report_plural}
+	#	end
 		tabs
 	end		
 	
@@ -809,7 +810,7 @@ end
 		if ActiveRecord::Base.connection.adapter_name == 'PostgreSQL'			 
 			dateSqlStr = "date('#{dtfield}') + "	+ noOfDays.to_s
 		elsif ActiveRecord::Base.connection.adapter_name == 'SQLite'			 
-			dateSqlStr = "date('#{dtfield}' , '+' || " + noOfDays.to_s + " || ' days')"
+			dateSqlStr = "date('#{dtfield}' , '+' || " + "(#{noOfDays.to_s})" + " || ' days')"
 		elsif ActiveRecord::Base.connection.adapter_name == 'SQLServer'		
 			dateSqlStr = "DateAdd(d, " + noOfDays.to_s + ",'#{dtfield}')"
 		else
@@ -842,85 +843,6 @@ end
 			end
 		end
 		tmpUserCFHash
-	end
-	
-	def populateWkUserLeaves		
-		leavesInfo = Setting.plugin_redmine_wktime['wktime_leave']
-		leaveAccrual = Hash.new
-		leaveAccAfter = Hash.new
-		resetMonth = Hash.new
-		strIssueIds = ""
-		if !leavesInfo.blank?
-			leavesInfo.each do |leave|
-				issue_id = leave.split('|')[0].strip
-				strIssueIds = strIssueIds.blank? ? (strIssueIds + issue_id) : (strIssueIds + "," + issue_id)
-				leaveAccrual[issue_id] = leave.split('|')[1].blank? ? 0 : leave.split('|')[1].strip
-				leaveAccAfter[issue_id] = leave.split('|')[2].blank? ? 0 : leave.split('|')[2].strip
-				resetMonth[issue_id] = leave.split('|')[3].blank? ? 0 : leave.split('|')[3].strip
-			end
-		end
-		
-		joinDateCFID = !Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].blank? ? Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].to_i : 0
-		
-		if !strIssueIds.blank?		
-			from = Date.civil(Date.today.year, Date.today.month, 1) << 1
-			to = (from >> 1) - 1
-			
-			prev_mon_from = from << 1
-			prev_mon_to = (prev_mon_from >> 1) - 1
-			
-			defWorkTime = !Setting.plugin_redmine_wktime['wktime_default_work_time'].blank? ? Setting.plugin_redmine_wktime['wktime_default_work_time'].to_i : 8			
-			
-			qryStr = "select v2.id, v1.user_id, v1.created_on, v1.issue_id, v2.hours, ul.balance, " +
-					"ul.accrual_on, ul.used, ul.accrual, v3.spent_hours, c.value as join_date " +
-					"from (select u.id as user_id, i.issue_id, u.status, u.type, u.created_on from users u , " +
-					"(select id as issue_id from issues where id in (#{strIssueIds})) i) v1 " +
-					"left join (select max(id) as id, user_id, issue_id, sum(hours) as hours from time_entries " +
-					"where spent_on between '#{from}' and '#{to}' group by user_id, issue_id) v2 " +
-					"on v2.user_id = v1.user_id and v2.issue_id = v1.issue_id " +
-					"left join (select user_id, sum(hours) as spent_hours from wk_attendances " +
-					"where start_time between '#{from}' and '#{to}' " +
-					"group by user_id) v3 on v3.user_id = v1.user_id " +
-					"left join wk_user_leaves ul on ul.user_id = v1.user_id and ul.issue_id = v1.issue_id " +
-					"and ul.accrual_on between '#{prev_mon_from}' and '#{prev_mon_to}' " +
-					"left join custom_values c on c.customized_id = v1.user_id and c.custom_field_id = #{joinDateCFID} " +
-					"where v1.status = 1 and v1.type = 'User'"
-					
-			entries = TimeEntry.find_by_sql(qryStr)		
-			if !entries.blank?				
-				entries.each do |entry|				
-					userJoinDate = entry.join_date.blank? ? entry.created_on.to_date : entry.join_date.to_date
-					yearDiff = ((Date.today - userJoinDate).to_i / 365.0)
-					accrualAfter = leaveAccAfter["#{entry.issue_id}"].to_f						
-					includeAccrual = yearDiff >= accrualAfter ? true : false
-					accrual = leaveAccrual["#{entry.issue_id}"].to_i
-						
-					#Accrual will be given only when the user works atleast 11 days a month
-					if (entry.spent_hours.blank? || (!entry.spent_hours.blank? && entry.spent_hours < (defWorkTime * 11)) || !includeAccrual)
-						accrual = 0
-					end
-					lastMntBalance = entry.balance.blank? ? 0 : entry.balance
-					lastMntAccrual = entry.accrual.blank? ? 0 : entry.accrual
-					no_of_holidays = lastMntBalance + lastMntAccrual #entry.balance.blank? ? entry.accrual : entry.balance + entry.accrual
-					if !entry.used.blank? && entry.used > 0
-						no_of_holidays = no_of_holidays - entry.used
-					end
-					#Reset					
-					lastMonth = (Date.civil(Date.today.year, Date.today.month, 1) - 1).month		
-					if (lastMonth == resetMonth["#{entry.issue_id}"].to_i)
-						no_of_holidays = 0 if !no_of_holidays.blank? && no_of_holidays > 0
-					end				
-					userLeave = WkUserLeave.new
-					userLeave.user_id = entry.user_id
-					userLeave.issue_id = entry.issue_id
-					userLeave.balance = no_of_holidays
-					userLeave.accrual = accrual
-					userLeave.used = entry.hours.blank? ? 0 : entry.hours
-					userLeave.accrual_on = Date.civil(Date.today.year, Date.today.month, 1) - 1
-					userLeave.save()
-				end
-			end
-		end
 	end
 	
 	#Luna Lenardi contribution
@@ -960,8 +882,13 @@ end
 		userIds
 	end
 	
-	def findLastAttnEntry
-		WkAttendance.find_by_sql("select a.* from wk_attendances a inner join ( select max(start_time) as start_time,user_id from wk_attendances where user_id = #{User.current.id} group by user_id ) vw on a.start_time = vw.start_time and a.user_id = vw.user_id order by a.start_time ")
+	def findLastAttnEntry(isCurrentUser)
+		if isCurrentUser
+			lastAttnEntries = WkAttendance.find_by_sql("select a.* from wk_attendances a inner join ( select max(start_time) as start_time,user_id from wk_attendances where user_id = #{User.current.id} group by user_id ) vw on a.start_time = vw.start_time and a.user_id = vw.user_id order by a.start_time ")
+		else
+			lastAttnEntries = WkAttendance.find_by_sql("select a.* from wk_attendances a inner join ( select max(start_time) as start_time,user_id from wk_attendances group by user_id ) vw on a.start_time = vw.start_time and a.user_id = vw.user_id order by a.start_time ")
+		end
+		lastAttnEntries
 	end	
 	
 	def computeWorkedHours(startTime,endTime, ishours)
@@ -999,4 +926,81 @@ end
 		dateStr = getConvertDateStr('start_time')
 		(WkAttendance.where("user_id = #{User.current.id} and #{dateStr} = '#{Time.now.strftime("%Y-%m-%d")}'").sum(:hours)).round(2)
 	end
+	
+	def showExpense
+		!Setting.plugin_redmine_wktime['wktime_enable_expense_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_expense_module'].to_i == 1
+	end
+	
+	def showAttendance
+		!Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].to_i == 1 
+	end
+	
+	def showReports
+		!Setting.plugin_redmine_wktime['wktime_enable_report_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_report_module'].to_i == 1
+	end
+	
+	def getTEAllTimeRange(ids)
+		teQuery = "select v.startday as startday from (select #{getDateSqlString('t.spent_on')} as startday " +
+				"from time_entries t where user_id in (#{ids})) v group by v.startday order by v.startday"
+		teResult = TimeEntry.find_by_sql(teQuery)
+	end
+	
+	def getAttnAllTimeRange(ids)
+		dateStr = getConvertDateStr('start_time')
+		teQuery = "select (#{dateStr}) as startday from wk_attendances w where user_id in (#{ids}) order by #{dateStr} "
+		teResult = WkAttendance.find_by_sql(teQuery)
+	end
+	
+	def getUserAllTimeRange(ids)
+		dateStr = getConvertDateStr('min(created_on)')
+		usrQuery = "select (#{dateStr}) as startday from users where id in (#{ids})"
+		usrResult = User.find_by_sql(usrQuery)
+	end
+	
+	#This function used in Time & Attendance Module
+	def getAllTimeRange(ids, isTime)
+		teResult = isTime ? getTEAllTimeRange(ids) : getAttnAllTimeRange(ids)		
+		usrResult = getUserAllTimeRange(ids)
+		currentWeekEndDay = getEndDay(Date.today)
+		@from = getStartDay(Date.today)
+		@to = currentWeekEndDay
+		if !teResult.blank? && teResult.size > 0
+			@from = (teResult[0].startday).to_date
+			@to = (teResult[teResult.size - 1].startday).to_date + 6			
+			if currentWeekEndDay > @to
+				@to = currentWeekEndDay
+			end
+		end
+		if !usrResult.blank? && usrResult.size > 0
+			stDate = (usrResult[0].startday)
+			stDate = getStartDay(stDate.to_date) if !stDate.blank? && isTime
+			if (!stDate.blank? && stDate.to_date < @from.to_date)
+				@from = stDate
+			end
+		end		
+	end
+	
+	#change the date to a last day of week
+	def getEndDay(date)
+		start_of_week = getStartOfWeek
+		#Martin Dube contribution: 'start of the week' configuration
+		unless date.nil?
+			daylast_diff = (6 + start_of_week) - date.wday
+			date += (daylast_diff%7)
+		end
+		date
+	end
+	
+	 # Returns the options for the date_format setting
+    def date_format_options
+    Import::DATE_FORMATS.map do |f|
+      format = f.gsub('%', '').gsub(/[dmY]/) do
+        {'d' => 'DD', 'm' => 'MM', 'Y' => 'YYYY'}[$&]
+      end
+      [format+" HH:MM:SS", f + " %T"]
+    end
+  end
 end

@@ -32,7 +32,8 @@
   
   get 'wktime/testapi', :to => 'wktime#testapi' 
   
-  get 'wktime/updateAttendance', :to => 'wktime#updateAttendance'     
+  #get 'wktime/updateAttendance', :to => 'wktime#updateAttendance'
+match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance', :via => [:get]  
     
   get 'wktime/time_rpt', :to => 'wktime#time_rpt'  
   
@@ -86,6 +87,11 @@
   end
   
   #For Attendance
+	resources :wk_attendances, :controller => 'wkimportattendance'  do
+	  collection do
+		post 'show'
+	  end
+	end
   get 'wkattendance/index', :to => 'wkattendance#index'
   
   post 'wkattendance/index', :to => 'wkattendance#index'
@@ -96,7 +102,19 @@
    
   get 'wkattendance/getIssuesByProject', :to => 'wkattendance#getIssuesByProject'
    
-  get 'wkattendance/getProjectByIssue', :to => 'wkattendance#getProjectByIssue'  
+  get 'wkattendance/getProjectByIssue', :to => 'wkattendance#getProjectByIssue' 
+
+   get 'wkattendance/clockindex', :to => 'wkattendance#clockindex'
+   
+   post 'wkattendance/clockindex', :to => 'wkattendance#clockindex'
+
+  match 'wkattendance/clockedit', :to => 'wkattendance#clockedit', :via => [:get, :post]  
+
+get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
+  
+  get 'wkattendance/getMembersbyGroup', :to => 'wkattendance#getMembersbyGroup'
+  
+  post 'wkattendance/saveClockInOut', :to => 'wkattendance#saveClockInOut'
   
   #For Report   
   get 'wkreport/index', :to => 'wkreport#index'
@@ -109,3 +127,4 @@
   
   get 'wkreport/getMembersbyGroup', :to => 'wkreport#getMembersbyGroup'
   
+  get 'wkattendance/runPeriodEndProcess', :to => 'wkattendance#runPeriodEndProcess'

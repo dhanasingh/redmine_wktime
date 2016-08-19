@@ -36,7 +36,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		end
 	end
 	
-	def reportattn
+	def reportattn(useSpentTime)
 		if !params[:group_id].blank?
 			group_id = params[:group_id]
 		else
@@ -77,10 +77,18 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		end
 		if isAccountUser || User.current.admin?
 			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}'")
-			sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where #{dateStr} between '#{@from}' and '#{@to}' group by user_id,#{dateStr}"
+			if useSpentTime
+				sqlStr = "select user_id,spent_on,sum(hours) as hours from time_entries where issue_id not in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}' group by user_id,spent_on"
+			else
+				sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where #{dateStr} between '#{@from}' and '#{@to}' group by user_id,#{dateStr}"
+			end
 		else
 			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}' and user_id = #{User.current.id} " )
-			sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where #{dateStr} between '#{@from}' and '#{@to}' and user_id = #{User.current.id} group by user_id,#{dateStr}"
+			if useSpentTime
+				sqlStr = "select user_id,spent_on,sum(hours) as hours from time_entries where issue_id not in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}' and user_id = #{User.current.id} group by user_id,spent_on"
+			else
+				sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where #{dateStr} between '#{@from}' and '#{@to}' and user_id = #{User.current.id} group by user_id,#{dateStr}"
+			end
 		end
 		findBySql(userSqlStr)
 		#@userlist = User.find_by_sql(userSqlStr)
@@ -101,7 +109,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		end
 		if !daily_entries.blank?
 			 daily_entries.each_with_index do |entry,index|
-				 @attendance_entries[entry.user_id.to_s + '_' + entry.spent_on.to_date.strftime("%d").to_i.to_s  + '_hours'] = entry.hours.is_a?(Float) ? entry.hours.round(2) : entry.hours
+				 @attendance_entries[entry.user_id.to_s + '_' + entry.spent_on.to_date.strftime("%d").to_i.to_s  + '_hours'] = entry.hours.is_a?(Float) ? entry.hours.round(2) : (entry.hours.blank? ? '*' :  entry.hours)
 			end
 		end
 		render :action => 'reportattn', :layout => false

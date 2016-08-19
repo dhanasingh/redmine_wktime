@@ -1,11 +1,4 @@
-<h2><%= l(:label_ta) %></h2>
-<script type="text/javascript">
-   wktimeIndexUrl = '<%=url_for(:controller => "wktime", :action => "index", :tab => "wktime")%>';
-   wkexpIndexUrl = '<%=url_for(:controller => "wkexpense", :action => "index", :tab => "wkexpense")%>';   
-   wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "wkattendance")%>';     
-   wkReportUrl = '<%=url_for(:controller => "wkreport", :action => "index", :tab => "wkreport")%>'; 
-</script>
+<h2><%= l(:label_report_plural) %></h2>
 
-<%= render_tabs time_expense_tabs %>
 <%= render :partial => 'report_index' %>
 <% html_title(l(:label_ta)) -%>

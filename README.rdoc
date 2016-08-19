@@ -77,17 +77,17 @@ If an apache passenger module is used then make sure the following settings are 
 	b) RailsAppSpawnerIdleTime 0
 	c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for 2.2.1
+Release Notes for 2.3
 	Features:
 	  - Made compatible with Redmine 3.3.0.
-	  - Time & Expense report in Report module.
-	  - Show the first clock in and last clock out of the day.
-	  - Show the List page for view permission holder also.
+	  - File Based Integration with Attendance / Time Clock Device.
+	  - Manually import Attendance data.
+	  - clock in/out list and edit pages are avialable from Attendance module.
+	  - Manually re-run the period end process for attendance module.
 	Bugs:
-	  - Fixed the clock in/out column shift error.	  
-	  - Fixed the leave total hours bug in attendance list. 
-	  - Added permission logic for viewing expenses report.
-	  - Left align the report header.
+	  - Fixed the total hours for month column total in Attendance report.
+	  - Fixed Date range calendar popup problem in Time & Attendance module.
+	  - Fixed the sqlite query problem on the T&E list page.
 Customization:
 	For any Customization/Support, please contact us, our consulting team will be happy to help you
 
@@ -116,3 +116,5 @@ Resources:
 	https://www.youtube.com/watch?v=BptCOCWgivY
 	https://www.youtube.com/watch?v=afdVgCj-TUc
 	https://www.youtube.com/watch?v=cTZ2FCqgdwQ
+	https://www.youtube.com/watch?v=RFlYw-ZpiYI
+	https://www.youtube.com/watch?v=RecxTps_jws

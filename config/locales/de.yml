@@ -71,7 +71,7 @@ de:
   label_wk_nonsub_mail_subject: Non submission time notification
   label_wk_nonsub_mail_notification: Send email for non submission
   label_wk_nonsub_mail_message: Non submission email message
-  label_wk_warning_nonsub_notification: "Note: Any change to the below settings require redmine restart"
+  label_redmine_restart_warning: "Note: Any change to the below scheduler settings require redmine restart"
   label_wk_minutes: Minuten
   label_wkexpense_entry_projects: Restrict Expense Entry to these projects
 
@@ -180,7 +180,7 @@ de:
   label_wk_register_for_shops: REGISTER OF EMPLOYMENT FOR SHOPS AND ESTABLISHMENTS
   label_wk_name_address: Name and Address of the Establishment
   label_date_of_entry_into_service: Date of entry into service
-  label_hours_note: "Note: Please enter time in 24 hours format."
+  label_hours_note: "Note: Please enter time in 24 hours format(HH:MM)."
   label_no_leaves_configured : No leaves configured
   label_max_min_hours_day_msg : Min hours is greater than Max hours.
   
@@ -196,3 +196,19 @@ de:
   label_group_non_submission_email: Target group of non submission email
   
   error_expense_entry_delete: "Cannot be deleted. The expensesheet with this entry is locked"
+  button_populate_leave: "Run Period End Process"
+  text_are_you_sure_want_to_run: "Are you sure you want to run this process ?"
+  label_clock: clock in/out
+  label_hours: Hours
+  label_import_attendance: Import Attendance
+  label_path: Import file path
+  label_auto_import: Auto Import
+  label_auto_import_time: Auto Import Every
+  label_start_time: Starttime
+  label_end_time: Endtime
+  label_user_id: Userid
+  label_available_fields: Available Fields
+  label_fields_in_file: Fields in File
+  label_import_file_headers: File Headers
+  error_no_record_to_import: No Record to Import
+  warning_fields_in_file_not_configured: Fields in file not configured in plugin attendance settings

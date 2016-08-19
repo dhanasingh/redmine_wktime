@@ -183,7 +183,7 @@ private
 		spField = getSpecificField()
 		dtRangeForUsrSqlStr =  "(" + getAllWeekSql(from, to) + ") tmp1"			
 		teSqlStr = "(" + teQuery + ") tmp2"
-		query = "select tmp3.user_id, tmp3.spent_on, tmp3.#{spField}, tmp3.status, tmp3.status_updater, tmp3.created_on, tmp3.currency from (select tmp1.id as user_id, tmp1.created_on, tmp1.selected_date as spent_on, " +
+		query = "select tmp3.user_id as user_id , tmp3.spent_on as spent_on, tmp3.#{spField} as #{spField}, tmp3.status as status, tmp3.status_updater as status_updater, tmp3.created_on as created_on, tmp3.currency as currency from (select tmp1.id as user_id, tmp1.created_on, tmp1.selected_date as spent_on, " +
 				"case when tmp2.#{spField} is null then 0 else tmp2.#{spField} end as #{spField}, " +
 				"case when tmp2.status is null then 'e' else tmp2.status end as status, tmp2.currency, tmp2.status_updater from "
 		query = query + dtRangeForUsrSqlStr + " left join " + teSqlStr
@@ -206,7 +206,7 @@ private
   end
   
   def getTEAllTimeRange(ids)	
-	teQuery = "select v.startday from (select #{getDateSqlString('t.spent_on')} as startday " +
+	teQuery = "select v.startday as startday from (select #{getDateSqlString('t.spent_on')} as startday " +
 				"from wk_expense_entries t where user_id in (#{ids})) v group by v.startday order by v.startday"
 	teResult = WkExpenseEntry.find_by_sql(teQuery)
   end

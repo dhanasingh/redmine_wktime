@@ -1,0 +1,34 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<%= form_tag({}) do -%>	
+<%= hidden_field_tag 'back_url', url_for(params) %>
+<div class="autoscroll">
+<table class="list time-entries">
+<thead>
+<tr>
+<th class="lbl-txt-align"><%= l(:field_user) %></th>
+<th class="lbl-txt-align"><%= l(:field_start_date) %></th>
+<th class="lbl-txt-align"><%= l(:label_clock_in) %></th>
+<th class="lbl-txt-align"><%= l(:label_clock_out) %></th>
+<th class="lbl-txt-align"><%= l(:label_hours) %></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<% @clk_entries.each do |entry| %>
+<tr class="time-entry <%= cycle("odd", "even") %> <%= !entry.start_time ? "user locked" : "" %>" >
+<td class="lbl-txt-align"><%=h entry.firstname %></td>
+<td class="lbl-txt-align"><%=h entry.entry_date %></td>
+<td class="lbl-txt-align"><%=h !entry.start_time ? "" : entry.start_time.localtime.strftime('%R') %></td>
+<td class="lbl-txt-align"><%=h !entry.end_time ? "" : entry.end_time.localtime.strftime('%R') %></td>
+<td class="lbl-txt-align"><%=h !entry.hours ? "" : (entry.hours).round(2) %></td>
+<td align="center">
+    <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'clockedit', :user_id => entry.user_id, :date => entry.entry_date,  :tab => controller.controller_name},
+                                       :title => l(:button_edit) %>
+
+</td>
+</tr>
+<% end %>
+</tbody>
+</table>
+</div>
+<% end -%>
