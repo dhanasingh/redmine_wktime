@@ -1,4 +1,4 @@
-var wkattnIndexUrl,wkReportUrl,clockInOutUrl;
+var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl;
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -213,6 +213,8 @@ function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst)
 
 $(document).ready(function()
 {
+	changeProp('tab-wktime',wktimeIndexUrl);
+	changeProp('tab-wkexpense',wkexpIndexUrl);
 	changeProp('tab-leave',wkattnIndexUrl);
 	changeProp('tab-clock',clockInOutUrl);
 });
