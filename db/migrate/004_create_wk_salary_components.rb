@@ -2,13 +2,13 @@ class CreateWkSalaryComponents < ActiveRecord::Migration
   def change
     create_table :wk_salary_components do |t|
       t.string :name
-      t.string :frequency, :null => false, :limit => 3, :default => 'm'
+      t.string :frequency, :null => true, :limit => 3
       t.date :start_date
       t.string :type, :null => false, :limit => 3
 	  t.references :dependent, :class => "WkSalaryComponents", :null => true
-      t.string :pay_period, :null => false, :limit => 3, :default => 'm'
+      t.string :pay_period, :null => true, :limit => 3
       t.float :factor
-      t.string :salary_type, :null => false, :limit => 3, :default => 's'
+      t.string :salary_type, :null => true, :limit => 3
 	  t.timestamps null: false
     end
 	
