@@ -1,4 +1,5 @@
-module WkpayrollHelper	
+module WkpayrollHelper
+	include WktimeHelper
 	def getSalaryComponentsArr
 		salaryComponents = Array.new
 		allComponents = WkSalaryComponents.all #find_by_sql("SELECT id, name from wk_salary_components")

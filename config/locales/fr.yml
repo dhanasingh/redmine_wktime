@@ -214,3 +214,9 @@ fr:
   error_no_record_to_import: No Record to Import
   warning_fields_in_file_not_configured: Fields in file not configured in plugin attendance settings
   label_payroll: Payroll
+  label_basic: Basic
+  label_allowance: Allowance
+  label_deduction: Deduction
+  label_gross: Gross
+  label_net: Net
+  label_salarydate: SalaryDate

@@ -137,3 +137,7 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
   post 'wkpayroll/updateUserSalary', :to => 'wkpayroll#updateUserSalary'
   
   get 'wkpayroll/user_salary_settings', :to => 'wkpayroll#user_salary_settings'
+  
+  get 'wkpayroll/getGroupMembers', :to => 'wkpayroll#getGroupMembers'
+  
+  get 'wkpayroll/getMembersbyGroup', :to => 'wkpayroll#getMembersbyGroup'

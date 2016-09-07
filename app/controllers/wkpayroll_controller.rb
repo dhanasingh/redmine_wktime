@@ -1,13 +1,52 @@
 class WkpayrollController < WkbaseController
 
 before_filter :require_login
+
 include WkpayrollHelper	
+include WktimeHelper
 
 	def index
+        @payroll_entries = nil
+	    @groups = Group.sorted.all
+        set_filter_session
+        retrieve_date_range
+		@members = Array.new
+		userIds = Array.new
+		userList = getGroupMembers
+		userList.each do |users|
+			@members << [users.name,users.id.to_s()]
+			userIds << users.id
+		end
+		ids = nil
+		user_id = session[:wkpayroll][:user_id]
+		group_id = session[:wkpayroll][:group_id]
+		if user_id.blank?
+		   ids = User.current.id
+		elsif user_id.to_i != 0 && group_id.to_i == 0
+		   ids = user_id.to_i
+		elsif group_id.to_i != 0
+		   ids =user_id.to_i == 0 ? (userIds.blank? ? 0 : userIds.join(',')) : user_id.to_i
+		else
+		   ids = userIds.join(',')
+		end
+		sqlQuery = " select v.user_id,u.firstname as firstname,u.lastname as lastname,v.salary_date as salarydate," + 
+		             " sum(Allowance) as allowance,sum(Deduction) as deduction,sum(Basic) as basic " +
+                     " from (select ws.user_id,ws.salary_date," +
+					 " SUM(CASE WHEN wsc.component_type = 'a' THEN ws.amount END) AS Allowance," +
+				     " SUM(CASE WHEN wsc.component_type = 'd' THEN ws.amount END) AS Deduction," +
+				     " SUM(CASE WHEN wsc.component_type = 'b' THEN ws.amount END) AS Basic" +
+				     " from wk_salaries ws inner join wk_salary_components wsc on wsc.id = ws.salary_component_id "
+		if !@from.blank? && !@to.blank?
+			sqlQuery = sqlQuery + " WHERE ws.salary_date between '#{@from}' and '#{@to}'  "
+		end
+            sqlQuery = sqlQuery + " group by ws.user_id,wsc.component_type,ws.salary_date) v " +
+				       "inner join users u on u.id = v.user_id  where v.user_id in (#{ids}) " +
+					   " group by v.user_id,v.salary_date  order by firstname,v.salary_date desc" 
+        findBySql(sqlQuery)	
 	end
 
 	def edit
-		#getUserSalaryHash
+		getUserSalaryHash
 	end
 
 	def updateUserSalary
@@ -21,6 +60,7 @@ include WkpayrollHelper
 			userSettingHash = getUserSettingHistoryHash(wkUserSalComp) unless wkUserSalComp.blank?
 			if params['is_override' + componentId.to_s()].blank?
 				unless wkUserSalComp.blank?
+					saveUsrSalCompHistory(userSettingHash) 
 					wkUserSalComp.destroy()
 				end			
 			else
@@ -36,7 +76,6 @@ include WkpayrollHelper
 					wkUserSalComp.dependent_id = dependentId if dependentId > 0 
 					wkUserSalComp.factor = factor 
 				end
-				
 				if (wkUserSalComp.changed? && !wkUserSalComp.new_record?) || wkUserSalComp.destroyed?
 					saveUsrSalCompHistory(userSettingHash) 
 				end
@@ -132,5 +171,135 @@ include WkpayrollHelper
 		amount = factor
 		factor
 	end
+	
+    def findBySql(query)
+		result = WkSalary.find_by_sql("select count(*) as id from (" + query + ") as v2")
+	    @entry_count = result.blank? ? 0 : result[0].id
+	    setLimitAndOffset()		
+	    rangeStr = formPaginationCondition()	
+	    @payroll_entries = WkSalary.find_by_sql(query + rangeStr)
+	end
 
+	def setLimitAndOffset		
+		if api_request?
+			@offset, @limit = api_offset_and_limit
+			if !params[:limit].blank?
+				@limit = params[:limit]
+			end
+			if !params[:offset].blank?
+				@offset = params[:offset]
+			end
+		else
+			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
+			@limit = @entry_pages.per_page
+			@offset = @entry_pages.offset
+		end	
+	end
+	
+	def formPaginationCondition
+		rangeStr = ""
+		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'				
+			rangeStr = " OFFSET " + @offset.to_s + " ROWS FETCH NEXT " + @limit.to_s + " ROWS ONLY "
+		else		
+			rangeStr = " LIMIT " + @limit.to_s +	" OFFSET " + @offset.to_s
+		end
+		rangeStr
+	end
+
+	def set_filter_session
+        if params[:searchlist].blank? && session[:wkpayroll].nil?
+			session[:wkpayroll] = {:period_type => params[:period_type],:period => params[:period],
+			                       :group_id => params[:group_id], :user_id => params[:user_id], 
+								   :from => @from, :to => @to}
+		elsif params[:searchlist] =='wkpayroll'
+			session[:wkpayroll][:period_type] = params[:period_type]
+			session[:wkpayroll][:period] = params[:period]
+			session[:wkpayroll][:group_id] = params[:group_id]
+			session[:wkpayroll][:user_id] = params[:user_id]
+			session[:wkpayroll][:from] = params[:from]
+			session[:wkpayroll][:to] = params[:to]
+		end
+		
+   end
+   
+   def getMembersbyGroup
+		group_by_users=""
+		userList=[]
+		userList = getGroupMembers
+		userList.each do |users|
+			group_by_users << users.id.to_s() + ',' + users.name + "\n"
+		end
+		respond_to do |format|
+			format.text  { render :text => group_by_users }
+		end
+	end	
+	
+	def getGroupMembers
+		userList = nil
+		group_id = nil
+		if (!params[:group_id].blank?)
+			group_id = params[:group_id]
+		else
+			group_id = session[:wkpayroll][:group_id]
+		end
+		
+		if !group_id.blank? && group_id.to_i > 0
+			userList = User.in_group(group_id) 
+		else
+			userList = User.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
+		end
+		userList
+	end
+	
+   # Retrieves the date range based on predefined ranges or specific from/to param dates
+	def retrieve_date_range
+		@free_period = false
+		@from, @to = nil, nil
+		period_type = session[:wkpayroll][:period_type]
+		period = session[:wkpayroll][:period]
+		fromdate = session[:wkpayroll][:from]
+		todate = session[:wkpayroll][:to]
+		
+		if (period_type == '1' || (period_type.nil? && !period.nil?)) 
+		    case period.to_s
+			  when 'today'
+				@from = @to = Date.today
+			  when 'yesterday'
+				@from = @to = Date.today - 1
+			  when 'current_week'
+				@from = getStartDay(Date.today - (Date.today.cwday - 1)%7)
+				@to = @from + 6
+			  when 'last_week'
+				@from =getStartDay(Date.today - 7 - (Date.today.cwday - 1)%7)
+				@to = @from + 6
+			  when '7_days'
+				@from = Date.today - 7
+				@to = Date.today
+			  when 'current_month'
+				@from = Date.civil(Date.today.year, Date.today.month, 1)
+				@to = (@from >> 1) - 1
+			  when 'last_month'
+				@from = Date.civil(Date.today.year, Date.today.month, 1) << 1
+				@to = (@from >> 1) - 1
+			  when '30_days'
+				@from = Date.today - 30
+				@to = Date.today
+			  when 'current_year'
+				@from = Date.civil(Date.today.year, 1, 1)
+				@to = Date.civil(Date.today.year, 12, 31)
+	        end
+		elsif period_type == '2' || (period_type.nil? && (!fromdate.nil? || !todate.nil?))
+		    begin; @from = fromdate.to_s.to_date unless fromdate.blank?; rescue; end
+		    begin; @to = todate.to_s.to_date unless todate.blank?; rescue; end
+		    @free_period = true
+		else
+		  # default
+		  # 'current_month'		
+			@from = Date.civil(Date.today.year, Date.today.month, 1)
+			@to = (@from >> 1) - 1
+	    end    
+		
+		@from, @to = @to, @from if @from && @to && @from > @to
+
+	end
 end
