@@ -22,8 +22,7 @@
 	<% 
 	salaryComponents = getSalaryComponentsArr
 	userId = params[:user_id]
-	%>
-	<% @userSalaryEntries.each do |entry| 
+	@userSalaryEntries.each do |entry| 
 		isOverride = entry.user_salary_component_id.blank? ? false : true
 		if isOverride
 			dependent_id = entry.usc_dependent_id.blank? ? 0 : entry.usc_dependent_id
@@ -32,6 +31,7 @@
 			dependent_id = entry.sc_dependent_id.blank? ? 0 : entry.sc_dependent_id
 			factor = entry.sc_factor.blank? ? 0 : entry.sc_factor
 		end
+	%>
 		<tr class="time-entry <%= cycle("odd", "even") %>">
 			<td><%=h check_box_tag('is_override' + entry.sc_id.to_s, value = "1", checked = isOverride, options = {:onchange => "overrideSettings(this);"}) %>
 			<td><%=h entry.sc_name %>
