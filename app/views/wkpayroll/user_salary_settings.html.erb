@@ -1,0 +1,54 @@
+<%= form_tag({:controller => 'wkpayroll', :action => 'updateUserSalary'}, :method => :post, :id => 'query_form') do %>
+<%= javascript_include_tag 'wkpayroll', :plugin => "redmine_wktime" %>
+<h2><%= "User Salary Settings" %></h2>
+<table>
+	<tr>
+		<th align="left"><%=l(:field_user)%></th>
+		<td><%=h @userSalaryEntries[0].firstname + " " + @userSalaryEntries[0].lastname %></td>
+	</tr>
+</table>
+<br/>
+<div class="autoscroll">
+	<div  style="float:left;width=100%;">
+	<table class="list time-entries">
+	<thead>
+		<tr>
+		<th class="lbl-txt-align"><%= "Override common setting" %></th>
+		<th class="lbl-txt-align"><%= "Salary Component" %></th>
+		<th class="lbl-txt-align"><%= "Dependent Field" %></th>
+		<th class="lbl-txt-align"><%= "Factor" %></th>
+		</tr>
+	</thead>
+	<% 
+	salaryComponents = getSalaryComponentsArr
+	userId = params[:user_id]
+	%>
+	<% @userSalaryEntries.each do |entry| 
+		isOverride = entry.user_salary_component_id.blank? ? false : true
+		if isOverride
+			dependent_id = entry.usc_dependent_id.blank? ? 0 : entry.usc_dependent_id
+			factor = entry.usc_factor.blank? ? 0 : entry.usc_factor
+		else
+			dependent_id = entry.sc_dependent_id.blank? ? 0 : entry.sc_dependent_id
+			factor = entry.sc_factor.blank? ? 0 : entry.sc_factor
+		end
+		<tr class="time-entry <%= cycle("odd", "even") %>">
+			<td><%=h check_box_tag('is_override' + entry.sc_id.to_s, value = "1", checked = isOverride, options = {:onchange => "overrideSettings(this);"}) %>
+			<td><%=h entry.sc_name %>
+			</td>
+			<td><%=h select_tag('dependent_id' + entry.sc_id.to_s , 
+			options_for_select(salaryComponents, :selected =>  dependent_id, :required => true), options = {:disabled => !isOverride} ) %></td>
+			<td><%=h text_field_tag('factor' + entry.sc_id.to_s, factor, :size => 10, :disabled => !isOverride, :required => true) %>
+			</td>
+		</tr>
+	<% end %>
+	</table>
+	<br>
+	<span style="margin-left:25.0em;"></span><%= submit_tag l(:button_save), :hidden => false, :id => 'wk_user_sal_setting_save', :disabled => false %>
+	</div>
+</div>
+<%=h hidden_field_tag('user_id', userId) %>
+
+
+<% html_title(l(:label_ta)) -%>
+<% end %>

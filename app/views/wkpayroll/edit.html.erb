@@ -1,0 +1,14 @@
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<div style="float: left;">
+<h2><%= l(:label_payroll) %></h2>
+</div>
+
+
+<div class="contextual">
+<%= link_to "User Salary Settings", url_for(:controller => controller_name, :action => 'user_salary_settings', :user_id => params[:user_id], :tab => controller.controller_name)%>
+</div>
+
+
+
+
+<% html_title(l(:label_ta)) -%>

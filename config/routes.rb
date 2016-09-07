@@ -131,3 +131,9 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
   
   #For payroll
   get 'wkpayroll/index', :to => 'wkpayroll#index'
+  
+  get 'wkpayroll/edit', :to => 'wkpayroll#edit'
+  
+  post 'wkpayroll/updateUserSalary', :to => 'wkpayroll#updateUserSalary'
+  
+  get 'wkpayroll/user_salary_settings', :to => 'wkpayroll#user_salary_settings'
