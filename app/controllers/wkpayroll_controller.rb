@@ -20,6 +20,7 @@ include WktimeHelper
 		ids = nil
 		user_id = session[:wkpayroll][:user_id]
 		group_id = session[:wkpayroll][:group_id]
+		
 		if user_id.blank?
 		   ids = User.current.id
 		elsif user_id.to_i != 0 && group_id.to_i == 0
@@ -29,19 +30,25 @@ include WktimeHelper
 		else
 		   ids = userIds.join(',')
 		end
-		sqlQuery = " select v.user_id,u.firstname as firstname,u.lastname as lastname,v.salary_date as salarydate," + 
-		             " sum(Allowance) as allowance,sum(Deduction) as deduction,sum(Basic) as basic " +
-                     " from (select ws.user_id,ws.salary_date," +
-					 " SUM(CASE WHEN wsc.component_type = 'a' THEN ws.amount END) AS Allowance," +
-				     " SUM(CASE WHEN wsc.component_type = 'd' THEN ws.amount END) AS Deduction," +
-				     " SUM(CASE WHEN wsc.component_type = 'b' THEN ws.amount END) AS Basic" +
-				     " from wk_salaries ws inner join wk_salary_components wsc on wsc.id = ws.salary_component_id "
+		
+		sqlQuery = " select vw.user_id as user_id, u.firstname as firstname,u.lastname as lastname," + 
+		" vw.salary_date as salarydate, vw.allowance as allowance, vw.deduction as deduction," + 
+		" vw.basic as basic from (select v.user_id as user_id, v.salary_date as salary_date," + 
+		" sum(allowance) as allowance, sum(deduction) as deduction, sum(basic) as basic" +
+        " from (select ws.user_id, ws.salary_date," +
+		" SUM(CASE WHEN wsc.component_type = 'a' THEN ws.amount END) AS allowance," +
+		" SUM(CASE WHEN wsc.component_type = 'd' THEN ws.amount END) AS deduction," +
+		" SUM(CASE WHEN wsc.component_type = 'b' THEN ws.amount END) AS basic" +
+		" from wk_salaries ws inner join wk_salary_components wsc on wsc.id = ws.salary_component_id" +
+        " group by ws.user_id,wsc.component_type,ws.salary_date) v " +
+		" group by v.user_id,v.salary_date) vw  inner join users u on u.id = vw.user_id" +
+		" where vw.user_id in (#{ids}) "
+		
 		if !@from.blank? && !@to.blank?
-			sqlQuery = sqlQuery + " WHERE ws.salary_date between '#{@from}' and '#{@to}'  "
+			sqlQuery = sqlQuery + " and vw.salary_date between '#{@from}' and '#{@to}'"
 		end
-            sqlQuery = sqlQuery + " group by ws.user_id,wsc.component_type,ws.salary_date) v " +
-				       "inner join users u on u.id = v.user_id  where v.user_id in (#{ids}) " +
-					   " group by v.user_id,v.salary_date  order by firstname,v.salary_date desc" 
+		
+		sqlQuery = sqlQuery + " order by u.firstname,vw.salary_date desc"
         findBySql(sqlQuery)	
 	end
 
