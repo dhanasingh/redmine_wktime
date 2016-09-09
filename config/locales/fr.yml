@@ -220,3 +220,22 @@ fr:
   label_gross: Gross
   label_net: Net
   label_salarydate: SalaryDate
+  
+  label_allowances: Allowances
+  label_frequency: Freequency
+  label_pay_period: Pay Period
+  label_salary_type: Salary Type
+  label_monthly: Monthly
+  label_quartly: Quartly
+  label_semi_annually: Semi Annually
+  label_annually: Annually
+  label_salaried: Salaried
+  label_weekly: Weekly
+  label_bi_weekly: Bi-Weekly
+  label_hourly: Hourly
+  label_dependent: Dependent
+  label_basic_name: The Name is already exists
+  label_basic_errormsg: Please enter a name
+  label_date_errormsg: Please select the date
+  label_auto_generate_salary: Auto generate salary
+  label_pay_day: Pay day

@@ -681,7 +681,8 @@ end
 				{:name => 'wktime', :partial => 'settings/tab_time', :label => :label_wktime},
 				{:name => 'wkexpense', :partial => 'settings/tab_expense', :label => :label_wkexpense},
 				{:name => 'approval', :partial => 'settings/tab_approval', :label => :label_wk_approval_system},
-				{:name => 'attendance', :partial => 'settings/tab_attendance', :label => :label_wk_attendance}
+				{:name => 'attendance', :partial => 'settings/tab_attendance', :label => :label_wk_attendance},
+				{:name => 'payroll', :partial => 'settings/tab_payroll', :label => :label_payroll}
 			   ]	
 	end	
 	
