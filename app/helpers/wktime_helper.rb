@@ -717,12 +717,12 @@ end
 	def checkViewPermission
 		ret =  false
 		if User.current.logged?
-			viewProjects = Project.where(Project.allowed_to_condition(User.current, :view_time_entries ))
-			loggableProjects ||= Project.where(Project.allowed_to_condition(User.current, :log_time))
+			viewProjects = Project.where(Project.allowed_to_condition(User.current, :view_time_entries )).count
+			loggableProjects ||= Project.where(Project.allowed_to_condition(User.current, :log_time)).count
 			viewMenu = call_hook(:view_wktime_menu)
 			viewMenu  = viewMenu.blank? ? '' : (viewMenu.is_a?(Array) ? (viewMenu[0].blank? ? '': viewMenu[0].to_s) : viewMenu.to_s)
 			#@manger_user = (!viewMenu.blank? && to_boolean(viewMenu))
-			ret = (!viewProjects.blank? && viewProjects.size > 0) || (!loggableProjects.blank? && loggableProjects.size > 0) || isAccountUser || (!viewMenu.blank? && to_boolean(viewMenu))
+			ret = (viewProjects > 0) || (loggableProjects > 0) || isAccountUser || (!viewMenu.blank? && to_boolean(viewMenu))
 		end
 		ret
 	end
