@@ -54,8 +54,20 @@ include WktimeHelper
 
 	def edit
 		getUserSalaryHash
+		userid = params[:user_id]
+		salarydate = params[:salary_date]
+		sqlStr = getQueryStr + " where s.user_id = #{userid} and s.salary_date='#{salarydate}'"
+		@wksalaryEntries = WkUserSalaryComponents.find_by_sql(sqlStr)
+		render :action => 'edit'
 	end
-
+	
+	def getQueryStr
+		queryStr = "select u.firstname as firstname,sc.name as component_name, s.salary_date as salary_date,"+
+		" s.amount as amount,s.currency as currency, sc.component_type as component_type from wk_salaries s"+ 
+		" inner join wk_salary_components sc on s.salary_component_id=sc.id"+  
+		" inner join users u on s.user_id=u.id"
+	end
+	
 	def updateUserSalary
 		userId = params[:user_id]
 		salaryComponents = getSalaryComponentsArr
