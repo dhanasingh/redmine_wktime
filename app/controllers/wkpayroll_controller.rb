@@ -33,9 +33,9 @@ include WktimeHelper
 		
 		sqlQuery = " select vw.user_id as user_id, u.firstname as firstname,u.lastname as lastname," + 
 		" vw.salary_date as salarydate, vw.allowance as allowance, vw.deduction as deduction," + 
-		" vw.basic as basic from (select v.user_id as user_id, v.salary_date as salary_date," + 
+		" vw.basic as basic,vw.currency as currency from (select v.user_id as user_id, v.salary_date as salary_date,v.currency as currency," + 
 		" sum(allowance) as allowance, sum(deduction) as deduction, sum(basic) as basic" +
-        " from (select ws.user_id, ws.salary_date," +
+        " from (select ws.user_id, ws.salary_date, ws.currency," +
 		" SUM(CASE WHEN wsc.component_type = 'a' THEN ws.amount END) AS allowance," +
 		" SUM(CASE WHEN wsc.component_type = 'd' THEN ws.amount END) AS deduction," +
 		" SUM(CASE WHEN wsc.component_type = 'b' THEN ws.amount END) AS basic" +
