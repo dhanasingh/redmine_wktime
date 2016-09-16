@@ -3,6 +3,7 @@ module WktimeHelper
   include Redmine::Export::PDF
   include Redmine::Export::PDF::IssuesPdfHelper
   include Redmine::Utils::DateCalculation
+  
 
 	def options_for_period_select(value)
 		options_for_select([[l(:label_all_time), 'all'],
@@ -988,11 +989,11 @@ end
 	
 	 # Returns the options for the date_format setting
     def date_format_options
-    Import::DATE_FORMATS.map do |f|
-      format = f.gsub('%', '').gsub(/[dmY]/) do
-        {'d' => 'DD', 'm' => 'MM', 'Y' => 'YYYY'}[$&]
-      end
-      [format+" HH:MM:SS", f + " %T"]
-    end
-  end
+		Import::DATE_FORMATS.map do |f|
+		  format = f.gsub('%', '').gsub(/[dmY]/) do
+			{'d' => 'DD', 'm' => 'MM', 'Y' => 'YYYY'}[$&]
+		  end
+		  [format+" HH:MM:SS", f + " %T"]
+		end
+	end
 end

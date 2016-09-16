@@ -348,6 +348,7 @@ Rails.configuration.to_prepare do
 				end
 			end
 		end
+		
 		if (!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? && Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1)
 			require 'rufus/scheduler'
 			scheduler2 = Rufus::Scheduler.new
@@ -363,6 +364,7 @@ Rails.configuration.to_prepare do
 				end
 			end
 		end
+		
 		if (!Setting.plugin_redmine_wktime['wktime_auto_import'].blank? && Setting.plugin_redmine_wktime['wktime_auto_import'].to_i == 1)
 			require 'rufus/scheduler'
 			importScheduler = Rufus::Scheduler.new		
@@ -388,6 +390,34 @@ Rails.configuration.to_prepare do
 					end
 				rescue Exception => e
 					Rails.logger.info "Import failed: #{e.message}"
+				end
+			end
+		end
+		
+		if (!Setting.plugin_redmine_wktime['wktime_auto_generate_salary'].blank? && Setting.plugin_redmine_wktime['wktime_auto_generate_salary'].to_i == 1)
+			require 'rufus/scheduler'
+			salaryScheduler = Rufus::Scheduler.new
+			payperiod = Setting.plugin_redmine_wktime['wktime_pay_period']
+			payDay = Setting.plugin_redmine_wktime['wktime_pay_day']
+			#case payperiod
+			if payperiod == 'm'
+				cronSt = "30 16 13 * *"
+			else 
+				cronSt = "43 19 * * #{payDay}"
+			#else
+			#	cronSt = "30 16 13 * *"
+			end
+			#Scheduler will run at 12:01 AM on 1st of every month
+			#cronSt = "30 16 13 * *"
+			salaryScheduler.cron cronSt do		
+				begin
+					Rails.logger.info "==========Payroll job - Started=========="
+					currentMonthStart = Date.civil(Date.today.year, Date.today.month, Date.today.day)
+					wkpayroll_helper = Object.new.extend(WkpayrollHelper)
+					errorMsg = wkpayroll_helper.generateSalaries(currentMonthStart)
+					Rails.logger.info "===== Payroll generated Successfully =====" 
+				rescue Exception => e
+					Rails.logger.info "Job failed: #{e.message}"
 				end
 			end
 		end

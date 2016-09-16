@@ -1,0 +1,12 @@
+<%= form_tag({:controller => 'wkpayroll', :action => 'generatePayroll'}, :method => :post, :id => 'generate_salary') do %>
+<h2><%= l(:label_generate_salary) %></h2>
+<table>
+	<tr>
+		<th width="100px"><%=l(:label_salarydate)%></th>
+		<td>
+			<%=h date_field_tag('salarydate',nil,:size => 10, :required => true) %><%= calendar_for('salarydate') %> 
+		</td>
+	</tr>
+</table>
+<%= submit_tag l(:button_continue), :id => 'gen_salary' %>
+<% end %>

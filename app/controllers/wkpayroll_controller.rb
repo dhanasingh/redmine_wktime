@@ -33,9 +33,9 @@ include WktimeHelper
 		
 		sqlQuery = " select vw.user_id as user_id, u.firstname as firstname,u.lastname as lastname," + 
 		" vw.salary_date as salarydate, vw.allowance as allowance, vw.deduction as deduction," + 
-		" vw.basic as basic,vw.currency as currency from (select v.user_id as user_id, v.salary_date as salary_date,v.currency as currency," + 
+		" vw.basic as basic, vw.currency as currency from (select v.user_id as user_id, v.salary_date as salary_date, max(v.currency) as currency," + 
 		" sum(allowance) as allowance, sum(deduction) as deduction, sum(basic) as basic" +
-        " from (select ws.user_id, ws.salary_date, ws.currency," +
+        " from (select ws.user_id, ws.salary_date, max(ws.currency) as currency," +
 		" SUM(CASE WHEN wsc.component_type = 'a' THEN ws.amount END) AS allowance," +
 		" SUM(CASE WHEN wsc.component_type = 'd' THEN ws.amount END) AS deduction," +
 		" SUM(CASE WHEN wsc.component_type = 'b' THEN ws.amount END) AS basic" +
@@ -53,7 +53,6 @@ include WktimeHelper
 	end
 
 	def edit
-		getUserSalaryHash
 		userid = params[:user_id]
 		salarydate = params[:salary_date]
 		sqlStr = getQueryStr + " where s.user_id = #{userid} and s.salary_date='#{salarydate}'"
@@ -67,7 +66,7 @@ include WktimeHelper
 		" inner join wk_salary_components sc on s.salary_component_id=sc.id"+  
 		" inner join users u on s.user_id=u.id"
 	end
-	
+
 	def updateUserSalary
 		userId = params[:user_id]
 		salaryComponents = getSalaryComponentsArr
@@ -112,27 +111,28 @@ include WktimeHelper
 			redirect_to :action => 'edit'
 		end	
 	end
+	
+	def gensalary
+	end
+	
+	def generatePayroll
+		salaryDate = params[:salarydate].to_date
+		errorMsg = generateSalaries(salaryDate)
+		if errorMsg.nil?	
+			redirect_to :action => 'index' , :tab => 'wkpayroll'
+			flash[:notice] = l(:notice_successful_update)
+		else
+			flash[:error] = errorMsg
+			redirect_to :action => 'index'
+		end	
+	end
 
 	def user_salary_settings
 		userId = params[:user_id]
 		sqlStr = getUserSalaryQueryStr
-		sqlStr = sqlStr + "Where u.id = #{userId} " +
+		sqlStr = sqlStr + "Where u.id = #{userId} and u.type = 'User'" +
 		"order by u.id, sc.id"
 		@userSalaryEntries = WkUserSalaryComponents.find_by_sql(sqlStr)
-	end
-	
-	def getUserSalaryQueryStr
-		sqlStr = "SELECT sc.id as sc_id, sc.name as sc_name, sc.frequency as sc_frequency, " + 
-		"sc.start_date as sc_start_date, sc.dependent_id as sc_dependent_id, " + 
-		"sc.factor as sc_factor, sc.salary_type as sc_salary_type, " + 
-		"usc.factor as usc_factor, usc.dependent_id as usc_dependent_id, " + 
-		"usc.salary_component_id as salary_component_id, usc.id as user_salary_component_id, " + 
-		"u.id as user_id, u.firstname as firstname, u.lastname as lastname, "+ 
-		"case when usc.id is null then sc.dependent_id else usc.dependent_id end as dependent_id, " + 
-		"case when usc.id is null then sc.factor else usc.factor end as factor FROM users u " + 
-		"left join wk_salary_components sc on (1 = 1) " + 
-		"left join wk_user_salary_components usc on (sc.id = usc.salary_component_id and  usc.user_id = u.id) " 
-		sqlStr
 	end
 
 	def saveUsrSalCompHistory(userSalCompHash)
@@ -153,42 +153,6 @@ include WktimeHelper
 		hUserSettingHash['created_at'] = userSettingObj.created_at
 		hUserSettingHash['updated_at'] = userSettingObj.updated_at 
 		hUserSettingHash
-	end
-	
-	def getUserSalaryHash
-		@userSalaryHash = Hash.new()
-		queryStr = getUserSalaryQueryStr + " order by u.id, sc.id" 
-		userSalaries = WkUserSalaryComponents.find_by_sql(queryStr)
-		salaryComponents = getSalaryComponentsArr
-		@userSalEntryHash = Hash[userSalaries.map { |cf| [cf.sc_id.to_s + '_' + cf.user_id.to_s, cf] }]
-		
-		userSalaries.each do |entry|
-			if @userSalaryHash[entry.user_id].blank?
-				salDetailHash = Hash.new()
-				if entry.dependent_id.blank?
-					salDetailHash[entry.sc_id] = entry.factor
-				else
-					salDetailHash[entry.sc_id] = computeFactor(entry.user_id,entry.dependent_id,entry.factor)
-				end
-				@userSalaryHash[entry.user_id] = salDetailHash
-			else
-				if entry.dependent_id.blank?
-					@userSalaryHash[entry.user_id][entry.sc_id] = entry.factor
-				else
-					@userSalaryHash[entry.user_id][entry.sc_id] = computeFactor(entry.user_id,entry.dependent_id,entry.factor)
-				end
-			end
-		end
-	end
-	
-	def computeFactor(userId, dependentId, factor)
-		salEntry = @userSalEntryHash[dependentId.to_s + '_' + userId.to_s]
-		factor = factor*(salEntry.factor.blank? ? 0 : salEntry.factor)
-		if !salEntry.dependent_id.blank?
-			factor = computeFactor(userId, salEntry.dependent_id, factor)
-		end
-		amount = factor
-		factor
 	end
 	
     def findBySql(query)

@@ -218,7 +218,7 @@ en:
   label_deduction: Deduction
   label_gross: Gross
   label_net: Net
-  label_salarydate: SalaryDate
+  label_salarydate: Salary Date
   
   label_allowances: Allowances
   label_frequency: Freequency
@@ -237,6 +237,7 @@ en:
   label_basic_errormsg: Please enter a name
   label_date_errormsg: Please select the date
   label_auto_generate_salary: Auto generate salary
+  label_generate_salary: Generate Salary
   label_pay_day: Pay day
   label_salary_detail: Salary Details
   
