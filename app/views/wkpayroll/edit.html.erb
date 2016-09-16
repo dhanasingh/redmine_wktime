@@ -24,7 +24,7 @@
 		componentHash[entry.component_type] = componentHash[entry.component_type].blank? ? [[entry.component_name,entry.amount,entry.currency]] :  componentHash[entry.component_type] << [entry.component_name,entry.amount,entry.currency]
 	end 
  %>
-	<fieldset  style="width: 100%"><legend><b><%=l(:label_basic)%></b></legend>
+ <fieldset style="width: 94%;margin:1px 34px 0px 1px;background-color:#F6F6F6;float:right"><legend><b><%=l(:label_basic)%></b></legend>
 	<table width="100px">
 		<% componentHash['b'].each do |entry| %>
 			<tr>
@@ -34,11 +34,10 @@
 			<%gross=entry[1] %>
 		<%end%>
 	</table>
-	</fieldset>
+</fieldset>
 	&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
 	
-
-	<fieldset class="box tabular" style="display: inline-block; vertical-align: top; width:45%;"><legend><b><%=l(:label_allowances)%></b></legend>
+ <fieldset class="box tabular" style="display: inline-block; vertical-align: top; width:45%;"><legend><b><%=l(:label_allowances)%></b></legend>
 	<table style="width:100%;border-collapse: collapse;" >
 	<% total=0 %>
 		<% componentHash['a'].each do |entry| %>
@@ -55,11 +54,11 @@
 			<td style="border: 1px solid black;border-collapse: collapse;border-style: inset;text-align:right;background-color:white;"><%=h componentHash['b'][0][2]%><%=h total %></td>
 		</tr>
 	</table>
-	</fieldset>
+</fieldset>
 	&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
 	
 	
-	<fieldset class="box tabular" style="display: inline-block; vertical-align: top; width:45%; "><legend><b><%=l(:label_deduction)%></b></legend>
+  <fieldset class="box tabular" style="display: inline-block; vertical-align: top; width:45%; "><legend><b><%=l(:label_deduction)%></b></legend>
 	<table style="width:100%;border-collapse: collapse;">
 		<% total=0 %>
 		<% componentHash['d'].each do |entry| %>
@@ -75,7 +74,7 @@
 				<td style="border: 1px solid black;border-collapse: collapse;border-style: inset;text-align:right;background-color:white;"><%=h componentHash['b'][0][2]%><%=h total %></td>
 			</tr>
 	</table>
-	</fieldset><br>
+ </fieldset><br>
 	<div style="padding-right:50px;">
 		<table width="15%" align="right" style="border-collapse: collapse;border: 0px solid black;">
 			<tr>
