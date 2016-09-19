@@ -77,7 +77,29 @@ payroll_date_errormsg = "<%=l(:label_date_errormsg) %>";
 	</p>
 	<p style="margin-left: -110px;"><label><%= l(:label_pay_period) %></label>
 	    <%= select_tag 'settings[wktime_pay_period]', options_for_select(hash_pay_period.invert, :selected => @settings['wktime_pay_period']) %></p>
-
+    
+	 <%
+		issueIdArr =Array.new
+	    if(@settings['wktime_leave'].blank?)
+			leaveIssueslist = []
+		else
+			@settings['wktime_leave'].each do |element|
+			   listboxArr = element.split('|')
+			   issueIdArr << listboxArr[0]
+			end
+			issueIds = issueIdArr.join(',')
+		    leaveIssues = Issue.select(:id, :subject).where("id in (#{issueIds})")
+			leaveIssueslist = leaveIssues.collect {|issue| [issue.subject, issue.id]}
+		end
+		leaveIssueslist.unshift(["",0]) 
+	%>
+	
+    <p style="margin-left: -110px;"><label><%= l(:label_loss_of_pay) %></label>
+	 <%= select_tag 'settings[wktime_loss_of_pay]', options_for_select(leaveIssueslist, :selected =>  @settings['wktime_loss_of_pay']) %></p>
+	
+	<p style="margin-left: -110px;"><label><%= l(:label_financial_month_start) %></label>
+	 <%= select_tag 'settings[wktime_financial_start_month]', options_for_select((l('date.month_names').collect.with_index.to_a), :selected =>  @settings['wktime_financial_start_month']) %></p>
+	 
 <p style="margin-left: -110px;">
 <label><%= l(:label_basic) %></label>
 		<%=  select_tag('settings[wktime_payroll_basic]',
