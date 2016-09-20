@@ -399,23 +399,28 @@ Rails.configuration.to_prepare do
 			salaryScheduler = Rufus::Scheduler.new
 			payperiod = Setting.plugin_redmine_wktime['wktime_pay_period']
 			payDay = Setting.plugin_redmine_wktime['wktime_pay_day']
-			#case payperiod
 			if payperiod == 'm'
-				cronSt = "30 16 13 * *"
-			else 
-				cronSt = "43 19 * * #{payDay}"
-			#else
-			#	cronSt = "30 16 13 * *"
+				#Scheduler will run at 12:01 AM on 1st of every month
+				cronSt = "01 00 01 * *"
+			else
+				#Scheduler will run at 12:01 AM on payDay of every week
+				cronSt = "01 00 * * #{payDay}"
 			end
-			#Scheduler will run at 12:01 AM on 1st of every month
-			#cronSt = "30 16 13 * *"
 			salaryScheduler.cron cronSt do		
 				begin
-					Rails.logger.info "==========Payroll job - Started=========="
 					currentMonthStart = Date.civil(Date.today.year, Date.today.month, Date.today.day)
-					wkpayroll_helper = Object.new.extend(WkpayrollHelper)
-					errorMsg = wkpayroll_helper.generateSalaries(currentMonthStart)
-					Rails.logger.info "===== Payroll generated Successfully =====" 
+					runJob = true
+					# payperiod is bi-weekly then run scheduler every two weeks 
+					if payperiod == 'bw'
+						salaryCount = WkSalary.where("salary_date between '#{currentMonthStart-14}' and '#{currentMonthStart-1}'").count
+						runJob = false if salaryCount > 0
+					end
+					if runJob
+						Rails.logger.info "==========Payroll job - Started=========="
+						wkpayroll_helper = Object.new.extend(WkpayrollHelper)
+						errorMsg = wkpayroll_helper.generateSalaries(currentMonthStart)
+						Rails.logger.info "===== Payroll generated Successfully =====" 
+					end
 				rescue Exception => e
 					Rails.logger.info "Job failed: #{e.message}"
 				end

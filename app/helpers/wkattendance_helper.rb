@@ -162,10 +162,12 @@ module WkattendanceHelper
 		wkattendance
 	end
 	
-	def getWorkingDays(fromDate,toDate)
-		workingDays = TimeEntry.where("spent_on between '#{fromDate}' and '#{toDate}'").distinct(true).count(:spent_on)
-		workingDays
-	end
+	#def getWorkingDays(fromDate,toDate)
+		#workingDays = TimeEntry.where("spent_on between '#{fromDate}' and '#{toDate}'").distinct(true).count(:spent_on)
+		#workingDays
+		#workingDays = toDate - fromDate
+		#workingDays
+	#end
 	
 	def getWorkedHours(userId,fromDate,toDate)
 		workedHours = TimeEntry.where("user_id = #{userId} and spent_on between '#{fromDate}' and '#{toDate}' and issue_id not in (#{getLeaveIssueIds})").sum(:hours)

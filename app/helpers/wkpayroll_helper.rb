@@ -21,7 +21,6 @@ module WkpayrollHelper
 		errorMsg = nil
 		deleteWkSalaries(nil,salaryDate)
 		userSalaryHash.each do |userId, salary|
-			Rails.logger.info("====== userId = #{userId}, salary = #{salary} ======== ")
 			salary.each do |componentId, amount|
 				userSalary = WkSalary.new
 				userSalary.user_id = userId
@@ -56,12 +55,11 @@ module WkpayrollHelper
 						lastUserId = entry.user_id
 					else
 						multiplier = 1.0
-						unless entry.termination_date.blank? 
+						terminationDate = nil
+						if !entry.termination_date.blank? && entry.termination_date.to_date.between?(payPeriod[0],payPeriod[1])
 							terminationDate = entry.termination_date.to_date
-							if terminationDate.between?(payPeriod[0],payPeriod[1])
-								multiplier = computeProrate(payPeriod,terminationDate) 
-							end
 						end
+						multiplier = computeProrate(payPeriod,terminationDate,entry.user_id)
 						lastUserId = entry.user_id
 					end
 				end
@@ -138,9 +136,23 @@ module WkpayrollHelper
 		payPeriodArr
 	end
 	
-	def computeProrate(payPeriod, terminationDate)
-		multiplier = getWorkingDays(payPeriod[0],terminationDate).to_f/getWorkingDays(payPeriod[0], payPeriod[1]).to_f
+	#calculate Prorate multiplier for an user for the particular payPeriod
+	def computeProrate(payPeriod, terminationDate,userId)
+		# Last worked day by the user on the particular payPeriod
+		lastWorkDateByUser = terminationDate.blank? ? payPeriod[1] : terminationDate
+		multiplier = ((lastWorkDateByUser - payPeriod[0] + 1) - getLossOfPayDays(payPeriod,userId)) / (payPeriod[1] - payPeriod[0] + 1)
 		multiplier
+	end
+	
+	def getLossOfPayDays(payPeriod, userId)
+		lossOfPayId = 0
+		unless Setting.plugin_redmine_wktime['wktime_loss_of_pay'].blank?
+			lossOfPayId  = Setting.plugin_redmine_wktime['wktime_loss_of_pay'].to_i
+		end		
+		lossOfPayHours = TimeEntry.where("user_id = #{userId} and spent_on between '#{payPeriod[0]}' and '#{payPeriod[1]}' and issue_id = #{lossOfPayId}").sum(:hours)
+		defaultWorkTime = !Setting.plugin_redmine_wktime['wktime_default_work_time'].blank? ? Setting.plugin_redmine_wktime['wktime_default_work_time'].to_i : 8
+		lossOfPayDays = (lossOfPayHours.to_f/defaultWorkTime.to_f)
+		lossOfPayDays
 	end
 	
 	def computeFactor(userId, dependentId, factor,multiplier)
