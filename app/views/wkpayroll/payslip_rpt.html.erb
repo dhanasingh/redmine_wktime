@@ -22,27 +22,22 @@
  %>
 <div id="time-rpt-dlg" style="overflow-x:auto;">
 	<center><b>Payslip</b></center>
-	<div>
-	<div style="float:left">
-		<table>
+	
+		<table border="1" style="border-collapse:collapse;" cellspacing="0", frame="box"  >
 			<tr>
 			
-			<td class="txt-align" width="100px"><b><%= l(:label_period) %></b></td>
-			<td class="txt-align" width="100px"> <%= @wksalaryEntries[0].salary_date %></td>
-			<td class="txt-align" width="100px"><b><%= l(:label_emp_name) %></b></td>
-			<td class="txt-align" width="100px"> : <%= userName %></td>
-			<td class="txt-align" width="100px"><b><%= l(:label_employee_id) %></b></td>
-			<td class="txt-align" width="100px">: <%=h @wksalaryEntries[0].id %></td>
+			<td bgcolor="#e6e6e6" class="txt-align" width="52px"><b><%= l(:label_period) %></b></td>
+			<td class="txt-align" width="50px"> <%= @wksalaryEntries[0].salary_date %></td>
+			<td bgcolor="#e6e6e6" class="txt-align" width="150px"><b><%= l(:label_emp_name) %></b></td>
+			<td class="txt-align" width="360px">  <%= userName %></td>
+			<td bgcolor="#e6e6e6" class="txt-align" width="100px"><b><%= l(:label_employee_id) %></b></td>
+			<td class="txt-align" width="180px"> <%=h @wksalaryEntries[0].id %></td>
 			</tr>
 			<tr>
-				<td class="txt-align" width="100px"><b>Join Date</b></td>
+				<td bgcolor="#e6e6e6" class="txt-align" width="100px"><b>Join Date</b></td>
 				<td class="txt-align" width="100px"><%=h @wksalaryEntries[0].joining_date %></td>
 			</tr>		
-		</table>
-	</div>
-	
-	</div>
-	<div style="clear:both;"></div>
+		</table>	
 	
 	<table border="1" style="border-collapse:collapse;" cellspacing="0", frame="box">
 	<thead bgcolor="#e6e6e6">
