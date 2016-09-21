@@ -1,0 +1,38 @@
+<%= stylesheet_link_tag 'application' , :media => "all" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+
+<style type="text/css">		
+		.tbl-report{
+			width : 2200px;
+			table-layout: fixed; !important;
+			word-wrap: break-word; !important;
+			text-align: center; 
+			margin-top:5px; margin-bottom:10px; padding-left: 10px; color:#333333;
+			font-family:Verdana, sans-serif; font-size:12px; 
+		}
+ </style>
+<div id="wages-rpt-dlg", style="overflow-x:auto;">
+<table class="tbl-report" border="1" style="border-collapse:collapse;" cellspacing="0",frame="box">
+ <caption style="text-align:left"><b><%= l(:label_wk_form_r) %><br/><%= l(:label_register_wages) %><br/><%= l(:label_wages_rule) %></b></br>
+ <b><%= l(:label_wk_name_address) %>:</b> <%= Setting.app_title %>
+ <b><%= l(:label_wages_period) %>:</b> <%= @salary_data[0].blank? ? session[:wkreport][:from] :  @salary_data[0].salary_date %>
+  </caption> 
+<% count = 0 %>  
+ <thead bgcolor="#e6e6e6">
+ <tr>
+		<% @headerarr.each do |entry| %>	
+		        <th> <%= entry %> </th>
+		<% end %>
+ </tr>
+ </thead>
+ <tbody>
+ <% @rowval.each do |key, value| %>
+	<tr class="<%= cycle("odd", "even") %>">
+		<% value.each do |k,v| %>
+			<td> <%= v.to_s %> </td>
+		<% end %>
+	</tr>
+ <% end %>
+ </tbody>
+ </table>
+ </div>

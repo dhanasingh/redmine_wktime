@@ -63,7 +63,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		end
 		dateStr = getConvertDateStr('start_time')
 		sqlStr = ""
-		userSqlStr = getUserQueryStr(group_id,user_id)
+		userSqlStr = getUserQueryStr(group_id,user_id, @from)
 		leaveSql = "select u.id as user_id, gu.group_id, i.id as issue_id, l.balance, l.accrual, l.used, l.accrual_on," + 
 		" lm.balance + lm.accrual - lm.used as open_bal from users u" + 
 		" left join groups_users gu on (gu.user_id = u.id and gu.group_id = #{group_id})" + 
@@ -145,30 +145,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 		userList
 	end
 	
-	private
-	
-	def getUserQueryStr(group_id,user_id)
-		queryStr = "select u.id , gu.group_id, u.firstname, u.lastname,cvt.value as termination_date, cvj.value as joining_date, " +
-			"cvdob.value as date_of_birth, cveid.value as employee_id, cvdesg.value as designation from users u " +
-			"left join groups_users gu on (gu.user_id = u.id and gu.group_id = #{group_id}) " +
-			"left join custom_values cvt on (u.id = cvt.customized_id and cvt.value != '' and cvt.custom_field_id = #{getSettingCfId('wktime_attn_terminate_date_cf')} ) " +
-			"left join custom_values cvj on (u.id = cvj.customized_id and cvj.custom_field_id = #{getSettingCfId('wktime_attn_join_date_cf')} ) " +
-			"left join custom_values cvdob on (u.id = cvdob.customized_id and cvdob.custom_field_id = #{getSettingCfId('wktime_attn_user_dob_cf')} ) " +
-			"left join custom_values cveid on (u.id = cveid.customized_id and cveid.custom_field_id = #{getSettingCfId('wktime_attn_employee_id_cf')} ) " +
-			"left join custom_values cvdesg on (u.id = cvdesg.customized_id and cvdesg.custom_field_id = #{getSettingCfId('wktime_attn_designation_cf')} ) " +
-			"where u.type = 'User' and (#{getConvertDateStr('cvt.value')} >= '#{@from}' or (u.status = #{User::STATUS_ACTIVE} and cvt.value is null))"
-		if group_id.to_i > 0 && user_id.to_i < 1
-			queryStr = queryStr + " and gu.group_id is not null"
-		elsif user_id.to_i > 0
-			queryStr = queryStr + " and u.id = #{user_id}"
-		end
-		
-		if !(isAccountUser || User.current.admin?)
-			queryStr = queryStr + " and u.id = #{User.current.id} "
-		end
-		#queryStr = queryStr + " order by u.created_on"
-		queryStr
-	end
+	private	
 	
 	def getReportLeaveIssueIds
 		issueIds = ''
