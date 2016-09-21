@@ -219,6 +219,10 @@ lblYear = "<%=l(:label_year) %>";
 		<label><%= l(:label_employee_id) %> </label><%=h select_tag('settings[wktime_attn_employee_id_cf]', 
 			options_for_select(cfs, :selected =>  @settings['wktime_attn_employee_id_cf'])) %>
 	</p>
+	<p style="padding-left: 190px;">
+		<label><%= l(:label_gender) %> </label><%=h select_tag('settings[wktime_gender_cf]', 
+			options_for_select(cfs, :selected =>  @settings['wktime_gender_cf'])) %>
+	</p>
 </fieldset>
 
 <fieldset style="display: inline-block; vertical-align: top; min-width: 100px;">

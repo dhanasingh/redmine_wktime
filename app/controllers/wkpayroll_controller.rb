@@ -68,12 +68,14 @@ include WkreportHelper
 	def getQueryStr
 		joinDateCFId = !Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].blank? ? Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].to_i : 0
 		queryStr = "select u.id as user_id, u.firstname as firstname, u.lastname as lastname, sc.name as component_name, sc.id as sc_component_id, cvj.value as joining_date," + 
-		" cveid.value as employee_id, s.salary_date as salary_date,"+
-		" s.amount as amount, s.currency as currency, sc.component_type as component_type from wk_salaries s "+ 
+		" cveid.value as employee_id, cvgender.value as gender,"+
+		"  s.salary_date as salary_date, s.amount as amount, s.currency as currency," + 
+		" sc.component_type as component_type from wk_salaries s "+ 
 		" inner join wk_salary_components sc on s.salary_component_id=sc.id"+  
 		" inner join users u on s.user_id=u.id" + 
 		" left join custom_values cvj on (u.id = cvj.customized_id and cvj.custom_field_id = #{getSettingCfId('wktime_attn_join_date_cf')} )"+ 
-		" left join custom_values cveid on (u.id = cveid.customized_id and cveid.custom_field_id = #{getSettingCfId('wktime_attn_employee_id_cf')} )"
+		" left join custom_values cveid on (u.id = cveid.customized_id and cveid.custom_field_id = #{getSettingCfId('wktime_attn_employee_id_cf')} )"+ 
+		" left join custom_values cvgender on (u.id = cvgender.customized_id and cvgender.custom_field_id = #{getSettingCfId('wktime_gender_cf')} )"
 	end
 
 	def updateUserSalary
