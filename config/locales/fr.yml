@@ -260,3 +260,4 @@ fr:
   label_company_name: Company Name
   label_address: Address
   label_enable_payroll_module: Enable Payroll module 
+  label_gender: Gender

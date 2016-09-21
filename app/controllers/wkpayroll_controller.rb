@@ -334,7 +334,7 @@ include WkreportHelper
 		end
 		queryStr = queryStr + " order by s.user_id"
 		@salary_data = WkSalary.find_by_sql(queryStr)
-		usercol = ["Id", "Name", "Designation"]
+		usercol = ["Id", "Name", "Gender", "Designation"]
 		basiccol = Array.new
 		allowancecol = Array.new
 		deductioncol = Array.new
@@ -375,6 +375,7 @@ include WkreportHelper
 		@userlist.each do |user|
 			@userdetails["#{user.id}"].store "Employee_Id", "#{user.employee_id}"
 			@userdetails["#{user.id}"].store "Name", "#{user.firstname}"
+			@userdetails["#{user.id}"].store "Gender", "#{user.gender}"
 			@userdetails["#{user.id}"].store "Designation", "#{user.designation}"	
 			@headerarr.each do |entry|
 				@rowval["#{user.id}"].store "#{entry}", "#{@salaryval["#{user.id}"]["#{entry}"]}"
@@ -382,6 +383,7 @@ include WkreportHelper
 			
 			@rowval["#{user.id}"]["Id"] = @userdetails["#{user.id}"]["Employee_Id"] 
 			@rowval["#{user.id}"]["Name"] = @userdetails["#{user.id}"]["Name"]
+			@rowval["#{user.id}"]["Gender"] = @userdetails["#{user.id}"]["Gender"]
 			@rowval["#{user.id}"]["Designation"] = @userdetails["#{user.id}"]["Designation"]
 			@rowval["#{user.id}"]["Gross"] = @totalhash["#{user.id}"]["gross"]
 			@rowval["#{user.id}"]["Deduction"] = @totalhash["#{user.id}"]["deduction"]
