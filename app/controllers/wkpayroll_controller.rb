@@ -312,8 +312,8 @@ include WkreportHelper
 	end	
 	
 	def getYTDDetail(userId,salaryDate)
-		financialPeriod = getFinancialPeriod(salaryDate-1)
-		ytdDetails = WkSalary.select("sum(amount) as amount, user_id, salary_component_id").where("user_id = #{userId} and salary_date between '#{financialPeriod[0]}' and '#{salaryDate}'").group("user_id, salary_component_id")
+		@financialPeriod = getFinancialPeriod(salaryDate-1)
+		ytdDetails = WkSalary.select("sum(amount) as amount, user_id, salary_component_id").where("user_id = #{userId} and salary_date between '#{@financialPeriod[0]}' and '#{salaryDate}'").group("user_id, salary_component_id")
 		ytdAmountHash = Hash.new()
 		ytdDetails.each do |entry|
 			ytdAmountHash[entry.salary_component_id] = entry.amount

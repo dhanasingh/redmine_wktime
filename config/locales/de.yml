@@ -260,3 +260,4 @@ de:
   label_address: Address
   label_enable_payroll_module: Enable Payroll module 
   label_gender: Gender
+  label_ytd_description: YTD - Year to Date from %{start} to %{end}

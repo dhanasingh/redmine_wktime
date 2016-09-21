@@ -22,7 +22,31 @@
  %>
 <div id="time-rpt-dlg" style="overflow-x:auto;">
 	<center><b>Payslip</b></center>
-	
+		<div>
+		<div style="float:left">
+			<table>
+				<tr>
+					<td class="txt-align" width="100px"><b><%= Setting.plugin_redmine_wktime['wktime_company_name'] %></b></td>
+				</tr>
+				<tr>
+					<td class="txt-align" width="200px"><%= Setting.plugin_redmine_wktime['wktime_company_address'] %>
+				</tr>		
+			</table>
+		</div>
+		<div style="float:right">
+			<table>
+				<tr>
+					<td>
+						<% logo = Setting.plugin_redmine_wktime['wktime_header_logo'] %>					
+						<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>						
+							<%= image_tag("#{logo}", :plugin => "redmine_wktime") %>
+						<% end %>
+					</td>
+				</tr>
+			</table>
+		</div>
+		</div>
+		<div style="clear:both;"></div>
 		<table border="1" style="border-collapse:collapse;" cellspacing="0", frame="box"  >
 			<tr>
 			
@@ -109,40 +133,8 @@
 			<td><%=h earnCurrency %><%=h totalYTDEarnings - totalYTDDeductions %></td>
 		</tr>	
 	</tbody>		
-	</table>	
-	<div style="float:right;width:25%">
-		
-		<table>
-			<tr>
-				<td class="txt-align" ><b>Adhi Software PVT Ltd </b></td>
-				
-			</tr>
-			<tr>
-				<td class="txt-align" ><b>12/B-35, 6th Cross Road</b></td>
-				
-			</tr>
-			<tr>
-				<td class="txt-align"><b>SIPCOT IT Park</b></td>
-				
-			</tr>
-			<tr>
-				<td class="txt-align"><b>Siruseri - 603103</b></td>
-				
-			</tr>
-			<tr>
-				<td class="txt-align" ><b>Kancheepuram District
-</b></td>
-				
-			</tr>
-			<tr>
-				<td class="txt-align"><b>Phone : 27470401
-
-</b></td>
-				
-			</tr>
-		</table>
-	</div>
-</div>
+	</table>
+	<label><%= l(:label_ytd_description, :start => @financialPeriod[0].strftime("%B %d, %Y"), :end =>@financialPeriod[1].strftime("%B %d, %Y") )%></label>
 <% else %>
 	<label><b><%= l(:label_no_data) %></b></label>
 <% end %>
