@@ -14,6 +14,22 @@ module WkpayrollHelper
 		salaryComponents
 	end
 	
+	def getFinancialPeriod(salaryDate)
+		financialMonthStr = Setting.plugin_redmine_wktime['wktime_financial_start_month']
+		if financialMonthStr.blank? || financialMonthStr.to_i == 0
+			financialMonthStr = '4'
+		end
+		if salaryDate.month > financialMonthStr.to_i
+			financialStart = Date.civil(salaryDate.year, financialMonthStr.to_i, 1)
+			financialEnd = Date.civil(salaryDate.year+1, financialMonthStr.to_i, 1)
+		else
+			financialStart = Date.civil(salaryDate.year-1, financialMonthStr.to_i, 1)
+			financialEnd = Date.civil(salaryDate.year, financialMonthStr.to_i, 1)
+		end
+		financialPeriod = [financialStart,financialEnd-1]
+		financialPeriod
+	end
+	
 	def generateSalaries(salaryDate)
 		userSalaryHash = getUserSalaryHash(salaryDate)
 		payperiod = Setting.plugin_redmine_wktime['wktime_pay_period']

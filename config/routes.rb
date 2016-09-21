@@ -134,6 +134,8 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
   
   get 'wkpayroll/edit', :to => 'wkpayroll#edit'
   
+  get 'wkpayroll/payslip_rpt', :to => 'wkpayroll#payslip_rpt' 
+  
   post 'wkpayroll/updateUserSalary', :to => 'wkpayroll#updateUserSalary'
   
   get 'wkpayroll/user_salary_settings', :to => 'wkpayroll#user_salary_settings'

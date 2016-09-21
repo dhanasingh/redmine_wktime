@@ -1,16 +1,16 @@
 <div>
 <h2><b><%=l(:label_salary_detail) %></b></h2>
 <div class="contextual">
-<%= link_to "User Salary Settings", url_for(:controller => controller_name, :action => 'user_salary_settings', :user_id => params[:user_id], :tab => controller.controller_name)%>
+<%= link_to l(:label_user_salary_settings), url_for(:controller => controller_name, :action => 'user_salary_settings', :user_id => params[:user_id], :tab => controller.controller_name)%>
 </div>
 <div>
 <table>
 	<tr>
-		<td><b>User</b></td>
+		<td><b><%=l(:field_user)%></b></td>
 		<td><%=h @wksalaryEntries[0].firstname %></td>
 	</tr>
 	<tr>
-		<td><b>Salary Date</b></td>
+		<td><b><%=l(:label_salarydate)%></b></td>
 		<td><%=h @wksalaryEntries[0].salary_date %></td>
 	</tr>
 </table>

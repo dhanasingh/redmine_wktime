@@ -55,16 +55,20 @@ include WktimeHelper
 	def edit
 		userid = params[:user_id]
 		salarydate = params[:salary_date]
-		sqlStr = getQueryStr + " where s.user_id = #{userid} and s.salary_date='#{salarydate}'"
-		@wksalaryEntries = WkUserSalaryComponents.find_by_sql(sqlStr)
+		getSalaryDetail(userid,salarydate)
 		render :action => 'edit'
 	end
 	
+	def getSalaryDetail(userid,salarydate)
+		sqlStr = getQueryStr + " where s.user_id = #{userid} and s.salary_date='#{salarydate}'"
+		@wksalaryEntries = WkUserSalaryComponents.find_by_sql(sqlStr)
+	end
+	
 	def getQueryStr
-		queryStr = "select u.firstname as firstname,sc.name as component_name, s.salary_date as salary_date,"+
-		" s.amount as amount,s.currency as currency, sc.component_type as component_type from wk_salaries s"+ 
+		queryStr = "select u.id as id, u.firstname as firstname, u.lastname as lastname, sc.name as component_name, sc.id as sc_component_id, cvj.value as joining_date, s.salary_date as salary_date,"+
+		" s.amount as amount, s.currency as currency, sc.component_type as component_type from wk_salaries s "+ 
 		" inner join wk_salary_components sc on s.salary_component_id=sc.id"+  
-		" inner join users u on s.user_id=u.id"
+		" inner join users u on s.user_id=u.id left join custom_values cvj on (u.id = cvj.customized_id and cvj.custom_field_id = 0 ) "
 	end
 
 	def updateUserSalary
@@ -284,5 +288,29 @@ include WktimeHelper
 		
 		@from, @to = @to, @from if @from && @to && @from > @to
 
+	end
+	
+	def payslip_rpt
+		userId = (session[:wkreport][:user_id].blank? || (session[:wkreport][:user_id]).to_i < 1) ? User.current.id : session[:wkreport][:user_id]
+		from = session[:wkreport][:from]
+		to = session[:wkreport][:to]
+		minSalaryDate = WkSalary.where("salary_date between '#{from}' and '#{to}'").minimum(:salary_date)
+		if minSalaryDate.blank?
+			@wksalaryEntries = nil
+		else
+			getSalaryDetail(userId,minSalaryDate.to_date)
+			@userYTDAmountHash = getYTDDetail(userId,minSalaryDate.to_date)
+		end
+		render :action => 'payslip_rpt', :layout => false
+	end	
+	
+	def getYTDDetail(userId,salaryDate)
+		financialPeriod = getFinancialPeriod(salaryDate-1)
+		ytdDetails = WkSalary.select("sum(amount) as amount, user_id, salary_component_id").where("user_id = #{userId} and salary_date between '#{financialPeriod[0]}' and '#{salaryDate}'").group("user_id, salary_component_id")
+		ytdAmountHash = Hash.new()
+		ytdDetails.each do |entry|
+			ytdAmountHash[entry.salary_component_id] = entry.amount
+		end
+		ytdAmountHash
 	end
 end

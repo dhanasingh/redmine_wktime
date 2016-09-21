@@ -216,7 +216,7 @@ fr:
   label_payroll: Payroll
   label_basic: Basic
   label_allowance: Allowance
-  label_deduction: Deduction
+  label_deduction: Deductions
   label_gross: Gross
   label_net: Net
   label_salarydate: Salary Date
@@ -243,3 +243,13 @@ fr:
   label_salary_detail: Salary Details
   label_loss_of_pay: Loss Of Pay
   label_financial_month_start: Financial Month Start
+  label_salary_detail: Salary Details
+  label_wk_payslip: Pay Slip
+  label_period: Period
+  label_emp_name: Employee Name
+  label_ytd: YTD
+  label_earning: Earnings
+  label_user_salary_settings: User Salary Settings
+  label_total_earning: Total Earnings
+  label_total_deduction: Total Deductions
+  label_net_earning: Net Earnings
