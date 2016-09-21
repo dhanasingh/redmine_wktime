@@ -293,6 +293,7 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_enable_expense_module' => '1',
 			 'wktime_enable_report_module' => '1',
 			 'wktime_enable_attendance_module' => '1',
+			 'wktime_enable_payroll_module' => '1',
 			 'wktime_auto_import' => '0',
 			 'wktime_field_separator' => ['0'],
 			 'wktime_field_wrapper'  => ['0'],
@@ -315,7 +316,7 @@ Redmine::Plugin.register :redmine_wktime do
   Redmine::MenuManager.map :wktime_menu do |menu|
 	  menu.push :wktime, { :controller => 'wktime', :action => 'index' }, :caption => :label_te, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission }
 	  menu.push :wkattendance, { :controller => 'wkattendance', :action => 'index' }, :caption => :label_wk_attendance, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showAttendance}
-	  menu.push :wkpayroll, { :controller => 'wkpayroll', :action => 'index' }, :caption => :label_payroll, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission }
+	  menu.push :wkpayroll, { :controller => 'wkpayroll', :action => 'index' }, :caption => :label_payroll, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showPayroll }
 	  menu.push :wkreport, { :controller => 'wkreport', :action => 'index' }, :caption => :label_report_plural, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showReports}	  
 	end	
 

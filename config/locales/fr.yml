@@ -257,3 +257,6 @@ fr:
   label_register_wages: Register of Wages
   label_wages_rule: See Sub Rule(5) of rule 11 of Tamilnadu Shops and Establishments Rule, 1948
   label_wages_period: Wages Period Month
+  label_company_name: Company Name
+  label_address: Address
+  label_enable_payroll_module: Enable Payroll module 

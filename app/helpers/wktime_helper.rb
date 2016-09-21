@@ -996,4 +996,9 @@ end
 		  [format+" HH:MM:SS", f + " %T"]
 		end
 	end
+	
+	def showPayroll
+		!Setting.plugin_redmine_wktime['wktime_enable_payroll_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_payroll_module'].to_i == 1
+	end
 end

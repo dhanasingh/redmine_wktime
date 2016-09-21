@@ -1,11 +1,12 @@
-<div class="splitcontent">
 	<fieldset class="box tabular">
 		<legend><%= l(:label_te) %></legend>
 		<p style="float:right; padding-right: 300px;">
 			<%= check_box_tag('settings[wktime_enable_report_module]', 1, @settings['wktime_enable_report_module'].to_i == 1) %> <label><%= l(:label_enable_report_module) %></label>
+		</p>		
+		<p><%= check_box_tag('settings[wktime_closed_issue_ind]', 1, @settings['wktime_closed_issue_ind'].to_i == 1) %> <label><%= l(:chkbox_closed_issues) %></label>
 		</p>
-		<p>
-		<%= check_box_tag('settings[wktime_closed_issue_ind]', 1, @settings['wktime_closed_issue_ind'].to_i == 1) %> <label><%= l(:chkbox_closed_issues) %></label>
+		<p style="float:right; padding-right: 110px;">
+			 <label><%= l(:label_company_name) %></label><%= text_field_tag 'settings[wktime_company_name]', @settings['wktime_company_name'], :size => 30 %>
 		</p>		
 		<p>
 			<label><%= l(:label_wk_previous_template_week) %></label>
@@ -14,6 +15,9 @@
 					   options_for_select([[1, 1],[2, 2],[3, 3],[4, 4],[5, 5]],
 										   
 											:selected => @settings['wktime_previous_template_week'].blank? ? 1 : @settings['wktime_previous_template_week'])) %>
+		</p>
+		<p style="float:right; padding-right: 112px;">
+		  <label><%= l(:label_address) %></label><%= text_area_tag 'settings[wktime_company_address]',  @settings['wktime_company_address'], :size => "23*10" %>
 		</p>		
 		<p>
 			<%= check_box_tag('settings[wktime_enter_issue_as]', 1, @settings['wktime_enter_issue_as'].to_i == 1) %><label><%= "#{l(:label_wk_enter_issue_id)}/#{l(:field_subject)}" %></label>
@@ -44,4 +48,3 @@
 					options_for_select(accountGroups, :selected => @settings['wktime_account_groups'].blank? ? 0 : @settings['wktime_account_groups']), :multiple=> true)%>
 		</p>	
 	</fieldset>		
-</div>

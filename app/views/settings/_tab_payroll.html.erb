@@ -60,6 +60,9 @@ payroll_date_errormsg = "<%=l(:label_date_errormsg) %>";
 <fieldset>
 <legend><%= l(:label_payroll) %></legend>
 	<p style="margin-left: -110px;">
+			<%= check_box_tag('settings[wktime_enable_payroll_module]', 1, @settings['wktime_enable_payroll_module'].to_i == 1) %> <label><%= l(:label_enable_payroll_module) %></label>
+	</p>
+	<p style="margin-left: -110px;">
 			<%= check_box_tag('settings[wktime_auto_generate_salary]', 1, @settings['wktime_auto_generate_salary'].to_i == 1) %> <label><%= l(:label_auto_generate_salary) %></label>
 	</p>
 	<p style="margin-left: -110px;">
