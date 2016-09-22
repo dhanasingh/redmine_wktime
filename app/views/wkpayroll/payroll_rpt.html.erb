@@ -12,11 +12,28 @@
 		}
  </style>
 <div id="wages-rpt-dlg", style="overflow-x:auto;">
-<table class="tbl-report" border="1" style="border-collapse:collapse;" cellspacing="0",frame="box">
+<div>
+		<div style="float:left">
  <caption style="text-align:left"><b><%= l(:label_wk_form_r) %><br/><%= l(:label_register_wages) %><br/><%= l(:label_wages_rule) %></b></br>
  <b><%= l(:label_wk_name_address) %>:</b> <%= Setting.app_title %>
  <b><%= l(:label_wages_period) %>:</b> <%= @salary_data[0].blank? ? session[:wkreport][:from] :  @salary_data[0].salary_date %>
   </caption> 
+  </div>
+		<div style="float:right">
+			<table>
+				<tr>
+					<td>
+						<% logo = Setting.plugin_redmine_wktime['wktime_header_logo'] %>					
+						<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>						
+							<%= image_tag("#{logo}", :plugin => "redmine_wktime") %>
+						<% end %>
+					</td>
+				</tr>
+			</table>
+		</div>
+		</div>
+		<div style="clear:both;"></div>
+<table class="tbl-report" border="1" style="border-collapse:collapse;" cellspacing="0",frame="box">
 <% count = 0 %>  
  <thead bgcolor="#e6e6e6">
  <tr>

@@ -330,7 +330,7 @@ include WkreportHelper
 		groupId = session[:wkreport][:group_id].blank?  ? 0 : session[:wkreport][:group_id]				
 		userSqlStr = getUserQueryStr(groupId, userId, from)
 		@userlist = User.find_by_sql(userSqlStr)
-		queryStr = getQueryStr + "where s.salary_date  between '#{from}' and '#{to}' "
+		queryStr = getQueryStr + " where s.salary_date  between '#{from}' and '#{to}' "
 		if userId.to_i != 0
 			queryStr = queryStr + " and s.user_id in(#{userId}) "
 		end
@@ -358,15 +358,17 @@ include WkreportHelper
 		@totalhash = Hash.new{|hsh,key| hsh[key] = {} }
 		last_id = 0
 		totgross = 0 
-		totdeduction = 0		
+		totdeduction = 0
+		last_salary_date = 	nil			
 		@salary_data.each do |entry|	
 			@salaryval["#{entry.user_id}"].store "#{entry.component_name}", "#{entry.amount}"	
-			if entry.user_id != last_id
+			if entry.user_id != last_id || entry.salary_date.to_date != last_salary_date
 				totgross = 0
 				totdeduction = 0
 				last_id = entry.user_id
+				last_salary_date = entry.salary_date.to_date
 			end
-			totgross = totgross + entry.amount
+			totgross = totgross + entry.amount if entry.component_type == 'b' || entry.component_type == 'a'
 			totdeduction = totdeduction + entry.amount if entry.component_type == 'd'
 			@totalhash["#{entry.user_id}"].store "gross", "#{totgross}" #"#{ totgross + (entry.amount.blank? ? 0 : entry.amount) }"
 			@totalhash["#{entry.user_id}"].store "deduction", "#{totdeduction}"
