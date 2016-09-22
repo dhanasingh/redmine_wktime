@@ -321,7 +321,7 @@ include WkreportHelper
 		ytdAmountHash
 	end
 	
-	def wages_rpt	
+	def payroll_rpt	
 		userId = session[:wkreport][:user_id].blank? ? 0 : session[:wkreport][:user_id]
 		from = session[:wkreport][:from]
 		to = session[:wkreport][:to]
@@ -389,6 +389,6 @@ include WkreportHelper
 			@rowval["#{user.id}"]["Deduction"] = @totalhash["#{user.id}"]["deduction"]
 			@rowval["#{user.id}"]["Net"] = (@totalhash["#{user.id}"]["gross"]).to_f - (@totalhash["#{user.id}"]["deduction"]).to_f
 		end
-		render :action => 'wages_rpt', :layout => false
+		render :action => 'payroll_rpt', :layout => false
 	end
 end

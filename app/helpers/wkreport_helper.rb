@@ -15,9 +15,9 @@ module WkreportHelper
 			[l(:label_wk_attendance), 'attendance_report'], 
 			[l(:label_time_entry_plural), 'spent_time_report'], 
 			[l(:label_wk_timesheet), 'time_report'], 			
-			[l(:label_wk_expensesheet), 'expense_report'],
-			[l(:label_wk_payslip), 'payslip_report'],
-			[l(:label_register_wages), 'wages_report']], selectedRpt)
+			[l(:label_wk_expensesheet), 'expense_report'],			
+			[l(:label_payroll_report), 'payroll_report'],
+			[l(:label_wk_payslip), 'payslip_report']], selectedRpt)
 	end
 	
 	def getUserQueryStr(group_id,user_id, from)

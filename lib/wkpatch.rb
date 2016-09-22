@@ -24,8 +24,8 @@ module WkreportControllerPatch
 					redirect_to :action => 'time_rpt', :controller => 'wkexpense'
 				elsif params[:report_type] == 'payslip_report'
 					redirect_to action: 'payslip_rpt', controller: 'wkpayroll'
-				elsif params[:report_type] == 'wages_report'
-					redirect_to action: 'wages_rpt', controller: 'wkpayroll'
+				elsif params[:report_type] == 'payroll_report'
+					redirect_to action: 'payroll_rpt', controller: 'wkpayroll'
 				end
 			end
 		end
