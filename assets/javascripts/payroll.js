@@ -14,22 +14,23 @@ $(document).ready(function(){
 		buttons: {
 			"Ok": function() {
 				var opt,desc="",opttext="";
+				var frequency = "";
 				var startdate = "";
-				listBoxID = dlgname == 'basic' ? "settings_wktime_payroll_basic" : (dlgname == 'allownaces' ? 'settings_wktime_payroll_allowances' : 'settings_wktime_payroll_deduction')
+				listBoxID = dlgname == 'Basic' ? "settings_wktime_payroll_basic" : (dlgname == 'Allownaces' ? 'settings_wktime_payroll_allowances' : 'settings_wktime_payroll_deduction')
 				var listBox = document.getElementById(listBoxID);
 				var name = document.getElementById("name");				
 				var salary_type = document.getElementById("salary_type"); 
 				var pay_period = document.getElementById("pay_period");
 				var basic_field_factor = document.getElementById("basic_field_factor");
-				if(dlgname != 'basic')
+				if(dlgname != 'Basic')
 				{
-					var frequency = document.getElementById("frequency");
+					frequency = document.getElementById("frequency");
 					startdate = document.getElementById("start_date").value;				
 					var dependent = document.getElementById("dep_value") ;
 					var factor = document.getElementById("factor");
 				}		
 				
-				if( !checkDuplicate(listBox,name.value) && name.value != "" && (startdate != "" || dlgname == 'basic') ){ 
+				if( !checkDuplicate(listBox,name.value) && name.value != "" && (startdate != ""  || dlgname == 'Basic') ){ 
 					if('Add'== basicAction){	
 						opt = document.createElement("option");
 						listBox.options.add(opt);
@@ -40,7 +41,7 @@ $(document).ready(function(){
 					if (name.value != ""){
 						desc = ( (payrollId != 0 && basicAction == 'Edit') ?  payrollId + "|" : "|" )  + name.value
 						opttext = name.value											
-						if(dlgname != 'basic')
+						if(dlgname != 'Basic')
 						{
 							if (frequency.value != ""){
 								desc = desc + "|"  + frequency.value;
@@ -72,7 +73,7 @@ $(document).ready(function(){
 					if(checkDuplicate(listBox,name.value)){
 						alertMsg += payroll_name + "\n";
 					}	
-					if(startdate == "")
+					if(startdate == "" && frequency.value != "" )
 					{
 						alertMsg +=  "Please select the satrt date \n";
 					}
@@ -90,11 +91,12 @@ $(document).ready(function(){
 
 function payrollDialogAction(dlg, action)
 {
+	$( "#payroll-dlg" ).dialog({ title: dlg });
 	basicAction = action;
 	dlgname = dlg;
-	listBoxID = dlgname == 'basic' ? "settings_wktime_payroll_basic" : (dlgname == 'allownaces' ? 'settings_wktime_payroll_allowances' : 'settings_wktime_payroll_deduction')
+	listBoxID = dlgname == 'Basic' ? "settings_wktime_payroll_basic" : (dlgname == 'Allownaces' ? 'settings_wktime_payroll_allowances' : 'settings_wktime_payroll_deduction')
 		var listbox = document.getElementById(listBoxID);
-	if('basic' == dlg)
+	if('Basic' == dlg)
 	{
 		document.getElementById("basic_salary_type").style.display = 'block';
 		document.getElementById("basic_factor").style.display = 'block';
@@ -120,7 +122,7 @@ function payrollDialogAction(dlg, action)
 		}
 					
 	}
-	else if(('allownaces' == dlg) || ('deduction' == dlg))
+	else if(('Allownaces' == dlg) || ('Deduction' == dlg))
 	{
 		document.getElementById("basic_salary_type").style.display = 'none';
 		document.getElementById("basic_factor").style.display = 'none';

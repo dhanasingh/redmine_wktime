@@ -9,7 +9,7 @@ payroll_date_errormsg = "<%=l(:label_date_errormsg) %>";
 <%= hidden_field_tag 'settings[payroll_deleted_ids]', "" %>
 <% hash_salary_type = { 's'  => l(:label_salaried), 'h' =>  l(:label_hourly) } %>
 <% hash_pay_period = { 'm'  => l(:label_monthly), 'bw' =>  l(:label_bi_weekly), 'w' => l(:label_weekly) } %>
-<% hash_frequency = { 'm'  => l(:label_monthly), 'q' =>  l(:label_quartly), 'sa' => l(:label_semi_annually), 'a' => l(:label_annually) } %>
+<% hash_frequency = { '' => "", 'm'  => l(:label_monthly), 'q' =>  l(:label_quartly), 'sa' => l(:label_semi_annually), 'a' => l(:label_annually) } %>
 <%	
 	deplist = Array.new
 	basiclist = Array.new
@@ -68,6 +68,8 @@ payroll_date_errormsg = "<%=l(:label_date_errormsg) %>";
 	<p style="margin-left: -110px;">
 		<label><%= l(:label_wk_currency) %></label>
 		<%=h select_tag('settings[wktime_payroll_currency]',options_for_select(wkexpense_helper.options_for_currency,:selected => @settings['wktime_payroll_currency'])) %></p>
+	<p style="margin-left: -110px;"><label><%= l(:label_pay_period) %></label>
+	    <%= select_tag 'settings[wktime_pay_period]', options_for_select(hash_pay_period.invert, :selected => @settings['wktime_pay_period']) %></p>
 	<p style="margin-left: -110px;">	
 			<label><%= l(:label_pay_day) %></label>
 			<%= select_tag('settings[wktime_pay_day]', options_for_select([[l('date.day_names')[0], 0],
@@ -77,10 +79,7 @@ payroll_date_errormsg = "<%=l(:label_date_errormsg) %>";
 										   [l('date.day_names')[4], 4],
 										   [l('date.day_names')[5], 5],
 										   [l('date.day_names')[6], 6]], :selected => @settings['wktime_pay_day']))%>
-	</p>
-	<p style="margin-left: -110px;"><label><%= l(:label_pay_period) %></label>
-	    <%= select_tag 'settings[wktime_pay_period]', options_for_select(hash_pay_period.invert, :selected => @settings['wktime_pay_period']) %></p>
-    
+	</p>    
 	 <%
 		issueIdArr =Array.new
 	    if(@settings['wktime_leave'].blank?)
@@ -100,8 +99,8 @@ payroll_date_errormsg = "<%=l(:label_date_errormsg) %>";
     <p style="margin-left: -110px;"><label><%= l(:label_loss_of_pay) %></label>
 	 <%= select_tag 'settings[wktime_loss_of_pay]', options_for_select(leaveIssueslist, :selected =>  @settings['wktime_loss_of_pay']) %></p>
 	
-	<p style="margin-left: -110px;"><label><%= l(:label_financial_month_start) %></label>
-	 <%= select_tag 'settings[wktime_financial_start_month]', options_for_select((l('date.month_names').collect.with_index.to_a), :selected =>  @settings['wktime_financial_start_month']) %></p>
+	<p style="margin-left: -110px;"><label><%= l(:label_financial_year_start) %></label>
+	 <%= select_tag 'settings[wktime_financial_year_start]', options_for_select((l('date.month_names').collect.with_index.to_a), :selected =>  @settings['wktime_financial_year_start']) %></p>
 	 
 <p style="margin-left: -110px;">
 <label><%= l(:label_basic) %></label>
@@ -110,8 +109,8 @@ payroll_date_errormsg = "<%=l(:label_date_errormsg) %>";
 
 	</p>			
 	<p style="margin-left: -110px;">
-		<%= link_to "Add", "javascript:payrollDialogAction('basic', 'Add');", :class => "button", :id => "basic_add"%>  
-		<%= link_to "Edit", "javascript:payrollDialogAction('basic', 'Edit');", :class => "button"%>  
+		<%= link_to "Add", "javascript:payrollDialogAction('Basic', 'Add');", :class => "button", :id => "basic_add"%>  
+		<%= link_to "Edit", "javascript:payrollDialogAction('Basic', 'Edit');", :class => "button"%>  
 	</p>
 		
 	
@@ -122,8 +121,8 @@ payroll_date_errormsg = "<%=l(:label_date_errormsg) %>";
 
 	</p>			
 	<p style="margin-left: -110px;">
-		<%= link_to "Add", "javascript:payrollDialogAction('allownaces', 'Add');", :class => "button"%>  |
-		<%= link_to "Edit", "javascript:payrollDialogAction('allownaces', 'Edit');", :class => "button"%>  |
+		<%= link_to "Add", "javascript:payrollDialogAction('Allownaces', 'Add');", :class => "button"%>  |
+		<%= link_to "Edit", "javascript:payrollDialogAction('Allownaces', 'Edit');", :class => "button"%>  |
 		<%= link_to "Delete", "javascript:removeSelectedValue('settings_wktime_payroll_allowances');", :class => "button" %>
 	</p>
 <p style="margin-left: -110px;">
@@ -133,8 +132,8 @@ payroll_date_errormsg = "<%=l(:label_date_errormsg) %>";
 
 	</p>			
 	<p style="margin-left: -110px;">
-		<%= link_to "Add", "javascript:payrollDialogAction('deduction', 'Add');", :class => "button"%>  |
-		<%= link_to "Edit", "javascript:payrollDialogAction('deduction', 'Edit');", :class => "button"%>  |
+		<%= link_to "Add", "javascript:payrollDialogAction('Deduction', 'Add');", :class => "button"%>  |
+		<%= link_to "Edit", "javascript:payrollDialogAction('Deduction', 'Edit');", :class => "button"%>  |
 		<%= link_to "Delete", "javascript:removeSelectedValue('settings_wktime_payroll_deduction');", :class => "button" %>
 	</p>
 
@@ -155,11 +154,11 @@ payroll_date_errormsg = "<%=l(:label_date_errormsg) %>";
 	<p id="allowance_dependent">
 		<table id = "table_payroll_dependent">
 			<tr>
-				<th rowspan="3" valign="justify"><label><%= l(:label_dependent) %></label></th>
+				<th rowspan="3" valign="justify" style="font-weight:normal;"><label><%= l(:label_dependent) %></label></th>
 				<tr>
-					<th>component</th>
+					<th style="font-weight:normal;"><%= l(:label_component) %></th>
 					<th></th>
-					<th>factor</th>
+					<th style="font-weight:normal;"><%= l(:label_factor) %></th>
 				</tr>
 				<tr>
 					<td><%= select_tag 'dep_value', options_for_select(deplist) %></td>

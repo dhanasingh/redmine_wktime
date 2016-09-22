@@ -15,7 +15,7 @@ module WkpayrollHelper
 	end
 	
 	def getFinancialPeriod(salaryDate)
-		financialMonthStr = Setting.plugin_redmine_wktime['wktime_financial_start_month']
+		financialMonthStr = Setting.plugin_redmine_wktime['wktime_financial_year_start']
 		if financialMonthStr.blank? || financialMonthStr.to_i == 0
 			financialMonthStr = '4'
 		end

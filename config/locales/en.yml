@@ -232,7 +232,7 @@ en:
   label_weekly: Weekly
   label_bi_weekly: Bi-Weekly
   label_hourly: Hourly
-  label_dependent: Dependent
+  label_dependent: Dependents on
   label_basic_name: The Name is already exists
   label_basic_errormsg: Please enter a name
   label_date_errormsg: Please select the date
@@ -241,7 +241,7 @@ en:
   label_pay_day: Pay day
   label_salary_detail: Salary Details
   label_loss_of_pay: Loss Of Pay
-  label_financial_month_start: Financial Month Start
+  label_financial_year_start: Financial Year Start
   label_salary_detail: Salary Details
   label_wk_payslip: Pay Slip
   label_period: Period
@@ -261,3 +261,6 @@ en:
   label_enable_payroll_module: Enable Payroll module
   label_gender: Gender  
   label_ytd_description: YTD - Year to Date from %{start} to %{end}
+  label_component: Component
+  label_factor: factor
+  label_generate: Generate
