@@ -6,7 +6,7 @@ include WkattendanceHelper
 include WkimportattendanceHelper
 
 before_filter :require_login
-before_filter :check_perm_and_redirect, :only => [:edit, :update]
+before_filter :check_perm_and_redirect, :only => [:edit, :update, :clockedit]
 require 'csv' 
 
 	def index
@@ -57,7 +57,7 @@ require 'csv'
 		group_id = session[:wkattendance][:group_id]
 		status = session[:wkattendance][:status]
 		
-		if user_id.blank?
+		if user_id.blank? || !isAccountUser
 		   ids = User.current.id
 		elsif user_id.to_i != 0 && group_id.to_i == 0
 		   ids = user_id.to_i
