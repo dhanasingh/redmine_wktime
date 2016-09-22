@@ -40,7 +40,7 @@ payroll_date_errormsg = "<%=l(:label_date_errormsg) %>";
 	else
 		@settings['wktime_payroll_allowances'].each do |element|
 		  allowanceArr = element.split('|')
-		  optionText = allowanceArr[1] +' : ' + hash_frequency[allowanceArr[2]] +' : ' + allowanceArr[3] + (!allowanceArr[4].blank? ? ' : ' + sal_com_hash[allowanceArr[4].to_i] + ' : ' : ' : ')  + (allowanceArr[5].blank? ? "" : allowanceArr[5])
+		  optionText = allowanceArr[1] +' : ' + (allowanceArr[2].blank? ? '' :hash_frequency[allowanceArr[2]]) +' : ' + (allowanceArr[3].blank? ? '' : allowanceArr[3]) + (!allowanceArr[4].blank? ? ' : ' + sal_com_hash[allowanceArr[4].to_i] + ' : ' : ' : ')  + (allowanceArr[5].blank? ? "" : allowanceArr[5])
 		  allowancelist << [optionText,element]
 		end
 	end
@@ -50,7 +50,7 @@ payroll_date_errormsg = "<%=l(:label_date_errormsg) %>";
 	else
 		@settings['wktime_payroll_deduction'].each do |element|
 		deductionArr = element.split('|')
-		optionText = deductionArr[1] +' : ' + hash_frequency[deductionArr[2]] +' : ' + deductionArr[3] + (!deductionArr[4].blank? ? (' : ' + sal_com_hash[deductionArr[4].to_i] + ' : ') : ' : ')  + (deductionArr[5].blank? ? "" : deductionArr[5])
+		optionText = deductionArr[1] +' : ' + (deductionArr[2].blank? ? '' : hash_frequency[deductionArr[2]]) +' : ' + (deductionArr[3].blank? ? '' : deductionArr[3]) + (!deductionArr[4].blank? ? (' : ' + sal_com_hash[deductionArr[4].to_i] + ' : ') : ' : ')  + (deductionArr[5].blank? ? "" : deductionArr[5])
 		  deductionlist << [optionText,element]
 		end
 	end
@@ -143,7 +143,7 @@ payroll_date_errormsg = "<%=l(:label_date_errormsg) %>";
 	
 	<p id = "payroll_frequency"><label><%= l(:label_frequency) %></label><%= select_tag 'frequency', options_for_select(hash_frequency.invert), :style => "width:155px; float:right; " %></p>
 	
-	<p id="payroll_start_date"><label><%= l(:field_start_date) %></label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= date_field_tag('start_date', "", {:id => 'start_date', :size => 17, :style => "width:130px; "}) + calendar_for('start_date') %></p>
+	<p id="payroll_start_date"><label><%= l(:field_start_date) %></label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= date_field_tag('start_date', "", {:id => 'start_date', :size => 12, :style => "width:130px; "}) + calendar_for('start_date') %></p>
 	
 	<p id="basic_salary_type"><label><%= l(:label_salary_type) %></label>
 	<%= select_tag 'salary_type', options_for_select(hash_salary_type.invert), :style => "width:155px; float:right; " %></p>

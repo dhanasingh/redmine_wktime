@@ -15,7 +15,8 @@
 <div>
 		<div style="float:left">
  <caption style="text-align:left"><b><%= l(:label_wk_form_r) %><br/><%= l(:label_register_wages) %><br/><%= l(:label_wages_rule) %></b></br>
- <b><%= l(:label_wk_name_address) %>:</b> <%= Setting.app_title %>
+ <b><%= l(:label_wk_name_address) %>:</b> <%= Setting.plugin_redmine_wktime['wktime_company_name'] %>
+ <%= Setting.plugin_redmine_wktime['wktime_company_address'] %>
  <b><%= l(:label_wages_period) %>:</b> <%= @salary_data[0].blank? ? session[:wkreport][:from] :  @salary_data[0].salary_date %>
   </caption> 
   </div>

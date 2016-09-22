@@ -210,14 +210,14 @@ it:
   label_import_file_headers: File Headers
   error_no_record_to_import: No Record to Import
   warning_fields_in_file_not_configured: Fields in file not configured in plugin attendance settings
+  
   label_payroll: Payroll
-  label_basic: Basic
+  label_basic: Basic Pay
   label_allowance: Allowance
   label_deduction: Deductions
   label_gross: Gross
   label_net: Net
-  label_salarydate: Salary Date
-  
+  label_salarydate: Salary Date  
   label_allowances: Allowances
   label_frequency: Freequency
   label_pay_period: Pay Period

@@ -30,7 +30,7 @@ $(document).ready(function(){
 					var factor = document.getElementById("factor");
 				}		
 				
-				if( !checkDuplicate(listBox,name.value) && name.value != "" && (startdate != ""  || dlgname == 'Basic') ){ 
+				if( !checkDuplicate(listBox,name.value) && name.value != "" && ( (startdate != "" || (frequency.value == '' || frequency.value == 'm')  ) || dlgname == 'Basic') ){ 
 					if('Add'== basicAction){	
 						opt = document.createElement("option");
 						listBox.options.add(opt);
@@ -43,21 +43,21 @@ $(document).ready(function(){
 						opttext = name.value											
 						if(dlgname != 'Basic')
 						{
-							if (frequency.value != ""){
-								desc = desc + "|"  + frequency.value;
-								opttext = opttext + " : "  + frequency.options[frequency.selectedIndex].text + " : "  + startdate;
-							}						
+						//	if (frequency.value != ""){
+							desc = desc + "|"  + frequency.value;
+							opttext = opttext + " : "  + (frequency.value == '' ? '' : frequency.options[frequency.selectedIndex].text)  + " : "  + startdate;
+						//	}						
 							desc = desc + "|"  + startdate;
-							desc = desc + "|"  + dependent.value + "|"  + factor.value;
-							opttext = opttext  +  (dependent.value != "" ? " : " + dependent.options[dependent.selectedIndex].text : " : " ) + " : " +  factor.value;
+							desc = desc + "|"  + dependent.value + "|"  + (factor.value == '' ? 0 : factor.value) ;
+							opttext = opttext  +  (dependent.value != "" ? " : " + dependent.options[dependent.selectedIndex].text : " : " ) + " : " +  (factor.value == '' ? 0 : factor.value);
 						}
 						else{
 							desc = desc + "|"  + salary_type.value;			
 							if (salary_type.value != ""){
 								opttext = opttext  + " : " + salary_type.options[salary_type.selectedIndex].text;
 							}
-							desc = desc + "|"  + basic_field_factor.value;			
-								opttext = opttext  + " : " + basic_field_factor.value;
+							desc = desc + "|"  + (basic_field_factor.value == null ? 0 : basic_field_factor.value);			
+								opttext = opttext  + " : " + (basic_field_factor.value == null ? 0 : basic_field_factor.value);
 						}
 					}
 					opt.text =  opttext;
@@ -73,7 +73,7 @@ $(document).ready(function(){
 					if(checkDuplicate(listBox,name.value)){
 						alertMsg += payroll_name + "\n";
 					}	
-					if(startdate == "" && frequency.value != "" )
+					if((frequency.value != "" && startdate == "") || (frequency.value != "m" && startdate == ""))
 					{
 						alertMsg +=  "Please select the satrt date \n";
 					}
@@ -129,19 +129,29 @@ function payrollDialogAction(dlg, action)
 		document.getElementById("table_payroll_dependent").style.display = 'block'; 
 		document.getElementById("payroll_frequency").style.display = 'block';
 		document.getElementById("payroll_start_date").style.display = 'block';
+		var csName = document.getElementById("name");
+		var csFrequency = document.getElementById("frequency");
+		var csstart_date = document.getElementById('start_date');
+		var csdep_value = document.getElementById("dep_value");
+		var csfactor = document.getElementById('factor');
 		if('Add' == action)
 		{	
+			csName.value = '';
+			csFrequency.value = '';
+			csstart_date.value = '';
+			csdep_value.value = '';
+			csfactor.value = '';
 			$( "#payroll-dlg" ).dialog( "open" )	
 		}
 		else if('Edit' == action && listbox != null && listbox.options.selectedIndex >=0)
 		{		
 			var listboxArr = listbox.options[listbox.selectedIndex].value.split('|');
 			payrollId = listboxArr[0];
-			document.getElementById("name").value = listboxArr[1];
-			document.getElementById("frequency").value = listboxArr[2];
-			document.getElementById('start_date').value = listboxArr[3];
-			document.getElementById("dep_value").value = listboxArr[4];
-			document.getElementById('factor').value = listboxArr[5];
+			csName.value = listboxArr[1];
+			csFrequency.value = listboxArr[2];
+			csstart_date.value = listboxArr[3];
+			csdep_value.value = listboxArr[4];
+			csfactor.value = listboxArr[5];
 			$( "#payroll-dlg" ).dialog( "open" )
 		}
 		else if(listbox != null && listbox.options.length >0)
