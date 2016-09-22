@@ -1,6 +1,8 @@
 class WkpayrollController < WkbaseController
 
 before_filter :require_login
+before_filter :check_perm_and_redirect, :only => [:edit]
+before_filter :check_ta_admin_and_redirect, :only => [:gensalary, :user_salary_settings]
 
 include WkpayrollHelper	
 include WktimeHelper
@@ -22,7 +24,7 @@ include WkreportHelper
 		user_id = session[:wkpayroll][:user_id]
 		group_id = session[:wkpayroll][:group_id]
 		
-		if user_id.blank?
+		if user_id.blank? || !isAccountUser
 		   ids = User.current.id
 		elsif user_id.to_i != 0 && group_id.to_i == 0
 		   ids = user_id.to_i
@@ -390,5 +392,25 @@ include WkreportHelper
 			@rowval["#{user.id}"]["Net"] = (@totalhash["#{user.id}"]["gross"]).to_f - (@totalhash["#{user.id}"]["deduction"]).to_f
 		end
 		render :action => 'payroll_rpt', :layout => false
+	end
+	
+    def check_perm_and_redirect
+	  unless check_permission
+	    render_403
+	    return false
+	  end
+    end
+
+	def check_permission
+		ret = false
+		ret = params[:user_id].to_i == User.current.id
+		return (ret || isAccountUser)
+	end
+	
+	def check_ta_admin_and_redirect
+		unless isAccountUser
+			render_403
+			return false
+		end
 	end
 end
