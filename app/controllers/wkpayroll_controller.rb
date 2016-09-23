@@ -417,4 +417,7 @@ include WkreportHelper
 			return false
 		end
 	end
+	
+	def usrsettingsindex
+	end
 end

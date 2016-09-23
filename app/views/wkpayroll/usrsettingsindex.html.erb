@@ -1,0 +1,40 @@
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<h2><%= l(:label_payroll) %></h2>
+<script type="text/javascript"> 
+    wktimeIndexUrl = '<%=url_for(:controller => "wktime", :action => "index", :tab => "wktime")%>';
+    wkexpIndexUrl = '<%=url_for(:controller => "wkexpense", :action => "index", :tab => "wkexpense")%>';
+    wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "leave")%>';     
+    clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>';
+	payrollUrl = '<%=url_for(:controller => "wkpayroll", :action => "index", :tab => "payroll")%>';
+	userssettingsUrl = '<%=url_for(:controller => "wkpayroll", :action => "usrsettingsindex", :tab => "usrsettingsindex")%>';
+       
+	grpUrl="<%= "#{url_for(:controller => "wkpayroll", :action => 'getMembersbyGroup')}" %>";
+		//getMembersbyGroup
+</script>
+<%= render_tabs time_expense_tabs %>
+
+<%= form_tag({}) do -%>	
+<%= hidden_field_tag 'back_url', url_for(params) %>
+<% wktime_helper = Object.new.extend(WktimeHelper) %>
+<% if (wktime_helper.isAccountUser) %>
+
+<%= form_tag({:controller => controller_name, :action => 'usrsettingsindex'}, :method => :get) do %>
+<fieldset><legend><%= l(:label_filter_plural) %></legend>
+<label for='status'><%= l(:field_status) %>:</label>
+<%= select_tag 'status', users_status_options_for_select(@status), :class => "small", :onchange => "this.form.submit(); return false;"  %>
+
+<% if @groups.present? %>
+<label for='group_id'><%= l(:label_group) %>:</label>
+<%= select_tag 'group_id', content_tag('option') + options_from_collection_for_select(@groups, :id, :name, params[:group_id].to_i), :onchange => "this.form.submit(); return false;"  %>
+<% end %>
+
+<label for='name'><%= l(:label_user) %>:</label>
+<%= text_field_tag 'name', params[:name], :size => 30 %>
+<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
+<%= link_to l(:button_clear), {:controller => controller_name, :action => 'usrsettingsindex', :tab => 'usersettings'}, :class => 'icon icon-reload' %>
+</fieldset>
+<%=h hidden_field_tag('tab', 'usersettings') %>
+<% end %>
+&nbsp;
+<% end %>
+<% end %>

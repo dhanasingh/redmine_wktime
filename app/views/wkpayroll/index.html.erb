@@ -1,10 +1,17 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <h2><%= l(:label_payroll) %></h2>
 <script type="text/javascript"> 
+    wktimeIndexUrl = '<%=url_for(:controller => "wktime", :action => "index", :tab => "wktime")%>';
+    wkexpIndexUrl = '<%=url_for(:controller => "wkexpense", :action => "index", :tab => "wkexpense")%>';
+    wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "leave")%>';     
+    clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>';
+	payrollUrl = '<%=url_for(:controller => "wkpayroll", :action => "index", :tab => "payroll")%>';
+	userssettingsUrl = '<%=url_for(:controller => "wkpayroll", :action => "usrsettingsindex", :tab => "usersettings")%>';
        
-		grpUrl="<%= "#{url_for(:controller => "wkpayroll", :action => 'getMembersbyGroup')}" %>";
+	grpUrl="<%= "#{url_for(:controller => "wkpayroll", :action => 'getMembersbyGroup')}" %>";
 		//getMembersbyGroup
 </script>
+<%= render_tabs time_expense_tabs %>
 
 <%= hidden_field_tag 'back_url', url_for(params) %>
 <% if isAccountUser %>
@@ -41,9 +48,11 @@
 		</table>
 		<%= render :partial => 'wkpayroll/date_range' %>
 	<% end %>	
-	<div class="total-hours">
-		<p><%= l(:label_total) %>: <%= @payroll_entries[0].currency %>&nbsp;<%= @total_gross %></p>
-	</div>
+	<% if !@payroll_entries.blank? %>
+		<div class="total-hours">
+			<p><%= l(:label_total) %>: <%= @payroll_entries[0].currency %>&nbsp;<%= @total_gross %></p>
+		</div>
+	<% end %>
 <%= render :partial => 'wkpayroll/payroll_list'%>
 
 

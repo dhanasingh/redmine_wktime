@@ -582,11 +582,16 @@ end
 				{:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime},
 				{:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense}
 			   ]
-		else
+		elsif params[:controller] == "wkattendance"
 			tabs = [
 				{:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave},
 				{:name => 'clock', :partial => 'wktime/tab_content', :label => :label_clock}
-			   ]		
+			   ]
+		else
+			tabs = [
+				{:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll},
+				{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_user_settings}
+			   ]
 		end
 		tabs
 	end		

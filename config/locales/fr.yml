@@ -249,7 +249,7 @@ fr:
   label_emp_name: Employee Name
   label_ytd: YTD
   label_earning: Earnings
-  label_user_salary_settings: User Salary Settings
+  label_user_settings: User Settings
   label_total_earning: Total Earnings
   label_total_deduction: Total Deductions
   label_net_earning: Net Earnings

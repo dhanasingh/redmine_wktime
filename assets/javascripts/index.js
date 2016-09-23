@@ -1,4 +1,4 @@
-var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl;
+var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl;
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -217,6 +217,8 @@ $(document).ready(function()
 	changeProp('tab-wkexpense',wkexpIndexUrl);
 	changeProp('tab-leave',wkattnIndexUrl);
 	changeProp('tab-clock',clockInOutUrl);
+	changeProp('tab-payroll',payrollUrl);
+	changeProp('tab-usersettings',userssettingsUrl);
 });
 
 
