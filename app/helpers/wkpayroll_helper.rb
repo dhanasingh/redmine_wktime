@@ -129,7 +129,7 @@ module WkpayrollHelper
 		unless entryObj.sc_start_date.blank?
 			isAddComp = false
 			frequencyHash = getFrequencyHash()
-			frequencyInMonths = frequencyHash[entryObj.sc_frequency]
+			frequencyInMonths = frequencyHash[entryObj.sc_frequency].blank? ? 1 : frequencyHash[entryObj.sc_frequency]
 			startDate = entryObj.sc_start_date.to_date
 			for i in 0..1
 				if ((payPeriod[i].month - startDate.month).abs) % frequencyInMonths < 1

@@ -41,6 +41,9 @@
 		</table>
 		<%= render :partial => 'wkpayroll/date_range' %>
 	<% end %>	
+	<div class="total-hours">
+		<p><%= l(:label_total) %>: <%= @payroll_entries[0].currency %>&nbsp;<%= @total_gross %></p>
+	</div>
 <%= render :partial => 'wkpayroll/payroll_list'%>
 
 

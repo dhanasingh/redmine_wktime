@@ -10,6 +10,7 @@ include WkreportHelper
 
 	def index
         @payroll_entries = nil
+		@total_gross = 0
 	    @groups = Group.sorted.all
         set_filter_session
         retrieve_date_range
@@ -53,6 +54,7 @@ include WkreportHelper
 		
 		sqlQuery = sqlQuery + " order by u.firstname,vw.salary_date desc"
         findBySql(sqlQuery)	
+		@total_gross = @payroll_entries.sum { |p| p.basic + p.allowance }
 	end
 
 	def edit
