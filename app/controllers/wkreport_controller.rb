@@ -32,7 +32,7 @@ before_filter :check_perm_and_redirect, :only => [:edit, :update]
 			session[:wkreport][:group_id] = params[:group_id]
 			session[:wkreport][:user_id] = params[:user_id]
 			session[:wkreport][:from] = params[:from]
-			session[:wkreport][:to] = params[:to]
+			session[:wkreport][:to] = params[:to].blank? ? Date.today : params[:to]
 		end
 	end
 	
