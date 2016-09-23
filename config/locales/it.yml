@@ -219,7 +219,7 @@ it:
   label_net: Net
   label_salarydate: Salary Date  
   label_allowances: Allowances
-  label_frequency: Freequency
+  label_frequency: Frequency
   label_pay_period: Pay Period
   label_salary_type: Salary Type
   label_monthly: Monthly
@@ -230,7 +230,7 @@ it:
   label_weekly: Weekly
   label_bi_weekly: Bi-Weekly
   label_hourly: Hourly
-  label_dependent: Dependent on
+  label_dependent: Depends on
   label_basic_name: The Name is already exists
   label_basic_errormsg: Please enter a name
   label_date_errormsg: Please select the date

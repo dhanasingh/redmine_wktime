@@ -16,7 +16,7 @@ $(document).ready(function(){
 				var opt,desc="",opttext="";
 				var frequency = "";
 				var startdate = "";
-				listBoxID = dlgname == 'Basic' ? "settings_wktime_payroll_basic" : (dlgname == 'Allownaces' ? 'settings_wktime_payroll_allowances' : 'settings_wktime_payroll_deduction')
+				listBoxID = dlgname == 'Basic' ? "settings_wktime_payroll_basic" : (dlgname == 'Allowances' ? 'settings_wktime_payroll_allowances' : 'settings_wktime_payroll_deduction')
 				var listBox = document.getElementById(listBoxID);
 				var name = document.getElementById("name");				
 				var salary_type = document.getElementById("salary_type"); 
@@ -94,7 +94,7 @@ function payrollDialogAction(dlg, action)
 	$( "#payroll-dlg" ).dialog({ title: dlg });
 	basicAction = action;
 	dlgname = dlg;
-	listBoxID = dlgname == 'Basic' ? "settings_wktime_payroll_basic" : (dlgname == 'Allownaces' ? 'settings_wktime_payroll_allowances' : 'settings_wktime_payroll_deduction')
+	listBoxID = dlgname == 'Basic' ? "settings_wktime_payroll_basic" : (dlgname == 'Allowances' ? 'settings_wktime_payroll_allowances' : 'settings_wktime_payroll_deduction')
 		var listbox = document.getElementById(listBoxID);
 	if('Basic' == dlg)
 	{
@@ -122,7 +122,7 @@ function payrollDialogAction(dlg, action)
 		}
 					
 	}
-	else if(('Allownaces' == dlg) || ('Deduction' == dlg))
+	else if(('Allowances' == dlg) || ('Deduction' == dlg))
 	{
 		document.getElementById("basic_salary_type").style.display = 'none';
 		document.getElementById("basic_factor").style.display = 'none';
