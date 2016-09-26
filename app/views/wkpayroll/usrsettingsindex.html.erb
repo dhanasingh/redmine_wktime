@@ -13,28 +13,6 @@
 </script>
 <%= render_tabs time_expense_tabs %>
 
-<%= form_tag({}) do -%>	
-<%= hidden_field_tag 'back_url', url_for(params) %>
-<% wktime_helper = Object.new.extend(WktimeHelper) %>
-<% if (wktime_helper.isAccountUser) %>
-
-<%= form_tag({:controller => controller_name, :action => 'usrsettingsindex'}, :method => :get) do %>
-<fieldset><legend><%= l(:label_filter_plural) %></legend>
-<label for='status'><%= l(:field_status) %>:</label>
-<%= select_tag 'status', users_status_options_for_select(@status), :class => "small", :onchange => "this.form.submit(); return false;"  %>
-
-<% if @groups.present? %>
-<label for='group_id'><%= l(:label_group) %>:</label>
-<%= select_tag 'group_id', content_tag('option') + options_from_collection_for_select(@groups, :id, :name, params[:group_id].to_i), :onchange => "this.form.submit(); return false;"  %>
-<% end %>
-
-<label for='name'><%= l(:label_user) %>:</label>
-<%= text_field_tag 'name', params[:name], :size => 30 %>
-<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
-<%= link_to l(:button_clear), {:controller => controller_name, :action => 'usrsettingsindex', :tab => 'usersettings'}, :class => 'icon icon-reload' %>
-</fieldset>
-<%=h hidden_field_tag('tab', 'usersettings') %>
-<% end %>
-&nbsp;
-<% end %>
-<% end %>
+<%= render :partial => 'wkpayroll/user_setting_list'%>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
+<%=h hidden_field_tag('tab', "#{controller_name}") %>
