@@ -35,7 +35,7 @@ module WkpayrollHelper
 		payperiod = Setting.plugin_redmine_wktime['wktime_pay_period']
 		currency = Setting.plugin_redmine_wktime['wktime_payroll_currency']
 		errorMsg = nil
-		deleteWkSalaries(nil,salaryDate)
+		deleteWkSalaries(@genSqlStr,salaryDate)
 		unless userSalaryHash.blank?
 			userSalaryHash.each do |userId, salary|
 				salary.each do |componentId, amount|
@@ -59,7 +59,13 @@ module WkpayrollHelper
 	def getUserSalaryHash(salaryDate)
 		userSalaryHash = Hash.new()
 		payPeriod = getPayPeriod(salaryDate)
-		queryStr = getUserSalaryQueryStr + " Where u.type = 'User' and (cvt.value is null or #{getConvertDateStr('cvt.value')} >= '#{payPeriod[0]}') and sc.id is not null " + " order by u.id, sc.salary_type" 
+		queryStr = getUserSalaryQueryStr + " Where (cvt.value is null or #{getConvertDateStr('cvt.value')} >= '#{payPeriod[0]}') and sc.id is not null " 
+		unless @genSqlStr.blank?
+			queryStr = queryStr + " and u.id in (#{@genSqlStr}) "
+		else
+			queryStr = queryStr + " and u.type = 'User'"
+		end
+		queryStr = queryStr  + " order by u.id, sc.salary_type"
 		userSalaries = WkUserSalaryComponents.find_by_sql(queryStr)
 		salaryComponents = getSalaryComponentsArr
 		@userSalEntryHash = Hash[userSalaries.map { |cf| [cf.sc_id.to_s + '_' + cf.user_id.to_s, cf] }]
@@ -187,11 +193,11 @@ module WkpayrollHelper
 	
 	def deleteWkSalaries(userId, salaryDate)
 		if !(userId.blank? || salaryDate.blank?)
-			WkSalary.where(user_id: userId).where(salary_date: salaryDate).delete_all
+			WkSalary.where("user_id in (#{userId}) ").where(salary_date: salaryDate).delete_all
 		elsif !salaryDate.blank?
 			WkSalary.where(salary_date: salaryDate).delete_all
 		elsif !userId.blank?
-			WkSalary.where(user_id: userId).delete_all
+			WkSalary.where("user_id in (#{userId}) ").delete_all
 		else
 			WkSalary.delete_all
 		end

@@ -15,8 +15,9 @@
 
 				<label for='name'><%= l(:label_user) %>:</label>
 				<%= text_field_tag 'name', params[:name], :size => 30 %>
-				<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
+				<%= submit_tag l(:button_apply), :class => "small", :name => "list" %>
 				<%= link_to l(:button_clear), {:controller => controller_name, :action => 'usrsettingsindex', :tab => 'usersettings'}, :class => 'icon icon-reload' %>
+				<%= submit_tag l(:label_generate_salary), :class => "small", :name => "generate" %>
 			</fieldset>
 		<%=h hidden_field_tag('tab', 'usersettings') %>
 		<% end %>

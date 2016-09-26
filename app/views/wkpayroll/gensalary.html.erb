@@ -9,4 +9,6 @@
 	</tr>
 </table>
 <%= submit_tag l(:label_generate), :id => 'gen_salary' %>
+
+<%=h hidden_field_tag('gen_sql_str', "#{params[:gen_sql_str]}") %>
 <% end %>

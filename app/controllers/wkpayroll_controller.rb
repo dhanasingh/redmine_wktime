@@ -131,6 +131,7 @@ include WkreportHelper
 	end
 	
 	def generatePayroll
+		@genSqlStr = params[:gen_sql_str]
 		salaryDate = params[:salarydate].to_date
 		errorMsg = generateSalaries(salaryDate)
 		if errorMsg.nil?	
@@ -422,18 +423,11 @@ include WkreportHelper
 		@status = params[:status] || 1
 		@groups = Group.all.sort
 		sqlStr = ""
-		#lastMonthStartDt = Date.civil(Date.today.year, Date.today.month, 1) << 1
-		#if(Setting.plugin_redmine_wktime['wktime_leave'].blank?)
-			sqlStr = " select u.id as user_id, u.firstname, u.lastname, u.status from users u"
-			if !params[:group_id].blank?
-				sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id"
-			end
-			sqlStr = sqlStr + " where u.type = 'User' "
-		#else
-			# listboxArr = Setting.plugin_redmine_wktime['wktime_leave'][0].split('|')
-			# issueId = listboxArr[0]
-			# sqlStr = getListQueryStr + " where u.type = 'User' and (cvt.value is null or #{getConvertDateStr('cvt.value')} >= '#{lastMonthStartDt}')"
-		# end
+		selectStr = ""
+		if !params[:group_id].blank?
+			sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id"
+		end
+		sqlStr = sqlStr + " where u.type = 'User' "
 		if !isAccountUser
 			sqlStr = sqlStr + " and u.id = #{User.current.id} " 
 		end
@@ -446,6 +440,14 @@ include WkreportHelper
 		if !params[:name].blank?
 			sqlStr = sqlStr + " and (LOWER(u.firstname) like LOWER('%#{params[:name]}%') or LOWER(u.lastname) like LOWER('%#{params[:name]}%'))"
 		end
-		findBySql(sqlStr)
+		unless params[:generate].blank?
+			selectStr = " select u.id from users u "
+			genSqlStr = selectStr + sqlStr
+			redirect_to :action => 'gensalary' , :gen_sql_str => genSqlStr, :tab => 'wkpayroll'
+		else
+			selectStr = " select u.id as user_id, u.firstname, u.lastname, u.status from users u"
+			sqlStr = selectStr + sqlStr
+			findBySql(sqlStr)
+		end		
 	end
 end
