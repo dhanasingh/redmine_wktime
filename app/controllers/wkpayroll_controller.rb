@@ -34,27 +34,30 @@ include WkreportHelper
 		else
 		   ids = userIds.join(',')
 		end
-		
-		sqlQuery = " select vw.user_id as user_id, u.firstname as firstname,u.lastname as lastname," + 
-		" vw.salary_date as salarydate, vw.allowance as allowance, vw.deduction as deduction," + 
-		" vw.basic as basic, vw.currency as currency from (select v.user_id as user_id, v.salary_date as salary_date, max(v.currency) as currency," + 
-		" sum(allowance) as allowance, sum(deduction) as deduction, sum(basic) as basic" +
-        " from (select ws.user_id, ws.salary_date, max(ws.currency) as currency," +
-		" SUM(CASE WHEN wsc.component_type = 'a' THEN ws.amount END) AS allowance," +
-		" SUM(CASE WHEN wsc.component_type = 'd' THEN ws.amount END) AS deduction," +
-		" SUM(CASE WHEN wsc.component_type = 'b' THEN ws.amount END) AS basic" +
-		" from wk_salaries ws inner join wk_salary_components wsc on wsc.id = ws.salary_component_id" +
-        " group by ws.user_id,wsc.component_type,ws.salary_date) v " +
-		" group by v.user_id,v.salary_date) vw  inner join users u on u.id = vw.user_id" +
-		" where vw.user_id in (#{ids}) "
-		
-		if !@from.blank? && !@to.blank?
-			sqlQuery = sqlQuery + " and vw.salary_date between '#{@from}' and '#{@to}'"
+		unless params[:generate].blank? || !to_boolean(params[:generate])
+			generatePayroll(ids,@to +1)
+		else
+			sqlQuery = " select vw.user_id as user_id, u.firstname as firstname,u.lastname as lastname," + 
+			" vw.salary_date as salarydate, vw.allowance as allowance, vw.deduction as deduction," + 
+			" vw.basic as basic, vw.currency as currency from (select v.user_id as user_id, v.salary_date as salary_date, max(v.currency) as currency," + 
+			" sum(allowance) as allowance, sum(deduction) as deduction, sum(basic) as basic" +
+			" from (select ws.user_id, ws.salary_date, max(ws.currency) as currency," +
+			" SUM(CASE WHEN wsc.component_type = 'a' THEN ws.amount END) AS allowance," +
+			" SUM(CASE WHEN wsc.component_type = 'd' THEN ws.amount END) AS deduction," +
+			" SUM(CASE WHEN wsc.component_type = 'b' THEN ws.amount END) AS basic" +
+			" from wk_salaries ws inner join wk_salary_components wsc on wsc.id = ws.salary_component_id" +
+			" group by ws.user_id,wsc.component_type,ws.salary_date) v " +
+			" group by v.user_id,v.salary_date) vw  inner join users u on u.id = vw.user_id" +
+			" where vw.user_id in (#{ids}) "
+			
+			if !@from.blank? && !@to.blank?
+				sqlQuery = sqlQuery + " and vw.salary_date between '#{@from}' and '#{@to}'"
+			end
+			
+			sqlQuery = sqlQuery + " order by u.firstname,vw.salary_date desc"
+			findBySql(sqlQuery)	
+			@total_gross = @payroll_entries.sum { |p| p.basic + p.allowance }
 		end
-		
-		sqlQuery = sqlQuery + " order by u.firstname,vw.salary_date desc"
-        findBySql(sqlQuery)	
-		@total_gross = @payroll_entries.sum { |p| p.basic + p.allowance }
 	end
 
 	def edit
@@ -127,13 +130,8 @@ include WkreportHelper
 		end	
 	end
 	
-	def gensalary
-	end
-	
-	def generatePayroll
-		@genSqlStr = params[:gen_sql_str]
-		salaryDate = params[:salarydate].to_date
-		errorMsg = generateSalaries(salaryDate)
+	def generatePayroll(userIds,salaryDate)
+		errorMsg = generateSalaries(userIds,salaryDate)
 		if errorMsg.nil?	
 			redirect_to :action => 'index' , :tab => 'wkpayroll'
 			flash[:notice] = l(:notice_successful_update)
@@ -373,7 +371,7 @@ include WkreportHelper
 			end
 			totgross = totgross + entry.amount if entry.component_type == 'b' || entry.component_type == 'a'
 			totdeduction = totdeduction + entry.amount if entry.component_type == 'd'
-			@totalhash["#{entry.user_id}"].store "gross", "#{totgross}" #"#{ totgross + (entry.amount.blank? ? 0 : entry.amount) }"
+			@totalhash["#{entry.user_id}"].store "gross", "#{totgross}" 
 			@totalhash["#{entry.user_id}"].store "deduction", "#{totdeduction}"
 		end
 		
@@ -423,7 +421,7 @@ include WkreportHelper
 		@status = params[:status] || 1
 		@groups = Group.all.sort
 		sqlStr = ""
-		selectStr = ""
+		selectStr = " select u.id as user_id, u.firstname, u.lastname, u.status from users u"
 		if !params[:group_id].blank?
 			sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id"
 		end
@@ -440,14 +438,7 @@ include WkreportHelper
 		if !params[:name].blank?
 			sqlStr = sqlStr + " and (LOWER(u.firstname) like LOWER('%#{params[:name]}%') or LOWER(u.lastname) like LOWER('%#{params[:name]}%'))"
 		end
-		unless params[:generate].blank?
-			selectStr = " select u.id from users u "
-			genSqlStr = selectStr + sqlStr
-			redirect_to :action => 'gensalary' , :gen_sql_str => genSqlStr, :tab => 'wkpayroll'
-		else
-			selectStr = " select u.id as user_id, u.firstname, u.lastname, u.status from users u"
-			sqlStr = selectStr + sqlStr
-			findBySql(sqlStr)
-		end		
+		sqlStr = selectStr + sqlStr
+		findBySql(sqlStr)
 	end
 end

@@ -30,12 +30,12 @@ module WkpayrollHelper
 		financialPeriod
 	end
 	
-	def generateSalaries(salaryDate)
-		userSalaryHash = getUserSalaryHash(salaryDate)
+	def generateSalaries(userIds,salaryDate)
+		userSalaryHash = getUserSalaryHash(userIds,salaryDate)
 		payperiod = Setting.plugin_redmine_wktime['wktime_pay_period']
 		currency = Setting.plugin_redmine_wktime['wktime_payroll_currency']
 		errorMsg = nil
-		deleteWkSalaries(@genSqlStr,salaryDate)
+		deleteWkSalaries(userIds,salaryDate)
 		unless userSalaryHash.blank?
 			userSalaryHash.each do |userId, salary|
 				salary.each do |componentId, amount|
@@ -56,12 +56,12 @@ module WkpayrollHelper
 		errorMsg
 	end
 	
-	def getUserSalaryHash(salaryDate)
+	def getUserSalaryHash(userIds,salaryDate)
 		userSalaryHash = Hash.new()
 		payPeriod = getPayPeriod(salaryDate)
 		queryStr = getUserSalaryQueryStr + " Where (cvt.value is null or #{getConvertDateStr('cvt.value')} >= '#{payPeriod[0]}') and sc.id is not null " 
-		unless @genSqlStr.blank?
-			queryStr = queryStr + " and u.id in (#{@genSqlStr}) "
+		unless userIds.blank?
+			queryStr = queryStr + " and u.id in (#{userIds}) "
 		else
 			queryStr = queryStr + " and u.type = 'User'"
 		end

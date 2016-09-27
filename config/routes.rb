@@ -144,8 +144,6 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
   
   get 'wkpayroll/getMembersbyGroup', :to => 'wkpayroll#getMembersbyGroup'
   
-  get 'wkpayroll/gensalary', :to => 'wkpayroll#gensalary'
-  
   post 'wkpayroll/generatePayroll', :to => 'wkpayroll#generatePayroll'
   
    get 'wkpayroll/payroll_rpt', :to => 'wkpayroll#payroll_rpt'

@@ -1,4 +1,5 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'wkpayroll', :plugin => "redmine_wktime" %>
 <h2><%= l(:label_payroll) %></h2>
 <script type="text/javascript"> 
     wktimeIndexUrl = '<%=url_for(:controller => "wktime", :action => "index", :tab => "wktime")%>';
