@@ -1,8 +1,9 @@
 <%= javascript_include_tag 'payroll', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
 payroll_name = "<%=l(:label_basic_name) %>";
-payroll_name_errormsg = "<%=l(:label_basic_errormsg) %>";
+payroll_name_errormsg = "<%=l(:label_name_errormsg) %>";
 payroll_date_errormsg = "<%=l(:label_date_errormsg) %>";
+payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
 </script>
 <% dlgcontent = false %>
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
@@ -149,7 +150,7 @@ payroll_date_errormsg = "<%=l(:label_date_errormsg) %>";
 	<%= select_tag 'salary_type', options_for_select(hash_salary_type.invert), :style => "width:155px; float:right; " %></p>
 	
 	
-	<p id="basic_factor">	<label>Factor</label><%= text_field_tag 'basic_field_factor', "", :size => 18, :style => "float:right; " %></p>
+	<p id="basic_factor">	<label><%= l(:label_factor) %></label><%= text_field_tag 'basic_field_factor', "", :size => 18, :style => "float:right; " %></p>
 	
 	<p id="allowance_dependent">
 		<table id = "table_payroll_dependent">

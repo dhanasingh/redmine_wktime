@@ -30,7 +30,7 @@ $(document).ready(function(){
 					var factor = document.getElementById("factor");
 				}		
 				
-				if( !checkDuplicate(listBox,name.value) && name.value != "" && ( (startdate != "" || (frequency.value == '' || frequency.value == 'm')  ) || dlgname == 'Basic') ){ 
+				if( !checkDuplicate(listBox,name.value) && name.value != "" && basic_field_factor.value != "" && ( (startdate != "" || (frequency.value == '' || frequency.value == 'm')  ) || dlgname == 'Basic') ){ 
 					if('Add'== basicAction){	
 						opt = document.createElement("option");
 						listBox.options.add(opt);
@@ -72,10 +72,14 @@ $(document).ready(function(){
 					}
 					if(checkDuplicate(listBox,name.value)){
 						alertMsg += payroll_name + "\n";
-					}	
-					if((frequency.value != "" && startdate == "") || (frequency.value != "m" && startdate == ""))
+					}
+					if( basic_field_factor.value == "" && dlgname == 'Basic')
 					{
-						alertMsg +=  "Please select the satrt date \n";
+						alertMsg += payroll_factor_errormsg + "\n";
+					}
+					if(((frequency.value != "" && startdate == "") || (frequency.value != "m" && startdate == "")) && dlgname != 'Basic' )
+					{
+						alertMsg +=  payroll_date_errormsg + "\n";
 					}
 					alert(alertMsg);
 				}
@@ -91,7 +95,7 @@ $(document).ready(function(){
 
 function payrollDialogAction(dlg, action)
 {
-	$( "#payroll-dlg" ).dialog({ title: dlg });
+	$( "#payroll-dlg" ).dialog({ title: (dlg == 'Basic' ? "Basic Pay" : dlg) });
 	basicAction = action;
 	dlgname = dlg;
 	listBoxID = dlgname == 'Basic' ? "settings_wktime_payroll_basic" : (dlgname == 'Allowances' ? 'settings_wktime_payroll_allowances' : 'settings_wktime_payroll_deduction')
