@@ -14,11 +14,7 @@
 <%= render_tabs time_expense_tabs %>
 
 <%= hidden_field_tag 'back_url', url_for(params) %>
-<% if isAccountUser %>
-<div class="contextual">
-<%= link_to l(:"label_generate_salary"), url_for(:controller => "wkpayroll", :action => 'gensalary', :tab => controller.controller_name)%>
-</div>
-<% end %>
+
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
 	<%= hidden_field_tag "searchlist", "#{controller_name}" %>

@@ -1,10 +1,6 @@
 <div>
 <h2><b><%=l(:label_salary_detail) %></b></h2>
-<% if isAccountUser %>
-	<div class="contextual">
-	<%= link_to l(:label_user_salary_settings), url_for(:controller => controller_name, :action => 'user_salary_settings', :user_id => params[:user_id], :tab => controller.controller_name)%>
-	</div>
-<% end %>
+
 <div>
 <table>
 	<tr>
