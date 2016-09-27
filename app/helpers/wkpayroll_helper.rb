@@ -139,7 +139,7 @@ module WkpayrollHelper
 			startDate = entryObj.sc_start_date.to_date
 			for i in 0..1
 				if ((payPeriod[i].month - startDate.month).abs) % frequencyInMonths < 1
-					isAddComp = true#startDate.change(month: payPeriod[i].month, year: payPeriod[i].year).between?(payPeriod[0],payPeriod[1])
+					isAddComp = true #startDate.change(month: payPeriod[i].month, year: payPeriod[i].year).between?(payPeriod[0],payPeriod[1])
 				end
 			end
 		end
@@ -166,8 +166,26 @@ module WkpayrollHelper
 	def computeProrate(payPeriod, terminationDate,userId)
 		# Last worked day by the user on the particular payPeriod
 		lastWorkDateByUser = terminationDate.blank? ? payPeriod[1] : terminationDate
-		multiplier = ((lastWorkDateByUser - payPeriod[0] + 1) - getLossOfPayDays(payPeriod,userId)) / (payPeriod[1] - payPeriod[0] + 1)
+		
+		multiplier = (getWorkingDaysCount(payPeriod[0],lastWorkDateByUser) - getLossOfPayDays(payPeriod,userId)) / getWorkingDaysCount(payPeriod[0],payPeriod[1])
 		multiplier
+	end
+	
+	def getWorkingDaysCount(from,to)
+		ndays = Setting.non_working_week_days
+		totalDays = to - from +1
+		periodStartDay = from.wday
+		nonWorkingDays = (totalDays/7).to_i*ndays.size
+		remainingDays = (totalDays%7).to_i
+		if remainingDays>0
+			for i in 1 .. remainingDays
+				if ndays.include? (periodStartDay + i - 1).to_s
+					nonWorkingDays = nonWorkingDays + 1
+				end
+			end
+		end
+		workingDays = totalDays - nonWorkingDays
+		workingDays
 	end
 	
 	def getLossOfPayDays(payPeriod, userId)
