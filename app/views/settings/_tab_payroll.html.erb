@@ -140,7 +140,7 @@ payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
 
 <div id="payroll-dlg" title="<%= l(:label_basic) %>">
 <fieldset>
-	<p><label><%= l(:field_name) %></label><%= text_field_tag 'name', "", :size => 18, :style => "width:150px; float:right; " %><p>
+	<p><label><%= l(:field_name) %></label><%= text_field_tag 'name', "", :maxlength => 50, :style => "width:150px; float:right; " %><p>
 	
 	<p id = "payroll_frequency"><label><%= l(:label_frequency) %></label><%= select_tag 'frequency', options_for_select(hash_frequency.invert), :style => "width:155px; float:right; " %></p>
 	
@@ -150,7 +150,7 @@ payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
 	<%= select_tag 'salary_type', options_for_select(hash_salary_type.invert), :style => "width:155px; float:right; " %></p>
 	
 	
-	<p id="basic_factor">	<label><%= l(:label_factor) %></label><%= text_field_tag 'basic_field_factor', "", :size => 18, :style => "float:right; " %></p>
+	<p id="basic_factor">	<label><%= l(:label_factor) %></label><%= text_field_tag 'basic_field_factor', "", :maxlength => 7, :style => " width:150px; float:right; " %></p>
 	
 	<p id="allowance_dependent">
 		<table id = "table_payroll_dependent">
@@ -162,9 +162,9 @@ payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
 					<th style="font-weight:normal;"><%= l(:label_factor) %></th>
 				</tr>
 				<tr>
-					<td><%= select_tag 'dep_value', options_for_select(deplist) %></td>
+					<td><%= select_tag 'dep_value', options_for_select(deplist), :style => " width:100px; float:right; " %></td>
 					<td> *</td>
-					<td><%= text_field_tag 'factor', "", :size => 5 %></td>
+					<td><%= text_field_tag 'factor', "", :size => 5, :maxlength => 7 %></td>
 				</tr>
 			</tr>
 		</table>

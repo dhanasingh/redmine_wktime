@@ -39,7 +39,7 @@
 			</td>
 			<td><%=h select_tag('dependent_id' + entry.sc_id.to_s , 
 			options_for_select(salaryComponents, :selected =>  dependent_id, :required => true), options = {:disabled => (isAccountUser ? !isOverride : true)} ) %></td>
-			<td><%=h text_field_tag('factor' + entry.sc_id.to_s, factor, :size => 10, :disabled => (isAccountUser ? !isOverride : true), :required => true) %>
+			<td><%=h text_field_tag('factor' + entry.sc_id.to_s, factor, :size => 10, :maxlength => 7, :disabled => (isAccountUser ? !isOverride : true), :required => true) %>
 			</td>
 		</tr>
 	<% end %>
