@@ -173,13 +173,14 @@ module WkpayrollHelper
 	
 	def getWorkingDaysCount(from,to)
 		ndays = Setting.non_working_week_days
-		totalDays = to - from +1
+		totalDays = (to - from +1).to_i
 		periodStartDay = from.wday
 		nonWorkingDays = (totalDays/7).to_i*ndays.size
 		remainingDays = (totalDays%7).to_i
 		if remainingDays>0
 			for i in 1 .. remainingDays
-				if ndays.include? (periodStartDay + i - 1).to_s
+				dayVal = ((periodStartDay + i - 1)%7).to_i != 0 ? ((periodStartDay + i - 1)%7).to_s : "7"
+				if ndays.include? dayVal
 					nonWorkingDays = nonWorkingDays + 1
 				end
 			end
