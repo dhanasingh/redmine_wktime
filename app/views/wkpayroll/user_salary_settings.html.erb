@@ -27,10 +27,10 @@
 		isOverride = entry.user_salary_component_id.blank? ? false : true
 		if isOverride
 			dependent_id = entry.usc_dependent_id.blank? ? 0 : entry.usc_dependent_id
-			factor = entry.usc_factor.blank? ? 0 : entry.usc_factor
+			factor = entry.usc_factor.blank? ? 0 : ("%.2f" % entry.usc_factor)
 		else
 			dependent_id = entry.sc_dependent_id.blank? ? 0 : entry.sc_dependent_id
-			factor = entry.sc_factor.blank? ? 0 : entry.sc_factor
+			factor = entry.sc_factor.blank? ? 0 : ("%.2f" % entry.sc_factor)
 		end
 	%>
 		<tr class="time-entry <%= cycle("odd", "even") %>">
