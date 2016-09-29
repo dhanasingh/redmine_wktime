@@ -1,0 +1,176 @@
+<%= javascript_include_tag 'payroll', :plugin => "redmine_wktime" %>
+<script type="text/javascript"> 
+payroll_name = "<%=l(:label_basic_name) %>";
+payroll_name_errormsg = "<%=l(:label_name_errormsg) %>";
+payroll_date_errormsg = "<%=l(:label_date_errormsg) %>";
+payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
+</script>
+<% dlgcontent = false %>
+<% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
+<%= hidden_field_tag 'settings[payroll_deleted_ids]', "" %>
+<% hash_salary_type = { 's'  => l(:label_salaried), 'h' =>  l(:label_hourly) } %>
+<% hash_pay_period = { 'm'  => l(:label_monthly), 'bw' =>  l(:label_bi_weekly), 'w' => l(:label_weekly) } %>
+<% hash_frequency = { '' => "", 'm'  => l(:label_monthly), 'q' =>  l(:label_quartly), 'sa' => l(:label_semi_annually), 'a' => l(:label_annually) } %>
+<%	
+	deplist = Array.new
+	basiclist = Array.new
+	allowancelist = Array.new
+	deductionlist = Array.new
+	sal_com_hash = Hash.new
+	dep_list = WkSalaryComponents.order('name')
+	deplist << [ "", '' ] if dep_list.count > 0
+	unless dep_list.blank?
+		dep_list.each do |list|  
+			deplist << [ list.name , list.id ]
+			sal_com_hash = Hash[dep_list.map { |u| [u.id, u.name] }]
+		end
+	end
+	
+	if(@settings['wktime_payroll_basic'].blank?)
+		basiclist = ''
+	else
+		@settings['wktime_payroll_basic'].each do |element|
+		  listboxArr = element.split('|')
+		  optionText = listboxArr[1] +' : ' + hash_salary_type[listboxArr[2]] +' : ' + listboxArr[3]
+		  basiclist << [optionText,element]
+		end
+	end
+	
+	if(@settings['wktime_payroll_allowances'].blank?)
+		allowancelist = ''
+	else
+		@settings['wktime_payroll_allowances'].each do |element|
+		  allowanceArr = element.split('|')
+		  optionText = allowanceArr[1] +' : ' + (allowanceArr[2].blank? ? '' :hash_frequency[allowanceArr[2]]) +' : ' + (allowanceArr[3].blank? ? '' : allowanceArr[3]) + (!allowanceArr[4].blank? ? ' : ' + sal_com_hash[allowanceArr[4].to_i] + ' : ' : ' : ')  + (allowanceArr[5].blank? ? "" : allowanceArr[5])
+		  allowancelist << [optionText,element]
+		end
+	end
+	
+	if(@settings['wktime_payroll_deduction'].blank?)
+		deductionlist = ''
+	else
+		@settings['wktime_payroll_deduction'].each do |element|
+		deductionArr = element.split('|')
+		optionText = deductionArr[1] +' : ' + (deductionArr[2].blank? ? '' : hash_frequency[deductionArr[2]]) +' : ' + (deductionArr[3].blank? ? '' : deductionArr[3]) + (!deductionArr[4].blank? ? (' : ' + sal_com_hash[deductionArr[4].to_i] + ' : ') : ' : ')  + (deductionArr[5].blank? ? "" : deductionArr[5])
+		  deductionlist << [optionText,element]
+		end
+	end
+	
+	
+%>
+<fieldset>
+<legend><%= l(:label_payroll) %></legend>
+	<p style="margin-left: -110px;">
+			<%= check_box_tag('settings[wktime_enable_payroll_module]', 1, @settings['wktime_enable_payroll_module'].to_i == 1) %> <label><%= l(:label_enable_payroll_module) %></label>
+	</p>
+	<p style="margin-left: -110px;">
+			<%= check_box_tag('settings[wktime_auto_generate_salary]', 1, @settings['wktime_auto_generate_salary'].to_i == 1) %> <label><%= l(:label_auto_generate_salary) %></label>
+	</p>
+	<p style="margin-left: -110px;">
+		<label><%= l(:label_wk_currency) %></label>
+		<%=h select_tag('settings[wktime_payroll_currency]',options_for_select(wkexpense_helper.options_for_currency,:selected => @settings['wktime_payroll_currency'])) %></p>
+	<p style="margin-left: -110px;"><label><%= l(:label_pay_period) %></label>
+	    <%= select_tag 'settings[wktime_pay_period]', options_for_select(hash_pay_period.invert, :selected => @settings['wktime_pay_period']) %></p>
+	<p style="margin-left: -110px;">	
+			<label><%= l(:label_pay_day) %></label>
+			<%= select_tag('settings[wktime_pay_day]', options_for_select([[l('date.day_names')[0], 0],
+										   [l('date.day_names')[1], 1],
+										   [l('date.day_names')[2], 2],
+										   [l('date.day_names')[3], 3],
+										   [l('date.day_names')[4], 4],
+										   [l('date.day_names')[5], 5],
+										   [l('date.day_names')[6], 6]], :selected => @settings['wktime_pay_day']))%>
+	</p>    
+	 <%
+		issueIdArr =Array.new
+	    if(@settings['wktime_leave'].blank?)
+			leaveIssueslist = []
+		else
+			@settings['wktime_leave'].each do |element|
+			   listboxArr = element.split('|')
+			   issueIdArr << listboxArr[0]
+			end
+			issueIds = issueIdArr.join(',')
+		    leaveIssues = Issue.select(:id, :subject).where("id in (#{issueIds})")
+			leaveIssueslist = leaveIssues.collect {|issue| [issue.subject, issue.id]}
+		end
+		leaveIssueslist.unshift(["",0]) 
+	%>
+	
+    <p style="margin-left: -110px;"><label><%= l(:label_loss_of_pay) %></label>
+	 <%= select_tag 'settings[wktime_loss_of_pay]', options_for_select(leaveIssueslist, :selected =>  @settings['wktime_loss_of_pay']) %></p>
+	
+	<p style="margin-left: -110px;"><label><%= l(:label_financial_year_start) %></label>
+	 <%= select_tag 'settings[wktime_financial_year_start]', options_for_select((l('date.month_names').collect.with_index.to_a), :selected =>  @settings['wktime_financial_year_start']) %></p>
+	 
+<p style="margin-left: -110px;">
+<label><%= l(:label_basic) %></label>
+		<%=  select_tag('settings[wktime_payroll_basic]',
+			options_for_select(basiclist), :multiple=> true, :style => "width:390px; height:60px;")%>	
+
+	</p>			
+	<p style="margin-left: -110px;">
+		<%= link_to "Add", "javascript:payrollDialogAction('Basic', 'Add');", :class => "button", :id => "basic_add"%>  
+		<%= link_to "Edit", "javascript:payrollDialogAction('Basic', 'Edit');", :class => "button"%>  
+	</p>
+		
+	
+<p style="margin-left: -110px;">
+<label><%= l(:label_allowances) %></label>
+		<%=  select_tag('settings[wktime_payroll_allowances]',
+			options_for_select(allowancelist), :multiple=> true, :style => "width:390px; height:100px;")%>	
+
+	</p>			
+	<p style="margin-left: -110px;">
+		<%= link_to "Add", "javascript:payrollDialogAction('Allowances', 'Add');", :class => "button"%>  |
+		<%= link_to "Edit", "javascript:payrollDialogAction('Allowances', 'Edit');", :class => "button"%>  |
+		<%= link_to "Delete", "javascript:removeSelectedValue('settings_wktime_payroll_allowances');", :class => "button" %>
+	</p>
+<p style="margin-left: -110px;">
+<label><%= l(:label_deduction) %></label>
+		<%=  select_tag('settings[wktime_payroll_deduction]',
+			options_for_select(deductionlist), :multiple=> true, :style => "width:390px; height:100px;")%>	
+
+	</p>			
+	<p style="margin-left: -110px;">
+		<%= link_to "Add", "javascript:payrollDialogAction('Deduction', 'Add');", :class => "button"%>  |
+		<%= link_to "Edit", "javascript:payrollDialogAction('Deduction', 'Edit');", :class => "button"%>  |
+		<%= link_to "Delete", "javascript:removeSelectedValue('settings_wktime_payroll_deduction');", :class => "button" %>
+	</p>
+
+<div id="payroll-dlg" title="<%= l(:label_basic) %>">
+<fieldset>
+	<p><label><%= l(:field_name) %></label><%= text_field_tag 'name', "", :maxlength => 50, :style => "width:150px; float:right; " %><p>
+	
+	<p id = "payroll_frequency"><label><%= l(:label_frequency) %></label><%= select_tag 'frequency', options_for_select(hash_frequency.invert), :style => "width:155px; float:right; " %></p>
+	
+	<p id="payroll_start_date"><label><%= l(:field_start_date) %></label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= date_field_tag('start_date', "", {:id => 'start_date', :size => 12, :style => "width:130px; "}) + calendar_for('start_date') %></p>
+	
+	<p id="basic_salary_type"><label><%= l(:label_salary_type) %></label>
+	<%= select_tag 'salary_type', options_for_select(hash_salary_type.invert), :style => "width:155px; float:right; " %></p>
+	
+	
+	<p id="basic_factor">	<label><%= l(:label_factor) %></label><%= text_field_tag 'basic_field_factor', "", :maxlength => 7, :style => " width:150px; float:right; " %></p>
+	
+	<p id="allowance_dependent">
+		<table id = "table_payroll_dependent">
+			<tr>
+				<th rowspan="3" valign="justify" style="font-weight:normal;"><label><%= l(:label_dependent) %></label></th>
+				<tr>
+					<th style="font-weight:normal;"><%= l(:label_component) %></th>
+					<th></th>
+					<th style="font-weight:normal;"><%= l(:label_factor) %></th>
+				</tr>
+				<tr>
+					<td><%= select_tag 'dep_value', options_for_select(deplist), :style => " width:100px; float:right; " %></td>
+					<td> *</td>
+					<td><%= text_field_tag 'factor', "", :size => 5, :maxlength => 7 %></td>
+				</tr>
+			</tr>
+		</table>
+		
+	</p>
+</fieldset>	
+</div>
+
+</fieldset>

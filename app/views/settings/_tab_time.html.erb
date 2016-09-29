@@ -72,3 +72,9 @@
 	<%=h select_tag('template_custFldDD', options_for_select(cfs))%>
 </div>
 <% end %>
+<fieldset class="box tabular">
+<%= render :partial => 'settings/tab_expense' %>
+</fieldset>
+<fieldset class="box tabular">
+<%= render :partial => 'settings/tab_approval' %>
+</fieldset>

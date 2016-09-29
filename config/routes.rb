@@ -128,3 +128,26 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
   get 'wkreport/getMembersbyGroup', :to => 'wkreport#getMembersbyGroup'
   
   get 'wkattendance/runPeriodEndProcess', :to => 'wkattendance#runPeriodEndProcess'
+  
+  #For payroll
+  get 'wkpayroll/index', :to => 'wkpayroll#index'
+  
+  get 'wkpayroll/edit', :to => 'wkpayroll#edit'
+  
+  get 'wkpayroll/payslip_rpt', :to => 'wkpayroll#payslip_rpt' 
+  
+  post 'wkpayroll/updateUserSalary', :to => 'wkpayroll#updateUserSalary'
+  
+  get 'wkpayroll/user_salary_settings', :to => 'wkpayroll#user_salary_settings'
+  
+  get 'wkpayroll/getGroupMembers', :to => 'wkpayroll#getGroupMembers'
+  
+  get 'wkpayroll/getMembersbyGroup', :to => 'wkpayroll#getMembersbyGroup'
+  
+  post 'wkpayroll/generatePayroll', :to => 'wkpayroll#generatePayroll'
+  
+   get 'wkpayroll/payroll_rpt', :to => 'wkpayroll#payroll_rpt'
+   
+   get 'wkpayroll/usrsettingsindex', :to => 'wkpayroll#usrsettingsindex'
+   
+   post 'wkpayroll/usrsettingsindex', :to => 'wkpayroll#usrsettingsindex'

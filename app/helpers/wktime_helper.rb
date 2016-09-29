@@ -3,6 +3,7 @@ module WktimeHelper
   include Redmine::Export::PDF
   include Redmine::Export::PDF::IssuesPdfHelper
   include Redmine::Utils::DateCalculation
+  
 
 	def options_for_period_select(value)
 		options_for_select([[l(:label_all_time), 'all'],
@@ -576,24 +577,22 @@ end
 	end
 	
 	def time_expense_tabs
-		tabs = [
+		if params[:controller] == "wktime" || params[:controller] == "wkexpense"
+			tabs = [
+				{:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime},
+				{:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense}
+			   ]
+		elsif params[:controller] == "wkattendance"
+			tabs = [
 				{:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave},
 				{:name => 'clock', :partial => 'wktime/tab_content', :label => :label_clock}
 			   ]
-	#	if !Setting.plugin_redmine_wktime['wktime_enable_expense_module'].blank? &&
-	#		Setting.plugin_redmine_wktime['wktime_enable_expense_module'].to_i == 1 
-	#		tabs[tabs.length] = {:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense}
-	#	end
-		
-	#	if !Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].blank? &&
-	#		Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].to_i == 1 
-	#		tabs[tabs.length] = {:name => 'wkattendance', :partial => 'wktime/tab_content', :label => :label_wk_attendance}
-	#	end
-		
-	#	if !Setting.plugin_redmine_wktime['wktime_enable_report_module'].blank? &&
-	#		Setting.plugin_redmine_wktime['wktime_enable_report_module'].to_i == 1 
-	#		tabs[tabs.length] = {:name => 'wkreport', :partial => 'wktime/tab_content', :label => :label_report_plural}
-	#	end
+		else
+			tabs = [
+				{:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll},
+				{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_user_settings}
+			   ]
+		end
 		tabs
 	end		
 	
@@ -685,10 +684,9 @@ end
 		tabs = [
 				{:name => 'general', :partial => 'settings/tab_general', :label => :label_general},
 				{:name => 'display', :partial => 'settings/tab_display', :label => :label_display},
-				{:name => 'wktime', :partial => 'settings/tab_time', :label => :label_wktime},
-				{:name => 'wkexpense', :partial => 'settings/tab_expense', :label => :label_wkexpense},
-				{:name => 'approval', :partial => 'settings/tab_approval', :label => :label_wk_approval_system},
-				{:name => 'attendance', :partial => 'settings/tab_attendance', :label => :label_wk_attendance}
+				{:name => 'wktime', :partial => 'settings/tab_time', :label => :label_te},
+				{:name => 'attendance', :partial => 'settings/tab_attendance', :label => :label_wk_attendance},
+				{:name => 'payroll', :partial => 'settings/tab_payroll', :label => :label_payroll}
 			   ]	
 	end	
 	
@@ -996,11 +994,16 @@ end
 	
 	 # Returns the options for the date_format setting
     def date_format_options
-    Import::DATE_FORMATS.map do |f|
-      format = f.gsub('%', '').gsub(/[dmY]/) do
-        {'d' => 'DD', 'm' => 'MM', 'Y' => 'YYYY'}[$&]
-      end
-      [format+" HH:MM:SS", f + " %T"]
-    end
-  end
+		Import::DATE_FORMATS.map do |f|
+		  format = f.gsub('%', '').gsub(/[dmY]/) do
+			{'d' => 'DD', 'm' => 'MM', 'Y' => 'YYYY'}[$&]
+		  end
+		  [format+" HH:MM:SS", f + " %T"]
+		end
+	end
+	
+	def showPayroll
+		!Setting.plugin_redmine_wktime['wktime_enable_payroll_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_payroll_module'].to_i == 1
+	end
 end

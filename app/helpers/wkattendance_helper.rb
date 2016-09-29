@@ -50,8 +50,6 @@ module WkattendanceHelper
 		
 		deleteWkUserLeaves(nil, currentMonthStart - 1)
 		
-		joinDateCFID = !Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].blank? ? Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].to_i : 0
-		
 		if !strIssueIds.blank?		
 			from = currentMonthStart << 1
 			to = (from >> 1) - 1
@@ -73,7 +71,7 @@ module WkattendanceHelper
 					"group by user_id) v3 on v3.user_id = v1.user_id " +
 					"left join wk_user_leaves ul on ul.user_id = v1.user_id and ul.issue_id = v1.issue_id " +
 					"and ul.accrual_on between '#{prev_mon_from}' and '#{prev_mon_to}' " +
-					"left join custom_values c on c.customized_id = v1.user_id and c.custom_field_id = #{joinDateCFID} " +
+					"left join custom_values c on c.customized_id = v1.user_id and c.custom_field_id = #{getSettingCfId('wktime_attn_join_date_cf')} " +
 					"where v1.status = 1 and v1.type = 'User'"
 					
 			entries = TimeEntry.find_by_sql(qryStr)		
@@ -160,6 +158,18 @@ module WkattendanceHelper
 			wkattendance = addNewAttendance(startTime,endTime,userId)
 		end
 		wkattendance
+	end
+	
+	#def getWorkingDays(fromDate,toDate)
+		#workingDays = TimeEntry.where("spent_on between '#{fromDate}' and '#{toDate}'").distinct(true).count(:spent_on)
+		#workingDays
+		#workingDays = toDate - fromDate
+		#workingDays
+	#end
+	
+	def getWorkedHours(userId,fromDate,toDate)
+		workedHours = TimeEntry.where("user_id = #{userId} and spent_on between '#{fromDate}' and '#{toDate}' and issue_id not in (#{getLeaveIssueIds})").sum(:hours)
+		workedHours
 	end
 
 end

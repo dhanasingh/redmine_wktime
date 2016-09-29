@@ -7,6 +7,7 @@ module WkreportControllerPatch2
 				@report_params = [
 					['attendance_report', 'Attendance', 'wkreport', 'reportattn'],
 					['time_report', 'Timesheet', 'wktime', 'time_rpt'],
+					['payslip_report', 'Payslip', 'wkreport', 'payslip_rpt'],
 					['expense_report', 'Expensesheet', 'wkexpense', 'time_rpt']		
 				]
 			end

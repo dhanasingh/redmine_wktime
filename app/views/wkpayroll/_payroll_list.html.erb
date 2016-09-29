@@ -1,0 +1,35 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div class="autoscroll">
+<table class="list time-entries">
+  <thead>
+         <tr>
+				<th class="lbl-txt-align"><%= l(:field_user) %></th>
+				<th class="lbl-txt-align"><%= l(:label_salarydate) %></th>
+				<th class="lbl-txt-align"><%= l(:label_basic) %></th>
+				<th class="lbl-txt-align"><%= l(:label_allowances) %></th>
+				<th class="lbl-txt-align"><%= l(:label_deduction) %></th>
+				<th class="lbl-txt-align"><%= l(:label_gross) %></th>
+				<th class="lbl-txt-align"><%= l(:label_net) %></th>
+				<th></th>
+         </tr>
+  </thead>
+   <tbody>
+   <% @payroll_entries.each do |entry| %>
+		 <tr>
+				<td class="lbl-txt-align"><%=h entry.firstname + ' ' + entry.lastname %></td>
+				<td class="lbl-txt-align"><%=h entry.salarydate %></td>
+				<td class="lbl-txt-align"><%=h entry.currency %>&nbsp;<%=h html_hours("%.2f" % entry.basic) %></td>
+				<td class="lbl-txt-align"><%=h entry.currency %>&nbsp;<%=h html_hours("%.2f" % entry.allowance) %></td>
+				<td class="lbl-txt-align"><%=h entry.currency %>&nbsp;<%=h html_hours("%.2f" % entry.deduction) %></td>
+				<td class="lbl-txt-align"><%=h entry.currency %> &nbsp;<%=h html_hours("%.2f" % ((entry.basic.blank? ? 0 : entry.basic) + (entry.allowance.blank? ? 0 : entry.allowance))) %></td>
+				<td class="lbl-txt-align"><%=h  entry.currency %>&nbsp;<%=h html_hours("%.2f" % (((entry.basic.blank? ? 0 : entry.basic) + (entry.allowance.blank? ? 0 : entry.allowance)) -(entry.deduction.blank? ? 0 : entry.deduction))) %></td>
+				<td align="center">
+                <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :user_id => entry.user_id, :salary_date =>entry.salarydate, :tab => controller.controller_name},
+                                       :title => l(:button_edit) %>
+		</tr>
+	<% end %>
+   </tbody>
+</table>
+</div>
+
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

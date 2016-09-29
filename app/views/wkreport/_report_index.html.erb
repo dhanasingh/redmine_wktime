@@ -16,7 +16,7 @@
 <table>
 <tr>
 <th><%= l(:label_report) + " " + l(:field_type) %> </th>
-<td><%= select_tag 'report_type', options_for_report_select(rpttype),:onchange => "reportChanged(this, #{User.current.id});", :style=> "width:200px;" %></td>
+<td><%= select_tag 'report_type', options_for_report_select(rpttype), :style=> "width:200px;" %></td>
 </tr>
 <% if User.current.admin? || isAccountUser %>
 <tr>
@@ -24,8 +24,7 @@
 <td>
 	<%=h select_tag('group_id',
 	options_for_select( [["",0]] + (@groups.collect {|p| [p.name, p.id ]}),
-	:selected => !groupid.nil? ? groupid.to_i: 0), :onchange => "var reportDD = document.getElementById('report_type');var id = reportDD.options[reportDD.selectedIndex].value;
-	var needBlankOption = ((id=='attendance_report' || id=='spent_time_report') ? true : false) ; grpChanged(this, #{User.current.id}, needBlankOption);", :style=> "width:300px;") %>
+	:selected => !groupid.nil? ? groupid.to_i: 0), :onchange => "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %>
 </td>
 <th><%=l(:label_member)%></th>
 <td>

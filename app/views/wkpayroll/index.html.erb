@@ -1,0 +1,56 @@
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'wkpayroll', :plugin => "redmine_wktime" %>
+<h2><%= l(:label_payroll) %></h2>
+<script type="text/javascript"> 
+    wktimeIndexUrl = '<%=url_for(:controller => "wktime", :action => "index", :tab => "wktime")%>';
+    wkexpIndexUrl = '<%=url_for(:controller => "wkexpense", :action => "index", :tab => "wkexpense")%>';
+    wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "leave")%>';     
+    clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>';
+	payrollUrl = '<%=url_for(:controller => "wkpayroll", :action => "index", :tab => "payroll")%>';
+	userssettingsUrl = '<%=url_for(:controller => "wkpayroll", :action => "usrsettingsindex", :tab => "usersettings")%>';
+       
+	grpUrl="<%= "#{url_for(:controller => "wkpayroll", :action => 'getMembersbyGroup')}" %>";
+		//getMembersbyGroup
+</script>
+<%= render_tabs time_expense_tabs %>
+
+<%= hidden_field_tag 'back_url', url_for(params) %>
+
+<% wktime_helper = Object.new.extend(WktimeHelper) %>
+<%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
+	<%= hidden_field_tag "searchlist", "#{controller_name}" %>
+	<%	groupid =session[:wkpayroll][:group_id]
+		userid =session[:wkpayroll][:user_id] %>	
+		<table>
+		
+			<% if wktime_helper.isAccountUser %>
+			<tr>
+			<th><%=l(:label_group_plural)%> </th>
+			<% if !@groups.blank? %>
+				<td>
+					<%=h select_tag('group_id',
+					options_for_select( [["",0]] + (@groups.collect {|p| [p.name, p.id ]}),
+					:selected => !groupid.nil? ? groupid.to_i: 0), :onchange => "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %>
+				</td>
+			<% end %>
+			<th><%=l(:label_member)%></th>
+			<td>
+			<%# show the blank value if more than one user is in the list %>
+			<%=h select_tag('user_id',
+				options_for_select( [["All Users","0"]] + @members,
+				:selected => userid.nil? ? (@user.nil? ? User.current.id : @user.id) : userid),
+				:style=> "width:200px;") %></td>
+			</tr>
+			<% end %>
+		</table>
+		<%= render :partial => 'wkpayroll/date_range' %>
+	<% end %>	
+	<% if !@payroll_entries.blank? %>
+		<div class="total-hours">
+			<p><%= l(:label_total) %>: <%= @payroll_entries[0].currency %>&nbsp;<%= @total_gross %></p>
+		</div>
+	<% end %>
+<%= render :partial => 'wkpayroll/payroll_list'%>
+
+
+<% html_title(l(:label_ta)) -%>

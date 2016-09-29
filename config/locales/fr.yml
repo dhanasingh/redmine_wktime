@@ -213,3 +213,57 @@ fr:
   label_import_file_headers: File Headers
   error_no_record_to_import: No Record to Import
   warning_fields_in_file_not_configured: Fields in file not configured in plugin attendance settings
+  
+  label_payroll: Payroll
+  label_basic: Basic Pay
+  label_allowance: Allowance
+  label_deduction: Deductions
+  label_gross: Gross
+  label_net: Net
+  label_salarydate: Salary Date  
+  label_allowances: Allowances
+  label_frequency: Frequency
+  label_pay_period: Pay Period
+  label_salary_type: Salary Type
+  label_monthly: Monthly
+  label_quartly: Quartly
+  label_semi_annually: Semi Annually
+  label_annually: Annually
+  label_salaried: Salaried
+  label_weekly: Weekly
+  label_bi_weekly: Bi-Weekly
+  label_hourly: Hourly
+  label_dependent: Depends on
+  label_basic_name: The Name is already exists
+  label_name_errormsg: Please Enter a Name
+  label_date_errormsg: Please Enter the Start date
+  label_auto_generate_salary: Auto generate salary
+  label_generate_salary: Generate Salary
+  label_pay_day: Pay day
+  label_salary_detail: Salary Details
+  label_loss_of_pay: Loss Of Pay
+  label_financial_year_start: Financial Year Start
+  label_salary_detail: Salary Details
+  label_wk_payslip: Pay Slip
+  label_period: Period
+  label_emp_name: Employee Name
+  label_ytd: YTD
+  label_earning: Earnings
+  label_user_settings: User Settings
+  label_total_earning: Total Earnings
+  label_total_deduction: Total Deductions
+  label_net_earning: Net Earnings
+  label_wk_form_r: FORM-R
+  label_register_wages: Register of Wages
+  label_wages_rule: See Sub Rule(5) of rule 11 of Tamilnadu Shops and Establishments Rule, 1948
+  label_wages_period: Wages Period Month
+  label_company_name: Company Name
+  label_address: Address
+  label_enable_payroll_module: Enable Payroll module 
+  label_gender: Gender
+  label_ytd_description: YTD - Year to Date from %{start} to %{end}
+  label_component: Component
+  label_factor: Factor
+  label_generate: Generate
+  label_payroll_report: Payroll report
+  label_factor_errormsg: Please Enter the Factor

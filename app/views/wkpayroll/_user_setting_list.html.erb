@@ -1,0 +1,47 @@
+<%= form_tag({}) do -%>	
+	<%= hidden_field_tag 'back_url', url_for(params) %>
+	<% wktime_helper = Object.new.extend(WktimeHelper) %>
+	<% if (wktime_helper.isAccountUser) %>
+
+		<%= form_tag({:controller => controller_name, :action => 'usrsettingsindex'}, :method => :get) do %>
+			<fieldset><legend><%= l(:label_filter_plural) %></legend>
+				<label for='status'><%= l(:field_status) %>:</label>
+				<%= select_tag 'status', users_status_options_for_select(@status), :class => "small", :onchange => "this.form.submit(); return false;"  %>
+
+				<% if @groups.present? %>
+				<label for='group_id'><%= l(:label_group) %>:</label>
+				<%= select_tag 'group_id', content_tag('option') + options_from_collection_for_select(@groups, :id, :name, params[:group_id].to_i), :onchange => "this.form.submit(); return false;"  %>
+				<% end %>
+
+				<label for='name'><%= l(:label_user) %>:</label>
+				<%= text_field_tag 'name', params[:name], :size => 30 %>
+				<%= submit_tag l(:button_apply), :class => "small", :name => "list" %>
+				<%= link_to l(:button_clear), {:controller => controller_name, :action => 'usrsettingsindex', :tab => 'usersettings'}, :class => 'icon icon-reload' %>
+			</fieldset>
+		<%=h hidden_field_tag('tab', 'usersettings') %>
+		<% end %>
+	&nbsp;
+	<% end %>
+	<div class="autoscroll">
+		<table class="list time-entries">
+			<thead>
+				<tr>
+					<th style="text-align: left;"><%= l(:field_user) %></th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<% @payroll_entries.each do |entry| -%>
+					<tr class="time-entry <%= cycle("odd", "even") %> <%= entry.status == 3 ? "user locked" : "" %>" >
+						<td style="text-align: left;"><%=h entry.firstname + ' ' + entry.lastname%></td>
+
+						<td align="center">
+							<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'user_salary_settings', :user_id => entry.user_id, :tab => 'usersettings'},
+															   :title => l(:button_edit) %>
+						</td>
+					</tr>
+				<% end -%>
+			</tbody>
+		</table>
+	</div>
+<% end -%>

@@ -1,4 +1,4 @@
-var wkattnIndexUrl,wkReportUrl,clockInOutUrl;
+var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl;
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -213,8 +213,12 @@ function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst)
 
 $(document).ready(function()
 {
+	changeProp('tab-wktime',wktimeIndexUrl);
+	changeProp('tab-wkexpense',wkexpIndexUrl);
 	changeProp('tab-leave',wkattnIndexUrl);
 	changeProp('tab-clock',clockInOutUrl);
+	changeProp('tab-payroll',payrollUrl);
+	changeProp('tab-usersettings',userssettingsUrl);
 });
 
 
@@ -250,7 +254,7 @@ function validateMember()
 }
 function reportChanged(reportDD, userid){
 	var id = reportDD.options[reportDD.selectedIndex].value;
-	var needBlankOption = ((id == 'attendance_report' || id == 'spent_time_report') ? true : false) ;
+	var needBlankOption = ((id == 'attendance_report' || id == 'spent_time_report' || id == 'payroll_report') ? true : false) ;
 	grpChanged(document.getElementById("group_id"), userid, needBlankOption)
 }
 
