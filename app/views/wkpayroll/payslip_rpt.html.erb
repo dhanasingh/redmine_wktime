@@ -89,9 +89,9 @@
 		<%for i in 0..componentlength-1 %>
 			<tr>
 				<% if componentHash['e'].length > i%>
-					<td><b><%=h componentHash['e'][i][0]  %></b></td>
-					<td><%=h componentHash['e'][i][2]%> <%=h "%.2f" % componentHash['e'][i][1] %></td>
-					<td><%=h componentHash['e'][i][2]%> <%=h "%.2f" % componentHash['e'][i][3] %></td>
+					<td class="txt-align"><b><%=h componentHash['e'][i][0]  %></b></td>
+					<td align="right"><%=h componentHash['e'][i][2]%> <%=h "%.2f" % componentHash['e'][i][1] %></td>
+					<td align="right"><%=h componentHash['e'][i][2]%> <%=h "%.2f" % componentHash['e'][i][3] %></td>
 					<% 
 						totalEarnings = totalEarnings + componentHash['e'][i][1] 
 						totalYTDEarnings = totalYTDEarnings + componentHash['e'][i][3]
@@ -100,9 +100,9 @@
 				<%end%>	
 				
 				<% if componentHash['d'].length > i%>
-					<td><b><%=h componentHash['d'][i][0]  %></b></td>
-					<td><%=h componentHash['d'][i][2]%> <%=h "%.2f" % componentHash['d'][i][1] %></td>
-					<td><%=h componentHash['d'][i][2]%> <%=h "%.2f" % componentHash['d'][i][3] %></td>
+					<td class="txt-align"><b><%=h componentHash['d'][i][0]  %></b></td>
+					<td align="right"><%=h componentHash['d'][i][2]%> <%=h "%.2f" % componentHash['d'][i][1] %></td>
+					<td align="right"><%=h componentHash['d'][i][2]%> <%=h "%.2f" % componentHash['d'][i][3] %></td>
 					<% 
 						totalDeductions = totalDeductions + componentHash['d'][i][1]
 						totalYTDDeductions = totalYTDDeductions + componentHash['d'][i][3]
@@ -116,18 +116,18 @@
 			</tr>
 		<%end%>
 		<tr> 
-			<td><b><%=l(:label_total_earning)%></b></td>
-			<td><%=h earnCurrency %> <%=h "%.2f" % totalEarnings %></td>
-			<td><%=h earnCurrency %> <%=h "%.2f" % totalYTDEarnings %></td>
-			<td><b><%=l(:label_total_deduction)%></b></td>
-			<td><%=h deductionCurrency %> <%=h "%.2f" % totalDeductions %></td>
-			<td><%=h deductionCurrency %> <%=h "%.2f" % totalYTDDeductions %></td>
+			<td class="txt-align"><b><%=l(:label_total_earning)%></b></td>
+			<td align="right"><%=h earnCurrency %> <%=h "%.2f" % totalEarnings %></td>
+			<td align="right"><%=h earnCurrency %> <%=h "%.2f" % totalYTDEarnings %></td>
+			<td class="txt-align"><b><%=l(:label_total_deduction)%></b></td>
+			<td align="right"><%=h deductionCurrency %> <%=h "%.2f" % totalDeductions %></td>
+			<td align="right"><%=h deductionCurrency %> <%=h "%.2f" % totalYTDDeductions %></td>
 		</tr>
 		
 		<tr> 
-			<td><b><%=l(:label_net_earning)%></b></td>
-			<td><%=h earnCurrency %><%=h "%.2f" % (totalEarnings - totalDeductions) %></td>
-			<td><%=h earnCurrency %><%=h "%.2f" % (totalYTDEarnings - totalYTDDeductions) %></td>
+			<td class="txt-align"><b><%=l(:label_net_earning)%></b></td>
+			<td align="right"><%=h earnCurrency %><%=h "%.2f" % (totalEarnings - totalDeductions) %></td>
+			<td align="right"><%=h earnCurrency %><%=h "%.2f" % (totalYTDEarnings - totalYTDDeductions) %></td>
 		</tr>	
 	</tbody>		
 	</table>
