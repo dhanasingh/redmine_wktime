@@ -1,6 +1,7 @@
 
 var basicAction="";
 var payrollId = 0;
+var editedname="";
 $(document).ready(function(){
 	var listBox = document.getElementById("settings_wktime_payroll_basic");
 	if ($('#settings_wktime_payroll_basic').children().length != 0) {
@@ -18,7 +19,7 @@ $(document).ready(function(){
 				var startdate = "";
 				listBoxID = dlgname == 'Basic' ? "settings_wktime_payroll_basic" : (dlgname == 'Allowances' ? 'settings_wktime_payroll_allowances' : 'settings_wktime_payroll_deduction')
 				var listBox = document.getElementById(listBoxID);
-				var name = document.getElementById("name");				
+				var name = document.getElementById("name");									
 				var salary_type = document.getElementById("salary_type"); 
 				var pay_period = document.getElementById("pay_period");
 				var basic_field_factor = document.getElementById("basic_field_factor");
@@ -28,14 +29,13 @@ $(document).ready(function(){
 					startdate = document.getElementById("start_date").value;				
 					var dependent = document.getElementById("dep_value") ;
 					var factor = document.getElementById("factor");
-				}		
-				
-				if( !checkDuplicate(listBox,name.value) && name.value != "" && basic_field_factor.value != "" && ( (startdate != "" || (frequency.value == '' || frequency.value == 'm')  ) || dlgname == 'Basic') ){ 
-					if('Add'== basicAction){	
+				}						
+				if( !checkDuplicate(listBox,name.value) && name.value != "" && (basic_field_factor.value != "" || dlgname != 'Basic' ) && ( (startdate != "" || (frequency.value == '' || frequency.value == 'm')  ) || dlgname == 'Basic') ){ 
+					if('Add'== basicAction){
 						opt = document.createElement("option");
 						listBox.options.add(opt);
 					}
-					else if('Edit' == basicAction){           
+					else if('Edit' == basicAction){ 						
 						opt = listBox.options[listBox.selectedIndex];
 					}
 					if (name.value != ""){
@@ -77,7 +77,7 @@ $(document).ready(function(){
 					{
 						alertMsg += payroll_factor_errormsg + "\n";
 					}
-					if(((frequency.value != "" && startdate == "") || (frequency.value != "m" && startdate == "")) && dlgname != 'Basic' )
+					if(((frequency.value != "" && startdate == "") || (frequency.value != "m" && startdate == "")) && dlgname != 'Basic' && !checkDuplicate(listBox,name.value) )
 					{
 						alertMsg +=  payroll_date_errormsg + "\n";
 					}
@@ -109,6 +109,7 @@ function payrollDialogAction(dlg, action)
 		document.getElementById("payroll_start_date").style.display = 'none';
 		if('Add' == action)
 		{	
+			editedname =  "" ;
 			$( "#payroll-dlg" ).dialog( "open" )	
 		}		
 		else if('Edit' == action && listbox != null && listbox.options.selectedIndex >=0)
@@ -116,6 +117,7 @@ function payrollDialogAction(dlg, action)
 			var listboxArr = listbox.options[listbox.selectedIndex].value.split('|');
 			payrollId = listboxArr[0];
 			document.getElementById("name").value = listboxArr[1];
+			editedname =  listboxArr[1] ;
 			document.getElementById("salary_type").value = listboxArr[2];
 			document.getElementById('basic_field_factor').value = listboxArr[3];
 			$( "#payroll-dlg" ).dialog( "open" )			
@@ -141,6 +143,7 @@ function payrollDialogAction(dlg, action)
 		if('Add' == action)
 		{	
 			csName.value = '';
+			editedname =  "" ;
 			csFrequency.value = '';
 			csstart_date.value = '';
 			csdep_value.value = '';
@@ -152,6 +155,7 @@ function payrollDialogAction(dlg, action)
 			var listboxArr = listbox.options[listbox.selectedIndex].value.split('|');
 			payrollId = listboxArr[0];
 			csName.value = listboxArr[1];
+			editedname =  listboxArr[1] ;
 			csFrequency.value = listboxArr[2];
 			csstart_date.value = listboxArr[3];
 			csdep_value.value = listboxArr[4];
@@ -163,4 +167,20 @@ function payrollDialogAction(dlg, action)
 			alert(selectListAlertMsg);				
 		}
 	}		
+}
+
+
+function checkDuplicate(listbox, newValue)
+{
+	isDuplicate = false;
+	var listboxArr;	
+	for(i=0; i<listbox.options.length; i++)
+	 {
+		listboxArr=listbox.options[i].value.split('|');	
+		if(newValue == listboxArr[1] && (editedname != newValue ) )
+		{
+			isDuplicate=true;
+		}
+	 }		 
+	 return isDuplicate;
 }
