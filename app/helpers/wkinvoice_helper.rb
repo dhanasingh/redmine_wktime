@@ -67,7 +67,9 @@ include WkattendanceHelper
 			saveTAMInvoiceItem(accountProject)
 		else
 			# Add invoice item for fixed cost from the scheduled entries
-			scheduledEntries = accountProject.wk_billing_schedules.where(:account_project_id => accountProject.id, :bill_date => @invoice.start_date .. @invoice.end_date, :invoice_id => nil)
+			genInvFrom = Setting.plugin_redmine_wktime['wktime_generate_invoice_from']
+			genInvFrom = genInvFrom.blank? ? @invoice.start_date : genInvFrom.to_date
+			scheduledEntries = accountProject.wk_billing_schedules.where(:account_project_id => accountProject.id, :bill_date => genInvFrom .. @invoice.end_date, :invoice_id => nil)
 			totalAmount = 0
 			scheduledEntries.each do |entry|
 				invItem = saveFCInvoiceItem(entry)
