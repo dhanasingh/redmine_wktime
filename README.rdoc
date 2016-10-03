@@ -53,6 +53,8 @@ permission can approve, unapprove, reject time/expense sheets. This plugin also 
 Attendance module allow the user to clock in, clock out and view their leave status.
 T&E admin can manage other users attendance. A scheduled job will be run at start of each month to calculate the leave accruals.
 
+Payroll module allow the user to view salary and User salary settings. T&E admin can manage other users 'salary components' and 'User salary settings'. A scheduled job will be run at start of each month or week or bi-week depending upon the pay period to generate the salary. T&E admin can manually Generate salary using 'Generate Salary' link.
+
 Unpack the zip file to the plugins folder of Redmine.
 Starting from version 1.2, it requires db migration.
 So run the following command for db migration
