@@ -151,3 +151,16 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
    get 'wkpayroll/usrsettingsindex', :to => 'wkpayroll#usrsettingsindex'
    
    post 'wkpayroll/usrsettingsindex', :to => 'wkpayroll#usrsettingsindex'
+   
+   
+    #For Billing
+  get 'wkbilling/index', :to => 'wkbilling#index'
+  
+	get 'wkbilling/contracts', :to => 'wkbilling#contracts'
+
+	get 'wkbilling/account_projects', :to => 'wkbilling#account_projects'
+
+	get 'wkbilling/invoice', :to => 'wkbilling#invoice'
+
+	get 'wkbilling/tax', :to => 'wkbilling#tax'
+

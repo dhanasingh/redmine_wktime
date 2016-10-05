@@ -1,0 +1,6 @@
+<fieldset class="box tabular">
+	<legend><%= l(:label_wk_billing) %></legend>
+	<p>
+		<%= check_box_tag('settings[wktime_enable_billing_module]', 1, @settings['wktime_enable_billing_module'].to_i == 1) %> <label><%= l(:label_enable_billing_module) %></label>
+	</p>
+</fieldset>

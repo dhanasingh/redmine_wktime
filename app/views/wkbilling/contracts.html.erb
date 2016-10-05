@@ -1,0 +1,15 @@
+<h2><%= l(:label_contracts) %></h2>
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<script type="text/javascript"> 
+    blgaccUrl = '<%=url_for(:controller => "wkbilling", :action => "index", :tab => "accounts")%>';
+    blgcontractsUrl = '<%=url_for(:controller => "wkbilling", :action => "contracts", :tab => "contracts")%>';
+    blgaccpjtsUrl = '<%=url_for(:controller => "wkbilling", :action => "account_projects", :tab => "accprojects")%>';     
+    blginvoiceUrl = '<%=url_for(:controller => "wkbilling", :action => "invoice", :tab => "invoice")%>';
+	blgtaxUrl = '<%=url_for(:controller => "wkbilling", :action => "tax", :tab => "tax")%>';
+    prevTab = 'tab-<%= "#{controller_name}" %>';   
+//	grpUrl="<%= "#{url_for(:controller => "wkpayroll", :action => 'getMembersbyGroup')}" %>";
+		//getMembersbyGroup
+</script>
+<%= render_tabs time_expense_tabs %>
+
+<%= hidden_field_tag 'back_url', url_for(params) %>

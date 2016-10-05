@@ -1,4 +1,4 @@
-var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl;
+var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl;
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -218,7 +218,11 @@ $(document).ready(function()
 	changeProp('tab-leave',wkattnIndexUrl);
 	changeProp('tab-clock',clockInOutUrl);
 	changeProp('tab-payroll',payrollUrl);
-	changeProp('tab-usersettings',userssettingsUrl);
+	changeProp('tab-accounts',blgaccUrl);
+	changeProp('tab-contracts',blgcontractsUrl);
+	changeProp('tab-accprojects',blgaccpjtsUrl);
+	changeProp('tab-invoice',blginvoiceUrl);
+	changeProp('tab-tax',blgtaxUrl);
 });
 
 

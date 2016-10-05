@@ -23,7 +23,7 @@ module Redmine::MenuManager::MenuHelper
     if project && !project.new_record?
       :project_menu
     else
-      if %w(wktime wkexpense wkattendance wkreport wkpayroll).include? params[:controller]
+      if %w(wktime wkexpense wkattendance wkreport wkpayroll wkbilling).include? params[:controller]
         :wktime_menu
       else
         :application_menu
@@ -304,7 +304,8 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_auto_import_time_hr' => '23',
 			 'wktime_auto_import_time_min' => '0',
 			 'wktime_file_to_import' => '0',
-			 'wktime_import_file_headers' => '0'
+			 'wktime_import_file_headers' => '0',
+			 'wktime_enable_billing_module' => '0'
   })  
  
   menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_ta, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 	
@@ -317,6 +318,7 @@ Redmine::Plugin.register :redmine_wktime do
 	  menu.push :wktime, { :controller => 'wktime', :action => 'index' }, :caption => :label_te, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission }
 	  menu.push :wkattendance, { :controller => 'wkattendance', :action => 'index' }, :caption => :label_wk_attendance, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showAttendance}
 	  menu.push :wkpayroll, { :controller => 'wkpayroll', :action => 'index' }, :caption => :label_payroll, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showPayroll }
+	  menu.push :wkbilling, { :controller => 'wkbilling', :action => 'index' }, :caption => :label_wk_billing, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showBilling }
 	  menu.push :wkreport, { :controller => 'wkreport', :action => 'index' }, :caption => :label_report_plural, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showReports}	  
 	end	
 

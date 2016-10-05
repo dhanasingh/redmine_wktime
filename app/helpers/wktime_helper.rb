@@ -587,10 +587,18 @@ end
 				{:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave},
 				{:name => 'clock', :partial => 'wktime/tab_content', :label => :label_clock}
 			   ]
-		else
+		elsif params[:controller] == "wkpayroll"
 			tabs = [
 				{:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll},
 				{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_user_settings}
+			   ]
+		else
+			tabs = [
+				{:name => 'accounts', :partial => 'wktime/tab_content', :label => :label_accounts},
+				{:name => 'contracts', :partial => 'wktime/tab_content', :label => :label_contracts},
+				{:name => 'accprojects', :partial => 'wktime/tab_content', :label => :label_acc_projects},
+				{:name => 'invoice', :partial => 'wktime/tab_content', :label => :label_invoice},
+				{:name => 'tax', :partial => 'wktime/tab_content', :label => :label_tax}
 			   ]
 		end
 		tabs
@@ -686,7 +694,8 @@ end
 				{:name => 'display', :partial => 'settings/tab_display', :label => :label_display},
 				{:name => 'wktime', :partial => 'settings/tab_time', :label => :label_te},
 				{:name => 'attendance', :partial => 'settings/tab_attendance', :label => :label_wk_attendance},
-				{:name => 'payroll', :partial => 'settings/tab_payroll', :label => :label_payroll}
+				{:name => 'payroll', :partial => 'settings/tab_payroll', :label => :label_payroll},
+				{:name => 'billing', :partial => 'settings/tab_billing', :label => :label_wk_billing}
 			   ]	
 	end	
 	
@@ -1005,5 +1014,10 @@ end
 	def showPayroll
 		!Setting.plugin_redmine_wktime['wktime_enable_payroll_module'].blank? &&
 			Setting.plugin_redmine_wktime['wktime_enable_payroll_module'].to_i == 1
+	end
+	
+	def showBilling
+		!Setting.plugin_redmine_wktime['wktime_enable_billing_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_billing_module'].to_i == 1
 	end
 end
