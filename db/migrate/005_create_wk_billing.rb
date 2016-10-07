@@ -18,7 +18,7 @@ class CreateWkBilling < ActiveRecord::Migration
   
     create_table :wk_accounts do |t|
       t.string :name
-      t.string :account_type, :null => true, :limit => 1
+      t.string :account_type, :null => true, :limit => 3
 	  t.references :address, :class => "wk_addresses", :null => true
 	  t.timestamps null: false
     end
@@ -27,7 +27,7 @@ class CreateWkBilling < ActiveRecord::Migration
 	create_table :wk_account_projects do |t|
       t.boolean :itemized_bill
 	  t.boolean :apply_tax
-      t.string :billing_tpe, :null => true, :limit => 1
+      t.string :billing_type, :null => true, :limit => 3
       t.references :project, :null => true
 	  t.references :account, :class => "wk_accounts", :null => true
 	  t.timestamps null: false
@@ -64,7 +64,7 @@ class CreateWkBilling < ActiveRecord::Migration
 	add_index  :wk_project_taxes, :tax_id
 	
 	create_table :wk_invoices do |t|
-      t.string :status, :null => false, :limit => 1, :default => 'o'
+      t.string :status, :null => false, :limit => 3, :default => 'o'
       t.date :start_date
 	  t.date :end_date
 	  t.date :invoice_date
@@ -80,7 +80,7 @@ class CreateWkBilling < ActiveRecord::Migration
 	  t.float :rate
       t.float :amount
 	  t.float :quantity
-	  t.string :item_type, :null => false, :limit => 1, :default => 'i'
+	  t.string :item_type, :null => false, :limit => 3, :default => 'i'
 	  t.references :modifier, :class => "User", :null => false
 	  t.references :invoice, :class => "wk_invoices", :null => false
 	  t.timestamps null: false
