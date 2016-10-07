@@ -69,6 +69,7 @@ class CreateWkBilling < ActiveRecord::Migration
 	  t.date :end_date
 	  t.date :invoice_date
 	  t.date :closed_on
+	  t.references :modifier, :class => "User", :null => false
 	  t.references :account_project, :class => "wk_account_projects", :null => false
 	  t.timestamps null: false
     end
@@ -80,6 +81,7 @@ class CreateWkBilling < ActiveRecord::Migration
       t.float :amount
 	  t.float :quantity
 	  t.string :item_type, :null => false, :limit => 1, :default => 'i'
+	  t.references :modifier, :class => "User", :null => false
 	  t.references :invoice, :class => "wk_invoice", :null => false
 	  t.timestamps null: false
     end
