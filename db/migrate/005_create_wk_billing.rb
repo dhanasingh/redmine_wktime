@@ -63,7 +63,7 @@ class CreateWkBilling < ActiveRecord::Migration
 	add_index  :wk_project_taxes, :project_id
 	add_index  :wk_project_taxes, :tax_id
 	
-	create_table :wk_invoice do |t|
+	create_table :wk_invoices do |t|
       t.string :status, :null => false, :limit => 1, :default => 'o'
       t.date :start_date
 	  t.date :end_date
@@ -75,7 +75,7 @@ class CreateWkBilling < ActiveRecord::Migration
     end
 	add_index  :wk_invoice, :account_project_id
 	
-	create_table :wk_invoice_item do |t|
+	create_table :wk_invoice_items do |t|
       t.string :name
 	  t.float :rate
       t.float :amount
@@ -87,7 +87,7 @@ class CreateWkBilling < ActiveRecord::Migration
     end
 	add_index  :wk_invoice_item, :invoice_id
 	
-	create_table :wk_billing_schedule do |t|
+	create_table :wk_billing_schedules do |t|
 	  t.string :milestone
       t.date :bill_date
       t.float :amount
