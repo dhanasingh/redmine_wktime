@@ -73,7 +73,7 @@ class CreateWkBilling < ActiveRecord::Migration
 	  t.references :account_project, :class => "wk_account_projects", :null => false
 	  t.timestamps null: false
     end
-	add_index  :wk_invoice, :account_project_id
+	add_index  :wk_invoices, :account_project_id
 	
 	create_table :wk_invoice_items do |t|
       t.string :name
@@ -82,22 +82,22 @@ class CreateWkBilling < ActiveRecord::Migration
 	  t.float :quantity
 	  t.string :item_type, :null => false, :limit => 1, :default => 'i'
 	  t.references :modifier, :class => "User", :null => false
-	  t.references :invoice, :class => "wk_invoice", :null => false
+	  t.references :invoice, :class => "wk_invoices", :null => false
 	  t.timestamps null: false
     end
-	add_index  :wk_invoice_item, :invoice_id
+	add_index  :wk_invoice_items, :invoice_id
 	
 	create_table :wk_billing_schedules do |t|
 	  t.string :milestone
       t.date :bill_date
       t.float :amount
 	  t.column :currency, :string, :limit => 5, :default => '$'
-	  t.references :invoice, :class => "wk_invoice", :null => true
+	  t.references :invoice, :class => "wk_invoices", :null => true
 	  t.references :account_project, :class => "wk_account_projects", :null => false
 	  t.timestamps null: false
     end
-	add_index  :wk_billing_schedule, :account_project_id
-	add_index  :wk_billing_schedule, :invoice_id
+	add_index  :wk_billing_schedules, :account_project_id
+	add_index  :wk_billing_schedules, :invoice_id
 
   end
 end
