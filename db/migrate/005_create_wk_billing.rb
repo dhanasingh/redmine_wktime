@@ -71,7 +71,8 @@ class CreateWkBilling < ActiveRecord::Migration
 	  t.date :invoice_date
 	  t.date :closed_on
 	  t.references :modifier, :class => "User", :null => false
-	  t.references :account_project, :class => "wk_account_projects", :null => false
+	  t.references :project, :null => true
+	  t.references :account, :class => "wk_accounts", :null => false
 	  t.timestamps null: false
     end
 	add_index  :wk_invoices, :account_project_id
