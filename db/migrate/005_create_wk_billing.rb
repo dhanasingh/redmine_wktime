@@ -65,6 +65,7 @@ class CreateWkBilling < ActiveRecord::Migration
 	
 	create_table :wk_invoices do |t|
       t.string :status, :null => false, :limit => 3, :default => 'o'
+	  t.string :invoice_number, :null => false
       t.date :start_date
 	  t.date :end_date
 	  t.date :invoice_date
@@ -74,6 +75,7 @@ class CreateWkBilling < ActiveRecord::Migration
 	  t.timestamps null: false
     end
 	add_index  :wk_invoices, :account_project_id
+	add_index :wk_invoices, :invoice_number, :unique => true
 	
 	create_table :wk_invoice_items do |t|
       t.string :name
@@ -81,6 +83,7 @@ class CreateWkBilling < ActiveRecord::Migration
       t.float :amount
 	  t.float :quantity
 	  t.string :item_type, :null => false, :limit => 3, :default => 'i'
+	  t.column :currency, :string, :limit => 5, :default => '$'
 	  t.references :modifier, :class => "User", :null => false
 	  t.references :invoice, :class => "wk_invoices", :null => false
 	  t.timestamps null: false
