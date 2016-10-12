@@ -75,7 +75,8 @@ class CreateWkBilling < ActiveRecord::Migration
 	  t.references :account, :class => "wk_accounts", :null => false
 	  t.timestamps null: false
     end
-	add_index  :wk_invoices, :account_project_id
+	add_index  :wk_invoices, :account_id 
+	add_index  :wk_invoices, :project_id 
 	add_index :wk_invoices, :invoice_number, :unique => true
 	
 	create_table :wk_invoice_items do |t|
