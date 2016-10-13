@@ -273,4 +273,8 @@ en:
   label_contracts: Contracts
   label_acc_projects: Account Projects
   label_invoice: Invoice
-  label_tax: Tax
+  label_tax: Tax  
+  label_project_name: Project Name
+  label_account_name: Account Name
+  label_invoice_date: Invoice Date
+  label_end_date: End Date

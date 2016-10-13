@@ -160,7 +160,10 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 
 	get 'wkbilling/account_projects', :to => 'wkbilling#account_projects'
 
-	get 'wkbilling/invoice', :to => 'wkbilling#invoice'
+	get 'wkbilling/accounts', :to => 'wkbilling#accounts'
 
 	get 'wkbilling/tax', :to => 'wkbilling#tax'
-
+	
+	get 'wkbilling/invoiceedit', :to => 'wkbilling#invoiceedit'
+	
+	get 'wkbilling/getAccountProjIds', :to => 'wkbilling#getAccountProjIds'

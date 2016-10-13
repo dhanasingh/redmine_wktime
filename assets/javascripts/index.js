@@ -2,6 +2,7 @@ var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, pay
 var no_user ="";
 var grpUrl="";
 var userUrl="";
+var accountUrl ="";
 var userList = new Array();
 var rSubEmailUrl = "";
 var rAppEmailUrl = "";
@@ -165,7 +166,7 @@ function resetReminderEmailDlg() {
 }
 
 function projChanged(projDropdown, userid, needBlankOption){
-	
+	alert("test");
 	var id = projDropdown.options[projDropdown.selectedIndex].value;
 	var fmt = 'text';
 	var userDropdown = document.getElementById("user_id");
@@ -175,21 +176,20 @@ function projChanged(projDropdown, userid, needBlankOption){
 		url: userUrl,
 		type: 'get',
 		data: {project_id: id, user_id: userid, format:fmt},
-		success: function(data){ updateUserDD(data, userDropdown, userid, needBlankOption, false); },
+		success: function(data){ updateUserDD(data, userDropdown, userid, needBlankOption, false,"All Users"); },
 		beforeSend: function(){ $this.addClass('ajax-loading'); },
 		complete: function(){ $this.removeClass('ajax-loading'); }
 	});
 	
 }
 
-function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst)
+function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, blankText)
 {
-	
 	var items = itemStr.split('\n');
 	var i, index, val, text, start;
 	dropdown.options.length = 0;
 	if(needBlankOption){
-		dropdown.options[0] = new Option("All Users", "0", false, false) 
+		dropdown.options[0] = new Option(blankText, "0", false, false) 
 	}
 	for(i=0; i < items.length-1; i++){
 		index = items[i].indexOf(',');
@@ -271,7 +271,7 @@ function grpChanged(grpDropdown, userid, needBlankOption){
 		url: grpUrl,
 		type: 'get',
 		data: {user_id: userid, format:fmt,group_id:id},
-		success: function(data){ updateUserDD(data, userDropdown, userid, needBlankOption, false); },
+		success: function(data){ updateUserDD(data, userDropdown, userid, needBlankOption, false,"All Users"); },
 		beforeSend: function(){ $this.addClass('ajax-loading'); },
 		complete: function(){ $this.removeClass('ajax-loading'); }
 	});
@@ -283,4 +283,19 @@ function progrpChanged(btnoption, userid, needBlankOption){
 	else{
 		grpChanged(document.getElementById("group_id"), userid, needBlankOption)
 	}
+}
+
+function accProjChanged(uid)
+{
+	var acc_name = document.getElementById("account_id");
+	var accId = acc_name.options[acc_name.selectedIndex].value;
+	var needBlankOption = true;
+	var projDropdown = document.getElementById("project_id");
+	userid = uid;
+	$.ajax({
+	url: accountUrl,
+	type: 'get',
+	data: {account_id: accId},
+	success: function(data){ updateUserDD(data, projDropdown, userid, needBlankOption, false, "");},   
+	});
 }

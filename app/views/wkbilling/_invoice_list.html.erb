@@ -1,0 +1,38 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div class="autoscroll">
+<table class="list time-entries">
+  <thead>
+         <tr>
+				<th class="lbl-txt-align"><%= "Invoice Number" %></th>
+				<th class="lbl-txt-align"><%= l(:label_project_name) %></th>
+				<th class="lbl-txt-align"><%= l(:label_account_name) %></th>				
+				<th class="lbl-txt-align"><%= l(:field_status) %></th>		
+				<th class="lbl-txt-align"><%= l(:label_invoice_date) %></th>
+				<th class="lbl-txt-align"><%= l(:field_start_date) %></th>
+				<th class="lbl-txt-align"><%= l(:label_end_date) %></th>				
+				<th class="lbl-txt-align"><%= l(:field_amount) %></th>
+				<th class="lbl-txt-align"><%= l(:field_status_modified_by) %></th>
+				<th></th>
+         </tr>
+  </thead>
+   <tbody>
+       <% @invoice_entries.each do |entry| %>
+		 <tr>
+		    <td class="lbl-txt-align"><%=h entry.invoice_number  %></td>
+			<td class="lbl-txt-align"><%=h entry.projectname  %></td>
+			<td class="lbl-txt-align"><%=h entry.accountname  %></td>
+			<td class="lbl-txt-align"><%=h (entry.status == 'o' ? 'open' : 'closed')  %></td>
+			<td class="lbl-txt-align"><%=h entry.invoicedate  %></td>			
+			<td class="lbl-txt-align"><%=h entry.startdate  %></td>
+			<td class="lbl-txt-align"><%=h entry.enddate  %></td>
+			<td class="lbl-txt-align"><%=h entry.amount  %></td>
+			<td class="lbl-txt-align"><%=h entry.modifiedby  %></td>
+			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'invoiceedit', :tab => controller.controller_name},
+                                       :title => l(:button_edit) %></td>
+		 </tr>
+	<% end %>
+   </tbody>
+</table>
+</div>
+
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
