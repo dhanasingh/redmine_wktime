@@ -154,16 +154,18 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
    
    
     #For Billing
-  get 'wkbilling/index', :to => 'wkbilling#index'
-  
-	get 'wkbilling/contracts', :to => 'wkbilling#contracts'
-
-	get 'wkbilling/account_projects', :to => 'wkbilling#account_projects'
-
-	get 'wkbilling/accounts', :to => 'wkbilling#accounts'
-
-	get 'wkbilling/tax', :to => 'wkbilling#tax'
+    get 'wkbilling/index', :to => 'wkbilling#index'	
 	
-	get 'wkbilling/invoiceedit', :to => 'wkbilling#invoiceedit'
+	get 'wkaccounts/index', :to => 'wkaccounts#index'
 	
-	get 'wkbilling/getAccountProjIds', :to => 'wkbilling#getAccountProjIds'
+	get 'wkcontracts/index', :to => 'wkcontracts#index'
+	
+	get 'wkaccountproject/index', :to => 'wkaccountproject#index'
+	
+	get 'wktax/index', :to => 'wktax#index'	
+	
+	get 'wkinvoice/index', :to => 'wkinvoice#index'	
+	
+	get 'wkinvoice/invoiceedit', :to => 'wkinvoice#invoiceedit'
+	
+	get 'wkinvoice/getAccountProjIds', :to => 'wkinvoice#getAccountProjIds'

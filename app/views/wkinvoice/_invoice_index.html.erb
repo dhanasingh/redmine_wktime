@@ -1,10 +1,10 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= hidden_field_tag 'back_url', url_for(params) %>
 
-	<%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
+	<%= form_tag({:controller => "wkinvoice", :action => 'index'}, :method => :get, :id => 'query_form') do %>
 		<%= hidden_field_tag "searchlist", "wkinvoice" %>
 		<script type="text/javascript"> 
-			accountUrl="<%= "#{url_for(:controller => controller_name, :action => 'getAccountProjIds')}" %>";
+			accountUrl="<%= "#{url_for(:controller => "wkinvoice", :action => 'getAccountProjIds')}" %>";
 		</script>		
 		<%	accid =session[:wkinvoice][:account_id]
 		projid =session[:wkinvoice][:project_id] %>
@@ -15,11 +15,11 @@
 		<%=h select_tag('account_id', options_for_select(accArr, :selected => accid.nil? ? accArr : accid), :onchange => "accProjChanged(#{User.current.id});") %>
 		<label><%= l(:label_project) %></label>
 		<%=h select_tag('project_id', options_for_select([["",""]] + (@projects.blank? ? [] : @projects), :selected => projid.nil? ? projArr : projid)) %>		
-		<%= render :partial => 'wkbilling/date_range' %>
+		<%= render :partial => 'wkinvoice/date_range' %>
 	<% end %>	
 	<% if !@invoice_entries.blank? %>
 		<div class="total-hours">
 			<p><%= l(:label_total) %>: &nbsp;<%= @total_inc_amt %></p>
 		</div>
 	<% end %>
-	<%= render :partial => 'wkbilling/invoice_list'%>
+	<%= render :partial => 'wkinvoice/invoice_list'%>

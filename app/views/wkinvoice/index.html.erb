@@ -1,4 +1,4 @@
-<h2><%= l(:label_wk_billing) %></h2>
+<h2><%= l(:label_invoice) %></h2>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
     blgaccUrl = '<%=url_for(:controller => "wkaccounts", :action => "index", :tab => "accounts")%>';
@@ -13,3 +13,4 @@
 <%= render_tabs time_expense_tabs %>
 
 <%= hidden_field_tag 'back_url', url_for(params) %>
+<%= render :partial => 'wkinvoice/invoice_index'%>
