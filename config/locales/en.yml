@@ -278,3 +278,10 @@ en:
   label_account_name: Account Name
   label_invoice_date: Invoice Date
   label_end_date: End Date
+  label_user_billing_rate: User Billing Rate
+  label_user_billing_currency: User Billing Currency
+  label_project_billing_rate: Project Billing Rate
+  label_project_billing_currency: Project Billing Currency
+  label_billing_indicator: Billing Indicator
+  label_generate_invoice_from: Generate invoice from
+  label_auto_generate_invoice: Auto generate invoice

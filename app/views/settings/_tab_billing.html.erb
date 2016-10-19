@@ -1,6 +1,50 @@
 <fieldset class="box tabular">
+	<%
+		wktime_helper = Object.new.extend(WktimeHelper)
+		user_custom_fields = UserCustomField.order('name')
+		cfUserRateF = wktime_helper.getCfListArr(user_custom_fields, 'float', true)
+		cfUserRateI = wktime_helper.getCfListArr(user_custom_fields, 'int', false)
+		cfUserRate = (cfUserRateF + cfUserRateI).uniq
+		cfUserCurrency = wktime_helper.getCfListArr(user_custom_fields, 'string', true)
+		
+		project_custom_fields = ProjectCustomField.order('name')
+		cfProjRateF = wktime_helper.getCfListArr(project_custom_fields, 'float', true)
+		cfProjRateI = wktime_helper.getCfListArr(project_custom_fields, 'int', false)
+		cfProjRate = (cfProjRateF + cfProjRateI).uniq
+		cfProjCurrency = wktime_helper.getCfListArr(project_custom_fields, 'string', true)
+		
+		
+		te_custom_fields = TimeEntryCustomField.order('name')
+		cfBillIndicator = wktime_helper.getCfListArr(te_custom_fields, 'bool', true)
+	%>
 	<legend><%= l(:label_wk_billing) %></legend>
-	<p>
+	<p style="margin-left: -110px;">
 		<%= check_box_tag('settings[wktime_enable_billing_module]', 1, @settings['wktime_enable_billing_module'].to_i == 1) %> <label><%= l(:label_enable_billing_module) %></label>
+	</p>
+	<p style="margin-left: -110px;">
+			<%= check_box_tag('settings[wktime_auto_generate_invoice]', 1, @settings['wktime_auto_generate_invoice'].to_i == 1) %> <label><%= l(:label_auto_generate_invoice) %></label>
+	</p>
+	<p style="padding-left: 190px;">
+		<label><%= l(:label_generate_invoice_from) %> </label><%=h date_field_tag('settings[wktime_generate_invoice_from]',@settings['wktime_generate_invoice_from'],:size => 10) %> <%= calendar_for('settings_wktime_generate_invoice_from') %>
+	</p>
+	<p style="padding-left: 190px;">
+		<label><%= l(:label_billing_indicator) %> </label><%=h select_tag('settings[wktime_billing_indicator_cf]', 
+			options_for_select(cfBillIndicator, :selected =>  @settings['wktime_billing_indicator_cf'])) %>
+	</p>
+	<p style="padding-left: 190px;">
+		<label><%= l(:label_project_billing_rate) %> </label><%=h select_tag('settings[wktime_project_billing_rate_cf]', 
+			options_for_select(cfProjRate, :selected =>  @settings['wktime_project_billing_rate_cf'])) %>
+	</p>
+	<p style="padding-left: 190px;">
+		<label><%= l(:label_project_billing_currency) %> </label><%=h select_tag('settings[wktime_project_billing_currency_cf]', 
+			options_for_select(cfProjCurrency, :selected =>  @settings['wktime_project_billing_currency_cf'])) %>
+	</p>
+	<p style="padding-left: 190px;">
+		<label><%= l(:label_user_billing_rate) %> </label><%=h select_tag('settings[wktime_user_billing_rate_cf]', 
+			options_for_select(cfUserRate, :selected =>  @settings['wktime_user_billing_rate_cf'])) %>
+	</p>
+	<p style="padding-left: 190px;">
+		<label><%= l(:label_user_billing_currency) %> </label><%=h select_tag('settings[wktime_user_billing_currency_cf]', 
+			options_for_select(cfUserCurrency, :selected =>  @settings['wktime_user_billing_currency_cf'])) %>
 	</p>
 </fieldset>

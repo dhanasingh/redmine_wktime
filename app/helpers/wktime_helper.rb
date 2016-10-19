@@ -1020,4 +1020,21 @@ end
 		!Setting.plugin_redmine_wktime['wktime_enable_billing_module'].blank? &&
 			Setting.plugin_redmine_wktime['wktime_enable_billing_module'].to_i == 1
 	end
+	
+	# Return the given type of custom Fields array
+	# Used in plugin settings
+	def getCfListArr(customFields, cfType, needBlank)
+		unless customFields.blank?
+			cfs = customFields.select {|cf| cf.field_format == cfType }
+			unless cfs.blank?
+				cfArray = cfs.collect {|cf| [cf.name, cf.id] }
+			else
+				cfArray = Array.new
+			end
+		else
+			cfArray = Array.new
+		end
+		cfArray.unshift(["",0]) if needBlank
+		cfArray
+	end
 end
