@@ -157,7 +157,7 @@ include WktimeHelper
 		projectTaxes.each do |projtax|
 			invItem = @invoice.wk_invoice_items.new()
 			invItem.name = projtax.project.name + ' - ' + projtax.tax.name
-			invItem.rate = projtax.tax.rate.blank? ? 0 : projtax.tax.rate
+			invItem.rate = projtax.tax.rate_pct.blank? ? 0 : (projtax.tax.rate_pct/100)
 			invItem.currency = currency
 			invItem.quantity = nil
 			invItem.amount = invItem.rate * totalAmount

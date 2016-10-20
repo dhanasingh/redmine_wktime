@@ -52,7 +52,7 @@ class CreateWkBilling < ActiveRecord::Migration
 	
 	create_table :wk_taxes do |t|
       t.string :name
-      t.float :rate
+      t.float :rate_pct
 	  t.boolean :is_active, :default => true
       t.timestamps null: false
     end
