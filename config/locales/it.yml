@@ -284,3 +284,7 @@ it:
   label_generate_invoice_from: Generate invoice from
   label_auto_generate_invoice: Auto generate invoice
   label_invoice_no_prefix: Invoice number prefix
+  label_taxname: Tax Name
+  label_rate: Rate
+  label_tax_detail: Tax Detail
+  label_new_tax: New Tax

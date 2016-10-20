@@ -166,6 +166,12 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wkinvoice/index', :to => 'wkinvoice#index'	
 	
+	post 'wktax/index', :to => 'wktax#index'
+	
 	get 'wkinvoice/invoiceedit', :to => 'wkinvoice#invoiceedit'
 	
 	get 'wkinvoice/getAccountProjIds', :to => 'wkinvoice#getAccountProjIds'
+    
+	get 'wktax/edit', :to => 'wktax#edit'
+	
+	post 'wktax/update', :to => 'wktax#update'
