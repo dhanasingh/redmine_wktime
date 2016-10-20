@@ -19,6 +19,7 @@ class CreateWkBilling < ActiveRecord::Migration
     create_table :wk_accounts do |t|
       t.string :name
       t.string :account_type, :null => true, :limit => 3
+	  t.boolean :account_billing, :default => false
 	  t.references :address, :class => "wk_addresses", :null => true
 	  t.timestamps null: false
     end
@@ -52,6 +53,7 @@ class CreateWkBilling < ActiveRecord::Migration
 	create_table :wk_taxes do |t|
       t.string :name
       t.float :rate
+	  t.boolean :is_active, :default => true
       t.timestamps null: false
     end
 	
