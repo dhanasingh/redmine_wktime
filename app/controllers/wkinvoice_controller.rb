@@ -3,61 +3,73 @@ class WkinvoiceController < WkbillingController
 before_filter :require_login
 
 include WktimeHelper
+include WkinvoiceHelper
 
-
-   def index
-    @projects = nil
-	set_filter_session
-	retrieve_date_range
-	accId = session[:wkinvoice][:account_id]
-	projId	= session[:wkinvoice][:project_id]
-	accountProjects = getProjArrays(accId)
-	if @from.blank? && @to.blank?
-		@from = Date.civil(Date.today.year, 1, 1)
-		@to = Date.civil(Date.today.year, 12, 31)
+	def index
+		@projects = nil
+		set_filter_session
+		retrieve_date_range
+		accountId = session[:wkinvoice][:account_id]
+		projectId	= session[:wkinvoice][:project_id]
+		accountProjects = getProjArrays(accountId)
+		if @from.blank? && @to.blank?
+			@from = Date.civil(Date.today.year, 1, 1)
+			@to = Date.civil(Date.today.year, 12, 31)
+		end
+		@projects = accountProjects.collect{|m| [ m.project_name, m.project_id ] } if !accountProjects.blank?
+		unless params[:generate].blank? || !to_boolean(params[:generate])
+			if accountId.blank? && projectId.blank?
+				allAccounts = WkAccount.all
+				allAccounts.each do |account|
+					errorMsg = generateInvoices(account.id, projectId, @to + 1, [@from, @to])
+				end
+			else
+				errorMsg = generateInvoices(accountId, projectId, @to + 1, [@from, @to])
+			end
+			
+			if errorMsg.nil?	
+				redirect_to :action => 'index' , :tab => 'wkinvoice'
+				flash[:notice] = l(:notice_successful_update)
+			else
+				flash[:error] = errorMsg
+				redirect_to :action => 'index'
+			end	
+		else
+			sqlQuery = "select i.invoice_number as invoice_number, 1 as projectname, 2 as accountname, i.status as status, sum(it.amount) as amount, " +
+					   "i.start_date as startdate, i.end_date as enddate, i.invoice_date as invoicedate, i.modifier_id as modifiedby from wk_invoices i " +
+					   "left outer join projects p on p.id = i.project_id " +
+					   "left outer join wk_accounts a on a.id = i.account_id " +
+					   "left outer join wk_invoice_items it on i.id = it.invoice_id " +
+					   "left outer join users u on u.id = i.modifier_id " 				
+			if !@from.blank? && !@to.blank?
+				sqlQuery = sqlQuery + " where i.invoice_date between '#{@from}' and '#{@to}'  "
+			end
+			if !accountId.blank? && (projectId.blank? || projectId == "0")
+				sqlQuery = sqlQuery + " and i.account_id = #{accountId}  "
+			end
+			
+			if accountId.blank? && (!projectId.blank? && projectId != "0")
+				sqlQuery = sqlQuery + " and  i.project_id = #{projectId}  "
+			end
+			
+			if !accountId.blank? && (!projectId.blank? &&  projectId != "0")
+				sqlQuery = sqlQuery + " and i.account_id = #{accountId} and i.project_id = #{projectId} "
+			end
+			
+			sqlQuery = sqlQuery + "group by i.id"
+			findBySql(sqlQuery)
+			@total_inc_amt = @invoice_entries.sum { |i| i.amount.blank? ? 0 : i.amount }
+		end
 	end
-	@projects = accountProjects.collect{|m| [ m.project_name, m.project_id ] } if !accountProjects.blank?
-	sqlQuery = "select i.invoice_number as invoice_number, p.name as projectname, a.name as accountname, i.status as status, sum(it.amount) as amount, " +
-			   "i.start_date as startdate, i.end_date as enddate, i.invoice_date as invoicedate, u.firstname as modifiedby from wk_invoices i " +
-			   "left outer join projects p on p.id = i.project_id " +
-			   "left outer join wk_accounts a on a.id = i.account_id " +
-			   "left outer join wk_invoice_items it on i.id = it.invoice_id " +
-			   "left outer join users u on u.id = i.modifier_id " 				
-	if !@from.blank? && !@to.blank?
-		sqlQuery = sqlQuery + " where i.invoice_date between '#{@from}' and '#{@to}'  "
-	end
-	if !accId.blank? && (projId.blank? || projId == "0")
-		sqlQuery = sqlQuery + " and i.account_id = #{accId}  "
-	end
-	
-	if accId.blank? && (!projId.blank? && projId != "0")
-		sqlQuery = sqlQuery + " and  i.project_id = #{projId}  "
-	end
-	
-	if !accId.blank? && (!projId.blank? &&  projId != "0")
-		sqlQuery = sqlQuery + " and i.account_id = #{accId} and i.project_id = #{projId} "
-	end
-	
-	sqlQuery = sqlQuery + "group by i.id"
-	findBySql(sqlQuery)
-	@total_inc_amt = @invoice_entries.sum { |i| i.amount }
-  end
   
     def getAccountProjIds
 		accArr = ""	
-		#if !params[:acc_id].blank?
-		#sqlStr = "left outer join projects on projects.id = wk_account_projects.project_id "
-		#if !params[:account_id].blank?
-		#	sqlStr = sqlStr + " where wk_account_projects.account_id = #{params[:account_id]} "
-		#end		
-		#accProjId = WkAccountProject.joins(sqlStr).select("projects.name as project_name, projects.id as project_id")
 		accProjId = getProjArrays(params[:account_id])
 		if !accProjId.blank?
 			accProjId.each do | entry|
 				accArr <<  entry.project_id.to_s() + ',' + entry.project_name.to_s()  + "\n" 
 			end
 		end
-		#end
 		respond_to do |format|
 			format.text  { render :text => accArr }
 		end

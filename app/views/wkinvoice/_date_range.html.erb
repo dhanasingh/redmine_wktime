@@ -19,6 +19,7 @@
 </span>
 </div>
 <div style="clear:both"></div>
+<%=h hidden_field_tag('generate', false) %>
 <% if action_name =='reportdetail' || action_name =='report' %>
 <%=h hidden_field_tag('control', "#{action_name}") %>
 <% end %>
@@ -29,6 +30,7 @@
 	<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
 	<%#= link_to l(:button_apply), {:controller => controller_name, :action => action_name}, :class => 'icon icon-checked' %>
   <%= link_to l(:button_clear), {:controller => controller_name, :action => action_name, :tab => 'clock'}, :class => 'icon icon-reload' %>
+  <%= link_to l(:label_generate) + ' ' + l(:label_invoice), 'javascript:invoiceFormSubmission();', :name => 'generate', :class => 'icon icon-report' %>
  
 </p>
 
