@@ -1037,4 +1037,8 @@ end
 		cfArray.unshift(["",0]) if needBlank
 		cfArray
 	end
+	
+	def getPluginSetting(setting_name)
+		Setting.plugin_redmine_wktime[setting_name]
+	end
 end

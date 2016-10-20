@@ -24,11 +24,11 @@ include WktimeHelper
 		@invoice.modifier_id = User.current.id
 		@invoice.project_id = projectId
 		@invoice.account_id = accountId
-		@invoice.invoice_number = "INV"
+		@invoice.invoice_number = getPluginSetting('wktime_invoice_no_prefix')
 		if !@invoice.save
 			errorMsg = @invoice.errors.full_messages.join('\n')
 		else
-			@invoice.invoice_number = "INV" + @invoice.id.to_s
+			@invoice.invoice_number = @invoice.invoice_number + @invoice.id.to_s
 			@invoice.save
 			errorMsg = generateInvoiceItems()
 		end
