@@ -1,8 +1,7 @@
 class CreateWkBilling < ActiveRecord::Migration
   def change
 	create_table :wk_addresses do |t|
-	  t.string :name
-      t.string :address1
+	  t.string :address1
       t.string :address2
 	  t.string :work_phone
       t.string :home_phone
@@ -11,7 +10,7 @@ class CreateWkBilling < ActiveRecord::Migration
 	  t.string :fax
       t.string :city
 	  t.string :country
-      t.date :state
+      t.string :state
       t.integer :pin
 	  t.timestamps null: false
     end
