@@ -3,6 +3,7 @@ class WkInvoiceItem < ActiveRecord::Base
   include Redmine::SafeAttributes
   belongs_to :invoice, :class_name => 'WkInvoice'
   belongs_to :modifier, :class_name => 'User'
+  belongs_to :project
   
   attr_protected :modifier_id
   

@@ -37,7 +37,7 @@ include WkinvoiceHelper
 		else
 			sqlQuery = "select i.invoice_number as invoice_number, 1 as projectname, 2 as accountname, i.status as status, sum(it.amount) as amount, " +
 					   "i.start_date as startdate, i.end_date as enddate, i.invoice_date as invoicedate, i.modifier_id as modifiedby from wk_invoices i " +
-					   "left outer join projects p on p.id = i.project_id " +
+					   #"left outer join projects p on p.id = i.project_id " +
 					   "left outer join wk_accounts a on a.id = i.account_id " +
 					   "left outer join wk_invoice_items it on i.id = it.invoice_id " +
 					   "left outer join users u on u.id = i.modifier_id " 				

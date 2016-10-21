@@ -56,13 +56,13 @@ class CreateWkBilling < ActiveRecord::Migration
       t.timestamps null: false
     end
 	
-	create_table :wk_project_taxes do |t|
-      t.references :project, :null => false
+	create_table :wk_acc_project_taxes do |t|
+      t.references :account_project, :class => "wk_account_projects", :null => false
       t.references :tax, :class => "wk_taxes", :null => false
       t.timestamps null: false
     end
-	add_index  :wk_project_taxes, :project_id
-	add_index  :wk_project_taxes, :tax_id
+	add_index  :wk_acc_project_taxes, :account_project_id
+	add_index  :wk_acc_project_taxes, :tax_id
 	
 	create_table :wk_invoices do |t|
       t.string :status, :null => false, :limit => 3, :default => 'o'
@@ -72,12 +72,10 @@ class CreateWkBilling < ActiveRecord::Migration
 	  t.date :invoice_date
 	  t.date :closed_on
 	  t.references :modifier, :class => "User", :null => false
-	  t.references :project, :null => true
 	  t.references :account, :class => "wk_accounts", :null => false
 	  t.timestamps null: false
     end
 	add_index  :wk_invoices, :account_id 
-	add_index  :wk_invoices, :project_id 
 	add_index :wk_invoices, :invoice_number, :unique => true
 	
 	create_table :wk_invoice_items do |t|
@@ -87,11 +85,13 @@ class CreateWkBilling < ActiveRecord::Migration
 	  t.float :quantity
 	  t.string :item_type, :null => false, :limit => 3, :default => 'i'
 	  t.column :currency, :string, :limit => 5, :default => '$'
+	  t.references :project, :null => false
 	  t.references :modifier, :class => "User", :null => false
 	  t.references :invoice, :class => "wk_invoices", :null => false
 	  t.timestamps null: false
     end
 	add_index  :wk_invoice_items, :invoice_id
+	add_index  :wk_invoice_items, :project_id
 	
 	create_table :wk_billing_schedules do |t|
 	  t.string :milestone

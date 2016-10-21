@@ -22,7 +22,6 @@ include WktimeHelper
 		@invoice.end_date = invoicePeriod[1]
 		@invoice.invoice_date = invoiceDate
 		@invoice.modifier_id = User.current.id
-		@invoice.project_id = projectId
 		@invoice.account_id = accountId
 		@invoice.invoice_number = getPluginSetting('wktime_invoice_no_prefix')
 		if !@invoice.save
@@ -30,18 +29,18 @@ include WktimeHelper
 		else
 			@invoice.invoice_number = @invoice.invoice_number + @invoice.id.to_s
 			@invoice.save
-			errorMsg = generateInvoiceItems()
+			errorMsg = generateInvoiceItems(projectId)
 		end
 		errorMsg
 	end
 	
-	def generateInvoiceItems()
-		if @invoice.project_id.blank?
+	def generateInvoiceItems(projectId)
+		if projectId.blank?
 			WkAccountProject.where(account_id: @invoice.account_id).find_each do |accProj|
 				addInvoiceItem(accProj)
 			end
 		else
-			accountProject = WkAccountProject.where("account_id = ? and project_id = ?", @invoice.account_id, @invoice.project_id)
+			accountProject = WkAccountProject.where("account_id = ? and project_id = ?", @invoice.account_id, projectId)
 			addInvoiceItem(accountProject[0])
 		end
 		errorMsg = nil
@@ -53,6 +52,12 @@ include WktimeHelper
 			saveInvoiceItem(accountProject)
 		else
 			# TODO : Save invoice item for fixed cost
+			Rails.logger.info("====== accountProject.name = #{accountProject.project.name} ======")
+			scheduledEntries = WkBillingSchedule.where(:account_project_id => accountProject.id, :bill_date => @invoice.start_date .. @invoice.end_date, :invoice_id => nil)
+			Rails.logger.info("====== scheduledEntries = #{scheduledEntries.inspect} ======")
+			scheduledEntries.each do |entry|
+				
+			end
 		end
 	end
 	
@@ -74,41 +79,42 @@ include WktimeHelper
 				lastIssueId = entry.issue_id
 				if accountProject.itemized_bill
 					description = entry.issue.subject + " - " + rateHash['designation']
-					invItem = updateInvoiceItem(invItem, description, rateHash['rate'], sumEntry[[entry.issue_id, entry.user_id]], rateHash['currency'])
+					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], sumEntry[[entry.issue_id, entry.user_id]], rateHash['currency'])
 					totalAmount = totalAmount + invItem.amount
 					
 				else
 					description = accountProject.project.name + " - " + rateHash['designation']
-					invItem = updateInvoiceItem(invItem, description, rateHash['rate'], userTotalHours[entry.user_id], rateHash['currency'])
+					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], userTotalHours[entry.user_id], rateHash['currency'])
 					totalAmount = totalAmount + invItem.amount
 				end
 			end
 		else
-			isContine = false
+			isContinue = false
 			sumEntry = timeEntries.group(:issue_id).sum(:hours)
 			timeEntries.order(:issue_id).each do |entry|
 				updateBilledHours(entry)
-				next if lastIssueId == entry.issue_id || isContine
+				next if lastIssueId == entry.issue_id || isContinue
 				lastIssueId = entry.issue_id
 				invItem = @invoice.wk_invoice_items.new()
 				if accountProject.itemized_bill
-					invItem = updateInvoiceItem(invItem, entry.issue.subject, rateHash['rate'], sumEntry[entry.issue_id], rateHash['currency'])
+					invItem = updateInvoiceItem(invItem, accountProject.project_id, entry.issue.subject, rateHash['rate'], sumEntry[entry.issue_id], rateHash['currency'])
 					totalAmount = totalAmount + invItem.amount
 					
 				else
-					isContine = true
+					isContinue = true
 					quantity = timeEntries.sum(:hours)
-					invItem = updateInvoiceItem(invItem, accountProject.project.name, rateHash['rate'], quantity, rateHash['currency'])
+					invItem = updateInvoiceItem(invItem, accountProject.project_id, accountProject.project.name, rateHash['rate'], quantity, rateHash['currency'])
 					totalAmount = totalAmount + invItem.amount
 				end
 			end
 		end
 		if accountProject.apply_tax && totalAmount>0
-			addTaxes(accountProject.project_id, rateHash['currency'], totalAmount)
+			addTaxes(accountProject, rateHash['currency'], totalAmount)
 		end		
 	end
 	
-	def updateInvoiceItem(invItem, description, rate, quantity, currency)
+	def updateInvoiceItem(invItem, projectId, description, rate, quantity, currency)
+		invItem.project_id = projectId
 		invItem.name = description
 		invItem.rate = rate
 		invItem.currency = currency
@@ -152,12 +158,13 @@ include WktimeHelper
 		rateHash
 	end
 	
-	def addTaxes(projectId, currency, totalAmount)
-		projectTaxes = WkProjectTax.where(:project_id => projectId)
+	def addTaxes(accountProject, currency, totalAmount)
+		projectTaxes = accountProject.wk_acc_project_taxes
 		projectTaxes.each do |projtax|
 			invItem = @invoice.wk_invoice_items.new()
-			invItem.name = projtax.project.name + ' - ' + projtax.tax.name
+			invItem.name = accountProject.project.name + ' - ' + projtax.tax.name
 			invItem.rate = projtax.tax.rate_pct.blank? ? 0 : (projtax.tax.rate_pct/100)
+			invItem.project_id = accountProject.project_id
 			invItem.currency = currency
 			invItem.quantity = nil
 			invItem.amount = invItem.rate * totalAmount
