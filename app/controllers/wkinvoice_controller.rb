@@ -35,11 +35,12 @@ include WkinvoiceHelper
 				redirect_to :action => 'index'
 			end	
 		else
-			sqlQuery = "select i.invoice_number as invoice_number, 1 as projectname, 2 as accountname, i.status as status, sum(it.amount) as amount, " +
+			sqlQuery = "select i.id as id, i.invoice_number as invoice_number,  p.name as projectname, a.name as accountname, i.status as status, sum(it.amount) as amount, " +
 					   "i.start_date as startdate, i.end_date as enddate, i.invoice_date as invoicedate, i.modifier_id as modifiedby from wk_invoices i " +
 					   #"left outer join projects p on p.id = i.project_id " +
 					   "left outer join wk_accounts a on a.id = i.account_id " +
 					   "left outer join wk_invoice_items it on i.id = it.invoice_id " +
+					   " left outer join projects p on p.id = it.project_id " +
 					   "left outer join users u on u.id = i.modifier_id " 				
 			if !@from.blank? && !@to.blank?
 				sqlQuery = sqlQuery + " where i.invoice_date between '#{@from}' and '#{@to}'  "
@@ -49,17 +50,64 @@ include WkinvoiceHelper
 			end
 			
 			if accountId.blank? && (!projectId.blank? && projectId != "0")
-				sqlQuery = sqlQuery + " and  i.project_id = #{projectId}  "
+				sqlQuery = sqlQuery + " and  it.project_id = #{projectId}  "
 			end
 			
 			if !accountId.blank? && (!projectId.blank? &&  projectId != "0")
-				sqlQuery = sqlQuery + " and i.account_id = #{accountId} and i.project_id = #{projectId} "
+				sqlQuery = sqlQuery + " and i.account_id = #{accountId} and it.project_id = #{projectId} "
 			end
 			
 			sqlQuery = sqlQuery + "group by i.id"
 			findBySql(sqlQuery)
 			@total_inc_amt = @invoice_entries.sum { |i| i.amount.blank? ? 0 : i.amount }
 		end
+	end
+	
+	
+	def edit	
+		#query = "select * from wk_invoice_items where invoice_id = #{params[:invoice_id]}  "
+		@invoice = WkInvoice.find(params[:invoice_id].to_i)
+		 @invoiceItem = @invoice.wk_invoice_items #WkInvoiceItem.where("invoice_id = ? ", params[:invoice_id])
+	end
+	
+	def update
+		errorMsg = nil
+		invoiceItem = nil
+		invItemId = WkInvoiceItem.select(:id).where(:invoice_id => params["invoiceid"].to_i) #, :item_type => 'i'
+		arrId = invItemId.map {|i| i.id }
+		@invoice = WkInvoice.find(params["invoiceid"].to_i)
+		totalAmount = 0
+		tothash = Hash.new
+		for i in 1..(params[:totalrow].to_i)
+			if !params["item_id#{i}"].blank?			
+				arrId.delete(params["item_id#{i}"].to_i)
+				invoiceItem = WkInvoiceItem.find(params["item_id#{i}"].to_i)
+				updatedItem = updateInvoiceItem(invoiceItem, params["project_id#{i}"],  params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, invoiceItem.currency)
+			else				
+				invoiceItem = @invoice.wk_invoice_items.new
+				updatedItem = updateInvoiceItem(invoiceItem, params["project_id#{i}"], params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, params["currency#{i}"])
+			end
+			#totalAmount = totalAmount + updatedItem.amount
+			tothash[updatedItem.project_id] = [(tothash[updatedItem.project_id].blank? ? 0 : tothash[updatedItem.project_id][0]) + updatedItem.amount, updatedItem.currency]
+		end
+		
+		if !arrId.blank?
+			WkInvoiceItem.delete_all(:id => arrId)
+		end
+		
+		accountId = @invoice.account_id		
+		tothash.each do|key, val|
+			accountProject = WkAccountProject.where("project_id = ?  and account_id = ? ", key, accountId)
+			addTaxes(accountProject[0], val[1], val[0])
+		end
+		
+		if errorMsg.nil? 
+			redirect_to :action => 'index' , :tab => 'wkinvoice'
+			flash[:notice] = l(:notice_successful_update)
+	   else
+			flash[:error] = errorMsg
+			redirect_to :action => 'edit'
+	   end
 	end
   
     def getAccountProjIds

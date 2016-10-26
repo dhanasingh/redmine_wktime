@@ -3,7 +3,7 @@
 <table class="list time-entries">
   <thead>
          <tr>
-				<th class="lbl-txt-align"><%= "Invoice Number" %></th>
+				<th class="lbl-txt-align"><%= l(:label_invoice_number) %></th>
 				<th class="lbl-txt-align"><%= l(:label_project_name) %></th>
 				<th class="lbl-txt-align"><%= l(:label_account_name) %></th>				
 				<th class="lbl-txt-align"><%= l(:field_status) %></th>		
@@ -27,7 +27,7 @@
 			<td class="lbl-txt-align"><%=h entry.enddate  %></td>
 			<td class="lbl-txt-align"><%=h entry.amount  %></td>
 			<td class="lbl-txt-align"><%=h entry.modifiedby  %></td>
-			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'invoiceedit', :tab => controller.controller_name},
+			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :invoice_id => entry.id, :tab => controller.controller_name},
                                        :title => l(:button_edit) %></td>
 		 </tr>
 	<% end %>

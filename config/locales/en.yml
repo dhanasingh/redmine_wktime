@@ -290,3 +290,9 @@ en:
   label_rate: Rate
   label_tax_detail: Tax Detail
   label_new_tax: New Tax
+  label_invoice_name: Item Description
+  label_item_type: Item Type
+  label_rate: Rate
+  label_quantity: Quantity
+  label_invoice_number: Invoice Number
+  label_invoice_items: Invoice Items

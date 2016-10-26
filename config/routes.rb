@@ -174,4 +174,8 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
     
 	get 'wktax/edit', :to => 'wktax#edit'
 	
-	post 'wktax/update', :to => 'wktax#update'
+	post 'wktax/update', :to => 'wktax#update'	
+	
+	get 'wkinvoice/edit', :to => 'wkinvoice#edit'	
+	
+	post 'wkinvoice/update', :to => 'wkinvoice#update'

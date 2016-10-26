@@ -166,7 +166,6 @@ function resetReminderEmailDlg() {
 }
 
 function projChanged(projDropdown, userid, needBlankOption){
-	alert("test");
 	var id = projDropdown.options[projDropdown.selectedIndex].value;
 	var fmt = 'text';
 	var userDropdown = document.getElementById("user_id");

@@ -1,0 +1,81 @@
+<br/>
+<div class="wk-contextual">
+<h2 style="float:left;"><%= l(:label_invoice_items) %></h2>
+<%= link_to l(:button_add_row), "#", { :onclick => "javascript:InvoiceaddRow();",  :class => 'icon icon-time-add' }%>
+</div>
+<div style="clear:both"></div>
+<div class="autoscroll">
+<% row_index = 1 %>
+<% total = 0 %>
+<%	if @invoice.account.account_billing
+		projects = @invoice.account.wk_account_projects.collect{|m| [ m.project.name, m.project_id ] } 
+	else
+		projects = @invoice.account.wk_account_projects.where("project_id = ?", @invoiceItem[0].project_id ).collect{|m| [ m.project.name, m.project_id ] } 
+	end 
+%>	
+
+<table id="invoiceTable" class="list time-entries">
+  <thead>
+         <tr>
+			<th></th>
+			<th class="lbl-txt-align" >#</th>
+			<th class="lbl-txt-align" ><%= l(:field_project) %></th>
+			<th class="lbl-txt-align" ><%= l(:label_invoice_name) %></th>
+			<th class="lbl-txt-align" ><%= l(:label_item_type) %></th>
+			<th></th>
+			<th class="lbl-txt-align" ><%= l(:label_rate) %></th>
+			<th class="lbl-txt-align" ><%= l(:label_quantity) %></th>
+			<th class="lbl-txt-align" ><%= l(:field_amount) %></th>
+			<th></th>			
+         </tr>
+  </thead>
+   <tbody>
+       <% @invoiceItem.each do |entry| %>
+	     <% if entry.item_type == 'i' %>
+		 <tr onclick="  row_id  = this.rowIndex ">
+			<td class="lbl-txt-align" headers="item_id"><%=h hidden_field_tag("item_id#{row_index}",   entry.id )  %></td>
+			<td class="lbl-txt-align" headers="item_index"><label id="item_index<%= row_index.to_s %>"><%= row_index  %></label></td>
+			<td class="lbl-txt-align" headers="project_id"><%=h select_tag("project_id#{row_index.to_s}", options_for_select(projects, :selected => entry.project_id)) %></td>
+		    <td class="lbl-txt-align" headers="name"><%= text_field_tag "name#{row_index}",  entry.name,  :style => "width:150px; " %></td>
+			<td class="lbl-txt-align" headers="item_type"><label id="item_type<%= row_index.to_s %>"  ><%= (entry.item_type == 'i' ? 'invoice' : 'tax') %></label></td>
+			<td class="lbl-txt-align" headers="currency"><%=h hidden_field_tag("currency#{row_index}",   entry.currency )  %></td>
+			<td class="lbl-txt-align" headers="rate"><%= entry.currency %><%= text_field_tag "rate#{row_index}",  entry.rate ,  :style => "width:150px;", :onchange => "addAmount()" %></td>
+			<td class="lbl-txt-align" headers="quantity"><%= text_field_tag "quantity#{row_index}",  entry.quantity  ,  :style => "width:150px;", :onchange => "addAmount()" %></td>
+			<td class="lbl-txt-align" headers="amount"><%= entry.currency %><label id="amount<%= row_index.to_s %>" ><%= entry.amount  %></label></td>
+			<% total = total + entry.amount %>
+			<td><%= link_to image_tag('delete.png'), "javascript:deleteRow(this.id);", :id => row_index,
+						:data => {:confirm => l(:text_are_you_sure)},
+						:title => l(:button_delete) %></td>			
+		 </tr>
+		  <% row_index = row_index + 1 %>
+		 <% end %>
+	<% end %>
+   </tbody>
+</table>
+<% tax_index = 1 %>
+<table id="taxTable" class="list time-entries">
+	<% @invoiceItem.each do |entry| %>
+		<% if entry.item_type == 't' %>
+			<tr>
+				<td class="lbl-txt-align" style="width:20px;"><%=h hidden_field_tag("tax_id#{tax_index}",   entry.id )  %></td>
+				<td class="lbl-txt-align" style="width:20px;"><%=h hidden_field_tag("pjt_id#{tax_index}",   entry.project_id )  %></td>
+				<td class="lbl-txt-align" style="width:330px;" ><%=  entry.name %></td>				
+				<td class="lbl-txt-align" style="width:140px;"><label id="taxitem_type<%= tax_index.to_s %>"><%= (entry.item_type == 'i' ? 'invoice' : 'tax') %></label></td>
+				<td class="lbl-txt-align" style="width:330px;"><label id="taxrate<%= tax_index.to_s %>"><%=    (entry.rate * 100) %> </label> </td>
+				<td class="lbl-txt-align" style="width:330px;"><%=  entry.quantity   %></td>
+				<td class="lbl-txt-align" style="padding-right:110px;" ><%= entry.currency %><label id="taxamount<%= tax_index.to_s %>"><%= entry.amount.round(2)   %></label></td>
+				<% total = total + entry.amount %>
+			 </tr>
+			  <% tax_index = tax_index + 1 %>
+		<% end %>
+	<% end %>
+	<tr><td colspan=6 style="padding-right:100px;"><label id="invtotalamount" style="float:right;">total : <%= @invoiceItem[0].blank? ? "" : @invoiceItem[0].currency %> <%= total %> </label><td></tr>
+</table>
+</div>
+<%=h hidden_field_tag("totalrow",  row_index-1 )  %>
+<%=h hidden_field_tag("taxrow",  tax_index-1 )  %>
+<% unless @invoiceItem[0].blank? %>
+<%=h hidden_field_tag("invoiceid",  @invoiceItem[0].invoice.id )  %>
+<% end %>
+<%=h hidden_field_tag("deletedids",  "" )  %>
+<%= submit_tag l(:button_save),  :hidden => false, :id => 'items_save' %>
