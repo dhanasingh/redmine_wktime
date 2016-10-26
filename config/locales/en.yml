@@ -296,3 +296,6 @@ en:
   label_quantity: Quantity
   label_invoice_number: Invoice Number
   label_invoice_items: Invoice Items
+  label_billing_type: Billing Type
+  label_apply_tax: Apply Tax
+  label_itemized_bill: Itemized Bill

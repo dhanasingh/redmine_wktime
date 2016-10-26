@@ -181,3 +181,7 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	post 'wkinvoice/update', :to => 'wkinvoice#update'
 	
 	delete 'wkinvoice/destroy', :to => 'wkinvoice#destroy'
+	
+	get 'wkaccountproject/edit', :to => 'wkaccountproject#edit'
+	
+	delete 'wkaccountproject/destroy', :to => 'wkaccountproject#destroy'
