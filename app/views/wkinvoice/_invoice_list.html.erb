@@ -16,17 +16,22 @@
          </tr>
   </thead>
    <tbody>
-       <% @invoice_entries.each do |entry| %>
+		<% @invoiceEntries.each do |entry| %>
+		<% 
+		count = entry.invoice_items.uniq().count(:project_id)
+		projectName = ((count > 1 || entry.invoice_items[0].blank?) ? "" : entry.invoice_items[0].project.name) 
+		invoiceAmount = entry.invoice_items.sum(:amount)
+		%>
 		 <tr>
 		    <td class="lbl-txt-align"><%=h entry.invoice_number  %></td>
-			<td class="lbl-txt-align"><%=h entry.projectname  %></td>
-			<td class="lbl-txt-align"><%=h entry.accountname  %></td>
+			<td class="lbl-txt-align"><%=h projectName %></td>
+			<td class="lbl-txt-align"><%=h entry.account.name  %></td>
 			<td class="lbl-txt-align"><%=h (entry.status == 'o' ? 'open' : 'closed')  %></td>
-			<td class="lbl-txt-align"><%=h entry.invoicedate  %></td>			
-			<td class="lbl-txt-align"><%=h entry.startdate  %></td>
-			<td class="lbl-txt-align"><%=h entry.enddate  %></td>
-			<td class="lbl-txt-align"><%=h entry.amount  %></td>
-			<td class="lbl-txt-align"><%=h entry.modifiedby  %></td>
+			<td class="lbl-txt-align"><%=h entry.invoice_date  %></td>			
+			<td class="lbl-txt-align"><%=h entry.start_date  %></td>
+			<td class="lbl-txt-align"><%=h entry.end_date  %></td>
+			<td class="lbl-txt-align"><%=h entry.invoice_items.sum(:amount)  %></td>
+			<td class="lbl-txt-align"><%=h entry.modifier.name  %></td>
 			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :invoice_id => entry.id, :tab => controller.controller_name},
                                        :title => l(:button_edit) %>
 			<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :invoice_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
@@ -35,5 +40,4 @@
    </tbody>
 </table>
 </div>
-
 <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

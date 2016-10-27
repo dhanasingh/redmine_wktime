@@ -15,7 +15,7 @@
 		
 		
 		te_custom_fields = TimeEntryCustomField.order('name')
-		cfBillIndicator = wktime_helper.getCfListArr(te_custom_fields, 'bool', true)
+		cfBillIndicator = wktime_helper.getCfListArr(te_custom_fields, 'int', true)
 	%>
 	<legend><%= l(:label_wk_billing) %></legend>
 	<p style="margin-left: -110px;">

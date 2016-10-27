@@ -16,10 +16,8 @@
 		<label><%= l(:label_project) %></label>
 		<%=h select_tag('project_id', options_for_select([["",""]] + (@projects.blank? ? [] : @projects), :selected => projid.nil? ? projArr : projid)) %>		
 		<%= render :partial => 'wkinvoice/date_range' %>
-	<% end %>	
-	<% if !@invoice_entries.blank? %>
-		<div class="total-hours">
-			<p><%= l(:label_total) %>: &nbsp;<%= @total_inc_amt %></p>
-		</div>
 	<% end %>
-	<%= render :partial => 'wkinvoice/invoice_list'%>
+	<div class="total-hours">
+		<p><%= l(:label_total) %>: &nbsp;<%= @totalInvAmt %></p>
+	</div>
+	<%= render :partial => 'wkinvoice/invoice_list'%>	
