@@ -1,6 +1,6 @@
 module WkinvoiceHelper
-
 include WktimeHelper
+include WkattendanceHelper
 
     def options_for_wktime_account()
 		accArr = Array.new
@@ -35,7 +35,7 @@ include WktimeHelper
 	
 	def generateInvoices(accountId, projectId, invoiceDate,invoicePeriod)
 		errorMsg = nil
-		account = WkAccount.find(accountId)		
+		account = WkAccount.find(accountId)
 		if projectId.blank? && !account.account_billing
 			account.projects.each do |project|
 				errorMsg = addInvoice(accountId, project.id, invoiceDate,invoicePeriod)
@@ -93,7 +93,7 @@ include WktimeHelper
 	def saveTAMInvoiceItem(accountProject)
 		# Get the rate and currency in rateHash
 		rateHash = getProjectRateHash(accountProject.project.custom_field_values)
-		timeEntries = TimeEntry.joins("left outer join custom_values on time_entries.id = custom_values.customized_id and custom_values.customized_type = 'TimeEntry' and custom_values.custom_field_id = #{getSettingCfId('wktime_billing_indicator_cf')}").where(project_id: accountProject.project_id, spent_on: @invoice.start_date .. @invoice.end_date).where("custom_values.value is null OR #{getSqlLengthQry("custom_values.value")} = 0 ")
+		timeEntries = TimeEntry.joins("left outer join custom_values on time_entries.id = custom_values.customized_id and custom_values.customized_type = 'TimeEntry' and custom_values.custom_field_id = #{getSettingCfId('wktime_billing_id_cf')}").where(project_id: accountProject.project_id, spent_on: @invoice.start_date .. @invoice.end_date).where("custom_values.value is null OR #{getSqlLengthQry("custom_values.value")} = 0 ")
 		
 		totalAmount = 0
 		lastUserId = 0
@@ -168,7 +168,7 @@ include WktimeHelper
 	
 	# Update timeEntry CF with invoice_item_id
 	def updateBilledHours(tEntry, invItemId)
-		tEntry.custom_field_values = {getSettingCfId('wktime_billing_indicator_cf') => invItemId}
+		tEntry.custom_field_values = {getSettingCfId('wktime_billing_id_cf') => invItemId}
 		tEntry.save		
 	end
 	

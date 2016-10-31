@@ -283,7 +283,7 @@ fr:
   label_user_billing_currency: User Billing Currency
   label_project_billing_rate: Project Billing Rate
   label_project_billing_currency: Project Billing Currency
-  label_billing_indicator: Billing Indicator
+  label_billing_id: Billing Id
   label_generate_invoice_from: Generate invoice from
   label_auto_generate_invoice: Auto generate invoice
   label_invoice_no_prefix: Invoice number prefix
@@ -320,3 +320,5 @@ fr:
   label_mobile : Mobile
   label_home_phone: Home Phone
   label_pin: Pin
+  label_invoice_generate_period: Invoice generate period
+  label_invoice_generation_day: Invoice generation day

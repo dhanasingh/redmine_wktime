@@ -431,6 +431,57 @@ Rails.configuration.to_prepare do
 				end
 			end
 		end
+		
+		if (!Setting.plugin_redmine_wktime['wktime_auto_generate_invoice'].blank? && Setting.plugin_redmine_wktime['wktime_auto_generate_invoice'].to_i == 1)
+			require 'rufus/scheduler'
+			invoiceScheduler = Rufus::Scheduler.new
+			invPeriod = Setting.plugin_redmine_wktime['wktime_generate_invoice_period']
+			invDay = Setting.plugin_redmine_wktime['wktime_generate_invoice_day']
+			genInvFrom = Setting.plugin_redmine_wktime['wktime_generate_invoice_from'].to_date
+			if invPeriod == 'm' || invPeriod == 'q'
+				#Scheduler will run at 12:01 AM on 1st of every month
+				cronSt = "01 00 01 * *"
+			else
+				#Scheduler will run at 12:01 AM on invDay of every week
+				cronSt = "01 00 * * #{invDay.blank? ? 0 : invDay}"
+			end
+			invoiceScheduler.cron cronSt do		
+				begin
+					invoicePeriod = nil
+					fromDate = nil
+					currentMonthStart = Date.civil(Date.today.year, Date.today.month, Date.today.day)
+					runJob = true
+					case invPeriod
+					  when 'q'
+						fromDate = currentMonthStart<<4 < genInvFrom ? genInvFrom : currentMonthStart<<4
+						#Scheduler will run at 12:01 AM on 1st of every April, July, October and January months
+						runJob = false if (currentMonthStart.month%3)-1 > 0
+					  when 'w'
+						#Scheduler will run at 12:01 AM on invDay of every week
+						fromDate = currentMonthStart-7 < genInvFrom ? genInvFrom : currentMonthStart-7
+					  when 'bw'
+						invoiceCount = WkInvoice.where("invoice_date between '#{currentMonthStart-14}' and '#{currentMonthStart-1}'").count
+						runJob = false if invoiceCount > 0
+						fromDate = currentMonthStart-14 < genInvFrom ? genInvFrom : currentMonthStart-14
+					  else
+						#Scheduler will run at 12:01 AM on 1st of every month
+						fromDate = (currentMonthStart-1).beginning_of_month < genInvFrom ? genInvFrom : (currentMonthStart-1).beginning_of_month
+					end
+					invoicePeriod = [fromDate, currentMonthStart-1]
+					if runJob
+						Rails.logger.info "==========Invoice job - Started=========="
+						invoiceHelper = Object.new.extend(WkinvoiceHelper)
+						allAccounts = WkAccount.all
+						allAccounts.each do |account|
+							errorMsg = invoiceHelper.generateInvoices(account.id, nil, currentMonthStart, invoicePeriod)
+						end
+						Rails.logger.info "===== Invoice generated Successfully =====" 
+					end
+				rescue Exception => e
+					Rails.logger.info "Job failed: #{e.message}"
+				end
+			end
+		end
 	end
 end
 
