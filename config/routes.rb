@@ -156,9 +156,16 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
     #For Billing
     get 'wkbilling/index', :to => 'wkbilling#index'	
 	
-	get 'wkaccounts/index', :to => 'wkaccounts#index'
+	get 'wkaccount/index', :to => 'wkaccount#index'
+	
+	match 'wkaccount/index', :to => 'wkaccount#index', :via => [:get, :post]
+	
+	post 'wkaccount/update', :to => 'wkaccount#update'
+	
+	get 'wkaccount/edit', :to => 'wkaccount#edit'
 	
 	get 'wkcontracts/index', :to => 'wkcontracts#index'
+	
 	
 	get 'wkaccountproject/index', :to => 'wkaccountproject#index'
 	

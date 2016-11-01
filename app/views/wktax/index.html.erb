@@ -1,7 +1,7 @@
 <h2><%= l(:label_tax) %></h2>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
-    blgaccUrl = '<%=url_for(:controller => "wkaccounts", :action => "index", :tab => "accounts")%>';
+    blgaccUrl = '<%=url_for(:controller => "wkaccount", :action => "index", :tab => "accounts")%>';
     blgcontractsUrl = '<%=url_for(:controller => "wkcontracts", :action => "index", :tab => "contracts")%>';
     blgaccpjtsUrl = '<%=url_for(:controller => "wkaccountproject", :action => "index", :tab => "accprojects")%>';     
     blginvoiceUrl = '<%=url_for(:controller => "wkinvoice", :action => "index", :tab => "invoice")%>';

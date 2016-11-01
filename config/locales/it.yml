@@ -297,3 +297,24 @@ it:
   label_billing_type: Billing Type
   label_apply_tax: Apply Tax
   label_itemized_bill: Itemized Bill
+  label_invoice_items: Invoice Items
+  label_new_tax: New Tax
+  label_new_account: New Account
+  label_edit_account: Edit Account
+  label_account_type: Account Type
+  label_account_address: Address
+  label_account_address1: Address1
+  label_account_address2: Address2
+  label_work_phone: Work Phone
+  label_email: Email
+  label_country: Country
+  label_city : City 
+  label_account_detail: Account Detail
+  label_account_information: Account Information
+  label_address_information: Address Information
+  label_state : State 
+  label_fax : Fax
+  label_mobile : Mobile
+  label_home_phone: Home Phone
+  label_pin: Pin
+  
