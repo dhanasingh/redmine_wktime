@@ -691,7 +691,7 @@ end
 	def settings_tabs		   
 		tabs = [
 				{:name => 'general', :partial => 'settings/tab_general', :label => :label_general},
-				{:name => 'display', :partial => 'settings/tab_display', :label => :label_display},
+			#	{:name => 'display', :partial => 'settings/tab_display', :label => :label_display},
 				{:name => 'wktime', :partial => 'settings/tab_time', :label => :label_te},
 				{:name => 'attendance', :partial => 'settings/tab_attendance', :label => :label_wk_attendance},
 				{:name => 'payroll', :partial => 'settings/tab_payroll', :label => :label_payroll},
