@@ -32,11 +32,12 @@ before_filter :require_login
 		unless params[:acc_project_id].blank?
 			@accProjEntry = WkAccountProject.find(params[:acc_project_id].to_i)			
 			@wkbillingschedule = WkBillingSchedule.where("account_project_id = ? ", params[:acc_project_id].to_i)
+			stax = @accProjEntry.taxes
+			@selectedtax = stax.map { |r| r.id } #stax.collect{|m| [  m.id ] }
 		end		
 		taxentry = WkTax.all
 		@taxentry = taxentry.collect{|m| [ m.name, m.id ] }
-		stax = @accProjEntry.taxes
-		@selectedtax = stax.map { |r| r.id } #stax.collect{|m| [  m.id ] }
+		
 	end
 	
 	def update

@@ -269,7 +269,7 @@ it:
   label_enable_billing_module: Enable Billing module
   label_accounts: Accounts
   label_contracts: Contracts
-  label_acc_projects: Account Projects
+  label_acc_projects: Billable Projects
   label_invoice: Invoice
   label_tax: Tax  
   label_project_name: Project Name
