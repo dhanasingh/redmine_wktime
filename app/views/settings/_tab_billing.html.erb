@@ -65,4 +65,17 @@
 		<label><%= l(:label_user_billing_currency) %> </label><%=h select_tag('settings[wktime_user_billing_currency_cf]', 
 			options_for_select(cfUserCurrency, :selected =>  @settings['wktime_user_billing_currency_cf'])) %>
 	</p>
+	<%
+			accountGroups = Array.new
+			accGroup = Group.order('lastname')
+			unless accGroup.blank?
+				accountGroups = accGroup.collect {|t| [t.lastname, t.id] }
+			end
+			accountGroups.unshift(["",0])
+		%>
+		<p style="padding-left: 190px;">
+			<label><%=l(:label_billing_groups)%></label>
+			<%=  select_tag('settings[wktime_billing_groups]',
+					options_for_select(accountGroups, :selected => @settings['wktime_billing_groups'].blank? ? 0 : @settings['wktime_billing_groups']), :multiple=> true)%>
+		</p>	
 </fieldset>

@@ -307,7 +307,8 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_import_file_headers' => '0',
 			 'wktime_enable_billing_module' => '0',
 			 'wktime_auto_generate_invoice' => '0',
-			 'wktime_generate_invoice_from' => nil
+			 'wktime_generate_invoice_from' => nil,
+			  'wktime_billing_groups' => ['0'],
   })  
  
   menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_ta, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 	

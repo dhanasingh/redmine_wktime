@@ -1017,8 +1017,9 @@ end
 	end
 	
 	def showBilling
-		!Setting.plugin_redmine_wktime['wktime_enable_billing_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_billing_module'].to_i == 1
+		(!Setting.plugin_redmine_wktime['wktime_enable_billing_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_billing_module'].to_i == 1 ) && isBillableUser
+			
 	end
 	
 	# Return the given type of custom Fields array
@@ -1040,5 +1041,25 @@ end
 	
 	def getPluginSetting(setting_name)
 		Setting.plugin_redmine_wktime[setting_name]
+	end
+	
+	def isBillableUser
+		group = nil
+		isbillingUser = false
+		groupusers = Array.new
+		accountGrpIds = Setting.plugin_redmine_wktime['wktime_billing_groups'] if !Setting.plugin_redmine_wktime['wktime_billing_groups'].blank?
+		if !accountGrpIds.blank?
+			accountGrpIds = accountGrpIds.collect{|i| i.to_i}
+		end
+
+		if !accountGrpIds.blank?
+			accountGrpIds.each do |group_id|
+				scope = User.in_group(group_id)	
+				groupusers << scope.all
+			end
+		end
+		grpUserIds = Array.new		
+		grpUserIds = groupusers[0].collect{|user| user.id}.uniq if !groupusers.blank? && !groupusers[0].blank?
+		isbillingUser = grpUserIds.include?(User.current.id)
 	end
 end
