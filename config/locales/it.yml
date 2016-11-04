@@ -327,4 +327,17 @@ it:
   label_billing_schdules: Billing Schdules
   label_new_billing_project: New Billing Project
   label_billing_groups: Biiling Groups
+  label_start_date: Start Date
+  label_end_date: End Date
+  label_contract_name: Contract Name
+  label_file_name: File Name
+  label_attachment: Attachments
+  label_edit_contract: Edit Contract
+  label_project: Project 
+  label_account: Account 
+  label_contract_number: Contract Number
+  label_contract_no_prefix: Contract number prefix
+  label_new_contract: New Contract
+  label_contract_information: Contract Information
+  label_pin: Pin Code
   

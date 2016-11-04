@@ -40,8 +40,7 @@ before_filter :require_login
 		  @accountEntry = WkAccount.find(params[:account_id])
 		else 
           @accountEntry = @accountEntry
-		  
-	    end
+		end
     end	
 	
 	def update
@@ -70,7 +69,7 @@ before_filter :require_login
 		end
 		wkaccount.address_id = address_id
 		wkaccount.name = params[:name]
-		wkaccount.account_type = params[:account_type]
+		wkaccount.account_type = 'A'
 		wkaccount.save()
 		if wkaccount.save()
 		    redirect_to :controller => 'wkaccount',:action => 'index' , :tab => 'account'

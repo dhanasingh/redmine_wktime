@@ -194,3 +194,9 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	delete 'wkaccountproject/destroy', :to => 'wkaccountproject#destroy'
 	
 	post 'wkaccountproject/update', :to => 'wkaccountproject#update'
+	
+	get 'wkcontract/index', :to => 'wkcontract#index'
+	
+	get 'wkcontract/edit', :to => 'wkcontract#edit'
+	
+	post 'wkcontract/update', :to => 'wkcontract#update'

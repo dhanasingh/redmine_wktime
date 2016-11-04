@@ -40,10 +40,7 @@ class CreateWkBilling < ActiveRecord::Migration
 	  t.references :account, :class => "wk_accounts", :null => true
 	  t.date :start_date
 	  t.date :end_date
-      t.string :name,         :null => false
-      t.binary :data,         :null => false
-      t.string :filename
-      t.string :file_type
+      t.string :contract_number,         :null => false
       t.timestamps null: false
     end
 	add_index  :wk_contracts, :project_id

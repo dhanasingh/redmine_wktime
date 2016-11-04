@@ -217,8 +217,8 @@ $(document).ready(function()
 	changeProp('tab-leave',wkattnIndexUrl);
 	changeProp('tab-clock',clockInOutUrl);
 	changeProp('tab-payroll',payrollUrl);
-	changeProp('tab-accounts',blgaccUrl);
-	changeProp('tab-contracts',blgcontractsUrl);
+	changeProp('tab-account',blgaccUrl);
+	changeProp('tab-contract',blgcontractsUrl);
 	changeProp('tab-accprojects',blgaccpjtsUrl);
 	changeProp('tab-invoice',blginvoiceUrl);
 	changeProp('tab-tax',blgtaxUrl);

@@ -1,14 +1,13 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= form_tag({:controller => "wkaccount", :action => 'index'}, :method => :post, :id => 'query_form') do %>
-     <fieldset>
-		 <label for='name'><%= l(:label_account_name) %>:</label>
-		 <%= text_field_tag 'accountname', params[:accountname], :size => 30 %>
-		 <%= submit_tag l(:button_apply), :class => "small", :name => nil %>
-		 <%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
-	  </fieldset>
+		<fieldset>
+			<label for='name'><%= l(:label_account_name) %>:</label>
+			<%= text_field_tag 'accountname', params[:accountname], :size => 30 %>
+			<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
+			<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
+		</fieldset>
 <% end %>
-
-  <div class="wk-contextual">
-        <%= link_to l(:label_new_account), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
- </div>
+		<div class="wk-contextual">
+			<%= link_to l(:label_new_account), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+		</div>
 <%= render :partial => 'wkaccount/account_list'%>

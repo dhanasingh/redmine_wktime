@@ -10,7 +10,7 @@
 		projid =session[:wkinvoice][:project_id] %>
 	<%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	
 	<%	projArr = options_for_wktime_project(projects,true) %>
-	<%	accArr = options_for_wktime_account() %>
+	<%	accArr = options_for_wktime_account(true) %>
 		<label><%= l(:label_account_name) %></label>
 		<%=h select_tag('account_id', options_for_select(accArr, :selected => accid.nil? ? accArr : accid), :onchange => "accProjChanged(#{User.current.id});") %>
 		<label><%= l(:label_project) %></label>

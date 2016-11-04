@@ -19,10 +19,11 @@ before_filter :require_login
 	end
 	
 	def edit
+	    @taxEntry = nil
 	    unless params[:tax_id].blank?
 		   @taxEntry = WkTax.find(params[:tax_id])
 		else
-      	   @taxEntry = WkTax.new
+      	   @taxEntry = @taxEntry
 		end   
 	end	
     

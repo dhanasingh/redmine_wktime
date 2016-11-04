@@ -29,6 +29,9 @@
 	<p style="margin-left: -110px;"><label><%= l(:label_invoice_generate_period) %></label>
 		<%= select_tag 'settings[wktime_generate_invoice_period]', options_for_select(hash_invoice_period.invert, :selected => @settings['wktime_generate_invoice_period']) %>
 	</p>
+	<p style="padding-left: 190px;;">
+		  <label><%= l(:label_contract_no_prefix) %></label><%= text_field_tag 'settings[wktime_contract_no_prefix]', @settings['wktime_contract_no_prefix'], :size => 13 %> 
+	</p>
 	<p style="margin-left: -110px;">	
 			<label><%= l(:label_invoice_generation_day) %></label>
 			<%= select_tag('settings[wktime_generate_invoice_day]', options_for_select([[l('date.day_names')[0], 0],

@@ -2,9 +2,11 @@ module WkinvoiceHelper
 include WktimeHelper
 include WkattendanceHelper
 
-    def options_for_wktime_account()
+    def options_for_wktime_account(blankOption)
 		accArr = Array.new
-		accArr << [ "", ""]
+		if blankOption
+		  accArr << [ "", ""]
+		end
 		accname = WkAccount.all
 		if !accname.blank?
 			accname.each do | entry|
