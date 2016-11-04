@@ -290,7 +290,6 @@ it:
   label_new_tax: New Tax
   label_invoice_name: Item Description
   label_item_type: Item Type
-  label_rate: Rate
   label_quantity: Quantity
   label_invoice_number: Invoice Number
   label_invoice_items: Invoice Items
@@ -340,4 +339,22 @@ it:
   label_new_contract: New Contract
   label_contract_information: Contract Information
   label_pin: Pin Code
+  label_invoice_components: Invoice Components
+  label_import_export_code: Import Export Code
+  label_satellite_station: Satellite Station
+  label_destination: Destination
+  label_payment_terms: Payment Terms
+  label_bankers_reference: Banker's Reference
+  label_name_address_of: Name & Address of the %{value}
+  label_bank_code_no: Bank code No
+  label_amount_in_words: Amount in Words
+  label_man_hour_day_month: Man Hour / Man Day / Man Month / Project
+  label_desc_of_sftwr_services: Description of the Software Services
+  label_cntrt_purchase_work_order: Contract / Purchase Order / Work Order / Agreement Date & Reference
+  label_bank: Bank
+  label_customer: Customer
+  label_supplier: Supplier
+  label_export_invoice: EXPORT INVOICE
+  label_authorized_signatory: Authorized Signatory
+  label_place: Place
   

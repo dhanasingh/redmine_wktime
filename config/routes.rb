@@ -200,3 +200,5 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wkcontract/edit', :to => 'wkcontract#edit'
 	
 	post 'wkcontract/update', :to => 'wkcontract#update'
+	
+	get 'wkinvoice/invreport', :to => 'wkinvoice#invreport' 

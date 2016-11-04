@@ -16,13 +16,13 @@
 			<% @account_entries.each do |entry| %>
 				<tr>
 					  <td class="lbl-txt-align"><%=h entry.name %></td>
-					  <td class="lbl-txt-align"><%=h entry.address.address1 %></td>
-					  <td class="lbl-txt-align"><%=h entry.address.work_phone %></td>
-					  <td class="lbl-txt-align"><%=h entry.address.email %></td>
-					  <td class="lbl-txt-align"><%=h entry.address.country %></td>
-					  <td class="lbl-txt-align"><%=h entry.address.city %></td>
+					  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.address1 %></td>
+					  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.work_phone %></td>
+					  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.email %></td>
+					  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.country %></td>
+					  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.city %></td>
 					  <td align="center">
-						  <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :account_id => entry.id,:address_id => entry.address.id}, :title => l(:button_edit) %>
+						  <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :account_id => entry.id,:address_id => entry.address.blank? ? "" : entry.address.id}, :title => l(:button_edit) %>
 					  </td>
 				</tr>
 			<% end %>

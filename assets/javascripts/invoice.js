@@ -114,3 +114,9 @@ function deleteRow(tableId, totalrow)
     document.getElementById(tableId).deleteRow(row_id);	
 	document.getElementById(totalrow).value = document.getElementById(totalrow).value - 1;
 }
+
+function openInvReportPopup(){
+	var invId = document.getElementById('invoice_id').value;
+	popupUrl = wkInvReportUrl + '&invoice_id=' + invId +'&is_report=true'
+	window.open(popupUrl, '_blank', 'location=yes,scrollbars=yes,status=yes');
+}

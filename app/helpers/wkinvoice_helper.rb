@@ -38,7 +38,7 @@ include WkattendanceHelper
 	def generateInvoices(accountId, projectId, invoiceDate,invoicePeriod)
 		errorMsg = nil
 		account = WkAccount.find(accountId)
-		if projectId.blank? && !account.account_billing
+		if (projectId.blank? || projectId.to_i == 0)  && !account.account_billing
 			account.projects.each do |project|
 				errorMsg = addInvoice(accountId, project.id, invoiceDate,invoicePeriod)
 			end
@@ -49,7 +49,7 @@ include WkattendanceHelper
 	end
 	
 	def generateInvoiceItems(projectId)
-		if projectId.blank?
+		if projectId.blank?  || projectId.to_i == 0
 			WkAccountProject.where(account_id: @invoice.account_id).find_each do |accProj|
 				addInvoiceItem(accProj)
 			end
@@ -229,5 +229,91 @@ include WkattendanceHelper
 			lenSqlQry = "length(#{column})"
 		end		
 		lenSqlQry
+	end
+	
+	# Name of the numbers in Hash
+	def getNumberAsStr
+		numbers_name_hash = {
+		  1000000000 => "billion",
+		  1000000 => "million",
+		  1000 => "thousand",
+		  100 => "hundred",
+		  90 => "ninety",
+		  80 => "eighty",
+		  70 => "seventy",
+		  60 => "sixty",
+		  50 => "fifty",
+		  40 => "forty",
+		  30 => "thirty",
+		  20 => "twenty",
+		  19=>"nineteen",
+		  18=>"eighteen",
+		  17=>"seventeen", 
+		  16=>"sixteen",
+		  15=>"fifteen",
+		  14=>"fourteen",
+		  13=>"thirteen",              
+		  12=>"twelve",
+		  11 => "eleven",
+		  10 => "ten",
+		  9 => "nine",
+		  8 => "eight",
+		  7 => "seven",
+		  6 => "six",
+		  5 => "five",
+		  4 => "four",
+		  3 => "three",
+		  2 => "two",
+		  1 => "one"
+		}
+	end
+	
+	# Return the given number in words
+	def numberInWords (numVal)
+		totalNoOfDigits = (numVal.to_i.to_s).length
+		quad = numVal.to_i
+		numValStr = ""
+		while quad > 0 do
+			quadDigits = (quad.to_s).length
+			currentUnit = 10 ** (totalNoOfDigits - quadDigits)
+			currStr = nil
+			currStr = getThreeDigitNumberStr((quad%1000))
+			quad = quad/1000
+			unless currStr.blank?
+				currStr = currStr + " " + (currentUnit == 1 ? "" : getNumberAsStr[currentUnit])
+				numValStr = numValStr.blank? || currStr.blank?  ? currStr + numValStr :  currStr + " , " + numValStr
+			end
+		end
+		numValStr
+	end
+	
+	# Return the Two digit number in words
+	def getTwoDigitNumberStr(twoDigitVal)
+		numStr = ""
+		unless getNumberAsStr[twoDigitVal].blank?
+			numStr = getNumberAsStr[twoDigitVal]
+		else
+			if twoDigitVal > 0
+				numStr = getNumberAsStr[(twoDigitVal.to_i/10)*10] + " " + getNumberAsStr[twoDigitVal%10]
+			end
+		end
+		numStr = " " + numStr unless numStr.blank?
+		numStr
+	end
+	
+	# Return the Three digit number in words
+	def getThreeDigitNumberStr(thrDigitVal)
+		numStr = ""
+		unless getNumberAsStr[thrDigitVal].blank?
+			numStr = getNumberAsStr[thrDigitVal]
+		else
+			if thrDigitVal > 0
+				hundredStr = getNumberAsStr[thrDigitVal/100].blank? ? "" : (getNumberAsStr[thrDigitVal/100] + " hundred ")
+				twoDigStr = getTwoDigitNumberStr(thrDigitVal%100)
+				numStr = hundredStr.blank? || twoDigStr.blank? ? (hundredStr + twoDigStr)  : (hundredStr + "and" + twoDigStr)
+			end
+		end
+		numStr = " " + numStr unless numStr.blank?
+		numStr
 	end
 end

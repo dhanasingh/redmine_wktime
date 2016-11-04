@@ -13,23 +13,23 @@
 					</tr>
 					<tr>
 					    <th align="left"><%= l(:label_work_phone) %></th>
-					    <td align="left" style="padding-left:40px;"><%=h 		text_field_tag("work_phone",@accountEntry.blank? ? "" : @accountEntry.address.work_phone,:size => 20, :required => true) %> </td>			   
+					    <td align="left" style="padding-left:40px;"><%=h 		text_field_tag("work_phone",@accountEntry.blank? || @accountEntry.address.blank?  ? "" : @accountEntry.address.work_phone,:size => 20, :required => true) %> </td>			   
 					</tr>
 					<tr>
 					    <th align="left"><%= l(:label_home_phone) %></th>
-					    <td align="left" style="padding-left:40px;"><%=h text_field_tag("home_phone",@accountEntry.blank? ? "" : @accountEntry.address.home_phone,:size => 20, :required => true) %> </td>			   
+					    <td align="left" style="padding-left:40px;"><%=h text_field_tag("home_phone",@accountEntry.blank? || @accountEntry.address.blank?  ? "" : @accountEntry.address.home_phone,:size => 20, :required => true) %> </td>			   
 					</tr>
 					<tr>
 					    <th align="left"><%= l(:label_mobile) %></th>
-					    <td align="left" style="padding-left:40px;"><%=h text_field_tag("mobile",@accountEntry.blank? ? "" : @accountEntry.address.mobile,:size => 20, :required => true) %> </td>			   
+					    <td align="left" style="padding-left:40px;"><%=h text_field_tag("mobile",@accountEntry.blank? || @accountEntry.address.blank?  ? "" : @accountEntry.address.mobile,:size => 20, :required => true) %> </td>			   
 					</tr>
 					<tr>
 					    <th align="left"><%= l(:label_email) %></th>
-					    <td align="left" style="padding-left:40px;"><%=h text_field_tag("email",@accountEntry.blank? ? "" : @accountEntry.address.email,:size => 20, :required => true) %> </td>			   
+					    <td align="left" style="padding-left:40px;"><%=h text_field_tag("email",@accountEntry.blank? || @accountEntry.address.blank?  ? "" : @accountEntry.address.email,:size => 20, :required => true) %> </td>			   
 					</tr>
 					<tr>
 					    <th align="left"><%= l(:label_fax) %></th>
-					    <td align="left" style="padding-left:40px;"><%=h text_field_tag("fax",@accountEntry.blank? ? "" : @accountEntry.address.fax,:size => 20, :required => true) %> </td>			   
+					    <td align="left" style="padding-left:40px;"><%=h text_field_tag("fax",@accountEntry.blank? || @accountEntry.address.blank?  ? "" : @accountEntry.address.fax,:size => 20, :required => true) %> </td>			   
 					</tr>
 				</table>
 			</fieldset>
@@ -40,27 +40,27 @@
 				<table>
 					<tr>
 				         <th align="left"><%= l(:label_account_address1) %></th>
-					     <td align="left" style="padding-left:75px;"><%=h text_field_tag("address1",@accountEntry.blank? ? "" : @accountEntry.address.address1,:size =>40,:required => true) %> </td>
+					     <td align="left" style="padding-left:75px;"><%=h text_field_tag("address1",@accountEntry.blank? || @accountEntry.address.blank?  ? "" : @accountEntry.address.address1,:size =>40,:required => true) %> </td>
 					</tr>
 					<tr>
 				         <th align="left"><%= l(:label_account_address2) %></th>
-					     <td align="left" style="padding-left:75px;"><%=h text_field_tag("address2",@accountEntry.blank? ? "" : @accountEntry.address.address2,:size =>40,:required => true) %> </td>
+					     <td align="left" style="padding-left:75px;"><%=h text_field_tag("address2",@accountEntry.blank? || @accountEntry.address.blank?  ? "" : @accountEntry.address.address2,:size =>40,:required => true) %> </td>
 					</tr>
 					<tr>
 				         <th align="left"><%= l(:label_city) %></th>
-					     <td align="left" style="padding-left:75px;"><%=h text_field_tag("city",@accountEntry.blank? ? "" : @accountEntry.address.city,:size =>30,:required => true) %> </td>
+					     <td align="left" style="padding-left:75px;"><%=h text_field_tag("city",@accountEntry.blank? || @accountEntry.address.blank?  ? "" : @accountEntry.address.city,:size =>30,:required => true) %> </td>
 				    </tr>
 				    <tr>
 				         <th align="left"><%= l(:label_state) %></th>
-					     <td align="left" style="padding-left:75px;"><%=h text_field_tag("state",@accountEntry.blank? ? "" : @accountEntry.address.state,:size =>30,:required => true) %> </td>
+					     <td align="left" style="padding-left:75px;"><%=h text_field_tag("state",@accountEntry.blank? || @accountEntry.address.blank?  ? "" : @accountEntry.address.state,:size =>30,:required => true) %> </td>
 					</tr>
 					<tr>
 				         <th align="left"><%= l(:label_country) %></th>
-					     <td align="left" style="padding-left:75px;"><%=h text_field_tag("country",@accountEntry.blank? ? "" : @accountEntry.address.country,:size =>30,:required => true) %> </td>
+					     <td align="left" style="padding-left:75px;"><%=h text_field_tag("country",@accountEntry.blank? || @accountEntry.address.blank?  ? "" : @accountEntry.address.country,:size =>30,:required => true) %> </td>
 					</tr>
 					<tr>
 				         <th align="left"><%= l(:label_pin) %></th>
-					     <td align="left" style="padding-left:75px;"><%=h text_field_tag("pin",@accountEntry.blank? ? "" : @accountEntry.address.pin,:size =>30,:required => true) %> </td>
+					     <td align="left" style="padding-left:75px;"><%=h text_field_tag("pin",@accountEntry.blank? || @accountEntry.address.blank?  ? "" : @accountEntry.address.pin,:size =>30,:required => true) %> </td>
 					</tr>
 				</table>
 			</fieldset>

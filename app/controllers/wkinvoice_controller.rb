@@ -59,15 +59,25 @@ include WkinvoiceHelper
 	
 	def edit
 		@invoice = WkInvoice.find(params[:invoice_id].to_i)
-		 @invoiceItem = @invoice.invoice_items 
+		@invoiceItem = @invoice.invoice_items 
+		unless params[:is_report].blank? || !to_boolean(params[:is_report])
+			render :action => 'invreport', :layout => false
+		end
+		
+	end
+	
+	def invreport
+		@invoice = WkInvoice.find(params[:invoice_id].to_i)
+		@invoiceItem = @invoice.invoice_items 
+		render :action => 'invreport', :layout => false
 	end
 	
 	def update
 		errorMsg = nil
 		invoiceItem = nil
-		invItemId = WkInvoiceItem.select(:id).where(:invoice_id => params["invoiceid"].to_i) 
+		invItemId = WkInvoiceItem.select(:id).where(:invoice_id => params["invoice_id"].to_i) 
 		arrId = invItemId.map {|i| i.id }
-		@invoice = WkInvoice.find(params["invoiceid"].to_i)
+		@invoice = WkInvoice.find(params["invoice_id"].to_i)
 		totalAmount = 0
 		tothash = Hash.new
 		for i in 1..(params[:totalrow].to_i)
