@@ -1,5 +1,11 @@
 var row_id = 0;
 
+$(document).ready(function() {
+$('.date').each(function() {
+        $(this).datepicker({ dateFormat: 'yy-mm-dd' });
+});
+});
+
 function invoiceFormSubmission()
 { 
 	var dateval = new Date(document.getElementById("to").value);
@@ -12,43 +18,51 @@ function invoiceFormSubmission()
 	} 
 }
 
-function InvoiceaddRow()
+function InvoiceaddRow(tableId, rowCount)
 {
-	var table = document.getElementById('invoiceTable');
-    var new_row = table.rows[1].cloneNode(true);
-    var len = table.rows.length;
-	var colCount = table.rows[0].cells.length;
-	//new_row.cells[5].innerHTML = '0.00';
-	for(var i=0; i<colCount; i++) 
-	{  
-	/*	var isclone = true;
-		if(i == 2)
-		{
-			isclone = false;
+	var table = document.getElementById(tableId);
+	var rowlength = table.rows.length;
+	var lastRow = table.rows[rowlength - 1];
+	var lastDatePicker = $('.date', lastRow);
+	var $rowClone = $(lastRow).clone(true);
+	$rowClone.find('input:text').val('');	
+	var g=1;
+	$rowClone.find('td').each(function(){
+		var el = $(this).find(':first-child');
+		var id = el.attr('id') || null;
+		if(id) {
+			var i = id.substr(id.length-1);
+			var prefix = id.substr(0, (id.length-1));
+			el.attr('id', prefix+(+i+1));
+			el.attr('name', prefix+(+i+1));
+			//el.attr('value', prefix+(+i+1));
 		}
-		else if( i == 5)
-		{
-			new_row.cells[5].innerHTML = '0.00';
-			alert("test : " + i);
-			var input = new_row.cells[5].getElementsByTagName('label')[0];
-			input.value="99";
-			isclone = false;
-		}
-		if(isclone)
-		{*/
-			var input = new_row.cells[i].getElementsByTagName("*")[0];			
-			input.id = table.rows[1].cells[i].headers + len;
-			input.name = table.rows[1].cells[i].headers + len;
-			if(i == 1) {
-				input.value = new_row.cells[1].innerHTML = len; 
-			} 
-			else{
-				input.value = "";
-			}
-		//}		
-	}
-	document.getElementById('totalrow').value = len;
-    table.appendChild( new_row );	 
+	});/* working fine */
+  
+    if(tableId == "milestoneTable")
+    {
+	    var datePickerClone = $('.date', $rowClone);
+		var datePickerCloneId = 'billdate' + rowlength;
+		
+		datePickerClone.data( "datepicker", 
+			$.extend( true, {}, lastDatePicker.data("datepicker") ) 
+		).attr('id', datePickerCloneId);
+		
+		datePickerClone.data('datepicker').input = datePickerClone;
+		datePickerClone.data('datepicker').id = datePickerCloneId;
+    }
+    
+	
+	$(table).append($rowClone);
+    if(tableId == "milestoneTable")
+    {
+      datePickerClone.datepicker();
+    }
+	document.getElementById(rowCount).value = rowlength;
+	clearId = tableId == "milestoneTable" ? "milestone_id"+rowlength : "item_id"+rowlength;
+	document.getElementById(clearId).value = "";
+	document.getElementById('item_index' + rowlength).innerHTML = rowlength; 
+	
 }
 
 function addAmount()
@@ -95,8 +109,8 @@ function addAmount()
 	document.getElementById('invtotalamount').innerHTML = "Total : " + (taxtotal + total);
 }
 
-function deleteRow(row)
+function deleteRow(tableId, totalrow)
 {
-    document.getElementById('invoiceTable').deleteRow(row_id);
-	document.getElementById('totalrow').value = document.getElementById('totalrow').value - 1;
+    document.getElementById(tableId).deleteRow(row_id);	
+	document.getElementById(totalrow).value = document.getElementById(totalrow).value - 1;
 }

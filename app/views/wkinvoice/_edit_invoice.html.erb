@@ -1,7 +1,7 @@
 <br/>
 <div class="wk-contextual">
 <h2 style="float:left;"><%= l(:label_invoice_items) %></h2>
-<%= link_to l(:button_add_row), "#", { :onclick => "javascript:InvoiceaddRow();",  :class => 'icon icon-time-add' }%>
+<%= link_to l(:button_add_row), "#", { :onclick => "javascript:InvoiceaddRow('invoiceTable', 'totalrow');",  :class => 'icon icon-time-add' }%>
 </div>
 <div style="clear:both"></div>
 <div class="autoscroll">
@@ -43,7 +43,7 @@
 			<td class="lbl-txt-align" headers="quantity"><%= text_field_tag "quantity#{row_index}",  entry.quantity  ,  :style => "width:150px;", :onchange => "addAmount()" %></td>
 			<td class="lbl-txt-align" headers="amount"><%= entry.currency %><label id="amount<%= row_index.to_s %>" ><%= entry.amount  %></label></td>
 			<% total = total + entry.amount %>
-			<td><%= link_to image_tag('delete.png'), "javascript:deleteRow(this.id);", :id => row_index,
+			<td><%= link_to image_tag('delete.png'), "javascript:deleteRow('invoiceTable', 'totalrow');", :id => row_index,
 						:data => {:confirm => l(:text_are_you_sure)},
 						:title => l(:button_delete) %></td>			
 		 </tr>

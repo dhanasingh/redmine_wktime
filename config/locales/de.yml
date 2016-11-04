@@ -321,3 +321,10 @@ de:
   label_pin: Pin
   label_invoice_generate_period: Invoice generate period
   label_invoice_generation_day: Invoice generation day
+  label_time_material: Time and Material
+  label_fixed_cost: Fixed Cost
+  label_milestone: Milestone
+  label_date: Date
+  label_applicable_taxes: Applicable Taxes
+  label_billing_schdules: Billing Schdules
+  label_new_billing_project: New Billing Project

@@ -2,9 +2,9 @@
 <div class="autoscroll">
 <table class="list time-entries">
   <thead>
-         <tr>
-				<th class="lbl-txt-align"><%= l(:label_project_name) %></th>
+         <tr>				
 				<th class="lbl-txt-align"><%= l(:label_account_name) %></th>
+				<th class="lbl-txt-align"><%= l(:label_project_name) %></th>
 				<th class="lbl-txt-align"><%= l(:label_billing_type) %></th>								
 				<th class="lbl-txt-align"><%= l(:label_apply_tax) %></th>		
 				<th class="lbl-txt-align"><%= l(:label_itemized_bill) %></th>
@@ -13,13 +13,13 @@
   </thead>
    <tbody>
        <% @accountproject.each do |entry| %>
-		 <tr>
-		    <td class="lbl-txt-align"><%=h entry.project.name  %></td>
+		 <tr>		    
 			<td class="lbl-txt-align"><%=h entry.account.name  %></td>
+			<td class="lbl-txt-align"><%=h entry.project.name  %></td>
 			<td class="lbl-txt-align"><%=h entry.billing_type  %></td>
 			<td class="lbl-txt-align"><%=h checked_image entry.apply_tax?  %></td>			
 			<td class="lbl-txt-align"><%=h checked_image entry.itemized_bill?  %></td>
-			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :tab => controller.controller_name},
+			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :acc_project_id => entry.id, :tab => controller.controller_name},
                                        :title => l(:button_edit) %>
 			<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :invoice_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
 		 </tr>
