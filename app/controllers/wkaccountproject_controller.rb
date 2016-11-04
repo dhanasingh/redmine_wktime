@@ -114,6 +114,10 @@ before_filter :require_login
 	end
 	
 	def destroy
+		WkAccountProject.find(params[:account_project_id].to_i).destroy
+		
+		flash[:notice] = l(:notice_successful_delete)
+		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end	
   
     def set_filter_session

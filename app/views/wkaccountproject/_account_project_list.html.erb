@@ -21,7 +21,7 @@
 			<td class="lbl-txt-align"><%=h checked_image entry.itemized_bill?  %></td>
 			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :acc_project_id => entry.id, :tab => controller.controller_name},
                                        :title => l(:button_edit) %>
-			<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :invoice_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
+			<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :account_project_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
 		 </tr>
 	<% end %>
    </tbody>
