@@ -18,7 +18,7 @@ include WkinvoiceHelper
 		end
 		@projects = accountProjects.collect{|m| [ m.project_name, m.project_id ] } if !accountProjects.blank?
 		unless params[:generate].blank? || !to_boolean(params[:generate])
-			if accountId.blank? && projectId.blank?
+			if (accountId.blank? || accountId.to_i == 0) && projectId.blank?
 				allAccounts = WkAccount.all
 				allAccounts.each do |account|
 					errorMsg = generateInvoices(account.id, projectId, @to + 1, [@from, @to])
