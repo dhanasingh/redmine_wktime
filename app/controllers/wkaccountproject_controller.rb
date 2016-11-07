@@ -94,10 +94,12 @@ before_filter :require_login
 				wkbillingschedule.milestone = params["milestone#{i}"]
 				wkbillingschedule.bill_date = params["billdate#{i}"]#.strftime('%F')
 				wkbillingschedule.amount = params["amount#{i}"]
-				wkbillingschedule.currency = "$"
+				wkbillingschedule.currency = params["currency#{i}"]
 				wkbillingschedule.invoice_id = ""
 				wkbillingschedule.account_project_id = wkaccountproject.id
-				if !wkbillingschedule.save()			
+				if wkbillingschedule.save()	
+					arrId << wkbillingschedule.id
+				else
 					errorMsg =  wkbillingschedule.errors.full_messages.join('\n')
 				end
 			

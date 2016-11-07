@@ -62,7 +62,7 @@ include WkattendanceHelper
 	end
 	
 	def addInvoiceItem(accountProject)
-		if accountProject.billing_type == 'TAM'
+		if accountProject.billing_type == 'TM'
 			# Add invoice items for Time and Materiel cost
 			saveTAMInvoiceItem(accountProject)
 		else

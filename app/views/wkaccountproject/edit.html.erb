@@ -2,18 +2,19 @@
 <%= javascript_include_tag 'invoice', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'accountproject', :plugin => "redmine_wktime" %>
 <h2><%= l(:label_acc_projects) %></h2>
+<% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
 <%= form_tag({:controller => "wkaccountproject", :action => 'update'}, :method => :post, :id => 'query_form') do %>
 	<%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	
 	<%	projArr = options_for_wktime_project(projects,true) %>
 	<%	accArr = options_for_wktime_account(false) %>
-	<% billing_type = { 'TAM'  => l(:label_time_material), 'FC' =>  l(:label_fixed_cost) } %>
+	<% billing_type = { 'TM'  => l(:label_time_material), 'FC' =>  l(:label_fixed_cost) } %>
 	<%= hidden_field_tag "accountProjectId", @accProjEntry.blank? ? "" : @accProjEntry.id %>
 	<div class="div-left">
 	<table>
 		<tr><td><label><%= l(:label_account_name) %></label></td><td><%=h select_tag('account_id', options_for_select(accArr, :selected => @accProjEntry.blank? ? accArr : @accProjEntry.account_id )) %></td></tr>
 		<tr><td><label><%= l(:label_project) %></label></td><td><%=h select_tag('project_id', options_for_select(projArr, :selected =>  @accProjEntry.blank?  ?  projArr : @accProjEntry.project_id)) %></td></tr>
 		<tr><td><label><%= l(:label_itemized_bill) %></label></td><td><%= check_box_tag('itemized_bill', 1, (@accProjEntry.blank? ? false : @accProjEntry.itemized_bill)) %></td></tr>
-		<tr><td><label><%= l(:label_billing_type) %></label></td><td><%=h select_tag('billing_type', options_for_select(billing_type.invert, :selected => (@accProjEntry.blank? ? 'TAM' : @accProjEntry.billing_type) ), :onchange => "showorHide((this.value == 'FC' ? true : false), 'billingschdules');") %></td></tr>
+		<tr><td><label><%= l(:label_billing_type) %></label></td><td><%=h select_tag('billing_type', options_for_select(billing_type.invert, :selected => (@accProjEntry.blank? ? 'TM' : @accProjEntry.billing_type) ), :onchange => "showorHide((this.value == 'FC' ? true : false), 'billingschdules');") %></td></tr>
 	</table>
 	</div>
 	<div id="rightMenu" class="div-right">
@@ -37,6 +38,7 @@
 			<th></th>
 			<th class="lbl-txt-align" >#</th>
 			<th class="lbl-txt-align"><%= l(:label_milestone) %></th>
+			<th>currency</th>
 			<th class="lbl-txt-align"><%= l(:field_amount) %></th>
 			<th class="lbl-txt-align"><%= l(:label_date) %></th>
 			<th></th>
@@ -48,9 +50,10 @@
 			<tr onclick="  row_id  = this.rowIndex ">
 			<td class="lbl-txt-align" headers="milestone_id"><%=h hidden_field_tag("milestone_id#{row_index}",   entry.id )  %></td>
 			<td class="lbl-txt-align" headers="item_index"><label id="item_index<%= row_index.to_s %>"><%= row_index  %></label></td>
-			<td class="lbl-txt-align" headers="milestone" ><%= text_field_tag "milestone#{row_index}",  entry.milestone ,  :required => true,  :style => "width:350px;" %></td>
-			<td class="lbl-txt-align" headers="amount"><%= text_field_tag "amount#{row_index}",  entry.amount  , :required => true,  :style => "width:150px;"  %></td>
-			<td class="lbl-txt-align" headers="billdate"><%= text_field_tag "billdate#{row_index}",  entry.bill_date, :required => true  , :class => "date",  :style => "width:150px;" %></td>
+			<td class="lbl-txt-align" headers="milestone" ><%= text_field_tag "milestone#{row_index}",  entry.milestone ,  :required => false,  :style => "width:350px;" %></td>
+			<td class="lbl-txt-align" headers="currency" ><%=h select_tag("currency#{row_index}",options_for_select(wkexpense_helper.options_for_currency,:selected => entry.currency)) %></td>
+			<td class="lbl-txt-align" headers="amount"><%= text_field_tag "amount#{row_index}",  entry.amount  , :required => false,  :style => "width:150px;"  %></td>
+			<td class="lbl-txt-align" headers="billdate"><%= text_field_tag "billdate#{row_index}",  entry.bill_date, :required => false  , :class => "date",  :style => "width:150px;" %></td>
 			<td><%= link_to image_tag('delete.png'), "javascript:deleteRow('milestoneTable', 'mtotalrow');", :id => row_index,
 						:data => {:confirm => l(:text_are_you_sure)},
 						:title => l(:button_delete) %></td>	
@@ -61,9 +64,10 @@
 		<tr onclick="  row_id  = this.rowIndex ">
 			<td class="lbl-txt-align" headers="milestone_id"><%=h hidden_field_tag("milestone_id#{row_index}",   "" )  %></td>
 			<td class="lbl-txt-align" headers="item_index"><label id="item_index<%= row_index.to_s %>"><%= row_index  %></label></td>
-			<td class="lbl-txt-align" headers="milestone" ><%= text_field_tag "milestone#{row_index}",  "" , :required => true,  :style => "width:350px;" %></td>
-			<td class="lbl-txt-align" headers="amount"><%= text_field_tag "amount#{row_index}",  "" , :required => true,  :style => "width:150px;"  %></td>
-			<td class="lbl-txt-align" headers="billdate"><%= text_field_tag "billdate#{row_index}",  ""  , :required => true, :class => "date",  :style => "width:150px;" %></td>
+			<td class="lbl-txt-align" headers="milestone" ><%= text_field_tag "milestone#{row_index}",  "" , :required => false,  :style => "width:350px;" %></td>
+			<td class="lbl-txt-align" headers="currency" ><%=h select_tag("currency#{row_index}",options_for_select(wkexpense_helper.options_for_currency)) %></td>
+			<td class="lbl-txt-align" headers="amount"><%= text_field_tag "amount#{row_index}",  "" , :required => false,  :style => "width:150px;"  %></td>
+			<td class="lbl-txt-align" headers="billdate"><%= text_field_tag "billdate#{row_index}",  ""  , :required => false, :class => "date",  :style => "width:150px;" %></td>
 			<td><%= link_to image_tag('delete.png'), "javascript:deleteRow('milestoneTable', 'mtotalrow');", :id => row_index,
 						:data => {:confirm => l(:text_are_you_sure)},
 						:title => l(:button_delete) %></td>	
