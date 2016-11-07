@@ -23,8 +23,8 @@
 					<th align="left" colspan ="3" width="25%"><%= l(:label_invoice_date) %></th>
 				</tr>
 				<tr style="width:100%;">
-					<td align="left" width="25%"><%=h Setting.plugin_redmine_wktime['wktime_company_address'] %></td>
-					<td align="left" width="25%"><%=h @invoice.account.name + " " + @invoice.account.address.address1 + " " + @invoice.account.address.address1  %></td>
+					<td align="left" width="25%"><%=h Setting.plugin_redmine_wktime['wktime_company_name'] + " "  + Setting.plugin_redmine_wktime['wktime_company_address'] %></td>
+					<td align="left" width="25%"><%=h @invoice.account.name + " " + @invoice.account.address.address1 + " " + @invoice.account.address.city + " " + @invoice.account.address.state + " " + @invoice.account.address.country + " " + @invoice.account.address.pin.to_s   %></td>
 					<td align="left" width="25%"><%=h @invoice.invoice_number %></td>
 					<td align="left" colspan ="3" width="25%"><%=h @invoice.invoice_date %></td>
 				</tr>
