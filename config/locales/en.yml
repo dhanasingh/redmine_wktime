@@ -282,7 +282,7 @@ en:
   label_user_billing_currency: User Billing Currency
   label_project_billing_rate: Project Billing Rate
   label_project_billing_currency: Project Billing Currency
-  label_billing_id: Billing Id
+  label_billing_id: Time Entry Billing Id
   label_generate_invoice_from: Generate invoice from
   label_auto_generate_invoice: Auto generate invoice
   label_invoice_no_prefix: Invoice number prefix
@@ -327,7 +327,7 @@ en:
   label_applicable_taxes: Applicable Taxes
   label_billing_schdules: Billing Schdules
   label_new_billing_project: New Billing Project
-  label_billing_groups: Biiling Groups
+  label_billing_groups: Biiling Admin Groups
   label_start_date: Start Date
   label_end_date: End Date
   label_contract_name: Contract Name
