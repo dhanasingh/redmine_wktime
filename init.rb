@@ -233,10 +233,10 @@ TimelogController.send(:include, TimelogControllerPatch)
 SettingsController.send(:include, SettingsControllerPatch)
 
 Redmine::Plugin.register :redmine_wktime do
-  name 'Time & Attendance'
+  name 'ERPmine'
   author 'Adhi Software Pvt Ltd'
   description 'This plugin is for entering Time & Attendance'
-  version '2.4'
+  version '2.5'
   url 'http://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
   
@@ -311,7 +311,7 @@ Redmine::Plugin.register :redmine_wktime do
 			  'wktime_billing_groups' => ['0'],
   })  
  
-  menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_ta, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 	
+  menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_erpmine, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 	
   project_module :time_tracking do
 	permission :approve_time_entries,  {:wktime => [:update]}, :require => :member	
   end
