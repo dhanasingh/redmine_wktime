@@ -15,7 +15,7 @@
 			<% @contract_entries.each do |entry| %>
 				<tr>
 					  <td class="lbl-txt-align"><%=h entry.account.name %></td>
-					  <td class="lbl-txt-align"><%=h entry.project.name %></td>
+					  <td class="lbl-txt-align"><%=h entry.project.blank? ? "" : entry.project.name %></td>
 					  <td class="lbl-txt-align"><%=h entry.contract_number %></td>
 					  <td class="lbl-txt-align"><%=h entry.start_date %></td>
 					  <td class="lbl-txt-align"><%=h entry.end_date %></td>
