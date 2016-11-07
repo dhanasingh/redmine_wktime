@@ -162,7 +162,9 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	post 'wkaccount/update', :to => 'wkaccount#update'
 	
-	get 'wkaccount/edit', :to => 'wkaccount#edit'
+	get 'wkaccount/edit', :to => 'wkaccount#edit'	
+	
+	delete 'wkaccount/destroy', :to => 'wkaccount#destroy'
 	
 	get 'wkcontracts/index', :to => 'wkcontracts#index'
 	
@@ -183,6 +185,8 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	post 'wktax/update', :to => 'wktax#update'	
 	
+	delete 'wktax/destroy', :to => 'wktax#destroy'
+	
 	get 'wkinvoice/edit', :to => 'wkinvoice#edit'	
 	
 	post 'wkinvoice/update', :to => 'wkinvoice#update'
@@ -200,5 +204,7 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wkcontract/edit', :to => 'wkcontract#edit'
 	
 	post 'wkcontract/update', :to => 'wkcontract#update'
+	
+	delete 'wkcontract/destroy', :to => 'wkcontract#destroy'
 	
 	get 'wkinvoice/invreport', :to => 'wkinvoice#invreport' 

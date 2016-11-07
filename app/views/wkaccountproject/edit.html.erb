@@ -5,7 +5,7 @@
 <%= form_tag({:controller => "wkaccountproject", :action => 'update'}, :method => :post, :id => 'query_form') do %>
 	<%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	
 	<%	projArr = options_for_wktime_project(projects,true) %>
-	<%	accArr = options_for_wktime_account() %>
+	<%	accArr = options_for_wktime_account(false) %>
 	<% billing_type = { 'TAM'  => l(:label_time_material), 'FC' =>  l(:label_fixed_cost) } %>
 	<%= hidden_field_tag "accountProjectId", @accProjEntry.blank? ? "" : @accProjEntry.id %>
 	<div class="div-left">

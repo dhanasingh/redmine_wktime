@@ -22,8 +22,6 @@ before_filter :require_login
 	    @taxEntry = nil
 	    unless params[:tax_id].blank?
 		   @taxEntry = WkTax.find(params[:tax_id])
-		else
-      	   @taxEntry = @taxEntry
 		end   
 	end	
     
@@ -43,7 +41,12 @@ before_filter :require_login
 		    flash[:error] = wktax.errors.full_messages.join('\n')
 		end
     end
-  
+	
+	def destroy
+		WkTax.find(params[:tax_id].to_i).destroy
+		flash[:notice] = l(:notice_successful_delete)
+		redirect_back_or_default :action => 'index', :tab => params[:tab]
+	end	
   
    def setLimitAndOffset		
 		if api_request?

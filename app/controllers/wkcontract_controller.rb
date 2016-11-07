@@ -102,4 +102,10 @@ before_filter :require_login
 			
 		end
     end	
+	
+	def destroy
+		WkContract.find(params[:contract_id].to_i).destroy
+		flash[:notice] = l(:notice_successful_delete)
+		redirect_back_or_default :action => 'index', :tab => params[:tab]
+	end	
 end

@@ -78,5 +78,11 @@ before_filter :require_login
 		    redirect_to :controller => 'wkaccount',:action => 'edit' , :tab => 'account'
 		    flash[:error] = wkaccount.errors.full_messages.join('\n')
 		end
-	end	
+	end
+	
+	def destroy
+		WkAccount.find(params[:id].to_i).destroy
+		flash[:notice] = l(:notice_successful_delete)
+		redirect_back_or_default :action => 'index', :tab => params[:tab]
+	end		
 end
