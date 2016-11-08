@@ -26,7 +26,7 @@ include WkattendanceHelper
 		@invoice.account_id = accountId
 		@invoice.invoice_number = getPluginSetting('wktime_invoice_no_prefix')
 		if !@invoice.save
-			errorMsg = @invoice.errors.full_messages.join('\n')
+			errorMsg = @invoice.errors.full_messages.join("<br>")
 		else
 			@invoice.invoice_number = @invoice.invoice_number + @invoice.id.to_s
 			@invoice.save

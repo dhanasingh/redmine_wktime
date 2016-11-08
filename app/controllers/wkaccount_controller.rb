@@ -76,7 +76,7 @@ before_filter :require_login
 		    flash[:notice] = l(:notice_successful_update)
 		else
 		    redirect_to :controller => 'wkaccount',:action => 'edit' , :tab => 'account'
-		    flash[:error] = wkaccount.errors.full_messages.join('\n')
+		    flash[:error] = wkaccount.errors.full_messages.join("<br>")
 		end
 	end
 	

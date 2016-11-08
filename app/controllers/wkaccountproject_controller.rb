@@ -58,8 +58,8 @@ before_filter :require_login
 		wkaccountproject.itemized_bill = params[:itemized_bill]
 		wkaccountproject.billing_type = params[:billing_type]
 		
-		if !wkaccountproject.save()			
-			errorMsg = wkaccountproject.errors.full_messages.join('\n')
+		if !wkaccountproject.save			
+			errorMsg = wkaccountproject.errors.full_messages.join("<br>")
 		end
 		
 		unless wkaccountproject.id.blank?
@@ -75,7 +75,7 @@ before_filter :require_login
 							wkaccprojecttax.account_project_id = wkaccountproject.id
 							wkaccprojecttax.tax_id = id
 							if !wkaccprojecttax.save()
-								errorMsg = wkaccountproject.errors.full_messages.join('\n')
+								errorMsg = wkaccountproject.errors.full_messages.join("<br>")
 							end
 						end						
 					}
@@ -102,7 +102,7 @@ before_filter :require_login
 					if wkbillingschedule.save()	
 						arrId << wkbillingschedule.id
 					else
-						errorMsg =  wkbillingschedule.errors.full_messages.join('\n')
+						errorMsg =  wkbillingschedule.errors.full_messages.join("<br>")
 					end
 				end
 			end

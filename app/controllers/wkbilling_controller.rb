@@ -3,7 +3,7 @@ class WkbillingController < WkbaseController
 before_filter :require_login
 
 include WktimeHelper
-before_filter :check_perm_and_redirect, :only => [:index,:edit, :update, :destroy] # user without
+before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
 
 	def index  
 	end
@@ -16,7 +16,7 @@ before_filter :check_perm_and_redirect, :only => [:index,:edit, :update, :destro
 	end
 	
 	def check_permission
-		return (isBillingAdmin)
+		return isBillingAdmin
 	end
 	
 	def index

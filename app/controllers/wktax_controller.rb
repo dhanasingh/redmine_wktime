@@ -38,7 +38,7 @@ before_filter :require_login
 		    flash[:notice] = l(:notice_successful_update)
 		else
 		    redirect_to :controller => 'wktax',:action => 'index' , :tab => 'tax'
-		    flash[:error] = wktax.errors.full_messages.join('\n')
+		    flash[:error] = wktax.errors.full_messages.join("<br>")
 		end
     end
 	
