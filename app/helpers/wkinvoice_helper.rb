@@ -121,10 +121,10 @@ include WkattendanceHelper
 				lastUserId = entry.user_id
 				lastIssueId = entry.issue_id
 				if accountProject.itemized_bill
-					description = entry.issue.subject + " - " + entry.user.membership(entry.issue.project).roles[0].name
+					description = (entry.issue.blank? ? entry.project.name : entry.issue.subject) + " - " + entry.user.membership(entry.project).roles[0].name
 					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], sumEntry[[entry.issue_id, entry.user_id]], rateHash['currency'])
 				else
-					description = accountProject.project.name + " - " + entry.user.membership(entry.issue.project).roles[0].name
+					description = accountProject.project.name + " - " + entry.user.membership(entry.project).roles[0].name
 					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], userTotalHours[entry.user_id], rateHash['currency'])
 				end
 				lasInvItmId = invItem.id
@@ -142,7 +142,7 @@ include WkattendanceHelper
 				lastIssueId = entry.issue_id
 				invItem = @invoice.invoice_items.new()
 				if accountProject.itemized_bill
-					invItem = updateInvoiceItem(invItem, accountProject.project_id, entry.issue.subject, rateHash['rate'], sumEntry[entry.issue_id], rateHash['currency'])
+					invItem = updateInvoiceItem(invItem, accountProject.project_id, entry.issue.blank? ? entry.project.name : entry.issue.subject, rateHash['rate'], sumEntry[entry.issue_id], rateHash['currency'])
 				else
 					isContinue = true
 					quantity = timeEntries.sum(:hours)
