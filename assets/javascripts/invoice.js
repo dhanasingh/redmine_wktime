@@ -18,7 +18,7 @@ function invoiceFormSubmission()
 	} 
 }
 
-function InvoiceaddRow(tableId, rowCount)
+function invoiceAddRow(tableId, rowCount)
 {
 	var table = document.getElementById(tableId);
 	var rowlength = table.rows.length;

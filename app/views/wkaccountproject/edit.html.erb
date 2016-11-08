@@ -28,7 +28,7 @@
 	<div id="billingschdules" class="autoscroll">
 	<div class="wk-contextual">
 		<h2 style="float:left;"><%= l(:label_billing_schdules) %></h2>
-		<%= link_to l(:button_add_row), "#", { :onclick => "javascript:InvoiceaddRow('milestoneTable', 'mtotalrow');",  :class => 'icon icon-time-add' }%>
+		<%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('milestoneTable', 'mtotalrow');",  :class => 'icon icon-time-add' }%>
 	</div>
 	<div style="clear:both"></div>
 	<% row_index = 1 %>	
@@ -48,31 +48,59 @@
 	<% if !@wkbillingschedule.blank? %>
 		<% @wkbillingschedule.each do |entry| %>
 			<tr onclick="  row_id  = this.rowIndex ">
-			<td class="lbl-txt-align" headers="milestone_id"><%=h hidden_field_tag("milestone_id#{row_index}",   entry.id )  %></td>
-			<td class="lbl-txt-align" headers="item_index"><label id="item_index<%= row_index.to_s %>"><%= row_index  %></label></td>
-			<td class="lbl-txt-align" headers="milestone" ><%= text_field_tag "milestone#{row_index}",  entry.milestone ,  :required => false,  :style => "width:350px;" %></td>
-			<td class="lbl-txt-align" headers="currency" ><%=h select_tag("currency#{row_index}",options_for_select(wkexpense_helper.options_for_currency,:selected => entry.currency)) %></td>
-			<td class="lbl-txt-align" headers="amount"><%= text_field_tag "amount#{row_index}",  entry.amount  , :required => false,  :style => "width:150px;"  %></td>
-			<td class="lbl-txt-align" headers="billdate"><%= text_field_tag "billdate#{row_index}",  entry.bill_date, :required => false  , :class => "date",  :style => "width:150px;" %></td>
-			<td><%= link_to image_tag('delete.png'), "javascript:deleteRow('milestoneTable', 'mtotalrow');", :id => row_index,
-						:data => {:confirm => l(:text_are_you_sure)},
-						:title => l(:button_delete) %></td>	
+				<td class="lbl-txt-align" headers="milestone_id">
+					<%=h hidden_field_tag("milestone_id#{row_index}",   entry.id )  %>
+				</td>
+				<td class="lbl-txt-align" headers="item_index">
+					<label id="item_index<%= row_index.to_s %>"><%= row_index  %></label>
+				</td>
+				<td class="lbl-txt-align" headers="milestone" >
+					<%= text_field_tag "milestone#{row_index}",  entry.milestone ,  :required => false,  :style => "width:350px;" %>
+				</td>
+				<td class="lbl-txt-align" headers="currency" >
+					<%=h select_tag("currency#{row_index}",options_for_select(wkexpense_helper.options_for_currency,:selected => entry.currency)) %>
+				</td>
+				<td class="lbl-txt-align" headers="amount">
+					<%= text_field_tag "amount#{row_index}",  entry.amount  , :required => false,  :style => "width:150px;"  %>
+				</td>
+				<td class="lbl-txt-align" headers="billdate">
+					<%= text_field_tag "billdate#{row_index}",  entry.bill_date, :required => false  , :class => "date",  :style => "width:150px;" %>
+				</td>
+				<td>
+					<%= link_to image_tag('delete.png'), "javascript:deleteRow('milestoneTable', 'mtotalrow');", :id => row_index,
+							:data => {:confirm => l(:text_are_you_sure)},
+							:title => l(:button_delete) %>
+				</td>	
 			</tr>
 			<% row_index = row_index + 1 %>
 		<% end %>
 	<% else %>
 		<tr onclick="  row_id  = this.rowIndex ">
-			<td class="lbl-txt-align" headers="milestone_id"><%=h hidden_field_tag("milestone_id#{row_index}",   "" )  %></td>
-			<td class="lbl-txt-align" headers="item_index"><label id="item_index<%= row_index.to_s %>"><%= row_index  %></label></td>
-			<td class="lbl-txt-align" headers="milestone" ><%= text_field_tag "milestone#{row_index}",  "" , :required => false,  :style => "width:350px;" %></td>
-			<td class="lbl-txt-align" headers="currency" ><%=h select_tag("currency#{row_index}",options_for_select(wkexpense_helper.options_for_currency)) %></td>
-			<td class="lbl-txt-align" headers="amount"><%= text_field_tag "amount#{row_index}",  "" , :required => false,  :style => "width:150px;"  %></td>
-			<td class="lbl-txt-align" headers="billdate"><%= text_field_tag "billdate#{row_index}",  ""  , :required => false, :class => "date",  :style => "width:150px;" %></td>
-			<td><%= link_to image_tag('delete.png'), "javascript:deleteRow('milestoneTable', 'mtotalrow');", :id => row_index,
+			<td class="lbl-txt-align" headers="milestone_id">
+				<%=h hidden_field_tag("milestone_id#{row_index}",   "" )  %>
+			</td>
+			<td class="lbl-txt-align" headers="item_index">
+				<label id="item_index<%= row_index.to_s %>"><%= row_index  %></label>
+			</td>
+			<td class="lbl-txt-align" headers="milestone" >
+				<%= text_field_tag "milestone#{row_index}",  "" , :required => false,  :style => "width:350px;" %>
+			</td>
+			<td class="lbl-txt-align" headers="currency" >
+				<%=h select_tag("currency#{row_index}",options_for_select(wkexpense_helper.options_for_currency)) %>
+			</td>
+			<td class="lbl-txt-align" headers="amount">
+				<%= text_field_tag "amount#{row_index}",  "" , :required => false,  :style => "width:150px;"  %>
+			</td>
+			<td class="lbl-txt-align" headers="billdate">
+				<%= text_field_tag "billdate#{row_index}",  ""  , :required => false, :class => "date",  :style => "width:150px;" %>
+			</td>
+			<td>
+				<%= link_to image_tag('delete.png'), "javascript:deleteRow('milestoneTable', 'mtotalrow');", :id => row_index,
 						:data => {:confirm => l(:text_are_you_sure)},
-						:title => l(:button_delete) %></td>	
-			</tr>
-			<% row_index = row_index + 1 %>
+						:title => l(:button_delete) %>
+			</td>	
+		</tr>
+		<% row_index = row_index + 1 %>
 	<% end %>
 	</tbody>
 	</table>
