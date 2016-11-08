@@ -109,19 +109,22 @@ include WkattendanceHelper
 			sumEntry = timeEntries.group(:issue_id, :user_id).sum(:hours)
 			userTotalHours = timeEntries.group(:user_id).sum(:hours)
 			timeEntries.order(:issue_id, :user_id).each do |entry|
+				rateHash = getUserRateHash(entry.user.custom_field_values)
+				if rateHash.blank? || rateHash['rate'] <= 0
+					next
+				end
 				if (lastUserId == entry.user_id && (lastIssueId == entry.issue_id || !accountProject.itemized_bill) )
 					updateBilledHours(entry, lasInvItmId)
 					next
 				end
 				invItem = @invoice.invoice_items.new()
-				rateHash = getUserRateHash(entry.user.custom_field_values)
 				lastUserId = entry.user_id
 				lastIssueId = entry.issue_id
 				if accountProject.itemized_bill
-					description = entry.issue.subject + " - " + rateHash['designation']
+					description = entry.issue.subject + " - " + entry.user.membership(entry.issue.project).roles[0].name
 					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], sumEntry[[entry.issue_id, entry.user_id]], rateHash['currency'])
 				else
-					description = accountProject.project.name + " - " + rateHash['designation']
+					description = accountProject.project.name + " - " + entry.user.membership(entry.issue.project).roles[0].name
 					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], userTotalHours[entry.user_id], rateHash['currency'])
 				end
 				lasInvItmId = invItem.id
@@ -176,7 +179,7 @@ include WkattendanceHelper
 	
 	# Return RateHash which contains rate and currency for project
 	def getProjectRateHash(projectCustVals)
-		rateHash = Hash.new(2)
+		rateHash = Hash.new
 		projectCustVals.each do |custVal|
 			case custVal.custom_field_id 
 				when getSettingCfId('wktime_project_billing_rate_cf') 
@@ -190,7 +193,7 @@ include WkattendanceHelper
 	
 	# Return RateHash which contains rate and currency for User
 	def getUserRateHash(userCustVals)
-		rateHash = Hash.new(3)
+		rateHash = Hash.new
 		userCustVals.each do |custVal|
 			case custVal.custom_field_id 
 				when getSettingCfId('wktime_user_billing_rate_cf') 
