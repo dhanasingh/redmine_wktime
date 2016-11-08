@@ -83,7 +83,7 @@ before_filter :require_login
 		wkContract.start_date = params[:start_date]
 		wkContract.end_date = params[:end_date]
 		unless wkContract.save
-			errorMsg = wkContract.errors.full_messages.join('\n')
+			errorMsg = wkContract.errors.full_messages.join("<br>")
 		end	
 		if errorMsg.blank?
 			params[:attachments].each do |attachment_param|
@@ -97,7 +97,7 @@ before_filter :require_login
 			redirect_to :controller => 'wkcontract',:action => 'index' , :tab => 'contract'
 		    flash[:notice] = l(:notice_successful_update)
 		else
-			redirect_to :controller => 'wkcontract',:action => 'edit' , :tab => 'contract'
+			redirect_to :controller => 'wkcontract',:action => 'edit',:contract_id => params[:contract_id] , :tab => 'contract'
 		    flash[:error] = errorMsg
 			
 		end
