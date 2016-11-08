@@ -27,7 +27,7 @@
 					</tr>
 					<tr>
 						<th align="left"><%= l(:label_end_date) %></th>
-						<td align="left" style="padding-left:40px;"><%=h date_field_tag('end_date',@contractEntry.blank? ? "" : @contractEntry.end_date, :size => 10, :required => true) %> <%= calendar_for('end_date') %></td>
+						<td align="left" style="padding-left:40px;"><%=h date_field_tag('end_date',@contractEntry.blank? ? "" : @contractEntry.end_date, :size => 10) %> <%= calendar_for('end_date') %></td>
 					</tr>
 			    </table>
 				<fieldset>

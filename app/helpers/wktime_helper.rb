@@ -1018,7 +1018,7 @@ end
 	
 	def showBilling
 		(!Setting.plugin_redmine_wktime['wktime_enable_billing_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_billing_module'].to_i == 1 ) && isBillableUser
+			Setting.plugin_redmine_wktime['wktime_enable_billing_module'].to_i == 1 ) && isBillingAdmin
 			
 	end
 	
@@ -1043,7 +1043,7 @@ end
 		Setting.plugin_redmine_wktime[setting_name]
 	end
 	
-	def isBillableUser
+	def isBillingAdmin
 		group = nil
 		isbillingUser = false
 		groupusers = Array.new
