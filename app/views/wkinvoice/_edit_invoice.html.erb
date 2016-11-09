@@ -45,8 +45,8 @@
 		    <td class="lbl-txt-align" headers="name"><%= text_field_tag "name#{row_index}",  entry.name,  :style => "width:150px; " %></td>
 			<td class="lbl-txt-align" headers="item_type"><label id="item_type<%= row_index.to_s %>"  ><%= (entry.item_type == 'i' ? 'invoice' : 'tax') %></label></td>
 			<td class="lbl-txt-align" headers="currency"><%=h hidden_field_tag("currency#{row_index}",   entry.currency )  %></td>
-			<td class="lbl-txt-align" headers="rate"><%= entry.currency %><%= text_field_tag "rate#{row_index}",  entry.rate ,  :style => "width:150px;", :onchange => "addAmount()" %></td>
-			<td class="lbl-txt-align" headers="quantity"><%= text_field_tag "quantity#{row_index}",  entry.quantity  ,  :style => "width:150px;", :onchange => "addAmount()" %></td>
+			<td class="lbl-txt-align" headers="rate"><%= entry.currency %><%= text_field_tag "rate#{row_index}",  entry.rate ,  :style => "width:150px;", :onchange => "addAmount(this.id)" %></td>
+			<td class="lbl-txt-align" headers="quantity"><%= text_field_tag "quantity#{row_index}",  entry.quantity  ,  :style => "width:150px;", :onchange => "addAmount(this.id)" %></td>
 			<td class="lbl-txt-align" headers="amount"><%= entry.currency %><label id="amount<%= row_index.to_s %>" ><%= entry.amount  %></label></td>
 			<% total = total + entry.amount %>
 			<td><%= link_to image_tag('delete.png'), "javascript:deleteRow('invoiceTable', 'totalrow');", :id => row_index,

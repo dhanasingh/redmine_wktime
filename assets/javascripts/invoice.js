@@ -65,13 +65,13 @@ function invoiceAddRow(tableId, rowCount)
 	
 }
 
-function addAmount()
+function addAmount(fldId)
 {
-	var rate = document.getElementById('rate'+ row_id);
-	var quantity = document.getElementById('quantity'+ row_id);
+	var rate = document.getElementById('rate'+  fldId.slice(-1));
+	var quantity = document.getElementById('quantity'+  fldId.slice(-1));
 	if(rate.value != null && quantity.value != null)
 	{
-		document.getElementById("amount"+ row_id).innerHTML = rate.value * quantity.value;
+		document.getElementById("amount"+  fldId.slice(-1)).innerHTML = rate.value * quantity.value;
 	}
 	
 	var table = document.getElementById('invoiceTable');
