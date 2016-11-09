@@ -1060,4 +1060,18 @@ end
 		grpUserIds = groupusers[0].collect{|user| user.id}.uniq if !groupusers.blank? && !groupusers[0].blank?
 		isbillingUser = grpUserIds.include?(User.current.id)
 	end
+	
+	def getSettingCfId(settingId)
+		cfId = Setting.plugin_redmine_wktime[settingId].blank? ? 0 : Setting.plugin_redmine_wktime[settingId].to_i
+		cfId
+	end
+	
+	def isBilledTimeEntry(tEntry)
+		ret = false
+		unless tEntry.blank?
+			cfEntry = tEntry.custom_value_for(getSettingCfId('wktime_billing_id_cf'))
+			ret = true unless cfEntry.blank? || cfEntry.value.blank?
+		end
+		ret
+	end
 end
