@@ -1,8 +1,9 @@
 <%= hidden_field_tag 'back_url', url_for(params) %>
-	<%= form_tag({:controller => "wkcontract", :action => 'index'}, :method => :get, :id => 
+	<%= form_tag({:controller => "wkcontract", :action => 'index', :tab => controller_name}, :method => :get, :id => 
      'query_form') do %>
 		<fieldset>
 			<%= hidden_field_tag "searchlist", "contract" %>
+			<%=h hidden_field_tag('tab', "wkcontract") %>
 			<%	accid =session[:contract][:account_id]
 				projid =session[:contract][:project_id] %>
 			<%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	

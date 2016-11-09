@@ -1,8 +1,9 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= hidden_field_tag 'back_url', url_for(params) %>
 
-	<%= form_tag({:controller => "wkaccountproject", :action => 'index'}, :method => :get, :id => 'query_form') do %>
+	<%= form_tag({:controller => "wkaccountproject", :action => 'index', :tab => controller_name}, :method => :get, :id => 'query_form') do %>
 	<%= hidden_field_tag "searchlist", "accountproject" %>
+	<%=h hidden_field_tag('tab', "wkaccountproject") %>
 	<%	accid =session[:accountproject][:account_id]
 		projid =session[:accountproject][:project_id] %>
 	<%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	

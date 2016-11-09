@@ -1,11 +1,11 @@
 <h2><%= l(:label_acc_projects) %></h2>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
-    blgaccUrl = '<%=url_for(:controller => "wkaccount", :action => "index", :tab => "account")%>';
-    blgcontractsUrl = '<%=url_for(:controller => "wkcontract", :action => "index", :tab => "contract")%>';
-    blgaccpjtsUrl = '<%=url_for(:controller => "wkaccountproject", :action => "index", :tab => "accprojects")%>';     
-    blginvoiceUrl = '<%=url_for(:controller => "wkinvoice", :action => "index", :tab => "invoice")%>';
-	blgtaxUrl = '<%=url_for(:controller => "wktax", :action => "index", :tab => "tax")%>';
+    blgaccUrl = '<%=url_for(:controller => "wkaccount", :action => "index", :tab => "wkaccount")%>';
+    blgcontractsUrl = '<%=url_for(:controller => "wkcontract", :action => "index", :tab => "wkcontract")%>';
+    blgaccpjtsUrl = '<%=url_for(:controller => "wkaccountproject", :action => "index", :tab => "wkaccountproject")%>';     
+    blginvoiceUrl = '<%=url_for(:controller => "wkinvoice", :action => "index", :tab => "wkinvoice")%>';
+	blgtaxUrl = '<%=url_for(:controller => "wktax", :action => "index", :tab => "wktax")%>';
     prevTab = 'tab-<%= "#{controller_name}" %>';   
 //	grpUrl="<%= "#{url_for(:controller => "wkpayroll", :action => 'getMembersbyGroup')}" %>";
 		//getMembersbyGroup

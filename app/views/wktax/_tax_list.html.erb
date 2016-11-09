@@ -1,6 +1,7 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
  <%= form_tag({:controller => 'wktax', :action => 'index'}, :method => :post, :id => 'query_form') do %>
 	  <fieldset>
+		 <%=h hidden_field_tag('tab', "wktax") %>
 		 <label for='name'><%= l(:label_taxname) %>:</label>
 		 <%= text_field_tag 'taxname', params[:taxname], :size => 30 %>
 		 <%= submit_tag l(:button_apply), :class => "small", :name => nil %>

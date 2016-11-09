@@ -594,11 +594,11 @@ end
 			   ]
 		else
 			tabs = [
-				{:name => 'invoice', :partial => 'wktime/tab_content', :label => :label_invoice},
-				{:name => 'account', :partial => 'wktime/tab_content', :label => :label_accounts},
-				{:name => 'contract', :partial => 'wktime/tab_content', :label => :label_contracts},
-				{:name => 'accprojects', :partial => 'wktime/tab_content', :label => :label_acc_projects},				
-				{:name => 'tax', :partial => 'wktime/tab_content', :label => :label_tax}
+				{:name => 'wkinvoice', :partial => 'wktime/tab_content', :label => :label_invoice},
+				{:name => 'wkaccount', :partial => 'wktime/tab_content', :label => :label_accounts},
+				{:name => 'wkcontract', :partial => 'wktime/tab_content', :label => :label_contracts},
+				{:name => 'wkaccountproject', :partial => 'wktime/tab_content', :label => :label_acc_projects},				
+				{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax}
 			   ]
 		end
 		tabs

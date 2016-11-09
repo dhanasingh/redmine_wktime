@@ -217,11 +217,11 @@ $(document).ready(function()
 	changeProp('tab-leave',wkattnIndexUrl);
 	changeProp('tab-clock',clockInOutUrl);
 	changeProp('tab-payroll',payrollUrl);
-	changeProp('tab-account',blgaccUrl);
-	changeProp('tab-contract',blgcontractsUrl);
-	changeProp('tab-accprojects',blgaccpjtsUrl);
-	changeProp('tab-invoice',blginvoiceUrl);
-	changeProp('tab-tax',blgtaxUrl);
+	changeProp('tab-wkaccount',blgaccUrl);
+	changeProp('tab-wkcontract',blgcontractsUrl);
+	changeProp('tab-wkaccountproject',blgaccpjtsUrl);
+	changeProp('tab-wkinvoice',blginvoiceUrl);
+	changeProp('tab-wktax',blgtaxUrl);
 });
 
 

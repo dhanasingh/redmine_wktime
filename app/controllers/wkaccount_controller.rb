@@ -72,10 +72,10 @@ before_filter :require_login
 		wkaccount.account_type = 'A'
 		wkaccount.save()
 		if wkaccount.save()
-		    redirect_to :controller => 'wkaccount',:action => 'index' , :tab => 'account'
+		    redirect_to :controller => 'wkaccount',:action => 'index' , :tab => 'wkaccount'
 		    flash[:notice] = l(:notice_successful_update)
 		else
-		    redirect_to :controller => 'wkaccount',:action => 'edit' , :tab => 'account'
+		    redirect_to :controller => 'wkaccount',:action => 'edit' , :tab => 'wkaccount'
 		    flash[:error] = wkaccount.errors.full_messages.join("<br>")
 		end
 	end

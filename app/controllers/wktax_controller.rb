@@ -34,10 +34,10 @@ before_filter :require_login
 		wktax.name = params[:name]
 		wktax.rate_pct = params[:rate_pct]
 		if wktax.save()
-		    redirect_to :controller => 'wktax',:action => 'index' , :tab => 'tax'
+		    redirect_to :controller => 'wktax',:action => 'index' , :tab => 'wktax'
 		    flash[:notice] = l(:notice_successful_update)
 		else
-		    redirect_to :controller => 'wktax',:action => 'index' , :tab => 'tax'
+		    redirect_to :controller => 'wktax',:action => 'index' , :tab => 'wktax'
 		    flash[:error] = wktax.errors.full_messages.join("<br>")
 		end
     end

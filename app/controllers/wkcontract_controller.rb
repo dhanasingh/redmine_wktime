@@ -94,10 +94,10 @@ before_filter :require_login
 				  attachment.save
 				end
 			end
-			redirect_to :controller => 'wkcontract',:action => 'index' , :tab => 'contract'
+			redirect_to :controller => 'wkcontract',:action => 'index' , :tab => 'wkcontract'
 		    flash[:notice] = l(:notice_successful_update)
 		else
-			redirect_to :controller => 'wkcontract',:action => 'edit',:contract_id => params[:contract_id] , :tab => 'contract'
+			redirect_to :controller => 'wkcontract',:action => 'edit',:contract_id => params[:contract_id] , :tab => 'wkcontract'
 		    flash[:error] = errorMsg
 			
 		end
