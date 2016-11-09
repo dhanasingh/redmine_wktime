@@ -67,7 +67,7 @@ class CreateWkBilling < ActiveRecord::Migration
       t.date :start_date
 	  t.date :end_date
 	  t.date :invoice_date
-	  t.date :closed_on
+	  t.datetime :closed_on
 	  t.references :modifier, :class => "User", :null => false
 	  t.references :account, :class => "wk_accounts", :null => false
 	  t.timestamps null: false

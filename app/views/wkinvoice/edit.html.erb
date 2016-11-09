@@ -3,17 +3,18 @@
 <h2><%= l(:label_invoice) %></h2>
 <% hash_status = { 'o'  => l(:label_open_issues), 'c' =>  l(:label_closed_issues) } %>
 
+	
+
+<% unless @invoiceItem[0].blank? %>
+	<%= form_tag({:controller => "wkinvoice", :action => 'update'}, :method => :post, :id => 'query_form') do %>
 	<table>
 	<tr><th><%= l(:label_invoice_number) %></th> <td style="width: 200px;"> <%= ': ' + @invoice.invoice_number %> </td>
 	<th><%= l(:label_invoice_date) %></th> <td> <%= ': ' + @invoice.invoice_date.to_s %> </td></tr>
 	<tr><th><%= l(:label_project_name) %></th> <td style="width: 200px;"> <%= ': ' + (@invoiceItem[0].blank? ? "" : @invoiceItem[0].project.name) %> </td>
-	<th><%= l(:field_status) %></th> <td><%=h select_tag('account_id',options_for_select(hash_status.invert, :selected =>@invoice.status )) %>  </td></tr>
+	<th><%= l(:field_status) %></th> <td><%=h select_tag('field_status',options_for_select(hash_status.invert, :selected =>@invoice.status )) %>  </td></tr>
 	<tr><th><%= l(:label_account_name) %></th> <td style="width: 200px;"> <%= ': ' + @invoice.account.name %> </td>
 	<th><%= l(:field_status_modified_by) %></th> <td> <%= ': ' + @invoice.modifier.name %> </td></tr>
 	</table>
-
-<% unless @invoiceItem[0].blank? %>
-	<%= form_tag({:controller => "wkinvoice", :action => 'update'}, :method => :post, :id => 'query_form') do %>
 	<%= render :partial => 'edit_invoice' %>
 	<% end %>
 <% else %>

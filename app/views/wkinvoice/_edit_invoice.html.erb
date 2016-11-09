@@ -75,7 +75,7 @@
 			  <% tax_index = tax_index + 1 %>
 		<% end %>
 	<% end %>
-	<tr><td colspan=6 style="padding-right:100px;"><label id="invtotalamount" style="float:right;">total : <%= @invoiceItem[0].blank? ? "" : @invoiceItem[0].currency %> <%= total %> </label><td></tr>
+	<tr><td colspan="8" style="padding-right:100px;"><label id="invtotalamount" style="float:right;">total : <%= @invoiceItem[0].blank? ? "" : @invoiceItem[0].currency %> <%= total %> </label><td></tr>
 </table>
 </div>
 <%=h hidden_field_tag("totalrow",  row_index-1 )  %>

@@ -78,6 +78,11 @@ include WkinvoiceHelper
 		invItemId = WkInvoiceItem.select(:id).where(:invoice_id => params["invoice_id"].to_i) 
 		arrId = invItemId.map {|i| i.id }
 		@invoice = WkInvoice.find(params["invoice_id"].to_i)
+		@invoice.status = params[:field_status]
+		if @invoice.status_changed?
+			@invoice.closed_on = Time.now
+			@invoice.save()
+		end
 		totalAmount = 0
 		tothash = Hash.new
 		for i in 1..(params[:totalrow].to_i)
