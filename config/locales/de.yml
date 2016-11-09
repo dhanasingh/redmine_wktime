@@ -325,9 +325,9 @@ de:
   label_milestone: Milestone
   label_date: Date
   label_applicable_taxes: Applicable Taxes
-  label_billing_schdules: Billing Schdules
+  label_billing_schedules: Billing Schedules
   label_new_billing_project: New Billing Project
-  label_billing_groups: Biiling Admin Groups
+  label_billing_groups: Billing Admin Groups
   label_start_date: Start Date
   label_end_date: End Date
   label_contract_name: Contract Name
@@ -390,6 +390,7 @@ de:
   label_four: four
   label_three: three
   label_two: two
-  label_one: one
+  label_one: one  
+  label_bill_date: Bill Date
   
   

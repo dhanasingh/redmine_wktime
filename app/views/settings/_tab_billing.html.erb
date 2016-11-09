@@ -78,12 +78,12 @@ lblInvCompVal = "<%=l(:field_value) %>";
 			unless accGroup.blank?
 				accountGroups = accGroup.collect {|t| [t.lastname, t.id] }
 			end
-			accountGroups.unshift(["",0])
+			accountGroups.unshift(["",""])
 		%>
 		<p style="padding-left: 190px;">
 			<label><%=l(:label_billing_groups)%></label>
 			<%=  select_tag('settings[wktime_billing_groups]',
-					options_for_select(accountGroups, :selected => @settings['wktime_billing_groups'].blank? ? 0 : @settings['wktime_billing_groups']), :multiple=> true)%>
+					options_for_select(accountGroups, :selected => @settings['wktime_billing_groups'].blank? ? "" : @settings['wktime_billing_groups']))%>
 		</p>	
 </fieldset>
 <fieldset style="display: inline-block; vertical-align: top; min-width: 500px;">

@@ -1048,15 +1048,13 @@ end
 		isbillingUser = false
 		groupusers = Array.new
 		accountGrpIds = Setting.plugin_redmine_wktime['wktime_billing_groups'] if !Setting.plugin_redmine_wktime['wktime_billing_groups'].blank?
-		if !accountGrpIds.blank?
-			accountGrpIds = accountGrpIds.collect{|i| i.to_i}
-		end
+		#if !accountGrpIds.blank? && accountGrpIds.to_i != 0
+		#	accountGrpIds = accountGrpIds.collect{|i| i.to_i}
+		#end
 
-		if !accountGrpIds.blank?
-			accountGrpIds.each do |group_id|
-				scope = User.in_group(group_id)	
+		if !accountGrpIds.blank? && accountGrpIds.to_i != 0
+				scope = User.in_group(accountGrpIds)	
 				groupusers << scope.all
-			end
 		end
 		grpUserIds = Array.new		
 		grpUserIds = groupusers[0].collect{|user| user.id}.uniq if !groupusers.blank? && !groupusers[0].blank?
