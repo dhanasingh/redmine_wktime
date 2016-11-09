@@ -1047,13 +1047,9 @@ end
 		group = nil
 		isbillingUser = false
 		groupusers = Array.new
-		accountGrpIds = Setting.plugin_redmine_wktime['wktime_billing_groups'] if !Setting.plugin_redmine_wktime['wktime_billing_groups'].blank?
-		#if !accountGrpIds.blank? && accountGrpIds.to_i != 0
-		#	accountGrpIds = accountGrpIds.collect{|i| i.to_i}
-		#end
-
-		if !accountGrpIds.blank? && accountGrpIds.to_i != 0
-				scope = User.in_group(accountGrpIds)	
+		billingGrpId = getSettingCfId('wktime_billing_groups')
+		if !billingGrpId.blank? && billingGrpId != 0
+				scope = User.in_group(billingGrpId)	
 				groupusers << scope.all
 		end
 		grpUserIds = Array.new		
