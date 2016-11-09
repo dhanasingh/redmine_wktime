@@ -26,15 +26,16 @@
 					<td align="left" width="25%"><%=h Setting.plugin_redmine_wktime['wktime_company_name'] + " "  + Setting.plugin_redmine_wktime['wktime_company_address'] %></td>
 					<td align="left" width="25%"><%=h @invoice.account.name + " " + @invoice.account.address.address1 + " " + @invoice.account.address.city + " " + @invoice.account.address.state + " " + @invoice.account.address.country + " " + @invoice.account.address.pin.to_s   %></td>
 					<td align="left" width="25%"><%=h @invoice.invoice_number %></td>
-					<td align="left" colspan ="3" width="25%"><%=h @invoice.invoice_date %></td>
+					<td align="left" colspan ="3" width="25%"><%=h @invoice.invoice_date.to_formatted_s(:long) %></td>
 				</tr>
 				<tr style="width:100%;">
 					<th align="left" colspan="3" width="70%"><%= l(:label_cntrt_purchase_work_order) %></th>
 					<th align="left" colspan="3" width="30%"><%= l(:label_period) %></th>
 				</tr>
 				<tr style="width:100%;">
-					<td align="left" colspan="3" width="70%"><%=h @invoice.account.name %></td>
-					<td align="left" colspan="3" width="30%"><%=h @invoice.start_date.to_s + ' to ' + @invoice.start_date.to_s %></td>
+					<% accContract = @invoice.account.contract(@invoiceItem[0].project) %>
+					<td align="left" colspan="3" width="70%"><%=h accContract.contract_number + " - " + accContract.start_date.to_formatted_s(:long) %></td>
+					<td align="left" colspan="3" width="30%"><%=h @invoice.start_date.to_formatted_s(:long) + ' to ' + @invoice.end_date.to_formatted_s(:long) %></td>
 				</tr>
 				<tr style="width:100%;">
 					<th align="left"  ><%= l(:label_invoice_name) %></th>
@@ -64,7 +65,7 @@
 				</tr>
 				<tr style="width:100%;">
 					<td align="left" colspan="1" width="20%"><b><%= l(:label_amount_in_words) %></b></td>
-					<td align="left" colspan="5" width="35%"><%=h numberInWords(@invoiceItem.sum(:amount)) %></td>
+					<td align="left" colspan="5" width="35%"><%=h numberInWords(@invoiceItem.sum(:amount)) + " only" %></td>
 				</tr>
 				<% unless Setting.plugin_redmine_wktime['wktime_invoice_components'].blank? 
 				Setting.plugin_redmine_wktime['wktime_invoice_components'].each do |element| 

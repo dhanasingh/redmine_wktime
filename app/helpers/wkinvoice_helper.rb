@@ -284,7 +284,7 @@ include WkattendanceHelper
 			quad = quad/1000
 			unless currStr.blank?
 				currStr = currStr + " " + (currentUnit == 1 ? "" : getNumberAsStr[currentUnit])
-				numValStr = numValStr.blank? || currStr.blank?  ? currStr + numValStr :  currStr + " , " + numValStr
+				numValStr = numValStr.blank? || currStr.blank?  ? currStr + numValStr :  currStr + "" + numValStr
 			end
 		end
 		numValStr
