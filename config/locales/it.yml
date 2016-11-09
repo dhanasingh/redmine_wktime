@@ -358,4 +358,35 @@ it:
   label_authorized_signatory: Authorized Signatory
   label_place: Place
   label_erpmine: ERPmine
-  
+  label_trillion: trillion
+  label_billion: billion
+  label_million: million
+  label_thousand: thousand
+  label_hundred: hundred
+  label_ninety: ninety
+  label_eighty: eighty
+  label_seventy: seventy
+  label_sixty: sixty
+  label_fifty: fifty
+  label_forty: forty
+  label_thirty: thirty
+  label_twenty: twenty
+  label_nineteen: nineteen
+  label_eighteen: eighteen
+  label_seventeen: seventeen
+  label_sixteen: sixteen
+  label_fifteen: fifteen
+  label_fourteen: fourteen
+  label_thirteen: thirteen
+  label_twelve: twelve
+  label_eleven: eleven
+  label_ten: ten
+  label_nine: nine
+  label_eight: eight
+  label_seven: seven
+  label_six: six
+  label_five: five
+  label_four: four
+  label_three: three
+  label_two: two
+  label_one: one
