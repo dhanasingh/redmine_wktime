@@ -42,7 +42,7 @@
 			<td class="lbl-txt-align" headers="item_id"><%=h hidden_field_tag("item_id#{row_index}",   entry.id )  %></td>
 			<td class="lbl-txt-align" headers="item_index"><label id="item_index<%= row_index.to_s %>"><%= row_index  %></label></td>
 			<td class="lbl-txt-align" headers="project_id"><%=h select_tag("project_id#{row_index.to_s}", options_for_select(projects, :selected => entry.project_id)) %></td>
-		    <td class="lbl-txt-align" headers="name"><%= text_field_tag "name#{row_index}",  entry.name,  :style => "width:150px; " %></td>
+		    <td class="lbl-txt-align" headers="name"><%= text_field_tag "name#{row_index}",  entry.name, :required => true,  :style => "width:150px; " %></td>
 			<td class="lbl-txt-align" headers="item_type"><label id="item_type<%= row_index.to_s %>"  ><%= (entry.item_type == 'i' ? 'invoice' : 'tax') %></label></td>
 			<td class="lbl-txt-align" headers="currency"><%=h hidden_field_tag("currency#{row_index}",   entry.currency )  %></td>
 			<td class="lbl-txt-align" headers="rate"><%= entry.currency %><%= text_field_tag "rate#{row_index}",  entry.rate ,  :style => "width:150px;", :onchange => "addAmount(this.id)" %></td>
@@ -67,7 +67,7 @@
 				<td class="lbl-txt-align" style="width:20px;"><%=h hidden_field_tag("pjt_id#{tax_index}",   entry.project_id )  %></td>
 				<td class="lbl-txt-align" style="width:330px;" ><%=  entry.name %></td>				
 				<td class="lbl-txt-align" style="width:140px;"><label id="taxitem_type<%= tax_index.to_s %>"><%= (entry.item_type == 'i' ? 'invoice' : 'tax') %></label></td>
-				<td class="lbl-txt-align" style="width:330px;"><label id="taxrate<%= tax_index.to_s %>"><%=    (entry.rate * 100) %> </label> </td>
+				<td class="lbl-txt-align" style="width:330px;"><label id="taxrate<%= tax_index.to_s %>"><%=    (entry.rate * 100).round(2) %> </label> </td>
 				<td class="lbl-txt-align" style="width:330px;"><%=  entry.quantity   %></td>
 				<td class="lbl-txt-align" style="padding-right:110px;" ><%= entry.currency %><label id="taxamount<%= tax_index.to_s %>"><%= entry.amount.round(2)   %></label></td>
 				<% total = total + entry.amount %>

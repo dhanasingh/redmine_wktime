@@ -70,6 +70,7 @@ before_filter :require_login
 		wkaccount.address_id = address_id
 		wkaccount.name = params[:name]
 		wkaccount.account_type = 'A'
+		wkaccount.account_billing = params[:account_billing].blank? ? 0 : params[:account_billing]
 		wkaccount.save()
 		if wkaccount.save()
 		    redirect_to :controller => 'wkaccount',:action => 'index' , :tab => 'wkaccount'
