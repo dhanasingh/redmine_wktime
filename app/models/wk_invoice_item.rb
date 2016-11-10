@@ -8,7 +8,7 @@ class WkInvoiceItem < ActiveRecord::Base
   attr_protected :modifier_id
   
   validates_presence_of :invoice_id
-  validates_numericality_of :amount, :message => :invalid
-  validates_numericality_of :quantity, :message => :invalid
-  validates_numericality_of :rate, :message => :invalid
+  validates_numericality_of :amount, :allow_nil => true, :message => :invalid
+  validates_numericality_of :quantity, :allow_nil => true, :message => :invalid
+  validates_numericality_of :rate, :allow_nil => true, :message => :invalid
 end
