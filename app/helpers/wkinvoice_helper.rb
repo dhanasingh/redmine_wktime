@@ -95,13 +95,14 @@ include WkattendanceHelper
 	def saveTAMInvoiceItem(accountProject)
 		# Get the rate and currency in rateHash
 		rateHash = getProjectRateHash(accountProject.project.custom_field_values)
-		timeEntries = TimeEntry.joins("left outer join custom_values on time_entries.id = custom_values.customized_id and custom_values.customized_type = 'TimeEntry' and custom_values.custom_field_id = #{getSettingCfId('wktime_billing_id_cf')}").where(project_id: accountProject.project_id, spent_on: @invoice.start_date .. @invoice.end_date).where("custom_values.value is null OR #{getSqlLengthQry("custom_values.value")} = 0 ")
+		genInvFrom = Setting.plugin_redmine_wktime['wktime_generate_invoice_from']
+		genInvFrom = genInvFrom.blank? ? @invoice.start_date : genInvFrom.to_date
+		timeEntries = TimeEntry.joins("left outer join custom_values on time_entries.id = custom_values.customized_id and custom_values.customized_type = 'TimeEntry' and custom_values.custom_field_id = #{getSettingCfId('wktime_billing_id_cf')}").where(project_id: accountProject.project_id, spent_on: genInvFrom .. @invoice.end_date).where("custom_values.value is null OR #{getSqlLengthQry("custom_values.value")} = 0 ")
 		
 		totalAmount = 0
 		lastUserId = 0
 		lastIssueId = 0
 		lasInvItmId = nil # Used to update TimeEntry Billing Indicator CF
-		 
 		# First check project has any rate if it didn't have rate then go with user rate
 		if rateHash.blank? || rateHash['rate'] <= 0
 			# calculate invoice based on the user rate
