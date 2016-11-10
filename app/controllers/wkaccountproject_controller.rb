@@ -114,7 +114,7 @@ before_filter :require_login
 			flash[:notice] = l(:notice_successful_update)
 	    else
 			flash[:error] = errorMsg
-			redirect_to :action => 'edit', :acc_project_id => params[:accountProjectId]
+			redirect_to :action => 'edit', :acc_project_id => wkaccountproject.id
 	    end
 	end
 	

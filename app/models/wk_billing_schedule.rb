@@ -5,5 +5,5 @@ class WkBillingSchedule < ActiveRecord::Base
   belongs_to :invoice, :class_name => 'WkInvoice'
   
   validates_numericality_of :amount, :allow_nil => false, :message => :invalid
-  validates_presence_of :milestone, :bill_date, :amount, :currency
+  validates_presence_of :milestone, :bill_date, :currency
 end
