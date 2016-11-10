@@ -14,7 +14,7 @@
 	            <tr>
 					<%=h hidden_field_tag('tax_id', @taxEntry.blank? ? nil : @taxEntry.id) %>
 					<td><%=h text_field_tag("name",@taxEntry.blank? ? nil : @taxEntry.name,:size => 10, :required => true) %> </td>
-					<td><%=h text_field_tag("rate_pct",@taxEntry.blank? ? nil : @taxEntry.rate_pct,:size => 10, :required => true) %> </td>
+					<td><%=h text_field_tag("rate_pct",@taxEntry.blank? ? nil : @taxEntry.rate_pct,:size => 10, :maxlength => 5, :required => true) %> % </td>
 		        </tr>
 	        </tbody>
         </table>
