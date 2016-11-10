@@ -18,13 +18,19 @@ include WkinvoiceHelper
 		end
 		@projects = accountProjects.collect{|m| [ m.project_name, m.project_id ] } if !accountProjects.blank?
 		unless params[:generate].blank? || !to_boolean(params[:generate])
-			if (accountId.blank? || accountId.to_i == 0) && projectId.blank?
+			if (accountId.blank? || accountId.to_i == 0) && (projectId.blank? || projectId.to_i == 0)
 				allAccounts = WkAccount.all
 				allAccounts.each do |account|
 					errorMsg = generateInvoices(account.id, projectId, @to + 1, [@from, @to])
 				end
 			else
-				errorMsg = generateInvoices(accountId, projectId, @to + 1, [@from, @to])
+				if (accountId.blank? || accountId.to_i == 0)
+					WkAccountProject.where(project_id: projectId).find_each do |accProj|
+						errorMsg = generateInvoices(accProj.account_id, accProj.project_id, @to + 1, [@from, @to])
+					end
+				else
+					errorMsg = generateInvoices(accountId, projectId, @to + 1, [@from, @to])
+				end
 			end
 			
 			if errorMsg.nil?	
@@ -40,15 +46,15 @@ include WkinvoiceHelper
 			else
 				invEntries = WkInvoice.includes(:invoice_items)
 			end
-			if !accountId.blank? && (projectId.blank? || projectId == "0")
+			if (!accountId.blank? || accountId.to_i != 0) && (projectId.blank? || projectId == "0")
 				invEntries = invEntries.where(:account_id => accountId)
 			end
 			
-			if accountId.blank? && (!projectId.blank? && projectId != "0")
+			if (accountId.blank? || accountId.to_i == 0) && (!projectId.blank? && projectId != "0")
 				invEntries = invEntries.where( :wk_invoice_items => { :project_id => projectId })
 			end
 			
-			if !accountId.blank? && (!projectId.blank? &&  projectId != "0")
+			if (!accountId.blank? || accountId.to_i != 0) && (!projectId.blank? &&  projectId != "0")
 				invEntries = invEntries.where( :wk_invoice_items => { :project_id => projectId }, :account_id => accountId)
 			end
 			formPagination(invEntries)
@@ -112,7 +118,7 @@ include WkinvoiceHelper
 			flash[:notice] = l(:notice_successful_update)
 	   else
 			flash[:error] = errorMsg
-			redirect_to :action => 'edit'
+			redirect_to :action => 'edit', :invoice_id => @invoice.id
 	   end
 	end
 	
