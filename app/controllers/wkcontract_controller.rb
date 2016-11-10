@@ -79,13 +79,15 @@ before_filter :require_login
 	    end
 		wkContract.project_id = params[:project_id]
 		wkContract.account_id = params[:account_id]
-		wkContract.contract_number = getPluginSetting('wktime_contract_no_prefix') + params[:contract_number]
+		wkContract.contract_number = getPluginSetting('wktime_contract_no_prefix')
 		wkContract.start_date = params[:start_date]
 		wkContract.end_date = params[:end_date]
 		unless wkContract.save
 			errorMsg = wkContract.errors.full_messages.join("<br>")
 		end	
 		if errorMsg.blank?
+			wkContract.contract_number = getPluginSetting('wktime_contract_no_prefix') + wkContract.id.to_s
+			wkContract.save
 			params[:attachments].each do |attachment_param|
 				attachment = Attachment.where('filename = ?', attachment_param[1][:filename]).first
 				unless attachment.nil?

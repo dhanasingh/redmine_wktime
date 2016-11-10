@@ -9,10 +9,12 @@
 			<fieldset class="box tabular">
 				<legend><%=l(:label_contract_information)%></legend>
 				<table>
-					<tr>
-						<th align="left"><%= l(:label_contract_name) %></th>
-						<td align="left" style="padding-left:40px;"><%=h text_field_tag("contract_number",@contractEntry.blank? ? "" : @contractEntry.contract_number,:size => 20, :required => true) %> </td>
-					</tr>
+					<% unless @contractEntry.blank? %>
+						<tr>
+							<th align="left"><%= l(:label_contract_number) %></th>
+							<td align="left" style="padding-left:40px;"><%=h @contractEntry.contract_number %> </td>
+						</tr>
+					<% end %>
 					<tr>
 						<th align="left"><%= l(:label_account) %></th>
 						<td align="left" style="padding-left:40px;"><%=h select_tag('account_id', options_for_select(accArr, :selected => @contractEntry.blank? ? "" : @contractEntry.account_id),:required => true) %></td>
