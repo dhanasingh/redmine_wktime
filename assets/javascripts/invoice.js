@@ -103,10 +103,10 @@ function addAmount(fldId)
 		pjtId = document.getElementById('pjt_id'+j).value;
 		var taxamount = tothash[pjtId] * (parseFloat($("#taxrate"+j).text()/100));
 		taxtotal = taxtotal + taxamount;
-		document.getElementById("taxamount"+ j).innerHTML = taxamount; //total * parseFloat($("#taxrate"+j).text()); 
+		document.getElementById("taxamount"+ j).innerHTML = taxamount.toFixed(2); //total * parseFloat($("#taxrate"+j).text()); 
 	}
-	
-	document.getElementById('invtotalamount').innerHTML = "Total : " + (taxtotal + total);
+	document.getElementById('invsubtotal').innerHTML = "SubTotal : " + total.toFixed(2);
+	document.getElementById('invtotalamount').innerHTML = "Total : " + (taxtotal + total).toFixed(2);
 }
 
 function deleteRow(tableId, totalrow)
