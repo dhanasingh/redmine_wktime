@@ -110,7 +110,7 @@ include WkattendanceHelper
 		lastIssueId = 0
 		lasInvItmId = nil # Used to update TimeEntry Billing Indicator CF
 		# First check project has any rate if it didn't have rate then go with user rate
-		if rateHash.blank? || rateHash['rate'] <= 0
+		if rateHash.blank? || rateHash['rate'].blank? || rateHash['rate'] <= 0
 			# calculate invoice based on the user rate
 			# Calculate total hours for each issue each user 			
 			sumEntry = timeEntries.group(:issue_id, :user_id).sum(:hours)
