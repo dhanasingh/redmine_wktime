@@ -149,7 +149,7 @@ include WkinvoiceHelper
 				sqlStr = sqlStr + " where wk_account_projects.account_id = #{account_id} "
 		end
 		
-		WkAccountProject.joins(sqlStr).select("projects.name as project_name, projects.id as project_id")
+		WkAccountProject.joins(sqlStr).select("projects.name as project_name, projects.id as project_id").distinct(:project_id)
 	end
 	
   	def set_filter_session
