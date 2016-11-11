@@ -1,4 +1,4 @@
-<fieldset style="display: inline-block; vertical-align: top; height:400px; ">
+<fieldset style="display: inline-block; vertical-align: top; height:460px; ">
 	<legend><%= l(:label_general) %></legend>
 		<p><%= check_box_tag('settings[wktime_closed_issue_ind]', 1, @settings['wktime_closed_issue_ind'].to_i == 1) %> <label><%= l(:chkbox_closed_issues) %></label>
 		</p>				
@@ -41,7 +41,7 @@
 </fieldset>
 
 
-<fieldset style="display: inline-block; vertical-align: top; min-width: 100px; height:400px; width:480px;">
+<fieldset style="display: inline-block; vertical-align: top; min-width: 100px; height:460px; width:480px;">
 	<legend><%= l(:label_wktime) %></legend>
 	<p style="padding-left: 240px;">
 		<label><%= l(:label_wk_default_work_time) %></label><%= text_field_tag 'settings[wktime_default_work_time]', @settings['wktime_default_work_time'], :size => 3 %>

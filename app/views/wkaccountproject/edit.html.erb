@@ -61,7 +61,7 @@
 					<%=h select_tag("currency#{row_index}",options_for_select(wkexpense_helper.options_for_currency,:selected => entry.currency)) %>
 				</td>
 				<td class="lbl-txt-align" headers="amount">
-					<%= text_field_tag "amount#{row_index}",  ("%.2f" % entry.amount)  , :required => false, :maxlength => 16,  :style => "width:150px;"  %>
+					<%= text_field_tag "amount#{row_index}",  ("%.2f" % entry.amount)  , :required => false, :maxlength => 14,  :style => "width:150px;"  %>
 				</td>
 				<td class="lbl-txt-align" headers="billdate">
 					<%= text_field_tag "billdate#{row_index}",  entry.bill_date, :required => false  , :class => "date",  :style => "width:150px;" %>
