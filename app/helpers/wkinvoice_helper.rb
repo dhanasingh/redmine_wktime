@@ -86,7 +86,13 @@ include WkattendanceHelper
 	# Add the invoice items for the scheduled entries
 	def saveFCInvoiceItem(scheduledEntry)
 		invItem = @invoice.invoice_items.new()
-		invItem = updateInvoiceItem(invItem, scheduledEntry.account_project.project_id, scheduledEntry.milestone, scheduledEntry.amount, 1, scheduledEntry.currency)
+		itemDesc = ""
+		if scheduledEntry.account_project.account.account_billing
+			itemDesc = scheduledEntry.account_project.project.name + " - " + scheduledEntry.milestone
+		else
+			itemDesc = scheduledEntry.milestone
+		end
+		invItem = updateInvoiceItem(invItem, scheduledEntry.account_project.project_id, itemDesc, scheduledEntry.amount, 1, scheduledEntry.currency)
 		invItem
 	end
 	
@@ -122,7 +128,7 @@ include WkattendanceHelper
 				lastUserId = entry.user_id
 				lastIssueId = entry.issue_id
 				if accountProject.itemized_bill
-					description = (entry.issue.blank? ? entry.project.name : entry.issue.subject) + " - " + entry.user.membership(entry.project).roles[0].name
+					description = entry.issue.blank? ? entry.project.name : (accountProject.account.account_billing ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject) + " - " + entry.user.membership(entry.project).roles[0].name
 					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], sumEntry[[entry.issue_id, entry.user_id]], rateHash['currency'])
 				else
 					description = accountProject.project.name + " - " + entry.user.membership(entry.project).roles[0].name
@@ -143,7 +149,8 @@ include WkattendanceHelper
 				lastIssueId = entry.issue_id
 				invItem = @invoice.invoice_items.new()
 				if accountProject.itemized_bill
-					invItem = updateInvoiceItem(invItem, accountProject.project_id, entry.issue.blank? ? entry.project.name : entry.issue.subject, rateHash['rate'], sumEntry[entry.issue_id], rateHash['currency'])
+					description =  entry.issue.blank? ? entry.project.name : (accountProject.account.account_billing ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject)
+					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], sumEntry[entry.issue_id], rateHash['currency'])
 				else
 					isContinue = true
 					quantity = timeEntries.sum(:hours)
