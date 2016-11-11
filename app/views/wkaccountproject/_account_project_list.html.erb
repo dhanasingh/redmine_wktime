@@ -16,7 +16,7 @@
 		 <tr>		    
 			<td class="lbl-txt-align"><%=h entry.account.name  %></td>
 			<td class="lbl-txt-align"><%=h entry.project.name  %></td>
-			<td class="lbl-txt-align"><%=h entry.billing_type  %></td>
+			<td class="lbl-txt-align"><%=h entry.billing_type == 'TM' ? l(:label_time_material) : l(:label_fixed_cost)  %></td>
 			<td class="lbl-txt-align"><%=h checked_image entry.apply_tax?  %></td>			
 			<td class="lbl-txt-align"><%=h checked_image entry.itemized_bill?  %></td>
 			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :acc_project_id => entry.id, :tab => controller.controller_name},

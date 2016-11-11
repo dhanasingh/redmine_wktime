@@ -18,6 +18,6 @@
 		<%= render :partial => 'wkinvoice/date_range' %>
 	<% end %>
 	<div class="total-hours">
-		<p><%= l(:label_total) %>: &nbsp;<%= @totalInvAmt %></p>
+		<p><%= l(:label_total) %>: &nbsp;<%= html_hours("%.2f" % @totalInvAmt) %></p>
 	</div>
 	<%= render :partial => 'wkinvoice/invoice_list'%>	

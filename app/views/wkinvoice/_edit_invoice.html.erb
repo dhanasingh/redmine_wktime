@@ -46,9 +46,9 @@
 		    <td class="lbl-txt-align" headers="name"><%= text_field_tag "name#{row_index}",  entry.name, :required => true,  :style => "width:150px; " %></td>
 			<td class="lbl-txt-align" headers="item_type"><label id="item_type<%= row_index.to_s %>"  ><%= (entry.item_type == 'i' ? 'invoice' : 'tax') %></label></td>
 			<td class="lbl-txt-align" headers="currency"><%=h hidden_field_tag("currency#{row_index}",   entry.currency )  %></td>
-			<td class="lbl-txt-align" headers="rate"><%= entry.currency %><%= text_field_tag "rate#{row_index}",  entry.rate ,:maxlength => 16,  :style => "width:150px;", :onchange => "addAmount(this.id)" %></td>
-			<td class="lbl-txt-align" headers="quantity"><%= text_field_tag "quantity#{row_index}",  entry.quantity  ,  :style => "width:150px;", :onchange => "addAmount(this.id)" %></td>
-			<td class="lbl-txt-align" headers="amount"><%= entry.currency %><label id="amount<%= row_index.to_s %>" ><%= entry.amount  %></label></td>
+			<td class="lbl-txt-align" headers="rate"><%= entry.currency %><%= text_field_tag "rate#{row_index}",   ("%.2f" % entry.rate) ,:maxlength => 16,  :style => "width:150px;", :onchange => "addAmount(this.id)" %></td>
+			<td class="lbl-txt-align" headers="quantity"><%= text_field_tag "quantity#{row_index}", ("%.2f" % entry.quantity)  ,  :style => "width:150px;", :onchange => "addAmount(this.id)" %></td>
+			<td class="lbl-txt-align" headers="amount"><%= entry.currency %><label id="amount<%= row_index.to_s %>" ><%= html_hours("%.2f" % entry.amount)  %></label></td>
 			<% total = total + entry.amount %>
 			<td><%= link_to image_tag('delete.png'), "javascript:deleteRow('invoiceTable', 'totalrow');", :id => row_index,
 						:data => {:confirm => l(:text_are_you_sure)},
@@ -68,15 +68,15 @@
 				<td class="lbl-txt-align" style="width:20px;"><%=h hidden_field_tag("pjt_id#{tax_index}",   entry.project_id )  %></td>
 				<td class="lbl-txt-align" style="width:330px;" ><%=  entry.name %></td>				
 				<td class="lbl-txt-align" style="width:140px;"><label id="taxitem_type<%= tax_index.to_s %>"><%= (entry.item_type == 'i' ? 'invoice' : 'tax') %></label></td>
-				<td class="lbl-txt-align" style="width:330px;"><label id="taxrate<%= tax_index.to_s %>"><%=    (entry.rate * 100).round(2) %> </label> </td>
+				<td class="lbl-txt-align" style="width:330px;"><label id="taxrate<%= tax_index.to_s %>"><%=    ("%.2f" % entry.rate) %> </label> </td>
 				<td class="lbl-txt-align" style="width:330px;"><%=  entry.quantity   %></td>
-				<td class="lbl-txt-align" style="padding-right:110px;" ><%= entry.currency %><label id="taxamount<%= tax_index.to_s %>"><%= entry.amount.round(2)   %></label></td>
+				<td class="lbl-txt-align" style="padding-right:110px;" ><%= entry.currency %><label id="taxamount<%= tax_index.to_s %>"><%= html_hours("%.2f" % entry.amount)   %></label></td>
 				<% total = total + entry.amount %>
 			 </tr>
 			  <% tax_index = tax_index + 1 %>
 		<% end %>
 	<% end %>
-	<tr><td colspan="8" style="padding-right:100px;"><label id="invtotalamount" style="float:right;">total : <%= @invoiceItem[0].blank? ? "" : @invoiceItem[0].currency %> <%= total %> </label><td></tr>
+	<tr><td colspan="8" style="padding-right:100px;"><label id="invtotalamount" style="float:right;">total : <%= @invoiceItem[0].blank? ? "" : @invoiceItem[0].currency %> <%= html_hours("%.2f" % total) %> </label><td></tr>
 </table>
 </div>
 <%=h hidden_field_tag("totalrow",  row_index-1 )  %>
