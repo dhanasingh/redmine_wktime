@@ -45,23 +45,44 @@
 					<th align="left"  ><%= l(:label_wk_currency) %></th>
 					<th align="left" ><%= l(:field_amount) %></th>
 				</tr>
-				<% @invoiceItem.each do | entry | %>
-				<tr style="width:100%;">
-					<td ><%=h entry.name %></td>
-					<td ><%=h l(:field_hours) %></td>
-					<td ><%=h entry.rate %></td>
-					<td ><%=h entry.quantity %></td>
-					<td ><%=h entry.currency %></td>
-					<td ><%=h entry.amount %></td>
-				</tr>
+				<% @invoiceItem.where(:item_type => 'i').each do | entry | %>
+					<tr style="width:100%;">
+						<td><%=h entry.name %></td>
+						<td><%=h l(:field_hours) %></td>
+						<td align="right"><%=h "%.2f" % entry.rate unless entry.rate.blank? %></td>
+						<td align="right"><%=h "%.2f" % entry.quantity unless entry.quantity.blank? %></td>
+						<td align="right"><%=h entry.currency %></td>
+						<td align="right"><%=h "%.2f" % entry.amount unless entry.amount.blank?%></td>
+					</tr>
+				<% end %>
+				<% if @invoiceItem.where(:item_type => 't').count > 0 %>
+					<tr style="width:100%;">
+						
+						<th colspan="3" align="right"><%=h l(:label_sub_total)   %></th>
+						
+						<th align="right"><%=h "%.2f" % @invoiceItem.where(:item_type => 'i').sum(:quantity) %></th>
+						<th align="right"><%=h @invoiceItem[0].currency %></th>
+						<th align="right"><%=h "%.2f" % @invoiceItem.where(:item_type => 'i').sum(:amount) %></th>
+					</tr>
+				<% end %>
+				
+				<% @invoiceItem.where(:item_type => 't').each do | entry | %>
+					<tr style="width:100%;">
+						<td><%=h entry.name %></td>
+						<td><%=h l(:label_tax) %></td>
+						<td align="right"><%=h "%.2f" % entry.rate.to_s + "%" unless entry.rate.blank? %></td>
+						<td align="right"><%=h "%.2f" % entry.quantity unless entry.quantity.blank? %></td>
+						<td align="right"><%=h entry.currency %></td>
+						<td align="right"><%=h "%.2f" % entry.amount unless entry.amount.blank?%></td>
+					</tr>
 				<% end %>
 				<tr style="width:100%;">
 					
-					<td colspan="3" align="right"><%=h l(:label_total)   %></td>
+					<th colspan="3" align="right"><%=h l(:label_total)   %></th>
 					
-					<td><%=h @invoiceItem.sum(:quantity) %></td>
-					<td><%=h @invoiceItem[0].currency %></td>
-					<td><%=h @invoiceItem.sum(:amount) %></td>
+					<th align="right"><%=h "%.2f" % @invoiceItem.sum(:quantity) %></th>
+					<th align="right"><%=h @invoiceItem[0].currency %></th>
+					<th align="right"><%=h "%.2f" % @invoiceItem.sum(:amount) %></th>
 				</tr>
 				<tr style="width:100%;">
 					<td align="left" colspan="1" width="20%"><b><%= l(:label_amount_in_words) %></b></td>

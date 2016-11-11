@@ -296,7 +296,7 @@ include WkattendanceHelper
 				numValStr = numValStr.blank? || currStr.blank?  ? currStr + numValStr :  currStr + "" + numValStr
 			end
 		end
-		numValStr
+		numValStr.lstrip.capitalize
 	end
 	
 	# Return the Two digit number in words
