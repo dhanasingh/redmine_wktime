@@ -12,10 +12,6 @@ include WkinvoiceHelper
 		accountId = session[:wkinvoice][:account_id]
 		projectId	= session[:wkinvoice][:project_id]
 		accountProjects = getProjArrays(accountId)
-		if @from.blank? && @to.blank?
-			@from = Date.civil(Date.today.year, 1, 1)
-			@to = Date.civil(Date.today.year, 12, 31)
-		end
 		@projects = accountProjects.collect{|m| [ m.project_name, m.project_id ] } if !accountProjects.blank?
 		unless params[:generate].blank? || !to_boolean(params[:generate])
 			if (accountId.blank? || accountId.to_i == 0) && (projectId.blank? || projectId.to_i == 0)
