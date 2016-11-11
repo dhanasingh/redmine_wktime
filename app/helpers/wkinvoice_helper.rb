@@ -221,11 +221,11 @@ include WkattendanceHelper
 		projectTaxes.each do |projtax|
 			invItem = @invoice.invoice_items.new()
 			invItem.name = accountProject.project.name + ' - ' + projtax.tax.name
-			invItem.rate = projtax.tax.rate_pct.blank? ? 0 : (projtax.tax.rate_pct/100)
+			invItem.rate = projtax.tax.rate_pct.blank? ? 0 : projtax.tax.rate_pct
 			invItem.project_id = accountProject.project_id
 			invItem.currency = currency
 			invItem.quantity = nil
-			invItem.amount = invItem.rate * totalAmount
+			invItem.amount = (invItem.rate/100) * totalAmount
 			invItem.item_type = 't'
 			invItem.modifier_id = User.current.id
 			invItem.save()
