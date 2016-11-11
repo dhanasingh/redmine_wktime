@@ -117,7 +117,7 @@ include WkattendanceHelper
 			userTotalHours = timeEntries.group(:user_id).sum(:hours)
 			timeEntries.order(:issue_id, :user_id).each do |entry|
 				rateHash = getUserRateHash(entry.user.custom_field_values)
-				if rateHash.blank? || rateHash['rate'] <= 0
+				if rateHash.blank? || rateHash['rate'].blank? || rateHash['rate'] <= 0
 					next
 				end
 				if (lastUserId == entry.user_id && (lastIssueId == entry.issue_id || !accountProject.itemized_bill) )

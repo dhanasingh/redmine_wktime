@@ -30,7 +30,7 @@
 			<td class="lbl-txt-align"><%=h entry.invoice_date  %></td>			
 			<td class="lbl-txt-align"><%=h entry.start_date  %></td>
 			<td class="lbl-txt-align"><%=h entry.end_date  %></td>
-			<td class="lbl-txt-align"><%=h html_hours("%.2f" % entry.invoice_items.sum(:amount))  %></td>
+			<td class="lbl-txt-align"><%= entry.invoice_items[0].currency unless entry.invoice_items[0].blank?%> <%=h html_hours("%.2f" % entry.invoice_items.sum(:amount))  %></td>
 			<td class="lbl-txt-align"><%=h entry.modifier.name  %></td>
 			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :invoice_id => entry.id, :tab => controller.controller_name},
                                        :title => l(:button_edit) %>
