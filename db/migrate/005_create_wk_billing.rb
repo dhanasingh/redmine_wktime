@@ -77,8 +77,8 @@ class CreateWkBilling < ActiveRecord::Migration
 	
 	create_table :wk_invoice_items do |t|
       t.string :name
-	  t.float :rate
-      t.float :amount
+	  t.decimal :rate, :precision=>16, :scale=>2
+      t.decimal :amount, :precision=>16, :scale=>2
 	  t.float :quantity
 	  t.string :item_type, :null => false, :limit => 3, :default => 'i'
 	  t.column :currency, :string, :limit => 5, :default => '$'
@@ -93,7 +93,7 @@ class CreateWkBilling < ActiveRecord::Migration
 	create_table :wk_billing_schedules do |t|
 	  t.string :milestone
       t.date :bill_date
-      t.float :amount
+      t.decimal :amount, :precision=>16, :scale=>2
 	  t.column :currency, :string, :limit => 5, :default => '$'
 	  t.references :invoice, :class => "wk_invoices", :null => true
 	  t.references :account_project, :class => "wk_account_projects", :null => false
