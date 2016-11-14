@@ -217,6 +217,7 @@ $(document).ready(function()
 	changeProp('tab-leave',wkattnIndexUrl);
 	changeProp('tab-clock',clockInOutUrl);
 	changeProp('tab-payroll',payrollUrl);
+	changeProp('tab-usersettings',userssettingsUrl);
 	changeProp('tab-wkaccount',blgaccUrl);
 	changeProp('tab-wkcontract',blgcontractsUrl);
 	changeProp('tab-wkaccountproject',blgaccpjtsUrl);
