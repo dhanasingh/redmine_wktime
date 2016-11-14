@@ -46,7 +46,7 @@ module WkpayrollHelper
 					userSalary.salary_component_id = componentId
 					userSalary.salary_date = salaryDate
 					if !userSalary.save()
-						errorMsg = wkuserleave.errors.full_messages.join('\n')
+						errorMsg = userSalary.errors.full_messages.join('\n')
 					end
 				end
 			end

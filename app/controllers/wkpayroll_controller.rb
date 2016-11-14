@@ -109,7 +109,7 @@ include WkreportHelper
 					wkUserSalComp.dependent_id = dependentId if dependentId > 0
 					wkUserSalComp.factor = factor 
 				else
-					wkUserSalComp.dependent_id = dependentId if dependentId > 0 
+					wkUserSalComp.dependent_id = dependentId > 0 ? dependentId : nil 
 					wkUserSalComp.factor = factor 
 				end
 				if (wkUserSalComp.changed? && !wkUserSalComp.new_record?) || wkUserSalComp.destroyed?

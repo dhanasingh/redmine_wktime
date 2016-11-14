@@ -151,3 +151,60 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
    get 'wkpayroll/usrsettingsindex', :to => 'wkpayroll#usrsettingsindex'
    
    post 'wkpayroll/usrsettingsindex', :to => 'wkpayroll#usrsettingsindex'
+   
+   
+    #For Billing
+    get 'wkbilling/index', :to => 'wkbilling#index'	
+	
+	get 'wkaccount/index', :to => 'wkaccount#index'
+	
+	match 'wkaccount/index', :to => 'wkaccount#index', :via => [:get, :post]
+	
+	post 'wkaccount/update', :to => 'wkaccount#update'
+	
+	get 'wkaccount/edit', :to => 'wkaccount#edit'	
+	
+	delete 'wkaccount/destroy', :to => 'wkaccount#destroy'
+	
+	get 'wkcontracts/index', :to => 'wkcontracts#index'
+	
+	
+	get 'wkaccountproject/index', :to => 'wkaccountproject#index'
+	
+	get 'wktax/index', :to => 'wktax#index'	
+	
+	get 'wkinvoice/index', :to => 'wkinvoice#index'	
+	
+	post 'wktax/index', :to => 'wktax#index'
+	
+	get 'wkinvoice/invoiceedit', :to => 'wkinvoice#invoiceedit'
+	
+	get 'wkinvoice/getAccountProjIds', :to => 'wkinvoice#getAccountProjIds'
+    
+	get 'wktax/edit', :to => 'wktax#edit'
+	
+	post 'wktax/update', :to => 'wktax#update'	
+	
+	delete 'wktax/destroy', :to => 'wktax#destroy'
+	
+	get 'wkinvoice/edit', :to => 'wkinvoice#edit'	
+	
+	post 'wkinvoice/update', :to => 'wkinvoice#update'
+	
+	delete 'wkinvoice/destroy', :to => 'wkinvoice#destroy'
+	
+	get 'wkaccountproject/edit', :to => 'wkaccountproject#edit'
+	
+	delete 'wkaccountproject/destroy', :to => 'wkaccountproject#destroy'
+	
+	post 'wkaccountproject/update', :to => 'wkaccountproject#update'
+	
+	get 'wkcontract/index', :to => 'wkcontract#index'
+	
+	get 'wkcontract/edit', :to => 'wkcontract#edit'
+	
+	post 'wkcontract/update', :to => 'wkcontract#update'
+	
+	delete 'wkcontract/destroy', :to => 'wkcontract#destroy'
+	
+	get 'wkinvoice/invreport', :to => 'wkinvoice#invreport' 

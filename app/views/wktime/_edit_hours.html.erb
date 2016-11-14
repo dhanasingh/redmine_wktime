@@ -22,6 +22,7 @@
 					disable = disable && !entry.id.blank?
 				end
 				disable = false if isAccountUser
+				disable = true if isBilledTimeEntry(entry)
 			end
 			%>
 			<%#if this is from a previous template, don't print the hours%>

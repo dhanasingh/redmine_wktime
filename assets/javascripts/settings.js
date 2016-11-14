@@ -162,6 +162,51 @@ function dialogAction()
 		}
 	});	
 	
+	$( "#invcomp-dlg" ).dialog({
+		autoOpen: false,
+		resizable: true,
+		width: 380,
+		modal: false,		
+		buttons: {
+			"Ok": function() {
+				var opt,desc="",opttext="";
+				var listBox = document.getElementById("settings_wktime_invoice_components");
+				var invCompName = document.getElementById("inv_copm_name");
+				var invCompVal = document.getElementById("inv_copm_value");
+				if(invCompName.value != "" && invCompVal.value != ""){
+					if('Add'== leaveAction){	
+						opt = document.createElement("option");
+						listBox.options.add(opt);
+					}
+					else if('Edit' == leaveAction){
+						opt = listBox.options[listBox.selectedIndex];
+					}			
+					if (invCompName.value != ""){
+						desc = invCompName.value
+						opttext = desc + ":"  + invCompVal.value;
+						desc = desc + "|"  + invCompVal.value;
+					}	
+					opt.text =  opttext;
+					opt.value = desc;
+					$( this ).dialog( "close" );
+				}
+				else{
+					var alertMsg = "";
+					if(invCompVal.value == ""){
+						alertMsg = lblInvCompVal + " "+ lblInvalid + "\n";
+					}
+					if(invCompName.value == ""){
+						alertMsg = lblInvCompName + " "+ lblInvalid + "\n";
+					}
+					alert(alertMsg);
+				}
+			},
+			Cancel: function() {
+				$( this ).dialog( "close" );
+			}
+		}
+	});	
+	
 	
 }
 
@@ -298,7 +343,33 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 		{		
 			alert(selectListAlertMsg);				
 		}
-	}	
+	}		
+
+	function showInvCompDialog(action)
+	{
+		var listbox = document.getElementById("settings_wktime_invoice_components");
+		var invCompName = document.getElementById("inv_copm_name");
+		var invCompVal = document.getElementById("inv_copm_value");
+		if('Add' == action)
+		{	
+			leaveAction = action;
+			invCompName.value = "";
+			invCompVal.value = "";
+			$( "#invcomp-dlg" ).dialog( "open" )	
+		}
+		else if('Edit' == action && listbox != null && listbox.options.selectedIndex >=0)
+		{				
+			var listboxArr = listbox.options[listbox.selectedIndex].value.split('|');
+			invCompName.value = !listboxArr[0] ? "" : listboxArr[0];
+			invCompVal.value = !listboxArr[1] ? "" : listboxArr[1];
+			leaveAction = action;
+			$( "#invcomp-dlg" ).dialog( "open" )	
+		}
+		else if(listbox != null && listbox.options.length >0)
+		{		
+			alert(selectListAlertMsg);				
+		}
+	}		
 	
 	function removeSelectedValue(elementId)
 	{
@@ -358,6 +429,14 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 			for(i = 0; i < lvlistbox.options.length; i++)
 			{
 				lvlistbox.options[i].selected = true;
+			}						
+		}
+		var invlistbox=document.getElementById("settings_wktime_invoice_components");
+		if(invlistbox != null)
+         { 
+			for(i = 0; i < invlistbox.options.length; i++)
+			{
+				invlistbox.options[i].selected = true;
 			}						
 		}
 		var fldInFiles=document.getElementById("settings_wktime_fields_in_file");

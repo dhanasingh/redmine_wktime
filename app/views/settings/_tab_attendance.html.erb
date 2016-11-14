@@ -111,7 +111,7 @@ lblYear = "<%=l(:label_year) %>";
 			@settings['wktime_leave'].each do |element|
 			  listboxArr = element.split('|')
 			  issueId = listboxArr[0]
-			  issueName = issuehash[issueId.to_i]
+			  issueName = issuehash[issueId.to_i].blank? ? issueId : issuehash[issueId.to_i]
 			  leaveAccrual = listboxArr[1].blank? ? "" : listboxArr[1]
 			  accrualAfter = listboxArr[2].blank? ? "" : listboxArr[2]
 			  optionText = leaveAccrual.blank? ? issueName : issueName + " : "  + leaveAccrual + " " + l(:label_hours_per_month) + " " + l(:label_wk_leave_accrual_after) + " " + accrualAfter + " " + l(:label_year)
@@ -225,7 +225,7 @@ lblYear = "<%=l(:label_year) %>";
 	</p>
 </fieldset>
 
-<fieldset style="display: inline-block; vertical-align: top; min-width: 100px;">
+<fieldset style="display: inline-block; vertical-align: top; min-width: 100px; width:540px; height:540px;">
        <legend><%= l(:button_import) %></legend>
 		<%= l(:label_redmine_restart_warning) %>
 	    <p style="padding-left: 130px;">

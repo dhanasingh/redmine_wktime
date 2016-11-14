@@ -587,10 +587,18 @@ end
 				{:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave},
 				{:name => 'clock', :partial => 'wktime/tab_content', :label => :label_clock}
 			   ]
-		else
+		elsif params[:controller] == "wkpayroll"
 			tabs = [
 				{:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll},
 				{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_user_settings}
+			   ]
+		else
+			tabs = [
+				{:name => 'wkinvoice', :partial => 'wktime/tab_content', :label => :label_invoice},
+				{:name => 'wkaccount', :partial => 'wktime/tab_content', :label => :label_accounts},
+				{:name => 'wkcontract', :partial => 'wktime/tab_content', :label => :label_contracts},
+				{:name => 'wkaccountproject', :partial => 'wktime/tab_content', :label => :label_acc_projects},				
+				{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax}
 			   ]
 		end
 		tabs
@@ -683,10 +691,11 @@ end
 	def settings_tabs		   
 		tabs = [
 				{:name => 'general', :partial => 'settings/tab_general', :label => :label_general},
-				{:name => 'display', :partial => 'settings/tab_display', :label => :label_display},
+			#	{:name => 'display', :partial => 'settings/tab_display', :label => :label_display},
 				{:name => 'wktime', :partial => 'settings/tab_time', :label => :label_te},
 				{:name => 'attendance', :partial => 'settings/tab_attendance', :label => :label_wk_attendance},
-				{:name => 'payroll', :partial => 'settings/tab_payroll', :label => :label_payroll}
+				{:name => 'payroll', :partial => 'settings/tab_payroll', :label => :label_payroll},
+				{:name => 'billing', :partial => 'settings/tab_billing', :label => :label_wk_billing}
 			   ]	
 	end	
 	
@@ -1005,5 +1014,60 @@ end
 	def showPayroll
 		!Setting.plugin_redmine_wktime['wktime_enable_payroll_module'].blank? &&
 			Setting.plugin_redmine_wktime['wktime_enable_payroll_module'].to_i == 1
+	end
+	
+	def showBilling
+		(!Setting.plugin_redmine_wktime['wktime_enable_billing_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_billing_module'].to_i == 1 ) && isBillingAdmin
+			
+	end
+	
+	# Return the given type of custom Fields array
+	# Used in plugin settings
+	def getCfListArr(customFields, cfType, needBlank)
+		unless customFields.blank?
+			cfs = customFields.select {|cf| cf.field_format == cfType }
+			unless cfs.blank?
+				cfArray = cfs.collect {|cf| [cf.name, cf.id] }
+			else
+				cfArray = Array.new
+			end
+		else
+			cfArray = Array.new
+		end
+		cfArray.unshift(["",0]) if needBlank
+		cfArray
+	end
+	
+	def getPluginSetting(setting_name)
+		Setting.plugin_redmine_wktime[setting_name]
+	end
+	
+	def isBillingAdmin
+		group = nil
+		isbillingUser = false
+		groupusers = Array.new
+		billingGrpId = getSettingCfId('wktime_billing_groups')
+		if !billingGrpId.blank? && billingGrpId != 0
+				scope = User.in_group(billingGrpId)	
+				groupusers << scope.all
+		end
+		grpUserIds = Array.new		
+		grpUserIds = groupusers[0].collect{|user| user.id}.uniq if !groupusers.blank? && !groupusers[0].blank?
+		isbillingUser = grpUserIds.include?(User.current.id)
+	end
+	
+	def getSettingCfId(settingId)
+		cfId = Setting.plugin_redmine_wktime[settingId].blank? ? 0 : Setting.plugin_redmine_wktime[settingId].to_i
+		cfId
+	end
+	
+	def isBilledTimeEntry(tEntry)
+		ret = false
+		unless tEntry.blank?
+			cfEntry = tEntry.custom_value_for(getSettingCfId('wktime_billing_id_cf'))
+			ret = true unless cfEntry.blank? || cfEntry.value.blank?
+		end
+		ret
 	end
 end

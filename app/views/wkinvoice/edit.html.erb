@@ -1,0 +1,22 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'invoice', :plugin => "redmine_wktime" %>
+<h2><%= l(:label_invoice) %></h2>
+<% hash_status = { 'o'  => l(:label_open_issues), 'c' =>  l(:label_closed_issues) } %>
+
+	<%= form_tag({:controller => "wkinvoice", :action => 'update'}, :method => :post, :id => 'query_form') do %>
+		<table>
+			<tr><th><%= l(:label_invoice_number) %></th> <td style="width: 200px;"> <%= ': ' + @invoice.invoice_number %> </td>
+			<th><%= l(:label_invoice_date) %></th> <td> <%= ': ' + @invoice.invoice_date.to_s %> </td></tr>
+			<tr><th><%= l(:label_project_name) %></th> <td style="width: 200px;"> <%= ': ' + (@invoiceItem[0].blank? ? "" : @invoiceItem[0].project.name) %> </td>
+			<th><%= l(:field_status) %></th> <td><%=h select_tag('field_status',options_for_select(hash_status.invert, :selected =>@invoice.status )) %>  </td></tr>
+			<tr><th><%= l(:label_account_name) %></th> <td style="width: 200px;"> <%= ': ' + @invoice.account.name %> </td>
+			<th><%= l(:field_status_modified_by) %></th> <td> <%= ': ' + @invoice.modifier.name %> </td></tr>
+		</table>
+		<% unless @invoiceItem[0].blank? %>
+			<%= render :partial => 'edit_invoice' %>
+		<% else %>
+		<br/>
+		<h2 ><%= l(:label_invoice_items) %></h2> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<label><b><%= l(:label_no_data) %></b></label>
+		<% end %>
+	<% end %>

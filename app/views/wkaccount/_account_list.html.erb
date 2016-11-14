@@ -1,0 +1,32 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div class="autoscroll">
+	<table class="list time-entries">
+		<thead>
+			<tr>
+				<th class="lbl-txt-align"><%= l(:label_account_name) %></th>
+				<th class="lbl-txt-align"><%= l(:label_account_address) %></th>
+				<th class="lbl-txt-align"><%= l(:label_work_phone) %></th>
+				<th class="lbl-txt-align"><%= l(:label_email) %></th>
+				<th class="lbl-txt-align"><%= l(:label_country) %></th>
+				<th class="lbl-txt-align"><%= l(:label_city) %></th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<% @account_entries.each do |entry| %>
+				<tr>
+					  <td class="lbl-txt-align"><%=h entry.name %></td>
+					  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.address1 %></td>
+					  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.work_phone %></td>
+					  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.email %></td>
+					  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.country %></td>
+					  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.city %></td>
+					  <td align="center">
+						  <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :account_id => entry.id,:address_id => entry.address.blank? ? "" : entry.address.id}, :title => l(:button_edit) %> <%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+					  </td>
+				</tr>
+			<% end %>
+		</tbody>
+	</table>
+</div>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

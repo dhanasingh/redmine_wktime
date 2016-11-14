@@ -264,4 +264,132 @@ it:
   label_generate: Generate
   label_payroll_report: Payroll report
   label_factor_errormsg: Please Enter the Factor
- 
+  
+  label_wk_billing: Billing
+  label_enable_billing_module: Enable Billing module
+  label_accounts: Accounts
+  label_contracts: Contracts
+  label_acc_projects: Billable Projects
+  label_invoice: Invoice
+  label_tax: Tax  
+  label_project_name: Project Name
+  label_account_name: Account Name
+  label_invoice_date: Invoice Date
+  label_end_date: End Date
+  label_user_billing_rate: User Billing Rate
+  label_user_billing_currency: User Billing Currency
+  label_project_billing_rate: Project Billing Rate
+  label_project_billing_currency: Project Billing Currency
+  label_billing_id: Time Entry Billing Id
+  label_generate_invoice_from: Generate invoice from
+  label_auto_generate_invoice: Auto generate invoice
+  label_invoice_no_prefix: Invoice number prefix
+  label_taxname: Tax Name
+  label_rate: Rate
+  label_tax_detail: Tax Detail
+  label_new_tax: New Tax
+  label_invoice_name: Item Description
+  label_item_type: Item Type
+  label_quantity: Quantity
+  label_invoice_number: Invoice Number
+  label_invoice_items: Invoice Items
+  label_billing_type: Billing Type
+  label_apply_tax: Apply Tax
+  label_itemized_bill: Itemized Bill
+  label_invoice_items: Invoice Items
+  label_new_tax: New Tax
+  label_new_account: New Account
+  label_edit_account: Edit Account
+  label_account_type: Account Type
+  label_account_address: Address
+  label_account_address1: Address1
+  label_account_address2: Address2
+  label_work_phone: Work Phone
+  label_email: Email
+  label_country: Country
+  label_city : City 
+  label_account_detail: Account Detail
+  label_account_information: Account Information
+  label_address_information: Address Information
+  label_state : State 
+  label_fax : Fax
+  label_mobile : Mobile
+  label_home_phone: Home Phone
+  label_pin: Pin
+  label_invoice_generate_period: Invoice generate period
+  label_invoice_generation_day: Invoice generation day
+  label_time_material: Time and Material
+  label_fixed_cost: Fixed Cost
+  label_milestone: Milestone
+  label_date: Date
+  label_applicable_taxes: Applicable Taxes
+  label_billing_schedules: Billing Schedules
+  label_new_billing_project: New Billing Project
+  label_billing_groups: Billing Admin Groups
+  label_start_date: Start Date
+  label_end_date: End Date
+  label_contract_name: Contract Name
+  label_file_name: File Name
+  label_attachment: Attachments
+  label_edit_contract: Edit Contract
+  label_project: Project 
+  label_account: Account 
+  label_contract_number: Contract Number
+  label_contract_no_prefix: Contract number prefix
+  label_new_contract: New Contract
+  label_contract_information: Contract Information
+  label_pin: Pin Code
+  label_invoice_components: Invoice Components
+  label_import_export_code: Import Export Code
+  label_satellite_station: Satellite Station
+  label_destination: Destination
+  label_payment_terms: Payment Terms
+  label_bankers_reference: Banker's Reference
+  label_name_address_of: Name & Address of the %{value}
+  label_bank_code_no: Bank code No
+  label_amount_in_words: Amount in Words
+  label_man_hour_day_month: Man Hour / Man Day / Man Month / Project
+  label_desc_of_sftwr_services: Description of the Software Services
+  label_cntrt_purchase_work_order: Contract / Purchase Order / Work Order / Agreement Date & Reference
+  label_bank: Bank
+  label_customer: Customer
+  label_supplier: Supplier
+  label_export_invoice: EXPORT INVOICE
+  label_authorized_signatory: Authorized Signatory
+  label_place: Place
+  label_erpmine: ERPmine
+  label_trillion: trillion
+  label_billion: billion
+  label_million: million
+  label_thousand: thousand
+  label_hundred: hundred
+  label_ninety: ninety
+  label_eighty: eighty
+  label_seventy: seventy
+  label_sixty: sixty
+  label_fifty: fifty
+  label_forty: forty
+  label_thirty: thirty
+  label_twenty: twenty
+  label_nineteen: nineteen
+  label_eighteen: eighteen
+  label_seventeen: seventeen
+  label_sixteen: sixteen
+  label_fifteen: fifteen
+  label_fourteen: fourteen
+  label_thirteen: thirteen
+  label_twelve: twelve
+  label_eleven: eleven
+  label_ten: ten
+  label_nine: nine
+  label_eight: eight
+  label_seven: seven
+  label_six: six
+  label_five: five
+  label_four: four
+  label_three: three
+  label_two: two
+  label_one: one
+  label_bill_date: Bill Date
+  label_account_billing: Account Billing
+  label_sub_total: Sub total

@@ -109,7 +109,7 @@ include QueriesHelper
 	isError = params[:isError].blank? ? false : to_boolean(params[:isError])
 	if (!$tempEntries.blank? && isError)
 		@entries.each do |entry|	
-			if !entry.editable_by?(User.current) && !isAccountUser
+			if !entry.editable_by?(User.current) && !isAccountUser && !isBilledTimeEntry(entry)
 				$tempEntries << entry
 			end
 		end
@@ -175,7 +175,7 @@ include QueriesHelper
 						if (!entry.id.blank? && !entry.editable_by?(User.current))
 							allowSave = false
 						end
-						allowSave = true if (to_boolean(@edittimelogs) || isAccountUser)
+						allowSave = true if (to_boolean(@edittimelogs) || isAccountUser || !isBilledTimeEntry(entry))
 						#if !((Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? ||
 						#		Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 0) && 
 						#		entry.issue.blank?)
@@ -1363,7 +1363,8 @@ private
 	end
   
     def check_editPermission
-		allowed = true;
+		allowed = true
+		hasBilledEntry = false
 		if api_request?
 			ids = gatherIDs			
 		else
@@ -1377,12 +1378,16 @@ private
 			@entries = findEntriesByCond(cond)
 		end
 		@entries.each do |entry|
-			if(!entry.editable_by?(User.current))
+			if isBilledTimeEntry(entry)
+				hasBilledEntry = true
 				allowed = false
 				break
 			end
+			if(!entry.editable_by?(User.current)) 
+				allowed = false
+			end
 		end
-		allowed = true if isAccountUser
+		allowed = true if isAccountUser && !hasBilledEntry
 		return allowed
 	end
 	

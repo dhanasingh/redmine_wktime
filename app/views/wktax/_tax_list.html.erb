@@ -1,0 +1,37 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+ <%= form_tag({:controller => 'wktax', :action => 'index'}, :method => :post, :id => 'query_form') do %>
+	  <fieldset>
+		 <%=h hidden_field_tag('tab', "wktax") %>
+		 <label for='name'><%= l(:label_taxname) %>:</label>
+		 <%= text_field_tag 'taxname', params[:taxname], :size => 30 %>
+		 <%= submit_tag l(:button_apply), :class => "small", :name => nil %>
+		 <%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
+	  </fieldset>
+ <% end %>
+ <div class="wk-contextual">
+        <%= link_to l(:label_new_tax), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+ </div>
+<div class="autoscroll">
+<table class="list time-entries">
+  <thead>
+         <tr>
+				<th class="lbl-txt-align"><%= l(:label_taxname) %></th>
+				<th class="lbl-txt-align"><%= l(:label_rate) %></th>
+				<th></th>
+         </tr>
+  </thead>
+  <tbody>
+     <% @tax_entries.each do |entry| %>
+          <tr>
+		      <td class="lbl-txt-align"><%=h entry.name %></td>
+			  <td class="lbl-txt-align"><%=h entry.rate_pct  %><%=h "%" %></td>
+			  <td align="center">
+                 <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :tax_id => entry.id}, :title => l(:button_edit) %> <%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :tax_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+			  </td>
+		 </tr>
+   	<% end %>
+  </tbody>
+</table>
+</div>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
+

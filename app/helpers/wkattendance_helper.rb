@@ -10,11 +10,6 @@ module WkattendanceHelper
                         ["#{l(:status_locked)} (#{user_count_by_status[3].to_i})", '3']], selected.to_s)
 	end
 	
-	def getSettingCfId(settingId)
-		cfId = Setting.plugin_redmine_wktime[settingId].blank? ? 0 : Setting.plugin_redmine_wktime[settingId].to_i
-		cfId
-	end
-	
 	def getLeaveIssueIds
 		issueIds = ''
 		if(Setting.plugin_redmine_wktime['wktime_leave'].blank?)

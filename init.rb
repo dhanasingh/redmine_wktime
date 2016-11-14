@@ -23,7 +23,7 @@ module Redmine::MenuManager::MenuHelper
     if project && !project.new_record?
       :project_menu
     else
-      if %w(wktime wkexpense wkattendance wkreport wkpayroll).include? params[:controller]
+      if %w(wktime wkexpense wkattendance wkreport wkpayroll  wkinvoice wkaccount wkcontract wkaccountproject wktax).include? params[:controller]
         :wktime_menu
       else
         :application_menu
@@ -233,10 +233,10 @@ TimelogController.send(:include, TimelogControllerPatch)
 SettingsController.send(:include, SettingsControllerPatch)
 
 Redmine::Plugin.register :redmine_wktime do
-  name 'Time & Attendance'
+  name 'ERPmine'
   author 'Adhi Software Pvt Ltd'
   description 'This plugin is for entering Time & Attendance'
-  version '2.4'
+  version '2.5'
   url 'http://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
   
@@ -304,10 +304,14 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_auto_import_time_hr' => '23',
 			 'wktime_auto_import_time_min' => '0',
 			 'wktime_file_to_import' => '0',
-			 'wktime_import_file_headers' => '0'
+			 'wktime_import_file_headers' => '0',
+			 'wktime_enable_billing_module' => '0',
+			 'wktime_auto_generate_invoice' => '0',
+			 'wktime_generate_invoice_from' => nil,
+			  'wktime_billing_groups' => '0'
   })  
  
-  menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_ta, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 	
+  menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_erpmine, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 	
   project_module :time_tracking do
 	permission :approve_time_entries,  {:wktime => [:update]}, :require => :member	
   end
@@ -317,6 +321,7 @@ Redmine::Plugin.register :redmine_wktime do
 	  menu.push :wktime, { :controller => 'wktime', :action => 'index' }, :caption => :label_te, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission }
 	  menu.push :wkattendance, { :controller => 'wkattendance', :action => 'index' }, :caption => :label_wk_attendance, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showAttendance}
 	  menu.push :wkpayroll, { :controller => 'wkpayroll', :action => 'index' }, :caption => :label_payroll, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showPayroll }
+	  menu.push :wkinvoice, { :controller => 'wkinvoice', :action => 'index' }, :caption => :label_wk_billing, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showBilling }
 	  menu.push :wkreport, { :controller => 'wkreport', :action => 'index' }, :caption => :label_report_plural, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showReports}	  
 	end	
 
@@ -421,6 +426,57 @@ Rails.configuration.to_prepare do
 						wkpayroll_helper = Object.new.extend(WkpayrollHelper)
 						errorMsg = wkpayroll_helper.generateSalaries(nil,currentMonthStart)
 						Rails.logger.info "===== Payroll generated Successfully =====" 
+					end
+				rescue Exception => e
+					Rails.logger.info "Job failed: #{e.message}"
+				end
+			end
+		end
+		
+		if (!Setting.plugin_redmine_wktime['wktime_auto_generate_invoice'].blank? && Setting.plugin_redmine_wktime['wktime_auto_generate_invoice'].to_i == 1)
+			require 'rufus/scheduler'
+			invoiceScheduler = Rufus::Scheduler.new
+			invPeriod = Setting.plugin_redmine_wktime['wktime_generate_invoice_period']
+			invDay = Setting.plugin_redmine_wktime['wktime_generate_invoice_day']
+			genInvFrom = Setting.plugin_redmine_wktime['wktime_generate_invoice_from'].to_date
+			if invPeriod == 'm' || invPeriod == 'q'
+				#Scheduler will run at 12:01 AM on 1st of every month
+				cronSt = "01 00 01 * *"
+			else
+				#Scheduler will run at 12:01 AM on invDay of every week
+				cronSt = "01 00 * * #{invDay.blank? ? 0 : invDay}"
+			end
+			invoiceScheduler.cron cronSt do		
+				begin
+					invoicePeriod = nil
+					fromDate = nil
+					currentMonthStart = Date.civil(Date.today.year, Date.today.month, Date.today.day)
+					runJob = true
+					case invPeriod
+					  when 'q'
+						fromDate = currentMonthStart<<4 < genInvFrom ? genInvFrom : currentMonthStart<<4
+						#Scheduler will run at 12:01 AM on 1st of every April, July, October and January months
+						runJob = false if (currentMonthStart.month%3)-1 > 0
+					  when 'w'
+						#Scheduler will run at 12:01 AM on invDay of every week
+						fromDate = currentMonthStart-7 < genInvFrom ? genInvFrom : currentMonthStart-7
+					  when 'bw'
+						invoiceCount = WkInvoice.where("invoice_date between '#{currentMonthStart-14}' and '#{currentMonthStart-1}'").count
+						runJob = false if invoiceCount > 0
+						fromDate = currentMonthStart-14 < genInvFrom ? genInvFrom : currentMonthStart-14
+					  else
+						#Scheduler will run at 12:01 AM on 1st of every month
+						fromDate = (currentMonthStart-1).beginning_of_month < genInvFrom ? genInvFrom : (currentMonthStart-1).beginning_of_month
+					end
+					invoicePeriod = [fromDate, currentMonthStart-1]
+					if runJob
+						Rails.logger.info "==========Invoice job - Started=========="
+						invoiceHelper = Object.new.extend(WkinvoiceHelper)
+						allAccounts = WkAccount.all
+						allAccounts.each do |account|
+							errorMsg = invoiceHelper.generateInvoices(account.id, nil, currentMonthStart, invoicePeriod)
+						end
+						Rails.logger.info "===== Invoice generated Successfully =====" 
 					end
 				rescue Exception => e
 					Rails.logger.info "Job failed: #{e.message}"

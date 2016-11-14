@@ -1,0 +1,26 @@
+<%= form_tag({:controller => 'wktax', :action => 'update'}, :method => :post, :id => 'query_form') do %>
+
+<h2><b><%=l(:label_tax_detail) %></b></h2>
+<div class="autoscroll">
+	<div  style="float:left;width=100%;">
+	  <table class="list time-entries">
+			<thead>
+				<tr>
+					<th class="lbl-txt-align"><%= l(:label_taxname) %></th>
+					<th class="lbl-txt-align"><%= l(:label_rate) %></th>
+				 </tr>
+		   </thead>
+	        <tbody>
+	            <tr>
+					<%=h hidden_field_tag('tax_id', @taxEntry.blank? ? nil : @taxEntry.id) %>
+					<td><%=h text_field_tag("name",@taxEntry.blank? ? nil : @taxEntry.name,:size => 10, :required => true) %> </td>
+					<td><%=h text_field_tag("rate_pct",@taxEntry.blank? ? nil : @taxEntry.rate_pct,:size => 10, :maxlength => 5, :required => true) %> % </td>
+		        </tr>
+	        </tbody>
+        </table>
+		<br>
+		 <p style="float: left; padding-left: 90px;">
+	     <%= submit_tag l(:button_save) ,:id => 'wktax_save'%></p>
+	</div >
+</div >
+<% end %>
