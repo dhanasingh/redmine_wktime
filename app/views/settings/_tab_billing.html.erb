@@ -27,6 +27,7 @@ lblInvCompVal = "<%=l(:field_value) %>";
 	<p style="margin-left: -110px;">
 		<%= check_box_tag('settings[wktime_enable_billing_module]', 1, @settings['wktime_enable_billing_module'].to_i == 1) %> <label><%= l(:label_enable_billing_module) %></label>
 	</p>
+	<%= l(:label_redmine_restart_warning) %>
 	<p style="margin-left: -110px;">
 			<%= check_box_tag('settings[wktime_auto_generate_invoice]', 1, @settings['wktime_auto_generate_invoice'].to_i == 1) %> <label><%= l(:label_auto_generate_invoice) %></label>
 	</p>
@@ -86,7 +87,7 @@ lblInvCompVal = "<%=l(:field_value) %>";
 					options_for_select(accountGroups, :selected => @settings['wktime_billing_groups'].blank? ? "" : @settings['wktime_billing_groups']))%>
 		</p>	
 </fieldset>
-<fieldset style="display: inline-block; vertical-align: top; min-width: 500px;">
+<fieldset style="display: inline-block; vertical-align: top; min-width: 400px;">
     <legend><%= l(:label_invoice_components) %></legend>
 	<p style="padding-left: 190px;">
 	<%
