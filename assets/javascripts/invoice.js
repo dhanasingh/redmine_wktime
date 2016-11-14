@@ -9,10 +9,11 @@ $('.date').each(function() {
 function invoiceFormSubmission()
 { 
 	var dateval = new Date(document.getElementById("to").value);
+	var fromdateval = new Date(document.getElementById("from").value);
 	dateval.setDate(dateval.getDate() + 1);
 	var salaryDate = dateval.getFullYear() + '-' + (("0" + (dateval.getMonth() + 1)).slice(-2)) + '-' + (("0" + dateval.getDate()).slice(-2));
-	if (isNaN(dateval.getFullYear())){
-		alert("Please provide valid date range");
+	if (isNaN(dateval.getFullYear()) || isNaN(fromdateval.getFullYear())){
+		alert("Please select valid date range");
 	}
 	else
 	{
