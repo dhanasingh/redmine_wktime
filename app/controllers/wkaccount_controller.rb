@@ -38,46 +38,50 @@ before_filter :require_login
 	     @accountEntry = nil
 		 unless params[:account_id].blank?
 		  @accountEntry = WkAccount.find(params[:account_id])
-		else 
-          @accountEntry = @accountEntry
 		end
     end	
 	
 	def update
+		errorMsg = nil
+		wkaddress = nil
 	    if params[:address_id].blank? || params[:address_id].to_i == 0
 		    wkaddress = WkAddress.new 
 	    else
 		    wkaddress = WkAddress.find(params[:address_id].to_i)
 	    end
-		wkaddress.address1 = params[:address1]
-		wkaddress.address2 = params[:address2]
-		wkaddress.work_phone = params[:work_phone]
-		wkaddress.home_phone = params[:home_phone]
-		wkaddress.city = params[:city]
-		wkaddress.state = params[:state]
-		wkaddress.pin = params[:pin]
-		wkaddress.mobile = params[:mobile]
-		wkaddress.email = params[:email]
-		wkaddress.country = params[:country]
-		wkaddress.fax = params[:fax]
-		wkaddress.save()
-		address_id = wkaddress.id
+		wkaddress.address1 = params[:address1] unless params[:address1].blank?
+		wkaddress.address2 = params[:address2] unless params[:address2].blank?
+		wkaddress.work_phone = params[:work_phone] unless params[:work_phone].blank?
+		wkaddress.city = params[:city] unless params[:city].blank?
+		wkaddress.state = params[:state] unless params[:state].blank?
+		wkaddress.pin = params[:pin] unless params[:pin].blank?
+		wkaddress.country = params[:country] unless params[:country].blank?
+		wkaddress.fax = params[:fax] unless params[:fax].blank?
+				
 		if params[:account_id].blank? || params[:account_id].to_i == 0
 			wkaccount = WkAccount.new
 		else
 		    wkaccount = WkAccount.find(params[:account_id].to_i)
 		end
-		wkaccount.address_id = address_id
+		
 		wkaccount.name = params[:name]
 		wkaccount.account_type = 'A'
 		wkaccount.account_billing = params[:account_billing].blank? ? 0 : params[:account_billing]
-		wkaccount.save()
-		if wkaccount.save()
+		unless wkaccount.save()			
+			errorMsg = wkaccount.errors.full_messages.join("<br>")
+		else
+			if wkaddress.changed?
+				wkaddress.save() 
+				wkaccount.address_id =  wkaddress.id	
+				wkaccount.save()	
+			end
+		end
+		if errorMsg.nil?
 		    redirect_to :controller => 'wkaccount',:action => 'index' , :tab => 'wkaccount'
 		    flash[:notice] = l(:notice_successful_update)
 		else
-		    redirect_to :controller => 'wkaccount',:action => 'edit' , :tab => 'wkaccount'
-		    flash[:error] = wkaccount.errors.full_messages.join("<br>")
+			flash[:error] = errorMsg #wkaccount.errors.full_messages.join("<br>")
+		    redirect_to :controller => 'wkaccount',:action => 'edit', :account_id => wkaccount.id
 		end
 	end
 	
