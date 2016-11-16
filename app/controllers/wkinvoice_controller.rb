@@ -121,6 +121,13 @@ include WkinvoiceHelper
 			addTaxes(accountProject[0], val[1], val[0])
 		end
 		
+		unless @invoice.id.blank?
+			totalAmount = @invoice.invoice_items.sum(:amount)
+			if (totalAmount.round - totalAmount) != 0
+				addRoundInvItem(totalAmount)
+			end
+		end
+		
 		if errorMsg.nil? 
 			redirect_to :action => 'index' , :tab => 'wkinvoice'
 			flash[:notice] = l(:notice_successful_update)

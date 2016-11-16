@@ -26,6 +26,12 @@ include WkattendanceHelper
 		@invoice.account_id = accountId
 		@invoice.invoice_number = getPluginSetting('wktime_invoice_no_prefix')
 		errorMsg = generateInvoiceItems(projectId)
+		unless @invoice.id.blank?
+			totalAmount = @invoice.invoice_items.sum(:amount)
+			if (totalAmount.round - totalAmount) != 0
+				addRoundInvItem(totalAmount)
+			end
+		end
 		errorMsg
 	end
 	
@@ -258,6 +264,20 @@ include WkattendanceHelper
 			invItem.modifier_id = User.current.id
 			invItem.save()
 		end
+	end
+	
+	# Add an invoice item for the round off value
+	def addRoundInvItem(totalAmount)
+		invItem = @invoice.invoice_items.new()
+		invItem.name = l(:label_round_off)
+		invItem.rate = totalAmount.round - totalAmount
+		invItem.project_id = @invoice.invoice_items[0].project_id
+		invItem.currency = @invoice.invoice_items[0].currency
+		invItem.quantity = 1
+		invItem.amount = totalAmount.round - totalAmount
+		invItem.item_type = 'r'
+		invItem.modifier_id = User.current.id
+		invItem.save()
 	end
 	
 	# Return the Query string with SQL length function for the given column
