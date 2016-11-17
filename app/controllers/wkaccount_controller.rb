@@ -49,15 +49,15 @@ before_filter :require_login
 	    else
 		    wkaddress = WkAddress.find(params[:address_id].to_i)
 	    end
-		wkaddress.address1 = params[:address1] unless params[:address1].blank?
-		wkaddress.address2 = params[:address2] unless params[:address2].blank?
-		wkaddress.work_phone = params[:work_phone] unless params[:work_phone].blank?
-		wkaddress.city = params[:city] unless params[:city].blank?
-		wkaddress.state = params[:state] unless params[:state].blank?
-		wkaddress.pin = params[:pin] unless params[:pin].blank?
-		wkaddress.country = params[:country] unless params[:country].blank?
-		wkaddress.fax = params[:fax] unless params[:fax].blank?
-		unless wkaddress.save() 
+		wkaddress.address1 = params[:address1]
+		wkaddress.address2 = params[:address2]
+		wkaddress.work_phone = params[:work_phone]
+		wkaddress.city = params[:city]
+		wkaddress.state = params[:state]
+		wkaddress.pin = params[:pin]
+		wkaddress.country = params[:country]
+		wkaddress.fax = params[:fax]
+		unless wkaddress.valid?
 			errorMsg = wkaddress.errors.full_messages.join("<br>")
 		end
 		if params[:account_id].blank? || params[:account_id].to_i == 0
@@ -65,15 +65,17 @@ before_filter :require_login
 		else
 		    wkaccount = WkAccount.find(params[:account_id].to_i)
 		end
-		wkaccount.address_id =  wkaddress.id
+		#wkaccount.address_id =  wkaddress.id
 		wkaccount.name = params[:name]
 		wkaccount.account_type = 'A'
 		wkaccount.account_billing = params[:account_billing].blank? ? 0 : params[:account_billing]
-		
-		unless wkaccount.save() 		
+		unless wkaccount.valid? 		
 			errorMsg = errorMsg.blank? ? wkaccount.errors.full_messages.join("<br>") : wkaccount.errors.full_messages.join("<br>") + "<br/>" + errorMsg
 		end
 		if errorMsg.nil?
+			wkaddress.save
+			wkaccount.address_id =  wkaddress.id
+			wkaccount.save
 		    redirect_to :controller => 'wkaccount',:action => 'index' , :tab => 'wkaccount'
 		    flash[:notice] = l(:notice_successful_update)
 		else
