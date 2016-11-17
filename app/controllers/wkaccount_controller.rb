@@ -57,24 +57,21 @@ before_filter :require_login
 		wkaddress.pin = params[:pin] unless params[:pin].blank?
 		wkaddress.country = params[:country] unless params[:country].blank?
 		wkaddress.fax = params[:fax] unless params[:fax].blank?
-				
+		unless wkaddress.save() 
+			errorMsg = wkaddress.errors.full_messages.join("<br>")
+		end
 		if params[:account_id].blank? || params[:account_id].to_i == 0
 			wkaccount = WkAccount.new
 		else
 		    wkaccount = WkAccount.find(params[:account_id].to_i)
 		end
-		
+		wkaccount.address_id =  wkaddress.id
 		wkaccount.name = params[:name]
 		wkaccount.account_type = 'A'
 		wkaccount.account_billing = params[:account_billing].blank? ? 0 : params[:account_billing]
-		unless wkaccount.save()			
-			errorMsg = wkaccount.errors.full_messages.join("<br>")
-		else
-			if wkaddress.changed?
-				wkaddress.save() 
-				wkaccount.address_id =  wkaddress.id	
-				wkaccount.save()	
-			end
+		
+		unless wkaccount.save() 		
+			errorMsg = errorMsg.blank? ? wkaccount.errors.full_messages.join("<br>") : wkaccount.errors.full_messages.join("<br>") + "<br/>" + errorMsg
 		end
 		if errorMsg.nil?
 		    redirect_to :controller => 'wkaccount',:action => 'index' , :tab => 'wkaccount'
