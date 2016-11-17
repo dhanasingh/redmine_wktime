@@ -173,7 +173,7 @@ function dialogAction()
 				var listBox = document.getElementById("settings_wktime_invoice_components");
 				var invCompName = document.getElementById("inv_copm_name");
 				var invCompVal = document.getElementById("inv_copm_value");
-				if(invCompName.value != "" && invCompVal.value != ""){
+				if(invCompName.value != ""){  //invCompName.value != "" && invCompVal.value != ""
 					if('Add'== leaveAction){	
 						opt = document.createElement("option");
 						listBox.options.add(opt);
@@ -192,9 +192,9 @@ function dialogAction()
 				}
 				else{
 					var alertMsg = "";
-					if(invCompVal.value == ""){
+					/*if(invCompVal.value == ""){
 						alertMsg = lblInvCompVal + " "+ lblInvalid + "\n";
-					}
+					}*/
 					if(invCompName.value == ""){
 						alertMsg = lblInvCompName + " "+ lblInvalid + "\n";
 					}
