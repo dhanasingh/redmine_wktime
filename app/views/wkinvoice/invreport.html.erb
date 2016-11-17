@@ -15,20 +15,18 @@
 			</table>
 		</div>
 		<div style="clear:both;"></div>
-		<table border="1" style="border-collapse:collapse;" cellspacing="0", align="center"  frame="box">
-				<tr style="width:100%;">
+		<table border="1" style="border-collapse:collapse;" cellspacing="0", align="center", frame="box">
+				<tr style="width:100%; background-color: #f2f2f2">
 					<th align="left"  width="25%"><%= l(:label_name_address_of,l(:label_supplier)) %></th>
-					<th align="left" width="25%"><%= l(:label_name_address_of,l(:label_customer)) %></th>
-					<th align="left" width="25%"><%= l(:label_invoice_number) %></th>
-					<th align="left" colspan ="3" width="25%"><%= l(:label_invoice_date) %></th>
+					<th align="left"  width="25%"><%= l(:label_name_address_of,l(:label_customer)) %></th>
+					<th align="left"  width="25%"><%= l(:label_invoice_number) %></th>
+					<th align="left"  colspan ="3" width="25%"><%= l(:label_invoice_date) %></th>
 				</tr>
 				<tr style="width:100%;">
-					<td align="left" width="25%" style="white-space:pre"><%=h Setting.plugin_redmine_wktime['wktime_company_name'] + "\n" +  Setting.plugin_redmine_wktime['wktime_company_address']  %>
-						
-					</td>
-					<td align="left" width="25%" style="white-space:pre"><%=h @invoice.account.name + "\n" + @invoice.account.address.address1 + "\n" + (@invoice.account.address.address2.blank? ? "" : @invoice.account.address.address2) + "\n" + @invoice.account.address.city + " " +  @invoice.account.address.state + "\n" + @invoice.account.address.pin.to_s   + "\n" + @invoice.account.address.country %> </td>
-					<td align="left" width="25%"><%=h @invoice.invoice_number %></td>
-					<td align="left" colspan ="3" width="25%"><%=h @invoice.invoice_date.to_formatted_s(:long) %></td>
+					<td  width="25%" style="white-space:pre"><%=h Setting.plugin_redmine_wktime['wktime_company_name'] + "\n" +  Setting.plugin_redmine_wktime['wktime_company_address']  %></td>
+					<td  width="25%" style="white-space:pre"><%=h @invoice.account.name + "\n" + @invoice.account.address.address1 + "\n" + (@invoice.account.address.address2.blank? ? "" : (@invoice.account.address.address2) + "\n")  + @invoice.account.address.city + " " +  @invoice.account.address.state + "\n" + @invoice.account.address.pin.to_s   + "\n" + @invoice.account.address.country %> </td>
+					<td  width="25%"><%=h @invoice.invoice_number %></td>
+					<td  colspan ="3" width="25%"><%=h @invoice.invoice_date.to_formatted_s(:long) %></td>
 				</tr>
 				<tr style="width:100%;">
 					<th align="left" colspan="3" width="70%"><%= l(:label_cntrt_purchase_work_order) %></th>
@@ -42,47 +40,47 @@
 				
 				<tr style="width:100%;">
 					<td colspan="6">
-						<table height="100%" style="width:100%;">
-							<tr style="border-bottom:1pt solid black; width:100%;">
+						<table height="100%" style="width:100%; border-collapse: collapse;">
+							<tr style="border-bottom:1pt solid black; width:100%; background-color: #f2f2f2">
 								<th align="left" style="width:42%; border-bottom:1pt solid black;" ><%= l(:label_invoice_name) %></th>
 								<th align="left" style="width:16%; border-bottom:1pt solid black;" ><%= l(:label_billing_type) %></th>
-								<th align="left" style="width:16%; border-bottom:1pt solid black;" ><%= l(:label_rate) %></th>
-								<th align="left" style="width:16%; border-bottom:1pt solid black;" ><%= l(:label_quantity) %></th>
-								<th align="left" style="width:16%; border-bottom:1pt solid black;" ><%= l(:label_wk_currency) %></th>
-								<th align="left" style="width:16%; border-bottom:1pt solid black;" ><%= l(:field_amount) %></th>
+								<th align="right" style="width:16%; border-bottom:1pt solid black;" ><%= l(:label_rate) %></th>
+								<th align="right" style="width:16%; border-bottom:1pt solid black;" ><%= l(:label_quantity) %></th>
+								<th align="center" style="width:16%; border-bottom:1pt solid black;" ><%= l(:label_wk_currency) %></th>
+								<th align="right" style="width:16%;  border-bottom:1pt solid black;" ><%= l(:field_amount) %></th>
 							</tr>
 							<% lastItemType = nil %> 
 							<% lastProjectId = nil %>
 							<% @invoiceItem.each do | entry | %>
 								<% if entry.item_type != 'r' %>
 									<% if !lastItemType.blank? && entry.item_type != lastItemType && lastProjectId == entry.project_id %>
-										<tr style="width:100%;">
+										<tr style="width:100%; border-top: solid thin; border-bottom: solid thin;">
 											<td style="width:42%;" ></td>
 											<td style="width:16%;" ></td>
-											<td style="width:16%;" "><b><%=h l(:label_sub_total) %></b></td>
-											<td style="width:16%;" ><b><%=h "%.2f" % @invoiceItem.where(:project_id => lastProjectId, :item_type => 'i').sum(:quantity) %></b></td>
-											<td style="width:16%;" ><b><%=h entry.currency %></b></td>
-											<td style="width:16%;" ><b><%=h "%.2f" % @invoiceItem.where(:project_id => lastProjectId, :item_type => 'i').sum(:amount) %></b></td>
+											<td style="width:16%;" align="right" ><b><%=h l(:label_sub_total) %></b></td>
+											<td style="width:16%;" align="right"><b><%=h "%.2f" % @invoiceItem.where(:project_id => lastProjectId, :item_type => 'i').sum(:quantity) %></b></td>
+											<td style="width:16%;" align="center" ><b><%=h entry.currency %></b></td>
+											<td style="width:16%;" align="right" ><b><%=h "%.2f" % @invoiceItem.where(:project_id => lastProjectId, :item_type => 'i').sum(:amount) %></b></td>
 										</tr>
 									<% end %>
 									
 									<% if !lastProjectId.blank? && lastProjectId != entry.project_id %>
-										<tr style="width:100%;">
+										<tr style="width:100%; border-top: solid thin; border-bottom: solid thin;">
 												<td style="width:42%;" ></td>
 												<td style="width:16%;" ></td>
-												<td style="width:16%;"><b><%=h l(:label_total) %></b></td>
-												<td style="width:16%;" ><b><%=h "%.2f" %  @invoiceItem.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:quantity) %></b></td>
-												<td style="width:16%;" ><b><%=h entry.currency %></b></td>
-												<td style="width:16%;" ><b><%=h "%.2f" % @invoiceItem.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:amount) %></b></td>
+												<td style="width:16%;" align="right"><b><%=h l(:label_total) %></b></td>
+												<td style="width:16%;" align="right" ><b><%=h "%.2f" %  @invoiceItem.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:quantity) %></b></td>
+												<td style="width:16%;" align="center"><b><%=h entry.currency %></b></td>
+												<td style="width:16%;" align="right" ><b><%=h "%.2f" % @invoiceItem.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:amount) %></b></td>
 										</tr>
 									<% end %>
 										<tr style="width:100%;" >
 											<td style="width:42%;" ><%=h entry.name %></td>
 											<td style="width:16%;" ><%=h entry.item_type == 'i' ? l(:field_hours) : '' %></td>
-											<td style="width:16%;" ><%=h "%.2f" % entry.rate unless entry.rate.blank? %></td>
-											<td style="width:16%;" ><%=h "%.2f" % entry.quantity unless entry.quantity.blank? %></td>
-											<td style="width:16%;" ><%=h entry.currency %></td>
-											<td style="width:16%;" ><%=h "%.2f" % entry.amount unless entry.amount.blank?%></td>		
+											<td style="width:16%;" align="right" ><%=h ("%.2f" % entry.rate).to_s + (entry.item_type == 'i' ? '' : "%")  unless entry.rate.blank? %></td>
+											<td style="width:16%;" align="right" ><%=h "%.2f" % entry.quantity unless entry.quantity.blank? %></td>
+											<td style="width:16%;" align="center" ><%=h entry.currency %></td>
+											<td style="width:16%;" align="right" ><%=h "%.2f" % entry.amount unless entry.amount.blank?%></td>		
 										</tr>
 									
 								<% end %>
@@ -90,22 +88,22 @@
 								<% lastItemType = entry.item_type%>
 								<% lastProjectId = entry.project_id %>
 							<% end %>
-							<tr style="width:100%;">
+							<tr style="width:100%; border-top: solid thin; border-bottom: solid thin;">
 									<td style="width:42%;" ></td>
 									<td style="width:16%;" ></td>
-									<td style="width:16%;"><b><%=h l(:label_total) %></b></td>
-									<td style="width:16%;" ><b><%=h "%.2f" %  @invoiceItem.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:quantity) %></b></td>
-									<td style="width:16%;" ><b><%=h @invoiceItem[0].currency %></b></td>
-									<td style="width:16%;"><%=h "%.2f" % @invoiceItem.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:amount) %></td>
+									<td style="width:16%;" align="right"><b><%=h l(:label_total) %></b></td>
+									<td style="width:16%;" align="right" ><b><%=h "%.2f" %  @invoiceItem.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:quantity) %></b></td>
+									<td style="width:16%;" align="center"><b><%=h @invoiceItem[0].currency %></b></td>
+									<td style="width:16%;" align="right"><%=h "%.2f" % @invoiceItem.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:amount) %></td>
 							</tr>
 							<% @invoiceItem.where(:item_type => 'r').each do | entry | %>								
 									<tr  style="width:100%;">
 										<td style="width:42%;" ><%=h entry.name %></td>
 										<td style="width:16%;" ><%=h entry.item_type == 'i' ? l(:field_hours) : '' %></td>
-										<td style="width:16%;" ><%=h "%.2f" % entry.rate unless entry.rate.blank? %></td>
-										<td style="width:16%;" ><%=h "%.2f" % entry.quantity unless entry.quantity.blank? %></td>
-										<td style="width:16%;" ><%=h entry.currency %></td>
-										<td style="width:16%;" ><%=h "%.2f" % entry.amount unless entry.amount.blank?%></td>
+										<td style="width:16%;" align="right"><%=h "%.2f" % entry.rate unless entry.rate.blank? %></td>
+										<td style="width:16%;" align="right"><%=h "%.2f" % entry.quantity unless entry.quantity.blank? %></td>
+										<td style="width:16%;" align="center"><%=h entry.currency %></td>
+										<td style="width:16%;" align="right"><%=h "%.2f" % entry.amount unless entry.amount.blank?%></td>
 									</tr>								
 							<% end %>
 							</table>
@@ -115,12 +113,12 @@
 					<td colspan="6">
 						<table style="width:100%;">
 							<tr style="width:100%;">
-								<th style="width:32%;"></th>
+								<th style="width:42%;"></th>
 								<th style="width:16%;"></th>
-								<th style="width:16%;" ><%=h  l(:label_grand_total)   %></th>					
-								<th style="width:16%;" ><%=h "%.2f" % @invoiceItem.sum(:quantity) %></th>
-								<th style="width:15.83%;" ><%=h @invoiceItem[0].currency %></th>
-								<th style="width:16%;" ><%=h "%.2f" % @invoiceItem.sum(:amount) %></th>
+								<th style="width:16%;" align="right" ><%=h  l(:label_grand_total)   %></th>					
+								<th style="width:16%;" align="right"><%=h "%.2f" % @invoiceItem.sum(:quantity) %></th>
+								<th style="width:16%;" align="center" ><%=h @invoiceItem[0].currency %></th>
+								<th style="width:16%;" align="right" ><%=h "%.2f" % @invoiceItem.sum(:amount) %></th>
 							</tr>
 						</table>
 					</td>					
