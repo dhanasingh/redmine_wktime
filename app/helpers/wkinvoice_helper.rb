@@ -254,7 +254,7 @@ include WkattendanceHelper
 		projectTaxes = accountProject.wk_acc_project_taxes
 		projectTaxes.each do |projtax|
 			invItem = @invoice.invoice_items.new()
-			invItem.name = accountProject.project.name + ' - ' + projtax.tax.name
+			invItem.name = projtax.tax.name
 			invItem.rate = projtax.tax.rate_pct.blank? ? 0 : projtax.tax.rate_pct
 			invItem.project_id = accountProject.project_id
 			invItem.currency = currency
@@ -270,10 +270,10 @@ include WkattendanceHelper
 	def addRoundInvItem(totalAmount)
 		invItem = @invoice.invoice_items.new()
 		invItem.name = l(:label_round_off)
-		invItem.rate = totalAmount.round - totalAmount
+		invItem.rate = nil
 		invItem.project_id = @invoice.invoice_items[0].project_id
 		invItem.currency = @invoice.invoice_items[0].currency
-		invItem.quantity = 1
+		invItem.quantity = nil
 		invItem.amount = totalAmount.round - totalAmount
 		invItem.item_type = 'r'
 		invItem.modifier_id = User.current.id
