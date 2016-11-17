@@ -63,6 +63,7 @@ include WkinvoiceHelper
 		@invoice = WkInvoice.find(params[:invoice_id].to_i)
 		@invoiceItem = @invoice.invoice_items 
 		unless params[:is_report].blank? || !to_boolean(params[:is_report])
+			@invoiceItem = @invoiceItem.order(:project_id, :item_type)
 			render :action => 'invreport', :layout => false
 		end
 		

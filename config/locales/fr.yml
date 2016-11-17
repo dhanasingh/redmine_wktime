@@ -357,7 +357,7 @@ fr:
   label_bank: Bank
   label_customer: Customer
   label_supplier: Supplier
-  label_export_invoice: EXPORT INVOICE
+  label_export_invoice: Print Invoice
   label_authorized_signatory: Authorized Signatory
   label_place: Place
   label_erpmine: ERPmine
@@ -397,3 +397,4 @@ fr:
   label_account_billing: Account Billing
   label_sub_total: Sub total
   label_round_off: Round Off
+  label_grand_total: Grand Total
