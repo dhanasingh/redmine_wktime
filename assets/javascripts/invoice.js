@@ -114,6 +114,13 @@ function addAmount(fldId)
 	}
 	document.getElementById('invsubtotal').innerHTML = "SubTotal : " + total.toFixed(2);
 	document.getElementById('invtotalamount').innerHTML = "Total : " + (taxtotal + total).toFixed(2);
+	var roundtotal = Math.round(taxtotal + total);
+	var roundlen = document.getElementById('taxTable').rows.length;
+	if(roundlen > 1)
+	{
+		document.getElementById('roundamount').innerHTML = (roundtotal - (taxtotal + total)).toFixed(2);
+	}	
+	document.getElementById('roundtotalamount').innerHTML = roundtotal.toFixed(2);
 }
 
 function deleteRow(tableId, totalrow)

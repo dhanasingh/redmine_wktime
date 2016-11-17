@@ -64,11 +64,11 @@
 			<tr>
 				<td class="lbl-txt-align" style="width:20px;"><%=h hidden_field_tag("tax_id#{tax_index}",   entry.id )  %></td>
 				<td class="lbl-txt-align" style="width:20px;"><%=h hidden_field_tag("pjt_id#{tax_index}",   entry.project_id )  %></td>
-				<td class="lbl-txt-align" style="width:330px;" ><%=  entry.name %></td>				
-				<td class="lbl-txt-align" style="width:140px;"><label id="taxitem_type<%= tax_index.to_s %>"><%= l(:label_tax) %></label></td>
-				<td class="lbl-txt-align" style="width:330px;"><label id="taxrate<%= tax_index.to_s %>"><%=    ("%.2f" % entry.rate) %></label> <label>%</label> </td>
+				<td  style="width:330px; text-align:left; !important" ><%=  entry.name %></td>				
+				<td  style="width:140px; text-align:right; !important"><label id="taxitem_type<%= tax_index.to_s %>"><%= l(:label_tax) %></label></td>
+				<td  style="width:330px; text-align:right; !important"><label id="taxrate<%= tax_index.to_s %>"><%=    ("%.2f" % entry.rate) %></label> <label>%</label> </td>
 				<td class="lbl-txt-align" style="width:330px;"><%=  entry.quantity   %></td>
-				<td class="lbl-txt-align" style="padding-right:110px;" ><%= entry.currency %><label id="taxamount<%= tax_index.to_s %>"><%= html_hours("%.2f" % entry.amount)   %></label></td>
+				<td  style="padding-right:110px; text-align:right; !important" ><%= entry.currency %><label id="taxamount<%= tax_index.to_s %>"><%= html_hours("%.2f" % entry.amount)   %></label></td>
 				<% total = total + entry.amount %>
 			 </tr>
 			  <% tax_index = tax_index + 1 %>
@@ -86,12 +86,12 @@
 				<td class="lbl-txt-align" style="width:140px;"><label id="rounditem_type<%= round_index.to_s %>"></label></td>
 				<td class="lbl-txt-align" style="width:330px;"></td>
 				<td class="lbl-txt-align" style="width:330px;"></td>
-				<td class="lbl-txt-align" style="padding-right:110px;" ><%= entry.currency %><label id="roundamount<%= round_index.to_s %>"><%= html_hours("%.2f" % entry.amount)   %></label></td>
+				<td class="lbl-txt-align" style="padding-right:110px;" ><%= entry.currency %><label id="roundamount"><%= html_hours("%.2f" % entry.amount)   %></label></td>
 				<% total = total + entry.amount %>
 			 </tr>
 			  <% round_index = round_index + 1 %>
 	<% end %>	
-	<tr><td colspan="8" style="padding-right:100px;"><b><label id="invtotalamount" style="float:right;">Total : <%= @invoiceItem[0].blank? ? "" : @invoiceItem[0].currency %> <%= html_hours("%.2f" % total) %> </label></b><td></tr>
+	<tr><td colspan="8" style="padding-right:100px;"><b><label id="roundtotalamount" style="float:right;">Total : <%= @invoiceItem[0].blank? ? "" : @invoiceItem[0].currency %> <%= html_hours("%.2f" % total) %> </label></b><td></tr>
 </table>
 </div>
 <%=h hidden_field_tag("totalrow",  row_index-1 )  %>

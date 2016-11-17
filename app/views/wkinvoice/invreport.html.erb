@@ -94,7 +94,7 @@
 									<td style="width:16%;" align="right"><b><%=h l(:label_total) %></b></td>
 									<td style="width:16%;" align="right" ><b><%=h "%.2f" %  @invoiceItem.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:quantity) %></b></td>
 									<td style="width:16%;" align="center"><b><%=h @invoiceItem[0].currency %></b></td>
-									<td style="width:16%;" align="right"><%=h "%.2f" % @invoiceItem.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:amount) %></td>
+									<td style="width:16%;" align="right"><b><%=h "%.2f" % @invoiceItem.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:amount) %></b></td>
 							</tr>
 							<% @invoiceItem.where(:item_type => 'r').each do | entry | %>								
 									<tr  style="width:100%;">
@@ -113,12 +113,12 @@
 					<td colspan="6">
 						<table style="width:100%;">
 							<tr style="width:100%;">
-								<th style="width:42%;"></th>
-								<th style="width:16%;"></th>
-								<th style="width:16%;" align="right" ><%=h  l(:label_grand_total)   %></th>					
-								<th style="width:16%;" align="right"><%=h "%.2f" % @invoiceItem.sum(:quantity) %></th>
-								<th style="width:16%;" align="center" ><%=h @invoiceItem[0].currency %></th>
-								<th style="width:16%;" align="right" ><%=h "%.2f" % @invoiceItem.sum(:amount) %></th>
+								<td style="width:42%;"></td>
+								<td style="width:16%;"></td>
+								<td style="width:16%;" align="right" ><b><%=h  l(:label_grand_total)   %></b></td>					
+								<td style="width:16%;" align="right"><b><%=h "%.2f" % @invoiceItem.sum(:quantity) %></b></td>
+								<td style="width:16%;" align="center" ><b><%=h @invoiceItem[0].currency %></b></td>
+								<td style="width:16%;" align="right" ><b><%=h "%.2f" % @invoiceItem.sum(:amount) %></b></td>
 							</tr>
 						</table>
 					</td>					
