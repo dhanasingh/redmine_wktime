@@ -57,7 +57,9 @@
 	<% end %>
    </tbody>
 </table>
+<% if @invoiceItem.where(:item_type => 't').count > 0 %>
 <b><label id="invsubtotal" style="float:right; padding-right:110px;"><%= l(:label_sub_total) + "  : " %>  <%= @invoiceItem[0].blank? ? "" : @invoiceItem[0].currency %><%= html_hours("%.2f" % total) %> </label></b>
+<% end %>
 <% tax_index = 1 %>
 <table id="taxTable" class="list time-entries">
 	<% @invoiceItem.where(:item_type => 't').each do |entry| %>
@@ -88,10 +90,10 @@
 				<td class="lbl-txt-align" style="width:330px;"></td>
 				<td class="lbl-txt-align" style="padding-right:110px;" ><%= entry.currency %><label id="roundamount"><%= html_hours("%.2f" % entry.amount)   %></label></td>
 				<% total = total + entry.amount %>
-			 </tr>
+			 </tr>	
+			<tr><td colspan="8" style="padding-right:100px;"><b><label id="roundtotalamount" style="float:right;">Total : <%= @invoiceItem[0].blank? ? "" : @invoiceItem[0].currency %> <%= html_hours("%.2f" % total) %> </label></b><td></tr>
 			  <% round_index = round_index + 1 %>
-	<% end %>	
-	<tr><td colspan="8" style="padding-right:100px;"><b><label id="roundtotalamount" style="float:right;">Total : <%= @invoiceItem[0].blank? ? "" : @invoiceItem[0].currency %> <%= html_hours("%.2f" % total) %> </label></b><td></tr>
+	<% end %>
 </table>
 </div>
 <%=h hidden_field_tag("totalrow",  row_index-1 )  %>

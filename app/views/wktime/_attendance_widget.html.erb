@@ -28,7 +28,7 @@
 	<% totalhours = (hideStart ? ( !remaininghr.blank? ? remaininghr.round(0)+totalhours : totalhours) : totalhours ) %>
 	<% totalhours1 = Time.at(totalhours).utc.strftime("%H:%M:%S") %>
 	<% if User.current.logged? && wktime_helper.checkViewPermission %>
-		<label id="appendlabel" style="float:right; display: inline;"><br/><%= l(:label_grand_total) %><br/>
+		<label id="appendlabel" style="float:right; display: inline;"><br/><%= l(:label_total_hours) %><br/>
 		   &nbsp;<%= totalhours1 %></label>  
 			
 		<div id="startdiv" style="float:right; display: inline;"  >

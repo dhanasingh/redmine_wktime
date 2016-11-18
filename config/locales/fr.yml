@@ -160,7 +160,7 @@ fr:
   wk_field_remaining: Restant
   label_wk_leave_short_name: Libellé
   label_Difference: Différences
-  label_grand_total:  Heures totales
+  label_total_hours:  Heures totales
   label_wk_attn_join_date:  Date d'entrée
   label_wk_attn_termination_date:  Date de fin
   label_wk_attn_user_dob:  Date de naissance

@@ -1,7 +1,7 @@
 <% if !@invoiceItem.blank? %>
 
 	<div id="time-rpt-dlg" style="overflow-x:auto;">
-		<center><b><%= l(:label_invoice) %></b></center>
+		<center><b><%= (l(:label_invoice)).upcase %></b></center>
 		<div style="float:right">
 			<table>
 				<tr>
@@ -88,7 +88,7 @@
 								<% lastItemType = entry.item_type%>
 								<% lastProjectId = entry.project_id %>
 							<% end %>
-							<tr style="width:100%; border-top: solid thin; border-bottom: solid thin;">
+							<tr style="width:100%; border-top: solid thin;">
 									<td style="width:42%;" ></td>
 									<td style="width:16%;" ></td>
 									<td style="width:16%;" align="right"><b><%=h l(:label_total) %></b></td>
@@ -97,7 +97,7 @@
 									<td style="width:16%;" align="right"><b><%=h "%.2f" % @invoiceItem.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:amount) %></b></td>
 							</tr>
 							<% @invoiceItem.where(:item_type => 'r').each do | entry | %>								
-									<tr  style="width:100%;">
+									<tr  style="width:100%;border-top: solid thin;">
 										<td style="width:42%;" ><%=h entry.name %></td>
 										<td style="width:16%;" ><%=h entry.item_type == 'i' ? l(:field_hours) : '' %></td>
 										<td style="width:16%;" align="right"><%=h "%.2f" % entry.rate unless entry.rate.blank? %></td>

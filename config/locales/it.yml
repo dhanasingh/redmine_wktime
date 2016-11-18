@@ -157,7 +157,7 @@ it:
   wk_field_remaining: Remaining
   label_wk_leave_short_name: Short name  
   label_Difference: Differences
-  label_grand_total:  Total Hours
+  label_total_hours:  Total Hours
   label_wk_attn_join_date:  Joining date
   label_wk_attn_termination_date:  Termination date
   label_wk_attn_user_dob:  Date of birth
