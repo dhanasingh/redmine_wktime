@@ -38,12 +38,12 @@ before_filter :require_login
 	     @accountEntry = nil
 		 unless params[:account_id].blank?
 		  @accountEntry = WkAccount.find(params[:account_id])
-		else 
-          @accountEntry = @accountEntry
 		end
     end	
 	
 	def update
+		errorMsg = nil
+		wkaddress = nil
 	    if params[:address_id].blank? || params[:address_id].to_i == 0
 		    wkaddress = WkAddress.new 
 	    else
@@ -52,32 +52,35 @@ before_filter :require_login
 		wkaddress.address1 = params[:address1]
 		wkaddress.address2 = params[:address2]
 		wkaddress.work_phone = params[:work_phone]
-		wkaddress.home_phone = params[:home_phone]
 		wkaddress.city = params[:city]
 		wkaddress.state = params[:state]
 		wkaddress.pin = params[:pin]
-		wkaddress.mobile = params[:mobile]
-		wkaddress.email = params[:email]
 		wkaddress.country = params[:country]
 		wkaddress.fax = params[:fax]
-		wkaddress.save()
-		address_id = wkaddress.id
+		unless wkaddress.valid?
+			errorMsg = wkaddress.errors.full_messages.join("<br>")
+		end
 		if params[:account_id].blank? || params[:account_id].to_i == 0
 			wkaccount = WkAccount.new
 		else
 		    wkaccount = WkAccount.find(params[:account_id].to_i)
 		end
-		wkaccount.address_id = address_id
+		#wkaccount.address_id =  wkaddress.id
 		wkaccount.name = params[:name]
 		wkaccount.account_type = 'A'
 		wkaccount.account_billing = params[:account_billing].blank? ? 0 : params[:account_billing]
-		wkaccount.save()
-		if wkaccount.save()
+		unless wkaccount.valid? 		
+			errorMsg = errorMsg.blank? ? wkaccount.errors.full_messages.join("<br>") : wkaccount.errors.full_messages.join("<br>") + "<br/>" + errorMsg
+		end
+		if errorMsg.nil?
+			wkaddress.save
+			wkaccount.address_id =  wkaddress.id
+			wkaccount.save
 		    redirect_to :controller => 'wkaccount',:action => 'index' , :tab => 'wkaccount'
 		    flash[:notice] = l(:notice_successful_update)
 		else
-		    redirect_to :controller => 'wkaccount',:action => 'edit' , :tab => 'wkaccount'
-		    flash[:error] = wkaccount.errors.full_messages.join("<br>")
+			flash[:error] = errorMsg #wkaccount.errors.full_messages.join("<br>")
+		    redirect_to :controller => 'wkaccount',:action => 'edit', :account_id => wkaccount.id
 		end
 	end
 	

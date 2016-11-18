@@ -69,7 +69,7 @@
 	</tr>	 
 	<% end %>
 	<tr class="time-entry <%= cycle("odd", "even") %>" >
-		<td></td><td style="font-weight: bold; "><label><%= l(:label_grand_total) %></label></td>
+		<td></td><td style="font-weight: bold; "><label><%= l(:label_total_hours) %></label></td>
 		<td><%=h text_field_tag("tothours", totalhours.round(2),:size => 10, :disabled => isAccountUser ? false : true, :required => true) %>
 		</td>
 	</tr>

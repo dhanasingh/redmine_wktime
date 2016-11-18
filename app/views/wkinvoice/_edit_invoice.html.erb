@@ -37,8 +37,7 @@
          </tr>
   </thead>
    <tbody>
-       <% @invoiceItem.each do |entry| %>
-	     <% if entry.item_type == 'i' %>
+       <% @invoiceItem.where(:item_type => 'i').each do |entry| %>
 		 <tr onclick="  row_id  = this.rowIndex ">
 			<td class="lbl-txt-align" headers="item_id"><%=h hidden_field_tag("item_id#{row_index}",   entry.id )  %></td>
 			<td class="lbl-txt-align" headers="item_index"><label id="item_index<%= row_index.to_s %>"><%= row_index  %></label></td>
@@ -55,29 +54,46 @@
 						:title => l(:button_delete) %></td>			
 		 </tr>
 		  <% row_index = row_index + 1 %>
-		 <% end %>
 	<% end %>
    </tbody>
 </table>
+<% if @invoiceItem.where(:item_type => 't').count > 0 %>
 <b><label id="invsubtotal" style="float:right; padding-right:110px;"><%= l(:label_sub_total) + "  : " %>  <%= @invoiceItem[0].blank? ? "" : @invoiceItem[0].currency %><%= html_hours("%.2f" % total) %> </label></b>
+<% end %>
 <% tax_index = 1 %>
 <table id="taxTable" class="list time-entries">
-	<% @invoiceItem.each do |entry| %>
-		<% if entry.item_type == 't' %>
+	<% @invoiceItem.where(:item_type => 't').each do |entry| %>
 			<tr>
-				<td class="lbl-txt-align" style="width:20px;"><%=h hidden_field_tag("tax_id#{tax_index}",   entry.id )  %></td>
-				<td class="lbl-txt-align" style="width:20px;"><%=h hidden_field_tag("pjt_id#{tax_index}",   entry.project_id )  %></td>
-				<td class="lbl-txt-align" style="width:330px;" ><%=  entry.name %></td>				
-				<td class="lbl-txt-align" style="width:140px;"><label id="taxitem_type<%= tax_index.to_s %>"><%= l(:label_tax) %></label></td>
-				<td class="lbl-txt-align" style="width:330px;"><label id="taxrate<%= tax_index.to_s %>"><%=    ("%.2f" % entry.rate) %></label> <label>%</label> </td>
-				<td class="lbl-txt-align" style="width:330px;"><%=  entry.quantity   %></td>
-				<td class="lbl-txt-align" style="padding-right:110px;" ><%= entry.currency %><label id="taxamount<%= tax_index.to_s %>"><%= html_hours("%.2f" % entry.amount)   %></label></td>
+				<td class="lbl-txt-align" ><%=h hidden_field_tag("tax_id#{tax_index}",   entry.id )  %></td>
+				<td class="lbl-txt-align" ><%=h entry.project.name%></td>
+				<td  style="text-align:left; !important" ><%=  entry.name %></td>				
+				<td  style=" text-align:right; !important"><label id="taxitem_type<%= tax_index.to_s %>"><%= l(:label_tax) %></label></td>
+				<td  style=" text-align:right; !important"><label id="taxrate<%= tax_index.to_s %>"><%=    ("%.2f" % entry.rate) %></label> <label>%</label> </td>
+				<td class="lbl-txt-align" ><%=h hidden_field_tag("pjt_id#{tax_index}",   entry.project_id )  %></td>
+				<td  style=" padding-right:90px;  text-align:right; !important" ><%= entry.currency %><label id="taxamount<%= tax_index.to_s %>"><%= html_hours("%.2f" % entry.amount)   %></label></td>
 				<% total = total + entry.amount %>
 			 </tr>
 			  <% tax_index = tax_index + 1 %>
-		<% end %>
 	<% end %>	
-	<tr><td colspan="8" style="padding-right:100px;"><b><label id="invtotalamount" style="float:right;">Total : <%= @invoiceItem[0].blank? ? "" : @invoiceItem[0].currency %> <%= html_hours("%.2f" % total) %> </label></b><td></tr>
+	<tr><td colspan="8" style="padding-right:90px;"><b><label id="invtotalamount" style="float:right;">Total : <%= @invoiceItem[0].blank? ? "" : @invoiceItem[0].currency %> <%= html_hours("%.2f" % total) %> </label></b><td></tr>
+</table>
+
+<% round_index = 1 %>
+<table id="roundOffTable" class="list time-entries">
+	<% @invoiceItem.where(:item_type => 'r').each do |entry| %>
+			<tr>
+				<td class="lbl-txt-align" style="width:20px;"><%=h hidden_field_tag("round_id#{round_index}",   entry.id )  %></td>
+				<td class="lbl-txt-align" style="width:20px;"><%=h hidden_field_tag("pjt_id#{round_index}",   entry.project_id )  %></td>
+				<td class="lbl-txt-align" style="width:330px;" ><%=  entry.name %></td>				
+				<td class="lbl-txt-align" style="width:140px;"><label id="rounditem_type<%= round_index.to_s %>"></label></td>
+				<td class="lbl-txt-align" style="width:330px;"></td>
+				<td class="lbl-txt-align" style="width:330px;"></td>
+				<td class="lbl-txt-align" style="padding-right:120px;" ><%= entry.currency %><label id="roundamount"><%= html_hours("%.2f" % entry.amount)   %></label></td>
+				<% total = total + entry.amount %>
+			 </tr>	
+			<tr><td colspan="8" style="padding-right:120px;"><b><label id="roundtotalamount" style="float:right;">Total : <%= @invoiceItem[0].blank? ? "" : @invoiceItem[0].currency %> <%= html_hours("%.2f" % total) %> </label></b><td></tr>
+			  <% round_index = round_index + 1 %>
+	<% end %>
 </table>
 </div>
 <%=h hidden_field_tag("totalrow",  row_index-1 )  %>

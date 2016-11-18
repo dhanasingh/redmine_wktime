@@ -6,7 +6,7 @@
 				<th class="lbl-txt-align"><%= l(:label_account_name) %></th>
 				<th class="lbl-txt-align"><%= l(:label_account_address) %></th>
 				<th class="lbl-txt-align"><%= l(:label_work_phone) %></th>
-				<th class="lbl-txt-align"><%= l(:label_email) %></th>
+			<!--	<th class="lbl-txt-align"><%= l(:label_email) %></th> -->
 				<th class="lbl-txt-align"><%= l(:label_country) %></th>
 				<th class="lbl-txt-align"><%= l(:label_city) %></th>
 				<th></th>
@@ -18,7 +18,7 @@
 					  <td class="lbl-txt-align"><%=h entry.name %></td>
 					  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.address1 %></td>
 					  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.work_phone %></td>
-					  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.email %></td>
+					<!--  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.email %></td> -->
 					  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.country %></td>
 					  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.city %></td>
 					  <td align="center">

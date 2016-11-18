@@ -236,7 +236,7 @@ Redmine::Plugin.register :redmine_wktime do
   name 'ERPmine'
   author 'Adhi Software Pvt Ltd'
   description 'This plugin is for entering Time & Attendance'
-  version '2.5'
+  version '2.5.2'
   url 'http://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
   
@@ -473,10 +473,15 @@ Rails.configuration.to_prepare do
 						Rails.logger.info "==========Invoice job - Started=========="
 						invoiceHelper = Object.new.extend(WkinvoiceHelper)
 						allAccounts = WkAccount.all
+						errorMsg = nil
 						allAccounts.each do |account|
 							errorMsg = invoiceHelper.generateInvoices(account.id, nil, currentMonthStart, invoicePeriod)
 						end
-						Rails.logger.info "===== Invoice generated Successfully =====" 
+						if errorMsg.blank?
+							Rails.logger.info "===== Invoice generated Successfully ====="
+						else
+							Rails.logger.info "===== Job failed: #{errorMsg} ====="
+						end
 					end
 				rescue Exception => e
 					Rails.logger.info "Job failed: #{e.message}"

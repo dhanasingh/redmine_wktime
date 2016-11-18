@@ -25,16 +25,27 @@ include WkattendanceHelper
 		@invoice.modifier_id = User.current.id
 		@invoice.account_id = accountId
 		@invoice.invoice_number = getPluginSetting('wktime_invoice_no_prefix')
-		if !@invoice.save
-			errorMsg = @invoice.errors.full_messages.join("<br>")
-		else
-			@invoice.invoice_number = @invoice.invoice_number + @invoice.id.to_s
-			@invoice.save
-			errorMsg = generateInvoiceItems(projectId)
+		errorMsg = generateInvoiceItems(projectId)
+		unless @invoice.id.blank?
+			totalAmount = @invoice.invoice_items.sum(:amount)
+			if (totalAmount.round - totalAmount) != 0
+				addRoundInvItem(totalAmount)
+			end
 		end
 		errorMsg
 	end
 	
+	def saveInvoice
+		errorMsg = nil
+		unless @invoice.save
+			errorMsg = @invoice.errors.full_messages.join("<br>")
+		else
+			@invoice.invoice_number = @invoice.invoice_number + @invoice.id.to_s
+			@invoice.save
+		end
+		errorMsg
+	end
+		
 	def generateInvoices(accountId, projectId, invoiceDate,invoicePeriod)
 		errorMsg = nil
 		account = WkAccount.find(accountId)
@@ -51,27 +62,33 @@ include WkattendanceHelper
 	def generateInvoiceItems(projectId)
 		if projectId.blank?  || projectId.to_i == 0
 			WkAccountProject.where(account_id: @invoice.account_id).find_each do |accProj|
-				addInvoiceItem(accProj)
+				errorMsg = addInvoiceItem(accProj)
 			end
 		else
 			accountProject = WkAccountProject.where("account_id = ? and project_id = ?", @invoice.account_id, projectId)
-			addInvoiceItem(accountProject[0])
+			errorMsg = addInvoiceItem(accountProject[0])
 		end
-		errorMsg = nil
 		errorMsg
 	end
 	
 	def addInvoiceItem(accountProject)
 		if accountProject.billing_type == 'TM'
 			# Add invoice items for Time and Materiel cost
-			saveTAMInvoiceItem(accountProject)
+			errorMsg = saveTAMInvoiceItem(accountProject)
 		else
 			# Add invoice item for fixed cost from the scheduled entries
+			errorMsg = nil
 			genInvFrom = Setting.plugin_redmine_wktime['wktime_generate_invoice_from']
 			genInvFrom = genInvFrom.blank? ? @invoice.start_date : genInvFrom.to_date
 			scheduledEntries = accountProject.wk_billing_schedules.where(:account_project_id => accountProject.id, :bill_date => genInvFrom .. @invoice.end_date, :invoice_id => nil)
 			totalAmount = 0
 			scheduledEntries.each do |entry|
+				if @invoice.id.blank?
+					errorMsg = saveInvoice
+					unless errorMsg.blank?
+						break
+					end
+				end
 				invItem = saveFCInvoiceItem(entry)
 				totalAmount = totalAmount + invItem.amount
 				entry.invoice_id = @invoice.id
@@ -83,6 +100,7 @@ include WkattendanceHelper
 				addTaxes(accountProject, scheduledEntries[0].currency, totalAmount)
 			end	
 		end
+		errorMsg
 	end
 	
 	# Add the invoice items for the scheduled entries
@@ -107,6 +125,7 @@ include WkattendanceHelper
 		genInvFrom = genInvFrom.blank? ? @invoice.start_date : genInvFrom.to_date
 		timeEntries = TimeEntry.joins("left outer join custom_values on time_entries.id = custom_values.customized_id and custom_values.customized_type = 'TimeEntry' and custom_values.custom_field_id = #{getSettingCfId('wktime_billing_id_cf')}").where(project_id: accountProject.project_id, spent_on: genInvFrom .. @invoice.end_date).where("custom_values.value is null OR #{getSqlLengthQry("custom_values.value")} = 0 ")
 		
+		errorMsg = nil
 		totalAmount = 0
 		lastUserId = 0
 		lastIssueId = 0
@@ -125,6 +144,12 @@ include WkattendanceHelper
 				if (lastUserId == entry.user_id && (lastIssueId == entry.issue_id || !accountProject.itemized_bill) )
 					updateBilledHours(entry, lasInvItmId)
 					next
+				end
+				if @invoice.id.blank?
+					errorMsg = saveInvoice
+					unless errorMsg.blank?
+						break
+					end
 				end
 				invItem = @invoice.invoice_items.new()
 				lastUserId = entry.user_id
@@ -149,6 +174,12 @@ include WkattendanceHelper
 					next 
 				end
 				lastIssueId = entry.issue_id
+				if @invoice.id.blank?
+					errorMsg = saveInvoice
+					unless errorMsg.blank?
+						break
+					end
+				end
 				invItem = @invoice.invoice_items.new()
 				if accountProject.itemized_bill
 					description =  entry.issue.blank? ? entry.project.name : (accountProject.account.account_billing ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject)
@@ -165,7 +196,8 @@ include WkattendanceHelper
 		end
 		if accountProject.apply_tax && totalAmount>0
 			addTaxes(accountProject, rateHash['currency'], totalAmount)
-		end		
+		end
+		errorMsg
 	end
 	
 	# Update invoice item by the given invoice item Object
@@ -222,7 +254,7 @@ include WkattendanceHelper
 		projectTaxes = accountProject.wk_acc_project_taxes
 		projectTaxes.each do |projtax|
 			invItem = @invoice.invoice_items.new()
-			invItem.name = accountProject.project.name + ' - ' + projtax.tax.name
+			invItem.name = projtax.tax.name
 			invItem.rate = projtax.tax.rate_pct.blank? ? 0 : projtax.tax.rate_pct
 			invItem.project_id = accountProject.project_id
 			invItem.currency = currency
@@ -232,6 +264,20 @@ include WkattendanceHelper
 			invItem.modifier_id = User.current.id
 			invItem.save()
 		end
+	end
+	
+	# Add an invoice item for the round off value
+	def addRoundInvItem(totalAmount)
+		invItem = @invoice.invoice_items.new()
+		invItem.name = l(:label_round_off)
+		invItem.rate = nil
+		invItem.project_id = @invoice.invoice_items[0].project_id
+		invItem.currency = @invoice.invoice_items[0].currency
+		invItem.quantity = nil
+		invItem.amount = totalAmount.round - totalAmount
+		invItem.item_type = 'r'
+		invItem.modifier_id = User.current.id
+		invItem.save()
 	end
 	
 	# Return the Query string with SQL length function for the given column

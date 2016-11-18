@@ -63,6 +63,7 @@ include WkinvoiceHelper
 		@invoice = WkInvoice.find(params[:invoice_id].to_i)
 		@invoiceItem = @invoice.invoice_items 
 		unless params[:is_report].blank? || !to_boolean(params[:is_report])
+			@invoiceItem = @invoiceItem.order(:project_id, :item_type)
 			render :action => 'invreport', :layout => false
 		end
 		
@@ -77,9 +78,10 @@ include WkinvoiceHelper
 	def update
 		errorMsg = nil
 		invoiceItem = nil
-		invItemId = WkInvoiceItem.select(:id).where(:invoice_id => params["invoice_id"].to_i) 
-		arrId = invItemId.map {|i| i.id }
+		#invItemId = WkInvoiceItem.select(:id).where(:invoice_id => params["invoice_id"].to_i) 
+		#arrId = invItemId.map {|i| i.id }
 		@invoice = WkInvoice.find(params["invoice_id"].to_i)
+		arrId = @invoice.invoice_items.pluck(:id)
 		@invoice.status = params[:field_status]
 		if @invoice.status_changed?
 			@invoice.closed_on = Time.now
@@ -87,19 +89,30 @@ include WkinvoiceHelper
 		end
 		totalAmount = 0
 		tothash = Hash.new
-		for i in 1..(params[:totalrow].to_i)
-			if !params["item_id#{i}"].blank?			
+		totalRow = params[:totalrow].to_i
+		savedRows = 0
+		deletedRows = 0
+		#for i in 1..totalRow
+		while savedRows < totalRow
+			i = savedRows + deletedRows + 1
+			if params["item_id#{i}"].blank? && params["project_id#{i}"].blank?
+				deletedRows = deletedRows + 1
+				next
+			end
+			unless params["item_id#{i}"].blank?			
 				arrId.delete(params["item_id#{i}"].to_i)
 				invoiceItem = WkInvoiceItem.find(params["item_id#{i}"].to_i)
 				updatedItem = updateInvoiceItem(invoiceItem, params["project_id#{i}"],  params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, invoiceItem.currency)
-			else				
+			else
 				invoiceItem = @invoice.invoice_items.new
 				updatedItem = updateInvoiceItem(invoiceItem, params["project_id#{i}"], params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, params["currency#{i}"])
 			end
+			savedRows = savedRows + 1
 			tothash[updatedItem.project_id] = [(tothash[updatedItem.project_id].blank? ? 0 : tothash[updatedItem.project_id][0]) + updatedItem.amount, updatedItem.currency]
 		end
 		
 		if !arrId.blank?
+			deleteBilledEntries(arrId)
 			WkInvoiceItem.delete_all(:id => arrId)
 		end
 		
@@ -107,6 +120,13 @@ include WkinvoiceHelper
 		tothash.each do|key, val|
 			accountProject = WkAccountProject.where("project_id = ?  and account_id = ? ", key, accountId)
 			addTaxes(accountProject[0], val[1], val[0])
+		end
+		
+		unless @invoice.id.blank?
+			totalAmount = @invoice.invoice_items.sum(:amount)
+			if (totalAmount.round - totalAmount) != 0
+				addRoundInvItem(totalAmount)
+			end
 		end
 		
 		if errorMsg.nil? 
@@ -119,10 +139,15 @@ include WkinvoiceHelper
 	end
 	
 	def destroy
-		WkInvoice.find(params[:invoice_id].to_i).destroy
-		
+		invoice = WkInvoice.find(params[:invoice_id].to_i)#.destroy
+		deleteBilledEntries(invoice.invoice_items.pluck(:id))
+		invoice.destroy
 		flash[:notice] = l(:notice_successful_delete)
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
+	end
+	
+	def deleteBilledEntries(invItemIdsArr)
+		CustomField.find(getSettingCfId('wktime_billing_id_cf')).custom_values.where(:value => invItemIdsArr).delete_all unless getSettingCfId('wktime_billing_id_cf').blank? || getSettingCfId('wktime_billing_id_cf') == 0
 	end
   
     def getAccountProjIds
