@@ -65,11 +65,11 @@
 	<% @invoiceItem.where(:item_type => 't').each do |entry| %>
 			<tr>
 				<td class="lbl-txt-align" style="width:20px;"><%=h hidden_field_tag("tax_id#{tax_index}",   entry.id )  %></td>
-				<td class="lbl-txt-align" style="width:20px;"><%=h hidden_field_tag("pjt_id#{tax_index}",   entry.project_id )  %></td>
+				<td class="lbl-txt-align" style="width:20px;"><%=h entry.project.name%></td>
 				<td  style="width:330px; text-align:left; !important" ><%=  entry.name %></td>				
 				<td  style="width:140px; text-align:right; !important"><label id="taxitem_type<%= tax_index.to_s %>"><%= l(:label_tax) %></label></td>
 				<td  style="width:330px; text-align:right; !important"><label id="taxrate<%= tax_index.to_s %>"><%=    ("%.2f" % entry.rate) %></label> <label>%</label> </td>
-				<td class="lbl-txt-align" style="width:330px;"><%=  entry.quantity   %></td>
+				<td class="lbl-txt-align" style="width:20px;"><%=h hidden_field_tag("pjt_id#{tax_index}",   entry.project_id )  %></td>
 				<td  style="padding-right:110px; text-align:right; !important" ><%= entry.currency %><label id="taxamount<%= tax_index.to_s %>"><%= html_hours("%.2f" % entry.amount)   %></label></td>
 				<% total = total + entry.amount %>
 			 </tr>
