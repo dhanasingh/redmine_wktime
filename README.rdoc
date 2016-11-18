@@ -52,7 +52,7 @@ Release Notes for 2.5.2
 Features:
 	  - Billing module is introduced.
 BugFixing:
-	  - Fixed: Account working on mac safari.
+	  - Fixed: Account validation not working on mac safari.
 
 Customization:
 	For any Customization/Support, please contact us, our consulting team will be happy to help you
