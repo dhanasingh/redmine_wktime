@@ -402,3 +402,33 @@ it:
   label_transaction: Transaction
   label_ledger: Ledger
   label_accounting_admin: Accounting Admin
+  label_bank_ac: Bank A/c
+  label_bank_occ_ac: Bank OCC A/c
+  label_bank_od_ac: Bank OD A/c
+  label_branch_division: Branch / Division
+  label_capital_account: Capital Account
+  label_cash_in_hand: Cash-in-hand
+  label_current_assets: Current Assets
+  label_current_liabilities: Current Liabilities
+  label_deposits: Deposits(Asset)
+  label_direct_expenses: Direct Expenses
+  label_direct_incomes: Direct Incomes
+  label_duties_taxes: Duties & Taxes
+  label_fixed_assets: Fixed Assets
+  label_indirect_expenses: Indirect Expenses
+  label_indirect_incomes: Indirect Incomes
+  label_investments: Investments
+  label_loans_advances: Loans & Advances (Asset)
+  label_loans: Loans (Liability)
+  label_misc_expenses: Misc. Expenses (ASSET)
+  label_provisions: Provisions
+  label_purchase_accounts: Purchase Accounts
+  label_reserves_surplus: Reserves & Surplus
+  label_retained_earnings: Retained Earnings
+  label_sales_accounts: Sales Accounts
+  label_secured_loans: Secured Loans
+  label_stock_in_hand: Stock-in-hand
+  label_sundry_creditors: Sundry Creditors
+  label_sundry_debtors: Sundry Debtors
+  label_suspense_ac: Suspense A/c
+  label_unsecured_loans: Unsecured Loans
