@@ -7,7 +7,7 @@ This Plugin has the following modules:
     Print Time & Expense Sheets
 2) Attendance
     Clock In / Clock Out
-    Check Leave Sttus
+    Check Leave Status
     Integrate with Attendance / Time clock devices
     Attendance Report
 3) PayRoll
@@ -86,4 +86,4 @@ Resources:
 	https://www.youtube.com/watch?v=RecxTps_jws
 	
 	For more:	
-	http://www.adhisoftware.co.in/products/time-attendance/resources/
+	http://www.adhisoftware.co.in/products/erpmine/resources/
