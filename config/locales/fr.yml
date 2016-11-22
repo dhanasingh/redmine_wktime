@@ -398,3 +398,10 @@ fr:
   label_sub_total: Sub total
   label_round_off: Round Off
   label_grand_total: Grand Total
+  
+  label_accounting: Accounting
+  label_accounting_group: Accounting Group
+  label_enable_accounting_module: Enable Accounting Module
+  label_transaction: Transaction
+  label_ledger: Ledger
+  label_accounting_admin: Accounting Admin

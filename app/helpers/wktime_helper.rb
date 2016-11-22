@@ -592,7 +592,7 @@ end
 				{:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll},
 				{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_user_settings}
 			   ]
-		else
+		elsif params[:controller] == "wkinvoice" || params[:controller] == "wkaccount" || params[:controller] == "wkcontract" || params[:controller] == "wkaccountproject" || params[:controller] == "wktax"
 			tabs = [
 				{:name => 'wkinvoice', :partial => 'wktime/tab_content', :label => :label_invoice},
 				{:name => 'wkaccount', :partial => 'wktime/tab_content', :label => :label_accounts},
@@ -600,6 +600,13 @@ end
 				{:name => 'wkaccountproject', :partial => 'wktime/tab_content', :label => :label_acc_projects},				
 				{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax}
 			   ]
+		else
+			tabs = [
+				{:name => 'wktransaction', :partial => 'wktime/tab_content', :label => :label_transaction}
+			   ]
+			if	isModuleAdmin('wktime_accounting_admin')
+				tabs << {:name => 'wkledger', :partial => 'wktime/tab_content', :label => :label_ledger}
+			end
 		end
 		tabs
 	end		
@@ -695,7 +702,8 @@ end
 				{:name => 'wktime', :partial => 'settings/tab_time', :label => :label_te},
 				{:name => 'attendance', :partial => 'settings/tab_attendance', :label => :label_wk_attendance},
 				{:name => 'payroll', :partial => 'settings/tab_payroll', :label => :label_payroll},
-				{:name => 'billing', :partial => 'settings/tab_billing', :label => :label_wk_billing}
+				{:name => 'billing', :partial => 'settings/tab_billing', :label => :label_wk_billing},
+				{:name => 'accounting', :partial => 'settings/tab_accounting', :label => :label_accounting}
 			   ]	
 	end	
 	
@@ -1018,7 +1026,7 @@ end
 	
 	def showBilling
 		(!Setting.plugin_redmine_wktime['wktime_enable_billing_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_billing_module'].to_i == 1 ) && isBillingAdmin
+			Setting.plugin_redmine_wktime['wktime_enable_billing_module'].to_i == 1 ) && isModuleAdmin('wktime_billing_groups')
 			
 	end
 	
@@ -1043,11 +1051,11 @@ end
 		Setting.plugin_redmine_wktime[setting_name]
 	end
 	
-	def isBillingAdmin
+	def isModuleAdmin(settings)
 		group = nil
 		isbillingUser = false
 		groupusers = Array.new
-		billingGrpId = getSettingCfId('wktime_billing_groups')
+		billingGrpId = getSettingCfId(settings)
 		if !billingGrpId.blank? && billingGrpId != 0
 				scope = User.in_group(billingGrpId)	
 				groupusers << scope.all
@@ -1069,5 +1077,11 @@ end
 			ret = true unless cfEntry.blank? || cfEntry.value.blank?
 		end
 		ret
+	end
+	
+	def showAccounting
+		(!Setting.plugin_redmine_wktime['wktime_enable_accounting_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_accounting_module'].to_i == 1 ) && (isModuleAdmin('wktime_accounting_group') || isModuleAdmin('wktime_accounting_admin') )
+			
 	end
 end

@@ -33,7 +33,7 @@ module WkpayrollHelper
 	def generateSalaries(userIds,salaryDate)
 		userSalaryHash = getUserSalaryHash(userIds,salaryDate)
 		payperiod = Setting.plugin_redmine_wktime['wktime_pay_period']
-		currency = Setting.plugin_redmine_wktime['wktime_payroll_currency']
+		currency = Setting.plugin_redmine_wktime['wktime_currency']
 		errorMsg = nil
 		deleteWkSalaries(userIds,salaryDate)
 		unless userSalaryHash.blank?

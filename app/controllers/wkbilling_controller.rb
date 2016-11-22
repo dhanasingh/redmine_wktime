@@ -16,7 +16,7 @@ before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destr
 	end
 	
 	def check_permission
-		return isBillingAdmin
+		return isModuleAdmin('wktime_billing_groups')
 	end
 	
 	def index

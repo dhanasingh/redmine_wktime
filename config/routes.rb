@@ -208,3 +208,7 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	delete 'wkcontract/destroy', :to => 'wkcontract#destroy'
 	
 	get 'wkinvoice/invreport', :to => 'wkinvoice#invreport' 
+	
+	get 'wktransaction/index', :to => 'wktransaction#index'	
+	
+	get 'wkledger/index', :to => 'wkledger#index'	

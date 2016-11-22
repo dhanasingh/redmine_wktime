@@ -1,0 +1,28 @@
+<fieldset>
+	<legend><%= l(:label_accounting) %></legend>
+	
+	<p style="margin-left: -110px;">
+			<%= check_box_tag('settings[wktime_enable_accounting_module]', 1, @settings['wktime_enable_accounting_module'].to_i == 1) %> <label><%= l(:label_enable_accounting_module) %></label>
+	</p>
+	
+	<%
+			accountGroups = Array.new
+			accGroup = Group.order('lastname')
+			unless accGroup.blank?
+				accountGroups = accGroup.collect {|t| [t.lastname, t.id] }
+			end
+			accountGroups.unshift(["",""])
+	%>
+	<p style="padding-left: 190px;">
+		<label><%=l(:label_accounting_group)%></label>
+		<%=  select_tag('settings[wktime_accounting_group]',
+				options_for_select(accountGroups, :selected => @settings['wktime_accounting_group'].blank? ? "" : @settings['wktime_accounting_group']))%>
+	</p>
+	
+	<p style="padding-left: 190px;">
+		<label><%=l(:label_accounting_admin)%></label>
+		<%=  select_tag('settings[wktime_accounting_admin]',
+				options_for_select(accountGroups, :selected => @settings['wktime_accounting_admin'].blank? ? "" : @settings['wktime_accounting_admin']))%>
+	</p>
+	
+</fieldset>

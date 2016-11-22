@@ -1,4 +1,4 @@
-var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl;
+var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl;
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -223,6 +223,8 @@ $(document).ready(function()
 	changeProp('tab-wkaccountproject',blgaccpjtsUrl);
 	changeProp('tab-wkinvoice',blginvoiceUrl);
 	changeProp('tab-wktax',blgtaxUrl);
+	changeProp('tab-wktransaction',blgtxnUrl);
+	changeProp('tab-wkledger',blgledgerUrl);
 });
 
 
