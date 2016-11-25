@@ -211,4 +211,9 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wktransaction/index', :to => 'wktransaction#index'	
 	
-	get 'wkledger/index', :to => 'wkledger#index'	
+	get 'wkledger/index', :to => 'wkledger#index'
+
+	# For Accounting
+  
+	get 'wkaccounting/pl_rpt', :to => 'wkaccounting#pl_rpt'
+	

@@ -8,7 +8,8 @@ module WkreportControllerPatch2
 					['attendance_report', 'Attendance', 'wkreport', 'reportattn'],
 					['time_report', 'Timesheet', 'wktime', 'time_rpt'],
 					['payslip_report', 'Payslip', 'wkreport', 'payslip_rpt'],
-					['expense_report', 'Expensesheet', 'wkexpense', 'time_rpt']		
+					['expense_report', 'Expensesheet', 'wkexpense', 'time_rpt'],
+					['pl_report', 'Profit & Loss A/c', 'wkaccounting', 'pl_rpt']		
 				]
 			end
 		end

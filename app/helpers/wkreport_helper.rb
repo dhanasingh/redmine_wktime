@@ -11,13 +11,17 @@ module WkreportHelper
 	end	
 
 	def options_for_report_select(selectedRpt)
-		options_for_select([
+		reportTypeArr = [
 			[l(:label_wk_attendance), 'attendance_report'], 
 			[l(:label_time_entry_plural), 'spent_time_report'], 
 			[l(:label_wk_timesheet), 'time_report'], 			
 			[l(:label_wk_expensesheet), 'expense_report'],			
 			[l(:label_payroll_report), 'payroll_report'],
-			[l(:label_wk_payslip), 'payslip_report']], selectedRpt)
+			[l(:label_wk_payslip), 'payslip_report']]
+		if (isModuleAdmin('wktime_accounting_group') || isModuleAdmin('wktime_accounting_admin') )
+			reportTypeArr << [l(:label_profit_loss_account), 'pl_report']
+		end
+		options_for_select(reportTypeArr, selectedRpt)
 	end
 	
 	def getUserQueryStr(group_id,user_id, from)
