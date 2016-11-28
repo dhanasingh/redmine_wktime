@@ -15,16 +15,103 @@
 		 <caption style="text-align:center"><b><%= Setting.plugin_redmine_wktime['wktime_company_name'] %><br><%= l(:label_profit_loss_account) %></b></br>
 		 <%= @from.to_formatted_s(:long) + " to " + @to.to_formatted_s(:long)%>
 		<thead bgcolor="#e6e6e6">
-			<tr style="border-bottom: solid thin;">
-				<th align="left" width=50%><%= l(:label_particulars) %></th>
+			<tr style="border-bottom: solid thin;border-top: solid thin;">
+				<th align="left" width=50% style="padding-left: 10px;"><%= l(:label_particulars) %></th>
 				<th colspan="2" align="right" width=50%><%= @from.to_formatted_s(:long) + " to " + @to.to_formatted_s(:long)%></th>
 			</tr>
 		</thead>
 		<body>
-			<tr style="width:100%; border-bottom: solid thin;">
-				<td style="width:100%; border-bottom: solid thin;"><b><%= l(:label_trading_account) + " :" %></b></td>
+			<tr style="width:100%;">
+				<td ><b><u><%= l(:label_trading_account) + " : " %></u></b></td>
 				<td></td>
 				<td></td>
+			</tr>
+			<% 
+				diEnries = getEachLedgerSumAmt(@from, @to, 'DI')
+				deEnries = getEachLedgerSumAmt(@from, @to, 'DE')
+				iiEnries = getEachLedgerSumAmt(@from, @to, 'II')
+				ieEnries = getEachLedgerSumAmt(@from, @to, 'IE')
+				totalDI = diEnries.blank? ? 0 : diEnries.values.inject(:+) 
+				totalDE = deEnries.blank? ? 0 : deEnries.values.inject(:+) 
+				totalII = iiEnries.blank? ? 0 : iiEnries.values.inject(:+) 
+				totalIE = ieEnries.blank? ? 0 : ieEnries.values.inject(:+)
+			%>
+			<tr style="width:100%;">
+				<td align="left"><b><%= l(:label_direct_incomes)%></b></td>
+				<td></td>
+				<td align="right"><b><%= totalDI %></b></td>
+			</tr>
+			<% diEnries.each do |entry| %>
+				<tr style="width:100%;">
+					<td align="left" style="padding-left: 10px;"><%= entry[0]%></td>
+					<% if entry.last %>
+						<td align="right" style="border-bottom: solid thin;"><%= entry[1] %></td>
+					<% else %>
+						<td align="right"><%= entry[1] %></td>
+					<% end %>
+					<td></td>
+				</tr>
+			<% end %>
+			<tr style="width:100%;">
+				<td align="left"><b><%= l(:label_cost_of_sales)%></b></td>
+				<td></td>
+				<td align="right"><b><%= totalDE %></b></td>
+			</tr>
+			<tr style="width:100%;">
+				<td align="left" style="padding-left: 10px;"><b><%= l(:label_direct_expenses)%></b></td>
+				<td align="right"><%= totalDE %></td>
+				<td></td>
+			</tr>
+			<% deEnries.each do |entry| %>
+				<tr style="width:100%;">
+					<td align="left" style="padding-left: 20px;"><%= entry[0]%></td>
+					<td align="right"><%= entry[1] %></td>
+					<td></td>
+				</tr>
+			<% end %>
+			<tr style="width:100%;">
+				<td align="left" style="padding-left: 10px;" style=""><b><%= l(:label_gross) + " " + l(:label_profit) + " : " %></b></td>
+				<td style="border-top: solid thin;"></td>
+				<td align="right" style="border-top: solid thin;"><b><%= totalDI - totalDE %></b></td>
+			</tr>
+			<tr style="width:100%;">
+				<td><b><u><%= l(:label_income) + " " + l(:label_statement) + " : " %></u></b></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr style="width:100%;">
+				<td align="left"><b><%= l(:label_indirect_incomes)%></b></td>
+				<td></td>
+				<td align="right"><b><%= totalII %></b></td>
+			</tr>
+			<% iiEnries.each do |entry| %>
+				<tr style="width:100%;">
+					<td align="left" style="padding-left: 10px;"><%= entry[0]%></td>
+					<td align="right"><%= entry[1] %></td>
+					<td></td>
+				</tr>
+			<% end %>
+			<tr style="width:100%;">
+				<td></td>
+				<td style="border-top: solid thin;"></td>
+				<td align="right" style="border-top: solid thin;"><b><%= totalDI - totalDE + totalII %></b></td>
+			</tr>
+			<tr style="width:100%;">
+				<td align="left"><b><%= l(:label_indirect_expenses)%></b></td>
+				<td></td>
+				<td align="right"><b><%= totalIE %></b></td>
+			</tr>
+			<% ieEnries.each do |entry| %>
+				<tr style="width:100%;">
+					<td align="left" style="padding-left: 10px;"><%= entry[0]%></td>
+					<td align="right"><%= entry[1] %></td>
+					<td></td>
+				</tr>
+			<% end %>
+			<tr style="width:100%;">
+				<td align="left" style="padding-left: 10px;" style=""><b><%= l(:label_net) + " " + l(:label_profit) + " : "%></b></td>
+				<td style="border-top: solid thin;border-bottom: solid thin;"></td>
+				<td align="right" style="border-top: solid thin;border-bottom: solid thin;"><b><%= totalDI - totalDE + totalII - totalIE %></b></td>
 			</tr>
 		</body>
 	</table>

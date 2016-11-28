@@ -37,4 +37,16 @@ include WktimeHelper
 			}
 		ledgerType
 	end
+	
+	def getTransDetails(from, to)
+		WkTransactionDetail.includes(:ledger, :wktransaction).where('wk_transactions.trans_date between ? and ?', from, to).references(:ledger,:wktransaction)
+	end
+	
+	def getEachLedgerSumAmt(from, to, ledgerType)
+		if ledgerType.blank?
+			WkTransactionDetail.includes(:ledger, :wktransaction).where('wk_transactions.trans_date between ? and ?', from, to).references(:ledger,:wktransaction).group('wk_ledgers.id, wk_ledgers.name').sum('wk_transaction_details.amount')
+		else
+			WkTransactionDetail.includes(:ledger, :wktransaction).where('wk_ledgers.ledger_type = ? and wk_transactions.trans_date between ? and ?', ledgerType, from, to).references(:ledger,:wktransaction).group('wk_ledgers.id, wk_ledgers.name').sum('wk_transaction_details.amount')
+		end
+	end
 end
