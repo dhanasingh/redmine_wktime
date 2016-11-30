@@ -66,9 +66,13 @@ function invoiceAddRow(tableId, rowCount)
       datePickerClone.datepicker();
     }
 	document.getElementById(rowCount).value = rowlength;
-	clearId = tableId == "milestoneTable" ? "milestone_id"+rowlength : "item_id"+rowlength;
+	clearId = tableId == "milestoneTable" ? "milestone_id"+rowlength : (tableId == "txnTable" ? "txn_id"+rowlength : "item_id"+rowlength ) ;
 	document.getElementById(clearId).value = "";
-	document.getElementById('item_index' + rowlength).innerHTML = rowlength; 
+	if(document.getElementById('item_index' + rowlength) != null)
+	{
+		document.getElementById('item_index' + rowlength).innerHTML = rowlength; 
+	}
+	
 	
 }
 
@@ -127,10 +131,78 @@ function deleteRow(tableId, totalrow)
 {
     document.getElementById(tableId).deleteRow(row_id);	
 	document.getElementById(totalrow).value = document.getElementById(totalrow).value - 1;
+	if(tableId == "txnTable")
+	{
+		var table = document.getElementById(tableId);
+		var rowlength = table.rows.length;		
+		for(i = 1; i < rowlength; i++)
+		{
+			var colCount = table.rows[i].cells.length;			
+			for(var j=0; j<colCount; j++) 
+			{
+				var input = document.getElementById(tableId).rows[i].cells[j].getElementsByTagName("*")[0];	
+				input.id = table.rows[i].cells[j].headers + i;
+				input.name = table.rows[i].cells[j].headers + i;
+			}
+		}
+		
+	
+	}
 }
 
 function openInvReportPopup(){
 	var invId = document.getElementById('invoice_id').value;
 	popupUrl = wkInvReportUrl + '&invoice_id=' + invId +'&is_report=true'
 	window.open(popupUrl, '_blank', 'location=yes,scrollbars=yes,status=yes');
+}
+
+function tallyAmount(fldId, isDebitFld)
+{	
+	var isDebit = false;
+	var debitAmount = 0;
+	var creditAmount = 0;
+	var totalamount = 0;
+	var totDebit = 0;
+	var totCredit = 0;
+	var txn_debit = document.getElementById('txn_debit'+  fldId.slice(-1));
+	var txn_credit = document.getElementById('txn_credit'+  fldId.slice(-1));
+	var addclm = parseInt(fldId.slice(-1)) + 1 ;
+	var oldtable = document.getElementById("txnTable");
+	var oldrowlength = oldtable.rows.length;
+	if(addclm > 2 && addclm == oldrowlength )
+	{
+		invoiceAddRow('txnTable', 'txntotalrow');
+	}	
+	var table = document.getElementById("txnTable");
+	var rowlength = table.rows.length;
+	for(var i = 1; i < rowlength; i++)
+	{
+		var txn_debit = document.getElementById('txn_debit'+i);
+		var txn_credit = document.getElementById('txn_credit'+i);
+		debval = txn_debit.value == "" ? 0 : parseInt(txn_debit.value);
+		crdtval = txn_credit.value == "" ? 0 : parseInt(txn_credit.value);	
+		
+		if( i != rowlength-1)
+		{
+			debitAmount += debval ;
+			creditAmount += crdtval ;
+		}		
+		if(txn_debit.value != "" && txn_credit.value == "" && i == 1)
+		{
+			isDebit = true;
+		}
+		var fieldId = (isDebit ? 'txn_credit' :  'txn_debit') + i;//(rowlength-1);
+		if(i == (rowlength-1))
+		{
+			totalamount = isDebit ? debitAmount - creditAmount : creditAmount - debitAmount;
+			totalamount = Math.abs(totalamount);
+			var fieldId = ((isDebit && debitAmount > creditAmount) ? 'txn_credit' :  ((!isDebit && debitAmount > creditAmount) ? 'txn_credit' : 'txn_debit')) + i;//(rowlength-1);
+			document.getElementById(fieldId).value = totalamount;			
+		}
+		totDebit += txn_debit.value == "" ? 0 : parseInt(txn_debit.value);
+		totCredit +=  txn_credit.value == "" ? 0 : parseInt(txn_credit.value);	
+		document.getElementById('debitTotal').innerHTML = totDebit;//isDebit ? totDebit : totDebit+totalamount;
+		document.getElementById('creditTotal').innerHTML = totCredit;//isDebit ? totCredit : totCredit+totalamount;
+	}
+	
 }

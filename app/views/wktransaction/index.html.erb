@@ -8,4 +8,10 @@
 <%= render_tabs time_expense_tabs %>
 
 <%= hidden_field_tag 'back_url', url_for(params) %>
-<h2>WktransactionController#index</h2>
+<%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
+	<%= hidden_field_tag "searchlist", "#{controller_name}" %>
+	<div class="wk-contextual">
+        <%= link_to l(:label_new) + l(:label_transaction), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+    </div>
+	<%= render :partial => 'wktransaction/date_range' %>
+<% end %>
