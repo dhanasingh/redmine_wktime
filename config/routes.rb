@@ -215,6 +215,8 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wktransaction/update', :to => 'wktransaction#update'
 	
+	delete 'wktransaction/destroy', :to => 'wktransaction#destroy'
+	
 	get 'wkledger/index', :to => 'wkledger#index'
 
 	# For Accounting

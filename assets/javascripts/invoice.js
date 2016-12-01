@@ -129,24 +129,34 @@ function addAmount(fldId)
 
 function deleteRow(tableId, totalrow)
 {
-    document.getElementById(tableId).deleteRow(row_id);	
-	document.getElementById(totalrow).value = document.getElementById(totalrow).value - 1;
+    
 	if(tableId == "txnTable")
 	{
 		var table = document.getElementById(tableId);
-		var rowlength = table.rows.length;		
-		for(i = 1; i < rowlength; i++)
+		var rowlength = table.rows.length;
+		if(rowlength > 3)	
 		{
-			var colCount = table.rows[i].cells.length;			
-			for(var j=0; j<colCount; j++) 
+			document.getElementById(tableId).deleteRow(row_id);	
+			document.getElementById(totalrow).value = document.getElementById(totalrow).value - 1;
+			for(i = 1; i < rowlength-1; i++)
 			{
-				var input = document.getElementById(tableId).rows[i].cells[j].getElementsByTagName("*")[0];	
-				input.id = table.rows[i].cells[j].headers + i;
-				input.name = table.rows[i].cells[j].headers + i;
+				var colCount = table.rows[i].cells.length;			
+				for(var j=0; j<colCount; j++) 
+				{
+					var input = document.getElementById(tableId).rows[i].cells[j].getElementsByTagName("*")[0];	
+					input.id = table.rows[i].cells[j].headers + i;
+					input.name = table.rows[i].cells[j].headers + i;
+				}
 			}
+			updateAmount();
 		}
-		
-	
+		else{
+			alert("We are unable to delete the row.");
+		}			
+	}
+	else{
+		document.getElementById(tableId).deleteRow(row_id);	
+		document.getElementById(totalrow).value = document.getElementById(totalrow).value - 1;
 	}
 }
 
@@ -156,23 +166,30 @@ function openInvReportPopup(){
 	window.open(popupUrl, '_blank', 'location=yes,scrollbars=yes,status=yes');
 }
 
-function tallyAmount(fldId, isDebitFld)
+function tallyAmount(fldId)
 {	
+
+//	var txn_debit = document.getElementById('txn_debit'+  fldId.slice(-1));
+//	var txn_credit = document.getElementById('txn_credit'+  fldId.slice(-1));
+	var addclm = parseInt(fldId.replace(/[^0-9\.]/g, '')) +1;	
+	//var addclm = parseInt(fldId.slice(-1)) + 1 ;	
+	var oldtable = document.getElementById("txnTable");
+	var oldrowlength = oldtable.rows.length;
+	if(addclm > 2 && addclm == oldrowlength )
+	{
+		invoiceAddRow('txnTable', 'txntotalrow');
+	}		
+	updateAmount();
+}
+
+function updateAmount()
+{
 	var isDebit = false;
 	var debitAmount = 0;
 	var creditAmount = 0;
 	var totalamount = 0;
 	var totDebit = 0;
 	var totCredit = 0;
-	var txn_debit = document.getElementById('txn_debit'+  fldId.slice(-1));
-	var txn_credit = document.getElementById('txn_credit'+  fldId.slice(-1));
-	var addclm = parseInt(fldId.slice(-1)) + 1 ;
-	var oldtable = document.getElementById("txnTable");
-	var oldrowlength = oldtable.rows.length;
-	if(addclm > 2 && addclm == oldrowlength )
-	{
-		invoiceAddRow('txnTable', 'txntotalrow');
-	}	
 	var table = document.getElementById("txnTable");
 	var rowlength = table.rows.length;
 	for(var i = 1; i < rowlength; i++)
@@ -204,5 +221,4 @@ function tallyAmount(fldId, isDebitFld)
 		document.getElementById('debitTotal').innerHTML = totDebit;//isDebit ? totDebit : totDebit+totalamount;
 		document.getElementById('creditTotal').innerHTML = totCredit;//isDebit ? totCredit : totCredit+totalamount;
 	}
-	
 }

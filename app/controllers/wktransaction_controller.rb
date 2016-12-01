@@ -4,26 +4,103 @@ class WktransactionController < WkaccountingController
 
 
    def index
-	 set_filter_session
-     retrieve_date_range
+	    set_filter_session
+        retrieve_date_range
+		@ledgers = WkLedger.pluck(:name, :id)
+		ledgerId = session[:wktransaction][:ledger_id]
+		if !@from.blank? && !@to.blank?
+			transaction = WkTransaction.includes(:transaction_details).where(:trans_date => @from .. @to)
+		else
+			transaction = WkTransaction.includes(:transaction_details)#.where( :wk_transaction_details => { :ledger_id => ledgerId })
+		end
+		unless ledgerId.blank?
+			transaction = transaction.where( :wk_transaction_details => { :ledger_id => ledgerId })
+		end
+		formPagination(transaction)
+		@totalTransAmt = @transEntries.sum("wk_transaction_details.amount")
    end
    
-   def edit
+    def edit
+		@transDetails = nil
 		@ledgers = WkLedger.pluck(:name, :id)
-   end
+		unless params[:txn_id].blank? 
+			@transEntry = WkTransaction.where(:id => params[:txn_id])
+			@transDetails = WkTransactionDetail.where(:transaction_id => params[:txn_id])
+		end
+    end
    
     def update
+		errorMsg = nil
+		wktransaction = nil
+		wktxnDetail = nil
+		arrId = []
+		if params[:transaction_id].blank?
+			wktransaction = WkTransaction.new
+		else
+			wktransaction = WkTransaction.find(params[:transaction_id].to_i)
+		end
+		wktransaction.trans_type = params[:txn_type]
+		wktransaction.trans_date = params[:date]
+		wktransaction.comment = params[:txn_cmt]
+		unless wktransaction.valid?
+			errorMsg = wktransaction.errors.full_messages.join("<br>")
+		end
+		for i in 1..params[:txntotalrow].to_i			
+			if params["txn_id#{i}"].blank?
+				wktxnDetail = WkTransactionDetail.new
+			else
+				wktxnDetail = WkTransactionDetail.find(params["txn_id#{i}"].to_i)
+				
+			end
+			wktxnDetail.ledger_id = params["txn_particular#{i}"]
+			if params["txn_debit#{i}"].blank?
+				wktxnDetail.detail_type = 'c'
+				wktxnDetail.amount = params["txn_credit#{i}"]
+			else
+				wktxnDetail.detail_type = 'd'
+				wktxnDetail.amount = params["txn_debit#{i}"]
+			end
+			wktxnDetail.currency = Setting.plugin_redmine_wktime['wktime_currency']
+			unless wktxnDetail.valid? 		
+				errorMsg = errorMsg.blank? ? wktxnDetail.errors.full_messages.join("<br>") : wktxnDetail.errors.full_messages.join("<br>") + "<br/>" + errorMsg
+			else
+				if i == 1
+					wktransaction.save()
+				end
+				wktxnDetail.transaction_id = wktransaction.id
+				wktxnDetail.save()
+				arrId << wktxnDetail.id
+			end
+
+		end
+		unless arrId.blank?
+			WkTransactionDetail.where(:transaction_id => wktransaction.id).where.not(:id => arrId).delete_all()
+		end
+		if errorMsg.nil?
+		    redirect_to :controller => 'wktransaction',:action => 'index' , :tab => 'wktransaction'
+		    flash[:notice] = l(:notice_successful_update)
+		else
+			flash[:error] = errorMsg #wkaccount.errors.full_messages.join("<br>")
+		    redirect_to :controller => 'wktransaction',:action => 'edit'
+		end
     end
+	
+	def destroy
+		trans = WkTransaction.find(params[:txn_id].to_i).destroy
+		flash[:notice] = l(:notice_successful_delete)
+		redirect_back_or_default :action => 'index', :tab => params[:tab]
+	end
   
    def set_filter_session
         if params[:searchlist].blank? && session[:wktransaction].nil?
-			session[:wktransaction] = {:period_type => params[:period_type],:period => params[:period],			                      
+			session[:wktransaction] = {:period_type => params[:period_type],:period => params[:period],	:ledger_id =>	params[:txn_ledger],	                      
 								   :from => @from, :to => @to}
 		elsif params[:searchlist] =='wktransaction'
 			session[:wktransaction][:period_type] = params[:period_type]
 			session[:wktransaction][:period] = params[:period]
 			session[:wktransaction][:from] = params[:from]
 			session[:wktransaction][:to] = params[:to]
+			session[:wktransaction][:ledger_id] = params[:txn_ledger]
 		end
 		
     end
@@ -78,6 +155,28 @@ class WktransactionController < WkaccountingController
 		
 		@from, @to = @to, @from if @from && @to && @from > @to
 
+	end
+	
+	def formPagination(entries)
+		@entry_count = entries.count
+        setLimitAndOffset()
+		@transEntries = entries.order(:id).limit(@limit).offset(@offset)
+	end
+	
+	def setLimitAndOffset		
+		if api_request?
+			@offset, @limit = api_offset_and_limit
+			if !params[:limit].blank?
+				@limit = params[:limit]
+			end
+			if !params[:offset].blank?
+				@offset = params[:offset]
+			end
+		else
+			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
+			@limit = @entry_pages.per_page
+			@offset = @entry_pages.offset
+		end	
 	end
 
 end

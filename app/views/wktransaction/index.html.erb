@@ -9,9 +9,16 @@
 
 <%= hidden_field_tag 'back_url', url_for(params) %>
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
-	<%= hidden_field_tag "searchlist", "#{controller_name}" %>
+	<%= hidden_field_tag "searchlist", "#{controller_name}" %>	
+	<%	ledgerid =session[:wktransaction][:ledger_id] %>
 	<div class="wk-contextual">
+		<b><label style="float:left;"><%= l(:label_ledger) %></label></b>
+	     <%=h select_tag("txn_ledger", options_for_select([['','']]+@ledgers, :selected => ledgerid.nil? ? @ledgers : ledgerid ), :style => "width:200px; float:left;") %>
         <%= link_to l(:label_new) + l(:label_transaction), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
     </div>
 	<%= render :partial => 'wktransaction/date_range' %>
 <% end %>
+<div class="total-hours">
+	<p><%= l(:label_total) %>: &nbsp;<%= @transEntries[0].transaction_details[0].currency unless @transEntries[0].blank? || @transEntries[0].transaction_details[0].blank?%> <%= html_hours("%.2f" % @totalTransAmt) %></p>
+</div>
+<%= render :partial => 'wktransaction/trans_list'%>	

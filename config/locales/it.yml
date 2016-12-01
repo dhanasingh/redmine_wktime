@@ -452,3 +452,4 @@ it:
   label_debit: Debit
   label_credit: Credit
   label_date: Date
+  label_type: Type

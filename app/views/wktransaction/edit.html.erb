@@ -3,13 +3,17 @@
 <br/>
 <%= form_tag({:controller => controller_name, :action => 'update'}, :method => :get, :id => 'query_form') do %>
 	<table>
-	<tr><td><b><label><%= l(:label_transaction) +" "+l(:general_text_No) %></label></td><td><label><%= " " %></label></b></td></tr>
-	<tr><td><b><label><%= l(:label_transaction) +" "+ l(:label_type)%></label></b></td><td><%=h select_tag('txn_type', options_for_txn_type(''), :required => true, :style => "width:150px;") %></td></tr>
-	<tr><td><b><label><%= l(:label_transaction) +" "+ l(:label_date)  %></label></b></td><td><%= text_field_tag "date",  "", :required => false  , :class => "date",  :style => "width:150px;" %>
+	<tr><td><b><label><%= l(:label_transaction) +" "+l(:general_text_No) %></label></td><td><label><%= @transEntry.blank? ? '' : @transEntry[0].id %></label></b></td></tr>
+	<%=h hidden_field_tag("transaction_id",   @transEntry.blank? ? '' : @transEntry[0].id  )  %>
+	<tr><td><b><label><%= l(:label_transaction) +" "+ l(:label_type)%></label></b></td><td><%=h select_tag('txn_type', options_for_select(transTypeHash.invert,  :selected => @transEntry.blank? ? '' : @transEntry[0].trans_type), :required => true, :style => "width:150px;") %></td></tr>
+	<tr><td><b><label><%= l(:label_transaction) +" "+ l(:label_date)  %></label></b></td><td>
+	<%= date_field_tag('date', @transEntry.blank? ? '' : @transEntry[0].trans_date, {:id => 'start_date', :size => 12, :style => "width:130px; "}) + calendar_for('start_date') %>
 	</td>	
 	</tr>
 	</table>
 	<% row_index = 1 %>	
+	<% totaldebit = 0 %>	
+	<% totalCredit = 0 %>	
 	<table id="txnTable" class="list time-entries">
 	<thead>
 		<tr>
@@ -21,6 +25,32 @@
 		</tr>
 	</thead>
 	<tbody>
+	<% if !@transDetails.blank? %>
+		<% @transDetails.each_with_index  do |entry, index| %>
+			<tr onclick="  row_id  = this.rowIndex ">
+				<td class="lbl-txt-align" headers="txn_id">
+					<%=h hidden_field_tag("txn_id#{row_index}",   entry.id )  %>
+				</td>			
+				<td class="lbl-txt-align" headers="txn_particular" >
+					<%=h select_tag("txn_particular#{row_index}", options_for_select(@ledgers, :selected => entry.ledger_id), :style => "width:200px;") %>
+				</td>
+				<td class="lbl-txt-align" headers="txn_debit">
+					<%= text_field_tag "txn_debit#{row_index}",  (entry.detail_type == 'd' ? entry.amount : '') , :required => false, :maxlength => 14, :onchange => "tallyAmount(this.id)" , :style => "width:150px;"  %>
+				</td>
+				<td class="lbl-txt-align" headers="txn_credit">
+					<%= text_field_tag "txn_credit#{row_index}",  (entry.detail_type == 'c' ? entry.amount : '')  , :required => false, :onchange => "tallyAmount(this.id)" ,   :style => "width:150px;" %>
+				</td>
+				<td>
+					<%= link_to image_tag('delete.png'), "javascript:deleteRow('txnTable', 'txntotalrow');", :id => row_index,
+							:data => {:confirm => l(:text_are_you_sure)},
+							:title => l(:button_delete) %>
+				</td>	
+			</tr>
+			<% totaldebit += entry.detail_type == 'd' ? entry.amount : 0 %>	
+			<% totalCredit += entry.detail_type == 'c' ? entry.amount : 0 %>	
+			<% row_index = row_index + 1 %>
+		<% end %>
+	<% else %>
 		<tr onclick="  row_id  = this.rowIndex ">
 			<td class="lbl-txt-align" headers="txn_id">
 				<%=h hidden_field_tag("txn_id#{row_index}",   "" )  %>
@@ -29,10 +59,10 @@
 				<%=h select_tag("txn_particular#{row_index}", options_for_select(@ledgers), :style => "width:200px;") %>
 			</td>
 			<td class="lbl-txt-align" headers="txn_debit">
-				<%= text_field_tag "txn_debit#{row_index}",  "" , :required => false, :maxlength => 14, :onchange => "tallyAmount(this.id, true)" , :style => "width:150px;"  %>
+				<%= text_field_tag "txn_debit#{row_index}",  "" , :required => false, :maxlength => 14, :onchange => "tallyAmount(this.id)" , :style => "width:150px;"  %>
 			</td>
 			<td class="lbl-txt-align" headers="txn_credit">
-				<%= text_field_tag "txn_credit#{row_index}",  ""  , :required => false, :onchange => "tallyAmount(this.id, false)" ,   :style => "width:150px;" %>
+				<%= text_field_tag "txn_credit#{row_index}", ""  , :required => false, :onchange => "tallyAmount(this.id)" ,   :style => "width:150px;" %>
 			</td>
 			<td>
 				<%= link_to image_tag('delete.png'), "javascript:deleteRow('txnTable', 'txntotalrow');", :id => row_index,
@@ -40,27 +70,29 @@
 						:title => l(:button_delete) %>
 			</td>	
 		</tr>
-		<% row_index = row_index + 1 %>
-		<tr onclick="  row_id  = this.rowIndex ">
-			<td class="lbl-txt-align" headers="txn_id">
-				<%=h hidden_field_tag("txn_id#{row_index}",   "" )  %>
-			</td>
-			<td class="lbl-txt-align" headers="txn_particular" >
-				<%=h select_tag("txn_particular#{row_index}", options_for_select(@ledgers), :style => "width:200px;") %>
-			</td>
-			<td class="lbl-txt-align" headers="txn_debit">
-				<%= text_field_tag "txn_debit#{row_index}",  "" , :required => false, :maxlength => 14, :onchange => "tallyAmount(this.id, true)" , :style => "width:150px;"  %>
-			</td>
-			<td class="lbl-txt-align" headers="txn_credit">
-				<%= text_field_tag "txn_credit#{row_index}",  ""  , :required => false, :onchange => "tallyAmount(this.id, false)",   :style => "width:150px;" %>
-			</td>
-			<td>
-				<%= link_to image_tag('delete.png'), "javascript:deleteRow('txnTable', 'txntotalrow');", :id => row_index,
-						:data => {:confirm => l(:text_are_you_sure)},
-						:title => l(:button_delete) %>
-			</td>	
-		</tr>
-		<% row_index = row_index + 1 %>
+			<% row_index = row_index + 1 %>
+			<tr onclick="  row_id  = this.rowIndex ">
+				<td class="lbl-txt-align" headers="txn_id">
+					<%=h hidden_field_tag("txn_id#{row_index}",   "" )  %>
+				</td>
+				<td class="lbl-txt-align" headers="txn_particular" >
+					<%=h select_tag("txn_particular#{row_index}", options_for_select(@ledgers), :style => "width:200px;") %>
+				</td>
+				<td class="lbl-txt-align" headers="txn_debit">
+					<%= text_field_tag "txn_debit#{row_index}",  "" , :required => false, :maxlength => 14, :onchange => "tallyAmount(this.id)" , :style => "width:150px;"  %>
+				</td>
+				<td class="lbl-txt-align" headers="txn_credit">
+					<%= text_field_tag "txn_credit#{row_index}",  ""   , :required => false, :onchange => "tallyAmount(this.id)",   :style => "width:150px;" %>
+				</td>
+				<td>
+					<%= link_to image_tag('delete.png'), "javascript:deleteRow('txnTable', 'txntotalrow');", :id => row_index,
+							:data => {:confirm => l(:text_are_you_sure)},
+							:title => l(:button_delete) %>
+				</td>	
+			</tr>
+			<% row_index = row_index + 1 %>
+	<% end %>
+		
 	</tbody>
 	</table>
 	<table >
@@ -68,8 +100,8 @@
 		<td style="width:66.9%;"><b><label><%= "Comment : "  %></label></b></td>
 		
 		<td style="width:16%;"><b><label><%= "Total : "  %></label></b></td>
-		<td style="width:16%;"><b><label id ="debitTotal"><%= " 00"  %></label></b></td>
-		<td style="width:15%;"><b><label id ="creditTotal"><%= " 00"  %></label></b></td>
+		<td style="width:16%;"><b><label id ="debitTotal"><%= html_hours("%.2f" % totaldebit)  %></label></b></td>
+		<td style="width:15%;"><b><label id ="creditTotal"><%= html_hours("%.2f" % totalCredit)  %></label></b></td>
 		
 	</tr>
 	<tr>
