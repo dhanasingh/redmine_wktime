@@ -208,6 +208,8 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	delete 'wkcontract/destroy', :to => 'wkcontract#destroy'
 	
 	get 'wkinvoice/invreport', :to => 'wkinvoice#invreport' 
+
+	# For Accounting
 	
 	get 'wktransaction/index', :to => 'wktransaction#index'	
 	
@@ -224,8 +226,8 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wkledger/update', :to => 'wkledger#update'
 	
 	delete 'wkledger/destroy', :to => 'wkledger#destroy'
-
-	# For Accounting
   
 	get 'wkaccounting/pl_rpt', :to => 'wkaccounting#pl_rpt'
+	
+	get 'wkaccounting/balance_sheet', :to => 'wkaccounting#balance_sheet'
 	

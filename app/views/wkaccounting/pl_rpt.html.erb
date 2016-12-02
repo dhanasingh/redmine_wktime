@@ -13,11 +13,11 @@
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
 	<table style="width:100%; border-collapse: collapse;">
 		 <caption style="text-align:center"><b><%= Setting.plugin_redmine_wktime['wktime_company_name'] %><br><%= l(:label_profit_loss_account) %></b></br>
-		 <%= @from.to_formatted_s(:long) + " to " + @to.to_formatted_s(:long)%>
+		 <%= @from.to_formatted_s(:long) + " " + l(:label_date_to) + " " + @to.to_formatted_s(:long)%>
 		<thead bgcolor="#e6e6e6">
 			<tr style="border-bottom: solid thin;border-top: solid thin;">
 				<th align="left" width=50% style="padding-left: 10px;"><%= l(:label_particulars) %></th>
-				<th colspan="2" align="right" width=50%><%= @from.to_formatted_s(:long) + " to " + @to.to_formatted_s(:long)%></th>
+				<th colspan="2" align="right" width=50%><%= @from.to_formatted_s(:long) + " " + l(:label_date_to) + " " + @to.to_formatted_s(:long)%></th>
 			</tr>
 		</thead>
 		<body>
@@ -27,10 +27,10 @@
 				<td></td>
 			</tr>
 			<% 
-				diEnries = getEachLedgerSumAmt(@from, @to, 'DI')
-				deEnries = getEachLedgerSumAmt(@from, @to, 'DE')
-				iiEnries = getEachLedgerSumAmt(@from, @to, 'II')
-				ieEnries = getEachLedgerSumAmt(@from, @to, 'IE')
+				diEnries = getEachLedgerSumAmt(@from, @to, ['DI'])
+				deEnries = getEachLedgerSumAmt(@from, @to, ['DE'])
+				iiEnries = getEachLedgerSumAmt(@from, @to, ['II'])
+				ieEnries = getEachLedgerSumAmt(@from, @to, ['IE'])
 				totalDI = diEnries.blank? ? 0 : diEnries.values.inject(:+) 
 				totalDE = deEnries.blank? ? 0 : deEnries.values.inject(:+) 
 				totalII = iiEnries.blank? ? 0 : iiEnries.values.inject(:+) 

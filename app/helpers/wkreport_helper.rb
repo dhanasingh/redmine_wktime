@@ -20,6 +20,7 @@ module WkreportHelper
 			[l(:label_wk_payslip), 'payslip_report']]
 		if (isModuleAdmin('wktime_accounting_group') || isModuleAdmin('wktime_accounting_admin') )
 			reportTypeArr << [l(:label_profit_loss_account), 'pl_report']
+			reportTypeArr << [l(:label_balance_sheet), 'bal_sht_report']
 		end
 		options_for_select(reportTypeArr, selectedRpt)
 	end

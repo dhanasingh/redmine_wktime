@@ -38,15 +38,111 @@ include WktimeHelper
 		ledgerType
 	end
 	
+	def getLedgerTypeGrpHash
+		ledgerTypeGrps = {
+			"CA" => ['BA', 'CS', 'DP', 'AD', 'SH', 'SD', 'IN', 'MS'],
+			"L" => ['OD', 'SL', 'UL', 'OC'],
+			"CL" => ['T', 'PR', 'SC'],
+			"C" => ['RS', 'RE'],
+			"PL" => ['DI', 'DE', 'II', 'IE', 'SA', 'PA']
+		}
+		ledgerTypeGrps
+	end
+	
+	def incomeLedgerTypes
+		['DI','II','SA']
+	end
+	
+	def expenseLedgerTypes
+		['DE','IE','PA']
+	end
+	
+	def getSubEntries(from, asOnDate, ledgerType)
+		subEntriesHash = nil
+		bsEndDate = ledgerType == 'PL' ? from : asOnDate
+		unless getLedgerTypeGrpHash[ledgerType].blank?
+			subEntriesHash = Hash.new
+			getLedgerTypeGrpHash[ledgerType].each do |subType|
+				subEntriesHash[subType] = getEachLedgerBSAmt(bsEndDate, [subType])
+			end
+		end
+		if ledgerType == 'PL'
+			totalIncome = 0
+			totalExpense = 0
+			incomeLedgerTypes.each do |type|
+				totalIncome = totalIncome + getEntriesTotal(subEntriesHash[type])
+			end
+			expenseLedgerTypes.each do |type|
+				totalExpense = totalExpense + getEntriesTotal(subEntriesHash[type])
+			end
+			subEntriesHash.clear
+			subEntriesHash[l(:wk_label_opening)+ " " + l(:wk_field_balance)] = totalIncome - totalExpense
+			subEntriesHash[l(:label_period)+ " " + l(:label_period)] = getPLfor(from, asOnDate)
+			
+		end
+		subEntriesHash
+	end
+	
+	def getPLfor(from, to)
+		totalIncome = 0
+		totalExpense = 0
+		incomeLedgerTypes.each do |type|
+			income = getEachLedgerSumAmt(from, to, [type])
+			totalIncome = totalIncome + income.values.inject(:+) unless income.blank?
+		end
+		
+		expenseLedgerTypes.each do |type|
+			expense = getEachLedgerSumAmt(from, to, [type])
+			totalExpense = totalExpense + expense.values.inject(:+) unless expense.blank?
+		end
+		profit = totalIncome - totalExpense
+		profit
+	end
+	
+	def getEntriesTotal(entriesHash)
+		total = 0
+		entriesHash.each do |entry|
+			total = entry[1].values.inject(:+) + total unless entry[1].blank?
+		end
+		total
+	end
+	
 	def getTransDetails(from, to)
 		WkTransactionDetail.includes(:ledger, :wktransaction).where('wk_transactions.trans_date between ? and ?', from, to).references(:ledger,:wktransaction)
 	end
 	
-	def getEachLedgerSumAmt(from, to, ledgerType)
-		if ledgerType.blank?
-			WkTransactionDetail.includes(:ledger, :wktransaction).where('wk_transactions.trans_date between ? and ?', from, to).references(:ledger,:wktransaction).group('wk_ledgers.id, wk_ledgers.name').sum('wk_transaction_details.amount')
-		else
-			WkTransactionDetail.includes(:ledger, :wktransaction).where('wk_ledgers.ledger_type = ? and wk_transactions.trans_date between ? and ?', ledgerType, from, to).references(:ledger,:wktransaction).group('wk_ledgers.id, wk_ledgers.name').sum('wk_transaction_details.amount')
+	def getBSProfitLoss(from, to)
+		WkTransactionDetail.includes(:ledger, :wktransaction).where('wk_transactions.trans_date between ? and ?', from, to).references(:ledger,:wktransaction)
+	end
+	
+	def getEachLedgerBSAmt(asOnDate, ledgerType)
+		typeArr = ['c', 'd']
+		detailHash = Hash.new
+		typeArr.each do |type|
+			detailHash[type] = WkTransactionDetail.includes(:ledger, :wktransaction).where('wk_transaction_details.detail_type = ? and wk_ledgers.ledger_type IN (?) and wk_transactions.trans_date <= ?', type, ledgerType, asOnDate).references(:ledger,:wktransaction).group('wk_ledgers.id').sum('wk_transaction_details.amount')
 		end
+		profitHash = detailHash['c'].merge(detailHash['d']){|key, oldval, newval| newval - oldval}
+		balHash = Hash.new
+		profitHash.each do |key, val|
+			ledger = WkLedger.find(key)
+			balHash[ledger.name] = val + (ledger.opening_balance.blank? ? 0 : ledger.opening_balance)
+		end
+		balHash
+	end
+	
+	def getEachLedgerSumAmt(from, to, ledgerType)
+		typeArr = ['c', 'd']
+		detailHash = Hash.new
+		if ledgerType.blank?
+			typeArr.each do |type|
+				detailHash[type] = WkTransactionDetail.includes(:ledger, :wktransaction).where('wk_transaction_details.detail_type = ? and wk_transactions.trans_date between ? and ?', type, from, to).references(:ledger,:wktransaction).group('wk_ledgers.id, wk_ledgers.name').sum('wk_transaction_details.amount')
+			end
+		else
+			typeArr.each do |type|
+				detailHash[type] = WkTransactionDetail.includes(:ledger, :wktransaction).where('wk_transaction_details.detail_type = ? and wk_ledgers.ledger_type IN (?) and wk_transactions.trans_date between ? and ?', type, ledgerType, from, to).references(:ledger,:wktransaction).group('wk_ledgers.id, wk_ledgers.name').sum('wk_transaction_details.amount')
+			end
+		end
+		profitHash = detailHash['c'].merge(detailHash['d']){|key, oldval, newval| newval - oldval}
+		profitHash
 	end
 end
