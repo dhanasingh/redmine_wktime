@@ -1,5 +1,6 @@
 <h2><%= l(:label_ledger) %></h2>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
     blgtxnUrl = '<%=url_for(:controller => "wktransaction", :action => "index", :tab => "wktransaction")%>';
     blgledgerUrl = '<%=url_for(:controller => "wkledger", :action => "index", :tab => "wkledger")%>';
@@ -8,4 +9,18 @@
 <%= render_tabs time_expense_tabs %>
 
 <%= hidden_field_tag 'back_url', url_for(params) %>
-<h2>WkledgerController#index</h2>
+
+<%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
+	<%= hidden_field_tag "searchlist", "#{controller_name}" %>	
+	<%	ledgerid =session[:wkledger][:ledger_id] %>
+	<div class="wk-contextual">
+		<b><label style="float:left;"><%= l(:label_ledger) %></label></b>
+	     <%=h select_tag("txn_ledger", options_for_select([['','']]+@ledgerdd, :selected => ledgerid.nil? ? [['','']]+@ledgerdd : ledgerid ), :style => "width:200px; float:left;") %>
+        <%= link_to l(:label_new) + l(:label_ledger), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+    </div>
+<% end %>
+
+<div class="total-hours">
+	<p><%= l(:label_total) %>: &nbsp;<%= @ledgers[0].currency unless @ledgers[0].blank? || @ledgers[0].blank?%> <%= html_hours("%.2f" % @totalAmt) %></p>
+</div>
+<%= render :partial => 'wkledger/ledger_list'%>	

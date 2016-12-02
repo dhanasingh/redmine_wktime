@@ -218,6 +218,12 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	delete 'wktransaction/destroy', :to => 'wktransaction#destroy'
 	
 	get 'wkledger/index', :to => 'wkledger#index'
+	
+	get 'wkledger/edit', :to => 'wkledger#edit'
+	
+	get 'wkledger/update', :to => 'wkledger#update'
+	
+	delete 'wkledger/destroy', :to => 'wkledger#destroy'
 
 	# For Accounting
   
