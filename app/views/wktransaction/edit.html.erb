@@ -18,9 +18,11 @@
 	<thead>
 		<tr>
 			<th></th>			
-			<th class="lbl-txt-align" style="width:63%;"><%= l(:label_particulars) %></th>		
-			<th class="lbl-txt-align" style="width:16%;"><%= l(:label_debit) %></th>
-			<th class="lbl-txt-align" style="width:16%;"><%= l(:label_credit) %></th>
+			<th class="lbl-txt-align" style="width:40%;"><%= l(:label_particulars) %></th>	
+			<th class="lbl-txt-align" style="width:13.75%;"><%= l(:label_original) + " " + l(:label_wk_currency) %></th>
+			<th class="lbl-txt-align" style="width:13.75%;"><%= l(:label_original) + " " + l(:field_amount) %></th>			
+			<th class="lbl-txt-align" style="width:13.75%;"><%= l(:label_debit) %></th>
+			<th class="lbl-txt-align" style="width:13.75%;"><%= l(:label_credit) %></th>
 			<th style="width:5%;"></th>
 		</tr>
 	</thead>
@@ -34,11 +36,17 @@
 				<td class="lbl-txt-align" headers="txn_particular" >
 					<%=h select_tag("txn_particular#{row_index}", options_for_select(@ledgers, :selected => entry.ledger_id), :style => "width:200px;") %>
 				</td>
+				<td class="lbl-txt-align" headers="original_currency">
+					<label id="original_currency#{row_index}"><%= (entry.original_currency.blank? ? "" : entry.original_currency ) %></label>
+				</td>
+				<td class="lbl-txt-align" headers="original_amount">
+					<label id="original_amount#{row_index}"><%= entry.original_amount.blank? ? '' : entry.original_amount  %></label>
+				</td>
 				<td class="lbl-txt-align" headers="txn_debit">
-					<%= text_field_tag "txn_debit#{row_index}",  (entry.detail_type == 'd' ? entry.amount : '') , :required => false, :maxlength => 14, :onchange => "tallyAmount(this.id)" , :style => "width:150px;"  %>
+					<%= text_field_tag "txn_debit#{row_index}",  (entry.detail_type == 'd' ? entry.amount : '') , :required => false, :maxlength => 14, :onchange => "tallyAmount(this.id)" , :style => "width:150px; text-align:right;"  %>
 				</td>
 				<td class="lbl-txt-align" headers="txn_credit">
-					<%= text_field_tag "txn_credit#{row_index}",  (entry.detail_type == 'c' ? entry.amount : '')  , :required => false, :onchange => "tallyAmount(this.id)" ,   :style => "width:150px;" %>
+					<%= text_field_tag "txn_credit#{row_index}",  (entry.detail_type == 'c' ? entry.amount : '')  , :required => false, :onchange => "tallyAmount(this.id)" ,   :style => "width:150px; text-align:right;" %>
 				</td>
 				<td>
 					<%= link_to image_tag('delete.png'), "javascript:deleteRow('txnTable', 'txntotalrow');", :id => row_index,
@@ -58,11 +66,17 @@
 			<td class="lbl-txt-align" headers="txn_particular" >
 				<%=h select_tag("txn_particular#{row_index}", options_for_select(@ledgers), :style => "width:200px;") %>
 			</td>
+			<td class="lbl-txt-align" headers="original_currency">
+				<label id="original_currency#{row_index}"><%= ""  %></label>
+			</td>
+			<td class="lbl-txt-align" headers="original_amount">
+				<label id="original_amount#{row_index}"><%= ""   %></label>
+			</td>
 			<td class="lbl-txt-align" headers="txn_debit">
-				<%= text_field_tag "txn_debit#{row_index}",  "" , :required => false, :maxlength => 14, :onchange => "tallyAmount(this.id)" , :style => "width:150px;"  %>
+				<%= text_field_tag "txn_debit#{row_index}",  "" , :required => false, :maxlength => 14, :onchange => "tallyAmount(this.id)" , :style => "width:150px; text-align:right;"  %>
 			</td>
 			<td class="lbl-txt-align" headers="txn_credit">
-				<%= text_field_tag "txn_credit#{row_index}", ""  , :required => false, :onchange => "tallyAmount(this.id)" ,   :style => "width:150px;" %>
+				<%= text_field_tag "txn_credit#{row_index}", ""  , :required => false, :onchange => "tallyAmount(this.id)" ,   :style => "width:150px; text-align:right;" %>
 			</td>
 			<td>
 				<%= link_to image_tag('delete.png'), "javascript:deleteRow('txnTable', 'txntotalrow');", :id => row_index,
@@ -77,12 +91,18 @@
 				</td>
 				<td class="lbl-txt-align" headers="txn_particular" >
 					<%=h select_tag("txn_particular#{row_index}", options_for_select(@ledgers), :style => "width:200px;") %>
+				</td>				
+				<td class="lbl-txt-align" headers="original_currency">
+					<label id="original_currency#{row_index}"><%= ""   %></label>
+				</td>
+				<td class="lbl-txt-align" headers="original_amount">
+					<label id="original_amount#{row_index}"><%= ""  %></label>
 				</td>
 				<td class="lbl-txt-align" headers="txn_debit">
-					<%= text_field_tag "txn_debit#{row_index}",  "" , :required => false, :maxlength => 14, :onchange => "tallyAmount(this.id)" , :style => "width:150px;"  %>
+					<%= text_field_tag "txn_debit#{row_index}",  "" , :required => false, :maxlength => 14, :onchange => "tallyAmount(this.id)" , :style => "width:150px; text-align:right;"  %>
 				</td>
 				<td class="lbl-txt-align" headers="txn_credit">
-					<%= text_field_tag "txn_credit#{row_index}",  ""   , :required => false, :onchange => "tallyAmount(this.id)",   :style => "width:150px;" %>
+					<%= text_field_tag "txn_credit#{row_index}",  ""   , :required => false, :onchange => "tallyAmount(this.id)",   :style => "width:150px; text-align:right;" %>
 				</td>
 				<td>
 					<%= link_to image_tag('delete.png'), "javascript:deleteRow('txnTable', 'txntotalrow');", :id => row_index,
@@ -97,16 +117,22 @@
 	</table>
 	<table >
 	<tr>
-		<td style="width:66.9%;"><b><label><%= "Comment : "  %></label></b></td>
-		
-		<td style="width:16%;"><b><label><%= "Total : "  %></label></b></td>
-		<td style="width:16%;"><b><label id ="debitTotal"><%= html_hours("%.2f" % totaldebit)  %></label></b></td>
-		<td style="width:15%;"><b><label id ="creditTotal"><%= html_hours("%.2f" % totalCredit)  %></label></b></td>
-		
+		<td></td>
+		<td style="width:40%;"><b><label><%= "Comment : "  %></label></b></td>
+		<td style="width:13.75%;"></td>
+		<td style="width:13.75%;"><b><label><%= "Total : "  %></label></b></td>
+		<td style="width:10%; text-align:right;"><b><label id ="debitTotal"><%= html_hours("%.2f" % totaldebit)  %></label></b></td>
+		<td style="width:14.50%; text-align:right;"><b><label id ="creditTotal"><%= html_hours("%.2f" % totalCredit)  %></label></b></td>
+		<td style="width:8%;"></td>
 	</tr>
 	<tr>
-		<td style="width:63%;"><%= text_area_tag 'txn_cmt',  "", :style => "width:605px" %></td>
-		
+		<td></td>
+		<td style="width:40%;"><%= text_area_tag 'txn_cmt',  "", :style => "width:605px" %></td>
+		<td style="width:13.75%;"></td>
+		<td style="width:13.75%;"></label></b></td>
+		<td style="width:10%;"></label></b></td>
+		<td style="width:14.50%;"></td>
+		<td style="width:8%;"></td>
 	</tr>
 	</table>
 	<%=h hidden_field_tag("txntotalrow",  row_index-1 )  %>

@@ -10,12 +10,21 @@
 
 <%= hidden_field_tag 'back_url', url_for(params) %>
 
+<% wkaccounting_helper = Object.new.extend(WkaccountingHelper) %>
+<% ledgerType = wkaccounting_helper.getLedgerTypeHash %>
+<% ledgerType[:""] = "" %>
+
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
 	<%= hidden_field_tag "searchlist", "#{controller_name}" %>	
-	<%	ledgerid =session[:wkledger][:ledger_id] %>
-	<div class="wk-contextual">
-		<b><label style="float:left;"><%= l(:label_ledger) %></label></b>
-	     <%=h select_tag("txn_ledger", options_for_select([['','']]+@ledgerdd, :selected => ledgerid.nil? ? [['','']]+@ledgerdd : ledgerid ), :style => "width:200px; float:left;") %>
+	<%	ledger_type =session[:wkledger][:ledger_type] %>
+	<%	ledgername =session[:wkledger][:ledger_name] %>
+			<label ><%= l(:field_name) %>:</label>
+			<%= text_field_tag 'name', ledgername, :size => 30 %>
+			<label ><%= l(:label_type) %>:</label>
+			<%=h select_tag("ledger_type", options_for_select(ledgerType.invert, :selected => ledger_type ), :style => "width:160px; ") %>
+			<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
+			<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
+	<div class="wk-contextual">		
         <%= link_to l(:label_new) + l(:label_ledger), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
     </div>
 <% end %>

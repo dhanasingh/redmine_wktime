@@ -5,10 +5,18 @@ class WkledgerController < WkaccountingController
 
     def index
 		set_filter_session
-		ledgerId = session[:wkledger][:ledger_id]
-		unless ledgerId.blank?
-			ledger = WkLedger.where(:ledger_id => ledgerId )
-		else
+		ledgerType = session[:wkledger][:ledger_type]
+		name = session[:wkledger][:ledger_name]
+		if !ledgerType.blank? && !name.blank?
+			ledger = WkLedger.where(:ledger_type => ledgerType).where("name like ?", "%#{name}%")
+		end
+		if !ledgerType.blank? && name.blank?
+			ledger = WkLedger.where(:ledger_type => ledgerType)#.where("name like ?", "%#{name}%")
+		end
+		if ledgerType.blank? && !name.blank?
+			ledger = WkLedger.where("name like ?", "%#{name}%")
+		end
+		if ledgerType.blank? && name.blank?
 			ledger = WkLedger.all
 		end
 		formPagination(ledger)
@@ -30,7 +38,7 @@ class WkledgerController < WkaccountingController
 		end
 		wkledger.name = params[:name]
 		wkledger.ledger_type = params[:ledger_type]
-		wkledger.currency = params[:currency]
+		wkledger.currency = Setting.plugin_redmine_wktime['wktime_currency'] #params[:currency]
 		wkledger.opening_balance = params[:opening_balance].blank? ? 0 : params[:opening_balance]
 		unless wkledger.save()
 			errorMsg = wkledger.errors.full_messages.join("<br>")
@@ -52,9 +60,10 @@ class WkledgerController < WkaccountingController
 	
 	def set_filter_session
 		if params[:searchlist].blank? && session[:wkledger].nil?
-			session[:wkledger] = {:ledger_id =>	params[:txn_ledger]}
+			session[:wkledger] = {:ledger_type =>	params[:ledger_type], :name => params[:name]}
 		elsif params[:searchlist] =='wkledger'
-			session[:wkledger][:ledger_id] = params[:txn_ledger]
+			session[:wkledger][:ledger_type] = params[:ledger_type]
+			session[:wkledger][:ledger_name] = params[:name]
 		end
 
 	end

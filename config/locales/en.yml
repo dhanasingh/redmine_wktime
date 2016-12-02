@@ -460,3 +460,4 @@ en:
   label_of_funds: "%{value} of Funds"
   label_application: Application
   label_current: Current
+  label_original: Original
