@@ -21,99 +21,29 @@
 			</tr>
 		</thead>
 		<body>
-			<tr style="width:100%;">
-				<td ><b><u><%= l(:label_of_funds,l(:label_copy_source)) + " : " %></u></b></td>
-				<td></td>
-				<td></td>
-			</tr>
 			<% 
-				mainEnriesHash = Hash.new
-				subEntriesHash = Hash.new
-				mainTotalHash = Hash.new()
-				ledgerArr = ['C', 'L', 'CL', 'PL', 'FA', 'CA']
-				ledgerArr.each do |type|
-					mainEnriesHash[type] = getEachLedgerBSAmt(@to, [type])
-					subEntriesHash[type] = getSubEntries(@from, @to, type)
+				@mainEnriesHash = Hash.new
+				@subEntriesHash = Hash.new
+				@mainTotalHash = Hash.new()
+				total = 0
+				@ledgerArr = ['C', 'L', 'CL', 'PL', 'FA', 'CA']
+				@ledgerArr.each do |type|
+					@mainEnriesHash[type] = getEachLedgerBSAmt(@to, [type])
+					@subEntriesHash[type] = getSubEntries(@from, @to, type)
 					if type == 'PL'
-						mainEnriesHash[type] = subEntriesHash[type]
-						subEntriesHash[type] = nil
+						@mainEnriesHash[type] = @subEntriesHash[type]
+						@subEntriesHash[type] = nil
 					end
-					mainTotalHash[type] = mainEnriesHash[type].blank? ? 0 : mainEnriesHash[type].values.inject(:+)
-					unless subEntriesHash[type].blank?
-						mainTotalHash[type] = getEntriesTotal(subEntriesHash[type]) + mainTotalHash[type]
+					@mainTotalHash[type] = @mainEnriesHash[type].blank? ? 0 : @mainEnriesHash[type].values.inject(:+)
+					unless @subEntriesHash[type].blank?
+						@mainTotalHash[type] = getEntriesTotal(@subEntriesHash[type]) + @mainTotalHash[type]
 					end
-					
 				end
-				
-				lEnries = getEachLedgerBSAmt(@to, ['L'])
-				clEnries = getEachLedgerBSAmt(@to, ['CL'])
-				ieEnries = getEachLedgerBSAmt(@to, ['IE'])
-				totalDI = mainEnriesHash['C'].blank? ? 0 : mainEnriesHash['C'].values.inject(:+) 
-				totalDE = lEnries.blank? ? 0 : lEnries.values.inject(:+) 
-				totalII = clEnries.blank? ? 0 : clEnries.values.inject(:+) 
-				totalIE = ieEnries.blank? ? 0 : ieEnries.values.inject(:+)
 			%>
+			<%= render partial: "report_sections", locals: { from: 0, to:3, title: l(:label_of_funds,l(:label_copy_source)) + " : " }%>
 			
-			<% for i in 0..3 %>
-				<% if mainTotalHash[ledgerArr[i]] > 0 %>
-					<tr style="width:100%;">
-						<td align="left"><b><%= ledgerArr[i] == 'PL' ? l(:label_profit_loss_account) : getLedgerTypeHash[ledgerArr[i]]%></b></td>
-						<td></td>
-						<td align="right"><b><%= mainTotalHash[ledgerArr[i]] %></b></td>
-					</tr>
-					<% unless subEntriesHash[ledgerArr[i]].blank? 
-						subEntriesHash[ledgerArr[i]].each do |key, subEntry|
-							unless subEntry.blank? || subEntry.values.inject(:+) <= 0 %>
-								<tr style="width:100%;">
-									<td align="left" style="padding-left: 25px;"><b><%= getLedgerTypeHash[key]%></b></td>
-									<td align="right"><b><%= subEntry.values.inject(:+) %></b></td>
-									<td></td>
-								</tr>
-								<%= render partial: "report_rows", locals: { entries: subEntry, padding:50 }%>
-							<% end %>
-						<% end %>
-					<% end %>
-					<%= render partial: "report_rows", locals: { entries: mainEnriesHash[ledgerArr[i]] }%>
-				<% end %>
-			<% end %>
-			<tr style="width:100%;">
-				<td align="left" style="padding-left: 25px;" style=""><b><%= l(:label_total) + " : "%></b></td>
-				<td style="border-top: solid thin;border-bottom: solid thin;"></td>
-				<td align="right" style="border-top: solid thin;border-bottom: solid thin;"><b><%= mainTotalHash[ledgerArr[0]] + mainTotalHash[ledgerArr[1]] + mainTotalHash[ledgerArr[2]] %></b></td>
-			</tr>
-			<tr style="width:100%;">
-				<td><b><u><%= l(:label_of_funds,l(:label_application)) + " : " %></u></b></td>
-				<td></td>
-				<td></td>
-			</tr>
+			<%= render partial: "report_sections", locals: { from: 4, to:5, title: l(:label_of_funds,l(:label_application)) + " : " }%>
 			
-			<% for i in 4..5 %>
-				<% if mainTotalHash[ledgerArr[i]] > 0 %>
-					<tr style="width:100%;">
-						<td align="left"><b><%= getLedgerTypeHash[ledgerArr[i]]%></b></td>
-						<td></td>
-						<td align="right"><b><%= mainTotalHash[ledgerArr[i]] %></b></td>
-					</tr>
-					<% unless subEntriesHash[ledgerArr[i]].blank? 
-						subEntriesHash[ledgerArr[i]].each do |key, subEntry|
-							unless subEntry.blank? || subEntry.values.inject(:+) <= 0 %>
-								<tr style="width:100%;">
-									<td align="left" style="padding-left: 25px;"><b><%= getLedgerTypeHash[key]%></b></td>
-									<td align="right"><b><%= subEntry.values.inject(:+) %></b></td>
-									<td></td>
-								</tr>
-								<%= render partial: "report_rows", locals: { entries: subEntry, padding:50 }%>
-							<% end %>
-						<% end %>
-					<% end %>
-					<%= render partial: "report_rows", locals: { entries: mainEnriesHash[ledgerArr[i]] }%>
-				<% end %>
-			<% end %>
-			<tr style="width:100%;">
-				<td align="left" style="padding-left: 25px;" style=""><b><%= l(:label_total) + " : "%></b></td>
-				<td style="border-top: solid thin;border-bottom: solid thin;"></td>
-				<td align="right" style="border-top: solid thin;border-bottom: solid thin;"><b><%= mainTotalHash[ledgerArr[3]] + mainTotalHash[ledgerArr[4]] %></b></td>
-			</tr>
 		</body>
 	</table>
 </div>
