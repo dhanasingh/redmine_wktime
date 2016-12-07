@@ -4,10 +4,10 @@
 <%= form_tag({:controller => controller_name, :action => 'update'}, :method => :get, :id => 'query_form') do %>
 	<table>
 	<tr><td><b><label><%= l(:label_transaction) +" "+l(:general_text_No) %></label></td><td><label><%= @transEntry.blank? ? '' : @transEntry[0].id %></label></b></td></tr>
-	<%=h hidden_field_tag("transaction_id",   @transEntry.blank? ? '' : @transEntry[0].id  )  %>
+	<%=h hidden_field_tag("gl_transaction_id",   @transEntry.blank? ? '' : @transEntry[0].id  )  %>
 	<tr><td><b><label><%= l(:label_transaction) +" "+ l(:label_type)%></label></b></td><td><%=h select_tag('txn_type', options_for_select(transTypeHash.invert,  :selected => @transEntry.blank? ? '' : @transEntry[0].trans_type), :required => true, :style => "width:150px;") %></td></tr>
 	<tr><td><b><label><%= l(:label_transaction) +" "+ l(:label_date)  %></label></b></td><td>
-	<%= date_field_tag('date', @transEntry.blank? ? '' : @transEntry[0].trans_date, {:id => 'start_date', :size => 12, :style => "width:130px; "}) + calendar_for('start_date') %>
+	<%= date_field_tag('date', @transEntry.blank? ? Date.today : @transEntry[0].trans_date, {:id => 'start_date', :size => 12, :style => "width:130px; "}) + calendar_for('start_date') %>
 	</td>	
 	</tr>
 	</table>
@@ -127,7 +127,7 @@
 	</tr>
 	<tr>
 		<td></td>
-		<td style="width:40%;"><%= text_area_tag 'txn_cmt',  "", :style => "width:605px" %></td>
+		<td style="width:40%;"><%= text_area_tag 'txn_cmt',  @transEntry.blank? ? '' : @transEntry[0].comment, :style => "width:605px" %></td>
 		<td style="width:13.75%;"></td>
 		<td style="width:13.75%;"></label></b></td>
 		<td style="width:10%;"></label></b></td>

@@ -211,13 +211,13 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 
 	# For Accounting
 	
-	get 'wktransaction/index', :to => 'wktransaction#index'	
+	get 'wkgltransaction/index', :to => 'wkgltransaction#index'	
 	
-	get 'wktransaction/edit', :to => 'wktransaction#edit'
+	get 'wkgltransaction/edit', :to => 'wkgltransaction#edit'
 	
-	get 'wktransaction/update', :to => 'wktransaction#update'
+	get 'wkgltransaction/update', :to => 'wkgltransaction#update'
 	
-	delete 'wktransaction/destroy', :to => 'wktransaction#destroy'
+	delete 'wkgltransaction/destroy', :to => 'wkgltransaction#destroy'
 	
 	get 'wkledger/index', :to => 'wkledger#index'
 	

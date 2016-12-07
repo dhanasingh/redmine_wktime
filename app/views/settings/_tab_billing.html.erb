@@ -27,6 +27,17 @@ lblInvCompVal = "<%=l(:field_value) %>";
 	<p style="margin-left: -110px;">
 		<%= check_box_tag('settings[wktime_enable_billing_module]', 1, @settings['wktime_enable_billing_module'].to_i == 1) %> <label><%= l(:label_enable_billing_module) %></label>
 	</p>
+	
+	<p style="margin-left: -110px;">
+			<%= check_box_tag('settings[wktime_auto_post_gl]', 1, @settings['wktime_auto_post_gl'].to_i == 1) %> <label><%= l(:label_auto_post_gl) %></label>
+	</p>
+	
+	<p style="margin-left: -110px;"><label><%= l(:label_credit) + " " +  l(:label_ledger)  %></label>
+	    <%= select_tag 'settings[wktime_cr_ledger]', options_for_select([['','']]+@ledgers, :selected => @settings['wktime_cr_ledger']) %></p>
+	
+	<p style="margin-left: -110px;"><label><%= l(:label_debit) + " " +  l(:label_ledger)  %></label>
+	    <%= select_tag 'settings[invoice_db_ledger]', options_for_select([['','']]+@ledgers, :selected => @settings['invoice_db_ledger']) %></p>
+		
 	<%= l(:label_redmine_restart_warning) %>
 	<p style="margin-left: -110px;">
 			<%= check_box_tag('settings[wktime_auto_generate_invoice]', 1, @settings['wktime_auto_generate_invoice'].to_i == 1) %> <label><%= l(:label_auto_generate_invoice) %></label>

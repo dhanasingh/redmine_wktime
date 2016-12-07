@@ -602,7 +602,7 @@ end
 			   ]
 		else
 			tabs = [
-				{:name => 'wktransaction', :partial => 'wktime/tab_content', :label => :label_transaction}
+				{:name => 'wkgltransaction', :partial => 'wktime/tab_content', :label => :label_transaction}
 			   ]
 			if	isModuleAdmin('wktime_accounting_admin')
 				tabs << {:name => 'wkledger', :partial => 'wktime/tab_content', :label => :label_ledger}

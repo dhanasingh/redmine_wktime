@@ -461,3 +461,4 @@ en:
   label_application: Application
   label_current: Current
   label_original: Original
+  label_auto_post_gl: Auto post to General/Ledger

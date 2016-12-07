@@ -1,4 +1,4 @@
-module WktransactionHelper
+module WkgltransactionHelper
 
 include WktimeHelper
 include WkaccountingHelper

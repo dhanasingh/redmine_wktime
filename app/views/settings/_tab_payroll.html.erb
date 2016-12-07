@@ -5,6 +5,7 @@ payroll_name_errormsg = "<%=l(:label_name_errormsg) %>";
 payroll_date_errormsg = "<%=l(:label_date_errormsg) %>";
 payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
 </script>
+<% @ledgers = WkLedger.pluck(:name, :id) %> 
 <% dlgcontent = false %>
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
 <%= hidden_field_tag 'settings[payroll_deleted_ids]', "" %>
@@ -98,6 +99,12 @@ payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
     <p style="margin-left: -110px;"><label><%= l(:label_loss_of_pay) %></label>
 	 <%= select_tag 'settings[wktime_loss_of_pay]', options_for_select(leaveIssueslist, :selected =>  @settings['wktime_loss_of_pay']) %></p>
 	
+	<p style="margin-left: -110px;">
+			<%= check_box_tag('settings[wktime_auto_post_gl]', 1, @settings['wktime_auto_post_gl'].to_i == 1) %> <label><%= l(:label_auto_post_gl) %></label>
+	</p>
+	
+	<p style="margin-left: -110px;"><label><%= l(:label_credit) + " " +  l(:label_ledger)  %></label>
+	    <%= select_tag 'settings[wktime_cr_ledger]', options_for_select([['','']]+@ledgers, :selected => @settings['wktime_cr_ledger']) %></p>
 		 
 <p style="margin-left: -110px;">
 <label><%= l(:label_basic) %></label>
@@ -133,6 +140,8 @@ payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
 		<%= link_to "Edit", "javascript:payrollDialogAction('Deduction', 'Edit');", :class => "button"%>  |
 		<%= link_to "Delete", "javascript:removeSelectedValue('settings_wktime_payroll_deduction');", :class => "button" %>
 	</p>
+	
+	
 
 <div id="payroll-dlg" title="<%= l(:label_basic) %>">
 <fieldset>
@@ -147,6 +156,9 @@ payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
 	
 	
 	<p id="basic_factor">	<label><%= l(:label_factor) %></label><%= text_field_tag 'basic_field_factor', "", :maxlength => 7, :style => " width:150px; float:right; " %></p>
+	
+	<p ><label><%= l(:label_debit) + " " +  l(:label_ledger)  %></label>
+	    <%= select_tag 'settings[wktime_db_ledger]', options_for_select([['','']]+@ledgers, :selected => @settings['wktime_db_ledger']) , :style => "width:155px; float:right; " %></p>
 	
 	<p id="allowance_dependent">
 		<table id = "table_payroll_dependent">

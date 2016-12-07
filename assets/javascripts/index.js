@@ -223,7 +223,7 @@ $(document).ready(function()
 	changeProp('tab-wkaccountproject',blgaccpjtsUrl);
 	changeProp('tab-wkinvoice',blginvoiceUrl);
 	changeProp('tab-wktax',blgtaxUrl);
-	changeProp('tab-wktransaction',blgtxnUrl);
+	changeProp('tab-wkgltransaction',blgtxnUrl);
 	changeProp('tab-wkledger',blgledgerUrl);
 });
 
