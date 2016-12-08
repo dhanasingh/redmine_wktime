@@ -33,7 +33,7 @@ lblInvCompVal = "<%=l(:field_value) %>";
 	</p>
 	
 	<p style="margin-left: -110px;"><label><%= l(:label_credit) + " " +  l(:label_ledger)  %></label>
-	    <%= select_tag 'settings[wktime_cr_ledger]', options_for_select([['','']]+@ledgers, :selected => @settings['wktime_cr_ledger']) %></p>
+	    <%= select_tag 'settings[invoice_cr_ledger]', options_for_select([['','']]+@ledgers, :selected => @settings['invoice_cr_ledger']) %></p>
 	
 	<p style="margin-left: -110px;"><label><%= l(:label_debit) + " " +  l(:label_ledger)  %></label>
 	    <%= select_tag 'settings[invoice_db_ledger]', options_for_select([['','']]+@ledgers, :selected => @settings['invoice_db_ledger']) %></p>

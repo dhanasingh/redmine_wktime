@@ -242,7 +242,8 @@ module WkpayrollHelper
 							wksalaryComponents.name = sval[1]
 							wksalaryComponents.component_type = 'b'
 							wksalaryComponents.salary_type = sval[2]
-							wksalaryComponents.factor = sval[3]				
+							wksalaryComponents.factor = sval[3]
+							wksalaryComponents.ledger_id = sval[4]							
 						else
 							wksalaryComponents.name = sval[1]
 							wksalaryComponents.frequency = sval[2]
@@ -250,6 +251,7 @@ module WkpayrollHelper
 							wksalaryComponents.component_type = key.to_s == 'allowances' ? 'a' : 'd'
 							wksalaryComponents.dependent_id = sval[4]
 							wksalaryComponents.factor = sval[5]
+							wksalaryComponents.ledger_id = sval[6]
 						end
 							wksalaryComponents.save()
 					end
