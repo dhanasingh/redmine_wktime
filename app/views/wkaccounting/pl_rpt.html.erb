@@ -27,91 +27,71 @@
 				<td></td>
 			</tr>
 			<% 
-				diEnries = getEachLedgerSumAmt(@from, @to, ['DI'])
-				deEnries = getEachLedgerSumAmt(@from, @to, ['DE'])
-				iiEnries = getEachLedgerSumAmt(@from, @to, ['II'])
-				ieEnries = getEachLedgerSumAmt(@from, @to, ['IE'])
-				totalDI = diEnries.blank? ? 0 : diEnries.values.inject(:+) 
-				totalDE = deEnries.blank? ? 0 : deEnries.values.inject(:+) 
-				totalII = iiEnries.blank? ? 0 : iiEnries.values.inject(:+) 
-				totalIE = ieEnries.blank? ? 0 : ieEnries.values.inject(:+)
+				@mainEnriesHash = Hash.new
+				@mainTotalHash = Hash.new
+				plLedgerTypes = incomeLedgerTypes + expenseLedgerTypes
+				plLedgerTypes.each do |type|
+					@mainEnriesHash[type] = getEachLedgerSumAmt(@from, @to, [type])
+					@mainTotalHash[type] = @mainEnriesHash[type].blank? ? 0 : @mainEnriesHash[type].values.inject(:+)
+				end
 			%>
-			<tr style="width:100%;">
-				<td align="left"><b><%= l(:label_direct_incomes)%></b></td>
-				<td></td>
-				<td align="right"><b><%= totalDI %></b></td>
-			</tr>
-			<% diEnries.each do |entry| %>
+			<% for i in 0..1 %>
 				<tr style="width:100%;">
-					<td align="left" style="padding-left: 10px;"><%= entry[0]%></td>
-					<% if entry.last %>
-						<td align="right" style="border-bottom: solid thin;"><%= entry[1] %></td>
-					<% else %>
-						<td align="right"><%= entry[1] %></td>
-					<% end %>
+					<td align="left"><b><%= getLedgerTypeHash[incomeLedgerTypes[i]] %></b></td>
 					<td></td>
+					<td align="right"><b><%=  @mainTotalHash[incomeLedgerTypes[i]] if @mainTotalHash[incomeLedgerTypes[i]]>0 %></b></td>
 				</tr>
+				<% if @mainTotalHash[incomeLedgerTypes[i]] > 0 %>
+					<%= render partial: "report_rows", locals: { entries: @mainEnriesHash[incomeLedgerTypes[i]] }%>
+				<% end %>
 			<% end %>
 			<tr style="width:100%;">
 				<td align="left"><b><%= l(:label_cost_of_sales)%></b></td>
 				<td></td>
-				<td align="right"><b><%= totalDE %></b></td>
+				<td align="right"><b><%= @mainTotalHash['DE']  + @mainTotalHash['PA'] %></b></td>
 			</tr>
-			<tr style="width:100%;">
-				<td align="left" style="padding-left: 10px;"><b><%= l(:label_direct_expenses)%></b></td>
-				<td align="right"><%= totalDE %></td>
-				<td></td>
-			</tr>
-			<% deEnries.each do |entry| %>
+			<% for i in 0..1 %>
 				<tr style="width:100%;">
-					<td align="left" style="padding-left: 20px;"><%= entry[0]%></td>
-					<td align="right"><%= entry[1] %></td>
+					<td align="left" style="padding-left: 25px;"><b><%= getLedgerTypeHash[expenseLedgerTypes[i]] %></b></td>
+					<td align="right"><%=  @mainTotalHash[expenseLedgerTypes[i]]  if  @mainTotalHash[expenseLedgerTypes[i]] > 0 %></td>
 					<td></td>
 				</tr>
+				<% if @mainTotalHash[expenseLedgerTypes[i]] > 0 %>
+					<%= render partial: "report_rows", locals: { entries: @mainEnriesHash[expenseLedgerTypes[i]], padding: 50 }%>
+					
+				<% end %>
 			<% end %>
 			<tr style="width:100%;">
-				<td align="left" style="padding-left: 10px;" style=""><b><%= l(:label_gross) + " " + l(:label_profit) + " : " %></b></td>
+				<td align="left" style="padding-left: 25px;"><b><%= l(:label_gross) + " " + l(:label_profit) + " : " %></b></td>
 				<td style="border-top: solid thin;"></td>
-				<td align="right" style="border-top: solid thin;"><b><%= totalDI - totalDE %></b></td>
+				<td align="right" style="border-top: solid thin;"><b><%= @mainTotalHash['DI'] + @mainTotalHash['SA'] - @mainTotalHash['DE']  - @mainTotalHash['PA'] %></b></td>
 			</tr>
 			<tr style="width:100%;">
 				<td><b><u><%= l(:label_income) + " " + l(:label_statement) + " : " %></u></b></td>
 				<td></td>
 				<td></td>
 			</tr>
-			<tr style="width:100%;">
-				<td align="left"><b><%= l(:label_indirect_incomes)%></b></td>
-				<td></td>
-				<td align="right"><b><%= totalII %></b></td>
-			</tr>
-			<% iiEnries.each do |entry| %>
+			<% ['II', 'IE'].each do |type| %>
 				<tr style="width:100%;">
-					<td align="left" style="padding-left: 10px;"><%= entry[0]%></td>
-					<td align="right"><%= entry[1] %></td>
+					<td align="left"><b><%= getLedgerTypeHash[type] %></b></td>
 					<td></td>
+					<td align="right"><b><%=  @mainTotalHash[type] if  @mainTotalHash[type] > 0 %></b></td>
 				</tr>
+				<% if @mainTotalHash[type] > 0 %>
+					<%= render partial: "report_rows", locals: { entries: @mainEnriesHash[type] }%>
+				<% end %>
+				<% if type == 'II' %>
+					<tr style="width:100%;">
+						<td></td>
+						<td style="border-top: solid thin;"></td>
+						<td align="right" style="border-top: solid thin;"><b><%= @mainTotalHash['DI'] + @mainTotalHash['II'] + @mainTotalHash['SA'] - @mainTotalHash['DE']- @mainTotalHash['PA'] %></b></td>
+					</tr>
+				<% end %>
 			<% end %>
 			<tr style="width:100%;">
-				<td></td>
-				<td style="border-top: solid thin;"></td>
-				<td align="right" style="border-top: solid thin;"><b><%= totalDI - totalDE + totalII %></b></td>
-			</tr>
-			<tr style="width:100%;">
-				<td align="left"><b><%= l(:label_indirect_expenses)%></b></td>
-				<td></td>
-				<td align="right"><b><%= totalIE %></b></td>
-			</tr>
-			<% ieEnries.each do |entry| %>
-				<tr style="width:100%;">
-					<td align="left" style="padding-left: 10px;"><%= entry[0]%></td>
-					<td align="right"><%= entry[1] %></td>
-					<td></td>
-				</tr>
-			<% end %>
-			<tr style="width:100%;">
-				<td align="left" style="padding-left: 10px;" style=""><b><%= l(:label_net) + " " + l(:label_profit) + " : "%></b></td>
+				<td align="left" style="padding-left: 25px;"><b><%= l(:label_net) + " " + l(:label_profit) + " : "%></b></td>
 				<td style="border-top: solid thin;border-bottom: solid thin;"></td>
-				<td align="right" style="border-top: solid thin;border-bottom: solid thin;"><b><%= totalDI - totalDE + totalII - totalIE %></b></td>
+				<td align="right" style="border-top: solid thin;border-bottom: solid thin;"><b><%= @mainTotalHash['DI'] + @mainTotalHash['II'] + @mainTotalHash['SA'] - @mainTotalHash['DE']- @mainTotalHash['IE']    - @mainTotalHash['PA'] %></b></td>
 			</tr>
 		</body>
 	</table>

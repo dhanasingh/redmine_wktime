@@ -50,11 +50,11 @@ include WktimeHelper
 	end
 	
 	def incomeLedgerTypes
-		['DI','II','SA']
+		['SA','DI','II']
 	end
 	
 	def expenseLedgerTypes
-		['DE','IE','PA']
+		['PA','DE','IE']
 	end
 	
 	def getSubEntries(from, asOnDate, ledgerType)
