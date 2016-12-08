@@ -53,6 +53,9 @@ module WkpayrollHelper
 		else	
 			errorMsg = l(:error_wktime_save_nothing)
 		end
+		if errorMsg.blank?
+			generateGlTransaction(userIds,salaryDate)
+		end
 		errorMsg
 	end
 	
@@ -259,4 +262,55 @@ module WkpayrollHelper
 			end		
 		}
     end
+	
+	def generateGlTransaction(userIds,salaryDate)
+		errorMsg = nil
+		totaldebit = 0
+		totalcredit = 0
+		sqlStr = "select sc.id, ws.user_id, sc.ledger_id, sc.name, sc.component_type,  ws.amount  from wk_salaries ws left outer join wk_salary_components sc
+					on ws.salary_component_id = sc.id where ws.salary_date = '2017-01-01' and user_id in (1,4,5,6,8)"
+		salaries = WkSalary.includes(:salary_component).where("wk_salaries.salary_date = '2017-01-01' and wk_salaries.user_id in (#{userIds}) and wk_salary_components.ledger_id is not null ").references(:salary_component).group("wk_salary_components.ledger_id").sum("wk_salaries.amount")
+		
+		ledgerIds = WkSalaryComponents.pluck(:ledger_id, :component_type)
+		ledgersIdHash = Hash[*ledgerIds.flatten]
+		crledgerId = Setting.plugin_redmine_wktime['wktime_cr_ledger'].to_i
+		transTypeArr = WkLedger.where(:id => crledgerId).pluck(:id, :ledger_type)
+		transTypeHash = Hash[*transTypeArr.flatten]
+		
+		wkgltransaction = WkGlTransaction.new
+		wkgltransaction.trans_type = transTypeHash[Setting.plugin_redmine_wktime['wktime_cr_ledger'].to_i] == "BA" || transTypeHash[Setting.								plugin_redmine_wktime['wktime_cr_ledger'].to_i] == "CS" ? "P" : "J" 
+		wkgltransaction.trans_date = salaryDate
+		unless wkgltransaction.valid?
+			errorMsg = wkgltransaction.errors.full_messages.join("<br>")
+		else 
+			wkgltransaction.save()
+		end
+		
+		salaries.each{|key,value|
+			wktxnDetail = WkGlTransactionDetail.new
+			wktxnDetail.ledger_id = key.to_i
+			wktxnDetail.gl_transaction_id = wkgltransaction.id
+			wktxnDetail.detail_type = ledgersIdHash[key.to_i] == 'd' ? 'c' : 'd'
+			wktxnDetail.amount = value
+			wktxnDetail.currency = Setting.plugin_redmine_wktime['wktime_currency']
+			totaldebit = totaldebit + value.to_i if ledgersIdHash[key.to_i] == 'b' || ledgersIdHash[key.to_i] == 'a'
+			totalcredit = totalcredit + value.to_i if ledgersIdHash[key.to_i] == 'd'
+			unless wktxnDetail.valid?
+				errorMsg = wktxnDetail.errors.full_messages.join("<br>")
+			else 
+				wktxnDetail.save()
+			end
+		}
+		wktxnDetail = WkGlTransactionDetail.new
+		wktxnDetail.ledger_id = Setting.plugin_redmine_wktime['wktime_cr_ledger'].to_i
+		wktxnDetail.gl_transaction_id = wkgltransaction.id
+		wktxnDetail.detail_type = 'c'
+		wktxnDetail.amount = totaldebit - totalcredit
+		wktxnDetail.currency = Setting.plugin_redmine_wktime['wktime_currency']
+		unless wktxnDetail.valid?
+			errorMsg = wktxnDetail.errors.full_messages.join("<br>")
+		else 
+			wktxnDetail.save()
+		end		
+	end
 end
