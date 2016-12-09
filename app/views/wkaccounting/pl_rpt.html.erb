@@ -39,9 +39,9 @@
 				<tr style="width:100%;">
 					<td align="left"><b><%= getLedgerTypeHash[incomeLedgerTypes[i]] %></b></td>
 					<td></td>
-					<td align="right"><b><%=  @mainTotalHash[incomeLedgerTypes[i]] if @mainTotalHash[incomeLedgerTypes[i]]>0 %></b></td>
+					<td align="right"><b><%=  @mainTotalHash[incomeLedgerTypes[i]] if @mainTotalHash[incomeLedgerTypes[i]] != 0 %></b></td>
 				</tr>
-				<% if @mainTotalHash[incomeLedgerTypes[i]] > 0 %>
+				<% if @mainTotalHash[incomeLedgerTypes[i]] != 0 %>
 					<%= render partial: "report_rows", locals: { entries: @mainEnriesHash[incomeLedgerTypes[i]] }%>
 				<% end %>
 			<% end %>
@@ -53,10 +53,10 @@
 			<% for i in 0..1 %>
 				<tr style="width:100%;">
 					<td align="left" style="padding-left: 25px;"><b><%= getLedgerTypeHash[expenseLedgerTypes[i]] %></b></td>
-					<td align="right"><%=  @mainTotalHash[expenseLedgerTypes[i]]  if  @mainTotalHash[expenseLedgerTypes[i]] > 0 %></td>
+					<td align="right"><%=  @mainTotalHash[expenseLedgerTypes[i]]  if  @mainTotalHash[expenseLedgerTypes[i]] != 0 %></td>
 					<td></td>
 				</tr>
-				<% if @mainTotalHash[expenseLedgerTypes[i]] > 0 %>
+				<% if @mainTotalHash[expenseLedgerTypes[i]] != 0 %>
 					<%= render partial: "report_rows", locals: { entries: @mainEnriesHash[expenseLedgerTypes[i]], padding: 50 }%>
 					
 				<% end %>
@@ -75,9 +75,9 @@
 				<tr style="width:100%;">
 					<td align="left"><b><%= getLedgerTypeHash[type] %></b></td>
 					<td></td>
-					<td align="right"><b><%=  @mainTotalHash[type] if  @mainTotalHash[type] > 0 %></b></td>
+					<td align="right"><b><%=  @mainTotalHash[type] if  @mainTotalHash[type] != 0 %></b></td>
 				</tr>
-				<% if @mainTotalHash[type] > 0 %>
+				<% if @mainTotalHash[type] != 0 %>
 					<%= render partial: "report_rows", locals: { entries: @mainEnriesHash[type] }%>
 				<% end %>
 				<% if type == 'II' %>

@@ -14,7 +14,7 @@
 		</tr>
 		<% unless @subEntriesHash[@ledgerArr[i]].blank? 
 			@subEntriesHash[@ledgerArr[i]].each do |key, subEntry|
-				unless subEntry.blank? || subEntry.values.inject(:+) <= 0 %>
+				unless subEntry.blank? || subEntry.values.inject(:+) == 0 %>
 					<tr style="width:100%;">
 						<td align="left" style="padding-left: 25px;"><b><%= getLedgerTypeHash[key]%></b></td>
 						<td align="right"><b><%= subEntry.values.inject(:+) %></b></td>

@@ -142,7 +142,7 @@ include WktimeHelper
 				detailHash[type] = WkGlTransactionDetail.includes(:ledger, :wkgltransaction).where('wk_gl_transaction_details.detail_type = ? and wk_ledgers.ledger_type IN (?) and wk_gl_transactions.trans_date between ? and ?', type, ledgerType, from, to).references(:ledger,:wkgltransaction).group('wk_ledgers.id, wk_ledgers.name').sum('wk_gl_transaction_details.amount')
 			end
 		end
-		profitHash = detailHash['c'].merge(detailHash['d']){|key, oldval, newval| newval - oldval}
+		profitHash = detailHash['c'].merge(detailHash['d']){|key, oldval, newval| oldval - newval}
 		profitHash
 	end
 end
