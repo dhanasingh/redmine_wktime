@@ -1,6 +1,8 @@
 module WkinvoiceHelper
 include WktimeHelper
 include WkattendanceHelper
+include WkaccountingHelper
+include WkgltransactionHelper
 
     def options_for_wktime_account(blankOption)
 		accArr = Array.new
@@ -31,8 +33,32 @@ include WkattendanceHelper
 			if (totalAmount.round - totalAmount) != 0
 				addRoundInvItem(totalAmount)
 			end
+			if totalAmount > 0 && autoPostGL
+				glTransaction = postToGlTransaction(@invoice, totalAmount.round, @invoice.invoice_items[0].currency)
+				unless glTransaction.blank?
+					@invoice.gl_transaction_id = glTransaction.id
+					@invoice.save
+				end				
+			end
 		end
 		errorMsg
+	end
+	
+	def postToGlTransaction(invoice, amount, currency)
+		glTransaction = nil
+		crLedger = WkLedger.find(getSettingCfId('invoice_cr_ledger'))
+		dbLedger = WkLedger.find(getSettingCfId('invoice_db_ledger'))
+		unless crLedger.blank? || dbLedger.blank?
+			transId = invoice.gl_transaction.blank? ? nil : invoice.gl_transaction.id
+			transType = getTransType(crLedger.ledger_type, dbLedger.ledger_type)
+			if Setting.plugin_redmine_wktime['wktime_currency'] == currency 
+				isDiffCur = false 
+			else
+				isDiffCur = true 
+			end
+			glTransaction = saveGlTransaction(transId, invoice.invoice_date, transType, nil, amount, currency, isDiffCur)
+		end
+		glTransaction
 	end
 	
 	def saveInvoice
@@ -368,12 +394,16 @@ include WkattendanceHelper
 			numStr = getNumberAsStr[thrDigitVal]
 		else
 			if thrDigitVal > 0
-				hundredStr = getNumberAsStr[thrDigitVal/100].blank? ? "" : (getNumberAsStr[thrDigitVal/100] + " hundred ")
+				hundredStr = getNumberAsStr[thrDigitVal/100].blank? ? "" : (getNumberAsStr[thrDigitVal/100] + " " +  l(:label_hundred))
 				twoDigStr = getTwoDigitNumberStr(thrDigitVal%100)
 				numStr = hundredStr.blank? || twoDigStr.blank? ? (hundredStr + twoDigStr)  : (hundredStr + "and" + twoDigStr)
 			end
 		end
 		numStr = " " + numStr unless numStr.blank?
 		numStr
+	end
+	
+	def autoPostGL
+		(!Setting.plugin_redmine_wktime['wktime_auto_post_gl'].blank? && Setting.plugin_redmine_wktime['wktime_auto_post_gl'].to_i == 1)
 	end
 end

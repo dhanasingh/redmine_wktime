@@ -1,8 +1,5 @@
 class WkgltransactionController < WkaccountingController
   unloadable
-
-
-
    def index
 	    set_filter_session
         retrieve_date_range

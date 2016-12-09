@@ -145,4 +145,18 @@ include WktimeHelper
 		profitHash = detailHash['c'].merge(detailHash['d']){|key, oldval, newval| oldval - newval}
 		profitHash
 	end
+	
+	def getTransType(crLedgerType, dbLedgerType)
+		transtype = nil
+		if (crLedgerType == 'C' || crLedgerType == 'BA') && (dbLedgerType == 'C' || dbLedgerType == 'BA')
+			transtype = 'C'
+		elsif (crLedgerType == 'C' || crLedgerType == 'BA')
+			transtype = 'P'
+		elsif (dbLedgerType == 'C' || dbLedgerType == 'BA')
+			transtype = 'R'
+		else
+			transtype = 'J'
+		end
+		transtype
+	end
 end

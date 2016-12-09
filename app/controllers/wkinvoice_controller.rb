@@ -127,6 +127,13 @@ include WkinvoiceHelper
 			if (totalAmount.round - totalAmount) != 0
 				addRoundInvItem(totalAmount)
 			end
+			if totalAmount > 0 && autoPostGL
+				glTransaction = postToGlTransaction(@invoice, totalAmount.round, @invoice.invoice_items[0].currency)
+				unless glTransaction.blank?
+					@invoice.gl_transaction_id = glTransaction.id
+					@invoice.save
+				end				
+			end
 		end
 		
 		if errorMsg.nil? 
