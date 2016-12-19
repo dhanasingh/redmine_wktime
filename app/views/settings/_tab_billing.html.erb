@@ -32,7 +32,7 @@ lblInvCompVal = "<%=l(:field_value) %>";
 	</p>
 	
 	<p style="margin-left: -110px;">
-			<%= check_box_tag('settings[wktime_auto_post_gl]', 1, @settings['wktime_auto_post_gl'].to_i == 1) %> <label><%= l(:label_auto_post_gl) %></label>
+			<%= check_box_tag('settings[invoice_auto_post_gl]', 1, @settings['invoice_auto_post_gl'].to_i == 1) %> <label><%= l(:label_auto_post_gl) %></label>
 	</p>
 	
 	<p style="margin-left: -110px;"><label><%= l(:label_credit) + " " +  l(:label_ledger)  %></label>

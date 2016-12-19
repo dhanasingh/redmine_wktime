@@ -1083,4 +1083,8 @@ end
 		(!Setting.plugin_redmine_wktime['wktime_enable_accounting_module'].blank? &&
 			Setting.plugin_redmine_wktime['wktime_enable_accounting_module'].to_i == 1 ) && (isModuleAdmin('wktime_accounting_group') || isModuleAdmin('wktime_accounting_admin') )
 	end
+	
+	def isChecked(settingName)
+		(!Setting.plugin_redmine_wktime[settingName].blank? && Setting.plugin_redmine_wktime[settingName].to_i == 1)
+	end
 end

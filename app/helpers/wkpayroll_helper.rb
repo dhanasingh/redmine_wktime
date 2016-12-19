@@ -53,8 +53,8 @@ module WkpayrollHelper
 		else	
 			errorMsg = l(:error_wktime_save_nothing)
 		end
-		if errorMsg.blank?
-			errorMsg = generateGlTransaction(userIds,salaryDate)
+		if errorMsg.blank? && isChecked('salary_auto_post_gl')
+			errorMsg = generateGlTransaction(salaryDate)
 		end
 		errorMsg
 	end
@@ -263,36 +263,36 @@ module WkpayrollHelper
 		}
     end
 	
-	def generateGlTransaction(userIds,salaryDate)
+	def generateGlTransaction(salaryDate)
 		errorMsg = nil
-		totaldebit = 0
-		totalcredit = 0
-		salaries = WkSalary.includes(:salary_component).where("wk_salaries.salary_date = '2017-01-01'  and wk_salary_components.ledger_id is not null ").references(:salary_component).group("wk_salary_components.ledger_id").sum("wk_salaries.amount")
+		totalDebit = 0
+		totalCredit = 0
+		salaries = WkSalary.includes(:salary_component).where("wk_salaries.salary_date = ?  and wk_salary_components.ledger_id is not null ", salaryDate).references(:salary_component).group("wk_salary_components.ledger_id").sum("wk_salaries.amount")
 		
 		ledgerIds = WkSalaryComponents.pluck(:ledger_id, :component_type)
 		ledgersIdHash = Hash[*ledgerIds.flatten]
-		crledgerId = Setting.plugin_redmine_wktime['wktime_cr_ledger'].to_i
-		transTypeArr = WkLedger.where(:id => crledgerId).pluck(:id, :ledger_type)
+		crLedgerId = Setting.plugin_redmine_wktime['wktime_cr_ledger'].to_i
+		transTypeArr = WkLedger.where(:id => crLedgerId).pluck(:id, :ledger_type)
 		transTypeHash = Hash[*transTypeArr.flatten]
 		
-		wkgltransaction = WkGlTransaction.new
-		wkgltransaction.trans_type = transTypeHash[Setting.plugin_redmine_wktime['wktime_cr_ledger'].to_i] == "BA" || transTypeHash[Setting.								plugin_redmine_wktime['wktime_cr_ledger'].to_i] == "CS" ? "P" : "J" 
-		wkgltransaction.trans_date = salaryDate
-		unless wkgltransaction.valid?
-			errorMsg = wkgltransaction.errors.full_messages.join("<br>")
+		glTransaction = WkGlTransaction.new
+		glTransaction.trans_type = transTypeHash[Setting.plugin_redmine_wktime['wktime_cr_ledger'].to_i] == "BA" || transTypeHash[Setting.								plugin_redmine_wktime['wktime_cr_ledger'].to_i] == "CS" ? "P" : "J" 
+		glTransaction.trans_date = salaryDate
+		unless glTransaction.valid?
+			errorMsg = glTransaction.errors.full_messages.join("<br>")
 		else 
-			wkgltransaction.save()
+			glTransaction.save()
 		end
 		
 		salaries.each{|key,value|
 			wktxnDetail = WkGlTransactionDetail.new
 			wktxnDetail.ledger_id = key.to_i
-			wktxnDetail.gl_transaction_id = wkgltransaction.id
+			wktxnDetail.gl_transaction_id = glTransaction.id
 			wktxnDetail.detail_type = ledgersIdHash[key.to_i] == 'd' ? 'c' : 'd'
 			wktxnDetail.amount = value
 			wktxnDetail.currency = Setting.plugin_redmine_wktime['wktime_currency']
-			totaldebit = totaldebit + value.to_i if ledgersIdHash[key.to_i] == 'b' || ledgersIdHash[key.to_i] == 'a'
-			totalcredit = totalcredit + value.to_i if ledgersIdHash[key.to_i] == 'd'
+			totalDebit = totalDebit + value.to_i if ledgersIdHash[key.to_i] == 'b' || ledgersIdHash[key.to_i] == 'a'
+			totalCredit = totalCredit + value.to_i if ledgersIdHash[key.to_i] == 'd'
 			unless wktxnDetail.valid?
 				errorMsg = wktxnDetail.errors.full_messages.join("<br>")
 			else 
@@ -301,24 +301,28 @@ module WkpayrollHelper
 		}
 		wktxnDetail = WkGlTransactionDetail.new
 		wktxnDetail.ledger_id = Setting.plugin_redmine_wktime['wktime_cr_ledger'].to_i
-		wktxnDetail.gl_transaction_id = wkgltransaction.id
+		wktxnDetail.gl_transaction_id = glTransaction.id
 		wktxnDetail.detail_type = 'c'
-		wktxnDetail.amount = totaldebit - totalcredit
+		wktxnDetail.amount = totalDebit - totalCredit
 		wktxnDetail.currency = Setting.plugin_redmine_wktime['wktime_currency']
 		unless wktxnDetail.valid?
 			errorMsg = wktxnDetail.errors.full_messages.join("<br>")
 		else 
 			wktxnDetail.save()
 		end
-		
-		wkglsalary = WkGlSalary.new
-		wkglsalary.salary_date = salaryDate
-		wkglsalary.gl_transaction_id = wkgltransaction.id
-		unless wkglsalary.valid?
-			errorMsg = wkglsalary.errors.full_messages.join("<br>")
+		deleteGlSalary(salaryDate)
+		glSalary = WkGlSalary.new
+		glSalary.salary_date = salaryDate
+		glSalary.gl_transaction_id = glTransaction.id
+		unless glSalary.valid?
+			errorMsg = glSalary.errors.full_messages.join("<br>")
 		else 
-			wkglsalary.save()
+			glSalary.save()
 		end
 		errorMsg
+	end
+	
+	def deleteGlSalary(salaryDate)
+		WkGlSalary.where(:salary_date =>salaryDate).destroy_all
 	end
 end

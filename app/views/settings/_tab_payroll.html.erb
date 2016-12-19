@@ -102,7 +102,7 @@ payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
 	 <%= select_tag 'settings[wktime_loss_of_pay]', options_for_select(leaveIssueslist, :selected =>  @settings['wktime_loss_of_pay']) %></p>
 	
 	<p style="margin-left: -110px;">
-			<%= check_box_tag('settings[wktime_auto_post_gl]', 1, @settings['wktime_auto_post_gl'].to_i == 1) %> <label><%= l(:label_auto_post_gl) %></label>
+			<%= check_box_tag('settings[salary_auto_post_gl]', 1, @settings['salary_auto_post_gl'].to_i == 1) %> <label><%= l(:label_auto_post_gl) %></label>
 	</p>
 	
 	<p style="margin-left: -110px;"><label><%= l(:label_credit) + " " +  l(:label_ledger)  %></label>

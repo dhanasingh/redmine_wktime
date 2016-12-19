@@ -404,6 +404,6 @@ include WkgltransactionHelper
 	end
 	
 	def autoPostGL
-		(!Setting.plugin_redmine_wktime['wktime_auto_post_gl'].blank? && Setting.plugin_redmine_wktime['wktime_auto_post_gl'].to_i == 1)
+		(!Setting.plugin_redmine_wktime['invoice_auto_post_gl'].blank? && Setting.plugin_redmine_wktime['invoice_auto_post_gl'].to_i == 1)
 	end
 end
