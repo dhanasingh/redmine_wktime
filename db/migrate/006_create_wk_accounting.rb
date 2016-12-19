@@ -31,7 +31,7 @@ class CreateWkAccounting < ActiveRecord::Migration
 	add_reference :wk_salary_components, :ledger, :class => "wk_ledgers", :null => true, index: true
 	add_reference :wk_invoices, :gl_transaction, :class => "wk_gl_transactions", :null => true, index: true
 	
-	create_table :wk_salary_gl do |t|
+	create_table :wk_gl_salaries do |t|
 	  t.date :salary_date, :null => false
 	  t.references :gl_transaction, :class => "wk_gl_transactions", :null => false
 	  t.timestamps null: false

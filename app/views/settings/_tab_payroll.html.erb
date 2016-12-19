@@ -5,7 +5,8 @@ payroll_name_errormsg = "<%=l(:label_name_errormsg) %>";
 payroll_date_errormsg = "<%=l(:label_date_errormsg) %>";
 payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
 </script>
-<% @ledgers = WkLedger.pluck(:name, :id) %> 
+<% @ledgers = ["", ""] %> 
+<% @ledgers << WkLedger.pluck(:name, :id) %> 
 <%  ledgerhash = Hash[*@ledgers.flatten].invert %>
 <% dlgcontent = false %>
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
@@ -105,7 +106,7 @@ payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
 	</p>
 	
 	<p style="margin-left: -110px;"><label><%= l(:label_credit) + " " +  l(:label_ledger)  %></label>
-	    <%= select_tag 'settings[wktime_cr_ledger]', options_for_select([['','']]+@ledgers, :selected => @settings['wktime_cr_ledger']) %></p>
+	    <%= select_tag 'settings[wktime_cr_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['wktime_cr_ledger']) %></p>
 		 
 <p style="margin-left: -110px;">
 <label><%= l(:label_basic) %></label>

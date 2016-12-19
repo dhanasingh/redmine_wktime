@@ -54,7 +54,7 @@ module WkpayrollHelper
 			errorMsg = l(:error_wktime_save_nothing)
 		end
 		if errorMsg.blank?
-			generateGlTransaction(userIds,salaryDate)
+			errorMsg = generateGlTransaction(userIds,salaryDate)
 		end
 		errorMsg
 	end
@@ -267,9 +267,7 @@ module WkpayrollHelper
 		errorMsg = nil
 		totaldebit = 0
 		totalcredit = 0
-		sqlStr = "select sc.id, ws.user_id, sc.ledger_id, sc.name, sc.component_type,  ws.amount  from wk_salaries ws left outer join wk_salary_components sc
-					on ws.salary_component_id = sc.id where ws.salary_date = '2017-01-01' and user_id in (1,4,5,6,8)"
-		salaries = WkSalary.includes(:salary_component).where("wk_salaries.salary_date = '2017-01-01' and wk_salaries.user_id in (#{userIds}) and wk_salary_components.ledger_id is not null ").references(:salary_component).group("wk_salary_components.ledger_id").sum("wk_salaries.amount")
+		salaries = WkSalary.includes(:salary_component).where("wk_salaries.salary_date = '2017-01-01'  and wk_salary_components.ledger_id is not null ").references(:salary_component).group("wk_salary_components.ledger_id").sum("wk_salaries.amount")
 		
 		ledgerIds = WkSalaryComponents.pluck(:ledger_id, :component_type)
 		ledgersIdHash = Hash[*ledgerIds.flatten]
@@ -311,6 +309,16 @@ module WkpayrollHelper
 			errorMsg = wktxnDetail.errors.full_messages.join("<br>")
 		else 
 			wktxnDetail.save()
-		end		
+		end
+		
+		wkglsalary = WkGlSalary.new
+		wkglsalary.salary_date = salaryDate
+		wkglsalary.gl_transaction_id = wkgltransaction.id
+		unless wkglsalary.valid?
+			errorMsg = wkglsalary.errors.full_messages.join("<br>")
+		else 
+			wkglsalary.save()
+		end
+		errorMsg
 	end
 end
