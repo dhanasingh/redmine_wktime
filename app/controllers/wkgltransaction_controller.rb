@@ -14,7 +14,7 @@ class WkgltransactionController < WkaccountingController
 			transaction = transaction.where( :wk_gl_transaction_details => { :ledger_id => ledgerId })
 		end
 		formPagination(transaction)
-		@totalTransAmt = @transEntries.sum("wk_gl_transaction_details.amount")
+		@totalTransAmt = @transEntries.where( :wk_gl_transaction_details => { :detail_type => "d" }).sum("wk_gl_transaction_details.amount")
    end
    
     def edit

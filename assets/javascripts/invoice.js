@@ -156,8 +156,20 @@ function deleteRow(tableId, totalrow)
 		}			
 	}
 	else{
+		var table = document.getElementById(tableId);
+		var rowlength = table.rows.length;
 		document.getElementById(tableId).deleteRow(row_id);	
 		document.getElementById(totalrow).value = document.getElementById(totalrow).value - 1;
+		for(i = 1; i < rowlength-1; i++)
+			{
+				var colCount = table.rows[i].cells.length;			
+				for(var j=0; j<colCount; j++) 
+				{
+					var input = document.getElementById(tableId).rows[i].cells[j].getElementsByTagName("*")[0];	
+					input.id = table.rows[i].cells[j].headers + i;
+					input.name = table.rows[i].cells[j].headers + i;					
+				}
+			}
 	}
 }
 
