@@ -6,9 +6,9 @@
 
 <% total = 0 %>
 <% for i in from..to %>
-	<% if @mainTotalHash[@ledgerArr[i]] > 0 %>
+	<% if @mainTotalHash[@ledgerArr[i]] != 0 %>
 		<tr style="width:100%;">
-			<td align="left"><b><%= getLedgerTypeHash[@ledgerArr[i]]%></b></td>
+			<td align="left"><b><%= getSectionHeader(@ledgerArr[i])%></b></td>
 			<td></td>
 			<td align="right"><b><%= @mainTotalHash[@ledgerArr[i]] %></b></td>
 		</tr>
@@ -16,7 +16,7 @@
 			@subEntriesHash[@ledgerArr[i]].each do |key, subEntry|
 				unless subEntry.blank? || subEntry.values.inject(:+) == 0 %>
 					<tr style="width:100%;">
-						<td align="left" style="padding-left: 25px;"><b><%= getLedgerTypeHash[key]%></b></td>
+						<td align="left" style="padding-left: 25px;"><b><%= getSectionHeader(key)%></b></td>
 						<td align="right"><b><%= subEntry.values.inject(:+) %></b></td>
 						<td></td>
 					</tr>

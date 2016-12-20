@@ -38,6 +38,10 @@ include WktimeHelper
 		ledgerType
 	end
 	
+	def getSectionHeader(type)
+		getLedgerTypeHash[type].blank? ? l(:label_profit_loss_account) : getLedgerTypeHash[type]
+	end
+	
 	def getLedgerTypeGrpHash
 		ledgerTypeGrps = {
 			"CA" => ['BA', 'CS', 'DP', 'AD', 'SH', 'SD', 'IN', 'MS'],
