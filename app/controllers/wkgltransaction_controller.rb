@@ -31,50 +31,55 @@ class WkgltransactionController < WkaccountingController
 		wkgltransaction = nil
 		wktxnDetail = nil
 		arrId = []
-		if params[:gl_transaction_id].blank?
-			wkgltransaction = WkGlTransaction.new
-		else
-			wkgltransaction = WkGlTransaction.find(params[:gl_transaction_id].to_i)
-		end
-		wkgltransaction.trans_type = params[:txn_type]
-		wkgltransaction.trans_date = params[:date]
-		wkgltransaction.comment = params[:txn_cmt]
-		unless wkgltransaction.valid?
-			errorMsg = wkgltransaction.errors.full_messages.join("<br>")
-		end
-		Rails.logger.info("============ errorMsg #{errorMsg} ======================")
-		if errorMsg.blank?
-			for i in 1..params[:txntotalrow].to_i			
-				if params["txn_id#{i}"].blank?
-					wktxnDetail = WkGlTransactionDetail.new
-				else
-					wktxnDetail = WkGlTransactionDetail.find(params["txn_id#{i}"].to_i)
-					
-				end
-				wktxnDetail.ledger_id = params["txn_particular#{i}"]
-				if params["txn_debit#{i}"].blank?
-					wktxnDetail.detail_type = 'c'
-					wktxnDetail.amount = params["txn_credit#{i}"]
-				else
-					wktxnDetail.detail_type = 'd'
-					wktxnDetail.amount = params["txn_debit#{i}"]
-				end
-				wktxnDetail.currency = Setting.plugin_redmine_wktime['wktime_currency']
-				unless wktxnDetail.valid? 		
-					errorMsg = errorMsg.blank? ? wktxnDetail.errors.full_messages.join("<br>") : wktxnDetail.errors.full_messages.join("<br>") + "<br/>" + errorMsg
-				else
-					if i == 1 
-						wkgltransaction.save()
+		if validateTransaction
+			if params[:gl_transaction_id].blank?
+				wkgltransaction = WkGlTransaction.new
+			else
+				wkgltransaction = WkGlTransaction.find(params[:gl_transaction_id].to_i)
+			end
+			wkgltransaction.trans_type = params[:txn_type]
+			wkgltransaction.trans_date = params[:date]
+			wkgltransaction.comment = params[:txn_cmt]
+			
+			unless wkgltransaction.valid?
+				errorMsg = wkgltransaction.errors.full_messages.join("<br>")
+			end
+			if errorMsg.blank?
+				for i in 1..params[:txntotalrow].to_i			
+					if params["txn_id#{i}"].blank?
+						wktxnDetail = WkGlTransactionDetail.new
+					else
+						wktxnDetail = WkGlTransactionDetail.find(params["txn_id#{i}"].to_i)
+						
 					end
-					wktxnDetail.gl_transaction_id = wkgltransaction.id
-					wktxnDetail.save()
-					arrId << wktxnDetail.id
-				end
+					wktxnDetail.ledger_id = params["txn_particular#{i}"]
+					if params["txn_debit#{i}"].blank?
+						wktxnDetail.detail_type = 'c'
+						wktxnDetail.amount = params["txn_credit#{i}"]
+					else
+						wktxnDetail.detail_type = 'd'
+						wktxnDetail.amount = params["txn_debit#{i}"]
+					end
+					wktxnDetail.currency = Setting.plugin_redmine_wktime['wktime_currency']
+					unless wktxnDetail.valid? 		
+						errorMsg = errorMsg.blank? ? wktxnDetail.errors.full_messages.join("<br>") : wktxnDetail.errors.full_messages.join("<br>") + "<br/>" + errorMsg
+					else
+						if i == 1 
+							wkgltransaction.save() 
+						end
+						wktxnDetail.gl_transaction_id = wkgltransaction.id
+						wktxnDetail.save()
+						
+						arrId << wktxnDetail.id
+					end
 
+				end
+				unless arrId.blank?
+					WkGlTransactionDetail.where(:gl_transaction_id => wkgltransaction.id).where.not(:id => arrId).delete_all()
+				end
 			end
-			unless arrId.blank?
-				WkGlTransactionDetail.where(:gl_transaction_id => wkgltransaction.id).where.not(:id => arrId).delete_all()
-			end
+		else
+			errorMsg = " Invalid Entry"
 		end
 		if errorMsg.blank?
 		    redirect_to :controller => 'wkgltransaction',:action => 'index' , :tab => 'wkgltransaction'
@@ -84,6 +89,82 @@ class WkgltransactionController < WkaccountingController
 		    redirect_to :controller => 'wkgltransaction',:action => 'edit'
 		end
     end
+	
+	def validateTransaction
+		ret = true;
+		txnDebitTotal = 0
+		txnCreditTotal = 0
+		ledgerArray = WkLedger.pluck(:ledger_type, :id)
+		ledgerHash = Hash[*ledgerArray.flatten].invert 
+		validationMessage = l(:wk_sub_reminder_text, label_te)
+		
+		if params[:txn_type] == 'C'
+			for i in 1..params[:txntotalrow].to_i
+				ledgerId = params["txn_particular#{i}"]
+				ret = ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA' ? true : false
+				break if !ret			
+			end
+		end
+		
+		if params[:txn_type] == 'P' || params[:txn_type] == 'R'
+			for i in 1..params[:txntotalrow].to_i
+				ledgerId = params["txn_particular#{i}"]
+				if ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA'
+					ret =  params["txn_debit#{i}"].blank? ? true : false if params[:txn_type] == 'P' 
+					ret =  !params["txn_debit#{i}"].blank? ? true : false if params[:txn_type] == 'R' 
+				end
+				break if !ret			
+			end
+		end
+		
+		if params[:txn_type] == 'PR'
+			for i in 1..params[:txntotalrow].to_i
+				ledgerId = params["txn_particular#{i}"]
+				ret = ledgerHash[ledgerId.to_i] == 'PA' ? true : false  if !params["txn_debit#{i}"].blank?
+				ret = ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA' || ledgerHash[ledgerId.to_i] == 'SC' || ledgerHash[ledgerId.to_i] == 'SD'  ? true : false  if params["txn_debit#{i}"].blank?				
+				break if !ret			
+			end
+		end
+		
+		if params[:txn_type] == 'S'
+			for i in 1..params[:txntotalrow].to_i
+				ledgerId = params["txn_particular#{i}"]
+				ret = ledgerHash[ledgerId.to_i] == 'SA' ? true : false  if params["txn_debit#{i}"].blank?
+				ret = ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA' || ledgerHash[ledgerId.to_i] == 'SC' || ledgerHash[ledgerId.to_i] == 'SD'  ? true : false  if !params["txn_debit#{i}"].blank?
+				break if !ret			
+			end
+		end
+		
+		if params[:txn_type] == 'CN'
+			for i in 1..params[:txntotalrow].to_i
+				ledgerId = params["txn_particular#{i}"]
+				ret = !ledgerHash[ledgerId.to_i] == 'CS' || !ledgerHash[ledgerId.to_i] == 'BA' ? true : false  if !params["txn_debit#{i}"].blank?
+				ret = ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA' || ledgerHash[ledgerId.to_i] == 'SC' || ledgerHash[ledgerId.to_i] == 'SD'  ? true : false  if params["txn_debit#{i}"].blank?
+				break if !ret			
+			end
+		end
+		
+		if params[:txn_type] == 'DN'
+			for i in 1..params[:txntotalrow].to_i
+				ledgerId = params["txn_particular#{i}"]				 
+				ret = !ledgerHash[ledgerId.to_i] == 'CS' || !ledgerHash[ledgerId.to_i] == 'BA' ? true : false  if params["txn_debit#{i}"].blank?
+				ret = ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA' || ledgerHash[ledgerId.to_i] == 'SC' || ledgerHash[ledgerId.to_i] == 'SD'  ? true : false  if !params["txn_debit#{i}"].blank?				
+				break if !ret			
+			end
+		end
+		
+		
+		for i in 1..params[:txntotalrow].to_i
+			txnDebitTotal = txnDebitTotal + params["txn_debit#{i}"].to_i if !params["txn_debit#{i}"].blank?
+			txnCreditTotal = txnCreditTotal + params["txn_debit#{i}"].to_i if !params["txn_debit#{i}"].blank?
+		end
+		
+		if ret
+			ret = txnDebitTotal == txnCreditTotal ? true : false
+		end
+		
+		ret
+	end
 	
 	def destroy
 		trans = WkGlTransaction.find(params[:txn_id].to_i).destroy
