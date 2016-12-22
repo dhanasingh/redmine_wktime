@@ -4,6 +4,8 @@ payroll_name = "<%=l(:label_basic_name) %>";
 payroll_name_errormsg = "<%=l(:label_name_errormsg) %>";
 payroll_date_errormsg = "<%=l(:label_date_errormsg) %>";
 payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
+lblcreditLedger = "<%= l(:label_credit) + " " +  l(:label_ledger) %>";
+lbldebitLedger = "<%= l(:label_debit) + " " +  l(:label_ledger) %>";
 </script>
 <% @ledgers = ["", ""] %> 
 <% @ledgers << WkLedger.pluck(:name, :id) %> 
@@ -159,7 +161,7 @@ payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
 	
 	<p id="basic_factor">	<label><%= l(:label_factor) %></label><%= text_field_tag 'basic_field_factor', "", :maxlength => 7, :style => " width:150px; float:right; " %></p>
 	
-	<p ><label><%= l(:label_debit) + " " +  l(:label_ledger)  %></label>
+	<p ><label id="ledgersLabel"><%= l(:label_debit) + " " +  l(:label_ledger)  %></label>
 	    <%= select_tag 'payroll_db_ledger', options_for_select(ledgerhash.invert) , :style => "width:155px; float:right; " %></p>
 	
 	<p id="allowance_dependent">

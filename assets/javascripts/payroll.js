@@ -103,7 +103,14 @@ function payrollDialogAction(dlg, action)
 	basicAction = action;
 	dlgname = dlg;
 	listBoxID = dlgname == 'Basic' ? "settings_wktime_payroll_basic" : (dlgname == 'Allowances' ? 'settings_wktime_payroll_allowances' : 'settings_wktime_payroll_deduction')
-		var listbox = document.getElementById(listBoxID);
+	var listbox = document.getElementById(listBoxID);
+	if(dlg == 'Deduction')
+	{
+		document.getElementById("ledgersLabel").innerHTML = lblcreditLedger;
+	}
+	else{
+		document.getElementById("ledgersLabel").innerHTML = lbldebitLedger;
+	}
 	if('Basic' == dlg)
 	{
 		document.getElementById("basic_salary_type").style.display = 'block';
@@ -139,7 +146,7 @@ function payrollDialogAction(dlg, action)
 		document.getElementById("basic_factor").style.display = 'none';
 		document.getElementById("table_payroll_dependent").style.display = 'block'; 
 		document.getElementById("payroll_frequency").style.display = 'block';
-		document.getElementById("payroll_start_date").style.display = 'block';
+		document.getElementById("payroll_start_date").style.display = 'block';		
 		var csName = document.getElementById("name");
 		var csFrequency = document.getElementById("frequency");
 		var csstart_date = document.getElementById('start_date');
