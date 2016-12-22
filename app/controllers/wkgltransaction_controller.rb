@@ -74,7 +74,7 @@ class WkgltransactionController < WkaccountingController
 							wkgltransaction.save() 
 						end
 						wktxnDetail.gl_transaction_id = wkgltransaction.id
-						wktxnDetail.save()
+						wktxnDetail.save() unless wktxnDetail.amount.blank?
 						
 						arrId << wktxnDetail.id
 					end
@@ -166,7 +166,7 @@ class WkgltransactionController < WkaccountingController
 		end
 		
 		if ret
-			ret = txnDebitTotal == txnCreditTotal ? true : false			
+			ret = txnDebitTotal == txnCreditTotal && txnDebitTotal != 0  ? true : false			
 		end
 		
 		#Repopulate the transaction page. Get and set the transaction and transaction detail values.

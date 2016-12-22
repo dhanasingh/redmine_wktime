@@ -55,8 +55,8 @@
 							:title => l(:button_delete) %>
 				</td>	
 			</tr>
-			<% totaldebit += entry.detail_type == 'd' ? entry.amount : 0 %>	
-			<% totalCredit += entry.detail_type == 'c' ? entry.amount : 0 %>	
+			<% totaldebit += entry.detail_type == 'd' && !entry.amount.blank? ? entry.amount : 0 %>	
+			<% totalCredit += entry.detail_type == 'c' && !entry.amount.blank? ? entry.amount : 0 %>	
 			<% row_index = row_index + 1 %>
 		<% end %>
 	<% else %>
