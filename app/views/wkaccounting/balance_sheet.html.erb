@@ -24,9 +24,9 @@
 			<% 
 				@mainEnriesHash = Hash.new
 				@subEntriesHash = Hash.new
-				@mainTotalHash = Hash.new()
+				@mainTotalHash = Hash.new
 				total = 0
-				@ledgerArr = ['C', 'L', 'CL', 'PL', 'FA', 'CA']
+				@ledgerArr = ['C', 'L', 'CL', 'SP', 'PL', 'FA', 'CA']
 				@ledgerArr.each do |type|
 					@mainEnriesHash[type] = getEachLedgerBSAmt(@to, [type])
 					@subEntriesHash[type] = getSubEntries(@from, @to, type)
@@ -40,9 +40,9 @@
 					end
 				end
 			%>
-			<%= render partial: "report_sections", locals: { from: 0, to:3, title: l(:label_of_funds,l(:label_copy_source)) + " : " }%>
+			<%= render partial: "report_sections", locals: { from: 0, to:4, title: l(:label_of_funds,l(:label_copy_source)) + " : " }%>
 			
-			<%= render partial: "report_sections", locals: { from: 4, to:5, title: l(:label_of_funds,l(:label_application)) + " : " }%>
+			<%= render partial: "report_sections", locals: { from: 5, to:6, title: l(:label_of_funds,l(:label_application)) + " : " }%>
 			
 		</body>
 	</table>

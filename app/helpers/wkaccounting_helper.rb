@@ -29,7 +29,7 @@ include WktimeHelper
 			"RE" => l(:label_retained_earnings),
 			"SA" => l(:label_sales_accounts),
 			"SL" => l(:label_secured_loans),
-			"SH" => l(:label_stock_in_hand),
+			#"SH" => l(:label_stock_in_hand),
 			"SC" => l(:label_sundry_creditors),
 			"SD" => l(:label_sundry_debtors),
 			"SP" => l(:label_suspense_ac),
@@ -44,7 +44,7 @@ include WktimeHelper
 	
 	def getLedgerTypeGrpHash
 		ledgerTypeGrps = {
-			"CA" => ['BA', 'CS', 'DP', 'AD', 'SH', 'SD', 'IN', 'MS'],
+			"CA" => ['BA', 'CS', 'DP', 'AD', 'SD', 'IN', 'MS'], #'SH',
 			"L" => ['OD', 'SL', 'UL', 'OC'],
 			"CL" => ['T', 'PR', 'SC'],
 			"C" => ['RS', 'RE'],
@@ -59,6 +59,14 @@ include WktimeHelper
 	
 	def expenseLedgerTypes
 		['PA','DE','IE']
+	end
+	
+	def sourceOfFundLTypes
+		['C', 'L', 'CL', 'SP']
+	end
+	
+	def appOfFundLTypes
+		 ['FA', 'CA']
 	end
 	
 	def getSubEntries(from, asOnDate, ledgerType)
@@ -81,7 +89,7 @@ include WktimeHelper
 			end
 			subEntriesHash.clear
 			subEntriesHash[l(:wk_label_opening)+ " " + l(:wk_field_balance)] = totalIncome - totalExpense
-			subEntriesHash[l(:label_period)+ " " + l(:label_period)] = getPLfor(from, asOnDate)
+			subEntriesHash[l(:label_current)+ " " + l(:label_period)] = getPLfor(from, asOnDate)
 			
 		end
 		subEntriesHash
@@ -125,13 +133,45 @@ include WktimeHelper
 		typeArr.each do |type|
 			detailHash[type] = WkGlTransactionDetail.includes(:ledger, :wkgltransaction).where('wk_gl_transaction_details.detail_type = ? and wk_ledgers.ledger_type IN (?) and wk_gl_transactions.trans_date <= ?', type, ledgerType, asOnDate).references(:ledger,:wkgltransaction).group('wk_ledgers.id').sum('wk_gl_transaction_details.amount')
 		end
-		profitHash = detailHash['c'].merge(detailHash['d']){|key, oldval, newval| newval - oldval}
+		profitHash = calculateBalance(detailHash['c'], detailHash['d'], ledgerType[0])
 		balHash = Hash.new
 		profitHash.each do |key, val|
 			ledger = WkLedger.find(key)
 			balHash[ledger.name] = val + (ledger.opening_balance.blank? ? 0 : ledger.opening_balance)
 		end
 		balHash
+	end
+	
+	def calculateBalance(creditHash, debitHash, ledgerType)
+		if isSubtractCr(ledgerType)
+			creditHash = inverseHashVal(creditHash)
+		else
+			debitHash = inverseHashVal(debitHash)
+		end
+		profitHash = creditHash.merge(debitHash){|key, oldval, newval| newval + oldval}
+		profitHash
+	end
+	
+	def isSubtractCr(ledgerType)
+		isSubtract = true
+		subLedTypeArr = []
+		sourceOfFundLTypes.each do |val|
+			subLedTypeArr = subLedTypeArr + getLedgerTypeGrpHash[val] unless getLedgerTypeGrpHash[val].blank?
+		end
+		subLedTypeArr = sourceOfFundLTypes + subLedTypeArr
+		subLedTypeArr = subLedTypeArr + incomeLedgerTypes
+		if subLedTypeArr.include? ledgerType
+			isSubtract = false
+		end
+		isSubtract
+	end
+	
+	def inverseHashVal(sourceHash)
+		targetHash = Hash.new
+		sourceHash.each do |key, val|
+			targetHash[key] = -1 * val
+		end
+		targetHash
 	end
 	
 	def getEachLedgerSumAmt(from, to, ledgerType)
@@ -146,7 +186,7 @@ include WktimeHelper
 				detailHash[type] = WkGlTransactionDetail.includes(:ledger, :wkgltransaction).where('wk_gl_transaction_details.detail_type = ? and wk_ledgers.ledger_type IN (?) and wk_gl_transactions.trans_date between ? and ?', type, ledgerType, from, to).references(:ledger,:wkgltransaction).group('wk_ledgers.id, wk_ledgers.name').sum('wk_gl_transaction_details.amount')
 			end
 		end
-		profitHash = detailHash['c'].merge(detailHash['d']){|key, oldval, newval| oldval - newval}
+		profitHash = calculateBalance(detailHash['c'], detailHash['d'], ledgerType[0])
 		profitHash
 	end
 	
