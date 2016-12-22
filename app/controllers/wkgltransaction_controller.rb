@@ -18,11 +18,17 @@ class WkgltransactionController < WkaccountingController
    end
    
     def edit
+	    @transEntry = nil
 		@transDetails = nil
 		@ledgers = WkLedger.pluck(:name, :id)
-		unless params[:txn_id].blank? 
+		unless params[:txn_id].blank? && !$temptxnDetail.blank? && !$tempTransaction.blank?
 			@transEntry = WkGlTransaction.where(:id => params[:txn_id])
 			@transDetails = WkGlTransactionDetail.where(:gl_transaction_id => params[:txn_id])
+		end
+		isError = params[:isError].blank? ? false : to_boolean(params[:isError])
+		if !$temptxnDetail.blank? && !$tempTransaction.blank? && isError
+			@transEntry = $tempTransaction
+			@transDetails = $temptxnDetail
 		end
     end
    
@@ -79,72 +85,73 @@ class WkgltransactionController < WkaccountingController
 				end
 			end
 		else
-			errorMsg = " Invalid Entry"
+			errorMsg = l(:label_transaction) + " " + l('activerecord.errors.messages.invalid')
 		end
 		if errorMsg.blank?
-		    redirect_to :controller => 'wkgltransaction',:action => 'index' , :tab => 'wkgltransaction'
+		    redirect_to :controller => 'wkgltransaction',:action => 'index' , :tab => 'wkgltransaction'			
+			$temptxnDetail = nil
+			$tempTransaction = nil
 		    flash[:notice] = l(:notice_successful_update)
 		else
 			flash[:error] = errorMsg #wkaccount.errors.full_messages.join("<br>")
-		    redirect_to :controller => 'wkgltransaction',:action => 'edit'
+		    redirect_to :controller => 'wkgltransaction',:action => 'edit', :isError => true
 		end
     end
 	
 	def validateTransaction
-		ret = true;
+		ret = true
 		txnDebitTotal = 0
 		txnCreditTotal = 0
-		ledgerArray = WkLedger.pluck(:ledger_type, :id)
-		ledgerHash = Hash[*ledgerArray.flatten].invert 
-		#validationMessage = l(:wk_sub_reminder_text, label_te)
-		
-		if params[:txn_type] == 'C'
+		@tempwktxnDetail ||= Array.new
+		@tempwkgltransaction = nil
+		ledgerArray = WkLedger.pluck(:id, :ledger_type)
+		ledgerHash = Hash[*ledgerArray.flatten]#.invert 
+		case params[:txn_type]
+		when 'C' 
 			for i in 1..params[:txntotalrow].to_i
 				ledgerId = params["txn_particular#{i}"]
 				ret = ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA' ? true : false
 				break if !ret			
 			end
-		end
 		
-		if params[:txn_type] == 'P' || params[:txn_type] == 'R'
+		when 'P', 'R'
+			isledger = false
 			for i in 1..params[:txntotalrow].to_i
 				ledgerId = params["txn_particular#{i}"]
 				if ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA'
+					isledger = true
 					ret =  params["txn_debit#{i}"].blank? ? true : false if params[:txn_type] == 'P' 
 					ret =  !params["txn_debit#{i}"].blank? ? true : false if params[:txn_type] == 'R' 
 				end
 				break if !ret			
-			end
-		end
+			end	
+			ret = isledger if ret
 		
-		if params[:txn_type] == 'PR'
+		when 'PR'
 			for i in 1..params[:txntotalrow].to_i
 				ledgerId = params["txn_particular#{i}"]
 				ret = ledgerHash[ledgerId.to_i] == 'PA' ? true : false  if !params["txn_debit#{i}"].blank?
 				ret = ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA' || ledgerHash[ledgerId.to_i] == 'SC' || ledgerHash[ledgerId.to_i] == 'SD'  ? true : false  if params["txn_debit#{i}"].blank?				
 				break if !ret			
-			end
-		end
+			end			
 		
-		if params[:txn_type] == 'S'
+		when 'S'
 			for i in 1..params[:txntotalrow].to_i
 				ledgerId = params["txn_particular#{i}"]
 				ret = ledgerHash[ledgerId.to_i] == 'SA' ? true : false  if params["txn_debit#{i}"].blank?
 				ret = ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA' || ledgerHash[ledgerId.to_i] == 'SC' || ledgerHash[ledgerId.to_i] == 'SD'  ? true : false  if !params["txn_debit#{i}"].blank?
 				break if !ret			
 			end
-		end
 		
-		if params[:txn_type] == 'CN'
+		when 'CN'
 			for i in 1..params[:txntotalrow].to_i
 				ledgerId = params["txn_particular#{i}"]
 				ret = !ledgerHash[ledgerId.to_i] == 'CS' || !ledgerHash[ledgerId.to_i] == 'BA' ? true : false  if !params["txn_debit#{i}"].blank?
 				ret = ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA' || ledgerHash[ledgerId.to_i] == 'SC' || ledgerHash[ledgerId.to_i] == 'SD'  ? true : false  if params["txn_debit#{i}"].blank?
 				break if !ret			
 			end
-		end
 		
-		if params[:txn_type] == 'DN'
+		when 'DN'
 			for i in 1..params[:txntotalrow].to_i
 				ledgerId = params["txn_particular#{i}"]				 
 				ret = !ledgerHash[ledgerId.to_i] == 'CS' || !ledgerHash[ledgerId.to_i] == 'BA' ? true : false  if params["txn_debit#{i}"].blank?
@@ -153,14 +160,46 @@ class WkgltransactionController < WkaccountingController
 			end
 		end
 		
-		
 		for i in 1..params[:txntotalrow].to_i
 			txnDebitTotal = txnDebitTotal + params["txn_debit#{i}"].to_i if !params["txn_debit#{i}"].blank?
 			txnCreditTotal = txnCreditTotal + params["txn_debit#{i}"].to_i if !params["txn_debit#{i}"].blank?
 		end
 		
 		if ret
-			ret = txnDebitTotal == txnCreditTotal ? true : false
+			ret = txnDebitTotal == txnCreditTotal ? true : false			
+		end
+		
+		#Repopulate the transaction page. Get and set the transaction and transaction detail values.
+		unless ret
+			if params[:gl_transaction_id].blank?
+				wkgltransaction = WkGlTransaction.new
+			else
+				wkgltransaction = WkGlTransaction.find(params[:gl_transaction_id].to_i)
+			end
+			wkgltransaction.trans_type = params[:txn_type]
+			wkgltransaction.trans_date = params[:date]
+			wkgltransaction.comment = params[:txn_cmt]
+			for i in 1..params[:txntotalrow].to_i			
+				if params["txn_id#{i}"].blank?
+					wktxnDetail = WkGlTransactionDetail.new
+				else
+					wktxnDetail = WkGlTransactionDetail.find(params["txn_id#{i}"].to_i)
+					
+				end
+				wktxnDetail.ledger_id = params["txn_particular#{i}"]
+				if params["txn_debit#{i}"].blank?
+					wktxnDetail.detail_type = 'c'
+					wktxnDetail.amount = params["txn_credit#{i}"]
+				else
+					wktxnDetail.detail_type = 'd'
+					wktxnDetail.amount = params["txn_debit#{i}"]
+				end
+				wktxnDetail.currency = Setting.plugin_redmine_wktime['wktime_currency']
+				@tempwktxnDetail << wktxnDetail
+
+			end
+			$temptxnDetail = @tempwktxnDetail
+			$tempTransaction = wkgltransaction
 		end
 		
 		ret
