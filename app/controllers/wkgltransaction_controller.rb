@@ -96,7 +96,7 @@ class WkgltransactionController < WkaccountingController
 		txnCreditTotal = 0
 		ledgerArray = WkLedger.pluck(:ledger_type, :id)
 		ledgerHash = Hash[*ledgerArray.flatten].invert 
-		validationMessage = l(:wk_sub_reminder_text, label_te)
+		#validationMessage = l(:wk_sub_reminder_text, label_te)
 		
 		if params[:txn_type] == 'C'
 			for i in 1..params[:txntotalrow].to_i
