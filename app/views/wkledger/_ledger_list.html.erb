@@ -19,7 +19,10 @@
 			<td class="lbl-txt-align"><%=h ledgerType[entry.ledger_type] %></td>
 		<!--	<td class="lbl-txt-align"><%= entry.currency %>&nbsp;<%=h  html_hours("%.2f" % (entry.opening_balance.blank? ? 0 : entry.opening_balance) )  %></td> -->
 			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :ledger_id => entry.id, :tab => controller.controller_name},   :title => l(:button_edit) %>
-			<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :ledger_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
+			<% if isModuleAdmin('wktime_accounting_admin') %>
+				<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :ledger_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+			<% end %>
+			</td>
 		</tr>
 	<% end %>
    </tbody>

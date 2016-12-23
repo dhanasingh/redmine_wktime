@@ -1,6 +1,7 @@
 class WkledgerController < WkaccountingController
   unloadable
-  before_filter :check_ac_admin_and_redirect, :only => [:index, :edit, :update, :destroy]
+  before_filter :check_ac_admin_and_redirect, :only => [:update, :destroy]
+  before_filter :check_perm_and_redirect, :only => [:index, :edit]
   include WkaccountingHelper
 
 

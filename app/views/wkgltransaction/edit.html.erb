@@ -137,7 +137,5 @@
 	</tr>
 	</table>
 	<%=h hidden_field_tag("txntotalrow",  row_index-1 )  %>
-	<% if isModuleAdmin('wktime_accounting_admin') %>
-		<%= submit_tag l(:button_save), :class => "small", :name => nil %>
-	<% end %>
+	<%= submit_tag l(:button_save), :class => "small", :name => nil %>
 <% end %>
