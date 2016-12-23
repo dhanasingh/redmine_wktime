@@ -231,3 +231,5 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wkaccounting/balance_sheet', :to => 'wkaccounting#balance_sheet'
 	
+	get 'wkbase/updateClockInOut', :to => 'wkbase#updateClockInOut'
+	
