@@ -146,7 +146,7 @@ class WkgltransactionController < WkaccountingController
 		when 'CN'
 			for i in 1..params[:txntotalrow].to_i
 				ledgerId = params["txn_particular#{i}"]
-				ret = !ledgerHash[ledgerId.to_i] == 'CS' || !ledgerHash[ledgerId.to_i] == 'BA' ? true : false  if !params["txn_debit#{i}"].blank?
+				ret = ledgerHash[ledgerId.to_i] != 'CS' || ledgerHash[ledgerId.to_i] != 'BA' ? true : false  if !params["txn_debit#{i}"].blank?
 				ret = ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA' || ledgerHash[ledgerId.to_i] == 'SC' || ledgerHash[ledgerId.to_i] == 'SD'  ? true : false  if params["txn_debit#{i}"].blank?
 				break if !ret			
 			end
@@ -154,7 +154,7 @@ class WkgltransactionController < WkaccountingController
 		when 'DN'
 			for i in 1..params[:txntotalrow].to_i
 				ledgerId = params["txn_particular#{i}"]				 
-				ret = !ledgerHash[ledgerId.to_i] == 'CS' || !ledgerHash[ledgerId.to_i] == 'BA' ? true : false  if params["txn_debit#{i}"].blank?
+				ret = ledgerHash[ledgerId.to_i] != 'CS' || ledgerHash[ledgerId.to_i] != 'BA' ? true : false  if params["txn_debit#{i}"].blank?
 				ret = ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA' || ledgerHash[ledgerId.to_i] == 'SC' || ledgerHash[ledgerId.to_i] == 'SD'  ? true : false  if !params["txn_debit#{i}"].blank?				
 				break if !ret			
 			end
