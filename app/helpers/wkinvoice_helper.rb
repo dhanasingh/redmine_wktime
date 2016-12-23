@@ -46,11 +46,11 @@ include WkgltransactionHelper
 	
 	def postToGlTransaction(invoice, amount, currency)
 		glTransaction = nil
-		crLedger = WkLedger.find(getSettingCfId('invoice_cr_ledger'))
-		dbLedger = WkLedger.find(getSettingCfId('invoice_db_ledger'))
-		unless crLedger.blank? || dbLedger.blank?
+		crLedger = WkLedger.where(:id => getSettingCfId('invoice_cr_ledger'))
+		dbLedger = WkLedger.where(:id => getSettingCfId('invoice_db_ledger'))
+		unless crLedger[0].blank? || dbLedger[0].blank?
 			transId = invoice.gl_transaction.blank? ? nil : invoice.gl_transaction.id
-			transType = getTransType(crLedger.ledger_type, dbLedger.ledger_type)
+			transType = getTransType(crLedger[0].ledger_type, dbLedger[0].ledger_type)
 			if Setting.plugin_redmine_wktime['wktime_currency'] == currency 
 				isDiffCur = false 
 			else
