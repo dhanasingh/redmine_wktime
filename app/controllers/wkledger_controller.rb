@@ -54,8 +54,11 @@ class WkledgerController < WkaccountingController
 	end
 	
 	def destroy
-	    desledger = WkLedger.find(params[:ledger_id].to_i).destroy
-		flash[:notice] = l(:notice_successful_delete)
+	    unless WkLedger.destroy(params[:ledger_id].to_i)
+			flash[:error] = l(:error_ledger_trans_associate)
+		else
+			flash[:notice] = l(:notice_successful_delete)
+		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end
 	

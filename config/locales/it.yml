@@ -460,3 +460,4 @@ it:
   label_current: Current
   label_original: Original
   label_auto_post_gl: Auto post to General/Ledger
+  error_ledger_trans_associate: Cannot be deleted because transactions associated
