@@ -463,3 +463,4 @@ it:
   error_ledger_trans_associate: Cannot be deleted because transactions associated
   label_unable_delete: Unable to delete.
   label_row_valid_msg: Please fill the added rows.
+  error_system_ledger_cant_delete: System ledger Cannot be delete

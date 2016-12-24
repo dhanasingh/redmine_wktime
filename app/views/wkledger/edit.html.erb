@@ -11,15 +11,17 @@
 				<th align="left"><%= l(:field_name) %></th>
 				<td align="left" style="padding-left:40px;"><%=h text_field_tag("name", (@ledgersDetail[0].blank? ? "" : @ledgersDetail[0].name),:size => 20) %> </td>
 			</tr>
-			<tr>
-				<th align="left"><%= l(:label_type) %></th>
-				<td align="left" style="padding-left:40px;">
-					<%=h select_tag("ledger_type", options_for_select(ledgerType.invert,:selected => (@ledgersDetail[0].blank? ? "" : @ledgersDetail[0].ledger_type) ), :style => "width:160px; float:left;") %>
-				</td>			   
-			</tr>
+			<% if @ledgersDetail[0].blank? || @ledgersDetail[0].ledger_type != 'SY' %>
+				<tr>
+					<th align="left"><%= l(:label_type) %></th>
+					<td align="left" style="padding-left:40px;">
+						<%=h select_tag("ledger_type", options_for_select(ledgerType.invert,:selected => (@ledgersDetail[0].blank? ? "" : @ledgersDetail[0].ledger_type) ), :style => "width:160px; float:left;") %>
+					</td>			   
+				</tr>
+			<% end %>
 			<tr>
 				<th align="left"><%= l(:wk_label_opening) + " " + l(:wk_field_balance)  %></th>
-				<td align="left" style="padding-left:40px;"><%= (@ledgersDetail[0].blank? ? " " : @ledgersDetail[0].currency) + " "  %><%=h text_field_tag("opening_balance", (@ledgersDetail[0].blank? ? "" : @ledgersDetail[0].opening_balance),:size => 20, :maxlength => 14) %> </td>			   
+				<td align="left" style="padding-left:40px;"><%= (@ledgersDetail[0].blank? || @ledgersDetail[0].currency.blank? ? " " : @ledgersDetail[0].currency) + " "  %><%=h text_field_tag("opening_balance", (@ledgersDetail[0].blank? ? "" : @ledgersDetail[0].opening_balance),:size => 20, :maxlength => 14) %> </td>			   
 			</tr>
 		</table>	
 	</fieldset>

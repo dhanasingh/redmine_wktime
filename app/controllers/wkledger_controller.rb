@@ -39,9 +39,10 @@ class WkledgerController < WkaccountingController
 			wkledger = WkLedger.new
 		end
 		wkledger.name = params[:name]
-		wkledger.ledger_type = params[:ledger_type]
+		wkledger.ledger_type = params[:ledger_type] unless params[:ledger_type].blank?
 		wkledger.currency = Setting.plugin_redmine_wktime['wktime_currency'] #params[:currency]
 		wkledger.opening_balance = params[:opening_balance].blank? ? 0 : params[:opening_balance]
+		wkledger.owner = wkledger.ledger_type =='SY' ? 's' : 'u'
 		unless wkledger.save()
 			errorMsg = wkledger.errors.full_messages.join("<br>")
 		end
@@ -55,10 +56,13 @@ class WkledgerController < WkaccountingController
 	end
 	
 	def destroy
-	    unless WkLedger.destroy(params[:ledger_id].to_i)
-			flash[:error] = l(:error_ledger_trans_associate)
-		else
+		ledger = WkLedger.find(params[:ledger_id].to_i)
+		if ledger.ledger_type == 'SY'
+			flash[:error] = l(:error_system_ledger_cant_delete)
+	    elsif ledger.destroy
 			flash[:notice] = l(:notice_successful_delete)
+		else
+			flash[:error] = l(:error_ledger_trans_associate)
 		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end

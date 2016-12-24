@@ -1,4 +1,10 @@
+#!/bin/env ruby
+# encoding: utf-8
 class CreateWkAccounting < ActiveRecord::Migration
+  class WkLedger < ActiveRecord::Base
+    attr_protected :id
+  end
+  
   def change
   
     create_table :wk_ledgers do |t|
@@ -6,6 +12,7 @@ class CreateWkAccounting < ActiveRecord::Migration
       t.decimal :opening_balance, :precision=>16, :scale=>2
 	  t.column :currency, :string, :limit => 5
 	  t.string :ledger_type, :null => false, :limit => 3
+	  t.string :owner, :null => false, :limit => 1, :default => 's'
 	  t.timestamps null: false
     end
 	
@@ -36,5 +43,13 @@ class CreateWkAccounting < ActiveRecord::Migration
 	  t.references :gl_transaction, :class => "wk_gl_transactions", :null => false
 	  t.timestamps null: false
     end
+	
+	# create default ledgers
+    ledger = WkLedger.new :name => 'Profit & Loss A/c',
+                    :opening_balance => 0,
+					:currency => "€",
+                    :ledger_type => 'SY',
+                    :owner => 's'            
+    ledger.save
   end
 end
