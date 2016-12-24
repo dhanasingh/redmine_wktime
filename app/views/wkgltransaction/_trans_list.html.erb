@@ -5,7 +5,9 @@
   <thead>
          <tr>
 				<th class="lbl-txt-align"><%=  l(:label_type) %></th>
-				<th class="lbl-txt-align"><%=  l(:label_date) %></th>				
+				<th class="lbl-txt-align"><%=  l(:label_date) %></th>
+				<th class="lbl-txt-align"><%= l(:label_debit) %></th>
+				<th class="lbl-txt-align"><%= l(:label_credit) %></th>				
 				<th class="lbl-txt-align"><%= l(:field_amount) %></th>
 				<th></th>
          </tr>
@@ -15,6 +17,8 @@
 		<tr>
 		    <td class="lbl-txt-align"><%=h transTypeHash[entry.trans_type]  %></td>
 			<td class="lbl-txt-align"><%=h entry.trans_date %></td>
+			<td class="lbl-txt-align"><%=h entry.transaction_details.where(:detail_type => "d" ).first.amount  %></td>
+			<td class="lbl-txt-align"><%=h entry.transaction_details.where(:detail_type => "c" ).first.amount  %></td>
 			<td class="lbl-txt-align"><%=h html_hours("%.2f" % entry.transaction_details.where(:detail_type => "d" ).sum(:amount))  %></td>
 			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :txn_id => entry.id, :tab => controller.controller_name},   :title => l(:button_edit) %>
 			<% if isModuleAdmin('wktime_accounting_admin') %>
