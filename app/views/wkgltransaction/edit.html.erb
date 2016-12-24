@@ -1,6 +1,10 @@
 <%= javascript_include_tag 'invoice', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <br/>
+<script>
+deleteMsg = "<%= l(:label_unable_delete)  %>";
+rowValidationMsg =  "<%= l(:label_row_valid_msg)  %>";
+</script>
 <%= form_tag({:controller => controller_name, :action => 'update'}, :method => :get, :id => 'query_form') do %>
 	<table>
 	<% transId =  @transEntry.blank? ? '' :  (@transEntry[0].blank? ? @transEntry.id : @transEntry[0].id)  %>
@@ -15,6 +19,10 @@
 	<% row_index = 1 %>	
 	<% totaldebit = 0 %>	
 	<% totalCredit = 0 %>	
+	<div class="wk-contextual">	
+	<%= link_to l(:button_add_row), "#", { :onclick => "javascript:txnAddrowValidation('txnTable');",  :class => 'icon icon-time-add' }%>
+	</div>
+	<div style="clear:both"></div>
 	<table id="txnTable" class="list time-entries">
 	<thead>
 		<tr>

@@ -462,3 +462,5 @@ de:
   label_original: Original
   label_auto_post_gl: Auto post to General/Ledger
   error_ledger_trans_associate: Cannot be deleted because transactions associated
+  label_unable_delete: Unable to delete.
+  label_row_valid_msg: Please fill the added rows.

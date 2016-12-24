@@ -148,12 +148,12 @@ function deleteRow(tableId, totalrow)
 					input.id = table.rows[i].cells[j].headers + i;
 					input.name = table.rows[i].cells[j].headers + i;
 				}
-			}
-			updateAmount();
+			}			
 		}
 		else{
-			alert("We are unable to delete the row.");
-		}			
+			alert(deleteMsg);
+		}	
+		updateAmount();
 	}
 	else{
 		var table = document.getElementById(tableId);
@@ -233,5 +233,28 @@ function updateAmount()
 		totCredit +=  txn_credit.value == "" ? 0 : parseInt(txn_credit.value);	
 		document.getElementById('debitTotal').innerHTML = totDebit;//isDebit ? totDebit : totDebit+totalamount;
 		document.getElementById('creditTotal').innerHTML = totCredit;//isDebit ? totCredit : totCredit+totalamount;
+	}
+}
+
+function txnAddrowValidation(tableId)
+{
+	var table = document.getElementById(tableId);
+	var rowlength = table.rows.length;
+	var isAddrow = false;
+	for(var i = 1; i < 3; i++)
+	{
+		var txn_debit = document.getElementById('txn_debit'+i);
+		var txn_credit = document.getElementById('txn_credit'+i);
+		if(txn_debit.value != "")
+		{
+			isAddrow = true;
+		}
+	}
+	if(rowlength > 2 && isAddrow)	
+	{
+		invoiceAddRow('txnTable', 'txntotalrow');
+	}
+	else {
+		alert(rowValidationMsg);
 	}
 }
