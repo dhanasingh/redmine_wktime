@@ -31,6 +31,12 @@
 					@mainEnriesHash[type] = getEachLedgerBSAmt(@to, [type])
 					@subEntriesHash[type] = getSubEntries(@from, @to, type)
 					if type == 'PL'
+						defLedgerEnries = getEachLedgerBSAmt(@to, ['SY'])
+						unless defLedgerEnries.blank?
+							tempEnries = Hash.new
+							tempEnries[l(:label_less_transferred)] = getEachLedgerBSAmt(@to, ['SY']).values[0]
+							@subEntriesHash[type] = @subEntriesHash[type].merge(tempEnries)
+						end
 						@mainEnriesHash[type] = @subEntriesHash[type]
 						@subEntriesHash[type] = nil
 					end

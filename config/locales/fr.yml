@@ -473,3 +473,4 @@ fr:
   error_payment_msg: Payment transaction could not allow bank or cash account credited.
   error_receipt_msg: Receipt transaction could not allow bank or cash account debited.   
   error_purchase_msg: "Invalid ledgers for %{value} transaction."
+  label_less_transferred: "Less: Transferred"

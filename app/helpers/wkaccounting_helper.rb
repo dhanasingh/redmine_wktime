@@ -62,7 +62,7 @@ include WktimeHelper
 	end
 	
 	def sourceOfFundLTypes
-		['C', 'L', 'CL', 'SP']
+		['C', 'L', 'CL', 'SP', 'SY']
 	end
 	
 	def appOfFundLTypes
