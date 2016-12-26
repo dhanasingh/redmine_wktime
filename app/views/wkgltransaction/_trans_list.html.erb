@@ -19,8 +19,8 @@
 		<tr>
 		    <td class="lbl-txt-align"><%=h transTypeHash[entry.trans_type]  %></td>
 			<td class="lbl-txt-align"><%=h entry.trans_date %></td>
-			<td class="lbl-txt-align"><%=h entry_details.first[0]%></td>
-			<td class="lbl-txt-align"><%=h entry_details.last[0] %></td>
+			<td class="lbl-txt-align"><%=h entry_details.last[0]%></td>
+			<td class="lbl-txt-align"><%=h entry_details.first[0] %></td>
 			<td class="lbl-txt-align"><%=h html_hours("%.2f" % transTotal)  %></td>
 			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :txn_id => entry.id, :tab => controller.controller_name},   :title => l(:button_edit) %>
 			<% if isModuleAdmin('wktime_accounting_admin') %>
