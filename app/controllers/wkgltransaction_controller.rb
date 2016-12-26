@@ -94,13 +94,13 @@ class WkgltransactionController < WkaccountingController
 			when 'R'
 				errorMsg = l(:error_receipt_msg)
 			when 'PR'
-				errorMsg = l(:error_purchase_msg, l(:label_txn_purchase))
+				errorMsg = l(:error_purchase_msg)
 			when 'S'
-				errorMsg = l(:error_purchase_msg, l(:label_txn_sales))
+				errorMsg = l(:error_sales_msg)
 			when 'CN'
-				errorMsg = l(:error_purchase_msg, l(:label_txn_credit_note))
+				errorMsg = l(:error_cn_msg)
 			when 'DN'
-				errorMsg = l(:error_purchase_msg, l(:label_txn_debit_note))
+				errorMsg = l(:error_dn_msg)
 			end
 			#errorMsg = l(:label_transaction) + " " + l('activerecord.errors.messages.invalid')
 		end
