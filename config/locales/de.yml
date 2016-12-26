@@ -465,3 +465,5 @@ de:
   label_unable_delete: Unable to delete.
   label_row_valid_msg: Please fill the added rows.
   error_system_ledger_cant_delete: System ledger Cannot be delete
+  error_trans_msg: Could not save transaction. Please configure auto post general ledger.
+  label_salary: Salary

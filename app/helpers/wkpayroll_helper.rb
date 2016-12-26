@@ -52,9 +52,12 @@ module WkpayrollHelper
 			end
 		else	
 			errorMsg = l(:error_wktime_save_nothing)
-		end
-		if errorMsg.blank? && isChecked('salary_auto_post_gl')
+		end		
+		basicledger = WkSalaryComponents.where("component_type = 'b' and ledger_id is not null ").count
+		if errorMsg.blank? && isChecked('salary_auto_post_gl') && !Setting.plugin_redmine_wktime['wktime_cr_ledger'].blank? && 	basicledger.to_i != 0	
 			errorMsg = generateGlTransaction(salaryDate)
+		else
+			errorMsg = 1
 		end
 		errorMsg
 	end
@@ -269,8 +272,12 @@ module WkpayrollHelper
 		totalCredit = 0
 		salaries = WkSalary.includes(:salary_component).where("wk_salaries.salary_date = ?  and wk_salary_components.ledger_id is not null ", salaryDate).references(:salary_component).group("wk_salary_components.ledger_id").sum("wk_salaries.amount")
 		
+		allowanceAmt = WkSalary.includes(:salary_component).where("wk_salaries.salary_date = ? and wk_salary_components.component_type='a' and wk_salary_components.ledger_id is null ", salaryDate).references(:salary_component).sum("wk_salaries.amount")
+		
 		ledgerIds = WkSalaryComponents.pluck(:ledger_id, :component_type)
 		ledgersIdHash = Hash[*ledgerIds.flatten]
+		basicLedgerId = WkSalaryComponents.where("component_type = 'b' ").first.ledger_id 		
+		salaries[basicLedgerId] = salaries[basicLedgerId].to_i + allowanceAmt.to_i
 		crLedgerId = Setting.plugin_redmine_wktime['wktime_cr_ledger'].to_i
 		transTypeArr = WkLedger.where(:id => crLedgerId).pluck(:id, :ledger_type)
 		transTypeHash = Hash[*transTypeArr.flatten]
