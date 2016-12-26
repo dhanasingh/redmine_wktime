@@ -14,12 +14,14 @@
   </thead>
    <tbody>
 	<% @transEntries.each do |entry| %>
+		<% entry_details = entry.transaction_details.includes(:ledger).order(:detail_type).pluck('wk_ledgers.name, wk_gl_transaction_details.amount') 
+		transTotal = entry_details.inject(0){|sum,x| sum + x[1] }/2 %>
 		<tr>
 		    <td class="lbl-txt-align"><%=h transTypeHash[entry.trans_type]  %></td>
 			<td class="lbl-txt-align"><%=h entry.trans_date %></td>
-			<td class="lbl-txt-align"><%=h entry.transaction_details.where(:detail_type => "d" ).first.amount unless entry.transaction_details.where(:detail_type => "d" ).first.blank?  %></td>
-			<td class="lbl-txt-align"><%=h entry.transaction_details.where(:detail_type => "c" ).first.amount unless entry.transaction_details.where(:detail_type => "c" ).first.blank?  %></td>
-			<td class="lbl-txt-align"><%=h html_hours("%.2f" % entry.transaction_details.where(:detail_type => "d" ).sum(:amount))  %></td>
+			<td class="lbl-txt-align"><%=h entry_details.first[0]%></td>
+			<td class="lbl-txt-align"><%=h entry_details.last[0] %></td>
+			<td class="lbl-txt-align"><%=h html_hours("%.2f" % transTotal)  %></td>
 			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :txn_id => entry.id, :tab => controller.controller_name},   :title => l(:button_edit) %>
 			<% if isModuleAdmin('wktime_accounting_admin') %>
 				<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :txn_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
