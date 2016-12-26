@@ -466,3 +466,7 @@ it:
   error_system_ledger_cant_delete: System ledger Cannot be delete
   error_trans_msg: Could not save transaction. Please configure auto post general ledger.
   label_salary: Salary
+  error_contra_msg: Contra transaction contain only bank and cash ledger.
+  error_payment_msg: Payment transaction could not allow bank or cash account credited.
+  error_receipt_msg: Receipt transaction could not allow bank or cash account debited.  
+  error_purchase_msg: "Invalid ledgers for %{value} transaction."

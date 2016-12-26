@@ -85,7 +85,24 @@ class WkgltransactionController < WkaccountingController
 				end
 			end
 		else
-			errorMsg = l(:label_transaction) + " " + l('activerecord.errors.messages.invalid')
+			
+			case params[:txn_type]
+			when 'C'
+				errorMsg = l(:error_contra_msg)
+			when 'P'
+				errorMsg = l(:error_payment_msg)
+			when 'R'
+				errorMsg = l(:error_receipt_msg)
+			when 'PR'
+				errorMsg = l(:error_purchase_msg, l(:label_txn_purchase))
+			when 'S'
+				errorMsg = l(:error_purchase_msg, l(:label_txn_sales))
+			when 'CN'
+				errorMsg = l(:error_purchase_msg, l(:label_txn_credit_note))
+			when 'DN'
+				errorMsg = l(:error_purchase_msg, l(:label_txn_debit_note))
+			end
+			#errorMsg = l(:label_transaction) + " " + l('activerecord.errors.messages.invalid')
 		end
 		if errorMsg.blank?
 		    redirect_to :controller => 'wkgltransaction',:action => 'index' , :tab => 'wkgltransaction'			
