@@ -464,7 +464,7 @@ it:
   label_unable_delete: Unable to delete.
   label_row_valid_msg: Please fill the added rows.
   error_system_ledger_cant_delete: System ledger Cannot be delete
-  error_trans_msg: Could not save transaction. Please configure auto post general ledger.
+  error_trans_msg: Could not save transaction. Please configure auto post general ledger settings
   label_salary: Salary
   error_contra_msg: Contra should contain bank and cash ledgers only.
   error_payment_msg: Payment should have bank or cash as Credit.

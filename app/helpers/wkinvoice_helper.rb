@@ -38,6 +38,9 @@ include WkgltransactionHelper
 				unless glTransaction.blank?
 					@invoice.gl_transaction_id = glTransaction.id
 					@invoice.save
+				else
+					errorMsg = Hash.new
+					errorMsg['trans'] = l(:error_trans_msg)
 				end				
 			end
 		end

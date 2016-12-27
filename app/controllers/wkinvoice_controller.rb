@@ -7,6 +7,7 @@ include WkinvoiceHelper
 
 	def index
 		@projects = nil
+		errorMsg = nil
 		set_filter_session
 		retrieve_date_range
 		accountId = session[:wkinvoice][:account_id]
@@ -28,12 +29,16 @@ include WkinvoiceHelper
 					errorMsg = generateInvoices(accountId, projectId, @to + 1, [@from, @to])
 				end
 			end
-			
-			if errorMsg.nil?	
+			if errorMsg.blank?	
 				redirect_to :action => 'index' , :tab => 'wkinvoice'
 				flash[:notice] = l(:notice_successful_update)
 			else
-				flash[:error] = errorMsg
+				if errorMsg.is_a?(Hash)
+					flash[:notice] = l(:notice_successful_update)
+					flash[:error] = errorMsg['trans']
+				else
+					flash[:error] = errorMsg
+				end
 				redirect_to :action => 'index'
 			end	
 		else

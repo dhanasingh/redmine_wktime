@@ -484,7 +484,12 @@ Rails.configuration.to_prepare do
 						if errorMsg.blank?
 							Rails.logger.info "===== Invoice generated Successfully ====="
 						else
-							Rails.logger.info "===== Job failed: #{errorMsg} ====="
+							if errorMsg.is_a?(Hash)
+								Rails.logger.info "===== Invoice generated Successfully ====="
+								Rails.logger.info "===== Job failed: #{errorMsg['trans']} ====="
+							else
+								Rails.logger.info "===== Job failed: #{errorMsg} ====="
+							end
 						end
 					end
 				rescue Exception => e
