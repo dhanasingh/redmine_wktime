@@ -181,18 +181,23 @@ function openInvReportPopup(){
 
 function tallyAmount(fldId)
 {	
-
-//	var txn_debit = document.getElementById('txn_debit'+  fldId.slice(-1));
-//	var txn_credit = document.getElementById('txn_credit'+  fldId.slice(-1));
-	var addclm = parseInt(fldId.replace(/[^0-9\.]/g, '')) +1;	
-	//var addclm = parseInt(fldId.slice(-1)) + 1 ;	
-	var oldtable = document.getElementById("txnTable");
-	var oldrowlength = oldtable.rows.length;
-	if(addclm > 2 && addclm == oldrowlength )
+	var fldval = document.getElementById(fldId).value;
+	if(/\D/.test(fldval))
 	{
-		invoiceAddRow('txnTable', 'txntotalrow');
-	}		
-	updateAmount();
+		alert(fldval + " " + transValidMsg);
+	}
+	else{
+		var addclm = parseInt(fldId.replace(/[^0-9\.]/g, '')) +1;	
+		//var addclm = parseInt(fldId.slice(-1)) + 1 ;	
+		var oldtable = document.getElementById("txnTable");
+		var oldrowlength = oldtable.rows.length;
+		if(addclm > 2 && addclm == oldrowlength )
+		{
+			invoiceAddRow('txnTable', 'txntotalrow');
+		}		
+		updateAmount();
+	}
+	
 }
 
 function updateAmount()

@@ -3,6 +3,7 @@
 <br/>
 <script>
 deleteMsg = "<%= l(:label_unable_delete)  %>";
+transValidMsg = "<%= l('activerecord.errors.messages.not_a_number') %>";
 rowValidationMsg =  "<%= l(:label_row_valid_msg)  %>";
 </script>
 <%= form_tag({:controller => controller_name, :action => 'update'}, :method => :get, :id => 'query_form') do %>
