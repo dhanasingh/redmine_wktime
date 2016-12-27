@@ -303,7 +303,7 @@ module WkpayrollHelper
 			unless wktxnDetail.valid?
 				errorMsg = wktxnDetail.errors.full_messages.join("<br>")
 			else 
-				wktxnDetail.save()
+				wktxnDetail.save() if wktxnDetail.amount != 0
 			end
 		}
 		wktxnDetail = WkGlTransactionDetail.new

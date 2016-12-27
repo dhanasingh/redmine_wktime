@@ -132,9 +132,12 @@ include WkreportHelper
 	
 	def generatePayroll(userIds,salaryDate)
 		errorMsg = generateSalaries(userIds,salaryDate)
-		if  !errorMsg.blank? &&  errorMsg == 1
-			flash[:notice] =  l(:label_salary) + " " +  l(:notice_successful_update)  
-			flash[:error] = l(:error_trans_msg)
+		if  !errorMsg.blank? &&  errorMsg == 1			
+			flash[:notice] =  l(:label_salary) + " " +  l(:notice_successful_update) 
+			if isChecked('salary_auto_post_gl')
+				flash[:error] = l(:error_trans_msg)
+			end
+			
 			redirect_to :action => 'index'
 		end
 		if errorMsg.nil?	
