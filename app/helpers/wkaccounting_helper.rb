@@ -114,7 +114,13 @@ include WktimeHelper
 	def getEntriesTotal(entriesHash)
 		total = 0
 		entriesHash.each do |entry|
-			total = entry[1].values.inject(:+) + total unless entry[1].blank?
+			unless entry[1].blank?
+				if entry[1].is_a?(Hash)
+					total = entry[1].values.inject(:+) + total
+				else
+					total = entry[1] + total
+				end
+			end
 		end
 		total
 	end
