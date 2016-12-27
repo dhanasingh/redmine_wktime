@@ -39,7 +39,7 @@
 				<tr style="width:100%;">
 					<td align="left"><b><%= getLedgerTypeHash[incomeLedgerTypes[i]] %></b></td>
 					<td></td>
-					<td align="right"><b><%=  @mainTotalHash[incomeLedgerTypes[i]] if @mainTotalHash[incomeLedgerTypes[i]] != 0 %></b></td>
+					<td align="right"><b><%= "%.2f" % @mainTotalHash[incomeLedgerTypes[i]] if @mainTotalHash[incomeLedgerTypes[i]] != 0 %></b></td>
 				</tr>
 				<% if @mainTotalHash[incomeLedgerTypes[i]] != 0 %>
 					<%= render partial: "report_rows", locals: { entries: @mainEnriesHash[incomeLedgerTypes[i]] }%>
@@ -48,12 +48,12 @@
 			<tr style="width:100%;">
 				<td align="left"><b><%= l(:label_cost_of_sales)%></b></td>
 				<td></td>
-				<td align="right"><b><%= @mainTotalHash['DE']  + @mainTotalHash['PA'] %></b></td>
+				<td align="right"><b><%= "%.2f" % (@mainTotalHash['DE']  + @mainTotalHash['PA']) %></b></td>
 			</tr>
 			<% for i in 0..1 %>
 				<tr style="width:100%;">
 					<td align="left" style="padding-left: 25px;"><b><%= getLedgerTypeHash[expenseLedgerTypes[i]] %></b></td>
-					<td align="right"><%=  @mainTotalHash[expenseLedgerTypes[i]]  if  @mainTotalHash[expenseLedgerTypes[i]] != 0 %></td>
+					<td align="right"><%=  "%.2f" % @mainTotalHash[expenseLedgerTypes[i]]  if  @mainTotalHash[expenseLedgerTypes[i]] != 0 %></td>
 					<td></td>
 				</tr>
 				<% if @mainTotalHash[expenseLedgerTypes[i]] != 0 %>
@@ -64,7 +64,7 @@
 			<tr style="width:100%;">
 				<td align="left" style="padding-left: 25px;"><b><%= l(:label_gross) + " " + l(:label_profit) + " : " %></b></td>
 				<td style="border-top: solid thin;"></td>
-				<td align="right" style="border-top: solid thin;"><b><%= @mainTotalHash['DI'] + @mainTotalHash['SA'] - @mainTotalHash['DE']  - @mainTotalHash['PA'] %></b></td>
+				<td align="right" style="border-top: solid thin;"><b><%= "%.2f" % (@mainTotalHash['DI'] + @mainTotalHash['SA'] - @mainTotalHash['DE']  - @mainTotalHash['PA']) %></b></td>
 			</tr>
 			<tr style="width:100%;">
 				<td><b><u><%= l(:label_income) + " " + l(:label_statement) + " : " %></u></b></td>
@@ -75,7 +75,7 @@
 				<tr style="width:100%;">
 					<td align="left"><b><%= getLedgerTypeHash[type] %></b></td>
 					<td></td>
-					<td align="right"><b><%=  @mainTotalHash[type] if  @mainTotalHash[type] != 0 %></b></td>
+					<td align="right"><b><%= "%.2f" % @mainTotalHash[type] if  @mainTotalHash[type] != 0 %></b></td>
 				</tr>
 				<% if @mainTotalHash[type] != 0 %>
 					<%= render partial: "report_rows", locals: { entries: @mainEnriesHash[type] }%>
@@ -84,14 +84,14 @@
 					<tr style="width:100%;">
 						<td></td>
 						<td style="border-top: solid thin;"></td>
-						<td align="right" style="border-top: solid thin;"><b><%= @mainTotalHash['DI'] + @mainTotalHash['II'] + @mainTotalHash['SA'] - @mainTotalHash['DE']- @mainTotalHash['PA'] %></b></td>
+						<td align="right" style="border-top: solid thin;"><b><%= "%.2f" % (@mainTotalHash['DI'] + @mainTotalHash['II'] + @mainTotalHash['SA'] - @mainTotalHash['DE']- @mainTotalHash['PA']) %></b></td>
 					</tr>
 				<% end %>
 			<% end %>
 			<tr style="width:100%;">
 				<td align="left" style="padding-left: 25px;"><b><%= l(:label_net) + " " + l(:label_profit) + " : "%></b></td>
 				<td style="border-top: solid thin;border-bottom: solid thin;"></td>
-				<td align="right" style="border-top: solid thin;border-bottom: solid thin;"><b><%= @mainTotalHash['DI'] + @mainTotalHash['II'] + @mainTotalHash['SA'] - @mainTotalHash['DE']- @mainTotalHash['IE']    - @mainTotalHash['PA'] %></b></td>
+				<td align="right" style="border-top: solid thin;border-bottom: solid thin;"><b><%= "%.2f" % (@mainTotalHash['DI'] + @mainTotalHash['II'] + @mainTotalHash['SA'] - @mainTotalHash['DE']- @mainTotalHash['IE']    - @mainTotalHash['PA']) %></b></td>
 			</tr>
 		</body>
 	</table>

@@ -297,7 +297,7 @@ class WkgltransactionController < WkaccountingController
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
-		@transEntries = entries.order(:id).limit(@limit).offset(@offset)
+		@transEntries = entries.order(trans_date: :desc).limit(@limit).offset(@offset)
 	end
 	
 	def setLimitAndOffset		
