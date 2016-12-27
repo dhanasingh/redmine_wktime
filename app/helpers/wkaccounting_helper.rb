@@ -81,6 +81,7 @@ include WktimeHelper
 		if ledgerType == 'PL'
 			totalIncome = 0
 			totalExpense = 0
+			defLedger = WkLedger.where(:ledger_type => 'SY')
 			incomeLedgerTypes.each do |type|
 				totalIncome = totalIncome + getEntriesTotal(subEntriesHash[type])
 			end
@@ -88,7 +89,7 @@ include WktimeHelper
 				totalExpense = totalExpense + getEntriesTotal(subEntriesHash[type])
 			end
 			subEntriesHash.clear
-			subEntriesHash[l(:wk_label_opening)+ " " + l(:wk_field_balance)] = totalIncome - totalExpense
+			subEntriesHash[l(:wk_label_opening)+ " " + l(:wk_field_balance)] = totalIncome - totalExpense + (defLedger[0].opening_balance.blank? ? 0 : defLedger[0].opening_balance)
 			subEntriesHash[l(:label_current)+ " " + l(:label_period)] = getPLfor(from, asOnDate)
 			
 		end
@@ -144,7 +145,7 @@ include WktimeHelper
 		ledgers = WkLedger.where(:ledger_type => ledgerType)
 		ledgers.each do |ledger|
 			unless profitHash[ledger.id].blank? && (ledger.opening_balance.blank? || ledger.opening_balance == 0)
-				balHash[ledger.name] = (profitHash[ledger.id].blank? ? 0 : profitHash[ledger.id]) + (ledger.opening_balance.blank? ? 0 : ledger.opening_balance)
+				balHash[ledger.name] = (profitHash[ledger.id].blank? ? 0 : profitHash[ledger.id]) + ((ledger.opening_balance.blank? || ledger.ledger_type == 'SY') ? 0 : ledger.opening_balance)
 			end
 		end
 		balHash
