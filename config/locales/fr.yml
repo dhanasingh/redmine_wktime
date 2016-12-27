@@ -404,7 +404,7 @@ fr:
   label_enable_accounting_module: Enable Accounting Module
   label_transaction: Transaction
   label_ledger: Ledger
-  label_accounting_admin: Accounting Admin
+  label_accounting_admin: Accounting Admin Group
   label_bank_ac: Bank Accounts
   label_bank_occ_ac: Bank OCC A/c
   label_bank_od_ac: Bank OD A/c
