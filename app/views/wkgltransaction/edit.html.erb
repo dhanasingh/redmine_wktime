@@ -5,8 +5,10 @@
 deleteMsg = "<%= l(:label_unable_delete)  %>";
 transValidMsg = "<%= l('activerecord.errors.messages.not_a_number') %>";
 rowValidationMsg =  "<%= l(:label_row_valid_msg)  %>";
+dbcrvalidMsg =  "<%= l(:label_trans_total_validmsg)  %>";
+transrowMsg =  "<%= l(:label_trans_row_validmsg)  %>";
 </script>
-<%= form_tag({:controller => controller_name, :action => 'update'}, :method => :get, :id => 'query_form') do %>
+<%= form_tag({:controller => controller_name, :action => 'update'}, :method => :get, :id => 'query_form', :onsubmit =>"return txnformValidation();" ) do %>
 	<table>
 	<% transId =  @transEntry.blank? ? '' :  (@transEntry[0].blank? ? @transEntry.id : @transEntry[0].id)  %>
 	<tr><td><b><label><%= l(:label_transaction) +" "+l(:general_text_No) %></label></td><td><label><%= transId %></label></b></td></tr>

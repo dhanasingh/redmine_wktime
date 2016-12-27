@@ -476,3 +476,5 @@ en:
   error_cn_msg: Credit note should have sundry creditors/debitor, cash and bank as credit and should not have cash and bank as debit.
   error_dn_msg: Debit note should have sundry creditors/debitor, cash and bank as debit and should not have cash and bank as credit.
   label_less_transferred: "Less: Transferred"
+  label_trans_row_validmsg: Transaction contain minimum two rows.
+  label_trans_total_validmsg: Transaction debit and credit does not match.

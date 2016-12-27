@@ -263,3 +263,29 @@ function txnAddrowValidation(tableId)
 		alert(rowValidationMsg);
 	}
 }
+
+
+function txnformValidation()
+{
+	var ret = true;
+	var table = document.getElementById("txnTable");
+	var rowlength = table.rows.length;
+	var errormsg = "";
+	if(rowlength < 2)
+	{
+		errormsg = rowValidationMsg;
+		ret = false;
+	}
+	var dbval = document.getElementById('debitTotal').innerText;
+	var crval = document.getElementById('creditTotal').innerText;
+	if(parseInt(dbval) != parseInt(crval))
+	{
+		errormsg = dbcrvalidMsg;
+		ret = false;
+	}
+	if(!ret)
+	{
+		alert(errormsg);
+	}
+	return ret;
+}
