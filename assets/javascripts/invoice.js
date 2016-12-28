@@ -214,8 +214,8 @@ function updateAmount()
 	{
 		var txn_debit = document.getElementById('txn_debit'+i);
 		var txn_credit = document.getElementById('txn_credit'+i);
-		debval = txn_debit.value == "" ? 0 : parseInt(txn_debit.value);
-		crdtval = txn_credit.value == "" ? 0 : parseInt(txn_credit.value);	
+		debval = txn_debit.value == "" ? 0 : parseFloat(txn_debit.value);
+		crdtval = txn_credit.value == "" ? 0 : parseFloat(txn_credit.value);	
 		
 		if( i != rowlength-1)
 		{
@@ -234,8 +234,8 @@ function updateAmount()
 			var fieldId = ((isDebit && debitAmount > creditAmount) ? 'txn_credit' :  ((!isDebit && debitAmount > creditAmount) ? 'txn_credit' : 'txn_debit')) + i;//(rowlength-1);
 			document.getElementById(fieldId).value = totalamount;			
 		}
-		totDebit += txn_debit.value == "" ? 0 : parseInt(txn_debit.value);
-		totCredit +=  txn_credit.value == "" ? 0 : parseInt(txn_credit.value);	
+		totDebit += txn_debit.value == "" ? 0 : parseFloat(txn_debit.value);
+		totCredit +=  txn_credit.value == "" ? 0 : parseFloat(txn_credit.value);	
 		document.getElementById('debitTotal').innerHTML = totDebit;//isDebit ? totDebit : totDebit+totalamount;
 		document.getElementById('creditTotal').innerHTML = totCredit;//isDebit ? totCredit : totCredit+totalamount;
 	}
