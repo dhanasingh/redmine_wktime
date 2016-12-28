@@ -16,7 +16,8 @@ class WkaccountingController < WkbaseController
 	
 	def balance_sheet
 		@to = session[:wkreport][:to]
-		@from = @to.month >3 ? @to.change(day: 1, month: 4) : @to.change(day: 1, month: 4, year: @to.year-1)
+		@from = session[:wkreport][:from]
+		#@from = @to.month >3 ? @to.change(day: 1, month: 4) : @to.change(day: 1, month: 4, year: @to.year-1)
 		@profitLossEntries = getTransDetails(@from,@to)
 		render :action => 'balance_sheet', :layout => false
 	end
