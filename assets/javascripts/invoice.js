@@ -182,7 +182,7 @@ function openInvReportPopup(){
 function tallyAmount(fldId)
 {	
 	var fldval = document.getElementById(fldId).value;
-	if(/\D/.test(fldval))
+	if(isNaN(fldval))
 	{
 		alert(fldval + " " + transValidMsg);
 	}
@@ -278,7 +278,7 @@ function txnformValidation()
 	}
 	var dbval = document.getElementById('debitTotal').innerText;
 	var crval = document.getElementById('creditTotal').innerText;
-	if(parseInt(dbval) != parseInt(crval))
+	if(parseFloat(dbval) != parseFloat(crval))
 	{
 		errormsg = dbcrvalidMsg;
 		ret = false;
