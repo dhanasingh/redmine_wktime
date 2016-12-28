@@ -1,4 +1,4 @@
-# Redmine - project management software
+# ERPmine - ERP for service industry
 # Copyright (C) 2011-2016  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
