@@ -464,15 +464,15 @@ it:
   label_unable_delete: Unable to delete.
   label_row_valid_msg: Please fill the added rows.
   error_system_ledger_cant_delete: System ledger Cannot be delete
-  error_trans_msg: Could not save transaction. Please configure auto post general ledger settings
+  error_trans_msg: Could not save transaction. Please configure auto post to general ledger settings
   label_salary: Salary
   error_contra_msg: Contra should contain bank and cash ledgers only.
   error_payment_msg: Payment should have bank or cash as Credit.
   error_receipt_msg: Receipt should have bank or cash as Debit.   
-  error_purchase_msg: Purchase should have sundry creditors/debitor, cash and bank as credit and purchase group as debit.
-  error_sales_msg: Sales should have sundry creditors/debitor, cash and bank as debit and sales group as credit.
-  error_cn_msg: Credit note should have sundry creditors/debitor, cash and bank as credit and should not have cash and bank as debit.
-  error_dn_msg: Debit note should have sundry creditors/debitor, cash and bank as debit and should not have cash and bank as credit.
+  error_purchase_msg: Purchase should have sundry creditors/debitors, cash and bank as credit and purchase group as debit.
+  error_sales_msg: Sales should have sundry creditors/debitors, cash and bank as debit and sales group as credit.
+  error_cn_msg: Credit note should have sundry creditors/debitors, cash and bank as credit and should not have cash and bank as debit.
+  error_dn_msg: Debit note should have sundry creditors/debitors, cash and bank as debit and should not have cash and bank as credit.
   label_less_transferred: "Less: Transferred"
   label_trans_row_validmsg: Transaction contain minimum two rows.
   label_trans_total_validmsg: Transaction debit and credit does not match.
