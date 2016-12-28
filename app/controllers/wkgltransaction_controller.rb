@@ -60,7 +60,6 @@ class WkgltransactionController < WkaccountingController
 					end
 					wktxnDetail.ledger_id = params["txn_particular#{i}"]
 					if (params["txn_debit#{i}"].blank? || params["txn_debit#{i}"].to_i == 0) && (params["txn_credit#{i}"].blank? || params["txn_credit#{i}"].to_i == 0)
-						wktxnDetail.destroy
 						next
 					elsif params["txn_debit#{i}"].blank? || params["txn_debit#{i}"].to_i == 0
 						wktxnDetail.detail_type = 'c'
