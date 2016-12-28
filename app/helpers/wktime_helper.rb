@@ -685,7 +685,7 @@ end
 		elsif ActiveRecord::Base.connection.adapter_name == 'SQLServer'		
 			sqlStr = "DateAdd(d, (((((DATEPART(dw," + dtfield + ")-1)%7)-1)+(8-" + startOfWeek.to_s + ")) % 7)*-1," + dtfield + ")"
 		else
-			# mysql - the weekday index for date (0 = Monday, 1 = Tuesday, … 6 = Sunday)
+			# mysql - the weekday index for date (0 = Monday, 1 = Tuesday, Â… 6 = Sunday)
 			sqlStr = "adddate(" + dtfield + ",mod(weekday(" + dtfield + ")+(8-" + startOfWeek.to_s + "),7)*-1)"
 		end		
 		sqlStr
@@ -828,7 +828,11 @@ end
 			end
 		end
 		grpUserIds = Array.new		
-		grpUserIds = groupusers[0].collect{|user| user.id}.uniq if !groupusers.blank? && !groupusers[0].blank?
+                groupusers.each do |groupuser|
+                        groupuser.each do |user|
+                                grpUserIds << user.id
+                        end
+                end
 		isAccountUser = grpUserIds.include?(User.current.id)
 	end
 	
