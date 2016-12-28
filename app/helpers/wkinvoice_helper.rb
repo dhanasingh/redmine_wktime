@@ -1,6 +1,25 @@
+# ERPmine - ERP for service industry
+# Copyright (C) 2011-2016  Adhi software pvt ltd
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 module WkinvoiceHelper
 include WktimeHelper
 include WkattendanceHelper
+include WkaccountingHelper
+include WkgltransactionHelper
 
     def options_for_wktime_account(blankOption)
 		accArr = Array.new
@@ -31,8 +50,35 @@ include WkattendanceHelper
 			if (totalAmount.round - totalAmount) != 0
 				addRoundInvItem(totalAmount)
 			end
+			if totalAmount > 0 && autoPostGL
+				glTransaction = postToGlTransaction(@invoice, totalAmount.round, @invoice.invoice_items[0].currency)
+				unless glTransaction.blank?
+					@invoice.gl_transaction_id = glTransaction.id
+					@invoice.save
+				else
+					errorMsg = Hash.new
+					errorMsg['trans'] = l(:error_trans_msg)
+				end				
+			end
 		end
 		errorMsg
+	end
+	
+	def postToGlTransaction(invoice, amount, currency)
+		glTransaction = nil
+		crLedger = WkLedger.where(:id => getSettingCfId('invoice_cr_ledger'))
+		dbLedger = WkLedger.where(:id => getSettingCfId('invoice_db_ledger'))
+		unless crLedger[0].blank? || dbLedger[0].blank?
+			transId = invoice.gl_transaction.blank? ? nil : invoice.gl_transaction.id
+			transType = getTransType(crLedger[0].ledger_type, dbLedger[0].ledger_type)
+			if Setting.plugin_redmine_wktime['wktime_currency'] == currency 
+				isDiffCur = false 
+			else
+				isDiffCur = true 
+			end
+			glTransaction = saveGlTransaction(transId, invoice.invoice_date, transType, nil, amount, currency, isDiffCur)
+		end
+		glTransaction
 	end
 	
 	def saveInvoice
@@ -368,12 +414,16 @@ include WkattendanceHelper
 			numStr = getNumberAsStr[thrDigitVal]
 		else
 			if thrDigitVal > 0
-				hundredStr = getNumberAsStr[thrDigitVal/100].blank? ? "" : (getNumberAsStr[thrDigitVal/100] + " hundred ")
+				hundredStr = getNumberAsStr[thrDigitVal/100].blank? ? "" : (getNumberAsStr[thrDigitVal/100] + " " +  l(:label_hundred))
 				twoDigStr = getTwoDigitNumberStr(thrDigitVal%100)
 				numStr = hundredStr.blank? || twoDigStr.blank? ? (hundredStr + twoDigStr)  : (hundredStr + "and" + twoDigStr)
 			end
 		end
 		numStr = " " + numStr unless numStr.blank?
 		numStr
+	end
+	
+	def autoPostGL
+		(!Setting.plugin_redmine_wktime['invoice_auto_post_gl'].blank? && Setting.plugin_redmine_wktime['invoice_auto_post_gl'].to_i == 1)
 	end
 end

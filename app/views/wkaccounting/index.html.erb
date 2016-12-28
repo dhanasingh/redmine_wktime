@@ -1,0 +1,10 @@
+<h2><%= l(:label_accounting) %></h2>
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<script type="text/javascript"> 
+    blgtxnUrl = '<%=url_for(:controller => "wkgltransaction", :action => "index", :tab => "wkgltransaction")%>';
+    blgledgerUrl = '<%=url_for(:controller => "wkledger", :action => "index", :tab => "wkledger")%>';
+    prevTab = 'tab-<%= "#{controller_name}" %>';   
+</script>
+<%= render_tabs time_expense_tabs %>
+
+<%= hidden_field_tag 'back_url', url_for(params) %>

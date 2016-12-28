@@ -1,0 +1,37 @@
+<h2><%= l(:label_ledger) %></h2>
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<script type="text/javascript"> 
+    blgtxnUrl = '<%=url_for(:controller => "wkgltransaction", :action => "index", :tab => "wkgltransaction")%>';
+    blgledgerUrl = '<%=url_for(:controller => "wkledger", :action => "index", :tab => "wkledger")%>';
+    prevTab = 'tab-<%= "#{controller_name}" %>';   
+</script>
+<%= render_tabs time_expense_tabs %>
+
+<%= hidden_field_tag 'back_url', url_for(params) %>
+
+<% wkaccounting_helper = Object.new.extend(WkaccountingHelper) %>
+<% ledgerType = wkaccounting_helper.getLedgerTypeHash %>
+<% ledgerType[:""] = "" %>
+
+<%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
+	<%= hidden_field_tag "searchlist", "#{controller_name}" %>	
+	<%	ledger_type =session[:wkledger][:ledger_type] %>
+	<%	ledgername =session[:wkledger][:ledger_name] %>
+			<label ><%= l(:field_name) %>:</label>
+			<%= text_field_tag 'name', ledgername, :size => 30 %>
+			<label ><%= l(:label_type) %>:</label>
+			<%=h select_tag("ledger_type", options_for_select(ledgerType.invert, :selected => ledger_type ), :style => "width:160px; ") %>
+			<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
+			<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
+	<div class="wk-contextual">
+		<% if isModuleAdmin('wktime_accounting_admin') %>
+			<%= link_to l(:label_new) + l(:label_ledger), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+		<% end %>
+    </div>
+<% end %>
+
+<div class="total-hours">
+	<p><%= l(:label_total) %>: &nbsp;<%= @ledgers[0].currency unless @ledgers[0].blank? || @ledgers[0].blank?%> <%= html_hours("%.2f" % @totalAmt) %></p>
+</div>
+<%= render :partial => 'wkledger/ledger_list'%>	

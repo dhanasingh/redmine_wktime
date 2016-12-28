@@ -1,3 +1,20 @@
+# ERPmine - ERP for service industry
+# Copyright (C) 2011-2016  Adhi software pvt ltd
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 module WkpayrollHelper
 	include WktimeHelper
 	include WkattendanceHelper
@@ -33,7 +50,7 @@ module WkpayrollHelper
 	def generateSalaries(userIds,salaryDate)
 		userSalaryHash = getUserSalaryHash(userIds,salaryDate)
 		payperiod = Setting.plugin_redmine_wktime['wktime_pay_period']
-		currency = Setting.plugin_redmine_wktime['wktime_payroll_currency']
+		currency = Setting.plugin_redmine_wktime['wktime_currency']
 		errorMsg = nil
 		deleteWkSalaries(userIds,salaryDate)
 		unless userSalaryHash.blank?
@@ -52,6 +69,12 @@ module WkpayrollHelper
 			end
 		else	
 			errorMsg = l(:error_wktime_save_nothing)
+		end		
+		basicledger = WkSalaryComponents.where("component_type = 'b' and ledger_id is not null ").count
+		if errorMsg.blank? && isChecked('salary_auto_post_gl') && !Setting.plugin_redmine_wktime['wktime_cr_ledger'].blank? && 	basicledger.to_i != 0	
+			errorMsg = generateGlTransaction(salaryDate)
+		else
+			errorMsg = 1
 		end
 		errorMsg
 	end
@@ -242,7 +265,8 @@ module WkpayrollHelper
 							wksalaryComponents.name = sval[1]
 							wksalaryComponents.component_type = 'b'
 							wksalaryComponents.salary_type = sval[2]
-							wksalaryComponents.factor = sval[3]				
+							wksalaryComponents.factor = sval[3]
+							wksalaryComponents.ledger_id = sval[4]							
 						else
 							wksalaryComponents.name = sval[1]
 							wksalaryComponents.frequency = sval[2]
@@ -250,6 +274,7 @@ module WkpayrollHelper
 							wksalaryComponents.component_type = key.to_s == 'allowances' ? 'a' : 'd'
 							wksalaryComponents.dependent_id = sval[4]
 							wksalaryComponents.factor = sval[5]
+							wksalaryComponents.ledger_id = sval[6]
 						end
 							wksalaryComponents.save()
 					end
@@ -257,4 +282,71 @@ module WkpayrollHelper
 			end		
 		}
     end
+	
+	def generateGlTransaction(salaryDate)
+		errorMsg = nil
+		totalDebit = 0
+		totalCredit = 0
+		salaries = WkSalary.includes(:salary_component).where("wk_salaries.salary_date = ?  and wk_salary_components.ledger_id is not null ", salaryDate).references(:salary_component).group("wk_salary_components.ledger_id").sum("wk_salaries.amount")
+		
+		allowanceAmt = WkSalary.includes(:salary_component).where("wk_salaries.salary_date = ? and wk_salary_components.component_type='a' and wk_salary_components.ledger_id is null ", salaryDate).references(:salary_component).sum("wk_salaries.amount")
+		
+		ledgerIds = WkSalaryComponents.pluck(:ledger_id, :component_type)
+		ledgersIdHash = Hash[*ledgerIds.flatten]
+		basicLedgerId = WkSalaryComponents.where("component_type = 'b' ").first.ledger_id 		
+		salaries[basicLedgerId] = salaries[basicLedgerId].to_i + allowanceAmt.to_i
+		crLedgerId = Setting.plugin_redmine_wktime['wktime_cr_ledger'].to_i
+		transTypeArr = WkLedger.where(:id => crLedgerId).pluck(:id, :ledger_type)
+		transTypeHash = Hash[*transTypeArr.flatten]
+		
+		glTransaction = WkGlTransaction.new
+		glTransaction.trans_type = transTypeHash[Setting.plugin_redmine_wktime['wktime_cr_ledger'].to_i] == "BA" || transTypeHash[Setting.								plugin_redmine_wktime['wktime_cr_ledger'].to_i] == "CS" ? "P" : "J" 
+		glTransaction.trans_date = salaryDate
+		unless glTransaction.valid?
+			errorMsg = glTransaction.errors.full_messages.join("<br>")
+		else 
+			glTransaction.save()
+		end
+		
+		salaries.each{|key,value|
+			wktxnDetail = WkGlTransactionDetail.new
+			wktxnDetail.ledger_id = key.to_i
+			wktxnDetail.gl_transaction_id = glTransaction.id
+			wktxnDetail.detail_type = ledgersIdHash[key.to_i] == 'd' ? 'c' : 'd'
+			wktxnDetail.amount = value
+			wktxnDetail.currency = Setting.plugin_redmine_wktime['wktime_currency']
+			totalDebit = totalDebit + value.to_i if ledgersIdHash[key.to_i] == 'b' || ledgersIdHash[key.to_i] == 'a'
+			totalCredit = totalCredit + value.to_i if ledgersIdHash[key.to_i] == 'd'
+			unless wktxnDetail.valid?
+				errorMsg = wktxnDetail.errors.full_messages.join("<br>")
+			else 
+				wktxnDetail.save() if wktxnDetail.amount != 0
+			end
+		}
+		wktxnDetail = WkGlTransactionDetail.new
+		wktxnDetail.ledger_id = Setting.plugin_redmine_wktime['wktime_cr_ledger'].to_i
+		wktxnDetail.gl_transaction_id = glTransaction.id
+		wktxnDetail.detail_type = 'c'
+		wktxnDetail.amount = totalDebit - totalCredit
+		wktxnDetail.currency = Setting.plugin_redmine_wktime['wktime_currency']
+		unless wktxnDetail.valid?
+			errorMsg = wktxnDetail.errors.full_messages.join("<br>")
+		else 
+			wktxnDetail.save()
+		end
+		deleteGlSalary(salaryDate)
+		glSalary = WkGlSalary.new
+		glSalary.salary_date = salaryDate
+		glSalary.gl_transaction_id = glTransaction.id
+		unless glSalary.valid?
+			errorMsg = glSalary.errors.full_messages.join("<br>")
+		else 
+			glSalary.save()
+		end
+		errorMsg
+	end
+	
+	def deleteGlSalary(salaryDate)
+		WkGlSalary.where(:salary_date =>salaryDate).destroy_all
+	end
 end

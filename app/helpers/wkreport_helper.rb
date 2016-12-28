@@ -1,3 +1,20 @@
+# ERPmine - ERP for service industry
+# Copyright (C) 2011-2016  Adhi software pvt ltd
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 module WkreportHelper	
 	include WktimeHelper
 
@@ -11,13 +28,18 @@ module WkreportHelper
 	end	
 
 	def options_for_report_select(selectedRpt)
-		options_for_select([
+		reportTypeArr = [
 			[l(:label_wk_attendance), 'attendance_report'], 
 			[l(:label_time_entry_plural), 'spent_time_report'], 
 			[l(:label_wk_timesheet), 'time_report'], 			
 			[l(:label_wk_expensesheet), 'expense_report'],			
 			[l(:label_payroll_report), 'payroll_report'],
-			[l(:label_wk_payslip), 'payslip_report']], selectedRpt)
+			[l(:label_wk_payslip), 'payslip_report']]
+		if (isModuleAdmin('wktime_accounting_group') || isModuleAdmin('wktime_accounting_admin') )
+			reportTypeArr << [l(:label_profit_loss_account), 'pl_report']
+			reportTypeArr << [l(:label_balance_sheet), 'bal_sht_report']
+		end
+		options_for_select(reportTypeArr, selectedRpt)
 	end
 	
 	def getUserQueryStr(group_id,user_id, from)

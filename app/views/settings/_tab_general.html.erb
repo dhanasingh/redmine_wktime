@@ -10,6 +10,14 @@
 		<p>
 		  <label><%= l(:label_address) %></label><%= text_area_tag 'settings[wktime_company_address]',  @settings['wktime_company_address'], :size => "23*10" %>
 		</p>
+		<p ><label><%= l(:label_financial_year_start) %></label>
+			<%= select_tag 'settings[wktime_financial_year_start]', options_for_select((l('date.month_names').collect.with_index.to_a), :selected =>  @settings['wktime_financial_year_start']) %>
+	    </p>
+		<% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
+		<p>
+			<label><%= l(:label_wk_currency) %></label>
+			<%=h select_tag('settings[wktime_currency]',options_for_select(wkexpense_helper.options_for_currency,:selected => @settings['wktime_currency'])) %>
+		</p>
 		<p>
 		  <label><%= l(:label_wk_header_logo) %></label><%= text_field_tag 'settings[wktime_header_logo]', @settings['wktime_header_logo']%>
 		</p>

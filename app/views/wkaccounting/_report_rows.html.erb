@@ -1,0 +1,12 @@
+<% padding = 25 if padding.blank?
+entries.each_with_index do |row_col,index| %>
+	<tr style="width:100%;">
+		<td align="left" style="padding-left: <%=padding%>px;"><%= row_col[0]%></td>
+		<% if index == entries.length-1 %>
+			<td align="right" style="border-bottom: solid thin;"><%= "%.2f" % row_col[1] %></td>
+		<% else %>
+			<td align="right"><%= "%.2f" % row_col[1] %></td>
+		<% end %>
+		<td></td>
+	</tr>
+<% end %>

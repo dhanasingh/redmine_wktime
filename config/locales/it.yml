@@ -395,3 +395,84 @@ it:
   label_sub_total: Sub total
   label_round_off: Round Off
   label_grand_total: Grand Total
+  
+  label_accounting: Accounting
+  label_accounting_group: Accounting Group
+  label_enable_accounting_module: Enable Accounting Module
+  label_transaction: Transaction
+  label_ledger: Ledger
+  label_accounting_admin: Accounting Admin Group
+  label_bank_ac: Bank Accounts
+  label_bank_occ_ac: Bank OCC A/c
+  label_bank_od_ac: Bank OD A/c
+  label_branch_division: Branch / Division
+  label_capital_account: Capital Account
+  label_cash_in_hand: Cash-in-hand
+  label_current_assets: Current Assets
+  label_current_liabilities: Current Liabilities
+  label_deposits: Deposits(Asset)
+  label_direct_expenses: Direct Expenses
+  label_direct_incomes: Direct Incomes
+  label_duties_taxes: Duties & Taxes
+  label_fixed_assets: Fixed Assets
+  label_indirect_expenses: Indirect Expenses
+  label_indirect_incomes: Indirect Incomes
+  label_investments: Investments
+  label_loans_advances: Loans & Advances (Asset)
+  label_loans: Loans (Liability)
+  label_misc_expenses: Misc. Expenses (ASSET)
+  label_provisions: Provisions
+  label_purchase_accounts: Purchase Accounts
+  label_reserves_surplus: Reserves & Surplus
+  label_retained_earnings: Retained Earnings
+  label_sales_accounts: Sales Accounts
+  label_secured_loans: Secured Loans
+  label_stock_in_hand: Stock-in-hand
+  label_sundry_creditors: Sundry Creditors
+  label_sundry_debtors: Sundry Debtors
+  label_suspense_ac: Suspense A/c
+  label_unsecured_loans: Unsecured Loans
+  label_profit_loss_account: Profit & Loss A/c
+  label_particulars: Particulars
+  label_trading_account: Trading Account
+  label_profit: Profit
+  label_cost_of_sales: Cost of sales
+  label_statement: Statement
+  label_income: Income
+  label_txn_contra: Contra
+  label_txn_payment: Payment
+  label_txn_receipt: Receipt
+  label_txn_journal: Journal
+  label_txn_sales: Sales
+  label_txn_credit_note: Credit Note
+  label_txn_purchase: Purchase
+  label_txn_debit_note: Debit Note
+  label_type: Type
+  label_particulars: Particulars
+  label_debit: Debit
+  label_credit: Credit
+  label_date: Date
+  label_type: Type
+  label_balance_sheet: Balance Sheet
+  label_as_at: As at
+  label_of_funds: "%{value} of Funds"
+  label_application: Application
+  label_current: Current
+  label_original: Original
+  label_auto_post_gl: Auto post to General/Ledger
+  error_ledger_trans_associate: Cannot be deleted because transactions associated
+  label_unable_delete: Unable to delete.
+  label_row_valid_msg: Please fill the added rows.
+  error_system_ledger_cant_delete: System ledger Cannot be delete
+  error_trans_msg: Could not save transaction. Please configure auto post to general ledger settings
+  label_salary: Salary
+  error_contra_msg: Contra should contain bank and cash ledgers only.
+  error_payment_msg: Payment should have bank or cash as Credit.
+  error_receipt_msg: Receipt should have bank or cash as Debit.   
+  error_purchase_msg: Purchase should have sundry creditors/debitors, cash and bank as credit and purchase group as debit.
+  error_sales_msg: Sales should have sundry creditors/debitors, cash and bank as debit and sales group as credit.
+  error_cn_msg: Credit note should have sundry creditors/debitors, cash and bank as credit and should not have cash and bank as debit.
+  error_dn_msg: Debit note should have sundry creditors/debitors, cash and bank as debit and should not have cash and bank as credit.
+  label_less_transferred: "Less: Transferred"
+  label_trans_row_validmsg: Transaction contain minimum two rows.
+  label_trans_total_validmsg: Transaction debit and credit does not match.

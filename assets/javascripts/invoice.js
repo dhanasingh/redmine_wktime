@@ -66,19 +66,24 @@ function invoiceAddRow(tableId, rowCount)
       datePickerClone.datepicker();
     }
 	document.getElementById(rowCount).value = rowlength;
-	clearId = tableId == "milestoneTable" ? "milestone_id"+rowlength : "item_id"+rowlength;
+	clearId = tableId == "milestoneTable" ? "milestone_id"+rowlength : (tableId == "txnTable" ? "txn_id"+rowlength : "item_id"+rowlength ) ;
 	document.getElementById(clearId).value = "";
-	document.getElementById('item_index' + rowlength).innerHTML = rowlength; 
+	if(document.getElementById('item_index' + rowlength) != null)
+	{
+		document.getElementById('item_index' + rowlength).innerHTML = rowlength; 
+	}
+	
 	
 }
 
 function addAmount(fldId)
 {
-	var rate = document.getElementById('rate'+  fldId.slice(-1));
-	var quantity = document.getElementById('quantity'+  fldId.slice(-1));
+	var cloumnId = parseInt(fldId.replace(/[^0-9\.]/g, ''));
+	var rate = document.getElementById('rate'+  cloumnId);
+	var quantity = document.getElementById('quantity'+  cloumnId);
 	if(rate.value != null && quantity.value != null)
 	{
-		document.getElementById("amount"+  fldId.slice(-1)).innerHTML = rate.value * quantity.value;
+		document.getElementById("amount"+  cloumnId).innerHTML = rate.value * quantity.value;
 	}
 	
 	var table = document.getElementById('invoiceTable');
@@ -125,12 +130,162 @@ function addAmount(fldId)
 
 function deleteRow(tableId, totalrow)
 {
-    document.getElementById(tableId).deleteRow(row_id);	
-	document.getElementById(totalrow).value = document.getElementById(totalrow).value - 1;
+    
+	if(tableId == "txnTable")
+	{
+		var table = document.getElementById(tableId);
+		var rowlength = table.rows.length;
+		if(rowlength > 3)	
+		{
+			document.getElementById(tableId).deleteRow(row_id);	
+			document.getElementById(totalrow).value = document.getElementById(totalrow).value - 1;
+			for(i = 1; i < rowlength-1; i++)
+			{
+				var colCount = table.rows[i].cells.length;			
+				for(var j=0; j<colCount; j++) 
+				{
+					var input = document.getElementById(tableId).rows[i].cells[j].getElementsByTagName("*")[0];	
+					input.id = table.rows[i].cells[j].headers + i;
+					input.name = table.rows[i].cells[j].headers + i;
+				}
+			}			
+		}
+		else{
+			alert(deleteMsg);
+		}	
+		updateAmount();
+	}
+	else{
+		var table = document.getElementById(tableId);
+		var rowlength = table.rows.length;
+		document.getElementById(tableId).deleteRow(row_id);	
+		document.getElementById(totalrow).value = document.getElementById(totalrow).value - 1;
+		for(i = 1; i < rowlength-1; i++)
+			{
+				var colCount = table.rows[i].cells.length;			
+				for(var j=0; j<colCount; j++) 
+				{
+					var input = document.getElementById(tableId).rows[i].cells[j].getElementsByTagName("*")[0];	
+					input.id = table.rows[i].cells[j].headers + i;
+					input.name = table.rows[i].cells[j].headers + i;					
+				}
+			}
+	}
 }
 
 function openInvReportPopup(){
 	var invId = document.getElementById('invoice_id').value;
 	popupUrl = wkInvReportUrl + '&invoice_id=' + invId +'&is_report=true'
 	window.open(popupUrl, '_blank', 'location=yes,scrollbars=yes,status=yes');
+}
+
+function tallyAmount(fldId)
+{	
+	var fldval = document.getElementById(fldId).value;
+	if(isNaN(fldval))
+	{
+		alert(fldval + " " + transValidMsg);
+	}
+	else{
+		var addclm = parseInt(fldId.replace(/[^0-9\.]/g, '')) +1;	
+		//var addclm = parseInt(fldId.slice(-1)) + 1 ;	
+		var oldtable = document.getElementById("txnTable");
+		var oldrowlength = oldtable.rows.length;
+		if(addclm > 2 && addclm == oldrowlength )
+		{
+			invoiceAddRow('txnTable', 'txntotalrow');
+		}		
+		updateAmount();
+	}
+	
+}
+
+function updateAmount()
+{
+	var isDebit = false;
+	var debitAmount = 0;
+	var creditAmount = 0;
+	var totalamount = 0;
+	var totDebit = 0;
+	var totCredit = 0;
+	var table = document.getElementById("txnTable");
+	var rowlength = table.rows.length;
+	for(var i = 1; i < rowlength; i++)
+	{
+		var txn_debit = document.getElementById('txn_debit'+i);
+		var txn_credit = document.getElementById('txn_credit'+i);
+		debval = txn_debit.value == "" ? 0 : parseFloat(txn_debit.value);
+		crdtval = txn_credit.value == "" ? 0 : parseFloat(txn_credit.value);	
+		
+		if( i != rowlength-1)
+		{
+			debitAmount += debval ;
+			creditAmount += crdtval ;
+		}		
+		if(txn_debit.value != "" && txn_credit.value == "" && i == 1)
+		{
+			isDebit = true;
+		}
+		var fieldId = (isDebit ? 'txn_credit' :  'txn_debit') + i;//(rowlength-1);
+		if(i == (rowlength-1))
+		{
+			totalamount = isDebit ? debitAmount - creditAmount : creditAmount - debitAmount;
+			totalamount = Math.abs(totalamount);
+			var fieldId = ((isDebit && debitAmount > creditAmount) ? 'txn_credit' :  ((!isDebit && debitAmount > creditAmount) ? 'txn_credit' : 'txn_debit')) + i;//(rowlength-1);
+			document.getElementById(fieldId).value = totalamount;			
+		}
+		totDebit += txn_debit.value == "" ? 0 : parseFloat(txn_debit.value);
+		totCredit +=  txn_credit.value == "" ? 0 : parseFloat(txn_credit.value);	
+		document.getElementById('debitTotal').innerHTML = totDebit;//isDebit ? totDebit : totDebit+totalamount;
+		document.getElementById('creditTotal').innerHTML = totCredit;//isDebit ? totCredit : totCredit+totalamount;
+	}
+}
+
+function txnAddrowValidation(tableId)
+{
+	var table = document.getElementById(tableId);
+	var rowlength = table.rows.length;
+	var isAddrow = false;
+	for(var i = 1; i < 3; i++)
+	{
+		var txn_debit = document.getElementById('txn_debit'+i);
+		var txn_credit = document.getElementById('txn_credit'+i);
+		if(txn_debit.value != "")
+		{
+			isAddrow = true;
+		}
+	}
+	if(rowlength > 2 && isAddrow)	
+	{
+		invoiceAddRow('txnTable', 'txntotalrow');
+	}
+	else {
+		alert(rowValidationMsg);
+	}
+}
+
+
+function txnformValidation()
+{
+	var ret = true;
+	var table = document.getElementById("txnTable");
+	var rowlength = table.rows.length;
+	var errormsg = "";
+	if(rowlength < 2)
+	{
+		errormsg = rowValidationMsg;
+		ret = false;
+	}
+	var dbval = document.getElementById('debitTotal').innerText;
+	var crval = document.getElementById('creditTotal').innerText;
+	if(parseFloat(dbval) != parseFloat(crval))
+	{
+		errormsg = dbcrvalidMsg;
+		ret = false;
+	}
+	if(!ret)
+	{
+		alert(errormsg);
+	}
+	return ret;
 }

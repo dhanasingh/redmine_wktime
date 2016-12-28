@@ -1,3 +1,20 @@
+# ERPmine - ERP for service industry
+# Copyright (C) 2011-2016  Adhi software pvt ltd
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 class WkinvoiceController < WkbillingController
   
 before_filter :require_login
@@ -7,6 +24,7 @@ include WkinvoiceHelper
 
 	def index
 		@projects = nil
+		errorMsg = nil
 		set_filter_session
 		retrieve_date_range
 		accountId = session[:wkinvoice][:account_id]
@@ -28,12 +46,16 @@ include WkinvoiceHelper
 					errorMsg = generateInvoices(accountId, projectId, @to + 1, [@from, @to])
 				end
 			end
-			
-			if errorMsg.nil?	
+			if errorMsg.blank?	
 				redirect_to :action => 'index' , :tab => 'wkinvoice'
 				flash[:notice] = l(:notice_successful_update)
 			else
-				flash[:error] = errorMsg
+				if errorMsg.is_a?(Hash)
+					flash[:notice] = l(:notice_successful_update)
+					flash[:error] = errorMsg['trans']
+				else
+					flash[:error] = errorMsg
+				end
 				redirect_to :action => 'index'
 			end	
 		else
@@ -126,6 +148,13 @@ include WkinvoiceHelper
 			totalAmount = @invoice.invoice_items.sum(:amount)
 			if (totalAmount.round - totalAmount) != 0
 				addRoundInvItem(totalAmount)
+			end
+			if totalAmount > 0 && autoPostGL
+				glTransaction = postToGlTransaction(@invoice, totalAmount.round, @invoice.invoice_items[0].currency)
+				unless glTransaction.blank?
+					@invoice.gl_transaction_id = glTransaction.id
+					@invoice.save
+				end				
 			end
 		end
 		

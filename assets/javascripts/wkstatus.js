@@ -206,9 +206,9 @@ function signAttendance(str)
 	  document.getElementById('clockin' ).style.display = "block";
 	  document.getElementById('clockout').style.display = "none";
 	}
-	
+	var clkInOutUrl = document.getElementById('clockinout_url').value;	
 	$.ajax({	
-	url: '/updateClockInOut',
+	url: clkInOutUrl,//'/updateClockInOut',
 	type: 'get',
 	data: {startdate : datevalue, str: str},
 	success: function(data){ }   

@@ -208,3 +208,28 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	delete 'wkcontract/destroy', :to => 'wkcontract#destroy'
 	
 	get 'wkinvoice/invreport', :to => 'wkinvoice#invreport' 
+
+	# For Accounting
+	
+	get 'wkgltransaction/index', :to => 'wkgltransaction#index'	
+	
+	get 'wkgltransaction/edit', :to => 'wkgltransaction#edit'
+	
+	get 'wkgltransaction/update', :to => 'wkgltransaction#update'
+	
+	delete 'wkgltransaction/destroy', :to => 'wkgltransaction#destroy'
+	
+	get 'wkledger/index', :to => 'wkledger#index'
+	
+	get 'wkledger/edit', :to => 'wkledger#edit'
+	
+	get 'wkledger/update', :to => 'wkledger#update'
+	
+	delete 'wkledger/destroy', :to => 'wkledger#destroy'
+  
+	get 'wkaccounting/pl_rpt', :to => 'wkaccounting#pl_rpt'
+	
+	get 'wkaccounting/balance_sheet', :to => 'wkaccounting#balance_sheet'
+	
+	get 'wkbase/updateClockInOut', :to => 'wkbase#updateClockInOut'
+	

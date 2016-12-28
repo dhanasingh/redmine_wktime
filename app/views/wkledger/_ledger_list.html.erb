@@ -1,0 +1,31 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<% typeHash = { 'C'  => l(:label_txn_contra), 'P' =>  l(:label_txn_payment),  } %>
+<% wkaccounting_helper = Object.new.extend(WkaccountingHelper) %>
+<% ledgerType = wkaccounting_helper.getLedgerTypeHash %>
+<div class="autoscroll">
+<table class="list time-entries">
+  <thead>
+         <tr>
+				<th class="lbl-txt-align"><%= l(:field_name)   %></th>
+				<th class="lbl-txt-align"><%=  l(:label_type) %></th>				
+			<!--	<th class="lbl-txt-align"><%= l(:field_amount) %></th> -->
+				<th></th>
+         </tr>
+  </thead>
+   <tbody>
+	<% @ledgers.each do |entry| %>
+		<tr>
+		    <td class="lbl-txt-align"><%=h entry.name  %></td>
+			<td class="lbl-txt-align"><%=h ledgerType[entry.ledger_type] %></td>
+		<!--	<td class="lbl-txt-align"><%= entry.currency %>&nbsp;<%=h  html_hours("%.2f" % (entry.opening_balance.blank? ? 0 : entry.opening_balance) )  %></td> -->
+			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :ledger_id => entry.id, :tab => controller.controller_name},   :title => l(:button_edit) %>
+			<% if isModuleAdmin('wktime_accounting_admin') && entry.ledger_type != 'SY' %>
+				<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :ledger_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+			<% end %>
+			</td>
+		</tr>
+	<% end %>
+   </tbody>
+</table>
+</div>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

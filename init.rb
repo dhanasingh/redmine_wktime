@@ -23,7 +23,7 @@ module Redmine::MenuManager::MenuHelper
     if project && !project.new_record?
       :project_menu
     else
-      if %w(wktime wkexpense wkattendance wkreport wkpayroll  wkinvoice wkaccount wkcontract wkaccountproject wktax).include? params[:controller]
+      if %w(wktime wkexpense wkattendance wkreport wkpayroll  wkinvoice wkaccount wkcontract wkaccountproject wktax wkgltransaction wkledger).include? params[:controller]
         :wktime_menu
       else
         :application_menu
@@ -210,9 +210,9 @@ module SettingsControllerPatch
 				  hashval = Hash.new()
 				  unless dep_list.blank?
 						dep_list.each do |list| 
-						basic = [list.id.to_s + '|' + list.name + '|' + list.salary_type + '|' + list.factor.to_s] if list.component_type == 'b'	
-						allowance = allowance << list.id.to_s + '|' + list.name+'|'+list.frequency.to_s+'|'+ (list.start_date).to_s+'|'+(list.dependent_id).to_s+'|'+list.factor.to_s	if list.component_type == 'a'
-						deduction = deduction << list.id.to_s + '|' + list.name + '|' + list.frequency.to_s + '|' + (list.start_date).to_s + '|' + (list.dependent_id).to_s + '|' + (list.factor).to_s if list.component_type == 'd'
+						basic = [list.id.to_s + '|' + list.name + '|' + list.salary_type + '|' + list.factor.to_s + '|' + list.ledger_id.to_s ]  if list.component_type == 'b'	
+						allowance = allowance << list.id.to_s + '|' + list.name+'|'+list.frequency.to_s+'|'+ (list.start_date).to_s+'|'+(list.dependent_id).to_s+'|'+list.factor.to_s + '|' + list.ledger_id.to_s	if list.component_type == 'a'
+						deduction = deduction << list.id.to_s + '|' + list.name + '|' + list.frequency.to_s + '|' + (list.start_date).to_s + '|' + (list.dependent_id).to_s + '|' + (list.factor).to_s + '|' + list.ledger_id.to_s if list.component_type == 'd'
 							
 						end
 					end
@@ -236,7 +236,7 @@ Redmine::Plugin.register :redmine_wktime do
   name 'ERPmine'
   author 'Adhi Software Pvt Ltd'
   description 'This plugin is for entering Time & Attendance'
-  version '2.5.2'
+  version '2.6'
   url 'http://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
   
@@ -308,7 +308,10 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_enable_billing_module' => '0',
 			 'wktime_auto_generate_invoice' => '0',
 			 'wktime_generate_invoice_from' => nil,
-			  'wktime_billing_groups' => '0'
+			 'wktime_billing_groups' => '0',
+			 'wktime_enable_accounting_module' => '0',
+			 'wktime_accounting_group' => '0',
+			 'wktime_accounting_admin' => '0'
   })  
  
   menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_erpmine, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 	
@@ -322,6 +325,7 @@ Redmine::Plugin.register :redmine_wktime do
 	  menu.push :wkattendance, { :controller => 'wkattendance', :action => 'index' }, :caption => :label_wk_attendance, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showAttendance}
 	  menu.push :wkpayroll, { :controller => 'wkpayroll', :action => 'index' }, :caption => :label_payroll, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showPayroll }
 	  menu.push :wkinvoice, { :controller => 'wkinvoice', :action => 'index' }, :caption => :label_wk_billing, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showBilling }
+	  menu.push :wkgltransaction, { :controller => 'wkgltransaction', :action => 'index' }, :caption => :label_accounting, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showAccounting }
 	  menu.push :wkreport, { :controller => 'wkreport', :action => 'index' }, :caption => :label_report_plural, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showReports}	  
 	end	
 
@@ -480,7 +484,12 @@ Rails.configuration.to_prepare do
 						if errorMsg.blank?
 							Rails.logger.info "===== Invoice generated Successfully ====="
 						else
-							Rails.logger.info "===== Job failed: #{errorMsg} ====="
+							if errorMsg.is_a?(Hash)
+								Rails.logger.info "===== Invoice generated Successfully ====="
+								Rails.logger.info "===== Job failed: #{errorMsg['trans']} ====="
+							else
+								Rails.logger.info "===== Job failed: #{errorMsg} ====="
+							end
 						end
 					end
 				rescue Exception => e

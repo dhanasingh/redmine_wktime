@@ -4,7 +4,12 @@ payroll_name = "<%=l(:label_basic_name) %>";
 payroll_name_errormsg = "<%=l(:label_name_errormsg) %>";
 payroll_date_errormsg = "<%=l(:label_date_errormsg) %>";
 payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
+lblcreditLedger = "<%= l(:label_credit) + " " +  l(:label_ledger) %>";
+lbldebitLedger = "<%= l(:label_debit) + " " +  l(:label_ledger) %>";
 </script>
+<% @ledgers = ["", ""] %> 
+<% @ledgers << WkLedger.pluck(:name, :id) %> 
+<%  ledgerhash = Hash[*@ledgers.flatten].invert %>
 <% dlgcontent = false %>
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
 <%= hidden_field_tag 'settings[payroll_deleted_ids]', "" %>
@@ -31,7 +36,7 @@ payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
 	else
 		@settings['wktime_payroll_basic'].each do |element|
 		  listboxArr = element.split('|')
-		  optionText = listboxArr[1] +' : ' + hash_salary_type[listboxArr[2]] +' : ' + listboxArr[3]
+		  optionText = listboxArr[1] +' : ' + hash_salary_type[listboxArr[2]] +' : ' + listboxArr[3] + (listboxArr[4].blank? ? ':' : ':' + (!ledgerhash.blank? ? (!ledgerhash[listboxArr[4].to_i].blank? ? ledgerhash[listboxArr[4].to_i] : listboxArr[4].to_s) : listboxArr[4].to_s) )
 		  basiclist << [optionText,element]
 		end
 	end
@@ -41,7 +46,7 @@ payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
 	else
 		@settings['wktime_payroll_allowances'].each do |element|
 		  allowanceArr = element.split('|')
-		  optionText = allowanceArr[1] +' : ' + (allowanceArr[2].blank? ? '' :hash_frequency[allowanceArr[2]]) +' : ' + (allowanceArr[3].blank? ? '' : allowanceArr[3]) + (!allowanceArr[4].blank? ? ' : ' + sal_com_hash[allowanceArr[4].to_i] + ' : ' : ' : ')  + (allowanceArr[5].blank? ? "" : allowanceArr[5])
+		  optionText = allowanceArr[1] +' : ' + (allowanceArr[2].blank? ? '' :hash_frequency[allowanceArr[2]]) +' : ' + (allowanceArr[3].blank? ? '' : allowanceArr[3]) + (!allowanceArr[4].blank? ? ' : ' + sal_com_hash[allowanceArr[4].to_i] + ' : ' : ' : ')  + (allowanceArr[5].blank? ? "" : allowanceArr[5]) + (allowanceArr[6].blank? ? ':' : ':' + (!ledgerhash.blank? ?  (!ledgerhash[allowanceArr[6].to_i].blank? ?  ledgerhash[allowanceArr[6].to_i] : allowanceArr[6].to_s) : allowanceArr[6].to_s ) )
 		  allowancelist << [optionText,element]
 		end
 	end
@@ -51,7 +56,7 @@ payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
 	else
 		@settings['wktime_payroll_deduction'].each do |element|
 		deductionArr = element.split('|')
-		optionText = deductionArr[1] +' : ' + (deductionArr[2].blank? ? '' : hash_frequency[deductionArr[2]]) +' : ' + (deductionArr[3].blank? ? '' : deductionArr[3]) + (!deductionArr[4].blank? ? (' : ' + sal_com_hash[deductionArr[4].to_i] + ' : ') : ' : ')  + (deductionArr[5].blank? ? "" : deductionArr[5])
+		optionText = deductionArr[1] +' : ' + (deductionArr[2].blank? ? '' : hash_frequency[deductionArr[2]]) +' : ' + (deductionArr[3].blank? ? '' : deductionArr[3]) + (!deductionArr[4].blank? ? (' : ' + sal_com_hash[deductionArr[4].to_i] + ' : ') : ' : ')  + (deductionArr[5].blank? ? "" : deductionArr[5]) + (deductionArr[6].blank? ? ':' : ':' + (!ledgerhash.blank? ? (!ledgerhash[deductionArr[6].to_i].blank? ?  ledgerhash[deductionArr[6].to_i] : deductionArr[6].to_s) : deductionArr[6].to_s ) )
 		  deductionlist << [optionText,element]
 		end
 	end
@@ -66,9 +71,7 @@ payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
 	<p style="margin-left: -110px;">
 			<%= check_box_tag('settings[wktime_auto_generate_salary]', 1, @settings['wktime_auto_generate_salary'].to_i == 1) %> <label><%= l(:label_auto_generate_salary) %></label>
 	</p>
-	<p style="margin-left: -110px;">
-		<label><%= l(:label_wk_currency) %></label>
-		<%=h select_tag('settings[wktime_payroll_currency]',options_for_select(wkexpense_helper.options_for_currency,:selected => @settings['wktime_payroll_currency'])) %></p>
+	
 	<p style="margin-left: -110px;"><label><%= l(:label_pay_period) %></label>
 	    <%= select_tag 'settings[wktime_pay_period]', options_for_select(hash_pay_period.invert, :selected => @settings['wktime_pay_period']) %></p>
 	<p style="margin-left: -110px;">	
@@ -100,9 +103,13 @@ payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
     <p style="margin-left: -110px;"><label><%= l(:label_loss_of_pay) %></label>
 	 <%= select_tag 'settings[wktime_loss_of_pay]', options_for_select(leaveIssueslist, :selected =>  @settings['wktime_loss_of_pay']) %></p>
 	
-	<p style="margin-left: -110px;"><label><%= l(:label_financial_year_start) %></label>
-	 <%= select_tag 'settings[wktime_financial_year_start]', options_for_select((l('date.month_names').collect.with_index.to_a), :selected =>  @settings['wktime_financial_year_start']) %></p>
-	 
+	<p style="margin-left: -110px;">
+			<%= check_box_tag('settings[salary_auto_post_gl]', 1, @settings['salary_auto_post_gl'].to_i == 1) %> <label><%= l(:label_auto_post_gl) %></label>
+	</p>
+	
+	<p style="margin-left: -110px;"><label><%= l(:label_credit) + " " +  l(:label_ledger)  %></label>
+	    <%= select_tag 'settings[wktime_cr_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['wktime_cr_ledger']) %></p>
+		 
 <p style="margin-left: -110px;">
 <label><%= l(:label_basic) %></label>
 		<%=  select_tag('settings[wktime_payroll_basic]',
@@ -137,6 +144,8 @@ payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
 		<%= link_to "Edit", "javascript:payrollDialogAction('Deduction', 'Edit');", :class => "button"%>  |
 		<%= link_to "Delete", "javascript:removeSelectedValue('settings_wktime_payroll_deduction');", :class => "button" %>
 	</p>
+	
+	
 
 <div id="payroll-dlg" title="<%= l(:label_basic) %>">
 <fieldset>
@@ -151,6 +160,9 @@ payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
 	
 	
 	<p id="basic_factor">	<label><%= l(:label_factor) %></label><%= text_field_tag 'basic_field_factor', "", :maxlength => 7, :style => " width:150px; float:right; " %></p>
+	
+	<p ><label id="ledgersLabel"><%= l(:label_debit) + " " +  l(:label_ledger)  %></label>
+	    <%= select_tag 'payroll_db_ledger', options_for_select(ledgerhash.invert) , :style => "width:155px; float:right; " %></p>
 	
 	<p id="allowance_dependent">
 		<table id = "table_payroll_dependent">

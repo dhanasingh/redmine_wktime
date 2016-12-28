@@ -1,0 +1,98 @@
+<%= stylesheet_link_tag 'application' , :media => "all" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<style type="text/css">		
+		.tbl-report{
+			width : 100%;
+			table-layout: fixed; !important;
+			word-wrap: break-word; !important;
+			text-align: center; 
+			margin-top:5px; margin-bottom:10px; padding-left: 10px; color:#333333;
+			font-family:Verdana, sans-serif; font-size:12px; 
+		}
+ </style>
+<div id="attn-rpt-dlg", style="overflow-x:auto;">
+	<table style="width:100%; border-collapse: collapse;">
+		 <caption style="text-align:center"><b><%= Setting.plugin_redmine_wktime['wktime_company_name'] %><br><%= l(:label_profit_loss_account) %></b></br>
+		 <%= @from.to_formatted_s(:long) + " " + l(:label_date_to) + " " + @to.to_formatted_s(:long)%>
+		<thead bgcolor="#e6e6e6">
+			<tr style="border-bottom: solid thin;border-top: solid thin;">
+				<th align="left" width=50% style="padding-left: 10px;"><%= l(:label_particulars) %></th>
+				<th colspan="2" align="right" width=50%><%= @from.to_formatted_s(:long) + " " + l(:label_date_to) + " " + @to.to_formatted_s(:long)%></th>
+			</tr>
+		</thead>
+		<body>
+			<tr style="width:100%;">
+				<td ><b><u><%= l(:label_trading_account) + " : " %></u></b></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<% 
+				@mainEnriesHash = Hash.new
+				@mainTotalHash = Hash.new
+				plLedgerTypes = incomeLedgerTypes + expenseLedgerTypes
+				plLedgerTypes.each do |type|
+					@mainEnriesHash[type] = getEachLedgerSumAmt(@from, @to, [type])
+					@mainTotalHash[type] = @mainEnriesHash[type].blank? ? 0 : @mainEnriesHash[type].values.inject(:+)
+				end
+			%>
+			<% for i in 0..1 %>
+				<tr style="width:100%;">
+					<td align="left"><b><%= getLedgerTypeHash[incomeLedgerTypes[i]] %></b></td>
+					<td></td>
+					<td align="right"><b><%= "%.2f" % @mainTotalHash[incomeLedgerTypes[i]] if @mainTotalHash[incomeLedgerTypes[i]] != 0 %></b></td>
+				</tr>
+				<% if @mainTotalHash[incomeLedgerTypes[i]] != 0 %>
+					<%= render partial: "report_rows", locals: { entries: @mainEnriesHash[incomeLedgerTypes[i]] }%>
+				<% end %>
+			<% end %>
+			<tr style="width:100%;">
+				<td align="left"><b><%= l(:label_cost_of_sales)%></b></td>
+				<td></td>
+				<td align="right"><b><%= "%.2f" % (@mainTotalHash['DE']  + @mainTotalHash['PA']) %></b></td>
+			</tr>
+			<% for i in 0..1 %>
+				<tr style="width:100%;">
+					<td align="left" style="padding-left: 25px;"><b><%= getLedgerTypeHash[expenseLedgerTypes[i]] %></b></td>
+					<td align="right"><%=  "%.2f" % @mainTotalHash[expenseLedgerTypes[i]]  if  @mainTotalHash[expenseLedgerTypes[i]] != 0 %></td>
+					<td></td>
+				</tr>
+				<% if @mainTotalHash[expenseLedgerTypes[i]] != 0 %>
+					<%= render partial: "report_rows", locals: { entries: @mainEnriesHash[expenseLedgerTypes[i]], padding: 50 }%>
+					
+				<% end %>
+			<% end %>
+			<tr style="width:100%;">
+				<td align="left" style="padding-left: 25px;"><b><%= l(:label_gross) + " " + l(:label_profit) + " : " %></b></td>
+				<td style="border-top: solid thin;"></td>
+				<td align="right" style="border-top: solid thin;"><b><%= "%.2f" % (@mainTotalHash['DI'] + @mainTotalHash['SA'] - @mainTotalHash['DE']  - @mainTotalHash['PA']) %></b></td>
+			</tr>
+			<tr style="width:100%;">
+				<td><b><u><%= l(:label_income) + " " + l(:label_statement) + " : " %></u></b></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<% ['II', 'IE'].each do |type| %>
+				<tr style="width:100%;">
+					<td align="left"><b><%= getLedgerTypeHash[type] %></b></td>
+					<td></td>
+					<td align="right"><b><%= "%.2f" % @mainTotalHash[type] if  @mainTotalHash[type] != 0 %></b></td>
+				</tr>
+				<% if @mainTotalHash[type] != 0 %>
+					<%= render partial: "report_rows", locals: { entries: @mainEnriesHash[type] }%>
+				<% end %>
+				<% if type == 'II' %>
+					<tr style="width:100%;">
+						<td></td>
+						<td style="border-top: solid thin;"></td>
+						<td align="right" style="border-top: solid thin;"><b><%= "%.2f" % (@mainTotalHash['DI'] + @mainTotalHash['II'] + @mainTotalHash['SA'] - @mainTotalHash['DE']- @mainTotalHash['PA']) %></b></td>
+					</tr>
+				<% end %>
+			<% end %>
+			<tr style="width:100%;">
+				<td align="left" style="padding-left: 25px;"><b><%= l(:label_net) + " " + l(:label_profit) + " : "%></b></td>
+				<td style="border-top: solid thin;border-bottom: solid thin;"></td>
+				<td align="right" style="border-top: solid thin;border-bottom: solid thin;"><b><%= "%.2f" % (@mainTotalHash['DI'] + @mainTotalHash['II'] + @mainTotalHash['SA'] - @mainTotalHash['DE']- @mainTotalHash['IE']    - @mainTotalHash['PA']) %></b></td>
+			</tr>
+		</body>
+	</table>
+</div>
