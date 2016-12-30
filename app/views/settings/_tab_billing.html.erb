@@ -3,7 +3,7 @@ lblInvCompName = "<%=l(:field_name) %>";
 lblInvCompVal = "<%=l(:field_value) %>";
 </script>
 <% @ledgers = ["", ""] %> 
-<% @ledgers << WkLedger.pluck(:name, :id) %> 
+<% @ledgers << WkLedger.order(:name).pluck(:name, :id) %> 
 <%  ledgerhash = Hash[*@ledgers.flatten].invert %>
 <fieldset style="display: inline-block; vertical-align: top;  min-width: 350px;">
 	<%

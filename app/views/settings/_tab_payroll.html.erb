@@ -8,7 +8,7 @@ lblcreditLedger = "<%= l(:label_credit) + " " +  l(:label_ledger) %>";
 lbldebitLedger = "<%= l(:label_debit) + " " +  l(:label_ledger) %>";
 </script>
 <% @ledgers = ["", ""] %> 
-<% @ledgers << WkLedger.pluck(:name, :id) %> 
+<% @ledgers << WkLedger.order(:name).pluck(:name, :id) %> 
 <%  ledgerhash = Hash[*@ledgers.flatten].invert %>
 <% dlgcontent = false %>
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
