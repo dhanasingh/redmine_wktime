@@ -827,9 +827,14 @@ end
 				groupusers << scope.all
 			end
 		end
-		grpUserIds = Array.new		
-		grpUserIds = groupusers[0].collect{|user| user.id}.uniq if !groupusers.blank? && !groupusers[0].blank?
-		isAccountUser = grpUserIds.include?(User.current.id)
+		grpUserIds = Array.new	
+		#grpUserIds = groupusers[0].collect{|user| user.id}.uniq if !groupusers.blank? && !groupusers[0].blank?
+		groupusers.each do |groupuser|
+			groupuser.each do |user|
+					 grpUserIds << user.id
+			end
+		end
+  		isAccountUser = grpUserIds.include?(User.current.id)
 	end
 	
 	def getAccountUserProjects
