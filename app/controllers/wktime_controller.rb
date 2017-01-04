@@ -1195,8 +1195,8 @@ private
 											Setting.plugin_redmine_wktime['wktime_enter_cf_in_row2'].to_i == custom_field.id))
 											if use_detail_popup
 												cvs = custom_values[custom_field.id]
-												custom_value.value = cvs[k].blank? ? nil : 
-												custom_field.multiple? ? cvs[k].split(',') : cvs[k]	
+												#custom_value.value = cvs[k].blank? ? nil : (custom_field.multiple? ? cvs[k].split(',') : cvs[k])	
+												teEntry.custom_field_values = {custom_field.id => cvs[k].blank? ? nil : (custom_field.multiple? ? cvs[k].split(',') : cvs[k])}
 											end
 										end
 									end
