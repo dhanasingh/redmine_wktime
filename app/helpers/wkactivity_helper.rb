@@ -1,0 +1,3 @@
+module WkactivityHelper
+include WktimeHelper
+end

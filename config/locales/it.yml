@@ -476,3 +476,9 @@ it:
   label_less_transferred: "Less: Transferred"
   label_trans_row_validmsg: Transaction contain minimum two rows.
   label_trans_total_validmsg: Transaction debit and credit does not match.
+  
+  label_crm: CRM
+  label_lead_plural: Leads
+  label_opportunity_plural: Opportunities
+  label_activity_plural: Activities
+  label_contact_plural: Contacts
