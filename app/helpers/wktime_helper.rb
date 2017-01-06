@@ -1116,4 +1116,15 @@ end
 	def isChecked(settingName)
 		(!Setting.plugin_redmine_wktime[settingName].blank? && Setting.plugin_redmine_wktime[settingName].to_i == 1)
 	end
+	
+	def getUserListHash(needBlank)
+		activeUsers = User.active.sorted.all
+		unless activeUsers.blank?
+			userList = activeUsers.collect{|user| [user.name(:firstname_lastname), user.id]}
+		else
+			userList = Array.new
+		end
+		userList.unshift(["",0]) if needBlank
+		userList
+	end
 end

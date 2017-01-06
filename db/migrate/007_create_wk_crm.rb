@@ -8,7 +8,7 @@ class CreateWkCrm < ActiveRecord::Migration
 		  t.string :name
 		  t.string :position
 		  t.boolean :is_default
-		  t.string :active, :null => false, :limit => 3
+		  t.boolean :active
 		  t.string :enum_type, :null => false
 		  t.timestamps null: false
 		end

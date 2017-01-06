@@ -484,3 +484,18 @@ en:
   label_opportunity_plural: Opportunities
   label_activity_plural: Activities
   label_contact_plural: Contacts
+  label_new_item: "New %{value}"
+  label_edit_item: "Edit %{value}"
+  label_lead: Lead
+  label_content_information: "%{value} Information"
+  label_website: Website
+  label_department: Department
+  label_assigned: Assigned
+  label_in_process: In Process
+  label_converted: Converted
+  label_recycled: Recycled
+  label_dead: Dead
+  label_lead_source: Lead Source
+  label_opportunity_amount: Opportunity Amount
+  label_referred_by: Referred By
+  label_more: More

@@ -233,6 +233,8 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wkbase/updateClockInOut', :to => 'wkbase#updateClockInOut'
 	
+	# For CRM
+	
 	get 'wkcrm/index', :to => 'wkcrm#index'
 	
 	get 'wklead/index', :to => 'wklead#index'
@@ -242,4 +244,8 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wkactivity/index', :to => 'wkactivity#index'
 	
 	get 'wkcontact/index', :to => 'wkcontact#index'
+	
+	post 'wklead/update', :to => 'wklead#update'
+	
+	get 'wklead/edit', :to => 'wklead#edit'	
 	
