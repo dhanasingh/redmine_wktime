@@ -1,0 +1,25 @@
+<fieldset class="box tabular">
+	<legend><%=l(:label_content_information, l(:label_more))%></legend>
+	<table>
+		<tr>
+			 <th align="left"><%= l(:field_status) %></th>
+			 <td align="left" style="padding-left:75px;"><%=h select_tag('status', options_for_select(getLeadStatusArr, :selected => @lead.blank? ? "" : @lead.status),:required => true) %></td>
+		</tr>
+		<tr>
+			 <th align="left"><%= l(:label_lead_source) %></th>
+			 <td align="left" style="padding-left:75px;"><%=h select_tag('lead_source_id', options_for_select(getLeadStatusArr, :selected => @lead.blank? ? "" : @lead.status),:required => true) %></td>
+		</tr>
+		<tr>
+			 <th align="left"><%= l(:label_opportunity_amount) %></th>
+			 <td align="left" style="padding-left:75px;"><%=h text_field_tag("opportunity_amount",@lead.blank?  ? "" : @lead.opportunity_amount,:size =>40) %> </td>
+		</tr>
+		<tr>
+			 <th align="left"><%= l(:label_referred_by) %></th>
+			 <td align="left" style="padding-left:75px;"><%=h text_field_tag("referred_by",@lead.blank?  ? "" : @lead.referred_by,:size =>40) %> </td>
+		</tr>
+		<tr>
+			 <th align="left"><%= l(:field_assigned_to) %></th>
+			 <td align="left" style="padding-left:75px;"><%=h select_tag('assigned_user_id', options_for_select(getUserListHash(true), :selected => @lead.blank? ? "" : @lead.assigned_user_id),:required => true) %></td>
+		</tr>
+	</table>
+</fieldset>

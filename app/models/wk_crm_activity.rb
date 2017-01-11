@@ -15,8 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkLead < ActiveRecord::Base
+class WkCrmActivity < ActiveRecord::Base
   unloadable
-  has_many :activities, as: :parent, class_name: "WkCrmActivity"
-  has_many :contacts, as: :parent, class_name: "WkCrmContact"
+  belongs_to :parent, :polymorphic => true
 end

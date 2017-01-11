@@ -22,8 +22,9 @@ class CreateWkCrm < ActiveRecord::Migration
 		  t.string :activity_type, :null => false, :limit => 3
 		  t.string :direction, :limit => 3
 		  t.integer :duration
-		  t.column :parent_id, :integer, :default => 0, :null => false
-		  t.column :parent_type, :string, :limit => 30, :default => "", :null => false
+		  t.references :parent, polymorphic: true, index: true
+		  #t.column :parent_id, :integer, :default => 0, :null => false
+		  #t.column :parent_type, :string, :limit => 30, :default => "", :null => false
 		  t.references :assigned_user, :class => "User", :null => true
 		  t.references :created_by_user, :class => "User"
 		  t.references :updated_by_user, :class => "User"
@@ -39,8 +40,9 @@ class CreateWkCrm < ActiveRecord::Migration
 		  t.references :assigned_user, :class => "User", :null => true
 		  t.string :salutation
 		  t.column :contact_type, :string, :limit => 3
-		  t.column :parent_id, :integer, :default => 0, :null => false
-		  t.column :parent_type, :string, :limit => 30, :default => "", :null => false
+		  t.references :parent, polymorphic: true, index: true
+		  #t.column :parent_id, :integer, :default => 0, :null => false
+		  #t.column :parent_type, :string, :limit => 30, :default => "", :null => false
 		  t.references :created_by_user, :class => "User"
 		  t.references :updated_by_user, :class => "User"
 		  t.timestamps null: false
@@ -48,7 +50,8 @@ class CreateWkCrm < ActiveRecord::Migration
 		add_index  :wk_crm_contacts, :address_id
 		
 		create_table :wk_leads do |t|
-		  t.references :status, :class => "wk_crm_enumerations", :null => false
+		  t.string :status, :null => false, :limit => 3
+		  #t.references :status, :class => "wk_crm_enumerations", :null => false
 		  #t.references :assigned_user, :class => "User", :null => true
 		  t.decimal :opportunity_amount
 		  t.references :lead_source, :class => "wk_crm_enumerations"

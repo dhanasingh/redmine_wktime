@@ -1,0 +1,53 @@
+<fieldset class="box tabular">
+	<legend><%=l(:label_content_information, l(:label_contact))%></legend>
+	<table>
+		<tr>
+			<th align="left"><%= l(:label_work_phone) %></th>
+			<td align="left" style="padding-left:40px;"><%=h 		text_field_tag("work_phone", address.blank?  ? "" : address.work_phone, :size => 40) %> </td>			   
+		</tr>
+		<!--<tr>
+			<th align="left"><%= l(:label_home_phone) %></th>
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("home_phone", address.blank?  ? "" : address.home_phone, :size => 40) %> </td>			   
+		</tr>-->
+		<tr>
+			<th align="left"><%= l(:label_mobile) %></th>
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("mobile", address.blank?  ? "" : address.mobile, :size => 40) %> </td>			   
+		</tr>
+		<tr>
+			<th align="left"><%= l(:label_email) %></th>
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("email", address.blank?  ? "" : address.email, :size => 40) %> </td>			   
+		</tr>
+		<tr>
+			<th align="left"><%= l(:label_fax) %></th>
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("fax", address.blank?  ? "" : address.fax, :size => 40) %> </td>			   
+		</tr>
+		<tr>
+			<th align="left"><%= l(:label_website) %></th>
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("website", address.blank? ? "" : address.website, :size => 40) %> </td>
+		</tr> 
+		<tr>
+			 <th align="left"><%= l(:label_account_address1) %></th>
+			 <td align="left" style="padding-left:40px;"><%=h text_field_tag("address1",address.blank?  ? "" : address.address1,:size =>40) %> </td>
+		</tr>
+		<tr>
+			 <th align="left"><%= l(:label_account_address2) %></th>
+			 <td align="left" style="padding-left:40px;"><%=h text_field_tag("address2",address.blank?  ? "" : address.address2,:size =>40) %> </td>
+		</tr>
+		<tr>
+			 <th align="left"><%= l(:label_city) %></th>
+			 <td align="left" style="padding-left:40px;"><%=h text_field_tag("city", address.blank?  ? "" : address.city,:size =>40) %> </td>
+		</tr>
+		<tr>
+			 <th align="left"><%= l(:label_state) %></th>
+			 <td align="left" style="padding-left:40px;"><%=h text_field_tag("state", address.blank?  ? "" : address.state,:size =>40) %> </td>
+		</tr>
+		<tr>
+			 <th align="left"><%= l(:label_country) %></th>
+			 <td align="left" style="padding-left:40px;"><%=h text_field_tag("country", address.blank?  ? "" : address.country,:size =>40) %> </td>
+		</tr>
+		<tr>
+			 <th align="left"><%= l(:label_pin) %></th>
+			 <td align="left" style="padding-left:40px;"><%=h text_field_tag("pin", address.blank?  ? "" : address.pin,:size =>40) %> </td>
+		</tr>
+	</table>
+</fieldset>
