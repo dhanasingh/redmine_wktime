@@ -18,4 +18,8 @@
 class WkCrmActivity < ActiveRecord::Base
   unloadable
   belongs_to :parent, :polymorphic => true
+  #belongs_to :contact, as: :parent, class_name: "WkCrmContact"
+  belongs_to :account, :class_name => 'WkAccount'
+  belongs_to :created_by_user, :class_name => 'User'
+  belongs_to :address, :class_name => 'WkAddress'
 end
