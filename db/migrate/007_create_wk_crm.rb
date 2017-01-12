@@ -13,7 +13,7 @@ class CreateWkCrm < ActiveRecord::Migration
 		  t.timestamps null: false
 		end
   
-		create_table :wk_crm_activites do |t|
+		create_table :wk_crm_activities do |t|
 		  t.string :name
 		  t.string :status, :null => false, :limit => 3
 		  t.string :description	
