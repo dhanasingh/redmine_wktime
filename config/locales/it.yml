@@ -497,4 +497,25 @@ it:
   label_opportunity_amount: Opportunity Amount
   label_referred_by: Referred By
   label_more: More
+  label_subject: Subject
+  label_inbound: Inbound
+  label_outbound: Outbound
+  label_planned: Planned
+  label_held: Held
+  label_not_held: Not held
+  label_start_date_time: "Start Date & Time"
+  label_related_to: Related to
   label_contact: Contact
+  label_task: Task
+  label_opportunity: Opportunity
+  label_duration: Duration
+  label_end_date_time: "End Date & Time"
+  label_priority: Priority
+  label_medium: Medium
+  label_call: Call
+  label_meeting: Meeting
+  label_location: Location
+  label_not_started: Not Started
+  label_completed: Completed
+  label_pending_input: Pending Input
+  label_deferred: Deferred

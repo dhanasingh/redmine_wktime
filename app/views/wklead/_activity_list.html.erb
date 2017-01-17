@@ -3,34 +3,39 @@
 	<table class="list time-entries">
 		<thead>
 			<tr>
+				<th class="lbl-txt-align"><%= l(:field_activity) + " " + l(:label_type) %></th>
 				<th class="lbl-txt-align"><%= l(:field_subject) %></th>
 				<th class="lbl-txt-align"><%= l(:field_status) %></th>
-				<th class="lbl-txt-align"><%= l(:label_contact) %></th>
-				<th class="lbl-txt-align"><%= l(:label_modified) %></th>
-				<th class="lbl-txt-align"><%= l(:label_modified) %></th>
-				<th class="lbl-txt-align"><%= l(:field_due_date) %></th>
+				<th class="lbl-txt-align"><%= l(:label_related_to) %></th>
+				<th class="lbl-txt-align"><%= l(:label_start_date_time) %></th>
+				<th class="lbl-txt-align"><%= l(:label_end_date_time) %></th>
 				<th class="lbl-txt-align"><%= l(:field_assigned_to) %></th>
+				<th class="lbl-txt-align"><%= l(:field_created_on) %></th>
+				<th class="lbl-txt-align"><%= l(:label_modified) %></th>
+				
+				
 				<th></th>
 			</tr>
 		</thead>
 		<tbody>
-			<% Rails.logger.info("======== activities = #{activities.inspect} =======")
-			unless activities.blank? %>
+			<% unless activities.blank? %>
 				<% activities.each do |entry| %>
 					<tr>
+						<td class="lbl-txt-align"><%=h acttypeHash[entry.activity_type] %></td>
 						<td class="lbl-txt-align"><%=h entry.name %></td>
-						<td class="lbl-txt-align"><%=h entry.status %></td>
-						<td class="lbl-txt-align"><%=h entry.status.blank? ? "" : entry.status %></td>
-						<td class="lbl-txt-align"><%=h entry.created_at %></td>
-						<td class="lbl-txt-align"><%=h entry.updated_at %></td>
-						<td class="lbl-txt-align"><%=h entry.end_date %></td>
-						<td class="lbl-txt-align"><%=h entry.created_by_user.name(:firstname_lastname) %></td>
-						<td align="center">
-							<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :lead_id => entry.id,:address_id => entry.address.blank? ? "" : entry.address.id}, :title => l(:button_edit) %> <%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :lead_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
-						</td>
+						<td class="lbl-txt-align"><%=h (entry.activity_type == 'M' || entry.activity_type == 'C' ? meetCallStatusHash[entry.status] : taskStatusHash[entry.status])  %></td>
+						<td class="lbl-txt-align"><%=h relatedHash[entry.parent_type] %></td>
+						<td class="lbl-txt-align"><%=h entry.start_date.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>
+						<td class="lbl-txt-align"><%=h entry.end_date.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>
+						<td class="lbl-txt-align"><%=h entry.assigned_user.name(:firstname_lastname) %></td>						
+						<td class="lbl-txt-align"><%=h entry.created_at.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>
+						<td class="lbl-txt-align"><%=h entry.updated_at.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>									
+						<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :activity_id => entry.id, :tab => controller.controller_name}, :title => l(:button_edit) %>
+							<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :activity_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
 					</tr>
 				<% end %>
 			<% end %>
 		</tbody>
 	</table>
 </div>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

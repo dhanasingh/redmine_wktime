@@ -305,3 +305,18 @@ function accProjChanged(uid)
 	success: function(data){ updateUserDD(data, projDropdown, userid, needBlankOption, false, "");},   
 	});
 }
+
+function actRelatedDd(uid)
+{
+	var relatedTo = document.getElementById("related_to");
+	var relatedType = relatedTo.options[relatedTo.selectedIndex].value;
+	var needBlankOption = false;
+	var relatedparentdd = document.getElementById("related_parent");
+	userid = uid;
+	$.ajax({
+	url: actRelatedUrl,
+	type: 'get',
+	data: {related_type: relatedType},
+	success: function(data){ updateUserDD(data, relatedparentdd, userid, needBlankOption, false, "");},   
+	});
+}

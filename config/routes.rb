@@ -247,5 +247,13 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	post 'wklead/update', :to => 'wklead#update'
 	
-	get 'wklead/edit', :to => 'wklead#edit'	
+	get 'wklead/edit', :to => 'wklead#edit'		
+	
+    get 'wkactivity/edit', :to => 'wkactivity#edit'
+	
+	get 'wkactivity/getActRelatedIds', :to => 'wkactivity#getActRelatedIds'
+	
+	get 'wkactivity/update', :to => 'wkactivity#update'
+	
+	delete 'wkactivity/destroy', :to => 'wkactivity#destroy'
 	

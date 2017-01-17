@@ -22,6 +22,7 @@ class CreateWkCrm < ActiveRecord::Migration
 		  t.string :activity_type, :null => false, :limit => 3
 		  t.string :direction, :limit => 3
 		  t.integer :duration
+		  t.string :location
 		  t.references :parent, polymorphic: true, index: true
 		  #t.column :parent_id, :integer, :default => 0, :null => false
 		  #t.column :parent_type, :string, :limit => 30, :default => "", :null => false
@@ -39,6 +40,7 @@ class CreateWkCrm < ActiveRecord::Migration
 		  t.string :department
 		  t.references :assigned_user, :class => "User", :null => true
 		  t.string :salutation
+		  t.string :description
 		  t.column :contact_type, :string, :limit => 3
 		  t.references :parent, polymorphic: true, index: true
 		  #t.column :parent_id, :integer, :default => 0, :null => false
@@ -92,6 +94,7 @@ class CreateWkCrm < ActiveRecord::Migration
 		add_column :wk_accounts, :account_category, :string
 		add_column :wk_accounts, :industry, :string
 		add_column :wk_accounts, :annual_revenue, :float
+		add_column :wk_accounts, :description, :string
 		add_reference :wk_accounts, :assigned_user, :class => "User"
 		add_reference :wk_accounts, :created_by_user, :class => "User"
 		add_reference :wk_accounts, :updated_by_user, :class => "User"

@@ -1,3 +1,4 @@
 module WkactivityHelper
 include WktimeHelper
+include WkcrmHelper
 end

@@ -12,3 +12,26 @@
 <%= render_tabs time_expense_tabs %>
 
 <%= hidden_field_tag 'back_url', url_for(params) %>
+<div class="wk-contextual">
+        <%= link_to l(:label_new_item, l(:field_activity)), url_for(:controller => controller_name, :action => 'edit', :activity_type=>'C'), :class => 'icon icon-time-add' %>
+</div>
+
+<% actType = ["", ""] %> 
+<% actType << acttypeHash.to_a %> 
+<%  actTypehash = Hash[*actType.flatten].invert %>
+
+<% relatedArr = ["", ""] %> 
+<% relatedArr << relatedHash.to_a %> 
+<%  relatedArrhash = Hash[*relatedArr.flatten].invert %>
+
+<%= form_tag({:controller => "wkactivity", :action => 'index', :tab => "wkactivity"}, :method => :get, :id => 'query_form') do %>
+	<%= hidden_field_tag "searchlist", "wkcrmactivity" %>
+	<%	actType =session[:wkcrmactivity][:activity_type]
+		actRelated = session[:wkcrmactivity][:related_to] %>
+		<th align="left" ><%= l(:field_activity) + " " + l(:label_type) %></th>
+		<td  align="left" style="padding-left:40px;"><%=h select_tag("activity_type", options_for_select(actTypehash, :selected => !actType.blank? ? actType : ""), :style => "width:190px;") %></td>
+	<th align="left" ><%= l(:label_related_to) %></th>
+			<td align="left" style="padding-left:40px;"><%=h select_tag("related_to", options_for_select(relatedArrhash, :selected => (!actRelated.blank? ? actRelated : "")), :style => "width:200px;") %></td>	
+<%= render :partial => 'wkactivity/date_range' %>
+<% end %>
+<%= render partial: "wklead/activity_list", locals: { activities:  @activity } %>
