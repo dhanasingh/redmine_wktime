@@ -520,3 +520,30 @@ it:
   label_pending_input: Pending Input
   label_deferred: Deferred
   button_convert_lead: Convert Lead
+  label_expected: Expected
+  label_business: Business
+  label_existing: Existing
+  label_stage: Stage
+  label_prospecting: Prospecting
+  label_analysis: Analysis
+  label_qualification: Qualification
+  label_needs_analysis: Needs 
+  label_value_proposition: Value Proposition
+  label_decision_makers: Id.Decision Makers
+  label_perception: Perception
+  label_proposal_quote: Proposal/Price Quote
+  label_negotiation: Negotiation/Review
+  label_lost: Lost
+  label_won: Won
+  label_cold: Cold
+  label_self: Self
+  label_generated: Generated
+  label_employee: Employee
+  label_partner: Partner
+  label_direct: Direct
+  label_conference: Conference
+  label_trade: Trade
+  label_word_of_mouth: Word of Mouth
+  label_other: Other
+  label_probability: Probability
+  label_step: Step

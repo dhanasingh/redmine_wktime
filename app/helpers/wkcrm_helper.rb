@@ -56,4 +56,47 @@ include WkinvoiceHelper
 		}
 	end
 	
+	def oppType
+		opportunityType = {
+			'N' => l(:label_new_item, l(:label_business)),
+			'E' => l(:label_existing) + " " + l(:label_business)
+		}
+		opportunityType	
+	end
+	
+	def salesStages
+		salesStageHash = {
+			'P' => l(:label_prospecting),
+			'Q' => l(:label_qualification),
+			'N' => l(:label_needs_analysis) + " " + l(:label_analysis),
+			'V' => l(:label_value_proposition),
+			'I' => l(:label_decision_makers),
+			'PA' => l(:label_perception)+ " " + l(:label_analysis),
+			'PP' => l(:label_proposal_quote),
+			'NR' => l(:label_negotiation),
+			'CW' => l(:field_closed_on)+ " " + l(:label_won),
+			'CL' => l(:field_closed_on)+ " " + l(:label_lost)
+		}
+		salesStageHash
+	end
+	
+	def leadSources
+		leadSourcesHash = {
+			'CC' => l(:label_cold)+ " " + l(:label_call),
+			'EC' => l(:label_existing) + " " + l(:label_customer),
+			'SG' => l(:label_self) + " " + l(:label_generated),
+			'E' => l(:label_employee),
+			'P' => l(:label_partner),
+			'PR' => l(:field_is_public)+ " " + l(:label_relations),
+			'DM' => l(:label_direct)+ " " + l(:field_address),			
+			'C' => l(:label_conference),
+			'TS' => l(:label_trade)+ " " + l(:button_show),
+			'W' => l(:label_website),
+			'WM' => l(:label_word_of_mouth),
+			'EM' => l(:field_address),
+			'O' => l(:label_other)
+		}
+		leadSourcesHash
+	end
+	
 end

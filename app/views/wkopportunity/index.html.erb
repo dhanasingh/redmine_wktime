@@ -13,3 +13,17 @@
 <%= render_tabs time_expense_tabs %>
 
 <%= hidden_field_tag 'back_url', url_for(params) %>
+<%= form_tag({:controller => "wkopportunity", :action => 'index'}, :method => :post, :id => 'query_form') do %>
+<%=h hidden_field_tag('tab', "wkopportunity") %>
+<%= hidden_field_tag "searchlist", "wkopportunity" %>
+<%	accname = session[:wkopportunity][:accountname] %>
+<div class="wk-contextual">
+    <label for='name' style="float:left"><%= l(:label_opportunity) + " " + l(:field_name) %>:</label>
+	<%= text_field_tag 'accountname', accname.blank? ? "" : accname, :size => 30, :style=> "float: left;" %>	
+	
+        <%= link_to l(:label_new_item, l(:label_opportunity)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+</div>
+<%= render :partial => 'wkopportunity/date_range' %>
+
+<% end %>
+<%= render :partial => 'wkopportunity/opportunity_list' %>

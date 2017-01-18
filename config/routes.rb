@@ -263,3 +263,12 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	delete 'wkactivity/destroy', :to => 'wkactivity#destroy'
 	
+	get 'wkopportunity/edit', :to => 'wkopportunity#edit'
+	
+	get 'wkopportunity/update', :to => 'wkopportunity#update'
+
+    delete 'wkopportunity/destroy', :to => 'wkopportunity#destroy'
+
+	post 'wkopportunity/index', :to => 'wkopportunity#index'
+
+	

@@ -23,6 +23,7 @@ class WkAccount < ActiveRecord::Base
   has_many :invoice_items, through: :invoices
   has_many :projects, through: :wk_account_projects
   has_many :contracts, foreign_key: "account_id", class_name: "WkContract", :dependent => :destroy
+  has_many :opportunities, foreign_key: "account_id", class_name: "WkOpportunity", :dependent => :destroy
   validates_presence_of :name
   validate :hasAnyValues
   

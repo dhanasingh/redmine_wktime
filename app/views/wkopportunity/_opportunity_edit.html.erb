@@ -1,0 +1,61 @@
+<% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
+<%	accArr = options_for_wktime_account(true) %>
+<%= form_tag({:controller => 'wkopportunity', :action => 'update'}, :method => :get, :id => 'query_form') do %>
+<%=h hidden_field_tag('opp_id', (!@oppEditEntry.blank? ? @oppEditEntry[0].id : "") ) %>
+<fieldset class="box tabular" style="height:280px; ">
+	<legend><%= l(:label_opportunity) + " " + l(:label_information) %></legend>
+	<table >
+		<tr>
+			<th align="left"><%= l(:label_opportunity) + " " + l(:field_name) %></th>
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_name", (!@oppEditEntry.blank? ? @oppEditEntry[0].name : ""), :style => "width:190px;") %></td>
+			
+			<th align="left" style="padding-left:240px;"><%= l(:label_account_name) %></th>
+			<td align="left" style="padding-left:40px;"><%=h select_tag('account_id', options_for_select(accArr, :selected => (!@oppEditEntry.blank? && !@oppEditEntry[0].account_id.blank? ? @oppEditEntry[0].account_id : ""))) %></td>
+		</tr>
+		
+		<tr>
+			<th align="left"><%= l(:label_wk_currency) %></th>
+			<td align="left" style="padding-left:40px;"><%=h select_tag("currency",options_for_select(wkexpense_helper.options_for_currency, :selected => (!@oppEditEntry.blank? ? @oppEditEntry[0].currency : "") )) %></td>
+			
+			<th align="left" style="padding-left:240px;"><%= l(:label_expected) + " " + l(:button_close) + " " + l(:field_spent_on) %></th>
+			<td align="left" style="padding-left:40px;"><%= date_field_tag('expected_close_date',   Date.today, {:id => 'expected_close_date', :size => 12, :style => "width:160px;"}) + calendar_for('expected_close_date') %></td>
+		</tr>
+		
+		<tr>
+			<th align="left"><%= l(:label_opportunity) + " " + l(:field_amount) %></th>
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_amount", (!@oppEditEntry.blank? && !@oppEditEntry[0].amount.blank? ? @oppEditEntry[0].amount : ""), :style => "width:190px;") %></td>
+			
+			<th align="left" style="padding-left:240px;"><%= l(:label_account_name) %></th>
+			<td align="left" style="padding-left:40px;"><%=h select_tag('opp_type', options_for_select(oppType.invert)) %></td>
+		</tr>
+		
+		<tr>
+			<th align="left"><%= l(:label_txn_sales) + " " + l(:label_stage) %></th>
+			<td align="left" style="padding-left:40px;"><%=h select_tag('sales_stage', options_for_select(leadSources.invert)) %></td>
+			
+			<th align="left" style="padding-left:240px;"><%= l(:label_probability) + " (%)" %> </th>
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_probability", (!@oppEditEntry.blank? && !@oppEditEntry[0].probability.blank? ? @oppEditEntry[0].probability : ""), :style => "width:190px;") %></td>
+		</tr>
+		
+		<tr>
+			<th align="left"><%= l(:label_next) + " " + l(:label_step) %></th>
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_next_step", (!@oppEditEntry.blank? && !@oppEditEntry[0].next_step.blank? ? @oppEditEntry[0].next_step : ""), :style => "width:190px;") %></td>
+			
+			<th align="left" style="padding-left:240px;"><%= l(:field_assigned_to) %></th>
+			<td align="left" style="padding-left:40px;"><%=h select_tag('assigned_user_id', options_for_select(getUserListHash(true), :selected => (!@oppEditEntry.blank? && !@oppEditEntry[0].assigned_user_id.blank? ? @oppEditEntry[0].assigned_user_id : "")),:required => true) %></td>
+		</tr>
+		
+		<tr>
+		<th align="left" ><%= l(:field_description) %></th>
+		<td colspan="4" align="left" style="padding-left:40px;"><%= text_area_tag 'opp_description', (!@oppEditEntry.blank? && !@oppEditEntry[0].description.blank? ? @oppEditEntry[0].description : ""), :style => "width:605px" %></td>		
+		
+		</tr>
+		
+	</table>
+</fieldset>
+
+<div>
+	<%= submit_tag l(:button_save) ,:id => 'wkopportunity_save'%>
+</div>
+	
+<% end %>
