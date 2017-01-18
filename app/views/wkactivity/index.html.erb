@@ -13,7 +13,7 @@
 
 <%= hidden_field_tag 'back_url', url_for(params) %>
 <div class="wk-contextual">
-        <%= link_to l(:label_new_item, l(:field_activity)), url_for(:controller => controller_name, :action => 'edit', :activity_type=>'C'), :class => 'icon icon-time-add' %>
+        <%= link_to l(:label_new_item, l(:field_activity)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
 </div>
 
 <% actType = ["", ""] %> 
@@ -35,3 +35,4 @@
 <%= render :partial => 'wkactivity/date_range' %>
 <% end %>
 <%= render partial: "wklead/activity_list", locals: { activities:  @activity } %>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

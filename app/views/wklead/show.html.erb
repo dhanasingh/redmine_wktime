@@ -1,0 +1,21 @@
+	<h2><b><%=@lead.blank? ? l(:label_new_item, l(:label_lead)) : l(:label_edit_item, l(:label_lead)) %></b></h2>
+	
+	<div id="account_form">
+		<% addressObj = @lead.blank? ? nil : @lead.address %>
+		<%=h hidden_field_tag('lead_id', @lead.blank? ? "" :@lead.id) %>
+		<%=h hidden_field_tag('address_id', @lead.blank? ? "" :@lead.address_id) %>
+		<div class="splitcontentleft">
+			<%= render partial: "show_lead_info", locals: { currentObj: @lead, isAccount: false}%>
+			<%= render partial: "show_other_info"%>
+		</div>
+		<div class="splitcontentright">
+			<%= render partial: "show_contact_info", locals: { address: addressObj }%>
+		</div>
+	<div style="clear:left;"></div>
+	<%= render partial: "accordion_section", locals: { currentObj: @lead }%>
+	<div style="clear:left;"></div>
+	</br>
+	<div class="splitcontentright">
+		<%= link_to "#{image_tag('edit.png')}#{l(:button_edit)}".html_safe, {:controller => controller.controller_name, :action => 'edit', :lead_id => @lead.id, :tab => controller.controller_name},   :title => l(:button_edit) %>
+		<%= link_to "#{image_tag('edit.png')}#{l(:button_convert_lead)}".html_safe, {:controller => controller.controller_name, :action => 'edit', :lead_id => @lead.id, :tab => controller.controller_name},   :title => l(:button_edit) %>
+	</div>

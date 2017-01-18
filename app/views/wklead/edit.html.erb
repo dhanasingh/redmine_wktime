@@ -2,7 +2,7 @@
 	<h2><b><%=@lead.blank? ? l(:label_new_item, l(:label_lead)) : l(:label_edit_item, l(:label_lead)) %></b></h2>
 	
 	<div id="account_form">
-		<% addressObj = @laed.blank? ? nil : @lead.address %>
+		<% addressObj = @lead.blank? ? nil : @lead.address %>
 		<%=h hidden_field_tag('lead_id', @lead.blank? ? "" :@lead.id) %>
 		<%=h hidden_field_tag('address_id', @lead.blank? ? "" :@lead.address_id) %>
 		<div class="splitcontentleft">
@@ -13,7 +13,6 @@
 			<%= render partial: "contact_info", locals: { address: addressObj }%>
 		</div>
 	<div style="clear:left;"></div>
-	<%# = render partial: "accordion_section", locals: { currentObj: @laed }%>
 	<div>
 		<%= submit_tag l(:button_save) ,:id => 'wklead_save'%>
 	</div>

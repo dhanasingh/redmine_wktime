@@ -24,6 +24,11 @@ class WkAccount < ActiveRecord::Base
   has_many :projects, through: :wk_account_projects
   has_many :contracts, foreign_key: "account_id", class_name: "WkContract", :dependent => :destroy
   validates_presence_of :name
+  validate :hasAnyValues
+  
+  def hasAnyValues
+	name.blank? && address_id.blank? && activity_id.blank? && industry.blank? && annual_revenue.blank? && assigned_user_id.blank? && id.blank?
+  end
   
   # Returns account's contracts for the given project
   # or nil if the account do not have contract
@@ -32,4 +37,5 @@ class WkAccount < ActiveRecord::Base
 		contract = contracts[0] if contract.blank?
 		contract
   end
+  
 end

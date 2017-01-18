@@ -239,15 +239,21 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wklead/index', :to => 'wklead#index'
 	
+	post 'wklead/index', :to => 'wklead#index'
+	
+	post 'wklead/update', :to => 'wklead#update'
+	
+	get 'wklead/edit', :to => 'wklead#edit'	
+	
+	get 'wklead/show', :to => 'wklead#show'	
+	
+	delete 'wklead/destroy', :to => 'wklead#destroy'
+	
 	get 'wkopportunity/index', :to => 'wkopportunity#index'
 	
 	get 'wkactivity/index', :to => 'wkactivity#index'
 	
 	get 'wkcontact/index', :to => 'wkcontact#index'
-	
-	post 'wklead/update', :to => 'wklead#update'
-	
-	get 'wklead/edit', :to => 'wklead#edit'		
 	
     get 'wkactivity/edit', :to => 'wkactivity#edit'
 	

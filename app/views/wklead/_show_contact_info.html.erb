@@ -1,0 +1,53 @@
+<fieldset class="box tabular">
+	<legend><%=l(:label_content_information, l(:label_contact))%></legend>
+	<table>
+		<tr>
+			<th align="left"><%= l(:label_work_phone) %></th>
+			<td align="left" style="padding-left:40px;"><%=h address.blank?  ? "" : address.work_phone %> </td>			   
+		</tr>
+		<!--<tr>
+			<th align="left"><%= l(:label_home_phone) %></th>
+			<td align="left" style="padding-left:40px;"><%=h address.blank?  ? "" : address.home_phone %> </td>			   
+		</tr>-->
+		<tr>
+			<th align="left"><%= l(:label_mobile) %></th>
+			<td align="left" style="padding-left:40px;"><%=h address.blank?  ? "" : address.mobile %> </td>			   
+		</tr>
+		<tr>
+			<th align="left"><%= l(:label_email) %></th>
+			<td align="left" style="padding-left:40px;"><%=h address.blank?  ? "" : address.email %> </td>			   
+		</tr>
+		<tr>
+			<th align="left"><%= l(:label_fax) %></th>
+			<td align="left" style="padding-left:40px;"><%=h address.blank?  ? "" : address.fax %> </td>			   
+		</tr>
+		<tr>
+			<th align="left"><%= l(:label_website) %></th>
+			<td align="left" style="padding-left:40px;"><%=h address.blank? ? "" : address.website %> </td>
+		</tr> 
+		<tr>
+			 <th align="left"><%= l(:label_account_address1) %></th>
+			 <td align="left" style="padding-left:40px;"><%=h address.blank?  ? "" : address.address1 %> </td>
+		</tr>
+		<tr>
+			 <th align="left"><%= l(:label_account_address2) %></th>
+			 <td align="left" style="padding-left:40px;"><%=h address.blank?  ? "" : address.address2 %> </td>
+		</tr>
+		<tr>
+			 <th align="left"><%= l(:label_city) %></th>
+			 <td align="left" style="padding-left:40px;"><%=h address.blank?  ? "" : address.city %> </td>
+		</tr>
+		<tr>
+			 <th align="left"><%= l(:label_state) %></th>
+			 <td align="left" style="padding-left:40px;"><%=h address.blank?  ? "" : address.state %> </td>
+		</tr>
+		<tr>
+			 <th align="left"><%= l(:label_country) %></th>
+			 <td align="left" style="padding-left:40px;"><%=h address.blank?  ? "" : address.country %> </td>
+		</tr>
+		<tr>
+			 <th align="left"><%= l(:label_pin) %></th>
+			 <td align="left" style="padding-left:40px;"><%=h address.blank?  ? "" : address.pin %> </td>
+		</tr>
+	</table>
+</fieldset>

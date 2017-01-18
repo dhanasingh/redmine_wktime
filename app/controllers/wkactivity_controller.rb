@@ -29,7 +29,7 @@ class WkactivityController < ApplicationController
 		relatedTo = session[:wkcrmactivity][:related_to]
 	   		
 		if !@from.blank? && !@to.blank?
-			crmactivity = WkCrmActivity.where("start_date between #{@from} and #{@to} or end_date between #{@from} and #{@to} ")
+			crmactivity = WkCrmActivity.where("start_date between '#{@from}' and '#{@to}' or end_date between '#{@from}' and '#{@to}' ")
 		else
 			crmactivity = WkCrmActivity.all
 		end
@@ -63,20 +63,19 @@ class WkactivityController < ApplicationController
     def getActRelatedIds
 		relatedArr = ""	
 		relatedId = nil
-		if params[:related_type].to_s == "WkOpportunity"
+		if params[:related_type] == "WkOpportunity"
 			relatedId = WkAccount.all
-		elsif params[:related_type].to_s == "WkLead"
+		elsif params[:related_type] == "WkLead"
 			relatedId = WkLead.all
-		elsif params[:related_type].to_s == "WkCrmContact"
+		elsif params[:related_type] == "WkCrmContact"
 			relatedId = WkCrmContact.all
 		else
 			relatedId = WkAccount.all
 		end
-		
 		if !relatedId.blank?
 			relatedId.each do | entry|				
-				if params[:related_type].to_s == "WkLead" 
-					relatedArr <<  entry.id.to_s() + ',' + entry.contacts[0].last_name.to_s()  + "\n" 
+				if params[:related_type] == "WkLead" 
+					relatedArr <<  entry.id.to_s() + ',' + entry.contacts.last_name.to_s()  + "\n" 
 				elsif params[:related_type].to_s == "WkCrmContact"
 					relatedArr <<  entry.id.to_s() + ',' + entry.last_name.to_s()  + "\n"
 				else
