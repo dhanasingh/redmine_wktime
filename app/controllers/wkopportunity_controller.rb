@@ -6,10 +6,15 @@ class WkopportunityController < ApplicationController
     def index
 		set_filter_session
 		retrieve_date_range
-		accName = session[:wkopportunity][:accountname]
+		oppName = session[:wkopportunity][:oppname]
+		accId = session[:wkopportunity][:account_id]
 		oppDetails = nil
-		if !@from.blank? && !@to.blank? && !accName.blank?
-			oppDetails = WkOpportunity.where(:close_date => @from..@to).where("name like ?", "%#{accName}%")
+		if !@from.blank? && !@to.blank? && !oppName.blank? && !accId.blank?
+			oppDetails = WkOpportunity.where(:close_date => @from..@to, :account_id => accId).where("name like ?", "%#{oppName}%")
+		elsif !@from.blank? && !@to.blank? && oppName.blank? && !accId.blank?
+			oppDetails = WkOpportunity.where(:close_date => @from..@to, :account_id => accId)
+		elsif !@from.blank? && !@to.blank? && !oppName.blank? && accId.blank?
+			oppDetails = WkOpportunity.where(:close_date => @from..@to).where("name like ?", "%#{oppName}%")
 		else
 			oppDetails = WkOpportunity.all
 		end
@@ -78,13 +83,14 @@ class WkopportunityController < ApplicationController
   
     def set_filter_session
         if params[:searchlist].blank? && session[:wkopportunity].nil?
-			session[:wkopportunity] = {:period_type => params[:period_type],:period => params[:period],	:from => @from, :to => @to, :accountname => params[:accountname]}
+			session[:wkopportunity] = {:period_type => params[:period_type],:period => params[:period],	:from => @from, :to => @to, :oppname => params[:oppname], :account_id => params[:account_id] }
 		elsif params[:searchlist] =='wkopportunity'
 			session[:wkopportunity][:period_type] = params[:period_type]
 			session[:wkopportunity][:period] = params[:period]
 			session[:wkopportunity][:from] = params[:from]
 			session[:wkopportunity][:to] = params[:to]
-			session[:wkopportunity][:accountname] = params[:accountname]
+			session[:wkopportunity][:oppname] = params[:oppname]
+			session[:wkopportunity][:account_id] = params[:account_id]
 		end
 		
     end

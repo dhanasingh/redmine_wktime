@@ -1,5 +1,5 @@
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
-<%	accArr = options_for_wktime_account(true) %>
+<%	accArr = options_for_wktime_account(false) %>
 <%= form_tag({:controller => 'wkopportunity', :action => 'update'}, :method => :get, :id => 'query_form') do %>
 <%=h hidden_field_tag('opp_id', (!@oppEditEntry.blank? ? @oppEditEntry[0].id : "") ) %>
 <fieldset class="box tabular" style="height:280px; ">
