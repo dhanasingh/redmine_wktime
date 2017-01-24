@@ -1,0 +1,18 @@
+<h2><%= l(:label_contact_plural) %></h2>
+<%= form_tag({:controller => 'wkcontact', :action => 'update'}, :method => :post, :id => 'query_form') do %>
+
+<div id="account_form">
+	<% addressObj =  nil  %>
+	<%=h hidden_field_tag('lead_id', @lead.blank? ? "" :@lead.id) %>
+	<%=h hidden_field_tag('address_id', @lead.blank? ? "" :@lead.address_id) %>
+	<div class="splitcontentleft">
+		<%= render partial: "wklead/lead_info", locals: { currentObj: @lead, isAccount: false, isContact: true }%>
+	</div>
+	<div class="splitcontentright">
+		<%= render partial: "wklead/contact_info", locals: { address: addressObj }%>
+	</div>
+<div style="clear:left;"></div>
+<div>
+	<%= submit_tag l(:button_save) ,:id => 'wkcontact_save'%>
+</div>
+<% end %>

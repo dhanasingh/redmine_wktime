@@ -551,3 +551,8 @@ fr:
   label_probability: Probability
   label_step: Step
   label_created_new: "Created a new %{value}"
+  label_mr: Mr.
+  label_ms: Ms.
+  label_mrs: Mrs.
+  label_dr: Dr.
+  label_prof: Prof.

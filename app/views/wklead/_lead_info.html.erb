@@ -1,41 +1,59 @@
 <fieldset class="box tabular">
 	<legend><%=l(:label_content_information, isAccount ? l(:label_account) : l(:label_lead))%></legend>
+	<%	accArr = options_for_wktime_account(true) %>
 	<table >
 		<% accountName = "" %>
 		<% unless isAccount %>
-			<tr>
+			<tr>				
 				<th align="left"><%= l(:field_firstname) %></th>
-				<td align="left" style="padding-left:40px;"><%=h text_field_tag("first_name",currentObj.blank? ? "" : currentObj.contacts.first_name,:size => 20) %> </td>
+				<% if isContact %>
+					<td align="left" style="padding-left:40px;"><%=h select_tag('salutation', options_for_select(salutationHash.invert), :style=> "float: left;") %>&nbsp;
+					<%=h text_field_tag("first_name",currentObj.blank? ? "" : currentObj.contacts.first_name,:size => 20) %> </td>
+				<% else %>	
+					<td align="left" style="padding-left:40px;"><%=h text_field_tag("first_name",currentObj.blank? ? "" : currentObj.contacts.first_name,:size => 20) %> </td>
+				<% end %>
+				
 			</tr>
 			<tr>
 				<th align="left"><%= l(:field_lastname) %></th>
 				<td align="left" style="padding-left:40px;"><%=h text_field_tag("last_name",currentObj.blank? ? "" : currentObj.contacts.last_name,:size => 20) %> </td>
 			</tr>
 		<% end %>
-		<% if isAccount %>
-			<% accountName = currentObj.name unless currentObj.blank?%>
+		<% accountName = !currentObj.blank? ? (isAccount ? currentObj.name : (currentObj.account.blank? ? "" : currentObj.account.name) ) : "" %>
+		<% accountDescription = !currentObj.blank? ? (isAccount ? currentObj.description : (currentObj.account.blank? ? "" : currentObj.account.description) ) : "" %>
+		<tr>
+			<th align="left"><%= l(:label_account_name) %></th>			
+			
+			<% if isContact %>			
+				<td style="padding-left:40px;"><%=h select_tag('account_id', options_for_select(accArr), :style=> "float: left;") %></td>
+			<% else %>	
+				<td align="left" style="padding-left:40px;"><%=h text_field_tag("account_name", accountName,:size => 20) %> </td>
+			<% end %>
+		</tr>
+		<% if isContact %>
 			<tr>
-				<th align="left"><%= l(:label_account_name) %></th>
-				<td align="left" style="padding-left:40px;"><%=h text_field_tag("name", accountName,:size => 20) %> </td>
+				<th align="left"><%= l(:field_title) %></th>
+				<td align="left" style="padding-left:40px;"><%=h text_field_tag("contact_title", "",:size => 20) %> 
 			</tr>
+			<tr>
+				<th align="left" ><%= l(:field_assigned_to) %></th>
+				<td align="left" style="padding-left:40px;"><%=h select_tag('assigned_user_id', 						options_for_select(getUserListHash(true), :selected => !@activityEntry.blank? ? @activityEntry[0].assigned_user_id : ""),:required => true) %></td>
+			</tr>
+		<% end %>
+		<% if isAccount %>			
 			<tr>
 				<th align="left"><%= l(:label_account_billing) %></th>
 				<td align="left" style="padding-left:40px;"><%= check_box_tag("account_billing", 1, (currentObj.blank? ? false : currentObj.account_billing)) %></td>
 			</tr>
 		<% else %>
-			<% accountName = currentObj.account.name unless currentObj.blank? || currentObj.account.blank?  %>
-			<tr>
-				<th align="left"><%= l(:label_account_name) %></th>
-				<td align="left" style="padding-left:40px;"><%=h text_field_tag("account_name", accountName,:size => 20) %> </td>
-			</tr>
 			<tr>
 				<th align="left"><%= l(:label_department) %></th>
 				<td align="left" style="padding-left:40px;"><%=h text_field_tag("department",currentObj.blank? || currentObj.address.blank? ? "" : currentObj.address.department,:size => 20) %> </td>
 			</tr>
-			<tr>
-				<th align="left"><%= l(:field_description) %></th>
-				<td align="left" style="padding-left:40px;"><%=h text_area_tag("description",currentObj.blank? || currentObj.account.blank? ? "" : currentObj.account.description,:size => 20) %> </td>
-			</tr>
 		<% end %>
+		<tr>
+			<th align="left"><%= l(:field_description) %></th>
+			<td align="left" style="padding-left:40px;"><%=h text_area_tag("description",accountDescription,:size => 20) %> </td>
+		</tr>
 	</table>
 </fieldset>

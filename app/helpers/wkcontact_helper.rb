@@ -1,3 +1,5 @@
 module WkcontactHelper
 include WktimeHelper
+include WkinvoiceHelper
+include WkcrmHelper
 end

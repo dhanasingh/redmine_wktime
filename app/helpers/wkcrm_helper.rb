@@ -99,4 +99,16 @@ include WkinvoiceHelper
 		leadSourcesHash
 	end
 	
+	def salutationHash
+		salType ={
+		    '' =>  "",
+			'MR' =>  l(:label_mr),
+			'MS' =>  l(:label_ms),
+			'MRS'  => l(:label_mrs),
+			'D' =>  l(:label_dr),
+			'P' =>  l(:label_prof)
+		}
+		salType
+	end
+	
 end

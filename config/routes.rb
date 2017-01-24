@@ -274,5 +274,8 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
     delete 'wkopportunity/destroy', :to => 'wkopportunity#destroy'
 
 	post 'wkopportunity/index', :to => 'wkopportunity#index'
-
+	
+	get 'wkcontact/edit', :to => 'wkcontact#edit'
+	
+	post 'wkcontact/update', :to => 'wkcontact#update'
 	

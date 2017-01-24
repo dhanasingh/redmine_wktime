@@ -1,4 +1,4 @@
-class WkleadController < ApplicationController
+class WkleadController < WkcrmController
   unloadable
   include WktimeHelper
 
@@ -65,28 +65,7 @@ class WkleadController < ApplicationController
 		@lead
 	end
 	  
-	def update
-		errorMsg = nil
-		wkAddress = nil
-	    if params[:address_id].blank? || params[:address_id].to_i == 0
-		    wkAddress = WkAddress.new 
-	    else
-		    wkAddress = WkAddress.find(params[:address_id].to_i)
-	    end
-		# For Address table
-		wkAddress.address1 = params[:address1]
-		wkAddress.address2 = params[:address2]
-		wkAddress.work_phone = params[:work_phone]
-		wkAddress.city = params[:city]
-		wkAddress.state = params[:state]
-		wkAddress.pin = params[:pin]
-		wkAddress.country = params[:country]
-		wkAddress.fax = params[:fax]
-		wkAddress.mobile = params[:mobile]
-		wkAddress.email = params[:email]
-		wkAddress.website = params[:website]
-		wkAddress.department = params[:department]
-		
+	def update		
 		if params[:account_id].blank? || params[:account_id].to_i == 0
 			wkaccount = WkAccount.new
 		else
@@ -95,7 +74,6 @@ class WkleadController < ApplicationController
 		# For Account table
 		wkaccount.name = params[:account_name]
 		wkaccount.description = params[:description]
-		
 		if params[:lead_id].blank? || params[:lead_id].to_i == 0
 			wkLead = WkLead.new
 			wkContact = WkCrmContact.new
@@ -117,18 +95,17 @@ class WkleadController < ApplicationController
 		wkContact.last_name = params[:last_name]
 		#wkContact.address_id = params[:address_id]
 		wkContact.title = params[:title]
+		wkContact.description = params[:description]
 		wkContact.department = params[:department]
 		wkContact.salutation = params[:salutation]
-		wkContact.contact_type = params[:contact_type]
-		wkContact.description = params[:description]
 		wkContact.created_by_user_id = User.current.id if wkContact.new_record?
 		wkContact.updated_by_user_id = User.current.id
 		if wkContact.valid?
-			if wkAddress.valid?
-				wkAddress.save
-				wkLead.address_id = wkAddress.id
-				wkContact.address_id = wkAddress.id
-				wkaccount.address_id = wkAddress.id
+			addrId = updateAddress
+			unless addrId.blank?
+				wkLead.address_id = addrId
+				wkContact.address_id = addrId
+				wkaccount.address_id = addrId
 			end
 			
 			if wkaccount.valid?

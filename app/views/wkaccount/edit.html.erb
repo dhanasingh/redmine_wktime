@@ -5,7 +5,7 @@
 		<%=h hidden_field_tag('account_id', @accountEntry.blank? ? "" : @accountEntry.id) %>
 		<%=h hidden_field_tag('address_id', @accountEntry.blank? ? "" : @accountEntry.address_id) %>
 		<div class="splitcontentleft">
-			<%= render partial: "wklead/lead_info", locals: { currentObj: @accountEntry, isAccount: true }%>
+			<%= render partial: "wklead/lead_info", locals: { currentObj: @accountEntry, isAccount: true, isContact: false }%>
 		</div>
 		<div class="splitcontentright">
 			<%= render partial: "wklead/contact_info", locals: { address: addressObj }%>
