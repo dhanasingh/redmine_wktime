@@ -4,6 +4,7 @@
 	<div id="account_form">
 		<% addressObj = @lead.blank? ? nil : @lead.address %>
 		<%=h hidden_field_tag('lead_id', @lead.blank? ? "" :@lead.id) %>
+		<%=h hidden_field_tag('account_id', @lead.blank? || @lead.account.blank? ? "" :@lead.account.id) %>
 		<%=h hidden_field_tag('address_id', @lead.blank? ? "" :@lead.address_id) %>
 		<div class="splitcontentleft">
 			<%= render partial: "lead_info", locals: { currentObj: @lead, isAccount: false }%>

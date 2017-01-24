@@ -6,9 +6,9 @@ class WkleadController < ApplicationController
 	def index
 		@leadEntries = WkLead.all
 		if params[:lead_name].blank?
-		   entries = WkLead.all
+		   entries = WkLead.where.not(:status => 'C')
 		else
-			entries = WkLead.joins(:contacts).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{params[:lead_name]}%", "%#{params[:lead_name]}%")
+			entries = WkLead.where.not(:status => 'C').joins(:contacts).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{params[:lead_name]}%", "%#{params[:lead_name]}%")
 		end
 		formPagination(entries)
 	end
@@ -17,6 +17,46 @@ class WkleadController < ApplicationController
 		@lead = nil
 		@lead = WkLead.find(params[:lead_id]) unless params[:lead_id].blank?
 		@lead
+	end
+	
+	def convert
+		@lead = nil
+		@lead = WkLead.find(params[:lead_id]) unless params[:lead_id].blank?
+		@lead.status = 'C'
+		@lead.updated_by_user_id = User.current.id
+		@lead.save
+		@contact = @lead.contacts
+		@account = @lead.account
+		convertToAccount unless @account.blank?
+		convertToContact
+	end
+	
+	def convertToAccount
+		@account.account_category = 'A'
+		@account.updated_by_user_id = User.current.id
+		address = nil
+		unless @lead.address.blank?
+			address = copyAddress(@lead.address) 
+			@account.address_id = address.id
+		end
+		@account.save
+	end
+	
+	def convertToContact
+		@contact.contact_type = 'C'
+		@contact.updated_by_user_id = User.current.id
+		unless @account.blank?
+			@contact.parent_id = @account.id
+			@contact.parent_type = @account.class.name
+		end
+		@contact.save
+	end
+	
+	def copyAddress(source)
+		target = WkAddress.new
+		target = source.dup
+		target.save
+		target
 	end
 	  
 	def edit
@@ -53,7 +93,8 @@ class WkleadController < ApplicationController
 		    wkaccount = WkAccount.find(params[:account_id].to_i)
 		end
 		# For Account table
-		wkaccount.name = params[:name]
+		wkaccount.name = params[:account_name]
+		wkaccount.description = params[:description]
 		
 		if params[:lead_id].blank? || params[:lead_id].to_i == 0
 			wkLead = WkLead.new
@@ -79,6 +120,7 @@ class WkleadController < ApplicationController
 		wkContact.department = params[:department]
 		wkContact.salutation = params[:salutation]
 		wkContact.contact_type = params[:contact_type]
+		wkContact.description = params[:description]
 		wkContact.created_by_user_id = User.current.id if wkContact.new_record?
 		wkContact.updated_by_user_id = User.current.id
 		if wkContact.valid?
@@ -100,6 +142,23 @@ class WkleadController < ApplicationController
 				wkContact.parent_type = wkLead.class.name
 			end
 			wkContact.save
+		    redirect_to :controller => 'wklead',:action => 'index' , :tab => 'wklead'
+		    flash[:notice] = l(:notice_successful_update)
+		else
+			flash[:error] = wkContact.errors.full_messages.join("<br>")
+		    redirect_to :controller => 'wklead',:action => 'edit', :lead_id => wkLead.id
+		end
+	end
+	
+	def convertLead
+		if params[:account][:is_create] == "Y"
+			wkaccount = WkAccount.new
+			wkaccount.name = params[:account_name]
+		else
+			
+		end
+		
+		if errorMsg.blank?
 		    redirect_to :controller => 'wklead',:action => 'index' , :tab => 'wklead'
 		    flash[:notice] = l(:notice_successful_update)
 		else

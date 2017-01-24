@@ -549,3 +549,4 @@ en:
   label_other: Other
   label_probability: Probability
   label_step: Step
+  label_created_new: "Created a new %{value}"

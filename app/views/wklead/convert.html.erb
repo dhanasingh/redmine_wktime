@@ -1,0 +1,10 @@
+<div class="splitcontentleft">
+	<td class="lbl-txt-align"><%= link_to "Lead list", url_for(:controller => 'wklead', :action => 'index') %></td>
+<div>
+<div class="splitcontentleft">
+	<!-- <td class="lbl-txt-align"><%#= link_to @contact.last_name, url_for(:controller => 'wkcontact', :action => 'edit', :contact_id => @contact.id,:address_id => @contact.blank? ? "" : @contact.address.id) %></td> -->
+	<% unless @account.blank? %>
+		<td><%=l(:label_created_new, l(:label_account)) %></td>
+		<td class="lbl-txt-align"><%= link_to @account.name, url_for(:controller => 'wkaccount', :action => 'edit', :account_id => @account.id,:address_id => @account.blank? ? "" : @account.address.id) %></td>
+	<% end %>
+</div>
