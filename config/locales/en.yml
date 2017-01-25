@@ -454,7 +454,6 @@ en:
   label_debit: Debit
   label_credit: Credit
   label_date: Date
-  label_type: Type
   label_balance_sheet: Balance Sheet
   label_as_at: As at
   label_of_funds: "%{value} of Funds"

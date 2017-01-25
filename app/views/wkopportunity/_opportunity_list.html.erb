@@ -17,7 +17,7 @@
 	<% @opportunity.each do |entry| %>
 		<tr>
 		    <td class="lbl-txt-align"><%=h entry.name  %></td>
-			<td class="lbl-txt-align"><%=h entry.account.name %></td>
+			<td class="lbl-txt-align"><%=h entry.account.name unless entry.account.blank? %></td>
 			<td class="lbl-txt-align"><%=h entry.sales_stage_id %></td>
 			<td class="lbl-txt-align"><%=h entry.amount %></td>
 			<td class="lbl-txt-align"><%=h entry.close_date.localtime.strftime("%Y-%m-%d") %></td>

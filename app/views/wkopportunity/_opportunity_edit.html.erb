@@ -25,7 +25,7 @@
 			<th align="left"><%= l(:label_opportunity) + " " + l(:field_amount) %></th>
 			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_amount", (!@oppEditEntry.blank? && !@oppEditEntry[0].amount.blank? ? @oppEditEntry[0].amount : ""), :style => "width:190px;") %></td>
 			
-			<th align="left" style="padding-left:240px;"><%= l(:label_account_name) %></th>
+			<th align="left" style="padding-left:240px;"><%= l(:label_type) %></th>
 			<td align="left" style="padding-left:40px;"><%=h select_tag('opp_type', options_for_select(oppType.invert)) %></td>
 		</tr>
 		

@@ -19,5 +19,6 @@ class WkCrmContact < ActiveRecord::Base
   unloadable
   belongs_to :parent, :polymorphic => true
   belongs_to :address, :class_name => 'WkAddress'
+  belongs_to :assigned_user, :class_name => 'User'
   validates_presence_of :last_name
 end

@@ -7,25 +7,25 @@
 			<tr>				
 				<th align="left"><%= l(:field_firstname) %></th>
 				<% if isContact %>
-					<td align="left" style="padding-left:40px;"><%=h select_tag('salutation', options_for_select(salutationHash.invert), :style=> "float: left;") %>&nbsp;
-					<%=h text_field_tag("first_name",currentObj.blank? ? "" : currentObj.contacts.first_name,:size => 20) %> </td>
+					<td align="left" style="padding-left:40px;"><%=h select_tag('salutation', options_for_select(salutationHash.invert, :selected => contactObj.blank? ? "" : contactObj.salutation), :style=> "float: left;") %>&nbsp;
+					<%=h text_field_tag("first_name",contactObj.blank? ? "" : contactObj.first_name,:size => 20) %> </td>
 				<% else %>	
-					<td align="left" style="padding-left:40px;"><%=h text_field_tag("first_name",currentObj.blank? ? "" : currentObj.contacts.first_name,:size => 20) %> </td>
+					<td align="left" style="padding-left:40px;"><%=h text_field_tag("first_name",contactObj.blank? ? "" : contactObj.first_name,:size => 20) %> </td>
 				<% end %>
 				
 			</tr>
 			<tr>
 				<th align="left"><%= l(:field_lastname) %></th>
-				<td align="left" style="padding-left:40px;"><%=h text_field_tag("last_name",currentObj.blank? ? "" : currentObj.contacts.last_name,:size => 20) %> </td>
+				<td align="left" style="padding-left:40px;"><%=h text_field_tag("last_name",contactObj.blank? ? "" : contactObj.last_name,:size => 20) %> </td>
 			</tr>
 		<% end %>
-		<% accountName = !currentObj.blank? ? (isAccount ? currentObj.name : (currentObj.account.blank? ? "" : currentObj.account.name) ) : "" %>
-		<% accountDescription = !currentObj.blank? ? (isAccount ? currentObj.description : (currentObj.account.blank? ? "" : currentObj.account.description) ) : "" %>
+		<% accountName = !accountObj.blank? ?  accountObj.name  : "" %>
+		<% accountDescription = !accountObj.blank? ?  accountObj.description : (isContact ? (contactObj.blank? ? "" : contactObj.description) : "") %>
 		<tr>
 			<th align="left"><%= l(:label_account_name) %></th>			
 			
 			<% if isContact %>			
-				<td style="padding-left:40px;"><%=h select_tag('account_id', options_for_select(accArr), :style=> "float: left;") %></td>
+				<td style="padding-left:40px;"><%=h select_tag('account_id', options_for_select(accArr, :selected => contactObj.blank? ? "" : (contactObj.parent.blank? ? "" : contactObj.parent.id) ), :style=> "float: left;") %></td>
 			<% else %>	
 				<td align="left" style="padding-left:40px;"><%=h text_field_tag("account_name", accountName,:size => 20) %> </td>
 			<% end %>
@@ -33,22 +33,22 @@
 		<% if isContact %>
 			<tr>
 				<th align="left"><%= l(:field_title) %></th>
-				<td align="left" style="padding-left:40px;"><%=h text_field_tag("contact_title", "",:size => 20) %> 
+				<td align="left" style="padding-left:40px;"><%=h text_field_tag("contact_title", contactObj.blank? ? "" : contactObj.title,:size => 20) %> 
 			</tr>
 			<tr>
 				<th align="left" ><%= l(:field_assigned_to) %></th>
-				<td align="left" style="padding-left:40px;"><%=h select_tag('assigned_user_id', 						options_for_select(getUserListHash(true), :selected => !@activityEntry.blank? ? @activityEntry[0].assigned_user_id : ""),:required => true) %></td>
+				<td align="left" style="padding-left:40px;"><%=h select_tag('assigned_user_id', 						options_for_select(getUserListHash(true), :selected => contactObj.blank? ? "" : contactObj.assigned_user_id),:required => true) %></td>
 			</tr>
 		<% end %>
 		<% if isAccount %>			
 			<tr>
 				<th align="left"><%= l(:label_account_billing) %></th>
-				<td align="left" style="padding-left:40px;"><%= check_box_tag("account_billing", 1, (currentObj.blank? ? false : currentObj.account_billing)) %></td>
+				<td align="left" style="padding-left:40px;"><%= check_box_tag("account_billing", 1, (accountObj.blank? ? false : accountObj.account_billing)) %></td>
 			</tr>
 		<% else %>
 			<tr>
 				<th align="left"><%= l(:label_department) %></th>
-				<td align="left" style="padding-left:40px;"><%=h text_field_tag("department",currentObj.blank? || currentObj.address.blank? ? "" : currentObj.address.department,:size => 20) %> </td>
+				<td align="left" style="padding-left:40px;"><%=h text_field_tag("department",contactObj.blank?  ? "" : contactObj.department,:size => 20) %> </td>
 			</tr>
 		<% end %>
 		<tr>

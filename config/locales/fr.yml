@@ -450,7 +450,6 @@ fr:
   label_txn_credit_note: Credit Note
   label_txn_purchase: Purchase
   label_txn_debit_note: Debit Note
-  label_type: Type
   label_particulars: Particulars
   label_debit: Debit
   label_credit: Credit

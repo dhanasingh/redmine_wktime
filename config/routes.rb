@@ -277,3 +277,4 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	post 'wkcontact/update', :to => 'wkcontact#update'
 	
+	delete 'wkcontact/destroy', :to => 'wkcontact#destroy'
