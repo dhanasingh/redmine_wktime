@@ -1,5 +1,16 @@
-	<h2><b><%=@lead.blank? ? l(:label_new_item, l(:label_lead)) : l(:label_edit_item, l(:label_lead)) %></b></h2>
-	
+	<h2><b><%=l(:label_lead)%></b></h2>
+	<div>
+		<td>
+		<div class="splitcontentright">
+			<td><%= link_to "#{image_tag('edit.png')}#{l(:button_edit)}".html_safe, {:controller => controller.controller_name, :action => 'edit', :lead_id => @lead.id, :tab => controller.controller_name},   :title => l(:button_edit) %></td>
+			<td><%= link_to "#{image_tag('edit.png')}#{l(:button_convert_lead)}".html_safe, url_for(:controller => controller.controller_name, :action => 'convert', :lead_id => @lead.id, :tab => controller.controller_name), :data => {:confirm => l(:text_are_you_sure_want_to, l(:button_convert_lead))}%></td>
+			<div class="contextual">
+				
+			</div>
+		</div>
+		</td>
+	</div>
+	<div style="clear:left;"></div>
 	<div id="account_form">
 		<% addressObj = @lead.blank? ? nil : @lead.address %>
 		<%=h hidden_field_tag('lead_id', @lead.blank? ? "" :@lead.id) %>
@@ -16,6 +27,9 @@
 	<div style="clear:left;"></div>
 	</br>
 	<div class="splitcontentright">
-		<%= link_to "#{image_tag('edit.png')}#{l(:button_edit)}".html_safe, {:controller => controller.controller_name, :action => 'edit', :lead_id => @lead.id, :tab => controller.controller_name},   :title => l(:button_edit) %>
-		<%= link_to "#{image_tag('edit.png')}#{l(:button_convert_lead)}".html_safe, {:controller => controller.controller_name, :action => 'convert', :lead_id => @lead.id, :tab => controller.controller_name},   :title => l(:button_edit) %>
+		<td><%= link_to "#{image_tag('edit.png')}#{l(:button_edit)}".html_safe, {:controller => controller.controller_name, :action => 'edit', :lead_id => @lead.id, :tab => controller.controller_name},   :title => l(:button_edit) %></td>
+		<td><%= link_to "#{image_tag('edit.png')}#{l(:button_convert_lead)}".html_safe, url_for(:controller => controller.controller_name, :action => 'convert', :lead_id => @lead.id, :tab => controller.controller_name), :data => {:confirm => l(:text_are_you_sure_want_to, l(:button_convert_lead))}%></td>
+		<div class="contextual">
+			
+		</div>
 	</div>

@@ -249,8 +249,6 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wklead/covert', :to => 'wklead#convert'
 	
-	post 'wklead/convertLead', :to => 'wklead#convertLead'
-	
 	delete 'wklead/destroy', :to => 'wklead#destroy'
 	
 	get 'wkopportunity/index', :to => 'wkopportunity#index'

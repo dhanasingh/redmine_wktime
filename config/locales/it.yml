@@ -547,9 +547,10 @@ it:
   label_other: Other
   label_probability: Probability
   label_step: Step
-  label_created_new: "Created a new %{value}"
   label_mr: Mr.
   label_ms: Ms.
   label_mrs: Mrs.
   label_dr: Dr.
   label_prof: Prof.
+  text_are_you_sure_want_to: "Are sure want to %{value}?"
+  notice_successful_convert: Successful conversion.

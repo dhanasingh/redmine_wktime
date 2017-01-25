@@ -29,6 +29,13 @@ class WkleadController < WkcrmController
 		@account = @lead.account
 		convertToAccount unless @account.blank?
 		convertToContact
+		unless @account.blank?
+			flash[:notice] = l(:notice_successful_convert)
+			redirect_to :controller => 'wkaccount',:action => 'edit', :account_id => @account.id
+		else
+			flash[:notice] = l(:notice_successful_convert)
+		    redirect_to :controller => 'wkcontact',:action => 'edit', :contact_id => @contact.id
+		end
 	end
 	
 	def convertToAccount
@@ -119,23 +126,6 @@ class WkleadController < WkcrmController
 				wkContact.parent_type = wkLead.class.name
 			end
 			wkContact.save
-		    redirect_to :controller => 'wklead',:action => 'index' , :tab => 'wklead'
-		    flash[:notice] = l(:notice_successful_update)
-		else
-			flash[:error] = wkContact.errors.full_messages.join("<br>")
-		    redirect_to :controller => 'wklead',:action => 'edit', :lead_id => wkLead.id
-		end
-	end
-	
-	def convertLead
-		if params[:account][:is_create] == "Y"
-			wkaccount = WkAccount.new
-			wkaccount.name = params[:account_name]
-		else
-			
-		end
-		
-		if errorMsg.blank?
 		    redirect_to :controller => 'wklead',:action => 'index' , :tab => 'wklead'
 		    flash[:notice] = l(:notice_successful_update)
 		else
