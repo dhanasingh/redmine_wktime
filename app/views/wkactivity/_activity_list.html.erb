@@ -27,7 +27,7 @@
 						<td class="lbl-txt-align"><%=h relatedHash[entry.parent_type] %></td>
 						<td class="lbl-txt-align"><%=h entry.start_date.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>
 						<td class="lbl-txt-align"><%=h entry.end_date.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>
-						<td class="lbl-txt-align"><%=h entry.assigned_user.name(:firstname_lastname) %></td>						
+						<td class="lbl-txt-align"><%=h entry.assigned_user.name(:firstname_lastname) unless entry.assigned_user.blank? %></td>						
 						<td class="lbl-txt-align"><%=h entry.created_at.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>
 						<td class="lbl-txt-align"><%=h entry.updated_at.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>									
 						<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => 'wkactivity', :action => 'edit', :activity_id => entry.id, :tab => 'wkactivity'}, :title => l(:button_edit) %>

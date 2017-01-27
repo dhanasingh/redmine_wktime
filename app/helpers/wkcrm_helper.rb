@@ -117,11 +117,11 @@ include WkinvoiceHelper
 		if relatedType == "WkOpportunity"
 			relatedId = WkOpportunity.all.order(:name)
 		elsif relatedType == "WkLead"
-			relatedId = WkLead.all
+			relatedId = WkLead.where.not(:status => 'C')
 		elsif relatedType == "WkCrmContact"
-			relatedId = WkCrmContact.all.order(:last_name)
+			relatedId = WkCrmContact.where.not(:parent_type => 'WkLead').order(:last_name)
 		else
-			relatedId = WkAccount.all.order(:name)
+			relatedId = WkAccount.where(:account_type => 'A').order(:name)
 		end
 		if !relatedId.blank?
 			relatedId.each do | entry|				

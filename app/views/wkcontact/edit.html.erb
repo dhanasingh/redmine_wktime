@@ -9,8 +9,14 @@
 	<div class="splitcontentright">
 		<%= render partial: "wklead/contact_info", locals: { address: addressObj }%>
 	</div>
-<div style="clear:left;"></div>
+<div style="clear:both;"></div>
 <div>
 	<%= submit_tag l(:button_save) ,:id => 'wkcontact_save'%>
 </div>
+<% end %>
+<% unless @conEditEntry.blank? %>
+	</br>
+	<div>
+		<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @conEditEntry[0] }%>
+	</div>
 <% end %>

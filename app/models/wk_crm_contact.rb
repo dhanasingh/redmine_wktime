@@ -20,5 +20,6 @@ class WkCrmContact < ActiveRecord::Base
   belongs_to :parent, :polymorphic => true
   belongs_to :address, :class_name => 'WkAddress'
   belongs_to :assigned_user, :class_name => 'User'
+  has_many :activities, as: :parent, class_name: 'WkCrmActivity'
   validates_presence_of :last_name
 end

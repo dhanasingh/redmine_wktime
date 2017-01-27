@@ -15,10 +15,10 @@
 	<div>
 		<%= submit_tag l(:button_save) ,:id => 'wkaccount_save'%>
 	</div>
-	<% unless @accountEntry.blank? || @accountEntry.new_record? %>
-		</br>
-		<div>
-			<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @accountEntry }%>
-		</div>
-	<% end %>
+<% end %>
+<% unless @accountEntry.blank? || @accountEntry.new_record? %>
+	</br>
+	<div>
+		<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @accountEntry }%>
+	</div>
 <% end %>

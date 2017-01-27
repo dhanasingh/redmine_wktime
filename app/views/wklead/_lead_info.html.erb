@@ -5,7 +5,7 @@
 <fieldset class="box tabular">
 	<legend><%=l(:label_content_information, isAccount ? l(:label_account) : l(:label_lead))%></legend>
 	<%	accArr = options_for_wktime_account(false)
-		if !contactObj.blank?
+		if !contactObj.blank? && isContact
 			accArr = relatedValues(contactObj.parent_type)		
 		end
 		relHash = relatedHash
@@ -16,13 +16,8 @@
 		<% unless isAccount %>
 			<tr>				
 				<th align="left"><%= l(:field_firstname) %></th>
-				<% if isContact %>
-					<td align="left" style="padding-left:40px;"><%=h select_tag('salutation', options_for_select(salutationHash.invert, :selected => contactObj.blank? ? "" : contactObj.salutation), :style=> "float: left;") %>&nbsp;
-					<%=h text_field_tag("first_name",contactObj.blank? ? "" : contactObj.first_name,:size => 20) %> </td>
-				<% else %>	
-					<td align="left" style="padding-left:40px;"><%=h text_field_tag("first_name",contactObj.blank? ? "" : contactObj.first_name,:size => 20) %> </td>
-				<% end %>
-				
+				<td align="left" style="padding-left:40px;"><%=h select_tag('salutation', options_for_select(salutationHash.invert, :selected => contactObj.blank? ? "" : contactObj.salutation), :style=> "float: left;") %>&nbsp;
+				<%=h text_field_tag("first_name",contactObj.blank? ? "" : contactObj.first_name,:size => 20) %> </td>
 			</tr>
 			<tr>
 				<th align="left"><%= l(:field_lastname) %></th>

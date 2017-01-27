@@ -3,7 +3,7 @@
  
 <div id="accordion">
 	<%= render partial: "wkactivity/wkcrmactivity", locals: { currentObj: currentObj }%>
-	<% if currentObj.class.name != 'WkLead' %>
+	<% if currentObj.class.name == 'WkAccount'%>
 		<%= render partial: "wkcontact/wkcrmcontact", locals: { currentObj: currentObj }%>
 		<%= render partial: "wkopportunity/wkopportunity", locals: { currentObj: currentObj }%>
 	<% end %>

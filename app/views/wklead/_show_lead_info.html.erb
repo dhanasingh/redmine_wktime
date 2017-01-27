@@ -30,7 +30,7 @@
 			</tr>
 			<tr>
 				<th align="left"><%= l(:label_department) %></th>
-				<td align="left" style="padding-left:40px;"><%=h currentObj.blank? || currentObj.address.blank? ? "" : currentObj.address.department %> </td>
+				<td align="left" style="padding-left:40px;"><%=h currentObj.blank? || currentObj.contacts.address.blank? ? "" : currentObj.contacts.address.department %> </td>
 			</tr>
 			<tr>
 				<th align="left"><%= l(:field_description) %></th>

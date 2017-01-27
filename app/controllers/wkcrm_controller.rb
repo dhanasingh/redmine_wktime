@@ -40,15 +40,15 @@ class WkcrmController < WkbaseController
 		if params[:related_type] == "WkOpportunity"
 			relatedId = WkOpportunity.all.order(:name)
 		elsif params[:related_type] == "WkLead"
-			relatedId = WkLead.all
+			relatedId = WkLead.where.not(:status => 'C')
 		elsif params[:related_type] == "WkCrmContact"
-			relatedId = WkCrmContact.all.order(:last_name)
+			relatedId = WkCrmContact.where.not(:parent_type => 'WkLead').order(:last_name)
 		else
-			relatedId = WkAccount.all.order(:name)
+			relatedId = WkAccount.where(:account_type => 'A').order(:name)
 		end
 		if !relatedId.blank?
-			relatedId.each do | entry|				
-				if params[:related_type] == "WkLead" 
+			relatedId.each do | entry|	
+				if params[:related_type] == "WkLead"
 					relatedArr <<  entry.id.to_s() + ',' + entry.contacts.last_name.to_s()  + "\n" 
 				elsif params[:related_type].to_s == "WkCrmContact"
 					relatedArr <<  entry.id.to_s() + ',' + entry.last_name.to_s()  + "\n"
