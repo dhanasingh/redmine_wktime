@@ -1,7 +1,7 @@
 module WkleadHelper
 include WktimeHelper
 include WkcrmHelper
-include WkactivityHelper
+include WkcrmactivityHelper
 include WkinvoiceHelper
 
 	def getLeadStatusArr

@@ -227,7 +227,7 @@ $(document).ready(function()
 	changeProp('tab-wkledger',blgledgerUrl);
 	changeProp('tab-wklead',crmleadsUrl);
 	changeProp('tab-wkopportunity',crmopportunityUrl);
-	changeProp('tab-wkactivity',crmactivityUrl);
+	changeProp('tab-wkcrmactivity',crmactivityUrl);
 	changeProp('tab-wkcrmcontact',crmcontactUrl);
 });
 

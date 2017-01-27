@@ -2,7 +2,7 @@
 <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
  
 <div id="accordion">
-	<%= render partial: "wkactivity/wkcrmactivity", locals: { currentObj: currentObj }%>
+	<%= render partial: "wkcrmactivity/wkcrmactivity", locals: { currentObj: currentObj }%>
 	<% if currentObj.class.name == 'WkAccount'%>
 		<%= render partial: "wkcrmcontact/wkcrmcontact", locals: { currentObj: currentObj }%>
 		<%= render partial: "wkopportunity/wkopportunity", locals: { currentObj: currentObj }%>

@@ -253,17 +253,17 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wkopportunity/index', :to => 'wkopportunity#index'
 	
-	get 'wkactivity/index', :to => 'wkactivity#index'
+	get 'wkcrmactivity/index', :to => 'wkcrmactivity#index'
 	
 	get 'wkcrmcontact/index', :to => 'wkcrmcontact#index'
 	
-    get 'wkactivity/edit', :to => 'wkactivity#edit'
+    get 'wkcrmactivity/edit', :to => 'wkcrmactivity#edit'
 	
 	get 'wkcrm/getActRelatedIds', :to => 'wkcrm#getActRelatedIds'
 	
-	get 'wkactivity/update', :to => 'wkactivity#update'
+	get 'wkcrmactivity/update', :to => 'wkcrmactivity#update'
 	
-	delete 'wkactivity/destroy', :to => 'wkactivity#destroy'
+	delete 'wkcrmactivity/destroy', :to => 'wkcrmactivity#destroy'
 	
 	get 'wkopportunity/edit', :to => 'wkopportunity#edit'
 	

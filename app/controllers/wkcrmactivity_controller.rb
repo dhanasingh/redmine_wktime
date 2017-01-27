@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 
-class WkactivityController < ApplicationController
+class WkcrmactivityController < ApplicationController
   unloadable
 
 	include WktimeHelper
@@ -97,12 +97,12 @@ class WkactivityController < ApplicationController
 		end
 		
 		if errorMsg.blank?
-			redirect_to :controller => 'wkactivity',:action => 'index' , :tab => 'wkactivity'
+			redirect_to :controller => 'wkcrmactivity',:action => 'index' , :tab => 'wkcrmactivity'
 			$tempActivity = nil			
 			flash[:notice] = l(:notice_successful_update)
 		else
 			flash[:error] = errorMsg #wkaccount.errors.full_messages.join("<br>")
-			redirect_to :controller => 'wkactivity',:action => 'edit', :isError => true
+			redirect_to :controller => 'wkcrmactivity',:action => 'edit', :isError => true
 		end	
     end
   

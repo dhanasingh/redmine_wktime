@@ -609,12 +609,12 @@ end
 				{:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll},
 				{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_user_settings}
 			   ]
-		elsif params[:controller] == "wklead" || params[:controller] == "wkaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkactivity" || params[:controller] == "wkcrmcontact"
+		elsif params[:controller] == "wklead" || params[:controller] == "wkaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact"
 			tabs = [
 				{:name => 'wklead', :partial => 'wktime/tab_content', :label => :label_lead_plural},
 				{:name => 'wkaccount', :partial => 'wktime/tab_content', :label => :label_accounts},
 				{:name => 'wkopportunity', :partial => 'wktime/tab_content', :label => :label_opportunity_plural},
-				{:name => 'wkactivity', :partial => 'wktime/tab_content', :label => :label_activity_plural},
+				{:name => 'wkcrmactivity', :partial => 'wktime/tab_content', :label => :label_activity_plural},
 				{:name => 'wkcrmcontact', :partial => 'wktime/tab_content', :label => :label_contact_plural}
 			   ]
 		

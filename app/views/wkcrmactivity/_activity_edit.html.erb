@@ -18,7 +18,7 @@
 		accArr = relatedValues(@activityEntry[0].parent_type)		
 	end	
  %>
-<%= form_tag({:controller => 'wkactivity', :action => 'update'}, :method => :get, :id => 'query_form') do %>
+<%= form_tag({:controller => 'wkcrmactivity', :action => 'update'}, :method => :get, :id => 'query_form') do %>
 
 <fieldset class="box tabular" style="height:280px; ">
 	<legend><%= l(:field_activity) + " " + l(:label_information) %></legend>
