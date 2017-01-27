@@ -6,17 +6,17 @@
 	blgaccUrl = '<%=url_for(:controller => "wkaccount", :action => "index", :tab => "wkaccount")%>';
     crmopportunityUrl = '<%=url_for(:controller => "wkopportunity", :action => "index", :tab => "wkopportunity")%>';
 	crmactivityUrl = '<%=url_for(:controller => "wkactivity", :action => "index", :tab => "wkactivity")%>';
-	crmcontactUrl = '<%=url_for(:controller => "wkcontact", :action => "index", :tab => "wkcontact")%>';	
+	crmcontactUrl = '<%=url_for(:controller => "wkcrmcontact", :action => "index", :tab => "wkcrmcontact")%>';	
     prevTab = 'tab-<%= "#{controller_name}" %>';   
 </script>
 <%= render_tabs time_expense_tabs %>
 <%= hidden_field_tag 'back_url', url_for(params) %>
-<%= form_tag({:controller => "wkcontact", :action => 'index'}, :method => :get, :id => 'query_form') do %>
+<%= form_tag({:controller => "wkcrmcontact", :action => 'index'}, :method => :get, :id => 'query_form') do %>
 <%	accArr = options_for_wktime_account(true) %>
-<%= hidden_field_tag "searchlist", "wkcontact" %>
-<%=h hidden_field_tag('tab', "wkcontact") %>
-<%	conName = session[:wkcontact][:contactname] %>
-<%	accId = session[:wkcontact][:account_id] %>
+<%= hidden_field_tag "searchlist", "wkcrmcontact" %>
+<%=h hidden_field_tag('tab', "wkcrmcontact") %>
+<%	conName = session[:wkcrmcontact][:contactname] %>
+<%	accId = session[:wkcrmcontact][:account_id] %>
 <div class="wk-contextual"> 
 		<label for='name' style="float:left"><%= l(:field_name)  %>:</label>
 			<%= text_field_tag 'contactname', conName, :size => 30, :style=> "float: left;" %>	
@@ -28,5 +28,5 @@
 </div>
 <div style="clear: both;"></div>
 <% end %>
-<%= render :partial => 'wkcontact/contact_list', locals: { contacts: @contact}%>
+<%= render :partial => 'wkcrmcontact/contact_list', locals: { contacts: @contact}%>
 <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

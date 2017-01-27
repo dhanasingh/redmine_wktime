@@ -1,12 +1,12 @@
-class WkcontactController < WkcrmController
+class WkcrmcontactController < WkcrmController
   unloadable
 
 
 
 	def index
 		set_filter_session
-		contactName = session[:wkcontact][:contactname] 			
-		accountId =  session[:wkcontact][:account_id]
+		contactName = session[:wkcrmcontact][:contactname] 			
+		accountId =  session[:wkcrmcontact][:account_id]
 		wkcontact = nil
 		if !contactName.blank? &&  !accountId.blank?
 			wkcontact = WkCrmContact.where(:parent_id => accountId, :parent_type => "WkAccount").where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
@@ -58,11 +58,11 @@ class WkcontactController < WkcrmController
 		end
 		
 		if errorMsg.blank?
-			redirect_to :controller => 'wkcontact',:action => 'index' , :tab => 'wkcontact'
+			redirect_to :controller => 'wkcrmcontact',:action => 'index' , :tab => 'wkcrmcontact'
 		    flash[:notice] = l(:notice_successful_update)
 		else
 			flash[:error] = errorMsg
-		    redirect_to :controller => 'wkcontact',:action => 'edit'
+		    redirect_to :controller => 'wkcrmcontact',:action => 'edit'
 		end
 		
 	end
@@ -71,11 +71,11 @@ class WkcontactController < WkcrmController
 	end
 	
 	 def set_filter_session
-        if params[:searchlist].blank? && session[:wkcontact].nil?
-			session[:wkcontact] = {:contactname => params[:contactname], :account_id => params[:account_id] }
-		elsif params[:searchlist] =='wkcontact'
-			session[:wkcontact][:contactname] = params[:contactname]
-			session[:wkcontact][:account_id] = params[:account_id]
+        if params[:searchlist].blank? && session[:wkcrmcontact].nil?
+			session[:wkcrmcontact] = {:contactname => params[:contactname], :account_id => params[:account_id] }
+		elsif params[:searchlist] =='wkcrmcontact'
+			session[:wkcrmcontact][:contactname] = params[:contactname]
+			session[:wkcrmcontact][:account_id] = params[:account_id]
 		end
 		
     end

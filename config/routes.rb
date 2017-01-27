@@ -255,7 +255,7 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wkactivity/index', :to => 'wkactivity#index'
 	
-	get 'wkcontact/index', :to => 'wkcontact#index'
+	get 'wkcrmcontact/index', :to => 'wkcrmcontact#index'
 	
     get 'wkactivity/edit', :to => 'wkactivity#edit'
 	
@@ -273,8 +273,8 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 
 	post 'wkopportunity/index', :to => 'wkopportunity#index'
 	
-	get 'wkcontact/edit', :to => 'wkcontact#edit'
+	get 'wkcrmcontact/edit', :to => 'wkcrmcontact#edit'
 	
-	post 'wkcontact/update', :to => 'wkcontact#update'
+	post 'wkcrmcontact/update', :to => 'wkcrmcontact#update'
 	
-	delete 'wkcontact/destroy', :to => 'wkcontact#destroy'
+	delete 'wkcrmcontact/destroy', :to => 'wkcrmcontact#destroy'

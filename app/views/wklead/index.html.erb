@@ -6,7 +6,7 @@
 	blgaccUrl = '<%=url_for(:controller => "wkaccount", :action => "index", :tab => "wkaccount")%>';
     crmopportunityUrl = '<%=url_for(:controller => "wkopportunity", :action => "index", :tab => "wkopportunity")%>';
 	crmactivityUrl = '<%=url_for(:controller => "wkactivity", :action => "index", :tab => "wkactivity")%>';
-	crmcontactUrl = '<%=url_for(:controller => "wkcontact", :action => "index", :tab => "wkcontact")%>';	
+	crmcontactUrl = '<%=url_for(:controller => "wkcrmcontact", :action => "index", :tab => "wkcrmcontact")%>';	
     prevTab = 'tab-<%= "#{controller_name}" %>';   
 </script>
 <%= render_tabs time_expense_tabs %>

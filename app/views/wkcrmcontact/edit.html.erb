@@ -1,5 +1,5 @@
 <h2><%= l(:label_contact_plural) %></h2>
-<%= form_tag({:controller => 'wkcontact', :action => 'update'}, :method => :post, :id => 'query_form') do %>
+<%= form_tag({:controller => 'wkcrmcontact', :action => 'update'}, :method => :post, :id => 'query_form') do %>
 <%= hidden_field_tag 'contact_id', @conEditEntry.blank? ? "" : @conEditEntry[0].id %>
 <div id="account_form">
 	<% addressObj =  @conEditEntry.blank? ?  nil : @conEditEntry[0].address  %>

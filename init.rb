@@ -23,7 +23,7 @@ module Redmine::MenuManager::MenuHelper
     if project && !project.new_record?
       :project_menu
     else
-      if %w(wktime wkexpense wkattendance wkreport wkpayroll  wkinvoice wkaccount wkcontract wkaccountproject wktax wkgltransaction wkledger wklead wkopportunity wkactivity wkcontact).include? params[:controller]
+      if %w(wktime wkexpense wkattendance wkreport wkpayroll  wkinvoice wkaccount wkcontract wkaccountproject wktax wkgltransaction wkledger wklead wkopportunity wkactivity wkcrmcontact).include? params[:controller]
         :wktime_menu
       else
         :application_menu
