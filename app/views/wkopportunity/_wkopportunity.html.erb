@@ -1,0 +1,7 @@
+<label><%= l(:label_opportunity_plural) %></label>
+<div>
+	<div class="wk-contextual">
+			<%= link_to l(:label_new_item, l(:label_opportunity)), url_for(:controller => 'wkopportunity', :action => 'edit', :parentType => currentObj.class.name, :parentId => currentObj.id), :class => 'icon icon-time-add' %>
+	</div>
+	<%= render partial: "wkopportunity/opportunity_list", locals: { opportunities: currentObj.opportunities} %>
+</div>

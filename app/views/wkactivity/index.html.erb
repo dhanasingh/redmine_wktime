@@ -34,5 +34,5 @@
 			<td align="left" style="padding-left:40px;"><%=h select_tag("related_to", options_for_select(relatedArrhash, :selected => (!actRelated.blank? ? actRelated : "")), :style => "width:200px;") %></td>	
 <%= render :partial => 'wkactivity/date_range' %>
 <% end %>
-<%= render partial: "wklead/activity_list", locals: { activities:  @activity } %>
+<%= render partial: "activity_list", locals: { activities:  @activity } %>
 <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

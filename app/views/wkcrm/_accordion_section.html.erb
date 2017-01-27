@@ -1,0 +1,14 @@
+<script src="//code.jquery.com/jquery-1.12.4.js"></script>
+<script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+ 
+<div id="accordion">
+	<%= render partial: "wkactivity/wkcrmactivity", locals: { currentObj: currentObj }%>
+	<% if currentObj.class.name != 'WkLead' %>
+		<%= render partial: "wkcontact/wkcrmcontact", locals: { currentObj: currentObj }%>
+		<%= render partial: "wkopportunity/wkopportunity", locals: { currentObj: currentObj }%>
+	<% end %>
+</div>
+ 
+<script>
+$( "#accordion" ).accordion();
+</script>

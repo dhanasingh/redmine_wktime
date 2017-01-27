@@ -29,4 +29,5 @@
 <%= render :partial => 'wkopportunity/date_range' %>
 
 <% end %>
-<%= render :partial => 'wkopportunity/opportunity_list' %>
+<%= render :partial => 'wkopportunity/opportunity_list', locals: { opportunities: @opportunity} %>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

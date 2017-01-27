@@ -10,7 +10,7 @@
 		</div>
 		</td>
 	</div>
-	<div style="clear:left;"></div>
+	<div style="clear:both;"></div>
 	<div id="account_form">
 		<% addressObj = @lead.blank? ? nil : @lead.address %>
 		<%=h hidden_field_tag('lead_id', @lead.blank? ? "" :@lead.id) %>
@@ -22,9 +22,9 @@
 		<div class="splitcontentright">
 			<%= render partial: "show_contact_info", locals: { address: addressObj }%>
 		</div>
-	<div style="clear:left;"></div>
-	<%= render partial: "accordion_section", locals: { currentObj: @lead }%>
-	<div style="clear:left;"></div>
+	<div style="clear:both;"></div>
+	<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @lead }%>
+	<div style="clear:both;"></div>
 	</br>
 	<div class="splitcontentright">
 		<td><%= link_to "#{image_tag('edit.png')}#{l(:button_edit)}".html_safe, {:controller => controller.controller_name, :action => 'edit', :lead_id => @lead.id, :tab => controller.controller_name},   :title => l(:button_edit) %></td>

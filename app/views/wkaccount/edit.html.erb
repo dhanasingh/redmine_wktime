@@ -11,8 +11,14 @@
 			<%= render partial: "wklead/contact_info", locals: { address: addressObj }%>
 		</div>
 	</div>
-		<div style="clear:left;"></div>
+	<div style="clear:both;"></div>
+	<div>
+		<%= submit_tag l(:button_save) ,:id => 'wkaccount_save'%>
+	</div>
+	<% unless @accountEntry.blank? || @accountEntry.new_record? %>
+		</br>
 		<div>
-			<%= submit_tag l(:button_save) ,:id => 'wkaccount_save'%>
+			<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @accountEntry }%>
 		</div>
+	<% end %>
 <% end %>
