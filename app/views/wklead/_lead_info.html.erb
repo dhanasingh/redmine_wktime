@@ -1,6 +1,16 @@
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<script type="text/javascript"> 
+	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds')}" %>";
+</script>
 <fieldset class="box tabular">
 	<legend><%=l(:label_content_information, isAccount ? l(:label_account) : l(:label_lead))%></legend>
-	<%	accArr = options_for_wktime_account(true) %>
+	<%	accArr = options_for_wktime_account(false)
+		if !contactObj.blank?
+			accArr = relatedValues(contactObj.parent_type)		
+		end
+		relHash = relatedHash
+		relHash.delete("WkCrmContact")
+	 %>
 	<table >
 		<% accountName = "" %>
 		<% unless isAccount %>
@@ -21,16 +31,21 @@
 		<% end %>
 		<% accountName = !accountObj.blank? ?  accountObj.name  : "" %>
 		<% accountDescription = !accountObj.blank? ?  accountObj.description : (isContact ? (contactObj.blank? ? "" : contactObj.description) : "") %>
+		<% if !isContact %>	
 		<tr>
 			<th align="left"><%= l(:label_account_name) %></th>			
-			
-			<% if isContact %>			
-				<td style="padding-left:40px;"><%=h select_tag('account_id', options_for_select(accArr, :selected => contactObj.blank? ? "" : (contactObj.parent.blank? ? "" : contactObj.parent.id) ), :style=> "float: left;") %></td>
-			<% else %>	
-				<td align="left" style="padding-left:40px;"><%=h text_field_tag("account_name", accountName,:size => 20) %> </td>
-			<% end %>
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("account_name", accountName,:size => 20) %> </td>			
 		</tr>
+		<% end %>
 		<% if isContact %>
+			<tr>
+			<th align="left" ><%= l(:label_related_to) %></th>
+			<td align="left" style="padding-left:40px;"><%=h select_tag("related_to", options_for_select(relHash.invert, :selected => (!contactObj.blank? ? contactObj.parent_type : (params[:parentType].blank? ? "" : params[:parentType]))), :onchange => "actRelatedDd(#{User.current.id})", :style => "width:200px;") %>
+			
+			<%=h select_tag("related_parent", options_for_select(accArr, :selected => (!contactObj.blank? ? contactObj.parent_id : (params[:parentId].blank? ? "" : params[:parentId]))), :style => "width:200px;") %></td> 
+			
+			
+		    </tr>
 			<tr>
 				<th align="left"><%= l(:field_title) %></th>
 				<td align="left" style="padding-left:40px;"><%=h text_field_tag("contact_title", contactObj.blank? ? "" : contactObj.title,:size => 20) %> 

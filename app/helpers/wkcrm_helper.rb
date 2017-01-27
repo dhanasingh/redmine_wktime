@@ -111,4 +111,31 @@ include WkinvoiceHelper
 		salType
 	end
 	
+	def relatedValues(relatedType)
+		relatedArr = Array.new
+		relatedId = nil
+		if relatedType == "WkOpportunity"
+			relatedId = WkOpportunity.all.order(:name)
+		elsif relatedType == "WkLead"
+			relatedId = WkLead.all
+		elsif relatedType == "WkCrmContact"
+			relatedId = WkCrmContact.all.order(:last_name)
+		else
+			relatedId = WkAccount.all.order(:name)
+		end
+		if !relatedId.blank?
+			relatedId.each do | entry|				
+				if relatedType == "WkLead" 
+					relatedArr <<  [entry.contacts.last_name, entry.id  ]
+				elsif relatedType == "WkCrmContact"
+					relatedArr <<  [entry.last_name, entry.id]
+				else
+					relatedArr << [entry.name, entry.id]    
+				end
+			end
+		end
+		
+		relatedArr
+	end
+	
 end

@@ -4,7 +4,8 @@
   <thead>
          <tr>
 				<th class="lbl-txt-align"><%= l(:field_name)   %></th>
-				<th class="lbl-txt-align"><%=  l(:label_account_name) %></th>
+			<!--	<th class="lbl-txt-align"><%#=  l(:label_account_name) %></th> -->
+				<th class="lbl-txt-align"><%= l(:label_related_to) %></th>
 				<th class="lbl-txt-align"><%=  l(:label_txn_sales) + " " + l(:label_stage) %></th>
 				<th class="lbl-txt-align"><%=  l(:field_amount)  %></th>
 				<th class="lbl-txt-align"><%=  l(:button_close) + " " + l(:field_spent_on)  %></th>
@@ -17,7 +18,8 @@
 	<% opportunities.each do |entry| %>
 		<tr>
 		    <td class="lbl-txt-align"><%=h entry.name  %></td>
-			<td class="lbl-txt-align"><%=h entry.account.name unless entry.account.blank? %></td>
+		<!--	<td class="lbl-txt-align"><%#=h entry.parent.name unless entry.parent.blank? %></td> -->
+			<td class="lbl-txt-align"><%=h relatedHash[entry.parent_type] %></td>
 			<td class="lbl-txt-align"><%=h entry.sales_stage_id %></td>
 			<td class="lbl-txt-align"><%=h entry.amount %></td>
 			<td class="lbl-txt-align"><%=h entry.close_date.localtime.strftime("%Y-%m-%d") %></td>

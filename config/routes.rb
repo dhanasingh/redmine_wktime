@@ -259,7 +259,7 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
     get 'wkactivity/edit', :to => 'wkactivity#edit'
 	
-	get 'wkactivity/getActRelatedIds', :to => 'wkactivity#getActRelatedIds'
+	get 'wkcrm/getActRelatedIds', :to => 'wkcrm#getActRelatedIds'
 	
 	get 'wkactivity/update', :to => 'wkactivity#update'
 	

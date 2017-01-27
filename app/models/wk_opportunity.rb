@@ -18,7 +18,7 @@
 class WkOpportunity < ActiveRecord::Base
   unloadable
   
-  belongs_to :account, :class_name => 'WkAccount'
+  belongs_to :parent, :polymorphic => true
   belongs_to :assigned_user, :class_name => 'User'
-  validates_presence_of :name
+  validates_presence_of :name, :amount
 end

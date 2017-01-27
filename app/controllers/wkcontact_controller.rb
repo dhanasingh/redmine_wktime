@@ -43,8 +43,8 @@ class WkcontactController < WkcrmController
 		wkContact.description = params[:description]
 		wkContact.department = params[:department]
 		wkContact.salutation = params[:salutation]
-		wkContact.parent_id = params[:account_id]
-		wkContact.parent_type = "WkAccount"
+		wkContact.parent_id = params[:related_parent]
+		wkContact.parent_type = params[:related_to].to_s
 		wkContact.created_by_user_id = User.current.id if wkContact.new_record?
 		wkContact.updated_by_user_id = User.current.id
 		addrId = updateAddress

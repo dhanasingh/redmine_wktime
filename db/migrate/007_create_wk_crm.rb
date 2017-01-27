@@ -41,7 +41,6 @@ class CreateWkCrm < ActiveRecord::Migration
 		  t.references :assigned_user, :class => "User", :null => true
 		  t.string :salutation
 		  t.string :description
-		  t.column :contact_type, :string, :limit => 3
 		  t.references :parent, polymorphic: true, index: true
 		  #t.column :parent_id, :integer, :default => 0, :null => false
 		  #t.column :parent_type, :string, :limit => 30, :default => "", :null => false
@@ -63,7 +62,6 @@ class CreateWkCrm < ActiveRecord::Migration
 		  #t.references :activity, :class => "wk_crm_activites", :null => true
 		  t.references :created_by_user, :class => "User"
 		  t.references :updated_by_user, :class => "User"
-		  t.references :address, :class => "wk_addresses", :null => true
 		  t.timestamps null: false
 		end
 		
@@ -72,6 +70,7 @@ class CreateWkCrm < ActiveRecord::Migration
 		  t.column :currency, :string, :limit => 5, :default => '$'
 		  t.datetime :close_date, :null => false
 		  t.decimal :amount, :null => false
+		  t.references :parent, polymorphic: true, index: true
 		  t.references :assigned_user, :class => "User", :null => true
 		  t.references :opportunity_type, :class => "wk_crm_enumerations", :null => true
 		  t.references :sales_stage, :class => "wk_crm_enumerations", :null => false
@@ -79,7 +78,6 @@ class CreateWkCrm < ActiveRecord::Migration
 		  t.string :probability 
 		  t.string :next_step
 		  t.string :description		  
-		  t.references :account, :class => "wk_accounts", :null => false
 		  t.references :created_by_user, :class => "User"
 		  t.references :updated_by_user, :class => "User"
 		  t.timestamps null: false

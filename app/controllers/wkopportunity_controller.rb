@@ -55,7 +55,8 @@ class WkopportunityController < ApplicationController
 		oppEntry.probability = params[:opp_probability]
 		oppEntry.next_step = params[:opp_next_step]
 		oppEntry.description = params[:opp_description]
-		oppEntry.account_id = params[:account_id]
+		oppEntry.parent_id = params[:related_parent]
+		oppEntry.parent_type = params[:related_to].to_s
 		unless oppEntry.valid?
 			@tempoppEntry << oppEntry
 			$tempOpportunity = @tempoppEntry

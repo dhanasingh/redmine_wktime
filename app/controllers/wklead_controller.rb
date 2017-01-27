@@ -110,7 +110,6 @@ class WkleadController < WkcrmController
 		if wkContact.valid?
 			addrId = updateAddress
 			unless addrId.blank?
-				wkLead.address_id = addrId
 				wkContact.address_id = addrId
 				wkaccount.address_id = addrId
 			end
