@@ -397,7 +397,7 @@ it:
   label_grand_total: Grand Total
   
   label_accounting: Accounting
-  label_accounting_group: Accounting Group
+  label_accounting_group: Accounting User Group
   label_enable_accounting_module: Enable Accounting Module
   label_transaction: Transaction
   label_ledger: Ledger
@@ -553,3 +553,6 @@ it:
   label_prof: Prof.
   text_are_you_sure_want_to: "Are sure want to %{value}?"
   notice_successful_convert: Successful conversion.
+  label_enable_crm_module: Enable CRM Module
+  label_crm_user_group: CRM User Group
+  label_crm_admin_group: CRM Admin Group

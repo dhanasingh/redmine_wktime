@@ -727,7 +727,8 @@ end
 				{:name => 'attendance', :partial => 'settings/tab_attendance', :label => :label_wk_attendance},
 				{:name => 'payroll', :partial => 'settings/tab_payroll', :label => :label_payroll},
 				{:name => 'billing', :partial => 'settings/tab_billing', :label => :label_wk_billing},
-				{:name => 'accounting', :partial => 'settings/tab_accounting', :label => :label_accounting}
+				{:name => 'accounting', :partial => 'settings/tab_accounting', :label => :label_accounting},
+				{:name => 'CRM', :partial => 'settings/tab_crm', :label => :label_crm}
 			   ]	
 	end	
 	
@@ -1127,4 +1128,10 @@ end
 		userList.unshift(["",0]) if needBlank
 		userList
 	end
+	
+	def showCRMModule
+		(!Setting.plugin_redmine_wktime['wktime_enable_crm_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_crm_module'].to_i == 1 ) && (isModuleAdmin('wktime_crm_group') || isModuleAdmin('wktime_crm_admin') )
+	end
+	
 end
