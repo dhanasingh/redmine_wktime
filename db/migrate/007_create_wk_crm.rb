@@ -19,13 +19,12 @@ class CreateWkCrm < ActiveRecord::Migration
 		  t.string :description	
 		  t.datetime :start_date
 		  t.datetime :end_date
+		  t.datetime :status_update_on
 		  t.string :activity_type, :null => false, :limit => 3
 		  t.string :direction, :limit => 3
 		  t.integer :duration
 		  t.string :location
 		  t.references :parent, polymorphic: true, index: true
-		  #t.column :parent_id, :integer, :default => 0, :null => false
-		  #t.column :parent_type, :string, :limit => 30, :default => "", :null => false
 		  t.references :assigned_user, :class => "User", :null => true
 		  t.references :created_by_user, :class => "User"
 		  t.references :updated_by_user, :class => "User"
@@ -42,8 +41,6 @@ class CreateWkCrm < ActiveRecord::Migration
 		  t.string :salutation
 		  t.string :description
 		  t.references :parent, polymorphic: true, index: true
-		  #t.column :parent_id, :integer, :default => 0, :null => false
-		  #t.column :parent_type, :string, :limit => 30, :default => "", :null => false
 		  t.references :created_by_user, :class => "User"
 		  t.references :updated_by_user, :class => "User"
 		  t.timestamps null: false
@@ -52,14 +49,11 @@ class CreateWkCrm < ActiveRecord::Migration
 		
 		create_table :wk_leads do |t|
 		  t.string :status, :null => false, :limit => 3
-		  #t.references :status, :class => "wk_crm_enumerations", :null => false
-		  #t.references :assigned_user, :class => "User", :null => true
+		  t.datetime :status_update_on
 		  t.decimal :opportunity_amount
 		  t.references :lead_source, :class => "wk_crm_enumerations"
 		  t.string :referred_by
 		  t.references :account, :class => "wk_accounts", :null => true
-		  #t.references :contact, :class => "wk_crm_contacts", :null => true
-		  #t.references :activity, :class => "wk_crm_activites", :null => true
 		  t.references :created_by_user, :class => "User"
 		  t.references :updated_by_user, :class => "User"
 		  t.timestamps null: false

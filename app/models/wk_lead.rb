@@ -22,4 +22,10 @@ class WkLead < ActiveRecord::Base
   belongs_to :account, :class_name => 'WkAccount'
   belongs_to :created_by_user, :class_name => 'User'
   belongs_to :address, :class_name => 'WkAddress'
+  before_save :update_status_update_on 
+  
+  def update_status_update_on
+	self.status_update_on = DateTime.now if status_changed?
+  end
+
 end

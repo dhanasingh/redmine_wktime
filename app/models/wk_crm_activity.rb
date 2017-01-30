@@ -22,6 +22,7 @@ class WkCrmActivity < ActiveRecord::Base
   belongs_to :assigned_user, :class_name => 'User'
   belongs_to :address, :class_name => 'WkAddress'
   validate :validate_crm_activity
+  before_save :update_status_update_on 
   
   def validate_crm_activity
 	errors.add(:base, (l(:label_subject)  + " " + l('activerecord.errors.messages.blank'))) if name.blank?
@@ -39,6 +40,10 @@ class WkCrmActivity < ActiveRecord::Base
 		errors.add :start_date, :blank if name.blank?
 	end
 	
+  end
+  
+  def update_status_update_on
+	self.status_update_on = DateTime.now if status_changed?
   end
   
 end
