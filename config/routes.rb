@@ -278,3 +278,11 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	post 'wkcrmcontact/update', :to => 'wkcrmcontact#update'
 	
 	delete 'wkcrmcontact/destroy', :to => 'wkcrmcontact#destroy'
+	
+	get 'wkcrmenumeration/index', :to => 'wkcrmenumeration#index'
+	
+	get 'wkcrmenumeration/edit', :to => 'wkcrmenumeration#edit'
+	
+	post 'wkcrmenumeration/update', :to => 'wkcrmenumeration#update'
+	
+	delete 'wkcrmenumeration/destroy', :to => 'wkcrmenumeration#destroy'

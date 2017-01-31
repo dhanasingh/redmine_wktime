@@ -559,3 +559,4 @@ fr:
   label_enable_crm_module: Enable CRM Module
   label_crm_user_group: CRM User Group
   label_crm_admin_group: CRM Admin Group
+  label_position: Position

@@ -626,10 +626,14 @@ end
 				{:name => 'wkaccountproject', :partial => 'wktime/tab_content', :label => :label_acc_projects},				
 				{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax}
 			   ]
-		else
+		elsif params[:controller] == "wkgltransaction" || params[:controller] == "wkledger"
 			tabs = [
 				{:name => 'wkgltransaction', :partial => 'wktime/tab_content', :label => :label_transaction},
 				{:name => 'wkledger', :partial => 'wktime/tab_content', :label => :label_ledger}
+			   ]
+		else
+			tabs = [
+				{:name => 'wkcrmenumeration', :partial => 'wktime/tab_content', :label => :label_enumerations}
 			   ]
 		end
 		tabs
