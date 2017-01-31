@@ -8,7 +8,7 @@ include WkinvoiceHelper
 	def getConversionRatio(allLeads, from, to)
 		convertedLeads = allLeads.where(:status => 'C', :status_update_on => from .. to).count
 		totalLeads = allLeads.count
-		convRatio = (convertedLeads/totalLeads)*100 
+		convRatio = (convertedLeads.to_f/totalLeads.to_f)*100 
 		convRatio
 	end
 

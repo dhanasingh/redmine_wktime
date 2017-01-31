@@ -1,9 +1,22 @@
 <%= stylesheet_link_tag 'application' , :media => "all" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div style="float:right">
+	<table>
+		<tr>
+			<td>
+				<% logo = Setting.plugin_redmine_wktime['wktime_header_logo'] %>					
+				<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>						
+					<%= image_tag("#{logo}", :plugin => "redmine_wktime") %>
+				<% end %>
+			</td>
+		</tr>
+	</table>
+</div>
+<div style="clear:both;"></div>
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
 	<table style="width:100%; border-collapse: collapse;">
-		 <caption style="text-align:center"><b><%= l(:label_lead_conversion) + " " + l(:label_report) %></b></br>
-		 <%= @from.to_formatted_s(:long) + " " + l(:label_date_to) + " " + @to.to_formatted_s(:long)%>
+		 <caption style="text-align:center"><b><%= Setting.plugin_redmine_wktime['wktime_company_name'] %><br><%= l(:label_lead_conversion) + " " + l(:label_report) %></b></br>
+		 <%= @from.strftime("%d-%b-%Y") + " " + l(:label_date_to) + " " + @to.strftime("%d-%b-%Y")%>
 		
 		<thead bgcolor="#e6e6e6">
 			<tr>
@@ -28,7 +41,7 @@
 				<td></td>
 				<td></td>
 				<td></td>
-				<td align="right"><b><%= l(:label_conversion_ratio)%>:</b></td>
+				<td align="right"><b><%= l(:label_conversion_rate)%>:</b></td>
 				<td align="left"><b><%= getConversionRatio(@leadList, @from, @to) %>%</b></td>
 			</tr>
 		</tbody>
