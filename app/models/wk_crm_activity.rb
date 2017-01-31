@@ -20,7 +20,7 @@ class WkCrmActivity < ActiveRecord::Base
   belongs_to :parent, :polymorphic => true
   belongs_to :created_by_user, :class_name => 'User'
   belongs_to :assigned_user, :class_name => 'User'
-  belongs_to :address, :class_name => 'WkAddress'
+  #belongs_to :address, :class_name => 'WkAddress'
   validate :validate_crm_activity
   before_save :update_status_update_on 
   

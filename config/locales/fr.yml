@@ -564,3 +564,5 @@ fr:
   label_sales_activity: Sales Activity
   label_sales_cycle: Sales Cycle
   label_conversion_rate: Conversion Rate
+  label_completed_date_time: "Completed Date & Time"
+  label_completion_time: Completion Time

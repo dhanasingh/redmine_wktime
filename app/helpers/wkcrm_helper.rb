@@ -11,6 +11,10 @@ include WkinvoiceHelper
 		convRatio = (convertedLeads.to_f/totalLeads.to_f)*100 
 		convRatio
 	end
+	
+	def getActivityList(from, to)
+		WkCrmActivity.includes(:parent).where(:start_date => from .. to)
+	end
 
     def directionHash
 		directionStatus = {

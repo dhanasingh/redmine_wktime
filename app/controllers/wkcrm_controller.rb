@@ -14,7 +14,7 @@ class WkcrmController < WkbaseController
 	def sales_act_rpt
 		@to = session[:wkreport][:to].end_of_day
 		@from = session[:wkreport][:from].beginning_of_day
-		#@profitLossEntries = getTransDetails(@from,@to)
+		@activityList = getActivityList(@from,@to)
 		render :action => 'sales_act_rpt', :layout => false
 	end 
   

@@ -1,24 +1,48 @@
 <%= stylesheet_link_tag 'application' , :media => "all" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-<style type="text/css">		
-		.tbl-report{
-			width : 100%;
-			table-layout: fixed; !important;
-			word-wrap: break-word; !important;
-			text-align: center; 
-			margin-top:5px; margin-bottom:10px; padding-left: 10px; color:#333333;
-			font-family:Verdana, sans-serif; font-size:12px; 
-		}
- </style>
+<div style="float:right">
+	<table>
+		<tr>
+			<td>
+				<% logo = Setting.plugin_redmine_wktime['wktime_header_logo'] %>					
+				<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>						
+					<%= image_tag("#{logo}", :plugin => "redmine_wktime") %>
+				<% end %>
+			</td>
+		</tr>
+	</table>
+</div>
+<div style="clear:both;"></div>
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
 	<table style="width:100%; border-collapse: collapse;">
-		 <caption style="text-align:center"><b><%= l(:label_report) %><br><%= l(:label_profit_loss_account) %></b></br>
-		 <%= @from.to_formatted_s(:long) + " " + l(:label_date_to) + " " + @to.to_formatted_s(:long)%>
+		 <caption style="text-align:center"><b><%= Setting.plugin_redmine_wktime['wktime_company_name'] %><br><%= l(:label_sales_activity) + " " + l(:label_report) %></b></br>
+		 <%= @from.strftime("%d-%b-%Y") + " " + l(:label_date_to) + " " + @to.strftime("%d-%b-%Y")%>
+		
 		<thead bgcolor="#e6e6e6">
-			<tr style="border-bottom: solid thin;border-top: solid thin;">
-				<th align="left" width=50% style="padding-left: 10px;"><%= l(:label_particulars) %></th>
-				<th colspan="2" align="right" width=50%><%= @from.to_formatted_s(:long) + " " + l(:label_date_to) + " " + @to.to_formatted_s(:long)%></th>
+			<tr>
+				<th class="lbl-txt-align"><%= l(:field_activity) + " " + l(:label_type) %></th>
+				<th class="lbl-txt-align"><%= l(:field_subject) %></th>
+				<th class="lbl-txt-align"><%= l(:label_related_to) %></th>
+				<th class="lbl-txt-align"><%= l(:field_name) %></th>
+				<th class="lbl-txt-align"><%= l(:label_start_date_time) %></th>
+				<th class="lbl-txt-align"><%= l(:label_completed_date_time) %></th>
+				<th class="lbl-txt-align"><%= l(:field_assigned_to) %></th>
+				<th class="lbl-txt-align"><%= l(:label_completion_time) %></th>
 			</tr>
 		</thead>
+		<tbody>
+			<% @activityList.each do |activity| %>
+				<tr class="<%= cycle("odd", "even") %>">
+						<td><%= acttypeHash[activity.activity_type] %></td>
+						<td><%= activity.name %></td>
+						<td><%= relatedHash[activity.parent_type] %></td>
+						<td><%= activity.parent.name %></td>
+						<td><%= activity.start_date.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>
+						<td><%= activity.status_update_on.localtime.strftime("%Y-%m-%d %H:%M:%S") if activity.status == 'C' || activity.status == 'H'%></td>
+						<td><%= activity.assigned_user.name unless activity.assigned_user.blank? %></td>
+						<td><%= activity.status_update_on - activity.start_date if activity.status == 'C' || activity.status == 'H' %></td>
+				</tr>
+			<% end %>
+		</tbody>
 	</table>
 </div>
