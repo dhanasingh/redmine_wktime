@@ -2,4 +2,5 @@ module WkopportunityHelper
 include WktimeHelper
 include WkinvoiceHelper
 include WkcrmHelper
+include WkcrmenumerationHelper
 end

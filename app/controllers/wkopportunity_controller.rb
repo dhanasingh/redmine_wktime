@@ -51,7 +51,7 @@ class WkopportunityController < ApplicationController
 		oppEntry.assigned_user_id = params[:assigned_user_id]
 		#oppEntry.opportunity_type_id = 
 		oppEntry.sales_stage_id = 1
-		#oppEntry.lead_source_id =
+		oppEntry.lead_source_id = params[:lead_source_id]
 		oppEntry.probability = params[:opp_probability]
 		oppEntry.next_step = params[:opp_next_step]
 		oppEntry.description = params[:opp_description]

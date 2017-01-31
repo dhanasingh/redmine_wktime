@@ -332,7 +332,7 @@ Redmine::Plugin.register :redmine_wktime do
 	  menu.push :wkinvoice, { :controller => 'wkinvoice', :action => 'index' }, :caption => :label_wk_billing, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showBilling }
 	  menu.push :wkgltransaction, { :controller => 'wkgltransaction', :action => 'index' }, :caption => :label_accounting, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showAccounting }
 	  menu.push :wkreport, { :controller => 'wkreport', :action => 'index' }, :caption => :label_report_plural, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showReports}	
-	  menu.push :wkcrmenumeration, { :controller => 'wkcrmenumeration', :action => 'index' }, :caption => :label_administration, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && User.current.admin? }
+	  menu.push :wkcrmenumeration, { :controller => 'wkcrmenumeration', :action => 'index' }, :caption => :label_settings, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && User.current.admin? }
 	end	
 
 end

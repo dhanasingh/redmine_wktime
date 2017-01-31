@@ -13,10 +13,11 @@
 <%	enumerationName = session[:wkcrmenumeration][:enumname] %>
 <%	enumerationType = session[:wkcrmenumeration][:enumType] %>
 <div class="wk-contextual"> 
-		<label for='name' style="float:left"><%= l(:field_name)  %>:</label>
+		<label for='name' style="float:left"><%= l(:field_name)   %>&nbsp;&nbsp;</label>
 			<%= text_field_tag 'enumname', enumerationName, :size => 30, :style=> "float: left;" %>	
-		<label style="float:left; padding-left: 20px;"><%= l(:label_type) %></label>
+		<label style="float:left; padding-left: 20px;"><%= l(:label_type) %>&nbsp;&nbsp;</label>
 			<%=h select_tag('enumType', options_for_select(enumType.invert,  :selected => enumerationType.nil? ? "" : enumerationType ), :style=> "float: left;") %>
+		<label style="float:left; padding-left: 20px;">&nbsp;</label>
 		<%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %>
 		<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload', :style=>"float:left; " %>
         <%= link_to l(:label_new_item, l(:label_enumerations)), url_for(:controller => controller_name, :action => 'edit', :enum_id => ""), :class => 'icon icon-time-add' %>

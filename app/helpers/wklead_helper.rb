@@ -3,6 +3,7 @@ include WktimeHelper
 include WkcrmHelper
 include WkcrmactivityHelper
 include WkinvoiceHelper
+include WkcrmenumerationHelper
 
 	def getLeadStatusArr
 		[
