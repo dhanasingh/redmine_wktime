@@ -2,12 +2,12 @@
 	<h2><b><%=@lead.blank? ? l(:label_new_item, l(:label_lead)) : l(:label_edit_item, l(:label_lead)) %></b></h2>
 	
 	<div id="account_form">
-		<% addrObj = @lead.blank? ? nil : @lead.contacts.address %>
+		<% addrObj = @lead.blank? ? nil : @lead.contact.address %>
 		<%=h hidden_field_tag('lead_id', @lead.blank? ? "" :@lead.id) %>
 		<%=h hidden_field_tag('account_id', @lead.blank? || @lead.account.blank? ? "" :@lead.account.id) %>
-		<%=h hidden_field_tag('address_id', @lead.blank? ? "" :@lead.contacts.address.id) %>
+		<%=h hidden_field_tag('address_id', @lead.blank? ? "" :@lead.contact.address.id) %>
 		<div class="splitcontentleft">
-			<%= render partial: "lead_info", locals: {  contactObj:  @lead.blank? ? nil : @lead.contacts, leadObj: @lead, accountObj: @lead.blank? ? nil : @lead.account, addressObj: addrObj, isAccount: false, isContact: false }%>
+			<%= render partial: "lead_info", locals: {  contactObj:  @lead.blank? ? nil : @lead.contact, leadObj: @lead, accountObj: @lead.blank? ? nil : @lead.account, addressObj: addrObj, isAccount: false, isContact: false }%>
 			<%= render partial: "other_info"%>
 		</div>
 		<div class="splitcontentright">

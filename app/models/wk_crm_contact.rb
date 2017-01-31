@@ -17,9 +17,11 @@
 
 class WkCrmContact < ActiveRecord::Base
   unloadable
-  belongs_to :parent, :polymorphic => true
+  #belongs_to :parent, :polymorphic => true
+  belongs_to :account, :class_name => 'WkAccount'
   belongs_to :address, :class_name => 'WkAddress'
   belongs_to :assigned_user, :class_name => 'User'
+  has_one :contact, foreign_key: 'contact_id', class_name: 'WkCrmContact'
   has_many :activities, as: :parent, class_name: 'WkCrmActivity'
   validates_presence_of :last_name
 end

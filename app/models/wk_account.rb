@@ -25,7 +25,7 @@ class WkAccount < ActiveRecord::Base
   has_many :contracts, foreign_key: "account_id", class_name: "WkContract", :dependent => :destroy
   has_many :opportunities, as: :parent, class_name: "WkOpportunity", :dependent => :destroy
   has_many :activities, as: :parent, class_name: 'WkCrmActivity'
-  has_many :contacts, as: :parent, class_name: 'WkCrmContact'
+  has_many :contacts, foreign_key: "account_id", class_name: "WkCrmContact"
   validates_presence_of :name
   validate :hasAnyValues
   

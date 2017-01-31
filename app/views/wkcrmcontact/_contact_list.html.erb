@@ -17,7 +17,7 @@
 	<% contacts.each do |entry| %>
 		<tr>
 		    <td class="lbl-txt-align"><%=h entry.last_name  %></td>
-			<td class="lbl-txt-align"><%=h entry.parent.name unless entry.parent.blank?  %></td>
+			<td class="lbl-txt-align"><%=h entry.account.name unless entry.account.blank?  %></td>
 			<td class="lbl-txt-align"><%=h entry.title unless entry.title.blank?  %></td>
 			<td class="lbl-txt-align"><%=h entry.address.email unless entry.address.blank? %></td>
 			<td class="lbl-txt-align"><%=h entry.address.work_phone unless entry.address.blank? %></td>

@@ -1,0 +1,36 @@
+<%= stylesheet_link_tag 'application' , :media => "all" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div id="attn-rpt-dlg", style="overflow-x:auto;">
+	<table style="width:100%; border-collapse: collapse;">
+		 <caption style="text-align:center"><b><%= l(:label_lead_conversion) + " " + l(:label_report) %></b></br>
+		 <%= @from.to_formatted_s(:long) + " " + l(:label_date_to) + " " + @to.to_formatted_s(:long)%>
+		
+		<thead bgcolor="#e6e6e6">
+			<tr>
+				<th align="left"><%= l(:label_lead)%></th>
+				<th align="left"><%= l(:field_created_on)%></th>
+				<th align="left"><%= l(:label_converted)%></th>
+				<th align="left"><%= l(:label_sales_cycle)%></th>
+				<th align="left"><%= l(:field_assigned_to)%></th>
+			</tr>
+		</thead>
+		<tbody>
+			<% @leadList.each do |lead| %>
+				<tr class="<%= cycle("odd", "even") %>">
+						<td><%= lead.contact.last_name %></td>
+						<td><%= lead.created_at.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>
+						<td><%= lead.status_update_on.localtime.strftime("%Y-%m-%d %H:%M:%S") if lead.status == 'C'%></td>
+						<td><%= lead.status_update_on - lead.created_at %></td>
+						<td><%= lead.contact.assigned_user.name(:firstname_lastname) unless lead.contact.assigned_user.blank? %></td>
+				</tr>
+			<% end %>
+			<tr bgcolor="#e6e6e6">
+				<td></td>
+				<td></td>
+				<td></td>
+				<td align="right"><b><%= l(:label_conversion_ratio)%>:</b></td>
+				<td align="left"><b><%= getConversionRatio(@leadList, @from, @to) %>%</b></td>
+			</tr>
+		</tbody>
+	</table>
+</div>

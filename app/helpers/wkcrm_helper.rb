@@ -1,5 +1,16 @@
 module WkcrmHelper
 include WkinvoiceHelper
+	
+	def getLeadList(from, to)
+		WkLead.includes(:contact).where(:created_at => from .. to)
+	end
+	
+	def getConversionRatio(allLeads, from, to)
+		convertedLeads = allLeads.where(:status => 'C', :status_update_on => from .. to).count
+		totalLeads = allLeads.count
+		convRatio = (convertedLeads/totalLeads)*100 
+		convRatio
+	end
 
     def directionHash
 		directionStatus = {

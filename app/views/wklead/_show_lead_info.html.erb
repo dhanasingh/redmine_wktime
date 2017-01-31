@@ -5,11 +5,11 @@
 		<% unless isAccount %>
 			<tr>
 				<th align="left"><%= l(:field_firstname) %></th>
-				<td align="left" style="padding-left:40px;"><%=h currentObj.blank? ? "" : currentObj.contacts.first_name %> </td>
+				<td align="left" style="padding-left:40px;"><%=h currentObj.blank? ? "" : currentObj.contact.first_name %> </td>
 			</tr>
 			<tr>
 				<th align="left"><%= l(:field_lastname) %></th>
-				<td align="left" style="padding-left:40px;"><%=h currentObj.blank? ? "" : currentObj.contacts.last_name %> </td>
+				<td align="left" style="padding-left:40px;"><%=h currentObj.blank? ? "" : currentObj.contact.last_name %> </td>
 			</tr>
 		<% end %>
 		<% if isAccount %>
@@ -30,7 +30,7 @@
 			</tr>
 			<tr>
 				<th align="left"><%= l(:label_department) %></th>
-				<td align="left" style="padding-left:40px;"><%=h currentObj.blank? || currentObj.contacts.address.blank? ? "" : currentObj.contacts.address.department %> </td>
+				<td align="left" style="padding-left:40px;"><%=h currentObj.blank? || currentObj.contact.address.blank? ? "" : currentObj.contact.address.department %> </td>
 			</tr>
 			<tr>
 				<th align="left"><%= l(:field_description) %></th>

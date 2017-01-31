@@ -16,12 +16,12 @@
 		<tbody>
 			<% @leadEntries.each do |entry| %>
 				<tr>
-					<!-- <td class="lbl-txt-align"><%=h entry.contacts.last_name %></td> -->
-					<td class="lbl-txt-align"><%= link_to entry.contacts.last_name, url_for(:controller => controller_name, :action => 'show', :lead_id => entry.id,:address_id => entry.contacts.address.blank? ? "" : entry.contacts.address.id) %></td>
+					<!-- <td class="lbl-txt-align"><%=h entry.contact.last_name %></td> -->
+					<td class="lbl-txt-align"><%= link_to entry.contact.last_name, url_for(:controller => controller_name, :action => 'show', :lead_id => entry.id,:address_id => entry.contact.address.blank? ? "" : entry.contact.address.id) %></td>
 					<td class="lbl-txt-align"><%=h getLeadStatusHash[entry.status] %></td>
 					<td class="lbl-txt-align"><%=h entry.account.blank? ? "" : entry.account.name %></td>
-					<td class="lbl-txt-align"><%=h entry.contacts.address.blank? ? "" : entry.contacts.address.work_phone %></td>
-					<td class="lbl-txt-align"><%=h entry.contacts.address.blank? ? "" : entry.contacts.address.email %></td>
+					<td class="lbl-txt-align"><%=h entry.contact.address.blank? ? "" : entry.contact.address.work_phone %></td>
+					<td class="lbl-txt-align"><%=h entry.contact.address.blank? ? "" : entry.contact.address.email %></td>
 					<td class="lbl-txt-align"><%=h entry.created_by_user.name(:firstname_lastname) %></td>
 					<td class="lbl-txt-align"><%=h entry.updated_at.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>
 					<td align="center">

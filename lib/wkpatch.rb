@@ -30,6 +30,10 @@ module WkreportControllerPatch
 					redirect_to action: 'pl_rpt', controller: 'wkaccounting'
 				elsif params[:report_type] == 'bal_sht_report'
 					redirect_to action: 'balance_sheet', controller: 'wkaccounting'
+				elsif params[:report_type] == 'lead_conversion_rpt'
+					redirect_to action: 'lead_conv_rpt', controller: 'wkcrm'
+				elsif params[:report_type] == 'sales_activity_rpt'
+					redirect_to action: 'sales_act_rpt', controller: 'wkcrm'
 				end
 			end
 		end

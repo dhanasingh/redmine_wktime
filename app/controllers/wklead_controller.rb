@@ -8,7 +8,7 @@ class WkleadController < WkcrmController
 		if params[:lead_name].blank?
 		   entries = WkLead.where.not(:status => 'C')
 		else
-			entries = WkLead.where.not(:status => 'C').joins(:contacts).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{params[:lead_name]}%", "%#{params[:lead_name]}%")
+			entries = WkLead.where.not(:status => 'C').joins(:contact).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{params[:lead_name]}%", "%#{params[:lead_name]}%")
 		end
 		formPagination(entries)
 	end
@@ -25,7 +25,7 @@ class WkleadController < WkcrmController
 		@lead.status = 'C'
 		@lead.updated_by_user_id = User.current.id
 		@lead.save
-		@contact = @lead.contacts
+		@contact = @lead.contact
 		@account = @lead.account
 		convertToAccount unless @account.blank?
 		convertToContact
@@ -42,19 +42,19 @@ class WkleadController < WkcrmController
 		@account.account_category = 'A'
 		@account.updated_by_user_id = User.current.id
 		address = nil
-		unless @lead.address.blank?
-			address = copyAddress(@lead.address) 
+		unless @contact.address.blank?
+			address = copyAddress(@contact.address) 
 			@account.address_id = address.id
 		end
 		@account.save
 	end
 	
 	def convertToContact
-		@contact.contact_type = 'C'
+		#@contact.contact_type = 'C'
 		@contact.updated_by_user_id = User.current.id
 		unless @account.blank?
-			@contact.parent_id = @account.id
-			@contact.parent_type = @account.class.name
+			@contact.account_id = @account.id
+			#@contact.parent_type = @account.class.name
 		end
 		@contact.save
 	end
@@ -86,7 +86,7 @@ class WkleadController < WkcrmController
 			wkContact = WkCrmContact.new
 		else
 		    wkLead = WkLead.find(params[:lead_id].to_i)
-			wkContact = wkLead.contacts
+			wkContact = wkLead.contact
 		end
 		# For Lead table
 		wkLead.status = params[:status]
@@ -118,13 +118,13 @@ class WkleadController < WkcrmController
 				wkaccount.account_type = 'L'
 				wkaccount.save
 				wkLead.account_id = wkaccount.id
+				wkContact.account_id = wkaccount.id
 			end
 			
-			if wkLead.save
-				wkContact.parent_id = wkLead.id
-				wkContact.parent_type = wkLead.class.name
+			if wkContact.save
+				wkLead.contact_id = wkContact.id
 			end
-			wkContact.save
+			wkLead.save
 		    redirect_to :controller => 'wklead',:action => 'index' , :tab => 'wklead'
 		    flash[:notice] = l(:notice_successful_update)
 		else

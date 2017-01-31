@@ -39,6 +39,10 @@ module WkreportHelper
 			reportTypeArr << [l(:label_profit_loss_account), 'pl_report']
 			reportTypeArr << [l(:label_balance_sheet), 'bal_sht_report']
 		end
+		if (isModuleAdmin('wktime_crm_group') || isModuleAdmin('wktime_crm_admin') ) && isChecked('wktime_enable_crm_module')
+			reportTypeArr << [l(:label_lead_conversion), 'lead_conversion_rpt']
+			reportTypeArr << [l(:label_sales_activity), 'sales_activity_rpt']
+		end
 		options_for_select(reportTypeArr, selectedRpt)
 	end
 	

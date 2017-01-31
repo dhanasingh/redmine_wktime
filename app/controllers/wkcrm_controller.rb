@@ -1,12 +1,25 @@
 class WkcrmController < WkbaseController
   unloadable
-
-
-
-  def index
-  end 
+  include WkcrmHelper
+	def index
+	end
+	
+	def lead_conv_rpt	
+		@from = session[:wkreport][:from]
+		@to = session[:wkreport][:to]
+		@leadList = getLeadList(@from,@to)
+		Rails.logger.info("==== @leadList = #{@leadList.inspect}")
+		render :action => 'lead_conv_rpt', :layout => false
+	end
+	
+	def sales_act_rpt
+		@to = session[:wkreport][:to]
+		@from = session[:wkreport][:from]
+		#@profitLossEntries = getTransDetails(@from,@to)
+		render :action => 'sales_act_rpt', :layout => false
+	end 
   
-  def updateAddress
+	def updateAddress
 		wkAddress = nil
 		addressId = nil
 	    if params[:address_id].blank? || params[:address_id].to_i == 0
@@ -32,9 +45,9 @@ class WkcrmController < WkbaseController
 			addressId = wkAddress.id
 		end		
 		addressId
-  end
+	end
   
-  def getActRelatedIds
+	def getActRelatedIds
 		relatedArr = ""	
 		relatedId = nil
 		if params[:related_type] == "WkOpportunity"
@@ -60,7 +73,6 @@ class WkcrmController < WkbaseController
 		respond_to do |format|
 			format.text  { render :text => relatedArr }
 		end
-		
     end
 
 end

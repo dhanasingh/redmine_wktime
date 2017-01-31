@@ -9,13 +9,13 @@ class WkcrmcontactController < WkcrmController
 		accountId =  session[:wkcrmcontact][:account_id]
 		wkcontact = nil
 		if !contactName.blank? &&  !accountId.blank?
-			wkcontact = WkCrmContact.where(:parent_id => accountId, :parent_type => "WkAccount").where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
+			wkcontact = WkCrmContact.where(:account_id => accountId).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
 		elsif contactName.blank? &&  !accountId.blank? 
-			wkcontact = WkCrmContact.where(:parent_id => accountId, :parent_type => "WkAccount")
+			wkcontact = WkCrmContact.where(:account_id => accountId)
 		elsif !contactName.blank? &&  accountId.blank?
 			wkcontact = WkCrmContact.where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
 		else
-			wkcontact = WkCrmContact.where("parent_type = 'WkAccount' or parent_type is null ")
+			wkcontact = WkCrmContact.where.not(:account_id => nil)
 		end	
 		formPagination(wkcontact)
 	end

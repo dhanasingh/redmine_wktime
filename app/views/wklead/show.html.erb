@@ -12,9 +12,9 @@
 	</div>
 	<div style="clear:both;"></div>
 	<div id="account_form">
-		<% addressObj = @lead.blank? ? nil : @lead.contacts.address %>
+		<% addressObj = @lead.blank? ? nil : @lead.contact.address %>
 		<%=h hidden_field_tag('lead_id', @lead.blank? ? "" :@lead.id) %>
-		<%=h hidden_field_tag('address_id', @lead.blank? ? "" :@lead.contacts.address_id) %>
+		<%=h hidden_field_tag('address_id', @lead.blank? ? "" :@lead.contact.address_id) %>
 		<div class="splitcontentleft">
 			<%= render partial: "show_lead_info", locals: { currentObj: @lead, isAccount: false, isContact: false}%>
 			<%= render partial: "show_other_info"%>

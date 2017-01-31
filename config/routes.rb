@@ -285,4 +285,8 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	post 'wkcrmenumeration/update', :to => 'wkcrmenumeration#update'
 	
-	delete 'wkcrmenumeration/destroy', :to => 'wkcrmenumeration#destroy'
+	delete 'wkcrmenumeration/destroy', :to => 'wkcrmenumeration#destroy' 
+	
+	get 'wkcrm/lead_conv_rpt', :to => 'wkcrm#lead_conv_rpt'
+	
+	get 'wkcrm/sales_act_rpt', :to => 'wkcrm#sales_act_rpt'

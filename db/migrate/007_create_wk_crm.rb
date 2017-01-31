@@ -40,7 +40,8 @@ class CreateWkCrm < ActiveRecord::Migration
 		  t.references :assigned_user, :class => "User", :null => true
 		  t.string :salutation
 		  t.string :description
-		  t.references :parent, polymorphic: true, index: true
+		  #t.references :parent, polymorphic: true, index: true
+		  t.references :account, :class => "wk_accounts", :null => true
 		  t.references :created_by_user, :class => "User"
 		  t.references :updated_by_user, :class => "User"
 		  t.timestamps null: false
@@ -54,6 +55,7 @@ class CreateWkCrm < ActiveRecord::Migration
 		  t.references :lead_source, :class => "wk_crm_enumerations"
 		  t.string :referred_by
 		  t.references :account, :class => "wk_accounts", :null => true
+		  t.references :contact, :class => "wk_crm_contacts", :null => true
 		  t.references :created_by_user, :class => "User"
 		  t.references :updated_by_user, :class => "User"
 		  t.timestamps null: false

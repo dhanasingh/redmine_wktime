@@ -19,7 +19,7 @@
 		</tr>
 		<tr>
 			 <th align="left"><%= l(:field_assigned_to) %></th>
-			 <td align="left" style="padding-left:75px;"><%=h select_tag('assigned_user_id', options_for_select(getUserListHash(true), :selected => @lead.blank? || @lead.contacts.blank? ? "" : @lead.contacts.assigned_user_id),:required => true) %></td>
+			 <td align="left" style="padding-left:75px;"><%=h select_tag('assigned_user_id', options_for_select(getUserListHash(true), :selected => @lead.blank? || @lead.contact.blank? ? "" : @lead.contact.assigned_user_id),:required => true) %></td>
 		</tr>
 	</table>
 </fieldset>

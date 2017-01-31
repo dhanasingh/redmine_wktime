@@ -559,3 +559,7 @@ en:
   label_crm_user_group: CRM User Group
   label_crm_admin_group: CRM Admin Group
   label_position: Position
+  label_lead_conversion: Lead Conversion
+  label_sales_activity: Sales Activity
+  label_sales_cycle: Sales Cycle
+  label_conversion_ratio: Conversion Ratio
