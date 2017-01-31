@@ -153,4 +153,17 @@ include WkinvoiceHelper
 		relatedArr
 	end
 	
+	def getAccordionSection(entity)
+		accSections = ['wkcrmactivity']
+		case entity
+		when 'WkAccount'
+			accSections = ['wkcrmactivity', 'wkcrmcontact', 'wkopportunity']
+		when 'WkCrmContact'
+			accSections = ['wkcrmactivity', 'wkopportunity']
+		else
+			accSections = ['wkcrmactivity']
+		end
+		accSections
+	end
+	
 end
