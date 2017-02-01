@@ -5,7 +5,7 @@
 		<% addrObj = @lead.blank? ? nil : @lead.contact.address %>
 		<%=h hidden_field_tag('lead_id', @lead.blank? ? "" :@lead.id) %>
 		<%=h hidden_field_tag('account_id', @lead.blank? || @lead.account.blank? ? "" :@lead.account.id) %>
-		<%=h hidden_field_tag('address_id', @lead.blank? ? "" :@lead.contact.address.id) %>
+		<%=h hidden_field_tag('address_id', addrObj.blank? ? "" :addrObj.id) %>
 		<div class="splitcontentleft">
 			<%= render partial: "lead_info", locals: {  contactObj:  @lead.blank? ? nil : @lead.contact, leadObj: @lead, accountObj: @lead.blank? ? nil : @lead.account, addressObj: addrObj, isAccount: false, isContact: false }%>
 			<%= render partial: "other_info"%>

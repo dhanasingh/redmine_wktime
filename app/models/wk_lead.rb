@@ -18,7 +18,6 @@
 class WkLead < ActiveRecord::Base
   unloadable
   has_many :activities, as: :parent, class_name: 'WkCrmActivity'
-  #has_one :contacts, as: :parent, class_name: 'WkCrmContact'
   belongs_to :account, :class_name => 'WkAccount'
   belongs_to :created_by_user, :class_name => 'User'
   belongs_to :address, :class_name => 'WkAddress'
