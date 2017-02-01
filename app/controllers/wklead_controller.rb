@@ -125,8 +125,12 @@ class WkleadController < WkcrmController
 				wkLead.contact_id = wkContact.id
 			end
 			wkLead.save
-		    redirect_to :controller => 'wklead',:action => 'index' , :tab => 'wklead'
-		    flash[:notice] = l(:notice_successful_update)
+			if params[:wklead_save_convert]
+				redirect_to :action => 'convert', :lead_id => wkLead.id
+			else
+				redirect_to :controller => 'wklead',:action => 'index' , :tab => 'wklead'
+				flash[:notice] = l(:notice_successful_update)
+			end
 		else
 			flash[:error] = wkContact.errors.full_messages.join("<br>")
 		    redirect_to :controller => 'wklead',:action => 'edit', :lead_id => wkLead.id
