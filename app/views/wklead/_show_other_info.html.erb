@@ -20,7 +20,7 @@
 		</tr>
 		<tr>
 			 <th align="left"><%= l(:field_assigned_to) %></th>
-			 <td align="left" style="padding-left:75px;"><%=h select_tag('assigned_user_id', options_for_select(getUserListHash(true), :selected => @lead.blank? || @lead.account.blank? ? "" : @lead.account.assigned_user_id),:required => true, :disabled => true) %></td>
+			 <td align="left" style="padding-left:75px;"><%=h select_tag('assigned_user_id', options_for_select(getUserListHash(true, getSettingCfId('wktime_crm_group')), :selected => @lead.blank? || @lead.account.blank? ? "" : @lead.account.assigned_user_id),:required => true, :disabled => true) %></td>
 		</tr>
 	</table>
 </fieldset>

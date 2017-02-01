@@ -1122,8 +1122,15 @@ end
 		(!Setting.plugin_redmine_wktime[settingName].blank? && Setting.plugin_redmine_wktime[settingName].to_i == 1)
 	end
 	
-	def getUserListHash(needBlank)
-		activeUsers = User.active.sorted.all
+	def getUserListHash(needBlank, billingGrpId)
+	    #billingGrpId = getSettingCfId('wktime_crm_group')
+		if billingGrpId.blank?
+			activeUsers = User.active.sorted.all
+		else
+			activeUsers = User.active.in_group(billingGrpId).sorted
+		end
+		
+		
 		unless activeUsers.blank?
 			userList = activeUsers.collect{|user| [user.name(:firstname_lastname), user.id]}
 		else

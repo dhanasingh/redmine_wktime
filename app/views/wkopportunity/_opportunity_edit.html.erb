@@ -49,7 +49,7 @@
 			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_next_step", (!@oppEditEntry.blank? && !@oppEditEntry[0].next_step.blank? ? @oppEditEntry[0].next_step : ""), :style => "width:190px;") %></td>
 			
 			<th align="left" style="padding-left:240px;"><%= l(:field_assigned_to) %></th>
-			<td align="left" style="padding-left:40px;"><%=h select_tag('assigned_user_id', options_for_select(getUserListHash(true), :selected => (!@oppEditEntry.blank? && !@oppEditEntry[0].assigned_user_id.blank? ? @oppEditEntry[0].assigned_user_id : "")),:required => true) %></td>
+			<td align="left" style="padding-left:40px;"><%=h select_tag('assigned_user_id', options_for_select(getUserListHash(true, getSettingCfId('wktime_crm_group')), :selected => (!@oppEditEntry.blank? && !@oppEditEntry[0].assigned_user_id.blank? ? @oppEditEntry[0].assigned_user_id : "")),:required => true) %></td>
 		</tr>
 		
 		<tr>
