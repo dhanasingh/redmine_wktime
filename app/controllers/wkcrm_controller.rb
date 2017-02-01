@@ -61,11 +61,11 @@ class WkcrmController < WkbaseController
 		if !relatedId.blank?
 			relatedId.each do | entry|	
 				if params[:related_type] == "WkLead"
-					relatedArr <<  entry.id.to_s() + ',' + entry.contacts.last_name.to_s()  + "\n" 
+					relatedArr <<  entry.id.to_s() + ',' + entry.contact.name  + "\n" 
 				elsif params[:related_type].to_s == "WkCrmContact"
-					relatedArr <<  entry.id.to_s() + ',' + entry.last_name.to_s()  + "\n"
+					relatedArr <<  entry.id.to_s() + ',' + entry.name  + "\n"
 				else
-					relatedArr <<  entry.id.to_s() + ',' + entry.name.to_s()  + "\n" 
+					relatedArr <<  entry.id.to_s() + ',' + entry.name  + "\n" 
 				end
 			end
 		end

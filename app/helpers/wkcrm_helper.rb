@@ -141,9 +141,9 @@ include WkinvoiceHelper
 		if !relatedId.blank?
 			relatedId.each do | entry|				
 				if relatedType == "WkLead" 
-					relatedArr <<  [entry.contacts.last_name, entry.id  ]
+					relatedArr <<  [entry.contact.name, entry.id  ]
 				elsif relatedType == "WkCrmContact"
-					relatedArr <<  [entry.last_name, entry.id]
+					relatedArr <<  [entry.name, entry.id]
 				else
 					relatedArr << [entry.name, entry.id]    
 				end
