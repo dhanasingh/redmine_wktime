@@ -5,7 +5,8 @@ include WktimeHelper
 		enumerationType = {
 			'' => '',
 			'LS' => l(:label_lead_source),
-			'SS' => l(:label_txn_sales) + " " + l(:label_stage)
+			'SS' => l(:label_txn_sales) + " " + l(:label_stage),
+			'OT' => l(:label_opportunity) + " " + l(:label_type)
 		}
 		enumerationType	
 	end
@@ -13,7 +14,7 @@ include WktimeHelper
 	def options_for_enum_select(enumType, value)
 		ennumArray = Array.new
 		defaultValue = 0
-		crmenum = WkCrmEnumeration.where(:enum_type => enumType).order(enum_type: :asc, name: :asc)
+		crmenum = WkCrmEnumeration.where(:enum_type => enumType).order(enum_type: :asc, position: :asc, name: :asc)
 		if !crmenum.blank?
 			crmenum.each do | entry|				
 				ennumArray <<  [entry.name, entry.id  ]

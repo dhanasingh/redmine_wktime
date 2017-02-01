@@ -26,12 +26,13 @@
 			<td align="left" style="padding-left:40px;"><%= date_field_tag('expected_close_date',   Date.today, {:id => 'expected_close_date', :size => 12, :style => "width:160px;"}) + calendar_for('expected_close_date') %></td>
 		</tr>
 		<%  selectedSSId = @oppEditEntry.blank? ? nil : @oppEditEntry[0].sales_stage_id %>
+		<%  selectedOTId = @oppEditEntry.blank? ? nil : @oppEditEntry[0].opportunity_type_id %>
 		<tr>
 			<th align="left"><%= l(:label_txn_sales) + " " + l(:label_stage) %></th>
 			<td align="left" style="padding-left:40px;"><%=h select_tag('sales_stage', options_for_select(options_for_enum_select('SS', selectedSSId))) %></td>
 			
 			<th align="left" style="padding-left:240px;"><%= l(:label_type) %></th>
-			<td align="left" style="padding-left:40px;"><%=h select_tag('opp_type', options_for_select(oppType.invert)) %></td>
+			<td align="left" style="padding-left:40px;"><%=h select_tag('opp_type', options_for_select(options_for_enum_select('OT', selectedOTId))) %></td>
 		</tr>
 		
 		<tr>
