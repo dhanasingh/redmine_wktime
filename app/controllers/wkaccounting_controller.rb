@@ -18,7 +18,7 @@
 class WkaccountingController < WkbaseController	
   unloadable
 	before_filter :require_login
-	before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :pl_rpt]
+	before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :pl_rpt, :balance_sheet]
 	before_filter :check_ac_admin_and_redirect, :only => [:destroy]
 	include WkaccountingHelper
 	def index
@@ -55,7 +55,6 @@ class WkaccountingController < WkbaseController
 
 	def check_permission
 		ret = false
-		#ret = params[:user_id].to_i == User.current.id
 		return isModuleAdmin('wktime_accounting_group') || isModuleAdmin('wktime_accounting_admin') 
 	end
 end

@@ -1,5 +1,7 @@
 class WkcrmenumerationController < ApplicationController
   unloadable
+  before_filter :require_login
+  before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
 
 
 
@@ -86,6 +88,13 @@ class WkcrmenumerationController < ApplicationController
 		
 		flash[:notice] = l(:notice_successful_delete)
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
+	end
+	
+	def check_perm_and_redirect
+		unless User.current.admin?
+			render_403
+			return false
+		end
 	end
 
 end

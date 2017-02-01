@@ -1,4 +1,4 @@
-class WkopportunityController < ApplicationController
+class WkopportunityController < WkcrmController
   unloadable
   include WktimeHelper
 
