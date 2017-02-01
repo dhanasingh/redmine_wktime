@@ -18,7 +18,6 @@
 class WkCrmEnumeration < ActiveRecord::Base
   unloadable
   
-  before_destroy :check_integrity
   before_save    :check_default
   
   validates_presence_of :name
@@ -27,14 +26,6 @@ class WkCrmEnumeration < ActiveRecord::Base
     if is_default? && is_default_changed?
       WkCrmEnumeration.where({:enum_type => enum_type}).update_all({:is_default => false})
     end
-  end
-  
-  def check_integrity
-    raise "Cannot delete enumeration" if self.in_use?
-  end
-  
-  def in_use?
-    self.objects_count != 0
-  end
+  end 
   
 end

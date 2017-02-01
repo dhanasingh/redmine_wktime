@@ -26,7 +26,7 @@ include WkgltransactionHelper
 		if blankOption
 		  accArr << [ "", ""]
 		end
-		accname = WkAccount.all
+		accname = WkAccount.where(:account_type => 'A')
 		if !accname.blank?
 			accname.each do | entry|
 				accArr << [ entry.name, entry.id ]

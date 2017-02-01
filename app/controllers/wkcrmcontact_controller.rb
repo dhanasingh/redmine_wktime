@@ -9,13 +9,13 @@ class WkcrmcontactController < WkcrmController
 		accountId =  session[:wkcrmcontact][:account_id]
 		wkcontact = nil
 		if !contactName.blank? &&  !accountId.blank?
-			wkcontact = WkCrmContact.where(:account_id => accountId).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
+			wkcontact = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where(:account_id => accountId).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
 		elsif contactName.blank? &&  !accountId.blank? 
-			wkcontact = WkCrmContact.where(:account_id => accountId)
+			wkcontact = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where(:account_id => accountId)
 		elsif !contactName.blank? &&  accountId.blank?
-			wkcontact = WkCrmContact.where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
+			wkcontact = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
 		else
-			wkcontact = WkCrmContact.where.not(:account_id => nil)
+			wkcontact = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] })
 		end	
 		formPagination(wkcontact)
 	end
@@ -69,6 +69,9 @@ class WkcrmcontactController < WkcrmController
 	end
 	
 	def destroy
+	    WkCrmContact.find(params[:contact_id].to_i).destroy
+		flash[:notice] = l(:notice_successful_delete)
+		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end
 	
 	 def set_filter_session
