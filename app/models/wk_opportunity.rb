@@ -21,6 +21,6 @@ class WkOpportunity < ActiveRecord::Base
   belongs_to :parent, :polymorphic => true
   belongs_to :assigned_user, :class_name => 'User'
   has_many :activities, as: :parent, class_name: 'WkCrmActivity'
-  has_many :contacts, as: :parent, class_name: 'WkCrmContact'
+  #has_many :contacts, as: :parent, class_name: 'WkCrmContact'
   validates_presence_of :name, :amount
 end

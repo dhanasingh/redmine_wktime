@@ -54,7 +54,7 @@ class WkcrmController < WkbaseController
 		elsif params[:related_type] == "WkLead"
 			relatedId = WkLead.where.not(:status => 'C')
 		elsif params[:related_type] == "WkCrmContact"
-			relatedId = WkCrmContact.where.not(:parent_type => 'WkLead').order(:last_name)
+			relatedId = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] })#where.not(:parent_type => 'WkLead').order(:last_name)
 		else
 			relatedId = WkAccount.where(:account_type => 'A').order(:name)
 		end
