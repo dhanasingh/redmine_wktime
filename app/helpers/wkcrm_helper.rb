@@ -132,9 +132,9 @@ include WkinvoiceHelper
 		if relatedType == "WkOpportunity"
 			relatedId = WkOpportunity.all.order(:name)
 		elsif relatedType == "WkLead"
-			relatedId = WkLead.where.not(:status => 'C')
+			relatedId = WkLead.includes(:contact).where.not(:status => 'C').order("wk_crm_contacts.first_name, wk_crm_contacts.last_name")
 		elsif relatedType == "WkCrmContact"
-			relatedId = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] })#where.not(:parent_type => 'WkLead').order(:last_name)
+			relatedId = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).order(:first_name, :last_name)
 		else
 			relatedId = WkAccount.where(:account_type => 'A').order(:name)
 		end
