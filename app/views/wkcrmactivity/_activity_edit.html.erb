@@ -15,7 +15,9 @@
 %>
 <%	accArr = options_for_wktime_account(false)
 	if !@activityEntry.blank?
-		accArr = relatedValues(@activityEntry[0].parent_type)		
+		accArr = relatedValues(@activityEntry[0].parent_type)	
+    elsif !params[:parentType].blank?
+		accArr = relatedValues(params[:parentType])
 	end	
  %>
 <%= form_tag({:controller => 'wkcrmactivity', :action => 'update'}, :method => :get, :id => 'query_form') do %>

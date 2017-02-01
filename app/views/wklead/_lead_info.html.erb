@@ -29,7 +29,7 @@
 		<tr>
 			<th align="left"><%= l(:label_account_name) %></th>			
 			<% if isContact %>			
-				<td style="padding-left:40px;"><%=h select_tag('account_id', options_for_select(accArr, :selected => contactObj.blank? ? "" : (contactObj.account.blank? ? "" : contactObj.account.id) ), :style=> "float: left;") %></td>
+				<td style="padding-left:40px;"><%=h select_tag('account_id', options_for_select(accArr, :selected => contactObj.blank? ? (params[:accountId].blank? ? "" : params[:accountId]) : (contactObj.account.blank? ? "" : contactObj.account.id) ), :style=> "float: left;") %></td>
 			<% else %>	
 				<td align="left" style="padding-left:40px;"><%=h text_field_tag("account_name", accountName,:size => 20) %> </td>
 			<% end %>			
