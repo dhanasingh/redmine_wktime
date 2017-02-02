@@ -50,11 +50,9 @@ class WkleadController < WkcrmController
 	end
 	
 	def convertToContact
-		#@contact.contact_type = 'C'
 		@contact.updated_by_user_id = User.current.id
 		unless @account.blank?
 			@contact.account_id = @account.id
-			#@contact.parent_type = @account.class.name
 		end
 		@contact.save
 	end
@@ -136,6 +134,12 @@ class WkleadController < WkcrmController
 		    redirect_to :controller => 'wklead',:action => 'edit', :lead_id => wkLead.id
 		end
 	end
+  
+    def destroy
+		WkLead.find(params[:lead_id].to_i).destroy
+		flash[:notice] = l(:notice_successful_delete)
+		redirect_back_or_default :action => 'index', :tab => params[:tab]
+    end
 	
 	def formPagination(entries)
 		@entry_count = entries.count

@@ -18,11 +18,11 @@
 class WkCrmContact < ActiveRecord::Base
   unloadable
   belongs_to :account, :class_name => 'WkAccount'
-  belongs_to :address, :class_name => 'WkAddress'
+  belongs_to :address, :class_name => 'WkAddress', :dependent => :destroy
   belongs_to :assigned_user, :class_name => 'User'
-  has_one :lead, foreign_key: 'contact_id', class_name: 'WkLead'
-  has_many :activities, as: :parent, class_name: 'WkCrmActivity'
-  has_many :opportunities, as: :parent, class_name: 'WkOpportunity'
+  has_one :lead, foreign_key: 'contact_id', class_name: 'WkLead', :dependent => :destroy
+  has_many :activities, as: :parent, class_name: 'WkCrmActivity', :dependent => :destroy
+  has_many :opportunities, as: :parent, class_name: 'WkOpportunity', :dependent => :destroy
   validates_presence_of :last_name
    # Different ways of displaying/sorting users
   NAME_FORMATS = {
