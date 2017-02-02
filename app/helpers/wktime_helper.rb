@@ -1145,4 +1145,9 @@ end
 			Setting.plugin_redmine_wktime['wktime_enable_crm_module'].to_i == 1 ) && (isModuleAdmin('wktime_crm_group') || isModuleAdmin('wktime_crm_admin') )
 	end
 	
+	def getGroupUserIdsArr(groupId)
+		userIdArr = User.in_group(groupId).all.pluck(:id)
+		userIdArr
+	end
+	
 end

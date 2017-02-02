@@ -1,8 +1,16 @@
 module WkcrmHelper
 include WkinvoiceHelper
 	
-	def getLeadList(from, to)
-		WkLead.includes(:contact).where(:created_at => from .. to)
+	def getLeadList(from, to, groupId, userId)
+		userIdArr = nil
+		userIdArr = [userId.to_i] unless userId.blank? || userId.to_i < 1
+		userIdArr = getGroupUserIdsArr(groupId.to_i) unless groupId.blank? || groupId.to_i < 1
+		if userIdArr.blank?
+			leadList = WkLead.includes(:contact).where(:created_at => from .. to)
+		else
+			leadList = WkLead.includes(:contact).where(:created_at => from .. to, wk_crm_contacts: { assigned_user_id: userIdArr })
+		end
+		leadList
 	end
 	
 	def getConversionRatio(allLeads, from, to)
@@ -14,6 +22,17 @@ include WkinvoiceHelper
 	
 	def getActivityList(from, to)
 		WkCrmActivity.includes(:parent).where(:start_date => from .. to)
+	end
+	
+	def getLeadStatusHash
+		{
+			'N' => l(:label_new),
+			'A' =>l(:label_assigned), 
+			'IP' => l(:label_in_process),
+			'C' => l(:label_converted),
+			'RC' => l(:label_recycled),
+			'D' =>l(:label_dead)
+		}
 	end
 
     def directionHash

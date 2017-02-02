@@ -16,17 +16,6 @@ include WkcrmenumerationHelper
 		]
 	end
 	
-	def getLeadStatusHash
-		{
-			'N' => l(:label_new),
-			'A' =>l(:label_assigned), 
-			'IP' => l(:label_in_process),
-			'C' => l(:label_converted),
-			'RC' => l(:label_recycled),
-			'D' =>l(:label_dead)
-		}
-	end
-	
 	def getFormComponent(fieldName, fieldValue, compSize, isShow)
 		unless isShow
 			text_field_tag(fieldName, fieldValue, :size => compSize)

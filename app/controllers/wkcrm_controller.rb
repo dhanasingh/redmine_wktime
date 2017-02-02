@@ -10,7 +10,9 @@ class WkcrmController < WkbaseController
 	def lead_conv_rpt	
 		@from = session[:wkreport][:from].beginning_of_day
 		@to = session[:wkreport][:to].end_of_day
-		@leadList = getLeadList(@from,@to)
+		groupId = session[:wkreport][:group_id]
+		userId = session[:wkreport][:user_id]
+		@leadList = getLeadList(@from, @to, groupId, userId)
 		render :action => 'lead_conv_rpt', :layout => false
 	end
 	
