@@ -22,6 +22,7 @@
 			<tr>
 				<th class="lbl-txt-align"><%= l(:field_activity) + " " + l(:label_type) %></th>
 				<th class="lbl-txt-align"><%= l(:field_subject) %></th>
+				<th align="left"><%= l(:field_status) %></th>
 				<th class="lbl-txt-align"><%= l(:label_related_to) %></th>
 				<th class="lbl-txt-align"><%= l(:field_name) %></th>
 				<th class="lbl-txt-align"><%= l(:label_start_date_time) %></th>
@@ -35,6 +36,7 @@
 				<tr class="<%= cycle("odd", "even") %>">
 						<td><%= acttypeHash[activity.activity_type] %></td>
 						<td><%= activity.name %></td>
+						<td class="lbl-txt-align"><%=h (activity.activity_type == 'M' || activity.activity_type == 'C' ? meetCallStatusHash[activity.status] : taskStatusHash[activity.status])  %></td>
 						<td><%= relatedHash[activity.parent_type] %></td>
 						<td><%= activity.parent.name %></td>
 						<td><%= activity.start_date.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>

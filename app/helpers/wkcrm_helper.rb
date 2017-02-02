@@ -3,8 +3,11 @@ include WkinvoiceHelper
 	
 	def getLeadList(from, to, groupId, userId)
 		userIdArr = nil
-		userIdArr = [userId.to_i] unless userId.blank? || userId.to_i < 1
-		userIdArr = getGroupUserIdsArr(groupId.to_i) unless groupId.blank? || groupId.to_i < 1
+		if !userId.blank? && userId.to_i > 0
+			userIdArr = [userId.to_i]
+		elsif !groupId.blank? && groupId.to_i > 0
+			userIdArr = getGroupUserIdsArr(groupId.to_i)
+		end
 		if userIdArr.blank?
 			leadList = WkLead.includes(:contact).where(:created_at => from .. to)
 		else
@@ -20,8 +23,19 @@ include WkinvoiceHelper
 		convRatio
 	end
 	
-	def getActivityList(from, to)
-		WkCrmActivity.includes(:parent).where(:start_date => from .. to)
+	def getActivityList(from, to, groupId, userId)
+		userIdArr = nil
+		if !userId.blank? && userId.to_i > 0
+			userIdArr = [userId.to_i]
+		elsif !groupId.blank? && groupId.to_i > 0
+			userIdArr = getGroupUserIdsArr(groupId.to_i)
+		end
+		if userIdArr.blank?
+			activityList = WkCrmActivity.includes(:parent).where(:start_date => from .. to)
+		else
+			activityList = WkCrmActivity.includes(:parent).where(:start_date => from .. to, :assigned_user_id => userIdArr)
+		end
+		activityList
 	end
 	
 	def getLeadStatusHash

@@ -19,7 +19,9 @@ class WkcrmController < WkbaseController
 	def sales_act_rpt
 		@to = session[:wkreport][:to].end_of_day
 		@from = session[:wkreport][:from].beginning_of_day
-		@activityList = getActivityList(@from,@to)
+		groupId = session[:wkreport][:group_id]
+		userId = session[:wkreport][:user_id]
+		@activityList = getActivityList(@from,@to, groupId, userId)
 		render :action => 'sales_act_rpt', :layout => false
 	end 
   
