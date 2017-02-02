@@ -125,7 +125,7 @@
 				</tr>
 				<tr style="width:100%;">
 					<td align="left" colspan="1" width="20%"><b><%= l(:label_amount_in_words) %></b></td>
-					<td align="left" colspan="5" width="35%"><%=h numberInWords(@invoiceItem.sum(:amount)) + " only." %></td>
+					<td align="left" colspan="5" width="35%"><%=h numberInWords(@invoiceItem.sum(:amount)) + " " + l(:label_only) + "." %></td>
 				</tr>
 				<% unless Setting.plugin_redmine_wktime['wktime_invoice_components'].blank? 
 				Setting.plugin_redmine_wktime['wktime_invoice_components'].each do |element| 
