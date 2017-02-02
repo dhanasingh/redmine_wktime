@@ -12,7 +12,10 @@
 <%= render_tabs time_expense_tabs %>
 <%= hidden_field_tag 'back_url', url_for(params) %>
 <%= form_tag({:controller => "wkcrmcontact", :action => 'index'}, :method => :get, :id => 'query_form') do %>
-<%	accArr = options_for_wktime_account(true) %>
+<%	accArr = options_for_wktime_account(false) %>
+
+<%	accArr.unshift(["All Acounts",'AA'])  %>
+<%	accArr.unshift(["",''])  %>
 <%= hidden_field_tag "searchlist", "wkcrmcontact" %>
 <%=h hidden_field_tag('tab', "wkcrmcontact") %>
 <%	conName = session[:wkcrmcontact][:contactname] %>

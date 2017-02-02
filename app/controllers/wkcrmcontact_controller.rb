@@ -9,13 +9,23 @@ class WkcrmcontactController < WkcrmController
 		accountId =  session[:wkcrmcontact][:account_id]
 		wkcontact = nil
 		if !contactName.blank? &&  !accountId.blank?
-			wkcontact = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where(:account_id => accountId).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
+			if accountId == 'AA'
+				wkcontact = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where.not(:account_id => nil).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
+			else
+				wkcontact = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where(:account_id => accountId).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
+			end
+			
 		elsif contactName.blank? &&  !accountId.blank? 
-			wkcontact = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where(:account_id => accountId)
+			if accountId == 'AA'
+				wkcontact = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where.not(:account_id => nil)
+			else
+				wkcontact = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where(:account_id => accountId)
+			end
+			
 		elsif !contactName.blank? &&  accountId.blank?
-			wkcontact = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
+			wkcontact = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where(:account_id => nil).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
 		else
-			wkcontact = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] })
+			wkcontact = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where(:account_id => nil)
 		end	
 		formPagination(wkcontact)
 	end
