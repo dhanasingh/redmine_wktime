@@ -22,9 +22,9 @@ before_filter :require_login
     def index
 		@account_entries = nil
 		if params[:accountname].blank?
-		   entries = WkAccount.all
+		   entries = WkAccount.all.order(:name)
 		else
-			entries = WkAccount.where("name like ?", "%#{params[:accountname]}%")
+			entries = WkAccount.where("name like ?", "%#{params[:accountname]}%").order(:name)
 		end
 		formPagination(entries)
     end
