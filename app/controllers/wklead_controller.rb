@@ -39,7 +39,7 @@ class WkleadController < WkcrmController
 	end
 	
 	def convertToAccount
-		@account.account_category = 'A'
+		@account.account_type = 'A'
 		@account.updated_by_user_id = User.current.id
 		address = nil
 		unless @contact.address.blank?
@@ -122,8 +122,9 @@ class WkleadController < WkcrmController
 			if wkContact.save
 				wkLead.contact_id = wkContact.id
 			end
+			isConvert = wkLead.status == 'C' && wkLead.status_changed?
 			wkLead.save
-			if params[:wklead_save_convert]
+			if params[:wklead_save_convert] || isConvert
 				redirect_to :action => 'convert', :lead_id => wkLead.id
 			else
 				redirect_to :controller => 'wklead',:action => 'index' , :tab => 'wklead'
