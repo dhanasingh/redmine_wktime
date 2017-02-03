@@ -22,9 +22,9 @@ before_filter :require_login
     def index
 		@account_entries = nil
 		if params[:accountname].blank?
-		   entries = WkAccount.all.order(:name)
+		   entries = WkAccount.all
 		else
-			entries = WkAccount.where("name like ?", "%#{params[:accountname]}%").order(:name)
+			entries = WkAccount.where("name like ?", "%#{params[:accountname]}%")
 		end
 		formPagination(entries)
     end
@@ -32,7 +32,7 @@ before_filter :require_login
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
-		@account_entries = entries.limit(@limit).offset(@offset)
+		@account_entries = entries.order(:name).limit(@limit).offset(@offset)
 	end
   
     def setLimitAndOffset		

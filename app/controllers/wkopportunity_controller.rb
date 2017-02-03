@@ -9,15 +9,37 @@ class WkopportunityController < WkcrmController
 		oppName = session[:wkopportunity][:oppname]
 		accId = session[:wkopportunity][:account_id]
 		oppDetails = nil
-		if !@from.blank? && !@to.blank? && !oppName.blank? && !accId.blank?
-			oppDetails = WkOpportunity.where(:close_date => @from..@to, :account_id => accId).where("name like ?", "%#{oppName}%")
-		elsif !@from.blank? && !@to.blank? && oppName.blank? && !accId.blank?
-			oppDetails = WkOpportunity.where(:close_date => @from..@to, :account_id => accId)
-		elsif !@from.blank? && !@to.blank? && !oppName.blank? && accId.blank?
-			oppDetails = WkOpportunity.where(:close_date => @from..@to).where("name like ?", "%#{oppName}%")
+		filterSql = ""
+		filterHash = Hash.new
+		unless @from.blank? || @to.blank?
+			filterSql = filterSql + " created_at between :from AND :to"
+			filterHash = {:from => @from.beginning_of_day, :to => @to.end_of_day}
+		end
+		unless oppName.blank?
+			filterSql = filterSql + " AND" unless filterSql.blank?
+			filterSql = filterSql + " LOWER(name) like LOWER(:name)"
+			filterHash[:name] = "%#{oppName}%"
+		end
+		unless accId.blank?
+			filterSql = filterSql + " AND" unless filterSql.blank?
+			filterSql = filterSql + " parent_id = :parent_id "
+			filterHash[:parent_id] = accId.to_i
+			filterHash[:parent_type] = 'WkAccount'
+		end
+		unless filterHash.blank? || filterSql.blank?
+			oppDetails = WkOpportunity.where(filterSql, filterHash)
 		else
 			oppDetails = WkOpportunity.all
 		end
+		# if !@from.blank? && !@to.blank? && !oppName.blank? && !accId.blank?
+			# oppDetails = WkOpportunity.where(:created_at => @from..@to, :account_id => accId).where("name like ?", "%#{oppName}%")
+		# elsif !@from.blank? && !@to.blank? && oppName.blank? && !accId.blank?
+			# oppDetails = WkOpportunity.where(:created_at => @from..@to, :account_id => accId)
+		# elsif !@from.blank? && !@to.blank? && !oppName.blank? && accId.blank?
+			# oppDetails = WkOpportunity.where(:created_at => @from..@to).where("name like ?", "%#{oppName}%")
+		# else
+			# oppDetails = WkOpportunity.all
+		# end
 		
 		formPagination(oppDetails)
     end
