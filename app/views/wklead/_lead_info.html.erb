@@ -52,7 +52,12 @@
 				<td align="left" style="padding-left:40px;"><%=h select_tag('assigned_user_id', 						options_for_select(getUserListHash(true, getSettingCfId('wktime_crm_group')), :selected => contactObj.blank? ? "" : contactObj.assigned_user_id),:required => true) %></td>
 			</tr>
 		<% end %>
-		<% if isAccount %>			
+		<% if isAccount %>	
+			<%  selectedAcId = accountObj.blank? ? nil : accountObj.account_category %>
+			<tr>
+				<th align="left"><%= l(:label_account) + " " + l(:field_category) %></th>
+			<td align="left" style="padding-left:40px;"><%=h select_tag('account_category', options_for_select(options_for_enum_select('AC', selectedAcId))) %></td>
+			</tr>
 			<tr>
 				<th align="left"><%= l(:label_account_billing) %></th>
 				<td align="left" style="padding-left:40px;"><%= check_box_tag("account_billing", 1, (accountObj.blank? ? false : accountObj.account_billing)) %></td>

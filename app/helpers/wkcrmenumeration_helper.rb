@@ -6,7 +6,8 @@ include WktimeHelper
 			'' => '',
 			'LS' => l(:label_lead_source),
 			'SS' => l(:label_txn_sales) + " " + l(:label_stage),
-			'OT' => l(:label_opportunity) + " " + l(:label_type)
+			'OT' => l(:label_opportunity) + " " + l(:label_type),
+			'AC' => l(:label_account) + " " + l(:field_category)
 		}
 		enumerationType	
 	end
