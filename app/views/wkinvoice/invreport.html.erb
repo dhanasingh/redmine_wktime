@@ -24,7 +24,7 @@
 				</tr>
 				<tr style="width:100%;">
 					<td  width="25%" style="white-space:pre"><%=h Setting.plugin_redmine_wktime['wktime_company_name'] + "\n" +  Setting.plugin_redmine_wktime['wktime_company_address']  %></td>
-					<td  width="25%" style="white-space:pre"><%=h @invoice.account.name + "\n" + @invoice.account.address.address1 + "\n" + (@invoice.account.address.address2.blank? ? "" : (@invoice.account.address.address2) + "\n")  + @invoice.account.address.city + " " +  @invoice.account.address.state + "\n" + @invoice.account.address.pin.to_s   + "\n" + @invoice.account.address.country %> </td>
+					<td  width="25%" style="white-space:pre"><%=h @invoice.account.name + "\n" + @invoice.account.address.fullAddress %> </td>
 					<td  width="25%"><%=h @invoice.invoice_number %></td>
 					<td  colspan ="3" width="25%"><%=h @invoice.invoice_date.to_formatted_s(:long) %></td>
 				</tr>
