@@ -1,7 +1,10 @@
 #!/bin/env ruby
 # encoding: utf-8
 class CreateWkCrm < ActiveRecord::Migration
-  
+	class WkCrmEnumeration < ActiveRecord::Base
+		attr_protected :id
+	end
+	
     def change
 		
 		create_table :wk_crm_enumerations do |t|
@@ -92,6 +95,16 @@ class CreateWkCrm < ActiveRecord::Migration
 		add_reference :wk_accounts, :assigned_user, :class => "User"
 		add_reference :wk_accounts, :created_by_user, :class => "User"
 		add_reference :wk_accounts, :updated_by_user, :class => "User"
-	
+		
+		enumValues = Hash.new
+		enumValues["LeadSource"] = ['New', 'Assigned', 'In Process', 'Converted', 'Recycled', 'Dead']
+		enumValues["SalesStage"] = ['Prospecting', 'Qualification', 'Needs Analysis', 'Value Proposition', 'Id.Decision Makers', 'Perception Analysis', 'Proposal/Price Quote', 'Negotiation/Review', 'Closed Won', 'Closed Lost']
+		enumValues["OpportunityType"] = ['New Business', 'Existing Business']
+		enumValues["AccountCategory"] = ['Analyst', 'Competitor', 'Customer', 'Integrator', 'Investor', 'Partner', 'Press', 'Prospect', 'Reseller', 'Other']
+		enumValues.each do |enumType, values|
+			values.each_with_index do |val, index|
+				WkCrmEnumeration.create :name => val, :position => index+1, :is_default => index == 0, :active => true, :enum_type => enumType
+			end
+		end
   end
 end
