@@ -7,60 +7,27 @@ class WkcrmController < WkbaseController
 	def index
 	end
 	
-	def lead_conv_rpt	
-		if !params[:group_id].blank?
-			group_id = params[:group_id]
-		else
-			group_id = session[:wkreport][:group_id]
-		end
-		
-		if group_id.blank?
-			group_id = 0
-		end	
-		
-		if !params[:user_id].blank?
-			user_id = params[:user_id]
-		else
-			user_id = session[:wkreport][:user_id]
-		end
-		
-		if user_id.blank?			
-			user_id = isModuleAdmin('wktime_crm_group') ? User.current.id : 0
-		end	
-		
+	def lead_conv_rpt
 		@from = session[:wkreport][:from].beginning_of_day
 		@to = session[:wkreport][:to].end_of_day
-		#groupId = session[:wkreport][:group_id]
-		#userId = session[:wkreport][:user_id]
-		@leadList = getLeadList(@from, @to, group_id, user_id)
+		groupId = session[:wkreport][:group_id]
+		userId = session[:wkreport][:user_id]
+		if userId.blank?			
+			userId = isModuleAdmin('wktime_crm_group') ? User.current.id : 0
+		end
+		@leadList = getLeadList(@from, @to, groupId, userId)
 		render :action => 'lead_conv_rpt', :layout => false
 	end
 	
 	def sales_act_rpt
-		if !params[:group_id].blank?
-			group_id = params[:group_id]
-		else
-			group_id = session[:wkreport][:group_id]
-		end
-		
-		if group_id.blank?
-			group_id = 0
-		end	
-		
-		if !params[:user_id].blank?
-			user_id = params[:user_id]
-		else
-			user_id = session[:wkreport][:user_id]
-		end
-		
-		if user_id.blank?			
-			user_id = isModuleAdmin('wktime_crm_group') ? User.current.id : 0
-		end	
 		@to = session[:wkreport][:to].end_of_day
 		@from = session[:wkreport][:from].beginning_of_day
-		#groupId = session[:wkreport][:group_id]
-		#userId = session[:wkreport][:user_id]
-		@activityList = getActivityList(@from,@to, group_id, user_id)
+		groupId = session[:wkreport][:group_id]
+		userId = session[:wkreport][:user_id]
+		if userId.blank?			
+			userId = isModuleAdmin('wktime_crm_group') ? User.current.id : 0
+		end
+		@activityList = getActivityList(@from,@to, groupId, userId)
 		render :action => 'sales_act_rpt', :layout => false
 	end 
   
