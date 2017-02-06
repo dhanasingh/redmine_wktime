@@ -5,10 +5,14 @@ class WkleadController < WkcrmController
 
 	def index
 		@leadEntries = WkLead.all
-		if params[:lead_name].blank?
-		   entries = WkLead.where.not(:status => 'C')
-		else
+		if !params[:lead_name].blank? && !params[:status].blank?
+		   entries = WkLead.where(:status => params[:status]).joins(:contact).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{params[:lead_name]}%", "%#{params[:lead_name]}%")
+		elsif !params[:lead_name].blank? && params[:status].blank?
 			entries = WkLead.where.not(:status => 'C').joins(:contact).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{params[:lead_name]}%", "%#{params[:lead_name]}%")
+		elsif params[:lead_name].blank? && !params[:status].blank?
+			entries = WkLead.where(:status => params[:status]).joins(:contact).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{params[:lead_name]}%", "%#{params[:lead_name]}%")
+		else
+			entries = WkLead.where.not(:status => 'C')
 		end
 		formPagination(entries)
 	end

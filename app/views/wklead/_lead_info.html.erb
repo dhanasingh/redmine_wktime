@@ -27,7 +27,7 @@
 		<% accountName = !accountObj.blank? ?  accountObj.name  : "" %>
 		<% accountDescription = !accountObj.blank? ?  accountObj.description : (isContact ? (contactObj.blank? ? "" : contactObj.description) : "") %>
 		<tr>
-			<th align="left"><%= l(:label_account_name) + (isContact ? "" : "*" )%></th>			
+			<th align="left"><%= l(:label_account_name) + (isAccount ? "*" : "" )%></th>			
 			<% if isContact %>			
 				<td style="padding-left:40px;"><%=h select_tag('account_id', options_for_select(accArr, :selected => contactObj.blank? ? (params[:accountId].blank? ? "" : params[:accountId]) : (contactObj.account.blank? ? "" : contactObj.account.id) ), :style=> "float: left;") %></td>
 			<% else %>	

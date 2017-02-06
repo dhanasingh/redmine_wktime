@@ -26,6 +26,7 @@
 
 <%= form_tag({:controller => "wkcrmactivity", :action => 'index', :tab => "wkcrmactivity"}, :method => :get, :id => 'query_form') do %>
 	<%= hidden_field_tag "searchlist", "wkcrmactivity" %>
+	<%=h hidden_field_tag('tab', "wkcrmactivity") %>
 	<%	actType =session[:wkcrmactivity][:activity_type]
 		actRelated = session[:wkcrmactivity][:related_to] %>
 		<th align="left" ><%= l(:field_activity) + " " + l(:label_type) %></th>
