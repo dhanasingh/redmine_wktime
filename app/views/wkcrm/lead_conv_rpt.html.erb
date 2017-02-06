@@ -24,7 +24,7 @@
 				<th align="left"><%= l(:field_status) %></th>
 				<th align="left"><%= l(:field_created_on)%></th>
 				<th align="left"><%= l(:label_converted)%></th>
-				<th align="left"><%= l(:label_sales_cycle)%></th>
+				<th align="center"><%= l(:label_sales_cycle)%><br><%= l(:label_days) %></th>
 				<th align="left"><%= l(:field_assigned_to)%></th>
 			</tr>
 		</thead>
@@ -35,7 +35,7 @@
 						<td><%=h getLeadStatusHash[lead.status] %></td>
 						<td><%= lead.created_at.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>
 						<td><%= lead.status_update_on.localtime.strftime("%Y-%m-%d %H:%M:%S") if lead.status == 'C'%></td>
-						<td><%= lead.status_update_on - lead.created_at if lead.status == 'C' %></td>
+						<td align="center"><%= convertSecToDays(lead.status_update_on - lead.created_at) if lead.status == 'C' %></td>
 						<td><%= lead.contact.assigned_user.name unless lead.contact.assigned_user.blank? %></td>
 				</tr>
 			<% end %>

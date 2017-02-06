@@ -563,3 +563,4 @@ it:
   label_conversion_rate: Conversion Rate
   label_completed_date_time: "Completed Date & Time"
   label_completion_time: Completion Time
+  label_days: Days

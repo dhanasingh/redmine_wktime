@@ -28,7 +28,7 @@
 				<th class="lbl-txt-align"><%= l(:label_start_date_time) %></th>
 				<th class="lbl-txt-align"><%= l(:label_completed_date_time) %></th>
 				<th class="lbl-txt-align"><%= l(:field_assigned_to) %></th>
-				<th class="lbl-txt-align"><%= l(:label_duration) %></th>
+				<th align="center"><%= l(:label_duration) %><br><%= l(:label_days) %></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -42,7 +42,7 @@
 						<td><%= activity.start_date.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>
 						<td><%= activity.status_update_on.localtime.strftime("%Y-%m-%d %H:%M:%S") if activity.status == 'C' || activity.status == 'H'%></td>
 						<td><%= activity.assigned_user.name unless activity.assigned_user.blank? %></td>
-						<td><%= activity.status_update_on - activity.start_date if activity.status == 'C' || activity.status == 'H' %></td>
+						<td align="center"><%= convertSecToDays(activity.status_update_on - activity.start_date) if activity.status == 'C' || activity.status == 'H' %></td>
 				</tr>
 			<% end %>
 		</tbody>

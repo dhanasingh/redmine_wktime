@@ -199,4 +199,8 @@ include WkinvoiceHelper
 		accSections
 	end
 	
+	def convertSecToDays(seconds)
+		days = seconds/(3600*24).to_f
+		days.round(2)
+	end
 end
