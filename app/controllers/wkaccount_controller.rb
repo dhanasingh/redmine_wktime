@@ -88,8 +88,12 @@ before_filter :require_login
 	end
 	
 	def destroy
-		WkAccount.find(params[:id].to_i).destroy
-		flash[:notice] = l(:notice_successful_delete)
+		account = WkAccount.find(params[:id].to_i)
+		if account.destroy
+			flash[:notice] = l(:notice_successful_delete)
+		else
+			flash[:error] = account.errors.full_messages.join("<br>")
+		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end		
 end
