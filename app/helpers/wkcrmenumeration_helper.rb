@@ -15,7 +15,7 @@ include WktimeHelper
 	def options_for_enum_select(enumType, value)
 		ennumArray = Array.new
 		defaultValue = 0
-		crmenum = WkCrmEnumeration.where(:enum_type => enumType).order(enum_type: :asc, position: :asc, name: :asc)
+		crmenum = WkCrmEnumeration.where(:enum_type => enumType, :active => true).order(enum_type: :asc, position: :asc, name: :asc)
 		if !crmenum.blank?
 			crmenum.each do | entry|				
 				ennumArray <<  [entry.name, entry.id  ]

@@ -103,7 +103,7 @@
 		
 		<tr>
 			<th align="left" ><%= l(:field_assigned_to) %></th>
-			 <td align="left" style="padding-left:40px;"><%=h select_tag('assigned_user_id', options_for_select(getUserListHash(true, getSettingCfId('wktime_crm_group')), :selected => !@activityEntry.blank? ? @activityEntry[0].assigned_user_id : ""),:required => true) %></td>
+			 <td align="left" style="padding-left:40px;"><%=h select_tag('assigned_user_id', options_for_select(groupOfUsers, :selected => !@activityEntry.blank? ? @activityEntry[0].assigned_user_id : ""),:required => true) %></td>
 			 <td></td>
 			 <td></td>
 			 <td></td>

@@ -1122,24 +1122,6 @@ end
 		(!Setting.plugin_redmine_wktime[settingName].blank? && Setting.plugin_redmine_wktime[settingName].to_i == 1)
 	end
 	
-	def getUserListHash(needBlank, billingGrpId)
-	    #billingGrpId = getSettingCfId('wktime_crm_group')
-		if billingGrpId.blank?
-			activeUsers = User.active.sorted.all
-		else
-			activeUsers = User.active.in_group(billingGrpId).sorted
-		end
-		
-		
-		unless activeUsers.blank?
-			userList = activeUsers.collect{|user| [user.name(:firstname_lastname), user.id]}
-		else
-			userList = Array.new
-		end
-		userList.unshift(["",0]) if needBlank
-		userList
-	end
-	
 	def showCRMModule
 		(!Setting.plugin_redmine_wktime['wktime_enable_crm_module'].blank? &&
 			Setting.plugin_redmine_wktime['wktime_enable_crm_module'].to_i == 1 ) && (isModuleAdmin('wktime_crm_group') || isModuleAdmin('wktime_crm_admin') )
@@ -1148,6 +1130,26 @@ end
 	def getGroupUserIdsArr(groupId)
 		userIdArr = User.in_group(groupId).all.pluck(:id)
 		userIdArr
+	end
+	
+	def getGroupUserArr(groupId)
+		userIdArr = Array.new
+		userIds = User.in_group(groupId).all
+		if !userIds.blank?
+			userIds.each do | entry|				
+				userIdArr <<  [(entry.firstname + " " + entry.lastname), entry.id  ]
+			end
+		end
+		userIdArr
+	end
+	
+	def groupOfUsers
+		grpArr = nil
+		grpArr = (getGroupUserArr(getSettingCfId('wktime_crm_group')) + 
+				  getGroupUserArr(getSettingCfId('wktime_crm_admin'))).uniq
+		grpArr.unshift(["",0]) 
+			
+		grpArr
 	end
 	
 end
