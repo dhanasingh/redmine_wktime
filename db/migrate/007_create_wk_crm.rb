@@ -97,10 +97,10 @@ class CreateWkCrm < ActiveRecord::Migration
 		add_reference :wk_accounts, :updated_by_user, :class => "User"
 		
 		enumValues = Hash.new
-		enumValues["LeadSource"] = ['New', 'Assigned', 'In Process', 'Converted', 'Recycled', 'Dead']
-		enumValues["SalesStage"] = ['Prospecting', 'Qualification', 'Needs Analysis', 'Value Proposition', 'Id.Decision Makers', 'Perception Analysis', 'Proposal/Price Quote', 'Negotiation/Review', 'Closed Won', 'Closed Lost']
-		enumValues["OpportunityType"] = ['New Business', 'Existing Business']
-		enumValues["AccountCategory"] = ['Analyst', 'Competitor', 'Customer', 'Integrator', 'Investor', 'Partner', 'Press', 'Prospect', 'Reseller', 'Other']
+		enumValues["LS"] = ['Cold Call', 'Existing Customer', 'Self Generated', 'Employee', 'Partner', 'Public Relations', 'Direct Mail', 'Conference', 'Trade Show', 'Web Site', 'Word Of Mouth', 'Email', 'Other']
+		enumValues["SS"] = ['Prospecting', 'Qualification', 'Needs Analysis', 'Value Proposition', 'Id.Decision Makers', 'Perception Analysis', 'Proposal/Price Quote', 'Negotiation/Review', 'Closed Won', 'Closed Lost']
+		enumValues["OT"] = ['New Business', 'Existing Business']
+		enumValues["AC"] = ['Analyst', 'Competitor', 'Customer', 'Integrator', 'Investor', 'Partner', 'Press', 'Prospect', 'Reseller', 'Other']
 		enumValues.each do |enumType, values|
 			values.each_with_index do |val, index|
 				WkCrmEnumeration.create :name => val, :position => index+1, :is_default => index == 0, :active => true, :enum_type => enumType
