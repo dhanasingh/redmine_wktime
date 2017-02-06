@@ -20,14 +20,14 @@
 				<%=h text_field_tag("first_name",contactObj.blank? ? "" : contactObj.first_name,:size => 20) %> </td>
 			</tr>
 			<tr>
-				<th align="left"><%= l(:field_lastname) %></th>
+				<th align="left"><%= l(:field_lastname) + "*" %></th>
 				<td align="left" style="padding-left:40px;"><%=h text_field_tag("last_name",contactObj.blank? ? "" : contactObj.last_name,:size => 20) %> </td>
 			</tr>
 		<% end %>
 		<% accountName = !accountObj.blank? ?  accountObj.name  : "" %>
 		<% accountDescription = !accountObj.blank? ?  accountObj.description : (isContact ? (contactObj.blank? ? "" : contactObj.description) : "") %>
 		<tr>
-			<th align="left"><%= l(:label_account_name) %></th>			
+			<th align="left"><%= l(:label_account_name) + (isContact ? "" : "*" )%></th>			
 			<% if isContact %>			
 				<td style="padding-left:40px;"><%=h select_tag('account_id', options_for_select(accArr, :selected => contactObj.blank? ? (params[:accountId].blank? ? "" : params[:accountId]) : (contactObj.account.blank? ? "" : contactObj.account.id) ), :style=> "float: left;") %></td>
 			<% else %>	
@@ -70,7 +70,7 @@
 		<% end %>
 		<tr>
 			<th align="left"><%= l(:field_description) %></th>
-			<td align="left" style="padding-left:40px;"><%=h text_area_tag("description",accountDescription,:size => 20) %> </td>
+			<td align="left" style="padding-left:40px;"><%=h text_area_tag("description",accountDescription, :maxlength => 255, :size => 20) %> </td>
 		</tr>
 	</table>
 </fieldset>
