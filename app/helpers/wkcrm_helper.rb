@@ -31,9 +31,9 @@ include WkinvoiceHelper
 			userIdArr = getGroupUserIdsArr(groupId.to_i)
 		end
 		if userIdArr.blank?
-			activityList = WkCrmActivity.includes(:parent).where(:start_date => from .. to)
+			activityList = WkCrmActivity.includes(:parent).where(:start_date => from .. to).order(updated_at: :desc)
 		else
-			activityList = WkCrmActivity.includes(:parent).where(:start_date => from .. to, :assigned_user_id => userIdArr)
+			activityList = WkCrmActivity.includes(:parent).where(:start_date => from .. to, :assigned_user_id => userIdArr).order(updated_at: :desc)
 		end
 		activityList
 	end
