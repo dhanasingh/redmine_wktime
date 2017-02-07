@@ -69,6 +69,7 @@ before_filter :require_login
 		wkaccount.name = params[:account_name]
 		wkaccount.account_type = 'A'
 		wkaccount.account_category = params[:account_category]
+		wkaccount.description = params[:description]
 		wkaccount.account_billing = params[:account_billing].blank? ? 0 : params[:account_billing]
 		unless wkaccount.valid? 		
 			errorMsg = errorMsg.blank? ? wkaccount.errors.full_messages.join("<br>") : wkaccount.errors.full_messages.join("<br>") + "<br/>" + errorMsg

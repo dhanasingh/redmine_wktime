@@ -24,8 +24,8 @@
 				<td align="left" style="padding-left:40px;"><%=h text_field_tag("last_name",contactObj.blank? ? "" : contactObj.last_name,:size => 20) %> </td>
 			</tr>
 		<% end %>
-		<% accountName = !accountObj.blank? ?  accountObj.name  : "" %>
-		<% accountDescription = !accountObj.blank? ?  accountObj.description : (isContact ? (contactObj.blank? ? "" : contactObj.description) : "") %>
+		<% accountName = !accountObj.blank? && isAccount ?  accountObj.name  : "" %>
+		<% accountDescription = !accountObj.blank? && isAccount  ?  accountObj.description : (isContact || !leadObj.blank? ? (contactObj.blank? ? "" : contactObj.description) :  "" ) %>
 		<tr>
 			<th align="left"><%= l(:label_account_name) + (isAccount ? "*" : "" )%></th>			
 			<% if isContact %>			
