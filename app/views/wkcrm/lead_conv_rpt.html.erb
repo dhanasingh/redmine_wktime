@@ -39,8 +39,8 @@
 						<td><%= lead.contact.assigned_user.name unless lead.contact.assigned_user.blank? %></td>
 				</tr>
 			<% end %>
-			<% convRate = getConversionRatio(@leadList, @from, @to)
-			unless convRate.blank? %>
+			<% convRate = getConversionRate(@leadList, @from, @to)
+			unless convRate.blank?  %>
 			<tr bgcolor="#e6e6e6">
 				<td></td>
 				<td></td>

@@ -16,11 +16,12 @@ include WkinvoiceHelper
 		leadList
 	end
 	
-	def getConversionRatio(allLeads, from, to)
+	def getConversionRate(allLeads, from, to)
+	    convRate =  nil
 		convertedLeads = allLeads.where(:status => 'C', :status_update_on => from .. to).count
 		totalLeads = allLeads.count
-		convRatio = (convertedLeads.to_f/totalLeads.to_f)*100 if totalLeads>0
-		convRatio
+		convRate = ((convertedLeads.to_f/totalLeads.to_f)*100).round(2) if totalLeads>0
+		convRate
 	end
 	
 	def getActivityList(from, to, groupId, userId)
