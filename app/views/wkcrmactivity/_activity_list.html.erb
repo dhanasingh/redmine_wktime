@@ -25,7 +25,7 @@
 						<td class="lbl-txt-align"><%=h (entry.activity_type == 'M' || entry.activity_type == 'C' ? meetCallStatusHash[entry.status] : taskStatusHash[entry.status])  %></td>
 						<td class="lbl-txt-align"><%=h relatedHash[entry.parent_type] %></td>
 						<td class="lbl-txt-align"><%=h entry.start_date.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>
-						<td class="lbl-txt-align"><%=h entry.end_date.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>
+						<td class="lbl-txt-align"><%=h entry.end_date.localtime.strftime("%Y-%m-%d %H:%M:%S") unless entry.end_date.blank? %></td>
 						<td class="lbl-txt-align"><%=h entry.assigned_user.name(:firstname_lastname) unless entry.assigned_user.blank? %></td>
 						<td class="lbl-txt-align"><%=h entry.updated_at.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>									
 						<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => 'wkcrmactivity', :action => 'edit', :activity_id => entry.id, :tab => 'wkcrmactivity'}, :title => l(:button_edit) %>
