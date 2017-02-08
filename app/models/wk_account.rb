@@ -17,13 +17,21 @@
 
 class WkAccount < ActiveRecord::Base
   unloadable
-  belongs_to :address, :class_name => 'WkAddress'
+  belongs_to :address, :class_name => 'WkAddress', :dependent => :destroy
   has_many :wk_account_projects, foreign_key: "account_id", class_name: "WkAccountProject", :dependent => :destroy
-  has_many :invoices, foreign_key: "account_id", class_name: "WkInvoice"
+  has_many :invoices, foreign_key: "account_id", class_name: "WkInvoice", :dependent => :restrict_with_error
   has_many :invoice_items, through: :invoices
   has_many :projects, through: :wk_account_projects
   has_many :contracts, foreign_key: "account_id", class_name: "WkContract", :dependent => :destroy
+  has_many :opportunities, as: :parent, class_name: "WkOpportunity", :dependent => :destroy
+  has_many :activities, as: :parent, class_name: 'WkCrmActivity', :dependent => :destroy
+  has_many :contacts, foreign_key: "account_id", class_name: "WkCrmContact", :dependent => :destroy
   validates_presence_of :name
+  validate :hasAnyValues
+  
+  def hasAnyValues
+	name.blank? && address_id.blank? && activity_id.blank? && industry.blank? && annual_revenue.blank? && assigned_user_id.blank? && id.blank?
+  end
   
   # Returns account's contracts for the given project
   # or nil if the account do not have contract
@@ -32,4 +40,5 @@ class WkAccount < ActiveRecord::Base
 		contract = contracts[0] if contract.blank?
 		contract
   end
+  
 end

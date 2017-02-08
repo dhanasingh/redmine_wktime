@@ -399,7 +399,7 @@ en:
   label_grand_total: Grand Total
   
   label_accounting: Accounting
-  label_accounting_group: Accounting Group
+  label_accounting_group: Accounting User Group
   label_enable_accounting_module: Enable Accounting Module
   label_transaction: Transaction
   label_ledger: Ledger
@@ -454,7 +454,6 @@ en:
   label_debit: Debit
   label_credit: Credit
   label_date: Date
-  label_type: Type
   label_balance_sheet: Balance Sheet
   label_as_at: As at
   label_of_funds: "%{value} of Funds"
@@ -478,3 +477,93 @@ en:
   label_less_transferred: "Less: Transferred"
   label_trans_row_validmsg: Transaction contain minimum two rows.
   label_trans_total_validmsg: Transaction debit and credit does not match.
+  
+  label_crm: CRM
+  label_lead_plural: Leads
+  label_opportunity_plural: Opportunities
+  label_activity_plural: Activities
+  label_contact_plural: Contacts
+  label_new_item: "New %{value}"
+  label_edit_item: "Edit %{value}"
+  label_lead: Lead
+  label_content_information: "%{value} Information"
+  label_website: Website
+  label_department: Department
+  label_assigned: Assigned
+  label_in_process: In Process
+  label_converted: Converted
+  label_recycled: Recycled
+  label_dead: Dead
+  label_lead_source: Lead Source
+  label_opportunity_amount: Opportunity Amount
+  label_referred_by: Referred By
+  label_more: More
+  label_subject: Subject
+  label_inbound: Inbound
+  label_outbound: Outbound
+  label_planned: Planned
+  label_held: Held
+  label_not_held: Not held
+  label_start_date_time: "Start Date & Time"
+  label_related_to: Related to
+  label_contact: Contact
+  label_task: Task
+  label_opportunity: Opportunity
+  label_duration: Duration
+  label_end_date_time: "End Date & Time"
+  label_priority: Priority
+  label_medium: Medium
+  label_call: Call
+  label_meeting: Meeting
+  label_location: Location
+  label_not_started: Not Started
+  label_completed: Completed
+  label_pending_input: Pending Input
+  label_deferred: Deferred
+  button_convert_lead: Convert Lead
+  label_expected: Expected
+  label_business: Business
+  label_existing: Existing
+  label_stage: Stage
+  label_prospecting: Prospecting
+  label_analysis: Analysis
+  label_qualification: Qualification
+  label_needs_analysis: Needs 
+  label_value_proposition: Value Proposition
+  label_decision_makers: Id.Decision Makers
+  label_perception: Perception
+  label_proposal_quote: Proposal/Price Quote
+  label_negotiation: Negotiation/Review
+  label_lost: Lost
+  label_won: Won
+  label_cold: Cold
+  label_self: Self
+  label_generated: Generated
+  label_employee: Employee
+  label_partner: Partner
+  label_direct: Direct
+  label_conference: Conference
+  label_trade: Trade
+  label_word_of_mouth: Word of Mouth
+  label_other: Other
+  label_probability: Probability
+  label_step: Step
+  label_mr: Mr.
+  label_ms: Ms.
+  label_mrs: Mrs.
+  label_dr: Dr.
+  label_prof: Prof.
+  text_are_you_sure_want_to: "Are you sure want to %{value}?"
+  notice_successful_convert: Successful conversion.
+  label_enable_crm_module: Enable CRM Module
+  label_crm_user_group: CRM User Group
+  label_crm_admin_group: CRM Admin Group
+  label_position: Position
+  label_lead_conversion: Lead Conversion
+  label_sales_activity: Sales Activity
+  label_sales_cycle: Sales Cycle
+  label_conversion_rate: Conversion Rate
+  label_completed_date_time: "Completed Date & Time"
+  label_completion_time: Completion Time
+  label_days: Days
+  label_average: Average

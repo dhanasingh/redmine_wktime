@@ -1,77 +1,24 @@
 <%= form_tag({:controller => 'wkaccount', :action => 'update'}, :method => :post, :id => 'query_form') do %>
 	<h2><b><%=@accountEntry.blank? ? l(:label_new_account) : l(:label_edit_account) %></b></h2>
 	<div id="account_form">
+		<% addressObj = @accountEntry.blank? ? nil : @accountEntry.address %>
+		<%=h hidden_field_tag('account_id', @accountEntry.blank? ? "" : @accountEntry.id) %>
+		<%=h hidden_field_tag('address_id', @accountEntry.blank? ? "" : @accountEntry.address_id) %>
 		<div class="splitcontentleft">
-			<fieldset class="box tabular" style="height:200px; ">
-				<legend><%=l(:label_account_information)%></legend>
-				<%=h hidden_field_tag('account_id', @accountEntry.blank? ? "" :@accountEntry.id) %>
-				<%=h hidden_field_tag('address_id', @accountEntry.blank? ? "" :@accountEntry.address_id) %>
-				<table >
-					<tr>
-						<th align="left"><%= l(:label_account_name) %></th>
-						<td align="left" style="padding-left:40px;"><%=h text_field_tag("name",@accountEntry.blank? ? "" : @accountEntry.name,:size => 20) %> </td>
-					</tr>
-					<tr>
-						<th align="left"><%= l(:label_account_billing) %></th>
-						<td align="left" style="padding-left:40px;"><%= check_box_tag("account_billing", 1, (@accountEntry.blank? ? false : @accountEntry.account_billing)) %></td>
-					</tr>
-					<tr>
-					    <th align="left"><%= l(:label_work_phone) %></th>
-					    <td align="left" style="padding-left:40px;"><%=h 		text_field_tag("work_phone",@accountEntry.blank? || @accountEntry.address.blank?  ? "" : @accountEntry.address.work_phone,:size => 20) %> </td>			   
-					</tr>
-		<!--			<tr>
-					    <th align="left"><%= l(:label_home_phone) %></th>
-					    <td align="left" style="padding-left:40px;"><%=h text_field_tag("home_phone",@accountEntry.blank? || @accountEntry.address.blank?  ? "" : @accountEntry.address.home_phone,:size => 20) %> </td>			   
-					</tr>
-					<tr>
-					    <th align="left"><%= l(:label_mobile) %></th>
-					    <td align="left" style="padding-left:40px;"><%=h text_field_tag("mobile",@accountEntry.blank? || @accountEntry.address.blank?  ? "" : @accountEntry.address.mobile,:size => 20) %> </td>			   
-					</tr>
-					<tr>
-					    <th align="left"><%= l(:label_email) %></th>
-					    <td align="left" style="padding-left:40px;"><%=h text_field_tag("email",@accountEntry.blank? || @accountEntry.address.blank?  ? "" : @accountEntry.address.email,:size => 20) %> </td>			   
-					</tr> -->
-					<tr>
-					    <th align="left"><%= l(:label_fax) %></th>
-					    <td align="left" style="padding-left:40px;"><%=h text_field_tag("fax",@accountEntry.blank? || @accountEntry.address.blank?  ? "" : @accountEntry.address.fax,:size => 20) %> </td>			   
-					</tr>
-				</table>
-			</fieldset>
+			<%= render partial: "wklead/lead_info", locals: { contactObj: nil, leadObj: nil, accountObj: @accountEntry, isAccount: true, isContact: false }%>
 		</div>
 		<div class="splitcontentright">
-			<fieldset class="box tabular">
-				<legend><%=l(:label_address_information)%></legend>
-				<table>
-					<tr>
-				         <th align="left"><%= l(:label_account_address1) %></th>
-					     <td align="left" style="padding-left:75px;"><%=h text_field_tag("address1",@accountEntry.blank? || @accountEntry.address.blank?  ? "" : @accountEntry.address.address1,:size =>40) %> </td>
-					</tr>
-					<tr>
-				         <th align="left"><%= l(:label_account_address2) %></th>
-					     <td align="left" style="padding-left:75px;"><%=h text_field_tag("address2",@accountEntry.blank? || @accountEntry.address.blank?  ? "" : @accountEntry.address.address2,:size =>40) %> </td>
-					</tr>
-					<tr>
-				         <th align="left"><%= l(:label_city) %></th>
-					     <td align="left" style="padding-left:75px;"><%=h text_field_tag("city",@accountEntry.blank? || @accountEntry.address.blank?  ? "" : @accountEntry.address.city,:size =>30) %> </td>
-				    </tr>
-				    <tr>
-				         <th align="left"><%= l(:label_state) %></th>
-					     <td align="left" style="padding-left:75px;"><%=h text_field_tag("state",@accountEntry.blank? || @accountEntry.address.blank?  ? "" : @accountEntry.address.state,:size =>30) %> </td>
-					</tr>
-					<tr>
-				         <th align="left"><%= l(:label_country) %></th>
-					     <td align="left" style="padding-left:75px;"><%=h text_field_tag("country",@accountEntry.blank? || @accountEntry.address.blank?  ? "" : @accountEntry.address.country,:size =>30) %> </td>
-					</tr>
-					<tr>
-				         <th align="left"><%= l(:label_pin) %></th>
-					     <td align="left" style="padding-left:75px;"><%=h text_field_tag("pin",@accountEntry.blank? || @accountEntry.address.blank?  ? "" : @accountEntry.address.pin,:size =>30) %> </td>
-					</tr>
-				</table>
-			</fieldset>
+			<%= render partial: "wklead/contact_info", locals: { address: addressObj }%>
 		</div>
 	</div>
-		<div style="clear:left;"></div>
-		<div>
-			<%= submit_tag l(:button_save) ,:id => 'wkaccount_save'%>
-		</div>
+	<div style="clear:both;"></div>
+	<div>
+		<%= submit_tag l(:button_save) ,:id => 'wkaccount_save'%>
+	</div>
+<% end %>
+<% unless @accountEntry.blank? || @accountEntry.new_record? %>
+	</br>
+	<div>
+		<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @accountEntry }%>
+	</div>
 <% end %>

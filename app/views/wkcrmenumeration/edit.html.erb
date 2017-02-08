@@ -1,0 +1,45 @@
+<h2><%= l(:label_enumerations) %></h2>
+<%  typeHash = enumType
+	typeHash.delete("") %>
+<%= form_tag({:controller => 'wkcrmenumeration', :action => 'update'}, :method => :post, :id => 'query_form') do %>
+	<div id="contract_form">
+           <%=h hidden_field_tag('enum_id', @enumEntry.blank? ? "" : @enumEntry.id) %>		  
+		<div class="splitcontentleft">
+			<fieldset class="box tabular">
+				<legend><%= l(:label_enumerations) + " " + l(:label_details) %></legend>
+					<table>
+						<tr>
+							<th align="left"><%= l(:label_type) %></th>
+							<td><%=h select_tag('enumType', options_for_select(typeHash.invert, :selected => @enumEntry.blank? ? "LeadSource" : @enumEntry.enum_type), :style=> "float: left;") %></td>
+						</tr>
+					
+						<tr>
+							<th align="left"><%= l(:field_name) %></th>
+							<td><%= text_field_tag 'enumname', @enumEntry.blank? ? "" : @enumEntry.name, :size => 30, :style=> "float: left;" %></td>
+						</tr>
+						
+						<tr>
+							<th align="left"><%= l(:label_position) %></th>
+							<td><%= text_field_tag 'enumPosition', @enumEntry.blank? ? "" : @enumEntry.position, :size => 30, :style=> "float: left;" %></td>
+						</tr>
+												
+						<tr>
+							<th align="left"><%= l(:field_active) %></th>
+							<td><%= check_box_tag('enumActive', 1, @enumEntry.blank? ? false : @enumEntry.active ) %></td>
+						</tr>
+						
+						<tr>
+							<th align="left"><%= l(:field_is_default) %></th>
+							<td><%= check_box_tag('enumDefaultValue', 1, @enumEntry.blank? ? false : @enumEntry.is_default) %></td>
+						</tr>
+					
+					</table>
+				
+			</fieldset>
+		</div>
+	</div>
+	<div style="clear:left;"></div>
+		<div>
+			<%= submit_tag l(:button_save) ,:id => 'wkcrmenum_save'%>
+		</div>
+<% end %>

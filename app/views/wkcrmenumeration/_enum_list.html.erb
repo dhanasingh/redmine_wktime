@@ -1,0 +1,28 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div class="autoscroll">
+<table class="list time-entries">
+  <thead>
+         <tr>
+				<th class="lbl-txt-align"><%= l(:label_type)   %></th>
+				<th class="lbl-txt-align"><%= l(:field_name)   %></th>	
+				<th class="lbl-txt-align"><%= l(:label_position)   %></th>					
+				<th class="lbl-txt-align"><%= l(:field_active)   %></th>
+				<th class="lbl-txt-align"><%= l(:field_is_default)   %></th>
+				<th></th>
+         </tr>
+  </thead>
+   <tbody>
+	<% @crmenum.each do |entry| %>
+		<tr>
+			<td class="lbl-txt-align"><%=h enumType[entry.enum_type]  %></td>
+		    <td class="lbl-txt-align"><%=h entry.name  %></td>
+			<td class="lbl-txt-align"><%=h entry.position unless entry.position.blank?  %></td>			
+			<td class="lbl-txt-align"><%=h checked_image entry.active?  %></td>
+			<td class="lbl-txt-align"><%=h checked_image entry.is_default?  %></td>
+			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => 'wkcrmenumeration', :action => 'edit', :enum_id => entry.id, :tab => 'wkcrmenumeration'}, :title => l(:button_edit) %>
+							<%= link_to image_tag('delete.png'), {:controller => 'wkcrmenumeration', :action => 'destroy', :enum_id => entry.id, :tab => 'wkcrmenumeration'},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
+		</tr>
+	<% end %>
+   </tbody>
+</table>
+</div>

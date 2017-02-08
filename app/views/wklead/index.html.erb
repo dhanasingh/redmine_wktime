@@ -1,0 +1,15 @@
+<h2><%= l(:label_lead_plural) %></h2>
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<script type="text/javascript"> 
+    crmleadsUrl = '<%=url_for(:controller => "wklead", :action => "index", :tab => "wklead")%>';
+	blgaccUrl = '<%=url_for(:controller => "wkaccount", :action => "index", :tab => "wkaccount")%>';
+    crmopportunityUrl = '<%=url_for(:controller => "wkopportunity", :action => "index", :tab => "wkopportunity")%>';
+	crmactivityUrl = '<%=url_for(:controller => "wkcrmactivity", :action => "index", :tab => "wkcrmactivity")%>';
+	crmcontactUrl = '<%=url_for(:controller => "wkcrmcontact", :action => "index", :tab => "wkcrmcontact")%>';	
+    prevTab = 'tab-<%= "#{controller_name}" %>';   
+</script>
+<%= render_tabs time_expense_tabs %>
+<%= hidden_field_tag 'back_url', url_for(params) %>
+
+<%= render :partial => 'lead_index'%>

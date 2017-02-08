@@ -233,3 +233,60 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wkbase/updateClockInOut', :to => 'wkbase#updateClockInOut'
 	
+	# For CRM
+	
+	get 'wkcrm/index', :to => 'wkcrm#index'
+	
+	get 'wklead/index', :to => 'wklead#index'
+	
+	post 'wklead/index', :to => 'wklead#index'
+	
+	post 'wklead/update', :to => 'wklead#update'
+	
+	get 'wklead/edit', :to => 'wklead#edit'	
+	
+	get 'wklead/show', :to => 'wklead#show'	
+	
+	get 'wklead/covert', :to => 'wklead#convert'
+	
+	delete 'wklead/destroy', :to => 'wklead#destroy'
+	
+	get 'wkopportunity/index', :to => 'wkopportunity#index'
+	
+	get 'wkcrmactivity/index', :to => 'wkcrmactivity#index'
+	
+	get 'wkcrmcontact/index', :to => 'wkcrmcontact#index'
+	
+    get 'wkcrmactivity/edit', :to => 'wkcrmactivity#edit'
+	
+	get 'wkcrm/getActRelatedIds', :to => 'wkcrm#getActRelatedIds'
+	
+	get 'wkcrmactivity/update', :to => 'wkcrmactivity#update'
+	
+	delete 'wkcrmactivity/destroy', :to => 'wkcrmactivity#destroy'
+	
+	get 'wkopportunity/edit', :to => 'wkopportunity#edit'
+	
+	get 'wkopportunity/update', :to => 'wkopportunity#update'
+
+    delete 'wkopportunity/destroy', :to => 'wkopportunity#destroy'
+
+	post 'wkopportunity/index', :to => 'wkopportunity#index'
+	
+	get 'wkcrmcontact/edit', :to => 'wkcrmcontact#edit'
+	
+	post 'wkcrmcontact/update', :to => 'wkcrmcontact#update'
+	
+	delete 'wkcrmcontact/destroy', :to => 'wkcrmcontact#destroy'
+	
+	get 'wkcrmenumeration/index', :to => 'wkcrmenumeration#index'
+	
+	get 'wkcrmenumeration/edit', :to => 'wkcrmenumeration#edit'
+	
+	post 'wkcrmenumeration/update', :to => 'wkcrmenumeration#update'
+	
+	delete 'wkcrmenumeration/destroy', :to => 'wkcrmenumeration#destroy' 
+	
+	get 'wkcrm/lead_conv_rpt', :to => 'wkcrm#lead_conv_rpt'
+	
+	get 'wkcrm/sales_act_rpt', :to => 'wkcrm#sales_act_rpt'

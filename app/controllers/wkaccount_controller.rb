@@ -15,16 +15,16 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkaccountController < WkbillingController
+class WkaccountController < WkcrmController
 
 before_filter :require_login
 
     def index
 		@account_entries = nil
 		if params[:accountname].blank?
-		   entries = WkAccount.all
+		   entries = WkAccount.where(:account_type => 'A')
 		else
-			entries = WkAccount.where("name like ?", "%#{params[:accountname]}%")
+			entries = WkAccount.where(:account_type => 'A').where("name like ?", "%#{params[:accountname]}%")
 		end
 		formPagination(entries)
     end
@@ -32,7 +32,7 @@ before_filter :require_login
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
-		@account_entries = entries.limit(@limit).offset(@offset)
+		@account_entries = entries.order(:name).limit(@limit).offset(@offset)
 	end
   
     def setLimitAndOffset		
@@ -60,38 +60,25 @@ before_filter :require_login
 	
 	def update
 		errorMsg = nil
-		wkaddress = nil
-	    if params[:address_id].blank? || params[:address_id].to_i == 0
-		    wkaddress = WkAddress.new 
-	    else
-		    wkaddress = WkAddress.find(params[:address_id].to_i)
-	    end
-		wkaddress.address1 = params[:address1]
-		wkaddress.address2 = params[:address2]
-		wkaddress.work_phone = params[:work_phone]
-		wkaddress.city = params[:city]
-		wkaddress.state = params[:state]
-		wkaddress.pin = params[:pin]
-		wkaddress.country = params[:country]
-		wkaddress.fax = params[:fax]
-		unless wkaddress.valid?
-			errorMsg = wkaddress.errors.full_messages.join("<br>")
-		end
 		if params[:account_id].blank? || params[:account_id].to_i == 0
 			wkaccount = WkAccount.new
 		else
 		    wkaccount = WkAccount.find(params[:account_id].to_i)
 		end
 		#wkaccount.address_id =  wkaddress.id
-		wkaccount.name = params[:name]
+		wkaccount.name = params[:account_name]
 		wkaccount.account_type = 'A'
+		wkaccount.account_category = params[:account_category]
+		wkaccount.description = params[:description]
 		wkaccount.account_billing = params[:account_billing].blank? ? 0 : params[:account_billing]
 		unless wkaccount.valid? 		
 			errorMsg = errorMsg.blank? ? wkaccount.errors.full_messages.join("<br>") : wkaccount.errors.full_messages.join("<br>") + "<br/>" + errorMsg
 		end
 		if errorMsg.nil?
-			wkaddress.save
-			wkaccount.address_id =  wkaddress.id
+			addrId = updateAddress
+			unless addrId.blank?
+				wkaccount.address_id = addrId
+			end			
 			wkaccount.save
 		    redirect_to :controller => 'wkaccount',:action => 'index' , :tab => 'wkaccount'
 		    flash[:notice] = l(:notice_successful_update)
@@ -102,8 +89,12 @@ before_filter :require_login
 	end
 	
 	def destroy
-		WkAccount.find(params[:id].to_i).destroy
-		flash[:notice] = l(:notice_successful_delete)
+		account = WkAccount.find(params[:id].to_i)
+		if account.destroy
+			flash[:notice] = l(:notice_successful_delete)
+		else
+			flash[:error] = account.errors.full_messages.join("<br>")
+		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end		
 end

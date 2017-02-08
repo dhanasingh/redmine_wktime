@@ -23,7 +23,7 @@ module Redmine::MenuManager::MenuHelper
     if project && !project.new_record?
       :project_menu
     else
-      if %w(wktime wkexpense wkattendance wkreport wkpayroll  wkinvoice wkaccount wkcontract wkaccountproject wktax wkgltransaction wkledger).include? params[:controller]
+      if %w(wktime wkexpense wkattendance wkreport wkpayroll  wkinvoice wkaccount wkcontract wkaccountproject wktax wkgltransaction wkledger wklead wkopportunity wkcrmactivity wkcrmcontact wkcrmenumeration).include? params[:controller]
         :wktime_menu
       else
         :application_menu
@@ -236,7 +236,7 @@ Redmine::Plugin.register :redmine_wktime do
   name 'ERPmine'
   author 'Adhi Software Pvt Ltd'
   description 'This plugin is for entering Time & Attendance'
-  version '2.6'
+  version '2.7'
   url 'http://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
   
@@ -311,7 +311,11 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_billing_groups' => '0',
 			 'wktime_enable_accounting_module' => '0',
 			 'wktime_accounting_group' => '0',
-			 'wktime_accounting_admin' => '0'
+			 'wktime_accounting_admin' => '0',
+			 'wktime_accounting_admin' => '0',
+			 'wktime_crm_group' => '0',
+			 'wktime_crm_admin' => '0',
+			 'wktime_enable_crm_module' => '0'
   })  
  
   menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_erpmine, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 	
@@ -324,9 +328,11 @@ Redmine::Plugin.register :redmine_wktime do
 	  menu.push :wktime, { :controller => 'wktime', :action => 'index' }, :caption => :label_te, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission }
 	  menu.push :wkattendance, { :controller => 'wkattendance', :action => 'index' }, :caption => :label_wk_attendance, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showAttendance}
 	  menu.push :wkpayroll, { :controller => 'wkpayroll', :action => 'index' }, :caption => :label_payroll, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showPayroll }
+	  menu.push :wklead, { :controller => 'wklead', :action => 'index' }, :caption => :label_crm, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showCRMModule }
 	  menu.push :wkinvoice, { :controller => 'wkinvoice', :action => 'index' }, :caption => :label_wk_billing, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showBilling }
 	  menu.push :wkgltransaction, { :controller => 'wkgltransaction', :action => 'index' }, :caption => :label_accounting, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showAccounting }
-	  menu.push :wkreport, { :controller => 'wkreport', :action => 'index' }, :caption => :label_report_plural, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showReports}	  
+	  menu.push :wkreport, { :controller => 'wkreport', :action => 'index' }, :caption => :label_report_plural, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showReports}	
+	  menu.push :wkcrmenumeration, { :controller => 'wkcrmenumeration', :action => 'index' }, :caption => :label_settings, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && User.current.admin? }
 	end	
 
 end

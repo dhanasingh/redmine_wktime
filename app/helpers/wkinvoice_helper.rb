@@ -26,7 +26,7 @@ include WkgltransactionHelper
 		if blankOption
 		  accArr << [ "", ""]
 		end
-		accname = WkAccount.all
+		accname = WkAccount.where(:account_type => 'A')
 		if !accname.blank?
 			accname.each do | entry|
 				accArr << [ entry.name, entry.id ]
@@ -416,7 +416,7 @@ include WkgltransactionHelper
 			if thrDigitVal > 0
 				hundredStr = getNumberAsStr[thrDigitVal/100].blank? ? "" : (getNumberAsStr[thrDigitVal/100] + " " +  l(:label_hundred))
 				twoDigStr = getTwoDigitNumberStr(thrDigitVal%100)
-				numStr = hundredStr.blank? || twoDigStr.blank? ? (hundredStr + twoDigStr)  : (hundredStr + "and" + twoDigStr)
+				numStr = hundredStr.blank? || twoDigStr.blank? ? (hundredStr + twoDigStr)  : (hundredStr + " "+ l('support.array.sentence_connector') + twoDigStr)
 			end
 		end
 		numStr = " " + numStr unless numStr.blank?

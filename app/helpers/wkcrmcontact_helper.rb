@@ -1,0 +1,5 @@
+module WkcrmcontactHelper
+include WktimeHelper
+include WkinvoiceHelper
+include WkcrmHelper
+end

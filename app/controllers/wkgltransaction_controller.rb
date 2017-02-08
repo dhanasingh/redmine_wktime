@@ -20,7 +20,7 @@ class WkgltransactionController < WkaccountingController
    def index
 	    set_filter_session
         retrieve_date_range
-		@ledgers = WkLedger.pluck(:name, :id)
+		@ledgers = WkLedger.order(:name).pluck(:name, :id)
 		ledgerId = session[:wkgltransaction][:ledger_id]
 		if !@from.blank? && !@to.blank?
 			transaction = WkGlTransaction.includes(:transaction_details).where(:trans_date => @from .. @to)
@@ -37,7 +37,7 @@ class WkgltransactionController < WkaccountingController
     def edit
 	    @transEntry = nil
 		@transDetails = nil
-		@ledgers = WkLedger.pluck(:name, :id)
+		@ledgers = WkLedger.order(:name).pluck(:name, :id)
 		unless params[:txn_id].blank? && !$temptxnDetail.blank? && !$tempTransaction.blank?
 			@transEntry = WkGlTransaction.where(:id => params[:txn_id])
 			@transDetails = WkGlTransactionDetail.where(:gl_transaction_id => params[:txn_id])

@@ -1,0 +1,41 @@
+<fieldset class="box tabular">
+	<legend><%=l(:label_content_information, isAccount ? l(:label_account) : l(:label_lead))%></legend>
+	<table >
+		<% accountName = "" %>
+		<% unless isAccount %>
+			<tr>
+				<th align="left"><%= l(:field_firstname) %></th>
+				<td align="left" style="padding-left:40px;"><%=h currentObj.blank? ? "" : currentObj.contact.first_name %> </td>
+			</tr>
+			<tr>
+				<th align="left"><%= l(:field_lastname) %></th>
+				<td align="left" style="padding-left:40px;"><%=h currentObj.blank? ? "" : currentObj.contact.last_name %> </td>
+			</tr>
+		<% end %>
+		<% if isAccount %>
+			<% accountName = currentObj.name unless currentObj.blank?%>
+			<tr>
+				<th align="left"><%= l(:label_account_name) %></th>
+				<td align="left" style="padding-left:40px;"><%=h accountName %> </td>
+			</tr>
+			<tr>
+				<th align="left"><%= l(:label_account_billing) %></th>
+				<td align="left" style="padding-left:40px;"><%= check_box_tag("account_billing", 1, (currentObj.blank? ? false : currentObj.account_billing), :disabled => true) %></td>
+			</tr>
+		<% else %>
+			<% accountName = currentObj.account.name unless currentObj.blank? || currentObj.account.blank?  %>
+			<tr>
+				<th align="left"><%= l(:label_account_name) %></th>
+				<td align="left" style="padding-left:40px;"><%=h accountName %> </td>
+			</tr>
+			<tr>
+				<th align="left"><%= l(:label_department) %></th>
+				<td align="left" style="padding-left:40px;"><%=h currentObj.blank? || currentObj.contact.address.blank? ? "" : currentObj.contact.address.department %> </td>
+			</tr>
+			<tr>
+				<th align="left"><%= l(:field_description) %></th>
+				<td align="left" style="padding-left:40px;"><%=h currentObj.blank? || currentObj.account.blank? ? "" : currentObj.account.description %> </td>
+			</tr>
+		<% end %>
+	</table>
+</fieldset>

@@ -8,3 +8,7 @@
 .report-table{ width : 100%; border-collapse:collapse; cellspacing:0; frame:box; table-layout: fixed; word-wrap: break-word; text-align: center; white-space: line-height:1.4em;margin-top:5px; margin-bottom:10px; padding-left: 10px; color:#333333;
   font-family:Verdana, sans-serif;
   font-size:12px; }
+.ui-accordion-header{
+   background: #3E5B76;
+   color: #ffffff;
+}

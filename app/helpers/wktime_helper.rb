@@ -609,18 +609,31 @@ end
 				{:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll},
 				{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_user_settings}
 			   ]
-		elsif params[:controller] == "wkinvoice" || params[:controller] == "wkaccount" || params[:controller] == "wkcontract" || params[:controller] == "wkaccountproject" || params[:controller] == "wktax"
+		elsif params[:controller] == "wklead" || params[:controller] == "wkaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact"
+			tabs = [
+				{:name => 'wklead', :partial => 'wktime/tab_content', :label => :label_lead_plural},
+				{:name => 'wkaccount', :partial => 'wktime/tab_content', :label => :label_accounts},
+				{:name => 'wkopportunity', :partial => 'wktime/tab_content', :label => :label_opportunity_plural},
+				{:name => 'wkcrmactivity', :partial => 'wktime/tab_content', :label => :label_activity_plural},
+				{:name => 'wkcrmcontact', :partial => 'wktime/tab_content', :label => :label_contact_plural}
+			   ]
+		
+		elsif params[:controller] == "wkinvoice" || params[:controller] == "wkcontract" || params[:controller] == "wkaccountproject" || params[:controller] == "wktax"
 			tabs = [
 				{:name => 'wkinvoice', :partial => 'wktime/tab_content', :label => :label_invoice},
-				{:name => 'wkaccount', :partial => 'wktime/tab_content', :label => :label_accounts},
+			#	{:name => 'wkaccount', :partial => 'wktime/tab_content', :label => :label_accounts},
 				{:name => 'wkcontract', :partial => 'wktime/tab_content', :label => :label_contracts},
 				{:name => 'wkaccountproject', :partial => 'wktime/tab_content', :label => :label_acc_projects},				
 				{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax}
 			   ]
-		else
+		elsif params[:controller] == "wkgltransaction" || params[:controller] == "wkledger"
 			tabs = [
 				{:name => 'wkgltransaction', :partial => 'wktime/tab_content', :label => :label_transaction},
 				{:name => 'wkledger', :partial => 'wktime/tab_content', :label => :label_ledger}
+			   ]
+		else
+			tabs = [
+				{:name => 'wkcrmenumeration', :partial => 'wktime/tab_content', :label => :label_enumerations}
 			   ]
 		end
 		tabs
@@ -718,7 +731,8 @@ end
 				{:name => 'attendance', :partial => 'settings/tab_attendance', :label => :label_wk_attendance},
 				{:name => 'payroll', :partial => 'settings/tab_payroll', :label => :label_payroll},
 				{:name => 'billing', :partial => 'settings/tab_billing', :label => :label_wk_billing},
-				{:name => 'accounting', :partial => 'settings/tab_accounting', :label => :label_accounting}
+				{:name => 'accounting', :partial => 'settings/tab_accounting', :label => :label_accounting},
+				{:name => 'CRM', :partial => 'settings/tab_crm', :label => :label_crm}
 			   ]	
 	end	
 	
@@ -827,9 +841,14 @@ end
 				groupusers << scope.all
 			end
 		end
-		grpUserIds = Array.new		
-		grpUserIds = groupusers[0].collect{|user| user.id}.uniq if !groupusers.blank? && !groupusers[0].blank?
-		isAccountUser = grpUserIds.include?(User.current.id)
+		grpUserIds = Array.new	
+		#grpUserIds = groupusers[0].collect{|user| user.id}.uniq if !groupusers.blank? && !groupusers[0].blank?
+		groupusers.each do |groupuser|
+			groupuser.each do |user|
+					 grpUserIds << user.id
+			end
+		end
+  		isAccountUser = grpUserIds.include?(User.current.id)
 	end
 	
 	def getAccountUserProjects
@@ -1102,4 +1121,35 @@ end
 	def isChecked(settingName)
 		(!Setting.plugin_redmine_wktime[settingName].blank? && Setting.plugin_redmine_wktime[settingName].to_i == 1)
 	end
+	
+	def showCRMModule
+		(!Setting.plugin_redmine_wktime['wktime_enable_crm_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_crm_module'].to_i == 1 ) && (isModuleAdmin('wktime_crm_group') || isModuleAdmin('wktime_crm_admin') )
+	end
+	
+	def getGroupUserIdsArr(groupId)
+		userIdArr = User.in_group(groupId).all.pluck(:id)
+		userIdArr
+	end
+	
+	def getGroupUserArr(groupId)
+		userIdArr = Array.new
+		userIds = User.in_group(groupId).all
+		if !userIds.blank?
+			userIds.each do | entry|				
+				userIdArr <<  [(entry.firstname + " " + entry.lastname), entry.id  ]
+			end
+		end
+		userIdArr
+	end
+	
+	def groupOfUsers
+		grpArr = nil
+		grpArr = (getGroupUserArr(getSettingCfId('wktime_crm_group')) + 
+				  getGroupUserArr(getSettingCfId('wktime_crm_admin'))).uniq
+		grpArr.unshift(["",0]) 
+			
+		grpArr
+	end
+	
 end

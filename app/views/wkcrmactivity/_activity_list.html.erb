@@ -1,0 +1,38 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div class="autoscroll">
+	<table class="list time-entries">
+		<thead>
+			<tr>
+				<th class="lbl-txt-align"><%= l(:field_activity) + " " + l(:label_type) %></th>
+				<th class="lbl-txt-align"><%= l(:field_subject) %></th>
+				<th class="lbl-txt-align"><%= l(:field_status) %></th>
+				<th class="lbl-txt-align"><%= l(:label_related_to) %></th>
+				<th class="lbl-txt-align"><%= l(:label_start_date_time) %></th>
+				<th class="lbl-txt-align"><%= l(:label_end_date_time) %></th>
+				<th class="lbl-txt-align"><%= l(:field_assigned_to) %></th>
+				<th class="lbl-txt-align"><%= l(:field_updated_on) %></th>
+				
+				
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<% unless activities.blank? %>
+				<% activities.each do |entry| %>
+					<tr>
+						<td class="lbl-txt-align"><%=h acttypeHash[entry.activity_type] %></td>
+						<td class="lbl-txt-align"><%=h entry.name %></td>
+						<td class="lbl-txt-align"><%=h (entry.activity_type == 'M' || entry.activity_type == 'C' ? meetCallStatusHash[entry.status] : taskStatusHash[entry.status])  %></td>
+						<td class="lbl-txt-align"><%=h relatedHash[entry.parent_type] %></td>
+						<td class="lbl-txt-align"><%=h entry.start_date.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>
+						<td class="lbl-txt-align"><%=h entry.end_date.localtime.strftime("%Y-%m-%d %H:%M:%S") unless entry.end_date.blank? %></td>
+						<td class="lbl-txt-align"><%=h entry.assigned_user.name(:firstname_lastname) unless entry.assigned_user.blank? %></td>
+						<td class="lbl-txt-align"><%=h entry.updated_at.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>									
+						<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => 'wkcrmactivity', :action => 'edit', :activity_id => entry.id, :tab => 'wkcrmactivity'}, :title => l(:button_edit) %>
+							<%= link_to image_tag('delete.png'), {:controller => "wkcrmactivity", :action => 'destroy', :activity_id => entry.id, :tab => "wkcrmactivity"},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
+					</tr>
+				<% end %>
+			<% end %>
+		</tbody>
+	</table>
+</div>

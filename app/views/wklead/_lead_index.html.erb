@@ -1,0 +1,21 @@
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= form_tag({:controller => "wklead", :action => 'index'}, :method => :post, :id => 'query_form') do %>
+		<fieldset>
+			<%=h hidden_field_tag('tab', "wklead") %>
+			<label for='name'><%= l(:label_lead) %>:</label>			
+			<%= text_field_tag 'lead_name', params[:lead_name], :size => 30 %>
+			<%= l(:field_status) %>
+			<%  leadStatusArr = Array.new
+			    getLeadStatusArr.collect {|ind| 
+		        leadStatusArr << ind unless ind[1] == 'C'}
+				leadStatusArr.unshift(["",''])
+			%> 	
+			<%=h select_tag('status', options_for_select(leadStatusArr, :selected => params[:status])) %>
+			<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
+			<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
+		</fieldset>
+<% end %>
+<div class="wk-contextual">
+	<%= link_to l(:label_new_item, l(:label_lead)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+</div>
+<%= render :partial => 'lead_list'%>

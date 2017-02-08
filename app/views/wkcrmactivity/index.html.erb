@@ -1,0 +1,39 @@
+<h2><%= l(:label_activity_plural) %></h2>
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<script type="text/javascript"> 
+    crmleadsUrl = '<%=url_for(:controller => "wklead", :action => "index", :tab => "wklead")%>';
+	blgaccUrl = '<%=url_for(:controller => "wkaccount", :action => "index", :tab => "wkaccount")%>';
+    crmopportunityUrl = '<%=url_for(:controller => "wkopportunity", :action => "index", :tab => "wkopportunity")%>';
+	crmactivityUrl = '<%=url_for(:controller => "wkcrmactivity", :action => "index", :tab => "wkcrmactivity")%>';
+	crmcontactUrl = '<%=url_for(:controller => "wkcrmcontact", :action => "index", :tab => "wkcrmcontact")%>';	
+    prevTab = 'tab-<%= "#{controller_name}" %>';   
+</script>
+<%= render_tabs time_expense_tabs %>
+
+<%= hidden_field_tag 'back_url', url_for(params) %>
+<div class="wk-contextual">
+        <%= link_to l(:label_new_item, l(:field_activity)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+</div>
+
+<% actType = ["", ""] %> 
+<% actType << acttypeHash.to_a %> 
+<%  actTypehash = Hash[*actType.flatten].invert %>
+
+<% relatedArr = ["", ""] %> 
+<% relatedArr << relatedHash.to_a %> 
+<%  relatedArrhash = Hash[*relatedArr.flatten].invert %>
+
+<%= form_tag({:controller => "wkcrmactivity", :action => 'index', :tab => "wkcrmactivity"}, :method => :get, :id => 'query_form') do %>
+	<%= hidden_field_tag "searchlist", "wkcrmactivity" %>
+	<%=h hidden_field_tag('tab', "wkcrmactivity") %>
+	<%	actType =session[:wkcrmactivity][:activity_type]
+		actRelated = session[:wkcrmactivity][:related_to] %>
+		<th align="left" ><%= l(:field_activity) + " " + l(:label_type) %></th>
+		<td  align="left" style="padding-left:40px;"><%=h select_tag("activity_type", options_for_select(actTypehash, :selected => !actType.blank? ? actType : ""), :style => "width:190px;") %></td>
+	<th align="left" ><%= l(:label_related_to) %></th>
+			<td align="left" style="padding-left:40px;"><%=h select_tag("related_to", options_for_select(relatedArrhash, :selected => (!actRelated.blank? ? actRelated : "")), :style => "width:200px;") %></td>	
+<%= render :partial => 'wkcrmactivity/date_range' %>
+<% end %>
+<%= render partial: "activity_list", locals: { activities:  @activity } %>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

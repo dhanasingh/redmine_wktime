@@ -1,0 +1,28 @@
+<h2><%= l(:label_enumerations) %></h2>
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<script type="text/javascript"> 
+    crmenumUrl = '<%=url_for(:controller => "wkcrmenumeration", :action => "index", :tab => "wkcrmenumeration")%>';
+    prevTab = 'tab-<%= "#{controller_name}" %>';   
+</script>
+<%= render_tabs time_expense_tabs %>
+<%= hidden_field_tag 'back_url', url_for(params) %>
+<%= form_tag({:controller => "wkcrmenumeration", :action => 'index'}, :method => :get, :id => 'query_form') do %>
+<%= hidden_field_tag "searchlist", "wkcrmenumeration" %>
+<%=h hidden_field_tag('tab', "wkcrmenumeration") %>
+<%	enumerationName = session[:wkcrmenumeration][:enumname] %>
+<%	enumerationType = session[:wkcrmenumeration][:enumType] %>
+<div class="wk-contextual"> 
+		<label for='name' style="float:left"><%= l(:field_name)   %>&nbsp;&nbsp;</label>
+			<%= text_field_tag 'enumname', enumerationName, :size => 30, :style=> "float: left;" %>	
+		<label style="float:left; padding-left: 20px;"><%= l(:label_type) %>&nbsp;&nbsp;</label>
+			<%=h select_tag('enumType', options_for_select(enumType.invert,  :selected => enumerationType.nil? ? "" : enumerationType ), :style=> "float: left;") %>
+		<label style="float:left; padding-left: 20px;">&nbsp;</label>
+		<%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %>
+		<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload', :style=>"float:left; " %>
+        <%= link_to l(:label_new_item, l(:label_enumerations)), url_for(:controller => controller_name, :action => 'edit', :enum_id => ""), :class => 'icon icon-time-add' %>
+</div>
+<div style="clear: both;"></div>
+<% end %>
+<%= render :partial => 'wkcrmenumeration/enum_list', locals: { contacts: @contact}%>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

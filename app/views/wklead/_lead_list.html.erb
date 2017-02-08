@@ -1,0 +1,35 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div class="autoscroll">
+	<table class="list time-entries">
+		<thead>
+			<tr>
+				<th class="lbl-txt-align"><%= l(:field_name) %></th>
+				<th class="lbl-txt-align"><%= l(:field_status) %></th>
+				<th class="lbl-txt-align"><%= l(:label_account_name) %></th>
+				<th class="lbl-txt-align"><%= l(:label_work_phone) %></th>
+				<th class="lbl-txt-align"><%= l(:label_email) %></th>
+				<th class="lbl-txt-align"><%= l(:field_status_modified_by) %></th>
+				<th class="lbl-txt-align"><%= l(:field_updated_on)%></th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<% @leadEntries.each do |entry| %>
+				<tr>
+					<td class="lbl-txt-align"><%=h entry.contact.name %></td>
+					<!-- <td class="lbl-txt-align"><%#= link_to entry.contact.last_name, url_for(:controller => controller_name, :action => 'show', :lead_id => entry.id,:address_id => entry.contact.address.blank? ? "" : entry.contact.address.id) %></td> -->
+					<td class="lbl-txt-align"><%=h getLeadStatusHash[entry.status] %></td>
+					<td class="lbl-txt-align"><%=h entry.account.blank? ? "" : entry.account.name %></td>
+					<td class="lbl-txt-align"><%=h entry.contact.address.blank? ? "" : entry.contact.address.work_phone %></td>
+					<td class="lbl-txt-align"><%=h entry.contact.address.blank? ? "" : entry.contact.address.email %></td>
+					<td class="lbl-txt-align"><%=h entry.created_by_user.name(:firstname_lastname) %></td>
+					<td class="lbl-txt-align"><%=h entry.updated_at.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>
+					<td align="center">
+						<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :lead_id => entry.id,:address_id => entry.address.blank? ? "" : entry.address.id}, :title => l(:button_edit) %> <%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :lead_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+					</td>
+				</tr>
+			<% end %>
+		</tbody>
+	</table>
+</div>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

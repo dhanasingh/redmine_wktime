@@ -1,4 +1,4 @@
-var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl;
+var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl;
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -225,6 +225,11 @@ $(document).ready(function()
 	changeProp('tab-wktax',blgtaxUrl);
 	changeProp('tab-wkgltransaction',blgtxnUrl);
 	changeProp('tab-wkledger',blgledgerUrl);
+	changeProp('tab-wklead',crmleadsUrl);
+	changeProp('tab-wkopportunity',crmopportunityUrl);
+	changeProp('tab-wkcrmactivity',crmactivityUrl);
+	changeProp('tab-wkcrmcontact',crmcontactUrl);
+	changeProp('tab-wkcrmenumeration',crmenumUrl);
 });
 
 
@@ -299,5 +304,20 @@ function accProjChanged(uid)
 	type: 'get',
 	data: {account_id: accId},
 	success: function(data){ updateUserDD(data, projDropdown, userid, needBlankOption, false, "");},   
+	});
+}
+
+function actRelatedDd(uid)
+{
+	var relatedTo = document.getElementById("related_to");
+	var relatedType = relatedTo.options[relatedTo.selectedIndex].value;
+	var needBlankOption = false;
+	var relatedparentdd = document.getElementById("related_parent");
+	userid = uid;
+	$.ajax({
+	url: actRelatedUrl,
+	type: 'get',
+	data: {related_type: relatedType},
+	success: function(data){ updateUserDD(data, relatedparentdd, userid, needBlankOption, false, "");},   
 	});
 }
