@@ -13,7 +13,7 @@ class WkopportunityController < WkcrmController
 		filterHash = Hash.new
 		unless @from.blank? || @to.blank?
 			filterSql = filterSql + " created_at between :from AND :to"
-			filterHash = {:from => @from.beginning_of_day, :to => @to.end_of_day}
+			filterHash = {:from => getFromDateTime(@from), :to => getToDateTime(@to)}  
 		end
 		unless oppName.blank?
 			filterSql = filterSql + " AND" unless filterSql.blank?

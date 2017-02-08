@@ -29,7 +29,7 @@ class WkcrmactivityController < WkcrmController
 		relatedTo = session[:wkcrmactivity][:related_to]
 	   		
 		if !@from.blank? && !@to.blank?
-			crmactivity = WkCrmActivity.where(:start_date => @from .. @to)
+			crmactivity = WkCrmActivity.where(:start_date => getFromDateTime(@from) .. getToDateTime(@to))
 		else
 			crmactivity = WkCrmActivity.all
 		end

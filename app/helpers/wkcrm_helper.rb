@@ -9,16 +9,16 @@ include WkinvoiceHelper
 			userIdArr = getGroupUserIdsArr(groupId.to_i)
 		end
 		if userIdArr.blank?
-			leadList = WkLead.includes(:contact).where(:created_at => from .. to)
+			leadList = WkLead.includes(:contact).where(:created_at => getFromDateTime(from) .. getToDateTime(to))
 		else
-			leadList = WkLead.includes(:contact).where(:created_at => from .. to, wk_crm_contacts: { assigned_user_id: userIdArr })
+			leadList = WkLead.includes(:contact).where(:created_at => getFromDateTime(from) .. getToDateTime(to), wk_crm_contacts: { assigned_user_id: userIdArr })
 		end
 		leadList
 	end
 	
 	def getConversionRate(allLeads, from, to)
 	    convRate =  nil
-		convertedLeads = allLeads.where(:status => 'C', :status_update_on => from .. to).count
+		convertedLeads = allLeads.where(:status => 'C', :status_update_on => getFromDateTime(from) .. getToDateTime(to)).count
 		totalLeads = allLeads.count
 		convRate = ((convertedLeads.to_f/totalLeads.to_f)*100).round(2) if totalLeads>0
 		convRate
@@ -32,9 +32,9 @@ include WkinvoiceHelper
 			userIdArr = getGroupUserIdsArr(groupId.to_i)
 		end
 		if userIdArr.blank?
-			activityList = WkCrmActivity.includes(:parent).where(:start_date => from .. to).order(updated_at: :desc)
+			activityList = WkCrmActivity.includes(:parent).where(:start_date => getFromDateTime(from) .. getToDateTime(to)).order(updated_at: :desc)
 		else
-			activityList = WkCrmActivity.includes(:parent).where(:start_date => from .. to, :assigned_user_id => userIdArr).order(updated_at: :desc)
+			activityList = WkCrmActivity.includes(:parent).where(:start_date => getFromDateTime(from) .. getToDateTime(to), :assigned_user_id => userIdArr).order(updated_at: :desc)
 		end
 		activityList
 	end
@@ -203,5 +203,21 @@ include WkinvoiceHelper
 	def convertSecToDays(seconds)
 		days = seconds/(3600*24).to_f
 		days.round(2)
+	end
+	
+	def date_for_user_time_zone(y, m, d)
+		if tz = User.current.time_zone
+		  tz.local y, m, d
+		else
+		  Time.local y, m, d
+		end
+	end
+	
+	def getFromDateTime(dateVal)
+		date_for_user_time_zone(dateVal.year, dateVal.month, dateVal.day).yesterday.end_of_day
+	end
+	
+	def getToDateTime(dateVal)
+		date_for_user_time_zone(dateVal.year, dateVal.month, dateVal.day).end_of_day
 	end
 end

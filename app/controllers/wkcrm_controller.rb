@@ -8,8 +8,8 @@ class WkcrmController < WkbaseController
 	end
 	
 	def lead_conv_rpt
-		@from = session[:wkreport][:from].beginning_of_day
-		@to = session[:wkreport][:to].end_of_day
+		@from = session[:wkreport][:from]
+		@to = session[:wkreport][:to]
 		groupId = session[:wkreport][:group_id]
 		userId = session[:wkreport][:user_id]
 		if userId.blank?			
@@ -20,8 +20,8 @@ class WkcrmController < WkbaseController
 	end
 	
 	def sales_act_rpt
-		@to = session[:wkreport][:to].end_of_day
-		@from = session[:wkreport][:from].beginning_of_day
+		@to = session[:wkreport][:to]
+		@from = session[:wkreport][:from]
 		groupId = session[:wkreport][:group_id]
 		userId = session[:wkreport][:user_id]
 		if userId.blank?			
