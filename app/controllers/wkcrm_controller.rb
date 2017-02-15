@@ -1,35 +1,11 @@
 class WkcrmController < WkbaseController
   unloadable
   before_filter :require_login
-  before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :lead_conv_rpt, :sales_act_rpt]
+  before_filter :check_perm_and_redirect, :only => [:index, :edit, :update]
   before_filter :check_crm_admin_and_redirect, :only => [:destroy]
   include WkcrmHelper
 	def index
 	end
-	
-	def lead_conv_rpt
-		@from = session[:wkreport][:from]
-		@to = session[:wkreport][:to]
-		groupId = session[:wkreport][:group_id]
-		userId = session[:wkreport][:user_id]
-		if userId.blank?			
-			userId = isModuleAdmin('wktime_crm_group') ? User.current.id : 0
-		end
-		@leadList = getLeadList(@from, @to, groupId, userId)
-		render :action => 'lead_conv_rpt', :layout => false
-	end
-	
-	def sales_act_rpt
-		@to = session[:wkreport][:to]
-		@from = session[:wkreport][:from]
-		groupId = session[:wkreport][:group_id]
-		userId = session[:wkreport][:user_id]
-		if userId.blank?			
-			userId = isModuleAdmin('wktime_crm_group') ? User.current.id : 0
-		end
-		@activityList = getActivityList(@from,@to, groupId, userId)
-		render :action => 'sales_act_rpt', :layout => false
-	end 
   
 	def updateAddress
 		wkAddress = nil

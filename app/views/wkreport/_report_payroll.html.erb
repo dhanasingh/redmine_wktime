@@ -1,0 +1,127 @@
+<%
+	userId = session[:wkreport][:user_id].blank? ? 0 : session[:wkreport][:user_id]
+	from = session[:wkreport][:from]
+	to = session[:wkreport][:to]
+	groupId = session[:wkreport][:group_id].blank?  ? 0 : session[:wkreport][:group_id]				
+	userSqlStr = getUserQueryStr(groupId, userId, from)
+	@userlist = User.find_by_sql(userSqlStr)
+	queryStr = getQueryStr + " where s.salary_date  between '#{from}' and '#{to}' "
+	if userId.to_i != 0
+		queryStr = queryStr + " and s.user_id in(#{userId}) "
+	end
+	queryStr = queryStr + " order by s.user_id"
+	@salary_data = WkSalary.find_by_sql(queryStr)
+	usercol = ["Id", "Name", "Gender", "Designation"]
+	basiccol = Array.new
+	allowancecol = Array.new
+	deductioncol = Array.new
+	allComponents = WkSalaryComponents.all
+	allComponents.each do |entry|
+		if entry.component_type == 'b'
+			basiccol << entry.name
+		end
+		if entry.component_type == 'a'
+			allowancecol << entry.name
+		end
+		if entry.component_type == 'd'
+			deductioncol << entry.name
+		end
+	end
+	totalcol = ["Gross", "Deduction", "Net", "Signature", "Total Unpaid"]
+	@headerarr = usercol + basiccol + allowancecol + deductioncol + totalcol
+	@salaryval = Hash.new{|hsh,key| hsh[key] = {} }
+	@totalhash = Hash.new{|hsh,key| hsh[key] = {} }
+	last_id = 0
+	totgross = 0 
+	totdeduction = 0
+	last_salary_date = 	nil			
+	@salary_data.each do |entry|	
+		@salaryval["#{entry.user_id}"].store "#{entry.component_name}", "#{entry.amount}"	
+		if entry.user_id != last_id || entry.salary_date.to_date != last_salary_date
+			totgross = 0
+			totdeduction = 0
+			last_id = entry.user_id
+			last_salary_date = entry.salary_date.to_date
+		end
+		totgross = totgross + entry.amount if entry.component_type == 'b' || entry.component_type == 'a'
+		totdeduction = totdeduction + entry.amount if entry.component_type == 'd'
+		@totalhash["#{entry.user_id}"].store "gross", "#{totgross}" 
+		@totalhash["#{entry.user_id}"].store "deduction", "#{totdeduction}"
+	end
+	
+	@rowval = Hash.new{|hsh,key| hsh[key] = {} }
+	@userdetails = Hash.new{|hsh,key| hsh[key] = {} }
+	@userlist.each do |user|
+		@userdetails["#{user.id}"].store "Employee_Id", "#{user.employee_id}"
+		@userdetails["#{user.id}"].store "Name", "#{user.firstname}"
+		@userdetails["#{user.id}"].store "Gender", "#{user.gender}"
+		@userdetails["#{user.id}"].store "Designation", "#{user.designation}"	
+		@headerarr.each do |entry|
+			@rowval["#{user.id}"].store "#{entry}", "#{@salaryval["#{user.id}"]["#{entry}"]}"
+		end
+		
+		@rowval["#{user.id}"]["Id"] = @userdetails["#{user.id}"]["Employee_Id"] 
+		@rowval["#{user.id}"]["Name"] = @userdetails["#{user.id}"]["Name"]
+		@rowval["#{user.id}"]["Gender"] = @userdetails["#{user.id}"]["Gender"]
+		@rowval["#{user.id}"]["Designation"] = @userdetails["#{user.id}"]["Designation"]
+		@rowval["#{user.id}"]["Gross"] = @totalhash["#{user.id}"]["gross"]
+		@rowval["#{user.id}"]["Deduction"] = @totalhash["#{user.id}"]["deduction"]
+		@rowval["#{user.id}"]["Net"] = (@totalhash["#{user.id}"]["gross"]).to_f - (@totalhash["#{user.id}"]["deduction"]).to_f
+	end
+%>
+<%= stylesheet_link_tag 'application' , :media => "all" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+
+<style type="text/css">		
+		.tbl-report{
+			width : 2200px;
+			table-layout: fixed; !important;
+			word-wrap: break-word; !important;
+			text-align: center; 
+			margin-top:5px; margin-bottom:10px; padding-left: 10px; color:#333333;
+			font-family:Verdana, sans-serif; font-size:12px; 
+		}
+ </style>
+<div id="wages-rpt-dlg", style="overflow-x:auto;">
+<div>
+		<div style="float:left">
+ <caption style="text-align:left"><b><%= l(:label_wk_form_r) %><br/><%= l(:label_register_wages) %><br/><%= l(:label_wages_rule) %></b></br>
+ <b><%= l(:label_wk_name_address) %>:</b> <%= Setting.plugin_redmine_wktime['wktime_company_name'] %>
+ <%= Setting.plugin_redmine_wktime['wktime_company_address'] %>
+ <b><%= l(:label_wages_period) %>:</b> <%= @salary_data[0].blank? ? session[:wkreport][:from] :  @salary_data[0].salary_date %>
+  </caption> 
+  </div>
+		<div style="float:right">
+			<table>
+				<tr>
+					<td>
+						<% logo = Setting.plugin_redmine_wktime['wktime_header_logo'] %>					
+						<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>						
+							<%= image_tag("#{logo}", :plugin => "redmine_wktime") %>
+						<% end %>
+					</td>
+				</tr>
+			</table>
+		</div>
+		</div>
+		<div style="clear:both;"></div>
+<table class="tbl-report" border="1" style="border-collapse:collapse;" cellspacing="0",frame="box">
+<% count = 0 %>  
+ <thead bgcolor="#e6e6e6">
+ <tr>
+		<% @headerarr.each do |entry| %>	
+		        <th> <%= entry %> </th>
+		<% end %>
+ </tr>
+ </thead>
+ <tbody>
+ <% @rowval.each do |key, value| %>
+	<tr class="<%= cycle("odd", "even") %>">
+		<% value.each do |k,v| %>
+			<td> <%= v.to_s %> </td>
+		<% end %>
+	</tr>
+ <% end %>
+ </tbody>
+ </table>
+ </div>

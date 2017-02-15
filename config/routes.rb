@@ -119,7 +119,7 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
   #For Report   
   get 'wkreport/index', :to => 'wkreport#index'
    
-  get 'wkreport/reportattn', :to => 'wkreport#reportattn'  
+  # get 'wkreport/reportattn', :to => 'wkreport#reportattn'  
   
   match 'updateClockInOut', :controller => 'wkattendance', :action => 'updateClockInOut', :via => [:get]
   
@@ -134,7 +134,7 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
   
   get 'wkpayroll/edit', :to => 'wkpayroll#edit'
   
-  get 'wkpayroll/payslip_rpt', :to => 'wkpayroll#payslip_rpt' 
+  # get 'wkreport/payslip_rpt', :to => 'wkreport#payslip_rpt' 
   
   post 'wkpayroll/updateUserSalary', :to => 'wkpayroll#updateUserSalary'
   
@@ -146,7 +146,7 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
   
   post 'wkpayroll/generatePayroll', :to => 'wkpayroll#generatePayroll'
   
-   get 'wkpayroll/payroll_rpt', :to => 'wkpayroll#payroll_rpt'
+   # get 'wkreport/payroll_rpt', :to => 'wkreport#payroll_rpt'
    
    get 'wkpayroll/usrsettingsindex', :to => 'wkpayroll#usrsettingsindex'
    
@@ -227,9 +227,9 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	delete 'wkledger/destroy', :to => 'wkledger#destroy'
   
-	get 'wkaccounting/pl_rpt', :to => 'wkaccounting#pl_rpt'
+	# get 'wkreport/pl_rpt', :to => 'wkreport#pl_rpt'
 	
-	get 'wkaccounting/balance_sheet', :to => 'wkaccounting#balance_sheet'
+	# get 'wkreport/balance_sheet', :to => 'wkreport#balance_sheet'
 	
 	get 'wkbase/updateClockInOut', :to => 'wkbase#updateClockInOut'
 	
@@ -287,6 +287,6 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	delete 'wkcrmenumeration/destroy', :to => 'wkcrmenumeration#destroy' 
 	
-	get 'wkcrm/lead_conv_rpt', :to => 'wkcrm#lead_conv_rpt'
+	get 'wkreport/report', :to => 'wkreport#report'
 	
-	get 'wkcrm/sales_act_rpt', :to => 'wkcrm#sales_act_rpt'
+	# get 'wkreport/sales_act_rpt', :to => 'wkreport#sales_act_rpt'

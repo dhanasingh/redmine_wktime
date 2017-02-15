@@ -17,6 +17,10 @@
 
 module WkreportHelper	
 	include WktimeHelper
+	include WkaccountingHelper
+	include WkcrmHelper
+	include WkpayrollHelper
+	include WkattendanceHelper
 
 	def options_for_period_select(value)
 		options_for_select([
@@ -28,22 +32,27 @@ module WkreportHelper
 	end	
 
 	def options_for_report_select(selectedRpt)
-		reportTypeArr = [
-			[l(:label_wk_attendance), 'attendance_report'], 
-			[l(:label_time_entry_plural), 'spent_time_report'], 
-			[l(:label_wk_timesheet), 'time_report'], 			
-			[l(:label_wk_expensesheet), 'expense_report'],			
-			[l(:label_payroll_report), 'payroll_report'],
-			[l(:label_wk_payslip), 'payslip_report']]
-		if (isModuleAdmin('wktime_accounting_group') || isModuleAdmin('wktime_accounting_admin') )
-			reportTypeArr << [l(:label_profit_loss_account), 'pl_report']
-			reportTypeArr << [l(:label_balance_sheet), 'bal_sht_report']
+		reportTypeArr = [ 
+			[l(:label_wk_timesheet), 'report_time'], 			
+			[l(:label_wk_expensesheet), 'report_expense']]
+			
+		Dir["plugins/redmine_wktime/app/views/wkreport/_report*"].each do |f|
+		  fileName = File.basename(f, ".html.erb")
+		  fileName.slice!(0)
+		  reportTypeArr << [l(:"#{fileName}"), fileName] if hasViewPermission(fileName)
 		end
-		if (isModuleAdmin('wktime_crm_group') || isModuleAdmin('wktime_crm_admin') ) && isChecked('wktime_enable_crm_module')
-			reportTypeArr << [l(:label_lead_conversion), 'lead_conversion_rpt']
-			reportTypeArr << [l(:label_sales_activity), 'sales_activity_rpt']
-		end
+		reportTypeArr.sort!
 		options_for_select(reportTypeArr, selectedRpt)
+	end
+	
+	def hasViewPermission(reportName)
+		ret = true
+		if reportName == 'report_profit_loss' || reportName == 'report_balance_sheet'
+			ret = isModuleAdmin('wktime_accounting_group') || isModuleAdmin('wktime_accounting_admin')
+		elsif reportName == 'report_lead_conversion' || reportName == 'report_sales_activity'
+			ret = (isModuleAdmin('wktime_crm_group') || isModuleAdmin('wktime_crm_admin') ) && isChecked('wktime_enable_crm_module')
+		end
+		ret
 	end
 	
 	def getUserQueryStr(group_id,user_id, from)
@@ -68,6 +77,24 @@ module WkreportHelper
 		end
 		#queryStr = queryStr + " order by u.created_on"
 		queryStr
+	end
+	
+	def getReportLeaveIssueIds
+		issueIds = ''
+		if(Setting.plugin_redmine_wktime['wktime_leave'].blank?)
+			issueIds = '-1'
+		else
+			Setting.plugin_redmine_wktime['wktime_leave'].each_with_index do |element,index|
+				if index < 3
+					if issueIds!=''
+						issueIds = issueIds +','
+					end
+				  listboxArr = element.split('|')
+				  issueIds = issueIds + listboxArr[0]
+				end
+			end
+		end	
+		issueIds
 	end
 
 end

@@ -1,3 +1,85 @@
+<%
+	if (params[:user_id].to_i == User.current.id) || isAccountUser || User.current.admin?
+		useSpentTime = params[:report_type] == 'report_spent_time'
+		if !params[:group_id].blank?
+			group_id = params[:group_id]
+		else
+			group_id = session[:wkreport][:group_id]
+		end
+		
+		if group_id.blank?
+			group_id = 0
+		end	
+		
+		if !params[:user_id].blank?
+			user_id = params[:user_id]
+		else
+			user_id = session[:wkreport][:user_id]
+		end
+		
+		if user_id.blank?
+			user_id = 0
+		end	
+		
+		unless @from.blank?
+			@from = Date.civil(@from.year,@from.month, 1) 
+			@to = (@from >> 1) - 1 
+		end
+		dateStr = getConvertDateStr('start_time')
+		sqlStr = ""
+		userSqlStr = getUserQueryStr(group_id,user_id, @from)
+		leaveSql = "select u.id as user_id, gu.group_id, i.id as issue_id, l.balance, l.accrual, l.used, l.accrual_on," + 
+		" lm.balance + lm.accrual - lm.used as open_bal from users u" + 
+		" left join groups_users gu on (gu.user_id = u.id and gu.group_id = #{group_id})" + 
+		" cross join (select id from issues where id in (#{getReportLeaveIssueIds})) i" + 
+		" left join (#{getLeaveQueryStr(@from,@to)}) l on l.user_id = u.id and l.issue_id = i.id" + 
+		" left join (#{getLeaveQueryStr(@from << 1,@from - 1)}) lm on lm.user_id = u.id and i.id = lm.issue_id"
+		if group_id.to_i > 0 && user_id.to_i < 1
+			leaveSql = leaveSql + " Where gu.group_id is not null"
+		elsif user_id.to_i > 0
+			leaveSql = leaveSql + " Where u.id = #{user_id}"
+		end
+		if isAccountUser || User.current.admin?
+			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}'")
+			if useSpentTime
+				sqlStr = "select user_id,spent_on,sum(hours) as hours from time_entries where issue_id not in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}' group by user_id,spent_on"
+			else
+				sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where #{dateStr} between '#{@from}' and '#{@to}' group by user_id,#{dateStr}"
+			end
+		else
+			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}' and user_id = #{User.current.id} " )
+			if useSpentTime
+				sqlStr = "select user_id,spent_on,sum(hours) as hours from time_entries where issue_id not in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}' and user_id = #{User.current.id} group by user_id,spent_on"
+			else
+				sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where #{dateStr} between '#{@from}' and '#{@to}' and user_id = #{User.current.id} group by user_id,#{dateStr}"
+			end
+		end
+		@userlist = WkUserLeave.find_by_sql(userSqlStr + " order by u.created_on " ) #findBySql(userSqlStr)
+		#@userlist = User.find_by_sql(userSqlStr)
+		leave_data = WkUserLeave.find_by_sql(leaveSql)
+		daily_entries = WkAttendance.find_by_sql(sqlStr)
+		@attendance_entries = Hash.new
+		if !leave_data.blank?
+			leave_data.each_with_index do |entry,index|
+				@attendance_entries[entry.user_id.to_s + '_' + entry.issue_id.to_s + '_balance'] = entry.open_bal
+				@attendance_entries[entry.user_id.to_s + '_' + entry.issue_id.to_s + '_used'] = entry.used
+				@attendance_entries[entry.user_id.to_s + '_' + entry.issue_id.to_s + '_accrual'] = entry.accrual
+			end
+		end
+		if !leave_entry.blank?
+			 leave_entry.each_with_index do |entry,index|
+				 @attendance_entries[entry.user_id.to_s + '_' + entry.spent_on.to_date.strftime("%d").to_i.to_s + '_leave'] = entry.issue_id
+			end
+		end
+		if !daily_entries.blank?
+			 daily_entries.each_with_index do |entry,index|
+				 @attendance_entries[entry.user_id.to_s + '_' + entry.spent_on.to_date.strftime("%d").to_i.to_s  + '_hours'] = entry.hours.is_a?(Float) ? entry.hours.round(2) : (entry.hours.blank? ? '*' :  entry.hours)
+			end
+		end
+	else
+		@userlist = nil
+	end
+%>
 <%= stylesheet_link_tag 'application' , :media => "all" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 
@@ -126,7 +208,6 @@
 </tbody>
 </table>
 </div>
-<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
 <% else %>
 	<label><b><%= l(:label_no_data) %></b></label>
 <% end -%>

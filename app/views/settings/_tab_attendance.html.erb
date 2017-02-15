@@ -12,7 +12,7 @@ lblLeaveIssue = "<%=l(:label_wk_leave_issue) %>";
 lblYear = "<%=l(:label_year) %>";
 </script>
 <fieldset style="display: inline-block; vertical-align: top;">
-	<legend><%= l(:label_wk_attendance) %></legend>
+	<legend><%= l(:report_attendance) %></legend>
 	<p style="padding-left: 190px;">
 			<%= check_box_tag('settings[wktime_enable_attendance_module]', 1, @settings['wktime_enable_attendance_module'].to_i == 1) %> <label><%= l(:label_enable_attendance_module) %></label>
 	</p>	

@@ -1,3 +1,8 @@
+<%
+	@from = session[:wkreport][:from]
+	@to = session[:wkreport][:to]
+	#@profitLossEntries = getTransDetails(@from,@to)
+%>
 <%= stylesheet_link_tag 'application' , :media => "all" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <style type="text/css">		
@@ -12,7 +17,7 @@
  </style>
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
 	<table style="width:100%; border-collapse: collapse;">
-		 <caption style="text-align:center"><b><%= Setting.plugin_redmine_wktime['wktime_company_name'] %><br><%= l(:label_profit_loss_account) %></b></br>
+		 <caption style="text-align:center"><b><%= Setting.plugin_redmine_wktime['wktime_company_name'] %><br><%= l(:report_profit_loss) %></b></br>
 		 <%= @from.to_formatted_s(:long) + " " + l(:label_date_to) + " " + @to.to_formatted_s(:long)%>
 		<thead bgcolor="#e6e6e6">
 			<tr style="border-bottom: solid thin;border-top: solid thin;">
@@ -42,7 +47,7 @@
 					<td align="right"><b><%= "%.2f" % @mainTotalHash[incomeLedgerTypes[i]] if @mainTotalHash[incomeLedgerTypes[i]] != 0 %></b></td>
 				</tr>
 				<% if @mainTotalHash[incomeLedgerTypes[i]] != 0 %>
-					<%= render partial: "report_rows", locals: { entries: @mainEnriesHash[incomeLedgerTypes[i]] }%>
+					<%= render partial: "rpt_rows", locals: { entries: @mainEnriesHash[incomeLedgerTypes[i]] }%>
 				<% end %>
 			<% end %>
 			<tr style="width:100%;">
@@ -57,7 +62,7 @@
 					<td></td>
 				</tr>
 				<% if @mainTotalHash[expenseLedgerTypes[i]] != 0 %>
-					<%= render partial: "report_rows", locals: { entries: @mainEnriesHash[expenseLedgerTypes[i]], padding: 50 }%>
+					<%= render partial: "rpt_rows", locals: { entries: @mainEnriesHash[expenseLedgerTypes[i]], padding: 50 }%>
 					
 				<% end %>
 			<% end %>
@@ -78,7 +83,7 @@
 					<td align="right"><b><%= "%.2f" % @mainTotalHash[type] if  @mainTotalHash[type] != 0 %></b></td>
 				</tr>
 				<% if @mainTotalHash[type] != 0 %>
-					<%= render partial: "report_rows", locals: { entries: @mainEnriesHash[type] }%>
+					<%= render partial: "rpt_rows", locals: { entries: @mainEnriesHash[type] }%>
 				<% end %>
 				<% if type == 'II' %>
 					<tr style="width:100%;">

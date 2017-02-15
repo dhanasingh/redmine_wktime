@@ -183,5 +183,13 @@ module WkattendanceHelper
 		workedHours = TimeEntry.where("user_id = #{userId} and spent_on between '#{fromDate}' and '#{toDate}' and issue_id not in (#{getLeaveIssueIds})").sum(:hours)
 		workedHours
 	end
+	
+	def getLeaveQueryStr(from,to)
+		queryStr = "select * from wk_user_leaves WHERE issue_id in (#{getLeaveIssueIds}) and accrual_on between '#{from}' and '#{to}'"
+		if !(isAccountUser || User.current.admin?)
+			queryStr = queryStr + " and user_id = #{User.current.id} "
+		end
+		queryStr
+	end
 
 end

@@ -1,13 +1,13 @@
 #Report_Name,Controller, Method
-#time_report,ReportController, genReportTime
+#report_time,ReportController, genReportTime
 
 #redirect_to action: 'time_rpt', controller: 'wktime'
 
 'attendance_report', 'Attendance', 'wkreport', 'reportattn'
-'time_report', 'Timesheet', 'wktime', 'time_rpt'
-'payslip_report', 'Payslip', 'wkreport', 'payslip_rpt'
-'expense_report', 'Expensesheet', 'wkexpense', 'time_rpt'
-'pl_report', 'Profit & Loss A/c', 'wkaccounting', 'pl_rpt'
-'bal_sht_report', 'Balance Sheet', 'wkaccounting', 'balance_sheet'
-'lead_conversion_rpt', 'Lead Conversion', 'wkcrm', 'lead_conv_rpt'
-'sales_activity_rpt', 'Sales Activity', 'wkcrm', 'sales_act_rpt'
+'report_time', 'Timesheet', 'wktime', 'time_rpt'
+'payslip_rpt', 'Payslip', 'wkreport', 'payslip_rpt'
+'report_expense', 'Expensesheet', 'wkexpense', 'time_rpt'
+'pl_rpt', 'Profit & Loss A/c', 'wkaccounting', 'pl_rpt'
+'balance_sheet', 'Balance Sheet', 'wkaccounting', 'balance_sheet'
+'lead_conv_rpt', 'Lead Conversion', 'wkcrm', 'lead_conv_rpt'
+'sales_act_rpt', 'Sales Activity', 'wkcrm', 'sales_act_rpt'

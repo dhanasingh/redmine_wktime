@@ -20,11 +20,11 @@
 						<td align="right"><b><%= "%.2f" % subEntry.values.inject(:+) %></b></td>
 						<td></td>
 					</tr>
-					<%= render partial: "report_rows", locals: { entries: subEntry, padding:50 }%>
+					<%= render partial: "rpt_rows", locals: { entries: subEntry, padding:50 }%>
 				<% end %>
 			<% end %>
 		<% end %>
-		<%= render partial: "report_rows", locals: { entries: @mainEnriesHash[@ledgerArr[i]] }%>
+		<%= render partial: "rpt_rows", locals: { entries: @mainEnriesHash[@ledgerArr[i]] }%>
 	<% end %>
 	<% total = total + @mainTotalHash[@ledgerArr[i]] %>
 <% end %>

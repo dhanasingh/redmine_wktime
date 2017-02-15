@@ -83,24 +83,6 @@ include WkreportHelper
 		getSalaryDetail(userid,salarydate)
 		render :action => 'edit'
 	end
-	
-	def getSalaryDetail(userid,salarydate)
-		sqlStr = getQueryStr + " where s.user_id = #{userid} and s.salary_date='#{salarydate}'"
-		@wksalaryEntries = WkUserSalaryComponents.find_by_sql(sqlStr)
-	end
-	
-	def getQueryStr
-		joinDateCFId = !Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].blank? ? Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].to_i : 0
-		queryStr = "select u.id as user_id, u.firstname as firstname, u.lastname as lastname, sc.name as component_name, sc.id as sc_component_id, cvj.value as joining_date," + 
-		" cveid.value as employee_id, cvgender.value as gender,"+
-		"  s.salary_date as salary_date, s.amount as amount, s.currency as currency," + 
-		" sc.component_type as component_type from wk_salaries s "+ 
-		" inner join wk_salary_components sc on s.salary_component_id=sc.id"+  
-		" inner join users u on s.user_id=u.id" + 
-		" left join custom_values cvj on (u.id = cvj.customized_id and cvj.custom_field_id = #{getSettingCfId('wktime_attn_join_date_cf')} )"+ 
-		" left join custom_values cveid on (u.id = cveid.customized_id and cveid.custom_field_id = #{getSettingCfId('wktime_attn_employee_id_cf')} )"+ 
-		" left join custom_values cvgender on (u.id = cvgender.customized_id and cvgender.custom_field_id = #{getSettingCfId('wktime_gender_cf')} )"
-	end
 
 	def updateUserSalary
 		userId = params[:user_id]
@@ -320,103 +302,6 @@ include WkreportHelper
 		
 		@from, @to = @to, @from if @from && @to && @from > @to
 
-	end
-	
-	def payslip_rpt
-		userId = (session[:wkreport][:user_id].blank? || (session[:wkreport][:user_id]).to_i < 1) ? User.current.id : session[:wkreport][:user_id]
-		from = session[:wkreport][:from]
-		to = session[:wkreport][:to]
-		minSalaryDate = WkSalary.where("salary_date between '#{from}' and '#{to}'").minimum(:salary_date)
-		if minSalaryDate.blank?
-			@wksalaryEntries = nil
-		else
-			getSalaryDetail(userId,minSalaryDate.to_date)
-			@userYTDAmountHash = getYTDDetail(userId,minSalaryDate.to_date)
-		end
-		render :action => 'payslip_rpt', :layout => false
-	end	
-	
-	def getYTDDetail(userId,salaryDate)
-		@financialPeriod = getFinancialPeriod(salaryDate-1)
-		ytdDetails = WkSalary.select("sum(amount) as amount, user_id, salary_component_id").where("user_id = #{userId} and salary_date between '#{@financialPeriod[0]}' and '#{salaryDate}'").group("user_id, salary_component_id")
-		ytdAmountHash = Hash.new()
-		ytdDetails.each do |entry|
-			ytdAmountHash[entry.salary_component_id] = entry.amount
-		end
-		ytdAmountHash
-	end
-	
-	def payroll_rpt	
-		userId = session[:wkreport][:user_id].blank? ? 0 : session[:wkreport][:user_id]
-		from = session[:wkreport][:from]
-		to = session[:wkreport][:to]
-		groupId = session[:wkreport][:group_id].blank?  ? 0 : session[:wkreport][:group_id]				
-		userSqlStr = getUserQueryStr(groupId, userId, from)
-		@userlist = User.find_by_sql(userSqlStr)
-		queryStr = getQueryStr + " where s.salary_date  between '#{from}' and '#{to}' "
-		if userId.to_i != 0
-			queryStr = queryStr + " and s.user_id in(#{userId}) "
-		end
-		queryStr = queryStr + " order by s.user_id"
-		@salary_data = WkSalary.find_by_sql(queryStr)
-		usercol = ["Id", "Name", "Gender", "Designation"]
-		basiccol = Array.new
-		allowancecol = Array.new
-		deductioncol = Array.new
-		allComponents = WkSalaryComponents.all
-		allComponents.each do |entry|
-			if entry.component_type == 'b'
-				basiccol << entry.name
-			end
-			if entry.component_type == 'a'
-				allowancecol << entry.name
-			end
-			if entry.component_type == 'd'
-				deductioncol << entry.name
-			end
-		end
-		totalcol = ["Gross", "Deduction", "Net", "Signature", "Total Unpaid"]
-		@headerarr = usercol + basiccol + allowancecol + deductioncol + totalcol
-		@salaryval = Hash.new{|hsh,key| hsh[key] = {} }
-		@totalhash = Hash.new{|hsh,key| hsh[key] = {} }
-		last_id = 0
-		totgross = 0 
-		totdeduction = 0
-		last_salary_date = 	nil			
-		@salary_data.each do |entry|	
-			@salaryval["#{entry.user_id}"].store "#{entry.component_name}", "#{entry.amount}"	
-			if entry.user_id != last_id || entry.salary_date.to_date != last_salary_date
-				totgross = 0
-				totdeduction = 0
-				last_id = entry.user_id
-				last_salary_date = entry.salary_date.to_date
-			end
-			totgross = totgross + entry.amount if entry.component_type == 'b' || entry.component_type == 'a'
-			totdeduction = totdeduction + entry.amount if entry.component_type == 'd'
-			@totalhash["#{entry.user_id}"].store "gross", "#{totgross}" 
-			@totalhash["#{entry.user_id}"].store "deduction", "#{totdeduction}"
-		end
-		
-		@rowval = Hash.new{|hsh,key| hsh[key] = {} }
-		@userdetails = Hash.new{|hsh,key| hsh[key] = {} }
-		@userlist.each do |user|
-			@userdetails["#{user.id}"].store "Employee_Id", "#{user.employee_id}"
-			@userdetails["#{user.id}"].store "Name", "#{user.firstname}"
-			@userdetails["#{user.id}"].store "Gender", "#{user.gender}"
-			@userdetails["#{user.id}"].store "Designation", "#{user.designation}"	
-			@headerarr.each do |entry|
-				@rowval["#{user.id}"].store "#{entry}", "#{@salaryval["#{user.id}"]["#{entry}"]}"
-			end
-			
-			@rowval["#{user.id}"]["Id"] = @userdetails["#{user.id}"]["Employee_Id"] 
-			@rowval["#{user.id}"]["Name"] = @userdetails["#{user.id}"]["Name"]
-			@rowval["#{user.id}"]["Gender"] = @userdetails["#{user.id}"]["Gender"]
-			@rowval["#{user.id}"]["Designation"] = @userdetails["#{user.id}"]["Designation"]
-			@rowval["#{user.id}"]["Gross"] = @totalhash["#{user.id}"]["gross"]
-			@rowval["#{user.id}"]["Deduction"] = @totalhash["#{user.id}"]["deduction"]
-			@rowval["#{user.id}"]["Net"] = (@totalhash["#{user.id}"]["gross"]).to_f - (@totalhash["#{user.id}"]["deduction"]).to_f
-		end
-		render :action => 'payroll_rpt', :layout => false
 	end
 	
     def check_perm_and_redirect

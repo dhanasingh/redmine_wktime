@@ -728,7 +728,7 @@ end
 				{:name => 'general', :partial => 'settings/tab_general', :label => :label_general},
 			#	{:name => 'display', :partial => 'settings/tab_display', :label => :label_display},
 				{:name => 'wktime', :partial => 'settings/tab_time', :label => :label_te},
-				{:name => 'attendance', :partial => 'settings/tab_attendance', :label => :label_wk_attendance},
+				{:name => 'attendance', :partial => 'settings/tab_attendance', :label => :report_attendance},
 				{:name => 'payroll', :partial => 'settings/tab_payroll', :label => :label_payroll},
 				{:name => 'billing', :partial => 'settings/tab_billing', :label => :label_wk_billing},
 				{:name => 'accounting', :partial => 'settings/tab_accounting', :label => :label_accounting},
