@@ -1,1 +1,5 @@
-<%= render :partial => @reportType %>
+<% if hasViewPermission(@reportType) %>
+	<%= render :partial => @reportType %>
+<% else %>
+	<label><b><%= l(:label_no_data) %></b></label>
+<% end %>
