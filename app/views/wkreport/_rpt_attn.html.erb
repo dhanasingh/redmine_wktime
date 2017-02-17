@@ -54,8 +54,7 @@
 				sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where #{dateStr} between '#{@from}' and '#{@to}' and user_id = #{User.current.id} group by user_id,#{dateStr}"
 			end
 		end
-		@userlist = WkUserLeave.find_by_sql(userSqlStr + " order by u.created_on " ) #findBySql(userSqlStr)
-		#@userlist = User.find_by_sql(userSqlStr)
+		@userlist = WkUserLeave.find_by_sql(userSqlStr + " order by u.created_on " ) 
 		leave_data = WkUserLeave.find_by_sql(leaveSql)
 		daily_entries = WkAttendance.find_by_sql(sqlStr)
 		@attendance_entries = Hash.new

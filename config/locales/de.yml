@@ -567,3 +567,5 @@ de:
   label_completion_time: Completion Time
   label_days: Days
   label_average: Average
+  report_civilian_attendance: Civilian Attendance
+  minimum_working_days_for_accrual: Minimum working days for leave accrual

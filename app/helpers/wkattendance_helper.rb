@@ -96,7 +96,9 @@ module WkattendanceHelper
 					accrual = leaveAccrual["#{entry.issue_id}"].to_i
 						
 					#Accrual will be given only when the user works atleast 11 days a month
-					if (entry.spent_hours.blank? || (!entry.spent_hours.blank? && entry.spent_hours < (defWorkTime * 11)) || !includeAccrual)
+					minWorkingDays = Setting.plugin_redmine_wktime['wktime_minimum_working_days_for_accrual']
+					minWorkingDays = minWorkingDays.blank? ? 0 : minWorkingDays.to_i
+					if (entry.spent_hours.blank? || (!entry.spent_hours.blank? && entry.spent_hours < (defWorkTime * minWorkingDays)) || !includeAccrual)
 						accrual = 0
 					end
 					lastMntBalance = entry.balance.blank? ? 0 : entry.balance
@@ -121,6 +123,12 @@ module WkattendanceHelper
 				end
 			end
 		end
+	end
+	
+	def convertHrTodays(hours)
+		defWorkTime = !Setting.plugin_redmine_wktime['wktime_default_work_time'].blank? ? Setting.plugin_redmine_wktime['wktime_default_work_time'].to_i : 8
+		noOfDays = (hours/defWorkTime).round
+		noOfDays
 	end
 	
 	def deleteWkUserLeaves(userId, accrualOn)

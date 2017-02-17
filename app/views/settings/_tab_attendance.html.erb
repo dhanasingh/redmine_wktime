@@ -146,11 +146,11 @@ lblYear = "<%=l(:label_year) %>";
 			</tr>
 			<tr>
 				<th align="left"><label><%= l(:label_wk_leave_accrual) %></label></th>
-				<td><%= text_field_tag('leave_accrual','', :size => 2.5, :maxlength => 3) %>&nbsp<%= l(:label_hours_per_month) %></td>		
+				<td><%= text_field_tag('leave_accrual','', :size => 2.5, :maxlength => 6) %>&nbsp<%= l(:label_hours_per_month) %></td>		
 			</tr>
 			<tr>
 				<th align="left"><label><%= l(:label_wk_leave_accrual_after) %></label></th>
-				<td><%= text_field_tag 'leave_accrual_after','', :size => 2.5, :maxlength => 3 %>&nbsp<%= l(:label_year) %></td>
+				<td><%= text_field_tag 'leave_accrual_after','', :size => 2.5, :maxlength => 6 %>&nbsp<%= l(:label_year) %></td>
 			</tr>
 			<tr>
 				<th align="left"><label><%= l(:button_reset) %> <%= l(:label_month) %></label></th>
@@ -161,6 +161,18 @@ lblYear = "<%=l(:label_year) %>";
 			</tr>
 		</table>
 	</div>
+	<%
+		noOfDays = []
+		for i in 0..31
+			noOfDays << [i,i]
+		end
+	%>
+	<p>
+		<label><%= l(:minimum_working_days_for_accrual) %></label>
+		<%= select_tag('settings[wktime_minimum_working_days_for_accrual]',
+				   options_for_select(noOfDays,									   
+										:selected => @settings['wktime_minimum_working_days_for_accrual'].blank? ? 0 : @settings['wktime_minimum_working_days_for_accrual'])) %>
+	</p>
 	<%
 		custom_fields = UserCustomField.order('name')
 		allFields = Hash.new()
