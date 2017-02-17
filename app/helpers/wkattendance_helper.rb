@@ -127,7 +127,7 @@ module WkattendanceHelper
 	
 	def convertHrTodays(hours)
 		defWorkTime = !Setting.plugin_redmine_wktime['wktime_default_work_time'].blank? ? Setting.plugin_redmine_wktime['wktime_default_work_time'].to_i : 8
-		noOfDays = (hours/defWorkTime).round
+		noOfDays = (hours/defWorkTime).round unless hours.blank?
 		noOfDays
 	end
 	
