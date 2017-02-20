@@ -8,6 +8,7 @@ lblInvalid= " <%= (CGI.unescapeHTML l('activerecord.errors.messages.invalid')).h
 lblDaysPerMonth = "<%=l(:label_hours_per_month) %>";
 lblAccrual = "<%=l(:label_wk_leave_accrual) %>";
 lblAccrualAfter = "<%=l(:label_wk_leave_accrual_after) %>";
+lblAccrualMultiplier = "<%=l(:label_accrual_multiplier) %>";
 lblLeaveIssue = "<%=l(:label_wk_leave_issue) %>";
 lblYear = "<%=l(:label_year) %>";
 </script>
@@ -147,6 +148,10 @@ lblYear = "<%=l(:label_year) %>";
 			<tr>
 				<th align="left"><label><%= l(:label_wk_leave_accrual) %></label></th>
 				<td><%= text_field_tag('leave_accrual','', :size => 2.5, :maxlength => 6) %>&nbsp<%= l(:label_hours_per_month) %></td>		
+			</tr>
+			<tr>
+				<th align="left"><label><%= l(:label_accrual_multiplier) %></label></th>
+				<td><%= text_field_tag 'leave_accrual_multiplier','1', :size => 2.5, :maxlength => 6 %></td>
 			</tr>
 			<tr>
 				<th align="left"><label><%= l(:label_wk_leave_accrual_after) %></label></th>

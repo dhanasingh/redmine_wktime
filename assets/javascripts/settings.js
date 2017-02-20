@@ -111,6 +111,7 @@ function dialogAction()
 				var leaveIssue = document.getElementById("leave_issue");
 				var leaveAccrual = document.getElementById("leave_accrual");
 				var accrualAfter = document.getElementById("leave_accrual_after");
+				var accrualMultiplier = document.getElementById("leave_accrual_multiplier");
 				var resetMonth = document.getElementById("wk_attn_leave_reset_month");
 				var shortName = document.getElementById("wk_leave_short_name");
 				if(!checkDuplicate(listBox,leaveIssue.value) && !isNaN(leaveAccrual.value) && !isNaN(accrualAfter.value) && leaveIssue.value != ""){
@@ -134,6 +135,7 @@ function dialogAction()
 						}
 						desc = desc + "|"  + resetMonth.value;	
 						desc = desc + "|"  + shortName.value;
+						desc = desc + "|"  + accrualMultiplier.value;
 					}	
 					opt.text =  opttext;
 					opt.value = desc;
@@ -152,6 +154,9 @@ function dialogAction()
 					}
 					if(isNaN(accrualAfter.value)){
 						alertMsg = alertMsg + lblAccrualAfter + " " + lblInvalid;
+					}
+					if(isNaN(accrualMultiplier.value)){
+						alertMsg = alertMsg + lblAccrualMultiplier + " " + lblInvalid;
 					}
 					alert(alertMsg);
 				}
@@ -302,6 +307,7 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 		var leaveIssue = document.getElementById("leave_issue");
 		var leaveProject = document.getElementById("leave_project");
 		var leaveAccrual = document.getElementById("leave_accrual");
+		var accrualMultiplier = document.getElementById("leave_accrual_multiplier");
 		var accrualAfter = document.getElementById("leave_accrual_after");
 		var resetMonth = document.getElementById("wk_attn_leave_reset_month");
 		var shortName = document.getElementById("wk_leave_short_name");
@@ -322,6 +328,7 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 			projectChanged(leaveProject,-1);
 			leaveAccrual.value = "";
 			accrualAfter.value = "";
+			accrualMultiplier.value = "1"
 			selectedIssue="";
 			resetMonth.value = 0
 			shortName.value = "";
@@ -336,6 +343,7 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 			accrualAfter.value = !listboxArr[2] ? "" : listboxArr[2];
 			resetMonth.value = listboxArr[3];
 			shortName.value = !listboxArr[4] ? "" : listboxArr[4];
+			accrualMultiplier.value = !listboxArr[5] ? "1" : listboxArr[5];
 			leaveAction = action;
 			$( "#leave-dlg" ).dialog( "open" )	
 		}

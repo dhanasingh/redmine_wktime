@@ -206,6 +206,14 @@ require 'csv'
 	
 	def edit		
 		sqlStr = getQueryStr + " where i.id in (#{getLeaveIssueIds}) and u.type = 'User' and u.id = #{params[:user_id]} order by i.subject"
+		leavesInfo = Setting.plugin_redmine_wktime['wktime_leave']
+		@accrualMultiplier = Hash.new
+		if !leavesInfo.blank?
+			leavesInfo.each do |leave|
+				issue_id = leave.split('|')[0].strip
+				@accrualMultiplier[issue_id.to_i] = leave.split('|')[5].blank? ? 1 : (leave.split('|')[5].strip).to_f
+			end
+		end
 		@leave_details = WkUserLeave.find_by_sql(sqlStr)
 		render :action => 'edit'
 	end
