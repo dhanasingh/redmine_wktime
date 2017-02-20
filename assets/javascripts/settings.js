@@ -114,7 +114,7 @@ function dialogAction()
 				var accrualMultiplier = document.getElementById("leave_accrual_multiplier");
 				var resetMonth = document.getElementById("wk_attn_leave_reset_month");
 				var shortName = document.getElementById("wk_leave_short_name");
-				if(!checkDuplicate(listBox,leaveIssue.value) && !isNaN(leaveAccrual.value) && !isNaN(accrualAfter.value) && leaveIssue.value != ""){
+				if(!checkDuplicate(listBox,leaveIssue.value) && !isNaN(leaveAccrual.value) && !isNaN(accrualAfter.value) && leaveIssue.value != "" && !isNaN(accrualMultiplier.value)){
 					if('Add'== leaveAction){	
 						opt = document.createElement("option");
 						listBox.options.add(opt);

@@ -169,7 +169,11 @@ lblYear = "<%=l(:label_year) %>";
 	<%
 		noOfDays = []
 		for i in 0..31
-			noOfDays << [i,i]
+			if i == 0
+				noOfDays << ['',i]
+			else
+				noOfDays << [i,i]
+			end
 		end
 	%>
 	<p>
