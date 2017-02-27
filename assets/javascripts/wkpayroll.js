@@ -21,3 +21,40 @@ function payrollFormSubmission()
 		document.getElementById("query_form").submit();
 	} 
 }
+
+
+$(function() {
+
+    $( "#myDialog" ).dialog({
+		autoOpen: false,
+		resizable: false,
+		modal: false,		
+		buttons: {
+			"Ok": function() {
+			var fromdate = document.getElementById("start_date").value;
+			if(fromdate != "")
+			{
+				$.ajax({
+				url: runperiodUrl,
+				type: 'get',
+				data: {fromdate:fromdate},
+				success: function(data){ alert("sucessfully updated."); },   
+				});
+				$( this ).dialog( "close" );
+			} else {
+				alert("Please select the date");
+			}
+				
+			},
+			Cancel: function() {
+				$( this ).dialog( "close" );
+			}
+		}
+	});
+	
+});
+
+function runperiodDatePicker()
+{
+	$( "#myDialog" ).dialog( "open" );
+}

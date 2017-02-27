@@ -111,7 +111,7 @@ function openReportPopup(){
 	}else{
 		popupUrl = popupUrl + '&period=' + period 
 	}
-	window.open(popupUrl, '_blank', 'location=yes,scrollbars=yes,status=yes');
+	window.open(popupUrl, '_blank', 'location=yes,scrollbars=yes,status=yes, resizable=yes'); 
 }
 
 function showReminderEmailDlg() {

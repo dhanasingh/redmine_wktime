@@ -50,7 +50,8 @@ module WkattendanceHelper
 		leaveAccAfter = Hash.new
 		resetMonth = Hash.new
 		strIssueIds = ""
-		currentMonthStart = Date.civil(Date.today.year, Date.today.month, 1)
+		processDate = params[:fromdate].to_s.to_date
+		currentMonthStart = Date.civil(processDate.year, processDate.month, 1)
 		if !leavesInfo.blank?
 			leavesInfo.each do |leave|
 				issue_id = leave.split('|')[0].strip
@@ -95,13 +96,13 @@ module WkattendanceHelper
 					yearDiff = ((Date.today - userJoinDate).to_i / 365.0)
 					accrualAfter = leaveAccAfter["#{entry.issue_id}"].to_f						
 					includeAccrual = yearDiff >= accrualAfter ? true : false
-					accrual = leaveAccrual["#{entry.issue_id}"].to_i
-					multiplier = accrualMultiplier["#{entry.issue_id}"].to_i
+					accrual = leaveAccrual["#{entry.issue_id}"].to_f
+					multiplier = accrualMultiplier["#{entry.issue_id}"].to_f
 						
 					#Accrual will be given only when the user works atleast 11 days a month
 					minWorkingDays = Setting.plugin_redmine_wktime['wktime_minimum_working_days_for_accrual']
-					minWorkingDays = minWorkingDays.blank? ? 0 : minWorkingDays.to_i
-					if (entry.spent_hours.blank? || (!entry.spent_hours.blank? && entry.spent_hours < (defWorkTime * minWorkingDays)) || !includeAccrual)
+					minWorkingDays = minWorkingDays.blank? ? 0 : minWorkingDays.to_f
+					if ((entry.spent_hours.blank? && minWorkingDays>0) || (!entry.spent_hours.blank? && entry.spent_hours < (defWorkTime * minWorkingDays)) || !includeAccrual)
 						accrual = 0
 					end
 					lastMntBalance = entry.balance.blank? ? 0 : entry.balance
