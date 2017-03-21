@@ -61,7 +61,7 @@ end %>
 		if index < 5
 		  listboxArr = element.split('|') 
 %>
-		<td class="lbl-num-align"><%=h entry['total'+index.to_s].round(2) %></td> 
+		<td class="lbl-num-align"><%=h entry['total'+index.to_s].round(2) unless entry['total'+index.to_s].blank? %></td> 
 <%
 		end
 	end
