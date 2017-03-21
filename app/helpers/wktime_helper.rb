@@ -1152,4 +1152,10 @@ end
 		grpArr
 	end
 	
+	def showTimeExpense
+		(!Setting.plugin_redmine_wktime['wktime_enable_time_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_time_module'].to_i == 1) || (!Setting.plugin_redmine_wktime['wktime_enable_expense_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_expense_module'].to_i == 1)
+	end
+	
 end

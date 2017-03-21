@@ -187,7 +187,7 @@ include WkinvoiceHelper
 		relatedArr
 	end
 	
-	def getAccordionSection(entity)
+	def getAccordionSection(entity, curObj)
 		accSections = ['wkcrmactivity']
 		case entity
 		when 'WkAccount'

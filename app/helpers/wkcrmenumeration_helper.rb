@@ -9,6 +9,11 @@ include WktimeHelper
 			'OT' => l(:label_opportunity) + " " + l(:label_type),
 			'AC' => l(:label_account) + " " + l(:field_category)
 		}
+		enumhash = call_hook :external_enum_type
+		unless enumhash.blank?
+			mergeHash = eval(enumhash)
+			enumerationType =  enumerationType.merge(mergeHash)
+		end
 		enumerationType	
 	end
 	

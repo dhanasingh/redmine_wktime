@@ -94,6 +94,10 @@ function openReportPopup(){
 		groupId = document.getElementById('group_id').value;
 		userId = document.getElementById('user_id').value;
 	}
+	if(document.getElementById('action_type')) {
+	   actionType = document.getElementById('action_type').value;
+	}
+	
 	var period = document.getElementById('period').value;
 	var searchlist = document.getElementById('searchlist').value;
 	var periodTypes = document.getElementsByName('period_type');
@@ -105,7 +109,8 @@ function openReportPopup(){
 			break;
 		}
 	}
-	popupUrl = wkattnReportUrl + '&report_type=' + reportType + '&group_id=' + groupId + '&user_id=' + userId + '&period_type=' + periodType + '&searchlist=' + searchlist; 
+	//popupUrl = wkattnReportUrl + '&report_type=' + reportType + '&group_id=' + groupId + '&user_id=' + userId + '&period_type=' + periodType + '&searchlist=' + searchlist; 
+	popupUrl = wkattnReportUrl + '&report_type=' + reportType + '&group_id=' + groupId + '&action_type=' + actionType + '&user_id=' + userId + '&period_type=' + periodType + '&searchlist=' + searchlist;
 	if(periodType>1){
 		popupUrl = popupUrl + '&from=' + fromVal + '&to=' + toVal		
 	}else{

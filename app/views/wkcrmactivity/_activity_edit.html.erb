@@ -37,7 +37,7 @@
 		</tr>
 		
 		<tr>
-			<th align="left"><%= l(:label_subject)+ "*" %></th>
+			<th align="left"><%= l(:label_subject) %><span style="color:red;">*</span></th>
 			<td align="left" style="padding-left:40px;"><%=h text_field_tag("activity_subject",(!@activityEntry.blank? ? @activityEntry[0].name : ""),:size => 20, :style => "width:180px;") %> </td>
 			<td></td>
 			<th align="left" style="padding-left:240px;"><label id="lblStatus"><%= l(:field_status) %></label></th>

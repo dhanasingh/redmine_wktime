@@ -23,7 +23,13 @@ module Redmine::MenuManager::MenuHelper
     if project && !project.new_record?
       :project_menu
     else
-      if %w(wktime wkexpense wkattendance wkreport wkpayroll  wkinvoice wkaccount wkcontract wkaccountproject wktax wkgltransaction wkledger wklead wkopportunity wkcrmactivity wkcrmcontact wkcrmenumeration).include? params[:controller]
+	  controllerArr = ["wktime", "wkexpense", "wkattendance", "wkreport", "wkpayroll",  "wkinvoice", "wkaccount", "wkcontract", "wkaccountproject", "wktax", "wkgltransaction", "wkledger", "wklead", "wkopportunity", "wkcrmactivity", "wkcrmcontact", "wkcrmenumeration"]
+	  externalMenus = call_hook :external_erpmine_menus
+	   externalMenus = externalMenus.split(' ')
+	  unless externalMenus.blank?
+		controllerArr = controllerArr + externalMenus
+	  end
+      if controllerArr.include? params[:controller]
         :wktime_menu
       else
         :application_menu
@@ -290,6 +296,7 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_max_hour_week' => '0',
 			 'wktime_restr_min_hour_week' => '0',
 			 'wktime_min_hour_week' => '0',
+			 'wktime_enable_time_module' => '1',
 			 'wktime_enable_expense_module' => '1',
 			 'wktime_enable_report_module' => '1',
 			 'wktime_enable_attendance_module' => '1',
@@ -318,15 +325,15 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_minimum_working_days_for_accrual' => '11',
 			 'wktime_enable_crm_module' => '0'
   })  
- 
-  menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_erpmine, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 	
+	menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_erpmine, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 
+  	
   project_module :time_tracking do
 	permission :approve_time_entries,  {:wktime => [:update]}, :require => :member	
   end
   
   
   Redmine::MenuManager.map :wktime_menu do |menu|
-	  menu.push :wktime, { :controller => 'wktime', :action => 'index' }, :caption => :label_te, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission }
+	  menu.push :wktime, { :controller => 'wktime', :action => 'index' }, :caption => :label_te, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showTimeExpense }
 	  menu.push :wkattendance, { :controller => 'wkattendance', :action => 'index' }, :caption => :report_attendance, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showAttendance}
 	  menu.push :wkpayroll, { :controller => 'wkpayroll', :action => 'index' }, :caption => :label_payroll, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showPayroll }
 	  menu.push :wklead, { :controller => 'wklead', :action => 'index' }, :caption => :label_crm, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showCRMModule }
