@@ -1,7 +1,7 @@
 <script src="//code.jquery.com/jquery-1.12.4.js"></script>
 <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-<%= javascript_heads %>
+<%#= javascript_heads #This change required to send CSRF tocken from popup%>
 <div id="accordion">
 	<% getAccordionSection(currentObj.class.name, currentObj).each do |section| %>
 		<% className = call_hook :get_accordion_class_name   %>
