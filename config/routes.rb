@@ -290,3 +290,5 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wkreport/report', :to => 'wkreport#report'
 	
 	# get 'wkreport/sales_act_rpt', :to => 'wkreport#sales_act_rpt'
+	
+	get 'wkpayment/index', :to => 'wkpayment#index'

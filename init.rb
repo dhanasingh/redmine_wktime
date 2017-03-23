@@ -23,7 +23,7 @@ module Redmine::MenuManager::MenuHelper
     if project && !project.new_record?
       :project_menu
     else
-	  controllerArr = ["wktime", "wkexpense", "wkattendance", "wkreport", "wkpayroll",  "wkinvoice", "wkaccount", "wkcontract", "wkaccountproject", "wktax", "wkgltransaction", "wkledger", "wklead", "wkopportunity", "wkcrmactivity", "wkcrmcontact", "wkcrmenumeration"]
+	  controllerArr = ["wktime", "wkexpense", "wkattendance", "wkreport", "wkpayroll",  "wkinvoice", "wkaccount", "wkcontract", "wkaccountproject", "wktax", "wkgltransaction", "wkledger", "wklead", "wkopportunity", "wkcrmactivity", "wkcrmcontact", "wkcrmenumeration", "wkpayment"]
 	  externalMenus = call_hook :external_erpmine_menus
 	   externalMenus = externalMenus.split(' ')
 	  unless externalMenus.blank?

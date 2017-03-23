@@ -574,3 +574,5 @@ fr:
   label_accrual_multiplier: Accrual Multiplier
   
   label_enable_time_module: Enable Time Module
+  
+  label_payments: Payments
