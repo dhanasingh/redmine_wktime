@@ -17,7 +17,8 @@
 
 class WkInvoice < ActiveRecord::Base
   unloadable
-  belongs_to :account, :class_name => 'WkAccount'
+  #belongs_to :account, :class_name => 'WkAccount'
+  belongs_to :parent, :polymorphic => true
   belongs_to :modifier , :class_name => 'User'
   belongs_to :gl_transaction , :class_name => 'WkGlTransaction', :dependent => :destroy
   has_many :invoice_items, foreign_key: "invoice_id", class_name: "WkInvoiceItem", :dependent => :destroy
@@ -25,6 +26,7 @@ class WkInvoice < ActiveRecord::Base
   
   attr_protected :modifier_id
   
-  validates_presence_of :account_id
+  #validates_presence_of :account_id
+  validates_presence_of :parent_id, :parent_type
   
 end

@@ -42,7 +42,8 @@ include WkgltransactionHelper
 		@invoice.end_date = invoicePeriod[1]
 		@invoice.invoice_date = invoiceDate
 		@invoice.modifier_id = User.current.id
-		@invoice.account_id = accountId
+		@invoice.parent_id = accountId
+		@invoice.parent_type = "WkAccount"
 		@invoice.invoice_number = getPluginSetting('wktime_invoice_no_prefix')
 		errorMsg = generateInvoiceItems(projectId)
 		unless @invoice.id.blank?
@@ -107,11 +108,11 @@ include WkgltransactionHelper
 	
 	def generateInvoiceItems(projectId)
 		if projectId.blank?  || projectId.to_i == 0
-			WkAccountProject.where(account_id: @invoice.account_id).find_each do |accProj|
+			WkAccountProject.where(parent_id: @invoice.parent_id, parent_type: 'WkAccount').find_each do |accProj|
 				errorMsg = addInvoiceItem(accProj)
 			end
 		else
-			accountProject = WkAccountProject.where("account_id = ? and project_id = ?", @invoice.account_id, projectId)
+			accountProject = WkAccountProject.where("parent_id = ? and parent_type = ? and project_id = ?", @invoice.parent_id, 'WkAccount', projectId)
 			errorMsg = addInvoiceItem(accountProject[0])
 		end
 		errorMsg
@@ -153,7 +154,7 @@ include WkgltransactionHelper
 	def saveFCInvoiceItem(scheduledEntry)
 		invItem = @invoice.invoice_items.new()
 		itemDesc = ""
-		if scheduledEntry.account_project.account.account_billing
+		if scheduledEntry.account_project.parent.account_billing
 			itemDesc = scheduledEntry.account_project.project.name + " - " + scheduledEntry.milestone
 		else
 			itemDesc = scheduledEntry.milestone
@@ -228,7 +229,7 @@ include WkgltransactionHelper
 				end
 				invItem = @invoice.invoice_items.new()
 				if accountProject.itemized_bill
-					description =  entry.issue.blank? ? entry.project.name : (accountProject.account.account_billing ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject)
+					description =  entry.issue.blank? ? entry.project.name : (accountProject.parent.account_billing ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject)
 					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], sumEntry[entry.issue_id], rateHash['currency'])
 				else
 					isContinue = true

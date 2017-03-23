@@ -30,10 +30,10 @@ before_filter :require_login
 			sqlwhere = "project_id = #{projectId}"
 		end
 		if !accountId.blank? &&  projectId.blank?
-			sqlwhere = "account_id = #{accountId}"
+			sqlwhere = "parent_id = #{accountId} and parent_type = 'WkAccount' "
 		end
 		if !accountId.blank? &&  !projectId.blank?
-			sqlwhere = "account_id = #{accountId} and project_id = #{projectId}"
+			sqlwhere = "parent_id = #{accountId} and parent_type = 'WkAccount' and project_id = #{projectId}"
 		end
 		
 		if accountId.blank? && projectId.blank?
@@ -70,7 +70,8 @@ before_filter :require_login
 		end
 		
 		wkaccountproject.project_id = params[:project_id].to_i
-		wkaccountproject.account_id = params[:account_id].to_i
+		wkaccountproject.parent_id = params[:account_id].to_i
+		wkaccountproject.parent_type = 'WkAccount'
 		wkaccountproject.apply_tax = params[:applytax]
 		wkaccountproject.itemized_bill = params[:itemized_bill]
 		wkaccountproject.billing_type = params[:billing_type]

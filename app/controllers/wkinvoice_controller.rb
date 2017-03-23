@@ -40,7 +40,7 @@ include WkinvoiceHelper
 			else
 				if (accountId.blank? || accountId.to_i == 0)
 					WkAccountProject.where(project_id: projectId).find_each do |accProj|
-						errorMsg = generateInvoices(accProj.account_id, accProj.project_id, @to + 1, [@from, @to])
+						errorMsg = generateInvoices(accProj.parent_id, accProj.project_id, @to + 1, [@from, @to])
 					end
 				else
 					errorMsg = generateInvoices(accountId, projectId, @to + 1, [@from, @to])
@@ -65,7 +65,7 @@ include WkinvoiceHelper
 				invEntries = WkInvoice.includes(:invoice_items)
 			end
 			if (!accountId.blank? || accountId.to_i != 0) && (projectId.blank? || projectId == "0")
-				invEntries = invEntries.where(:account_id => accountId)
+				invEntries = invEntries.where(:parent_id => accountId, :parent_type => 'WkAccount')
 			end
 			
 			if (accountId.blank? || accountId.to_i == 0) && (!projectId.blank? && projectId != "0")
@@ -73,7 +73,7 @@ include WkinvoiceHelper
 			end
 			
 			if (!accountId.blank? || accountId.to_i != 0) && (!projectId.blank? &&  projectId != "0")
-				invEntries = invEntries.where( :wk_invoice_items => { :project_id => projectId }, :account_id => accountId)
+				invEntries = invEntries.where( :wk_invoice_items => { :project_id => projectId }, :parent_id => accountId, :parent_type => 'WkAccount')
 			end
 			formPagination(invEntries)
 			@totalInvAmt = @invoiceEntries.sum("wk_invoice_items.amount")
@@ -138,9 +138,9 @@ include WkinvoiceHelper
 			WkInvoiceItem.delete_all(:id => arrId)
 		end
 		
-		accountId = @invoice.account_id		
+		accountId = @invoice.parent_id		
 		tothash.each do|key, val|
-			accountProject = WkAccountProject.where("project_id = ?  and account_id = ? ", key, accountId)
+			accountProject = WkAccountProject.where("project_id = ?  and parent_id = ? and parent_type = ? ", key, accountId, 'WkAccount')
 			addTaxes(accountProject[0], val[1], val[0])
 		end
 		
@@ -196,7 +196,7 @@ include WkinvoiceHelper
 	def getProjArrays(account_id)		
 		sqlStr = "left outer join projects on projects.id = wk_account_projects.project_id "
 		if !account_id.blank?
-				sqlStr = sqlStr + " where wk_account_projects.account_id = #{account_id} "
+				sqlStr = sqlStr + " where wk_account_projects.parent_id = #{account_id} and wk_account_projects.parent_type = 'WkAccount' "
 		end
 		
 		WkAccountProject.joins(sqlStr).select("projects.name as project_name, projects.id as project_id").distinct(:project_id)

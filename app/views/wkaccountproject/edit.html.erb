@@ -11,7 +11,7 @@
 	<%= hidden_field_tag "accountProjectId", @accProjEntry.blank? ? "" : @accProjEntry.id %>
 	<div class="div-left">
 	<table>
-		<tr><td><label><%= l(:label_account_name) %></label></td><td><%=h select_tag('account_id', options_for_select(accArr, :selected => @accProjEntry.blank? ? accArr : @accProjEntry.account_id ), :required => true) %></td></tr>
+		<tr><td><label><%= l(:label_account_name) %></label></td><td><%=h select_tag('account_id', options_for_select(accArr, :selected => @accProjEntry.blank? ? accArr : @accProjEntry.parent_id ), :required => true) %></td></tr>
 		<tr><td><label><%= l(:label_project) %></label></td><td><%=h select_tag('project_id', options_for_select(projArr, :selected =>  @accProjEntry.blank?  ?  projArr : @accProjEntry.project_id)) %></td></tr>
 		<tr><td><label><%= l(:label_itemized_bill) %></label></td><td><%= check_box_tag('itemized_bill', 1, (@accProjEntry.blank? ? false : @accProjEntry.itemized_bill)) %></td></tr>
 		<tr><td><label><%= l(:label_billing_type) %></label></td><td><%=h select_tag('billing_type', options_for_select(billing_type.invert, :selected => (@accProjEntry.blank? ? 'TM' : @accProjEntry.billing_type) ), :onchange => "showorHide((this.value == 'FC' ? true : false), 'billingschdules');") %></td></tr>

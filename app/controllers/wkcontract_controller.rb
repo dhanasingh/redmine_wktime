@@ -31,10 +31,10 @@ before_filter :require_login
 			sqlwhere = "project_id = #{projectId}"
 		end
 		if !accountId.blank? &&  projectId.blank?
-			sqlwhere = "account_id = #{accountId}"
+			sqlwhere = "parent_id = #{accountId} and parent_type = 'WkAccount' "
 		end
 		if !accountId.blank? &&  !projectId.blank?
-			sqlwhere = "account_id = #{accountId} and project_id = #{projectId}"
+			sqlwhere = "parent_id = #{accountId} and parent_type = 'WkAccount' and project_id = #{projectId}"
 		end
 		
 		if accountId.blank? && projectId.blank?
@@ -95,7 +95,8 @@ before_filter :require_login
 		    wkContract = WkContract.find(params[:contract_id].to_i)
 	    end
 		wkContract.project_id = params[:project_id]
-		wkContract.account_id = params[:account_id]
+		wkContract.parent_id = params[:account_id]
+		wkContract.parent_type = 'WkAccount'
 		wkContract.contract_number = getPluginSetting('wktime_contract_no_prefix')
 		wkContract.start_date = params[:start_date]
 		wkContract.end_date = params[:end_date]

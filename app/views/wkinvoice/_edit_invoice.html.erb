@@ -13,10 +13,10 @@
 <div class="autoscroll">
 <% row_index = 1 %>
 <% total = 0 %>
-<%	#if @invoice.account.account_billing
-	#	projects = @invoice.account.wk_account_projects.collect{|m| [ m.project.name, m.project_id ] } 
+<%	#if @invoice.parent.account_billing
+	#	projects = @invoice.parent.wk_account_projects.collect{|m| [ m.project.name, m.project_id ] } 
 	#else
-	#	projects = @invoice.account.wk_account_projects.where("project_id = ?", @invoiceItem[0].project_id ).collect{|m| [ m.project.name, m.project_id ] } 
+	#	projects = @invoice.parent.wk_account_projects.where("project_id = ?", @invoiceItem[0].project_id ).collect{|m| [ m.project.name, m.project_id ] } 
 	#end 
 	projects = @invoiceItem.select(:project_id).distinct.collect{|m| [ m.project.name, m.project_id ] } 
 %>	

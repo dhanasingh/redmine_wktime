@@ -17,7 +17,7 @@
 					<% end %>
 					<tr>
 						<th align="left"><%= l(:label_account) %></th>
-						<td align="left" style="padding-left:40px;"><%=h select_tag('account_id', options_for_select(accArr, :selected => @contractEntry.blank? ? "" : @contractEntry.account_id),:required => true) %></td>
+						<td align="left" style="padding-left:40px;"><%=h select_tag('account_id', options_for_select(accArr, :selected => @contractEntry.blank? ? "" : @contractEntry.parent_id),:required => true) %></td>
 					</tr>  
 					<tr>
 						<th align="left"><%= l(:label_project) %></th>
