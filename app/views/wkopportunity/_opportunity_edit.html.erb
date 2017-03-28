@@ -29,10 +29,10 @@
 		<%  selectedOTId = @oppEditEntry.blank? ? nil : @oppEditEntry[0].opportunity_type_id %>
 		<tr>
 			<th align="left"><%= l(:label_txn_sales) + " " + l(:label_stage) %></th>
-			<td align="left" style="padding-left:40px;"><%=h select_tag('sales_stage', options_for_select(options_for_enum_select('SS', selectedSSId))) %></td>
+			<td align="left" style="padding-left:40px;"><%=h select_tag('sales_stage', options_for_select(options_for_enum_select('SS', selectedSSId, true))) %></td>
 			
 			<th align="left" style="padding-left:240px;"><%= l(:label_type) %></th>
-			<td align="left" style="padding-left:40px;"><%=h select_tag('opp_type', options_for_select(options_for_enum_select('OT', selectedOTId))) %></td>
+			<td align="left" style="padding-left:40px;"><%=h select_tag('opp_type', options_for_select(options_for_enum_select('OT', selectedOTId, true))) %></td>
 		</tr>
 		
 		<tr>
@@ -60,7 +60,7 @@
 			<%=h select_tag("related_parent", options_for_select(accArr, :selected => (!@oppEditEntry.blank? ? @oppEditEntry[0].parent_id : (params[:parentId].blank? ? "" : params[:parentId]))), :style => "width:200px;") %></td> 
 			<%  selectedLsId = (!@oppEditEntry.blank? && !@oppEditEntry[0].lead_source_id.blank? ? @oppEditEntry[0].lead_source_id : nil) %>
 			<th align="left" style="padding-left:240px;"><%= l(:label_lead_source) %></th>
-			<td align="left" style="padding-left:40px;"><%=h select_tag('lead_source_id', options_for_select(options_for_enum_select('LS', selectedLsId)),:required => true) %></td>
+			<td align="left" style="padding-left:40px;"><%=h select_tag('lead_source_id', options_for_select(options_for_enum_select('LS', selectedLsId, true)),:required => true) %></td>
 			
 		</tr>
 		

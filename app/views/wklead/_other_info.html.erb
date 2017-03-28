@@ -8,7 +8,7 @@
 		<%  selectedLsId = @lead.blank? ? nil : @lead.lead_source_id %>
 		<tr>
 			 <th align="left"><%= l(:label_lead_source) %></th>
-			 <td align="left" style="padding-left:75px;"><%=h select_tag('lead_source_id', options_for_select(options_for_enum_select('LS', selectedLsId)),:required => true) %></td>
+			 <td align="left" style="padding-left:75px;"><%=h select_tag('lead_source_id', options_for_select(options_for_enum_select('LS', selectedLsId, true)),:required => true) %></td>
 		</tr>
 		<tr>
 			 <th align="left"><%= l(:label_opportunity_amount) %></th>

@@ -574,3 +574,5 @@ de:
   label_enable_time_module: Enable Time Module
   
   label_payments: Payments
+  label_payment_date: Payment Date
+  label_payment_type: Payment Type
