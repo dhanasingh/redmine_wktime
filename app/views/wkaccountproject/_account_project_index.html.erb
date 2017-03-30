@@ -2,20 +2,28 @@
 <%= hidden_field_tag 'back_url', url_for(params) %>
 
 	<%= form_tag({:controller => "wkaccountproject", :action => 'index', :tab => controller_name}, :method => :get, :id => 'query_form') do %>
+	<fieldset>
 	<%= hidden_field_tag "searchlist", "accountproject" %>
 	<%=h hidden_field_tag('tab', "wkaccountproject") %>
-	<%	accid =session[:accountproject][:account_id]
+	<%	contactId =session[:accountproject][:contact_id]
+		accountId =session[:accountproject][:account_id]
+		filterSession =session[:accountproject][:polymorphic_filter]
 		projid =session[:accountproject][:project_id] %>
-	<%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	
-	<%	projArr = options_for_wktime_project(projects,true) %>
-	<%	accArr = options_for_wktime_account(true) %>
-		<label><%= l(:label_account_name) %></label>
-		<%=h select_tag('account_id', options_for_select(accArr, :selected => accid.nil? ? accArr : accid)) %>
-		<label><%= l(:label_project) %></label>
-		<%=h select_tag('project_id', options_for_select(projArr, :selected => projid.nil? ? projArr : projid)) %>	
-		<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
-		<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
-
+	<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :filter_session => filterSession, :project_id => projid, :pjtChanged => false, :isapply => true } %>
+	</table>
+			</div>
+			<div style="clear:both;"></div>
+	<%#	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	
+	<%#	projArr = options_for_wktime_project(projects,true) %>
+	<%#	accArr = options_for_wktime_account(true) %>
+	<!--	<label><%#= l(:label_account_name) %></label>
+		<%#=h select_tag('account_id', options_for_select(accArr, :selected => accid.nil? ? accArr : accid)) %>
+		<label><%#= l(:label_project) %></label>
+		<%#=h select_tag('project_id', options_for_select(projArr, :selected => projid.nil? ? projArr : projid)) %>	
+		<%#= submit_tag l(:button_apply), :class => "small", :name => nil %>
+		<%#= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
+	-->
+	</fieldset>
 	<% end %>
 	<div class="wk-contextual">
         <%= link_to l(:label_new_billing_project), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>

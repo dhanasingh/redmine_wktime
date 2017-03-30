@@ -19,5 +19,6 @@ module WkcontractHelper
 
 include WktimeHelper
 include AttachmentsHelper
+include WkcrmHelper
 
 end

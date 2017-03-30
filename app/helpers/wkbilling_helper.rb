@@ -18,4 +18,12 @@
 module WkbillingHelper
 	include WktimeHelper
 	include WkinvoiceHelper
+	
+	def accountPolymormphicHash
+		typeHash = {
+			'WkAccount' => l(:label_account),
+			'WkCrmContact' => l(:label_contact) 
+		}
+		typeHash
+	end
 end

@@ -490,10 +490,10 @@ Rails.configuration.to_prepare do
 					if runJob
 						Rails.logger.info "==========Invoice job - Started=========="
 						invoiceHelper = Object.new.extend(WkinvoiceHelper)
-						allAccounts = WkAccount.all
+						allAccProjets = WkAccountProject.all
 						errorMsg = nil
-						allAccounts.each do |account|
-							errorMsg = invoiceHelper.generateInvoices(account.id, nil, currentMonthStart, invoicePeriod)
+						allAccProjets.each do |accProj|
+							errorMsg = invoiceHelper.generateInvoices(accProj, nil, currentMonthStart, invoicePeriod)#account.id
 						end
 						if errorMsg.blank?
 							Rails.logger.info "===== Invoice generated Successfully ====="

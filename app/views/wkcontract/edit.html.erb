@@ -5,6 +5,10 @@
 		   <%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	
 		   <%	projArr = options_for_wktime_project(projects,true) %>
 		   <%	accArr = options_for_wktime_account(false) %>
+		   <%   relHash = relatedHash
+				relHash.delete("WkOpportunity")
+				relHash.delete("WkLead") 
+			%>
 		<div class="splitcontentleft">
 			<fieldset class="box tabular">
 				<legend><%=l(:label_contract_information)%></legend>
@@ -15,10 +19,7 @@
 							<td align="left" style="padding-left:40px;"><%=h @contractEntry.contract_number %> </td>
 						</tr>
 					<% end %>
-					<tr>
-						<th align="left"><%= l(:label_account) %></th>
-						<td align="left" style="padding-left:40px;"><%=h select_tag('account_id', options_for_select(accArr, :selected => @contractEntry.blank? ? "" : @contractEntry.parent_id),:required => true) %></td>
-					</tr>  
+					<%= render partial: "wkcrm/view_polymorphic", locals: { parentObject: @contractEntry.blank? ? nil : @contractEntry, :parentType => "", :parentId => "", :index => false } %> 
 					<tr>
 						<th align="left"><%= l(:label_project) %></th>
 						<td align="left" style="padding-left:40px;"><%=h select_tag('project_id', options_for_select(projArr, :selected => @contractEntry.blank? ? "" : @contractEntry.project_id)) %></td>

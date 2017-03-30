@@ -21,6 +21,7 @@ include WkattendanceHelper
 include WkaccountingHelper
 include WkgltransactionHelper
 
+
     def options_for_wktime_account(blankOption)
 		accArr = Array.new
 		if blankOption
@@ -35,15 +36,15 @@ include WkgltransactionHelper
 		accArr
 	end
 	
-	def addInvoice(accountId, projectId, invoiceDate,invoicePeriod)
+	def addInvoice(parentId, parentType,  projectId, invoiceDate,invoicePeriod)
 		@invoice = WkInvoice.new
 		@invoice.status = 'o'
 		@invoice.start_date = invoicePeriod[0]
 		@invoice.end_date = invoicePeriod[1]
 		@invoice.invoice_date = invoiceDate
 		@invoice.modifier_id = User.current.id
-		@invoice.parent_id = accountId
-		@invoice.parent_type = "WkAccount"
+		@invoice.parent_id = parentId
+		@invoice.parent_type = parentType
 		@invoice.invoice_number = getPluginSetting('wktime_invoice_no_prefix')
 		errorMsg = generateInvoiceItems(projectId)
 		unless @invoice.id.blank?
@@ -93,26 +94,27 @@ include WkgltransactionHelper
 		errorMsg
 	end
 		
-	def generateInvoices(accountId, projectId, invoiceDate,invoicePeriod)
+	def generateInvoices(billProject, projectId, invoiceDate,invoicePeriod)#parentId, parentType
 		errorMsg = nil
-		account = WkAccount.find(accountId)
-		if (projectId.blank? || projectId.to_i == 0)  && !account.account_billing
-			account.projects.each do |project|
-				errorMsg = addInvoice(accountId, project.id, invoiceDate,invoicePeriod)
+		#account = nil
+		#account = WkAccount.find(parentId) unless parentType == 'WkCrmContact'
+		if (projectId.blank? || projectId.to_i == 0)  && !isAccountBilling(billProject)#account.account_billing 
+			billProject.parent.projects.each do |project|
+				errorMsg = addInvoice(billProject.parent_id, billProject.parent_type, project.id, invoiceDate,invoicePeriod)
 			end
 		else
-			errorMsg = addInvoice(accountId, projectId, invoiceDate,invoicePeriod)
+			errorMsg = addInvoice(billProject.parent_id, billProject.parent_type, projectId, invoiceDate,invoicePeriod)
 		end
 		errorMsg
 	end
 	
 	def generateInvoiceItems(projectId)
 		if projectId.blank?  || projectId.to_i == 0
-			WkAccountProject.where(parent_id: @invoice.parent_id, parent_type: 'WkAccount').find_each do |accProj|
+			WkAccountProject.where(parent_id: @invoice.parent_id, parent_type: @invoice.parent_type).find_each do |accProj|
 				errorMsg = addInvoiceItem(accProj)
 			end
 		else
-			accountProject = WkAccountProject.where("parent_id = ? and parent_type = ? and project_id = ?", @invoice.parent_id, 'WkAccount', projectId)
+			accountProject = WkAccountProject.where("parent_id = ? and parent_type = ? and project_id = ?", @invoice.parent_id, @invoice.parent_type, projectId)
 			errorMsg = addInvoiceItem(accountProject[0])
 		end
 		errorMsg
@@ -153,8 +155,8 @@ include WkgltransactionHelper
 	# Add the invoice items for the scheduled entries
 	def saveFCInvoiceItem(scheduledEntry)
 		invItem = @invoice.invoice_items.new()
-		itemDesc = ""
-		if scheduledEntry.account_project.parent.account_billing
+		itemDesc = ""		
+		if isAccountBilling(scheduledEntry.account_project) #scheduledEntry.account_project.parent.account_billing
 			itemDesc = scheduledEntry.account_project.project.name + " - " + scheduledEntry.milestone
 		else
 			itemDesc = scheduledEntry.milestone
@@ -202,7 +204,7 @@ include WkgltransactionHelper
 				lastUserId = entry.user_id
 				lastIssueId = entry.issue_id
 				if accountProject.itemized_bill
-					description = entry.issue.blank? ? entry.project.name : (accountProject.account.account_billing ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject) + " - " + entry.user.membership(entry.project).roles[0].name
+					description = entry.issue.blank? ? entry.project.name : (isAccountBilling(accountProject) ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject) + " - " + entry.user.membership(entry.project).roles[0].name
 					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], sumEntry[[entry.issue_id, entry.user_id]], rateHash['currency'])
 				else
 					description = accountProject.project.name + " - " + entry.user.membership(entry.project).roles[0].name
@@ -228,8 +230,8 @@ include WkgltransactionHelper
 					end
 				end
 				invItem = @invoice.invoice_items.new()
-				if accountProject.itemized_bill
-					description =  entry.issue.blank? ? entry.project.name : (accountProject.parent.account_billing ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject)
+				if accountProject.itemized_bill					
+					description =  entry.issue.blank? ? entry.project.name : (isAccountBilling(accountProject) ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject)
 					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], sumEntry[entry.issue_id], rateHash['currency'])
 				else
 					isContinue = true
@@ -426,5 +428,13 @@ include WkgltransactionHelper
 	
 	def autoPostGL
 		(!Setting.plugin_redmine_wktime['invoice_auto_post_gl'].blank? && Setting.plugin_redmine_wktime['invoice_auto_post_gl'].to_i == 1)
+	end
+	
+	def isAccountBilling(accountProject)
+		ret = false
+		if accountProject.parent_type == 'WkAccount'
+			ret = accountProject.parent.account_billing
+		end
+		ret
 	end
 end

@@ -298,17 +298,18 @@ function progrpChanged(btnoption, userid, needBlankOption){
 	}
 }
 
-function accProjChanged(uid)
+function accProjChanged(uid, fldId)
 {
-	var acc_name = document.getElementById("account_id");
-	var accId = acc_name.options[acc_name.selectedIndex].value;
+	var acc_name = document.getElementById(fldId);//document.getElementById("account_id");
+	var parentId = acc_name.options[acc_name.selectedIndex].value;
+	var parentType = fldId == 'contact_id' && parentId != "" ? 'WkCrmContact' : ( fldId == 'account_id' && parentId != "" ? 'WkAccount' : '');
 	var needBlankOption = true;
 	var projDropdown = document.getElementById("project_id");
 	userid = uid;
 	$.ajax({
 	url: accountUrl,
 	type: 'get',
-	data: {account_id: accId},
+	data: {parent_id: parentId, parent_type: parentType},
 	success: function(data){ updateUserDD(data, projDropdown, userid, needBlankOption, false, "");},   
 	});
 }

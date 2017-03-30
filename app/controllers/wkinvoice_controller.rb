@@ -27,25 +27,66 @@ include WkinvoiceHelper
 		errorMsg = nil
 		set_filter_session
 		retrieve_date_range
-		accountId = session[:wkinvoice][:account_id]
+		sqlwhere = ""
+	#	accountId = session[:wkinvoice][:account_id]
+	#	projectId	= session[:wkinvoice][:project_id]
+		filter_type = session[:wkinvoice][:polymorphic_filter]
+		contact_id = session[:wkinvoice][:contact_id]
+		account_id = session[:wkinvoice][:account_id]
 		projectId	= session[:wkinvoice][:project_id]
-		accountProjects = getProjArrays(accountId)
+		parentType = ""
+		parentId = ""
+		if filter_type == '2' && !contact_id.blank?
+			parentType = 'WkCrmContact'
+			parentId = 	contact_id
+		elsif filter_type == '2' && contact_id.blank?
+			parentType = 'WkCrmContact'
+		end
+		
+		if filter_type == '3' && !account_id.blank?
+			parentType =  'WkAccount'
+			parentId = 	account_id
+		elsif filter_type == '3' && account_id.blank?
+			parentType =  'WkAccount'
+		end
+		
+		accountProjects = getProjArrays(parentId, parentType)
 		@projects = accountProjects.collect{|m| [ m.project_name, m.project_id ] } if !accountProjects.blank?
-		unless params[:generate].blank? || !to_boolean(params[:generate])
-			if (accountId.blank? || accountId.to_i == 0) && (projectId.blank? || projectId.to_i == 0)
-				allAccounts = WkAccount.all
-				allAccounts.each do |account|
-					errorMsg = generateInvoices(account.id, projectId, @to + 1, [@from, @to])
+		
+		unless parentId.blank? 
+			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+			sqlwhere = sqlwhere + " parent_id = '#{parentId}' "
+		end
+		
+		unless parentType.blank?
+			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+			sqlwhere = sqlwhere + " parent_type = '#{parentType}'  "
+		end
+		
+		
+		
+		unless params[:generate].blank? || !to_boolean(params[:generate])	
+			unless projectId.blank? || projectId == 0
+				sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+				sqlwhere = sqlwhere + " project_id = '#{projectId}' "
+			end
+			if filter_type == '2'  || filter_type == '3' 
+				WkAccountProject.where(sqlwhere).find_each do |accProj|
+					errorMsg = generateInvoices(accProj, projectId, @to + 1, [@from, @to])#accProj.parent_id,accProj.parent_type
 				end
-			else
-				if (accountId.blank? || accountId.to_i == 0)
-					WkAccountProject.where(project_id: projectId).find_each do |accProj|
-						errorMsg = generateInvoices(accProj.parent_id, accProj.project_id, @to + 1, [@from, @to])
-					end
+			end			
+			
+			if filter_type == '1'  
+				if  projectId.blank?
+					accProjects = WkAccountProject.all					
 				else
-					errorMsg = generateInvoices(accountId, projectId, @to + 1, [@from, @to])
+					accProjects = WkAccountProject.where(project_id: projectId)
+				end	
+				accProjects.each do |accProj|
+					errorMsg = generateInvoices(accProj, projectId, @to + 1, [@from, @to])#accProj.parent_id,accProj.parent_type
 				end
 			end
+			
 			if errorMsg.blank?	
 				redirect_to :action => 'index' , :tab => 'wkinvoice'
 				flash[:notice] = l(:notice_successful_update)
@@ -58,23 +99,31 @@ include WkinvoiceHelper
 				end
 				redirect_to :action => 'index'
 			end	
-		else
-			if !@from.blank? && !@to.blank?
-				invEntries = WkInvoice.includes(:invoice_items).where( :invoice_date => @from .. @to)
-			else
+		else				
+			
+			if !@from.blank? && !@to.blank?			
+				sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+				sqlwhere = sqlwhere + " invoice_date between '#{@from}' and '#{@to}'  "
+			end
+			
+			if filter_type == '1' && (projectId.blank? || projectId == 0)
 				invEntries = WkInvoice.includes(:invoice_items)
+			else
+				invEntries = WkInvoice.includes(:invoice_items).where(sqlwhere)
 			end
-			if (!accountId.blank? || accountId.to_i != 0) && (projectId.blank? || projectId == "0")
-				invEntries = invEntries.where(:parent_id => accountId, :parent_type => 'WkAccount')
-			end
+			# if (!accountId.blank? || accountId.to_i != 0) && (projectId.blank? || projectId == "0")
+				# invEntries = invEntries.where(:parent_id => accountId, :parent_type => 'WkAccount')
+			# end
 			
-			if (accountId.blank? || accountId.to_i == 0) && (!projectId.blank? && projectId != "0")
-				invEntries = invEntries.where( :wk_invoice_items => { :project_id => projectId })
-			end
+			# if (accountId.blank? || accountId.to_i == 0) && (!projectId.blank? && projectId != "0")
+				# invEntries = invEntries.where( :wk_invoice_items => { :project_id => projectId })
+			# end
 			
-			if (!accountId.blank? || accountId.to_i != 0) && (!projectId.blank? &&  projectId != "0")
-				invEntries = invEntries.where( :wk_invoice_items => { :project_id => projectId }, :parent_id => accountId, :parent_type => 'WkAccount')
-			end
+			# if (!accountId.blank? || accountId.to_i != 0) && (!projectId.blank? &&  projectId != "0")
+				# invEntries = invEntries.where( :wk_invoice_items => { :project_id => projectId }, :parent_id => accountId, :parent_type => 'WkAccount')
+			# end
+			
+			
 			formPagination(invEntries)
 			@totalInvAmt = @invoiceEntries.sum("wk_invoice_items.amount")
 		end
@@ -181,7 +230,7 @@ include WkinvoiceHelper
   
     def getAccountProjIds
 		accArr = ""	
-		accProjId = getProjArrays(params[:account_id])
+		accProjId = getProjArrays(params[:parent_id], params[:parent_type] )
 		if !accProjId.blank?
 			accProjId.each do | entry|
 				accArr <<  entry.project_id.to_s() + ',' + entry.project_name.to_s()  + "\n" 
@@ -193,10 +242,10 @@ include WkinvoiceHelper
 		
     end
 	
-	def getProjArrays(account_id)		
+	def getProjArrays(parent_id, parent_type)		
 		sqlStr = "left outer join projects on projects.id = wk_account_projects.project_id "
-		if !account_id.blank?
-				sqlStr = sqlStr + " where wk_account_projects.parent_id = #{account_id} and wk_account_projects.parent_type = 'WkAccount' "
+		if !parent_id.blank? && !parent_type.blank?
+				sqlStr = sqlStr + " where wk_account_projects.parent_id = #{parent_id} and wk_account_projects.parent_type = '#{parent_type}' "
 		end
 		
 		WkAccountProject.joins(sqlStr).select("projects.name as project_name, projects.id as project_id").distinct(:project_id)
@@ -204,14 +253,16 @@ include WkinvoiceHelper
 	
   	def set_filter_session
         if params[:searchlist].blank? && session[:wkinvoice].nil?
-			session[:wkinvoice] = {:period_type => params[:period_type],:period => params[:period], :account_id => params[:account_id], :project_id => params[:project_id], :from => @from, :to => @to}
+			session[:wkinvoice] = {:period_type => params[:period_type],:period => params[:period], :contact_id => params[:contact_id], :account_id => params[:account_id], :project_id => params[:project_id], :polymorphic_filter =>  params[:polymorphic_filter], :from => @from, :to => @to}
 		elsif params[:searchlist] =='wkinvoice'
 			session[:wkinvoice][:period_type] = params[:period_type]
 			session[:wkinvoice][:period] = params[:period]
 			session[:wkinvoice][:from] = params[:from]
 			session[:wkinvoice][:to] = params[:to]
-			session[:wkinvoice][:account_id] = params[:account_id]
+			session[:wkinvoice][:contact_id] = params[:contact_id]
 			session[:wkinvoice][:project_id] = params[:project_id]
+			session[:wkinvoice][:account_id] = params[:account_id]
+			session[:wkinvoice][:polymorphic_filter] = params[:polymorphic_filter]
 		end
 		
    end

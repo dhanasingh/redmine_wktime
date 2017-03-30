@@ -1,0 +1,27 @@
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<script type="text/javascript"> 
+	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds')}" %>";
+</script>
+<% 
+	parentArr = options_for_wktime_account(false)
+	if !parentObject.blank?
+		parentArr = relatedValues(parentObject.parent_type, parentObject.parent_id)	
+    elsif !parentType.blank?
+		parentArr = relatedValues(parentType, :parentId)		
+	end
+	#parentArr.unshift(["",''])
+	relHash = relatedHash
+	relHash.delete("WkOpportunity")
+	relHash.delete("WkLead")
+	#unless index
+	#	relHash.delete("")
+	#end
+%>
+<tr>
+	<th align="left"><%= l(:label_type) %></th>
+	<td style="padding-left:40px;"><%=h select_tag('related_to', options_for_select(relHash.invert, :selected => parentObject.blank? ? (parentType.blank? ? "" : parentType) : parentObject.parent_type ), :onchange => "actRelatedDd(#{User.current.id})") %></td>
+</tr>
+<tr>
+	<th align="left"><%= l(:field_name) %></th>
+	<td style="padding-left:40px;"><%=h select_tag('related_parent', options_for_select(parentArr, :selected => parentObject.blank? ? (parentId.blank? ? "" : parentId) : parentObject.parent_id )) %></td>
+</tr>

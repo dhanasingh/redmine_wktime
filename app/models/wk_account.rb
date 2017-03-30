@@ -18,10 +18,10 @@
 class WkAccount < ActiveRecord::Base
   unloadable
   belongs_to :address, :class_name => 'WkAddress', :dependent => :destroy
-  has_many :wk_account_projects, as: :parent, class_name: "WkAccountProject", :dependent => :destroy
+  has_many :billable_projects, as: :parent, class_name: "WkAccountProject", :dependent => :destroy
   has_many :invoices, as: :parent, class_name: "WkInvoice", :dependent => :restrict_with_error
   has_many :invoice_items, through: :invoices
-  has_many :projects, through: :wk_account_projects
+  has_many :projects, through: :billable_projects
   has_many :contracts, as: :parent, class_name: "WkContract", :dependent => :destroy
   has_many :opportunities, as: :parent, class_name: "WkOpportunity", :dependent => :destroy
   has_many :activities, as: :parent, class_name: 'WkCrmActivity', :dependent => :destroy

@@ -4,8 +4,9 @@
   <thead>
          <tr>
 				<th class="lbl-txt-align"><%= l(:label_invoice_number) %></th>
-				<th class="lbl-txt-align"><%= l(:label_project_name) %></th>
-				<th class="lbl-txt-align"><%= l(:label_account_name) %></th>				
+				<th class="lbl-txt-align"><%= l(:label_type) %></th>
+				<th class="lbl-txt-align"><%= l(:field_name) %></th>
+				<th class="lbl-txt-align"><%= l(:label_project) %></th>
 				<th class="lbl-txt-align"><%= l(:field_status) %></th>		
 				<th class="lbl-txt-align"><%= l(:label_invoice_date) %></th>
 				<th class="lbl-txt-align"><%= l(:field_start_date) %></th>
@@ -24,8 +25,10 @@
 		%>
 		 <tr>
 		    <td class="lbl-txt-align"><%=h entry.invoice_number  %></td>
-			<td class="lbl-txt-align"><%=h projectName %></td>
+			<td class="lbl-txt-align"><%=h entry.parent_type == 'WkAccount' ? 'Account' : 'Contact'  %></td>
 			<td class="lbl-txt-align"><%=h entry.parent.name  %></td>
+			<td class="lbl-txt-align"><%=h projectName %></td>
+			
 			<td class="lbl-txt-align"><%=h (entry.status == 'o' ? 'open' : 'closed')  %></td>
 			<td class="lbl-txt-align"><%=h entry.invoice_date  %></td>			
 			<td class="lbl-txt-align"><%=h entry.start_date  %></td>

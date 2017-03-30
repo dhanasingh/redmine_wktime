@@ -1,0 +1,69 @@
+<% 
+	polymorphic_filter = filter_session
+	
+	allSelection = false
+	contactSelection = false
+	accountSelection = false
+	if polymorphic_filter == '1' || polymorphic_filter.blank?
+		allSelection = true	
+	end
+%>
+<script type="text/javascript"> 
+$(document).ready(function()
+{
+	<% if polymorphic_filter == '1' || polymorphic_filter.blank? %>
+		<% allSelection = true %>
+		$("#account_id").attr("disabled", true);
+		$("#contact_id").attr("disabled", true);
+	<% elsif polymorphic_filter == '2' %>
+		<% contactSelection = true %>
+		$("#account_id").attr("disabled", true);
+		$("#contact_id").removeAttr("disabled");
+	<% else  %>
+		<% accountSelection = true %>
+		$("#contact_id").attr("disabled", true);
+		$("#account_id").removeAttr("disabled");
+	<% end %>  
+  
+});
+ </script>
+<% contactArr = WkCrmContact.all.order(:first_name, :last_name).pluck(:last_name, :id) #relatedValues('WkCrmContact', nil) %>
+<% contactArr.unshift(["",'']) %>
+<% accountArr = options_for_wktime_account(true) %>
+<%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	
+<%	projArr = options_for_wktime_project(projects,true) %> 
+<div  class="div-left">
+<table>
+<tr>
+	<th align="left"><%= radio_button_tag 'polymorphic_filter', '1', allSelection, :onclick => ' $("#contact_id").attr("disabled", true);$("#account_id").attr("disabled", true);' %>
+	<%= l(:label_all) %></th>
+	<td><td>
+</tr>
+<tr>
+	<th align="left"><%= radio_button_tag 'polymorphic_filter', '2', contactSelection, :onclick => ' $("#account_id").attr("disabled", true);$("#contact_id").removeAttr("disabled");' %>
+	<%= l(:label_contact) %></th>
+	<td style="padding-left:40px;"><%=h select_tag('contact_id', options_for_select(contactArr, :selected => contact_id.blank? ? contactArr : contact_id  ),
+	:onchange => " if(#{pjtChanged}) { accProjChanged(#{User.current.id}, this.id); }   ") %>
+	</td>
+</tr>
+<tr>
+	<th align="left"><%= radio_button_tag 'polymorphic_filter', '3', accountSelection, :onclick => '$("#account_id").removeAttr("disabled");$("#contact_id").attr("disabled", true);' %><%= l(:label_account_name) %></th>
+	<td style="padding-left:40px;"><%=h select_tag('account_id', options_for_select(accountArr, :selected => account_id.blank? ? accountArr : account_id ),
+	:onchange => " if(#{pjtChanged}) { accProjChanged(#{User.current.id}, this.id); }") %></td>
+</tr>
+
+<% if isapply %>
+	<tr>
+		<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %>
+		<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %></td><td></td>
+	</tr>
+<% end  %>
+</table>
+</div>
+<div class="div-right">	
+<div  class="div-right">
+	<th align="left"><label><%= l(:label_project) %></label></th>
+	<td style="padding-left:40px;"><%=h select_tag('project_id', options_for_select(projArr, :selected => project_id.nil? ? projArr : project_id)) %></td>
+</div>
+<div style="clear:both;"></div>
+<br/>

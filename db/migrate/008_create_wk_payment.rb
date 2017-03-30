@@ -41,8 +41,8 @@ class CreateWkPayment < ActiveRecord::Migration
 			t.string :description
 			t.string :payment_type, :null => false, :limit => 3
 			t.integer :reference_number
-			t.references :account, :class => "wk_accounts", :null => false, :index => true
-			t.references :gl_transaction, :class => "wk_gl_transactions", :null => false, :index => true
+			t.references :parent, polymorphic: true, index: true
+			t.references :gl_transaction, :class => "wk_gl_transactions", :null => true, :index => true
 			t.references :created_by_user, :class => "User"
 			t.references :modified_by_user, :class => "User"
 			t.timestamps null: false
@@ -51,8 +51,8 @@ class CreateWkPayment < ActiveRecord::Migration
 		create_table :wk_payment_items do |t|
 			t.float :amount
 			t.boolean :isdeleted
-			t.references :payment, :class => "wk_payments", :null => false, :index => true
-			t.references :invoice, :class => "wk_invoices", :null => false, :index => true
+			t.references :payment, :class => "wk_payments", :null => true, :index => true
+			t.references :invoice, :class => "wk_invoices", :null => true, :index => true
 			t.references :created_by_user, :class => "User"
 			t.references :modified_by_user, :class => "User"
 			t.timestamps null: false
