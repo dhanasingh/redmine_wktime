@@ -107,7 +107,7 @@ include WkinvoiceHelper
 			end
 			
 			if filter_type == '1' && (projectId.blank? || projectId == 0)
-				invEntries = WkInvoice.includes(:invoice_items)
+				invEntries = WkInvoice.includes(:invoice_items).where(sqlwhere)
 			else
 				invEntries = WkInvoice.includes(:invoice_items).where(sqlwhere)
 			end

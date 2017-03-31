@@ -1,4 +1,5 @@
 <h2><%= l(:label_payments) %></h2>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
     blgcontractsUrl = '<%=url_for(:controller => "wkcontract", :action => "index", :tab => "wkcontract")%>';
@@ -13,3 +14,4 @@
 <%= render_tabs time_expense_tabs %>
 
 <%= hidden_field_tag 'back_url', url_for(params) %>
+<%= render partial: "wkpayment/payment_index"  %>

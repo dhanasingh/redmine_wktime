@@ -1,0 +1,26 @@
+<%= form_tag({:controller => "wkpayment", :action => 'index', :tab => controller_name}, :method => :get, :id => 
+     'query_form') do %>
+		<fieldset>
+			<%= hidden_field_tag "searchlist", "payment" %>
+			<%=h hidden_field_tag('tab', "wkpayment") %>
+			<%	contactId =session[:payment][:contact_id]
+				accountId =session[:payment][:account_id]
+				filterSession =session[:payment][:polymorphic_filter]
+				projid =session[:payment][:project_id] %>
+			<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :filter_session => filterSession, :project_id => projid, :pjtChanged => false, :isapply => true, :isproject => false } %>
+			
+			<%= render :partial => 'wkpayment/date_range' %>
+			
+			</div>
+			<div style="clear:both;"></div>
+		</fieldset>
+<% end %>
+<div class="wk-contextual">
+	<div class="total-hours">
+		<p style="float:left;"><%= l(:label_total) %>: &nbsp;<%#= @payment_entries[0].invoices[0].currency unless @payment_entries[0].blank? || @payment_entries[0].invoices[0].blank?%> <%= html_hours("%.2f" % @totalPayAmt) %></p>
+	</div>
+	
+	<%= link_to l(:label_new_item, l(:label_payments)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+</div>
+<div style="clear:both;"></div>
+<%= render partial: "wkpayment/payment_list" %>

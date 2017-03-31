@@ -1,0 +1,30 @@
+<% payType = WkCrmEnumeration.where(:enum_type => "PT").order(enum_type: :asc, name: :asc).pluck(:id, :name) %> 
+<%  payTypeHash = Hash[*payType.flatten] %>
+<div class="autoscroll">
+<table class="list time-entries">
+  <thead>
+         <tr>
+				<th class="lbl-txt-align"><%=  l(:label_Payment) %></th>
+				<th class="lbl-txt-align"><%=  l(:label_type) %></th>
+				<th class="lbl-txt-align"><%=  l(:field_name) %></th>
+				<th class="lbl-txt-align"><%=  l(:label_payment_date) %></th>
+				<th class="lbl-txt-align"><%=  l(:label_payment_type)  %></th>
+				<th class="lbl-txt-align"><%=  l(:field_amount)  %></th>
+				<th></th>
+         </tr>
+  </thead>
+   <tbody>
+	<% @payment_entries.each do |entry| %>
+		<tr>
+		    <td class="lbl-txt-align"><%=h entry.id  %></td>
+			<td class="lbl-txt-align"><%=h entry.parent_type == 'WkAccount' ? 'Account' : 'Contact'  %></td>
+			<td class="lbl-txt-align"><%=h entry.parent.name unless entry.parent.blank? %></td>
+			<td class="lbl-txt-align"><%=h entry.payment_date.strftime("%Y-%m-%d") %></td>
+			<td class="lbl-txt-align"><%=h payTypeHash[entry.payment_type.to_i] unless entry.payment_type.blank?   %></td>
+			<td class="lbl-txt-align"><%=h entry.payment_items.sum(:amount)  %></td>
+			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => 'wkpayment', :action => 'edit', :payment_id => entry.id, :tab => 'wkpayment'}, :title => l(:button_edit) %></td>
+		</tr>
+	<% end %>
+   <tbody>
+</table>
+</div>

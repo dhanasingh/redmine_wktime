@@ -62,8 +62,10 @@ $(document).ready(function()
 </div>
 <div class="div-right">	
 <div  class="div-right">
+	<% if isproject %>
 	<th align="left"><label><%= l(:label_project) %></label></th>
 	<td style="padding-left:40px;"><%=h select_tag('project_id', options_for_select(projArr, :selected => project_id.nil? ? projArr : project_id)) %></td>
+	<% end  %>
 </div>
 <div style="clear:both;"></div>
 <br/>

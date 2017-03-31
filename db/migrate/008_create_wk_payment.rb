@@ -37,7 +37,7 @@ class CreateWkPayment < ActiveRecord::Migration
 	
 	
 		create_table :wk_payments do |t|
-			t.datetime :payment_date
+			t.date :payment_date
 			t.string :description
 			t.string :payment_type, :null => false, :limit => 3
 			t.integer :reference_number
@@ -55,6 +55,13 @@ class CreateWkPayment < ActiveRecord::Migration
 			t.references :invoice, :class => "wk_invoices", :null => true, :index => true
 			t.references :created_by_user, :class => "User"
 			t.references :modified_by_user, :class => "User"
+			t.timestamps null: false
+		end
+		
+		create_table :wk_currency_ex do |t|
+			t.column :from_c, :string, :limit => 5, :default => '$'
+			t.column :to_c, :string, :limit => 5, :default => '$'
+			t.float :rate
 			t.timestamps null: false
 		end
 		
