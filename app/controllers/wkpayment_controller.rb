@@ -17,9 +17,9 @@
 
 class WkpaymentController < WkbillingController
   unloadable
-
-
-
+  include WkpaymentHelper
+  include WkbillingHelper
+  
     def index
 		@payment_entries = nil
 		sqlwhere = ""
@@ -61,6 +61,111 @@ class WkpaymentController < WkbillingController
     end
 	
 	def edit
+		@payment = nil
+		@accInvoices = nil
+		if !params[:load_payment].blank? && params[:load_payment]
+			parentType = params[:related_to]
+			parentId = params[:related_parent]
+			projectId = params[:project_id]
+			if !parentType.blank? && !parentId.blank?
+				@accInvoices = WkInvoice.where(:parent_type=> parentType, :parent_id=>parentId)
+			end	
+		else			
+			unless params[:payment_id].blank?
+				@payment = WkPayment.find(params[:payment_id].to_i)
+				@payemntItem = @payment.payment_items 
+				unless params[:is_report].blank? || !to_boolean(params[:is_report])
+					@payemntItem = @payemntItem.order(:project_id, :item_type)
+					#render :action => 'invreport', :layout => false
+				end
+			end
+		end
+	end
+	
+	def showInvoices
+		parentType = params[:related_to]
+		parentId = params[:related_parent]
+		projectId = params[:project_id]
+		@accInvoices = nil
+		if !parentType.blank? && !parentId.blank? && !projectId.blank?
+			@accInvoices = WkInvoice.where(:parent_type=> parentType, :parent_id=>parent_id)
+		end		
+	end
+	
+	def update
+		errorMsg = nil
+		paymentItem = nil
+		unless params["payment_id"].blank?
+			@payment = WkPayment.find(params["payment_id"].to_i)
+		else
+			@payment = WkPayment.new
+			@payment.parent_id = params[:related_parent].to_i
+			@payment.parent_type = params[:related_to]
+			@payment.gl_transaction_id = 1
+		end
+		@payment.payment_date = params[:payment_date]
+		@payment.payment_type_id = params[:payment_type_id].to_i
+		@payment.reference_number = params[:reference_number]
+		@payment.description = params[:description]
+		totalAmount = 0
+		tothash = Hash.new
+		totalRow = params[:totalrow].to_i
+		if totalRow>0
+			@payment.save()
+		end
+		for i in 1..totalRow
+			unless params["payment_item_id#{i}"].blank?	
+				paymentItem = WkPaymentItem.find(params["payment_item_id#{i}"].to_i)
+				updatedItem = updatePaymentItem(paymentItem, @payment.id, params["invoice_id#{i}"], params["amount#{i}"].to_f, params["currency#{i}"])
+			else
+				if params["amount#{i}"].to_f > 0
+					paymentItem = @payment.payment_items.new
+					updatedItem = updatePaymentItem(paymentItem, @payment.id, params["invoice_id#{i}"], params["amount#{i}"].to_f, params["currency#{i}"])
+				end
+			end
+		end
+		
+		unless @payment.id.blank?
+			totalAmount = @payment.payment_items.sum(:amount)
+			if totalAmount > 0 && isChecked('invoice_auto_post_gl')
+				glTransaction = postToGlTransaction(@payment, totalAmount, @payment.payment_items[0].currency)
+				unless glTransaction.blank?
+					@payment.gl_transaction_id = glTransaction.id
+					@payment.save
+				end				
+			end
+		end
+		
+		if errorMsg.nil? 
+			redirect_to :action => 'index' , :tab => 'wkpayment'
+			flash[:notice] = l(:notice_successful_update)
+	   else
+			flash[:error] = errorMsg
+			redirect_to :action => 'edit', :payment_id => @payment.id
+	   end
+	end
+  
+	def getBillableProjIds
+		projArr = ""	
+		billProjId = getProjArrays(params[:related_to], params[:related_parent])
+		if !billProjId.blank?
+			billProjId.each do | entry|
+				projArr <<  entry.project_id.to_s() + ',' + entry.project_name.to_s()  + "\n" 
+			end
+		end
+		respond_to do |format|
+			format.text  { render :text => projArr }
+		end
+		
+	end
+	
+	def getProjArrays( parentType, parentId)		
+		sqlStr = "left outer join projects on projects.id = wk_account_projects.project_id "
+		if !parentId.blank?
+				sqlStr = sqlStr + " where wk_account_projects.parent_id = #{parentId} and wk_account_projects.parent_type = '#{parentType}' "
+		end
+		
+		WkAccountProject.joins(sqlStr).select("projects.name as project_name, projects.id as project_id").distinct(:project_id)
 	end
   
     def set_filter_session

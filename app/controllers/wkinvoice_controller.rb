@@ -21,6 +21,7 @@ before_filter :require_login
 
 include WktimeHelper
 include WkinvoiceHelper
+include WkbillingHelper
 
 	def index
 		@projects = nil

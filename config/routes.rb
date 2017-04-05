@@ -291,6 +291,14 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	# get 'wkreport/sales_act_rpt', :to => 'wkreport#sales_act_rpt'
 	
+	# For Payment
+	
 	get 'wkpayment/index', :to => 'wkpayment#index'
 	
-	get 'wkpayment/edit', :to => 'wkpayment#edit'
+	get 'wkpayment/edit', :to => 'wkpayment#edit'	
+	
+	post 'wkpayment/update', :to => 'wkpayment#update'
+	
+	get 'wkpayment/getBillableProjIds', :to => 'wkpayment#getBillableProjIds'
+	
+	get 'wkpayment/showInvoices', :to => 'wkpayment#showInvoices'

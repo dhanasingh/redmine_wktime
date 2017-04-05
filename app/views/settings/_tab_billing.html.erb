@@ -40,6 +40,16 @@ lblInvCompVal = "<%=l(:field_value) %>";
 	
 	<p style="margin-left: -110px;"><label><%= l(:label_debit) + " " +  l(:label_ledger)  %></label>
 	    <%= select_tag 'settings[invoice_db_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['invoice_db_ledger']) %></p>
+	
+	<p style="margin-left: -110px;">
+			<%= check_box_tag('settings[payment_auto_post_gl]', 1, @settings['payment_auto_post_gl'].to_i == 1) %> <label><%= l(:label_txn_payment) + " " + l(:label_auto_post_gl) %></label>
+	</p>
+	
+	<p style="margin-left: -110px;"><label><%= l(:label_txn_payment) + " " + l(:label_credit) + " " +  l(:label_ledger)  %></label>
+	    <%= select_tag 'settings[payment_cr_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['payment_cr_ledger']) %></p>
+	
+	<p style="margin-left: -110px;"><label><%= l(:label_txn_payment) + " " + l(:label_debit) + " " +  l(:label_ledger)  %></label>
+	    <%= select_tag 'settings[payment_db_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['payment_db_ledger']) %></p>
 		
 	<%= l(:label_redmine_restart_warning) %>
 	<p style="margin-left: -110px;">

@@ -34,7 +34,7 @@ include WkaccountingHelper
 		txnType	
 	end
 	
-	def saveGlTransaction(id, trasdate, transType, comment, amount, currency, isDiffCur)
+	def saveGlTransaction(transModule, id, trasdate, transType, comment, amount, currency, isDiffCur)
 		glTransaction = nil
 		orgAmount = nil
 		orgCurrency = nil
@@ -57,11 +57,11 @@ include WkaccountingHelper
 		else
 			if glTransaction.new_record?
 				glTransaction.save
-				getCrDbLedgerHash.each do |ledger|
+				getCrDbLedgerHash(transModule).each do |ledger|
 					transDetail = saveTransDetail(ledger[1], glTransaction.id, ledger[0], amount, currency, orgAmount, orgCurrency)
 				end
 			else
-				transDetails = glTransaction.transaction_details.where(:ledger_id => [getSettingCfId('invoice_cr_ledger'), getSettingCfId('invoice_db_ledger')])
+				transDetails = glTransaction.transaction_details.where(:ledger_id => [getSettingCfId("#{transModule}_cr_ledger"), getSettingCfId("#{transModule}_db_ledger")])
 				allowCr = true
 				allowDb = true
 				transDetails.each do |detail|
@@ -99,12 +99,12 @@ include WkaccountingHelper
 		transDetail
 	end
 	
-	def getCrDbLedgerHash
+	def getCrDbLedgerHash(transModule)
 		crDbLedger = nil
-		if getSettingCfId('invoice_cr_ledger') > 0 && getSettingCfId('invoice_db_ledger')
+		if getSettingCfId("#{transModule}_cr_ledger") > 0 && getSettingCfId("#{transModule}_db_ledger")
 			crDbLedger = Hash.new
-			crDbLedger['c']= getSettingCfId('invoice_cr_ledger')
-			crDbLedger['d']= getSettingCfId('invoice_db_ledger')
+			crDbLedger['c']= getSettingCfId("#{transModule}_cr_ledger")
+			crDbLedger['d']= getSettingCfId("#{transModule}_db_ledger")
 		end
 		crDbLedger
 	end

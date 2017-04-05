@@ -1,0 +1,64 @@
+<br/>
+<div style="clear:both"></div>
+<div class="autoscroll">
+<% row_index = 1 %>
+
+<table id="invoiceTable" class="list time-entries">
+  <thead>
+         <tr>
+			<th class="lbl-txt-align"><%= l(:label_invoice_number) %>#</th>
+			<th class="lbl-txt-align"><%= l(:field_amount) %></th>
+			<th class="lbl-txt-align"><%= l(:wk_field_balance) %></th>
+			<th class="lbl-txt-align"><%= l(:label_txn_payment) + " " + l(:field_amount) %></th>			
+         </tr>
+  </thead>
+   <tbody>
+	<% payableAmount = 0 %>
+	<% currency = nil %>
+	<% itemsList.each do |entry| %>
+		<% 
+			if entry.class.name == 'WkInvoice'
+				invoiceObj = entry
+				invoiceAmount = entry.invoice_items.sum(:amount)
+				paidAmount = entry.payment_items.sum(:amount)
+				next unless invoiceAmount - paidAmount > 0 && invoiceAmount > 0
+				currentPaidAmt = invoiceAmount - paidAmount
+				balanceAmount = invoiceAmount - paidAmount
+				paymentItemId = nil
+			else
+				invoiceObj = entry.invoice
+				invoiceAmount = invoiceObj.invoice_items.sum(:amount)
+				paidAmount = invoiceObj.payment_items.sum(:amount)
+				balanceAmount = nil
+				balanceAmount = invoiceAmount - paidAmount if invoiceAmount - paidAmount > 0 && invoiceAmount > 0
+				currentPaidAmt = entry.amount
+				paymentItemId = entry.id
+			end
+			payableAmount = payableAmount + currentPaidAmt unless currentPaidAmt.blank?
+		%>
+		<% currency = invoiceObj.invoice_items[0].currency %>
+		<%= hidden_field_tag "invoice_id#{row_index}", invoiceObj.id %>
+		<%= hidden_field_tag "currency#{row_index}", currency %>
+		<%= hidden_field_tag("payment_item_id#{row_index}",   paymentItemId ) %>
+		<tr>
+			<td class="lbl-txt-align"><%=h invoiceObj.invoice_number  %></td>
+			<td align="right"><label align="right"><%= invoiceAmount %></td></label>
+			<td align="right"><%= balanceAmount %></td>
+			<td class="lbl-txt-align" headers="amount"><%= currency %><%= text_field_tag "amount#{row_index}",   ("%.2f" % currentPaidAmt) ,:maxlength => 14,  :style => "width:150px;" %></td>
+		 </tr>	
+		 <% row_index = row_index + 1 %>
+	<% end %>
+	<tr>
+			<td class="lbl-txt-align"></td>
+			<td align="right"></td>
+			<td align="right"><%= "Total " %></td>
+			<td class="lbl-txt-align" headers="amount"><%= currency %><%=h  payableAmount %></td>
+		 </tr>	
+   </tbody>
+</table>
+</div>
+<%=h hidden_field_tag("totalrow",  row_index-1 )  %>
+<%= submit_tag l(:button_save),  :hidden => false, :id => 'items_save' %>
+<div style="float:right;">
+<%#= link_to l(:label_export_invoice), "javascript: openInvReportPopup();" %> 
+</div>

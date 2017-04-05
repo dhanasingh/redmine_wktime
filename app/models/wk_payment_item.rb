@@ -20,7 +20,7 @@ class WkPaymentItem < ActiveRecord::Base
   include Redmine::SafeAttributes
   belongs_to :payment, :class_name => 'WkPayment'
   belongs_to :modifier, :class_name => 'User'
-  belongs_to :invoice
+  belongs_to :invoice, :class_name => 'WkInvoice'
   
   attr_protected :modifier_id
   

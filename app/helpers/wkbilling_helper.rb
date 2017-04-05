@@ -17,7 +17,33 @@
 
 module WkbillingHelper
 	include WktimeHelper
-	include WkinvoiceHelper
+	#include WkinvoiceHelper
+	include WkgltransactionHelper
+	
+	def postToGlTransaction(transObj, amount, currency)
+		transId = transObj.gl_transaction.blank? ? nil : transObj.gl_transaction.id
+		if transObj.class.name == "WkInvoice"
+			transModule = 'invoice'
+			transDate = transObj.invoice_date
+		elsif transObj.class.name == "WkPayment"
+			transModule = 'payment'
+			transDate = transObj.payment_date
+		end
+		glTransaction = nil
+		crLedger = WkLedger.where(:id => getSettingCfId("#{transModule}_cr_ledger"))
+		dbLedger = WkLedger.where(:id => getSettingCfId("#{transModule}_db_ledger"))
+		unless crLedger[0].blank? || dbLedger[0].blank?
+			#transId = invoice.gl_transaction.blank? ? nil : invoice.gl_transaction.id
+			transType = getTransType(crLedger[0].ledger_type, dbLedger[0].ledger_type)
+			if Setting.plugin_redmine_wktime['wktime_currency'] == currency 
+				isDiffCur = false 
+			else
+				isDiffCur = true 
+			end
+			glTransaction = saveGlTransaction(transModule, transId, transDate, transType, nil, amount, currency, isDiffCur)
+		end
+		glTransaction
+	end
 	
 	def accountPolymormphicHash
 		typeHash = {

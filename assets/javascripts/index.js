@@ -328,3 +328,25 @@ function actRelatedDd(uid)
 	success: function(data){ updateUserDD(data, relatedparentdd, userid, needBlankOption, false, "");},   
 	});
 }
+
+function parentChanged(uid)
+{
+	var parentType = document.getElementById("related_to");
+	var parentTypeVal = parentType.options[parentType.selectedIndex].value;
+	var parentDD = document.getElementById("related_parent");
+	var parentId = parentDD.options[parentDD.selectedIndex].value;
+	var needBlankOption = true;
+	var projDropdown = document.getElementById("project_id");
+	userid = uid;
+	$.ajax({
+	url: paymentUrl,
+	type: 'get',
+	data: {related_to: parentTypeVal, related_parent: parentId},
+	success: function(data){ updateUserDD(data, projDropdown, userid, needBlankOption, false, "");},   
+	});
+}
+
+function submitFiletrForm()
+{
+	document.getElementById("invoice_form").submit();
+}

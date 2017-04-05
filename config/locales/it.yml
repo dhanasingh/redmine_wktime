@@ -575,4 +575,4 @@ it:
   label_payments: Payments
   label_payment_date: Payment Date
   label_payment_type: Payment Type
-  label_Payment: Payment  
+  label_reference_number: Reference Number
