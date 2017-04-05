@@ -1,4 +1,4 @@
-var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl, blgpaymentUrl;
+var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl, blgpaymentUrl, blgexcrateUrl;
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -236,6 +236,7 @@ $(document).ready(function()
 	changeProp('tab-wkcrmcontact',crmcontactUrl);
 	changeProp('tab-wkcrmenumeration',crmenumUrl);
 	changeProp('tab-wkpayment',blgpaymentUrl);
+	changeProp('tab-wkexchangerate',blgexcrateUrl);
 });
 
 

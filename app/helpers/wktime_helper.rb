@@ -618,14 +618,15 @@ end
 				{:name => 'wkcrmcontact', :partial => 'wktime/tab_content', :label => :label_contact_plural}
 			   ]
 		
-		elsif params[:controller] == "wkinvoice" || params[:controller] == "wkcontract" || params[:controller] == "wkaccountproject" || params[:controller] == "wktax" || params[:controller] == "wkpayment"
+		elsif params[:controller] == "wkinvoice" || params[:controller] == "wkcontract" || params[:controller] == "wkaccountproject" || params[:controller] == "wktax" || params[:controller] == "wkpayment" || params[:controller] == "wkexchangerate"
 			tabs = [
 				{:name => 'wkinvoice', :partial => 'wktime/tab_content', :label => :label_invoice},
 				{:name => 'wkpayment', :partial => 'wktime/tab_content', :label => :label_payments},
 			#	{:name => 'wkaccount', :partial => 'wktime/tab_content', :label => :label_accounts},
 				{:name => 'wkcontract', :partial => 'wktime/tab_content', :label => :label_contracts},
 				{:name => 'wkaccountproject', :partial => 'wktime/tab_content', :label => :label_acc_projects},				
-				{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax}
+				{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax},
+				{:name => 'wkexchangerate', :partial => 'wktime/tab_content', :label => :label_exchange_rate}
 			   ]
 		elsif params[:controller] == "wkgltransaction" || params[:controller] == "wkledger"
 			tabs = [

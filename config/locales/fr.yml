@@ -579,3 +579,6 @@ fr:
   label_payment_date: Payment Date
   label_payment_type: Payment Type
   label_reference_number: Reference Number
+  label_exchange_rate: Exchange Rate
+  label_from_currency: From Currency
+  label_to_currency: To Currency

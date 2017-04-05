@@ -1,4 +1,4 @@
-<h2><%= l(:label_acc_projects) %></h2>
+<h2><%= l(:label_exchange_rate) %></h2>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
     blgcontractsUrl = '<%=url_for(:controller => "wkcontract", :action => "index", :tab => "wkcontract")%>';
@@ -13,5 +13,4 @@
 </script>
 <%= render_tabs time_expense_tabs %>
 
-<%= hidden_field_tag 'back_url', url_for(params) %>
-<%= render :partial => 'wkaccountproject/account_project_index'%>
+<%= render :partial => 'wkexchangerate/exc_rate_index'%>
