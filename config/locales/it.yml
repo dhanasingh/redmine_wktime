@@ -579,3 +579,4 @@ it:
   label_exchange_rate: Exchange Rate
   label_from_currency: From Currency
   label_to_currency: To Currency
+  report_order_to_cash: Order to Cash

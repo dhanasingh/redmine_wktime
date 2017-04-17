@@ -1,0 +1,119 @@
+<%
+	fromDate = session[:wkreport][:from]
+	toDate = session[:wkreport][:to]
+	from = Date.civil(fromDate.year,fromDate.month, 1)
+	to = Date.civil((toDate + 1.month).year,(toDate + 1.month).month, 1) - 1 
+	inBtwMonths = getInBtwMonthsArr(from, to) 
+	sqlStr = "select coalesce(idt.parent_id, pdt.parent_id, oi.parent_id, op.parent_id) as parent_id," +
+		" coalesce(idt.parent_type,pdt.parent_type,oi.parent_type,op.parent_type) as parent_type,coalesce(a.name, cc.first_name ||' ' || cc.last_name) as name," +
+		" coalesce(idt.inv_month,pdt.pay_month) as month_val, coalesce(idt.inv_year,pdt.pay_year) as year_val, idt.inv_amount," + 
+		" pdt.pay_amount,oi.prv_invoice_amount, op.prv_payment_amount from 
+			#{getTotalAmtQuery('invoice', 'idt', 'inv', from, to)}" +
+		" full join 
+		#{getTotalAmtQuery('payment', 'pdt', 'pay', from, to)}" +
+		" on (idt.parent_id = pdt.parent_id and idt.parent_type = pdt.parent_type and idt.inv_month = pdt.pay_month and idt.inv_year = pdt.pay_year)
+		full join #{getPrvBalQryStr('invoice', from, 'oi')}
+		full join #{getPrvBalQryStr('payment', from, 'op')}
+		left join wk_crm_contacts cc on (cc.id = coalesce(idt.parent_id,pdt.parent_id,oi.parent_id,op.parent_id) and coalesce(idt.parent_type,pdt.parent_type,oi.parent_type,op.parent_type) = 'WkCrmContact')
+		left join wk_accounts a on (a.id = coalesce(idt.parent_id,pdt.parent_id,oi.parent_id,op.parent_id) and coalesce(idt.parent_type,pdt.parent_type,oi.parent_type,op.parent_type) = 'WkAccount')
+		order by parent_type, parent_id, year_val, month_val "
+		entries = WkInvoice.find_by_sql(sqlStr)
+%>
+<div id="attn-rpt-dlg", style="overflow-x:auto;">
+	<div>
+		<div style="float:left">
+			 <caption style="text-align:center"><b><%= Setting.plugin_redmine_wktime['wktime_company_name'] %><br><%= l(:report_order_to_cash) %></b></br>
+			 <%= from.to_formatted_s(:long) + " " + l(:label_date_to) + " " + to.to_formatted_s(:long)%>
+			 </caption>
+		</div>
+		 <div style="float:right">
+			<table>
+				<tr>
+					<td>
+						<% logo = Setting.plugin_redmine_wktime['wktime_header_logo'] %>					
+						<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>						
+							<%= image_tag("#{logo}", :plugin => "redmine_wktime") %>
+						<% end %>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<div style="clear:both;"></div>
+	<table style="width:100%;">
+		<thead bgcolor="#e6e6e6">
+			<tr style="border-bottom: solid thin;border-top: solid thin;">
+				<th align="center" ><%= l(:field_name) %></th>
+				<th align="center" ><%= l(:label_previous) %><br/><%=  l(:wk_field_balance) %></th>
+				<% inBtwMonths.each do |monthVal| %>
+					
+					<th align="center"><%= monthVal[0]%><br/><%= I18n.t("date.abbr_month_names")[monthVal[1]]%></th>
+				<% end %>
+				<th align="center"><%= l(:label_current) %><br/><%= l(:wk_field_balance)%></th>
+			</tr>
+		</thead>
+		<body>
+			<% 
+				lastParentId = nil
+				lastParentType = nil
+				name = nil
+				lastColumn = -1
+				curColumn = -1
+				prvInvAmt = nil
+				prvPayAmt = nil
+				paidAmtArr = Array.new
+				invoiceAmtArr = Array.new
+				balanceAmtArr = Array.new
+				@totalBalance = 0
+			%>
+			<% entries.each_with_index do |entry,i| %>
+				<% if (lastParentId != entry.parent_id || lastParentType != entry.parent_type) && !lastParentId.blank? %>
+					<%= render partial: "rpt_order_cash_rows", locals: { name: name, prvInvAmt: prvInvAmt, prvPayAmt: prvPayAmt, paidAmtArr: paidAmtArr, invoiceAmtArr: invoiceAmtArr, balanceAmtArr: balanceAmtArr, columnCount: inBtwMonths.length }%>
+					<%
+						paidAmtArr.clear
+						invoiceAmtArr.clear
+						balanceAmtArr.clear
+						lastColumn = -1
+					%>
+				<% end %>
+				<%
+					name = entry.name
+					prvInvAmt = entry.prv_invoice_amount
+					prvPayAmt = entry.prv_payment_amount
+					curColumn = inBtwMonths.index([entry.year_val, entry.month_val])
+					unless curColumn.blank?
+						for col in lastColumn + 1 .. curColumn -1
+							paidAmtArr[col] = nil
+							invoiceAmtArr[col] = nil
+							balanceAmtArr[col] = 0
+						end
+						paidAmtArr[curColumn] = entry.pay_amount
+						invoiceAmtArr[curColumn] = entry.inv_amount
+						balanceAmtArr[curColumn] = (entry.inv_amount.blank? ? 0 : entry.inv_amount) - (entry.pay_amount.blank? ? 0 : entry.pay_amount) 
+					end
+					lastColumn = curColumn
+					lastParentId = entry.parent_id
+					lastParentType = entry.parent_type
+				%>
+				<% if entry == entries.last %>
+					<%= render partial: "rpt_order_cash_rows", locals: { name: name, prvInvAmt: prvInvAmt, prvPayAmt: prvPayAmt, paidAmtArr: paidAmtArr, invoiceAmtArr: invoiceAmtArr, balanceAmtArr: balanceAmtArr, columnCount: inBtwMonths.length }%>
+				<% end %>
+			<% end %>
+			<tr style="width:100%;">
+				<td></td>
+				<td colspan = <%= inBtwMonths.length+2%>, style="border-bottom: solid medium;"></td>
+			</tr>			
+			<tr style="width:100%;">
+				<td></td>
+				<td align="right", colspan = <%= inBtwMonths.length+1%>><b><%=h "Total:" %></b></td>
+				<td align="right"><%=h @totalBalance %></td>
+			</tr>
+			<tr style="width:100%;">
+				<td></td>
+				<td colspan = <%= inBtwMonths.length+2%>, style="border-bottom: solid medium;"></td>
+			</tr>	
+		</body>
+	</table>
+</div>
+
+

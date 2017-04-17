@@ -96,5 +96,45 @@ module WkreportHelper
 		end	
 		issueIds
 	end
+	
+	def getTotalAmtQuery(tableName, subQryAlias, innerSubQryAls, from, to)
+		queryStr = " (select #{innerSubQryAls}.parent_id, #{innerSubQryAls}.parent_type," + 
+			" #{innerSubQryAls}.#{innerSubQryAls}_month, #{innerSubQryAls}.#{innerSubQryAls}_year," +
+			" sum (#{innerSubQryAls}.amount) as #{innerSubQryAls}_amount from" +
+			" (select ii.amount, ii.#{tableName}_id, i.#{tableName}_date,i.parent_type," + 
+			" i.parent_id, date_part('month', #{tableName}_date) as #{innerSubQryAls}_month," + " date_part('year', #{tableName}_date) as #{innerSubQryAls}_year" + 
+			" from wk_#{tableName}_items ii left join wk_#{tableName}s i" + 
+			" on i.id = ii.#{tableName}_id" +
+			" where i.#{tableName}_date between '#{from}' and '#{to}') as #{innerSubQryAls}" + 
+			" group by #{innerSubQryAls}.parent_type, #{innerSubQryAls}.parent_id, #{innerSubQryAls}.#{innerSubQryAls}_year, #{innerSubQryAls}.#{innerSubQryAls}_month) as #{subQryAlias} "
+		queryStr
+	end
+	
+	def getPrvBalQryStr(tableName, dateVal, subQryAlias)
+		queryStr = " (select sum(pii.amount) prv_#{tableName}_amount," + 
+			" pvi.parent_type,pvi.parent_id from wk_#{tableName}_items pii" + 
+			" left join wk_#{tableName}s pvi on pvi.id = pii.#{tableName}_id" +
+			" where pvi.#{tableName}_date < '#{dateVal}'" +
+			" group by pvi.parent_type,pvi.parent_id) #{subQryAlias}" +
+			" on (#{subQryAlias}.parent_type = coalesce(idt.parent_type,pdt.parent_type)" +
+			" and #{subQryAlias}.parent_id = coalesce(idt.parent_id,pdt.parent_id)) "
+		queryStr
+	end
+	
+	def getInBtwMonthsArr(from,to)
+		inBtwMnthArr = Array.new
+		yearDiff = to.year - from.year
+		monthDiff = to.month - from.month
+		fromMonth =  from.month
+		fromYear = from.year
+		totalNumOfMnth = (yearDiff * 12) + monthDiff
+		for count in 0 .. totalNumOfMnth
+			monthVal = (fromMonth + count)%12 == 0 ? 12 : (fromMonth + count)%12
+			yearVal = fromYear + ((fromMonth + count)/12)
+			yearVal = yearVal - 1 if monthVal == 12
+			inBtwMnthArr << [yearVal, monthVal]
+		end
+		inBtwMnthArr
+	end
 
 end

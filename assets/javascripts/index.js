@@ -89,7 +89,7 @@ $(document).ready(function() {
 function openReportPopup(){
 	var popupUrl, periodType;
 	var reportType = document.getElementById('report_type').value;
-	var groupId = "", userId = "";
+	var groupId = "", userId = "", actionType = "";
 	if(document.getElementById('group_id')) {
 		groupId = document.getElementById('group_id').value;
 		userId = document.getElementById('user_id').value;
