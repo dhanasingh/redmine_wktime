@@ -306,3 +306,5 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wkexchangerate/index', :to => 'wkexchangerate#index'
 	
 	get 'wkexchangerate/update', :to => 'wkexchangerate#update'
+	
+	get 'wkinvoice/new', :to => 'wkinvoice#new' 

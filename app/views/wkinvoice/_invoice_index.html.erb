@@ -15,9 +15,10 @@
 		
 			<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :filter_session => filterSession, :project_id => projid, :pjtChanged => true, :isapply => false, :isproject => true } %>
 		
-			<%= render :partial => 'wkinvoice/date_range' %>
-			
-			
+			<p style="float:left;"><%= render :partial => 'wkinvoice/date_range' %></p>
+			<p style="float:right; margin-top:-40px;">
+				<%= link_to l(:label_new_invoice), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
+			</p>
 		<p class="buttons">
 			<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
 			<%#= link_to l(:button_apply), {:controller => controller_name, :action => action_name}, :class => 'icon icon-checked' %>

@@ -1,7 +1,9 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
 	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds')}" %>";
+	accountUrl="<%= "#{url_for(:controller => "wkinvoice", :action => 'getAccountProjIds')}" %>";
 </script>
+<% wkcrm_helper = Object.new.extend(WkcrmHelper) %>
 <% 
 	parentArr = options_for_wktime_account(false)
 	if !parentObject.blank?
@@ -10,7 +12,7 @@
 		parentArr = relatedValues(parentType, :parentId)		
 	end
 	#parentArr.unshift(["",''])
-	relHash = relatedHash
+	relHash = wkcrm_helper.relatedHash
 	relHash.delete("WkOpportunity")
 	relHash.delete("WkLead")
 	#unless index
@@ -19,9 +21,9 @@
 %>
 <tr>
 	<th align="left"><%= l(:label_type) %></th>
-	<td style="padding-left:40px;"><%=h select_tag('related_to', options_for_select(relHash.invert, :selected => parentObject.blank? ? (parentType.blank? ? "" : parentType) : parentObject.parent_type ), :onchange => "actRelatedDd(#{User.current.id})") %></td>
+	<td style="padding-left:40px;"><%=h select_tag('related_to', options_for_select(relHash.invert, :selected => parentObject.blank? ? (parentType.blank? ? "" : parentType) : parentObject.parent_type ), :onchange => "actRelatedDd(#{User.current.id}, #{needParentProject}); ") %></td>
 </tr>
 <tr>
 	<th align="left"><%= l(:field_name) %></th>
-	<td style="padding-left:40px;"><%=h select_tag('related_parent', options_for_select(parentArr, :selected => parentObject.blank? ? (parentId.blank? ? "" : parentId) : parentObject.parent_id )) %></td>
+	<td style="padding-left:40px;"><%=h select_tag('related_parent', options_for_select(parentArr, :selected => parentObject.blank? ? (parentId.blank? ? "" : parentId) : parentObject.parent_id ), :onchange => "if(#{needParentProject}) {accProjChanged(#{User.current.id}, this.id, true, false); }") %></td>
 </tr>

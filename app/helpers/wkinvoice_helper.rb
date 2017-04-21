@@ -28,7 +28,7 @@ include WkbillingHelper
 		if blankOption
 		  accArr << [ "", ""]
 		end
-		accname = WkAccount.where(:account_type => 'A')
+		accname = WkAccount.where(:account_type => 'A').order(:name)
 		if !accname.blank?
 			accname.each do | entry|
 				accArr << [ entry.name, entry.id ]
@@ -37,7 +37,7 @@ include WkbillingHelper
 		accArr
 	end
 	
-	def addInvoice(parentId, parentType,  projectId, invoiceDate,invoicePeriod)
+	def addInvoice(parentId, parentType,  projectId, invoiceDate,invoicePeriod, isgenerate)
 		@invoice = WkInvoice.new
 		@invoice.status = 'o'
 		@invoice.start_date = invoicePeriod[0]
@@ -47,7 +47,12 @@ include WkbillingHelper
 		@invoice.parent_id = parentId
 		@invoice.parent_type = parentType
 		@invoice.invoice_number = getPluginSetting('wktime_invoice_no_prefix')
-		errorMsg = generateInvoiceItems(projectId)
+		unless isgenerate
+			errorMsg = saveInvoice
+		else			
+			errorMsg = generateInvoiceItems(projectId)
+		end
+		
 		unless @invoice.id.blank?
 			totalAmount = @invoice.invoice_items.sum(:amount)
 			if (totalAmount.round - totalAmount) != 0
@@ -101,10 +106,10 @@ include WkbillingHelper
 		#account = WkAccount.find(parentId) unless parentType == 'WkCrmContact'
 		if (projectId.blank? || projectId.to_i == 0)  && !isAccountBilling(billProject)#account.account_billing 
 			billProject.parent.projects.each do |project|
-				errorMsg = addInvoice(billProject.parent_id, billProject.parent_type, project.id, invoiceDate,invoicePeriod)
+				errorMsg = addInvoice(billProject.parent_id, billProject.parent_type, project.id, invoiceDate,invoicePeriod, true)
 			end
 		else
-			errorMsg = addInvoice(billProject.parent_id, billProject.parent_type, projectId, invoiceDate,invoicePeriod)
+			errorMsg = addInvoice(billProject.parent_id, billProject.parent_type, projectId, invoiceDate,invoicePeriod, true)
 		end
 		errorMsg
 	end
@@ -124,7 +129,7 @@ include WkbillingHelper
 	def addInvoiceItem(accountProject)
 		if accountProject.billing_type == 'TM'
 			# Add invoice items for Time and Materiel cost
-			errorMsg = saveTAMInvoiceItem(accountProject)
+			errorMsg = saveTAMInvoiceItem(accountProject, false)
 		else
 			# Add invoice item for fixed cost from the scheduled entries
 			errorMsg = nil
@@ -168,7 +173,7 @@ include WkbillingHelper
 	
 	# Add invoice items for the particular accountProject
 	# Quantity calculate from the time entries for the project
-	def saveTAMInvoiceItem(accountProject)
+	def saveTAMInvoiceItem(accountProject, isCreate)
 		# Get the rate and currency in rateHash
 		rateHash = getProjectRateHash(accountProject.project.custom_field_values)
 		genInvFrom = Setting.plugin_redmine_wktime['wktime_generate_invoice_from']
@@ -179,23 +184,31 @@ include WkbillingHelper
 		totalAmount = 0
 		lastUserId = 0
 		lastIssueId = 0
+		#hashKey = 0
+		itemAmount = 0
+		oldIssueId = 0
 		lasInvItmId = nil # Used to update TimeEntry Billing Indicator CF
+		#@invItems = Hash.new{|hsh,key| hsh[key] = {} }
 		# First check project has any rate if it didn't have rate then go with user rate
 		if rateHash.blank? || rateHash['rate'].blank? || rateHash['rate'] <= 0
+			userIdVal =  Array.new
 			# calculate invoice based on the user rate
-			# Calculate total hours for each issue each user 			
+			# Calculate total hours for each issue each user 
+			description = ""	
+			quantity = 0
 			sumEntry = timeEntries.group(:issue_id, :user_id).sum(:hours)
 			userTotalHours = timeEntries.group(:user_id).sum(:hours)
-			timeEntries.order(:issue_id, :user_id).each do |entry|
+			timeEntries.order(:issue_id, :user_id, :id).each do |entry|
 				rateHash = getUserRateHash(entry.user.custom_field_values)
+				@currency = rateHash['currency']
 				if rateHash.blank? || rateHash['rate'].blank? || rateHash['rate'] <= 0
 					next
 				end
-				if (lastUserId == entry.user_id && (lastIssueId == entry.issue_id || !accountProject.itemized_bill) )
-					updateBilledHours(entry, lasInvItmId)
+				if (lastUserId == entry.user_id && (lastIssueId == entry.issue_id || !accountProject.itemized_bill) ) && !isCreate
+					updateBilledHours(entry, lasInvItmId) 
 					next
 				end
-				if @invoice.id.blank?
+				if @invoice.id.blank? && !isCreate
 					errorMsg = saveInvoice
 					unless errorMsg.blank?
 						break
@@ -206,25 +219,53 @@ include WkbillingHelper
 				lastIssueId = entry.issue_id
 				if accountProject.itemized_bill
 					description = entry.issue.blank? ? entry.project.name : (isAccountBilling(accountProject) ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject) + " - " + entry.user.membership(entry.project).roles[0].name
-					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], sumEntry[[entry.issue_id, entry.user_id]], rateHash['currency'])
+					quantity = sumEntry[[entry.issue_id, entry.user_id]]
+					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency']) unless isCreate
 				else
 					description = accountProject.project.name + " - " + entry.user.membership(entry.project).roles[0].name
-					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], userTotalHours[entry.user_id], rateHash['currency'])
+					quantity = userTotalHours[entry.user_id]
+					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency']) unless isCreate
+				end				
+				
+				if isCreate && ((oldIssueId != 0 && oldIssueId != entry.issue_id) || timeEntries.order(:issue_id, :user_id, :id).last == entry )
+					keyVal = @itemCount - 1					  
+					userIdVal << entry.id if timeEntries.order(:issue_id, :user_id, :id).last == entry
+					@invItems[keyVal].store 'milestone_id', userIdVal 
+					userIdVal= []
 				end
-				lasInvItmId = invItem.id
-				updateBilledHours(entry, lasInvItmId)
-				totalAmount = totalAmount + invItem.amount
+				userIdVal << entry.id
+				if isCreate && (oldIssueId == 0 || oldIssueId != entry.issue_id)		
+					itemAmount = rateHash['rate'] * quantity
+					@invItems[@itemCount].store 'project_id', accountProject.project_id
+					@invItems[@itemCount].store 'item_desc', description
+					@invItems[@itemCount].store 'item_type', 'Invoice'
+					@invItems[@itemCount].store 'rate', rateHash['rate']
+					@invItems[@itemCount].store 'item_quantity', quantity
+					@invItems[@itemCount].store 'item_amount', itemAmount
+					@itemCount = @itemCount + 1
+					oldIssueId = entry.issue_id
+					totalAmount = (totalAmount + itemAmount).round(2)
+					errorMsg = totalAmount
+				end
+				lasInvItmId = invItem.id unless isCreate
+				updateBilledHours(entry, lasInvItmId) unless isCreate
+				totalAmount = totalAmount + invItem.amount unless isCreate
 			end
 		else
+			pjtIdVal = Array.new
+			pjtOldIdArr =  Array.new
 			isContinue = false
+			pjtDescription = ""
+			pjtQuantity = 0			
+			@currency = rateHash['currency']
 			sumEntry = timeEntries.group(:issue_id).sum(:hours)
 			timeEntries.order(:issue_id).each do |entry|
-				if lastIssueId == entry.issue_id || isContinue
+				if (lastIssueId == entry.issue_id || isContinue) && !isCreate
 					updateBilledHours(entry, lasInvItmId)
 					next 
 				end
 				lastIssueId = entry.issue_id
-				if @invoice.id.blank?
+				if @invoice.id.blank? && !isCreate
 					errorMsg = saveInvoice
 					unless errorMsg.blank?
 						break
@@ -232,19 +273,42 @@ include WkbillingHelper
 				end
 				invItem = @invoice.invoice_items.new()
 				if accountProject.itemized_bill					
-					description =  entry.issue.blank? ? entry.project.name : (isAccountBilling(accountProject) ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject)
-					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], sumEntry[entry.issue_id], rateHash['currency'])
+					pjtDescription =  entry.issue.blank? ? entry.project.name : (isAccountBilling(accountProject) ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject)
+					pjtQuantity = sumEntry[entry.issue_id]
+					invItem = updateInvoiceItem(invItem, accountProject.project_id, pjtDescription, rateHash['rate'], pjtQuantity, rateHash['currency']) unless isCreate
 				else
 					isContinue = true
-					quantity = timeEntries.sum(:hours)
-					invItem = updateInvoiceItem(invItem, accountProject.project_id, accountProject.project.name, rateHash['rate'], quantity, rateHash['currency'])
+					pjtQuantity = timeEntries.sum(:hours)
+					pjtDescription = accountProject.project.name
+					invItem = updateInvoiceItem(invItem, accountProject.project_id, pjtDescription, rateHash['rate'], pjtQuantity, rateHash['currency']) unless isCreate
 				end
-				lasInvItmId = invItem.id
-				updateBilledHours(entry, lasInvItmId)
-				totalAmount = totalAmount + invItem.amount
-			end
+				if isCreate && ((oldIssueId != 0 && oldIssueId != entry.issue_id) || timeEntries.order(:issue_id).last == entry)
+					keyVal = @itemCount - 1
+					pjtIdVal << entry.id if timeEntries.order(:issue_id).last == entry
+					@invItems[keyVal].store 'milestone_id', pjtIdVal 
+					pjtIdVal= []
+				end
+				pjtIdVal << entry.id
+    			 if isCreate && (oldIssueId == 0 || oldIssueId != entry.issue_id)
+					itemAmount = rateHash['rate'] * pjtQuantity
+					#@invItems[@itemCount].store 'milestone_id', entry.id				
+					@invItems[@itemCount].store 'project_id', accountProject.project_id
+					@invItems[@itemCount].store 'item_desc', pjtDescription
+					@invItems[@itemCount].store 'item_type', 'Invoice'
+					@invItems[@itemCount].store 'rate', rateHash['rate']
+					@invItems[@itemCount].store 'item_quantity', pjtQuantity.round(2)
+					@invItems[@itemCount].store 'item_amount', itemAmount.round(2)
+					@itemCount = @itemCount + 1
+					oldIssueId = entry.issue_id
+					totalAmount = (totalAmount + itemAmount).round(2)
+					errorMsg = totalAmount
+				end
+				lasInvItmId = invItem.id unless isCreate
+				updateBilledHours(entry, lasInvItmId) unless isCreate
+				totalAmount = totalAmount + invItem.amount unless isCreate
+			end			
 		end
-		if accountProject.apply_tax && totalAmount>0
+		if accountProject.apply_tax && totalAmount>0 && !isCreate
 			addTaxes(accountProject, rateHash['currency'], totalAmount)
 		end
 		errorMsg

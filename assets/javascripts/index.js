@@ -299,34 +299,47 @@ function progrpChanged(btnoption, userid, needBlankOption){
 	}
 }
 
-function accProjChanged(uid, fldId)
+function accProjChanged(uid, fldId, isparent, blankOptions)
 {
 	var acc_name = document.getElementById(fldId);//document.getElementById("account_id");
 	var parentId = acc_name.options[acc_name.selectedIndex].value;
-	var parentType = fldId == 'contact_id' && parentId != "" ? 'WkCrmContact' : ( fldId == 'account_id' && parentId != "" ? 'WkAccount' : '');
-	var needBlankOption = true;
-	var projDropdown = document.getElementById("project_id");
+	var parentType = "WkAccount";
+	var $this = $(this);
+	if(isparent)
+	{
+		var parentDD = document.getElementById('related_to');
+		parentType = parentDD.options[parentDD.selectedIndex].value;
+	} else {
+		parentType = fldId == 'contact_id' && parentId != "" ? 'WkCrmContact' : ( fldId == 'account_id' && parentId != "" ? 'WkAccount' : '');
+	}
+	var needBlankOption = blankOptions;
+	var projDropdown = document.getElementById("project_id");	
 	userid = uid;
 	$.ajax({
 	url: accountUrl,
 	type: 'get',
 	data: {parent_id: parentId, parent_type: parentType},
-	success: function(data){ updateUserDD(data, projDropdown, userid, needBlankOption, false, "");},   
+	success: function(data){ updateUserDD(data, projDropdown, userid, needBlankOption, false, "");},
+	beforeSend: function(){ $this.addClass('ajax-loading'); },
+	complete: function(){ $this.removeClass('ajax-loading'); }	
 	});
 }
 
-function actRelatedDd(uid)
+function actRelatedDd(uid, loadProjects)
 {
 	var relatedTo = document.getElementById("related_to");
 	var relatedType = relatedTo.options[relatedTo.selectedIndex].value;
 	var needBlankOption = false;
 	var relatedparentdd = document.getElementById("related_parent");
 	userid = uid;
+	var $this = $(this);
 	$.ajax({
 	url: actRelatedUrl,
 	type: 'get',
 	data: {related_type: relatedType},
-	success: function(data){ updateUserDD(data, relatedparentdd, userid, needBlankOption, false, "");},   
+	success: function(data){ updateUserDD(data, relatedparentdd, userid, needBlankOption, false, "");},
+	beforeSend: function(){ $this.addClass('ajax-loading'); },
+	complete: function(){ if(loadProjects) { accProjChanged(uid, 'related_parent', true, true) } $this.removeClass('ajax-loading'); }	   
 	});
 }
 

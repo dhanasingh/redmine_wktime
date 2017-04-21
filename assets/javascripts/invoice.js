@@ -289,3 +289,26 @@ function txnformValidation()
 	}
 	return ret;
 }
+
+function submitNewInvoiceForm()
+{
+	var valid=true;
+	var msg = '';
+	var accDropdown = document.getElementById("related_parent");
+	var pjtDropdown = document.getElementById("project_id");
+	if(accDropdown.value=="")
+	{
+		valid=false;
+		msg = msg + "Please select the Name.";
+	}
+	else if(pjtDropdown.value=="") {
+		valid=false;
+		msg = msg + "Please select the project.";
+	}
+	if(!valid)
+	{
+		alert(msg);
+	}
+	return valid;
+	 
+}

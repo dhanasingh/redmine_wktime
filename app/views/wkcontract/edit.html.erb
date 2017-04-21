@@ -3,7 +3,7 @@
 	<div id="contract_form">
            <%=h hidden_field_tag('contract_id', @contractEntry.blank? ? "" :@contractEntry.id) %>
 		   <%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	
-		   <%	projArr = options_for_wktime_project(projects,true) %>
+		   <%	projArr = options_for_wktime_project(projects,false) %>
 		   <%	accArr = options_for_wktime_account(false) %>
 		   <%   relHash = relatedHash
 				relHash.delete("WkOpportunity")
@@ -19,7 +19,7 @@
 							<td align="left" style="padding-left:40px;"><%=h @contractEntry.contract_number %> </td>
 						</tr>
 					<% end %>
-					<%= render partial: "wkcrm/view_polymorphic", locals: { parentObject: @contractEntry.blank? ? nil : @contractEntry, :parentType => "", :parentId => "", :index => false } %> 
+					<%= render partial: "wkcrm/view_polymorphic", locals: { parentObject: @contractEntry.blank? ? nil : @contractEntry, :parentType => "", :parentId => "", :index => false, :needParentProject => false } %> 
 					<tr>
 						<th align="left"><%= l(:label_project) %></th>
 						<td align="left" style="padding-left:40px;"><%=h select_tag('project_id', options_for_select(projArr, :selected => @contractEntry.blank? ? "" : @contractEntry.project_id)) %></td>
