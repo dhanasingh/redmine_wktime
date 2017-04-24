@@ -197,13 +197,22 @@ include WkbillingHelper
 			description = ""	
 			quantity = 0
 			sumEntry = timeEntries.group(:issue_id, :user_id).sum(:hours)
+			issueSumEntry = timeEntries.group(:issue_id).sum(:hours)
 			userTotalHours = timeEntries.group(:user_id).sum(:hours)
 			timeEntries.order(:issue_id, :user_id, :id).each do |entry|
-				rateHash = getUserRateHash(entry.user.custom_field_values)
+				#rateHash = getUserRateHash(entry.user.custom_field_values)
+				rateHash = getIssueRateHash(entry.issue.custom_field_values) 
 				@currency = rateHash['currency']
+				isUserBilling = false
 				if rateHash.blank? || rateHash['rate'].blank? || rateHash['rate'] <= 0
-					next
+					rateHash = getUserRateHash(entry.user.custom_field_values)
+					@currency = rateHash['currency']
+					isUserBilling = true
+					if rateHash.blank? || rateHash['rate'].blank? || rateHash['rate'] <= 0
+						next
+					end		
 				end
+				
 				if (lastUserId == entry.user_id && (lastIssueId == entry.issue_id || !accountProject.itemized_bill) ) && !isCreate
 					updateBilledHours(entry, lasInvItmId) 
 					next
@@ -215,17 +224,23 @@ include WkbillingHelper
 					end
 				end
 				invItem = @invoice.invoice_items.new()
-				lastUserId = entry.user_id
+				#lastUserId = entry.user_id
 				lastIssueId = entry.issue_id
-				if accountProject.itemized_bill
-					description = entry.issue.blank? ? entry.project.name : (isAccountBilling(accountProject) ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject) + " - " + entry.user.membership(entry.project).roles[0].name
-					quantity = sumEntry[[entry.issue_id, entry.user_id]]
-					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency']) unless isCreate
+				if isUserBilling
+					if accountProject.itemized_bill
+						description = entry.issue.blank? ? entry.project.name : (isAccountBilling(accountProject) ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject) + " - " + entry.user.membership(entry.project).roles[0].name
+						quantity = sumEntry[[entry.issue_id, entry.user_id]]
+						invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency']) unless isCreate
+					else
+						description = accountProject.project.name + " - " + entry.user.membership(entry.project).roles[0].name
+						quantity = userTotalHours[entry.user_id]
+						invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency']) unless isCreate
+					end
 				else
-					description = accountProject.project.name + " - " + entry.user.membership(entry.project).roles[0].name
-					quantity = userTotalHours[entry.user_id]
+					description = entry.issue.blank? ? entry.project.name : (isAccountBilling(accountProject) ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject) 
+					quantity = issueSumEntry[entry.issue_id]
 					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency']) unless isCreate
-				end				
+				end
 				
 				if isCreate && ((oldIssueId != 0 && oldIssueId != entry.issue_id) || timeEntries.order(:issue_id, :user_id, :id).last == entry )
 					keyVal = @itemCount - 1					  
@@ -234,7 +249,7 @@ include WkbillingHelper
 					userIdVal= []
 				end
 				userIdVal << entry.id
-				if isCreate && (oldIssueId == 0 || oldIssueId != entry.issue_id)		
+				if isCreate && ((oldIssueId == 0 || oldIssueId != entry.issue_id) || (isUserBilling && lastUserId != entry.user_id))		
 					itemAmount = rateHash['rate'] * quantity
 					@invItems[@itemCount].store 'project_id', accountProject.project_id
 					@invItems[@itemCount].store 'item_desc', description
@@ -247,6 +262,7 @@ include WkbillingHelper
 					totalAmount = (totalAmount + itemAmount).round(2)
 					errorMsg = totalAmount
 				end
+				lastUserId = entry.user_id
 				lasInvItmId = invItem.id unless isCreate
 				updateBilledHours(entry, lasInvItmId) unless isCreate
 				totalAmount = totalAmount + invItem.amount unless isCreate
@@ -358,6 +374,20 @@ include WkbillingHelper
 					rateHash["currency"] = custVal.value
 				when getSettingCfId('wktime_attn_designation_cf')
 					rateHash["designation"] = custVal.value
+			end
+		end
+		rateHash
+	end
+	
+	# Return RateHash which contains rate and currency for Issue
+	def getIssueRateHash(projectCustVals)
+		rateHash = Hash.new
+		projectCustVals.each do |custVal|
+			case custVal.custom_field_id 
+				when getSettingCfId('wktime_issue_billing_rate_cf') 
+					rateHash["rate"] = custVal.value.to_f
+				when getSettingCfId('wktime_issue_billing_currency_cf')  
+					rateHash["currency"] = custVal.value
 			end
 		end
 		rateHash
