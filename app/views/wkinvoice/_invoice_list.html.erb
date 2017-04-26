@@ -10,7 +10,8 @@
 				<th class="lbl-txt-align"><%= l(:field_status) %></th>		
 				<th class="lbl-txt-align"><%= l(:label_invoice_date) %></th>
 				<th class="lbl-txt-align"><%= l(:field_start_date) %></th>
-				<th class="lbl-txt-align"><%= l(:label_end_date) %></th>				
+				<th class="lbl-txt-align"><%= l(:label_end_date) %></th>
+				<th class="lbl-txt-align"><%= l(:label_quantity) %></th>				
 				<th class="lbl-txt-align"><%= l(:field_amount) %></th>
 				<th class="lbl-txt-align"><%= l(:field_status_modified_by) %></th>
 				<th></th>
@@ -34,6 +35,7 @@
 			<td class="lbl-txt-align"><%=h entry.invoice_date  %></td>			
 			<td class="lbl-txt-align"><%=h entry.start_date  %></td>
 			<td class="lbl-txt-align"><%=h entry.end_date  %></td>
+			<td class="lbl-txt-align"><%=h html_hours("%.2f" % entry.invoice_items.sum(:quantity))   %></td>
 			<td class="lbl-txt-align"><%= entry.invoice_items[0].currency unless entry.invoice_items[0].blank?%> <%=h html_hours("%.2f" % entry.invoice_items.sum(:amount))  %></td>
 			<td class="lbl-txt-align"><%=h entry.modifier.name  %></td>
 			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :invoice_id => entry.id, :new_invoice => false, :preview_billing => false, :tab => controller.controller_name},
@@ -54,6 +56,7 @@
 					<td class="lbl-txt-align"><%=h Date.today  %></td>			
 					<td class="lbl-txt-align"><%=h value['start_date']  %></td>
 					<td class="lbl-txt-align"><%=h value['end_date']  %></td>
+					<td class="lbl-txt-align"><%=h value['quantity']  %></td>
 					<td class="lbl-txt-align"><%= @currency %> <%=h html_hours("%.2f" % value['amount'] ) unless value['amount'].blank?  %></td>
 					<td class="lbl-txt-align"><%=h User.current.name  %></td>
 					<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :new_invoice => true, :related_to =>  value['parent_type'], :related_parent => value['parent_id'], :project_id => (value['isAccountBilling'] ? 0 : value['project_id']), :start_date => value['start_date'], :end_date => value['end_date'], :populate_items =>1, :preview_billing => true,   :tab => controller.controller_name},
