@@ -88,10 +88,10 @@
 					<label id="item_index<%= row_index.to_s %>"><%= row_index  %></label>
 				</td>
 				<td class="lbl-txt-align" headers="project_id">
-					<%=h select_tag("project_id#{row_index.to_s}", options_for_select(@projectsDD, :selected=> value['project_id'] )) %>
+					<%=h select_tag("project_id#{row_index.to_s}", options_for_select(@projectsDD, :selected=> value['project_id'] ), :disabled => @preBilling ) %>
 				</td>
 				<td class="lbl-txt-align" headers="name">
-					<%= text_field_tag "name#{row_index}", value['item_desc'], :required => true,  :style => "width:150px; " %>
+					<%= text_field_tag "name#{row_index}", value['item_desc'], :required => true,  :style => "width:150px; ", :disabled => @preBilling %>
 				</td>
 				<td class="lbl-txt-align" headers="item_type">
 					<label id="item_type<%= row_index.to_s %>"  ><%= l(:label_invoice) %></label>
@@ -100,10 +100,10 @@
 					<%=h hidden_field_tag("currency#{row_index}",   @currency )  %>
 				</td>
 				<td class="lbl-txt-align" headers="rate">
-					<%=  @currency %><%= text_field_tag "rate#{row_index}",   value['rate'] ,:maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)" %>
+					<%=  @currency %><%= text_field_tag "rate#{row_index}",   value['rate'] ,:maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)", :disabled => @preBilling %>
 				</td>
 				<td class="lbl-txt-align" headers="quantity">
-					<%= text_field_tag "quantity#{row_index}", value['item_quantity'], :maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)" %>
+					<%= text_field_tag "quantity#{row_index}", value['item_quantity'], :maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)", :disabled => @preBilling %>
 				</td>
 				<td class="lbl-txt-align" headers="amount">
 					<%= @currency %><label id="amount<%= row_index.to_s %>" ><%= value['item_amount']  %></label>
@@ -112,7 +112,7 @@
 				<td>
 					<%= link_to image_tag('delete.png'), "javascript:deleteRow('invoiceTable', 'totalrow');", :id => row_index,
 							:data => {:confirm => l(:text_are_you_sure)},
-							:title => l(:button_delete) %>
+							:title => l(:button_delete), :disabled => @preBilling %>
 				</td>			
 			</tr>
 			<% row_index = row_index + 1 %>
@@ -253,7 +253,9 @@
 <% end %>
 <% end %> <!-- my end -->
 <%=h hidden_field_tag("deletedids",  "" )  %>
-<%= submit_tag l(:button_save),  :hidden => false, :id => 'items_save' %>
+<%= submit_tag l(:button_save),  :hidden => false, :id => 'items_save', :disabled => @preBilling %>
+<% unless @invoiceItem.blank? %>
 <div style="float:right;">
 <%= link_to l(:label_export_invoice), "javascript: openInvReportPopup();" %> 
 </div>
+<% end %>

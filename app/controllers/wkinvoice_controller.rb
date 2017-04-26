@@ -26,6 +26,7 @@ include WkbillingHelper
 	def index
 		@projects = nil
 		errorMsg = nil
+		@previewBilling = false
 		set_filter_session
 		retrieve_date_range
 		sqlwhere = ""
@@ -63,43 +64,48 @@ include WkbillingHelper
 			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
 			sqlwhere = sqlwhere + " parent_type = '#{parentType}'  "
 		end
-		
-		
-		
-		unless params[:generate].blank? || !to_boolean(params[:generate])	
+		#unless (params[:generate].blank? || ) || (          !to_boolean(params[:generate]) || !to_boolean(params[:preview_billing]))
+		if (!params[:preview_billing].blank? && params[:preview_billing] == "true") ||
+		   (!params[:generate].blank? && params[:generate] == "true")
 			unless projectId.blank? || projectId == 0
 				sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
 				sqlwhere = sqlwhere + " project_id = '#{projectId}' "
 			end
 			if filter_type == '2'  || filter_type == '3' 
-				WkAccountProject.where(sqlwhere).find_each do |accProj|
-					errorMsg = generateInvoices(accProj, projectId, @to + 1, [@from, @to])#accProj.parent_id,accProj.parent_type
+				accProjects = WkAccountProject.where(sqlwhere).order(:parent_type, :parent_id)
+				previewBilling(accProjects)
+				accProjects.find_each do |accProj|
+				   errorMsg = generateInvoices(accProj, projectId, @to + 1, [@from, @to]) unless params[:generate].blank? || !to_boolean(params[:generate])#accProj.parent_id,accProj.parent_type
+				   
 				end
 			end			
 			
 			if filter_type == '1'  
 				if  projectId.blank?
-					accProjects = WkAccountProject.all					
+					accProjects = WkAccountProject.all.order(:parent_type, :parent_id)					
 				else
-					accProjects = WkAccountProject.where(project_id: projectId)
+					accProjects = WkAccountProject.where(project_id: projectId).order(:parent_type, :parent_id)
 				end	
+				previewBilling(accProjects)
 				accProjects.each do |accProj|
-					errorMsg = generateInvoices(accProj, projectId, @to + 1, [@from, @to])#accProj.parent_id,accProj.parent_type
+				   errorMsg = generateInvoices(accProj, projectId, @to + 1, [@from, @to]) unless params[:generate].blank? || !to_boolean(params[:generate])#accProj.parent_id,accProj.parent_type
+				   
 				end
 			end
-			
-			if errorMsg.blank?	
-				redirect_to :action => 'index' , :tab => 'wkinvoice'
-				flash[:notice] = l(:notice_successful_update)
-			else
-				if errorMsg.is_a?(Hash)
+			unless params[:generate].blank? || !to_boolean(params[:generate])
+				if errorMsg.blank?	
+					redirect_to :action => 'index' , :tab => 'wkinvoice'
 					flash[:notice] = l(:notice_successful_update)
-					flash[:error] = errorMsg['trans']
 				else
-					flash[:error] = errorMsg
-				end
-				redirect_to :action => 'index'
-			end	
+					if errorMsg.is_a?(Hash)
+						flash[:notice] = l(:notice_successful_update)
+						flash[:error] = errorMsg['trans']
+					else
+						flash[:error] = errorMsg
+					end
+					redirect_to :action => 'index'
+				end	
+			end
 		else				
 			
 			if !@from.blank? && !@to.blank?			
@@ -112,22 +118,57 @@ include WkbillingHelper
 			else
 				invEntries = WkInvoice.includes(:invoice_items).where(sqlwhere)
 			end
-			# if (!accountId.blank? || accountId.to_i != 0) && (projectId.blank? || projectId == "0")
-				# invEntries = invEntries.where(:parent_id => accountId, :parent_type => 'WkAccount')
-			# end
-			
-			# if (accountId.blank? || accountId.to_i == 0) && (!projectId.blank? && projectId != "0")
-				# invEntries = invEntries.where( :wk_invoice_items => { :project_id => projectId })
-			# end
-			
-			# if (!accountId.blank? || accountId.to_i != 0) && (!projectId.blank? &&  projectId != "0")
-				# invEntries = invEntries.where( :wk_invoice_items => { :project_id => projectId }, :parent_id => accountId, :parent_type => 'WkAccount')
-			# end
-			
-			
 			formPagination(invEntries)
-			@totalInvAmt = @invoiceEntries.sum("wk_invoice_items.amount")
+			@totalInvAmt = @invoiceEntries.sum("wk_invoice_items.amount") unless @previewBilling
 		end
+	end
+	
+	def previewBilling(accountProjects)
+		lastParentId = 0
+		@currency = nil
+		@listKey = 0
+		@invList = Hash.new{|hsh,key| hsh[key] = {} }
+		@previewBilling = true
+		isActBilling = false
+		totalInvAmt = 0
+		accountProjects.each do |accProj|
+			if isAccountBilling(accProj) 
+				if lastParentId != accProj.parent_id
+					setTempInvoice(@from, @to, accProj.parent_id, accProj.parent_type, '1', '0')
+					isActBilling = true
+				end
+				lastParentId = accProj.parent_id
+			else
+				setTempInvoice(@from, @to, accProj.parent_id, accProj.parent_type, '1', accProj.project_id)
+			end
+			
+			if  (!@invList[@listKey]['amount'].blank? && @invList[@listKey]['amount'] != 0.0) 
+				@invList[@listKey].store 'invoice_number', ""
+				@invList[@listKey].store 'parent_type', accProj.parent_type
+				@invList[@listKey].store 'parent_id', accProj.parent_id
+				@invList[@listKey].store 'name', accProj.parent.name
+				@invList[@listKey].store 'project', accProj.project.name
+				@invList[@listKey].store 'project_id', accProj.project_id
+				@invList[@listKey].store 'status', 'o'
+			#	@invList[@listKey].store 'invoice_date', Date.today
+				@invList[@listKey].store 'start_date', @from
+				@invList[@listKey].store 'end_date', @to
+				@invList[@listKey].store 'isAccountBilling', isActBilling
+				totalInvAmt = totalInvAmt + @invList[@listKey]['amount']
+			#	@invList[@listKey].store 'modified_by', User.current
+				@listKey = @listKey + 1
+			end
+		end	
+		@entry_count = @invList.size
+		setLimitAndOffset()
+		invTotal = 0
+		totlist = @invList.first(@limit*@entry_pages.page).last(@limit)
+		totlist.each do |key, value|
+			unless value.empty?
+				invTotal = invTotal + value['amount'].to_i unless value['amount'].blank?
+			end
+		end
+		@totalInvAmt = invTotal #totalInvAmt
 	end
 	
 	
@@ -135,17 +176,21 @@ include WkbillingHelper
 		@invoice = nil
 		@invoiceItem = nil
 		@projectsDD = nil
-		@itemCount = 0
-		@invItems = Hash.new{|hsh,key| hsh[key] = {} }
+        @currency = nil	
+		@preBilling = false
+		@preBilling = to_boolean(params[:preview_billing]) unless params[:preview_billing].blank?
+		
+			@listKey = 0
+			@invList = Hash.new{|hsh,key| hsh[key] = {} }		
 		if !params[:new_invoice].blank? && params[:new_invoice] == "true"
 			if !params[:project_id].blank? && params[:project_id] != '0'
 				@projectsDD = Project.where(:id => params[:project_id].to_i).pluck(:name, :id)				
-				setTempInvoice				
+				setTempInvoice(params[:start_date], params[:end_date], params[:related_parent], params[:related_to], params[:populate_items], params[:project_id])			
 			elsif !params[:project_id].blank? && params[:project_id] == '0'
 				accountProjects = WkAccountProject.where(:parent_type => params[:related_to], :parent_id => params[:related_parent].to_i)	
 				unless accountProjects.blank?
 					@projectsDD = accountProjects[0].parent.projects.pluck(:name, :id)
-					setTempInvoice
+					setTempInvoice(params[:start_date], params[:end_date], params[:related_parent], params[:related_to], params[:populate_items], params[:project_id])
 				else
 					flash[:error] = "No projects in name."
 					redirect_to :action => 'new'
@@ -168,28 +213,32 @@ include WkbillingHelper
 		
 	end
 	
-	def setTempInvoice
+	def setTempInvoice(startDate, endDate, relatedParent, relatedTo, populatedItems, projectId)
+		@itemCount = 0
+		@invItems = Hash.new{|hsh,key| hsh[key] = {} }		
 		@invoice = WkInvoice.new
 		@invoice.invoice_date = Date.today
 		@invoice.id = ""
 		@invoice.invoice_number = ""
-		@invoice.start_date = params[:start_date]
-		@invoice.end_date = params[:end_date]
+		@invoice.start_date = startDate #params[:start_date]
+		@invoice.end_date = endDate #params[:end_date]
 		@invoice.status = 'o'
 		@invoice.modifier_id = User.current.id
-		@invoice.parent_id = params[:related_parent].to_i
-		@invoice.parent_type = params[:related_to]
-		getTaxItems
+		@invoice.parent_id = relatedParent #params[:related_parent].to_i
+		@invoice.parent_type = relatedTo #params[:related_to]
+		getTaxItems(startDate, endDate, relatedParent, relatedTo, populatedItems, projectId)
 	end
 	
-	def getTaxItems
-			accPrtId = nil
-			@currency = nil
+	def getTaxItems(startDate, endDate, relatedParent, relatedTo, populatedItems, projectId)
+			accPrtId = nil			
 			@unbilled = false
-			if !params[:project_id].blank? && params[:project_id] == '0'
-				accPrtId = WkAccountProject.where(:parent_type => params[:related_to], :parent_id => params[:related_parent].to_i) #, :project_id => params[:project_id].to_i
+			grandTotal = 0
+			taxGrandTotal = 0
+			#if !params[:project_id].blank? && params[:project_id] == '0'
+			if !projectId.blank? && projectId == '0'
+				accPrtId = WkAccountProject.where(:parent_type => relatedTo, :parent_id => relatedParent.to_i) #, :project_id => params[:project_id].to_i
 			else
-				accPrtId = WkAccountProject.where(:parent_type => params[:related_to], :parent_id => params[:related_parent].to_i, :project_id => params[:project_id].to_i)
+				accPrtId = WkAccountProject.where(:parent_type => relatedTo, :parent_id => relatedParent.to_i, :project_id => projectId.to_i)
 			end
 			#rateHash = getProjectRateHash(accPrtId[0].project.custom_field_values)
 			#@currency = rateHash['currency']
@@ -197,35 +246,40 @@ include WkbillingHelper
 			indexKey = 0
 			totAmount = 0.00
 			accPrtId.each do | apEntry|
-				if !params[:populate_items].blank? && params[:populate_items] == '1'
+				#if !params[:populate_items].blank? && params[:populate_items] == '1'
+				if !populatedItems.blank? && populatedItems == '1'
 					@unbilled = true
 					if apEntry.billing_type == 'TM'
 						totAmount = saveTAMInvoiceItem(apEntry, true)
 					else
-						totAmount = getFcItems(apEntry)
+						totAmount = getFcItems(apEntry, startDate, endDate)
 					end
 				end
+				grandTotal =  grandTotal + (totAmount.blank? ? 0.00 : totAmount)
+				
 				aptaxes = apEntry.taxes
-				aptaxes.each do | taxEntry|					
+				aptaxes.each do | taxEntry|	
+					taxAmt =  (taxEntry.rate_pct/100) * (totAmount.blank? ? 0.00 : totAmount)
 					@taxVal[indexKey].store 'project_name', apEntry.project.name
 					@taxVal[indexKey].store 'name', taxEntry.name
 					@taxVal[indexKey].store 'rate', taxEntry.rate_pct
 					@taxVal[indexKey].store 'project_id', apEntry.project_id
 					@taxVal[indexKey].store 'currency', @currency
-					@taxVal[indexKey].store 'amount',  (taxEntry.rate_pct/100) * (totAmount.blank? ? 0.00 : totAmount)
+					@taxVal[indexKey].store 'amount', taxAmt
+					taxGrandTotal = taxGrandTotal + taxAmt
 					indexKey = indexKey + 1
 				end
 				totAmount = 0.00
 			end	
+			unless (taxGrandTotal + grandTotal) == 0.0
+				@invList[@listKey].store 'amount', taxGrandTotal + grandTotal 
+			end
 	end
 	
-	def getTMItems()
-	end
-	
-	def getFcItems(accountProject)
+	def getFcItems(accountProject, startDate, endDate)
 		#hashKey = 0
 		totalAmt = 0		
-		scheduledEntries = accountProject.wk_billing_schedules.where(:account_project_id => accountProject.id, :bill_date => params[:start_date] .. params[:end_date], :invoice_id => nil)
+		scheduledEntries = accountProject.wk_billing_schedules.where(:account_project_id => accountProject.id, :bill_date => startDate .. endDate, :invoice_id => nil)
 		scheduledEntries.each do |entry|
 			itemDesc = ""		
 			if isAccountBilling(entry.account_project) #scheduledEntry.account_project.parent.account_billing
