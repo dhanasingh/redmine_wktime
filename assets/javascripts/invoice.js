@@ -42,6 +42,10 @@ function invoiceAddRow(tableId, rowCount)
 			var prefix = id.substr(0, (id.length-1));
 			el.attr('id', prefix+(+i+1));
 			el.attr('name', prefix+(+i+1));
+			if(prefix == "item_type")
+			{
+				el.attr('disabled', false);
+			}
 			//el.attr('value', prefix+(+i+1));
 		}
 	});/* working fine */

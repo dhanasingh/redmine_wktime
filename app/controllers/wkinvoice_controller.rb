@@ -259,7 +259,7 @@ include WkbillingHelper
 						totAmount = getFcItems(apEntry, startDate, endDate)
 					end
 				else
-					getInvItemCurrency(apEntry)
+					setInvItemCurrency(apEntry)
 				end
 				grandTotal =  grandTotal + (totAmount.blank? ? 0.00 : totAmount)
 				
@@ -306,7 +306,7 @@ include WkbillingHelper
 		totalAmt
 	end
 	
-	def getInvItemCurrency(accProjectEntry)		
+	def setInvItemCurrency(accProjectEntry)		
 		if accProjectEntry.billing_type == 'TM'
 			getRate = getProjectRateHash(accProjectEntry.project.custom_field_values)
 			if getRate.blank? || getRate['rate'].blank? || getRate['rate'] <= 0
@@ -368,10 +368,13 @@ include WkbillingHelper
 			unless params["item_id#{i}"].blank?			
 				arrId.delete(params["item_id#{i}"].to_i)
 				invoiceItem = WkInvoiceItem.find(params["item_id#{i}"].to_i)
-				updatedItem = updateInvoiceItem(invoiceItem, params["project_id#{i}"],  params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, invoiceItem.currency)
+				amount = params["rate#{i}"].to_f * params["quantity#{i}"].to_f
+				updatedItem = updateInvoiceItem(invoiceItem, params["project_id#{i}"],  params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, invoiceItem.currency, params["item_type#{i}"], amount)
 			else
+			
 				invoiceItem = @invoice.invoice_items.new
-				updatedItem = updateInvoiceItem(invoiceItem, params["project_id#{i}"], params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, params["currency#{i}"])
+				amount = params["rate#{i}"].to_f * params["quantity#{i}"].to_f
+				updatedItem = updateInvoiceItem(invoiceItem, params["project_id#{i}"], params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, params["currency#{i}"], params["item_type#{i}"], amount)
 			end
 			if !params[:populate_unbilled].blank? && params[:populate_unbilled] == "true"
 				accProject = WkAccountProject.where(:project_id => params["project_id#{i}"].to_i)

@@ -5,9 +5,10 @@
 	grpUrl="<%= "#{url_for(:controller => "wkreport", :action => 'getMembersbyGroup')}" %>";
 	//getMembersbyGroup
 </script>
+<% itemHash = { 'i' => l(:label_invoice), 'c' =>  l(:label_credit)  } %>
 <div class="wk-contextual">
 <h2 style="float:left;"><%= l(:label_invoice_items) %></h2>
-<%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('invoiceTable', 'totalrow');",  :class => 'icon icon-time-add' }%>
+<%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('invoiceTable', 'totalrow');",  :class => 'icon icon-time-add' } %>
 </div>
 <div style="clear:both"></div>
 <div class="autoscroll">
@@ -38,7 +39,7 @@
   </thead>
    <tbody>
    <% if !@invoiceItem.blank? %>
-       <% @invoiceItem.where(:item_type => 'i').each do |entry| %>
+       <% @invoiceItem.where("wk_invoice_items.item_type = 'i' or wk_invoice_items.item_type = 'c'").each do |entry| %>
 			<tr onclick="  row_id  = this.rowIndex ">
 				<td class="lbl-txt-align" headers="item_id">
 					<%=h hidden_field_tag("item_id#{row_index}",   entry.id )  %>
@@ -52,8 +53,8 @@
 				<td class="lbl-txt-align" headers="name">
 					<%= text_field_tag "name#{row_index}",  entry.name, :required => true,  :style => "width:150px; " %>
 				</td>
-				<td class="lbl-txt-align" headers="item_type">
-					<label id="item_type<%= row_index.to_s %>"  ><%= l(:label_invoice) %></label>
+				<td class="lbl-txt-align" headers="item_type">					
+					<%=h select_tag("item_type#{row_index.to_s}", options_for_select(itemHash.invert, :selected => entry.item_type), :disabled => true) %>
 				</td>
 				<td class="lbl-txt-align" headers="currency">
 					<%=h hidden_field_tag("currency#{row_index}",   entry.currency )  %>
@@ -94,7 +95,7 @@
 					<%= text_field_tag "name#{row_index}", value['item_desc'], :required => true,  :style => "width:150px; ", :disabled => @preBilling %>
 				</td>
 				<td class="lbl-txt-align" headers="item_type">
-					<label id="item_type<%= row_index.to_s %>"  ><%= l(:label_invoice) %></label>
+					<%=h select_tag("item_type#{row_index.to_s}", options_for_select(itemHash.invert), :disabled => @preBilling) %>
 				</td>
 				<td class="lbl-txt-align" headers="currency">
 					<%=h hidden_field_tag("currency#{row_index}",   @currency )  %>
@@ -132,7 +133,7 @@
 				<%= text_field_tag "name#{row_index}",  "", :required => true,  :style => "width:150px; " %>
 			</td>
 			<td class="lbl-txt-align" headers="item_type">
-				<label id="item_type<%= row_index.to_s %>"  ><%= l(:label_invoice) %></label>
+				<%=h select_tag("item_type#{row_index.to_s}", options_for_select(itemHash.invert)) %>
 			</td>
 			<td class="lbl-txt-align" headers="currency">
 				<%=h hidden_field_tag("currency#{row_index}",   @currency )  %>

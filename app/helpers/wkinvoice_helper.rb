@@ -167,7 +167,7 @@ include WkbillingHelper
 		else
 			itemDesc = scheduledEntry.milestone
 		end
-		invItem = updateInvoiceItem(invItem, scheduledEntry.account_project.project_id, itemDesc, scheduledEntry.amount, 1, scheduledEntry.currency)
+		invItem = updateInvoiceItem(invItem, scheduledEntry.account_project.project_id, itemDesc, scheduledEntry.amount, 1, scheduledEntry.currency, 'i',scheduledEntry.amount )
 		invItem
 	end
 	
@@ -230,16 +230,19 @@ include WkbillingHelper
 					if accountProject.itemized_bill
 						description = entry.issue.blank? ? entry.project.name : (isAccountBilling(accountProject) ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject) + " - " + entry.user.membership(entry.project).roles[0].name
 						quantity = sumEntry[[entry.issue_id, entry.user_id]]
-						invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency']) unless isCreate
+						amount = rateHash['rate'] * quantity
+						invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency'], 'i', amount) unless isCreate
 					else
 						description = accountProject.project.name + " - " + entry.user.membership(entry.project).roles[0].name
 						quantity = userTotalHours[entry.user_id]
-						invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency']) unless isCreate
+						amount = rateHash['rate'] * quantity
+						invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency'], 'i', amount) unless isCreate
 					end
 				else
 					description = entry.issue.blank? ? entry.project.name : (isAccountBilling(accountProject) ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject) 
 					quantity = issueSumEntry[entry.issue_id]
-					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency']) unless isCreate
+					amount = rateHash['rate'] * quantity
+					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency'], 'i', amount) unless isCreate
 				end
 				
 				if isCreate && ((oldIssueId != 0 && oldIssueId != entry.issue_id) || timeEntries.order(:issue_id, :user_id, :id).last == entry )
@@ -291,12 +294,14 @@ include WkbillingHelper
 				if accountProject.itemized_bill					
 					pjtDescription =  entry.issue.blank? ? entry.project.name : (isAccountBilling(accountProject) ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject)
 					pjtQuantity = sumEntry[entry.issue_id]
-					invItem = updateInvoiceItem(invItem, accountProject.project_id, pjtDescription, rateHash['rate'], pjtQuantity, rateHash['currency']) unless isCreate
+					amount = rateHash['rate'] * pjtQuantity
+					invItem = updateInvoiceItem(invItem, accountProject.project_id, pjtDescription, rateHash['rate'], pjtQuantity, rateHash['currency'], 'i', amount) unless isCreate
 				else
 					isContinue = true
 					pjtQuantity = timeEntries.sum(:hours)
 					pjtDescription = accountProject.project.name
-					invItem = updateInvoiceItem(invItem, accountProject.project_id, pjtDescription, rateHash['rate'], pjtQuantity, rateHash['currency']) unless isCreate
+					amount = rateHash['rate'] * pjtQuantity
+					invItem = updateInvoiceItem(invItem, accountProject.project_id, pjtDescription, rateHash['rate'], pjtQuantity, rateHash['currency'], 'i', amount) unless isCreate
 				end
 				if isCreate && ((oldIssueId != 0 && oldIssueId != entry.issue_id) || timeEntries.order(:issue_id).last == entry)
 					keyVal = @itemCount - 1
@@ -331,13 +336,14 @@ include WkbillingHelper
 	end
 	
 	# Update invoice item by the given invoice item Object
-	def updateInvoiceItem(invItem, projectId, description, rate, quantity, currency)
+	def updateInvoiceItem(invItem, projectId, description, rate, quantity, currency, itemType, amount)
 		invItem.project_id = projectId
 		invItem.name = description
-		invItem.rate = rate
+		invItem.rate = rate 
 		invItem.currency = currency
 		invItem.quantity = quantity
-		invItem.amount = invItem.rate * invItem.quantity
+		invItem.item_type = itemType unless itemType.blank?
+		invItem.amount = amount #invItem.rate * invItem.quantity
 		invItem.modifier_id = User.current.id
 		invItem.save()
 		invItem
@@ -398,30 +404,16 @@ include WkbillingHelper
 		projectTaxes = accountProject.wk_acc_project_taxes
 		projectTaxes.each do |projtax|
 			invItem = @invoice.invoice_items.new()
-			invItem.name = projtax.tax.name
-			invItem.rate = projtax.tax.rate_pct.blank? ? 0 : projtax.tax.rate_pct
-			invItem.project_id = accountProject.project_id
-			invItem.currency = currency
-			invItem.quantity = nil
-			invItem.amount = (invItem.rate/100) * totalAmount
-			invItem.item_type = 't'
-			invItem.modifier_id = User.current.id
-			invItem.save()
+			rate = projtax.tax.rate_pct.blank? ? 0 : projtax.tax.rate_pct
+			amount = (rate/100) * totalAmount
+			updateInvoiceItem(invItem, accountProject.project_id, projtax.tax.name, rate, nil, currency, 't', amount) 			
 		end
 	end
 	
 	# Add an invoice item for the round off value
 	def addRoundInvItem(totalAmount)
-		invItem = @invoice.invoice_items.new()
-		invItem.name = l(:label_round_off)
-		invItem.rate = nil
-		invItem.project_id = @invoice.invoice_items[0].project_id
-		invItem.currency = @invoice.invoice_items[0].currency
-		invItem.quantity = nil
-		invItem.amount = totalAmount.round - totalAmount
-		invItem.item_type = 'r'
-		invItem.modifier_id = User.current.id
-		invItem.save()
+		invItem = @invoice.invoice_items.new()		
+		updateInvoiceItem(invItem, @invoice.invoice_items[0].project_id, l(:label_round_off), nil, nil, @invoice.invoice_items[0].currency, 'r', (totalAmount.round - totalAmount))		
 	end
 	
 	# Return the Query string with SQL length function for the given column
