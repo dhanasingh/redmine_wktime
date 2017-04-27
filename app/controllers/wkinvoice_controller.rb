@@ -245,8 +245,7 @@ include WkbillingHelper
 			else
 				accPrtId = WkAccountProject.where(:parent_type => relatedTo, :parent_id => relatedParent.to_i, :project_id => projectId.to_i)
 			end
-			#rateHash = getProjectRateHash(accPrtId[0].project.custom_field_values)
-			#@currency = rateHash['currency']
+			
 			@taxVal = Hash.new{|hsh,key| hsh[key] = {} }
 			indexKey = 0
 			totAmount = 0.00
@@ -259,6 +258,8 @@ include WkbillingHelper
 					else
 						totAmount = getFcItems(apEntry, startDate, endDate)
 					end
+				else
+					getInvItemCurrency(apEntry)
 				end
 				grandTotal =  grandTotal + (totAmount.blank? ? 0.00 : totAmount)
 				
@@ -303,6 +304,25 @@ include WkbillingHelper
 			totalAmt = (totalAmt + entry.amount).round(2)
 		end
 		totalAmt
+	end
+	
+	def getInvItemCurrency(accProjectEntry)		
+		if accProjectEntry.billing_type == 'TM'
+			getRate = getProjectRateHash(accProjectEntry.project.custom_field_values)
+			if getRate.blank? || getRate['rate'].blank? || getRate['rate'] <= 0
+				rateHash = getIssueRateHash(accProjectEntry.project.issues.first.custom_field_values)
+				@currency = rateHash['currency']
+				if rateHash.blank? || rateHash['rate'].blank? || rateHash['rate'] <= 0
+					userRateHash = getUserRateHash(accProjectEntry.project.users.first.custom_field_values)
+					@currency = userRateHash['currency']
+				end
+			
+			else
+				@currency = getRate['currency']
+			end
+		else
+			@currency = accProjectEntry.wk_billing_schedules[0].currency
+		end
 	end
 	
 	def new
