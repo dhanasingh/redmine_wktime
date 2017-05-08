@@ -294,7 +294,7 @@ function txnformValidation()
 	return ret;
 }
 
-function submitNewInvoiceForm()
+function submitNewInvoiceForm(isAccBilling)
 {
 	var valid=true;
 	var msg = '';
@@ -305,7 +305,7 @@ function submitNewInvoiceForm()
 		valid=false;
 		msg = msg + "Please select the Name.";
 	}
-	else if(pjtDropdown.value=="") {
+	else if(pjtDropdown.value=="" && !isAccBilling) {
 		valid=false;
 		msg = msg + "Please select the project.";
 	}

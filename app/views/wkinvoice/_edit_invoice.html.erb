@@ -79,9 +79,11 @@
 		<% end %>
 	<% elsif @unbilled && !@invItems.blank? %>
 		<%=h hidden_field_tag("populate_unbilled",   @unbilled )  %>
-		<% @invItems.each do |key, value| %>			
+		
+		<% @invItems.each do |key, value| %>	
 			<tr onclick="  row_id  = this.rowIndex ">
 				<%=h hidden_field_tag("entry_id#{row_index}",   value['milestone_id'] )  %>
+				<%=h hidden_field_tag("creditfrominvoice#{row_index}",  value['creditfromInvoice'] )  %>
 				<td class="lbl-txt-align" headers="item_id">
 					<%=h hidden_field_tag("item_id#{row_index}",   "" )  %>
 				</td>
@@ -95,7 +97,7 @@
 					<%= text_field_tag "name#{row_index}", value['item_desc'], :required => true,  :style => "width:150px; ", :disabled => @preBilling %>
 				</td>
 				<td class="lbl-txt-align" headers="item_type">
-					<%=h select_tag("item_type#{row_index.to_s}", options_for_select(itemHash.invert), :disabled => @preBilling) %>
+					<%=h select_tag("item_type#{row_index.to_s}", options_for_select(itemHash.invert, :selected => value['item_type'] .blank? ? itemHash.invert  : value['item_type'] ), :disabled => @preBilling) %>
 				</td>
 				<td class="lbl-txt-align" headers="currency">
 					<%=h hidden_field_tag("currency#{row_index}",   @currency )  %>
@@ -109,7 +111,7 @@
 				<td class="lbl-txt-align" headers="amount">
 					<%= @currency %><label id="amount<%= row_index.to_s %>" ><%= value['item_amount']  %></label>
 				</td>
-				<% total = total + value['item_amount'] %>
+				<% total = total + value['item_amount'] unless value['item_amount'].blank? %>
 				<td>
 					<%= link_to image_tag('delete.png'), "javascript:deleteRow('invoiceTable', 'totalrow');", :id => row_index,
 							:data => {:confirm => l(:text_are_you_sure)},

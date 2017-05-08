@@ -8,6 +8,8 @@
 		allSelection = true	
 	end
 %>
+<% parent_id = 0 %>
+<% parent_type = 'WkAccount' %>
 <script type="text/javascript"> 
 $(document).ready(function()
 {
@@ -17,10 +19,14 @@ $(document).ready(function()
 		$("#contact_id").attr("disabled", true);
 	<% elsif polymorphic_filter == '2' %>
 		<% contactSelection = true %>
+		<% parent_id = contact_id %>
+		<% parent_type = 'WkCrmContact' %>
 		$("#account_id").attr("disabled", true);
 		$("#contact_id").removeAttr("disabled");
 	<% else  %>
 		<% accountSelection = true %>
+		<% parent_id = account_id %>
+		<% parent_type = 'WkAccount' %>
 		$("#contact_id").attr("disabled", true);
 		$("#account_id").removeAttr("disabled");
 	<% end %>  
@@ -31,7 +37,20 @@ $(document).ready(function()
 <% contactArr.unshift(["",'']) %>
 <% accountArr = options_for_wktime_account(true) %>
 <%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	
-<%	projArr = options_for_wktime_project(projects,true) %> 
+<%	projArr = options_for_wktime_project(projects,true) 
+	if pjtChanged  		
+		accountProjects = getProjArrays(parent_id, parent_type)	
+		projArr = accountProjects.collect{|m| [ m.project_name, m.project_id ] } if !accountProjects.blank?
+		if !project_id.blank? && polymorphic_filter != '1'
+			accProject = WkAccountProject.where(:parent_id => parent_id, :parent_type => parent_type )
+			if isAccountBilling(accProject[0]) 
+				projArr.unshift(["", '0'])
+			end
+		end
+		
+	end
+
+%> 
 <table>
 <tr>
 	<th align="left"><%= radio_button_tag 'polymorphic_filter', '1', allSelection, :onclick => ' $("#contact_id").attr("disabled", true);$("#account_id").attr("disabled", true);' %>

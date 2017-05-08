@@ -2,6 +2,7 @@ module WkpaymentHelper
 include WkcrmHelper
 include WktimeHelper
 include WkcrmenumerationHelper
+include WkbillingHelper
 
 	def options_for_parent_select(value)
 		options_for_select([[l(:label_account), 'WkAccount'],

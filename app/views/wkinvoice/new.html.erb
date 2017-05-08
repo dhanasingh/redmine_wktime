@@ -4,12 +4,17 @@
 <% parentArr = options_for_wktime_account(false)
 	account = WkAccount.find(parentArr[0][1].to_i)
 	projectArr = account.projects.pluck(:name, :id)
-
+	isAccBilling = false
+	if account.account_billing
+		projectArr.unshift(["", 0])
+		isAccBilling = true
+	end
  %>
 <%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	
 <%	projArr = options_for_wktime_project(projects,true) %>	
 <%= form_tag({:controller => "wkinvoice", :action => 'edit'}, :method => :get, :id => 'query_form') do %>
 <%=h hidden_field_tag("new_invoice",   true )  %>
+<%=h hidden_field_tag("isAccBilling",   isAccBilling )  %>
 <table>
 <%= render partial: "wkcrm/view_polymorphic", locals: { parentObject:  nil , :parentType => "", :parentId => "", :index => false, :needParentProject => true } %>
 <tr>
@@ -29,5 +34,5 @@
 	<td style="padding-left:40px;"><%= check_box_tag('populate_items', 1, false ) %></td>
 </tr>
 </table>
-<%= submit_tag l(:button_continue), :onclick => "return submitNewInvoiceForm();",  :hidden => false, :id => 'new_invoice' %>
+<%= submit_tag l(:button_continue), :onclick => "return submitNewInvoiceForm(#{isAccBilling});",  :hidden => false, :id => 'new_invoice' %>
 <% end %>

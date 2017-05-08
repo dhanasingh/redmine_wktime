@@ -159,14 +159,15 @@ class WkpaymentController < WkbillingController
 		
 	end
 	
-	def getProjArrays( parentType, parentId)		
-		sqlStr = "left outer join projects on projects.id = wk_account_projects.project_id "
-		if !parentId.blank?
-				sqlStr = sqlStr + " where wk_account_projects.parent_id = #{parentId} and wk_account_projects.parent_type = '#{parentType}' "
-		end
+	# Move to Billing Helper 
+	# def getProjArrays( parentType, parentId)		
+		# sqlStr = "left outer join projects on projects.id = wk_account_projects.project_id "
+		# if !parentId.blank?
+				# sqlStr = sqlStr + " where wk_account_projects.parent_id = #{parentId} and wk_account_projects.parent_type = '#{parentType}' "
+		# end
 		
-		WkAccountProject.joins(sqlStr).select("projects.name as project_name, projects.id as project_id").distinct(:project_id)
-	end
+		# WkAccountProject.joins(sqlStr).select("projects.name as project_name, projects.id as project_id").distinct(:project_id)
+	# end
   
     def set_filter_session
         if params[:searchlist].blank? && session[:payment].nil?

@@ -4,19 +4,46 @@
 	from = Date.civil(fromDate.year,fromDate.month, 1)
 	to = Date.civil((toDate + 1.month).year,(toDate + 1.month).month, 1) - 1 
 	inBtwMonths = getInBtwMonthsArr(from, to) 
-	sqlStr = "select coalesce(idt.parent_id, pdt.parent_id, oi.parent_id, op.parent_id) as parent_id," +
-		" coalesce(idt.parent_type,pdt.parent_type,oi.parent_type,op.parent_type) as parent_type,coalesce(a.name, cc.first_name ||' ' || cc.last_name) as name," +
-		" coalesce(idt.inv_month,pdt.pay_month) as month_val, coalesce(idt.inv_year,pdt.pay_year) as year_val, idt.inv_amount," + 
-		" pdt.pay_amount,oi.prv_invoice_amount, op.prv_payment_amount from 
-			#{getTotalAmtQuery('invoice', 'idt', 'inv', from, to)}" +
-		" full join 
-		#{getTotalAmtQuery('payment', 'pdt', 'pay', from, to)}" +
-		" on (idt.parent_id = pdt.parent_id and idt.parent_type = pdt.parent_type and idt.inv_month = pdt.pay_month and idt.inv_year = pdt.pay_year)
-		full join #{getPrvBalQryStr('invoice', from, 'oi')}
-		full join #{getPrvBalQryStr('payment', from, 'op')}
-		left join wk_crm_contacts cc on (cc.id = coalesce(idt.parent_id,pdt.parent_id,oi.parent_id,op.parent_id) and coalesce(idt.parent_type,pdt.parent_type,oi.parent_type,op.parent_type) = 'WkCrmContact')
-		left join wk_accounts a on (a.id = coalesce(idt.parent_id,pdt.parent_id,oi.parent_id,op.parent_id) and coalesce(idt.parent_type,pdt.parent_type,oi.parent_type,op.parent_type) = 'WkAccount')
-		order by parent_type, parent_id, year_val, month_val "
+		sqlStr = "select ac.*, idt.inv_amount, pdt.pay_amount, oi.prv_invoice_amount, op.prv_payment_amount,
+	coalesce(a.name, cc.first_name ||' ' || cc.last_name) as name from (select p.parent_id, p.parent_type, extract(year from v.selected_date) as year_val, extract(month from v.selected_date) as month_val from
+	(select  DATE_ADD('#{from}', INTERVAL (t4.i*1*10000 + t3.i*1*1000 + t2.i*1*100 + t1.i*1*10 + t0.i*1) MONTH) selected_date from
+	  (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t0,
+	  (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t1,
+	  (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t2,
+	  (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t3,
+	  (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t4
+	where t4.i*1*10000 + t3.i*1*1000 + t2.i*1*100 + t1.i*1*10 + t0.i*1<24000) v,
+	(select 'WkAccount' COLLATE utf8_unicode_ci as parent_type, id as parent_id from wk_accounts union select 'WkcrmContact' COLLATE utf8_unicode_ci as parent_type, id as parent_id from wk_crm_contacts) p
+	where v.selected_date between '#{from}' and '#{to}') ac
+	left join
+	(select inv.parent_id, inv.parent_type, inv.inv_month, inv.inv_year, sum(inv.amount) as inv_amount from
+	  (select ii.amount, ii.invoice_id, i.invoice_date,i.parent_type, i.parent_id, extract(month from invoice_date) as inv_month,
+	  extract(year from invoice_date) as inv_year from wk_invoice_items ii
+	  left join wk_invoices i on i.id = ii.invoice_id
+	  where i.invoice_date between '#{from}' and '#{to}') as inv
+	  group by inv.parent_type, inv.parent_id, inv.inv_year, inv.inv_month) as idt
+	on(ac.parent_id=idt.parent_id and ac.parent_type=idt.parent_type and ac.month_val=idt.inv_month and ac.year_val=idt.inv_year)
+	left join
+	(select pay.parent_id, pay.parent_type, pay.pay_month, pay.pay_year, sum(pay.amount) as pay_amount from
+	(select ii.amount, ii.payment_id, i.payment_date,i.parent_type, i.parent_id,  extract(month from  payment_date) as pay_month,
+	 extract(year from payment_date) as pay_year from wk_payment_items ii
+	left join wk_payments i on i.id = ii.payment_id
+	where i.payment_date between '#{from}' and '#{to}') as pay
+	group by pay.parent_type, pay.parent_id, pay.pay_year, pay.pay_month) as pdt
+	on(ac.parent_id=pdt.parent_id and ac.parent_type=pdt.parent_type and ac.month_val=pdt.pay_month and ac.year_val=pdt.pay_year)
+	left join
+	(select sum(pii.amount) prv_invoice_amount, pvi.parent_type,pvi.parent_id from wk_invoice_items pii
+	left join wk_invoices pvi on pvi.id = pii.invoice_id where pvi.invoice_date < '#{from}'
+	group by pvi.parent_type,pvi.parent_id) oi
+	on (oi.parent_type = ac.parent_type and oi.parent_id = ac.parent_id)
+	left join
+	(select sum(pii.amount) prv_payment_amount, pvi.parent_type,pvi.parent_id from wk_payment_items pii
+	left join wk_payments pvi on pvi.id = pii.payment_id where pvi.payment_date < '#{from}'
+	group by pvi.parent_type,pvi.parent_id) op
+	on (op.parent_type = ac.parent_type and op.parent_id = ac.parent_id)
+	left join wk_crm_contacts cc on (cc.id = ac.parent_id and ac.parent_type = 'WkcrmContact')
+	left join wk_accounts a on (a.id = ac.parent_id and ac.parent_type = 'WkAccount')
+  order by parent_type, parent_id, year_val, month_val "
 		entries = WkInvoice.find_by_sql(sqlStr)
 %>
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
