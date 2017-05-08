@@ -1201,7 +1201,7 @@ end
 		elsif ActiveRecord::Base.connection.adapter_name == 'SQLServer'		
 			dateSqlStr = "DateAdd(m, " + interval.to_s + ",'#{dtfield}')"
 		else
-			dateSqlStr = "adddate('#{dtfield}', " + interval.to_s + " MONTH )"
+			dateSqlStr = "adddate('#{dtfield}', INTERVAL " + interval.to_s + " MONTH )"
 		end		
 		dateSqlStr
 	end
