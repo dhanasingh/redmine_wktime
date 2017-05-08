@@ -6,14 +6,8 @@
 	inBtwMonths = getInBtwMonthsArr(from, to) 
 		sqlStr = "select ac.*, idt.inv_amount, pdt.pay_amount, oi.prv_invoice_amount, op.prv_payment_amount,
 	coalesce(a.name, cc.first_name ||' ' || cc.last_name) as name from (select p.parent_id, p.parent_type, extract(year from v.selected_date) as year_val, extract(month from v.selected_date) as month_val from
-	(select  DATE_ADD('#{from}', INTERVAL (t4.i*1*10000 + t3.i*1*1000 + t2.i*1*100 + t1.i*1*10 + t0.i*1) MONTH) selected_date from
-	  (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t0,
-	  (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t1,
-	  (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t2,
-	  (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t3,
-	  (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t4
-	where t4.i*1*10000 + t3.i*1*1000 + t2.i*1*100 + t1.i*1*10 + t0.i*1<24000) v,
-	(select 'WkAccount' COLLATE utf8_unicode_ci as parent_type, id as parent_id from wk_accounts union select 'WkcrmContact' COLLATE utf8_unicode_ci as parent_type, id as parent_id from wk_crm_contacts) p
+	#{getDatesSql(from, 1, 'month')},
+	(#{getAccountContactSql}) p
 	where v.selected_date between '#{from}' and '#{to}') ac
 	left join
 	(select inv.parent_id, inv.parent_type, inv.inv_month, inv.inv_year, sum(inv.amount) as inv_amount from

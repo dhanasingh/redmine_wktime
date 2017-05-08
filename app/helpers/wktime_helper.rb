@@ -870,6 +870,24 @@ end
 		dateSqlStr
 	end
 	
+	def getAddMonthDateStr(dtfield,intervalVal,intervalType)
+		interval = getIntervalFormula(intervalVal)
+		if ActiveRecord::Base.connection.adapter_name == 'PostgreSQL'			 
+			dateSqlStr = "date('#{dtfield}') + interval '1 month' * "	+ interval.to_s
+		elsif ActiveRecord::Base.connection.adapter_name == 'SQLite'			 
+			dateSqlStr = "date('#{dtfield}' , '+' || " + "(#{interval.to_s})" + " || ' months')"
+		elsif ActiveRecord::Base.connection.adapter_name == 'SQLServer'		
+			dateSqlStr = "DateAdd(m, " + interval.to_s + ",'#{dtfield}')"
+		else
+			dateSqlStr = "adddate('#{dtfield}', " + interval.to_s + " MONTH )"
+		end		
+		dateSqlStr
+	end
+	
+	def getIntervalFormula(intervalVal)
+		(t4.i*intervalVal*10000 + t3.i*intervalVal*1000 + t2.i*intervalVal*100 + t1.i*intervalVal*10 + t0.i*intervalVal)
+	end
+	
 	def getConvertDateStr(dtfield)		
 		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'		
 			dateSqlStr = "cast(#{dtfield} as date)"
@@ -1158,6 +1176,38 @@ end
 		(!Setting.plugin_redmine_wktime['wktime_enable_time_module'].blank? &&
 			Setting.plugin_redmine_wktime['wktime_enable_time_module'].to_i == 1) || (!Setting.plugin_redmine_wktime['wktime_enable_expense_module'].blank? &&
 			Setting.plugin_redmine_wktime['wktime_enable_expense_module'].to_i == 1)
+	end
+	
+	def getDatesSql(from, intervalVal, intervalType)
+		sqlStr = "(select " + getAddMonthDateStr(from,intervalVal,intervalType) + " selected_date from " +
+			"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t0,
+			 (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t1,
+			 (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t2,
+			 (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t3,
+			 (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9)t4"
+		if intervalType == 'month'
+			sqlStr = sqlStr + " where #{getIntervalFormula(intervalVal)}<24000" 
+		end
+		sqlStr = sqlStr + " )v"
+	
+	end
+	
+	def getAddMonthDateStr(dtfield,intervalVal,intervalType)
+		interval = getIntervalFormula(intervalVal)
+		if ActiveRecord::Base.connection.adapter_name == 'PostgreSQL'			 
+			dateSqlStr = "date('#{dtfield}') + interval '1 month' * "	+ interval.to_s
+		elsif ActiveRecord::Base.connection.adapter_name == 'SQLite'			 
+			dateSqlStr = "date('#{dtfield}' , '+' || " + "(#{interval.to_s})" + " || ' months')"
+		elsif ActiveRecord::Base.connection.adapter_name == 'SQLServer'		
+			dateSqlStr = "DateAdd(m, " + interval.to_s + ",'#{dtfield}')"
+		else
+			dateSqlStr = "adddate('#{dtfield}', " + interval.to_s + " MONTH )"
+		end		
+		dateSqlStr
+	end
+	
+	def getIntervalFormula(intervalVal)
+		" (t4.i*#{intervalVal}*10000 + t3.i*#{intervalVal}*1000 + t2.i*#{intervalVal}*100 + t1.i*#{intervalVal}*10 + t0.i*#{intervalVal}) "
 	end
 	
 end
