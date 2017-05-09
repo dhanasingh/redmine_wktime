@@ -59,7 +59,8 @@ include WkbillingHelper
 				addRoundInvItem(totalAmount)
 			end
 			if totalAmount > 0 && autoPostGL
-				glTransaction = postToGlTransaction(@invoice, totalAmount.round, @invoice.invoice_items[0].currency)
+				transId = @invoice.gl_transaction.blank? ? nil : @invoice.gl_transaction.id
+				glTransaction = postToGlTransaction('invoice', transId, @invoice.invoice_date, totalAmount.round, @invoice.invoice_items[0].currency)
 				unless glTransaction.blank?
 					@invoice.gl_transaction_id = glTransaction.id
 					@invoice.save
