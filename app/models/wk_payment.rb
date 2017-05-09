@@ -20,7 +20,6 @@ class WkPayment < ActiveRecord::Base
   #belongs_to :account, :class_name => 'WkAccount'
   belongs_to :parent, :polymorphic => true
   belongs_to :modifier , :class_name => 'User'
-  belongs_to :gl_transaction , :class_name => 'WkGlTransaction', :dependent => :destroy
   has_many :payment_items, foreign_key: "payment_id", class_name: "WkPaymentItem", :dependent => :destroy
   has_many :invoices, through: :payment_items  
   attr_protected :modifier_id

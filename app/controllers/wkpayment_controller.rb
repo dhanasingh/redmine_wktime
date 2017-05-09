@@ -101,7 +101,7 @@ class WkpaymentController < WkbillingController
 			@payment = WkPayment.new
 			@payment.parent_id = params[:related_parent].to_i
 			@payment.parent_type = params[:related_to]
-			@payment.gl_transaction_id = 1
+			#@payment.gl_transaction_id = 1
 		end
 		@payment.payment_date = params[:payment_date]
 		@payment.payment_type_id = params[:payment_type_id].to_i
@@ -114,28 +114,33 @@ class WkpaymentController < WkbillingController
 			@payment.save()
 		end
 		for i in 1..totalRow
-			unless params["payment_item_id#{i}"].blank?	
+			
+			paymentItem = nil
+			if !params["payment_item_id#{i}"].blank?	
 				paymentItem = WkPaymentItem.find(params["payment_item_id#{i}"].to_i)
-				updatedItem = updatePaymentItem(paymentItem, @payment.id, params["invoice_id#{i}"], params["amount#{i}"].to_f, params["currency#{i}"])
-			else
-				if params["amount#{i}"].to_f > 0
+			elsif params["amount#{i}"].to_f > 0
 					paymentItem = @payment.payment_items.new
-					updatedItem = updatePaymentItem(paymentItem, @payment.id, params["invoice_id#{i}"], params["amount#{i}"].to_f, params["currency#{i}"])
-				end
 			end
+			unless paymentItem.blank?
+				if isChecked('payment_auto_post_gl')
+					transId = paymentItem.gl_transaction.blank? ? nil : paymentItem.gl_transaction.id
+					glTransaction = postToGlTransaction('payment', transId, @payment.payment_date, params["amount#{i}"].to_f, params["currency#{i}"])
+				end				
+				updatedItem = updatePaymentItem(paymentItem, @payment.id, params["invoice_id#{i}"], params["amount#{i}"].to_f, params["currency#{i}"],glTransaction.id ) 
+			end	
 		end
 		
-		unless @payment.id.blank?
-			totalAmount = @payment.payment_items.sum(:amount)
-			if totalAmount > 0 && isChecked('payment_auto_post_gl')
-				transId = @payment.gl_transaction.blank? ? nil : @payment.gl_transaction.id
-				glTransaction = postToGlTransaction('payment', transId, @payment.payment_date, totalAmount, @payment.payment_items[0].currency)
-				unless glTransaction.blank?
-					@payment.gl_transaction_id = glTransaction.id
-					@payment.save
-				end				
-			end
-		end
+		# unless @payment.id.blank?
+			# totalAmount = @payment.payment_items.sum(:amount)
+			# if totalAmount > 0 && isChecked('payment_auto_post_gl')
+				# # transId = @payment.gl_transaction.blank? ? nil : @payment.gl_transaction.id
+				# # glTransaction = postToGlTransaction('payment', transId, @payment.payment_date, totalAmount, @payment.payment_items[0].currency)
+				# # unless glTransaction.blank?
+					# # @payment.gl_transaction_id = glTransaction.id
+					# # @payment.save
+				# # end				
+			# end
+		# end
 		
 		if errorMsg.nil? 
 			redirect_to :action => 'index' , :tab => 'wkpayment'

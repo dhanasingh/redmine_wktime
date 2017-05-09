@@ -42,7 +42,6 @@ class CreateWkPayment < ActiveRecord::Migration
 			t.references :payment_type, :class => "wk_crm_enumerations"
 			t.string :reference_number
 			t.references :parent, polymorphic: true, index: true
-			t.references :gl_transaction, :class => "wk_gl_transactions", :null => true, :index => true
 			t.references :created_by_user, :class => "User"
 			t.references :modified_by_user, :class => "User"
 			t.timestamps null: false
@@ -54,6 +53,7 @@ class CreateWkPayment < ActiveRecord::Migration
 			t.boolean :is_deleted, :default => false
 			t.references :payment, :class => "wk_payments", :null => true, :index => true
 			t.references :invoice, :class => "wk_invoices", :null => true, :index => true
+			t.references :gl_transaction, :class => "wk_gl_transactions", :null => true, :index => true
 			t.references :created_by_user, :class => "User"
 			t.references :modified_by_user, :class => "User"
 			t.timestamps null: false
