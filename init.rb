@@ -355,19 +355,23 @@ Rails.configuration.to_prepare do
 				submissionDeadline = Setting.plugin_redmine_wktime['wktime_submission_deadline']
 				hr = Setting.plugin_redmine_wktime['wktime_nonsub_sch_hr']
 				min = Setting.plugin_redmine_wktime['wktime_nonsub_sch_min']
-				scheduler = Rufus::Scheduler.new #changed from start_new to new to make compatible with latest version rufus scheduler 3.0.3
+#				scheduler = Rufus::Scheduler.new #changed from start_new to new to make compatible with latest version rufus scheduler 3.0.3
 				if hr == '0' && min == '0'
 					cronSt = "0 * * * #{submissionDeadline}"
 				else
 					cronSt = "#{min} #{hr} * * #{submissionDeadline}"
 				end
-				scheduler.cron cronSt do		
-					begin
-						Rails.logger.info "==========Non submission mail job - Started=========="			
-						wktime_helper = Object.new.extend(WktimeHelper)
-						wktime_helper.sendNonSubmissionMail()
-					rescue Exception => e
-						Rails.logger.info "Job failed: #{e.message}"
+				scheduler = Rufus::Scheduler.new(:lockfile => ".rufus-scheduler.lock") #changed from start_new to new to make compatible with latest version rufus scheduler 3.0.3 & added 'lockfile' to prevent from running multiple times
+				unless scheduler.down?
+					scheduler.cron cronSt do		
+						begin
+							Rails.logger.info "Process.pid #{Process.pid} ==========Non submission mail - job #{scheduler.object_id} - Started=========="		
+							wktime_helper = Object.new.extend(WktimeHelper)
+							wktime_helper.sendNonSubmissionMail()
+							Rails.logger.info "Process.pid #{Process.pid} ==========Non submission mail - job #{scheduler.object_id} - End=========="
+						rescue Exception => e
+							Rails.logger.info "Job failed: #{e.message}"
+						end
 					end
 				end
 			end
