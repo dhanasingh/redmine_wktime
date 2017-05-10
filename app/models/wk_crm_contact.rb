@@ -25,6 +25,7 @@ class WkCrmContact < ActiveRecord::Base
   has_many :activities, as: :parent, class_name: 'WkCrmActivity', :dependent => :destroy
   has_many :opportunities, as: :parent, class_name: 'WkOpportunity', :dependent => :destroy
   has_many :projects, through: :billable_projects
+  has_many :contracts, as: :parent, class_name: "WkContract", :dependent => :destroy
   validates_presence_of :last_name
    # Different ways of displaying/sorting users
   NAME_FORMATS = {
@@ -83,6 +84,14 @@ class WkCrmContact < ActiveRecord::Base
     else
       @name ||= eval('"' + f[:string] + '"')
     end
+  end
+  
+  # Returns contact's contracts for the given project
+  # or nil if the contact do not have contract
+  def contract(project)
+		contract = contracts.where(:project_id => project.id).first
+		contract = contracts[0] if contract.blank?
+		contract
   end
 
   def self.name_formatter(formatter = nil)
