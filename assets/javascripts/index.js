@@ -302,7 +302,11 @@ function progrpChanged(btnoption, userid, needBlankOption){
 function accProjChanged(uid, fldId, isparent, blankOptions)
 {
 	var acc_name = document.getElementById(fldId);//document.getElementById("account_id");
-	var parentId = acc_name.options[acc_name.selectedIndex].value;
+	var parentId = 0
+	if( acc_name.length > 0)
+	{
+		parentId = acc_name.options[acc_name.selectedIndex].value;
+	}
 	var parentType = "WkAccount";
 	var $this = $(this);
 	if(isparent)
