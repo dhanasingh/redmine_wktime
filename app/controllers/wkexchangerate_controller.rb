@@ -4,16 +4,16 @@ class WkexchangerateController < WkbillingController
 
 
 	def index
-		entries = WkExCurrencyRates.all	
+		entries = WkExCurrencyRate.all	
 		formPagination(entries)
 	end
 
 	def update
 		for i in 0..params[:exrate_id].length-1
 			if params[:exrate_id][i].blank?
-				curExchanges = WkExCurrencyRates.new
+				curExchanges = WkExCurrencyRate.new
 			else
-				curExchanges = WkExCurrencyRates.find(params[:exrate_id][i].to_i)
+				curExchanges = WkExCurrencyRate.find(params[:exrate_id][i].to_i)
 			end
 			curExchanges.from_c = params[:from_currency][i]
 			curExchanges.to_c = params[:to_currency][i]

@@ -124,7 +124,7 @@ class WkpaymentController < WkbillingController
 			unless paymentItem.blank?
 				if isChecked('payment_auto_post_gl')
 					transId = paymentItem.gl_transaction.blank? ? nil : paymentItem.gl_transaction.id
-					glTransaction = postToGlTransaction('payment', transId, @payment.payment_date, params["amount#{i}"].to_f, params["currency#{i}"])
+					glTransaction = postToGlTransaction('payment', transId, @payment.payment_date, params["amount#{i}"].to_f, params["currency#{i}"], params["invoice_id#{i}"])
 				end				
 				updatedItem = updatePaymentItem(paymentItem, @payment.id, params["invoice_id#{i}"], params["amount#{i}"].to_f, params["currency#{i}"],glTransaction.id ) 
 			end	

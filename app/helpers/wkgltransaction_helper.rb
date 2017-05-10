@@ -34,10 +34,13 @@ include WkaccountingHelper
 		txnType	
 	end
 	
-	def saveGlTransaction(transModule, id, trasdate, transType, comment, amount, currency, isDiffCur)
+	def saveGlTransaction(transModule, id, trasdate, transType, comment, amount, currency, isDiffCur, payInvId)
 		glTransaction = nil
 		orgAmount = nil
 		orgCurrency = nil
+		#fluctuation = nil
+		#invExchangerate = nil
+		exchangeRate = nil
 		unless id.blank?
 			glTransaction = WkGlTransaction.find(id)
 		else
@@ -46,10 +49,21 @@ include WkaccountingHelper
 		glTransaction.trans_type = transType
 		glTransaction.trans_date = trasdate
 		glTransaction.comment = comment
-		
 		if isDiffCur
 			orgAmount = amount
 			orgCurrency = currency
+			toCurrency = Setting.plugin_redmine_wktime['wktime_currency']
+			exchangeRate = getExchangeRate(orgCurrency, toCurrency)
+			unless exchangeRate.blank?
+				amount = orgAmount * exchangeRate
+				currency = toCurrency
+				# unless payInvId.blank?
+					# payInvoice = WkInvoice.find(payInvId)
+					# payInvTras = payInvoice.gl_transaction.transaction_details[0]
+					# invExchangerate = payInvTras.amount/payInvTras.original_amount
+					# invDayAmount = orgAmount * invExchangerate
+				# end
+			end
 		end
 		
 		unless glTransaction.valid?
@@ -58,6 +72,14 @@ include WkaccountingHelper
 			if glTransaction.new_record?
 				glTransaction.save
 				getCrDbLedgerHash(transModule).each do |ledger|
+					# unless invExchangerate.blank? || invExchangerate != exchangeRate
+						# if ledger[0] == 'c'
+							# amount = orgAmount * invExchangerate
+						# else
+							# amount = orgAmount * exchangeRate
+						# end
+						# saveFluctuation(glTransaction.id, orgAmount, invExchangerate, exchangeRate)
+					# end
 					transDetail = saveTransDetail(ledger[1], glTransaction.id, ledger[0], amount, currency, orgAmount, orgCurrency)
 				end
 			else
@@ -85,6 +107,27 @@ include WkaccountingHelper
 		end
 		glTransaction
 	end
+	
+	def getExchangeRate(fromCurency, toCurrency)
+		exchangeRate = nil
+		exchange = WkExCurrencyRate.where("(from_c = '#{fromCurency}' and  to_c = '#{toCurrency}') or (from_c = '#{toCurrency}' and  to_c = '#{fromCurency}')" )
+		unless exchange[0].blank?
+			if exchange[0].from_c == fromCurency
+				exchangeRate = exchange[0].ex_rate
+			else
+				exchangeRate = 1.0/exchange[0].ex_rate
+			end
+		end
+		exchangeRate
+	end
+	
+	# def saveFluctuation(transId, orgAmount, invExchangerate, exchangeRate)
+		# fluctuation = (orgAmount*exchangeRate)- (orgAmount*invExchangerate)
+		# transType = 'c'
+		# transType = 'd' if fluctuation < 0
+		# fluctLedgerId = getSettingCfId("payment_fluctuation_ledger")
+		# transDetail = saveTransDetail(fluctLedgerId, transId, transType, fluctuation.abs, Setting.plugin_redmine_wktime['wktime_currency'], nil, nil)
+	# end
 	
 	def saveTransDetail(ledgerId, transId, detailType, amount, currency, orgAmount, orgCurrency)
 		transDetail = WkGlTransactionDetail.new
