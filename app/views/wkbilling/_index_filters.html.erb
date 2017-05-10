@@ -43,7 +43,7 @@ $(document).ready(function()
 		projArr = accountProjects.collect{|m| [ m.project_name, m.project_id ] } if !accountProjects.blank?
 		if !project_id.blank? && polymorphic_filter != '1'
 			accProject = WkAccountProject.where(:parent_id => parent_id, :parent_type => parent_type )
-			if isAccountBilling(accProject[0]) 
+			if !accProject[0].blank? && isAccountBilling(accProject[0]) 
 				projArr.unshift(["", '0'])
 			end
 		end
