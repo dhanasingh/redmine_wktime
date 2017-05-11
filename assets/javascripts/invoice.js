@@ -6,7 +6,7 @@ $('.date').each(function() {
 });
 });
 
-function invoiceFormSubmission()
+function invoiceFormSubmission(isPreview)
 { 
 	var dateval = new Date(document.getElementById("to").value);
 	var fromdateval = new Date(document.getElementById("from").value);
@@ -15,14 +15,18 @@ function invoiceFormSubmission()
 	if (isNaN(dateval.getFullYear()) || isNaN(fromdateval.getFullYear())){
 		alert("Please select valid date range");
 	}
-	else
+	else if(!isPreview)
 	{
 		var isFormSubmission = confirm("Are you sure want to generate invoice on " + salaryDate);
 		if (isFormSubmission == true) {
 			document.getElementById("generate").value = true; 
 			document.getElementById("query_form").submit();
 		}
-	}	
+	}
+	else {
+		document.getElementById('preview_billing').value = true; 
+		$('#query_form').submit(); 		
+	}
 }
 
 function invoiceAddRow(tableId, rowCount)
