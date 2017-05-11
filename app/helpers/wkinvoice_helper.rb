@@ -555,10 +555,14 @@ include WkbillingHelper
 		if !projectId.blank? && projectId != '0'
 			queryString = queryString + " and iit.project_id = #{projectId}"	
 		end 
-		queryString = queryString + " order by inv.id"
+		queryString = queryString + " order by inv.id, pit.id desc"
 		#queryString = queryString + " group by i.id "
 		invEntry = WkInvoice.find_by_sql(queryString)
+		lastInvId = nil
 		invEntry.each do | entry |
+			if lastInvId == entry.id
+				next
+			end
 			if !entry.available_pay_credit.blank? &&  entry.available_pay_credit != 0
 				@invItems[@itemCount].store 'project_id', entry.project_id
 				@invItems[@itemCount].store 'item_desc', "Credit From Previous Invoice"
@@ -583,6 +587,7 @@ include WkbillingHelper
 				end
 				@itemCount = @itemCount + 1
 			end
+			lastInvId = entry.id
 		end
 	end
 	
