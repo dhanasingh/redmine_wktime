@@ -19,7 +19,7 @@
 							<td align="left" style="padding-left:40px;"><%=h @contractEntry.contract_number %> </td>
 						</tr>
 					<% end %>
-					<%= render partial: "wkcrm/view_polymorphic", locals: { parentObject: @contractEntry.blank? ? nil : @contractEntry, :parentType => "", :parentId => "", :index => false, :needParentProject => false } %> 
+					<%= render partial: "wkcrm/view_polymorphic", locals: { parentObject: @contractEntry.blank? ? nil : @contractEntry, :parentType => "", :parentId => "", :index => false, :needParentProject => false, :padding => nil, :needblankType => false } %> 
 					<tr>
 						<th align="left"><%= l(:label_project) %></th>
 						<td align="left" style="padding-left:40px;"><%=h select_tag('project_id', options_for_select(projArr, :selected => @contractEntry.blank? ? "" : @contractEntry.project_id)) %></td>

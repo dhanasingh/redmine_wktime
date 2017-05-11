@@ -10,7 +10,7 @@
 	<%= hidden_field_tag "accountProjectId", @accProjEntry.blank? ? "" : @accProjEntry.id %>	
 	<div class="div-left">
 	<table>
-		<%= render partial: "wkcrm/view_polymorphic", locals: { parentObject: @accProjEntry.blank? ? nil : @accProjEntry, :parentType => "", :parentId => "", :index => false, :needParentProject => false } %>
+		<%= render partial: "wkcrm/view_polymorphic", locals: { parentObject: @accProjEntry.blank? ? nil : @accProjEntry, :parentType => "", :parentId => "", :index => false, :needParentProject => false, :padding => nil, :needblankType => false } %>
 		<tr>
 			<th align="left"><label><%= l(:label_project) %></label></th>
 			<td style="padding-left:40px;"><%=h select_tag('project_id', options_for_select(projArr, :selected =>  @accProjEntry.blank?  ?  projArr : @accProjEntry.project_id)) %></td>

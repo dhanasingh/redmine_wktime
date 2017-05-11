@@ -89,13 +89,21 @@ $(document).ready(function() {
 function openReportPopup(){
 	var popupUrl, periodType;
 	var reportType = document.getElementById('report_type').value;
-	var groupId = "", userId = "", actionType = "";
+	var groupId = "", userId = "", actionType = "", parentType = "", parentId = "";
 	if(document.getElementById('group_id')) {
 		groupId = document.getElementById('group_id').value;
 		userId = document.getElementById('user_id').value;
 	}
 	if(document.getElementById('action_type')) {
 	   actionType = document.getElementById('action_type').value;
+	}
+	
+	if(document.getElementById('related_to')) {
+		parentType = document.getElementById('related_to').value;	
+	}
+	
+	if(document.getElementById('related_parent')) {
+		parentId = document.getElementById('related_parent').value;		
 	}
 	
 	var period = document.getElementById('period').value;
@@ -110,7 +118,7 @@ function openReportPopup(){
 		}
 	}
 	//popupUrl = wkattnReportUrl + '&report_type=' + reportType + '&group_id=' + groupId + '&user_id=' + userId + '&period_type=' + periodType + '&searchlist=' + searchlist; 
-	popupUrl = wkattnReportUrl + '&report_type=' + reportType + '&group_id=' + groupId + '&action_type=' + actionType + '&user_id=' + userId + '&period_type=' + periodType + '&searchlist=' + searchlist;
+	popupUrl = wkattnReportUrl + '&report_type=' + reportType + '&group_id=' + groupId + '&action_type=' + actionType + '&user_id=' + userId + '&period_type=' + periodType + '&searchlist=' + searchlist + '&related_to=' + parentType+ '&related_parent=' + parentId;
 	if(periodType>1){
 		popupUrl = popupUrl + '&from=' + fromVal + '&to=' + toVal		
 	}else{
@@ -329,11 +337,11 @@ function accProjChanged(uid, fldId, isparent, blankOptions)
 	});
 }
 
-function actRelatedDd(uid, loadProjects)
+function actRelatedDd(uid, loadProjects, needBlankOption)
 {
 	var relatedTo = document.getElementById("related_to");
 	var relatedType = relatedTo.options[relatedTo.selectedIndex].value;
-	var needBlankOption = false;
+	//var needBlankOption = false;
 	var relatedparentdd = document.getElementById("related_parent");
 	userid = uid;
 	var $this = $(this);

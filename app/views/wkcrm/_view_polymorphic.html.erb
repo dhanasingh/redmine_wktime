@@ -18,12 +18,23 @@
 	#unless index
 	#	relHash.delete("")
 	#end
+	stylePadding = 40
+	unless padding.blank?
+		stylePadding = 20
+	end
+	
+	if needblankType
+		relHash.merge!('0' => '')
+		parentArr.unshift(["",'0'])
+	end
 %>
 <tr>
 	<th align="left"><%= l(:label_type) %></th>
-	<td style="padding-left:40px;"><%=h select_tag('related_to', options_for_select(relHash.invert, :selected => parentObject.blank? ? (parentType.blank? ? "" : parentType) : parentObject.parent_type ), :onchange => "actRelatedDd(#{User.current.id}, #{needParentProject}); ") %></td>
+	<td style="padding-left:<%=stylePadding%>px;"><%=h select_tag('related_to', options_for_select(relHash.invert, :selected => parentObject.blank? ? (parentType.blank? ? "" : parentType) : parentObject.parent_type ), :onchange => "actRelatedDd(#{User.current.id}, #{needParentProject}, #{needblankType}); ") %></td>
+<% if padding.blank? %>
 </tr>
 <tr>
+<% end %>
 	<th align="left"><%= l(:field_name) %></th>
-	<td style="padding-left:40px;"><%=h select_tag('related_parent', options_for_select(parentArr, :selected => parentObject.blank? ? (parentId.blank? ? "" : parentId) : parentObject.parent_id ), :onchange => "if(#{needParentProject}) {accProjChanged(#{User.current.id}, this.id, true, false); }") %></td>
+	<td style="padding-left:<%=stylePadding%>px;"><%=h select_tag('related_parent', options_for_select(parentArr, :selected => parentObject.blank? ? (parentId.blank? ? "" : parentId) : parentObject.parent_id ), :onchange => "if(#{needParentProject}) {accProjChanged(#{User.current.id}, this.id, true, #{needblankType}); }") %></td>
 </tr>

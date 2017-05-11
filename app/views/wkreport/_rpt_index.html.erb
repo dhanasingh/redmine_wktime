@@ -11,25 +11,27 @@
 	rpttype =session[:wkreport][:report_type]
 	groupid =session[:wkreport][:group_id]
 	userid =session[:wkreport][:user_id]
+	parantType = session[:wkreport][:parent_type]
+	parantId = session[:wkreport][:parent_id]
 %>
 <div style="clear:both"></div>
 <table>
 <tr>
-<th><%= l(:label_report) + " " + l(:field_type) %> </th>
-<td><%= select_tag 'report_type', options_for_report_select(rpttype), :style=> "width:200px;" %></td>
+<th align="left"><%= l(:label_report) + " " + l(:field_type) %> </th>
+<td style="padding-left:20px;"><%= select_tag 'report_type', options_for_report_select(rpttype), :style=> "width:200px;" %></td>
 </tr>
 <% filterhook = call_hook :add_report_filters %>
 <% if filterhook.blank?  %>
 	<% if User.current.admin? || isAccountUser || isModuleAdmin('wktime_crm_admin')  %>
 	<tr>
-	<th><%=l(:label_group_plural)%> </th>
-	<td>
+	<th align="left"><%=l(:label_group_plural)%> </th>
+	<td style="padding-left:20px;">
 		<%=h select_tag('group_id',
 		options_for_select( [["",0]] + (@groups.collect {|p| [p.name, p.id ]}),
 		:selected => !groupid.nil? ? groupid.to_i: 0), :onchange => "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %>
 	</td>
-	<th><%=l(:label_member)%></th>
-	<td>
+	<th align="left"><%=l(:label_member)%></th>
+	<td style="padding-left:20px;">
 	<%# show the blank value if more than one user is in the list %>
 	<%=h select_tag('user_id',
 		options_for_select( [["All Users","0"]] + @members,
@@ -40,6 +42,7 @@
 <% else %>
 	<%=h filterhook %>
 <% end %>
+<%= render partial: "wkcrm/view_polymorphic", locals: { parentObject:  nil, :parentType => parantType, :parentId => parantId, :index => false, :needParentProject => false, :padding => 20, :needblankType => true } %>
 </table>
 <%= render :partial => 'wkreport/date_range' %>
 <%= hidden_field_tag "searchlist", "wkreport" %>

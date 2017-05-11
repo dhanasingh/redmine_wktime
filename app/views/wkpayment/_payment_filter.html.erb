@@ -16,7 +16,7 @@
 	<tr>
 			<th align="left"><label><%= l(:label_type) %></label></th>
 			<td align="left" style="padding-left:40px;">
-				<%=h select_tag('related_to', options_for_parent_select(parentType), :onchange => "actRelatedDd(#{User.current.id}, false);submitFiletrForm();", :disabled => isDisable) %>
+				<%=h select_tag('related_to', options_for_parent_select(parentType), :onchange => "actRelatedDd(#{User.current.id}, false, false);submitFiletrForm();", :disabled => isDisable) %>
 			</td>
 			<th align="left"><label><%= l(:label_account_name) %></label></th>
 			<td align="left" style="padding-left:40px;">

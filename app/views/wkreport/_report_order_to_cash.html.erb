@@ -1,6 +1,8 @@
 <%
 	fromDate = session[:wkreport][:from]
 	toDate = session[:wkreport][:to]
+	parantType = session[:wkreport][:parent_type]
+	parantId = session[:wkreport][:parent_id]
 	from = Date.civil(fromDate.year,fromDate.month, 1)
 	to = Date.civil((toDate + 1.month).year,(toDate + 1.month).month, 1) - 1 
 	inBtwMonths = getInBtwMonthsArr(from, to) 
@@ -36,9 +38,15 @@
 	group by pvi.parent_type,pvi.parent_id) op
 	on (op.parent_type = ac.parent_type and op.parent_id = ac.parent_id)
 	left join wk_crm_contacts cc on (cc.id = ac.parent_id and ac.parent_type = 'WkcrmContact')
-	left join wk_accounts a on (a.id = ac.parent_id and ac.parent_type = 'WkAccount')
-  order by parent_type, parent_id, year_val, month_val "
-		entries = WkInvoice.find_by_sql(sqlStr)
+	left join wk_accounts a on (a.id = ac.parent_id and ac.parent_type = 'WkAccount') "
+	
+	if !parantType.blank? && parantType != '0'
+		sqlStr = sqlStr + " where ac.parent_type= '#{parantType}' "
+		sqlStr = sqlStr + " and ac.parent_id = #{parantId} " if !parantId.blank? && parantId != '0'
+	end
+	
+	sqlStr = sqlStr + " order by parent_type, parent_id, year_val, month_val"
+	entries = WkInvoice.find_by_sql(sqlStr)
 %>
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
 	<div>

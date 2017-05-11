@@ -54,7 +54,7 @@ before_filter :require_login
 	
 	def set_filter_session
 		if params[:searchlist].blank? && session[:wkreport].nil?
-			session[:wkreport] = {:report_type => params[:report_type], :period_type => params[:period_type], :period => params[:period],:group_id => params[:group_id], :user_id => params[:user_id], :from => @from, :to => @to}
+			session[:wkreport] = {:report_type => params[:report_type], :period_type => params[:period_type], :period => params[:period],:group_id => params[:group_id], :user_id => params[:user_id], :from => @from, :to => @to, :parent_type => params[:related_to], :parent_id => params[:related_parent] }
 		elsif params[:searchlist] =='wkreport'
 			session[:wkreport][:report_type] = params[:report_type]
 			session[:wkreport][:period_type] = params[:period_type]
@@ -63,6 +63,8 @@ before_filter :require_login
 			session[:wkreport][:user_id] = params[:user_id]
 			session[:wkreport][:from] = params[:from]
 			session[:wkreport][:to] = params[:to].blank? ? Date.today : params[:to]
+			session[:wkreport][:parent_type] = params[:related_to]
+			session[:wkreport][:parent_id] = params[:related_parent]
 		end
 	end
 	

@@ -21,7 +21,7 @@
 <%=h hidden_field_tag("new_invoice",   true )  %>
 <%=h hidden_field_tag("isAccBilling",   isAccBilling )  %>
 <table>
-<%= render partial: "wkcrm/view_polymorphic", locals: { parentObject:  nil , :parentType => "", :parentId => "", :index => false, :needParentProject => true } %>
+<%= render partial: "wkcrm/view_polymorphic", locals: { parentObject:  nil , :parentType => "", :parentId => "", :index => false, :needParentProject => true, :padding => nil, :needblankType => false } %>
 <tr>
 	<th align="left"><label><%= l(:label_project) %></label></th>
 	<td style="padding-left:40px;"><%=h select_tag('project_id', options_for_select(projectArr)) %></td>
