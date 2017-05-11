@@ -582,7 +582,7 @@ fr:
   label_exchange_rate: Exchange Rate
   label_from_currency: From Currency
   label_to_currency: To Currency
-  report_order_to_cash: Order to Cash
+  report_order_to_cash: AR Ageing
   label_to_currency: To Currency
   label_new_invoice: New Invoice
   label_populate_unbilled_items: Populate Unbilled Items
