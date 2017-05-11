@@ -114,7 +114,11 @@ class WkpaymentController < WkbillingController
 			@payment.save()
 		end
 		for i in 1..totalRow
-			
+			if params["credit_issued#{i}"] == "true"
+				payAmount = params["paid_amount#{i}"].to_f
+			else
+				payAmount = params["amount#{i}"].to_f
+			end
 			paymentItem = nil
 			if !params["payment_item_id#{i}"].blank?	
 				paymentItem = WkPaymentItem.find(params["payment_item_id#{i}"].to_i)
@@ -126,10 +130,10 @@ class WkpaymentController < WkbillingController
 					glTransactionId = nil
 					if isChecked('payment_auto_post_gl')
 						transId = paymentItem.gl_transaction.blank? ? nil : paymentItem.gl_transaction.id
-						glTransaction = postToGlTransaction('payment', transId, @payment.payment_date, params["amount#{i}"].to_f, params["currency#{i}"], params["invoice_id#{i}"])
+						glTransaction = postToGlTransaction('payment', transId, @payment.payment_date, payAmount, params["currency#{i}"], params["invoice_id#{i}"])
 						glTransactionId = glTransaction.id unless glTransaction.blank?
 					end				
-					updatedItem = updatePaymentItem(paymentItem, @payment.id, params["invoice_id#{i}"], params["amount#{i}"].to_f, params["currency#{i}"],glTransactionId ) 
+					updatedItem = updatePaymentItem(paymentItem, @payment.id, params["invoice_id#{i}"], payAmount, params["currency#{i}"],glTransactionId ) 
 				end	
 			end	
 		end

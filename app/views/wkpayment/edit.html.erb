@@ -23,6 +23,7 @@
 			parentId = @payment.parent_id
 			projectId = nil
 			isDisable = true
+			creditIssued = isCreditIssued(@payment.id)
 			totalAmount = @payment.payment_items.sum(:amount)
 			currency = @payment.payment_items[0].currency
 		end
