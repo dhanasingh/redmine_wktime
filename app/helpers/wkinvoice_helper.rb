@@ -591,4 +591,12 @@ include WkbillingHelper
 		end
 	end
 	
+	def isEditableInvoice(invoiceId)
+		isEditable = true
+		issuedCrCount = WkInvoiceItem.where(:credit_invoice_id => invoiceId).count
+		invoicePayCount = WkPaymentItem.where(:invoice_id => invoiceId).count
+		isEditable = false if issuedCrCount>0 || invoicePayCount>0
+		isEditable
+	end
+	
 end

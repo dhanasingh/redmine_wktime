@@ -9,7 +9,9 @@
 <div class="wk-contextual">
 <h2 style="float:left;"><%= l(:label_invoice_items) %></h2>
 <%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('invoiceTable', 'totalrow');",  :class => 'icon icon-time-add' } %>
+<% unless @invoiceItem.blank? %>
 <%= link_to l(:label_pay_invoice), url_for(:controller => "wkpayment", :action => 'edit', :load_payment => true, :related_to => @invoice.parent_type, :related_parent => @invoice.parent_id, :project_id => 0 ),  :class => 'icon icon-report' %>
+<% end %>
 </div>
 <div style="clear:both"></div>
 <div class="autoscroll">
@@ -20,7 +22,8 @@
 	#else
 	#	projects = @invoice.parent.billable_projects.where("project_id = ?", @invoiceItem[0].project_id ).collect{|m| [ m.project.name, m.project_id ] } 
 	#end 
-	
+	isDisable = false
+	isDisable = !isEditableInvoice(@invoice.id) unless @invoice.blank?
 %>	
 
 <table id="invoiceTable" class="list time-entries">
@@ -49,10 +52,10 @@
 					<label id="item_index<%= row_index.to_s %>"><%= row_index  %></label>
 				</td>
 				<td class="lbl-txt-align" headers="project_id">
-					<%=h select_tag("project_id#{row_index.to_s}", options_for_select(@projectsDD, :selected => entry.project_id)) %>
+					<%=h select_tag("project_id#{row_index.to_s}", options_for_select(@projectsDD, :selected => entry.project_id), :disabled => isDisable) %>
 				</td>
 				<td class="lbl-txt-align" headers="name">
-					<%= text_field_tag "name#{row_index}",  entry.name, :required => true,  :style => "width:150px; " %>
+					<%= text_field_tag "name#{row_index}",  entry.name, :required => true,  :style => "width:150px; ", :disabled => isDisable %>
 				</td>
 				<td class="lbl-txt-align" headers="item_type">					
 					<%=h select_tag("item_type#{row_index.to_s}", options_for_select(itemHash.invert, :selected => entry.item_type), :disabled => true) %>
@@ -61,19 +64,21 @@
 					<%=h hidden_field_tag("currency#{row_index}",   entry.currency )  %>
 				</td>
 				<td class="lbl-txt-align" headers="rate">
-					<%= entry.currency %><%= text_field_tag "rate#{row_index}",   ("%.2f" % entry.rate) ,:maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)" %>
+					<%= entry.currency %><%= text_field_tag "rate#{row_index}",   ("%.2f" % entry.rate) ,:maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)", :disabled => isDisable %>
 				</td>
 				<td class="lbl-txt-align" headers="quantity">
-					<%= text_field_tag "quantity#{row_index}", ("%.2f" % entry.quantity), :maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)" %>
+					<%= text_field_tag "quantity#{row_index}", ("%.2f" % entry.quantity), :maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)", :disabled => isDisable %>
 				</td>
 				<td class="lbl-txt-align" headers="amount">
 					<%= entry.currency %><label id="amount<%= row_index.to_s %>" ><%= html_hours("%.2f" % entry.amount)  %></label>
 				</td>
 				<% total = total + entry.amount %>
 				<td>
-					<%= link_to image_tag('delete.png'), "javascript:deleteRow('invoiceTable', 'totalrow');", :id => row_index,
+					<% unless isDisable %>
+						<%= link_to image_tag('delete.png'), "javascript:deleteRow('invoiceTable', 'totalrow');", :id => row_index,
 							:data => {:confirm => l(:text_are_you_sure)},
 							:title => l(:button_delete) %>
+					<% end %>
 				</td>			
 			</tr>
 		    <% row_index = row_index + 1 %>
@@ -257,7 +262,7 @@
 <% end %>
 <% end %> <!-- my end -->
 <%=h hidden_field_tag("deletedids",  "" )  %>
-<%= submit_tag l(:button_save),  :hidden => false, :id => 'items_save', :disabled => @preBilling %>
+<%= submit_tag l(:button_save),  :hidden => false, :id => 'items_save', :disabled => (@preBilling || isDisable) %>
 <% unless @invoiceItem.blank? %>
 <div style="float:right;">
 <%= link_to l(:label_export_invoice), "javascript: openInvReportPopup();" %> 

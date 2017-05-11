@@ -149,7 +149,7 @@ include WkbillingHelper
 			if  (!@invList[@listKey]['amount'].blank? && @invList[@listKey]['amount'] != 0.0) 
 				totQuantity = 0
 				@invItems.each do |key, value|
-					totQuantity = totQuantity + value['item_quantity']
+					totQuantity = totQuantity + value['item_quantity'] unless value['item_quantity'].blank?
 				end
 				@invList[@listKey].store 'invoice_number', ""
 				@invList[@listKey].store 'parent_type', accProj.parent_type
