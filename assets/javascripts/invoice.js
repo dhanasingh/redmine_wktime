@@ -320,3 +320,32 @@ function submitNewInvoiceForm(isAccBilling)
 	return valid;
 	 
 }
+
+function paymentItemTotal(tableId, elementId, totFld)
+{
+	var table = document.getElementById(tableId);
+	var rowlength = table.rows.length;
+	var amount = 0;
+	for(var i = 1; i < rowlength-1; i++)
+	{
+		fldId = elementId+i;
+		fldAmount = document.getElementById(fldId);
+		if(isNaN(fldAmount.value))
+		{
+			alert("Please enter the valid amount");
+			fldAmount.value = fldAmount.defaultValue
+			
+		} else {
+			if(fldAmount.value < 0)
+			{
+				alert("Please enter the valid amount");
+				fldAmount.value = fldAmount.defaultValue;
+			}
+			else{				
+				amount = amount +  parseInt(fldAmount.value);
+			}
+		}
+		
+	}
+	document.getElementById(totFld).innerHTML = amount;
+}

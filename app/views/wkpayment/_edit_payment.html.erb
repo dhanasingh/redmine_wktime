@@ -3,7 +3,7 @@
 <div class="autoscroll">
 <% row_index = 1 %>
 
-<table id="invoiceTable" class="list time-entries">
+<table id="paymentTable" class="list time-entries">
   <thead>
          <tr>
 			<th class="lbl-txt-align"><%= l(:label_invoice_number) %>#</th>
@@ -48,7 +48,7 @@
 			<td class="lbl-txt-align"><%=h invoiceObj.invoice_number  %></td>
 			<td align="right"><label align="right"><%= invoiceAmount %></td></label>
 			<td align="right"><%= balanceAmount %></td>
-			<td class="lbl-txt-align" headers="amount"><%= currency %><%= text_field_tag "amount#{row_index}",   ("%.2f" % currentPaidAmt) ,:maxlength => 14,  :style => "width:150px;", :disabled => creditIssued %></td>
+			<td class="lbl-txt-align" headers="amount"><%= currency %><%= text_field_tag "amount#{row_index}",   ("%.2f" % currentPaidAmt) ,:maxlength => 14,  :style => "width:150px;", :disabled => creditIssued, :onchange => "paymentItemTotal('paymentTable', 'amount', 'payItemtotal');"  %></td>
 		 </tr>	
 		 <% row_index = row_index + 1 %>
 	<% end %>
@@ -56,7 +56,7 @@
 			<td class="lbl-txt-align"></td>
 			<td align="right"></td>
 			<td align="right"><%= "Total " %></td>
-			<td class="lbl-txt-align" headers="amount"><%= currency %><%=h  payableAmount %></td>
+			<td class="lbl-txt-align" headers="amount"><%= currency %><label id="payItemtotal"><%=h  payableAmount %></label></td>
 		 </tr>	
    </tbody>
 </table>
