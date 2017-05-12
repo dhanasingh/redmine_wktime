@@ -37,7 +37,7 @@
 	left join wk_payments pvi on pvi.id = pii.payment_id where pvi.payment_date < '#{from}'
 	group by pvi.parent_type,pvi.parent_id) op
 	on (op.parent_type = ac.parent_type and op.parent_id = ac.parent_id)
-	left join wk_crm_contacts cc on (cc.id = ac.parent_id and ac.parent_type = 'WkcrmContact')
+	left join wk_crm_contacts cc on (cc.id = ac.parent_id and ac.parent_type = 'WkCrmContact')
 	left join wk_accounts a on (a.id = ac.parent_id and ac.parent_type = 'WkAccount') "
 	
 	if !parantType.blank? && parantType != '0'
@@ -88,8 +88,8 @@
 				name = nil
 				lastColumn = -1
 				curColumn = -1
-				prvInvAmt = nil
-				prvPayAmt = nil
+				prvInvAmt = 0
+				prvPayAmt = 0
 				paidAmtArr = Array.new
 				invoiceAmtArr = Array.new
 				balanceAmtArr = Array.new
@@ -107,18 +107,18 @@
 				<% end %>
 				<%
 					name = entry.name
-					prvInvAmt = entry.prv_invoice_amount
-					prvPayAmt = entry.prv_payment_amount
+					prvInvAmt = entry.prv_invoice_amount.blank? ? 0 : entry.prv_invoice_amount
+					prvPayAmt = entry.prv_payment_amount.blank? ? 0 : entry.prv_payment_amount
 					curColumn = inBtwMonths.index([entry.year_val, entry.month_val])
 					unless curColumn.blank?
 						for col in lastColumn + 1 .. curColumn -1
-							paidAmtArr[col] = nil
-							invoiceAmtArr[col] = nil
+							paidAmtArr[col] = 0
+							invoiceAmtArr[col] = 0
 							balanceAmtArr[col] = 0
 						end
-						paidAmtArr[curColumn] = entry.pay_amount
-						invoiceAmtArr[curColumn] = entry.inv_amount
-						balanceAmtArr[curColumn] = (entry.inv_amount.blank? ? 0 : entry.inv_amount) - (entry.pay_amount.blank? ? 0 : entry.pay_amount) 
+						paidAmtArr[curColumn] = entry.pay_amount.blank? ? 0 : entry.pay_amount
+						invoiceAmtArr[curColumn] = entry.inv_amount.blank? ? 0 : entry.inv_amount
+						balanceAmtArr[curColumn] = invoiceAmtArr[curColumn]  - paidAmtArr[curColumn]
 					end
 					lastColumn = curColumn
 					lastParentId = entry.parent_id

@@ -1,4 +1,4 @@
-<% prevBalance = (prvInvAmt.blank? ? 0 : prvInvAmt) -  (prvPayAmt.blank? ? 0 : prvPayAmt) %>
+<% prevBalance = prvInvAmt -  prvPayAmt %>
 <tr style="width:100%;">
 	<td align="left"><b><%=h name %></b></td>
 	<td colspan = <%=columnCount+2%>, style="border-bottom: solid thin;"></td>
@@ -15,13 +15,13 @@
 	<td align="right"><%=h l(:label_txn_payment) %></td>
 	<td align="right"></td>
 	<% for count in 0 .. columnCount -1 %>
-		<td align="right"><%=h paidAmtArr[count] %></td>
+		<td align="right" style="border-bottom: solid thin;"><%=h (paidAmtArr[count]) *(-1) %></td>
 	<% end %>
 	<td></td>
 </tr>
 <tr style="width:100%;">
 	<td align="right"><%=h l(:wk_field_balance) %></td>
-	<td align="right"><%=h prevBalance if prevBalance > 0 %></td>
+	<td align="right"><%=h prevBalance %></td>
 	<% for count in 0 .. columnCount - 1 %>
 		<td align="right"><%=h balanceAmtArr[count] unless invoiceAmtArr[count].blank? && paidAmtArr[count].blank? %></td>
 	<% end %>
