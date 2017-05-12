@@ -242,13 +242,14 @@ include WkbillingHelper
 			@unbilled = false
 			grandTotal = 0
 			taxGrandTotal = 0
+			creditAmount = 0
 			#if !params[:project_id].blank? && params[:project_id] == '0'
 			if !projectId.blank? && projectId == '0'
 				accPrtId = WkAccountProject.where(:parent_type => relatedTo, :parent_id => relatedParent.to_i) #, :project_id => params[:project_id].to_i
 			else
 				accPrtId = WkAccountProject.where(:parent_type => relatedTo, :parent_id => relatedParent.to_i, :project_id => projectId.to_i)
 			end
-			calInvPaidAmount(relatedTo, relatedParent, projectId, nil, false)
+			creditAmount = calInvPaidAmount(relatedTo, relatedParent, projectId, nil, false)
 			@taxVal = Hash.new{|hsh,key| hsh[key] = {} }
 			indexKey = 0
 			totAmount = 0.00
@@ -281,7 +282,7 @@ include WkbillingHelper
 				totAmount = 0.00
 			end	
 			unless (taxGrandTotal + grandTotal) == 0.0
-				@invList[@listKey].store 'amount', taxGrandTotal + grandTotal 
+				@invList[@listKey].store 'amount', (taxGrandTotal + grandTotal) + creditAmount
 			end
 	end
 	

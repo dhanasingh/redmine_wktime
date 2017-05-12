@@ -151,7 +151,7 @@ include WkbillingHelper
 				entry.save
 			end
 			#Add Previous Invoice credit amount
-			calInvPaidAmount(@invoice.parent_type,  @invoice.parent_id, accountProject.project_id, @invoice.id, true)
+			creditAmount = calInvPaidAmount(@invoice.parent_type,  @invoice.parent_id, accountProject.project_id, @invoice.id, true)
 			# Add Taxes for the account projects
 			if accountProject.apply_tax && totalAmount>0
 				addTaxes(accountProject, scheduledEntries[0].currency, totalAmount)
@@ -332,7 +332,7 @@ include WkbillingHelper
 				totalAmount = totalAmount + invItem.amount unless isCreate
 			end			
 		end
-		calInvPaidAmount(@invoice.parent_type,  @invoice.parent_id, accountProject.project_id, @invoice.id, true) unless isCreate
+		creditAmount = calInvPaidAmount(@invoice.parent_type,  @invoice.parent_id, accountProject.project_id, @invoice.id, true) unless isCreate
 		if accountProject.apply_tax && totalAmount>0 && !isCreate
 			addTaxes(accountProject, rateHash['currency'], totalAmount)
 		end
@@ -532,6 +532,7 @@ include WkbillingHelper
 	end
 	
 	def calInvPaidAmount(parentType, parentId, projectId, invoiceId, isCreate)
+		totalCreditAmount = 0
 		queryString = "select inv.*,i.parent_id, i.parent_type, iit.project_id, iit.currency, pit.id as payment_item_id, pit.amount, pit.payment_id, pay.paid_amount, coalesce(inv.inv_amount - pay.paid_amount, inv.inv_amount , - pay.paid_amount) as total_credit,
 		 pcr.given_pay_credit, icr.given_inv_credit,
 		 coalesce(inv.inv_amount - pay.paid_amount, inv.inv_amount , - pay.paid_amount, 0) -  coalesce(pcr.given_pay_credit, 0) -  coalesce(icr.given_inv_credit, 0)  as available_pay_credit from
@@ -551,7 +552,10 @@ include WkbillingHelper
 		left outer join wk_invoice_items it on i.id = it.invoice_id
 		group by i.id) fit on fit.id = inv.id
 		left join wk_invoice_items iit on iit.id = fit.inv_item_id
-		where coalesce(inv.inv_amount - pay.paid_amount, inv.inv_amount , - pay.paid_amount, 0) -  coalesce(pcr.given_pay_credit, 0) -  coalesce(icr.given_inv_credit, 0) < 0 and i.parent_type= '#{parentType}' and i.parent_id = #{parentId} "
+		where coalesce(inv.inv_amount - pay.paid_amount, inv.inv_amount , - pay.paid_amount, 0) -  coalesce(pcr.given_pay_credit, 0) -  coalesce(icr.given_inv_credit, 0) < 0 and i.parent_type= '#{parentType}' and i.parent_id = #{parentId}   "
+		if !invoiceId.blank? && invoiceId != '0'
+			queryString = queryString + " and inv.id != #{invoiceId}"
+		end
 		if !projectId.blank? && projectId != '0'
 			queryString = queryString + " and iit.project_id = #{projectId}"	
 		end 
@@ -570,6 +574,7 @@ include WkbillingHelper
 				@invItems[@itemCount].store 'rate', entry.available_pay_credit
 				@invItems[@itemCount].store 'item_quantity', 1
 				@invItems[@itemCount].store 'item_amount', entry.available_pay_credit
+				totalCreditAmount = totalCreditAmount + entry.available_pay_credit
 				credit_invoice_id = nil
 				if entry.inv_amount < 0
 					credit_invoice_id = entry.id
@@ -589,6 +594,7 @@ include WkbillingHelper
 			end
 			lastInvId = entry.id
 		end
+		totalCreditAmount
 	end
 	
 	def isEditableInvoice(invoiceId)

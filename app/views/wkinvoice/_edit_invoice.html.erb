@@ -23,7 +23,7 @@
 	#	projects = @invoice.parent.billable_projects.where("project_id = ?", @invoiceItem[0].project_id ).collect{|m| [ m.project.name, m.project_id ] } 
 	#end 
 	isDisable = false
-	isDisable = !isEditableInvoice(@invoice.id) unless @invoice.blank?
+	isDisable = !isEditableInvoice(@invoice.id) unless @invoice.id.blank?
 %>	
 
 <table id="invoiceTable" class="list time-entries">
