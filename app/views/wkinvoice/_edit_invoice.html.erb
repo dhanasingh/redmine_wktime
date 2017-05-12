@@ -6,15 +6,6 @@
 	//getMembersbyGroup
 </script>
 <% itemHash = { 'i' => l(:label_invoice), 'c' =>  l(:label_credit)  } %>
-<div class="wk-contextual">
-<h2 style="float:left;"><%= l(:label_invoice_items) %></h2>
-<%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('invoiceTable', 'totalrow');",  :class => 'icon icon-time-add' } %>
-<% unless @invoiceItem.blank? %>
-<%= link_to l(:label_pay_invoice), url_for(:controller => "wkpayment", :action => 'edit', :load_payment => true, :related_to => @invoice.parent_type, :related_parent => @invoice.parent_id, :project_id => 0 ),  :class => 'icon icon-report' %>
-<% end %>
-</div>
-<div style="clear:both"></div>
-<div class="autoscroll">
 <% row_index = 1 %>
 <% total = 0 %>
 <%	#if @invoice.parent.account_billing
@@ -25,7 +16,17 @@
 	isDisable = false
 	isDisable = !isEditableInvoice(@invoice.id) unless @invoice.id.blank?
 %>	
-
+<div class="wk-contextual">
+<h2 style="float:left;"><%= l(:label_invoice_items) %></h2>
+<% if !@preBilling && !isDisable %>
+<%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('invoiceTable', 'totalrow');",  :class => 'icon icon-time-add' } %>
+<% end %>
+<%# unless @invoiceItem.blank? %>
+<%#= link_to l(:label_pay_invoice), url_for(:controller => "wkpayment", :action => 'edit', :load_payment => true, :related_to => @invoice.parent_type, :related_parent => @invoice.parent_id, :project_id => 0 ),  :class => 'icon icon-report' %>
+<%# end %>
+</div>
+<div style="clear:both"></div>
+<div class="autoscroll">
 <table id="invoiceTable" class="list time-entries">
   <thead>
          <tr>
@@ -119,9 +120,11 @@
 				</td>
 				<% total = total + value['item_amount'] unless value['item_amount'].blank? %>
 				<td>
+					<% if !@preBilling && !isDisable %>
 					<%= link_to image_tag('delete.png'), "javascript:deleteRow('invoiceTable', 'totalrow');", :id => row_index,
 							:data => {:confirm => l(:text_are_you_sure)},
 							:title => l(:button_delete), :disabled => @preBilling %>
+					<% end %>
 				</td>			
 			</tr>
 			<% row_index = row_index + 1 %>

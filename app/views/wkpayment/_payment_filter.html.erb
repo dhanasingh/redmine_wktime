@@ -13,12 +13,11 @@
 		actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds')}" %>";
 		paymentUrl="<%= "#{url_for(:controller => "wkpayment", :action => 'getBillableProjIds')}" %>";
 	</script>
-	<tr>
 			<th align="left"><label><%= l(:label_type) %></label></th>
 			<td align="left" style="padding-left:40px;">
 				<%=h select_tag('related_to', options_for_parent_select(parentType), :onchange => "actRelatedDd(#{User.current.id}, false, false);submitFiletrForm();", :disabled => isDisable) %>
 			</td>
-			<th align="left"><label><%= l(:label_account_name) %></label></th>
+			<th align="left"><label><%= l(:field_name) %></label></th>
 			<td align="left" style="padding-left:40px;">
 				<%=h select_tag('related_parent', options_for_select(accArr, :selected => parentId.nil? ? accArr : parentId), :onchange => "parentChanged(#{User.current.id});submitFiletrForm();", :disabled => isDisable) %>
 			</td>
@@ -28,5 +27,4 @@
 					<%=h select_tag('project_id', options_for_select([["",""]] + (@projects.blank? ? [] : @projects), :selected => projectId.nil? ? projArr : projectId), :disabled => isDisable) %>		
 				</td>
 			<% end %>
-	</tr>
 

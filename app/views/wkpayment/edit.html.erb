@@ -16,7 +16,8 @@
 				totalInvAmount = @accInvoices.to_a.sum(&:total_invoice_amount)
 				totalPaidAmount = @accInvoices.to_a.sum(&:total_paid_amount)
 				currency = @accInvoices[0].invoice_items[0].currency
-				totalAmount = totalInvAmount - totalPaidAmount
+				totalSubAmount = totalInvAmount - totalPaidAmount
+				totalAmount = totalSubAmount if totalSubAmount > 0
 			end
 		else
 			parentType = @payment.parent_type
@@ -32,7 +33,11 @@
 	<%= form_tag({:controller => "wkpayment", :action => 'edit', :tab => controller_name}, :method => :get, :id => 'invoice_form') do %>
 		<table>
 			<%= hidden_field_tag "load_payment", true %>
+			<tr>
 			<%= render partial: "wkpayment/payment_filter", locals: { projectId: projectId, parentType: parentType, parentId: parentId, needBlankAcc: false, showProject: false, isDisable: isDisable }%>
+			<th align="left"><%= l(:label_total) %></th> 
+			<td align="left" style="padding-left:40px;"> <%= currency.to_s + " " + totalAmount.to_s %> </td>
+			</tr>
 		
 	<% end %>
 	<%= form_tag({:controller => "wkpayment", :action => 'update'}, :method => :post, :id => 'query_form') do %>
@@ -45,11 +50,9 @@
 				<th align="left"><%= l(:label_reference_number) %></th>
 				<td align="left" style="padding-left:40px;"><%=h text_field_tag("reference_number",@payment.blank? ? '' : @payment.reference_number, :maxlength => 255) %> </td>
 			</tr>
-			<tr>
-				<th><%= l(:label_total) %></th> 
-				<td align="left" style="padding-left:40px;"> <%= currency.to_s + " " + totalAmount.to_s %> </td>
+			<tr>				
 				<th align="left"><%= l(:field_description) %></th>
-				<td colspan=3 align="left" style="padding-left:40px;"><%=h text_area_tag("description",@payment.blank? ? '' : @payment.description, :maxlength => 255, :style => "width:600px") %> </td>
+				<td colspan=4 align="left" style="padding-left:40px;"><%=h text_area_tag("description",@payment.blank? ? '' : @payment.description, :maxlength => 255, :style => "width:600px; height:60px;") %> </td>
 			</tr>
 		</table>
 		<% if !@accInvoices.blank? %>

@@ -9,12 +9,23 @@
 		<%=h hidden_field_tag("inv_end_date",  @invoice.end_date )  %>
 		<%=h hidden_field_tag("inv_start_date",  @invoice.start_date )  %>
 		<table>
-			<tr><th><%= l(:label_invoice_number) %></th> <td style="width: 200px;"> <%= ': ' + @invoice.invoice_number unless  @invoice.blank? %> </td>
-			<th><%= l(:label_invoice_date) %></th> <td> <%=h date_field_tag('inv_date', (@invoice.blank? ? Date.today.to_s : @invoice.invoice_date.to_s), :size => 10, :required => true, :disabled => @preBilling) %> <%= calendar_for('inv_date') %></td></tr>
-			<tr><th><%= l(:label_project_name) %></th> <td style="width: 200px;"> <%= ': ' + (@invoiceItem.blank? ? @projectsDD[0][0].to_s : @invoiceItem[0].project.name) %> </td>
-			<th><%= l(:field_status) %></th> <td><%=h select_tag('field_status',options_for_select(hash_status.invert, :selected => @invoice.blank? ? hash_status.invert : @invoice.status ), :disabled => @preBilling) %>  </td></tr>
-			<tr><th><%= l(:label_account_name) %></th> <td style="width: 200px;"> <%= ': ' + (@invoice.blank? ? '' : @invoice.parent.name) %> </td>
-			<th><%= l(:field_status_modified_by) %></th> <td> <%= ': ' + (@invoice.blank? ? User.current.to_s : @invoice.modifier.name) %> </td></tr>
+			<tr><th align="left"><%= l(:label_invoice_number) %></th> 
+			<td style="width: 200px;"> 
+				<%= ": " %>
+				<% if !@invoice.blank? %>
+					<% if @invoice.invoice_number.blank? %>
+						<span style="color:Purple;"><b><%= l(:label_unbilled) %></b></span>
+					<% else %>
+						<%= @invoice.invoice_number %>
+					<% end %>
+				
+				<% end %> 
+			</td>
+			<th align="left"><%= l(:label_invoice_date) %></th> <td><%= ": "%> <%=h date_field_tag('inv_date', (@invoice.blank? ? Date.today.to_s : @invoice.invoice_date.to_s), :size => 10, :required => true, :disabled => @preBilling) %> <%= calendar_for('inv_date') %></td></tr>
+			<tr><th align="left"><%= l(:label_project_name) %></th> <td style="width: 200px;"> <%= ': ' + (@invoiceItem.blank? ? @projectsDD[0][0].to_s : @invoiceItem[0].project.name) %> </td>
+			<th align="left"><%= l(:field_status) %></th> <td><%= ": "%><%=h select_tag('field_status',options_for_select(hash_status.invert, :selected => @invoice.blank? ? hash_status.invert : @invoice.status ), :disabled => @preBilling) %>  </td></tr>
+			<tr><th align="left"><%= l(:field_name) %></th> <td style="width: 200px;"> <%= ': ' + (@invoice.blank? ? '' : @invoice.parent.name) %> </td>
+			<th align="left"><%= l(:field_status_modified_by) %></th> <td> <%= ': ' + (@invoice.blank? ? User.current.to_s : @invoice.modifier.name) %> </td></tr>
 		</table>
 		
 		<% if !@invoiceItem.blank? %>

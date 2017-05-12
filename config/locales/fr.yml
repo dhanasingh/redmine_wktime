@@ -588,6 +588,7 @@ fr:
   label_populate_unbilled_items: Populate Unbilled Items
   label_issue_billing_currency: Issue Billing Currency
   label_issue_billing_rate: Issue Billing Rate
-  label_preview_invoice: Preview Invoice
+  label_preview_invoice: Unbilled Invoice
   label_fluctuation: Fluctuation
   label_pay_invoice: Accept Payment
+  label_unbilled: Unbilled
