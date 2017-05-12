@@ -1,8 +1,7 @@
 <%
 	fromDate = session[:wkreport][:from]
 	toDate = session[:wkreport][:to]
-	parantType = session[:wkreport][:parent_type]
-	parantId = session[:wkreport][:parent_id]
+	projectId = session[:wkreport][:project_id]
 	from = Date.civil(fromDate.year,fromDate.month, 1)
 	to = Date.civil((toDate + 1.month).year,(toDate + 1.month).month, 1) - 1 
 	inBtwMonths = getInBtwMonthsArr(from, to) 
@@ -40,9 +39,21 @@
 	left join wk_crm_contacts cc on (cc.id = ac.parent_id and ac.parent_type = 'WkCrmContact')
 	left join wk_accounts a on (a.id = ac.parent_id and ac.parent_type = 'WkAccount') "
 	
-	if !parantType.blank? && parantType != '0'
-		sqlStr = sqlStr + " where ac.parent_type= '#{parantType}' "
-		sqlStr = sqlStr + " and ac.parent_id = #{parantId} " if !parantId.blank? && parantId != '0'
+	parentIdHash = getProjectBillers(projectId)
+	if !projectId.blank? && projectId != '0'
+		sqlCond = ""
+		if parentIdHash['WkAccount'].length > 0
+			sqlCond = " ac.parent_type= 'WkAccount' and ac.parent_id in (#{parentIdHash['WkAccount'].join(',')})"
+		end
+		if parentIdHash['WkCrmContact'].length > 0
+			sqlCond = sqlCond + " OR" unless sqlCond.blank?
+			sqlCond = sqlCond + " (ac.parent_type= 'WkCrmContact' and ac.parent_id in (#{parentIdHash['WkCrmContact'].join(',')}))"
+		end
+		unless sqlCond.blank?
+			sqlStr = sqlStr + " where" + sqlCond
+		else
+			sqlStr = sqlStr + " where ac.parent_id = 0"
+		end
 	end
 	
 	sqlStr = sqlStr + " order by parent_type, parent_id, year_val, month_val"
@@ -144,5 +155,3 @@
 		</body>
 	</table>
 </div>
-
-

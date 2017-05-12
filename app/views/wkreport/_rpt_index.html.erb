@@ -11,9 +11,10 @@
 	rpttype =session[:wkreport][:report_type]
 	groupid =session[:wkreport][:group_id]
 	userid =session[:wkreport][:user_id]
-	parantType = session[:wkreport][:parent_type]
-	parantId = session[:wkreport][:parent_id]
-%>
+	projectId = session[:wkreport][:project_id]
+	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name')	
+	projArr = options_for_wktime_project(projects,true)
+%> 
 <div style="clear:both"></div>
 <table>
 <tr>
@@ -42,7 +43,8 @@
 <% else %>
 	<%=h filterhook %>
 <% end %>
-<%= render partial: "wkcrm/view_polymorphic", locals: { parentObject:  nil, :parentType => parantType, :parentId => parantId, :index => false, :needParentProject => false, :padding => 20, :needblankType => true } %>
+<th align="left"><label><%= l(:label_project) %></label></th>
+<td style="padding-left:20px;"><%=h select_tag('project_id', options_for_select(projArr, :selected => projectId.nil? ? projArr : projectId)) %></td>
 </table>
 <%= render :partial => 'wkreport/date_range' %>
 <%= hidden_field_tag "searchlist", "wkreport" %>

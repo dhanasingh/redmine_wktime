@@ -89,7 +89,7 @@ $(document).ready(function() {
 function openReportPopup(){
 	var popupUrl, periodType;
 	var reportType = document.getElementById('report_type').value;
-	var groupId = "", userId = "", actionType = "", parentType = "", parentId = "";
+	var groupId = "", userId = "", actionType = "", projectId = "";
 	if(document.getElementById('group_id')) {
 		groupId = document.getElementById('group_id').value;
 		userId = document.getElementById('user_id').value;
@@ -98,12 +98,8 @@ function openReportPopup(){
 	   actionType = document.getElementById('action_type').value;
 	}
 	
-	if(document.getElementById('related_to')) {
-		parentType = document.getElementById('related_to').value;	
-	}
-	
-	if(document.getElementById('related_parent')) {
-		parentId = document.getElementById('related_parent').value;		
+	if(document.getElementById('project_id')) {
+		projectId = document.getElementById('project_id').value;	
 	}
 	
 	var period = document.getElementById('period').value;
@@ -118,7 +114,7 @@ function openReportPopup(){
 		}
 	}
 	//popupUrl = wkattnReportUrl + '&report_type=' + reportType + '&group_id=' + groupId + '&user_id=' + userId + '&period_type=' + periodType + '&searchlist=' + searchlist; 
-	popupUrl = wkattnReportUrl + '&report_type=' + reportType + '&group_id=' + groupId + '&action_type=' + actionType + '&user_id=' + userId + '&period_type=' + periodType + '&searchlist=' + searchlist + '&related_to=' + parentType+ '&related_parent=' + parentId;
+	popupUrl = wkattnReportUrl + '&report_type=' + reportType + '&group_id=' + groupId + '&action_type=' + actionType + '&user_id=' + userId + '&period_type=' + periodType + '&searchlist=' + searchlist + '&project_id=' + projectId;
 	if(periodType>1){
 		popupUrl = popupUrl + '&from=' + fromVal + '&to=' + toVal		
 	}else{

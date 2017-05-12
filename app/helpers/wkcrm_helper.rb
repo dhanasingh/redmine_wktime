@@ -220,4 +220,17 @@ include WkinvoiceHelper
 	def getToDateTime(dateVal)
 		date_for_user_time_zone(dateVal.year, dateVal.month, dateVal.day).end_of_day
 	end
+	
+	# This method returns billable project parents as hash
+	# Hash has parent_type as key and parent_id as value
+	def getProjectBillers(projectId)
+		accProjects = WkAccountProject.where(project_id: projectId).order(:parent_type, :parent_id)
+		parentIdHash = Hash.new
+		parentIdHash['WkAccount'] = []
+		parentIdHash['WkCrmContact'] = []
+		accProjects.each do |entry|
+			parentIdHash[entry.parent_type] = parentIdHash[entry.parent_type] << entry.parent_id
+		end
+		parentIdHash
+	end
 end
