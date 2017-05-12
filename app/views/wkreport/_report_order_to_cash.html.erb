@@ -108,7 +108,9 @@
 			%>
 			<% entries.each_with_index do |entry,i| %>
 				<% if (lastParentId != entry.parent_id || lastParentType != entry.parent_type) && !lastParentId.blank? %>
-					<%= render partial: "rpt_order_cash_rows", locals: { name: name, prvInvAmt: prvInvAmt, prvPayAmt: prvPayAmt, paidAmtArr: paidAmtArr, invoiceAmtArr: invoiceAmtArr, balanceAmtArr: balanceAmtArr, columnCount: inBtwMonths.length }%>
+					<% if balanceAmtArr.sum + prvInvAmt -  prvPayAmt != 0 %>
+						<%= render partial: "rpt_order_cash_rows", locals: { name: name, prvInvAmt: prvInvAmt, prvPayAmt: prvPayAmt, paidAmtArr: paidAmtArr, invoiceAmtArr: invoiceAmtArr, balanceAmtArr: balanceAmtArr, columnCount: inBtwMonths.length }%>
+					<% end %>
 					<%
 						paidAmtArr.clear
 						invoiceAmtArr.clear
@@ -136,7 +138,9 @@
 					lastParentType = entry.parent_type
 				%>
 				<% if entry == entries.last %>
-					<%= render partial: "rpt_order_cash_rows", locals: { name: name, prvInvAmt: prvInvAmt, prvPayAmt: prvPayAmt, paidAmtArr: paidAmtArr, invoiceAmtArr: invoiceAmtArr, balanceAmtArr: balanceAmtArr, columnCount: inBtwMonths.length }%>
+					<% if balanceAmtArr.sum + prvInvAmt -  prvPayAmt != 0 %>
+						<%= render partial: "rpt_order_cash_rows", locals: { name: name, prvInvAmt: prvInvAmt, prvPayAmt: prvPayAmt, paidAmtArr: paidAmtArr, invoiceAmtArr: invoiceAmtArr, balanceAmtArr: balanceAmtArr, columnCount: inBtwMonths.length }%>
+					<% end %>
 				<% end %>
 			<% end %>
 			<tr style="width:100%;">
