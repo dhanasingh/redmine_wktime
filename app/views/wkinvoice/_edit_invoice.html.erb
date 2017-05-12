@@ -272,3 +272,9 @@
 <%= link_to l(:label_pay_invoice), url_for(:controller => "wkpayment", :action => 'edit', :load_payment => true, :related_to => @invoice.parent_type, :related_parent => @invoice.parent_id, :project_id => 0 ),  :class => 'icon icon-report' %>
 </div>
 <% end %>
+<% unless @invoice.id.blank?  %>
+<br/>
+<br/>
+<h2 ><%= l(:label_payment_items) %></h2> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<%= render :partial => 'inv_payment_items_list' %>
+<% end %>
