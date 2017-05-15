@@ -203,8 +203,12 @@ include WkbillingHelper
 			userTotalHours = timeEntries.group(:user_id).sum(:hours)
 			timeEntries.order(:issue_id, :user_id, :id).each_with_index do |entry, index|
 				#rateHash = getUserRateHash(entry.user.custom_field_values)
-				rateHash = getIssueRateHash(entry.issue.custom_field_values) unless entry.issue.blank?
-				@currency = rateHash['currency']
+				unless entry.issue.blank?
+					rateHash = getIssueRateHash(entry.issue.custom_field_values)
+				else
+					rateHash = nil
+				end
+				@currency = rateHash['currency'] unless rateHash.blank?
 				isUserBilling = false
 				if rateHash.blank? || rateHash['rate'].blank? || rateHash['rate'] <= 0
 					rateHash = getUserRateHash(entry.user.custom_field_values)

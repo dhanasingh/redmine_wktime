@@ -143,6 +143,7 @@ include WkbillingHelper
 				end
 				lastParentId = accProj.parent_id
 			else
+				isActBilling = false
 				setTempInvoice(@from, @to, accProj.parent_id, accProj.parent_type, '1', accProj.project_id)
 			end
 			
