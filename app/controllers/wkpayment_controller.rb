@@ -128,7 +128,7 @@ class WkpaymentController < WkbillingController
 			unless paymentItem.blank?
 				unless @payment.id.blank?
 					glTransactionId = nil
-					if isChecked('payment_auto_post_gl')
+					if isChecked('invoice_auto_post_gl')
 						transId = paymentItem.gl_transaction.blank? ? nil : paymentItem.gl_transaction.id
 						glTransaction = postToGlTransaction('payment', transId, @payment.payment_date, payAmount, params["currency#{i}"], params["invoice_id#{i}"])
 						glTransactionId = glTransaction.id unless glTransaction.blank?
@@ -140,7 +140,7 @@ class WkpaymentController < WkbillingController
 		
 		# unless @payment.id.blank?
 			# totalAmount = @payment.payment_items.sum(:amount)
-			# if totalAmount > 0 && isChecked('payment_auto_post_gl')
+			# if totalAmount > 0 && isChecked('invoice_auto_post_gl')
 				# # transId = @payment.gl_transaction.blank? ? nil : @payment.gl_transaction.id
 				# # glTransaction = postToGlTransaction('payment', transId, @payment.payment_date, totalAmount, @payment.payment_items[0].currency)
 				# # unless glTransaction.blank?
