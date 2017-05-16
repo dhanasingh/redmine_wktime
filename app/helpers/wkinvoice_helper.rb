@@ -218,8 +218,7 @@ include WkbillingHelper
 						next
 					end		
 				end
-				
-				if (lastUserId == entry.user_id && (lastIssueId == entry.issue_id || !accountProject.itemized_bill) ) && !isCreate
+				if ((lastUserId == entry.user_id && (lastIssueId == entry.issue_id || !accountProject.itemized_bill)) || (lastIssueId == entry.issue_id && !isUserBilling)) && !isCreate
 					updateBilledHours(entry, lasInvItmId) 
 					next
 				end

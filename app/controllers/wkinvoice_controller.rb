@@ -389,7 +389,7 @@ include WkbillingHelper
 				amount = params["rate#{i}"].to_f * params["quantity#{i}"].to_f
 				updatedItem = updateInvoiceItem(invoiceItem, params["project_id#{i}"], params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, params["currency#{i}"], params["item_type#{i}"], amount, crInvoiceId, crPaymentId)
 			end
-			if !params[:populate_unbilled].blank? && params[:populate_unbilled] == "true" && params[:creditfrominvoice].blank?
+			if !params[:populate_unbilled].blank? && params[:populate_unbilled] == "true" && params[:creditfrominvoice].blank? && params["entry_id#{i}"].blank?
 				accProject = WkAccountProject.where(:project_id => params["project_id#{i}"].to_i)
 				if accProject[0].billing_type == 'TM'
 					idArr = params["entry_id#{i}"].split(' ')
