@@ -337,7 +337,7 @@ function paymentItemTotal(tableId, elementId, totFld)
 			amount = amount +  parseInt(fldAmount.value);
 			
 		} else {
-			if(fldAmount.value < 0 || fldAmount.value == 0 )
+			if(fldAmount.value < 0 ) //|| fldAmount.value == 0 
 			{
 				alert("Please enter the valid amount");
 				fldAmount.value = fldAmount.defaultValue;
@@ -350,4 +350,21 @@ function paymentItemTotal(tableId, elementId, totFld)
 		
 	}
 	document.getElementById(totFld).innerHTML = document.getElementById('payment_currency').innerHTML + amount;
+	document.getElementById('tot_pay_amount').value = amount;
+}
+
+function submitPaymentItemForm()
+{
+	ret = true;
+	fldAmount =document.getElementById('tot_pay_amount');
+	if(fldAmount != null)
+	{
+		if(fldAmount.value == 0 )
+		{
+			ret = false;
+			alert("Amount greater then 0");
+		}			
+	}
+		
+	return ret;
 }

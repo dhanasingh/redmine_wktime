@@ -57,11 +57,12 @@
 			<td align="right"></td>
 			<td align="right"><%= "Total " %></td>
 			<td class="lbl-txt-align" headers="amount"><%= currency %><label id="payItemtotal"><%=h  payableAmount %></label></td>
+			<%= hidden_field_tag("tot_pay_amount",   payableAmount ) %>
 		 </tr>	
    </tbody>
 </table>
 </div>
 <%=h hidden_field_tag("totalrow",  row_index-1 )  %>
-<%= submit_tag l(:button_save),  :hidden => false, :id => 'items_save' %>
+<%= submit_tag l(:button_save), :onclick => "return submitPaymentItemForm();",  :hidden => false, :id => 'items_save' %>
 <div style="float:right;">
 </div>

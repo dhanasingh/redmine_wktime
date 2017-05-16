@@ -110,7 +110,7 @@ class WkpaymentController < WkbillingController
 		totalAmount = 0
 		tothash = Hash.new
 		totalRow = params[:totalrow].to_i
-		if totalRow>0
+		if totalRow>0 && params["tot_pay_amount"].to_i > 0
 			@payment.save()
 		end
 		for i in 1..totalRow
@@ -121,7 +121,13 @@ class WkpaymentController < WkbillingController
 			end
 			paymentItem = nil
 			if !params["payment_item_id#{i}"].blank?	
-				paymentItem = WkPaymentItem.find(params["payment_item_id#{i}"].to_i)
+				oldpaymentItem = WkPaymentItem.find(params["payment_item_id#{i}"].to_i)
+				oldpaymentItem.is_deleted = true
+				oldpaymentItem.save()
+				paymentItem = WkPaymentItem.new(oldpaymentItem.attributes)
+				paymentItem.created_at = nil
+				paymentItem.updated_at = nil
+				paymentItem = nil if params["amount#{i}"].to_f == 0
 			elsif params["amount#{i}"].to_f > 0
 					paymentItem = @payment.payment_items.new
 			end
