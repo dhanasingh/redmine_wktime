@@ -256,17 +256,18 @@ private
   def delete(ids)
 	#WkExpenseEntry.delete(ids)
 	errMsg = false
-	@expense_entries = WkExpenseEntry.find_by_sql("SELECT * FROM wk_expense_entries w where id = #{ids} ;")
+	@expense_entries = WkExpenseEntry.where(:id => ids)#WkExpenseEntry.find_by_sql("SELECT * FROM wk_expense_entries w where id = #{ids} ;")
 	destroyed = WkExpenseEntry.transaction do
-	@expense_entries.each do |t|
-		status = getExpenseEntryStatus(t.spent_on, t.user_id)
-		if !status.blank? && ('a' == status || 's' == status || 'l' == status)					
-			 errMsg = false 
-		else
-			errMsg = true
-			WkExpenseEntry.delete(ids)
-		end		
-	  end
+		@expense_entries.each do |t|
+			status = getExpenseEntryStatus(t.spent_on, t.user_id)
+			if !status.blank? && ('a' == status || 's' == status || 'l' == status)					
+				 errMsg = false 
+			else
+				errMsg = true
+				WkExpenseEntry.delete(ids)
+				break
+			end		
+		end
 	end
 	errMsg
   end
