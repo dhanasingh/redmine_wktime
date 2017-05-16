@@ -9,17 +9,24 @@ class WkexchangerateController < WkbillingController
 	end
 
 	def update
+		arrId = WkExCurrencyRate.all.pluck(:id)
 		for i in 0..params[:exrate_id].length-1
 			if params[:exrate_id][i].blank?
 				curExchanges = WkExCurrencyRate.new
 			else
 				curExchanges = WkExCurrencyRate.find(params[:exrate_id][i].to_i)
+				arrId.delete(params[:exrate_id][i].to_i)
 			end
 			curExchanges.from_c = params[:from_currency][i]
 			curExchanges.to_c = params[:to_currency][i]
 			curExchanges.ex_rate = params[:rate][i]
 			curExchanges.save()			
 		end
+		
+		if !arrId.blank?			
+			WkExCurrencyRate.delete_all(:id => arrId)
+		end
+		
 		redirect_to :controller => 'wkexchangerate',:action => 'index' , :tab => 'wkexchangerate'
 		flash[:notice] = l(:notice_successful_update)
 	end
