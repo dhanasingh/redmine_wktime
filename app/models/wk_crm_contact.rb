@@ -26,6 +26,8 @@ class WkCrmContact < ActiveRecord::Base
   has_many :opportunities, as: :parent, class_name: 'WkOpportunity', :dependent => :destroy
   has_many :projects, through: :billable_projects
   has_many :contracts, as: :parent, class_name: "WkContract", :dependent => :destroy
+  has_many :invoices, as: :parent, class_name: "WkInvoice", :dependent => :restrict_with_error
+  has_many :invoice_items, through: :invoices
   validates_presence_of :last_name
    # Different ways of displaying/sorting users
   NAME_FORMATS = {
