@@ -334,12 +334,14 @@ function paymentItemTotal(tableId, elementId, totFld)
 		{
 			alert("Please enter the valid amount");
 			fldAmount.value = fldAmount.defaultValue
+			amount = amount +  parseInt(fldAmount.value);
 			
 		} else {
-			if(fldAmount.value < 0)
+			if(fldAmount.value < 0 || fldAmount.value == 0 )
 			{
 				alert("Please enter the valid amount");
 				fldAmount.value = fldAmount.defaultValue;
+				amount = amount +  parseInt(fldAmount.value);
 			}
 			else{				
 				amount = amount +  parseInt(fldAmount.value);
@@ -347,5 +349,5 @@ function paymentItemTotal(tableId, elementId, totFld)
 		}
 		
 	}
-	document.getElementById(totFld).innerHTML = amount;
+	document.getElementById(totFld).innerHTML = document.getElementById('payment_currency').innerHTML + amount;
 }
