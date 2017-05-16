@@ -60,24 +60,25 @@
 	entries = WkInvoice.find_by_sql(sqlStr)
 %>
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
-	<div>
-		<div style="float:left">
-			 <caption style="text-align:center"><b><%= Setting.plugin_redmine_wktime['wktime_company_name'] %><br><%= l(:report_order_to_cash) %></b></br>
-			 <%= from.to_formatted_s(:long) + " " + l(:label_date_to) + " " + to.to_formatted_s(:long)%>
-			 </caption>
-		</div>
-		 <div style="float:right">
-			<table>
-				<tr>
-					<td>
-						<% logo = Setting.plugin_redmine_wktime['wktime_header_logo'] %>					
-						<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>						
-							<%= image_tag("#{logo}", :plugin => "redmine_wktime") %>
-						<% end %>
-					</td>
-				</tr>
-			</table>
-		</div>
+	<div style="float:left; width:90%;">
+		<p style="text-align: center;">
+			<caption style="text-align:center"><b>
+				<%= Setting.plugin_redmine_wktime['wktime_company_name'] %><br><%= l(:report_order_to_cash) %></b></br>
+				<%= from.to_formatted_s(:long) + " " + l(:label_date_to) + " " + to.to_formatted_s(:long)%>
+			</caption>
+		</p>
+	</div>
+	<div style="float:right">
+		<table>
+			<tr>
+				<td>
+					<% logo = Setting.plugin_redmine_wktime['wktime_header_logo'] %>					
+					<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>						
+						<%= image_tag("#{logo}", :plugin => "redmine_wktime") %>
+					<% end %>
+				</td>
+			</tr>
+		</table>
 	</div>
 	<div style="clear:both;"></div>
 	<table style="width:100%;">
@@ -150,7 +151,7 @@
 			<tr style="width:100%;">
 				<td></td>
 				<td align="right", colspan = <%= inBtwMonths.length+1%>><b><%=h "Total:" %></b></td>
-				<td align="right"><%=h @totalBalance %></td>
+				<td align="right"><%=h html_hours("%.2f" % @totalBalance ) %></td>
 			</tr>
 			<tr style="width:100%;">
 				<td></td>

@@ -7,7 +7,7 @@
 	<td align="right"><%=h l(:label_invoice) %></td>
 	<td align="right"></td>
 	<% for count in 0 .. columnCount -1 %>
-		<td align="right"><%=h invoiceAmtArr[count] %></td>
+		<td align="right"><%=h html_hours("%.2f" % invoiceAmtArr[count] )  %></td>
 	<% end %>
 	<td></td>
 </tr>
@@ -15,16 +15,16 @@
 	<td align="right"><%=h l(:label_txn_payment) %></td>
 	<td align="right"></td>
 	<% for count in 0 .. columnCount -1 %>
-		<td align="right" style="border-bottom: solid thin;"><%=h (paidAmtArr[count]) *(-1) %></td>
+		<td align="right" style="border-bottom: solid thin;"><%=h html_hours("%.2f" % ((paidAmtArr[count]) *(-1)) ) %></td>
 	<% end %>
 	<td></td>
 </tr>
 <tr style="width:100%;">
 	<td align="right"><%=h l(:wk_field_balance) %></td>
-	<td align="right"><%=h prevBalance %></td>
+	<td align="right"><%=h html_hours("%.2f" % prevBalance )  %></td>
 	<% for count in 0 .. columnCount - 1 %>
-		<td align="right"><%=h balanceAmtArr[count] unless invoiceAmtArr[count].blank? && paidAmtArr[count].blank? %></td>
+		<td align="right"><%=h html_hours("%.2f" % balanceAmtArr[count] )  unless invoiceAmtArr[count].blank? && paidAmtArr[count].blank? %></td>
 	<% end %>
-	<td align="right"><%=h balanceAmtArr.sum + prevBalance %></td>
+	<td align="right"><%=h html_hours("%.2f" % (balanceAmtArr.sum + prevBalance) )   %></td>
 	<% @totalBalance = @totalBalance + balanceAmtArr.sum + prevBalance %>
 </tr>
