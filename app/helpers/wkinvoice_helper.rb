@@ -475,6 +475,11 @@ include WkbillingHelper
 	
 	# Return the given number in words
 	def numberInWords (numVal)
+		isNegativeNum = false
+		if numVal<0
+			isNegativeNum = true
+			numVal = numVal*(-1)
+		end
 		totalNoOfDigits = (numVal.to_i.to_s).length
 		quad = numVal.to_i
 		numValStr = ""
@@ -489,6 +494,7 @@ include WkbillingHelper
 				numValStr = numValStr.blank? || currStr.blank?  ? currStr + numValStr :  currStr + "" + numValStr
 			end
 		end
+		numValStr = l(:label_minus) + " " + numValStr if isNegativeNum
 		numValStr.lstrip.capitalize
 	end
 	

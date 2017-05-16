@@ -590,3 +590,4 @@ it:
   label_pay_invoice: Accept Payment
   label_unbilled: Unbilled
   label_payment_items: Payment Items
+  label_minus: Minus
