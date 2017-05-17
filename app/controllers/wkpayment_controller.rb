@@ -57,7 +57,7 @@ class WkpaymentController < WkbillingController
 			entries = WkPayment.includes(:payment_items).where(sqlwhere)
 		end	
 		formPagination(entries)	
-		@totalPayAmt = @payment_entries.sum("wk_payment_items.amount")
+		@totalPayAmt = @payment_entries.where("wk_payment_items.is_deleted = #{false} ").sum("wk_payment_items.amount")
     end
 	
 	def edit
@@ -73,7 +73,7 @@ class WkpaymentController < WkbillingController
 		else			
 			unless params[:payment_id].blank?
 				@payment = WkPayment.find(params[:payment_id].to_i)
-				@payemntItem = @payment.payment_items 
+				@payemntItem = @payment.payment_items.current_items 
 				unless params[:is_report].blank? || !to_boolean(params[:is_report])
 					@payemntItem = @payemntItem.order(:project_id, :item_type)
 					#render :action => 'invreport', :layout => false

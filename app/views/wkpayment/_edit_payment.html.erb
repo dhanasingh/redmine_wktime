@@ -21,7 +21,7 @@
 			if entry.class.name == 'WkInvoice'
 				invoiceObj = entry
 				invoiceAmount = entry.invoice_items.sum(:amount)
-				paidAmount = entry.payment_items.sum(:amount)
+				paidAmount = entry.payment_items.current_items.sum(:amount)
 				next unless invoiceAmount - paidAmount > 0 && invoiceAmount > 0
 				currentPaidAmt = invoiceAmount - paidAmount
 				balanceAmount = invoiceAmount - paidAmount
@@ -29,7 +29,7 @@
 			else
 				invoiceObj = entry.invoice
 				invoiceAmount = invoiceObj.invoice_items.sum(:amount)
-				paidAmount = invoiceObj.payment_items.sum(:amount)
+				paidAmount = invoiceObj.payment_items.current_items.sum(:amount)
 				balanceAmount = nil
 				balanceAmount = invoiceAmount - paidAmount if invoiceAmount - paidAmount > 0 && invoiceAmount > 0
 				currentPaidAmt = entry.amount

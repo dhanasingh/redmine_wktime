@@ -25,8 +25,8 @@
 			projectId = nil
 			isDisable = true
 			creditIssued = isCreditIssued(@payment.id)
-			totalAmount = @payment.payment_items.sum(:amount)
-			currency = @payment.payment_items[0].currency
+			totalAmount = @payment.payment_items.current_items.sum(:amount)
+			currency = @payment.payment_items.current_items[0].currency
 		end
 	%>
 	
@@ -63,7 +63,7 @@
 			<%= hidden_field_tag "related_to", @payment.parent_type %>
 			<%= hidden_field_tag "related_parent", @payment.parent_id %>
 			<%= hidden_field_tag "payment_id", @payment.id %>
-			<%= render :partial => 'edit_payment', locals: { itemsList:@payment.payment_items } %>
+			<%= render :partial => 'edit_payment', locals: { itemsList:@payment.payment_items.current_items } %>
 		<% else %>
 			<br/>
 			<h2 ><%= l(:label_invoice_items) %></h2> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

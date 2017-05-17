@@ -213,7 +213,7 @@ include WkbillingHelper
 		unless params[:invoice_id].blank?
 			@invoice = WkInvoice.find(params[:invoice_id].to_i)
 			@invoiceItem = @invoice.invoice_items 
-			@invPaymentItems = @invoice.payment_items			
+			@invPaymentItems = @invoice.payment_items.current_items				
 			@projectsDD = @invoiceItem.select(:project_id).distinct.collect{|m| [ m.project.name, m.project_id ] } 
 		end
 		unless params[:is_report].blank? || !to_boolean(params[:is_report])

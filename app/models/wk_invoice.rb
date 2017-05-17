@@ -35,7 +35,7 @@ class WkInvoice < ActiveRecord::Base
   end
   
   def total_paid_amount
-	self.payment_items.sum(:amount)
+	self.payment_items.current_items.sum(:amount)
   end
   
 end

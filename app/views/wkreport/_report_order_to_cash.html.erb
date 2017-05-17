@@ -23,7 +23,7 @@
 	(select ii.amount, ii.payment_id, i.payment_date,i.parent_type, i.parent_id,  extract(month from  payment_date) as pay_month,
 	 extract(year from payment_date) as pay_year from wk_payment_items ii
 	left join wk_payments i on i.id = ii.payment_id
-	where i.payment_date between '#{from}' and '#{to}') as pay
+	where i.payment_date between '#{from}' and '#{to}' and ii.is_deleted = #{false}) as pay
 	group by pay.parent_type, pay.parent_id, pay.pay_year, pay.pay_month) as pdt
 	on(ac.parent_id=pdt.parent_id and ac.parent_type=pdt.parent_type and ac.month_val=pdt.pay_month and ac.year_val=pdt.pay_year)
 	left join
@@ -33,7 +33,7 @@
 	on (oi.parent_type = ac.parent_type and oi.parent_id = ac.parent_id)
 	left join
 	(select sum(pii.amount) prv_payment_amount, pvi.parent_type,pvi.parent_id from wk_payment_items pii
-	left join wk_payments pvi on pvi.id = pii.payment_id where pvi.payment_date < '#{from}'
+	left join wk_payments pvi on pvi.id = pii.payment_id where pvi.payment_date < '#{from}' and pii.is_deleted = #{false}
 	group by pvi.parent_type,pvi.parent_id) op
 	on (op.parent_type = ac.parent_type and op.parent_id = ac.parent_id)
 	left join wk_crm_contacts cc on (cc.id = ac.parent_id and ac.parent_type = 'WkCrmContact')
