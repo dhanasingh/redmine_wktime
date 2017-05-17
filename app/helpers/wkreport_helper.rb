@@ -51,6 +51,8 @@ module WkreportHelper
 			ret = isModuleAdmin('wktime_accounting_group') || isModuleAdmin('wktime_accounting_admin')
 		elsif reportName == 'report_lead_conversion' || reportName == 'report_sales_activity'
 			ret = (isModuleAdmin('wktime_crm_group') || isModuleAdmin('wktime_crm_admin') ) && isChecked('wktime_enable_crm_module')
+		elsif reportName == 'report_order_to_cash'
+			ret = isModuleAdmin('wktime_billing_groups')
 		end
 		ret
 	end
