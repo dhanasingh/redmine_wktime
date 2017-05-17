@@ -28,6 +28,27 @@
 			totalAmount = @payment.payment_items.current_items.sum(:amount)
 			currency = @payment.payment_items.current_items[0].currency
 		end
+		
+		paytotalAmount = 0
+		payList = nil
+		if !@accInvoices.blank?
+			payList = @accInvoices
+		elsif !@payment.blank?
+			payList = @payment.payment_items.current_items
+		end
+		unless payList.blank?
+			payList.each do |entry|
+				if entry.class.name == 'WkInvoice'
+					invoiceAmount = entry.invoice_items.sum(:amount)
+					paidAmount = entry.payment_items.current_items.sum(:amount)
+					next unless invoiceAmount - paidAmount > 0 && invoiceAmount > 0
+					currentPaidAmt = invoiceAmount - paidAmount
+				else
+					currentPaidAmt = entry.amount
+				end
+				paytotalAmount = paytotalAmount + currentPaidAmt unless currentPaidAmt.blank?
+			end
+		end
 	%>
 	
 	<%= form_tag({:controller => "wkpayment", :action => 'edit', :tab => controller_name}, :method => :get, :id => 'invoice_form') do %>
@@ -36,7 +57,7 @@
 			<tr>
 			<%= render partial: "wkpayment/payment_filter", locals: { projectId: projectId, parentType: parentType, parentId: parentId, needBlankAcc: false, showProject: false, isDisable: isDisable }%>
 			<th align="left"><%= l(:label_total) %></th> 
-			<td align="left" style="padding-left:40px;"> <%= currency.to_s + " " + totalAmount.to_s %> </td>
+			<td align="left" style="padding-left:40px;"> <%= currency.to_s + " " + paytotalAmount.to_s %> </td>
 			</tr>
 		
 	<% end %>
