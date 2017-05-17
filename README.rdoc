@@ -61,7 +61,12 @@ If an apache passenger module is used then make sure the following settings are 
 Release Notes for 2.8
 Features:
 	  - Payment module is introduced.
+	  - Billing for contacts.
+	  - Create New Invoice. 
+	  - Show unbilled invoices.
 	  - Exchange rate is introduced.
+	  - Issue based billing.
+	  - AR Aging Report.
 BugFixing:
 	  - Fixed: unable delete expense entries .
 
