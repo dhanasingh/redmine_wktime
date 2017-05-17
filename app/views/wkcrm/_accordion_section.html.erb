@@ -1,9 +1,18 @@
 <script src="//code.jquery.com/jquery-1.12.4.js"></script>
 <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
- <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<%#= javascript_heads #This change required to send CSRF tocken from popup%>
 <div id="accordion">
-	<% getAccordionSection(currentObj.class.name).each do |section| %>
-		<%= render partial: "#{section}/#{section}", locals: { currentObj: currentObj }%>
+	<% getAccordionSection(currentObj.class.name, currentObj).each do |section| %>
+		<% className = call_hook :get_accordion_class_name   %>
+		<% if currentObj.class.name == className && !className.blank?  %>
+			<% count = currentObj.contact.opportunities.count %>
+			<% currentObj.contact.opportunities.order(created_at: :desc).each_with_index  do |opportunity, index| %>
+				<%=h call_hook(:render_req_accordion_view, { :currentObj => opportunity, :index =>  (count - index).to_s}) %>
+			<% end %>
+		<% else %>
+			<%= render partial: "#{section}/#{section}", locals: { currentObj: currentObj }%>
+		<% end %>
 	<% end %>
 </div>
  

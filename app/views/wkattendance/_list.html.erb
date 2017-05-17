@@ -1,10 +1,14 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'wkpayroll', :plugin => "redmine_wktime" %>
+<script>
+runperiodUrl="<%= "#{url_for(:controller => controller_name, :action => 'runPeriodEndProcess', :tab => controller.controller_name)}" %>";
+</script>
 <%= form_tag({}) do -%>	
 <%= hidden_field_tag 'back_url', url_for(params) %>
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
 <% if (wktime_helper.isAccountUser) %>
 <div class="contextual">
-<%= link_to l(:"button_populate_leave"), url_for(:controller => controller_name, :action => 'runPeriodEndProcess', :tab => controller.controller_name), :data => {:confirm => l(:text_are_you_sure_want_to_run)}%>
+<%= link_to l(:"button_populate_leave"), "javascript:runperiodDatePicker()" %>
 </div>
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get) do %>
 <fieldset><legend><%= l(:label_filter_plural) %></legend>
@@ -57,7 +61,7 @@ end %>
 		if index < 5
 		  listboxArr = element.split('|') 
 %>
-		<td class="lbl-num-align"><%=h entry['total'+index.to_s] %></td> 
+		<td class="lbl-num-align"><%=h entry['total'+index.to_s].round(2) unless entry['total'+index.to_s].blank? %></td> 
 <%
 		end
 	end
@@ -72,3 +76,9 @@ end %>
 </table>
 </div>
 <% end -%>
+<div id="myDialog" title="Run Period End Process">
+    
+<p>Are you sure want to run this process</p>
+<p>Chose process date:<%= date_field_tag('start_date', "", {:id => 'start_date', :size => 12, :style => "width:130px; "}) + calendar_for('start_date') %></p>
+<p>Please Note: This will run the process for the previous month from the chosen date</p>
+</div>

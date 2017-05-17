@@ -1,0 +1,16 @@
+<h2><%= l(:label_exchange_rate) %></h2>
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<script type="text/javascript"> 
+    blgcontractsUrl = '<%=url_for(:controller => "wkcontract", :action => "index", :tab => "wkcontract")%>';
+    blgaccpjtsUrl = '<%=url_for(:controller => "wkaccountproject", :action => "index", :tab => "wkaccountproject")%>';     
+    blginvoiceUrl = '<%=url_for(:controller => "wkinvoice", :action => "index", :tab => "wkinvoice")%>';
+	blgpaymentUrl = '<%=url_for(:controller => "wkpayment", :action => "index", :tab => "wkpayment")%>';
+	blgtaxUrl = '<%=url_for(:controller => "wktax", :action => "index", :tab => "wktax")%>';
+	blgexcrateUrl = '<%=url_for(:controller => "wkexchangerate", :action => "index", :tab => "wkexchangerate")%>';
+    prevTab = 'tab-<%= "#{controller_name}" %>';   
+//	grpUrl="<%= "#{url_for(:controller => "wkpayroll", :action => 'getMembersbyGroup')}" %>";
+		//getMembersbyGroup
+</script>
+<%= render_tabs time_expense_tabs %>
+
+<%= render :partial => 'wkexchangerate/exc_rate_index'%>

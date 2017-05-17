@@ -1,3 +1,8 @@
+<%
+	@to = session[:wkreport][:to]
+	@from = session[:wkreport][:from]
+	#@profitLossEntries = getTransDetails(@from,@to)
+%>
 <%= stylesheet_link_tag 'application' , :media => "all" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <style type="text/css">		
@@ -12,7 +17,7 @@
  </style>
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
 	<table style="width:100%; border-collapse: collapse;">
-		 <caption style="text-align:center"><b><%= Setting.plugin_redmine_wktime['wktime_company_name'] %><br><%= l(:label_balance_sheet) %></b></br>
+		 <caption style="text-align:center"><b><%= Setting.plugin_redmine_wktime['wktime_company_name'] %><br><%= l(:report_balance_sheet) %></b></br>
 		 <%= l(:label_as_at) + " " + @to.to_formatted_s(:long) %>
 		<thead bgcolor="#e6e6e6">
 			<tr style="border-bottom: solid thin;border-top: solid thin;">
@@ -46,9 +51,9 @@
 					end
 				end
 			%>
-			<%= render partial: "report_sections", locals: { from: 0, to:4, title: l(:label_of_funds,l(:label_copy_source)) + " : " }%>
+			<%= render partial: "rpt_sections", locals: { from: 0, to:4, title: l(:label_of_funds,l(:label_copy_source)) + " : " }%>
 			
-			<%= render partial: "report_sections", locals: { from: 5, to:6, title: l(:label_of_funds,l(:label_application)) + " : " }%>
+			<%= render partial: "rpt_sections", locals: { from: 5, to:6, title: l(:label_of_funds,l(:label_application)) + " : " }%>
 			
 		</body>
 	</table>

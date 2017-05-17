@@ -24,20 +24,44 @@ before_filter :require_login
 		@contract_entries = nil
 		sqlwhere = ""
 		set_filter_session
-		accountId = session[:contract][:account_id]
+		filter_type = session[:contract][:polymorphic_filter]
+		contact_id = session[:contract][:contact_id]
+		account_id = session[:contract][:account_id]
 		projectId	= session[:contract][:project_id]
-		
-		if accountId.blank? &&  !projectId.blank?
-			sqlwhere = "project_id = #{projectId}"
-		end
-		if !accountId.blank? &&  projectId.blank?
-			sqlwhere = "account_id = #{accountId}"
-		end
-		if !accountId.blank? &&  !projectId.blank?
-			sqlwhere = "account_id = #{accountId} and project_id = #{projectId}"
+				
+		if filter_type == '2' && !contact_id.blank?
+			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+			sqlwhere = sqlwhere + " parent_id = '#{contact_id}'  and parent_type = 'WkCrmContact'  "
+		elsif filter_type == '2' && contact_id.blank?
+			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+			sqlwhere = sqlwhere + " parent_type = 'WkCrmContact'  "
 		end
 		
-		if accountId.blank? && projectId.blank?
+		if filter_type == '3' && !account_id.blank?
+			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+			sqlwhere = sqlwhere + " parent_id = '#{account_id}'  and parent_type = 'WkAccount'  "
+		elsif filter_type == '3' && account_id.blank?
+			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+			sqlwhere = sqlwhere + " parent_type = 'WkAccount'  "
+		end
+		
+		unless projectId.blank?
+			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+			sqlwhere = sqlwhere + " project_id = '#{projectId}' " 
+		end
+		
+		# if parentId.blank? &&  !projectId.blank?
+			# sqlwhere = "project_id = #{projectId}"
+		# end
+		# if !parentId.blank? &&  projectId.blank?
+			# sqlwhere = "parent_id = #{parentId} and parent_type = '#{parentType}' "
+		# end
+		# if !parentId.blank? &&  !projectId.blank?
+			# sqlwhere = "parent_id = #{parentId} and parent_type = '#{parentType}' and project_id = #{projectId}"
+		# end
+		
+				
+		if filter_type == '1' && projectId.blank? 
 			entries = WkContract.all
 		else
 			entries = WkContract.where(sqlwhere)
@@ -47,10 +71,12 @@ before_filter :require_login
 
     def set_filter_session
         if params[:searchlist].blank? && session[:contract].nil?
-			session[:contract] = {:account_id => params[:account_id], :project_id => params[:project_id]}
+			session[:contract] = {:contact_id => params[:contact_id], :account_id => params[:account_id], :project_id => params[:project_id], :polymorphic_filter =>  params[:polymorphic_filter] }
 		elsif params[:searchlist] =='contract'
-			session[:contract][:account_id] = params[:account_id]
+			session[:contract][:contact_id] = params[:contact_id]
 			session[:contract][:project_id] = params[:project_id]
+			session[:contract][:account_id] = params[:account_id]
+			session[:contract][:polymorphic_filter] = params[:polymorphic_filter]
 		end
 		
    end
@@ -95,7 +121,8 @@ before_filter :require_login
 		    wkContract = WkContract.find(params[:contract_id].to_i)
 	    end
 		wkContract.project_id = params[:project_id]
-		wkContract.account_id = params[:account_id]
+		wkContract.parent_id = params[:related_parent].to_i
+		wkContract.parent_type = params[:related_to]
 		wkContract.contract_number = getPluginSetting('wktime_contract_no_prefix')
 		wkContract.start_date = params[:start_date]
 		wkContract.end_date = params[:end_date]

@@ -18,11 +18,16 @@
 class WkCrmContact < ActiveRecord::Base
   unloadable
   belongs_to :account, :class_name => 'WkAccount'
+  has_many :billable_projects, as: :parent, class_name: "WkAccountProject", :dependent => :destroy
   belongs_to :address, :class_name => 'WkAddress', :dependent => :destroy
   belongs_to :assigned_user, :class_name => 'User'
   has_one :lead, foreign_key: 'contact_id', class_name: 'WkLead', :dependent => :destroy
   has_many :activities, as: :parent, class_name: 'WkCrmActivity', :dependent => :destroy
   has_many :opportunities, as: :parent, class_name: 'WkOpportunity', :dependent => :destroy
+  has_many :projects, through: :billable_projects
+  has_many :contracts, as: :parent, class_name: "WkContract", :dependent => :destroy
+  has_many :invoices, as: :parent, class_name: "WkInvoice", :dependent => :restrict_with_error
+  has_many :invoice_items, through: :invoices
   validates_presence_of :last_name
    # Different ways of displaying/sorting users
   NAME_FORMATS = {
@@ -81,6 +86,14 @@ class WkCrmContact < ActiveRecord::Base
     else
       @name ||= eval('"' + f[:string] + '"')
     end
+  end
+  
+  # Returns contact's contracts for the given project
+  # or nil if the contact do not have contract
+  def contract(project)
+		contract = contracts.where(:project_id => project.id).first
+		contract = contracts[0] if contract.blank?
+		contract
   end
 
   def self.name_formatter(formatter = nil)

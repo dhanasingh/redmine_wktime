@@ -56,7 +56,7 @@ include WktimeHelper
 	end
 	
 	def getSectionHeader(type)
-		getLedgerTypeHash[type].blank? ? l(:label_profit_loss_account) : getLedgerTypeHash[type]
+		getLedgerTypeHash[type].blank? ? l(:report_profit_loss) : getLedgerTypeHash[type]
 	end
 	
 	def getLedgerTypeGrpHash

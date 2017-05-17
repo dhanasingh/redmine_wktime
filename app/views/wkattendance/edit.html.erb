@@ -63,7 +63,7 @@
 				ids = ids + entry.id.to_s
 			end
 			userId = entry.user_id
-			remaining = (entry.balance.blank? ? 0 : entry.balance) + (entry.accrual.blank? ? 0 : entry.accrual) - (entry.used.blank? ? 0 : entry.used)
+			remaining = (entry.balance.blank? ? 0 : entry.balance) + (entry.accrual.blank? ? 0 : entry.accrual) - (entry.used.blank? ? 0 : (entry.used*@accrualMultiplier[entry.issue_id]))
 		%>
 		
 	<tr class="time-entry <%= cycle("odd", "even") %>">
@@ -74,7 +74,7 @@
 		</td>
 		<td><%=h text_field_tag('used_'+entry.issue_id.to_s,entry.used.blank? ? 0 : entry.used,:size => 10, :disabled => disable, :required => true) %>
 		</td>
-		<td><%=h remaining%></td>
+		<td><%=h remaining.round(2)%></td>
 	</tr>
 	<% end -%>
 	</table>

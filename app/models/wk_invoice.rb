@@ -17,14 +17,25 @@
 
 class WkInvoice < ActiveRecord::Base
   unloadable
-  belongs_to :account, :class_name => 'WkAccount'
+  #belongs_to :account, :class_name => 'WkAccount'
+  belongs_to :parent, :polymorphic => true
   belongs_to :modifier , :class_name => 'User'
   belongs_to :gl_transaction , :class_name => 'WkGlTransaction', :dependent => :destroy
   has_many :invoice_items, foreign_key: "invoice_id", class_name: "WkInvoiceItem", :dependent => :destroy
   has_many :projects, through: :invoice_items
+  has_many :payment_items, foreign_key: "invoice_id", class_name: "WkPaymentItem", :dependent => :destroy
   
   attr_protected :modifier_id
   
-  validates_presence_of :account_id
+  #validates_presence_of :account_id
+  validates_presence_of :parent_id, :parent_type
+  
+  def total_invoice_amount
+	self.invoice_items.sum(:amount)
+  end
+  
+  def total_paid_amount
+	self.payment_items.current_items.sum(:amount)
+  end
   
 end

@@ -21,7 +21,8 @@ class WkContract < ActiveRecord::Base
                     :edit_permission => :manage_files,
                     :delete_permission => :manage_files
   belongs_to :project
-  belongs_to :account, :class_name => 'WkAccount'
+  #belongs_to :account, :class_name => 'WkAccount'
+  belongs_to :parent, :polymorphic => true
   validate :end_date_is_after_start_date
   
    def end_date_is_after_start_date

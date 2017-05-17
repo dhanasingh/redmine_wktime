@@ -79,8 +79,12 @@ class WkcrmcontactController < WkcrmController
 	end
 	
 	def destroy
-	    WkCrmContact.find(params[:contact_id].to_i).destroy
-		flash[:notice] = l(:notice_successful_delete)
+	    contact = WkCrmContact.find(params[:contact_id].to_i)
+		if contact.destroy
+			flash[:notice] = l(:notice_successful_delete)
+		else
+			flash[:error] = contact.errors.full_messages.join("<br>")
+		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end
 	

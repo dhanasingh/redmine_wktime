@@ -1,0 +1,51 @@
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<script type="text/javascript"> 
+	prevTab = 'tab-<%= "wkreport" %>';
+	wkattnReportUrl = '<%=url_for(:controller => "wkreport", :action => "index", :tab => "wkreport")%>'; 
+	grpUrl="<%= "#{url_for(:controller => "wkreport", :action => 'getMembersbyGroup')}" %>";
+	//getMembersbyGroup
+</script>
+<%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
+<%
+	rpttype =session[:wkreport][:report_type]
+	groupid =session[:wkreport][:group_id]
+	userid =session[:wkreport][:user_id]
+	projectId = session[:wkreport][:project_id]
+	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name')	
+	projArr = options_for_wktime_project(projects,true)
+%> 
+<div style="clear:both"></div>
+<table>
+<tr>
+<th align="left"><%= l(:label_report) + " " + l(:field_type) %> </th>
+<td style="padding-left:20px;"><%= select_tag 'report_type', options_for_report_select(rpttype), :style=> "width:200px;" %></td>
+</tr>
+<% filterhook = call_hook :add_report_filters %>
+<% if filterhook.blank?  %>
+	<% if User.current.admin? || isAccountUser || isModuleAdmin('wktime_crm_admin')  %>
+	<tr>
+	<th align="left"><%=l(:label_group_plural)%> </th>
+	<td style="padding-left:20px;">
+		<%=h select_tag('group_id',
+		options_for_select( [["",0]] + (@groups.collect {|p| [p.name, p.id ]}),
+		:selected => !groupid.nil? ? groupid.to_i: 0), :onchange => "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %>
+	</td>
+	<th align="left"><%=l(:label_member)%></th>
+	<td style="padding-left:20px;">
+	<%# show the blank value if more than one user is in the list %>
+	<%=h select_tag('user_id',
+		options_for_select( [["All Users","0"]] + @members,
+			:selected => userid.nil? ? (@user.nil? ? User.current.id : @user.id) : userid),
+		 :style=> "width:200px;") %></td>
+	</tr>
+	<% end %>
+<% else %>
+	<%=h filterhook %>
+<% end %>
+<th align="left"><label><%= l(:label_project) %></label></th>
+<td style="padding-left:20px;"><%=h select_tag('project_id', options_for_select(projArr, :selected => projectId.nil? ? projArr : projectId)) %></td>
+</table>
+<%= render :partial => 'wkreport/date_range' %>
+<%= hidden_field_tag "searchlist", "wkreport" %>
+<% end %>

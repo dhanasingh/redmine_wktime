@@ -37,7 +37,7 @@
 		</tr>
 		
 		<tr>
-			<th align="left"><%= l(:label_subject)+ "*" %></th>
+			<th align="left"><%= l(:label_subject) %><span style="color:red;">*</span></th>
 			<td align="left" style="padding-left:40px;"><%=h text_field_tag("activity_subject",(!@activityEntry.blank? ? @activityEntry[0].name : ""),:size => 20, :style => "width:180px;") %> </td>
 			<td></td>
 			<th align="left" style="padding-left:240px;"><label id="lblStatus"><%= l(:field_status) %></label></th>
@@ -89,7 +89,7 @@
 		
 		<tr>
 			<th align="left" ><%= l(:label_related_to) %></th>
-			<td align="left" style="padding-left:40px;"><%=h select_tag("related_to", options_for_select(relatedHash.invert, :selected => (!@activityEntry.blank? ? @activityEntry[0].parent_type : (params[:parentType].blank? ? "" : params[:parentType]))), :onchange => "actRelatedDd(#{User.current.id})", :style => "width:200px;") %></td>		
+			<td align="left" style="padding-left:40px;"><%=h select_tag("related_to", options_for_select(relatedHash.invert, :selected => (!@activityEntry.blank? ? @activityEntry[0].parent_type : (params[:parentType].blank? ? "" : params[:parentType]))), :onchange => "actRelatedDd(#{User.current.id}, false, false)", :style => "width:200px;") %></td>		
 			
 			<td align="left" ><%=h select_tag("related_parent", options_for_select(accArr, :selected => (!@activityEntry.blank? ? @activityEntry[0].parent_id : (params[:parentId].blank? ? "" : params[:parentId]))), :style => "width:200px;") %></td> 
 			<td></td>

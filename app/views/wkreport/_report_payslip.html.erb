@@ -1,3 +1,15 @@
+<%
+	userId = (session[:wkreport][:user_id].blank? || (session[:wkreport][:user_id]).to_i < 1) ? User.current.id : session[:wkreport][:user_id]
+	from = session[:wkreport][:from]
+	to = session[:wkreport][:to]
+	minSalaryDate = WkSalary.where("salary_date between '#{from}' and '#{to}'").minimum(:salary_date)
+	if minSalaryDate.blank?
+		@wksalaryEntries = nil
+	else
+		getSalaryDetail(userId,minSalaryDate.to_date)
+		@userYTDAmountHash = getYTDDetail(userId,minSalaryDate.to_date)
+	end
+%>
 <style type="text/css">
 	table { 
 		table-layout: fixed; 

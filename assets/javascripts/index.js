@@ -1,4 +1,4 @@
-var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl;
+var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl, blgpaymentUrl, blgexcrateUrl;
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -89,11 +89,19 @@ $(document).ready(function() {
 function openReportPopup(){
 	var popupUrl, periodType;
 	var reportType = document.getElementById('report_type').value;
-	var groupId = "", userId = "";
+	var groupId = "", userId = "", actionType = "", projectId = "";
 	if(document.getElementById('group_id')) {
 		groupId = document.getElementById('group_id').value;
 		userId = document.getElementById('user_id').value;
 	}
+	if(document.getElementById('action_type')) {
+	   actionType = document.getElementById('action_type').value;
+	}
+	
+	if(document.getElementById('project_id')) {
+		projectId = document.getElementById('project_id').value;	
+	}
+	
 	var period = document.getElementById('period').value;
 	var searchlist = document.getElementById('searchlist').value;
 	var periodTypes = document.getElementsByName('period_type');
@@ -105,13 +113,14 @@ function openReportPopup(){
 			break;
 		}
 	}
-	popupUrl = wkattnReportUrl + '&report_type=' + reportType + '&group_id=' + groupId + '&user_id=' + userId + '&period_type=' + periodType + '&searchlist=' + searchlist; 
+	//popupUrl = wkattnReportUrl + '&report_type=' + reportType + '&group_id=' + groupId + '&user_id=' + userId + '&period_type=' + periodType + '&searchlist=' + searchlist; 
+	popupUrl = wkattnReportUrl + '&report_type=' + reportType + '&group_id=' + groupId + '&action_type=' + actionType + '&user_id=' + userId + '&period_type=' + periodType + '&searchlist=' + searchlist + '&project_id=' + projectId;
 	if(periodType>1){
 		popupUrl = popupUrl + '&from=' + fromVal + '&to=' + toVal		
 	}else{
 		popupUrl = popupUrl + '&period=' + period 
 	}
-	window.open(popupUrl, '_blank', 'location=yes,scrollbars=yes,status=yes');
+	window.open(popupUrl, '_blank', 'location=yes,scrollbars=yes,status=yes, resizable=yes'); 
 }
 
 function showReminderEmailDlg() {
@@ -230,6 +239,8 @@ $(document).ready(function()
 	changeProp('tab-wkcrmactivity',crmactivityUrl);
 	changeProp('tab-wkcrmcontact',crmcontactUrl);
 	changeProp('tab-wkcrmenumeration',crmenumUrl);
+	changeProp('tab-wkpayment',blgpaymentUrl);
+	changeProp('tab-wkexchangerate',blgexcrateUrl);
 });
 
 
@@ -265,7 +276,7 @@ function validateMember()
 }
 function reportChanged(reportDD, userid){
 	var id = reportDD.options[reportDD.selectedIndex].value;
-	var needBlankOption = ((id == 'attendance_report' || id == 'spent_time_report' || id == 'payroll_report') ? true : false) ;
+	var needBlankOption = ((id == 'attendance_report' || id == 'spent_time_report' || id == 'payroll_rpt') ? true : false) ;
 	grpChanged(document.getElementById("group_id"), userid, needBlankOption)
 }
 
@@ -292,32 +303,72 @@ function progrpChanged(btnoption, userid, needBlankOption){
 	}
 }
 
-function accProjChanged(uid)
+function accProjChanged(uid, fldId, isparent, blankOptions)
 {
-	var acc_name = document.getElementById("account_id");
-	var accId = acc_name.options[acc_name.selectedIndex].value;
-	var needBlankOption = true;
-	var projDropdown = document.getElementById("project_id");
+	var acc_name = document.getElementById(fldId);//document.getElementById("account_id");
+	var parentId = 0
+	if( acc_name.length > 0)
+	{
+		parentId = acc_name.options[acc_name.selectedIndex].value;
+	}
+	var parentType = "WkAccount";
+	var $this = $(this);
+	if(isparent)
+	{
+		var parentDD = document.getElementById('related_to');
+		parentType = parentDD.options[parentDD.selectedIndex].value;
+	} else {
+		parentType = fldId == 'contact_id' && parentId != "" ? 'WkCrmContact' : ( fldId == 'account_id' && parentId != "" ? 'WkAccount' : '');
+	}
+	var needBlankOption = blankOptions;
+	var projDropdown = document.getElementById("project_id");	
 	userid = uid;
 	$.ajax({
 	url: accountUrl,
 	type: 'get',
-	data: {account_id: accId},
-	success: function(data){ updateUserDD(data, projDropdown, userid, needBlankOption, false, "");},   
+	data: {parent_id: parentId, parent_type: parentType},
+	success: function(data){ updateUserDD(data, projDropdown, userid, needBlankOption, false, "");},
+	beforeSend: function(){ $this.addClass('ajax-loading'); },
+	complete: function(){ $this.removeClass('ajax-loading'); }	
 	});
 }
 
-function actRelatedDd(uid)
+function actRelatedDd(uid, loadProjects, needBlankOption)
 {
 	var relatedTo = document.getElementById("related_to");
 	var relatedType = relatedTo.options[relatedTo.selectedIndex].value;
-	var needBlankOption = false;
+	//var needBlankOption = false;
 	var relatedparentdd = document.getElementById("related_parent");
 	userid = uid;
+	var $this = $(this);
 	$.ajax({
 	url: actRelatedUrl,
 	type: 'get',
 	data: {related_type: relatedType},
-	success: function(data){ updateUserDD(data, relatedparentdd, userid, needBlankOption, false, "");},   
+	success: function(data){ updateUserDD(data, relatedparentdd, userid, needBlankOption, false, "");},
+	beforeSend: function(){ $this.addClass('ajax-loading'); },
+	complete: function(){ if(loadProjects) { accProjChanged(uid, 'related_parent', true, true) } $this.removeClass('ajax-loading'); }	   
 	});
+}
+
+function parentChanged(uid)
+{
+	var parentType = document.getElementById("related_to");
+	var parentTypeVal = parentType.options[parentType.selectedIndex].value;
+	var parentDD = document.getElementById("related_parent");
+	var parentId = parentDD.options[parentDD.selectedIndex].value;
+	var needBlankOption = true;
+	var projDropdown = document.getElementById("project_id");
+	userid = uid;
+	$.ajax({
+	url: paymentUrl,
+	type: 'get',
+	data: {related_to: parentTypeVal, related_parent: parentId},
+	success: function(data){ updateUserDD(data, projDropdown, userid, needBlankOption, false, "");},   
+	});
+}
+
+function submitFiletrForm()
+{
+	document.getElementById("invoice_form").submit();
 }

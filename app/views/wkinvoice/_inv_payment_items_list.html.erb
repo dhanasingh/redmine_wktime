@@ -1,0 +1,36 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<% payType = WkCrmEnumeration.where(:enum_type => "PT").order(enum_type: :asc, name: :asc).pluck(:id, :name) %> 
+<%  payTypeHash = Hash[*payType.flatten] %>
+<div class="autoscroll">
+<% grandTotal = 0 %>
+<table class="list time-entries">
+  <thead>
+         <tr>
+				<th class="lbl-txt-align"><%=  l(:label_txn_payment) %></th>
+				<th class="lbl-txt-align"><%=  l(:label_payment_date) %></th>
+				<th class="lbl-txt-align"><%=  l(:label_payment_type)  %></th>
+				<th class="lbl-txt-align"><%=  l(:label_reference_number) %></th>
+				<th class="lbl-txt-align"><%=  l(:field_amount)  %></th>
+         </tr>
+  </thead>
+   <tbody>
+	<% @invPaymentItems.each do |entry| %>
+		<tr>
+		    <td class="lbl-txt-align"><%=h entry.id  %></td>			
+			<td class="lbl-txt-align"><%=h entry.payment.payment_date.strftime("%Y-%m-%d") %></td>
+			<td class="lbl-txt-align"><%=h payTypeHash[entry.payment.payment_type_id] %></td>
+			<td class="lbl-txt-align"><%=h entry.payment.reference_number  %></td>
+			<td class="lbl-txt-align"><%= entry.currency %><%=h html_hours("%.2f" % entry.amount)  %></td>
+			<% grandTotal = grandTotal + entry.amount %>
+		</tr>
+	<% end %>
+	<tr>
+		<td class="lbl-txt-align"></td>
+		<td class="lbl-txt-align"></td>
+		<td class="lbl-txt-align"></td>
+		<td class="lbl-txt-align"><b><%=  l(:label_total)  %></b></td>
+		<td class="lbl-txt-align"><b><%= html_hours("%.2f" % grandTotal)   %></b></td>		
+	</tr>
+   <tbody>
+</table>
+</div>

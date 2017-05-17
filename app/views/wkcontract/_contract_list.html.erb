@@ -3,9 +3,10 @@
 	<table class="list time-entries">
 		<thead>
 			<tr>
-				<th class="lbl-txt-align"><%= l(:label_account) %></th>
-				<th class="lbl-txt-align"><%= l(:label_project) %></th>
 				<th class="lbl-txt-align"><%= l(:label_contract_number) %></th>
+				<th class="lbl-txt-align"><%= l(:label_type) %></th>
+				<th class="lbl-txt-align"><%= l(:field_name) %></th>
+				<th class="lbl-txt-align"><%= l(:label_project) %></th>				
 				<th class="lbl-txt-align"><%= l(:label_start_date) %></th>
 				<th class="lbl-txt-align"><%= l(:label_end_date) %></th>
 				<th></th>
@@ -14,9 +15,10 @@
 		<tbody>
 			<% @contract_entries.each do |entry| %>
 				<tr>
-					  <td class="lbl-txt-align"><%=h entry.account.name %></td>
-					  <td class="lbl-txt-align"><%=h entry.project.blank? ? "" : entry.project.name %></td>
 					  <td class="lbl-txt-align"><%=h entry.contract_number %></td>
+					  <td class="lbl-txt-align"><%=h entry.parent_type == 'WkAccount' ? 'Account' : 'Contact' %></td>
+					  <td class="lbl-txt-align"><%=h entry.parent.name %></td>
+					  <td class="lbl-txt-align"><%=h entry.project.blank? ? "" : entry.project.name %></td>					  
 					  <td class="lbl-txt-align"><%=h entry.start_date %></td>
 					  <td class="lbl-txt-align"><%=h entry.end_date %></td>
 					  <td align="center">

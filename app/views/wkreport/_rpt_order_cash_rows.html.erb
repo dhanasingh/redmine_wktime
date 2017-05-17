@@ -1,0 +1,30 @@
+<% prevBalance = prvInvAmt -  prvPayAmt %>
+<tr style="width:100%;">
+	<td align="left"><b><%=h name %></b></td>
+	<td colspan = <%=columnCount+2%>, style="border-bottom: solid thin;"></td>
+</tr>
+<tr style="width:100%;">
+	<td align="right"><%=h l(:label_invoice) %></td>
+	<td align="right"></td>
+	<% for count in 0 .. columnCount -1 %>
+		<td align="right"><%=h html_hours("%.2f" % invoiceAmtArr[count] )  %></td>
+	<% end %>
+	<td></td>
+</tr>
+<tr style="width:100%;">
+	<td align="right"><%=h l(:label_txn_payment) %></td>
+	<td align="right"></td>
+	<% for count in 0 .. columnCount -1 %>
+		<td align="right" style="border-bottom: solid thin;"><%=h html_hours("%.2f" % ((paidAmtArr[count]) *(-1)) ) %></td>
+	<% end %>
+	<td></td>
+</tr>
+<tr style="width:100%;">
+	<td align="right"><%=h l(:wk_field_balance) %></td>
+	<td align="right"><%=h html_hours("%.2f" % prevBalance )  %></td>
+	<% for count in 0 .. columnCount - 1 %>
+		<td align="right"><%=h html_hours("%.2f" % balanceAmtArr[count] )  unless invoiceAmtArr[count].blank? && paidAmtArr[count].blank? %></td>
+	<% end %>
+	<td align="right"><%=h html_hours("%.2f" % (balanceAmtArr.sum + prevBalance) )   %></td>
+	<% @totalBalance = @totalBalance + balanceAmtArr.sum + prevBalance %>
+</tr>

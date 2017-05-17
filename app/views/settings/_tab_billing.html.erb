@@ -20,6 +20,11 @@ lblInvCompVal = "<%=l(:field_value) %>";
 		cfProjRate = (cfProjRateF + cfProjRateI).uniq
 		cfProjCurrency = wktime_helper.getCfListArr(project_custom_fields, 'string', true)
 		
+		issue_custom_fields = IssueCustomField.order('name')
+		cfIssueRateF = wktime_helper.getCfListArr(issue_custom_fields, 'float', true)
+		cfIssueRateI = wktime_helper.getCfListArr(issue_custom_fields, 'int', false)
+		cfIssueRate = (cfIssueRateF + cfIssueRateI).uniq
+		cfIssueCurrency = wktime_helper.getCfListArr(issue_custom_fields, 'string', true)
 		
 		te_custom_fields = TimeEntryCustomField.order('name')
 		cfBillIndicator = wktime_helper.getCfListArr(te_custom_fields, 'int', true)
@@ -40,6 +45,15 @@ lblInvCompVal = "<%=l(:field_value) %>";
 	
 	<p style="margin-left: -110px;"><label><%= l(:label_debit) + " " +  l(:label_ledger)  %></label>
 	    <%= select_tag 'settings[invoice_db_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['invoice_db_ledger']) %></p>
+	
+	<p style="margin-left: -110px;"><label><%= l(:label_txn_payment) + " " + l(:label_credit) + " " +  l(:label_ledger)  %></label>
+	    <%= select_tag 'settings[payment_cr_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['payment_cr_ledger']) %></p>
+	
+	<p style="margin-left: -110px;"><label><%= l(:label_txn_payment) + " " + l(:label_debit) + " " +  l(:label_ledger)  %></label>
+	    <%= select_tag 'settings[payment_db_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['payment_db_ledger']) %></p>
+		
+<!--	<p style="margin-left: -110px;"><label><%#= l(:label_txn_payment) + " " + l(:label_fluctuation) + " " +  l(:label_ledger)  %></label>
+	    <%#= select_tag 'settings[payment_fluctuation_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['payment_fluctuation_ledger']) %></p> -->
 		
 	<%= l(:label_redmine_restart_warning) %>
 	<p style="margin-left: -110px;">
@@ -86,6 +100,14 @@ lblInvCompVal = "<%=l(:field_value) %>";
 	<p style="padding-left: 190px;">
 		<label><%= l(:label_user_billing_currency) %> </label><%=h select_tag('settings[wktime_user_billing_currency_cf]', 
 			options_for_select(cfUserCurrency, :selected =>  @settings['wktime_user_billing_currency_cf'])) %>
+	</p>
+	<p style="padding-left: 190px;">
+		<label><%= l(:label_issue_billing_currency) %> </label><%=h select_tag('settings[wktime_issue_billing_currency_cf]', 
+			options_for_select(cfIssueCurrency, :selected =>  @settings['wktime_issue_billing_currency_cf'])) %>
+	</p>
+	<p style="padding-left: 190px;">
+		<label><%= l(:label_issue_billing_rate) %> </label><%=h select_tag('settings[wktime_issue_billing_rate_cf]', 
+			options_for_select(cfIssueRate, :selected =>  @settings['wktime_issue_billing_rate_cf'])) %>
 	</p>
 	<%
 			accountGroups = Array.new

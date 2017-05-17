@@ -136,7 +136,8 @@ en:
   text_wk_no_reminder: No reminders to send
   
   
-  label_wk_attendance: Attendance
+  report_attendance: Attendance
+  report_spent_time: Spent time
   label_wk_break_time: Break Time
   label_wk_enable_clock_in_out: Enable Clock In / Clock Out
   label_wk_sick_leave_accrual: Sick Leave Accrual
@@ -243,7 +244,7 @@ en:
   label_loss_of_pay: Loss Of Pay
   label_financial_year_start: Financial Year Start
   label_salary_detail: Salary Details
-  label_wk_payslip: Pay Slip
+  report_payslip: Pay Slip
   label_period: Period
   label_emp_name: Employee Name
   label_ytd: YTD
@@ -264,7 +265,7 @@ en:
   label_component: Component
   label_factor: Factor
   label_generate: Generate
-  label_payroll_report: Payroll report
+  report_payroll: Payroll report
   label_factor_errormsg: Please Enter the Factor
   
   label_wk_billing: Billing
@@ -434,7 +435,7 @@ en:
   label_sundry_debtors: Sundry Debtors
   label_suspense_ac: Suspense A/c
   label_unsecured_loans: Unsecured Loans
-  label_profit_loss_account: Profit & Loss A/c
+  report_profit_loss: Profit & Loss A/c
   label_particulars: Particulars
   label_trading_account: Trading Account
   label_profit: Profit
@@ -454,7 +455,7 @@ en:
   label_debit: Debit
   label_credit: Credit
   label_date: Date
-  label_balance_sheet: Balance Sheet
+  report_balance_sheet: Balance Sheet
   label_as_at: As at
   label_of_funds: "%{value} of Funds"
   label_application: Application
@@ -559,11 +560,38 @@ en:
   label_crm_user_group: CRM User Group
   label_crm_admin_group: CRM Admin Group
   label_position: Position
-  label_lead_conversion: Lead Conversion
-  label_sales_activity: Sales Activity
+  report_lead_conversion: Lead Conversion
+  report_sales_activity: Sales Activity
   label_sales_cycle: Sales Cycle
   label_conversion_rate: Conversion Rate
   label_completed_date_time: "Completed Date & Time"
   label_completion_time: Completion Time
   label_days: Days
   label_average: Average
+  report_civilian_attendance: Civilian Attendance
+  minimum_working_days_for_accrual: Minimum working days for leave accrual
+  label_accrual_multiplier: Accrual Multiplier
+  
+  label_enable_time_module: Enable Time Module
+  
+  label_payments: Payments
+  label_payment_date: Payment Date
+  label_payment_type: Payment Type
+  label_reference_number: Reference Number
+  label_exchange_rate: Exchange Rate
+  label_from_currency: From Currency
+  label_to_currency: To Currency
+  report_order_to_cash: AR Aging
+  label_to_currency: To Currency
+  label_new_invoice: New Invoice
+  label_populate_unbilled_items: Populate Unbilled Items
+  label_issue_billing_currency: Issue Billing Currency
+  label_issue_billing_rate: Issue Billing Rate
+  label_preview_invoice: Unbilled Invoice
+  label_fluctuation: Fluctuation
+  label_pay_invoice: Accept Payment
+  label_unbilled: Unbilled
+  label_payment_items: Payment Items
+  label_minus: Minus
+  label_credit_from_prv_inv: "Credit From Previous Invoice #%{invId}"
+  label_credit_from_prv_inv_pay: "Credit From Previous Invoice #%{invId} Payment #%{payId}"

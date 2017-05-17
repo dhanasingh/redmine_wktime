@@ -19,5 +19,6 @@ module WkaccountprojectHelper
 
 include WktimeHelper
 include WkinvoiceHelper
+include WkcrmHelper
 
 end

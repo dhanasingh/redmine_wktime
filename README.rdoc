@@ -18,6 +18,7 @@ This Plugin has the following modules:
 4) Billing
     Setup Billable Projects
     Generate Invoices
+	Payments
     Print Invoices
 5) Accounting
 	Create Ledgers
@@ -57,12 +58,17 @@ If an apache passenger module is used then make sure the following settings are 
 	b) RailsAppSpawnerIdleTime 0
 	c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for 2.7
+Release Notes for 2.8
 Features:
-	  - CRM module is introduced.
-	  - Moved Accounts to CRM Module.
+	  - Payment module is introduced.
+	  - Billing for contacts.
+	  - Create New Invoice. 
+	  - Show unbilled invoices.
+	  - Exchange rate is introduced.
+	  - Issue based billing.
+	  - AR Aging Report.
 BugFixing:
-	  - Fixed: Uncaught TypeError is causing "Loading..." not dismissed .
+	  - Fixed: unable delete expense entries .
 
 Customization:
 	For any Customization/Support, please contact us, our consulting team will be happy to help you

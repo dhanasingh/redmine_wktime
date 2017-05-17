@@ -28,7 +28,7 @@
 	Setting.plugin_redmine_wktime[:wktime_own_approval].to_i == 1 ) : false) : true	%>
 <%=h hidden_field_tag("break_time" , Setting.plugin_redmine_wktime['wktime_break_time'] )  %> 
 <% for i in 1..7 %>
-	<div id="clockInOut-dlg<%= i %>" title="<%= l(:label_wk_attendance) %>">
+	<div id="clockInOut-dlg<%= i %>" title="<%= l(:report_attendance) %>">
 	<% if (@startday + (i-1)) < Date.today || (@startday + (i-1)) == Date.today  %>
 		<fieldset>				
 			<table >

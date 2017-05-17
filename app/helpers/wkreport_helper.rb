@@ -17,6 +17,10 @@
 
 module WkreportHelper	
 	include WktimeHelper
+	include WkaccountingHelper
+	include WkcrmHelper
+	include WkpayrollHelper
+	include WkattendanceHelper
 
 	def options_for_period_select(value)
 		options_for_select([
@@ -28,22 +32,29 @@ module WkreportHelper
 	end	
 
 	def options_for_report_select(selectedRpt)
-		reportTypeArr = [
-			[l(:label_wk_attendance), 'attendance_report'], 
-			[l(:label_time_entry_plural), 'spent_time_report'], 
-			[l(:label_wk_timesheet), 'time_report'], 			
-			[l(:label_wk_expensesheet), 'expense_report'],			
-			[l(:label_payroll_report), 'payroll_report'],
-			[l(:label_wk_payslip), 'payslip_report']]
-		if (isModuleAdmin('wktime_accounting_group') || isModuleAdmin('wktime_accounting_admin') )
-			reportTypeArr << [l(:label_profit_loss_account), 'pl_report']
-			reportTypeArr << [l(:label_balance_sheet), 'bal_sht_report']
+		reportTypeArr = [ 
+			[l(:label_wk_timesheet), 'report_time'], 			
+			[l(:label_wk_expensesheet), 'report_expense']]
+			
+		Dir["plugins/redmine_wktime/app/views/wkreport/_report*"].each do |f|
+		  fileName = File.basename(f, ".html.erb")
+		  fileName.slice!(0)
+		  reportTypeArr << [l(:"#{fileName}"), fileName] if hasViewPermission(fileName)
 		end
-		if (isModuleAdmin('wktime_crm_group') || isModuleAdmin('wktime_crm_admin') ) && isChecked('wktime_enable_crm_module')
-			reportTypeArr << [l(:label_lead_conversion), 'lead_conversion_rpt']
-			reportTypeArr << [l(:label_sales_activity), 'sales_activity_rpt']
-		end
+		reportTypeArr.sort!
 		options_for_select(reportTypeArr, selectedRpt)
+	end
+	
+	def hasViewPermission(reportName)
+		ret = true
+		if reportName == 'report_profit_loss' || reportName == 'report_balance_sheet'
+			ret = isModuleAdmin('wktime_accounting_group') || isModuleAdmin('wktime_accounting_admin')
+		elsif reportName == 'report_lead_conversion' || reportName == 'report_sales_activity'
+			ret = (isModuleAdmin('wktime_crm_group') || isModuleAdmin('wktime_crm_admin') ) && isChecked('wktime_enable_crm_module')
+		elsif reportName == 'report_order_to_cash'
+			ret = isModuleAdmin('wktime_billing_groups')
+		end
+		ret
 	end
 	
 	def getUserQueryStr(group_id,user_id, from)
@@ -68,6 +79,73 @@ module WkreportHelper
 		end
 		#queryStr = queryStr + " order by u.created_on"
 		queryStr
+	end
+	
+	def getReportLeaveIssueIds
+		issueIds = ''
+		if(Setting.plugin_redmine_wktime['wktime_leave'].blank?)
+			issueIds = '-1'
+		else
+			Setting.plugin_redmine_wktime['wktime_leave'].each_with_index do |element,index|
+				if index < 3
+					if issueIds!=''
+						issueIds = issueIds +','
+					end
+				  listboxArr = element.split('|')
+				  issueIds = issueIds + listboxArr[0]
+				end
+			end
+		end	
+		issueIds
+	end
+	
+	def getTotalAmtQuery(tableName, subQryAlias, innerSubQryAls, from, to)
+		queryStr = " (select #{innerSubQryAls}.parent_id, #{innerSubQryAls}.parent_type," + 
+			" #{innerSubQryAls}.#{innerSubQryAls}_month, #{innerSubQryAls}.#{innerSubQryAls}_year," +
+			" sum (#{innerSubQryAls}.amount) as #{innerSubQryAls}_amount from" +
+			" (select ii.amount, ii.#{tableName}_id, i.#{tableName}_date,i.parent_type," + 
+			" i.parent_id, date_part('month', #{tableName}_date) as #{innerSubQryAls}_month," + " date_part('year', #{tableName}_date) as #{innerSubQryAls}_year" + 
+			" from wk_#{tableName}_items ii left join wk_#{tableName}s i" + 
+			" on i.id = ii.#{tableName}_id" +
+			" where i.#{tableName}_date between '#{from}' and '#{to}') as #{innerSubQryAls}" + 
+			" group by #{innerSubQryAls}.parent_type, #{innerSubQryAls}.parent_id, #{innerSubQryAls}.#{innerSubQryAls}_year, #{innerSubQryAls}.#{innerSubQryAls}_month) as #{subQryAlias} "
+		queryStr
+	end
+	
+	def getPrvBalQryStr(tableName, dateVal, subQryAlias)
+		queryStr = " (select sum(pii.amount) prv_#{tableName}_amount," + 
+			" pvi.parent_type,pvi.parent_id from wk_#{tableName}_items pii" + 
+			" left join wk_#{tableName}s pvi on pvi.id = pii.#{tableName}_id" +
+			" where pvi.#{tableName}_date < '#{dateVal}'" +
+			" group by pvi.parent_type,pvi.parent_id) #{subQryAlias}" +
+			" on (#{subQryAlias}.parent_type = coalesce(idt.parent_type,pdt.parent_type)" +
+			" and #{subQryAlias}.parent_id = coalesce(idt.parent_id,pdt.parent_id)) "
+		queryStr
+	end
+	
+	def getInBtwMonthsArr(from,to)
+		inBtwMnthArr = Array.new
+		yearDiff = to.year - from.year
+		monthDiff = to.month - from.month
+		fromMonth =  from.month
+		fromYear = from.year
+		totalNumOfMnth = (yearDiff * 12) + monthDiff
+		for count in 0 .. totalNumOfMnth
+			monthVal = (fromMonth + count)%12 == 0 ? 12 : (fromMonth + count)%12
+			yearVal = fromYear + ((fromMonth + count)/12)
+			yearVal = yearVal - 1 if monthVal == 12
+			inBtwMnthArr << [yearVal, monthVal]
+		end
+		inBtwMnthArr
+	end
+	
+	def getAccountContactSql
+		parentSql = ""
+		if ActiveRecord::Base.connection.adapter_name == 'Mysql2'
+			parentSql = "COLLATE utf8_unicode_ci"
+		end
+		sqlStr = "select 'WkAccount' #{parentSql} as parent_type, id as parent_id from wk_accounts union select 'WkCrmContact' #{parentSql} as parent_type, id as parent_id from wk_crm_contacts"
+		sqlStr
 	end
 
 end

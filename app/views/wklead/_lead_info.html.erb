@@ -20,14 +20,19 @@
 				<%=h text_field_tag("first_name",contactObj.blank? ? "" : contactObj.first_name,:size => 20) %> </td>
 			</tr>
 			<tr>
-				<th align="left"><%= l(:field_lastname) + "*" %></th>
+				<th align="left"><%= l(:field_lastname)  %><span style="color:red;">*</span></th>
 				<td align="left" style="padding-left:40px;"><%=h text_field_tag("last_name",contactObj.blank? ? "" : contactObj.last_name,:size => 20) %> </td>
 			</tr>
 		<% end %>
 		<% accountName = !accountObj.blank?  ?  accountObj.name  : "" %>
 		<% accountDescription = !accountObj.blank? && isAccount  ?  accountObj.description : (isContact || !leadObj.blank? ? (contactObj.blank? ? "" : contactObj.description) :  "" ) %>
 		<tr>
-			<th align="left"><%= l(:label_account_name) + (isAccount ? "*" : "" )%></th>			
+			<% if isAccount %>
+				<th align="left"><%= l(:label_account_name) %><span style="color:red;">*</span></th>
+			<% else %>
+				<th align="left"><%= l(:label_account_name) %></th>
+			<% end %>
+						
 			<% if isContact %>			
 				<td style="padding-left:40px;"><%=h select_tag('account_id', options_for_select(accArr, :selected => contactObj.blank? ? (params[:accountId].blank? ? "" : params[:accountId]) : (contactObj.account.blank? ? "" : contactObj.account.id) ), :style=> "float: left;") %></td>
 			<% else %>	
@@ -37,7 +42,7 @@
 		<% if isContact %>
 		<!--	<tr>
 			<th align="left" ><%= l(:label_related_to) %></th>
-			<td align="left" style="padding-left:40px;"><%#=h select_tag("related_to", options_for_select(relHash.invert, :selected => (!contactObj.blank? ? contactObj.parent_type : (params[:parentType].blank? ? "" : params[:parentType]))), :onchange => "actRelatedDd(#{User.current.id})", :style => "width:200px;") %>
+			<td align="left" style="padding-left:40px;"><%#=h select_tag("related_to", options_for_select(relHash.invert, :selected => (!contactObj.blank? ? contactObj.parent_type : (params[:parentType].blank? ? "" : params[:parentType]))), :onchange => "actRelatedDd(#{User.current.id}, false, false)", :style => "width:200px;") %>
 			
 			<%#=h select_tag("related_parent", options_for_select(accArr, :selected => (!contactObj.blank? ? contactObj.parent_id : (params[:parentId].blank? ? "" : params[:parentId]))), :style => "width:200px;") %></td> 
 			
@@ -56,7 +61,7 @@
 			<%  selectedAcId = accountObj.blank? ? nil : accountObj.account_category %>
 			<tr>
 				<th align="left"><%= l(:label_account) + " " + l(:field_category) %></th>
-			<td align="left" style="padding-left:40px;"><%=h select_tag('account_category', options_for_select(options_for_enum_select('AC', selectedAcId))) %></td>
+			<td align="left" style="padding-left:40px;"><%=h select_tag('account_category', options_for_select(options_for_enum_select('AC', selectedAcId, true))) %></td>
 			</tr>
 			<tr>
 				<th align="left"><%= l(:label_account_billing) %></th>

@@ -6,7 +6,7 @@ $('.date').each(function() {
 });
 });
 
-function invoiceFormSubmission()
+function invoiceFormSubmission(isPreview)
 { 
 	var dateval = new Date(document.getElementById("to").value);
 	var fromdateval = new Date(document.getElementById("from").value);
@@ -15,14 +15,18 @@ function invoiceFormSubmission()
 	if (isNaN(dateval.getFullYear()) || isNaN(fromdateval.getFullYear())){
 		alert("Please select valid date range");
 	}
-	else
+	else if(!isPreview)
 	{
 		var isFormSubmission = confirm("Are you sure want to generate invoice on " + salaryDate);
 		if (isFormSubmission == true) {
 			document.getElementById("generate").value = true; 
 			document.getElementById("query_form").submit();
 		}
-	}	
+	}
+	else {
+		document.getElementById('preview_billing').value = true; 
+		$('#query_form').submit(); 		
+	}
 }
 
 function invoiceAddRow(tableId, rowCount)
@@ -42,6 +46,10 @@ function invoiceAddRow(tableId, rowCount)
 			var prefix = id.substr(0, (id.length-1));
 			el.attr('id', prefix+(+i+1));
 			el.attr('name', prefix+(+i+1));
+			if(prefix == "item_type")
+			{
+				el.attr('disabled', false);
+			}
 			//el.attr('value', prefix+(+i+1));
 		}
 	});/* working fine */
@@ -287,5 +295,80 @@ function txnformValidation()
 	{
 		alert(errormsg);
 	}
+	return ret;
+}
+
+function submitNewInvoiceForm(isAccBilling)
+{
+	var valid=true;
+	var msg = '';
+	var accDropdown = document.getElementById("related_parent");
+	var pjtDropdown = document.getElementById("project_id");
+	if(accDropdown.value=="")
+	{
+		valid=false;
+		msg = msg + "Please select the Name.";
+	}
+	else if(pjtDropdown.value=="" && !isAccBilling) {
+		valid=false;
+		msg = msg + "Please select the project.";
+	}
+	if(!valid)
+	{
+		alert(msg);
+	}
+	return valid;
+	 
+}
+
+function paymentItemTotal(tableId, elementId, totFld)
+{
+	var table = document.getElementById(tableId);
+	var rowlength = table.rows.length;
+	var amount = 0;
+	for(var i = 1; i < rowlength-1; i++)
+	{
+		fldId = elementId+i;
+		fldAmount = document.getElementById(fldId);
+		if(fldAmount.value != "") 
+		{
+			if(isNaN(fldAmount.value))
+			{
+				alert("Please enter the valid amount");
+				fldAmount.value = fldAmount.defaultValue
+				amount = amount +  parseInt(fldAmount.value);
+				
+			} else {
+				if(fldAmount.value < 0 ) //|| fldAmount.value == 0 
+				{
+					alert("Please enter the valid amount");
+					fldAmount.value = fldAmount.defaultValue;
+					amount = amount +  parseInt(fldAmount.value);
+				}
+				else{				
+					amount = amount +  parseInt(fldAmount.value);
+				}
+			}
+			
+		}		
+	}
+	document.getElementById(totFld).innerHTML = document.getElementById('payment_currency').innerHTML + amount;
+	document.getElementById('tot_pay_amount').value = amount;
+}
+
+function submitPaymentItemForm()
+{
+	ret = true;
+	$('textarea').removeData('changed');
+	fldAmount =document.getElementById('tot_pay_amount');
+	if(fldAmount != null)
+	{
+		if(fldAmount.value == 0 )
+		{
+			ret = false;
+			alert("Amount should be greater then zero");
+		}			
+	}
+		
 	return ret;
 }

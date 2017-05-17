@@ -1,0 +1,73 @@
+<br/>
+<div style="clear:both"></div>
+<div class="autoscroll">
+<% row_index = 1 %>
+
+<table id="paymentTable" class="list time-entries">
+  <thead>
+         <tr>
+			<th class="lbl-txt-align"><%= l(:label_invoice_number) %>#</th>
+			<th align="center"><%= l(:field_amount) %></th>
+			<th align="center"><%= l(:wk_field_balance) %></th>
+			<th class="lbl-txt-align"><%= l(:label_txn_payment) + " " + l(:field_amount) %></th>			
+         </tr>
+  </thead>
+   <tbody>
+	<% payableAmount = 0 %>
+	<% 
+		currency = nil 
+		creditIssued = false
+	%>
+	<% itemsList.each do |entry| %>
+		<% 
+			#creditIssued = false
+			if entry.class.name == 'WkInvoice'
+				invoiceObj = entry
+				invoiceAmount = entry.invoice_items.sum(:amount)
+				paidAmount = entry.payment_items.current_items.sum(:amount)
+				next unless invoiceAmount - paidAmount > 0 && invoiceAmount > 0
+				currentPaidAmt = invoiceAmount - paidAmount
+				balanceAmount = invoiceAmount - paidAmount
+				paymentItemId = nil
+				currency = invoiceObj.invoice_items[0].currency 
+			else
+				invoiceObj = entry.invoice
+				invoiceAmount = invoiceObj.invoice_items.sum(:amount)
+				paidAmount = invoiceObj.payment_items.current_items.sum(:amount)
+				balanceAmount = nil
+				balanceAmount = invoiceAmount - paidAmount if invoiceAmount - paidAmount > 0 && invoiceAmount > 0
+				currentPaidAmt = entry.amount
+				paymentItemId = entry.id
+				creditIssued = isCreditIssued(entry.id) if !creditIssued
+				currency = invoiceObj.payment_items[0].currency 
+			end
+			payableAmount = payableAmount + currentPaidAmt unless currentPaidAmt.blank?
+		%>
+		<%# currency = invoiceObj.invoice_items[0].currency %>
+		<%= hidden_field_tag "invoice_id#{row_index}", invoiceObj.id %>
+		<%= hidden_field_tag "currency#{row_index}", currency %>
+		<%= hidden_field_tag("payment_item_id#{row_index}",   paymentItemId ) %>
+		<%= hidden_field_tag("credit_issued#{row_index}",   creditIssued ) %>
+		<%= hidden_field_tag("paid_amount#{row_index}",   currentPaidAmt ) %>
+		<tr>
+			<td class="lbl-txt-align"><%=h invoiceObj.invoice_number  %></td>
+			<td align="right"><label align="right"><%=  html_hours("%.2f" % invoiceAmount) unless invoiceAmount.blank?  %></td></label>
+			<td align="right"><%=  html_hours("%.2f" % balanceAmount) unless balanceAmount.blank? %></td>
+			<td class="lbl-txt-align" headers="amount"><label id="payment_currency"><%= currency %></label><%= text_field_tag "amount#{row_index}",   ("%.2f" % currentPaidAmt) ,:maxlength => 14,  :style => "width:150px;", :disabled => creditIssued, :onchange => "paymentItemTotal('paymentTable', 'amount', 'payItemtotal');"  %></td>
+		 </tr>	
+		 <% row_index = row_index + 1 %>
+	<% end %>
+	<tr>
+			<td class="lbl-txt-align"></td>
+			<td align="right"></td>
+			<td align="right"><b><%= "Total " %></b></td>
+			<td class="lbl-txt-align" headers="amount"><b><%= currency %><label id="payItemtotal"><%=h  payableAmount %></label></b></td>
+			<%= hidden_field_tag("tot_pay_amount",   payableAmount ) %>
+		 </tr>	
+   </tbody>
+</table>
+</div>
+<%=h hidden_field_tag("totalrow",  row_index-1 )  %>
+<%= submit_tag l(:button_save), :onclick => "return submitPaymentItemForm();",  :disabled => creditIssued, :id => 'items_save' %>
+<div style="float:right;">
+</div>
