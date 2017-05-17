@@ -53,7 +53,7 @@
 							<% lastProjectId = nil %>
 							<% @invoiceItem.each do | entry | %>
 								<% if entry.item_type != 'r' %>
-									<% if !lastItemType.blank? && entry.item_type != lastItemType && lastProjectId == entry.project_id %>
+									<% if !lastItemType.blank? && entry.item_type != lastItemType && lastProjectId == entry.project_id && lastItemType == 'C' %>
 										<tr style="width:100%; border-top: solid thin; border-bottom: solid thin;">
 											<td style="width:42%;" ></td>
 											<td style="width:16%;" ></td>
@@ -77,7 +77,7 @@
 										<tr style="width:100%;" >
 											<td style="width:42%;" ><%=h entry.name %></td>
 											<td style="width:16%;" ><%=h entry.item_type == 'i' ? l(:field_hours) : '' %></td>
-											<td style="width:16%;" align="right" ><%=h ("%.2f" % entry.rate).to_s + (entry.item_type == 'i' ? '' : "%")  unless entry.rate.blank? %></td>
+											<td style="width:16%;" align="right" ><%=h ("%.2f" % entry.rate).to_s + (entry.item_type == 'i' || entry.item_type == 'c' ? '' : "%")  unless entry.rate.blank? %></td>
 											<td style="width:16%;" align="right" ><%=h "%.2f" % entry.quantity unless entry.quantity.blank? %></td>
 											<td style="width:16%;" align="center" ><%=h entry.currency %></td>
 											<td style="width:16%;" align="right" ><%=h "%.2f" % entry.amount unless entry.amount.blank?%></td>		
