@@ -15,7 +15,7 @@
 	  (select ii.amount, ii.invoice_id, i.invoice_date,i.parent_type, i.parent_id, extract(month from invoice_date) as inv_month,
 	  extract(year from invoice_date) as inv_year from wk_invoice_items ii
 	  left join wk_invoices i on i.id = ii.invoice_id
-	  where i.invoice_date between '#{from}' and '#{to}') as inv
+	  where i.invoice_date between '#{from}' and '#{to}' and ii.credit_invoice_id is null and ii.credit_payment_item_id is null) as inv
 	  group by inv.parent_type, inv.parent_id, inv.inv_year, inv.inv_month) as idt
 	on(ac.parent_id=idt.parent_id and ac.parent_type=idt.parent_type and ac.month_val=idt.inv_month and ac.year_val=idt.inv_year)
 	left join
@@ -28,7 +28,7 @@
 	on(ac.parent_id=pdt.parent_id and ac.parent_type=pdt.parent_type and ac.month_val=pdt.pay_month and ac.year_val=pdt.pay_year)
 	left join
 	(select sum(pii.amount) prv_invoice_amount, pvi.parent_type,pvi.parent_id from wk_invoice_items pii
-	left join wk_invoices pvi on pvi.id = pii.invoice_id where pvi.invoice_date < '#{from}'
+	left join wk_invoices pvi on pvi.id = pii.invoice_id where pvi.invoice_date < '#{from}' and pii.credit_invoice_id is null and pii.credit_payment_item_id is null
 	group by pvi.parent_type,pvi.parent_id) oi
 	on (oi.parent_type = ac.parent_type and oi.parent_id = ac.parent_id)
 	left join
