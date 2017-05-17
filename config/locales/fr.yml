@@ -594,5 +594,5 @@ fr:
   label_unbilled: Unbilled
   label_payment_items: Payment Items
   label_minus: Minus
-  label_credit_from_prv_inv: "Credit From Previous Invoice #%{value}"
+  label_credit_from_prv_inv: "Credit From Previous Invoice #%{invId}"
   label_credit_from_prv_inv_pay: "Credit From Previous Invoice #%{invId} Payment #%{payId}"

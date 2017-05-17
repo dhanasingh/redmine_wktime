@@ -15,6 +15,7 @@
 				<th class="lbl-txt-align"><%= l(:field_amount) %></th>
 				<th class="lbl-txt-align"><%= l(:field_status_modified_by) %></th>
 				<th></th>
+				<th></th>
          </tr>
   </thead>
    <tbody>
@@ -39,7 +40,11 @@
 			<td class="lbl-txt-align"><%= entry.invoice_items[0].currency unless entry.invoice_items[0].blank?%> <%=h html_hours("%.2f" % entry.invoice_items.sum(:amount))  %></td>
 			<td class="lbl-txt-align"><%=h entry.modifier.name  %></td>
 			<td class="lbl-txt-align">
-				<%= link_to l(:label_pay_invoice), url_for(:controller => "wkpayment", :action => 'edit', :load_payment => true, :related_to => entry.parent_type, :related_parent => entry.parent_id, :project_id => 0 ),  :class => 'icon icon-report' %>
+				<% if entry.total_invoice_amount - entry.total_paid_amount > 0 %>
+					<%= link_to l(:label_pay_invoice), url_for(:controller => "wkpayment", :action => 'edit', :load_payment => true, :related_to => entry.parent_type, :related_parent => entry.parent_id, :project_id => 0 ),  :class => 'icon icon-report' %>
+				<% end %>
+			</td>
+			<td class="lbl-txt-align">
 				<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :invoice_id => entry.id, :new_invoice => false, :preview_billing => false, :tab => controller.controller_name},
                                        :title => l(:button_edit) %>
 				<% if isEditableInvoice(entry.id) %>
