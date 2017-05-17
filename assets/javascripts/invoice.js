@@ -359,13 +359,14 @@ function paymentItemTotal(tableId, elementId, totFld)
 function submitPaymentItemForm()
 {
 	ret = true;
+	$('textarea').removeData('changed');
 	fldAmount =document.getElementById('tot_pay_amount');
 	if(fldAmount != null)
 	{
 		if(fldAmount.value == 0 )
 		{
 			ret = false;
-			alert("Amount greater then 0");
+			alert("Amount should be greater then zero");
 		}			
 	}
 		
