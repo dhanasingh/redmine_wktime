@@ -14,10 +14,13 @@
   </thead>
    <tbody>
 	<% payableAmount = 0 %>
-	<% currency = nil %>
+	<% 
+		currency = nil 
+		creditIssued = false
+	%>
 	<% itemsList.each do |entry| %>
 		<% 
-			creditIssued = false
+			#creditIssued = false
 			if entry.class.name == 'WkInvoice'
 				invoiceObj = entry
 				invoiceAmount = entry.invoice_items.sum(:amount)
@@ -26,6 +29,7 @@
 				currentPaidAmt = invoiceAmount - paidAmount
 				balanceAmount = invoiceAmount - paidAmount
 				paymentItemId = nil
+				currency = invoiceObj.invoice_items[0].currency 
 			else
 				invoiceObj = entry.invoice
 				invoiceAmount = invoiceObj.invoice_items.sum(:amount)
@@ -35,10 +39,11 @@
 				currentPaidAmt = entry.amount
 				paymentItemId = entry.id
 				creditIssued = isCreditIssued(entry.id)
+				currency = invoiceObj.payment_items[0].currency 
 			end
 			payableAmount = payableAmount + currentPaidAmt unless currentPaidAmt.blank?
 		%>
-		<% currency = invoiceObj.invoice_items[0].currency %>
+		<%# currency = invoiceObj.invoice_items[0].currency %>
 		<%= hidden_field_tag "invoice_id#{row_index}", invoiceObj.id %>
 		<%= hidden_field_tag "currency#{row_index}", currency %>
 		<%= hidden_field_tag("payment_item_id#{row_index}",   paymentItemId ) %>
@@ -63,6 +68,6 @@
 </table>
 </div>
 <%=h hidden_field_tag("totalrow",  row_index-1 )  %>
-<%= submit_tag l(:button_save), :onclick => "return submitPaymentItemForm();",  :hidden => false, :id => 'items_save' %>
+<%= submit_tag l(:button_save), :onclick => "return submitPaymentItemForm();",  :disabled => creditIssued, :id => 'items_save' %>
 <div style="float:right;">
 </div>
