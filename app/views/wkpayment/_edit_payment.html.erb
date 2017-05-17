@@ -7,8 +7,8 @@
   <thead>
          <tr>
 			<th class="lbl-txt-align"><%= l(:label_invoice_number) %>#</th>
-			<th class="lbl-txt-align"><%= l(:field_amount) %></th>
-			<th class="lbl-txt-align"><%= l(:wk_field_balance) %></th>
+			<th align="center"><%= l(:field_amount) %></th>
+			<th align="center"><%= l(:wk_field_balance) %></th>
 			<th class="lbl-txt-align"><%= l(:label_txn_payment) + " " + l(:field_amount) %></th>			
          </tr>
   </thead>
@@ -51,8 +51,8 @@
 		<%= hidden_field_tag("paid_amount#{row_index}",   currentPaidAmt ) %>
 		<tr>
 			<td class="lbl-txt-align"><%=h invoiceObj.invoice_number  %></td>
-			<td align="right"><label align="right"><%= invoiceAmount %></td></label>
-			<td align="right"><%= balanceAmount %></td>
+			<td align="right"><label align="right"><%=  html_hours("%.2f" % invoiceAmount) %></td></label>
+			<td align="right"><%=  html_hours("%.2f" % balanceAmount) %></td>
 			<td class="lbl-txt-align" headers="amount"><label id="payment_currency"><%= currency %></label><%= text_field_tag "amount#{row_index}",   ("%.2f" % currentPaidAmt) ,:maxlength => 14,  :style => "width:150px;", :disabled => creditIssued, :onchange => "paymentItemTotal('paymentTable', 'amount', 'payItemtotal');"  %></td>
 		 </tr>	
 		 <% row_index = row_index + 1 %>
@@ -60,8 +60,8 @@
 	<tr>
 			<td class="lbl-txt-align"></td>
 			<td align="right"></td>
-			<td align="right"><%= "Total " %></td>
-			<td class="lbl-txt-align" headers="amount"><%= currency %><label id="payItemtotal"><%=h  payableAmount %></label></td>
+			<td align="right"><b><%= "Total " %></b></td>
+			<td class="lbl-txt-align" headers="amount"><b><%= currency %><label id="payItemtotal"><%=h  payableAmount %></label></b></td>
 			<%= hidden_field_tag("tot_pay_amount",   payableAmount ) %>
 		 </tr>	
    </tbody>
