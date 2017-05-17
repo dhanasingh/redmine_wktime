@@ -51,8 +51,8 @@
 		<%= hidden_field_tag("paid_amount#{row_index}",   currentPaidAmt ) %>
 		<tr>
 			<td class="lbl-txt-align"><%=h invoiceObj.invoice_number  %></td>
-			<td align="right"><label align="right"><%=  html_hours("%.2f" % invoiceAmount) %></td></label>
-			<td align="right"><%=  html_hours("%.2f" % balanceAmount) %></td>
+			<td align="right"><label align="right"><%=  html_hours("%.2f" % invoiceAmount) unless invoiceAmount.blank?  %></td></label>
+			<td align="right"><%=  html_hours("%.2f" % balanceAmount) unless balanceAmount.blank? %></td>
 			<td class="lbl-txt-align" headers="amount"><label id="payment_currency"><%= currency %></label><%= text_field_tag "amount#{row_index}",   ("%.2f" % currentPaidAmt) ,:maxlength => 14,  :style => "width:150px;", :disabled => creditIssued, :onchange => "paymentItemTotal('paymentTable', 'amount', 'payItemtotal');"  %></td>
 		 </tr>	
 		 <% row_index = row_index + 1 %>
