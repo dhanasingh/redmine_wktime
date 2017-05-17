@@ -38,7 +38,7 @@
 				balanceAmount = invoiceAmount - paidAmount if invoiceAmount - paidAmount > 0 && invoiceAmount > 0
 				currentPaidAmt = entry.amount
 				paymentItemId = entry.id
-				creditIssued = isCreditIssued(entry.id)
+				creditIssued = isCreditIssued(entry.id) if !creditIssued
 				currency = invoiceObj.payment_items[0].currency 
 			end
 			payableAmount = payableAmount + currentPaidAmt unless currentPaidAmt.blank?
