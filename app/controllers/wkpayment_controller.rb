@@ -224,7 +224,7 @@ class WkpaymentController < WkbillingController
     def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
-		@payment_entries = entries.limit(@limit).offset(@offset)
+		@payment_entries = entries.order(id: :desc).limit(@limit).offset(@offset)
 	end
 	
 	# Retrieves the date range based on predefined ranges or specific from/to param dates

@@ -22,7 +22,7 @@
 			<td class="lbl-txt-align"><%=h entry.parent.name unless entry.parent.blank? %></td>
 			<td class="lbl-txt-align"><%=h entry.payment_date.strftime("%Y-%m-%d") %></td>
 			<td class="lbl-txt-align"><%=h payTypeHash[entry.payment_type_id] %></td>
-			<td class="lbl-txt-align"><%=h html_hours("%.2f" % entry.payment_items.current_items.sum(:amount))   %></td>
+			<td class="lbl-txt-align"><%= entry.payment_items[0].currency unless entry.payment_items[0].blank?%> <%=h html_hours("%.2f" % entry.payment_items.current_items.sum(:amount))   %></td>
 			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => 'wkpayment', :action => 'edit', :payment_id => entry.id, :tab => 'wkpayment'}, :title => l(:button_edit) %></td>
 		</tr>
 	<% end %>

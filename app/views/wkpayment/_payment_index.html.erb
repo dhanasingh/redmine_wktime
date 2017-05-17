@@ -15,7 +15,7 @@
 <% end %>
 <div class="wk-contextual">
 	<div class="total-hours">
-		<p style="float:left;"><%= l(:label_total) %>: &nbsp;<%#= @payment_entries[0].invoices[0].currency unless @payment_entries[0].blank? || @payment_entries[0].invoices[0].blank?%> <%= html_hours("%.2f" % @totalPayAmt) %></p>
+		<p style="float:left;"><%= l(:label_total) %>: &nbsp;<%= @payment_entries[0].payment_items[0].currency unless @payment_entries[0].blank? || @payment_entries[0].payment_items[0].blank?%> <%= html_hours("%.2f" % @totalPayAmt) %></p>
 	</div>
 	<%  parentAccountId = 0
 		parentArr = options_for_wktime_account(false) 
