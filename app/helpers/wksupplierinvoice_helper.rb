@@ -1,0 +1,3 @@
+module WksupplierinvoiceHelper
+include WktimeHelper
+end

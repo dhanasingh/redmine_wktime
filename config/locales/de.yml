@@ -594,3 +594,9 @@ de:
   label_minus: Minus
   label_credit_from_prv_inv: "Credit From Previous Invoice #%{invId}"
   label_credit_from_prv_inv_pay: "Credit From Previous Invoice #%{invId} Payment #%{payId}"
+  
+  label_rfq: RFQ
+  label_quotes: Quotes
+  label_purchase_order: Purchase Order
+  label_supplier_invoice: Supplier Invoice
+  label_supplier_payment: Supplier Payment

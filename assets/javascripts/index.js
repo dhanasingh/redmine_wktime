@@ -1,4 +1,4 @@
-var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl, blgpaymentUrl, blgexcrateUrl;
+var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl, blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupPayUrl;
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -241,6 +241,11 @@ $(document).ready(function()
 	changeProp('tab-wkcrmenumeration',crmenumUrl);
 	changeProp('tab-wkpayment',blgpaymentUrl);
 	changeProp('tab-wkexchangerate',blgexcrateUrl);
+	changeProp('tab-wkrfq',purRfqUrl);
+	changeProp('tab-wkquote',purQuoteUrl);
+	changeProp('tab-wkpurchaseorder',purPurOrderUrl);
+	changeProp('tab-wksupplierinvoice',purSupInvUrl);
+	changeProp('tab-wksupplierpayment',purSupPayUrl);
 });
 
 

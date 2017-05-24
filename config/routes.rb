@@ -308,3 +308,17 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wkexchangerate/update', :to => 'wkexchangerate#update'
 	
 	get 'wkinvoice/new', :to => 'wkinvoice#new' 
+	
+	# For Purchase
+	
+	get 'wkpurchase/index', :to => 'wkpurchase#index'
+	
+	get 'wkrfq/index', :to => 'wkrfq#index'
+	
+	get 'wkquote/index', :to => 'wkquote#index'
+	
+	get 'wkpurchaseorder/index', :to => 'wkpurchaseorder#index'
+	
+	get 'wksupplierinvoice/index', :to => 'wksupplierinvoice#index'
+	
+	get 'wksupplierpayment/index', :to => 'wksupplierpayment#index'

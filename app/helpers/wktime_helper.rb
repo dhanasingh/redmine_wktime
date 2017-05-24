@@ -633,6 +633,14 @@ end
 				{:name => 'wkgltransaction', :partial => 'wktime/tab_content', :label => :label_transaction},
 				{:name => 'wkledger', :partial => 'wktime/tab_content', :label => :label_ledger}
 			   ]
+		elsif params[:controller] == "wkrfq" || params[:controller] == "wkquote" || params[:controller] == "wkpurchaseorder" || params[:controller] == "wksupplierinvoice" || params[:controller] == "wksupplierpayment"
+			tabs = [
+				{:name => 'wkrfq', :partial => 'wktime/tab_content', :label => :label_rfq},
+				{:name => 'wkquote', :partial => 'wktime/tab_content', :label => :label_quotes},
+				{:name => 'wkpurchaseorder', :partial => 'wktime/tab_content', :label => :label_purchase_order},
+				{:name => 'wksupplierinvoice', :partial => 'wktime/tab_content', :label => :label_supplier_invoice},
+				{:name => 'wksupplierpayment', :partial => 'wktime/tab_content', :label => :label_supplier_payment}
+			   ]
 		else
 			tabs = [
 				{:name => 'wkcrmenumeration', :partial => 'wktime/tab_content', :label => :label_enumerations}
