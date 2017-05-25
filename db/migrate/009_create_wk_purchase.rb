@@ -19,6 +19,8 @@ class CreateWkPurchase < ActiveRecord::Migration
 		create_table :wk_rfqs do |t|
 			t.string :name
 			t.string :description
+			t.date :start_date
+			t.date :end_date
 			t.column :status, :string, :limit => 5
 			t.references :created_by_user, :class => "User"
 			t.references :modified_by_user, :class => "User"
