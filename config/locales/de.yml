@@ -600,3 +600,5 @@ de:
   label_purchase_order: Purchase Order
   label_supplier_invoice: Supplier Invoice
   label_supplier_payment: Supplier Payment
+  label_new_rfq: New RFQ
+  label_rfq_details: RFQ Details

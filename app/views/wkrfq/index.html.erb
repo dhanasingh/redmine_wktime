@@ -1,4 +1,4 @@
-<h2>WkrfqController#index</h2>
+<h2><%= l(:label_rfq) %></h2>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
     purRfqUrl = '<%=url_for(:controller => "wkrfq", :action => "index", :tab => "wkrfq")%>';
@@ -11,3 +11,5 @@
 <%= render_tabs time_expense_tabs %>
 
 <%= hidden_field_tag 'back_url', url_for(params) %>
+
+<%= render :partial => 'wkrfq/rfq_list'%>

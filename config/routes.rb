@@ -315,6 +315,14 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wkrfq/index', :to => 'wkrfq#index'
 	
+	post 'wkrfq/index', :to => 'wkrfq#index'
+    
+	get 'wkrfq/edit', :to => 'wkrfq#edit'
+	
+	post 'wkrfq/update', :to => 'wkrfq#update'	
+	
+	delete 'wkrfq/destroy', :to => 'wkrfq#destroy'
+	
 	get 'wkquote/index', :to => 'wkquote#index'
 	
 	get 'wkpurchaseorder/index', :to => 'wkpurchaseorder#index'
