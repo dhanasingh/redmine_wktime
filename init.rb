@@ -319,7 +319,6 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_enable_accounting_module' => '0',
 			 'wktime_accounting_group' => '0',
 			 'wktime_accounting_admin' => '0',
-			 'wktime_accounting_admin' => '0',
 			 'wktime_crm_group' => '0',
 			 'wktime_crm_admin' => '0',
 			 'wktime_minimum_working_days_for_accrual' => '11',
