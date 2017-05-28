@@ -110,7 +110,7 @@
 
 <% if !@wktime.blank? && @wktime.status == 'r' && !@wktime.notes.blank? %>
 	<tr>
-	<th align="left"><%=l(:label_wk_reject_reason)%></th>
+	<th align="right"><%=l(:label_wk_reject_reason)%></th>
 	<td><%=h @wktime.notes %>
 	</td>
 	</tr>
@@ -144,17 +144,65 @@
 				<% 	end %>
 				<!-- script type="text/javascript"> wkcf_ids = '<%=wkcf_ids%>';</script -->
 			<% end %>
-	<% # Martin Dube Contribution: show previous and next time entry %>
-	<tr>	
-	<td colspan="2">
-		 <%= link_to("\xc2\xab " + l(:label_previous ), {:controller => controller.controller_name, :action => 'edit', :startday => @startday-7, :user_id => @user.id, :project_id => params[:project_id]},
-                  :title => l(:label_wk_prev_week_tip)) %>
-      |
-      <%= link_to(l(:label_next) + " \xc2\xbb", {:controller => controller.controller_name, :action => 'edit', :startday => @startday+7, :user_id => @user.id, :project_id => params[:project_id]},
-                  :title => l(:label_wk_next_week_tip)) %> 
-	</td>
-	</tr>
 </table>
+</td>
+<td>
+<table id="wktimeOptions" class="list nowrap">
+		<% if @editable %>
+				<% if !Setting.plugin_redmine_wktime['wktime_enter_issue_as'].blank? && Setting.plugin_redmine_wktime['wktime_enter_issue_as'].to_i == 1 %>
+					<tr>
+						<th align="right"><%= "#{l(:label_wk_enter_issue_id)}/#{l(:field_subject)}" %></th>
+						<td>
+							<%= check_box_tag('enter_issue_id', 1, (!params[:enter_issue_id].blank? && params[:enter_issue_id].to_i == 1),
+																:onclick => "enterIssueIdorAssignUser();") %>
+						</td>
+					</tr>
+				<% end %>
+		<% end %>
+		<% if @editable %>
+				<% if !Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].blank? && Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].to_i == 1 %>
+					<tr>
+					<th align="right"><%= l(:label_issues_visibility_own) %></th>
+						<td>
+							<%= check_box_tag('issue_assign_user', 1, (!params[:issue_assign_user].blank? && params[:issue_assign_user].to_i == 1),:onclick => "enterIssueIdorAssignUser();") %>
+						</td>
+					</tr>
+				<% end %>
+		<% end %>
+		<% status = @wktime.status unless @wktime.blank? %>
+		<% if controller.filterTrackerVisible && 'a' != status && 's' != status && (params[:enter_issue_id].blank? || (!params[:enter_issue_id].blank? && !params[:enter_issue_id].to_i == 1)) %>
+				<%
+					#tracker = Tracker.find(:all, :order =>'name')
+					tracker = Tracker.order('name')
+					unless tracker.blank?
+						trackers = tracker.collect {|t| [t.name, t.id] }
+						trackers.unshift(["",0])
+					end
+				%>
+			<tr>
+				<th valign="top" align="right">
+					<%= l(:label_wk_filter_issue_tracker) %>
+				</th>
+				<%
+					issuetracker=nil
+					if(!params[:tracker_ids].blank?)
+						issuetrackerids=params[:tracker_ids]
+						issuetracker= issuetrackerids.split(",")
+					else
+						issuetracker = Setting.plugin_redmine_wktime[controller.getTFSettingName()]
+					end
+				%>
+				<td>
+					<%=  select_tag('select_issues_tracker', options_for_select(trackers, :selected => issuetracker), :multiple=> true,
+													:onchange => "trackerFilterChanged(this);")%>
+				</td>
+			</tr>
+	<% end %>
+</table>
+</td>
+<td width="100%"></td>
+</td></table>
+</div>
 
 <%= render :partial => 'edit_issues', :locals => { :entries => @prev_template ? @prev_entries : @entries }%>
 

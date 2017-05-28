@@ -5,90 +5,52 @@
 <%=h hidden_field_tag('getactivities_url', "#{url_for(:controller => controller.controller_name, :action => 'getactivities')}") %>
 <%=h hidden_field_tag('deleterow_url', "#{url_for(:controller => controller.controller_name, :action => 'deleterow')}") %>
 
-
-<table>
+<div style="overflow: auto">
+<table id="wktimeHeader"><tr valign="top"><td>
+<table id="wktimeStatus" class="list nowrap">
 <tr>
-	<th align="left"><%=l(:field_user)%></th>
+	<th align="right"><%=l(:field_user)%></th>
 	<td><%=h @user.name %>
 		<%=h hidden_field_tag('user_id', @user.id) %>
 	</td>
-	<td width="30px"></td>
-	<% if @editable %>
-		<% if !Setting.plugin_redmine_wktime['wktime_enter_issue_as'].blank? && Setting.plugin_redmine_wktime['wktime_enter_issue_as'].to_i == 1 %>
-				<th align="left"><%= "#{l(:label_wk_enter_issue_id)}/#{l(:field_subject)}" %></th>
-				<td>
-					<%= check_box_tag('enter_issue_id', 1, (!params[:enter_issue_id].blank? && params[:enter_issue_id].to_i == 1), 
-					:onclick => "enterIssueIdorAssignUser();") %>
-				</td>
-		<% end %>
-	<% end %>			
 </tr>
 <tr>
-	<th align="left"><%=l(:field_start_date)%></th>
+	<th align="right"><%=l(:field_start_date)%></th>
 	<td><%=h format_date(@startday) %>
 		<%=h hidden_field_tag('startday',@startday) %>
 	</td>
-	<td width="30px"></td>
-	<% if @editable %>
-		<% if !Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].blank? && Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].to_i == 1 %>
-			<th align="left"><%= l(:label_issues_visibility_own) %></th>
-			<td>
-				<%= check_box_tag('issue_assign_user', 1, (!params[:issue_assign_user].blank? && params[:issue_assign_user].to_i == 1),:onclick => "enterIssueIdorAssignUser();") %>
-			</td>
-		<% end %>
-	<% end %>
+</tr>
+<% # Martin Dube Contribution: show previous and next time entry %>
+<tr>
+	<th></th>
+	<td>
+		<%= link_to("\xc2\xab " + l(:label_previous ), {:controller => controller.controller_name, :action => 'edit', :startday => @startday-7, :user_id => @user.id, :project_id => params[:project_id]},
+								:title => l(:label_wk_prev_week_tip)) %>
+		|
+		<%= link_to(l(:label_next) + " \xc2\xbb", {:controller => controller.controller_name, :action => 'edit', :startday => @startday+7, :user_id => @user.id, :project_id => params[:project_id]},
+								:title => l(:label_wk_next_week_tip)) %>
+	</td>
 </tr>
 <tr>
-	<th align="left"><%=l(:field_status)%></th>
+	<th align="right"><%=l(:field_status)%></th>
 	<% # the default status on new wktime object is 'new' %>
 	<td>
 		<%=h statusString(@wktime.status) unless @wktime.blank? %>
 	</td>
-	<td width="30px"></td>
-	<% status = @wktime.status unless @wktime.blank? %>	
-	<% if controller.filterTrackerVisible && 'a' != status && 's' != status && (params[:enter_issue_id].blank? || (!params[:enter_issue_id].blank? && !params[:enter_issue_id].to_i == 1)) %>		
-	<%
-		#tracker = Tracker.find(:all, :order =>'name')
-		tracker = Tracker.order('name')
-		unless tracker.blank?
-			trackers = tracker.collect {|t| [t.name, t.id] }
-			trackers.unshift(["",0])
-		end
-	%>
-	<th valign="top" align="left">
-		<%= l(:label_wk_filter_issue_tracker) %>
-	</th>		
-	<%
-	issuetracker=nil
-	if(!params[:tracker_ids].blank?)
-		issuetrackerids=params[:tracker_ids]
-		issuetracker= issuetrackerids.split(",")
-	else
-	 issuetracker = Setting.plugin_redmine_wktime[controller.getTFSettingName()]
-	end
-	%>
-	<td rowspan="3">
-		<%=  select_tag('select_issues_tracker', options_for_select(trackers, :selected => issuetracker), :multiple=> true,
-			:onchange => "trackerFilterChanged(this);")%>  		
-		<% end %>
-	</td>
 </tr>
 <tr>
-	<th align="left"><%=l(:label_submitted_by)%></th>
-	<td>	
+	<th align="right"><%=l(:label_submitted_by)%></th>
+	<td>
+	<% status = @wktime.status unless @wktime.blank? %>
 	<% if (status != 'n' && status != 'r'  )  %>
 	<%=h @wktime.blank? ? "" : (@wktime.submitter.name unless @wktime.submitter.blank?) %>
 	<% end %>	
 	</td>
-	<td width="30px"></td>
-			
 </tr>
 <tr>
-	<th align="left"><%=l(:label_approved_by)%></th>
+	<th align="right"><%=l(:label_approved_by)%></th>
 	<td><% if (status == 'a')  %>
 	<%=h @wktime.blank? ? "" : (@wktime.updater.name unless @wktime.updater.blank?) %>
 		<% end %>
 	</td>
-	<td width="30px"></td>
-				
 </tr>
