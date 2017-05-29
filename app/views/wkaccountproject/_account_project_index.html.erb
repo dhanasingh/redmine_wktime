@@ -9,7 +9,7 @@
 		accountId =session[:accountproject][:account_id]
 		filterSession =session[:accountproject][:polymorphic_filter]
 		projid =session[:accountproject][:project_id] %>
-	<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :filter_session => filterSession, :project_id => projid, :pjtChanged => false, :isapply => true, :isproject => true } %>
+	<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :filter_session => filterSession, :project_id => projid, :pjtChanged => false, :isapply => true, :isproject => true, :isAll => true, :blankOptionForPjt => true, :blankForActDD => true, :blankForContactDD => true  } %>
 	
 			<div style="clear:both;"></div>
 	<%#	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	

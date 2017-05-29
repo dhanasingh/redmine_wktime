@@ -14,7 +14,7 @@
 			filterSession =session[:wkinvoice][:polymorphic_filter]
 			projid =session[:wkinvoice][:project_id] %>
 		
-			<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :filter_session => filterSession, :project_id => projid, :pjtChanged => true, :isapply => false, :isproject => true } %>
+			<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :filter_session => filterSession, :project_id => projid, :pjtChanged => true, :isapply => false, :isproject => true, :isAll => true, :blankOptionForPjt => true, :blankForActDD => true, :blankForContactDD => true } %>
 		
 			<p style="float:left;"><%= render :partial => 'wkinvoice/date_range' %></p>
 			<p style="float:right; margin-top:-40px;">
