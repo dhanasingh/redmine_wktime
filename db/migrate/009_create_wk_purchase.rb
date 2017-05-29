@@ -15,6 +15,8 @@ class CreateWkPurchase < ActiveRecord::Migration
 				SQL
 			end
 		end
+		
+		add_column :wk_crm_contacts, :contact_type, :string, :limit => 5, :default => 'C'
 	
 		create_table :wk_rfqs do |t|
 			t.string :name
@@ -35,7 +37,7 @@ class CreateWkPurchase < ActiveRecord::Migration
 		end
 		
 		create_table :wk_po_quotes do |t|
-			t.references :received_quote, :class => "wk_received_quotes", :null => false, :index => true
+			t.references :po, :class => "wk_invoices", :null => false, :index => true
 			t.references :quote, :class => "wk_invoices", :null => true, :index => true
 			t.timestamps null: false
 		end
