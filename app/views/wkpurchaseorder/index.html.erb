@@ -1,4 +1,4 @@
-<h2>WkpurchaseorderController#index</h2>
+<h2><%= l(:label_purchase_order) %></h2>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
     purRfqUrl = '<%=url_for(:controller => "wkrfq", :action => "index", :tab => "wkrfq")%>';
@@ -11,6 +11,7 @@
 <%= render_tabs time_expense_tabs %>
 
 <%= hidden_field_tag 'back_url', url_for(params) %>
+<%= render :partial => 'wkinvoice/invoice_index'%>
 
 <div class="wk-contextual">
 	<%= link_to l(:label_new_pur_order), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>

@@ -1,4 +1,4 @@
-<h2>WksupplierinvoiceController#index</h2>
+<h2><%= l(:label_supplier_invoice) %></h2>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
     purRfqUrl = '<%=url_for(:controller => "wkrfq", :action => "index", :tab => "wkrfq")%>';
@@ -9,5 +9,6 @@
     prevTab = 'tab-<%= "#{controller_name}" %>';   
 </script>
 <%= render_tabs time_expense_tabs %>
+<%= render :partial => 'wkinvoice/invoice_index'%>
 
 <%= hidden_field_tag 'back_url', url_for(params) %>

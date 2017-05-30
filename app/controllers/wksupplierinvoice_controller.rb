@@ -1,9 +1,13 @@
-class WksupplierinvoiceController < ApplicationController
+class WksupplierinvoiceController < WkorderentityController
   unloadable
 
 
 
-  def index
-  end
+  # def index
+  # end
 
+  
+	def getInvoiceType
+		'SI'
+	end
 end
