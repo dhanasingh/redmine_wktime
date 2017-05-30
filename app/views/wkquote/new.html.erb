@@ -1,0 +1,3 @@
+<h2><%= l(:label_quotes) %></h2>
+
+<%= render partial: "wkinvoice/new_invoice", locals: { :isUnbilled => false, :unbilled_label => l(:label_populate_unbilled_items), :blankForProject => true, :moduleType => 'q' } %>

@@ -11,3 +11,7 @@
 <%= render_tabs time_expense_tabs %>
 
 <%= hidden_field_tag 'back_url', url_for(params) %>
+
+<div class="wk-contextual">
+	<%= link_to l(:label_new_pur_order), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
+</div>

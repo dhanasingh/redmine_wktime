@@ -49,8 +49,11 @@ $(document).ready(function()
 		end
 		
 	end
-
+	if module_type != 'i'
+		projArr.unshift(["", '0'])
+	end
 %> 
+<%=h hidden_field_tag("module_type",   module_type )  %>
 <table>
 <tr>
 	<% if isAll %>

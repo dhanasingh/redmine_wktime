@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkinvoiceController < WkbillingController
-  
+
 before_filter :require_login
 
 include WktimeHelper
@@ -190,16 +190,34 @@ include WkbillingHelper
 		@preBilling = false
 		@preBilling = to_boolean(params[:preview_billing]) unless params[:preview_billing].blank?
 		@listKey = 0
-		@invList = Hash.new{|hsh,key| hsh[key] = {} }		
-		if !params[:new_invoice].blank? && params[:new_invoice] == "true"
+		@invList = Hash.new{|hsh,key| hsh[key] = {} }	
+		parentType = ""
+		parentId = ""
+		filter_type = params[:polymorphic_filter]
+		contact_id = params[:polymorphic_filter]
+		account_id = params[:polymorphic_filter]
+		if filter_type == '2' && !contact_id.blank?
+			parentType = 'WkCrmContact'
+			parentId = 	params[:contact_id]
+		elsif filter_type == '2' && contact_id.blank?
+			parentType = 'WkCrmContact'
+		end
+		
+		if filter_type == '3' && !account_id.blank?
+			parentType =  'WkAccount'
+			parentId = 	params[:account_id]
+		elsif filter_type == '3' && account_id.blank?
+			parentType =  'WkAccount'
+		end
+		if !params[:new_invoice].blank? && params[:new_invoice] == "true" && params[:module_type] == 'i'
 			if !params[:project_id].blank? && params[:project_id] != '0'
 				@projectsDD = Project.where(:id => params[:project_id].to_i).pluck(:name, :id)				
-				setTempInvoice(params[:start_date], params[:end_date], params[:related_parent], params[:related_to], params[:populate_items], params[:project_id])			
+				setTempInvoice(params[:start_date], params[:end_date], parentId, parentType, params[:populate_items], params[:project_id])			
 			elsif (!params[:project_id].blank? && params[:project_id] == '0') || params[:isAccBilling] == "true"
-				accountProjects = WkAccountProject.where(:parent_type => params[:related_to], :parent_id => params[:related_parent].to_i)	
+				accountProjects = WkAccountProject.where(:parent_type => parentType, :parent_id => parentId.to_i)	
 				unless accountProjects.blank?
 					@projectsDD = accountProjects[0].parent.projects.pluck(:name, :id)
-					setTempInvoice(params[:start_date], params[:end_date], params[:related_parent], params[:related_to], params[:populate_items], params[:project_id])
+					setTempInvoice(params[:start_date], params[:end_date], parentId, parentType, params[:populate_items], params[:project_id])
 				else
 					flash[:error] = "No projects in name."
 					redirect_to :action => 'new'
@@ -208,7 +226,8 @@ include WkbillingHelper
 				flash[:error] = "Please select the projects"
 				redirect_to :action => 'new'
 			end
-			
+		else #if params[:module_type] == 'q'
+			setTempInvoice(params[:start_date], params[:end_date], parentId, parentType, params[:populate_items], params[:project_id])
 		end
 		unless params[:invoice_id].blank?
 			@invoice = WkInvoice.find(params[:invoice_id].to_i)
@@ -236,7 +255,7 @@ include WkbillingHelper
 		@invoice.modifier_id = User.current.id
 		@invoice.parent_id = relatedParent #params[:related_parent].to_i
 		@invoice.parent_type = relatedTo #params[:related_to]
-		getTaxItems(startDate, endDate, relatedParent, relatedTo, populatedItems, projectId)
+		getTaxItems(startDate, endDate, relatedParent, relatedTo, populatedItems, projectId) if !params[:project_id].blank? && params[:project_id] != '0'
 	end
 	
 	def getTaxItems(startDate, endDate, relatedParent, relatedTo, populatedItems, projectId)

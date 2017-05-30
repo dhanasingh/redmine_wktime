@@ -32,7 +32,9 @@
          <tr>
 			<th></th>
 			<th class="lbl-txt-align" >#</th>
-			<th class="lbl-txt-align" ><%= l(:field_project) %></th>
+			<% if !@projectsDD.blank? %>
+				<th class="lbl-txt-align" ><%= l(:field_project) %></th>
+			<% end %>
 			<th class="lbl-txt-align" ><%= l(:label_invoice_name) %></th>
 			<th class="lbl-txt-align" ><%= l(:label_item_type) %></th>
 			<th></th>
@@ -56,7 +58,7 @@
 					<%=h select_tag("project_id#{row_index.to_s}", options_for_select(@projectsDD, :selected => entry.project_id), :disabled => isDisable) %>
 				</td>
 				<td class="lbl-txt-align" headers="name">
-					<%= text_field_tag "name#{row_index}",  entry.name, :required => true,  :style => "width:150px; ", :disabled => isDisable %>
+					<%= text_field_tag "name#{row_index}",  entry.name, :required => true,  :style => "width:320px; ", :disabled => isDisable %>
 				</td>
 				<td class="lbl-txt-align" headers="item_type">					
 					<%=h select_tag("item_type#{row_index.to_s}", options_for_select(itemHash.invert, :selected => entry.item_type), :disabled => true) %>
@@ -101,7 +103,7 @@
 					<%=h select_tag("project_id#{row_index.to_s}", options_for_select(@projectsDD, :selected=> value['project_id'] ), :disabled => @preBilling ) %>
 				</td>
 				<td class="lbl-txt-align" headers="name">
-					<%= text_field_tag "name#{row_index}", value['item_desc'], :required => true,  :style => "width:150px; ", :disabled => @preBilling %>
+					<%= text_field_tag "name#{row_index}", value['item_desc'], :required => true,  :style => "width:320px; ", :disabled => @preBilling %>
 				</td>
 				<td class="lbl-txt-align" headers="item_type">
 					<%=h select_tag("item_type#{row_index.to_s}", options_for_select(itemHash.invert, :selected => value['item_type'] .blank? ? itemHash.invert  : value['item_type'] ), :disabled => @preBilling) %>
@@ -137,11 +139,13 @@
 			<td class="lbl-txt-align" headers="item_index">
 				<label id="item_index<%= row_index.to_s %>"><%= row_index  %></label>
 			</td>
-			<td class="lbl-txt-align" headers="project_id">
-				<%=h select_tag("project_id#{row_index.to_s}", options_for_select(@projectsDD)) %>
-			</td>
+			<% if !@projectsDD.blank? %>
+				<td class="lbl-txt-align" headers="project_id">
+					<%=h select_tag("project_id#{row_index.to_s}", options_for_select(@projectsDD)) %>				
+				</td>
+			<% end %>
 			<td class="lbl-txt-align" headers="name">
-				<%= text_field_tag "name#{row_index}",  "", :required => true,  :style => "width:150px; " %>
+				<%= text_field_tag "name#{row_index}",  "", :required => true,  :style => "width:320px; " %>
 			</td>
 			<td class="lbl-txt-align" headers="item_type">
 				<%=h select_tag("item_type#{row_index.to_s}", options_for_select(itemHash.invert)) %>
@@ -191,6 +195,7 @@
 				  <% tax_index = tax_index + 1 %>
 		<% end %>	
 	<% else %>
+		<% if !@taxVal.blank? %>
 		<% @taxVal.each do |key, value| %>
 			<tr class="<%= cycle("odd", "even") %>" >
 			<td class="lbl-txt-align" >
@@ -215,7 +220,7 @@
 			</tr>
 			<% tax_index = tax_index + 1 %>
 		<% end %>
-		
+		<% end %>
 	<% end %>
 	<tr><td colspan="8" style="padding-right:90px;"><b><label id="invtotalamount" style="float:right;">Total : <%= @invoiceItem.blank? ? @currency : (@invoiceItem[0].blank? ? @currency : @invoiceItem[0].currency) %> <%= html_hours("%.2f" % total) %> </label></b><td></tr>
 </table>

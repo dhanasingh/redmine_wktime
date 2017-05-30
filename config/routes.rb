@@ -325,7 +325,15 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wkquote/index', :to => 'wkquote#index'
 	
+	get 'wkquote/new', :to => 'wkquote#new'
+	
+	get 'wkquote/edit', :to => 'wkquote#edit'
+	
 	get 'wkpurchaseorder/index', :to => 'wkpurchaseorder#index'
+	
+	get 'wkpurchaseorder/new', :to => 'wkpurchaseorder#new'
+	
+	get 'wkpurchaseorder/edit', :to => 'wkpurchaseorder#edit'
 	
 	get 'wksupplierinvoice/index', :to => 'wksupplierinvoice#index'
 	

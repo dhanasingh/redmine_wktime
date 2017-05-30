@@ -604,3 +604,6 @@ fr:
   label_supplier_payment: Supplier Payment
   label_new_rfq: New RFQ
   label_rfq_details: RFQ Details
+  label_new_quote: New Quote
+  label_new_pur_order: New Purchase Order
+  label_populate_quote_items: Populate From Quote

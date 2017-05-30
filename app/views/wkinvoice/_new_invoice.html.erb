@@ -23,7 +23,7 @@
 <%= form_tag({:controller => "wkinvoice", :action => 'edit'}, :method => :get, :id => 'query_form') do %>
 <%=h hidden_field_tag("new_invoice",   true )  %>
 <%=h hidden_field_tag("isAccBilling",   isAccBilling )  %>
-<%= render partial: "wkbilling/index_filters", locals: { :contact_id => nil, :account_id => 1, :filter_session => 2, :project_id => nil, :pjtChanged => true, :isapply => false, :isproject => true, :isAll => false, :blankOptionForPjt => false, :blankForActDD => false, :blankForContactDD => false } %>
+<%= render partial: "wkbilling/index_filters", locals: { :contact_id => nil, :account_id => 1, :filter_session => 2, :project_id => nil, :pjtChanged => true, :isapply => false, :isproject => true, :isAll => false, :blankOptionForPjt => blankForProject, :blankForActDD => false, :blankForContactDD => false, :module_type => moduleType } %>
 <div style="clear:both;"></div>
 <table>
 <%#= render partial: "wkcrm/view_polymorphic", locals: { parentObject:  nil , :parentType => "", :parentId => "", :index => false, :needParentProject => true, :padding => nil, :needblankType => false } %> 
