@@ -339,6 +339,10 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wkpurchaseorder/edit', :to => 'wkpurchaseorder#edit'
 	
+	post 'wkpurchaseorder/update', :to => 'wkpurchaseorder#update'	
+	
+	delete 'wkpurchaseorder/destroy', :to => 'wkpurchaseorder#destroy'
+	
 	get 'wksupplierinvoice/index', :to => 'wksupplierinvoice#index'
 	
 	get 'wksupplierinvoice/new', :to => 'wksupplierinvoice#new'

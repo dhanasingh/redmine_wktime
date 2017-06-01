@@ -606,3 +606,5 @@ en:
   label_new_quote: New Quote
   label_new_pur_order: New Purchase Order
   label_populate_quote_items: Populate From Quote
+  label_quote_number: Quote Number
+  label_po_number: PO Number

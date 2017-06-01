@@ -41,5 +41,7 @@ class CreateWkPurchase < ActiveRecord::Migration
 			t.references :quote, :class => "wk_invoices", :null => true, :index => true
 			t.timestamps null: false
 		end
+		
+		change_column :wk_invoice_items, :project_id, :integer, null: true
 	end
 end

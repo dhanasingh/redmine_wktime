@@ -32,4 +32,12 @@ class WkpurchaseorderController < WkorderentityController
 	def getInvoiceType
 		'PO'
 	end
+	
+	def getLabelInvNum
+		l(:label_po_number)
+	end
+	
+	def getLabelNewInv
+		l(:label_new_pur_order)
+	end
 end

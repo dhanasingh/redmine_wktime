@@ -10,16 +10,16 @@
 			accountUrl="<%= "#{url_for(:controller => "wkinvoice", :action => 'getAccountProjIds')}" %>";
 		</script>		
 		
-		<%	contactId =session[:wkinvoice][:contact_id]
-			accountId =session[:wkinvoice][:account_id]
-			filterSession =session[:wkinvoice][:polymorphic_filter]
-			projid =session[:wkinvoice][:project_id] %>
+		<%	contactId =session[controller_name][:contact_id]
+			accountId =session[controller_name][:account_id]
+			filterSession =session[controller_name][:polymorphic_filter]
+			projid =session[controller_name][:project_id] %>
 		
 			<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :filter_session => filterSession, :project_id => projid, :pjtChanged => true, :isapply => false, :isproject => true, :isAll => true, :blankOptionForPjt => true, :blankForActDD => true, :blankForContactDD => true, :module_type => 'i' } %>
 		
-			<p style="float:left;"><%= render :partial => 'wkinvoice/date_range' %></p>
+			<p style="float:left;"><%= render :partial => 'wkorderentity/date_range' %></p>
 			<p style="float:right; margin-top:-40px;">
-				<%= link_to l(:label_new_invoice), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
+				<%= link_to controller.getLabelNewInv, url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
 			</p>
 		<p class="buttons">
 			<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
@@ -50,4 +50,4 @@
 		<% end %>
 		<%= html_hours("%.2f" % @totalInvAmt) %></p>
 	</div>
-	<%= render :partial => 'wkinvoice/invoice_list'%>	
+	<%= render :partial => 'wkorderentity/order_list'%>	

@@ -11,7 +11,7 @@
 <%= render_tabs time_expense_tabs %>
 
 <%= hidden_field_tag 'back_url', url_for(params) %>
-<%= render :partial => 'wkinvoice/invoice_index'%>
+<%= render :partial => 'wkorderentity/order_index'%>
 <div class="wk-contextual">
 	<%= link_to l(:label_new_quote), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
 </div>

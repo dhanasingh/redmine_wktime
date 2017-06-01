@@ -16,10 +16,10 @@ include WkbillingHelper
 		sqlwhere = "invoice_type = '#{getInvoiceType}'"
 	#	accountId = session[:wkinvoice][:account_id]
 	#	projectId	= session[:wkinvoice][:project_id]
-		filter_type = session[:wkinvoice][:polymorphic_filter]
-		contact_id = session[:wkinvoice][:contact_id]
-		account_id = session[:wkinvoice][:account_id]
-		projectId	= session[:wkinvoice][:project_id]
+		filter_type = session[controller_name][:polymorphic_filter]
+		contact_id = session[controller_name][:contact_id]
+		account_id = session[controller_name][:account_id]
+		projectId	= session[controller_name][:project_id]
 		parentType = ""
 		parentId = ""
 		if filter_type == '2' && !contact_id.blank?
@@ -78,7 +78,7 @@ include WkbillingHelper
 			end
 			unless params[:generate].blank? || !to_boolean(params[:generate])
 				if errorMsg.blank?	
-					redirect_to :action => 'index' , :tab => 'wkinvoice'
+					redirect_to :action => 'index' , :tab => controller_name
 					flash[:notice] = l(:notice_successful_update)
 				else
 					if errorMsg.is_a?(Hash)
@@ -422,17 +422,17 @@ include WkbillingHelper
     end
 	
   	def set_filter_session
-        if params[:searchlist].blank? && session[:wkinvoice].nil?
-			session[:wkinvoice] = {:period_type => params[:period_type],:period => params[:period], :contact_id => params[:contact_id], :account_id => params[:account_id], :project_id => params[:project_id], :polymorphic_filter =>  params[:polymorphic_filter], :from => @from, :to => @to}
-		elsif params[:searchlist] =='wkinvoice'
-			session[:wkinvoice][:period_type] = params[:period_type]
-			session[:wkinvoice][:period] = params[:period]
-			session[:wkinvoice][:from] = params[:from]
-			session[:wkinvoice][:to] = params[:to]
-			session[:wkinvoice][:contact_id] = params[:contact_id]
-			session[:wkinvoice][:project_id] = params[:project_id]
-			session[:wkinvoice][:account_id] = params[:account_id]
-			session[:wkinvoice][:polymorphic_filter] = params[:polymorphic_filter]
+        if params[:searchlist].blank? && session[controller_name].nil?
+			session[controller_name] = {:period_type => params[:period_type],:period => params[:period], :contact_id => params[:contact_id], :account_id => params[:account_id], :project_id => params[:project_id], :polymorphic_filter =>  params[:polymorphic_filter], :from => @from, :to => @to}
+		elsif params[:searchlist] == controller_name
+			session[controller_name][:period_type] = params[:period_type]
+			session[controller_name][:period] = params[:period]
+			session[controller_name][:from] = params[:from]
+			session[controller_name][:to] = params[:to]
+			session[controller_name][:contact_id] = params[:contact_id]
+			session[controller_name][:project_id] = params[:project_id]
+			session[controller_name][:account_id] = params[:account_id]
+			session[controller_name][:polymorphic_filter] = params[:polymorphic_filter]
 		end
 		
    end
@@ -441,10 +441,10 @@ include WkbillingHelper
 	def retrieve_date_range
 		@free_period = false
 		@from, @to = nil, nil
-		period_type = session[:wkinvoice][:period_type]
-		period = session[:wkinvoice][:period]
-		fromdate = session[:wkinvoice][:from]
-		todate = session[:wkinvoice][:to]
+		period_type = session[controller_name][:period_type]
+		period = session[controller_name][:period]
+		fromdate = session[controller_name][:from]
+		todate = session[controller_name][:to]
 		
 		if (period_type == '1' || (period_type.nil? && !period.nil?)) 
 		    case period.to_s
@@ -509,6 +509,14 @@ include WkbillingHelper
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
 		end	
+	end
+	
+	def getLabelInvNum
+		l(:label_invoice_number)
+	end
+	
+	def getLabelNewInv
+		l(:label_new_invoice)
 	end
 
 end

@@ -21,5 +21,13 @@ class WkquoteController < WkorderentityController
 	def getInvoiceType
 		'Q'
 	end
+	
+	def getLabelInvNum
+		l(:label_quote_number)
+	end
+	
+	def getLabelNewInv
+		l(:label_new_quote)
+	end
 
 end

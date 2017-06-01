@@ -3,8 +3,8 @@
 <table class="list time-entries">
   <thead>
          <tr>
-				<th class="lbl-txt-align"><%= l(:label_invoice_number) %></th>
-				<th class="lbl-txt-align"><%= l(:label_type) %></th>
+				<th class="lbl-txt-align"><%= controller.getLabelInvNum %></th>
+				<!-- <th class="lbl-txt-align"><%# = l(:label_type) %></th> -->
 				<th class="lbl-txt-align"><%= l(:field_name) %></th>
 				<th class="lbl-txt-align"><%= l(:label_project) %></th>
 				<th class="lbl-txt-align"><%= l(:field_status) %></th>		
@@ -14,7 +14,9 @@
 				<th class="lbl-txt-align"><%= l(:label_quantity) %></th>				
 				<th class="lbl-txt-align"><%= l(:field_amount) %></th>
 				<th class="lbl-txt-align"><%= l(:field_status_modified_by) %></th>
-				<th></th>
+				<% if controller.getInvoiceType == 'I' %>
+					<th></th>
+				<% end %>
 				<th></th>
          </tr>
   </thead>
@@ -23,12 +25,12 @@
 		<% @invoiceEntries.each do |entry| %>
 		<% 
 		count = entry.invoice_items.uniq().count(:project_id)
-		projectName = ((count > 1 || entry.invoice_items[0].blank?) ? "" : entry.invoice_items[0].project.name) 
+		projectName = ((count > 1 || entry.invoice_items[0].blank? || entry.invoice_items[0].project.blank?) ? "" : entry.invoice_items[0].project.name) 
 		invoiceAmount = entry.invoice_items.sum(:amount)
 		%>
 		 <tr class="<%= cycle("odd", "even") %>" >
 		    <td class="lbl-txt-align"><%=h entry.invoice_number  %></td>
-			<td class="lbl-txt-align"><%=h entry.parent_type == 'WkAccount' ? 'Account' : 'Contact'  %></td>
+			<!-- <td class="lbl-txt-align"><%# =h entry.parent_type == 'WkAccount' ? 'Account' : 'Contact'  %></td> -->
 			<td class="lbl-txt-align"><%=h entry.parent.name  %></td>
 			<td class="lbl-txt-align"><%=h projectName %></td>
 			
@@ -39,11 +41,13 @@
 			<td class="lbl-txt-align"><%=h html_hours("%.2f" % entry.invoice_items.sum(:quantity))   %></td>
 			<td class="lbl-txt-align"><%= entry.invoice_items[0].currency unless entry.invoice_items[0].blank?%> <%=h html_hours("%.2f" % entry.invoice_items.sum(:amount))  %></td>
 			<td class="lbl-txt-align"><%=h entry.modifier.name  %></td>
-			<td class="lbl-txt-align">
-				<% if entry.total_invoice_amount - entry.total_paid_amount > 0 %>
-					<%= link_to l(:label_pay_invoice), url_for(:controller => "wkpayment", :action => 'edit', :load_payment => true, :related_to => entry.parent_type, :related_parent => entry.parent_id, :project_id => 0 ),  :class => 'icon icon-report' %>
-				<% end %>
-			</td>
+			<% if controller.getInvoiceType == 'I' %>
+				<td class="lbl-txt-align">
+					<% if entry.total_invoice_amount - entry.total_paid_amount > 0 %>
+						<%= link_to l(:label_pay_invoice), url_for(:controller => "wkpayment", :action => 'edit', :load_payment => true, :related_to => entry.parent_type, :related_parent => entry.parent_id, :project_id => 0 ),  :class => 'icon icon-report' %>
+					<% end %>
+				</td>
+			<% end %>
 			<td class="lbl-txt-align">
 				<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :invoice_id => entry.id, :new_invoice => false, :preview_billing => false, :tab => controller.controller_name},
                                        :title => l(:button_edit) %>
