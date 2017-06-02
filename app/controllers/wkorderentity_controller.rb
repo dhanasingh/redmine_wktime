@@ -138,7 +138,7 @@ include WkbillingHelper
 		elsif filter_type == '3' && account_id.blank?
 			parentType =  'WkAccount'
 		end
-		if !params[:new_invoice].blank? && params[:new_invoice] == "true" && params[:module_type] == 'i'
+		if !params[:new_invoice].blank? && params[:new_invoice] == "true" && getInvoiceType == 'I'
 			if !params[:project_id].blank? && params[:project_id] != '0'
 				@projectsDD = Project.where(:id => params[:project_id].to_i).pluck(:name, :id)				
 				setTempInvoice(params[:start_date], params[:end_date], parentId, parentType, params[:populate_items], params[:project_id])			
@@ -155,7 +155,13 @@ include WkbillingHelper
 				flash[:error] = "Please select the projects"
 				redirect_to :action => 'new'
 			end
-		else #if params[:module_type] == 'q'
+		else 
+			if !params[:project_id].blank? && params[:project_id] != '0'
+				@projectsDD = Project.where(:id => params[:project_id].to_i).pluck(:name, :id)	
+			end
+			if getInvoiceType == 'Q'
+				@rfqObj = WkRfq.find(params[:rfq_id].to_i)
+			end
 			setTempInvoice(params[:start_date], params[:end_date], parentId, parentType, params[:populate_items], params[:project_id])
 		end
 		unless params[:invoice_id].blank?
@@ -184,7 +190,7 @@ include WkbillingHelper
 		@invoice.modifier_id = User.current.id
 		@invoice.parent_id = relatedParent #params[:related_parent].to_i
 		@invoice.parent_type = relatedTo #params[:related_to]
-		getTaxItems(startDate, endDate, relatedParent, relatedTo, populatedItems, projectId) #if !params[:project_id].blank? && params[:project_id] != '0'
+		getTaxItems(startDate, endDate, relatedParent, relatedTo, populatedItems, projectId) if getInvoiceType == 'I'
 	end
 	
 	def getTaxItems(startDate, endDate, relatedParent, relatedTo, populatedItems, projectId)
@@ -518,5 +524,32 @@ include WkbillingHelper
 	def getLabelNewInv
 		l(:label_new_invoice)
 	end
-
+	
+	def getHeaderLabel
+		l(:label_invoice)
+	end
+	
+	def needBlankForProject
+		false
+	end
+	
+	def needRfqDd
+		false
+	end
+	
+	def isPopulateCheckBox
+		false
+	end
+	
+	def isPopulateCheckBoxLabel
+		
+	end
+	
+	def getItemLabel
+		l(:label_invoice_items)
+	end
+	
+	def getDateLbl
+		l(:label_invoice_date)
+	end
 end

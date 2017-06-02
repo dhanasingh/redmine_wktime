@@ -40,4 +40,33 @@ class WkpurchaseorderController < WkorderentityController
 	def getLabelNewInv
 		l(:label_new_pur_order)
 	end
+	
+	def getHeaderLabel
+		l(:label_purchase_order)
+	end
+	
+	def needBlankForProject
+		true
+	end
+	
+	def needRfqDd
+		true
+	end
+	
+	def isPopulateCheckBox
+		true
+	end
+	
+	def isPopulateCheckBoxLabel
+		l(:label_populate_quote_items)
+	end
+	
+	def getItemLabel
+		l(:label_po_items)
+	end
+	
+	def getDateLbl
+		l(:label_po_date)
+	end
+	
 end

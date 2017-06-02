@@ -37,7 +37,7 @@ include WkbillingHelper
 		accArr
 	end
 	
-	def addInvoice(parentId, parentType,  projectId, invoiceDate,invoicePeriod, isgenerate)
+	def addInvoice(parentId, parentType,  projectId, invoiceDate,invoicePeriod, isgenerate, invoiceType)
 		@invoice = WkInvoice.new
 		@invoice.status = 'o'
 		@invoice.start_date = invoicePeriod[0]
@@ -46,6 +46,7 @@ include WkbillingHelper
 		@invoice.modifier_id = User.current.id
 		@invoice.parent_id = parentId
 		@invoice.parent_type = parentType
+		@invoice.invoice_type = invoiceType unless invoiceType.blank?
 		@invoice.invoice_number = getPluginSetting('wktime_invoice_no_prefix')
 		unless isgenerate
 			errorMsg = saveInvoice
@@ -107,10 +108,10 @@ include WkbillingHelper
 		#account = WkAccount.find(parentId) unless parentType == 'WkCrmContact'
 		if (projectId.blank? || projectId.to_i == 0)  && !isAccountBilling(billProject)#account.account_billing 
 			billProject.parent.projects.each do |project|
-				errorMsg = addInvoice(billProject.parent_id, billProject.parent_type, project.id, invoiceDate,invoicePeriod, true)
+				errorMsg = addInvoice(billProject.parent_id, billProject.parent_type, project.id, invoiceDate,invoicePeriod, true, nil)
 			end
 		else
-			errorMsg = addInvoice(billProject.parent_id, billProject.parent_type, projectId, invoiceDate,invoicePeriod, true)
+			errorMsg = addInvoice(billProject.parent_id, billProject.parent_type, projectId, invoiceDate,invoicePeriod, true, nil)
 		end
 		errorMsg
 	end
@@ -410,12 +411,14 @@ include WkbillingHelper
 	
 	#Add Tax for the give accountProject
 	def addTaxes(accountProject, currency, totalAmount)
-		projectTaxes = accountProject.wk_acc_project_taxes
-		projectTaxes.each do |projtax|
-			invItem = @invoice.invoice_items.new()
-			rate = projtax.tax.rate_pct.blank? ? 0 : projtax.tax.rate_pct
-			amount = (rate/100) * totalAmount
-			updateInvoiceItem(invItem, accountProject.project_id, projtax.tax.name, rate, nil, currency, 't', amount, nil, nil) 			
+		unless accountProject.blank?
+			projectTaxes = accountProject.wk_acc_project_taxes
+			projectTaxes.each do |projtax|
+				invItem = @invoice.invoice_items.new()
+				rate = projtax.tax.rate_pct.blank? ? 0 : projtax.tax.rate_pct
+				amount = (rate/100) * totalAmount
+				updateInvoiceItem(invItem, accountProject.project_id, projtax.tax.name, rate, nil, currency, 't', amount, nil, nil) 			
+			end
 		end
 	end
 	

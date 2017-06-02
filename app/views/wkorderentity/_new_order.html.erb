@@ -19,11 +19,12 @@
 	end
  %>
 <%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	
-<%	projArr = options_for_wktime_project(projects,true) %>	
-<%= form_tag({:controller => "wkinvoice", :action => 'edit'}, :method => :get, :id => 'query_form') do %>
+<%	projArr = options_for_wktime_project(projects,true) %>
+<% rfq_arr = WkRfq.where(:status => 'o').pluck(:name, :id) %>	
+<%= form_tag({:controller => controller_name, :action => 'edit'}, :method => :get, :id => 'query_form') do %>
 <%=h hidden_field_tag("new_invoice",   true )  %>
 <%=h hidden_field_tag("isAccBilling",   isAccBilling )  %>
-<%= render partial: "wkbilling/index_filters", locals: { :contact_id => nil, :account_id => 1, :filter_session => 2, :project_id => nil, :pjtChanged => true, :isapply => false, :isproject => true, :isAll => false, :blankOptionForPjt => blankForProject, :blankForActDD => false, :blankForContactDD => false, :module_type => moduleType } %>
+<%= render partial: "wkbilling/index_filters", locals: { :contact_id => nil, :account_id => 1, :filter_session => 2, :project_id => nil, :pjtChanged => true, :isapply => false, :isproject => true, :isAll => false, :blankOptionForPjt => controller.needBlankForProject, :blankForActDD => false, :blankForContactDD => false, :module_type => controller.getInvoiceType } %>
 <div style="clear:both;"></div>
 <table>
 <%#= render partial: "wkcrm/view_polymorphic", locals: { parentObject:  nil , :parentType => "", :parentId => "", :index => false, :needParentProject => true, :padding => nil, :needblankType => false } %> 
@@ -31,6 +32,12 @@
 	<th align="left"><label><%#= l(:label_project) %></label></th>
 	<td style="padding-left:40px;"><%#=h select_tag('project_id', options_for_select(projectArr)) %></td>
 </tr> -->
+<% if controller.needRfqDd %>
+<tr>
+	<th align="left"><label><%= l(:label_rfq) %></label></th>
+	<td style="padding-left:40px;"><%=h select_tag('rfq_id', options_for_select(rfq_arr), :style=>"width:80px;" ) %></td>
+</tr>
+<% end %>
 <tr>
 	<th align="left"><%= l(:label_start_date) %></th>
 	<td align="left" style="padding-left:40px;"><%=h date_field_tag('start_date',Date.today, :size => 10, :required => true) %> <%= calendar_for('start_date') %></td>
@@ -39,9 +46,9 @@
 	<th align="left"><%= l(:label_end_date) %></th>
 	<td align="left" style="padding-left:40px;"><%=h date_field_tag('end_date',Date.today, :size => 10, :required => true) %> <%= calendar_for('end_date') %></td>
 </tr>
-<% if isUnbilled %>
+<% if  controller.isPopulateCheckBox %>
 <tr>
-	<th align="left"><label><%= unbilled_label %></label></th>
+	<th align="left"><label><%= controller.isPopulateCheckBoxLabel %></label></th>
 	<td style="padding-left:40px;"><%= check_box_tag('populate_items', 1, false ) %></td>
 </tr>
 <% end %>

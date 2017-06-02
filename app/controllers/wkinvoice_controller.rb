@@ -79,5 +79,13 @@ class WkinvoiceController < WkorderentityController
 	def getInvoiceType
 		'I'
 	end
+	
+	def isPopulateCheckBox
+		true
+	end
+	
+	def isPopulateCheckBoxLabel
+		l(:label_populate_unbilled_items)
+	end
 
 end

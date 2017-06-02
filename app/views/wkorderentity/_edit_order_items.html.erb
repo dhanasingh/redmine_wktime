@@ -6,6 +6,11 @@
 	//getMembersbyGroup
 </script>
 <% itemHash = { 'i' => l(:label_invoice), 'c' =>  l(:label_credit)  } %>
+<% if  controller.getInvoiceType == 'Q' 
+		tax_hash = {'t' => "Tax"}
+		itemHash.merge!(tax_hash)
+   end 
+%>
 <% row_index = 1 %>
 <% total = 0 %>
 <%	#if @invoice.parent.account_billing
@@ -17,7 +22,7 @@
 	isDisable = !isEditableInvoice(@invoice.id) unless @invoice.id.blank?
 %>	
 <div class="wk-contextual">
-<h2 style="float:left;"><%= l(:label_invoice_items) %></h2>
+<h2 style="float:left;"><%= controller.getItemLabel %></h2>
 <% if !@preBilling && !isDisable %>
 <%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('invoiceTable', 'totalrow');",  :class => 'icon icon-time-add' } %>
 <% end %>
@@ -177,7 +182,7 @@
 <%# if @invoiceItem.where(:item_type => 't').count > 0 %>
 <b><label id="invsubtotal" style="float:right; padding-right:110px;"><%= l(:label_sub_total) + "  : " %>  <%= @invoiceItem.blank? ? @currency : (@invoiceItem[0].blank? ? @currency : @invoiceItem[0].currency) %><%= html_hours("%.2f" % total) %> </label></b>
 <%# end %>
-<%# unless @invoiceItem.blank? %> <!-- my if -->
+<%# unless @invoiceItem.blank? %>
 <% tax_index = 1 %>
 <table id="taxTable" class="list time-entries">
 	<% unless @invoiceItem.blank? %>

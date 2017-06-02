@@ -29,5 +29,25 @@ class WkquoteController < WkorderentityController
 	def getLabelNewInv
 		l(:label_new_quote)
 	end
+	
+	def getHeaderLabel
+		l(:label_quotes)
+	end
+	
+	def needBlankForProject
+		true
+	end
+	
+	def needRfqDd
+		true
+	end
+	
+	def getItemLabel
+		l(:label_quote_items)
+	end
+	
+	def getDateLbl
+		l(:label_quote_date)
+	end
 
 end

@@ -38,6 +38,7 @@ $(document).ready(function()
 <% accountArr = options_for_wktime_account(blankForActDD) %>
 <%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	
 <%	projArr = options_for_wktime_project(projects,true) 
+	isPjtBlank = true
 	if pjtChanged  		
 		accountProjects = getProjArrays(parent_id, parent_type)	
 		projArr = accountProjects.collect{|m| [ m.project_name, m.project_id ] } if !accountProjects.blank?
@@ -45,15 +46,15 @@ $(document).ready(function()
 			accProject = WkAccountProject.where(:parent_id => parent_id, :parent_type => parent_type )
 			if !accProject[0].blank? && isAccountBilling(accProject[0]) 
 				projArr.unshift(["", '0'])
+				isPjtBlank = false
 			end
 		end
 		
 	end
-	if module_type != 'i'
+	if blankOptionForPjt && isPjtBlank
 		projArr.unshift(["", '0'])
 	end
 %> 
-<%=h hidden_field_tag("module_type",   module_type )  %>
 <table>
 <tr>
 	<% if isAll %>
