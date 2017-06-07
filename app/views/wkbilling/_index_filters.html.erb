@@ -78,6 +78,11 @@ $(document).ready(function()
 		<td><%=h select_tag('project_id', options_for_select(projArr, :selected => project_id.nil? ? projArr : project_id)) %></td>
 	<% end  %>
 	
+	<% if controller.requireRfqDD %>
+		<th align="left"><label><%= l(:label_rfq) %></label></th>
+		<td><%=h select_tag('rfq_id', options_for_rfq_select(rfq_id, true)) %></td>
+	<% end  %>
+	
 <% if isapply %>
 	
 		<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %>

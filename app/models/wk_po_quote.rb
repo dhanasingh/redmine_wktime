@@ -15,9 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkRfq < ActiveRecord::Base
+class WkPoQuote < ActiveRecord::Base
   unloadable
-  has_many :rfq_quotes, foreign_key: "rfq_id", class_name: "WkRfqQuote"
-  has_many :quotes, through: :rfq_quotes
-  has_many :purchase_orders, through: :quotes
+  belongs_to :purchase_order , :class_name => 'WkInvoice'
+  belongs_to :quote , :class_name => 'WkInvoice'
 end

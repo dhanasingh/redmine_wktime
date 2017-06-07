@@ -24,7 +24,17 @@ class WkInvoice < ActiveRecord::Base
   has_many :invoice_items, foreign_key: "invoice_id", class_name: "WkInvoiceItem", :dependent => :destroy
   has_many :projects, through: :invoice_items
   has_many :payment_items, foreign_key: "invoice_id", class_name: "WkPaymentItem", :dependent => :destroy
+  has_one :rfq_quote, foreign_key: "quote_id", class_name: "WkRfqQuote"
+  has_one :po_quote, foreign_key: "purchase_order_id", class_name: "WkPoQuote"
+  has_one :quote_po, foreign_key: "quote_id", class_name: "WkPoQuote"
   
+  # scope :invoices, lambda {where :invoice_type => 'I'}
+  # scope :quotes, lambda {where :invoice_type => 'Q'}
+  # scope :purchase_orders, lambda {where :invoice_type => 'PO'}
+  # scope :supplier_invoices, lambda {where :invoice_type => 'SI'}
+  
+  has_many :purchase_orders, through: :quote_po
+  has_many :supplier_invoices, through: :purchase_orders
   attr_protected :modifier_id
   
   #validates_presence_of :account_id

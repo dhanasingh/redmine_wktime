@@ -6,6 +6,7 @@ before_filter :require_login
 include WktimeHelper
 include WkinvoiceHelper
 include WkbillingHelper
+include WkorderentityHelper
 
 	def index
 		@projects = nil
@@ -20,6 +21,7 @@ include WkbillingHelper
 		contact_id = session[controller_name][:contact_id]
 		account_id = session[controller_name][:account_id]
 		projectId	= session[controller_name][:project_id]
+		rfqId	= session[controller_name][:rfq_id]
 		parentType = ""
 		parentId = ""
 		if filter_type == '2' && !contact_id.blank?
@@ -105,6 +107,11 @@ include WkbillingHelper
 			
 			if !projectId.blank? && projectId.to_i != 0
 				invEntries = invEntries.where( :wk_invoice_items => { :project_id => projectId })
+			end	
+			
+			if !rfqId.blank? && rfqId.to_i != 0
+				invIds = getInvoiceIds(rfqId, getInvoiceType)
+				invEntries = invEntries.where( :id => invIds)
 			end	
 			formPagination(invEntries)
 			@totalInvAmt = @invoiceEntries.sum("wk_invoice_items.amount") unless @previewBilling
@@ -429,7 +436,7 @@ include WkbillingHelper
 	
   	def set_filter_session
         if params[:searchlist].blank? && session[controller_name].nil?
-			session[controller_name] = {:period_type => params[:period_type],:period => params[:period], :contact_id => params[:contact_id], :account_id => params[:account_id], :project_id => params[:project_id], :polymorphic_filter =>  params[:polymorphic_filter], :from => @from, :to => @to}
+			session[controller_name] = {:period_type => params[:period_type],:period => params[:period], :contact_id => params[:contact_id], :account_id => params[:account_id], :project_id => params[:project_id], :polymorphic_filter =>  params[:polymorphic_filter], :rfq_id => params[:rfq_id], :from => @from, :to => @to}
 		elsif params[:searchlist] == controller_name
 			session[controller_name][:period_type] = params[:period_type]
 			session[controller_name][:period] = params[:period]
@@ -439,6 +446,7 @@ include WkbillingHelper
 			session[controller_name][:project_id] = params[:project_id]
 			session[controller_name][:account_id] = params[:account_id]
 			session[controller_name][:polymorphic_filter] = params[:polymorphic_filter]
+			session[controller_name][:rfq_id] = params[:rfq_id]
 		end
 		
    end
@@ -551,5 +559,9 @@ include WkbillingHelper
 	
 	def getDateLbl
 		l(:label_invoice_date)
+	end
+	
+	def requireRfqDD
+		true
 	end
 end

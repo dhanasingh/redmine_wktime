@@ -30,7 +30,7 @@ class WkrfqController < ApplicationController
 	    @rfqEntry = nil
 	    unless params[:rfq_id].blank?
 		   @rfqEntry = WkRfq.find(params[:rfq_id])
-		end   
+		end 
 	end	
     
 	def update	
