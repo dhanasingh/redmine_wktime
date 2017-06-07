@@ -6,6 +6,8 @@
     purPurOrderUrl = '<%=url_for(:controller => "wkpurchaseorder", :action => "index", :tab => "wkpurchaseorder")%>';     
     purSupInvUrl = '<%=url_for(:controller => "wksupplierinvoice", :action => "index", :tab => "wksupplierinvoice")%>';
 	purSupPayUrl = '<%=url_for(:controller => "wksupplierpayment", :action => "index", :tab => "wksupplierpayment")%>';
+	purSupAccUrl = '<%=url_for(:controller => "wksupplieraccount", :action => "index", :tab => "wksupplieraccount")%>';
+	purSupContactUrl = '<%=url_for(:controller => "wksuppliercontact", :action => "index", :tab => "wksuppliercontact")%>';
     prevTab = 'tab-<%= "#{controller_name}" %>';   
 </script>
 <%= render_tabs time_expense_tabs %>

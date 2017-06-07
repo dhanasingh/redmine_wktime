@@ -620,3 +620,5 @@ en:
   label_sp_number: Supplier Invoice Number
   label_sp_date: Supplier Invoice Date
   label_populate_purchase_items: Populate Purchase Order
+  label_supplier_account: Supplier Account
+  label_supplier_contact: Supplier Contact

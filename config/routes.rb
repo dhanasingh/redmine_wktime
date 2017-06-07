@@ -354,3 +354,7 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	delete 'wksupplierinvoice/destroy', :to => 'wksupplierinvoice#destroy'
 	
 	get 'wksupplierpayment/index', :to => 'wksupplierpayment#index'
+	
+	get 'wksupplieraccount/index', :to => 'wksupplieraccount#index'
+	
+	get 'wksuppliercontact/index', :to => 'wksuppliercontact#index'
