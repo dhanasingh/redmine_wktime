@@ -4,19 +4,26 @@ class CreateWkPurchase < ActiveRecord::Migration
 		
 		#add column in wk_address table
 		add_column :wk_invoices, :invoice_type, :string, :limit => 5, :default => 'I'
+		add_column :wk_crm_contacts, :contact_type, :string, :limit => 5
 		add_column :wk_invoices, :invoice_num_key, :integer
 		add_reference :wk_payments, :gl_transaction, :class => "wk_gl_transactions"
 		remove_reference :wk_payment_items, :gl_transaction, :class => "wk_gl_transactions", :null => true
 		reversible do |dir|
 			dir.up do
-				# add a CHECK constraint
 				execute <<-SQL
 				  UPDATE wk_invoices set invoice_num_key = id;
+				  UPDATE wk_crm_contacts set contact_type = 'C' where account_id is null;
+				SQL
+			end
+			dir.down do
+				execute <<-SQL
+				  DELETE from wk_invoices where id in (select invoice_id from wk_invoice_items where project_id is null);
+				  DELETE from wk_invoice_items where project_id is null;
 				SQL
 			end
 		end
 		
-		add_column :wk_crm_contacts, :contact_type, :string, :limit => 5, :default => 'C'
+		#add_column :wk_crm_contacts, :contact_type, :string, :limit => 5, :default => 'C'
 	
 		create_table :wk_rfqs do |t|
 			t.string :name
@@ -33,12 +40,19 @@ class CreateWkPurchase < ActiveRecord::Migration
 			t.references :rfq, :class => "wk_rf_quotes", :null => false, :index => true
 			t.references :quote, :class => "wk_invoices", :null => true, :index => true
 			t.boolean :is_won
+			t.string :winning_note
 			t.timestamps null: false
 		end
 		
 		create_table :wk_po_quotes do |t|
-			t.references :po, :class => "wk_invoices", :null => false, :index => true
+			t.references :purchase_order, :class => "wk_invoices", :null => false, :index => true
 			t.references :quote, :class => "wk_invoices", :null => true, :index => true
+			t.timestamps null: false
+		end
+		
+		create_table :wk_po_supplier_inv do |t|
+			t.references :purchase_order, :class => "wk_invoices", :null => false, :index => true
+			t.references :supplier_inv, :class => "wk_invoices", :null => true, :index => true
 			t.timestamps null: false
 		end
 		
