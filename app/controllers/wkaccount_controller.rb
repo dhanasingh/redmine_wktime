@@ -22,9 +22,9 @@ before_filter :require_login
     def index
 		@account_entries = nil
 		if params[:accountname].blank?
-		   entries = WkAccount.where(:account_type => 'A')
+		   entries = WkAccount.where(:account_type => getAccountType)
 		else
-			entries = WkAccount.where(:account_type => 'A').where("name like ?", "%#{params[:accountname]}%")
+			entries = WkAccount.where(:account_type => getAccountType).where("name like ?", "%#{params[:accountname]}%")
 		end
 		formPagination(entries)
     end
@@ -67,7 +67,7 @@ before_filter :require_login
 		end
 		#wkaccount.address_id =  wkaddress.id
 		wkaccount.name = params[:account_name]
-		wkaccount.account_type = 'A'
+		wkaccount.account_type = getAccountType
 		wkaccount.account_category = params[:account_category]
 		wkaccount.description = params[:description]
 		wkaccount.account_billing = params[:account_billing].blank? ? 0 : params[:account_billing]
@@ -80,11 +80,11 @@ before_filter :require_login
 				wkaccount.address_id = addrId
 			end			
 			wkaccount.save
-		    redirect_to :controller => 'wkaccount',:action => 'index' , :tab => 'wkaccount'
+		    redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
 		    flash[:notice] = l(:notice_successful_update)
 		else
 			flash[:error] = errorMsg #wkaccount.errors.full_messages.join("<br>")
-		    redirect_to :controller => 'wkaccount',:action => 'edit', :account_id => wkaccount.id
+		    redirect_to :controller => controller_name,:action => 'edit', :account_id => wkaccount.id
 		end
 	end
 	
@@ -96,5 +96,5 @@ before_filter :require_login
 			flash[:error] = account.errors.full_messages.join("<br>")
 		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
-	end		
+	end
 end

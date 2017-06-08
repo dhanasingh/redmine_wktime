@@ -1,4 +1,4 @@
-<%= form_tag({:controller => 'wkaccount', :action => 'update'}, :method => :post, :id => 'query_form') do %>
+<%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
 	<h2><b><%=@accountEntry.blank? ? l(:label_new_account) : l(:label_edit_account) %></b></h2>
 	<div id="account_form">
 		<% addressObj = @accountEntry.blank? ? nil : @accountEntry.address %>
@@ -16,7 +16,7 @@
 		<%= submit_tag l(:button_save) ,:id => 'wkaccount_save'%>
 	</div>
 <% end %>
-<% unless @accountEntry.blank? || @accountEntry.new_record? %>
+<% unless @accountEntry.blank? || @accountEntry.new_record? || controller.getAccountType == 'S' %>
 	</br>
 	<div>
 		<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @accountEntry }%>

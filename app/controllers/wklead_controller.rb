@@ -35,7 +35,7 @@ class WkleadController < WkcrmController
 		convertToContact
 		unless @account.blank?
 			flash[:notice] = l(:notice_successful_convert)
-			redirect_to :controller => 'wkaccount',:action => 'edit', :account_id => @account.id
+			redirect_to :controller => 'wkcrmaccount',:action => 'edit', :account_id => @account.id
 		else
 			flash[:notice] = l(:notice_successful_convert)
 		    redirect_to :controller => 'wkcrmcontact',:action => 'edit', :contact_id => @contact.id

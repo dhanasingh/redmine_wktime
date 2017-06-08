@@ -1,11 +1,12 @@
-class WksupplieraccountController < ApplicationController
+class WksupplieraccountController < WkaccountController
   unloadable
 
-  include WktimeHelper
+	include WktimeHelper
 
 
-
-  def index
-  end
+  
+	def getAccountType
+		'S'
+	end
 
 end

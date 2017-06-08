@@ -609,10 +609,10 @@ end
 				{:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll},
 				{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_user_settings}
 			   ]
-		elsif params[:controller] == "wklead" || params[:controller] == "wkaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact"
+		elsif params[:controller] == "wklead" || params[:controller] == "wkcrmaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact"
 			tabs = [
 				{:name => 'wklead', :partial => 'wktime/tab_content', :label => :label_lead_plural},
-				{:name => 'wkaccount', :partial => 'wktime/tab_content', :label => :label_accounts},
+				{:name => 'wkcrmaccount', :partial => 'wktime/tab_content', :label => :label_accounts},
 				{:name => 'wkopportunity', :partial => 'wktime/tab_content', :label => :label_opportunity_plural},
 				{:name => 'wkcrmactivity', :partial => 'wktime/tab_content', :label => :label_activity_plural},
 				{:name => 'wkcrmcontact', :partial => 'wktime/tab_content', :label => :label_contact_plural}
@@ -622,7 +622,7 @@ end
 			tabs = [
 				{:name => 'wkinvoice', :partial => 'wktime/tab_content', :label => :label_invoice},
 				{:name => 'wkpayment', :partial => 'wktime/tab_content', :label => :label_payments},
-			#	{:name => 'wkaccount', :partial => 'wktime/tab_content', :label => :label_accounts},
+			#	{:name => 'wkcrmaccount', :partial => 'wktime/tab_content', :label => :label_accounts},
 				{:name => 'wkcontract', :partial => 'wktime/tab_content', :label => :label_contracts},
 				{:name => 'wkaccountproject', :partial => 'wktime/tab_content', :label => :label_acc_projects},				
 				{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax},

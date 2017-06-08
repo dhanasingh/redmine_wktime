@@ -156,15 +156,15 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
     #For Billing
     get 'wkbilling/index', :to => 'wkbilling#index'	
 	
-	get 'wkaccount/index', :to => 'wkaccount#index'
+	get 'wkcrmaccount/index', :to => 'wkcrmaccount#index'
 	
-	match 'wkaccount/index', :to => 'wkaccount#index', :via => [:get, :post]
+	match 'wkcrmaccount/index', :to => 'wkcrmaccount#index', :via => [:get, :post]
 	
-	post 'wkaccount/update', :to => 'wkaccount#update'
+	post 'wkcrmaccount/update', :to => 'wkcrmaccount#update'
 	
-	get 'wkaccount/edit', :to => 'wkaccount#edit'	
+	get 'wkcrmaccount/edit', :to => 'wkcrmaccount#edit'	
 	
-	delete 'wkaccount/destroy', :to => 'wkaccount#destroy'
+	delete 'wkcrmaccount/destroy', :to => 'wkcrmaccount#destroy'
 	
 	get 'wkcontracts/index', :to => 'wkcontracts#index'
 	
@@ -356,5 +356,13 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wksupplierpayment/index', :to => 'wksupplierpayment#index'
 	
 	get 'wksupplieraccount/index', :to => 'wksupplieraccount#index'
+	
+	match 'wksupplieraccount/index', :to => 'wksupplieraccount#index', :via => [:get, :post]
+	
+	post 'wksupplieraccount/update', :to => 'wksupplieraccount#update'
+	
+	get 'wksupplieraccount/edit', :to => 'wksupplieraccount#edit'	
+	
+	delete 'wksupplieraccount/destroy', :to => 'wksupplieraccount#destroy'
 	
 	get 'wksuppliercontact/index', :to => 'wksuppliercontact#index'
