@@ -7,6 +7,12 @@
 	<%=h hidden_field_tag("inv_end_date",  @invoice.end_date )  %>
 	<%=h hidden_field_tag("inv_start_date",  @invoice.start_date )  %>
 	<%=h hidden_field_tag("invoice_type",  controller.getInvoiceType )  %>
+	<%=h hidden_field_tag("rfq_id",  (@rfqObj.blank? ? (@rfgQuoteEntry.blank? ? '' : @rfgQuoteEntry.rfq_id) : @rfqObj.id) )  %>
+	<%=h hidden_field_tag("rfq_quote_id",  (@rfgQuoteEntry.blank? ? '' : @rfgQuoteEntry.id) )  %>
+	<%=h hidden_field_tag("po_id", '' )  %>
+	<%=h hidden_field_tag("po_quote_id",  @rfqQuotObj.blank? ? '' : @rfqQuotObj.quote_id )  %>
+	<%=h hidden_field_tag("si_id", '' )  %>
+	<%=h hidden_field_tag("si_inv_id",  @poId.blank? ? '' : @poId )  %>
 	<table>
 		<tr><th align="left"><%= controller.getLabelInvNum %></th> 
 			<td style="width: 200px;"> 
@@ -43,15 +49,15 @@
 		<% if controller.getInvoiceType == 'Q' %>
 			<tr>
 				<th align="left"><%= l(:label_rfq_name) %></th> 
-				<td style="width: 200px;"> <%= ': ' + (@rfqObj.blank? ? '' : @rfqObj.name) %> </td>
+				<td style="width: 200px;"> <%= ': ' + (@rfqObj.blank? ? (@invoice.blank? ? '' : @invoice.rfq_quote.rfq.name) : @rfqObj.name) %> </td>
 				
 				<th align="left" ><%= l(:label_won_note) %></th>
-				<td rowspan= "2" colspan="8" align="left" ><%= text_area_tag 'won_note', "", :maxlength => 255, :style => "width:605px; height:80px;" %></td>
+				<td rowspan= "2" colspan="8" align="left" ><%= text_area_tag 'winning_note', (@rfgQuoteEntry.blank? ? (@invoice.blank? ? '' : (@invoice.rfq_quote.blank? ? '' : @invoice.rfq_quote.winning_note)) : @rfgQuoteEntry.winning_note), :maxlength => 255, :style => "width:605px; height:80px;" %></td>
 			</tr>
 			<tr>
 				<th align="left"><label><%= l(:label_won) %></label></th>
-				<td><%= check_box_tag('quote_won', 0 ) %></td>	
-						
+				<td><%= check_box_tag('quote_won', 1, (@invoice.blank? ? false : (@invoice.rfq_quote.blank? ? false : @invoice.rfq_quote.is_won)) ) %></td>	
+				
 				
 			</tr>
 		<% end %>
@@ -64,9 +70,9 @@
 	<% else %>
 		<% if !@invoice.blank?  %>
 			<%= render :partial => 'edit_order_items' %>
-		<% else  %>
+		<% else  %>		
 			<br/>
-			<h2 ><%= @moduleType == 'i' ? l(:label_invoice_items) : (@moduleType == 'q' ? l(:label_quote_items)  : l(:label_po_items) )  %></h2> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<h2 ><%= controller.getInvoiceType == 'I' ? l(:label_invoice_items) : (controller.getInvoiceType == 'Q' ? l(:label_quote_items)  : l(:label_po_items) )  %></h2> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			<label><b><%= l(:label_no_data) %></b></label>
 		<% end %>
 	<% end %>

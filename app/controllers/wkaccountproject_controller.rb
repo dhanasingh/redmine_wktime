@@ -200,5 +200,17 @@ before_filter :require_login
         setLimitAndOffset()
 		@accountproject = entries.limit(@limit).offset(@offset)
 	end
+	
+	def requireRfqDD
+		false
+	end
+	
+	def requireQuoteDD
+		false
+	end
+	
+	def requirePoDD
+		false
+	end
 
 end

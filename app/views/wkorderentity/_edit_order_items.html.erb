@@ -59,9 +59,11 @@
 				<td class="lbl-txt-align" headers="item_index">
 					<label id="item_index<%= row_index.to_s %>"><%= row_index  %></label>
 				</td>
-				<td class="lbl-txt-align" headers="project_id">
-					<%=h select_tag("project_id#{row_index.to_s}", options_for_select(@projectsDD, :selected => entry.project_id), :disabled => isDisable) %>
-				</td>
+				<% if !@projectsDD.blank? %>
+					<td class="lbl-txt-align" headers="project_id">
+						<%=h select_tag("project_id#{row_index.to_s}", options_for_select(@projectsDD, :selected => entry.project_id), :disabled => isDisable) %>
+					</td>
+				<% end %>
 				<td class="lbl-txt-align" headers="name">
 					<%= text_field_tag "name#{row_index}",  entry.name, :required => true,  :style => "width:320px; ", :disabled => isDisable %>
 				</td>
@@ -184,6 +186,7 @@
 <%# end %>
 <%# unless @invoiceItem.blank? %>
 <% tax_index = 1 %>
+<% if controller.getInvoiceType == 'I' %>
 <table id="taxTable" class="list time-entries">
 	<% unless @invoiceItem.blank? %>
 		<% @invoiceItem.where(:item_type => 't').each do |entry| %>
@@ -229,11 +232,13 @@
 	<% end %>
 	<tr><td colspan="8" style="padding-right:90px;"><b><label id="invtotalamount" style="float:right;">Total : <%= @invoiceItem.blank? ? @currency : (@invoiceItem[0].blank? ? @currency : @invoiceItem[0].currency) %> <%= html_hours("%.2f" % total) %> </label></b><td></tr>
 </table>
-
+<% end %>
 <% round_index = 1 %>
+<% isRundFOrInvItem = true %>
 <table id="roundOffTable" class="list time-entries">
 	<% unless @invoiceItem.blank? %>
 		<% @invoiceItem.where(:item_type => 'r').each do |entry| %>
+			<% isRundFOrInvItem = false if round_index < 2 %>
 			<tr>
 				<td class="lbl-txt-align" style="width:20px;"><%=h hidden_field_tag("round_id#{round_index}",   entry.id )  %></td>
 				<td class="lbl-txt-align" style="width:20px;"><%=h hidden_field_tag("pjt_id#{round_index}",   entry.project_id )  %></td>
@@ -246,6 +251,25 @@
 			 </tr>	
 			<tr><td colspan="8" style="padding-right:120px;"><b><label id="roundtotalamount" style="float:right;">Total : <%= @invoiceItem[0].blank? ? "" : @invoiceItem[0].currency %> <%= html_hours("%.2f" % total) %> </label></b><td></tr>
 			  <% round_index = round_index + 1 %>	
+		<% end %>
+		<% if isRundFOrInvItem %>
+			<tr>
+				<td class="lbl-txt-align" style="width:20px;">
+					<%=h hidden_field_tag("round_id#{round_index}",   "" )  %>
+				</td>
+				<td class="lbl-txt-align" style="width:20px;">
+				<%=h hidden_field_tag("pjt_id#{round_index}",   "" )  %></td>
+				<td class="lbl-txt-align" style="width:330px;" ><%=  l(:label_round_off) %></td>				
+				<td class="lbl-txt-align" style="width:140px;"><label id="rounditem_type<%= round_index.to_s %>"></label></td>
+				<td class="lbl-txt-align" style="width:330px;"></td>
+				<td class="lbl-txt-align" style="width:330px;"></td>
+				<td class="lbl-txt-align" style="padding-right:120px;" ><%= @currency %><label id="roundamount"><%= html_hours("%.2f" % (total.round - total))   %></label></td>
+				<% total = total + (total.round - total) %>
+			</tr>	
+			<tr>
+				<td colspan="8" style="padding-right:120px;"><b><label id="roundtotalamount" style="float:right;">Total : <%= @invoiceItem.blank? ? @currency : (@invoiceItem[0].blank? ? @currency : @invoiceItem[0].currency) %> <%= html_hours("%.2f" % total) %> </label></b><td>
+			</tr>
+			 <% round_index = round_index + 1 %>
 		<% end %>
 	<% else %>
 		<tr>
@@ -273,18 +297,20 @@
 <% unless @invoiceItem.blank? && @invoiceItem[0].blank? %>
 <%#=h hidden_field_tag("invoice_id",  @invoice.id )  %>
 <% end %>
-<% end %> <!-- my end -->
+<% end %> 
 <%=h hidden_field_tag("deletedids",  "" )  %>
 <%= submit_tag l(:button_save),  :hidden => false, :id => 'items_save', :disabled => (@preBilling || isDisable) %>
-<% unless @invoiceItem.blank? %>
-	<%= link_to l(:label_pay_invoice), url_for(:controller => "wkpayment", :action => 'edit', :load_payment => true, :related_to => @invoice.parent_type, :related_parent => @invoice.parent_id, :project_id => 0 ),  :class => 'icon icon-report' %>
+<% if controller.getInvoiceType == 'I' %>
+	<% if !@invoiceItem.blank? && @invoice.invoice_type == 'I' %>
+		<%= link_to l(:label_pay_invoice), url_for(:controller => "wkpayment", :action => 'edit', :load_payment => true, :related_to => @invoice.parent_type, :related_parent => @invoice.parent_id, :project_id => 0 ),  :class => 'icon icon-report' %>
+	<% end %>
+	<% unless @invoiceItem.blank? %>
+		<div style="float:right;">
+			<%= link_to l(:label_export_invoice), "javascript: openInvReportPopup();" %> 
+		</div>
+	<% end %>
 <% end %>
-<% unless @invoiceItem.blank? %>
-<div style="float:right;">
-<%= link_to l(:label_export_invoice), "javascript: openInvReportPopup();" %> 
-</div>
-<% end %>
-<% unless @invoice.id.blank?  %>
+<% if !@invoice.id.blank? && @invoice.invoice_type == 'I'  %>
 <br/>
 <br/>
 <h2 ><%= l(:label_payments) %></h2> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

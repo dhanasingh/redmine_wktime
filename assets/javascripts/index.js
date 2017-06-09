@@ -379,3 +379,28 @@ function submitFiletrForm()
 {
 	document.getElementById("invoice_form").submit();
 }
+
+function rfqTOQuoteChanged(uid, invType)
+{
+	var parentType = document.getElementById("rfq_id");
+	var parentTypeVal = parentType.options[parentType.selectedIndex].value;
+	var loadDropdown = "";
+	if(invType == 'PO') {	
+		loadDropdown = document.getElementById("quote_id");
+	}
+	else {
+		loadDropdown = document.getElementById("po_id");
+	}
+	
+	var needBlankOption = false;
+	userid = uid;
+	var $this = $(this);
+	$.ajax({
+	url: rfqQuoteUrl,
+	type: 'get',
+	data: {rfq_id: parentTypeVal, inv_type: invType},
+	success: function(data){ updateUserDD(data, loadDropdown, userid, needBlankOption, false, "");},
+	beforeSend: function(){ $this.addClass('ajax-loading'); },
+	complete: function(){ $this.removeClass('ajax-loading'); }	   
+	});
+}

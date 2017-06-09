@@ -47,4 +47,8 @@ class WksupplierinvoiceController < WkorderentityController
 		l(:label_sp_date)
 	end
 	
+	def requirePoDD
+		true
+	end
+	
 end

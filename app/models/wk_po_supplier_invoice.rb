@@ -14,63 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-class WkpurchaseorderController < WkorderentityController
+
+class WkPoSupplierInvoice < ActiveRecord::Base
   unloadable
-
-
-
-	# def index
-	# end
-	
-	# def new
-	# end
-
-	# def edit
-	# end
-
-	
-	def getInvoiceType
-		'PO'
-	end
-	
-	def getLabelInvNum
-		l(:label_po_number)
-	end
-	
-	def getLabelNewInv
-		l(:label_new_pur_order)
-	end
-	
-	def getHeaderLabel
-		l(:label_purchase_order)
-	end
-	
-	def needBlankForProject
-		true
-	end
-	
-	def needRfqDd
-		true
-	end
-	
-	def isPopulateCheckBox
-		true
-	end
-	
-	def isPopulateCheckBoxLabel
-		l(:label_populate_quote_items)
-	end
-	
-	def getItemLabel
-		l(:label_po_items)
-	end
-	
-	def getDateLbl
-		l(:label_po_date)
-	end
-	
-	def requireQuoteDD
-		true
-	end
-	
+  
 end

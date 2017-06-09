@@ -278,5 +278,17 @@ class WkpaymentController < WkbillingController
 		@from, @to = @to, @from if @from && @to && @from > @to
 
 	end
+	
+	def requireRfqDD
+		false
+	end
+	
+	def requireQuoteDD
+		false
+	end
+	
+	def requirePoDD
+		false
+	end
 
 end

@@ -91,5 +91,13 @@ class WkinvoiceController < WkorderentityController
 	def requireRfqDD
 		false
 	end
+	
+	def requireQuoteDD
+		false
+	end
+	
+	def requirePoDD
+		false
+	end
 
 end

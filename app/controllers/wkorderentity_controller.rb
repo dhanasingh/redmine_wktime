@@ -110,7 +110,7 @@ include WkorderentityHelper
 			end	
 			
 			if !rfqId.blank? && rfqId.to_i != 0
-				invIds = getInvoiceIds(rfqId, getInvoiceType)
+				invIds = getInvoiceIds(rfqId, getInvoiceType, false)
 				invEntries = invEntries.where( :id => invIds)
 			end	
 			formPagination(invEntries)
@@ -124,6 +124,9 @@ include WkorderentityHelper
 		@projectsDD = nil
         @currency = nil	
 		@preBilling = false
+		@rfgQuoteEntry = nil
+		@rfqObj = nil
+		@poObj = nil
 		@preBilling = to_boolean(params[:preview_billing]) unless params[:preview_billing].blank?
 		@listKey = 0
 		@invList = Hash.new{|hsh,key| hsh[key] = {} }	
@@ -145,43 +148,101 @@ include WkorderentityHelper
 		elsif filter_type == '3' && account_id.blank?
 			parentType =  'WkAccount'
 		end
-		if !params[:new_invoice].blank? && params[:new_invoice] == "true" && getInvoiceType == 'I'
-			if !params[:project_id].blank? && params[:project_id] != '0'
-				@projectsDD = Project.where(:id => params[:project_id].to_i).pluck(:name, :id)				
-				setTempInvoice(params[:start_date], params[:end_date], parentId, parentType, params[:populate_items], params[:project_id])			
-			elsif (!params[:project_id].blank? && params[:project_id] == '0') || params[:isAccBilling] == "true"
-				accountProjects = WkAccountProject.where(:parent_type => parentType, :parent_id => parentId.to_i)	
-				unless accountProjects.blank?
-					@projectsDD = accountProjects[0].parent.projects.pluck(:name, :id)
-					setTempInvoice(params[:start_date], params[:end_date], parentId, parentType, params[:populate_items], params[:project_id])
-				else
-					flash[:error] = "No projects in name."
-					redirect_to :action => 'new'
-				end
-			else
-				flash[:error] = "Please select the projects"
-				redirect_to :action => 'new'
-			end
-		else 
-			if !params[:project_id].blank? && params[:project_id] != '0'
-				@projectsDD = Project.where(:id => params[:project_id].to_i).pluck(:name, :id)	
-			end
-			if getInvoiceType == 'Q'
-				@rfqObj = WkRfq.find(params[:rfq_id].to_i)
-			end
-			setTempInvoice(params[:start_date], params[:end_date], parentId, parentType, params[:populate_items], params[:project_id])
-		end
-		unless params[:invoice_id].blank?
-			@invoice = WkInvoice.find(params[:invoice_id].to_i)
-			@invoiceItem = @invoice.invoice_items 
-			@invPaymentItems = @invoice.payment_items.current_items				
-			@projectsDD = @invoiceItem.select(:project_id).distinct.collect{|m| [ m.project.name, m.project_id ] } 
-		end
+		if !params[:new_invoice].blank? && params[:new_invoice] == "true"
+			validateParent(parentId)
+			if getInvoiceType == 'I'				
+				newInvoice(parentId, parentType)
+			else				
+				newOrderEntity(parentId, parentType)
+			end		
+		end		
+		editOrderEntity
 		unless params[:is_report].blank? || !to_boolean(params[:is_report])
 			@invoiceItem = @invoiceItem.order(:project_id, :item_type)
 			render :action => 'invreport', :layout => false
 		end
 		
+	end
+	
+	def validateParent(parentId)
+		if parentId.blank?
+			flash[:error] = "Account and Contacts can't be empty."
+			return redirect_to :action => 'new'
+		end	
+	end
+	
+	
+	
+	def newOrderEntity(parentId, parentType)
+		msg = ""
+		if params[:rfq_id].blank?
+			msg = "Please select the RFQ \n"			
+		end	
+		
+		if params[:quote_id].blank? && getInvoiceType == 'PO'
+			 msg = "Please select the Winning Quote"			
+		end	
+		if !msg.blank?
+			flash[:error] = msg
+			redirect_to :action => 'new'
+		end
+		
+		if !params[:project_id].blank? && params[:project_id] != '0'
+			@projectsDD = Project.where(:id => params[:project_id].to_i).pluck(:name, :id)	
+		end		
+		@rfqObj = WkRfq.find(params[:rfq_id].to_i)
+		
+		case getInvoiceType		
+		when 'PO'
+			@rfqQuotObj = WkRfqQuote.find(params[:quote_id].to_i)
+			if !params[:populate_items].blank? && params[:populate_items] == '1'
+				@invoiceItem = WkInvoiceItem.where(:invoice_id => @rfqQuotObj.quote_id).select(:name, :rate, :amount, :quantity, :item_type, :currency, :project_id, :modifier_id,  :invoice_id )
+			end
+		when 'SI'
+			@poId =params[:po_id].to_i
+			if !params[:populate_items].blank? && params[:populate_items] == '1'
+				@invoiceItem = WkInvoiceItem.where(:invoice_id => params[:po_id].to_i).select(:name, :rate, :amount, :quantity, :item_type, :currency, :project_id, :modifier_id,  :invoice_id )
+			end 
+		end
+		
+		@currency = params[:inv_currency]
+		setTempInvoice(params[:start_date], params[:end_date], parentId, parentType, params[:populate_items], params[:project_id])
+	end
+	
+	def editOrderEntity	
+		
+		
+		unless params[:invoice_id].blank?
+			@invoice = WkInvoice.find(params[:invoice_id].to_i)
+			@invoiceItem = @invoice.invoice_items 
+			@invPaymentItems = @invoice.payment_items.current_items				
+			pjtList = @invoiceItem.select(:project_id).distinct
+			pjtList.each do |entry| 
+				@projectsDD << [ entry.project.name, entry.project_id ] if !entry.project_id.blank? && entry.project_id != 0  
+			end
+			if getInvoiceType == 'Q'
+				@rfgQuoteEntry = WkRfqQuote.find(@invoice.rfq_quote.id) #params[:rfq_quote_id].to_i)
+			end
+		end		
+	end
+	
+	def newInvoice(parentId, parentType)
+		if !params[:project_id].blank? && params[:project_id] != '0'
+			@projectsDD = Project.where(:id => params[:project_id].to_i).pluck(:name, :id)				
+			setTempInvoice(params[:start_date], params[:end_date], parentId, parentType, params[:populate_items], params[:project_id])			
+		elsif (!params[:project_id].blank? && params[:project_id] == '0') || params[:isAccBilling] == "true"
+			accountProjects = WkAccountProject.where(:parent_type => parentType, :parent_id => parentId.to_i)	
+			unless accountProjects.blank?
+				@projectsDD = accountProjects[0].parent.projects.pluck(:name, :id)
+				setTempInvoice(params[:start_date], params[:end_date], parentId, parentType, params[:populate_items], params[:project_id])
+			else
+				flash[:error] = "No projects in name."
+				redirect_to :action => 'new'
+			end
+		else
+			flash[:error] = "Please select the projects"
+			redirect_to :action => 'new'
+		end
 	end
 	
 	def setTempInvoice(startDate, endDate, relatedParent, relatedTo, populatedItems, projectId)
@@ -226,7 +287,8 @@ include WkorderentityHelper
 						totAmount = getFcItems(apEntry, startDate, endDate)
 					end
 				else
-					setInvItemCurrency(apEntry)
+					@currency = params[:inv_currency]
+					#setInvItemCurrency(apEntry)
 				end
 				grandTotal =  grandTotal + (totAmount.blank? ? 0.00 : totAmount)
 				
@@ -313,7 +375,7 @@ include WkorderentityHelper
 		else
 			@invoice = WkInvoice.new
 			invoicePeriod = [params[:inv_start_date], params[:inv_end_date]]
-			addInvoice(params[:parent_id], params[:parent_type],  params[:project_id1],params[:inv_date],  invoicePeriod, false)
+			addInvoice(params[:parent_id], params[:parent_type],  params[:project_id1],params[:inv_date],  invoicePeriod, false, getInvoiceType)
 		end
 		@invoice.status = params[:field_status]
 		if @invoice.status_changed?
@@ -328,7 +390,7 @@ include WkorderentityHelper
 		#for i in 1..totalRow
 		while savedRows < totalRow
 			i = savedRows + deletedRows + 1
-			if params["item_id#{i}"].blank? && params["project_id#{i}"].blank?
+			if params["item_id#{i}"].blank? && params["quantity#{i}"].blank? #&& params["project_id#{i}"].blank?
 				deletedRows = deletedRows + 1
 				next
 			end
@@ -339,19 +401,20 @@ include WkorderentityHelper
 			elsif params["creditfrominvoice#{i}"] == "false"
 				crPaymentId = params["entry_id#{i}"].to_i
 			end
+			pjtId = params["project_id#{i}"] if !params["project_id#{i}"].blank?
 			
 			unless params["item_id#{i}"].blank?			
 				arrId.delete(params["item_id#{i}"].to_i)
 				invoiceItem = WkInvoiceItem.find(params["item_id#{i}"].to_i)
 				amount = params["rate#{i}"].to_f * params["quantity#{i}"].to_f
-				updatedItem = updateInvoiceItem(invoiceItem, params["project_id#{i}"],  params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, invoiceItem.currency, params["item_type#{i}"], amount, crInvoiceId, crPaymentId)
+				updatedItem = updateInvoiceItem(invoiceItem, pjtId,  params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, invoiceItem.currency, params["item_type#{i}"], amount, crInvoiceId, crPaymentId)
 			else				
 				invoiceItem = @invoice.invoice_items.new
 				amount = params["rate#{i}"].to_f * params["quantity#{i}"].to_f
-				updatedItem = updateInvoiceItem(invoiceItem, params["project_id#{i}"], params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, params["currency#{i}"], params["item_type#{i}"], amount, crInvoiceId, crPaymentId)
+				updatedItem = updateInvoiceItem(invoiceItem, pjtId, params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, params["currency#{i}"], params["item_type#{i}"], amount, crInvoiceId, crPaymentId)
 			end
 			if !params[:populate_unbilled].blank? && params[:populate_unbilled] == "true" && params[:creditfrominvoice].blank? && !params["entry_id#{i}"].blank?
-				accProject = WkAccountProject.where(:project_id => params["project_id#{i}"].to_i)
+				accProject = WkAccountProject.where(:project_id => pjtId)
 				if accProject[0].billing_type == 'TM'
 					idArr = params["entry_id#{i}"].split(' ')
 					idArr.each do | id |
@@ -382,6 +445,14 @@ include WkorderentityHelper
 		end
 		
 		unless @invoice.id.blank?
+			case getInvoiceType			
+			when 'Q'
+			  saveRfqQuotes(params[:rfq_quote_id], params[:rfq_id].to_i, @invoice.id, params[:quote_won], params[:winning_note])	
+			when 'PO'
+				savePurchaseOrderQuotes(params[:po_id],  @invoice.id, params[:po_quote_id] )
+			when 'SI'
+				savePoSupInv(params[:si_id], params[:si_inv_id], @invoice.id)
+			end
 			totalAmount = @invoice.invoice_items.sum(:amount)
 			if (totalAmount.round - totalAmount) != 0
 				addRoundInvItem(totalAmount)
@@ -525,6 +596,22 @@ include WkorderentityHelper
 		end	
 	end
 	
+	def getRfqQuoteIds
+		quoteIds = ""	
+		rfqObj = ""
+		if params[:inv_type] == 'PO'		
+			rfqObj = WkInvoice.where(:id => getInvoiceIds(params[:rfq_id].to_i, 'Q', true)).order(:id)
+		elsif params[:inv_type] == 'SI'
+			rfqObj = WkInvoice.where(:id => getInvoiceIds(params[:rfq_id].to_i, 'PO', false)).order(:id)
+		end
+		rfqObj.each do | entry|
+			quoteIds <<  entry.id.to_s() + ',' + entry.id.to_s()  + "\n" 
+		end
+		respond_to do |format|
+			format.text  { render :text => quoteIds }
+		end
+	end
+	
 	def getLabelInvNum
 		l(:label_invoice_number)
 	end
@@ -564,4 +651,14 @@ include WkorderentityHelper
 	def requireRfqDD
 		true
 	end
+	
+	def requireQuoteDD
+		false
+	end
+	
+	def requirePoDD
+		false
+	end
+	
+	
 end

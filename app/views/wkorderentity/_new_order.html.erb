@@ -4,6 +4,7 @@
 	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds')}" %>";
 	accountUrl="<%= "#{url_for(:controller => "wkinvoice", :action => 'getAccountProjIds')}" %>";
 </script>
+<% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
 <%  parentArr = options_for_wktime_account(false)
 	projectArr = nil
 	if !parentArr.blank?
@@ -24,7 +25,7 @@
 <%= form_tag({:controller => controller_name, :action => 'edit'}, :method => :get, :id => 'query_form') do %>
 <%=h hidden_field_tag("new_invoice",   true )  %>
 <%=h hidden_field_tag("isAccBilling",   isAccBilling )  %>
-<%= render partial: "wkbilling/index_filters", locals: { :contact_id => nil, :account_id => 1, :filter_session => 2, :project_id => nil, :pjtChanged => true, :isapply => false, :isproject => true, :isAll => false, :blankOptionForPjt => controller.needBlankForProject, :blankForActDD => false, :blankForContactDD => false, :module_type => controller.getInvoiceType } %>
+<%= render partial: "wkbilling/index_filters", locals: { :contact_id => nil, :account_id => 1, :filter_session => 2, :project_id => nil, :pjtChanged => true, :isapply => false, :isproject => true, :isAll => false, :blankOptionForPjt => controller.needBlankForProject, :blankForActDD => false, :blankForContactDD => false, :rfq_id => nil } %>
 <div style="clear:both;"></div>
 <table>
 <%#= render partial: "wkcrm/view_polymorphic", locals: { parentObject:  nil , :parentType => "", :parentId => "", :index => false, :needParentProject => true, :padding => nil, :needblankType => false } %> 
@@ -32,12 +33,16 @@
 	<th align="left"><label><%#= l(:label_project) %></label></th>
 	<td style="padding-left:40px;"><%#=h select_tag('project_id', options_for_select(projectArr)) %></td>
 </tr> -->
-<% if controller.needRfqDd %>
-<tr>
+<%# if controller.needRfqDd %>
+<!-- <tr>
 	<th align="left"><label><%= l(:label_rfq) %></label></th>
 	<td style="padding-left:40px;"><%=h select_tag('rfq_id', options_for_select(rfq_arr), :style=>"width:80px;" ) %></td>
+</tr> -->
+<%# end %> 
+<tr>
+	<th align="left"><%= l(:label_wk_currency) %></th>
+	<td style="padding-left:40px;"> <%=h select_tag("inv_currency",options_for_select(wkexpense_helper.options_for_currency)) %></td>
 </tr>
-<% end %>
 <tr>
 	<th align="left"><%= l(:label_start_date) %></th>
 	<td align="left" style="padding-left:40px;"><%=h date_field_tag('start_date',Date.today, :size => 10, :required => true) %> <%= calendar_for('start_date') %></td>

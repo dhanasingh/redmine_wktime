@@ -366,3 +366,5 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	delete 'wksupplieraccount/destroy', :to => 'wksupplieraccount#destroy'
 	
 	get 'wksuppliercontact/index', :to => 'wksuppliercontact#index'
+	
+	get 'wkorderentity/getRfqQuoteIds', :to => 'wkorderentity#getRfqQuoteIds'
