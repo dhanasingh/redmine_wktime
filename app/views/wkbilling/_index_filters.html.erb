@@ -86,16 +86,21 @@ $(document).ready(function()
 	<script type="text/javascript">	
 		rfqQuoteUrl="<%= "#{url_for(:controller => 'wkorderentity', :action => 'getRfqQuoteIds')}" %>";
 	</script>
-	<% rfq_arr = getRfqArray(false) #WkRfq.where(:status => 'o').order(id: :desc).pluck(:name, :id) %>
 	
-	<% if controller.requireQuoteDD %>				
-		<th align="left"><label><%= l(:label_winning_quote) %></label></th>
-		<td><%=h select_tag('quote_id', options_for_rfqQuote_select(false, rfq_arr[0][1] )) %></td>
+	<% if controller.requireQuoteDD %>	
+		<% if needQuoteDD %>
+			<% rfq_arr = getRfqArray(false) #WkRfq.where(:status => 'o').order(id: :desc).pluck(:name, :id) %>
+			<th align="left"><label><%= l(:label_winning_quote) %></label></th>
+			<td><%=h select_tag('quote_id', options_for_rfqQuote_select(false, rfq_arr[0][1] )) %></td>
+		<% end  %>
 	<% end  %>
 	
-	<% if controller.requirePoDD %>			
-		<th align="left"><label><%= l(:label_purchase_order) %></label></th>
-		<td><%=h select_tag('po_id', options_for_rfqPO_select(false, rfq_arr[0][1] )) %></td>
+	<% if controller.requirePoDD %>	
+		<% if needPoDD %>
+			<% rfq_arr = getRfqArray(false) #WkRfq.where(:status => 'o').order(id: :desc).pluck(:name, :id) %>
+			<th align="left"><label><%= l(:label_purchase_order) %></label></th>
+			<td><%=h select_tag('po_id', options_for_rfqPO_select(false, rfq_arr[0][1] )) %></td>
+		<% end  %>
 	<% end  %>
 	
 <% if isapply %>
