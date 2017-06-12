@@ -154,16 +154,4 @@ before_filter :require_login
 		flash[:notice] = l(:notice_successful_delete)
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end	
-	
-	def requireRfqDD
-		false
-	end
-	
-	def requireQuoteDD
-		false
-	end
-	
-	def requirePoDD
-		false
-	end
 end

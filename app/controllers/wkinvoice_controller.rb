@@ -76,28 +76,20 @@ class WkinvoiceController < WkorderentityController
 		CustomField.find(getSettingCfId('wktime_billing_id_cf')).custom_values.where(:value => invItemIdsArr).delete_all unless getSettingCfId('wktime_billing_id_cf').blank? || getSettingCfId('wktime_billing_id_cf') == 0
 	end
 	
-	def getInvoiceType
-		'I'
-	end
+	# def getInvoiceType
+		# 'I'
+	# end
 	
-	def isPopulateCheckBox
-		true
-	end
+	# def isPopulateCheckBox
+		# true
+	# end
 	
-	def isPopulateCheckBoxLabel
-		l(:label_populate_unbilled_items)
-	end
+	# def isPopulateCheckBoxLabel
+		# l(:label_populate_unbilled_items)
+	# end
 	
-	def requireRfqDD
-		false
-	end
-	
-	def requireQuoteDD
-		false
-	end
-	
-	def requirePoDD
-		false
-	end
+	# def requireRfqDD
+		# false
+	# end
 
 end

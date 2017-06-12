@@ -3,7 +3,7 @@
 	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds')}" %>";
 </script>
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
-<%	accArr = options_for_wktime_account(false)
+<%	accArr = options_for_wktime_account(false, 'A')
 	if !@oppEditEntry.blank?
 		accArr = relatedValues(@oppEditEntry[0].parent_type, @oppEditEntry[0].parent_id)	
     elsif !params[:parentType].blank?

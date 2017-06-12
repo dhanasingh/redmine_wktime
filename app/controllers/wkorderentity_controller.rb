@@ -624,22 +624,6 @@ include WkorderentityHelper
 		l(:label_invoice)
 	end
 	
-	def needBlankForProject
-		false
-	end
-	
-	def needRfqDd
-		false
-	end
-	
-	def isPopulateCheckBox
-		false
-	end
-	
-	def isPopulateCheckBoxLabel
-		
-	end
-	
 	def getItemLabel
 		l(:label_invoice_items)
 	end
@@ -648,17 +632,13 @@ include WkorderentityHelper
 		l(:label_invoice_date)
 	end
 	
-	def requireRfqDD
-		true
-	end
+	# def requireQuoteDD
+		# false
+	# end
 	
-	def requireQuoteDD
-		false
-	end
-	
-	def requirePoDD
-		false
-	end
+	# def requirePoDD
+		# false
+	# end
 	
 	
 end

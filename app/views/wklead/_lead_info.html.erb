@@ -4,7 +4,7 @@
 </script>
 <fieldset class="box tabular">
 	<legend><%=l(:label_content_information, isAccount ? l(:label_account) : l(:label_lead))%></legend>
-	<%	accArr = options_for_wktime_account(true)
+	<%	accArr = options_for_wktime_account(true, controller.getAccountType)
 		#if !contactObj.blank? && isContact
 		#	accArr = relatedValues(contactObj.parent_type)		
 		#end

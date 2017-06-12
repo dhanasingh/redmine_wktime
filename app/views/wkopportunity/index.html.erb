@@ -18,7 +18,7 @@
 <%= hidden_field_tag "searchlist", "wkopportunity" %>
 <%	accname = session[:wkopportunity][:oppname] %>
 <%	accId = session[:wkopportunity][:account_id] %>
-<%	accArr = options_for_wktime_account(true) %>		
+<%	accArr = options_for_wktime_account(true, 'A') %>		
 <div class="wk-contextual">
     <label for='name' style="float:left"><%= l(:label_opportunity) + " " + l(:field_name) %>:</label>
 	<%= text_field_tag 'oppname', accname.blank? ? "" : accname, :size => 30, :style=> "float: left;" %>	

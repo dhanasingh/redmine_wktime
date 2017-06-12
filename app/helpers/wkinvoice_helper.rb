@@ -23,12 +23,12 @@ include WkgltransactionHelper
 include WkbillingHelper
 
 
-    def options_for_wktime_account(blankOption)
+    def options_for_wktime_account(blankOption, accountType)
 		accArr = Array.new
 		if blankOption
 		  accArr << [ "", ""]
 		end
-		accname = WkAccount.where(:account_type => 'A').order(:name)
+		accname = WkAccount.where(:account_type => accountType).order(:name)
 		if !accname.blank?
 			accname.each do | entry|
 				accArr << [ entry.name, entry.id ]

@@ -81,5 +81,13 @@ class WkcrmController < WkbaseController
 		ret = false
 		return isModuleAdmin('wktime_crm_group') || isModuleAdmin('wktime_crm_admin') 
 	end
+	
+	def getContactController
+		'wkcrmcontact'
+	end
+	
+	def getAccountType
+		'A'
+	end
 
 end

@@ -5,7 +5,7 @@
 </script>
 <% wkcrm_helper = Object.new.extend(WkcrmHelper) %>
 <% 
-	parentArr = options_for_wktime_account(false)
+	parentArr = options_for_wktime_account(false, 'A')
 	if !parentObject.blank?
 		parentArr = relatedValues(parentObject.parent_type, parentObject.parent_id)	
     elsif !parentType.blank?

@@ -16,7 +16,7 @@
 		<%= submit_tag l(:button_save) ,:id => 'wkaccount_save'%>
 	</div>
 <% end %>
-<% unless @accountEntry.blank? || @accountEntry.new_record? || controller.getAccountType == 'S' %>
+<% unless @accountEntry.blank? || @accountEntry.new_record? %>
 	</br>
 	<div>
 		<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @accountEntry }%>

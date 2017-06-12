@@ -2,7 +2,7 @@
 	<% 
 		activeProjects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') 
 		projArr = options_for_wktime_project(activeProjects,true) 	
-		accArr = options_for_wktime_account(needBlankAcc)
+		accArr = options_for_wktime_account(needBlankAcc, 'A')
 		if !parentId.blank? && !parentType.blank?
 			accArr = relatedValues(parentType, parentId)	
 		elsif !params[:related_parent].blank? && params[:related_to]

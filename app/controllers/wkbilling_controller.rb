@@ -48,4 +48,40 @@ before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destr
 	def destroy
 	end
 	
+	def getOrderAccountType
+		'A'
+	end
+	
+	def getOrderContactType
+		'C'
+	end
+	
+	def getInvoiceType
+		'I'
+	end
+	
+	def needBlankForProject
+		false
+	end
+	
+	def requireRfqDD
+		false
+	end
+	
+	def requireQuoteDD
+		false
+	end
+	
+	def requirePoDD
+		false
+	end
+	
+	def isPopulateCheckBox
+		false
+	end
+	
+	def isPopulateCheckBoxLabel
+		l(:label_populate_unbilled_items)
+	end
+	
 end

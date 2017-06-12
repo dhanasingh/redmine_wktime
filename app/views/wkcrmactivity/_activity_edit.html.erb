@@ -13,7 +13,7 @@
 		end
 	end
 %>
-<%	accArr = options_for_wktime_account(false)
+<%	accArr = options_for_wktime_account(false, 'A')
 	if !@activityEntry.blank?
 		accArr = relatedValues(@activityEntry[0].parent_type, @activityEntry[0].parent_id)	
     elsif !params[:parentType].blank?

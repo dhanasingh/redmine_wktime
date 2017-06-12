@@ -1,4 +1,4 @@
-class WksupplierinvoiceController < WkorderentityController
+class WksupplierinvoiceController < WksupplierorderentityController
   unloadable
 
 
@@ -19,20 +19,12 @@ class WksupplierinvoiceController < WkorderentityController
 		l(:label_new_sup_invoice)
 	end
 	
-	def isPopulateCheckBox
-		true
-	end
+	# def isPopulateCheckBox
+		# true
+	# end
 	
 	def isPopulateCheckBoxLabel
 		l(:label_populate_purchase_items)
-	end
-	
-	def needBlankForProject
-		true
-	end
-	
-	def needRfqDd
-		true
 	end
 	
 	def getItemLabel
