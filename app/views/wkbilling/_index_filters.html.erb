@@ -39,7 +39,8 @@ $(document).ready(function()
 <%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	
 <%	projArr = options_for_wktime_project(projects,true) 
 	isPjtBlank = true
-	if pjtChanged  		
+	if pjtChanged  
+
 		accountProjects = getProjArrays(parent_id, parent_type)	
 		projArr = accountProjects.collect{|m| [ m.project_name, m.project_id ] } if !accountProjects.blank?
 		if !project_id.blank? && polymorphic_filter != '1'
@@ -80,7 +81,7 @@ $(document).ready(function()
 	
 	<% if controller.requireRfqDD %>
 		<th align="left"><label><%= l(:label_rfq) %></label></th>
-		<td><%=h select_tag('rfq_id', options_for_rfq_select(rfq_id, false), :onchange=>" if(#{controller.requireQuoteDD} || #{controller.requirePoDD} ) { rfqTOQuoteChanged(#{User.current.id}, '#{controller.getInvoiceType}'); } ") %></td>
+		<td><%=h select_tag('rfq_id', options_for_rfq_select(rfq_id, false), :onchange=>" if(#{controller.requireQuoteDD} || #{controller.requirePoDD} ) { if(#{needQuoteDD} || #{needPoDD}) { rfqTOQuoteChanged(#{User.current.id}, '#{controller.getInvoiceType}');}}  ") %></td>
 	<% end  %>
 	
 	<script type="text/javascript">	
@@ -91,15 +92,17 @@ $(document).ready(function()
 		<% if needQuoteDD %>
 			<% rfq_arr = getRfqArray(false) #WkRfq.where(:status => 'o').order(id: :desc).pluck(:name, :id) %>
 			<th align="left"><label><%= l(:label_winning_quote) %></label></th>
-			<td><%=h select_tag('quote_id', options_for_rfqQuote_select(false, rfq_arr[0][1] )) %></td>
+			<% rfqId = rfq_arr.blank? ? 0 : rfq_arr[0][1]  %>
+			<td><%=h select_tag('quote_id', options_for_rfqQuote_select(false, rfqId )) %></td>
 		<% end  %>
 	<% end  %>
 	
 	<% if controller.requirePoDD %>	
 		<% if needPoDD %>
 			<% rfq_arr = getRfqArray(false) #WkRfq.where(:status => 'o').order(id: :desc).pluck(:name, :id) %>
+			<% rfqId = rfq_arr.blank? ? 0 : rfq_arr[0][1]  %>
 			<th align="left"><label><%= l(:label_purchase_order) %></label></th>
-			<td><%=h select_tag('po_id', options_for_rfqPO_select(false, rfq_arr[0][1] )) %></td>
+			<td><%=h select_tag('po_id', options_for_rfqPO_select(false, rfqId )) %></td>
 		<% end  %>
 	<% end  %>
 	

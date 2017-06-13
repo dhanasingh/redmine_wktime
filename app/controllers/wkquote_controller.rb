@@ -49,5 +49,9 @@ class WkquoteController < WksupplierorderentityController
 	def getDateLbl
 		l(:label_quote_date)
 	end
+	
+	def isPopulateCheckBox
+		false
+	end
 
 end

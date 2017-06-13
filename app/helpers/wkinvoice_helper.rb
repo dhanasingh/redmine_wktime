@@ -96,7 +96,7 @@ include WkbillingHelper
 		unless @invoice.save
 			errorMsg = @invoice.errors.full_messages.join("<br>")
 		else
-			@invoice.invoice_number = @invoice.invoice_number + @invoice.id.to_s
+			@invoice.invoice_number = @invoice.invoice_number + @invoice.invoice_num_key.to_s#@invoice.id.to_s
 			@invoice.save
 		end
 		errorMsg

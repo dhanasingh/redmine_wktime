@@ -12,14 +12,22 @@ class CreateWkPurchase < ActiveRecord::Migration
 			dir.up do
 				execute <<-SQL
 				  UPDATE wk_invoices set invoice_num_key = id;
+				SQL
+				execute <<-SQL
 				  UPDATE wk_crm_contacts set contact_type = 'C' where account_id is null;
 				SQL
+				remove_index :wk_invoices, :invoice_number
+				add_index :wk_invoices, :invoice_number, :unique => false
 			end
 			dir.down do
 				execute <<-SQL
-				  DELETE from wk_invoices where id in (select invoice_id from wk_invoice_items where project_id is null);
+				   DELETE from wk_invoices where id in (select invoice_id from wk_invoice_items where project_id is null);
+				 SQL
+				execute <<-SQL
 				  DELETE from wk_invoice_items where project_id is null;
 				SQL
+				remove_index :wk_invoices, :invoice_number, :unique => false
+				add_index :wk_invoices, :invoice_number, :unique => true
 			end
 		end
 		
@@ -39,7 +47,7 @@ class CreateWkPurchase < ActiveRecord::Migration
 		create_table :wk_rfq_quotes do |t|
 			t.references :rfq, :class => "wk_rf_quotes", :null => false, :index => true
 			t.references :quote, :class => "wk_invoices", :null => true, :index => true
-			t.boolean :is_won
+			t.boolean :is_won, :default => false
 			t.string :winning_note
 			t.timestamps null: false
 		end
@@ -50,7 +58,7 @@ class CreateWkPurchase < ActiveRecord::Migration
 			t.timestamps null: false
 		end
 		
-		create_table :wk_po_supplier_inv do |t|
+		create_table :wk_po_supplier_invoices do |t|
 			t.references :purchase_order, :class => "wk_invoices", :null => false, :index => true
 			t.references :supplier_inv, :class => "wk_invoices", :null => true, :index => true
 			t.timestamps null: false

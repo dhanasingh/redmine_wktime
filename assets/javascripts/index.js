@@ -382,8 +382,20 @@ function submitFiletrForm()
 
 function rfqTOQuoteChanged(uid, invType)
 {
-	var parentType = document.getElementById("rfq_id");
-	var parentTypeVal = parentType.options[parentType.selectedIndex].value;
+	var rfqDD = document.getElementById("rfq_id");
+	var rfqId = rfqDD.options[rfqDD.selectedIndex].value;
+	var parentId = "", ParentType = "WkAccount";
+	if(document.getElementById("polymorphic_filter_2").checked)
+	{
+		var contactDD = document.getElementById("contact_id");
+		parentId = contactDD.options[contactDD.selectedIndex].value;
+		ParentType = "WkCrmContact";
+	}
+	else
+	{
+		var actDD = document.getElementById("account_id");
+		parentId = actDD.options[actDD.selectedIndex].value;
+	}
 	var loadDropdown = "";
 	if(invType == 'PO') {	
 		loadDropdown = document.getElementById("quote_id");
@@ -398,7 +410,7 @@ function rfqTOQuoteChanged(uid, invType)
 	$.ajax({
 	url: rfqQuoteUrl,
 	type: 'get',
-	data: {rfq_id: parentTypeVal, inv_type: invType},
+	data: {rfq_id: rfqId, inv_type: invType, parent_id: parentId, parent_type: ParentType},
 	success: function(data){ updateUserDD(data, loadDropdown, userid, needBlankOption, false, "");},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
 	complete: function(){ $this.removeClass('ajax-loading'); }	   

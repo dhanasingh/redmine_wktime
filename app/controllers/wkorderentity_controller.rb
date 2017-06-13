@@ -149,7 +149,10 @@ include WkorderentityHelper
 			parentType =  'WkAccount'
 		end
 		if !params[:new_invoice].blank? && params[:new_invoice] == "true"
-			validateParent(parentId)
+			if parentId.blank?
+				flash[:error] = "Account and Contacts can't be empty."
+				return redirect_to :action => 'new'
+			end
 			if getInvoiceType == 'I'				
 				newInvoice(parentId, parentType)
 			else				
@@ -163,15 +166,6 @@ include WkorderentityHelper
 		end
 		
 	end
-	
-	def validateParent(parentId)
-		if parentId.blank?
-			flash[:error] = "Account and Contacts can't be empty."
-			return redirect_to :action => 'new'
-		end	
-	end
-	
-	
 	
 	def newOrderEntity(parentId, parentType)
 		msg = ""
@@ -194,7 +188,8 @@ include WkorderentityHelper
 		
 		case getInvoiceType		
 		when 'PO'
-			@rfqQuotObj = WkRfqQuote.find(params[:quote_id].to_i)
+			rfqQuotEntry = WkRfqQuote.where(:quote_id => params[:quote_id].to_i)
+			@rfqQuotObj = rfqQuotEntry.blank? || rfqQuotEntry[0].blank? ? nil : rfqQuotEntry[0]
 			if !params[:populate_items].blank? && params[:populate_items] == '1'
 				@invoiceItem = WkInvoiceItem.where(:invoice_id => @rfqQuotObj.quote_id).select(:name, :rate, :amount, :quantity, :item_type, :currency, :project_id, :modifier_id,  :invoice_id )
 			end
@@ -600,9 +595,9 @@ include WkorderentityHelper
 		quoteIds = ""	
 		rfqObj = ""
 		if params[:inv_type] == 'PO'		
-			rfqObj = WkInvoice.where(:id => getInvoiceIds(params[:rfq_id].to_i, 'Q', true)).order(:id)
+			rfqObj = WkInvoice.where(:id => getInvoiceIds(params[:rfq_id].to_i, 'Q', true), :parent_id => params[:parent_id].to_i, :parent_type => params[:parent_type]).order(:id)
 		elsif params[:inv_type] == 'SI'
-			rfqObj = WkInvoice.where(:id => getInvoiceIds(params[:rfq_id].to_i, 'PO', false)).order(:id)
+			rfqObj = WkInvoice.where(:id => getInvoiceIds(params[:rfq_id].to_i, 'PO', false), :parent_id => params[:parent_id].to_i, :parent_type => params[:parent_type]).order(:id)
 		end
 		rfqObj.each do | entry|
 			quoteIds <<  entry.id.to_s() + ',' + entry.id.to_s()  + "\n" 
@@ -630,6 +625,10 @@ include WkorderentityHelper
 	
 	def getDateLbl
 		l(:label_invoice_date)
+	end
+	
+	def isPopulateCheckBox
+		true
 	end
 	
 	# def requireQuoteDD

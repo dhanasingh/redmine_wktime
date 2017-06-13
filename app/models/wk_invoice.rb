@@ -40,12 +40,19 @@ class WkInvoice < ActiveRecord::Base
   #validates_presence_of :account_id
   validates_presence_of :parent_id, :parent_type
   
+  before_save :increase_inv_key
+  
   def total_invoice_amount
 	self.invoice_items.sum(:amount)
   end
   
   def total_paid_amount
 	self.payment_items.current_items.sum(:amount)
+  end
+  
+  def increase_inv_key  
+	lastInvKey = WkInvoice.where(:invoice_type => invoice_type).last
+	self.invoice_num_key = lastInvKey.blank? || lastInvKey.invoice_num_key.blank? ? 1 : lastInvKey.invoice_num_key + 1 if self.new_record?
   end
   
 end
