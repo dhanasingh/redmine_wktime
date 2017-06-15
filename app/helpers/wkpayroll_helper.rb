@@ -36,7 +36,7 @@ module WkpayrollHelper
 		if financialMonthStr.blank? || financialMonthStr.to_i == 0
 			financialMonthStr = '4'
 		end
-		if salaryDate.month > financialMonthStr.to_i
+		unless salaryDate.month < financialMonthStr.to_i
 			financialStart = Date.civil(salaryDate.year, financialMonthStr.to_i, 1)
 			financialEnd = Date.civil(salaryDate.year+1, financialMonthStr.to_i, 1)
 		else
@@ -369,7 +369,7 @@ module WkpayrollHelper
 	end
 	
 	def getYTDDetail(userId,salaryDate)
-		@financialPeriod = getFinancialPeriod(salaryDate-1)
+		@financialPeriod = getFinancialPeriod(salaryDate)
 		ytdDetails = WkSalary.select("sum(amount) as amount, user_id, salary_component_id").where("user_id = #{userId} and salary_date between '#{@financialPeriod[0]}' and '#{salaryDate}'").group("user_id, salary_component_id")
 		ytdAmountHash = Hash.new()
 		ytdDetails.each do |entry|
