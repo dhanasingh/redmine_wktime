@@ -121,7 +121,7 @@ include WkorderentityHelper
 	def edit
 		@invoice = nil
 		@invoiceItem = nil
-		@projectsDD = nil
+		@projectsDD = Array.new
         @currency = nil	
 		@preBilling = false
 		@rfgQuoteEntry = nil
@@ -327,6 +327,7 @@ include WkorderentityHelper
 			@itemCount = @itemCount + 1
 			totalAmt = (totalAmt + entry.amount).round(2)
 		end
+		@currency = scheduledEntries[0].currency
 		totalAmt
 	end
 	
@@ -344,7 +345,7 @@ include WkorderentityHelper
 			else
 				@currency = getRate['currency']
 			end
-		else
+		else			
 			@currency = accProjectEntry.wk_billing_schedules[0].currency
 		end
 	end

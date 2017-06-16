@@ -7,9 +7,9 @@
 <% 
 	parentArr = options_for_wktime_account(false, 'A')
 	if !parentObject.blank?
-		parentArr = relatedValues(parentObject.parent_type, parentObject.parent_id)	
+		parentArr = relatedValues(parentObject.parent_type, parentObject.parent_id, 'A')	
     elsif !parentType.blank?
-		parentArr = relatedValues(parentType, :parentId)		
+		parentArr = relatedValues(parentType, :parentId, 'A')		
 	end
 	#parentArr.unshift(["",''])
 	relHash = wkcrm_helper.relatedHash
@@ -30,7 +30,7 @@
 %>
 <tr>
 	<th align="left"><%= l(:label_type) %></th>
-	<td style="padding-left:<%=stylePadding%>px;"><%=h select_tag('related_to', options_for_select(relHash.invert, :selected => parentObject.blank? ? (parentType.blank? ? "" : parentType) : parentObject.parent_type ), :onchange => "actRelatedDd(#{User.current.id}, #{needParentProject}, #{needblankType}); ") %></td>
+	<td style="padding-left:<%=stylePadding%>px;"><%=h select_tag('related_to', options_for_select(relHash.invert, :selected => parentObject.blank? ? (parentType.blank? ? "" : parentType) : parentObject.parent_type ), :onchange => "actRelatedDd(#{User.current.id}, #{needParentProject}, #{needblankType}, false); ") %></td>
 <% if padding.blank? %>
 </tr>
 <tr>

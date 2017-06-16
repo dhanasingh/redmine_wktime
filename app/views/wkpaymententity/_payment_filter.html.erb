@@ -2,20 +2,24 @@
 	<% 
 		activeProjects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') 
 		projArr = options_for_wktime_project(activeProjects,true) 	
-		accArr = options_for_wktime_account(needBlankAcc, 'A')
+		accArr = options_for_wktime_account(needBlankAcc, controller.getOrderAccountType)
+		type = controller.getOrderAccountType
+		if parentType == "WkCrmContact" || params[:related_to] == "WkCrmContact"
+			type = controller.getOrderContactType
+		end
 		if !parentId.blank? && !parentType.blank?
-			accArr = relatedValues(parentType, parentId)	
+			accArr = relatedValues(parentType, parentId, type)	
 		elsif !params[:related_parent].blank? && params[:related_to]
-			accArr = relatedValues(params[:related_to], params[:related_parent])		
+			accArr = relatedValues(params[:related_to], params[:related_parent], type)		
 		end
 	%>
 	<script type="text/javascript"> 
 		actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds')}" %>";
-		paymentUrl="<%= "#{url_for(:controller => "wkpayment", :action => 'getBillableProjIds')}" %>";
+		paymentUrl="<%= "#{url_for(:controller => "wkpaymententity", :action => 'getBillableProjIds')}" %>";
 	</script>
 			<th align="left"><label><%= l(:label_type) %></label></th>
 			<td align="left" style="padding-left:40px;">
-				<%=h select_tag('related_to', options_for_parent_select(parentType), :onchange => "actRelatedDd(#{User.current.id}, false, false);submitFiletrForm();", :disabled => isDisable) %>
+				<%=h select_tag('related_to', options_for_parent_select(parentType), :onchange => "actRelatedDd(#{User.current.id}, false, false, #{controller.isTypeChanged});submitFiletrForm();", :disabled => isDisable) %>
 			</td>
 			<th align="left"><label><%= l(:field_name) %></label></th>
 			<td align="left" style="padding-left:40px;">

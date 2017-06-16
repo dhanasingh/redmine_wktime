@@ -340,7 +340,7 @@ function accProjChanged(uid, fldId, isparent, blankOptions)
 	});
 }
 
-function actRelatedDd(uid, loadProjects, needBlankOption)
+function actRelatedDd(uid, loadProjects, needBlankOption, isTypeChange)
 {
 	var relatedTo = document.getElementById("related_to");
 	var relatedType = relatedTo.options[relatedTo.selectedIndex].value;
@@ -351,7 +351,7 @@ function actRelatedDd(uid, loadProjects, needBlankOption)
 	$.ajax({
 	url: actRelatedUrl,
 	type: 'get',
-	data: {related_type: relatedType},
+	data: {related_type: relatedType, isTypeChange: isTypeChange},
 	success: function(data){ updateUserDD(data, relatedparentdd, userid, needBlankOption, false, "");},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
 	complete: function(){ if(loadProjects) { accProjChanged(uid, 'related_parent', true, true) } $this.removeClass('ajax-loading'); }	   

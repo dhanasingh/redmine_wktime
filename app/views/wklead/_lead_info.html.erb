@@ -42,7 +42,7 @@
 		<% if isContact %>
 		<!--	<tr>
 			<th align="left" ><%= l(:label_related_to) %></th>
-			<td align="left" style="padding-left:40px;"><%#=h select_tag("related_to", options_for_select(relHash.invert, :selected => (!contactObj.blank? ? contactObj.parent_type : (params[:parentType].blank? ? "" : params[:parentType]))), :onchange => "actRelatedDd(#{User.current.id}, false, false)", :style => "width:200px;") %>
+			<td align="left" style="padding-left:40px;"><%#=h select_tag("related_to", options_for_select(relHash.invert, :selected => (!contactObj.blank? ? contactObj.parent_type : (params[:parentType].blank? ? "" : params[:parentType]))), :onchange => "actRelatedDd(#{User.current.id}, false, false, false)", :style => "width:200px;") %>
 			
 			<%#=h select_tag("related_parent", options_for_select(accArr, :selected => (!contactObj.blank? ? contactObj.parent_id : (params[:parentId].blank? ? "" : params[:parentId]))), :style => "width:200px;") %></td> 
 			

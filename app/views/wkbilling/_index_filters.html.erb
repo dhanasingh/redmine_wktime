@@ -33,7 +33,7 @@ $(document).ready(function()
   
 });
  </script>
-<% contactArr = WkCrmContact.where(:contact_type => controller.getOrderContactType).order(:first_name, :last_name).pluck(:last_name, :id) #relatedValues('WkCrmContact', nil) %>
+<% contactArr = relatedValues('WkCrmContact', nil, controller.getOrderContactType) #WkCrmContact.where(:contact_type => controller.getOrderContactType).order(:first_name, :last_name).pluck(:last_name, :id)  %>
 <% contactArr.unshift(["",'']) if blankForContactDD %>
 <% accountArr = options_for_wktime_account(blankForActDD, controller.getOrderAccountType) %>
 <%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	

@@ -72,7 +72,7 @@
 			<%= render :partial => 'edit_order_items' %>
 		<% else  %>		
 			<br/>
-			<h2 ><%= controller.getInvoiceType == 'I' ? l(:label_invoice_items) : (controller.getInvoiceType == 'Q' ? l(:label_quote_items)  : l(:label_po_items) )  %></h2> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<h2 ><%= controller.getItemLabel  %></h2> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			<label><b><%= l(:label_no_data) %></b></label>
 		<% end %>
 	<% end %>

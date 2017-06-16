@@ -299,7 +299,9 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	post 'wkpayment/update', :to => 'wkpayment#update'
 	
-	get 'wkpayment/getBillableProjIds', :to => 'wkpayment#getBillableProjIds'
+	#get 'wkpayment/getBillableProjIds', :to => 'wkpayment#getBillableProjIds'
+	
+	get 'wkpaymententity/getBillableProjIds', :to => 'wkpaymententity#getBillableProjIds'
 	
 	get 'wkpayment/showInvoices', :to => 'wkpayment#showInvoices'
 	
@@ -374,3 +376,7 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	delete 'wksuppliercontact/destroy', :to => 'wksuppliercontact#destroy'
 	
 	get 'wkorderentity/getRfqQuoteIds', :to => 'wkorderentity#getRfqQuoteIds'
+	
+	get 'wksupplierpayment/edit', :to => 'wksupplierpayment#edit'
+	
+	post 'wksupplierpayment/update', :to => 'wksupplierpayment#update'

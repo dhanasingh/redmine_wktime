@@ -1,7 +1,7 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'invoice', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<h2><%= l(:label_txn_payment) %></h2>
+<h2><%= controller.getEditHeaderLabel %></h2>
 <% hash_status = { 'o'  => l(:label_open_issues), 'c' =>  l(:label_closed_issues) } %>
 	<%  
 		selectedPTId = @payment.blank? ? nil : @payment.payment_type_id
@@ -51,17 +51,17 @@
 		end
 	%>
 	
-	<%= form_tag({:controller => "wkpayment", :action => 'edit', :tab => controller_name}, :method => :get, :id => 'invoice_form') do %>
+	<%= form_tag({:controller => controller_name, :action => 'edit', :tab => controller_name}, :method => :get, :id => 'invoice_form') do %>
 		<table>
 			<%= hidden_field_tag "load_payment", true %>
 			<tr>
-			<%= render partial: "wkpayment/payment_filter", locals: { projectId: projectId, parentType: parentType, parentId: parentId, needBlankAcc: false, showProject: false, isDisable: isDisable }%>
+			<%= render partial: "wkpaymententity/payment_filter", locals: { projectId: projectId, parentType: parentType, parentId: parentId, needBlankAcc: false, showProject: false, isDisable: isDisable }%>
 			<th align="left"><%= l(:label_total) %></th> 
 			<td align="left" style="padding-left:40px;"> <%= currency.to_s + " " + paytotalAmount.to_s %> </td>
 			</tr>
 		
 	<% end %>
-	<%= form_tag({:controller => "wkpayment", :action => 'update'}, :method => :post, :id => 'query_form') do %>
+	<%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
 		
 			<tr>
 				<th align="left"><%= l(:label_payment_date) %></th>
@@ -79,15 +79,15 @@
 		<% if !@accInvoices.blank? %>
 			<%= hidden_field_tag "related_to", @accInvoices[0].parent_type %>
 			<%= hidden_field_tag "related_parent", @accInvoices[0].parent_id %>
-			<%= render :partial => 'edit_payment', locals: { itemsList:@accInvoices } %>
+			<%= render :partial => 'wkpaymententity/edit_payment', locals: { itemsList:@accInvoices } %>
 		<% elsif !@payment.blank? %>
 			<%= hidden_field_tag "related_to", @payment.parent_type %>
 			<%= hidden_field_tag "related_parent", @payment.parent_id %>
 			<%= hidden_field_tag "payment_id", @payment.id %>
-			<%= render :partial => 'edit_payment', locals: { itemsList:@payment.payment_items.current_items } %>
+			<%= render :partial => 'wkpaymententity/edit_payment', locals: { itemsList:@payment.payment_items.current_items } %>
 		<% else %>
 			<br/>
-			<h2 ><%= l(:label_invoice_items) %></h2> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<h2 ><%= controller.getItemLabel  %></h2> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			<label><b><%= l(:label_no_data) %></b></label>
 		<% end %>
 	<% end %>

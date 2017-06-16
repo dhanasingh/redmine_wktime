@@ -1,4 +1,6 @@
 module WkorderentityHelper
+include WkcrmHelper
+
 	def getRfqArray(needBlank)
 		rfqArr = WkRfq.all.order(id: :desc).pluck(:name, :id)
 		rfqArr.unshift(["",'']) if needBlank
