@@ -1,7 +1,7 @@
 <%
 	userId = session[:wkreport][:user_id].blank? ? 0 : session[:wkreport][:user_id]
 	from = session[:wkreport][:from]
-	to = session[:wkreport][:to]
+	to = (from >> 1) - 1
 	groupId = session[:wkreport][:group_id].blank?  ? 0 : session[:wkreport][:group_id]				
 	userSqlStr = getUserQueryStr(groupId, userId, from)
 	@userlist = User.find_by_sql(userSqlStr)
@@ -31,10 +31,11 @@
 	@headerarr = usercol + basiccol + allowancecol + deductioncol + totalcol
 	@salaryval = Hash.new{|hsh,key| hsh[key] = {} }
 	@totalhash = Hash.new{|hsh,key| hsh[key] = {} }
+	compTotalHash = Hash.new
 	last_id = 0
 	totgross = 0 
 	totdeduction = 0
-	last_salary_date = 	nil			
+	last_salary_date = 	nil
 	@salary_data.each do |entry|	
 		@salaryval["#{entry.user_id}"].store "#{entry.component_name}", "#{entry.amount}"	
 		if entry.user_id != last_id || entry.salary_date.to_date != last_salary_date
@@ -42,13 +43,25 @@
 			totdeduction = 0
 			last_id = entry.user_id
 			last_salary_date = entry.salary_date.to_date
+		end	
+		if compTotalHash[entry.component_name].blank?
+			compTotalHash[entry.component_name] = entry.amount
+		else
+			compTotalHash[entry.component_name] = compTotalHash[entry.component_name] + entry.amount
 		end
-		totgross = totgross + entry.amount if entry.component_type == 'b' || entry.component_type == 'a'
-		totdeduction = totdeduction + entry.amount if entry.component_type == 'd'
+		if entry.component_type == 'b' || entry.component_type == 'a'
+			totgross = totgross + entry.amount 
+			compTotalHash['Gross'] = entry.amount + (compTotalHash['Gross'].blank? ? 0 : compTotalHash['Gross'])
+		end
+		if entry.component_type == 'd'
+			totdeduction = totdeduction + entry.amount
+			compTotalHash['Deduction'] = entry.amount + (compTotalHash['Deduction'].blank? ? 0 : compTotalHash['Deduction'])
+		end
 		@totalhash["#{entry.user_id}"].store "gross", "#{totgross}" 
 		@totalhash["#{entry.user_id}"].store "deduction", "#{totdeduction}"
 	end
 	
+	compTotalHash['Net'] = (compTotalHash['Gross'].blank? ? 0 : compTotalHash['Gross'])  - (compTotalHash['Deduction'].blank? ? 0 : compTotalHash['Deduction'])
 	@rowval = Hash.new{|hsh,key| hsh[key] = {} }
 	@userdetails = Hash.new{|hsh,key| hsh[key] = {} }
 	@userlist.each do |user|
@@ -122,6 +135,14 @@
 		<% end %>
 	</tr>
  <% end %>
+ <tr>
+	<th colspan=<%=usercol.length%>> <%= l(:label_total) %> </th>
+		<% @headerarr.each_with_index do |entry, index| %>
+			<% unless usercol.length > index %>
+				<th> <%= compTotalHash[entry] %> </th> 
+			<% end %>
+		<% end %>
+ </tr>
  </tbody>
  </table>
  </div>
