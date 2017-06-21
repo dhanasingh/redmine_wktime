@@ -380,7 +380,7 @@ function submitFiletrForm()
 	document.getElementById("invoice_form").submit();
 }
 
-function rfqTOQuoteChanged(uid, invType)
+function rfqTOQuoteChanged(uid, loadDdId)
 {
 	var rfqDD = document.getElementById("rfq_id");
 	var rfqId = rfqDD.options[rfqDD.selectedIndex].value;
@@ -396,21 +396,14 @@ function rfqTOQuoteChanged(uid, invType)
 		var actDD = document.getElementById("account_id");
 		parentId = actDD.options[actDD.selectedIndex].value;
 	}
-	var loadDropdown = "";
-	if(invType == 'PO') {	
-		loadDropdown = document.getElementById("quote_id");
-	}
-	else {
-		loadDropdown = document.getElementById("po_id");
-	}
-	
+	var loadDropdown = document.getElementById(loadDdId);	
 	var needBlankOption = false;
 	userid = uid;
 	var $this = $(this);
 	$.ajax({
 	url: rfqQuoteUrl,
 	type: 'get',
-	data: {rfq_id: rfqId, inv_type: invType, parent_id: parentId, parent_type: ParentType},
+	data: {rfq_id: rfqId, parent_id: parentId, parent_type: ParentType},
 	success: function(data){ updateUserDD(data, loadDropdown, userid, needBlankOption, false, "");},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
 	complete: function(){ $this.removeClass('ajax-loading'); }	   

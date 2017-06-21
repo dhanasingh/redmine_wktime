@@ -377,7 +377,9 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	delete 'wksuppliercontact/destroy', :to => 'wksuppliercontact#destroy'
 	
-	get 'wkorderentity/getRfqQuoteIds', :to => 'wkorderentity#getRfqQuoteIds'
+	get 'wkpurchaseorder/getRfqQuoteIds', :to => 'wkpurchaseorder#getRfqQuoteIds'
+	
+	get 'wksupplierinvoice/getRfqPoIds', :to => 'wksupplierinvoice#getRfqPoIds'
 	
 	get 'wksupplierpayment/edit', :to => 'wksupplierpayment#edit'
 	

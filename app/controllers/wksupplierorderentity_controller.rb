@@ -32,11 +32,7 @@ class WksupplierorderentityController < WkorderentityController
 	
 	def needBlankProject
 		true
-	end
-	
-	def requireRfqDD
-		true
-	end
+	end	
 	
 	def addAdditionalTax
 		true

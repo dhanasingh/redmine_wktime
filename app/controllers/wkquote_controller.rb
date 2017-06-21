@@ -52,4 +52,8 @@ class WkquoteController < WksupplierorderentityController
 	def addQuoteFields
 		true
 	end
+	
+	def getAdditionalDD
+		"wkquote/quoteadditionaldd"
+	end
 end

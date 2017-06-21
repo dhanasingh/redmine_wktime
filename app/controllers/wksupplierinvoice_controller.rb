@@ -10,6 +10,19 @@ class WksupplierinvoiceController < WksupplierorderentityController
 			@invoiceItem = WkInvoiceItem.where(:invoice_id => params[:po_id].to_i).select(:name, :rate, :amount, :quantity, :item_type, :currency, :project_id, :modifier_id,  :invoice_id )
 		end 
 	end
+	
+	def getRfqPoIds
+		quoteIds = ""	
+		rfqObj = ""
+		rfqObj = WkInvoice.where(:id => getInvoiceIds(params[:rfq_id].to_i, 'PO', false), :parent_id => params[:parent_id].to_i, :parent_type => params[:parent_type]).order(:id)
+		
+		rfqObj.each do | entry|
+			quoteIds <<  entry.id.to_s() + ',' + entry.id.to_s()  + "\n" 
+		end
+		respond_to do |format|
+			format.text  { render :text => quoteIds }
+		end
+	end
 
   
 	def getInvoiceType
@@ -40,8 +53,8 @@ class WksupplierinvoiceController < WksupplierorderentityController
 		l(:label_sp_date)
 	end
 	
-	def requirePoDD
-		true
+	def getAdditionalDD
+		"wksupplierinvoice/siadditionaldd"
 	end
 	
 end
