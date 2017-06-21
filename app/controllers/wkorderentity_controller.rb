@@ -424,24 +424,4 @@ include WkorderentityHelper
 		end
 	end
 	
-	def getLabelInvNum
-		l(:label_invoice_number)
-	end
-	
-	def getLabelNewInv
-		l(:label_new_invoice)
-	end
-	
-	def getHeaderLabel
-		l(:label_invoice)
-	end
-	
-	def getItemLabel
-		l(:label_invoice_items)
-	end
-	
-	def getDateLbl
-		l(:label_invoice_date)
-	end	
-	
 end
