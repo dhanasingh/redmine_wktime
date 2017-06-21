@@ -139,7 +139,7 @@ module WkpayrollHelper
 	end
 	
 	def getUserSalaryQueryStr
-		sqlStr = "SELECT sc.id as sc_id, sc.name as sc_name, sc.frequency as sc_frequency, " + 
+		sqlStr = "SELECT sc.id as sc_id, sc.name as sc_name, sc.component_type as sc_component_type, sc.frequency as sc_frequency, " + 
 		"sc.start_date as sc_start_date, sc.dependent_id as sc_dependent_id, " + 
 		"sc.factor as sc_factor, sc.salary_type as sc_salary_type, cvt.value as termination_date, " + 
 		"usc.factor as usc_factor, usc.dependent_id as usc_dependent_id, " + 

@@ -1,28 +1,22 @@
 <%= form_tag({:controller => 'wkpayroll', :action => 'updateUserSalary'}, :method => :post, :id => 'query_form') do %>
 <%= javascript_include_tag 'wkpayroll', :plugin => "redmine_wktime" %>
+<div>
 <h2><%= "User Salary Settings" %></h2>
+<div>
 <table>
 	<tr>
 		<th align="left"><%=l(:field_user)%></th>
 		<td><%=h @userSalaryEntries[0].firstname + " " + @userSalaryEntries[0].lastname %></td>
 	</tr>
 </table>
+<div>
 <br/>
-<div class="autoscroll">
-	<div  style="float:left;width=100%;">
-	<table class="list time-entries">
-	<thead>
-		<tr>
-		<th class="lbl-txt-align"><%= "Override common setting" %></th>
-		<th class="lbl-txt-align"><%= "Salary Component" %></th>
-		<th class="lbl-txt-align"><%= "Dependent Field" %></th>
-		<th class="lbl-txt-align"><%= "Factor" %></th>
-		</tr>
-	</thead>
 	<% 
 	salaryComponents = getSalaryComponentsArr
 	userId = params[:user_id]
 	isdisabled = true
+	salEntryByTypeHash = {'a' => [], 'b'=> [], 'd'=> []}
+	actualSalValHash = Hash.new{|hsh,key| hsh[key] = {} }
 	@userSalaryEntries.each do |entry| 
 		isOverride = entry.user_salary_component_id.blank? ? false : true
 		if isOverride
@@ -32,24 +26,49 @@
 			dependent_id = entry.sc_dependent_id.blank? ? 0 : entry.sc_dependent_id
 			factor = entry.sc_factor.blank? ? 0 : ("%.2f" % entry.sc_factor)
 		end
+		actualSalValHash[entry.sc_component_type].store entry.sc_id, @userSalHash[entry.user_id][entry.sc_id] unless @userSalHash[entry.user_id].blank?
+		salEntryByTypeHash[entry.sc_component_type] = salEntryByTypeHash[entry.sc_component_type] << [entry, isOverride, dependent_id, factor]
+	end
 	%>
-		<tr class="time-entry <%= cycle("odd", "even") %>">
-			<td><%=h check_box_tag('is_override' + entry.sc_id.to_s, value = "1", checked = isOverride, options = {:onchange => "overrideSettings(this);", :disabled => (isAccountUser ? false : true)}) %>
-			<td><%=h entry.sc_name %>
-			</td>
-			<td><%=h select_tag('dependent_id' + entry.sc_id.to_s , 
-			options_for_select(salaryComponents, :selected =>  dependent_id, :required => true), options = {:disabled => (isAccountUser ? !isOverride : true)} ) %></td>
-			<td><%=h text_field_tag('factor' + entry.sc_id.to_s, factor, :size => 10, :maxlength => 7, :disabled => (isAccountUser ? !isOverride : true), :required => true) %>
-			</td>
-		</tr>
-	<% end %>
-	</table>
+	
+	<fieldset style="width: 94%;margin:1px 34px 0px 1px;background-color:#F6F6F6;float:right"><legend><b><%=l(:label_basic)%></b></legend>
+		<table width="100px">
+			<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['b'], salaryComponents: salaryComponents}%>
+		</table>
+	</fieldset>
+		&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+		
+	 <fieldset class="box tabular" style="display: inline-block; vertical-align: top; width:45%;"><legend><b><%=l(:label_allowances)%></b></legend>
+		<table style="width:100%;border-collapse: collapse;" >
+			<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['a'], salaryComponents: salaryComponents}%>
+		</table>
+	</fieldset>
+		&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+		
+		
+	  <fieldset class="box tabular" style="display: inline-block; vertical-align: top; width:45%; "><legend><b><%=l(:label_deduction)%></b></legend>
+		<table style="width:100%;border-collapse: collapse;">
+			<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['d'], salaryComponents: salaryComponents}%>
+		</table>
+	 </fieldset><br>
+	<div style="padding-right:50px;">
+		<table width="15%" align="right" style="border-collapse: collapse;border: 0px solid black;">
+			<tr>
+				<td style="float:left; "><b><%=l(:label_gross) %></b></td>
+				<td style="text-align:right; border-left: solid 0px black;"> <%=h "%.2f" % (actualSalValHash['b'].values.sum + actualSalValHash['a'].values.sum) %> </td>
+			</tr>
+			<tr>
+				<td style="float:left;"><b><%=l(:label_net)%></b>
+				<td style="text-align:right; border-left: solid 0px black;"> <%=h "%.2f" % (actualSalValHash['b'].values.sum + actualSalValHash['a'].values.sum - actualSalValHash['d'].values.sum) %></td>
+			</tr>
+		</table>
+	</div>
 	<br>
 	<% if isAccountUser %>
 	<span style="margin-left:25.0em;"></span><%= submit_tag l(:button_save), :hidden => false, :id => 'wk_user_sal_setting_save', :disabled => false %>
 	<% end %>
 	</div>
-</div>
+	</div>
 <%=h hidden_field_tag('user_id', userId) %>
 
 
