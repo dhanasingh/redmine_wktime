@@ -27,9 +27,9 @@ class WkpaymententityController < WkbillingController
 		sqlwhere = ""
 		set_filter_session
 		retrieve_date_range
-		filter_type = session[:controller_name][:polymorphic_filter]
-		contact_id = session[:controller_name][:contact_id]
-		account_id = session[:controller_name][:account_id]
+		filter_type = session[controller_name][:polymorphic_filter]
+		contact_id = session[controller_name][:contact_id]
+		account_id = session[controller_name][:account_id]
 		
 				
 		if filter_type == '2' && !contact_id.blank?
@@ -230,8 +230,4 @@ class WkpaymententityController < WkbillingController
 		l(:label_txn_payment)
 	end
 	
-	def isTypeChanged
-		false
-	end
-
 end

@@ -19,7 +19,7 @@
 	</script>
 			<th align="left"><label><%= l(:label_type) %></label></th>
 			<td align="left" style="padding-left:40px;">
-				<%=h select_tag('related_to', options_for_parent_select(parentType), :onchange => "actRelatedDd(#{User.current.id}, false, false, #{controller.isTypeChanged});submitFiletrForm();", :disabled => isDisable) %>
+				<%=h select_tag('related_to', options_for_parent_select(parentType), :onchange => "actRelatedDd(#{User.current.id}, false, false, '#{controller.getOrderAccountType}', '#{controller.getOrderContactType}' );submitFiletrForm();", :disabled => isDisable) %>
 			</td>
 			<th align="left"><label><%= l(:field_name) %></label></th>
 			<td align="left" style="padding-left:40px;">

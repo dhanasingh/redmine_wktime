@@ -38,20 +38,15 @@ class WkcrmController < WkbaseController
 	def getActRelatedIds
 		relatedArr = ""	
 		relatedId = nil
-		contactType = 'C'
-		actType = 'A'		
-		if params[:isTypeChange] == "true" 
-			contactType = 'SC'
-			actType = 'S'
-		end
+		
 		if params[:related_type] == "WkOpportunity"
 			relatedId = WkOpportunity.all.order(:name)
 		elsif params[:related_type] == "WkLead"
 			relatedId = WkLead.includes(:contact).where.not(:status => 'C').order("wk_crm_contacts.first_name, wk_crm_contacts.last_name")
 		elsif params[:related_type] == "WkCrmContact"
-			relatedId = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where(:contact_type => contactType).order(:first_name, :last_name)
+			relatedId = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where(:contact_type => params[:contact_type]).order(:first_name, :last_name)
 		elsif params[:related_type] != "0"
-			relatedId = WkAccount.where(:account_type => actType).order(:name)
+			relatedId = WkAccount.where(:account_type => params[:account_type]).order(:name)
 		end
 		
 		if !relatedId.blank?

@@ -33,10 +33,6 @@ class WksupplierpaymentController < WkpaymententityController
 		l(:label_supplier_payment)
 	end
 	
-	def isTypeChanged
-		true
-	end
-	
 	def getOrderContactType
 		'SC'
 	end
