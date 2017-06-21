@@ -1,4 +1,4 @@
-<%= form_tag({:controller => "wkpayment", :action => 'index', :tab => controller_name}, :method => :get, :id => 
+<%= form_tag({:controller => controller_name, :action => 'index', :tab => controller_name}, :method => :get, :id => 
      'query_form') do %>
 		<fieldset>
 			<%= hidden_field_tag "searchlist", controller_name %>

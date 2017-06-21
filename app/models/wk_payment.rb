@@ -19,6 +19,8 @@ class WkPayment < ActiveRecord::Base
   unloadable
   #belongs_to :account, :class_name => 'WkAccount'
   belongs_to :parent, :polymorphic => true
+  belongs_to :account, -> { where(wk_payments: {parent_type: 'WkAccount'}) }, foreign_key: 'parent_id', :class_name => 'WkAccount'
+  belongs_to :contact, -> { where(wk_payments: {parent_type: 'WkCrmContact'}) }, foreign_key: 'parent_id', :class_name => 'WkCrmContact'
   belongs_to :modifier , :class_name => 'User'
   has_many :payment_items, foreign_key: "payment_id", class_name: "WkPaymentItem", :dependent => :destroy
   has_many :invoices, through: :payment_items  

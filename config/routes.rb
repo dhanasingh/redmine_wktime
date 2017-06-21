@@ -303,7 +303,9 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wkpaymententity/getBillableProjIds', :to => 'wkpaymententity#getBillableProjIds'
 	
-	get 'wkpayment/showInvoices', :to => 'wkpayment#showInvoices'
+	#get 'wkpayment/showInvoices', :to => 'wkpayment#showInvoices'
+	
+	get 'wkpaymententity/showInvoices', :to => 'wkpaymententity#showInvoices'
 	
 	get 'wkexchangerate/index', :to => 'wkexchangerate#index'
 	

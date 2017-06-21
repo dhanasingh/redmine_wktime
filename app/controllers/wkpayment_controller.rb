@@ -18,14 +18,6 @@
 class WkpaymentController < WkpaymententityController
   unloadable
   
-	def showInvoices
-		parentType = params[:related_to]
-		parentId = params[:related_parent]
-		projectId = params[:project_id]
-		@accInvoices = nil
-		if !parentType.blank? && !parentId.blank? && !projectId.blank?
-			@accInvoices = WkInvoice.where(:parent_type=> parentType, :parent_id=>parent_id)
-		end		
-	end
+	
 	
 end

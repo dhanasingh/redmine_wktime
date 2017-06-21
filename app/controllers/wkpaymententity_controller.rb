@@ -52,12 +52,15 @@ class WkpaymententityController < WkbillingController
 			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
 			sqlwhere = sqlwhere + " wk_payments.payment_date between '#{@from}' and '#{@to}'  "
 		end
+		#sqlwhere = sqlwhere + "wk_accounts.account_type = 'S' "
 		
 		if filter_type == '1' 
-			entries = WkPayment.includes(:payment_items).where(sqlwhere)
+			entries =WkPayment.includes(:account, :payment_items).where(wk_accounts: {account_type: getOrderAccountType}).where(sqlwhere)
+			contactEntries = WkPayment.includes(:contact, :payment_items).where(wk_crm_contacts: {contact_type: getOrderContactType}).where(sqlwhere)
 		else
-			entries = WkPayment.includes(:payment_items).where(sqlwhere)
+			entries =WkPayment.includes(:account, :contact, :payment_items).where(wk_accounts: {account_type: getOrderAccountType}).where(sqlwhere)
 		end	
+		
 		formPagination(entries)	
 		@totalPayAmt = @payment_entries.where("wk_payment_items.is_deleted = #{false} ").sum("wk_payment_items.amount")
     end
@@ -82,6 +85,16 @@ class WkpaymententityController < WkbillingController
 				end
 			end
 		end
+	end
+	
+	def showInvoices
+		parentType = params[:related_to]
+		parentId = params[:related_parent]
+		projectId = params[:project_id]
+		@accInvoices = nil
+		if !parentType.blank? && !parentId.blank? && !projectId.blank?
+			@accInvoices = WkInvoice.where(:parent_type=> parentType, :parent_id=>parent_id)
+		end		
 	end
 
 	def set_filter_session
