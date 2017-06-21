@@ -356,12 +356,6 @@ include WkorderentityHelper
 	
 	end
 	
-	def invreport
-		@invoice = WkInvoice.find(params[:invoice_id].to_i)
-		@invoiceItem = @invoice.invoice_items 
-		render :action => 'invreport', :layout => false
-	end
-	
 	def update
 		errorMsg = nil
 		invoiceItem = nil
@@ -480,28 +474,7 @@ include WkorderentityHelper
 		invoice.destroy
 		flash[:notice] = l(:notice_successful_delete)
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
-	end
-  
-    def getAccountProjIds
-		accArr = ""	
-		accProjId = getProjArrays(params[:parent_id], params[:parent_type] )
-		accPjt = WkAccountProject.where(:parent_id => params[:parent_id],:parent_type => params[:parent_type])
-		unless accPjt.blank?
-			if isAccountBilling(accPjt[0])
-				accArr << "0" + ',' + " " + "\n" 
-			end
-		end
-		
-		if !accProjId.blank?			
-			accProjId.each do | entry|
-				accArr <<  entry.project_id.to_s() + ',' + entry.project_name.to_s()  + "\n" 
-			end
-		end
-		respond_to do |format|
-			format.text  { render :text => accArr }
-		end
-		
-    end
+	end    
 	
   	def set_filter_session
         if params[:searchlist].blank? && session[controller_name].nil?
