@@ -221,25 +221,6 @@ include WkorderentityHelper
 		end		
 	end
 	
-	def newInvoice(parentId, parentType)
-		if !params[:project_id].blank? && params[:project_id] != '0'
-			@projectsDD = Project.where(:id => params[:project_id].to_i).pluck(:name, :id)				
-			setTempInvoice(params[:start_date], params[:end_date], parentId, parentType, params[:populate_items], params[:project_id])			
-		elsif (!params[:project_id].blank? && params[:project_id] == '0') || params[:isAccBilling] == "true"
-			accountProjects = WkAccountProject.where(:parent_type => parentType, :parent_id => parentId.to_i)	
-			unless accountProjects.blank?
-				@projectsDD = accountProjects[0].parent.projects.pluck(:name, :id)
-				setTempInvoice(params[:start_date], params[:end_date], parentId, parentType, params[:populate_items], params[:project_id])
-			else
-				flash[:error] = "No projects in name."
-				redirect_to :action => 'new'
-			end
-		else
-			flash[:error] = "Please select the projects"
-			redirect_to :action => 'new'
-		end
-	end
-	
 	def setTempInvoice(startDate, endDate, relatedParent, relatedTo, populatedItems, projectId)
 		@itemCount = 0
 		@invItems = Hash.new{|hsh,key| hsh[key] = {} }		
