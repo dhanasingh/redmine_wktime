@@ -34,14 +34,6 @@ class WkquoteController < WksupplierorderentityController
 		l(:label_quotes)
 	end
 	
-	# def needBlankForProject
-		# true
-	# end
-	
-	# def needRfqDd
-		# true
-	# end
-	
 	def getItemLabel
 		l(:label_quote_items)
 	end

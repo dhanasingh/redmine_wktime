@@ -22,8 +22,6 @@ before_filter :require_login
 include WktimeHelper
 before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
 
-	def index  
-	end
 	
 	def check_perm_and_redirect
 		unless check_permission
@@ -34,18 +32,6 @@ before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destr
 	
 	def check_permission
 		return isModuleAdmin('wktime_billing_groups')
-	end
-	
-	def index
-	end
-	
-	def edit
-	end
-	
-	def update
-	end
-	
-	def destroy
 	end
 	
 	def getOrderAccountType
@@ -60,7 +46,7 @@ before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destr
 		'I'
 	end
 	
-	def needBlankForProject
+	def needBlankProject
 		false
 	end
 	

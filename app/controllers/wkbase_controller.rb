@@ -18,6 +18,18 @@
 class WkbaseController < ApplicationController
 unloadable
 include WkattendanceHelper
+
+	def index
+	end
+	
+	def edit
+	end
+	
+	def update
+	end
+	
+	def destroy
+	end
   
 	def updateClockInOut
 		lastAttnEntries = findLastAttnEntry(true)

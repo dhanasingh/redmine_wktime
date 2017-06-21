@@ -11,7 +11,7 @@ class WksupplierorderentityController < WkorderentityController
 		'SC'
 	end
 	
-	def needBlankForProject
+	def needBlankProject
 		true
 	end
 	

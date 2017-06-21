@@ -327,7 +327,9 @@ include WkorderentityHelper
 			@itemCount = @itemCount + 1
 			totalAmt = (totalAmt + entry.amount).round(2)
 		end
-		@currency = scheduledEntries[0].currency
+		if !scheduledEntries.blank?  && scheduledEntries[0].blank? 
+			@currency = scheduledEntries[0].currency 
+		end
 		totalAmt
 	end
 	
