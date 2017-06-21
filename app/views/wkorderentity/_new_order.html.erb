@@ -51,9 +51,9 @@
 	<th align="left"><%= l(:label_end_date) %></th>
 	<td align="left" style="padding-left:40px;"><%=h date_field_tag('end_date',Date.today, :size => 10, :required => true) %> <%= calendar_for('end_date') %></td>
 </tr>
-<% if  controller.isPopulateCheckBox %>
+<% if !controller.getPopulateChkBox.blank? %>
 <tr>
-	<th align="left"><label><%= controller.isPopulateCheckBoxLabel %></label></th>
+	<th align="left"><label><%= controller.getPopulateChkBox %></label></th>
 	<td style="padding-left:40px;"><%= check_box_tag('populate_items', 1, false ) %></td>
 </tr>
 <% end %>

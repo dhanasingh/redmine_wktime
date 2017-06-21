@@ -18,12 +18,8 @@ class WksupplierinvoiceController < WksupplierorderentityController
 	def getLabelNewInv
 		l(:label_new_sup_invoice)
 	end
-	
-	# def isPopulateCheckBox
-		# true
-	# end
-	
-	def isPopulateCheckBoxLabel
+		
+	def getPopulateChkBox
 		l(:label_populate_purchase_items)
 	end
 	

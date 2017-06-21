@@ -630,10 +630,6 @@ include WkorderentityHelper
 		l(:label_invoice_date)
 	end
 	
-	def isPopulateCheckBox
-		true
-	end
-	
 	# def requireQuoteDD
 		# false
 	# end

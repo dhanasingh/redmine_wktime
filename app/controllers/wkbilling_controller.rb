@@ -62,12 +62,7 @@ before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destr
 		false
 	end
 	
-	def isPopulateCheckBox
-		false
-	end
-	
-	def isPopulateCheckBoxLabel
-		l(:label_populate_unbilled_items)
+	def getPopulateChkBox	
 	end
 	
 end

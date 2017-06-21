@@ -84,9 +84,9 @@ class WkinvoiceController < WkorderentityController
 		# true
 	# end
 	
-	# def isPopulateCheckBoxLabel
-		# l(:label_populate_unbilled_items)
-	# end
+	def getPopulateChkBox
+		l(:label_populate_unbilled_items)
+	end
 	
 	# def requireRfqDD
 		# false

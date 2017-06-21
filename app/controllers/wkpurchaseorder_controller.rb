@@ -45,7 +45,7 @@ class WkpurchaseorderController < WksupplierorderentityController
 		l(:label_purchase_order)
 	end
 	
-	def isPopulateCheckBoxLabel
+	def getPopulateChkBox
 		l(:label_populate_quote_items)
 	end
 	

@@ -18,8 +18,4 @@ class WksupplierorderentityController < WkorderentityController
 	def requireRfqDD
 		true
 	end
-	
-	def isPopulateCheckBox
-		true
-	end
 end
