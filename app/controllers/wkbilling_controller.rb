@@ -65,4 +65,20 @@ before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destr
 	def getPopulateChkBox	
 	end
 	
+	def isInvGenUnbilledLink
+		false
+	end
+	
+	def isInvPaymentLink
+		false
+	end
+	
+	def addAdditionalTax
+		false
+	end
+	
+	def addQuoteFields
+		false
+	end
+	
 end

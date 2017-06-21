@@ -14,7 +14,7 @@
 				<th class="lbl-txt-align"><%= l(:label_quantity) %></th>				
 				<th class="lbl-txt-align"><%= l(:field_amount) %></th>
 				<th class="lbl-txt-align"><%= l(:field_status_modified_by) %></th>
-				<% if controller.getInvoiceType == 'I' %>
+				<% if controller.isInvPaymentLink %>
 					<th></th>
 				<% end %>
 				<th></th>
@@ -41,7 +41,7 @@
 			<td class="lbl-txt-align"><%=h html_hours("%.2f" % entry.invoice_items.sum(:quantity))   %></td>
 			<td class="lbl-txt-align"><%= entry.invoice_items[0].currency unless entry.invoice_items[0].blank?%> <%=h html_hours("%.2f" % entry.invoice_items.sum(:amount))  %></td>
 			<td class="lbl-txt-align"><%=h entry.modifier.name  %></td>
-			<% if controller.getInvoiceType == 'I' %>
+			<% if controller.isInvPaymentLink %>
 				<td class="lbl-txt-align">
 					<% if entry.total_invoice_amount - entry.total_paid_amount > 0 %>
 						<%= link_to l(:label_pay_invoice), url_for(:controller => "wkpayment", :action => 'edit', :load_payment => true, :related_to => entry.parent_type, :related_parent => entry.parent_id, :project_id => 0 ),  :class => 'icon icon-report' %>

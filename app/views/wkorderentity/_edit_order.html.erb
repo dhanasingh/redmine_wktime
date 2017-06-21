@@ -18,7 +18,7 @@
 			<td style="width: 200px;"> 
 				<%= ": " %>
 				<% if !@invoice.blank? %>
-					<% if @invoice.invoice_number.blank? && controller.getInvoiceType == 'I' %>
+					<% if @invoice.invoice_number.blank? && controller.isInvGenUnbilledLink  %>
 						<span style="color:Purple;"><b><%= l(:label_unbilled) %></b></span>
 					<% else %>
 						<%= @invoice.invoice_number %>
@@ -46,7 +46,7 @@
 			<td> <%= ': ' + (@invoice.blank? ? User.current.to_s : @invoice.modifier.name) %> </td>
 			
 		</tr>
-		<% if controller.getInvoiceType == 'Q' %>
+		<% if controller.addQuoteFields %>
 			<tr>
 				<th align="left"><%= l(:label_rfq_name) %></th> 
 				<td style="width: 200px;"> <%= ': ' + (@rfqObj.blank? ? (@invoice.blank? ? '' : @invoice.rfq_quote.rfq.name) : @rfqObj.name) %> </td>

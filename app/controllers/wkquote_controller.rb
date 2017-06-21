@@ -17,6 +17,13 @@
 
 class WkquoteController < WksupplierorderentityController
   unloadable
+  
+	def editOrderEntity
+		super
+		unless params[:invoice_id].blank?
+			@rfgQuoteEntry = WkRfqQuote.find(@invoice.rfq_quote.id) unless @invoice.blank?
+		end
+	end
 	
 	def getInvoiceType
 		'Q'
@@ -40,5 +47,9 @@ class WkquoteController < WksupplierorderentityController
 	
 	def getDateLbl
 		l(:label_quote_date)
+	end
+	
+	def addQuoteFields
+		true
 	end
 end

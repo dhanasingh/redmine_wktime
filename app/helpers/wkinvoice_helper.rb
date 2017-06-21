@@ -264,6 +264,7 @@ include WkbillingHelper
 					@invItems[@itemCount].store 'item_desc', description
 					@invItems[@itemCount].store 'item_type', 'i'
 					@invItems[@itemCount].store 'rate', rateHash['rate']
+					@invItems[@itemCount].store 'currency', rateHash['currency']
 					@invItems[@itemCount].store 'item_quantity', quantity
 					@invItems[@itemCount].store 'item_amount', itemAmount
 					@itemCount = @itemCount + 1
@@ -324,6 +325,7 @@ include WkbillingHelper
 					@invItems[@itemCount].store 'item_desc', pjtDescription
 					@invItems[@itemCount].store 'item_type', 'i'
 					@invItems[@itemCount].store 'rate', rateHash['rate']
+					@invItems[@itemCount].store 'currency', rateHash['currency']
 					@invItems[@itemCount].store 'item_quantity', pjtQuantity.round(2)
 					@invItems[@itemCount].store 'item_amount', itemAmount.round(2)
 					@itemCount = @itemCount + 1
@@ -585,6 +587,7 @@ include WkbillingHelper
 				@invItems[@itemCount].store 'item_type', 'c'
 				@invItems[@itemCount].store 'rate', entry.available_pay_credit
 				@invItems[@itemCount].store 'item_quantity', 1
+				@invItems[@itemCount].store 'currency', entry.currency
 				@invItems[@itemCount].store 'item_amount', entry.available_pay_credit
 				totalCreditAmount = totalCreditAmount + entry.available_pay_credit
 				credit_invoice_id = nil

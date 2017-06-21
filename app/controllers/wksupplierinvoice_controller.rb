@@ -3,8 +3,13 @@ class WksupplierinvoiceController < WksupplierorderentityController
 
 
 
-  # def index
-  # end
+	def newSupOrderEntity(parentId, parentType)
+		super			
+		@poId =params[:po_id].to_i
+		if !params[:populate_items].blank? && params[:populate_items] == '1'
+			@invoiceItem = WkInvoiceItem.where(:invoice_id => params[:po_id].to_i).select(:name, :rate, :amount, :quantity, :item_type, :currency, :project_id, :modifier_id,  :invoice_id )
+		end 
+	end
 
   
 	def getInvoiceType

@@ -6,7 +6,7 @@
 	//getMembersbyGroup
 </script>
 <% itemHash = { 'i' => l(:label_invoice), 'c' =>  l(:label_credit)  } %>
-<% if  controller.getInvoiceType == 'Q' 
+<% if  controller.addAdditionalTax 
 		tax_hash = {'t' => "Tax"}
 		itemHash.merge!(tax_hash)
    end 
@@ -186,7 +186,7 @@
 <%# end %>
 <%# unless @invoiceItem.blank? %>
 <% tax_index = 1 %>
-<% if controller.getInvoiceType == 'I' %>
+<% if !controller.addAdditionalTax %>
 <table id="taxTable" class="list time-entries">
 	<% unless @invoiceItem.blank? %>
 		<% @invoiceItem.where(:item_type => 't').each do |entry| %>
@@ -300,8 +300,8 @@
 <% end %> 
 <%=h hidden_field_tag("deletedids",  "" )  %>
 <%= submit_tag l(:button_save),  :hidden => false, :id => 'items_save', :disabled => (@preBilling || isDisable) %>
-<% if controller.getInvoiceType == 'I' %>
-	<% if !@invoiceItem.blank? && @invoice.invoice_type == 'I' %>
+<% if controller.isInvPaymentLink %>
+	<% if !@invoiceItem.blank? #&& @invoice.invoice_type == 'I' %>
 		<%= link_to l(:label_pay_invoice), url_for(:controller => "wkpayment", :action => 'edit', :load_payment => true, :related_to => @invoice.parent_type, :related_parent => @invoice.parent_id, :project_id => 0 ),  :class => 'icon icon-report' %>
 	<% end %>
 	<% unless @invoiceItem.blank? %>
