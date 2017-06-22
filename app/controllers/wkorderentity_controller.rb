@@ -208,7 +208,8 @@ include WkorderentityHelper
 		else
 			@invoice = WkInvoice.new
 			invoicePeriod = [params[:inv_start_date], params[:inv_end_date]]
-			addInvoice(params[:parent_id], params[:parent_type],  params[:project_id1],params[:inv_date],  invoicePeriod, false, getInvoiceType)
+			saveOrderInvoice(params[:parent_id], params[:parent_type],  params[:project_id1],params[:inv_date],  invoicePeriod, false, getInvoiceType)
+			#addInvoice(params[:parent_id], params[:parent_type],  params[:project_id1],params[:inv_date],  invoicePeriod, false, getInvoiceType)
 		end
 		@invoice.status = params[:field_status]
 		if @invoice.status_changed?
@@ -278,14 +279,15 @@ include WkorderentityHelper
 		end
 		
 		unless @invoice.id.blank?
-			case getInvoiceType			
-			when 'Q'
-			  saveRfqQuotes(params[:rfq_quote_id], params[:rfq_id].to_i, @invoice.id, params[:quote_won], params[:winning_note])	
-			when 'PO'
-				savePurchaseOrderQuotes(params[:po_id],  @invoice.id, params[:po_quote_id] )
-			when 'SI'
-				savePoSupInv(params[:si_id], params[:si_inv_id], @invoice.id)
-			end
+			# case getInvoiceType			
+			# when 'Q'
+			  # saveRfqQuotes(params[:rfq_quote_id], params[:rfq_id].to_i, @invoice.id, params[:quote_won], params[:winning_note])	
+			# when 'PO'
+				# savePurchaseOrderQuotes(params[:po_id],  @invoice.id, params[:po_quote_id] )
+			# when 'SI'
+				# savePoSupInv(params[:si_id], params[:si_inv_id], @invoice.id)
+			# end
+			saveOrderRelations
 			totalAmount = @invoice.invoice_items.sum(:amount)
 			if (totalAmount.round - totalAmount) != 0
 				addRoundInvItem(totalAmount)
@@ -307,6 +309,12 @@ include WkorderentityHelper
 			flash[:error] = errorMsg
 			redirect_to :action => 'edit', :invoice_id => @invoice.id
 	   end
+	end
+	
+	def saveOrderInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)
+	end
+	
+	def saveOrderRelations		
 	end
 	
 	def destroy

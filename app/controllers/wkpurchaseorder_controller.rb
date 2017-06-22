@@ -17,7 +17,7 @@
 class WkpurchaseorderController < WksupplierorderentityController
   unloadable
 
-
+	@@pomutex = Mutex.new
 
 	def newSupOrderEntity(parentId, parentType)
 		super
@@ -31,6 +31,20 @@ class WkpurchaseorderController < WksupplierorderentityController
 				@invoiceItem = WkInvoiceItem.where(:invoice_id => @rfqQuotObj.quote_id).select(:name, :rate, :amount, :quantity, :item_type, :currency, :project_id, :modifier_id,  :invoice_id )
 			end		
 		end			
+	end
+	
+	def saveOrderInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)
+		begin			
+			@@pomutex.synchronize do
+				addInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)
+			end				
+		rescue => ex
+		  logger.error ex.message
+		end
+	end
+	
+	def saveOrderRelations
+		savePurchaseOrderQuotes(params[:po_id],  @invoice.id, params[:po_quote_id] )
 	end
 	
 	def getRfqQuoteIds

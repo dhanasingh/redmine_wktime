@@ -1,7 +1,7 @@
 class WksupplierinvoiceController < WksupplierorderentityController
   unloadable
 
-
+	@@simutex = Mutex.new
 
 	def newSupOrderEntity(parentId, parentType)
 		super			
@@ -9,6 +9,20 @@ class WksupplierinvoiceController < WksupplierorderentityController
 		if !params[:populate_items].blank? && params[:populate_items] == '1'
 			@invoiceItem = WkInvoiceItem.where(:invoice_id => params[:po_id].to_i).select(:name, :rate, :amount, :quantity, :item_type, :currency, :project_id, :modifier_id,  :invoice_id )
 		end 
+	end
+	
+	def saveOrderInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)
+		begin			
+			@@simutex.synchronize do
+				addInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)
+			end				
+		rescue => ex
+		  logger.error ex.message
+		end
+	end
+	
+	def saveOrderRelations
+		savePoSupInv(params[:si_id], params[:si_inv_id], @invoice.id)
 	end
 	
 	def getRfqPoIds

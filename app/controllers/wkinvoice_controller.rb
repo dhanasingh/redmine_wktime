@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkinvoiceController < WkorderentityController
-
+	@@invmutex = Mutex.new
 
 	def newOrderEntity(parentId, parentType)	
 		newInvoice(parentId, parentType)
@@ -40,7 +40,16 @@ class WkinvoiceController < WkorderentityController
 			redirect_to :action => 'new'
 		end
 	end
-
+	
+	def saveOrderInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)
+		begin			
+			@@invmutex.synchronize do
+				addInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)
+			end				
+		rescue => ex
+		  logger.error ex.message
+		end		
+	end
 	
 	def previewBilling(accountProjects)
 		lastParentId = 0

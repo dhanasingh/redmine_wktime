@@ -18,12 +18,30 @@
 class WkquoteController < WksupplierorderentityController
   unloadable
   
+  @@quotemutex = Mutex.new
+  
 	def editOrderEntity
 		super
 		unless params[:invoice_id].blank?
 			@rfgQuoteEntry = WkRfqQuote.find(@invoice.rfq_quote.id) unless @invoice.blank?
 		end
 	end
+	
+	# Synchronize the quote insert because maintain the sequence of invoice num key 
+	def saveOrderInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)
+		begin			
+			@@quotemutex.synchronize do						
+				addInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)				
+			end				
+		rescue => ex
+		  logger.error ex.message
+		end
+	end	
+	
+	def saveOrderRelations
+		saveRfqQuotes(params[:rfq_quote_id], params[:rfq_id].to_i, @invoice.id, params[:quote_won], params[:winning_note])
+	end
+
 	
 	def getInvoiceType
 		'Q'
