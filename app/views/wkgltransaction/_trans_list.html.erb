@@ -6,29 +6,115 @@
          <tr>
 				<th class="lbl-txt-align"><%=  l(:label_type) %></th>
 				<th class="lbl-txt-align"><%=  l(:label_date) %></th>
-				<th class="lbl-txt-align"><%= l(:label_debit) %></th>
-				<th class="lbl-txt-align"><%= l(:label_credit) %></th>				
-				<th class="lbl-txt-align"><%= l(:field_amount) %></th>
+				<th class="lbl-txt-align"><%= l(:label_particulars) %></th>
+				<th class="lbl-txt-align"><%= l(:label_debit)  %></th>
+				<th class="lbl-txt-align"><%= l(:label_credit) %></th>	
 				<th></th>
          </tr>
   </thead>
    <tbody>
-	<% @transEntries.each do |entry| %>
-		<% entry_details = entry.transaction_details.includes(:ledger).order(:detail_type).pluck('wk_ledgers.name, wk_gl_transaction_details.amount') 
-		transTotal = entry_details.inject(0){|sum,x| sum + x[1] }/2 %>
-		<tr>
-		    <td class="lbl-txt-align"><%=h transTypeHash[entry.trans_type]  %></td>
-			<td class="lbl-txt-align"><%=h entry.trans_date %></td>
-			<td class="lbl-txt-align"><%=h entry_details.last[0]%></td>
-			<td class="lbl-txt-align"><%=h entry_details.first[0] %></td>
-			<td class="lbl-txt-align"><%=h html_hours("%.2f" % transTotal)  %></td>
-			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :txn_id => entry.id, :tab => controller.controller_name},   :title => l(:button_edit) %>
-			<% if isModuleAdmin('wktime_accounting_admin') %>
-				<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :txn_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
-			<% end %>
-			</td>
-		</tr>
-	<% end %>
+	<% 
+		crTotal = 0 
+		dbTotal =0 
+		openingBalance = 0
+		openingBalHash = nil
+		asOnDate = @transEntries.minimum(:trans_date)#@from.blank? ?  Date.today : @from
+		openingBalHash = getEachLedgerBSAmt(asOnDate, [@selectedLedger.ledger_type]) unless @ledgerId.blank?
+		openingBalance = openingBalHash.values[0] unless openingBalHash.blank?
+		@transEntries.each do |entry| 
+			entry_details = entry.transaction_details.includes(:ledger).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type') 
+			transTotal = entry_details.inject(0){|sum,x| sum + x[1] }/2
+			unless @ledgerId.blank?
+				selectedLedgerEntries = entry.transaction_details.includes(:ledger).where(:wk_gl_transaction_details => { :ledger_id => @ledgerId }).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type')
+				otherDetailTypeEntries = entry.transaction_details.includes(:ledger).where.not(:wk_gl_transaction_details => { :ledger_id => @ledgerId, :detail_type=> selectedLedgerEntries[0][2]}).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type')
+				partLedgerName = otherDetailTypeEntries[0][3]
+				trAmount = selectedLedgerEntries[0][1]
+			else
+				detailType = 'c'
+				case entry.trans_type
+				when 'C'
+					detailType = 'c'
+				when 'P'
+					detailType = 'd'
+				when 'R'
+					detailType = 'c'
+				when 'J'
+					detailType = 'd'
+				end
+				selectedLedgerEntries = entry.transaction_details.includes(:ledger).where(:wk_gl_transaction_details => { :detail_type => detailType }).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type')
+				otherDetailTypeEntries = entry.transaction_details.includes(:ledger).where.not(:wk_gl_transaction_details => { :detail_type => detailType }).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type')
+				partLedgerName = selectedLedgerEntries[0][3]
+				trAmount = selectedLedgerEntries[0][1]
+			end
+			dbAmount = nil
+			crAmount = nil
+			if selectedLedgerEntries[0][2] == 'c'
+				crAmount = trAmount
+				crTotal = crTotal + trAmount unless trAmount.blank?
+			else
+				dbAmount = trAmount
+				dbTotal = dbTotal + trAmount unless trAmount.blank?
+			end
+			%>
+			<tr>
+				<td class="lbl-txt-align"><%=h transTypeHash[entry.trans_type]  %></td>
+				<td class="lbl-txt-align"><%=h entry.trans_date %></td>
+				<td class="lbl-txt-align"><%=h partLedgerName %></td>
+				<td class="lbl-txt-align"><%=h  "%.2f" % dbAmount unless dbAmount.blank? %></td>
+				<td class="lbl-txt-align"><%=h  "%.2f" % crAmount unless crAmount.blank? %></td>
+				<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :txn_id => entry.id, :tab => controller.controller_name},   :title => l(:button_edit) %>
+				<% if isModuleAdmin('wktime_accounting_admin') %>
+					<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :txn_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+				<% end %>
+				</td>
+			</tr>
+		<% end %>
+		<% 	unless @selectedLedger.blank?
+				isSubCr = isSubtractCr(@selectedLedger.ledger_type)
+				if isSubCr
+					currentBal = dbTotal - crTotal
+					#closeBal = currentBal + openingBalance
+				else
+					currentBal = crTotal - dbTotal
+				end
+				closeBal = currentBal + openingBalance
+			
+		%>
+			<tr>
+				<th class="lbl-txt-align"><%= %></th>
+				<th class="lbl-txt-align"><%=  %></th>
+				<th class="lbl-txt-align"><%=  "Opening Balance:"%></th>
+				<% if (isSubCr && openingBalance > 0) || (!isSubCr && openingBalance < 0) %>
+					<th class="lbl-txt-align"><%=  "%.2f" % openingBalance  %></th>
+					<th class="lbl-txt-align"><%=  %></th>	
+				<% else %>
+					<th class="lbl-txt-align"><%=   %></th>
+					<th class="lbl-txt-align"><%=  "%.2f" % openingBalance %></th>	
+				<% end %>
+				<th></th>
+			</tr> 
+			<tr>
+				<th class="lbl-txt-align"><%= %></th>
+				<th class="lbl-txt-align"><%=  %></th>
+				<th class="lbl-txt-align"><%=  "Current Total:"%></th>
+				<th class="lbl-txt-align"><%=  "%.2f" % dbTotal  %></th>
+				<th class="lbl-txt-align"><%=  "%.2f" % crTotal %></th>	
+				<th></th>
+			</tr> 
+			<tr>
+				<th class="lbl-txt-align"><%= %></th>
+				<th class="lbl-txt-align"><%=  %></th>
+				<th class="lbl-txt-align"><%=  "Closing Balance:"%></th>
+				<% if (isSubCr && closeBal > 0) || (!isSubCr && closeBal < 0) %>
+					<th class="lbl-txt-align"><%=  "%.2f" % closeBal.abs  %></th>
+					<th class="lbl-txt-align"><%=  %></th>	
+				<% else %>
+					<th class="lbl-txt-align"><%=   %></th>
+					<th class="lbl-txt-align"><%=  "%.2f" % closeBal.abs %></th>	
+				<% end %>
+				<th></th>
+			</tr> 
+		<% end %>
    </tbody>
 </table>
 </div>

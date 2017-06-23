@@ -32,15 +32,40 @@
 	%>
 	
 	<fieldset style="width: 94%;margin:1px 34px 0px 1px;background-color:#F6F6F6;float:right"><legend><b><%=l(:label_basic)%></b></legend>
-		<table width="100px">
-			<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['b'], salaryComponents: salaryComponents}%>
+		<table "width:100%; border-collapse: collapse;">
+			<thead>
+				<tr>
+					<th class="lbl-txt-align" style="padding:0 5px 0 5px;"><%= l(:label_override_common_setting) %></th>
+					<th class="lbl-txt-align" style="padding:0 5px 0 5px;"><%= l(:label_salary_component) %></th>
+					<th class="lbl-txt-align" style="padding:0 5px 0 5px;"><%= l(:label_dependent_field) %></th>
+					<th class="lbl-txt-align" style="padding:0 5px 0 5px;"><%= l(:label_factor) %></th>
+					<th class="lbl-txt-align"><%= l(:label_actual) %></th>
+				</tr>
+			</thead>
+			<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['b'], salaryComponents: salaryComponents, actualSalVal: actualSalValHash['b']}%>
 		</table>
 	</fieldset>
 		&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
 		
 	 <fieldset class="box tabular" style="display: inline-block; vertical-align: top; width:45%;"><legend><b><%=l(:label_allowances)%></b></legend>
 		<table style="width:100%;border-collapse: collapse;" >
-			<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['a'], salaryComponents: salaryComponents}%>
+			<thead>
+				<tr>
+					<th class="lbl-txt-align"><%= l(:label_override_common_setting) %></th>
+					<th class="lbl-txt-align"><%= l(:label_salary_component) %></th>
+					<th class="lbl-txt-align"><%= l(:label_dependent_field) %></th>
+					<th class="lbl-txt-align"><%= l(:label_factor) %></th>
+					<th class="lbl-txt-align"><%= l(:label_actual) %></th>
+				</tr>
+			</thead>
+			<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['a'], salaryComponents: salaryComponents, actualSalVal: actualSalValHash['a']}%>
+			<tr>
+				<th></th>
+				<th></th>
+				<th></th>
+				<th class="lbl-txt-align"><%= l(:label_gross) %></th>
+				<th align='right' style="border-bottom: solid thin;border-top: solid thin;"><%=  "%.2f" % (actualSalValHash['a'].values.sum + actualSalValHash['b'].values.sum) %></th>
+			</tr>
 		</table>
 	</fieldset>
 		&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
@@ -48,18 +73,30 @@
 		
 	  <fieldset class="box tabular" style="display: inline-block; vertical-align: top; width:45%; "><legend><b><%=l(:label_deduction)%></b></legend>
 		<table style="width:100%;border-collapse: collapse;">
-			<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['d'], salaryComponents: salaryComponents}%>
+			<thead>
+				<tr>
+					<th class="lbl-txt-align"><%= l(:label_override_common_setting) %></th>
+					<th class="lbl-txt-align"><%= l(:label_salary_component) %></th>
+					<th class="lbl-txt-align"><%= l(:label_dependent_field) %></th>
+					<th class="lbl-txt-align"><%= l(:label_factor) %></th>
+					<th class="lbl-txt-align"><%= l(:label_actual) %></th>
+				</tr>
+			</thead>
+			<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['d'], salaryComponents: salaryComponents, actualSalVal: actualSalValHash['d']}%>
+			<tr>
+				<th></th>
+				<th></th>
+				<th></th>
+				<th class="lbl-txt-align"><%= l(:label_deduction) %></th>
+				<th align='right' style="border-bottom: solid thin;border-top: solid thin;"><%=  "%.2f" % actualSalValHash['d'].values.sum %></th>
+			</tr>
 		</table>
 	 </fieldset><br>
 	<div style="padding-right:50px;">
 		<table width="15%" align="right" style="border-collapse: collapse;border: 0px solid black;">
 			<tr>
-				<td style="float:left; "><b><%=l(:label_gross) %></b></td>
-				<td style="text-align:right; border-left: solid 0px black;"> <%=h "%.2f" % (actualSalValHash['b'].values.sum + actualSalValHash['a'].values.sum) %> </td>
-			</tr>
-			<tr>
 				<td style="float:left;"><b><%=l(:label_net)%></b>
-				<td style="text-align:right; border-left: solid 0px black;"> <%=h "%.2f" % (actualSalValHash['b'].values.sum + actualSalValHash['a'].values.sum - actualSalValHash['d'].values.sum) %></td>
+				<td style="text-align:right; border-left: solid 0px black;"><b> <%=h "%.2f" % (actualSalValHash['b'].values.sum + actualSalValHash['a'].values.sum - actualSalValHash['d'].values.sum) %></b></td>
 			</tr>
 		</table>
 	</div>
