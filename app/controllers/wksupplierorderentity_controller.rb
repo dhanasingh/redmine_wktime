@@ -31,10 +31,14 @@ class WksupplierorderentityController < WkorderentityController
 	end
 	
 	def needBlankProject
-		true
+		false
 	end	
 	
 	def addAdditionalTax
 		true
+	end
+	
+	def needChangedProject
+		false
 	end
 end

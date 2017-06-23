@@ -72,4 +72,8 @@ before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destr
 		false
 	end
 	
+	def needChangedProject
+		true
+	end
+	
 end
