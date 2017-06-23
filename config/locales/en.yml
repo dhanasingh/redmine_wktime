@@ -627,3 +627,7 @@ en:
   label_supplier_account: Supplier Account
   label_supplier_contact: Supplier Contact
   label_winning_quote: Winning Quote
+  label_purchasing: Purchasing
+  label_enable_pur_module: Enable Purchase Module
+  label_pur_user_group: Purchase User Group
+  label_pur_admin_group: Purchase Admin Group

@@ -744,7 +744,8 @@ end
 				{:name => 'payroll', :partial => 'settings/tab_payroll', :label => :label_payroll},
 				{:name => 'billing', :partial => 'settings/tab_billing', :label => :label_wk_billing},
 				{:name => 'accounting', :partial => 'settings/tab_accounting', :label => :label_accounting},
-				{:name => 'CRM', :partial => 'settings/tab_crm', :label => :label_crm}
+				{:name => 'CRM', :partial => 'settings/tab_crm', :label => :label_crm},
+				{:name => 'purchase', :partial => 'settings/tab_purchase', :label => :label_purchasing}
 			   ]	
 	end	
 	

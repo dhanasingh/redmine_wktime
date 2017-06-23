@@ -1,0 +1,43 @@
+
+<% @ledgers = ["", ""] %> 
+<% @ledgers << WkLedger.order(:name).pluck(:name, :id) %> 
+<%  ledgerhash = Hash[*@ledgers.flatten].invert %>
+
+<fieldset>
+	<legend><%= l(:label_purchasing) %></legend>
+	
+	<p style="margin-left: -110px;">
+			<%= check_box_tag('settings[wktime_enable_pur_module]', 1, @settings['wktime_enable_pur_module'].to_i == 1) %> <label><%= l(:label_enable_pur_module) %></label>
+	</p>
+	
+	<%
+			accountGroups = Array.new
+			accGroup = Group.order('lastname')
+			unless accGroup.blank?
+				accountGroups = accGroup.collect {|t| [t.lastname, t.id] }
+			end
+			accountGroups.unshift(["",""])
+	%>
+	<p style="padding-left: 190px;">
+		<label><%=l(:label_pur_user_group)%></label>
+		<%=  select_tag('settings[wktime_pur_group]',
+				options_for_select(accountGroups, :selected => @settings['wktime_pur_group'].blank? ? "" : @settings['wktime_pur_group']))%>
+	</p>
+	
+	<p style="padding-left: 190px;">
+		<label><%=l(:label_pur_admin_group)%></label>
+		<%=  select_tag('settings[wktime_pur_admin]',
+				options_for_select(accountGroups, :selected => @settings['wktime_pur_admin'].blank? ? "" : @settings['wktime_pur_admin']))%>
+	</p>
+	
+	<p style="margin-left: -110px;">
+			<%= check_box_tag('settings[purchase_auto_post_gl]', 1, @settings['purchase_auto_post_gl'].to_i == 1) %> <label><%= l(:label_auto_post_gl) %></label>
+	</p>
+	
+	<p style="margin-left: -110px;"><label><%= l(:label_credit) + " " +  l(:label_ledger)  %></label>
+	    <%= select_tag 'settings[purchase_cr_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['purchase_cr_ledger']) %></p>
+	
+	<p style="margin-left: -110px;"><label><%= l(:label_debit) + " " +  l(:label_ledger)  %></label>
+	    <%= select_tag 'settings[purchase_db_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['purchase_db_ledger']) %></p>
+	
+</fieldset>
