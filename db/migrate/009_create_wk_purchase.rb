@@ -49,6 +49,7 @@ class CreateWkPurchase < ActiveRecord::Migration
 			t.references :quote, :class => "wk_invoices", :null => true, :index => true
 			t.boolean :is_won, :default => false
 			t.string :winning_note
+			t.date :won_date
 			t.timestamps null: false
 		end
 		

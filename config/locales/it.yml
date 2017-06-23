@@ -629,3 +629,4 @@ it:
   label_enable_pur_module: Enable Purchase Module
   label_pur_user_group: Purchase User Group
   label_pur_admin_group: Purchase Admin Group
+  report_purchase_cycle: Purchase Cycle
