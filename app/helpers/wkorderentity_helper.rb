@@ -64,7 +64,10 @@ include WkcrmHelper
 		end
 		rfqQuote.rfq_id = rfqId
 		rfqQuote.quote_id = quoteId
-		rfqQuote.is_won = isWon
+		rfqQuote.is_won = isWon.blank? ? false : isWon
+		if rfqQuote.is_won.blank? || rfqQuote.is_won_changed?		
+			rfqQuote.won_date =  rfqQuote.is_won ? Date.today : nil
+		end
 		rfqQuote.winning_note = winningNote
 		rfqQuote.save()
 	end
