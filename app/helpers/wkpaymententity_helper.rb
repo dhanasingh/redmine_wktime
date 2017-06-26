@@ -12,7 +12,7 @@ include WkbillingHelper
 							value.blank? ? 'WkAccount' : value)
 	end
 	
-	def updatePaymentItem(payItem, paymentId, invoiceId, amount, currency, transId)
+	def updatePaymentItem(payItem, paymentId, invoiceId, amount, currency) #, transId
 		payItem.payment_id = paymentId
 		payItem.invoice_id = invoiceId
 		payItem.is_deleted = false

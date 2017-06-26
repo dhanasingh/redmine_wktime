@@ -34,6 +34,7 @@ include WkaccountingHelper
 		txnType	
 	end
 	
+	# payInvId - Currently not in use. It is useful to calculate flactuation.
 	def saveGlTransaction(transModule, id, trasdate, transType, comment, amount, currency, isDiffCur, payInvId)
 		glTransaction = nil
 		orgAmount = nil

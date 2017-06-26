@@ -20,7 +20,7 @@ module WkbillingHelper
 	#include WkinvoiceHelper
 	include WkgltransactionHelper
 	
-	def postToGlTransaction(transModule, transId, transDate, amount, currency, payInvId)
+	def postToGlTransaction(transModule, transId, transDate, amount, currency, description, payInvId)
 		# transId = transObj.gl_transaction.blank? ? nil : transObj.gl_transaction.id
 		# if transObj.class.name == "WkInvoice"
 			# transModule = 'invoice'
@@ -40,7 +40,7 @@ module WkbillingHelper
 			else
 				isDiffCur = true 
 			end
-			glTransaction = saveGlTransaction(transModule, transId, transDate, transType, nil, amount, currency, isDiffCur, payInvId)
+			glTransaction = saveGlTransaction(transModule, transId, transDate, transType, description, amount, currency, isDiffCur, payInvId)
 		end
 		glTransaction
 	end

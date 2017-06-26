@@ -21,7 +21,7 @@ class WkPaymentItem < ActiveRecord::Base
   belongs_to :payment, :class_name => 'WkPayment'
   belongs_to :modifier, :class_name => 'User'
   belongs_to :invoice, :class_name => 'WkInvoice'
-  belongs_to :gl_transaction , :class_name => 'WkGlTransaction', :dependent => :destroy
+  #belongs_to :gl_transaction , :class_name => 'WkGlTransaction', :dependent => :destroy
   scope :current_items, -> { where(is_deleted: false) }
   
   attr_protected :modifier_id
