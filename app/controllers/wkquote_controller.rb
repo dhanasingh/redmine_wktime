@@ -39,7 +39,9 @@ class WkquoteController < WksupplierorderentityController
 	end	
 	
 	def saveOrderRelations
-		saveRfqQuotes(params[:rfq_quote_id], params[:rfq_id].to_i, @invoice.id, params[:quote_won], params[:winning_note])
+		isWon = params[:quote_won].blank? ? nil : params[:quote_won]
+		winNote = params[:winning_note].blank? ? "" : params[:winning_note]
+		saveRfqQuotes(params[:rfq_quote_id], params[:rfq_id].to_i, @invoice.id, isWon, winNote)
 	end
 
 	
@@ -81,5 +83,9 @@ class WkquoteController < WksupplierorderentityController
 	
 	def getOrderNumberPrefix
 		'wktime_quote_no_prefix'
+	end
+	
+	def getNewHeaderLbl
+		l(:label_new_quote)
 	end
 end

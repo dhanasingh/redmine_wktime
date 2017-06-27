@@ -271,5 +271,9 @@ class WkinvoiceController < WkorderentityController
 	def getOrderNumberPrefix
 		'wktime_invoice_no_prefix'
 	end
+	
+	def getNewHeaderLbl
+		l(:label_new_invoice)
+	end
 
 end

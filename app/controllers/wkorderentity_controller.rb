@@ -212,7 +212,7 @@ include WkorderentityHelper
 			saveOrderInvoice(params[:parent_id], params[:parent_type],  params[:project_id1],params[:inv_date],  invoicePeriod, false, getInvoiceType)
 			#addInvoice(params[:parent_id], params[:parent_type],  params[:project_id1],params[:inv_date],  invoicePeriod, false, getInvoiceType)
 		end
-		@invoice.status = params[:field_status]
+		@invoice.status = params[:field_status] unless params[:field_status].blank?
 		unless params[:inv_number].blank?
 			@invoice.invoice_number = params[:inv_number]
 		end

@@ -79,4 +79,8 @@ class WksupplierinvoiceController < WksupplierorderentityController
 		'wktime_si_no_prefix'
 	end
 	
+	def getNewHeaderLbl
+		l(:label_new_sup_invoice)
+	end
+	
 end

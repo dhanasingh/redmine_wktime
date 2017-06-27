@@ -100,4 +100,8 @@ class WkpurchaseorderController < WksupplierorderentityController
 		'wktime_po_no_prefix'
 	end
 	
+	def getNewHeaderLbl
+		l(:label_new_pur_order)
+	end
+	
 end

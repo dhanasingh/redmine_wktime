@@ -83,4 +83,10 @@ before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destr
 	def getOrderNumberPrefix
 	end
 	
+	def getAccountDDLbl
+		l(:label_account)
+	end
+	
+	def getNewHeaderLbl
+	end
 end

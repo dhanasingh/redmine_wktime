@@ -41,4 +41,8 @@ class WksupplierorderentityController < WkorderentityController
 	def needChangedProject
 		false
 	end
+	
+	def getAccountDDLbl
+		l(:label_supplier_account)
+	end
 end

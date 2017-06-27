@@ -40,7 +40,7 @@ class WkrfqController < ApplicationController
 		  rfq = WkRfq.find(params[:rfq_id])
 		end
 		rfq.name = params[:name]
-		rfq.status = params[:status]
+		rfq.status = params[:status] unless params[:status].blank?
 		rfq.start_date = params[:start_date]
 		rfq.end_date = params[:end_date]
 		rfq.description = params[:description]

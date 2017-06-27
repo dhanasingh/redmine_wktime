@@ -8,12 +8,14 @@
 			<th align="left"><%= l(:field_name) %></th>
 			<td align="left" style="padding-left:40px;"><%=h text_field_tag("name",@rfqEntry.blank? ? nil : @rfqEntry.name, :required => true,:size => 85) %> </td></tr>
 		</tr>
-		<tr>
-			<th align="left"><%= l(:field_status) %></th>
-			<td align="left" style="padding-left:40px;">
-				<%=h select_tag('status',options_for_select(getRfqStatusHash.invert, :selected => @rfqEntry.blank? ? getRfqStatusHash.invert : @rfqEntry.status )) %>  
-			</td></tr>
-		</tr>
+		<% unless @rfqEntry.blank? %>
+			<tr>
+				<th align="left"><%= l(:field_status) %></th>
+				<td align="left" style="padding-left:40px;">
+					<%=h select_tag('status',options_for_select(getRfqStatusHash.invert, :selected => @rfqEntry.blank? ? getRfqStatusHash.invert : @rfqEntry.status )) %>  
+				</td></tr>
+			</tr>
+		<% end %>
 		<tr>			
 			<th align="left"><%= l(:label_start_date) %></th> 
 			<td align="left" style="padding-left:40px;"><%=h date_field_tag('start_date', (@rfqEntry.blank? ? Date.today.to_s : @rfqEntry.start_date.to_s), :size => 10) %> <%= calendar_for('start_date') %></td>

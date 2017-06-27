@@ -70,7 +70,7 @@ $(document).ready(function()
 	:onchange => " if(#{pjtChanged}) { accProjChanged(#{User.current.id}, this.id, false, #{blankOptionForPjt}); }   ") %>
 	</td>
 
-	<th align="left"><%= radio_button_tag 'polymorphic_filter', '3', accountSelection, :onclick => '$("#account_id").removeAttr("disabled");$("#contact_id").attr("disabled", true);' %><%= l(:label_account) %></th>
+	<th align="left"><%= radio_button_tag 'polymorphic_filter', '3', accountSelection, :onclick => '$("#account_id").removeAttr("disabled");$("#contact_id").attr("disabled", true);' %><%= controller.getAccountDDLbl %></th>
 	<td><%=h select_tag('account_id', options_for_select(accountArr, :selected => account_id.blank? ? accountArr : account_id ),
 	:onchange => " if(#{pjtChanged}) { accProjChanged(#{User.current.id}, this.id, false, #{blankOptionForPjt}); }") %></td>
 

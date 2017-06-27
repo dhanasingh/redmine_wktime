@@ -30,10 +30,11 @@
 			</td>
 			<th align="left"><%= controller.getDateLbl %></th>
 			<td style="width: 200px;"><%= ": "%> <%=h date_field_tag('inv_date', (@invoice.blank? ? Date.today.to_s : @invoice.invoice_date.to_s), :size => 10, :required => true, :disabled => @preBilling) %> <%= calendar_for('inv_date') %></td>
-			
-			<th align="left" style="width:20px;"><%= l(:field_status) %></th> 
-			<td><%= ": "%>
-			<%=h select_tag('field_status',options_for_select(hash_status.invert, :selected => @invoice.blank? ? hash_status.invert : @invoice.status ), :disabled => @preBilling) %>  </td>
+			<% unless @invoice.new_record? %>
+				<th align="left" style="width:20px;"><%= l(:field_status) %></th> 
+				<td><%= ": "%>
+				<%=h select_tag('field_status',options_for_select(hash_status.invert, :selected => @invoice.blank? ? hash_status.invert : @invoice.status ), :disabled => @preBilling) %>  </td>
+			<% end %>
 			
 		</tr>
 		<%# projectName = (@invoiceItem.blank? ? (@projectsDD.blank? ? '' : @projectsDD[0][0].to_s) : @invoiceItem[0].project.name)   %>
@@ -52,16 +53,17 @@
 			<tr>
 				<th align="left"><%= l(:label_rfq_name) %></th> 
 				<td style="width: 200px;"> <%= ': ' + (@rfqObj.blank? ? (@invoice.blank? ? '' : @invoice.rfq_quote.rfq.name) : @rfqObj.name) %> </td>
-				
-				<th align="left" ><%= l(:label_won_note) %></th>
-				<td rowspan= "2" colspan="8" align="left" ><%= text_area_tag 'winning_note', (@rfgQuoteEntry.blank? ? (@invoice.blank? ? '' : (@invoice.rfq_quote.blank? ? '' : @invoice.rfq_quote.winning_note)) : @rfgQuoteEntry.winning_note), :maxlength => 255, :style => "width:605px; height:80px;" %></td>
+				<% unless @invoice.new_record? %>
+					<th align="left" ><%= l(:label_won_note) %></th>
+					<td rowspan= "2" colspan="8" align="left" ><%= text_area_tag 'winning_note', (@rfgQuoteEntry.blank? ? (@invoice.blank? ? '' : (@invoice.rfq_quote.blank? ? '' : @invoice.rfq_quote.winning_note)) : @rfgQuoteEntry.winning_note), :maxlength => 255, :style => "width:605px; height:80px;" %></td>
+				<% end %>
 			</tr>
-			<tr>
-				<th align="left"><label><%= l(:label_won) %></label></th>
-				<td><%= check_box_tag('quote_won', 1, (@invoice.blank? ? false : (@invoice.rfq_quote.blank? ? false : @invoice.rfq_quote.is_won)) ) %></td>	
-				
-				
-			</tr>
+			<% unless @invoice.new_record? %>
+				<tr>
+					<th align="left"><label><%= l(:label_winning_quote) %></label></th>
+					<td><%= check_box_tag('quote_won', 1, (@invoice.blank? ? false : (@invoice.rfq_quote.blank? ? false : @invoice.rfq_quote.is_won)) ) %></td>	
+				</tr>
+			<% end %>
 		<% end %>
 	</table>
 	
