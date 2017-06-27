@@ -40,4 +40,16 @@
 	<p style="margin-left: -110px;"><label><%= l(:label_debit) + " " +  l(:label_ledger)  %></label>
 	    <%= select_tag 'settings[purchase_db_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['purchase_db_ledger']) %></p>
 	
+	<p style="padding-left: 190px;;">
+		  <label><%= l(:label_quote_number_prefix) %></label><%= text_field_tag 'settings[wktime_quote_no_prefix]', @settings['wktime_quote_no_prefix'], :size => 13 %> 
+	</p>
+	
+	<p style="padding-left: 190px;;">
+		  <label><%= l(:label_po_number_prefix) %></label><%= text_field_tag 'settings[wktime_po_no_prefix]', @settings['wktime_po_no_prefix'], :size => 13 %> 
+	</p>
+	
+	<p style="padding-left: 190px;;">
+		  <label><%= l(:label_si_number_prefix) %></label><%= text_field_tag 'settings[wktime_si_no_prefix]', @settings['wktime_si_no_prefix'], :size => 13 %> 
+	</p>
+	
 </fieldset>

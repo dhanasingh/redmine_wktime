@@ -631,3 +631,6 @@ de:
   label_pur_user_group: Purchase User Group
   label_pur_admin_group: Purchase Admin Group
   report_purchase_cycle: Purchase Cycle
+  label_quote_number_prefix: Quote Number Prefix
+  label_po_number_prefix: PO Number Prefix
+  label_si_number_prefix: SI Number Prefix

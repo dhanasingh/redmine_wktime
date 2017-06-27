@@ -267,5 +267,9 @@ class WkinvoiceController < WkorderentityController
 	def getDateLbl
 		l(:label_invoice_date)
 	end	
+	
+	def getOrderNumberPrefix
+		'wktime_invoice_no_prefix'
+	end
 
 end

@@ -51,8 +51,9 @@ class WkInvoice < ActiveRecord::Base
   end
   
   def increase_inv_key  
-	lastInvKey = WkInvoice.where(:invoice_type => invoice_type).last
-	self.invoice_num_key = lastInvKey.blank? || lastInvKey.invoice_num_key.blank? ? 1 : lastInvKey.invoice_num_key + 1 if self.new_record?
+	lastInvKey = WkInvoice.where(:invoice_type => invoice_type).maximum(:invoice_num_key)
+	self.invoice_num_key = lastInvKey.blank? ? 1 : (lastInvKey + 1) if self.new_record?
+	self.invoice_number = self.invoice_number.blank? ? self.invoice_num_key.to_s : self.invoice_number.to_s + self.invoice_num_key.to_s if self.new_record?
   end
   
 end

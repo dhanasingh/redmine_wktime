@@ -74,4 +74,12 @@ class WkquoteController < WksupplierorderentityController
 	def getAdditionalDD
 		"wkquote/quoteadditionaldd"
 	end
+	
+	def editInvNumber
+		true
+	end
+	
+	def getOrderNumberPrefix
+		'wktime_quote_no_prefix'
+	end
 end

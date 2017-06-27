@@ -76,4 +76,11 @@ before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destr
 		true
 	end
 	
+	def editInvNumber
+		false
+	end
+	
+	def getOrderNumberPrefix
+	end
+	
 end

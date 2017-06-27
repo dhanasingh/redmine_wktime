@@ -47,7 +47,7 @@ include WkbillingHelper
 		@invoice.parent_id = parentId
 		@invoice.parent_type = parentType
 		@invoice.invoice_type = invoiceType unless invoiceType.blank?
-		@invoice.invoice_number = getPluginSetting('wktime_invoice_no_prefix')
+		@invoice.invoice_number = getPluginSetting(getOrderNumberPrefix)
 		unless isgenerate
 			errorMsg = saveInvoice
 		else			
@@ -95,10 +95,10 @@ include WkbillingHelper
 		errorMsg = nil
 		unless @invoice.save
 			errorMsg = @invoice.errors.full_messages.join("<br>")
-		else
-			@invoice.invoice_number = @invoice.invoice_number + @invoice.invoice_num_key.to_s#@invoice.id.to_s
-			@invoice.save
-		end
+		# else
+			# @invoice.invoice_number = @invoice.invoice_number + @invoice.invoice_num_key.to_s#@invoice.id.to_s
+			# @invoice.save
+		 end
 		errorMsg
 	end
 		

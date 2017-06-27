@@ -20,6 +20,8 @@
 				<% if !@invoice.blank? %>
 					<% if @invoice.invoice_number.blank? && controller.isInvGenUnbilledLink  %>
 						<span style="color:Purple;"><b><%= l(:label_unbilled) %></b></span>
+					<% elsif controller.editInvNumber %>
+						<%= text_field_tag "inv_number", @invoice.blank? ? "" : @invoice.invoice_number, :style => "width:150px;" %>
 					<% else %>
 						<%= @invoice.invoice_number %>
 					<% end %>

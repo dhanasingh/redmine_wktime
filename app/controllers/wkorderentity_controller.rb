@@ -204,6 +204,7 @@ include WkorderentityHelper
 		#arrId = invItemId.map {|i| i.id }
 		unless params["invoice_id"].blank?
 			@invoice = WkInvoice.find(params["invoice_id"].to_i)
+			@invoice.invoice_date = params[:inv_date]
 			arrId = @invoice.invoice_items.pluck(:id)
 		else
 			@invoice = WkInvoice.new
@@ -212,10 +213,13 @@ include WkorderentityHelper
 			#addInvoice(params[:parent_id], params[:parent_type],  params[:project_id1],params[:inv_date],  invoicePeriod, false, getInvoiceType)
 		end
 		@invoice.status = params[:field_status]
+		unless params[:inv_number].blank?
+			@invoice.invoice_number = params[:inv_number]
+		end
 		if @invoice.status_changed?
 			@invoice.closed_on = Time.now			
-			@invoice.save()
 		end
+		@invoice.save()
 		totalAmount = 0
 		tothash = Hash.new
 		totalRow = params[:totalrow].to_i

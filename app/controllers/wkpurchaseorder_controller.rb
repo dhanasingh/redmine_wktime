@@ -96,4 +96,8 @@ class WkpurchaseorderController < WksupplierorderentityController
 		"wkpurchaseorder/poadditionaldd"
 	end
 	
+	def getOrderNumberPrefix
+		'wktime_po_no_prefix'
+	end
+	
 end

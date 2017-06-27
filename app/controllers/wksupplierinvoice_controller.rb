@@ -71,4 +71,12 @@ class WksupplierinvoiceController < WksupplierorderentityController
 		"wksupplierinvoice/siadditionaldd"
 	end
 	
+	def editInvNumber
+		true
+	end
+	
+	def getOrderNumberPrefix
+		'wktime_si_no_prefix'
+	end
+	
 end
