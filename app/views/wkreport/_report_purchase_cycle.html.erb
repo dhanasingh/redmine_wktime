@@ -1,14 +1,18 @@
 <%
 	@to = session[:wkreport][:to]
 	@from = session[:wkreport][:from]
-	sqlStr =  "select rfq.id as rfq_id, rfq.start_date as rfq_start, rq.quote_id, q.invoice_date as quote_date, rq.won_date, poq.purchase_order_id, po.invoice_date po_date, sipo.supplier_inv_id,
-		 si.invoice_date as si_date from wk_rfqs rfq
+	sqlStr =  "select rfq.id as rfq_id, rfq.name as rfq_name, rfq.start_date as rfq_start, rq.quote_id, q.invoice_date as quote_date, rq.won_date, poq.purchase_order_id, po.invoice_date po_date, sipo.supplier_inv_id,
+		 si.invoice_date as si_date, pay.paid_date from wk_rfqs rfq
 		 left join wk_rfq_quotes rq on (rq.rfq_id = rfq.id and rq.is_won = true)
 		 left join wk_invoices q on  (q.id = rq.quote_id)
 		 left join wk_po_quotes poq on (rq.quote_id = poq.quote_id)
 		 left join wk_invoices po on (po.id = poq.purchase_order_id)
 		 left join wk_po_supplier_invoices sipo on (sipo.purchase_order_id = poq.purchase_order_id) 
-		 left join wk_invoices si on (si.id = sipo.supplier_inv_id) where rfq.start_date between '#{@from}' and '#{@to}' "
+		 left join wk_invoices si on (si.id = sipo.supplier_inv_id) left join (select sum(pmit.amount) total_pay_amount, max(p.payment_date) paid_date, sum(ii.amount) inv_amount, pmit.invoice_id from wk_payment_items pmit
+left join wk_payments p on(pmit.payment_id = p.id)
+left join wk_invoices i on (i.id= pmit.invoice_id)
+left join wk_invoice_items ii on (ii.invoice_id = pmit.invoice_id)
+where pmit.is_deleted='N' group by pmit.invoice_id having sum(pmit.amount) >= sum(ii.amount) ) pay  on (pay.invoice_id = si.id )where rfq.start_date between '#{@from}' and '#{@to}' "
 	cycleEntries = WkRfq.find_by_sql(sqlStr)
 %>
 <%= stylesheet_link_tag 'application' , :media => "all" %>
@@ -33,8 +37,8 @@
 		
 		<thead bgcolor="#e6e6e6">
 			<tr>
-				<th align="center" colspan=3><%= l(:report_purchase_cycle) %><br><%= "(In Days)" %></th>
-				<th align="center"><%= l(:label_duration) %><br><%= "Payment Cycle" %><br><%= "(In Days)" %></th>
+				<th align="center", rowspan=2><%= l(:label_rfq) %></th>
+				<th align="center" colspan=4><%= l(:report_purchase_cycle) %><br><%= "(In Days)" %></th>
 			</tr>
 			<tr>
 				<th align="center"><%= "Winning Quote" %></th>
@@ -46,10 +50,11 @@
 		<tbody>
 			<% cycleEntries.each do |entry| %>
 				<tr class="<%= cycle("odd", "even") %>">
-						<td align="right"><%= entry.quote_date - entry.won_date %></td>
-						<td align="right"><%= entry.won_date - entry.po_date %></td>
-						<td align="right"><%= entry.po_date - entry.si_date %></td>
-						<td align="right"><%=entry.quote_date - entry.won_date %></td>
+					<td align="left"><%= entry.rfq_name %></td>
+					<td align="right"><%= (entry.won_date - entry.quote_date).to_f unless entry.won_date.blank? || entry.quote_date.blank? %></td>
+					<td align="right"><%= (entry.po_date - entry.won_date).to_f unless entry.won_date.blank? || entry.po_date.blank? %></td>
+					<td align="right"><%= (entry.si_date - entry.po_date).to_f unless entry.po_date.blank? || entry.si_date.blank? %></td>
+					<td align="right"><%= (entry.paid_date - entry.si_date).to_f unless entry.paid_date.blank? || entry.si_date.blank? %></td>
 				</tr>
 			<% end %>
 		</tbody>
