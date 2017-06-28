@@ -45,11 +45,11 @@
 </tr>
 <tr>
 	<th align="left"><%= l(:label_start_date) %></th>
-	<td align="left" style="padding-left:40px;"><%=h date_field_tag('start_date',Date.today, :size => 10, :required => true) %> <%= calendar_for('start_date') %></td>
+	<td align="left" style="padding-left:40px;"><%=h date_field_tag('start_date',Date.today, :size => 10, :required => true, :onchange =>"dateRangeValidation('start_date', 'end_date')") %> <%= calendar_for('start_date') %></td>
 </tr>
 <tr>
 	<th align="left"><%= l(:label_end_date) %></th>
-	<td align="left" style="padding-left:40px;"><%=h date_field_tag('end_date',Date.today, :size => 10, :required => true) %> <%= calendar_for('end_date') %></td>
+	<td align="left" style="padding-left:40px;"><%=h date_field_tag('end_date',Date.today+30, :size => 10, :required => true, :onchange =>"dateRangeValidation('start_date', 'end_date')") %> <%= calendar_for('end_date') %></td>
 </tr>
 <% if !controller.getPopulateChkBox.blank? %>
 <tr>
