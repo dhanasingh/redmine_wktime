@@ -321,6 +321,9 @@ include WkorderentityHelper
 	def saveOrderRelations		
 	end
 	
+	def deleteBilledEntries(invItemIdsArr)
+	end
+	
 	def destroy
 		invoice = WkInvoice.find(params[:invoice_id].to_i)#.destroy
 		deleteBilledEntries(invoice.invoice_items.pluck(:id))
