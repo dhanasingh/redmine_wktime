@@ -9,10 +9,10 @@
 	<%=h hidden_field_tag("invoice_type",  controller.getInvoiceType )  %>
 	<%=h hidden_field_tag("rfq_id",  (@rfqObj.blank? ? (@rfgQuoteEntry.blank? ? '' : @rfgQuoteEntry.rfq_id) : @rfqObj.id) )  %>
 	<%=h hidden_field_tag("rfq_quote_id",  (@rfgQuoteEntry.blank? ? '' : @rfgQuoteEntry.id) )  %>
-	<%=h hidden_field_tag("po_id", '' )  %>
-	<%=h hidden_field_tag("po_quote_id",  @rfqQuotObj.blank? ? '' : @rfqQuotObj.quote_id )  %>
-	<%=h hidden_field_tag("si_id", '' )  %>
-	<%=h hidden_field_tag("si_inv_id",  @poId.blank? ? '' : @poId )  %>
+	<%=h hidden_field_tag("po_id", @poObj.blank? ? '' : @poObj.id )  %>
+	<%=h hidden_field_tag("po_quote_id",  @rfqQuotObj.blank? ? (@poObj.blank? ? '' : @poObj.quote_id) : @rfqQuotObj.quote_id )  %>
+	<%=h hidden_field_tag("si_id", @siObj.blank? ? "" : @siObj.id )  %>
+	<%=h hidden_field_tag("si_inv_id",  @poId.blank? ? (@siObj.blank? ? "" : @siObj.purchase_order_id) : @poId )  %>
 	<table>
 		<tr><th align="left"><%= controller.getLabelInvNum %></th> 
 			<td style="width: 200px;"> 

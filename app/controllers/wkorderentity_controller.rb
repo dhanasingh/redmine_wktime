@@ -127,6 +127,7 @@ include WkorderentityHelper
 		@rfgQuoteEntry = nil
 		@rfqObj = nil
 		@poObj = nil
+		@siObj = nil
 		@preBilling = to_boolean(params[:preview_billing]) unless params[:preview_billing].blank?
 		@listKey = 0
 		@invList = Hash.new{|hsh,key| hsh[key] = {} }	

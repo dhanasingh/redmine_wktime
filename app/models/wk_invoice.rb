@@ -27,6 +27,8 @@ class WkInvoice < ActiveRecord::Base
   has_one :rfq_quote, foreign_key: "quote_id", class_name: "WkRfqQuote"
   has_one :po_quote, foreign_key: "purchase_order_id", class_name: "WkPoQuote"
   has_one :quote_po, foreign_key: "quote_id", class_name: "WkPoQuote"
+  has_one :sup_inv_po, foreign_key: "supplier_inv_id", class_name: "WkPoSupplierInvoice"
+  has_one :po_sup_inv, foreign_key: "purchase_order_id", class_name: "WkPoSupplierInvoice"
   
   # scope :invoices, lambda {where :invoice_type => 'I'}
   # scope :quotes, lambda {where :invoice_type => 'Q'}

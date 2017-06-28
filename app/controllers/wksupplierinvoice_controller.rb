@@ -11,6 +11,13 @@ class WksupplierinvoiceController < WksupplierorderentityController
 		end 
 	end
 	
+	def editOrderEntity
+		super
+		unless params[:invoice_id].blank?
+			@siObj = WkPoSupplierInvoice.find(@invoice.sup_inv_po.id) unless @invoice.blank?
+		end
+	end
+	
 	def saveOrderInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)
 		begin			
 			@@simutex.synchronize do

@@ -33,6 +33,13 @@ class WkpurchaseorderController < WksupplierorderentityController
 		end			
 	end
 	
+	def editOrderEntity
+		super
+		unless params[:invoice_id].blank?
+			@poObj = WkPoQuote.find(@invoice.po_quote.id) unless @invoice.blank?
+		end
+	end
+	
 	def saveOrderInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)
 		begin			
 			@@pomutex.synchronize do
