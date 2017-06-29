@@ -580,8 +580,9 @@ end
 	
 	def getTimeEntryStatus(spent_on,user_id)
 		#result = Wktime.find(:all, :conditions => [ 'begin_date = ? AND user_id = ?', getStartDay(spent_on), user_id])	
-		start_day = getStartDay(spent_on)		
-		locked = call_hook(:controller_check_locked,{ :startdate => start_day})
+		start_day = getStartDay(spent_on)	
+		locked  = isLocked(start_day)
+		#locked = call_hook(:controller_check_locked,{ :startdate => start_day})
 		locked  = locked.blank? ? '' : (locked.is_a?(Array) ? (locked[0].blank? ? '': locked[0].to_s) : locked.to_s) 
 		locked = ( !locked.blank? && to_boolean(locked))
 		if locked
@@ -1219,6 +1220,16 @@ end
 	
 	def getIntervalFormula(intervalVal)
 		" (t4.i*#{intervalVal}*10000 + t3.i*#{intervalVal}*1000 + t2.i*#{intervalVal}*100 + t1.i*#{intervalVal}*10 + t0.i*#{intervalVal}) "
+	end
+	
+	def isLocked(startdate)
+		isLocked = false
+		lock = WkTeLock.order(id: :desc)	
+		if !lock.blank? && lock.size > 0		
+			startdate = startdate.to_s.to_date
+			isLocked = startdate <= lock[0].lock_date.to_date			
+		end
+		isLocked
 	end
 	
 end

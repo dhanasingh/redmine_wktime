@@ -384,3 +384,9 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wksupplierpayment/edit', :to => 'wksupplierpayment#edit'
 	
 	post 'wksupplierpayment/update', :to => 'wksupplierpayment#update'
+	
+	get 'wktime/lockte', :to => 'wktime#lockte'
+	
+	 get 'wkexpense/lockte', :to => 'wkexpense#lockte'
+	
+	post 'wktime/lockupdate', :to => 'wktime#lockupdate'

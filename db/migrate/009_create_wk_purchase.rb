@@ -65,6 +65,13 @@ class CreateWkPurchase < ActiveRecord::Migration
 			t.timestamps null: false
 		end
 		
+		create_table :wk_te_locks do |t|
+			t.column :lock_date,  :date,  :null => false
+			t.column :locked_by,  :integer,  :null => false
+			t.column :updated_by, :integer,  :null => true
+			t.timestamps null: false
+		end
+		
 		change_column :wk_invoice_items, :project_id, :integer, null: true
 	end
 end

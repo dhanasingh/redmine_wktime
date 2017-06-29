@@ -637,3 +637,7 @@ fr:
   label_po_number_prefix: PO Number Prefix
   label_si_number_prefix: SI Number Prefix
   label_in_days: In Days
+  button_new_lock: Lock T&E
+  field_lock_date: Lock Time/Expense sheets up to
+  label_lock: Lock T&E
+  label_last_lock_by: "Last Locked by: %{name}"
