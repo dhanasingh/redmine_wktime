@@ -638,3 +638,6 @@ it:
   field_lock_date: Lock Time/Expense sheets up to
   label_lock: Lock T&E
   label_last_lock_by: "Last Locked by: %{name}"
+  label_quote_components: Quote Components
+  label_po_components: Purchase Order Components  
+  label_si_components: Supplier Invoice Components

@@ -1244,5 +1244,11 @@ end
 		concatSql = concatSql + " as #{aliasName} " unless aliasName.blank?
 		concatSql
 	end
+		
+	def showPurchase
+		(!Setting.plugin_redmine_wktime['wktime_enable_pur_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_pur_module'].to_i == 1 ) && (isModuleAdmin('wktime_pur_group') || isModuleAdmin('wktime_pur_admin') )
+	end
+	
 	
 end

@@ -175,7 +175,7 @@ function dialogAction()
 		buttons: {
 			"Ok": function() {
 				var opt,desc="",opttext="";
-				var listBox = document.getElementById("settings_wktime_invoice_components");
+				var listBox = document.getElementById(listboxId);
 				var invCompName = document.getElementById("inv_copm_name");
 				var invCompVal = document.getElementById("inv_copm_value");
 				if(invCompName.value != ""){  //invCompName.value != "" && invCompVal.value != ""
@@ -353,9 +353,11 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 		}
 	}		
 
-	function showInvCompDialog(action)
+	function showInvCompDialog(action, listId)
 	{
-		var listbox = document.getElementById("settings_wktime_invoice_components");
+		
+		listboxId = listId;
+		var listbox = document.getElementById(listboxId);
 		var invCompName = document.getElementById("inv_copm_name");
 		var invCompVal = document.getElementById("inv_copm_value");
 		if('Add' == action)
@@ -479,6 +481,30 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 			for(i = 0; i < payroll_deduction.options.length; i++)
 			{
 				payroll_deduction.options[i].selected = true;
+			}						
+		}
+		var quotelistbox=document.getElementById("settings_wktime_quote_components");
+		if(quotelistbox != null)
+         { 
+			for(i = 0; i < quotelistbox.options.length; i++)
+			{
+				quotelistbox.options[i].selected = true;
+			}						
+		}
+		var polistbox=document.getElementById("settings_wktime_po_components");
+		if(polistbox != null)
+         { 
+			for(i = 0; i < polistbox.options.length; i++)
+			{
+				polistbox.options[i].selected = true;
+			}						
+		}
+		var siinvlistbox=document.getElementById("settings_wktime_si_components");
+		if(siinvlistbox != null)
+         { 
+			for(i = 0; i < siinvlistbox.options.length; i++)
+			{
+				siinvlistbox.options[i].selected = true;
 			}						
 		}
 		
