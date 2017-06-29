@@ -14,7 +14,7 @@ include WkorderentityHelper
 		@previewBilling = false
 		set_filter_session
 		retrieve_date_range
-		sqlwhere = "invoice_type = '#{getInvoiceType}'"
+		sqlwhere = ""
 	#	accountId = session[:wkinvoice][:account_id]
 	#	projectId	= session[:wkinvoice][:project_id]
 		filter_type = session[controller_name][:polymorphic_filter]
@@ -93,7 +93,8 @@ include WkorderentityHelper
 				end	
 			end
 		else	
-				
+			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+			sqlwhere = " invoice_type = '#{getInvoiceType}'"	
 			if !@from.blank? && !@to.blank?			
 				sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
 				sqlwhere = sqlwhere + " invoice_date between '#{@from}' and '#{@to}'  "
@@ -149,7 +150,13 @@ include WkorderentityHelper
 		elsif filter_type == '3' && account_id.blank?
 			parentType =  'WkAccount'
 		end
-		if !params[:new_invoice].blank? && params[:new_invoice] == "true"
+		
+		if parentId.blank? && parentType.blank?
+			parentType = params[:related_to]
+			parentId = params[:related_parent]
+		end
+		
+		if !params[:new_invoice].blank? && params[:new_invoice] == "true"			
 			if parentId.blank?
 				flash[:error] = "Account and Contacts can't be empty."
 				return redirect_to :action => 'new'
