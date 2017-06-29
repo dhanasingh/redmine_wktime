@@ -38,7 +38,7 @@ class CreateWkPurchase < ActiveRecord::Migration
 			t.string :description
 			t.date :start_date
 			t.date :end_date
-			t.column :status, :string, :limit => 5
+			t.string :status, :null => false, :limit => 5, :default => 'o'
 			t.references :created_by_user, :class => "User"
 			t.references :modified_by_user, :class => "User"
 			t.timestamps null: false
