@@ -31,38 +31,47 @@ class WkpaymententityController < WkbillingController
 		contact_id = session[controller_name][:contact_id]
 		account_id = session[controller_name][:account_id]
 		
-				
+		sqlStr = "select p.*, pmi.payment_amount, CASE WHEN p.parent_type = 'WkAccount' THEN a.name" +
+			" ELSE #{concatColumnsSql(['c.first_name', 'c.last_name'], nil, ' ')} END as name," +
+			" (#{getPersonTypeSql}) as entity_type" + 
+			" from wk_payments p left join (select sum(amount) as payment_amount," +
+			" payment_id from wk_payment_items where is_deleted = false group by payment_id) pmi" +
+			" on(pmi.payment_id = p.id)" +
+			" left join wk_accounts a on (p.parent_type = 'WkAccount' and p.parent_id = a.id)" +
+			" left join wk_crm_contacts c on (p.parent_type = 'WkCrmContact' and p.parent_id = c.id)" +
+			" where pmi.payment_amount > 0 " 
 		if filter_type == '2' && !contact_id.blank?
-			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
-			sqlwhere = sqlwhere + " wk_payments.parent_id = '#{contact_id}'  and wk_payments.parent_type = 'WkCrmContact'  "
+			# sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+			sqlwhere = sqlwhere + " and p.parent_id = '#{contact_id}'  and p.parent_type = 'WkCrmContact' and (#{getPersonTypeSql}) = '#{getOrderContactType}' "
 		elsif filter_type == '2' && contact_id.blank?
-			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
-			sqlwhere = sqlwhere + " wk_payments.parent_type = 'WkCrmContact'  "
+			#sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+			sqlwhere = sqlwhere + " and p.parent_type = 'WkCrmContact' and (#{getPersonTypeSql}) = '#{getOrderContactType}'  "
 		end
 		
 		if filter_type == '3' && !account_id.blank?
-			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
-			sqlwhere = sqlwhere + " wk_payments.parent_id = '#{account_id}'  and wk_payments.parent_type = 'WkAccount'  "
+			#sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+			sqlwhere = sqlwhere + " and p.parent_id = '#{account_id}'  and p.parent_type = 'WkAccount' and (#{getPersonTypeSql}) = '#{getOrderAccountType}' "
 		elsif filter_type == '3' && account_id.blank?
-			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
-			sqlwhere = sqlwhere + " wk_payments.parent_type = 'WkAccount'  "
+			#sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+			sqlwhere = sqlwhere + " and p.parent_type = 'WkAccount' and (#{getPersonTypeSql}) = '#{getOrderAccountType}' "
 		end
 		
 		if !@from.blank? && !@to.blank?			
-			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
-			sqlwhere = sqlwhere + " wk_payments.payment_date between '#{@from}' and '#{@to}'  "
+			#sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+			sqlwhere = sqlwhere + " and p.payment_date between '#{@from}' and '#{@to}'  "
 		end
 		#sqlwhere = sqlwhere + "wk_accounts.account_type = 'S' "
 		
-		if filter_type == '1' 
-			entries =WkPayment.includes(:account, :payment_items).where(wk_accounts: {account_type: getOrderAccountType}).where(sqlwhere)
-			contactEntries = WkPayment.includes(:contact, :payment_items).where(wk_crm_contacts: {contact_type: getOrderContactType}).where(sqlwhere)
-		else
-			entries =WkPayment.includes(:account, :contact, :payment_items).where(wk_accounts: {account_type: getOrderAccountType}).where(sqlwhere)
+		if filter_type == '1' || filter_type.blank?
+			#sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+			sqlwhere = sqlwhere + " and ((#{getPersonTypeSql}) = '#{getOrderAccountType}' OR  (#{getPersonTypeSql}) = '#{getOrderContactType}') "
 		end	
 		
-		formPagination(entries)	
-		@totalPayAmt = @payment_entries.where("wk_payment_items.is_deleted = #{false} ").sum("wk_payment_items.amount")
+		
+		sqlStr = sqlStr + sqlwhere unless sqlwhere.blank?
+		sqlStr = sqlStr + " order by p.id desc"
+		findBySql(sqlStr)		
+		#@totalPayAmt = @payment_entries.where("wk_payment_items.is_deleted = #{false} ").sum("wk_payment_items.amount")
     end
 	
 	def edit
@@ -112,6 +121,16 @@ class WkpaymententityController < WkbillingController
 		
     end
 	
+    def findBySql(query)
+		result = WkPayment.find_by_sql("select count(*) as id from (" + query + ") as v2")
+	    @entry_count = result.blank? ? 0 : result[0].id
+	    setLimitAndOffset()		
+	    rangeStr = formPaginationCondition()	
+	    @payment_entries = WkPayment.find_by_sql(query + rangeStr)
+		result = WkPayment.find_by_sql("select sum(v2.payment_amount) as payment_amount from (" + query + ") as v2")
+		@totalPayAmt = result.blank? ? 0 : result[0].payment_amount
+	end
+
 	def setLimitAndOffset		
 		if api_request?
 			@offset, @limit = api_offset_and_limit
@@ -128,12 +147,38 @@ class WkpaymententityController < WkbillingController
 		end	
 	end
 	
-	
-    def formPagination(entries)
-		@entry_count = entries.count
-        setLimitAndOffset()
-		@payment_entries = entries.order(id: :desc).limit(@limit).offset(@offset)
+	def formPaginationCondition
+		rangeStr = ""
+		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'				
+			rangeStr = " OFFSET " + @offset.to_s + " ROWS FETCH NEXT " + @limit.to_s + " ROWS ONLY "
+		else		
+			rangeStr = " LIMIT " + @limit.to_s +	" OFFSET " + @offset.to_s
+		end
+		rangeStr
 	end
+	
+	# def setLimitAndOffset		
+		# if api_request?
+			# @offset, @limit = api_offset_and_limit
+			# if !params[:limit].blank?
+				# @limit = params[:limit]
+			# end
+			# if !params[:offset].blank?
+				# @offset = params[:offset]
+			# end
+		# else
+			# @entry_pages = Paginator.new @entry_count, per_page_option, params['page']
+			# @limit = @entry_pages.per_page
+			# @offset = @entry_pages.offset
+		# end	
+	# end
+	
+	
+    # def formPagination(entries)
+		# @entry_count = entries.count
+        # setLimitAndOffset()
+		# @payment_entries = entries.order(id: :desc).limit(@limit).offset(@offset)
+	# end
 	
 	def getBillableProjIds
 		projArr = ""	
@@ -214,7 +259,7 @@ class WkpaymententityController < WkbillingController
 		end
 		
 		if errorMsg.nil? 
-			redirect_to :action => 'index' , :tab => 'wkpayment'
+			redirect_to :action => 'index' , :tab => controller_name
 			flash[:notice] = l(:notice_successful_update)
 	   else
 			flash[:error] = errorMsg
@@ -228,6 +273,14 @@ class WkpaymententityController < WkbillingController
 	
 	def getEditHeaderLabel
 		l(:label_txn_payment)
+	end
+	
+	def getPersonTypeSql
+		 "CASE WHEN p.parent_type = 'WkAccount'  THEN a.account_type ELSE c.contact_type END"
+	end
+	
+	def getAccountDDLbl
+		l(:label_supplier_account)
 	end
 	
 end

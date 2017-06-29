@@ -1232,4 +1232,17 @@ end
 		isLocked
 	end
 	
+	def concatColumnsSql(columnsArr, aliasName, joinChar)
+		joinChar = ' ' if joinChar.blank?
+		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'	
+			concatSql = " #{columnsArr.join(" + '#{joinChar}' + ")} "	
+		elsif ActiveRecord::Base.connection.adapter_name == 'SQLite'
+			concatSql = " #{columnsArr.join(" || '#{joinChar}' || ")} "
+		else
+			concatSql = " concat( #{columnsArr.join(" , '#{joinChar}' , ")}) "
+		end
+		concatSql = concatSql + " as #{aliasName} " unless aliasName.blank?
+		concatSql
+	end
+	
 end

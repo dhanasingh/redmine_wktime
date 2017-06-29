@@ -62,4 +62,14 @@ module WkbillingHelper
 		
 		WkAccountProject.joins(sqlStr).select("projects.name as project_name, projects.id as project_id").distinct(:project_id)
 	end
+	
+	def personTypeLabelHash
+		typeHash = {
+			'A' => l(:label_account),
+			'C' => l(:label_contact),
+			'S' => l(:label_supplier),
+			'SC' => l(:label_supplier_contact) 			
+		}
+		typeHash
+	end
 end
