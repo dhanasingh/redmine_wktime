@@ -8,7 +8,8 @@ include WkcrmHelper
 	end
 	
 	def getRfqQuoteArray(needBlank, id)
-		rfqQuoteArr = getInvoiceIds(id, 'Q', true)#WkRfqQuote.where(:rfq_id => id, :is_won => true).order(:id).pluck(:id)
+		rfqQuoteObj = WkRfqQuote.includes(:quote).where(:rfq_id => id, :is_won => true).order(:id) #getInvoiceIds(id, 'Q', true)
+		rfqQuoteArr = rfqQuoteObj.collect {|i| [i.quote.invoice_number, i.quote.id]  }
 		rfqQuoteArr.unshift(["",'']) if needBlank
 		rfqQuoteArr
 	end
