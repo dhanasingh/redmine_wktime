@@ -310,7 +310,7 @@ include WkorderentityHelper
 			if (totalAmount.round - totalAmount) != 0
 				addRoundInvItem(totalAmount)
 			end
-			if totalAmount > 0 && autoPostGL(getAutoPostModule)
+			if totalAmount > 0 && autoPostGL(getAutoPostModule) && postableInvoice
 				transId = @invoice.gl_transaction.blank? ? nil : @invoice.gl_transaction.id
 				glTransaction = postToGlTransaction(getAutoPostModule, transId, @invoice.invoice_date, totalAmount.round, @invoice.invoice_items[0].currency, nil, nil)
 				unless glTransaction.blank?
@@ -321,7 +321,7 @@ include WkorderentityHelper
 		end
 		
 		if errorMsg.nil? 
-			redirect_to :action => 'index' , :tab => 'wkinvoice'
+			redirect_to :action => 'index' , :tab => controller_name
 			flash[:notice] = l(:notice_successful_update)
 	   else
 			flash[:error] = errorMsg
@@ -354,8 +354,13 @@ include WkorderentityHelper
 	def destroy
 		invoice = WkInvoice.find(params[:invoice_id].to_i)#.destroy
 		deleteBilledEntries(invoice.invoice_items.pluck(:id))
-		invoice.destroy
-		flash[:notice] = l(:notice_successful_delete)
+		if invoice.destroy
+			flash[:notice] = l(:notice_successful_delete)
+		else
+			flash[:error] = invoice.errors.full_messages.join("<br>")
+		end
+		#invoice.destroy
+		#flash[:notice] = l(:notice_successful_delete)
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end    
 	
@@ -412,5 +417,9 @@ include WkorderentityHelper
 	end
 	
 	def getAutoPostModule	
+	end
+	
+	def postableInvoice
+		false
 	end
 end
