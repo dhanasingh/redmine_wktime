@@ -18,7 +18,7 @@
 		dbTotal =0 
 		openingBalance = 0
 		openingBalHash = nil
-		asOnDate = @transEntries.minimum(:trans_date)#@from.blank? ?  Date.today : @from
+		asOnDate = @transEntries.minimum(:trans_date) - 1 #@from.blank? ?  Date.today : @from
 		openingBalHash = getEachLedgerBSAmt(asOnDate, [@selectedLedger.ledger_type]) unless @ledgerId.blank?
 		openingBalance = openingBalHash.values[0] unless openingBalHash.blank?
 		@transEntries.each do |entry| 

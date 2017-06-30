@@ -77,7 +77,7 @@
 					<%= entry.currency %><%= text_field_tag "rate#{row_index}",   ("%.2f" % entry.rate) ,:maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)", :disabled => isDisable %>
 				</td>
 				<td class="lbl-txt-align" headers="quantity">
-					<%= text_field_tag "quantity#{row_index}", ("%.2f" % entry.quantity), :maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)", :disabled => isDisable %>
+					<%= text_field_tag "quantity#{row_index}", ("%.2f" % entry.quantity unless entry.quantity.blank?), :maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)", :disabled => isDisable %>
 				</td>
 				<td class="lbl-txt-align" headers="amount">
 					<%= entry.currency %><label id="amount<%= row_index.to_s %>" ><%= html_hours("%.2f" % entry.amount)  %></label>

@@ -111,4 +111,8 @@ class WksupplierinvoiceController < WksupplierorderentityController
 		'supplier_invoice'
 	end
 	
+	def postableInvoice
+		true
+	end
+	
 end
