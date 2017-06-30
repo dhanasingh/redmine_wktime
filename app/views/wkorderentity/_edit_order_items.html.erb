@@ -300,12 +300,10 @@
 <% end %> 
 <%=h hidden_field_tag("deletedids",  "" )  %>
 <%= submit_tag l(:button_save),  :hidden => false, :id => 'items_save', :disabled => (@preBilling || isDisable) %>
-<% if controller.isInvPaymentLink %>
-	<% if !@invoiceItem.blank? #&& @invoice.invoice_type == 'I' %>
-		<%= link_to l(:label_pay_invoice), url_for(:controller => controller.getPaymentController, :action => 'edit', :load_payment => true, :related_to => @invoice.parent_type, :related_parent => @invoice.parent_id, :project_id => 0 ),  :class => 'icon icon-report' %>
-	<% end %>
+<% if controller.isInvPaymentLink && !@invoiceItem.blank? && !@invoice.id.blank?%>
+	<%= link_to l(:label_pay_invoice), url_for(:controller => controller.getPaymentController, :action => 'edit', :load_payment => true, :related_to => @invoice.parent_type, :related_parent => @invoice.parent_id, :project_id => 0 ),  :class => 'icon icon-report' %>
 <% end %>
-<% unless @invoiceItem.blank? %>
+<% unless @invoiceItem.blank? || @invoice.id.blank? %>
 	<div style="float:right;">
 		<%= link_to l(:label_export_invoice), "javascript: openInvReportPopup();" %> 
 	</div>
