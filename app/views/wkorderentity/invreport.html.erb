@@ -19,8 +19,8 @@
 				<tr style="width:100%; background-color: #f2f2f2">
 					<th align="left"  width="25%"><%= l(:label_name_address_of,l(:label_supplier)) %></th>
 					<th align="left"  width="25%"><%= l(:label_name_address_of,l(:label_customer)) %></th>
-					<th align="left"  width="25%"><%= l(:label_invoice_number) %></th>
-					<th align="left"  colspan ="3" width="25%"><%= l(:label_invoice_date) %></th>
+					<th align="left"  width="25%"><%= controller.getLabelInvNum %></th>
+					<th align="left"  colspan ="3" width="25%"><%= controller.getDateLbl %></th>
 				</tr>
 				<tr style="width:100%;">
 					<td  width="25%" style="white-space:pre"><%=h controller.getSupplierAddress(@invoice)  %></td>
