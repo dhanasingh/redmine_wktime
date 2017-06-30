@@ -191,9 +191,11 @@ include WkinvoiceHelper
 		accSections = ['wkcrmactivity']
 		case entity
 		when 'WkAccount'
-			accSections = ['wkcrmactivity', 'wkcrmcontact', 'wkopportunity']
+			accSections = ['wkcrmactivity', 'wkcrmcontact'] #, 'wkopportunity'
+			accSections << 'wkopportunity' unless curObj.account_type == 'S'
 		when 'WkCrmContact'
-			accSections = ['wkcrmactivity', 'wkopportunity']
+			accSections = ['wkcrmactivity'] # , 'wkopportunity'
+			accSections << 'wkopportunity' unless curObj.contact_type == 'SC'
 		else
 			accSections = ['wkcrmactivity']
 		end
