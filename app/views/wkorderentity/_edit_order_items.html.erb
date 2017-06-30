@@ -310,7 +310,7 @@
 		<%= link_to l(:label_export_invoice), "javascript: openInvReportPopup();" %> 
 	</div>
 <% end %>
-<% if !@invoice.id.blank? && @invoice.invoice_type == 'I'  %>
+<% if !@invoice.id.blank? && controller.isInvPaymentLink  %>
 <br/>
 <br/>
 <h2 ><%= l(:label_payments) %></h2> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
