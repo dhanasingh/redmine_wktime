@@ -271,5 +271,9 @@ class WkinvoiceController < WkorderentityController
 	def getNewHeaderLbl
 		l(:label_new_invoice)
 	end
+	
+	def getAutoPostModule
+		'invoice'
+	end
 
 end

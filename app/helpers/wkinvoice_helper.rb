@@ -59,7 +59,7 @@ include WkbillingHelper
 			if (totalAmount.round - totalAmount) != 0
 				addRoundInvItem(totalAmount)
 			end
-			if totalAmount > 0 && autoPostGL
+			if totalAmount > 0 && autoPostGL(getAutoPostModule)
 				transId = @invoice.gl_transaction.blank? ? nil : @invoice.gl_transaction.id
 				glTransaction = postToGlTransaction('invoice', transId, @invoice.invoice_date, totalAmount.round, @invoice.invoice_items[0].currency, nil)
 				unless glTransaction.blank?
@@ -533,8 +533,8 @@ include WkbillingHelper
 		numStr
 	end
 	
-	def autoPostGL
-		(!Setting.plugin_redmine_wktime['invoice_auto_post_gl'].blank? && Setting.plugin_redmine_wktime['invoice_auto_post_gl'].to_i == 1)
+	def autoPostGL(transModule)
+		(!Setting.plugin_redmine_wktime["#{transModule}_auto_post_gl"].blank? && Setting.plugin_redmine_wktime["#{transModule}_auto_post_gl"].to_i == 1)
 	end
 	
 	def isAccountBilling(accountProject)

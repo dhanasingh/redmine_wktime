@@ -36,5 +36,13 @@ class WksupplierpaymentController < WkpaymententityController
 	def getOrderContactType
 		'SC'
 	end
+	
+	def getAuotPostId
+		'supplier_invoice_auto_post_gl'
+	end
+	
+	def getAutoPostModule
+		'supplier_payment'
+	end
 
 end

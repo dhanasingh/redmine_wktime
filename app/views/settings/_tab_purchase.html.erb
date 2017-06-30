@@ -31,7 +31,7 @@
 	</p>
 	
 	<p style="margin-left: -110px;">
-			<%= check_box_tag('settings[purchase_auto_post_gl]', 1, @settings['purchase_auto_post_gl'].to_i == 1) %> <label><%= l(:label_auto_post_gl) %></label>
+			<%= check_box_tag('settings[supplier_invoice_auto_post_gl]', 1, @settings['supplier_invoice_auto_post_gl'].to_i == 1) %> <label><%= l(:label_auto_post_gl) %></label>
 	</p>
 	
 	<p style="margin-left: -110px;"><label><%= l(:label_credit) + " " +  l(:label_ledger)  %></label>
@@ -44,7 +44,7 @@
 	    <%= select_tag 'settings[supplier_payment_cr_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['supplier_payment_cr_ledger']) %></p>
 	
 	<p style="margin-left: -110px;"><label><%= l(:label_txn_payment) + " " + l(:label_debit) + " " +  l(:label_ledger)  %></label>
-	    <%= select_tag 'settings[payment_db_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['payment_db_ledger']) %></p>
+	    <%= select_tag 'settings[supplier_payment_db_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['supplier_payment_db_ledger']) %></p>
 	
 	<p style="padding-left: 190px;;">
 		  <label><%= l(:label_quote_number_prefix) %></label><%= text_field_tag 'settings[wktime_quote_no_prefix]', @settings['wktime_quote_no_prefix'], :size => 13 %> 

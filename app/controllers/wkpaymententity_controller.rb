@@ -248,9 +248,9 @@ class WkpaymententityController < WkbillingController
 		
 		unless @payment.id.blank?
 			totalAmount = @payment.payment_items.current_items.sum(:amount)
-			if totalAmount > 0 && isChecked('invoice_auto_post_gl')
+			if totalAmount > 0 && isChecked(getAuotPostId)
 				transId = @payment.gl_transaction.blank? ? nil : @payment.gl_transaction.id
-				glTransaction = postToGlTransaction('payment', transId, @payment.payment_date, totalAmount, @payment.payment_items[0].currency, @payment.description, nil )
+				glTransaction = postToGlTransaction(getAutoPostModule, transId, @payment.payment_date, totalAmount, @payment.payment_items[0].currency, @payment.description, nil )
 				unless glTransaction.blank?
 					@payment.gl_transaction_id = glTransaction.id
 					@payment.save
@@ -281,6 +281,14 @@ class WkpaymententityController < WkbillingController
 	
 	def getAccountDDLbl
 		l(:label_supplier_account)
+	end
+	
+	def getAuotPostId
+		'invoice_auto_post_gl'
+	end
+	
+	def getAutoPostModule
+		'payment'
 	end
 	
 end

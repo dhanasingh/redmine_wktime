@@ -107,4 +107,8 @@ class WksupplierinvoiceController < WksupplierorderentityController
 		true
 	end
 	
+	def getAutoPostModule
+		'supplier_invoice'
+	end
+	
 end
