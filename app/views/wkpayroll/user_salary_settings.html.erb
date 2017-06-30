@@ -1,5 +1,6 @@
 <%= form_tag({:controller => 'wkpayroll', :action => 'updateUserSalary'}, :method => :post, :id => 'query_form') do %>
 <%= javascript_include_tag 'wkpayroll', :plugin => "redmine_wktime" %>
+<% settingCurreny = Setting.plugin_redmine_wktime['wktime_currency'] %>
 <div>
 <h2><%= "User Salary Settings" %></h2>
 <div>
@@ -64,7 +65,7 @@
 				<th></th>
 				<th></th>
 				<th class="lbl-txt-align"><%= l(:label_gross) %></th>
-				<th align='right' style="border-bottom: solid thin;border-top: solid thin;"><%=  "%.2f" % (actualSalValHash['a'].values.sum + actualSalValHash['b'].values.sum) %></th>
+				<th align='right' style="border-bottom: solid thin;border-top: solid thin;"><%= settingCurreny %><%=  "%.2f" % (actualSalValHash['a'].values.sum + actualSalValHash['b'].values.sum) %></th>
 			</tr>
 		</table>
 	</fieldset>
@@ -88,7 +89,7 @@
 				<th></th>
 				<th></th>
 				<th class="lbl-txt-align"><%= l(:label_deduction) %></th>
-				<th align='right' style="border-bottom: solid thin;border-top: solid thin;"><%=  "%.2f" % actualSalValHash['d'].values.sum %></th>
+				<th align='right' style="border-bottom: solid thin;border-top: solid thin;"><%= settingCurreny %><%=  "%.2f" % actualSalValHash['d'].values.sum %></th>
 			</tr>
 		</table>
 	 </fieldset><br>
@@ -96,7 +97,7 @@
 		<table width="15%" align="right" style="border-collapse: collapse;border: 0px solid black;">
 			<tr>
 				<td style="float:left;"><b><%=l(:label_net)%></b>
-				<td style="text-align:right; border-left: solid 0px black;"><b> <%=h "%.2f" % (actualSalValHash['b'].values.sum + actualSalValHash['a'].values.sum - actualSalValHash['d'].values.sum) %></b></td>
+				<td style="text-align:right; border-left: solid 0px black;"><b><%= settingCurreny %> <%=h "%.2f" % (actualSalValHash['b'].values.sum + actualSalValHash['a'].values.sum - actualSalValHash['d'].values.sum) %></b></td>
 			</tr>
 		</table>
 	</div>
