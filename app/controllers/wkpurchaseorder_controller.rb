@@ -111,4 +111,17 @@ class WkpurchaseorderController < WksupplierorderentityController
 		l(:label_new_pur_order)
 	end
 	
+	def getOrderContract(invoice)
+		contractStr = nil
+		quote = invoice.po_quote.quote
+		unless quote.blank?
+			contractStr = quote.invoice_number + " - " + quote.invoice_date.to_formatted_s(:long)
+		end
+		contractStr
+	end
+	
+	def getOrderComponetsId
+		'wktime_po_components'
+	end
+	
 end

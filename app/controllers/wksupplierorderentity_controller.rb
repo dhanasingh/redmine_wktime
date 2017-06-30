@@ -45,4 +45,16 @@ class WksupplierorderentityController < WkorderentityController
 	def getAccountDDLbl
 		l(:label_supplier_account)
 	end
+	
+	def getSupplierAddress(invoice)
+		invoice.parent.name + "\n" + (invoice.parent.address.blank? ? "" : invoice.parent.address.fullAddress)
+	end
+	
+	def getCustomerAddress(invoice)
+		Setting.plugin_redmine_wktime['wktime_company_name'] + "\n" +  Setting.plugin_redmine_wktime['wktime_company_address']
+	end
+	
+	def getPaymentController
+		"wksupplierpayment"
+	end
 end

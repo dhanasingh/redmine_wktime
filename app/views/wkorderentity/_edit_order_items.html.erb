@@ -1,7 +1,7 @@
 <br/>
 <script type="text/javascript"> 
 	prevTab = 'tab-<%= "wkreport" %>';
-	wkInvReportUrl = '<%=url_for(:controller => "wkinvoice", :action => "edit", :tab => "wkinvoice")%>'; 
+	wkInvReportUrl = '<%=url_for(:controller => controller_name, :action => "edit", :tab => controller_name)%>'; 
 	grpUrl="<%= "#{url_for(:controller => "wkreport", :action => 'getMembersbyGroup')}" %>";
 	//getMembersbyGroup
 </script>
@@ -302,13 +302,13 @@
 <%= submit_tag l(:button_save),  :hidden => false, :id => 'items_save', :disabled => (@preBilling || isDisable) %>
 <% if controller.isInvPaymentLink %>
 	<% if !@invoiceItem.blank? #&& @invoice.invoice_type == 'I' %>
-		<%= link_to l(:label_pay_invoice), url_for(:controller => "wkpayment", :action => 'edit', :load_payment => true, :related_to => @invoice.parent_type, :related_parent => @invoice.parent_id, :project_id => 0 ),  :class => 'icon icon-report' %>
+		<%= link_to l(:label_pay_invoice), url_for(:controller => controller.getPaymentController, :action => 'edit', :load_payment => true, :related_to => @invoice.parent_type, :related_parent => @invoice.parent_id, :project_id => 0 ),  :class => 'icon icon-report' %>
 	<% end %>
-	<% unless @invoiceItem.blank? %>
-		<div style="float:right;">
-			<%= link_to l(:label_export_invoice), "javascript: openInvReportPopup();" %> 
-		</div>
-	<% end %>
+<% end %>
+<% unless @invoiceItem.blank? %>
+	<div style="float:right;">
+		<%= link_to l(:label_export_invoice), "javascript: openInvReportPopup();" %> 
+	</div>
 <% end %>
 <% if !@invoice.id.blank? && @invoice.invoice_type == 'I'  %>
 <br/>

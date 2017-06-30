@@ -64,6 +64,10 @@ before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destr
 		false
 	end
 	
+	def getPaymentController
+		"wkpayment"
+	end
+	
 	def addAdditionalTax
 		false
 	end

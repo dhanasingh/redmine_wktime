@@ -209,11 +209,11 @@ class WkinvoiceController < WkorderentityController
 		CustomField.find(getSettingCfId('wktime_billing_id_cf')).custom_values.where(:value => invItemIdsArr).delete_all unless getSettingCfId('wktime_billing_id_cf').blank? || getSettingCfId('wktime_billing_id_cf') == 0
 	end
 	
-	def invreport
-		@invoice = WkInvoice.find(params[:invoice_id].to_i)
-		@invoiceItem = @invoice.invoice_items 
-		render :action => 'invreport', :layout => false
-	end
+	# def invreport
+		# @invoice = WkInvoice.find(params[:invoice_id].to_i)
+		# @invoiceItem = @invoice.invoice_items 
+		# render :action => 'invreport', :layout => false
+	# end
 	
 	def getAccountProjIds
 		accArr = ""	
@@ -254,10 +254,6 @@ class WkinvoiceController < WkorderentityController
 	
 	def getLabelNewInv
 		l(:label_new_invoice)
-	end
-	
-	def getHeaderLabel
-		l(:label_invoice)
 	end
 	
 	def getItemLabel

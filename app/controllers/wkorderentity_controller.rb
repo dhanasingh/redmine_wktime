@@ -171,6 +171,12 @@ include WkorderentityHelper
 		
 	end
 	
+	def invreport
+		@invoice = WkInvoice.find(params[:invoice_id].to_i)
+		@invoiceItem = @invoice.invoice_items 
+		render :action => 'invreport', :layout => false
+	end
+	
 	def newOrderEntity(parentId, parentType)	
 	end	
 	
@@ -323,6 +329,10 @@ include WkorderentityHelper
 	   end
 	end
 	
+	def getHeaderLabel
+		l(:label_invoice)
+	end
+	
 	def saveOrderInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)
 	end
 	
@@ -330,6 +340,15 @@ include WkorderentityHelper
 	end
 	
 	def deleteBilledEntries(invItemIdsArr)
+	end
+	
+	def getOrderContract(invoice)
+		contractStr = nil
+		accContract = invoice.parent.contract(@invoiceItem[0].project)
+		unless accContract.blank?
+			contractStr = accContract.contract_number + " - " + accContract.start_date.to_formatted_s(:long)
+		end
+		contractStr
 	end
 	
 	def destroy
@@ -379,4 +398,16 @@ include WkorderentityHelper
 			@offset = @entry_pages.offset
 		end	
 	end	
+	
+	def getOrderComponetsId
+		'wktime_invoice_components'
+	end
+	
+	def getSupplierAddress(invoice)
+		Setting.plugin_redmine_wktime['wktime_company_name'] + "\n" +  Setting.plugin_redmine_wktime['wktime_company_address']
+	end
+	
+	def getCustomerAddress(invoice)
+		invoice.parent.name + "\n" + (invoice.parent.address.blank? ? "" : invoice.parent.address.fullAddress)
+	end
 end

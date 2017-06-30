@@ -337,6 +337,8 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	delete 'wkquote/destroy', :to => 'wkquote#destroy'
 	
+	get 'wkquote/invreport', :to => 'wkquote#invreport' 
+	
 	get 'wkpurchaseorder/index', :to => 'wkpurchaseorder#index'
 	
 	get 'wkpurchaseorder/new', :to => 'wkpurchaseorder#new'
@@ -347,6 +349,8 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	delete 'wkpurchaseorder/destroy', :to => 'wkpurchaseorder#destroy'
 	
+	get 'wkpurchaseorder/invreport', :to => 'wkpurchaseorder#invreport' 
+	
 	get 'wksupplierinvoice/index', :to => 'wksupplierinvoice#index'
 	
 	get 'wksupplierinvoice/new', :to => 'wksupplierinvoice#new'
@@ -356,6 +360,8 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	post 'wksupplierinvoice/update', :to => 'wksupplierinvoice#update'	
 	
 	delete 'wksupplierinvoice/destroy', :to => 'wksupplierinvoice#destroy'
+	
+	get 'wksupplierinvoice/invreport', :to => 'wksupplierinvoice#invreport' 
 	
 	get 'wksupplierpayment/index', :to => 'wksupplierpayment#index'
 	

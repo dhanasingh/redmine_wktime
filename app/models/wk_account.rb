@@ -37,9 +37,12 @@ class WkAccount < ActiveRecord::Base
   # Returns account's contracts for the given project
   # or nil if the account do not have contract
   def contract(project)
+	contract = nil
+	unless project.blank?
 		contract = contracts.where(:project_id => project.id).first
 		contract = contracts[0] if contract.blank?
-		contract
+	end
+	contract
   end
   
 end

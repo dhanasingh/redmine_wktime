@@ -17,5 +17,6 @@
 
 class WkPoSupplierInvoice < ActiveRecord::Base
   unloadable
-  
+  belongs_to :purchase_order , :class_name => 'WkInvoice'
+  belongs_to :supplier_inv , :class_name => 'WkInvoice'
 end

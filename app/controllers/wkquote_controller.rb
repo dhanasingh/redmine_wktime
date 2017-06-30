@@ -88,4 +88,17 @@ class WkquoteController < WksupplierorderentityController
 	def getNewHeaderLbl
 		l(:label_new_quote)
 	end
+	
+	def getOrderContract(invoice)
+		contractStr = nil
+		rfq = invoice.rfq_quote.rfq
+		unless rfq.blank?
+			contractStr = rfq.name + "(#{rfq.id}) from " + rfq.start_date.to_formatted_s(:long) + " to " + rfq.end_date.to_formatted_s(:long)
+		end
+		contractStr
+	end
+	
+	def getOrderComponetsId
+		'wktime_quote_components'
+	end
 end

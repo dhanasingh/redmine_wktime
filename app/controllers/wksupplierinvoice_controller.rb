@@ -90,4 +90,21 @@ class WksupplierinvoiceController < WksupplierorderentityController
 		l(:label_new_sup_invoice)
 	end
 	
+	def getOrderContract(invoice)
+		contractStr = nil
+		po = invoice.sup_inv_po.purchase_order
+		unless po.blank?
+			contractStr = po.invoice_number + " - " + po.invoice_date.to_formatted_s(:long)
+		end
+		contractStr
+	end
+	
+	def getOrderComponetsId
+		'wktime_si_components'
+	end
+	
+	def isInvPaymentLink
+		true
+	end
+	
 end
