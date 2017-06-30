@@ -51,7 +51,7 @@
   </thead>
    <tbody>
    <% if !@invoiceItem.blank? %>
-       <% @invoiceItem.where("wk_invoice_items.item_type = 'i' or wk_invoice_items.item_type = 'c'").each do |entry| %>
+       <% @invoiceItem.where("wk_invoice_items.item_type = 'i' or wk_invoice_items.item_type = 'c' or wk_invoice_items.item_type = 't'").each do |entry| %>
 			<tr onclick="  row_id  = this.rowIndex ">
 				<td class="lbl-txt-align" headers="item_id">
 					<%=h hidden_field_tag("item_id#{row_index}",   entry.id )  %>
