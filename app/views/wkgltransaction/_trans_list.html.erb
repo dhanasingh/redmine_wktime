@@ -18,8 +18,9 @@
 		dbTotal =0 
 		openingBalance = 0
 		openingBalHash = nil
-		asOnDate = @transEntries.minimum(:trans_date) - 1 #@from.blank? ?  Date.today : @from
-		openingBalHash = getEachLedgerBSAmt(asOnDate, [@selectedLedger.ledger_type]) unless @ledgerId.blank?
+		asOnDate =  nil
+		asOnDate = @transEntries.minimum(:trans_date) - 1 unless @transEntries.minimum(:trans_date).blank? #@from.blank? ?  Date.today : @from
+		openingBalHash = getEachLedgerBSAmt(asOnDate, [@selectedLedger.ledger_type]) unless @ledgerId.blank? || asOnDate.blank?
 		openingBalance = openingBalHash.values[0] unless openingBalHash.blank?
 		@transEntries.each do |entry| 
 			entry_details = entry.transaction_details.includes(:ledger).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type') 
@@ -69,7 +70,7 @@
 				</td>
 			</tr>
 		<% end %>
-		<% 	unless @selectedLedger.blank?
+		<% 	unless @selectedLedger.blank? || (incomeLedgerTypes.include? @selectedLedger.ledger_type) || (expenseLedgerTypes.include? @selectedLedger.ledger_type)
 				isSubCr = isSubtractCr(@selectedLedger.ledger_type)
 				if isSubCr
 					currentBal = dbTotal - crTotal
