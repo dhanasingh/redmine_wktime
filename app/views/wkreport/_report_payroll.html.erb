@@ -5,10 +5,25 @@
 	groupId = session[:wkreport][:group_id].blank?  ? 0 : session[:wkreport][:group_id]				
 	userSqlStr = getUserQueryStr(groupId, userId, from)
 	@userlist = User.find_by_sql(userSqlStr)
-	queryStr = getQueryStr + " where s.salary_date  between '#{from}' and '#{to}' "
-	if userId.to_i != 0
-		queryStr = queryStr + " and s.user_id in(#{userId}) "
+	queryStr = getQueryStr + "left join custom_values cvt on (u.id = cvt.customized_id and cvt.value != ''" +
+			" and cvt.custom_field_id = #{getSettingCfId('wktime_attn_terminate_date_cf')} ) " +
+			"left join groups_users gu on (gu.user_id = u.id and gu.group_id = #{groupId}) " +
+			"where u.type = 'User' and (#{getConvertDateStr('cvt.value')} >= '#{from}' or (u.status = #{User::STATUS_ACTIVE} and cvt.value is null))"
+	if groupId.to_i > 0 && userId.to_i < 1
+		queryStr = queryStr + " and gu.group_id is not null"
+	elsif userId.to_i > 0
+		queryStr = queryStr + " and s.user_id = #{userId}"
 	end
+	
+	queryStr = queryStr + " and s.salary_date  between '#{from}' and '#{to}' "
+	
+	if !(isAccountUser || User.current.admin?)
+		queryStr = queryStr + " and u.id = #{User.current.id} "
+	end
+	
+	#if userId.to_i != 0
+	#	queryStr = queryStr + " and s.user_id in(#{userId}) "
+	#end
 	queryStr = queryStr + " order by s.user_id"
 	@salary_data = WkSalary.find_by_sql(queryStr)
 	usercol = ["Id", "Name", "Gender", "Designation"]
