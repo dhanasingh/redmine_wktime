@@ -4,7 +4,7 @@ class CreateWkPurchase < ActiveRecord::Migration
 		
 		#add column in wk_address table
 		add_column :wk_invoices, :invoice_type, :string, :limit => 5, :default => 'I'
-		add_column :wk_crm_contacts, :contact_type, :string, :limit => 5
+		add_column :wk_crm_contacts, :contact_type, :string, :limit => 5, :default => 'C'
 		add_column :wk_invoices, :invoice_num_key, :integer
 		add_reference :wk_payments, :gl_transaction, :class => "wk_gl_transactions"
 		remove_reference :wk_payment_items, :gl_transaction, :class => "wk_gl_transactions", :null => true
@@ -13,9 +13,9 @@ class CreateWkPurchase < ActiveRecord::Migration
 				execute <<-SQL
 				  UPDATE wk_invoices set invoice_num_key = id;
 				SQL
-				execute <<-SQL
-				  UPDATE wk_crm_contacts set contact_type = 'C' where account_id is null;
-				SQL
+				# execute <<-SQL
+				  # UPDATE wk_crm_contacts set contact_type = 'C' where account_id is null;
+				# SQL
 				remove_index :wk_invoices, :invoice_number
 				add_index :wk_invoices, :invoice_number, :unique => false
 			end
