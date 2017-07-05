@@ -1,8 +1,15 @@
 <script type="text/javascript">	
 	rfqQuoteUrl="<%= "#{url_for(:controller => controller_name, :action => 'getRfqQuoteIds')}" %>";
 </script>
-
-<%= render partial: "wkquote/quoteadditionaldd", locals: { rfq_id: nil, onchngeMethodName: "rfqTOQuoteChanged(#{User.current.id}, 'quote_id');" }%>
+<%
+	onchgVal = ""
+	needRfqBlankdd = true
+	if reqQuotePoDD
+		onchgVal = " rfqTOQuoteChanged(#{User.current.id}, 'quote_id');"
+		needRfqBlankdd = false
+	end
+%>
+<%= render partial: "wkquote/quoteadditionaldd", locals: { rfq_id: session[controller_name][:rfq_id], onchngeMethodName: onchgVal, needRfqBlank: needRfqBlankdd }%>
 	
 <% if reqQuotePoDD %>
 	<% rfq_arr = getRfqArray(false) #WkRfq.where(:status => 'o').order(id: :desc).pluck(:name, :id) %>

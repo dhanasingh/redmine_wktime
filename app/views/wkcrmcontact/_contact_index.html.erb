@@ -4,7 +4,7 @@
 	accArr = options_for_wktime_account(false, accountType) 
 %>
 
-<%	accArr.unshift(["All Acounts",'AA'])  %>
+<%	accArr.unshift([l(:label_all_accounts),'AA'])  %>
 <%	accArr.unshift(["",''])  %>
 <%= hidden_field_tag "searchlist", controller_name %>
 <%=h hidden_field_tag('tab', controller_name) %>
