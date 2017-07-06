@@ -354,7 +354,8 @@ function paymentItemTotal(tableId, elementId, totFld)
 			
 		}		
 	}
-	document.getElementById(totFld).innerHTML = document.getElementById('payment_currency').innerHTML + amount;
+	//document.getElementById(totFld).innerHTML = document.getElementById('payment_currency').innerHTML + amount;
+	document.getElementById(totFld).innerHTML = amount;
 	document.getElementById('tot_pay_amount').value = amount;
 }
 

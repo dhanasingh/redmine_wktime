@@ -18,7 +18,7 @@
 		<p style="float:left;"><%= l(:label_total) %>: &nbsp;<%= @payment_entries[0].payment_items[0].currency unless @payment_entries[0].blank? || @payment_entries[0].payment_items[0].blank?%> <%= html_hours("%.2f" % @totalPayAmt) unless @totalPayAmt.blank? %></p>
 	</div>
 	<%  parentAccountId = 0
-		parentArr = options_for_wktime_account(false, 'A') 
+		parentArr = options_for_wktime_account(false, controller.getOrderAccountType) 
 		parentAccountId = parentArr[0][1].to_i if !parentArr.blank?
 	%>
 	
