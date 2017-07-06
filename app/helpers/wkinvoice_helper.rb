@@ -61,7 +61,7 @@ include WkbillingHelper
 			end
 			if totalAmount > 0 && autoPostGL(getAutoPostModule)
 				transId = @invoice.gl_transaction.blank? ? nil : @invoice.gl_transaction.id
-				glTransaction = postToGlTransaction('invoice', transId, @invoice.invoice_date, totalAmount.round, @invoice.invoice_items[0].currency, nil)
+				glTransaction = postToGlTransaction('invoice', transId, @invoice.invoice_date, totalAmount.round, @invoice.invoice_items[0].currency, nil, nil)
 				unless glTransaction.blank?
 					@invoice.gl_transaction_id = glTransaction.id
 					@invoice.save
