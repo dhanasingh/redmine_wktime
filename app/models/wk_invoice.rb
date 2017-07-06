@@ -23,7 +23,7 @@ class WkInvoice < ActiveRecord::Base
   belongs_to :gl_transaction , :class_name => 'WkGlTransaction', :dependent => :destroy
   has_many :invoice_items, foreign_key: "invoice_id", class_name: "WkInvoiceItem", :dependent => :destroy
   has_many :projects, through: :invoice_items
-  has_many :payment_items, foreign_key: "invoice_id", class_name: "WkPaymentItem", :dependent => :destroy
+  has_many :payment_items, foreign_key: "invoice_id", class_name: "WkPaymentItem", :dependent => :restrict_with_error
   has_one :rfq_quote, foreign_key: "quote_id", class_name: "WkRfqQuote"
   has_one :po_quote, foreign_key: "purchase_order_id", class_name: "WkPoQuote"
   has_one :quote_po, foreign_key: "quote_id", class_name: "WkPoQuote"
@@ -35,8 +35,8 @@ class WkInvoice < ActiveRecord::Base
   # scope :purchase_orders, lambda {where :invoice_type => 'PO'}
   # scope :supplier_invoices, lambda {where :invoice_type => 'SI'}
   
-  has_many :purchase_orders, through: :quote_po
-  has_many :supplier_invoices, through: :purchase_orders
+  has_many :purchase_orders, through: :quote_po, :dependent => :restrict_with_error
+  has_many :supplier_invoices, through: :po_sup_inv, :dependent => :restrict_with_error
   attr_protected :modifier_id
   
   #validates_presence_of :account_id

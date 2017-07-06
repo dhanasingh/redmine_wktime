@@ -18,6 +18,6 @@
 class WkRfq < ActiveRecord::Base
   unloadable
   has_many :rfq_quotes, foreign_key: "rfq_id", class_name: "WkRfqQuote"
-  has_many :quotes, through: :rfq_quotes
+  has_many :quotes, through: :rfq_quotes, :dependent => :restrict_with_error
   has_many :purchase_orders, through: :quotes
 end

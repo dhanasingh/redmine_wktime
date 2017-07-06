@@ -55,8 +55,14 @@ class WkrfqController < ApplicationController
     end
 	
 	def destroy
-		WkRfq.find(params[:rfq_id].to_i).destroy
-		flash[:notice] = l(:notice_successful_delete)
+		#WkRfq.find(params[:rfq_id].to_i).destroy
+		#flash[:notice] = l(:notice_successful_delete)
+		rfq = WkRfq.find(params[:rfq_id].to_i)
+		if rfq.destroy
+			flash[:notice] = l(:notice_successful_delete)
+		else
+			flash[:error] = rfq.errors.full_messages.join("<br>")
+		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end	
   
