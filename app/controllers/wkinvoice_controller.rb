@@ -279,5 +279,9 @@ class WkinvoiceController < WkorderentityController
 	def postableInvoice
 		true
 	end
+	
+	def deletePermission
+		false
+	end
 
 end

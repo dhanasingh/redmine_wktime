@@ -422,4 +422,8 @@ include WkorderentityHelper
 	def postableInvoice
 		false
 	end
+	
+	def deletePermission
+		false
+	end
 end
