@@ -80,7 +80,7 @@ $(document).ready(function()
 	<% end  %>
 	
 	<% unless controller.getAdditionalDD.blank?  %>
-		<%= render partial: controller.getAdditionalDD, locals: { rfq_id: rfq_id, reqQuotePoDD: needQuotePoDD, onchngeMethodName: "", needRfqBlank: true }%>
+		<%= render partial: controller.getAdditionalDD, locals: { rfq_id: rfq_id, reqQuotePoDD: needQuotePoDD, onchngeMethodName: "", needRfqBlank: isFilter }%>
 	<% end %>
 	
 	

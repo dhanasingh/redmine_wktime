@@ -60,7 +60,7 @@ class WkpurchaseorderController < WksupplierorderentityController
 		rfqObj = WkInvoice.where(:id => getInvoiceIds(params[:rfq_id].to_i, 'Q', true), :parent_id => params[:parent_id].to_i, :parent_type => params[:parent_type]).order(:id)
 		
 		rfqObj.each do | entry|
-			quoteIds <<  entry.id.to_s() + ',' + entry.id.to_s()  + "\n" 
+			quoteIds <<  entry.id.to_s() + ',' + entry.invoice_number.to_s()  + "\n" 
 		end
 		respond_to do |format|
 			format.text  { render :text => quoteIds }
