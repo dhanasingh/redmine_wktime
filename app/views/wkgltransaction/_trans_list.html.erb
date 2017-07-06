@@ -26,7 +26,7 @@
 			entry_details = entry.transaction_details.includes(:ledger).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type') 
 			transTotal = entry_details.inject(0){|sum,x| sum + x[1] }/2
 			unless @ledgerId.blank?
-				openingBalance = openingBalHash[@selectedLedger.name] unless openingBalHash.blank?
+				openingBalance = openingBalHash[@selectedLedger.name] unless openingBalHash.blank? || openingBalHash[@selectedLedger.name].blank?
 				selectedLedgerEntries = entry.transaction_details.includes(:ledger).where(:wk_gl_transaction_details => { :ledger_id => @ledgerId }).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type')
 				otherDetailTypeEntries = entry.transaction_details.includes(:ledger).where.not(:wk_gl_transaction_details => { :ledger_id => @ledgerId, :detail_type=> selectedLedgerEntries[0][2]}).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type')
 				partLedgerName = otherDetailTypeEntries[0][3]
