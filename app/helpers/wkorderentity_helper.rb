@@ -15,8 +15,9 @@ include WkcrmHelper
 	end
 	
 	def getRfqPoArray(needBlank, id)
-		rfqPoArr = getInvoiceIds(id, 'PO', false)
-		#rfqPoArr.unshift(["",'']) if needBlank
+		rfqObj = WkRfq.find(id) 
+		rfqPoArr = rfqObj.purchase_orders.collect {|i| [i.invoice_number, i.id]  }
+		rfqPoArr.unshift(["",'']) if needBlank
 		rfqPoArr
 	end
 	
