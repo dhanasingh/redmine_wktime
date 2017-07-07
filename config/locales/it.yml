@@ -642,3 +642,6 @@ it:
   label_po_components: Purchase Order Components  
   label_si_components: Supplier Invoice Components
   label_all_accounts: All Accounts
+  label_opening_balance: Opening Balance
+  label_current_total: Current Total
+  label_closing_balance: Closing Balance

@@ -28,9 +28,9 @@
 			unless @ledgerId.blank?
 				openingBalance = openingBalHash[@selectedLedger.name] unless openingBalHash.blank? || openingBalHash[@selectedLedger.name].blank?
 				selectedLedgerEntries = entry.transaction_details.includes(:ledger).where(:wk_gl_transaction_details => { :ledger_id => @ledgerId }).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type')
-				otherDetailTypeEntries = entry.transaction_details.includes(:ledger).where.not(:wk_gl_transaction_details => { :ledger_id => @ledgerId, :detail_type=> selectedLedgerEntries[0][2]}).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type')
+				otherDetailTypeEntries = entry.transaction_details.includes(:ledger).where.not(:wk_gl_transaction_details => { :detail_type=> selectedLedgerEntries[0][2]}).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type') #:ledger_id => @ledgerId, 
 				partLedgerName = otherDetailTypeEntries[0][3]
-				trAmount = selectedLedgerEntries[0][1]
+				#trAmount = selectedLedgerEntries[0][1]
 			else
 				detailType = 'c'
 				case entry.trans_type
@@ -46,16 +46,20 @@
 				selectedLedgerEntries = entry.transaction_details.includes(:ledger).where(:wk_gl_transaction_details => { :detail_type => detailType }).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type')
 				otherDetailTypeEntries = entry.transaction_details.includes(:ledger).where.not(:wk_gl_transaction_details => { :detail_type => detailType }).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type')
 				partLedgerName = selectedLedgerEntries[0][3]
-				trAmount = selectedLedgerEntries[0][1]
+				#trAmount = selectedLedgerEntries[0][1]
 			end
 			dbAmount = nil
 			crAmount = nil
-			if selectedLedgerEntries[0][2] == 'c'
-				crAmount = trAmount
-				crTotal = crTotal + trAmount unless trAmount.blank?
-			else
-				dbAmount = trAmount
-				dbTotal = dbTotal + trAmount unless trAmount.blank?
+			selectedLedgerEntries.each do |trans|
+				 unless trans[1].blank? 
+					if trans[2] == 'c' #selectedLedgerEntries[0][2]
+						crAmount = crAmount.blank? ? trans[1] : crAmount + trans[1]
+						crTotal = crTotal + trans[1]
+					else
+						dbAmount = dbAmount.blank? ? trans[1] : dbAmount + trans[1]
+						dbTotal = dbTotal + trans[1]
+					end
+				end
 			end
 			%>
 			<tr>
@@ -85,7 +89,7 @@
 			<tr>
 				<th class="lbl-txt-align"><%= %></th>
 				<th class="lbl-txt-align"><%=  %></th>
-				<th class="lbl-txt-align"><%=  "Opening Balance:"%></th>
+				<th class="lbl-txt-align"><%=h l(:label_opening_balance) %>:</th>
 				<% if (isSubCr && openingBalance > 0) || (!isSubCr && openingBalance < 0) %>
 					<th class="lbl-txt-align"><%=  "%.2f" % openingBalance  %></th>
 					<th class="lbl-txt-align"><%=  %></th>	
@@ -98,7 +102,7 @@
 			<tr>
 				<th class="lbl-txt-align"><%= %></th>
 				<th class="lbl-txt-align"><%=  %></th>
-				<th class="lbl-txt-align"><%=  "Current Total:"%></th>
+				<th class="lbl-txt-align"><%=h l(:label_current_total) %>:</th>
 				<th class="lbl-txt-align"><%=  "%.2f" % dbTotal  %></th>
 				<th class="lbl-txt-align"><%=  "%.2f" % crTotal %></th>	
 				<th></th>
@@ -106,7 +110,7 @@
 			<tr>
 				<th class="lbl-txt-align"><%= %></th>
 				<th class="lbl-txt-align"><%=  %></th>
-				<th class="lbl-txt-align"><%=  "Closing Balance:"%></th>
+				<th class="lbl-txt-align"><%=h l(:label_closing_balance) %>:</th>
 				<% if (isSubCr && closeBal > 0) || (!isSubCr && closeBal < 0) %>
 					<th class="lbl-txt-align"><%=  "%.2f" % closeBal.abs  %></th>
 					<th class="lbl-txt-align"><%=  %></th>	
