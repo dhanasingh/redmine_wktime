@@ -73,6 +73,7 @@
 				</td>
 				<td class="lbl-txt-align" headers="item_type">					
 					<%=h select_tag("item_type#{row_index.to_s}", options_for_select(itemHash.invert, :selected => entry.item_type), :disabled => true) %>
+					<%=h hidden_field_tag("hd_item_type#{row_index.to_s}",  entry.item_type )  %>
 				</td>
 				<td class="lbl-txt-align" headers="currency">
 					<%=h hidden_field_tag("currency#{row_index}",   entry.currency )  %>
@@ -118,6 +119,7 @@
 				</td>
 				<td class="lbl-txt-align" headers="item_type">
 					<%=h select_tag("item_type#{row_index.to_s}", options_for_select(itemHash.invert, :selected => value['item_type'] .blank? ? itemHash.invert  : value['item_type'] ), :disabled => @preBilling) %>
+					<%=h hidden_field_tag("hd_item_type#{row_index.to_s}", value['item_type'] )  %>
 				</td>
 				<td class="lbl-txt-align" headers="currency">
 					<%=h hidden_field_tag("currency#{row_index}",   @currency )  %>

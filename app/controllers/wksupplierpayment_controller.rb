@@ -44,6 +44,10 @@ class WksupplierpaymentController < WkpaymententityController
 	def getAutoPostModule
 		'supplier_payment'
 	end
+
+	def getAccountDDLbl
+		l(:label_supplier_account)
+	end
 	
 	def check_permission		
 		return isModuleAdmin('wktime_pur_group') || isModuleAdmin('wktime_pur_admin') 

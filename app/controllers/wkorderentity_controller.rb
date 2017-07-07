@@ -254,16 +254,16 @@ include WkorderentityHelper
 				crPaymentId = params["entry_id#{i}"].to_i
 			end
 			pjtId = params["project_id#{i}"] if !params["project_id#{i}"].blank?
-			
+			itemType = params["item_type#{i}"].blank? ? params["hd_item_type#{i}"]  : params["item_type#{i}"]
 			unless params["item_id#{i}"].blank?			
 				arrId.delete(params["item_id#{i}"].to_i)
 				invoiceItem = WkInvoiceItem.find(params["item_id#{i}"].to_i)
 				amount = params["rate#{i}"].to_f * params["quantity#{i}"].to_f
-				updatedItem = updateInvoiceItem(invoiceItem, pjtId,  params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, invoiceItem.currency, params["item_type#{i}"], amount, crInvoiceId, crPaymentId)
+				updatedItem = updateInvoiceItem(invoiceItem, pjtId,  params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, invoiceItem.currency, itemType, amount, crInvoiceId, crPaymentId)
 			else				
 				invoiceItem = @invoice.invoice_items.new
 				amount = params["rate#{i}"].to_f * params["quantity#{i}"].to_f
-				updatedItem = updateInvoiceItem(invoiceItem, pjtId, params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, params["currency#{i}"], params["item_type#{i}"], amount, crInvoiceId, crPaymentId)
+				updatedItem = updateInvoiceItem(invoiceItem, pjtId, params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, params["currency#{i}"], itemType, amount, crInvoiceId, crPaymentId)
 			end
 			if !params[:populate_unbilled].blank? && params[:populate_unbilled] == "true" && params[:creditfrominvoice].blank? && !params["entry_id#{i}"].blank?
 				accProject = WkAccountProject.where(:project_id => pjtId)

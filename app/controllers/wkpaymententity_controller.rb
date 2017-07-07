@@ -277,11 +277,7 @@ class WkpaymententityController < WkbillingController
 	
 	def getPersonTypeSql
 		 "CASE WHEN p.parent_type = 'WkAccount'  THEN a.account_type ELSE c.contact_type END"
-	end
-	
-	def getAccountDDLbl
-		l(:label_supplier_account)
-	end
+	end	
 	
 	def getAuotPostId
 		'invoice_auto_post_gl'
