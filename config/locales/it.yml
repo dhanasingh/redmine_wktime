@@ -359,7 +359,7 @@ it:
   label_bank: Bank
   label_customer: Customer
   label_supplier: Supplier
-  label_export_invoice: Print Invoice
+  label_export_invoice: Print
   label_authorized_signatory: Authorized Signatory
   label_place: Place
   label_erpmine: ERPmine
