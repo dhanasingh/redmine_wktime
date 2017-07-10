@@ -30,7 +30,7 @@
 %>
 <tr>
 	<th align="left"><%= l(:label_type) %></th>
-	<td style="padding-left:<%=stylePadding%>px;"><%=h select_tag('related_to', options_for_select(relHash.invert, :selected => parentObject.blank? ? (parentType.blank? ? "" : parentType) : parentObject.parent_type ), :onchange => "actRelatedDd(#{User.current.id}, #{needParentProject}, #{needblankType}, 'A', 'C'); ") %></td>
+	<td style="padding-left:<%=stylePadding%>px;"><%=h select_tag('related_to', options_for_select(relHash.invert, :selected => parentObject.blank? ? (parentType.blank? ? "" : parentType) : parentObject.parent_type ), :onchange => "actRelatedDd(#{User.current.id}, #{needParentProject}, #{needblankType}, 'A', 'C', false); ") %></td>
 <% if padding.blank? %>
 </tr>
 <tr>
