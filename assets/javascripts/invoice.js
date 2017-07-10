@@ -92,47 +92,49 @@ function addAmount(fldId)
 	if(rate.value != null && quantity.value != null)
 	{
 		document.getElementById("amount"+  cloumnId).innerHTML = rate.value * quantity.value;
-	}
-	
+	}	
 	var table = document.getElementById('invoiceTable');
 	var len = table.rows.length;
-	//var subtotal = 0;
 	var total = 0;
 	var count = 0;
 	var tothash = new Object();
 	for(var i = 1 ; i <= (len-1) ; i++)
 	{
-		var dropdown = document.getElementById("project_id"+i);
-		var ddvalue = dropdown.options[dropdown.selectedIndex].value;
-		tothash[ddvalue] = (tothash[ddvalue] == null ? 0 : tothash[ddvalue]) + parseInt($("#amount"+i).text());
-		/*if(count == 0 || ddvalue == count)
-		{
-			//alert(" ddvalue : " + ddvalue + " count : " + count);
-			subtotal = subtotal + parseInt($("#amount"+i).text());
-			count = ddvalue;
-		}*/
+		if(document.getElementById("project_id"+i) != null) {
+			var dropdown = document.getElementById("project_id"+i);
+			var ddvalue = dropdown.options[dropdown.selectedIndex].value;
+			tothash[ddvalue] = (tothash[ddvalue] == null ? 0 : tothash[ddvalue]) + parseInt($("#amount"+i).text());
+		}
 		total = total + parseInt($("#amount"+i).text());
 		 
 	}
 	
-	var taxtotal = 0;
-	var taxTable = document.getElementById('taxTable');
-	var taxlen = taxTable.rows.length;
-	for(j=1 ;j < taxlen ; j++)
-	{
-		pjtId = document.getElementById('pjt_id'+j).value;
-		var taxamount = tothash[pjtId] * (parseFloat($("#taxrate"+j).text()/100));
-		taxtotal = taxtotal + taxamount;
-		document.getElementById("taxamount"+ j).innerHTML = taxamount.toFixed(2); //total * parseFloat($("#taxrate"+j).text()); 
+	var taxtotal = 0;		
+	if(document.getElementById('taxTable') != null) {
+		var taxTable = document.getElementById('taxTable');
+		var taxlen = taxTable.rows.length;
+		for(j=1 ;j < taxlen ; j++)
+		{
+			if(document.getElementById("project_id"+i) != null) {
+				pjtId = document.getElementById('pjt_id'+j).value;
+				var taxamount = tothash[pjtId] * (parseFloat($("#taxrate"+j).text()/100));
+				taxtotal = taxtotal + taxamount;
+				document.getElementById("taxamount"+ j).innerHTML = taxamount.toFixed(2); //total * parseFloat($("#taxrate"+j).text()); 
+			}
+		}
 	}
 	document.getElementById('invsubtotal').innerHTML = "SubTotal : " + total.toFixed(2);
-	document.getElementById('invtotalamount').innerHTML = "Total : " + (taxtotal + total).toFixed(2);
+	if(document.getElementById('invtotalamount') != null) {
+		document.getElementById('invtotalamount').innerHTML = "Total : " + (taxtotal + total).toFixed(2);
+	}
 	var roundtotal = Math.round(taxtotal + total);
-	var roundlen = document.getElementById('taxTable').rows.length;
-	if(roundlen > 1)
-	{
-		document.getElementById('roundamount').innerHTML = (roundtotal - (taxtotal + total)).toFixed(2);
-	}	
+	if(document.getElementById('taxTable') != null) {
+		var roundlen = document.getElementById('taxTable').rows.length;
+		if(roundlen > 1)
+		{
+			document.getElementById('roundamount').innerHTML = (roundtotal - (taxtotal + total)).toFixed(2);
+		}
+	}
 	document.getElementById('roundtotalamount').innerHTML = roundtotal.toFixed(2);
 }
 
@@ -352,7 +354,8 @@ function paymentItemTotal(tableId, elementId, totFld)
 			
 		}		
 	}
-	document.getElementById(totFld).innerHTML = document.getElementById('payment_currency').innerHTML + amount;
+	//document.getElementById(totFld).innerHTML = document.getElementById('payment_currency').innerHTML + amount;
+	document.getElementById(totFld).innerHTML = amount;
 	document.getElementById('tot_pay_amount').value = amount;
 }
 

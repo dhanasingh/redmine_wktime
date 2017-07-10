@@ -580,8 +580,9 @@ end
 	
 	def getTimeEntryStatus(spent_on,user_id)
 		#result = Wktime.find(:all, :conditions => [ 'begin_date = ? AND user_id = ?', getStartDay(spent_on), user_id])	
-		start_day = getStartDay(spent_on)		
-		locked = call_hook(:controller_check_locked,{ :startdate => start_day})
+		start_day = getStartDay(spent_on)	
+		locked  = isLocked(start_day)
+		#locked = call_hook(:controller_check_locked,{ :startdate => start_day})
 		locked  = locked.blank? ? '' : (locked.is_a?(Array) ? (locked[0].blank? ? '': locked[0].to_s) : locked.to_s) 
 		locked = ( !locked.blank? && to_boolean(locked))
 		if locked
@@ -609,10 +610,10 @@ end
 				{:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll},
 				{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_user_settings}
 			   ]
-		elsif params[:controller] == "wklead" || params[:controller] == "wkaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact"
+		elsif params[:controller] == "wklead" || params[:controller] == "wkcrmaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact"
 			tabs = [
 				{:name => 'wklead', :partial => 'wktime/tab_content', :label => :label_lead_plural},
-				{:name => 'wkaccount', :partial => 'wktime/tab_content', :label => :label_accounts},
+				{:name => 'wkcrmaccount', :partial => 'wktime/tab_content', :label => :label_accounts},
 				{:name => 'wkopportunity', :partial => 'wktime/tab_content', :label => :label_opportunity_plural},
 				{:name => 'wkcrmactivity', :partial => 'wktime/tab_content', :label => :label_activity_plural},
 				{:name => 'wkcrmcontact', :partial => 'wktime/tab_content', :label => :label_contact_plural}
@@ -622,7 +623,7 @@ end
 			tabs = [
 				{:name => 'wkinvoice', :partial => 'wktime/tab_content', :label => :label_invoice},
 				{:name => 'wkpayment', :partial => 'wktime/tab_content', :label => :label_payments},
-			#	{:name => 'wkaccount', :partial => 'wktime/tab_content', :label => :label_accounts},
+			#	{:name => 'wkcrmaccount', :partial => 'wktime/tab_content', :label => :label_accounts},
 				{:name => 'wkcontract', :partial => 'wktime/tab_content', :label => :label_contracts},
 				{:name => 'wkaccountproject', :partial => 'wktime/tab_content', :label => :label_acc_projects},				
 				{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax},
@@ -632,6 +633,16 @@ end
 			tabs = [
 				{:name => 'wkgltransaction', :partial => 'wktime/tab_content', :label => :label_transaction},
 				{:name => 'wkledger', :partial => 'wktime/tab_content', :label => :label_ledger}
+			   ]
+		elsif params[:controller] == "wkrfq" || params[:controller] == "wkquote" || params[:controller] == "wkpurchaseorder" || params[:controller] == "wksupplierinvoice" || params[:controller] == "wksupplierpayment" || params[:controller] == "wksupplieraccount" || params[:controller] == "wksuppliercontact"
+			tabs = [
+				{:name => 'wkrfq', :partial => 'wktime/tab_content', :label => :label_rfq},
+				{:name => 'wkquote', :partial => 'wktime/tab_content', :label => :label_quotes},
+				{:name => 'wkpurchaseorder', :partial => 'wktime/tab_content', :label => :label_purchase_order},
+				{:name => 'wksupplierinvoice', :partial => 'wktime/tab_content', :label => :label_supplier_invoice},
+				{:name => 'wksupplierpayment', :partial => 'wktime/tab_content', :label => :label_supplier_payment},
+				{:name => 'wksupplieraccount', :partial => 'wktime/tab_content', :label => :label_supplier_account},
+				{:name => 'wksuppliercontact', :partial => 'wktime/tab_content', :label => :label_supplier_contact}
 			   ]
 		else
 			tabs = [
@@ -734,7 +745,8 @@ end
 				{:name => 'payroll', :partial => 'settings/tab_payroll', :label => :label_payroll},
 				{:name => 'billing', :partial => 'settings/tab_billing', :label => :label_wk_billing},
 				{:name => 'accounting', :partial => 'settings/tab_accounting', :label => :label_accounting},
-				{:name => 'CRM', :partial => 'settings/tab_crm', :label => :label_crm}
+				{:name => 'CRM', :partial => 'settings/tab_crm', :label => :label_crm},
+				{:name => 'purchase', :partial => 'settings/tab_purchase', :label => :label_purchasing}
 			   ]	
 	end	
 	
@@ -1209,5 +1221,34 @@ end
 	def getIntervalFormula(intervalVal)
 		" (t4.i*#{intervalVal}*10000 + t3.i*#{intervalVal}*1000 + t2.i*#{intervalVal}*100 + t1.i*#{intervalVal}*10 + t0.i*#{intervalVal}) "
 	end
+	
+	def isLocked(startdate)
+		isLocked = false
+		lock = WkTeLock.order(id: :desc)	
+		if !lock.blank? && lock.size > 0		
+			startdate = startdate.to_s.to_date
+			isLocked = startdate <= lock[0].lock_date.to_date			
+		end
+		isLocked
+	end
+	
+	def concatColumnsSql(columnsArr, aliasName, joinChar)
+		joinChar = ' ' if joinChar.blank?
+		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'	
+			concatSql = " #{columnsArr.join(" + '#{joinChar}' + ")} "	
+		elsif ActiveRecord::Base.connection.adapter_name == 'SQLite'
+			concatSql = " #{columnsArr.join(" || '#{joinChar}' || ")} "
+		else
+			concatSql = " concat( #{columnsArr.join(" , '#{joinChar}' , ")}) "
+		end
+		concatSql = concatSql + " as #{aliasName} " unless aliasName.blank?
+		concatSql
+	end
+		
+	def showPurchase
+		(!Setting.plugin_redmine_wktime['wktime_enable_pur_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_pur_module'].to_i == 1 ) && (isModuleAdmin('wktime_pur_group') || isModuleAdmin('wktime_pur_admin') )
+	end
+	
 	
 end

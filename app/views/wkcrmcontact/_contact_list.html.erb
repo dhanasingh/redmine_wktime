@@ -23,8 +23,10 @@
 			<td class="lbl-txt-align"><%=h entry.address.work_phone unless entry.address.blank? %></td>
 			<td class="lbl-txt-align"><%=h entry.assigned_user.name(:firstname_lastname) unless  entry.assigned_user.blank? %></td>
 			<td class="lbl-txt-align"><%=h entry.updated_at.localtime.strftime("%Y-%m-%d") %></td>
-			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => 'wkcrmcontact', :action => 'edit', :contact_id => entry.id, :tab => 'wkcrmcontact'}, :title => l(:button_edit) %>
-							<%= link_to image_tag('delete.png'), {:controller => 'wkcrmcontact', :action => 'destroy', :contact_id => entry.id, :tab => 'wkcrmcontact'},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
+			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.getContactController, :action => 'edit', :contact_id => entry.id, :tab => controller.getContactController}, :title => l(:button_edit) %>
+			<% if controller.deletePermission %>
+				<%= link_to image_tag('delete.png'), {:controller => controller.getContactController, :action => 'destroy', :contact_id => entry.id, :tab => controller.getContactController},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
+			<% end %>
 		</tr>
 	<% end %>
    </tbody>

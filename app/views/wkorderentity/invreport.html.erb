@@ -1,0 +1,153 @@
+<% if !@invoiceItem.blank? %>
+
+	<div id="time-rpt-dlg" style="overflow-x:auto;">
+		<center><b><%= (controller.getHeaderLabel).upcase %></b></center>
+		<div style="float:right">
+			<table>
+				<tr>
+					<td>
+						<% logo = Setting.plugin_redmine_wktime['wktime_header_logo'] %>					
+						<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>						
+							<%= image_tag("#{logo}", :plugin => "redmine_wktime") %>
+						<% end %>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div style="clear:both;"></div>
+		<table border="1" style="border-collapse:collapse;" cellspacing="0", align="center", frame="box">
+				<tr style="width:100%; background-color: #f2f2f2">
+					<th align="left"  width="25%"><%= l(:label_name_address_of,l(:label_supplier)) %></th>
+					<th align="left"  width="25%"><%= l(:label_name_address_of,l(:label_customer)) %></th>
+					<th align="left"  width="25%"><%= controller.getLabelInvNum %></th>
+					<th align="left"  colspan ="3" width="25%"><%= controller.getDateLbl %></th>
+				</tr>
+				<tr style="width:100%;">
+					<td  width="25%" style="white-space:pre"><%=h controller.getSupplierAddress(@invoice)  %></td>
+					<td  width="25%" style="white-space:pre"><%=h controller.getCustomerAddress(@invoice) %> </td>
+					<td  width="25%"><%=h @invoice.invoice_number %></td>
+					<td  colspan ="3" width="25%"><%=h @invoice.invoice_date.to_formatted_s(:long) %></td>
+				</tr>
+				<tr style="width:100%;">
+					<th align="left" colspan="3" width="70%"><%= l(:label_cntrt_purchase_work_order) %></th>
+					<th align="left" colspan="3" width="30%"><%= l(:label_period) %></th>
+				</tr>
+				<tr style="width:100%;">
+					<% #accContract = @invoice.parent.contract(@invoiceItem[0].project) %>
+					<td align="left" colspan="3" width="70%"><%=h controller.getOrderContract(@invoice)%></td>
+					<td align="left" colspan="3" width="30%"><%=h @invoice.start_date.to_formatted_s(:long) + ' to ' + @invoice.end_date.to_formatted_s(:long) %></td>
+				</tr>
+				
+				<tr style="width:100%;">
+					<td colspan="6">
+						<table height="100%" style="width:100%; border-collapse: collapse;">
+							<tr style="border-bottom:1pt solid black; width:100%; background-color: #f2f2f2">
+								<th align="left" style="width:42%; border-bottom:1pt solid black;" ><%= l(:label_invoice_name) %></th>
+								<th align="left" style="width:16%; border-bottom:1pt solid black;" ><%= l(:label_billing_type) %></th>
+								<th align="right" style="width:16%; border-bottom:1pt solid black;" ><%= l(:label_rate) %></th>
+								<th align="right" style="width:16%; border-bottom:1pt solid black;" ><%= l(:label_quantity) %></th>
+								<th align="center" style="width:16%; border-bottom:1pt solid black;" ><%= l(:label_wk_currency) %></th>
+								<th align="right" style="width:16%;  border-bottom:1pt solid black;" ><%= l(:field_amount) %></th>
+							</tr>
+							<% lastItemType = nil %> 
+							<% lastProjectId = nil %>
+							<% @invoiceItem.each do | entry | %>
+								<% if entry.item_type != 'r' %>
+									<% if !lastItemType.blank? && entry.item_type != lastItemType && lastProjectId == entry.project_id && lastItemType == 'C' %>
+										<tr style="width:100%; border-top: solid thin; border-bottom: solid thin;">
+											<td style="width:42%;" ></td>
+											<td style="width:16%;" ></td>
+											<td style="width:16%;" align="right" ><b><%=h l(:label_sub_total) %></b></td>
+											<td style="width:16%;" align="right"><b><%=h "%.2f" % @invoiceItem.where(:project_id => lastProjectId, :item_type => 'i').sum(:quantity) %></b></td>
+											<td style="width:16%;" align="center" ><b><%=h entry.currency %></b></td>
+											<td style="width:16%;" align="right" ><b><%=h "%.2f" % @invoiceItem.where(:project_id => lastProjectId, :item_type => 'i').sum(:amount) %></b></td>
+										</tr>
+									<% end %>
+									
+									<% if !lastProjectId.blank? && lastProjectId != entry.project_id %>
+										<tr style="width:100%; border-top: solid thin; border-bottom: solid thin;">
+												<td style="width:42%;" ></td>
+												<td style="width:16%;" ></td>
+												<td style="width:16%;" align="right"><b><%=h l(:label_total) %></b></td>
+												<td style="width:16%;" align="right" ><b><%=h "%.2f" %  @invoiceItem.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:quantity) %></b></td>
+												<td style="width:16%;" align="center"><b><%=h entry.currency %></b></td>
+												<td style="width:16%;" align="right" ><b><%=h "%.2f" % @invoiceItem.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:amount) %></b></td>
+										</tr>
+									<% end %>
+										<tr style="width:100%;" >
+											<td style="width:42%;" ><%=h entry.name %></td>
+											<td style="width:16%;" ><%=h (entry.item_type == 'i' && @invoice.invoice_type == 'I') ? l(:field_hours) : '' %></td>
+											<td style="width:16%;" align="right" ><%=h ("%.2f" % entry.rate).to_s + (entry.item_type == 'i' || entry.item_type == 'c' ? '' : ( controller.addAdditionalTax ? '' : "%"))  unless entry.rate.blank? %></td>
+											<td style="width:16%;" align="right" ><%=h "%.2f" % entry.quantity unless entry.quantity.blank? %></td>
+											<td style="width:16%;" align="center" ><%=h entry.currency %></td>
+											<td style="width:16%;" align="right" ><%=h "%.2f" % entry.amount unless entry.amount.blank?%></td>		
+										</tr>
+									
+								<% end %>
+								
+								<% lastItemType = entry.item_type%>
+								<% lastProjectId = entry.project_id %>
+							<% end %>
+							<tr style="width:100%; border-top: solid thin;">
+									<td style="width:42%;" ></td>
+									<td style="width:16%;" ></td>
+									<td style="width:16%;" align="right"><b><%=h l(:label_total) %></b></td>
+									<td style="width:16%;" align="right" ><b><%=h "%.2f" %  @invoiceItem.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:quantity) %></b></td>
+									<td style="width:16%;" align="center"><b><%=h @invoiceItem[0].currency %></b></td>
+									<td style="width:16%;" align="right"><b><%=h "%.2f" % @invoiceItem.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:amount) %></b></td>
+							</tr>
+							<% @invoiceItem.where(:item_type => 'r').each do | entry | %>								
+									<tr  style="width:100%;border-top: solid thin;">
+										<td style="width:42%;" ><%=h entry.name %></td>
+										<td style="width:16%;" ><%=h (entry.item_type == 'i' && @invoice.invoice_type == 'I') ? l(:field_hours) : '' %></td>
+										<td style="width:16%;" align="right"><%=h "%.2f" % entry.rate unless entry.rate.blank? %></td>
+										<td style="width:16%;" align="right"><%=h "%.2f" % entry.quantity unless entry.quantity.blank? %></td>
+										<td style="width:16%;" align="center"><%=h entry.currency %></td>
+										<td style="width:16%;" align="right"><%=h "%.2f" % entry.amount unless entry.amount.blank?%></td>
+									</tr>								
+							<% end %>
+							</table>
+					</td>
+				</tr>
+				<tr style="width:100%;">
+					<td colspan="6">
+						<table style="width:100%;">
+							<tr style="width:100%;">
+								<td style="width:42%;"></td>
+								<td style="width:16%;"></td>
+								<td style="width:16%;" align="right" ><b><%=h  l(:label_grand_total)   %></b></td>					
+								<td style="width:16%;" align="right"><b><%=h "%.2f" % @invoiceItem.sum(:quantity) %></b></td>
+								<td style="width:16%;" align="center" ><b><%=h @invoiceItem[0].currency %></b></td>
+								<td style="width:16%;" align="right" ><b><%=h "%.2f" % @invoiceItem.sum(:amount) %></b></td>
+							</tr>
+						</table>
+					</td>					
+				</tr>
+				<tr style="width:100%;">
+					<td align="left" colspan="1" width="20%"><b><%= l(:label_amount_in_words) %></b></td>
+					<td align="left" colspan="5" width="35%"><%=h numberInWords(@invoiceItem.sum(:amount)) + " " + l(:label_only) + "." %></td>
+				</tr>
+				<% unless Setting.plugin_redmine_wktime[controller.getOrderComponetsId].blank? 
+				Setting.plugin_redmine_wktime[controller.getOrderComponetsId].each do |element| 
+					listboxArr = element.split('|') %>
+							<tr style="width:100%;">
+								<td align="left" colspan="2" width="250px"><b><%= listboxArr[0] %></b></td>
+								<td align="left" colspan="4" width="500px"><%=h listboxArr[1] %></td>
+							</tr>
+				<% end %>
+			<% end %>
+		</table>
+	</div>
+	<br/>
+	<br/>
+	<br/>
+	<table width="100%">
+		<tr width="100%">
+			<td class="txt-align" style="float:left;"><b><%= l(:label_place) %> :</b> </td>
+			<td class="txt-align"  style="float:right;"><b><%= l(:label_authorized_signatory) %></b></td>
+		</tr>
+		<tr><td class="txt-align" style="float:left;" ><b><%=  l(:label_date) %> :</b> </td></tr>
+	</table>	
+<% else %>
+	<label><b><%= l(:label_no_data) %></b></label>
+<% end -%>

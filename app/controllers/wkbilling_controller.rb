@@ -22,8 +22,6 @@ before_filter :require_login
 include WktimeHelper
 before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
 
-	def index  
-	end
 	
 	def check_perm_and_redirect
 		unless check_permission
@@ -36,16 +34,63 @@ before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destr
 		return isModuleAdmin('wktime_billing_groups')
 	end
 	
-	def index
+	def getOrderAccountType
+		'A'
 	end
 	
-	def edit
+	def getOrderContactType
+		'C'
 	end
 	
-	def update
+	def getInvoiceType
+		'I'
 	end
 	
-	def destroy
+	def needBlankProject
+		false
 	end
 	
+	def getAdditionalDD
+	end	
+	
+	def getPopulateChkBox	
+	end
+	
+	def isInvGenUnbilledLink
+		false
+	end
+	
+	def isInvPaymentLink
+		false
+	end
+	
+	def getPaymentController
+		"wkpayment"
+	end
+	
+	def addAdditionalTax
+		false
+	end
+	
+	def addQuoteFields
+		false
+	end
+	
+	def needChangedProject
+		true
+	end
+	
+	def editInvNumber
+		false
+	end
+	
+	def getOrderNumberPrefix
+	end
+	
+	def getAccountDDLbl
+		l(:label_account)
+	end
+	
+	def getNewHeaderLbl
+	end
 end

@@ -1,0 +1,19 @@
+<h2><%= l(:label_lock) %></h2>
+<%= form_tag({:controller => controller_name, :action => 'lockupdate'}, :method => :post, :id => 'te_lock') do %>
+	<table>
+	<tr>
+	<th width="220px"><%=l(:field_lock_date)%></th>
+	<td><%=h text_field_tag('lock_date',!@lock.blank? && @lock.size >0 ? @lock[0].lock_date : '',:size => 10, :required => true) %><%= calendar_for('lock_date') %> 
+	</td>
+	</tr>
+	<% if !@lock.blank? && @lock.size >0 %>
+		<tr>
+		<td colspan="2">
+		<%= l(:label_last_lock_by, :date => @lock[0].lock_date, :name => @lock[0].creator.name)  %>
+		</td>
+		</tr>
+	<% end %>
+	</table>
+	
+	<%= submit_tag l(:button_save), :id => 'lock_add' %>
+<% end %>

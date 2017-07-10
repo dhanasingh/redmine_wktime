@@ -3,11 +3,11 @@
 	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds')}" %>";
 </script>
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
-<%	accArr = options_for_wktime_account(false)
+<%	accArr = options_for_wktime_account(false, 'A')
 	if !@oppEditEntry.blank?
-		accArr = relatedValues(@oppEditEntry[0].parent_type, @oppEditEntry[0].parent_id)	
+		accArr = relatedValues(@oppEditEntry[0].parent_type, @oppEditEntry[0].parent_id, 'A')	
     elsif !params[:parentType].blank?
-		accArr = relatedValues(params[:parentType], params[:parentId])		
+		accArr = relatedValues(params[:parentType], params[:parentId], 'A')		
 	end
 	relHash = relatedHash
 	relHash.delete("WkOpportunity")
@@ -55,7 +55,7 @@
 		
 		<tr>
 			<th align="left" ><%= l(:label_related_to) %></th>
-			<td align="left" style="padding-left:40px;"><%=h select_tag("related_to", options_for_select(relHash.invert, :selected => (!@oppEditEntry.blank? ? @oppEditEntry[0].parent_type : (params[:parentType].blank? ? "" : params[:parentType]))), :onchange => "actRelatedDd(#{User.current.id}, false, false)", :style => "width:200px;") %>
+			<td align="left" style="padding-left:40px;"><%=h select_tag("related_to", options_for_select(relHash.invert, :selected => (!@oppEditEntry.blank? ? @oppEditEntry[0].parent_type : (params[:parentType].blank? ? "" : params[:parentType]))), :onchange => "actRelatedDd(#{User.current.id}, false, false, 'A', 'C', false)", :style => "width:200px;") %>
 			
 			<%=h select_tag("related_parent", options_for_select(accArr, :selected => (!@oppEditEntry.blank? ? @oppEditEntry[0].parent_id : (params[:parentId].blank? ? "" : params[:parentId]))), :style => "width:200px;") %></td> 
 			<%  selectedLsId = (!@oppEditEntry.blank? && !@oppEditEntry[0].lead_source_id.blank? ? @oppEditEntry[0].lead_source_id : nil) %>

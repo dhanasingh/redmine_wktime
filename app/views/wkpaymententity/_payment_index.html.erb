@@ -1,0 +1,28 @@
+<%= form_tag({:controller => controller_name, :action => 'index', :tab => controller_name}, :method => :get, :id => 
+     'query_form') do %>
+		<fieldset>
+			<%= hidden_field_tag "searchlist", controller_name %>
+			<%=h hidden_field_tag('tab', controller_name) %>
+			<%	contactId =session[controller_name][:contact_id]
+				accountId =session[controller_name][:account_id]
+				filterSession =session[controller_name][:polymorphic_filter]
+				projid =session[controller_name][:project_id] %>
+			<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :filter_session => filterSession, :project_id => projid, :pjtChanged => false, :isapply => false, :isproject => false, :isAll => true, :blankOptionForPjt => true, :blankForActDD => true, :blankForContactDD => true, :isFilter => true } %>
+			
+			<%= render :partial => 'wkpaymententity/date_range' %>
+			<div style="clear:both;"></div>
+		</fieldset>
+<% end %>
+<div class="wk-contextual">
+	<div class="total-hours">
+		<p style="float:left;"><%= l(:label_total) %>: &nbsp;<%= @payment_entries[0].payment_items[0].currency unless @payment_entries[0].blank? || @payment_entries[0].payment_items[0].blank?%> <%= html_hours("%.2f" % @totalPayAmt) unless @totalPayAmt.blank? %></p>
+	</div>
+	<%  parentAccountId = 0
+		parentArr = options_for_wktime_account(false, controller.getOrderAccountType) 
+		parentAccountId = parentArr[0][1].to_i if !parentArr.blank?
+	%>
+	
+	<%= link_to l(:label_new_item, l(:label_payments)), url_for(:controller => controller_name, :action => 'edit', :load_payment => true, :related_to => "WkAccount", :related_parent => parentAccountId, :project_id => 0), :class => 'icon icon-time-add' %> 
+</div>
+<div style="clear:both;"></div>
+<%= render partial: "wkpaymententity/payment_list" %>

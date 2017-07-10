@@ -34,6 +34,7 @@ include WkaccountingHelper
 		txnType	
 	end
 	
+	# payInvId - Currently not in use. It is useful to calculate flactuation.
 	def saveGlTransaction(transModule, id, trasdate, transType, comment, amount, currency, isDiffCur, payInvId)
 		glTransaction = nil
 		orgAmount = nil
@@ -83,6 +84,7 @@ include WkaccountingHelper
 					transDetail = saveTransDetail(ledger[1], glTransaction.id, ledger[0], amount, currency, orgAmount, orgCurrency)
 				end
 			else
+				glTransaction.save
 				transDetails = glTransaction.transaction_details.where(:ledger_id => [getSettingCfId("#{transModule}_cr_ledger"), getSettingCfId("#{transModule}_db_ledger")])
 				allowCr = true
 				allowDb = true

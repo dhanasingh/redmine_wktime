@@ -12,18 +12,31 @@
 			hr << [i,i]
 		end
 	end
+	relHash = relatedHash
+	contactType = 'C'
+	accountType = 'A'
+	if params[:controller_from] == 'wksupplieraccount' || params[:controller_from] == 'wksuppliercontact'
+		relHash.delete("WkOpportunity")
+		relHash.delete("WkLead")
+		contactType = 'SC'
+		accountType = 'S'
+	end
 %>
-<%	accArr = options_for_wktime_account(false)
+<%	accArr = options_for_wktime_account(false, accountType)
 	if !@activityEntry.blank?
-		accArr = relatedValues(@activityEntry[0].parent_type, @activityEntry[0].parent_id)	
+		entityType = @activityEntry[0].parent_type == 'WkCrmContact' ? contactType : accountType
+		accArr = relatedValues(@activityEntry[0].parent_type, @activityEntry[0].parent_id, entityType)	
     elsif !params[:parentType].blank?
-		accArr = relatedValues(params[:parentType], params[:parentId])
+		entityType = params[:parentType] == 'WkCrmContact' ? contactType : accountType 
+		accArr = relatedValues(params[:parentType], params[:parentId], entityType)
 	end	
  %>
 <%= form_tag({:controller => 'wkcrmactivity', :action => 'update'}, :method => :get, :id => 'query_form') do %>
 
 <fieldset class="box tabular" style="height:280px; ">
 	<legend><%= l(:field_activity) + " " + l(:label_information) %></legend>
+	<%=h hidden_field_tag('controller_from', params[:controller_from] ) %>
+	<%=h hidden_field_tag('action_from', params[:action_from] ) %>
 	<%=h hidden_field_tag('crm_activity_id', (!@activityEntry.blank? ? @activityEntry[0].id : "") ) %>
 	<%=h hidden_field_tag('load_act_type', (!@activityEntry.blank? ? @activityEntry[0].activity_type : 'C') ) %>
 	<table >
@@ -89,7 +102,7 @@
 		
 		<tr>
 			<th align="left" ><%= l(:label_related_to) %></th>
-			<td align="left" style="padding-left:40px;"><%=h select_tag("related_to", options_for_select(relatedHash.invert, :selected => (!@activityEntry.blank? ? @activityEntry[0].parent_type : (params[:parentType].blank? ? "" : params[:parentType]))), :onchange => "actRelatedDd(#{User.current.id}, false, false)", :style => "width:200px;") %></td>		
+			<td align="left" style="padding-left:40px;"><%=h select_tag("related_to", options_for_select(relHash.invert, :selected => (!@activityEntry.blank? ? @activityEntry[0].parent_type : (params[:parentType].blank? ? "" : params[:parentType]))), :onchange => "actRelatedDd(#{User.current.id}, false, false, '#{accountType}', '#{contactType}', false)", :style => "width:200px;") %></td>		
 			
 			<td align="left" ><%=h select_tag("related_parent", options_for_select(accArr, :selected => (!@activityEntry.blank? ? @activityEntry[0].parent_id : (params[:parentId].blank? ? "" : params[:parentId]))), :style => "width:200px;") %></td> 
 			<td></td>

@@ -97,7 +97,14 @@ class WkcrmactivityController < WkcrmController
 		end
 		
 		if errorMsg.blank?
-			redirect_to :controller => 'wkcrmactivity',:action => 'index' , :tab => 'wkcrmactivity'
+			#if params[:controller_from] != controller.controller_name#'wksupplieraccount' || params[:controller_from] == 'wksuppliercontact'
+			if params[:controller_from] == 'wksupplieraccount'
+				redirect_to :controller => params[:controller_from],:action => params[:action_from] , :account_id => crmActivity.parent_id
+			elsif params[:controller_from] == 'wksuppliercontact'
+				redirect_to :controller => params[:controller_from],:action => params[:action_from] , :contact_id => crmActivity.parent_id
+			else
+				redirect_to :controller => 'wkcrmactivity',:action => 'index' , :tab => 'wkcrmactivity'
+			end
 			$tempActivity = nil			
 			flash[:notice] = l(:notice_successful_update)
 		else
@@ -107,9 +114,16 @@ class WkcrmactivityController < WkcrmController
     end
   
     def destroy
+		parentId = WkCrmActivity.find(params[:activity_id].to_i).parent_id
 		trans = WkCrmActivity.find(params[:activity_id].to_i).destroy
 		flash[:notice] = l(:notice_successful_delete)
-		redirect_back_or_default :action => 'index', :tab => params[:tab]
+		if params[:controller_from] == 'wksupplieraccount'
+			redirect_to :controller => params[:controller_from],:action => params[:action_from] , :account_id => parentId
+		elsif params[:controller_from] == 'wksuppliercontact'
+			redirect_to :controller => params[:controller_from],:action => params[:action_from] , :contact_id => parentId
+		else
+			redirect_back_or_default :action => 'index', :tab => params[:tab]
+		end
     end
 	
 	 def set_filter_session
@@ -126,58 +140,6 @@ class WkcrmactivityController < WkcrmController
 		
     end
    
-   # Retrieves the date range based on predefined ranges or specific from/to param dates
-	def retrieve_date_range
-		@free_period = false
-		@from, @to = nil, nil
-		period_type = session[:wkcrmactivity][:period_type]
-		period = session[:wkcrmactivity][:period]
-		fromdate = session[:wkcrmactivity][:from]
-		todate = session[:wkcrmactivity][:to]
-		
-		if (period_type == '1' || (period_type.nil? && !period.nil?)) 
-		    case period.to_s
-			  when 'today'
-				@from = @to = Date.today
-			  when 'yesterday'
-				@from = @to = Date.today - 1
-			  when 'current_week'
-				@from = getStartDay(Date.today - (Date.today.cwday - 1)%7)
-				@to = @from + 6
-			  when 'last_week'
-				@from =getStartDay(Date.today - 7 - (Date.today.cwday - 1)%7)
-				@to = @from + 6
-			  when '7_days'
-				@from = Date.today - 7
-				@to = Date.today
-			  when 'current_month'
-				@from = Date.civil(Date.today.year, Date.today.month, 1)
-				@to = (@from >> 1) - 1
-			  when 'last_month'
-				@from = Date.civil(Date.today.year, Date.today.month, 1) << 1
-				@to = (@from >> 1) - 1
-			  when '30_days'
-				@from = Date.today - 30
-				@to = Date.today
-			  when 'current_year'
-				@from = Date.civil(Date.today.year, 1, 1)
-				@to = Date.civil(Date.today.year, 12, 31)
-	        end
-		elsif period_type == '2' || (period_type.nil? && (!fromdate.nil? || !todate.nil?))
-		    begin; @from = fromdate.to_s.to_date unless fromdate.blank?; rescue; end
-		    begin; @to = todate.to_s.to_date unless todate.blank?; rescue; end
-		    @free_period = true
-		else
-		  # default
-		  # 'current_month'		
-			@from = Date.civil(Date.today.year, Date.today.month, 1)
-			@to = (@from >> 1) - 1
-	    end    
-		
-		@from, @to = @to, @from if @from && @to && @from > @to
-
-	end
-	
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()

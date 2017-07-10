@@ -23,12 +23,12 @@ include WkgltransactionHelper
 include WkbillingHelper
 
 
-    def options_for_wktime_account(blankOption)
+    def options_for_wktime_account(blankOption, accountType)
 		accArr = Array.new
 		if blankOption
 		  accArr << [ "", ""]
 		end
-		accname = WkAccount.where(:account_type => 'A').order(:name)
+		accname = WkAccount.where(:account_type => accountType).order(:name)
 		if !accname.blank?
 			accname.each do | entry|
 				accArr << [ entry.name, entry.id ]
@@ -37,7 +37,7 @@ include WkbillingHelper
 		accArr
 	end
 	
-	def addInvoice(parentId, parentType,  projectId, invoiceDate,invoicePeriod, isgenerate)
+	def addInvoice(parentId, parentType,  projectId, invoiceDate,invoicePeriod, isgenerate, invoiceType)
 		@invoice = WkInvoice.new
 		@invoice.status = 'o'
 		@invoice.start_date = invoicePeriod[0]
@@ -46,7 +46,8 @@ include WkbillingHelper
 		@invoice.modifier_id = User.current.id
 		@invoice.parent_id = parentId
 		@invoice.parent_type = parentType
-		@invoice.invoice_number = getPluginSetting('wktime_invoice_no_prefix')
+		@invoice.invoice_type = invoiceType unless invoiceType.blank?
+		@invoice.invoice_number = getPluginSetting(getOrderNumberPrefix)
 		unless isgenerate
 			errorMsg = saveInvoice
 		else			
@@ -58,9 +59,9 @@ include WkbillingHelper
 			if (totalAmount.round - totalAmount) != 0
 				addRoundInvItem(totalAmount)
 			end
-			if totalAmount > 0 && autoPostGL
+			if totalAmount > 0 && autoPostGL(getAutoPostModule)
 				transId = @invoice.gl_transaction.blank? ? nil : @invoice.gl_transaction.id
-				glTransaction = postToGlTransaction('invoice', transId, @invoice.invoice_date, totalAmount.round, @invoice.invoice_items[0].currency, nil)
+				glTransaction = postToGlTransaction('invoice', transId, @invoice.invoice_date, totalAmount.round, @invoice.invoice_items[0].currency, nil, nil)
 				unless glTransaction.blank?
 					@invoice.gl_transaction_id = glTransaction.id
 					@invoice.save
@@ -94,10 +95,10 @@ include WkbillingHelper
 		errorMsg = nil
 		unless @invoice.save
 			errorMsg = @invoice.errors.full_messages.join("<br>")
-		else
-			@invoice.invoice_number = @invoice.invoice_number + @invoice.id.to_s
-			@invoice.save
-		end
+		# else
+			# @invoice.invoice_number = @invoice.invoice_number + @invoice.invoice_num_key.to_s#@invoice.id.to_s
+			# @invoice.save
+		 end
 		errorMsg
 	end
 		
@@ -107,10 +108,10 @@ include WkbillingHelper
 		#account = WkAccount.find(parentId) unless parentType == 'WkCrmContact'
 		if (projectId.blank? || projectId.to_i == 0)  && !isAccountBilling(billProject)#account.account_billing 
 			billProject.parent.projects.each do |project|
-				errorMsg = addInvoice(billProject.parent_id, billProject.parent_type, project.id, invoiceDate,invoicePeriod, true)
+				errorMsg = addInvoice(billProject.parent_id, billProject.parent_type, project.id, invoiceDate,invoicePeriod, true, nil)
 			end
 		else
-			errorMsg = addInvoice(billProject.parent_id, billProject.parent_type, projectId, invoiceDate,invoicePeriod, true)
+			errorMsg = addInvoice(billProject.parent_id, billProject.parent_type, projectId, invoiceDate,invoicePeriod, true, nil)
 		end
 		errorMsg
 	end
@@ -263,6 +264,7 @@ include WkbillingHelper
 					@invItems[@itemCount].store 'item_desc', description
 					@invItems[@itemCount].store 'item_type', 'i'
 					@invItems[@itemCount].store 'rate', rateHash['rate']
+					@invItems[@itemCount].store 'currency', rateHash['currency']
 					@invItems[@itemCount].store 'item_quantity', quantity
 					@invItems[@itemCount].store 'item_amount', itemAmount
 					@itemCount = @itemCount + 1
@@ -323,6 +325,7 @@ include WkbillingHelper
 					@invItems[@itemCount].store 'item_desc', pjtDescription
 					@invItems[@itemCount].store 'item_type', 'i'
 					@invItems[@itemCount].store 'rate', rateHash['rate']
+					@invItems[@itemCount].store 'currency', rateHash['currency']
 					@invItems[@itemCount].store 'item_quantity', pjtQuantity.round(2)
 					@invItems[@itemCount].store 'item_amount', itemAmount.round(2)
 					@itemCount = @itemCount + 1
@@ -410,12 +413,14 @@ include WkbillingHelper
 	
 	#Add Tax for the give accountProject
 	def addTaxes(accountProject, currency, totalAmount)
-		projectTaxes = accountProject.wk_acc_project_taxes
-		projectTaxes.each do |projtax|
-			invItem = @invoice.invoice_items.new()
-			rate = projtax.tax.rate_pct.blank? ? 0 : projtax.tax.rate_pct
-			amount = (rate/100) * totalAmount
-			updateInvoiceItem(invItem, accountProject.project_id, projtax.tax.name, rate, nil, currency, 't', amount, nil, nil) 			
+		unless accountProject.blank?
+			projectTaxes = accountProject.wk_acc_project_taxes
+			projectTaxes.each do |projtax|
+				invItem = @invoice.invoice_items.new()
+				rate = projtax.tax.rate_pct.blank? ? 0 : projtax.tax.rate_pct
+				amount = (rate/100) * totalAmount
+				updateInvoiceItem(invItem, accountProject.project_id, projtax.tax.name, rate, nil, currency, 't', amount, nil, nil) 			
+			end
 		end
 	end
 	
@@ -528,8 +533,8 @@ include WkbillingHelper
 		numStr
 	end
 	
-	def autoPostGL
-		(!Setting.plugin_redmine_wktime['invoice_auto_post_gl'].blank? && Setting.plugin_redmine_wktime['invoice_auto_post_gl'].to_i == 1)
+	def autoPostGL(transModule)
+		(!Setting.plugin_redmine_wktime["#{transModule}_auto_post_gl"].blank? && Setting.plugin_redmine_wktime["#{transModule}_auto_post_gl"].to_i == 1)
 	end
 	
 	def isAccountBilling(accountProject)
@@ -582,6 +587,7 @@ include WkbillingHelper
 				@invItems[@itemCount].store 'item_type', 'c'
 				@invItems[@itemCount].store 'rate', entry.available_pay_credit
 				@invItems[@itemCount].store 'item_quantity', 1
+				@invItems[@itemCount].store 'currency', entry.currency
 				@invItems[@itemCount].store 'item_amount', entry.available_pay_credit
 				totalCreditAmount = totalCreditAmount + entry.available_pay_credit
 				credit_invoice_id = nil

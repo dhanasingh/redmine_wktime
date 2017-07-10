@@ -149,7 +149,8 @@ include WkreportHelper
 		userId = params[:user_id]
 		sqlStr = getUserSalaryQueryStr
 		sqlStr = sqlStr + "Where u.id = #{userId} and u.type = 'User'" +
-		"order by u.id, sc.id"
+		"order by u.id, sc.component_type"
+		@userSalHash = getUserSalaryHash(userId, Date.today.at_end_of_month + 1)
 		@userSalaryEntries = WkUserSalaryComponents.find_by_sql(sqlStr)
 	end
 

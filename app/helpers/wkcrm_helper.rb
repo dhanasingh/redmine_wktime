@@ -160,7 +160,7 @@ include WkinvoiceHelper
 		salType
 	end
 	
-	def relatedValues(relatedType, parentId)
+	def relatedValues(relatedType, parentId, type)
 		relatedArr = Array.new
 		relatedId = nil
 		if relatedType == "WkOpportunity"
@@ -168,9 +168,9 @@ include WkinvoiceHelper
 		elsif relatedType == "WkLead"
 			relatedId = WkLead.includes(:contact).where("wk_leads.status != ? OR wk_leads.id = ?",'C', parentId).order("wk_crm_contacts.first_name, wk_crm_contacts.last_name")
 		elsif relatedType == "WkCrmContact"
-			relatedId = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).order(:first_name, :last_name)
+			relatedId = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where(:contact_type => type).order(:first_name, :last_name)
 		else
-			relatedId = WkAccount.where(:account_type => 'A').order(:name)
+			relatedId = WkAccount.where(:account_type => type).order(:name)
 		end
 		if !relatedId.blank?
 			relatedId.each do | entry|				
@@ -191,9 +191,11 @@ include WkinvoiceHelper
 		accSections = ['wkcrmactivity']
 		case entity
 		when 'WkAccount'
-			accSections = ['wkcrmactivity', 'wkcrmcontact', 'wkopportunity']
+			accSections = ['wkcrmactivity', 'wkcrmcontact'] #, 'wkopportunity'
+			accSections << 'wkopportunity' unless curObj.account_type == 'S'
 		when 'WkCrmContact'
-			accSections = ['wkcrmactivity', 'wkopportunity']
+			accSections = ['wkcrmactivity'] # , 'wkopportunity'
+			accSections << 'wkopportunity' unless curObj.contact_type == 'SC'
 		else
 			accSections = ['wkcrmactivity']
 		end

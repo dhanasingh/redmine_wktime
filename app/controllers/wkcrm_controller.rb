@@ -38,15 +38,17 @@ class WkcrmController < WkbaseController
 	def getActRelatedIds
 		relatedArr = ""	
 		relatedId = nil
+		
 		if params[:related_type] == "WkOpportunity"
 			relatedId = WkOpportunity.all.order(:name)
 		elsif params[:related_type] == "WkLead"
 			relatedId = WkLead.includes(:contact).where.not(:status => 'C').order("wk_crm_contacts.first_name, wk_crm_contacts.last_name")
 		elsif params[:related_type] == "WkCrmContact"
-			relatedId = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).order(:first_name, :last_name)
+			relatedId = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where(:contact_type => params[:contact_type]).order(:first_name, :last_name)
 		elsif params[:related_type] != "0"
-			relatedId = WkAccount.where(:account_type => 'A').order(:name)
+			relatedId = WkAccount.where(:account_type => params[:account_type]).order(:name)
 		end
+		
 		if !relatedId.blank?
 			relatedId.each do | entry|	
 				if params[:related_type] == "WkLead"
@@ -58,6 +60,7 @@ class WkcrmController < WkbaseController
 				end
 			end
 		end
+		
 		respond_to do |format|
 			format.text  { render :text => relatedArr }
 		end
@@ -80,6 +83,18 @@ class WkcrmController < WkbaseController
 	def check_permission
 		ret = false
 		return isModuleAdmin('wktime_crm_group') || isModuleAdmin('wktime_crm_admin') 
+	end
+	
+	def getContactController
+		'wkcrmcontact'
+	end
+	
+	def getAccountType
+		'A'
+	end
+	
+	def deletePermission
+		isModuleAdmin('wktime_crm_admin')
 	end
 
 end

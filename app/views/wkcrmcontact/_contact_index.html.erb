@@ -1,0 +1,25 @@
+<%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
+<%	
+	accountType = controller.getContactType == 'SC' ? 'S' : 'A'
+	accArr = options_for_wktime_account(false, accountType) 
+%>
+
+<%	accArr.unshift([l(:label_all_accounts),'AA'])  %>
+<%	accArr.unshift(["",''])  %>
+<%= hidden_field_tag "searchlist", controller_name %>
+<%=h hidden_field_tag('tab', controller_name) %>
+<%	conName = session[controller_name][:contactname] %>
+<%	accId = session[controller_name][:account_id] %>
+<div class="wk-contextual"> 
+		<label for='name' style="float:left"><%= l(:field_name)  %>:</label>
+			<%= text_field_tag 'contactname', conName, :size => 30, :style=> "float: left;" %>	
+		<label style="float:left; padding-left: 20px;"><%= l(:label_account_name) %></label>
+			<%=h select_tag('account_id', options_for_select(accArr,  :selected => accId.nil? ? accArr : accId), :style=> "float: left;") %>
+		<%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %>
+		<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload', :style=>"float:left; " %>
+        <%= link_to l(:label_new_item, l(:label_contact)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+</div>
+<div style="clear: both;"></div>
+<% end %>
+<%= render :partial => 'wkcrmcontact/contact_list', locals: { contacts: @contact}%>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

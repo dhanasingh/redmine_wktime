@@ -20,18 +20,32 @@ class WkgltransactionController < WkaccountingController
    def index
 	    set_filter_session
         retrieve_date_range
+		@selectedLedger = nil
 		@ledgers = WkLedger.order(:name).pluck(:name, :id)
-		ledgerId = session[:wkgltransaction][:ledger_id]
+		@ledgerId = session[:wkgltransaction][:ledger_id]
 		if !@from.blank? && !@to.blank?
 			transaction = WkGlTransaction.includes(:transaction_details).where(:trans_date => @from .. @to)
 		else
 			transaction = WkGlTransaction.includes(:transaction_details)#.where( :wk_gl_transaction_details => { :ledger_id => ledgerId })
 		end
-		unless ledgerId.blank?
-			transaction = transaction.where( :wk_gl_transaction_details => { :ledger_id => ledgerId })
+		@totalTransAmt = nil
+		@totalType = nil
+		unless @ledgerId.blank?
+			@selectedLedger = WkLedger.find(@ledgerId)
+			transaction = transaction.where( :wk_gl_transaction_details => { :ledger_id => @ledgerId })
+			formPagination(transaction)
+			isSubCr = isSubtractCr(@selectedLedger.ledger_type)
+			totalDbTransAmt = @transEntries.where( :wk_gl_transaction_details => { :detail_type => "d" }).sum("wk_gl_transaction_details.amount")
+			totalCrTransAmt = @transEntries.where( :wk_gl_transaction_details => { :detail_type => "c" }).sum("wk_gl_transaction_details.amount")
+			@totalTransAmt = isSubCr ? totalDbTransAmt - totalCrTransAmt : totalCrTransAmt - totalDbTransAmt
+			if (isSubCr && @totalTransAmt > 0) || (!isSubCr && @totalTransAmt < 0)
+				@totalType = 'dr'
+			else
+				@totalType = 'cr'
+			end
+		else
+			formPagination(transaction)
 		end
-		formPagination(transaction)
-		@totalTransAmt = @transEntries.where( :wk_gl_transaction_details => { :detail_type => "d" }).sum("wk_gl_transaction_details.amount")
    end
    
     def edit

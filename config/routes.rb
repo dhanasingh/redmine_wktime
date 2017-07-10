@@ -156,15 +156,15 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
     #For Billing
     get 'wkbilling/index', :to => 'wkbilling#index'	
 	
-	get 'wkaccount/index', :to => 'wkaccount#index'
+	get 'wkcrmaccount/index', :to => 'wkcrmaccount#index'
 	
-	match 'wkaccount/index', :to => 'wkaccount#index', :via => [:get, :post]
+	match 'wkcrmaccount/index', :to => 'wkcrmaccount#index', :via => [:get, :post]
 	
-	post 'wkaccount/update', :to => 'wkaccount#update'
+	post 'wkcrmaccount/update', :to => 'wkcrmaccount#update'
 	
-	get 'wkaccount/edit', :to => 'wkaccount#edit'	
+	get 'wkcrmaccount/edit', :to => 'wkcrmaccount#edit'	
 	
-	delete 'wkaccount/destroy', :to => 'wkaccount#destroy'
+	delete 'wkcrmaccount/destroy', :to => 'wkcrmaccount#destroy'
 	
 	get 'wkcontracts/index', :to => 'wkcontracts#index'
 	
@@ -299,12 +299,100 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	post 'wkpayment/update', :to => 'wkpayment#update'
 	
-	get 'wkpayment/getBillableProjIds', :to => 'wkpayment#getBillableProjIds'
+	#get 'wkpayment/getBillableProjIds', :to => 'wkpayment#getBillableProjIds'
 	
-	get 'wkpayment/showInvoices', :to => 'wkpayment#showInvoices'
+	get 'wkpaymententity/getBillableProjIds', :to => 'wkpaymententity#getBillableProjIds'
+	
+	#get 'wkpayment/showInvoices', :to => 'wkpayment#showInvoices'
+	
+	get 'wkpaymententity/showInvoices', :to => 'wkpaymententity#showInvoices'
 	
 	get 'wkexchangerate/index', :to => 'wkexchangerate#index'
 	
 	get 'wkexchangerate/update', :to => 'wkexchangerate#update'
 	
 	get 'wkinvoice/new', :to => 'wkinvoice#new' 
+	
+	# For Purchase
+	
+	get 'wkpurchase/index', :to => 'wkpurchase#index'
+	
+	get 'wkrfq/index', :to => 'wkrfq#index'
+	
+	post 'wkrfq/index', :to => 'wkrfq#index'
+    
+	get 'wkrfq/edit', :to => 'wkrfq#edit'
+	
+	post 'wkrfq/update', :to => 'wkrfq#update'	
+	
+	delete 'wkrfq/destroy', :to => 'wkrfq#destroy'
+	
+	get 'wkquote/index', :to => 'wkquote#index'
+	
+	get 'wkquote/new', :to => 'wkquote#new'
+	
+	get 'wkquote/edit', :to => 'wkquote#edit'
+	
+	post 'wkquote/update', :to => 'wkquote#update'	
+	
+	delete 'wkquote/destroy', :to => 'wkquote#destroy'
+	
+	get 'wkquote/invreport', :to => 'wkquote#invreport' 
+	
+	get 'wkpurchaseorder/index', :to => 'wkpurchaseorder#index'
+	
+	get 'wkpurchaseorder/new', :to => 'wkpurchaseorder#new'
+	
+	get 'wkpurchaseorder/edit', :to => 'wkpurchaseorder#edit'
+	
+	post 'wkpurchaseorder/update', :to => 'wkpurchaseorder#update'	
+	
+	delete 'wkpurchaseorder/destroy', :to => 'wkpurchaseorder#destroy'
+	
+	get 'wkpurchaseorder/invreport', :to => 'wkpurchaseorder#invreport' 
+	
+	get 'wksupplierinvoice/index', :to => 'wksupplierinvoice#index'
+	
+	get 'wksupplierinvoice/new', :to => 'wksupplierinvoice#new'
+	
+	get 'wksupplierinvoice/edit', :to => 'wksupplierinvoice#edit'
+	
+	post 'wksupplierinvoice/update', :to => 'wksupplierinvoice#update'	
+	
+	delete 'wksupplierinvoice/destroy', :to => 'wksupplierinvoice#destroy'
+	
+	get 'wksupplierinvoice/invreport', :to => 'wksupplierinvoice#invreport' 
+	
+	get 'wksupplierpayment/index', :to => 'wksupplierpayment#index'
+	
+	get 'wksupplieraccount/index', :to => 'wksupplieraccount#index'
+	
+	match 'wksupplieraccount/index', :to => 'wksupplieraccount#index', :via => [:get, :post]
+	
+	post 'wksupplieraccount/update', :to => 'wksupplieraccount#update'
+	
+	get 'wksupplieraccount/edit', :to => 'wksupplieraccount#edit'	
+	
+	delete 'wksupplieraccount/destroy', :to => 'wksupplieraccount#destroy'
+	
+	get 'wksuppliercontact/index', :to => 'wksuppliercontact#index'
+	
+	get 'wksuppliercontact/edit', :to => 'wksuppliercontact#edit'
+	
+	post 'wksuppliercontact/update', :to => 'wksuppliercontact#update'
+	
+	delete 'wksuppliercontact/destroy', :to => 'wksuppliercontact#destroy'
+	
+	get 'wkpurchaseorder/getRfqQuoteIds', :to => 'wkpurchaseorder#getRfqQuoteIds'
+	
+	get 'wksupplierinvoice/getRfqPoIds', :to => 'wksupplierinvoice#getRfqPoIds'
+	
+	get 'wksupplierpayment/edit', :to => 'wksupplierpayment#edit'
+	
+	post 'wksupplierpayment/update', :to => 'wksupplierpayment#update'
+	
+	get 'wktime/lockte', :to => 'wktime#lockte'
+	
+	 get 'wkexpense/lockte', :to => 'wkexpense#lockte'
+	
+	post 'wktime/lockupdate', :to => 'wktime#lockupdate'

@@ -1,0 +1,7 @@
+<label><%= l(:label_contact_plural) %></label>
+<div>
+	<div class="wk-contextual">
+			<%= link_to l(:label_new_item, l(:label_contact)), url_for(:controller => controller_name, :action => 'edit',  :accountId => currentObj.id), :class => 'icon icon-time-add' %>
+	</div>
+	<%= render partial: "wkcontact/contact_list", locals: { contacts: currentObj.contacts} %>
+</div>

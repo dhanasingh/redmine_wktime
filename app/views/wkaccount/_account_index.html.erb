@@ -1,7 +1,7 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<%= form_tag({:controller => "wkaccount", :action => 'index'}, :method => :post, :id => 'query_form') do %>
+<%= form_tag({:controller => controller_name, :action => 'index'}, :method => :post, :id => 'query_form') do %>
 		<fieldset>
-			<%=h hidden_field_tag('tab', "wkaccount") %>
+			<%=h hidden_field_tag('tab', controller_name) %>
 			<label for='name'><%= l(:label_account_name) %>:</label>
 			<%= text_field_tag 'accountname', params[:accountname], :size => 30 %>
 			<%= submit_tag l(:button_apply), :class => "small", :name => nil %>

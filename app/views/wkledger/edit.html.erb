@@ -21,7 +21,7 @@
 			<% end %>
 			<tr>
 				<th align="left"><%= l(:wk_label_opening) + " " + l(:wk_field_balance)  %></th>
-				<td align="left" style="padding-left:40px;"><%= (@ledgersDetail[0].blank? || @ledgersDetail[0].currency.blank? ? " " : @ledgersDetail[0].currency) + " "  %><%=h text_field_tag("opening_balance", (@ledgersDetail[0].blank? ? "" : @ledgersDetail[0].opening_balance),:size => 20, :maxlength => 14) %> </td>			   
+				<td align="left" style="padding-left:40px;"><%= (@ledgersDetail[0].blank? || @ledgersDetail[0].currency.blank? ? Setting.plugin_redmine_wktime['wktime_currency'] : @ledgersDetail[0].currency) + " "  %><%=h text_field_tag("opening_balance", (@ledgersDetail[0].blank? ? "" : @ledgersDetail[0].opening_balance),:size => 20, :maxlength => 14) %> </td>			   
 			</tr>
 		</table>	
 	</fieldset>

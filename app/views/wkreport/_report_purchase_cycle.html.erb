@@ -1,0 +1,107 @@
+<%
+	@to = session[:wkreport][:to]
+	@from = session[:wkreport][:from]
+	sqlStr =  "select rfq.id as rfq_id, rfq.name as rfq_name, rfq.start_date as rfq_start, rq.quote_id," + 
+		" q.invoice_date as quote_date, rq.won_date, poq.purchase_order_id, po.invoice_date po_date," +
+		" sipo.supplier_inv_id, si.invoice_date as si_date, CASE WHEN pay.paid_amount >= inv.invoice_amount THEN pay.payment_date ELSE null END as payment_date from wk_rfqs rfq" +
+		" left join wk_rfq_quotes rq on (rq.rfq_id = rfq.id and rq.is_won = true)" +
+		" left join wk_invoices q on  (q.id = rq.quote_id)" +
+		" left join wk_po_quotes poq on (rq.quote_id = poq.quote_id)" +
+		" left join wk_invoices po on (po.id = poq.purchase_order_id)" +
+		" left join wk_po_supplier_invoices sipo on (sipo.purchase_order_id = poq.purchase_order_id)" +
+		" left join wk_invoices si on (si.id = sipo.supplier_inv_id)" +
+		" left join (select sum(pmi.amount) as paid_amount, i.id as invoice_id," +
+		" max(p.payment_date) as payment_date from wk_invoices i" +
+		" inner join wk_payment_items pmi on(i.id=pmi.invoice_id and pmi.is_deleted= #{false})" +
+		" left join wk_payments p on(pmi.payment_id = p.id ) group by i.id  ) pay  on (pay.invoice_id = si.id )" +
+		" left join (select i.invoice_date, sum(ii.amount) as invoice_amount," + 
+		" i.id as invoice_id from wk_invoices i left join wk_invoice_items ii on(i.id=ii.invoice_id)" +
+		" group by i.id, i.invoice_date) inv on (inv.invoice_id = si.id)" +
+		" where rfq.start_date between '#{@from}' and '#{@to}' " #and pay.paid_amount >= inv.invoice_amount 
+	cycleEntries = WkRfq.find_by_sql(sqlStr)
+%>
+<%= stylesheet_link_tag 'application' , :media => "all" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div style="float:right">
+	<table>
+		<tr>
+			<td>
+				<% logo = Setting.plugin_redmine_wktime['wktime_header_logo'] %>					
+				<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>						
+					<%= image_tag("#{logo}", :plugin => "redmine_wktime") %>
+				<% end %>
+			</td>
+		</tr>
+	</table>
+</div>
+<div style="clear:both;"></div>
+<div id="attn-rpt-dlg", style="overflow-x:auto;">
+	<table style="width:100%; border-collapse: collapse;"border="1";>
+		 <caption style="text-align:center"><b><%= Setting.plugin_redmine_wktime['wktime_company_name'] %><br><%= l(:report_purchase_cycle) + " " + l(:label_report) %></b></br>
+		 <%= @from.strftime("%d-%b-%Y") + " " + l(:label_date_to) + " " + @to.strftime("%d-%b-%Y")%>
+		
+		<thead bgcolor="#e6e6e6">
+			<tr>
+				<th align="center", rowspan=2><%= l(:label_rfq) %></th>
+				<th align="center" colspan=4><%= l(:report_purchase_cycle) %><br><%= l(:label_in_days) %></th>
+			</tr>
+			<tr>
+				<th align="center"><%= l(:label_winning_quote) %></th>
+				<th align="center"><%= l(:label_purchase_order) %></th>
+				<th align="center"><%= l(:label_supplier_invoice) %></th>
+				<th align="center"><%= l(:label_supplier_payment) %></th>
+			</tr>
+		</thead>
+		<tbody>
+			<%
+				wqTotal = wqCount = poTotal = poCount = siTotal = siCount = payTotal = payCount =  0
+				hasEntry = false
+			%>
+			<% cycleEntries.each do |entry| %>
+				<%
+					hasEntry = true
+					wqCycle = poCycle = siCycle = payCycle = nil
+					unless entry.won_date.blank? || entry.quote_date.blank?
+						wqCycle = (entry.won_date - entry.quote_date).to_f
+						wqTotal = wqTotal + wqCycle
+						wqCount = wqCount + 1
+					end
+					
+					unless entry.won_date.blank? || entry.po_date.blank?
+						poCycle = (entry.po_date - entry.won_date).to_f
+						poTotal = poTotal + poCycle
+						poCount = poCount + 1
+					end
+					
+					unless entry.po_date.blank? || entry.si_date.blank?
+						siCycle = (entry.si_date - entry.po_date).to_f
+						siTotal = siTotal + siCycle
+						siCount = siCount + 1
+					end
+					
+					unless entry.payment_date.blank? || entry.si_date.blank? 
+						payCycle = (entry.payment_date - entry.si_date).to_f
+						payTotal = payTotal + payCycle
+						payCount = payCount + 1
+					end
+				%>
+				<tr class="<%= cycle("odd", "even") %>">
+					<td align="left"><%= entry.rfq_name %></td>
+					<td align="right"><%=  "%.2f" % wqCycle unless wqCycle.blank? %></td>
+					<td align="right"><%=  "%.2f" % poCycle unless poCycle.blank? %></td>
+					<td align="right"><%=  "%.2f" % siCycle unless siCycle.blank? %></td>
+					<td align="right"><%=  "%.2f" % payCycle unless payCycle.blank? %></td>
+				</tr>
+			<% end %>
+			<% if hasEntry %> 
+				<tr class="<%= cycle("odd", "even") %>">
+						<td align="right"><b><%= l(:label_average) %>:</b></td>
+						<td align="right"><%= "%.2f" % (wqTotal/wqCount).round(2) if wqTotal> 0%></td>
+						<td align="right"><%= "%.2f" % (poTotal/poCount).round(2) if poTotal> 0 %></td>
+						<td align="right"><%= "%.2f" % (siTotal/siCount).round(2) if siTotal> 0 %></td>
+						<td align="right"><%= "%.2f" % (payTotal/payCount).round(2) if payCount> 0 %></td>
+				</tr>
+			<% end %>
+		</tbody>
+	</table>
+</div>

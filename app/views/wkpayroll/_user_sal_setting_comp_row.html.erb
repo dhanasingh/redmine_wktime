@@ -1,0 +1,12 @@
+<% salCompTypeValues.each do |compEntry| %>
+	<tr>
+		<td><%=h check_box_tag('is_override' + compEntry[0].sc_id.to_s, value = "1", checked = compEntry[1], options = {:onchange => "overrideSettings(this);", :disabled => (isAccountUser ? false : true)}) %>
+		<td><%=h compEntry[0].sc_name %>
+		</td>
+		<td><%=h select_tag('dependent_id' + compEntry[0].sc_id.to_s , 
+		options_for_select(salaryComponents, :selected =>  compEntry[2], :required => true), options = {:disabled => (isAccountUser ? !compEntry[1] : true)} ) %></td>
+		<td><%=h text_field_tag('factor' + compEntry[0].sc_id.to_s, compEntry[3], :size => 10, :maxlength => 7, :disabled => (isAccountUser ? !compEntry[1] : true), :required => true) %>
+		</td>
+		<td align='right'><%=h "%.2f" % actualSalVal[compEntry[0].sc_id] %>
+	</tr>
+<% end %>

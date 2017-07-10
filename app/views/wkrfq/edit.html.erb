@@ -1,0 +1,35 @@
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= form_tag({:controller => 'wkrfq', :action => 'update'}, :method => :post, :id => 'query_form') do %>
+<h2><b><%=l(:label_rfq_details) %></b></h2>
+<fieldset class="box tabular" >
+	<legend><%= l(:label_rfq_details) %></legend>	
+	<%=h hidden_field_tag('rfq_id', @rfqEntry.blank? ? nil : @rfqEntry.id) %>
+	<table >
+		<tr>
+			<th align="left"><%= l(:field_name) %></th>
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("name",@rfqEntry.blank? ? nil : @rfqEntry.name, :required => true,:size => 85) %> </td></tr>
+		</tr>
+		<% unless @rfqEntry.blank? %>
+			<tr>
+				<th align="left"><%= l(:field_status) %></th>
+				<td align="left" style="padding-left:40px;">
+					<%=h select_tag('status',options_for_select(getRfqStatusHash.invert, :selected => @rfqEntry.blank? ? getRfqStatusHash.invert : @rfqEntry.status )) %>  
+				</td></tr>
+			</tr>
+		<% end %>
+		<tr>			
+			<th align="left"><%= l(:label_start_date) %></th> 
+			<td align="left" style="padding-left:40px;"><%=h date_field_tag('start_date', (@rfqEntry.blank? ? Date.today.to_s : @rfqEntry.start_date.to_s), :size => 10, :onchange =>"dateRangeValidation('start_date', 'end_date')") %> <%= calendar_for('start_date') %></td>
+		</tr>
+		<tr>
+			<th align="left"><%= l(:label_end_date) %></th> 
+			<td align="left" style="padding-left:40px;"><%=h date_field_tag('end_date', (@rfqEntry.blank? ? (Date.today+30).to_s : @rfqEntry.end_date.to_s), :size => 10, :onchange =>"dateRangeValidation('start_date', 'end_date')") %> <%= calendar_for('end_date') %></td>
+		</tr>
+		<tr>				
+			<th align="left"><%= l(:field_description) %></th>
+			<td colspan=4 align="left" style="padding-left:40px;"><%=h text_area_tag("description",@rfqEntry.blank? ? '' : @rfqEntry.description, :maxlength => 255, :style => "width:600px; height:120px;") %> </td>
+		</tr>
+	</table>	
+</fieldset>
+<%= submit_tag l(:button_save), :class => "small", :name => nil %>
+<% end %>

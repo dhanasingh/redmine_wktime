@@ -35,7 +35,7 @@ class WkleadController < WkcrmController
 		convertToContact
 		unless @account.blank?
 			flash[:notice] = l(:notice_successful_convert)
-			redirect_to :controller => 'wkaccount',:action => 'edit', :account_id => @account.id
+			redirect_to :controller => 'wkcrmaccount',:action => 'edit', :account_id => @account.id
 		else
 			flash[:notice] = l(:notice_successful_convert)
 		    redirect_to :controller => 'wkcrmcontact',:action => 'edit', :contact_id => @contact.id
@@ -55,6 +55,7 @@ class WkleadController < WkcrmController
 	
 	def convertToContact
 		@contact.updated_by_user_id = User.current.id
+		@contact.contact_type = getContactType
 		unless @account.blank?
 			@contact.account_id = @account.id
 		end
@@ -167,5 +168,9 @@ class WkleadController < WkcrmController
 			@offset = @entry_pages.offset
 		end	
    end
+   
+	def getContactType
+		'C'
+	end
 
 end

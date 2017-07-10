@@ -3,7 +3,7 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
    
-	blgaccUrl = '<%=url_for(:controller => "wkaccount", :action => "index", :tab => "wkaccount")%>';
+	blgaccUrl = '<%=url_for(:controller => "wkcrmaccount", :action => "index", :tab => "wkcrmaccount")%>';
 	crmleadsUrl = '<%=url_for(:controller => "wklead", :action => "index", :tab => "wklead")%>';
     crmopportunityUrl = '<%=url_for(:controller => "wkopportunity", :action => "index", :tab => "wkopportunity")%>';
 	crmactivityUrl = '<%=url_for(:controller => "wkcrmactivity", :action => "index", :tab => "wkcrmactivity")%>';
@@ -18,7 +18,7 @@
 <%= hidden_field_tag "searchlist", "wkopportunity" %>
 <%	accname = session[:wkopportunity][:oppname] %>
 <%	accId = session[:wkopportunity][:account_id] %>
-<%	accArr = options_for_wktime_account(true) %>		
+<%	accArr = options_for_wktime_account(true, 'A') %>		
 <div class="wk-contextual">
     <label for='name' style="float:left"><%= l(:label_opportunity) + " " + l(:field_name) %>:</label>
 	<%= text_field_tag 'oppname', accname.blank? ? "" : accname, :size => 30, :style=> "float: left;" %>	

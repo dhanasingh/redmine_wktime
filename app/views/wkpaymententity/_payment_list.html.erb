@@ -1,0 +1,32 @@
+<% payType = WkCrmEnumeration.where(:enum_type => "PT").order(enum_type: :asc, name: :asc).pluck(:id, :name) %> 
+<%  payTypeHash = Hash[*payType.flatten] %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div class="autoscroll">
+<table class="list time-entries">
+  <thead>
+         <tr>
+				<th class="lbl-txt-align"><%=  l(:label_txn_payment) %></th>
+				<th class="lbl-txt-align"><%=  l(:label_type) %></th>
+				<th class="lbl-txt-align"><%=  l(:field_name) %></th>
+				<th class="lbl-txt-align"><%=  l(:label_payment_date) %></th>
+				<th class="lbl-txt-align"><%=  l(:label_payment_type)  %></th>
+				<th class="lbl-txt-align"><%=  l(:field_amount)  %></th>
+				<th></th>
+         </tr>
+  </thead>
+   <tbody>
+	<% @payment_entries.each do |entry| %>
+		<tr>
+		    <td class="lbl-txt-align"><%=h entry.id  %></td>
+			<td class="lbl-txt-align"><%=h personTypeLabelHash[entry.entity_type] %></td>
+			<td class="lbl-txt-align"><%=h entry.name %></td>
+			<td class="lbl-txt-align"><%=h entry.payment_date.strftime("%Y-%m-%d") %></td>
+			<td class="lbl-txt-align"><%=h payTypeHash[entry.payment_type_id] %></td>
+			<td class="lbl-txt-align"><%= entry.payment_items[0].currency unless entry.payment_items[0].blank?%> <%=h html_hours("%.2f" % entry.payment_amount) unless entry.payment_amount.blank?   %></td>
+			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller_name, :action => 'edit', :payment_id => entry.id, :tab => controller_name}, :title => l(:button_edit) %></td>
+		</tr>
+	<% end %>
+   <tbody>
+</table>
+</div>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

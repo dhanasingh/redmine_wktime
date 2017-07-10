@@ -19,6 +19,6 @@
 	<%= render :partial => 'wkgltransaction/date_range' %>
 <% end %>
 <div class="total-hours">
-	<p><%= l(:label_total) %>: &nbsp;<%= @transEntries[0].transaction_details[0].currency unless @transEntries[0].blank? || @transEntries[0].transaction_details[0].blank?%> <%= html_hours("%.2f" % @totalTransAmt) %></p>
+	<p><%= l(:label_total) %>: &nbsp;<%= @transEntries[0].transaction_details[0].currency unless @transEntries[0].blank? || @transEntries[0].transaction_details[0].blank?%> <%= html_hours("%.2f" % @totalTransAmt.abs ) unless @totalTransAmt.blank? %> <%= @totalType %></p>
 </div>
 <%= render :partial => 'wkgltransaction/trans_list'%>	

@@ -48,21 +48,31 @@
 			%>
 			<% @activityList.each do |activity| %>
 				<% 
-					count = count + 1
-					completionTime = (activity.status == 'C' || activity.status == 'H') ? convertSecToDays(activity.status_update_on - activity.start_date) : nil 
-					totalTime = totalTime + completionTime unless completionTime.blank?
+				isSupplier = false
+				if activity.parent_type == 'WkAccount'
+					isSupplier = true unless activity.parent.account_type == 'A'
+				elsif activity.parent_type == 'WkCrmContact'
+					isSupplier = true unless activity.parent.contact_type == 'C'
+				end
 				%>
-				<tr class="<%= cycle("odd", "even") %>">
-						<td><%= acttypeHash[activity.activity_type] %></td>
-						<td><%= activity.name %></td>
-						<td class="lbl-txt-align"><%=h (activity.activity_type == 'M' || activity.activity_type == 'C' ? meetCallStatusHash[activity.status] : taskStatusHash[activity.status])  %></td>
-						<td><%= relatedHash[activity.parent_type] %></td>
-						<td><%= activity.parent.name if !activity.parent.blank? %></td>
-						<td><%= activity.start_date.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>
-						<td><%= activity.status_update_on.localtime.strftime("%Y-%m-%d %H:%M:%S") if activity.status == 'C' || activity.status == 'H'%></td>
-						<td><%= activity.assigned_user.name unless activity.assigned_user.blank? %></td>
-						<td align="center"><%= completionTime %></td>
-				</tr>
+				<% unless isSupplier %>
+					<% 
+						count = count + 1
+						completionTime = (activity.status == 'C' || activity.status == 'H') ? convertSecToDays(activity.status_update_on - activity.start_date) : nil 
+						totalTime = totalTime + completionTime unless completionTime.blank?
+					%>
+					<tr class="<%= cycle("odd", "even") %>">
+							<td><%= acttypeHash[activity.activity_type] %></td>
+							<td><%= activity.name %></td>
+							<td class="lbl-txt-align"><%=h (activity.activity_type == 'M' || activity.activity_type == 'C' ? meetCallStatusHash[activity.status] : taskStatusHash[activity.status])  %></td>
+							<td><%= relatedHash[activity.parent_type] %></td>
+							<td><%= activity.parent.name if !activity.parent.blank? %></td>
+							<td><%= activity.start_date.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>
+							<td><%= activity.status_update_on.localtime.strftime("%Y-%m-%d %H:%M:%S") if activity.status == 'C' || activity.status == 'H'%></td>
+							<td><%= activity.assigned_user.name unless activity.assigned_user.blank? %></td>
+							<td align="center"><%= completionTime %></td>
+					</tr>
+				<% end %>
 			<% end %>
 			<% if count>0 %>
 				<tr bgcolor="#e6e6e6">

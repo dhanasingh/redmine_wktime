@@ -1,0 +1,19 @@
+<script type="text/javascript">	
+	rfqQuoteUrl="<%= "#{url_for(:controller => controller_name, :action => 'getRfqPoIds')}" %>";
+</script>	
+<%
+	onchgVal = ""
+	needRfqBlankdd = true
+	if reqQuotePoDD
+		onchgVal = " rfqTOQuoteChanged(#{User.current.id}, 'po_id');"
+		needRfqBlankdd = false
+	end
+%>
+<%= render partial: "wkquote/quoteadditionaldd", locals: { rfq_id: session[controller_name][:rfq_id], onchngeMethodName: onchgVal, needRfqBlank: needRfqBlankdd }%>
+
+<% if reqQuotePoDD %>	
+	<% rfq_arr = getRfqArray(false) #WkRfq.where(:status => 'o').order(id: :desc).pluck(:name, :id) %>
+	<% rfqId = rfq_arr.blank? ? 0 : rfq_arr[0][1]  %>
+	<th align="left"><label><%= l(:label_purchase_order) %></label></th>
+	<td><%=h select_tag('po_id', options_for_rfqPO_select(false, rfqId )) %></td>
+<% end %>

@@ -20,7 +20,7 @@ module WkbillingHelper
 	#include WkinvoiceHelper
 	include WkgltransactionHelper
 	
-	def postToGlTransaction(transModule, transId, transDate, amount, currency, payInvId)
+	def postToGlTransaction(transModule, transId, transDate, amount, currency, description, payInvId)
 		# transId = transObj.gl_transaction.blank? ? nil : transObj.gl_transaction.id
 		# if transObj.class.name == "WkInvoice"
 			# transModule = 'invoice'
@@ -40,7 +40,7 @@ module WkbillingHelper
 			else
 				isDiffCur = true 
 			end
-			glTransaction = saveGlTransaction(transModule, transId, transDate, transType, nil, amount, currency, isDiffCur, payInvId)
+			glTransaction = saveGlTransaction(transModule, transId, transDate, transType, description, amount, currency, isDiffCur, payInvId)
 		end
 		glTransaction
 	end
@@ -61,5 +61,15 @@ module WkbillingHelper
 		end
 		
 		WkAccountProject.joins(sqlStr).select("projects.name as project_name, projects.id as project_id").distinct(:project_id)
+	end
+	
+	def personTypeLabelHash
+		typeHash = {
+			'A' => l(:label_account),
+			'C' => l(:label_contact),
+			'S' => l(:label_supplier),
+			'SC' => l(:label_supplier_contact) 			
+		}
+		typeHash
 	end
 end

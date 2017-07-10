@@ -108,8 +108,10 @@ include QueriesHelper
 	@editable = @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r'
 	hookPerm = call_hook(:controller_check_editable, {:editable => @editable, :user => @user})
 	@editable = hookPerm.blank? ? @editable : hookPerm[0]
-	hookPerm = call_hook(:controller_check_locked, {:startdate => @startday})
-	@locked = hookPerm.blank? ? false : hookPerm[0]
+	#below two lines are hook code for lock TE
+	# hookPerm = call_hook(:controller_check_locked, {:startdate => @startday})
+	# @locked = hookPerm.blank? ? false : hookPerm[0]
+	@locked  = isLocked(@startday)
 	@editable = false if @locked
 	set_edit_time_logs
 	@entries = findEntries()
@@ -357,8 +359,10 @@ include QueriesHelper
 		setup
 		#cond = getCondition('spent_on', @user.id, @startday, @startday+6)
 		#TimeEntry.delete_all(cond)
-		hookPerm = call_hook(:controller_check_locked, {:startdate => @startday})
-		locked = hookPerm.blank? ? false : hookPerm[0]
+		#below two lines are hook code for lock TE
+		#hookPerm = call_hook(:controller_check_locked, {:startdate => @startday})
+		#locked = hookPerm.blank? ? false : hookPerm[0]
+		locked  = isLocked(@startday)
 		findWkTE(@startday)	
 		if locked
 			flash[:error] = l(:error_time_entry_delete)
@@ -987,6 +991,28 @@ include QueriesHelper
 		Setting.plugin_redmine_wktime['wktime_restr_min_hour_week'].to_i == 1 ?  
 		(Setting.plugin_redmine_wktime['wktime_min_hour_week'].blank? ? 0 : Setting.plugin_redmine_wktime['wktime_min_hour_week']) : 0
 	end
+	
+	def lockte
+		@lock = WkTeLock.order(id: :desc)
+		render :action => 'lockte'
+	end
+	
+	 def lockupdate		
+		telock = WkTeLock.new 
+		telock.lock_date= params[:lock_date]
+		telock.locked_by =User.current.id	
+		errorMsg =nil			
+		if !telock.save()
+			errorMsg = telock.errors.full_messages.join('\n')
+		end
+		if errorMsg.nil?	
+			redirect_to :controller => 'wktime',:action => 'index' 
+			flash[:notice] = l(:notice_successful_update)
+		else
+			flash[:error] = errorMsg
+			redirect_to :action => 'new'
+		end		
+	 end
 	
 private
 	

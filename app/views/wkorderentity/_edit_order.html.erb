@@ -1,0 +1,83 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'invoice', :plugin => "redmine_wktime" %>
+<% hash_status = { 'o'  => l(:label_open_issues), 'c' =>  l(:label_closed_issues) } %>
+<%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
+	<%=h hidden_field_tag("parent_id",  @invoice.parent_id )  %>
+	<%=h hidden_field_tag("parent_type",  @invoice.parent_type )  %>
+	<%=h hidden_field_tag("inv_end_date",  @invoice.end_date )  %>
+	<%=h hidden_field_tag("inv_start_date",  @invoice.start_date )  %>
+	<%=h hidden_field_tag("invoice_type",  controller.getInvoiceType )  %>
+	<%=h hidden_field_tag("rfq_id",  (@rfqObj.blank? ? (@rfgQuoteEntry.blank? ? '' : @rfgQuoteEntry.rfq_id) : @rfqObj.id) )  %>
+	<%=h hidden_field_tag("rfq_quote_id",  (@rfgQuoteEntry.blank? ? '' : @rfgQuoteEntry.id) )  %>
+	<%=h hidden_field_tag("po_id", @poObj.blank? ? '' : @poObj.id )  %>
+	<%=h hidden_field_tag("po_quote_id",  @rfqQuotObj.blank? ? (@poObj.blank? ? '' : @poObj.quote_id) : @rfqQuotObj.quote_id )  %>
+	<%=h hidden_field_tag("si_id", @siObj.blank? ? "" : @siObj.id )  %>
+	<%=h hidden_field_tag("si_inv_id",  @poId.blank? ? (@siObj.blank? ? "" : @siObj.purchase_order_id) : @poId )  %>
+	<table>
+		<tr><th align="left"><%= controller.getLabelInvNum %></th> 
+			<td style="width: 200px;"> 
+				<%= ": " %>
+				<% if !@invoice.blank? %>
+					<% if @invoice.invoice_number.blank? && controller.isInvGenUnbilledLink  %>
+						<span style="color:Purple;"><b><%= l(:label_unbilled) %></b></span>
+					<% elsif controller.editInvNumber %>
+						<%= text_field_tag "inv_number", @invoice.blank? ? "" : @invoice.invoice_number, :style => "width:150px;" %>
+					<% else %>
+						<%= @invoice.invoice_number %>
+					<% end %>
+				
+				<% end %> 
+			</td>
+			<th align="left"><%= controller.getDateLbl %></th>
+			<td style="width: 200px;"><%= ": "%> <%=h date_field_tag('inv_date', (@invoice.blank? ? Date.today.to_s : @invoice.invoice_date.to_s), :size => 10, :required => true, :disabled => @preBilling) %> <%= calendar_for('inv_date') %></td>
+			<% unless @invoice.new_record? %>
+				<th align="left" style="width:20px;"><%= l(:field_status) %></th> 
+				<td><%= ": "%>
+				<%=h select_tag('field_status',options_for_select(hash_status.invert, :selected => @invoice.blank? ? hash_status.invert : @invoice.status ), :disabled => @preBilling) %>  </td>
+			<% end %>
+			
+		</tr>
+		<%# projectName = (@invoiceItem.blank? ? (@projectsDD.blank? ? '' : @projectsDD[0][0].to_s) : @invoiceItem[0].project.name)   %>
+		<tr>
+		<!--	<th align="left"><%#= l(:label_project_name) %></th> 
+			<td style="width: 200px;"> <%#= ': ' + projectName  %> </td> -->
+			
+			<th align="left"><%= l(:label_account) %></th> 
+			<td style="width: 200px;"> <%= ': ' + (@invoice.blank? ? '' : @invoice.parent.name) %> </td>
+			
+			<th align="left" style="width:80px;"><%= l(:field_status_modified_by) %></th> 
+			<td> <%= ': ' + (@invoice.blank? ? User.current.to_s : @invoice.modifier.name) %> </td>
+			
+		</tr>
+		<% if controller.addQuoteFields %>
+			<tr>
+				<th align="left"><%= l(:label_rfq_name) %></th> 
+				<td style="width: 200px;"> <%= ': ' + (@rfqObj.blank? ? (@invoice.blank? ? '' : @invoice.rfq_quote.rfq.name) : @rfqObj.name) %> </td>
+				<% unless @invoice.new_record? %>
+					<th align="left" ><%= l(:label_won_note) %></th>
+					<td rowspan= "2" colspan="8" align="left" ><%= text_area_tag 'winning_note', (@rfgQuoteEntry.blank? ? (@invoice.blank? ? '' : (@invoice.rfq_quote.blank? ? '' : @invoice.rfq_quote.winning_note)) : @rfgQuoteEntry.winning_note), :maxlength => 255, :style => "width:605px; height:80px;" %></td>
+				<% end %>
+			</tr>
+			<% unless @invoice.new_record? %>
+				<tr>
+					<th align="left"><label><%= l(:label_winning_quote) %></label></th>
+					<td><%= check_box_tag('quote_won', 1, (@invoice.blank? ? false : (@invoice.rfq_quote.blank? ? false : @invoice.rfq_quote.is_won)) ) %></td>	
+				</tr>
+			<% end %>
+		<% end %>
+	</table>
+	
+	<% if !@invoiceItem.blank? %>
+		<% if !@invoiceItem[0].blank? %>
+			<%= render :partial => 'edit_order_items' %>
+		<% end %>
+	<% else %>
+		<% if !@invoice.blank?  %>
+			<%= render :partial => 'edit_order_items' %>
+		<% else  %>		
+			<br/>
+			<h2 ><%= controller.getItemLabel  %></h2> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<label><b><%= l(:label_no_data) %></b></label>
+		<% end %>
+	<% end %>
+<% end %>

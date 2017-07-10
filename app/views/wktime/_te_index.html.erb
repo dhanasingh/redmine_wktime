@@ -9,6 +9,9 @@
 </script>
 <% if (!@currentUser_loggable_projects.blank? || !@manage_projects.blank?) %>
 <div class="contextual">
+<% if (isAccountUser) %>
+	<%= link_to l(:"button_new_lock"), url_for(:controller => controller_name, :action => 'lockte'), :class => 'icon icon-time-add' %>
+<% end %>
 <%= link_to l(:"button_new_#{controller_name}"), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
 </div>
 <% end %>

@@ -265,6 +265,10 @@ it:
   label_generate: Generate
   report_payroll: Payroll report
   label_factor_errormsg: Please Enter the Factor
+  label_dependent_field: Dependent Field
+  label_salary_component: Salary Component
+  label_override_common_setting: Override common setting
+  label_actual: Actual
   
   label_wk_billing: Billing
   label_enable_billing_module: Enable Billing module
@@ -355,7 +359,7 @@ it:
   label_bank: Bank
   label_customer: Customer
   label_supplier: Supplier
-  label_export_invoice: Print Invoice
+  label_export_invoice: Print
   label_authorized_signatory: Authorized Signatory
   label_place: Place
   label_erpmine: ERPmine
@@ -593,3 +597,54 @@ it:
   label_minus: Minus
   label_credit_from_prv_inv: "Credit From Previous Invoice #%{invId}"
   label_credit_from_prv_inv_pay: "Credit From Previous Invoice #%{invId} Payment #%{payId}"
+  
+  label_rfq: RFQ
+  label_quotes: Quotes
+  label_purchase_order: Purchase Order
+  label_supplier_invoice: Supplier Invoice
+  label_supplier_payment: Supplier Payment
+  label_new_rfq: New RFQ
+  label_rfq_details: RFQ Details
+  label_new_quote: New Quote
+  label_new_pur_order: New Purchase Order
+  label_populate_quote_items: Populate From Quote
+  label_quote_number: Quote Number
+  label_po_number: PO Number
+  label_quote_date: Quote Date
+  label_po_date: Purchase Order Date
+  label_won: Won
+  label_won_note: Wining Note
+  label_quote_items: Quote Items
+  label_po_items: Purchase Order Items
+  label_rfq_name: RFQ Name
+  label_new_sup_invoice: New Supplier Invoice
+  label_si_items: Supplier Invoice Items
+  label_sp_number: Supplier Invoice Number
+  label_sp_date: Supplier Invoice Date
+  label_populate_purchase_items: Populate Purchase Order
+  label_supplier_account: Supplier Account
+  label_supplier_contact: Supplier Contact
+  label_winning_quote: Winning Quote
+  label_purchasing: Purchasing
+  label_enable_pur_module: Enable Purchase Module
+  label_pur_user_group: Purchase User Group
+  label_pur_admin_group: Purchase Admin Group
+  report_purchase_cycle: Purchase Cycle
+  label_quote_number_prefix: Quote Number Prefix
+  label_po_number_prefix: PO Number Prefix
+  label_si_number_prefix: SI Number Prefix
+  label_in_days: In Days
+  button_new_lock: Lock T&E
+  field_lock_date: Lock Time/Expense sheets up to
+  label_lock: Lock T&E
+  label_last_lock_by: "Last Locked by: %{name}"
+  label_quote_components: Quote Components
+  label_po_components: Purchase Order Components  
+  label_si_components: Supplier Invoice Components
+  label_all_accounts: All Accounts
+  label_opening_balance: Opening Balance
+  label_current_total: Current Total
+  label_closing_balance: Closing Balance
+  error_please_select_rfq: Please select RFQ
+  error_please_select_winning_quote: Please select Winning Quote
+  error_please_select_po: Please select Purchase Order

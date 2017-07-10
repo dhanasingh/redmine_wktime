@@ -1,0 +1,153 @@
+
+<% @ledgers = ["", ""] %> 
+<% @ledgers << WkLedger.order(:name).pluck(:name, :id) %> 
+<%  ledgerhash = Hash[*@ledgers.flatten].invert %>
+
+<fieldset style="display: inline-block; vertical-align: top;  min-width: 350px;">
+	<legend><%= l(:label_purchasing) %></legend>
+	
+	<p style="margin-left: -110px;">
+			<%= check_box_tag('settings[wktime_enable_pur_module]', 1, @settings['wktime_enable_pur_module'].to_i == 1) %> <label><%= l(:label_enable_pur_module) %></label>
+	</p>
+	
+	<%
+			accountGroups = Array.new
+			accGroup = Group.order('lastname')
+			unless accGroup.blank?
+				accountGroups = accGroup.collect {|t| [t.lastname, t.id] }
+			end
+			accountGroups.unshift(["",""])
+	%>
+	<p style="padding-left: 190px;">
+		<label><%=l(:label_pur_user_group)%></label>
+		<%=  select_tag('settings[wktime_pur_group]',
+				options_for_select(accountGroups, :selected => @settings['wktime_pur_group'].blank? ? "" : @settings['wktime_pur_group']))%>
+	</p>
+	
+	<p style="padding-left: 190px;">
+		<label><%=l(:label_pur_admin_group)%></label>
+		<%=  select_tag('settings[wktime_pur_admin]',
+				options_for_select(accountGroups, :selected => @settings['wktime_pur_admin'].blank? ? "" : @settings['wktime_pur_admin']))%>
+	</p>
+	
+	<p style="margin-left: -110px;">
+			<%= check_box_tag('settings[supplier_invoice_auto_post_gl]', 1, @settings['supplier_invoice_auto_post_gl'].to_i == 1) %> <label><%= l(:label_auto_post_gl) %></label>
+	</p>
+	
+	<p style="margin-left: -110px;"><label><%= l(:label_credit) + " " +  l(:label_ledger)  %></label>
+	    <%= select_tag 'settings[supplier_invoice_cr_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['supplier_invoice_cr_ledger']) %></p>
+	
+	<p style="margin-left: -110px;"><label><%= l(:label_debit) + " " +  l(:label_ledger)  %></label>
+	    <%= select_tag 'settings[supplier_invoice_db_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['supplier_invoice_db_ledger']) %></p>
+	
+	<p style="margin-left: -110px;"><label><%= l(:label_txn_payment) + " " + l(:label_credit) + " " +  l(:label_ledger)  %></label>
+	    <%= select_tag 'settings[supplier_payment_cr_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['supplier_payment_cr_ledger']) %></p>
+	
+	<p style="margin-left: -110px;"><label><%= l(:label_txn_payment) + " " + l(:label_debit) + " " +  l(:label_ledger)  %></label>
+	    <%= select_tag 'settings[supplier_payment_db_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['supplier_payment_db_ledger']) %></p>
+	
+	<p style="padding-left: 190px;;">
+		  <label><%= l(:label_quote_number_prefix) %></label><%= text_field_tag 'settings[wktime_quote_no_prefix]', @settings['wktime_quote_no_prefix'], :size => 13 %> 
+	</p>
+	
+	<p style="padding-left: 190px;;">
+		  <label><%= l(:label_po_number_prefix) %></label><%= text_field_tag 'settings[wktime_po_no_prefix]', @settings['wktime_po_no_prefix'], :size => 13 %> 
+	</p>
+	
+	<p style="padding-left: 190px;;">
+		  <label><%= l(:label_si_number_prefix) %></label><%= text_field_tag 'settings[wktime_si_no_prefix]', @settings['wktime_si_no_prefix'], :size => 13 %> 
+	</p>
+	
+</fieldset>
+<fieldset style="display: inline-block; vertical-align: top; min-width: 400px;">
+	<fieldset>
+		<legend><%= l(:label_quote_components) %></legend>
+		<p style="padding-left: 240px;">
+		<%
+			invComps = []
+			if(@settings['wktime_quote_components'].blank?)
+				invComps = ''
+			else
+				@settings['wktime_quote_components'].each do |element|
+				  listboxArr = element.split('|')
+				  invCompName = listboxArr[0].blank? ? "" : listboxArr[0]
+				  invCompVal = listboxArr[1].blank? ? "" : listboxArr[1]
+				  optionText = invCompName + ' : ' + invCompVal
+				  invComps << [optionText,element]
+				end
+			end
+		%>
+			<label><%= l(:label_quote_components) %></label>
+				<%=  select_tag('settings[wktime_quote_components]',
+					options_for_select(invComps, :selected => 'settings[wktime_quote_components]'), :multiple=> true, :style => "min-width:200px; height:100px;")%>	
+
+			</p>			
+			<p style="padding-left: 240px;">
+				<%= link_to "Add", "javascript:showInvCompDialog('Add', 'settings_wktime_quote_components');", :class => "button"%>  |
+				<%= link_to "Edit", "javascript:showInvCompDialog('Edit', 'settings_wktime_quote_components');", :class => "button"%>  |
+				<%= link_to "Delete", "javascript:removeSelectedValue('settings_wktime_quote_components');", :class => "button" %>
+			</p>
+		
+		
+	</fieldset>
+	<fieldset>
+		<legend><%= l(:label_po_components) %></legend>
+		<p style="padding-left: 240px;">
+		<%
+			invComps = []
+			if(@settings['wktime_po_components'].blank?)
+				invComps = ''
+			else
+				@settings['wktime_po_components'].each do |element|
+				  listboxArr = element.split('|')
+				  invCompName = listboxArr[0].blank? ? "" : listboxArr[0]
+				  invCompVal = listboxArr[1].blank? ? "" : listboxArr[1]
+				  optionText = invCompName + ' : ' + invCompVal
+				  invComps << [optionText,element]
+				end
+			end
+		%>
+			<label><%= l(:label_po_components) %></label>
+				<%=  select_tag('settings[wktime_po_components]',
+					options_for_select(invComps, :selected => 'settings[wktime_po_components]'), :multiple=> true, :style => "min-width:200px; height:100px;")%>	
+
+			</p>			
+			<p style="padding-left: 240px;">
+				<%= link_to "Add", "javascript:showInvCompDialog('Add', 'settings_wktime_po_components');", :class => "button"%>  |
+				<%= link_to "Edit", "javascript:showInvCompDialog('Edit', 'settings_wktime_po_components');", :class => "button"%>  |
+				<%= link_to "Delete", "javascript:removeSelectedValue('settings_wktime_po_components');", :class => "button" %>
+			</p>
+		
+		
+	</fieldset>
+	<fieldset>
+		<legend><%= l(:label_si_components) %></legend>
+		<p style="padding-left: 240px;">
+		<%
+			invComps = []
+			if(@settings['wktime_si_components'].blank?)
+				invComps = ''
+			else
+				@settings['wktime_si_components'].each do |element|
+				  listboxArr = element.split('|')
+				  invCompName = listboxArr[0].blank? ? "" : listboxArr[0]
+				  invCompVal = listboxArr[1].blank? ? "" : listboxArr[1]
+				  optionText = invCompName + ' : ' + invCompVal
+				  invComps << [optionText,element]
+				end
+			end
+		%>
+			<label><%= l(:label_si_components) %></label>
+				<%=  select_tag('settings[wktime_si_components]',
+					options_for_select(invComps, :selected => 'settings[wktime_si_components]'), :multiple=> true, :style => "min-width:200px; height:100px;")%>	
+
+			</p>			
+			<p style="padding-left: 240px;">
+				<%= link_to "Add", "javascript:showInvCompDialog('Add', 'settings_wktime_si_components');", :class => "button"%>  |
+				<%= link_to "Edit", "javascript:showInvCompDialog('Edit', 'settings_wktime_si_components');", :class => "button"%>  |
+				<%= link_to "Delete", "javascript:removeSelectedValue('settings_wktime_si_components');", :class => "button" %>
+			</p>
+		
+		
+	</fieldset>
+</fieldset>

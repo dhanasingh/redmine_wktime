@@ -1,0 +1,4 @@
+module WkquoteHelper
+include WktimeHelper
+include WkinvoiceHelper
+end

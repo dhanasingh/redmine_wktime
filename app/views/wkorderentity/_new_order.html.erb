@@ -1,0 +1,62 @@
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'invoice', :plugin => "redmine_wktime" %>
+<script type="text/javascript"> 
+	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds')}" %>";
+	accountUrl="<%= "#{url_for(:controller => "wkinvoice", :action => 'getAccountProjIds')}" %>";
+</script>
+<% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
+<%  parentArr = options_for_wktime_account(false, 'A')
+	projectArr = nil
+	if !parentArr.blank?
+		account = WkAccount.find(parentArr[0][1].to_i)
+		projectArr = account.projects.pluck(:name, :id)
+		isAccBilling = false
+		if account.account_billing
+			projectArr.unshift(["", 0])
+			isAccBilling = true
+		end
+	else
+		projectArr = ["", 0]
+	end
+ %>
+<%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	
+<%	projArr = options_for_wktime_project(projects,true) %>
+<% rfq_arr = WkRfq.where(:status => 'o').pluck(:name, :id) %>	
+<%= form_tag({:controller => controller_name, :action => 'edit'}, :method => :get, :id => 'query_form') do %>
+<%=h hidden_field_tag("new_invoice",   true )  %>
+<%=h hidden_field_tag("isAccBilling",   isAccBilling )  %>
+<%= render partial: "wkbilling/index_filters", locals: { :contact_id => nil, :account_id => 1, :filter_session => 2, :project_id => nil, :pjtChanged => controller.needChangedProject, :isapply => false, :isproject => true, :isAll => false, :blankOptionForPjt => controller.needBlankProject, :blankForActDD => false, :blankForContactDD => false, :rfq_id => nil, :needQuotePoDD => true, :isFilter => false } %>
+<div style="clear:both;"></div>
+<table>
+<%#= render partial: "wkcrm/view_polymorphic", locals: { parentObject:  nil , :parentType => "", :parentId => "", :index => false, :needParentProject => true, :padding => nil, :needblankType => false } %> 
+<!-- <tr>
+	<th align="left"><label><%#= l(:label_project) %></label></th>
+	<td style="padding-left:40px;"><%#=h select_tag('project_id', options_for_select(projectArr)) %></td>
+</tr> -->
+<%# if controller.requireRfqDD %>
+<!-- <tr>
+	<th align="left"><label><%= l(:label_rfq) %></label></th>
+	<td style="padding-left:40px;"><%=h select_tag('rfq_id', options_for_select(rfq_arr), :style=>"width:80px;" ) %></td>
+</tr> -->
+<%# end %> 
+<tr>
+	<th align="left"><%= l(:label_wk_currency) %></th>
+	<td style="padding-left:40px;"> <%=h select_tag("inv_currency",options_for_select(wkexpense_helper.options_for_currency)) %></td>
+</tr>
+<tr>
+	<th align="left"><%= l(:label_start_date) %></th>
+	<td align="left" style="padding-left:40px;"><%=h date_field_tag('start_date',Date.today, :size => 10, :required => true, :onchange =>"dateRangeValidation('start_date', 'end_date')") %> <%= calendar_for('start_date') %></td>
+</tr>
+<tr>
+	<th align="left"><%= l(:label_end_date) %></th>
+	<td align="left" style="padding-left:40px;"><%=h date_field_tag('end_date',Date.today+30, :size => 10, :required => true, :onchange =>"dateRangeValidation('start_date', 'end_date')") %> <%= calendar_for('end_date') %></td>
+</tr>
+<% if !controller.getPopulateChkBox.blank? %>
+<tr>
+	<th align="left"><label><%= controller.getPopulateChkBox %></label></th>
+	<td style="padding-left:40px;"><%= check_box_tag('populate_items', 1, false ) %></td>
+</tr>
+<% end %>
+</table>
+<%= submit_tag l(:button_continue), :onclick => "return submitNewInvoiceForm(#{isAccBilling});",  :hidden => false, :id => 'new_invoice' %>
+<% end %>
