@@ -1,7 +1,9 @@
 class WkrfqController < ApplicationController
   unloadable
   include WktimeHelper
-	before_filter :require_login
+  before_filter :require_login
+  before_filter :check_perm_and_redirect, :only => [:index, :edit, :update]
+  before_filter :check_pur_admin_and_redirect, :only => [:destroy]
 
     def index
 		@rfqEntries = nil
@@ -86,11 +88,18 @@ class WkrfqController < ApplicationController
 		isModuleAdmin('wktime_pur_admin')
 	end
 	
+	def check_perm_and_redirect
+		unless check_permission
+			render_403
+			return false
+		end
+	end
+	
 	def check_permission		
 		return isModuleAdmin('wktime_pur_group') || isModuleAdmin('wktime_pur_admin') 
 	end
 	
-	def check_crm_admin_and_redirect
+	def check_pur_admin_and_redirect
 	  unless isModuleAdmin('wktime_pur_admin') 
 	    render_403
 	    return false
