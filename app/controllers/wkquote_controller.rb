@@ -27,6 +27,16 @@ class WkquoteController < WksupplierorderentityController
 		end
 	end
 	
+	def newSupOrderEntity(parentId, parentType)
+		msg = ""
+		unless params[:rfq_id].blank?
+			super
+		else
+			flash[:error] = l(:error_please_select_rfq) + " <br/>"
+			redirect_to :action => 'new'
+		end
+	end
+	
 	# Synchronize the quote insert because maintain the sequence of invoice num key 
 	def saveOrderInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)
 		begin			

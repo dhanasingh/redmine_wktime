@@ -645,3 +645,6 @@ it:
   label_opening_balance: Opening Balance
   label_current_total: Current Total
   label_closing_balance: Closing Balance
+  error_please_select_rfq: Please select RFQ
+  error_please_select_winning_quote: Please select Winning Quote
+  error_please_select_po: Please select Purchase Order

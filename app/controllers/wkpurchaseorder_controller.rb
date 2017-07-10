@@ -21,8 +21,11 @@ class WkpurchaseorderController < WksupplierorderentityController
 
 	def newSupOrderEntity(parentId, parentType)
 		super
-		if params[:quote_id].blank? 
-			flash[:error] = "Please select the Winning Quote"
+		if params[:quote_id].blank? || params[:rfq_id].blank?
+			errorMsg = ""
+			errorMsg = l(:error_please_select_rfq) + " <br/>" if params[:rfq_id].blank?
+			errorMsg = errorMsg + l(:error_please_select_winning_quote) + " <br/>" if params[:quote_id].blank?
+			flash[:error] = errorMsg
 			redirect_to :action => 'new'
 		else
 			rfqQuotEntry = WkRfqQuote.where(:quote_id => params[:quote_id].to_i)

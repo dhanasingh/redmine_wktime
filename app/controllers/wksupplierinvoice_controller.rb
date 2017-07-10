@@ -4,11 +4,20 @@ class WksupplierinvoiceController < WksupplierorderentityController
 	@@simutex = Mutex.new
 
 	def newSupOrderEntity(parentId, parentType)
-		super			
-		@poId =params[:po_id].to_i
-		if !params[:populate_items].blank? && params[:populate_items] == '1'
-			@invoiceItem = WkInvoiceItem.where(:invoice_id => params[:po_id].to_i).select(:name, :rate, :amount, :quantity, :item_type, :currency, :project_id, :modifier_id,  :invoice_id )
-		end 
+		super
+		if params[:rfq_id].blank? || params[:po_id].blank?
+			errorMsg = ""
+			errorMsg = l(:error_please_select_rfq) + " <br/>" if params[:rfq_id].blank?
+			#errorMsg = errorMsg + "Please select the Quote \n" if params[:quote_id].blank?
+			errorMsg = errorMsg + l(:error_please_select_po) + " <br/>" if params[:po_id].blank?
+			flash[:error] = errorMsg
+			redirect_to :action => 'new'
+		else		
+			@poId =params[:po_id].to_i
+			if !params[:populate_items].blank? && params[:populate_items] == '1'
+				@invoiceItem = WkInvoiceItem.where(:invoice_id => params[:po_id].to_i).select(:name, :rate, :amount, :quantity, :item_type, :currency, :project_id, :modifier_id,  :invoice_id )
+			end 
+		end
 	end
 	
 	def editOrderEntity

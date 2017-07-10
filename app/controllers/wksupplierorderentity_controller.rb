@@ -7,18 +7,20 @@ class WksupplierorderentityController < WkorderentityController
 	
 	def newSupOrderEntity(parentId, parentType)
 		msg = ""
-		if params[:rfq_id].blank?
-			flash[:error] = "Please select the RFQ \n"
-			redirect_to :action => 'new'
-		end		
+		# if params[:rfq_id].blank?
+			# flash[:error] = "Please select the RFQ \n"
+			# redirect_to :action => 'new'
+		# end
+		unless params[:rfq_id].blank?		
 		
-		if !params[:project_id].blank? && params[:project_id] != '0'
-			@projectsDD = Project.where(:id => params[:project_id].to_i).pluck(:name, :id)	
+			if !params[:project_id].blank? && params[:project_id] != '0'
+				@projectsDD = Project.where(:id => params[:project_id].to_i).pluck(:name, :id)	
+			end
+			
+			@rfqObj = WkRfq.find(params[:rfq_id].to_i)		
+			@currency = params[:inv_currency]
+			setTempEntity(params[:start_date], params[:end_date], parentId, parentType, params[:populate_items], params[:project_id])
 		end
-		
-		@rfqObj = WkRfq.find(params[:rfq_id].to_i)		
-		@currency = params[:inv_currency]
-		setTempEntity(params[:start_date], params[:end_date], parentId, parentType, params[:populate_items], params[:project_id])		
 				
 	end
 	
