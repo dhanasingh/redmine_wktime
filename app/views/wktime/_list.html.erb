@@ -1,5 +1,5 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-<%= form_tag({}) do -%>	
+<%= form_tag({}) do -%>
 <%= hidden_field_tag 'back_url', url_for(params) %>
 <div class="autoscroll">
 <table class="list time-entries">
@@ -43,4 +43,3 @@
 </div>
 <% end -%>
 
-<%= context_menu time_entries_context_menu_path %>
