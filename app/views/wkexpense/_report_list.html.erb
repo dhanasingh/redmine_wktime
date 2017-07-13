@@ -11,7 +11,7 @@
         :title => "#{l(:button_check_all)}/#{l(:button_uncheck_all)}" %>
     </th>
     <% @query.inline_columns.each do |column| %>	
-      <%= column_header(column) %>	  
+      <%= column_header(@query, column) %>	  
 	  
     <% end %>
     <th></th>
@@ -35,4 +35,4 @@
 </div>
 <% end -%>
 
-<%= context_menu time_entries_context_menu_path %>
+<%= context_menu %>

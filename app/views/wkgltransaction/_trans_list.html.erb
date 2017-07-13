@@ -19,6 +19,7 @@
 		openingBalance = 0
 		openingBalHash = nil
 		asOnDate =  nil
+		asOnDate =  @from -1 unless @from.blank?
 		asOnDate = @transEntries.minimum(:trans_date) - 1 unless @transEntries.minimum(:trans_date).blank? #@from.blank? ?  Date.today : @from
 		openingBalHash = getEachLedgerBSAmt(asOnDate, [@selectedLedger.ledger_type]) unless @ledgerId.blank? || asOnDate.blank?
 		#openingBalance = openingBalHash.values[0] unless openingBalHash.blank? @selectedLedger
@@ -26,7 +27,7 @@
 			entry_details = entry.transaction_details.includes(:ledger).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type') 
 			transTotal = entry_details.inject(0){|sum,x| sum + x[1] }/2
 			unless @ledgerId.blank?
-				openingBalance = openingBalHash[@selectedLedger.name] unless openingBalHash.blank? || openingBalHash[@selectedLedger.name].blank?
+				#openingBalance = openingBalHash[@selectedLedger.name] unless openingBalHash.blank? || openingBalHash[@selectedLedger.name].blank?
 				selectedLedgerEntries = entry.transaction_details.includes(:ledger).where(:wk_gl_transaction_details => { :ledger_id => @ledgerId }).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type')
 				otherDetailTypeEntries = entry.transaction_details.includes(:ledger).where.not(:wk_gl_transaction_details => { :detail_type=> selectedLedgerEntries[0][2]}).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type') #:ledger_id => @ledgerId, 
 				partLedgerName = otherDetailTypeEntries[0][3]
@@ -76,6 +77,7 @@
 			</tr>
 		<% end %>
 		<% 	unless @selectedLedger.blank? || (incomeLedgerTypes.include? @selectedLedger.ledger_type) || (expenseLedgerTypes.include? @selectedLedger.ledger_type)
+				openingBalance = openingBalHash[@selectedLedger.name] unless openingBalHash.blank? || openingBalHash[@selectedLedger.name].blank?
 				isSubCr = isSubtractCr(@selectedLedger.ledger_type)
 				if isSubCr
 					currentBal = dbTotal - crTotal
@@ -91,11 +93,11 @@
 				<th class="lbl-txt-align"><%=  %></th>
 				<th class="lbl-txt-align"><%=h l(:label_opening_balance) %>:</th>
 				<% if (isSubCr && openingBalance > 0) || (!isSubCr && openingBalance < 0) %>
-					<th class="lbl-txt-align"><%=  "%.2f" % openingBalance  %></th>
+					<th class="lbl-txt-align"><%=  "%.2f" % openingBalance.abs  %></th>
 					<th class="lbl-txt-align"><%=  %></th>	
 				<% else %>
 					<th class="lbl-txt-align"><%=   %></th>
-					<th class="lbl-txt-align"><%=  "%.2f" % openingBalance %></th>	
+					<th class="lbl-txt-align"><%=  "%.2f" % openingBalance.abs %></th>	
 				<% end %>
 				<th></th>
 			</tr> 

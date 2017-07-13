@@ -241,8 +241,8 @@ SettingsController.send(:include, SettingsControllerPatch)
 Redmine::Plugin.register :redmine_wktime do
   name 'ERPmine'
   author 'Adhi Software Pvt Ltd'
-  description 'This plugin is for entering ERPmine'
-  version '2.9'
+  description 'ERPmine is an ERP for Service Industries. It has the following modules: Time & Expense, Attendance, Payroll, CRM, Billing, Accounting and Purchasing'
+  version '2.9.1'
   url 'http://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
   
@@ -555,13 +555,13 @@ class WktimeHook < Redmine::Hook::ViewListener
 	end
 	
 	# Added expense report link in redmine core 'projects/show.html' using hook
-	def view_projects_show_sidebar_bottom(context={})
+	def view_projects_show_left(context={})
 		if !context[:project].blank?
 			wktime_helper = Object.new.extend(WktimeHelper)		
 			host_with_subdir = wktime_helper.getHostAndDir(context[:request])	
 			project_ids = Setting.plugin_redmine_wktime['wkexpense_projects']		
 			if project_ids.blank? || (!project_ids.blank? && (project_ids == [""] || project_ids.include?("#{context[:project].id}"))) && User.current.allowed_to?(:view_time_entries, context[:project])
-				"#{link_to(l(:label_wkexpense_reports), url_for(:controller => 'wkexpense', :action => 'reportdetail', :project_id => context[:project], :host => host_with_subdir, :only_path => true))}"
+				"<p style='float:left; padding-left:180px;  margin-top:-45px;'>| #{link_to(l(:label_wkexpense_reports), url_for(:controller => 'wkexpense', :action => 'reportdetail', :project_id => context[:project], :host => host_with_subdir, :only_path => true))}</p>"
 			end
 		end
 	end
