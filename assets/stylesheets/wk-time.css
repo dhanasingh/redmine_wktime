@@ -12,3 +12,25 @@
    background: #3E5B76;
    color: #ffffff;
 }
+
+table#wktimeHeader, table#wktimeHeader td {
+    border-collapse: collapse;
+    padding: 0px;
+    padding-right: 10px;
+}
+
+table#wktimeStatus td, table#wktimeStatus th{
+    vertical-align: middle;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+table#wktimeOptions td, table#wktimeOptions th{
+    vertical-align: middle;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+table.nowrap {
+    white-space: nowrap;
+}
