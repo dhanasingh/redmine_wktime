@@ -653,3 +653,4 @@ it:
   label_inventory_admin_group: Inventory Admin Group
   label_inventory_user_group: Inventory User Group
   label_enable_inventory_module: Enable Inventory Module
+  label_hr: HR

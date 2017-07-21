@@ -595,21 +595,25 @@ end
 	end
 	
 	def time_expense_tabs
-		if params[:controller] == "wktime" || params[:controller] == "wkexpense"
+		if params[:controller] == "wktime" || params[:controller] == "wkexpense" || params[:controller] == "wkattendance" || params[:controller] == "wkpayroll"
 			tabs = [
 				{:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime},
-				{:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense}
-			   ]
-		elsif params[:controller] == "wkattendance"
-			tabs = [
+				{:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense},
 				{:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave},
-				{:name => 'clock', :partial => 'wktime/tab_content', :label => :label_clock}
-			   ]
-		elsif params[:controller] == "wkpayroll"
-			tabs = [
+				{:name => 'clock', :partial => 'wktime/tab_content', :label => :label_clock},
 				{:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll},
 				{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_user_settings}
 			   ]
+		# elsif params[:controller] == "wkattendance"
+			# tabs = [
+				# {:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave},
+				# {:name => 'clock', :partial => 'wktime/tab_content', :label => :label_clock}
+			   # ]
+		# elsif params[:controller] == "wkpayroll"
+			# tabs = [
+				# {:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll},
+				# {:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_user_settings}
+			   # ]
 		elsif params[:controller] == "wklead" || params[:controller] == "wkcrmaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact"
 			tabs = [
 				{:name => 'wklead', :partial => 'wktime/tab_content', :label => :label_lead_plural},
@@ -619,15 +623,16 @@ end
 				{:name => 'wkcrmcontact', :partial => 'wktime/tab_content', :label => :label_contact_plural}
 			   ]
 		
-		elsif params[:controller] == "wkinvoice" || params[:controller] == "wkcontract" || params[:controller] == "wkaccountproject" || params[:controller] == "wktax" || params[:controller] == "wkpayment" || params[:controller] == "wkexchangerate"
+		elsif params[:controller] == "wkinvoice" || params[:controller] == "wkcontract" || params[:controller] == "wkaccountproject"  || params[:controller] == "wkpayment" 
+		#|| params[:controller] == "wktax" || params[:controller] == "wkexchangerate"
 			tabs = [
 				{:name => 'wkinvoice', :partial => 'wktime/tab_content', :label => :label_invoice},
 				{:name => 'wkpayment', :partial => 'wktime/tab_content', :label => :label_payments},
 			#	{:name => 'wkcrmaccount', :partial => 'wktime/tab_content', :label => :label_accounts},
 				{:name => 'wkcontract', :partial => 'wktime/tab_content', :label => :label_contracts},
 				{:name => 'wkaccountproject', :partial => 'wktime/tab_content', :label => :label_acc_projects},				
-				{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax},
-				{:name => 'wkexchangerate', :partial => 'wktime/tab_content', :label => :label_exchange_rate}
+			#	{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax},
+			#	{:name => 'wkexchangerate', :partial => 'wktime/tab_content', :label => :label_exchange_rate}
 			   ]
 		elsif params[:controller] == "wkgltransaction" || params[:controller] == "wkledger"
 			tabs = [
@@ -644,9 +649,11 @@ end
 				{:name => 'wksupplieraccount', :partial => 'wktime/tab_content', :label => :label_supplier_account},
 				{:name => 'wksuppliercontact', :partial => 'wktime/tab_content', :label => :label_supplier_contact}
 			   ]
-		else
+		elsif params[:controller] == "wkcrmenumeration" || params[:controller] == "wktax" || params[:controller] == "wkexchangerate"
 			tabs = [
-				{:name => 'wkcrmenumeration', :partial => 'wktime/tab_content', :label => :label_enumerations}
+				{:name => 'wkcrmenumeration', :partial => 'wktime/tab_content', :label => :label_enumerations},
+				{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax},
+				{:name => 'wkexchangerate', :partial => 'wktime/tab_content', :label => :label_exchange_rate}
 			   ]
 		end
 		tabs
