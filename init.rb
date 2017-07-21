@@ -325,7 +325,10 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_enable_crm_module' => '0',
 			 'wktime_enable_pur_module' => '0',
 			 'wktime_pur_group' => '0',
-			 'wktime_pur_admin' => '0'
+			 'wktime_pur_admin' => '0',
+			 'wktime_enable_inventory_module' => '0',
+			 'wktime_inventory_group' => '0',
+			 'wktime_inventory_admin' => '0'
   })  
 	menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_erpmine, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 
   	

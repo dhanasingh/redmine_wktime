@@ -649,3 +649,8 @@ de:
   error_please_select_rfq: Please select RFQ
   error_please_select_winning_quote: Please select Winning Quote
   error_please_select_po: Please select Purchase Order
+  
+  label_inventory: Inventory
+  label_inventory_admin_group: Inventory Admin Group
+  label_inventory_user_group: Inventory User Group
+  label_enable_inventory_module: Enable Inventory Module

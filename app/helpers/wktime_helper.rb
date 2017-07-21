@@ -746,7 +746,8 @@ end
 				{:name => 'billing', :partial => 'settings/tab_billing', :label => :label_wk_billing},
 				{:name => 'accounting', :partial => 'settings/tab_accounting', :label => :label_accounting},
 				{:name => 'CRM', :partial => 'settings/tab_crm', :label => :label_crm},
-				{:name => 'purchase', :partial => 'settings/tab_purchase', :label => :label_purchasing}
+				{:name => 'purchase', :partial => 'settings/tab_purchase', :label => :label_purchasing},
+				{:name => 'inventory', :partial => 'settings/tab_inventory', :label => :label_inventory}
 			   ]	
 	end	
 	
@@ -1248,6 +1249,11 @@ end
 	def showPurchase
 		(!Setting.plugin_redmine_wktime['wktime_enable_pur_module'].blank? &&
 			Setting.plugin_redmine_wktime['wktime_enable_pur_module'].to_i == 1 ) && (isModuleAdmin('wktime_pur_group') || isModuleAdmin('wktime_pur_admin') )
+	end
+	
+	def showInventory
+		(!Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].to_i == 1 ) && (isModuleAdmin('wktime_inventory_group') || isModuleAdmin('wktime_inventory_admin') )
 	end
 	
 	
