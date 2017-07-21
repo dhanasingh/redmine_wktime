@@ -657,3 +657,10 @@ fr:
   label_inventory_user_group: Inventory User Group
   label_enable_inventory_module: Enable Inventory Module
   label_hr: HR
+  label_location: Location
+  label_product: Product
+  label_shipments: Shipments
+  label_product_catagory: Product Catagory
+  label_uom: Unit Of Measurements
+  label_items: Items
+  label_products: Products

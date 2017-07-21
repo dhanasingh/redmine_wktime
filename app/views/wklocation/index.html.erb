@@ -1,4 +1,4 @@
-<h2><%= l(:label_exchange_rate) %></h2>
+<h2><%= l(:label_location) %></h2>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript">     
 	blgtaxUrl = '<%=url_for(:controller => "wktax", :action => "index", :tab => "wktax")%>';
@@ -11,4 +11,3 @@
 </script>
 <%= render_tabs time_expense_tabs %>
 
-<%= render :partial => 'wkexchangerate/exc_rate_index'%>

@@ -396,3 +396,15 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	 get 'wkexpense/lockte', :to => 'wkexpense#lockte'
 	
 	post 'wktime/lockupdate', :to => 'wktime#lockupdate'
+	
+	get 'wklocation/index', :to => 'wklocation#index' 
+	
+	get 'wkproductcatagory/index', :to => 'wkproductcatagory#index'
+	
+	get 'wkproduct/index', :to => 'wkproduct#index'
+	
+	get 'wkproductitem/index', :to => 'wkproductitem#index'
+	
+	get 'wkshipment/index', :to => 'wkshipment#index'
+	
+	get 'wkunitofmeasurement/index', :to => 'wkunitofmeasurement#index'

@@ -1,0 +1,3 @@
+module WkproductitemHelper
+include WktimeHelper
+end

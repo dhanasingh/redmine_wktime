@@ -649,11 +649,22 @@ end
 				{:name => 'wksupplieraccount', :partial => 'wktime/tab_content', :label => :label_supplier_account},
 				{:name => 'wksuppliercontact', :partial => 'wktime/tab_content', :label => :label_supplier_contact}
 			   ]
-		elsif params[:controller] == "wkcrmenumeration" || params[:controller] == "wktax" || params[:controller] == "wkexchangerate"
+		elsif params[:controller] == "wkcrmenumeration" || params[:controller] == "wktax" || params[:controller] == "wkexchangerate" || params[:controller] == "wklocation"
 			tabs = [
 				{:name => 'wkcrmenumeration', :partial => 'wktime/tab_content', :label => :label_enumerations},
+				{:name => 'wklocation', :partial => 'wktime/tab_content', :label => :label_location},
 				{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax},
 				{:name => 'wkexchangerate', :partial => 'wktime/tab_content', :label => :label_exchange_rate}
+				
+			   ]
+		else
+			tabs = [
+				{:name => 'wkproductcatagory', :partial => 'wktime/tab_content', :label => :label_product_catagory},
+				{:name => 'wkproduct', :partial => 'wktime/tab_content', :label => :label_products},
+				{:name => 'wkproductitem', :partial => 'wktime/tab_content', :label => :label_items},
+				{:name => 'wkshipment', :partial => 'wktime/tab_content', :label => :label_shipments},
+				{:name => 'wkunitofmeasurement', :partial => 'wktime/tab_content', :label => :label_uom}
+				
 			   ]
 		end
 		tabs
