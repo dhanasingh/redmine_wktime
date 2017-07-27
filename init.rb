@@ -582,6 +582,7 @@ class WktimeHook < Redmine::Hook::ViewListener
 		end
 	end
 	render_on :view_layouts_base_content, :partial => 'wktime/attendance_widget'	
+	render_on :view_timelog_edit_form_bottom, :partial => 'wklogmaterial/log_material'
 end
 
 

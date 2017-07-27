@@ -1,0 +1,57 @@
+<%= javascript_include_tag 'wklogmaterial', :plugin => "redmine_wktime" %>
+<% catagoriesList = { 's'  => l(:label_salaried), 'h' =>  l(:label_hourly) }  %>
+<% logmaterial_helper = Object.new.extend(WklogmaterialHelper)	%>
+<% logtype = logmaterial_helper.getLogHash %>
+<table style="padding-left:100px;">
+	<tr>
+		<th align="right" ><%= l(:label_log_type) %><span style="color:red;">*</span></th>
+		<td align="left">
+			<%=h select_tag('product_catagory', options_for_select(logtype.invert), :style => "width:155px;") %>
+		</td>
+		<th align="right"><%= l(:label_quantity) %><span style="color:red;">*</span></th>
+		<td align="left">
+			<%=h text_field_tag("product_quantity", "",:size => 10, :style => "width:80px;") %> 
+		</td>
+	</tr>
+	<tr>
+		<th align="right" ><%= l(:label_catagory) %><span style="color:red;">*</span></th>
+		<td align="left">
+			<%=h select_tag('product_catagory', options_for_select(catagoriesList.invert), :style => "width:155px;") %>
+		</td>
+		<th align="right"><%= l(:label_cost_price) %><span style="color:red;">*</span></th>
+		<td align="left">
+			<%=h text_field_tag("product_cost_price", "",:size => 20, :style => "width:80px;") %> 
+		</td>
+	</tr>
+	
+	<tr>
+		<th align="right" ><%= l(:label_product) %><span style="color:red;">*</span></th>
+		<td align="left">
+			<%=h select_tag('product', options_for_select(catagoriesList.invert), :style => "width:155px;") %>
+		</td>
+		<th align="right"><%= l(:label_sell_price) %><span style="color:red;">*</span></th>
+		<td align="left">
+			<%=h text_field_tag("product_sell_price", "",:size => 20, :style => "width:80px;") %> 
+		</td>
+	</tr>
+	
+	<tr>
+		<th align="right" ><%= l(:label_brand) %><span style="color:red;">*</span></th>
+		<td align="left">
+			<%=h select_tag('product_brand', options_for_select(catagoriesList.invert), :style => "width:155px;") %>
+		</td>
+		<th align="right"></th>
+		<td align="left">
+			
+		</td>
+	</tr>
+	
+	<tr>
+		<th align="right" ><%= l(:label_items) %><span style="color:red;">*</span></th>
+		<td align="left">
+			<%=h select_tag('product_items', options_for_select(catagoriesList.invert), :style => "width:155px;") %>
+		</td>
+		
+	</tr>
+	
+</table>

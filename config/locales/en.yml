@@ -659,7 +659,12 @@ en:
   label_location: Location
   label_product: Product
   label_shipments: Shipments
-  label_product_catagory: Product Catagory
+  label_catagory: Catagory
   label_uom: Unit Of Measurements
   label_items: Items
   label_products: Products
+  label_material: Material
+  label_cost_price: Cost Price
+  label_sell_price: Sell Price
+  label_brand: Brand
+  label_log_type: Log Type
