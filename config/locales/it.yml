@@ -656,13 +656,24 @@ it:
   label_hr: HR
   label_location: Location
   label_product: Product
-  label_shipments: Shipments
+  label_shipment: Shipment
   label_catagory: Catagory
-  label_uom: Unit Of Measurements
-  label_items: Items
-  label_products: Products
+  label_uom: Unit Of Measurement
+  label_item: Item
+  label_new_shipment: New Shipment
+  label_shipment_items: Shipment Items
+  label_shipment_date: Shipment Date
+  label_serial_number: Serial Number
   label_material: Material
   label_cost_price: Cost Price
   label_sell_price: Sell Price
   label_brand: Brand
   label_log_type: Log Type
+  label_cost_price: Cost Price
+  label_selling_price: Selling Price
+  label_over_head_price: Over Head Price
+  label_org_cost_price: Original Cost Price
+  label_org_selling_price: Original Selling Price
+  label_org_over_head_price: Original Over Head Price
+  label_total_quantity: Total Quantity
+  label_available_quantity: Available Quantity

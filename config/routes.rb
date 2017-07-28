@@ -407,4 +407,12 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wkshipment/index', :to => 'wkshipment#index'
 	
+	get 'wkshipment/new', :to => 'wkshipment#new'
+	
+	get 'wkshipment/edit', :to => 'wkshipment#edit'
+	
+	post 'wkshipment/update', :to => 'wkshipment#update'
+	
+	delete 'wkshipment/destroy', :to => 'wkshipment#destroy'
+	
 	get 'wkunitofmeasurement/index', :to => 'wkunitofmeasurement#index'

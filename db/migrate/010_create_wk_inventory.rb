@@ -46,6 +46,11 @@ class CreateWkInventory < ActiveRecord::Migration
 		
 		create_table :wk_product_attributes do |t|
 			t.string :name
+			t.timestamps null: false
+		end
+		
+		create_table :wk_product_variants do |t|
+			t.references :attribute, :class => "wk_product_attributes", :null => false, :index => true
 			t.references :product, :class => "wk_products", :null => false, :index => true
 			t.timestamps null: false
 		end
@@ -68,12 +73,16 @@ class CreateWkInventory < ActiveRecord::Migration
 		end
 		
 		create_table :wk_product_items do |t|
-			t.string :name
 			t.references :product, :class => "wk_products", :null => false, :index => true
 			t.references :brand, :class => "wk_brands", :null => false, :index => true
 			t.references :product_attribute, :class => "wk_product_attributes", :null => false, :index => true
 			t.string :notes
 			t.string :part_number
+			t.string :status, :null => false, :limit => 5, :default => 'o'
+			t.float :org_cost_price
+			t.float :org_selling_price
+			t.float :org_over_head_price
+			t.column :org_currency, :string, :limit => 5, :default => '$'
 			t.float :cost_price
 			t.float :selling_price
 			t.float :over_head_price
@@ -108,7 +117,5 @@ class CreateWkInventory < ActiveRecord::Migration
 		end
 		add_index :wk_material_entries, [:project_id], :name => :wk_material_entries_project_id
 		add_index :wk_material_entries, [:issue_id], :name => :wk_material_entries_issue_id
-		
-		change_column :wk_invoice_items, :project_id, :integer, null: true
 	end
 end
