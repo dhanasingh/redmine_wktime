@@ -28,6 +28,22 @@ class CreateWkInventory < ActiveRecord::Migration
 			t.timestamps null: false
 		end
 		
+		create_table :wk_product_attributes do |t|
+			t.string :name
+			t.timestamps null: false
+		end
+		
+		create_table :wk_attribute_groups do |t|
+			t.string :name
+			t.timestamps null: false
+		end
+		
+		create_table :wk_group_attributes do |t|
+			t.references :attribute, :class => "wk_product_attributes", :null => false, :index => true
+			t.references :group, :class => "wk_attribute_groups", :null => false, :index => true
+			t.timestamps null: false
+		end
+		
 		create_table :wk_products do |t|
 			t.string :name
 			t.string :description
@@ -35,6 +51,15 @@ class CreateWkInventory < ActiveRecord::Migration
 			t.references :uom, :class => "wk_mesure_units", :null => false, :index => true
 			t.references :created_by_user, :class => "User"
 			t.references :modified_by_user, :class => "User"
+			t.references :attribute_group, :class => "wk_group_attributes", :null => false, :index => true
+			t.timestamps null: false
+		end
+		
+		create_table :wk_product_models do |t|
+			t.string :name
+			t.string :description
+			t.references :product, :class => "wk_products", :null => false, :index => true
+			t.references :brand, :class => "wk_brands", :null => false, :index => true
 			t.timestamps null: false
 		end
 		
@@ -44,16 +69,11 @@ class CreateWkInventory < ActiveRecord::Migration
 			t.timestamps null: false
 		end
 		
-		create_table :wk_product_attributes do |t|
-			t.string :name
-			t.timestamps null: false
-		end
-		
-		create_table :wk_product_variants do |t|
-			t.references :attribute, :class => "wk_product_attributes", :null => false, :index => true
-			t.references :product, :class => "wk_products", :null => false, :index => true
-			t.timestamps null: false
-		end
+		# create_table :wk_product_variants do |t|
+			# t.references :attribute, :class => "wk_product_attributes", :null => false, :index => true
+			# t.references :product, :class => "wk_products", :null => false, :index => true
+			# t.timestamps null: false
+		# end
 		
 		create_table :wk_shipments do |t|
 			t.string :serial_number
@@ -74,8 +94,9 @@ class CreateWkInventory < ActiveRecord::Migration
 		
 		create_table :wk_product_items do |t|
 			t.references :product, :class => "wk_products", :null => false, :index => true
-			t.references :brand, :class => "wk_brands", :null => false, :index => true
-			t.references :product_attribute, :class => "wk_product_attributes", :null => false, :index => true
+			t.references :brand, :class => "wk_brands", :null => true, :index => true
+			t.references :product_attribute, :class => "wk_product_attributes", :null => true, :index => true
+			t.references :product_model, :class => "wk_product_models", :null => true, :index => true
 			t.string :notes
 			t.string :part_number
 			t.string :status, :null => false, :limit => 5, :default => 'o'
@@ -104,6 +125,10 @@ class CreateWkInventory < ActiveRecord::Migration
 		  t.column :user_id,     :integer,  :null => false
 		  t.column :issue_id,    :integer
 		  t.column :quantity,    :float,    :null => false
+		  t.float :org_selling_price
+		  t.column :org_currency, :string, :limit => 5, :default => '$'
+		  t.float :selling_price
+		  t.column :currency, :string, :limit => 5, :default => '$'
 		  t.column :comments,    :string,   :limit => 255
 		  t.column :activity_id, :integer,  :null => false
 		  t.column :spent_on,    :date,     :null => false

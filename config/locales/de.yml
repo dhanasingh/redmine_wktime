@@ -658,7 +658,7 @@ de:
   label_location: Location
   label_product: Product
   label_shipment: Shipment
-  label_catagory: Catagory
+  label_category: Category
   label_uom: Unit Of Measurement
   label_item: Item
   label_new_shipment: New Shipment
@@ -678,3 +678,5 @@ de:
   label_org_over_head_price: Original Over Head Price
   label_total_quantity: Total Quantity
   label_available_quantity: Available Quantity
+  label_model: Model
+  label_attribute_group: Attribute Group
