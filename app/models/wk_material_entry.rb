@@ -15,11 +15,15 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkProduct < ActiveRecord::Base
+class WkMaterialEntry < ActiveRecord::Base
   unloadable
-  belongs_to :category, :class_name => 'WkProductCategory'
-  has_many :product_items, foreign_key: "product_id", class_name: "WkProductItem"
-  has_many :product_brands, foreign_key: "product_id", class_name: "WkBrandProduct"
-  has_many :brands, through: :product_brands
+  validates_presence_of :project_id, :user_id, :issue_id, :quantity, :activity_id, :spent_on
+  validates :spent_on, :date => true
   
+  def spent_on=(date)
+    super
+    self.tyear = spent_on ? spent_on.year : nil
+    self.tmonth = spent_on ? spent_on.month : nil
+    self.tweek = spent_on ? Date.civil(spent_on.year, spent_on.month, spent_on.day).cweek : nil
+  end
 end

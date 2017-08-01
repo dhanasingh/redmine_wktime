@@ -433,3 +433,103 @@ function dateRangeValidation(fromId, toId)
 	}
 	
 }
+
+function productCategoryChanged(curDDId, changeDDId, uid)
+{
+	var currDD = document.getElementById(curDDId);
+	var needBlankOption = false;
+	var changeDD = document.getElementById(changeDDId);
+	userid = uid;
+	var $this = $(this);
+	$.ajax({
+	url: productModifyUrl,
+	type: 'get',
+	data: {id: currDD.value, ptype: changeDDId, product_id: changeDD.value },
+	success: function(data){ updateUserDD(data, changeDD, userid, needBlankOption, false, "");},
+	beforeSend: function(){ $this.addClass('ajax-loading'); },
+	complete: function(){ productChanged(changeDDId, 'product_brand', uid); $this.removeClass('ajax-loading'); }	      
+	});
+}
+
+function productChanged(curDDId, changeDDId, uid)
+{
+	var currDD = document.getElementById(curDDId);
+	var needBlankOption = false;
+	var changeDD = document.getElementById(changeDDId);
+	userid = uid;
+	var $this = $(this);
+	$.ajax({
+	url: productModifyUrl,
+	type: 'get',
+	data: {id: currDD.value, ptype: changeDDId, product_id: curDDId.value},
+	success: function(data){ updateUserDD(data, changeDD, userid, needBlankOption, false, "");},
+	beforeSend: function(){ $this.addClass('ajax-loading'); },
+	complete: function(){ productBrandChanged(changeDDId, 'product_item', uid); $this.removeClass('ajax-loading'); }	      
+	});
+}
+
+function productBrandChanged(curDDId, changeDDId, uid)
+{
+	var currDD = document.getElementById(curDDId);
+	var needBlankOption = false;
+	var changeDD = document.getElementById(changeDDId);
+	var productDD = document.getElementById('product');
+	userid = uid;
+	var $this = $(this);
+	$.ajax({
+	url: productModifyUrl,
+	type: 'get',
+	data: {id: currDD.value, ptype: changeDDId, product_id: productDD.value },
+	success: function(data){ updateUserDD(data, changeDD, userid, needBlankOption, false, "");},
+	beforeSend: function(){ $this.addClass('ajax-loading'); },
+	complete: function(){ productItemChanged(changeDDId, 'product_quantity', 'product_cost_price', 'product_sell_price'); $this.removeClass('ajax-loading'); }	      
+	});
+}
+
+function productItemChanged(curDDId, qtyDD, cpDD, spDD)
+{
+	var currDD = document.getElementById(curDDId);
+	var needBlankOption = false;
+	var productDD = document.getElementById('product');
+	var $this = $(this);
+	$.ajax({
+	url: productModifyUrl,
+	type: 'get',
+	data: {id: currDD.value, ptype: 'product_attribute', product_id: productDD.value },
+	success: function(data){ setProductLogAttribute(data, qtyDD, cpDD, spDD);},
+	beforeSend: function(){ $this.addClass('ajax-loading'); },
+	complete: function(){ $this.removeClass('ajax-loading'); }	      
+	});
+}
+
+function setProductLogAttribute(data, qtyDD, cpDD, spDD)
+{
+	if(data != "")
+	{
+		var pctData = data.split(',');
+		document.getElementById('available_quantity').innerHTML = pctData[1];
+		document.getElementById(qtyDD).value  = pctData[1];
+		if(document.getElementById(cpDD) != null)
+		{
+			document.getElementById(cpDD).value = parseFloat(pctData[2]).toFixed(2);
+			document.getElementById('cpcurrency').value = pctData[3];
+		}		
+		
+		document.getElementById('spcurrency').value = pctData[3];
+		document.getElementById(spDD).value = parseFloat(pctData[4]).toFixed(2);
+		document.getElementById('item_id').value = pctData[0];
+		document.getElementById('total').innerHTML = pctData[3] + (parseFloat(pctData[4] * pctData[1]).toFixed(2));
+	}
+	else
+	{
+		document.getElementById(qtyDD).value  = "";
+		if(document.getElementById(cpDD) != null)
+		{
+			document.getElementById(cpDD).value = "";
+		}	
+		document.getElementById(spDD).value = "";
+		document.getElementById('item_id').value = "";
+		document.getElementById('total').innerHTML = "";
+	}
+	
+}

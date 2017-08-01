@@ -15,11 +15,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkProduct < ActiveRecord::Base
+class WkBrandProduct < ActiveRecord::Base
   unloadable
-  belongs_to :category, :class_name => 'WkProductCategory'
-  has_many :product_items, foreign_key: "product_id", class_name: "WkProductItem"
-  has_many :product_brands, foreign_key: "product_id", class_name: "WkBrandProduct"
-  has_many :brands, through: :product_brands
+  belongs_to :brand , :class_name => 'WkBrand'
+  belongs_to :product , :class_name => 'WkProduct'
+  # has_many :brands, foreign_key: "brand_id", class_name: "WkBrand"
+  # has_many :products, foreign_key: "product_id", class_name: "WkProduct"
   
 end

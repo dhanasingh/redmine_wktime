@@ -1,57 +1,90 @@
 <%= javascript_include_tag 'wklogmaterial', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <% catagoriesList = { 's'  => l(:label_salaried), 'h' =>  l(:label_hourly) }  %>
 <% logmaterial_helper = Object.new.extend(WklogmaterialHelper)	%>
+<% wktime_helper = Object.new.extend(WktimeHelper) %>
 <% logtype = logmaterial_helper.getLogHash %>
+<% productCatagoryArr = logmaterial_helper.getProductCatagoryArray(WkProductCategory, nil, false) %>
+<% productArr = logmaterial_helper.getProductCatagoryArray(WkProduct, productCatagoryArr[0][1], false) %>
+<% brandArr = logmaterial_helper.getProductBrandArray(productArr[0][1], false) %>
+<% itemArr = logmaterial_helper.getProductItemArr(productArr[0][1], brandArr[0][1], false) %>
+<% itemObj = WkProductItem.find(itemArr[0][1]) %>
+<%= hidden_field_tag 'item_id', (itemObj.blank? ? "" : itemObj.id) %>
+<script type="text/javascript"> 
+	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
+</script>
 <table style="padding-left:100px;">
 	<tr>
 		<th align="right" ><%= l(:label_log_type) %><span style="color:red;">*</span></th>
 		<td align="left">
-			<%=h select_tag('product_catagory', options_for_select(logtype.invert), :style => "width:155px;") %>
-		</td>
-		<th align="right"><%= l(:label_quantity) %><span style="color:red;">*</span></th>
-		<td align="left">
-			<%=h text_field_tag("product_quantity", "",:size => 10, :style => "width:80px;") %> 
-		</td>
+			<%=h select_tag('log_type', options_for_select(logtype.invert), :style => "width:155px;", :onchange => "hideLogDetails();") %>
+		</td>		
 	</tr>
+</table>
+<table id="materialtable" style="padding-left:45px; display:none;">
+	
 	<tr>
-		<th align="right" ><%= l(:label_catagory) %><span style="color:red;">*</span></th>
+		<th align="right" ><%= l(:label_product_catagory) %><span style="color:red;">*</span></th>
 		<td align="left">
-			<%=h select_tag('product_catagory', options_for_select(catagoriesList.invert), :style => "width:155px;") %>
+			<%=h select_tag('product_catagory', options_for_select(productCatagoryArr), :style => "width:155px;", :onchange => "productCategoryChanged(this.id, 'product', #{User.current.id})") %>
 		</td>
-		<th align="right"><%= l(:label_cost_price) %><span style="color:red;">*</span></th>
-		<td align="left">
-			<%=h text_field_tag("product_cost_price", "",:size => 20, :style => "width:80px;") %> 
-		</td>
+		<th align="right"><%= l(:label_available_quantity) %></th>
+		<% availableQuantity = itemObj.blank? ? "" : itemObj.available_quantity  %>
+		<td align="left" ><label id="available_quantity" style="padding-left: 125px; text-align:right;"><%=h html_hours("%.2f" % availableQuantity ) %></label></td>
 	</tr>
 	
 	<tr>
 		<th align="right" ><%= l(:label_product) %><span style="color:red;">*</span></th>
 		<td align="left">
-			<%=h select_tag('product', options_for_select(catagoriesList.invert), :style => "width:155px;") %>
+			<%=h select_tag('product', options_for_select(productArr), :style => "width:155px;", :onchange => "productChanged(this.id, 'product_brand', #{User.current.id})") %>
 		</td>
-		<th align="right"><%= l(:label_sell_price) %><span style="color:red;">*</span></th>
-		<td align="left">
-			<%=h text_field_tag("product_sell_price", "",:size => 20, :style => "width:80px;") %> 
+		
+		<th align="right"><%= l(:label_quantity) %><span style="color:red;">*</span></th>
+		<td align="left" style="padding-left: 40px;">
+			<%=h text_field_tag("product_quantity", ("%.2f" % availableQuantity ),:size => 10, :style => "width:80px;text-align:right;", :onchange => "updateTotal(this.id, 'product_sell_price', 'total', 'spcurrency');") %> 
 		</td>
+		
 	</tr>
 	
 	<tr>
 		<th align="right" ><%= l(:label_brand) %><span style="color:red;">*</span></th>
 		<td align="left">
-			<%=h select_tag('product_brand', options_for_select(catagoriesList.invert), :style => "width:155px;") %>
+			<%=h select_tag('product_brand', options_for_select(brandArr), :style => "width:155px;", :onchange => "productBrandChanged(this.id, 'product_item', #{User.current.id})") %>
 		</td>
-		<th align="right"></th>
-		<td align="left">
+		<% if wktime_helper.isModuleAdmin('wktime_inventory_admin') %>
+			<th align="right"><%= l(:label_cost_price) %><span style="color:red;">*</span></th>
+			<td align="left" style="padding-left: 40px;">
 			
+				<label id="cpcurrency"><%=h (itemObj.blank? ? "" : itemObj.currency) %></label>
+				<% costPrice = itemObj.blank? ? "" : itemObj.cost_price %>
+				<%=h text_field_tag("product_cost_price", ("%.2f" % costPrice) ,:size => 20, :style => "width:80px; text-align:right;") %> 
+			</td>
+		<% end %>
+	</tr>
+	
+	<tr>
+		<th align="right" ><%= l(:label_product_items) %><span style="color:red;">*</span></th>
+		<td align="left" >
+			<%=h select_tag('product_item', options_for_select(itemArr), :style => "width:155px;", :onchange => "productItemChanged(this.id, 'product_quantity', 'product_cost_price', 'product_sell_price')") %>
+		</td>
+		
+		<th align="right"><%= l(:label_sell_price) %><span style="color:red;">*</span></th>
+		<td align="left" style="padding-left: 40px;">
+			<label id="spcurrency"><%=h (itemObj.blank? ? "" : itemObj.currency) %></label>
+			<% sellPrice = itemObj.blank? ? "" : itemObj.selling_price  %>
+			<%=h text_field_tag("product_sell_price", ("%.2f" % sellPrice),:size => 20, :style => "width:80px; text-align:right;", :onchange => "updateTotal(this.id, 'product_quantity', 'total', 'spcurrency');") %> 
 		</td>
 	</tr>
 	
 	<tr>
-		<th align="right" ><%= l(:label_items) %><span style="color:red;">*</span></th>
-		<td align="left">
-			<%=h select_tag('product_items', options_for_select(catagoriesList.invert), :style => "width:155px;") %>
-		</td>
+		<th align="right" ></th>
+		<td align="left"></td>
 		
+		<th align="right"><%= l(:label_total) %></th>
+		<td>
+			<!-- <label id="totalcurrency" style="padding-left: 40px;"><%#=h (itemObj.blank? ? "" : itemObj.currency) %></label> -->
+			<% netTotal = itemObj.blank? ? 0 : (itemObj.available_quantity * itemObj.selling_price)  %>
+			<label id="total" style="padding-left: 127px; text-align:right;"><%=h (itemObj.blank? ? "" : itemObj.currency) %><%=h html_hours("%.2f" % netTotal ) %></label></td>
 	</tr>
 	
 </table>

@@ -416,3 +416,5 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	delete 'wkshipment/destroy', :to => 'wkshipment#destroy'
 	
 	get 'wkunitofmeasurement/index', :to => 'wkunitofmeasurement#index'
+	
+	get 'wklogmaterial/modifyProductDD', :to => 'wklogmaterial#modifyProductDD'

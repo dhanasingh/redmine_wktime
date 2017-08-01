@@ -130,6 +130,122 @@ module TimelogControllerPatch
 		base.send(:include)
 		
 		base.class_eval do
+			def create				
+				@time_entry ||= TimeEntry.new(:project => @project, :issue => @issue, :user => User.current, :spent_on => User.current.today)
+				@time_entry.safe_attributes = params[:time_entry]
+				if @time_entry.project && !User.current.allowed_to?(:log_time, @time_entry.project)
+				  render_403
+				  return
+				end
+
+				call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
+				if params[:log_type] == 'T'
+					if @time_entry.save
+					  respond_to do |format|
+						format.html {
+						  flash[:notice] = l(:notice_successful_create)
+						  if params[:continue]
+							options = {
+							  :time_entry => {
+								:project_id => params[:time_entry][:project_id],
+								:issue_id => @time_entry.issue_id,
+								:activity_id => @time_entry.activity_id
+							  },
+							  :back_url => params[:back_url]
+							}
+							if params[:project_id] && @time_entry.project
+							  redirect_to new_project_time_entry_path(@time_entry.project, options)
+							elsif params[:issue_id] && @time_entry.issue
+							  redirect_to new_issue_time_entry_path(@time_entry.issue, options)
+							else
+							  redirect_to new_time_entry_path(options)
+							end
+						  else
+							redirect_back_or_default project_time_entries_path(@time_entry.project)
+						  end
+						}
+						format.api  { render :action => 'show', :status => :created, :location => time_entry_url(@time_entry) }
+					  end
+					else
+					  respond_to do |format|
+						format.html { render :action => 'new' }
+						format.api  { render_validation_errors(@time_entry) }
+					  end
+					end
+				else
+					@@productItemMutex = Mutex.new
+					materialEntries = WkMaterialEntry.new
+					materialEntries.project_id =  params[:time_entry][:project_id].to_i
+					materialEntries.user_id = User.current.id
+					materialEntries.issue_id =  params[:time_entry][:issue_id].to_i
+					materialEntries.quantity = params[:product_quantity].to_i
+					materialEntries.comments =  params[:time_entry][:comments]
+					materialEntries.activity_id =  params[:time_entry][:activity_id].to_i
+					materialEntries.spent_on = params[:time_entry][:spent_on]
+					materialEntries.uom_id = 1
+					begin			
+						@@productItemMutex.synchronize do	
+							productItemObj = WkProductItem.find(params[:item_id].to_i)
+							if productItemObj.available_quantity >= params[:product_quantity].to_i 
+								productItemObj.available_quantity = productItemObj.available_quantity - params[:product_quantity].to_i
+								materialEntries.product_item_id = productItemObj.id
+								unless materialEntries.valid?	
+									errorMsg = materialEntries.errors.full_messages.join("<br>")
+									respond_to do |format|
+										format.html { 
+											flash[:error] = errorMsg
+											render :action => 'new' 
+										}
+									end
+								else
+									productItemObj.save
+									materialEntries.save
+									respond_to do |format|
+										format.html { 
+											flash[:notice] = l(:notice_successful_update)
+											render :action => 'new'
+										}
+									end
+								end
+							else
+								respond_to do |format|
+									format.html { 
+										flash[:error] = "Requested no of items not available in the stock"
+										render :action => 'new'
+									}
+								end
+							end
+						end				
+					rescue => ex
+					  logger.error ex.message
+					end
+					
+				end
+			 end
+			 
+			 def update
+				@time_entry.safe_attributes = params[:time_entry]
+
+				call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
+
+				if @time_entry.save
+				  respond_to do |format|
+					format.html {
+					  flash[:notice] = l(:notice_successful_update)
+					  redirect_back_or_default project_time_entries_path(@time_entry.project)
+					}
+					format.api  { render_api_ok }
+				  end
+				else
+				  respond_to do |format|
+					format.html { render :action => 'edit' }
+					format.api  { render_validation_errors(@time_entry) }
+				  end
+				end
+			  end
+		
+		
+		
 			def destroy
 				wktime_helper = Object.new.extend(WktimeHelper)
 				errMsg = ""
