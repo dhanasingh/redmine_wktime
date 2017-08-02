@@ -125,7 +125,9 @@ class CreateWkInventory < ActiveRecord::Migration
 		  t.column :user_id,     :integer,  :null => false
 		  t.column :issue_id,    :integer
 		  t.column :quantity,    :float,    :null => false
+		  t.column :quantity_returned,    :float
 		  t.float :org_selling_price
+		  t.boolean :is_deleted, :default => false
 		  t.column :org_currency, :string, :limit => 5, :default => '$'
 		  t.float :selling_price
 		  t.column :currency, :string, :limit => 5, :default => '$'

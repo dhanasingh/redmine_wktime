@@ -127,7 +127,7 @@ end
 	
 module TimelogControllerPatch
 	def self.included(base)
-		base.send(:include)
+		#base.send(:include)
 		
 		base.class_eval do
 			def create				
@@ -139,7 +139,7 @@ module TimelogControllerPatch
 				end
 
 				call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
-				if params[:log_type] == 'T'
+				if params[:log_type].blank? || params[:log_type] == 'T'
 					if @time_entry.save
 					  respond_to do |format|
 						format.html {
@@ -173,7 +173,7 @@ module TimelogControllerPatch
 					  end
 					end
 				else
-					@@productItemMutex = Mutex.new
+					#@@productItemMutex = Mutex.new
 					materialEntries = WkMaterialEntry.new
 					materialEntries.project_id =  params[:time_entry][:project_id].to_i
 					materialEntries.user_id = User.current.id
@@ -184,8 +184,10 @@ module TimelogControllerPatch
 					materialEntries.spent_on = params[:time_entry][:spent_on]
 					materialEntries.uom_id = 1
 					begin			
-						@@productItemMutex.synchronize do	
+						#@@productItemMutex.synchronize do
+						WkProductItem.transaction do
 							productItemObj = WkProductItem.find(params[:item_id].to_i)
+							productItemObj.lock!
 							if productItemObj.available_quantity >= params[:product_quantity].to_i 
 								productItemObj.available_quantity = productItemObj.available_quantity - params[:product_quantity].to_i
 								materialEntries.product_item_id = productItemObj.id
@@ -198,8 +200,9 @@ module TimelogControllerPatch
 										}
 									end
 								else
-									productItemObj.save
+									productItemObj.save!
 									materialEntries.save
+									sleep 15
 									respond_to do |format|
 										format.html { 
 											flash[:notice] = l(:notice_successful_update)
@@ -292,7 +295,7 @@ end
 
 module SettingsControllerPatch
 	def self.included(base)
-		base.send(:include)
+		#base.send(:include)
 		
 		base.class_eval do
 			def plugin

@@ -1,14 +1,22 @@
+<% if (!Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].to_i == 1 ) %>
 <%= javascript_include_tag 'wklogmaterial', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <% catagoriesList = { 's'  => l(:label_salaried), 'h' =>  l(:label_hourly) }  %>
 <% logmaterial_helper = Object.new.extend(WklogmaterialHelper)	%>
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
 <% logtype = logmaterial_helper.getLogHash %>
+<%  productCatagoryArr = ""
+	productArr = ""
+	brandArr = ""
+	itemArr = ""
+	itemObj = nil
+%>
 <% productCatagoryArr = logmaterial_helper.getProductCatagoryArray(WkProductCategory, nil, false) %>
-<% productArr = logmaterial_helper.getProductCatagoryArray(WkProduct, productCatagoryArr[0][1], false) %>
-<% brandArr = logmaterial_helper.getProductBrandArray(productArr[0][1], false) %>
-<% itemArr = logmaterial_helper.getProductItemArr(productArr[0][1], brandArr[0][1], false) %>
-<% itemObj = WkProductItem.find(itemArr[0][1]) %>
+<% productArr = logmaterial_helper.getProductCatagoryArray(WkProduct, productCatagoryArr[0][1], false) unless productCatagoryArr.blank? %>
+<% brandArr = logmaterial_helper.getProductBrandArray(productArr[0][1], false) unless productArr.blank? %>
+<% itemArr = logmaterial_helper.getProductItemArr(productArr[0][1], brandArr[0][1], false) unless brandArr.blank? && productArr.blank?  %>
+<% itemObj = WkProductItem.find(itemArr[0][1]) unless itemArr.blank? %>
 <%= hidden_field_tag 'item_id', (itemObj.blank? ? "" : itemObj.id) %>
 <script type="text/javascript"> 
 	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
@@ -29,8 +37,8 @@
 			<%=h select_tag('product_catagory', options_for_select(productCatagoryArr), :style => "width:155px;", :onchange => "productCategoryChanged(this.id, 'product', #{User.current.id})") %>
 		</td>
 		<th align="right"><%= l(:label_available_quantity) %></th>
-		<% availableQuantity = itemObj.blank? ? "" : itemObj.available_quantity  %>
-		<td align="left" ><label id="available_quantity" style="padding-left: 125px; text-align:right;"><%=h html_hours("%.2f" % availableQuantity ) %></label></td>
+		<% availableQuantity = itemObj.blank? ? " " : itemObj.available_quantity  %>
+		<td align="left" ><label id="available_quantity" style="padding-left: 125px; text-align:right;"><%=h html_hours("%.2f" % availableQuantity ) unless availableQuantity.blank? %></label></td>
 	</tr>
 	
 	<tr>
@@ -41,7 +49,7 @@
 		
 		<th align="right"><%= l(:label_quantity) %><span style="color:red;">*</span></th>
 		<td align="left" style="padding-left: 40px;">
-			<%=h text_field_tag("product_quantity", ("%.2f" % availableQuantity ),:size => 10, :style => "width:80px;text-align:right;", :onchange => "updateTotal(this.id, 'product_sell_price', 'total', 'spcurrency');") %> 
+			<%=h text_field_tag("product_quantity", ("%.2f" % 1 ),:size => 10, :style => "width:80px;text-align:right;", :onchange => "updateTotal(this.id, 'product_sell_price', 'total', 'spcurrency');") %> 
 		</td>
 		
 	</tr>
@@ -57,9 +65,23 @@
 			
 				<label id="cpcurrency"><%=h (itemObj.blank? ? "" : itemObj.currency) %></label>
 				<% costPrice = itemObj.blank? ? "" : itemObj.cost_price %>
-				<%=h text_field_tag("product_cost_price", ("%.2f" % costPrice) ,:size => 20, :style => "width:80px; text-align:right;") %> 
+				<%=h text_field_tag("product_cost_price", costPrice.blank? ? "" : ("%.2f" % costPrice) ,:size => 20, :style => "width:80px; text-align:right;") %> 
 			</td>
 		<% end %>
+	</tr>
+	
+	<tr>
+		<th align="right" ><%= l(:label_model) %><span style="color:red;">*</span></th>
+		<td align="left" >
+			<%=h select_tag('product_model', options_for_select(itemArr), :style => "width:155px;", :onchange => "productItemChanged(this.id, 'product_quantity', 'product_cost_price', 'product_sell_price')") %>
+		</td>
+		
+		<th align="right"><%= l(:label_sell_price) %><span style="color:red;">*</span></th>
+		<td align="left" style="padding-left: 40px;">
+			<label id="spcurrency"><%=h (itemObj.blank? ? "" : itemObj.currency) %></label>
+			<% sellPrice = itemObj.blank? ? "" : itemObj.selling_price  %>
+			<%=h text_field_tag("product_sell_price", sellPrice.blank? ? "" : ("%.2f" % sellPrice),:size => 20, :style => "width:80px; text-align:right;", :onchange => "updateTotal(this.id, 'product_quantity', 'total', 'spcurrency');") %> 
+		</td>
 	</tr>
 	
 	<tr>
@@ -68,23 +90,13 @@
 			<%=h select_tag('product_item', options_for_select(itemArr), :style => "width:155px;", :onchange => "productItemChanged(this.id, 'product_quantity', 'product_cost_price', 'product_sell_price')") %>
 		</td>
 		
-		<th align="right"><%= l(:label_sell_price) %><span style="color:red;">*</span></th>
-		<td align="left" style="padding-left: 40px;">
-			<label id="spcurrency"><%=h (itemObj.blank? ? "" : itemObj.currency) %></label>
-			<% sellPrice = itemObj.blank? ? "" : itemObj.selling_price  %>
-			<%=h text_field_tag("product_sell_price", ("%.2f" % sellPrice),:size => 20, :style => "width:80px; text-align:right;", :onchange => "updateTotal(this.id, 'product_quantity', 'total', 'spcurrency');") %> 
-		</td>
-	</tr>
-	
-	<tr>
-		<th align="right" ></th>
-		<td align="left"></td>
-		
 		<th align="right"><%= l(:label_total) %></th>
 		<td>
 			<!-- <label id="totalcurrency" style="padding-left: 40px;"><%#=h (itemObj.blank? ? "" : itemObj.currency) %></label> -->
 			<% netTotal = itemObj.blank? ? 0 : (itemObj.available_quantity * itemObj.selling_price)  %>
-			<label id="total" style="padding-left: 127px; text-align:right;"><%=h (itemObj.blank? ? "" : itemObj.currency) %><%=h html_hours("%.2f" % netTotal ) %></label></td>
+			<label id="total" style="padding-left: 127px; text-align:right;"><%=h (itemObj.blank? ? "" : itemObj.currency) %><%=h html_hours("%.2f" % netTotal ) unless netTotal.blank? %></label>
+		</td>
 	</tr>
-	
+		
 </table>
+<% end %>

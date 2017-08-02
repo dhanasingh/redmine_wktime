@@ -508,14 +508,14 @@ function setProductLogAttribute(data, qtyDD, cpDD, spDD)
 	{
 		var pctData = data.split(',');
 		document.getElementById('available_quantity').innerHTML = pctData[1];
-		document.getElementById(qtyDD).value  = pctData[1];
+		document.getElementById(qtyDD).value  = 1;//pctData[1];
 		if(document.getElementById(cpDD) != null)
 		{
 			document.getElementById(cpDD).value = parseFloat(pctData[2]).toFixed(2);
-			document.getElementById('cpcurrency').value = pctData[3];
+			document.getElementById('cpcurrency').innerHTML = pctData[3];
 		}		
 		
-		document.getElementById('spcurrency').value = pctData[3];
+		document.getElementById('spcurrency').innerHTML = pctData[3];
 		document.getElementById(spDD).value = parseFloat(pctData[4]).toFixed(2);
 		document.getElementById('item_id').value = pctData[0];
 		document.getElementById('total').innerHTML = pctData[3] + (parseFloat(pctData[4] * pctData[1]).toFixed(2));
