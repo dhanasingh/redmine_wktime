@@ -15,9 +15,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkLocation < ActiveRecord::Base
+class WkInventoryItem < ActiveRecord::Base
   unloadable
-  belongs_to :address, :class_name => 'WkAddress', :dependent => :destroy
-  has_many :inventory_items, foreign_key: "location_id", class_name: "WkInventoryItem"
+  belongs_to :shipment, :class_name => 'WkShipment'
+  belongs_to :product_item, :class_name => 'WkProductItem'
+  belongs_to :supplier_invoice, foreign_key: "supplier_invoice_id", class_name: "WkInvoice"
+  belongs_to :purchase_order, foreign_key: "purchase_order_id", class_name: "WkInvoice"
+  belongs_to :location, :class_name => 'WkLocation'
+  belongs_to :parent, foreign_key: "parent_id", class_name: "WkInventoryItem"
   
 end

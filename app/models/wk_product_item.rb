@@ -17,13 +17,14 @@
 
 class WkProductItem < ActiveRecord::Base
   unloadable
-  belongs_to :shipment, :class_name => 'WkShipment'
+  # belongs_to :shipment, :class_name => 'WkShipment'
   belongs_to :product, :class_name => 'WkProduct'
   belongs_to :product_attribute, :class_name => 'WkProductAttribute'
-  belongs_to :supplier_invoice, foreign_key: "supplier_invoice_id", class_name: "WkInvoice"
-  belongs_to :purchase_order, foreign_key: "purchase_order_id", class_name: "WkInvoice"
-  belongs_to :location, :class_name => 'WkLocation'
+  # belongs_to :supplier_invoice, foreign_key: "supplier_invoice_id", class_name: "WkInvoice"
+  # belongs_to :purchase_order, foreign_key: "purchase_order_id", class_name: "WkInvoice"
+  # belongs_to :location, :class_name => 'WkLocation'
   belongs_to :brand, :class_name => 'WkBrand'
-  belongs_to :parent, foreign_key: "parent_id", class_name: "WkProductItem"
+  has_many :inventory_items, foreign_key: "product_item_id", class_name: "WkInventoryItem"
+  # belongs_to :parent, foreign_key: "parent_id", class_name: "WkProductItem"
   
 end
