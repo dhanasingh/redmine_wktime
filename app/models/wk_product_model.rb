@@ -15,8 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkProductVariant < ActiveRecord::Base
+class WkProductModel < ActiveRecord::Base
   unloadable
   belongs_to :product, :class_name => 'WkProduct'
-  belongs_to :attribute, :class_name => 'WkProductAttribute'
+  belongs_to :brand, :class_name => 'WkProductBrand'
 end

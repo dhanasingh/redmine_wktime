@@ -659,10 +659,10 @@ end
 			   ]
 		else
 			tabs = [
-				{:name => 'wkproductcatagory', :partial => 'wktime/tab_content', :label => :label_product_catagory},
-				{:name => 'wkproduct', :partial => 'wktime/tab_content', :label => :label_products},
-				{:name => 'wkproductitem', :partial => 'wktime/tab_content', :label => :label_items},
-				{:name => 'wkshipment', :partial => 'wktime/tab_content', :label => :label_shipments},
+				{:name => 'wkproductcatagory', :partial => 'wktime/tab_content', :label => :label_catagory},
+				{:name => 'wkproduct', :partial => 'wktime/tab_content', :label => :label_product},
+				{:name => 'wkproductitem', :partial => 'wktime/tab_content', :label => :label_item},
+				{:name => 'wkshipment', :partial => 'wktime/tab_content', :label => :label_shipment},
 				{:name => 'wkunitofmeasurement', :partial => 'wktime/tab_content', :label => :label_uom}
 				
 			   ]
@@ -1272,6 +1272,28 @@ end
 	def showInventory
 		(!Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].blank? &&
 			Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].to_i == 1 ) && (isModuleAdmin('wktime_inventory_group') || isModuleAdmin('wktime_inventory_admin') )
+	end
+	
+	def generic_options_for_select(model, sqlCond, orderBySql, displayCol, valueCol, selectedVal, needBlank)
+		ddArray = Array.new
+		if sqlCond.blank? || orderBySql.blank?
+			if sqlCond.blank? && orderBySql.blank?
+				ddValues = model.all
+			else
+				if sqlCond.blank?
+					ddValues = model.order("#{orderBySql}")
+				else	
+					ddValues = model.where("#{sqlCond}")
+				end
+			end
+		else
+			ddValues = model.where("#{sqlCond}").order("#{orderBySql}")
+		end
+		unless ddValues.blank?
+			ddArray = ddValues.collect {|t| [t["#{displayCol}"], t["#{valueCol}"]] }
+		end
+		ddArray.unshift(["",""]) if needBlank
+		options_for_select(ddArray, :selected => selectedVal)
 	end
 	
 	

@@ -1,3 +1,4 @@
 module WkshipmentHelper
-include WktimeHelper
+  include WktimeHelper
+  include WkcrmHelper
 end

@@ -63,7 +63,7 @@
 			<% unless value.empty?  %>
 				<tr class="<%= cycle("odd", "even") %>">
 					<td class="lbl-txt-align"><%=h l(:label_unbilled)  %></td>
-					<td class="lbl-txt-align"><%=h value['parent_type'] == 'WkAccount' ? 'Account' : 'Contact'  %></td>
+					<!-- <td class="lbl-txt-align"><%#=h value['parent_type'] == 'WkAccount' ? 'Account' : 'Contact'  %></td> -->
 					<td class="lbl-txt-align"><%=h value['name']  %></td>
 					<td class="lbl-txt-align"><%=h value['project'] %></td>			
 					<td class="lbl-txt-align"><%=h (value['status'] == 'o' ? 'open' : 'closed')  %></td>

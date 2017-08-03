@@ -1,4 +1,4 @@
-<h2><%= l(:label_shipments) %></h2>
+<h2><%= l(:label_shipment) %></h2>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript">     
 	wkproductcatagoryUrl = '<%=url_for(:controller => "wkproductcatagory", :action => "index", :tab => "wkproductcatagory")%>';
@@ -11,3 +11,6 @@
 		//getMembersbyGroup
 </script>
 <%= render_tabs time_expense_tabs %>
+<%= render :partial => 'wkshipment/shipment_index'%>
+
+<%= hidden_field_tag 'back_url', url_for(params) %>
