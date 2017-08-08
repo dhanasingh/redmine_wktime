@@ -8,14 +8,17 @@
 	<td class="lbl-txt-align" headers="product_id">
 		<%=h select_tag("product_id#{row_index.to_s}", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', nil, false), :disabled => false, :style => "width: 100%;") %>
 	</td>
-	<td class="lbl-txt-align" headers="brand_id">
-		<%=h select_tag("brand_id#{row_index.to_s}", generic_options_for_select(WkBrand, nil, 'name', 'name', 'id', nil, false), :disabled => false, :style => "width: 100%;") %>
+	<td class="lbl-txt-align" headers="product_item_id">
+		<%=h select_tag("product_item_id#{row_index.to_s}", generic_options_for_select(WkProductItem, nil, 'product_id, brand_id, product_attribute_id, product_model_id', 'id', 'id', nil, true), :disabled => false, :style => "width: 100%;") %>
+	</td>
+	<!-- <td class="lbl-txt-align" headers="brand_id">
+		<%#=h select_tag("brand_id#{row_index.to_s}", generic_options_for_select(WkBrand, nil, 'name', 'name', 'id', nil, false), :disabled => false, :style => "width: 100%;") %>
 	</td>
 	<td class="lbl-txt-align" headers="attribute_id">
-		<%=h select_tag("attribute_id#{row_index.to_s}", generic_options_for_select(WkProductAttribute, nil, 'name', 'name', 'id', nil, true), :disabled => false, :style => "width: 100%;") %>
+		<%#=h select_tag("attribute_id#{row_index.to_s}", generic_options_for_select(WkProductAttribute, nil, 'name', 'name', 'id', nil, true), :disabled => false, :style => "width: 100%;") %>
 	</td>
 	<td class="lbl-txt-align" headers="model_id">
-		<%=h select_tag("model_id#{row_index.to_s}", generic_options_for_select(WkProductModel, nil, 'name', 'name', 'id', nil, true), :disabled => false, :style => "width: 100%;") %>
+		<%#=h select_tag("model_id#{row_index.to_s}", generic_options_for_select(WkProductModel, nil, 'name', 'name', 'id', nil, true), :disabled => false, :style => "width: 100%;") %> -->
 	</td>
 	<td class="lbl-txt-align" headers="serial_number">
 		<%= text_field_tag "serial_number#{row_index}",  entry.serial_number, :required => false, :disabled => false, :width => "100%" %>

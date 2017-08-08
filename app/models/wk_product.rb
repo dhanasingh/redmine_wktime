@@ -19,6 +19,7 @@ class WkProduct < ActiveRecord::Base
   unloadable
   belongs_to :category, :class_name => 'WkProductCategory'
   has_many :product_items, foreign_key: "product_id", class_name: "WkProductItem"
+  has_many :inventory_items, through: :product_items
   has_many :product_brands, foreign_key: "product_id", class_name: "WkBrandProduct"
   has_many :brands, through: :product_brands
   

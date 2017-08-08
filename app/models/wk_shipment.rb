@@ -19,9 +19,10 @@ class WkShipment < ActiveRecord::Base
   unloadable
   #belongs_to :account, :class_name => 'WkAccount'
   belongs_to :parent, :polymorphic => true
-  has_many :shipment_items, foreign_key: "shipment_id", class_name: "WkProductItem"
+  has_many :inventory_items, foreign_key: "shipment_id", class_name: "WkInventoryItem"
+  has_many :product_items, through: :inventory_items
   belongs_to :supplier_invoice, foreign_key: "supplier_invoice_id", class_name: "WkInvoice"
-  belongs_to :purchase_order, foreign_key: "purchase_order_id", class_name: "WkInvoice"
+  #belongs_to :purchase_order, foreign_key: "purchase_order_id", class_name: "WkInvoice"
   belongs_to :product, foreign_key: "product_id", class_name: "WkProduct"
   
 end

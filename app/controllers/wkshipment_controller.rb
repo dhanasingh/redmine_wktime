@@ -7,7 +7,7 @@ include WkcrmHelper
 
 
 	def index
-	set_filter_session
+		set_filter_session
 	end
 
 	def new
@@ -58,6 +58,7 @@ include WkcrmHelper
 	def newShipment(parentId, parentType)
 		@shipment = WkShipment.new(:parent_id => parentId, :parent_type => parentType)
 		@shipmentItem = nil
+		@inventoryItem = nil
 		if !params[:populate_items].blank? && params[:populate_items] == '1' && !params[:si_id].blank?
 			@shipmentItem = Array.new
 			ids = params[:si_id] #params[:po_id].blank? ? params[:si_id] : params[:po_id]
@@ -66,30 +67,31 @@ include WkcrmHelper
 			itemCount = @populateItems.sum('quantity')
 			overHeadPrice = otherCharges.to_f/itemCount.to_f
 			@populateItems.each do|item|
-				shipItem = @shipment.shipment_items.new
-				shipItem.notes = item.name
-				shipItem.total_quantity = item.quantity
-				shipItem.available_quantity = item.quantity
-				shipItem.org_currency = item.currency
-				shipItem.org_cost_price = item.rate
-				shipItem.org_over_head_price = overHeadPrice
-				shipItem.org_selling_price = shipItem.org_cost_price + shipItem.org_over_head_price
-				shipItem.currency = item.currency
-				shipItem.cost_price = item.rate
-				shipItem.over_head_price = overHeadPrice
-				shipItem.selling_price = shipItem.cost_price + shipItem.over_head_price
-				shipItem.total_quantity = item.quantity
-				shipItem.status = 'o'
+				#shipItem = @shipment.shipment_items.new
+				inventory = @shipment.inventory_items.new
+				inventory.notes = item.name
+				inventory.total_quantity = item.quantity
+				inventory.available_quantity = item.quantity
+				inventory.org_currency = item.currency
+				inventory.org_cost_price = item.rate
+				inventory.org_over_head_price = overHeadPrice
+				inventory.org_selling_price = inventory.org_cost_price + inventory.org_over_head_price
+				inventory.currency = item.currency
+				inventory.cost_price = item.rate
+				inventory.over_head_price = overHeadPrice
+				inventory.selling_price = inventory.cost_price + inventory.over_head_price
+				inventory.total_quantity = item.quantity
+				inventory.status = 'o'
 				#if params[:po_id].blank?
-					shipItem.supplier_invoice_id = item.invoice_id
+					inventory.supplier_invoice_id = item.invoice_id
 				#else
 					#shipItem.purchase_order_id = item.invoice_id
 				#end
-				@shipmentItem << shipItem
+				@shipmentItem << inventory
 			end
 		else
 			@shipmentItem = Array.new
-			@shipmentItem << @shipment.shipment_items.new
+			@shipmentItem << @shipment.inventory_items.new
 		end
 		
 	end
@@ -97,7 +99,7 @@ include WkcrmHelper
 	def editShipment			
 		unless params[:shipment_id].blank?
 			@shipment = WkShipment.find(params[:shipment_id].to_i)
-			@shipmentItem = @shipment.shipment_items 
+			@shipmentItem = @shipment.inventory_items 
 			#@invPaymentItems = @shipment.payment_items.current_items				
 			#pjtList = @invoiceItem.select(:project_id).distinct
 			# pjtList.each do |entry| 
@@ -112,7 +114,7 @@ include WkcrmHelper
 		arrId = nil
 		unless params["shipment_id"].blank?
 			@shipment = WkShipment.find(params["shipment_id"].to_i)
-			arrId = @shipment.shipment_items.pluck(:id)
+			arrId = @shipment.inventory_items.pluck(:id)
 		else
 			@shipment = WkShipment.new
 			@shipment.shipment_type = 'I'
@@ -137,14 +139,15 @@ include WkcrmHelper
 			end
 			unless params["item_id#{i}"].blank?			
 				arrId.delete(params["item_id#{i}"].to_i)
-				shipmentItem = WkShipmentItem.find(params["item_id#{i}"].to_i)
+				shipmentItem = WkInventoryItem.find(params["item_id#{i}"].to_i)
 			else				
-				shipmentItem = @shipment.shipment_items.new
+				shipmentItem = @shipment.inventory_items.new
 			end
-			shipmentItem.product_id = params["product_id#{i}"].to_i
-			shipmentItem.brand_id = params["brand_id#{i}"].to_i
-			shipmentItem.product_attribute_id = params["attribute_id#{i}"].to_i unless params["attribute_id#{i}"].blank?
-			shipmentItem.product_model_id = params["model_id#{i}"].to_i unless params["model_id#{i}"].blank?
+			shipmentItem.product_item_id = params["product_item_id#{i}"].to_i
+			# shipmentItem.product_id = params["product_id#{i}"].to_i
+			# shipmentItem.brand_id = params["brand_id#{i}"].to_i
+			# shipmentItem.product_attribute_id = params["attribute_id#{i}"].to_i unless params["attribute_id#{i}"].blank?
+			# shipmentItem.product_model_id = params["model_id#{i}"].to_i unless params["model_id#{i}"].blank?
 			shipmentItem.serial_number = params["serial_number#{i}"]
 			shipmentItem.notes = params["notes#{i}"]
 			shipmentItem.currency = params["currency#{i}"]
@@ -165,7 +168,7 @@ include WkcrmHelper
 		end
 		
 		if !arrId.blank?
-			WkShipmentItem.delete_all(:id => arrId)
+			WkInventoryItem.delete_all(:id => arrId)
 		end
 		
 		if errorMsg.nil? 
