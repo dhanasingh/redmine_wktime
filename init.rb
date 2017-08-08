@@ -185,12 +185,12 @@ module TimelogControllerPatch
 					materialEntries.uom_id = 1
 					begin			
 						#@@productItemMutex.synchronize do
-						WkProductItem.transaction do
-							productItemObj = WkProductItem.find(params[:item_id].to_i)
-							productItemObj.lock!
-							if productItemObj.available_quantity >= params[:product_quantity].to_i 
-								productItemObj.available_quantity = productItemObj.available_quantity - params[:product_quantity].to_i
-								materialEntries.product_item_id = productItemObj.id
+						WkInventoryItem.transaction do
+							inventoryItemObj = WkInventoryItem.find(params[:inventory_item_id].to_i)
+							inventoryItemObj.lock!
+							if inventoryItemObj.available_quantity >= params[:product_quantity].to_i 
+								inventoryItemObj.available_quantity = inventoryItemObj.available_quantity - params[:product_quantity].to_i
+								materialEntries.product_item_id = inventoryItemObj.id
 								unless materialEntries.valid?	
 									errorMsg = materialEntries.errors.full_messages.join("<br>")
 									respond_to do |format|
@@ -200,7 +200,7 @@ module TimelogControllerPatch
 										}
 									end
 								else
-									productItemObj.save!
+									inventoryItemObj.save!
 									materialEntries.save
 									sleep 15
 									respond_to do |format|

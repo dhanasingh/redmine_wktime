@@ -11,7 +11,7 @@ include WktimeHelper
 		if categoryId.blank?
 			pctCatArr = model.all.order(:name).pluck(:name, :id)
 		else
-			pctCatArr = model.where(:category_id => categoryId).order(:name).pluck(:name, :id)
+			pctCatArr = model.all.order(:name).pluck(:name, :id) #where(:category_id => categoryId).order(:name).pluck(:name, :id)
 		end		
 		pctCatArr.unshift(["",'']) if needBlank
 		pctCatArr

@@ -464,7 +464,7 @@ function productChanged(curDDId, changeDDId, uid)
 	data: {id: currDD.value, ptype: changeDDId, product_id: curDDId.value},
 	success: function(data){ updateUserDD(data, changeDD, userid, needBlankOption, false, "");},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
-	complete: function(){ productBrandChanged(changeDDId, 'product_item', uid); $this.removeClass('ajax-loading'); }	      
+	complete: function(){ productItemChanged('product_item', 'product_quantity', 'product_cost_price', 'product_sell_price'); $this.removeClass('ajax-loading'); }	      
 	});
 }
 
@@ -495,7 +495,7 @@ function productItemChanged(curDDId, qtyDD, cpDD, spDD)
 	$.ajax({
 	url: productModifyUrl,
 	type: 'get',
-	data: {id: currDD.value, ptype: 'product_attribute', product_id: productDD.value },
+	data: {id: currDD.value, ptype: 'inventory_item', product_id: productDD.value },
 	success: function(data){ setProductLogAttribute(data, qtyDD, cpDD, spDD);},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
 	complete: function(){ $this.removeClass('ajax-loading'); }	      
@@ -517,8 +517,8 @@ function setProductLogAttribute(data, qtyDD, cpDD, spDD)
 		
 		document.getElementById('spcurrency').innerHTML = pctData[3];
 		document.getElementById(spDD).value = parseFloat(pctData[4]).toFixed(2);
-		document.getElementById('item_id').value = pctData[0];
-		document.getElementById('total').innerHTML = pctData[3] + (parseFloat(pctData[4] * pctData[1]).toFixed(2));
+		document.getElementById('inventory_item_id').value = pctData[0];
+		document.getElementById('total').innerHTML = pctData[3] + (parseFloat(pctData[4] * 1).toFixed(2));
 	}
 	else
 	{
@@ -528,7 +528,7 @@ function setProductLogAttribute(data, qtyDD, cpDD, spDD)
 			document.getElementById(cpDD).value = "";
 		}	
 		document.getElementById(spDD).value = "";
-		document.getElementById('item_id').value = "";
+		document.getElementById('inventory_item_id').value = "";
 		document.getElementById('total').innerHTML = "";
 	}
 	
