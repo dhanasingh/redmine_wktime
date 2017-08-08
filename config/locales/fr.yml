@@ -684,3 +684,5 @@ fr:
   label_attribute_group: Attribute Group
   label_product_catagory: Product Catagory
   label_product_items: Product Items
+  label_category: Category
+  label_populate_items: Populate Items
