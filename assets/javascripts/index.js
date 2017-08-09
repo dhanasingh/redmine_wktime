@@ -193,6 +193,7 @@ function projChanged(projDropdown, userid, needBlankOption){
 
 function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, blankText)
 {
+	alert(itemStr);
 	var items = itemStr.split('\n');
 	var i, index, val, text, start;
 	dropdown.options.length = 0;
@@ -451,9 +452,9 @@ function productCategoryChanged(curDDId, changeDDId, uid)
 	});
 }
 
-function productChanged(curDDId, changeDDId, uid)
+function productChanged(curDD, changeDDId, uid, changeAdditionalDD)
 {
-	var currDD = document.getElementById(curDDId);
+	//var currDD = document.getElementById(curDDId);
 	var needBlankOption = false;
 	var changeDD = document.getElementById(changeDDId);
 	userid = uid;
@@ -461,10 +462,10 @@ function productChanged(curDDId, changeDDId, uid)
 	$.ajax({
 	url: productModifyUrl,
 	type: 'get',
-	data: {id: currDD.value, ptype: changeDDId, product_id: curDDId.value},
+	data: {id: curDD.value, ptype: changeDDId, product_id: curDD.value},
 	success: function(data){ updateUserDD(data, changeDD, userid, needBlankOption, false, "");},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
-	complete: function(){ productItemChanged('product_item', 'product_quantity', 'product_cost_price', 'product_sell_price'); $this.removeClass('ajax-loading'); }	      
+	complete: function(){ if(changeAdditionalDD) {productItemChanged('product_item', 'product_quantity', 'product_cost_price', 'product_sell_price');} $this.removeClass('ajax-loading'); }	      
 	});
 }
 

@@ -659,7 +659,7 @@ end
 			   ]
 		else
 			tabs = [
-				{:name => 'wkproductcatagory', :partial => 'wktime/tab_content', :label => :label_catagory},
+				{:name => 'wkproductcatagory', :partial => 'wktime/tab_content', :label => :label_category},
 				{:name => 'wkproduct', :partial => 'wktime/tab_content', :label => :label_product},
 				{:name => 'wkproductitem', :partial => 'wktime/tab_content', :label => :label_item},
 				{:name => 'wkshipment', :partial => 'wktime/tab_content', :label => :label_shipment},
@@ -1295,6 +1295,5 @@ end
 		ddArray.unshift(["",""]) if needBlank
 		options_for_select(ddArray, :selected => selectedVal)
 	end
-	
 	
 end

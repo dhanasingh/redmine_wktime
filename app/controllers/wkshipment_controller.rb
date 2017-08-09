@@ -3,7 +3,7 @@ class WkshipmentController < ApplicationController
 before_filter :require_login
 
 include WkcrmHelper
-
+include WkshipmentHelper
 
 
 	def index
@@ -219,5 +219,16 @@ include WkcrmHelper
 	def textfield_size
 		6
 	end
-  
+	
+	def populateProductItemDD
+		itemArr = ""	
+		sqlCond = " product_id = #{params[:product_id].to_i}"
+		productItemArr = getProductItemArr(sqlCond, false)
+		productItemArr.each do |item|
+			itemArr << item[1].to_s() + ',' +  item[0] + "\n"
+		end
+		respond_to do |format|
+			format.text  { render :text => itemArr }
+		end
+	end
 end

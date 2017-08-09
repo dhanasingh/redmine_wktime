@@ -1,5 +1,6 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'invoice', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <% hash_status = { 'o'  => l(:label_open_issues), 'c' =>  l(:label_closed_issues) } %>
 <%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
 	<% unless @shipment.blank? %>

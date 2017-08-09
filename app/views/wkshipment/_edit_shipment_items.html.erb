@@ -4,7 +4,10 @@
 <% total = 0 %>
 <%	
 	
-%>	
+%>
+<script type="text/javascript"> 
+	productModifyUrl="<%= "#{url_for(:controller => "wkshipment", :action => 'populateProductItemDD')}" %>";
+</script>	
 <div class="wk-contextual">
 <h2 style="float:left;"><%= l(:label_item) %></h2>
 <%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('shipmentTable', 'totalrow');",  :class => 'icon icon-time-add' } %>

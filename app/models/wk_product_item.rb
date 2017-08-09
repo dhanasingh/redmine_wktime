@@ -24,6 +24,7 @@ class WkProductItem < ActiveRecord::Base
   # belongs_to :purchase_order, foreign_key: "purchase_order_id", class_name: "WkInvoice"
   # belongs_to :location, :class_name => 'WkLocation'
   belongs_to :brand, :class_name => 'WkBrand'
+  belongs_to :product_model, :class_name => 'WkProductModel'
   has_many :inventory_items, foreign_key: "product_item_id", class_name: "WkInventoryItem"
   # belongs_to :parent, foreign_key: "parent_id", class_name: "WkProductItem"
   

@@ -418,3 +418,5 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wkunitofmeasurement/index', :to => 'wkunitofmeasurement#index'
 	
 	get 'wklogmaterial/modifyProductDD', :to => 'wklogmaterial#modifyProductDD'
+	
+	get 'wkshipment/populateProductItemDD', :to => 'wkshipment#populateProductItemDD'

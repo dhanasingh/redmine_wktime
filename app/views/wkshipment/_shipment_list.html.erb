@@ -1,0 +1,86 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div class="autoscroll">
+<table class="list time-entries">
+  <thead>
+         <tr>
+				<th class="lbl-txt-align"><%= controller.getLabelInvNum %></th>
+				<!-- <th class="lbl-txt-align"><%# = l(:label_type) %></th> -->
+				<th class="lbl-txt-align"><%= l(:field_name) %></th>
+				<th class="lbl-txt-align"><%= l(:label_project) %></th>
+				<th class="lbl-txt-align"><%= l(:field_status) %></th>		
+				<th class="lbl-txt-align"><%= controller.getDateLbl %></th>
+				<th class="lbl-txt-align"><%= l(:field_start_date) %></th>
+				<th class="lbl-txt-align"><%= l(:label_end_date) %></th>
+				<th class="lbl-txt-align"><%= l(:label_quantity) %></th>				
+				<th class="lbl-txt-align"><%= l(:field_amount) %></th>
+				<th class="lbl-txt-align"><%= l(:field_status_modified_by) %></th>
+				<% if controller.isInvPaymentLink %>
+					<th></th>
+				<% end %>
+				<th></th>
+         </tr>
+  </thead>
+   <tbody>
+    <% if !@previewBilling %>
+		<% @invoiceEntries.each do |entry| %>
+		<% 
+		count = entry.invoice_items.uniq().count(:project_id)
+		projectName = ((count > 1 || entry.invoice_items[0].blank? || entry.invoice_items[0].project.blank?) ? "" : entry.invoice_items[0].project.name) 
+		invoiceAmount = entry.invoice_items.sum(:amount)
+		%>
+		 <tr class="<%= cycle("odd", "even") %>" >
+		    <td class="lbl-txt-align"><%=h entry.invoice_number  %></td>
+			<!-- <td class="lbl-txt-align"><%# =h entry.parent_type == 'WkAccount' ? 'Account' : 'Contact'  %></td> -->
+			<td class="lbl-txt-align"><%=h entry.parent.name  %></td>
+			<td class="lbl-txt-align"><%=h projectName %></td>
+			
+			<td class="lbl-txt-align"><%=h (entry.status == 'o' ? 'open' : 'closed')  %></td>
+			<td class="lbl-txt-align"><%=h entry.invoice_date  %></td>			
+			<td class="lbl-txt-align"><%=h entry.start_date  %></td>
+			<td class="lbl-txt-align"><%=h entry.end_date  %></td>
+			<td class="lbl-txt-align"><%=h html_hours("%.2f" % entry.invoice_items.sum(:quantity))   %></td>
+			<td class="lbl-txt-align"><%= entry.invoice_items[0].currency unless entry.invoice_items[0].blank?%> <%=h html_hours("%.2f" % entry.invoice_items.sum(:amount))  %></td>
+			<td class="lbl-txt-align"><%=h entry.modifier.name  %></td>
+			<% if controller.isInvPaymentLink %>
+				<td class="lbl-txt-align">
+					<% if entry.total_invoice_amount - entry.total_paid_amount > 0 %>
+						<%= link_to l(:label_pay_invoice), url_for(:controller => controller.getPaymentController, :action => 'edit', :load_payment => true, :related_to => entry.parent_type, :related_parent => entry.parent_id, :project_id => 0 ),  :class => 'icon icon-report' %>
+					<% end %>
+				</td>
+			<% end %>
+			<td class="lbl-txt-align">
+				<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :invoice_id => entry.id, :new_invoice => false, :preview_billing => false, :tab => controller.controller_name},
+                                       :title => l(:button_edit) %>
+				<% if isEditableInvoice(entry.id) && controller.deletePermission  %>
+					<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :invoice_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+				<% end %>
+			</td>
+		 </tr>
+	   <% end %>
+	<% else %>
+		<% list = @invList.first(@limit*@entry_pages.page).last(@limit)  %>
+		<% list.each do |key, value| %>	
+			<% unless value.empty?  %>
+				<tr class="<%= cycle("odd", "even") %>">
+					<td class="lbl-txt-align"><%=h l(:label_unbilled)  %></td>
+					<td class="lbl-txt-align"><%=h value['parent_type'] == 'WkAccount' ? 'Account' : 'Contact'  %></td>
+					<td class="lbl-txt-align"><%=h value['name']  %></td>
+					<td class="lbl-txt-align"><%=h value['project'] %></td>			
+					<td class="lbl-txt-align"><%=h (value['status'] == 'o' ? 'open' : 'closed')  %></td>
+					<td class="lbl-txt-align"><%=h Date.today  %></td>			
+					<td class="lbl-txt-align"><%=h value['start_date']  %></td>
+					<td class="lbl-txt-align"><%=h value['end_date']  %></td>
+					<td class="lbl-txt-align"><%=h value['quantity']  %></td>
+					<td class="lbl-txt-align"><%= @currency %> <%=h html_hours("%.2f" % value['amount'] ) unless value['amount'].blank?  %></td>
+					<td class="lbl-txt-align"><%=h User.current.name  %></td>
+					<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :new_invoice => true, :related_to =>  value['parent_type'], :related_parent => value['parent_id'], :project_id => (value['isAccountBilling'] ? 0 : value['project_id']), :start_date => value['start_date'], :end_date => value['end_date'], :populate_items =>1, :preview_billing => true,   :tab => controller.controller_name},
+										   :title => l(:button_edit) %>
+					</td>
+				</tr>
+			<% end %>
+		<% end %>	
+	<% end %>	
+   </tbody>
+</table>
+</div>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
