@@ -6,7 +6,7 @@
 		<label id="item_index<%= row_index.to_s %>"><%= row_index  %></label>
 	</td>
 	<td class="lbl-txt-align" headers="product_id">
-		<%=h select_tag("product_id#{row_index.to_s}", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', nil, false), :onchange => "productChanged(this, 'product_item_id#{row_index.to_s}', #{User.current.id}, false);", :disabled => false, :style => "width: 100%;") %>
+		<%=h select_tag("product_id#{row_index.to_s}", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', nil, false), :onchange => "productChanged(this.id, 'product_item_id#{row_index.to_s}', #{User.current.id}, false, false);", :disabled => false, :style => "width: 100%;") %>
 	</td>
 	<td class="lbl-txt-align" headers="product_item_id">
 		<%=h select_tag("product_item_id#{row_index.to_s}", product_item_select(nil, false, nil), :disabled => false, :style => "width: 100%;") %>

@@ -420,3 +420,13 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wklogmaterial/modifyProductDD', :to => 'wklogmaterial#modifyProductDD'
 	
 	get 'wkshipment/populateProductItemDD', :to => 'wkshipment#populateProductItemDD'
+	
+	get 'wkproductitem/index', :to => 'wkproductitem#index'
+	
+	post 'wkproductitem/index', :to => 'wkproductitem#index'
+    
+	get 'wkproductitem/edit', :to => 'wkproductitem#edit'
+	
+	post 'wkproductitem/update', :to => 'wkproductitem#update'	
+	
+	delete 'wkproductitem/destroy', :to => 'wkproductitem#destroy'

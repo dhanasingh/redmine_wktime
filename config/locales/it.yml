@@ -683,3 +683,7 @@ it:
   label_product_items: Product Items
   label_category: Category
   label_populate_items: Populate Items
+  label_new_product_item: New Product Item
+  label_edit_product_item: Edit Product Item
+  label_product_item_information: Product Item Information
+  label_part_number: Part Number

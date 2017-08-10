@@ -22,5 +22,8 @@ class WkProduct < ActiveRecord::Base
   has_many :inventory_items, through: :product_items
   has_many :product_brands, foreign_key: "product_id", class_name: "WkBrandProduct"
   has_many :brands, through: :product_brands
-  
+  belongs_to :category, :class_name => 'WkProductCategory'
+  belongs_to :attribute_group, :class_name => 'WkAttributeGroup'
+  has_many :product_attributes, through: :attribute_group
+  has_many :product_models, foreign_key: "product_id", class_name: "WkProductModel"
 end

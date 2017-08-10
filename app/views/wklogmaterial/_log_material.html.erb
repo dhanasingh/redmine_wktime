@@ -34,7 +34,7 @@
 	<tr>	
 		<th align="right" ><%= l(:label_product) %><span style="color:red;">*</span></th>
 		<td align="left">
-			<%=h select_tag('product', options_for_select(productArr), :style => "width:155px;", :onchange => "productChanged(this, 'product_item', #{User.current.id}), true") %>
+			<%=h select_tag('product', options_for_select(productArr), :style => "width:155px;", :onchange => "productChanged(this.id, 'product_item', #{User.current.id}), true, false") %>
 		</td>
 		
 		<th align="right"><%= l(:label_available_quantity) %></th>

@@ -15,8 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkProductAttribute < ActiveRecord::Base
+class WkAttributeGroup < ActiveRecord::Base
   unloadable
-  has_many :group_attributes, foreign_key: "attribute_id", class_name: "WkGroupAttribute"
-  has_many :attribute_groups, through: :group_attributes
+  has_many :group_attributes, foreign_key: "group_id", class_name: "WkGroupAttribute"
+  has_many :product_attributes, through: :group_attributes
 end
