@@ -42,56 +42,7 @@
 			    </table>
 			</fieldset>
 		</div>
-		<div class="splitcontentright">
-			<fieldset class="box tabular">
-				<legend><%=l(:label_inventory)%></legend>
-				<table>  
-					<tr>
-						<th align="left"><%= l(:label_serial_number) %></th>
-						<td align="left" style="padding-left:40px;"><%= text_field_tag "serial_number",  @inventoryItem.blank? ? '' : @inventoryItem.serial_number %></td>
-					</tr>
-					<tr>
-						<th align="left"><%= l(:field_currency) %></th>
-						<td align="left" style="padding-left:40px;">
-							<% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
-							<%=h select_tag("currency",options_for_select(wkexpense_helper.options_for_currency, :selected => @inventoryItem.currency), :style => "width: 100%;") %>
-						</td>
-					</tr> 
-					<tr>
-						<th align="left"><%= l(:label_cost_price) %></th>
-						<td align="left" style="padding-left:40px;"><%= text_field_tag "cost_price",  @inventoryItem.blank? ? '' : @inventoryItem.cost_price %></td>
-					</tr>  
-					<tr>
-						<th align="left"><%= l(:label_over_head_price) %></th>
-						<td align="left" style="padding-left:40px;"><%= text_field_tag "over_head_price",  @inventoryItem.blank? ? '' : @inventoryItem.over_head_price %></td>
-					</tr> 
-					<tr>
-						<th align="left"><%= l(:label_selling_price) %></th>
-						<td align="left" style="padding-left:40px;"><%= text_field_tag "selling_price",  @inventoryItem.blank? ? '' : @inventoryItem.selling_price %></td>
-					</tr> 
-					<tr>
-						<th align="left"><%= l(:label_quantity) %></th>
-						<td align="left" style="padding-left:40px;"><%= text_field_tag "available_quantity", ("%.2f" % @inventoryItem.available_quantity unless @inventoryItem.blank?), :maxlength => 14 %></td>
-					</tr> 
-					<tr>
-						<th align="left"><%= l(:label_uom) %></th>
-						<td align="left" style="padding-left:40px;">
-							<%=h select_tag("uom_id", generic_options_for_select(WkMesureUnit, nil, 'short_desc', 'short_desc', 'id', @inventoryItem.blank? ? '' : @inventoryItem.uom_id, false), :disabled => false) %>
-						</td>
-					</tr> 
-					<tr>
-						<th align="left"><%= l(:label_location) %></th>
-						<td align="left" style="padding-left:40px;">
-							<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', @inventoryItem.blank? ? '' : @inventoryItem.location_id, false), :disabled => false, :style => "width: 100%;") %>
-						</td>
-					</tr> 
-					<tr>
-						<th align="left"><%= l(:field_notes) %></th>
-						<td align="left" style="padding-left:40px;"><%= text_area_tag "notes",  @inventoryItem.blank? ? '' : @inventoryItem.notes %></td>
-					</tr>  		
-			    </table>
-			</fieldset>
-		</div>
+		<%= render :partial => 'wkproductitem/edit_inventory', locals: {invntItem: @inventoryItem, isTransfer: false}%>
 	</div>
 	<div style="clear:left;"></div>
 		<div>

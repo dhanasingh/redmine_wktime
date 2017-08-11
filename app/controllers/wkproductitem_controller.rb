@@ -15,6 +15,17 @@ class WkproductitemController < ApplicationController
 		   @inventoryItem = WkInventoryItem.find(params[:inventory_item_id])
 		end 
 	end	
+	
+	def transfer
+	    # @productItem = nil
+		# @inventoryItem = nil
+	    # unless params[:product_item_id].blank?
+		   # @productItem = WkProductItem.find(params[:product_item_id])
+		# end 
+		unless params[:inventory_item_id].blank?
+		   @transferItem = WkInventoryItem.find(params[:inventory_item_id])
+		end 
+	end	
     
 	def update
 		existingItem = WkProductItem.where(:product_id => params[:product_id], :brand_id => params[:brand_id], :product_model_id => params[:product_model_id], :product_attribute_id => params[:product_attribute_id])	

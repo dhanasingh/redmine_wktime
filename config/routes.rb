@@ -430,3 +430,7 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	post 'wkproductitem/update', :to => 'wkproductitem#update'	
 	
 	delete 'wkproductitem/destroy', :to => 'wkproductitem#destroy'
+    
+	get 'wkproductitem/transfer', :to => 'wkproductitem#transfer'
+	
+	post 'wkproductitem/updateTransfer', :to => 'wkproductitem#updateTransfer'	
