@@ -23,5 +23,6 @@ class WkInventoryItem < ActiveRecord::Base
   belongs_to :purchase_order, foreign_key: "purchase_order_id", class_name: "WkInvoice"
   belongs_to :location, :class_name => 'WkLocation'
   belongs_to :parent, foreign_key: "parent_id", class_name: "WkInventoryItem"
+  belongs_to :uom, class_name: "WkMesureUnit"
   
 end

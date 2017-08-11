@@ -6,38 +6,89 @@
 	<h2><b><%=@productItem.blank? ? l(:label_new_product_item) : l(:label_edit_product_item) %></b></h2>
 	<div id="product_item_form">
            <%=h hidden_field_tag('product_item_id', @productItem.blank? ? "" :@productItem.id) %>
+		   <%=h hidden_field_tag('inventory_item_id', @inventoryItem.blank? ? "" :@inventoryItem.id) %>
 		<div class="splitcontentleft">
 			<fieldset class="box tabular">
-				<legend><%=l(:label_product_item_information)%></legend>
+				<legend><%=l(:label_product_item)%></legend>
 				<table>
 					<tr>
 						<th align="left"><%= l(:label_product) %></th>
 						<td align="left" style="padding-left:40px;">
-							<%=h select_tag("product_id", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', nil, false), :onchange => "productChanged(this.id, 'brand_id', #{User.current.id}, true, false);") %>
+							<%=h select_tag("product_id", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_id, false), :onchange => "productChanged(this.id, 'brand_id', #{User.current.id}, true, false);") %>
 						</td>
 					</tr> 
 					<tr>
 						<th align="left"><%= l(:label_brand) %></th>
 						<td align="left" style="padding-left:40px;">
-							<%=h select_tag("brand_id", generic_options_for_select(WkBrand, nil, 'name', 'name', 'id', nil, false), :onChange => "productChanged(this.id,'product_model_id', #{User.current.id}, false, true);") %>
+							<%=h select_tag("brand_id", generic_options_for_select(WkBrand, nil, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.brand_id, false), :onChange => "productChanged(this.id,'product_model_id', #{User.current.id}, false, true);") %>
 						</td>
 					</tr> 
 					<tr>
 						<th align="left"><%= l(:label_model) %></th>
 						<td align="left" style="padding-left:40px;">
-							<%=h select_tag("product_model_id", generic_options_for_select(WkProductModel, nil, 'name', 'name', 'id', nil, false)) %>
+							<%=h select_tag("product_model_id", generic_options_for_select(WkProductModel, nil, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_model_id, false)) %>
 						</td>
 					</tr> 
 					<tr>
 						<th align="left"><%= l(:label_attribute) %></th>
 						<td align="left" style="padding-left:40px;">
-							<%=h select_tag("product_attribute_id", generic_options_for_select(WkProductAttribute, nil, 'name', 'name', 'id', nil, false)) %>
+							<%=h select_tag("product_attribute_id", generic_options_for_select(WkProductAttribute, nil, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_attribute_id, false)) %>
 						</td>
 					</tr> 
 					<tr>
 						<th align="left"><%= l(:label_part_number) %></th>
 						<td align="left" style="padding-left:40px;"><%= text_field_tag "part_number",  @productItem.blank? ? '' : @productItem.part_number %></td>
 					</tr>
+			    </table>
+			</fieldset>
+		</div>
+		<div class="splitcontentright">
+			<fieldset class="box tabular">
+				<legend><%=l(:label_inventory)%></legend>
+				<table>  
+					<tr>
+						<th align="left"><%= l(:label_serial_number) %></th>
+						<td align="left" style="padding-left:40px;"><%= text_field_tag "serial_number",  @inventoryItem.blank? ? '' : @inventoryItem.serial_number %></td>
+					</tr>
+					<tr>
+						<th align="left"><%= l(:field_currency) %></th>
+						<td align="left" style="padding-left:40px;">
+							<% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
+							<%=h select_tag("currency",options_for_select(wkexpense_helper.options_for_currency, :selected => @inventoryItem.currency), :style => "width: 100%;") %>
+						</td>
+					</tr> 
+					<tr>
+						<th align="left"><%= l(:label_cost_price) %></th>
+						<td align="left" style="padding-left:40px;"><%= text_field_tag "cost_price",  @inventoryItem.blank? ? '' : @inventoryItem.cost_price %></td>
+					</tr>  
+					<tr>
+						<th align="left"><%= l(:label_over_head_price) %></th>
+						<td align="left" style="padding-left:40px;"><%= text_field_tag "over_head_price",  @inventoryItem.blank? ? '' : @inventoryItem.over_head_price %></td>
+					</tr> 
+					<tr>
+						<th align="left"><%= l(:label_selling_price) %></th>
+						<td align="left" style="padding-left:40px;"><%= text_field_tag "selling_price",  @inventoryItem.blank? ? '' : @inventoryItem.selling_price %></td>
+					</tr> 
+					<tr>
+						<th align="left"><%= l(:label_quantity) %></th>
+						<td align="left" style="padding-left:40px;"><%= text_field_tag "available_quantity", ("%.2f" % @inventoryItem.available_quantity unless @inventoryItem.blank?), :maxlength => 14 %></td>
+					</tr> 
+					<tr>
+						<th align="left"><%= l(:label_uom) %></th>
+						<td align="left" style="padding-left:40px;">
+							<%=h select_tag("uom_id", generic_options_for_select(WkMesureUnit, nil, 'short_desc', 'short_desc', 'id', @inventoryItem.blank? ? '' : @inventoryItem.uom_id, false), :disabled => false) %>
+						</td>
+					</tr> 
+					<tr>
+						<th align="left"><%= l(:label_location) %></th>
+						<td align="left" style="padding-left:40px;">
+							<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', @inventoryItem.blank? ? '' : @inventoryItem.location_id, false), :disabled => false, :style => "width: 100%;") %>
+						</td>
+					</tr> 
+					<tr>
+						<th align="left"><%= l(:field_notes) %></th>
+						<td align="left" style="padding-left:40px;"><%= text_area_tag "notes",  @inventoryItem.blank? ? '' : @inventoryItem.notes %></td>
+					</tr>  		
 			    </table>
 			</fieldset>
 		</div>

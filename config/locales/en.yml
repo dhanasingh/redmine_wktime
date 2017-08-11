@@ -660,7 +660,7 @@ en:
   label_product: Product
   label_shipment: Shipment
   label_category: Category
-  label_uom: Unit Of Measurement
+  label_uom: Unit Of Measure
   label_item: Item
   label_new_shipment: New Shipment
   label_shipment_items: Shipment Items
@@ -687,5 +687,6 @@ en:
   label_populate_items: Populate Items
   label_new_product_item: New Product Item
   label_edit_product_item: Edit Product Item
-  label_product_item_information: Product Item Information
+  label_product_item: Product Item
   label_part_number: Part Number
+  label_inventory_information: Inventory Information
