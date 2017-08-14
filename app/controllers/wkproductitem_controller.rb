@@ -17,16 +17,11 @@ class WkproductitemController < ApplicationController
 	end	
 	
 	def transfer
-	    # @productItem = nil
-		# @inventoryItem = nil
-	    # unless params[:product_item_id].blank?
-		   # @productItem = WkProductItem.find(params[:product_item_id])
-		# end 
 		unless params[:inventory_item_id].blank?
 		   @transferItem = WkInventoryItem.find(params[:inventory_item_id])
 		end 
 	end	
-    
+	
 	def update
 		existingItem = WkProductItem.where(:product_id => params[:product_id], :brand_id => params[:brand_id], :product_model_id => params[:product_model_id], :product_attribute_id => params[:product_attribute_id])	
 		if params[:product_item_id].blank?
@@ -35,7 +30,6 @@ class WkproductitemController < ApplicationController
 		else
 			productItem = existingItem[0]
 			productItem = WkProductItem.new if existingItem[0].blank?
-			#productItem = WkProductItem.find(params[:product_item_id])
 		end
 		productItem.part_number = params[:part_number]
 		productItem.product_id = params[:product_id]
@@ -43,7 +37,7 @@ class WkproductitemController < ApplicationController
 		productItem.product_model_id = params[:product_model_id]
 		productItem.product_attribute_id = params[:product_attribute_id]
 		if productItem.save()
-			updateInventoryItem(productItem.id)
+			updatedInventory = updateInventoryItem(productItem.id) unless params[:available_quantity].blank?
 		    redirect_to :controller => 'wkproductitem',:action => 'index' , :tab => 'wkproductitem'
 		    flash[:notice] = l(:notice_successful_update)
 		else
@@ -51,12 +45,29 @@ class WkproductitemController < ApplicationController
 		    flash[:error] = rfq.errors.full_messages.join("<br>")
 		end
     end
+    
+	def updateTransfer
+		targetItem = updateInventoryItem(params[:product_item_id].to_i)
+		sourceItem = WkInventoryItem.find(params[:transfer_item_id].to_i)
+		sourceItem.available_quantity = sourceItem.available_quantity - targetItem.total_quantity
+		if sourceItem.save()
+		    redirect_to :controller => 'wkproductitem',:action => 'index' , :tab => 'wkproductitem'
+		    flash[:notice] = l(:notice_successful_update)
+		else
+		    redirect_to :controller => 'wkproductitem',:action => 'index' , :tab => 'wkproductitem'
+		    flash[:error] = rfq.errors.full_messages.join("<br>")
+		end
+	end
 	
 	def updateInventoryItem(productItemId)
 		if params[:inventory_item_id].blank?
 			inventoryItem = WkInventoryItem.new
 		else
 			inventoryItem = WkInventoryItem.find(params[:inventory_item_id].to_i)
+		end
+		
+		unless params[:transfer_item_id].blank?
+			inventoryItem.parent_id = params[:transfer_item_id].to_i
 		end
 		inventoryItem.product_item_id = productItemId
 		inventoryItem.serial_number = params[:serial_number]
@@ -70,11 +81,13 @@ class WkproductitemController < ApplicationController
 		inventoryItem.org_over_head_price = params[:org_over_head_price]
 		inventoryItem.org_selling_price = params[:org_selling_price]
 		inventoryItem.total_quantity = params[:total_quantity]
+		inventoryItem.total_quantity = params[:available_quantity] if params[:total_quantity].blank?
 		inventoryItem.available_quantity = params[:available_quantity]
 		inventoryItem.status = inventoryItem.available_quantity == 0 ? 'c' : 'o'
 		inventoryItem.uom_id = params[:uom_id].to_i
 		inventoryItem.location_id = params[:location_id].to_i
 		inventoryItem.save()
+		inventoryItem
 	end
 	
 	def destroy

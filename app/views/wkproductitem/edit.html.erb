@@ -44,8 +44,8 @@
 		</div>
 		<%= render :partial => 'wkproductitem/edit_inventory', locals: {invntItem: @inventoryItem, isTransfer: false}%>
 	</div>
-	<div style="clear:left;"></div>
-		<div>
+	<div style="clear:right;"></div>
+		<div  align='center'>
 			<%= submit_tag l(:button_save) ,:id => 'wkproductitem_save'%>
 		</div>
 <% end %>

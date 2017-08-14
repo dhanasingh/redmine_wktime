@@ -1,7 +1,7 @@
 <div class="splitcontentright">
 	<fieldset class="box tabular">
 		<legend><%= isTransfer ? l(:button_transfer) : l(:label_inventory)%></legend>
-		<table>  
+		<table width='100%'>  
 			<tr>
 				<th align="left"><%= l(:label_serial_number) %></th>
 				<td align="left" style="padding-left:40px;"><%= text_field_tag "serial_number",  invntItem.blank? ? '' : invntItem.serial_number %></td>
@@ -10,7 +10,7 @@
 				<th align="left"><%= l(:field_currency) %></th>
 				<td align="left" style="padding-left:40px;">
 					<% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
-					<%=h select_tag("currency",options_for_select(wkexpense_helper.options_for_currency, :selected => invntItem.currency), :style => "width: 100%;") %>
+					<%=h select_tag("currency",options_for_select(wkexpense_helper.options_for_currency, :selected => invntItem.blank? ? '' : invntItem.currency)) %>
 				</td>
 			</tr> 
 			<tr>
@@ -33,15 +33,15 @@
 				<th align="left"><%= l(:label_uom) %></th>
 				<td align="left" style="padding-left:40px;">
 					<%=h select_tag("uom_id", generic_options_for_select(WkMesureUnit, nil, 'short_desc', 'short_desc', 'id', invntItem.blank? ? '' : invntItem.uom_id, false), :disabled => false) %>
-					<% unless invntItem.blank? || isTransfer %>
-								<%= link_to l(:button_transfer), url_for(:controller => controller_name, :action => 'transfer', :inventory_item_id => invntItem.id), :class => 'icon icon-bullet-go' %>
-					<% end %>
 				</td>
 			</tr> 
 			<tr>
 				<th align="left"><%= l(:label_location) %></th>
 				<td align="left" style="padding-left:40px;">
-					<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', invntItem.blank? ? '' : invntItem.location_id, false), :disabled => false, :style => "width: 100%;") %>
+					<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', invntItem.blank? ? '' : invntItem.location_id, false), :disabled => false) %>
+					<% unless invntItem.blank? || isTransfer %>
+								<%= link_to l(:button_transfer), url_for(:controller => controller_name, :action => 'transfer', :inventory_item_id => invntItem.id), :class => 'icon icon-bullet-go' %>
+					<% end %>
 				</td>
 			</tr> 
 			<tr>

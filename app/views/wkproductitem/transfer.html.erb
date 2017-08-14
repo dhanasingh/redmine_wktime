@@ -3,7 +3,7 @@
 	<h2><b><%=l(:button_transfer) %></b></h2>
 	<div id="product_item_form">
            <%=h hidden_field_tag('product_item_id', @transferItem.product_item_id) %>
-		   <%=h hidden_field_tag('inventory_item_id', @transferItem.id) %>
+		   <%=h hidden_field_tag('transfer_item_id', @transferItem.id) %>
 		   <% productItem = @transferItem.product_item %>
 		<div class="splitcontentleft">
 			<fieldset class="box tabular">
@@ -104,7 +104,7 @@
 		</div>
 	</div>
 	<div style="clear:left;"></div>
-		<div>
+		<div align='center'>
 			<%= submit_tag l(:button_transfer) ,:id => 'wkproductitem_transfer'%>
 		</div>
 <% end %>
