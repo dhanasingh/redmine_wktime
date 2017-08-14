@@ -1,6 +1,7 @@
 var warnMsg;
 var hasEntryError = false;
 var hasTrackerError = false;
+var spentTypeVal;
 
 $(document).ready(function(){
 	var txtEntryDate;
@@ -12,6 +13,31 @@ $(document).ready(function(){
 	$('#quick-search').append( $('#appendlabel') );	
 	$('#quick-search').append( $('#startdiv') ); 
 	$('#quick-search').append( $('#enddiv') );
+	
+	 var spentTypeDD = '<table><tr><td><label for="select" style="text-transform:   none;">Spent Type</label></td>'
+            +'<td><select name="spent_type" id="spent_type" onchange="spentTypeValue(this);">'
+            +'<option value="T">Time</option>'
+            +'<option value="M">Material</option>'
+            +'</select></td></tr></table>';
+			
+	if(document.querySelector("h2").innerHTML == "Spent time")	
+	{
+		$("#query_form_content").append(spentTypeDD);		
+		var spcheck = sessionStorage.getItem("spent_type") == null ? "T" : sessionStorage.getItem("spent_type");
+		if(document.getElementById('spent_type') != null) {
+			var ddl = document.getElementById('spent_type');
+			var opts = ddl.options.length;
+			for (var i=0; i<opts; i++){
+				if (ddl.options[i].value == spcheck){
+					ddl.options[i].selected = true;
+					break;
+				}
+			}
+		}
+	}
+	else {
+		sessionStorage.clear();
+	}
 	
 	if (timeWarnMsg != null && issueWarnMsg != null) {
 		warnMsg = [timeWarnMsg.value, issueWarnMsg.value];
@@ -52,6 +78,12 @@ $(document).ready(function(){
 		});	
 	}	
 });
+
+function spentTypeValue(elespent)
+{
+	 spentTypeVal = elespent.options[elespent.selectedIndex].value;
+	 sessionStorage.setItem("spent_type", spentTypeVal);
+}
 
 function showEntryWarning(entrydate){
 	var $this = $(this);				

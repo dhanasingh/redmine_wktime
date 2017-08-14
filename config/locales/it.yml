@@ -689,3 +689,5 @@ it:
   label_part_number: Part Number
   label_inventory_information: Inventory Information
   button_transfer: Transfer
+  field_quantity: Quantity
+  field_selling_price: Selling Price
