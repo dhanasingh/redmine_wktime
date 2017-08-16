@@ -193,7 +193,6 @@ function projChanged(projDropdown, userid, needBlankOption){
 
 function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, blankText)
 {
-	alert(itemStr);
 	var items = itemStr.split('\n');
 	var i, index, val, text, start;
 	dropdown.options.length = 0;

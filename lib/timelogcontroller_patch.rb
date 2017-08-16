@@ -99,45 +99,7 @@ module TimelogControllerPatch
 					end
 				end
 			else
-				setMatterialEntries		
-				begin			
-					WkInventoryItem.transaction do
-						inventoryItemObj = WkInventoryItem.find(params[:inventory_item_id].to_i)
-						inventoryItemObj.lock!
-						if inventoryItemObj.available_quantity >= params[:product_quantity].to_i 
-							inventoryItemObj.available_quantity = inventoryItemObj.available_quantity - params[:product_quantity].to_i
-							@materialEntries.inventory_item_id = inventoryItemObj.id
-							unless @materialEntries.valid?	
-								errorMsg = @materialEntries.errors.full_messages.join("<br>")
-								respond_to do |format|
-									format.html { 
-									flash[:error] = errorMsg
-									render :action => 'new' 
-									}
-								end
-								raise ActiveRecord::Rollback
-							else
-								inventoryItemObj.save!
-								@materialEntries.save
-								respond_to do |format|
-									format.html { 
-										flash[:notice] = l(:notice_successful_update)
-										render :action => 'new'
-									}
-								end
-							end
-						else
-							respond_to do |format|
-								format.html { 
-									flash[:error] = "Requested no of items not available in the stock"
-									render :action => 'new'
-								}
-							end
-						end
-					end				
-				rescue => ex
-				logger.error ex.message
-				end
+				saveMatterial
 			end
 		end
 
@@ -162,40 +124,40 @@ module TimelogControllerPatch
 					end
 				end
 			else
-				setMatterialEntries
-				begin			
-					#@@productItemMutex.synchronize do
-					WkInventoryItem.transaction do
-						inventoryItemObj = WkInventoryItem.find(params[:inventory_item_id].to_i)
-						totalQuantity = inventoryItemObj.available_quantity + @materialEntries.quantity
-						if totalQuantity >= params[:product_quantity].to_i
-							inventoryItemObj.lock!
-							inventoryItemObj.available_quantity += @materialEntries.quantity - params[:product_quantity].to_i  
-							@materialEntries.inventory_item_id = inventoryItemObj.id
-							@materialEntries.quantity = params[:product_quantity].to_i
-							unless @materialEntries.valid?	
-								errorMsg = @materialEntries.errors.full_messages.join("<br>")
-								respond_to do |format|
-									format.html { render :action => 'edit' }
-									format.api  { render_validation_errors(@time_entry) }
-								end
-								raise ActiveRecord::Rollback
-							else
-								inventoryItemObj.save!
-								@materialEntries.save
-								respond_to do |format|
-									format.html {
-									flash[:notice] = l(:notice_successful_update)
-									redirect_back_or_default project_time_entries_path(@time_entry.project)
-									}
-									format.api  { render_api_ok }
-								end
-							end	
-						end
-					end				
-				rescue => ex
-					logger.error ex.message
+				saveMatterial
+			end
+		end
+		
+		def saveMatterial
+			wklog_helper = Object.new.extend(WklogmaterialHelper)	
+			setMatterialEntries	
+			begin				
+				inventoryId = wklog_helper.updateInventoryItem(params[:inventory_item_id].to_i, params[:product_quantity].to_i, @materialEntries.quantity)		
+				if inventoryId.blank?
+					errorMsg = "Requested no of items not available in the stock"
+				else
+					@materialEntries.inventory_item_id = inventoryId
+					@materialEntries.quantity = params[:product_quantity].to_i
+					unless @materialEntries.valid?	
+						errorMsg = @materialEntries.errors.full_messages.join("<br>")
+					else 
+						@materialEntries.save
+					end
 				end
+				respond_to do |format|
+					format.html { 
+					unless errorMsg.blank?
+						flash[:error] = errorMsg
+						render :action => 'new'
+					else
+						flash[:notice] = l(:notice_successful_update)
+						redirect_back_or_default project_time_entries_path(@time_entry.project)
+					end
+					 
+					}
+				end
+			rescue => ex
+				logger.error ex.message
 			end
 		end
 
@@ -207,8 +169,7 @@ module TimelogControllerPatch
 			end
 			@materialEntries.project_id =  @project.blank? ? params[:time_entry][:project_id] : @project.id 
 			@materialEntries.user_id = User.current.id
-			@materialEntries.issue_id =  params[:time_entry][:issue_id].to_i
-			@materialEntries.quantity = params[:product_quantity].to_i
+			@materialEntries.issue_id =  params[:time_entry][:issue_id].to_i			
 			@materialEntries.comments =  params[:time_entry][:comments]
 			@materialEntries.activity_id =  params[:time_entry][:activity_id].to_i
 			@materialEntries.spent_on = params[:time_entry][:spent_on]

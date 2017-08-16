@@ -25,4 +25,8 @@ class WkInventoryItem < ActiveRecord::Base
   belongs_to :parent, foreign_key: "parent_id", class_name: "WkInventoryItem"
   belongs_to :uom, class_name: "WkMesureUnit"
   
+  def incrementAvaQty(incVal)
+	self.available_quantity += incVal
+  end
+  
 end

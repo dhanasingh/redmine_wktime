@@ -52,9 +52,40 @@ include WktimeHelper
 		pctObj = mergePItemInvItemQuery(productId)
 		pctArr = Array.new
 		pctObj.each do | entry|
-			pctArr << entry.id.to_s() + ',' +  (entry.part_number.to_s() +' - '+ entry.product_attribute.name.to_s()  +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s()) )  
+			pctArr <<  [(entry.brand.name.to_s() +' - '+ entry.product_model.name.to_s() +' - '+ entry.part_number.to_s() +' - '+ entry.product_attribute.name.to_s()  +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s()) ),  entry.id.to_s()]
 		end
 		pctArr.unshift(["",'']) if needBlank
 		pctArr
 	end
+	
+	def getUOMArray(uomId, needBlank)
+		uomArr = Array.new
+		if uomId.blank?
+			uomArr = WkMesureUnit.all.pluck(:name, :id)
+		else
+			uomArr = WkMesureUnit.find(uomId).pluck(:name, :id)
+		end
+		uomArr.unshift(["",'']) if needBlank
+		uomArr
+	end
+	
+	def updateInventoryItem(inventoryItemId, productQuantity, materialQuantity)
+		inventoryId = ""
+		inventoryItemObj = WkInventoryItem.find(inventoryItemId)
+		if materialQuantity.blank?
+			totalAvlQty = inventoryItemObj.available_quantity
+			materialQuantity = 0
+		else 
+			totalAvlQty = inventoryItemObj.available_quantity + materialQuantity
+		end
+		
+		if  totalAvlQty >= productQuantity 
+			qtyVal = materialQuantity - productQuantity
+			inventoryItemObj.incrementAvaQty(qtyVal)
+			inventoryItemObj.save
+			inventoryId = inventoryItemObj.id
+		end
+		inventoryId
+	end
+	
 end
