@@ -144,7 +144,7 @@ class CreateWkInventory < ActiveRecord::Migration
 			t.string :serial_number
 			t.references :location, :class => "wk_locations", :null => true, :index => true
 			t.references :supplier_invoice, :class => "wk_invoices", :null => true, :index => true
-			t.references :purchase_order, :class => "wk_invoices", :null => true, :index => true
+			#t.references :purchase_order, :class => "wk_invoices", :null => true, :index => true
 			t.references :shipment, :class => "wk_shipments", :null => true, :index => true
 			t.integer :lock_version, :default => 0
 			t.timestamps null: false

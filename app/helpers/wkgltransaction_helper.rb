@@ -131,6 +131,18 @@ include WkaccountingHelper
 		# transDetail = saveTransDetail(fluctLedgerId, transId, transType, fluctuation.abs, Setting.plugin_redmine_wktime['wktime_currency'], nil, nil)
 	# end
 	
+	def getExchangedAmount(currency, amount)
+		amount = amount.to_f
+		toCurrency = Setting.plugin_redmine_wktime['wktime_currency']
+		if currency != toCurrency
+			exchangeRate = getExchangeRate(currency, toCurrency)
+			unless exchangeRate.blank?
+				amount = amount * exchangeRate
+			end
+		end
+		amount.round(2)
+	end
+	
 	def saveTransDetail(ledgerId, transId, detailType, amount, currency, orgAmount, orgCurrency)
 		transDetail = WkGlTransactionDetail.new
 		transDetail.ledger_id = ledgerId

@@ -1,5 +1,7 @@
 class WkproductitemController < ApplicationController
-  unloadable
+  unloadable 
+  include WktimeHelper
+  include WkgltransactionHelper
   
 	def index
 		@productInventory = WkInventoryItem.all
@@ -47,10 +49,10 @@ class WkproductitemController < ApplicationController
     end
     
 	def updateTransfer
-		targetItem = updateInventoryItem(params[:product_item_id].to_i)
 		sourceItem = WkInventoryItem.find(params[:transfer_item_id].to_i)
-		sourceItem.available_quantity = sourceItem.available_quantity - targetItem.total_quantity
+		sourceItem.available_quantity = sourceItem.available_quantity - (params[:total_quantity].blank? ? params[:available_quantity].to_i : params[:total_quantity].to_i)
 		if sourceItem.save()
+			targetItem = updateInventoryItem(params[:product_item_id].to_i)
 		    redirect_to :controller => 'wkproductitem',:action => 'index' , :tab => 'wkproductitem'
 		    flash[:notice] = l(:notice_successful_update)
 		else
@@ -60,6 +62,7 @@ class WkproductitemController < ApplicationController
 	end
 	
 	def updateInventoryItem(productItemId)
+		sysCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 		if params[:inventory_item_id].blank?
 			inventoryItem = WkInventoryItem.new
 		else
@@ -67,19 +70,27 @@ class WkproductitemController < ApplicationController
 		end
 		
 		unless params[:transfer_item_id].blank?
+			transferItem = WkInventoryItem.find(params[:transfer_item_id].to_i)
+			inventoryItem = transferItem.dup
 			inventoryItem.parent_id = params[:transfer_item_id].to_i
+			inventoryItem.supplier_invoice_id = nil
+			inventoryItem.lock_version = 0
+			inventoryItem.shipment_id = nil
+		else
+			inventoryItem.product_item_id = productItemId
+			inventoryItem.serial_number = params[:serial_number]
+			if sysCurrency != params[:currency]
+				inventoryItem.org_currency = params[:currency]
+				inventoryItem.org_cost_price = params[:cost_price]
+				inventoryItem.org_over_head_price = params[:over_head_price]
+				inventoryItem.org_selling_price = params[:selling_price]
+			end
+			inventoryItem.currency = sysCurrency
+			inventoryItem.cost_price = getExchangedAmount(params[:currency], params[:cost_price]) 
+			inventoryItem.over_head_price = getExchangedAmount(params[:currency], params[:over_head_price]) 
 		end
-		inventoryItem.product_item_id = productItemId
-		inventoryItem.serial_number = params[:serial_number]
 		inventoryItem.notes = params[:notes]
-		inventoryItem.currency = params[:currency]
-		inventoryItem.cost_price = params[:cost_price]
-		inventoryItem.over_head_price = params[:over_head_price]
-		inventoryItem.selling_price = params[:selling_price]
-		inventoryItem.org_currency = params[:org_currency]
-		inventoryItem.org_cost_price = params[:org_cost_price]
-		inventoryItem.org_over_head_price = params[:org_over_head_price]
-		inventoryItem.org_selling_price = params[:org_selling_price]
+		inventoryItem.selling_price = getExchangedAmount(params[:currency], params[:selling_price])
 		inventoryItem.total_quantity = params[:total_quantity]
 		inventoryItem.total_quantity = params[:available_quantity] if params[:total_quantity].blank?
 		inventoryItem.available_quantity = params[:available_quantity]

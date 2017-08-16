@@ -1,25 +1,26 @@
 <div class="splitcontentright">
+	<% isDisable = isTransfer %>
 	<fieldset class="box tabular">
 		<legend><%= isTransfer ? l(:button_transfer) : l(:label_inventory)%></legend>
 		<table width='100%'>  
 			<tr>
 				<th align="left"><%= l(:label_serial_number) %></th>
-				<td align="left" style="padding-left:40px;"><%= text_field_tag "serial_number",  invntItem.blank? ? '' : invntItem.serial_number %></td>
+				<td align="left" style="padding-left:40px;"><%= text_field_tag "serial_number",  invntItem.blank? ? '' : invntItem.serial_number, :disabled => isDisable %></td>
 			</tr>
 			<tr>
 				<th align="left"><%= l(:field_currency) %></th>
 				<td align="left" style="padding-left:40px;">
 					<% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
-					<%=h select_tag("currency",options_for_select(wkexpense_helper.options_for_currency, :selected => invntItem.blank? ? '' : invntItem.currency)) %>
+					<%=h select_tag("currency",options_for_select(wkexpense_helper.options_for_currency, :selected => invntItem.blank? ? '' : invntItem.currency), :disabled => isDisable) %>
 				</td>
 			</tr> 
 			<tr>
 				<th align="left"><%= l(:label_cost_price) %></th>
-				<td align="left" style="padding-left:40px;"><%= text_field_tag "cost_price",  invntItem.blank? ? '' : invntItem.cost_price %></td>
+				<td align="left" style="padding-left:40px;"><%= text_field_tag "cost_price",  invntItem.blank? ? '' : invntItem.cost_price, :disabled => isDisable %></td>
 			</tr>  
 			<tr>
 				<th align="left"><%= l(:label_over_head_price) %></th>
-				<td align="left" style="padding-left:40px;"><%= text_field_tag "over_head_price",  invntItem.blank? ? '' : invntItem.over_head_price %></td>
+				<td align="left" style="padding-left:40px;"><%= text_field_tag "over_head_price",  invntItem.blank? ? '' : invntItem.over_head_price, :disabled => isDisable %></td>
 			</tr> 
 			<tr>
 				<th align="left"><%= l(:label_selling_price) %></th>
