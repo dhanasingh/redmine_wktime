@@ -691,3 +691,5 @@ it:
   button_transfer: Transfer
   field_quantity: Quantity
   field_selling_price: Selling Price
+  button_transfer: Transfer
+  report_stock: Stock Report
