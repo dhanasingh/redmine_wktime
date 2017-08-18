@@ -85,6 +85,7 @@ class CreateWkInventory < ActiveRecord::Migration
 			t.string :serial_number
 			t.string :shipment_type, :limit => 3
 			t.date :shipment_date
+			t.references :gl_transaction, :class => "wk_gl_transactions", :null => true, :index => true
 			t.references :parent, polymorphic: true, index: true
 			t.timestamps null: false
 		end
@@ -170,6 +171,7 @@ class CreateWkInventory < ActiveRecord::Migration
 		  t.column :tweek,       :integer,  :null => false
 		  t.column :created_on,  :datetime, :null => false
 		  t.column :updated_on,  :datetime, :null => false
+		  t.references :invoice, :class => "wk_invoices", :null => true, :index => true
 		  t.references :inventory_item, :class => "wk_inventory_items", :index => true
 		  t.references :uom, :class => "wk_mesure_units", :null => false, :index => true
 		end
