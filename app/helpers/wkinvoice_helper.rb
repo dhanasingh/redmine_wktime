@@ -158,6 +158,7 @@ include WkbillingHelper
 				addTaxes(accountProject, scheduledEntries[0].currency, totalAmount)
 			end	
 		end
+		addMaterialItem
 		errorMsg
 	end
 	
@@ -622,6 +623,49 @@ include WkbillingHelper
 		invoicePayCount = WkPaymentItem.where(:invoice_id => invoiceId).count
 		isEditable = false if issuedCrCount>0 || invoicePayCount>0
 		isEditable
+	end
+	
+	def addMaterialItem		
+		productArr = Array.new
+		invItem = nil
+		@matterialVal = Hash.new{|hsh,key| hsh[key] = {} }
+		matterialEntry = WkMaterialEntry.all
+		matterialEntry.each do | mEntry |
+			invItem = @invoice.invoice_items.new()			
+			productId = mEntry.inventory_item.product_item.product.id
+			productName = mEntry.inventory_item.product_item.product.name.to_s
+			productArr << productId
+			desc = productName + " " + mEntry.inventory_item.product_item.brand.name.to_s + " " + mEntry.inventory_item.product_item.product_model.name.to_s
+			rate = mEntry.selling_price
+			qty = mEntry.quantity
+			curr = mEntry.inventory_item.currency
+			amount = mEntry.selling_price * mEntry.quantity
+			if @matterialVal.has_key?("#{productId}")
+				oldAmount = @matterialVal["#{productId}"]["amount"].to_i
+				totAmount = oldAmount + amount
+				@matterialVal["#{productId}"].store "amount", "#{totAmount}"
+			else
+				@matterialVal["#{productId}"].store "amount", "#{amount}"
+				@matterialVal["#{productId}"].store "currency", "#{curr}"
+				@matterialVal["#{productId}"].store "pname", "#{productName}"
+			end
+			invItem = updateInvoiceItem(invItem, mEntry.project_id, desc, rate, qty, curr, 'm', amount, nil, nil)
+		end
+		pdtArr = productArr.uniq
+		pdtArr.each do | pid |
+			pdtTaxesId = WkProductTax.where(:product_id => pid) #.pluck(:id)
+			pdtTaxesId.each do | tid |
+				taxinvItem = @invoice.invoice_items.new()
+				projectId = invItem.project_id
+				curr = invItem.currency
+				taxName = tid.tax.name.blank? ? " " : tid.tax.name
+				rate = tid.tax.rate_pct.blank? ? 0 : tid.tax.rate_pct
+				amount = (rate/100) * @matterialVal["#{pid}"]["amount"].to_i
+				desc = @matterialVal["#{pid}"]["pname"] + " - " + taxName.to_s
+				updateInvoiceItem(taxinvItem, projectId, desc, rate, nil, curr, 't', amount, nil, nil)
+			end
+		end
+				
 	end
 	
 end
