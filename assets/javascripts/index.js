@@ -461,6 +461,10 @@ function productChanged(curDDId, changeDDId, uid, changeAdditionalDD, needBlank)
 		var productDD = document.getElementById('product_id');
 		productId = productDD.value;
 	}
+	if(curDDId.includes("product_id")){
+		var productDD = document.getElementById(curDDId);
+		productId = productDD.value;
+	}
 	userid = uid;
 	var $this = $(this);
 	$.ajax({

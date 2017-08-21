@@ -4,6 +4,8 @@ before_filter :require_login
 
 include WkcrmHelper
 include WkshipmentHelper
+include WkinvoiceHelper
+include WkgltransactionHelper
 
 
 	def index
@@ -130,6 +132,7 @@ include WkshipmentHelper
 		totalRow = params[:totalrow].to_i
 		savedRows = 0
 		deletedRows = 0
+		sysCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 		#for i in 1..totalRow
 		while savedRows < totalRow
 			i = savedRows + deletedRows + 1
@@ -148,16 +151,26 @@ include WkshipmentHelper
 			# shipmentItem.brand_id = params["brand_id#{i}"].to_i
 			# shipmentItem.product_attribute_id = params["attribute_id#{i}"].to_i unless params["attribute_id#{i}"].blank?
 			# shipmentItem.product_model_id = params["model_id#{i}"].to_i unless params["model_id#{i}"].blank?
+			if sysCurrency != params["currency#{i}"]
+				shipmentItem.org_currency = params["currency#{i}"]
+				shipmentItem.org_cost_price = params["cost_price#{i}"]
+				shipmentItem.org_over_head_price = params["over_head_price#{i}"]
+				shipmentItem.org_selling_price = params["selling_price#{i}"]
+			end
+			shipmentItem.currency = sysCurrency
+			shipmentItem.cost_price = getExchangedAmount(params["currency#{i}"], params["cost_price#{i}"]) 
+			shipmentItem.over_head_price = getExchangedAmount(params["currency#{i}"], params["over_head_price#{i}"])
+			shipmentItem.selling_price = getExchangedAmount(params["currency#{i}"], params["selling_price#{i}"]) 
 			shipmentItem.serial_number = params["serial_number#{i}"]
 			shipmentItem.notes = params["notes#{i}"]
-			shipmentItem.currency = params["currency#{i}"]
-			shipmentItem.cost_price = params["cost_price#{i}"]
-			shipmentItem.over_head_price = params["over_head_price#{i}"]
-			shipmentItem.selling_price = params["selling_price#{i}"]
-			shipmentItem.org_currency = params["org_currency#{i}"]
-			shipmentItem.org_cost_price = params["org_cost_price#{i}"]
-			shipmentItem.org_over_head_price = params["org_over_head_price#{i}"]
-			shipmentItem.org_selling_price = params["org_selling_price#{i}"]
+			# shipmentItem.currency = params["currency#{i}"]
+			# shipmentItem.cost_price = params["cost_price#{i}"]
+			# shipmentItem.over_head_price = params["over_head_price#{i}"]
+			# shipmentItem.selling_price = params["selling_price#{i}"]
+			# shipmentItem.org_currency = params["org_currency#{i}"]
+			# shipmentItem.org_cost_price = params["org_cost_price#{i}"]
+			# shipmentItem.org_over_head_price = params["org_over_head_price#{i}"]
+			# shipmentItem.org_selling_price = params["org_selling_price#{i}"]
 			shipmentItem.total_quantity = params["total_quantity#{i}"]
 			shipmentItem.available_quantity = params["total_quantity#{i}"]
 			shipmentItem.status = 'o'
@@ -169,6 +182,18 @@ include WkshipmentHelper
 		
 		if !arrId.blank?
 			WkInventoryItem.delete_all(:id => arrId)
+		end
+		
+		unless @shipment.id.blank?
+			totalAmount = @shipment.inventory_items.sum('total_quantity*(cost_price+selling_price)')
+			if totalAmount > 0 && autoPostGL('inventory')
+				transId = @shipment.gl_transaction.blank? ? nil : @shipment.gl_transaction.id
+				glTransaction = postToGlTransaction('inventory', transId, @shipment.shipment_date, totalAmount, @shipment.inventory_items[0].currency, nil, nil)
+				unless glTransaction.blank?
+					@shipment.gl_transaction_id = glTransaction.id
+					@shipment.save
+				end				
+			end
 		end
 		
 		if errorMsg.nil? 
