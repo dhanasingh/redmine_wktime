@@ -1,4 +1,4 @@
-<h2><%= l(:label_product) %></h2>
+<h2><%= l(:label_model) %></h2>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript">     
 	wkproductcatagoryUrl = '<%=url_for(:controller => "wkproductcatagory", :action => "index", :tab => "wkproductcatagory")%>';
@@ -10,8 +10,6 @@
 	wkproductmodelUrl = '<%=url_for(:controller => "wkproductmodel", :action => "index", :tab => "wkproductmodel")%>';
 	wkproductattributeUrl = '<%=url_for(:controller => "wkproductattribute", :action => "index", :tab => "wkproductattribute")%>';
 	wkattributegroupUrl = '<%=url_for(:controller => "wkattributegroup", :action => "index", :tab => "wkattributegroup")%>';
-    prevTab = 'tab-<%= "#{controller_name}" %>';   
-//	grpUrl="<%= "#{url_for(:controller => "wkpayroll", :action => 'getMembersbyGroup')}" %>";
-		//getMembersbyGroup
+    prevTab = 'tab-<%= "#{controller_name}" %>';  
 </script>
 <%= render_tabs time_expense_tabs %>

@@ -661,6 +661,10 @@ end
 			tabs = [
 				{:name => 'wkproductcatagory', :partial => 'wktime/tab_content', :label => :label_category},
 				{:name => 'wkproduct', :partial => 'wktime/tab_content', :label => :label_product},
+				{:name => 'wkbrand', :partial => 'wktime/tab_content', :label => :label_brand},
+				{:name => 'wkproductmodel', :partial => 'wktime/tab_content', :label => :label_model},
+				{:name => 'wkproductattribute', :partial => 'wktime/tab_content', :label => :label_attribute},
+				{:name => 'wkattributegroup', :partial => 'wktime/tab_content', :label => :label_attribute_group},
 				{:name => 'wkproductitem', :partial => 'wktime/tab_content', :label => :label_item},
 				{:name => 'wkshipment', :partial => 'wktime/tab_content', :label => :label_shipment},
 				{:name => 'wkunitofmeasurement', :partial => 'wktime/tab_content', :label => :label_uom}

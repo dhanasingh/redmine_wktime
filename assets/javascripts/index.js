@@ -254,6 +254,10 @@ $(document).ready(function()
 	changeProp('tab-wkproductitem',wkproductitemUrl);
 	changeProp('tab-wkshipment',wkshipmentUrl);
 	changeProp('tab-wkunitofmeasurement',wkUomUrl);
+	changeProp('tab-wkbrand',wkbrandUrl);
+	changeProp('tab-wkproductmodel',wkproductmodelUrl);
+	changeProp('tab-wkproductattribute',wkproductattributeUrl);
+	changeProp('tab-wkattributegroup',wkattributegroupUrl);
 });
 
 

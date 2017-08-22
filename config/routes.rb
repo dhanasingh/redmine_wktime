@@ -434,3 +434,11 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wkproductitem/transfer', :to => 'wkproductitem#transfer'
 	
 	post 'wkproductitem/updateTransfer', :to => 'wkproductitem#updateTransfer'	
+	
+	get 'wkbrand/index', :to => 'wkbrand#index'
+	
+	get 'wkproductmodel/index', :to => 'wkproductmodel#index'
+	
+	get 'wkproductattribute/index', :to => 'wkproductattribute#index'
+	
+	get 'wkattributegroup/index', :to => 'wkattributegroup#index'
