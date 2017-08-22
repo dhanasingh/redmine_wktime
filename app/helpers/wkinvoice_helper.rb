@@ -56,12 +56,17 @@ include WkbillingHelper
 		
 		unless @invoice.id.blank?
 			totalAmount = @invoice.invoice_items.sum(:amount)
+			invoiceAmount = @invoice.invoice_items.where.not(:item_type => 'm').sum(:amount)
+			# moduleAmtHash key - module name , value - [crAmount, dbAmount]
+			moduleAmtHash = {'material' => [totalAmount.round - invoiceAmount.round, nil], getAutoPostModule => [invoiceAmount.round, totalAmount.round]}
+			
+			transAmountArr = getTransAmountArr(moduleAmtHash)
 			if (totalAmount.round - totalAmount) != 0
 				addRoundInvItem(totalAmount)
 			end
 			if totalAmount > 0 && autoPostGL(getAutoPostModule)
 				transId = @invoice.gl_transaction.blank? ? nil : @invoice.gl_transaction.id
-				glTransaction = postToGlTransaction('invoice', transId, @invoice.invoice_date, totalAmount.round, @invoice.invoice_items[0].currency, nil, nil)
+				glTransaction = postToGlTransaction('invoice', transId, @invoice.invoice_date, transAmountArr, @invoice.invoice_items[0].currency, nil, nil)
 				unless glTransaction.blank?
 					@invoice.gl_transaction_id = glTransaction.id
 					@invoice.save

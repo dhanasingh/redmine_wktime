@@ -35,7 +35,10 @@ include WkaccountingHelper
 	end
 	
 	# payInvId - Currently not in use. It is useful to calculate flactuation.
-	def saveGlTransaction(transModule, id, trasdate, transType, comment, amount, currency, isDiffCur, payInvId)
+	# transAmountArr[0] - crLedgerAmtHash, transAmountArr[1] - dbLedgerAmtHash
+	# crLedgerAmtHash => key - leger_id, value - crAmount
+	# dbLedgerAmtHash => key - leger_id, value - dbAmount
+	def saveGlTransaction(transModule, id, trasdate, transType, comment, transAmountArr, currency, isDiffCur, payInvId)
 		glTransaction = nil
 		orgAmount = nil
 		orgCurrency = nil
@@ -51,28 +54,43 @@ include WkaccountingHelper
 		glTransaction.trans_date = trasdate
 		glTransaction.comment = comment
 		if isDiffCur
-			orgAmount = amount
+			#orgAmount = amount
 			orgCurrency = currency
 			toCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 			exchangeRate = getExchangeRate(orgCurrency, toCurrency)
-			unless exchangeRate.blank?
-				amount = orgAmount * exchangeRate
-				currency = toCurrency
+			# unless exchangeRate.blank?
+				# amount = orgAmount * exchangeRate
+				# currency = toCurrency
 				# unless payInvId.blank?
 					# payInvoice = WkInvoice.find(payInvId)
 					# payInvTras = payInvoice.gl_transaction.transaction_details[0]
 					# invExchangerate = payInvTras.amount/payInvTras.original_amount
 					# invDayAmount = orgAmount * invExchangerate
 				# end
-			end
+			# end
 		end
 		
 		unless glTransaction.valid?
 			errorMsg = glTransaction.errors.full_messages.join("<br>")
 		else
-			if glTransaction.new_record?
-				glTransaction.save
-				getCrDbLedgerHash(transModule).each do |ledger|
+			glTransaction.save
+			unless glTransaction.new_record?
+				transDetails = glTransaction.transaction_details.destroy_all
+			end
+			transAmountArr.each_with_index do |amtHash, index|
+				detailType = index == 0 ? 'c' :'d'
+				amtHash.each do |ledgerId, amount|
+					orgAmount = amount if isDiffCur
+					unless exchangeRate.blank?
+						amount = orgAmount * exchangeRate
+						currency = toCurrency
+						# unless payInvId.blank?
+							# payInvoice = WkInvoice.find(payInvId)
+							# payInvTras = payInvoice.gl_transaction.transaction_details[0]
+							# invExchangerate = payInvTras.amount/payInvTras.original_amount
+							# invDayAmount = orgAmount * invExchangerate
+						# end
+					end
 					# unless invExchangerate.blank? || invExchangerate != exchangeRate
 						# if ledger[0] == 'c'
 							# amount = orgAmount * invExchangerate
@@ -81,29 +99,7 @@ include WkaccountingHelper
 						# end
 						# saveFluctuation(glTransaction.id, orgAmount, invExchangerate, exchangeRate)
 					# end
-					transDetail = saveTransDetail(ledger[1], glTransaction.id, ledger[0], amount, currency, orgAmount, orgCurrency)
-				end
-			else
-				glTransaction.save
-				transDetails = glTransaction.transaction_details.where(:ledger_id => [getSettingCfId("#{transModule}_cr_ledger"), getSettingCfId("#{transModule}_db_ledger")])
-				allowCr = true
-				allowDb = true
-				transDetails.each do |detail|
-					unless detail.detail_type == 'c' && allowCr || detail.detail_type == 'd' && allowDb
-						detail.destroy
-						next
-					else
-						if detail.detail_type == 'c'
-							allowCr = false
-						else
-							allowDb = false
-						end
-					end
-					detail.amount = amount
-					detail.currency = currency
-					detail.original_amount = orgAmount
-					detail.original_currency = orgCurrency
-					detail.save
+					transDetail = saveTransDetail(ledgerId, glTransaction.id, detailType, amount, currency, orgAmount, orgCurrency)
 				end
 			end
 		end

@@ -20,7 +20,10 @@ module WkbillingHelper
 	#include WkinvoiceHelper
 	include WkgltransactionHelper
 	
-	def postToGlTransaction(transModule, transId, transDate, amount, currency, description, payInvId)
+	# transAmountArr[0] - crLedgerAmtHash, transAmountArr[1] - dbLedgerAmtHash
+	# crLedgerAmtHash => key - leger_id, value - crAmount
+	# dbLedgerAmtHash => key - leger_id, value - dbAmount
+	def postToGlTransaction(transModule, transId, transDate, transAmountArr, currency, description, payInvId)
 		# transId = transObj.gl_transaction.blank? ? nil : transObj.gl_transaction.id
 		# if transObj.class.name == "WkInvoice"
 			# transModule = 'invoice'
@@ -30,8 +33,8 @@ module WkbillingHelper
 			# transDate = transObj.payment_date
 		# end
 		glTransaction = nil
-		crLedger = WkLedger.where(:id => getSettingCfId("#{transModule}_cr_ledger"))
-		dbLedger = WkLedger.where(:id => getSettingCfId("#{transModule}_db_ledger"))
+		crLedger = WkLedger.where(:id => transAmountArr[0].keys[0].to_i)
+		dbLedger = WkLedger.where(:id => transAmountArr[1].keys[0].to_i)
 		unless crLedger[0].blank? || dbLedger[0].blank?
 			#transId = invoice.gl_transaction.blank? ? nil : invoice.gl_transaction.id
 			transType = getTransType(crLedger[0].ledger_type, dbLedger[0].ledger_type)
@@ -40,9 +43,25 @@ module WkbillingHelper
 			else
 				isDiffCur = true 
 			end
-			glTransaction = saveGlTransaction(transModule, transId, transDate, transType, description, amount, currency, isDiffCur, payInvId)
+			glTransaction = saveGlTransaction(transModule, transId, transDate, transType, description, transAmountArr, currency, isDiffCur, payInvId)
 		end
 		glTransaction
+	end
+	
+	# ledgerAmtArr[0] - crLedgerAmtHash, ledgerAmtArr[1] - dbLedgerAmtHash
+	# crLedgerAmtHash => key - leger_id, value - crAmount
+	# dbLedgerAmtHash => key - leger_id, value - dbAmount
+	def getTransAmountArr(moduleAmtHash)
+		crLedgerAmtHash = Hash.new
+		dbLedgerAmtHash = Hash.new
+		moduleAmtHash.each do |moduleName, amount|
+			crLedger = WkLedger.where(:id => getSettingCfId("#{moduleName}_cr_ledger"))
+			dbLedger = WkLedger.where(:id => getSettingCfId("#{moduleName}_db_ledger"))
+			crLedgerAmtHash[crLedger[0].id] = amount[0] unless amount[0].blank? || crLedger[0].blank?
+			dbLedgerAmtHash[dbLedger[0].id] = amount[1] unless amount[1].blank? || dbLedger[0].blank?
+		end
+		ledgerAmtArr = [crLedgerAmtHash, dbLedgerAmtHash]
+		ledgerAmtArr
 	end
 	
 	def accountPolymormphicHash
