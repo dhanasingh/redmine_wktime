@@ -18,7 +18,7 @@
 		
 			<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :rfq_id => rfqId, :filter_session => filterSession, :project_id => projid, :pjtChanged => true, :isapply => false, :isproject => false, :isAll => true, :blankOptionForPjt => false, :blankForActDD => true, :blankForContactDD => true, :needQuotePoDD => false, :isFilter => true } %>
 		
-			<p style="float:left;"><%#= render :partial => 'wkorderentity/date_range' %></p>
+			<p style="float:left;"><%= render :partial => 'wkshipment/date_range' %></p>
 			<p style="float:right; margin-top:-40px;">
 				<%= link_to l(:label_new_shipment), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
 			</p>
@@ -41,11 +41,7 @@
 	<% end %>
 	<div class="total-hours">
 		<p><%= l(:label_total) %>: &nbsp;
-		<%# if @previewBilling %>
-			<%#= @currency %>
-		<%# else %>
-			<%#= @invoiceEntries[0].invoice_items[0].currency unless @invoiceEntries[0].blank? || @invoiceEntries[0].invoice_items[0].blank?%>
-		<% #end %>
-		<%#= html_hours("%.2f" % @totalInvAmt) %></p>
+			<%= @shipmentEntries[0].inventory_items[0].currency unless @shipmentEntries[0].blank? || @shipmentEntries[0].inventory_items[0].blank?%>
+		<%= html_hours("%.2f" % @totalShipAmt) %></p>
 	</div>
-	<%#= render :partial => 'wkorderentity/order_list'%>	
+	<%= render :partial => 'wkshipment/shipment_list'%>	

@@ -1,4 +1,4 @@
-class WkshipmentController < ApplicationController
+class WkshipmentController < WkbaseController
   unloadable
 before_filter :require_login
 
@@ -10,6 +10,51 @@ include WkgltransactionHelper
 
 	def index
 		set_filter_session
+		retrieve_date_range
+		sqlwhere = ""
+		filter_type = session[controller_name][:polymorphic_filter]
+		contact_id = session[controller_name][:contact_id]
+		account_id = session[controller_name][:account_id]
+		parentType = ""
+		parentId = ""
+		if filter_type == '2' && !contact_id.blank?
+			parentType = 'WkCrmContact'
+			parentId = 	contact_id
+		elsif filter_type == '2' && contact_id.blank?
+			parentType = 'WkCrmContact'
+		end
+		
+		if filter_type == '3' && !account_id.blank?
+			parentType =  'WkAccount'
+			parentId = 	account_id
+		elsif filter_type == '3' && account_id.blank?
+			parentType =  'WkAccount'
+		end
+		
+		unless parentId.blank? 
+			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+			sqlwhere = sqlwhere + " wk_shipments.parent_id = '#{parentId}' "
+		end
+		
+		unless parentType.blank?
+			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+			sqlwhere = sqlwhere + " wk_shipments.parent_type = '#{parentType}'  "
+		end
+		
+		if !@from.blank? && !@to.blank?			
+			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+			sqlwhere = sqlwhere + " wk_shipments.shipment_date between '#{@from}' and '#{@to}'  "
+		end
+		
+		unless sqlwhere.blank?
+			shipEntries = WkShipment.includes(:inventory_items).where(sqlwhere)
+		else
+			shipEntries = WkShipment.includes(:inventory_items)
+		end
+		
+		formPagination(shipEntries)
+		#@shipmentEntries = WkShipment.includes(:inventory_items).all
+		@totalShipAmt = @shipmentEntries.sum("wk_inventory_items.total_quantity*(wk_inventory_items.cost_price+wk_inventory_items.over_head_price)")
 	end
 
 	def new
@@ -50,11 +95,6 @@ include WkgltransactionHelper
 			newShipment(parentId, parentType)
 		end		
 		editShipment
-		# unless params[:is_report].blank? || !to_boolean(params[:is_report])
-			# @invoiceItem = @invoiceItem.order(:project_id, :item_type)
-			# render :action => 'invreport', :layout => false
-		# end
-		
 	end
 	
 	def newShipment(parentId, parentType)
@@ -63,13 +103,12 @@ include WkgltransactionHelper
 		@inventoryItem = nil
 		if !params[:populate_items].blank? && params[:populate_items] == '1' && !params[:si_id].blank?
 			@shipmentItem = Array.new
-			ids = params[:si_id] #params[:po_id].blank? ? params[:si_id] : params[:po_id]
+			ids = params[:si_id]
 			@populateItems =  WkInvoiceItem.where(" invoice_id in (#{ids}) and item_type = 'i'")
 			otherCharges =  WkInvoiceItem.where(" invoice_id in (#{ids}) and item_type <> 'i'").sum('amount')
 			itemCount = @populateItems.sum('quantity')
 			overHeadPrice = otherCharges.to_f/itemCount.to_f
 			@populateItems.each do|item|
-				#shipItem = @shipment.shipment_items.new
 				inventory = @shipment.inventory_items.new
 				inventory.notes = item.name
 				inventory.total_quantity = item.quantity
@@ -84,11 +123,7 @@ include WkgltransactionHelper
 				inventory.selling_price = inventory.cost_price + inventory.over_head_price
 				inventory.total_quantity = item.quantity
 				inventory.status = 'o'
-				#if params[:po_id].blank?
-					inventory.supplier_invoice_id = item.invoice_id
-				#else
-					#shipItem.purchase_order_id = item.invoice_id
-				#end
+				inventory.supplier_invoice_id = item.invoice_id
 				@shipmentItem << inventory
 			end
 		else
@@ -102,11 +137,6 @@ include WkgltransactionHelper
 		unless params[:shipment_id].blank?
 			@shipment = WkShipment.find(params[:shipment_id].to_i)
 			@shipmentItem = @shipment.inventory_items 
-			#@invPaymentItems = @shipment.payment_items.current_items				
-			#pjtList = @invoiceItem.select(:project_id).distinct
-			# pjtList.each do |entry| 
-				# @projectsDD << [ entry.project.name, entry.project_id ] if !entry.project_id.blank? && entry.project_id != 0  
-			# end			
 		end		
 	end
   
@@ -147,10 +177,6 @@ include WkgltransactionHelper
 				shipmentItem = @shipment.inventory_items.new
 			end
 			shipmentItem.product_item_id = params["product_item_id#{i}"].to_i
-			# shipmentItem.product_id = params["product_id#{i}"].to_i
-			# shipmentItem.brand_id = params["brand_id#{i}"].to_i
-			# shipmentItem.product_attribute_id = params["attribute_id#{i}"].to_i unless params["attribute_id#{i}"].blank?
-			# shipmentItem.product_model_id = params["model_id#{i}"].to_i unless params["model_id#{i}"].blank?
 			if sysCurrency != params["currency#{i}"]
 				shipmentItem.org_currency = params["currency#{i}"]
 				shipmentItem.org_cost_price = params["cost_price#{i}"]
@@ -163,16 +189,8 @@ include WkgltransactionHelper
 			shipmentItem.selling_price = getExchangedAmount(params["currency#{i}"], params["selling_price#{i}"]) 
 			shipmentItem.serial_number = params["serial_number#{i}"]
 			shipmentItem.notes = params["notes#{i}"]
-			# shipmentItem.currency = params["currency#{i}"]
-			# shipmentItem.cost_price = params["cost_price#{i}"]
-			# shipmentItem.over_head_price = params["over_head_price#{i}"]
-			# shipmentItem.selling_price = params["selling_price#{i}"]
-			# shipmentItem.org_currency = params["org_currency#{i}"]
-			# shipmentItem.org_cost_price = params["org_cost_price#{i}"]
-			# shipmentItem.org_over_head_price = params["org_over_head_price#{i}"]
-			# shipmentItem.org_selling_price = params["org_selling_price#{i}"]
+			shipmentItem.available_quantity = params["total_quantity#{i}"] if shipmentItem.new_record? || shipmentItem.available_quantity == shipmentItem.total_quantity
 			shipmentItem.total_quantity = params["total_quantity#{i}"]
-			shipmentItem.available_quantity = params["total_quantity#{i}"]
 			shipmentItem.status = 'o'
 			shipmentItem.uom_id = params["uom_id#{i}"].to_i unless params["uom_id#{i}"].blank?
 			shipmentItem.location_id = params["location_id#{i}"].to_i unless params["location_id#{i}"].blank?
@@ -185,7 +203,7 @@ include WkgltransactionHelper
 		end
 		
 		unless @shipment.id.blank?
-			totalAmount = @shipment.inventory_items.sum('total_quantity*(cost_price+selling_price)')
+			totalAmount = @shipment.inventory_items.sum('total_quantity*(cost_price+over_head_price)')
 			moduleAmtHash = {'inventory' => [totalAmount.round, totalAmount.round]}
 			
 			transAmountArr = getTransAmountArr(moduleAmtHash)
@@ -227,6 +245,28 @@ include WkgltransactionHelper
 		end
 		
 	end
+	
+	def formPagination(entries)
+		@entry_count = entries.count
+        setLimitAndOffset()
+		@shipmentEntries = entries.order(:shipment_date).limit(@limit).offset(@offset)
+	end
+	
+	def setLimitAndOffset		
+		if api_request?
+			@offset, @limit = api_offset_and_limit
+			if !params[:limit].blank?
+				@limit = params[:limit]
+			end
+			if !params[:offset].blank?
+				@offset = params[:offset]
+			end
+		else
+			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
+			@limit = @entry_pages.per_page
+			@offset = @entry_pages.offset
+		end	
+	end	
 
 	def getOrderAccountType
 		'S'

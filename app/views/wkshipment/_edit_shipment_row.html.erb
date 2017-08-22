@@ -1,4 +1,7 @@
 <tr onclick="  row_id  = this.rowIndex ">
+	<% 
+		productItem = entry.product_item 
+	%>
 	<td class="lbl-txt-align" headers="item_id">
 		<%=h hidden_field_tag("item_id#{row_index}",   entry.id )  %>
 	</td>
@@ -6,10 +9,10 @@
 		<label id="item_index<%= row_index.to_s %>"><%= row_index  %></label>
 	</td>
 	<td class="lbl-txt-align" headers="product_id">
-		<%=h select_tag("product_id#{row_index.to_s}", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', nil, false), :onchange => "productChanged(this.id, 'product_item_id#{row_index.to_s}', #{User.current.id}, false, false);", :disabled => false, :style => "width: 100%;") %>
+		<%=h select_tag("product_id#{row_index.to_s}", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', productItem.blank? ? nil :productItem.product_id, false), :onchange => "productChanged(this.id, 'product_item_id#{row_index.to_s}', #{User.current.id}, false, false);", :disabled => false, :style => "width: 100%;") %>
 	</td>
 	<td class="lbl-txt-align" headers="product_item_id">
-		<%=h select_tag("product_item_id#{row_index.to_s}", product_item_select(nil, false, nil), :disabled => false, :style => "width: 100%;") %>
+		<%=h select_tag("product_item_id#{row_index.to_s}", product_item_select(nil, false, productItem.blank? ? nil :productItem.id), :disabled => false, :style => "width: 100%;") %>
 	</td>
 	<!-- <td class="lbl-txt-align" headers="brand_id">
 		<%#=h select_tag("brand_id#{row_index.to_s}", generic_options_for_select(WkBrand, nil, 'name', 'name', 'id', nil, false), :disabled => false, :style => "width: 100%;") %>
@@ -29,7 +32,7 @@
 	<td class="lbl-txt-align" headers="currency">
 		<%#=h hidden_field_tag("currency#{row_index}",   entry.currency )  %>
 		<% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
-		<%=h select_tag("currency#{row_index}",options_for_select(wkexpense_helper.options_for_currency), :style => "width: 100%;") %>
+		<%=h select_tag("currency#{row_index}",options_for_select(wkexpense_helper.options_for_currency, :selected => entry.currency), :style => "width: 100%;") %>
 
 	</td>
 	<td class="lbl-txt-align" headers="cost_price"><%= text_field_tag "cost_price#{row_index}",   ("%.2f" % entry.cost_price unless entry.cost_price.blank?) ,:maxlength => 14, :size => "#{controller.textfield_size}", :onchange => "addAmount(this.id)", :disabled => false %>
@@ -42,18 +45,19 @@
 		<%= text_field_tag "total_quantity#{row_index}", ("%.2f" % entry.total_quantity unless entry.total_quantity.blank?), :maxlength => 14, :size => "#{controller.textfield_size}", :onchange => "addAmount(this.id)", :disabled => false %>
 	</td>
 	<td class="lbl-txt-align" headers="uom_id">
-		<%=h select_tag("uom_id#{row_index.to_s}", generic_options_for_select(WkMesureUnit, nil, 'short_desc', 'short_desc', 'id', nil, false), :disabled => false, :style => "width: 100%;") %>
+		<%=h select_tag("uom_id#{row_index.to_s}", generic_options_for_select(WkMesureUnit, nil, 'short_desc', 'short_desc', 'id', entry.uom_id, false), :disabled => false, :style => "width: 100%;") %>
 	</td>	
 	<td class="lbl-txt-align" headers="location_id">
-		<%=h select_tag("location_id#{row_index.to_s}", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', nil, false), :disabled => false, :style => "width: 100%;") %>
+		<%=h select_tag("location_id#{row_index.to_s}", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', entry.location_id, false), :disabled => false, :style => "width: 100%;") %>
 	</td>				
 	<% #total = total + entry.org_cost_price unless entry.org_cost_price.blank? %>
 	<td>
-		<% unless false %>
+		<% unless entry.blank? || entry.id.blank? %>
+			<%= link_to image_tag('edit.png'), {:controller => 'wkproductitem', :action => 'transfer', :inventory_item_id => entry.id}, :title => l(:button_edit) %>
+		<% end %>
 			<%= link_to image_tag('delete.png'), "javascript:deleteRow('shipmentTable', 'totalrow');", :id => row_index,
 				:data => {:confirm => l(:text_are_you_sure)},
 				:title => l(:button_delete) %>
-		<% end %>
 	</td>
 	<%=h hidden_field_tag("org_currency#{row_index}",   entry.id )  %>
 	<%=h hidden_field_tag("org_cost_price#{row_index}",   entry.id )  %>
