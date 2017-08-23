@@ -1,4 +1,4 @@
-var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl, blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupAccUrl, purSupContactUrl, purSupPayUrl, wklocationUrl, wkproductcatagoryUrl, wkproductUrl, wkproductitemUrl, wkshipmentUrl, wkUomUrl;
+var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl, blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupAccUrl, purSupContactUrl, purSupPayUrl, wklocationUrl,  wkproductUrl, wkproductitemUrl, wkshipmentUrl, wkUomUrl, wkbrandUrl, wkattributegroupUrl; // wkproductcatagoryUrl,
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -251,14 +251,14 @@ $(document).ready(function()
 	changeProp('tab-wksupplieraccount',purSupAccUrl);
 	changeProp('tab-wksuppliercontact',purSupContactUrl);
 	changeProp('tab-wklocation',wklocationUrl);
-	changeProp('tab-wkproductcatagory',wkproductcatagoryUrl);
+	//changeProp('tab-wkproductcatagory',wkproductcatagoryUrl);
 	changeProp('tab-wkproduct',wkproductUrl);
 	changeProp('tab-wkproductitem',wkproductitemUrl);
 	changeProp('tab-wkshipment',wkshipmentUrl);
 	changeProp('tab-wkunitofmeasurement',wkUomUrl);
 	changeProp('tab-wkbrand',wkbrandUrl);
-	changeProp('tab-wkproductmodel',wkproductmodelUrl);
-	changeProp('tab-wkproductattribute',wkproductattributeUrl);
+	//changeProp('tab-wkproductmodel',wkproductmodelUrl);
+	//changeProp('tab-wkproductattribute',wkproductattributeUrl);
 	changeProp('tab-wkattributegroup',wkattributegroupUrl);
 });
 

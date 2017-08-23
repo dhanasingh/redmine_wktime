@@ -26,4 +26,7 @@ class WkProduct < ActiveRecord::Base
   belongs_to :attribute_group, :class_name => 'WkAttributeGroup'
   has_many :product_attributes, through: :attribute_group
   has_many :product_models, foreign_key: "product_id", class_name: "WkProductModel"
+  belongs_to :uom, class_name: "WkMesureUnit"
+  has_many :product_taxes, foreign_key: "product_id", class_name: "WkProductTax", :dependent => :destroy
+  has_many :taxes, through: :product_taxes
 end

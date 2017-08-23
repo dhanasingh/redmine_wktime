@@ -399,9 +399,23 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wklocation/index', :to => 'wklocation#index' 
 	
-	get 'wkproductcatagory/index', :to => 'wkproductcatagory#index'
+	#get 'wkproductcatagory/index', :to => 'wkproductcatagory#index'
 	
 	get 'wkproduct/index', :to => 'wkproduct#index'
+	
+	post 'wkproduct/index', :to => 'wkproduct#index'
+    
+	get 'wkproduct/edit', :to => 'wkproduct#edit'
+	
+	post 'wkproduct/update', :to => 'wkproduct#update'	
+	
+	delete 'wkproduct/destroy', :to => 'wkproduct#destroy'
+    
+	get 'wkproduct/edit_category', :to => 'wkproduct#edit_category'
+	
+	post 'wkproduct/updateCategory', :to => 'wkproduct#updateCategory'	
+	
+	delete 'wkproduct/destroyCategory', :to => 'wkproduct#destroyCategory'
 	
 	get 'wkproductitem/index', :to => 'wkproductitem#index'
 	
@@ -437,8 +451,8 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wkbrand/index', :to => 'wkbrand#index'
 	
-	get 'wkproductmodel/index', :to => 'wkproductmodel#index'
+	#get 'wkproductmodel/index', :to => 'wkproductmodel#index'
 	
-	get 'wkproductattribute/index', :to => 'wkproductattribute#index'
+	#get 'wkproductattribute/index', :to => 'wkproductattribute#index'
 	
 	get 'wkattributegroup/index', :to => 'wkattributegroup#index'

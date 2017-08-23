@@ -47,6 +47,7 @@ class CreateWkInventory < ActiveRecord::Migration
 		create_table :wk_products do |t|
 			t.string :name
 			t.string :description
+			t.string :product_type, :limit => 3
 			t.references :category, :class => "wk_product_categories", :null => false, :index => true
 			t.references :uom, :class => "wk_mesure_units", :null => false, :index => true
 			t.references :created_by_user, :class => "User"
@@ -69,12 +70,6 @@ class CreateWkInventory < ActiveRecord::Migration
 			t.timestamps null: false
 		end
 		
-		# create_table :wk_product_variants do |t|
-			# t.references :attribute, :class => "wk_product_attributes", :null => false, :index => true
-			# t.references :product, :class => "wk_products", :null => false, :index => true
-			# t.timestamps null: false
-		# end
-		
 		create_table :wk_product_taxes do |t|
 			t.references :tax, :class => "wk_taxes", :null => false, :index => true
 			t.references :product, :class => "wk_products", :null => false, :index => true
@@ -94,7 +89,6 @@ class CreateWkInventory < ActiveRecord::Migration
 			t.string :name
 			t.references :location_type, :class => "wk_crm_enumerations", :null => false, :index => true
 			t.references :address, :class => "wk_addresses", :null => true, :index => true
-			#t.string :shipment_type, :limit => 3
 			t.boolean :is_default
 			t.timestamps null: false
 		end
@@ -104,31 +98,13 @@ class CreateWkInventory < ActiveRecord::Migration
 			t.references :brand, :class => "wk_brands", :null => true, :index => true
 			t.references :product_attribute, :class => "wk_product_attributes", :null => true, :index => true
 			t.references :product_model, :class => "wk_product_models", :null => true, :index => true
-			#t.string :notes
 			t.string :part_number
-			# t.string :status, :null => false, :limit => 5, :default => 'o'
-			# t.float :org_cost_price
-			# t.float :org_selling_price
-			# t.float :org_over_head_price
-			# t.column :org_currency, :string, :limit => 5, :default => '$'
-			# t.float :cost_price
-			# t.float :selling_price
-			# t.float :over_head_price
-			# t.column :currency, :string, :limit => 5, :default => '$'
-			# t.float :total_quantity
-			# t.float :available_quantity
-			# t.references :uom, :class => "wk_mesure_units", :null => false, :index => true
-			# t.string :serial_number
-			# t.references :location, :class => "wk_locations", :null => true, :index => true
-			# t.references :supplier_invoice, :class => "wk_invoices", :null => true, :index => true
-			# t.references :purchase_order, :class => "wk_invoices", :null => true, :index => true
-			# t.references :shipment, :class => "wk_shipments", :null => true, :index => true
 			t.timestamps null: false
 		end
-		#add_reference :wk_product_items, :parent, :class => "wk_product_items", :index => true
 		
 		create_table :wk_inventory_items do |t|
 			t.references :product_item, :class => "wk_product_items", :null => false, :index => true
+			t.string :product_type, :limit => 3, :null => false, :default => 'I'
 			t.string :notes
 			t.string :status, :null => false, :limit => 5, :default => 'o'
 			t.float :org_cost_price
@@ -145,7 +121,6 @@ class CreateWkInventory < ActiveRecord::Migration
 			t.string :serial_number
 			t.references :location, :class => "wk_locations", :null => true, :index => true
 			t.references :supplier_invoice, :class => "wk_invoices", :null => true, :index => true
-			#t.references :purchase_order, :class => "wk_invoices", :null => true, :index => true
 			t.references :shipment, :class => "wk_shipments", :null => true, :index => true
 			t.integer :lock_version, :default => 0
 			t.timestamps null: false

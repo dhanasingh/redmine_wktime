@@ -1,17 +1,14 @@
 <h2><%= l(:label_product) %></h2>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<script type="text/javascript">     
-	wkproductcatagoryUrl = '<%=url_for(:controller => "wkproductcatagory", :action => "index", :tab => "wkproductcatagory")%>';
+<script type="text/javascript"> 
 	wkproductUrl = '<%=url_for(:controller => "wkproduct", :action => "index", :tab => "wkproduct")%>';
 	wkproductitemUrl = '<%=url_for(:controller => "wkproductitem", :action => "index", :tab => "wkproductitem")%>';
 	wkshipmentUrl = '<%=url_for(:controller => "wkshipment", :action => "index", :tab => "wkshipment")%>';
 	wkUomUrl =  '<%=url_for(:controller => "wkunitofmeasurement", :action => "index", :tab => "wkunitofmeasurement")%>';
 	wkbrandUrl = '<%=url_for(:controller => "wkbrand", :action => "index", :tab => "wkbrand")%>';
-	wkproductmodelUrl = '<%=url_for(:controller => "wkproductmodel", :action => "index", :tab => "wkproductmodel")%>';
-	wkproductattributeUrl = '<%=url_for(:controller => "wkproductattribute", :action => "index", :tab => "wkproductattribute")%>';
 	wkattributegroupUrl = '<%=url_for(:controller => "wkattributegroup", :action => "index", :tab => "wkattributegroup")%>';
-    prevTab = 'tab-<%= "#{controller_name}" %>';   
-//	grpUrl="<%= "#{url_for(:controller => "wkpayroll", :action => 'getMembersbyGroup')}" %>";
-		//getMembersbyGroup
+    prevTab = 'tab-<%= "#{controller_name}" %>'; 
 </script>
 <%= render_tabs time_expense_tabs %>
+
+<%= render :partial => 'wkproduct/product_list'%>
