@@ -5,7 +5,7 @@
 	grpUrl="<%= "#{url_for(:controller => "wkreport", :action => 'getMembersbyGroup')}" %>";
 	//getMembersbyGroup
 </script>
-<% itemHash = { 'i' => l(:label_invoice), 'c' =>  l(:label_credit)  } %>
+<% itemHash = { 'i' => l(:label_invoice), 'c' =>  l(:label_credit), 'm' => l(:label_material)  } %>
 <% if  controller.addAdditionalTax 
 		tax_hash = {'t' => "Tax"}
 		itemHash.merge!(tax_hash)
@@ -52,7 +52,7 @@
    <tbody>
    <% if !@invoiceItem.blank? %>
 		<% 
-			sqlString = "wk_invoice_items.item_type = 'i' or wk_invoice_items.item_type = 'c' "
+			sqlString = "wk_invoice_items.item_type = 'i' or wk_invoice_items.item_type = 'c' or wk_invoice_items.item_type = 'm' "
 			sqlString = sqlString + " or wk_invoice_items.item_type = 't'" if controller.addAdditionalTax 
 		%>
        <% @invoiceItem.where(sqlString).each do |entry| %>
@@ -66,6 +66,7 @@
 				<% if !@projectsDD.blank? %>
 					<td class="lbl-txt-align" headers="project_id">
 						<%=h select_tag("project_id#{row_index.to_s}", options_for_select(@projectsDD, :selected => entry.project_id), :disabled => isDisable) %>
+						<%=h hidden_field_tag("product_id#{row_index.to_s}",  entry.product_id )  %>
 					</td>
 				<% end %>
 				<td class="lbl-txt-align" headers="name">
@@ -113,6 +114,7 @@
 				</td>
 				<td class="lbl-txt-align" headers="project_id">
 					<%=h select_tag("project_id#{row_index.to_s}", options_for_select(@projectsDD, :selected=> value['project_id'] ), :disabled => @preBilling ) %>
+					<%=h hidden_field_tag("product_id#{row_index.to_s}",  value['product_id'] )  %>
 				</td>
 				<td class="lbl-txt-align" headers="name">
 					<%= text_field_tag "name#{row_index}", value['item_desc'], :required => true,  :style => "width:320px; ", :disabled => @preBilling %>
@@ -202,7 +204,7 @@
 					<td  style="text-align:left; !important" ><%=  entry.name %></td>				
 					<td  style=" text-align:right; !important"><label id="taxitem_type<%= tax_index.to_s %>"><%= l(:label_tax) %></label></td>
 					<td  style=" text-align:right; !important"><label id="taxrate<%= tax_index.to_s %>"><%=    ("%.2f" % entry.rate) %></label> <label>%</label> </td>
-					<td class="lbl-txt-align" ><%=h hidden_field_tag("pjt_id#{tax_index}",   entry.project_id )  %></td>
+					<td class="lbl-txt-align" ><%=h hidden_field_tag("tax_pjt_id#{tax_index}",   entry.project_id )  %></td>
 					<td  style=" padding-right:90px;  text-align:right; !important" ><%= entry.currency %><label id="taxamount<%= tax_index.to_s %>"><%= html_hours("%.2f" % entry.amount)   %></label></td>
 					<% total = total + entry.amount %>
 				 </tr>
@@ -224,7 +226,11 @@
 				<label id="taxrate<%= tax_index.to_s %>"><%=    ("%.2f" % value['rate']) %></label> <label>%</label> 
 			</td>
 			<td class="lbl-txt-align" >
-				<%=h hidden_field_tag("pjt_id#{tax_index}",   value['project_id'] )  %>
+				<% if value['product_id'].blank? %>
+					<%=h hidden_field_tag("tax_pjt_id#{tax_index}",   value['project_id'] )  %>
+				<% else %>
+					<%=h hidden_field_tag("tax_product_id#{tax_index}",  value['product_id'] )  %>
+				<% end %>
 			</td>
 			<td  style=" padding-right:90px;  text-align:right; !important" >
 				<%= value['currency'] %><label id="taxamount<%= tax_index.to_s %>">

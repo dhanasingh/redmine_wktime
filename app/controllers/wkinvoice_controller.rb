@@ -116,6 +116,7 @@ class WkinvoiceController < WkorderentityController
 			grandTotal = 0
 			taxGrandTotal = 0
 			creditAmount = 0
+			totMatterialAmt = 0.00
 			#if !params[:project_id].blank? && params[:project_id] == '0'
 			if !projectId.blank? && projectId == '0'
 				accPrtId = WkAccountProject.where(:parent_type => relatedTo, :parent_id => relatedParent.to_i) #, :project_id => params[:project_id].to_i
@@ -124,10 +125,9 @@ class WkinvoiceController < WkorderentityController
 			end
 			creditAmount = calInvPaidAmount(relatedTo, relatedParent, projectId, nil, false)
 			@taxVal = Hash.new{|hsh,key| hsh[key] = {} }
-			indexKey = 0
+			@indexKey = 0
 			totAmount = 0.00
 			accPrtId.each do | apEntry|
-				#if !params[:populate_items].blank? && params[:populate_items] == '1'
 				if !populatedItems.blank? && populatedItems == '1'
 					@unbilled = true
 					if apEntry.billing_type == 'TM'
@@ -135,28 +135,31 @@ class WkinvoiceController < WkorderentityController
 					else
 						totAmount = getFcItems(apEntry, startDate, endDate)
 					end
+					matterialAmt = addMaterialItem(apEntry.project_id, false)				
+					totMatterialAmt = totMatterialAmt + matterialAmt
 				else
 					@currency = params[:inv_currency]
-					#setInvItemCurrency(apEntry)
 				end
+								
 				grandTotal =  grandTotal + (totAmount.blank? ? 0.00 : totAmount)
-				
+				materialtotal = 100
 				aptaxes = apEntry.taxes
 				aptaxes.each do | taxEntry|	
 					taxAmt =  (taxEntry.rate_pct/100) * (totAmount.blank? ? 0.00 : totAmount)
-					@taxVal[indexKey].store 'project_name', apEntry.project.name
-					@taxVal[indexKey].store 'name', taxEntry.name
-					@taxVal[indexKey].store 'rate', taxEntry.rate_pct
-					@taxVal[indexKey].store 'project_id', apEntry.project_id
-					@taxVal[indexKey].store 'currency', @currency
-					@taxVal[indexKey].store 'amount', taxAmt
+					@taxVal[@indexKey].store 'project_name', apEntry.project.name
+					@taxVal[@indexKey].store 'name', taxEntry.name
+					@taxVal[@indexKey].store 'rate', taxEntry.rate_pct
+					@taxVal[@indexKey].store 'project_id', apEntry.project_id
+					@taxVal[@indexKey].store 'currency', @currency
+					@taxVal[@indexKey].store 'amount', taxAmt
 					taxGrandTotal = taxGrandTotal + taxAmt
-					indexKey = indexKey + 1
+					@indexKey = @indexKey + 1
 				end
 				totAmount = 0.00
 			end	
+			
 			unless (taxGrandTotal + grandTotal) == 0.0
-				@invList[@listKey].store 'amount', (taxGrandTotal + grandTotal) + creditAmount
+				@invList[@listKey].store 'amount', (taxGrandTotal + grandTotal + totMatterialAmt) + creditAmount
 			end
 	end
 	

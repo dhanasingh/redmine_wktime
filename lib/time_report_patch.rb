@@ -31,24 +31,28 @@ module Redmine::Helpers
           time_columns = %w(tyear tmonth tweek spent_on)
           @hours = []
 		  scopeArr = @scope.attribute_names
-		  if scopeArr.include? "quantity"
+		  
+		  if scopeArr.include? "selling_price"
 			  @scope.includes(:activity).
 				  reorder(nil).
 				  group(@criteria.collect{|criteria| @available_criteria[criteria][:sql]} + time_columns).
 				  joins(@criteria.collect{|criteria| @available_criteria[criteria][:joins]}.compact).
-				  sum(:quantity).each do |hash, quantity|
-				h = {'hours' => quantity}
+				  sum(:selling_price).each do |hash, selling_price|
+				  Rails.logger.info("************* @scope #{@scope.inspect}  hash #{hash.inspect}  selling_price #{selling_price.inspect} ********************************")
+				  h = {'hours' => selling_price}
 				(@criteria + time_columns).each_with_index do |name, i|
 				  h[name] = hash[i]
 				end
 				@hours << h
 			  end
 		 else
+		
 			@scope.includes(:activity).
 				  reorder(nil).
 				  group(@criteria.collect{|criteria| @available_criteria[criteria][:sql]} + time_columns).
 				  joins(@criteria.collect{|criteria| @available_criteria[criteria][:joins]}.compact).
 				  sum(:hours).each do |hash, hours|
+				  
 				h = {'hours' => hours}
 				(@criteria + time_columns).each_with_index do |name, i|
 				  h[name] = hash[i]
@@ -103,8 +107,8 @@ module Redmine::Helpers
 
       def load_available_criteria
 		scopeArr = @scope.attribute_names
-		if scopeArr.include? "quantity"
-			model =  WkMaterialEntry 
+		if scopeArr.include? "selling_price"
+			model =  WkMaterialEntry 			
 		else
 			model =  TimeEntry
 		end
@@ -134,6 +138,14 @@ module Redmine::Helpers
                                              :klass => Issue,
                                              :label => :label_issue}
                                }
+		if scopeArr.include? "selling_price"
+			hashval = {
+						'Product Item' => {:sql => "#{WkMaterialEntry.table_name}.inventory_item_id",
+                        :klass => WkInventoryItem,
+                        :label => :label_product_items}
+					  }
+			@available_criteria.merge!(hashval)
+		end
 
         # Add time entry custom fields
         custom_fields = TimeEntryCustomField.all

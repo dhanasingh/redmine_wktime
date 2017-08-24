@@ -163,7 +163,7 @@ include WkbillingHelper
 				addTaxes(accountProject, scheduledEntries[0].currency, totalAmount)
 			end	
 		end
-		addMaterialItem
+		addMaterialItem(accountProject.project_id, true)
 		errorMsg
 	end
 	
@@ -176,7 +176,7 @@ include WkbillingHelper
 		else
 			itemDesc = scheduledEntry.milestone
 		end
-		invItem = updateInvoiceItem(invItem, scheduledEntry.account_project.project_id, itemDesc, scheduledEntry.amount, 1, scheduledEntry.currency, 'i',scheduledEntry.amount, nil, nil )
+		invItem = updateInvoiceItem(invItem, scheduledEntry.account_project.project_id, itemDesc, scheduledEntry.amount, 1, scheduledEntry.currency, 'i',scheduledEntry.amount, nil, nil, nil )
 		invItem
 	end
 	
@@ -243,18 +243,18 @@ include WkbillingHelper
 						description = entry.issue.blank? ? entry.project.name : (isAccountBilling(accountProject) ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject) + " - " + entry.user.membership(entry.project).roles[0].name
 						quantity = sumEntry[[entry.issue_id, entry.user_id]]
 						amount = rateHash['rate'] * quantity
-						invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency'], 'i', amount, nil, nil) unless isCreate
+						invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency'], 'i', amount, nil, nil, nil) unless isCreate
 					else
 						description = accountProject.project.name + " - " + entry.user.membership(entry.project).roles[0].name
 						quantity = userTotalHours[entry.user_id]
 						amount = rateHash['rate'] * quantity
-						invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency'], 'i', amount, nil, nil) unless isCreate
+						invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency'], 'i', amount, nil, nil, nil) unless isCreate
 					end
 				else
 					description = entry.issue.blank? ? entry.project.name : (isAccountBilling(accountProject) ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject) 
 					quantity = issueSumEntry[entry.issue_id]
 					amount = rateHash['rate'] * quantity
-					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency'], 'i', amount, nil, nil) unless isCreate
+					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency'], 'i', amount, nil, nil, nil) unless isCreate
 				end
 				
 				if isCreate && ((oldIssueId != 0 && oldIssueId != entry.issue_id) || (timeEntries.order(:issue_id, :user_id, :id).last == entry) || (timeEntries.order(:issue_id, :user_id, :id).length == (index+1))  )
@@ -308,13 +308,13 @@ include WkbillingHelper
 					pjtDescription =  entry.issue.blank? ? entry.project.name : (isAccountBilling(accountProject) ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject)
 					pjtQuantity = sumEntry[entry.issue_id]
 					amount = rateHash['rate'] * pjtQuantity
-					invItem = updateInvoiceItem(invItem, accountProject.project_id, pjtDescription, rateHash['rate'], pjtQuantity, rateHash['currency'], 'i', amount, nil, nil) unless isCreate
+					invItem = updateInvoiceItem(invItem, accountProject.project_id, pjtDescription, rateHash['rate'], pjtQuantity, rateHash['currency'], 'i', amount, nil, nil, nil) unless isCreate
 				else
 					isContinue = true
 					pjtQuantity = timeEntries.sum(:hours)
 					pjtDescription = accountProject.project.name
 					amount = rateHash['rate'] * pjtQuantity
-					invItem = updateInvoiceItem(invItem, accountProject.project_id, pjtDescription, rateHash['rate'], pjtQuantity, rateHash['currency'], 'i', amount, nil, nil) unless isCreate
+					invItem = updateInvoiceItem(invItem, accountProject.project_id, pjtDescription, rateHash['rate'], pjtQuantity, rateHash['currency'], 'i', amount, nil, nil, nil) unless isCreate
 				end
 				if isCreate && ((oldIssueId != 0 && oldIssueId != entry.issue_id) || (timeEntries.order(:issue_id).last == entry) || (timeEntries.order(:issue_id).length == (index+1)  ))
 					keyVal = timeEntries.order(:issue_id).first == entry ? @itemCount : @itemCount - 1
@@ -352,7 +352,7 @@ include WkbillingHelper
 	end
 	
 	# Update invoice item by the given invoice item Object
-	def updateInvoiceItem(invItem, projectId, description, rate, quantity, currency, itemType, amount, creditInvoiceId, crPaymentItemId)
+	def updateInvoiceItem(invItem, projectId, description, rate, quantity, currency, itemType, amount, creditInvoiceId, crPaymentItemId, productId)
 		invItem.project_id = projectId
 		invItem.name = description
 		invItem.rate = rate 
@@ -361,6 +361,7 @@ include WkbillingHelper
 		invItem.item_type = itemType unless itemType.blank?
 		invItem.amount = amount #invItem.rate * invItem.quantity
 		invItem.modifier_id = User.current.id
+		invItem.product_id = productId
 		invItem.credit_invoice_id = creditInvoiceId unless creditInvoiceId.blank?
 		invItem.credit_payment_item_id = crPaymentItemId unless crPaymentItemId.blank?
 		invItem.save()
@@ -425,7 +426,7 @@ include WkbillingHelper
 				invItem = @invoice.invoice_items.new()
 				rate = projtax.tax.rate_pct.blank? ? 0 : projtax.tax.rate_pct
 				amount = (rate/100) * totalAmount
-				updateInvoiceItem(invItem, accountProject.project_id, projtax.tax.name, rate, nil, currency, 't', amount, nil, nil) 			
+				updateInvoiceItem(invItem, accountProject.project_id, projtax.tax.name, rate, nil, currency, 't', amount, nil, nil, nil) 			
 			end
 		end
 	end
@@ -433,7 +434,7 @@ include WkbillingHelper
 	# Add an invoice item for the round off value
 	def addRoundInvItem(totalAmount)
 		invItem = @invoice.invoice_items.new()		
-		updateInvoiceItem(invItem, @invoice.invoice_items[0].project_id, l(:label_round_off), nil, nil, @invoice.invoice_items[0].currency, 'r', (totalAmount.round - totalAmount), nil, nil)		
+		updateInvoiceItem(invItem, @invoice.invoice_items[0].project_id, l(:label_round_off), nil, nil, @invoice.invoice_items[0].currency, 'r', (totalAmount.round - totalAmount), nil, nil, nil)		
 	end
 	
 	# Return the Query string with SQL length function for the given column
@@ -613,7 +614,7 @@ include WkbillingHelper
 				if isCreate
 					invItem = WkInvoiceItem.new
 					invItem.invoice_id = invoiceId
-					updateInvoiceItem(invItem, entry.project_id, creditDesc, entry.available_pay_credit, 1, entry.currency, 'c', entry.available_pay_credit, credit_invoice_id, entry.payment_item_id)
+					updateInvoiceItem(invItem, entry.project_id, creditDesc, entry.available_pay_credit, 1, entry.currency, 'c', entry.available_pay_credit, credit_invoice_id, entry.payment_item_id, nil)
 				end
 				@itemCount = @itemCount + 1
 			end
@@ -630,47 +631,83 @@ include WkbillingHelper
 		isEditable
 	end
 	
-	def addMaterialItem		
+	def addMaterialItem(accountProject, isCreate)		
 		productArr = Array.new
 		invItem = nil
+		@totalMatterialAmount = 0.00
+		partialMatAmount = 0.00
 		@matterialVal = Hash.new{|hsh,key| hsh[key] = {} }
-		matterialEntry = WkMaterialEntry.all
-		matterialEntry.each do | mEntry |
-			invItem = @invoice.invoice_items.new()			
-			productId = mEntry.inventory_item.product_item.product.id
-			productName = mEntry.inventory_item.product_item.product.name.to_s
-			productArr << productId
-			desc = productName + " " + mEntry.inventory_item.product_item.brand.name.to_s + " " + mEntry.inventory_item.product_item.product_model.name.to_s
-			rate = mEntry.selling_price
-			qty = mEntry.quantity
-			curr = mEntry.inventory_item.currency
-			amount = mEntry.selling_price * mEntry.quantity
-			if @matterialVal.has_key?("#{productId}")
-				oldAmount = @matterialVal["#{productId}"]["amount"].to_i
-				totAmount = oldAmount + amount
-				@matterialVal["#{productId}"].store "amount", "#{totAmount}"
-			else
-				@matterialVal["#{productId}"].store "amount", "#{amount}"
-				@matterialVal["#{productId}"].store "currency", "#{curr}"
-				@matterialVal["#{productId}"].store "pname", "#{productName}"
+		matterialEntry = WkMaterialEntry.where(:project_id => accountProject, :invoice_id => nil)
+			matterialEntry.each do | mEntry |
+				invItem = @invoice.invoice_items.new()			
+				productId = mEntry.inventory_item.product_item.product.id
+				productName = mEntry.inventory_item.product_item.product.name.to_s
+				productArr << productId
+				desc = productName + " " + mEntry.inventory_item.product_item.brand.name.to_s + " " + mEntry.inventory_item.product_item.product_model.name.to_s
+				rate = mEntry.selling_price
+				qty = mEntry.quantity
+				curr = mEntry.inventory_item.currency
+				amount = mEntry.selling_price * mEntry.quantity
+				if @matterialVal.has_key?("#{productId}")
+					oldAmount = @matterialVal["#{productId}"]["amount"].to_i
+					totAmount = oldAmount + amount
+					@matterialVal["#{productId}"].store "amount", "#{totAmount}"
+				else
+					@matterialVal["#{productId}"].store "amount", "#{amount}"
+					@matterialVal["#{productId}"].store "currency", "#{curr}"
+					@matterialVal["#{productId}"].store "pname", "#{productName}"
+					@matterialVal["#{productId}"].store "projectId", "#{mEntry.project_id}"
+					@matterialVal["#{productId}"].store "projectName", "#{mEntry.project.name}"
+				end
+				@invItems[@itemCount].store 'milestone_id', ''				
+				@invItems[@itemCount].store 'project_id', mEntry.project_id
+				@invItems[@itemCount].store 'product_id', productId
+				@invItems[@itemCount].store 'item_desc', desc
+				@invItems[@itemCount].store 'item_type', 'm'
+				@invItems[@itemCount].store 'rate', rate
+				@invItems[@itemCount].store 'currency', curr
+				@invItems[@itemCount].store 'item_quantity', qty.round(2)
+				@invItems[@itemCount].store 'item_amount', amount
+				@itemCount = @itemCount + 1
+				partialMatAmount = partialMatAmount + amount.round(2)
+				if isCreate
+					invItem = updateInvoiceItem(invItem, mEntry.project_id, desc, rate, qty, curr, 'm', amount, nil, nil, productId) 
+					
+				end
 			end
-			invItem = updateInvoiceItem(invItem, mEntry.project_id, desc, rate, qty, curr, 'm', amount, nil, nil)
-		end
-		pdtArr = productArr.uniq
+			@totalMatterialAmount =  partialMatAmount.round(2)
+			addProductTaxes(productArr, isCreate)			
+			
+			@totalMatterialAmount.round(2)
+	end
+	
+	def addProductTaxes(productArr, isCreate)
+		pdtArr = productArr.uniq			
 		pdtArr.each do | pid |
 			pdtTaxesId = WkProductTax.where(:product_id => pid) #.pluck(:id)
 			pdtTaxesId.each do | tid |
 				taxinvItem = @invoice.invoice_items.new()
-				projectId = invItem.project_id
-				curr = invItem.currency
+				projectId = @matterialVal["#{pid}"]["projectId"]  #invItem.project_id
+				curr = @matterialVal["#{pid}"]["currency"] #invItem.currency 
 				taxName = tid.tax.name.blank? ? " " : tid.tax.name
 				rate = tid.tax.rate_pct.blank? ? 0 : tid.tax.rate_pct
 				amount = (rate/100) * @matterialVal["#{pid}"]["amount"].to_i
 				desc = @matterialVal["#{pid}"]["pname"] + " - " + taxName.to_s
-				updateInvoiceItem(taxinvItem, projectId, desc, rate, nil, curr, 't', amount, nil, nil)
+				
+				@totalMatterialAmount = @totalMatterialAmount + amount.round(2)
+				unless isCreate
+					@taxVal[@indexKey].store 'project_name', @matterialVal["#{pid}"]["projectName"]
+					@taxVal[@indexKey].store 'product_id', pid
+					@taxVal[@indexKey].store 'name', desc
+					@taxVal[@indexKey].store 'rate', rate
+					@taxVal[@indexKey].store 'project_id', projectId
+					@taxVal[@indexKey].store 'currency', curr
+					@taxVal[@indexKey].store 'amount', amount
+					@indexKey = @indexKey + 1
+				end
+				updateInvoiceItem(taxinvItem, projectId, desc, rate, nil, curr, 't', amount, nil, nil, pid) if isCreate
 			end
 		end
-				
 	end
 	
 end
