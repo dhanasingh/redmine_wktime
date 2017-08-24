@@ -83,41 +83,68 @@ class WkproductController < ApplicationController
 			flash[:error] = product.errors.full_messages.join("<br>")
 		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
-	end	
-	
-	def edit_category
-		@categoryEntry = nil
-	    unless params[:category_id].blank?
-		   @categoryEntry = WkProductCategory.find(params[:category_id])
-		end 
 	end
-	
+
+	def category
+		entries = WkProductCategory.all	
+		formPagination(entries)
+	end
+
 	def updateCategory
-		if params[:category_id].blank?
-		  category = WkProductCategory.new
-		else
-		  category = WkProductCategory.find(params[:category_id])
+		arrId = WkProductCategory.all.pluck(:id)
+		for i in 0..params[:category_id].length-1
+			if params[:category_id][i].blank?
+				category = WkProductCategory.new
+			else
+				category = WkProductCategory.find(params[:category_id][i].to_i)
+				arrId.delete(params[:category_id][i].to_i)
+			end
+			category.name = params[:name][i]
+			category.description = params[:description][i]
+			category.save()			
 		end
-		category.name = params[:name]
-		category.description = params[:description]
-		if category.save()
-		    redirect_to :controller => 'wkproduct',:action => 'edit_category' , :tab => 'wkproduct'
-		    flash[:notice] = l(:notice_successful_update)
-		else
-		    redirect_to :controller => 'wkproduct',:action => 'edit_category' , :tab => 'wkproduct'
-		    flash[:error] = product.errors.full_messages.join("<br>")
+		
+		if !arrId.blank?			
+			WkProductCategory.delete_all(:id => arrId)
 		end
+		
+		redirect_to :controller => 'wkproduct',:action => 'category' , :tab => 'wkproduct'
+		flash[:notice] = l(:notice_successful_update)
 	end
 	
-	def destroyCategory
-		category = WkProductCategory.find(params[:category_id].to_i)
-		if category.destroy
-			flash[:notice] = l(:notice_successful_delete)
-		else
-			flash[:error] = category.errors.full_messages.join("<br>")
-		end
-		redirect_back_or_default :action => 'edit_category', :tab => params[:tab]
-	end
+	# def edit_category
+		# @categoryEntry = nil
+	    # unless params[:category_id].blank?
+		   # @categoryEntry = WkProductCategory.find(params[:category_id])
+		# end 
+	# end
+	
+	# def updateCategory
+		# if params[:category_id].blank?
+		  # category = WkProductCategory.new
+		# else
+		  # category = WkProductCategory.find(params[:category_id])
+		# end
+		# category.name = params[:name]
+		# category.description = params[:description]
+		# if category.save()
+		    # redirect_to :controller => 'wkproduct',:action => 'edit_category' , :tab => 'wkproduct'
+		    # flash[:notice] = l(:notice_successful_update)
+		# else
+		    # redirect_to :controller => 'wkproduct',:action => 'edit_category' , :tab => 'wkproduct'
+		    # flash[:error] = product.errors.full_messages.join("<br>")
+		# end
+	# end
+	
+	# def destroyCategory
+		# category = WkProductCategory.find(params[:category_id].to_i)
+		# if category.destroy
+			# flash[:notice] = l(:notice_successful_delete)
+		# else
+			# flash[:error] = category.errors.full_messages.join("<br>")
+		# end
+		# redirect_back_or_default :action => 'edit_category', :tab => params[:tab]
+	# end
   
    def setLimitAndOffset		
 		if api_request?

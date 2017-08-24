@@ -411,11 +411,13 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	delete 'wkproduct/destroy', :to => 'wkproduct#destroy'
     
-	get 'wkproduct/edit_category', :to => 'wkproduct#edit_category'
+	get 'wkproduct/category', :to => 'wkproduct#category'
+	
+	get 'wkproduct/updateCategory', :to => 'wkproduct#updateCategory'
 	
 	post 'wkproduct/updateCategory', :to => 'wkproduct#updateCategory'	
 	
-	delete 'wkproduct/destroyCategory', :to => 'wkproduct#destroyCategory'
+	#delete 'wkproduct/destroyCategory', :to => 'wkproduct#destroyCategory'
 	
 	get 'wkproductitem/index', :to => 'wkproductitem#index'
 	
