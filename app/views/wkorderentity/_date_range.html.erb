@@ -19,5 +19,9 @@
 </span>
 </div>
 <div style="clear:both"></div>
+<%=h hidden_field_tag('generate', false) %>
+<% if action_name =='reportdetail' || action_name =='report' %>
+<%=h hidden_field_tag('control', "#{action_name}") %>
+<% end %>
 </div>
 </fieldset>
