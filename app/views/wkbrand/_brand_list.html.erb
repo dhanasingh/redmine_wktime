@@ -1,0 +1,41 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+ <%= form_tag({:controller => 'wkbrand', :action => 'index'}, :method => :post, :id => 'query_form') do %>
+	  <fieldset>
+		 <%=h hidden_field_tag('tab', "wkbrand") %>
+		 <label for='name'><%= l(:field_name) %>:</label>
+		 <%= text_field_tag 'name', params[:name], :size => 30 %>
+		 <%= submit_tag l(:button_apply), :class => "small", :name => nil %>
+		 <%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
+	  </fieldset>
+ <% end %>
+ <div class="wk-contextual">
+        <%= link_to l(:label_new_brand), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+		<%#= link_to l(:label_category), url_for(:controller => controller_name, :action => 'category'), :class => 'icon icon-time-add' %>
+ </div>
+<div class="autoscroll">
+<table class="list time-entries">
+  <thead>
+         <tr>
+				<th class="lbl-txt-align">#</th>
+				<th class="lbl-txt-align"><%= l(:field_name) %></th>
+				<th class="lbl-txt-align"><%= l(:field_description) %></th>
+				<th></th>
+         </tr>
+  </thead>
+  <tbody>
+     <% @brandEntries.each do |entry| %>
+          <tr>
+			  <td class="lbl-txt-align"><%=h entry.id %></td>
+			  <td class="lbl-txt-align"><%=h entry.name  %></td>
+			  <td class="lbl-txt-align"><%=h entry.description %></td>
+			  <td align="center">
+                 <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :brand_id => entry.id}, :title => l(:button_edit) %> 
+				<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :brand_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+			  </td>
+		 </tr>
+   	<% end %>
+  </tbody>
+</table>
+</div>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
+

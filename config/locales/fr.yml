@@ -699,3 +699,5 @@ fr:
   label_stock_value: Stock value
   label_new_product: New Product
   label_new_category: New Category
+  label_new_brand: New Brand
+  label_new_model: New Model

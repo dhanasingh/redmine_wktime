@@ -453,6 +453,20 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wkbrand/index', :to => 'wkbrand#index'
 	
+	post 'wkbrand/index', :to => 'wkbrand#index'
+    
+	get 'wkbrand/edit', :to => 'wkbrand#edit'
+	
+	post 'wkbrand/update', :to => 'wkbrand#update'	
+	
+	delete 'wkbrand/destroy', :to => 'wkbrand#destroy'
+    
+	get 'wkbrand/edit_product_model', :to => 'wkbrand#edit_product_model'
+	
+	post 'wkbrand/updateProductModel', :to => 'wkbrand#updateProductModel'	
+	
+	delete 'wkbrand/destroyProductModel', :to => 'wkbrand#destroyProductModel'
+	
 	#get 'wkproductmodel/index', :to => 'wkproductmodel#index'
 	
 	#get 'wkproductattribute/index', :to => 'wkproductattribute#index'

@@ -1,8 +1,6 @@
 class WkproductController < ApplicationController
   unloadable
 
-
-
   def index
 		@productEntries = nil
 		sqlStr = ""
@@ -59,7 +57,7 @@ class WkproductController < ApplicationController
 							productTax.product_id = product.id
 							productTax.tax_id = id
 							if !productTax.save()
-								errorMsg = wkaccountproject.errors.full_messages.join("<br>")
+								errorMsg = productTax.errors.full_messages.join("<br>")
 							end
 						end						
 					}

@@ -19,8 +19,8 @@
   <thead>
          <tr>
 				<th class="lbl-txt-align">#</th>
-				<th class="lbl-txt-align"><%= l(:label_category) %></th>
 				<th class="lbl-txt-align"><%= l(:field_name) %></th>
+				<th class="lbl-txt-align"><%= l(:label_category) %></th>
 				<th class="lbl-txt-align"><%= l(:label_uom) %></th>
 				<th></th>
          </tr>
@@ -29,8 +29,8 @@
      <% @productEntries.each do |entry| %>
           <tr>
 			  <td class="lbl-txt-align"><%=h entry.id %></td>
-		      <td class="lbl-txt-align"><%=h entry.category.name %></td>
 			  <td class="lbl-txt-align"><%=h entry.name  %></td>
+		      <td class="lbl-txt-align"><%=h entry.category.name %></td>
 			  <td class="lbl-txt-align"><%=h entry.uom.short_desc %></td>
 			  <td align="center">
                  <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :product_id => entry.id}, :title => l(:button_edit) %> 
