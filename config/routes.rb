@@ -472,3 +472,9 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	#get 'wkproductattribute/index', :to => 'wkproductattribute#index'
 	
 	get 'wkattributegroup/index', :to => 'wkattributegroup#index'
+	
+	get 'wklocation/edit', :to => 'wklocation#edit'
+	
+	post 'wklocation/update', :to => 'wklocation#update'
+	
+	delete 'wklocation/destroy', :to => 'wklocation#destroy'

@@ -11,11 +11,11 @@ class WkcrmenumerationController < ApplicationController
 		enumType =  session[:wkcrmenumeration][:enumType]
 		wkcrmenum = nil
 		if !enumName.blank? &&  !enumType.blank?
-			wkcrmenum = WkCrmEnumeration.where(:enum_type => enumType).where("LOWER(name) like LOWER(?) OR LOWER(name) like LOWER(?)", "%#{enumName}%", "%#{enumName}%")
+			wkcrmenum = WkCrmEnumeration.where(:enum_type => enumType).where("LOWER(name) like LOWER(?)", "%#{enumName}%")
 		elsif enumName.blank? &&  !enumType.blank? 
 			wkcrmenum = WkCrmEnumeration.where(:enum_type => enumType)
 		elsif !enumName.blank? &&  enumType.blank?
-			wkcrmenum = WkCrmEnumeration.where("LOWER(name) like LOWER(?) OR LOWER(name) like LOWER(?)", "%#{enumName}%", "%#{enumName}%")
+			wkcrmenum = WkCrmEnumeration.where("LOWER(name) like LOWER(?)", "%#{enumName}%")
 		else
 			wkcrmenum = WkCrmEnumeration.all
 		end	

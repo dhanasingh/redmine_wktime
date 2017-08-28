@@ -19,5 +19,15 @@ class WkLocation < ActiveRecord::Base
   unloadable
   belongs_to :address, :class_name => 'WkAddress', :dependent => :destroy
   has_many :inventory_items, foreign_key: "location_id", class_name: "WkInventoryItem"
+  belongs_to :location_type, :class_name => 'WkCrmEnumeration'
+
+  before_save :check_default
   
+  validates_presence_of :name
+  
+  def check_default
+    if is_default? && is_default_changed?
+      WkLocation.update_all({:is_default => false})
+    end
+  end 
 end

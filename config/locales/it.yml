@@ -698,3 +698,6 @@ it:
   label_new_category: New Category
   label_new_brand: New Brand
   label_new_model: New Model
+  label_location_type: Location Type
+  label_new_location: New Location
+  label_location_detail: Location Detail
