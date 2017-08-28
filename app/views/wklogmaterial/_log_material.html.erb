@@ -14,7 +14,7 @@
 %>
 <% productArr = logmaterial_helper.getProductArray(WkProduct, '', false)  %>
 <% uomArr = logmaterial_helper.getUOMArray(nil, false)  %>
-<% productId = @materialEntry.blank? ? productArr[0][1] : @materialEntry.inventory_item.product_item.product.id    %>
+<% productId = @materialEntry.blank? ? ( productArr.blank? ? 0 : productArr[0][1]) : @materialEntry.inventory_item.product_item.product.id    %>
 <!-- Below Array contains the inventory item id and combination of brand, model, partnumber, attribute, selling price as display field  -->
 <% itemArr = logmaterial_helper.getPdtItemArr(productId, false)  %>
 <% itemId = @materialEntry.blank? ? '' : @materialEntry.inventory_item.product_item.id  %>
