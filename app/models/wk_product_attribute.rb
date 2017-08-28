@@ -17,6 +17,5 @@
 
 class WkProductAttribute < ActiveRecord::Base
   unloadable
-  has_many :group_attributes, foreign_key: "attribute_id", class_name: "WkGroupAttribute"
-  has_many :attribute_groups, through: :group_attributes
+  belongs_to :attribute_group, foreign_key: "group_id", class_name: "WkAttributeGroup"
 end

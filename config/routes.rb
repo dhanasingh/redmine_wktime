@@ -473,6 +473,20 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wkattributegroup/index', :to => 'wkattributegroup#index'
 	
+	post 'wkattributegroup/index', :to => 'wkattributegroup#index'
+    
+	get 'wkattributegroup/edit', :to => 'wkattributegroup#edit'
+	
+	post 'wkattributegroup/update', :to => 'wkattributegroup#update'	
+	
+	delete 'wkattributegroup/destroy', :to => 'wkattributegroup#destroy'
+    
+	get 'wkattributegroup/edit_product_attribute', :to => 'wkattributegroup#edit_product_attribute'
+	
+	post 'wkattributegroup/updateProductAttribute', :to => 'wkattributegroup#updateProductAttribute'	
+	
+	delete 'wkattributegroup/destroyProductAttribute', :to => 'wkattributegroup#destroyProductAttribute'
+	
 	get 'wklocation/edit', :to => 'wklocation#edit'
 	
 	post 'wklocation/update', :to => 'wklocation#update'

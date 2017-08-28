@@ -30,6 +30,7 @@ class CreateWkInventory < ActiveRecord::Migration
 		
 		create_table :wk_product_attributes do |t|
 			t.string :name
+			t.references :group, :class => "wk_attribute_groups", :null => false, :index => true
 			t.timestamps null: false
 		end
 		
@@ -38,11 +39,11 @@ class CreateWkInventory < ActiveRecord::Migration
 			t.timestamps null: false
 		end
 		
-		create_table :wk_group_attributes do |t|
-			t.references :attribute, :class => "wk_product_attributes", :null => false, :index => true
-			t.references :group, :class => "wk_attribute_groups", :null => false, :index => true
-			t.timestamps null: false
-		end
+		# create_table :wk_group_attributes do |t|
+			# t.references :attribute, :class => "wk_product_attributes", :null => false, :index => true
+			# t.references :group, :class => "wk_attribute_groups", :null => false, :index => true
+			# t.timestamps null: false
+		# end
 		
 		create_table :wk_products do |t|
 			t.string :name
