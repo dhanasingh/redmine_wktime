@@ -53,10 +53,10 @@ class WkproductitemController < ApplicationController
 		sourceItem.available_quantity = sourceItem.available_quantity - (params[:total_quantity].blank? ? params[:available_quantity].to_i : params[:total_quantity].to_i)
 		if sourceItem.save()
 			targetItem = updateInventoryItem(params[:product_item_id].to_i)
-		    redirect_to :controller => 'wkshipment',:action => 'edit' , :tab => 'wkshipment', :shipment_id => sourceItem.shipment_id, :tab => 'wkshipment'
+		    redirect_to :controller => 'wkproductitem',:action => 'index', :tab => 'wkproductitem'
 		    flash[:notice] = l(:notice_successful_update)
 		else
-		    redirect_to :controller => 'wkshipment',:action => 'edit' , :tab => 'wkshipment', :shipment_id => sourceItem.shipment_id, :tab => 'wkshipment'
+		    redirect_to :controller => 'wkproductitem',:action => 'index', :tab => 'wkproductitem'
 		    flash[:error] = sourceItem.errors.full_messages.join("<br>")
 		end
 	end
