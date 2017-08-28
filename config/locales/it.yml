@@ -701,3 +701,5 @@ it:
   label_location_type: Location Type
   label_new_location: New Location
   label_location_detail: Location Detail
+  label_new_model: New Model
+  label_product_model: Product Model

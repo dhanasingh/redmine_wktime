@@ -81,6 +81,7 @@ class WkbrandController < ApplicationController
 	
 	def edit_product_model
 		@modelEntry = nil
+		@brand = WkBrand.find(params[:brand_id].to_i)
 	    unless params[:product_model_id].blank?
 		   @modelEntry = WkProductModel.find(params[:product_model_id])
 		end 
@@ -97,10 +98,10 @@ class WkbrandController < ApplicationController
 		productModel.product_id = params[:product_id]
 		productModel.brand_id = params[:brand_id]
 		if productModel.save()
-		    redirect_to :controller => 'wkbrand',:action => 'edit_product_model' , :tab => 'wkbrand', :brand_id => productModel.brand_id
+		    redirect_to :controller => 'wkbrand',:action => 'edit' , :tab => 'wkbrand', :brand_id => productModel.brand_id
 		    flash[:notice] = l(:notice_successful_update)
 		else
-		    redirect_to :controller => 'wkbrand',:action => 'edit_product_model' , :tab => 'wkbrand', :brand_id => productModel.brand_id
+		    redirect_to :controller => 'wkbrand',:action => 'edit' , :tab => 'wkbrand', :brand_id => productModel.brand_id
 		    flash[:error] = product.errors.full_messages.join("<br>")
 		end
 	end
@@ -113,7 +114,7 @@ class WkbrandController < ApplicationController
 		else
 			flash[:error] = productModel.errors.full_messages.join("<br>")
 		end
-		redirect_back_or_default :action => 'edit_product_model' , :tab => 'wkbrand', :brand_id => brandId
+		redirect_back_or_default :action => 'edit' , :tab => 'wkbrand', :brand_id => brandId
 	end
   
    def setLimitAndOffset		
