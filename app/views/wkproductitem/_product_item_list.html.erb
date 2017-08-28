@@ -4,10 +4,13 @@
 		<thead>
 			<tr>
 				<th class="lbl-txt-align"><%= l(:label_product_item) %></th>
+				<th class="lbl-txt-align"><%= l(:label_product) %></th>
+				<th class="lbl-txt-align"><%= l(:label_brand) %></th>
+				<th class="lbl-txt-align"><%= l(:label_model) %></th>
 				<th class="lbl-txt-align"><%= l(:label_serial_number) %></th>
 				<th class="lbl-txt-align"><%= l(:field_currency) %></th>
-				<th class="lbl-txt-align"><%= l(:label_cost_price) %></th>				
-				<th class="lbl-txt-align"><%= l(:label_over_head_price) %></th>
+				<!-- <th class="lbl-txt-align"><%#= l(:label_cost_price) %></th>				
+				<th class="lbl-txt-align"><%#= l(:label_over_head_price) %></th> -->
 				<th class="lbl-txt-align"><%= l(:label_selling_price) %></th>
 				<th class="lbl-txt-align"><%= l(:label_total_quantity) %></th>				
 				<th class="lbl-txt-align"><%= l(:label_available_quantity) %></th>
@@ -20,10 +23,13 @@
 			<% @productInventory.each do |entry| %>
 				<tr>
 					  <td class="lbl-txt-align"><%=h entry.product_item_id %></td>
+					  <td class="lbl-txt-align"><%=h entry.product_item.product.name %></td>
+					  <td class="lbl-txt-align"><%=h entry.product_item.brand.name %></td>
+					  <td class="lbl-txt-align"><%=h entry.product_item.product_model.name %></td>
 					  <td class="lbl-txt-align"><%=h entry.serial_number %></td>
 					  <td class="lbl-txt-align"><%=h entry.currency %></td>
-					  <td class="lbl-txt-align"><%=h entry.cost_price%></td>					  
-					  <td class="lbl-txt-align"><%=h entry.over_head_price %></td>
+					  <!-- <td class="lbl-txt-align"><%#=h entry.cost_price%></td>					  
+					  <td class="lbl-txt-align"><%#=h entry.over_head_price %></td> -->
 					  <td class="lbl-txt-align"><%=h entry.selling_price %></td>
 					  <td class="lbl-txt-align"><%=h entry.total_quantity %></td>
 					  <td class="lbl-txt-align"><%=h entry.available_quantity%></td>					  
@@ -38,4 +44,4 @@
 	</table>
 </div>
 
-<!-- <span class="pagination"><%#= pagination_links_full @entry_pages, @entry_count %></span> -->
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

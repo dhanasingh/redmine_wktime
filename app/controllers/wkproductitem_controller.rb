@@ -4,7 +4,27 @@ class WkproductitemController < ApplicationController
   include WkgltransactionHelper
   
 	def index
-		@productInventory = WkInventoryItem.all
+		set_filter_session
+		productId = session[controller_name][:product_id]
+		brandId = session[controller_name][:brand_id]
+		#@productInventory = WkInventoryItem.includes().all
+		sqlwhere = ""
+		unless productId.blank?
+			sqlwhere = "wk_product_items.product_id = #{productId}"
+		end
+		
+		unless brandId.blank?
+			sqlwhere = sqlwhere + " AND" unless sqlwhere.blank?
+			sqlwhere = sqlwhere + " wk_product_items.brand_id = #{brandId}"
+		end
+		
+		unless sqlwhere.blank?
+			productItems = WkInventoryItem.joins(:product_item).where(sqlwhere)
+		else
+			productItems = WkInventoryItem.joins(:product_item).all
+		end
+		
+		formPagination(productItems)
 	end
 	
 	def edit
@@ -111,6 +131,39 @@ class WkproductitemController < ApplicationController
 			flash[:error] = productItem.errors.full_messages.join("<br>")
 		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
+	end	  
+
+	def set_filter_session
+		if params[:searchlist].blank? && session[controller_name].nil?
+			session[controller_name] = {:product_id => params[:product_id], :brand_id => params[:brand_id]}
+		elsif params[:searchlist] == controller_name
+			session[controller_name][:product_id] = params[:product_id]
+			session[controller_name][:brand_id] = params[:brand_id]
+		end
+		
+	end
+	
+	def formPagination(entries)
+		@entry_count = entries.count
+        setLimitAndOffset()
+		@productInventory = entries.order(:id).limit(@limit).offset(@offset)
+	end
+	
+	def setLimitAndOffset		
+		if api_request?
+			@offset, @limit = api_offset_and_limit
+			if !params[:limit].blank?
+				@limit = params[:limit]
+			end
+			if !params[:offset].blank?
+				@offset = params[:offset]
+			end
+		else
+			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
+			@limit = @entry_pages.per_page
+			@offset = @entry_pages.offset
+		end	
 	end	
+
 
 end
