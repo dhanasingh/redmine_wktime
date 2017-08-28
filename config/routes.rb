@@ -478,3 +478,5 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	post 'wklocation/update', :to => 'wklocation#update'
 	
 	delete 'wklocation/destroy', :to => 'wklocation#destroy'
+	
+	get 'wkunitofmeasurement/update', :to => 'wkunitofmeasurement#update'

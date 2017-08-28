@@ -8,18 +8,13 @@ class WklocationController < WkbaseController
 		locationName = session[:wklocation][:locName]		
 		locationType =  session[:wklocation][:locType]
 		wklocation = nil
-		Rails.logger.info("***********locationType #{locationType}  locationName #{locationName} ******************************")
 		if !locationName.blank? &&  !locationType.blank? && locationType.to_i != 0
-		Rails.logger.info("********** 1 ****************")
 			wklocation = WkLocation.where(:location_type_id => locationType.to_i).where("LOWER(name) like LOWER(?) ", "%#{locationName}%")
 		elsif locationName.blank? &&  !locationType.blank? && locationType.to_i != 0
-		Rails.logger.info("*********** 2 ***************")
 			wklocation = WkLocation.where(:location_type_id => locationType.to_i)
 		elsif !locationName.blank? &&  (locationType.blank? ||  locationType.to_i == 0 )
-		Rails.logger.info("************ 3 **************")
 			wklocation = WkLocation.where("LOWER(name) like LOWER(?) ", "%#{locationName}%")
 		else
-		Rails.logger.info("************ 4 **************")
 			wklocation = WkLocation.all
 		end	
 		formPagination(wklocation)
