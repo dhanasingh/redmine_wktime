@@ -706,5 +706,7 @@ en:
   label_new_model: New Model
   label_product_model: Product Model
   label_product_attribute: Product Attribute
-  label_new_product_attribute: New Product Attribute
+  label_new_product_attribute: New  Attributes
   label_new_attribute_group: New Attribute Group
+  label_models: Models
+  label_attributes: Attributes
