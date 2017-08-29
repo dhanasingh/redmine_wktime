@@ -689,10 +689,9 @@ de:
   label_product_item: Product Item
   label_part_number: Part Number
   label_inventory_information: Inventory Information
-  button_transfer: Transfer
   field_quantity: Quantity
   field_selling_price: Selling Price
-  button_transfer: Transfer
+  button_transfer: Transfer to
   report_stock: Stock Report
   label_stock_value: Stock value
   label_new_product: New Product
@@ -709,3 +708,4 @@ de:
   label_new_attribute_group: New Attribute Group
   label_models: Models
   label_attributes: Attributes
+  label_transfer: Transfer

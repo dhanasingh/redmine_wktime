@@ -16,13 +16,14 @@ class WkbrandController < ApplicationController
 		else
 			entries = WkBrand.all
 		end
-		@brandEntries = formPagination(entries)
+		orderColumn = 'name'
+		@brandEntries = formPagination(entries,  orderColumn)
     end
 	
-	def formPagination(entries)
+	def formPagination(entries, orderColumn)
 		@entry_count = entries.count
         setLimitAndOffset()
-		pageEntries = entries.order(:name).limit(@limit).offset(@offset)
+		pageEntries = entries.order(orderColumn).limit(@limit).offset(@offset)
 		pageEntries
 	end
 	
@@ -30,7 +31,8 @@ class WkbrandController < ApplicationController
 	    @brandEntry = nil
 	    unless params[:brand_id].blank?
 		   @brandEntry = WkBrand.find(params[:brand_id])
-		   @productModelEntries = formPagination(@brandEntry.product_models)
+		   orderColumn = 'product_id, name'
+		   @productModelEntries = formPagination(@brandEntry.product_models, orderColumn)
 		   @brandProducts = @brandEntry.brand_products.map { |r| r.product_id }
 		end 
 	end	

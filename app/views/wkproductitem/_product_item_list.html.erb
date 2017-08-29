@@ -2,11 +2,11 @@
 <div class="autoscroll">
 	<table class="list time-entries">
 		<thead>
-			<tr>
-				<th class="lbl-txt-align"><%= l(:label_product_item) %></th>
+			<tr>				
 				<th class="lbl-txt-align"><%= l(:label_product) %></th>
 				<th class="lbl-txt-align"><%= l(:label_brand) %></th>
 				<th class="lbl-txt-align"><%= l(:label_model) %></th>
+				<th class="lbl-txt-align"><%= l(:label_attribute) %></th>
 				<th class="lbl-txt-align"><%= l(:label_serial_number) %></th>
 				<th class="lbl-txt-align"><%= l(:field_currency) %></th>
 				<!-- <th class="lbl-txt-align"><%#= l(:label_cost_price) %></th>				
@@ -22,10 +22,11 @@
 		<tbody>
 			<% @productInventory.each do |entry| %>
 				<tr>
-					  <td class="lbl-txt-align"><%=h entry.product_item_id %></td>
-					  <td class="lbl-txt-align"><%=h entry.product_item.product.name %></td>
+					  
+					  <td class="lbl-txt-align"><%=h entry.product_item.product.blank? ? nil : entry.product_item.product.name %></td>
 					  <td class="lbl-txt-align"><%=h entry.product_item.brand.name %></td>
 					  <td class="lbl-txt-align"><%=h entry.product_item.product_model.name %></td>
+					  <td class="lbl-txt-align"><%=h entry.product_item.product_attribute.name %></td>
 					  <td class="lbl-txt-align"><%=h entry.serial_number %></td>
 					  <td class="lbl-txt-align"><%=h entry.currency %></td>
 					  <!-- <td class="lbl-txt-align"><%#=h entry.cost_price%></td>					  
@@ -33,8 +34,8 @@
 					  <td class="lbl-txt-align"><%=h entry.selling_price %></td>
 					  <td class="lbl-txt-align"><%=h entry.total_quantity %></td>
 					  <td class="lbl-txt-align"><%=h entry.available_quantity%></td>					  
-					  <td class="lbl-txt-align"><%=h entry.uom.name %></td>
-					  <td class="lbl-txt-align"><%=h entry.location.name %></td>
+					  <td class="lbl-txt-align"><%=h entry.uom.blank? ? nil : entry.uom.name %></td>
+					  <td class="lbl-txt-align"><%=h entry.location.blank? ? nil : entry.location.name %></td>
 					  <td align="center">
 						  <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :inventory_item_id => entry.id, :product_item_id => entry.product_item_id}, :title => l(:button_edit) %> <%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :inventory_item_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
 					  </td>

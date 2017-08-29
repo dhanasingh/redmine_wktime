@@ -1,6 +1,6 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= form_tag({:controller => 'wkproductitem', :action => 'updateTransfer'}, :method => :post, :id => 'query_form') do %>
-	<h2><b><%=l(:button_transfer) %></b></h2>
+	<h2><b><%=l(:label_transfer) %></b></h2>
 	<div id="product_item_form">
            <%=h hidden_field_tag('product_item_id', @transferItem.product_item_id) %>
 		   <%=h hidden_field_tag('transfer_item_id', @transferItem.id) %>
@@ -92,7 +92,7 @@
 					<tr>
 						<th align="left"><%= l(:label_location) %></th>
 						<td align="left">
-							<%=h @transferItem.location.name %>
+							<%=h @transferItem.location.blank? ? nil : @transferItem.location.name %>
 						</td>
 					</tr> 
 					<tr>
@@ -105,6 +105,6 @@
 	</div>
 	<div style="clear:left;"></div>
 		<div align='center'>
-			<%= submit_tag l(:button_transfer) ,:id => 'wkproductitem_transfer'%>
+			<%= submit_tag l(:label_transfer) ,:id => 'wkproductitem_transfer'%>
 		</div>
 <% end %>
