@@ -59,7 +59,13 @@ class WkproductitemController < ApplicationController
 		productItem.product_model_id = params[:product_model_id]
 		productItem.product_attribute_id = params[:product_attribute_id]
 		if productItem.save()
-			updatedInventory = updateInventoryItem(productItem.id) unless params[:available_quantity].blank?
+			unless params[:available_quantity].blank?
+				updatedInventory = updateInventoryItem(productItem.id) 
+			else
+				inventoryItem = WkInventoryItem.find(params[:inventory_item_id].to_i)
+				inventoryItem.selling_price = params[:selling_price]
+				inventoryItem.save
+			end
 		    redirect_to :controller => 'wkproductitem',:action => 'index' , :tab => 'wkproductitem'
 		    flash[:notice] = l(:notice_successful_update)
 		else

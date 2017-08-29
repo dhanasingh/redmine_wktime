@@ -1,3 +1,4 @@
 module WkproductitemHelper
 include WktimeHelper
+include WkshipmentHelper
 end

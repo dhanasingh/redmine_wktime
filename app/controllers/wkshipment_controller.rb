@@ -176,25 +176,27 @@ include WkgltransactionHelper
 			else				
 				shipmentItem = @shipment.inventory_items.new
 			end
-			shipmentItem.product_item_id = params["product_item_id#{i}"].to_i
-			if sysCurrency != params["currency#{i}"]
-				shipmentItem.org_currency = params["currency#{i}"]
-				shipmentItem.org_cost_price = params["cost_price#{i}"]
-				shipmentItem.org_over_head_price = params["over_head_price#{i}"]
-				shipmentItem.org_selling_price = params["selling_price#{i}"]
+			unless isUsedInventoryItem(shipmentItem)
+				shipmentItem.product_item_id = params["product_item_id#{i}"].to_i
+				if sysCurrency != params["currency#{i}"]
+					shipmentItem.org_currency = params["currency#{i}"]
+					shipmentItem.org_cost_price = params["cost_price#{i}"]
+					shipmentItem.org_over_head_price = params["over_head_price#{i}"]
+					shipmentItem.org_selling_price = params["selling_price#{i}"]
+				end
+				shipmentItem.currency = sysCurrency
+				shipmentItem.cost_price = getExchangedAmount(params["currency#{i}"], params["cost_price#{i}"]) 
+				shipmentItem.over_head_price = getExchangedAmount(params["currency#{i}"], params["over_head_price#{i}"])
+				shipmentItem.selling_price = getExchangedAmount(params["currency#{i}"], params["selling_price#{i}"]) 
+				shipmentItem.serial_number = params["serial_number#{i}"]
+				shipmentItem.notes = params["notes#{i}"]
+				shipmentItem.available_quantity = params["total_quantity#{i}"] if shipmentItem.new_record? || shipmentItem.available_quantity == shipmentItem.total_quantity
+				shipmentItem.total_quantity = params["total_quantity#{i}"]
+				shipmentItem.status = 'o'
+				shipmentItem.uom_id = params["uom_id#{i}"].to_i unless params["uom_id#{i}"].blank?
+				shipmentItem.location_id = params["location_id#{i}"].to_i unless params["location_id#{i}"].blank?
+				shipmentItem.save()
 			end
-			shipmentItem.currency = sysCurrency
-			shipmentItem.cost_price = getExchangedAmount(params["currency#{i}"], params["cost_price#{i}"]) 
-			shipmentItem.over_head_price = getExchangedAmount(params["currency#{i}"], params["over_head_price#{i}"])
-			shipmentItem.selling_price = getExchangedAmount(params["currency#{i}"], params["selling_price#{i}"]) 
-			shipmentItem.serial_number = params["serial_number#{i}"]
-			shipmentItem.notes = params["notes#{i}"]
-			shipmentItem.available_quantity = params["total_quantity#{i}"] if shipmentItem.new_record? || shipmentItem.available_quantity == shipmentItem.total_quantity
-			shipmentItem.total_quantity = params["total_quantity#{i}"]
-			shipmentItem.status = 'o'
-			shipmentItem.uom_id = params["uom_id#{i}"].to_i unless params["uom_id#{i}"].blank?
-			shipmentItem.location_id = params["location_id#{i}"].to_i unless params["location_id#{i}"].blank?
-			shipmentItem.save()
 			savedRows = savedRows + 1
 		end
 		

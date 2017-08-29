@@ -28,4 +28,12 @@ module WkshipmentHelper
 		ddArray.unshift(["",""]) if needBlank
 		ddArray
 	end
+	
+	def isUsedInventoryItem(invenItem)
+		ret = false
+		if invenItem.available_quantity != invenItem.total_quantity
+			ret = true
+		end
+		ret
+	end
 end
