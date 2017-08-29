@@ -1,8 +1,6 @@
 class WklocationController < WkbaseController
   unloadable
 
-
-
   def index
 	set_filter_session
 		locationName = session[:wklocation][:locName]		
