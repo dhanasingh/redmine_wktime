@@ -142,11 +142,14 @@ class CreateWkInventory < ActiveRecord::Migration
 		  t.column :tweek,       :integer,  :null => false
 		  t.column :created_on,  :datetime, :null => false
 		  t.column :updated_on,  :datetime, :null => false
-		  t.references :invoice, :class => "wk_invoices", :null => true, :index => true
+		  t.references :invoice_item, :class => "wk_invoice_items", :null => true, :index => true
 		  t.references :inventory_item, :class => "wk_inventory_items", :index => true
 		  t.references :uom, :class => "wk_mesure_units", :null => false, :index => true
 		end
 		add_index :wk_material_entries, [:project_id], :name => :wk_material_entries_project_id
 		add_index :wk_material_entries, [:issue_id], :name => :wk_material_entries_issue_id
+		
+		add_column :wk_invoice_items, :product, :integer
+		add_reference :wk_invoice_items, :product_id, :class => "wk_products", :index => true
 	end
 end

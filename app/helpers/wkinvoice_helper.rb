@@ -637,7 +637,7 @@ include WkbillingHelper
 		@totalMatterialAmount = 0.00
 		partialMatAmount = 0.00
 		@matterialVal = Hash.new{|hsh,key| hsh[key] = {} }
-		matterialEntry = WkMaterialEntry.where(:project_id => accountProject, :invoice_id => nil)
+		matterialEntry = WkMaterialEntry.where(:project_id => accountProject, :invoice_item_id => nil)
 			matterialEntry.each do | mEntry |
 				invItem = @invoice.invoice_items.new()			
 				productId = mEntry.inventory_item.product_item.product.id
@@ -672,7 +672,9 @@ include WkbillingHelper
 				partialMatAmount = partialMatAmount + amount.round(2)
 				if isCreate
 					invItem = updateInvoiceItem(invItem, mEntry.project_id, desc, rate, qty, curr, 'm', amount, nil, nil, productId) 
-					
+					updateMatterial = WkMaterialEntry.find(mEntry.id)
+					updateMatterial.invoice_item_id = invItem.id
+					updateMatterial.save()
 				end
 			end
 			@totalMatterialAmount =  partialMatAmount.round(2)
