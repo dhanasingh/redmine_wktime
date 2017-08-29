@@ -16,6 +16,10 @@
 				<%=h select_tag("hidden_group_id", generic_options_for_select(WkAttributeGroup, nil, 'name', 'name', 'id', @attributeEntry.blank? ? @groupEntry.id : @attributeEntry.group_id, false), :disabled => true ) %>
 			</td>
 		</tr> 
+		<tr>
+			<th align="left" ><%= l(:field_description) %></th>
+			<td align="left" style="padding-left:40px;"><%= text_area_tag 'description', (@attributeEntry.blank? ? nil : @attributeEntry.description), :maxlength => 255, :style => "width:605px; height: 100px;" %></td>				
+		</tr>
 	</table>	
 </fieldset>
 	<%= submit_tag l(:button_save), :class => "small", :name => nil %>

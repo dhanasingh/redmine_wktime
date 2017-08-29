@@ -10,6 +10,7 @@
 			 <tr>
 					<th class="lbl-txt-align">#</th>
 					<th class="lbl-txt-align"><%= l(:field_name) %></th>
+					<th class="lbl-txt-align"><%= l(:field_description) %></th>
 					<th></th>
 			 </tr>
 	  </thead>
@@ -18,6 +19,7 @@
 			<tr>
 				<td class="lbl-txt-align"><%=h entry.id %></td>
 				<td class="lbl-txt-align"><%=h entry.name  %></td>
+				<td class="lbl-txt-align"><%=h entry.description  %></td>
 				<td align="center">
 				 <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit_product_attribute', :product_attribute_id => entry.id, :group_id => entry.group_id}, :title => l(:button_edit) %> 
 				<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroyProductAttribute', :product_attribute_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>

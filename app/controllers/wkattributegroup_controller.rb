@@ -37,6 +37,7 @@ class WkattributegroupController < ApplicationController
 		  attrGroup = WkAttributeGroup.find(params[:group_id])
 		end
 		attrGroup.name = params[:name]
+		attrGroup.description = params[:description]
 		if attrGroup.save()
 		    redirect_to :controller => 'wkattributegroup',:action => 'index' , :tab => 'wkattributegroup'
 		    flash[:notice] = l(:notice_successful_update)
@@ -72,6 +73,7 @@ class WkattributegroupController < ApplicationController
 		end
 		productAttr.name = params[:name]
 		productAttr.group_id = params[:group_id]
+		productAttr.description = params[:description]
 		if productAttr.save()
 		    redirect_to :controller => 'wkattributegroup',:action => 'edit' , :tab => 'wkattributegroup', :group_id => productAttr.group_id
 		    flash[:notice] = l(:notice_successful_update)

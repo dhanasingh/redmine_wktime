@@ -13,14 +13,7 @@ class CreateWkInventory < ActiveRecord::Migration
 			t.string :name
 			t.string :short_desc
 			t.timestamps null: false
-		end
-		
-		create_table :wk_compound_units do |t|
-			t.references :first_unit, :class => "wk_mesure_units", :null => false, :index => true
-			t.references :second_unit, :class => "wk_mesure_units", :null => false, :index => true
-			t.float :multiplier
-			t.timestamps null: false
-		end
+		end	
 		
 		create_table :wk_brands do |t|
 			t.string :name
@@ -30,12 +23,14 @@ class CreateWkInventory < ActiveRecord::Migration
 		
 		create_table :wk_product_attributes do |t|
 			t.string :name
+			t.string :description
 			t.references :group, :class => "wk_attribute_groups", :null => false, :index => true
 			t.timestamps null: false
 		end
 		
 		create_table :wk_attribute_groups do |t|
 			t.string :name
+			t.string :description
 			t.timestamps null: false
 		end
 		
