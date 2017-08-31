@@ -17,4 +17,5 @@
 
 class WkMesureUnit < ActiveRecord::Base
   unloadable
+  has_many :product, foreign_key: "uom_id", class_name: "WkProduct", :dependent => :restrict_with_error
 end

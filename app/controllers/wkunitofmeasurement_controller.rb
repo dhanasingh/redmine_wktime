@@ -9,6 +9,8 @@ class WkunitofmeasurementController < ApplicationController
 	end
 
 	def update
+		count = 0		
+		errorMsg = ""
 		arrId = WkMesureUnit.all.pluck(:id)
 		for i in 0..params[:uom_id].length-1
 			if params[:uom_id][i].blank?
@@ -23,11 +25,20 @@ class WkunitofmeasurementController < ApplicationController
 		end
 		
 		if !arrId.blank?			
-			WkMesureUnit.delete_all(:id => arrId)
+			arrId.each do |id|
+				des = WkMesureUnit.find(id)
+				if des.destroy
+					count = count + 1	
+				else
+					errorMsg = errorMsg + des.errors.full_messages.join("<br>")
+				end
+			end
+			
 		end
 		
 		redirect_to :controller => 'wkunitofmeasurement',:action => 'index' , :tab => 'wkunitofmeasurement'
 		flash[:notice] = l(:notice_successful_update)
+		flash[:error] = errorMsg unless errorMsg.blank?
 	end
 	
 	def formPagination(entries)
