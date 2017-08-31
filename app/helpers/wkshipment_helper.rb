@@ -23,7 +23,7 @@ module WkshipmentHelper
 			ddValues = WkProductItem.where("#{sqlCond}")#.order("#{orderBySql}")
 		end
 		unless ddValues.blank?
-			ddArray = ddValues.collect {|t| [t.brand.name.to_s + ' - ' + t.product_model.name.to_s , t.id] }
+			ddArray = ddValues.collect {|t| [(t.brand.blank? ? '' : t.brand.name.to_s) + ' - ' + (t.product_model.blank? ? '' : t.product_model.name.to_s) , t.id] }
 		end
 		ddArray.unshift(["",""]) if needBlank
 		ddArray

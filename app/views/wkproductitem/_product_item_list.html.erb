@@ -24,9 +24,9 @@
 				<tr>
 					  
 					  <td class="lbl-txt-align"><%=h entry.product_item.product.blank? ? nil : entry.product_item.product.name %></td>
-					  <td class="lbl-txt-align"><%=h entry.product_item.brand.name %></td>
-					  <td class="lbl-txt-align"><%=h entry.product_item.product_model.name %></td>
-					  <td class="lbl-txt-align"><%=h entry.product_attribute.name %></td>
+					  <td class="lbl-txt-align"><%=h entry.product_item.brand.name unless entry.product_item.brand.blank?%></td>
+					  <td class="lbl-txt-align"><%=h entry.product_item.product_model.name unless entry.product_item.product_model.blank? %></td>
+					  <td class="lbl-txt-align"><%=h entry.product_attribute.name unless entry.product_attribute.blank? %></td>
 					  <td class="lbl-txt-align"><%=h entry.serial_number %></td>
 					  <td class="lbl-txt-align"><%=h entry.currency %></td>
 					  <!-- <td class="lbl-txt-align"><%#=h entry.cost_price%></td>					  
