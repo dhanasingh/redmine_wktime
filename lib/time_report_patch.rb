@@ -38,7 +38,6 @@ module Redmine::Helpers
 				  group(@criteria.collect{|criteria| @available_criteria[criteria][:sql]} + time_columns).
 				  joins(@criteria.collect{|criteria| @available_criteria[criteria][:joins]}.compact).
 				  sum(:selling_price).each do |hash, selling_price|
-				  Rails.logger.info("************* @scope #{@scope.inspect}  hash #{hash.inspect}  selling_price #{selling_price.inspect} ********************************")
 				  h = {'hours' => selling_price}
 				(@criteria + time_columns).each_with_index do |name, i|
 				  h[name] = hash[i]

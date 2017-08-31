@@ -99,7 +99,25 @@ module TimelogControllerPatch
 					end
 				end
 			else
-				saveMatterial
+				errorMsg = ""
+				if params[:product_sell_price].blank?
+					errorMsg = "Quantity cann't be empty."
+				end
+				if params[:product_quantity].blank?
+					errorMsg = "Selling price cann't be empty."
+				end
+				
+				if errorMsg.blank?
+					saveMatterial
+				else
+					respond_to do |format|
+						format.html { 					
+							flash[:notice] = l(:notice_successful_update)
+							redirect_back_or_default project_time_entries_path(@time_entry.project)
+						
+						}
+					end
+				end
 			end
 		end
 
@@ -124,7 +142,25 @@ module TimelogControllerPatch
 					end
 				end
 			else
-				saveMatterial
+				errorMsg = ""
+				if params[:product_sell_price].blank?
+					errorMsg = "Quantity cann't be empty."
+				end
+				if params[:product_quantity].blank?
+					errorMsg = "Selling price cann't be empty."
+				end
+				
+				if errorMsg.blank?
+					saveMatterial
+				else
+					respond_to do |format|
+						format.html { 					
+							flash[:notice] = l(:notice_successful_update)
+							redirect_back_or_default project_time_entries_path(@time_entry.project)
+						
+						}
+					end
+				end
 			end
 		end
 		

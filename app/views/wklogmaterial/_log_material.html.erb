@@ -71,7 +71,7 @@
 			
 				<label id="cpcurrency" ><%=h (itemObj.blank? ? "" : itemObj.currency) %></label>
 				<% costPrice = itemObj.blank? ? "" : itemObj.cost_price %>
-				<%=h text_field_tag("product_cost_price", costPrice.blank? ? "" : ("%.2f" % costPrice) ,:size => 20, :style => "width:100px; text-align:right; float:right") %> 
+				<%=h text_field_tag("product_cost_price", costPrice.blank? ? "" : ("%.2f" % costPrice) ,:size => 20, :disabled => true, :style => "width:100px; text-align:right; float:right") %> 
 			</td>
 		<% else %>
 			<th></th>

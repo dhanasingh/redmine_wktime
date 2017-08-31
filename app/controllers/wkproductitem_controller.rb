@@ -129,9 +129,7 @@ class WkproductitemController < ApplicationController
 	end
 	
 	def destroy
-		#WkRfq.find(params[:rfq_id].to_i).destroy
-		#flash[:notice] = l(:notice_successful_delete)
-		productItem = WkRfq.find(params[:product_item_id].to_i)
+		productItem = WkInventoryItem.find(params[:product_item_id].to_i)
 		if productItem.destroy
 			flash[:notice] = l(:notice_successful_delete)
 		else

@@ -43,8 +43,8 @@ include WktimeHelper
 	end
 	
 	def mergePItemInvItemQuery(productId)
-		sqlQuery = "select it.id, pi.product_id, pi.brand_id, pi.product_attribute_id, pi.product_model_id, pi.part_number, it.cost_price, it.selling_price, it.currency, it.available_quantity, it.uom_id from wk_product_items pi left outer join wk_inventory_items it on pi.id = it.id where pi.product_id = #{productId}"
-		pctObj = WkProductItem.find_by_sql(sqlQuery)
+		sqlQuery = "select it.id, pi.product_id, pi.brand_id, wb.name as brand_name, it.product_attribute_id, pi.product_model_id, wpm.name as product_model_name, pi.part_number, it.cost_price, it.selling_price, it.currency, it.available_quantity, it.uom_id from wk_inventory_items it left outer join wk_product_items pi on pi.id = it.product_item_id left outer join wk_brands wb on wb.id = pi.brand_id left outer join wk_product_models wpm on wpm.id = pi.product_model_id where pi.product_id = #{productId} and it.available_quantity > 0"
+		pctObj = WkInventoryItem.find_by_sql(sqlQuery)
 		pctObj
 	end
 
@@ -52,7 +52,7 @@ include WktimeHelper
 		pctObj = mergePItemInvItemQuery(productId)
 		pctArr = Array.new
 		pctObj.each do | entry|
-			pctArr <<  [(entry.brand.name.to_s() +' - '+ entry.product_model.name.to_s() +' - '+ entry.part_number.to_s() +' - '+ entry.product_attribute.name.to_s()  +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s()) ),  entry.id.to_s()]
+			pctArr <<  [(entry.brand_name.to_s() +' - '+ entry.product_model_name.to_s() +' - '+ entry.product_attribute.name.to_s() + ' - '+ entry.part_number.to_s() +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s()) ),  entry.id.to_s()]
 		end
 		pctArr.unshift(["",'']) if needBlank
 		pctArr
