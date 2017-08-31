@@ -103,8 +103,8 @@ class WkbrandController < ApplicationController
 		    redirect_to :controller => 'wkbrand',:action => 'edit' , :tab => 'wkbrand', :brand_id => productModel.brand_id
 		    flash[:notice] = l(:notice_successful_update)
 		else
-		    redirect_to :controller => 'wkbrand',:action => 'edit' , :tab => 'wkbrand', :brand_id => productModel.brand_id
-		    flash[:error] = product.errors.full_messages.join("<br>")
+		    redirect_to :controller => 'wkbrand',:action => 'edit_product_model' , :tab => 'wkbrand', :brand_id => productModel.brand_id
+		    flash[:error] = productModel.errors.full_messages.join("<br>")
 		end
 	end
 	

@@ -20,4 +20,5 @@ class WkProductModel < ActiveRecord::Base
   belongs_to :product, :class_name => 'WkProduct'
   belongs_to :brand, :class_name => 'WkProductBrand'
   has_many :product_items, foreign_key: "product_model_id", class_name: "WkProductItem"
+  validates_presence_of :product_id
 end
