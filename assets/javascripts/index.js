@@ -468,10 +468,16 @@ function productChanged(curDDId, changeDDId, uid, changeAdditionalDD, needBlank)
 		var productDD = document.getElementById('product_id');
 		productId = productDD.value;
 	}
-	if(curDDId.includes("product_id")){		
+	if(curDDId.includes("product_id")){	
+		rowNum = curDDId.replace("product_id","")
 		if(changeDDId.includes("product_attribute_id")){
 			updateDD = "product_attribute_id"
-		}			
+			changeDD = document.getElementById("product_attribute_id"+rowNum);
+		}
+		if(changeDDId.includes("product_item_id")){
+			updateDD = "product_item_id"
+			changeDD = document.getElementById("product_item_id"+rowNum);
+		}		
 		var productDD = document.getElementById(curDDId);
 		productId = productDD.value;
 	}
