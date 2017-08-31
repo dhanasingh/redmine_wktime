@@ -18,12 +18,12 @@ module WkshipmentHelper
 	def getProductItemArr(sqlCond, needBlank)
 		ddArray = Array.new
 		if sqlCond.blank?
-			ddValues = WkProductItem.includes(:product_attribute, :brand, :product_model).all #.order("#{orderBySql}")
+			ddValues = WkProductItem.includes(:brand, :product_model).all #.order("#{orderBySql}") :product_attribute, 
 		else
 			ddValues = WkProductItem.where("#{sqlCond}")#.order("#{orderBySql}")
 		end
 		unless ddValues.blank?
-			ddArray = ddValues.collect {|t| [t.brand.name.to_s + ' - ' + t.product_model.name.to_s + ' - ' + t.product_attribute.name.to_s , t.id] }
+			ddArray = ddValues.collect {|t| [t.brand.name.to_s + ' - ' + t.product_model.name.to_s , t.id] }
 		end
 		ddArray.unshift(["",""]) if needBlank
 		ddArray

@@ -178,6 +178,7 @@ include WkgltransactionHelper
 			end
 			unless isUsedInventoryItem(shipmentItem)
 				shipmentItem.product_item_id = params["product_item_id#{i}"].to_i
+				shipmentItem.product_attribute_id = params["product_attribute_id#{i}"].to_i
 				if sysCurrency != params["currency#{i}"]
 					shipmentItem.org_currency = params["currency#{i}"]
 					shipmentItem.org_cost_price = params["cost_price#{i}"]
@@ -293,9 +294,19 @@ include WkgltransactionHelper
 	def populateProductItemDD
 		itemArr = ""	
 		sqlCond = " product_id = #{params[:product_id].to_i}"
-		productItemArr = getProductItemArr(sqlCond, false)
-		productItemArr.each do |item|
-			itemArr << item[1].to_s() + ',' +  item[0] + "\n"
+		if params[:update_DD] == 'product_attribute_id' && !params[:product_id].blank?
+			product = WkProduct.find(params[:product_id].to_i)
+			unless product.blank?
+				 productAttr = product.product_attributes
+				productAttr.each do |item|
+					itemArr << item.id.to_s() + ',' +  item.name + "\n"
+				end
+			end
+		else
+			productItemArr = getProductItemArr(sqlCond, false)
+			productItemArr.each do |item|
+				itemArr << item[1].to_s() + ',' +  item[0] + "\n"
+			end
 		end
 		respond_to do |format|
 			format.text  { render :text => itemArr }

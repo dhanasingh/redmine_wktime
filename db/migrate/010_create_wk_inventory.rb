@@ -92,7 +92,6 @@ class CreateWkInventory < ActiveRecord::Migration
 		create_table :wk_product_items do |t|
 			t.references :product, :class => "wk_products", :null => false, :index => true
 			t.references :brand, :class => "wk_brands", :null => true, :index => true
-			t.references :product_attribute, :class => "wk_product_attributes", :null => true, :index => true
 			t.references :product_model, :class => "wk_product_models", :null => true, :index => true
 			t.string :part_number
 			t.timestamps null: false
@@ -100,6 +99,7 @@ class CreateWkInventory < ActiveRecord::Migration
 		
 		create_table :wk_inventory_items do |t|
 			t.references :product_item, :class => "wk_product_items", :null => false, :index => true
+			t.references :product_attribute, :class => "wk_product_attributes", :null => true, :index => true
 			t.string :product_type, :limit => 3, :null => false, :default => 'I'
 			t.string :notes
 			t.string :status, :null => false, :limit => 5, :default => 'o'

@@ -45,7 +45,7 @@ class WkproductitemController < ApplicationController
 	end	
 	
 	def update
-		existingItem = WkProductItem.where(:product_id => params[:product_id], :brand_id => params[:brand_id], :product_model_id => params[:product_model_id], :product_attribute_id => params[:product_attribute_id])	
+		existingItem = WkProductItem.where(:product_id => params[:product_id], :brand_id => params[:brand_id], :product_model_id => params[:product_model_id])	#, :product_attribute_id => params[:product_attribute_id]
 		if params[:product_item_id].blank?
 			productItem = WkProductItem.new
 			productItem = existingItem[0] unless existingItem[0].blank?
@@ -57,7 +57,7 @@ class WkproductitemController < ApplicationController
 		productItem.product_id = params[:product_id]
 		productItem.brand_id = params[:brand_id]
 		productItem.product_model_id = params[:product_model_id]
-		productItem.product_attribute_id = params[:product_attribute_id]
+		#productItem.product_attribute_id = params[:product_attribute_id]
 		if productItem.save()
 			if !params[:available_quantity].blank?
 				updatedInventory = updateInventoryItem(productItem.id) 
@@ -105,6 +105,7 @@ class WkproductitemController < ApplicationController
 		else
 			inventoryItem.product_item_id = productItemId
 			inventoryItem.serial_number = params[:serial_number]
+			inventoryItem.product_attribute_id = params[:product_attribute_id]
 			if sysCurrency != params[:currency]
 				inventoryItem.org_currency = params[:currency]
 				inventoryItem.org_cost_price = params[:cost_price]

@@ -463,11 +463,15 @@ function productChanged(curDDId, changeDDId, uid, changeAdditionalDD, needBlank)
 	var needBlankOption = needBlank;
 	var changeDD = document.getElementById(changeDDId);
 	var productId;
+	var updateDD;
 	if(changeDDId == 'product_model_id'){
 		var productDD = document.getElementById('product_id');
 		productId = productDD.value;
 	}
-	if(curDDId.includes("product_id")){
+	if(curDDId.includes("product_id")){		
+		if(changeDDId.includes("product_attribute_id")){
+			updateDD = "product_attribute_id"
+		}			
 		var productDD = document.getElementById(curDDId);
 		productId = productDD.value;
 	}
@@ -476,7 +480,7 @@ function productChanged(curDDId, changeDDId, uid, changeAdditionalDD, needBlank)
 	$.ajax({
 	url: productModifyUrl,
 	type: 'get',
-	data: {id: currDD.value, ptype: changeDDId, product_id: productId},
+	data: {id: currDD.value, ptype: changeDDId, product_id: productId, update_DD: updateDD },
 	success: function(data){ updateUserDD(data, changeDD, userid, needBlankOption, false, "");},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
 	complete: function(){ if(changeAdditionalDD && changeDDId == 'brand_id'){productChanged('brand_id','product_model_id', uid, false, true);productChanged('product_id','product_attribute_id', uid, false, true);} else if(changeAdditionalDD){productItemChanged('product_item', 'product_quantity', 'product_cost_price', 'product_sell_price');} $this.removeClass('ajax-loading'); }	      
