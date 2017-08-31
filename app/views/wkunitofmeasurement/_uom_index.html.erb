@@ -16,10 +16,10 @@
 					<%= hidden_field_tag "uom_id[]",  entry.id  %>
 				</td>
 			    <td>			 
-					<%= text_field_tag "name[]",  entry.name  , :required => false, :style => "width:150px;"  %> 
+					<%= text_field_tag "name[]",  entry.name  , :style => "width:150px;", :required => true  %> 
 			    </td>
 			    <td>
-					<%= text_field_tag "description[]",  entry.short_desc  , :required => false,  :style => "width:150px;"  %>
+					<%= text_field_tag "description[]",  entry.short_desc, :style => "width:150px;", :required => true  %>
 				</td>			        
 			 
 				<td class="buttons">
@@ -40,7 +40,7 @@
 			</td>
 			<td>
 				<%=  
-				text_field_tag "description[]",  ""  , :required => false, :style => "width:150px;"  %>
+				text_field_tag "description[]",  ""  , :required => true, :style => "width:150px;"  %>
 			</td>
 		 
 			<td class="buttons">

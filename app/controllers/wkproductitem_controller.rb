@@ -59,9 +59,9 @@ class WkproductitemController < ApplicationController
 		productItem.product_model_id = params[:product_model_id]
 		productItem.product_attribute_id = params[:product_attribute_id]
 		if productItem.save()
-			unless params[:available_quantity].blank?
+			if !params[:available_quantity].blank?
 				updatedInventory = updateInventoryItem(productItem.id) 
-			else
+			elsif !params[:inventory_item_id].blank?
 				inventoryItem = WkInventoryItem.find(params[:inventory_item_id].to_i)
 				inventoryItem.selling_price = params[:selling_price]
 				inventoryItem.save

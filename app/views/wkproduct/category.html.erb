@@ -19,7 +19,7 @@
 				<%= text_field_tag("name[]", entry.name, :id => nil, :style => "width:200px;", :required => true) %>
 			  </td> 
 			   <td>
-				<%= text_field_tag("description[]", entry.description, :id => nil, :style => "width:500px;", :required => false) %>
+				<%= text_field_tag("description[]", entry.description, :id => nil, :style => "width:500px;", :maxlength => 255, :required => false) %>
 			  </td>       
 			 
 			  <td class="buttons">
