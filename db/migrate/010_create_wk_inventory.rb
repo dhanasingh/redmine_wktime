@@ -149,7 +149,15 @@ class CreateWkInventory < ActiveRecord::Migration
 		add_index :wk_material_entries, [:project_id], :name => :wk_material_entries_project_id
 		add_index :wk_material_entries, [:issue_id], :name => :wk_material_entries_issue_id
 		
-		add_column :wk_invoice_items, :product, :integer
-		add_reference :wk_invoice_items, :product_id, :class => "wk_products", :index => true
+		reversible do |dir|
+			dir.up do				
+				add_reference :wk_invoice_items, :product, :class => "wk_products", :index => true
+			end
+
+			dir.down do
+				remove_reference :wk_invoice_items, :product
+			end 
+		end
+		
 	end
 end
