@@ -220,6 +220,32 @@ module TimelogControllerPatch
 				session[:timelog][:spent_type] = params[:spent_type]
 			end
 		end
+		
+		def find_time_entry
+			if session[:timelog][:spent_type] === "T"
+				@time_entry = TimeEntry.find(params[:id])
+				@project = @time_entry.project
+			else
+				@time_entry = TimeEntry.new
+				materialEntry = WkMaterialEntry.find(params[:id])
+				@time_entry.id = materialEntry.id
+				@project = materialEntry.project
+			end   			
+		  rescue ActiveRecord::RecordNotFound
+			render_404
+	    end
+		
+		def check_editability
+			wktime_helper = Object.new.extend(WktimeHelper)
+			if session[:timelog][:spent_type] === "T"
+				unless @time_entry.editable_by?(User.current)
+				  render_403
+				  return false
+				end
+			else
+				return wktime_helper.showInventory
+			end
+		end
 
 		def destroy
 			wktime_helper = Object.new.extend(WktimeHelper)
