@@ -252,7 +252,7 @@ include WkgltransactionHelper
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
-		@shipmentEntries = entries.order(:shipment_date).limit(@limit).offset(@offset)
+		@shipmentEntries = entries.order(shipment_date: :desc).limit(@limit).offset(@offset)
 	end
 	
 	def setLimitAndOffset		

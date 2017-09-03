@@ -20,7 +20,7 @@ class WklogmaterialController < ApplicationController
 			pctObj = WkInventoryItem.find_by_sql(sqlQuery)
 			#pctObj = WkProductItem.where(:product_id => params[:product_id], :brand_id => params[:id])
 		elsif params[:ptype] == "product_model_id"
-			unless params[:id].blank?
+			unless params[:id].blank? || params[:id].to_i < 1
 				pObj = WkBrand.find(params[:id].to_i)
 				pctObj = pObj.product_models.where(:product_id => params[:product_id].to_i).order(:name)
 			else

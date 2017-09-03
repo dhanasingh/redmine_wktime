@@ -7,6 +7,17 @@
 	<div id="product_item_form">
            <%=h hidden_field_tag('product_item_id', @productItem.blank? ? "" :@productItem.id) %>
 		   <%=h hidden_field_tag('inventory_item_id', @inventoryItem.blank? ? "" :@inventoryItem.id) %>
+		   <%
+				productId = 0
+				brandId = 0
+				unless @productItem.blank?
+					productId = @productItem.product_id
+					brandId = @productItem.brand_id
+				else
+					productId = WkProduct.order(:name).first.id
+				end
+				brandSql = 'id in (select brand_id from wk_brand_products where product_id = ' + productId.to_s + ')'
+		   %>
 		<div class="splitcontentleft">
 			<fieldset class="box tabular">
 				<legend><%=l(:label_product_item)%></legend>
@@ -14,25 +25,25 @@
 					<tr>
 						<th align="left"><%= l(:label_product) %></th>
 						<td align="left" style="padding-left:40px;">
-							<%=h select_tag("product_id", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_id, false), :onchange => "productChanged(this.id, 'brand_id', #{User.current.id}, true, false);") %>
+							<%=h select_tag("product_id", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_id, false), :onchange => "productChanged(this.id, 'brand_id', #{User.current.id}, true, true);") %>
 						</td>
 					</tr> 
 					<tr>
 						<th align="left"><%= l(:label_brand) %></th>
 						<td align="left" style="padding-left:40px;">
-							<%=h select_tag("brand_id", generic_options_for_select(WkBrand, nil, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.brand_id, false), :onChange => "productChanged(this.id,'product_model_id', #{User.current.id}, false, true);") %>
+							<%=h select_tag("brand_id", generic_options_for_select(WkBrand, brandSql, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.brand_id, true), :onChange => "productChanged(this.id,'product_model_id', #{User.current.id}, false, true);") %>
 						</td>
 					</tr> 
 					<tr>
 						<th align="left"><%= l(:label_model) %></th>
 						<td align="left" style="padding-left:40px;">
-							<%=h select_tag("product_model_id", generic_options_for_select(WkProductModel, nil, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_model_id, false)) %>
+							<%=h select_tag("product_model_id", generic_options_for_select(WkProductModel, 'product_id = ' + productId.to_s + ' and brand_id = ' + brandId.to_s, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_model_id, true)) %>
 						</td>
 					</tr> 
 					<!--<tr>
 						<th align="left"><%#= l(:label_attribute) %></th>
 						<td align="left" style="padding-left:40px;">
-							<%#=h select_tag("product_attribute_id", generic_options_for_select(WkProductAttribute, nil, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_attribute_id, false)) %>
+							<%#=h select_tag("product_attribute_id", generic_options_for_select(WkProductAttribute, nil, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_attribute_id, true)) %>
 						</td>
 					</tr> -->
 					<tr>
