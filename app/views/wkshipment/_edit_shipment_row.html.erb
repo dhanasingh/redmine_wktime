@@ -2,6 +2,13 @@
 	<% 
 		productItem = entry.product_item 
 		isDisable = isUsedInventoryItem(entry)
+		sqlCond = ""
+		unless productItem.blank?
+			sqlCond = " product_id = " + productItem.product_id.to_s
+		else
+			productId = WkProduct.order(:name).first.id
+			sqlCond = " product_id = " + productId.to_s
+		end
 	%>
 	<td class="lbl-txt-align" headers="item_id">
 		<%=h hidden_field_tag("item_id#{row_index}",   entry.id )  %>
@@ -14,7 +21,7 @@
 		<%=h select_tag("product_id#{row_index.to_s}", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', productItem.blank? ? nil :productItem.product_id, false), :onchange => "productChanged(this.id, 'product_item_id#{row_index.to_s}', #{User.current.id}, false, false);productChanged(this.id, 'product_attribute_id#{row_index.to_s}', #{User.current.id}, false, false);", :disabled => isDisable, :style => "width: 100%;") %>
 	</td>
 	<td class="lbl-txt-align" headers="product_item_id">
-		<%=h select_tag("product_item_id#{row_index.to_s}", product_item_select(nil, false, productItem.blank? ? nil :productItem.id), :disabled => isDisable, :required => true, :style => "width: 100%;") %>
+		<%=h select_tag("product_item_id#{row_index.to_s}", product_item_select(sqlCond, false, productItem.blank? ? nil :productItem.id), :disabled => isDisable, :required => true, :style => "width: 100%;") %>
 	</td>
 	<!-- <td class="lbl-txt-align" headers="brand_id">
 		<%#=h select_tag("brand_id#{row_index.to_s}", generic_options_for_select(WkBrand, nil, 'name', 'name', 'id', nil, false), :disabled => isDisable, :style => "width: 100%;") %>

@@ -11,10 +11,10 @@
 				productId = 0
 				brandId = 0
 				unless @productItem.blank?
-					productId = @productItem.product_id
-					brandId = @productItem.brand_id
+					productId = @productItem.product_id.to_i
+					brandId = @productItem.brand_id.to_i
 				else
-					productId = WkProduct.order(:name).first.id
+					productId = WkProduct.order(:name).first.id.to_i
 				end
 				brandSql = 'id in (select brand_id from wk_brand_products where product_id = ' + productId.to_s + ')'
 		   %>
