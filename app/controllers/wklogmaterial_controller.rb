@@ -36,7 +36,8 @@ class WklogmaterialController < ApplicationController
 		
 		if params[:ptype] == "product_item"
 			pctObj.each do | entry|
-				pctArr << entry.id.to_s() + ',' +  (entry.brand_name.to_s() +' - '+ entry.product_model_name.to_s() +' - '+ entry.part_number.to_s() +' - '+ entry.product_attribute.name.to_s()  +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s()) ) + "\n" 
+				attributeName = entry.product_attribute.blank? ? "" : entry.product_attribute.name
+				pctArr << entry.id.to_s() + ',' +  (entry.brand_name.to_s() +' - '+ entry.product_model_name.to_s() +' - '+ entry.part_number.to_s() +' - '+ attributeName  +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s()) ) + "\n" 
 			end
 		elsif params[:ptype] == "inventory_item"
 			pctArr << pctObj.id.to_s() + ',' + pctObj.available_quantity.to_s() +','+ pctObj.cost_price.to_s()  +','+  pctObj.currency.to_s() + ',' +  pctObj.selling_price.to_s() unless pctObj.blank?

@@ -25,9 +25,22 @@ class WkInventoryItem < ActiveRecord::Base
   belongs_to :parent, foreign_key: "parent_id", class_name: "WkInventoryItem"
   belongs_to :uom, class_name: "WkMesureUnit"
   belongs_to :product_attribute, :class_name => 'WkProductAttribute'
+  has_many :material_entries, foreign_key: "inventory_item_id", class_name: "WkMaterialEntry", :dependent => :restrict_with_error
+  has_many :transfered_items, foreign_key: "parent_id", class_name: "WkInventoryItem", :dependent => :restrict_with_error
+  
+  before_destroy :add_quantity_to_parent
+
   
   def incrementAvaQty(incVal)
 	self.available_quantity += incVal
+  end
+  
+  def add_quantity_to_parent
+	unless self.parent_id.blank? || self.material_entries.count>0 || self.transfered_items.count>0
+		parentObj = self.parent
+		parentObj.available_quantity = self.total_quantity + parentObj.available_quantity
+		parentObj.save
+	end
   end
   
 end

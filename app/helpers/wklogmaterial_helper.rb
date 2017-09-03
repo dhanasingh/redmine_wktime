@@ -52,7 +52,8 @@ include WktimeHelper
 		pctObj = mergePItemInvItemQuery(productId)
 		pctArr = Array.new
 		pctObj.each do | entry|
-			pctArr <<  [(entry.brand_name.to_s() +' - '+ entry.product_model_name.to_s() +' - '+ entry.product_attribute.name.to_s() + ' - '+ entry.part_number.to_s() +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s()) ),  entry.id.to_s()]
+			attributeName = entry.product_attribute.blank? ? "" : entry.product_attribute.name
+			pctArr <<  [(entry.brand_name.to_s() +' - '+ entry.product_model_name.to_s() +' - '+ attributeName + ' - '+ entry.part_number.to_s() +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s()) ),  entry.id.to_s()]
 		end
 		pctArr.unshift(["",'']) if needBlank
 		pctArr

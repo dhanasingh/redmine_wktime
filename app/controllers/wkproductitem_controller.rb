@@ -3,11 +3,12 @@ class WkproductitemController < ApplicationController
   include WktimeHelper
   include WkgltransactionHelper
   
+	#before_filter :check_deletable_redirect, :only => [:destroy]
+  
 	def index
 		set_filter_session
 		productId = session[controller_name][:product_id]
 		brandId = session[controller_name][:brand_id]
-		#@productInventory = WkInventoryItem.includes().all
 		sqlwhere = ""
 		unless productId.blank?
 			sqlwhere = "wk_product_items.product_id = #{productId}"
@@ -17,14 +18,20 @@ class WkproductitemController < ApplicationController
 			sqlwhere = sqlwhere + " AND" unless sqlwhere.blank?
 			sqlwhere = sqlwhere + " wk_product_items.brand_id = #{brandId}"
 		end
-		
-		unless sqlwhere.blank?
-			productItems = WkInventoryItem.joins(:product_item).where(sqlwhere)
-		else
-			productItems = WkInventoryItem.joins(:product_item).all
-		end
-		
-		formPagination(productItems)
+		sqlStr = getProductInventorySql + sqlwhere
+		findBySql(sqlStr, WkProductItem)
+	end
+	
+	def getProductInventorySql
+		sqlStr = "select iit.id as inventory_item_id, pit.id as product_item_id, iit.status, p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as product_attribute_name, iit.serial_number, iit.currency, iit.selling_price, iit.total_quantity, iit.available_quantity, uom.short_desc as uom_short_desc, l.name as location_name from wk_product_items pit 
+		left outer join wk_inventory_items iit on iit.product_item_id = pit.id 
+		left outer join wk_products p on pit.product_id = p.id
+		left outer join wk_brands b on pit.brand_id = b.id
+		left outer join wk_product_models m on pit.product_model_id = m.id
+		left outer join wk_product_attributes a on iit.product_attribute_id = a.id
+		left outer join wk_locations l on iit.location_id = l.id
+		left outer join wk_mesure_units uom on iit.uom_id = uom.id"
+		sqlStr
 	end
 	
 	def edit
@@ -129,11 +136,28 @@ class WkproductitemController < ApplicationController
 	end
 	
 	def destroy
-		productItem = WkInventoryItem.find(params[:product_item_id].to_i)
-		if productItem.destroy
-			flash[:notice] = l(:notice_successful_delete)
+		inventoryItem = nil
+		productItem = WkProductItem.find(params[:product_item_id].to_i)
+		unless params[:inventory_item_id].blank?
+			inventoryItem = WkInventoryItem.find(params[:inventory_item_id].to_i)
+			shipment = inventoryItem.shipment
+			if inventoryItem.destroy
+				invCount = productItem.inventory_items.count
+				shipInvCount = 0
+				shipInvCount = shipment.inventory_items.count unless shipment.blank?
+				productItem.destroy unless invCount>0
+				shipment.destroy unless shipInvCount>0 || shipment.blank?
+				flash[:notice] = l(:notice_successful_delete)
+			else
+				flash[:error] = inventoryItem.errors.full_messages.join("<br>")
+			end
 		else
-			flash[:error] = productItem.errors.full_messages.join("<br>")
+			# productItem = WkProductItem.find(params[:product_item_id].to_i)
+			if productItem.destroy
+				flash[:notice] = l(:notice_successful_delete)
+			else
+				flash[:error] = inventoryItem.errors.full_messages.join("<br>")
+			end
 		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end	  
@@ -147,13 +171,7 @@ class WkproductitemController < ApplicationController
 		end
 		
 	end
-	
-	def formPagination(entries)
-		@entry_count = entries.count
-        setLimitAndOffset()
-		@productInventory = entries.order(:id).limit(@limit).offset(@offset)
-	end
-	
+
 	def setLimitAndOffset		
 		if api_request?
 			@offset, @limit = api_offset_and_limit
@@ -168,6 +186,24 @@ class WkproductitemController < ApplicationController
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
 		end	
+	end
+	
+	def findBySql(query, model)
+		result = model.find_by_sql("select count(*) as id from (" + query + ") as v2")
+		@entry_count = result.blank? ? 0 : result[0].id
+        setLimitAndOffset()		
+		rangeStr = formPaginationCondition()
+		@productInventory = model.find_by_sql(query + " order by iit.id desc " + rangeStr )
+	end
+	
+	def formPaginationCondition
+		rangeStr = ""
+		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'				
+			rangeStr = " OFFSET " + @offset.to_s + " ROWS FETCH NEXT " + @limit.to_s + " ROWS ONLY "
+		else		
+			rangeStr = " LIMIT " + @limit.to_s +	" OFFSET " + @offset.to_s
+		end
+		rangeStr
 	end	
 
 
