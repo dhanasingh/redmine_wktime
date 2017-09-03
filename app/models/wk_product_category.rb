@@ -17,6 +17,6 @@
 
 class WkProductCategory < ActiveRecord::Base
   unloadable
-  has_many :products, foreign_key: "category_id", class_name: "WkProduct"
+  has_many :products, foreign_key: "category_id", class_name: "WkProduct", :dependent => :restrict_with_error
   
 end

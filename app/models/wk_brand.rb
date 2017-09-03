@@ -18,6 +18,6 @@
 class WkBrand < ActiveRecord::Base
   unloadable
   has_many :brand_products, foreign_key: "brand_id", class_name: "WkBrandProduct"
-  has_many :products, through: :brand_products
-  has_many :product_models, foreign_key: "brand_id", class_name: "WkProductModel"
+  has_many :products, through: :brand_products, :dependent => :restrict_with_error
+  has_many :product_models, foreign_key: "brand_id", class_name: "WkProductModel", :dependent => :restrict_with_error
 end

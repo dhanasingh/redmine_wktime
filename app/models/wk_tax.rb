@@ -18,4 +18,5 @@
 class WkTax < ActiveRecord::Base
   unloadable
   has_many :wk_project_taxes, foreign_key: "tax_id", class_name: "WkAccProjectTax", :dependent => :destroy
+  has_many :product_taxes, foreign_key: "tax_id", class_name: "WkProductTax", :dependent => :destroy
 end

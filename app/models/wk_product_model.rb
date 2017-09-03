@@ -19,6 +19,6 @@ class WkProductModel < ActiveRecord::Base
   unloadable
   belongs_to :product, :class_name => 'WkProduct'
   belongs_to :brand, :class_name => 'WkProductBrand'
-  has_many :product_items, foreign_key: "product_model_id", class_name: "WkProductItem"
+  has_many :product_items, foreign_key: "product_model_id", class_name: "WkProductItem", :dependent => :restrict_with_error
   validates_presence_of :product_id
 end

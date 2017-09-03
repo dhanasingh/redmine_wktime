@@ -18,14 +18,14 @@
 class WkProduct < ActiveRecord::Base
   unloadable
   belongs_to :category, :class_name => 'WkProductCategory'
-  has_many :product_items, foreign_key: "product_id", class_name: "WkProductItem"
+  has_many :product_items, foreign_key: "product_id", class_name: "WkProductItem", :dependent => :restrict_with_error
   has_many :inventory_items, through: :product_items
-  has_many :product_brands, foreign_key: "product_id", class_name: "WkBrandProduct"
+  has_many :product_brands, foreign_key: "product_id", class_name: "WkBrandProduct", :dependent => :destroy
   has_many :brands, through: :product_brands
   belongs_to :category, :class_name => 'WkProductCategory'
   belongs_to :attribute_group, :class_name => 'WkAttributeGroup'
   has_many :product_attributes, through: :attribute_group
-  has_many :product_models, foreign_key: "product_id", class_name: "WkProductModel"
+  has_many :product_models, foreign_key: "product_id", class_name: "WkProductModel", :dependent => :destroy
   belongs_to :uom, class_name: "WkMesureUnit"
   has_many :product_taxes, foreign_key: "product_id", class_name: "WkProductTax", :dependent => :destroy
   has_many :taxes, through: :product_taxes
