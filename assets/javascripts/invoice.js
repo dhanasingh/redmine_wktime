@@ -99,24 +99,26 @@ function addAmount(fldId)
 	}	
 	var table = document.getElementById('invoiceTable');
 	var len = table.rows.length;
+	//alert("len : " + len);
 	var total = 0;
 	var count = 0;
 	var tothash = new Object();
 	var productTothash = new Object();
 	for(var i = 1 ; i <= (len-1) ; i++)
 	{
-		if(document.getElementById("project_id"+i) != null) {
+		if(document.getElementById("project_id"+i) != null && document.getElementById("product_id"+i).value == "" ) {
 			var dropdown = document.getElementById("project_id"+i);
 			var ddvalue = dropdown.options[dropdown.selectedIndex].value;
+			
 			tothash[ddvalue] = (tothash[ddvalue] == null ? 0 : tothash[ddvalue]) + parseInt($("#amount"+i).text());
+			//alert("ddvalue : " + ddvalue + " tothash[ddvalue] : " + tothash[ddvalue]);
 		}
-		if(document.getElementById("product_id"+i) != null ) {
-			if(document.getElementById("product_id"+i).value != null) {
-				var ddvalue = document.getElementById("product_id"+i).value;
-				productTothash[ddvalue] = (productTothash[ddvalue] == null ? 0 : productTothash[ddvalue]) + parseInt($("#amount"+i).text());
-			}
+		if(document.getElementById("product_id"+i).value != "")
+		{
+			productId = document.getElementById("product_id"+i).value;
+			productTothash[productId] = (productTothash[productId] == null ? 0 : productTothash[productId]) + parseInt($("#amount"+i).text() );
+			//alert("productId : " + productId + " productTothash[productId] : " + productTothash[productId]);
 		}
-		
 		total = total + parseInt($("#amount"+i).text());
 		 
 	}
@@ -125,21 +127,24 @@ function addAmount(fldId)
 	if(document.getElementById('taxTable') != null) {
 		var taxTable = document.getElementById('taxTable');
 		var taxlen = taxTable.rows.length;
+		//alert("taxlen : " + taxlen);
 		for(j=1 ;j < taxlen ; j++)
 		{
-			if(document.getElementById("tax_pjt_id"+j) != null && document.getElementById('tax_product_id'+j) != null ) {	
-				if(document.getElementById('tax_product_id'+j).value == "")
-				{
-					pjtId = document.getElementById('tax_pjt_id'+j).value;
-					var taxamount = tothash[pjtId] * (parseFloat($("#taxrate"+j).text()/100));
-					taxtotal = taxtotal + taxamount;
-					document.getElementById("taxamount"+ j).innerHTML = taxamount.toFixed(2); 
-				}
+			//alert("j val : " + j);
+			if(document.getElementById("tax_pjt_id"+j) != null) {
+				pjtId = document.getElementById('tax_pjt_id'+j).value;
+				//alert(" pjtId : " + pjtId + " :  " + tothash[pjtId]);  
+				var taxamount = tothash[pjtId] * (parseFloat($("#taxrate"+j).text()/100));
+				taxtotal = taxtotal + taxamount;
+				//alert("taxtotal : " + taxtotal);
+				document.getElementById("taxamount"+ j).innerHTML = taxamount.toFixed(2); //total * parseFloat($("#taxrate"+j).text()); 
 			}
-			if(document.getElementById("tax_product_id"+j) != null) {
+			if(document.getElementById("tax_product_id"+j) != null)
+			{
 				
-				pjtId = document.getElementById('tax_product_id'+j).value;
-				var taxamount = productTothash[pjtId] * (parseFloat($("#taxrate"+j).text()/100));
+				pId = document.getElementById("tax_product_id"+j).value;
+				//alert(" in product " + pId + " productTothash[pId] : " + productTothash[pId]);
+				var taxamount = productTothash[pId] * (parseFloat($("#taxrate"+j).text()/100));
 				taxtotal = taxtotal + taxamount;
 				document.getElementById("taxamount"+ j).innerHTML = taxamount.toFixed(2); 
 			}
