@@ -103,7 +103,7 @@ class WkproductController < ApplicationController
 		end
 		
 		if !arrId.blank?			
-			WkProductCategory.delete_all(:id => arrId)
+			WkProductCategory.destroy_all(:id => arrId)
 		end
 		
 		redirect_to :controller => 'wkproduct',:action => 'category' , :tab => 'wkproduct'

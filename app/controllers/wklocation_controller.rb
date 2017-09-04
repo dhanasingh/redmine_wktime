@@ -52,7 +52,14 @@ class WklocationController < WkbaseController
 		end
   end
   
-  def destroy		
+  def destroy
+		location = WkLocation.find(params[:location_id].to_i)
+		if location.destroy
+			flash[:notice] = l(:notice_successful_delete)
+		else
+			flash[:error] = location.errors.full_messages.join("<br>")
+		end
+		redirect_back_or_default :action => 'index', :tab => params[:tab]
   end
 
   def set_filter_session
