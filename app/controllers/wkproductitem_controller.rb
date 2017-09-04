@@ -11,13 +11,14 @@ class WkproductitemController < ApplicationController
 		brandId = session[controller_name][:brand_id]
 		sqlwhere = ""
 		unless productId.blank?
-			sqlwhere = "wk_product_items.product_id = #{productId}"
+			sqlwhere = " pit.product_id = #{productId}"
 		end
 		
 		unless brandId.blank?
 			sqlwhere = sqlwhere + " AND" unless sqlwhere.blank?
-			sqlwhere = sqlwhere + " wk_product_items.brand_id = #{brandId}"
+			sqlwhere = sqlwhere + " pit.brand_id = #{brandId}"
 		end
+		sqlwhere = " where" + sqlwhere unless sqlwhere.blank?
 		sqlStr = getProductInventorySql + sqlwhere
 		findBySql(sqlStr, WkProductItem)
 	end
