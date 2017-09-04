@@ -14,7 +14,8 @@
 					productId = @productItem.product_id.to_i
 					brandId = @productItem.brand_id.to_i
 				else
-					productId = WkProduct.order(:name).first.id.to_i
+					firstProduct = WkProduct.order(:name).first
+					productId = firstProduct.id unless firstProduct.blank?
 				end
 				brandSql = 'id in (select brand_id from wk_brand_products where product_id = ' + productId.to_s + ')'
 		   %>
