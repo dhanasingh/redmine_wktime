@@ -32,7 +32,7 @@
 			<tr>
 				<th align="left"><%= l(:label_attribute) %></th>
 				<td align="left" style="padding-left:40px;">
-					<%=h select_tag("product_attribute_id", generic_options_for_select(WkProductAttribute, nil, 'name', 'name', 'id', invntItem.blank? ? '' : invntItem.product_attribute_id, false), :disabled => isDisable || isTransfer) %>
+					<%=h select_tag("product_attribute_id", generic_options_for_select(WkProductAttribute, nil, 'name', 'name', 'id', invntItem.blank? ? '' : invntItem.product_attribute_id, true), :disabled => isDisable || isTransfer) %>
 				</td>
 			</tr> 
 			<tr>
