@@ -8,7 +8,6 @@
 		else
 			firstProduct = WkProduct.order(:name).first
 			productId = firstProduct.blank? ? 0 : firstProduct.id
-			productId = WkProduct.order(:name).first.id
 			sqlCond = " product_id = " + productId.to_s
 		end
 	%>

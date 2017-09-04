@@ -1,11 +1,11 @@
 <%
 	sqlStr = " select p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as attribute_name, inv.stock_value, inv.stock_quantity, um.short_desc, inv.currency from wk_product_items pitm
-inner join (select product_item_id, uom_id, currency, sum((cost_price + over_head_price) * available_quantity) as stock_value, sum(available_quantity) as stock_quantity from wk_inventory_items
- group by product_item_id, uom_id, currency) inv on (inv.product_item_id = pitm.id) 
+inner join (select product_item_id, product_attribute_id, uom_id, currency, sum((cost_price + over_head_price) * available_quantity) as stock_value, sum(available_quantity) as stock_quantity from wk_inventory_items
+ group by product_item_id, product_attribute_id, uom_id, currency) inv on (inv.product_item_id = pitm.id) 
  left join wk_products p on (p.id = pitm.product_id)
  left join wk_product_models m on (m.id = pitm.product_model_id)
  left join wk_brands b on (b.id = pitm.brand_id)
- left join wk_product_attributes a on (a.id = pitm.product_attribute_id)
+ left join wk_product_attributes a on (a.id = inv.product_attribute_id)
  left join wk_mesure_units um on (um.id = inv.uom_id)"
 	entries = WkInventoryItem.find_by_sql(sqlStr)
 %>
