@@ -21,5 +21,6 @@ class WkProductItem < ActiveRecord::Base
   belongs_to :brand, :class_name => 'WkBrand'
   belongs_to :product_model, :class_name => 'WkProductModel'
   has_many :inventory_items, foreign_key: "product_item_id", class_name: "WkInventoryItem", :dependent => :restrict_with_error
+  validates_presence_of :product
   
 end

@@ -77,7 +77,7 @@ class WkproductitemController < ApplicationController
 		    redirect_to :controller => 'wkproductitem',:action => 'index' , :tab => 'wkproductitem'
 		    flash[:notice] = l(:notice_successful_update)
 		else
-		    redirect_to :controller => 'wkproductitem',:action => 'index' , :tab => 'wkproductitem'
+		    redirect_to :controller => 'wkproductitem',:action => 'edit' , :product_item_id => params[:product_item_id], :inventory_item_id => params[:inventory_item_id], :tab => 'wkproductitem'
 		    flash[:error] = productItem.errors.full_messages.join("<br>")
 		end
     end

@@ -29,4 +29,6 @@ class WkProduct < ActiveRecord::Base
   belongs_to :uom, class_name: "WkMesureUnit"
   has_many :product_taxes, foreign_key: "product_id", class_name: "WkProductTax", :dependent => :destroy
   has_many :taxes, through: :product_taxes
+  
+  validates_presence_of :category
 end
