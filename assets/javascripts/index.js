@@ -489,11 +489,11 @@ function productChanged(curDDId, changeDDId, uid, changeAdditionalDD, needBlank)
 	data: {id: currDD.value, ptype: changeDDId, product_id: productId, update_DD: updateDD },
 	success: function(data){ updateUserDD(data, changeDD, userid, needBlankOption, false, "");},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
-	complete: function(){ if(changeAdditionalDD && changeDDId == 'brand_id'){productChanged('brand_id','product_model_id', uid, false, true);productChanged('product_id','product_attribute_id', uid, false, true);} else if(changeAdditionalDD){productItemChanged('product_item', 'product_quantity', 'product_cost_price', 'product_sell_price');} $this.removeClass('ajax-loading'); }	      
+	complete: function(){ if(changeAdditionalDD && changeDDId == 'brand_id'){productChanged('brand_id','product_model_id', uid, false, true);productChanged('product_id','product_attribute_id', uid, false, true);} else if(changeAdditionalDD){productItemChanged('product_item', 'product_quantity', 'product_cost_price', 'product_sell_price', uid); } $this.removeClass('ajax-loading'); }	      
 	});
 }
 
-function productBrandChanged(curDDId, changeDDId, uid)
+function productUOMChanged(curDDId, changeDDId, uid)
 {
 	var currDD = document.getElementById(curDDId);
 	var needBlankOption = false;
@@ -507,23 +507,24 @@ function productBrandChanged(curDDId, changeDDId, uid)
 	data: {id: currDD.value, ptype: changeDDId, product_id: productDD.value },
 	success: function(data){ updateUserDD(data, changeDD, userid, needBlankOption, false, "");},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
-	complete: function(){ productItemChanged(changeDDId, 'product_quantity', 'product_cost_price', 'product_sell_price'); $this.removeClass('ajax-loading'); }	      
+	complete: function(){  $this.removeClass('ajax-loading'); }	      
 	});
 }
 
-function productItemChanged(curDDId, qtyDD, cpDD, spDD)
+function productItemChanged(curDDId, qtyDD, cpDD, spDD, uid)
 {
 	var currDD = document.getElementById(curDDId);
 	var needBlankOption = false;
 	var productDD = document.getElementById('product');
 	var $this = $(this);
+	userid = uid;
 	$.ajax({
 	url: productModifyUrl,
 	type: 'get',
 	data: {id: currDD.value, ptype: 'inventory_item', product_id: productDD.value },
 	success: function(data){ setProductLogAttribute(data, qtyDD, cpDD, spDD);},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
-	complete: function(){ $this.removeClass('ajax-loading'); }	      
+	complete: function(){ productUOMChanged(curDDId, 'uom_id', uid); $this.removeClass('ajax-loading'); }	      
 	});
 }
 

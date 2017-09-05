@@ -29,6 +29,8 @@ class WklogmaterialController < ApplicationController
 		elsif params[:ptype] == "product_attribute_id"
 			pObj = WkProduct.find(params[:id].to_i)
 			pctObj = pObj.product_attributes.order(:name)
+		elsif params[:ptype] == "uom_id"
+			pctObj = WkInventoryItem.find(params[:id].to_i)			
 		else
 			#pctObj = WkProductItem.find(params[:id].to_i) unless params[:id].blank?
 			pctObj = WkInventoryItem.find(params[:id].to_i) unless params[:id].blank?
@@ -42,7 +44,11 @@ class WklogmaterialController < ApplicationController
 		elsif params[:ptype] == "inventory_item"
 			pctArr << pctObj.id.to_s() + ',' + pctObj.available_quantity.to_s() +','+ pctObj.cost_price.to_s()  +','+  pctObj.currency.to_s() + ',' +  pctObj.selling_price.to_s() unless pctObj.blank?
 		elsif params[:ptype] == "product_attribute"
-			pctArr << pctObj.id.to_s() + ',' + pctObj.available_quantity.to_s() +','+ pctObj.cost_price.to_s()  +','+  pctObj.currency.to_s() + ',' +  pctObj.selling_price.to_s() unless pctObj.blank?  			
+			pctArr << pctObj.id.to_s() + ',' + pctObj.available_quantity.to_s() +','+ pctObj.cost_price.to_s()  +','+  pctObj.currency.to_s() + ',' +  pctObj.selling_price.to_s() unless pctObj.blank?  
+		elsif params[:ptype] == "uom_id"
+			#pctObj.each do | entry|
+				pctArr << pctObj.uom_id.to_s() + ',' +  pctObj.uom.name.to_s()  + "\n"
+			#end
 		else		
 			pctObj.each do | entry|
 				pctArr << entry.id.to_s() + ',' +  entry.name.to_s()  + "\n" 

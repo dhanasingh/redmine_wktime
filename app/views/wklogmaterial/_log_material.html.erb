@@ -17,7 +17,8 @@
 <% productId = @materialEntry.blank? ? ( productArr.blank? ? 0 : productArr[0][1]) : @materialEntry.inventory_item.product_item.product.id    %>
 <!-- Below Array contains the inventory item id and combination of brand, model, partnumber, attribute, selling price as display field  -->
 <% itemArr = logmaterial_helper.getPdtItemArr(productId, false)  %>
-<% itemId = @materialEntry.blank? ? '' : @materialEntry.inventory_item.product_item.id  %>
+<% itemId = @materialEntry.blank? ? '' : @materialEntry.inventory_item_id  %>
+<% uomId = @materialEntry.blank? ? '' : @materialEntry.uom_id  %>
 <% inventoryItemId = @materialEntry.blank? ? (itemArr.blank? ? '' : itemArr[0][1]) : @materialEntry.inventory_item.id %>
 <% itemObj = WkInventoryItem.find(inventoryItemId) unless inventoryItemId.blank?  %>
 <%= hidden_field_tag 'inventory_item_id', (itemObj.blank? ? "" : itemObj.id) %>
@@ -41,7 +42,7 @@
 	<tr>	
 		<th align="right" ><%= l(:label_product) %><span style="color:red;">*</span></th>
 		<td align="left">
-			<%=h select_tag('product', options_for_select(productArr, :selected => (productId.blank? ? productArr : productId) ), :style => "width:155px;", :onchange => "productChanged(this.id, 'product_item', #{User.current.id}, true, false)") %>
+			<%=h select_tag('product', options_for_select(productArr, :selected => (productId.blank? ? productArr : productId) ), :style => "width:155px;", :onchange => "productChanged(this.id, 'product_item', #{User.current.id}, true, false); ") %>
 		</td>
 		
 		<th align="right"><%= l(:label_available_quantity) %></th>
@@ -52,9 +53,9 @@
 	<tr>		
 		<th align="right" ><%= l(:label_product_items) %><span style="color:red;">*</span></th>
 		<td align="left" >
-			<%=h select_tag('product_item', options_for_select(itemArr, :selected => itemId.blank? ? itemArr  : itemId), :style => "width:155px;", :onchange => "productItemChanged(this.id, 'product_quantity', 'product_cost_price', 'product_sell_price')") %>
+			<%=h select_tag('product_item', options_for_select(itemArr, :selected => itemId.blank? ? itemArr  : itemId), :style => "width:155px;", :onchange => "productItemChanged(this.id, 'product_quantity', 'product_cost_price', 'product_sell_price', #{User.current.id} ); productUOMChanged(this.id, 'uom_id', #{User.current.id})") %>
 			
-			<%=h select_tag("uom_id", options_for_select(uomArr, :selected => itemId.blank? ? uomArr  : itemId), :disabled => false) %>
+			<%=h select_tag("uom_id", options_for_select(uomArr, :selected => uomId.blank? ? uomArr  : uomId), :disabled => false) %>
 		</td>
 		
 		<th align="right"><%= l(:label_quantity) %><span style="color:red;">*</span></th>

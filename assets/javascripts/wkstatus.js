@@ -83,6 +83,7 @@ function spentTypeValue(elespent)
 {
 	 spentTypeVal = elespent.options[elespent.selectedIndex].value;
 	 sessionStorage.setItem("spent_type", spentTypeVal);
+	 document.getElementById("query_form").submit();
 }
 
 function showEntryWarning(entrydate){

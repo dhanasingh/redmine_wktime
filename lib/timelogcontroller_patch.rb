@@ -98,27 +98,40 @@ module TimelogControllerPatch
 						format.api  { render_validation_errors(@time_entry) }
 					end
 				end
-			else
-				errorMsg = ""
-				if params[:product_sell_price].blank?
-					errorMsg = "Quantity cann't be empty."
-				end
-				if params[:product_quantity].blank?
-					errorMsg = "Selling price cann't be empty."
-				end
-				
+			else				
+				errorMsg = validateMatterial				
 				if errorMsg.blank?
 					saveMatterial
 				else
 					respond_to do |format|
 						format.html { 					
-							flash[:notice] = l(:notice_successful_update)
-							redirect_back_or_default project_time_entries_path(@time_entry.project)
+							flash[:error] = errorMsg
+							render :action => 'new'
 						
 						}
 					end
 				end
 			end
+		end
+		
+		def validateMatterial
+			errorMsg = ""
+			if params[:product_sell_price].blank?
+				errorMsg = errorMsg + "Selling price cann't be empty."
+			end
+			if params[:product_quantity].blank?
+				errorMsg = errorMsg + "Quantity cann't be empty."
+			end
+			if params[:time_entry][:project_id].blank?
+				errorMsg = errorMsg + "Project cann't be empty."
+			end
+			if params[:time_entry][:issue_id].blank?
+				errorMsg = errorMsg + "Issue cann't be empty."
+			end
+			if params[:time_entry][:activity_id].blank?
+				errorMsg = errorMsg + "Activity cann't be empty."
+			end
+			errorMsg
 		end
 
 		def update
@@ -142,20 +155,13 @@ module TimelogControllerPatch
 					end
 				end
 			else
-				errorMsg = ""
-				if params[:product_sell_price].blank?
-					errorMsg = "Quantity cann't be empty."
-				end
-				if params[:product_quantity].blank?
-					errorMsg = "Selling price cann't be empty."
-				end
-				
+				errorMsg = validateMatterial				
 				if errorMsg.blank?
 					saveMatterial
 				else
 					respond_to do |format|
 						format.html { 					
-							flash[:notice] = l(:notice_successful_update)
+							flash[:error] = errorMsg
 							redirect_back_or_default project_time_entries_path(@time_entry.project)
 						
 						}
@@ -210,7 +216,7 @@ module TimelogControllerPatch
 			@materialEntries.activity_id =  params[:time_entry][:activity_id].to_i
 			@materialEntries.spent_on = params[:time_entry][:spent_on]
 			@materialEntries.selling_price = params[:product_sell_price]
-			@materialEntries.uom_id = 1			
+			@materialEntries.uom_id = params[:uom_id]			
 		end
 		
 		def set_filter_session
@@ -269,9 +275,8 @@ module TimelogControllerPatch
 					begin
 					@materialEntries = WkMaterialEntry.find(params[:id].to_i) unless params[:id].blank?
 					inventoryItemObj = WkInventoryItem.find(@materialEntries.inventory_item_id)
-					inventoryItemObj.lock!
 					inventoryItemObj.available_quantity = inventoryItemObj.available_quantity + @materialEntries.quantity
-					inventoryItemObj.save!
+					inventoryItemObj.save
 					@materialEntries.destroy
 					rescue => ex
 						errMsg = "Unable delete the material entries."
