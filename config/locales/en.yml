@@ -715,3 +715,4 @@ en:
   label_project_error: Project cannot be empty
   label_issue_error: Issue cannot be empty
   label_activity_error: Activity cannot be empty
+  error_shipment_items_used: Could not delete the shipment. Some items in the shipment were used

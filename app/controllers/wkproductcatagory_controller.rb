@@ -1,4 +1,4 @@
-class WkproductcatagoryController < ApplicationController
+class WkproductcatagoryController < WkinventoryController
   unloadable
   before_filter :require_login
 

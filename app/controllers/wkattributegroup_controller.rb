@@ -1,6 +1,8 @@
-class WkattributegroupController < ApplicationController
+class WkattributegroupController < WkinventoryController
    unloadable
    before_filter :require_login
+   before_filter :check_perm_and_redirect, :only => [:edit_product_attribute, :updateProductAttribute]
+   before_filter :check_admin_redirect, :only => [:destroyProductAttribute]
 
 
     def index

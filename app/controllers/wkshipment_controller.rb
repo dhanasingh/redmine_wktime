@@ -1,4 +1,4 @@
-class WkshipmentController < WkbaseController
+class WkshipmentController < WkinventoryController
   unloadable
 before_filter :require_login
 
@@ -228,9 +228,20 @@ include WkgltransactionHelper
 			redirect_to :action => 'edit', :shipment_id => @shipment.id
 	   end
 	end
-
+	
 	def destroy
-	end   
+		begin
+			shipment = WkShipment.find(params[:shipment_id].to_i)
+			if shipment.destroy
+				flash[:notice] = l(:notice_successful_delete)
+			else
+				flash[:error] = shipment.errors.full_messages.join("<br>")
+			end
+		rescue => ex
+			flash[:error] = l(:error_shipment_items_used)
+		end
+		redirect_back_or_default :action => 'index', :tab => params[:tab]
+	end  
 
 	def set_filter_session
 		if params[:searchlist].blank? && session[controller_name].nil?

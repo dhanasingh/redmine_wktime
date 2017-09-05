@@ -1,6 +1,7 @@
-class WkproductController < ApplicationController
+class WkproductController < WkinventoryController
   unloadable
   before_filter :require_login
+  before_filter :check_perm_and_redirect, :only => [:category, :updateCategory]
 
 
   def index
@@ -74,8 +75,6 @@ class WkproductController < ApplicationController
     end
 	
 	def destroy
-		#WkRfq.find(params[:rfq_id].to_i).destroy
-		#flash[:notice] = l(:notice_successful_delete)
 		product = WkProduct.find(params[:product_id].to_i)
 		if product.destroy
 			flash[:notice] = l(:notice_successful_delete)
