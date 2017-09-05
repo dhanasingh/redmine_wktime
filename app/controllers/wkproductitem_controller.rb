@@ -1,7 +1,7 @@
 class WkproductitemController < WkinventoryController
   unloadable 
   before_filter :require_login
-  before_filter :check_perm_and_redirect, :only => [:transfer, :updateTransfer]
+  before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :transfer, :updateTransfer]
 
   include WktimeHelper
   include WkgltransactionHelper

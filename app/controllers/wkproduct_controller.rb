@@ -1,7 +1,7 @@
 class WkproductController < WkinventoryController
   unloadable
   before_filter :require_login
-  before_filter :check_perm_and_redirect, :only => [:category, :updateCategory]
+  before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :category, :updateCategory]
 
 
   def index

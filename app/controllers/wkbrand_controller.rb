@@ -1,8 +1,8 @@
 class WkbrandController < WkinventoryController
   unloadable
   before_filter :require_login
-  before_filter :check_perm_and_redirect, :only => [:edit_product_model, :updateProductModel]
-  before_filter :check_admin_redirect, :only => [:destroyProductModel]
+  before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :edit_product_model, :updateProductModel]
+  before_filter :check_admin_redirect, :only => [:destroy, :destroyProductModel]
 
 
     def index
