@@ -1,5 +1,7 @@
 class WklogmaterialController < ApplicationController
   unloadable
+  before_filter :require_login
+
 
 
 

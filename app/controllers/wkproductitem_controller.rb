@@ -1,5 +1,7 @@
 class WkproductitemController < ApplicationController
   unloadable 
+  before_filter :require_login
+
   include WktimeHelper
   include WkgltransactionHelper
   

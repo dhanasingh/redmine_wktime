@@ -1,5 +1,6 @@
 class WkunitofmeasurementController < ApplicationController
   unloadable
+  before_filter :require_login
 
 
 

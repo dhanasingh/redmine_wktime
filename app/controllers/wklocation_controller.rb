@@ -1,5 +1,7 @@
 class WklocationController < WkbaseController
   unloadable
+  before_filter :require_login
+
 
   def index
 	set_filter_session

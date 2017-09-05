@@ -1,5 +1,7 @@
 class WkbrandController < ApplicationController
   unloadable
+  before_filter :require_login
+
 
     def index
 		@brandEntries = nil
