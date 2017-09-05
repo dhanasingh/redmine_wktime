@@ -116,20 +116,21 @@ module TimelogControllerPatch
 		
 		def validateMatterial
 			errorMsg = ""
-			if params[:product_sell_price].blank?
-				errorMsg = errorMsg + "Selling price cann't be empty."
-			end
-			if params[:product_quantity].blank?
-				errorMsg = errorMsg + "Quantity cann't be empty."
-			end
+			
 			if params[:time_entry][:project_id].blank?
-				errorMsg = errorMsg + "Project cann't be empty."
+				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_project_error)
 			end
 			if params[:time_entry][:issue_id].blank?
-				errorMsg = errorMsg + "Issue cann't be empty."
+				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_issue_error)
 			end
 			if params[:time_entry][:activity_id].blank?
-				errorMsg = errorMsg + "Activity cann't be empty."
+				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_activity_error)
+			end
+			if params[:product_sell_price].blank?
+				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_selling_price_error) 
+			end
+			if params[:product_quantity].blank?
+				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_quantity_error)
 			end
 			errorMsg
 		end

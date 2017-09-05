@@ -710,3 +710,8 @@ en:
   label_models: Models
   label_attributes: Attributes
   label_transfer: Transfer
+  label_selling_price_error: Selling price cannot be empty
+  label_quantity_error: Quantity cannot be empty
+  label_project_error: Project cannot be empty
+  label_issue_error: Issue cannot be empty
+  label_activity_error: Activity cannot be empty
