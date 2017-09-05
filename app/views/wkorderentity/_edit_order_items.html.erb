@@ -67,6 +67,7 @@
 					<td class="lbl-txt-align" headers="project_id">
 						<%=h select_tag("project_id#{row_index.to_s}", options_for_select(@projectsDD, :selected => entry.project_id), :disabled => isDisable) %>
 						<%=h hidden_field_tag("product_id#{row_index.to_s}",  entry.product_id )  %>
+						<%=h hidden_field_tag("material_id#{row_index.to_s}",  "" )  %>
 					</td>
 				<% end %>
 				<td class="lbl-txt-align" headers="name">
@@ -115,6 +116,7 @@
 				<td class="lbl-txt-align" headers="project_id">
 					<%=h select_tag("project_id#{row_index.to_s}", options_for_select(@projectsDD, :selected=> value['project_id'] ), :disabled => @preBilling ) %>
 					<%=h hidden_field_tag("product_id#{row_index.to_s}",  value['product_id'] )  %>
+					<%=h hidden_field_tag("material_id#{row_index.to_s}",  value['material_id'].blank? ? "" : value['material_id'] )  %>
 				</td>
 				<td class="lbl-txt-align" headers="name">
 					<%= text_field_tag "name#{row_index}", value['item_desc'], :required => true,  :style => "width:320px; ", :disabled => @preBilling %>

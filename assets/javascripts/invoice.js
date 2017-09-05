@@ -84,6 +84,7 @@ function invoiceAddRow(tableId, rowCount)
 	if(tableId == "invoiceTable")
 	{
 		document.getElementById("product_id"+rowlength).value = "";
+		document.getElementById("material_id"+rowlength).value = "";
 	}
 	
 }

@@ -662,6 +662,7 @@ include WkbillingHelper
 				@invItems[@itemCount].store 'milestone_id', ''				
 				@invItems[@itemCount].store 'project_id', mEntry.project_id
 				@invItems[@itemCount].store 'product_id', productId
+				@invItems[@itemCount].store 'material_id', mEntry.id
 				@invItems[@itemCount].store 'item_desc', desc
 				@invItems[@itemCount].store 'item_type', 'm'
 				@invItems[@itemCount].store 'rate', rate

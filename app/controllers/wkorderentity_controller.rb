@@ -283,6 +283,11 @@ include WkorderentityHelper
 				end
 				
 			end
+			unless params["material_id#{i}"].blank?
+				matterialEntry = WkMaterialEntry.find(params["material_id#{i}"].to_i)
+				matterialEntry.invoice_item_id = updatedItem.id
+				matterialEntry.save
+			end
 			savedRows = savedRows + 1
 			tothash[updatedItem.project_id] = [(tothash[updatedItem.project_id].blank? ? 0 : tothash[updatedItem.project_id][0]) + updatedItem.amount, updatedItem.currency] if updatedItem.item_type != 'm'
 			
