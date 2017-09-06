@@ -29,7 +29,7 @@ class WkInventoryItem < ActiveRecord::Base
   has_many :transfered_items, foreign_key: "parent_id", class_name: "WkInventoryItem", :dependent => :restrict_with_error
   
   before_destroy :add_quantity_to_parent
-  validates_presence_of :product_item
+  validates_presence_of :product_item, :total_quantity, :available_quantity
 
   
   def incrementAvaQty(incVal)

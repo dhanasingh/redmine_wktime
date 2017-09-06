@@ -3,12 +3,15 @@
 		productItem = entry.product_item 
 		isDisable = isUsedInventoryItem(entry)
 		sqlCond = ""
+		attributeSql = ""
 		unless productItem.blank?
 			sqlCond = " product_id = " + productItem.product_id.to_s
+			attributeSql = " group_id = " + productItem.product.attribute_group_id.to_s
 		else
 			firstProduct = WkProduct.order(:name).first
 			productId = firstProduct.blank? ? 0 : firstProduct.id
-			sqlCond = " product_id = " + productId.to_s
+			sqlCond = " product_id = " + productId.to_s	
+			attributeSql = " group_id = " + firstProduct.attribute_group_id.to_s			
 		end
 	%>
 	<td class="lbl-txt-align" headers="item_id">
@@ -31,7 +34,7 @@
 		<%#=h select_tag("model_id#{row_index.to_s}", generic_options_for_select(WkProductModel, nil, 'name', 'name', 'id', nil, true), :disabled => isDisable, :style => "width: 100%;") %> -->
 	</td>
 	<td class="lbl-txt-align" headers="product_attribute_id">
-		<%=h select_tag("product_attribute_id#{row_index.to_s}", generic_options_for_select(WkProductAttribute, nil, 'name', 'name', 'id',  entry.blank? ? nil :entry.product_attribute_id, true), :disabled => isDisable, :style => "width: 100%;") %>
+		<%=h select_tag("product_attribute_id#{row_index.to_s}", generic_options_for_select(WkProductAttribute, attributeSql, 'name', 'name', 'id',  entry.blank? ? nil :entry.product_attribute_id, true), :disabled => isDisable, :style => "width: 100%;") %>
 	</td>
 	<td class="lbl-txt-align" headers="serial_number">
 		<%= text_field_tag "serial_number#{row_index}",  entry.serial_number, :required => false, :disabled => isDisable, :width => "100%" %>
@@ -45,14 +48,14 @@
 		<%=h select_tag("currency#{row_index}",options_for_select(wkexpense_helper.options_for_currency, :selected => entry.currency), :disabled => isDisable, :style => "width: 100%;") %>
 
 	</td>
-	<td class="lbl-txt-align" headers="cost_price"><%= text_field_tag "cost_price#{row_index}",   ("%.2f" % entry.cost_price unless entry.cost_price.blank?) ,:maxlength => 14, :size => "#{controller.textfield_size}", :onchange => "addAmount(this.id)", :disabled => isDisable %>
+	<td class="lbl-txt-align" headers="cost_price"><%= text_field_tag "cost_price#{row_index}",   ("%.2f" % entry.cost_price unless entry.cost_price.blank?) ,:maxlength => 14, :size => "#{controller.textfield_size}",  :disabled => isDisable %>
 	</td>
-	<td class="lbl-txt-align" headers="selling_price"><%= text_field_tag "selling_price#{row_index}",   ("%.2f" % entry.selling_price unless entry.selling_price.blank?) ,:maxlength => 14, :size => "#{controller.textfield_size}", :onchange => "addAmount(this.id)", :disabled => isDisable %>
+	<td class="lbl-txt-align" headers="selling_price"><%= text_field_tag "selling_price#{row_index}",   ("%.2f" % entry.selling_price unless entry.selling_price.blank?) ,:maxlength => 14, :size => "#{controller.textfield_size}", :disabled => isDisable %>
 	</td>
-	<td class="lbl-txt-align" headers="over_head_price"><%= text_field_tag "over_head_price#{row_index}",   ("%.2f" % entry.over_head_price unless entry.over_head_price.blank?) ,:maxlength => 14, :size => "#{controller.textfield_size}", :onchange => "addAmount(this.id)", :disabled => isDisable %>
+	<td class="lbl-txt-align" headers="over_head_price"><%= text_field_tag "over_head_price#{row_index}",   ("%.2f" % entry.over_head_price unless entry.over_head_price.blank?) ,:maxlength => 14, :size => "#{controller.textfield_size}", :disabled => isDisable %>
 	</td>
 	<td class="lbl-txt-align" headers="total_quantity">
-		<%= text_field_tag "total_quantity#{row_index}", ("%.2f" % entry.total_quantity unless entry.total_quantity.blank?), :maxlength => 14, :size => "#{controller.textfield_size}", :onchange => "addAmount(this.id)", :disabled => isDisable, :required => true %>
+		<%= text_field_tag "total_quantity#{row_index}", ("%.2f" % entry.total_quantity unless entry.total_quantity.blank?), :maxlength => 14, :size => "#{controller.textfield_size}", :disabled => isDisable, :required => true %>
 	</td>
 	<td class="lbl-txt-align" headers="uom_id">
 		<%=h select_tag("uom_id#{row_index.to_s}", generic_options_for_select(WkMesureUnit, nil, 'short_desc', 'short_desc', 'id', entry.uom_id, false), :disabled => isDisable, :style => "width: 100%;") %>

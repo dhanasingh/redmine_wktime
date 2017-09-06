@@ -1,11 +1,17 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
  <%= form_tag({:controller => 'wkproduct', :action => 'index'}, :method => :post, :id => 'query_form') do %>
+		<%= hidden_field_tag "searchlist", controller_name %>
+		<%=h hidden_field_tag('tab', controller_name) %>
+		<%
+			categoryId =session[controller_name][:category_id]
+			name =session[controller_name][:name]
+		%>
 	  <fieldset>
 		 <%=h hidden_field_tag('tab', "wkproduct") %>
 		 <label ><%= l(:label_category) %>:</label>
-		 <%=h select_tag("category_id", generic_options_for_select(WkProductCategory, nil, 'name', 'name', 'id', nil, true), :disabled => false) %>
+		 <%=h select_tag("category_id", generic_options_for_select(WkProductCategory, nil, 'name', 'name', 'id', categoryId, true), :disabled => false) %>
 		 <label for='name'><%= l(:field_name) %>:</label>
-		 <%= text_field_tag 'name', params[:name], :size => 30 %>
+		 <%= text_field_tag 'name', name, :size => 30 %>
 		 <%= submit_tag l(:button_apply), :class => "small", :name => nil %>
 		 <%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
 	  </fieldset>

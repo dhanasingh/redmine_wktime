@@ -4,15 +4,18 @@ class WkproductController < WkinventoryController
   before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :category, :updateCategory]
 
 
-  def index
+	def index
+		set_filter_session
+		categoryId = session[controller_name][:category_id]
+		name = session[controller_name][:name]
 		@productEntries = nil
 		sqlStr = ""
-		unless params[:name].blank?
-			sqlStr = "LOWER(name) like LOWER('%#{params[:name]}%')"
+		unless name.blank?
+			sqlStr = "LOWER(name) like LOWER('%#{name}%')"
 		end
-		unless params[:category_id].blank?
+		unless categoryId.blank?
 			sqlStr = sqlStr + " AND" unless sqlStr.blank?
-			sqlStr = sqlStr + " category_id = #{params[:category_id]}"
+			sqlStr = sqlStr + " category_id = #{categoryId}"
 		end
 		unless sqlStr.blank?
 			entries = WkProduct.where(sqlStr)
@@ -109,43 +112,19 @@ class WkproductController < WkinventoryController
 		
 		redirect_to :controller => 'wkproduct',:action => 'category' , :tab => 'wkproduct'
 		flash[:notice] = l(:notice_successful_update)
+	end  
+
+	def set_filter_session
+		if params[:searchlist].blank? && session[controller_name].nil?
+			session[controller_name] = {:category_id => params[:category_id], :name => params[:name]}
+		elsif params[:searchlist] == controller_name
+			session[controller_name][:category_id] = params[:category_id]
+			session[controller_name][:name] = params[:name]
+		end
+		
 	end
-	
-	# def edit_category
-		# @categoryEntry = nil
-	    # unless params[:category_id].blank?
-		   # @categoryEntry = WkProductCategory.find(params[:category_id])
-		# end 
-	# end
-	
-	# def updateCategory
-		# if params[:category_id].blank?
-		  # category = WkProductCategory.new
-		# else
-		  # category = WkProductCategory.find(params[:category_id])
-		# end
-		# category.name = params[:name]
-		# category.description = params[:description]
-		# if category.save()
-		    # redirect_to :controller => 'wkproduct',:action => 'edit_category' , :tab => 'wkproduct'
-		    # flash[:notice] = l(:notice_successful_update)
-		# else
-		    # redirect_to :controller => 'wkproduct',:action => 'edit_category' , :tab => 'wkproduct'
-		    # flash[:error] = product.errors.full_messages.join("<br>")
-		# end
-	# end
-	
-	# def destroyCategory
-		# category = WkProductCategory.find(params[:category_id].to_i)
-		# if category.destroy
-			# flash[:notice] = l(:notice_successful_delete)
-		# else
-			# flash[:error] = category.errors.full_messages.join("<br>")
-		# end
-		# redirect_back_or_default :action => 'edit_category', :tab => params[:tab]
-	# end
   
-   def setLimitAndOffset		
+	def setLimitAndOffset		
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
