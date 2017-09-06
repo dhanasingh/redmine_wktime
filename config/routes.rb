@@ -494,3 +494,5 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	delete 'wklocation/destroy', :to => 'wklocation#destroy'
 	
 	get 'wkunitofmeasurement/update', :to => 'wkunitofmeasurement#update'
+	
+	get 'wkshipment/getSupplierInvoices', :to => 'wkshipment#getSupplierInvoices'

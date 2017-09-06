@@ -1,6 +1,4 @@
-<script type="text/javascript">	
-	rfqQuoteUrl="<%#= "#{url_for(:controller => controller_name, :action => 'getRfqPoIds')}" %>";
-</script>	
+	
 <%
 	siArr = Array.new
 		siArr = WkInvoice.where(:invoice_type => 'SI').collect {|i| [i.invoice_number, i.id]  }

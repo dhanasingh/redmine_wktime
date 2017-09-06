@@ -106,7 +106,7 @@ class CreateWkInventory < ActiveRecord::Migration
 			t.float :org_cost_price
 			t.float :org_selling_price
 			t.float :org_over_head_price
-			t.column :org_currency, :string, :limit => 5, :default => '$'
+			t.column :org_currency, :string, :limit => 5
 			t.float :cost_price
 			t.float :selling_price
 			t.float :over_head_price
@@ -131,7 +131,7 @@ class CreateWkInventory < ActiveRecord::Migration
 		  t.column :quantity_returned,    :float
 		  t.float :org_selling_price
 		  t.boolean :is_deleted, :default => false
-		  t.column :org_currency, :string, :limit => 5, :default => '$'
+		  t.column :org_currency, :string, :limit => 5
 		  t.float :selling_price
 		  t.column :currency, :string, :limit => 5, :default => '$'
 		  t.column :comments,    :string,   :limit => 255

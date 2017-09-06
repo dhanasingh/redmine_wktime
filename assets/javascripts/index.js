@@ -559,3 +559,31 @@ function setProductLogAttribute(data, qtyDD, cpDD, spDD)
 	}
 	
 }
+
+function getSupplierInvoice(uid, loadDdId)
+{
+	var parentId = "", ParentType = "WkAccount";
+	if(document.getElementById("polymorphic_filter_2").checked)
+	{
+		var contactDD = document.getElementById("contact_id");
+		parentId = contactDD.options[contactDD.selectedIndex].value;
+		ParentType = "WkCrmContact";
+	}
+	else
+	{
+		var actDD = document.getElementById("account_id");
+		parentId = actDD.options[actDD.selectedIndex].value;
+	}
+	var loadDropdown = document.getElementById(loadDdId);	
+	var needBlankOption = true;
+	userid = uid;
+	var $this = $(this);
+	$.ajax({
+	url: siUrl,
+	type: 'get',
+	data: {parent_id: parentId, parent_type: ParentType},
+	success: function(data){ updateUserDD(data, loadDropdown, userid, needBlankOption, false, "");},
+	beforeSend: function(){ $this.addClass('ajax-loading'); },
+	complete: function(){ $this.removeClass('ajax-loading'); }	   
+	});
+}

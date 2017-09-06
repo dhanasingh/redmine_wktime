@@ -323,4 +323,17 @@ include WkgltransactionHelper
 			format.text  { render :text => itemArr }
 		end
 	end
+	
+	def getSupplierInvoices
+		siArr = ""
+		siObj = WkInvoice.where(:parent_type=> params[:parent_type], :parent_id=>params[:parent_id], :invoice_type => 'SI')
+		unless siObj.blank?
+			siObj.each do |item|
+				siArr << item.id.to_s() + ',' +  item.invoice_number.to_s() + "\n"
+			end
+		end
+		respond_to do |format|
+			format.text  { render :text => siArr }
+		end
+	end
 end
