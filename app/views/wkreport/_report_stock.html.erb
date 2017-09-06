@@ -1,0 +1,84 @@
+<%
+	sqlStr = " select p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as attribute_name, inv.stock_value, inv.stock_quantity, um.short_desc, inv.currency from wk_product_items pitm
+inner join (select product_item_id, product_attribute_id, uom_id, currency, sum((cost_price + over_head_price) * available_quantity) as stock_value, sum(available_quantity) as stock_quantity from wk_inventory_items
+ group by product_item_id, product_attribute_id, uom_id, currency) inv on (inv.product_item_id = pitm.id) 
+ left join wk_products p on (p.id = pitm.product_id)
+ left join wk_product_models m on (m.id = pitm.product_model_id)
+ left join wk_brands b on (b.id = pitm.brand_id)
+ left join wk_product_attributes a on (a.id = inv.product_attribute_id)
+ left join wk_mesure_units um on (um.id = inv.uom_id)"
+	entries = WkInventoryItem.find_by_sql(sqlStr)
+%>
+<div id="attn-rpt-dlg", style="overflow-x:auto;">
+	<div style="float:left; width:90%;">
+		<p style="text-align: center;">
+			<caption style="text-align:center"><b>
+				<%= Setting.plugin_redmine_wktime['wktime_company_name'] %></br><%= l(:report_stock) %></b></br>
+			</caption>
+		</p>
+	</div>
+	<div style="float:right">
+		<table>
+			<tr>
+				<td>
+					<% logo = Setting.plugin_redmine_wktime['wktime_header_logo'] %>					
+					<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>						
+						<%= image_tag("#{logo}", :plugin => "redmine_wktime") %>
+					<% end %>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div style="clear:both;"></div>
+	<div id="attn-rpt-dlg", style="overflow-x:auto;">
+		<table style="width:100%; border-collapse: collapse;">
+			
+			<thead bgcolor="#e6e6e6">
+				<tr>
+					<th class="lbl-txt-align"><%= l(:label_product) %></th>
+					<th class="lbl-txt-align"><%= l(:label_brand) %></th>
+					<th align="lbl-txt-align"><%= l(:label_model) %></th>
+					<th class="lbl-txt-align"><%= l(:label_attribute) %></th>
+					<th class="lbl-txt-align"><%= l(:label_quantity) %></th>
+					<th class="lbl-txt-align"><%= l(:label_uom) %></th>
+					<th class="lbl-txt-align"><%= l(:field_currency) %></th>
+					<th class="lbl-txt-align"><%= l(:label_stock_value) %></th>
+				</tr>
+			</thead>
+			<tbody>
+				<% 
+					totalStockVal = 0 
+					count = 0
+				%>
+				<% entries.each do |entry| %>
+						<% 
+							totalStockVal = totalStockVal + entry.stock_value
+							count = count +1
+						%>
+						<tr class="<%= cycle("odd", "even") %>">
+								<td align='left'><%= entry.product_name %></td>
+								<td align='left'><%= entry.brand_name %></td>
+								<td align='left'><%= entry.product_model_name %></td>
+								<td align='left'><%= entry.attribute_name %></td>
+								<td align='right'><%= entry.stock_quantity %></td>
+								<td align='right'><%= entry.short_desc %></td>
+								<td align='right'><%= entry.currency %></td>
+								<td align='right'><%= entry.stock_value %></td>
+						</tr>
+				<% end %>
+				<% if count>0 %>
+					<tr bgcolor="#e6e6e6">
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td align="right"><b><%= totalStockVal %></b></td>
+					</tr>
+				<% end %>
+			</tbody>
+		</table>
+	</div>
+</div>

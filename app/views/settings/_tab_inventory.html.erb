@@ -1,0 +1,40 @@
+<fieldset>
+<legend><%= l(:label_inventory) %></legend>
+	<p style="margin-left: -110px;">
+		<%= check_box_tag('settings[wktime_enable_inventory_module]', 1, @settings['wktime_enable_inventory_module'].to_i == 1) %> <label><%= l(:label_enable_inventory_module) %></label>
+	</p>
+	
+	<%
+		@ledgers = ["", ""]
+		@ledgers << WkLedger.order(:name).pluck(:name, :id)
+		ledgerhash = Hash[*@ledgers.flatten].invert
+		accountGroups = Array.new
+		accGroup = Group.order('lastname')
+		unless accGroup.blank?
+			accountGroups = accGroup.collect {|t| [t.lastname, t.id] }
+		end
+		accountGroups.unshift(["",""])
+	%>
+	<p style="padding-left: 190px;">
+		<label><%=l(:label_inventory_user_group)%></label>
+		<%=  select_tag('settings[wktime_inventory_group]',
+				options_for_select(accountGroups, :selected => @settings['wktime_inventory_group'].blank? ? "" : @settings['wktime_inventory_group']))%>
+	</p>
+	
+	<p style="padding-left: 190px;">
+		<label><%=l(:label_inventory_admin_group)%></label>
+		<%=  select_tag('settings[wktime_inventory_admin]',
+				options_for_select(accountGroups, :selected => @settings['wktime_inventory_admin'].blank? ? "" : @settings['wktime_inventory_admin']))%>
+	</p>
+	
+	<p style="margin-left: -110px;">
+			<%= check_box_tag('settings[inventory_auto_post_gl]', 1, @settings['inventory_auto_post_gl'].to_i == 1) %> <label><%= l(:label_auto_post_gl) %></label>
+	</p>
+	
+	<p style="margin-left: -110px;"><label><%= l(:label_credit) + " " +  l(:label_ledger)  %></label>
+	    <%= select_tag 'settings[inventory_cr_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['inventory_cr_ledger']) %></p>
+	
+	<p style="margin-left: -110px;"><label><%= l(:label_debit) + " " +  l(:label_ledger)  %></label>
+	    <%= select_tag 'settings[inventory_db_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['inventory_db_ledger']) %></p>
+	
+</fieldset>

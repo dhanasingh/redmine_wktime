@@ -1,0 +1,45 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'invoice', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<% hash_status = { 'o'  => l(:label_open_issues), 'c' =>  l(:label_closed_issues) } %>
+<%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
+	<% unless @shipment.blank? %>
+		<%=h hidden_field_tag("parent_id",  @shipment.parent_id )  %>
+		<%=h hidden_field_tag("parent_type",  @shipment.parent_type )  %>
+		<%#=h hidden_field_tag("shipment_date",  @shipment.shipment_date )  %>
+		<%=h hidden_field_tag("shipment_serial_number",  @shipment.serial_number )  %>
+	<% end %>
+	<table>
+		<tr><th align="left"><%= l(:label_serial_number) %></th> 
+			<td style="width: 200px;"> 
+				<%= ": " %>
+				<%# if !@shipment.blank? %>
+					
+						<%= text_field_tag "serial_number", @shipment.blank? ? "" : @shipment.serial_number, :style => "width:150px;" %>
+				
+				<% #end %> 
+			</td>
+			<th align="left"><%= l(:label_shipment_date) %></th>
+			<td style="width: 200px;"><%= ": "%> <%=h date_field_tag('shipment_date', (@shipment.blank? ? Date.today.to_s : @shipment.shipment_date.to_s), :size => 10, :required => true, :disabled => @preBilling) %> <%= calendar_for('shipment_date') %></td>
+			
+			<th align="left"><%= l(:label_account) %></th> 
+			<td style="width: 200px;"> <%= ': ' + (@shipment.blank? ? '' : @shipment.parent.name) %> </td>
+			
+		</tr>
+		
+	</table>
+	
+	<% if !@shipmentItem.blank? %>
+		<% if !@shipmentItem[0].blank? %>
+			<%= render :partial => 'edit_shipment_items' %>
+		<% end %>
+	<% else %>
+		<% if !@shipmentItem.blank?  %>
+			<%= render :partial => 'edit_shipment_items' %>
+		<% else  %>		
+			<br/>
+			<h2 ><%= l(:label_shipment_items) %></h2> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<label><b><%= l(:label_no_data) %></b></label>
+		<% end %>
+	<% end %>
+<% end %>

@@ -1,0 +1,30 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div class="autoscroll">
+<table class="list time-entries">
+  <thead>
+         <tr>
+				<th class="lbl-txt-align"><%= l(:field_name)   %></th>
+				<th class="lbl-txt-align"><%= l(:label_type)   %></th>
+				<th class="lbl-txt-align"><%= l(:label_account_address1)   %></th>				
+				<th class="lbl-txt-align"><%= l(:label_city)   %></th>	
+				<th class="lbl-txt-align"><%= l(:label_state)   %></th>					
+				<th class="lbl-txt-align"><%= l(:field_is_default)   %></th>
+				<th></th>
+         </tr>
+  </thead>
+   <tbody>
+	<% @locationObj.each do |entry| %>
+		<tr>
+			<td class="lbl-txt-align"><%=h entry.name  %></td>
+			<td class="lbl-txt-align"><%=h entry.location_type.name  %></td>	
+			<td class="lbl-txt-align"><%=h entry.address.blank? ? nil : entry.address.address1  %></td>
+			<td class="lbl-txt-align"><%=h entry.address.blank? ? nil : entry.address.city  %></td>
+			<td class="lbl-txt-align"><%=h entry.address.blank? ? nil : entry.address.state  %></td>
+			<td class="lbl-txt-align"><%=h checked_image entry.is_default?  %></td>
+			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller_name, :action => 'edit', :location_id => entry.id, :tab => 'wklocation'}, :title => l(:button_edit) %>
+							<%= link_to image_tag('delete.png'), {:controller => controller_name, :action => 'destroy', :location_id => entry.id, :tab => 'wklocation'},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
+		</tr>
+	<% end %>
+   </tbody>
+</table>
+</div>

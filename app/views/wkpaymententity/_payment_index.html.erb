@@ -7,7 +7,7 @@
 				accountId =session[controller_name][:account_id]
 				filterSession =session[controller_name][:polymorphic_filter]
 				projid =session[controller_name][:project_id] %>
-			<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :filter_session => filterSession, :project_id => projid, :pjtChanged => false, :isapply => false, :isproject => false, :isAll => true, :blankOptionForPjt => true, :blankForActDD => true, :blankForContactDD => true, :isFilter => true } %>
+			<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :filter_session => filterSession, :project_id => projid, :pjtChanged => false, :isapply => false, :isproject => false, :isAll => true, :blankOptionForPjt => true, :blankForActDD => true, :blankForContactDD => true, :isFilter => true, :loadSIDD => false } %>
 			
 			<%= render :partial => 'wkpaymententity/date_range' %>
 			<div style="clear:both;"></div>

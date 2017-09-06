@@ -1,0 +1,26 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<h2><%= l(:label_attributes) %></h2>
+<%= form_tag({:controller => "wkattributegroup", :action => 'updateProductAttribute'}, :method => :post, :id => 'query_form') do %>
+	<fieldset class="box tabular" >
+	<legend><%= l(:label_details) %></legend>	
+	<%=h hidden_field_tag('product_attribute_id', @attributeEntry.blank? ? nil : @attributeEntry.id) %>
+	<%=h hidden_field_tag('group_id', @groupEntry.blank? ? nil : @groupEntry.id) %>
+	<table >
+		<tr>
+			<th align="left"><%= l(:field_name) %></th>
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("name",@attributeEntry.blank? ? nil : @attributeEntry.name, :required => true,:size => 85) %> </td></tr>
+		</tr> 
+		<tr>
+			<th align="left"><%= l(:label_attribute_group) %></th>
+			<td align="left" style="padding-left:40px;">
+				<%=h select_tag("hidden_group_id", generic_options_for_select(WkAttributeGroup, nil, 'name', 'name', 'id', @attributeEntry.blank? ? @groupEntry.id : @attributeEntry.group_id, false), :disabled => true ) %>
+			</td>
+		</tr> 
+		<tr>
+			<th align="left" ><%= l(:field_description) %></th>
+			<td align="left" style="padding-left:40px;"><%= text_area_tag 'description', (@attributeEntry.blank? ? nil : @attributeEntry.description), :maxlength => 255, :style => "width:605px; height: 100px;" %></td>				
+		</tr>
+	</table>	
+</fieldset>
+	<%= submit_tag l(:button_save), :class => "small", :name => nil %>
+<% end %>

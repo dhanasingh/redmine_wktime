@@ -8,7 +8,8 @@ include WktimeHelper
 			'SS' => l(:label_txn_sales) + " " + l(:label_stage),
 			'OT' => l(:label_opportunity) + " " + l(:label_type),
 			'AC' => l(:label_account) + " " + l(:field_category),
-			'PT' => l(:label_payment_type)
+			'PT' => l(:label_payment_type),
+			'LT' => l(:label_location_type)			
 		}
 		enumhash = call_hook :external_enum_type
 		unless enumhash.blank?

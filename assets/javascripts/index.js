@@ -1,4 +1,4 @@
-var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl, blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupAccUrl, purSupContactUrl, purSupPayUrl;
+var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl, blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupAccUrl, purSupContactUrl, purSupPayUrl, wklocationUrl,  wkproductUrl, wkproductitemUrl, wkshipmentUrl, wkUomUrl, wkbrandUrl, wkattributegroupUrl; // wkproductcatagoryUrl,
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -195,25 +195,27 @@ function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, bla
 {
 	var items = itemStr.split('\n');
 	var i, index, val, text, start;
-	dropdown.options.length = 0;
-	if(needBlankOption){
-		dropdown.options[0] = new Option(blankText, "0", false, false) 
-	}
-	for(i=0; i < items.length-1; i++){
-		index = items[i].indexOf(',');
-		if(skipFirst){
-			if(index != -1){
-				start = index+1;
-				index = items[i].indexOf(',', index+1);
-			}
-		}else{
-			start = 0;
+	if(dropdown != null){
+		dropdown.options.length = 0;
+		if(needBlankOption){
+			dropdown.options[0] = new Option(blankText, "0", false, false) 
 		}
-		if(index != -1){
-			val = items[i].substring(start, index);
-			text = items[i].substring(index+1);
-			dropdown.options[needBlankOption ? i+1 : i] = new Option( 
-				text, val, false, val == userid);
+		for(i=0; i < items.length-1; i++){
+			index = items[i].indexOf(',');
+			if(skipFirst){
+				if(index != -1){
+					start = index+1;
+					index = items[i].indexOf(',', index+1);
+				}
+			}else{
+				start = 0;
+			}
+			if(index != -1){
+				val = items[i].substring(start, index);
+				text = items[i].substring(index+1);
+				dropdown.options[needBlankOption ? i+1 : i] = new Option( 
+					text, val, false, val == userid);
+			}
 		}
 	}
 }
@@ -248,6 +250,16 @@ $(document).ready(function()
 	changeProp('tab-wksupplierpayment',purSupPayUrl);
 	changeProp('tab-wksupplieraccount',purSupAccUrl);
 	changeProp('tab-wksuppliercontact',purSupContactUrl);
+	changeProp('tab-wklocation',wklocationUrl);
+	//changeProp('tab-wkproductcatagory',wkproductcatagoryUrl);
+	changeProp('tab-wkproduct',wkproductUrl);
+	changeProp('tab-wkproductitem',wkproductitemUrl);
+	changeProp('tab-wkshipment',wkshipmentUrl);
+	changeProp('tab-wkunitofmeasurement',wkUomUrl);
+	changeProp('tab-wkbrand',wkbrandUrl);
+	//changeProp('tab-wkproductmodel',wkproductmodelUrl);
+	//changeProp('tab-wkproductattribute',wkproductattributeUrl);
+	changeProp('tab-wkattributegroup',wkattributegroupUrl);
 });
 
 
@@ -426,4 +438,152 @@ function dateRangeValidation(fromId, toId)
 		alert(" End date should be greater then start date ");
 	}
 	
+}
+
+function productCategoryChanged(curDDId, changeDDId, uid)
+{
+	var currDD = document.getElementById(curDDId);
+	var needBlankOption = false;
+	var changeDD = document.getElementById(changeDDId);
+	userid = uid;
+	var $this = $(this);
+	$.ajax({
+	url: productModifyUrl,
+	type: 'get',
+	data: {id: currDD.value, ptype: changeDDId, product_id: changeDD.value },
+	success: function(data){ updateUserDD(data, changeDD, userid, needBlankOption, false, "");},
+	beforeSend: function(){ $this.addClass('ajax-loading'); },
+	complete: function(){ productChanged(changeDDId, 'brand_id', uid, true, false); $this.removeClass('ajax-loading'); }	      
+	});
+}
+
+function productChanged(curDDId, changeDDId, uid, changeAdditionalDD, needBlank)
+{
+	var currDD = document.getElementById(curDDId);
+	var needBlankOption = needBlank;
+	var changeDD = document.getElementById(changeDDId);
+	var productId;
+	var updateDD;
+	if(changeDDId == 'product_model_id'){
+		var productDD = document.getElementById('product_id');
+		productId = productDD.value;
+	}
+	if(curDDId.includes("product_id")){	
+		rowNum = curDDId.replace("product_id","")
+		if(changeDDId.includes("product_attribute_id")){
+			updateDD = "product_attribute_id"
+			changeDD = document.getElementById("product_attribute_id"+rowNum);
+		}
+		if(changeDDId.includes("product_item_id")){
+			updateDD = "product_item_id"
+			changeDD = document.getElementById("product_item_id"+rowNum);
+		}		
+		var productDD = document.getElementById(curDDId);
+		productId = productDD.value;
+	}
+	userid = uid;
+	var $this = $(this);
+	$.ajax({
+	url: productModifyUrl,
+	type: 'get',
+	data: {id: currDD.value, ptype: changeDDId, product_id: productId, update_DD: updateDD },
+	success: function(data){ updateUserDD(data, changeDD, userid, needBlankOption, false, "");},
+	beforeSend: function(){ $this.addClass('ajax-loading'); },
+	complete: function(){ if(changeAdditionalDD && changeDDId == 'brand_id'){productChanged('brand_id','product_model_id', uid, false, true);productChanged('product_id','product_attribute_id', uid, false, true);} else if(changeAdditionalDD){productItemChanged('product_item', 'product_quantity', 'product_cost_price', 'product_sell_price', uid); } $this.removeClass('ajax-loading'); }	      
+	});
+}
+
+function productUOMChanged(curDDId, changeDDId, uid)
+{
+	var currDD = document.getElementById(curDDId);
+	var needBlankOption = false;
+	var changeDD = document.getElementById(changeDDId);
+	var productDD = document.getElementById('product');
+	userid = uid;
+	var $this = $(this);
+	$.ajax({
+	url: productModifyUrl,
+	type: 'get',
+	data: {id: currDD.value, ptype: changeDDId, product_id: productDD.value },
+	success: function(data){ updateUserDD(data, changeDD, userid, needBlankOption, false, "");},
+	beforeSend: function(){ $this.addClass('ajax-loading'); },
+	complete: function(){  $this.removeClass('ajax-loading'); }	      
+	});
+}
+
+function productItemChanged(curDDId, qtyDD, cpDD, spDD, uid)
+{
+	var currDD = document.getElementById(curDDId);
+	var needBlankOption = false;
+	var productDD = document.getElementById('product');
+	var $this = $(this);
+	userid = uid;
+	$.ajax({
+	url: productModifyUrl,
+	type: 'get',
+	data: {id: currDD.value, ptype: 'inventory_item', product_id: productDD.value },
+	success: function(data){ setProductLogAttribute(data, qtyDD, cpDD, spDD);},
+	beforeSend: function(){ $this.addClass('ajax-loading'); },
+	complete: function(){ productUOMChanged(curDDId, 'uom_id', uid); $this.removeClass('ajax-loading'); }	      
+	});
+}
+
+function setProductLogAttribute(data, qtyDD, cpDD, spDD)
+{
+	if(data != "")
+	{
+		var pctData = data.split(',');
+		document.getElementById('available_quantity').innerHTML = pctData[1];
+		document.getElementById(qtyDD).value  = 1;//pctData[1];
+		if(document.getElementById(cpDD) != null)
+		{
+			document.getElementById(cpDD).value = parseFloat(pctData[2]).toFixed(2);
+			document.getElementById('cpcurrency').innerHTML = pctData[3];
+		}		
+		
+		document.getElementById('spcurrency').innerHTML = pctData[3];
+		document.getElementById(spDD).value = parseFloat(pctData[4]).toFixed(2);
+		document.getElementById('inventory_item_id').value = pctData[0];
+		document.getElementById('total').innerHTML = pctData[3] + (parseFloat(pctData[4] * 1).toFixed(2));
+	}
+	else
+	{
+		document.getElementById(qtyDD).value  = "";
+		if(document.getElementById(cpDD) != null)
+		{
+			document.getElementById(cpDD).value = "";
+		}	
+		document.getElementById(spDD).value = "";
+		document.getElementById('inventory_item_id').value = "";
+		document.getElementById('total').innerHTML = "";
+	}
+	
+}
+
+function getSupplierInvoice(uid, loadDdId)
+{
+	var parentId = "", ParentType = "WkAccount";
+	if(document.getElementById("polymorphic_filter_2").checked)
+	{
+		var contactDD = document.getElementById("contact_id");
+		parentId = contactDD.options[contactDD.selectedIndex].value;
+		ParentType = "WkCrmContact";
+	}
+	else
+	{
+		var actDD = document.getElementById("account_id");
+		parentId = actDD.options[actDD.selectedIndex].value;
+	}
+	var loadDropdown = document.getElementById(loadDdId);	
+	var needBlankOption = true;
+	userid = uid;
+	var $this = $(this);
+	$.ajax({
+	url: siUrl,
+	type: 'get',
+	data: {parent_id: parentId, parent_type: ParentType},
+	success: function(data){ updateUserDD(data, loadDropdown, userid, needBlankOption, false, "");},
+	beforeSend: function(){ $this.addClass('ajax-loading'); },
+	complete: function(){ $this.removeClass('ajax-loading'); }	   
+	});
 }

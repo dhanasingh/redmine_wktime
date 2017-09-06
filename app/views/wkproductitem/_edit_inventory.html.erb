@@ -1,0 +1,63 @@
+<div class="splitcontentright">
+	<% 
+	#isDisable = isTransfer 
+	isDisable = isUsedInventoryItem(invntItem)
+	%>
+	<fieldset class="box tabular">
+		<legend><%= isTransfer ? l(:button_transfer) : l(:label_inventory)%></legend>
+		<table width='100%'>  
+			<tr>
+				<th align="left"><%= l(:label_serial_number) %></th>
+				<td align="left" style="padding-left:40px;"><%= text_field_tag "serial_number",  invntItem.blank? ? '' : invntItem.serial_number, :disabled => isDisable || isTransfer %></td>
+			</tr>
+			<tr>
+				<th align="left"><%= l(:field_currency) %></th>
+				<td align="left" style="padding-left:40px;">
+					<% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
+					<%=h select_tag("currency",options_for_select(wkexpense_helper.options_for_currency, :selected => invntItem.blank? ? '' : invntItem.currency), :disabled => isDisable || isTransfer) %>
+				</td>
+			</tr> 
+			<tr>
+				<th align="left"><%= l(:label_cost_price) %></th>
+				<td align="left" style="padding-left:40px;"><%= text_field_tag "cost_price",  invntItem.blank? ? '' : invntItem.cost_price, :disabled => isDisable || isTransfer %></td>
+			</tr>  
+			<tr>
+				<th align="left"><%= l(:label_over_head_price) %></th>
+				<td align="left" style="padding-left:40px;"><%= text_field_tag "over_head_price",  invntItem.blank? ? '' : invntItem.over_head_price, :disabled => isDisable || isTransfer %></td>
+			</tr> 
+			<tr>
+				<th align="left"><%= l(:label_selling_price) %></th>
+				<td align="left" style="padding-left:40px;"><%= text_field_tag "selling_price",  invntItem.blank? ? '' : invntItem.selling_price, :disabled => false %></td>
+			</tr>  
+			<tr>
+				<th align="left"><%= l(:label_attribute) %></th>
+				<td align="left" style="padding-left:40px;">
+					<%=h select_tag("product_attribute_id", generic_options_for_select(WkProductAttribute, nil, 'name', 'name', 'id', invntItem.blank? ? '' : invntItem.product_attribute_id, true), :disabled => isDisable || isTransfer) %>
+				</td>
+			</tr> 
+			<tr>
+				<th align="left"><%= l(:label_quantity) %></th>
+				<td align="left" style="padding-left:40px;"><%= text_field_tag "available_quantity", ("%.2f" % invntItem.available_quantity unless invntItem.blank?), :disabled => isDisable && !isTransfer, :maxlength => 14, :required => true %></td>
+			</tr> 
+			<tr>
+				<th align="left"><%= l(:label_uom) %></th>
+				<td align="left" style="padding-left:40px;">
+					<%=h select_tag("uom_id", generic_options_for_select(WkMesureUnit, nil, 'short_desc', 'short_desc', 'id', invntItem.blank? ? '' : invntItem.uom_id, false), :disabled => isDisable && !isTransfer) %>
+				</td>
+			</tr> 
+			<tr>
+				<th align="left"><%= l(:label_location) %></th>
+				<td align="left" style="padding-left:40px;">
+					<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', invntItem.blank? ? '' : invntItem.location_id, false), :disabled => isDisable && !isTransfer) %>
+					<% unless invntItem.blank? || isTransfer %>
+								<%= link_to l(:button_transfer), url_for(:controller => controller_name, :action => 'transfer', :inventory_item_id => invntItem.id), :class => 'icon icon-bullet-go' %>
+					<% end %>
+				</td>
+			</tr> 
+			<tr>
+				<th align="left"><%= l(:field_notes) %></th>
+				<td align="left" style="padding-left:40px;"><%= text_area_tag "notes",  invntItem.blank? ? '' : invntItem.notes, :disabled => isDisable && !isTransfer %></td>
+			</tr>  		
+		</table>
+	</fieldset>
+</div>

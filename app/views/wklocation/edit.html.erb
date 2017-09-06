@@ -1,0 +1,34 @@
+<%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
+	<h2><b><%= l(:label_location_detail) %></b></h2>
+	<div id="account_form">
+		<% addressObj = @locEntry.blank? ? nil : @locEntry.address %>
+		<%=h hidden_field_tag('location_id', @locEntry.blank? ? "" : @locEntry.id) %>
+		<%=h hidden_field_tag('address_id', @locEntry.blank? ? "" : @locEntry.address_id) %>
+		<div class="splitcontentleft">
+			<fieldset class="box tabular">
+				<table>
+					<tr>
+						<th align="left"><%= l(:field_name) %><span style="color:red;">*</span></th>
+						<td align="left" style="padding-left:40px;"><%=h text_field_tag("location_name", (@locEntry.blank? ? "" : @locEntry.name),:size => 20) %> </td>
+					</tr>
+					<%  selectedAcId = @locEntry.blank? ? nil : @locEntry.location_type_id %>
+					<tr>
+						<th align="left"><%= l(:label_location_type) %></th>
+						<td align="left" style="padding-left:40px;"><%=h select_tag('location_type', options_for_select(options_for_enum_select('LT', selectedAcId, true))) %></td>
+					</tr>
+					<tr>
+						<th align="left"><%= l(:field_is_default) %></th>
+						<td align="left" style="padding-left:40px;"><%= check_box_tag('defaultValue', 1, @locEntry.blank? ? false : @locEntry.is_default) %></td>
+					</tr>
+				</table>
+			</fieldset>
+		</div>
+		<div class="splitcontentright">
+			<%= render partial: "wklead/contact_info", locals: { address: addressObj }%>
+		</div>
+	</div>
+	<div style="clear:both;"></div>
+	<div>
+		<%= submit_tag l(:button_save) ,:id => 'wkaccount_save'%>
+	</div>
+<% end %>

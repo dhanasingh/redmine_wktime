@@ -81,6 +81,11 @@ function invoiceAddRow(tableId, rowCount)
 		document.getElementById('item_index' + rowlength).innerHTML = rowlength; 
 	}
 	
+	if(tableId == "invoiceTable")
+	{
+		document.getElementById("product_id"+rowlength).value = "";
+		document.getElementById("material_id"+rowlength).value = "";
+	}
 	
 }
 
@@ -98,12 +103,18 @@ function addAmount(fldId)
 	var total = 0;
 	var count = 0;
 	var tothash = new Object();
+	var productTothash = new Object();
 	for(var i = 1 ; i <= (len-1) ; i++)
 	{
-		if(document.getElementById("project_id"+i) != null) {
+		if(document.getElementById("project_id"+i) != null && document.getElementById("product_id"+i).value == "" ) {
 			var dropdown = document.getElementById("project_id"+i);
-			var ddvalue = dropdown.options[dropdown.selectedIndex].value;
+			var ddvalue = dropdown.options[dropdown.selectedIndex].value;			
 			tothash[ddvalue] = (tothash[ddvalue] == null ? 0 : tothash[ddvalue]) + parseInt($("#amount"+i).text());
+		}
+		if(document.getElementById("product_id"+i).value != "")
+		{
+			productId = document.getElementById("product_id"+i).value;
+			productTothash[productId] = (productTothash[productId] == null ? 0 : productTothash[productId]) + parseInt($("#amount"+i).text() );			
 		}
 		total = total + parseInt($("#amount"+i).text());
 		 
@@ -115,11 +126,27 @@ function addAmount(fldId)
 		var taxlen = taxTable.rows.length;
 		for(j=1 ;j < taxlen ; j++)
 		{
-			if(document.getElementById("project_id"+i) != null) {
-				pjtId = document.getElementById('pjt_id'+j).value;
-				var taxamount = tothash[pjtId] * (parseFloat($("#taxrate"+j).text()/100));
+			if(document.getElementById("tax_pjt_id"+j) != null) {
+				pjtId = document.getElementById('tax_pjt_id'+j).value;
+				var taxamount = 0;
+				if(tothash.hasOwnProperty(pjtId))
+				{
+					taxamount = tothash[pjtId] * (parseFloat($("#taxrate"+j).text()/100));
+				}				
 				taxtotal = taxtotal + taxamount;
-				document.getElementById("taxamount"+ j).innerHTML = taxamount.toFixed(2); //total * parseFloat($("#taxrate"+j).text()); 
+				document.getElementById("taxamount"+ j).innerHTML = taxamount.toFixed(2);  
+			}
+			if(document.getElementById("tax_product_id"+j) != null)
+			{
+				
+				pId = document.getElementById("tax_product_id"+j).value;
+				var taxamount = 0;
+				if(productTothash.hasOwnProperty(pId))
+				{
+					taxamount = productTothash[pId] * (parseFloat($("#taxrate"+j).text()/100));
+				}
+				taxtotal = taxtotal + taxamount;
+				document.getElementById("taxamount"+ j).innerHTML = taxamount.toFixed(2); 
 			}
 		}
 	}

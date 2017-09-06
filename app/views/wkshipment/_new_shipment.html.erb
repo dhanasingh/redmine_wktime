@@ -1,0 +1,19 @@
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'invoice', :plugin => "redmine_wktime" %>
+<script type="text/javascript"> 
+	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds')}" %>";
+	accountUrl="<%= "#{url_for(:controller => "wkinvoice", :action => 'getAccountProjIds')}" %>";
+	siUrl="<%= "#{url_for(:controller => controller_name, :action => 'getSupplierInvoices')}" %>";
+</script>
+<%= form_tag({:controller => controller_name, :action => 'edit'}, :method => :get, :id => 'query_form') do %>
+<%=h hidden_field_tag("new_shipment",   true )  %>
+<%= render partial: "wkbilling/index_filters", locals: { :contact_id => nil, :account_id => 1, :filter_session => 2, :project_id => nil, :pjtChanged => false, :isapply => false, :isproject => false, :isAll => false, :blankOptionForPjt => false, :blankForActDD => false, :blankForContactDD => false, :rfq_id => nil, :needQuotePoDD => true, :isFilter => false, :loadSIDD => true } %>
+<div style="clear:both;"></div>
+<table>
+<tr>
+	<th align="left"><label><%= l(:label_populate_items) %></label></th>
+	<td style="padding-left:40px;"><%= check_box_tag('populate_items', 1, false ) %></td>
+</tr>
+</table>
+<%= submit_tag l(:button_continue), :onclick => "return submitNewInvoiceForm(#{false});",  :hidden => false, :id => 'new_invoice' %>
+<% end %>

@@ -1,0 +1,78 @@
+<tr onclick="  row_id  = this.rowIndex ">
+	<% 
+		productItem = entry.product_item 
+		isDisable = isUsedInventoryItem(entry)
+		sqlCond = ""
+		attributeSql = ""
+		unless productItem.blank?
+			sqlCond = " product_id = " + productItem.product_id.to_s
+			attributeSql = " group_id = " + productItem.product.attribute_group_id.to_s
+		else
+			firstProduct = WkProduct.order(:name).first
+			productId = firstProduct.blank? ? 0 : firstProduct.id
+			sqlCond = " product_id = " + productId.to_s	
+			attributeSql = " group_id = " + firstProduct.attribute_group_id.to_s unless firstProduct.blank?		
+		end
+	%>
+	<td class="lbl-txt-align" headers="item_id">
+		<%=h hidden_field_tag("item_id#{row_index}",   entry.id )  %>
+		<%=h hidden_field_tag("is_editable#{row_index}",   isDisable )  %>
+	</td>
+	<td class="lbl-txt-align" headers="item_index">
+		<label id="item_index<%= row_index.to_s %>"><%= row_index  %></label>
+	</td>
+	<td class="lbl-txt-align" headers="product_id">
+		<%=h select_tag("product_id#{row_index.to_s}", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', productItem.blank? ? nil :productItem.product_id, false), :onchange => "productChanged(this.id, 'product_item_id#{row_index.to_s}', #{User.current.id}, false, false);productChanged(this.id, 'product_attribute_id#{row_index.to_s}', #{User.current.id}, false, false);", :disabled => isDisable, :style => "width: 100%;") %>
+	</td>
+	<td class="lbl-txt-align" headers="product_item_id">
+		<%=h select_tag("product_item_id#{row_index.to_s}", product_item_select(sqlCond, false, productItem.blank? ? nil :productItem.id), :disabled => isDisable, :required => true, :style => "width: 100%;", :required => true) %>
+	</td>
+	<!-- <td class="lbl-txt-align" headers="brand_id">
+		<%#=h select_tag("brand_id#{row_index.to_s}", generic_options_for_select(WkBrand, nil, 'name', 'name', 'id', nil, false), :disabled => isDisable, :style => "width: 100%;") %>
+	</td>
+	<td class="lbl-txt-align" headers="model_id">
+		<%#=h select_tag("model_id#{row_index.to_s}", generic_options_for_select(WkProductModel, nil, 'name', 'name', 'id', nil, true), :disabled => isDisable, :style => "width: 100%;") %> -->
+	</td>
+	<td class="lbl-txt-align" headers="product_attribute_id">
+		<%=h select_tag("product_attribute_id#{row_index.to_s}", generic_options_for_select(WkProductAttribute, attributeSql, 'name', 'name', 'id',  entry.blank? ? nil :entry.product_attribute_id, true), :disabled => isDisable, :style => "width: 100%;") %>
+	</td>
+	<td class="lbl-txt-align" headers="serial_number">
+		<%= text_field_tag "serial_number#{row_index}",  entry.serial_number, :required => false, :disabled => isDisable, :width => "100%" %>
+	</td>
+	<td class="lbl-txt-align" headers="notes">
+		<%= text_field_tag "notes#{row_index}",  entry.notes, :required => false, :disabled => isDisable, :width => "100%" %>
+	</td>
+	<td class="lbl-txt-align" headers="currency">
+		<%#=h hidden_field_tag("currency#{row_index}",   entry.currency )  %>
+		<% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
+		<%=h select_tag("currency#{row_index}",options_for_select(wkexpense_helper.options_for_currency, :selected => entry.currency), :disabled => isDisable, :style => "width: 100%;") %>
+
+	</td>
+	<td class="lbl-txt-align" headers="cost_price"><%= text_field_tag "cost_price#{row_index}",   ("%.2f" % entry.cost_price unless entry.cost_price.blank?) ,:maxlength => 14, :size => "#{controller.textfield_size}",  :disabled => isDisable %>
+	</td>
+	<td class="lbl-txt-align" headers="selling_price"><%= text_field_tag "selling_price#{row_index}",   ("%.2f" % entry.selling_price unless entry.selling_price.blank?) ,:maxlength => 14, :size => "#{controller.textfield_size}", :disabled => isDisable %>
+	</td>
+	<td class="lbl-txt-align" headers="over_head_price"><%= text_field_tag "over_head_price#{row_index}",   ("%.2f" % entry.over_head_price unless entry.over_head_price.blank?) ,:maxlength => 14, :size => "#{controller.textfield_size}", :disabled => isDisable %>
+	</td>
+	<td class="lbl-txt-align" headers="total_quantity">
+		<%= text_field_tag "total_quantity#{row_index}", ("%.2f" % entry.total_quantity unless entry.total_quantity.blank?), :maxlength => 14, :size => "#{controller.textfield_size}", :disabled => isDisable, :required => true %>
+	</td>
+	<td class="lbl-txt-align" headers="uom_id">
+		<%=h select_tag("uom_id#{row_index.to_s}", generic_options_for_select(WkMesureUnit, nil, 'short_desc', 'short_desc', 'id', entry.uom_id, false), :disabled => isDisable, :style => "width: 100%;") %>
+	</td>	
+	<td class="lbl-txt-align" headers="location_id">
+		<%=h select_tag("location_id#{row_index.to_s}", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', entry.location_id, false), :disabled => isDisable, :style => "width: 100%;") %>
+	</td>				
+	<% #total = total + entry.org_cost_price unless entry.org_cost_price.blank? %>
+	<td>
+		<% unless isDisable %>
+			<%= link_to image_tag('delete.png'), "javascript:deleteRow('shipmentTable', 'totalrow');", :id => row_index,
+				:data => {:confirm => l(:text_are_you_sure)},
+				:title => l(:button_delete) %>
+		<% end %>
+	</td>
+	<%=h hidden_field_tag("org_currency#{row_index}",   entry.id )  %>
+	<%=h hidden_field_tag("org_cost_price#{row_index}",   entry.id )  %>
+	<%=h hidden_field_tag("org_over_head_price#{row_index}",   entry.id )  %>
+	<%=h hidden_field_tag("org_selling_price#{row_index}",   entry.id )  %>
+</tr>

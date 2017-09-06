@@ -1,0 +1,45 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'invoice', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'accountproject', :plugin => "redmine_wktime" %>
+<h2><%= l(:label_product) %></h2>
+<%= form_tag({:controller => "wkproduct", :action => 'update'}, :method => :post, :id => 'query_form') do %>
+	<fieldset class="box tabular" >
+	<legend><%= l(:label_details) %></legend>	
+	<%=h hidden_field_tag('product_id', @productEntry.blank? ? nil : @productEntry.id) %>
+	<table >
+		<tr>
+			<th align="left"><%= l(:field_name) %></th>
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("name",@productEntry.blank? ? nil : @productEntry.name, :required => true,:size => 85) %> </td></tr>
+		</tr> 
+		<tr>
+			<th align="left"><%= l(:label_category) %></th>
+			<td align="left" style="padding-left:40px;">
+				<%=h select_tag("category_id", generic_options_for_select(WkProductCategory, nil, 'name', 'name', 'id', @productEntry.blank? ? nil : @productEntry.category_id, false)) %>
+			</td>
+		</tr>  
+		<tr>
+			<th align="left"><%= l(:label_attribute) %></th>
+			<td align="left" style="padding-left:40px;">
+				<%=h select_tag("attribute_group_id", generic_options_for_select(WkAttributeGroup, nil, 'name', 'name', 'id', @productEntry.blank? ? nil : @productEntry.attribute_group_id, false), :disabled => false) %>
+			</td>
+		</tr> 
+		<tr>
+			<th align="left"><%= l(:label_uom) %></th>
+			<td align="left" style="padding-left:40px;">
+				<%=h select_tag("uom_id", generic_options_for_select(WkMesureUnit, nil, 'short_desc', 'short_desc', 'id', @productEntry.blank? ? nil : @productEntry.uom_id, false), :disabled => false) %>
+			</td>
+		</tr> 
+		<tr>				
+			<th align="left"><%= l(:field_description) %></th>
+			<td colspan=4 align="left" style="padding-left:40px;"><%=h text_area_tag("description",@productEntry.blank? ? '' : @productEntry.description, :maxlength => 255, :style => "width:600px; height:90px;") %> </td>
+		</tr>
+		<tr>
+			<th align="left"><%= l(:label_applicable_taxes) %></th>
+			<td align="left" style="padding-left:40px;">
+				<%=h select_tag('tax_id', generic_options_for_select(WkTax, nil, 'name', 'name', 'id', @productEntry.blank? ? nil : @applicableTaxes, false), :size => 5, :multiple=> true) %>
+			</td>
+		</tr>
+	</table>	
+</fieldset>
+	<%= submit_tag l(:button_save), :class => "small", :name => nil %>
+<% end %>

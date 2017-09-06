@@ -1,5 +1,6 @@
 class WkcrmenumerationController < ApplicationController
   unloadable
+  include WktimeHelper
   before_filter :require_login
   before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
 
@@ -11,11 +12,11 @@ class WkcrmenumerationController < ApplicationController
 		enumType =  session[:wkcrmenumeration][:enumType]
 		wkcrmenum = nil
 		if !enumName.blank? &&  !enumType.blank?
-			wkcrmenum = WkCrmEnumeration.where(:enum_type => enumType).where("LOWER(name) like LOWER(?) OR LOWER(name) like LOWER(?)", "%#{enumName}%", "%#{enumName}%")
+			wkcrmenum = WkCrmEnumeration.where(:enum_type => enumType).where("LOWER(name) like LOWER(?)", "%#{enumName}%")
 		elsif enumName.blank? &&  !enumType.blank? 
 			wkcrmenum = WkCrmEnumeration.where(:enum_type => enumType)
 		elsif !enumName.blank? &&  enumType.blank?
-			wkcrmenum = WkCrmEnumeration.where("LOWER(name) like LOWER(?) OR LOWER(name) like LOWER(?)", "%#{enumName}%", "%#{enumName}%")
+			wkcrmenum = WkCrmEnumeration.where("LOWER(name) like LOWER(?)", "%#{enumName}%")
 		else
 			wkcrmenum = WkCrmEnumeration.all
 		end	
@@ -91,7 +92,7 @@ class WkcrmenumerationController < ApplicationController
 	end
 	
 	def check_perm_and_redirect
-		unless User.current.admin?
+		unless User.current.admin? || hasSettingPerm
 			render_403
 			return false
 		end

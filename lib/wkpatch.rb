@@ -1,6 +1,6 @@
 module WkreportControllerPatch
 	def self.included(base)
-		base.send(:include)
+		#base.send(:include)
 		
 		base.class_eval do
 			def report1

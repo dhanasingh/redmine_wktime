@@ -1,0 +1,48 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div class="autoscroll">
+	<table class="list time-entries">
+		<thead>
+			<tr>				
+				<th class="lbl-txt-align"><%= l(:label_product) %></th>
+				<th class="lbl-txt-align"><%= l(:label_brand) %></th>
+				<th class="lbl-txt-align"><%= l(:label_model) %></th>
+				<th class="lbl-txt-align"><%= l(:label_attribute) %></th>
+				<th class="lbl-txt-align"><%= l(:label_serial_number) %></th>
+				<th class="lbl-txt-align"><%= l(:field_currency) %></th>
+				<!-- <th class="lbl-txt-align"><%#= l(:label_cost_price) %></th>				
+				<th class="lbl-txt-align"><%#= l(:label_over_head_price) %></th> -->
+				<th class="lbl-txt-align"><%= l(:label_selling_price) %></th>
+				<th class="lbl-txt-align"><%= l(:label_total_quantity) %></th>				
+				<th class="lbl-txt-align"><%= l(:label_available_quantity) %></th>
+				<th class="lbl-txt-align"><%= l(:label_uom) %></th>
+				<th class="lbl-txt-align"><%= l(:label_location) %></th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<% @productInventory.each do |entry| %>
+				<tr>
+					  
+					  <td class="lbl-txt-align"><%=h entry.product_name %></td>
+					  <td class="lbl-txt-align"><%=h entry.brand_name %></td>
+					  <td class="lbl-txt-align"><%=h entry.product_model_name %></td>
+					  <td class="lbl-txt-align"><%=h entry.product_attribute_name %></td>
+					  <td class="lbl-txt-align"><%=h entry.serial_number %></td>
+					  <td class="lbl-txt-align"><%=h entry.currency %></td>
+					  <!-- <td class="lbl-txt-align"><%#=h entry.cost_price%></td>					  
+					  <td class="lbl-txt-align"><%#=h entry.over_head_price %></td> -->
+					  <td class="lbl-txt-align"><%=h entry.selling_price %></td>
+					  <td class="lbl-txt-align"><%=h entry.total_quantity %></td>
+					  <td class="lbl-txt-align"><%=h entry.available_quantity%></td>					  
+					  <td class="lbl-txt-align"><%=h entry.uom_short_desc %></td>
+					  <td class="lbl-txt-align"><%=h entry.location_name %></td>
+					  <td align="center">
+						  <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :inventory_item_id => entry.inventory_item_id, :product_item_id => entry.product_item_id}, :title => l(:button_edit) %> <%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :inventory_item_id => entry.inventory_item_id, :product_item_id => entry.product_item_id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+					  </td>
+				</tr>
+			<% end %>
+		</tbody>
+	</table>
+</div>
+
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

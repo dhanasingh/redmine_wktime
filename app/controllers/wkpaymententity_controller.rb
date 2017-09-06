@@ -248,9 +248,12 @@ class WkpaymententityController < WkbillingController
 		
 		unless @payment.id.blank?
 			totalAmount = @payment.payment_items.current_items.sum(:amount)
+			moduleAmtHash = {getAutoPostModule => [totalAmount.round, totalAmount.round]}
+			
+			transAmountArr = getTransAmountArr(moduleAmtHash)
 			if totalAmount > 0 && isChecked(getAuotPostId)
 				transId = @payment.gl_transaction.blank? ? nil : @payment.gl_transaction.id
-				glTransaction = postToGlTransaction(getAutoPostModule, transId, @payment.payment_date, totalAmount, @payment.payment_items[0].currency, @payment.description, nil )
+				glTransaction = postToGlTransaction(getAutoPostModule, transId, @payment.payment_date, transAmountArr, @payment.payment_items[0].currency, @payment.description, nil )
 				unless glTransaction.blank?
 					@payment.gl_transaction_id = glTransaction.id
 					@payment.save

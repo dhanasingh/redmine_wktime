@@ -648,3 +648,71 @@ it:
   error_please_select_rfq: Please select RFQ
   error_please_select_winning_quote: Please select Winning Quote
   error_please_select_po: Please select Purchase Order
+  
+  label_inventory: Inventory
+  label_inventory_admin_group: Inventory Admin Group
+  label_inventory_user_group: Inventory User Group
+  label_enable_inventory_module: Enable Inventory Module
+  label_hr: HR
+  label_location: Location
+  label_product: Product
+  label_shipment: Shipment
+  label_category: Category
+  label_uom: Unit Of Measure
+  label_item: Item
+  label_new_shipment: New Shipment
+  label_shipment_items: Shipment Items
+  label_shipment_date: Shipment Date
+  label_serial_number: Serial Number
+  label_material: Material
+  label_cost_price: Cost Price
+  label_sell_price: Sell Price
+  label_brand: Brand
+  label_log_type: Log Type
+  label_cost_price: Cost Price
+  label_selling_price: Selling Price
+  label_over_head_price: Over Head Price
+  label_org_cost_price: Original Cost Price
+  label_org_selling_price: Original Selling Price
+  label_org_over_head_price: Original Over Head Price
+  label_total_quantity: Total Quantity
+  label_available_quantity: Available Quantity
+  label_model: Model
+  label_attribute_group: Attribute Group
+  label_product_catagory: Product Catagory
+  label_product_items: Product Items
+  label_category: Category
+  label_populate_items: Populate Items
+  label_new_product_item: New Product Item
+  label_edit_product_item: Edit Product Item
+  label_product_item: Product Item
+  label_part_number: Part Number
+  label_inventory_information: Inventory Information
+  field_quantity: Quantity
+  field_selling_price: Selling Price
+  button_transfer: Transfer to
+  report_stock: Stock Report
+  label_stock_value: Stock value
+  label_new_product: New Product
+  label_new_category: New Category
+  label_new_brand: New Brand
+  label_new_model: New Model
+  label_location_type: Location Type
+  label_new_location: New Location
+  label_location_detail: Location Detail
+  label_new_model: New Model
+  label_product_model: Product Model
+  label_product_attribute: Product Attribute
+  label_new_product_attribute: New Attributes
+  label_new_attribute_group: New Attribute Group
+  label_models: Models
+  label_attributes: Attributes
+  label_transfer: Transfer
+  label_selling_price_error: Selling price cannot be empty
+  label_quantity_error: Quantity cannot be empty
+  label_project_error: Project cannot be empty
+  label_issue_error: Issue cannot be empty
+  label_activity_error: Activity cannot be empty
+  error_shipment_items_used: Could not delete the shipment. Some items in the shipment were used
+  error_material_delete: Unable delete the material entries
+  error_material_delete_billed: Could not delete the invoiced material entries

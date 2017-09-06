@@ -396,3 +396,103 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	 get 'wkexpense/lockte', :to => 'wkexpense#lockte'
 	
 	post 'wktime/lockupdate', :to => 'wktime#lockupdate'
+	
+	get 'wklocation/index', :to => 'wklocation#index' 
+	
+	#get 'wkproductcatagory/index', :to => 'wkproductcatagory#index'
+	
+	get 'wkproduct/index', :to => 'wkproduct#index'
+	
+	post 'wkproduct/index', :to => 'wkproduct#index'
+    
+	get 'wkproduct/edit', :to => 'wkproduct#edit'
+	
+	post 'wkproduct/update', :to => 'wkproduct#update'	
+	
+	delete 'wkproduct/destroy', :to => 'wkproduct#destroy'
+    
+	get 'wkproduct/category', :to => 'wkproduct#category'
+	
+	get 'wkproduct/updateCategory', :to => 'wkproduct#updateCategory'
+	
+	post 'wkproduct/updateCategory', :to => 'wkproduct#updateCategory'	
+	
+	#delete 'wkproduct/destroyCategory', :to => 'wkproduct#destroyCategory'
+	
+	get 'wkproductitem/index', :to => 'wkproductitem#index'
+	
+	get 'wkshipment/index', :to => 'wkshipment#index'
+	
+	get 'wkshipment/new', :to => 'wkshipment#new'
+	
+	get 'wkshipment/edit', :to => 'wkshipment#edit'
+	
+	post 'wkshipment/update', :to => 'wkshipment#update'
+	
+	delete 'wkshipment/destroy', :to => 'wkshipment#destroy'
+	
+	get 'wkunitofmeasurement/index', :to => 'wkunitofmeasurement#index'
+	
+	get 'wklogmaterial/modifyProductDD', :to => 'wklogmaterial#modifyProductDD'
+	
+	get 'wkshipment/populateProductItemDD', :to => 'wkshipment#populateProductItemDD'
+	
+	get 'wkproductitem/index', :to => 'wkproductitem#index'
+	
+	post 'wkproductitem/index', :to => 'wkproductitem#index'
+    
+	get 'wkproductitem/edit', :to => 'wkproductitem#edit'
+	
+	post 'wkproductitem/update', :to => 'wkproductitem#update'	
+	
+	delete 'wkproductitem/destroy', :to => 'wkproductitem#destroy'
+    
+	get 'wkproductitem/transfer', :to => 'wkproductitem#transfer'
+	
+	post 'wkproductitem/updateTransfer', :to => 'wkproductitem#updateTransfer'	
+	
+	get 'wkbrand/index', :to => 'wkbrand#index'
+	
+	post 'wkbrand/index', :to => 'wkbrand#index'
+    
+	get 'wkbrand/edit', :to => 'wkbrand#edit'
+	
+	post 'wkbrand/update', :to => 'wkbrand#update'	
+	
+	delete 'wkbrand/destroy', :to => 'wkbrand#destroy'
+    
+	get 'wkbrand/edit_product_model', :to => 'wkbrand#edit_product_model'
+	
+	post 'wkbrand/updateProductModel', :to => 'wkbrand#updateProductModel'	
+	
+	delete 'wkbrand/destroyProductModel', :to => 'wkbrand#destroyProductModel'
+	
+	#get 'wkproductmodel/index', :to => 'wkproductmodel#index'
+	
+	#get 'wkproductattribute/index', :to => 'wkproductattribute#index'
+	
+	get 'wkattributegroup/index', :to => 'wkattributegroup#index'
+	
+	post 'wkattributegroup/index', :to => 'wkattributegroup#index'
+    
+	get 'wkattributegroup/edit', :to => 'wkattributegroup#edit'
+	
+	post 'wkattributegroup/update', :to => 'wkattributegroup#update'	
+	
+	delete 'wkattributegroup/destroy', :to => 'wkattributegroup#destroy'
+    
+	get 'wkattributegroup/edit_product_attribute', :to => 'wkattributegroup#edit_product_attribute'
+	
+	post 'wkattributegroup/updateProductAttribute', :to => 'wkattributegroup#updateProductAttribute'	
+	
+	delete 'wkattributegroup/destroyProductAttribute', :to => 'wkattributegroup#destroyProductAttribute'
+	
+	get 'wklocation/edit', :to => 'wklocation#edit'
+	
+	post 'wklocation/update', :to => 'wklocation#update'
+	
+	delete 'wklocation/destroy', :to => 'wklocation#destroy'
+	
+	get 'wkunitofmeasurement/update', :to => 'wkunitofmeasurement#update'
+	
+	get 'wkshipment/getSupplierInvoices', :to => 'wkshipment#getSupplierInvoices'

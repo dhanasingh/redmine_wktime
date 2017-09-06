@@ -1,0 +1,11 @@
+	
+<%
+	siArr = Array.new
+		siArr = WkInvoice.where(:invoice_type => 'SI').collect {|i| [i.invoice_number, i.id]  }
+	siArr.unshift(["",''])
+%>
+
+<% if reqQuotePoDD %>	
+	<th align="left"><label><%= l(:label_supplier_invoice) %></label></th>
+	<td><%=h select_tag('si_id', options_for_select(siArr)) %></td>
+<% end %>

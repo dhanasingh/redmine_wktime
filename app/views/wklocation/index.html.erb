@@ -1,0 +1,33 @@
+<h2><%= l(:label_location) %></h2>
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<script type="text/javascript">     
+	blgtaxUrl = '<%=url_for(:controller => "wktax", :action => "index", :tab => "wktax")%>';
+	blgexcrateUrl = '<%=url_for(:controller => "wkexchangerate", :action => "index", :tab => "wkexchangerate")%>';
+	crmenumUrl = '<%=url_for(:controller => "wkcrmenumeration", :action => "index", :tab => "wkcrmenumeration")%>';
+	wklocationUrl =  '<%=url_for(:controller => "wklocation", :action => "index", :tab => "wklocation")%>';
+    prevTab = 'tab-<%= "#{controller_name}" %>';   
+//	grpUrl="<%= "#{url_for(:controller => "wkpayroll", :action => 'getMembersbyGroup')}" %>";
+		//getMembersbyGroup
+</script>
+<%= render_tabs time_expense_tabs %>
+<%= hidden_field_tag 'back_url', url_for(params) %>
+<%= form_tag({:controller => "wklocation", :action => 'index'}, :method => :get, :id => 'query_form') do %>
+<%= hidden_field_tag "searchlist", "wklocation" %>
+<%=h hidden_field_tag('tab', "wklocation") %>
+<%	locName = session[:wklocation][:locName] %>
+<%	locType = session[:wklocation][:locType] %>
+<div class="wk-contextual"> 
+		<label for='name' style="float:left"><%= l(:field_name)   %>&nbsp;&nbsp;</label>
+			<%= text_field_tag 'location_name', locName, :size => 30, :style=> "float: left;" %>	
+		<label style="float:left; padding-left: 20px;"><%= l(:label_type) %>&nbsp;&nbsp;</label>
+			<%=h select_tag('location_type', options_for_select(options_for_enum_select('LT', locType, true)), :style=> "float: left;") %></td>
+			
+		<label style="float:left; padding-left: 20px;">&nbsp;</label>
+		<%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %>
+		<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload', :style=>"float:left; " %>
+        <%= link_to l(:label_new_location), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+</div>
+<div style="clear: both;"></div>
+<% end %>
+<%= render :partial => 'wklocation/location_list', locals: { contacts: @contact}%>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

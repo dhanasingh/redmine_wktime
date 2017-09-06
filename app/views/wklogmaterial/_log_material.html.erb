@@ -1,0 +1,102 @@
+<% if (!Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].to_i == 1 ) %>
+<%= javascript_include_tag 'wklogmaterial', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<% catagoriesList = { 's'  => l(:label_salaried), 'h' =>  l(:label_hourly) }  %>
+<% logmaterial_helper = Object.new.extend(WklogmaterialHelper)	%>
+<% wktime_helper = Object.new.extend(WktimeHelper) %>
+<% logtype = logmaterial_helper.getLogHash %>
+
+<% 	productArr = ""
+	brandArr = ""
+	itemArr = ""
+	itemObj = nil
+%>
+<% productArr = logmaterial_helper.getProductArray(WkProduct, '', false)  %>
+<% uomArr = logmaterial_helper.getUOMArray(nil, false)  %>
+<% productId = @materialEntry.blank? ? ( productArr.blank? ? 0 : productArr[0][1]) : @materialEntry.inventory_item.product_item.product.id    %>
+<!-- Below Array contains the inventory item id and combination of brand, model, partnumber, attribute, selling price as display field  -->
+<% itemArr = logmaterial_helper.getPdtItemArr(productId, false)  %>
+<% itemId = @materialEntry.blank? ? '' : @materialEntry.inventory_item_id  %>
+<% uomId = @materialEntry.blank? ? '' : @materialEntry.uom_id  %>
+<% inventoryItemId = @materialEntry.blank? ? (itemArr.blank? ? '' : itemArr[0][1]) : @materialEntry.inventory_item.id %>
+<% itemObj = WkInventoryItem.find(inventoryItemId) unless inventoryItemId.blank?  %>
+<%= hidden_field_tag 'inventory_item_id', (itemObj.blank? ? "" : itemObj.id) %>
+<%= hidden_field_tag 'matterial_entry_id', (@materialEntry.blank? ? '' : @materialEntry.id) %>
+
+<script type="text/javascript"> 
+	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
+</script>
+
+<table style="padding-left:100px;">
+	<tr>
+		<th align="right" ><%= l(:label_log_type) %><span style="color:red;">*</span></th>
+		<td align="left">
+			<%=h select_tag('log_type', options_for_select(logtype.invert, :selected => (@spentType.blank? ? "T" : @spentType)), :style => "width:155px;", :onchange => "hideLogDetails();") %>
+		</td>		
+	</tr>
+</table>
+
+<table id="materialtable" style="padding-left:65px; display:none;">
+	
+	<tr>	
+		<th align="right" ><%= l(:label_product) %><span style="color:red;">*</span></th>
+		<td align="left">
+			<%=h select_tag('product', options_for_select(productArr, :selected => (productId.blank? ? productArr : productId) ), :style => "width:155px;", :onchange => "productChanged(this.id, 'product_item', #{User.current.id}, true, false); ") %>
+		</td>
+		
+		<th align="right"><%= l(:label_available_quantity) %></th>
+		<% availableQuantity = itemObj.blank? ? " " : itemObj.available_quantity  %>
+		<td align="left" ><label id="available_quantity" style="padding-left: 125px; text-align:right;"><%=h html_hours("%.2f" % availableQuantity ) unless availableQuantity.blank? %></label></td>
+	</tr>
+	
+	<tr>		
+		<th align="right" ><%= l(:label_product_items) %><span style="color:red;">*</span></th>
+		<td align="left" >
+			<%=h select_tag('product_item', options_for_select(itemArr, :selected => itemId.blank? ? itemArr  : itemId), :style => "width:155px;", :onchange => "productItemChanged(this.id, 'product_quantity', 'product_cost_price', 'product_sell_price', #{User.current.id} ); productUOMChanged(this.id, 'uom_id', #{User.current.id})") %>
+			
+			<%=h select_tag("uom_id", options_for_select(uomArr, :selected => uomId.blank? ? uomArr  : uomId), :disabled => false) %>
+		</td>
+		<% totQuantity = @materialEntry.blank? ? 1 : @materialEntry.quantity  %>
+		<th align="right"><%= l(:label_quantity) %><span style="color:red;">*</span></th>
+		<td align="left" style="padding-left: 40px;">
+			<%=h text_field_tag("product_quantity", ("%.2f" % totQuantity  ),:size => 10, :style => "width:80px;text-align:right;", :onchange => "updateTotal(this.id, 'product_sell_price', 'total', 'spcurrency');") %> 
+		</td>
+		
+	</tr>
+	
+	<tr>		
+		<% if wktime_helper.isModuleAdmin('wktime_inventory_admin') %>
+			<th align="right"><%= l(:label_cost_price) %><span style="color:red;">*</span></th>
+			<td align="left" style="padding-left: 40px;">
+			
+				<label id="cpcurrency" ><%=h (itemObj.blank? ? "" : itemObj.currency) %></label>
+				<% costPrice = itemObj.blank? ? "" : itemObj.cost_price %>
+				<%=h text_field_tag("product_cost_price", costPrice.blank? ? "" : ("%.2f" % costPrice) ,:size => 20, :disabled => true, :style => "width:100px; text-align:right; float:right") %> 
+			</td>
+		<% else %>
+			<th></th>
+			<td></td>
+		<% end %>
+		
+		<th align="right"><%= l(:label_sell_price) %><span style="color:red;">*</span></th>
+		<td align="left" style="padding-left: 40px;">
+			<label id="spcurrency"><%=h (itemObj.blank? ? "" : itemObj.currency) %></label>
+			<% sellPrice = itemObj.blank? ? "" : itemObj.selling_price  %>
+			<%=h text_field_tag("product_sell_price", sellPrice.blank? ? "" : ("%.2f" % sellPrice),:size => 20, :style => "width:80px; text-align:right;", :onchange => "updateTotal(this.id, 'product_quantity', 'total', 'spcurrency');") %> 
+		</td>
+	</tr>	
+	
+	<tr>	
+		<th></th>
+		<td></td>
+		<th align="right"><%= l(:label_total) %></th>
+		<td>
+			<!-- <label id="totalcurrency" style="padding-left: 40px;"><%#=h (itemObj.blank? ? "" : itemObj.currency) %></label> -->
+			<% netTotal = itemObj.blank? ? 0 : (totQuantity * itemObj.selling_price)  %>
+			<label id="total" style="padding-left: 127px; text-align:right;"><%=h (itemObj.blank? ? "" : itemObj.currency) %><%=h html_hours("%.2f" % netTotal ) unless netTotal.blank? %></label>
+		</td>
+	</tr>
+		
+</table>
+<% end %>

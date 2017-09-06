@@ -1,0 +1,3 @@
+module WkattributegroupHelper
+include WktimeHelper
+end

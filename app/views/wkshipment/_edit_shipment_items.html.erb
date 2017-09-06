@@ -1,0 +1,62 @@
+<br/>
+
+<% row_index = 1 %>
+<% total = 0 %>
+<%	
+	
+%>
+<script type="text/javascript"> 
+	productModifyUrl="<%= "#{url_for(:controller => "wkshipment", :action => 'populateProductItemDD')}" %>";
+</script>	
+<div class="wk-contextual">
+<h2 style="float:left;"><%= l(:label_item) %></h2>
+<%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('shipmentTable', 'totalrow');",  :class => 'icon icon-time-add' } %>
+</div>
+<div style="clear:both"></div>
+<div class="autoscroll">
+<table id="shipmentTable" class="list time-entries", style="width:100%;">
+  <thead style="width:100%; word-wrap: break-word;">
+         <tr>
+			<th width="1%"></th>
+			<th width="1%" >#</th>
+			<th width="10%" ><%= l(:label_product) %></th>
+			<th width="20%" ><%= l(:label_item) %></th>
+			<!-- <th width="10%" ><%#= l(:label_brand) %></th>
+			<th width="10%" ><%#= l(:label_model) %></th> -->
+			<th width="7%" ><%= l(:label_attribute) %></th>
+			<th width="7%" ><%= l(:label_serial_number) %></th>
+			<th width="10%" ><%= l(:field_notes) %></th>
+			<th width="7%" ><%= l(:label_wk_currency) %></th>
+			<th width="7%" ><%= l(:label_cost_price) %></th>
+			<th width="7%" ><%= l(:label_selling_price) %></th>
+			<th width="7%" ><%= l(:label_over_head_price) %></th>
+			<th width="3%" ><%= l(:label_quantity) %></th>
+			<th width="5%" ><%= "UOM" %></th>
+			<th width="7%" ><%= l(:label_location) %></th>
+			
+			<th width="2%"></th>			
+         </tr>
+  </thead>
+   <tbody>
+   <% if !@shipmentItem.blank? %>
+       <% @shipmentItem.each do |entry| %>
+			<%= render :partial => 'edit_shipment_row', locals: { row_index: row_index, entry: entry } %>
+		    <% row_index = row_index + 1 %>
+		<% end %>
+	<% else %>
+		<%= render :partial => 'edit_shipment_row', locals: { row_index: row_index, entry: entry } %>
+		<% row_index = row_index + 1 %>
+	<% end %>
+   </tbody>
+</table>
+
+</div>
+<%=h hidden_field_tag("totalrow",  row_index-1 )  %>
+<%=h hidden_field_tag("shipment_id",  @shipment.id )  %>
+<% unless @shipmentItem.blank?  %>
+<% unless @shipmentItem.blank? && @shipmentItem[0].blank? %>
+<%=h hidden_field_tag("shipment_id",  @shipment.id )  %>
+<% end %>
+<% end %> 
+<%=h hidden_field_tag("deletedids",  "" )  %>
+<%= submit_tag l(:button_save),  :hidden => false, :id => 'items_save', :disabled => false %>

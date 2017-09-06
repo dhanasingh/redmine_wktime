@@ -1,0 +1,23 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<h2><%= l(:label_attribute_group) %></h2>
+<%= form_tag({:controller => "wkattributegroup", :action => 'update'}, :method => :post, :id => 'query_form') do %>
+	<fieldset class="box tabular" >
+	<legend><%= l(:label_details) %></legend>	
+	<%=h hidden_field_tag('group_id', @groupEntry.blank? ? nil : @groupEntry.id) %>
+	<table >
+		<tr>
+			<th align="left"><%= l(:field_name) %></th>
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("name",@groupEntry.blank? ? nil : @groupEntry.name, :required => true,:size => 85) %> </td></tr>
+		</tr> 
+		<tr>
+			<th align="left" ><%= l(:field_description) %></th>
+			<td align="left" style="padding-left:40px;"><%= text_area_tag 'description', (@groupEntry.blank? ? nil : @groupEntry.description), :maxlength => 255, :style => "width:605px; height: 100px;" %></td>				
+		</tr>
+	</table>	
+</fieldset>
+	<%= submit_tag l(:button_save), :class => "small", :name => nil %>
+<% end %>
+
+<% unless @groupEntry.blank? %>
+	<%= render :partial => 'wkattributegroup/product_attribute_list', :locals => {:attrGroup => @groupEntry}%>
+<% end %>

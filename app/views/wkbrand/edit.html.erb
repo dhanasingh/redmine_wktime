@@ -1,0 +1,29 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<h2><%= l(:label_brand) %></h2>
+<%= form_tag({:controller => "wkbrand", :action => 'update'}, :method => :post, :id => 'query_form') do %>
+	<fieldset class="box tabular" >
+	<legend><%= l(:label_details) %></legend>	
+	<%=h hidden_field_tag('brand_id', @brandEntry.blank? ? nil : @brandEntry.id) %>
+	<table >
+		<tr>
+			<th align="left"><%= l(:field_name) %></th>
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("name",@brandEntry.blank? ? nil : @brandEntry.name, :required => true,:size => 85) %> </td></tr>
+		</tr> 
+		<tr>
+			<th align="left"><%= l(:label_product) %></th>
+			<td align="left" style="padding-left:40px;">
+				<%=h select_tag("product_id", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', @brandEntry.blank? ? nil : @brandProducts, false), :size => 5, :multiple=> true) %>
+			</td>
+		</tr> 
+		<tr>				
+			<th align="left"><%= l(:field_description) %></th>
+			<td colspan=4 align="left" style="padding-left:40px;"><%=h text_area_tag("description",@brandEntry.blank? ? '' : @brandEntry.description, :maxlength => 255, :style => "width:600px; height:90px;") %> </td>
+		</tr>
+	</table>	
+</fieldset>
+	<%= submit_tag l(:button_save), :class => "small", :name => nil %>
+<% end %>
+
+<% unless @brandEntry.blank? %>
+	<%= render :partial => 'wkbrand/brand_model_list', :locals => {:brand => @brandEntry}%>
+<% end %>

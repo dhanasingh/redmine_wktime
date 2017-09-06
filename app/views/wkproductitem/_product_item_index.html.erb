@@ -1,0 +1,37 @@
+<%= hidden_field_tag 'back_url', url_for(params) %>
+<script type="text/javascript"> 
+	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
+</script>
+	<%= form_tag({:controller => controller_name, :action => 'index', :tab => controller_name}, :method => :get, :id => 
+     'query_form') do %>
+		<%= hidden_field_tag "searchlist", controller_name %>
+		<%=h hidden_field_tag('tab', controller_name) %>
+		<%
+			productId =session[controller_name][:product_id]
+			brandId =session[controller_name][:brand_id]
+		%>
+		<fieldset>
+				<table>
+					<tr>
+						<th align="left"><%= l(:label_product) %></th>
+						<td align="left" style="padding-left:40px;">
+							<%=h select_tag("product_id", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', productId, true)) %>
+						</td>
+						<th align="left"><%= l(:label_brand) %></th>
+						<td align="left" style="padding-left:40px;">
+							<%=h select_tag("brand_id", generic_options_for_select(WkBrand, nil, 'name', 'name', 'id', brandId, true)) %>
+						</td>
+					</tr>
+			    </table>
+				<p style="float:right; margin-top:-30px;">
+						<%= link_to l(:label_new_product_item), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+				</p>
+				<p class="buttons">
+					<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
+					<%#= link_to l(:button_apply), {:controller => controller_name, :action => action_name}, :class => 'icon icon-checked' %>
+					<%= link_to l(:button_clear), {:controller => controller_name, :action => action_name, :tab => 'clock'}, :class => 'icon icon-reload' %>
+				</p>
+		</fieldset>
+		</br>
+	<% end %>
+ <%= render :partial => 'wkproductitem/product_item_list'%>

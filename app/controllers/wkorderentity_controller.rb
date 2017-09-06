@@ -239,6 +239,9 @@ include WkorderentityHelper
 		totalRow = params[:totalrow].to_i
 		savedRows = 0
 		deletedRows = 0
+		productArr = Array.new
+		@matterialVal = Hash.new{|hsh,key| hsh[key] = {} }
+		@totalMatterialAmount = 0.00
 		#for i in 1..totalRow
 		while savedRows < totalRow
 			i = savedRows + deletedRows + 1
@@ -259,11 +262,11 @@ include WkorderentityHelper
 				arrId.delete(params["item_id#{i}"].to_i)
 				invoiceItem = WkInvoiceItem.find(params["item_id#{i}"].to_i)
 				amount = params["rate#{i}"].to_f * params["quantity#{i}"].to_f
-				updatedItem = updateInvoiceItem(invoiceItem, pjtId,  params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, invoiceItem.currency, itemType, amount, crInvoiceId, crPaymentId)
+				updatedItem = updateInvoiceItem(invoiceItem, pjtId,  params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, invoiceItem.currency, itemType, amount, crInvoiceId, crPaymentId, params["product_id#{i}"])
 			else				
 				invoiceItem = @invoice.invoice_items.new
 				amount = params["rate#{i}"].to_f * params["quantity#{i}"].to_f
-				updatedItem = updateInvoiceItem(invoiceItem, pjtId, params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, params["currency#{i}"], itemType, amount, crInvoiceId, crPaymentId)
+				updatedItem = updateInvoiceItem(invoiceItem, pjtId, params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, params["currency#{i}"], itemType, amount, crInvoiceId, crPaymentId, params["product_id#{i}"])
 			end
 			if !params[:populate_unbilled].blank? && params[:populate_unbilled] == "true" && params[:creditfrominvoice].blank? && !params["entry_id#{i}"].blank?
 				accProject = WkAccountProject.where(:project_id => pjtId)
@@ -280,8 +283,34 @@ include WkorderentityHelper
 				end
 				
 			end
+			unless params["material_id#{i}"].blank?
+				matterialEntry = WkMaterialEntry.find(params["material_id#{i}"].to_i)
+				matterialEntry.invoice_item_id = updatedItem.id
+				matterialEntry.save
+			end
 			savedRows = savedRows + 1
-			tothash[updatedItem.project_id] = [(tothash[updatedItem.project_id].blank? ? 0 : tothash[updatedItem.project_id][0]) + updatedItem.amount, updatedItem.currency]
+			tothash[updatedItem.project_id] = [(tothash[updatedItem.project_id].blank? ? 0 : tothash[updatedItem.project_id][0]) + updatedItem.amount, updatedItem.currency] if updatedItem.item_type != 'm'
+			
+			unless params["product_id#{i}"].blank?
+				productId = params["product_id#{i}"]
+				productEntry = WkProduct.find(productId)
+				projEntry = Project.find(pjtId)
+				productName = productEntry.name
+				amount = params["rate#{i}"].to_f * params["quantity#{i}"].to_f
+				curr = params["currency#{i}"]
+				productArr << productId 
+				if @matterialVal.has_key?("#{productId}")
+					oldAmount = @matterialVal["#{productId}"]["amount"].to_i
+					totAmount = oldAmount + amount
+					@matterialVal["#{productId}"].store "amount", "#{totAmount}"
+				else
+					@matterialVal["#{productId}"].store "amount", "#{amount}"
+					@matterialVal["#{productId}"].store "currency", "#{curr}"
+					@matterialVal["#{productId}"].store "pname", "#{productName}"
+					@matterialVal["#{productId}"].store "projectId", "#{projEntry.id}"
+					@matterialVal["#{productId}"].store "projectName", "#{projEntry.name}"
+				end
+			end	
 		end
 		
 		if !arrId.blank?
@@ -295,6 +324,7 @@ include WkorderentityHelper
 			accountProject = WkAccountProject.where("project_id = ?  and parent_id = ? and parent_type = ? ", key, parentId, parentType) #'WkAccount')
 			addTaxes(accountProject[0], val[1], val[0])
 		end
+		addProductTaxes(productArr, true)
 		
 		unless @invoice.id.blank?
 			# case getInvoiceType			
@@ -307,12 +337,17 @@ include WkorderentityHelper
 			# end
 			saveOrderRelations
 			totalAmount = @invoice.invoice_items.sum(:amount)
+			invoiceAmount = @invoice.invoice_items.where.not(:item_type => 'm').sum(:amount)
+			# moduleAmtHash key - module name , value - [crAmount, dbAmount]
+			moduleAmtHash = {'material' => [totalAmount.round - invoiceAmount.round, nil], getAutoPostModule => [invoiceAmount.round, totalAmount.round]}
+			
+			transAmountArr = getTransAmountArr(moduleAmtHash)
 			if (totalAmount.round - totalAmount) != 0
 				addRoundInvItem(totalAmount)
 			end
 			if totalAmount > 0 && autoPostGL(getAutoPostModule) && postableInvoice
 				transId = @invoice.gl_transaction.blank? ? nil : @invoice.gl_transaction.id
-				glTransaction = postToGlTransaction(getAutoPostModule, transId, @invoice.invoice_date, totalAmount.round, @invoice.invoice_items[0].currency, nil, nil)
+				glTransaction = postToGlTransaction(getAutoPostModule, transId, @invoice.invoice_date, transAmountArr, @invoice.invoice_items[0].currency, nil, nil)
 				unless glTransaction.blank?
 					@invoice.gl_transaction_id = glTransaction.id
 					@invoice.save

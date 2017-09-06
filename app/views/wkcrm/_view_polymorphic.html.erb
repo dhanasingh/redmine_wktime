@@ -7,9 +7,11 @@
 <% 
 	parentArr = options_for_wktime_account(false, 'A')
 	if !parentObject.blank?
-		parentArr = relatedValues(parentObject.parent_type, parentObject.parent_id, 'A')	
+		ptype = parentObject.parent_type == "WkCrmContact" ? 'C' : 'A'
+		parentArr = relatedValues(parentObject.parent_type, parentObject.parent_id, ptype)	
     elsif !parentType.blank?
-		parentArr = relatedValues(parentType, :parentId, 'A')		
+		ptype = parentType == "WkCrmContact" ? 'C' : 'A'
+		parentArr = relatedValues(parentType, :parentId, ptype)		
 	end
 	#parentArr.unshift(["",''])
 	relHash = wkcrm_helper.relatedHash
