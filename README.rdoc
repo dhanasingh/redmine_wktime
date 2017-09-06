@@ -34,9 +34,10 @@ This Plugin has the following modules:
 	Create Supplier Invoice and Supplier Payments
 	Report - Purchasing cycle
 8) Inventory
-	Create Product, Product Items, Shipments, Brands, UOM, Product Attributes
-	Create Log Matterial Entries
-	Report - Stock Report.
+    Create Product, Items and Shipments
+    Log Matterial Entries
+    Report - Stock Report.
+
 	
 For more information on features, please refer to the user guide 
 	http://www.adhisoftware.co.in/wp-content/uploads/ERPmine-User-Guide.pdf
@@ -70,6 +71,8 @@ Release Notes for 3.0
 Features:
 	  - Inventory module is introduced. 
 	  - Compatable with Redmine 3.4.2
+Bug Fix
+	  - incompatible with Ruby 2.4
 
 Customization:
 	For any Customization/Support, please contact us, our consulting team will be happy to help you
