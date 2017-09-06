@@ -1297,4 +1297,10 @@ end
 		options_for_select(ddArray, :selected => selectedVal)
 	end
 	
+	def hasSettingPerm
+		ret = false
+		ret = isModuleAdmin('wktime_inventory_admin') || isModuleAdmin('wktime_accounting_admin') || isModuleAdmin('wktime_crm_admin') || isModuleAdmin('wktime_pur_admin') || isAccountUser || isModuleAdmin('wktime_billing_groups')
+		ret
+	end
+	
 end

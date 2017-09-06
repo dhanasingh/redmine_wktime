@@ -1,6 +1,8 @@
 class WklocationController < WkbaseController
   unloadable
+  include WktimeHelper
   before_filter :require_login
+  before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
 
 
   def index
@@ -73,6 +75,13 @@ class WklocationController < WkbaseController
 		end
 		
     end
+	
+	def check_perm_and_redirect
+		unless User.current.admin? || hasSettingPerm
+			render_403
+			return false
+		end
+	end
 	
 	def formPagination(entries)
 		@entry_count = entries.count
