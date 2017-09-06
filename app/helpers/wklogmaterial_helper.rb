@@ -70,8 +70,7 @@ include WktimeHelper
 		uomArr
 	end
 	
-	def updateInventoryItem(inventoryItemId, productQuantity, materialQuantity)
-		inventoryId = ""
+	def updateParentInventoryItem(inventoryItemId, productQuantity, materialQuantity)
 		inventoryItemObj = WkInventoryItem.find(inventoryItemId)
 		if materialQuantity.blank?
 			totalAvlQty = inventoryItemObj.available_quantity
@@ -84,9 +83,8 @@ include WktimeHelper
 			qtyVal = materialQuantity - productQuantity
 			inventoryItemObj.incrementAvaQty(qtyVal)
 			inventoryItemObj.save
-			inventoryId = inventoryItemObj.id
 		end
-		inventoryId
+		inventoryItemObj
 	end
 	
 end

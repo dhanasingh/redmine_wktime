@@ -38,7 +38,7 @@ module TimelogControllerPatch
 				@time_entry.safe_attributes = params[:time_entry]
 			else
 				@spentType = session[:timelog][:spent_type]
-				@materialEntry = WkMaterialEntry.find(params[:id].to_i)
+				@materialEntry = WkMaterialEntry.find(params[:id].to_i)					
 				@time_entry.project_id = @materialEntry.project_id
 				@time_entry.issue_id = @materialEntry.issue_id
 				@time_entry.activity_id = @materialEntry.activity_id
@@ -117,8 +117,8 @@ module TimelogControllerPatch
 		def validateMatterial
 			errorMsg = ""
 			
-			if params[:time_entry][:project_id].blank?
-				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_project_error)
+			if params[:time_entry][:project_id].blank? 
+				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_project_error) if params[:project_id].blank?
 			end
 			if params[:time_entry][:issue_id].blank?
 				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_issue_error)
@@ -175,12 +175,14 @@ module TimelogControllerPatch
 			wklog_helper = Object.new.extend(WklogmaterialHelper)	
 			setMatterialEntries	
 			begin				
-				inventoryId = wklog_helper.updateInventoryItem(params[:inventory_item_id].to_i, params[:product_quantity].to_i, @materialEntries.quantity)		
+				inventoryObj = wklog_helper.updateParentInventoryItem(params[:inventory_item_id].to_i, params[:product_quantity].to_i, @materialEntries.quantity)
+				inventoryId = inventoryObj.id
 				if inventoryId.blank?
 					errorMsg = "Requested no of items not available in the stock"
 				else
 					@materialEntries.inventory_item_id = inventoryId
 					@materialEntries.quantity = params[:product_quantity].to_i
+					@materialEntries.currency = inventoryObj.currency
 					unless @materialEntries.valid?	
 						errorMsg = @materialEntries.errors.full_messages.join("<br>")
 					else 
@@ -228,12 +230,32 @@ module TimelogControllerPatch
 			end
 		end
 		
+		def find_time_entries
+			if session[:timelog][:spent_type] === "T"
+				@time_entries = TimeEntry.where(:id => params[:id] || params[:ids]).
+					preload(:project => :time_entry_activities).
+					preload(:user).to_a
+
+				raise ActiveRecord::RecordNotFound if @time_entries.empty?
+				raise Unauthorized unless @time_entries.all? {|t| t.editable_by?(User.current)}
+				@projects = @time_entries.collect(&:project).compact.uniq
+				@project = @projects.first if @projects.size == 1
+			else
+				@time_entry = TimeEntry.new
+				materialEntry = WkMaterialEntry.find(params[:id])
+				@time_entry.id = materialEntry.id
+				@project = materialEntry.project
+			end
+		rescue ActiveRecord::RecordNotFound
+			render_404
+		end
+		
 		def find_time_entry
 			if session[:timelog][:spent_type] === "T"
 				@time_entry = TimeEntry.find(params[:id])
 				@project = @time_entry.project
 			else
-				@time_entry = TimeEntry.new
+				@time_entry = TimeEntry.first
 				materialEntry = WkMaterialEntry.find(params[:id])
 				@time_entry.id = materialEntry.id
 				@project = materialEntry.project
@@ -271,44 +293,62 @@ module TimelogControllerPatch
 						end
 					end
 				end
+				respond_to do |format|
+					format.html {
+						if errMsg.blank?
+							if destroyed
+								flash[:notice] = l(:notice_successful_delete)
+							else
+								flash[:error] = l(:notice_unable_delete_time_entry)
+							end
+						else
+							flash[:error] = errMsg
+						end
+						redirect_back_or_default project_time_entries_path(@projects.first)
+					}
+					format.api  {
+						if destroyed
+							render_api_ok
+						else
+							render_validation_errors(@time_entries)
+						end
+					}
+				end
 			else				
 				destroyed = WkMaterialEntry.transaction do
 					begin
 					@materialEntries = WkMaterialEntry.find(params[:id].to_i) unless params[:id].blank?
-					inventoryItemObj = WkInventoryItem.find(@materialEntries.inventory_item_id)
-					inventoryItemObj.available_quantity = inventoryItemObj.available_quantity + @materialEntries.quantity
-					inventoryItemObj.save
-					@materialEntries.destroy
-					rescue => ex
-						errMsg = "Unable delete the material entries."
+					@time_entry.project_id = @materialEntries.project_id
+					if @materialEntries.invoice_item_id.blank?
+						inventoryItemObj = WkInventoryItem.find(@materialEntries.inventory_item_id)
+						inventoryItemObj.available_quantity = inventoryItemObj.available_quantity + @materialEntries.quantity
+						inventoryItemObj.save						
+						@materialEntries.destroy
+					else
+						errMsg = l(:error_material_delete_billed)
 						logger.error ex.message		
 						raise ActiveRecord::Rollback
 					end
-				end				
-			end
-
-		respond_to do |format|
-			format.html {
-				if errMsg.blank?
-					if destroyed
-						flash[:notice] = l(:notice_successful_delete)
-					else
-						flash[:error] = l(:notice_unable_delete_time_entry)
+					rescue => ex
+						errMsg = l(:error_material_delete)
+						logger.error ex.message		
+						raise ActiveRecord::Rollback
 					end
-				else
-					flash[:error] = errMsg
+				end	
+				respond_to do |format|
+					format.html { 
+					unless errMsg.blank?
+						flash[:error] = errMsg
+						redirect_back_or_default project_time_entries_path(@time_entry.project)
+					else
+						flash[:notice] = l(:notice_successful_update)
+						redirect_back_or_default project_time_entries_path(@time_entry.project)
+					end
+					 
+					}
 				end
-				redirect_back_or_default project_time_entries_path(@projects.first)
-			}
-			format.api  {
-				if destroyed
-					render_api_ok
-				else
-					render_validation_errors(@time_entries)
-				end
-			}
+			end		
 		end
-	end
 	end
 	end
 end

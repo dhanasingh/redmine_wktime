@@ -57,10 +57,10 @@
 			
 			<%=h select_tag("uom_id", options_for_select(uomArr, :selected => uomId.blank? ? uomArr  : uomId), :disabled => false) %>
 		</td>
-		
+		<% totQuantity = @materialEntry.blank? ? 1 : @materialEntry.quantity  %>
 		<th align="right"><%= l(:label_quantity) %><span style="color:red;">*</span></th>
 		<td align="left" style="padding-left: 40px;">
-			<%=h text_field_tag("product_quantity", ("%.2f" % (@materialEntry.blank? ? 1 : @materialEntry.quantity) ),:size => 10, :style => "width:80px;text-align:right;", :onchange => "updateTotal(this.id, 'product_sell_price', 'total', 'spcurrency');") %> 
+			<%=h text_field_tag("product_quantity", ("%.2f" % totQuantity  ),:size => 10, :style => "width:80px;text-align:right;", :onchange => "updateTotal(this.id, 'product_sell_price', 'total', 'spcurrency');") %> 
 		</td>
 		
 	</tr>
@@ -93,7 +93,7 @@
 		<th align="right"><%= l(:label_total) %></th>
 		<td>
 			<!-- <label id="totalcurrency" style="padding-left: 40px;"><%#=h (itemObj.blank? ? "" : itemObj.currency) %></label> -->
-			<% netTotal = itemObj.blank? ? 0 : (1 * itemObj.selling_price)  %>
+			<% netTotal = itemObj.blank? ? 0 : (totQuantity * itemObj.selling_price)  %>
 			<label id="total" style="padding-left: 127px; text-align:right;"><%=h (itemObj.blank? ? "" : itemObj.currency) %><%=h html_hours("%.2f" % netTotal ) unless netTotal.blank? %></label>
 		</td>
 	</tr>
