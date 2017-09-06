@@ -11,7 +11,7 @@
 			firstProduct = WkProduct.order(:name).first
 			productId = firstProduct.blank? ? 0 : firstProduct.id
 			sqlCond = " product_id = " + productId.to_s	
-			attributeSql = " group_id = " + firstProduct.attribute_group_id.to_s			
+			attributeSql = " group_id = " + firstProduct.attribute_group_id.to_s unless firstProduct.blank?		
 		end
 	%>
 	<td class="lbl-txt-align" headers="item_id">
