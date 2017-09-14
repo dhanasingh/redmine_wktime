@@ -4,6 +4,7 @@ include WktimeHelper
 	def getLogHash
 		{
 			'T' => l(:label_wktime),
+			'E' => l(:label_wkexpense),
 			'M' => l(:label_material)
 		}
 	end

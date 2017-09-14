@@ -44,8 +44,19 @@ module Redmine::Helpers
 				end
 				@hours << h
 			  end
-		 else
-		
+		 elsif scopeArr.include? "amount"
+			@scope.includes(:activity).
+				  reorder(nil).
+				  group(@criteria.collect{|criteria| @available_criteria[criteria][:sql]} + time_columns).
+				  joins(@criteria.collect{|criteria| @available_criteria[criteria][:joins]}.compact).
+				  sum(:amount).each do |hash, amount|
+				  h = {'hours' => amount}
+				(@criteria + time_columns).each_with_index do |name, i|
+				  h[name] = hash[i]
+				end
+				@hours << h
+			  end
+		 else		
 			@scope.includes(:activity).
 				  reorder(nil).
 				  group(@criteria.collect{|criteria| @available_criteria[criteria][:sql]} + time_columns).
@@ -107,7 +118,9 @@ module Redmine::Helpers
       def load_available_criteria
 		scopeArr = @scope.attribute_names
 		if scopeArr.include? "selling_price"
-			model =  WkMaterialEntry 			
+			model =  WkMaterialEntry
+		elsif scopeArr.include? "amount"
+			model = WkExpenseEntry
 		else
 			model =  TimeEntry
 		end

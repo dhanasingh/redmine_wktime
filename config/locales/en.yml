@@ -718,3 +718,5 @@ en:
   error_shipment_items_used: Could not delete the shipment. Some items in the shipment were used
   error_material_delete: Unable delete the material entries
   error_material_delete_billed: Could not delete the invoiced material entries
+  error_expense_amount: Amount cannot be empty
+  error_material_delete: Unable delete the expense entries
