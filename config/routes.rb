@@ -451,6 +451,20 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	post 'wkproductitem/updateTransfer', :to => 'wkproductitem#updateTransfer'	
 	
+	get 'wkasset/index', :to => 'wkasset#index'
+	
+	post 'wkasset/index', :to => 'wkasset#index'
+    
+	get 'wkasset/edit', :to => 'wkasset#edit'
+	
+	post 'wkasset/update', :to => 'wkasset#update'	
+	
+	delete 'wkasset/destroy', :to => 'wkasset#destroy'
+    
+	get 'wkasset/transfer', :to => 'wkasset#transfer'
+	
+	post 'wkasset/updateTransfer', :to => 'wkasset#updateTransfer'	
+	
 	get 'wkbrand/index', :to => 'wkbrand#index'
 	
 	post 'wkbrand/index', :to => 'wkbrand#index'

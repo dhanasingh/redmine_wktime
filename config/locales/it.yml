@@ -718,3 +718,4 @@ it:
   error_material_delete_billed: Could not delete the invoiced material entries
   error_expense_amount: Amount cannot be empty
   error_material_delete: Unable delete the expense entries
+  label_asset: Asset

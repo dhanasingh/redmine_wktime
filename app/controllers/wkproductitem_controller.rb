@@ -14,27 +14,28 @@ class WkproductitemController < WkinventoryController
 		brandId = session[controller_name][:brand_id]
 		sqlwhere = ""
 		unless productId.blank?
-			sqlwhere = " pit.product_id = #{productId}"
+			sqlwhere = " AND pit.product_id = #{productId}"
 		end
 		
 		unless brandId.blank?
-			sqlwhere = sqlwhere + " AND" unless sqlwhere.blank?
-			sqlwhere = sqlwhere + " pit.brand_id = #{brandId}"
+			#sqlwhere = sqlwhere + " AND" unless sqlwhere.blank?
+			sqlwhere = sqlwhere + " AND pit.brand_id = #{brandId}"
 		end
-		sqlwhere = " where" + sqlwhere unless sqlwhere.blank?
+		#sqlwhere = " where" + sqlwhere unless sqlwhere.blank?
 		sqlStr = getProductInventorySql + sqlwhere
 		findBySql(sqlStr, WkProductItem)
 	end
 	
 	def getProductInventorySql
-		sqlStr = "select iit.id as inventory_item_id, pit.id as product_item_id, iit.status, p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as product_attribute_name, iit.serial_number, iit.currency, iit.selling_price, iit.total_quantity, iit.available_quantity, uom.short_desc as uom_short_desc, l.name as location_name from wk_product_items pit 
+		sqlStr = "select iit.id as inventory_item_id, pit.id as product_item_id, iit.status, p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as product_attribute_name, iit.serial_number, iit.currency, iit.selling_price, iit.total_quantity, iit.available_quantity, uom.short_desc as uom_short_desc, l.name as location_name, (case when iit.product_type is null then p.product_type else iit.product_type end) as product_type from wk_product_items pit 
 		left outer join wk_inventory_items iit on iit.product_item_id = pit.id 
 		left outer join wk_products p on pit.product_id = p.id
 		left outer join wk_brands b on pit.brand_id = b.id
 		left outer join wk_product_models m on pit.product_model_id = m.id
 		left outer join wk_product_attributes a on iit.product_attribute_id = a.id
 		left outer join wk_locations l on iit.location_id = l.id
-		left outer join wk_mesure_units uom on iit.uom_id = uom.id"
+		left outer join wk_mesure_units uom on iit.uom_id = uom.id
+		where ((case when iit.product_type is null then p.product_type else iit.product_type end) = '#{getItemType}' OR (case when iit.product_type is null then p.product_type else iit.product_type end) IS NULL) "
 		sqlStr
 	end
 	
@@ -209,6 +210,10 @@ class WkproductitemController < WkinventoryController
 		end
 		rangeStr
 	end	
+
+	def getItemType
+		'I'
+	end
 
 
 end
