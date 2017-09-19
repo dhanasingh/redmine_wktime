@@ -478,7 +478,11 @@ function productChanged(curDDId, changeDDId, uid, changeAdditionalDD, needBlank)
 		if(changeDDId.includes("product_item_id")){
 			updateDD = "product_item_id"
 			changeDD = document.getElementById("product_item_id"+rowNum);
-		}		
+		}
+		if(changeDDId.includes("product_type")){
+			updateDD = "product_type"
+			changeDD = document.getElementById("product_type"+rowNum);
+		}			
 		var productDD = document.getElementById(curDDId);
 		productId = productDD.value;
 	}

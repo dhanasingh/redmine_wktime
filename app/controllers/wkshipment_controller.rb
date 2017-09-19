@@ -6,6 +6,7 @@ include WkcrmHelper
 include WkshipmentHelper
 include WkinvoiceHelper
 include WkgltransactionHelper
+include WkinventoryHelper
 
 
 	def index
@@ -190,6 +191,7 @@ include WkgltransactionHelper
 				shipmentItem.over_head_price = getExchangedAmount(params["currency#{i}"], params["over_head_price#{i}"])
 				shipmentItem.selling_price = getExchangedAmount(params["currency#{i}"], params["selling_price#{i}"]) 
 				shipmentItem.serial_number = params["serial_number#{i}"]
+				shipmentItem.product_type = params["product_type#{i}"]
 				shipmentItem.notes = params["notes#{i}"]
 				shipmentItem.available_quantity = params["total_quantity#{i}"] if shipmentItem.new_record? || shipmentItem.available_quantity == shipmentItem.total_quantity
 				shipmentItem.total_quantity = params["total_quantity#{i}"]
@@ -312,6 +314,17 @@ include WkgltransactionHelper
 				itemArr << "" + ',' +  "" + "\n"
 				productAttr.each do |item|
 					itemArr << item.id.to_s() + ',' +  item.name + "\n"
+				end
+			end
+		elsif params[:update_DD] == 'product_type' && !params[:product_id].blank?
+			product = WkProduct.find(params[:product_id].to_i)
+			unless product.blank?
+				unless product.product_type.blank?
+					itemArr << product.product_type.to_s() + ',' +  getProductTypeHash(false)[product.product_type] + "\n"
+				else
+					getProductTypeHash(false).each do |key, val|
+						itemArr << key + ',' +  val + "\n"
+					end
 				end
 			end
 		else
