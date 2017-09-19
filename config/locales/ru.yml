@@ -1,38 +1,38 @@
 # English strings go here for Rails i18n
 en:
-  my_label: "My label"
-  label_wktime: Time
-  label_wk_project_dd_width: Project Dropdown Width
-  label_wk_issue_dd_width: Issue Dropdown Width
-  label_wk_actv_dd_width: Activity Dropdown Width
-  label_wk_restr_max_hour: Enforce Max hour per day
-  label_wk_max_hour_day: Max hour per day
-  label_wk_restr_min_hour: Enforce Min hour per day
-  label_wk_min_hour_day: Min hour per day
-  label_wk_page_width: Page Width
-  label_wk_page_height: Page Height
-  label_wk_margin_top: Top Margin
-  label_wk_margin_bottom: Bottom Margin
-  label_wk_margin_left: Left Margin
-  label_wk_margin_right: Right Margin
-  label_wk_line_space: Line Space
-  label_wk_header_logo: Header Logo
-  label_wk_purchase_order: Purchase Order
-  label_wk_signature: Signature
-  label_wk_submitted_by: Submitted By
-  label_wk_approved_by: Approved By
-  label_wk_enter_issue_id: Enter issue as ID
-  label_wk_work_time_header: Show work time header
-  label_wk_allow_blank_issue: Allow Blank Issue
-  label_wk_enter_comment_in_row: Enter Comment in row
-  label_wk_enter_cf_in_row: Enter Custom Field in row
-  label_wk_use_detail_popup: Use Detail Time Entry Popup
-  label_wk_approval_system: Approval System
-  label_wk_use_approval_system: Use Approval System
-  label_wk_auto_approve: "Auto approve"
-  label_wk_submission_ack: Submission Acknowledgement Text
-  label_wk_reject_reason: Reject Reason
-  label_wk_account_groups: T&E Admin Groups
+  my_label: "Моя компания"
+  label_wktime: Время
+  label_wk_project_dd_width: Ширина поля со списком Проектов
+  label_wk_issue_dd_width: Ширина поля со списком Задач
+  label_wk_actv_dd_width: Ширина поля со списком Действий
+  label_wk_restr_max_hour: Установить Максимум часов в день
+  label_wk_max_hour_day: Максимум часов в день
+  label_wk_restr_min_hour: Установить Минимум часов в день
+  label_wk_min_hour_day: Минимум часов в день
+  label_wk_page_width: Ширина страницы
+  label_wk_page_height: Высота страницы
+  label_wk_margin_top: Верхняя граница
+  label_wk_margin_bottom: Нижняя граница
+  label_wk_margin_left: Левая граница
+  label_wk_margin_right: Правая граница
+  label_wk_line_space: Междустрочный интервал
+  label_wk_header_logo: Логотип в шапке
+  label_wk_purchase_order: Заказ на закупку
+  label_wk_signature: Подпись
+  label_wk_submitted_by: Представлено
+  label_wk_approved_by: Утверждено
+  label_wk_enter_issue_id: Введите ID задачи
+  label_wk_work_time_header: Показывать заголовок рабочего времени
+  label_wk_allow_blank_issue: Разрешить пустую задачу
+  label_wk_enter_comment_in_row: Введите комментарий в строке
+  label_wk_enter_cf_in_row: Введите пользовательское поле в строке
+  label_wk_use_detail_popup: Использовать подсказку с деталями записи времени
+  label_wk_approval_system: Система утверждения
+  label_wk_use_approval_system: Использовать систему утверждения
+  label_wk_auto_approve: "Автоутверждение"
+  label_wk_submission_ack: Текст подтверждения при отправке
+  label_wk_reject_reason: Причина отказа
+  label_wk_account_groups: Группа администраторов раздела Время & Расходы
 
   label_wk_enter_issue_As: Enter Issue As
   label_wk_enter_issue_Description: Enter issue as Subject
