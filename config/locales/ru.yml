@@ -1,5 +1,5 @@
-# English strings go here for Rails i18n
-en:
+# Russian strings go here for Rails i18n
+ru:
   my_label: "Моя компания"
   label_wktime: Время
   label_wk_project_dd_width: Ширина поля со списком Проектов
@@ -484,45 +484,45 @@ en:
   label_trans_total_validmsg: Transaction debit and credit does not match.
   
   label_crm: CRM
-  label_lead_plural: Leads
-  label_opportunity_plural: Opportunities
-  label_activity_plural: Activities
-  label_contact_plural: Contacts
-  label_new_item: "New %{value}"
-  label_edit_item: "Edit %{value}"
-  label_lead: Lead
-  label_content_information: "%{value} Information"
-  label_website: Website
-  label_department: Department
+  label_lead_plural: Лиды
+  label_opportunity_plural: Возможности
+  label_activity_plural: Действия
+  label_contact_plural: Контакты
+  label_new_item: "Создать %{value}"
+  label_edit_item: "Изменить %{value}"
+  label_lead: Лид
+  label_content_information: "%{value} информация"
+  label_website: Веб-сайт
+  label_department: Подразделение
   label_assigned: Assigned
-  label_in_process: In Process
-  label_converted: Converted
+  label_in_process: В работе
+  label_converted: Конвертирован
   label_recycled: Recycled
   label_dead: Dead
-  label_lead_source: Lead Source
-  label_opportunity_amount: Opportunity Amount
+  label_lead_source: Источник лида
+  label_opportunity_amount: Сумма возможности
   label_referred_by: Referred By
-  label_more: More
-  label_subject: Subject
+  label_more: Еще
+  label_subject: Тема
   label_inbound: Inbound
   label_outbound: Outbound
-  label_planned: Planned
+  label_planned: Запланирован
   label_held: Held
   label_not_held: Not held
   label_start_date_time: "Start Date & Time"
   label_related_to: Related to
-  label_contact: Contact
-  label_task: Task
-  label_opportunity: Opportunity
-  label_duration: Duration
-  label_end_date_time: "End Date & Time"
-  label_priority: Priority
+  label_contact: Контакт
+  label_task: Задача
+  label_opportunity: Возможность
+  label_duration: Продолжительность
+  label_end_date_time: "Дата & Время завершения"
+  label_priority: Приоритет
   label_medium: Medium
-  label_call: Call
-  label_meeting: Meeting
+  label_call: Звонок
+  label_meeting: Встреча
   label_location: Location
-  label_not_started: Not Started
-  label_completed: Completed
+  label_not_started: Не начато
+  label_completed: Завершено
   label_pending_input: Pending Input
   label_deferred: Deferred
   button_convert_lead: Convert Lead
