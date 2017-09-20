@@ -1,4 +1,4 @@
-require_dependency '../lib/redmine/Pagination'		
+require_dependency '../lib/redmine/pagination'		
 module TimelogControllerPatch
 	def self.included(base)
 	base.class_eval do
