@@ -719,3 +719,4 @@ it:
   error_expense_amount: Amount cannot be empty
   error_material_delete: Unable delete the expense entries
   label_asset: Asset
+  label_depreciation: Depreciation

@@ -11,6 +11,7 @@ class CreateWkAssetManagement < ActiveRecord::Migration
 		create_table :wk_asset_properties do |t|
 			t.references :inventory_item, :class => "wk_inventory_items", :index => true
 			t.string :name
+			t.string :asset_type, :limit => 3
 			t.float :rate
 			t.string :rate_per, :limit => 3
 			t.boolean :is_disposed
@@ -24,6 +25,17 @@ class CreateWkAssetManagement < ActiveRecord::Migration
 			t.date :depreciation_date
 			t.float :acutual_amount
 			t.float :depreciation_amount
+			t.timestamps null: false
+		end
+		
+		create_table :wk_permissions do |t|
+			t.string :name
+			t.timestamps null: false
+		end
+		
+		create_table :wk_group_permissions do |t|
+			t.references :permission, :class => "wk_permissions", :index => true
+			t.references :group, :class => "users", :index => true
 			t.timestamps null: false
 		end
 		

@@ -510,3 +510,13 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wkunitofmeasurement/update', :to => 'wkunitofmeasurement#update'
 	
 	get 'wkshipment/getSupplierInvoices', :to => 'wkshipment#getSupplierInvoices'
+	
+	get 'wkassetdepreciation/index', :to => 'wkassetdepreciation#index'
+	
+	post 'wkassetdepreciation/index', :to => 'wkassetdepreciation#index'
+    
+	get 'wkassetdepreciation/edit', :to => 'wkassetdepreciation#edit'
+	
+	post 'wkassetdepreciation/update', :to => 'wkassetdepreciation#update'	
+	
+	delete 'wkassetdepreciation/destroy', :to => 'wkassetdepreciation#destroy'

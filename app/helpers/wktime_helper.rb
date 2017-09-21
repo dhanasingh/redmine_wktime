@@ -665,7 +665,8 @@ end
 				{:name => 'wkbrand', :partial => 'wktime/tab_content', :label => :label_brand},
 				{:name => 'wkattributegroup', :partial => 'wktime/tab_content', :label => :label_attribute},
 				{:name => 'wkunitofmeasurement', :partial => 'wktime/tab_content', :label => :label_uom},
-				{:name => 'wkasset', :partial => 'wktime/tab_content', :label => :label_asset}
+				{:name => 'wkasset', :partial => 'wktime/tab_content', :label => :label_asset},
+				{:name => 'wkassetdepreciation', :partial => 'wktime/tab_content', :label => :label_depreciation}
 			   ]
 		end
 		tabs
