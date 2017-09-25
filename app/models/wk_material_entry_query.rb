@@ -30,9 +30,10 @@ class WkMaterialEntryQuery < Query
     QueryAssociationColumn.new(:issue, :tracker, :caption => :field_tracker, :sortable => "#{Tracker.table_name}.position"),
     QueryAssociationColumn.new(:issue, :status, :caption => :field_status, :sortable => "#{IssueStatus.table_name}.position"),
     QueryColumn.new(:comments),
+	QueryColumn.new(:inventory_item_id),
     QueryColumn.new(:quantity, :sortable => "#{WkMaterialEntry.table_name}.quantity", :totalable => true),
 	QueryColumn.new(:currency),
-	QueryColumn.new(:selling_price, :sortable => "#{WkMaterialEntry.table_name}.selling_price", :totalable => true),
+	QueryColumn.new(:selling_price, :sortable => "#{WkMaterialEntry.table_name}.selling_price", :totalable => true),	
   ]
 
   def initialize(attributes=nil, *args)
@@ -79,27 +80,16 @@ class WkMaterialEntryQuery < Query
 
     add_available_filter "comments", :type => :text
     add_available_filter "quantity", :type => :float
-
-    # add_custom_fields_filters(TimeEntryCustomField)
-    # add_associations_custom_fields_filters :project
-    # add_custom_fields_filters(issue_custom_fields, :issue)
-    # add_associations_custom_fields_filters :user
   end
 
   def available_columns
     return @available_columns if @available_columns
-    @available_columns = self.class.available_columns.dup
-    # @available_columns += TimeEntryCustomField.visible.
-                            # map {|cf| QueryCustomFieldColumn.new(cf) }
-    # @available_columns += issue_custom_fields.visible.
-                            # map {|cf| QueryAssociationCustomFieldColumn.new(:issue, cf, :totalable => false) }
-    # @available_columns += ProjectCustomField.visible.
-                            # map {|cf| QueryAssociationCustomFieldColumn.new(:project, cf) }
+    @available_columns = self.class.available_columns.dup    
     @available_columns
   end
 
   def default_columns_names   
-	@default_columns_names ||= [:project, :spent_on, :user, :activity, :issue, :comments, :quantity, :currency, :selling_price ]
+	@default_columns_names ||= [:project, :spent_on, :user, :activity, :issue, :comments, :inventory_item_id, :quantity, :currency, :selling_price ]
   end
 
   def default_totalable_names
@@ -140,18 +130,18 @@ class WkMaterialEntryQuery < Query
   def sql_for_issue_id_field(field, operator, value)
     case operator
     when "="
-      "#{TimeEntry.table_name}.issue_id = #{value.first.to_i}"
+      "#{WkMaterialEntry.table_name}.issue_id = #{value.first.to_i}"
     when "~"
       issue = Issue.where(:id => value.first.to_i).first
       if issue && (issue_ids = issue.self_and_descendants.pluck(:id)).any?
-        "#{TimeEntry.table_name}.issue_id IN (#{issue_ids.join(',')})"
+        "#{WkMaterialEntry.table_name}.issue_id IN (#{issue_ids.join(',')})"
       else
         "1=0"
       end
     when "!*"
-      "#{TimeEntry.table_name}.issue_id IS NULL"
+      "#{WkMaterialEntry.table_name}.issue_id IS NULL"
     when "*"
-      "#{TimeEntry.table_name}.issue_id IS NOT NULL"
+      "#{WkMaterialEntry.table_name}.issue_id IS NOT NULL"
     end
   end
 
@@ -160,13 +150,13 @@ class WkMaterialEntryQuery < Query
     case operator
     when "="
       if issue_ids.any?
-        "#{TimeEntry.table_name}.issue_id IN (#{issue_ids.join(',')})"
+        "#{WkMaterialEntry.table_name}.issue_id IN (#{issue_ids.join(',')})"
       else
         "1=0"
       end
     when "!"
       if issue_ids.any?
-        "#{TimeEntry.table_name}.issue_id NOT IN (#{issue_ids.join(',')})"
+        "#{WkMaterialEntry.table_name}.issue_id NOT IN (#{issue_ids.join(',')})"
       else
         "1=1"
       end

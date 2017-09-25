@@ -722,3 +722,4 @@ en:
   error_material_delete: Unable delete the expense entries
   label_asset: Asset
   label_depreciation: Depreciation
+  field_inventory_item_id: Product

@@ -69,9 +69,11 @@ class WkMaterialEntry < ActiveRecord::Base
     end
   end
   
+  # Returns true if the time entry can be edited by usr, otherwise false
   def editable_by?(usr)
-		wktime_helper = Object.new.extend(WktimeHelper)
-		wktime_helper.showInventory
+    visible?(usr) && (
+      (usr == user && usr.allowed_to?(:edit_own_time_entries, project)) || usr.allowed_to?(:edit_time_entries, project)
+    )
   end
   
   # Returns the custom_field_values that can be edited by the given user
