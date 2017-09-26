@@ -104,6 +104,7 @@ class WkMaterialEntryQuery < Query
     WkMaterialEntry.visible.
       joins(:project, :user).
       includes(:activity).
+	  includes(:inventory_item).
       references(:activity).
       left_join_issue.
       where(statement)

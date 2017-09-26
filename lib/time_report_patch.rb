@@ -37,7 +37,7 @@ module Redmine::Helpers
 				  reorder(nil).
 				  group(@criteria.collect{|criteria| @available_criteria[criteria][:sql]} + time_columns).
 				  joins(@criteria.collect{|criteria| @available_criteria[criteria][:joins]}.compact).
-				  sum(:selling_price).each do |hash, selling_price|
+				  sum("wk_material_entries.selling_price * wk_material_entries.quantity").each do |hash, selling_price|
 				  h = {'hours' => selling_price}
 				(@criteria + time_columns).each_with_index do |name, i|
 				  h[name] = hash[i]

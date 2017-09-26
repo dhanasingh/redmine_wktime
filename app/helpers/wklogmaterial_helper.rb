@@ -5,7 +5,8 @@ include WktimeHelper
 		{
 			'T' => l(:label_wktime),
 			'E' => l(:label_wkexpense),
-			'M' => l(:label_material)
+			'M' => l(:label_material),
+			'A' => l(:label_asset)
 		}
 	end
 	

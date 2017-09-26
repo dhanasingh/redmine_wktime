@@ -32,7 +32,7 @@
 		<label id="item_index<%= row_index.to_s %>"><%= row_index  %></label>
 	</td>
 	<td class="lbl-txt-align" headers="product_id">
-		<%=h select_tag("product_id#{row_index.to_s}", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', productItem.blank? ? nil :productItem.product_id, false), :onchange => "productChanged(this.id, 'product_item_id#{row_index.to_s}', #{User.current.id}, false, false);productChanged(this.id, 'product_attribute_id#{row_index.to_s}', #{User.current.id}, false, false);productChanged(this.id, 'product_type#{row_index.to_s}', #{User.current.id}, false, false);", :disabled => isDisable, :style => "width: 100%;") %>
+		<%=h select_tag("product_id#{row_index.to_s}", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', productItem.blank? ? nil :productItem.product_id, false), :onchange => "productChanged(this.id, 'product_item_id#{row_index.to_s}', #{User.current.id}, false, false, null);productChanged(this.id, 'product_attribute_id#{row_index.to_s}', #{User.current.id}, false, false, null);productChanged(this.id, 'product_type#{row_index.to_s}', #{User.current.id}, false, false, null);", :disabled => isDisable, :style => "width: 100%;") %>
 	</td>
 	<td class="lbl-txt-align" headers="product_type">
 		<%=h select_tag("product_type#{row_index.to_s}",options_for_select(productTypeArr, :selected => entry.blank? ? productTypeArr : entry.product_type ), :disabled => isDisable, :required => true, :style => "width: 100%;", :required => true) %>

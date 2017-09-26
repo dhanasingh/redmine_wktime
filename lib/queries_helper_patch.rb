@@ -31,6 +31,9 @@ module QueriesHelper
 		when :inventory_item_id
 			val = item.inventory_item.product_item.product.name
 			value = val
+		when :selling_price
+			val = item.selling_price * item.quantity
+			value = val.blank? ? 0.00 : ("%.2f" % val)
 		else
 		  format_object(value)
 		end

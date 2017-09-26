@@ -1,6 +1,7 @@
-$(document).ready(function() {	
-	hideLogDetails();
+ $(document).ready(function() {	
+	hideLogDetails(null);
 });
+/*
 function hideLogDetails()
 {
 	var logType = document.getElementById("log_type").value;
@@ -28,7 +29,7 @@ function hideLogDetails()
 		
 	}
 	
-}
+} */
 
 function updateTotal(currId, nxtId, setId, currencyId)
 {

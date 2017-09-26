@@ -8,7 +8,10 @@ module TimelogControllerPatch
 			scope = time_entry_scope.
 			preload(:issue => [:project, :tracker, :status, :assigned_to, :priority]).
 			preload(:project, :user)
-			
+			if session[:timelog][:spent_type] === "A" || session[:timelog][:spent_type] === "M"
+				productType = params[:spent_type] === "M" ? 'I' : 'A'
+				scope = scope.where("wk_inventory_items.product_type = '#{productType}' ")
+			end
 			respond_to do |format|
 				format.html {
 					@entry_count = scope.count
@@ -32,6 +35,21 @@ module TimelogControllerPatch
 				}
 			end
 		end
+		
+		def report
+			retrieve_time_entry_query
+			scope = time_entry_scope
+			if session[:timelog][:spent_type] === "A" || session[:timelog][:spent_type] === "M"
+				productType = params[:spent_type] === "M" ? 'I' : 'A'
+				scope = scope.where("wk_inventory_items.product_type = '#{productType}' ")
+			end
+			@report = Redmine::Helpers::TimeReport.new(@project, @issue, params[:criteria], params[:columns], scope)
+
+			respond_to do |format|
+			  format.html { render :layout => !request.xhr? }
+			  format.csv  { send_data(report_to_csv(@report), :type => 'text/csv; header=present', :filename => 'timelog.csv') }
+			end
+		end
 
 		def edit
 			if session[:timelog][:spent_type] === "T"
@@ -46,7 +64,7 @@ module TimelogControllerPatch
 				@time_entry.spent_on = @expenseEntry.spent_on
 			else
 				@spentType = session[:timelog][:spent_type]
-				@materialEntry = WkMaterialEntry.find(params[:id].to_i)					
+				@materialEntry = WkMaterialEntry.find(params[:id].to_i)		
 				@time_entry.project_id = @materialEntry.project_id
 				@time_entry.issue_id = @materialEntry.issue_id
 				@time_entry.activity_id = @materialEntry.activity_id
@@ -56,7 +74,7 @@ module TimelogControllerPatch
 		end
 
 		def retrieve_time_entry_query
-			if !params[:spent_type].blank? && params[:spent_type] == "M"
+			if !params[:spent_type].blank? && (params[:spent_type] == "M" || params[:spent_type] == "A")
 				retrieve_query(WkMaterialEntryQuery, false)
 			elsif !params[:spent_type].blank? && params[:spent_type] == "E"
 				retrieve_query(WkExpenseEntryQuery, false)
@@ -111,7 +129,7 @@ module TimelogControllerPatch
 			else				
 				errorMsg = validateMatterial				
 				if errorMsg.blank?
-					saveMatterial if params[:log_type] == 'M'
+					saveMatterial if params[:log_type] == 'M' || params[:log_type] == 'A'
 					saveExpense if params[:log_type] == 'E'
 				else
 					respond_to do |format|
@@ -141,10 +159,10 @@ module TimelogControllerPatch
 				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_activity_error)
 			end
 			
-			if params[:product_sell_price].blank? && params[:log_type] == 'M'
+			if params[:product_sell_price].blank? && ([:log_type] == 'M' || params[:log_type] == 'A')
 				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_selling_price_error) 
 			end
-			if params[:product_quantity].blank? && params[:log_type] == 'M'
+			if params[:product_quantity].blank? && (params[:log_type] == 'M' || params[:log_type] == 'A')
 				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_quantity_error)
 			end
 			errorMsg
@@ -173,7 +191,7 @@ module TimelogControllerPatch
 			else
 				errorMsg = validateMatterial				
 				if errorMsg.blank?
-					saveMatterial if params[:log_type] == 'M'
+					saveMatterial if params[:log_type] == 'M' || params[:log_type] == 'A'
 					saveExpense if params[:log_type] == 'E'
 				else
 					respond_to do |format|
@@ -190,7 +208,8 @@ module TimelogControllerPatch
 		def saveMatterial
 			wklog_helper = Object.new.extend(WklogmaterialHelper)	
 			setEntries(WkMaterialEntry, params[:matterial_entry_id])
-			@modelEntries.selling_price = params[:product_sell_price]
+			selPrice = params[:product_sell_price].to_f
+			@modelEntries.selling_price = selPrice.blank? ? 0.00 :  ("%.2f" % selPrice)
 			@modelEntries.uom_id = params[:uom_id]			
 			begin				
 				inventoryObj = wklog_helper.updateParentInventoryItem(params[:inventory_item_id].to_i, params[:product_quantity].to_i, @modelEntries.quantity)

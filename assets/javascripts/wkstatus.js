@@ -19,6 +19,7 @@ $(document).ready(function(){
             +'<option value="T">Time</option>'
 			+'<option value="E">Expense</option>'
             +'<option value="M">Material</option>'
+			+'<option value="A">Asset</option>'
             +'</select></td></tr></table>';
 			
 	if(document.querySelector("h2").innerHTML == "Spent time")	
