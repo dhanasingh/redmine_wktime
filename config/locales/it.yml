@@ -721,3 +721,10 @@ it:
   label_asset: Asset
   label_depreciation: Depreciation
   field_inventory_item_id: Product
+  label_current_asset_value: Current Asset Value
+  label_asset_type: Asset Type
+  label_rate_per: Rate Per
+  label_own: Own
+  label_rental: Rental
+  label_lease: Lease
+  label_daily: Daily

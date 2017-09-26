@@ -2,7 +2,7 @@
 <script type="text/javascript"> 
 	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
 </script>
-<%= form_tag({:controller => 'wkproductitem', :action => 'update'}, :method => :post, :id => 'query_form') do %>
+<%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
 	<h2><b><%=@productItem.blank? ? l(:label_new_product_item) : l(:label_edit_product_item) %></b></h2>
 	<div id="product_item_form">
            <%=h hidden_field_tag('product_item_id', @productItem.blank? ? "" :@productItem.id) %>
@@ -53,12 +53,16 @@
 					</tr>
 			    </table>
 			</fieldset>
-			<div  align='center'>
-				<%= submit_tag l(:button_save) ,:id => 'wkproductitem_save'%>
-			</div>
 		</div>
 		<% unless @inventoryItem.blank? %>
 			<%= render :partial => 'wkproductitem/edit_inventory', locals: {invntItem: @inventoryItem, isTransfer: false}%>
 		<% end %>
+		<% if controller.showAssetProperties && !@inventoryItem.blank?%>
+			<%= render :partial => 'wkasset/asset_property', locals: {invntItem: @inventoryItem, isTransfer: false}%>
+		<% end %>
+	</div>
+	<div style="clear:both;"></div>
+	<div  align='center'>
+		<%= submit_tag l(:button_save) ,:id => 'wkproductitem_save'%>
 	</div>
 <% end %>

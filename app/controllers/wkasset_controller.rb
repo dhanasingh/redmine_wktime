@@ -9,5 +9,9 @@ class WkassetController < WkproductitemController
 	def getItemType
 		'A'
 	end
+	
+	def showAssetProperties
+		true
+	end
 
 end

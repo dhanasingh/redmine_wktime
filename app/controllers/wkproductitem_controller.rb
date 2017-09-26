@@ -71,17 +71,19 @@ class WkproductitemController < WkinventoryController
 		productItem.product_model_id = params[:product_model_id]
 		#productItem.product_attribute_id = params[:product_attribute_id]
 		if productItem.save()
+			inventoryItem = nil
 			if !params[:available_quantity].blank?
-				updatedInventory = updateInventoryItem(productItem.id) 
+				inventoryItem = updateInventoryItem(productItem.id) 
 			elsif !params[:inventory_item_id].blank?
 				inventoryItem = WkInventoryItem.find(params[:inventory_item_id].to_i)
 				inventoryItem.selling_price = params[:selling_price]
 				inventoryItem.save
 			end
-		    redirect_to :controller => 'wkproductitem',:action => 'index' , :tab => 'wkproductitem'
+			assetProperty = updateAssetProperty(inventoryItem) if inventoryItem.product_type == 'A'
+		    redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
 		    flash[:notice] = l(:notice_successful_update)
 		else
-		    redirect_to :controller => 'wkproductitem',:action => 'edit' , :product_item_id => params[:product_item_id], :inventory_item_id => params[:inventory_item_id], :tab => 'wkproductitem'
+		    redirect_to :controller => controller_name,:action => 'edit' , :product_item_id => params[:product_item_id], :inventory_item_id => params[:inventory_item_id], :tab => controller_name
 		    flash[:error] = productItem.errors.full_messages.join("<br>")
 		end
     end
@@ -91,10 +93,10 @@ class WkproductitemController < WkinventoryController
 		sourceItem.available_quantity = sourceItem.available_quantity - (params[:total_quantity].blank? ? params[:available_quantity].to_i : params[:total_quantity].to_i)
 		if sourceItem.save()
 			targetItem = updateInventoryItem(params[:product_item_id].to_i)
-		    redirect_to :controller => 'wkproductitem',:action => 'index', :tab => 'wkproductitem'
+		    redirect_to :controller => controller_name,:action => 'index', :tab => controller_name
 		    flash[:notice] = l(:notice_successful_update)
 		else
-		    redirect_to :controller => 'wkproductitem',:action => 'index', :tab => 'wkproductitem'
+		    redirect_to :controller => controller_name,:action => 'index', :tab => controller_name
 		    flash[:error] = sourceItem.errors.full_messages.join("<br>")
 		end
 	end
@@ -138,6 +140,23 @@ class WkproductitemController < WkinventoryController
 		inventoryItem.location_id = params[:location_id].to_i
 		inventoryItem.save()
 		inventoryItem
+	end
+	
+	def updateAssetProperty(inventoryItem)
+		sysCurrency = Setting.plugin_redmine_wktime['wktime_currency']
+		if params[:asset_property_id].blank?
+			assetProperty = WkAssetProperty.new
+			assetProperty.inventory_item_id = inventoryItem.id
+		else
+			assetProperty = inventoryItem.asset_property
+		end
+		assetProperty.name = params[:asset_name]
+		assetProperty.rate = params[:rate]
+		assetProperty.rate_per = params[:rate_per]
+		assetProperty.current_value = params[:current_value]
+		assetProperty.asset_type = params[:asset_type]
+		assetProperty.save()
+		assetProperty
 	end
 	
 	def destroy
@@ -213,6 +232,10 @@ class WkproductitemController < WkinventoryController
 
 	def getItemType
 		'I'
+	end
+	
+	def showAssetProperties
+		false
 	end
 
 

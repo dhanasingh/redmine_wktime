@@ -1,0 +1,36 @@
+<div class="splitcontentleft">
+	<% 
+	isDisable = false
+	assetProperty = invntItem.asset_property
+	%>
+	<%=h hidden_field_tag('asset_property_id', assetProperty.blank? ? "" : assetProperty.id) %>
+	<fieldset class="box tabular">
+		<legend><%= l(:label_asset)%></legend>
+		<table width='100%'>  
+			<tr>
+				<th align="left"><%= l(:field_name) %></th>
+				<td align="left" style="padding-left:40px;"><%= text_field_tag "asset_name",  assetProperty.blank? ? '' : assetProperty.name, :disabled => isDisable %></td>
+			</tr>
+			<tr>
+				<th align="left"><%= l(:label_rate) %></th>
+				<td align="left" style="padding-left:40px;"><%= text_field_tag "rate",  assetProperty.blank? ? '' : assetProperty.rate, :disabled => isDisable %></td>
+			</tr>  
+			<tr>
+				<th align="left"><%= l(:label_rate_per) %></th>
+				<td align="left" style="padding-left:40px;">
+					<%=h select_tag("rate_per", options_for_select(getRatePerHash(true).invert, :selected => assetProperty.blank? ? getRatePerHash(true).invert : assetProperty.rate_per )) %>
+				</td>
+			</tr> 
+			<tr>
+				<th align="left"><%= l(:label_current_asset_value) %></th>
+				<td align="left" style="padding-left:40px;"><%= text_field_tag "current_value",  assetProperty.blank? ? '' : assetProperty.current_value, :disabled => false %></td>
+			</tr>
+			<tr>
+				<th align="left"><%= l(:label_asset_type) %></th>
+				<td align="left" style="padding-left:40px;">
+					<%=h select_tag("asset_type", options_for_select(getAssetTypeHash(true).invert, :selected => assetProperty.blank? ? getAssetTypeHash(true).invert : assetProperty.asset_type )) %>
+				</td>
+			</tr> 
+		</table>
+	</fieldset>
+</div>
