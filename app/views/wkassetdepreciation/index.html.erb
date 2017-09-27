@@ -14,3 +14,16 @@
 <%= render_tabs time_expense_tabs %>
 
 <%= hidden_field_tag 'back_url', url_for(params) %>
+<% wktime_helper = Object.new.extend(WktimeHelper) %>
+<%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
+	<%= hidden_field_tag "searchlist", "#{controller_name}" %>
+		<table>
+		</table>
+		<%= render :partial => 'wkassetdepreciation/date_range' %>
+	<% end %>	
+	<% #if !@payroll_entries.blank? %>
+		<div class="total-hours">
+			<!-- <p><%# = l(:label_total) %>: <%#= @payroll_entries[0].currency %>&nbsp;<%#= @total_gross %></p> -->
+		</div>
+	<% #end %>
+<%= render :partial => 'wkassetdepreciation/list'%>

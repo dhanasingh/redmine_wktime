@@ -16,4 +16,19 @@ module WkinventoryHelper
 		end
 		productType
 	end
+	
+	def getFrequencyMonth(periodType)
+		case periodType
+		when 'A'
+		  val = 11
+		when 'SA'
+		  val = 5
+		when 'Q'
+		  val = 2
+		when 'M'
+		  val = 0
+		else
+		  raise ArgumentError, 'invalid arguments to period'
+		end
+	end
 end

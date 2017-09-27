@@ -2,7 +2,7 @@ class CreateWkAssetManagement < ActiveRecord::Migration
 
 	def change
 	
-		add_column :wk_products, :depreciation_rate, :integer
+		add_column :wk_products, :depreciation_rate, :float
 		add_column :wk_products, :depreciation_type, :string, :limit => 3, :default => 'SL'
 		add_reference :wk_products, :ledger, :class => "wk_ledgers", :null => true, index: true
 		
@@ -23,10 +23,10 @@ class CreateWkAssetManagement < ActiveRecord::Migration
 			t.timestamps null: false
 		end
 		
-		create_table :wk_asset_depreciation do |t|
+		create_table :wk_asset_depreciations do |t|
 			t.references :inventory_item, :class => "wk_inventory_items", :index => true
 			t.date :depreciation_date
-			t.float :acutual_amount
+			t.float :actual_amount
 			t.float :depreciation_amount
 			t.timestamps null: false
 		end

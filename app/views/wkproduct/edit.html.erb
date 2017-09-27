@@ -29,7 +29,7 @@
 		</tr>  
 		<tr>
 			<th align="left"><%= l(:label_depreciation) %></th>
-			<td align="left" style="padding-left:40px;"><%= text_field_tag "depreciation_rate",  @productEntry.blank? ? '' : @productEntry.depreciation_rate %><b> %</b></td>
+			<td align="left" style="padding-left:40px;"><%= text_field_tag "depreciation_rate",  @productEntry.blank? ? '' : @productEntry.depreciation_rate.to_f*100 %><b> %</b></td>
 		</tr> 
 		<tr>
 			<th align="left"><%= l(:label_depreciation_type) %></th>

@@ -31,7 +31,7 @@ module WkpayrollHelper
 		salaryComponents
 	end
 	
-	def getFinancialPeriod(salaryDate)
+	def getFinancialPeriod(salaryDate, periodType)
 		financialMonthStr = Setting.plugin_redmine_wktime['wktime_financial_year_start']
 		if financialMonthStr.blank? || financialMonthStr.to_i == 0
 			financialMonthStr = '4'
@@ -369,7 +369,7 @@ module WkpayrollHelper
 	end
 	
 	def getYTDDetail(userId,salaryDate)
-		@financialPeriod = getFinancialPeriod(salaryDate)
+		@financialPeriod = getFinancialPeriod(salaryDate, 'A')
 		ytdDetails = WkSalary.select("sum(amount) as amount, user_id, salary_component_id").where("user_id = #{userId} and salary_date between '#{@financialPeriod[0]}' and '#{salaryDate}'").group("user_id, salary_component_id")
 		ytdAmountHash = Hash.new()
 		ytdDetails.each do |entry|

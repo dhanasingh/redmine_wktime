@@ -29,6 +29,9 @@ class WkInventoryItem < ActiveRecord::Base
   has_many :transfered_items, foreign_key: "parent_id", class_name: "WkInventoryItem", :dependent => :restrict_with_error
   has_one :asset_property, foreign_key: "inventory_item_id", class_name: "WkAssetProperty", :dependent => :destroy
   
+   scope :asset, lambda { where(:product_type => 'A') }
+   scope :inventory, lambda { where(:product_type => 'I') }
+  
   before_destroy :add_quantity_to_parent
   validates_presence_of :product_item, :total_quantity, :available_quantity
 

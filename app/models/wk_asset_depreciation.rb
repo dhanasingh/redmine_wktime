@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkAssetProperties < ActiveRecord::Base
+class WkAssetDepreciation < ActiveRecord::Base
   unloadable
   belongs_to :inventory_item, :class_name => 'WkInventoryItem'
  

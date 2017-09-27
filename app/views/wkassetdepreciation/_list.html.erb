@@ -1,0 +1,37 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div class="autoscroll">
+<table class="list time-entries">
+  <thead>
+         <tr>
+				<th class="lbl-txt-align"><%= l(:label_asset) %></th>
+				<th class="lbl-txt-align"><%= l(:label_product) %></th>
+				<th class="lbl-txt-align"><%= l(:label_purchase_date) %></th>
+				<th class="lbl-txt-align"><%= l(:label_purchase_value) %></th>
+				<th class="lbl-txt-align"><%= l(:label_previous_value) %></th>
+				<th class="lbl-txt-align"><%= l(:label_depreciation_date) %></th>
+				<th class="lbl-txt-align"><%= l(:label_depreciation) %></th>
+				<th class="lbl-txt-align"><%= l(:label_current_value) %></th>
+				<th></th>
+         </tr>
+  </thead>
+   <tbody>
+   <% @depreciation_entries.each do |entry| %>
+		 <tr>
+				<td class="lbl-txt-align"><%=h entry.inventory_item.asset_property.name %></td>
+				<td class="lbl-txt-align"><%=h entry.inventory_item.product_item.product.name %></td>
+				<td class="lbl-txt-align"><%=h entry.inventory_item.shipment.shipment_date %></td>
+				<td class="lbl-txt-align"><%=h entry.inventory_item.cost_price %></td>
+				<td class="lbl-txt-align"><%=h entry.actual_amount %></td>
+				<td class="lbl-txt-align"><%=h entry.depreciation_date %></td>
+				<td class="lbl-txt-align"><%=h entry.depreciation_amount %></td>
+				<td class="lbl-txt-align"><%=h entry.actual_amount - entry.depreciation_amount %></td>
+				<td align="center">
+                <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :depreciation_id => entry.id, :tab => controller.controller_name},
+                                       :title => l(:button_edit) %>
+		</tr>
+	<% end %>
+   </tbody>
+</table>
+</div>
+
+<!-- <span class="pagination"><%#= pagination_links_full @entry_pages, @entry_count %></span> -->
