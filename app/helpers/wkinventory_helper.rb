@@ -8,4 +8,12 @@ module WkinventoryHelper
 		end
 		productType
 	end
+	
+	def getDepreciationTypeHash(needBlank)		
+		productType = { 'SL'  => l(:label_stright_line), 'A' =>  l(:label_wov) }
+		if needBlank
+			productType = { '' => "", 'SL'  => l(:label_stright_line), 'WOV' =>  l(:label_wov) }
+		end
+		productType
+	end
 end

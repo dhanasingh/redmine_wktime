@@ -730,3 +730,7 @@ ru:
   label_rental: Rental
   label_lease: Lease
   label_daily: Daily
+  label_depreciation_type: Depreciation Type
+  label_depreciation_ledger: Depreciation Ledger
+  label_wov: WOV
+  label_stright_line: Stright Line
