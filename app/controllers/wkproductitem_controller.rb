@@ -79,7 +79,7 @@ class WkproductitemController < WkinventoryController
 				inventoryItem.selling_price = params[:selling_price]
 				inventoryItem.save
 			end
-			assetProperty = updateAssetProperty(inventoryItem) if inventoryItem.product_type == 'A'
+			assetProperty = updateAssetProperty(inventoryItem) if !inventoryItem.blank? && inventoryItem.product_type == 'A'
 		    redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
 		    flash[:notice] = l(:notice_successful_update)
 		else
