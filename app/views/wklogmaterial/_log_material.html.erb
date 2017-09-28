@@ -16,16 +16,18 @@
 <% uomArr = logmaterial_helper.getUOMArray(nil, false)  %>
 <% productId = @materialEntry.blank? ? ( productArr.blank? ? 0 : productArr[0][1]) : @materialEntry.inventory_item.product_item.product.id    %>
 <!-- Below Array contains the inventory item id and combination of brand, model, partnumber, attribute, selling price as display field  -->
-<% itemArr = logmaterial_helper.getPdtItemArr(productId, false)  %>
+<% ltype = @spentType == 'M' ? 'I' : 'A'  %>
+<% itemArr = logmaterial_helper.getPdtItemArr(productId, false, ltype)  %>
 <% itemId = @materialEntry.blank? ? '' : @materialEntry.inventory_item_id  %>
 <% uomId = @materialEntry.blank? ? '' : @materialEntry.uom_id  %>
 <% inventoryItemId = @materialEntry.blank? ? (itemArr.blank? ? '' : itemArr[0][1]) : @materialEntry.inventory_item.id %>
 <% itemObj = WkInventoryItem.find(inventoryItemId) unless inventoryItemId.blank?  %>
 <%= hidden_field_tag 'inventory_item_id', (itemObj.blank? ? "" : itemObj.id) %>
-<%= hidden_field_tag 'matterial_entry_id', (@materialEntry.blank? ? '' : @materialEntry.id) %>
+<% matterialId = @materialEntry.blank? ? '' : @materialEntry.id  %>
+<%= hidden_field_tag 'matterial_entry_id', matterialId %>
 <%= hidden_field_tag 'expense_entry_id', (@expenseEntry.blank? ? '' : @expenseEntry.id) %>
 <% expenseAmount = @expenseEntry.blank? ? "" : @expenseEntry.amount  %>
-
+<%  assetObj = @materialEntry.blank? ? nil : @materialEntry.inventory_item.asset_property %>
 <script type="text/javascript"> 
 	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
 </script>
@@ -68,7 +70,7 @@
 	</tr>
 	
 	<tr>		
-		<% if wktime_helper.isModuleAdmin('wktime_inventory_admin') %>
+		<% if wktime_helper.isModuleAdmin('wktime_inventory_admin') && @spentType == 'M'  %>
 			<th align="right"><%= l(:label_cost_price) %><span style="color:red;">*</span></th>
 			<td align="left" style="padding-left: 40px;">
 			
@@ -76,6 +78,10 @@
 				<% costPrice = itemObj.blank? ? "" : itemObj.cost_price %>
 				<%=h text_field_tag("product_cost_price", costPrice.blank? ? "" : ("%.2f" % costPrice) ,:size => 20, :disabled => true, :style => "width:100px; text-align:right; float:right") %> 
 			</td>
+		<% elsif @spentType == 'A' %>
+			<th align="right"><%= l(:label_done) %></th>
+			<% isDone = assetObj.blank? ? false : (assetObj.matterial_entry_id == matterialId ? true : false ) %>
+			<td align="left" style="padding-left: 10px;"><%= check_box_tag("is_done", 1, isDone) %></td>
 		<% else %>
 			<th></th>
 			<td></td>

@@ -11,6 +11,7 @@ class WklogmaterialController < ApplicationController
   def modifyProductDD
 		pctArr = ""	
 		productType = 'I'
+		wklogmatterial_helper = Object.new.extend(WklogmaterialHelper)
 		if params[:ptype] == "product"
 			logType =  params[:log_type] == 'M' ? 'I' : params[:log_type]
 			pctObj = WkProduct.where(:product_type => logType).order(:name)
@@ -19,9 +20,7 @@ class WklogmaterialController < ApplicationController
 			pctObj = pObj.brands.order(:name)
 		elsif params[:ptype] == "product_item"
 			productType = params[:log_type]
-			sqlQuery = "select it.id, pi.product_id, pi.brand_id, wap.name as asset_name, wap.rate, wap.rate_per, wb.name as brand_name, it.product_attribute_id, pi.product_model_id, wpm.name as product_model_name, pi.part_number, it.cost_price, it.selling_price, it.currency, it.available_quantity, it.uom_id from wk_inventory_items it left outer join wk_product_items pi on pi.id = it.product_item_id left outer join wk_brands wb on wb.id = pi.brand_id left outer join wk_product_models wpm on wpm.id = pi.product_model_id left outer join wk_asset_properties wap on wap.inventory_item_id = it.id where pi.product_id = #{params[:id]} and it.available_quantity > 0 and it.product_type = '#{productType}'"			
-			
-			pctObj = WkInventoryItem.find_by_sql(sqlQuery)			
+			pctObj = wklogmatterial_helper.mergePItemInvItemQuery(params[:id], productType)			
 		elsif params[:ptype] == "product_model_id"
 			unless params[:id].blank? || params[:id].to_i < 1
 				pObj = WkBrand.find(params[:id].to_i)
@@ -33,12 +32,12 @@ class WklogmaterialController < ApplicationController
 			pObj = WkProduct.find(params[:id].to_i)
 			pctObj = pObj.product_attributes.order(:name)
 		elsif params[:ptype] == "uom_id"
-			pctObj = WkInventoryItem.find(params[:id].to_i)			
+			pctObj = WkInventoryItem.find(params[:id].to_i)	unless params[:id].blank?		
 		else
 			#pctObj = WkProductItem.find(params[:id].to_i) unless params[:id].blank?
 			productType = params[:log_type]
 			if productType == 'A'
-				pctObj = WkAssetProperties.where(:inventory_item_id => params[:id].to_i) unless params[:id].blank?
+				pctObj = WkAssetProperty.where(:inventory_item_id => params[:id].to_i) unless params[:id].blank?
 			else
 				pctObj = WkInventoryItem.find(params[:id].to_i) unless params[:id].blank?
 			end
@@ -68,7 +67,7 @@ class WklogmaterialController < ApplicationController
 			pctArr << pctObj.id.to_s() + ',' + pctObj.available_quantity.to_s() +','+ pctObj.cost_price.to_s()  +','+  pctObj.currency.to_s() + ',' +  pctObj.selling_price.to_s() unless pctObj.blank?  
 		elsif params[:ptype] == "uom_id"
 			#pctObj.each do | entry|
-				pctArr << pctObj.uom_id.to_s() + ',' +  pctObj.uom.name.to_s()  + "\n"
+				pctArr << pctObj.uom_id.to_s() + ',' +  pctObj.uom.name.to_s()  + "\n" unless pctObj.blank?
 			#end
 		else		
 			pctObj.each do | entry|
