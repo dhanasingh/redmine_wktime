@@ -32,9 +32,7 @@ lblInvCompVal = "<%=l(:field_value) %>";
 		hash_invoice_period = { 'q' =>  l(:label_quartly), 'm'  => l(:label_monthly), 'bw' =>  l(:label_bi_weekly), 'w' => l(:label_weekly) }
 	%>
 	<legend><%= l(:label_wk_billing) %></legend>
-	<p style="margin-left: -110px;">
-		<%= check_box_tag('settings[wktime_enable_billing_module]', 1, @settings['wktime_enable_billing_module'].to_i == 1) %> <label><%= l(:label_enable_billing_module) %></label>
-	</p>
+	
 	
 	<p style="margin-left: -110px;">
 			<%= check_box_tag('settings[invoice_auto_post_gl]', 1, @settings['invoice_auto_post_gl'].to_i == 1) %> <label><%= l(:label_auto_post_gl) %></label>

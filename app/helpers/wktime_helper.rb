@@ -1302,4 +1302,19 @@ end
 		ret
 	end
 	
+	def erpModules
+		erpmineModules = [l(:label_wktime),
+						  l(:label_wkexpense),
+						  l(:report_attendance),
+						  l(:label_payroll),
+						  l(:label_wk_billing),
+						  l(:label_accounting),
+						  l(:label_crm),
+						  l(:label_txn_purchase),
+						  l(:label_inventory),
+						  l(:label_report)
+					 ]
+		erpmineModules
+	end
+	
 end

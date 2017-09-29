@@ -1,8 +1,6 @@
 <fieldset>
 <legend><%= l(:label_inventory) %></legend>
-	<p style="margin-left: -110px;">
-		<%= check_box_tag('settings[wktime_enable_inventory_module]', 1, @settings['wktime_enable_inventory_module'].to_i == 1) %> <label><%= l(:label_enable_inventory_module) %></label>
-	</p>
+	
 	
 	<%
 		@ledgers = ["", ""]

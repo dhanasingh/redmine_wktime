@@ -6,9 +6,7 @@
 <fieldset style="display: inline-block; vertical-align: top;  min-width: 350px;">
 	<legend><%= l(:label_purchasing) %></legend>
 	
-	<p style="margin-left: -110px;">
-			<%= check_box_tag('settings[wktime_enable_pur_module]', 1, @settings['wktime_enable_pur_module'].to_i == 1) %> <label><%= l(:label_enable_pur_module) %></label>
-	</p>
+	
 	
 	<%
 			accountGroups = Array.new
