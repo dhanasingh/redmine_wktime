@@ -595,20 +595,18 @@ end
 	end
 	
 	def time_expense_tabs
-		if params[:controller] == "wktime" || params[:controller] == "wkexpense" || params[:controller] == "wkattendance" || params[:controller] == "wkpayroll"
+		if params[:controller] == "wktime" || params[:controller] == "wkexpense" 
 			tabs = [
 				{:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime},
-				{:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense},
+				{:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense}
+			   ]
+		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll"
+			tabs = [
 				{:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave},
 				{:name => 'clock', :partial => 'wktime/tab_content', :label => :label_clock},
 				{:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll},
 				{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_user_settings}
 			   ]
-		# elsif params[:controller] == "wkattendance"
-			# tabs = [
-				# {:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave},
-				# {:name => 'clock', :partial => 'wktime/tab_content', :label => :label_clock}
-			   # ]
 		# elsif params[:controller] == "wkpayroll"
 			# tabs = [
 				# {:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll},
