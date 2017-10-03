@@ -692,7 +692,7 @@ ru:
   label_inventory_information: Inventory Information
   button_transfer: Transfer to
   field_quantity: Quantity
-  field_selling_price: Selling Price
+  field_selling_price: Price
   report_stock: Stock Report
   label_stock_value: Stock value
   label_new_product: New Product

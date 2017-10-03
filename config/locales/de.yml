@@ -690,7 +690,7 @@ de:
   label_part_number: Part Number
   label_inventory_information: Inventory Information
   field_quantity: Quantity
-  field_selling_price: Selling Price
+  field_selling_price: Price
   button_transfer: Transfer to
   report_stock: Stock Report
   label_stock_value: Stock value

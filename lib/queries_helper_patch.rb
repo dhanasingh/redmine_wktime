@@ -30,7 +30,8 @@ module QueriesHelper
 		  value.to_a.map {|a| format_object(a)}.join(" ").html_safe
 		when :inventory_item_id
 			val = item.inventory_item.product_item.product.name
-			value = val
+			assetObj = item.inventory_item.asset_property
+			value = assetObj.blank? ? val : val + ' - ' + assetObj.name
 		when :selling_price
 			val = item.selling_price * item.quantity
 			value = val.blank? ? 0.00 : ("%.2f" % val)

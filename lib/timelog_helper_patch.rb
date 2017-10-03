@@ -10,7 +10,10 @@ module TimelogHelper
 			if obj.is_a?(Issue)
 				obj.visible? ? "#{obj.tracker} ##{obj.id}: #{obj.subject}" : "##{obj.id}"
 			elsif obj.is_a?(WkInventoryItem)
-				"#{obj.product_item.product.name} - #{obj.product_item.brand.name} - #{obj.product_item.product_model.name}"
+				str = "#{obj.product_item.product.name} - #{obj.product_item.brand.name} - #{obj.product_item.product_model.name}"
+				assetObj = obj.asset_property
+				str = str + ' - ' +assetObj.name unless assetObj.blank?
+				str
 			else
 				obj
 			end
