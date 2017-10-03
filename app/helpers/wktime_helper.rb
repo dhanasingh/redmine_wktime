@@ -600,18 +600,13 @@ end
 				{:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime},
 				{:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense}
 			   ]
-		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll"
+		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" 
 			tabs = [
 				{:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave},
 				{:name => 'clock', :partial => 'wktime/tab_content', :label => :label_clock},
 				{:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll},
 				{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_user_settings}
-			   ]
-		# elsif params[:controller] == "wkpayroll"
-			# tabs = [
-				# {:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll},
-				# {:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_user_settings}
-			   # ]
+			   ]		
 		elsif params[:controller] == "wklead" || params[:controller] == "wkcrmaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact"
 			tabs = [
 				{:name => 'wklead', :partial => 'wktime/tab_content', :label => :label_lead_plural},
@@ -621,16 +616,12 @@ end
 				{:name => 'wkcrmcontact', :partial => 'wktime/tab_content', :label => :label_contact_plural}
 			   ]
 		
-		elsif params[:controller] == "wkinvoice" || params[:controller] == "wkcontract" || params[:controller] == "wkaccountproject"  || params[:controller] == "wkpayment" 
-		#|| params[:controller] == "wktax" || params[:controller] == "wkexchangerate"
+		elsif params[:controller] == "wkinvoice" || params[:controller] == "wkcontract" || params[:controller] == "wkaccountproject"  || params[:controller] == "wkpayment" 		
 			tabs = [
 				{:name => 'wkinvoice', :partial => 'wktime/tab_content', :label => :label_invoice},
 				{:name => 'wkpayment', :partial => 'wktime/tab_content', :label => :label_payments},
-			#	{:name => 'wkcrmaccount', :partial => 'wktime/tab_content', :label => :label_accounts},
 				{:name => 'wkcontract', :partial => 'wktime/tab_content', :label => :label_contracts},
-				{:name => 'wkaccountproject', :partial => 'wktime/tab_content', :label => :label_acc_projects},				
-			#	{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax},
-			#	{:name => 'wkexchangerate', :partial => 'wktime/tab_content', :label => :label_exchange_rate}
+				{:name => 'wkaccountproject', :partial => 'wktime/tab_content', :label => :label_acc_projects}
 			   ]
 		elsif params[:controller] == "wkgltransaction" || params[:controller] == "wkledger"
 			tabs = [
@@ -757,7 +748,6 @@ end
 	def settings_tabs		   
 		tabs = [
 				{:name => 'general', :partial => 'settings/tab_general', :label => :label_general},
-			#	{:name => 'display', :partial => 'settings/tab_display', :label => :label_display},
 				{:name => 'wktime', :partial => 'settings/tab_time', :label => :label_te},
 				{:name => 'attendance', :partial => 'settings/tab_attendance', :label => :report_attendance},
 				{:name => 'payroll', :partial => 'settings/tab_payroll', :label => :label_payroll},
