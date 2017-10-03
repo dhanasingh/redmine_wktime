@@ -48,6 +48,16 @@ class WkassetdepreciationController < ApplicationController
 		    flash[:error] = depreciation.errors.full_messages.join("<br>")
 		end
     end
+	
+	def destroy
+		depreciation = WkAssetDepreciation.find(params[:depreciation_id])
+		if depreciation.destroy
+			flash[:notice] = l(:notice_successful_delete)
+		else
+			flash[:error] = depreciation.errors.full_messages.join("<br>")
+		end
+		redirect_back_or_default :action => 'index', :tab => controller_name
+	end
 
 	def set_filter_session
         if params[:searchlist].blank? && session[:wkassetdepreciation].nil?
