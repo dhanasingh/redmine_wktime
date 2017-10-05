@@ -520,3 +520,11 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	post 'wkassetdepreciation/update', :to => 'wkassetdepreciation#update'	
 	
 	delete 'wkassetdepreciation/destroy', :to => 'wkassetdepreciation#destroy'
+	
+	get 'groups/:id/permission/new', :to => 'wkpermission#new_permission', :id => /\d+/, :as => 'new_group_permission'
+	 
+	post 'groups/:id/permission', :to => 'wkpermission#add_permission', :id => /\d+/, :as => 'group_permission'
+	
+	get 'groups/:id/permission', :to => 'wkpermission#add_permission', :id => /\d+/
+	 
+	delete 'groups/:id/permission/:permission_id', :to => 'wkpermission#remove_permission', :id => /\d+/, :as => 'group_remove_permission'

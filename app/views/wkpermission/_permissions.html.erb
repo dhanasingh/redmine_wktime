@@ -1,0 +1,22 @@
+<p><%= link_to l(:label_new_permission), new_group_permission_path(@group), :remote => true, :class => "icon icon-add" %></p>
+
+<% if @group.permissions.any? %>
+  <table class="list users">
+    <thead><tr>
+      <th><%= l(:label_permissions) %></th>
+      <th style="width:15%"></th>
+    </tr></thead>
+    <tbody>
+    <% @group.group_permissions.sort.each do | permn| %>
+      <tr id="permission-<%= permn.id %>">
+        <td class="name"><%=  permn.permission.name %></td>
+        <td class="buttons">
+          <%= delete_link group_remove_permission_path(@group, :permission_id => permn.id, :group_id => @group.id), :remote => true %>
+        </td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>

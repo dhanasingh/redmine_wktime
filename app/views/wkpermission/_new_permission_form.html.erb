@@ -1,0 +1,10 @@
+
+<fieldset class="box">
+  <legend><%= label_tag "permission_search", l(:label_new_permission) %></legend>
+  <p><%= text_field_tag 'user_search', nil %></p>
+   
+
+  <div id="permission">
+    <%= render_principals_for_new_group_permissions(@group) %>
+  </div>
+</fieldset>
