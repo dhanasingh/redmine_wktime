@@ -673,10 +673,10 @@ ru:
   label_log_type: Log Type
   label_cost_price: Cost Price
   label_selling_price: Selling Price
-  label_over_head_price: Over Head Price
+  label_over_head_price: Over Head Cost
   label_org_cost_price: Original Cost Price
   label_org_selling_price: Original Selling Price
-  label_org_over_head_price: Original Over Head Price
+  label_org_over_head_price: Original Over Head Cost
   label_total_quantity: Total Quantity
   label_available_quantity: Available Quantity
   label_model: Model
@@ -731,8 +731,8 @@ ru:
   label_lease: Lease
   label_daily: Daily
   label_depreciation_type: Depreciation Type
-  label_depreciation_ledger: Depreciation Ledger
-  label_wov: WOV
+  label_accounting_ledger: Accounting Ledger
+  label_wdv: Written Down Value
   label_stright_line: Stright Line
   label_purchase_date: Purchase Date
   label_purchase_value: Purchase Value
@@ -741,5 +741,6 @@ ru:
   label_current_value: Current Value
   label_apply_depreciation: Apply Depreciation
   label_done: Done
+  label_per_annum: Per Annum
   label_new_permission: New Permission
   label_erp_permission: ERPmine Permissions
