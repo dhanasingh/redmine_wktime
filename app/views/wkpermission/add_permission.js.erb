@@ -1,5 +1,0 @@
-hideModal();
-$('#tab-content-permission').html('<%= escape_javascript(render :partial => 'wkpermission/permission') %>');
-<% @permission.each do | permn | %>
-  $('#permission-<%= permn.id %>').effect("highlight");
-<% end %>

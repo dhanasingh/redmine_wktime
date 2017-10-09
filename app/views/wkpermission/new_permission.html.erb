@@ -1,6 +1,0 @@
-<h2><%= l(:label_permissions) %></h2>
-
-<%= form_for(@group, :url => group_permission_path(@group), :method => :post) do |f| %>
-  <%= render :partial => 'new_permission_form' %>
-  <p><%= submit_tag l(:button_add) %></p>
-<% end %>
