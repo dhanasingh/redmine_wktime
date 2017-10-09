@@ -1,6 +1,6 @@
-<h2><%= l(:label_tax) %></h2>
+<h2><%= l(:label_permissions) %></h2>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<script type="text/javascript">    
+<script type="text/javascript">     
 	blgtaxUrl = '<%=url_for(:controller => "wktax", :action => "index", :tab => "wktax")%>';
 	blgexcrateUrl = '<%=url_for(:controller => "wkexchangerate", :action => "index", :tab => "wkexchangerate")%>';
 	crmenumUrl = '<%=url_for(:controller => "wkcrmenumeration", :action => "index", :tab => "wkcrmenumeration")%>';
@@ -11,7 +11,3 @@
 		//getMembersbyGroup
 </script>
 <%= render_tabs time_expense_tabs %>
-
-<%= hidden_field_tag 'back_url', url_for(params) %>
-
-<%= render :partial => 'wktax/tax_list'%>

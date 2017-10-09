@@ -638,12 +638,13 @@ end
 				{:name => 'wksupplieraccount', :partial => 'wktime/tab_content', :label => :label_supplier_account},
 				{:name => 'wksuppliercontact', :partial => 'wktime/tab_content', :label => :label_supplier_contact}
 			   ]
-		elsif params[:controller] == "wkcrmenumeration" || params[:controller] == "wktax" || params[:controller] == "wkexchangerate" || params[:controller] == "wklocation"
+		elsif params[:controller] == "wkcrmenumeration" || params[:controller] == "wktax" || params[:controller] == "wkexchangerate" || params[:controller] == "wklocation" || params[:controller] == "wkgrouppermission"
 			tabs = [
 				{:name => 'wkcrmenumeration', :partial => 'wktime/tab_content', :label => :label_enumerations},
 				{:name => 'wklocation', :partial => 'wktime/tab_content', :label => :label_location},
 				{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax},
-				{:name => 'wkexchangerate', :partial => 'wktime/tab_content', :label => :label_exchange_rate}
+				{:name => 'wkexchangerate', :partial => 'wktime/tab_content', :label => :label_exchange_rate},
+				{:name => 'wkgrouppermission', :partial => 'wktime/tab_content', :label => :label_permissions}
 				
 			   ]
 		else
