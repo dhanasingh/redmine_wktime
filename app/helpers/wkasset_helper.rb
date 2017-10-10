@@ -1,9 +1,9 @@
 module WkassetHelper
 
 	def getRatePerHash(needBlank)
-		ratePerHash = { 'H'  => l(:label_hourly), 'D' =>  l(:label_daily), 'M' => l(:label_monthly) }
+		ratePerHash = { 'h' => l(:label_hourly), 'd' => l(:label_daily), 'm' => l(:label_monthly), 'q' => l(:label_quarterly), 'sa' => l(:label_semi_annually), 'a' => l(:label_annually) }
 		if needBlank
-			ratePerHash = { '' => "", 'H'  => l(:label_hourly), 'D' =>  l(:label_daily), 'M' => l(:label_monthly) }
+			ratePerHash = { '' => "", 'h' => l(:label_hourly), 'd' => l(:label_daily), 'm' => l(:label_monthly), 'q' => l(:label_quarterly), 'sa' => l(:label_semi_annually), 'a' => l(:label_annually) }
 		end
 		ratePerHash
 	end

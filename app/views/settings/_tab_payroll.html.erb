@@ -15,7 +15,7 @@ lbldebitLedger = "<%= l(:label_debit) + " " +  l(:label_ledger) %>";
 <%= hidden_field_tag 'settings[payroll_deleted_ids]', "" %>
 <% hash_salary_type = { 's'  => l(:label_salaried), 'h' =>  l(:label_hourly) } %>
 <% hash_pay_period = { 'm'  => l(:label_monthly), 'bw' =>  l(:label_bi_weekly), 'w' => l(:label_weekly) } %>
-<% hash_frequency = { '' => "", 'm'  => l(:label_monthly), 'q' =>  l(:label_quartly), 'sa' => l(:label_semi_annually), 'a' => l(:label_annually) } %>
+<% hash_frequency = { '' => "", 'm'  => l(:label_monthly), 'q' =>  l(:label_quarterly), 'sa' => l(:label_semi_annually), 'a' => l(:label_annually) } %>
 <%	
 	deplist = Array.new
 	basiclist = Array.new

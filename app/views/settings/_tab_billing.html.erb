@@ -29,7 +29,7 @@ lblInvCompVal = "<%=l(:field_value) %>";
 		te_custom_fields = TimeEntryCustomField.order('name')
 		cfBillIndicator = wktime_helper.getCfListArr(te_custom_fields, 'int', true)
 		
-		hash_invoice_period = { 'q' =>  l(:label_quartly), 'm'  => l(:label_monthly), 'bw' =>  l(:label_bi_weekly), 'w' => l(:label_weekly) }
+		hash_invoice_period = { 'q' =>  l(:label_quarterly), 'm'  => l(:label_monthly), 'bw' =>  l(:label_bi_weekly), 'w' => l(:label_weekly) }
 	%>
 	<legend><%= l(:label_wk_billing) %></legend>
 	

@@ -127,7 +127,7 @@ class WkassetdepreciationController < ApplicationController
 	end
 	
 	def applyDepreciation(startDate, endDate)
-		depreciationFreq = 'A' # This value should be get from settings
+		depreciationFreq = 'a' # This value should be get from settings
 		depFreqValue = getFrequencyMonth(depreciationFreq)
 		finacialPeriodArr = getFinancialPeriodArray(startDate, endDate, depreciationFreq)
 		assetEntries = WkInventoryItem.asset.all

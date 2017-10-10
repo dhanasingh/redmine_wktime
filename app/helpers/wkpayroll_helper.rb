@@ -417,7 +417,7 @@ module WkpayrollHelper
 	end
 	
 	def getYTDDetail(userId,salaryDate)
-		financialPeriodArr = getFinancialPeriodArray(salaryDate, salaryDate, 'A')
+		financialPeriodArr = getFinancialPeriodArray(salaryDate, salaryDate, 'a')
 		@financialPeriod = financialPeriodArr[0] #getFinancialPeriodArray(salaryDate, salaryDate, 'A')
 		ytdDetails = WkSalary.select("sum(amount) as amount, user_id, salary_component_id").where("user_id = #{userId} and salary_date between '#{@financialPeriod[0]}' and '#{salaryDate}'").group("user_id, salary_component_id")
 		ytdAmountHash = Hash.new()
