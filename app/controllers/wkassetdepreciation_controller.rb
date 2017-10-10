@@ -11,7 +11,7 @@ class WkassetdepreciationController < ApplicationController
         set_filter_session
         retrieve_date_range
 		unless params[:generate].blank? || !to_boolean(params[:generate])
-			applyDepreciation(@from)
+			applyDepreciation(@from, @to)
 		else
 			@depreciation_entries = WkAssetDepreciation.all
 			
@@ -126,23 +126,25 @@ class WkassetdepreciationController < ApplicationController
 
 	end
 	
-	def applyDepreciation(depreciationDate)
+	def applyDepreciation(startDate, endDate)
 		depreciationFreq = 'A' # This value should be get from settings
 		depFreqValue = getFrequencyMonth(depreciationFreq)
-		finacialPeriod = getFinancialPeriod(depreciationDate, depreciationFreq)
+		finacialPeriodArr = getFinancialPeriodArray(startDate, endDate, depreciationFreq)
 		assetEntries = WkInventoryItem.asset.all
 		errorMsg = ""
 		assetEntries.each do |entry|
 			depreciationRate = entry.product_item.product.depreciation_rate
 			unless depreciationRate.blank?
-				depreciationType = entry.product_item.product.depreciation_type
-				sourceAmount = depreciationType != 'SL' ? getCurrentAssetValue(entry) : (entry.cost_price + entry.over_head_price)
-				depreciationAmt = (depreciationRate/12) * sourceAmount * (depFreqValue +1)
-				depreciation = WkAssetDepreciation.where(:inventory_item_id => entry.id, :depreciation_date => finacialPeriod[1]).first_or_initialize(:depreciation_date => finacialPeriod[1], :inventory_item_id => entry.id)
-				depreciation.actual_amount = sourceAmount
-				depreciation.depreciation_amount = depreciationAmt
-				unless depreciation.save
-					errorMsg = depreciation.errors.full_messages.join('\n')
+				finacialPeriodArr.each do|finacialPeriod|
+					depreciationType = entry.product_item.product.depreciation_type
+					sourceAmount = depreciationType != 'SL' ? getCurrentAssetValue(entry) : (entry.cost_price + entry.over_head_price)
+					depreciationAmt = (depreciationRate/12) * sourceAmount * (depFreqValue +1)
+					depreciation = WkAssetDepreciation.where(:inventory_item_id => entry.id, :depreciation_date => finacialPeriod[1]).first_or_initialize(:depreciation_date => finacialPeriod[1], :inventory_item_id => entry.id)
+					depreciation.actual_amount = sourceAmount
+					depreciation.depreciation_amount = depreciationAmt
+					unless depreciation.save
+						errorMsg = depreciation.errors.full_messages.join('\n')
+					end
 				end
 			end
 		end

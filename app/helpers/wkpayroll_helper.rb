@@ -31,20 +31,68 @@ module WkpayrollHelper
 		salaryComponents
 	end
 	
-	def getFinancialPeriod(salaryDate, periodType)
+	# def getFinancialPeriod(salaryDate, periodType)
+		# financialMonthStr = Setting.plugin_redmine_wktime['wktime_financial_year_start']
+		# if financialMonthStr.blank? || financialMonthStr.to_i == 0
+			# financialMonthStr = '4'
+		# end
+		# unless salaryDate.month < financialMonthStr.to_i
+			# financialStart = Date.civil(salaryDate.year, financialMonthStr.to_i, 1)
+			# financialEnd = Date.civil(salaryDate.year+1, financialMonthStr.to_i, 1)
+		# else
+			# financialStart = Date.civil(salaryDate.year-1, financialMonthStr.to_i, 1)
+			# financialEnd = Date.civil(salaryDate.year, financialMonthStr.to_i, 1)
+		# end
+		# financialPeriod = [financialStart,financialEnd-1]
+		# financialPeriod
+	# end
+	
+	def getFinancialPeriodArray(startDate, endDate, periodType)
+		financialStartArr = getFinancialStartArr(periodType)
+		finPeriodArr = Array.new
+		frequencyMonth = getFrequencyHash[periodType.downcase]
+		startFinDate = nil
+		endFinDate  = nil
+		noOfPeriod = financialStartArr.length
+		financialStartArr.each_with_index do |startMonth, index|
+			if noOfPeriod == index +1
+				startFinDate = Date.civil((startMonth<= startDate.month ? startDate.year : startDate.year - 1), startMonth, 1) if startFinDate.blank?
+				endFinDate  = Date.civil(endDate.year + 1, financialStartArr[0], 1) - 1 if endFinDate.blank?
+				break
+			end
+			if startDate.month <= startMonth && startDate.month <= financialStartArr[index+1]
+				startFinDate = Date.civil(startDate.year, startMonth, 1)
+			end
+			if endDate.month <= startMonth && endDate.month <= financialStartArr[index+1]
+				endFinDate = Date.civil(endDate.year, financialStartArr[index+1], 1) - 1
+			end
+		end
+		lastDate = startFinDate
+		until lastDate > endFinDate
+			finPeriodArr << [lastDate, (lastDate + frequencyMonth.months) -1 ]
+			lastDate = lastDate + frequencyMonth.months
+		end
+		finPeriodArr
+	end
+	
+	def getFinancialStart
 		financialMonthStr = Setting.plugin_redmine_wktime['wktime_financial_year_start']
 		if financialMonthStr.blank? || financialMonthStr.to_i == 0
 			financialMonthStr = '4'
 		end
-		unless salaryDate.month < financialMonthStr.to_i
-			financialStart = Date.civil(salaryDate.year, financialMonthStr.to_i, 1)
-			financialEnd = Date.civil(salaryDate.year+1, financialMonthStr.to_i, 1)
-		else
-			financialStart = Date.civil(salaryDate.year-1, financialMonthStr.to_i, 1)
-			financialEnd = Date.civil(salaryDate.year, financialMonthStr.to_i, 1)
+		financialMonthStr
+	end
+	
+	def getFinancialStartArr(periodType)
+		frequencyMonth = getFrequencyHash[periodType.downcase]
+		financialStartMonth = getFinancialStart.to_i
+		noOfPeriod = 12/frequencyMonth
+		financialStartArr = Array.new
+		for i in 0 .. noOfPeriod -1
+			financialStartArr << ((financialStartMonth + (i*frequencyMonth))%12)
 		end
-		financialPeriod = [financialStart,financialEnd-1]
-		financialPeriod
+		financialStartArr.sort!
+		financialStartArr
 	end
 	
 	def generateSalaries(userIds,salaryDate)
@@ -369,7 +417,8 @@ module WkpayrollHelper
 	end
 	
 	def getYTDDetail(userId,salaryDate)
-		@financialPeriod = getFinancialPeriod(salaryDate, 'A')
+		financialPeriodArr = getFinancialPeriodArray(salaryDate, salaryDate, 'A')
+		@financialPeriod = financialPeriodArr[0] #getFinancialPeriodArray(salaryDate, salaryDate, 'A')
 		ytdDetails = WkSalary.select("sum(amount) as amount, user_id, salary_component_id").where("user_id = #{userId} and salary_date between '#{@financialPeriod[0]}' and '#{salaryDate}'").group("user_id, salary_component_id")
 		ytdAmountHash = Hash.new()
 		ytdDetails.each do |entry|
