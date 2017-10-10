@@ -28,6 +28,7 @@ class CreateWkAssetManagement < ActiveRecord::Migration
 			t.date :depreciation_date
 			t.float :actual_amount
 			t.float :depreciation_amount
+			t.column :currency, :string, :limit => 5, :default => '$'
 			t.timestamps null: false
 		end
 		

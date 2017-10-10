@@ -11,7 +11,7 @@ class WkassetdepreciationController < ApplicationController
         set_filter_session
         retrieve_date_range
 		unless params[:generate].blank? || !to_boolean(params[:generate])
-			applyDepreciation(@from, @to)
+			applyDepreciation(@from, @to, nil)
 		else
 			@depreciation_entries = WkAssetDepreciation.all
 			
@@ -126,21 +126,27 @@ class WkassetdepreciationController < ApplicationController
 
 	end
 	
-	def applyDepreciation(startDate, endDate)
+	def applyDepreciation(startDate, endDate, assetId)
 		depreciationFreq = 'a' # This value should be get from settings
 		depFreqValue = getFrequencyMonth(depreciationFreq)
 		finacialPeriodArr = getFinancialPeriodArray(startDate, endDate, depreciationFreq)
-		assetEntries = WkInventoryItem.asset.all
+		unless assetId.blank?
+			assetEntries = WkInventoryItem.where(:id => assetId)
+		else
+			assetEntries = WkInventoryItem.asset.joins(:asset_property).where("wk_asset_properties.asset_type = ?", 'O')
+		end
 		errorMsg = ""
 		assetEntries.each do |entry|
 			depreciationRate = entry.product_item.product.depreciation_rate
 			unless depreciationRate.blank?
 				finacialPeriodArr.each do|finacialPeriod|
 					depreciationType = entry.product_item.product.depreciation_type
-					sourceAmount = depreciationType != 'SL' ? getCurrentAssetValue(entry) : (entry.cost_price + entry.over_head_price)
-					depreciationAmt = (depreciationRate/12) * sourceAmount * (depFreqValue +1)
+					currentAssetVal = getCurrentAssetValue(entry, finacialPeriod[1])
+					assetPrice = entry.cost_price + entry.over_head_price
+					#sourceAmount = depreciationType != 'SL' ? currentAssetVal : (entry.cost_price + entry.over_head_price)
+					depreciationAmt = getDepreciationAmount(depreciationType, depreciationRate, depFreqValue, currentAssetVal, assetPrice)
 					depreciation = WkAssetDepreciation.where(:inventory_item_id => entry.id, :depreciation_date => finacialPeriod[1]).first_or_initialize(:depreciation_date => finacialPeriod[1], :inventory_item_id => entry.id)
-					depreciation.actual_amount = sourceAmount
+					depreciation.actual_amount = currentAssetVal
 					depreciation.depreciation_amount = depreciationAmt
 					unless depreciation.save
 						errorMsg = depreciation.errors.full_messages.join('\n')

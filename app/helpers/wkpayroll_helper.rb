@@ -57,7 +57,7 @@ module WkpayrollHelper
 		financialStartArr.each_with_index do |startMonth, index|
 			if noOfPeriod == index +1
 				startFinDate = Date.civil((startMonth<= startDate.month ? startDate.year : startDate.year - 1), startMonth, 1) if startFinDate.blank?
-				endFinDate  = Date.civil(endDate.year + 1, financialStartArr[0], 1) - 1 if endFinDate.blank?
+				endFinDate  = Date.civil((startMonth > endDate.month ? endDate.year : endDate.year + 1), financialStartArr[0], 1) - 1 if endFinDate.blank?
 				break
 			end
 			if startDate.month <= startMonth && startDate.month <= financialStartArr[index+1]
@@ -67,6 +67,7 @@ module WkpayrollHelper
 				endFinDate = Date.civil(endDate.year, financialStartArr[index+1], 1) - 1
 			end
 		end
+		
 		lastDate = startFinDate
 		until lastDate > endFinDate
 			finPeriodArr << [lastDate, (lastDate + frequencyMonth.months) -1 ]

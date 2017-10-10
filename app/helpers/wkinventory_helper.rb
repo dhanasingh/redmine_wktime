@@ -10,23 +10,23 @@ module WkinventoryHelper
 	end
 	
 	def getDepreciationTypeHash(needBlank)		
-		productType = { 'SL'  => l(:label_stright_line), 'A' =>  l(:label_wdv) }
+		productType = { 'SL'  => l(:label_stright_line), 'WDV' =>  l(:label_wdv) }
 		if needBlank
-			productType = { '' => "", 'SL'  => l(:label_stright_line), 'WOV' =>  l(:label_wdv) }
+			productType = { '' => "", 'SL'  => l(:label_stright_line), 'WDV' =>  l(:label_wdv) }
 		end
 		productType
 	end
 	
 	def getFrequencyMonth(periodType)
 		case periodType
-		when 'A'
-		  val = 11
-		when 'SA'
-		  val = 5
-		when 'Q'
-		  val = 2
-		when 'M'
-		  val = 0
+		when 'a'
+		  val = 12
+		when 'sa'
+		  val = 6
+		when 'q'
+		  val = 3
+		when 'm'
+		  val = 1
 		else
 		  raise ArgumentError, 'invalid arguments to period'
 		end
