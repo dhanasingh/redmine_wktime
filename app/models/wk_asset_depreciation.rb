@@ -18,5 +18,6 @@
 class WkAssetDepreciation < ActiveRecord::Base
   unloadable
   belongs_to :inventory_item, :class_name => 'WkInventoryItem'
+  belongs_to :gl_transaction , :class_name => 'WkGlTransaction', :dependent => :destroy  
  
 end

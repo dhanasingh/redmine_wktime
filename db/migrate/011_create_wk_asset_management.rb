@@ -25,6 +25,7 @@ class CreateWkAssetManagement < ActiveRecord::Migration
 		
 		create_table :wk_asset_depreciations do |t|
 			t.references :inventory_item, :class => "wk_inventory_items", :index => true
+			t.references :gl_transaction, :class => "wk_gl_transactions", :null => true, :index => true
 			t.date :depreciation_date
 			t.float :actual_amount
 			t.float :depreciation_amount

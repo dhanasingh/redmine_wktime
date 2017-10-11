@@ -18,6 +18,7 @@ module WkinventoryHelper
 	end
 	
 	def getFrequencyMonth(periodType)
+		val = nil
 		case periodType
 		when 'a'
 		  val = 12
@@ -30,5 +31,6 @@ module WkinventoryHelper
 		else
 		  raise ArgumentError, 'invalid arguments to period'
 		end
+		val
 	end
 end

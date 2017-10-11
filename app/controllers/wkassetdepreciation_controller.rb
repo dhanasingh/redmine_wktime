@@ -4,6 +4,7 @@ class WkassetdepreciationController < ApplicationController
   include WkinventoryHelper
   include WkpayrollHelper
   include WkassetHelper
+  include WkbillingHelper
 
 
 	def index
@@ -136,11 +137,15 @@ class WkassetdepreciationController < ApplicationController
 			assetEntries = WkInventoryItem.asset.joins(:asset_property).where("wk_asset_properties.asset_type = ?", 'O')
 		end
 		errorMsg = ""
+		localCurrency = Setting.plugin_redmine_wktime['wktime_currency']
+		depLedgerId = 28 # This value should be get from settings
 		assetEntries.each do |entry|
-			depreciationRate = entry.product_item.product.depreciation_rate
-			unless depreciationRate.blank?
+			assetProduct = entry.product_item.product
+			depreciationRate = assetProduct.depreciation_rate
+			depreciationType = assetProduct.depreciation_type
+			assetLedgerId = assetProduct.ledger_id
+			unless depreciationRate.blank? || depreciationType.blank?
 				finacialPeriodArr.each do|finacialPeriod|
-					depreciationType = entry.product_item.product.depreciation_type
 					currentAssetVal = getCurrentAssetValue(entry, finacialPeriod[1])
 					assetPrice = entry.cost_price + entry.over_head_price
 					#sourceAmount = depreciationType != 'SL' ? currentAssetVal : (entry.cost_price + entry.over_head_price)
@@ -148,8 +153,19 @@ class WkassetdepreciationController < ApplicationController
 					depreciation = WkAssetDepreciation.where(:inventory_item_id => entry.id, :depreciation_date => finacialPeriod[1]).first_or_initialize(:depreciation_date => finacialPeriod[1], :inventory_item_id => entry.id)
 					depreciation.actual_amount = currentAssetVal
 					depreciation.depreciation_amount = depreciationAmt
-					unless depreciation.save
-						errorMsg = depreciation.errors.full_messages.join('\n')
+					depreciation.currency = localCurrency
+					if depreciation.save
+						if true #autoPostGL('depreciation')
+							transAmountArr = [{assetLedgerId => depreciationAmt}, {depLedgerId => depreciationAmt}]
+							transId = depreciation.gl_transaction.blank? ? nil : depreciation.gl_transaction.id
+							glTransaction = postToGlTransaction('depreciation', transId, depreciation.depreciation_date, transAmountArr, depreciation.currency, nil, nil)
+							unless glTransaction.blank?
+								depreciation.gl_transaction_id = glTransaction.id
+								depreciation.save
+							end		
+						end
+					else
+						errorMsg = depreciation.errors.full_messages.join('\n')		
 					end
 				end
 			end
