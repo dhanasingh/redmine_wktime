@@ -23,7 +23,7 @@
 			</tr> 
 			<tr>
 				<th align="left"><%= l(:label_current_asset_value) %></th>
-				<td align="left" style="padding-left:40px;"><%= text_field_tag "current_value",  assetProperty.blank? ? '' : assetProperty.current_value, :disabled => false %></td>
+				<td align="left" style="padding-left:40px;"><label align='left'><b><%= assetProperty.blank? ? Setting.plugin_redmine_wktime['wktime_currency'] : assetProperty.currency %></b></label><%= text_field_tag "current_value",  assetProperty.blank? ? '' : assetProperty.current_value, :disabled => false %></td>
 			</tr>
 			<tr>
 				<th align="left"><%= l(:label_asset_type) %></th>
