@@ -91,9 +91,10 @@ module TimelogControllerPatch
 				return
 			end
 
-			call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
+			
 			
 			if params[:log_type].blank? || params[:log_type] == 'T'
+				call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
 				if @time_entry.save
 					respond_to do |format|
 						format.html {
@@ -171,9 +172,10 @@ module TimelogControllerPatch
 		def update
 			@time_entry.safe_attributes = params[:time_entry]
 
-			call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
-
 			if params[:log_type].blank? || params[:log_type] == 'T'
+			
+				call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
+				
 				if @time_entry.save
 					respond_to do |format|
 						format.html {

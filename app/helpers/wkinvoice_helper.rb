@@ -643,7 +643,9 @@ include WkbillingHelper
 				productId = mEntry.inventory_item.product_item.product.id
 				productName = mEntry.inventory_item.product_item.product.name.to_s
 				productArr << productId
-				desc = productName + " " + mEntry.inventory_item.product_item.brand.name.to_s + " " + mEntry.inventory_item.product_item.product_model.name.to_s
+				brandName = mEntry.inventory_item.product_item.brand.blank? ? "" : mEntry.inventory_item.product_item.brand.name.to_s
+				modelName = mEntry.inventory_item.product_item.product_model.blank? ? "" : mEntry.inventory_item.product_item.product_model.name.to_s
+				desc = productName + " " + brandName + " " + modelName
 				rate = mEntry.selling_price
 				qty = mEntry.quantity
 				curr = mEntry.inventory_item.currency

@@ -18,7 +18,7 @@
 					<tr>
 						<th align="left"><%= l(:label_brand) %></th>
 						<td align="left">
-							<%=h productItem.brand.name %>
+							<%=h productItem.brand.name unless productItem.brand.blank?  %>
 						</td>
 					</tr> 
 					<tr>
