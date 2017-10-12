@@ -198,6 +198,15 @@ include WkinventoryHelper
 				shipmentItem.status = 'o'
 				shipmentItem.uom_id = params["uom_id#{i}"].to_i unless params["uom_id#{i}"].blank?
 				shipmentItem.location_id = params["location_id#{i}"].to_i unless params["location_id#{i}"].blank?
+				if params["product_type#{i}"] == 'A'
+					quantity = params["total_quantity#{i}"].to_i
+					shipmentItem.available_quantity = 1
+					shipmentItem.total_quantity = 1
+					for i in 1 .. quantity - 1
+						dupItem = shipmentItem.dup
+						dupItem.save
+					end
+				end
 				shipmentItem.save()
 			end
 			savedRows = savedRows + 1
