@@ -147,9 +147,9 @@ module TimelogControllerPatch
 		def validateMatterial
 			errorMsg = ""
 			
-			if params[:time_entry][:project_id].blank? 
-				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_project_error) if params[:project_id].blank?
-			end
+			# if params[:time_entry][:project_id].blank? 
+				# errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_project_error) if params[:project_id].blank?
+			# end
 			if params[:time_entry][:issue_id].blank?
 				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_issue_error)
 			end
@@ -196,13 +196,20 @@ module TimelogControllerPatch
 					saveMatterial if params[:log_type] == 'M' || params[:log_type] == 'A'
 					saveExpense if params[:log_type] == 'E'
 				else
-					respond_to do |format|
-						format.html { 					
-							flash[:error] = errorMsg
-							redirect_back_or_default project_time_entries_path(@time_entry.project)
+				flash[:error] = errorMsg
+				redirect_to :controller => 'timelog',:action => 'edit'
+					# respond_to do |format|
+						# # format.html { 					
+							# # flash[:error] = errorMsg
+							# # redirect_back_or_default project_time_entries_path(@time_entry.project)
 						
-						}
-					end
+						# # }
+						# format.html { 
+							# flash[:error] = errorMsg
+							# render :action => 'edit' 
+						# }
+						# #format.api  { render_validation_errors(@time_entry) }
+					# end
 				end
 			end
 		end
@@ -264,7 +271,8 @@ module TimelogControllerPatch
 			else
 				@modelEntries = model.find(id.to_i)
 			end
-			@modelEntries.project_id =  @project.blank? ? params[:time_entry][:project_id] : @project.id 
+			projectId = Issue.find(params[:time_entry][:issue_id].to_i).project_id
+			@modelEntries.project_id = projectId # @project.blank? ? params[:time_entry][:project_id] : @project.id 
 			@modelEntries.user_id = User.current.id
 			@modelEntries.issue_id =  params[:time_entry][:issue_id].to_i			
 			@modelEntries.comments =  params[:time_entry][:comments]
