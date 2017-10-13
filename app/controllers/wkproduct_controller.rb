@@ -46,7 +46,7 @@ class WkproductController < WkinventoryController
 		  product = WkProduct.find(params[:product_id])
 		end
 		product.name = params[:name]
-		product.product_type = params[:product_type]
+		product.product_type = params[:product_type].blank? ? nil : params[:product_type]
 		product.category_id = params[:category_id]
 		product.uom_id = params[:uom_id]
 		product.attribute_group_id = params[:attribute_group_id]

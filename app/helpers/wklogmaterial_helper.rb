@@ -20,11 +20,15 @@ include WktimeHelper
 		pctCatArr
 	end
 	
-	def getProductArray(model, productId, needBlank)
-		if productId.blank?
+	def getProductArray(model, productId, productType, needBlank)
+		if productId.blank? && productType.blank?
 			pdtArr = model.all.order(:name).pluck(:name, :id)
-		else
+		elsif !productId.blank? && !productType.blank?
+			pdtArr = model.where(:id => productId.to_i).where("product_type = ? OR product_type is null", productType).pluck(:name, :id)
+		elsif !productId.blank?
 			pdtArr = model.where(:id => productId.to_i).pluck(:name, :id)
+		elsif !productType.blank?
+			pdtArr = model.where("product_type = ? OR product_type is null", productType).pluck(:name, :id)
 		end
 		pdtArr.unshift(["",'']) if needBlank
 		pdtArr

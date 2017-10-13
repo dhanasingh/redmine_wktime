@@ -15,6 +15,9 @@
 
 <%= hidden_field_tag 'back_url', url_for(params) %>
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
+<div class="contextual">
+<%= link_to l(:label_new_depreciation), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
+</div>
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
 	<%= hidden_field_tag "searchlist", "#{controller_name}" %>
 		<table>

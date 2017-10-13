@@ -740,3 +740,5 @@ de:
   label_current_value: Current Value
   label_apply_depreciation: Apply Depreciation
   label_per_annum: Per Annum
+  label_no_asset_current_product: No Asset in selected Product
+  label_new_depreciation: New Depreciation

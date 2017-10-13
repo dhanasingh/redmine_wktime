@@ -17,10 +17,10 @@
    <tbody>
    <% @depreciation_entries.each do |entry| %>
 		 <tr>
-				<td class="lbl-txt-align"><%=h entry.inventory_item.asset_property.name %></td>
-				<td class="lbl-txt-align"><%=h entry.inventory_item.product_item.product.name %></td>
-				<td class="lbl-txt-align"><%=h entry.inventory_item.shipment.shipment_date %></td>
-				<td class="lbl-txt-align"><%=h entry.inventory_item.cost_price %></td>
+				<td class="lbl-txt-align"><%=h entry.inventory_item.asset_property.name unless entry.inventory_item.blank? %></td>
+				<td class="lbl-txt-align"><%=h entry.inventory_item.product_item.product.name unless entry.inventory_item.blank? %></td>
+				<td class="lbl-txt-align"><%=h entry.inventory_item.shipment.shipment_date unless entry.inventory_item.blank? %></td>
+				<td class="lbl-txt-align"><%=h entry.inventory_item.cost_price unless entry.inventory_item.blank? %></td>
 				<td class="lbl-txt-align"><%=h entry.actual_amount %></td>
 				<td class="lbl-txt-align"><%=h entry.depreciation_date %></td>
 				<td class="lbl-txt-align"><%=h entry.depreciation_amount %></td>

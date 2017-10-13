@@ -25,10 +25,29 @@ class WkassetdepreciationController < ApplicationController
 			# @total_gross = @payroll_entries.sum { |p| p.basic + p.allowance }
 		end
 	end
+	
+	def new
+	end
 
 	def edit
 		depreciationId = params[:depreciation_id]
-		@depreciation = WkAssetDepreciation.find(depreciationId)
+		unless depreciationId.blank?
+			@depreciation = WkAssetDepreciation.find(depreciationId) 
+			@asset = @depreciation.inventory_item
+		end
+		if to_boolean(params[:new_depreciation])
+			startDate = params[:from].to_date
+			endDate = params[:to].to_date
+			assetId = params[:inventory_item_id].to_i
+			depreciationArr = previewOrSaveDepreciation(startDate, startDate, assetId, true)
+			unless depreciationArr[0].class == String
+				@depreciation = depreciationArr[0]
+				@asset = WkInventoryItem.find(assetId)
+			else
+				redirect_to :controller => controller_name,:action => 'new' , :tab => controller_name
+				flash[:error] = depreciationArr[0]
+			end
+		end
 		render :action => 'edit'
 	end
 	
@@ -39,9 +58,13 @@ class WkassetdepreciationController < ApplicationController
 		  depreciation = WkAssetDepreciation.find(params[:depreciation_id])
 		end
 		depreciation.depreciation_date = params[:depreciation_date]
+		depreciation.currency = params[:currency]
+		depreciation.inventory_item_id = params[:inventory_item_id]
 		depreciation.actual_amount = params[:actual_amount]
 		depreciation.depreciation_amount = params[:depreciation_amount]
 		if depreciation.save()
+			assetLedgerId = depreciation.inventory_item.product_item.product.ledger_id
+			postDepreciationToAccouning(depreciation, assetLedgerId)
 		    redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
 		    flash[:notice] = l(:notice_successful_update)
 		else
@@ -67,8 +90,6 @@ class WkassetdepreciationController < ApplicationController
 		elsif params[:searchlist] =='wkassetdepreciation'
 			session[:wkassetdepreciation][:period_type] = params[:period_type]
 			session[:wkassetdepreciation][:period] = params[:period]
-			#session[:wkassetdepreciation][:group_id] = params[:group_id]
-			#session[:wkassetdepreciation][:user_id] = params[:user_id]
 			session[:wkassetdepreciation][:from] = params[:from]
 			session[:wkassetdepreciation][:to] = params[:to]
 		end
@@ -128,8 +149,21 @@ class WkassetdepreciationController < ApplicationController
 	end
 	
 	def applyDepreciation(startDate, endDate, assetId)
+		depreciationArr = previewOrSaveDepreciation(startDate, endDate, assetId, false)
+		errorMsg = depreciationArr[0]
+		if errorMsg.blank?	
+			redirect_to :controller => 'wkassetdepreciation', :action => 'index' , :tab => 'wkassetdepreciation'
+			flash[:notice] = l(:notice_successful_update)
+		else
+			redirect_to :controller => 'wkassetdepreciation', :action => 'index', :tab => 'wkassetdepreciation'
+		    flash[:error] = errorMsg
+		end	
+	end
+	
+	def previewOrSaveDepreciation(startDate, endDate, assetId, isPreview)
 		depreciationFreq = 'a' # This value should be get from settings
 		depFreqValue = getFrequencyMonth(depreciationFreq)
+		depreciationArr = Array.new 
 		finacialPeriodArr = getFinancialPeriodArray(startDate, endDate, depreciationFreq)
 		unless assetId.blank?
 			assetEntries = WkInventoryItem.where(:id => assetId)
@@ -138,7 +172,7 @@ class WkassetdepreciationController < ApplicationController
 		end
 		errorMsg = ""
 		localCurrency = Setting.plugin_redmine_wktime['wktime_currency']
-		depLedgerId = 28 # This value should be get from settings
+		# depLedgerId = 28 # This value should be get from settings
 		assetEntries.each do |entry|
 			assetProduct = entry.product_item.product
 			depreciationRate = assetProduct.depreciation_rate
@@ -154,18 +188,23 @@ class WkassetdepreciationController < ApplicationController
 					depreciation.actual_amount = currentAssetVal
 					depreciation.depreciation_amount = depreciationAmt
 					depreciation.currency = localCurrency
-					if depreciation.save
-						if true #autoPostGL('depreciation')
-							transAmountArr = [{assetLedgerId => depreciationAmt}, {depLedgerId => depreciationAmt}]
-							transId = depreciation.gl_transaction.blank? ? nil : depreciation.gl_transaction.id
-							glTransaction = postToGlTransaction('depreciation', transId, depreciation.depreciation_date, transAmountArr, depreciation.currency, nil, nil)
-							unless glTransaction.blank?
-								depreciation.gl_transaction_id = glTransaction.id
-								depreciation.save
-							end		
+					unless isPreview
+						if depreciation.save
+							postDepreciationToAccouning(depreciation, assetLedgerId)
+							# if true #autoPostGL('depreciation') Should get from settings
+								# transAmountArr = [{assetLedgerId => depreciationAmt}, {depLedgerId => depreciationAmt}]
+								# transId = depreciation.gl_transaction.blank? ? nil : depreciation.gl_transaction.id
+								# glTransaction = postToGlTransaction('depreciation', transId, depreciation.depreciation_date, transAmountArr, depreciation.currency, nil, nil)
+								# unless glTransaction.blank?
+									# depreciation.gl_transaction_id = glTransaction.id
+									# depreciation.save
+								# end		
+							# end
+						else
+							errorMsg = depreciation.errors.full_messages.join('\n')		
 						end
 					else
-						errorMsg = depreciation.errors.full_messages.join('\n')		
+						depreciationArr << depreciation
 					end
 				end
 			end
@@ -173,13 +212,31 @@ class WkassetdepreciationController < ApplicationController
 		if assetEntries[0].blank?
 			errorMsg = l(:error_wktime_save_nothing)
 		end
-		if errorMsg.blank?	
-			redirect_to :controller => 'wkassetdepreciation', :action => 'index' , :tab => 'wkassetdepreciation'
-			flash[:notice] = l(:notice_successful_update)
-		else
-			redirect_to :controller => 'wkassetdepreciation', :action => 'index', :tab => 'wkassetdepreciation'
-		    flash[:error] = errorMsg
-		end	
+		depreciationArr << errorMsg unless errorMsg.blank? || depreciationArr[0].blank?
+		depreciationArr
+	end
+	
+	def getInventoryAssetItems(productId, productType, needBlank)
+		#inventoryArr = Array.new
+		# if productId.blank?
+			# assetItems = WkInventoryItem.where(:product_type => productType).pluck()
+		# else
+		assetItems = WkInventoryItem.joins(:product_item, :asset_property).where("product_type = ? AND wk_product_items.product_id = ?", productType, productId).pluck("wk_asset_properties.name, wk_inventory_items.id")
+		# end
+		assetItems
+	end
+	
+	def postDepreciationToAccouning(depreciation, assetLedgerId)
+		if true #autoPostGL('depreciation') Should get from settings
+			depLedgerId = 28 # This value should be get from settings
+			transAmountArr = [{assetLedgerId => depreciation.depreciation_amount}, {depLedgerId => depreciation.depreciation_amount}]
+			transId = depreciation.gl_transaction.blank? ? nil : depreciation.gl_transaction.id
+			glTransaction = postToGlTransaction('depreciation', transId, depreciation.depreciation_date, transAmountArr, depreciation.currency, nil, nil)
+			unless glTransaction.blank?
+				depreciation.gl_transaction_id = glTransaction.id
+				depreciation.save
+			end		
+		end
 	end
 
 end

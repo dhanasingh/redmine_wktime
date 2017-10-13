@@ -658,3 +658,15 @@ function depreciatonFormSubmission()
 		document.getElementById("query_form").submit();
 	} 
 }
+
+function validateAsset()
+{
+	var valid=true;
+	var assetDropdown = document.getElementById("inventory_item_id");
+	if (assetDropdown.value=="")
+	{
+		valid=false;
+		alert(no_asset);
+	}
+	return valid;
+}

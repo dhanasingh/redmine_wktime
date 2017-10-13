@@ -515,6 +515,8 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	post 'wkassetdepreciation/index', :to => 'wkassetdepreciation#index'
     
+	get 'wkassetdepreciation/new', :to => 'wkassetdepreciation#new'
+	
 	get 'wkassetdepreciation/edit', :to => 'wkassetdepreciation#edit'
 	
 	post 'wkassetdepreciation/update', :to => 'wkassetdepreciation#update'	
