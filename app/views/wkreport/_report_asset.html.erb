@@ -1,0 +1,61 @@
+<%
+	sqlStr = " select ii.id, dp.depreciation_date, ap.name as asset_name, p.name as product_name, s.shipment_date, dp.id depreciation_id, ap.id asset_id, ap.current_value, dp.actual_amount, dp.depreciation_amount, dp.depreciation_date, ii.cost_price, ii.over_head_price from wk_inventory_items ii INNER JOIN wk_product_items pt ON (pt.id = ii.product_item_id AND ii.product_type = 'A') LEFT OUTER JOIN (select max(depreciation_date) as depreciation_date, inventory_item_id from wk_asset_depreciations d group by inventory_item_id) md on (md.inventory_item_id = ii.id) LEFT OUTER JOIN wk_asset_depreciations dp on (md.inventory_item_id = dp.inventory_item_id and  md.depreciation_date = dp.depreciation_date) LEFT OUTER JOIN wk_shipments s ON (s.id = ii.shipment_id) LEFT OUTER JOIN wk_asset_properties ap ON (ap.inventory_item_id = ii.id) LEFT OUTER JOIN wk_products p ON (p.id = pt.product_id) WHERE ap.id is not null"
+	entries = WkInventoryItem.find_by_sql(sqlStr)
+%>
+<div id="attn-rpt-dlg", style="overflow-x:auto;">
+	<div style="float:left; width:90%;">
+		<p style="text-align: center;">
+			<caption style="text-align:center"><b>
+				<%= Setting.plugin_redmine_wktime['wktime_company_name'] %></br><%= l(:report_asset) %></b></br>
+			</caption>
+		</p>
+	</div>
+	<div style="float:right">
+		<table>
+			<tr>
+				<td>
+					<% logo = Setting.plugin_redmine_wktime['wktime_header_logo'] %>					
+					<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>						
+						<%= image_tag("#{logo}", :plugin => "redmine_wktime") %>
+					<% end %>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div style="clear:both;"></div>
+	<div id="attn-rpt-dlg", style="overflow-x:auto;">
+		<table style="width:100%; border-collapse: collapse;">
+			
+			<thead bgcolor="#e6e6e6">
+				<tr>
+					<th class="lbl-txt-align"><%= l(:label_asset) %></th>
+					<th class="lbl-txt-align"><%= l(:label_product) %></th>
+					<th align="lbl-txt-align"><%= l(:label_purchase_date) %></th>
+					<th class="lbl-txt-align"><%= l(:label_purchase_value) %></th>
+					<th class="lbl-txt-align"><%= l(:label_depreciation) %></th>
+					<th class="lbl-txt-align"><%= l(:label_current_value) %></th>
+					<th class="lbl-txt-align"><%= l(:label_last_depreciation_on) %></th>
+				</tr>
+			</thead>
+			<tbody>
+				<% entries.each do |entry| %>
+						<% 
+							purchaseCost = (entry.over_head_price.to_f + entry.cost_price.to_f).round(2)
+							initialValue = entry.current_value.blank? ? purchaseCost : entry.current_value.to_f
+							depreciatedValue = entry.actual_amount.to_f - entry.depreciation_amount.to_f
+							currentValue = (entry.depreciation_id.blank? ? initialValue : depreciatedValue).round(2)
+						%>
+						<tr class="<%= cycle("odd", "even") %>">
+								<td align='left'><%= entry.asset_name %></td>
+								<td align='left'><%= entry.product_name %></td>
+								<td align='center'><%= entry.shipment_date %></td>
+								<td align='right'><%= purchaseCost %></td>
+								<td align='right'><%= (purchaseCost - currentValue).round(2)  %></td>
+								<td align='right'><%= currentValue %></td>
+								<td align='center'><%= entry.depreciation_date %></td>
+						</tr>
+				<% end %>
+			</tbody>
+		</table>
+	</div>
+</div>

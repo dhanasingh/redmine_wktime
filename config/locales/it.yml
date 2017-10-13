@@ -741,3 +741,5 @@ it:
   label_per_annum: Per Annum
   label_no_asset_current_product: No Asset in selected Product
   label_new_depreciation: New Depreciation
+  report_asset: Asset Report
+  label_last_depreciation_on: Last Depreciation on
