@@ -31,5 +31,31 @@ class WkgrouppermissionController < ApplicationController
 			@offset = @entry_pages.offset
 		end	
 	end
+	
+	def edit
+		@groupPermission = nil
+		@permission = WkPermission.order(:name)
+		@group = Group.find(params[:group_id].to_i)
+		@groupPermission = WkGroupPermission.where(:group_id => params[:group_id].to_i) unless params[:group_id].blank?
+	end
+	
+	def update
+		arrId = WkGroupPermission.where(:group_id => params[:group_id].to_i).pluck(:id)
+		for i in 1..params[:count].to_i
+			if !params["is_permission#{i}"].blank? && params["is_permission#{i}"].to_i == 1
+				grpPermObj = WkGroupPermission.where(:group_id => params[:group_id].to_i, :permission_id => params["permission_id#{i}"].to_i).first_or_initialize(:group_id => params[:group_id].to_i, :permission_id => params["permission_id#{i}"].to_i)				
+				if grpPermObj.save
+					arrId.delete(grpPermObj.id)
+				end
+			end			
+		end
+		
+		unless arrId.blank?
+			WkGroupPermission.where(:id => arrId).delete_all()
+		end
+		
+		redirect_to :controller => 'wkgrouppermission',:action => 'index' , :tab => 'wkgrouppermission'			
+		flash[:notice] = l(:notice_successful_update)
+	end
 
 end

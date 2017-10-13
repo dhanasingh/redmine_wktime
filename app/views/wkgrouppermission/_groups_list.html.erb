@@ -8,7 +8,7 @@
 		<tbody>
 			<% @groups.each do |group| %>
 			  <tr id="group-<%= group.id %>" class="<%= "builtin" if group.builtin? %>">
-				<td class="name"><%= link_to group, edit_group_path(group) %></td>				
+				<td class="name"><%= link_to group, url_for(:controller => controller_name, :action => 'edit', :group_id => group.id) %></td>				
 			  </tr>
 			<% end %>
 		</tbody>

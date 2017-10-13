@@ -522,3 +522,7 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	delete 'wkassetdepreciation/destroy', :to => 'wkassetdepreciation#destroy'
 	
 	get 'wkgrouppermission/index', :to => 'wkgrouppermission#index'
+	
+	get 'wkgrouppermission/edit', :to => 'wkgrouppermission#edit'
+	
+	post 'wkgrouppermission/update', :to => 'wkgrouppermission#update'
