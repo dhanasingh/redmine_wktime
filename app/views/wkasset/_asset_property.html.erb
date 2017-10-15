@@ -24,13 +24,15 @@
 			<tr>
 				<th align="left"><%= l(:label_current_asset_value) %></th>
 				<td align="left" style="padding-left:40px;"><label align='left'><b><%= assetProperty.blank? ? Setting.plugin_redmine_wktime['wktime_currency'] : assetProperty.currency %></b></label><%= text_field_tag "current_value",  assetProperty.blank? ? '' : assetProperty.current_value, :disabled => false %></td>
-			</tr>
+			</tr> 
 			<tr>
 				<th align="left"><%= l(:label_asset_type) %></th>
-				<td align="left" style="padding-left:40px;">
-					<%=h select_tag("asset_type", options_for_select(getAssetTypeHash(true).invert, :selected => assetProperty.blank? ? getAssetTypeHash(true).invert : assetProperty.asset_type )) %>
-				</td>
-			</tr> 
+				<td align="left" style="padding-left:40px;"><%=h select_tag("asset_type", options_for_select(getAssetTypeHash(true).invert, :selected => assetProperty.blank? ? getAssetTypeHash(true).invert : assetProperty.asset_type )) %></td>
+			</tr>
+			<tr>
+				<th align="left"><%= l(:label_loggable_asset) %></th>
+				<td align="left" style="padding-left:40px;"><%= check_box_tag('is_loggable', 1, (invntItem.blank? ? false : invntItem.is_loggable)) %></td>
+			</tr>
 		</table>
 	</fieldset>
 </div>

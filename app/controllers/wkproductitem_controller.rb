@@ -77,6 +77,7 @@ class WkproductitemController < WkinventoryController
 			elsif !params[:inventory_item_id].blank?
 				inventoryItem = WkInventoryItem.find(params[:inventory_item_id].to_i)
 				inventoryItem.selling_price = params[:selling_price]
+				inventoryItem.is_loggable = params[:is_loggable]
 				inventoryItem.save
 			end
 			assetProperty = updateAssetProperty(inventoryItem) if !inventoryItem.blank? && inventoryItem.product_type == 'A'
@@ -129,6 +130,7 @@ class WkproductitemController < WkinventoryController
 			inventoryItem.currency = sysCurrency
 			inventoryItem.cost_price = getExchangedAmount(params[:currency], params[:cost_price]) 
 			inventoryItem.over_head_price = getExchangedAmount(params[:currency], params[:over_head_price]) 
+			inventoryItem.is_loggable = params[:is_loggable]
 		end
 		inventoryItem.notes = params[:notes]
 		inventoryItem.selling_price = getExchangedAmount(params[:currency], params[:selling_price])
