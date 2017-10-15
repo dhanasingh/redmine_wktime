@@ -11,21 +11,39 @@ class WkassetdepreciationController < ApplicationController
         @depreciation_entries = nil
         set_filter_session
         retrieve_date_range
+		productId = session[:wkassetdepreciation][:product_id]
+		assetId = session[:wkassetdepreciation][:inventory_item_id]
 		unless params[:generate].blank? || !to_boolean(params[:generate])
-			applyDepreciation(@from, @to, nil)
+			applyDepreciation(@from, @to, productId, assetId)
 		else
-			@depreciation_entries = WkAssetDepreciation.all
+			sqlwhere = ""
+			sqlStr = getDepreciationSql
+			if !productId.blank? && assetId.blank?
+				sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+				sqlwhere = sqlwhere + " pit.product_id = '#{productId}' "
+			else
+				unless assetId.blank?
+					sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+					sqlwhere = sqlwhere + " dep.inventory_item_id = '#{assetId}'  "
+				end
+			end
 			
-			# if !@from.blank? && !@to.blank?
-				# sqlQuery = sqlQuery + " and vw.salary_date between '#{@from}' and '#{@to}'"
-			# end
+			if !@from.blank? && !@to.blank?			
+				sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+				sqlwhere = sqlwhere + " dep.depreciation_date between '#{@from}' and '#{@to}'  "
+			end
 			
-			# sqlQuery = sqlQuery + " order by u.firstname,vw.salary_date desc"
-			# findBySql(sqlQuery)	
-			# @total_gross = @payroll_entries.sum { |p| p.basic + p.allowance }
+			unless sqlwhere.blank?
+				sqlStr = sqlStr + " WHERE " + sqlwhere
+			end
+			findBySql(sqlStr, WkAssetDepreciation)
 		end
 	end
 	
+	def getDepreciationSql
+		sqlStr = "select dep.id, dep.depreciation_date, dep.actual_amount, dep.depreciation_amount, dep.currency, ap.name as asset_name, p.name as product_name, s.shipment_date as purchase_date, iit.cost_price from wk_asset_depreciations dep LEFT OUTER JOIN wk_inventory_items iit ON iit.id = dep.inventory_item_id LEFT OUTER JOIN wk_shipments s ON s.id = iit.shipment_id LEFT OUTER JOIN wk_asset_properties ap ON ap.inventory_item_id = iit.id LEFT OUTER JOIN wk_product_items pit ON pit.id = iit.product_item_id LEFT OUTER JOIN wk_products p ON p.id = pit.product_id"
+		sqlStr
+	end
 	def new
 	end
 
@@ -85,9 +103,11 @@ class WkassetdepreciationController < ApplicationController
 
 	def set_filter_session
         if params[:searchlist].blank? && session[:wkassetdepreciation].nil?
-			session[:wkassetdepreciation] = {:period_type => params[:period_type],:period => params[:period], 
+			session[:wkassetdepreciation] = {:product_id => params[:product_id], :inventory_item_id => params[:inventory_item_id],:period => params[:period], 
 								   :from => @from, :to => @to}
 		elsif params[:searchlist] =='wkassetdepreciation'
+			session[:wkassetdepreciation][:product_id] = params[:product_id]
+			session[:wkassetdepreciation][:inventory_item_id] = params[:inventory_item_id]
 			session[:wkassetdepreciation][:period_type] = params[:period_type]
 			session[:wkassetdepreciation][:period] = params[:period]
 			session[:wkassetdepreciation][:from] = params[:from]
@@ -148,8 +168,14 @@ class WkassetdepreciationController < ApplicationController
 
 	end
 	
-	def applyDepreciation(startDate, endDate, assetId)
-		depreciationArr = previewOrSaveDepreciation(startDate, endDate, assetId, false)
+	def applyDepreciation(startDate, endDate, productId, assetId)
+		assetIdArr = nil
+		if assetId.blank? && !productId.blank?
+			assetIdArr = WkInventoryItem.joins(:product_item, :asset_property).where("product_type = ? AND wk_product_items.product_id = ?", 'A', productId).pluck(:id)
+		else
+			assetIdArr = assetId.to_i unless assetId.blank?
+		end
+		depreciationArr = previewOrSaveDepreciation(startDate, endDate, assetIdArr, false)
 		errorMsg = depreciationArr[0]
 		if errorMsg.blank?	
 			redirect_to :controller => 'wkassetdepreciation', :action => 'index' , :tab => 'wkassetdepreciation'
@@ -221,8 +247,13 @@ class WkassetdepreciationController < ApplicationController
 		# if productId.blank?
 			# assetItems = WkInventoryItem.where(:product_type => productType).pluck()
 		# else
-		assetItems = WkInventoryItem.joins(:product_item, :asset_property).where("product_type = ? AND wk_product_items.product_id = ?", productType, productId).pluck("wk_asset_properties.name, wk_inventory_items.id")
+		unless productId.blank?
+			assetItems = WkInventoryItem.joins(:product_item, :asset_property).where("product_type = ? AND wk_product_items.product_id = ?", productType, productId).pluck("wk_asset_properties.name, wk_inventory_items.id")
+		else
+			assetItems = WkInventoryItem.joins(:product_item, :asset_property).where("product_type = ?", productType).pluck("wk_asset_properties.name, wk_inventory_items.id")
+		end
 		# end
+		assetItems.unshift(["",""]) if needBlank
 		assetItems
 	end
 	
@@ -237,6 +268,40 @@ class WkassetdepreciationController < ApplicationController
 				depreciation.save
 			end		
 		end
+	end
+
+	def setLimitAndOffset		
+		if api_request?
+			@offset, @limit = api_offset_and_limit
+			if !params[:limit].blank?
+				@limit = params[:limit]
+			end
+			if !params[:offset].blank?
+				@offset = params[:offset]
+			end
+		else
+			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
+			@limit = @entry_pages.per_page
+			@offset = @entry_pages.offset
+		end	
+	end
+	
+	def findBySql(query, model)
+		result = model.find_by_sql("select count(*) as id from (" + query + ") as v2")
+		@entry_count = result.blank? ? 0 : result[0].id
+        setLimitAndOffset()		
+		rangeStr = formPaginationCondition()	
+		@depreciation_entries = model.find_by_sql(query + " order by dep.depreciation_date desc, p.name asc " + rangeStr )
+	end
+	
+	def formPaginationCondition
+		rangeStr = ""
+		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'				
+			rangeStr = " OFFSET " + @offset.to_s + " ROWS FETCH NEXT " + @limit.to_s + " ROWS ONLY "
+		else		
+			rangeStr = " LIMIT " + @limit.to_s +	" OFFSET " + @offset.to_s
+		end
+		rangeStr
 	end
 
 end

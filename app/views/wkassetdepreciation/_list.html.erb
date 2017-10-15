@@ -17,10 +17,10 @@
    <tbody>
    <% @depreciation_entries.each do |entry| %>
 		 <tr>
-				<td class="lbl-txt-align"><%=h entry.inventory_item.asset_property.name unless entry.inventory_item.blank? %></td>
-				<td class="lbl-txt-align"><%=h entry.inventory_item.product_item.product.name unless entry.inventory_item.blank? %></td>
-				<td class="lbl-txt-align"><%=h entry.inventory_item.shipment.shipment_date unless entry.inventory_item.blank? %></td>
-				<td class="lbl-txt-align"><%=h entry.inventory_item.cost_price unless entry.inventory_item.blank? %></td>
+				<td class="lbl-txt-align"><%=h entry.asset_name %></td>
+				<td class="lbl-txt-align"><%=h entry.product_name %></td>
+				<td class="lbl-txt-align"><%=h entry.purchase_date %></td>
+				<td class="lbl-txt-align"><%=h entry.cost_price %></td>
 				<td class="lbl-txt-align"><%=h entry.actual_amount %></td>
 				<td class="lbl-txt-align"><%=h entry.depreciation_date %></td>
 				<td class="lbl-txt-align"><%=h entry.depreciation_amount %></td>
@@ -35,5 +35,4 @@
    </tbody>
 </table>
 </div>
-
-<!-- <span class="pagination"><%#= pagination_links_full @entry_pages, @entry_count %></span> -->
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

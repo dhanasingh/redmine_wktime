@@ -11,6 +11,7 @@ class CreateWkAssetManagement < ActiveRecord::Migration
 		
 		create_table :wk_asset_properties do |t|
 			t.references :inventory_item, :class => "wk_inventory_items", :index => true
+			t.references :matterial_entry, :class => "wk_material_entries", :index => true
 			t.string :name
 			t.string :asset_type, :limit => 3
 			t.column :currency, :string, :limit => 5, :default => '$'
