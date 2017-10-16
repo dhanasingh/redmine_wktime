@@ -18,7 +18,7 @@
 	assetItemArr = controller.getInventoryAssetItems(productId, 'A', true)
 	%>
 	<table>
-		<% if wktime_helper.isAccountUser %>
+		<% if wktime_helper.isModuleAdmin('wktime_inventory_group') || wktime_helper.isModuleAdmin('wktime_inventory_admin') %>
 			<tr>
 				<th align="right" ><%= l(:label_product) %></th>
 				<td align="left">
