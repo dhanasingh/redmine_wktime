@@ -8,7 +8,7 @@
 	<%=h hidden_field_tag('currency', @depreciation.blank? ? nil : @depreciation.currency) %>
 	<table >
 		<tr>
-			<th align="left"><%= l(:label_asset) %></th>
+			<th align="left"><%= l(:label_asset) + " " + l(:field_name) %></th>
 			<td align="left" style="padding-left:50px;"><%=h @asset.asset_property.blank? ? "" : @asset.asset_property.name %> </td></tr>
 		</tr> 
 		<tr>

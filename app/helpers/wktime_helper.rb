@@ -1256,8 +1256,8 @@ end
 	end
 		
 	def showPurchase
-		(!Setting.plugin_redmine_wktime['wktime_enable_pur_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_pur_module'].to_i == 1 ) && (isModuleAdmin('wktime_pur_group') || isModuleAdmin('wktime_pur_admin') )
+		(!Setting.plugin_redmine_wktime['wktime_enable_purchase_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_purchase_module'].to_i == 1 ) && (isModuleAdmin('wktime_pur_group') || isModuleAdmin('wktime_pur_admin') )
 	end
 	
 	def showInventory

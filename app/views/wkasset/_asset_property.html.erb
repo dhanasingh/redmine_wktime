@@ -12,11 +12,15 @@
 				<td align="left" style="padding-left:40px;"><%= text_field_tag "asset_name",  assetProperty.blank? ? '' : assetProperty.name, :disabled => isDisable %></td>
 			</tr>
 			<tr>
-				<th align="left"><%= l(:label_rate) %></th>
+				<th align="left"><%= l(:label_loggable_asset) %></th>
+				<td align="left" style="padding-left:40px;"><%= check_box_tag('is_loggable', 1, (invntItem.blank? ? false : invntItem.is_loggable)) %></td>
+			</tr>
+			<tr>
+				<th align="left"><%= l(:label_log) + " " + l(:label_rate) %></th>
 				<td align="left" style="padding-left:40px;"><%= text_field_tag "rate",  assetProperty.blank? ? '' : assetProperty.rate, :disabled => isDisable %></td>
 			</tr>  
 			<tr>
-				<th align="left"><%= l(:label_rate_per) %></th>
+				<th align="left"><%= l(:label_log) + " " + l(:label_rate_per) %></th>
 				<td align="left" style="padding-left:40px;">
 					<%=h select_tag("rate_per", options_for_select(getRatePerHash(true).invert, :selected => assetProperty.blank? ? getRatePerHash(true).invert : assetProperty.rate_per )) %>
 				</td>
@@ -26,13 +30,10 @@
 				<td align="left" style="padding-left:40px;"><label align='left'><b><%= assetProperty.blank? ? Setting.plugin_redmine_wktime['wktime_currency'] : assetProperty.currency %></b></label><%= text_field_tag "current_value",  assetProperty.blank? ? '' : assetProperty.current_value, :disabled => false %></td>
 			</tr> 
 			<tr>
-				<th align="left"><%= l(:label_asset_type) %></th>
-				<td align="left" style="padding-left:40px;"><%=h select_tag("asset_type", options_for_select(getAssetTypeHash(true).invert, :selected => assetProperty.blank? ? getAssetTypeHash(true).invert : assetProperty.asset_type )) %></td>
+				<th align="left"><%= l(:label_owner) + " " + l(:label_type) %></th>
+				<td align="left" style="padding-left:40px;"><%=h select_tag("asset_type", options_for_select(getAssetTypeHash(false).invert, :selected => assetProperty.blank? ? getAssetTypeHash(false).invert : assetProperty.asset_type )) %></td>
 			</tr>
-			<tr>
-				<th align="left"><%= l(:label_loggable_asset) %></th>
-				<td align="left" style="padding-left:40px;"><%= check_box_tag('is_loggable', 1, (invntItem.blank? ? false : invntItem.is_loggable)) %></td>
-			</tr>
+			
 		</table>
 	</fieldset>
 </div>

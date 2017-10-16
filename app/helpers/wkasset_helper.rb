@@ -1,4 +1,5 @@
 module WkassetHelper
+include WktimeHelper
 
 	def getRatePerHash(needBlank)
 		ratePerHash = { 'h' => l(:label_hourly), 'd' => l(:label_daily), 'm' => l(:label_monthly), 'q' => l(:label_quarterly), 'sa' => l(:label_semi_annually), 'a' => l(:label_annually) }

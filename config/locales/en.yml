@@ -748,3 +748,6 @@ en:
   label_last_depreciation_on: Last Depreciation on
   label_loggable_asset: Loggable Asset
   label_dep_auto_apply: Auto Apply Depreciation
+  label_done: Done
+  label_log: Log
+  label_owner: Owner

@@ -277,7 +277,7 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_crm_admin' => '0',
 			 'wktime_minimum_working_days_for_accrual' => '11',
 			 'wktime_enable_crm_module' => '0',
-			 'wktime_enable_pur_module' => '0',
+			 'wktime_enable_purchase_module' => '0',
 			 'wktime_pur_group' => '0',
 			 'wktime_pur_admin' => '0',
 			 'wktime_enable_inventory_module' => '0',
