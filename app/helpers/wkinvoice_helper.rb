@@ -60,7 +60,7 @@ include WkbillingHelper
 			# moduleAmtHash key - module name , value - [crAmount, dbAmount]
 			moduleAmtHash = {'material' => [totalAmount.round - invoiceAmount.round, nil], getAutoPostModule => [invoiceAmount.round, totalAmount.round]}
 			
-			transAmountArr = getTransAmountArr(moduleAmtHash)
+			transAmountArr = getTransAmountArr(moduleAmtHash, nil)
 			if (totalAmount.round - totalAmount) != 0
 				addRoundInvItem(totalAmount)
 			end

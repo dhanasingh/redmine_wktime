@@ -220,7 +220,7 @@ include WkinventoryHelper
 			totalAmount = @shipment.inventory_items.sum('total_quantity*(cost_price+over_head_price)')
 			moduleAmtHash = {'inventory' => [totalAmount.round, totalAmount.round]}
 			
-			transAmountArr = getTransAmountArr(moduleAmtHash)
+			transAmountArr = getTransAmountArr(moduleAmtHash, nil)
 			if totalAmount > 0 && autoPostGL('inventory')
 				transId = @shipment.gl_transaction.blank? ? nil : @shipment.gl_transaction.id
 				glTransaction = postToGlTransaction('inventory', transId, @shipment.shipment_date, transAmountArr, @shipment.inventory_items[0].currency, nil, nil)
