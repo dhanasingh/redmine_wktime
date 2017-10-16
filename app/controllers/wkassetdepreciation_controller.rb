@@ -5,6 +5,7 @@ class WkassetdepreciationController < ApplicationController
   include WkpayrollHelper
   include WkassetHelper
   include WkbillingHelper
+  include WkinvoiceHelper
 
 
 	def index
@@ -187,7 +188,7 @@ class WkassetdepreciationController < ApplicationController
 	end
 	
 	def previewOrSaveDepreciation(startDate, endDate, assetId, isPreview)
-		depreciationFreq = 'a' # This value should be get from settings
+		depreciationFreq = Setting.plugin_redmine_wktime['wktime_depreciation_frequency']
 		depFreqValue = getFrequencyMonth(depreciationFreq)
 		depreciationArr = Array.new 
 		finacialPeriodArr = getFinancialPeriodArray(startDate, endDate, depreciationFreq)
@@ -258,8 +259,8 @@ class WkassetdepreciationController < ApplicationController
 	end
 	
 	def postDepreciationToAccouning(depreciation, assetLedgerId)
-		if true #autoPostGL('depreciation') Should get from settings
-			depLedgerId = 28 # This value should be get from settings
+		depLedgerId = getSettingCfId('depreciation_ledger')
+		if autoPostGL('inventory') && depLedgerId > 0
 			transAmountArr = [{assetLedgerId => depreciation.depreciation_amount}, {depLedgerId => depreciation.depreciation_amount}]
 			transId = depreciation.gl_transaction.blank? ? nil : depreciation.gl_transaction.id
 			glTransaction = postToGlTransaction('depreciation', transId, depreciation.depreciation_date, transAmountArr, depreciation.currency, nil, nil)
