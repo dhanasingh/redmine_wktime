@@ -91,14 +91,20 @@ class WkproductitemController < WkinventoryController
     
 	def updateTransfer
 		sourceItem = WkInventoryItem.find(params[:transfer_item_id].to_i)
-		sourceItem.available_quantity = sourceItem.available_quantity - (params[:total_quantity].blank? ? params[:available_quantity].to_i : params[:total_quantity].to_i)
-		if sourceItem.save()
-			targetItem = updateInventoryItem(params[:product_item_id].to_i)
-		    redirect_to :controller => controller_name,:action => 'index', :tab => controller_name
-		    flash[:notice] = l(:notice_successful_update)
+		availQuantity = sourceItem.available_quantity - (params[:total_quantity].blank? ? params[:available_quantity].to_i : params[:total_quantity].to_i)
+		unless availQuantity < 0 
+			sourceItem.available_quantity = availQuantity
+			if sourceItem.save()
+				targetItem = updateInventoryItem(params[:product_item_id].to_i)
+				redirect_to :controller => controller_name,:action => 'index', :tab => controller_name
+				flash[:notice] = l(:notice_successful_update)
+			else
+				redirect_to :controller => controller_name,:action => 'index', :tab => controller_name
+				flash[:error] = sourceItem.errors.full_messages.join("<br>")
+			end
 		else
-		    redirect_to :controller => controller_name,:action => 'index', :tab => controller_name
-		    flash[:error] = sourceItem.errors.full_messages.join("<br>")
+			redirect_to :controller => controller_name,:action => 'index', :tab => controller_name
+				flash[:error] = "Available Quantity should be greater than or equal to transfer quantity"
 		end
 	end
 	
