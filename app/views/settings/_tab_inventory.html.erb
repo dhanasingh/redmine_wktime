@@ -1,7 +1,8 @@
 <fieldset>
 <legend><%= l(:label_inventory) %></legend>
-	
-	
+	<% ratePerHash = {  'm' => l(:label_monthly), 'q' => l(:label_quarterly), 'sa' => l(:label_semi_annually), 'a' => l(:label_annually) } %>
+	<% wkinv_helper = Object.new.extend(WkinventoryHelper) %>
+	<% depType = wkinv_helper.getDepreciationTypeHash(false) %>
 	<%
 		@ledgers = ["", ""]
 		@ledgers << WkLedger.order(:name).pluck(:name, :id)
@@ -34,5 +35,26 @@
 	
 	<p style="margin-left: -110px;"><label><%= l(:label_debit) + " " +  l(:label_ledger)  %></label>
 	    <%= select_tag 'settings[inventory_db_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['inventory_db_ledger']) %></p>
+		
+	<p style="margin-left: -110px;">
+		<label><%= l(:label_depreciation) + " " +  l(:label_ledger)  %></label>
+	    <%= select_tag 'settings[depreciation_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['depreciation_ledger']) %>
+	</p>
+	
+	<p style="margin-left: -110px;">
+			<%= check_box_tag('settings[depreciation_auto_post_gl]', 1, @settings['depreciation_auto_post_gl'].to_i == 1) %> <label><%= l(:label_dep_auto_apply) %></label>
+	</p>
+	
+	<p style="padding-left: 190px;">
+		<label><%= l(:label_depreciation) + " " +  l(:field_type) %></label>
+		<%=  select_tag('settings[wktime_depreciation_type]',
+				options_for_select(depType.invert, :selected => @settings['wktime_depreciation_type'].blank? ? "" : @settings['wktime_depreciation_type']))%>
+	</p>
+	
+	<p style="padding-left: 190px;">
+		<label><%= l(:label_depreciation) + " " +  l(:label_frequency) %></label>
+		<%=  select_tag('settings[wktime_depreciation_frequency]',
+				options_for_select(ratePerHash.invert, :selected => @settings['wktime_depreciation_frequency'].blank? ? "" : @settings['wktime_depreciation_frequency']))%>
+	</p>
 	
 </fieldset>
