@@ -44,13 +44,13 @@
 	<p style="margin-left: -110px;">
 			<%= check_box_tag('settings[depreciation_auto_post_gl]', 1, @settings['depreciation_auto_post_gl'].to_i == 1) %> <label><%= l(:label_dep_auto_apply) %></label>
 	</p>
-	
+	<!--
 	<p style="padding-left: 190px;">
-		<label><%= l(:label_depreciation) + " " +  l(:field_type) %></label>
-		<%=  select_tag('settings[wktime_depreciation_type]',
+		<label><%#= l(:label_depreciation) + " " +  l(:field_type) %></label>
+		<%#=  select_tag('settings[wktime_depreciation_type]',
 				options_for_select(depType.invert, :selected => @settings['wktime_depreciation_type'].blank? ? "" : @settings['wktime_depreciation_type']))%>
 	</p>
-	
+	-->
 	<p style="padding-left: 190px;">
 		<label><%= l(:label_depreciation) + " " +  l(:label_frequency) %></label>
 		<%=  select_tag('settings[wktime_depreciation_frequency]',
