@@ -282,7 +282,11 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_pur_admin' => '0',
 			 'wktime_enable_inventory_module' => '0',
 			 'wktime_inventory_group' => '0',
-			 'wktime_inventory_admin' => '0'
+			 'wktime_inventory_admin' => '0',
+			 'wktime_depreciation_type' => '0',
+			 'wktime_depreciation_ledger' => '0',
+			 'depreciation_auto_post_gl' => '0',
+			 'wktime_depreciation_frequency' => '0'
   })  
 	menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_erpmine, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 
   	

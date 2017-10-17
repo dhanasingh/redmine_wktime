@@ -40,9 +40,9 @@
 			</td>
 		</tr> 
 		<tr>
-			<th align="left"style="padding-left:126px;"><label id="lbl_dep_type"><%= l(:label_depreciation_type) %></label></th>
+			<th align="left"style="padding-left:126px;"><label id="lbl_dep_type"><%#= l(:label_depreciation_type) %></label></th>
 			<td align="left" style="padding-left:40px;">
-				<%=h select_tag("depreciation_type", options_for_select(getDepreciationTypeHash(true).invert, :selected => @productEntry.blank? ? getDepreciationTypeHash(true).invert : @productEntry.depreciation_type )) %>
+				<%#=h select_tag("depreciation_type", options_for_select(getDepreciationTypeHash(true).invert, :selected => @productEntry.blank? ? getDepreciationTypeHash(true).invert : @productEntry.depreciation_type )) %>
 			</td>
 			<td></td>
 		</tr> 

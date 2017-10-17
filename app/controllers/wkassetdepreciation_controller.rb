@@ -203,7 +203,7 @@ class WkassetdepreciationController < ApplicationController
 		assetEntries.each do |entry|
 			assetProduct = entry.product_item.product
 			depreciationRate = assetProduct.depreciation_rate
-			depreciationType = assetProduct.depreciation_type
+			depreciationType = Setting.plugin_redmine_wktime['wktime_depreciation_type'] #assetProduct.depreciation_type
 			assetLedgerId = assetProduct.ledger_id
 			unless depreciationRate.blank? || depreciationType.blank?
 				finacialPeriodArr.each do|finacialPeriod|

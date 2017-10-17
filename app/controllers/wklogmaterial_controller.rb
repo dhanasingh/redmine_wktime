@@ -57,7 +57,7 @@ class WklogmaterialController < ApplicationController
 			if productType == 'A'
 				pctObj.each do | entry|
 					unitLabel = '/ '
-					unitLabel = unitLabel + (entry.rate_per == 'M' ? l(:label_monthly) : (entry.rate_per == 'W' ? 'weekly' : entry.rate_per == 'D' ? 'Day' : 'hourly'  )  )
+					unitLabel = unitLabel + (entry.rate_per == 'm' ? l(:label_monthly) : (entry.rate_per == 'w' ? 'weekly' : entry.rate_per == 'd' ? 'Day' : 'hourly'  )  )
 					pctArr << entry.inventory_item_id.to_s() + ',' + entry.inventory_item.available_quantity.to_s() + ',' + entry.inventory_item.cost_price.to_s() + ',' + entry.inventory_item.currency.to_s() + ',' + entry.rate.to_s() + ','+ unitLabel.to_s
 				end				
 			else

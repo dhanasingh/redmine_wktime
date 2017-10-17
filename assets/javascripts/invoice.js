@@ -414,21 +414,21 @@ function hideProductType()
 		{
 			document.getElementById("lbl_depreciation").style.display = 'none';
 			document.getElementById("depreciation_rate").style.display = 'none';
-			document.getElementById("per_annum").style.display = 'none';
+			document.getElementById("per_annum").style.display = 'none';/* 
 			document.getElementById("lbl_dep_type").style.display = 'none';
 			document.getElementById("depreciation_type").style.display = 'none';
 			document.getElementById("lbl_depreciation_account").style.display = 'none';
-			document.getElementById("ledger_id").style.display = 'none';
+			document.getElementById("ledger_id").style.display = 'none'; */
 		}
 		else 
 		{
 			document.getElementById("lbl_depreciation").style.display = 'block';
 			document.getElementById("depreciation_rate").style.display = 'block';
-			document.getElementById("per_annum").style.display = 'block';
+			document.getElementById("per_annum").style.display = 'block';/* 
 			document.getElementById("lbl_dep_type").style.display = 'block';
 			document.getElementById("depreciation_type").style.display = 'block';
 			document.getElementById("lbl_depreciation_account").style.display = 'block';
-			document.getElementById("ledger_id").style.display = 'block';
+			document.getElementById("ledger_id").style.display = 'block'; */
 		}
 	}
 	
