@@ -20,7 +20,8 @@ class WklogmaterialController < ApplicationController
 			pctObj = pObj.brands.order(:name)
 		elsif params[:ptype] == "product_item"
 			productType = params[:log_type]
-			pctObj = wklogmatterial_helper.mergePItemInvItemQuery(params[:id], productType)			
+			location = params[:location_id]
+			pctObj = wklogmatterial_helper.mergePItemInvItemQuery(params[:id], productType, location)			
 		elsif params[:ptype] == "product_model_id"
 			unless params[:id].blank? || params[:id].to_i < 1
 				pObj = WkBrand.find(params[:id].to_i)

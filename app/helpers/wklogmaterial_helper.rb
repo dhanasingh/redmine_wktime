@@ -48,18 +48,18 @@ include WktimeHelper
 		pctItemArr
 	end
 	
-	def mergePItemInvItemQuery(productId, logType)
+	def mergePItemInvItemQuery(productId, logType, locationId)
 		sqlQuery = "select it.id, pi.product_id, pi.brand_id, wap.name as asset_name, wap.rate, wap.rate_per, wb.name as brand_name, it.product_attribute_id, pi.product_model_id, wpm.name as product_model_name, pi.part_number, it.cost_price, it.selling_price, it.currency, it.available_quantity, it.uom_id from wk_inventory_items it left outer join wk_product_items pi on pi.id = it.product_item_id left outer join wk_brands wb on wb.id = pi.brand_id left outer join wk_product_models wpm on wpm.id = pi.product_model_id left outer join wk_asset_properties wap on wap.inventory_item_id = it.id left outer join wk_material_entries wme on wme.id = wap.matterial_entry_id where  it.available_quantity > 0 "			
 		sqlQuery = sqlQuery  + " and pi.product_id = #{productId} " unless productId.blank?
 		sqlQuery = sqlQuery  + " and it.product_type = '#{logType}' " unless logType.blank?
 		sqlQuery = sqlQuery + " and (wap.matterial_entry_id is null or wme.user_id = #{User.current.id}) "
-		
+		sqlQuery = sqlQuery + " and it.location_id = #{locationId} " unless locationId.blank?
 		pctObj = WkInventoryItem.find_by_sql(sqlQuery)
 		pctObj
 	end
 
-	def getPdtItemArr(productId, needBlank, logType)
-		pctObj = mergePItemInvItemQuery(productId, logType)
+	def getPdtItemArr(productId, needBlank, logType, locationId)
+		pctObj = mergePItemInvItemQuery(productId, logType, locationId)
 		pctArr = Array.new
 		pctObj.each do | entry|
 			attributeName = entry.product_attribute.blank? ? "" : entry.product_attribute.name

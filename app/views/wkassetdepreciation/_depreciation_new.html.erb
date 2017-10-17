@@ -15,7 +15,7 @@ assetItemArr = controller.getInventoryAssetItems(productId, 'A', false)
 	<tr>
 		<th align="right" ><%= l(:label_product) %></th>
 		<td align="left">
-			<%=h select_tag('product_id', options_for_select(productArr, :selected => (productId.blank? ? productArr : productId) ), :style => "width:155px;", :onchange => "productChanged(this.id, 'inventory_item_id', #{User.current.id}, true, false, 'log_type'); ", :required => true) %>
+			<%=h select_tag('product_id', options_for_select(productArr, :selected => (productId.blank? ? productArr : productId) ), :style => "width:155px;", :onchange => "productChanged(this.id, 'inventory_item_id', #{User.current.id}, true, false, 'log_type', null); ", :required => true) %>
 		</td>
 	<tr>
 	<tr>
