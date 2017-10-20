@@ -3,7 +3,7 @@ class CreateWkAssetManagement < ActiveRecord::Migration
 	def change
 	
 		add_column :wk_products, :depreciation_rate, :float
-		add_column :wk_products, :depreciation_type, :string, :limit => 3, :default => 'SL'
+		#add_column :wk_products, :depreciation_type, :string, :limit => 3, :default => 'SL'
 		add_reference :wk_products, :ledger, :class => "wk_ledgers", :null => true, index: true
 		
 		add_column :wk_inventory_items, :is_loggable, :boolean, :default => true
