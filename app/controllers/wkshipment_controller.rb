@@ -164,6 +164,8 @@ include WkinventoryHelper
 		savedRows = 0
 		deletedRows = 0
 		sysCurrency = Setting.plugin_redmine_wktime['wktime_currency']
+		assetAccountingHash = Hash.new
+		assetTotal = 0
 		#for i in 1..totalRow
 		while savedRows < totalRow
 			i = savedRows + deletedRows + 1
@@ -199,11 +201,20 @@ include WkinventoryHelper
 				shipmentItem.uom_id = params["uom_id#{i}"].to_i unless params["uom_id#{i}"].blank?
 				shipmentItem.location_id = params["location_id#{i}"].to_i unless params["location_id#{i}"].blank?
 				if params["product_type#{i}"] == 'A'
+					assetValue = (shipmentItem.total_quantity*(shipmentItem.cost_price+shipmentItem.over_head_price))
+					assetTotal = assetTotal + assetValue
+					accountingLedger = WkProductItem.find(shipmentItem.product_item_id).product.ledger_id
+					ledgerId = ((!accountingLedger.blank? && accountingLedger > 0) ? accountingLedger : getSettingCfId("inventory_cr_ledger"))
+					assetAccountingHash[ledgerId] = assetAccountingHash[ledgerId].blank? ? assetValue : assetAccountingHash[ledgerId] + assetValue
 					quantity = params["total_quantity#{i}"].to_i
 					shipmentItem.available_quantity = 1
 					shipmentItem.total_quantity = 1
 					for i in 1 .. quantity - 1
 						dupItem = shipmentItem.dup
+						# Below code for set parent id as shipment item id
+						# dupItem.available_quantity = 1
+						# dupItem.total_quantity = 1
+						# dupItem.parent_id = shipmentItem.id
 						dupItem.save
 					end
 				end
@@ -216,12 +227,15 @@ include WkinventoryHelper
 			WkInventoryItem.delete_all(:id => arrId)
 		end
 		
-		unless @shipment.id.blank?
-			totalAmount = @shipment.inventory_items.sum('total_quantity*(cost_price+over_head_price)')
-			moduleAmtHash = {'inventory' => [totalAmount.round, totalAmount.round]}
-			
-			transAmountArr = getTransAmountArr(moduleAmtHash, nil)
-			if totalAmount > 0 && autoPostGL('inventory')
+		if !@shipment.id.blank? && autoPostGL('inventory') && getSettingCfId("inventory_cr_ledger")>0 && getSettingCfId("inventory_db_ledger") > 0
+			totalAmount = @shipment.inventory_items.where("(product_type = 'A' and parent_id is not null) OR product_type <> 'A'").sum('total_quantity*(cost_price+over_head_price)')
+			#moduleAmtHash = {'inventory' => [totalAmount.round, totalAmount.round]}
+			#transAmountArr = getTransAmountArr(moduleAmtHash, nil)
+			dbLedgerAmtHash = {getSettingCfId("inventory_db_ledger") => totalAmount}
+			crLedgerAmtHash = {getSettingCfId("inventory_cr_ledger") => totalAmount-assetTotal}
+			crLedgerAmtHash.merge!(assetAccountingHash) { |k, o, n| o + n }
+			transAmountArr = [crLedgerAmtHash, dbLedgerAmtHash]
+			if totalAmount > 0 #&& autoPostGL('inventory')
 				transId = @shipment.gl_transaction.blank? ? nil : @shipment.gl_transaction.id
 				glTransaction = postToGlTransaction('inventory', transId, @shipment.shipment_date, transAmountArr, @shipment.inventory_items[0].currency, nil, nil)
 				unless glTransaction.blank?
