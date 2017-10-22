@@ -43,7 +43,7 @@
 	<legend><%= l(:label_asset) %></legend>
 	
 	<p style="margin-left: -110px;">
-			<%= check_box_tag('settings[depreciation_auto_post_gl]', 1, @settings['depreciation_auto_post_gl'].to_i == 1) %> <label><%= l(:label_dep_auto_apply) %></label>
+			<%= check_box_tag('settings[auto_apply_depreciation]', 1, @settings['auto_apply_depreciation'].to_i == 1) %> <label><%= l(:label_dep_auto_apply) %></label>
 	</p>
 	
 	<p style="margin-left: -110px;">

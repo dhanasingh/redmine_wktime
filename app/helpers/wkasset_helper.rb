@@ -26,17 +26,4 @@ include WktimeHelper
 		end
 		curVal
 	end
-	
-	def getDepreciationAmount(depreciationType, depreciationRate, depFreqValue, currentAssetVal, assetPrice)
-		sourceAmount = 0
-		case depreciationType
-		when 'SL'
-			sourceAmount = assetPrice
-		when 'WDV'
-			sourceAmount = currentAssetVal
-		end
-		#sourceAmount = depreciationType != 'SL' ? currentAssetVal : (entry.cost_price + entry.over_head_price)
-		depreciationAmt = (depreciationRate/12) * sourceAmount * depFreqValue
-		depreciationAmt
-	end
 end

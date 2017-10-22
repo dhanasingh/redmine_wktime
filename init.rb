@@ -285,7 +285,7 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_inventory_admin' => '0',
 			 'wktime_depreciation_type' => '0',
 			 'wktime_depreciation_ledger' => '0',
-			 'depreciation_auto_post_gl' => '0',
+			 'auto_apply_depreciation' => '0',
 			 'wktime_depreciation_frequency' => '0'
   })  
 	menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_erpmine, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 
@@ -470,6 +470,29 @@ Rails.configuration.to_prepare do
 								Rails.logger.info "===== Job failed: #{errorMsg} ====="
 							end
 						end
+					end
+				rescue Exception => e
+					Rails.logger.info "Job failed: #{e.message}"
+				end
+			end
+		end
+		
+		if (!Setting.plugin_redmine_wktime['auto_apply_depreciation'].blank? && Setting.plugin_redmine_wktime['auto_apply_depreciation'].to_i == 1)
+			require 'rufus/scheduler'
+			deprScheduler = Rufus::Scheduler.new
+			wkpayroll_helper = Object.new.extend(WkpayrollHelper)
+			wkinventory_helper = Object.new.extend(WkinventoryHelper)
+			financialStart = wkpayroll_helper.getFinancialStart.to_i
+			depreciationFreq = wkinventory_helper.getFrequencyMonth(Setting.plugin_redmine_wktime['wktime_depreciation_frequency'])
+			#Scheduler will run at 12:01 AM on 1st of every month
+			cronSt = "01 00 01 * *"
+			deprScheduler.cron cronSt do		
+				begin
+					unless ((Date.today.month - financialStart + 12)%depreciationFreq) > 0
+						Rails.logger.info "==========Depreciation job - Started=========="
+						depreciation_helper = Object.new.extend(WkassetdepreciationHelper)
+						errorMsg = depreciation_helper.previewOrSaveDepreciation(Date.today - 1, Date.today - 1, nil, false)
+						Rails.logger.info "===== Depreciation applied Successfully =====" 
 					end
 				rescue Exception => e
 					Rails.logger.info "Job failed: #{e.message}"
