@@ -20,7 +20,7 @@
 				<td class="lbl-txt-align"><%=h entry.asset_name %></td>
 				<td class="lbl-txt-align"><%=h entry.product_name %></td>
 				<td class="lbl-txt-align"><%=h entry.purchase_date %></td>
-				<td class="lbl-txt-align"><%=h entry.cost_price %></td>
+				<td class="lbl-txt-align"><%=h (entry.cost_price + entry.over_head_price).round(2) %></td>
 				<td class="lbl-txt-align"><%=h entry.actual_amount %></td>
 				<td class="lbl-txt-align"><%=h entry.depreciation_date %></td>
 				<td class="lbl-txt-align"><%=h entry.depreciation_amount %></td>

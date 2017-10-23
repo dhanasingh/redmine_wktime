@@ -43,7 +43,7 @@ class WkassetdepreciationController < WkassetController
 	end
 	
 	def getDepreciationSql
-		sqlStr = "select dep.id, dep.depreciation_date, dep.actual_amount, dep.depreciation_amount, dep.currency, ap.name as asset_name, p.name as product_name, s.shipment_date as purchase_date, iit.cost_price from wk_asset_depreciations dep LEFT OUTER JOIN wk_inventory_items iit ON iit.id = dep.inventory_item_id LEFT OUTER JOIN wk_shipments s ON s.id = iit.shipment_id LEFT OUTER JOIN wk_asset_properties ap ON ap.inventory_item_id = iit.id LEFT OUTER JOIN wk_product_items pit ON pit.id = iit.product_item_id LEFT OUTER JOIN wk_products p ON p.id = pit.product_id"
+		sqlStr = "select dep.id, dep.depreciation_date, dep.actual_amount, dep.depreciation_amount, dep.currency, ap.name as asset_name, p.name as product_name, s.shipment_date as purchase_date, iit.cost_price, iit.over_head_price from wk_asset_depreciations dep LEFT OUTER JOIN wk_inventory_items iit ON iit.id = dep.inventory_item_id LEFT OUTER JOIN wk_shipments s ON s.id = iit.shipment_id LEFT OUTER JOIN wk_asset_properties ap ON ap.inventory_item_id = iit.id LEFT OUTER JOIN wk_product_items pit ON pit.id = iit.product_item_id LEFT OUTER JOIN wk_products p ON p.id = pit.product_id"
 		sqlStr
 	end
 	def new

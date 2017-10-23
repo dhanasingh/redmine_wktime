@@ -216,9 +216,11 @@ include WkinventoryHelper
 						# dupItem.total_quantity = 1
 						# dupItem.parent_id = shipmentItem.id
 						dupItem.save
+						postAssetProperties(dupItem)
 					end
 				end
 				shipmentItem.save()
+				postAssetProperties(shipmentItem)
 			end
 			savedRows = savedRows + 1
 		end
@@ -373,4 +375,10 @@ include WkinventoryHelper
 			format.text  { render :text => siArr }
 		end
 	end
+	
+	def postAssetProperties(inventoryItem)
+		assetObj = WkAssetProperty.where(:inventory_item_id => inventoryItem.id).first_or_initialize(:inventory_item_id => inventoryItem.id, :name => (inventoryItem.product_item.product.name.to_s + inventoryItem.id.to_s), :current_value => (inventoryItem.cost_price + inventoryItem.over_head_price).round(2)) 
+		assetObj.save
+	end
+	
 end
