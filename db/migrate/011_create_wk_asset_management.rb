@@ -36,6 +36,7 @@ class CreateWkAssetManagement < ActiveRecord::Migration
 		
 		create_table :wk_permissions do |t|
 			t.string :name
+			t.string :short_name
 			t.timestamps null: false
 		end
 		

@@ -1,4 +1,4 @@
-class WkassetdepreciationController < ApplicationController
+class WkassetdepreciationController < WkassetController
   unloadable
   include WktimeHelper
   include WkinventoryHelper

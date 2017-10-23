@@ -1262,7 +1262,7 @@ end
 	
 	def showInventory
 		(!Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].to_i == 1 ) && (isModuleAdmin('wktime_inventory_group') || isModuleAdmin('wktime_inventory_admin') )
+			Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].to_i == 1 ) && validateERPPermission("V_INV") 
 	end
 	
 	def generic_options_for_select(model, sqlCond, orderBySql, displayCol, valueCol, selectedVal, needBlank)
@@ -1306,6 +1306,19 @@ end
 						  l(:label_report)
 					 ]
 		erpmineModules
+	end
+	
+	def validateERPPermission(permission)
+		permissionArr = Array.new
+		user = User.current
+		user.groups.each do |group|
+		  groupPermission = WkGroupPermission.where(:group_id => group.id)
+		  groupPermission.each do |grp|				
+				shortname = grp.permission.short_name
+				permissionArr << shortname
+		  end
+		end		
+		return permissionArr.include? permission
 	end
 	
 end
