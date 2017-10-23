@@ -29,6 +29,9 @@ module WkassetdepreciationHelper
 			#depreciationRate = nil
 			totalDepAmt = 0
 			assetEntries.each do |entry|
+				if entry.shipment.shipment_date > finacialPeriod[1]
+					next
+				end
 				assetProduct = entry.product_item.product
 				#if lastProductId != assetProduct.id
 				depreciationRate = assetProduct.depreciation_rate

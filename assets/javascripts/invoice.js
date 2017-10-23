@@ -410,7 +410,7 @@ function hideProductType()
 	if(productTypeDD != null)
 	{
 		productType = productTypeDD.value;
-		if(productType == 'I' || productType == "")
+		if(productType == 'I' ) //|| productType == ""
 		{
 			document.getElementById("lbl_depreciation").style.display = 'none';
 			document.getElementById("depreciation_rate").style.display = 'none';
