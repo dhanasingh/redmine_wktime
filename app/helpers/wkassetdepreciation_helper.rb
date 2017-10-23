@@ -14,7 +14,7 @@ module WkassetdepreciationHelper
 		unless assetId.blank?
 			assetEntries = WkInventoryItem.where(:id => assetId)
 		else
-			assetEntries = WkInventoryItem.asset.joins(:asset_property).where("wk_asset_properties.asset_type = ?", 'O')
+			assetEntries = WkInventoryItem.asset.joins(:asset_property).where("wk_asset_properties.owner_type = ?", 'O')
 		end
 		errorMsg = ""
 		localCurrency = Setting.plugin_redmine_wktime['wktime_currency']

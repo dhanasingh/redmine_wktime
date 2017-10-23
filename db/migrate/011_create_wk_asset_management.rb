@@ -13,7 +13,7 @@ class CreateWkAssetManagement < ActiveRecord::Migration
 			t.references :inventory_item, :class => "wk_inventory_items", :index => true
 			t.references :matterial_entry, :class => "wk_material_entries", :index => true
 			t.string :name
-			t.string :asset_type, :limit => 3
+			t.string :owner_type, :limit => 3
 			t.column :currency, :string, :limit => 5, :default => '$'
 			t.float :rate
 			t.string :rate_per, :limit => 3

@@ -162,7 +162,7 @@ class WkproductitemController < WkinventoryController
 		assetProperty.rate = params[:rate]
 		assetProperty.rate_per = params[:rate_per]
 		assetProperty.current_value = params[:current_value]
-		assetProperty.asset_type = params[:asset_type]
+		assetProperty.owner_type = params[:owner_type]
 		assetProperty.save()
 		assetProperty
 	end

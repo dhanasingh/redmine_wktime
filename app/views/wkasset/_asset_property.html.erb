@@ -31,7 +31,7 @@
 			</tr> 
 			<tr>
 				<th align="left"><%= l(:label_owner) + " " + l(:label_type) %></th>
-				<td align="left" style="padding-left:40px;"><%=h select_tag("asset_type", options_for_select(getAssetTypeHash(false).invert, :selected => assetProperty.blank? ? getAssetTypeHash(false).invert : assetProperty.asset_type )) %></td>
+				<td align="left" style="padding-left:40px;"><%=h select_tag("owner_type", options_for_select(getAssetTypeHash(false).invert, :selected => assetProperty.blank? ? getAssetTypeHash(false).invert : assetProperty.owner_type )) %></td>
 			</tr>
 			
 		</table>
