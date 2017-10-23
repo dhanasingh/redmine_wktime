@@ -5,6 +5,8 @@
 <% catagoriesList = { 's'  => l(:label_salaried), 'h' =>  l(:label_hourly) }  %>
 <% logmaterial_helper = Object.new.extend(WklogmaterialHelper)	%>
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
+<% wkasset_helper = Object.new.extend(WkassetHelper) %>
+<% rateperHash = wkasset_helper.getRatePerHash(false) %>
 <% logtype = logmaterial_helper.getLogHash %>
 
 <% 	productArr = ""
@@ -19,7 +21,8 @@
 <% productId = @materialEntry.blank? ? ( productArr.blank? ? 0 : productArr[0][1]) : @materialEntry.inventory_item.product_item.product.id    %>
 <!-- Below Array contains the inventory item id and combination of brand, model, partnumber, attribute, selling price as display field  -->
 <% ltype = @spentType == 'M' ? 'I' : 'A'  %>
-<% itemArr = logmaterial_helper.getPdtItemArr(productId, false, ltype, locationArr[0][1])  %>
+<% locationId = @materialEntry.blank? ? locationArr[0][1] : @materialEntry.inventory_item.location_id %>
+<% itemArr = logmaterial_helper.getPdtItemArr(productId, false, ltype, locationId)  %>
 <% itemId = @materialEntry.blank? ? '' : @materialEntry.inventory_item_id  %>
 <% uomId = @materialEntry.blank? ? '' : @materialEntry.uom_id  %>
 <% inventoryItemId = @materialEntry.blank? ? (itemArr.blank? ? '' : itemArr[0][1]) : @materialEntry.inventory_item.id %>
@@ -30,7 +33,7 @@
 <%= hidden_field_tag 'expense_entry_id', (@expenseEntry.blank? ? '' : @expenseEntry.id) %>
 <% expenseAmount = @expenseEntry.blank? ? "" : @expenseEntry.amount  %>
 <%  assetObj = @materialEntry.blank? ? nil : @materialEntry.inventory_item.asset_property %>
-<% locationId = @materialEntry.blank? ? nil : @materialEntry.inventory_item.location_id %>
+
 <script type="text/javascript"> 
 	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
 </script>
@@ -82,7 +85,7 @@
 			<label id="spcurrency" style="padding-left:45px;"><%=h (itemObj.blank? ? "" : itemObj.currency) %></label>
 			<% sellPrice = @materialEntry.blank? ? "" : @materialEntry.selling_price  %>
 			<%=h text_field_tag("product_sell_price", sellPrice.blank? ? "" : ("%.2f" % sellPrice),:size => 20, :style => "width:80px; text-align:right;", :onchange => "updateTotal(this.id, 'product_quantity', 'total', 'spcurrency');") %> 
-			<label id="unittext" style="float:right;padding-left: 80px; " ><%=h "" %></label>
+			<label id="unittext" style="float:right;padding-left: 120px; " ><%=h assetObj.blank? ? "" : "/ " + rateperHash[assetObj.rate_per] %></label>
 		</td>
 		
 	</tr>	

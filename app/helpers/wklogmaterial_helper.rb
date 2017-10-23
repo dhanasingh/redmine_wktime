@@ -1,6 +1,7 @@
 module WklogmaterialHelper
 include ApplicationHelper
 include WktimeHelper
+include WkassetHelper
 	def getLogHash
 		{
 			'T' => l(:label_wktime),
@@ -61,10 +62,12 @@ include WktimeHelper
 	def getPdtItemArr(productId, needBlank, logType, locationId)
 		pctObj = mergePItemInvItemQuery(productId, logType, locationId)
 		pctArr = Array.new
+		rateperhash = getRatePerHash(false)
 		pctObj.each do | entry|
 			attributeName = entry.product_attribute.blank? ? "" : entry.product_attribute.name
 			if logType == 'A'
-				pctArr << [(entry.asset_name.to_s() + ' - ' + entry.rate.to_s() + ' - ' + entry.rate_per.to_s()), entry.id.to_s() ]  
+			
+				pctArr << [(entry.asset_name.to_s() + ' - ' + entry.rate.to_s() + ' - ' + rateperhash[entry.rate_per]), entry.id.to_s() ]  
 			else
 				pctArr <<  [(entry.brand_name.to_s() +' - '+ entry.product_model_name.to_s() +' - '+ attributeName + ' - '+ entry.part_number.to_s() +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s()) ),  entry.id.to_s()]
 			end

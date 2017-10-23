@@ -12,6 +12,8 @@ class WklogmaterialController < ApplicationController
 		pctArr = ""	
 		productType = 'I'
 		wklogmatterial_helper = Object.new.extend(WklogmaterialHelper)
+		wkasset_helper = Object.new.extend(WkassetHelper)
+		rateper = wkasset_helper.getRatePerHash(false)
 		if params[:ptype] == "product"
 			logType =  params[:log_type] == 'M' ? 'I' : params[:log_type]
 			pctObj = WkProduct.where(:product_type => logType).order(:name)
@@ -37,7 +39,7 @@ class WklogmaterialController < ApplicationController
 		else
 			#pctObj = WkProductItem.find(params[:id].to_i) unless params[:id].blank?
 			productType = params[:log_type]
-			if productType == 'A'
+			if productType == 'A'				
 				pctObj = WkAssetProperty.where(:inventory_item_id => params[:id].to_i) unless params[:id].blank?
 			else
 				pctObj = WkInventoryItem.find(params[:id].to_i) unless params[:id].blank?
@@ -48,7 +50,7 @@ class WklogmaterialController < ApplicationController
 			pctObj.each do | entry|
 				attributeName = entry.product_attribute.blank? ? "" : entry.product_attribute.name
 				if productType == 'A'
-					pctArr << entry.id.to_s() + ',' + (entry.asset_name.to_s() + ' - ' + entry.rate.to_s() + ' - ' + entry.rate_per.to_s()) + "\n"
+					pctArr << entry.id.to_s() + ',' + (entry.asset_name.to_s() + ' - ' + entry.rate.to_s() + ' - ' + rateper[entry.rate_per]) + "\n"
 				else
 					pctArr << entry.id.to_s() + ',' +  (entry.brand_name.to_s() +' - '+ entry.product_model_name.to_s() +' - '+ entry.part_number.to_s() +' - '+ attributeName  +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s()) ) + "\n"  
 				end
@@ -57,8 +59,8 @@ class WklogmaterialController < ApplicationController
 		elsif params[:ptype] == "inventory_item"
 			if productType == 'A'
 				pctObj.each do | entry|
-					unitLabel = '/ '
-					unitLabel = unitLabel + (entry.rate_per == 'm' ? l(:label_monthly) : (entry.rate_per == 'w' ? 'weekly' : entry.rate_per == 'd' ? 'Day' : 'hourly'  )  )
+					unitLabel = '/ '					
+					unitLabel = unitLabel + rateper[entry.rate_per]
 					pctArr << entry.inventory_item_id.to_s() + ',' + entry.inventory_item.available_quantity.to_s() + ',' + entry.inventory_item.cost_price.to_s() + ',' + entry.inventory_item.currency.to_s() + ',' + entry.rate.to_s() + ','+ unitLabel.to_s
 				end				
 			else
