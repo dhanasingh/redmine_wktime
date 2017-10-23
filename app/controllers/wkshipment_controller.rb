@@ -230,7 +230,9 @@ include WkinventoryHelper
 		end
 		
 		if !@shipment.id.blank? && autoPostGL('inventory') && getSettingCfId("inventory_cr_ledger")>0 && getSettingCfId("inventory_db_ledger") > 0
-			totalAmount = @shipment.inventory_items.where("(product_type = 'A' and parent_id is not null) OR product_type <> 'A'").sum('total_quantity*(cost_price+over_head_price)')
+			totalAmount = @shipment.inventory_items.sum('total_quantity*(cost_price+over_head_price)')
+			# below query for Asset Parent id logic
+			# totalAmount = @shipment.inventory_items.where("(product_type = 'A' and parent_id is not null) OR product_type <> 'A'").sum('total_quantity*(cost_price+over_head_price)')
 			#moduleAmtHash = {'inventory' => [totalAmount.round, totalAmount.round]}
 			#transAmountArr = getTransAmountArr(moduleAmtHash, nil)
 			dbLedgerAmtHash = {getSettingCfId("inventory_db_ledger") => totalAmount}

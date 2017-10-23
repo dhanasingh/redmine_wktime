@@ -18,6 +18,23 @@
 class WkAssetDepreciation < ActiveRecord::Base
   unloadable
   belongs_to :inventory_item, :class_name => 'WkInventoryItem'
-  belongs_to :gl_transaction , :class_name => 'WkGlTransaction', :dependent => :destroy 
+  belongs_to :gl_transaction , :class_name => 'WkGlTransaction'
+  before_destroy :remove_entry_from_gl_transaction
+  
+  def remove_entry_from_gl_transaction
+	unless self.gl_transaction_id.blank?
+		ledgerId = self.inventory_item.product_item.product.ledger_id
+		depLedgerId = Setting.plugin_redmine_wktime['wktime_depreciation_ledger']
+		unless ledgerId.blank? || depLedgerId.blank?
+			productTransDetail = self.gl_transaction.transaction_details.where(:ledger_id => ledgerId)
+			depTransDetail = self.gl_transaction.transaction_details.where(:ledger_id => depLedgerId)
+			unless productTransDetail[0].blank? || depTransDetail[0].blank?
+				productTransDetail[0].destroy
+				depTransDetail[0].amount = depTransDetail[0].amount - self.depreciation_amount
+				depTransDetail[0].save
+			end
+		end
+	end
+  end
  
 end
