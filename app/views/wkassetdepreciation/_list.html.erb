@@ -28,7 +28,9 @@
 				<td align="center">
 					<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :depreciation_id => entry.id, :tab => controller.controller_name},
 										   :title => l(:button_edit) %>
-					<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :depreciation_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+					<% if controller.hasDeletePermission %>
+						<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :depreciation_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+					<% end %>
 				</td>
 		</tr>
 	<% end %>

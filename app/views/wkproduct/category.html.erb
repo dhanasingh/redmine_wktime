@@ -24,9 +24,11 @@
 			  </td>       
 			 
 			  <td class="buttons">
+			    <% if controller.hasDeletePermission %>
 				<%= link_to(l(:button_delete), '#',
 							:class => 'delete-commit-keywords icon-only icon-del',
 							:title => l(:button_delete)) %>
+				<% end %>
 			  </td>
 			</tr>
 		<% end %>

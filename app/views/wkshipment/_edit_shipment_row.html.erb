@@ -78,7 +78,7 @@
 	</td>				
 	<% #total = total + entry.org_cost_price unless entry.org_cost_price.blank? %>
 	<td>
-		<% unless isDisable %>
+		<% unless isDisable || !controller.hasDeletePermission %>
 			<%= link_to image_tag('delete.png'), "javascript:deleteRow('shipmentTable', 'totalrow');", :id => row_index,
 				:data => {:confirm => l(:text_are_you_sure)},
 				:title => l(:button_delete) %>

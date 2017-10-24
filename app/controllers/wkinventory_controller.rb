@@ -28,6 +28,10 @@ before_filter :check_admin_redirect, :only => [:destroy]
 			return false
 		end
 	end
+	
+	def hasDeletePermission
+		validateERPPermission("D_INV")
+	end
 
 
 end
