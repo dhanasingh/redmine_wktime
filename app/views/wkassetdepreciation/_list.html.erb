@@ -20,11 +20,11 @@
 				<td class="lbl-txt-align"><%=h entry.asset_name %></td>
 				<td class="lbl-txt-align"><%=h entry.product_name %></td>
 				<td class="lbl-txt-align"><%=h entry.purchase_date %></td>
-				<td class="lbl-txt-align"><%=h (entry.cost_price + entry.over_head_price).round(2) %></td>
+				<td class="lbl-txt-align"><%=h (entry.cost_price.to_f + entry.over_head_price.to_f).round(2) %></td>
 				<td class="lbl-txt-align"><%=h entry.actual_amount %></td>
 				<td class="lbl-txt-align"><%=h entry.depreciation_date %></td>
 				<td class="lbl-txt-align"><%=h entry.depreciation_amount %></td>
-				<td class="lbl-txt-align"><%=h entry.actual_amount - entry.depreciation_amount %></td>
+				<td class="lbl-txt-align"><%=h entry.actual_amount.to_f - entry.depreciation_amount.to_f %></td>
 				<td align="center">
 					<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :depreciation_id => entry.id, :tab => controller.controller_name},
 										   :title => l(:button_edit) %>
