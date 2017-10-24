@@ -281,7 +281,6 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_pur_group' => '0',
 			 'wktime_pur_admin' => '0',
 			 'wktime_enable_inventory_module' => '0',
-			 'wktime_inventory_group' => '0',
 			 'wktime_inventory_admin' => '0',
 			 'wktime_depreciation_type' => '0',
 			 'wktime_depreciation_ledger' => '0',

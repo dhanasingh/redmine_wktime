@@ -672,13 +672,15 @@ function hideLogDetails(uid)
 function depreciatonFormSubmission()
 { 
 	var dateval = new Date(document.getElementById("to").value);
+	var fromdateval = new Date(document.getElementById("from").value);
 	dateval.setDate(dateval.getDate() + 1);
-	var salaryDate = dateval.getFullYear() + '-' + (("0" + (dateval.getMonth() + 1)).slice(-2)) + '-' + (("0" + dateval.getDate()).slice(-2));
+	var toDateStr = dateval.getFullYear() + '-' + (("0" + (dateval.getMonth() + 1)).slice(-2)) + '-' + (("0" + dateval.getDate()).slice(-2));
+	var fromDateStr = fromdateval.getFullYear() + '-' + (("0" + (fromdateval.getMonth() + 1)).slice(-2)) + '-' + (("0" + fromdateval.getDate()).slice(-2));
 	if (isNaN(dateval.getFullYear()) || isNaN(fromdateval.getFullYear())){
 		alert("Please select valid date range");
 	}
 	else {
-		var isFormSubmission = confirm("Are you sure want to apply depreciation for " + salaryDate);
+		var isFormSubmission = confirm("Are you sure want to apply depreciation for the period " + fromDateStr + " to " + toDateStr);
 		if (isFormSubmission == true) {
 			document.getElementById("generate").value = true; 
 			document.getElementById("query_form").submit();
