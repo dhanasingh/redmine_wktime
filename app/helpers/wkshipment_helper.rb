@@ -34,6 +34,9 @@ module WkshipmentHelper
 		if invenItem.available_quantity != invenItem.total_quantity
 			ret = true
 		end
+		if invenItem.depreciations.count > 0
+			ret = true
+		end
 		ret
 	end
 end
