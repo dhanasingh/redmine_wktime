@@ -5,10 +5,15 @@
 	grpUrl="<%= "#{url_for(:controller => "wkreport", :action => 'getMembersbyGroup')}" %>";
 	//getMembersbyGroup
 </script>
-<% itemHash = { 'i' => l(:label_invoice), 'c' =>  l(:label_credit), 'm' => l(:label_material)  } %>
+<% itemHash = { 'i' => l(:label_invoice), 'c' =>  l(:label_credit)  } %>
 <% if  controller.addAdditionalTax 
-		tax_hash = {'t' => "Tax"}
+		tax_hash = {'t' => l(:label_tax)}
 		itemHash.merge!(tax_hash)
+   end 
+%>
+<% if  controller.addMaterialType 
+		material_hash = {'m' => l(:label_material)}
+		itemHash.merge!(material_hash)
    end 
 %>
 <% row_index = 1 %>

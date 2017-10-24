@@ -461,4 +461,8 @@ include WkorderentityHelper
 	def deletePermission
 		false
 	end
+	
+	def addMaterialType
+		false
+	end
 end
