@@ -528,3 +528,5 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wkgrouppermission/edit', :to => 'wkgrouppermission#edit'
 	
 	post 'wkgrouppermission/update', :to => 'wkgrouppermission#update'
+	
+	get 'wkasset/getProductAsset', :to => 'wkasset#getProductAsset'

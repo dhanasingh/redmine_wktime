@@ -50,17 +50,17 @@ class WklogmaterialController < ApplicationController
 			pctObj.each do | entry|
 				attributeName = entry.product_attribute.blank? ? "" : entry.product_attribute.name
 				if productType == 'A'
-					pctArr << entry.id.to_s() + ',' + (entry.asset_name.to_s() + ' - ' + entry.rate.to_s() + ' - ' + rateper[entry.rate_per]) + "\n"
+					pctArr << entry.id.to_s() + ',' + (entry.asset_name.to_s() + ' - ' + entry.rate.to_s() + ' - ' + rateper[entry.rate_per].to_s()) + "\n"
 				else
 					pctArr << entry.id.to_s() + ',' +  (entry.brand_name.to_s() +' - '+ entry.product_model_name.to_s() +' - '+ entry.part_number.to_s() +' - '+ attributeName  +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s()) ) + "\n"  
 				end
 				
 			end
 		elsif params[:ptype] == "inventory_item"
-			if productType == 'A'
+			if productType == 'A' && !pctObj.blank?
 				pctObj.each do | entry|
 					unitLabel = '/ '					
-					unitLabel = unitLabel + rateper[entry.rate_per]
+					unitLabel = unitLabel + rateper[entry.rate_per].to_s()
 					pctArr << entry.inventory_item_id.to_s() + ',' + entry.inventory_item.available_quantity.to_s() + ',' + entry.inventory_item.cost_price.to_s() + ',' + entry.inventory_item.currency.to_s() + ',' + entry.rate.to_s() + ','+ unitLabel.to_s
 				end				
 			else

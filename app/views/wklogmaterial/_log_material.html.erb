@@ -1,5 +1,4 @@
-<% if (!Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].to_i == 1 ) %>
+
 <%= javascript_include_tag 'wklogmaterial', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <% catagoriesList = { 's'  => l(:label_salaried), 'h' =>  l(:label_hourly) }  %>
@@ -8,7 +7,15 @@
 <% wkasset_helper = Object.new.extend(WkassetHelper) %>
 <% rateperHash = wkasset_helper.getRatePerHash(false) %>
 <% logtype = logmaterial_helper.getLogHash %>
-
+<% if (Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].to_i == 0 ) %>
+			<% logtype.delete("M") %>
+			<% logtype.delete("A") %>
+<% end %>
+<% if (Setting.plugin_redmine_wktime['wktime_enable_expense_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_expense_module'].to_i == 0 ) %>
+			<% logtype.delete("E") %>
+<% end %>
 <% 	productArr = ""
 	locationArr = ""
 	brandArr = ""
@@ -125,4 +132,3 @@
 		</td>
 	</tr>
 </table>
-<% end %>

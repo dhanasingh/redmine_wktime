@@ -1,4 +1,4 @@
-<fieldset style="display: inline-block; vertical-align: top; height:100%; ">
+<fieldset style="display: inline-block; vertical-align: top; height:170px; ">
 <legend><%= l(:label_inventory) %></legend>
 	<% ratePerHash = {  'm' => l(:label_monthly), 'q' => l(:label_quarterly), 'sa' => l(:label_semi_annually), 'a' => l(:label_annually) } %>
 	<% wkinv_helper = Object.new.extend(WkinventoryHelper) %>
@@ -14,18 +14,19 @@
 		end
 		accountGroups.unshift(["",""])
 	%>
+	<!--
 	<p style="padding-left: 190px;">
-		<label><%=l(:label_inventory_user_group)%></label>
-		<%=  select_tag('settings[wktime_inventory_group]',
+		<label><%#=l(:label_inventory_user_group)%></label>
+		<%#=  select_tag('settings[wktime_inventory_group]',
 				options_for_select(accountGroups, :selected => @settings['wktime_inventory_group'].blank? ? "" : @settings['wktime_inventory_group']))%>
 	</p>
 	
 	<p style="padding-left: 190px;">
-		<label><%=l(:label_inventory_admin_group)%></label>
-		<%=  select_tag('settings[wktime_inventory_admin]',
+		<label><%#=l(:label_inventory_admin_group)%></label>
+		<%#=  select_tag('settings[wktime_inventory_admin]',
 				options_for_select(accountGroups, :selected => @settings['wktime_inventory_admin'].blank? ? "" : @settings['wktime_inventory_admin']))%>
 	</p>
-	
+	-->
 	<p style="margin-left: -110px;">
 			<%= check_box_tag('settings[inventory_auto_post_gl]', 1, @settings['inventory_auto_post_gl'].to_i == 1) %> <label><%= l(:label_auto_post_gl) %></label>
 	</p>

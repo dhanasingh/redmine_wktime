@@ -507,7 +507,24 @@ function productChanged(curDDId, changeDDId, uid, changeAdditionalDD, needBlank,
 	data: {id: currDD.value, ptype: changeDDId, product_id: productId, update_DD: updateDD, log_type: logType, location_id: locId },
 	success: function(data){ updateUserDD(data, changeDD, userid, needBlankOption, false, "");},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
-	complete: function(){ if(changeAdditionalDD && changeDDId == 'brand_id'){productChanged('brand_id','product_model_id', uid, false, true, null);productChanged('product_id','product_attribute_id', uid, false, true, null);} else if(changeAdditionalDD){productItemChanged('product_item', 'product_quantity', 'product_cost_price', 'product_sell_price', uid, 'log_type'); } $this.removeClass('ajax-loading'); }	      
+	complete: function(){ if(changeAdditionalDD && changeDDId == 'brand_id'){productChanged('brand_id','product_model_id', uid, false, true, null);productChanged('product_id','product_attribute_id', uid, false, true, null);} else if(changeAdditionalDD && logTypeId != null ){productItemChanged('product_item', 'product_quantity', 'product_cost_price', 'product_sell_price', uid, 'log_type'); }  $this.removeClass('ajax-loading'); }	      
+	});
+}
+
+function productAssetChanged(curDDId, changeDDId, uid, needBlank)
+{
+	var currDD = document.getElementById(curDDId);
+	var needBlankOption = needBlank;
+	var changeDD = document.getElementById(changeDDId);	
+	userid = uid;
+	var $this = $(this);
+	$.ajax({
+	url: productAssetUrl,
+	type: 'get',
+	data: {id: currDD.value },
+	success: function(data){ updateUserDD(data, changeDD, userid, needBlankOption, false, "");},
+	beforeSend: function(){ $this.addClass('ajax-loading'); },
+	complete: function(){  $this.removeClass('ajax-loading'); }	      
 	});
 }
 
@@ -657,11 +674,17 @@ function depreciatonFormSubmission()
 	var dateval = new Date(document.getElementById("to").value);
 	dateval.setDate(dateval.getDate() + 1);
 	var salaryDate = dateval.getFullYear() + '-' + (("0" + (dateval.getMonth() + 1)).slice(-2)) + '-' + (("0" + dateval.getDate()).slice(-2));
-	var isFormSubmission = confirm("Are you sure want to apply depreciation for " + salaryDate);
-	if (isFormSubmission == true) {
-		document.getElementById("generate").value = true; 
-		document.getElementById("query_form").submit();
-	} 
+	if (isNaN(dateval.getFullYear()) || isNaN(fromdateval.getFullYear())){
+		alert("Please select valid date range");
+	}
+	else {
+		var isFormSubmission = confirm("Are you sure want to apply depreciation for " + salaryDate);
+		if (isFormSubmission == true) {
+			document.getElementById("generate").value = true; 
+			document.getElementById("query_form").submit();
+		} 
+	}
+	
 }
 
 function validateAsset()
