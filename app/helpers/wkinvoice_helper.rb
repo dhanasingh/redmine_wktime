@@ -650,6 +650,8 @@ include WkbillingHelper
 				qty = mEntry.quantity
 				curr = mEntry.inventory_item.currency
 				amount = mEntry.selling_price * mEntry.quantity
+				pType = mEntry.inventory_item.product_type.downcase
+				productType = pType == 'i' ? 'm' : 'a'
 				if @matterialVal.has_key?("#{productId}")
 					oldAmount = @matterialVal["#{productId}"]["amount"].to_i
 					totAmount = oldAmount + amount
@@ -666,7 +668,7 @@ include WkbillingHelper
 				@invItems[@itemCount].store 'product_id', productId
 				@invItems[@itemCount].store 'material_id', mEntry.id
 				@invItems[@itemCount].store 'item_desc', desc
-				@invItems[@itemCount].store 'item_type', 'm'
+				@invItems[@itemCount].store 'item_type', productType
 				@invItems[@itemCount].store 'rate', rate
 				@invItems[@itemCount].store 'currency', curr
 				@invItems[@itemCount].store 'item_quantity', qty.round(2)
@@ -674,7 +676,7 @@ include WkbillingHelper
 				@itemCount = @itemCount + 1
 				partialMatAmount = partialMatAmount + amount.round(2)
 				if isCreate
-					invItem = updateInvoiceItem(invItem, mEntry.project_id, desc, rate, qty, curr, 'm', amount, nil, nil, productId) 
+					invItem = updateInvoiceItem(invItem, mEntry.project_id, desc, rate, qty, curr, productType, amount, nil, nil, productId) 
 					updateMatterial = WkMaterialEntry.find(mEntry.id)
 					updateMatterial.invoice_item_id = invItem.id
 					updateMatterial.save()

@@ -465,4 +465,8 @@ include WkorderentityHelper
 	def addMaterialType
 		false
 	end
+	
+	def addAssetType
+		false
+	end
 end

@@ -16,6 +16,11 @@
 		itemHash.merge!(material_hash)
    end 
 %>
+<% if  controller.addAssetType 
+		asset_hash = {'a' => l(:label_rental)}
+		itemHash.merge!(asset_hash)
+   end 
+%>
 <% row_index = 1 %>
 <% total = 0 %>
 <%	#if @invoice.parent.account_billing
@@ -57,7 +62,7 @@
    <tbody>
    <% if !@invoiceItem.blank? %>
 		<% 
-			sqlString = "wk_invoice_items.item_type = 'i' or wk_invoice_items.item_type = 'c' or wk_invoice_items.item_type = 'm' "
+			sqlString = "wk_invoice_items.item_type = 'i' or wk_invoice_items.item_type = 'c' or wk_invoice_items.item_type = 'm' or wk_invoice_items.item_type = 'a' "
 			sqlString = sqlString + " or wk_invoice_items.item_type = 't'" if controller.addAdditionalTax 
 		%>
        <% @invoiceItem.where(sqlString).each do |entry| %>
@@ -78,7 +83,7 @@
 				<td class="lbl-txt-align" headers="name">
 					<%= text_field_tag "name#{row_index}",  entry.name, :required => true,  :style => "width:320px; ", :disabled => isDisable %>
 				</td>
-				<td class="lbl-txt-align" headers="item_type">					
+				<td class="lbl-txt-align" headers="item_type">
 					<%=h select_tag("item_type#{row_index.to_s}", options_for_select(itemHash.invert, :selected => entry.item_type), :disabled => true) %>
 					<%=h hidden_field_tag("hd_item_type#{row_index.to_s}",  entry.item_type )  %>
 				</td>

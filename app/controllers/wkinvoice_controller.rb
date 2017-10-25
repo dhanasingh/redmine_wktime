@@ -290,5 +290,9 @@ class WkinvoiceController < WkorderentityController
 	def addMaterialType
 		true
 	end
+	
+	def addAssetType
+		true
+	end
 
 end
