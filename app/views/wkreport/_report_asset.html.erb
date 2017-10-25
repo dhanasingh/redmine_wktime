@@ -62,11 +62,11 @@
 								<td align='center'><%= entry.asset_name %></td>
 								<td align='center'><%= entry.product_name %></td>
 								<td align='center'><%= entry.shipment_date %></td>
-								<td align='right'><%= purchaseCost %></td>
+								<td align='right'><%= ("%.2f" % purchaseCost)  %></td>
 								<% purchaseVal = purchaseCost + purchaseVal  %>
-								<td align='right'><%= (purchaseCost - currentValue).round(2)  %></td>
+								<td align='right'><%= html_hours("%.2f" % (purchaseCost - currentValue))  %></td>
 								<% depreciationVal = (purchaseCost - currentValue).round(2) + depreciationVal  %>
-								<td align='right'><%= currentValue %></td>
+								<td align='right'><%= html_hours("%.2f" % currentValue) %></td>
 								<% currentVal = currentValue + currentVal  %>
 								<td align='center'><%= entry.depreciation_date %></td>
 						</tr>
@@ -77,9 +77,9 @@
 					<td></td>
 					<td></td>
 					<td></td>
-					<td align="right"><b><%= purchaseVal.round(2)  %></b></td>
-					<td align="right"><b><%= depreciationVal.round(2)  %></b></td>
-					<td align="right"><b><%= currentVal.round(2)  %></b></td>
+					<td align="right"><b><%= html_hours("%.2f" % purchaseVal)  %></b></td>
+					<td align="right"><b><%= html_hours("%.2f" % depreciationVal)  %></b></td>
+					<td align="right"><b><%= html_hours("%.2f" % currentVal)  %></b></td>
 					<td></td>
 				</tr>
 			</tbody>
