@@ -57,7 +57,9 @@ class WkproductitemController < WkinventoryController
 	end	
 	
 	def update
-		existingItem = WkProductItem.where(:product_id => params[:product_id], :brand_id => params[:brand_id], :product_model_id => params[:product_model_id])	#, :product_attribute_id => params[:product_attribute_id]
+		barndId = params[:brand_id].blank? ? nil : params[:brand_id]
+		modelId = params[:product_model_id].blank? ? nil : params[:product_model_id]
+		existingItem = WkProductItem.where(:product_id => params[:product_id], :brand_id => barndId, :product_model_id => modelId)	#, :product_attribute_id => params[:product_attribute_id]
 		if params[:product_item_id].blank?
 			productItem = WkProductItem.new
 			productItem = existingItem[0] unless existingItem[0].blank?
