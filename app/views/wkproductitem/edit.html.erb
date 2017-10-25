@@ -19,6 +19,7 @@
 				end
 				brandSql = 'id in (select brand_id from wk_brand_products where product_id = ' + productId.to_s + ')'
 		   %>
+		   <% productSqlCond = "product_type is null or product_type = '#{controller.getItemType}'" %>
 		<div class="splitcontentleft">
 			<fieldset class="box tabular">
 				<legend><%=l(:label_product_item)%></legend>
@@ -26,7 +27,7 @@
 					<tr>
 						<th align="left"><%= l(:label_product) %></th>
 						<td align="left" style="padding-left:40px;">
-							<%=h select_tag("product_id", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_id, false), :onchange => "productChanged(this.id, 'brand_id', #{User.current.id}, true, true, null, null);") %>
+							<%=h select_tag("product_id", generic_options_for_select(WkProduct, productSqlCond, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_id, false), :onchange => "productChanged(this.id, 'brand_id', #{User.current.id}, true, true, null, null);") %>
 						</td>
 					</tr> 
 					<tr>
