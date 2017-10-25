@@ -48,25 +48,32 @@ module WkpayrollHelper
 	# end
 	
 	def getFinancialPeriodArray(startDate, endDate, periodType)
-		financialStartArr = getFinancialStartArr(periodType)
+		# financialStartArr = getFinancialStartArr(periodType)
 		finPeriodArr = Array.new
 		frequencyMonth = getFrequencyHash[periodType.downcase]
 		startFinDate = nil
 		endFinDate  = nil
-		noOfPeriod = financialStartArr.length
-		financialStartArr.each_with_index do |startMonth, index|
-			if noOfPeriod == index +1
-				startFinDate = Date.civil((startMonth<= startDate.month ? startDate.year : startDate.year - 1), startMonth, 1) if startFinDate.blank?
-				endFinDate  = Date.civil((startMonth > endDate.month ? endDate.year : endDate.year + 1), financialStartArr[0], 1) - 1 if endFinDate.blank?
-				break
-			end
-			if startDate.month <= startMonth && startDate.month <= financialStartArr[index+1]
-				startFinDate = Date.civil(startDate.year, startMonth, 1)
-			end
-			if endDate.month <= startMonth && endDate.month <= financialStartArr[index+1]
-				endFinDate = Date.civil(endDate.year, financialStartArr[index+1], 1) - 1
-			end
-		end
+		# noOfPeriod = financialStartArr.length
+		# financialStartArr.each_with_index do |startMonth, index|
+			# if noOfPeriod == index +1
+				# startFinDate = Date.civil((startMonth<= startDate.month ? startDate.year : startDate.year - 1), startMonth, 1) if startFinDate.blank?
+				# endFinDate  = Date.civil((startMonth > endDate.month ? endDate.year : endDate.year + 1), financialStartArr[0], 1) - 1 if endFinDate.blank?
+				# break
+			# end
+			# if startDate.month <= startMonth && startDate.month <= financialStartArr[index+1]
+				# startFinDate = Date.civil(startDate.year, startMonth, 1)
+			# end
+			# if endDate.month <= startMonth && endDate.month <= financialStartArr[index+1]
+				# endFinDate = Date.civil(endDate.year, financialStartArr[index+1], 1) - 1
+			# end
+		# end
+		financialStartMonth = getFinancialStart.to_i
+		startDateModVal = getDateModValue(startDate, financialStartMonth, frequencyMonth)
+		endDateModVal = getDateModValue(endDate, financialStartMonth, frequencyMonth)
+		subtractorStrat = startDateModVal != 0 ? frequencyMonth - startDateModVal : 0
+		subtractorEnd = endDateModVal
+		startFinDate = Date.civil(startDate.year, startDate.month, 1) - subtractorStrat.months
+		endFinDate = (Date.civil(endDate.year, endDate.month, 1) + subtractorEnd.months) - 1
 		
 		lastDate = startFinDate
 		until lastDate > endFinDate
@@ -74,6 +81,11 @@ module WkpayrollHelper
 			lastDate = lastDate + frequencyMonth.months
 		end
 		finPeriodArr
+	end
+	
+	def getDateModValue(dateVal, stratMonth, monthFreq)
+		modVal = (stratMonth + 12 - dateVal.month)%monthFreq
+		modVal
 	end
 	
 	def getFinancialStart
@@ -84,17 +96,17 @@ module WkpayrollHelper
 		financialMonthStr
 	end
 	
-	def getFinancialStartArr(periodType)
-		frequencyMonth = getFrequencyHash[periodType.downcase]
-		financialStartMonth = getFinancialStart.to_i
-		noOfPeriod = 12/frequencyMonth
-		financialStartArr = Array.new
-		for i in 0 .. noOfPeriod -1
-			financialStartArr << ((financialStartMonth + (i*frequencyMonth))%12)
-		end
-		financialStartArr.sort!
-		financialStartArr
-	end
+	# def getFinancialStartArr(periodType)
+		# frequencyMonth = getFrequencyHash[periodType.downcase]
+		# financialStartMonth = getFinancialStart.to_i
+		# noOfPeriod = 12/frequencyMonth
+		# financialStartArr = Array.new
+		# for i in 0 .. noOfPeriod -1
+			# financialStartArr << ((financialStartMonth + (i*frequencyMonth))%12)
+		# end
+		# financialStartArr.sort!
+		# financialStartArr
+	# end
 	
 	def generateSalaries(userIds,salaryDate)
 		userSalaryHash = getUserSalaryHash(userIds,salaryDate)

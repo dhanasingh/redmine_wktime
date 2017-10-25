@@ -487,7 +487,7 @@ Rails.configuration.to_prepare do
 			cronSt = "01 00 01 * *"
 			deprScheduler.cron cronSt do		
 				begin
-					unless ((Date.today.month - financialStart + 12)%depreciationFreq) > 0
+					unless (( financialStart - Date.today.month + 12)%depreciationFreq) > 0
 						Rails.logger.info "==========Depreciation job - Started=========="
 						depreciation_helper = Object.new.extend(WkassetdepreciationHelper)
 						errorMsg = depreciation_helper.previewOrSaveDepreciation(Date.today - 1, Date.today - 1, nil, false)
