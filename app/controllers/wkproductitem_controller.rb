@@ -131,7 +131,7 @@ class WkproductitemController < WkinventoryController
 			inventoryItem.parent_id = params[:transfer_item_id].to_i
 			inventoryItem.supplier_invoice_id = nil
 			inventoryItem.lock_version = 0
-			inventoryItem.shipment_id = nil
+			inventoryItem.shipment_id = transferItem.shipment_id
 		else
 			inventoryItem.product_item_id = productItemId
 			inventoryItem.serial_number = params[:serial_number]

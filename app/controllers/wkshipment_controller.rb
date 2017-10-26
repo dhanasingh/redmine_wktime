@@ -55,7 +55,7 @@ include WkinventoryHelper
 		
 		formPagination(shipEntries)
 		#@shipmentEntries = WkShipment.includes(:inventory_items).all
-		@totalShipAmt = @shipmentEntries.sum("wk_inventory_items.total_quantity*(wk_inventory_items.cost_price+wk_inventory_items.over_head_price)")
+		@totalShipAmt = @shipmentEntries.where("wk_inventory_items.parent_id is null").sum("wk_inventory_items.total_quantity*(wk_inventory_items.cost_price+wk_inventory_items.over_head_price)")
 	end
 
 	def new
@@ -137,7 +137,7 @@ include WkinventoryHelper
 	def editShipment			
 		unless params[:shipment_id].blank?
 			@shipment = WkShipment.find(params[:shipment_id].to_i)
-			@shipmentItem = @shipment.inventory_items 
+			@shipmentItem = @shipment.inventory_items.shipment_item 
 		end		
 	end
   
@@ -147,7 +147,7 @@ include WkinventoryHelper
 		arrId = nil
 		unless params["shipment_id"].blank?
 			@shipment = WkShipment.find(params["shipment_id"].to_i)
-			arrId = @shipment.inventory_items.pluck(:id)
+			arrId = @shipment.inventory_items.shipment_item.pluck(:id)
 		else
 			@shipment = WkShipment.new
 			@shipment.shipment_type = 'I'
@@ -230,7 +230,7 @@ include WkinventoryHelper
 		end
 		
 		if !@shipment.id.blank? && autoPostGL('inventory') && getSettingCfId("inventory_cr_ledger")>0 && getSettingCfId("inventory_db_ledger") > 0
-			totalAmount = @shipment.inventory_items.sum('total_quantity*(cost_price+over_head_price)')
+			totalAmount = @shipment.inventory_items.shipment_item.sum('total_quantity*(cost_price+over_head_price)')
 			# below query for Asset Parent id logic
 			# totalAmount = @shipment.inventory_items.where("(product_type = 'A' and parent_id is not null) OR product_type <> 'A'").sum('total_quantity*(cost_price+over_head_price)')
 			#moduleAmtHash = {'inventory' => [totalAmount.round, totalAmount.round]}
@@ -241,7 +241,7 @@ include WkinventoryHelper
 			transAmountArr = [crLedgerAmtHash, dbLedgerAmtHash]
 			if totalAmount > 0 #&& autoPostGL('inventory')
 				transId = @shipment.gl_transaction.blank? ? nil : @shipment.gl_transaction.id
-				glTransaction = postToGlTransaction('inventory', transId, @shipment.shipment_date, transAmountArr, @shipment.inventory_items[0].currency, nil, nil)
+				glTransaction = postToGlTransaction('inventory', transId, @shipment.shipment_date, transAmountArr, @shipment.inventory_items.shiment_item[0].currency, nil, nil)
 				unless glTransaction.blank?
 					@shipment.gl_transaction_id = glTransaction.id
 					@shipment.save

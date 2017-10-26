@@ -17,7 +17,7 @@
 			<!-- <td class="lbl-txt-align"><%# =h entry.parent_type == 'WkAccount' ? 'Account' : 'Contact'  %></td> -->
 			<td class="lbl-txt-align"><%=h entry.parent.name  %></td>
 			<td class="lbl-txt-align"><%=h entry.shipment_date  %></td>	
-			<td class="lbl-txt-align"><%= entry.inventory_items[0].currency unless entry.inventory_items[0].blank?%> <%=h html_hours("%.2f" % entry.inventory_items.sum('total_quantity*(cost_price+over_head_price)'))  %></td>
+			<td class="lbl-txt-align"><%= entry.inventory_items.shipment_item[0].currency unless entry.inventory_items.shipment_item[0].blank?%> <%=h html_hours("%.2f" % entry.inventory_items.shipment_item.sum('total_quantity*(cost_price+over_head_price)'))  %></td>
 			<td class="lbl-txt-align">
 				<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :shipment_id => entry.id, :tab => controller.controller_name},
                                        :title => l(:button_edit) %>

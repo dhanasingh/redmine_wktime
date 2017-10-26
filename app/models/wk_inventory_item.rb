@@ -32,6 +32,8 @@ class WkInventoryItem < ActiveRecord::Base
   
    scope :asset, lambda { where(:product_type => 'A') }
    scope :inventory, lambda { where(:product_type => 'I') }
+   scope :shipment_item, lambda { where(:parent_id => nil) }
+   scope :transfered_item, lambda { where.not(:parent_id => nil) }
   
   before_destroy :add_quantity_to_parent
   validates_presence_of :product_item, :total_quantity, :available_quantity
