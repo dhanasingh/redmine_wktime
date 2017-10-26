@@ -441,9 +441,11 @@ module TimelogControllerPatch
 					@materialEntries = WkMaterialEntry.find(params[:id].to_i) unless params[:id].blank?
 					@time_entry.project_id = @materialEntries.project_id
 					if @materialEntries.invoice_item_id.blank?
-						inventoryItemObj = WkInventoryItem.find(@materialEntries.inventory_item_id)
-						inventoryItemObj.available_quantity = inventoryItemObj.available_quantity + @materialEntries.quantity
-						inventoryItemObj.save						
+						if session[:timelog][:spent_type] === "M"
+							inventoryItemObj = WkInventoryItem.find(@materialEntries.inventory_item_id)
+							inventoryItemObj.available_quantity = inventoryItemObj.available_quantity + @materialEntries.quantity
+							inventoryItemObj.save	
+						end
 						@materialEntries.destroy
 					else
 						errMsg = l(:error_material_delete_billed)
