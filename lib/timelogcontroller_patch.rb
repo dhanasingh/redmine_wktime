@@ -414,7 +414,7 @@ module TimelogControllerPatch
 					@time_entry.project_id = @expenseEntries.project_id
 					@expenseEntries.destroy
 					rescue => ex
-						errMsg = l(:error_material_delete)
+						errMsg = l(:error_expense_delete)
 						logger.error ex.message		
 						raise ActiveRecord::Rollback
 					end
@@ -431,7 +431,8 @@ module TimelogControllerPatch
 					 
 					}
 				end
-			else				
+			else
+				if wktime_helper.validateERPPermission("D_INV")
 				destroyed = WkMaterialEntry.transaction do
 					begin
 					@materialEntries = WkMaterialEntry.find(params[:id].to_i) unless params[:id].blank?
@@ -452,6 +453,10 @@ module TimelogControllerPatch
 						raise ActiveRecord::Rollback
 					end
 				end	
+				else
+					render_403
+					return false
+				end
 				respond_to do |format|
 					format.html { 
 					unless errMsg.blank?

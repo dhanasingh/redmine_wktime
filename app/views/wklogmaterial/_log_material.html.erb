@@ -76,6 +76,7 @@
 		<th align="right"><%= l(:label_quantity) %><span style="color:red;">*</span></th>
 		<td align="left" style="padding-left: 40px;">
 			<%=h text_field_tag("product_quantity", ("%.2f" % totQuantity  ),:size => 10, :style => "width:80px;text-align:right;", :onchange => "updateTotal(this.id, 'product_sell_price', 'total', 'spcurrency');") %> 
+			<%=h select_tag("uom_id", options_for_select(uomArr, :selected => uomId.blank? ? uomArr  : uomId), :disabled => false) %>
 		</td>
 		
 	</tr>
@@ -85,7 +86,7 @@
 		<td align="left" >
 			<%=h select_tag('product_item', options_for_select(itemArr, :selected => itemId.blank? ? itemArr  : itemId), :style => "width:155px;", :onchange => "productItemChanged(this.id, 'product_quantity', 'product_cost_price', 'product_sell_price', #{User.current.id}, 'log_type' ); productUOMChanged(this.id, 'uom_id', #{User.current.id})") %>
 			
-			<%=h select_tag("uom_id", options_for_select(uomArr, :selected => uomId.blank? ? uomArr  : uomId), :disabled => false) %>
+			
 		</td>
 		<th align="right"><%= l(:label_sell_price) %><span style="color:red;">*</span></th>
 		<td align="left" colspan="3" >
@@ -117,7 +118,7 @@
 		<th align="right"><%= l(:label_total) %></th>
 		<td>
 			<!-- <label id="totalcurrency" style="padding-left: 40px;"><%#=h (itemObj.blank? ? "" : itemObj.currency) %></label> -->
-			<% netTotal = @materialEntry.blank? ? 0 : (@materialEntry.selling_price)  %>
+			<% netTotal = @materialEntry.blank? ? 0 : (@materialEntry.selling_price * @materialEntry.quantity)  %>
 			<label id="total" style="padding-left: 127px; text-align:right;"><%=h (itemObj.blank? ? "" : itemObj.currency) %><%=h html_hours("%.2f" % netTotal ) unless netTotal.blank? %></label>
 		</td>
 	</tr>
