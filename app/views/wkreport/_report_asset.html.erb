@@ -4,7 +4,7 @@
 	unless @from.blank? && @to.blank?
 		sqlStr = sqlStr + " and s.shipment_date between '#{@from}' and '#{@to}' "
 	end
-		
+	sqlStr = sqlStr + " order by dp.depreciation_date, s.shipment_date, p.name"	
 		
 	entries = WkInventoryItem.find_by_sql(sqlStr)
 %>
