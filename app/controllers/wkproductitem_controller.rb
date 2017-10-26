@@ -99,6 +99,11 @@ class WkproductitemController < WkinventoryController
 			sourceItem.available_quantity = availQuantity
 			if sourceItem.save()
 				targetItem = updateInventoryItem(params[:product_item_id].to_i)
+				if sourceItem.product_type == 'A'
+					targetAssetProp = sourceItem.asset_property.dup
+					targetAssetProp.inventory_item_id = targetItem.id
+					targetAssetProp.save
+				end
 				redirect_to :controller => controller_name,:action => 'index', :tab => controller_name
 				flash[:notice] = l(:notice_successful_update)
 			else
