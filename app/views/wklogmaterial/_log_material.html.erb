@@ -20,6 +20,8 @@
 	locationArr = ""
 	brandArr = ""
 	itemArr = ""
+	locationId = ""
+	locId = nil
 	itemObj = nil
 %>
 <% productArr = logmaterial_helper.getProductArray(WkProduct, '', '', false)  %>
@@ -28,7 +30,8 @@
 <% productId = @materialEntry.blank? ? ( productArr.blank? ? 0 : productArr[0][1]) : @materialEntry.inventory_item.product_item.product.id    %>
 <!-- Below Array contains the inventory item id and combination of brand, model, partnumber, attribute, selling price as display field  -->
 <% ltype = @spentType == 'M' ? 'I' : 'A'  %>
-<% locationId = @materialEntry.blank? ? locationArr[0][1] : @materialEntry.inventory_item.location_id %>
+<% locId = locationArr[0][1] unless locationArr.blank? %>
+<% locationId = @materialEntry.blank? ? locId : @materialEntry.inventory_item.location_id %>
 <% itemArr = logmaterial_helper.getPdtItemArr(productId, false, ltype, locationId)  %>
 <% itemId = @materialEntry.blank? ? '' : @materialEntry.inventory_item_id  %>
 <% uomId = @materialEntry.blank? ? '' : @materialEntry.uom_id  %>
@@ -93,7 +96,9 @@
 			<label id="spcurrency" style="padding-left:45px;"><%=h (itemObj.blank? ? "" : itemObj.currency) %></label>
 			<% sellPrice = @materialEntry.blank? ? "" : @materialEntry.selling_price  %>
 			<%=h text_field_tag("product_sell_price", sellPrice.blank? ? "" : ("%.2f" % sellPrice),:size => 20, :style => "width:80px; text-align:right;", :onchange => "updateTotal(this.id, 'product_quantity', 'total', 'spcurrency');") %> 
-			<label id="unittext" style="float:right;padding-left: 120px; " ><%=h assetObj.blank? ? "" : "/ " + rateperHash[assetObj.rate_per] %></label>
+			<label id="unittext" style="float:right;padding-left: 120px; " >
+			<% assetlabel = (assetObj.rate_per.blank? ? "" : "/ " + rateperHash[assetObj.rate_per]) unless assetObj.blank? %>
+			<%=h assetObj.blank? ? "" : assetlabel %></label>
 		</td>
 		
 	</tr>	
@@ -109,7 +114,7 @@
 			</td>
 		<% elsif @spentType == 'A' %>
 			<th align="right"><%= l(:label_done) %></th>
-			<% isDone = assetObj.blank? ? false : (assetObj.matterial_entry_id == matterialId ? true : false ) %>
+			<% isDone = assetObj.blank? || assetObj.matterial_entry_id.blank? ? true :  false  %>
 			<td align="left" style="padding-left: 10px;"><%= check_box_tag("is_done", 1, isDone) %></td>
 		<% else %>
 			<th></th>

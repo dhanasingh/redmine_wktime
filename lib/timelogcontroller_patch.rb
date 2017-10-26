@@ -243,8 +243,11 @@ module TimelogControllerPatch
 					if params[:log_type] == 'A'
 						inventoryObj = WkInventoryItem.find(inventoryId)
 						assetObj = inventoryObj.asset_property
-						matterialId = params[:is_done].blank? || params[:is_done] == "0" ? nil : @modelEntries.id  
-						assetObj.matterial_entry_id = matterialId
+						if params[:matterial_entry_id].blank? ||(params[:is_done].blank? || params[:is_done] == "0") 								
+							assetObj.matterial_entry_id = @modelEntries.id 
+						else
+							assetObj.matterial_entry_id = nil
+						end
 						assetObj.save
 					end
 				end

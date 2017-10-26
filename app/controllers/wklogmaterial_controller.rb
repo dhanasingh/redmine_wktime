@@ -16,7 +16,7 @@ class WklogmaterialController < ApplicationController
 		rateper = wkasset_helper.getRatePerHash(false)
 		if params[:ptype] == "product"
 			logType =  params[:log_type] == 'M' ? 'I' : params[:log_type]
-			pctObj = WkProduct.where(:product_type => logType).order(:name)
+			pctObj = WkProduct.where("product_type = ? or product_type is null", logType).order(:name)
 		elsif params[:ptype] == "brand_id"
 			pObj = WkProduct.find(params[:id].to_i)
 			pctObj = pObj.brands.order(:name)
