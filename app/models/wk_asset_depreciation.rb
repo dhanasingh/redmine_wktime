@@ -26,12 +26,17 @@ class WkAssetDepreciation < ActiveRecord::Base
 		ledgerId = self.inventory_item.product_item.product.ledger_id
 		depLedgerId = Setting.plugin_redmine_wktime['wktime_depreciation_ledger']
 		unless ledgerId.blank? || depLedgerId.blank?
+			detailCount = self.gl_transaction.transaction_details.count
 			productTransDetail = self.gl_transaction.transaction_details.where(:ledger_id => ledgerId)
 			depTransDetail = self.gl_transaction.transaction_details.where(:ledger_id => depLedgerId)
 			unless productTransDetail[0].blank? || depTransDetail[0].blank?
-				productTransDetail[0].destroy
-				depTransDetail[0].amount = depTransDetail[0].amount - self.depreciation_amount
-				depTransDetail[0].save
+				if detailCount > 2
+					depTransDetail[0].amount = depTransDetail[0].amount - self.depreciation_amount
+					depTransDetail[0].save
+					productTransDetail[0].destroy
+				else
+					self.gl_transaction.destroy
+				end
 			end
 		end
 	end
