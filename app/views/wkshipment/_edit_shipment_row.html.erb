@@ -74,7 +74,7 @@
 		<%=h select_tag("uom_id#{row_index.to_s}", generic_options_for_select(WkMesureUnit, nil, 'short_desc', 'short_desc', 'id', entry.uom_id, false), :disabled => isDisable, :style => "width: 100%;") %>
 	</td>	
 	<td class="lbl-txt-align" headers="location_id">
-		<%=h select_tag("location_id#{row_index.to_s}", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', entry.location_id, false), :disabled => isDisable, :style => "width: 100%;") %>
+		<%=h select_tag("location_id#{row_index.to_s}", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', entry.location_id, false), :disabled => isDisable, :style => "width: 100%;", :required => true) %>
 	</td>				
 	<% #total = total + entry.org_cost_price unless entry.org_cost_price.blank? %>
 	<td>
