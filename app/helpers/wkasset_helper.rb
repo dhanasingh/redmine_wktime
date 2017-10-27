@@ -17,8 +17,8 @@ include WktimeHelper
 		assetType
 	end
 	
-	def getCurrentAssetValue(asset, onDate)
-		latestDepreciation = WkAssetDepreciation.where("inventory_item_id = ? AND depreciation_date < ?" , asset.id, onDate).order(:depreciation_date =>:desc).first
+	def getCurrentAssetValue(asset, period)
+		latestDepreciation = WkAssetDepreciation.where("inventory_item_id = ? AND depreciation_date < ? AND depreciation_date NOT BETWEEN ? AND ? " , asset.id, period[1], period[0], period[1]).order(:depreciation_date =>:desc).first
 		if latestDepreciation.blank?
 			curVal = asset.asset_property.current_value.blank? ? (asset.cost_price + asset.over_head_price) : asset.asset_property.current_value
 		else

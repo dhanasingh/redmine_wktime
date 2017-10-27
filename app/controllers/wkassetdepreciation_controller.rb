@@ -83,11 +83,15 @@ class WkassetdepreciationController < WkassetController
 		depreciation.actual_amount = params[:actual_amount]
 		depreciation.depreciation_amount = params[:depreciation_amount]
 		if depreciation.save()
+			depreciationFreq = Setting.plugin_redmine_wktime['wktime_depreciation_frequency']
+			finacialPeriodArr = getFinancialPeriodArray(depreciation.depreciation_date, depreciation.depreciation_date, depreciationFreq)
+			finacialPeriod = finacialPeriodArr[0]
 			assetLedgerId = depreciation.inventory_item.product_item.product.ledger_id
 			unless assetLedgerId.blank?
 				productDepAmtHash = { assetLedgerId => depreciation.depreciation_amount}
 				postDepreciationToAccouning([depreciation.id], [depreciation.gl_transaction_id], depreciation.depreciation_date, productDepAmtHash, depreciation.depreciation_amount, depreciation.currency)
 			end
+			WkAssetDepreciation.where(:inventory_item_id => depreciation.inventory_item_id, :depreciation_date => finacialPeriod[0] .. finacialPeriod[1]).where.not(:depreciation_date => finacialPeriod[1]).destroy_all
 		    redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
 		    flash[:notice] = l(:notice_successful_update)
 		else

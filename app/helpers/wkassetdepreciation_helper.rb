@@ -38,7 +38,7 @@ module WkassetdepreciationHelper
 				assetLedgerId = assetProduct.ledger_id
 				#end
 				unless depreciationRate.blank? || depreciationType.blank?
-					currentAssetVal = getCurrentAssetValue(entry, finacialPeriod[1])
+					currentAssetVal = getCurrentAssetValue(entry, finacialPeriod)
 					assetPrice = entry.cost_price + entry.over_head_price
 					depreciationAmt = getDepreciationAmount(depreciationType, depreciationRate, depFreqValue, currentAssetVal, assetPrice, entry.shipment.shipment_date, finacialPeriod)
 					if depreciationAmt>0
@@ -48,6 +48,7 @@ module WkassetdepreciationHelper
 						depreciation.currency = localCurrency
 						unless isPreview
 							if depreciation.save
+								WkAssetDepreciation.where(:inventory_item_id => entry.id, :depreciation_date => finacialPeriod[0] .. finacialPeriod[1]).where.not(:depreciation_date => finacialPeriod[1]).destroy_all
 								unless assetLedgerId.blank?
 									depreciationIds << depreciation.id
 									glTransIds << depreciation.gl_transaction_id unless depreciation.gl_transaction_id.blank?
