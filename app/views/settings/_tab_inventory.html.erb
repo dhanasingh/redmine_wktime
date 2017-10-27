@@ -42,7 +42,6 @@
 </fieldset>
 <fieldset style="display: inline-block; vertical-align: top; min-width: 100px; height:170px;  width:620px;">
 	<legend><%= l(:label_asset) %></legend>
-	
 	<p style="margin-left: -110px;">
 			<%= check_box_tag('settings[auto_apply_depreciation]', 1, @settings['auto_apply_depreciation'].to_i == 1) %> <label><%= l(:label_dep_auto_apply) %></label>
 	</p>
@@ -57,6 +56,7 @@
 		<%=  select_tag('settings[wktime_depreciation_type]',
 				options_for_select(depType.invert, :selected => @settings['wktime_depreciation_type'].blank? ? "" : @settings['wktime_depreciation_type']))%>
 	</p>
+	<%= l(:label_depreciation_freq_warning) %>
 	
 	<p style="padding-left: 190px;">
 		<label><%= l(:label_depreciation) + " " +  l(:label_frequency) %></label>

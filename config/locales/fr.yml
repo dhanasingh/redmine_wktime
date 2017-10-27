@@ -754,3 +754,4 @@ fr:
   error_transfer_qty_greater_than_zero: Transfer Quantity Should be greater than zero
   error_avail_qty_great_than_trans_qty: Transfer Quantity should be less than or equal to Available Quantity
   label_per: per
+  label_depreciation_freq_warning: "Note: Any change to the depreciation frequency will delete last applied depreciations"
