@@ -24,6 +24,7 @@ include WktimeHelper
 		else
 			curVal = latestDepreciation.actual_amount - latestDepreciation.depreciation_amount
 		end
+		curVal = curVal.round(2) unless curVal.blank?
 		curVal
 	end
 end

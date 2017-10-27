@@ -5,6 +5,8 @@ class WkproductitemController < WkinventoryController
 
   include WktimeHelper
   include WkgltransactionHelper
+  include WkpayrollHelper
+  include WkassetHelper
   
 	#before_filter :check_deletable_redirect, :only => [:destroy]
   
@@ -100,8 +102,12 @@ class WkproductitemController < WkinventoryController
 			if sourceItem.save()
 				targetItem = updateInventoryItem(params[:product_item_id].to_i)
 				if sourceItem.product_type == 'A'
+					depreciationFreq = Setting.plugin_redmine_wktime['wktime_depreciation_frequency']
+					finacialPeriodArr = getFinancialPeriodArray(Date.today, Date.today, depreciationFreq)
+					finacialPeriod = finacialPeriodArr[0]
 					targetAssetProp = sourceItem.asset_property.dup
 					targetAssetProp.inventory_item_id = targetItem.id
+					targetAssetProp.current_value = getCurrentAssetValue(sourceItem, finacialPeriod)
 					targetAssetProp.save
 				end
 				redirect_to :controller => controller_name,:action => 'index', :tab => controller_name
