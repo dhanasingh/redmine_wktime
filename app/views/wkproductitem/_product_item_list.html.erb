@@ -31,9 +31,9 @@
 					  <td class="lbl-txt-align"><%=h entry.currency %></td>
 					  <!-- <td class="lbl-txt-align"><%#=h entry.cost_price%></td>					  
 					  <td class="lbl-txt-align"><%#=h entry.over_head_price %></td> -->
-					  <td class="lbl-txt-align"><%=h html_hours("%.2f" % entry.selling_price) %></td>
-					  <td class="lbl-txt-align"><%=h html_hours("%.2f" % entry.total_quantity) %></td>
-					  <td class="lbl-txt-align"><%=h  html_hours("%.2f" % entry.available_quantity) %></td>					  
+					  <td class="lbl-txt-align"><%=h html_hours("%.2f" % entry.selling_price) unless entry.selling_price.blank? %></td>
+					  <td class="lbl-txt-align"><%=h html_hours("%.2f" % entry.total_quantity)  unless entry.total_quantity.blank? %></td>
+					  <td class="lbl-txt-align"><%=h  html_hours("%.2f" % entry.available_quantity) unless entry.available_quantity.blank?%></td>					  
 					  <td class="lbl-txt-align"><%=h entry.uom_short_desc %></td>
 					  <td class="lbl-txt-align"><%=h entry.location_name %></td>
 					  <td align="center">
