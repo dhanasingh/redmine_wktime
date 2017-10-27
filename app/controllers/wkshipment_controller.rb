@@ -241,7 +241,7 @@ include WkinventoryHelper
 			transAmountArr = [crLedgerAmtHash, dbLedgerAmtHash]
 			if totalAmount > 0 #&& autoPostGL('inventory')
 				transId = @shipment.gl_transaction.blank? ? nil : @shipment.gl_transaction.id
-				glTransaction = postToGlTransaction('inventory', transId, @shipment.shipment_date, transAmountArr, @shipment.inventory_items.shiment_item[0].currency, nil, nil)
+				glTransaction = postToGlTransaction('inventory', transId, @shipment.shipment_date, transAmountArr, @shipment.inventory_items.shipment_item[0].currency, nil, nil)
 				unless glTransaction.blank?
 					@shipment.gl_transaction_id = glTransaction.id
 					@shipment.save

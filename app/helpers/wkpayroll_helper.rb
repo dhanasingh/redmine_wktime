@@ -40,7 +40,7 @@ module WkpayrollHelper
 		startDateModVal = getDateModValue(startDate, financialStartMonth, frequencyMonth)
 		endDateModVal = getDateModValue(endDate, financialStartMonth, frequencyMonth)
 		subtractorStrat = startDateModVal != 0 ? frequencyMonth - startDateModVal : 0
-		subtractorEnd = endDateModVal != 0 ? frequencyMonth - endDateModVal : 0
+		subtractorEnd = endDateModVal == 0 ? frequencyMonth : endDateModVal
 		startFinDate = Date.civil(startDate.year, startDate.month, 1) - subtractorStrat.months
 		endFinDate = (Date.civil(endDate.year, endDate.month, 1) + subtractorEnd.months) - 1
 		lastDate = startFinDate
