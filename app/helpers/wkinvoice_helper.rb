@@ -58,9 +58,9 @@ include WkbillingHelper
 			totalAmount = @invoice.invoice_items.sum(:amount)
 			invoiceAmount = @invoice.invoice_items.where.not(:item_type => 'm').sum(:amount)
 			# moduleAmtHash key - module name , value - [crAmount, dbAmount]
-			moduleAmtHash = {'material' => [totalAmount.round - invoiceAmount.round, nil], getAutoPostModule => [invoiceAmount.round, totalAmount.round]}
-			
-			transAmountArr = getTransAmountArr(moduleAmtHash, nil)
+			moduleAmtHash = {'inventory' => [totalAmount.round - invoiceAmount.round, nil], getAutoPostModule => [invoiceAmount.round, totalAmount.round]}
+			inverseModuleArr = ['inventory']
+			transAmountArr = getTransAmountArr(moduleAmtHash, inverseModuleArr)
 			if (totalAmount.round - totalAmount) != 0
 				addRoundInvItem(totalAmount)
 			end
