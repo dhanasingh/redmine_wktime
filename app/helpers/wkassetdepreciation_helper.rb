@@ -40,25 +40,27 @@ module WkassetdepreciationHelper
 				unless depreciationRate.blank? || depreciationType.blank?
 					currentAssetVal = getCurrentAssetValue(entry, finacialPeriod[1])
 					assetPrice = entry.cost_price + entry.over_head_price
-					depreciationAmt = getDepreciationAmount(depreciationType, depreciationRate, depFreqValue, currentAssetVal, assetPrice)
-					depreciation = WkAssetDepreciation.where(:inventory_item_id => entry.id, :depreciation_date => finacialPeriod[1]).first_or_initialize(:depreciation_date => finacialPeriod[1], :inventory_item_id => entry.id)
-					depreciation.actual_amount = currentAssetVal
-					depreciation.depreciation_amount = depreciationAmt
-					depreciation.currency = localCurrency
-					unless isPreview
-						if depreciation.save
-							unless assetLedgerId.blank?
-								depreciationIds << depreciation.id
-								glTransIds << depreciation.gl_transaction_id unless depreciation.gl_transaction_id.blank?
-								totalDepAmt = totalDepAmt + depreciation.depreciation_amount
-								productDepAmtHash[assetLedgerId] = productDepAmtHash[assetLedgerId].blank? ? depreciation.depreciation_amount : (productDepAmtHash[assetLedgerId] + depreciation.depreciation_amount)
+					depreciationAmt = getDepreciationAmount(depreciationType, depreciationRate, depFreqValue, currentAssetVal, assetPrice, entry.shipment.shipment_date, finacialPeriod)
+					if depreciationAmt>0
+						depreciation = WkAssetDepreciation.where(:inventory_item_id => entry.id, :depreciation_date => finacialPeriod[1]).first_or_initialize(:depreciation_date => finacialPeriod[1], :inventory_item_id => entry.id)
+						depreciation.actual_amount = currentAssetVal
+						depreciation.depreciation_amount = depreciationAmt
+						depreciation.currency = localCurrency
+						unless isPreview
+							if depreciation.save
+								unless assetLedgerId.blank?
+									depreciationIds << depreciation.id
+									glTransIds << depreciation.gl_transaction_id unless depreciation.gl_transaction_id.blank?
+									totalDepAmt = totalDepAmt + depreciation.depreciation_amount
+									productDepAmtHash[assetLedgerId] = productDepAmtHash[assetLedgerId].blank? ? depreciation.depreciation_amount : (productDepAmtHash[assetLedgerId] + depreciation.depreciation_amount)
+								end
+								# postDepreciationToAccouning(depreciation, assetLedgerId)
+							else
+								errorMsg = depreciation.errors.full_messages.join('\n')		
 							end
-							# postDepreciationToAccouning(depreciation, assetLedgerId)
 						else
-							errorMsg = depreciation.errors.full_messages.join('\n')		
+							depreciationArr << depreciation
 						end
-					else
-						depreciationArr << depreciation
 					end
 				end
 				#lastProductId = assetProduct.id
@@ -87,7 +89,7 @@ module WkassetdepreciationHelper
 		end
 	end
 	
-	def getDepreciationAmount(depreciationType, depreciationRate, depFreqValue, currentAssetVal, assetPrice)
+	def getDepreciationAmount(depreciationType, depreciationRate, depFreqValue, currentAssetVal, assetPrice, purchaseDate, finPeriod)
 		sourceAmount = 0
 		case depreciationType
 		when 'SL'
@@ -95,8 +97,18 @@ module WkassetdepreciationHelper
 		when 'WDV'
 			sourceAmount = currentAssetVal
 		end
+		if purchaseDate.between?(finPeriod[0], finPeriod[1])
+			noOfMonths = monthsBetween(purchaseDate, finPeriod[1])
+			depFreqValue = noOfMonths
+		end
 		#sourceAmount = depreciationType != 'SL' ? currentAssetVal : (entry.cost_price + entry.over_head_price)
 		depreciationAmt = (depreciationRate/12) * sourceAmount * depFreqValue
 		depreciationAmt
+	end
+	
+	def monthsBetween(startDate, endDate)
+		noOfDays = endDate - startDate
+		noOfMonth = (noOfDays/30.0).round(0)
+		noOfMonth
 	end
 end
