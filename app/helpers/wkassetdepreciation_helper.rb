@@ -12,7 +12,7 @@ module WkassetdepreciationHelper
 		depreciationArr = Array.new 
 		finacialPeriodArr = getFinancialPeriodArray(startDate, endDate, depreciationFreq)
 		unless assetId.blank?
-			assetEntries = WkInventoryItem.joins(:product_item).where(:id => assetId).order("wk_product_items.product_id")
+			assetEntries = WkInventoryItem.asset.joins(:asset_property, :product_item).where(:id => assetId, :wk_asset_properties => {:owner_type => 'O'}).order("wk_product_items.product_id")
 		else
 			assetEntries = WkInventoryItem.asset.joins(:asset_property, :product_item).where("wk_asset_properties.owner_type = ?", 'O').order("wk_product_items.product_id")
 		end

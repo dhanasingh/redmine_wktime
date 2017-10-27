@@ -80,8 +80,8 @@ class WkassetdepreciationController < WkassetController
 		depreciation.depreciation_date = params[:depreciation_date]
 		depreciation.currency = params[:currency]
 		depreciation.inventory_item_id = params[:inventory_item_id]
-		depreciation.actual_amount = params[:actual_amount]
-		depreciation.depreciation_amount = params[:depreciation_amount]
+		depreciation.actual_amount = params[:actual_amount].to_f
+		depreciation.depreciation_amount = params[:depreciation_amount].to_f
 		if depreciation.save()
 			depreciationFreq = Setting.plugin_redmine_wktime['wktime_depreciation_frequency']
 			finacialPeriodArr = getFinancialPeriodArray(depreciation.depreciation_date, depreciation.depreciation_date, depreciationFreq)
