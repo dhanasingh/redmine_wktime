@@ -84,7 +84,10 @@ class WkassetdepreciationController < WkassetController
 		depreciation.depreciation_amount = params[:depreciation_amount]
 		if depreciation.save()
 			assetLedgerId = depreciation.inventory_item.product_item.product.ledger_id
-			postDepreciationToAccouning(depreciation, assetLedgerId)
+			unless assetLedgerId.blank?
+				productDepAmtHash = { assetLedgerId => depreciation.depreciation_amount}
+				postDepreciationToAccouning([depreciation.id], [depreciation.gl_transaction_id], depreciation.depreciation_date, productDepAmtHash, depreciation.depreciation_amount, depreciation.currency)
+			end
 		    redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
 		    flash[:notice] = l(:notice_successful_update)
 		else
