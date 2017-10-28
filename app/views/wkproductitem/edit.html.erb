@@ -2,11 +2,12 @@
 <script type="text/javascript"> 
 	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
 </script>
-<%= form_tag({:controller => 'wkproductitem', :action => 'update'}, :method => :post, :id => 'query_form') do %>
+<%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
 	<h2><b><%=@productItem.blank? ? l(:label_new_product_item) : l(:label_edit_product_item) %></b></h2>
 	<div id="product_item_form">
            <%=h hidden_field_tag('product_item_id', @productItem.blank? ? "" :@productItem.id) %>
 		   <%=h hidden_field_tag('inventory_item_id', @inventoryItem.blank? ? "" :@inventoryItem.id) %>
+		   <% productSqlCond = "product_type is null or product_type = '#{controller.getItemType}'" %>
 		   <%
 				productId = 0
 				brandId = 0
@@ -14,11 +15,12 @@
 					productId = @productItem.product_id.to_i
 					brandId = @productItem.brand_id.to_i
 				else
-					firstProduct = WkProduct.order(:name).first
+					firstProduct = WkProduct.where(productSqlCond).order(:name).first
 					productId = firstProduct.id unless firstProduct.blank?
 				end
 				brandSql = 'id in (select brand_id from wk_brand_products where product_id = ' + productId.to_s + ')'
 		   %>
+		   
 		<div class="splitcontentleft">
 			<fieldset class="box tabular">
 				<legend><%=l(:label_product_item)%></legend>
@@ -26,13 +28,13 @@
 					<tr>
 						<th align="left"><%= l(:label_product) %></th>
 						<td align="left" style="padding-left:40px;">
-							<%=h select_tag("product_id", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_id, false), :onchange => "productChanged(this.id, 'brand_id', #{User.current.id}, true, true);") %>
+							<%=h select_tag("product_id", generic_options_for_select(WkProduct, productSqlCond, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_id, false), :onchange => "productChanged(this.id, 'brand_id', #{User.current.id}, true, true, null, null);") %>
 						</td>
 					</tr> 
 					<tr>
 						<th align="left"><%= l(:label_brand) %></th>
 						<td align="left" style="padding-left:40px;">
-							<%=h select_tag("brand_id", generic_options_for_select(WkBrand, brandSql, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.brand_id, true), :onChange => "productChanged(this.id,'product_model_id', #{User.current.id}, false, true);") %>
+							<%=h select_tag("brand_id", generic_options_for_select(WkBrand, brandSql, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.brand_id, true), :onChange => "productChanged(this.id,'product_model_id', #{User.current.id}, false, true, null, null);") %>
 						</td>
 					</tr> 
 					<tr>
@@ -53,12 +55,16 @@
 					</tr>
 			    </table>
 			</fieldset>
-			<div  align='center'>
-				<%= submit_tag l(:button_save) ,:id => 'wkproductitem_save'%>
-			</div>
 		</div>
 		<% unless @inventoryItem.blank? %>
 			<%= render :partial => 'wkproductitem/edit_inventory', locals: {invntItem: @inventoryItem, isTransfer: false}%>
 		<% end %>
+		<% if controller.showAssetProperties && !@inventoryItem.blank?%>
+			<%= render :partial => 'wkasset/asset_property', locals: {invntItem: @inventoryItem, isTransfer: false}%>
+		<% end %>
+	</div>
+	<div style="clear:both;"></div>
+	<div  align='center'>
+		<%= submit_tag l(:button_save) ,:id => 'wkproductitem_save'%>
 	</div>
 <% end %>

@@ -43,9 +43,7 @@
 
 <fieldset style="display: inline-block; vertical-align: top; min-width: 100px; height:460px; width:480px;">
 	<legend><%= l(:label_wktime) %></legend>
-	<p>
-		<%= check_box_tag('settings[wktime_enable_time_module]', 1, @settings['wktime_enable_time_module'].to_i == 1) %> <label><%= l(:label_enable_time_module) %></label>
-	</p>
+	
 	<p style="padding-left: 240px;">
 		<label><%= l(:label_wk_default_work_time) %></label><%= text_field_tag 'settings[wktime_default_work_time]', @settings['wktime_default_work_time'], :size => 3 %>
 	</p>

@@ -339,9 +339,9 @@ include WkorderentityHelper
 			totalAmount = @invoice.invoice_items.sum(:amount)
 			invoiceAmount = @invoice.invoice_items.where.not(:item_type => 'm').sum(:amount)
 			# moduleAmtHash key - module name , value - [crAmount, dbAmount]
-			moduleAmtHash = {'material' => [totalAmount.round - invoiceAmount.round, nil], getAutoPostModule => [invoiceAmount.round, totalAmount.round]}
-			
-			transAmountArr = getTransAmountArr(moduleAmtHash)
+			moduleAmtHash = {'inventory' => [nil, totalAmount.round - invoiceAmount.round], getAutoPostModule => [totalAmount.round, invoiceAmount.round]}
+			inverseModuleArr = ['inventory']
+			transAmountArr = getTransAmountArr(moduleAmtHash, inverseModuleArr)
 			if (totalAmount.round - totalAmount) != 0
 				addRoundInvItem(totalAmount)
 			end
@@ -459,6 +459,14 @@ include WkorderentityHelper
 	end
 	
 	def deletePermission
+		false
+	end
+	
+	def addMaterialType
+		false
+	end
+	
+	def addAssetType
 		false
 	end
 end

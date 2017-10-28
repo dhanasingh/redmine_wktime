@@ -51,12 +51,18 @@ module WkbillingHelper
 	# ledgerAmtArr[0] - crLedgerAmtHash, ledgerAmtArr[1] - dbLedgerAmtHash
 	# crLedgerAmtHash => key - leger_id, value - crAmount
 	# dbLedgerAmtHash => key - leger_id, value - dbAmount
-	def getTransAmountArr(moduleAmtHash)
+	# inverseModuleArr => Contains the module which has to consider db as cr and cr as db
+	def getTransAmountArr(moduleAmtHash, inverseModuleArr)
 		crLedgerAmtHash = Hash.new
 		dbLedgerAmtHash = Hash.new
 		moduleAmtHash.each do |moduleName, amount|
-			crLedger = WkLedger.where(:id => getSettingCfId("#{moduleName}_cr_ledger"))
-			dbLedger = WkLedger.where(:id => getSettingCfId("#{moduleName}_db_ledger"))
+			if inverseModuleArr.blank? || !inverseModuleArr.include?('moduleName')
+				crLedger = WkLedger.where(:id => getSettingCfId("#{moduleName}_cr_ledger"))
+				dbLedger = WkLedger.where(:id => getSettingCfId("#{moduleName}_db_ledger"))
+			else
+				crLedger = WkLedger.where(:id => getSettingCfId("#{moduleName}_db_ledger"))
+				dbLedger = WkLedger.where(:id => getSettingCfId("#{moduleName}_cr_ledger"))
+			end
 			crLedgerAmtHash[crLedger[0].id] = amount[0] unless amount[0].blank? || crLedger[0].blank?
 			dbLedgerAmtHash[dbLedger[0].id] = amount[1] unless amount[1].blank? || dbLedger[0].blank?
 		end

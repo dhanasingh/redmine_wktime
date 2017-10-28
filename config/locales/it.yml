@@ -224,7 +224,7 @@ it:
   label_pay_period: Pay Period
   label_salary_type: Salary Type
   label_monthly: Monthly
-  label_quartly: Quarterly
+  label_quarterly: Quarterly
   label_semi_annually: Semi Annually
   label_annually: Annually
   label_salaried: Salaried
@@ -671,10 +671,10 @@ it:
   label_log_type: Log Type
   label_cost_price: Cost Price
   label_selling_price: Selling Price
-  label_over_head_price: Over Head Price
+  label_over_head_price: Over Head Cost
   label_org_cost_price: Original Cost Price
   label_org_selling_price: Original Selling Price
-  label_org_over_head_price: Original Over Head Price
+  label_org_over_head_price: Original Over Head Cost
   label_total_quantity: Total Quantity
   label_available_quantity: Available Quantity
   label_model: Model
@@ -689,7 +689,7 @@ it:
   label_part_number: Part Number
   label_inventory_information: Inventory Information
   field_quantity: Quantity
-  field_selling_price: Selling Price
+  field_selling_price: Price
   button_transfer: Transfer to
   report_stock: Stock Report
   label_stock_value: Stock value
@@ -716,3 +716,39 @@ it:
   error_shipment_items_used: Could not delete the shipment. Some items in the shipment were used
   error_material_delete: Unable delete the material entries
   error_material_delete_billed: Could not delete the invoiced material entries
+  error_expense_amount: Amount cannot be empty
+  error_expense_delete: Unable delete the expense entries
+  label_asset: Asset
+  label_depreciation: Depreciation
+  field_inventory_item_id: Product
+  label_current_asset_value: Current Asset Value
+  label_asset_type: Asset Type
+  label_rate_per: Rate Per
+  label_own: Own
+  label_rental: Rental
+  label_lease: Lease
+  label_daily: Daily
+  label_depreciation_type: Depreciation Type
+  label_accounting_ledger: Accounting Ledger
+  label_wdv: Written Down Value
+  label_stright_line: Stright Line
+  label_purchase_date: Purchase Date
+  label_purchase_value: Purchase Value
+  label_previous_value: Previous Value
+  label_depreciation_date: Depreciation Date
+  label_current_value: Current Value
+  label_apply_depreciation: Apply Depreciation
+  label_per_annum: Per Annum
+  label_no_asset_current_product: No Asset in selected Product
+  label_new_depreciation: New Depreciation
+  report_asset: Asset Report
+  label_last_depreciation_on: Last Depreciation on
+  label_loggable_asset: Loggable Asset
+  label_dep_auto_apply: Auto Apply Depreciation
+  label_done: Done
+  label_log: Log
+  label_owner: Owner
+  error_transfer_qty_greater_than_zero: Transfer Quantity Should be greater than zero
+  error_avail_qty_great_than_trans_qty: Transfer Quantity should be less than or equal to Available Quantity
+  label_per: per
+  label_depreciation_freq_warning: "Note: Any change to the depreciation frequency will delete last applied depreciations"

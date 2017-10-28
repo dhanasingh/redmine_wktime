@@ -1,24 +1,39 @@
-	<fieldset class="box tabular">
+	<% wktime_helper = Object.new.extend(WktimeHelper) %>
+	<% moduleArr = wktime_helper.erpModules %>
+	<fieldset style="display: inline-block; vertical-align: top; height:100%; ">
+		<legend><%= l(:label_module_plural) %></legend>
+		<% moduleArr.each do |m| %>
+			<%  m = m.downcase %>
+			<%  @settings["wktime_enable_#{m}_module"] = 1 if m == 'time' %>
+			<p><label style="text-align: left; float:left;">
+				<%= check_box_tag "settings[wktime_enable_#{m}_module]", 1, @settings["wktime_enable_#{m}_module"].to_i == 1, :disabled => m == 'time' ? true : false     -%>
+				<%= l_or_humanize(m, :prefix => "erpmine_module_") %></label>
+			</p>
+		<% end %>
+	</fieldset>
+	<fieldset style="display: inline-block; vertical-align: top; min-width: 100px; height:320px; width:620px;">
 		<legend><%= l(:label_general) %></legend>
-		<p>
-			<%= check_box_tag('settings[wktime_enable_report_module]', 1, @settings['wktime_enable_report_module'].to_i == 1) %> <label><%= l(:label_enable_report_module) %></label>
-		</p>
-		<p>
+		
+		<p style="padding-left:190px;">
 			 <label><%= l(:label_company_name) %></label><%= text_field_tag 'settings[wktime_company_name]', @settings['wktime_company_name'], :size => 30 %>
 		</p>		
 		
-		<p>
-		  <label><%= l(:label_address) %></label><%= text_area_tag 'settings[wktime_company_address]',  @settings['wktime_company_address'], :size => "23*10" %>
+		<p style="padding-left:190px;">
+		  <label><%= l(:label_address) %></label><%= text_area_tag 'settings[wktime_company_address]',  @settings['wktime_company_address'] %>
 		</p>
-		<p ><label><%= l(:label_financial_year_start) %></label>
+		<p style="padding-left:190px;"><label><%= l(:label_financial_year_start) %></label>
 			<%= select_tag 'settings[wktime_financial_year_start]', options_for_select((l('date.month_names').collect.with_index.to_a), :selected =>  @settings['wktime_financial_year_start']) %>
 	    </p>
 		<% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
-		<p>
+		<p style="padding-left:190px;">
 			<label><%= l(:label_wk_currency) %></label>
 			<%=h select_tag('settings[wktime_currency]',options_for_select(wkexpense_helper.options_for_currency,:selected => @settings['wktime_currency'])) %>
 		</p>
-		<p>
+		<p style="padding-left:190px;">
 		  <label><%= l(:label_wk_header_logo) %></label><%= text_field_tag 'settings[wktime_header_logo]', @settings['wktime_header_logo']%>
 		</p>
+		
+
+
+		
 	</fieldset>		

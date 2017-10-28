@@ -1,9 +1,7 @@
 <fieldset>
 	<legend><%= l(:label_crm) %></legend>
 	
-	<p style="margin-left: -110px;">
-			<%= check_box_tag('settings[wktime_enable_crm_module]', 1, @settings['wktime_enable_crm_module'].to_i == 1) %> <label><%= l(:label_enable_crm_module) %></label>
-	</p>
+	
 	
 	<%
 			accountGroups = Array.new

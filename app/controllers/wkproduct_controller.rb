@@ -46,11 +46,14 @@ class WkproductController < WkinventoryController
 		  product = WkProduct.find(params[:product_id])
 		end
 		product.name = params[:name]
-		product.product_type = params[:product_type]
+		product.product_type = params[:product_type].blank? ? nil : params[:product_type]
 		product.category_id = params[:category_id]
 		product.uom_id = params[:uom_id]
 		product.attribute_group_id = params[:attribute_group_id]
 		product.description = params[:description]
+		product.depreciation_rate = params[:depreciation_rate].to_f/100.00
+		#product.depreciation_type = params[:depreciation_type]
+		product.ledger_id = params[:ledger_id]
 		if product.save()
 			unless product.id.blank?
 				taxId = params[:tax_id]	

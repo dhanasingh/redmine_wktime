@@ -20,6 +20,27 @@ class WkExpenseEntry < TimeEntry
   
   self.table_name = "wk_expense_entries" 
   
+  belongs_to :project
+  belongs_to :issue
+  belongs_to :user
+  belongs_to :activity, :class_name => 'TimeEntryActivity'
+   
+   
+  attr_protected :user_id, :tyear, :tmonth, :tweek
+  
+  scope :visible, lambda {|*args|
+    joins(:project).
+    where(WkExpenseEntry.visible_condition(args.shift || User.current, *args))
+  }
+  scope :left_join_issue, lambda {
+    joins("LEFT OUTER JOIN #{Issue.table_name} ON #{Issue.table_name}.id = #{WkExpenseEntry.table_name}.issue_id")
+  }
+  scope :on_issue, lambda {|issue|
+    joins(:issue).
+    where("#{Issue.table_name}.root_id = #{issue.root_id} AND #{Issue.table_name}.lft >= #{issue.lft} AND #{Issue.table_name}.rgt <= #{issue.rgt}")
+  }
+
+  
   validates_numericality_of :amount, :message => :invalid   
   
   #execute query for date range in WkExpenseEntry

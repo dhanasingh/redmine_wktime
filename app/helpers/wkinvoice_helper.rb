@@ -58,9 +58,9 @@ include WkbillingHelper
 			totalAmount = @invoice.invoice_items.sum(:amount)
 			invoiceAmount = @invoice.invoice_items.where.not(:item_type => 'm').sum(:amount)
 			# moduleAmtHash key - module name , value - [crAmount, dbAmount]
-			moduleAmtHash = {'material' => [totalAmount.round - invoiceAmount.round, nil], getAutoPostModule => [invoiceAmount.round, totalAmount.round]}
-			
-			transAmountArr = getTransAmountArr(moduleAmtHash)
+			moduleAmtHash = {'inventory' => [nil, totalAmount.round - invoiceAmount.round], getAutoPostModule => [totalAmount.round, invoiceAmount.round]}
+			inverseModuleArr = ['inventory']
+			transAmountArr = getTransAmountArr(moduleAmtHash, inverseModuleArr)
 			if (totalAmount.round - totalAmount) != 0
 				addRoundInvItem(totalAmount)
 			end
@@ -643,11 +643,15 @@ include WkbillingHelper
 				productId = mEntry.inventory_item.product_item.product.id
 				productName = mEntry.inventory_item.product_item.product.name.to_s
 				productArr << productId
-				desc = productName + " " + mEntry.inventory_item.product_item.brand.name.to_s + " " + mEntry.inventory_item.product_item.product_model.name.to_s
+				brandName = mEntry.inventory_item.product_item.brand.blank? ? "" : mEntry.inventory_item.product_item.brand.name.to_s
+				modelName = mEntry.inventory_item.product_item.product_model.blank? ? "" : mEntry.inventory_item.product_item.product_model.name.to_s
+				desc = productName + " " + brandName + " " + modelName
 				rate = mEntry.selling_price
 				qty = mEntry.quantity
 				curr = mEntry.inventory_item.currency
 				amount = mEntry.selling_price * mEntry.quantity
+				pType = mEntry.inventory_item.product_type.downcase
+				productType = pType == 'i' ? 'm' : 'a'
 				if @matterialVal.has_key?("#{productId}")
 					oldAmount = @matterialVal["#{productId}"]["amount"].to_i
 					totAmount = oldAmount + amount
@@ -664,7 +668,7 @@ include WkbillingHelper
 				@invItems[@itemCount].store 'product_id', productId
 				@invItems[@itemCount].store 'material_id', mEntry.id
 				@invItems[@itemCount].store 'item_desc', desc
-				@invItems[@itemCount].store 'item_type', 'm'
+				@invItems[@itemCount].store 'item_type', productType
 				@invItems[@itemCount].store 'rate', rate
 				@invItems[@itemCount].store 'currency', curr
 				@invItems[@itemCount].store 'item_quantity', qty.round(2)
@@ -672,7 +676,7 @@ include WkbillingHelper
 				@itemCount = @itemCount + 1
 				partialMatAmount = partialMatAmount + amount.round(2)
 				if isCreate
-					invItem = updateInvoiceItem(invItem, mEntry.project_id, desc, rate, qty, curr, 'm', amount, nil, nil, productId) 
+					invItem = updateInvoiceItem(invItem, mEntry.project_id, desc, rate, qty, curr, productType, amount, nil, nil, productId) 
 					updateMatterial = WkMaterialEntry.find(mEntry.id)
 					updateMatterial.invoice_item_id = invItem.id
 					updateMatterial.save()

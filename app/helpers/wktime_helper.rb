@@ -595,25 +595,18 @@ end
 	end
 	
 	def time_expense_tabs
-		if params[:controller] == "wktime" || params[:controller] == "wkexpense" || params[:controller] == "wkattendance" || params[:controller] == "wkpayroll"
+		if params[:controller] == "wktime" || params[:controller] == "wkexpense" 
 			tabs = [
 				{:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime},
-				{:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense},
+				{:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense}
+			   ]
+		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" 
+			tabs = [
 				{:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave},
 				{:name => 'clock', :partial => 'wktime/tab_content', :label => :label_clock},
 				{:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll},
 				{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_user_settings}
-			   ]
-		# elsif params[:controller] == "wkattendance"
-			# tabs = [
-				# {:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave},
-				# {:name => 'clock', :partial => 'wktime/tab_content', :label => :label_clock}
-			   # ]
-		# elsif params[:controller] == "wkpayroll"
-			# tabs = [
-				# {:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll},
-				# {:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_user_settings}
-			   # ]
+			   ]		
 		elsif params[:controller] == "wklead" || params[:controller] == "wkcrmaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact"
 			tabs = [
 				{:name => 'wklead', :partial => 'wktime/tab_content', :label => :label_lead_plural},
@@ -623,16 +616,12 @@ end
 				{:name => 'wkcrmcontact', :partial => 'wktime/tab_content', :label => :label_contact_plural}
 			   ]
 		
-		elsif params[:controller] == "wkinvoice" || params[:controller] == "wkcontract" || params[:controller] == "wkaccountproject"  || params[:controller] == "wkpayment" 
-		#|| params[:controller] == "wktax" || params[:controller] == "wkexchangerate"
+		elsif params[:controller] == "wkinvoice" || params[:controller] == "wkcontract" || params[:controller] == "wkaccountproject"  || params[:controller] == "wkpayment" 		
 			tabs = [
 				{:name => 'wkinvoice', :partial => 'wktime/tab_content', :label => :label_invoice},
 				{:name => 'wkpayment', :partial => 'wktime/tab_content', :label => :label_payments},
-			#	{:name => 'wkcrmaccount', :partial => 'wktime/tab_content', :label => :label_accounts},
 				{:name => 'wkcontract', :partial => 'wktime/tab_content', :label => :label_contracts},
-				{:name => 'wkaccountproject', :partial => 'wktime/tab_content', :label => :label_acc_projects},				
-			#	{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax},
-			#	{:name => 'wkexchangerate', :partial => 'wktime/tab_content', :label => :label_exchange_rate}
+				{:name => 'wkaccountproject', :partial => 'wktime/tab_content', :label => :label_acc_projects}
 			   ]
 		elsif params[:controller] == "wkgltransaction" || params[:controller] == "wkledger"
 			tabs = [
@@ -649,12 +638,13 @@ end
 				{:name => 'wksupplieraccount', :partial => 'wktime/tab_content', :label => :label_supplier_account},
 				{:name => 'wksuppliercontact', :partial => 'wktime/tab_content', :label => :label_supplier_contact}
 			   ]
-		elsif params[:controller] == "wkcrmenumeration" || params[:controller] == "wktax" || params[:controller] == "wkexchangerate" || params[:controller] == "wklocation"
+		elsif params[:controller] == "wkcrmenumeration" || params[:controller] == "wktax" || params[:controller] == "wkexchangerate" || params[:controller] == "wklocation" || params[:controller] == "wkgrouppermission"
 			tabs = [
 				{:name => 'wkcrmenumeration', :partial => 'wktime/tab_content', :label => :label_enumerations},
 				{:name => 'wklocation', :partial => 'wktime/tab_content', :label => :label_location},
 				{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax},
-				{:name => 'wkexchangerate', :partial => 'wktime/tab_content', :label => :label_exchange_rate}
+				{:name => 'wkexchangerate', :partial => 'wktime/tab_content', :label => :label_exchange_rate},
+				{:name => 'wkgrouppermission', :partial => 'wktime/tab_content', :label => :label_permissions}
 				
 			   ]
 		else
@@ -664,8 +654,9 @@ end
 				{:name => 'wkshipment', :partial => 'wktime/tab_content', :label => :label_shipment},
 				{:name => 'wkbrand', :partial => 'wktime/tab_content', :label => :label_brand},
 				{:name => 'wkattributegroup', :partial => 'wktime/tab_content', :label => :label_attribute},
-				{:name => 'wkunitofmeasurement', :partial => 'wktime/tab_content', :label => :label_uom}
-				
+				{:name => 'wkunitofmeasurement', :partial => 'wktime/tab_content', :label => :label_uom},
+				{:name => 'wkasset', :partial => 'wktime/tab_content', :label => :label_asset},
+				{:name => 'wkassetdepreciation', :partial => 'wktime/tab_content', :label => :label_depreciation}
 			   ]
 		end
 		tabs
@@ -758,7 +749,6 @@ end
 	def settings_tabs		   
 		tabs = [
 				{:name => 'general', :partial => 'settings/tab_general', :label => :label_general},
-			#	{:name => 'display', :partial => 'settings/tab_display', :label => :label_display},
 				{:name => 'wktime', :partial => 'settings/tab_time', :label => :label_te},
 				{:name => 'attendance', :partial => 'settings/tab_attendance', :label => :report_attendance},
 				{:name => 'payroll', :partial => 'settings/tab_payroll', :label => :label_payroll},
@@ -1266,13 +1256,13 @@ end
 	end
 		
 	def showPurchase
-		(!Setting.plugin_redmine_wktime['wktime_enable_pur_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_pur_module'].to_i == 1 ) && (isModuleAdmin('wktime_pur_group') || isModuleAdmin('wktime_pur_admin') )
+		(!Setting.plugin_redmine_wktime['wktime_enable_purchase_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_purchase_module'].to_i == 1 ) && (isModuleAdmin('wktime_pur_group') || isModuleAdmin('wktime_pur_admin') )
 	end
 	
 	def showInventory
 		(!Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].to_i == 1 ) && (isModuleAdmin('wktime_inventory_group') || isModuleAdmin('wktime_inventory_admin') )
+			Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].to_i == 1 ) && validateERPPermission("V_INV") 
 	end
 	
 	def generic_options_for_select(model, sqlCond, orderBySql, displayCol, valueCol, selectedVal, needBlank)
@@ -1301,6 +1291,34 @@ end
 		ret = false
 		ret = isModuleAdmin('wktime_inventory_admin') || isModuleAdmin('wktime_accounting_admin') || isModuleAdmin('wktime_crm_admin') || isModuleAdmin('wktime_pur_admin') || isAccountUser || isModuleAdmin('wktime_billing_groups')
 		ret
+	end
+	
+	def erpModules
+		erpmineModules = [l(:label_wktime),
+						  l(:label_wkexpense),
+						  l(:report_attendance),
+						  l(:label_payroll),
+						  l(:label_wk_billing),
+						  l(:label_accounting),
+						  l(:label_crm),
+						  l(:label_txn_purchase),
+						  l(:label_inventory),
+						  l(:label_report)
+					 ]
+		erpmineModules
+	end
+	
+	def validateERPPermission(permission)
+		permissionArr = Array.new
+		user = User.current
+		user.groups.each do |group|
+		  groupPermission = WkGroupPermission.where(:group_id => group.id)
+		  groupPermission.each do |grp|				
+				shortname = grp.permission.short_name
+				permissionArr << shortname
+		  end
+		end		
+		return permissionArr.include? permission
 	end
 	
 end

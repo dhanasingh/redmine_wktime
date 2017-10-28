@@ -451,6 +451,20 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	post 'wkproductitem/updateTransfer', :to => 'wkproductitem#updateTransfer'	
 	
+	get 'wkasset/index', :to => 'wkasset#index'
+	
+	post 'wkasset/index', :to => 'wkasset#index'
+    
+	get 'wkasset/edit', :to => 'wkasset#edit'
+	
+	post 'wkasset/update', :to => 'wkasset#update'	
+	
+	delete 'wkasset/destroy', :to => 'wkasset#destroy'
+    
+	get 'wkasset/transfer', :to => 'wkasset#transfer'
+	
+	post 'wkasset/updateTransfer', :to => 'wkasset#updateTransfer'	
+	
 	get 'wkbrand/index', :to => 'wkbrand#index'
 	
 	post 'wkbrand/index', :to => 'wkbrand#index'
@@ -496,3 +510,23 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wkunitofmeasurement/update', :to => 'wkunitofmeasurement#update'
 	
 	get 'wkshipment/getSupplierInvoices', :to => 'wkshipment#getSupplierInvoices'
+	
+	get 'wkassetdepreciation/index', :to => 'wkassetdepreciation#index'
+	
+	post 'wkassetdepreciation/index', :to => 'wkassetdepreciation#index'
+    
+	get 'wkassetdepreciation/new', :to => 'wkassetdepreciation#new'
+	
+	get 'wkassetdepreciation/edit', :to => 'wkassetdepreciation#edit'
+	
+	post 'wkassetdepreciation/update', :to => 'wkassetdepreciation#update'	
+	
+	delete 'wkassetdepreciation/destroy', :to => 'wkassetdepreciation#destroy'
+	
+	get 'wkgrouppermission/index', :to => 'wkgrouppermission#index'
+	
+	get 'wkgrouppermission/edit', :to => 'wkgrouppermission#edit'
+	
+	post 'wkgrouppermission/update', :to => 'wkgrouppermission#update'
+	
+	get 'wkasset/getProductAsset', :to => 'wkasset#getProductAsset'

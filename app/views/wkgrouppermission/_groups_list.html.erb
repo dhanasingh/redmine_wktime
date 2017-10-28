@@ -1,0 +1,17 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+
+<div class="autoscroll">
+	<table class="list time-entries">
+		<thead>
+			<th><%=l(:label_group)%></th>
+		</thead>
+		<tbody>
+			<% @groups.each do |group| %>
+			  <tr id="group-<%= group.id %>" class="<%= "builtin" if group.builtin? %>">
+				<td class="name"><%= link_to group, url_for(:controller => controller_name, :action => 'edit', :group_id => group.id) %></td>				
+			  </tr>
+			<% end %>
+		</tbody>
+	</table>
+</div>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

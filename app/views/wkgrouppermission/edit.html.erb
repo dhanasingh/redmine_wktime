@@ -1,0 +1,48 @@
+<%= title l(:label_group) + " " +  l(:label_permissions) %> 
+<%  lastmName = ""
+	firstApperence = 0 
+	count = 1
+%>
+<% permissionArr = @groupPermission.pluck(:permission_id) %>
+<%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
+<fieldset class="box tabular">
+	<table>
+		<th><%=l(:label_group) %></th>
+		<td> <%= text_field_tag 'group_name', @group.blank? ? "" : @group.name, :size => 30 %></td>
+		<%=h hidden_field_tag("group_id", @group.blank? ? "" : @group.id) %>
+	</table>
+</fieldset>
+<fieldset class="box tabular">
+	<legend><%= l(:label_permissions) %></legend>
+	<% @permission.each do |m| %>
+		<%	moduleName = m.name.split('_')
+			mName = moduleName[0]			
+		%>
+		<% if firstApperence == 0 || mName != lastmName %>
+			<fieldset>
+			<legend><%= moduleName[0] %></legend>
+				<% @permission.each do | mn | %>
+					<%	name = mn.name.split('_')
+						modName = name[0]			
+					%>
+					<% if modName == mName %>
+						<% isPermission = permissionArr.include? mn.id %>
+						<p><label style="text-align: left; float:left;">
+							<%= check_box_tag "is_permission#{count}", 1, isPermission     -%>
+							<%= l_or_humanize(mn.name, :prefix => "erpmine_module_") %></label>
+						</p>
+						<%=h hidden_field_tag("permission_id#{count}", mn.id) %>
+						<%=h hidden_field_tag("count", count) %>
+						<% count += 1 %>
+					<% end %>
+					
+				<% end %>
+			</fieldset>
+			<% lastmName = moduleName[0]
+				firstApperence += 1
+			%>		
+		<% end %>
+	<% end %>
+</fieldset>
+ <%= submit_tag l(:button_save), :class => "small", :name => nil %>
+<% end %>

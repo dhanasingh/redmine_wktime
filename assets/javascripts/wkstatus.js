@@ -17,7 +17,9 @@ $(document).ready(function(){
 	 var spentTypeDD = '<table><tr><td><label for="select" style="text-transform:   none;">Spent Type</label></td>'
             +'<td><select name="spent_type" id="spent_type" onchange="spentTypeValue(this);">'
             +'<option value="T">Time</option>'
+			+'<option value="E">Expense</option>'
             +'<option value="M">Material</option>'
+			+'<option value="A">Asset</option>'
             +'</select></td></tr></table>';
 			
 	if(document.querySelector("h2").innerHTML == "Spent time")	

@@ -8,7 +8,10 @@ module TimelogControllerPatch
 			scope = time_entry_scope.
 			preload(:issue => [:project, :tracker, :status, :assigned_to, :priority]).
 			preload(:project, :user)
-			
+			if session[:timelog][:spent_type] === "A" || session[:timelog][:spent_type] === "M"
+				productType = params[:spent_type] === "M" ? 'I' : 'A'
+				scope = scope.where("wk_inventory_items.product_type = '#{productType}' ")
+			end
 			respond_to do |format|
 				format.html {
 					@entry_count = scope.count
@@ -32,13 +35,36 @@ module TimelogControllerPatch
 				}
 			end
 		end
+		
+		def report
+			retrieve_time_entry_query
+			scope = time_entry_scope
+			if session[:timelog][:spent_type] === "A" || session[:timelog][:spent_type] === "M"
+				productType = params[:spent_type] === "M" ? 'I' : 'A'
+				scope = scope.where("wk_inventory_items.product_type = '#{productType}' ")
+			end
+			@report = Redmine::Helpers::TimeReport.new(@project, @issue, params[:criteria], params[:columns], scope)
+
+			respond_to do |format|
+			  format.html { render :layout => !request.xhr? }
+			  format.csv  { send_data(report_to_csv(@report), :type => 'text/csv; header=present', :filename => 'timelog.csv') }
+			end
+		end
 
 		def edit
 			if session[:timelog][:spent_type] === "T"
 				@time_entry.safe_attributes = params[:time_entry]
+			elsif session[:timelog][:spent_type] === "E"
+				@spentType = session[:timelog][:spent_type]
+				@expenseEntry = WkExpenseEntry.find(params[:id].to_i)					
+				@time_entry.project_id = @expenseEntry.project_id
+				@time_entry.issue_id = @expenseEntry.issue_id
+				@time_entry.activity_id = @expenseEntry.activity_id
+				@time_entry.comments = @expenseEntry.comments
+				@time_entry.spent_on = @expenseEntry.spent_on
 			else
 				@spentType = session[:timelog][:spent_type]
-				@materialEntry = WkMaterialEntry.find(params[:id].to_i)					
+				@materialEntry = WkMaterialEntry.find(params[:id].to_i)		
 				@time_entry.project_id = @materialEntry.project_id
 				@time_entry.issue_id = @materialEntry.issue_id
 				@time_entry.activity_id = @materialEntry.activity_id
@@ -48,8 +74,10 @@ module TimelogControllerPatch
 		end
 
 		def retrieve_time_entry_query
-			if !params[:spent_type].blank? && params[:spent_type] == "M"
+			if !params[:spent_type].blank? && (params[:spent_type] == "M" || params[:spent_type] == "A")
 				retrieve_query(WkMaterialEntryQuery, false)
+			elsif !params[:spent_type].blank? && params[:spent_type] == "E"
+				retrieve_query(WkExpenseEntryQuery, false)
 			else
 				retrieve_query(TimeEntryQuery, false)
 			end
@@ -63,9 +91,10 @@ module TimelogControllerPatch
 				return
 			end
 
-			call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
+			
 			
 			if params[:log_type].blank? || params[:log_type] == 'T'
+				call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
 				if @time_entry.save
 					respond_to do |format|
 						format.html {
@@ -101,7 +130,8 @@ module TimelogControllerPatch
 			else				
 				errorMsg = validateMatterial				
 				if errorMsg.blank?
-					saveMatterial
+					saveMatterial if params[:log_type] == 'M' || params[:log_type] == 'A'
+					saveExpense if params[:log_type] == 'E'
 				else
 					respond_to do |format|
 						format.html { 					
@@ -117,19 +147,23 @@ module TimelogControllerPatch
 		def validateMatterial
 			errorMsg = ""
 			
-			if params[:time_entry][:project_id].blank? 
-				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_project_error) if params[:project_id].blank?
-			end
+			# if params[:time_entry][:project_id].blank? 
+				# errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_project_error) if params[:project_id].blank?
+			# end
 			if params[:time_entry][:issue_id].blank?
 				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_issue_error)
 			end
+			if params[:expense_amount].blank? && params[:log_type] == 'E'
+				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:error_expense_amount)
+			end			
 			if params[:time_entry][:activity_id].blank?
 				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_activity_error)
 			end
-			if params[:product_sell_price].blank?
+			
+			if params[:product_sell_price].blank? && ([:log_type] == 'M' || params[:log_type] == 'A')
 				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_selling_price_error) 
 			end
-			if params[:product_quantity].blank?
+			if params[:product_quantity].blank? && (params[:log_type] == 'M' || params[:log_type] == 'A')
 				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_quantity_error)
 			end
 			errorMsg
@@ -138,9 +172,10 @@ module TimelogControllerPatch
 		def update
 			@time_entry.safe_attributes = params[:time_entry]
 
-			call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
-
 			if params[:log_type].blank? || params[:log_type] == 'T'
+			
+				call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
+				
 				if @time_entry.save
 					respond_to do |format|
 						format.html {
@@ -158,35 +193,63 @@ module TimelogControllerPatch
 			else
 				errorMsg = validateMatterial				
 				if errorMsg.blank?
-					saveMatterial
+					saveMatterial if params[:log_type] == 'M' || params[:log_type] == 'A'
+					saveExpense if params[:log_type] == 'E'
 				else
-					respond_to do |format|
-						format.html { 					
-							flash[:error] = errorMsg
-							redirect_back_or_default project_time_entries_path(@time_entry.project)
+				flash[:error] = errorMsg
+				redirect_to :controller => 'timelog',:action => 'edit'
+					# respond_to do |format|
+						# # format.html { 					
+							# # flash[:error] = errorMsg
+							# # redirect_back_or_default project_time_entries_path(@time_entry.project)
 						
-						}
-					end
+						# # }
+						# format.html { 
+							# flash[:error] = errorMsg
+							# render :action => 'edit' 
+						# }
+						# #format.api  { render_validation_errors(@time_entry) }
+					# end
 				end
 			end
 		end
 		
 		def saveMatterial
 			wklog_helper = Object.new.extend(WklogmaterialHelper)	
-			setMatterialEntries	
-			begin				
-				inventoryObj = wklog_helper.updateParentInventoryItem(params[:inventory_item_id].to_i, params[:product_quantity].to_i, @materialEntries.quantity)
-				inventoryId = inventoryObj.id
+			setEntries(WkMaterialEntry, params[:matterial_entry_id])
+			selPrice = params[:product_sell_price].to_f
+			@modelEntries.selling_price = selPrice.blank? ? 0.00 :  ("%.2f" % selPrice)
+			@modelEntries.uom_id = params[:uom_id]
+			inventoryId = ""			
+			begin							
+				if params[:log_type] == 'M' && !params[:inventory_item_id].blank?
+					inventoryObj = wklog_helper.updateParentInventoryItem(params[:inventory_item_id].to_i, params[:product_quantity].to_i, @modelEntries.quantity)
+					inventoryId =  inventoryObj.id 
+					currency =  inventoryObj.currency
+				else
+					inventoryId =  params[:inventory_item_id]
+					currency = Setting.plugin_redmine_wktime['wktime_currency']
+				end
 				if inventoryId.blank?
 					errorMsg = "Requested no of items not available in the stock"
 				else
-					@materialEntries.inventory_item_id = inventoryId
-					@materialEntries.quantity = params[:product_quantity].to_i
-					@materialEntries.currency = inventoryObj.currency
-					unless @materialEntries.valid?	
-						errorMsg = @materialEntries.errors.full_messages.join("<br>")
+					@modelEntries.inventory_item_id = inventoryId.to_i
+					@modelEntries.quantity = params[:product_quantity].to_i
+					@modelEntries.currency = currency
+					unless @modelEntries.valid?	
+						errorMsg = @modelEntries.errors.full_messages.join("<br>")
 					else 
-						@materialEntries.save
+						@modelEntries.save
+					end
+					if params[:log_type] == 'A'
+						inventoryObj = WkInventoryItem.find(inventoryId.to_i)
+						assetObj = inventoryObj.asset_property
+						if params[:matterial_entry_id].blank? ||(params[:is_done].blank? || params[:is_done] == "0") 								
+							assetObj.matterial_entry_id = @modelEntries.id 
+						else
+							assetObj.matterial_entry_id = nil
+						end
+						assetObj.save
 					end
 				end
 				respond_to do |format|
@@ -206,20 +269,42 @@ module TimelogControllerPatch
 			end
 		end
 
-		def setMatterialEntries
-			if params[:matterial_entry_id].blank?
-				@materialEntries = WkMaterialEntry.new
+		def setEntries(model, id)
+			if id.blank?
+				@modelEntries = model.new
 			else
-				@materialEntries = WkMaterialEntry.find(params[:matterial_entry_id].to_i)
+				@modelEntries = model.find(id.to_i)
 			end
-			@materialEntries.project_id =  @project.blank? ? params[:time_entry][:project_id] : @project.id 
-			@materialEntries.user_id = User.current.id
-			@materialEntries.issue_id =  params[:time_entry][:issue_id].to_i			
-			@materialEntries.comments =  params[:time_entry][:comments]
-			@materialEntries.activity_id =  params[:time_entry][:activity_id].to_i
-			@materialEntries.spent_on = params[:time_entry][:spent_on]
-			@materialEntries.selling_price = params[:product_sell_price]
-			@materialEntries.uom_id = params[:uom_id]			
+			projectId = Issue.find(params[:time_entry][:issue_id].to_i).project_id
+			@modelEntries.project_id = projectId # @project.blank? ? params[:time_entry][:project_id] : @project.id 
+			@modelEntries.user_id = User.current.id
+			@modelEntries.issue_id =  params[:time_entry][:issue_id].to_i			
+			@modelEntries.comments =  params[:time_entry][:comments]
+			@modelEntries.activity_id =  params[:time_entry][:activity_id].to_i
+			@modelEntries.spent_on = params[:time_entry][:spent_on]		
+		end
+		
+		def saveExpense
+			setEntries(WkExpenseEntry, params[:expense_entry_id])
+			@modelEntries.amount = params[:expense_amount]
+			@modelEntries.currency = params[:wktime_currency]
+			unless @modelEntries.valid?	
+				errorMsg = @modelEntries.errors.full_messages.join("<br>")
+			else 
+				@modelEntries.save
+			end
+			respond_to do |format|
+				format.html { 
+				unless errorMsg.blank?
+					flash[:error] = errorMsg
+					render :action => 'new'
+				else
+					flash[:notice] = l(:notice_successful_update)
+					redirect_back_or_default project_time_entries_path(@time_entry.project)
+				end
+				 
+				}
+			end
 		end
 		
 		def set_filter_session
@@ -240,6 +325,11 @@ module TimelogControllerPatch
 				raise Unauthorized unless @time_entries.all? {|t| t.editable_by?(User.current)}
 				@projects = @time_entries.collect(&:project).compact.uniq
 				@project = @projects.first if @projects.size == 1
+			elsif session[:timelog][:spent_type] === "E"
+				@time_entry = TimeEntry.new
+				expenseEntry = WkExpenseEntry.find(params[:id])
+				@time_entry.id = expenseEntry.id
+				@project = expenseEntry.project
 			else
 				@time_entry = TimeEntry.new
 				materialEntry = WkMaterialEntry.find(params[:id])
@@ -254,6 +344,11 @@ module TimelogControllerPatch
 			if session[:timelog][:spent_type] === "T"
 				@time_entry = TimeEntry.find(params[:id])
 				@project = @time_entry.project
+			elsif session[:timelog][:spent_type] === "E"
+				@time_entry = TimeEntry.first
+				expenseEntry = WkExpenseEntry.find(params[:id])
+				@time_entry.id = expenseEntry.id
+				@project = expenseEntry.project
 			else
 				@time_entry = TimeEntry.first
 				materialEntry = WkMaterialEntry.find(params[:id])
@@ -271,6 +366,8 @@ module TimelogControllerPatch
 				  render_403
 				  return false
 				end
+			elsif session[:timelog][:spent_type] === "E"
+				return true
 			else
 				return wktime_helper.showInventory
 			end
@@ -314,15 +411,42 @@ module TimelogControllerPatch
 						end
 					}
 				end
-			else				
+			elsif session[:timelog][:spent_type] === "E"
+				destroyed = WkExpenseEntry.transaction do
+					begin
+					@expenseEntries = WkExpenseEntry.find(params[:id].to_i) unless params[:id].blank?
+					@time_entry.project_id = @expenseEntries.project_id
+					@expenseEntries.destroy
+					rescue => ex
+						errMsg = l(:error_expense_delete)
+						logger.error ex.message		
+						raise ActiveRecord::Rollback
+					end
+				end	
+				respond_to do |format|
+					format.html { 
+					unless errMsg.blank?
+						flash[:error] = errMsg
+						redirect_back_or_default project_time_entries_path(@time_entry.project)
+					else
+						flash[:notice] = l(:notice_successful_update)
+						redirect_back_or_default project_time_entries_path(@time_entry.project)
+					end
+					 
+					}
+				end
+			else
+				if wktime_helper.validateERPPermission("D_INV")
 				destroyed = WkMaterialEntry.transaction do
 					begin
 					@materialEntries = WkMaterialEntry.find(params[:id].to_i) unless params[:id].blank?
 					@time_entry.project_id = @materialEntries.project_id
 					if @materialEntries.invoice_item_id.blank?
-						inventoryItemObj = WkInventoryItem.find(@materialEntries.inventory_item_id)
-						inventoryItemObj.available_quantity = inventoryItemObj.available_quantity + @materialEntries.quantity
-						inventoryItemObj.save						
+						if session[:timelog][:spent_type] === "M"
+							inventoryItemObj = WkInventoryItem.find(@materialEntries.inventory_item_id)
+							inventoryItemObj.available_quantity = inventoryItemObj.available_quantity + @materialEntries.quantity
+							inventoryItemObj.save	
+						end
 						@materialEntries.destroy
 					else
 						errMsg = l(:error_material_delete_billed)
@@ -335,6 +459,10 @@ module TimelogControllerPatch
 						raise ActiveRecord::Rollback
 					end
 				end	
+				else
+					render_403
+					return false
+				end
 				respond_to do |format|
 					format.html { 
 					unless errMsg.blank?

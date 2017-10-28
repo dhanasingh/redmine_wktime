@@ -286,5 +286,13 @@ class WkinvoiceController < WkorderentityController
 	def deletePermission
 		false
 	end
+	
+	def addMaterialType
+		true
+	end
+	
+	def addAssetType
+		true
+	end
 
 end

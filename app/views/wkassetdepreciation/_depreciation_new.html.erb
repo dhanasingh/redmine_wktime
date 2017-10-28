@@ -1,0 +1,41 @@
+<%= error_messages_for 'time_entry' %>
+<%= back_url_hidden_field_tag %>
+<script type="text/javascript"> 
+	no_asset = '<%=l(:label_no_asset_current_product) %>';
+	assetUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
+	productAssetUrl="<%= "#{url_for(:controller => "wkasset", :action => 'getProductAsset')}" %>";
+</script>
+<% 
+logmaterial_helper = Object.new.extend(WklogmaterialHelper)
+productArr = logmaterial_helper.getProductArray(WkProduct, '', 'A', false) 
+productId = productArr.blank? ? 0 : productArr[0][1]
+assetItemArr = controller.getInventoryAssetItems(productId, 'A', false)
+%>
+<table>
+	<%=h hidden_field_tag('new_depreciation', true) %>
+	<tr>
+		<th align="right" ><%= l(:label_product) %></th>
+		<td align="left">
+			<%=h select_tag('product_id', options_for_select(productArr, :selected => (productId.blank? ? productArr : productId) ), :style => "width:155px;", :onchange => "productAssetChanged(this.id, 'inventory_item_id', #{User.current.id}, false); ", :required => true) %>
+		</td>
+	<tr>
+	<tr>
+		<th align="right" ><%= l(:label_asset) %></th>
+		<td align="left">
+			<%=h select_tag('inventory_item_id', options_for_select(assetItemArr), :style => "width:155px;", :required => true) %>
+		</td>
+	<tr>
+	<tr>			
+		<th align="right"><%= l(:label_start_date) %></th> 
+		<td align="left"><%=h date_field_tag('from', Date.today.to_s, :size => 10) %> <%= calendar_for('from') %></td>
+	</tr>
+	<tr>			
+		<th align="right"><%= l(:label_end_date) %></th> 
+		<td align="left"><%=h date_field_tag('to', ((Date.today + 1.month)-1).to_s, :size => 10) %> <%= calendar_for('to') %></td>
+	</tr>
+</table>
+<% if productArr.length > 0 %>
+	<%= submit_tag l(:button_continue), :id => 'wktime_add' , :onclick => "return validateMember();"%>
+<% else %>
+	<%= submit_tag l(:button_continue), :id => 'wktime_add' %>
+<% end %>

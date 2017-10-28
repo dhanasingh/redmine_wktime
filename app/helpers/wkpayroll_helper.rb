@@ -31,20 +31,37 @@ module WkpayrollHelper
 		salaryComponents
 	end
 	
-	def getFinancialPeriod(salaryDate)
+	def getFinancialPeriodArray(startDate, endDate, periodType)
+		finPeriodArr = Array.new
+		frequencyMonth = getFrequencyHash[periodType.downcase]
+		startFinDate = nil
+		endFinDate  = nil
+		financialStartMonth = getFinancialStart.to_i
+		startDateModVal = getDateModValue(startDate, financialStartMonth, frequencyMonth)
+		endDateModVal = getDateModValue(endDate, financialStartMonth, frequencyMonth)
+		subtractorStrat = startDateModVal != 0 ? frequencyMonth - startDateModVal : 0
+		subtractorEnd = endDateModVal == 0 ? frequencyMonth : endDateModVal
+		startFinDate = Date.civil(startDate.year, startDate.month, 1) - subtractorStrat.months
+		endFinDate = (Date.civil(endDate.year, endDate.month, 1) + subtractorEnd.months) - 1
+		lastDate = startFinDate
+		until lastDate > endFinDate
+			finPeriodArr << [lastDate, (lastDate + frequencyMonth.months) -1 ]
+			lastDate = lastDate + frequencyMonth.months
+		end
+		finPeriodArr
+	end
+	
+	def getDateModValue(dateVal, stratMonth, monthFreq)
+		modVal = (stratMonth + 12 - dateVal.month)%monthFreq
+		modVal
+	end
+	
+	def getFinancialStart
 		financialMonthStr = Setting.plugin_redmine_wktime['wktime_financial_year_start']
 		if financialMonthStr.blank? || financialMonthStr.to_i == 0
 			financialMonthStr = '4'
 		end
-		unless salaryDate.month < financialMonthStr.to_i
-			financialStart = Date.civil(salaryDate.year, financialMonthStr.to_i, 1)
-			financialEnd = Date.civil(salaryDate.year+1, financialMonthStr.to_i, 1)
-		else
-			financialStart = Date.civil(salaryDate.year-1, financialMonthStr.to_i, 1)
-			financialEnd = Date.civil(salaryDate.year, financialMonthStr.to_i, 1)
-		end
-		financialPeriod = [financialStart,financialEnd-1]
-		financialPeriod
+		financialMonthStr
 	end
 	
 	def generateSalaries(userIds,salaryDate)
@@ -369,7 +386,8 @@ module WkpayrollHelper
 	end
 	
 	def getYTDDetail(userId,salaryDate)
-		@financialPeriod = getFinancialPeriod(salaryDate)
+		financialPeriodArr = getFinancialPeriodArray(salaryDate, salaryDate, 'a')
+		@financialPeriod = financialPeriodArr[0] #getFinancialPeriodArray(salaryDate, salaryDate, 'A')
 		ytdDetails = WkSalary.select("sum(amount) as amount, user_id, salary_component_id").where("user_id = #{userId} and salary_date between '#{@financialPeriod[0]}' and '#{salaryDate}'").group("user_id, salary_component_id")
 		ytdAmountHash = Hash.new()
 		ytdDetails.each do |entry|
