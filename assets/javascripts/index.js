@@ -583,7 +583,8 @@ function setProductLogAttribute(data, qtyDD, cpDD, spDD)
 		}		
 		
 		document.getElementById('spcurrency').innerHTML = pctData[3];
-		document.getElementById(spDD).value = parseFloat(pctData[4]).toFixed(2);
+		spVal = pctData[4] == "" ? "" : parseFloat(pctData[4]).toFixed(2);
+		document.getElementById(spDD).value = spVal;
 		document.getElementById('inventory_item_id').value = pctData[0];
 		document.getElementById('total').innerHTML = pctData[3] + (parseFloat(pctData[4] * 1).toFixed(2));		
 		if(pctData[5] != "")
