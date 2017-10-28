@@ -51,7 +51,7 @@ class CreateWkAssetManagement < ActiveRecord::Migration
 		SQL
 		
 		execute <<-SQL
-			INSERT INTO wk_permissions(id, name, short_name, created_at, updated_at) VALUES (2, 'INVENTORY_VIEW', 'D_INV', current_timestamp, current_timestamp);
+			INSERT INTO wk_permissions(id, name, short_name, created_at, updated_at) VALUES (2, 'INVENTORY_DELETE', 'D_INV', current_timestamp, current_timestamp);
 		SQL
 	end
 end
