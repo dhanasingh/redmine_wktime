@@ -7,6 +7,7 @@
 	<div id="product_item_form">
            <%=h hidden_field_tag('product_item_id', @productItem.blank? ? "" :@productItem.id) %>
 		   <%=h hidden_field_tag('inventory_item_id', @inventoryItem.blank? ? "" :@inventoryItem.id) %>
+		   <% productSqlCond = "product_type is null or product_type = '#{controller.getItemType}'" %>
 		   <%
 				productId = 0
 				brandId = 0
@@ -14,12 +15,12 @@
 					productId = @productItem.product_id.to_i
 					brandId = @productItem.brand_id.to_i
 				else
-					firstProduct = WkProduct.order(:name).first
+					firstProduct = WkProduct.where(productSqlCond).order(:name).first
 					productId = firstProduct.id unless firstProduct.blank?
 				end
 				brandSql = 'id in (select brand_id from wk_brand_products where product_id = ' + productId.to_s + ')'
 		   %>
-		   <% productSqlCond = "product_type is null or product_type = '#{controller.getItemType}'" %>
+		   
 		<div class="splitcontentleft">
 			<fieldset class="box tabular">
 				<legend><%=l(:label_product_item)%></legend>
