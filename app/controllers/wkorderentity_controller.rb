@@ -339,7 +339,7 @@ include WkorderentityHelper
 			totalAmount = @invoice.invoice_items.sum(:amount)
 			invoiceAmount = @invoice.invoice_items.where.not(:item_type => 'm').sum(:amount)
 			# moduleAmtHash key - module name , value - [crAmount, dbAmount]
-			moduleAmtHash = {'inventory' => [totalAmount.round - invoiceAmount.round, nil], getAutoPostModule => [invoiceAmount.round, totalAmount.round]}
+			moduleAmtHash = {'inventory' => [nil, totalAmount.round - invoiceAmount.round], getAutoPostModule => [totalAmount.round, invoiceAmount.round]}
 			inverseModuleArr = ['inventory']
 			transAmountArr = getTransAmountArr(moduleAmtHash, inverseModuleArr)
 			if (totalAmount.round - totalAmount) != 0
