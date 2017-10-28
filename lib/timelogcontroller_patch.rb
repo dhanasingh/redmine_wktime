@@ -219,20 +219,21 @@ module TimelogControllerPatch
 			setEntries(WkMaterialEntry, params[:matterial_entry_id])
 			selPrice = params[:product_sell_price].to_f
 			@modelEntries.selling_price = selPrice.blank? ? 0.00 :  ("%.2f" % selPrice)
-			@modelEntries.uom_id = params[:uom_id]			
+			@modelEntries.uom_id = params[:uom_id]
+			inventoryId = ""			
 			begin							
-				if params[:log_type] == 'M'
+				if params[:log_type] == 'M' && !params[:inventory_item_id].blank?
 					inventoryObj = wklog_helper.updateParentInventoryItem(params[:inventory_item_id].to_i, params[:product_quantity].to_i, @modelEntries.quantity)
 					inventoryId =  inventoryObj.id 
 					currency =  inventoryObj.currency
 				else
-					inventoryId =  params[:inventory_item_id].to_i
+					inventoryId =  params[:inventory_item_id]
 					currency = Setting.plugin_redmine_wktime['wktime_currency']
 				end
 				if inventoryId.blank?
 					errorMsg = "Requested no of items not available in the stock"
 				else
-					@modelEntries.inventory_item_id = inventoryId
+					@modelEntries.inventory_item_id = inventoryId.to_i
 					@modelEntries.quantity = params[:product_quantity].to_i
 					@modelEntries.currency = currency
 					unless @modelEntries.valid?	
@@ -241,7 +242,7 @@ module TimelogControllerPatch
 						@modelEntries.save
 					end
 					if params[:log_type] == 'A'
-						inventoryObj = WkInventoryItem.find(inventoryId)
+						inventoryObj = WkInventoryItem.find(inventoryId.to_i)
 						assetObj = inventoryObj.asset_property
 						if params[:matterial_entry_id].blank? ||(params[:is_done].blank? || params[:is_done] == "0") 								
 							assetObj.matterial_entry_id = @modelEntries.id 
