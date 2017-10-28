@@ -204,7 +204,7 @@ include WkinventoryHelper
 					assetValue = (shipmentItem.total_quantity*(shipmentItem.cost_price+shipmentItem.over_head_price))
 					assetTotal = assetTotal + assetValue
 					accountingLedger = WkProductItem.find(shipmentItem.product_item_id).product.ledger_id
-					ledgerId = ((!accountingLedger.blank? && accountingLedger > 0) ? accountingLedger : getSettingCfId("inventory_cr_ledger"))
+					ledgerId = ((!accountingLedger.blank? && accountingLedger > 0) ? accountingLedger : getSettingCfId("inventory_db_ledger"))
 					assetAccountingHash[ledgerId] = assetAccountingHash[ledgerId].blank? ? assetValue : assetAccountingHash[ledgerId] + assetValue
 					quantity = params["total_quantity#{i}"].to_i
 					shipmentItem.available_quantity = 1
@@ -235,9 +235,9 @@ include WkinventoryHelper
 			# totalAmount = @shipment.inventory_items.where("(product_type = 'A' and parent_id is not null) OR product_type <> 'A'").sum('total_quantity*(cost_price+over_head_price)')
 			#moduleAmtHash = {'inventory' => [totalAmount.round, totalAmount.round]}
 			#transAmountArr = getTransAmountArr(moduleAmtHash, nil)
-			dbLedgerAmtHash = {getSettingCfId("inventory_db_ledger") => totalAmount}
-			crLedgerAmtHash = {getSettingCfId("inventory_cr_ledger") => totalAmount-assetTotal}
-			crLedgerAmtHash.merge!(assetAccountingHash) { |k, o, n| o + n }
+			dbLedgerAmtHash = {getSettingCfId("inventory_db_ledger") => totalAmount-assetTotal}
+			crLedgerAmtHash = {getSettingCfId("inventory_cr_ledger") => totalAmount}
+			dbLedgerAmtHash.merge!(assetAccountingHash) { |k, o, n| o + n }
 			transAmountArr = [crLedgerAmtHash, dbLedgerAmtHash]
 			if totalAmount > 0 #&& autoPostGL('inventory')
 				transId = @shipment.gl_transaction.blank? ? nil : @shipment.gl_transaction.id
