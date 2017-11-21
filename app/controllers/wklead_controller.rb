@@ -103,7 +103,6 @@ class WkleadController < WkcrmController
 		wkContact.assigned_user_id = params[:assigned_user_id]
 		wkContact.first_name = params[:first_name]
 		wkContact.last_name = params[:last_name]
-		#wkContact.address_id = params[:address_id]
 		wkContact.title = params[:title]
 		wkContact.description = params[:description]
 		wkContact.department = params[:department]

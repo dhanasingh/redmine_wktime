@@ -1,7 +1,5 @@
 require 'redmine'
 require_dependency 'custom_fields_helper'
-require 'wkpatch'
-require 'report_params'
 require_dependency '../lib/redmine/menu_manager'
 require 'fileutils'
 require 'timelogcontroller_patch'
@@ -130,8 +128,6 @@ end
 
 module SettingsControllerPatch
 	def self.included(base)
-		#base.send(:include)
-		
 		base.class_eval do
 			def plugin
 				wkpayroll_helper = Object.new.extend(WkpayrollHelper)
@@ -296,20 +292,17 @@ Redmine::Plugin.register :redmine_wktime do
   
   Redmine::MenuManager.map :wktime_menu do |menu|
 	  menu.push :wktime, { :controller => 'wktime', :action => 'index' }, :caption => :label_te, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showTimeExpense }
-	  menu.push :wkattendance, { :controller => 'wkattendance', :action => 'index' }, :caption => :label_hr, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && (Object.new.extend(WktimeHelper).showAttendance || Object.new.extend(WktimeHelper).showPayroll)}
-	  # menu.push :wkpayroll, { :controller => 'wkpayroll', :action => 'index' }, :caption => :label_payroll, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showPayroll }
+	  menu.push :wkattendance, { :controller => 'wkattendance', :action => 'index' }, :caption => :label_hr, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && (Object.new.extend(WktimeHelper).showAttendance || Object.new.extend(WktimeHelper).showPayroll)}	  
 	  menu.push :wklead, { :controller => 'wklead', :action => 'index' }, :caption => :label_crm, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showCRMModule }
 	  menu.push :wkinvoice, { :controller => 'wkinvoice', :action => 'index' }, :caption => :label_wk_billing, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showBilling }
 	  menu.push :wkgltransaction, { :controller => 'wkgltransaction', :action => 'index' }, :caption => :label_accounting, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showAccounting }
 	  menu.push :wkrfq, { :controller => 'wkrfq', :action => 'index' }, :caption => :label_purchasing, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showPurchase }
 	  menu.push :wkproduct, { :controller => 'wkproduct', :action => 'index' }, :caption => :label_inventory, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showInventory }
 	  menu.push :wkreport, { :controller => 'wkreport', :action => 'index' }, :caption => :label_report_plural, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showReports}	
-	  menu.push :wkcrmenumeration, { :controller => 'wkcrmenumeration', :action => 'index' }, :caption => :label_settings, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).hasSettingPerm } #User.current.admin?
+	  menu.push :wkcrmenumeration, { :controller => 'wkcrmenumeration', :action => 'index' }, :caption => :label_settings, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).hasSettingPerm } 
 	end	
 
 end
-
-WkreportController.send(:include, WkreportControllerPatch)
 
 Rails.configuration.to_prepare do
 	if ActiveRecord::Base.connection.table_exists? "#{Setting.table_name}"
@@ -536,20 +529,8 @@ class WktimeHook < Redmine::Hook::ViewListener
 		<input type='hidden' id='log_time_page' value='#{log_time_page}'>
 		<input type='hidden' id='label_issue_warn' value='#{l(:label_warning_wktime_issue_tracker)}'>
 		<input type='hidden' id='label_time_warn' value='#{l(:label_warning_wktime_time_entry)}'>"
-	end
-	
-	# Added expense report link in redmine core 'projects/show.html' using hook
-	# def view_projects_show_left(context={})
-		# if !context[:project].blank?
-			# wktime_helper = Object.new.extend(WktimeHelper)		
-			# host_with_subdir = wktime_helper.getHostAndDir(context[:request])	
-			# project_ids = Setting.plugin_redmine_wktime['wkexpense_projects']		
-			# if project_ids.blank? || (!project_ids.blank? && (project_ids == [""] || project_ids.include?("#{context[:project].id}"))) && User.current.allowed_to?(:view_time_entries, context[:project])
-				# "<p style='float:left; padding-left:180px;  margin-top:-45px;'>| #{link_to(l(:label_wkexpense_reports), url_for(:controller => 'wkexpense', :action => 'reportdetail', :project_id => context[:project], :host => host_with_subdir, :only_path => true))}</p>"
-			# end
-		# end
-	# end
-	
+	end	
+		
 	def controller_issues_edit_before_save(context={})	
 		if !context[:time_entry].blank?
 			if !context[:time_entry].hours.blank? && !context[:time_entry].activity_id.blank?
@@ -564,7 +545,3 @@ class WktimeHook < Redmine::Hook::ViewListener
 	render_on :view_layouts_base_content, :partial => 'wktime/attendance_widget'	
 	render_on :view_timelog_edit_form_bottom, :partial => 'wklogmaterial/log_material'
 end
-
-
-
-

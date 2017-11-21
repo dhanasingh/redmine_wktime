@@ -65,7 +65,6 @@ before_filter :require_login
 		else
 		    wkaccount = WkAccount.find(params[:account_id].to_i)
 		end
-		#wkaccount.address_id =  wkaddress.id
 		wkaccount.name = params[:account_name]
 		wkaccount.account_type = getAccountType
 		wkaccount.account_category = params[:account_category]

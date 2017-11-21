@@ -26,7 +26,7 @@ class WkgltransactionController < WkaccountingController
 		if !@from.blank? && !@to.blank?
 			transaction = WkGlTransaction.includes(:transaction_details).where(:trans_date => @from .. @to)
 		else
-			transaction = WkGlTransaction.includes(:transaction_details)#.where( :wk_gl_transaction_details => { :ledger_id => ledgerId })
+			transaction = WkGlTransaction.includes(:transaction_details)
 		end
 		@totalTransAmt = nil
 		@totalType = nil

@@ -186,16 +186,14 @@ require 'csv'
 			@to = Date.today
 		  when 'current_year'
 			@from = Date.civil(Date.today.year, 1, 1)
-			@to = Date.today #Date.civil(Date.today.year, 12, 31)
+			@to = Date.today 
 		  end
-		#elsif params[:period_type] == '2' || (params[:period_type].nil? && (!params[:from].nil? || !params[:to].nil?))
+		
 		elsif period_type == '2' || (period_type.nil? && (!fromdate.nil? || !todate.nil?))
 		  begin; @from = fromdate.to_s.to_date unless fromdate.blank?; rescue; end
 		  begin; @to = todate.to_s.to_date unless todate.blank?; rescue; end
 		  @free_period = true
-		else
-		  # default
-		  # 'current_month'		
+		else				
 			@from = Date.civil(Date.today.year, Date.today.month, 1)
 			@to = Date.today #(@from >> 1) - 1
 		end    
@@ -426,7 +424,7 @@ require 'csv'
 		
 		if errorMsg.nil?	
 			redirect_to :controller => 'wkattendance',:action => 'clockindex' , :tab => 'clock'
-			flash[:notice] = sucessMsg #l(:notice_successful_update)
+			flash[:notice] = sucessMsg 
 		else
 			flash[:error] = errorMsg
 			redirect_to :action => 'edit'

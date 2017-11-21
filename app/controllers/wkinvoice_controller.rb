@@ -84,12 +84,10 @@ class WkinvoiceController < WkorderentityController
 				@invList[@listKey].store 'project_id', accProj.project_id
 				@invList[@listKey].store 'status', 'o'
 				@invList[@listKey].store 'quantity', totQuantity
-			#	@invList[@listKey].store 'invoice_date', Date.today
 				@invList[@listKey].store 'start_date', @from
 				@invList[@listKey].store 'end_date', @to
 				@invList[@listKey].store 'isAccountBilling', isActBilling
 				totalInvAmt = totalInvAmt + @invList[@listKey]['amount']
-			#	@invList[@listKey].store 'modified_by', User.current
 				@listKey = @listKey + 1
 			end
 		end	
@@ -117,9 +115,8 @@ class WkinvoiceController < WkorderentityController
 			taxGrandTotal = 0
 			creditAmount = 0
 			totMatterialAmt = 0.00
-			#if !params[:project_id].blank? && params[:project_id] == '0'
 			if !projectId.blank? && projectId == '0'
-				accPrtId = WkAccountProject.where(:parent_type => relatedTo, :parent_id => relatedParent.to_i) #, :project_id => params[:project_id].to_i
+				accPrtId = WkAccountProject.where(:parent_type => relatedTo, :parent_id => relatedParent.to_i) 
 			else
 				accPrtId = WkAccountProject.where(:parent_type => relatedTo, :parent_id => relatedParent.to_i, :project_id => projectId.to_i)
 			end
@@ -164,12 +161,11 @@ class WkinvoiceController < WkorderentityController
 	end
 	
 	def getFcItems(accountProject, startDate, endDate)
-		#hashKey = 0
 		totalAmt = 0		
 		scheduledEntries = accountProject.wk_billing_schedules.where(:account_project_id => accountProject.id, :bill_date => startDate .. endDate, :invoice_id => nil)
 		scheduledEntries.each do |entry|
 			itemDesc = ""		
-			if isAccountBilling(entry.account_project) #scheduledEntry.account_project.parent.account_billing
+			if isAccountBilling(entry.account_project) 
 				itemDesc = entry.account_project.project.name + " - " + entry.milestone
 			else
 				itemDesc = entry.milestone
@@ -211,13 +207,7 @@ class WkinvoiceController < WkorderentityController
 	def deleteBilledEntries(invItemIdsArr)
 		CustomField.find(getSettingCfId('wktime_billing_id_cf')).custom_values.where(:value => invItemIdsArr).delete_all unless getSettingCfId('wktime_billing_id_cf').blank? || getSettingCfId('wktime_billing_id_cf') == 0
 	end
-	
-	# def invreport
-		# @invoice = WkInvoice.find(params[:invoice_id].to_i)
-		# @invoiceItem = @invoice.invoice_items 
-		# render :action => 'invreport', :layout => false
-	# end
-	
+		
 	def getAccountProjIds
 		accArr = ""	
 		accProjId = getProjArrays(params[:parent_id], params[:parent_type] )

@@ -18,6 +18,4 @@
 class WkpaymentController < WkpaymententityController
   unloadable
   
-	
-	
 end

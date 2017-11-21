@@ -4,8 +4,6 @@ class WkcrmenumerationController < ApplicationController
   before_filter :require_login
   before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
 
-
-
     def index
 		set_filter_session
 		enumName = session[:wkcrmenumeration][:enumname]		

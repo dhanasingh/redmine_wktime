@@ -52,7 +52,6 @@ class WkproductController < WkinventoryController
 		product.attribute_group_id = params[:attribute_group_id]
 		product.description = params[:description]
 		product.depreciation_rate = params[:depreciation_rate].to_f/100.00
-		#product.depreciation_type = params[:depreciation_type]
 		product.ledger_id = params[:ledger_id]
 		if product.save()
 			unless product.id.blank?
@@ -142,5 +141,4 @@ class WkproductController < WkinventoryController
 			@offset = @entry_pages.offset
 		end	
 	end
-
 end

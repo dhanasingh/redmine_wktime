@@ -54,7 +54,6 @@ include WkinventoryHelper
 		end
 		
 		formPagination(shipEntries)
-		#@shipmentEntries = WkShipment.includes(:inventory_items).all
 		@totalShipAmt = @shipmentEntries.where("wk_inventory_items.parent_id is null").sum("wk_inventory_items.total_quantity*(wk_inventory_items.cost_price+wk_inventory_items.over_head_price)")
 	end
 
@@ -154,8 +153,7 @@ include WkinventoryHelper
 			@shipment.parent_id = params[:parent_id]
 			@shipment.parent_type = params[:parent_type]
 		end
-		@shipment.shipment_date = params[:shipment_date]
-		#@shipment.status = 'o'
+		@shipment.shipment_date = params[:shipment_date]		
 		@shipment.serial_number = params[:serial_number]
 		@shipment.save()
 		totalAmount = 0
@@ -166,7 +164,6 @@ include WkinventoryHelper
 		sysCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 		assetAccountingHash = Hash.new
 		assetTotal = 0
-		#for i in 1..totalRow
 		while savedRows < totalRow
 			i = savedRows + deletedRows + 1
 			if params["item_id#{i}"].blank? && params["product_id#{i}"].blank?

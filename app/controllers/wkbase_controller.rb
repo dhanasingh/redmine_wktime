@@ -114,9 +114,7 @@ include WkattendanceHelper
 		    begin; @from = fromdate.to_s.to_date unless fromdate.blank?; rescue; end
 		    begin; @to = todate.to_s.to_date unless todate.blank?; rescue; end
 		    @free_period = true
-		else
-		  # default
-		  # 'current_month'		
+		else		
 			@from = Date.civil(Date.today.year, Date.today.month, 1)
 			@to = (@from >> 1) - 1
 	    end    

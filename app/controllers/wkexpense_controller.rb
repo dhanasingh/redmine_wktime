@@ -79,68 +79,6 @@ class WkexpenseController < WktimeController
 	total.nil? ? html_hours("%.2f" % 0.00) : html_hours("%.2f" % total)
   end
   
-  def reportdetail	
-	 @query = WkExpenseEntryQuery.build_from_params(params, :project => @project, :name => '_')
-	 sort_init(@query.sort_criteria.empty? ? [['spent_on', 'desc']] : @query.sort_criteria)
-    sort_update(@query.sortable_columns)
-	set_managed_projects
-	projectid = -1
-	ismanagedProject = false
-	currentProject = Project.where(:identifier => params[:project_id])
-	if !currentProject.blank?
-		projectid = currentProject[0].id	
-	end
-	projectids = ''
-	@manage_view_spenttime_projects.each{ |manageproject| 
-		if projectids !=''
-			projectids += ', '
-		end
-		projectids += manageproject.id.to_s
-		if projectid == manageproject.id 
-			ismanagedProject = true
-		end	
-	}
-	if (!@manage_view_spenttime_projects.blank?  && ismanagedProject) || isAccountUser 
-		scope = expense_entry_scope(:order => sort_clause).
-		includes(:project, :user, :issue).
-		preload(:issue => [:project, :tracker, :status, :assigned_to, :priority])
-	else
-		cond =''
-		if projectid > 0  
-			cond = "user_id = #{User.current.id} and project_id in (#{projectid}) "
-		elsif !@manage_view_spenttime_projects.blank?
-			cond = "project_id in (#{projectids}) "
-		else
-			cond = "user_id = #{User.current.id}"
-		end
-		scope = WkExpenseEntry.where(cond)
-	end	
-    respond_to do |format|
-      format.html {
-        @entry_count = scope.count
-        @entry_pages = Paginator.new @entry_count, per_page_option, params['page']
-        @entries = scope.offset(@entry_pages.offset).limit(@entry_pages.per_page).to_a
-        @total_hours = scope.sum(:amount).to_f
-        render :layout => !request.xhr?
-      }
-      format.api  {
-         @entry_count = scope.count
-        @offset, @limit = api_offset_and_limit
-        @entries = scope.offset(@offset).limit(@limit).preload(:custom_values => :custom_field).to_a
-      }
-      format.atom {
-        entries = scope.limit(Setting.feeds_limit.to_i).reorder("#{WkExpenseEntry.table_name}.created_on DESC").to_a
-        render_feed(entries, :title => l(:label_spent_time))
-      }
-      format.csv {
-        # Export all entries
-        @entries = scope.to_a
-        send_data(query_to_csv(@entries, @query, params), :type => 'text/csv; header=present', :filename => 'expenselog.csv')
-      }
-    end 
-	
-  end
-  
    def report
 	@query = WkExpenseEntryQuery.build_from_params(params, :project => @project, :name => '_')
     scope = expense_entry_scope

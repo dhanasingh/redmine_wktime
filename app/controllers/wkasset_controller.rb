@@ -3,9 +3,6 @@ class WkassetController < WkproductitemController
 	include WktimeHelper
 
 
-	# def index
-	# end
-
 	def getItemType
 		'A'
 	end

@@ -15,8 +15,6 @@ include WkorderentityHelper
 		set_filter_session
 		retrieve_date_range
 		sqlwhere = ""
-	#	accountId = session[:wkinvoice][:account_id]
-	#	projectId	= session[:wkinvoice][:project_id]
 		filter_type = session[controller_name][:polymorphic_filter]
 		contact_id = session[controller_name][:contact_id]
 		account_id = session[controller_name][:account_id]
@@ -50,7 +48,7 @@ include WkorderentityHelper
 			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
 			sqlwhere = sqlwhere + " parent_type = '#{parentType}'  "
 		end
-		#unless (params[:generate].blank? || ) || (          !to_boolean(params[:generate]) || !to_boolean(params[:preview_billing]))
+		
 		if (!params[:preview_billing].blank? && params[:preview_billing] == "true") ||
 		   (!params[:generate].blank? && params[:generate] == "true")
 			if !projectId.blank? && projectId.to_i != 0
@@ -74,7 +72,7 @@ include WkorderentityHelper
 				end	
 				previewBilling(accProjects)
 				accProjects.each do |accProj|
-				   errorMsg = generateInvoices(accProj, projectId, @to + 1, [@from, @to]) unless params[:generate].blank? || !to_boolean(params[:generate])#accProj.parent_id,accProj.parent_type
+				   errorMsg = generateInvoices(accProj, projectId, @to + 1, [@from, @to]) unless params[:generate].blank? || !to_boolean(params[:generate])
 				   
 				end
 			end
@@ -199,12 +197,12 @@ include WkorderentityHelper
 		@invoice.invoice_date = Date.today
 		@invoice.id = ""
 		@invoice.invoice_number = ""
-		@invoice.start_date = startDate #params[:start_date]
-		@invoice.end_date = endDate #params[:end_date]
+		@invoice.start_date = startDate 
+		@invoice.end_date = endDate 
 		@invoice.status = 'o'
 		@invoice.modifier_id = User.current.id
-		@invoice.parent_id = relatedParent #params[:related_parent].to_i
-		@invoice.parent_type = relatedTo #params[:related_to]		
+		@invoice.parent_id = relatedParent 
+		@invoice.parent_type = relatedTo 		
 	end
 	
 	def new
@@ -214,8 +212,6 @@ include WkorderentityHelper
 	def update
 		errorMsg = nil
 		invoiceItem = nil
-		#invItemId = WkInvoiceItem.select(:id).where(:invoice_id => params["invoice_id"].to_i) 
-		#arrId = invItemId.map {|i| i.id }
 		unless params["invoice_id"].blank?
 			@invoice = WkInvoice.find(params["invoice_id"].to_i)
 			@invoice.invoice_date = params[:inv_date]
@@ -224,7 +220,7 @@ include WkorderentityHelper
 			@invoice = WkInvoice.new
 			invoicePeriod = [params[:inv_start_date], params[:inv_end_date]]
 			saveOrderInvoice(params[:parent_id], params[:parent_type],  params[:project_id1],params[:inv_date],  invoicePeriod, false, getInvoiceType)
-			#addInvoice(params[:parent_id], params[:parent_type],  params[:project_id1],params[:inv_date],  invoicePeriod, false, getInvoiceType)
+			
 		end
 		@invoice.status = params[:field_status] unless params[:field_status].blank?
 		unless params[:inv_number].blank?
@@ -327,18 +323,10 @@ include WkorderentityHelper
 		addProductTaxes(productArr, true)
 		
 		unless @invoice.id.blank?
-			# case getInvoiceType			
-			# when 'Q'
-			  # saveRfqQuotes(params[:rfq_quote_id], params[:rfq_id].to_i, @invoice.id, params[:quote_won], params[:winning_note])	
-			# when 'PO'
-				# savePurchaseOrderQuotes(params[:po_id],  @invoice.id, params[:po_quote_id] )
-			# when 'SI'
-				# savePoSupInv(params[:si_id], params[:si_inv_id], @invoice.id)
-			# end
 			saveOrderRelations
 			totalAmount = @invoice.invoice_items.sum(:amount)
 			invoiceAmount = @invoice.invoice_items.where.not(:item_type => 'm').sum(:amount)
-			# moduleAmtHash key - module name , value - [crAmount, dbAmount]
+			
 			moduleAmtHash = {'inventory' => [nil, totalAmount.round - invoiceAmount.round], getAutoPostModule => [totalAmount.round, invoiceAmount.round]}
 			inverseModuleArr = ['inventory']
 			transAmountArr = getTransAmountArr(moduleAmtHash, inverseModuleArr)
@@ -394,8 +382,6 @@ include WkorderentityHelper
 		else
 			flash[:error] = invoice.errors.full_messages.join("<br>")
 		end
-		#invoice.destroy
-		#flash[:notice] = l(:notice_successful_delete)
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end    
 	

@@ -77,41 +77,20 @@ include WkbillingHelper
 			end
 		end
 		errorMsg
-	end
+	end	
 	
-	# def postToGlTransaction(invoice, amount, currency)
-		# glTransaction = nil
-		# crLedger = WkLedger.where(:id => getSettingCfId('invoice_cr_ledger'))
-		# dbLedger = WkLedger.where(:id => getSettingCfId('invoice_db_ledger'))
-		# unless crLedger[0].blank? || dbLedger[0].blank?
-			# transId = invoice.gl_transaction.blank? ? nil : invoice.gl_transaction.id
-			# transType = getTransType(crLedger[0].ledger_type, dbLedger[0].ledger_type)
-			# if Setting.plugin_redmine_wktime['wktime_currency'] == currency 
-				# isDiffCur = false 
-			# else
-				# isDiffCur = true 
-			# end
-			# glTransaction = saveGlTransaction(transId, invoice.invoice_date, transType, nil, amount, currency, isDiffCur)
-		# end
-		# glTransaction
-	# end
 	
 	def saveInvoice
 		errorMsg = nil
 		unless @invoice.save
-			errorMsg = @invoice.errors.full_messages.join("<br>")
-		# else
-			# @invoice.invoice_number = @invoice.invoice_number + @invoice.invoice_num_key.to_s#@invoice.id.to_s
-			# @invoice.save
+			errorMsg = @invoice.errors.full_messages.join("<br>")		
 		 end
 		errorMsg
 	end
 		
 	def generateInvoices(billProject, projectId, invoiceDate,invoicePeriod)#parentId, parentType
-		errorMsg = nil
-		#account = nil
-		#account = WkAccount.find(parentId) unless parentType == 'WkCrmContact'
-		if (projectId.blank? || projectId.to_i == 0)  && !isAccountBilling(billProject)#account.account_billing 
+		errorMsg = nil		
+		if (projectId.blank? || projectId.to_i == 0)  && !isAccountBilling(billProject)
 			billProject.parent.projects.each do |project|
 				errorMsg = addInvoice(billProject.parent_id, billProject.parent_type, project.id, invoiceDate,invoicePeriod, true, nil)
 			end
@@ -236,7 +215,6 @@ include WkbillingHelper
 					end
 				end
 				invItem = @invoice.invoice_items.new()
-				#lastUserId = entry.user_id
 				lastIssueId = entry.issue_id
 				if isUserBilling
 					if accountProject.itemized_bill
@@ -325,8 +303,7 @@ include WkbillingHelper
 				pjtIdVal << entry.id
 				
     			 if isCreate && (oldIssueId == 0 || oldIssueId != entry.issue_id)
-					itemAmount = rateHash['rate'] * pjtQuantity
-					#@invItems[@itemCount].store 'milestone_id', entry.id				
+					itemAmount = rateHash['rate'] * pjtQuantity							
 					@invItems[@itemCount].store 'project_id', accountProject.project_id
 					@invItems[@itemCount].store 'item_desc', pjtDescription
 					@invItems[@itemCount].store 'item_type', 'i'

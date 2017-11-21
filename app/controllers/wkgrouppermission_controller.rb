@@ -1,8 +1,6 @@
 class WkgrouppermissionController < ApplicationController
   unloadable
 
-
-
 	def index
 		@groups =  nil
 		entries = Group.sorted

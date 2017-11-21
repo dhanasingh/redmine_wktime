@@ -195,17 +195,12 @@ class WkassetdepreciationController < WkassetController
 		end	
 	end
 	
-	def getInventoryAssetItems(productId, productType, needBlank)
-		#inventoryArr = Array.new
-		# if productId.blank?
-			# assetItems = WkInventoryItem.where(:product_type => productType).pluck()
-		# else
+	def getInventoryAssetItems(productId, productType, needBlank)		
 		unless productId.blank?
 			assetItems = WkInventoryItem.joins(:product_item, :asset_property).where("product_type = ? AND wk_product_items.product_id = ?", productType, productId).pluck("wk_asset_properties.name, wk_inventory_items.id")
 		else
 			assetItems = WkInventoryItem.joins(:product_item, :asset_property).where("product_type = ?", productType).pluck("wk_asset_properties.name, wk_inventory_items.id")
 		end
-		# end
 		assetItems.unshift(["",""]) if needBlank
 		assetItems
 	end

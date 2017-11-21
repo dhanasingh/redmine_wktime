@@ -17,26 +17,16 @@
 
 module WkbillingHelper
 	include WktimeHelper
-	#include WkinvoiceHelper
 	include WkgltransactionHelper
 	
 	# transAmountArr[0] - crLedgerAmtHash, transAmountArr[1] - dbLedgerAmtHash
 	# crLedgerAmtHash => key - leger_id, value - crAmount
 	# dbLedgerAmtHash => key - leger_id, value - dbAmount
-	def postToGlTransaction(transModule, transId, transDate, transAmountArr, currency, description, payInvId)
-		# transId = transObj.gl_transaction.blank? ? nil : transObj.gl_transaction.id
-		# if transObj.class.name == "WkInvoice"
-			# transModule = 'invoice'
-			# transDate = transObj.invoice_date
-		# elsif transObj.class.name == "WkPayment"
-			# transModule = 'payment'
-			# transDate = transObj.payment_date
-		# end
+	def postToGlTransaction(transModule, transId, transDate, transAmountArr, currency, description, payInvId)		
 		glTransaction = nil
 		crLedger = WkLedger.where(:id => transAmountArr[0].keys[0].to_i)
 		dbLedger = WkLedger.where(:id => transAmountArr[1].keys[0].to_i)
 		unless crLedger[0].blank? || dbLedger[0].blank?
-			#transId = invoice.gl_transaction.blank? ? nil : invoice.gl_transaction.id
 			transType = getTransType(crLedger[0].ledger_type, dbLedger[0].ledger_type)
 			if Setting.plugin_redmine_wktime['wktime_currency'] == currency 
 				isDiffCur = false 

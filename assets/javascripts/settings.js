@@ -178,7 +178,7 @@ function dialogAction()
 				var listBox = document.getElementById(listboxId);
 				var invCompName = document.getElementById("inv_copm_name");
 				var invCompVal = document.getElementById("inv_copm_value");
-				if(invCompName.value != ""){  //invCompName.value != "" && invCompVal.value != ""
+				if(invCompName.value != ""){  
 					if('Add'== leaveAction){	
 						opt = document.createElement("option");
 						listBox.options.add(opt);
@@ -196,10 +196,7 @@ function dialogAction()
 					$( this ).dialog( "close" );
 				}
 				else{
-					var alertMsg = "";
-					/*if(invCompVal.value == ""){
-						alertMsg = lblInvCompVal + " "+ lblInvalid + "\n";
-					}*/
+					var alertMsg = "";					
 					if(invCompName.value == ""){
 						alertMsg = lblInvCompName + " "+ lblInvalid + "\n";
 					}
