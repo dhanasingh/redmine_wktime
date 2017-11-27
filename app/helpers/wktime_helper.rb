@@ -600,12 +600,15 @@ end
 				{:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime},
 				{:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense}
 			   ]
-		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" 
+		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" || params[:controller] == "wkscheduling"  || params[:controller] == "wkschedulepreference" || params[:controller] == "wkshift"
 			tabs = [
 				{:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave},
 				{:name => 'clock', :partial => 'wktime/tab_content', :label => :label_clock},
 				{:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll},
-				{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_user_settings}
+				{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_payroll_settings},
+				{:name => 'wkscheduling', :partial => 'wktime/tab_content', :label => :label_scheduling},
+				{:name => 'wkschedulepreference', :partial => 'wktime/tab_content', :label => :label_schedule_preference},
+				{:name => 'wkshift', :partial => 'wktime/tab_content', :label => :label_shift}
 			   ]		
 		elsif params[:controller] == "wklead" || params[:controller] == "wkcrmaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact"
 			tabs = [

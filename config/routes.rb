@@ -530,3 +530,9 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	post 'wkgrouppermission/update', :to => 'wkgrouppermission#update'
 	
 	get 'wkasset/getProductAsset', :to => 'wkasset#getProductAsset'
+	
+	get 'wkscheduling/index', :to => 'wkscheduling#index'
+	
+	get 'wkschedulepreference/index', :to => 'wkschedulepreference#index'
+	
+	get 'wkshift/index', :to => 'wkshift#index'

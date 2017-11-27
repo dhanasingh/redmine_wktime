@@ -250,7 +250,7 @@ fr:
   label_emp_name: Employee Name
   label_ytd: YTD
   label_earning: Earnings
-  label_user_settings: User Settings
+  label_payroll_settings: Payroll Settings
   label_total_earning: Total Earnings
   label_total_deduction: Total Deductions
   label_net_earning: Net Earnings
@@ -755,3 +755,6 @@ fr:
   error_avail_qty_great_than_trans_qty: Transfer Quantity should be less than or equal to Available Quantity
   label_per: per
   label_depreciation_freq_warning: "Note: Any change to the depreciation frequency will delete last applied depreciations"
+  label_scheduling: Scheduling
+  label_schedule_preference: Schedule Preference
+  label_shift: Shift

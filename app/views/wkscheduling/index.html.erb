@@ -1,4 +1,5 @@
-<h2><%= l(:report_attendance) %></h2>
+<h2><%= l(:label_scheduling) %></h2>
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript">
    wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "leave")%>';     
    clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>'; 
@@ -10,5 +11,4 @@
 </script>
 
 <%= render_tabs time_expense_tabs %>
-<%= render :partial => 'attn_index' %>
-<% html_title(l(:label_ta)) -%>
+<%=h hidden_field_tag('tab', "#{controller_name}") %>
