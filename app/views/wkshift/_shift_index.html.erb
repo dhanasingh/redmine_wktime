@@ -1,52 +1,60 @@
-<%= form_tag({:controller => "wkunitofmeasurement", :action => 'update', :tab => 'wkunitofmeasurement'}, :method => :get, :id => 'query_form') do %>
-<% actualIds = "" %>
+<%= form_tag({:controller => "wkshift", :action => 'update', :tab => 'wkshift'}, :method => :get, :id => 'query_form') do %>
 <table class="list" id="commit-keywords">
   <thead>
     <tr>
 		<th></th>
 		<th><%= l(:field_name) %></th>
-		<th><%= l(:label_wk_leave_short_name) %></th>
+		<th><%= l(:label_start_time) %></th>
+		<th><%= l(:label_end_time) %></th>
+		<th></th>
 		<th class="buttons"></th>
     </tr>
   </thead>
   <tbody>
-	<% unless @curentry.blank? %>
-		<% @curentry.each do |entry| %>
+	<% unless @shiftentry.blank? %>
+		<% @shiftentry.each do |entry| %>
 			<tr class="commit-keywords">
 				<td>
-					<%= hidden_field_tag "uom_id[]",  entry.id  %>					
-					<% actualIds = actualIds.blank? ? entry.id.to_s  : (actualIds + "," + entry.id.to_s) %>
+					<%= hidden_field_tag "shift_id[]",  entry.id  %>
 				</td>
 			    <td>			 
 					<%= text_field_tag "name[]",  entry.name  , :style => "width:150px;", :required => true  %> 
 			    </td>
 			    <td>
-					<%= text_field_tag "description[]",  entry.short_desc, :style => "width:150px;", :required => true  %>
-				</td>			        
+					<%= text_field_tag "start_time[]", (!entry.start_time ? "" : entry.start_time.localtime.strftime('%R')) , :style => "width:150px;", :required => true  %>
+				</td>
+				<td>
+					<%= text_field_tag "end_time[]",  (!entry.end_time ? "" : entry.end_time.localtime.strftime('%R')), :style => "width:150px;", :required => true  %>
+				</td>
+				<td>
+					<%= link_to l(:label_required_staff), url_for(:controller => controller_name, :action => 'edit', :shift_id => entry.id), :class => 'icon icon-time-add' %>
+				</td>
 			 
 				<td class="buttons">
-					<% if controller.hasDeletePermission %>
-						<%= link_to(l(:button_delete), '#',
+					<%= link_to(l(:button_delete), '#',
 							:class => 'delete-commit-keywords icon-only icon-del',
 							:title => l(:button_delete)) %>
-					<% end %>
+					
 				</td>
 			</tr>
 		<% end %>
 	<% else %>
 		<tr class="commit-keywords">
 			<td>
-				<%= hidden_field_tag "uom_id[]",  ""  %>				
+				<%= hidden_field_tag "shift_id[]",  ""  %>
 			</td>
 			<td>
 				<%=  
 				text_field_tag "name[]",  ""  , :required => true,  :style => "width:150px;"  %> 
 			</td>
 			<td>
-				<%=  
-				text_field_tag "description[]",  ""  , :required => true, :style => "width:150px;"  %>
+				<%=	text_field_tag "start_time[]",  ""  , :required => true, :style => "width:150px;"  %>
 			</td>
-		 
+			
+			<td>
+				<%=	text_field_tag "end_time[]",  ""  , :required => true, :style => "width:150px;"  %>
+			</td>
+			<td></td>
 			<td class="buttons">
 				<%= link_to(l(:button_delete), '#',
 							:class => 'delete-commit-keywords icon-only icon-del',
@@ -57,7 +65,9 @@
     <tr>
       <td></td>
 	  <td></td>
-      <td></td>      
+      <td></td>  
+	  <td></td>
+	  <td></td>	  
       <td class="buttons">
         <%= link_to(l(:button_add), '#',
                     :class => 'add-commit-keywords icon-only icon-add',
@@ -66,7 +76,6 @@
     </tr>
   </tbody>
 </table>
-<%= hidden_field_tag "actual_ids",  actualIds  %>
 <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
 <p><%= submit_tag l(:button_save) %></p>
 <% end %>

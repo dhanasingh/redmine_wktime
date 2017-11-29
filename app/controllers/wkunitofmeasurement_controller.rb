@@ -12,7 +12,10 @@ class WkunitofmeasurementController < WkinventoryController
 	def update
 		count = 0		
 		errorMsg = ""
-		arrId = WkMesureUnit.all.pluck(:id)
+		arrId = Array.new
+		unless params[:actual_ids].blank?
+			arrId = params[:actual_ids].split(",").map { |s| s.to_i } 
+		end
 		for i in 0..params[:uom_id].length-1
 			if params[:uom_id][i].blank?
 				curExchanges = WkMesureUnit.new

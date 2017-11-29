@@ -536,3 +536,11 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wkschedulepreference/index', :to => 'wkschedulepreference#index'
 	
 	get 'wkshift/index', :to => 'wkshift#index'
+	
+	get 'wkshift/edit', :to => 'wkshift#edit'
+	
+	delete 'wkshift/destroy', :to => 'wkshift#destroy'
+	
+	get 'wkshift/update', :to => 'wkshift#update'
+	
+	post 'wkshift/shiftRoleUpdate', :to => 'wkshift#shiftRoleUpdate'
