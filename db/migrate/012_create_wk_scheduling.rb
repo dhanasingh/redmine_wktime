@@ -10,6 +10,8 @@ class CreateWkScheduling  < ActiveRecord::Migration
 			t.string :gender, :limit => 3
 			t.float :billing_rate
 			t.column :biling_currency, :string, :limit => 5, :default => '$'
+			t.references :location, :class => "wk_crm_enumerations", :null => false, :index => true
+			t.references :department, :class => "wk_crm_enumerations", :null => false, :index => true
 			t.timestamps null: false
 		end
 		
@@ -24,6 +26,8 @@ class CreateWkScheduling  < ActiveRecord::Migration
 		create_table :wk_shift_roles do |t|
 			t.references :role, :null => false
 			t.references :shift, :class => "wk_shifts", :index => true
+			t.references :location, :class => "wk_crm_enumerations", :null => false, :index => true
+			t.references :department, :class => "wk_crm_enumerations", :null => false, :index => true
 			t.integer :staff_count, :default => 0
 			t.timestamps null: false
 		end
