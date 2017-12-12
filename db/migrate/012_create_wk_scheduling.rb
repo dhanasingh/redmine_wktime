@@ -4,13 +4,16 @@ class CreateWkScheduling  < ActiveRecord::Migration
 		create_table :wk_users do |t|
 			t.references :user, :null => false, :index => true
 			t.references :role
+			t.integer :id1
+			t.integer :id2
+			t.integer :id3
 			t.date :join_date
 			t.date :birth_date
 			t.date :termination_date
 			t.string :gender, :limit => 3
 			t.float :billing_rate
 			t.column :biling_currency, :string, :limit => 5, :default => '$'
-			t.references :location, :class => "wk_crm_enumerations", :null => false, :index => true
+			t.references :location, :class => "wk_locations", :null => false, :index => true
 			t.references :department, :class => "wk_crm_enumerations", :null => false, :index => true
 			t.timestamps null: false
 		end
