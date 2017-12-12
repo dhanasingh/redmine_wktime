@@ -1,0 +1,37 @@
+<%  shiftArr = WkShift.order(:name).pluck(:name, :id) 
+	shiftArr.unshift(["",''])
+%>
+<%= hidden_field_tag "searchlist", controller_name %>
+<%
+	shiftId = session[controller_name][:shift_id]
+	depId = session[controller_name][:department_id]
+	locationId = session[controller_name][:location_id]
+	dateVal = params[:date]
+%>
+<fieldset class="box tabular">
+	<legend><%= l(:label_filter_plural) %></legend>
+	<table>
+		<tr>
+			<th><%= l(:label_location) %></th>
+			<td><%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, true), :disabled => false, :style => "float:left; width:120px;") %></td>
+			
+			<th> <%= l(:label_department) %></th>
+			<td><%=h select_tag('department_id', options_for_select(options_for_enum_select('DP', depId, true)), :style => "float:left; width:120px;") %></td>
+
+			<th><%= l(:label_user) %></th>
+			<td><%= text_field_tag 'name', params[:name], :size => 30 %></td>
+			
+			<th> <%= l(:label_shift) %></th>
+			<td><%=h select_tag('shift_id', options_for_select(shiftArr, :selected => shiftId.blank? ? shiftArr : shiftId), :style => "float:left; width:120px;") %></td>		 
+			
+			
+			
+			<% if isApply %>
+				<th> <%= l(:field_spent_on) %></th>
+				<td><%= date_field_tag('date', dateVal.blank? ? Date.today.to_s : dateVal,:size => 15, :required => true, :maxlength => 15) %><%= calendar_for('date') %></td>
+				<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %></td>
+				<td><%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %></td>
+			<% end %>
+		</tr>
+	</table>
+</fieldset>

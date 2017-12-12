@@ -1300,6 +1300,7 @@ end
 		erpmineModules = [l(:label_wktime),
 						  l(:label_wkexpense),
 						  l(:report_attendance),
+						  l(:label_shift_scheduling),
 						  l(:label_payroll),
 						  l(:label_wk_billing),
 						  l(:label_accounting),

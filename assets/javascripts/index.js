@@ -681,3 +681,14 @@ function validateAsset()
 	}
 	return valid;
 }
+
+function showorHide(isshow, divId)
+{
+	if(!isshow)
+	{
+		document.getElementById(divId).style.disabled = true;		
+	}
+	else {
+		document.getElementById(divId).style.disabled = false;
+	}
+}

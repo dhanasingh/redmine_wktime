@@ -544,3 +544,11 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wkshift/update', :to => 'wkshift#update'
 	
 	post 'wkshift/shiftRoleUpdate', :to => 'wkshift#shiftRoleUpdate'
+	
+	get 'wkschedulepreference/edit', :to => 'wkschedulepreference#edit'
+	
+	post 'wkschedulepreference/update', :to => 'wkschedulepreference#update'
+	
+	get 'wkscheduling/edit', :to => 'wkscheduling#edit'
+	
+	post 'wkscheduling/update', :to => 'wkscheduling#update'

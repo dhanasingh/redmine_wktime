@@ -1,5 +1,6 @@
 <h2><%= l(:label_scheduling) %></h2>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <script type="text/javascript">
    wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "leave")%>';     
    clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>'; 
@@ -12,3 +13,24 @@
 
 <%= render_tabs time_expense_tabs %>
 <%=h hidden_field_tag('tab', "#{controller_name}") %>
+
+<%= form_tag({:controller => controller_name, :action => 'index', :project_id => @project},  :method => :get, :id => 'query_form') do %>
+<%= hidden_field_tag 'set_filter', '1' %>
+
+<% if @schedulesShift %>
+	<%= render :partial => 'wkscheduling/scheduling_filter', :locals => {:isApply => false} %>
+<% end %>
+<p style="float:right;">
+  <%= link_to_previous_month(@year, @month, :accesskey => accesskey(:previous)) %> | <%= link_to_next_month(@year, @month, :accesskey => accesskey(:next)) %>
+</p>
+<p class="buttons">
+<%= label_tag('month', l(:label_month)) %>
+<%= select_month(@month, :prefix => "month", :discard_type => true) %>
+<%= label_tag('year', l(:label_year)) %>
+<%= select_year(@year, :prefix => "year", :discard_type => true) %>
+
+<%= link_to_function l(:button_apply), '$("#query_form").submit()', :class => 'icon icon-checked' %>
+<%= link_to l(:button_clear), { :project_id => @project, :set_filter => 1 }, :class => 'icon icon-reload' %>
+</p>
+<% end %>
+<%= render :partial => 'wkscheduling/wk_calendar', :locals => {:calendar => @calendar} %>

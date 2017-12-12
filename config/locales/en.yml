@@ -762,3 +762,6 @@ en:
   label_required_staff: Required Staff
   label_count: Count
   label_department: Department
+  label_day_off: Day Off
+  label_schedule_details: Schedule Details
+  label_shift_scheduling: Shift Scheduling

@@ -1,0 +1,65 @@
+<% shifts = WkShift.order(:name).pluck(:name, :id) %>
+<%= form_tag({:controller => controller_name, :action => 'update'},  :method => :post, :id => 'query_form') do %>
+<%= hidden_field_tag "isscheduled", scheduled %>
+<table class="list time-entries">
+	<thead>
+		<tr>
+			<th class="lbl-txt-align"><%= l(:field_user) %></th>
+			<th class="lbl-txt-align"><%= l(:field_spent_on) %></th>
+			<th class="lbl-txt-align"><%= l(:label_shift) %></th>
+			<th class="lbl-txt-align"><%= l(:label_day_off) %></th>
+			<th class="lbl-txt-align"></th>
+		</tr>
+	</thead>
+	<tbody> 
+		<% rowCount = 1 %>
+		<% unless scheduleObj.blank? %>
+			<% scheduleObj.each do |entry| %>
+				<tr>
+					<%= hidden_field_tag "schedule_id#{rowCount}", entry.id %>
+					<td class="lbl-txt-align"><%= entry.user.name %></td>
+					<%= hidden_field_tag "user_id#{rowCount}", entry.user_id %>
+					<% if scheduled %>
+						<td><%= entry.schedule_date.strftime("%F") unless entry.schedule_date.blank? %></td>
+						<%= hidden_field_tag "scheduling_date#{rowCount}", entry.schedule_date.strftime("%F") unless entry.schedule_date.blank? %>
+						<% if @editShiftSchedules %>
+							<td class="lbl-txt-align"><%= select_tag "shifts#{rowCount}", options_for_select(shifts, :selected => entry.shift_id), :style=>"width:150px; "  %></td>
+							<td><%= check_box_tag("day_off#{rowCount}", 1, (entry.schedule_as == 'W' ? false : true), :onchange => "showorHide((this.checked ? true : false), 'shifts#{rowCount}' )") %></td>
+						<% else %>
+							<td><%= entry.shift.name %></td>
+							<td><%=h checked_image (entry.schedule_as == 'W' ? false : true) %></td>
+						<% end %>
+						
+					<% else %>
+						<td><%= entry.start_date.strftime("%F") unless entry.start_date.blank? %></td>
+						<%= hidden_field_tag "scheduling_date#{rowCount}", entry.start_date.strftime("%F") unless entry.start_date.blank? %>
+						<td class="lbl-txt-align"><%= select_tag "shifts#{rowCount}", options_for_select(shifts, :selected => entry.shift_id), :style=>"width:150px;"  %></td>
+						<% if User.current.id == entry.user_id %>
+							<td class="lbl-txt-align"><%= check_box_tag("day_off#{rowCount}", 1, (entry.preference_type == 'W' ? false : true), :onchange => "showorHide((this.checked ? true : false), 'shifts#{rowCount}' )") %></td>
+						<% else %>
+							<td><%=h checked_image (entry.preference_type == 'W' ? false : true) %></td>
+						<% end %>
+					<% end %>
+					
+					<td class="lbl-txt-align"></td>
+				</tr>
+				<% rowCount =  rowCount + 1 %>
+			<% end %>
+		<% else %>
+			<tr>
+				<%= hidden_field_tag "schedule_id#{rowCount}", "" %>
+				<td class="lbl-txt-align"><%= User.current.name %></td>
+				<%= hidden_field_tag "user_id#{rowCount}", User.current.id %>
+				<td class="lbl-txt-align"><%= params[:date] %></td>
+				<%= hidden_field_tag "scheduling_date#{rowCount}", params[:date] %>
+				<td class="lbl-txt-align"><%= select_tag "shifts#{rowCount}", options_for_select(shifts), :style=>"width:150px;"  %></td>
+				<td class="lbl-txt-align"><%= check_box_tag("day_off#{rowCount}", 1, false, :disabled => false, :onchange => "showorHide((this.checked ? true : false), 'shifts#{rowCount}' )") %></td>
+				<td class="lbl-txt-align"></td>
+			</tr>
+			<% rowCount =  rowCount + 1 %>
+		<% end %>
+	</tbody>
+</table>
+<%= hidden_field_tag "rowCount", rowCount %>
+<%= submit_tag l(:button_save), :class => "small", :name => "schedule_preference" %>
+<% end %>
