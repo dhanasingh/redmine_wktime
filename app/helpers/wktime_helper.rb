@@ -607,7 +607,6 @@ end
 				{:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll},
 				{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_payroll_settings},
 				{:name => 'wkscheduling', :partial => 'wktime/tab_content', :label => :label_scheduling},
-				{:name => 'wkschedulepreference', :partial => 'wktime/tab_content', :label => :label_schedule_preference},
 				{:name => 'wkshift', :partial => 'wktime/tab_content', :label => :label_shift}
 			   ]		
 		elsif params[:controller] == "wklead" || params[:controller] == "wkcrmaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact"

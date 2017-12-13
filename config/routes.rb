@@ -531,9 +531,7 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wkasset/getProductAsset', :to => 'wkasset#getProductAsset'
 	
-	get 'wkscheduling/index', :to => 'wkscheduling#index'
-	
-	get 'wkschedulepreference/index', :to => 'wkschedulepreference#index'
+	get 'wkscheduling/index', :to => 'wkscheduling#index'	
 	
 	get 'wkshift/index', :to => 'wkshift#index'
 	
@@ -544,10 +542,6 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wkshift/update', :to => 'wkshift#update'
 	
 	post 'wkshift/shiftRoleUpdate', :to => 'wkshift#shiftRoleUpdate'
-	
-	get 'wkschedulepreference/edit', :to => 'wkschedulepreference#edit'
-	
-	post 'wkschedulepreference/update', :to => 'wkschedulepreference#update'
 	
 	get 'wkscheduling/edit', :to => 'wkscheduling#edit'
 	

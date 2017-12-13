@@ -7,7 +7,6 @@
 	payrollUrl = '<%=url_for(:controller => "wkpayroll", :action => "index", :tab => "payroll")%>';
 	userssettingsUrl = '<%=url_for(:controller => "wkpayroll", :action => "usrsettingsindex", :tab => "usersettings")%>'; 
 	wkSchedulingUrl = '<%=url_for(:controller => "wkscheduling", :action => "index", :tab => "wkscheduling")%>';
-	wkSchedulePreferenceUrl = '<%=url_for(:controller => "wkschedulepreference", :action => "index", :tab => "wkschedulepreference")%>'; 
 	wkShiftUrl = '<%=url_for(:controller => "wkshift", :action => "index", :tab => "wkshift")%>'; 
        
 	grpUrl="<%= "#{url_for(:controller => "wkpayroll", :action => 'getMembersbyGroup')}" %>";
@@ -18,8 +17,9 @@
 <%= hidden_field_tag 'back_url', url_for(params) %>
 
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
-<%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
+<%= form_tag({:controller => controller_name, :action => 'index', :tap => 'payroll'}, :method => :get, :id => 'query_form') do %>
 	<%= hidden_field_tag "searchlist", "#{controller_name}" %>
+	<%=h hidden_field_tag('tab', 'payroll') %>
 	<%	groupid =session[:wkpayroll][:group_id]
 		userid =session[:wkpayroll][:user_id] %>	
 		<table>
