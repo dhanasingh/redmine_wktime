@@ -32,7 +32,7 @@ class WkgrouppermissionController < ApplicationController
 	
 	def edit
 		@groupPermission = nil
-		@permission = WkPermission.order(:name)
+		@permission = WkPermission.order(:modules)
 		@group = Group.find(params[:group_id].to_i)
 		@groupPermission = WkGroupPermission.where(:group_id => params[:group_id].to_i) unless params[:group_id].blank?
 	end

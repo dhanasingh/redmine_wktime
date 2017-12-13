@@ -15,15 +15,15 @@
 <fieldset class="box tabular">
 	<legend><%= l(:label_permissions) %></legend>
 	<% @permission.each do |m| %>
-		<%	moduleName = m.name.split('_')
-			mName = moduleName[0]			
+		<%	moduleName = m.modules 
+			mName = m.modules			
 		%>
 		<% if firstApperence == 0 || mName != lastmName %>
 			<fieldset>
-			<legend><%= moduleName[0] %></legend>
+			<legend><%= m.modules  %></legend>
 				<% @permission.each do | mn | %>
 					<%	name = mn.name.split('_')
-						modName = name[0]			
+						modName = mn.modules #name[0]			
 					%>
 					<% if modName == mName %>
 						<% isPermission = permissionArr.include? mn.id %>
@@ -38,7 +38,7 @@
 					
 				<% end %>
 			</fieldset>
-			<% lastmName = moduleName[0]
+			<% lastmName = m.modules
 				firstApperence += 1
 			%>		
 		<% end %>

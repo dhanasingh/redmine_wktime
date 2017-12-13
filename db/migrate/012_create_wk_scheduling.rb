@@ -38,7 +38,7 @@ class CreateWkScheduling  < ActiveRecord::Migration
 		create_table :wk_shift_schedules do |t|
 			t.references :user, :null => false, :index => true
 			t.references :shift, :class => "wk_shifts", :null => false, :index => true
-			t.date :shift_date
+			t.date :schedule_date
 			t.string :schedule_as, :limit => 3, :default => 'W'
 			t.timestamps null: false
 		end
@@ -47,8 +47,55 @@ class CreateWkScheduling  < ActiveRecord::Migration
 			t.references :user, :null => false, :index => true
 			t.references :shift, :class => "wk_shifts", :null => false, :index => true
 			t.date :start_date
+			t.string :preference_type, :limit => 3, :default => 'W'
 			t.integer :priority
 			t.timestamps null: false
+		end
+		
+		reversible do |dir|
+			dir.up do		
+				add_column :wk_permissions, :modules, :string, :limit => 5
+				execute <<-SQL
+					INSERT INTO wk_permissions(id, name, short_name, modules, created_at, updated_at) VALUES (3, 'SCHEDULES SHIFT', 'S_SHIFT', 'SC', current_timestamp, current_timestamp);
+				SQL
+				
+				execute <<-SQL
+					INSERT INTO wk_permissions(id, name, short_name,modules, created_at, updated_at) VALUES (4, 'EDIT SHIFT SCHEDULES', 'E_SHIFT', 'SC', current_timestamp, current_timestamp);
+				SQL
+				
+				execute <<-SQL
+				  UPDATE wk_permissions set modules = 'IN' where name in ('INVENTORY_VIEW', 'INVENTORY_DELETE');
+				SQL
+				
+				execute <<-SQL
+				  UPDATE wk_permissions set name = 'VIEW INVENTORY' where name = 'INVENTORY_VIEW';
+				SQL
+				
+				execute <<-SQL
+				  UPDATE wk_permissions set name = 'DELETE INVENTORY' where name = 'INVENTORY_DELETE';
+				SQL
+				
+				
+			end
+			dir.down do
+				remove_column :wk_permissions, :modules
+				
+				execute <<-SQL
+				  UPDATE wk_permissions set name = 'INVENTORY_VIEW' where name = 'VIEW INVENTORY';
+				SQL
+				
+				execute <<-SQL
+				  UPDATE wk_permissions set name = 'INVENTORY_DELETE' where name = 'DELETE INVENTORY';
+				SQL
+				
+				execute <<-SQL
+				  DELETE from wk_permissions where name = 'SCHEDULES SHIFT';
+				SQL
+				
+				execute <<-SQL
+				  DELETE from wk_permissions where name = 'EDIT SHIFT SCHEDULES';
+				SQL
+			end 
 		end
 	end
 end
