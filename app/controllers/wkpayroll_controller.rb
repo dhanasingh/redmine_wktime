@@ -17,6 +17,7 @@
 
 class WkpayrollController < WkbaseController
 
+menu_item :wkattendance
 before_filter :require_login
 before_filter :check_perm_and_redirect, :only => [:edit, :user_salary_settings]
 before_filter :check_ta_admin_and_redirect, :only => [:gensalary]

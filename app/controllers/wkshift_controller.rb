@@ -16,6 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 class WkshiftController < ApplicationController
   unloadable
+	menu_item :wkattendance
 	before_filter :require_login
 
 

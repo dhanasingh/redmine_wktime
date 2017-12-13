@@ -18,6 +18,7 @@
 class WkattendanceController < WkbaseController	
 unloadable 
 
+menu_item :wkattendance
 include WktimeHelper
 include WkattendanceHelper
 include WkimportattendanceHelper
