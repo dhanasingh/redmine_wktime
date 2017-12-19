@@ -39,6 +39,7 @@ module TimelogControllerPatch
 		def report
 			retrieve_time_entry_query
 			scope = time_entry_scope
+			set_filter_session
 			if session[:timelog][:spent_type] === "A" || session[:timelog][:spent_type] === "M"
 				productType = params[:spent_type] === "M" ? 'I' : 'A'
 				scope = scope.where("wk_inventory_items.product_type = '#{productType}' ")
