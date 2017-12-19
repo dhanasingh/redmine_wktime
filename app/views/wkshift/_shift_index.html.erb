@@ -1,3 +1,4 @@
+<% activeHash = {1 => "On", 0 => "Off"} %>
 <%= form_tag({:controller => "wkshift", :action => 'update', :tab => 'wkshift'}, :method => :get, :id => 'query_form') do %>
 <table class="list" id="commit-keywords">
   <thead>
@@ -6,6 +7,7 @@
 		<th><%= l(:field_name) %></th>
 		<th><%= l(:label_start_time) %></th>
 		<th><%= l(:label_end_time) %></th>
+		<th><%= l(:field_active) %></th>
 		<th></th>
 		<th class="buttons"></th>
     </tr>
@@ -25,6 +27,9 @@
 				</td>
 				<td>
 					<%= text_field_tag "end_time[]",  (!entry.end_time ? "" : entry.end_time.localtime.strftime('%R')), :style => "width:150px;", :required => true  %>
+				</td>
+				<td>
+					<%= select_tag("inactive[]", options_for_select(activeHash.invert, :selected => entry.in_active ? 1 : 0 )) %>
 				</td>
 				<td>
 					<%= link_to l(:label_required_staff), url_for(:controller => controller_name, :action => 'edit', :shift_id => entry.id), :class => 'icon icon-time-add' %>
@@ -54,6 +59,9 @@
 			<td>
 				<%=	text_field_tag "end_time[]",  ""  , :required => true, :style => "width:150px;"  %>
 			</td>
+			<td>
+				<%= select_tag("inactive[]", options_for_select(activeHash.invert)) %>
+			</td>
 			<td></td>
 			<td class="buttons">
 				<%= link_to(l(:button_delete), '#',
@@ -66,6 +74,7 @@
       <td></td>
 	  <td></td>
       <td></td>  
+	  <td></td>
 	  <td></td>
 	  <td></td>	  
       <td class="buttons">

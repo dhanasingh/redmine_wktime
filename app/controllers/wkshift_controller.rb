@@ -59,6 +59,7 @@ class WkshiftController < ApplicationController
 			shiftEntries.name = params[:name][i]
 			shiftEntries.start_time = params[:start_time][i]
 			shiftEntries.end_time = params[:end_time][i]
+			shiftEntries.in_active = params[:inactive][i] unless params[:inactive].blank?
 			if shiftEntries.save()
 				arrId << shiftEntries.id
 			else
