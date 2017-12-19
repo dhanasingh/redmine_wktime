@@ -6,6 +6,15 @@ require 'timelogcontroller_patch'
 require 'time_report_patch'
 require_dependency 'timelog_helper_patch'
 require_dependency 'queries_helper_patch'
+require 'userscontroller_patch'
+
+User.class_eval do
+	has_one :wk_user, :dependent => :destroy, :class_name => 'WkUser'
+	
+	def erpmineuser
+		self.wk_user ||= WkUser.new(:user => self)
+	end
+end
 
 # redmine only differs between project_menu and application_menu! but we want to display the
 # time_tracker submenu only if the plugin specific controllers are called
@@ -187,6 +196,7 @@ ProjectsController.send(:include, ProjectsControllerPatch)
 IssuesController.send(:include, IssuesControllerPatch)
 TimelogController.send(:include, TimelogControllerPatch)
 SettingsController.send(:include, SettingsControllerPatch)
+UsersController.send(:include, UsersControllerPatch)
 
 Redmine::Plugin.register :redmine_wktime do
   name 'ERPmine'
@@ -545,4 +555,8 @@ class WktimeHook < Redmine::Hook::ViewListener
 	end
 	render_on :view_layouts_base_content, :partial => 'wktime/attendance_widget'	
 	render_on :view_timelog_edit_form_bottom, :partial => 'wklogmaterial/log_material'
+	render_on :view_users_form, :partial => 'wkuser/wk_user', locals: { myaccount: false }
+	render_on :view_users_form_preferences, :partial => 'wkuser/wk_user_address', locals: { myaccount: false }
+	render_on :view_my_account, :partial => 'wkuser/wk_user', locals: { myaccount: true }
+	render_on :view_my_account_preferences, :partial => 'wkuser/wk_user_address', locals: { myaccount: true }
 end

@@ -765,3 +765,25 @@ fr:
   label_day_off: Day Off
   label_schedule_details: Schedule Details
   label_shift_scheduling: Shift Scheduling
+  label_shift_scheduling: Shift Scheduling
+  field_isschedulable: Schedulable
+  field_gender: Gender
+  field_id1: Custom id1
+  field_id2: Custom id2
+  field_id3: Custom id3
+  field_join_date: Join date
+  field_birth_date: Birth date
+  field_termination_date: Termination date
+  field_bank_name: Bank name
+  field_account_number: Bank account number
+  field_bank_code: Bank code
+  field_tax: Tax id
+  field_ss: SS id
+  field_custom_number1: Custom number1
+  field_custom_number2: Custom number2
+  field_custom_date1: Custom date1
+  field_custom_date2: Custom date2
+  field_billing_rate: Billing rate
+  field_biling_currency: Billing currency
+  field_location: Location 
+  field_department: Department

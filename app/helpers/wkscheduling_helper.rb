@@ -19,11 +19,7 @@ module WkschedulingHelper
 	include CalendarsHelper
 	include WkattendanceHelper
 	include WkcrmenumerationHelper
-	
-	User.class_eval do
-	   has_one :wk_user, foreign_key: "user_id", class_name: "WkUser"
-	end
-	
+		
 	def link_to_wkcalendar_display_day(calendarObject, options={})
 		s = ""
 		scheduleType = "P"
