@@ -1,4 +1,7 @@
-<% roleArr = Role.order(:name) %>
+<% roleObj = Role.order(:name) 
+	roleArr = nil
+	roleArr = roleObj.pluck(:name, :id)
+%>
 <% genderHash = {'M' => "Male", 'F' => "Female", 'O' => "Others"} %>
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) 
 	currArr = wkexpense_helper.options_for_currency
@@ -20,7 +23,7 @@
 			<%= calendar_for('erpmine_birth_date') %>	
 			<% unless myaccount %>
 				<p><%= user_fields.text_field :billing_rate, :disabled => disable %></p>			
-				<p><%= user_fields.select :biling_currency, currArr, :disabled => disable %></p>
+				<p><%= user_fields.select :billing_currency, currArr, :disabled => disable %></p>
 			<% end %>
 			<p><%= user_fields.select :role_id, roleArr, :disabled => disable %></p>
 			<p><%= user_fields.select :gender, genderHash.invert, :disabled => disable %></p>

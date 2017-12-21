@@ -18,6 +18,7 @@
 class WkUser < ActiveRecord::Base
   include Redmine::SafeAttributes
   belongs_to :user
+  belongs_to :role
   serialize :others
   
   attr_protected :others, :user_id
@@ -25,7 +26,7 @@ class WkUser < ActiveRecord::Base
   
   safe_attributes 	'role_id', 'id1','id2', 'id3',
 					'join_date', 'birth_date', 'termination_date ',  'gender',
-					'bank_name','account_number', 'bank_code', 'loan_acc_number', 'tax_id', 'ss_id', 'custom_number1', 'custom_number2','custom_date1', 'custom_date2', 'isschedulable', 'billing_rate', 'biling_currency', 'location_id', 'department_id', 'address_id'
+					'bank_name','account_number', 'bank_code', 'loan_acc_number', 'tax_id', 'ss_id', 'custom_number1', 'custom_number2','custom_date1', 'custom_date2', 'isschedulable', 'billing_rate', 'billing_currency', 'location_id', 'department_id', 'address_id'
 
  
   belongs_to :location, :class_name => 'WkLocation'

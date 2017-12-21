@@ -197,7 +197,7 @@ include WkbillingHelper
 				@currency = rateHash['currency'] unless rateHash.blank?
 				isUserBilling = false
 				if rateHash.blank? || rateHash['rate'].blank? || rateHash['rate'] <= 0
-					rateHash = getUserRateHash(entry.user.custom_field_values)
+					rateHash = getUserRateHash(entry.user.wk_user)
 					@currency = rateHash['currency']
 					isUserBilling = true
 					if rateHash.blank? || rateHash['rate'].blank? || rateHash['rate'] <= 0
@@ -366,18 +366,18 @@ include WkbillingHelper
 	end
 	
 	# Return RateHash which contains rate and currency for User
-	def getUserRateHash(userCustVals)
-		rateHash = Hash.new
-		userCustVals.each do |custVal|
-			case custVal.custom_field_id 
-				when getSettingCfId('wktime_user_billing_rate_cf') 
-					rateHash["rate"] = custVal.value.to_f
-				when getSettingCfId('wktime_user_billing_currency_cf') 
-					rateHash["currency"] = custVal.value
-				when getSettingCfId('wktime_attn_designation_cf')
-					rateHash["designation"] = custVal.value
-			end
-		end
+	def getUserRateHash(wkUserObj)
+		rateHash = { "rate" => wkUserObj.billing_rate, "currency" => wkUserObj.billing_currency, "designation" => wkUserObj.role_id }		
+		# userCustVals.each do |custVal|
+			# case custVal.custom_field_id 
+				# when getSettingCfId('wktime_user_billing_rate_cf') 
+					# rateHash["rate"] = custVal.value.to_f
+				# when getSettingCfId('wktime_user_billing_currency_cf') 
+					# rateHash["currency"] = custVal.value
+				# when getSettingCfId('wktime_attn_designation_cf')
+					# rateHash["designation"] = custVal.value
+			# end
+		# end
 		rateHash
 	end
 	

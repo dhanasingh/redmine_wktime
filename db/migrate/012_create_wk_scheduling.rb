@@ -6,7 +6,7 @@ class CreateWkScheduling  < ActiveRecord::Migration
 			t.references :role, :index => true
 			t.float :billing_rate
 			t.boolean :isschedulable
-			t.column :biling_currency, :string, :limit => 5, :default => '$'
+			t.column :billing_currency, :string, :limit => 5, :default => '$'
 			t.references :location, :class => "wk_locations", :null => true, :index => true
 			t.references :department, :class => "wk_crm_enumerations", :null => true, :index => true
 			t.references :address, :class => "wk_addresses", :index => true

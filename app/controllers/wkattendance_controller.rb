@@ -41,7 +41,7 @@ require 'csv'
 		else
 			listboxArr = Setting.plugin_redmine_wktime['wktime_leave'][0].split('|')
 			issueId = listboxArr[0]
-			sqlStr = getListQueryStr + " where u.type = 'User' and (cvt.value is null or #{getConvertDateStr('cvt.value')} >= '#{lastMonthStartDt}')"
+			sqlStr = getListQueryStr + " where u.type = 'User' and (wu.termination_date is null or wu.termination_date >= '#{lastMonthStartDt}')"
 		end
 		if !isAccountUser
 			sqlStr = sqlStr + " and u.id = #{User.current.id} " 
@@ -276,7 +276,7 @@ require 'csv'
 		queryStr = ''
 		accrualOn = params[:accrual_on].blank? ? Date.civil(Date.today.year, Date.today.month, 1) -1 : params[:accrual_on].to_s.to_date
 		queryStr = "select u.id as user_id, u.firstname, u.lastname, i.id as issue_id,w.balance, w.accrual, w.used, w.accrual_on, w.id from users u " +
-			"left join custom_values cvt on (u.id = cvt.customized_id and cvt.value != '' and cvt.custom_field_id = #{getSettingCfId('wktime_attn_terminate_date_cf')} ) " +
+			"left join wk_users wu on u.id = wu.user_id " +
 			"cross join issues i left join wk_user_leaves w on w.user_id = u.id and w.issue_id = i.id
 			and w.accrual_on = '#{accrualOn}' "
 		queryStr
@@ -294,7 +294,7 @@ require 'csv'
 				selectColStr = selectColStr + ", (#{tAlias}.balance + #{tAlias}.accrual - #{tAlias}.used) as total#{index.to_s}"
 			end
 		end
-		queryStr = selectColStr + " from users u left join custom_values cvt on (u.id = cvt.customized_id and cvt.value != '' and cvt.custom_field_id = #{getSettingCfId('wktime_attn_terminate_date_cf')} ) " + joinTableStr 
+		queryStr = selectColStr + " from users u left join wk_users wu on u.id = wu.user_id " + joinTableStr 
 		
 		if !params[:group_id].blank?
 			queryStr = queryStr + " left join groups_users gu on u.id = gu.user_id"

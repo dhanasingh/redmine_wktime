@@ -58,16 +58,12 @@ module WkreportHelper
 	end
 	
 	def getUserQueryStr(group_id,user_id, from)
-		queryStr = "select u.id , gu.group_id, u.firstname, u.lastname,cvt.value as termination_date, cvj.value as joining_date, " +
-			"cvdob.value as date_of_birth, cveid.value as employee_id, cvdesg.value as designation, cvgender.value as gender from users u " +
+		queryStr = "select u.id , gu.group_id, u.firstname, u.lastname,wu.termination_date, wu.join_date, " +
+			"wu.birth_date, wu.id1 as employee_id, rs.name as designation, wu.gender from users u " +
 			"left join groups_users gu on (gu.user_id = u.id and gu.group_id = #{group_id}) " +
-			"left join custom_values cvt on (u.id = cvt.customized_id and cvt.value != '' and cvt.custom_field_id = #{getSettingCfId('wktime_attn_terminate_date_cf')} ) " +
-			"left join custom_values cvj on (u.id = cvj.customized_id and cvj.custom_field_id = #{getSettingCfId('wktime_attn_join_date_cf')} ) " +
-			"left join custom_values cvdob on (u.id = cvdob.customized_id and cvdob.custom_field_id = #{getSettingCfId('wktime_attn_user_dob_cf')} ) " +
-			"left join custom_values cveid on (u.id = cveid.customized_id and cveid.custom_field_id = #{getSettingCfId('wktime_attn_employee_id_cf')} ) " +
-			"left join custom_values cvdesg on (u.id = cvdesg.customized_id and cvdesg.custom_field_id = #{getSettingCfId('wktime_attn_designation_cf')} ) " +
-			"left join custom_values cvgender on (u.id = cvgender.customized_id and cvgender.custom_field_id = #{getSettingCfId('wktime_gender_cf')} ) " +
-			"where u.type = 'User' and (#{getConvertDateStr('cvt.value')} >= '#{from}' or (u.status = #{User::STATUS_ACTIVE} and cvt.value is null))"
+			"left join wk_users wu on u.id = wu.user_id " +
+			"left join roles rs on rs.id = wu.role_id " +
+			"where u.type = 'User' and ( wu.termination_date >= '#{from}' or (u.status = #{User::STATUS_ACTIVE} and wu.termination_date is null))"
 		if group_id.to_i > 0 && user_id.to_i < 1
 			queryStr = queryStr + " and gu.group_id is not null"
 		elsif user_id.to_i > 0
