@@ -661,12 +661,22 @@ function depreciatonFormSubmission()
 		alert("Please select valid date range");
 	}
 	else {
-		var isFormSubmission = confirm("Are you sure want to apply depreciation for the period " + fromDateStr + " to " + toDateStr);
+		var isFormSubmission = confirm(apply_warn + " " + fromDateStr + " to " + toDateStr);
 		if (isFormSubmission == true) {
 			document.getElementById("generate").value = true; 
 			document.getElementById("query_form").submit();
 		} 
 	}
+	
+}
+
+function scheduleFormSubmission()
+{ 
+	var isFormSubmission = confirm(apply_warn);
+	if (isFormSubmission == true) {
+		document.getElementById("generate").value = true; 
+		document.getElementById("query_form").submit();
+	} 
 	
 }
 

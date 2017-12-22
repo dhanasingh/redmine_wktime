@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-class WkschedulingController < ApplicationController
+class WkschedulingController < WkbaseController
   unloadable
   menu_item :wkattendance
   rescue_from Query::StatementInvalid, :with => :query_statement_invalid
@@ -26,8 +26,7 @@ class WkschedulingController < ApplicationController
   include WktimeHelper
 
 
-
-	def index			
+	def index	
 		@schedulesShift = validateERPPermission("S_SHIFT")
 		@editShiftSchedules = validateERPPermission("E_SHIFT")
 		if params[:year] and params[:year].to_i > 1900
@@ -42,6 +41,14 @@ class WkschedulingController < ApplicationController
 		@calendar = Redmine::Helpers::Calendar.new(Date.civil(@year, @month, 1), current_language, :month)
 		userIds = schedulingFilterValues 
 		shiftId = session[controller_name][:shift_id]
+		locationId = session[:wkscheduling][:location_id]
+		deptId = session[:wkscheduling][:department_id]
+		unless params[:generate].blank? || !to_boolean(params[:generate])
+			Rails.logger.info("=========== PrioritySchedule Call============")
+			ScheduleStrategy.new.schedule('P', 1, 32, @calendar.startdt, @calendar.enddt)
+			Rails.logger.info("=========== Round Robin Call============")
+			ScheduleStrategy.new.schedule('RR', 1, 32, @calendar.startdt, @calendar.enddt)
+		end
 		unless shiftId.blank?
 			@shiftObj = WkShiftSchedule.where(:schedule_date => @calendar.startdt..@calendar.enddt, :user_id => userIds, :shift_id => shiftId.to_i ).order(:schedule_date, :user_id, :shift_id)
 		else
@@ -69,7 +76,7 @@ class WkschedulingController < ApplicationController
 			end					
 			@schedulehash["#{day}"] = arr
 			day = day + 1
-		end	
+		end 
 	end
 	
 	def edit	
@@ -139,7 +146,7 @@ class WkschedulingController < ApplicationController
 			if !params[:name].blank?
 				entries = entries.where("users.type = 'User' and LOWER(users.firstname) like LOWER('%#{params[:name]}%') or LOWER(users.lastname) like LOWER('%#{params[:name]}%')")
 			end
-			userIds = entries.pluck(:user_id)
+			userIds = entries.pluck(:user_id) 
 		end
 		userIds
 	end

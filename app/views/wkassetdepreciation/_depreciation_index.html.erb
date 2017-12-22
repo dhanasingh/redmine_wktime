@@ -12,6 +12,7 @@
 	<%=h hidden_field_tag('tab', controller_name) %>
 	<script type="text/javascript"> 
 		no_asset = '<%=l(:label_no_asset_current_product) %>';
+		apply_warn = '<%=l(:warning_apply_depreciation) %>';
 		assetUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
 	</script>
 	<% 

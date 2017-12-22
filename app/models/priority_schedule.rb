@@ -15,7 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkShiftSchedule < ActiveRecord::Base
-	belongs_to :shift, class_name: "WkShift"
-	belongs_to :user
+class PrioritySchedule
+	def schedule(locationId, deptId, from, to)
+		Rails.logger.info("=========== PrioritySchedule ============")
+	end
 end
