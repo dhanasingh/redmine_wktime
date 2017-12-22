@@ -2,6 +2,7 @@
 <%  lastmName = ""
 	firstApperence = 0 
 	count = 1
+	moduleHash = {"IN" => l(:label_inventory), "SC" => l(:label_scheduling) }
 %>
 <% permissionArr = @groupPermission.pluck(:permission_id) %>
 <%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
@@ -20,7 +21,7 @@
 		%>
 		<% if firstApperence == 0 || mName != lastmName %>
 			<fieldset>
-			<legend><%= m.modules  %></legend>
+			<legend><%= moduleHash[m.modules]  %></legend>
 				<% @permission.each do | mn | %>
 					<%	name = mn.name.split('_')
 						modName = mn.modules #name[0]			

@@ -546,3 +546,7 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wkscheduling/edit', :to => 'wkscheduling#edit'
 	
 	post 'wkscheduling/update', :to => 'wkscheduling#update'
+	
+	get 'wkpublicholiday/index', :to => 'wkpublicholiday#index'
+	
+	post 'wkpublicholiday/update', :to => 'wkpublicholiday#update'

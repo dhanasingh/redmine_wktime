@@ -63,6 +63,14 @@ class CreateWkScheduling  < ActiveRecord::Migration
 			t.timestamps null: false
 		end
 		
+		create_table :wk_public_holidays do |t|
+			t.date :holiday_date
+			t.string :description
+			t.references :location, :class => "wk_crm_enumerations", :null => false, :index => true
+			t.references :department, :class => "wk_crm_enumerations", :null => false, :index => true
+			t.timestamps null: false
+		end
+		
 		reversible do |dir|
 			dir.up do		
 				add_column :wk_permissions, :modules, :string, :limit => 5

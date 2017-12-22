@@ -1,29 +1,14 @@
 <h2><%= l(:label_shift) + " " + l(:label_role_plural) %></h2>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-<%  locationId = session[controller_name][:location_id]
-	departmentId = session[controller_name][:department_id]
+<%  locId = session[controller_name][:location_id]
+	depId = session[controller_name][:department_id]
 	shiftId = @shiftObj.blank? ? "" : @shiftObj.id
 %>
  <%= form_tag({:controller => 'wkshift', :action => 'edit'}, :method => :get, :id => 'query_form') do %>
 <%= hidden_field_tag "searchlist", controller_name %>
 <%= hidden_field_tag "shift_id",  @shiftObj.blank? ? "" : @shiftObj.id  %>
-<fieldset class="box tabular">
-	<table>
-		<tr>
-			 <th><%= l(:label_location) %>:</th>
-			 <td>
-				<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, true), :disabled => false, :style => "float:left; width:120px;") %>
-			 </td> 
-			 <th><%= l(:label_department) %>:</th>
-			 <td>
-				<%=h select_tag('department_id', options_for_select(options_for_enum_select('DP', departmentId, true)), :style => "float:left; width:120px;") %>
-			 </td> 
-			 <td><%= submit_tag l(:button_apply), :class => "small", :name => nil %></td>
-			 <td> <%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %></td>
-		</tr>
-	</table>	 	
-</fieldset>
+	<%= render :partial => 'wklocation/location_filter', :locals => { locationId: locId, departmentId: depId, isApply: true }  %>
  <% end %>
  <br/>
-<%= render :partial => 'wkshift/edit_shift_roles', locals: { location_id: locationId, department_id: departmentId, shift_id: shiftId} %>
+<%= render :partial => 'wkshift/edit_shift_roles', locals: { location_id: locId, department_id: depId, shift_id: shiftId} %>
  
