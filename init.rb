@@ -292,7 +292,11 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_depreciation_ledger' => '0',
 			 'auto_apply_depreciation' => '0',
 			 'wktime_depreciation_frequency' => '0',
-			 'wktime_enable_shift scheduling_module' => '0'
+			 'wktime_enable_shift scheduling_module' => '0',
+			 'wk_schedule_on_weekend' => '0',
+			 'wk_schedule_weekend' => '0',
+			 'wk_scheduling_frequency' => '0',
+			 'wk_day_off_per_frequency' => '0'
   })  
 	menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_erpmine, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 
   	
