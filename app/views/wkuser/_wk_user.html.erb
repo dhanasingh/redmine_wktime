@@ -6,7 +6,9 @@
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) 
 	currArr = wkexpense_helper.options_for_currency
 	wkenum_helper = Object.new.extend(WkcrmenumerationHelper) 
-	locationArr = WkLocation.order(:name)
+	locationArr = nil
+	locationobj = WkLocation.order(:name)
+	locationArr = locationobj.pluck(:name, :id)
 	departmentArr = WkCrmEnumeration.where(:enum_type => 'DP').order(:name).pluck(:name, :id)
 %>
 </fieldset>
