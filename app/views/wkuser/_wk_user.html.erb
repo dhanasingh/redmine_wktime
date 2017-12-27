@@ -10,6 +10,10 @@
 	locationobj = WkLocation.order(:name)
 	locationArr = locationobj.pluck(:name, :id)
 	departmentArr = WkCrmEnumeration.where(:enum_type => 'DP').order(:name).pluck(:name, :id)
+	shiftArr = nil
+	shiftObj = WkShift.where(:in_active => true).order(:name)
+	shiftArr = shiftObj.pluck(:name, :id)
+	shiftArr.unshift(["",''])
 %>
 </fieldset>
 <div >
@@ -32,6 +36,7 @@
 			<p><%= user_fields.select :location_id, locationArr, :disabled => disable %></p>
 			<p><%= user_fields.select :department_id, departmentArr, :disabled => disable %></p>
 			<p><%= user_fields.check_box :isschedulable, :disabled => disable %></p>
+			<p><%= user_fields.select :shift_id, shiftArr, :disabled => disable %></p>
 			<p><%= user_fields.text_field :bank_name, :disabled => disable %></p>
 			<p><%= user_fields.text_field :account_number,  :disabled => disable %></p>
 			<p><%= user_fields.text_field :bank_code, :disabled => disable %></p>			
