@@ -18,4 +18,6 @@
 class WkShiftRole < ActiveRecord::Base
 	belongs_to :role, class_name: "Role"
 	belongs_to :shift, class_name: "WkShift"
+	belongs_to :location, class_name: "WkLocation"
+	belongs_to :department, :class_name => 'WkCrmEnumeration'
 end

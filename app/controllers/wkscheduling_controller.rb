@@ -43,19 +43,25 @@ class WkschedulingController < WkbaseController
 		shiftId = session[controller_name][:shift_id]
 		locationId = session[:wkscheduling][:location_id]
 		deptId = session[:wkscheduling][:department_id]
+		dayOff = session[controller_name][:day_off]
+		
 		unless params[:generate].blank? || !to_boolean(params[:generate])
 			Rails.logger.info("=========== PrioritySchedule Call============")
-			ScheduleStrategy.new.schedule('P', 1, 32, @calendar.startdt, @calendar.enddt)
+			ScheduleStrategy.new.schedule('P', locationId, deptId, @calendar.startdt, @calendar.enddt)
 			Rails.logger.info("=========== Round Robin Call============")
-			ScheduleStrategy.new.schedule('RR', 1, 32, @calendar.startdt, @calendar.enddt)
+			ScheduleStrategy.new.schedule('RR', locationId, deptId, @calendar.startdt, @calendar.enddt)
 		end
 		unless shiftId.blank?
-			@shiftObj = WkShiftSchedule.where(:schedule_date => @calendar.startdt..@calendar.enddt, :user_id => userIds, :shift_id => shiftId.to_i ).order(:schedule_date, :user_id, :shift_id)
+			@shiftObj = WkShiftSchedule.where(:schedule_date => @calendar.startdt..@calendar.enddt, :user_id => userIds, :shift_id => shiftId.to_i).order(:schedule_date, :user_id, :shift_id)
 		else
 			@shiftObj = WkShiftSchedule.where(:schedule_date => @calendar.startdt..@calendar.enddt, :user_id => userIds).order(:schedule_date, :user_id, :shift_id)
 		end
-		 
+		
 		@shiftPreference = WkShiftPriority.where(:start_date => @calendar.startdt..@calendar.enddt, :user_id => userIds).order(:start_date, :user_id, :shift_id)
+		unless dayOff.blank?
+			@shiftObj = @shiftObj.where(:schedule_as => dayOff)
+			@shiftPreference = @shiftPreference.where(:preference_type => dayOff)
+		end
 		day = @calendar.startdt
 		@schedulehash = Hash.new 
 		while day <= @calendar.enddt
@@ -85,12 +91,18 @@ class WkschedulingController < WkbaseController
 		userIds = schedulingFilterValues
 		scheduleDate =  params[:date]
 		shiftId = session[controller_name][:shift_id]
+		dayOff = session[controller_name][:day_off]
+		
 		if !scheduleDate.blank? && !shiftId.blank?
 			@shiftObj = WkShiftSchedule.where(:schedule_date => scheduleDate, :user_id => userIds, :shift_id => shiftId.to_i).order(:schedule_date, :user_id) 
 			@shiftPreference = WkShiftPriority.where(:start_date => scheduleDate, :user_id => userIds, :shift_id => shiftId.to_i).order(:start_date, :user_id)
 		elsif !scheduleDate.blank? && shiftId.blank?
 			@shiftObj = WkShiftSchedule.where(:schedule_date => scheduleDate, :user_id => userIds).order(:schedule_date, :user_id) 
 			@shiftPreference = WkShiftPriority.where(:start_date => scheduleDate, :user_id => userIds).order(:start_date, :user_id)
+		end	
+		unless dayOff.blank?
+			@shiftObj = @shiftObj.where(:schedule_as => dayOff)
+			@shiftPreference = @shiftPreference.where(:preference_type => dayOff)
 		end		
 	end
 	
@@ -158,6 +170,7 @@ class WkschedulingController < WkbaseController
 			session[controller_name][:location_id] = params[:location_id]
 			session[controller_name][:department_id] = params[:department_id]
 			session[controller_name][:shift_id] =  params[:shift_id]
+			session[controller_name][:day_off] =  params[:day_off]
 		end
 	end
 end

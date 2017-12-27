@@ -32,7 +32,19 @@
 					<%= select_tag("inactive[]", options_for_select(activeHash.invert, :selected => entry.in_active ? 1 : 0 )) %>
 				</td>
 				<td>
-					<%= link_to l(:label_required_staff), url_for(:controller => controller_name, :action => 'edit', :shift_id => entry.id), :class => 'icon icon-time-add' %>
+					<div class="tooltip">
+						<span class="tip">
+							<% unless entry.shift_roles.blank? %>
+								<div class="issue">
+								<% entry.shift_roles.each do | shiftrole | %>
+									<p><%= shiftrole.location.name  %> - <%= shiftrole.department.name %> - <%= shiftrole.role.name %> : <%= shiftrole.staff_count %></p>
+								<% end %>
+								</div>
+							<% end %>
+							
+						</span>
+						<%= link_to l(:label_required_staff), url_for(:controller => controller_name, :action => 'edit', :shift_id => entry.id), :class => 'icon icon-time-add' %>
+					</div>
 				</td>
 			 
 				<td class="buttons">

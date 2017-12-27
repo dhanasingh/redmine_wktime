@@ -31,11 +31,16 @@ module WkschedulingHelper
 			totalCount = dayValue.length
 			dayValue.each do | v |
 				sval = v.split("-")				
-				content = sval[0].capitalize 			
-				content <<  link_to(h(sval[1]), url_for(:controller => controller_name, :action => 'edit', :date => options[:day], :schedule_type=> sval[3].strip, :only_path => true), :class => 'icon icon-test')
-				scheduleType = sval[3].strip
+				content = sval[0].capitalize 					
 				schedules = sval[2].strip
-				content << " : " + content_tag(:span, (schedules == 'W' ? "Work" : "Off"), :style => "color:#{(schedules == 'W' ? "purple" : "red")};")		
+				if schedules == 'W'
+					content <<  link_to(h(sval[1]), url_for(:controller => controller_name, :action => 'edit', :date => options[:day], :schedule_type=> sval[3].strip, :only_path => true), :class => 'icon icon-test', :style => "color:green;")
+				else
+					content << "<p class='ending'>" + link_to(h(l(:label_day_off)), url_for(:controller => controller_name, :action => 'edit', :date => options[:day], :schedule_type=> sval[3].strip, :only_path => true),  :style => "color:red;") +"</p>"
+				end
+				
+				scheduleType = sval[3].strip
+				# content << " : " + content_tag(:span, (schedules == 'W' ? "Work" : "Off"), :style => "color:#{(schedules == 'W' ? "purple" : "red")};")		
 				
 				s =  s + content  + "<br/>".html_safe 
 				if  count == 3 
@@ -64,7 +69,7 @@ module WkschedulingHelper
 	 end
 	 
 	 def render_calendar_tooltip(calendarObject, options={})
-		content = "<div style='min-height: 100%; max-height:300px;overflow:auto;' ><table class='list time-entries'><thead><tr style=' height:30px;'><th>Name</th><th>Shift Name</th><th> Day Off </th></tr></thead><tbody>"
+		content = "<div style='min-height: 100%; max-height:300px;overflow:auto;' > <b><p style='float:right;'>#{options[:day]} </p></b><table class='list time-entries'><thead><tr style=' height:30px;'><th>Name</th><th>Shift Name</th></tr></thead><tbody>"
 		scheduleType = "P"
 		dayValue = calendarObject["#{options[:day]}"]
 		unless dayValue.blank?	
@@ -73,10 +78,16 @@ module WkschedulingHelper
 				content << "<tr style='height:30px; font-size: 1.2em;' >".html_safe
 				sval = v.split("-")				
 				content << "<td>" + sval[0].capitalize + "</td>".html_safe			
-				content << "<td>" + link_to(h(sval[1]), url_for(:controller => controller_name, :action => 'edit', :date => options[:day], :schedule_type=> sval[3].strip, :only_path => true), :class => 'icon icon-test') + "</td>".html_safe
+				
 				scheduleType = sval[3].strip
 				schedules = sval[2].strip
-				content << "<td>" + content_tag(:span, (schedules == 'W' ? "Work" : "Off"), :style => "color:#{(schedules == 'W' ? "purple" : "red")};")+ "</td></tr>".html_safe	
+				if schedules == 'W'
+					content << "<td>" + link_to(h(sval[1]), url_for(:controller => controller_name, :action => 'edit', :date => options[:day], :schedule_type=> sval[3].strip, :only_path => true), :class => 'icon icon-test',  :style => "color:green;") + "</td>".html_safe
+				else
+					content << "<td>" + "<p class='ending'>" + link_to(h(l(:label_day_off)), url_for(:controller => controller_name, :action => 'edit', :date => options[:day], :schedule_type=> sval[3].strip, :only_path => true),  :style => "color:red;") + "</p></td>".html_safe
+				end
+				content << "</tr>".html_safe	
+				# content << "<td>" + content_tag(:span, (schedules == 'W' ? "Work" : "Off"), :style => "color:#{(schedules == 'W' ? "purple" : "red")};")+ "</td></tr>".html_safe	
 			end
 		end
 		content << "</tbody></table></div>".html_safe

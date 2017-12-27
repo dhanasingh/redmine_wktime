@@ -6,8 +6,10 @@
 	shiftId = session[controller_name][:shift_id]
 	depId = session[controller_name][:department_id]
 	locationId = session[controller_name][:location_id]
+	dayOff = session[controller_name][:day_off]
 	dateVal = params[:date]
 %>
+<% scheduleasHash = {'' => "", 'W' => l(:label_work), 'D' => l(:label_day_off)} %>
 <fieldset class="box tabular">
 	<legend><%= l(:label_filter_plural) %></legend>
 	<table>
@@ -24,7 +26,8 @@
 			<th> <%= l(:label_shift) %></th>
 			<td><%=h select_tag('shift_id', options_for_select(shiftArr, :selected => shiftId.blank? ? shiftArr : shiftId), :style => "float:left; width:120px;") %></td>		 
 			
-			
+			<th><%= l(:label_day_off) %></th>
+			<td><%=h select_tag('day_off', options_for_select(scheduleasHash.invert, :selected => dayOff), :style => "float:left; width:120px;") %></td>
 			
 			<% if isApply %>
 				<th> <%= l(:field_spent_on) %></th>
