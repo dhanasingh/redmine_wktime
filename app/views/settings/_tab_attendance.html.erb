@@ -321,6 +321,7 @@ lblYear = "<%=l(:label_year) %>";
 		</tbody>
 		</table>
  </fieldset>
+ <%= render :partial => 'settings/tab_shift_scheduling' %>
 <% if !projArr.blank? %>
 <div style = "display:none">
 	<%=h select_tag('template_projDD', options_for_select(projArr))%>

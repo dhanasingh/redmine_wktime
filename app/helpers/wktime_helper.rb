@@ -770,8 +770,8 @@ end
 				{:name => 'accounting', :partial => 'settings/tab_accounting', :label => :label_accounting},
 				{:name => 'CRM', :partial => 'settings/tab_crm', :label => :label_crm},
 				{:name => 'purchase', :partial => 'settings/tab_purchase', :label => :label_purchasing},
-				{:name => 'inventory', :partial => 'settings/tab_inventory', :label => :label_inventory},
-				{:name => 'shiftscheduling', :partial => 'settings/tab_shift_scheduling', :label => :label_scheduling}
+				{:name => 'inventory', :partial => 'settings/tab_inventory', :label => :label_inventory}
+				#{:name => 'shiftscheduling', :partial => 'settings/tab_shift_scheduling', :label => :label_scheduling}
 			   ]	
 	end	
 	
