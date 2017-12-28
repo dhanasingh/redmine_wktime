@@ -20,12 +20,16 @@
 	
 %>
 
-<%= render :partial => 'wklocation/location_filter', :locals => { locationId: locId, departmentId: depId, isApply: false }  %>
-
+<%#= render :partial => 'wklocation/location_filter', :locals => { locationId: locId, departmentId: depId, isApply: false }  %>
+			
 <p style="float:right;">
   <%= link_to_previous_month(@year, @month, :accesskey => accesskey(:previous)) %> | <%= link_to_next_month(@year, @month, :accesskey => accesskey(:next)) %>
 </p>
 <p class="buttons">
+<%=h l(:label_location) %>
+<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locId, true)) %>
+
+
 <%= label_tag('month', l(:label_month)) %>
 <%= select_month(@month, :prefix => "month", :include_blank => true, :discard_type => true) %>
 <%= label_tag('year', l(:label_year)) %>

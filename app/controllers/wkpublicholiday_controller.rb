@@ -70,7 +70,7 @@ class WkpublicholidayController < ApplicationController
 			end
 			curExchanges.holiday_date = params[:holiday_date][i]
 			curExchanges.location_id = params[:location_id][i]
-			curExchanges.department_id = params[:department_id][i]
+			#curExchanges.department_id = params[:department_id][i]
 			curExchanges.description = params[:description][i]
 			curExchanges.save()			
 		end

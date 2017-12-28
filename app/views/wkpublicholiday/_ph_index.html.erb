@@ -7,7 +7,7 @@
 		<th></th>
 		<th><%= l(:label_date) %></th>
 		<th><%= l(:label_location) %></th>
-		<th><%= l(:label_department) %></th>
+		<!-- <th><%#= l(:label_department) %></th> -->
 		<th><%= l(:label_wk_description) %></th>
 		<th class="buttons"></th>
     </tr>
@@ -26,9 +26,10 @@
 				<td>
 					<%=h select_tag("location_id[]", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', entry.location_id, true), :style => "width:150px;") %>
 				</td> 
+				<!--
 				<td>
-					<%=h select_tag('department_id[]', options_for_select(options_for_enum_select('DP', entry.department_id, true)), :style => "width:120px;") %>
-				</td> 
+					<%#=h select_tag('department_id[]', options_for_select(options_for_enum_select('DP', entry.department_id, true)), :style => "width:120px;") %>
+				</td> -->
 			    <td>
 					<%= text_field_tag "description[]",  entry.description, :style => "width:150px;", :required => true  %>
 				</td>			        
@@ -53,9 +54,11 @@
 			<td>
 				<%=h select_tag("location_id[]", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', nil, true), :style => "width:150px;") %>
 			</td> 
+			<!--
 			<td>
-				<%=h select_tag('department_id[]', options_for_select(options_for_enum_select('DP', nil, true)), :style => "width:150px;") %>
+				<%#=h select_tag('department_id[]', options_for_select(options_for_enum_select('DP', nil, true)), :style => "width:150px;") %>
 			</td>
+			-->
 			<td>
 				<%=  
 				text_field_tag "description[]",  ""  , :required => true, :style => "width:150px;"  %>
@@ -71,7 +74,7 @@
     <tr>
       <td></td>
 	  <td></td>
-	  <td></td>
+	  
 	  <td></td>
       <td></td>      
       <td class="buttons">
