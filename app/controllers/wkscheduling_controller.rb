@@ -41,15 +41,14 @@ class WkschedulingController < WkbaseController
 		@calendar = Redmine::Helpers::Calendar.new(Date.civil(@year, @month, 1), current_language, :month)
 		userIds = schedulingFilterValues 
 		shiftId = session[controller_name][:shift_id]
-		locationId = session[:wkscheduling][:location_id]
-		deptId = session[:wkscheduling][:department_id]
-		dayOff = session[controller_name][:day_off]
-		
+		dayOff = session[controller_name][:day_off]		
 		unless params[:generate].blank? || !to_boolean(params[:generate])
-			Rails.logger.info("=========== PrioritySchedule Call============")
-			ScheduleStrategy.new.schedule('P', locationId, deptId, @calendar.startdt, @calendar.enddt)
-			Rails.logger.info("=========== Round Robin Call============")
-			ScheduleStrategy.new.schedule('RR', locationId, deptId, @calendar.startdt, @calendar.enddt)
+			@shiftRoles.each do | entry |
+				Rails.logger.info("=========== PrioritySchedule Call============")
+				ScheduleStrategy.new.schedule('P', entry.location_id, entry.department_id, @calendar.startdt, @calendar.enddt)
+				Rails.logger.info("=========== Round Robin Call============")
+				ScheduleStrategy.new.schedule('RR', entry.location_id, entry.department_id, @calendar.startdt, @calendar.enddt)
+			end
 		end
 		unless shiftId.blank?
 			@shiftObj = WkShiftSchedule.where(:schedule_date => @calendar.startdt..@calendar.enddt, :user_id => userIds, :shift_id => shiftId.to_i).order(:schedule_date, :user_id, :shift_id)
@@ -148,12 +147,16 @@ class WkschedulingController < WkbaseController
 		if @schedulesShift
 			if (!departmentId.blank? && departmentId.to_i != 0 ) && !locationId.blank?
 				entries = WkUser.includes(:user).where(:department_id => params[:department_id].to_i, :location_id => params[:location_id].to_i)
+				@shiftRoles = WkShiftRole.where(:department_id => params[:department_id].to_i, :location_id => params[:location_id].to_i)
 			elsif (!departmentId.blank? && departmentId.to_i != 0 ) && locationId.blank?
 				entries = WkUser.includes(:user).where(:department_id => params[:department_id].to_i)
+				@shiftRoles = WkShiftRole.where(:department_id => params[:department_id].to_i)
 			elsif (departmentId.blank? || departmentId.to_i == 0 ) && !locationId.blank?
 				entries = WkUser.includes(:user).where(:location_id => params[:location_id].to_i)
+				@shiftRoles = WkShiftRole.where(:location_id => params[:location_id].to_i)
 			else
 				entries = WkUser.includes(:user).all
+				@shiftRoles = WkShiftRole.order(:location_id, :department_id)
 			end
 			if !params[:name].blank?
 				entries = entries.where("users.type = 'User' and LOWER(users.firstname) like LOWER('%#{params[:name]}%') or LOWER(users.lastname) like LOWER('%#{params[:name]}%')")
