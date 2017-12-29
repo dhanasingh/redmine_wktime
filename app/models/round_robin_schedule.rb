@@ -16,22 +16,27 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class RoundRobinSchedule
-
+	
+	# Schedule for the give location and department
+	# Target shift - the shift which we are going to schedule
+	# Source Shift - The shift which we take the users from (Previous shift)
 	def schedule(locationId, deptId, from, to)
-		roleUserHash = getRoleWiseUser(locationId, deptId)
+		currentRoleUserHash = getRoleWiseUser(locationId, deptId)
 		lastShiftHash  = getLastShiftDetails(locationId, deptId, from, to, 'W')
 		lastDayOffHash = getLastShiftDetails(locationId, deptId, from, to, 'D')
-		reqStaffHash = getRequiredStaffHash(locationId, deptId, roleUserHash, getDaysBetween(from, to))
+		periodDays = getDaysBetween(from, to)
+		reqStaffHash = getRequiredStaffHash(locationId, deptId, currentRoleUserHash, periodDays)
 		minStaffMoveHash = getMinStaffMove(reqStaffHash)
-		wkOffs = 0
 		shifts = WkShift.where(:id => reqStaffHash.keys).order(start_time: :desc).pluck(:id)
 		totalShifts = shifts.length
 		allocatedHash = Hash.new
 		scheduledUserIds = Array.new
-		currentRoleUserHash = roleUserHash
 		unScheduledLstSftUsr = lastShiftHash
 		shifts.each_with_index do |shift, index|
 			reqStaffHash[shift].each do |role, staff|
+				if currentRoleUserHash[role].blank?
+					next
+				end
 				sourceShift = shifts[(index+1)%totalShifts]
 				if unScheduledLstSftUsr[sourceShift].blank? || unScheduledLstSftUsr[sourceShift][role].values[0].blank?
 					availableUsers = currentRoleUserHash[role].keys
@@ -41,11 +46,17 @@ class RoundRobinSchedule
 					pickedUserIds = Array.new 
 					sourceShiftLastUsrs = unScheduledLstSftUsr[sourceShift][role].select { |uid, schDt| schDt.blank? || schDt > (from - 7.days)}
 					targetShiftLastUsrs = unScheduledLstSftUsr[shift][role].select { |uid, schDt| schDt.blank? || schDt > (from - 7.days)}
+					
+					# Sort the users Ascending order by last working date on the target shift
+					# Pick the least recently working staff on the target shift from source shift until reach the minimum staff move count
 					targetShftLastUsersAsc = unScheduledLstSftUsr[shift][role].sort_by { |uid, schDt| schDt || Date.new(1900) }
 					targetShftLastUsersAsc.each do |id, schDt|
 						pickedUserIds << id if sourceShiftLastUsrs.has_key?(id) && currentRoleUserHash[role].has_key?(id)
 						break if pickedUserIds.length == minStaffMoveHash[role]
 					end
+					
+					# if not matched number of users worked on the last week then pick the users from the last week staff on source shift
+					# Pick the least recently working staff on the target shift from source shift
 					unless pickedUserIds.length == minStaffMoveHash[role]
 						sourceShiftLastUsrs.each do |userId, schdt|
 							pickedUserIds << userId if currentRoleUserHash[role].has_key?(userId)
@@ -53,6 +64,8 @@ class RoundRobinSchedule
 						end
 					end
 					targetShiftLastUsrs.except!(*pickedUserIds)
+					
+					# After the minimum staff move then keep some staff from the same shift(Target shift)
 					additionalCount = staff-pickedUserIds.length
 					if additionalCount>0
 						unless pickedUserIds.length == staff
@@ -77,7 +90,7 @@ class RoundRobinSchedule
 	end
 	
 	# Return active users role wise
-	# roleUserHash key as roll_id , value as userHash ( userId as key userObj as value}
+	# roleUserHash key as roll_id , value as userHash ( userId as key userObj as value)
 	def getRoleWiseUser(locationId, deptId)
 		users = User.includes(:wk_user).where(:wk_users => {:location_id => locationId, :department_id => deptId, :termination_date => nil})
 		roleUserHash = Hash.new
@@ -93,6 +106,8 @@ class RoundRobinSchedule
 	
 	# Return the required number of staff for each shift on each role
 	# Required number of staff for given location and department
+	# Here we have to check number of staff and and required staff are equal 
+	# If not equal then we have to assign the staff as requested staff percentage in each shift
 	def getRequiredStaffHash(locationId, deptId, roleUserHash, interval)
 		if deptId.blank?
 			shiftRoles = WkShiftRole.where(:location_id => locationId)
@@ -147,17 +162,17 @@ class RoundRobinSchedule
 	def getDayOffs(userIdsArr, from, to, lastDayOff)
 		dayOffCount = getDayOffCount
 		dayOffHash = Hash.new
-		period = "W"
-		isConsecutive = true
-		userLastDayOff = lastDayOff.select { |userId, dayOff| userIdsArr.include? userId }
-		sortedUserLastDayOff = lastDayOff.sort_by { |uid, schDt| schDt || Date.new(1900) }
+		# period = "W"
+		# isConsecutive = true
+		# userLastDayOff = lastDayOff.select { |userId, dayOff| userIdsArr.include? userId }
+		# sortedUserLastDayOff = lastDayOff.sort_by { |uid, schDt| schDt || Date.new(1900) }
 		noOfDays = getDaysBetween(from, to)#(to - from).to_i + 1 
-		noOfUsers = userIdsArr.length
-		minLeaveUsrPerDay = (noOfUsers * dayOffCount) / 7
-		maxLeaveUsrPerDay = minLeaveUsrPerDay + 1
-		noOfDaysHasMaxLeave = (noOfUsers * dayOffCount) % 7
-		nextDate = from
-		interval = 1
+		# noOfUsers = userIdsArr.length
+		# minLeaveUsrPerDay = (noOfUsers * dayOffCount) / 7
+		# maxLeaveUsrPerDay = minLeaveUsrPerDay + 1
+		# noOfDaysHasMaxLeave = (noOfUsers * dayOffCount) % 7
+		# nextDate = from
+		# interval = 1
 		userIdsArr.each_with_index do |userId, index|
 			dayOffArr = Array.new
 			#firstLeaveDt = from + ((index * dayOffCount) % noOfDays).days
