@@ -1,0 +1,55 @@
+<%#= title l(:label_group) + " " +  l(:label_permissions) %> 
+<%  lastmName = ""
+	firstApperence = 0 
+	count = 1
+	moduleHash = {"IN" => l(:label_inventory), "SC" => l(:label_scheduling) }	
+	permissionArr = Array.new
+	permissionArr = @groupPermission.pluck(:permission_id) unless @groupPermission.blank?
+%>
+
+<%= form_tag({:controller => controller_name, :action => 'index', :tab => "wkgrouppermission"}, :method => :get, :id => 'filter_query_form') do %>
+<%=h hidden_field_tag('tab', "wkgrouppermission") %>
+<fieldset class="box tabular">
+	<table>
+		<th><%=l(:label_group) %></th>
+		<td><%= select_tag 'group_id', content_tag('option') + options_from_collection_for_select(@groups, :id, :name, params[:group_id].to_i), :onchange => "this.form.submit(); return false;"  %></td>
+		
+	</table>
+</fieldset>
+<% end %>
+<%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
+<%=h hidden_field_tag("group_id", @groupPermission.blank? ? "" : @groupPermission[0].group_id) %>
+<fieldset class="box tabular">
+	<legend><%= l(:label_permissions) %></legend>
+	<% @permission.each do |m| %>
+		<%	moduleName = m.modules 
+			mName = m.modules			
+		%>
+		<% if firstApperence == 0 || mName != lastmName %>
+			<fieldset>
+			<legend><%= moduleHash[m.modules]  %></legend>
+				<% @permission.each do | mn | %>
+					<%	name = mn.name.split('_')
+						modName = mn.modules #name[0]			
+					%>
+					<% if modName == mName %>
+						<% isPermission = permissionArr.include? mn.id %>
+						<p><label style="text-align: left; float:left;">
+							<%= check_box_tag "is_permission#{count}", 1, isPermission     -%>
+							<%= l_or_humanize(mn.name, :prefix => "erpmine_module_") %></label>
+						</p>
+						<%=h hidden_field_tag("permission_id#{count}", mn.id) %>
+						<%=h hidden_field_tag("count", count) %>
+						<% count += 1 %>
+					<% end %>
+					
+				<% end %>
+			</fieldset>
+			<% lastmName = m.modules
+				firstApperence += 1
+			%>		
+		<% end %>
+	<% end %>
+</fieldset>
+ <%= submit_tag l(:button_save), :class => "small", :name => nil %>
+<% end %>

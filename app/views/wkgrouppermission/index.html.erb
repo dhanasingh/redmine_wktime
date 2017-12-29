@@ -1,4 +1,4 @@
-<h2><%= l(:label_permissions) %></h2>
+<h2><%= l(:label_group) + " " + l(:label_permissions) %></h2>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript">     
 	blgtaxUrl = '<%=url_for(:controller => "wktax", :action => "index", :tab => "wktax")%>';
@@ -12,16 +12,17 @@
 </script>
 <%= render_tabs time_expense_tabs %>
 
-<%= title l(:label_group_plural) %>
-
-<%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
-<fieldset><legend><%= l(:label_filter_plural) %></legend>
-	<%=h hidden_field_tag('tab', "wkgrouppermission") %>
-  <label for='name'><%= l(:label_group) %>:</label>
-  <%= text_field_tag 'name', params[:name], :size => 30 %>
-  <%= submit_tag l(:button_apply), :class => "small", :name => nil %>
-  <%= link_to l(:button_clear), :class => 'icon icon-reload' %>
+<!--
+<%#= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
+<fieldset><legend><%#= l(:label_filter_plural) %></legend>
+	<%#=h hidden_field_tag('tab', "wkgrouppermission") %>
+  <label for='name'><%#= l(:label_group) %>:</label>
+  <%#= text_field_tag 'name', params[:name], :size => 30 %>
+  <%#= submit_tag l(:button_apply), :class => "small", :name => nil %>
+  <%#= link_to l(:button_clear), :class => 'icon icon-reload' %>
   </fieldset>
-<% end %>
+<%# end %>
 
-<%= render :partial => 'wkgrouppermission/groups_list'%>
+
+-->
+<%= render :partial => 'wkgrouppermission/group_edit'%>
