@@ -8,7 +8,7 @@
 		isScheduled = true
 	elsif !@shiftPreference.blank?
 		obj = @shiftPreference
-		date = obj[0].start_date
+		date = obj[0].schedule_date
 	end
 %>
 <h2><%= isScheduled ? l(:label_schedule_details) : l(:label_schedule_preference) %></h2>

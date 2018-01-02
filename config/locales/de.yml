@@ -764,7 +764,7 @@ de:
   label_schedule_details: Schedule Details
   label_shift_scheduling: Shift Scheduling
   label_shift_scheduling: Shift Scheduling
-  field_isschedulable: Schedulable
+  field_is_schedulable: Schedulable
   field_gender: Gender
   field_id1: Custom id1
   field_id2: Custom id2

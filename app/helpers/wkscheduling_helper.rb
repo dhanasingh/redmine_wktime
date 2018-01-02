@@ -43,7 +43,7 @@ module WkschedulingHelper
 				# content << " : " + content_tag(:span, (schedules == 'W' ? "Work" : "Off"), :style => "color:#{(schedules == 'W' ? "purple" : "red")};")		
 				
 				s =  s + content  + "<br/>".html_safe 
-				if  count == 3 
+				if  count > 3 
 					seeMore = true
 					break
 				end				

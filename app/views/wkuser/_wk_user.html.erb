@@ -35,7 +35,7 @@
 			<p><%= user_fields.select :gender, genderHash.invert, :disabled => disable %></p>
 			<p><%= user_fields.select :location_id, locationArr, :disabled => disable %></p>
 			<p><%= user_fields.select :department_id, departmentArr, :disabled => disable %></p>
-			<p><%= user_fields.check_box :isschedulable, :disabled => disable %></p>
+			<p><%= user_fields.check_box :is_schedulable, :disabled => disable %></p>
 			<p><%= user_fields.select :shift_id, shiftArr, :disabled => disable %></p>
 			<p><%= user_fields.text_field :bank_name, :disabled => disable %></p>
 			<p><%= user_fields.text_field :account_number,  :disabled => disable %></p>

@@ -51,12 +51,12 @@ class WkschedulingController < WkbaseController
 			end
 		end
 		unless shiftId.blank?
-			@shiftObj = WkShiftSchedule.where(:schedule_date => @calendar.startdt..@calendar.enddt, :user_id => userIds, :shift_id => shiftId.to_i).order(:schedule_date, :user_id, :shift_id)
+			@shiftObj = WkShiftSchedule.where(:schedule_date => @calendar.startdt..@calendar.enddt, :user_id => userIds, :shift_id => shiftId.to_i, :schedule_type => 'S').order(:schedule_date, :user_id, :shift_id)
 		else
-			@shiftObj = WkShiftSchedule.where(:schedule_date => @calendar.startdt..@calendar.enddt, :user_id => userIds).order(:schedule_date, :user_id, :shift_id)
+			@shiftObj = WkShiftSchedule.where(:schedule_date => @calendar.startdt..@calendar.enddt, :user_id => userIds, :schedule_type => 'S').order(:schedule_date, :user_id, :shift_id)
 		end
 		
-		@shiftPreference = WkShiftPriority.where(:start_date => @calendar.startdt..@calendar.enddt, :user_id => userIds).order(:start_date, :user_id, :shift_id)
+		@shiftPreference = WkShiftSchedule.where(:schedule_date => @calendar.startdt..@calendar.enddt, :user_id => userIds, :schedule_type => 'P').order(:schedule_date, :user_id, :shift_id)
 		unless dayOff.blank?
 			@shiftObj = @shiftObj.where(:schedule_as => dayOff)
 			@shiftPreference = @shiftPreference.where(:preference_type => dayOff)
@@ -69,13 +69,13 @@ class WkschedulingController < WkbaseController
 			@shiftObj.each do |entry|
 				if entry.schedule_date == day
 					isScheduled = true
-					arr << ((entry.user.name.to_s) + " - " + (entry.shift.name.to_s) +" - "+ (entry.schedule_as.to_s) +" - "+ "S")				
+					arr << ((entry.user.name.to_s) + " - " + (entry.shift.name.to_s) +" - "+ (entry.schedule_as.to_s) +" - "+ (entry.schedule_type.to_s))				
 				end
 			end
 			unless isScheduled
 				@shiftPreference.each do |entry|
-					if entry.start_date == day
-						arr << ((entry.user.name.to_s) + " - " + (entry.shift.name.to_s) +" - "+ (entry.preference_type.to_s)+" - "+ "P")
+					if entry.schedule_date == day
+						arr << ((entry.user.name.to_s) + " - " + (entry.shift.name.to_s) +" - "+ (entry.schedule_as.to_s)+" - "+ (entry.schedule_type.to_s))
 					end
 				end
 			end					
@@ -93,11 +93,11 @@ class WkschedulingController < WkbaseController
 		dayOff = session[controller_name][:day_off]
 		
 		if !scheduleDate.blank? && !shiftId.blank?
-			@shiftObj = WkShiftSchedule.where(:schedule_date => scheduleDate, :user_id => userIds, :shift_id => shiftId.to_i).order(:schedule_date, :user_id) 
-			@shiftPreference = WkShiftPriority.where(:start_date => scheduleDate, :user_id => userIds, :shift_id => shiftId.to_i).order(:start_date, :user_id)
+			@shiftObj = WkShiftSchedule.where(:schedule_date => scheduleDate, :user_id => userIds, :shift_id => shiftId.to_i, :schedule_type => 'S').order(:schedule_date, :user_id) 
+			@shiftPreference = WkShiftSchedule.where(:schedule_date => scheduleDate, :user_id => userIds, :shift_id => shiftId.to_i, :schedule_type => 'P').order(:schedule_date, :user_id)
 		elsif !scheduleDate.blank? && shiftId.blank?
-			@shiftObj = WkShiftSchedule.where(:schedule_date => scheduleDate, :user_id => userIds).order(:schedule_date, :user_id) 
-			@shiftPreference = WkShiftPriority.where(:start_date => scheduleDate, :user_id => userIds).order(:start_date, :user_id)
+			@shiftObj = WkShiftSchedule.where(:schedule_date => scheduleDate, :user_id => userIds, :schedule_type => 'S').order(:schedule_date, :user_id) 
+			@shiftPreference = WkShiftSchedule.where(:schedule_date => scheduleDate, :user_id => userIds, :schedule_type => 'P').order(:schedule_date, :user_id)
 		end	
 		unless dayOff.blank?
 			@shiftObj = @shiftObj.where(:schedule_as => dayOff)
@@ -112,15 +112,17 @@ class WkschedulingController < WkbaseController
 			if to_boolean(params[:isscheduled])
 				createSchedulingObject(WkShiftSchedule, params["schedule_id#{i}"])
 				@schedulingEntries.schedule_date = params["scheduling_date#{i}"]
-				@schedulingEntries.schedule_as = to_boolean(params["day_off#{i}"]) ? 'W' : 'D' unless params["day_off#{i}"].blank?
+				@schedulingEntries.schedule_as = to_boolean(params["day_off#{i}"]) ? 'W' : 'O' unless params["day_off#{i}"].blank?
+				@schedulingEntries.schedule_type = "S"
 			else
-				createSchedulingObject(WkShiftPriority, params["schedule_id#{i}"])
-				@schedulingEntries.start_date = params["scheduling_date#{i}"]
+				createSchedulingObject(WkShiftSchedule, params["schedule_id#{i}"])
+				@schedulingEntries.schedule_date = params["scheduling_date#{i}"]
 				if params["day_off#{i}"] == "1"
-					@schedulingEntries.preference_type = 'D'
+					@schedulingEntries.schedule_as = 'O'
 				elsif params["user_id#{i}"].to_i == User.current.id
-					@schedulingEntries.preference_type = 'W'
-				end				  
+					@schedulingEntries.schedule_as = 'W'
+				end	
+				@schedulingEntries.schedule_type = "P"				
 			end			
 			@schedulingEntries.user_id = params["user_id#{i}"]
 			@schedulingEntries.shift_id = params["shifts#{i}"]

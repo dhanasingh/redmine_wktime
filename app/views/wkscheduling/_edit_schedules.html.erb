@@ -31,13 +31,13 @@
 						<% end %>
 						
 					<% else %>
-						<td><%= entry.start_date.strftime("%F") unless entry.start_date.blank? %></td>
-						<%= hidden_field_tag "scheduling_date#{rowCount}", entry.start_date.strftime("%F") unless entry.start_date.blank? %>
+						<td><%= entry.schedule_date.strftime("%F") unless entry.schedule_date.blank? %></td>
+						<%= hidden_field_tag "scheduling_date#{rowCount}", entry.schedule_date.strftime("%F") unless entry.schedule_date.blank? %>
 						<td class="lbl-txt-align"><%= select_tag "shifts#{rowCount}", options_for_select(shifts, :selected => entry.shift_id), :style=>"width:150px;"  %></td>
 						<% if User.current.id == entry.user_id %>
-							<td class="lbl-txt-align"><%= check_box_tag("day_off#{rowCount}", 1, (entry.preference_type == 'W' ? false : true), :onchange => "showorHide((this.checked ? true : false), 'shifts#{rowCount}' )") %></td>
+							<td class="lbl-txt-align"><%= check_box_tag("day_off#{rowCount}", 1, (entry.schedule_as == 'W' ? false : true), :onchange => "showorHide((this.checked ? true : false), 'shifts#{rowCount}' )") %></td>
 						<% else %>
-							<td><%=h checked_image (entry.preference_type == 'W' ? false : true) %></td>
+							<td><%=h checked_image (entry.schedule_as == 'W' ? false : true) %></td>
 						<% end %>
 					<% end %>
 					

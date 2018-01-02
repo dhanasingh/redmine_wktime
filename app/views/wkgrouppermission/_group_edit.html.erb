@@ -18,7 +18,7 @@
 </fieldset>
 <% end %>
 <%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
-<%=h hidden_field_tag("group_id", @groupPermission.blank? ? "" : @groupPermission[0].group_id) %>
+<%=h hidden_field_tag("group_id", @groupPermission.blank? ? params[:group_id].to_i : @groupPermission[0].group_id) %>
 <fieldset class="box tabular">
 	<legend><%= l(:label_permissions) %></legend>
 	<% @permission.each do |m| %>

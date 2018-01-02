@@ -9,7 +9,7 @@
 	dayOff = session[controller_name][:day_off]
 	dateVal = params[:date]
 %>
-<% scheduleasHash = {'' => "", 'W' => l(:label_work), 'D' => l(:label_day_off)} %>
+<% scheduleasHash = {'' => "", 'W' => l(:label_work), 'O' => l(:label_day_off)} %>
 <fieldset class="box tabular">
 	<legend><%= l(:label_filter_plural) %></legend>
 	<table>
