@@ -7,6 +7,9 @@ class CreateWkScheduling  < ActiveRecord::Migration
 			t.time :start_time
 			t.time :end_time
 			t.boolean :in_active
+			t.boolean :is_schedulable
+			t.references :created_by_user, :class => "User"
+			t.references :updated_by_user, :class => "User"
 			t.timestamps null: false
 		end
 		
@@ -15,7 +18,9 @@ class CreateWkScheduling  < ActiveRecord::Migration
 			t.references :shift, :class => "wk_shifts", :index => true
 			t.references :location, :class => "wk_crm_enumerations", :null => false, :index => true
 			t.references :department, :class => "wk_crm_enumerations", :null => false, :index => true
-			t.integer :staff_count, :default => 0
+			t.integer :staff_count, :default => 0			
+			t.references :created_by_user, :class => "User"
+			t.references :updated_by_user, :class => "User"
 			t.timestamps null: false
 		end
 		
@@ -23,23 +28,19 @@ class CreateWkScheduling  < ActiveRecord::Migration
 			t.references :user, :null => false, :index => true
 			t.references :shift, :class => "wk_shifts", :null => false, :index => true
 			t.date :schedule_date
-			t.string :schedule_as, :limit => 3, :default => 'W'
+			t.string :schedule_as, :limit => 3, :default => 'W'	
+			t.string :schedule_type, :limit => 3, :default => 'S'				
+			t.references :created_by_user, :class => "User"
+			t.references :updated_by_user, :class => "User"
 			t.timestamps null: false
-		end
-		
-		create_table :wk_shift_priorities do |t|
-			t.references :user, :null => false, :index => true
-			t.references :shift, :class => "wk_shifts", :null => false, :index => true
-			t.date :start_date
-			t.string :preference_type, :limit => 3, :default => 'W'
-			t.integer :priority
-			t.timestamps null: false
-		end
+		end		
 		
 		create_table :wk_public_holidays do |t|
 			t.date :holiday_date
 			t.string :description
-			t.references :location, :class => "wk_crm_enumerations", :null => false, :index => true
+			t.references :location, :class => "wk_crm_enumerations", :null => false, :index => true			
+			t.references :created_by_user, :class => "User"
+			t.references :updated_by_user, :class => "User"
 			t.timestamps null: false
 		end
 		
@@ -47,7 +48,7 @@ class CreateWkScheduling  < ActiveRecord::Migration
 			t.references :user, :null => false, :index => true
 			t.references :role, :index => true
 			t.float :billing_rate
-			t.boolean :isschedulable
+			t.boolean :is_schedulable
 			t.column :billing_currency, :string, :limit => 5, :default => '$'
 			t.references :shift, :class => "wk_shifts", :null => true, :index => true
 			t.references :location, :class => "wk_locations", :null => true, :index => true
@@ -68,7 +69,9 @@ class CreateWkScheduling  < ActiveRecord::Migration
 			t.string :id2
 			t.string :id3
 			t.float :custom_number1
-			t.float :custom_number2				
+			t.float :custom_number2			
+			t.references :created_by_user, :class => "User"
+			t.references :updated_by_user, :class => "User"				
 			t.timestamps null: false
 		end
 		
