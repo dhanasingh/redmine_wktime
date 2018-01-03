@@ -37,7 +37,7 @@
 							<% unless entry.shift_roles.blank? %>
 								<div class="issue">
 								<% entry.shift_roles.each do | shiftrole | %>
-									<p><%= shiftrole.location.name  %> - <%= shiftrole.department.name %> - <%= shiftrole.role.name %> : <%= shiftrole.staff_count %></p>
+									<p><%= shiftrole.location.name unless shiftrole.location.blank?  %> - <%= shiftrole.department.name unless shiftrole.department.blank? %> - <%= shiftrole.role.name unless shiftrole.role.blank? %> : <%= shiftrole.staff_count %></p>
 								<% end %>
 								</div>
 							<% end %>
