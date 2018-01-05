@@ -60,6 +60,7 @@ class WkshiftController < ApplicationController
 			shiftEntries.start_time = params[:start_time][i]
 			shiftEntries.end_time = params[:end_time][i]
 			shiftEntries.in_active = params[:inactive][i] unless params[:inactive].blank?
+			shiftEntries.is_schedulable = params[:isschedulable][i] unless params[:isschedulable].blank?
 			if shiftEntries.save()
 				arrId << shiftEntries.id
 			else

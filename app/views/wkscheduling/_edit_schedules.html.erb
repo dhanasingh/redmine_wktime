@@ -61,5 +61,7 @@
 	</tbody>
 </table>
 <%= hidden_field_tag "rowCount", rowCount %>
+<% if @schedulesShift && @editShiftSchedules %>
 <%= submit_tag l(:button_save), :class => "small", :name => "schedule_preference" %>
+<% end %>
 <% end %>

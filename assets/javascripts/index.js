@@ -675,10 +675,13 @@ function scheduleFormSubmission()
 	var isFormSubmission = confirm(apply_warn);
 	if (isFormSubmission == true) {
 		document.getElementById("generate").value = true; 
-		document.getElementById("query_form").submit();
+		$('#ajax-indicator').show();
+		$("#schedule_form").submit();
+		document.getElementById("generate").value = false;			
 	} 
 	
 }
+
 
 function validateAsset()
 {

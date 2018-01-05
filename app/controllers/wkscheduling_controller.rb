@@ -49,6 +49,8 @@ class WkschedulingController < WkbaseController
 				Rails.logger.info("=========== Round Robin Call============")
 				ScheduleStrategy.new.schedule('RR', entry.location_id, entry.department_id, @calendar.startdt, @calendar.enddt)
 			end
+			flash[:notice] = l(:notice_successful_update)
+			redirect_to :controller => controller_name,:action => 'index'
 		end
 		unless shiftId.blank?
 			@shiftObj = WkShiftSchedule.where(:schedule_date => @calendar.startdt..@calendar.enddt, :user_id => userIds, :shift_id => shiftId.to_i, :schedule_type => 'S').order(:schedule_date, :user_id, :shift_id)
@@ -59,7 +61,7 @@ class WkschedulingController < WkbaseController
 		@shiftPreference = WkShiftSchedule.where(:schedule_date => @calendar.startdt..@calendar.enddt, :user_id => userIds, :schedule_type => 'P').order(:schedule_date, :user_id, :shift_id)
 		unless dayOff.blank?
 			@shiftObj = @shiftObj.where(:schedule_as => dayOff)
-			@shiftPreference = @shiftPreference.where(:preference_type => dayOff)
+			@shiftPreference = @shiftPreference.where(:schedule_as => dayOff)
 		end
 		day = @calendar.startdt
 		@schedulehash = Hash.new 
@@ -101,7 +103,7 @@ class WkschedulingController < WkbaseController
 		end	
 		unless dayOff.blank?
 			@shiftObj = @shiftObj.where(:schedule_as => dayOff)
-			@shiftPreference = @shiftPreference.where(:preference_type => dayOff)
+			@shiftPreference = @shiftPreference.where(:schedule_as => dayOff)
 		end		
 	end
 	

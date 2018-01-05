@@ -303,7 +303,7 @@ class RoundRobinSchedule
 					from.upto(to) do |shiftDate|
 						schedule = WkShiftSchedule.where(:schedule_date => shiftDate, :user_id => userId, :schedule_type => 'S').first_or_initialize(:schedule_date => shiftDate, :user_id => userId, :schedule_type => 'S')
 						if dayOffs[userId].include? shiftDate
-							schedule.schedule_as = 'D'
+							schedule.schedule_as = 'O'
 						else
 							schedule.schedule_as = 'W'
 						end

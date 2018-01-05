@@ -242,7 +242,8 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wk_schedule_on_weekend' => '0',
 			 'wk_schedule_weekend' => '0',
 			 'wk_scheduling_frequency' => '0',
-			 'wk_day_off_per_frequency' => '0'
+			 'wk_day_off_per_frequency' => '0',
+			 'wk_user_schedule_preference' => '0'
   })  
 	menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_erpmine, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 
   	

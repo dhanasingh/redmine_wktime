@@ -43,7 +43,7 @@ module WkschedulingHelper
 				# content << " : " + content_tag(:span, (schedules == 'W' ? "Work" : "Off"), :style => "color:#{(schedules == 'W' ? "purple" : "red")};")		
 				
 				s =  s + content  + "<br/>".html_safe 
-				if  count > 3 
+				if  count >= 3 
 					seeMore = true
 					break
 				end				
@@ -56,12 +56,12 @@ module WkschedulingHelper
 		end
 		if !s.blank?
 			if scheduleType == 'S'
-				s =  "<div class='preference'>" + s   + "</div>" .html_safe 
-			else
+				s =  "<div class='schedule'>" + s   + "</div>" .html_safe 
+			elsif isChecked('wk_user_schedule_preference')
 				s =  "<div class='issue'>" + s +  "</div>".html_safe 
 			end
 			s = "<div class ='tooltip'>" + s + sm + " <span class='tip'>#{render_calendar_tooltip calendarObject, :day => options[:day], :limit => nil}</span></div>".html_safe 
-		elsif options[:day].future?
+		elsif options[:day].future? && isChecked('wk_user_schedule_preference')
 			s =  "<div class='issue'>" + link_to(h("Add Preference"), url_for(:controller => controller_name, :action => 'edit', :date => options[:day], :only_path => true), :class => 'icon icon-add') + "</div>".html_safe
 		end
 		

@@ -794,3 +794,4 @@ de:
   warning_schedule_shifts: Are you sure want to schedule shifts for the period
   label_work: Work
   field_shift: Shift
+  label_setting_preference: Allow user schedule preference

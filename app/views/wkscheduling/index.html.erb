@@ -15,9 +15,10 @@
 <%= render_tabs time_expense_tabs %>
 <%=h hidden_field_tag('tab', "#{controller_name}") %>
 
-<%= form_tag({:controller => controller_name, :action => 'index', :project_id => @project},  :method => :get, :id => 'query_form') do %>
+<%= form_tag({:controller => controller_name, :action => 'index', :project_id => @project},  :method => :get, :id => 'schedule_form') do %>
 <%= hidden_field_tag 'set_filter', '1' %>
-
+<%=h hidden_field_tag('tab', "#{controller_name}") %>
+<%=h hidden_field_tag('generate', false) %>
 <% if @schedulesShift %>
 	<%= render :partial => 'wkscheduling/scheduling_filter', :locals => {:isApply => false} %>
 <% end %>
@@ -29,9 +30,9 @@
 <%= select_month(@month, :prefix => "month", :discard_type => true) %>
 <%= label_tag('year', l(:label_year)) %>
 <%= select_year(@year, :prefix => "year", :discard_type => true) %>
-<%=h hidden_field_tag('generate', false) %>
 
-<%= link_to_function l(:button_apply), '$("#query_form").submit()', :class => 'icon icon-checked' %>
+
+<%= link_to_function l(:button_apply), '$("#schedule_form").submit()', :class => 'icon icon-checked' %>
 <%= link_to l(:button_clear), { :project_id => @project, :set_filter => 1 }, :class => 'icon icon-reload' %>
 <% if @schedulesShift %>
 	<%= link_to l(:label_schedule_shifts), 'javascript:scheduleFormSubmission();', :name => 'generate', :class => 'icon icon-report' %>
@@ -39,3 +40,4 @@
 </p>
 <% end %>
 <%= render :partial => 'wkscheduling/wk_calendar', :locals => {:calendar => @calendar} %>
+<div id="ajax-indicator" style="display:none;"><span><%= l(:label_loading) %></span></div>

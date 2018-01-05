@@ -4,6 +4,9 @@
 	<p>
 		<%= check_box_tag('settings[wk_schedule_on_weekend]', 1, @settings['wk_schedule_on_weekend'].to_i == 1) %> <label><%= l(:label_schedule_on_weekend) %></label>
 	</p>
+	<p>
+		<%= check_box_tag('settings[wk_user_schedule_preference]', 1, @settings['wk_user_schedule_preference'].to_i == 1) %> <label><%= l(:label_setting_preference) %></label>
+	</p>
 	<p>	
 		<label><%= l(:label_weekly) + " " + l(:label_holiday) %></label>
 		<%= select_tag('settings[wk_schedule_weekend]', options_for_select([[l('date.day_names')[0], 0],
