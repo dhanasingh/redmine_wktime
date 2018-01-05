@@ -11,7 +11,7 @@ require 'settingscontroller_patch'
 
 User.class_eval do
 	has_one :wk_user, :dependent => :destroy, :class_name => 'WkUser'
-	
+	has_many :shift_schdules, :dependent => :destroy, :class_name => 'WkShiftSchedule'
 	def erpmineuser
 		self.wk_user ||= WkUser.new(:user => self)
 	end

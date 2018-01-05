@@ -55,6 +55,7 @@ class WkshiftController < ApplicationController
 				shiftEntries = WkShift.new
 			else
 				shiftEntries = WkShift.find(params[:shift_id][i].to_i)
+				arrId.delete(params[:shift_id][i].to_i)
 			end
 			shiftEntries.name = params[:name][i]
 			shiftEntries.start_time = params[:start_time][i]
@@ -62,12 +63,13 @@ class WkshiftController < ApplicationController
 			shiftEntries.in_active = params[:inactive][i] unless params[:inactive].blank?
 			shiftEntries.is_schedulable = params[:isschedulable][i] unless params[:isschedulable].blank?
 			if shiftEntries.save()
-				arrId << shiftEntries.id
+				#arrId << shiftEntries.id
+				arrId.delete(shiftEntries.id)
 			else
 				errorMsg =  timeEntries.errors.full_messages.join("<br>")
 			end
 		end
-		WkShift.where.not(:id => arrId).delete_all()			
+		WkShift.where(:id => arrId).delete_all()			
 		
 		redirect_to :controller => 'wkshift',:action => 'index' , :tab => 'wkshift'
 		flash[:notice] = l(:notice_successful_update)

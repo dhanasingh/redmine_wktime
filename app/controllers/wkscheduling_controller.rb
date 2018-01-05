@@ -71,13 +71,13 @@ class WkschedulingController < WkbaseController
 			@shiftObj.each do |entry|
 				if entry.schedule_date == day
 					isScheduled = true
-					arr << ((entry.user.name.to_s) + " - " + (entry.shift.name.to_s) +" - "+ (entry.schedule_as.to_s) +" - "+ (entry.schedule_type.to_s))				
+					arr << ((entry.user.name.to_s) + " - " + (entry.shift.blank? ? "" : entry.shift.name.to_s) +" - "+ (entry.schedule_as.to_s) +" - "+ (entry.schedule_type.to_s))				
 				end
 			end
 			unless isScheduled
 				@shiftPreference.each do |entry|
 					if entry.schedule_date == day
-						arr << ((entry.user.name.to_s) + " - " + (entry.shift.name.to_s) +" - "+ (entry.schedule_as.to_s)+" - "+ (entry.schedule_type.to_s))
+						arr << ((entry.user.name.to_s) + " - " + (entry.shift.blank? ? "" : entry.shift.name.to_s) +" - "+ (entry.schedule_as.to_s)+" - "+ (entry.schedule_type.to_s))
 					end
 				end
 			end					

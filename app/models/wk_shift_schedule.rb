@@ -16,6 +16,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkShiftSchedule < ActiveRecord::Base
-	belongs_to :shift, class_name: "WkShift"
+	belongs_to :shift, class_name: "WkShift", :dependent => :restrict_with_error
 	belongs_to :user
 end
