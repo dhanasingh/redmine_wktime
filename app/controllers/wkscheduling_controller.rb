@@ -110,22 +110,35 @@ class WkschedulingController < WkbaseController
 		@schedulingEntries = nil
 		for i in 1..params[:rowCount].to_i-1
 			if to_boolean(params[:isscheduled])
-				createSchedulingObject(WkShiftSchedule, params["schedule_id#{i}"])
-				@schedulingEntries.schedule_date = params["scheduling_date#{i}"]
+				# createSchedulingObject(WkShiftSchedule, params["schedule_id#{i}"])
+				@schedulingEntries = WkShiftSchedule.where(:schedule_date => params["scheduling_date#{i}"], :user_id => params["user_id#{i}"], :schedule_type => 'S').first_or_initialize(:schedule_date => params["scheduling_date#{i}"], :user_id => params["user_id#{i}"], :schedule_type => 'S')
+				# @schedulingEntries.schedule_date = params["scheduling_date#{i}"]
 				@schedulingEntries.schedule_as = to_boolean(params["day_off#{i}"]) ? 'W' : 'O' unless params["day_off#{i}"].blank?
-				@schedulingEntries.schedule_type = "S"
+				# @schedulingEntries.schedule_type = "S"
 			else
-				createSchedulingObject(WkShiftSchedule, params["schedule_id#{i}"])
-				@schedulingEntries.schedule_date = params["scheduling_date#{i}"]
+				# createSchedulingObject(WkShiftSchedule, params["schedule_id#{i}"])
+				@schedulingEntries = WkShiftSchedule.where(:schedule_date => params["scheduling_date#{i}"], :user_id => params["user_id#{i}"], :schedule_type => 'P').first_or_initialize(:schedule_date => params["scheduling_date#{i}"], :user_id => params["user_id#{i}"], :schedule_type => 'P')
+				# @schedulingEntries.schedule_date = params["scheduling_date#{i}"]
 				if params["day_off#{i}"] == "1"
 					@schedulingEntries.schedule_as = 'O'
 				elsif params["user_id#{i}"].to_i == User.current.id
 					@schedulingEntries.schedule_as = 'W'
 				end	
-				@schedulingEntries.schedule_type = "P"				
+				# @schedulingEntries.schedule_type = "P"				
 			end			
-			@schedulingEntries.user_id = params["user_id#{i}"]
+			#@schedulingEntries.user_id = params["user_id#{i}"]
 			@schedulingEntries.shift_id = params["shifts#{i}"]
+			if @schedulingEntries.schedule_type == "P"	
+				from = getStartDay(@schedulingEntries.schedule_date)
+				to = from + 6.days
+				from.upto(to) do |schDt|
+					unless schDt == @schedulingEntries.schedule_date
+						dupSchedule = WkShiftSchedule.where(:schedule_date => schDt, :user_id => params["user_id#{i}"], :schedule_type => 'P').first_or_initialize(:schedule_date => schDt, :user_id => params["user_id#{i}"], :schedule_type => 'P')
+						dupSchedule.shift_id = @schedulingEntries.shift_id
+						dupSchedule.save 
+					end
+				end
+			end
 			@schedulingEntries.save
 		end
 		redirect_to :controller => controller_name,:action => 'index' , :tab => 'wkscheduling'
