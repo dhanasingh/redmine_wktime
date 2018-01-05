@@ -27,13 +27,13 @@ class ScheduleStrategy
 
 	def schedule(strategyName, locationId, deptId, from, to)
 		strategy = @strategies[strategyName]
-		intervalType = 'week'
-		intervalVal = 1
+		intervalType = getIntervalType
+		intervalVal = getIntervalValue(intervalType)
 		startDate = from
-		if intervalType == 'month'
-			startDate = getStartDayfrom.at_beginning_of_month
+		if intervalType == 'M'
+			startDate = from.at_beginning_of_month
 		else
-			intervalVal = 7
+			#intervalVal = 7
 			startDate = getStartDay(from)
 		end
 		intervals = getIntervals(startDate, to, intervalVal, intervalType)
@@ -43,10 +43,19 @@ class ScheduleStrategy
 		#scheduledEntries = strategy.schedule(locationId, deptId, entry[0], entry[1])
 	end
 	
+	# Return the interval value for the interval
+	def getIntervalValue(intervalType)
+		intervalVal = 1
+		if intervalType == 'W'
+			intervalVal = 7
+		end
+		intervalVal
+	end
+	
 	def getIntervals(from, to, intervalVal, intervalType)
 		intervals = Array.new
 		nextStart = from
-		if intervalType == 'month'
+		if intervalType == 'M'
 			until nextStart > to
 				intervals << [nextStart, (nextStart + (intervalVal-1).months).at_end_of_month]
 				nextStart = nextStart + intervalVal.months
@@ -77,5 +86,13 @@ class ScheduleStrategy
 		start_of_week = Setting.start_of_week
         start_of_week = l(:general_first_day_of_week, :default => '1') if start_of_week.blank?    
 		start_of_week = start_of_week.to_i % 7
+	end
+	
+	# Return the interval type ie, Month, week etc
+	def getIntervalType
+		# get the interval type from settings
+		# currently not implemented. It will useful in future
+		intervalType = 'W'
+		intervalType
 	end
 end

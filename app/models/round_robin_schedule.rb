@@ -45,8 +45,8 @@ class RoundRobinSchedule
 				else
 					availableUsers = currentRoleUserHash[role].keys
 					pickedUserIds = Array.new 
-					sourceShiftLastUsrs = unScheduledLstSftUsr[sourceShift][role].select { |uid, schDt| !schDt.blank? && schDt > (from - 7.days)}
-					targetShiftLastUsrs = unScheduledLstSftUsr[shift][role].select { |uid, schDt| schDt.blank? || schDt > (from - 7.days)}
+					sourceShiftLastUsrs = unScheduledLstSftUsr[sourceShift][role].select { |uid, schDt| !schDt.blank? && schDt > getPrevPeriodStart(from)}
+					targetShiftLastUsrs = unScheduledLstSftUsr[shift][role].select { |uid, schDt| schDt.blank? || schDt > getPrevPeriodStart(from)}
 					
 					# Sort the users Ascending order by last working date on the target shift
 					# Pick the least recently working staff on the target shift from source shift until reach the minimum staff move count
@@ -97,7 +97,19 @@ class RoundRobinSchedule
 		saveSchedules(allocatedHash, from, to, lastDayOffHash)
 	end
 	
-	#
+	# Return start of the previous period
+	# Current code only for week. 
+	def getPrevPeriodStart(currentStart)
+		prevStart = nil
+		if getIntervalType == 'M'
+			prevStart = currentStart - 1.months
+		else
+			prevStart = currentStart - 7.days
+		end
+		prevStart
+	end
+	
+	# Allocate the staff preferred shift at maximum possibility
 	def applyPreference(preference, rrAllocation, roleUserHash)
 		currentRoleUserHash = roleUserHash
 		# Add the users those who don't have shift preference to the shift preference on RR allocated shift
@@ -336,14 +348,7 @@ class RoundRobinSchedule
 		# if Setting.plugin_redmine_wktime['wk_schedule_on_weekend'].to_i == 1
 			# scheduleOnWeekEnds = true
 		# end
-		weekEndArr = Array.new
-		weekArr = Setting.plugin_redmine_wktime['wk_schedule_weekend'].to_a
-		unless weekArr.blank?
-			weekArr.each do | day |
-				weekDay = ((7 + (day.to_i - from.wday)) % 7)
-				weekEndArr << from + weekDay.days
-			end
-		end
+		weekEndArr = getWeekEndArr(from) 
 		userIdsArr.each_with_index do |userId, index|
 			dayOffArr = Array.new
 			#firstLeaveDt = from + ((index * dayOffCount) % noOfDays).days
@@ -357,6 +362,26 @@ class RoundRobinSchedule
 			dayOffHash[userId] = dayOffArr
 		end
 		dayOffHash
+	end
+	
+	# Return weekend dates as array for the given week start
+	def getWeekEndArr(weekStartDt)
+		weekEndArr = Array.new
+		weekArr = Setting.plugin_redmine_wktime['wk_schedule_weekend'].to_a
+		unless weekArr.blank?
+			weekArr.each do | day |
+				weekEndArr << getDayOnWeek(weekStartDt, day.to_i)
+			end
+		end
+		weekEndArr
+	end
+	
+	# Return the next date value of the given day value
+	# the day value of calendar week (0-6, Sunday is 0)	
+	def getDayOnWeek(weekStart, dayVal)
+		weekDay = ((7 + (dayVal - weekStart.wday)) % 7)
+		dayDateVal = weekStart + weekDay.days
+		dayDateVal
 	end
 	
 	def isScheduleOnWeekEnd
@@ -442,5 +467,22 @@ class RoundRobinSchedule
 			end
 		end
 		minStaffMoveHash
+	end
+	
+	# Return the interval value for the interval
+	def getIntervalValue(intervalType)
+		intervalVal = 1
+		if intervalType == 'W'
+			intervalVal = 7
+		end
+		intervalVal
+	end
+	
+	# Return the interval type ie, Month, week etc
+	def getIntervalType
+		# get the interval type from settings
+		# currently not implemented. It will useful in future
+		intervalType = 'W'
+		intervalType
 	end
 end
