@@ -94,7 +94,17 @@ class RoundRobinSchedule
 			userpreference = getUserPreference(locationId, deptId, from, to)
 			allocatedHash = applyPreference(userpreference, allocatedHash, roleUserHash)
 		end
-		saveSchedules(allocatedHash, from, to, lastDayOffHash)
+		holidays = getHolidays(locationId, from, to)
+		saveSchedules(allocatedHash, from, to, lastDayOffHash, holidays)
+	end
+	
+	#
+	def getHolidays(locationId, from, to)
+		holidays = Array.new
+		unless isScheduleOnWeekEnd
+			holidays = WkPublicHoliday.where(:location_id => locationId, :holiday_date => from .. to).pluck(:holiday_date)
+		end
+		holidays
 	end
 	
 	# Return start of the previous period
@@ -306,7 +316,7 @@ class RoundRobinSchedule
 	end
 	
 	# Save the scheduled hash entries
-	def saveSchedules(allocatedHash, from, to, lastDayOffHash)
+	def saveSchedules(allocatedHash, from, to, lastDayOffHash, holidays)
 		currentUserId = User.current.blank? ? nil : User.current.id
 		allocatedHash.each do |shiftId, pickedRolehash|
 			pickedRolehash.values.each do |pickedUsers|
@@ -314,7 +324,9 @@ class RoundRobinSchedule
 				pickedUsers.each do |userId|
 					from.upto(to) do |shiftDate|
 						schedule = WkShiftSchedule.where(:schedule_date => shiftDate, :user_id => userId, :schedule_type => 'S').first_or_initialize(:schedule_date => shiftDate, :user_id => userId, :schedule_type => 'S')
-						if dayOffs[userId].include? shiftDate
+						if holidays.include? shiftDate
+							schedule.schedule_as = 'H'
+						elsif dayOffs[userId].include? shiftDate
 							schedule.schedule_as = 'O'
 						else
 							schedule.schedule_as = 'W'
