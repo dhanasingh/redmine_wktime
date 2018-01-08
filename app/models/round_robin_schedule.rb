@@ -261,7 +261,7 @@ class RoundRobinSchedule
 	end
 	
 	def scheduleByPreference
-		true
+		(!Setting.plugin_redmine_wktime['wk_user_schedule_preference'].blank? && Setting.plugin_redmine_wktime['wk_user_schedule_preference'].to_i == 1)
 	end
 	
 	# Return active users role wise
@@ -406,7 +406,11 @@ class RoundRobinSchedule
 	
 	# Return day off count per period
 	def getDayOffCount
-		Setting.plugin_redmine_wktime['wk_schedule_weekend'].length
+		dayCount = 0
+		unless Setting.plugin_redmine_wktime['wk_schedule_weekend'].blank?
+			dayCount = Setting.plugin_redmine_wktime['wk_schedule_weekend'].length
+		end
+		dayCount
 	end
 	
 	# Return last working week shift schedule details
