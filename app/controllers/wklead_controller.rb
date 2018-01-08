@@ -171,5 +171,9 @@ class WkleadController < WkcrmController
 	def getContactType
 		'C'
 	end
+	
+	def getAccountLbl
+		l(:label_account)
+	end
 
 end

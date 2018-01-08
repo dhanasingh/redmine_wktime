@@ -71,4 +71,8 @@ class WksupplierorderentityController < WkorderentityController
 	    return false
 	  end
     end
+	
+	def getAccountLbl
+		l(:label_supplier_account)
+	end
 end

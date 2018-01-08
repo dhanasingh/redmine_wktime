@@ -29,5 +29,9 @@ class WksuppliercontactController < WkcontactController
 	def deletePermission
 		isModuleAdmin('wktime_pur_admin')
 	end
+	
+	def getAccountLbl
+		l(:label_supplier_account)
+	end
 
 end

@@ -424,3 +424,15 @@ function hideProductType()
 	}
 	
 }
+
+function showWinningNote()
+{
+	if(document.getElementById('quote_won').checked) 
+	{
+		document.getElementById("lbl_winning_note").style.display = 'block';
+		document.getElementById("winning_note").style.display = 'block';
+	} else {
+		document.getElementById("lbl_winning_note").style.display = 'none';
+		document.getElementById("winning_note").style.display = 'none';
+	}
+}

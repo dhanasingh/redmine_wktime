@@ -96,4 +96,8 @@ before_filter :require_login
 		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end
+	
+	def getAccountLbl
+		l(:label_account)
+	end
 end

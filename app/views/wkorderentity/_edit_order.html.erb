@@ -42,7 +42,7 @@
 		<!--	<th align="left"><%#= l(:label_project_name) %></th> 
 			<td style="width: 200px;"> <%#= ': ' + projectName  %> </td> -->
 			
-			<th align="left"><%= l(:label_account) %></th> 
+			<th align="left"><%= controller.getAccountLbl %></th> 
 			<td style="width: 200px;"> <%= ': ' + (@invoice.blank? ? '' : @invoice.parent.name) %> </td>
 			
 			<th align="left" style="width:80px;"><%= l(:field_status_modified_by) %></th> 
@@ -54,14 +54,14 @@
 				<th align="left"><%= l(:label_rfq_name) %></th> 
 				<td style="width: 200px;"> <%= ': ' + (@rfqObj.blank? ? (@invoice.blank? ? '' : @invoice.rfq_quote.rfq.name) : @rfqObj.name) %> </td>
 				<% unless @invoice.new_record? %>
-					<th align="left" ><%= l(:label_won_note) %></th>
-					<td rowspan= "2" colspan="8" align="left" ><%= text_area_tag 'winning_note', (@rfgQuoteEntry.blank? ? (@invoice.blank? ? '' : (@invoice.rfq_quote.blank? ? '' : @invoice.rfq_quote.winning_note)) : @rfgQuoteEntry.winning_note), :maxlength => 255, :style => "width:605px; height:80px;" %></td>
+					<th align="left" ><label  id="lbl_winning_note" style="display:none;"><%= l(:label_won_note) %></label></th>
+					<td rowspan= "2" colspan="8" align="left" ><%= text_area_tag 'winning_note', (@rfgQuoteEntry.blank? ? (@invoice.blank? ? '' : (@invoice.rfq_quote.blank? ? '' : @invoice.rfq_quote.winning_note)) : @rfgQuoteEntry.winning_note), :maxlength => 255, :style => "width:605px; height:80px;display:none;" %></td>
 				<% end %>
 			</tr>
 			<% unless @invoice.new_record? %>
 				<tr>
 					<th align="left"><label><%= l(:label_winning_quote) %></label></th>
-					<td><%= check_box_tag('quote_won', 1, (@invoice.blank? ? false : (@invoice.rfq_quote.blank? ? false : @invoice.rfq_quote.is_won)) ) %></td>	
+					<td><%= check_box_tag('quote_won', 1, (@invoice.blank? ? false : (@invoice.rfq_quote.blank? ? false : @invoice.rfq_quote.is_won)), :onchange => "showWinningNote();" ) %></td>	
 				</tr>
 			<% end %>
 		<% end %>

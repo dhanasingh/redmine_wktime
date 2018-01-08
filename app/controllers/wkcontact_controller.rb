@@ -116,5 +116,9 @@ class WkcontactController < WkcrmController
 			@offset = @entry_pages.offset
 		end	
 	end
+	
+	def getAccountLbl
+		l(:label_account)
+	end
 
 end

@@ -455,4 +455,9 @@ include WkorderentityHelper
 	def addAssetType
 		false
 	end
+	
+	def getAccountLbl
+		l(:label_account)
+	end
+	
 end
