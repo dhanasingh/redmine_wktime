@@ -127,12 +127,13 @@ class WkinvoiceController < WkorderentityController
 			accPrtId.each do | apEntry|
 				if !populatedItems.blank? && populatedItems == '1'
 					@unbilled = true
+					matterialAmt = 0
 					if apEntry.billing_type == 'TM'
 						totAmount = saveTAMInvoiceItem(apEntry, true)
+						matterialAmt = addMaterialItem(apEntry.project_id, false)
 					else
 						totAmount = getFcItems(apEntry, startDate, endDate)
-					end
-					matterialAmt = addMaterialItem(apEntry.project_id, false)				
+					end									
 					totMatterialAmt = totMatterialAmt + matterialAmt
 				else
 					@currency = params[:inv_currency]

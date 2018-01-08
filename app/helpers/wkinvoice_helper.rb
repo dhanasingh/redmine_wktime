@@ -116,6 +116,7 @@ include WkbillingHelper
 		if accountProject.billing_type == 'TM'
 			# Add invoice items for Time and Materiel cost
 			errorMsg = saveTAMInvoiceItem(accountProject, false)
+			addMaterialItem(accountProject.project_id, true) if errorMsg.blank?
 		else
 			# Add invoice item for fixed cost from the scheduled entries
 			errorMsg = nil
@@ -142,7 +143,7 @@ include WkbillingHelper
 				addTaxes(accountProject, scheduledEntries[0].currency, totalAmount)
 			end	
 		end
-		addMaterialItem(accountProject.project_id, true)
+		
 		errorMsg
 	end
 	
