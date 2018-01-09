@@ -98,7 +98,7 @@ class RoundRobinSchedule
 		saveSchedules(allocatedHash, from, to, lastDayOffHash, holidays)
 	end
 	
-	#
+	# return array of holiday dates for the give location and period
 	def getHolidays(locationId, from, to)
 		holidays = Array.new
 		unless isScheduleOnWeekEnd
@@ -304,7 +304,7 @@ class RoundRobinSchedule
 	def getReqStaffWithDayOff(actualRequiremnt, interval)
 		dayOffCount = getDayOffCount
 		requiredStaff = actualRequiremnt
-		unless isScheduleOnWeekEnd
+		if isScheduleOnWeekEnd
 			requiredStaff = ((actualRequiremnt*interval).to_f/(interval-dayOffCount).to_f).ceil
 		end
 		requiredStaff
@@ -326,7 +326,7 @@ class RoundRobinSchedule
 						schedule = WkShiftSchedule.where(:schedule_date => shiftDate, :user_id => userId, :schedule_type => 'S').first_or_initialize(:schedule_date => shiftDate, :user_id => userId, :schedule_type => 'S')
 						if holidays.include? shiftDate
 							schedule.schedule_as = 'H'
-						elsif dayOffs[userId].include? shiftDate
+						elsif !dayOffs[userId].blank? && (dayOffs[userId].include? shiftDate)#dayOffs[userId].include? shiftDate
 							schedule.schedule_as = 'O'
 						else
 							schedule.schedule_as = 'W'
@@ -500,5 +500,16 @@ class RoundRobinSchedule
 		# currently not implemented. It will useful in future
 		intervalType = 'W'
 		intervalType
+	end
+	
+	# Return the each given users prefered dayoffs
+	# dayOffUserPrefHash key - DayOff date Value - preffered users ids Array
+	def getUserPreferenceDO(userIdsArr, from, to)
+		userPreferenceDO = WkShiftSchedule.where(:schedule_type => 'P', :schedule_as => 'O', :user_id => userIdsArr, :schedule_date => from .. to).order(:updated_at)
+		dayOffUserPrefHash = Hash.new
+		userPreferenceDO.each do |entry|
+			dayOffUserPrefHash[entry.schedule_date] = dayOffUserPrefHash[entry.schedule_date].blank? ? [entry.user_id] : (dayOffUserPrefHash[entry.schedule_date] + [entry.user_id])
+		end
+		dayOffUserPrefHash
 	end
 end
