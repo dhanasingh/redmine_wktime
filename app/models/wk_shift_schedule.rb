@@ -18,4 +18,5 @@
 class WkShiftSchedule < ActiveRecord::Base
 	belongs_to :shift, class_name: "WkShift"#, :dependent => :restrict_with_error
 	belongs_to :user
+	validates_presence_of :shift_id
 end

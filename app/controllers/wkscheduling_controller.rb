@@ -130,22 +130,29 @@ class WkschedulingController < WkbaseController
 			end			
 			#@schedulingEntries.user_id = params["user_id#{i}"]
 			@schedulingEntries.shift_id = params["shifts#{i}"]
-			if @schedulingEntries.schedule_type == "P"	
-				from = getStartDay(@schedulingEntries.schedule_date)
-				to = from + 6.days
-				from.upto(to) do |schDt|
-					unless schDt == @schedulingEntries.schedule_date
-						dupSchedule = WkShiftSchedule.where(:schedule_date => schDt, :user_id => params["user_id#{i}"], :schedule_type => 'P').first_or_initialize(:schedule_date => schDt, :user_id => params["user_id#{i}"], :schedule_type => 'P')
-						dupSchedule.shift_id = @schedulingEntries.shift_id
-						dupSchedule.save 
+			if @schedulingEntries.valid?
+				if @schedulingEntries.schedule_type == "P"	
+					from = getStartDay(@schedulingEntries.schedule_date)
+					to = from + 6.days
+					from.upto(to) do |schDt|
+						unless schDt == @schedulingEntries.schedule_date
+							dupSchedule = WkShiftSchedule.where(:schedule_date => schDt, :user_id => params["user_id#{i}"], :schedule_type => 'P').first_or_initialize(:schedule_date => schDt, :user_id => params["user_id#{i}"], :schedule_type => 'P')
+							dupSchedule.shift_id = @schedulingEntries.shift_id
+							dupSchedule.save 
+						end
 					end
 				end
+				@schedulingEntries.save
+			else
+				errorMsg = @schedulingEntries.errors.full_messages.join("<br>")
 			end
-			@schedulingEntries.save
 		end
-		redirect_to :controller => controller_name,:action => 'index' , :tab => 'wkscheduling'
-		flash[:notice] = l(:notice_successful_update)
-		flash[:error] = errorMsg unless errorMsg.blank?
+		if errorMsg.blank?
+			flash[:notice] = l(:notice_successful_update)
+		else
+			flash[:error] = errorMsg 
+		end
+		redirect_to :controller => controller_name,:action => 'index' , :tab => 'wkscheduling'	
 	end
 	
 	def createSchedulingObject(model, id)
