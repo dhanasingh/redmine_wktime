@@ -28,7 +28,7 @@ class RoundRobinSchedule
 		periodDays = getDaysBetween(from, to)
 		reqStaffHash = getRequiredStaffHash(locationId, deptId, currentRoleUserHash, periodDays)
 		minStaffMoveHash = getMinStaffMove(reqStaffHash)
-		shifts = WkShift.where(:id => reqStaffHash.keys).order(start_time: :desc).pluck(:id)
+		shifts = WkShift.where(:id => reqStaffHash.keys, :in_active => true).order(start_time: :desc).pluck(:id)
 		totalShifts = shifts.length
 		allocatedHash = Hash.new
 		scheduledUserIds = Array.new
@@ -297,7 +297,43 @@ class RoundRobinSchedule
 				reqStaffHash[entry.shift_id].store(entry.role_id, getReqStaffWithDayOff(entry.staff_count, interval))
 			end
 		end
-		reqStaffHash
+		
+		# Scenario for required staff less or high 
+		roleStaffCount = Hash.new
+		
+		roleUserHash.each do | role, users|
+			roleStaffCount[role] = users.length
+		end
+		remainingStaff = roleStaffCount.deep_dup
+		
+		totReqStaffHash = Hash.new
+		reqStaffHash.each do | shift, role|
+			role.each do | roleId, count|
+				if totReqStaffHash[roleId].blank?
+					totReqStaffHash[roleId] = count
+				else
+					totReqStaffHash[roleId] = totReqStaffHash[roleId] + count
+				end
+				
+			end
+		end
+		alteredReqStaff = Hash.new
+		reqStaffHash.each do | shift, role|
+			role.each do | roleId, actualStaffCount|
+				if !remainingStaff[roleId].blank? && remainingStaff[roleId] > 0
+					alteredStaffCount = (actualStaffCount.to_f / totReqStaffHash[roleId].to_f) * roleStaffCount[roleId].to_f
+					staffCount = alteredStaffCount.round > remainingStaff[roleId] ?  remainingStaff[roleId] : alteredStaffCount.round
+					if alteredReqStaff[shift].blank?
+						alteredReqStaff[shift] = {roleId => staffCount}
+					else
+						alteredReqStaff[shift][roleId] = staffCount
+					end
+					remainingStaff[roleId] = remainingStaff[roleId] - staffCount
+					
+				end
+			end
+		end
+		alteredReqStaff
 	end
 	
 	# Return required number of staff with inclusive of day off 
