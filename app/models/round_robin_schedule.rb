@@ -320,7 +320,7 @@ class RoundRobinSchedule
 		alteredReqStaff = Hash.new
 		reqStaffHash.each do | shift, role|
 			role.each do | roleId, actualStaffCount|
-				if !remainingStaff[roleId].blank? && remainingStaff[roleId] > 0
+				if !remainingStaff[roleId].blank? && remainingStaff[roleId] > 0 && actualStaffCount > 0
 					alteredStaffCount = (actualStaffCount.to_f / totReqStaffHash[roleId].to_f) * roleStaffCount[roleId].to_f
 					staffCount = alteredStaffCount.round > remainingStaff[roleId] ?  remainingStaff[roleId] : alteredStaffCount.round
 					if alteredReqStaff[shift].blank?
