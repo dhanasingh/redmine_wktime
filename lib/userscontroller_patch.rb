@@ -83,6 +83,10 @@ module UsersControllerPatch
 			def erpmineUserSave
 				@user.erpmineuser.safe_attributes = params[:erpmineuser]
 				@user.erpmineuser.address_id = updateAddress
+				if @user.erpmineuser.new_record?
+					@user.erpmineuser.created_by_user_id = User.current.id
+				end
+				@user.erpmineuser.updated_by_user_id = User.current.id
 				@user.erpmineuser.save
 			end
 			

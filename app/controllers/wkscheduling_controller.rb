@@ -29,19 +29,22 @@ class WkschedulingController < WkbaseController
 	def index	
 		@schedulesShift = validateERPPermission("S_SHIFT")
 		@editShiftSchedules = validateERPPermission("E_SHIFT")
+		@year ||= User.current.today.year
+		@month ||= User.current.today.month
 		if params[:year] and params[:year].to_i > 1900
 			@year = params[:year].to_i
 			if params[:month] and params[:month].to_i > 0 and params[:month].to_i < 13
 				@month = params[:month].to_i
 			end
 		end
-		@year ||= User.current.today.year
-		@month ||= User.current.today.month
+		
 		
 		@calendar = Redmine::Helpers::Calendar.new(Date.civil(@year, @month, 1), current_language, :month)
 		userIds = schedulingFilterValues 
 		shiftId = session[controller_name][:shift_id]
-		dayOff = session[controller_name][:day_off]		
+		dayOff = session[controller_name][:day_off]	
+		departmentId =  session[controller_name][:department_id]
+		locationId =  session[controller_name][:location_id]
 		unless params[:generate].blank? || !to_boolean(params[:generate])
 			@shiftRoles.each do | entry |
 				Rails.logger.info("=========== PrioritySchedule Call============")
@@ -50,12 +53,14 @@ class WkschedulingController < WkbaseController
 				ScheduleStrategy.new.schedule('RR', entry.location_id, entry.department_id, @calendar.startdt, @calendar.enddt)
 			end
 			flash[:notice] = l(:notice_successful_update)
-			redirect_to :controller => controller_name,:action => 'index'
+			redirect_to :controller => controller_name,:action => 'index', :year => @year, :month => @month, :shift_id => shiftId, :day_off => dayOff, :department_id => departmentId, :location_id => locationId, :searchlist => "wkscheduling", :tab =>"wkscheduling", :generate => false
 		end
-		unless shiftId.blank?
+		if !shiftId.blank?
 			@shiftObj = WkShiftSchedule.where(:schedule_date => @calendar.startdt..@calendar.enddt, :user_id => userIds, :shift_id => shiftId.to_i, :schedule_type => 'S').order(:schedule_date, :user_id, :shift_id)
-		else
+		elsif !userIds.blank? && userIds != 0
 			@shiftObj = WkShiftSchedule.where(:schedule_date => @calendar.startdt..@calendar.enddt, :user_id => userIds, :schedule_type => 'S').order(:schedule_date, :user_id, :shift_id)
+		else
+			@shiftObj = WkShiftSchedule.where(:schedule_date => @calendar.startdt..@calendar.enddt, :schedule_type => 'S').order(:schedule_date, :user_id, :shift_id)
 		end
 		
 		@shiftPreference = WkShiftSchedule.where(:schedule_date => @calendar.startdt..@calendar.enddt, :user_id => userIds, :schedule_type => 'P').order(:schedule_date, :user_id, :shift_id)
@@ -93,13 +98,16 @@ class WkschedulingController < WkbaseController
 		scheduleDate =  params[:date]
 		shiftId = session[controller_name][:shift_id]
 		dayOff = session[controller_name][:day_off]
-		
-		if !scheduleDate.blank? && !shiftId.blank?
+		@isScheduled = false
+		if params[:schedule_type].to_s == 'S'
+			@isScheduled = true
+		end
+		if !scheduleDate.blank? && !shiftId.blank? && !userIds.blank? && userIds != 0
 			@shiftObj = WkShiftSchedule.where(:schedule_date => scheduleDate, :user_id => userIds, :shift_id => shiftId.to_i, :schedule_type => 'S').order(:schedule_date, :user_id) 
 			@shiftPreference = WkShiftSchedule.where(:schedule_date => scheduleDate, :user_id => userIds, :shift_id => shiftId.to_i, :schedule_type => 'P').order(:schedule_date, :user_id)
-		elsif !scheduleDate.blank? && shiftId.blank?
-			@shiftObj = WkShiftSchedule.where(:schedule_date => scheduleDate, :user_id => userIds, :schedule_type => 'S').order(:schedule_date, :user_id) 
-			@shiftPreference = WkShiftSchedule.where(:schedule_date => scheduleDate, :user_id => userIds, :schedule_type => 'P').order(:schedule_date, :user_id)
+		elsif !scheduleDate.blank? && shiftId.blank? 
+			@shiftObj = WkShiftSchedule.where(:schedule_date => scheduleDate, :schedule_type => 'S').order(:schedule_date, :user_id) 
+			@shiftPreference = WkShiftSchedule.where(:schedule_date => scheduleDate,  :schedule_type => 'P').order(:schedule_date, :user_id)
 		end	
 		unless dayOff.blank?
 			@shiftObj = @shiftObj.where(:schedule_as => dayOff)
@@ -112,23 +120,20 @@ class WkschedulingController < WkbaseController
 		@schedulingEntries = nil
 		for i in 1..params[:rowCount].to_i-1
 			if to_boolean(params[:isscheduled])
-				# createSchedulingObject(WkShiftSchedule, params["schedule_id#{i}"])
 				@schedulingEntries = WkShiftSchedule.where(:schedule_date => params["scheduling_date#{i}"], :user_id => params["user_id#{i}"], :schedule_type => 'S').first_or_initialize(:schedule_date => params["scheduling_date#{i}"], :user_id => params["user_id#{i}"], :schedule_type => 'S')
-				# @schedulingEntries.schedule_date = params["scheduling_date#{i}"]
-				@schedulingEntries.schedule_as = to_boolean(params["day_off#{i}"]) ? 'W' : 'O' unless params["day_off#{i}"].blank?
-				# @schedulingEntries.schedule_type = "S"
+				if params["day_off#{i}"] == "1" 
+					@schedulingEntries.schedule_as = 'O'
+				else
+					@schedulingEntries.schedule_as = 'W'
+				end
 			else
-				# createSchedulingObject(WkShiftSchedule, params["schedule_id#{i}"])
 				@schedulingEntries = WkShiftSchedule.where(:schedule_date => params["scheduling_date#{i}"], :user_id => params["user_id#{i}"], :schedule_type => 'P').first_or_initialize(:schedule_date => params["scheduling_date#{i}"], :user_id => params["user_id#{i}"], :schedule_type => 'P')
-				# @schedulingEntries.schedule_date = params["scheduling_date#{i}"]
 				if params["day_off#{i}"] == "1"
 					@schedulingEntries.schedule_as = 'O'
 				elsif params["user_id#{i}"].to_i == User.current.id
 					@schedulingEntries.schedule_as = 'W'
 				end	
-				# @schedulingEntries.schedule_type = "P"				
 			end			
-			#@schedulingEntries.user_id = params["user_id#{i}"]
 			@schedulingEntries.shift_id = params["shifts#{i}"]
 			if @schedulingEntries.valid?
 				if @schedulingEntries.schedule_type == "P"	
@@ -138,10 +143,18 @@ class WkschedulingController < WkbaseController
 						unless schDt == @schedulingEntries.schedule_date
 							dupSchedule = WkShiftSchedule.where(:schedule_date => schDt, :user_id => params["user_id#{i}"], :schedule_type => 'P').first_or_initialize(:schedule_date => schDt, :user_id => params["user_id#{i}"], :schedule_type => 'P')
 							dupSchedule.shift_id = @schedulingEntries.shift_id
+							if dupSchedule.new_record?
+								dupSchedule.created_by_user_id = User.current.id
+							end
+							dupSchedule.updated_by_user_id = User.current.id
 							dupSchedule.save 
 						end
 					end
 				end
+				if @schedulingEntries.new_record?
+					@schedulingEntries.created_by_user_id = User.current.id
+				end
+				@schedulingEntries.updated_by_user_id = User.current.id
 				@schedulingEntries.save
 			else
 				errorMsg = @schedulingEntries.errors.full_messages.join("<br>")

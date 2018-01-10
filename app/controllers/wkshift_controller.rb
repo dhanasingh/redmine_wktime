@@ -62,6 +62,10 @@ class WkshiftController < ApplicationController
 			shiftEntries.end_time = params[:end_time][i]
 			shiftEntries.in_active = params[:inactive][i] unless params[:inactive].blank?
 			shiftEntries.is_schedulable = params[:isschedulable][i] unless params[:isschedulable].blank?
+			if shiftEntries.new_record?
+				shiftEntries.created_by_user_id = User.current.id
+			end
+			shiftEntries.updated_by_user_id = User.current.id
 			if shiftEntries.save()
 				#arrId << shiftEntries.id
 				arrId.delete(shiftEntries.id)
@@ -94,6 +98,10 @@ class WkshiftController < ApplicationController
 			shiftRoleEntries.staff_count = params[:staff_count][i].to_i
 			shiftRoleEntries.location_id = params[:location_id].to_i
 			shiftRoleEntries.department_id = params[:department_id].to_i
+			if shiftRoleEntries.new_record?
+				shiftRoleEntries.created_by_user_id = User.current.id
+			end
+			shiftRoleEntries.updated_by_user_id = User.current.id
 			unless shiftRoleEntries.save()
 				errorMsg =  timeEntries.errors.full_messages.join("<br>")
 			end

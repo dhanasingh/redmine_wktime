@@ -38,7 +38,7 @@ class CreateWkScheduling  < ActiveRecord::Migration
 		create_table :wk_public_holidays do |t|
 			t.date :holiday_date
 			t.string :description
-			t.references :location, :class => "wk_crm_enumerations", :null => false, :index => true			
+			t.references :location, :class => "wk_crm_enumerations",  :index => true			
 			t.references :created_by_user, :class => "User"
 			t.references :updated_by_user, :class => "User"
 			t.timestamps null: false

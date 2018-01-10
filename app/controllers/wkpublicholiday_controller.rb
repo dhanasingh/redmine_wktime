@@ -22,16 +22,19 @@ class WkpublicholidayController < ApplicationController
 		set_filter_session
 		@year ||= User.current.today.year
 		@month ||= User.current.today.month
+		if params[:year] and params[:year].to_i > 1900
+			@year = params[:year].to_i
+			if params[:month] and params[:month].to_i > 0 and params[:month].to_i < 13
+				@month = params[:month].to_i
+			end
+		end
+		
 		locationId = session[controller_name][:location_id]
 		departmentId = session[controller_name][:department_id]
 		
 		@calendar = Redmine::Helpers::Calendar.new(Date.civil(@year, @month, 1), current_language, :month)
 		
-		if (!departmentId.blank? && departmentId.to_i != 0 ) && !locationId.blank?
-			entries = WkPublicHoliday.where(:department_id => departmentId.to_i, :location_id => locationId.to_i)
-		elsif (!departmentId.blank? && departmentId.to_i != 0 ) && locationId.blank?
-			entries = WkPublicHoliday.where(:department_id => departmentId.to_i)			
-		elsif (departmentId.blank? || departmentId.to_i == 0 ) && !locationId.blank?
+		unless locationId.blank?
 			entries = WkPublicHoliday.where(:location_id => locationId)
 		else
 			entries = WkPublicHoliday.all
@@ -63,16 +66,19 @@ class WkpublicholidayController < ApplicationController
 		end
 		for i in 0..params[:ph_id].length-1
 			if params[:ph_id][i].blank?
-				curExchanges = WkPublicHoliday.new
+				publicHoliday = WkPublicHoliday.new
 			else
-				curExchanges = WkPublicHoliday.find(params[:ph_id][i].to_i)
+				publicHoliday = WkPublicHoliday.find(params[:ph_id][i].to_i)
 				arrId.delete(params[:ph_id][i].to_i)
 			end
-			curExchanges.holiday_date = params[:holiday_date][i]
-			curExchanges.location_id = params[:location_id][i]
-			#curExchanges.department_id = params[:department_id][i]
-			curExchanges.description = params[:description][i]
-			curExchanges.save()			
+			publicHoliday.holiday_date = params[:holiday_date][i]
+			publicHoliday.location_id = params[:location_id][i]
+			publicHoliday.description = params[:description][i]
+			if publicHoliday.new_record?
+				publicHoliday.created_by_user_id = User.current.id
+			end
+			publicHoliday.updated_by_user_id = User.current.id
+			publicHoliday.save()			
 		end
 		
 		if !arrId.blank?			
