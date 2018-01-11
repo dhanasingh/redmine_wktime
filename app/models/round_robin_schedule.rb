@@ -333,16 +333,27 @@ class RoundRobinSchedule
 			end
 		end
 		alteredReqStaff = Hash.new
-		reqStaffHash.each do | shift, role|
-			role.each do | roleId, actualStaffCount|
+		roundOffHash = Hash.new
+		reqStaffHash.each do | shift, roleHash|
+			roleHash.each do | roleId, actualStaffCount|
 				if !remainingStaff[roleId].blank? && remainingStaff[roleId] > 0 && actualStaffCount > 0
 					alteredStaffCount = (actualStaffCount.to_f / totReqStaffHash[roleId].to_f) * roleStaffCount[roleId].to_f
-					staffCount = alteredStaffCount.round > remainingStaff[roleId] ?  remainingStaff[roleId] : alteredStaffCount.round
+					staffCount = alteredStaffCount.round #> remainingStaff[roleId] ?  remainingStaff[roleId] : alteredStaffCount.round
+					lastRoundBal = roundOffHash[roleId].blank? ? 0 : roundOffHash[roleId]
+					curRoundOff = alteredStaffCount - staffCount
+					totalRoundOff = lastRoundBal + curRoundOff
+					unless totalRoundOff.round(2) < 1.0 && totalRoundOff.round(2) > -1.0
+						additionalStaff = totalRoundOff.round
+						staffCount = staffCount + additionalStaff
+						totalRoundOff = (totalRoundOff - additionalStaff).round(2)
+					end
+					
 					if alteredReqStaff[shift].blank?
 						alteredReqStaff[shift] = {roleId => staffCount}
 					else
 						alteredReqStaff[shift][roleId] = staffCount
 					end
+					roundOffHash[roleId] = totalRoundOff
 					remainingStaff[roleId] = remainingStaff[roleId] - staffCount
 					
 				end
