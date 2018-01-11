@@ -70,14 +70,21 @@ class RoundRobinSchedule
 					targetShiftLastUsrs.except!(*pickedUserIds)
 					
 					# After the minimum staff move then keep some staff from the same shift(Target shift)
-					additionalCount = staff-pickedUserIds.length
-					if additionalCount>0
-						# unless pickedUserIds.length == staff
-							targetShiftLastUsrs.each do |userId, schdt|
-								pickedUserIds << userId if currentRoleUserHash[role].has_key?(userId)
-								break if pickedUserIds.length == staff
-							end
-						# end
+					# additionalCount = staff-pickedUserIds.length
+					if (staff - pickedUserIds.length) > 0
+						targetShiftLastUsrs.each do |userId, schdt|
+							pickedUserIds << userId if currentRoleUserHash[role].has_key?(userId)
+							break if pickedUserIds.length == staff
+						end
+					end
+					
+					# Finally pick the remaining required staff from currentRoleUserHash
+					# additionalCount = staff-pickedUserIds.length
+					if (staff - pickedUserIds.length) > 0
+						currentRoleUserHash[role].each do |userId, userObj|
+							pickedUserIds << userId
+							break if pickedUserIds.length == staff
+						end
 					end
 				end
 				pickedUsersHash = currentRoleUserHash[role].select {|k,v| pickedUserIds.include? k }
@@ -153,8 +160,10 @@ class RoundRobinSchedule
 				else
 					preferedAllocation[shiftId].store(role, pickedUsers)
 				end
-				currentAllocation[shiftId][role] = currentAllocation[shiftId][role] - preferedAllocation[shiftId][role]
-				currentPreference[shiftId][role] = currentPreference[shiftId][role] - preferedAllocation[shiftId][role]
+				if !preferedAllocation[shiftId].blank? && !preferedAllocation[shiftId][role].blank?
+					currentAllocation[shiftId][role] = currentAllocation[shiftId][role] - preferedAllocation[shiftId][role]
+					currentPreference[shiftId][role] = currentPreference[shiftId][role] - preferedAllocation[shiftId][role]
+				end
 				currentRoleUserHash[role].except!( *pickedUsers ) 
 			end
 		end
@@ -172,8 +181,10 @@ class RoundRobinSchedule
 						preferedAllocation[shiftId][role] = preferedAllocation[shiftId][role] + pickedUsers
 					end
 				end
-				currentAllocation[shiftId][role] = currentAllocation[shiftId][role] - preferedAllocation[shiftId][role]
-				currentPreference[shiftId][role] = currentPreference[shiftId][role] - preferedAllocation[shiftId][role]
+				if !preferedAllocation[shiftId].blank? && !preferedAllocation[shiftId][role].blank?
+					currentAllocation[shiftId][role] = currentAllocation[shiftId][role] - preferedAllocation[shiftId][role]
+					currentPreference[shiftId][role] = currentPreference[shiftId][role] - preferedAllocation[shiftId][role]
+				end
 				currentRoleUserHash[role].except!( *pickedUsers )
 			end
 		end
@@ -189,8 +200,10 @@ class RoundRobinSchedule
 					pickedUsers = availableUsers.first(requiredCount - pickedCount)
 					preferedAllocation[shiftId][role] = preferedAllocation[shiftId][role] + pickedUsers
 				end
-				currentAllocation[shiftId][role] = currentAllocation[shiftId][role] - preferedAllocation[shiftId][role]
-				currentPreference[shiftId][role] = currentPreference[shiftId][role] - preferedAllocation[shiftId][role]
+				if !preferedAllocation[shiftId].blank? && !preferedAllocation[shiftId][role].blank?
+					currentAllocation[shiftId][role] = currentAllocation[shiftId][role] - preferedAllocation[shiftId][role]
+					currentPreference[shiftId][role] = currentPreference[shiftId][role] - preferedAllocation[shiftId][role]
+				end
 				currentRoleUserHash[role].except!( *pickedUsers )
 			end
 		end
@@ -205,8 +218,10 @@ class RoundRobinSchedule
 					pickedUsers = currentRoleUserHash[role].keys.first(requiredCount - pickedCount)
 					preferedAllocation[shiftId][role] = preferedAllocation[shiftId][role] + pickedUsers
 				end
-				currentAllocation[shiftId][role] = currentAllocation[shiftId][role] - preferedAllocation[shiftId][role]
-				currentPreference[shiftId][role] = currentPreference[shiftId][role] - preferedAllocation[shiftId][role]
+				if !preferedAllocation[shiftId].blank? && !preferedAllocation[shiftId][role].blank?
+					currentAllocation[shiftId][role] = currentAllocation[shiftId][role] - preferedAllocation[shiftId][role]
+					currentPreference[shiftId][role] = currentPreference[shiftId][role] - preferedAllocation[shiftId][role]
+				end
 				currentRoleUserHash[role].except!( *pickedUsers )
 			end
 		end
