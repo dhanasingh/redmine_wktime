@@ -36,6 +36,9 @@ class ScheduleStrategy
 			#intervalVal = 7
 			startDate = getStartDay(from)
 		end
+		if startDate < Date.today
+			startDate = getStartDay(Date.today + 7.days)
+		end
 		intervals = getIntervals(startDate, to, intervalVal, intervalType)
 		intervals.each do |entry|
 			scheduledEntries = strategy.schedule(locationId, deptId, entry[0], entry[1])

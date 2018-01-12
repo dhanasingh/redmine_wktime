@@ -45,12 +45,17 @@ class WkschedulingController < WkbaseController
 		dayOff = session[controller_name][:day_off]	
 		departmentId =  session[controller_name][:department_id]
 		locationId =  session[controller_name][:location_id]
+		startDt = @calendar.startdt
+		# get start date of the  first full week of the given month
+		if @month != @calendar.startdt.month
+			startDt = @calendar.startdt + 7.days
+		end
 		unless params[:generate].blank? || !to_boolean(params[:generate])
 			@shiftRoles.each do | entry |
 				Rails.logger.info("=========== PrioritySchedule Call============")
-				ScheduleStrategy.new.schedule('P', entry.location_id, entry.department_id, @calendar.startdt, @calendar.enddt)
+				ScheduleStrategy.new.schedule('P', entry.location_id, entry.department_id, startDt, @calendar.enddt)
 				Rails.logger.info("=========== Round Robin Call============")
-				ScheduleStrategy.new.schedule('RR', entry.location_id, entry.department_id, @calendar.startdt, @calendar.enddt)
+				ScheduleStrategy.new.schedule('RR', entry.location_id, entry.department_id, startDt, @calendar.enddt)
 			end
 			flash[:notice] = l(:notice_successful_update)
 			redirect_to :controller => controller_name,:action => 'index', :year => @year, :month => @month, :shift_id => shiftId, :day_off => dayOff, :department_id => departmentId, :location_id => locationId, :searchlist => "wkscheduling", :tab =>"wkscheduling", :generate => false

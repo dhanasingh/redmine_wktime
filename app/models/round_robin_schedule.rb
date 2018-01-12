@@ -23,7 +23,7 @@ class RoundRobinSchedule
 	def schedule(locationId, deptId, from, to)
 		roleUserHash = getRoleWiseUser(locationId, deptId)
 		currentRoleUserHash = roleUserHash.deep_dup #getRoleWiseUser(locationId, deptId)
-		lastShiftHash  = getLastShiftDetails(locationId, deptId, from, to, 'W')
+		lastShiftHash = getLastShiftDetails(locationId, deptId, from, to, 'W')
 		lastDayOffHash = getLastShiftDetails(locationId, deptId, from, to, 'D')
 		periodDays = getDaysBetween(from, to)
 		reqStaffHash = getRequiredStaffHash(locationId, deptId, currentRoleUserHash, periodDays)
