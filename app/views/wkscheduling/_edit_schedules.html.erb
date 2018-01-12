@@ -13,7 +13,7 @@
 	</thead>
 	<tbody> 
 		<% rowCount = 1 %>
-		<% unless scheduleObj.blank? %>
+		<% unless scheduleObj.blank? %>		
 			<% userIds =  scheduleObj.pluck(:user_id) %>
 			<% scheduleObj.each do |entry| %>
 				<tr>
@@ -52,7 +52,7 @@
 				</tr>
 				<% rowCount =  rowCount + 1 %>
 			<% end %>
-			<% unless userIds.include? User.current.id %>
+			<% if (!userIds.include? User.current.id) && (session[controller_name][:location_id].to_i == User.current.wk_user.location_id || session[controller_name][:location_id].blank?)  %>
 				<tr>
 					<%= hidden_field_tag "schedule_id#{rowCount}", "" %>
 					<td class="lbl-txt-align"><%= User.current.name %></td>

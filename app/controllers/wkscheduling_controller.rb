@@ -52,9 +52,7 @@ class WkschedulingController < WkbaseController
 		end
 		unless params[:generate].blank? || !to_boolean(params[:generate])
 			@shiftRoles.each do | entry |
-				Rails.logger.info("=========== PrioritySchedule Call============")
-				ScheduleStrategy.new.schedule('P', entry.location_id, entry.department_id, startDt, @calendar.enddt)
-				Rails.logger.info("=========== Round Robin Call============")
+				#ScheduleStrategy.new.schedule('P', entry.location_id, entry.department_id, startDt, @calendar.enddt)
 				ScheduleStrategy.new.schedule('RR', entry.location_id, entry.department_id, startDt, @calendar.enddt)
 			end
 			flash[:notice] = l(:notice_successful_update)
@@ -112,8 +110,13 @@ class WkschedulingController < WkbaseController
 			@shiftPreference = WkShiftSchedule.where(:schedule_date => scheduleDate, :user_id => userIds, :shift_id => shiftId.to_i, :schedule_type => 'P').order(:schedule_date, :user_id)
 		elsif !scheduleDate.blank? && shiftId.blank? 
 			if @schedulesShift && @editShiftSchedules
-				@shiftObj = WkShiftSchedule.where(:schedule_date => scheduleDate, :schedule_type => 'S').order(:schedule_date, :user_id) 
-				@shiftPreference = WkShiftSchedule.where(:schedule_date => scheduleDate,  :schedule_type => 'P').order(:schedule_date, :user_id)
+				if !userIds.blank? && userIds != 0
+					@shiftObj = WkShiftSchedule.where(:schedule_date => scheduleDate, :user_id => userIds, :schedule_type => 'S').order(:schedule_date, :user_id) 
+					@shiftPreference = WkShiftSchedule.where(:schedule_date => scheduleDate, :user_id => userIds,  :schedule_type => 'P').order(:schedule_date, :user_id)
+				else
+					@shiftObj = WkShiftSchedule.where(:schedule_date => scheduleDate, :schedule_type => 'S').order(:schedule_date, :user_id) 
+					@shiftPreference = WkShiftSchedule.where(:schedule_date => scheduleDate,  :schedule_type => 'P').order(:schedule_date, :user_id)
+				end
 			else
 				@shiftObj = WkShiftSchedule.where(:schedule_date => scheduleDate, :user_id => User.current.id, :schedule_type => 'S').order(:schedule_date, :user_id) 
 				@shiftPreference = WkShiftSchedule.where(:schedule_date => scheduleDate, :user_id => User.current.id,  :schedule_type => 'P').order(:schedule_date, :user_id)
@@ -122,7 +125,10 @@ class WkschedulingController < WkbaseController
 		unless dayOff.blank?
 			@shiftObj = @shiftObj.where(:schedule_as => dayOff)
 			@shiftPreference = @shiftPreference.where(:schedule_as => dayOff)
-		end		
+		end	
+		unless @shiftObj.blank?
+			@isScheduled = true
+		end
 	end
 	
 	def update
@@ -191,16 +197,16 @@ class WkschedulingController < WkbaseController
 		set_filter_session
 		departmentId =  session[controller_name][:department_id]
 		locationId =  session[controller_name][:location_id]
-		if @schedulesShift
+		if @schedulesShift || @editShiftSchedules
 			if (!departmentId.blank? && departmentId.to_i != 0 ) && !locationId.blank?
-				entries = WkUser.includes(:user).where(:department_id => params[:department_id].to_i, :location_id => params[:location_id].to_i)
-				@shiftRoles = WkShiftRole.where(:department_id => params[:department_id].to_i, :location_id => params[:location_id].to_i)
+				entries = WkUser.includes(:user).where(:department_id => departmentId.to_i, :location_id => locationId.to_i)
+				@shiftRoles = WkShiftRole.where(:department_id => departmentId.to_i, :location_id => locationId.to_i)
 			elsif (!departmentId.blank? && departmentId.to_i != 0 ) && locationId.blank?
-				entries = WkUser.includes(:user).where(:department_id => params[:department_id].to_i)
-				@shiftRoles = WkShiftRole.where(:department_id => params[:department_id].to_i)
+				entries = WkUser.includes(:user).where(:department_id => departmentId.to_i)
+				@shiftRoles = WkShiftRole.where(:department_id => departmentId.to_i)
 			elsif (departmentId.blank? || departmentId.to_i == 0 ) && !locationId.blank?
-				entries = WkUser.includes(:user).where(:location_id => params[:location_id].to_i)
-				@shiftRoles = WkShiftRole.where(:location_id => params[:location_id].to_i)
+				entries = WkUser.includes(:user).where(:location_id => locationId.to_i)
+				@shiftRoles = WkShiftRole.where(:location_id => locationId.to_i)
 			else
 				entries = WkUser.includes(:user).all
 				@shiftRoles = WkShiftRole.order(:location_id, :department_id)

@@ -33,7 +33,8 @@
 				<th> <%= l(:field_spent_on) %></th>
 				<td><%= date_field_tag('date', dateVal.blank? ? Date.today.to_s : dateVal,:size => 15, :required => true, :maxlength => 15) %><%= calendar_for('date') %></td>
 				<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %></td>
-				<td><%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %></td>
+				<td><%= link_to_function l(:button_clear), '$("#query_form").submit(); return false;', :class => 'icon icon-reload' %></td>
+				
 			<% end %>
 		</tr>
 	</table>
