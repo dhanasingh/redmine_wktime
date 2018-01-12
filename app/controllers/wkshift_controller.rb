@@ -34,11 +34,11 @@ class WkshiftController < ApplicationController
 		unless params[:shift_id].blank?
 			@shiftObj = WkShift.find(params[:shift_id].to_i)			
 			if (!departmentId.blank? && departmentId.to_i != 0 ) && !locationId.blank?
-				entries = @shiftObj.shift_roles.where(:department_id => params[:department_id].to_i, :location_id => params[:location_id].to_i)
+				entries = @shiftObj.shift_roles.where(:department_id => departmentId.to_i, :location_id => locationId.to_i)
 			elsif (!departmentId.blank? && departmentId.to_i != 0 ) && locationId.blank?
-				entries = @shiftObj.shift_roles.where(:department_id => params[:department_id].to_i)
+				entries = @shiftObj.shift_roles.where(:department_id => departmentId.to_i)
 			elsif (departmentId.blank? || departmentId.to_i == 0 ) && !locationId.blank?
-				entries = @shiftObj.shift_roles.where(:location_id => params[:location_id].to_i)
+				entries = @shiftObj.shift_roles.where(:location_id => locationId.to_i)
 			else
 				entries = @shiftObj.shift_roles
 			end
