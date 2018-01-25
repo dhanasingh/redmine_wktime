@@ -52,9 +52,9 @@ class WkschedulingController < WkbaseController
 			startDt = @calendar.startdt + 7.days
 		end
 		unless params[:generate].blank? || !to_boolean(params[:generate])
-			@shiftRoles.each do | entry |
+			@locationDept.each do | entry |
 				#ScheduleStrategy.new.schedule('P', entry.location_id, entry.department_id, startDt, @calendar.enddt)
-				ScheduleStrategy.new.schedule('RR', entry.location_id, entry.department_id, startDt, @calendar.enddt)
+				ScheduleStrategy.new.schedule('RR', entry[0], entry[1], startDt, @calendar.enddt)
 			end
 			flash[:notice] = l(:notice_successful_update)
 			redirect_to :controller => controller_name,:action => 'index', :year => @year, :month => @month, :shift_id => shiftId, :day_off => dayOff, :department_id => departmentId, :location_id => locationId, :searchlist => "wkscheduling", :tab =>"wkscheduling", :generate => false
@@ -212,6 +212,7 @@ class WkschedulingController < WkbaseController
 				entries = WkUser.includes(:user).all
 				@shiftRoles = WkShiftRole.order(:location_id, :department_id)
 			end
+			@locationDept = @shiftRoles.pluck(:location_id, :department_id).uniq
 			if !params[:name].blank?
 				entries = entries.where("users.type = 'User' and LOWER(users.firstname) like LOWER('%#{params[:name]}%') or LOWER(users.lastname) like LOWER('%#{params[:name]}%')")
 			end

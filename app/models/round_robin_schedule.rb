@@ -21,7 +21,7 @@ class RoundRobinSchedule
 	# Target shift - the shift which we are going to schedule
 	# Source Shift - The shift which we take the users from (Previous shift)
 	def schedule(locationId, deptId, from, to)
-		roleUserHash = getRoleWiseUser(locationId, deptId)
+		roleUserHash = getRoleWiseUser(locationId, deptId, from, to)
 		currentRoleUserHash = roleUserHash.deep_dup #getRoleWiseUser(locationId, deptId)
 		lastShiftHash = getLastShiftDetails(locationId, deptId, from, to, 'W')
 		lastDayOffHash = getLastShiftDetails(locationId, deptId, from, to, 'D')
@@ -54,7 +54,7 @@ class RoundRobinSchedule
 					# First allocate the users those who are working on sourceShift last week
 					targetShftLastUsersAsc = unScheduledLstSftUsr[shift][role].sort_by { |uid, schDt| schDt || Date.new(1900) }
 					targetShftLastUsersAsc.each do |id, schDt|
-						pickedUserIds << id if sourceShiftLastUsrs.has_key?(id) && currentRoleUserHash[role].has_key?(id) && !sourceShiftLastUsrs[id].blank?
+						pickedUserIds << id if sourceShiftLastUsrs.has_key?(id) && currentRoleUserHash[role].has_key?(id) && !sourceShiftLastUsrs[id].blank? && !(pickedUserIds.include? id)
 						break if pickedUserIds.length == minStaffMoveHash[role]
 					end
 					
@@ -63,7 +63,7 @@ class RoundRobinSchedule
 					# Allocate the sourceShift staff who are not working in target shift 
 					unless pickedUserIds.length == minStaffMoveHash[role]
 						sourceShiftLastUsrs.each do |userId, schdt|
-							pickedUserIds << userId if currentRoleUserHash[role].has_key?(userId)
+							pickedUserIds << userId if currentRoleUserHash[role].has_key?(userId) && !(pickedUserIds.include? userId)
 							break if pickedUserIds.length == minStaffMoveHash[role]
 						end
 					end
@@ -73,7 +73,7 @@ class RoundRobinSchedule
 					# additionalCount = staff-pickedUserIds.length
 					if (staff - pickedUserIds.length) > 0
 						targetShiftLastUsrs.each do |userId, schdt|
-							pickedUserIds << userId if currentRoleUserHash[role].has_key?(userId)
+							pickedUserIds << userId if currentRoleUserHash[role].has_key?(userId) && !(pickedUserIds.include? userId)
 							break if pickedUserIds.length == staff
 						end
 					end
@@ -82,10 +82,11 @@ class RoundRobinSchedule
 					# additionalCount = staff-pickedUserIds.length
 					if (staff - pickedUserIds.length) > 0
 						currentRoleUserHash[role].each do |userId, userObj|
-							pickedUserIds << userId
+							pickedUserIds << userId if !(pickedUserIds.include? userId)
 							break if pickedUserIds.length == staff
 						end
 					end
+					
 				end
 				pickedUsersHash = currentRoleUserHash[role].select {|k,v| pickedUserIds.include? k }
 				scheduledUserIds = scheduledUserIds + pickedUserIds
@@ -94,7 +95,7 @@ class RoundRobinSchedule
 				else
 					allocatedHash[shift].store(role, pickedUsersHash.keys)
 				end
-				currentRoleUserHash[role].except!( *pickedUserIds ) 
+				currentRoleUserHash[role].except!( *pickedUserIds )
 			end
 		end
 		if scheduleByPreference
@@ -252,7 +253,7 @@ class RoundRobinSchedule
 	def getUserPreference(locationId, deptId, from, to)
 		sqlStr =  "select u.id as user_id, wu.location_id, wu.department_id, wu.termination_date, wu.join_date," +
 		" wu.role_id, wu.is_schedulable, sp.schedule_date, sp.schedule_type, sp.schedule_as, sp.shift_id from users u inner join wk_users wu on u.id = wu.user_id left outer join wk_shift_schedules sp on (u.id = sp.user_id and sp.schedule_type = 'P' and sp.schedule_date = '#{from}')"
-		sqlCond = " where wu.termination_date is null" # and wu.is_schedulable = #{true}
+		sqlCond = " where (wu.termination_date IS NULL OR wu.termination_date >= '#{to}') and wu.is_schedulable = #{true} AND wu.join_date <= '#{from}'" # and wu.is_schedulable = #{true}
 		unless deptId.blank?
 			sqlCond = sqlCond + " and department_id = #{deptId}"
 		end
@@ -281,8 +282,9 @@ class RoundRobinSchedule
 	
 	# Return active users role wise
 	# roleUserHash key as roll_id , value as userHash ( userId as key userObj as value)
-	def getRoleWiseUser(locationId, deptId)
-		users = User.includes(:wk_user).where(:wk_users => {:location_id => locationId, :department_id => deptId, :termination_date => nil})
+	def getRoleWiseUser(locationId, deptId, from, to)
+		#users = User.includes(:wk_user).where(:wk_users => {:location_id => locationId, :department_id => deptId, :termination_date => nil})
+		users = User.includes(:wk_user).where("wk_users.location_id = ? AND wk_users.department_id = ? AND (wk_users.termination_date IS NULL OR wk_users.termination_date >= ?) AND wk_users.join_date <= ? and wk_users.is_schedulable = ?", locationId, deptId, to, from, true).references(:wk_users)
 		roleUserHash = Hash.new
 		users.each do |entry|
 			if roleUserHash[entry.wk_user.role_id].blank?
@@ -492,7 +494,7 @@ class RoundRobinSchedule
 		end
 		sqlStr = "SELECT wu.user_id, #{selectShift} ls.last_schedule_date, wu.location_id, wu.department_id," + 
 			" wu.role_id from users u" + 
-			" inner join wk_users wu on (wu.user_id = u.id and wu.termination_date is null)" +
+			" inner join wk_users wu on (wu.user_id = u.id and wu.is_schedulable = #{true} and (wu.termination_date IS NULL OR wu.termination_date >= '#{to}') AND wu.join_date <= '#{from}')" +
 			joinShiftStr +
 			" left join" +
 			" (select user_id #{shift}, max(schedule_date) as last_schedule_date from wk_shift_schedules where schedule_as = '#{scheduleAs}' and schedule_date < '#{from}' and schedule_type = 'S' group by user_id #{shift}) ls on (ls.user_id = u.id #{joinCond})" 
@@ -541,7 +543,7 @@ class RoundRobinSchedule
 		minStaffMoveHash = Hash.new
 		reqStaffHash.each do |shift, roleStaff|
 			roleStaff.each do |role, staff|
-				minStaffMoveHash[role] = staff if minStaffMoveHash[role].blank? || minStaffMoveHash[role] > staff
+				minStaffMoveHash[role] = staff if (minStaffMoveHash[role].blank? || minStaffMoveHash[role] > staff) && staff > 0
 			end
 		end
 		minStaffMoveHash
