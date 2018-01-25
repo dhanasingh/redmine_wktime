@@ -73,11 +73,23 @@ class WkshiftController < ApplicationController
 				errorMsg =  timeEntries.errors.full_messages.join("<br>")
 			end
 		end
-		WkShift.where(:id => arrId).delete_all()			
-		
+		#WkShift.where(:id => arrId).delete_all()
+		if !arrId.blank?
+			arrId.each do | id |
+				shiftDes = WkShift.find(id.to_i)
+				unless shiftDes.destroy
+					errorMsg = shiftDes.errors.full_messages.join("<br>")
+				end
+			end
+		end
+		unless errorMsg.blank?
+			flash[:error] = errorMsg 
+		else
+			flash[:notice] = l(:notice_successful_update)
+		end
 		redirect_to :controller => 'wkshift',:action => 'index' , :tab => 'wkshift'
-		flash[:notice] = l(:notice_successful_update)
-		flash[:error] = errorMsg unless errorMsg.blank?
+		
+		
 	end
 	
 	def shiftRoleUpdate
@@ -108,9 +120,12 @@ class WkshiftController < ApplicationController
 		end
 		WkShiftRole.where(:id => arrId).delete_all()
 				
-		redirect_to :controller => 'wkshift',:action => 'index' , :tab => 'wkshift'
-		flash[:notice] = l(:notice_successful_update)
-		flash[:error] = errorMsg unless errorMsg.blank?
+		unless errorMsg.blank?
+			flash[:error] = errorMsg 
+		else
+			flash[:notice] = l(:notice_successful_update)
+		end
+		redirect_to :controller => 'wkshift',:action => 'index' , :tab => 'wkshift'		
 	end
 	
 	def formPagination(entries)

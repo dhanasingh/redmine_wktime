@@ -18,4 +18,5 @@
 class WkShift < ActiveRecord::Base
 
 	has_many :shift_roles, foreign_key: "shift_id", class_name: "WkShiftRole", :dependent => :restrict_with_error
+	has_many :shift_schedules, foreign_key: "shift_id", class_name: "WkShiftSchedule", :dependent => :restrict_with_error
 end

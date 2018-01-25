@@ -113,9 +113,9 @@ class WkschedulingController < WkbaseController
 				if !userIds.blank? && userIds != 0
 					@shiftObj = WkShiftSchedule.where(:schedule_date => scheduleDate, :user_id => userIds, :schedule_type => 'S').order(:schedule_date, :user_id) 
 					@shiftPreference = WkShiftSchedule.where(:schedule_date => scheduleDate, :user_id => userIds,  :schedule_type => 'P').order(:schedule_date, :user_id)
-				else
-					@shiftObj = WkShiftSchedule.where(:schedule_date => scheduleDate, :schedule_type => 'S').order(:schedule_date, :user_id) 
-					@shiftPreference = WkShiftSchedule.where(:schedule_date => scheduleDate,  :schedule_type => 'P').order(:schedule_date, :user_id)
+				# else
+					# @shiftObj = WkShiftSchedule.where(:schedule_date => scheduleDate, :schedule_type => 'S').order(:schedule_date, :user_id) 
+					# @shiftPreference = WkShiftSchedule.where(:schedule_date => scheduleDate,  :schedule_type => 'P').order(:schedule_date, :user_id)
 				end
 			else
 				@shiftObj = WkShiftSchedule.where(:schedule_date => scheduleDate, :user_id => User.current.id, :schedule_type => 'S').order(:schedule_date, :user_id) 
