@@ -27,7 +27,7 @@
 							<td class="lbl-txt-align"><%= select_tag "shifts#{rowCount}", options_for_select(shifts, :selected => entry.shift_id), :style=>"width:150px; "  %></td>
 							<td><%= check_box_tag("day_off#{rowCount}", 1, (entry.schedule_as == 'W' ? false : true), :onchange => "showorHide((this.checked ? true : false), 'shifts#{rowCount}' )") %></td>
 						<% else %>
-							<td><%= entry.shift.name %>
+							<td><%= entry.shift.name unless entry.shift.blank? %>
 								<%= hidden_field_tag "shifts#{rowCount}", entry.shift_id %>
 							</td>
 							<td><%=h checked_image (entry.schedule_as == 'W' ? false : true) %></td>

@@ -617,8 +617,11 @@ end
 				
 				if showShiftScheduling
 					tabs <<  {:name => 'wkscheduling', :partial => 'wktime/tab_content', :label => :label_scheduling}
-					tabs <<	{:name => 'wkshift', :partial => 'wktime/tab_content', :label => :label_shift}
-					
+					@schedulesShift = validateERPPermission("S_SHIFT")
+					@editShiftSchedules = validateERPPermission("E_SHIFT")
+					if @schedulesShift && @editShiftSchedules
+						tabs <<	{:name => 'wkshift', :partial => 'wktime/tab_content', :label => :label_shift}
+					end					
 				end
 				
 		elsif params[:controller] == "wklead" || params[:controller] == "wkcrmaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact"
