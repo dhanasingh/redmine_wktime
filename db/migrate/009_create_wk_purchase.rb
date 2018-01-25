@@ -18,6 +18,7 @@ class CreateWkPurchase < ActiveRecord::Migration
 				# SQL
 				remove_index :wk_invoices, :invoice_number
 				add_index :wk_invoices, :invoice_number, :unique => false
+				change_column :wk_invoice_items, :project_id, :integer, null: true
 			end
 			dir.down do
 				execute <<-SQL
@@ -26,8 +27,9 @@ class CreateWkPurchase < ActiveRecord::Migration
 				execute <<-SQL
 				  DELETE from wk_invoice_items where project_id is null;
 				SQL
-				remove_index :wk_invoices, :invoice_number, :unique => false
+				remove_index :wk_invoices, :invoice_number
 				add_index :wk_invoices, :invoice_number, :unique => true
+				change_column :wk_invoice_items, :project_id, :integer, null: false
 			end
 		end
 		
@@ -70,8 +72,7 @@ class CreateWkPurchase < ActiveRecord::Migration
 			t.column :locked_by,  :integer,  :null => false
 			t.column :updated_by, :integer,  :null => true
 			t.timestamps null: false
-		end
+		end		
 		
-		change_column :wk_invoice_items, :project_id, :integer, null: true
 	end
 end
