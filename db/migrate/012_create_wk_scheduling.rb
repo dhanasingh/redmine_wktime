@@ -6,8 +6,8 @@ class CreateWkScheduling  < ActiveRecord::Migration
 			t.string :name
 			t.time :start_time
 			t.time :end_time
-			t.boolean :in_active
-			t.boolean :is_schedulable
+			t.boolean :in_active, :default => true
+			t.boolean :is_schedulable, :default => true
 			t.references :created_by_user, :class => "User"
 			t.references :updated_by_user, :class => "User"
 			t.timestamps null: false
@@ -48,7 +48,7 @@ class CreateWkScheduling  < ActiveRecord::Migration
 			t.references :user, :null => false, :index => true
 			t.references :role, :index => true
 			t.float :billing_rate
-			t.boolean :is_schedulable
+			t.boolean :is_schedulable, :default => true
 			t.column :billing_currency, :string, :limit => 5, :default => '$'
 			t.references :shift, :class => "wk_shifts", :null => true, :index => true
 			t.references :location, :class => "wk_locations", :null => true, :index => true
