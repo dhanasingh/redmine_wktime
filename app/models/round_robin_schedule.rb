@@ -256,10 +256,14 @@ class RoundRobinSchedule
 					unless userPreference[0][role].blank?
 						unPreferedUsers = userPreference[0][role]
 						curSftUnPreferedUsers = allocatedUsers & unPreferedUsers
-						if userPreference[shiftId].blank? || userPreference[shiftId][role].blank?
+						if userPreference[shiftId].blank? #|| userPreference[shiftId][role].blank?
 							userPreference[shiftId] = { role => curSftUnPreferedUsers} 
 						else
-							userPreference[shiftId][role] = userPreference[shiftId][role] + curSftUnPreferedUsers
+							unless userPreference[shiftId][role].blank?
+								userPreference[shiftId][role] = userPreference[shiftId][role] + curSftUnPreferedUsers
+							else
+								userPreference[shiftId][role] = curSftUnPreferedUsers
+							end
 						end
 					end					
 				end
