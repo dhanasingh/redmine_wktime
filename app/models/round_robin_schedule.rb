@@ -21,6 +21,7 @@ class RoundRobinSchedule
 	# Target shift - the shift which we are going to schedule
 	# Source Shift - The shift which we take the users from (Previous shift)
 	def schedule(locationId, deptId, from, to)
+		destroySchedules(locationId, deptId, from, to)
 		roleUserHash = getRoleWiseUser(locationId, deptId, from, to)
 		currentRoleUserHash = roleUserHash.deep_dup #getRoleWiseUser(locationId, deptId)
 		lastShiftHash = getLastShiftDetails(locationId, deptId, from, to, 'W')
@@ -35,10 +36,12 @@ class RoundRobinSchedule
 		unScheduledLstSftUsr = lastShiftHash
 		shifts.each_with_index do |shift, index|
 			reqStaffHash[shift].each do |role, staff|
-				if currentRoleUserHash[role].blank?
+				if currentRoleUserHash[role].blank? || staff < 1
 					next
 				end
-				sourceShift = shifts[(index+1)%totalShifts]
+				
+				sourceShift = getSourceShift(reqStaffHash, shift, shifts, role)
+				#sourceShift = shifts[(index+1)%totalShifts]
 				if unScheduledLstSftUsr[sourceShift].blank? || unScheduledLstSftUsr[sourceShift][role].values[0].blank?
 					availableUsers = currentRoleUserHash[role].keys
 					pickedUserIds = availableUsers[ 0 .. staff -1 ]
@@ -53,6 +56,7 @@ class RoundRobinSchedule
 					# Those who are not Woking a single day on sourceShift will have last working day as blank
 					# First allocate the users those who are working on sourceShift last week
 					targetShftLastUsersAsc = unScheduledLstSftUsr[shift][role].sort_by { |uid, schDt| schDt || Date.new(1900) }
+					sourceShftLastUsersDesc = unScheduledLstSftUsr[sourceShift][role].sort_by { |uid, schDt| schDt || Date.new(1900) }.reverse
 					targetShftLastUsersAsc.each do |id, schDt|
 						pickedUserIds << id if sourceShiftLastUsrs.has_key?(id) && currentRoleUserHash[role].has_key?(id) && !sourceShiftLastUsrs[id].blank? && !(pickedUserIds.include? id)
 						break if pickedUserIds.length == minStaffMoveHash[role]
@@ -71,9 +75,10 @@ class RoundRobinSchedule
 					
 					# After the minimum staff move then keep some staff from the same shift(Target shift)
 					# additionalCount = staff-pickedUserIds.length
+					# Keep the users those who are working recently on Source shift
 					if (staff - pickedUserIds.length) > 0
-						targetShiftLastUsrs.each do |userId, schdt|
-							pickedUserIds << userId if currentRoleUserHash[role].has_key?(userId) && !(pickedUserIds.include? userId)
+						sourceShftLastUsersDesc.each do |userId, schdt|
+							pickedUserIds << userId if currentRoleUserHash[role].has_key?(userId) && !(pickedUserIds.include? userId) && targetShiftLastUsrs.has_key?(userId)
 							break if pickedUserIds.length == staff
 						end
 					end
@@ -103,7 +108,21 @@ class RoundRobinSchedule
 			allocatedHash = applyPreference(userpreference, allocatedHash, roleUserHash)
 		end
 		holidays = getHolidays(locationId, from, to)
-		saveSchedules(allocatedHash, from, to, lastDayOffHash, holidays)
+		saveSchedules(allocatedHash, from, to, lastDayOffHash, holidays, locationId, deptId)
+	end
+	
+	# Return Shift id where staff has to be taken for the target shift
+	def getSourceShift(reqStaffHash, targetShiftId, sortedShiftArr, roleId)
+		curRoleShifts = Array.new
+		sortedShiftArr.each do |shiftId|
+			if !reqStaffHash[shiftId].blank? && (!reqStaffHash[shiftId][roleId].blank? && reqStaffHash[shiftId][roleId] > 0)
+				curRoleShifts << shiftId
+			end
+		end
+		targetShiftIndex = curRoleShifts.index(targetShiftId) 
+		curRoleTotalShifts = curRoleShifts.length
+		sourceShift = curRoleShifts[(targetShiftIndex+1)%curRoleTotalShifts]
+		sourceShift
 	end
 	
 	# return array of holiday dates for the give location and period
@@ -380,10 +399,10 @@ class RoundRobinSchedule
 	end
 	
 	# Save the scheduled hash entries
-	def saveSchedules(allocatedHash, from, to, lastDayOffHash, holidays)
+	def saveSchedules(allocatedHash, from, to, lastDayOffHash, holidays, locationId, deptId)
 		currentUserId = User.current.blank? ? nil : User.current.id
 		allocatedHash.each do |shiftId, pickedRolehash|
-			pickedRolehash.values.each do |pickedUsers|
+			pickedRolehash.each do |roleId, pickedUsers|
 				dayOffs = getDayOffs(pickedUsers, from, to, lastDayOffHash)
 				pickedUsers.each do |userId|
 					from.upto(to) do |shiftDate|
@@ -403,6 +422,12 @@ class RoundRobinSchedule
 				end
 			end
 		end
+	end
+	
+	# Destroy schedules for the given interval , location and department
+	def destroySchedules(locationId, deptId, from, to)
+		userIds = WkUser.where(:location_id => locationId, :department_id => deptId).pluck(:user_id)
+		WkShiftSchedule.destroy_all(:schedule_date => from .. to, :user_id => userIds, :schedule_type => 'S')
 	end
 	
 	# return the day Off schedules for the users
