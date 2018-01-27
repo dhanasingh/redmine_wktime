@@ -320,13 +320,18 @@ class RoundRobinSchedule
 	# Here we have to check number of staff and and required staff are equal 
 	# If not equal then we have to assign the staff as requested staff percentage in each shift
 	def getRequiredStaffHash(locationId, deptId, roleUserHash, interval)
+		allLDShiftRoles = WkShiftRole.where(:location_id => 0, :department_id => 0)
+		locationShiftRoles = WkShiftRole.where(:location_id => locationId, :department_id => 0 )
+		deptShiftRoles = WkShiftRole.where(:location_id => 0, :department_id => deptId)
 		if deptId.blank?
 			shiftRoles = WkShiftRole.where(:location_id => locationId)
 		else
 			shiftRoles = WkShiftRole.where(:location_id => locationId, :department_id => deptId)
 		end
 		reqStaffHash = Hash.new
-		shiftRoles.each do |entry|
+		
+		# Collect the all the Location and department required staff
+		allLDShiftRoles.each do |entry|
 			if reqStaffHash[entry.shift_id].blank?
 				reqStaffHash[entry.shift_id] = { entry.role_id => getReqStaffWithDayOff(entry.staff_count, interval)}
 			else
@@ -334,6 +339,32 @@ class RoundRobinSchedule
 			end
 		end
 		
+		# Over ride required staff count the for the given location
+		locationShiftRoles.each do |entry|
+			if reqStaffHash[entry.shift_id].blank?
+				reqStaffHash[entry.shift_id] = { entry.role_id => getReqStaffWithDayOff(entry.staff_count, interval)}
+			else
+				reqStaffHash[entry.shift_id].store(entry.role_id, getReqStaffWithDayOff(entry.staff_count, interval))
+			end
+		end
+		
+		# Over ride required staff count the for the given Department
+		deptShiftRoles.each do |entry|
+			if reqStaffHash[entry.shift_id].blank?
+				reqStaffHash[entry.shift_id] = { entry.role_id => getReqStaffWithDayOff(entry.staff_count, interval)}
+			else
+				reqStaffHash[entry.shift_id].store(entry.role_id, getReqStaffWithDayOff(entry.staff_count, interval))
+			end
+		end
+		
+		# Over ride required staff count the for the given Department and location
+		shiftRoles.each do |entry|
+			if reqStaffHash[entry.shift_id].blank?
+				reqStaffHash[entry.shift_id] = { entry.role_id => getReqStaffWithDayOff(entry.staff_count, interval)}
+			else
+				reqStaffHash[entry.shift_id].store(entry.role_id, getReqStaffWithDayOff(entry.staff_count, interval))
+			end
+		end
 		# Scenario for required staff less or high 
 		roleStaffCount = Hash.new
 		
