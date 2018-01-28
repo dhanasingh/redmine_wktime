@@ -473,10 +473,12 @@ class RoundRobinSchedule
 		# isConsecutive = true
 		# userLastDayOff = lastDayOff.select { |userId, dayOff| userIdsArr.include? userId }
 		# sortedUserLastDayOff = lastDayOff.sort_by { |uid, schDt| schDt || Date.new(1900) }
+		noOfUsers = userIdsArr.length
 		noOfDays = getDaysBetween(from, to)#(to - from).to_i + 1 
-		# noOfUsers = userIdsArr.length
+		minWorkersPerDay = (noOfUsers * (noOfDays - dayOffCount)) / noOfDays
 		# minLeaveUsrPerDay = (noOfUsers * dayOffCount) / 7
 		# maxLeaveUsrPerDay = minLeaveUsrPerDay + 1
+		maxLeaveUsrPerDay = noOfUsers - minWorkersPerDay
 		# noOfDaysHasMaxLeave = (noOfUsers * dayOffCount) % 7
 		# nextDate = from
 		# interval = 1
@@ -485,17 +487,80 @@ class RoundRobinSchedule
 			# scheduleOnWeekEnds = true
 		# end
 		weekEndArr = getWeekEndArr(from) 
-		userIdsArr.each_with_index do |userId, index|
-			dayOffArr = Array.new
-			#firstLeaveDt = from + ((index * dayOffCount) % noOfDays).days
-			if isScheduleOnWeekEnd
-				for dof in 0..dayOffCount-1
-					dayOffArr << from + (((index * dayOffCount) + dof) % noOfDays).days
+		dofUserAllocateHash = Hash.new
+		remaingDOHash = Hash.new
+		if scheduleByPreference && isScheduleOnWeekEnd
+			userPreference = getUserPreferenceDO(userIdsArr, from, to)
+			
+			# Allocate the prefered users dayoffs 
+			from.upto(to) do |offDt|
+				userIds = userPreference[offDt]
+				unless userIds.blank?
+					userIds.each do|userId|
+						if dayOffHash[userId].blank? || dayOffHash[userId].length < dayOffCount
+							dofUserAllocateHash[offDt] = dofUserAllocateHash[offDt].blank? ? [userId] : dofUserAllocateHash[offDt] + [offDt]
+							dayOffHash[userId] = dayOffHash[userId].blank? ? [offDt] : dayOffHash[userId] + [offDt]
+						end
+						break if !dofUserAllocateHash[offDt].blank? && dofUserAllocateHash[offDt].length == maxLeaveUsrPerDay
+					end
+					allocatedDayOff = dofUserAllocateHash[offDt].blank? ? 0 : dofUserAllocateHash[offDt].length
+					remaingDOHash[offDt] = maxLeaveUsrPerDay - allocatedDayOff
+				else
+					remaingDOHash[offDt] = maxLeaveUsrPerDay
 				end
-			else
-				dayOffArr = weekEndArr
 			end
-			dayOffHash[userId] = dayOffArr
+			
+			# Allocate Dayoffs for those who are dont have any preference
+			userIdsArr.each_with_index do |userId, index|
+				if dayOffHash[userId].blank? || dayOffHash[userId].length < dayOffCount
+					from.upto(to) do |offDt|
+						if dofUserAllocateHash[offDt].blank? || dofUserAllocateHash[offDt].length < maxLeaveUsrPerDay
+							dofUserAllocateHash[offDt] = dofUserAllocateHash[offDt].blank? ? [userId] : dofUserAllocateHash[offDt] + [offDt]
+							dayOffHash[userId] = dayOffHash[userId].blank? ? [offDt] : dayOffHash[userId] + [offDt]
+						end
+						break if !dayOffHash[userId].blank? && dayOffHash[userId].length == dayOffCount
+					end
+				end
+			end
+			
+			# This Section need to modify. 
+			# Scenerio: 'Staff A' has 2 days leave but there is one day only available with maxLeaveUsrPerDay
+			# So you cound not assign 2 days to that user.
+			# Currently we have assign some other day as leave to 'Staff A'
+			# It leads to lack required staff on that day
+			# You need to rearrange the dayOffs to solve this 
+			unscheduleUserCnt = 0
+			userIdsArr.each_with_index do |userId, index|
+				if dayOffHash[userId].blank? || dayOffHash[userId].length < dayOffCount
+					givenOff = dayOffHash[userId].blank? ? 0 : dayOffHash[userId].length
+					for dof in 0..dayOffCount-1-givenOff
+						offDt = from + (((unscheduleUserCnt * dayOffCount) + dof) % noOfDays).days
+						unless givenOff == 0
+							until !dayOffHash[userId].include? offDt
+								unscheduleUserCnt = unscheduleUserCnt + 1
+								offDt = from + (((unscheduleUserCnt * dayOffCount) + dof) % noOfDays).days
+							end
+						end 
+						dofUserAllocateHash[offDt] = dofUserAllocateHash[offDt].blank? ? [userId] : dofUserAllocateHash[offDt] + [offDt]
+						dayOffHash[userId] = dayOffHash[userId].blank? ? [offDt] : dayOffHash[userId] + [offDt]
+					end
+					unscheduleUserCnt = unscheduleUserCnt + 1
+				end
+			end
+		else
+			userIdsArr.each_with_index do |userId, index|
+				dayOffArr = Array.new
+				#firstLeaveDt = from + ((index * dayOffCount) % noOfDays).days
+				if isScheduleOnWeekEnd
+					for dof in 0..dayOffCount-1
+						# This calculation will give the next day of last given dayoff
+						dayOffArr << from + (((index * dayOffCount) + dof) % noOfDays).days
+					end
+				else
+					dayOffArr = weekEndArr
+				end
+				dayOffHash[userId] = dayOffArr
+			end
 		end
 		dayOffHash
 	end
