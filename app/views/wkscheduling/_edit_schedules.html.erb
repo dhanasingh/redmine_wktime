@@ -1,4 +1,4 @@
-<% shifts = WkShift.order(:name).pluck(:name, :id) %>
+<% shifts = WkShift.where(:in_active => true, :is_schedulable => true).order(:name).pluck(:name, :id) %>
 <%= form_tag({:controller => controller_name, :action => 'update'},  :method => :post, :id => 'query_form') do %>
 <%= hidden_field_tag "isscheduled", scheduled %>
 <table class="list time-entries">

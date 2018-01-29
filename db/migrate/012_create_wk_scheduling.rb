@@ -16,8 +16,8 @@ class CreateWkScheduling  < ActiveRecord::Migration
 		create_table :wk_shift_roles do |t|
 			t.references :role, :null => false
 			t.references :shift, :class => "wk_shifts", :index => true
-			t.references :location, :class => "wk_crm_enumerations", :null => false, :index => true
-			t.references :department, :class => "wk_crm_enumerations", :null => false, :index => true
+			t.references :location, :class => "wk_crm_enumerations", :index => true
+			t.references :department, :class => "wk_crm_enumerations", :index => true
 			t.integer :staff_count, :default => 0			
 			t.references :created_by_user, :class => "User"
 			t.references :updated_by_user, :class => "User"

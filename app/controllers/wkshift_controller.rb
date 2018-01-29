@@ -40,7 +40,7 @@ class WkshiftController < ApplicationController
 			elsif (departmentId.blank? || departmentId.to_i == 0 ) && !locationId.blank?
 				entries = @shiftObj.shift_roles.where(:location_id => locationId.to_i)
 			else
-				entries = @shiftObj.shift_roles
+				entries = @shiftObj.shift_roles.where(:location_id => nil, :department_id => nil)
 			end
 			formPagination(entries)
 		end
@@ -108,8 +108,8 @@ class WkshiftController < ApplicationController
 			shiftRoleEntries.role_id = params[:role_id][i].to_i
 			shiftRoleEntries.shift_id = params[:shift_id].to_i
 			shiftRoleEntries.staff_count = params[:staff_count][i].to_i
-			shiftRoleEntries.location_id = params[:location_id].to_i
-			shiftRoleEntries.department_id = params[:department_id].to_i
+			shiftRoleEntries.location_id = params[:location_id]
+			shiftRoleEntries.department_id = params[:department_id].to_i == 0 ? nil : params[:department_id].to_i 
 			if shiftRoleEntries.new_record?
 				shiftRoleEntries.created_by_user_id = User.current.id
 			end

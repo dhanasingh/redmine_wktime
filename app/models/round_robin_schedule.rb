@@ -324,9 +324,9 @@ class RoundRobinSchedule
 	# Here we have to check number of staff and and required staff are equal 
 	# If not equal then we have to assign the staff as requested staff percentage in each shift
 	def getRequiredStaffHash(locationId, deptId, roleUserHash, interval)
-		allLDShiftRoles = WkShiftRole.where(:location_id => 0, :department_id => 0)
-		locationShiftRoles = WkShiftRole.where(:location_id => locationId, :department_id => 0 )
-		deptShiftRoles = WkShiftRole.where(:location_id => 0, :department_id => deptId)
+		allLDShiftRoles = WkShiftRole.where(:location_id => nil, :department_id => nil)
+		locationShiftRoles = WkShiftRole.where(:location_id => locationId, :department_id => nil )
+		deptShiftRoles = WkShiftRole.where(:location_id => nil, :department_id => deptId)
 		if deptId.blank?
 			shiftRoles = WkShiftRole.where(:location_id => locationId)
 		else

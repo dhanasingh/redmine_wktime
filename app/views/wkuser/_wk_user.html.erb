@@ -11,7 +11,7 @@
 	locationArr = locationobj.pluck(:name, :id)
 	departmentArr = WkCrmEnumeration.where(:enum_type => 'DP').order(:name).pluck(:name, :id)
 	shiftArr = nil
-	shiftObj = WkShift.where(:in_active => true).order(:name)
+	shiftObj = WkShift.where(:in_active => true, :is_schedulable => true).order(:name)
 	shiftArr = shiftObj.pluck(:name, :id)
 	shiftArr.unshift(["",''])
 %>

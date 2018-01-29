@@ -1,4 +1,4 @@
-<%  shiftArr = WkShift.order(:name).pluck(:name, :id) 
+<%  shiftArr = WkShift.where(:in_active => true, :is_schedulable => true).order(:name).pluck(:name, :id) 
 	shiftArr.unshift(["",''])
 %>
 <%= hidden_field_tag "searchlist", controller_name %>
