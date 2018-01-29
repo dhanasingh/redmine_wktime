@@ -83,7 +83,7 @@ class WkschedulingController < WkbaseController
 					arr << ((entry.user.name.to_s) + " - " + (entry.shift.blank? ? "" : entry.shift.name.to_s) +" - "+ (entry.schedule_as.to_s) +" - "+ (entry.schedule_type.to_s))				
 				end
 			end
-			unless isScheduled
+			if !isScheduled && isChecked('wk_user_schedule_preference')
 				@shiftPreference.each do |entry|
 					if entry.schedule_date == day
 						arr << ((entry.user.name.to_s) + " - " + (entry.shift.blank? ? "" : entry.shift.name.to_s) +" - "+ (entry.schedule_as.to_s)+" - "+ (entry.schedule_type.to_s))
