@@ -180,7 +180,8 @@ class RoundRobinSchedule
 				else
 					preferedAllocation[shiftId].store(role, pickedUsers)
 				end
-				if !preferedAllocation[shiftId].blank? && !preferedAllocation[shiftId][role].blank?
+				
+				if !preferedAllocation[shiftId].blank? && !preferedAllocation[shiftId][role].blank? && !pickedUsers.empty?
 					currentAllocation[shiftId][role] = currentAllocation[shiftId][role] - preferedAllocation[shiftId][role]
 					currentPreference[shiftId][role] = currentPreference[shiftId][role] - preferedAllocation[shiftId][role]
 				end
@@ -201,7 +202,7 @@ class RoundRobinSchedule
 						preferedAllocation[shiftId][role] = preferedAllocation[shiftId][role] + pickedUsers
 					end
 				end
-				if !preferedAllocation[shiftId].blank? && !preferedAllocation[shiftId][role].blank?
+				if !preferedAllocation[shiftId].blank? && !preferedAllocation[shiftId][role].blank? && !pickedUsers.empty?
 					currentAllocation[shiftId][role] = currentAllocation[shiftId][role] - preferedAllocation[shiftId][role]
 					currentPreference[shiftId][role] = currentPreference[shiftId][role] - preferedAllocation[shiftId][role]
 				end
@@ -222,7 +223,15 @@ class RoundRobinSchedule
 				end
 				if !preferedAllocation[shiftId].blank? && !preferedAllocation[shiftId][role].blank?
 					currentAllocation[shiftId][role] = currentAllocation[shiftId][role] - preferedAllocation[shiftId][role]
-					currentPreference[shiftId][role] = currentPreference[shiftId][role] - preferedAllocation[shiftId][role]
+					unless currentPreference[shiftId].blank? || currentPreference[shiftId][role].blank?
+						currentPreference[shiftId][role] = currentPreference[shiftId][role] - preferedAllocation[shiftId][role]
+					else
+						if currentPreference[shiftId].blank?
+							currentPreference[shiftId] = { role => []} 
+						else
+							currentPreference[shiftId].store(role, [])
+						end
+					end
 				end
 				currentRoleUserHash[role].except!( *pickedUsers )
 			end
@@ -240,7 +249,16 @@ class RoundRobinSchedule
 				end
 				if !preferedAllocation[shiftId].blank? && !preferedAllocation[shiftId][role].blank?
 					currentAllocation[shiftId][role] = currentAllocation[shiftId][role] - preferedAllocation[shiftId][role]
-					currentPreference[shiftId][role] = currentPreference[shiftId][role] - preferedAllocation[shiftId][role]
+					#currentPreference[shiftId][role] = currentPreference[shiftId][role] - preferedAllocation[shiftId][role]
+					unless currentPreference[shiftId].blank? || currentPreference[shiftId][role].blank?
+						currentPreference[shiftId][role] = currentPreference[shiftId][role] - preferedAllocation[shiftId][role]
+					else
+						if currentPreference[shiftId].blank?
+							currentPreference[shiftId] = { role => []} 
+						else
+							currentPreference[shiftId].store(role, [])
+						end
+					end
 				end
 				currentRoleUserHash[role].except!( *pickedUsers )
 			end
