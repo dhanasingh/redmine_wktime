@@ -29,7 +29,7 @@ class RoundRobinSchedule
 		periodDays = getDaysBetween(from, to)
 		reqStaffHash = getRequiredStaffHash(locationId, deptId, currentRoleUserHash, periodDays)
 		minStaffMoveHash = getMinStaffMove(reqStaffHash)
-		shifts = WkShift.where(:id => reqStaffHash.keys, :in_active => true).order(start_time: :desc).pluck(:id)
+		shifts = WkShift.where(:id => reqStaffHash.keys).order(start_time: :desc).pluck(:id)
 		totalShifts = shifts.length
 		allocatedHash = Hash.new
 		scheduledUserIds = Array.new
@@ -324,13 +324,14 @@ class RoundRobinSchedule
 	# Here we have to check number of staff and and required staff are equal 
 	# If not equal then we have to assign the staff as requested staff percentage in each shift
 	def getRequiredStaffHash(locationId, deptId, roleUserHash, interval)
-		allLDShiftRoles = WkShiftRole.where(:location_id => nil, :department_id => nil)
-		locationShiftRoles = WkShiftRole.where(:location_id => locationId, :department_id => nil )
-		deptShiftRoles = WkShiftRole.where(:location_id => nil, :department_id => deptId)
+		schedulableShifts = WkShift.where(:is_schedulable => true, :in_active => true).pluck(:id)
+		allLDShiftRoles = WkShiftRole.where(:location_id => nil, :department_id => nil, :shift_id => schedulableShifts)
+		locationShiftRoles = WkShiftRole.where(:location_id => locationId, :department_id => nil, :shift_id => schedulableShifts )
+		deptShiftRoles = WkShiftRole.where(:location_id => nil, :department_id => deptId, :shift_id => schedulableShifts)
 		if deptId.blank?
-			shiftRoles = WkShiftRole.where(:location_id => locationId)
+			shiftRoles = WkShiftRole.where(:location_id => locationId, :shift_id => schedulableShifts)
 		else
-			shiftRoles = WkShiftRole.where(:location_id => locationId, :department_id => deptId)
+			shiftRoles = WkShiftRole.where(:location_id => locationId, :department_id => deptId, :shift_id => schedulableShifts)
 		end
 		reqStaffHash = Hash.new
 		
