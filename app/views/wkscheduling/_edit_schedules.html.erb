@@ -52,7 +52,7 @@
 				</tr>
 				<% rowCount =  rowCount + 1 %>
 			<% end %>
-			<% if (!userIds.include? User.current.id) && (session[controller_name][:location_id].to_i == User.current.wk_user.location_id || session[controller_name][:location_id].blank?)  %>
+			<% if (!userIds.include? User.current.id) && (!User.current.wk_user.blank?) && (session[controller_name][:location_id].to_i == User.current.wk_user.location_id || session[controller_name][:location_id].blank?)  %>
 				<tr>
 					<%= hidden_field_tag "schedule_id#{rowCount}", "" %>
 					<td class="lbl-txt-align"><%= User.current.name %></td>
