@@ -99,14 +99,20 @@ module WkschedulingHelper
 			@year ||= User.current.today.year
 			@month ||= User.current.today.month
 			@calendar = Redmine::Helpers::Calendar.new(Date.civil(@year, @month, 1), current_language, :month)
-			shiftRoles = WkShiftRole.order(:location_id, :department_id)
-			locationDept = shiftRoles.pluck(:location_id, :department_id).uniq
+			sqlStr = getLocationDeptSql +  " order by l.id"
+			locationDept = WkLocation.find_by_sql(sqlStr)
 			locationDept.each do | entry |
-				ScheduleStrategy.new.schedule('RR', entry[0], entry[1], @calendar.startdt, @calendar.enddt)
+				ScheduleStrategy.new.schedule('RR', entry.location_id, entry.department_id, @calendar.startdt, @calendar.enddt)
 			end
 		rescue Exception => e
 			Rails.logger.info "Job failed: #{e.message}"
 		end
+	end
+	
+	def getLocationDeptSql
+		sqlStr = "select d.id as department_id, l.id as location_id from wk_locations l" +
+				" inner join wk_crm_enumerations d on (d.enum_type = 'DP')" 
+		sqlStr		
 	end
 	
 end

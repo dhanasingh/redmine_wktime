@@ -25,6 +25,7 @@ class WkschedulingController < WkbaseController
   helper :queries
   include QueriesHelper
   include WktimeHelper
+  include WkschedulingHelper
 
 
 	def index	
@@ -54,7 +55,7 @@ class WkschedulingController < WkbaseController
 		unless params[:generate].blank? || !to_boolean(params[:generate])
 			@locationDept.each do | entry |
 				#ScheduleStrategy.new.schedule('P', entry.location_id, entry.department_id, startDt, @calendar.enddt)
-				ScheduleStrategy.new.schedule('RR', entry[0], entry[1], startDt, @calendar.enddt)
+				ScheduleStrategy.new.schedule('RR', entry.location_id, entry.department_id, startDt, @calendar.enddt)
 			end
 			flash[:notice] = l(:notice_successful_update)
 			redirect_to :controller => controller_name,:action => 'index', :year => @year, :month => @month, :shift_id => shiftId, :day_off => dayOff, :department_id => departmentId, :location_id => locationId, :searchlist => "wkscheduling", :tab =>"wkscheduling", :generate => false
@@ -198,23 +199,29 @@ class WkschedulingController < WkbaseController
 		set_filter_session
 		departmentId =  session[controller_name][:department_id]
 		locationId =  session[controller_name][:location_id]
+		sqlStr = getLocationDeptSql
 		if @schedulesShift || @editShiftSchedules
 			if (!departmentId.blank? && departmentId.to_i != 0 ) && !locationId.blank?
 				entries = WkUser.includes(:user).where(:department_id => departmentId.to_i, :location_id => locationId.to_i)
 				@shiftRoles = WkShiftRole.where(:department_id => departmentId.to_i, :location_id => locationId.to_i)
+				sqlStr = sqlStr + " where l.id = #{locationId.to_i} and d.id = #{departmentId.to_i}"
 			elsif (!departmentId.blank? && departmentId.to_i != 0 ) && locationId.blank?
 				entries = WkUser.includes(:user).where(:department_id => departmentId.to_i)
 				@shiftRoles = WkShiftRole.where(:department_id => departmentId.to_i)
+				sqlStr = sqlStr + " where d.id = #{departmentId.to_i}"
 			elsif (departmentId.blank? || departmentId.to_i == 0 ) && !locationId.blank?
 				entries = WkUser.includes(:user).where(:location_id => locationId.to_i)
 				@shiftRoles = WkShiftRole.where(:location_id => locationId.to_i)
+				sqlStr = sqlStr + " where l.id = #{locationId.to_i} "
 			else
 				entries = WkUser.includes(:user).all
 				@shiftRoles = WkShiftRole.order(:location_id, :department_id)
 			end
-			@locationDept = @shiftRoles.pluck(:location_id, :department_id).uniq
+			sqlStr = sqlStr + " order by l.id"
+			#@locationDept = @shiftRoles.pluck(:location_id, :department_id).uniq
+			@locationDept = WkLocation.find_by_sql(sqlStr)
 			if !params[:name].blank?
-				entries = entries.where("users.type = 'User' and LOWER(users.firstname) like LOWER('%#{params[:name]}%') or LOWER(users.lastname) like LOWER('%#{params[:name]}%')")
+				entries = entries.where("users.type = 'User' and (LOWER(users.firstname) like LOWER('%#{params[:name]}%') or LOWER(users.lastname) like LOWER('%#{params[:name]}%'))")
 			end
 			userIds = entries.pluck(:user_id) 
 		end
