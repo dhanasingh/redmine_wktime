@@ -224,6 +224,7 @@ class WkschedulingController < WkbaseController
 				entries = entries.where("users.type = 'User' and (LOWER(users.firstname) like LOWER('%#{params[:name]}%') or LOWER(users.lastname) like LOWER('%#{params[:name]}%'))")
 			end
 			userIds = entries.pluck(:user_id) 
+			userIds = [0] if userIds.blank?
 		end
 		userIds
 	end
