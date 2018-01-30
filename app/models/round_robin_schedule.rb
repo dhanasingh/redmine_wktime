@@ -508,7 +508,7 @@ class RoundRobinSchedule
 		weekEndArr = getWeekEndArr(from) 
 		dofUserAllocateHash = Hash.new
 		remaingDOHash = Hash.new
-		if scheduleByPreference && isScheduleOnWeekEnd
+		if scheduleByPreference && isScheduleOnWeekEnd && dayOffCount>0
 			userPreference = getUserPreferenceDO(userIdsArr, from, to)
 			
 			# Allocate the prefered users dayoffs 
