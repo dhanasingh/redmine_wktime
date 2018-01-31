@@ -243,7 +243,8 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wk_schedule_weekend' => '0',
 			 'wk_scheduling_frequency' => '0',
 			 'wk_day_off_per_frequency' => '0',
-			 'wk_user_schedule_preference' => '0'
+			 'wk_user_schedule_preference' => '0',
+			 'wk_auto_shift_scheduling' => '0'
   })  
 	menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_erpmine, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 
   	
@@ -452,6 +453,23 @@ Rails.configuration.to_prepare do
 					Rails.logger.info "Job failed: #{e.message}"
 				end
 			end
+		end
+		
+		if (!Setting.plugin_redmine_wktime['wk_auto_shift_scheduling'].blank? && Setting.plugin_redmine_wktime['wk_auto_shift_scheduling'].to_i == 1)
+			require 'rufus/scheduler'
+			shiftschedular = Rufus::Scheduler.new
+			#Scheduler will run at 12:01 AM on 1st of every month
+			cronSt = "01 00 01 * *"			
+			shiftschedular.cron cronSt do		
+				begin					
+					Rails.logger.info "========== Shift Scheduling job - Started=========="
+					scheduling_helper = Object.new.extend(WkschedulingHelper)
+					scheduling_helper.autoShiftScheduling
+				rescue Exception => e
+					Rails.logger.info "Job failed: #{e.message}"
+				end
+			end
+			Rails.logger.info "==========  Shift Scheduling job - Finished=========="
 		end
 	end
 end

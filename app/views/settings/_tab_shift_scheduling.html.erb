@@ -26,4 +26,9 @@
 		<label><%#= l(:label_day_off_per_frequency) %></label>
 		<%#= text_field_tag 'settings[wk_day_off_per_frequency]', @settings['wk_day_off_per_frequency'], :style => "width:100px;" %>
 	</p> -->
+	
+	<%= l(:label_redmine_restart_warning) %>
+	<p>
+		<%= check_box_tag('settings[wk_auto_shift_scheduling]', 1, @settings['wk_auto_shift_scheduling'].to_i == 1) %> <label><%= l(:label_auto_scheduling) %></label>
+	</p>
 </fieldset>

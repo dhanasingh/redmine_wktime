@@ -93,5 +93,20 @@ module WkschedulingHelper
 		content << "</tbody></table></div>".html_safe
 		content.html_safe
 	 end
+	 
+	def autoShiftScheduling
+		begin
+			@year ||= User.current.today.year
+			@month ||= User.current.today.month
+			@calendar = Redmine::Helpers::Calendar.new(Date.civil(@year, @month, 1), current_language, :month)
+			shiftRoles = WkShiftRole.order(:location_id, :department_id)
+			locationDept = shiftRoles.pluck(:location_id, :department_id).uniq
+			locationDept.each do | entry |
+				ScheduleStrategy.new.schedule('RR', entry[0], entry[1], @calendar.startdt, @calendar.enddt)
+			end
+		rescue Exception => e
+			Rails.logger.info "Job failed: #{e.message}"
+		end
+	end
 	
 end
