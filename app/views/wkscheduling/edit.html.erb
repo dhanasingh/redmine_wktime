@@ -1,0 +1,26 @@
+ <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%
+	obj = nil
+	if @isScheduled && !@shiftObj.blank?
+		obj = @shiftObj
+		date = @shiftObj[0].schedule_date
+	elsif !@isScheduled && !@shiftPreference.blank?
+		obj = @shiftPreference
+		date = @shiftPreference[0].schedule_date
+	end
+%>
+<h2><%= @isScheduled ? l(:label_schedule_details) : l(:label_schedule_preference) %></h2>
+<%= form_tag({:controller => controller_name, :action => 'edit'},  :method => :get, :id => 'query_form') do %>
+<%= hidden_field_tag 'set_filter', '1' %>
+<% if @schedulesShift || @editShiftSchedules %>
+<%= render :partial => 'wkscheduling/scheduling_filter', :locals => {:isApply => true} %>
+<% end %>
+<% end %>
+<%
+	#scheduled = false
+	#if @isScheduled #&& @editShiftSchedules
+	#	scheduled = true	
+	#end
+%>
+
+<%= render :partial => 'wkscheduling/edit_schedules', :locals => {:scheduleObj => obj, :scheduled => @isScheduled} %>

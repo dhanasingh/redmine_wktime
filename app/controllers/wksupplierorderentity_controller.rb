@@ -7,10 +7,7 @@ class WksupplierorderentityController < WkorderentityController
 	
 	def newSupOrderEntity(parentId, parentType)
 		msg = ""
-		# if params[:rfq_id].blank?
-			# flash[:error] = "Please select the RFQ \n"
-			# redirect_to :action => 'new'
-		# end
+		
 		unless params[:rfq_id].blank?		
 		
 			if !params[:project_id].blank? && params[:project_id] != '0'
@@ -74,4 +71,8 @@ class WksupplierorderentityController < WkorderentityController
 	    return false
 	  end
     end
+	
+	def getAccountLbl
+		l(:label_supplier_account)
+	end
 end

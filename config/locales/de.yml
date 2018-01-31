@@ -205,8 +205,8 @@ de:
   label_path: Import file path
   label_auto_import: Auto Import
   label_auto_import_time: Auto Import Every
-  label_start_time: Starttime
-  label_end_time: Endtime
+  label_start_time: Start Time
+  label_end_time: End Time
   label_user_id: Userid
   label_available_fields: Available Fields
   label_fields_in_file: Fields in File
@@ -249,7 +249,7 @@ de:
   label_emp_name: Employee Name
   label_ytd: YTD
   label_earning: Earnings
-  label_user_settings: User Settings
+  label_payroll_settings: Payroll Settings
   label_total_earning: Total Earnings
   label_total_deduction: Total Deductions
   label_net_earning: Net Earnings
@@ -753,3 +753,46 @@ de:
   error_avail_qty_great_than_trans_qty: Transfer Quantity should be less than or equal to Available Quantity
   label_per: per
   label_depreciation_freq_warning: "Note: Any change to the depreciation frequency will delete last applied depreciations"
+  label_scheduling: Scheduling
+  label_schedule_preference: Schedule Preference
+  label_shift: Shift
+  label_new_shift: New Shift
+  label_required_staff: Required Staff
+  label_count: Count
+  label_department: Department
+  label_day_off: Day Off
+  label_schedule_details: Schedule Details
+  label_shift_scheduling: Shift Scheduling
+  label_shift_scheduling: Shift Scheduling
+  field_is_schedulable: Schedulable
+  field_gender: Gender
+  field_id1: Custom id1
+  field_id2: Custom id2
+  field_id3: Custom id3
+  field_join_date: Join date
+  field_birth_date: Birth date
+  field_termination_date: Termination date
+  field_bank_name: Bank name
+  field_account_number: Bank account number
+  field_bank_code: Bank code
+  field_tax: Tax id
+  field_ss: SS id
+  field_custom_number1: Custom number1
+  field_custom_number2: Custom number2
+  field_custom_date1: Custom date1
+  field_custom_date2: Custom date2
+  field_billing_rate: Billing rate
+  field_billing_currency: Billing currency
+  field_location: Location 
+  field_department: Department
+  label_public_holiday: Public Holiday
+  label_schedule_on_weekend: Schedule on Weekend / Holiday
+  label_holiday: Holiday
+  label_day_off_per_frequency: Day off per frequency
+  label_schedule_shifts: Schedule Shifts
+  warning_apply_depreciation: Are you sure want to apply depreciation for the period
+  warning_schedule_shifts: Are you sure want to schedule shifts for the period
+  label_work: Work
+  field_shift: Shift
+  label_setting_preference: Allow user schedule preference
+  label_auto_scheduling: Auto Shift Scheduling

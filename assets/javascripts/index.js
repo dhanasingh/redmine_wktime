@@ -1,4 +1,4 @@
-var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl, blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupAccUrl, purSupContactUrl, purSupPayUrl, wklocationUrl,  wkproductUrl, wkproductitemUrl, wkshipmentUrl, wkUomUrl, wkbrandUrl, wkattributegroupUrl, wkassetUrl, wkassetdepreciationUrl, wkgrpPermissionUrl; // wkproductcatagoryUrl,
+var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl, blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupAccUrl, purSupContactUrl, purSupPayUrl, wklocationUrl,  wkproductUrl, wkproductitemUrl, wkshipmentUrl, wkUomUrl, wkbrandUrl, wkattributegroupUrl, wkassetUrl, wkassetdepreciationUrl, wkgrpPermissionUrl, wkSchedulingUrl, wkShiftUrl, wkPublicHolidayUrl; 
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -33,26 +33,7 @@ $(document).ready(function() {
 						rUrl = rAppEmailUrl;
 					}
 					var from = document.getElementById('from').value;
-					var to = document.getElementById('to').value;
-					/*var userOpt = document.getElementById('user_id').options;
-					var strUserIds = "";
-					var arrUserId = []
-					for(var i = 1; i < userOpt.length; i++) {
-						//0 -- All User
-						arrUserId.push(userOpt[i].value);
-					}
-					strUserIds = arrUserId.toString();*/
-					
-					/*var teStatusOpt = document.getElementById('status').options;
-					var strStatus = "";
-					var arrStatus = []
-					for(var i = 0; i < teStatusOpt.length; i++) {
-						if (teStatusOpt[i].selected) {
-							arrStatus.push(teStatusOpt[i].value);
-						}
-					}
-					strStatus = arrStatus.toString();
-					alert("strStatus : " + strStatus);*/
+					var to = document.getElementById('to').value;					
 					if(rUrl != "") {
 						$.ajax({
 							url: rUrl,
@@ -113,7 +94,7 @@ function openReportPopup(){
 			break;
 		}
 	}
-	//popupUrl = wkattnReportUrl + '&report_type=' + reportType + '&group_id=' + groupId + '&user_id=' + userId + '&period_type=' + periodType + '&searchlist=' + searchlist; 
+	
 	popupUrl = wkattnReportUrl + '&report_type=' + reportType + '&group_id=' + groupId + '&action_type=' + actionType + '&user_id=' + userId + '&period_type=' + periodType + '&searchlist=' + searchlist + '&project_id=' + projectId;
 	if(periodType>1){
 		popupUrl = popupUrl + '&from=' + fromVal + '&to=' + toVal		
@@ -251,7 +232,6 @@ $(document).ready(function()
 	changeProp('tab-wksupplieraccount',purSupAccUrl);
 	changeProp('tab-wksuppliercontact',purSupContactUrl);
 	changeProp('tab-wklocation',wklocationUrl);
-	//changeProp('tab-wkproductcatagory',wkproductcatagoryUrl);
 	changeProp('tab-wkproduct',wkproductUrl);
 	changeProp('tab-wkproductitem',wkproductitemUrl);
 	changeProp('tab-wkasset',wkassetUrl);
@@ -259,10 +239,11 @@ $(document).ready(function()
 	changeProp('tab-wkshipment',wkshipmentUrl);
 	changeProp('tab-wkunitofmeasurement',wkUomUrl);
 	changeProp('tab-wkbrand',wkbrandUrl);
-	//changeProp('tab-wkproductmodel',wkproductmodelUrl);
-	//changeProp('tab-wkproductattribute',wkproductattributeUrl);
 	changeProp('tab-wkattributegroup',wkattributegroupUrl); 
 	changeProp('tab-wkgrouppermission',wkgrpPermissionUrl);
+	changeProp('tab-wkscheduling',wkSchedulingUrl);
+	changeProp('tab-wkshift',wkShiftUrl);
+	changeProp('tab-wkpublicholiday',wkPublicHolidayUrl);
 });
 
 
@@ -327,7 +308,7 @@ function progrpChanged(btnoption, userid, needBlankOption){
 
 function accProjChanged(uid, fldId, isparent, blankOptions)
 {
-	var acc_name = document.getElementById(fldId);//document.getElementById("account_id");
+	var acc_name = document.getElementById(fldId);
 	var parentId = 0
 	if( acc_name.length > 0)
 	{
@@ -358,8 +339,7 @@ function accProjChanged(uid, fldId, isparent, blankOptions)
 function actRelatedDd(uid, loadProjects, needBlankOption, actType, contactType, loadPayment)
 {
 	var relatedTo = document.getElementById("related_to");
-	var relatedType = relatedTo.options[relatedTo.selectedIndex].value;
-	//var needBlankOption = false;
+	var relatedType = relatedTo.options[relatedTo.selectedIndex].value;	
 	var relatedparentdd = document.getElementById("related_parent");
 	userid = uid;
 	var $this = $(this);
@@ -681,7 +661,7 @@ function depreciatonFormSubmission()
 		alert("Please select valid date range");
 	}
 	else {
-		var isFormSubmission = confirm("Are you sure want to apply depreciation for the period " + fromDateStr + " to " + toDateStr);
+		var isFormSubmission = confirm(apply_warn + " " + fromDateStr + " to " + toDateStr);
 		if (isFormSubmission == true) {
 			document.getElementById("generate").value = true; 
 			document.getElementById("query_form").submit();
@@ -689,6 +669,19 @@ function depreciatonFormSubmission()
 	}
 	
 }
+
+function scheduleFormSubmission()
+{ 
+	var isFormSubmission = confirm(apply_warn);
+	if (isFormSubmission == true) {
+		document.getElementById("generate").value = true; 
+		$('#ajax-indicator').show();
+		$("#schedule_form").submit();
+		document.getElementById("generate").value = false;			
+	} 
+	
+}
+
 
 function validateAsset()
 {
@@ -700,4 +693,15 @@ function validateAsset()
 		alert(no_asset);
 	}
 	return valid;
+}
+
+function showorHide(isshow, divId)
+{
+	if(!isshow)
+	{
+		document.getElementById(divId).style.disabled = true;		
+	}
+	else {
+		document.getElementById(divId).style.disabled = false;
+	}
 }

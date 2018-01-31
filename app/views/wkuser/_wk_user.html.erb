@@ -1,0 +1,71 @@
+<% roleObj = Role.order(:name) 
+	roleArr = nil
+	roleArr = roleObj.pluck(:name, :id)
+%>
+<% genderHash = {'M' => "Male", 'F' => "Female", 'O' => "Others"} %>
+<% wkexpense_helper = Object.new.extend(WkexpenseHelper) 
+	currArr = wkexpense_helper.options_for_currency
+	wkenum_helper = Object.new.extend(WkcrmenumerationHelper) 
+	locationArr = nil
+	locationobj = WkLocation.order(:name)
+	locationArr = locationobj.pluck(:name, :id)
+	departmentArr = WkCrmEnumeration.where(:enum_type => 'DP').order(:name).pluck(:name, :id)
+	shiftArr = nil
+	shiftObj = WkShift.where(:in_active => true, :is_schedulable => true).order(:name)
+	shiftArr = shiftObj.pluck(:name, :id)
+	shiftArr.unshift(["",''])
+%>
+</fieldset>
+<div >
+	<fieldset class="box tabular">
+		<legend><%=l(:label_details)%></legend>				
+		<%= labelled_fields_for :erpmineuser, @user.erpmineuser do |user_fields| %>
+			<% disable = @user == User.current ? true : false %>
+			<p><%= user_fields.date_field :join_date, :disabled => disable %></p>
+			<%= calendar_for('erpmine_join_date') %>
+			<p><%= user_fields.date_field :termination_date, :disabled => disable %></p>
+			<%= calendar_for('erpmine_termination_date') %>
+			<p><%= user_fields.date_field :birth_date, :disabled => disable %></p>
+			<%= calendar_for('erpmine_birth_date') %>	
+			<% unless myaccount %>
+				<p><%= user_fields.text_field :billing_rate, :disabled => disable %></p>			
+				<p><%= user_fields.select :billing_currency, currArr, :disabled => disable %></p>
+			<% end %>
+			<p><%= user_fields.select :role_id, roleArr, :disabled => disable %></p>
+			<p><%= user_fields.select :gender, genderHash.invert, :disabled => disable %></p>
+			<p><%= user_fields.select :location_id, locationArr, :disabled => disable %></p>
+			<p><%= user_fields.select :department_id, departmentArr, :disabled => disable %></p>
+			<p><%= user_fields.check_box :is_schedulable, :disabled => disable %></p>
+			<p><%= user_fields.select :shift_id, shiftArr, :disabled => disable %></p>
+			<p><%= user_fields.text_field :bank_name, :disabled => disable %></p>
+			<p><%= user_fields.text_field :account_number,  :disabled => disable %></p>
+			<p><%= user_fields.text_field :bank_code, :disabled => disable %></p>			
+			<p><%= user_fields.text_field :tax_id, :disabled => disable %></p>
+			<p><%= user_fields.text_field :ss_id, :disabled => disable %></p>
+			<p><%= user_fields.text_field :id1, :disabled => disable %></p>
+			<p><%= user_fields.text_field :id2, :disabled => disable %></p>
+			<p><%= user_fields.text_field :id3, :disabled => disable %></p>
+			<p><%= user_fields.text_field :custom_number1, :disabled => disable %></p>
+			<p><%= user_fields.text_field :custom_number2, :disabled => disable %></p>
+			<p><%= user_fields.date_field :custom_date1, :disabled => disable %></p>
+			<%= calendar_for('erpmine_custom_date1') %>
+			<p><%= user_fields.date_field :custom_date2, :disabled => disable %></p>	
+			<%= calendar_for('erpmine_custom_date2') %>	
+			
+			
+			
+		<% end %>		
+	</fieldset>
+</div>
+<% if myaccount %>
+<script type="text/javascript">
+$(document).ready(function() {
+	
+	var accNo = document.getElementById('erpmineuser_account_number');
+	var ssId = document.getElementById('erpmineuser_ss_id');
+
+	accNo.value = new Array(accNo.value.length-3).join('x') + accNo.value.substr(accNo.value.length-4, 4);
+	ssId.value = new Array(ssId.value.length-3).join('x') + ssId.value.substr(ssId.value.length-4, 4);
+});
+</script>
+<% end %>

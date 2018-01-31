@@ -1,6 +1,0 @@
-<div class="contextual">
-	<%= link_to l(:button_new_wkexpense), url_for(:controller => controller_name, :action => 'new' , :project_id => nil), 
-	:class => 'icon icon-time-add' if User.current.allowed_to?(:log_time, @project, :global => true) %>
-</div>
-<%= render_wkexpense_breadcrumb %>
-

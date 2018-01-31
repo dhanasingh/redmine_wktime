@@ -2,9 +2,6 @@ class WklogmaterialController < ApplicationController
   unloadable
   before_filter :require_login
 
-
-
-
   def index
   end 
   
@@ -37,7 +34,6 @@ class WklogmaterialController < ApplicationController
 		elsif params[:ptype] == "uom_id"
 			pctObj = WkInventoryItem.find(params[:id].to_i)	unless params[:id].blank?		
 		else
-			#pctObj = WkProductItem.find(params[:id].to_i) unless params[:id].blank?
 			productType = params[:log_type]
 			if productType == 'A'				
 				pctObj = WkAssetProperty.where(:inventory_item_id => params[:id].to_i) unless params[:id].blank?
@@ -68,10 +64,8 @@ class WklogmaterialController < ApplicationController
 			end
 		elsif params[:ptype] == "product_attribute"
 			pctArr << pctObj.id.to_s() + ',' + pctObj.available_quantity.to_s() +','+ pctObj.cost_price.to_s()  +','+  pctObj.currency.to_s() + ',' +  pctObj.selling_price.to_s() unless pctObj.blank?  
-		elsif params[:ptype] == "uom_id"
-			#pctObj.each do | entry|
-				pctArr << pctObj.uom_id.to_s() + ',' +  pctObj.uom.name.to_s()  + "\n" unless pctObj.blank?
-			#end
+		elsif params[:ptype] == "uom_id"			
+				pctArr << pctObj.uom_id.to_s() + ',' +  pctObj.uom.name.to_s()  + "\n" unless pctObj.blank?			
 		else		
 			pctObj.each do | entry|
 				pctArr << entry.id.to_s() + ',' +  entry.name.to_s()  + "\n" 

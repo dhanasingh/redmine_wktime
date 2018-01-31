@@ -1,0 +1,14 @@
+<h2><%= l(:label_shift) + " " + l(:label_role_plural) %></h2>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<%  locId = session[controller_name][:location_id]
+	depId = session[controller_name][:department_id]
+	shiftId = @shiftObj.blank? ? "" : @shiftObj.id
+%>
+ <%= form_tag({:controller => 'wkshift', :action => 'edit'}, :method => :get, :id => 'query_form') do %>
+<%= hidden_field_tag "searchlist", controller_name %>
+<%= hidden_field_tag "shift_id",  @shiftObj.blank? ? "" : @shiftObj.id  %>
+	<%= render :partial => 'wklocation/location_filter', :locals => { locationId: locId, departmentId: depId, isApply: true }  %>
+ <% end %>
+ <br/>
+<%= render :partial => 'wkshift/edit_shift_roles', locals: { location_id: locId, department_id: depId, shift_id: shiftId} %>
+ 

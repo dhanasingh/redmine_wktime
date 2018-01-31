@@ -1,13 +1,16 @@
 class WkgrouppermissionController < ApplicationController
   unloadable
 
-
-
 	def index
 		@groups =  nil
-		entries = Group.sorted
-		entries = entries.like(params[:name]) if params[:name].present?
-		formPagination(entries)
+		# entries = Group.sorted
+		# entries = entries.like(params[:name]) if params[:name].present?
+		# formPagination(entries)
+		@groupPermission = nil
+		@permission = WkPermission.order(:modules)
+		@groups = Group.all.sort
+		#@group = Group.find(params[:filter_group_id].to_i)
+		@groupPermission = WkGroupPermission.where(:group_id => params[:group_id].to_i) unless params[:group_id].blank?
 	end
   
 	def formPagination(entries)
@@ -34,7 +37,7 @@ class WkgrouppermissionController < ApplicationController
 	
 	def edit
 		@groupPermission = nil
-		@permission = WkPermission.order(:name)
+		@permission = WkPermission.order(:modules)
 		@group = Group.find(params[:group_id].to_i)
 		@groupPermission = WkGroupPermission.where(:group_id => params[:group_id].to_i) unless params[:group_id].blank?
 	end
@@ -54,7 +57,7 @@ class WkgrouppermissionController < ApplicationController
 			WkGroupPermission.where(:id => arrId).delete_all()
 		end
 		
-		redirect_to :controller => 'wkgrouppermission',:action => 'index' , :tab => 'wkgrouppermission'			
+		redirect_to :controller => 'wkgrouppermission',:action => 'index' , :tab => 'wkgrouppermission', :group_id => params[:group_id].to_i			
 		flash[:notice] = l(:notice_successful_update)
 	end
 

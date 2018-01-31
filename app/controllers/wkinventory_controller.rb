@@ -17,12 +17,11 @@ before_filter :check_admin_redirect, :only => [:destroy]
 	
 	def check_permission
 		return validateERPPermission("V_INV")
-		#isModuleAdmin('wktime_inventory_group') || isModuleAdmin('wktime_inventory_admin')
 	end
 	
 	def check_admin_redirect
 		allow = false
-		allow = validateERPPermission("D_INV")#isModuleAdmin('wktime_inventory_admin')
+		allow = validateERPPermission("D_INV")
 		unless allow
 			render_403
 			return false

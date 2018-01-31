@@ -8,8 +8,6 @@ class WkproductitemController < WkinventoryController
   include WkpayrollHelper
   include WkassetHelper
   
-	#before_filter :check_deletable_redirect, :only => [:destroy]
-  
 	def index
 		set_filter_session
 		productId = session[controller_name][:product_id]
@@ -20,10 +18,8 @@ class WkproductitemController < WkinventoryController
 		end
 		
 		unless brandId.blank?
-			#sqlwhere = sqlwhere + " AND" unless sqlwhere.blank?
 			sqlwhere = sqlwhere + " AND pit.brand_id = #{brandId}"
 		end
-		#sqlwhere = " where" + sqlwhere unless sqlwhere.blank?
 		sqlStr = getProductInventorySql + sqlwhere
 		findBySql(sqlStr, WkProductItem)
 	end
@@ -61,7 +57,7 @@ class WkproductitemController < WkinventoryController
 	def update
 		barndId = params[:brand_id].blank? ? nil : params[:brand_id]
 		modelId = params[:product_model_id].blank? ? nil : params[:product_model_id]
-		existingItem = WkProductItem.where(:product_id => params[:product_id], :brand_id => barndId, :product_model_id => modelId)	#, :product_attribute_id => params[:product_attribute_id]
+		existingItem = WkProductItem.where(:product_id => params[:product_id], :brand_id => barndId, :product_model_id => modelId)	
 		if params[:product_item_id].blank?
 			productItem = WkProductItem.new
 			productItem = existingItem[0] unless existingItem[0].blank?
@@ -73,7 +69,6 @@ class WkproductitemController < WkinventoryController
 		productItem.product_id = params[:product_id]
 		productItem.brand_id = params[:brand_id]
 		productItem.product_model_id = params[:product_model_id]
-		#productItem.product_attribute_id = params[:product_attribute_id]
 		if productItem.save()
 			inventoryItem = nil
 			if !params[:available_quantity].blank?
@@ -199,7 +194,6 @@ class WkproductitemController < WkinventoryController
 				flash[:error] = inventoryItem.errors.full_messages.join("<br>")
 			end
 		else
-			# productItem = WkProductItem.find(params[:product_item_id].to_i)
 			if productItem.destroy
 				flash[:notice] = l(:notice_successful_delete)
 			else
@@ -260,6 +254,4 @@ class WkproductitemController < WkinventoryController
 	def showAssetProperties
 		false
 	end
-
-
 end

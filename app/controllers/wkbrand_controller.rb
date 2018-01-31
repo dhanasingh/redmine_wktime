@@ -11,10 +11,6 @@ class WkbrandController < WkinventoryController
 		unless params[:name].blank?
 			sqlStr = "LOWER(name) like LOWER('%#{params[:name]}%')"
 		end
-		# unless params[:product_id].blank?
-			# sqlStr = sqlStr + " AND" unless sqlStr.blank?
-			# sqlStr = sqlStr + " wk_brand_products.product_id = #{params[:product_id]}"
-		# end
 		unless sqlStr.blank?
 			entries = WkBrand.where(sqlStr)
 		else

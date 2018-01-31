@@ -218,30 +218,30 @@ lblYear = "<%=l(:label_year) %>";
 			available_fields = allFields.select {|key,value|  !selectedfld.include? key.to_s}
 		end		
 	%>
-	 <p style="padding-left: 190px;">
-		<label><%= l(:label_wk_attn_join_date) %> </label><%=h select_tag('settings[wktime_attn_join_date_cf]', 
+	<!-- <p style="padding-left: 190px;">
+		<label><%#= l(:label_wk_attn_join_date) %> </label><%#=h select_tag('settings[wktime_attn_join_date_cf]', 
 			options_for_select(cfd, :selected =>  @settings['wktime_attn_join_date_cf'])) %>
 	</p>
 	 <p style="padding-left: 190px;">
-		<label><%= l(:label_wk_attn_termination_date) %> </label><%=h select_tag('settings[wktime_attn_terminate_date_cf]', 
+		<label><%#= l(:label_wk_attn_termination_date) %> </label><%#=h select_tag('settings[wktime_attn_terminate_date_cf]', 
 			options_for_select(cfd, :selected =>  @settings['wktime_attn_terminate_date_cf'])) %>
 	</p>
 	 <p style="padding-left: 190px;">
-		<label><%= l(:label_wk_attn_user_dob) %> </label><%=h select_tag('settings[wktime_attn_user_dob_cf]', 
+		<label><%#= l(:label_wk_attn_user_dob) %> </label><%#=h select_tag('settings[wktime_attn_user_dob_cf]', 
 			options_for_select(cfd, :selected =>  @settings['wktime_attn_user_dob_cf'])) %>
 	</p>
 	 <p style="padding-left: 190px;">
-		<label><%= l(:label_wk_designation) %> </label><%=h select_tag('settings[wktime_attn_designation_cf]', 
+		<label><%#= l(:label_wk_designation) %> </label><%#=h select_tag('settings[wktime_attn_designation_cf]', 
 			options_for_select(cfs, :selected =>  @settings['wktime_attn_designation_cf'])) %>
 	</p>
 	<p style="padding-left: 190px;">
-		<label><%= l(:label_employee_id) %> </label><%=h select_tag('settings[wktime_attn_employee_id_cf]', 
+		<label><%#= l(:label_employee_id) %> </label><%#=h select_tag('settings[wktime_attn_employee_id_cf]', 
 			options_for_select(cfs, :selected =>  @settings['wktime_attn_employee_id_cf'])) %>
 	</p>
 	<p style="padding-left: 190px;">
-		<label><%= l(:label_gender) %> </label><%=h select_tag('settings[wktime_gender_cf]', 
+		<label><%#= l(:label_gender) %> </label><%#=h select_tag('settings[wktime_gender_cf]', 
 			options_for_select(cfs, :selected =>  @settings['wktime_gender_cf'])) %>
-	</p>
+	</p> -->
 </fieldset>
 
 <fieldset style="display: inline-block; vertical-align: top; min-width: 100px; width:540px; height:540px;">
@@ -321,6 +321,7 @@ lblYear = "<%=l(:label_year) %>";
 		</tbody>
 		</table>
  </fieldset>
+ <%= render :partial => 'settings/tab_shift_scheduling' %>
 <% if !projArr.blank? %>
 <div style = "display:none">
 	<%=h select_tag('template_projDD', options_for_select(projArr))%>

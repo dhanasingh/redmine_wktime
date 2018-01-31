@@ -269,13 +269,13 @@ function updateAmount()
 		{
 			totalamount = isDebit ? debitAmount - creditAmount : creditAmount - debitAmount;
 			totalamount = Math.abs(totalamount);
-			var fieldId = ((isDebit && debitAmount > creditAmount) ? 'txn_credit' :  ((!isDebit && debitAmount > creditAmount) ? 'txn_credit' : 'txn_debit')) + i;//(rowlength-1);
+			var fieldId = ((isDebit && debitAmount > creditAmount) ? 'txn_credit' :  ((!isDebit && debitAmount > creditAmount) ? 'txn_credit' : 'txn_debit')) + i;
 			document.getElementById(fieldId).value = totalamount;			
 		}
 		totDebit += txn_debit.value == "" ? 0 : parseFloat(txn_debit.value);
 		totCredit +=  txn_credit.value == "" ? 0 : parseFloat(txn_credit.value);	
-		document.getElementById('debitTotal').innerHTML = totDebit;//isDebit ? totDebit : totDebit+totalamount;
-		document.getElementById('creditTotal').innerHTML = totCredit;//isDebit ? totCredit : totCredit+totalamount;
+		document.getElementById('debitTotal').innerHTML = totDebit;
+		document.getElementById('creditTotal').innerHTML = totCredit;
 	}
 }
 
@@ -369,7 +369,7 @@ function paymentItemTotal(tableId, elementId, totFld)
 				amount = amount +  parseInt(fldAmount.value);
 				
 			} else {
-				if(fldAmount.value < 0 ) //|| fldAmount.value == 0 
+				if(fldAmount.value < 0 ) 
 				{
 					alert("Please enter the valid amount");
 					fldAmount.value = fldAmount.defaultValue;
@@ -381,8 +381,7 @@ function paymentItemTotal(tableId, elementId, totFld)
 			}
 			
 		}		
-	}
-	//document.getElementById(totFld).innerHTML = document.getElementById('payment_currency').innerHTML + amount;
+	}	
 	document.getElementById(totFld).innerHTML = amount;
 	document.getElementById('tot_pay_amount').value = amount;
 }
@@ -410,26 +409,30 @@ function hideProductType()
 	if(productTypeDD != null)
 	{
 		productType = productTypeDD.value;
-		if(productType == 'I' ) //|| productType == ""
+		if(productType == 'I' ) 
 		{
 			document.getElementById("lbl_depreciation").style.display = 'none';
 			document.getElementById("depreciation_rate").style.display = 'none';
-			document.getElementById("per_annum").style.display = 'none';/* 
-			document.getElementById("lbl_dep_type").style.display = 'none';
-			document.getElementById("depreciation_type").style.display = 'none';
-			document.getElementById("lbl_depreciation_account").style.display = 'none';
-			document.getElementById("ledger_id").style.display = 'none'; */
+			document.getElementById("per_annum").style.display = 'none';
 		}
 		else 
 		{
 			document.getElementById("lbl_depreciation").style.display = 'block';
 			document.getElementById("depreciation_rate").style.display = 'block';
-			document.getElementById("per_annum").style.display = 'block';/* 
-			document.getElementById("lbl_dep_type").style.display = 'block';
-			document.getElementById("depreciation_type").style.display = 'block';
-			document.getElementById("lbl_depreciation_account").style.display = 'block';
-			document.getElementById("ledger_id").style.display = 'block'; */
+			document.getElementById("per_annum").style.display = 'block';
 		}
 	}
 	
+}
+
+function showWinningNote()
+{
+	if(document.getElementById('quote_won').checked) 
+	{
+		document.getElementById("lbl_winning_note").style.display = 'block';
+		document.getElementById("winning_note").style.display = 'block';
+	} else {
+		document.getElementById("lbl_winning_note").style.display = 'none';
+		document.getElementById("winning_note").style.display = 'none';
+	}
 }

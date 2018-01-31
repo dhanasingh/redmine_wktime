@@ -13,7 +13,7 @@
 <div class="wk-contextual"> 
 		<label for='name' style="float:left"><%= l(:field_name)  %>:</label>
 			<%= text_field_tag 'contactname', conName, :size => 30, :style=> "float: left;" %>	
-		<label style="float:left; padding-left: 20px;"><%= l(:label_account_name) %></label>
+		<label style="float:left; padding-left: 20px;"><%= controller.getAccountLbl %></label>
 			<%=h select_tag('account_id', options_for_select(accArr,  :selected => accId.nil? ? accArr : accId), :style=> "float: left;") %>
 		<%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %>
 		<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload', :style=>"float:left; " %>

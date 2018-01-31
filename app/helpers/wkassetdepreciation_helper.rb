@@ -21,22 +21,17 @@ module WkassetdepreciationHelper
 		invCrLedger = getSettingCfId("inventory_cr_ledger")
 		depreciationType = Setting.plugin_redmine_wktime['wktime_depreciation_type'] 
 		finacialPeriodArr.each do|finacialPeriod|
-			#lastProductId = nil
 			depreciationIds = Array.new
 			glTransIds = Array.new
 			productDepAmtHash = Hash.new
-			#assetLedgerId = nil
-			#depreciationRate = nil
 			totalDepAmt = 0
 			assetEntries.each do |entry|
 				if entry.shipment.shipment_date > finacialPeriod[1]
 					next
 				end
-				assetProduct = entry.product_item.product
-				#if lastProductId != assetProduct.id
+				assetProduct = entry.product_item.product				
 				depreciationRate = assetProduct.depreciation_rate
 				assetLedgerId = assetProduct.ledger_id
-				#end
 				unless depreciationRate.blank? || depreciationType.blank?
 					currentAssetVal = getCurrentAssetValue(entry, finacialPeriod)
 					assetPrice = entry.cost_price + entry.over_head_price
@@ -55,7 +50,6 @@ module WkassetdepreciationHelper
 									totalDepAmt = totalDepAmt + depreciation.depreciation_amount
 									productDepAmtHash[assetLedgerId] = productDepAmtHash[assetLedgerId].blank? ? depreciation.depreciation_amount : (productDepAmtHash[assetLedgerId] + depreciation.depreciation_amount)
 								end
-								# postDepreciationToAccouning(depreciation, assetLedgerId)
 							else
 								errorMsg = depreciation.errors.full_messages.join('\n')		
 							end
@@ -64,7 +58,6 @@ module WkassetdepreciationHelper
 						end
 					end
 				end
-				#lastProductId = assetProduct.id
 			end
 			glTransIds.uniq!
 			postDepreciationToAccouning(depreciationIds, glTransIds, finacialPeriod[1], productDepAmtHash, totalDepAmt, localCurrency)
@@ -84,8 +77,6 @@ module WkassetdepreciationHelper
 			glTransaction = postToGlTransaction('depreciation', transId, depDate, transAmountArr, currency, nil, nil)
 			unless glTransaction.blank?
 				WkAssetDepreciation.where(:id => depIds).update_all(gl_transaction_id: glTransaction.id)
-				# depreciation.gl_transaction_id = glTransaction.id
-				# depreciation.save
 			end		
 		end
 	end
@@ -102,7 +93,6 @@ module WkassetdepreciationHelper
 			noOfMonths = monthsBetween(purchaseDate, finPeriod[1])
 			depFreqValue = noOfMonths
 		end
-		#sourceAmount = depreciationType != 'SL' ? currentAssetVal : (entry.cost_price + entry.over_head_price)
 		depreciationAmt = (depreciationRate/12) * sourceAmount * depFreqValue
 		if depreciationAmt > currentAssetVal
 			depreciationAmt = currentAssetVal

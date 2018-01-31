@@ -6,9 +6,8 @@ class WkcrmController < WkbaseController
   include WkcrmHelper
   
 	def index
-	end  
+	end 
 	
-  
 	def getActRelatedIds
 		relatedArr = ""	
 		relatedId = nil

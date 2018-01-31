@@ -33,7 +33,6 @@ require 'csv'
 			filePath = file.path 
 			begin
 				isSuccess = importAttendance(filePath, false)
-				#redirect_to :action => 'show'
 			rescue Exception => e
 				@errorMsg = "Import failed: #{e.message}"
 				flash[:error] = @errorMsg

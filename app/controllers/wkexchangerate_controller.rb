@@ -1,8 +1,6 @@
 class WkexchangerateController < WkbillingController
   unloadable
 
-
-
 	def index
 		entries = WkExCurrencyRate.all	
 		formPagination(entries)

@@ -5,10 +5,9 @@
 	groupId = session[:wkreport][:group_id].blank?  ? 0 : session[:wkreport][:group_id]				
 	userSqlStr = getUserQueryStr(groupId, userId, from)
 	@userlist = User.find_by_sql(userSqlStr)
-	queryStr = getQueryStr + "left join custom_values cvt on (u.id = cvt.customized_id and cvt.value != ''" +
-			" and cvt.custom_field_id = #{getSettingCfId('wktime_attn_terminate_date_cf')} ) " +
+	queryStr = getQueryStr + 			
 			"left join groups_users gu on (gu.user_id = u.id and gu.group_id = #{groupId}) " +
-			"where u.type = 'User' and (#{getConvertDateStr('cvt.value')} >= '#{from}' or (u.status = #{User::STATUS_ACTIVE} and cvt.value is null))"
+			"where u.type = 'User' and (wu.termination_date >= '#{from}' or (u.status = #{User::STATUS_ACTIVE} and wu.termination_date is null))"
 	if groupId.to_i > 0 && userId.to_i < 1
 		queryStr = queryStr + " and gu.group_id is not null"
 	elsif userId.to_i > 0

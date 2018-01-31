@@ -43,14 +43,14 @@ module WkattendanceHelper
 		issueIds
 	end
 	
-	def populateWkUserLeaves		
+	def populateWkUserLeaves(processDt)		
 		leavesInfo = Setting.plugin_redmine_wktime['wktime_leave']
 		leaveAccrual = Hash.new
 		accrualMultiplier = Hash.new
 		leaveAccAfter = Hash.new
 		resetMonth = Hash.new
 		strIssueIds = ""
-		processDate = params[:fromdate].to_s.to_date
+		processDate = processDt #params[:fromdate].to_s.to_date
 		currentMonthStart = Date.civil(processDate.year, processDate.month, 1)
 		if !leavesInfo.blank?
 			leavesInfo.each do |leave|
@@ -75,7 +75,7 @@ module WkattendanceHelper
 			defWorkTime = !Setting.plugin_redmine_wktime['wktime_default_work_time'].blank? ? Setting.plugin_redmine_wktime['wktime_default_work_time'].to_i : 8			
 			
 			qryStr = "select v2.id, v1.user_id, v1.created_on, v1.issue_id, v2.hours, ul.balance, " +
-					"ul.accrual_on, ul.used, ul.accrual, v3.spent_hours, c.value as join_date " +
+					"ul.accrual_on, ul.used, ul.accrual, v3.spent_hours, wu.join_date " +
 					"from (select u.id as user_id, i.issue_id, u.status, u.type, u.created_on from users u , " +
 					"(select id as issue_id from issues where id in (#{strIssueIds})) i) v1 " +
 					"left join (select max(id) as id, user_id, issue_id, sum(hours) as hours from time_entries " +
@@ -86,7 +86,7 @@ module WkattendanceHelper
 					"group by user_id) v3 on v3.user_id = v1.user_id " +
 					"left join wk_user_leaves ul on ul.user_id = v1.user_id and ul.issue_id = v1.issue_id " +
 					"and ul.accrual_on between '#{prev_mon_from}' and '#{prev_mon_to}' " +
-					"left join custom_values c on c.customized_id = v1.user_id and c.custom_field_id = #{getSettingCfId('wktime_attn_join_date_cf')} " +
+					"left join wk_users wu on wu.user_id = v1.user_id " +
 					"where v1.status = 1 and v1.type = 'User'"
 					
 			entries = TimeEntry.find_by_sql(qryStr)		
@@ -183,14 +183,7 @@ module WkattendanceHelper
 		end
 		wkattendance
 	end
-	
-	#def getWorkingDays(fromDate,toDate)
-		#workingDays = TimeEntry.where("spent_on between '#{fromDate}' and '#{toDate}'").distinct(true).count(:spent_on)
-		#workingDays
-		#workingDays = toDate - fromDate
-		#workingDays
-	#end
-	
+		
 	def getWorkedHours(userId,fromDate,toDate)
 		workedHours = TimeEntry.where("user_id = #{userId} and spent_on between '#{fromDate}' and '#{toDate}' and issue_id not in (#{getLeaveIssueIds})").sum(:hours)
 		workedHours

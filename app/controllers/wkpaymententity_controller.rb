@@ -40,38 +40,29 @@ class WkpaymententityController < WkbillingController
 			" left join wk_accounts a on (p.parent_type = 'WkAccount' and p.parent_id = a.id)" +
 			" left join wk_crm_contacts c on (p.parent_type = 'WkCrmContact' and p.parent_id = c.id)" +
 			" where pmi.payment_amount > 0 " 
-		if filter_type == '2' && !contact_id.blank?
-			# sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+		if filter_type == '2' && !contact_id.blank?			
 			sqlwhere = sqlwhere + " and p.parent_id = '#{contact_id}'  and p.parent_type = 'WkCrmContact' and (#{getPersonTypeSql}) = '#{getOrderContactType}' "
-		elsif filter_type == '2' && contact_id.blank?
-			#sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+		elsif filter_type == '2' && contact_id.blank?			
 			sqlwhere = sqlwhere + " and p.parent_type = 'WkCrmContact' and (#{getPersonTypeSql}) = '#{getOrderContactType}'  "
 		end
 		
-		if filter_type == '3' && !account_id.blank?
-			#sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+		if filter_type == '3' && !account_id.blank?			
 			sqlwhere = sqlwhere + " and p.parent_id = '#{account_id}'  and p.parent_type = 'WkAccount' and (#{getPersonTypeSql}) = '#{getOrderAccountType}' "
-		elsif filter_type == '3' && account_id.blank?
-			#sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+		elsif filter_type == '3' && account_id.blank?			
 			sqlwhere = sqlwhere + " and p.parent_type = 'WkAccount' and (#{getPersonTypeSql}) = '#{getOrderAccountType}' "
 		end
 		
-		if !@from.blank? && !@to.blank?			
-			#sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+		if !@from.blank? && !@to.blank?				
 			sqlwhere = sqlwhere + " and p.payment_date between '#{@from}' and '#{@to}'  "
-		end
-		#sqlwhere = sqlwhere + "wk_accounts.account_type = 'S' "
+		end		
 		
-		if filter_type == '1' || filter_type.blank?
-			#sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
+		if filter_type == '1' || filter_type.blank?			
 			sqlwhere = sqlwhere + " and ((#{getPersonTypeSql}) = '#{getOrderAccountType}' OR  (#{getPersonTypeSql}) = '#{getOrderContactType}') "
 		end	
 		
-		
 		sqlStr = sqlStr + sqlwhere unless sqlwhere.blank?
 		sqlStr = sqlStr + " order by p.id desc"
-		findBySql(sqlStr)		
-		#@totalPayAmt = @payment_entries.where("wk_payment_items.is_deleted = #{false} ").sum("wk_payment_items.amount")
+		findBySql(sqlStr)				
     end
 	
 	def edit
@@ -89,8 +80,7 @@ class WkpaymententityController < WkbillingController
 				@payment = WkPayment.find(params[:payment_id].to_i)
 				@payemntItem = @payment.payment_items.current_items 
 				unless params[:is_report].blank? || !to_boolean(params[:is_report])
-					@payemntItem = @payemntItem.order(:project_id, :item_type)
-					#render :action => 'invreport', :layout => false
+					@payemntItem = @payemntItem.order(:project_id, :item_type)			
 				end
 			end
 		end
@@ -155,30 +145,7 @@ class WkpaymententityController < WkbillingController
 			rangeStr = " LIMIT " + @limit.to_s +	" OFFSET " + @offset.to_s
 		end
 		rangeStr
-	end
-	
-	# def setLimitAndOffset		
-		# if api_request?
-			# @offset, @limit = api_offset_and_limit
-			# if !params[:limit].blank?
-				# @limit = params[:limit]
-			# end
-			# if !params[:offset].blank?
-				# @offset = params[:offset]
-			# end
-		# else
-			# @entry_pages = Paginator.new @entry_count, per_page_option, params['page']
-			# @limit = @entry_pages.per_page
-			# @offset = @entry_pages.offset
-		# end	
-	# end
-	
-	
-    # def formPagination(entries)
-		# @entry_count = entries.count
-        # setLimitAndOffset()
-		# @payment_entries = entries.order(id: :desc).limit(@limit).offset(@offset)
-	# end
+	end	
 	
 	def getBillableProjIds
 		projArr = ""	
@@ -234,14 +201,8 @@ class WkpaymententityController < WkbillingController
 					paymentItem = @payment.payment_items.new
 			end
 			unless paymentItem.blank?
-				unless @payment.id.blank?
-					# glTransactionId = nil
-					# if isChecked('invoice_auto_post_gl')
-						# transId = paymentItem.gl_transaction.blank? ? nil : paymentItem.gl_transaction.id
-						# glTransaction = postToGlTransaction('payment', transId, @payment.payment_date, payAmount, params["currency#{i}"], params["invoice_id#{i}"])
-						# glTransactionId = glTransaction.id unless glTransaction.blank?
-					# end				
-					updatedItem = updatePaymentItem(paymentItem, @payment.id, params["invoice_id#{i}"], payAmount, params["currency#{i}"] ) # ,glTransactionId
+				unless @payment.id.blank?									
+					updatedItem = updatePaymentItem(paymentItem, @payment.id, params["invoice_id#{i}"], payAmount, params["currency#{i}"] ) 
 				end	
 			end	
 		end

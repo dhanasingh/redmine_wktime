@@ -99,7 +99,7 @@ module WkpayrollHelper
 	def getUserSalaryHash(userIds,salaryDate)
 		userSalaryHash = Hash.new()
 		payPeriod = getPayPeriod(salaryDate)
-		queryStr = getUserSalaryQueryStr + " Where (cvt.value is null or #{getConvertDateStr('cvt.value')} >= '#{payPeriod[0]}') and sc.id is not null " 
+		queryStr = getUserSalaryQueryStr + " Where (wu.termination_date is null or wu.termination_date >= '#{payPeriod[0]}') and sc.id is not null " 
 		unless userIds.blank?
 			queryStr = queryStr + " and u.id in (#{userIds}) "
 		else
@@ -158,7 +158,7 @@ module WkpayrollHelper
 	def getUserSalaryQueryStr
 		sqlStr = "SELECT sc.id as sc_id, sc.name as sc_name, sc.component_type as sc_component_type, sc.frequency as sc_frequency, " + 
 		"sc.start_date as sc_start_date, sc.dependent_id as sc_dependent_id, " + 
-		"sc.factor as sc_factor, sc.salary_type as sc_salary_type, cvt.value as termination_date, " + 
+		"sc.factor as sc_factor, sc.salary_type as sc_salary_type, wu.termination_date, " + 
 		"usc.factor as usc_factor, usc.dependent_id as usc_dependent_id, " + 
 		"usc.salary_component_id as salary_component_id, usc.id as user_salary_component_id, " + 
 		"u.id as user_id, u.firstname as firstname, u.lastname as lastname, "+ 
@@ -166,7 +166,7 @@ module WkpayrollHelper
 		"case when usc.id is null then sc.factor else usc.factor end as factor FROM users u " + 
 		"left join wk_salary_components sc on (1 = 1) " + 
 		"left join wk_user_salary_components usc on (sc.id = usc.salary_component_id and  usc.user_id = u.id) " +
-		"left join custom_values cvt on (u.id = cvt.customized_id and cvt.value != '' and cvt.custom_field_id = #{getSettingCfId('wktime_attn_terminate_date_cf')} ) "
+		"left join wk_users wu on u.id = wu.user_id "
 		sqlStr
 	end
 	
@@ -373,21 +373,19 @@ module WkpayrollHelper
 	end
 	
 	def getQueryStr
-		joinDateCFId = !Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].blank? ? Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].to_i : 0
-		queryStr = "select u.id as user_id, u.firstname as firstname, u.lastname as lastname, sc.name as component_name, sc.id as sc_component_id, cvj.value as joining_date," + 
-		" cveid.value as employee_id, cvgender.value as gender,"+
+		#joinDateCFId = !Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].blank? ? Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].to_i : 0
+		queryStr = "select u.id as user_id, u.firstname as firstname, u.lastname as lastname, sc.name as component_name, sc.id as sc_component_id, wu.join_date," + 
+		" wu.id1, wu.gender,"+
 		"  s.salary_date as salary_date, s.amount as amount, s.currency as currency," + 
 		" sc.component_type as component_type from wk_salaries s "+ 
 		" inner join wk_salary_components sc on s.salary_component_id=sc.id"+  
 		" inner join users u on s.user_id=u.id" + 
-		" left join custom_values cvj on (u.id = cvj.customized_id and cvj.custom_field_id = #{getSettingCfId('wktime_attn_join_date_cf')} )"+ 
-		" left join custom_values cveid on (u.id = cveid.customized_id and cveid.custom_field_id = #{getSettingCfId('wktime_attn_employee_id_cf')} )"+ 
-		" left join custom_values cvgender on (u.id = cvgender.customized_id and cvgender.custom_field_id = #{getSettingCfId('wktime_gender_cf')} )"
+		" left join wk_users wu on u.id = wu.user_id "
 	end
 	
 	def getYTDDetail(userId,salaryDate)
 		financialPeriodArr = getFinancialPeriodArray(salaryDate, salaryDate, 'a')
-		@financialPeriod = financialPeriodArr[0] #getFinancialPeriodArray(salaryDate, salaryDate, 'A')
+		@financialPeriod = financialPeriodArr[0] 
 		ytdDetails = WkSalary.select("sum(amount) as amount, user_id, salary_component_id").where("user_id = #{userId} and salary_date between '#{@financialPeriod[0]}' and '#{salaryDate}'").group("user_id, salary_component_id")
 		ytdAmountHash = Hash.new()
 		ytdDetails.each do |entry|

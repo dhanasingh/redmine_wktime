@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2016  Adhi software pvt ltd
+# Copyright (C) 2011-2018  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -600,13 +600,30 @@ end
 				{:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime},
 				{:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense}
 			   ]
-		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" 
-			tabs = [
-				{:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave},
-				{:name => 'clock', :partial => 'wktime/tab_content', :label => :label_clock},
-				{:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll},
-				{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_user_settings}
-			   ]		
+		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" || params[:controller] == "wkscheduling"  || params[:controller] == "wkschedulepreference" || params[:controller] == "wkshift" || params[:controller] == "wkpublicholiday"
+				tabs = []
+				if showAttendance
+					tabs << {:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave}
+					tabs <<	{:name => 'clock', :partial => 'wktime/tab_content', :label => :label_clock}
+					tabs <<	{:name => 'wkpublicholiday', :partial => 'wktime/tab_content', :label => :label_public_holiday}
+					
+				end	
+				
+				if showPayroll
+					tabs << {:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll}
+					tabs <<	{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_payroll_settings}
+					
+				end
+				
+				if showShiftScheduling
+					tabs <<  {:name => 'wkscheduling', :partial => 'wktime/tab_content', :label => :label_scheduling}
+					@schedulesShift = validateERPPermission("S_SHIFT")
+					@editShiftSchedules = validateERPPermission("E_SHIFT")
+					if @schedulesShift && @editShiftSchedules
+						tabs <<	{:name => 'wkshift', :partial => 'wktime/tab_content', :label => :label_shift}
+					end					
+				end
+				
 		elsif params[:controller] == "wklead" || params[:controller] == "wkcrmaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact"
 			tabs = [
 				{:name => 'wklead', :partial => 'wktime/tab_content', :label => :label_lead_plural},
@@ -757,6 +774,7 @@ end
 				{:name => 'CRM', :partial => 'settings/tab_crm', :label => :label_crm},
 				{:name => 'purchase', :partial => 'settings/tab_purchase', :label => :label_purchasing},
 				{:name => 'inventory', :partial => 'settings/tab_inventory', :label => :label_inventory}
+				#{:name => 'shiftscheduling', :partial => 'settings/tab_shift_scheduling', :label => :label_scheduling}
 			   ]	
 	end	
 	
@@ -1297,6 +1315,7 @@ end
 		erpmineModules = [l(:label_wktime),
 						  l(:label_wkexpense),
 						  l(:report_attendance),
+						  l(:label_shift_scheduling),
 						  l(:label_payroll),
 						  l(:label_wk_billing),
 						  l(:label_accounting),
@@ -1319,6 +1338,10 @@ end
 		  end
 		end		
 		return permissionArr.include? permission
+	end
+	
+	def showShiftScheduling
+		!Setting.plugin_redmine_wktime['wktime_enable_shift scheduling_module'].blank? && Setting.plugin_redmine_wktime['wktime_enable_shift scheduling_module'].to_i == 1
 	end
 	
 end

@@ -1,4 +1,5 @@
 <%= form_tag({:controller => "wkunitofmeasurement", :action => 'update', :tab => 'wkunitofmeasurement'}, :method => :get, :id => 'query_form') do %>
+<% actualIds = "" %>
 <table class="list" id="commit-keywords">
   <thead>
     <tr>
@@ -13,7 +14,8 @@
 		<% @curentry.each do |entry| %>
 			<tr class="commit-keywords">
 				<td>
-					<%= hidden_field_tag "uom_id[]",  entry.id  %>
+					<%= hidden_field_tag "uom_id[]",  entry.id  %>					
+					<% actualIds = actualIds.blank? ? entry.id.to_s  : (actualIds + "," + entry.id.to_s) %>
 				</td>
 			    <td>			 
 					<%= text_field_tag "name[]",  entry.name  , :style => "width:150px;", :required => true  %> 
@@ -34,7 +36,7 @@
 	<% else %>
 		<tr class="commit-keywords">
 			<td>
-				<%= hidden_field_tag "uom_id[]",  ""  %>
+				<%= hidden_field_tag "uom_id[]",  ""  %>				
 			</td>
 			<td>
 				<%=  
@@ -64,6 +66,7 @@
     </tr>
   </tbody>
 </table>
+<%= hidden_field_tag "actual_ids",  actualIds  %>
 <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
 <p><%= submit_tag l(:button_save) %></p>
 <% end %>

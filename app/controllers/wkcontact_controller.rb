@@ -1,8 +1,6 @@
 class WkcontactController < WkcrmController
   unloadable
 
-
-
 	def index
 		set_filter_session
 		contactName = session[controller_name][:contactname] 			
@@ -55,8 +53,6 @@ class WkcontactController < WkcrmController
 		wkContact.salutation = params[:salutation]
 		wkContact.account_id = params[:account_id]
 		wkContact.contact_type = getContactType
-	#	wkContact.parent_id = params[:related_parent]
-	#	wkContact.parent_type = params[:related_to].to_s
 		wkContact.created_by_user_id = User.current.id if wkContact.new_record?
 		wkContact.updated_by_user_id = User.current.id
 		addrId = updateAddress
@@ -119,6 +115,10 @@ class WkcontactController < WkcrmController
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
 		end	
+	end
+	
+	def getAccountLbl
+		l(:label_account)
 	end
 
 end
