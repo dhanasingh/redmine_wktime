@@ -787,7 +787,7 @@ ru:
   field_location: Location 
   field_department: Department
   label_public_holiday: Public Holiday
-  label_schedule_on_weekend: Schedule on Weekend\Holiday
+  label_schedule_on_weekend: Schedule on Weekend / Holiday
   label_holiday: Holiday
   label_day_off_per_frequency: Day off per frequency
   label_schedule_shifts: Schedule Shifts
