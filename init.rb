@@ -147,8 +147,8 @@ UsersController.send(:include, UsersControllerPatch)
 Redmine::Plugin.register :redmine_wktime do
   name 'ERPmine'
   author 'Adhi Software Pvt Ltd'
-  description 'ERPmine is an ERP for Service Industries. It has the following modules: Time & Expense, Attendance, Payroll, CRM, Billing, Accounting, Purchasing, Inventory and Asset'
-  version '3.1'
+  description 'ERPmine is an ERP for Service Industries. It has the following modules: Time & Expense, Attendance, Payroll, CRM, Billing, Accounting, Purchasing, Inventory, Asset and Schedule Shifts'
+  version '3.2'
   url 'http://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
   
@@ -466,11 +466,11 @@ Rails.configuration.to_prepare do
 					Rails.logger.info "========== Shift Scheduling job - Started=========="
 					scheduling_helper = Object.new.extend(WkschedulingHelper)
 					scheduling_helper.autoShiftScheduling
+					Rails.logger.info "==========  Shift Scheduling job - Finished=========="
 				rescue Exception => e
 					Rails.logger.info "Job failed: #{e.message}"
 				end
 			end
-			Rails.logger.info "==========  Shift Scheduling job - Finished=========="
 		end
 	end
 end
