@@ -697,8 +697,8 @@ include QueriesHelper
 			ret = hookPerm[0]
 		end
 		ret = true if isAccountUser
-		ret = ((ret || !te_projects.blank?) && (@user.id != User.current.id || (!Setting.plugin_redmine_wktime[:wktime_own_approval].blank? && 
-							Setting.plugin_redmine_wktime[:wktime_own_approval].to_i == 1 )))? true: false
+		ret = ((ret || !te_projects.blank?) && (@user.id != User.current.id || (!Setting.plugin_redmine_wktime['wktime_own_approval'].blank? && 
+							Setting.plugin_redmine_wktime['wktime_own_approval'].to_i == 1 )))? true: false
 		
 		ret 
 	end
@@ -1022,7 +1022,7 @@ private
 		if !hookMgr.blank?
 			mngrArr = hookMgr[0] if !hookMgr[0].blank?
 		else
-			#includeAppr = (!Setting.plugin_redmine_wktime[:wktime_own_approval].blank? && Setting.plugin_redmine_wktime[:wktime_own_approval].to_i == 1 )
+			#includeAppr = (!Setting.plugin_redmine_wktime['wktime_own_approval'].blank? && Setting.plugin_redmine_wktime['wktime_own_approval'].to_i == 1 )
 			apprPerm = "and r.permissions like '%approve_time_entries%'"
 			queryStr = "select distinct u.* from projects p" +
 					" inner join members m on p.id = m.project_id and p.status = 1 " +

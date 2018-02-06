@@ -24,8 +24,8 @@
 <% $headerEntriesId = Array.new %>
 <% $headerhoursdiff = Array.new %>
 <% st = Array.new %>
-<% disable = isAccountUser ? (User.current.id == @user.id ? !(!Setting.plugin_redmine_wktime[:wktime_own_approval].blank? && 
-	Setting.plugin_redmine_wktime[:wktime_own_approval].to_i == 1 ) : false) : true	%>
+<% disable = isAccountUser ? (User.current.id == @user.id ? !(!Setting.plugin_redmine_wktime['wktime_own_approval'].blank? && 
+	Setting.plugin_redmine_wktime['wktime_own_approval'].to_i == 1 ) : false) : true	%>
 <%=h hidden_field_tag("break_time" , Setting.plugin_redmine_wktime['wktime_break_time'] )  %> 
 <% for i in 1..7 %>
 	<div id="clockInOut-dlg<%= i %>" title="<%= l(:report_attendance) %>">
