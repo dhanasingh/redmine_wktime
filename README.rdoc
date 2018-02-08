@@ -66,17 +66,11 @@ If an apache passenger module is used then make sure the following settings are 
 	b) RailsAppSpawnerIdleTime 0
 	c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for 3.2
-Features:
-	   - Employee Shifts can be Scheduled
-	   - Additional user properties like (join date, termination date, bank account etc) can be entered
-	   - Public Holidays are introduced
+Release Notes for 3.2.1
 Bug Fixing:
-	   - Incompatibility with Checklist plugin
-	   - unable to Uninstall plugin
-	   - Crash when editing time entries on personal page
-	   - NoMethodError while clicking Spent time Report
-	   - Attendance auto schedule job failure
+	   - Submit button for time sheets doesn't show up.
+	   - A new leave couldn't be configured from the plugin config page.
+	   
 Customization:
 	For any Customization/Support, please contact us, our consulting team will be happy to help you
 

@@ -31,7 +31,7 @@ $(document).ready(function(){
 					var factor = document.getElementById("factor");
 				}
 				var ledgerId = document.getElementById("payroll_db_ledger");
-				if( !checkDuplicate(listBox,name.value) && name.value != "" && (basic_field_factor.value != "" || dlgname != 'Basic' ) && ( (startdate != "" || (frequency.value == '' || frequency.value == 'm')  ) || dlgname == 'Basic') ){ 
+				if( !checkDuplicateComponent(listBox,name.value) && name.value != "" && (basic_field_factor.value != "" || dlgname != 'Basic' ) && ( (startdate != "" || (frequency.value == '' || frequency.value == 'm')  ) || dlgname == 'Basic') ){ 
 					if('Add'== basicAction){
 						opt = document.createElement("option");
 						listBox.options.add(opt);
@@ -74,14 +74,14 @@ $(document).ready(function(){
 					{
 						alertMsg += payroll_name_errormsg + "\n";
 					}
-					if(checkDuplicate(listBox,name.value)){
+					if(checkDuplicateComponent(listBox,name.value)){
 						alertMsg += payroll_name + "\n";
 					}
 					if( basic_field_factor.value == "" && dlgname == 'Basic')
 					{
 						alertMsg += payroll_factor_errormsg + "\n";
 					}
-					if(((frequency.value != "" && startdate == "") || (frequency.value != "m" && startdate == "")) && dlgname != 'Basic' && !checkDuplicate(listBox,name.value) )
+					if(((frequency.value != "" && startdate == "") || (frequency.value != "m" && startdate == "")) && dlgname != 'Basic' && !checkDuplicateComponent(listBox,name.value) )
 					{
 						alertMsg +=  payroll_date_errormsg + "\n";
 					}
@@ -185,7 +185,7 @@ function payrollDialogAction(dlg, action)
 }
 
 
-function checkDuplicate(listbox, newValue)
+function checkDuplicateComponent(listbox, newValue)
 {
 	isDuplicate = false;
 	var listboxArr;	
