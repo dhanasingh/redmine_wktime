@@ -53,6 +53,7 @@ module TimelogControllerPatch
 		end
 
 		def edit
+			sessionValidation
 			if session[:timelog][:spent_type] === "T"
 				@time_entry.safe_attributes = params[:time_entry]
 			elsif session[:timelog][:spent_type] === "E"
@@ -317,6 +318,7 @@ module TimelogControllerPatch
 		end
 		
 		def find_time_entries
+			sessionValidation
 			if session[:timelog][:spent_type] === "T"
 				@time_entries = TimeEntry.where(:id => params[:id] || params[:ids]).
 					preload(:project => :time_entry_activities).
@@ -342,6 +344,7 @@ module TimelogControllerPatch
 		end
 		
 		def find_time_entry
+			sessionValidation
 			if session[:timelog][:spent_type] === "T"
 				@time_entry = TimeEntry.find(params[:id])
 				@project = @time_entry.project
@@ -362,6 +365,7 @@ module TimelogControllerPatch
 		
 		def check_editability
 			wktime_helper = Object.new.extend(WktimeHelper)
+			sessionValidation
 			if session[:timelog][:spent_type] === "T"
 				unless @time_entry.editable_by?(User.current)
 				  render_403
@@ -373,10 +377,17 @@ module TimelogControllerPatch
 				return wktime_helper.showInventory
 			end
 		end
+		
+		def sessionValidation
+			if session[:timelog].blank?
+				set_filter_session
+			end
+		end
 
 		def destroy
 			wktime_helper = Object.new.extend(WktimeHelper)
 			errMsg = ""
+			sessionValidation
 			if session[:timelog][:spent_type] === "T"
 				destroyed = TimeEntry.transaction do
 					@time_entries.each do |t|
