@@ -31,7 +31,7 @@ class CreateWkResidentManagement  < ActiveRecord::Migration
 			t.references :invoice_item, :class => "wk_invoice_items", :null => true, :index => true
 		end
 		
-		add_reference :wk_crm_contacts, :contact_id, :class => "wk_crm_contacts", :null => true, index: true
+		add_reference :wk_crm_contacts, :contact, :class => "wk_crm_contacts", :null => true, index: true
 		
 		reversible do |dir|
 			dir.up do
