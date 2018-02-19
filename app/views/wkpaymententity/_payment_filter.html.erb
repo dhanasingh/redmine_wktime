@@ -8,9 +8,9 @@
 			type = controller.getOrderContactType
 		end
 		if !parentId.blank? && !parentType.blank?
-			accArr = relatedValues(parentType, parentId, type)	
+			accArr = relatedValues(parentType, parentId, type, false)	
 		elsif !params[:related_parent].blank? && params[:related_to]
-			accArr = relatedValues(params[:related_to], params[:related_parent], type)		
+			accArr = relatedValues(params[:related_to], params[:related_parent], type, false)		
 		end
 	%>
 	<script type="text/javascript"> 

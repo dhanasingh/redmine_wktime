@@ -160,7 +160,7 @@ include WkinvoiceHelper
 		salType
 	end
 	
-	def relatedValues(relatedType, parentId, type)
+	def relatedValues(relatedType, parentId, type, needBlank)
 		relatedArr = Array.new
 		relatedId = nil
 		if relatedType == "WkOpportunity"
@@ -183,7 +183,7 @@ include WkinvoiceHelper
 				end
 			end
 		end
-		
+		relatedArr.unshift(["", ""]) if needBlank
 		relatedArr
 	end
 	
@@ -194,7 +194,7 @@ include WkinvoiceHelper
 			accSections = ['wkcrmactivity', 'wkcrmcontact'] #, 'wkopportunity'
 			accSections << 'wkopportunity' unless curObj.account_type == 'S'
 		when 'WkCrmContact'
-			accSections = ['wkcrmactivity'] # , 'wkopportunity'
+			accSections = ['wkcrmactivity', 'wkcrmcontact'] # , 'wkopportunity'
 			accSections << 'wkopportunity' unless curObj.contact_type == 'SC'
 		else
 			accSections = ['wkcrmactivity']

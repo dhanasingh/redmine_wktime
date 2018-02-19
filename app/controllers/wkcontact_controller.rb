@@ -51,7 +51,10 @@ class WkcontactController < WkcrmController
 		wkContact.description = params[:description]
 		wkContact.department = params[:department]
 		wkContact.salutation = params[:salutation]
-		wkContact.account_id = params[:account_id]
+		wkContact.account_id = nil #params[:account_id]
+		wkContact.contact_id = nil
+		wkContact.account_id = params[:related_parent] if params[:related_to] == "WkAccount"
+		wkContact.contact_id = params[:related_parent] if params[:related_to] == "WkCrmContact"
 		wkContact.contact_type = getContactType
 		wkContact.created_by_user_id = User.current.id if wkContact.new_record?
 		wkContact.updated_by_user_id = User.current.id

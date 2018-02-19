@@ -66,6 +66,10 @@ class WkcrmController < WkbaseController
 		'A'
 	end
 	
+	def getContactType
+		'C'
+	end
+	
 	def deletePermission
 		isModuleAdmin('wktime_crm_admin')
 	end

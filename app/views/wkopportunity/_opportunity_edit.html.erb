@@ -5,9 +5,9 @@
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
 <%	accArr = options_for_wktime_account(false, 'A')
 	if !@oppEditEntry.blank?
-		accArr = relatedValues(@oppEditEntry[0].parent_type, @oppEditEntry[0].parent_id, 'A')	
+		accArr = relatedValues(@oppEditEntry[0].parent_type, @oppEditEntry[0].parent_id, 'A', false)	
     elsif !params[:parentType].blank?
-		accArr = relatedValues(params[:parentType], params[:parentId], 'A')		
+		accArr = relatedValues(params[:parentType], params[:parentId], 'A', false)		
 	end
 	relHash = relatedHash
 	relHash.delete("WkOpportunity")
