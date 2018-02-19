@@ -25,7 +25,7 @@
 						<%= hidden_field_tag "scheduling_date#{rowCount}", entry.schedule_date.strftime("%F") unless entry.schedule_date.blank? %>
 						<% if @editShiftSchedules %>
 							<td class="lbl-txt-align"><%= select_tag "shifts#{rowCount}", options_for_select(shifts, :selected => entry.shift_id), :style=>"width:150px; "  %></td>
-							<td><%= check_box_tag("day_off#{rowCount}", 1, (entry.schedule_as == 'W' ? false : true), :onchange => "showorHide((this.checked ? true : false), 'shifts#{rowCount}' )") %></td>
+							<td><%= check_box_tag("day_off#{rowCount}", 1, (entry.schedule_as == 'W' ? false : true), :onchange => "showordisable((this.checked ? true : false), 'shifts#{rowCount}' )") %></td>
 						<% else %>
 							<td><%= entry.shift.name unless entry.shift.blank? %>
 								<%= hidden_field_tag "shifts#{rowCount}", entry.shift_id %>
@@ -39,7 +39,7 @@
 						
 						<% if User.current.id == entry.user_id %>
 							<td class="lbl-txt-align"><%=h select_tag "shifts#{rowCount}", options_for_select(shifts, :selected => entry.shift_id), :style=>"width:150px;"  %></td>
-							<td class="lbl-txt-align"><%= check_box_tag("day_off#{rowCount}", 1, (entry.schedule_as == 'W' ? false : true), :onchange => "showorHide((this.checked ? true : false), 'shifts#{rowCount}' )") %></td>
+							<td class="lbl-txt-align"><%= check_box_tag("day_off#{rowCount}", 1, (entry.schedule_as == 'W' ? false : true), :onchange => "showordisable((this.checked ? true : false), 'shifts#{rowCount}' )") %></td>
 						<% else %>
 							<td><%= entry.shift.name %>
 								<%= hidden_field_tag "shifts#{rowCount}", entry.shift_id %>
@@ -60,7 +60,7 @@
 					<td class="lbl-txt-align"><%= params[:date] %></td>
 					<%= hidden_field_tag "scheduling_date#{rowCount}", params[:date] %>
 					<td class="lbl-txt-align"><%= select_tag "shifts#{rowCount}", options_for_select(shifts), :style=>"width:150px;"  %></td>
-					<td class="lbl-txt-align"><%= check_box_tag("day_off#{rowCount}", 1, false, :disabled => false, :onchange => "showorHide((this.checked ? true : false), 'shifts#{rowCount}' )") %></td>
+					<td class="lbl-txt-align"><%= check_box_tag("day_off#{rowCount}", 1, false, :disabled => false, :onchange => "showordisable((this.checked ? true : false), 'shifts#{rowCount}' )") %></td>
 					<td class="lbl-txt-align"></td>
 				</tr>
 				<% rowCount =  rowCount + 1 %>
@@ -74,7 +74,7 @@
 				<td class="lbl-txt-align"><%= params[:date] %></td>
 				<%= hidden_field_tag "scheduling_date#{rowCount}", params[:date] %>
 				<td class="lbl-txt-align"><%= select_tag "shifts#{rowCount}", options_for_select(shifts), :style=>"width:150px;"  %></td>
-				<td class="lbl-txt-align"><%= check_box_tag("day_off#{rowCount}", 1, false, :disabled => false, :onchange => "showorHide((this.checked ? true : false), 'shifts#{rowCount}' )") %></td>
+				<td class="lbl-txt-align"><%= check_box_tag("day_off#{rowCount}", 1, false, :disabled => false, :onchange => "showordisable((this.checked ? true : false), 'shifts#{rowCount}' )") %></td>
 				<td class="lbl-txt-align"></td>
 			</tr>
 			<% rowCount =  rowCount + 1 %>

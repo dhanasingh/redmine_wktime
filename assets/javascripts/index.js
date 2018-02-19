@@ -694,7 +694,7 @@ function validateAsset()
 	}
 	return valid;
 }
-
+/*
 function showorHide(isshow, divId)
 {
 	if(!isshow)
@@ -704,4 +704,4 @@ function showorHide(isshow, divId)
 	else {
 		document.getElementById(divId).style.disabled = false;
 	}
-}
+}*/

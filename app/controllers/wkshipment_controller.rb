@@ -46,7 +46,7 @@ include WkinventoryHelper
 			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
 			sqlwhere = sqlwhere + " wk_shipments.shipment_date between '#{@from}' and '#{@to}'  "
 		end
-		
+		sqlwhere = sqlwhere + " and wk_shipments.shipment_type != 'N' "
 		unless sqlwhere.blank?
 			shipEntries = WkShipment.includes(:inventory_items).where(sqlwhere)
 		else
@@ -226,25 +226,7 @@ include WkinventoryHelper
 			WkInventoryItem.delete_all(:id => arrId)
 		end
 		
-		if !@shipment.id.blank? && autoPostGL('inventory') && getSettingCfId("inventory_cr_ledger")>0 && getSettingCfId("inventory_db_ledger") > 0
-			totalAmount = @shipment.inventory_items.shipment_item.sum('total_quantity*(cost_price+over_head_price)')
-			# below query for Asset Parent id logic
-			# totalAmount = @shipment.inventory_items.where("(product_type = 'A' and parent_id is not null) OR product_type <> 'A'").sum('total_quantity*(cost_price+over_head_price)')
-			#moduleAmtHash = {'inventory' => [totalAmount.round, totalAmount.round]}
-			#transAmountArr = getTransAmountArr(moduleAmtHash, nil)
-			dbLedgerAmtHash = {getSettingCfId("inventory_db_ledger") => totalAmount-assetTotal}
-			crLedgerAmtHash = {getSettingCfId("inventory_cr_ledger") => totalAmount}
-			dbLedgerAmtHash.merge!(assetAccountingHash) { |k, o, n| o + n }
-			transAmountArr = [crLedgerAmtHash, dbLedgerAmtHash]
-			if totalAmount > 0 #&& autoPostGL('inventory')
-				transId = @shipment.gl_transaction.blank? ? nil : @shipment.gl_transaction.id
-				glTransaction = postToGlTransaction('inventory', transId, @shipment.shipment_date, transAmountArr, @shipment.inventory_items.shipment_item[0].currency, nil, nil)
-				unless glTransaction.blank?
-					@shipment.gl_transaction_id = glTransaction.id
-					@shipment.save
-				end				
-			end
-		end
+		postShipmentAccounting(@shipment)
 		
 		if errorMsg.nil? 
 			redirect_to :action => 'index' , :tab => controller_name
@@ -254,6 +236,8 @@ include WkinventoryHelper
 			redirect_to :action => 'edit', :shipment_id => @shipment.id
 	   end
 	end
+	
+	
 	
 	def destroy
 		begin

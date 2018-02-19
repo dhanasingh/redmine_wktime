@@ -21,14 +21,14 @@
 		</tr>
 		<tr>
 			<th align="left"><label><%= l(:label_billing_type) %></label></th>
-			<td style="padding-left:40px;"><%=h select_tag('billing_type', options_for_select(billing_type.invert, :selected => (@accProjEntry.blank? ? 'TM' : @accProjEntry.billing_type) ), :onchange => "showorHide((this.value == 'FC' ? true : false), 'billingschdules');") %></td>
+			<td style="padding-left:40px;"><%=h select_tag('billing_type', options_for_select(billing_type.invert, :selected => (@accProjEntry.blank? ? 'TM' : @accProjEntry.billing_type) ), :onchange => "showorHide((this.value == 'FC' ? true : false), 'billingschdules', null);") %></td>
 		</tr>
 	</table>
 	</div>
 	<div id="rightMenu" class="div-right">
 	<table>	
 	<tr><td><label><%= l(:label_apply_tax) %></label></td><td><%= check_box_tag('applytax', 1, (@accProjEntry.blank?  ? false : @accProjEntry.apply_tax  ), 
-	:onchange => "showorHide((this.checked ? true : false), 'applicable_taxes');") %> </td></tr>
+	:onchange => "showorHide((this.checked ? true : false), 'applicable_taxes', null);") %> </td></tr>
 	<tr id="applicable_taxes"><td><label><%= l(:label_applicable_taxes) %></label></td><td><%=h select_tag('tax_id', options_for_select((@taxentry.blank? ? [] : @taxentry),  :selected => @selectedtax), :size => 5, :multiple=> true) %></td></tr>
 		</table>
 	</div>

@@ -1,5 +1,22 @@
+# ERPmine - ERP for service industry
+# Copyright (C) 2011-2018  Adhi software pvt ltd
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 class WkproductitemController < WkinventoryController
   unloadable 
+  menu_item :wkproduct
   before_filter :require_login
   before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :transfer, :updateTransfer]
 
@@ -7,6 +24,7 @@ class WkproductitemController < WkinventoryController
   include WkgltransactionHelper
   include WkpayrollHelper
   include WkassetHelper
+  include WkshipmentHelper
   
 	def index
 		set_filter_session
@@ -25,7 +43,7 @@ class WkproductitemController < WkinventoryController
 	end
 	
 	def getProductInventorySql
-		sqlStr = "select iit.id as inventory_item_id, pit.id as product_item_id, iit.status, p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as product_attribute_name, iit.serial_number, iit.currency, iit.selling_price, iit.total_quantity, iit.available_quantity, uom.short_desc as uom_short_desc, l.name as location_name, (case when iit.product_type is null then p.product_type else iit.product_type end) as product_type from wk_product_items pit 
+		sqlStr = "select iit.id as inventory_item_id, pit.id as product_item_id, iit.status, p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as product_attribute_name, iit.serial_number, iit.currency, iit.selling_price, iit.total_quantity, iit.available_quantity, uom.short_desc as uom_short_desc, l.name as location_name, (case when iit.product_type is null then p.product_type else iit.product_type end) as product_type, iit.is_loggable, ap.name as asset_name, ap.owner_type, ap.currency as asset_currency, ap.rate, ap.rate_per, ap.current_value from wk_product_items pit 
 		left outer join wk_inventory_items iit on iit.product_item_id = pit.id 
 		left outer join wk_products p on pit.product_id = p.id
 		left outer join wk_brands b on pit.brand_id = b.id
@@ -33,6 +51,7 @@ class WkproductitemController < WkinventoryController
 		left outer join wk_product_attributes a on iit.product_attribute_id = a.id
 		left outer join wk_locations l on iit.location_id = l.id
 		left outer join wk_mesure_units uom on iit.uom_id = uom.id
+		left outer join wk_asset_properties ap on ap.inventory_item_id = iit.id
 		where ((case when iit.product_type is null then p.product_type else iit.product_type end) = '#{getItemType}' OR (case when iit.product_type is null then p.product_type else iit.product_type end) IS NULL) "
 		sqlStr
 	end
@@ -40,6 +59,7 @@ class WkproductitemController < WkinventoryController
 	def edit
 	    @productItem = nil
 		@inventoryItem = nil
+		@newItem = to_boolean(params[:newItem])
 	    unless params[:product_item_id].blank?
 		   @productItem = WkProductItem.find(params[:product_item_id])
 		end 
@@ -80,6 +100,7 @@ class WkproductitemController < WkinventoryController
 				inventoryItem.save
 			end
 			assetProperty = updateAssetProperty(inventoryItem) if !inventoryItem.blank? && inventoryItem.product_type == 'A'
+			postShipmentAccounting(inventoryItem.shipment)
 		    redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
 		    flash[:notice] = l(:notice_successful_update)
 		else
@@ -156,7 +177,9 @@ class WkproductitemController < WkinventoryController
 		inventoryItem.status = inventoryItem.available_quantity == 0 ? 'c' : 'o'
 		inventoryItem.uom_id = params[:uom_id].to_i
 		inventoryItem.location_id = params[:location_id].to_i
+		inventoryItem.product_type = params[:product_type]
 		inventoryItem.save()
+		updateShipment(inventoryItem)
 		inventoryItem
 	end
 	
@@ -164,6 +187,7 @@ class WkproductitemController < WkinventoryController
 		sysCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 		if params[:asset_property_id].blank?
 			assetProperty = WkAssetProperty.new
+			updateShipment(inventoryItem)
 			assetProperty.inventory_item_id = inventoryItem.id
 		else
 			assetProperty = inventoryItem.asset_property
@@ -175,6 +199,16 @@ class WkproductitemController < WkinventoryController
 		assetProperty.owner_type = params[:owner_type]
 		assetProperty.save()
 		assetProperty
+	end
+	
+	def updateShipment(inventoryItem)
+		wkShipmentObj = WkShipment.new
+		wkShipmentObj.shipment_type = 'N'
+		wkShipmentObj.shipment_date = Date.today		
+		wkShipmentObj.serial_number = params[:serial_number]
+		wkShipmentObj.save()
+		inventoryItem.shipment_id = wkShipmentObj.id
+		inventoryItem.save()
 	end
 	
 	def destroy
@@ -254,4 +288,21 @@ class WkproductitemController < WkinventoryController
 	def showAssetProperties
 		false
 	end
+	
+	def newItemLabel
+		l(:label_new_product_item)
+	end
+	
+	def newAsset
+		false
+	end
+	
+	def editItemLabel
+		l(:label_edit_product_item)
+	end
+	
+	def getIventoryListHeader
+		headerHash = { 'product_name' => l(:label_product), 'brand_name' => l(:label_brand), 'product_model_name' => l(:label_model), 'product_attribute_name' => l(:label_attribute), 'serial_number' => l(:label_serial_number), 'currency' => l(:field_currency), 'selling_price' => l(:label_selling_price), 'total_quantity' => l(:label_total_quantity), 'available_quantity' => l(:label_available_quantity), 'uom_short_desc' => l(:label_uom), 'location_name' => l(:label_location) }
+	end
+	
 end

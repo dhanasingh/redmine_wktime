@@ -1,7 +1,7 @@
-<div class="splitcontentleft">
+<div id="assetDiv" style="display:<%= invntItem.blank? ? 'none' : 'block' %>;" class="splitcontentleft">
 	<% 
 	isDisable = false
-	assetProperty = invntItem.asset_property
+	assetProperty = invntItem.asset_property unless invntItem.blank?
 	%>
 	<%=h hidden_field_tag('asset_property_id', assetProperty.blank? ? "" : assetProperty.id) %>
 	<fieldset class="box tabular">
