@@ -29,7 +29,7 @@
 		relHash.delete("WkOpportunity")
 		relHash.delete("WkLead")
 	 %>
-	<table >
+	<table width="100%">
 		<% accountName = "" %>
 		<% unless isAccount %>
 			<tr>				
@@ -43,7 +43,17 @@
 			</tr>
 		<% end %>
 		<% accountName = !accountObj.blank?  ?  accountObj.name  : "" %>
-		<% accountDescription = !accountObj.blank? && isAccount  ?  accountObj.description : (isContact || !leadObj.blank? ? (contactObj.blank? ? "" : contactObj.description) :  "" ) %>
+		<%
+			accountDescription = ""
+			locationId = nil
+			if !accountObj.blank? && isAccount
+				accountDescription = accountObj.description
+				locationId = accountObj.location_id
+			elsif (isContact || !leadObj.blank?) && !contactObj.blank?
+				accountDescription = contactObj.description
+				locationId = contactObj.location_id
+			end
+		%>
 		<tr>
 			<% if isAccount %>
 				<th align="left"><%= controller.getAccountLbl %><span style="color:red;">*</span></th>
@@ -54,24 +64,25 @@
 			<% if isContact %>	
 				<tr>
 					<th align="left" ><%= l(:label_related_to) %></th>
-					<td align="left" style="padding-left:40px;"><%=h select_tag("related_to", options_for_select(relHash.invert, :selected => (!contactObj.blank? ? relateTo : (params[:parentType].blank? ? "" : params[:parentType]))), :onchange => "actRelatedDd(#{User.current.id}, false, true, '#{accountType}', '#{contactType}', false)", :style => "width:200px;") %>
+					<td align="left" style="padding-left:40px;"><%=h select_tag("related_to", options_for_select(relHash.invert, :selected => (!contactObj.blank? ? relateTo : (params[:parentType].blank? ? "" : params[:parentType]))), :onchange => "actRelatedDd(#{User.current.id}, false, true, '#{accountType}', '#{contactType}', false)", :style => "width:20%;") %>
 					
-					<%=h select_tag("related_parent", options_for_select(accArr, :selected => (!contactObj.blank? ? parentId : (params[:parentId].blank? ? "" : params[:parentId]))), :style => "width:200px;") %></td> 
+					<%=h select_tag("related_parent", options_for_select(accArr, :selected => (!contactObj.blank? ? parentId : (params[:parentId].blank? ? "" : params[:parentId]))), :style => "width:30%;") %>
+					<b><%= l(:label_as) %></b>
+					<%=h select_tag('relationship_id', options_for_select(options_for_enum_select('CR', (!contactObj.blank? ? contactObj.relationship_id : nil), true)), :style => "width:30%;") %>
+					</td> 
 					
 				</tr>
 			<% else %>	
 				<td align="left" style="padding-left:40px;"><%=h text_field_tag("account_name", accountName,:size => 20) %> </td>
 			<% end %>			
 		</tr>
+		<tr>
+			<th align="left"><%= l(:label_location) %></th>
+			<td align="left" style="padding-left:40px;">
+				<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, false)) %>
+			</td>
+		</tr> 
 		<% if isContact %>
-		<!--	<tr>
-			<th align="left" ><%= l(:label_related_to) %></th>
-			<td align="left" style="padding-left:40px;"><%#=h select_tag("related_to", options_for_select(relHash.invert, :selected => (!contactObj.blank? ? contactObj.parent_type : (params[:parentType].blank? ? "" : params[:parentType]))), :onchange => "actRelatedDd(#{User.current.id}, false, true, 'A', 'C', false)", :style => "width:200px;") %>
-			
-			<%#=h select_tag("related_parent", options_for_select(accArr, :selected => (!contactObj.blank? ? contactObj.parent_id : (params[:parentId].blank? ? "" : params[:parentId]))), :style => "width:200px;") %></td> 
-			
-			
-		    </tr> -->
 			<tr>
 				<th align="left"><%= l(:field_title) %></th>
 				<td align="left" style="padding-left:40px;"><%=h text_field_tag("contact_title", contactObj.blank? ? "" : contactObj.title,:size => 20) %> 

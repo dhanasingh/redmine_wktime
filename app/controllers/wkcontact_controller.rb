@@ -55,6 +55,8 @@ class WkcontactController < WkcrmController
 		wkContact.contact_id = nil
 		wkContact.account_id = params[:related_parent] if params[:related_to] == "WkAccount"
 		wkContact.contact_id = params[:related_parent] if params[:related_to] == "WkCrmContact"
+		wkContact.relationship_id = params[:relationship_id]
+		wkContact.location_id = params[:location_id]
 		wkContact.contact_type = getContactType
 		wkContact.created_by_user_id = User.current.id if wkContact.new_record?
 		wkContact.updated_by_user_id = User.current.id

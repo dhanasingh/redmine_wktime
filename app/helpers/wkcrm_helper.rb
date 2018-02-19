@@ -1,5 +1,6 @@
 module WkcrmHelper
 include WkinvoiceHelper
+include WkcrmenumerationHelper
 	
 	def getLeadList(from, to, groupId, userId)
 		userIdArr = nil

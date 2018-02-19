@@ -84,6 +84,7 @@ class WkleadController < WkcrmController
 		# For Account table
 		wkaccount.name = params[:account_name]
 		wkaccount.description = params[:description]
+		wkaccount.location_id = params[:location_id]
 		if params[:lead_id].blank? || params[:lead_id].to_i == 0
 			wkLead = WkLead.new
 			wkContact = WkCrmContact.new
@@ -107,6 +108,7 @@ class WkleadController < WkcrmController
 		wkContact.description = params[:description]
 		wkContact.department = params[:department]
 		wkContact.salutation = params[:salutation]
+		wkContact.location_id = params[:location_id]
 		wkContact.created_by_user_id = User.current.id if wkContact.new_record?
 		wkContact.updated_by_user_id = User.current.id
 		if wkContact.valid?
