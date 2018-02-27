@@ -10,9 +10,11 @@
 				<th align="left"><%= l(:label_serial_number) %></th>
 				<td align="left" style="padding-left:40px;"><%= text_field_tag "serial_number",  invntItem.blank? ? '' : invntItem.serial_number, :disabled => isDisable || isTransfer %></td>
 			</tr>
-			<% assethook = call_hook(:view_asset_inventory, :inventoryItem => invntItem) %>
-			<% if assethook.blank? %>
-				<%= render :partial => 'wkproductitem/partial_inventory_item', locals: {invntItem: invntItem, isDisable: isDisable, isTransfer: isTransfer}%>
+			<% inventoryHook = call_hook(:view_asset_inventory, :inventoryItem => invntItem) %>
+			<% if inventoryHook.blank? %>
+				<%= render :partial => 'wkproductitem/partial_inventory_item', locals: {invntItem: invntItem, isDisable: isDisable, isTransfer: isTransfer} %>
+			<% else %>
+				<%=  inventoryHook %>
 			<% end %>
 			<tr>
 				<th align="left"><%= l(:label_attribute) %></th>

@@ -125,5 +125,9 @@ class WkcontactController < WkcrmController
 	def getAccountLbl
 		l(:label_account)
 	end
+	
+	def contactLbl
+		l(:label_contact_plural)
+	end
 
 end

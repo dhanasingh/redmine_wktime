@@ -99,8 +99,8 @@ class WkproductitemController < WkinventoryController
 				inventoryItem.is_loggable = params[:is_loggable]
 				inventoryItem.save
 			end
-			assetProperty = updateAssetProperty(inventoryItem) if !inventoryItem.blank? && inventoryItem.product_type == 'A'
-			postShipmentAccounting(inventoryItem.shipment)
+			assetProperty = updateAssetProperty(inventoryItem) if !inventoryItem.blank? && inventoryItem.product_type != 'I'
+			#postShipmentAccounting(inventoryItem.shipment)
 		    redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
 		    flash[:notice] = l(:notice_successful_update)
 		else
@@ -303,6 +303,10 @@ class WkproductitemController < WkinventoryController
 	
 	def getIventoryListHeader
 		headerHash = { 'product_name' => l(:label_product), 'brand_name' => l(:label_brand), 'product_model_name' => l(:label_model), 'product_attribute_name' => l(:label_attribute), 'serial_number' => l(:label_serial_number), 'currency' => l(:field_currency), 'selling_price' => l(:label_selling_price), 'total_quantity' => l(:label_total_quantity), 'available_quantity' => l(:label_available_quantity), 'uom_short_desc' => l(:label_uom), 'location_name' => l(:label_location) }
+	end
+	
+	def showProductItem
+		true
 	end
 	
 end

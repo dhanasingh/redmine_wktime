@@ -29,10 +29,13 @@
 					<%#=h select_tag("rate_per", options_for_select(getRatePerHash(false).invert, :selected => assetProperty.blank? ? getRatePerHash(false).invert : assetProperty.rate_per )) %>
 				</td>
 			</tr> -->
-			<tr>
-				<th align="left"><%= l(:label_current_asset_value) %></th>
-				<td align="left" style="padding-left:40px;"><label align='left'><b><%= assetProperty.blank? ? Setting.plugin_redmine_wktime['wktime_currency'] : assetProperty.currency %></b></label><%= text_field_tag "current_value",  assetProperty.blank? ? '' : assetProperty.current_value, :disabled => false %></td>
-			</tr> 
+			<% assethook = call_hook(:view_asset_fields, :assetProperty => assetProperty) %>
+			<% if assethook.blank? %>
+				<tr>
+					<th align="left"><%= l(:label_current_asset_value) %></th>
+					<td align="left" style="padding-left:40px;"><label align='left'><b><%= assetProperty.blank? ? Setting.plugin_redmine_wktime['wktime_currency'] : assetProperty.currency %></b></label><%= text_field_tag "current_value",  assetProperty.blank? ? '' : assetProperty.current_value, :disabled => false %></td>
+				</tr>
+			<% end %>
 			<tr>
 				<th align="left"><%= l(:label_owner) + " " + l(:label_type) %></th>
 				<td align="left" style="padding-left:40px;"><%=h select_tag("owner_type", options_for_select(getAssetTypeHash(false).invert, :selected => assetProperty.blank? ? getAssetTypeHash(false).invert : assetProperty.owner_type )) %></td>

@@ -200,6 +200,11 @@ include WkcrmenumerationHelper
 		else
 			accSections = ['wkcrmactivity']
 		end
+		hookSection = call_hook(:view_accordion_section, {:entity => entity, :curObj => curObj})
+		hookSection = hookSection.split(' ')
+		unless hookSection.blank?
+			accSections = accSections + hookSection
+		end
 		accSections
 	end
 	
