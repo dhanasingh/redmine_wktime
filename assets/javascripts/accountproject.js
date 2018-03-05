@@ -1,8 +1,15 @@
 $(document).ready(function() {
-	var billingtype = document.getElementById('billing_type').value;
-	var istax = document.getElementById('applytax').checked;
-	showorHide(istax, 'applicable_taxes', null);
-	showorHide((billingtype == 'FC' ? true : false), 'billingschdules', null);
+	if(document.getElementById('billing_type') != null)
+	{
+		var billingtype = document.getElementById('billing_type').value;		
+		showorHide((billingtype == 'FC' ? true : false), 'billingschdules', null);
+	}
+	if(document.getElementById('applytax') != null)
+	{
+		var istax = document.getElementById('applytax').checked;
+		showorHide(istax, 'applicable_taxes', null);
+	}
+	
 	/** initially load the datepicker in milestone bill date textfield **/
 	$('.date').each(function() {
         $(this).datepicker({ dateFormat: 'yy-mm-dd' });

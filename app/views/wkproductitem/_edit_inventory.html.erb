@@ -3,18 +3,31 @@
 	#isDisable = isTransfer 
 	isDisable = isUsedInventoryItem(invntItem)
 	%>
+	<%	parentArr = Array.new
+		invItemObj = WkInventoryItem.where(:product_type => controller.getItemType).includes(:asset_property)
+		invItemObj.each do |entry|
+			parentArr << [(entry.asset_property.blank? ? "" : entry.asset_property.name.to_s), entry.id]
+		end
+		parentArr.unshift(["",""])
+	%>
 	<fieldset class="box tabular">
 		<legend><%= isTransfer ? l(:button_transfer) : l(:label_inventory)%></legend>
 		<table width='100%'>  
+			<% if controller.showAssetProperties   %>
+			<tr>
+				<th align="left"><%= "Parent" %></th>
+				<td align="left" style="padding-left:40px;"><%=h select_tag("parent_id", options_for_select(parentArr, :selected => (invntItem.blank? ? (@parentEntry.blank? ? parentArr : @parentEntry.id) : invntItem.parent_id)), :disabled => isDisable && !isTransfer) %></td>
+			</tr>
+			<% end %>
 			<tr>
 				<th align="left"><%= l(:label_serial_number) %></th>
 				<td align="left" style="padding-left:40px;"><%= text_field_tag "serial_number",  invntItem.blank? ? '' : invntItem.serial_number, :disabled => isDisable || isTransfer %></td>
 			</tr>
 			<% inventoryHook = call_hook(:view_asset_inventory, :inventoryItem => invntItem) %>
-			<% if inventoryHook.blank? %>
+			<% if controller.showInventoryFields %>
 				<%= render :partial => 'wkproductitem/partial_inventory_item', locals: {invntItem: invntItem, isDisable: isDisable, isTransfer: isTransfer} %>
-			<% else %>
-				<%=  inventoryHook %>
+			<%# else %>
+				<%#=  inventoryHook %>
 			<% end %>
 			<tr>
 				<th align="left"><%= l(:label_attribute) %></th>
@@ -22,15 +35,17 @@
 					<%=h select_tag("product_attribute_id", generic_options_for_select(WkProductAttribute, nil, 'name', 'name', 'id', invntItem.blank? ? '' : invntItem.product_attribute_id, true), :disabled => isDisable || isTransfer) %>
 				</td>
 			</tr>
-			<tr>
-				<th align="left"><%= l(:label_location) %></th>
-				<td align="left" style="padding-left:40px;">
-					<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', invntItem.blank? ? '' : invntItem.location_id, false), :disabled => isDisable && !isTransfer) %>
-					<% unless invntItem.blank? || isTransfer %>
-								<%= link_to l(:button_transfer), url_for(:controller => controller_name, :action => 'transfer', :inventory_item_id => invntItem.id), :class => 'icon icon-bullet-go' %>
-					<% end %>
-				</td>
-			</tr> 
+			<% if invntItem.blank? || invntItem.parent_id.blank? %>
+				<tr>
+					<th align="left"><%= l(:label_location) %></th>
+					<td align="left" style="padding-left:40px;">
+						<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', invntItem.blank? ? '' : invntItem.location_id, false), :disabled => isDisable && !isTransfer) %>
+						<% unless invntItem.blank? || isTransfer %>
+									<%= link_to l(:button_transfer), url_for(:controller => controller_name, :action => 'transfer', :inventory_item_id => invntItem.id), :class => 'icon icon-bullet-go' %>
+						<% end %>
+					</td>
+				</tr>
+			<% end %>
 			<tr>
 				<th align="left"><%= l(:field_notes) %></th>
 				<td align="left" style="padding-left:40px;"><%= text_area_tag "notes",  invntItem.blank? ? '' : invntItem.notes, :disabled => isDisable && !isTransfer %></td>

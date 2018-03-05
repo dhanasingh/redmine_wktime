@@ -59,6 +59,7 @@ class WkproductitemController < WkinventoryController
 	def edit
 	    @productItem = nil
 		@inventoryItem = nil
+		@parentEntry = nil
 		@newItem = to_boolean(params[:newItem])
 	    unless params[:product_item_id].blank?
 		   @productItem = WkProductItem.find(params[:product_item_id])
@@ -66,6 +67,9 @@ class WkproductitemController < WkinventoryController
 		unless params[:inventory_item_id].blank?
 		   @inventoryItem = WkInventoryItem.find(params[:inventory_item_id])
 		end 
+		unless params[:parentId].blank?
+			@parentEntry = WkInventoryItem.find(params[:parentId])
+		end
 	end	
 	
 	def transfer
@@ -143,6 +147,7 @@ class WkproductitemController < WkinventoryController
 		sysCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 		if params[:inventory_item_id].blank?
 			inventoryItem = WkInventoryItem.new
+			inventoryItem.product_type = params[:product_type].blank? ? getItemType : params[:product_type]
 		else
 			inventoryItem = WkInventoryItem.find(params[:inventory_item_id].to_i)
 		end
@@ -150,7 +155,7 @@ class WkproductitemController < WkinventoryController
 		unless params[:transfer_item_id].blank?
 			transferItem = WkInventoryItem.find(params[:transfer_item_id].to_i)
 			inventoryItem = transferItem.dup
-			inventoryItem.parent_id = params[:transfer_item_id].to_i
+			inventoryItem.from_id = params[:transfer_item_id].to_i
 			inventoryItem.supplier_invoice_id = nil
 			inventoryItem.lock_version = 0
 			inventoryItem.shipment_id = transferItem.shipment_id
@@ -169,6 +174,7 @@ class WkproductitemController < WkinventoryController
 			inventoryItem.over_head_price = getExchangedAmount(params[:currency], params[:over_head_price]) 
 			inventoryItem.is_loggable = params[:is_loggable]
 		end
+		inventoryItem.parent_id = params[:parent_id] unless params[:parent_id].blank?
 		inventoryItem.notes = params[:notes]
 		inventoryItem.selling_price = getExchangedAmount(params[:currency], params[:selling_price])
 		inventoryItem.total_quantity = params[:total_quantity]
@@ -176,8 +182,7 @@ class WkproductitemController < WkinventoryController
 		inventoryItem.available_quantity = params[:available_quantity]
 		inventoryItem.status = inventoryItem.available_quantity == 0 ? 'c' : 'o'
 		inventoryItem.uom_id = params[:uom_id].to_i
-		inventoryItem.location_id = params[:location_id].to_i
-		inventoryItem.product_type = params[:product_type]
+		inventoryItem.location_id = params[:location_id].to_i		
 		inventoryItem.save()
 		updateShipment(inventoryItem)
 		inventoryItem
@@ -309,4 +314,11 @@ class WkproductitemController < WkinventoryController
 		true
 	end
 	
+	def showAdditionalInfo
+		true
+	end
+	
+	def showInventoryFields
+		true
+	end
 end

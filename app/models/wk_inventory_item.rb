@@ -29,7 +29,7 @@ class WkInventoryItem < ActiveRecord::Base
   has_many :transfered_items, foreign_key: "parent_id", class_name: "WkInventoryItem", :dependent => :restrict_with_error
   has_one :asset_property, foreign_key: "inventory_item_id", class_name: "WkAssetProperty", :dependent => :destroy
   has_many :depreciations, foreign_key: "inventory_item_id", class_name: "WkAssetDepreciation", :dependent => :restrict_with_error
-  
+  has_many :components, foreign_key: "parent_id", class_name: "WkInventoryItem", :dependent => :restrict_with_error
    scope :asset, lambda { where(:product_type => 'A') }
    scope :inventory, lambda { where(:product_type => 'I') }
    scope :shipment_item, lambda { where(:parent_id => nil) }
