@@ -17,6 +17,18 @@ User.class_eval do
 	end
 end
 
+Project.class_eval do
+	has_many :account_projects, :dependent => :destroy, :class_name => 'WkAccountProject'
+	#has_many :parents, through: :account_projects
+end
+
+TimeEntry.class_eval do
+  has_one :spent_for, as: :spent, class_name: 'WkSpentFor', :dependent => :destroy
+  has_one :invoice_item, through: :spent_for
+  
+  accepts_nested_attributes_for :spent_for
+end
+
 # redmine only differs between project_menu and application_menu! but we want to display the
 # time_tracker submenu only if the plugin specific controllers are called
 module Redmine::MenuManager::MenuHelper
@@ -336,7 +348,7 @@ Rails.configuration.to_prepare do
 						end	
 					end
 				rescue Exception => e
-					Rails.logger.info "Import failed: #{e.message}"
+					Rails.logger.error "Import failed: #{e.message}"
 				end
 			end
 		end

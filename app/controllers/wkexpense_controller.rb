@@ -171,7 +171,8 @@ private
   end
   
   def findEntriesByCond(cond)
-	WkExpenseEntry.joins(:project).joins(:activity).joins("LEFT OUTER JOIN issues ON issues.id = wk_expense_entries.issue_id").where(cond).order('projects.name, issues.subject, enumerations.name, wk_expense_entries.spent_on')
+	#WkExpenseEntry.joins(:project).joins(:activity).joins("LEFT OUTER JOIN issues ON issues.id = wk_expense_entries.issue_id").where(cond).order('projects.name, issues.subject, enumerations.name, wk_expense_entries.spent_on')
+	@renderer.getSheetEntries(cond, WkExpenseEntry, getFiletrParams)
   end
   
   def setValueForSpField(teEntry,spValue,decimal_separator,entry)

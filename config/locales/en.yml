@@ -804,3 +804,6 @@ en:
   label_as: As
   label_new_component: New Component
   label_components: Components
+  label_sheet_view: Sheet view
+  label_issue_view: Issue view
+  label_spent_for: Spent For

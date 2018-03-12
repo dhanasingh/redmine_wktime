@@ -361,8 +361,10 @@ function projectChanged(projDropdown, row){
 		var fmt = 'text';
 		var issDropdown = document.getElementsByName("time_entry[][issue_id]");
 		var actDropdown = document.getElementsByName("time_entry[][activity_id]");
+		var clientDropdown = document.getElementsByName("time_entry[][spent_for_attributes][spent_for_key]");
 		var issUrl = document.getElementById("getissues_url").value;
 		var actUrl = document.getElementById("getactivities_url").value;
+		var clientUrl = document.getElementById("getclients_url").value;
 	 
 		var uid = document.getElementById("user_id").value;
 		var $this = $(this);    
@@ -390,6 +392,19 @@ function projectChanged(projDropdown, row){
 				var items = data.split('\n');
 				var needBlankOption = !(items.length-1 == 1 || actId != null);
 				updateDropdown(data, row, actDropdown, false, needBlankOption, true, actId);
+			},
+			beforeSend: function(){ $this.addClass('ajax-loading'); },
+			complete: function(){ $this.removeClass('ajax-loading'); }
+		});
+		$.ajax({
+			url: clientUrl,
+			type: 'get',
+			data: {project_id: id, user_id: uid, format:fmt},
+			success: function(data){
+				//var actId = getDefaultActId(data);
+				//var items = data.split('\n');
+				//var needBlankOption = !(items.length-1 == 1 || actId != null);
+				updateDropdown(data, row, clientDropdown, false, true, true, null);
 			},
 			beforeSend: function(){ $this.addClass('ajax-loading'); },
 			complete: function(){ $this.removeClass('ajax-loading'); }

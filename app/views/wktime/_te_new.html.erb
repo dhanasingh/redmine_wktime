@@ -50,6 +50,13 @@
 <th width="100px"><%= l(:chkbox_prev_tmpl) %></th>
 <td><%= check_box_tag('prev_template', 1, true) %></td>
 </tr>
+<tr>
+<th width="100px"><%=l(:label_sheet_view)%></th>
+<td><%=h select_tag('sheet_view', 
+	options_for_sheet_select('W'),
+	:onchange => "") %> 
+</td>
+</tr>
 </table>
 <% if !@manage_projects.blank? %>
 	<%= submit_tag l(:button_continue), :id => 'wktime_add' , :onclick => "return validateMember();"%>
