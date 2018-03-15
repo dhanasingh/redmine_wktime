@@ -31,14 +31,18 @@ class WkleadController < WkcrmController
 		@lead.save
 		@contact = @lead.contact
 		@account = @lead.account
+		hookcontactType = call_hook(:controller_convert_contact, {:params => params, :leadObj => @lead, :contactObj => @contact})
+		contactType = hookcontactType.blank? ? getContactType : hookcontactType[0][0]
 		convertToAccount unless @account.blank?
-		convertToContact
+		convertToContact(contactType)
+		call_hook(:controller_updated_contact, {:params => params, :leadObj => @lead, :contactObj => @contact})
 		unless @account.blank?
 			flash[:notice] = l(:notice_successful_convert)
 			redirect_to :controller => 'wkcrmaccount',:action => 'edit', :account_id => @account.id
 		else
+			controllerName = hookcontactType.blank? ? 'wkcrmcontact' : hookcontactType[0][1]
 			flash[:notice] = l(:notice_successful_convert)
-		    redirect_to :controller => 'wkcrmcontact',:action => 'edit', :contact_id => @contact.id
+		    redirect_to :controller => controllerName, :action => 'edit', :contact_id => @contact.id
 		end
 	end
 	
@@ -53,9 +57,9 @@ class WkleadController < WkcrmController
 		@account.save
 	end
 	
-	def convertToContact
-		@contact.updated_by_user_id = User.current.id
-		@contact.contact_type = getContactType
+	def convertToContact(contactType)
+		@contact.updated_by_user_id = User.current.id		
+		@contact.contact_type = contactType
 		unless @account.blank?
 			@contact.account_id = @account.id
 		end

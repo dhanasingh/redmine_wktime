@@ -18,4 +18,15 @@ module WkproductitemHelper
 include WktimeHelper
 include WkshipmentHelper
 include WkassetHelper
+
+	def parentArray(type, needBlank)
+		parentArr = Array.new
+		invItemObj = WkInventoryItem.where(:product_type => type).includes(:asset_property)
+		invItemObj.each do |entry|
+			parentArr << [(entry.asset_property.blank? ? "" : entry.asset_property.name.to_s), entry.id]
+		end
+		parentArr.unshift(["",""]) if needBlank
+		parentArr
+	end
+
 end

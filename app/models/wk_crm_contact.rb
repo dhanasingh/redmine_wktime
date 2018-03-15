@@ -29,6 +29,7 @@ class WkCrmContact < ActiveRecord::Base
   has_many :invoices, as: :parent, class_name: "WkInvoice", :dependent => :restrict_with_error
   has_many :invoice_items, through: :invoices
   has_many :contacts, foreign_key: "contact_id", class_name: "WkCrmContact"
+  has_many :spent_fors, as: :spent_for, class_name: 'WkSpentFor', :dependent => :restrict_with_error
   validates_presence_of :last_name
    # Different ways of displaying/sorting users
   NAME_FORMATS = {

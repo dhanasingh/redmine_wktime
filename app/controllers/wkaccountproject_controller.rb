@@ -18,6 +18,7 @@
 class WkaccountprojectController < WkbillingController
 
 before_filter :require_login
+include WkaccountprojectHelper
 
     def index
 		@accountproject = nil
@@ -76,22 +77,9 @@ before_filter :require_login
 		wkbillingschedule = nil
 		wkaccprojecttax = nil
 		arrId = []
-		if !params[:accountProjectId].blank?
-			wkaccountproject = WkAccountProject.find(params[:accountProjectId].to_i)
-		else
-			wkaccountproject = WkAccountProject.new
-		end
+		wkaccountproject = saveBillableProjects(params[:accountProjectId], params[:project_id], params[:related_parent], params[:related_to], params[:applytax], params[:itemized_bill], params[:billing_type])
 		
-		wkaccountproject.project_id = params[:project_id].to_i
-		wkaccountproject.parent_id = params[:related_parent].to_i
-		wkaccountproject.parent_type = params[:related_to]
-		wkaccountproject.apply_tax = params[:applytax]
-		wkaccountproject.itemized_bill = params[:itemized_bill]
-		wkaccountproject.billing_type = params[:billing_type]
 		
-		if !wkaccountproject.save			
-			errorMsg = wkaccountproject.errors.full_messages.join("<br>")
-		end
 		
 		unless wkaccountproject.id.blank?
 			

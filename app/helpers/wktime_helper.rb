@@ -1389,4 +1389,19 @@ end
 		end
 		entryTime
 	end
+	
+	def saveSpentFor(id, spentForId, spentFortype, spentId, spentType, spentDate, spentHr, spentMm, invoiceId)
+		if id.blank?
+			spentObj = WkSpentFor.new
+		else
+			spentObj = WkSpentFor.find(id.to_i)
+		end
+		spentObj.spent_for_id = spentForId
+		spentObj.spent_for_type = spentFortype
+		spentObj.spent_id = spentId
+		spentObj.spent_type = spentType
+		spentObj.spent_on_time = getDateTime(spentDate, spentHr, spentMm, '00')
+		spentObj.invoice_item_id = invoiceId
+		spentObj.save
+	end
 end

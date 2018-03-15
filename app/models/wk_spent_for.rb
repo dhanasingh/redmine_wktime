@@ -23,4 +23,9 @@ class WkSpentFor < ActiveRecord::Base
   attr_accessor :spent_date_hr, :spent_date_min, :spent_for_key
   
   safe_attributes 'spent_id', 'spent_type', 'spent_for_id', 'spent_for_type'
+  
+  scope :time_entries,  -> { where(:spent_type => "TimeEntry") }
+  scope :material_entries,  -> { where(:spent_type => "WkMaterialEntry") }
+  scope :unbilled_entries,  -> { where(:invoice_item => nil) }
+  
 end
