@@ -10,9 +10,9 @@
 		   <%=h hidden_field_tag('inventory_item_id', @inventoryItem.blank? ? "" :@inventoryItem.id) %>
 			<%=h hidden_field_tag('product_type', controller.getItemType) %>	
 			<%= call_hook(:view_product_item, :inventoryItem => @inventoryItem) %>
-			<% if controller.showProductItem  %>
+			<%# if controller.showProductItem  %>
 				<%= render :partial => 'wkproductitem/edit_product_item' %>			
-			<% end %>			
+			<%# end %>			
 		<%# if (!@inventoryItem.blank? || controller.newAsset) %>
 			<%= render :partial => 'wkproductitem/edit_inventory', locals: {invntItem: @inventoryItem, isTransfer: false}%>		
 		<%# end %>
@@ -25,11 +25,7 @@
 		<%= submit_tag l(:button_save) ,:id => 'wkproductitem_save'%>
 	</div>
 <% end %>
-<% if controller.showAdditionalInfo %>
-<script type="text/javascript"> 
-	showorHide(true, 'inventoryDiv', 'assetDiv')
-</script>
-<% end %>
+
 <% if !@inventoryItem.blank? && controller.showAssetProperties   %>
 	</br>
 	<div>

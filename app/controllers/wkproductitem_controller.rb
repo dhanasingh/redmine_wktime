@@ -30,6 +30,8 @@ class WkproductitemController < WkinventoryController
 		set_filter_session
 		productId = session[controller_name][:product_id]
 		brandId = session[controller_name][:brand_id]
+		locationId =session[controller_name][:location_id]
+		availabilityId =session[controller_name][:availability]
 		sqlwhere = ""
 		unless productId.blank?
 			sqlwhere = " AND pit.product_id = #{productId}"
@@ -38,13 +40,26 @@ class WkproductitemController < WkinventoryController
 		unless brandId.blank?
 			sqlwhere = sqlwhere + " AND pit.brand_id = #{brandId}"
 		end
+		
+		unless locationId.blank?
+			sqlwhere = sqlwhere + " AND iit.location_id = #{locationId}"
+		end
+		
+		unless availabilityId.blank?
+			if availabilityId == 'A'
+				sqlwhere = sqlwhere + " AND ap.matterial_entry_id IS NULL"
+			else
+				sqlwhere = sqlwhere + " AND ap.matterial_entry_id IS NOT NULL"
+			end		
+		end
 		sqlStr = getProductInventorySql + sqlwhere
 		findBySql(sqlStr, WkProductItem)
 	end
 	
 	def getProductInventorySql
-		sqlStr = "select iit.id as inventory_item_id, pit.id as product_item_id, iit.status, p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as product_attribute_name, iit.serial_number, iit.currency, iit.selling_price, iit.total_quantity, iit.available_quantity, uom.short_desc as uom_short_desc, l.name as location_name, (case when iit.product_type is null then p.product_type else iit.product_type end) as product_type, iit.is_loggable, ap.name as asset_name, ap.owner_type, ap.currency as asset_currency, ap.rate, ap.rate_per, ap.current_value from wk_product_items pit 
+		sqlStr = "select iit.id as inventory_item_id, pit.id as product_item_id, iit.status, p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as product_attribute_name, iit.serial_number, iit.currency, iit.selling_price, iit.total_quantity, iit.available_quantity, uom.short_desc as uom_short_desc, l.name as location_name, (case when iit.product_type is null then p.product_type else iit.product_type end) as product_type, iit.is_loggable, ap.name as asset_name,pap.name as parent_name, ap.owner_type, ap.currency as asset_currency, ap.rate, ap.rate_per, ap.current_value from wk_product_items pit 
 		left outer join wk_inventory_items iit on iit.product_item_id = pit.id 
+		left outer join wk_inventory_items piit on iit.parent_id = piit.id 
 		left outer join wk_products p on pit.product_id = p.id
 		left outer join wk_brands b on pit.brand_id = b.id
 		left outer join wk_product_models m on pit.product_model_id = m.id
@@ -52,6 +67,7 @@ class WkproductitemController < WkinventoryController
 		left outer join wk_locations l on iit.location_id = l.id
 		left outer join wk_mesure_units uom on iit.uom_id = uom.id
 		left outer join wk_asset_properties ap on ap.inventory_item_id = iit.id
+		left outer join wk_asset_properties pap on pap.inventory_item_id = piit.id
 		where ((case when iit.product_type is null then p.product_type else iit.product_type end) = '#{getItemType}' OR (case when iit.product_type is null then p.product_type else iit.product_type end) IS NULL) "
 		sqlStr
 	end
@@ -244,10 +260,12 @@ class WkproductitemController < WkinventoryController
 
 	def set_filter_session
 		if params[:searchlist].blank? && session[controller_name].nil?
-			session[controller_name] = {:product_id => params[:product_id], :brand_id => params[:brand_id]}
+			session[controller_name] = {:product_id => params[:product_id], :brand_id => params[:brand_id], :location_id => params[:location_id], :availability => params[:availability] }
 		elsif params[:searchlist] == controller_name
 			session[controller_name][:product_id] = params[:product_id]
 			session[controller_name][:brand_id] = params[:brand_id]
+			session[controller_name][:location_id] = params[:location_id]
+			session[controller_name][:availability] = params[:availability]
 		end
 		
 	end
@@ -310,9 +328,9 @@ class WkproductitemController < WkinventoryController
 		headerHash = { 'product_name' => l(:label_product), 'brand_name' => l(:label_brand), 'product_model_name' => l(:label_model), 'product_attribute_name' => l(:label_attribute), 'serial_number' => l(:label_serial_number), 'currency' => l(:field_currency), 'selling_price' => l(:label_selling_price), 'total_quantity' => l(:label_total_quantity), 'available_quantity' => l(:label_available_quantity), 'uom_short_desc' => l(:label_uom), 'location_name' => l(:label_location) }
 	end
 	
-	def showProductItem
-		true
-	end
+	# def showProductItem
+		# true
+	# end
 	
 	def showAdditionalInfo
 		true

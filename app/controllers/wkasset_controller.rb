@@ -57,12 +57,12 @@ class WkassetController < WkproductitemController
 	end
 	
 	def getIventoryListHeader
-		headerHash = { 'product_name' => l(:label_product), 'asset_name' => l(:field_name), 'product_attribute_name' => l(:label_attribute), 'serial_number' => l(:label_serial_number), 'owner_type' => l(:label_owner), 'rate' => l(:label_rate), 'rate_per' => l(:label_rate_per), "is_loggable" => l(:label_loggable_asset),  'location_name' => l(:label_location) }
+		headerHash = { 'product_name' => l(:label_product), 'parent_name' => l(:field_name), 'asset_name' => l(:label_components),  'product_attribute_name' => l(:label_attribute), 'serial_number' => l(:label_serial_number), 'owner_type' => l(:label_owner), 'rate' => l(:label_rate),  "is_loggable" => l(:label_loggable_asset),  'location_name' => l(:label_location) }
 	end
 	
-	def showProductItem
-		true
-	end
+	# def showProductItem
+		# true
+	# end
 	
 	def newcomponentLbl
 		l(:label_new_component)

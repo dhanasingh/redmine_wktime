@@ -9,18 +9,31 @@
 		<%
 			productId =session[controller_name][:product_id]
 			brandId =session[controller_name][:brand_id]
+			locationId =session[controller_name][:location_id]
+			availabilityId =session[controller_name][:availability]
 		%>
 		<fieldset>
 				<table>
 					<tr>
-						<th align="left"><%= l(:label_product) %></th>
-						<td align="left" style="padding-left:40px;">
-							<%=h select_tag("product_id", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', productId, true)) %>
-						</td>
-						<th align="left"><%= l(:label_brand) %></th>
-						<td align="left" style="padding-left:40px;">
-							<%=h select_tag("brand_id", generic_options_for_select(WkBrand, nil, 'name', 'name', 'id', brandId, true)) %>
-						</td>
+						<th align="left"><%= l(:label_location) %></th>
+						<td align="left" style="padding-left:40px;"><%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, true)) %></td>
+						<% if controller.getItemType == "I" || controller.getItemType == "A" %>
+							<th align="left"><%= l(:label_product) %></th>
+							<td align="left" style="padding-left:40px;">
+								<%=h select_tag("product_id", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', productId, true)) %>
+							</td>
+						<% end %>
+						<% if controller.getItemType == "I" %>
+							<th align="left"><%= l(:label_brand) %></th>
+							<td align="left" style="padding-left:40px;">
+								<%=h select_tag("brand_id", generic_options_for_select(WkBrand, nil, 'name', 'name', 'id', brandId, true)) %>
+							</td>
+						<% else %>
+							<th align="left"><%= l(:label_availability) %></th>
+							<td align="left" style="padding-left:40px;">
+								<%=h select_tag("availability", options_for_select(availabilityHash.invert, :selected=> availabilityId)) %>
+							</td>
+						<% end %>
 					</tr>
 			    </table>
 				<p style="float:right; margin-top:-30px;">					

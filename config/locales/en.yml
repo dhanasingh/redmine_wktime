@@ -807,3 +807,5 @@ en:
   label_sheet_view: Sheet view
   label_issue_view: Issue view
   label_spent_for: Spent For
+  label_availability: Availability
+  label_in_use: In Use
