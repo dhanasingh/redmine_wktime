@@ -14,6 +14,7 @@
 		</thead>
 		<tbody>
 			<% @productInventory.each do |entry| %>
+				<% inventoryID = entry.id.blank? ? entry.inventory_item_id : entry.id %>
 				<tr>
 					<% headerHash.keys.each do |colName|%>
 						<%# if colName == "rate_per" %>
@@ -28,11 +29,13 @@
 						<% elsif colName == "product_name" %>
 							<td class="lbl-txt-align"><%=h entry.id.blank? ? entry[colName] : entry.asset_property.name  %></td>
 						<% elsif colName == "parent_name" %>
-							<% appartmentName = entry["parent_name"].blank? ? entry["asset_name"] : entry[colName] %>
-							<td class="lbl-txt-align"><%=h entry.id.blank? ? appartmentName : entry.asset_property.name  %></td>	
+							<% appartmentName = entry.id.blank? ? (entry["parent_name"].blank? ? entry["asset_name"] : entry[colName]) : entry.asset_property.name %>
+							<td class="lbl-txt-align"> <%= link_to appartmentName, {:controller => controller.controller_name, :action => 'edit', :inventory_item_id => entry.parent_id.blank? ? entry.inventory_item_id : entry.parent_id , :product_item_id => entry.product_item_id}, :title => l(:button_edit) %></td>	
 						<% elsif colName == "asset_name" %>
 							<% bedName = entry["parent_name"].blank? ? '' : entry[colName] %>
-							<td class="lbl-txt-align"><%=h entry.id.blank? ? bedName : entry.components.name  %></td>
+							<td class="lbl-txt-align"><%#=h entry.id.blank? ? bedName : entry.components.name  %>
+							<%= link_to bedName, {:controller => controller.controller_name, :action => 'edit', :inventory_item_id => inventoryID , :product_item_id => entry.product_item_id}, :title => l(:button_edit) %>
+							</td>
 						<% elsif colName == "product_attribute_name" %>
 							<td class="lbl-txt-align"><%=h entry.id.blank? ? entry[colName] : (entry.product_attribute.blank? ? "" : entry.product_attribute.name)  %></td>
 						<% elsif colName == "location_name" %>
@@ -41,8 +44,7 @@
 							<td class="lbl-txt-align"><%=h entry[colName] %></td>
 						<% end %>
 					<%end%>
-					  <td align="center">
-					  <% inventoryID = entry.id.blank? ? entry.inventory_item_id : entry.id %>
+					  <td align="center">					  
 						  <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :inventory_item_id => inventoryID, :product_item_id => entry.product_item_id}, :title => l(:button_edit) %> 
 						  <% if controller.hasDeletePermission %>
 							<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :inventory_item_id => inventoryID, :product_item_id => entry.product_item_id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>

@@ -35,6 +35,15 @@ module QueriesHelper
 		when :selling_price
 			val = item.selling_price * item.quantity
 			value = val.blank? ? 0.00 : ("%.2f" % val)
+		when :resident_id
+			val = item.resident.name
+			value = val
+		when :resident_type
+			value = item.resident.location.name
+		when :apartment_id
+			value = item.apartment.blank? ? "" : item.apartment.asset_property.name
+		when :bed_id
+			value = item.bed.blank? ? "" : item.bed.asset_property.name
 		else
 		  format_object(value)
 		end
