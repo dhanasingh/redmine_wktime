@@ -10,7 +10,8 @@ include WktimeHelper
 			'AC' => l(:label_account) + " " + l(:field_category),
 			'PT' => l(:label_payment_type),
 			'LT' => l(:label_location_type),
-			'DP' => l(:label_department)
+			'DP' => l(:label_department),
+			'CR' => l(:label_relationship)
 		}
 		enumhash = call_hook :external_enum_type
 		unless enumhash.blank?
