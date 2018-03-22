@@ -1984,12 +1984,12 @@ private
 	end
 	
 	def getFiletrParams
-		issueUsersCFId = 22 #getSettingCfId(settingId)
+		issueUsersCFId = getSettingCfId('wktime_additional_assignee') #22 #
 		givenValues = {:user_id => @user.id, :project_id => @projectId, :issue_cf_id => issueUsersCFId, :selected_date => @selectedDate }
 	end
 	
 	def findIssueVwEntries
-		issueUsersCFId = 22#getSettingCfId(settingId)
+		issueUsersCFId = getSettingCfId('wktime_additional_assignee') #22#getSettingCfId(settingId)
 		sqlStr = "select i.id as issue_id, i.subject as issue_name, i.project_id, i.assigned_to_id, 
 			p.name as project_name, ap.id as account_project_id, ap.parent_id, ap.parent_type,
 			te.id as time_entry_id, te.id, COALESCE(te.spent_on,'#{@selectedDate}') as spent_on , COALESCE(te.hours,0) as hours, te.activity_id, te.comments, te.spent_on_time, 
