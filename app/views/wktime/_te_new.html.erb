@@ -46,6 +46,7 @@
 <td><%=h date_field_tag('startday',@startday,:size => 10, :required => true) %><%= calendar_for('startday') %> 
 </td>
 </tr>
+<% if controller.hideprevTemplate  %>
 <tr>
 <th width="100px"><%= l(:chkbox_prev_tmpl) %></th>
 <td><%= check_box_tag('prev_template', 1, true) %></td>
@@ -57,6 +58,9 @@
 	:onchange => "") %> 
 </td>
 </tr>
+<% else %>
+	<%= hidden_field_tag :sheet_view, controller.getSheetView %>
+<% end %>
 </table>
 <% if !@manage_projects.blank? %>
 	<%= submit_tag l(:button_continue), :id => 'wktime_add' , :onclick => "return validateMember();"%>

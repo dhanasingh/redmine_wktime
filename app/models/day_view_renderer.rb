@@ -41,7 +41,7 @@ class DayViewRenderer < SheetViewRenderer
 			p.name as project_name, ap.id as account_project_id, ap.parent_id, ap.parent_type,
 			te.id as time_entry_id, te.id, COALESCE(te.spent_on,'#{givenValues[:selected_date]}') as spent_on , COALESCE(te.hours,0) as hours, te.activity_id, te.comments, te.spent_on_time, 
 			te.spent_for_id, te.spent_for_type, te.spent_id, te.spent_type from issues i 
-			inner join projects p on (p.id = i.project_id and project_id in (#{givenValues[:project_id]}))
+			inner join projects p on (p.id = i.project_id and project_id in (#{givenValues[:project_id]}) #{self.issue_join_cond})
 			inner join custom_values cv on (i.id = cv.customized_id and cv.customized_type = 'Issue' and cv.custom_field_id = #{givenValues[:issue_cf_id]} and cv.value = '#{givenValues[:user_id]}') OR i.assigned_to_id = #{givenValues[:user_id]}
 			left outer join wk_account_projects ap on (ap.project_id = p.id)
 			left outer join (select t.*, sf.spent_on_time, sf.spent_for_id, sf.spent_for_type, sf.spent_id, sf.spent_type  from time_entries t 

@@ -3,7 +3,7 @@
 
 <%=h hidden_field_tag('getissues_url', "#{url_for(:controller => controller.controller_name, :action => 'getissues')}") %>
 <%=h hidden_field_tag('getactivities_url', "#{url_for(:controller => controller.controller_name, :action => 'getactivities')}") %>
-<%=h hidden_field_tag('getclients_url', "#{url_for(:controller => controller.controller_name, :action => 'getclients')}") %>
+<%=h hidden_field_tag('getclients_url', "#{url_for(:controller => controller.controller_name, :action => 'getclients', :user_id => @user.id)}") %>
 <%=h hidden_field_tag('deleterow_url', "#{url_for(:controller => controller.controller_name, :action => 'deleterow')}") %>
 
 <div style="overflow: auto">

@@ -535,6 +535,7 @@ include QueriesHelper
 	def getclients
 		project = nil
 		error = nil
+		teUser = User.find(params[:user_id])
 		project_id = params[:project_id]
 		if !project_id.blank?
 			project = Project.find(project_id)
@@ -551,8 +552,9 @@ include QueriesHelper
 			error = "403"
 		end
 		clientStr =""
+		usrLocationId = teUser.wk_user.location_id
 		project.account_projects.includes(:parent).order(:parent_type).each do |ap|
-			clientStr << project_id.to_s() + '|' + ap.parent_type + '_' + ap.parent_id.to_s() + '|' + "" + '|' + ap.parent.name + "\n"
+			clientStr << project_id.to_s() + '|' + ap.parent_type + '_' + ap.parent_id.to_s() + '|' + "" + '|' + ap.parent.name + "\n" if ap.parent.location_id == usrLocationId
 		end
 	
 		respond_to do |format|
@@ -1048,6 +1050,47 @@ include QueriesHelper
 			redirect_to :action => 'new'
 		end		
 	 end
+	 
+	def getSheetView
+		"W"
+	end
+	
+	def hideprevTemplate
+		true
+	end
+	
+	def showProjectDD
+		true
+	end
+	
+	def getDefultProject
+		nil #get from settings
+	end
+	
+	def showActivityDD
+		true
+	end
+	
+	def getDefultActivity
+		nil #get from settings
+	end
+	
+	def hasApprovalSystem
+		!Setting.plugin_redmine_wktime['wktime_use_approval_system'].blank? &&
+				Setting.plugin_redmine_wktime['wktime_use_approval_system'].to_i == 1 
+	end
+	
+	def getEntityLabel
+		l(:label_wktime)
+	end
+	
+	def getLblIssue
+		l(:field_issue)
+	end
+	
+	def getLblSpentFor
+		l(:label_spent_for)
+	end
 	
 private
 	

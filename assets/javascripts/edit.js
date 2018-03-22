@@ -383,19 +383,21 @@ function projectChanged(projDropdown, row){
 			beforeSend: function(){ $this.addClass('ajax-loading'); },
 			complete: function(){ $this.removeClass('ajax-loading'); }
 		});
-		$.ajax({
-			url: actUrl,
-			type: 'get',
-			data: {project_id: id, user_id: uid, format:fmt},
-			success: function(data){
-				var actId = getDefaultActId(data);
-				var items = data.split('\n');
-				var needBlankOption = !(items.length-1 == 1 || actId != null);
-				updateDropdown(data, row, actDropdown, false, needBlankOption, true, actId);
-			},
-			beforeSend: function(){ $this.addClass('ajax-loading'); },
-			complete: function(){ $this.removeClass('ajax-loading'); }
-		});
+		if (isDropdown("time_entry[][activity_id]")){
+			$.ajax({
+				url: actUrl,
+				type: 'get',
+				data: {project_id: id, user_id: uid, format:fmt},
+				success: function(data){
+					var actId = getDefaultActId(data);
+					var items = data.split('\n');
+					var needBlankOption = !(items.length-1 == 1 || actId != null);
+					updateDropdown(data, row, actDropdown, false, needBlankOption, true, actId);
+				},
+				beforeSend: function(){ $this.addClass('ajax-loading'); },
+				complete: function(){ $this.removeClass('ajax-loading'); }
+			});
+		}
 		$.ajax({
 			url: clientUrl,
 			type: 'get',
@@ -475,7 +477,7 @@ function issueChanged(issueText, row){
 }
 	
 function issueIdChanged(id, row){
-	if(id != ''){
+	if(id != '' && isDropdown("time_entry[][activity_id]")){
 		var fmt = 'text';
 		var actDropdown = document.getElementsByName("time_entry[][activity_id]");
 		var actUrl = document.getElementById("getactivities_url").value;
@@ -1580,4 +1582,12 @@ function convertSecToTime(seconds)
  var m = Math.floor(d % 3600 / 60);
  var timeVal =  ((h > 0 ? h + ":" + (m < 10 ? "0" : "") : "") + (h > 0 ? m : ("0:" + m)) );
  return timeVal;
+}
+
+function isDropdown(idName) {
+    var element = document.getElementById(idName);
+	if(element != null){
+		if(element.tagName === 'SELECT') {return true;}
+	}
+    return false;
 }
