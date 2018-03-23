@@ -568,6 +568,86 @@ include QueriesHelper
 		end
 	end
 	
+	def getuserclients
+		error = nil
+		teUser = User.find(params[:user_id])
+		userClients = getClientsByUser(teUser.id, false)
+		clientStr =""
+		usrLocationId = teUser.wk_user.location_id
+		userClients.each do |ap|
+			clientStr << ap[1].to_s + ',' + ap[0].to_s + "\n"
+		end
+	
+		respond_to do |format|
+			format.text  { 
+			if error.blank?
+				render :text => clientStr 
+			else
+				render_403
+			end
+			}
+		end
+	end
+	
+	def getClientsByUser(userId, needBlank)
+		set_loggable_projects
+		set_managed_projects
+		userProjects = @logtime_projects.blank? ? @manage_projects : @logtime_projects
+		userProjects = @logtime_projects & @manage_projects if !@manage_projects.blank? && !@logtime_projects.blank?
+		projectids = Array.new
+		user = User.find(userId)
+		billableClients = Array.new
+		usrLocationId = user.wk_user.location_id
+		unless userProjects.blank?
+			userProjects.each do |project|
+				projectids << project.id
+			end
+		end
+		usrBillableProjects = WkAccountProject.includes(:parent).where(:project_id => projectids)
+		locationBillProject = usrBillableProjects.select {|bp| bp.parent.location_id == usrLocationId}
+		locationBillProject = locationBillProject.sort_by{|parent_type| parent_type}
+		billableClients = locationBillProject.collect {|billProj| [billProj.parent.name, billProj.parent_type.to_s + '_' + billProj.parent_id.to_s]}
+		billableClients.unshift(["", ""]) if needBlank
+		billableClients = billableClients.uniq
+		billableClients
+	end
+	
+	def getuserissues
+		error = nil
+		teUser = User.find(params[:user_id])
+		userIssues = getIssuesByUser(teUser.id, false)
+		clientStr = ""
+		usrLocationId = teUser.wk_user.location_id
+		userIssues.each do |issue|
+			clientStr << issue[1].to_s + ',' + issue[0].to_s + "\n"
+		end
+		
+		respond_to do |format|
+			format.text  { render :text => clientStr }
+		end
+	end
+	
+	def getIssuesByUser(userId, needBlank)
+		set_loggable_projects
+		set_managed_projects
+		userProjects = @logtime_projects.blank? ? @manage_projects : @logtime_projects
+		userProjects = @logtime_projects & @manage_projects if !@manage_projects.blank? && !@logtime_projects.blank?
+		projectids = Array.new
+		assignedIssues = Array.new
+		user = User.find(userId)
+		usrLocationId = user.wk_user.location_id
+		unless userProjects.blank?
+			userProjects.each do |project|
+				projectids << project.id
+			end
+		end
+		userIssues = Issue.includes(:project).joins("INNER JOIN custom_values cv on cv.customized_type = 'Issue' and cv.customized_id = issues.id and cv.custom_field_id = #{getSettingCfId('wktime_additional_assignee')} AND (cv.value = '#{userId}' OR issues.assigned_to_id = #{userId})")
+		userIssues = userIssues.sort_by{|subject| subject}
+		assignedIssues = userIssues.collect {|issue| [issue.project.name + " # " + issue.subject, issue.id]}
+		assignedIssues.unshift( ["", ""]) if needBlank
+		assignedIssues
+	end
+	
 	def getusers
 		project = Project.find(params[:project_id])
 		userStr = ""
@@ -1056,7 +1136,7 @@ include QueriesHelper
 	end
 	
 	def hideprevTemplate
-		true
+		false
 	end
 	
 	def showProjectDD

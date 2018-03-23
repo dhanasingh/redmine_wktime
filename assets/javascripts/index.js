@@ -705,3 +705,61 @@ function showorHide(isshow, divId)
 		document.getElementById(divId).style.disabled = false;
 	}
 }*/
+
+function sheetViewChange(field)
+{
+	if(field.value != "")
+	{
+		if(field.value == "I")
+		{
+			showorHide(true, 'spentForLbl', 'spent_for_key'); 
+			showorHide(true, 'issueLbl', 'issue_id');
+		}
+		else {
+			showorHide(false, 'spentForLbl', 'spent_for_key'); 
+			showorHide(false, 'issueLbl', 'issue_id');
+		}
+	}
+}
+
+function userChanged(userDropdown, needBlank){
+	
+	var userDD = document.getElementById('user_id');
+	var sheetViewDD = document.getElementById('sheet_view');
+	
+	if(userDD != null && sheetViewDD != null && sheetViewDD.value == "I")
+	{	
+		
+		var issDropdown = document.getElementById("issue_id");
+		var clientDropdown = document.getElementById("spent_for_key");
+		var issUrl = document.getElementById("getuser_issues_url").value;
+		var clientUrl = document.getElementById("getuser_clients_url").value;
+		var fmt = 'text';	 
+		var uid = document.getElementById("user_id").value;
+		var $this = $(this);
+		$.ajax({
+			url: issUrl,
+			type: 'get',
+			data: {user_id: userDD.value, format:fmt},
+			success: function(data){			
+				updateUserDD(data, issDropdown, userDD.value, needBlank, false,"");
+			},
+			beforeSend: function(){ $this.addClass('ajax-loading'); },
+			complete: function(){ $this.removeClass('ajax-loading'); }
+		});	
+		
+		$.ajax({
+			url: clientUrl,
+			type: 'get',
+			data: {user_id: userDD.value, format:fmt},
+			success: function(data){
+				//var actId = getDefaultActId(data);
+				//var items = data.split('\n');
+				//var needBlankOption = !(items.length-1 == 1 || actId != null);
+				updateUserDD(data, clientDropdown, userDD.value, needBlank, false,"");
+			},
+			beforeSend: function(){ $this.addClass('ajax-loading'); },
+			complete: function(){ $this.removeClass('ajax-loading'); }
+		});
+	}
+}

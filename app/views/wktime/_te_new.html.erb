@@ -1,11 +1,17 @@
 <%= error_messages_for 'time_entry' %>
 <%= back_url_hidden_field_tag %>
+<%= javascript_include_tag 'accountproject', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'edit', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
 	no_user = '<%=l(:label_wk_no_user_current_project) %>';
 	userUrl="<%= "#{url_for(:controller => controller_name, :action => 'getusers', :page => 'new')}" %>";
 </script>
+<% 
+	userId = @user.nil? ? User.current.id : @user.id
+%>
 <table>
-
+<%=h hidden_field_tag('getuser_clients_url', "#{url_for(:controller => controller.controller_name, :action => 'getuserclients')}") %>
+<%=h hidden_field_tag('getuser_issues_url', "#{url_for(:controller => controller.controller_name, :action => 'getuserissues')}") %>
 <% if !@manage_projects.blank? %>
 <tr>
 <th><%=l(:field_project)%></th>
@@ -27,8 +33,8 @@
 %>
 <%=h select_tag('user_id',
 	options_for_select( projmem.collect{|m| [ m.name, m.user_id ] },
-		:selected =>  @user.nil? ? User.current.id : @user.id)) %>
-		
+		:selected =>  @user.nil? ? User.current.id : @user.id), :onchange => "userChanged(this, true)") %>
+<% userId = projmem[0].user_id %>		
 <% end %>		
 </td>
 </tr>
@@ -46,7 +52,7 @@
 <td><%=h date_field_tag('startday',@startday,:size => 10, :required => true) %><%= calendar_for('startday') %> 
 </td>
 </tr>
-<% if controller.hideprevTemplate  %>
+<% unless controller.hideprevTemplate  %>
 <tr>
 <th width="100px"><%= l(:chkbox_prev_tmpl) %></th>
 <td><%= check_box_tag('prev_template', 1, true) %></td>
@@ -55,12 +61,30 @@
 <th width="100px"><%=l(:label_sheet_view)%></th>
 <td><%=h select_tag('sheet_view', 
 	options_for_sheet_select('W'),
-	:onchange => "") %> 
+	:onchange => "sheetViewChange(this);") %> 
 </td>
 </tr>
 <% else %>
 	<%= hidden_field_tag :sheet_view, controller.getSheetView %>
 <% end %>
+<%
+	clients = controller.getClientsByUser(userId, true)
+	issues = controller.getIssuesByUser(userId, true)
+%>
+<tr>
+<th width="100px"><label id="spentForLbl" style="display:<%= controller.hideprevTemplate ? 'block' : 'none' %>;"><%=controller.getLblSpentFor%></label></th>
+<td><%=h select_tag('spent_for_key', 
+			options_for_select(clients),
+			:style=> "width:#{Setting.plugin_redmine_wktime['wktime_issue_dd_width']}px; display:#{ controller.hideprevTemplate ? 'block' : 'none' };" ) %> 
+</td>
+</tr>
+<tr>
+<th width="100px"><label id="issueLbl" style="display:<%= controller.hideprevTemplate ? 'block' : 'none' %>;"><%=controller.getLblIssue%></label></th>
+<td><%=h select_tag('issue_id', 
+			options_for_select(issues),
+			:style=> "width:#{Setting.plugin_redmine_wktime['wktime_issue_dd_width']}px; display:#{controller.hideprevTemplate ? 'block' : 'none' };" ) %> 
+</td>
+</tr>
 </table>
 <% if !@manage_projects.blank? %>
 	<%= submit_tag l(:button_continue), :id => 'wktime_add' , :onclick => "return validateMember();"%>
