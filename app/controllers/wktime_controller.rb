@@ -1284,12 +1284,14 @@ private
 									teEntry.spent_on = entry['spent_for_attributes']['spent_on_time']
 								end
 								
-								unless entry['spent_for_attributes']['spent_for_key'].blank?
-									spentFor = getSpentFor(entry['spent_for_attributes']['spent_for_key'])
-									teEntry.spent_for.spent_for_type = spentFor[0]
-									teEntry.spent_for.spent_for_id = spentFor[1].to_i
+								unless entry['spent_for_attributes'].blank? 
+									unless entry['spent_for_attributes']['spent_for_key'].blank?
+										spentFor = getSpentFor(entry['spent_for_attributes']['spent_for_key'])
+										teEntry.spent_for.spent_for_type = spentFor[0]
+										teEntry.spent_for.spent_for_id = spentFor[1].to_i
+									end
+									teEntry.spent_for.spent_on_time = getDateTime(teEntry.spent_on, entry['spent_for_attributes']['spent_date_hr'], entry['spent_for_attributes']['spent_date_min'], 0)
 								end
-								teEntry.spent_for.spent_on_time = getDateTime(teEntry.spent_on, entry['spent_for_attributes']['spent_date_hr'], entry['spent_for_attributes']['spent_date_min'], 0)
 								#for one comment, it will be automatically loaded into the object
 								# for different comments, load it separately
 								unless comments.blank?

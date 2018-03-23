@@ -146,7 +146,7 @@ if params[:enter_issue_id].blank?
 			parentType = entryFor[:parent_type]	
 			spentOnTime = entryFor[:spent_on_time]	
 		end
-		usrLocationId = @user.wk_user.location_id
+		usrLocationId = @user.wk_user.blank? ? nil : @user.wk_user.location_id
 		spent_for_key = parentType.to_s + '_' + parentId.to_s
 		locationBillProject = projBillList.select {|bp| bp.parent.location_id == usrLocationId}
 		locationBillProject = locationBillProject.sort_by{|parent_type| parent_type}
