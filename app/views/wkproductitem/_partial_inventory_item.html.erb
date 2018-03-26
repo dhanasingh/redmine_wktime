@@ -20,7 +20,7 @@
  
 <tr>
 	<th align="left"><%= l(:label_quantity) %></th>
-	<td align="left" style="padding-left:40px;"><%= text_field_tag "available_quantity", ("%.2f" % invntItem.available_quantity unless invntItem.blank?), :disabled => isDisable && !isTransfer, :maxlength => 14, :required => true %></td>
+	<td align="left" style="padding-left:40px;"><%= text_field_tag "available_quantity", ("%.2f" % invntItem.available_quantity unless invntItem.blank?), :disabled => isDisable && !isTransfer, :maxlength => 14 %></td>
 </tr> 
 <tr>
 	<th align="left"><%= l(:label_uom) %></th>

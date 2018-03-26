@@ -60,9 +60,9 @@ class WkassetController < WkproductitemController
 		headerHash = { 'product_name' => l(:label_product), 'parent_name' => l(:field_name), 'asset_name' => l(:label_components),  'product_attribute_name' => l(:label_attribute), 'serial_number' => l(:label_serial_number), 'owner_type' => l(:label_owner), 'rate' => l(:label_rate),  "is_loggable" => l(:label_loggable_asset),  'location_name' => l(:label_location) }
 	end
 	
-	# def showProductItem
-		# true
-	# end
+	def showProductItem
+		true
+	end
 	
 	def newcomponentLbl
 		l(:label_new_component)
@@ -78,6 +78,14 @@ class WkassetController < WkproductitemController
 	
 	def sectionHeader
 		l(:label_components)
+	end
+	
+	def loggableAssetLbl
+		l(:label_loggable_asset)
+	end
+	
+	def loggableRateLbl
+		l(:label_log) + " " + l(:label_rate)
 	end
 
 end

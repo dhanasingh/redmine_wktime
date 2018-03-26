@@ -18,9 +18,10 @@
 					<tr>
 						<th align="left"><%= l(:label_product) %></th>
 						<td align="left" style="padding-left:40px;">
-							<%=h select_tag("product_id", generic_options_for_select(WkProduct, productSqlCond, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_id, false), :onchange => "productChanged(this.id, 'brand_id', #{User.current.id}, true, true, null, null);") %>
+							<%=h select_tag("product_id", generic_options_for_select(WkProduct, productSqlCond, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_id, false), :onchange => "if(#{ controller.showProductItem }) { productChanged(this.id, 'brand_id', #{User.current.id}, true, true, null, null); }") %>
 						</td>
 					</tr> 
+					<% if controller.showProductItem %>
 					<tr>
 						<th align="left"><%= l(:label_brand) %></th>
 						<td align="left" style="padding-left:40px;">
@@ -43,12 +44,13 @@
 						<th align="left"><%= l(:label_part_number) %></th>
 						<td align="left" style="padding-left:40px;"><%= text_field_tag "part_number",  @productItem.blank? ? '' : @productItem.part_number %></td>
 					</tr>
-					<tr>
-						<th align="left"><%= l(:label_additional_info) %></th>
+					<% end  %>
+					<!-- <tr>
+						<th align="left"><%#= l(:label_additional_info) %></th>
 						<td align="left" style="padding-left:40px;">
-							<%= check_box_tag('addinventory', 1, false, :onchange => "showorHide((this.checked ? true : false), 'inventoryDiv', 'assetDiv');") %>
+							<%#= check_box_tag('addinventory', 1, false, :onchange => "showorHide((this.checked ? true : false), 'inventoryDiv', 'assetDiv');") %>
 						</td>
-					<tr>
+					<tr>-->
 			    </table>
 			</fieldset>
 		</div>

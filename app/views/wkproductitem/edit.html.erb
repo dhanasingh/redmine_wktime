@@ -5,6 +5,8 @@
 </script>
 <%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
 	<h2><b><%=@productItem.blank? ?  controller.newItemLabel : controller.editItemLabel %></b></h2>
+	
+	
 	<div id="product_item_form">
            <%=h hidden_field_tag('product_item_id', @productItem.blank? ? "" :@productItem.id) %>
 		   <%=h hidden_field_tag('inventory_item_id', @inventoryItem.blank? ? "" :@inventoryItem.id) %>
@@ -12,13 +14,18 @@
 			<%= call_hook(:view_product_item, :inventoryItem => @inventoryItem) %>
 			<%# if controller.showProductItem  %>
 				<%= render :partial => 'wkproductitem/edit_product_item' %>			
-			<%# end %>			
-		<%# if (!@inventoryItem.blank? || controller.newAsset) %>
-			<%= render :partial => 'wkproductitem/edit_inventory', locals: {invntItem: @inventoryItem, isTransfer: false}%>		
-		<%# end %>
+			<%# end %>	
+			<div style="clear:both;"></div>
+		<fieldset id="date-range" class="collapsible">
+			<legend onclick="toggleFieldset(this);"><%= l(:label_additional_info) %></legend>
+		
 		<% if controller.showAssetProperties  # if controller.showAssetProperties && !@inventoryItem.blank?%>
 			<%= render :partial => 'wkasset/asset_property', locals: {invntItem: @inventoryItem, isTransfer: false}%>
 		<% end %>
+		<%# if (!@inventoryItem.blank? || controller.newAsset) %>
+			<%= render :partial => 'wkproductitem/edit_inventory', locals: {invntItem: @inventoryItem, isTransfer: false}%>		
+		<%# end %>
+		</fieldset>
 	</div>
 	<div style="clear:both;"></div>
 	<div  align='center'>
