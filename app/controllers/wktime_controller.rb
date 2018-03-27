@@ -1811,6 +1811,23 @@ private
 		else
 			@projectId = params[:project_id]			
 		end
+		if api_request? && params[:spent_for_key].blank?
+			spentForKey = params[:"wk_#{teName}"][:spent_for_key]	
+		else
+			spentForKey = params[:spent_for_key]			
+		end
+		@spentForType = nil
+		@spentForId = nil
+		unless spentForKey.blank?
+			spentFor = getSpentFor(spentForKey)
+			@spentForType = spentFor[0]
+			@spentForId = spentFor[1].to_i
+		end
+		if api_request? && params[:issue_id].blank?
+			@issueId = params[:"wk_#{teName}"][:issue_id]	
+		else
+			@issueId = params[:issue_id]			
+		end
 		# if user has changed the startday
 		@selectedDate = startday
 		if api_request? && params[:sheet_view].blank?
@@ -2067,7 +2084,7 @@ private
 	
 	def getFiletrParams
 		issueUsersCFId = getSettingCfId('wktime_additional_assignee') #22 #
-		givenValues = {:user_id => @user.id, :project_id => @projectId, :issue_cf_id => issueUsersCFId, :selected_date => @selectedDate }
+		givenValues = {:user_id => @user.id, :project_id => @projectId, :issue_cf_id => issueUsersCFId, :selected_date => @selectedDate, :spent_for_type => @spentForType, :spent_for_id => @spentForId, :issue_id => @issueId }
 	end
 	
 	def findIssueVwEntries
