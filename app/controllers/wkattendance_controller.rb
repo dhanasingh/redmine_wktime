@@ -218,7 +218,7 @@ require 'csv'
 	end
 	
 	def runPeriodEndProcess
-		populateWkUserLeaves
+		populateWkUserLeaves(params[:fromdate].to_s.to_date)
 		respond_to do |format|
 			format.html {				
 				flash[:notice] = l(:notice_successful_update)

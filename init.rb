@@ -302,7 +302,8 @@ Rails.configuration.to_prepare do
 				begin
 					Rails.logger.info "==========Attendance job - Started=========="			
 					wkattn_helper = Object.new.extend(WkattendanceHelper)
-					wkattn_helper.populateWkUserLeaves()
+					wkattn_helper.populateWkUserLeaves(Date.today)
+					Rails.logger.info "==========Attendance job - Completed=========="
 				rescue Exception => e
 					Rails.logger.info "Job failed: #{e.message}"
 				end

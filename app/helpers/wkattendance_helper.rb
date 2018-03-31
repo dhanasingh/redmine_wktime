@@ -43,14 +43,14 @@ module WkattendanceHelper
 		issueIds
 	end
 	
-	def populateWkUserLeaves		
+	def populateWkUserLeaves(processDt)		
 		leavesInfo = Setting.plugin_redmine_wktime['wktime_leave']
 		leaveAccrual = Hash.new
 		accrualMultiplier = Hash.new
 		leaveAccAfter = Hash.new
 		resetMonth = Hash.new
 		strIssueIds = ""
-		processDate = params[:fromdate].to_s.to_date
+		processDate = processDt #params[:fromdate].to_s.to_date
 		currentMonthStart = Date.civil(processDate.year, processDate.month, 1)
 		if !leavesInfo.blank?
 			leavesInfo.each do |leave|
