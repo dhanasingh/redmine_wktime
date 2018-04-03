@@ -43,7 +43,7 @@
 <%= hidden_field_tag 'expense_entry_id', (@expenseEntry.blank? ? '' : @expenseEntry.id) %>
 <% expenseAmount = @expenseEntry.blank? ? "" : @expenseEntry.amount  %>
 <%  assetObj = @materialEntry.blank? ? nil : @materialEntry.inventory_item.asset_property %>
-<% disable = @materialEntry.blank? || @materialEntry.invoice_item_id.blank? ? false : true  %>
+<% disable = @materialEntry.blank? || @materialEntry.spent_for.blank? || @materialEntry.spent_for.invoice_item_id.blank? ? false : true  %>
 <script type="text/javascript"> 
 	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
 </script>

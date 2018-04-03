@@ -453,7 +453,7 @@ module TimelogControllerPatch
 					begin
 					@materialEntries = WkMaterialEntry.find(params[:id].to_i) unless params[:id].blank?
 					@time_entry.project_id = @materialEntries.project_id
-					if @materialEntries.invoice_item_id.blank?
+					if @materialEntries.spent_for.blank? || @materialEntries.spent_for.invoice_item_id.blank?
 						if session[:timelog][:spent_type] === "M"
 							inventoryItemObj = WkInventoryItem.find(@materialEntries.inventory_item_id)
 							inventoryItemObj.available_quantity = inventoryItemObj.available_quantity + @materialEntries.quantity

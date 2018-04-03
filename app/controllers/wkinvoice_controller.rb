@@ -130,7 +130,7 @@ class WkinvoiceController < WkorderentityController
 					matterialAmt = 0
 					if apEntry.billing_type == 'TM'
 						totAmount = saveTAMInvoiceItem(apEntry, true)
-						matterialAmt = addMaterialItem(apEntry.project_id, false)
+						matterialAmt = addMaterialItem(apEntry, false) #.project_id
 					else
 						totAmount = getFcItems(apEntry, startDate, endDate)
 					end									
@@ -206,7 +206,15 @@ class WkinvoiceController < WkorderentityController
 	end
 	
 	def deleteBilledEntries(invItemIdsArr)
-		CustomField.find(getSettingCfId('wktime_billing_id_cf')).custom_values.where(:value => invItemIdsArr).delete_all unless getSettingCfId('wktime_billing_id_cf').blank? || getSettingCfId('wktime_billing_id_cf') == 0
+		#CustomField.find(getSettingCfId('wktime_billing_id_cf')).custom_values.where(:value => invItemIdsArr).delete_all unless getSettingCfId('wktime_billing_id_cf').blank? || getSettingCfId('wktime_billing_id_cf') == 0
+		spents = WkSpentFor.where(:invoice_item_id => invItemIdsArr)
+		spents.each do |spent|
+			spent.update(:invoice_item_id => nil)
+		end
+		materialEntries = WkMaterialEntry.where(:invoice_item_id => invItemIdsArr)
+		materialEntries.each do |mEntry|
+			mEntry.update(:invoice_item_id => nil)
+		end
 	end
 		
 	def getAccountProjIds

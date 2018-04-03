@@ -116,12 +116,12 @@ include WkbillingHelper
 		if accountProject.billing_type == 'TM'
 			# Add invoice items for Time and Materiel cost
 			errorMsg = saveTAMInvoiceItem(accountProject, false)
-			addMaterialItem(accountProject.project_id, true) if errorMsg.blank?
+			addMaterialItem(accountProject, true) if errorMsg.blank? #.project_id
 		else
 			# Add invoice item for fixed cost from the scheduled entries
 			errorMsg = nil
-			genInvFrom = Setting.plugin_redmine_wktime['wktime_generate_invoice_from']
-			genInvFrom = genInvFrom.blank? ? @invoice.start_date : genInvFrom.to_date
+			# genInvFrom = Setting.plugin_redmine_wktime['wktime_generate_invoice_from']
+			genInvFrom = getUnbillEntryStart(@invoice.start_date) #genInvFrom.blank? ? @invoice.start_date : genInvFrom.to_date
 			scheduledEntries = accountProject.wk_billing_schedules.where(:account_project_id => accountProject.id, :bill_date => genInvFrom .. @invoice.end_date, :invoice_id => nil)
 			totalAmount = 0
 			scheduledEntries.each do |entry|
@@ -165,10 +165,11 @@ include WkbillingHelper
 	def saveTAMInvoiceItem(accountProject, isCreate)
 		# Get the rate and currency in rateHash
 		rateHash = getProjectRateHash(accountProject.project.custom_field_values)
-		genInvFrom = Setting.plugin_redmine_wktime['wktime_generate_invoice_from']
-		genInvFrom = genInvFrom.blank? ? @invoice.start_date : genInvFrom.to_date
-		timeEntries = TimeEntry.joins("left outer join custom_values on time_entries.id = custom_values.customized_id and custom_values.customized_type = 'TimeEntry' and custom_values.custom_field_id = #{getSettingCfId('wktime_billing_id_cf')}").where(project_id: accountProject.project_id, spent_on: genInvFrom .. @invoice.end_date).where("custom_values.value is null OR #{getSqlLengthQry("custom_values.value")} = 0 ")
+		# genInvFrom = Setting.plugin_redmine_wktime['wktime_generate_invoice_from']
+		genInvFrom = getUnbillEntryStart(@invoice.start_date) #genInvFrom.blank? ? @invoice.start_date : genInvFrom.to_date
+		# timeEntries = TimeEntry.joins("left outer join custom_values on time_entries.id = custom_values.customized_id and custom_values.customized_type = 'TimeEntry' and custom_values.custom_field_id = #{getSettingCfId('wktime_billing_id_cf')}").where(project_id: accountProject.project_id, spent_on: genInvFrom .. @invoice.end_date).where("custom_values.value is null OR #{getSqlLengthQry("custom_values.value")} = 0 ")
 		
+		timeEntries = TimeEntry.includes(:spent_for).where(project_id: accountProject.project_id, spent_on: genInvFrom .. @invoice.end_date, wk_spent_fors: { spent_for_type: accountProject.parent_type, spent_for_id: accountProject.parent_id, invoice_item_id: nil })
 		errorMsg = nil
 		totalAmount = 0
 		lastUserId = 0
@@ -206,7 +207,7 @@ include WkbillingHelper
 					end		
 				end
 				if ((lastUserId == entry.user_id && (lastIssueId == entry.issue_id || !accountProject.itemized_bill)) || (lastIssueId == entry.issue_id && !isUserBilling)) && !isCreate
-					updateBilledHours(entry, lasInvItmId) 
+					updateBilledEntry(entry, lasInvItmId) 
 					next
 				end
 				if @invoice.id.blank? && !isCreate
@@ -259,7 +260,7 @@ include WkbillingHelper
 				end
 				lastUserId = entry.user_id
 				lasInvItmId = invItem.id unless isCreate
-				updateBilledHours(entry, lasInvItmId) unless isCreate
+				updateBilledEntry(entry, lasInvItmId) unless isCreate
 				totalAmount = totalAmount + invItem.amount unless isCreate
 			end
 		else
@@ -272,7 +273,7 @@ include WkbillingHelper
 			sumEntry = timeEntries.group(:issue_id).sum(:hours)
 			timeEntries.order(:issue_id).each_with_index do |entry, index|
 				if (lastIssueId == entry.issue_id || isContinue) && !isCreate
-					updateBilledHours(entry, lasInvItmId)
+					updateBilledEntry(entry, lasInvItmId)
 					next 
 				end
 				lastIssueId = entry.issue_id
@@ -318,7 +319,7 @@ include WkbillingHelper
 					errorMsg = totalAmount
 				end
 				lasInvItmId = invItem.id unless isCreate
-				updateBilledHours(entry, lasInvItmId) unless isCreate
+				updateBilledEntry(entry, lasInvItmId) unless isCreate
 				totalAmount = totalAmount + invItem.amount unless isCreate
 			end			
 		end
@@ -346,10 +347,11 @@ include WkbillingHelper
 		invItem
 	end
 	
-	# Update timeEntry CF with invoice_item_id
-	def updateBilledHours(tEntry, invItemId)
-		tEntry.custom_field_values = {getSettingCfId('wktime_billing_id_cf') => invItemId}
-		tEntry.save		
+	# Update timeEntry/material entry Spent For with invoice_item_id
+	def updateBilledEntry(billedEntry, invItemId)
+		spentFor = WkSpentFor.where(:spent_id => billedEntry.id, :spent_type => billedEntry.class.name).first_or_initialize(:spent_id => billedEntry.id, :spent_type => billedEntry.class.name)
+		spentFor.invoice_item_id = invItemId
+		spentFor.save	
 	end
 	
 	# Return RateHash which contains rate and currency for project
@@ -609,13 +611,21 @@ include WkbillingHelper
 		isEditable
 	end
 	
+	def getUnbillEntryStart(invStartDate)
+		genInvFrom = Setting.plugin_redmine_wktime['wktime_generate_invoice_from']
+		genInvFrom = genInvFrom.blank? ? invStartDate : genInvFrom.to_date
+		genInvFrom
+	end
+	
 	def addMaterialItem(accountProject, isCreate)		
 		productArr = Array.new
 		invItem = nil
 		@totalMatterialAmount = 0.00
 		partialMatAmount = 0.00
+		genInvFrom = getUnbillEntryStart(@invoice.start_date)
 		@matterialVal = Hash.new{|hsh,key| hsh[key] = {} }
-		matterialEntry = WkMaterialEntry.where(:project_id => accountProject, :invoice_item_id => nil)
+		matterialEntry = WkMaterialEntry.includes(:spent_for).where(:project_id => accountProject.project_id, :spent_on => genInvFrom .. @invoice.end_date, wk_spent_fors: { spent_for_type: accountProject.parent_type, spent_for_id: accountProject.parent_id, invoice_item_id: nil }) 
+		#:invoice_item_id => nil, 
 			matterialEntry.each do | mEntry |
 				invItem = @invoice.invoice_items.new()			
 				productId = mEntry.inventory_item.product_item.product.id
@@ -656,8 +666,9 @@ include WkbillingHelper
 				if isCreate
 					invItem = updateInvoiceItem(invItem, mEntry.project_id, desc, rate, qty, curr, productType, amount, nil, nil, productId) 
 					updateMatterial = WkMaterialEntry.find(mEntry.id)
-					updateMatterial.invoice_item_id = invItem.id
-					updateMatterial.save()
+					updateBilledEntry(updateMatterial, invItem.id)
+					# updateMatterial.invoice_item_id = invItem.id
+					# updateMatterial.save()
 				end
 			end
 			@totalMatterialAmount =  partialMatAmount.round(2)
