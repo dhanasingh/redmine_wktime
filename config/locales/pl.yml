@@ -1,5 +1,5 @@
 # Polish strings go here for Rails i18n
-# Translation made by Patryk Rosenkiewicz with correction of Tomasz Rozynek for DIR Company.
+# Translation made by patryk.rosenkiewicz@dir.pl with correction of tomasz.rozynek@dir.pl for DIR Company.
 pl:
   my_label: "Moja Etykieta"
   label_wktime: Czas
