@@ -1,5 +1,5 @@
 <%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
-	<h2><b><%=@accountEntry.blank? ? (l(:label_new) + " " + controller.getAccountLbl) : controller.getAccountLbl %></b></h2>
+	<h2><b><%=@accountEntry.blank? ? (l(:label_new_account)) : controller.getAccountLbl %></b></h2>
 	<div id="account_form">
 		<% addressObj = @accountEntry.blank? ? nil : @accountEntry.address %>
 		<%=h hidden_field_tag('account_id', @accountEntry.blank? ? "" : @accountEntry.id) %>

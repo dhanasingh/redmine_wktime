@@ -340,7 +340,8 @@ de:
   label_attachment: Attachments
   label_edit_contract: Edit Contract
   label_project: Project 
-  label_account: Account 
+  label_account: Account
+  label_account_adjusted: Account
   label_contract_number: Contract Number
   label_contract_no_prefix: Contract number prefix
   label_new_contract: New Contract
@@ -406,7 +407,10 @@ de:
   label_accounting_group: Accounting User Group
   label_enable_accounting_module: Enable Accounting Module
   label_transaction: Transaction
+  label_transaction_type: Transaction Type
+  label_transaction_date: Transaction Date
   label_ledger: Ledger
+  label_ledger_infromation: Ledger Information
   label_accounting_admin: Accounting Admin Group
   label_bank_ac: Bank Accounts
   label_bank_occ_ac: Bank OCC A/c
@@ -450,6 +454,7 @@ de:
   label_txn_receipt: Receipt
   label_txn_journal: Journal
   label_txn_sales: Sales
+  label_txn_sales_stage: Sales Stage
   label_txn_credit_note: Credit Note
   label_txn_purchase: Purchase
   label_txn_debit_note: Debit Note
@@ -486,10 +491,14 @@ de:
   label_lead_plural: Leads
   label_opportunity_plural: Opportunities
   label_activity_plural: Activities
+  label_activity_type: Aktivität Type
   label_contact_plural: Contacts
   label_new_item: "New %{value}"
+  label_new_item_adjusted: "New %{value}"
+  label_new_item_third_case: "New %{value}"
   label_edit_item: "Edit %{value}"
   label_lead: Lead
+  label_lead_adjusted: Lead
   label_content_information: "%{value} Information"
   label_website: Website
   label_department: Department
@@ -511,8 +520,12 @@ de:
   label_start_date_time: "Start Date & Time"
   label_related_to: Related to
   label_contact: Contact
+  label_contact_adjusted: Contact
   label_task: Task
   label_opportunity: Opportunity
+  label_opportunity_information: Opportunity Information
+  label_opportunity_name: Opportunity Name
+  label_opportunity_type: Opportunity Type
   label_duration: Duration
   label_end_date_time: "End Date & Time"
   label_priority: Priority
@@ -721,6 +734,9 @@ de:
   error_expense_delete: Unable delete the expense entries
   label_asset: Asset
   label_depreciation: Depreciation
+  label_depreciation_ledger: Depreciation Ledger
+  label_depreciation_type: Depreciation Type
+  label_depreciation_frequency: Depreciation Frequency
   field_inventory_item_id: Product
   label_current_asset_value: Current Asset Value
   label_asset_type: Asset Type
@@ -756,6 +772,7 @@ de:
   label_scheduling: Scheduling
   label_schedule_preference: Schedule Preference
   label_shift: Shift
+  label_role_adjusted: Rollen
   label_new_shift: New Shift
   label_required_staff: Required Staff
   label_count: Count
@@ -796,3 +813,40 @@ de:
   field_shift: Shift
   label_setting_preference: Allow user schedule preference
   label_auto_scheduling: Auto Shift Scheduling
+
+  label_shift_and_scheduling: Shift Scheduling
+  label_auto_approve_with_te: Auto approve Zeit & Kosten
+  label_credit_with_ledger: Credit Ledger
+  label_debit_with_ledger: Debit Ledger
+  label_txn_payment_with_credit_with_ledger: Payment Credit Ledger
+  label_txn_payment_with_debit_with_ledger: Payment Debit Ledger
+
+  gender_hash_male: Male
+  gender_hash_female: Female
+  gender_hash_others: Others
+
+  nonsub_mail_message_content: You are receiving this notification for timesheet non submission
+  submission_ack_message_content: I Acknowledge that the hours entered are accurate to the best of my knowledge
+  all_users_for_select: All Users
+  label_expected_date_to_close_project: Expected Schließen Datum
+  text_edit_activity: Edit Activity
+  label_number_shortcut: No
+  label_account_category: Account Category
+
+  VIEW INVENTORY: View inventory
+  DELETE INVENTORY: Delete inventory 
+  SCHEDULES SHIFT: Schedules shift 
+  EDIT SHIFT SCHEDULES: Edit shift schedules
+
+  label_active_on: On
+  label_active_off: Off
+
+  label_confirmation_salary_text: Are you sure want to generate salary on
+
+  label_period_end_confirmation: Are you sure want to run this process
+  label_period_end_note: Please Note/ This will run the process for the previous month from the chosen date
+  label_chose_process_date: Chose process date/
+  label_title_end_process: Run Period End Process
+  label_select_date_text: Please select the date
+
+  label_report_type: Bericht Typ

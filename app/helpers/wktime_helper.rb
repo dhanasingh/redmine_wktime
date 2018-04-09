@@ -1312,21 +1312,21 @@ end
 	end
 	
 	def erpModules
-		erpmineModules = [l(:label_wktime),
-						  l(:label_wkexpense),
-						  l(:report_attendance),
-						  l(:label_shift_scheduling),
-						  l(:label_payroll),
-						  l(:label_wk_billing),
-						  l(:label_accounting),
-						  l(:label_crm),
-						  l(:label_txn_purchase),
-						  l(:label_inventory),
-						  l(:label_report)
-					 ]
+		erpmineModules = {l(:label_wktime) => 'Time',
+						  l(:label_wkexpense) => 'Expense',
+						  l(:report_attendance) => 'Attendance',
+						  l(:label_shift_scheduling) => 'Shift Scheduling',
+						  l(:label_payroll) => 'Payroll',
+						  l(:label_wk_billing) => 'Billing',
+						  l(:label_accounting) => 'Accounting',
+						  l(:label_crm) => 'CRM',
+						  l(:label_txn_purchase) => 'Purchase',
+						  l(:label_inventory) => 'Inventory',
+						  l(:label_report) => 'Report'
+					 }
 		erpmineModules
 	end
-	
+
 	def validateERPPermission(permission)
 		permissionArr = Array.new
 		user = User.current

@@ -39,7 +39,7 @@
 			<td>
 			<%# show the blank value if more than one user is in the list %>
 			<%=h select_tag('user_id',
-				options_for_select( [["All Users","0"]] + @members,
+				options_for_select( [[l(:all_users_for_select),"0"]] + @members,
 				:selected => userid.nil? ? (@user.nil? ? User.current.id : @user.id) : userid),
 				:style=> "width:200px;") %></td>
 			</tr>

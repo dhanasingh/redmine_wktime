@@ -34,36 +34,36 @@ lblInvCompVal = "<%=l(:field_value) %>";
 	<legend><%= l(:label_wk_billing) %></legend>
 	
 	
-	<p style="margin-left: -110px;">
+	<p style="margin-left: -70px;">
 			<%= check_box_tag('settings[invoice_auto_post_gl]', 1, @settings['invoice_auto_post_gl'].to_i == 1) %> <label><%= l(:label_auto_post_gl) %></label>
 	</p>
 	
-	<p style="margin-left: -110px;"><label><%= l(:label_credit) + " " +  l(:label_ledger)  %></label>
+	<p style="margin-left: -70px;"><label><%= l(:label_credit_with_ledger)  %></label>
 	    <%= select_tag 'settings[invoice_cr_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['invoice_cr_ledger']) %></p>
 	
-	<p style="margin-left: -110px;"><label><%= l(:label_debit) + " " +  l(:label_ledger)  %></label>
+	<p style="margin-left: -70px;"><label><%= l(:label_debit_with_ledger)  %></label>
 	    <%= select_tag 'settings[invoice_db_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['invoice_db_ledger']) %></p>
 	
-	<p style="margin-left: -110px;"><label><%= l(:label_txn_payment) + " " + l(:label_credit) + " " +  l(:label_ledger)  %></label>
+	<p style="margin-left: -70px;"><label><%= l(:label_txn_payment_with_credit_with_ledger)  %></label>
 	    <%= select_tag 'settings[payment_cr_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['payment_cr_ledger']) %></p>
 	
-	<p style="margin-left: -110px;"><label><%= l(:label_txn_payment) + " " + l(:label_debit) + " " +  l(:label_ledger)  %></label>
+	<p style="margin-left: -70px;"><label><%= l(:label_txn_payment_with_debit_with_ledger)  %></label>
 	    <%= select_tag 'settings[payment_db_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['payment_db_ledger']) %></p>
 		
-<!--	<p style="margin-left: -110px;"><label><%#= l(:label_txn_payment) + " " + l(:label_fluctuation) + " " +  l(:label_ledger)  %></label>
+<!--	<p style="margin-left: -70px;"><label><%#= l(:label_txn_payment) + " " + l(:label_fluctuation) + " " +  l(:label_ledger)  %></label>
 	    <%#= select_tag 'settings[payment_fluctuation_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['payment_fluctuation_ledger']) %></p> -->
 		
 	<%= l(:label_redmine_restart_warning) %>
-	<p style="margin-left: -110px;">
+	<p style="margin-left: -70px;">
 			<%= check_box_tag('settings[wktime_auto_generate_invoice]', 1, @settings['wktime_auto_generate_invoice'].to_i == 1) %> <label><%= l(:label_auto_generate_invoice) %></label>
 	</p>
-	<p style="margin-left: -110px;"><label><%= l(:label_invoice_generate_period) %></label>
+	<p style="margin-left: -70px;"><label><%= l(:label_invoice_generate_period) %></label>
 		<%= select_tag 'settings[wktime_generate_invoice_period]', options_for_select(hash_invoice_period.invert, :selected => @settings['wktime_generate_invoice_period']) %>
 	</p>
-	<p style="padding-left: 190px;;">
+	<p style="padding-left: 220px;;">
 		  <label><%= l(:label_contract_no_prefix) %></label><%= text_field_tag 'settings[wktime_contract_no_prefix]', @settings['wktime_contract_no_prefix'], :size => 13 %> 
 	</p>
-	<p style="margin-left: -110px;">	
+	<p style="margin-left: -70px;">	
 			<label><%= l(:label_invoice_generation_day) %></label>
 			<%= select_tag('settings[wktime_generate_invoice_day]', options_for_select([[l('date.day_names')[0], 0],
 										   [l('date.day_names')[1], 1],
@@ -73,39 +73,39 @@ lblInvCompVal = "<%=l(:field_value) %>";
 										   [l('date.day_names')[5], 5],
 										   [l('date.day_names')[6], 6]], :selected => @settings['wktime_generate_invoice_day']))%>
 	</p>   
-	<p style="padding-left: 190px;">
+	<p style="padding-left: 220px;">
 		  <label><%= l(:label_invoice_no_prefix) %></label><%= text_field_tag 'settings[wktime_invoice_no_prefix]', @settings['wktime_invoice_no_prefix'], :size => 13 %> 
 	</p>
-	<p style="padding-left: 190px;">
+	<p style="padding-left: 220px;">
 		<label><%= l(:label_generate_invoice_from) %> </label><%=h date_field_tag('settings[wktime_generate_invoice_from]',@settings['wktime_generate_invoice_from'],:size => 10) %> <%= calendar_for('settings_wktime_generate_invoice_from') %>
 	</p>
-	<p style="padding-left: 190px;">
+	<p style="padding-left: 220px;">
 		<label><%= l(:label_billing_id) %> </label><%=h select_tag('settings[wktime_billing_id_cf]', 
 			options_for_select(cfBillIndicator, :selected =>  @settings['wktime_billing_id_cf'])) %>
 	</p>
-	<p style="padding-left: 190px;">
+	<p style="padding-left: 220px;">
 		<label><%= l(:label_project_billing_rate) %> </label><%=h select_tag('settings[wktime_project_billing_rate_cf]', 
 			options_for_select(cfProjRate, :selected =>  @settings['wktime_project_billing_rate_cf'])) %>
 	</p>
-	<p style="padding-left: 190px;">
+	<p style="padding-left: 220px;">
 		<label><%= l(:label_project_billing_currency) %> </label><%=h select_tag('settings[wktime_project_billing_currency_cf]', 
 			options_for_select(cfProjCurrency, :selected =>  @settings['wktime_project_billing_currency_cf'])) %>
 	</p>
 	<!--
-	<p style="padding-left: 190px;">
+	<p style="padding-left: 220px;">
 		<label><%#= l(:label_user_billing_rate) %> </label><%#=h select_tag('settings[wktime_user_billing_rate_cf]', 
 			options_for_select(cfUserRate, :selected =>  @settings['wktime_user_billing_rate_cf'])) %>
 	</p>
-	<p style="padding-left: 190px;">
+	<p style="padding-left: 220px;">
 		<label><%#= l(:label_user_billing_currency) %> </label><%#=h select_tag('settings[wktime_user_billing_currency_cf]', 
 			options_for_select(cfUserCurrency, :selected =>  @settings['wktime_user_billing_currency_cf'])) %>
 	</p>
 	-->
-	<p style="padding-left: 190px;">
+	<p style="padding-left: 220px;">
 		<label><%= l(:label_issue_billing_currency) %> </label><%=h select_tag('settings[wktime_issue_billing_currency_cf]', 
 			options_for_select(cfIssueCurrency, :selected =>  @settings['wktime_issue_billing_currency_cf'])) %>
 	</p>
-	<p style="padding-left: 190px;">
+	<p style="padding-left: 220px;">
 		<label><%= l(:label_issue_billing_rate) %> </label><%=h select_tag('settings[wktime_issue_billing_rate_cf]', 
 			options_for_select(cfIssueRate, :selected =>  @settings['wktime_issue_billing_rate_cf'])) %>
 	</p>
@@ -117,7 +117,7 @@ lblInvCompVal = "<%=l(:field_value) %>";
 			end
 			accountGroups.unshift(["",""])
 		%>
-		<p style="padding-left: 190px;">
+		<p style="padding-left: 220px;">
 			<label><%=l(:label_billing_groups)%></label>
 			<%=  select_tag('settings[wktime_billing_groups]',
 					options_for_select(accountGroups, :selected => @settings['wktime_billing_groups'].blank? ? "" : @settings['wktime_billing_groups']))%>
@@ -125,7 +125,7 @@ lblInvCompVal = "<%=l(:field_value) %>";
 </fieldset>
 <fieldset style="display: inline-block; vertical-align: top; min-width: 400px;">
     <legend><%= l(:label_invoice_components) %></legend>
-	<p style="padding-left: 190px;">
+	<p style="padding-left: 220px;">
 	<%
 		invComps = []
 		if(@settings['wktime_invoice_components'].blank?)
@@ -145,10 +145,10 @@ lblInvCompVal = "<%=l(:field_value) %>";
 				options_for_select(invComps, :selected => 'settings[wktime_invoice_components]'), :multiple=> true, :style => "min-width:200px; height:100px;")%>	
 
 		</p>			
-		<p style="padding-left: 190px;">
-			<%= link_to "Add", "javascript:showInvCompDialog('Add', 'settings_wktime_invoice_components');", :class => "button"%>  |
-			<%= link_to "Edit", "javascript:showInvCompDialog('Edit', 'settings_wktime_invoice_components');", :class => "button"%>  |
-			<%= link_to "Delete", "javascript:removeSelectedValue('settings_wktime_invoice_components');", :class => "button" %>
+		<p style="padding-left: 220px;">
+			<%= link_to l(:button_add), "javascript:showInvCompDialog('Add', 'settings_wktime_invoice_components');", :class => "button"%>  |
+			<%= link_to l(:button_edit), "javascript:showInvCompDialog('Edit', 'settings_wktime_invoice_components');", :class => "button"%>  |
+			<%= link_to l(:button_delete), "javascript:removeSelectedValue('settings_wktime_invoice_components');", :class => "button" %>
 		</p>
 	
 	<div id="invcomp-dlg" title="<%= l(:button_add) + " " + l(:label_invoice) + " " + l(:label_component) %>">

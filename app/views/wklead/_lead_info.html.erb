@@ -3,7 +3,7 @@
 	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds')}" %>";
 </script>
 <fieldset class="box tabular">
-	<legend><%=l(:label_content_information, isAccount ? controller.getAccountLbl : l(:label_lead))%></legend>
+	<legend><%=l(:label_content_information, isAccount ? l(:label_account_adjusted) : l(:label_lead_adjusted))%></legend>
 	<%	accArr = options_for_wktime_account(true, controller.getAccountType)
 		#if !contactObj.blank? && isContact
 		#	accArr = relatedValues(contactObj.parent_type)		
@@ -60,7 +60,7 @@
 		<% if isAccount %>	
 			<%  selectedAcId = accountObj.blank? ? nil : accountObj.account_category %>
 			<tr>
-				<th align="left"><%= l(:label_account) + " " + l(:field_category) %></th>
+				<th align="left"><%= l(:label_account_category) %></th>
 			<td align="left" style="padding-left:40px;"><%=h select_tag('account_category', options_for_select(options_for_enum_select('AC', selectedAcId, true))) %></td>
 			</tr>
 			<tr>

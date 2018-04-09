@@ -24,7 +24,7 @@
 		<label style="float:left; padding-left: 20px;">&nbsp;</label>
 		<%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %>
 		<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload', :style=>"float:left; " %>
-        <%= link_to l(:label_new_item, l(:label_enumerations)), url_for(:controller => controller_name, :action => 'edit', :enum_id => ""), :class => 'icon icon-time-add' %>
+        <%= link_to l(:label_new_item_third_case, l(:label_enumerations)), url_for(:controller => controller_name, :action => 'edit', :enum_id => ""), :class => 'icon icon-time-add' %>
 </div>
 <div style="clear: both;"></div>
 <% end %>

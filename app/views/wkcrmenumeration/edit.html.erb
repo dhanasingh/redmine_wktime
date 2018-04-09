@@ -15,7 +15,7 @@
 					
 						<tr>
 							<th align="left"><%= l(:field_name) %></th>
-							<td><%= text_field_tag 'enumname', @enumEntry.blank? ? "" : @enumEntry.name, :size => 30, :style=> "float: left;" %></td>
+							<td><%= text_field_tag 'enumname', @enumEntry.blank? ? "" : l("#{@enumEntry.name}"), :size => 30, :style=> "float: left;" %></td>
 						</tr>
 						
 						<tr>
@@ -40,6 +40,6 @@
 	</div>
 	<div style="clear:left;"></div>
 		<div>
-			<%= submit_tag l(:button_save) ,:id => 'wkcrmenum_save'%>
+			<%= submit_tag l(:button_save) ,:id => 'wkcrmenum_save' %>
 		</div>
 <% end %>
