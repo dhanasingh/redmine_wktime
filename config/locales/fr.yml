@@ -279,6 +279,7 @@ fr:
   label_contracts: Contracts
   label_acc_projects: Billable Projects
   label_invoice: Invoice
+  label_invoice_adjusted: Invoice
   label_tax: Tax
   label_project_name: Project Name
   label_account_name: Account Name
@@ -294,6 +295,7 @@ fr:
   label_invoice_no_prefix: Invoice number prefix
   label_taxname: Tax Name
   label_rate: Rate
+  label_exchange_rate: Rate
   label_tax_detail: Tax Detail
   label_new_tax: New Tax
   label_invoice_name: Item Description

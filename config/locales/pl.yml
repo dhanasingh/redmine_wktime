@@ -279,6 +279,7 @@ pl:
   label_contracts: Umowy
   label_acc_projects: Płatne projekty
   label_invoice: Faktura
+  label_invoice_adjusted: Fakturę
   label_tax: Podatek
   label_project_name: Nazwa projektu
   label_account_name: Nazwa konta
@@ -293,7 +294,8 @@ pl:
   label_auto_generate_invoice: Automatycznie generuj fakturę
   label_invoice_no_prefix: Prefiks numeru faktury
   label_taxname: Nazwa podatku
-  label_rate: Opodatkowanie
+  label_rate: Stawka
+  label_exchange_rate: Kurs
   label_tax_detail: Szczegóły podatku
   label_new_tax: Nowy podatek
   label_invoice_name: Opis pozycji
@@ -592,7 +594,7 @@ pl:
   
   label_enable_time_module: Włącz moduł czasu
   
-  label_payments: Płatności
+  label_payments: Płatność
   label_payment_date: Data płatności
   label_payment_type: Rodzaj płatności
   label_reference_number: Numer referencyjny
