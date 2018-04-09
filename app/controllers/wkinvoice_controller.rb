@@ -190,7 +190,7 @@ class WkinvoiceController < WkorderentityController
 		if accProjectEntry.billing_type == 'TM'
 			getRate = getProjectRateHash(accProjectEntry.project.custom_field_values)
 			if getRate.blank? || getRate['rate'].blank? || getRate['rate'] <= 0
-				rateHash = getIssueRateHash(accProjectEntry.project.issues.first.custom_field_values)
+				rateHash = getIssueRateHash(accProjectEntry.project.issues.first) #.custom_field_values
 				@currency = rateHash['currency']
 				if rateHash.blank? || rateHash['rate'].blank? || rateHash['rate'] <= 0
 					userRateHash = getUserRateHash(accProjectEntry.project.users.first.custom_field_values)

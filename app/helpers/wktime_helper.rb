@@ -1404,4 +1404,106 @@ end
 		spentObj.invoice_item_id = invoiceId
 		spentObj.save
 	end
+	
+	def getMonthsBetween(startDate, endDate, startDay)
+		startDtPeriod = getPeroid(startDate, startDay, 'M')
+		endDtPeriod = getPeroid(endDate, startDay, 'M')
+		if startDtPeriod[0]  == endDtPeriod[0]
+			noOfDays = (getDaysBetween(startDate, endDate)) /  (getDaysBetween(startDtPeriod[0], startDtPeriod[1]) * 1.0 )
+		else			
+			noOfDays = (((getDaysBetween(startDate, startDtPeriod[1]) ) / (getDaysBetween(startDtPeriod[0], startDtPeriod[1]) * 1.0 )) + (getDaysBetween(endDtPeriod[0], endDate)/ (getDaysBetween(endDtPeriod[0], endDtPeriod[1]) * 1.0)) + (getMonthDiff((startDtPeriod[1] + 1.day) , (endDtPeriod[0] - 1.day))))
+		end
+		noOfDays		
+	end
+	
+	def getPeroid(dateVal, startDay, periodType)
+		startDt = dateVal
+		endDt = dateVal
+		case periodType
+		when 'M'
+			startDt = (dateVal - (startDay -1).days).beginning_of_month + (startDay -1).days
+			endDt = (dateVal - (startDay -1).days).end_of_month + (startDay -1).days
+		when 'W'
+			startDt = getWeekStartDt(dateVal, startDay)	
+			endDt = startDt + 6.days
+		end
+		period = [startDt, endDt]
+		period
+	end
+	
+	# return number of months between two dates
+	def getMonthDiff(from, to)
+		(to.year * 12 + to.month) - (from.year * 12 + from.month)
+	end
+	
+	# return number of days between two dates
+	def getDaysBetween(from, to)
+		(to - from).to_i + 1
+	end
+	
+	# def getWeeksBetween(startDate, endDate, startDay)
+		# #startDay = getPluginSetting('wktime_pay_day')
+		# startDtPeriod = getPeroid(startDate, startDay, 'W')
+		# endDtPeriod = getPeroid(endDate, startDay, 'W')
+		# Rails.logger.info("******* startDtPeriod #{startDtPeriod} endDtPeriod #{endDtPeriod} **************************")
+		# if startDtPeriod[0]  == endDtPeriod[0]
+			# noOfDays = (getDaysBetween(startDate, endDate)) /  (getDaysBetween(startDtPeriod[0], startDtPeriod[1]) * 1.0 )
+		# else			
+			# noOfDays = ((getDaysBetween(startDate, startDtPeriod[1]) ) / (getDaysBetween(startDtPeriod[0], startDtPeriod[1]) * 1.0 )) + (getDaysBetween(endDtPeriod[0], endDate)/ (getDaysBetween(endDtPeriod[0], endDtPeriod[1]) * 1.0))
+			# noOfDays = noOfDays + getNoOfPeriod((startDtPeriod[1] + 1.day) , (endDtPeriod[0] - 1.day), 'W')
+		# end
+		# Rails.logger.info("================= noOfDays #{noOfDays} st #{((getDaysBetween(startDate, startDtPeriod[1])) / (getDaysBetween(startDtPeriod[0], startDtPeriod[1]) * 1.0 ))}  et #{(getDaysBetween(endDtPeriod[0], endDate)/ (getDaysBetween(endDtPeriod[0], endDtPeriod[1]) * 1.0))} ===========================")
+		# noOfDays		
+	# end
+	
+	#change the date to first day of week
+	def getWeekStartDt(date, startDay)	
+		startOfWeek = startDay
+		#Martin Dube contribution: 'start of the week' configuration
+		unless date.blank?			
+			#the day of calendar week (0-6, Sunday is 0)			
+			dayfirst_diff = (date.wday+7) - (startOfWeek)
+			date -= (dayfirst_diff%7)
+		end		
+		date
+	end
+	
+	# def getNoOfPeriod(from, to, periodType)
+		# case periodType
+		# when 'M'
+			# periodCount = getMonthDiff(from, to)
+		# when 'W'
+			# periodCount = getDaysBetween(from,to)/7
+		# end
+		# periodCount
+	# end
+	
+	def getDuration(from, to, durationAs, totalHours, calcByHours)
+		duration = 0
+		case durationAs
+		when 'H'
+			duration = totalHours
+		when 'D'
+			duration = getDaysBetween(from, to)
+		when 'BW'
+			startDay = 2
+			duration = getDaysBetween(from, to)/14.0 #getWeeksBetween(from,to, startDay)/2.0	
+		when 'W'
+			startDay = 2
+			duration = getDaysBetween(from, to)/7.0 #getWeeksBetween(from,to, startDay)			
+		when 'M'
+			startDay = 6 # should get from settings
+			duration = getMonthsBetween(from, to, startDay)
+		when 'Q'
+			startDay = 6 # should get from settings
+			duration = getMonthsBetween(from, to, startDay)/3.0
+		when 'SA'
+			startDay = 6 # should get from settings
+			duration = getMonthsBetween(from, to, startDay)/6.0
+		when 'A'
+			startDay = 6 # should get from settings
+			duration = getMonthsBetween(from, to, startDay)/12.0
+		end
+		duration
+	end
 end

@@ -17,6 +17,10 @@ User.class_eval do
 	end
 end
 
+Issue.class_eval do
+	has_one :wk_issue, :dependent => :destroy, :class_name => 'WkIssue'
+end
+
 Project.class_eval do
 	has_many :account_projects, :dependent => :destroy, :class_name => 'WkAccountProject'
 	#has_many :parents, through: :account_projects

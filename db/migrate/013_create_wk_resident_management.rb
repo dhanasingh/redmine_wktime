@@ -7,6 +7,16 @@ class CreateWkResidentManagement  < ActiveRecord::Migration
 			t.references :spent, polymorphic: true, index: true
 			t.datetime :spent_on_time
 			t.references :invoice_item, :class => "wk_invoice_items", :null => true, :index => true
+			t.timestamps null: false
+		end
+		
+		create_table :wk_issues do |t|
+			t.references :project, :null => false
+			t.references :issue, :null => true
+			t.column :currency, :string, :limit => 5, :default => '$'
+			t.float :rate
+			t.string :rate_per, :limit => 3
+			t.timestamps null: false
 		end
 		
 		add_reference :wk_accounts, :location, :class => "wk_locations", :null => true, :index => true

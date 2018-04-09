@@ -179,7 +179,7 @@ include WkbillingHelper
 		oldIssueId = 0
 		lasInvItmId = nil # Used to update TimeEntry Billing Indicator CF
 		#@invItems = Hash.new{|hsh,key| hsh[key] = {} }
-		# First check project has any rate if it didn't have rate then go with user rate
+		# First check project has any rate if it didn't have rate then go with issue or user rate
 		if rateHash.blank? || rateHash['rate'].blank? || rateHash['rate'] <= 0
 			userIdVal =  Array.new
 			# calculate invoice based on the user rate
@@ -192,16 +192,18 @@ include WkbillingHelper
 			timeEntries.order(:issue_id, :user_id, :id).each_with_index do |entry, index|
 				#rateHash = getUserRateHash(entry.user.custom_field_values)
 				unless entry.issue.blank?
-					rateHash = getIssueRateHash(entry.issue.custom_field_values)
+					rateHash = getIssueRateHash(entry.issue) #.custom_field_values
 				else
 					rateHash = nil
 				end
 				@currency = rateHash['currency'] unless rateHash.blank?
 				isUserBilling = false
+				# check issue has any rate if it didn't have rate then go with user rate
 				if rateHash.blank? || rateHash['rate'].blank? || rateHash['rate'] <= 0
 					rateHash = getUserRateHash(entry.user.wk_user)
 					@currency = rateHash['currency']
 					isUserBilling = true
+					# Even user also don't have the rate then skip that time entry from billing
 					if rateHash.blank? || rateHash['rate'].blank? || rateHash['rate'] <= 0
 						next
 					end		
@@ -233,6 +235,9 @@ include WkbillingHelper
 				else
 					description = entry.issue.blank? ? entry.project.name : (isAccountBilling(accountProject) ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject) 
 					quantity = issueSumEntry[entry.issue_id]
+					unless rateHash['rate_per'].blank?
+						quantity = getDuration(@invoice.start_date, @invoice.end_date, rateHash['rate_per'], quantity, false)
+					end
 					amount = rateHash['rate'] * quantity
 					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency'], 'i', amount, nil, nil, nil) unless isCreate
 				end
@@ -259,9 +264,11 @@ include WkbillingHelper
 					errorMsg = totalAmount
 				end
 				lastUserId = entry.user_id
-				lasInvItmId = invItem.id unless isCreate
-				updateBilledEntry(entry, lasInvItmId) unless isCreate
-				totalAmount = totalAmount + invItem.amount unless isCreate
+				unless isCreate
+					lasInvItmId = invItem.id 
+					updateBilledEntry(entry, lasInvItmId)
+					totalAmount = totalAmount + invItem.amount
+				end
 			end
 		else
 			pjtIdVal = Array.new
@@ -318,9 +325,11 @@ include WkbillingHelper
 					totalAmount = (totalAmount + itemAmount).round(2)
 					errorMsg = totalAmount
 				end
-				lasInvItmId = invItem.id unless isCreate
-				updateBilledEntry(entry, lasInvItmId) unless isCreate
-				totalAmount = totalAmount + invItem.amount unless isCreate
+				unless isCreate
+					lasInvItmId = invItem.id 
+					updateBilledEntry(entry, lasInvItmId) 
+					totalAmount = totalAmount + invItem.amount 
+				end
 			end			
 		end
 		creditAmount = calInvPaidAmount(@invoice.parent_type,  @invoice.parent_id, accountProject.project_id, @invoice.id, true) unless isCreate
@@ -385,15 +394,23 @@ include WkbillingHelper
 	end
 	
 	# Return RateHash which contains rate and currency for Issue
-	def getIssueRateHash(projectCustVals)
+	# rate, rate_per and currency taken form wk_issue entity
+	def getIssueRateHash(issue)  #projectCustVals
 		rateHash = Hash.new
-		projectCustVals.each do |custVal|
-			case custVal.custom_field_id 
-				when getSettingCfId('wktime_issue_billing_rate_cf') 
-					rateHash["rate"] = custVal.value.to_f
-				when getSettingCfId('wktime_issue_billing_currency_cf')  
-					rateHash["currency"] = custVal.value
-			end
+		# projectCustVals.each do |custVal|
+			# case custVal.custom_field_id 
+				# when getSettingCfId('wktime_issue_billing_rate_cf') 
+					# rateHash["rate"] = custVal.value.to_f
+				# when getSettingCfId('wktime_issue_billing_currency_cf')  
+					# rateHash["currency"] = custVal.value
+			# end
+		# end
+		wkIssue = nil
+		wkIssue = issue.wk_issue unless issue.blank?
+		unless wkIssue.blank?
+			rateHash["rate"] = wkIssue.rate
+			rateHash["rate_per"] = wkIssue.rate_per
+			rateHash["currency"] = wkIssue.currency
 		end
 		rateHash
 	end
