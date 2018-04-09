@@ -1,5 +1,5 @@
 # Polish strings go here for Rails i18n
-# Translation made by patryk.rosenkiewicz@dir.pl with correction of tomasz.rozynek@dir.pl for DIR Company.
+# Translation made by Patryk Rosenkiewicz with correction of Tomasz Rozynek for DIR Company.
 pl:
   my_label: "Moja Etykieta"
   label_wktime: Czas
@@ -273,7 +273,7 @@ pl:
   label_override_common_setting: Nadpisz podstawowe ustawienie
   label_actual: Aktualne
   
-  label_wk_billing: Dane do faktur
+  label_wk_billing: Faktury
   label_enable_billing_module: Włącz moduł faktur
   label_accounts: Działalności
   label_contracts: Umowy
