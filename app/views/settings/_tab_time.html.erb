@@ -27,9 +27,9 @@
 		</p>
 		<%
 			accountGroups = Array.new
-			accGroup = Group.order('lastname')
+			accGroup = Group.all.sort
 			unless accGroup.blank?
-				accountGroups = accGroup.collect {|t| [t.lastname, t.id] }
+				accountGroups = accGroup.collect {|t| [t.name, t.id] }
 			end
 			accountGroups.unshift(["",0])
 		%>
