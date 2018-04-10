@@ -883,8 +883,8 @@ pl:
   label_confirmation_salary_text: Czy napewno chcesz wygenerować wypłatę dla
 
   label_period_end_confirmation: Czy na pewno chcesz uruchomić ten proces?
-  label_period_end_note: Uwaga / To uruchomi proces dla poprzedniego miesiąca od wybranej daty
-  label_chose_process_date: Wybierz datę procesu/
+  label_period_end_note: 'Uwaga: To uruchomi proces dla poprzedniego miesiąca od wybranej daty'
+  label_chose_process_date: 'Wybierz datę procesu:'
   label_title_end_process: Zakończ Proces
   label_select_date_text: Proszę wybrać datę
 

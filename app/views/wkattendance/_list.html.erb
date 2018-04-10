@@ -78,11 +78,11 @@ end %>
 <% end -%>
 <div id="myDialog" title="<%= l(:label_title_end_process) %>">
 	<%= content_tag(:p, l(:label_period_end_confirmation)) %>
-	<%= content_tag(:p, l(:label_chose_process_date).gsub('/', ':')) do %>
+	<%= content_tag(:p, l(:label_chose_process_date)) do %>
 		<%= date_field_tag('start_date', "", {:id => 'start_date', :size => 12, :style => "width:130px; "}) + calendar_for('start_date') %>
 			
 		<% end %>
-	<%= content_tag(:p, l(:label_period_end_note).gsub('/', ':')) %>
+	<%= content_tag(:p, l(:label_period_end_note)) %>
 </div>
 
 <%= content_tag :div, class: "label_select_date_text", data: {select: l(:label_select_date_text)} do%>

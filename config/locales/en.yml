@@ -847,8 +847,8 @@ en:
   label_confirmation_salary_text: Are you sure want to generate salary on
 
   label_period_end_confirmation: Are you sure want to run this process
-  label_period_end_note: Please Note/ This will run the process for the previous month from the chosen date
-  label_chose_process_date: Chose process date/
+  label_period_end_note: 'Please: Note This will run the process for the previous month from the chosen date'
+  label_chose_process_date: 'Chose process date:'
   label_title_end_process: Run Period End Process
   label_select_date_text: Please select the date
 
