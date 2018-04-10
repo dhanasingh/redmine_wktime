@@ -12,7 +12,7 @@
 			accountGroups = Array.new
 			accGroup = Group.order('lastname')
 			unless accGroup.blank?
-				accountGroups = accGroup.collect {|t| ["#{t.lastname}", t.id] }
+				accountGroups = accGroup.collect {|t| [t.lastname, t.id] }
 			end
 			accountGroups.unshift(["",""])
 	%>

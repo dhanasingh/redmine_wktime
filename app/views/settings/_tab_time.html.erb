@@ -19,7 +19,7 @@
 		<p>
 		<%= check_box_tag('settings[wktime_allow_blank_issue]', 1, @settings['wktime_allow_blank_issue'].to_i == 1) %> <label><%= l(:label_wk_allow_blank_issue) %> </label>
 		</p>
-		<p>
+		<p>	
 		<%= check_box_tag('settings[wktime_enter_comment_in_row]', 1, @settings['wktime_enter_comment_in_row'].to_i == 1) %> <label><%= l(:label_wk_enter_comment_in_row) %> </label>
 		</p>
 		<p>
@@ -29,7 +29,7 @@
 			accountGroups = Array.new
 			accGroup = Group.order('lastname')
 			unless accGroup.blank?
-				accountGroups = accGroup.collect {|t| [l("#{t.lastname}"), t.id] }
+				accountGroups = accGroup.collect {|t| [t.lastname, t.id] }
 			end
 			accountGroups.unshift(["",0])
 		%>

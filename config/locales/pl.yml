@@ -280,7 +280,7 @@ pl:
   label_acc_projects: Płatne projekty
   label_invoice: Faktura
   label_invoice_adjusted: Fakturę
-  label_tax: Podatek
+  label_tax: podatek
   label_project_name: Nazwa projektu
   label_account_name: Nazwa konta
   label_invoice_date: Data faktury
@@ -876,11 +876,6 @@ pl:
   Prospecting: Poszukiwania
   Qualification: Kwalifikacja
   Value Proposition: Propozycja wartości
-
-  Anonymous users: Anonimowi użytkownicy
-  crm_admin: crm administrator
-  crm_user: użytkownik crm
-  Non member users: użyktownicy bez grupy
 
   label_active_on: Wł
   label_active_off: Wył
