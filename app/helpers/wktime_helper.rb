@@ -1479,8 +1479,9 @@ end
 	# end
 	
 	def getDuration(from, to, durationAs, totalHours, calcByHours)
+	
 		duration = 0
-		case durationAs
+		case durationAs.upcase
 		when 'H'
 			duration = totalHours
 		when 'D'
