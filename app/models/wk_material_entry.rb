@@ -30,6 +30,8 @@ class WkMaterialEntry < ActiveRecord::Base
    
   attr_protected :user_id, :tyear, :tmonth, :tweek
   
+  accepts_nested_attributes_for :spent_for
+  
   scope :visible, lambda {|*args|
     joins(:project).
     where(WkMaterialEntry.visible_condition(args.shift || User.current, *args))

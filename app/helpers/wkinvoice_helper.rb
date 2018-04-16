@@ -83,8 +83,10 @@ include WkbillingHelper
 	def saveInvoice
 		errorMsg = nil
 		unless @invoice.save
-			errorMsg = @invoice.errors.full_messages.join("<br>")		
-		 end
+			errorMsg = @invoice.errors.full_messages.join("<br>")
+		else
+			call_hook(:controller_after_save_invoice, {:attributes => @invoice.attributes})
+		end
 		errorMsg
 	end
 		

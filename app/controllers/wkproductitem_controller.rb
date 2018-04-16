@@ -139,7 +139,7 @@ class WkproductitemController < WkinventoryController
 				targetItem = updateInventoryItem(params[:product_item_id].to_i)
 				if sourceItem.product_type == 'A'
 					depreciationFreq = Setting.plugin_redmine_wktime['wktime_depreciation_frequency']
-					finacialPeriodArr = getFinancialPeriodArray(Date.today, Date.today, depreciationFreq)
+					finacialPeriodArr = getFinancialPeriodArray(Date.today, Date.today, depreciationFreq, 1)
 					finacialPeriod = finacialPeriodArr[0]
 					targetAssetProp = sourceItem.asset_property.dup
 					targetAssetProp.inventory_item_id = targetItem.id

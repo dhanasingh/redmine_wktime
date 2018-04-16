@@ -1493,18 +1493,22 @@ end
 			startDay = 2
 			duration = getDaysBetween(from, to)/7.0 #getWeeksBetween(from,to, startDay)			
 		when 'M'
-			startDay = 6 # should get from settings
+			startDay = getMonthStartDay # should get from settings
 			duration = getMonthsBetween(from, to, startDay)
 		when 'Q'
-			startDay = 6 # should get from settings
+			startDay = getMonthStartDay # should get from settings
 			duration = getMonthsBetween(from, to, startDay)/3.0
 		when 'SA'
-			startDay = 6 # should get from settings
+			startDay = getMonthStartDay # should get from settings
 			duration = getMonthsBetween(from, to, startDay)/6.0
 		when 'A'
-			startDay = 6 # should get from settings
+			startDay = getMonthStartDay # should get from settings
 			duration = getMonthsBetween(from, to, startDay)/12.0
 		end
 		duration
+	end
+	
+	def getMonthStartDay
+		1
 	end
 end

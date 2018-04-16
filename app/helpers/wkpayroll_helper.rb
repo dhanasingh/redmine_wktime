@@ -31,24 +31,67 @@ module WkpayrollHelper
 		salaryComponents
 	end
 	
-	def getFinancialPeriodArray(startDate, endDate, periodType)
+	def getIntervals(startDate, endDate, periodType, periodStart, inclusiveOfStart, inclusiveOfEnd)
+		intervals = Array.new
+		unless periodType.blank?
+			case periodType.upcase
+			when 'W'
+				intervals = getIntervalInWeeks(startDate, endDate, periodStart, inclusiveOfStart, inclusiveOfEnd)
+			else
+				intervals = getFinancialPeriodArray(startDate, endDate, periodType, periodStart)
+			end
+		end
+		intervals
+	end
+	
+	def getFinancialPeriodArray(startDate, endDate, periodType, monthStart)
 		finPeriodArr = Array.new
 		frequencyMonth = getFrequencyHash[periodType.downcase]
 		startFinDate = nil
 		endFinDate  = nil
+		startDate = startDate - (monthStart-1).days
+		endDate = endDate - (monthStart-1).days
 		financialStartMonth = getFinancialStart.to_i
 		startDateModVal = getDateModValue(startDate, financialStartMonth, frequencyMonth)
 		endDateModVal = getDateModValue(endDate, financialStartMonth, frequencyMonth)
 		subtractorStrat = startDateModVal != 0 ? frequencyMonth - startDateModVal : 0
 		subtractorEnd = endDateModVal == 0 ? frequencyMonth : endDateModVal
-		startFinDate = Date.civil(startDate.year, startDate.month, 1) - subtractorStrat.months
-		endFinDate = (Date.civil(endDate.year, endDate.month, 1) + subtractorEnd.months) - 1
+		startFinDate = Date.civil(startDate.year, startDate.month, monthStart) - subtractorStrat.months
+		endFinDate = (Date.civil(endDate.year, endDate.month, monthStart) + subtractorEnd.months) - 1.day
 		lastDate = startFinDate
 		until lastDate > endFinDate
-			finPeriodArr << [lastDate, (lastDate + frequencyMonth.months) -1 ]
+			finPeriodArr << [lastDate, (lastDate + frequencyMonth.months) -1.days ]
 			lastDate = lastDate + frequencyMonth.months
 		end
 		finPeriodArr
+	end
+	
+	# Return the intervals of week as array
+	# startDay the day of calendar week (0-6, Sunday is 0)	
+	# inclusiveOfStart - if true then includes the startDate's week  
+	# inclusiveOfEnd - if true then includes the endDate's week  
+	def getIntervalInWeeks(startDate, endDate, startDay, inclusiveOfStart, inclusiveOfEnd)
+		intervalArr = Array.new
+		periodStart = getWeekStartDt(startDate, startDay)	
+		periodEnd = getWeekStartDt(endDate, startDay) + 6.days
+		startIntervalDate = periodStart
+		unless periodStart + 6.days == periodEnd
+			unless inclusiveOfStart || startDate == periodStart
+				startIntervalDate = periodStart + 7.days
+			end
+			endIntervalDate = periodEnd
+			unless inclusiveOfEnd || endDate == periodEnd
+				endIntervalDate = periodEnd - 7.days
+			end
+			lastDate = startIntervalDate
+			until lastDate > endIntervalDate
+				intervalArr << [lastDate, lastDate + 6.days ]
+				lastDate = lastDate + 7.days
+			end
+		else
+			intervalArr << [periodStart, periodStart + 6.days ] if inclusiveOfStart || inclusiveOfEnd
+		end
+		intervalArr
 	end
 	
 	def getDateModValue(dateVal, stratMonth, monthFreq)
@@ -384,7 +427,7 @@ module WkpayrollHelper
 	end
 	
 	def getYTDDetail(userId,salaryDate)
-		financialPeriodArr = getFinancialPeriodArray(salaryDate, salaryDate, 'a')
+		financialPeriodArr = getFinancialPeriodArray(salaryDate, salaryDate, 'a', 1)
 		@financialPeriod = financialPeriodArr[0] 
 		ytdDetails = WkSalary.select("sum(amount) as amount, user_id, salary_component_id").where("user_id = #{userId} and salary_date between '#{@financialPeriod[0]}' and '#{salaryDate}'").group("user_id, salary_component_id")
 		ytdAmountHash = Hash.new()
