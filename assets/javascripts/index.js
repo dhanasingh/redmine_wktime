@@ -763,3 +763,19 @@ function userChanged(userDropdown, needBlank){
 		});
 	}
 }
+
+function loadSpentFors(id, Dropdown, needBlank, uid)
+{
+	var clientDropdown = document.getElementById(Dropdown);
+	var $this = $(this);
+	var fmt = 'text';
+	$.ajax({
+		url: getClientsUrl,
+		type: 'get',
+		data: {project_id: id, user_id: uid, format:fmt},
+		success: function(data){updateUserDD(data, clientDropdown, uid, needBlank, false,"");
+		},
+		beforeSend: function(){ $this.addClass('ajax-loading'); },
+		complete: function(){ $this.removeClass('ajax-loading'); }
+	});
+}

@@ -94,7 +94,8 @@ module TimelogControllerPatch
 			end
 
 			
-			
+			model = nil
+			errorMsg = nil
 			if params[:log_type].blank? || params[:log_type] == 'T'
 				call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
 				if @time_entry.save
@@ -134,6 +135,7 @@ module TimelogControllerPatch
 				if errorMsg.blank?
 					saveMatterial if params[:log_type] == 'M' || params[:log_type] == 'A'
 					saveExpense if params[:log_type] == 'E'
+					model = @modelEntries
 				else
 					respond_to do |format|
 						format.html { 					
@@ -144,6 +146,25 @@ module TimelogControllerPatch
 					end
 				end
 			end
+			
+			if errorMsg.blank?
+				spentForModel = model.blank? ? @time_entry : model
+				saveSpentFors(spentForModel)
+			end
+			
+		end
+		
+		def saveSpentFors(model)
+			spentForId = nil
+			spentFortype = nil
+			unless params[:spent_for].blank?
+				spentFors = params[:spent_for].split('|')
+				spentForVal = spentFors[1].split('_')
+				spentForId = spentForVal[1]
+				spentFortype = spentForVal[0]
+			end
+			wktime_helper = Object.new.extend(WktimeHelper)
+			wktime_helper.saveSpentFor(params[:spentForId], spentForId, spentFortype, model.id, model.class.name, model.spent_on, '00', '00', nil)
 		end
 		
 		def validateMatterial
@@ -173,7 +194,8 @@ module TimelogControllerPatch
 
 		def update
 			@time_entry.safe_attributes = params[:time_entry]
-
+			model = nil
+			errorMsg = nil
 			if params[:log_type].blank? || params[:log_type] == 'T'
 			
 				call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
@@ -197,22 +219,15 @@ module TimelogControllerPatch
 				if errorMsg.blank?
 					saveMatterial if params[:log_type] == 'M' || params[:log_type] == 'A'
 					saveExpense if params[:log_type] == 'E'
+					model = @modelEntries
 				else
-				flash[:error] = errorMsg
-				redirect_to :controller => 'timelog',:action => 'edit'
-					# respond_to do |format|
-						# # format.html { 					
-							# # flash[:error] = errorMsg
-							# # redirect_back_or_default project_time_entries_path(@time_entry.project)
-						
-						# # }
-						# format.html { 
-							# flash[:error] = errorMsg
-							# render :action => 'edit' 
-						# }
-						# #format.api  { render_validation_errors(@time_entry) }
-					# end
+					flash[:error] = errorMsg
+					redirect_to :controller => 'timelog',:action => 'edit'					
 				end
+			end
+			if errorMsg.blank?
+				spentForModel = model.blank? ? @time_entry : model
+				saveSpentFors(spentForModel)
 			end
 		end
 		
@@ -308,7 +323,7 @@ module TimelogControllerPatch
 				}
 			end
 		end
-		
+				
 		def set_filter_session
 			if params[:spent_type].blank?
 				session[:timelog] = {:spent_type => "T"}
