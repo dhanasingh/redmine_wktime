@@ -34,7 +34,7 @@
 <%=h select_tag('user_id',
 	options_for_select( projmem.collect{|m| [ m.name, m.user_id ] },
 		:selected =>  @user.nil? ? User.current.id : @user.id), :onchange => "userChanged(this, true)") %>
-<% userId = projmem[0].user_id %>		
+<% userId = projmem[0].blank? ? "" : projmem[0].user_id   %>		
 <% end %>		
 </td>
 </tr>
@@ -68,8 +68,10 @@
 	<%= hidden_field_tag :sheet_view, controller.getSheetView %>
 <% end %>
 <%
-	clients = controller.getClientsByUser(userId, true)
-	issues = controller.getIssuesByUser(userId, true)
+	clients = Array.new
+	issues = Array.new
+	clients = controller.getClientsByUser(userId, true) unless userId.blank?
+	issues = controller.getIssuesByUser(userId, true) unless userId.blank?
 %>
 <tr>
 <th width="100px"><label id="spentForLbl" style="display:<%= controller.hideprevTemplate ? 'block' : 'none' %>;"><%=controller.getLblSpentFor%></label></th>

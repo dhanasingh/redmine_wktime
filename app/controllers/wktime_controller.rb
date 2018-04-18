@@ -553,18 +553,23 @@ include QueriesHelper
 		end
 		clientStr =""
 		usrLocationId = teUser.wk_user.location_id
-		project.account_projects.includes(:parent).order(:parent_type).each do |ap|
-			clientStr << project_id.to_s() + '|' + ap.parent_type + '_' + ap.parent_id.to_s() + '|' + "" + (params[:separator].blank? ? '|' : params[:separator] ) + ap.parent.name + "\n" if ap.parent.location_id == usrLocationId
+		unless project.blank?
+			project.account_projects.includes(:parent).order(:parent_type).each do |ap|
+				clientStr << project_id.to_s() + '|' + ap.parent_type + '_' + ap.parent_id.to_s() + '|' + "" + (params[:separator].blank? ? '|' : params[:separator] ) + ap.parent.name + "\n" if ap.parent.location_id == usrLocationId
+			end
 		end
 	
+		# respond_to do |format|
+			# format.text  { 
+			# if error.blank?
+				# render :text => clientStr 
+			# else
+				# render_403
+			# end
+			# }
+		# end
 		respond_to do |format|
-			format.text  { 
-			if error.blank?
-				render :text => clientStr 
-			else
-				render_403
-			end
-			}
+			format.text  { render :text => clientStr }
 		end
 	end
 	
