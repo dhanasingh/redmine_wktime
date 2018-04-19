@@ -1409,11 +1409,11 @@ end
 		startDtPeriod = getPeroid(startDate, startDay, 'M')
 		endDtPeriod = getPeroid(endDate, startDay, 'M')
 		if startDtPeriod[0]  == endDtPeriod[0]
-			noOfDays = (getDaysBetween(startDate, endDate)) /  (getDaysBetween(startDtPeriod[0], startDtPeriod[1]) * 1.0 )
+			noOfMonths = (getDaysBetween(startDate, endDate)) /  (getDaysBetween(startDtPeriod[0], startDtPeriod[1]) * 1.0 )
 		else			
-			noOfDays = (((getDaysBetween(startDate, startDtPeriod[1]) ) / (getDaysBetween(startDtPeriod[0], startDtPeriod[1]) * 1.0 )) + (getDaysBetween(endDtPeriod[0], endDate)/ (getDaysBetween(endDtPeriod[0], endDtPeriod[1]) * 1.0)) + (getMonthDiff((startDtPeriod[1] + 1.day) , (endDtPeriod[0] - 1.day))))
+			noOfMonths = (((getDaysBetween(startDate, startDtPeriod[1]) ) / (getDaysBetween(startDtPeriod[0], startDtPeriod[1]) * 1.0 )) + (getDaysBetween(endDtPeriod[0], endDate)/ (getDaysBetween(endDtPeriod[0], endDtPeriod[1]) * 1.0)) + (getMonthDiff((startDtPeriod[1] + 1.day) , (endDtPeriod[0] - 1.day))))
 		end
-		noOfDays		
+		noOfMonths		
 	end
 	
 	def getPeroid(dateVal, startDay, periodType)
@@ -1526,5 +1526,9 @@ end
 			billableProjects = locationBillProject.collect {|billProj| [billProj.parent.name, billProj.project_id.to_s + '|' + billProj.parent_type.to_s + '_' + billProj.parent_id.to_s]}
 		end
 		billableProjects
+	end
+	
+	def getInvWeekStartDay
+		Setting.plugin_redmine_wktime['wktime_generate_invoice_day']
 	end
 end

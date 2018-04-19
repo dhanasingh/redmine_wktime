@@ -812,3 +812,5 @@ fr:
   label_in_use: In Use
   label_additional_assignee: Additional Assignee
   label_relationship: Contact Relationship
+  warning_select_project: Please select a project
+  warn_billable_project_not_configured: Billable projects not configured for %{name}

@@ -21,6 +21,7 @@ include WkattendanceHelper
 include WkaccountingHelper
 include WkgltransactionHelper
 include WkbillingHelper
+include WkpayrollHelper
 
 
     def options_for_wktime_account(blankOption, accountType)
@@ -94,10 +95,10 @@ include WkbillingHelper
 		errorMsg = nil		
 		if (projectId.blank? || projectId.to_i == 0)  && !isAccountBilling(billProject)
 			billProject.parent.projects.each do |project|
-				errorMsg = addInvoice(billProject.parent_id, billProject.parent_type, project.id, invoiceDate,invoicePeriod, true, nil)
+				errorMsg = addInvoice(billProject.parent_id, billProject.parent_type, project.id, invoiceDate, invoicePeriod, true, nil)
 			end
 		else
-			errorMsg = addInvoice(billProject.parent_id, billProject.parent_type, projectId, invoiceDate,invoicePeriod, true, nil)
+			errorMsg = addInvoice(billProject.parent_id, billProject.parent_type, projectId, invoiceDate, invoicePeriod, true, nil)
 		end
 		errorMsg
 	end
@@ -221,18 +222,20 @@ include WkbillingHelper
 					end
 				end
 				invItem = @invoice.invoice_items.new()
+				description = ""
+				quantity = 0
 				lastIssueId = entry.issue_id
 				if isUserBilling
 					if accountProject.itemized_bill
 						description = entry.issue.blank? ? entry.project.name : (isAccountBilling(accountProject) ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject) + " - " + entry.user.membership(entry.project).roles[0].name
 						quantity = sumEntry[[entry.issue_id, entry.user_id]]
-						amount = rateHash['rate'] * quantity
-						invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency'], 'i', amount, nil, nil, nil) unless isCreate
+						# amount = rateHash['rate'] * quantity
+						# invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency'], 'i', amount, nil, nil, nil) unless isCreate
 					else
 						description = accountProject.project.name + " - " + entry.user.membership(entry.project).roles[0].name
 						quantity = userTotalHours[entry.user_id]
-						amount = rateHash['rate'] * quantity
-						invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency'], 'i', amount, nil, nil, nil) unless isCreate
+						# amount = rateHash['rate'] * quantity
+						# invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency'], 'i', amount, nil, nil, nil) unless isCreate
 					end
 				else
 					description = entry.issue.blank? ? entry.project.name : (isAccountBilling(accountProject) ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject) 
@@ -240,9 +243,11 @@ include WkbillingHelper
 					unless rateHash['rate_per'].blank?
 						quantity = getDuration(@invoice.start_date, @invoice.end_date, rateHash['rate_per'], quantity, false)
 					end
-					amount = rateHash['rate'] * quantity
-					invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency'], 'i', amount, nil, nil, nil) unless isCreate
+					# amount = rateHash['rate'] * quantity
+					# invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency'], 'i', amount, nil, nil, nil) unless isCreate
 				end
+				amount = rateHash['rate'] * quantity
+				invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency'], 'i', amount, nil, nil, nil) unless isCreate
 				
 				if isCreate && ((oldIssueId != 0 && oldIssueId != entry.issue_id) || (timeEntries.order(:issue_id, :user_id, :id).last == entry) || (timeEntries.order(:issue_id, :user_id, :id).length == (index+1))  )
 					keyVal = timeEntries.order(:issue_id, :user_id, :id).first == entry ? @itemCount : @itemCount - 1					  
@@ -313,7 +318,7 @@ include WkbillingHelper
 				end
 				pjtIdVal << entry.id
 				
-    			 if isCreate && (oldIssueId == 0 || oldIssueId != entry.issue_id)
+    			if isCreate && (oldIssueId == 0 || (oldIssueId != entry.issue_id && accountProject.itemized_bill)) # need to add accountProject.itemized_billcheck to avoid duplicate entries on preview billing
 					itemAmount = rateHash['rate'] * pjtQuantity							
 					@invItems[@itemCount].store 'project_id', accountProject.project_id
 					@invItems[@itemCount].store 'item_desc', pjtDescription
@@ -631,8 +636,12 @@ include WkbillingHelper
 	end
 	
 	def getUnbillEntryStart(invStartDate)
-		genInvFrom = Setting.plugin_redmine_wktime['wktime_generate_invoice_from']
-		genInvFrom = genInvFrom.blank? ? invStartDate : genInvFrom.to_date
+		unless @firstInterval.blank? || @firstInterval[0] == invStartDate
+			genInvFrom = invStartDate
+		else
+			genInvFrom = Setting.plugin_redmine_wktime['wktime_generate_invoice_from']
+			genInvFrom = genInvFrom.blank? ? invStartDate : genInvFrom.to_date
+		end
 		genInvFrom
 	end
 	
@@ -723,6 +732,19 @@ include WkbillingHelper
 				updateInvoiceItem(taxinvItem, projectId, desc, rate, nil, curr, 't', amount, nil, nil, pid) if isCreate
 			end
 		end
+	end
+	
+	def getInvoiceFrequency
+		Setting.plugin_redmine_wktime['wktime_generate_invoice_period']
+	end
+	
+	def getInvFreqAndFreqStart
+		invFreq = getInvoiceFrequency
+		invDay = getInvWeekStartDay #Setting.plugin_redmine_wktime['wktime_generate_invoice_day']
+		invMonthDay = getMonthStartDay #should get from settings
+		periodStart = invFreq == 'W' ? invDay : invMonthDay
+		invoiceFreq = {"frequency" => invFreq, "start" => periodStart}
+		invoiceFreq
 	end
 	
 end

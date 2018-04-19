@@ -57,11 +57,11 @@ include WkorderentityHelper
 			end
 			if filter_type == '2'  || filter_type == '3' 
 				accProjects = WkAccountProject.where(sqlwhere).order(:parent_type, :parent_id)
-				previewBilling(accProjects)
-				accProjects.find_each do |accProj|
-				   errorMsg = generateInvoices(accProj, projectId, @to + 1, [@from, @to]) unless params[:generate].blank? || !to_boolean(params[:generate])#accProj.parent_id,accProj.parent_type
+				# previewBilling(accProjects)
+				# accProjects.find_each do |accProj|
+				   # errorMsg = generateInvoices(accProj, projectId, @to + 1, [@from, @to]) unless params[:generate].blank? || !to_boolean(params[:generate])#accProj.parent_id,accProj.parent_type
 				   
-				end
+				# end
 			end			
 			
 			if filter_type == '1'  
@@ -70,9 +70,19 @@ include WkorderentityHelper
 				else
 					accProjects = WkAccountProject.where(project_id: projectId).order(:parent_type, :parent_id)
 				end	
-				previewBilling(accProjects)
-				accProjects.each do |accProj|
-				   errorMsg = generateInvoices(accProj, projectId, @to + 1, [@from, @to]) unless params[:generate].blank? || !to_boolean(params[:generate])
+				# previewBilling(accProjects)
+				# accProjects.each do |accProj|
+				   # errorMsg = generateInvoices(accProj, projectId, @to + 1, [@from, @to]) unless params[:generate].blank? || !to_boolean(params[:generate])
+				   
+				# end
+			end
+			invoiceFreq = getInvFreqAndFreqStart
+			invIntervals = getIntervals(@from, @to, invoiceFreq["frequency"], invoiceFreq["start"], true, false)
+			@firstInterval = invIntervals[0]
+			previewBilling(accProjects, @from, @to)
+			invIntervals.each do |interval|
+				accProjects.find_each do |accProj|
+				   errorMsg = generateInvoices(accProj, projectId, interval[1] + 1, interval) unless params[:generate].blank? || !to_boolean(params[:generate])#accProj.parent_id,accProj.parent_type
 				   
 				end
 			end
@@ -218,7 +228,7 @@ include WkorderentityHelper
 			arrId = @invoice.invoice_items.pluck(:id)
 		else
 			@invoice = WkInvoice.new
-			invoicePeriod = [params[:inv_start_date], params[:inv_end_date]]
+			invoicePeriod = getInvoicePeriod(params[:inv_start_date], params[:inv_end_date])#[params[:inv_start_date], params[:inv_end_date]]
 			saveOrderInvoice(params[:parent_id], params[:parent_type],  params[:project_id1],params[:inv_date],  invoicePeriod, false, getInvoiceType)
 			
 		end
@@ -364,6 +374,10 @@ include WkorderentityHelper
 	end
 	
 	def deleteBilledEntries(invItemIdsArr)
+	end
+	
+	def getInvoicePeriod(startDate, endDate)
+		[startDate, endDate]
 	end
 	
 	def getOrderContract(invoice)
