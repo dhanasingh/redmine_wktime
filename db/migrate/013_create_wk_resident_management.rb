@@ -19,6 +19,13 @@ class CreateWkResidentManagement  < ActiveRecord::Migration
 			t.timestamps null: false
 		end
 		
+		create_table :wk_issue_assignees do |t|
+			t.references :project, :null => false
+			t.references :issue, :null => true
+			t.references :user, :class => "User", :index => true
+			t.timestamps null: false
+		end
+		
 		add_reference :wk_accounts, :location, :class => "wk_locations", :null => true, :index => true
 		
 		add_reference :wk_crm_contacts, :location, :class => "wk_locations", :null => true, :index => true

@@ -1,0 +1,33 @@
+<% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
+<% wkasset_helper = Object.new.extend(WkassetHelper) %>
+<% 	projectObj = Project.where(:id => issue.project_id)
+	usersArr = projectObj.map(&:assignable_users).reduce(:&) 
+	memberArr = Array.new
+	unless usersArr.blank?
+		usersArr.each do | user |
+			memberArr <<  [(user.firstname + " " + user.lastname), user.id.to_s]
+		end
+	end
+%>
+<fieldset class="box tabular">
+<legend><%= "Billing Details" %></legend>
+<table style="padding-left:130px;">
+	<%= labelled_fields_for :erpmineissues, @issue.erpmineissues do |issue_fields| %>
+		<tr>
+		<td style="padding-left:40px;"><%= issue_fields.select :currency, wkexpense_helper.options_for_currency %></td>
+		<td style="padding-left:40px;"><%= issue_fields.text_field :rate %> </td>
+		<td style="padding-left:40px;"><%= issue_fields.select :rate_per, wkasset_helper.getRatePerHash(false).invert %></td>
+		</tr>
+	<% end %>
+</table>	
+	<table style="padding-left:35px;">
+	<tr>
+			<th align="left" ><%= l(:label_additional_assignee) %></th>
+			<td align="left">
+				<%#=h select_tag("wk_issue_assignee", 						principals_options_for_select(usersArr, @issue.assignees.map { |a| a.user_id }), :multiple => true, :style => "width:180.333px;") %>
+				<%=h select_tag('wk_issue_assignee', options_for_select((memberArr.blank? ? [] : memberArr), :selected => @issue.assignees.map { |a| a.user_id }), :size => 5, :multiple=> true) %>
+			</td>
+		</tr>
+	</table>
+	
+</fieldset>

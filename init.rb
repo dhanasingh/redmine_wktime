@@ -19,6 +19,11 @@ end
 
 Issue.class_eval do
 	has_one :wk_issue, :dependent => :destroy, :class_name => 'WkIssue'
+	has_many :assignees, :dependent => :destroy, :class_name => 'WkIssueAssignee'
+	accepts_nested_attributes_for :assignees
+	def erpmineissues
+		self.wk_issue ||= WkIssue.new(:issue => self, :project => self.project)
+	end	
 end
 
 Project.class_eval do
@@ -547,4 +552,38 @@ class WktimeHook < Redmine::Hook::ViewListener
 	render_on :view_users_form_preferences, :partial => 'wkuser/wk_user_address', locals: { myaccount: false }
 	render_on :view_my_account, :partial => 'wkuser/wk_user', locals: { myaccount: true }
 	render_on :view_my_account_preferences, :partial => 'wkuser/wk_user_address', locals: { myaccount: true }
+	render_on :view_issues_form_details_bottom, :partial => 'wkissues/wk_issue_fields.html.erb'
+	
+	def controller_issues_edit_before_save(context={})
+		saveErpmineIssues(context[:issue], context[:params][:erpmineissues])
+		saveErpmineIssueAssignee(context[:issue], context[:issue][:project_id], context[:params][:wk_issue_assignee])
+	end
+	
+	def controller_issues_new_before_save(context={})	
+		saveErpmineIssues(context[:issue], context[:params][:erpmineissues])
+		saveErpmineIssueAssignee(context[:issue], context[:issue][:project_id], context[:params][:wk_issue_assignee])
+	end
+	
+	def saveErpmineIssues(issueObj, issueParm)
+		issueObj.erpmineissues.safe_attributes = issueParm
+	end
+	
+	def saveErpmineIssueAssignee(issueObj, projectId, userIdArr)		
+		 assigneeAttributes = Array.new
+		# userIdArr.each do |userId|
+			# assigneeAttributes << {user_id: userId.to_i, project_id: projectId}			
+		# end
+		# issueObj.assignees_attributes = assigneeAttributes		
+		WkIssueAssignee.where(:issue_id => issueObj.id).where.not(:user_id => userIdArr).delete_all()
+		unless userIdArr.blank?
+			userIdArr.collect{ |id| 
+				iscount = WkIssueAssignee.where("issue_id = ? and user_id = ? ", issueObj.id, id).count
+				unless iscount > 0
+					assigneeAttributes << {user_id: id.to_i, project_id: projectId}
+				end						
+			}
+		end
+		issueObj.assignees_attributes = assigneeAttributes	
+	end
+	
 end

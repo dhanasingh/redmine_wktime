@@ -813,3 +813,5 @@ en:
   label_relationship: Contact Relationship
   warning_select_project: Please select a project
   warn_billable_project_not_configured: Billable projects not configured for %{name}
+  field_rate: Rate
+  field_rate_per: Per
