@@ -12,7 +12,10 @@ class WkleadController < WkcrmController
 		elsif params[:lead_name].blank? && !params[:status].blank?
 			entries = WkLead.where(:status => params[:status]).joins(:contact).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{params[:lead_name]}%", "%#{params[:lead_name]}%")
 		else
-			entries = WkLead.where.not(:status => 'C')
+			entries = WkLead.joins(:contact).where.not(:status => 'C')
+		end
+		if !params[:location_id].blank?
+			entries = entries.where("wk_crm_contacts.location_id = ? ", params[:location_id].to_i)
 		end
 		formPagination(entries)
 	end
@@ -155,7 +158,7 @@ class WkleadController < WkcrmController
 	def formPagination(entries)
 		@entry_count = entries.count
 		setLimitAndOffset()
-		@leadEntries = entries.limit(@limit).offset(@offset)
+		@leadEntries = entries.order(updated_at: :desc).limit(@limit).offset(@offset)
 	end
   
     def setLimitAndOffset		

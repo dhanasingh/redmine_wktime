@@ -11,6 +11,8 @@
 				leadStatusArr.unshift(["",''])
 			%> 	
 			<%=h select_tag('status', options_for_select(leadStatusArr, :selected => params[:status])) %>
+			<label for='location'><%= l(:label_location) %>:</label>									
+			<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', params[:location_id], true)) %>
 			<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
 			<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
 		</fieldset>

@@ -26,6 +26,9 @@ before_filter :require_login
 		else
 			entries = WkAccount.where(:account_type => getAccountType).where("name like ?", "%#{params[:accountname]}%")
 		end
+		if !params[:location_id].blank?
+			entries = entries.where(:location_id => params[:location_id].to_i)
+		end
 		formPagination(entries)
     end
 	
