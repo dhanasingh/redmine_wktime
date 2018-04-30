@@ -27,15 +27,21 @@
 						<% elsif colName == "is_loggable" %>
 							<td class="lbl-txt-align"><%=h checked_image entry.is_loggable?  %></td>
 						<% elsif colName == "product_name" %>
-							<td class="lbl-txt-align"><%=h entry.id.blank? ? entry[colName] : entry.asset_property.name  %></td>
+							<td class="lbl-txt-align"><%=h entry.id.blank? ? entry[colName] : entry.product_item.product.name  %></td>
 						<% elsif colName == "parent_name" %>
-							<% appartmentName = entry.id.blank? ? (entry["parent_name"].blank? ? entry["asset_name"] : entry[colName]) : entry.asset_property.name %>
-							<td class="lbl-txt-align"> <%= link_to appartmentName, {:controller => controller.controller_name, :action => 'edit', :inventory_item_id => entry.parent_id.blank? ? entry.inventory_item_id : entry.parent_id , :product_item_id => entry.product_item_id}, :title => l(:button_edit) %></td>	
+							<% appartmentName = entry["parent_name"].blank? ? entry["asset_name"] : entry[colName] %>
+							<td class="lbl-txt-align"><%=h entry.id.blank? ? appartmentName : (entry.parent.blank? ? "" : entry.parent.assetName) %></td>
+							<!--
+							<%# appartmentName = entry.id.blank? ? (entry["parent_name"].blank? ? entry["asset_name"] : entry[colName]) : entry.asset_property.name %>
+							<td class="lbl-txt-align"> <%#= link_to appartmentName, {:controller => controller.controller_name, :action => 'edit', :inventory_item_id => entry.parent_id.blank? ? entry.inventory_item_id : entry.parent_id , :product_item_id => entry.product_item_id}, :title => l(:button_edit) %></td> -->	
 						<% elsif colName == "asset_name" %>
+							
 							<% bedName = entry["parent_name"].blank? ? '' : entry[colName] %>
+							<td class="lbl-txt-align"><%=h entry.id.blank? ? bedName : entry.assetName  %></td>
+							<!--
 							<td class="lbl-txt-align"><%#=h entry.id.blank? ? bedName : entry.components.name  %>
-							<%= link_to bedName, {:controller => controller.controller_name, :action => 'edit', :inventory_item_id => inventoryID , :product_item_id => entry.product_item_id}, :title => l(:button_edit) %>
-							</td>
+							<%#= link_to bedName, {:controller => controller.controller_name, :action => 'edit', :inventory_item_id => inventoryID , :product_item_id => entry.product_item_id}, :title => l(:button_edit) %>
+							</td> -->
 						<% elsif colName == "product_attribute_name" %>
 							<td class="lbl-txt-align"><%=h entry.id.blank? ? entry[colName] : (entry.product_attribute.blank? ? "" : entry.product_attribute.name)  %></td>
 						<% elsif colName == "location_name" %>

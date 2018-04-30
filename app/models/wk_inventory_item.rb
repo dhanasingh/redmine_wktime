@@ -51,4 +51,12 @@ class WkInventoryItem < ActiveRecord::Base
 	end
   end
   
+  def assetName
+	name = ""
+	unless self.asset_property.blank?
+		name = self.asset_property.name	
+	end
+	name
+  end
+  
 end
