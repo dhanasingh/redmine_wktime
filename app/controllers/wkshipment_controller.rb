@@ -326,11 +326,12 @@ include WkinventoryHelper
 			end
 		elsif params[:update_DD] == 'product_type' && !params[:product_id].blank?
 			product = WkProduct.find(params[:product_id].to_i)
+			productTypeHash = getProductTypeHash(false)
 			unless product.blank?
 				unless product.product_type.blank?
-					itemArr << product.product_type.to_s() + ',' +  getProductTypeHash(false)[product.product_type] + "\n"
+					itemArr << product.product_type.to_s() + ',' +  productTypeHash[product.product_type] + "\n"
 				else
-					getProductTypeHash(false).each do |key, val|
+					productTypeHash.each do |key, val|
 						itemArr << key + ',' +  val + "\n"
 					end
 				end

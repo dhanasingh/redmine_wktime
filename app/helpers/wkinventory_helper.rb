@@ -8,8 +8,14 @@ module WkinventoryHelper
 		end
 		additionalProducts = call_hook :additional_product_type
 		unless additionalProducts.blank?
-			mergeHash = eval(additionalProducts)
-			productType =  productType.merge(mergeHash)
+			if additionalProducts.is_a?(Array) 
+				additionalProducts.each do | hsh |
+					productType =  productType.merge(hsh)
+				end
+			else
+				mergeHash = eval(additionalProducts)
+				productType =  productType.merge(mergeHash)
+			end
 		end
 		productType
 	end
