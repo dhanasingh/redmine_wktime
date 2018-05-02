@@ -813,3 +813,4 @@ it:
   warn_billable_project_not_configured: Billable projects not configured for %{name}
   field_rate: Rate
   field_rate_per: Per
+  label_invoice_generation_month: Invoice generation month
