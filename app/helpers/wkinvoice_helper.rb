@@ -191,7 +191,18 @@ include WkpayrollHelper
 			quantity = 0
 			sumEntry = timeEntries.group(:issue_id, :user_id).sum(:hours)
 			issueSumEntry = timeEntries.group(:issue_id).sum(:hours)
+			issueEntryDate = timeEntries.group(:issue_id, :spent_on).count(:spent_on) # select("time_entries.issue_id, time_entries.spent_on, count(time_entries.spent_on) as spent_on_count")
+			issueEntryDateHash =  Hash.new
+			issueEntryDate.each do |issEntry, count|
+				if issueEntryDateHash[issEntry[0]].blank?
+					issueEntryDateHash[issEntry[0]] = [issEntry[1]]
+				else
+					issueEntryDateHash[issEntry[0]] << issEntry[1]
+				end
+			end
 			userTotalHours = timeEntries.group(:user_id).sum(:hours)
+			invDay = getInvWeekStartDay #Setting.plugin_redmine_wktime['wktime_generate_invoice_day']
+			invMonthDay = getMonthStartDay #should get from settings
 			timeEntries.order(:issue_id, :user_id, :id).each_with_index do |entry, index|
 				#rateHash = getUserRateHash(entry.user.custom_field_values)
 				unless entry.issue.blank?
@@ -241,7 +252,27 @@ include WkpayrollHelper
 					description = entry.issue.blank? ? entry.project.name : (isAccountBilling(accountProject) ? entry.project.name + ' - ' + entry.issue.subject : entry.issue.subject) 
 					quantity = issueSumEntry[entry.issue_id]
 					unless rateHash['rate_per'].blank?
-						quantity = getDuration(@invoice.start_date, @invoice.end_date, rateHash['rate_per'], quantity, false)
+						issuePeriod = call_hook(:get_invoice_issue_period, {:issue => entry.issue, :attributes => @invoice.attributes})
+						unless issuePeriod.blank?
+							period = issuePeriod[0]
+						else
+							period = {"start" => @invoice.start_date, "end" => @invoice.end_date} 
+						end
+						periodStart = rateHash['rate_per'] == 'W' ? invDay : invMonthDay
+						allIntervals = getIntervals(period["start"], period["end"], rateHash['rate_per'], periodStart.to_i, true, true)
+						subQuantity = 0
+						allIntervals.each do |interval|
+							intervalStart = interval[0] < period["start"] ? period["start"] : interval[0]
+							intervalEnd = interval[1] > period["end"] ? period["end"] : interval[1]
+							teDateArr = issueEntryDateHash[entry.issue_id]
+							unless teDateArr.blank? || teDateArr.empty?
+								if teDateArr.any? {|teDt| teDt.between?(intervalStart, intervalEnd)}
+									subQuantity = subQuantity + getDuration(intervalStart, intervalEnd, rateHash['rate_per'], quantity, false)
+								end
+							end
+						end
+						#quantity = getDuration(period["start"], period["end"], rateHash['rate_per'], quantity, false)
+						quantity = subQuantity
 					end
 					# amount = rateHash['rate'] * quantity
 					# invItem = updateInvoiceItem(invItem, accountProject.project_id, description, rateHash['rate'], quantity, rateHash['currency'], 'i', amount, nil, nil, nil) unless isCreate

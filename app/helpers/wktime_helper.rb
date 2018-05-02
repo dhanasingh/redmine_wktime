@@ -1487,10 +1487,10 @@ end
 		when 'D'
 			duration = getDaysBetween(from, to)
 		when 'BW'
-			startDay = 2
+			startDay = getInvWeekStartDay
 			duration = getDaysBetween(from, to)/14.0 #getWeeksBetween(from,to, startDay)/2.0	
 		when 'W'
-			startDay = 2
+			startDay = getInvWeekStartDay
 			duration = getDaysBetween(from, to)/7.0 #getWeeksBetween(from,to, startDay)			
 		when 'M'
 			startDay = getMonthStartDay # should get from settings
@@ -1508,9 +1508,9 @@ end
 		duration
 	end
 	
-	def getMonthStartDay
-		1
-	end
+	# def getMonthStartDay
+		# 1
+	# end
 	
 	def getSpentFors(userId, projectId)
 		billableProjects = Array.new
@@ -1529,10 +1529,14 @@ end
 	end
 	
 	def getInvWeekStartDay
-		Setting.plugin_redmine_wktime['wktime_generate_invoice_day']
+		startDay = Setting.plugin_redmine_wktime['wktime_generate_invoice_day']
+		startDay = 0 if startDay.blank?
+		startDay
 	end
 	
-	def getInvMonthlyStartDay
-		Setting.plugin_redmine_wktime['wktime_generate_invoice_month_start']
+	def getMonthStartDay
+		startDay = Setting.plugin_redmine_wktime['wktime_generate_invoice_month_start']
+		startDay = 1 if startDay.blank?
+		startDay
 	end
 end
