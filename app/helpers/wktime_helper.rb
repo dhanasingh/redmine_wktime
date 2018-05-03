@@ -1531,12 +1531,12 @@ end
 	def getInvWeekStartDay
 		startDay = Setting.plugin_redmine_wktime['wktime_generate_invoice_day']
 		startDay = 0 if startDay.blank?
-		startDay
+		startDay.to_i
 	end
 	
 	def getMonthStartDay
 		startDay = Setting.plugin_redmine_wktime['wktime_generate_invoice_month_start']
 		startDay = 1 if startDay.blank?
-		startDay
+		startDay.to_i
 	end
 end

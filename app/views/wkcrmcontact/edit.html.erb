@@ -10,7 +10,6 @@
 		<%= render partial: "wklead/contact_info", locals: { address: addressObj, :disable => false }%>
 	</div>
 <div style="clear:both;"></div>
-<%= call_hook(:additional_contact_info,  {:address => addressObj, :contactObj => @conEditEntry.blank? ? nil : @conEditEntry[0]}) %>
 <div>
 	<%= submit_tag l(:button_save) ,:id => 'wkcontact_save'%>
 	
