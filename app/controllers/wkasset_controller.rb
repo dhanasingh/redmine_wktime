@@ -87,5 +87,13 @@ class WkassetController < WkproductitemController
 	def loggableRateLbl
 		l(:label_log) + " " + l(:label_rate)
 	end
+	
+	def lblAsset
+		l(:label_asset)
+	end
+	
+	def editcomponentLbl
+		l(:label_edit_component)
+	end
 
 end

@@ -14,7 +14,7 @@
 		</thead>
 		<tbody>
 			<% @productInventory.each do |entry| %>
-				<% inventoryID = entry.id.blank? ? entry.inventory_item_id : entry.id %>
+				<% inventoryID = entry.id.blank? ? (entry.parent_id.blank? ? entry.inventory_item_id : entry.parent_id) : entry.id %>
 				<tr>
 					<% headerHash.keys.each do |colName|%>
 						<%# if colName == "rate_per" %>

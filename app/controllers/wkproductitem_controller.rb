@@ -339,4 +339,8 @@ class WkproductitemController < WkinventoryController
 	def showInventoryFields
 		true
 	end
+	
+	def lblInventory
+		l(:label_inventory)
+	end
 end

@@ -4,7 +4,20 @@
 	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
 </script>
 <%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
-	<h2><b><%=@productItem.blank? ?  controller.newItemLabel : controller.editItemLabel %></b></h2>
+	<%	if @inventoryItem.blank?			
+			if @parentEntry.blank?		
+				newLbl = controller.newItemLabel
+				editLbl = controller.editItemLabel
+			else
+				newLbl = controller.newcomponentLbl
+				editLbl = controller.editcomponentLbl
+			end
+		else
+			newLbl = controller.newcomponentLbl
+			editLbl = @inventoryItem.parent_id.blank? ? controller.editItemLabel : controller.editcomponentLbl			
+		end
+	%>
+	<h2><b><%= @productItem.blank? ?  newLbl : editLbl %></b></h2>
 	
 	
 	<div id="product_item_form">

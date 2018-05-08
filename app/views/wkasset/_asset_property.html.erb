@@ -5,7 +5,7 @@
 	%>
 	<%=h hidden_field_tag('asset_property_id', assetProperty.blank? ? "" : assetProperty.id) %>
 	<fieldset class="box tabular">
-		<legend><%= l(:label_asset)%></legend>
+		<legend><%= controller.lblAsset %></legend>
 		<table width='100%'>  
 			<tr>
 				<th align="left"><%= l(:field_name) %></th>

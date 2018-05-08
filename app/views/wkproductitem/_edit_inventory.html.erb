@@ -7,7 +7,7 @@
 		parentArr = parentArray(controller.getItemType, true, false)
 	%>
 	<fieldset class="box tabular">
-		<legend><%= isTransfer ? l(:button_transfer) : l(:label_inventory)%></legend>
+		<legend><%= isTransfer ? l(:button_transfer) : controller.lblInventory %></legend>
 		<table width='100%'>  
 			<% if controller.showAssetProperties   %>
 			<tr>
