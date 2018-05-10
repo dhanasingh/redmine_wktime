@@ -161,7 +161,7 @@ include WkcrmenumerationHelper
 		salType
 	end
 	
-	def relatedValues(relatedType, parentId, type, needBlank)
+	def relatedValues(relatedType, parentId, type, needBlank, isContactType)
 		relatedArr = Array.new
 		relatedId = nil
 		if relatedType == "WkOpportunity"
@@ -169,7 +169,12 @@ include WkcrmenumerationHelper
 		elsif relatedType == "WkLead"
 			relatedId = WkLead.includes(:contact).where("wk_leads.status != ? OR wk_leads.id = ?",'C', parentId).order("wk_crm_contacts.first_name, wk_crm_contacts.last_name")
 		elsif relatedType == "WkCrmContact"
-			relatedId = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where(:contact_type => type).order(:first_name, :last_name)
+			hookType = call_hook(:additional_contact_type)
+			if hookType.blank? || !isContactType
+				relatedId = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where(:contact_type => type).order(:first_name, :last_name)
+			else
+				relatedId = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where("wk_crm_contacts.contact_type = '#{type}' or wk_crm_contacts.contact_type = '#{hookType}'").order(:first_name, :last_name)
+			end
 		else
 			relatedId = WkAccount.where(:account_type => type).order(:name)
 		end

@@ -17,7 +17,13 @@ class WkcrmController < WkbaseController
 		elsif params[:related_type] == "WkLead"
 			relatedId = WkLead.includes(:contact).where.not(:status => 'C').order("wk_crm_contacts.first_name, wk_crm_contacts.last_name")
 		elsif params[:related_type] == "WkCrmContact"
-			relatedId = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where(:contact_type => params[:contact_type]).order(:first_name, :last_name)
+			#relatedId = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where(:contact_type => params[:contact_type]).order(:first_name, :last_name)
+			hookType = call_hook(:additional_contact_type)
+			if hookType[0].blank? || params[:additionalContactType] == "false"
+				relatedId = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where(:contact_type => params[:contact_type]).order(:first_name, :last_name)
+			else
+				relatedId = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where("wk_crm_contacts.contact_type = '#{params[:contact_type]}' or wk_crm_contacts.contact_type = '#{hookType[0]}'").order(:first_name, :last_name)
+			end
 		elsif params[:related_type] != "0"
 			relatedId = WkAccount.where(:account_type => params[:account_type]).order(:name)
 		end
@@ -72,6 +78,10 @@ class WkcrmController < WkbaseController
 	
 	def deletePermission
 		isModuleAdmin('wktime_crm_admin')
+	end
+	
+	def additionalContactType
+		false
 	end
 
 end

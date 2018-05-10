@@ -1,6 +1,6 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
-	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds')}" %>";
+	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds', :additionalContactType => controller.additionalContactType)}" %>";
 </script>
 <fieldset class="box tabular">
 	<legend><%=l(:label_content_information, isAccount ? controller.getAccountLbl : l(:label_lead))%></legend>
@@ -18,11 +18,11 @@
 				relateTo = "WkCrmContact"
 				type = contactType
 			end
-			accArr = relatedValues(relateTo, parentId, type, true)	
+			accArr = relatedValues(relateTo, parentId, type, true, controller.additionalContactType)	
 		else
 			if !params[:parentType].blank?
 				type = params[:parentType] == "WkAccount" ? accountType : contactType
-				accArr = relatedValues(params[:parentType], params[:parentId], type, true)		
+				accArr = relatedValues(params[:parentType], params[:parentId], type, true, controller.additionalContactType)		
 			end
 		end
 		relHash = relatedHash

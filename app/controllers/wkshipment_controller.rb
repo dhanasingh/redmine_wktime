@@ -365,4 +365,8 @@ include WkinventoryHelper
 		assetObj.save
 	end
 	
+	def additionalContactType
+		false
+	end
+	
 end
