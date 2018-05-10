@@ -602,7 +602,7 @@ include QueriesHelper
 		projectids = Array.new
 		user = User.find(userId)
 		billableClients = Array.new
-		usrLocationId = user.wk_user.location_id
+		usrLocationId = user.wk_user.blank? nil : user.wk_user.location_id
 		unless userProjects.blank?
 			userProjects.each do |project|
 				projectids << project.id
