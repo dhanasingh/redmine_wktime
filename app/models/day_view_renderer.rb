@@ -50,15 +50,16 @@ class DayViewRenderer < SheetViewRenderer
 			te.id as time_entry_id, te.id, COALESCE(te.spent_on,'#{givenValues[:selected_date]}') as spent_on , COALESCE(te.hours,0) as hours, te.activity_id, te.comments, te.spent_on_time, 
 			te.spent_for_id, te.spent_for_type, te.spent_id, te.spent_type from issues i " +
 			#p.name as project_name, inner join projects p on (p.id = i.project_id and project_id in (#{givenValues[:project_id]}) #{self.issue_join_cond})
-			" left join custom_values cv on (i.id = cv.customized_id and cv.customized_type = 'Issue' and cv.custom_field_id = #{givenValues[:issue_cf_id]} and cv.value = '#{givenValues[:user_id]}')" + # OR i.assigned_to_id = #{givenValues[:user_id]}
-			" left outer join wk_account_projects ap on (ap.project_id = i.project_id)
-			left outer join (select t.*, sf.spent_on_time, sf.spent_for_id, sf.spent_for_type, sf.spent_id, sf.spent_type  from time_entries t 
+			" left join wk_issue_assignees ia on (i.id = ia.issue_id and ia.user_id = #{givenValues[:user_id]} )" + # OR i.assigned_to_id = #{givenValues[:user_id]}
+			" left outer join wk_account_projects ap on (ap.project_id = i.project_id)" +
+			self.spent_for_join.to_s + 
+			" left outer join (select t.*, sf.spent_on_time, sf.spent_for_id, sf.spent_for_type, sf.spent_id, sf.spent_type  from time_entries t 
 			inner join wk_spent_fors sf on (t.id = sf.spent_id and sf.spent_type = 'TimeEntry' and t.spent_on = '#{givenValues[:selected_date]}')) te on te.issue_id = i.id and te.user_id = #{givenValues[:user_id]}
 			and te.spent_for_type = ap.parent_type and te.spent_for_id = ap.parent_id" 
 			#time_entries te on te.spent_on = '#{@selectedDate}' and te.issue_id = i.id and te.user_id = #{@user.id} 
 			#left outer join wk_spent_fors sf on sf.spent_type = 'TimeEntry' and sf.spent_for_type = ap.parent_type and sf.spent_for_id = ap.parent_id
-		sqlStr = sqlStr + " Where (cv.id IS NOT NULL OR te.id IS NOT NULL OR i.assigned_to_id = #{givenValues[:user_id]} )" 
-		sqlStr = sqlStr + issueCond + spentForCond
+		sqlStr = sqlStr + " Where (ia.id IS NOT NULL OR te.id IS NOT NULL OR i.assigned_to_id = #{givenValues[:user_id]} )" 
+		sqlStr = sqlStr + issueCond + spentForCond + self.issue_join_cond.to_s + spent_for_cond.to_s
 		#sqlStr = sqlStr + " Where "
 		modelClass.find_by_sql(sqlStr)
 	end

@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class SheetViewRenderer
-	attr_accessor :issue_join_cond
+	attr_accessor :issue_join_cond, :spent_for_join, :spent_for_cond
 	
 	def self.getInstance(sheetType)
 		renderer = nil

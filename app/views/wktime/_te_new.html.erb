@@ -12,16 +12,22 @@
 <table>
 <%=h hidden_field_tag('getuser_clients_url', "#{url_for(:controller => controller.controller_name, :action => 'getuserclients')}") %>
 <%=h hidden_field_tag('getuser_issues_url', "#{url_for(:controller => controller.controller_name, :action => 'getuserissues')}") %>
+<% userLbl = l(:field_user) %>
 <% if !@manage_projects.blank? %>
+<% if controller.showProjectDD %>
+	<% userLbl = l(:label_member) %>
+	<tr>
+	<th><%=l(:field_project)%></th>
+	<td class="project" align="left"><%=h select_tag('project_id', 
+		options_for_select(options_for_wktime_project(@manage_projects),
+		:selected => @selected_project.id),
+		:onchange => "projChanged(this, #{User.current.id}, false);") %></td>
+	</tr>
+<% else %>
+	<%=h hidden_field_tag('project_id', @selected_project.id) %>
+<% end %>
 <tr>
-<th><%=l(:field_project)%></th>
-<td class="project" align="left"><%=h select_tag('project_id', 
-	options_for_select(options_for_wktime_project(@manage_projects),
-	:selected => @selected_project.id),
-	:onchange => "projChanged(this, #{User.current.id}, false);") %></td>
-</tr>
-<tr>
-<th><%=l(:label_member)%></th>
+<th><%=h userLbl %></th>
 <td>
 <% ddMember = call_hook(:view_member_dropdown, {:project_id => @selected_project.id, :page => 'new'}) %>
 <% if !ddMember.blank? %>	 
@@ -40,7 +46,7 @@
 </tr>
 <% else %>
 <tr>
-<th width="100px" ><%=l(:field_user)%></th>
+<th width="100px" ><%=h userLbl %></th>
 <td>
 <%=h User.current.name %>
 <%=h hidden_field_tag('user_id', User.current.id) %>
@@ -48,7 +54,7 @@
 </tr>
 <% end %>
 <tr>
-<th width="100px"><%=l(:field_start_date)%></th>
+<th width="100px"><%= controller.getLblSpentOn %></th>
 <td><%=h date_field_tag('startday',@startday,:size => 10, :required => true) %><%= calendar_for('startday') %> 
 </td>
 </tr>

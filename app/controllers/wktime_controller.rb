@@ -1148,6 +1148,10 @@ include QueriesHelper
 		true
 	end
 	
+	def getLblSpentOn
+		l(:field_start_date)
+	end
+	
 	def getDefultProject
 		nil #get from settings
 	end
