@@ -552,7 +552,7 @@ include QueriesHelper
 			error = "403"
 		end
 		clientStr =""
-		usrLocationId = teUser.wk_user.location_id
+		usrLocationId = teUser.wk_user.blank? ? nil : teUser.wk_user.location_id
 		unless project.blank?
 			project.account_projects.includes(:parent).order(:parent_type).each do |ap|
 				clientStr << project_id.to_s() + '|' + ap.parent_type + '_' + ap.parent_id.to_s() + '|' + "" + (params[:separator].blank? ? '|' : params[:separator] ) + ap.parent.name + "\n" if ap.parent.location_id == usrLocationId
@@ -578,7 +578,7 @@ include QueriesHelper
 		teUser = User.find(params[:user_id])
 		userClients = getClientsByUser(teUser.id, false)
 		clientStr =""
-		usrLocationId = teUser.wk_user.location_id
+		usrLocationId = teUser.wk_user.blank? ? nil : teUser.wk_user.location_id
 		userClients.each do |ap|
 			clientStr << ap[1].to_s + ',' + ap[0].to_s + "\n"
 		end
@@ -622,7 +622,7 @@ include QueriesHelper
 		teUser = User.find(params[:user_id])
 		userIssues = getIssuesByUser(teUser.id, false)
 		clientStr = ""
-		usrLocationId = teUser.wk_user.location_id
+		usrLocationId = teUser.wk_user.blank? ? nil : teUser.wk_user.location_id
 		userIssues.each do |issue|
 			clientStr << issue[1].to_s + ',' + issue[0].to_s + "\n"
 		end
@@ -640,7 +640,7 @@ include QueriesHelper
 		projectids = Array.new
 		assignedIssues = Array.new
 		user = User.find(userId)
-		usrLocationId = user.wk_user.location_id
+		usrLocationId = user.wk_user.blank? ? nil : user.wk_user.location_id
 		unless userProjects.blank?
 			userProjects.each do |project|
 				projectids << project.id
