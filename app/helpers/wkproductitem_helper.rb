@@ -32,6 +32,19 @@ include WkassetHelper
 		parentArr
 	end
 	
+	def componentsArray(apartmentId, needBlank, loadDD)
+		bedArr = Array.new
+		inventoryObj = WkInventoryItem.where(:parent_id => apartmentId).includes(:asset_property)#.where(:wk_asset_properties => {:matterial_entry_id => nil} )
+		if loadDD
+			inventoryObj = inventoryObj.where(:wk_asset_properties => {:matterial_entry_id => nil} )
+		end
+		inventoryObj.each do |entry|
+			bedArr << [(entry.asset_property.blank? ? "" : entry.asset_property.name.to_s), entry.id]
+		end
+		bedArr.unshift(["",""]) if needBlank
+		bedArr
+	end
+	
 	def availabilityHash
 		avlType ={
 		    '' =>  "",

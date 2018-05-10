@@ -28,24 +28,37 @@ class WkleadController < WkcrmController
 	
 	def convert
 		@lead = nil
+		errorMsg = nil
 		@lead = WkLead.find(params[:lead_id]) unless params[:lead_id].blank?
 		@lead.status = 'C'
 		@lead.updated_by_user_id = User.current.id
-		@lead.save
+		#@lead.save
 		@contact = @lead.contact
 		@account = @lead.account
 		hookcontactType = call_hook(:controller_convert_contact, {:params => params, :leadObj => @lead, :contactObj => @contact})
 		contactType = hookcontactType.blank? ? getContactType : hookcontactType[0][0]
-		convertToAccount unless @account.blank?
-		convertToContact(contactType)
-		call_hook(:controller_updated_contact, {:params => params, :leadObj => @lead, :contactObj => @contact})
+		@contact.contact_type = contactType
+		errorMsg = call_hook(:controller_updated_contact, {:params => params, :leadObj => @lead, :contactObj => @contact})
+		if errorMsg[0].blank?
+			@lead.save
+			convertToAccount unless @account.blank?
+			convertToContact #(contactType)
+		end
+		
+		
 		unless @account.blank?
 			flash[:notice] = l(:notice_successful_convert)
 			redirect_to :controller => 'wkcrmaccount',:action => 'edit', :account_id => @account.id
 		else
 			controllerName = hookcontactType.blank? ? 'wkcrmcontact' : hookcontactType[0][1]
-			flash[:notice] = l(:notice_successful_convert)
-		    redirect_to :controller => controllerName, :action => 'edit', :contact_id => @contact.id
+			if errorMsg[0].blank?
+				flash[:notice] = l(:notice_successful_convert)
+			else
+				flash[:error] = errorMsg[0]
+				controllerName = 'wklead'
+			end
+			
+		    redirect_to :controller => controllerName, :action => 'edit', :contact_id => @contact.id, :lead_id => @lead.id
 		end
 	end
 	
@@ -60,9 +73,9 @@ class WkleadController < WkcrmController
 		@account.save
 	end
 	
-	def convertToContact(contactType)
+	def convertToContact #(contactType)
 		@contact.updated_by_user_id = User.current.id		
-		@contact.contact_type = contactType
+		#@contact.contact_type = contactType
 		unless @account.blank?
 			@contact.account_id = @account.id
 		end
