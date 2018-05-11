@@ -64,10 +64,6 @@ class WkassetController < WkproductitemController
 		true
 	end
 	
-	def newcomponentLbl
-		l(:label_new_component)
-	end
-	
 	def showAdditionalInfo
 		false
 	end
