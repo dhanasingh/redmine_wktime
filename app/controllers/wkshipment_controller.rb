@@ -226,7 +226,7 @@ include WkinventoryHelper
 			WkInventoryItem.delete_all(:id => arrId)
 		end
 		
-		postShipmentAccounting(@shipment)
+		postShipmentAccounting(@shipment, assetAccountingHash, assetTotal)
 		
 		if errorMsg.nil? 
 			redirect_to :action => 'index' , :tab => controller_name

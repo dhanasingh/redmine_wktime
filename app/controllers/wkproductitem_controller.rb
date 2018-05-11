@@ -119,8 +119,19 @@ class WkproductitemController < WkinventoryController
 				inventoryItem.is_loggable = params[:is_loggable]
 				inventoryItem.save
 			end
-			assetProperty = updateAssetProperty(inventoryItem) if !inventoryItem.blank? && inventoryItem.product_type != 'I'
-			postShipmentAccounting(inventoryItem.shipment) unless inventoryItem.blank?
+			unless inventoryItem.blank?
+				assetProperty = updateAssetProperty(inventoryItem) if inventoryItem.product_type != 'I' #!inventoryItem.blank? &&
+				assetAccountingHash = Hash.new
+				assetValue = 0
+				if inventoryItem.product_type == 'A'
+						assetValue = (inventoryItem.total_quantity*(inventoryItem.cost_price+inventoryItem.over_head_price))
+						# assetTotal = assetTotal + assetValue
+						accountingLedger = WkProductItem.find(inventoryItem.product_item_id).product.ledger_id
+						ledgerId = ((!accountingLedger.blank? && accountingLedger > 0) ? accountingLedger : getSettingCfId("inventory_db_ledger"))
+						assetAccountingHash[ledgerId] = assetValue
+				end
+				postShipmentAccounting(inventoryItem.shipment, assetAccountingHash, assetValue)
+			end
 		    redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
 		    flash[:notice] = l(:notice_successful_update)
 		else
