@@ -1438,7 +1438,7 @@ end
 	
 	# return number of days between two dates
 	def getDaysBetween(from, to)
-		(to - from).to_i + 1
+		(to.to_date - from.to_date).to_i + 1
 	end
 	
 	# def getWeeksBetween(startDate, endDate, startDay)
