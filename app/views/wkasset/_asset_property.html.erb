@@ -18,6 +18,7 @@
 			<tr>
 				<th align="left"><%= controller.loggableRateLbl %></th>
 				<td align="left" style="padding-left:40px;">
+					<%= Setting.plugin_redmine_wktime['wktime_currency']  %>
 					<%= text_field_tag "rate",  assetProperty.blank? ? '' : assetProperty.rate, :disabled => isDisable %>
 					<b><%= l(:label_per)  %></b>
 					<%=h select_tag("rate_per", options_for_select(getRatePerHash(false).invert, :selected => assetProperty.blank? ? getRatePerHash(false).invert : assetProperty.rate_per )) %>
