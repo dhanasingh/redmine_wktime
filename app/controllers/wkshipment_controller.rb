@@ -12,7 +12,7 @@ include WkinventoryHelper
 	def index
 		set_filter_session
 		retrieve_date_range
-		sqlwhere = ""
+		sqlwhere = " wk_shipments.shipment_type != 'N' "
 		filter_type = session[controller_name][:polymorphic_filter]
 		contact_id = session[controller_name][:contact_id]
 		account_id = session[controller_name][:account_id]
@@ -33,25 +33,17 @@ include WkinventoryHelper
 		end
 		
 		unless parentId.blank? 
-			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
-			sqlwhere = sqlwhere + " wk_shipments.parent_id = '#{parentId}' "
+			sqlwhere = sqlwhere + " and wk_shipments.parent_id = '#{parentId}' "
 		end
 		
 		unless parentType.blank?
-			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
-			sqlwhere = sqlwhere + " wk_shipments.parent_type = '#{parentType}'  "
+			sqlwhere = sqlwhere + " and wk_shipments.parent_type = '#{parentType}'  "
 		end
 		
-		if !@from.blank? && !@to.blank?			
-			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
-			sqlwhere = sqlwhere + " wk_shipments.shipment_date between '#{@from}' and '#{@to}'  "
+		if !@from.blank? && !@to.blank?	
+			sqlwhere = sqlwhere + " and wk_shipments.shipment_date between '#{@from}' and '#{@to}'  "
 		end
-		sqlwhere = sqlwhere + " and wk_shipments.shipment_type != 'N' "
-		unless sqlwhere.blank?
-			shipEntries = WkShipment.includes(:inventory_items).where(sqlwhere)
-		else
-			shipEntries = WkShipment.includes(:inventory_items)
-		end
+		shipEntries = WkShipment.includes(:inventory_items).where(sqlwhere)
 		
 		formPagination(shipEntries)
 		@totalShipAmt = @shipmentEntries.where("wk_inventory_items.parent_id is null").sum("wk_inventory_items.total_quantity*(wk_inventory_items.cost_price+wk_inventory_items.over_head_price)")
