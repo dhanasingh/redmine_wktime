@@ -1,7 +1,17 @@
-<label><%= currentObj.components.blank? ? l(:label_components) : controller.sectionHeader %></label>
+<%
+	accordianHeader = controller.sectionHeader
+	newAccordianLink = controller.newcomponentLbl
+	if !currentObj.parent_id.blank?
+		accordianHeader = l(:label_components)
+		newAccordianLink = l(:label_new_component) 
+	end
+%>
+<label><%#= currentObj.components.blank? ?  : (currentObj.components[0].parent_id.blank? ? controller.sectionHeader  : l(:label_components) ) %>
+<%= accordianHeader %>
+</label>
 <div>
 	<div class="wk-contextual">
-			<%= link_to (currentObj.components.blank? ? l(:label_new_component) : controller.newcomponentLbl), url_for(:controller => controller_name, :action => 'edit', :newItem => true, :parentId => currentObj.id), :class => 'icon icon-time-add' %>
+			<%= link_to newAccordianLink, url_for(:controller => controller_name, :action => 'edit', :newItem => true, :parentId => currentObj.id), :class => 'icon icon-time-add' %>
 	</div>
 	<% @productInventory = currentObj.components.includes(:asset_property, :product_item) %>
 	<%= render :partial => 'wkproductitem/product_item_list'%>
