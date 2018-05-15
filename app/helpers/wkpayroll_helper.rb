@@ -35,6 +35,9 @@ module WkpayrollHelper
 		intervals = Array.new
 		unless periodType.blank?
 			case periodType.upcase
+			when 'H'
+			when 'D'
+				intervals << [startDate, endDate]
 			when 'W'
 				intervals = getIntervalInWeeks(startDate, endDate, periodStart, inclusiveOfStart, inclusiveOfEnd)
 			else
