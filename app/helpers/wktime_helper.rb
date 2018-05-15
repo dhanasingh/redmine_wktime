@@ -1310,7 +1310,13 @@ end
 			ddValues = model.where("#{sqlCond}").order("#{orderBySql}")
 		end
 		unless ddValues.blank?
-			ddArray = ddValues.collect {|t| [t["#{displayCol}"], t["#{valueCol}"]] }
+			#ddArray = ddValues.collect {|t| [t["#{displayCol}"], t["#{valueCol}"]] 
+			ddValues.each do | entry |
+				ddArray << [entry["#{displayCol}"], entry["#{valueCol}"]]
+				if model == WkLocation
+					selectedVal = entry.id if entry.is_default?
+				end
+			end
 		end
 		ddArray.unshift(["",""]) if needBlank
 		options_for_select(ddArray, :selected => selectedVal)

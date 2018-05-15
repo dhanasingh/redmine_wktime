@@ -21,9 +21,9 @@ include WkassetHelper
 
 	def parentArray(type, needBlank, loadDD)
 		parentArr = Array.new
-		invItemObj = WkInventoryItem.where(:product_type => type).includes(:asset_property)
+		invItemObj = WkInventoryItem.where(:product_type => type, :parent_id => nil).includes(:asset_property)
 		if loadDD
-			invItemObj = invItemObj.where(:wk_asset_properties => {:matterial_entry_id => nil} )
+			invItemObj = invItemObj.where(:parent_id => nil).where(:wk_asset_properties => {:matterial_entry_id => nil} )
 		end
 		invItemObj.each do |entry|
 			parentArr << [(entry.asset_property.blank? ? "" : entry.asset_property.name.to_s), entry.id]
