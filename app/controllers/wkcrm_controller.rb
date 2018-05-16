@@ -20,9 +20,9 @@ class WkcrmController < WkbaseController
 			#relatedId = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where(:contact_type => params[:contact_type]).order(:first_name, :last_name)
 			hookType = call_hook(:additional_contact_type)
 			if hookType[0].blank? || params[:additionalContactType] == "false"
-				relatedId = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where(:contact_type => params[:contact_type]).order(:first_name, :last_name)
+				relatedId = WkCrmContact.includes(:lead).where(:account_id => nil, :contact_id => nil).where(wk_leads: { status: ['C', nil] }).where(:contact_type => params[:contact_type]).order(:first_name, :last_name)
 			else
-				relatedId = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where("wk_crm_contacts.contact_type = '#{params[:contact_type]}' or wk_crm_contacts.contact_type = '#{hookType[0]}'").order(:first_name, :last_name)
+				relatedId = WkCrmContact.includes(:lead).where(:account_id => nil, :contact_id => nil).where(wk_leads: { status: ['C', nil] }).where("wk_crm_contacts.contact_type = '#{params[:contact_type]}' or wk_crm_contacts.contact_type = '#{hookType[0]}'").order(:first_name, :last_name)
 			end
 		elsif params[:related_type] != "0"
 			relatedId = WkAccount.where(:account_type => params[:account_type]).order(:name)
@@ -81,7 +81,7 @@ class WkcrmController < WkbaseController
 	end
 	
 	def additionalContactType
-		false
+		true
 	end
 
 end
