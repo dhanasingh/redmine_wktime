@@ -684,9 +684,7 @@ include WkpayrollHelper
 		genInvFrom = getUnbillEntryStart(@invoice.start_date)
 		@matterialVal = Hash.new{|hsh,key| hsh[key] = {} }
 		matterialEntry = WkMaterialEntry.includes(:spent_for).where(:project_id => accountProject.project_id, :spent_on => genInvFrom .. @invoice.end_date, wk_spent_fors: { spent_for_type: accountProject.parent_type, spent_for_id: accountProject.parent_id, invoice_item_id: nil }) 
-		#:invoice_item_id => nil, 
-			matterialEntry.each do | mEntry |
-				invItem = @invoice.invoice_items.new()			
+			matterialEntry.each do | mEntry |		
 				productId = mEntry.inventory_item.product_item.product.id
 				productName = mEntry.inventory_item.product_item.product.name.to_s
 				productArr << productId
@@ -723,6 +721,13 @@ include WkpayrollHelper
 				@itemCount = @itemCount + 1
 				partialMatAmount = partialMatAmount + amount.round(2)
 				if isCreate
+					if @invoice.id.blank? #&& !isCreate
+						errorMsg = saveInvoice
+						unless errorMsg.blank?
+							break
+						end
+					end
+					invItem = @invoice.invoice_items.new()	
 					invItem = updateInvoiceItem(invItem, mEntry.project_id, desc, rate, qty, curr, productType, amount, nil, nil, productId) 
 					updateMatterial = WkMaterialEntry.find(mEntry.id)
 					updateBilledEntry(updateMatterial, invItem.id)

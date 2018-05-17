@@ -171,7 +171,7 @@ class WkinvoiceController < WkorderentityController
 				totAmount = 0.00
 			end	
 			
-			unless (taxGrandTotal + grandTotal) == 0.0
+			unless (taxGrandTotal + grandTotal) == 0.0 && totMatterialAmt == 0.0
 				@invList[@listKey].store 'amount', (taxGrandTotal + grandTotal + totMatterialAmt) + creditAmount
 			end
 	end
