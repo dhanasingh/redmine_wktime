@@ -19,14 +19,20 @@ include WktimeHelper
 include WkshipmentHelper
 include WkassetHelper
 
-	def parentArray(type, needBlank, loadDD)
+	def parentArray(type, needBlank, loadDD, locationId, currentParent)
 		parentArr = Array.new
 		invItemObj = WkInventoryItem.where(:product_type => type, :parent_id => nil).includes(:asset_property)
 		if loadDD
 			invItemObj = invItemObj.where(:parent_id => nil).where(:wk_asset_properties => {:matterial_entry_id => nil} )
 		end
+		unless locationId.blank?
+			invItemObj = invItemObj.where(:location_id => locationId)
+		end
+		unless currentParent.blank?
+			invItemObj = invItemObj.where.not(:id => currentParent)
+		end
 		invItemObj.each do |entry|
-			parentArr << [(entry.asset_property.blank? ? "" : entry.asset_property.name.to_s), entry.id]
+			parentArr << [(entry.asset_property.blank? ? "" : entry.asset_property.name.to_s), entry.id] 
 		end
 		parentArr.unshift(["",""]) if needBlank
 		parentArr

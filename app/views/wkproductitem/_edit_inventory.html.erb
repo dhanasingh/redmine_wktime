@@ -3,8 +3,9 @@
 	#isDisable = isTransfer 
 	isDisable = isUsedInventoryItem(invntItem)
 	%>
-	<%	
-		parentArr = parentArray(controller.getItemType, true, false)
+	<%	locationId = nil
+		currentParent = invntItem.blank? ? nil : invntItem.id
+		parentArr = parentArray(controller.getItemType, true, false, locationId, currentParent)
 	%>
 	<fieldset class="box tabular">
 		<legend><%= isTransfer ? l(:button_transfer) : controller.lblInventory %></legend>
