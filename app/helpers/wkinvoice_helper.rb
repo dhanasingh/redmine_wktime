@@ -684,61 +684,61 @@ include WkpayrollHelper
 		genInvFrom = getUnbillEntryStart(@invoice.start_date)
 		@matterialVal = Hash.new{|hsh,key| hsh[key] = {} }
 		matterialEntry = WkMaterialEntry.includes(:spent_for).where(:project_id => accountProject.project_id, :spent_on => genInvFrom .. @invoice.end_date, wk_spent_fors: { spent_for_type: accountProject.parent_type, spent_for_id: accountProject.parent_id, invoice_item_id: nil }) 
-			matterialEntry.each do | mEntry |		
-				productId = mEntry.inventory_item.product_item.product.id
-				productName = mEntry.inventory_item.product_item.product.name.to_s
-				productArr << productId
-				brandName = mEntry.inventory_item.product_item.brand.blank? ? "" : mEntry.inventory_item.product_item.brand.name.to_s
-				modelName = mEntry.inventory_item.product_item.product_model.blank? ? "" : mEntry.inventory_item.product_item.product_model.name.to_s
-				desc = productName + " " + brandName + " " + modelName
-				rate = mEntry.selling_price
-				qty = mEntry.quantity
-				curr = mEntry.inventory_item.currency
-				amount = mEntry.selling_price * mEntry.quantity
-				pType = mEntry.inventory_item.product_type.downcase
-				productType = pType == 'i' ? 'm' : 'a'
-				if @matterialVal.has_key?("#{productId}")
-					oldAmount = @matterialVal["#{productId}"]["amount"].to_i
-					totAmount = oldAmount + amount
-					@matterialVal["#{productId}"].store "amount", "#{totAmount}"
-				else
-					@matterialVal["#{productId}"].store "amount", "#{amount}"
-					@matterialVal["#{productId}"].store "currency", "#{curr}"
-					@matterialVal["#{productId}"].store "pname", "#{productName}"
-					@matterialVal["#{productId}"].store "projectId", "#{mEntry.project_id}"
-					@matterialVal["#{productId}"].store "projectName", "#{mEntry.project.name}"
-				end
-				@invItems[@itemCount].store 'milestone_id', ''				
-				@invItems[@itemCount].store 'project_id', mEntry.project_id
-				@invItems[@itemCount].store 'product_id', productId
-				@invItems[@itemCount].store 'material_id', mEntry.id
-				@invItems[@itemCount].store 'item_desc', desc
-				@invItems[@itemCount].store 'item_type', productType
-				@invItems[@itemCount].store 'rate', rate
-				@invItems[@itemCount].store 'currency', curr
-				@invItems[@itemCount].store 'item_quantity', qty.round(2)
-				@invItems[@itemCount].store 'item_amount', amount
-				@itemCount = @itemCount + 1
-				partialMatAmount = partialMatAmount + amount.round(2)
-				if isCreate
-					if @invoice.id.blank? #&& !isCreate
-						errorMsg = saveInvoice
-						unless errorMsg.blank?
-							break
-						end
-					end
-					invItem = @invoice.invoice_items.new()	
-					invItem = updateInvoiceItem(invItem, mEntry.project_id, desc, rate, qty, curr, productType, amount, nil, nil, productId) 
-					updateMatterial = WkMaterialEntry.find(mEntry.id)
-					updateBilledEntry(updateMatterial, invItem.id)
-					# updateMatterial.invoice_item_id = invItem.id
-					# updateMatterial.save()
-				end
+		matterialEntry.each do | mEntry |		
+			productId = mEntry.inventory_item.product_item.product.id
+			productName = mEntry.inventory_item.product_item.product.name.to_s
+			productArr << productId
+			brandName = mEntry.inventory_item.product_item.brand.blank? ? "" : mEntry.inventory_item.product_item.brand.name.to_s
+			modelName = mEntry.inventory_item.product_item.product_model.blank? ? "" : mEntry.inventory_item.product_item.product_model.name.to_s
+			desc = productName + " " + brandName + " " + modelName
+			rate = mEntry.selling_price
+			qty = mEntry.quantity
+			curr = mEntry.inventory_item.currency
+			amount = mEntry.selling_price * mEntry.quantity
+			pType = mEntry.inventory_item.product_type.downcase
+			productType = pType == 'i' ? 'm' : 'a'
+			if @matterialVal.has_key?("#{productId}")
+				oldAmount = @matterialVal["#{productId}"]["amount"].to_i
+				totAmount = oldAmount + amount
+				@matterialVal["#{productId}"].store "amount", "#{totAmount}"
+			else
+				@matterialVal["#{productId}"].store "amount", "#{amount}"
+				@matterialVal["#{productId}"].store "currency", "#{curr}"
+				@matterialVal["#{productId}"].store "pname", "#{productName}"
+				@matterialVal["#{productId}"].store "projectId", "#{mEntry.project_id}"
+				@matterialVal["#{productId}"].store "projectName", "#{mEntry.project.name}"
 			end
-			@totalMatterialAmount =  partialMatAmount.round(2)
-			addProductTaxes(productArr, isCreate)			
-			
-			@totalMatterialAmount.round(2)
+			@invItems[@itemCount].store 'milestone_id', ''				
+			@invItems[@itemCount].store 'project_id', mEntry.project_id
+			@invItems[@itemCount].store 'product_id', productId
+			@invItems[@itemCount].store 'material_id', mEntry.id
+			@invItems[@itemCount].store 'item_desc', desc
+			@invItems[@itemCount].store 'item_type', productType
+			@invItems[@itemCount].store 'rate', rate
+			@invItems[@itemCount].store 'currency', curr
+			@invItems[@itemCount].store 'item_quantity', qty.round(2)
+			@invItems[@itemCount].store 'item_amount', amount
+			@itemCount = @itemCount + 1
+			partialMatAmount = partialMatAmount + amount.round(2)
+			if isCreate
+				if @invoice.id.blank? #&& !isCreate
+					errorMsg = saveInvoice
+					unless errorMsg.blank?
+						break
+					end
+				end
+				invItem = @invoice.invoice_items.new()	
+				invItem = updateInvoiceItem(invItem, mEntry.project_id, desc, rate, qty, curr, productType, amount, nil, nil, productId) 
+				updateMatterial = WkMaterialEntry.find(mEntry.id)
+				updateBilledEntry(updateMatterial, invItem.id)
+				# updateMatterial.invoice_item_id = invItem.id
+				# updateMatterial.save()
+			end
+		end
+		@totalMatterialAmount =  partialMatAmount.round(2)
+		addProductTaxes(productArr, isCreate)			
+		
+		@totalMatterialAmount.round(2)
 	end
 	
 	def addProductTaxes(productArr, isCreate)
