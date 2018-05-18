@@ -9,6 +9,7 @@ class WkIssueAssignee < ActiveRecord::Base
   include Redmine::SafeAttributes
   belongs_to :project
   belongs_to :issue
+  belongs_to :user
   attr_protected :others, :issue_id
   
   safe_attributes 'user_id'

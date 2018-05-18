@@ -1,0 +1,28 @@
+
+<%  wkexpense_helper = Object.new.extend(WkexpenseHelper) 
+	wkasset_helper = Object.new.extend(WkassetHelper)
+ 	rateHash = wkasset_helper.getRatePerHash(false)
+%>
+
+<fieldset>
+<legend><b><%= "Billing Details" %></b></legend>
+<table>
+		<tr>			
+			<th align="left"><%= l(:field_rate) %></th>
+			<td style="padding-left:40px;"><%= @issue.erpmineissues.currency %> <%= @issue.erpmineissues.rate%> <%= rateHash[@issue.erpmineissues.rate_per] %></td>
+			
+		</tr>
+		<tr>
+			<th align="left"><%= l(:label_additional_assignee) %></th>
+			<td style="padding-left:40px;">
+				<% @issue.assignees.each do | issue | %>
+					<table>
+						<tr>
+							<td><%= issue.user.name  %></td
+						</tr>
+					</table>
+				<% end %>
+			</td>
+		</tr>
+</table>
+</fieldset>

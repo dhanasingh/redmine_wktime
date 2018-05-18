@@ -553,7 +553,7 @@ class WktimeHook < Redmine::Hook::ViewListener
 	render_on :view_users_form_preferences, :partial => 'wkuser/wk_user_address', locals: { myaccount: false }
 	render_on :view_my_account, :partial => 'wkuser/wk_user', locals: { myaccount: true }
 	render_on :view_my_account_preferences, :partial => 'wkuser/wk_user_address', locals: { myaccount: true }
-	render_on :view_issues_form_details_bottom, :partial => 'wkissues/wk_issue_fields.html.erb'
+	render_on :view_issues_form_details_bottom, :partial => 'wkissues/wk_issue_fields'
 	
 	def controller_issues_edit_before_save(context={})
 		saveErpmineIssues(context[:issue], context[:params][:erpmineissues])
@@ -587,4 +587,6 @@ class WktimeHook < Redmine::Hook::ViewListener
 		issueObj.assignees_attributes = assigneeAttributes	
 	end
 	
+	render_on :view_issues_show_description_bottom, :partial => 'wkissues/show_wk_issues'
+		
 end
