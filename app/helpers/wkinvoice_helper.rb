@@ -783,4 +783,21 @@ include WkpayrollHelper
 		invoiceFreq
 	end
 	
+	# Return the invoice intervals available in the given start and end
+	# invIntervalArr - Array of invoice intervals
+	def getInvoiceInterval(startDate, endDate, inclusiveOfStart, inclusiveOfEnd)
+		invPeriod = getInvoiceFrequency
+		periodStart = getPeriodStart(invPeriod)
+		invIntervalArr = getIntervals(startDate, endDate, invPeriod, periodStart, true, true)
+		invIntervalArr
+	end
+	
+	# Return the start of the give periodType
+	def getPeriodStart(periodType)
+		invDay = getInvWeekStartDay #Setting.plugin_redmine_wktime['wktime_generate_invoice_day']
+		invMonthDay = getMonthStartDay #should get from settings
+		periodStart = periodType == 'W' ? invDay : invMonthDay
+		periodStart
+	end
+	
 end
