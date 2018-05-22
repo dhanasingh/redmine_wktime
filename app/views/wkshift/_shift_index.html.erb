@@ -1,4 +1,4 @@
-<% activeHash = {1 => "On", 0 => "Off"} %>
+<% activeHash = {1 => l(:label_active_on), 0 => l(:label_active_off)} %>
 <%= form_tag({:controller => "wkshift", :action => 'update', :tab => 'wkshift'}, :method => :get, :id => 'query_form') do %>
 <table class="list" id="commit-keywords">
   <thead>

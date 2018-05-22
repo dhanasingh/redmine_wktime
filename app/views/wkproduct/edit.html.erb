@@ -31,9 +31,9 @@
 			<td></td>
 		</tr>  
 		<tr>
-			<th align="left" style="padding-left:90px;"><label id="lbl_depreciation"><%= l(:label_depreciation) %></label></th>
+			<th align="left" style="padding-left:133px;"><label id="lbl_depreciation"><%= l(:label_depreciation) %></label></th>
 			<td align="left" style="padding-left:40px;">
-				<%= text_field_tag "depreciation_rate",  @productEntry.blank? ? '' : @productEntry.depreciation_rate.to_f*100 %>
+				<%= text_field_tag "depreciation_rate",  @productEntry.blank? ? '' : @productEntry.depreciation_rate.to_f*100, :size => 75 %>
 			</td>
 			<td>
 				<b><label id="per_annum"> % <%=h l(:label_per_annum) %></label></b>
@@ -47,7 +47,7 @@
 			<td></td>
 		</tr> 
 		<tr>
-			<th align="left" style="padding-left:126px;"><label id="lbl_depreciation_account"><%= l(:label_accounting_ledger) %></label></th>
+			<th align="left" style="padding-left:157px;"><label id="lbl_depreciation_account"><%= l(:label_accounting_ledger) %></label></th>
 			<td align="left" style="padding-left:40px;">
 				<%=h select_tag("ledger_id", options_for_select(ledgers, :selected => @productEntry.blank? ? ledgers : @productEntry.ledger_id )) %>
 			</td>

@@ -14,7 +14,7 @@
 	<div class="wk-contextual">
 		<b><label style="float:left;"><%= l(:label_ledger) %></label></b>
 	     <%=h select_tag("txn_ledger", options_for_select([['','']]+@ledgers, :selected => ledgerid.nil? ? @ledgers : ledgerid ), :style => "width:200px; float:left;") %>
-        <%= link_to l(:label_new) + l(:label_transaction), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+        <%= link_to l(:label_new_item_adjusted, l(:label_transaction)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
     </div>
 	<%= render :partial => 'wkgltransaction/date_range' %>
 <% end %>
