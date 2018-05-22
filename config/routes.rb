@@ -3,6 +3,12 @@
   get 'wktime/getissues', :to => 'wktime#getissues'
 
   get 'wktime/getactivities', :to => 'wktime#getactivities'
+
+  get 'wktime/getclients', :to => 'wktime#getclients'
+
+  get 'wktime/getuserclients', :to => 'wktime#getuserclients'
+
+  get 'wktime/getuserissues', :to => 'wktime#getuserissues'
   
   get 'wktime/getusers', :to => 'wktime#getusers'
 
@@ -60,6 +66,12 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
   get 'wkexpense/getissues', :to => 'wkexpense#getissues'
 
   get 'wkexpense/getactivities', :to => 'wkexpense#getactivities'
+
+  get 'wkexpense/getclients', :to => 'wkexpense#getclients'
+
+  get 'wkexpense/getuserclients', :to => 'wkexpense#getuserclients'
+
+  get 'wkexpense/getuserissues', :to => 'wkexpense#getuserissues'
   
   post 'wkexpense/sendSubReminderEmail', :to => 'wkexpense#sendSubReminderEmail'
   

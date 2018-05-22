@@ -701,8 +701,8 @@ fr:
   label_product_items: Product Items
   label_category: Category
   label_populate_items: Populate Items
-  label_new_product_item: New Product Item
-  label_edit_product_item: Edit Product Item
+  label_new_product_item: New Item
+  label_edit_product_item: Edit Item
   label_product_item: Product Item
   label_part_number: Part Number
   label_inventory_information: Inventory Information
@@ -818,6 +818,7 @@ fr:
   label_setting_preference: Allow user schedule preference
   label_auto_scheduling: Auto Shift Scheduling
 
+
   label_shift_and_scheduling: Shift Scheduling
   label_auto_approve_with_te: Approbation automatique Temps & Dépense
   label_credit_with_ledger: Credit Ledger
@@ -854,3 +855,25 @@ fr:
   label_select_date_text: Please select the date
 
   label_report_type: Rapport Type
+
+  label_new_asset: New Asset
+  label_new_asset_item: New Asset
+  label_edit_asset_item: Edit Asset
+  label_additional_info: Additional Information
+  label_as: As
+  label_new_component: New Component
+  label_components: Components
+  label_sheet_view: Sheet view
+  label_issue_view: Issue view
+  label_spent_for: Spent For
+  label_availability: Available
+  label_in_use: In Use
+  label_additional_assignee: Additional Assignee
+  label_relationship: Contact Relationship
+  warning_select_project: Please select a project
+  warn_billable_project_not_configured: Billable projects not configured for %{name}
+  field_rate: Rate
+  field_rate_per: Per
+  label_invoice_generation_month: Invoice generation month
+  label_edit_component: Edit Component
+

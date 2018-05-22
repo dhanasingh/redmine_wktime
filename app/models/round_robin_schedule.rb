@@ -449,7 +449,7 @@ class RoundRobinSchedule
 	
 	# return number of days between two dates
 	def getDaysBetween(from, to)
-		(to - from).to_i + 1
+		(to.to_date - from.to_date).to_i + 1
 	end
 	
 	# Save the scheduled hash entries

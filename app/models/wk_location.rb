@@ -20,7 +20,8 @@ class WkLocation < ActiveRecord::Base
   belongs_to :address, :class_name => 'WkAddress', :dependent => :destroy
   has_many :inventory_items, foreign_key: "location_id", class_name: "WkInventoryItem", :dependent => :restrict_with_error
   belongs_to :location_type, :class_name => 'WkCrmEnumeration'
-
+  has_many :contacts, foreign_key: "location_id", class_name: "WkCrmContact", :dependent => :restrict_with_error
+  has_many :acounts, foreign_key: "location_id", class_name: "WkAccount", :dependent => :restrict_with_error
   before_save :check_default
   
   validates_presence_of :name

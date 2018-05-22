@@ -53,6 +53,7 @@ module TimelogControllerPatch
 		end
 
 		def edit
+			sessionValidation
 			if session[:timelog][:spent_type] === "T"
 				@time_entry.safe_attributes = params[:time_entry]
 			elsif session[:timelog][:spent_type] === "E"
@@ -93,7 +94,8 @@ module TimelogControllerPatch
 			end
 
 			
-			
+			model = nil
+			errorMsg = nil
 			if params[:log_type].blank? || params[:log_type] == 'T'
 				call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
 				if @time_entry.save
@@ -133,6 +135,7 @@ module TimelogControllerPatch
 				if errorMsg.blank?
 					saveMatterial if params[:log_type] == 'M' || params[:log_type] == 'A'
 					saveExpense if params[:log_type] == 'E'
+					model = @modelEntries
 				else
 					respond_to do |format|
 						format.html { 					
@@ -143,6 +146,25 @@ module TimelogControllerPatch
 					end
 				end
 			end
+			
+			if errorMsg.blank?
+				spentForModel = model.blank? ? @time_entry : model
+				saveSpentFors(spentForModel)
+			end
+			
+		end
+		
+		def saveSpentFors(model)
+			spentForId = nil
+			spentFortype = nil
+			unless params[:spent_for].blank?
+				spentFors = params[:spent_for].split('|')
+				spentForVal = spentFors[1].split('_')
+				spentForId = spentForVal[1]
+				spentFortype = spentForVal[0]
+			end
+			wktime_helper = Object.new.extend(WktimeHelper)
+			wktime_helper.saveSpentFor(params[:spentForId], spentForId, spentFortype, model.id, model.class.name, model.spent_on, '00', '00', nil)
 		end
 		
 		def validateMatterial
@@ -172,7 +194,8 @@ module TimelogControllerPatch
 
 		def update
 			@time_entry.safe_attributes = params[:time_entry]
-
+			model = nil
+			errorMsg = nil
 			if params[:log_type].blank? || params[:log_type] == 'T'
 			
 				call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
@@ -196,22 +219,15 @@ module TimelogControllerPatch
 				if errorMsg.blank?
 					saveMatterial if params[:log_type] == 'M' || params[:log_type] == 'A'
 					saveExpense if params[:log_type] == 'E'
+					model = @modelEntries
 				else
-				flash[:error] = errorMsg
-				redirect_to :controller => 'timelog',:action => 'edit'
-					# respond_to do |format|
-						# # format.html { 					
-							# # flash[:error] = errorMsg
-							# # redirect_back_or_default project_time_entries_path(@time_entry.project)
-						
-						# # }
-						# format.html { 
-							# flash[:error] = errorMsg
-							# render :action => 'edit' 
-						# }
-						# #format.api  { render_validation_errors(@time_entry) }
-					# end
+					flash[:error] = errorMsg
+					redirect_to :controller => 'timelog',:action => 'edit'					
 				end
+			end
+			if errorMsg.blank?
+				spentForModel = model.blank? ? @time_entry : model
+				saveSpentFors(spentForModel)
 			end
 		end
 		
@@ -307,7 +323,7 @@ module TimelogControllerPatch
 				}
 			end
 		end
-		
+				
 		def set_filter_session
 			if params[:spent_type].blank?
 				session[:timelog] = {:spent_type => "T"}
@@ -317,6 +333,7 @@ module TimelogControllerPatch
 		end
 		
 		def find_time_entries
+			sessionValidation
 			if session[:timelog][:spent_type] === "T"
 				@time_entries = TimeEntry.where(:id => params[:id] || params[:ids]).
 					preload(:project => :time_entry_activities).
@@ -342,6 +359,7 @@ module TimelogControllerPatch
 		end
 		
 		def find_time_entry
+			sessionValidation
 			if session[:timelog][:spent_type] === "T"
 				@time_entry = TimeEntry.find(params[:id])
 				@project = @time_entry.project
@@ -362,6 +380,7 @@ module TimelogControllerPatch
 		
 		def check_editability
 			wktime_helper = Object.new.extend(WktimeHelper)
+			sessionValidation
 			if session[:timelog][:spent_type] === "T"
 				unless @time_entry.editable_by?(User.current)
 				  render_403
@@ -373,10 +392,17 @@ module TimelogControllerPatch
 				return wktime_helper.showInventory
 			end
 		end
+		
+		def sessionValidation
+			if session[:timelog].blank?
+				set_filter_session
+			end
+		end
 
 		def destroy
 			wktime_helper = Object.new.extend(WktimeHelper)
 			errMsg = ""
+			sessionValidation
 			if session[:timelog][:spent_type] === "T"
 				destroyed = TimeEntry.transaction do
 					@time_entries.each do |t|
@@ -442,7 +468,7 @@ module TimelogControllerPatch
 					begin
 					@materialEntries = WkMaterialEntry.find(params[:id].to_i) unless params[:id].blank?
 					@time_entry.project_id = @materialEntries.project_id
-					if @materialEntries.invoice_item_id.blank?
+					if @materialEntries.spent_for.blank? || @materialEntries.spent_for.invoice_item_id.blank?
 						if session[:timelog][:spent_type] === "M"
 							inventoryItemObj = WkInventoryItem.find(@materialEntries.inventory_item_id)
 							inventoryItemObj.available_quantity = inventoryItemObj.available_quantity + @materialEntries.quantity

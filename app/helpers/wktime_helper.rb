@@ -41,6 +41,12 @@ module WktimeHelper
 							value.blank? ? ['e','n','r','s','a'] : value)
 	end
 	
+	def options_for_sheet_select(value)
+		options_for_select([[l(:label_weekly), 'W'],
+							[l(:label_issue_view), 'I']],
+							value.blank? ? 'current_month' : value)
+	end
+	
 	def statusString(status)	
 		statusStr = l(:wk_status_new)
 		case status
@@ -104,7 +110,7 @@ module WktimeHelper
 			headers << (l('date.abbr_day_names')[(i+startOfWeek)%7] + "\n" + I18n.localize(@startday+i, :format=>:short)) unless @startday.nil?
 		end
 		csv << headers.collect {|c| Redmine::CodesetUtil.from_utf8(c.to_s, l(:general_csv_encoding) )  }
-		weeklyHash = getWeeklyView(entries, unitLabel, true) #should send false and form unique rows
+		weeklyHash = getWeeklyView(entries, unitLabel, true, nil, 7) #should send false and form unique rows
 		col_values = []
 		matrix_values = nil
 		totals = [0.0,0.0,0.0,0.0,0.0,0.0,0.0]
@@ -226,7 +232,7 @@ module WktimeHelper
 	pdf.Ln
 	render_table_header(pdf, columns, col_width, row_height, table_width)
 
-	weeklyHash = getWeeklyView(entries, unitLabel, true)
+	weeklyHash = getWeeklyView(entries, unitLabel, true, nil, 7)
 	col_values = []
 	matrix_values = []
 	totals = [0.0,0.0,0.0,0.0,0.0,0.0,0.0]
@@ -334,7 +340,7 @@ module WktimeHelper
 		key
 	end
 	
-	def getWeeklyView(entries, unitLabel, sumHours = false)
+	def getWeeklyView(entries, unitLabel, sumHours = false, startOfSheet, vwFrequency)
 		weeklyHash = Hash.new
 		prev_entry = nil		
 		entries.each do |entry|
@@ -351,10 +357,15 @@ module WktimeHelper
 					weeklyHash[key] = hourMatrix
 				end
 				
-				#Martin Dube contribution: 'start of the week' configuration
-				#wday returns 0 - 6, 0 is sunday
-				startOfWeek = getStartOfWeek
-				index = (entry.spent_on.wday+7-(startOfWeek))%7
+				unless startOfSheet.blank?
+					startOfWeek = startOfSheet
+				else
+					#Martin Dube contribution: 'start of the week' configuration
+					#wday returns 0 - 6, 0 is sunday
+					startOfWeek = getStartOfWeek
+				end
+				#index = (entry.spent_on.wday+7-(startOfWeek))%7
+				index = (entry.spent_on.wday+vwFrequency-(startOfWeek))%vwFrequency
 				updated = false
 				hourMatrix.each do |rows|
 					if rows[index].blank?
@@ -1299,7 +1310,13 @@ end
 			ddValues = model.where("#{sqlCond}").order("#{orderBySql}")
 		end
 		unless ddValues.blank?
-			ddArray = ddValues.collect {|t| [t["#{displayCol}"], t["#{valueCol}"]] }
+			#ddArray = ddValues.collect {|t| [t["#{displayCol}"], t["#{valueCol}"]] 
+			ddValues.each do | entry |
+				ddArray << [entry["#{displayCol}"], entry["#{valueCol}"]]
+				if model == WkLocation
+					selectedVal = entry.id if entry.is_default?
+				end
+			end
 		end
 		ddArray.unshift(["",""]) if needBlank
 		options_for_select(ddArray, :selected => selectedVal)
@@ -1344,4 +1361,188 @@ end
 		!Setting.plugin_redmine_wktime['wktime_enable_shift scheduling_module'].blank? && Setting.plugin_redmine_wktime['wktime_enable_shift scheduling_module'].to_i == 1
 	end
 	
+	def options_for_number_select(startWith, endOn, incrementBy, selectedValue)
+		numArr = Array.new
+		num = startWith
+		until endOn < num && incrementBy > 0
+			if num < 10
+				numArr << ['0' + num.to_s,num]
+			else
+				numArr << [num,num]
+			end
+			num = num + incrementBy
+		end
+		options_for_select(numArr, :selected => selectedValue )
+	end
+	
+	def getSpentFor(spentForKey)
+		spentForArr = spentForKey.split('_')
+		spentForArr
+	end
+	
+	def getDateTime(dateVal, hrVal, minVal, secVal)
+		dateTimeVal = dateVal.to_datetime
+		dateTimeVal = getFormatedTimeEntry(dateTimeVal)
+		dateTimeVal = dateTimeVal.change(:hour => hrVal.to_i, :min => minVal.to_i, :sec => secVal.to_i)
+		dateTimeVal
+	end
+	
+	def getFormatedTimeEntry(entryDateTime)
+		entryTime = nil
+		if !entryDateTime.blank?
+			entryLocal = entryDateTime.change(:offset => Time.current.localtime.strftime("%:z"))
+			entryTime = Time.parse("#{entryLocal.to_date.to_s} #{entryLocal.utc.to_time.to_s} ").localtime
+		end
+		entryTime
+	end
+	
+	def saveSpentFor(id, spentForId, spentFortype, spentId, spentType, spentDate, spentHr, spentMm, invoiceId)
+		if id.blank?
+			spentObj = WkSpentFor.new
+		else
+			spentObj = WkSpentFor.find(id.to_i)
+		end
+		spentObj.spent_for_id = spentForId
+		spentObj.spent_for_type = spentFortype
+		spentObj.spent_id = spentId
+		spentObj.spent_type = spentType
+		spentObj.spent_on_time = getDateTime(spentDate, spentHr, spentMm, '00')
+		spentObj.invoice_item_id = invoiceId
+		spentObj.save
+	end
+	
+	def getMonthsBetween(startDate, endDate, startDay)
+		startDtPeriod = getPeroid(startDate, startDay, 'M')
+		endDtPeriod = getPeroid(endDate, startDay, 'M')
+		if startDtPeriod[0]  == endDtPeriod[0]
+			noOfMonths = (getDaysBetween(startDate, endDate)) /  (getDaysBetween(startDtPeriod[0], startDtPeriod[1]) * 1.0 )
+		else			
+			noOfMonths = (((getDaysBetween(startDate, startDtPeriod[1]) ) / (getDaysBetween(startDtPeriod[0], startDtPeriod[1]) * 1.0 )) + (getDaysBetween(endDtPeriod[0], endDate)/ (getDaysBetween(endDtPeriod[0], endDtPeriod[1]) * 1.0)) + (getMonthDiff((startDtPeriod[1] + 1.day) , (endDtPeriod[0] - 1.day))))
+		end
+		noOfMonths		
+	end
+	
+	def getPeroid(dateVal, startDay, periodType)
+		startDt = dateVal
+		endDt = dateVal
+		case periodType
+		when 'M'
+			startDt = (dateVal - (startDay -1).days).beginning_of_month + (startDay -1).days
+			endDt = (dateVal - (startDay -1).days).end_of_month + (startDay -1).days
+		when 'W'
+			startDt = getWeekStartDt(dateVal, startDay)	
+			endDt = startDt + 6.days
+		end
+		period = [startDt, endDt]
+		period
+	end
+	
+	# return number of months between two dates
+	def getMonthDiff(from, to)
+		(to.year * 12 + to.month) - (from.year * 12 + from.month)
+	end
+	
+	# return number of days between two dates
+	def getDaysBetween(from, to)
+		(to.to_date - from.to_date).to_i + 1
+	end
+	
+	# def getWeeksBetween(startDate, endDate, startDay)
+		# #startDay = getPluginSetting('wktime_pay_day')
+		# startDtPeriod = getPeroid(startDate, startDay, 'W')
+		# endDtPeriod = getPeroid(endDate, startDay, 'W')
+		# Rails.logger.info("******* startDtPeriod #{startDtPeriod} endDtPeriod #{endDtPeriod} **************************")
+		# if startDtPeriod[0]  == endDtPeriod[0]
+			# noOfDays = (getDaysBetween(startDate, endDate)) /  (getDaysBetween(startDtPeriod[0], startDtPeriod[1]) * 1.0 )
+		# else			
+			# noOfDays = ((getDaysBetween(startDate, startDtPeriod[1]) ) / (getDaysBetween(startDtPeriod[0], startDtPeriod[1]) * 1.0 )) + (getDaysBetween(endDtPeriod[0], endDate)/ (getDaysBetween(endDtPeriod[0], endDtPeriod[1]) * 1.0))
+			# noOfDays = noOfDays + getNoOfPeriod((startDtPeriod[1] + 1.day) , (endDtPeriod[0] - 1.day), 'W')
+		# end
+		# Rails.logger.info("================= noOfDays #{noOfDays} st #{((getDaysBetween(startDate, startDtPeriod[1])) / (getDaysBetween(startDtPeriod[0], startDtPeriod[1]) * 1.0 ))}  et #{(getDaysBetween(endDtPeriod[0], endDate)/ (getDaysBetween(endDtPeriod[0], endDtPeriod[1]) * 1.0))} ===========================")
+		# noOfDays		
+	# end
+	
+	#change the date to first day of week
+	def getWeekStartDt(date, startDay)	
+		startOfWeek = startDay
+		#Martin Dube contribution: 'start of the week' configuration
+		unless date.blank?			
+			#the day of calendar week (0-6, Sunday is 0)			
+			dayfirst_diff = (date.wday+7) - (startOfWeek)
+			date -= (dayfirst_diff%7)
+		end		
+		date
+	end
+	
+	# def getNoOfPeriod(from, to, periodType)
+		# case periodType
+		# when 'M'
+			# periodCount = getMonthDiff(from, to)
+		# when 'W'
+			# periodCount = getDaysBetween(from,to)/7
+		# end
+		# periodCount
+	# end
+	
+	def getDuration(from, to, durationAs, totalHours, calcByHours)
+	
+		duration = 0
+		case durationAs.upcase
+		when 'H'
+			duration = totalHours
+		when 'D'
+			duration = getDaysBetween(from, to)
+		when 'BW'
+			startDay = getInvWeekStartDay
+			duration = getDaysBetween(from, to)/14.0 #getWeeksBetween(from,to, startDay)/2.0	
+		when 'W'
+			startDay = getInvWeekStartDay
+			duration = getDaysBetween(from, to)/7.0 #getWeeksBetween(from,to, startDay)			
+		when 'M'
+			startDay = getMonthStartDay # should get from settings
+			duration = getMonthsBetween(from, to, startDay)
+		when 'Q'
+			startDay = getMonthStartDay # should get from settings
+			duration = getMonthsBetween(from, to, startDay)/3.0
+		when 'SA'
+			startDay = getMonthStartDay # should get from settings
+			duration = getMonthsBetween(from, to, startDay)/6.0
+		when 'A'
+			startDay = getMonthStartDay # should get from settings
+			duration = getMonthsBetween(from, to, startDay)/12.0
+		end
+		duration
+	end
+	
+	# def getMonthStartDay
+		# 1
+	# end
+	
+	def getSpentFors(userId, projectId)
+		billableProjects = Array.new
+		unless projectId.blank? || userId.blank?
+			user = User.find(userId)
+			project = Project.find(projectId)
+			projBillList = project.account_projects.includes(:parent) unless project.blank?
+			usrLocationId = user.wk_user.blank? ? nil : user.wk_user.location_id
+			# spent_for_key = parentType.to_s + '_' + parentId.to_s
+			locationBillProject = projBillList.select {|bp| bp.parent.location_id == usrLocationId}
+			locationBillProject = locationBillProject.sort_by{|parent_type| parent_type}
+			#billableProject = locationBillProject.detect {|billProj| billProj.parent_type == parentType && billProj.parent_id == parentId} unless entry.nil?
+			billableProjects = locationBillProject.collect {|billProj| [billProj.parent.name, billProj.project_id.to_s + '|' + billProj.parent_type.to_s + '_' + billProj.parent_id.to_s]}
+		end
+		billableProjects
+	end
+	
+	def getInvWeekStartDay
+		startDay = Setting.plugin_redmine_wktime['wktime_generate_invoice_day']
+		startDay = 0 if startDay.blank?
+		startDay.to_i
+	end
+	
+	def getMonthStartDay
+		startDay = Setting.plugin_redmine_wktime['wktime_generate_invoice_month_start']
+		startDay = 1 if startDay.blank?
+		startDay.to_i
+	end
 end

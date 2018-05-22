@@ -1,7 +1,7 @@
 <%= javascript_include_tag 'crmactivity', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
-	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds')}" %>";
+	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds', :additionalContactType => controller.additionalContactType)}" %>";
 </script>
 <%
 	hr = []
@@ -25,10 +25,10 @@
 <%	accArr = options_for_wktime_account(false, accountType)
 	if !@activityEntry.blank?
 		entityType = @activityEntry[0].parent_type == 'WkCrmContact' ? contactType : accountType
-		accArr = relatedValues(@activityEntry[0].parent_type, @activityEntry[0].parent_id, entityType)	
+		accArr = relatedValues(@activityEntry[0].parent_type, @activityEntry[0].parent_id, entityType, false, controller.additionalContactType)	
     elsif !params[:parentType].blank?
 		entityType = params[:parentType] == 'WkCrmContact' ? contactType : accountType 
-		accArr = relatedValues(params[:parentType], params[:parentId], entityType)
+		accArr = relatedValues(params[:parentType], params[:parentId], entityType, false, controller.additionalContactType)
 	end	
  %>
 <%= form_tag({:controller => 'wkcrmactivity', :action => 'update'}, :method => :get, :id => 'query_form') do %>

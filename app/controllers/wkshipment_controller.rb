@@ -12,7 +12,7 @@ include WkinventoryHelper
 	def index
 		set_filter_session
 		retrieve_date_range
-		sqlwhere = ""
+		sqlwhere = " wk_shipments.shipment_type != 'N' "
 		filter_type = session[controller_name][:polymorphic_filter]
 		contact_id = session[controller_name][:contact_id]
 		account_id = session[controller_name][:account_id]
@@ -33,25 +33,17 @@ include WkinventoryHelper
 		end
 		
 		unless parentId.blank? 
-			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
-			sqlwhere = sqlwhere + " wk_shipments.parent_id = '#{parentId}' "
+			sqlwhere = sqlwhere + " and wk_shipments.parent_id = '#{parentId}' "
 		end
 		
 		unless parentType.blank?
-			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
-			sqlwhere = sqlwhere + " wk_shipments.parent_type = '#{parentType}'  "
+			sqlwhere = sqlwhere + " and wk_shipments.parent_type = '#{parentType}'  "
 		end
 		
-		if !@from.blank? && !@to.blank?			
-			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
-			sqlwhere = sqlwhere + " wk_shipments.shipment_date between '#{@from}' and '#{@to}'  "
+		if !@from.blank? && !@to.blank?	
+			sqlwhere = sqlwhere + " and wk_shipments.shipment_date between '#{@from}' and '#{@to}'  "
 		end
-		
-		unless sqlwhere.blank?
-			shipEntries = WkShipment.includes(:inventory_items).where(sqlwhere)
-		else
-			shipEntries = WkShipment.includes(:inventory_items)
-		end
+		shipEntries = WkShipment.includes(:inventory_items).where(sqlwhere)
 		
 		formPagination(shipEntries)
 		@totalShipAmt = @shipmentEntries.where("wk_inventory_items.parent_id is null").sum("wk_inventory_items.total_quantity*(wk_inventory_items.cost_price+wk_inventory_items.over_head_price)")
@@ -226,25 +218,7 @@ include WkinventoryHelper
 			WkInventoryItem.delete_all(:id => arrId)
 		end
 		
-		if !@shipment.id.blank? && autoPostGL('inventory') && getSettingCfId("inventory_cr_ledger")>0 && getSettingCfId("inventory_db_ledger") > 0
-			totalAmount = @shipment.inventory_items.shipment_item.sum('total_quantity*(cost_price+over_head_price)')
-			# below query for Asset Parent id logic
-			# totalAmount = @shipment.inventory_items.where("(product_type = 'A' and parent_id is not null) OR product_type <> 'A'").sum('total_quantity*(cost_price+over_head_price)')
-			#moduleAmtHash = {'inventory' => [totalAmount.round, totalAmount.round]}
-			#transAmountArr = getTransAmountArr(moduleAmtHash, nil)
-			dbLedgerAmtHash = {getSettingCfId("inventory_db_ledger") => totalAmount-assetTotal}
-			crLedgerAmtHash = {getSettingCfId("inventory_cr_ledger") => totalAmount}
-			dbLedgerAmtHash.merge!(assetAccountingHash) { |k, o, n| o + n }
-			transAmountArr = [crLedgerAmtHash, dbLedgerAmtHash]
-			if totalAmount > 0 #&& autoPostGL('inventory')
-				transId = @shipment.gl_transaction.blank? ? nil : @shipment.gl_transaction.id
-				glTransaction = postToGlTransaction('inventory', transId, @shipment.shipment_date, transAmountArr, @shipment.inventory_items.shipment_item[0].currency, nil, nil)
-				unless glTransaction.blank?
-					@shipment.gl_transaction_id = glTransaction.id
-					@shipment.save
-				end				
-			end
-		end
+		postShipmentAccounting(@shipment, assetAccountingHash, assetTotal)
 		
 		if errorMsg.nil? 
 			redirect_to :action => 'index' , :tab => controller_name
@@ -254,6 +228,8 @@ include WkinventoryHelper
 			redirect_to :action => 'edit', :shipment_id => @shipment.id
 	   end
 	end
+	
+	
 	
 	def destroy
 		begin
@@ -342,11 +318,12 @@ include WkinventoryHelper
 			end
 		elsif params[:update_DD] == 'product_type' && !params[:product_id].blank?
 			product = WkProduct.find(params[:product_id].to_i)
+			productTypeHash = getProductTypeHash(false)
 			unless product.blank?
 				unless product.product_type.blank?
-					itemArr << product.product_type.to_s() + ',' +  getProductTypeHash(false)[product.product_type] + "\n"
+					itemArr << product.product_type.to_s() + ',' +  productTypeHash[product.product_type] + "\n"
 				else
-					getProductTypeHash(false).each do |key, val|
+					productTypeHash.each do |key, val|
 						itemArr << key + ',' +  val + "\n"
 					end
 				end
@@ -378,6 +355,10 @@ include WkinventoryHelper
 	def postAssetProperties(inventoryItem)
 		assetObj = WkAssetProperty.where(:inventory_item_id => inventoryItem.id).first_or_initialize(:inventory_item_id => inventoryItem.id, :name => (inventoryItem.product_item.product.name.to_s + inventoryItem.id.to_s), :current_value => (inventoryItem.cost_price.to_f + inventoryItem.over_head_price.to_f).round(2), :owner_type => 'O', :rate_per => 'h') 
 		assetObj.save
+	end
+	
+	def additionalContactType
+		false
 	end
 	
 end

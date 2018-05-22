@@ -142,14 +142,14 @@ module WkimportattendanceHelper
 		csv
 	end
 	
-	def getFormatedTimeEntry(entryDateTime)
-		entryTime = nil
-		if !entryDateTime.blank?
-			entryLocal = entryDateTime.change(:offset => Time.current.localtime.strftime("%:z"))
-			entryTime = Time.parse("#{entryLocal.to_date.to_s} #{entryLocal.utc.to_time.to_s} ").localtime
-		end
-		entryTime
-	end
+	# def getFormatedTimeEntry(entryDateTime)
+		# entryTime = nil
+		# if !entryDateTime.blank?
+			# entryLocal = entryDateTime.change(:offset => Time.current.localtime.strftime("%:z"))
+			# entryTime = Time.parse("#{entryLocal.to_date.to_s} #{entryLocal.utc.to_time.to_s} ").localtime
+		# end
+		# entryTime
+	# end
 	
 	def getUserIdCFHash(cfId)
 		cfValHash = Hash.new

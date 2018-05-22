@@ -17,6 +17,28 @@ User.class_eval do
 	end
 end
 
+Issue.class_eval do
+	has_one :wk_issue, :dependent => :destroy, :class_name => 'WkIssue'
+	has_many :assignees, :dependent => :destroy, :class_name => 'WkIssueAssignee'
+	accepts_nested_attributes_for :assignees
+	accepts_nested_attributes_for :wk_issue
+	def erpmineissues
+		self.wk_issue ||= WkIssue.new(:issue => self, :project => self.project)
+	end	
+end
+
+Project.class_eval do
+	has_many :account_projects, :dependent => :destroy, :class_name => 'WkAccountProject'
+	#has_many :parents, through: :account_projects
+end
+
+TimeEntry.class_eval do
+  has_one :spent_for, as: :spent, class_name: 'WkSpentFor', :dependent => :destroy
+  has_one :invoice_item, through: :spent_for
+  
+  accepts_nested_attributes_for :spent_for
+end
+
 # redmine only differs between project_menu and application_menu! but we want to display the
 # time_tracker submenu only if the plugin specific controllers are called
 module Redmine::MenuManager::MenuHelper
@@ -25,7 +47,9 @@ module Redmine::MenuManager::MenuHelper
   end
 
   def render_main_menu(project)
-    render_menu(menu_name(project), project)
+    if menu_name = controller.current_menu(project)
+        render_menu(menu_name(project), project) 
+    end
   end
 
   private
@@ -334,7 +358,7 @@ Rails.configuration.to_prepare do
 						end	
 					end
 				rescue Exception => e
-					Rails.logger.info "Import failed: #{e.message}"
+					Rails.logger.error "Import failed: #{e.message}"
 				end
 			end
 		end
@@ -529,4 +553,40 @@ class WktimeHook < Redmine::Hook::ViewListener
 	render_on :view_users_form_preferences, :partial => 'wkuser/wk_user_address', locals: { myaccount: false }
 	render_on :view_my_account, :partial => 'wkuser/wk_user', locals: { myaccount: true }
 	render_on :view_my_account_preferences, :partial => 'wkuser/wk_user_address', locals: { myaccount: true }
+	render_on :view_issues_form_details_bottom, :partial => 'wkissues/wk_issue_fields'
+	
+	def controller_issues_edit_before_save(context={})
+		saveErpmineIssues(context[:issue], context[:params][:erpmineissues])
+		saveErpmineIssueAssignee(context[:issue], context[:issue][:project_id], context[:params][:wk_issue_assignee])
+	end
+	
+	def controller_issues_new_before_save(context={})	
+		saveErpmineIssues(context[:issue], context[:params][:erpmineissues])
+		saveErpmineIssueAssignee(context[:issue], context[:issue][:project_id], context[:params][:wk_issue_assignee])
+	end
+	
+	def saveErpmineIssues(issueObj, issueParm)
+		issueObj.erpmineissues.safe_attributes = issueParm
+	end
+	
+	def saveErpmineIssueAssignee(issueObj, projectId, userIdArr)		
+		 assigneeAttributes = Array.new
+		# userIdArr.each do |userId|
+			# assigneeAttributes << {user_id: userId.to_i, project_id: projectId}			
+		# end
+		# issueObj.assignees_attributes = assigneeAttributes		
+		WkIssueAssignee.where(:issue_id => issueObj.id).where.not(:user_id => userIdArr).delete_all()
+		unless userIdArr.blank?
+			userIdArr.collect{ |id| 
+				iscount = WkIssueAssignee.where("issue_id = ? and user_id = ? ", issueObj.id, id).count
+				unless iscount > 0
+					assigneeAttributes << {user_id: id.to_i, project_id: projectId}
+				end						
+			}
+		end
+		issueObj.assignees_attributes = assigneeAttributes	
+	end
+	
+	render_on :view_issues_show_description_bottom, :partial => 'wkissues/show_wk_issues'
+		
 end

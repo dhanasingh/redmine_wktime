@@ -19,6 +19,7 @@ class WktimeController < WkbaseController
 unloadable
 
 include WktimeHelper
+include WkcrmHelper
 
 before_filter :require_login
 before_filter :check_perm_and_redirect, :only => [:edit, :update, :destroy] # user without edit permission can't destroy
@@ -284,7 +285,7 @@ include QueriesHelper
 				#redirect_back_or_default :action => 'index'
 				#redirect_to :action => 'index' , :tab => params[:tab]
                 if params[:wktime_save_continue] 
-				      redirect_to :action => 'edit' , :startday => !@entries.present? ? @startday  : @startday+ 7, :user_id => @user.id, :project_id => params[:project_id]  
+				      redirect_to :action => 'edit' , :startday => !@entries.present? ? @startday  : @startday+ @renderer.getDaysPerSheet, :user_id => @user.id, :project_id => params[:project_id], :sheet_view => @renderer.getSheetType   
 				else                                                                                                
 				      redirect_to :action => 'index' , :tab => params[:tab]                   
 				end 
@@ -295,7 +296,7 @@ include QueriesHelper
 				redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday, :isError => true,
 				:enter_issue_id => 1	
 				else
-					redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday, :isError => true
+					redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday,:sheet_view => @renderer.getSheetType, :project_id => @projectId, :isError => true
 				end
 			end
 		}
@@ -529,6 +530,127 @@ include QueriesHelper
 			end
 			}
 		end
+	end
+	
+	def getclients
+		project = nil
+		error = nil
+		teUser = User.find(params[:user_id])
+		project_id = params[:project_id]
+		if !project_id.blank?
+			project = Project.find(project_id)
+		elsif !params[:issue_id].blank?
+			issue = Issue.find(params[:issue_id])
+			project = issue.project
+			project_id = project.id
+			u_id = params[:user_id]
+			user = User.find(u_id)
+			if !user_allowed_to?(:log_time, project)
+				error = "403"
+			end
+		else
+			error = "403"
+		end
+		clientStr =""
+		usrLocationId = teUser.wk_user.blank? ? nil : teUser.wk_user.location_id
+		unless project.blank?
+			project.account_projects.includes(:parent).order(:parent_type).each do |ap|
+				clientStr << project_id.to_s() + '|' + ap.parent_type + '_' + ap.parent_id.to_s() + '|' + "" + (params[:separator].blank? ? '|' : params[:separator] ) + ap.parent.name + "\n" if ap.parent.location_id == usrLocationId
+			end
+		end
+	
+		# respond_to do |format|
+			# format.text  { 
+			# if error.blank?
+				# render :text => clientStr 
+			# else
+				# render_403
+			# end
+			# }
+		# end
+		respond_to do |format|
+			format.text  { render :text => clientStr }
+		end
+	end
+	
+	def getuserclients
+		error = nil
+		teUser = User.find(params[:user_id])
+		userClients = getClientsByUser(teUser.id, false)
+		clientStr =""
+		usrLocationId = teUser.wk_user.blank? ? nil : teUser.wk_user.location_id
+		userClients.each do |ap|
+			clientStr << ap[1].to_s + ',' + ap[0].to_s + "\n"
+		end
+	
+		respond_to do |format|
+			format.text  { 
+			if error.blank?
+				render :text => clientStr 
+			else
+				render_403
+			end
+			}
+		end
+	end
+	
+	def getClientsByUser(userId, needBlank)
+		set_loggable_projects
+		set_managed_projects
+		userProjects = @logtime_projects.blank? ? @manage_projects : @logtime_projects
+		userProjects = @logtime_projects & @manage_projects if !@manage_projects.blank? && !@logtime_projects.blank?
+		projectids = Array.new
+		user = User.find(userId)
+		billableClients = Array.new
+		usrLocationId = user.wk_user.blank? ? nil : user.wk_user.location_id
+		unless userProjects.blank?
+			userProjects.each do |project|
+				projectids << project.id
+			end
+		end
+		usrBillableProjects = WkAccountProject.includes(:parent).where(:project_id => projectids)
+		locationBillProject = usrBillableProjects.select {|bp| bp.parent.location_id == usrLocationId}
+		locationBillProject = locationBillProject.sort_by{|parent_type| parent_type}
+		billableClients = locationBillProject.collect {|billProj| [billProj.parent.name, billProj.parent_type.to_s + '_' + billProj.parent_id.to_s]}
+		billableClients.unshift(["", ""]) if needBlank
+		billableClients = billableClients.uniq
+		billableClients
+	end
+	
+	def getuserissues
+		error = nil
+		teUser = User.find(params[:user_id])
+		userIssues = getIssuesByUser(teUser.id, false)
+		clientStr = ""
+		usrLocationId = teUser.wk_user.blank? ? nil : teUser.wk_user.location_id
+		userIssues.each do |issue|
+			clientStr << issue[1].to_s + ',' + issue[0].to_s + "\n"
+		end
+		
+		respond_to do |format|
+			format.text  { render :text => clientStr }
+		end
+	end
+	
+	def getIssuesByUser(userId, needBlank)
+		set_loggable_projects
+		set_managed_projects
+		userProjects = @logtime_projects.blank? ? @manage_projects : @logtime_projects
+		userProjects = @logtime_projects & @manage_projects if !@manage_projects.blank? && !@logtime_projects.blank?
+		projectids = Array.new
+		assignedIssues = Array.new
+		user = User.find(userId)
+		usrLocationId = user.wk_user.blank? ? nil : user.wk_user.location_id
+		unless userProjects.blank?
+			userProjects.each do |project|
+				projectids << project.id
+			end
+		end
+		userIssues = Issue.includes(:project).joins("INNER JOIN custom_values cv on cv.customized_type = 'Issue' and cv.customized_id = issues.id and cv.custom_field_id = #{getSettingCfId('wktime_additional_assignee')} AND (cv.value = '#{userId}' OR issues.assigned_to_id = #{userId})")
+		userIssues = userIssues.sort_by{|subject| subject}
+		assignedIssues = userIssues.collect {|issue| [issue.project.name + " # " + issue.subject, issue.id]}
+		assignedIssues.unshift( ["", ""]) if needBlank
+		assignedIssues
 	end
 	
 	def getusers
@@ -1013,6 +1135,51 @@ include QueriesHelper
 			redirect_to :action => 'new'
 		end		
 	 end
+	 
+	def getSheetView
+		"W"
+	end
+	
+	def hideprevTemplate
+		false
+	end
+	
+	def showProjectDD
+		true
+	end
+	
+	def getLblSpentOn
+		l(:field_start_date)
+	end
+	
+	def getDefultProject
+		nil #get from settings
+	end
+	
+	def showActivityDD
+		true
+	end
+	
+	def getDefultActivity
+		nil #get from settings
+	end
+	
+	def hasApprovalSystem
+		!Setting.plugin_redmine_wktime['wktime_use_approval_system'].blank? &&
+				Setting.plugin_redmine_wktime['wktime_use_approval_system'].to_i == 1 
+	end
+	
+	def getEntityLabel
+		l(:label_wktime)
+	end
+	
+	def getLblIssue
+		l(:field_issue)
+	end
+	
+	def getLblSpentFor
+		l(:label_spent_for)
+	end
 	
 private
 	
@@ -1193,13 +1360,27 @@ private
 						if disabled[k] == "false"
 							if(!id.blank? || !hours[j].blank?)
 								teEntry = nil
-								teEntry = getTEEntry(id)									
+								teEntry = getTEEntry(id)
+								
+								entry.permit! #(spent_for: [ :spent_for_type, :spent_on_time ])
 								teEntry.attributes = entry
 								# since project_id and user_id is protected
 								teEntry.project_id = entry['project_id']
 								teEntry.issue_id = nil if entry['issue_id'].blank?
 								teEntry.user_id = @user.id
 								teEntry.spent_on = @startday + k
+								if @renderer.showSpentOnInRow
+									teEntry.spent_on = entry['spent_for_attributes']['spent_on_time']
+								end
+								
+								unless entry['spent_for_attributes'].blank? 
+									unless entry['spent_for_attributes']['spent_for_key'].blank?
+										spentFor = getSpentFor(entry['spent_for_attributes']['spent_for_key'])
+										teEntry.spent_for.spent_for_type = spentFor[0]
+										teEntry.spent_for.spent_for_id = spentFor[1].to_i
+									end
+									teEntry.spent_for.spent_on_time = getDateTime(teEntry.spent_on, entry['spent_for_attributes']['spent_date_hr'], entry['spent_for_attributes']['spent_date_min'], 0)
+								end
 								#for one comment, it will be automatically loaded into the object
 								# for different comments, load it separately
 								unless comments.blank?
@@ -1227,7 +1408,6 @@ private
 										end
 									end
 								end
-								
 								@entries << teEntry	
 							end
 							j += 1
@@ -1635,9 +1815,37 @@ private
 		else
 			user_id = params[:user_id]			
 		end
+		if api_request? && params[:project_id].blank?
+			@projectId = params[:"wk_#{teName}"][:project_id]	
+		else
+			@projectId = params[:project_id]			
+		end
+		if api_request? && params[:spent_for_key].blank?
+			spentForKey = params[:"wk_#{teName}"][:spent_for_key]	
+		else
+			spentForKey = params[:spent_for_key]			
+		end
+		@spentForType = nil
+		@spentForId = nil
+		unless spentForKey.blank?
+			spentFor = getSpentFor(spentForKey)
+			@spentForType = spentFor[0]
+			@spentForId = spentFor[1].to_i
+		end
+		if api_request? && params[:issue_id].blank?
+			@issueId = params[:"wk_#{teName}"][:issue_id]	
+		else
+			@issueId = params[:issue_id]			
+		end
 		# if user has changed the startday
+		@selectedDate = startday
+		if api_request? && params[:sheet_view].blank?
+			@selectedDate = params[:"wk_#{teName}"][:selected_date].to_s.to_date
+		end
 		@startday ||= getStartDay(startday)
 		@user ||= User.find(user_id)
+		sheetView = params[:sheet_view].blank? ? 'W' : params[:sheet_view]
+		@renderer = SheetViewRenderer.getInstance(sheetView)
 	end
   
 	def set_user_projects
@@ -1714,8 +1922,10 @@ private
 	def set_project_issues(entries)
 		@projectIssues ||= Hash.new
 		@projActivities ||= Hash.new
+		@projClients ||= Hash.new
 		@projectIssues.clear
 		@projActivities.clear
+		@projClients.clear
 		entries.each do |entry|
 			set_visible_issues(entry)
 		end
@@ -1761,6 +1971,9 @@ private
         end
         if @projActivities[project_id].blank?
             @projActivities[project_id] = project.activities unless project.nil?
+        end 
+		if @projClients[project_id].blank?
+            @projClients[project_id] = project.account_projects.includes(:parent) unless project.nil?
         end 
     end
 	
@@ -1874,9 +2087,31 @@ private
 	end
 	
 	def findEntriesByCond(cond)
-		#TimeEntry.find(:all, :conditions => cond, :order => 'project_id, issue_id, activity_id, spent_on')
-		#TimeEntry.where(cond).order('project_id, issue_id, activity_id, spent_on')
-		TimeEntry.joins(:project).joins(:activity).joins("LEFT OUTER JOIN issues ON issues.id = time_entries.issue_id").where(cond).order('projects.name, issues.subject, enumerations.name, time_entries.spent_on')
+		#TimeEntry.joins(:project).joins(:activity).joins("LEFT OUTER JOIN issues ON issues.id = time_entries.issue_id").where(cond).order('projects.name, issues.subject, enumerations.name, time_entries.spent_on')
+		@renderer.getSheetEntries(cond, TimeEntry, getFiletrParams)
+	end
+	
+	def getFiletrParams
+		issueUsersCFId = getSettingCfId('wktime_additional_assignee') #22 #
+		givenValues = {:user_id => @user.id, :project_id => @projectId, :issue_cf_id => issueUsersCFId, :selected_date => @selectedDate, :spent_for_type => @spentForType, :spent_for_id => @spentForId, :issue_id => @issueId }
+	end
+	
+	def findIssueVwEntries
+		issueUsersCFId = getSettingCfId('wktime_additional_assignee') #22#getSettingCfId(settingId)
+		sqlStr = "select i.id as issue_id, i.subject as issue_name, i.project_id, i.assigned_to_id, 
+			p.name as project_name, ap.id as account_project_id, ap.parent_id, ap.parent_type,
+			te.id as time_entry_id, te.id, COALESCE(te.spent_on,'#{@selectedDate}') as spent_on , COALESCE(te.hours,0) as hours, te.activity_id, te.comments, te.spent_on_time, 
+			te.spent_for_id, te.spent_for_type, te.spent_id, te.spent_type from issues i 
+			inner join projects p on (p.id = i.project_id and project_id in (#{@projectId}))
+			inner join custom_values cv on (i.id = cv.customized_id and cv.customized_type = 'Issue' and cv.custom_field_id = #{issueUsersCFId} and cv.value = '#{@user.id}') OR i.assigned_to_id = #{@user.id}
+			left outer join wk_account_projects ap on (ap.project_id = p.id)
+			left outer join (select t.*, sf.spent_on_time, sf.spent_for_id, sf.spent_for_type, sf.spent_id, sf.spent_type  from time_entries t 
+			inner join wk_spent_fors sf on (t.id = sf.spent_id and sf.spent_type = 'TimeEntry' and t.spent_on = '#{@selectedDate}')) te on te.issue_id = i.id and te.user_id = #{@user.id}
+			and te.spent_for_type = ap.parent_type and te.spent_for_id = ap.parent_id" 
+			#time_entries te on te.spent_on = '#{@selectedDate}' and te.issue_id = i.id and te.user_id = #{@user.id} 
+			#left outer join wk_spent_fors sf on sf.spent_type = 'TimeEntry' and sf.spent_for_type = ap.parent_type and sf.spent_for_id = ap.parent_id
+		#sqlStr = sqlStr + " Where "
+		TimeEntry.find_by_sql(sqlStr)
 	end
 	
 	def setValueForSpField(teEntry,spValue,decimal_separator,entry)
