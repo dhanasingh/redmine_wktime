@@ -95,7 +95,7 @@
 		<% if isAccount %>	
 			<%  selectedAcId = accountObj.blank? ? nil : accountObj.account_category %>
 			<tr>
-				<th align="left"><%= l(:label_account) + " " + l(:field_category) %></th>
+				<th align="left"><%= l(:label_account_category) %></th>
 			<td align="left" style="padding-left:40px;"><%=h select_tag('account_category', options_for_select(options_for_enum_select('AC', selectedAcId, true))) %></td>
 			</tr>
 			<tr>

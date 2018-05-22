@@ -2,7 +2,7 @@
 	roleArr = nil
 	roleArr = roleObj.pluck(:name, :id)
 %>
-<% genderHash = {'M' => "Male", 'F' => "Female", 'O' => "Others"} %>
+<% genderHash = {'M' => "#{l(:gender_hash_male)}", 'F' => "#{l(:gender_hash_female)}", 'O' => "#{l(:gender_hash_others)}"} %>
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) 
 	currArr = wkexpense_helper.options_for_currency
 	wkenum_helper = Object.new.extend(WkcrmenumerationHelper) 

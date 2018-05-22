@@ -7,13 +7,13 @@
 		</p>
 
 		<p>
-		<%= check_box_tag('settings[wktime_uuto_approve]', 1, @settings['wktime_uuto_approve'].to_i == 1) %> <label><%= "#{l(:label_wk_auto_approve)} #{l(:label_te)}"%></label>
+		<%= check_box_tag('settings[wktime_auto_approve]', 1, @settings['wktime_uuto_approve'].to_i == 1) %> <label><%= "#{l(:label_auto_approve_with_te)}"%></label>
 		</p>
 		<p>
 		<%= check_box_tag('settings[wktime_own_approval]', 1, @settings['wktime_own_approval'].to_i == 1) %> <label><%= l(:label_wk_own_approve,l(:label_te)) %></label>
 		</p>
 		<p>
-		  <label><%= l(:label_wk_submission_ack) %></label><%= text_area_tag 'settings[wktime_submission_ack]', @settings['wktime_submission_ack']%>
+		  <label><%= l(:label_wk_submission_ack) %></label><%= text_area_tag 'settings[wktime_submission_ack]', l(:submission_ack_message_content)%>
 		</p>
 		<%= l(:label_redmine_restart_warning) %>
 
@@ -48,13 +48,13 @@
 										   [45, 45]], :selected => @settings['wktime_nonsub_sch_min'].blank? ? 0 : @settings['wktime_nonsub_sch_min']))%>								   
 		</p>
 		<p>
-		  <label><%= l(:label_wk_nonsub_mail_message) %></label><%= text_area_tag 'settings[wktime_nonsub_mail_message]', @settings['wktime_nonsub_mail_message']%>
+		  <label><%= l(:label_wk_nonsub_mail_message) %></label><%= text_area_tag 'settings[wktime_nonsub_mail_message]', l(:nonsub_mail_message_content)%>
 		</p>
 		<%
 			accountGroups = Array.new
-			accGroup = Group.order('lastname')
+			accGroup = Group.all.sort
 			unless accGroup.blank?
-				accountGroups = accGroup.collect {|t| [t.lastname, t.id] }
+				accountGroups = accGroup.collect {|t| [t.name, t.id] }
 			end
 			accountGroups.unshift(["",0])
 		%>

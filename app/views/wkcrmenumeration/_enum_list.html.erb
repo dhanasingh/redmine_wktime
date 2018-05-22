@@ -15,7 +15,7 @@
 	<% @crmenum.each do |entry| %>
 		<tr>
 			<td class="lbl-txt-align"><%=h enumType[entry.enum_type]  %></td>
-		    <td class="lbl-txt-align"><%=h entry.name  %></td>
+		    <td class="lbl-txt-align"><%= I18n.t("#{entry.name.gsub('.', '/')}", :default => entry.name)  %></td>
 			<td class="lbl-txt-align"><%=h entry.position unless entry.position.blank?  %></td>			
 			<td class="lbl-txt-align"><%=h checked_image entry.active?  %></td>
 			<td class="lbl-txt-align"><%=h checked_image entry.is_default?  %></td>
