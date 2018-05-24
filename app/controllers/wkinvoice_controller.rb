@@ -308,5 +308,9 @@ class WkinvoiceController < WkorderentityController
 	def addAssetType
 		true
 	end
+	
+	def showProjectDD
+		true
+	end
 
 end

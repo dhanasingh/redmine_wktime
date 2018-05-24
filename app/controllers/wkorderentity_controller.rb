@@ -475,4 +475,8 @@ include WkorderentityHelper
 		l(:label_account)
 	end
 	
+	def showProjectDD
+		false
+	end
+	
 end
