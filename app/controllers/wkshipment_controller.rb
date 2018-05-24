@@ -189,7 +189,7 @@ include WkinventoryHelper
 				shipmentItem.status = 'o'
 				shipmentItem.uom_id = params["uom_id#{i}"].to_i unless params["uom_id#{i}"].blank?
 				shipmentItem.location_id = params["location_id#{i}"].to_i unless params["location_id#{i}"].blank?
-				if params["product_type#{i}"] == 'A'
+				if params["product_type#{i}"] == 'A' || params["product_type#{i}"] == 'RA'
 					assetValue = (shipmentItem.total_quantity*(shipmentItem.cost_price+shipmentItem.over_head_price))
 					assetTotal = assetTotal + assetValue
 					accountingLedger = WkProductItem.find(shipmentItem.product_item_id).product.ledger_id
