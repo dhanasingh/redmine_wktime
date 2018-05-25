@@ -113,7 +113,12 @@ class WkproductitemController < WkinventoryController
 		if productItem.save()
 			inventoryItem = nil
 			if !params[:available_quantity].blank?
-				inventoryItem = updateInventoryItem(productItem.id) 
+				locationId = params[:location_id].to_i
+				unless params[:parent_id].blank?
+					invItem = WkInventoryItem.find(params[:parent_id].to_i)
+					locationId = invItem.location_id
+				end
+				inventoryItem = updateInventoryItem(productItem.id, locationId) 
 			elsif !params[:inventory_item_id].blank?
 				inventoryItem = WkInventoryItem.find(params[:inventory_item_id].to_i)
 				inventoryItem.selling_price = params[:selling_price]
@@ -148,7 +153,7 @@ class WkproductitemController < WkinventoryController
 		unless availQuantity < 0 || transferQty <= 0
 			sourceItem.available_quantity = availQuantity
 			if sourceItem.save()
-				targetItem = updateInventoryItem(params[:product_item_id].to_i)
+				targetItem = updateInventoryItem(params[:product_item_id].to_i, params[:location_id].to_i)
 				if sourceItem.product_type == 'A'
 					depreciationFreq = Setting.plugin_redmine_wktime['wktime_depreciation_frequency']
 					finacialPeriodArr = getFinancialPeriodArray(Date.today, Date.today, depreciationFreq, 1)
@@ -171,7 +176,7 @@ class WkproductitemController < WkinventoryController
 		end
 	end
 	
-	def updateInventoryItem(productItemId)
+	def updateInventoryItem(productItemId, locationId)
 		sysCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 		if params[:inventory_item_id].blank?
 			inventoryItem = WkInventoryItem.new
@@ -210,7 +215,7 @@ class WkproductitemController < WkinventoryController
 		inventoryItem.available_quantity = params[:available_quantity]
 		inventoryItem.status = inventoryItem.available_quantity == 0 ? 'c' : 'o'
 		inventoryItem.uom_id = params[:uom_id].to_i
-		inventoryItem.location_id = params[:location_id].to_i		
+		inventoryItem.location_id = locationId		
 		inventoryItem.save()
 		updateShipment(inventoryItem)
 		inventoryItem
