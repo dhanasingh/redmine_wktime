@@ -18,7 +18,7 @@
 					<tr>
 						<th align="left"><%= l(:label_product) %></th>
 						<td align="left" style="padding-left:40px;">
-							<%=h select_tag("product_id", generic_options_for_select(WkProduct, productSqlCond, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_id, false), :onchange => "if(#{ controller.showProductItem }) { productChanged(this.id, 'brand_id', #{User.current.id}, true, true, null, null); }") %>
+							<%=h select_tag("product_id", generic_options_for_select(WkProduct, productSqlCond, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_id, false), :onchange => "if(#{ controller.showProductItem }) { productChanged(this.id, 'brand_id', #{User.current.id}, true, true, null, null);productChanged(this.id, 'product_attribute_id', #{User.current.id}, false, false, null, null); }") %>
 						</td>
 					</tr> 
 					<% if controller.showProductItem %>

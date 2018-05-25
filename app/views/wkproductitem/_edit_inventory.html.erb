@@ -7,6 +7,17 @@
 		currentParent = invntItem.blank? ? nil : invntItem.id
 		parentArr = parentArray(controller.getItemType, true, false, locationId, currentParent)
 	%>
+	<%  productItem = @productItem 
+		attributeSql = ""
+		unless productItem.blank?
+			sqlCond = " product_id = " + productItem.product_id.to_s
+		else
+			firstProduct = WkProduct.where(:product_type => controller.getItemType).order(:name).first
+			unless firstProduct.blank?		
+				attributeSql = " group_id = " + firstProduct.attribute_group_id.to_s 		
+			end
+		end	
+	%>
 	<fieldset class="box tabular">
 		<legend><%= isTransfer ? l(:button_transfer) : controller.lblInventory %></legend>
 		<table width='100%'>  
@@ -29,7 +40,7 @@
 			<tr>
 				<th align="left"><%= l(:label_attribute) %></th>
 				<td align="left" style="padding-left:40px;">
-					<%=h select_tag("product_attribute_id", generic_options_for_select(WkProductAttribute, nil, 'name', 'name', 'id', invntItem.blank? ? '' : invntItem.product_attribute_id, true), :disabled => isDisable || isTransfer) %>
+					<%=h select_tag("product_attribute_id", generic_options_for_select(WkProductAttribute, attributeSql, 'name', 'name', 'id', invntItem.blank? ? '' : invntItem.product_attribute_id, true), :disabled => isDisable || isTransfer) %>
 				</td>
 			</tr>
 			<% if invntItem.blank? || invntItem.parent_id.blank? %>
