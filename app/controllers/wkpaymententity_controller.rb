@@ -40,10 +40,11 @@ class WkpaymententityController < WkbillingController
 			" left join wk_accounts a on (p.parent_type = 'WkAccount' and p.parent_id = a.id)" +
 			" left join wk_crm_contacts c on (p.parent_type = 'WkCrmContact' and p.parent_id = c.id)" +
 			" where pmi.payment_amount > 0 " 
+		sqlHook = call_hook :payment_additional_where_query
 		if filter_type == '2' && !contact_id.blank?			
-			sqlwhere = sqlwhere + " and p.parent_id = '#{contact_id}'  and p.parent_type = 'WkCrmContact' and (#{getPersonTypeSql}) = '#{getOrderContactType}' "
+			sqlwhere = sqlwhere + " and p.parent_id = '#{contact_id}'  and p.parent_type = 'WkCrmContact' and ((#{getPersonTypeSql}) = '#{getOrderContactType}' " + (sqlHook.blank? ? " )" : sqlHook[0] + ")" )
 		elsif filter_type == '2' && contact_id.blank?			
-			sqlwhere = sqlwhere + " and p.parent_type = 'WkCrmContact' and (#{getPersonTypeSql}) = '#{getOrderContactType}'  "
+			sqlwhere = sqlwhere + " and p.parent_type = 'WkCrmContact' and ((#{getPersonTypeSql}) = '#{getOrderContactType}'  " + (sqlHook.blank? ? " )" : sqlHook[0] + ")" )
 		end
 		
 		if filter_type == '3' && !account_id.blank?			
@@ -57,7 +58,7 @@ class WkpaymententityController < WkbillingController
 		end		
 		
 		if filter_type == '1' || filter_type.blank?			
-			sqlwhere = sqlwhere + " and ((#{getPersonTypeSql}) = '#{getOrderAccountType}' OR  (#{getPersonTypeSql}) = '#{getOrderContactType}') "
+			sqlwhere = sqlwhere + " and ((#{getPersonTypeSql}) = '#{getOrderAccountType}' OR  (#{getPersonTypeSql}) = '#{getOrderContactType}' " + (sqlHook.blank? ? " )" : sqlHook[0] + ")" )
 		end	
 		
 		sqlStr = sqlStr + sqlwhere unless sqlwhere.blank?
