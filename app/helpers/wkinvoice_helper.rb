@@ -258,7 +258,7 @@ include WkpayrollHelper
 						else
 							period = {"start" => @invoice.start_date, "end" => @invoice.end_date} 
 						end
-						periodStart = rateHash['rate_per'] == 'W' ? invDay : invMonthDay
+						periodStart = rateHash['rate_per'].upcase == 'W' ? invDay : invMonthDay
 						allIntervals = getIntervals(period["start"], period["end"], rateHash['rate_per'], periodStart.to_i, true, true)
 						subQuantity = 0
 						allIntervals.each do |interval|
@@ -778,7 +778,7 @@ include WkpayrollHelper
 		invFreq = getInvoiceFrequency
 		invDay = getInvWeekStartDay #Setting.plugin_redmine_wktime['wktime_generate_invoice_day']
 		invMonthDay = getMonthStartDay #should get from settings
-		periodStart = invFreq == 'W' ? invDay : invMonthDay
+		periodStart = invFreq.upcase == 'W' ? invDay : invMonthDay
 		invoiceFreq = {"frequency" => invFreq, "start" => periodStart}
 		invoiceFreq
 	end
@@ -796,7 +796,7 @@ include WkpayrollHelper
 	def getPeriodStart(periodType)
 		invDay = getInvWeekStartDay #Setting.plugin_redmine_wktime['wktime_generate_invoice_day']
 		invMonthDay = getMonthStartDay #should get from settings
-		periodStart = periodType == 'W' ? invDay : invMonthDay
+		periodStart = periodType.upcase == 'W' ? invDay : invMonthDay
 		periodStart
 	end
 	
