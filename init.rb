@@ -25,7 +25,9 @@ module Redmine::MenuManager::MenuHelper
   end
 
   def render_main_menu(project)
-    render_menu(menu_name(project), project)
+		if menu_name = controller.current_menu(project)
+			render_menu(menu_name(project), project)
+		end
   end
 
   private
