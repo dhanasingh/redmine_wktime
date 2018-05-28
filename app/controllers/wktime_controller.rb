@@ -646,7 +646,9 @@ include QueriesHelper
 				projectids << project.id
 			end
 		end
-		userIssues = Issue.includes(:project).joins("INNER JOIN custom_values cv on cv.customized_type = 'Issue' and cv.customized_id = issues.id and cv.custom_field_id = #{getSettingCfId('wktime_additional_assignee')} AND (cv.value = '#{userId}' OR issues.assigned_to_id = #{userId})")
+		#userIssues = Issue.includes(:project).joins("INNER JOIN custom_values cv on cv.customized_type = 'Issue' and cv.customized_id = issues.id and cv.custom_field_id = #{getSettingCfId('wktime_additional_assignee')} AND (cv.value = '#{userId}' OR issues.assigned_to_id = #{userId})")
+		
+		userIssues = Issue.includes(:project).joins("INNER JOIN wk_issue_assignees ia on ((ia.issue_id = issues.id and ia.user_id = #{userId}) OR issues.assigned_to_id = #{userId})")
 		userIssues = userIssues.sort_by{|subject| subject}
 		assignedIssues = userIssues.collect {|issue| [issue.project.name + " # " + issue.subject, issue.id]}
 		assignedIssues.unshift( ["", ""]) if needBlank
@@ -2092,27 +2094,27 @@ private
 	end
 	
 	def getFiletrParams
-		issueUsersCFId = getSettingCfId('wktime_additional_assignee') #22 #
-		givenValues = {:user_id => @user.id, :project_id => @projectId, :issue_cf_id => issueUsersCFId, :selected_date => @selectedDate, :spent_for_type => @spentForType, :spent_for_id => @spentForId, :issue_id => @issueId }
+		#issueUsersCFId = getSettingCfId('wktime_additional_assignee') #22 # :issue_cf_id => issueUsersCFId,
+		givenValues = {:user_id => @user.id, :project_id => @projectId, :selected_date => @selectedDate, :spent_for_type => @spentForType, :spent_for_id => @spentForId, :issue_id => @issueId }
 	end
 	
-	def findIssueVwEntries
-		issueUsersCFId = getSettingCfId('wktime_additional_assignee') #22#getSettingCfId(settingId)
-		sqlStr = "select i.id as issue_id, i.subject as issue_name, i.project_id, i.assigned_to_id, 
-			p.name as project_name, ap.id as account_project_id, ap.parent_id, ap.parent_type,
-			te.id as time_entry_id, te.id, COALESCE(te.spent_on,'#{@selectedDate}') as spent_on , COALESCE(te.hours,0) as hours, te.activity_id, te.comments, te.spent_on_time, 
-			te.spent_for_id, te.spent_for_type, te.spent_id, te.spent_type from issues i 
-			inner join projects p on (p.id = i.project_id and project_id in (#{@projectId}))
-			inner join custom_values cv on (i.id = cv.customized_id and cv.customized_type = 'Issue' and cv.custom_field_id = #{issueUsersCFId} and cv.value = '#{@user.id}') OR i.assigned_to_id = #{@user.id}
-			left outer join wk_account_projects ap on (ap.project_id = p.id)
-			left outer join (select t.*, sf.spent_on_time, sf.spent_for_id, sf.spent_for_type, sf.spent_id, sf.spent_type  from time_entries t 
-			inner join wk_spent_fors sf on (t.id = sf.spent_id and sf.spent_type = 'TimeEntry' and t.spent_on = '#{@selectedDate}')) te on te.issue_id = i.id and te.user_id = #{@user.id}
-			and te.spent_for_type = ap.parent_type and te.spent_for_id = ap.parent_id" 
-			#time_entries te on te.spent_on = '#{@selectedDate}' and te.issue_id = i.id and te.user_id = #{@user.id} 
-			#left outer join wk_spent_fors sf on sf.spent_type = 'TimeEntry' and sf.spent_for_type = ap.parent_type and sf.spent_for_id = ap.parent_id
-		#sqlStr = sqlStr + " Where "
-		TimeEntry.find_by_sql(sqlStr)
-	end
+	# def findIssueVwEntries
+		# issueUsersCFId = getSettingCfId('wktime_additional_assignee') #22#getSettingCfId(settingId)
+		# sqlStr = "select i.id as issue_id, i.subject as issue_name, i.project_id, i.assigned_to_id, 
+			# p.name as project_name, ap.id as account_project_id, ap.parent_id, ap.parent_type,
+			# te.id as time_entry_id, te.id, COALESCE(te.spent_on,'#{@selectedDate}') as spent_on , COALESCE(te.hours,0) as hours, te.activity_id, te.comments, te.spent_on_time, 
+			# te.spent_for_id, te.spent_for_type, te.spent_id, te.spent_type from issues i 
+			# inner join projects p on (p.id = i.project_id and project_id in (#{@projectId}))
+			# inner join custom_values cv on (i.id = cv.customized_id and cv.customized_type = 'Issue' and cv.custom_field_id = #{issueUsersCFId} and cv.value = '#{@user.id}') OR i.assigned_to_id = #{@user.id}
+			# left outer join wk_account_projects ap on (ap.project_id = p.id)
+			# left outer join (select t.*, sf.spent_on_time, sf.spent_for_id, sf.spent_for_type, sf.spent_id, sf.spent_type  from time_entries t 
+			# inner join wk_spent_fors sf on (t.id = sf.spent_id and sf.spent_type = 'TimeEntry' and t.spent_on = '#{@selectedDate}')) te on te.issue_id = i.id and te.user_id = #{@user.id}
+			# and te.spent_for_type = ap.parent_type and te.spent_for_id = ap.parent_id" 
+			# #time_entries te on te.spent_on = '#{@selectedDate}' and te.issue_id = i.id and te.user_id = #{@user.id} 
+			# #left outer join wk_spent_fors sf on sf.spent_type = 'TimeEntry' and sf.spent_for_type = ap.parent_type and sf.spent_for_id = ap.parent_id
+		# #sqlStr = sqlStr + " Where "
+		# TimeEntry.find_by_sql(sqlStr)
+	# end
 	
 	def setValueForSpField(teEntry,spValue,decimal_separator,entry)
 		teEntry.hours = spValue.blank? ? nil : spValue.to_hours

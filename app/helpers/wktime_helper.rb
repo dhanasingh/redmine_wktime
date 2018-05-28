@@ -1178,8 +1178,9 @@ end
 	def isBilledTimeEntry(tEntry)
 		ret = false
 		unless tEntry.blank?
-			cfEntry = tEntry.custom_value_for(getSettingCfId('wktime_billing_id_cf'))
-			ret = true unless cfEntry.blank? || cfEntry.value.blank?
+			#cfEntry = tEntry.custom_value_for(getSettingCfId('wktime_billing_id_cf'))
+			spentFor = tEntry.spent_for
+			ret = true unless spentFor.blank? || spentFor.invoice_item_id.blank?
 		end
 		ret
 	end

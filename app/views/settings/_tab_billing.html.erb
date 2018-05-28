@@ -94,10 +94,10 @@ lblInvCompVal = "<%=l(:field_value) %>";
 	<p style="padding-left: 220px;">
 		<label><%= l(:label_generate_invoice_from) %> </label><%=h date_field_tag('settings[wktime_generate_invoice_from]',@settings['wktime_generate_invoice_from'],:size => 10) %> <%= calendar_for('settings_wktime_generate_invoice_from') %>
 	</p>
-	<p style="padding-left: 220px;">
-		<label><%= l(:label_billing_id) %> </label><%=h select_tag('settings[wktime_billing_id_cf]', 
+	<!-- <p style="padding-left: 220px;">
+		<label><%#= l(:label_billing_id) %> </label><%#=h select_tag('settings[wktime_billing_id_cf]', 
 			options_for_select(cfBillIndicator, :selected =>  @settings['wktime_billing_id_cf'])) %>
-	</p>
+	</p> -->
 	<p style="padding-left: 220px;">
 		<label><%= l(:label_project_billing_rate) %> </label><%=h select_tag('settings[wktime_project_billing_rate_cf]', 
 			options_for_select(cfProjRate, :selected =>  @settings['wktime_project_billing_rate_cf'])) %>
@@ -116,14 +116,16 @@ lblInvCompVal = "<%=l(:field_value) %>";
 			options_for_select(cfUserCurrency, :selected =>  @settings['wktime_user_billing_currency_cf'])) %>
 	</p>
 	-->
+	<!--
 	<p style="padding-left: 220px;">
-		<label><%= l(:label_issue_billing_currency) %> </label><%=h select_tag('settings[wktime_issue_billing_currency_cf]', 
+		<label><%#= l(:label_issue_billing_currency) %> </label><%#=h select_tag('settings[wktime_issue_billing_currency_cf]', 
 			options_for_select(cfIssueCurrency, :selected =>  @settings['wktime_issue_billing_currency_cf'])) %>
 	</p>
 	<p style="padding-left: 220px;">
-		<label><%= l(:label_issue_billing_rate) %> </label><%=h select_tag('settings[wktime_issue_billing_rate_cf]', 
+		<label><%#= l(:label_issue_billing_rate) %> </label><%#=h select_tag('settings[wktime_issue_billing_rate_cf]', 
 			options_for_select(cfIssueRate, :selected =>  @settings['wktime_issue_billing_rate_cf'])) %>
 	</p>
+	-->
 	<%
 			accountGroups = Array.new
 			accGroup = Group.all.sort

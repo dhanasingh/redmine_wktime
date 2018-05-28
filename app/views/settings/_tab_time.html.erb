@@ -43,10 +43,7 @@
 			issue_custom_fields = IssueCustomField.order('name')
 			cfuser = wktime_helper.getCfListArr(issue_custom_fields, 'user', false)
 		%>
-		<p style="padding-left: 190px;">
-			<label><%= l(:label_additional_assignee) %> </label><%=h select_tag('settings[wktime_additional_assignee]', 
-			options_for_select(cfuser, :selected =>  @settings['wktime_additional_assignee'])) %>
-		</p>
+		
 		
 </fieldset>
 
