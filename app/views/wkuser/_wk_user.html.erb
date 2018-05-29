@@ -64,8 +64,12 @@ $(document).ready(function() {
 	var accNo = document.getElementById('erpmineuser_account_number');
 	var ssId = document.getElementById('erpmineuser_ss_id');
 
-	accNo.value = new Array(accNo.value.length-3).join('x') + accNo.value.substr(accNo.value.length-4, 4);
-	ssId.value = new Array(ssId.value.length-3).join('x') + ssId.value.substr(ssId.value.length-4, 4);
+  if (accNo && accNo.value.length > 4) {
+      accNo.value = new Array(accNo.value.length-3).join('x') + accNo.value.substr(accNo.value.length-4, 4);
+  }
+  if (ssId && ssId.value.length > 4) {
+      ssId.value = new Array(ssId.value.length-3).join('x') + ssId.value.substr(ssId.value.length-4, 4);
+  }
 });
 </script>
 <% end %>
