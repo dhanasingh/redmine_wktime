@@ -22,7 +22,7 @@ $(document).ready(function(){
 			+'<option value="A">Asset</option>'
             +'</select></td></tr></table>';
 			
-	if(document.querySelector("h2").innerHTML == "Spent time")	
+	if(document.querySelector("h2") && document.querySelector("h2").innerHTML == "Spent time")
 	{
 		$("#query_form_content").append(spentTypeDD);		
 		var spcheck = sessionStorage.getItem("spent_type") == null ? "T" : sessionStorage.getItem("spent_type");
