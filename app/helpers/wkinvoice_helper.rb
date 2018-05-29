@@ -690,7 +690,15 @@ include WkpayrollHelper
 			productArr << productId
 			brandName = mEntry.inventory_item.product_item.brand.blank? ? "" : mEntry.inventory_item.product_item.brand.name.to_s
 			modelName = mEntry.inventory_item.product_item.product_model.blank? ? "" : mEntry.inventory_item.product_item.product_model.name.to_s
-			desc = productName + " " + brandName + " " + modelName
+			assetName = ""
+			unless mEntry.inventory_item.asset_property.blank?
+				assetName = mEntry.inventory_item.asset_property.name
+				unless mEntry.inventory_item.parent.blank? || mEntry.inventory_item.parent.asset_property.blank?
+					parentName = mEntry.inventory_item.parent.asset_property.name 
+					assetName = parentName.to_s + " " + assetName
+				end
+			end
+			desc = productName + " " + brandName + " " + modelName + " " + assetName 
 			rate = mEntry.selling_price
 			qty = mEntry.quantity
 			curr = mEntry.inventory_item.currency
