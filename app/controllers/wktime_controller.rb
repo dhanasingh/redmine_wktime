@@ -648,9 +648,13 @@ include QueriesHelper
 		end
 		#userIssues = Issue.includes(:project).joins("INNER JOIN custom_values cv on cv.customized_type = 'Issue' and cv.customized_id = issues.id and cv.custom_field_id = #{getSettingCfId('wktime_additional_assignee')} AND (cv.value = '#{userId}' OR issues.assigned_to_id = #{userId})")
 		
-		userIssues = Issue.includes(:project).joins("INNER JOIN wk_issue_assignees ia on ((ia.issue_id = issues.id and ia.user_id = #{userId}) OR issues.assigned_to_id = #{userId})")
-		userIssues = userIssues.sort_by{|subject| subject}
-		assignedIssues = userIssues.collect {|issue| [issue.project.name + " # " + issue.subject, issue.id]}
+		#userIssues = Issue.includes(:project).joins("INNER JOIN wk_issue_assignees ia on ((ia.issue_id = issues.id and ia.user_id = #{userId}) OR issues.assigned_to_id = #{userId})")
+		userIssues = Issue.includes(:project).joins("INNER JOIN wk_issue_assignees ia on (ia.issue_id = issues.id and ia.user_id = #{userId}) ") 
+		assignedIssueUser = Issue.includes(:project).where(:assigned_to_id => userId)
+		issueAssignee = userIssues + assignedIssueUser 
+		issueAssignee = issueAssignee.uniq
+		issueAssignee = issueAssignee.sort_by{|subject| subject}
+		assignedIssues = issueAssignee.collect {|issue| [issue.project.name + " # " + issue.subject, issue.id]}
 		assignedIssues.unshift( ["", ""]) if needBlank
 		assignedIssues
 	end
