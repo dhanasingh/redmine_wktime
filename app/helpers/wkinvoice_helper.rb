@@ -292,10 +292,10 @@ include WkpayrollHelper
 					@invItems[@itemCount].store 'project_id', accountProject.project_id
 					@invItems[@itemCount].store 'item_desc', description
 					@invItems[@itemCount].store 'item_type', 'i'
-					@invItems[@itemCount].store 'rate', rateHash['rate']
+					@invItems[@itemCount].store 'rate', rateHash['rate'].round(2)
 					@invItems[@itemCount].store 'currency', rateHash['currency']
-					@invItems[@itemCount].store 'item_quantity', quantity
-					@invItems[@itemCount].store 'item_amount', itemAmount
+					@invItems[@itemCount].store 'item_quantity', quantity.round(2)
+					@invItems[@itemCount].store 'item_amount', itemAmount.round(2)
 					@itemCount = @itemCount + 1
 					oldIssueId = entry.issue_id
 					totalAmount = (totalAmount + itemAmount).round(2)
@@ -385,7 +385,7 @@ include WkpayrollHelper
 		invItem.currency = currency
 		invItem.quantity = quantity
 		invItem.item_type = itemType unless itemType.blank?
-		invItem.amount = amount #invItem.rate * invItem.quantity
+		invItem.amount = amount.round(2) #invItem.rate * invItem.quantity
 		invItem.modifier_id = User.current.id
 		invItem.product_id = productId
 		invItem.credit_invoice_id = creditInvoiceId unless creditInvoiceId.blank?
@@ -417,7 +417,7 @@ include WkpayrollHelper
 	
 	# Return RateHash which contains rate and currency for User
 	def getUserRateHash(wkUserObj)
-		rateHash = { "rate" => wkUserObj.billing_rate, "currency" => wkUserObj.billing_currency, "designation" => wkUserObj.role_id }		
+		rateHash = { "rate" => (wkUserObj.billing_rate.blank? ? nil : wkUserObj.billing_rate.round(2)), "currency" => wkUserObj.billing_currency, "designation" => wkUserObj.role_id }		
 		# userCustVals.each do |custVal|
 			# case custVal.custom_field_id 
 				# when getSettingCfId('wktime_user_billing_rate_cf') 
@@ -446,7 +446,7 @@ include WkpayrollHelper
 		wkIssue = nil
 		wkIssue = issue.wk_issue unless issue.blank?
 		unless wkIssue.blank?
-			rateHash["rate"] = wkIssue.rate
+			rateHash["rate"] = wkIssue.rate.round(2) unless wkIssue.rate.blank?
 			rateHash["rate_per"] = wkIssue.rate_per
 			rateHash["currency"] = wkIssue.currency
 		end
@@ -699,10 +699,10 @@ include WkpayrollHelper
 				end
 			end
 			desc = productName + " " + brandName + " " + modelName + " " + assetName 
-			rate = mEntry.selling_price
-			qty = mEntry.quantity
+			rate = mEntry.selling_price.round(2)
+			qty = mEntry.quantity.round(2)
 			curr = mEntry.inventory_item.currency
-			amount = mEntry.selling_price * mEntry.quantity
+			amount = (rate * qty)
 			pType = mEntry.inventory_item.product_type.downcase
 			productType = pType == 'i' ? 'm' : 'a'
 			if @matterialVal.has_key?("#{productId}")

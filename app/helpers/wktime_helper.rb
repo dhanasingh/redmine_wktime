@@ -1512,7 +1512,7 @@ end
 			startDay = getMonthStartDay # should get from settings
 			duration = getMonthsBetween(from, to, startDay)/12.0
 		end
-		duration
+		duration.round(2)
 	end
 	
 	# def getMonthStartDay
