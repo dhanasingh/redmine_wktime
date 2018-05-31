@@ -562,3 +562,5 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wkpublicholiday/index', :to => 'wkpublicholiday#index'
 	
 	post 'wkpublicholiday/update', :to => 'wkpublicholiday#update'
+	
+	get 'wklogmaterial/loadSpentType', :to => 'wklogmaterial#loadSpentType'

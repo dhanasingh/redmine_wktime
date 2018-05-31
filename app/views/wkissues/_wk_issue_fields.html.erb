@@ -1,5 +1,29 @@
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
 <% wkasset_helper = Object.new.extend(WkassetHelper) %>
+<%
+	Issue.class_eval do
+		has_one :wk_issue, :dependent => :destroy, :class_name => 'WkIssue'
+		has_many :assignees, :dependent => :destroy, :class_name => 'WkIssueAssignee'
+		accepts_nested_attributes_for :assignees
+		accepts_nested_attributes_for :wk_issue
+		def erpmineissues
+			self.wk_issue ||= WkIssue.new(:issue => self, :project => self.project)
+		end	
+	end
+
+	Project.class_eval do
+		has_many :account_projects, :dependent => :destroy, :class_name => 'WkAccountProject'
+		#has_many :parents, through: :account_projects
+	end
+
+	TimeEntry.class_eval do
+	  has_one :spent_for, as: :spent, class_name: 'WkSpentFor', :dependent => :destroy
+	  has_one :invoice_item, through: :spent_for
+	  
+	  accepts_nested_attributes_for :spent_for
+	end
+
+%>
 <% 	projectObj = Project.where(:id => @issue.project_id)
 	usersArr = projectObj.map(&:assignable_users).reduce(:&) 
 	memberArr = Array.new

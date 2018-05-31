@@ -537,8 +537,15 @@ function productItemChanged(curDDId, qtyDD, cpDD, spDD, uid, logTypeId)
 	if(logTypeId != null)
 	{
 		logTypeVal = document.getElementById(logTypeId).value;
-		logType = logTypeVal == 'M' ? 'I' : logTypeVal;
+		if(logTypeVal == 'M')
+		{
+			logType =  'I';
+		}
+		else {
+			logType = logTypeVal
+		}		
 	}
+	
 	$.ajax({
 	url: productModifyUrl,
 	type: 'get',

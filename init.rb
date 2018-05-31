@@ -510,10 +510,18 @@ class WktimeHook < Redmine::Hook::ViewListener
 		end
 	end
 	
-	def view_layouts_base_html_head(context={})	
-		javascript_include_tag('wkstatus', :plugin => 'redmine_wktime') + "\n" +
-		stylesheet_link_tag('lockwarning', :plugin => 'redmine_wktime')		
-	end
+	# def view_layouts_base_html_head(context={})	
+		# wktime_helper = Object.new.extend(WktimeHelper)
+		# host_with_subdir = wktime_helper.getHostAndDir(context[:request])
+		# "<input type='hidden' id='getspenttype_url' value='#{url_for(:controller => 'wklogmaterial', :action => 'loadSpentType', :host => host_with_subdir, :only_path => true)}'>"
+		
+	
+		# javascript_include_tag('wkstatus', :plugin => 'redmine_wktime') + "\n" +
+		# javascript_include_tag('index', :plugin => 'redmine_wktime') + "\n" +
+		# stylesheet_link_tag('lockwarning', :plugin => 'redmine_wktime')		
+		
+		
+	# end
 	
 	def view_timelog_edit_form_bottom(context={ })		
 		showWarningMsg(context[:request],context[:time_entry].user_id, true)
@@ -588,5 +596,6 @@ class WktimeHook < Redmine::Hook::ViewListener
 	end
 	
 	render_on :view_issues_show_description_bottom, :partial => 'wkissues/show_wk_issues'
+	render_on :view_layouts_base_html_head, :partial => 'wkbase/base_header'
 		
 end
