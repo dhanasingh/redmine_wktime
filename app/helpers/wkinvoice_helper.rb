@@ -254,20 +254,23 @@ include WkpayrollHelper
 					unless rateHash['rate_per'].blank?
 						issuePeriod = call_hook(:get_invoice_issue_period, {:issue => entry.issue, :attributes => @invoice.attributes})
 						unless issuePeriod.blank?
-							period = issuePeriod[0]
+							servInterval = issuePeriod[0]
 						else
-							period = {"start" => @invoice.start_date, "end" => @invoice.end_date} 
+							servInterval = [{"start" => @invoice.start_date, "end" => @invoice.end_date}] 
 						end
-						periodStart = rateHash['rate_per'].upcase == 'W' ? invDay : invMonthDay
-						allIntervals = getIntervals(period["start"], period["end"], rateHash['rate_per'], periodStart.to_i, true, true)
 						subQuantity = 0
-						allIntervals.each do |interval|
-							intervalStart = interval[0] < period["start"] ? period["start"] : interval[0]
-							intervalEnd = interval[1] > period["end"] ? period["end"] : interval[1]
-							teDateArr = issueEntryDateHash[entry.issue_id]
-							unless teDateArr.blank? || teDateArr.empty?
-								if teDateArr.any? {|teDt| teDt.between?(intervalStart, intervalEnd)}
-									subQuantity = subQuantity + getDuration(intervalStart, intervalEnd, rateHash['rate_per'], quantity, false)
+						servInterval.each do |period|
+							periodStart = rateHash['rate_per'].upcase == 'W' ? invDay : invMonthDay
+							allIntervals = getIntervals(period["start"], period["end"], rateHash['rate_per'], periodStart.to_i, true, true)
+							#subQuantity = 0
+							allIntervals.each do |interval|
+								intervalStart = interval[0] < period["start"] ? period["start"] : interval[0]
+								intervalEnd = interval[1] > period["end"] ? period["end"] : interval[1]
+								teDateArr = issueEntryDateHash[entry.issue_id]
+								unless teDateArr.blank? || teDateArr.empty?
+									if teDateArr.any? {|teDt| teDt.between?(intervalStart, intervalEnd)}
+										subQuantity = subQuantity + getDuration(intervalStart, intervalEnd, rateHash['rate_per'], quantity, false)
+									end
 								end
 							end
 						end
