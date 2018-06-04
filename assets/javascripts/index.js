@@ -168,15 +168,13 @@ function projChanged(projDropdown, userid, needBlankOption){
 		success: function(data){ updateUserDD(data, userDropdown, userid, needBlankOption, false,"All Users"); },
 		beforeSend: function(){ $this.addClass('ajax-loading'); },
 		complete: function(){ $this.removeClass('ajax-loading'); }
-	});
-	
+	});	
 }
-
 function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, blankText)
-{
+{	
 	var items = itemStr.split('\n');
 	var i, index, val, text, start;
-	if(dropdown != null){
+	if(dropdown.options != null){
 		dropdown.options.length = 0;
 		if(needBlankOption){
 			dropdown.options[0] = new Option(blankText, "0", false, false) 
@@ -200,8 +198,6 @@ function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, bla
 		}
 	}
 }
-
-
 $(document).ready(function()
 {
 	changeProp('tab-wktime',wktimeIndexUrl);
@@ -245,8 +241,6 @@ $(document).ready(function()
 	changeProp('tab-wkshift',wkShiftUrl);
 	changeProp('tab-wkpublicholiday',wkPublicHolidayUrl);
 });
-
-
 function changeProp(tab,indexUrl)
 {
 	var tab_te = document.getElementById(tab);
@@ -284,11 +278,13 @@ function reportChanged(reportDD, userid){
 }
 
 function grpChanged(grpDropdown, userid, needBlankOption){
+	
 	var id = grpDropdown.options[grpDropdown.selectedIndex].value;
 	var fmt = 'text';
 	var userDropdown = document.getElementById("user_id");
 	var $this = $(this);
 	$.ajax({
+		
 		url: grpUrl,
 		type: 'get',
 		data: {user_id: userid, format:fmt,group_id:id},
