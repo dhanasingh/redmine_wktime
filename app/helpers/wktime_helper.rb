@@ -777,9 +777,9 @@ end
 	def settings_tabs		   
 		tabs = [
 				{:name => 'general', :partial => 'settings/tab_general', :label => :label_general},
-				{:name => 'wktime', :partial => 'settings/tab_time', :label => :label_te},
+				{:name => 'wktime_settings', :partial => 'settings/tab_time', :label => :label_te},
 				{:name => 'attendance', :partial => 'settings/tab_attendance', :label => :report_attendance},
-				{:name => 'payroll', :partial => 'settings/tab_payroll', :label => :label_payroll},
+				{:name => 'payroll_settings', :partial => 'settings/tab_payroll', :label => :label_payroll},
 				{:name => 'billing', :partial => 'settings/tab_billing', :label => :label_wk_billing},
 				{:name => 'accounting', :partial => 'settings/tab_accounting', :label => :label_accounting},
 				{:name => 'CRM', :partial => 'settings/tab_crm', :label => :label_crm},
