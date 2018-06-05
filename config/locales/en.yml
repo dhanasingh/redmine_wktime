@@ -834,7 +834,7 @@ en:
   all_users_for_select: All Users
   label_expected_date_to_close_project: Expected Close Date
   text_edit_activity: Edit Activity
-  label_number_shortcut: No
+  label_number_shortcut: "No"
   label_account_category: Account Category
 
   VIEW INVENTORY: View inventory
