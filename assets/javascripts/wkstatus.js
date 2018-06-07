@@ -28,7 +28,7 @@ $(document).ready(function(){
 			$("#query_form_content").append(spentTypeDD);
 		}
 		var spentDD = document.getElementById('spent_type');
-		var userid = document.getElementById('user_id').value;
+		var userid = document.getElementById('spent_time_user_id').value;
 		var spentDDUrl = document.getElementById('getspenttype_url').value;	
 		var $this = $(this);
 		if(document.getElementById('spent_type') != null)
@@ -42,23 +42,10 @@ $(document).ready(function(){
 				data: {type: 'spentType'},
 				success: function(data){ updateUserDD(data, spentDD, userid, false, false, "");},
 				beforeSend: function(){ $this.addClass('ajax-loading'); },
-				complete: function(){  $this.removeClass('ajax-loading'); }	      
+				complete: function(){ spentTypeSelection(); $this.removeClass('ajax-loading'); }	      
 				});
 			}
-		}	
-		
-		
-		var spcheck = sessionStorage.getItem("spent_type") == null ? "T" : sessionStorage.getItem("spent_type");
-		if(document.getElementById('spent_type') != null) {
-			var ddl = document.getElementById('spent_type');
-			var opts = ddl.options.length;
-			for (var i=0; i<opts; i++){
-				if (ddl.options[i].value == spcheck){
-					ddl.options[i].selected = true;
-					break;
-				}
-			}
-		}
+		}			
 	}
 	else {
 		sessionStorage.clear();
@@ -109,6 +96,21 @@ function spentTypeValue(elespent)
 	 spentTypeVal = elespent.options[elespent.selectedIndex].value;
 	 sessionStorage.setItem("spent_type", spentTypeVal);
 	 document.getElementById("query_form").submit();
+}
+
+function spentTypeSelection()
+{
+	var spcheck = sessionStorage.getItem("spent_type") == null ? "T" : sessionStorage.getItem("spent_type");
+	if(document.getElementById('spent_type') != null) {
+		var ddl = document.getElementById('spent_type');
+		var opts = ddl.options.length;
+		for (var i=0; i<opts; i++){
+			if (ddl.options[i].value == spcheck){
+				ddl.options[i].selected = true;
+				break;
+			}
+		}
+	}
 }
 
 function showEntryWarning(entrydate){
