@@ -284,7 +284,7 @@ include QueriesHelper
 				#redirect_back_or_default :action => 'index'
 				#redirect_to :action => 'index' , :tab => params[:tab]
                 if params[:wktime_save_continue] 
-				      redirect_to :action => 'edit' , :startday => !@entries.present? ? @startday  : @startday+ 7, :user_id => @user.id, :project_id => params[:project_id]  
+				      redirect_to :action => 'edit' , :startday => @startday, :user_id => @user.id, :project_id => params[:project_id]
 				else                                                                                                
 				      redirect_to :action => 'index' , :tab => params[:tab]                   
 				end 
