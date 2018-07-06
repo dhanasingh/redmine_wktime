@@ -3,7 +3,7 @@
 	<table>
 	<tr>
 	<th width="220px"><%=l(:field_lock_date)%></th>
-	<td><%=h text_field_tag('lock_date',!@lock.blank? && @lock.size >0 ? @lock[0].lock_date : '',:size => 10, :required => true) %><%= calendar_for('lock_date') %> 
+	<td><%=h date_field_tag('lock_date',!@lock.blank? && @lock.size >0 ? @lock[0].lock_date : '', :required => true) %><%= calendar_for('lock_date') %> 
 	</td>
 	</tr>
 	<% if !@lock.blank? && @lock.size >0 %>
