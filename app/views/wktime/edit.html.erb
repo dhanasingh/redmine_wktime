@@ -16,7 +16,7 @@
 		 		Setting.plugin_redmine_wktime['wktime_work_time_header'].to_i == 1 %>		
 				showWorkHeader = true;
 				footerRows = 2;
-				headerRows = 4;
+				headerRows = 1;
 				<% if controller.enterCommentInRow %>
 					hStartIndex = hStartIndex + 1 ;
 				<% end %>
@@ -142,7 +142,7 @@
 						</td></tr>
 
 				<% 	end %>
-				<!-- script type="text/javascript"> wkcf_ids = '<%=wkcf_ids%>';</script -->
+				<script type="text/javascript"> cf_ids = '<%=wkcf_ids%>';</script>
 			<% end %>
 </table>
 </td>
