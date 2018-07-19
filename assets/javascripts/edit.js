@@ -350,7 +350,7 @@ function projectChanged(projDropdown, row){
 	if((issuId==null)||(issuId != null && !issuId.checked))
 	{	
 		var id;
-		if(row != 0){	
+		if(row > 0){	
 			id = projDropdown.options[projDropdown.selectedIndex].value;
 		}
 		else{
@@ -665,7 +665,8 @@ function addRow(){
 	var	issueTemplate = document.getElementById("issueTemplate");
 	var rowCount = issueTable.rows.length;	
 	//there is a header row and a total row present, so the empty count is 2
-	var row = issueTable.insertRow(rowCount - footerRows);
+	var rowIndex = rowCount - footerRows + 1;
+	var row = issueTable.insertRow(rowIndex);
 	
 	var cellCount = issueTemplate.rows[0].cells.length;
 	var i, cell;
@@ -675,7 +676,7 @@ function addRow(){
 		cell.className = issueTemplate.rows[0].cells[i].className;
 		cell.align = issueTemplate.rows[0].cells[i].align;
 	}
-	renameElemProperties(row, 0, rowCount- (headerRows + footerRows - 1));
+	renameElemProperties(row, 0, rowIndex);
 	saveButton.disabled = false;
 	if(submitButton!=undefined)
 	{
@@ -851,7 +852,7 @@ function renameHref(child, str, newStr){
 
 function renameOnChange(child, index, newIndex){
 
-	var row = newIndex;
+	var row = Math.abs(newIndex);
 	var onchng = child.onchange;
 	var func = null;
 	var enterIsueIdChk = document.getElementById("enter_issue_id");
@@ -917,7 +918,7 @@ function calculateTotal(day){
 	var hours, i, j, k, val, children;
 	
 	//since it has a header,start,end,totalhr and total row use <  rowCount-2 and i=4
-	for(i=headerRows; i < rowCount-footerRows; i++){
+	for(i=headerRows; i < rowCount-footerRows+headerRows; i++){
 		//There is a bug in IE7, the getElementsByName doesn't get the new elements
 		//hours = document.getElementsByName("hours" + i + "[]");			
 		hours = myGetElementsByName(issueTable.rows[i], "input","hours" + (i - (headerRows - 1)) + "[]");
@@ -1069,9 +1070,11 @@ function myTrim(val){
 
 function updateDayTotal(day, dayTotal){
 	var day_total = document.getElementById('day_total_'+day);
-	var currDayTotal = Number(day_total.innerHTML);
-	day_total.innerHTML = dayTotal.toFixed(2);	
-	updateTotal(dayTotal - currDayTotal);
+	if(day_total) {
+		var currDayTotal = Number(day_total.innerHTML);
+		day_total.innerHTML = dayTotal.toFixed(2);	
+		updateTotal(dayTotal - currDayTotal);
+	}
 }
 
 function updateTotal(increment){
@@ -1094,13 +1097,15 @@ function updateRemainingHr(day, element)
 	totTime = getTotalTime(day, element);
 	
 	var day_total = document.getElementById('day_total_'+day);	
-	dayTt = Number(day_total.innerHTML);	
-	rmTimeCell = rmTimeRow.cells[hStartIndex + day];
-	if(totTime >  0)
-	{
-		remainingTm = totTime - dayTt;
-	}		
-	rmTimeCell.innerHTML = remainingTm.toFixed(2);
+	if(day_total) {
+		dayTt = Number(day_total.innerHTML);	
+		rmTimeCell = rmTimeRow.cells[hStartIndex + day];
+		if(totTime >  0)
+		{
+			remainingTm = totTime - dayTt;
+			rmTimeCell.innerHTML = remainingTm.toFixed(2);
+		}		
+	}
 }
 
 function getTotalTime(day, element)
@@ -1240,8 +1245,10 @@ function updateTotalHr(day, element)
 	}
 	else{
 		var totTimeRow = issueTable.rows[3];
-		totHrCell = totTimeRow.cells[hStartIndex + day];
-		totHrCell.innerHTML = totTime + "     <a href='javascript:showclkDialog("+day+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockdetail.png' border=0 title=''/></a>";
+		if(totTimeRow) {
+			//totHrCell = totTimeRow.cells[hStartIndex + day];
+			//totHrCell.innerHTML = totTime + "     <a href='javascript:showclkDialog("+day+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockdetail.png' border=0 title=''/></a>";
+		}
 	}	
 	
 }
@@ -1508,8 +1515,10 @@ function calculatebreakTimeNew(totTime, day, element){
  var startval, endval, breakStart, breakEnd, startTime, endTime, workedHours;
  var breakTime = new Array();
  var breakValue = new Array();
- startval = document.getElementById(element ? element[0] : 'start_'+day).value;
- endval = document.getElementById(element ? element[1] : 'end_'+day).value;
+ startval = document.getElementById(element ? element[0] : 'start_'+day);
+ if(startval) { startval = startval.value; }
+ endval = document.getElementById(element ? element[1] : 'end_'+day);
+ if(endval) { endval = endval.value; }
  workedHours = convertTimeToSec(totTime);
  
  if(startval && endval)

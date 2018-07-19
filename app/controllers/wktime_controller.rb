@@ -1176,10 +1176,10 @@ private
 		unless entryHash.nil?
 			entryHash.each_with_index do |entry, i|
 				if !entry['project_id'].blank?
-					hours = params['hours' + (i+1).to_s()]					
-					ids = params['ids' + (i+1).to_s()]
-					comments = params['comments' + (i+1).to_s()]
-					disabled = params['disabled' + (i+1).to_s()]
+					hours = params['hours' + (i+1).to_s()] || params['hours-' + (i+1).to_s()]		
+					ids = params['ids' + (i+1).to_s()] || params['ids-' + (i+1).to_s()]
+					comments = params['comments' + (i+1).to_s()] || params['comments-' + (i+1).to_s()]
+					disabled = params['disabled' + (i+1).to_s()] || params['disabled-' + (i+1).to_s()]
 					@wkvalidEntry=true	
 					if use_detail_popup
 						custom_values.clear
@@ -1189,6 +1189,7 @@ private
 					end
 					
 					j = 0
+					unless ids.nil?
 					ids.each_with_index do |id, k|
 						if disabled[k] == "false"
 							if(!id.blank? || !hours[j].blank?)
@@ -1234,6 +1235,7 @@ private
 						else
 							@teEntrydisabled=true
 						end			
+					end
 					end
 				end
 			end
