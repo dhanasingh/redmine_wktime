@@ -6,10 +6,6 @@
 <p>	
 	<%= check_box_tag('settings[ftte_supervisor_based_approval]', 1, @settings['ftte_supervisor_based_approval'].to_i == 1) %> <label><%= l(:label_ftte_supervisor_based_approval) %></label>
 </p>
-<!-- <p>	
-	<%= check_box_tag('settings[ftte_view_only_own_spent_time]', 1, @settings['ftte_view_only_own_spent_time'].to_i == 1) %> <label><%= l(:label_ftte_view_only_own_spent_time) %></label>
-</p> -->
-<%= l(:label_redmine_restart_warning) %>
 <p>	
 	<%= check_box_tag('settings[ftte_override_spent_time_report]', 1, @settings['ftte_override_spent_time_report'].to_i == 1) %> <label><%= l(:label_ftte_override_spent_time_report) %></label>
 </p>	

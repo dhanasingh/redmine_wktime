@@ -190,16 +190,17 @@ module FttePatch
       #base.send(:include)
 
       base.class_eval do
-        def allowed_to?(action, context, options={}, &block)			
-			isAccountUser = Object.new.extend(WktimeHelper).isAccountUser
-			isSupervisor = Object.new.extend(WktimeHelper).isSupervisor
+        def allowed_to?(action, context, options={}, &block)	
+			wktime_helper = Object.new.extend(WktimeHelper)
+			isAccountUser = wktime_helper.isAccountUser
+			isSupervisor = wktime_helper.isSupervisor
 			if context && context.is_a?(Project)
 			  # ======= Patch Code for allow supervisor and TEadmin to view time_entry ==========
-			  if ((isAccountUser || isSupervisor) && action.to_s == 'view_time_entries')
+			  if ((isAccountUser || isSupervisor) && action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
 				return true
 			  end
 			  
-			  if (action.to_s == 'view_time_entries')
+			  if (action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
 				(context.allows_to?(:log_time) || context.allows_to?(:edit_time_entries) || context.allows_to?(:edit_own_time_entries))
 			  end
 			  # =========== Patch code end =======
@@ -230,7 +231,7 @@ module FttePatch
 			  return true if admin?
 			  
 			  # ======= Patch Code start ==========
-			  if ((isAccountUser || isSupervisor) && action.to_s == 'view_time_entries')
+			  if ((isAccountUser || isSupervisor) && action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
 				return true
 			  end
 			  
@@ -238,7 +239,7 @@ module FttePatch
 			  roles = self.roles.to_a | [builtin_role]
 			  roles.any? {|role|
 				# ======= Patch Code Start ==========
-				if (action.to_s == 'view_time_entries')
+				if (action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
 					(role.allowed_to?(:log_time) || role.allowed_to?(:edit_time_entries) || role.allowed_to?(:edit_own_time_entries))
 				else
 					role.allowed_to?(action) &&
@@ -289,9 +290,9 @@ module FttePatch
 					if @project && @project.archived?
 						render_403 :message => :notice_not_authorized_archived_project
 					elsif ((action == 'edit' || action == 'update' || action == 'destroy') && ctrl == 'timelog' && (wktime_helper.isSupervisor && 
-					wktime_helper.canSupervisorEdit))
+					wktime_helper.canSupervisorEdit)) && wktime_helper.overrideSpentTime
 						true
-					elsif ((action == 'index' || action == 'report')  && ctrl == 'timelog')
+					elsif ((action == 'index' || action == 'report')  && ctrl == 'timelog') && wktime_helper.overrideSpentTime
 						#Object.new.extend(WktimeHelper).isAccountUser || isSupervisor
 						return true
 					else
@@ -402,67 +403,69 @@ module FttePatch
 			
 			#wktime_helper = Object.new.extend(WktimeHelper)
 			wktime_helper = Object.new.extend(WktimeHelper)
-			isAccountUser = wktime_helper.isAccountUser
-			isSupervisor = wktime_helper.isSupervisor
-			projectIdArr = wktime_helper.getManageProject()
-			isManager = projectIdArr.blank? ? false : true
-			
-			if isSupervisor && !isAccountUser && !User.current.admin?
-				userIdArr = Array.new
-				user_cond = ""
-				rptUsers = wktime_helper.getReportUsers(User.current.id)
-				userIdArr = rptUsers.collect(&:id) if !rptUsers.blank?
-				userIdArr = userIdArr << User.current.id.to_s
-				userIds = "#{userIdArr.join(',')}"
-				user_cond = "#{TimeEntry.table_name}.user_id IN (#{userIds})"
+			if wktime_helper.overrideSpentTime
+				isAccountUser = wktime_helper.isAccountUser
+				isSupervisor = wktime_helper.isSupervisor
+				projectIdArr = wktime_helper.getManageProject()
+				isManager = projectIdArr.blank? ? false : true
 				
-				if condStatement.blank?
-					condStatement = "(#{user_cond})" if !user_cond.blank?
-				else				
-					if filters["user_id"].blank?			
-						condStatement = user_cond.blank? ? condStatement : condStatement + " AND (#{user_cond})"
-					else						
-						user_id = filters["user_id"][:values]
-						userIdStrArr = userIdArr.collect{|i| i.to_s}
-						filterUserIds = userIdStrArr & filters["user_id"][:values]
-						
-						if !filterUserIds.blank?
-							if user_id.is_a?(Array) && user_id.include?("me")
-								filterUserIds << (User.current.id).to_s
-							end
-							filters["user_id"][:values] = filterUserIds #overriding user filters to get query condition for supervisor
-							condStatement = statement
-							filters["user_id"][:values] = user_id #Setting the filter values to retain the filter on page						
-						else
-							if user_id.is_a?(Array) && user_id.include?("me")
-								filters["user_id"][:values] = [User.current.id.to_s]
+				if isSupervisor && !isAccountUser && !User.current.admin?
+					userIdArr = Array.new
+					user_cond = ""
+					rptUsers = wktime_helper.getReportUsers(User.current.id)
+					userIdArr = rptUsers.collect(&:id) if !rptUsers.blank?
+					userIdArr = userIdArr << User.current.id.to_s
+					userIds = "#{userIdArr.join(',')}"
+					user_cond = "#{TimeEntry.table_name}.user_id IN (#{userIds})"
+					
+					if condStatement.blank?
+						condStatement = "(#{user_cond})" if !user_cond.blank?
+					else				
+						if filters["user_id"].blank?			
+							condStatement = user_cond.blank? ? condStatement : condStatement + " AND (#{user_cond})"
+						else						
+							user_id = filters["user_id"][:values]
+							userIdStrArr = userIdArr.collect{|i| i.to_s}
+							filterUserIds = userIdStrArr & filters["user_id"][:values]
+							
+							if !filterUserIds.blank?
+								if user_id.is_a?(Array) && user_id.include?("me")
+									filterUserIds << (User.current.id).to_s
+								end
+								filters["user_id"][:values] = filterUserIds #overriding user filters to get query condition for supervisor
 								condStatement = statement
-								filters["user_id"][:values] = user_id
+								filters["user_id"][:values] = user_id #Setting the filter values to retain the filter on page						
 							else
-								condStatement = "1=0"
+								if user_id.is_a?(Array) && user_id.include?("me")
+									filters["user_id"][:values] = [User.current.id.to_s]
+									condStatement = statement
+									filters["user_id"][:values] = user_id
+								else
+									condStatement = "1=0"
+								end
 							end
 						end
 					end
-				end
-				if isManager
-					mgrCondStatement = ""
-					if !orgCondStatement.blank?
-						mgrCondStatement = orgCondStatement + " AND "
+					if isManager
+						mgrCondStatement = ""
+						if !orgCondStatement.blank?
+							mgrCondStatement = orgCondStatement + " AND "
+						end
+						mgrCondStatement = mgrCondStatement + "(#{TimeEntry.table_name}.project_id in (" + projectIdArr.collect{|i| i.to_s}.join(',') + "))"
+						condStatement = condStatement.blank? ? condStatement : "(" + condStatement + ") OR (" + mgrCondStatement + ")"
 					end
-					mgrCondStatement = mgrCondStatement + "(#{TimeEntry.table_name}.project_id in (" + projectIdArr.collect{|i| i.to_s}.join(',') + "))"
-					condStatement = condStatement.blank? ? condStatement : "(" + condStatement + ") OR (" + mgrCondStatement + ")"
-				end
-			else
-				#if (!Setting.plugin_redmine_wktime['ftte_view_only_own_spent_time'].blank? && 
-				#Setting.plugin_redmine_wktime['ftte_view_only_own_spent_time'].to_i == 1) && 
-				if !isAccountUser && !User.current.admin? && !isManager
-					condStatement = condStatement.blank? ? condStatement : condStatement + " AND (#{TimeEntry.table_name}.user_id = " + User.current.id.to_s + ")"
-				elsif isManager && !isAccountUser && !User.current.admin?
-					user_id = filters["user_id"][:values] if !filters["user_id"].blank?
-					if !user_id.blank? && user_id.is_a?(Array) && (user_id.include?("me") || user_id.include?(User.current.id.to_s))
-						condStatement = condStatement
-					else
-						condStatement = condStatement.blank? ? condStatement : "(" + condStatement + ") AND (#{TimeEntry.table_name}.project_id in (" + projectIdArr.collect{|i| i.to_s}.join(',') + "))"
+				else
+					#if (!Setting.plugin_redmine_wktime['ftte_view_only_own_spent_time'].blank? && 
+					#Setting.plugin_redmine_wktime['ftte_view_only_own_spent_time'].to_i == 1) && 
+					if !isAccountUser && !User.current.admin? && !isManager
+						condStatement = condStatement.blank? ? condStatement : condStatement + " AND (#{TimeEntry.table_name}.user_id = " + User.current.id.to_s + ")"
+					elsif isManager && !isAccountUser && !User.current.admin?
+						user_id = filters["user_id"][:values] if !filters["user_id"].blank?
+						if !user_id.blank? && user_id.is_a?(Array) && (user_id.include?("me") || user_id.include?(User.current.id.to_s))
+							condStatement = condStatement
+						else
+							condStatement = condStatement.blank? ? condStatement : "(" + condStatement + ") AND (#{TimeEntry.table_name}.project_id in (" + projectIdArr.collect{|i| i.to_s}.join(',') + "))"
+						end
 					end
 				end
 			end
@@ -480,14 +483,14 @@ Rails.configuration.to_prepare do
 	Project.send(:include, FttePatch::ProjectPatch)
 	TimeEntry.send(:include, FttePatch::TimeEntryPatch)
 	
-	if ActiveRecord::Base.connection.table_exists? "#{Setting.table_name}"
-		if (!Setting.plugin_redmine_wktime['ftte_override_spent_time_report'].blank? && Setting.plugin_redmine_wktime['ftte_override_spent_time_report'].to_i == 1)
-			User.send(:include, FttePatch::UserAllowedToPatch)
-			ApplicationController.send(:include, FttePatch::ApplicationControllerPatch)
-			TimeEntryQuery.send(:include, FttePatch::TimeEntryQueryPatch)
-			#WkExpenseEntryQuery.send(:include, FttePatch::WkExpenseEntryQueryPatch)
-		end
-	end
+	#if ActiveRecord::Base.connection.table_exists? "#{Setting.table_name}"
+	#	if (!Setting.plugin_redmine_wktime['ftte_override_spent_time_report'].blank? && Setting.plugin_redmine_wktime['ftte_override_spent_time_report'].to_i == 1)
+		#end
+	#end
+	User.send(:include, FttePatch::UserAllowedToPatch)
+	ApplicationController.send(:include, FttePatch::ApplicationControllerPatch)
+	TimeEntryQuery.send(:include, FttePatch::TimeEntryQueryPatch)
+
 end
 
 Redmine::Plugin.register :redmine_wktime do
