@@ -41,7 +41,10 @@
   #get 'wktime/updateAttendance', :to => 'wktime#updateAttendance'
 match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance', :via => [:get]  
     
-  get 'wktime/time_rpt', :to => 'wktime#time_rpt'  
+  get 'wktime/time_rpt', :to => 'wktime#time_rpt' 
+  
+  # For Supervisor feature
+	get 'wktime/getMyReportUsers', :to => 'wktime#getMyReportUsers'
   
   #For Weekly expenses
   

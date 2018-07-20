@@ -840,10 +840,10 @@ end
 		if User.current.logged?
 			viewProjects = Project.where(Project.allowed_to_condition(User.current, :view_time_entries ))
 			loggableProjects ||= Project.where(Project.allowed_to_condition(User.current, :log_time))
-			viewMenu = call_hook(:view_wktime_menu)
-			viewMenu  = viewMenu.blank? ? '' : (viewMenu.is_a?(Array) ? (viewMenu[0].blank? ? '': viewMenu[0].to_s) : viewMenu.to_s) 
+			# viewMenu = call_hook(:view_wktime_menu)
+			# viewMenu  = viewMenu.blank? ? '' : (viewMenu.is_a?(Array) ? (viewMenu[0].blank? ? '': viewMenu[0].to_s) : viewMenu.to_s) 
 			#@manger_user = (!viewMenu.blank? && to_boolean(viewMenu))	
-			ret = (!viewProjects.blank? && viewProjects.size > 0) || (!loggableProjects.blank? && loggableProjects.size > 0) || isAccountUser || (!viewMenu.blank? && to_boolean(viewMenu))
+			ret = (!viewProjects.blank? && viewProjects.size > 0) || (!loggableProjects.blank? && loggableProjects.size > 0) || isAccountUser || (isSupervisorApproval && getSuperViewPermission) #(!viewMenu.blank? && to_boolean(viewMenu))
 		end
 		ret
 	end
@@ -1546,4 +1546,132 @@ end
 		startDay = 1 if startDay.blank?
 		startDay.to_i
 	end
+	
+	# =========== Supervisor feature code merge ==========
+	
+	def overrideSpentTime
+		(!Setting.plugin_redmine_wktime['ftte_override_spent_time_report'].blank? && Setting.plugin_redmine_wktime['ftte_override_spent_time_report'].to_i == 1)
+	end
+	
+	def getDirectReportUsers(user_id)
+		cond =	['parent_id = ?', user_id]
+		userList = User.where(cond).order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC") 
+		userList	
+	end
+  
+	def getReportUsers(user_id)  
+		supervisor = User.find(user_id)
+		reportees = User.where("(#{User.table_name}.lft > #{supervisor.lft} AND #{User.table_name}.rgt < #{supervisor.rgt})")
+		.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
+	end
+  
+	def isSupervisor()
+		directSubOrdCnt = User.where(:parent_id => User.current.id).count
+		ret =  directSubOrdCnt > 0 ? true : false
+	end
+	
+	def getProjectMembers(projId, cond)
+		project = Project.find(projId)			
+		members = project.members.where(cond).order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC") #.distinct("#{User.table_name}.id")
+		members = members.to_a.uniq if !members.nil?
+	end
+	
+	def getGroupMembersByCond(grpId,cond)
+		scope=User.in_group(grpId).where(cond)
+		members = scope.sort
+		members
+	end
+	
+	def getReportUserIdsStr
+		userIds = nil
+		userList = getReportUsers(User.current.id)
+		userIds = userList.collect{|usr| usr.id }.map(&:inspect).join(', ')
+		userIds
+	end
+	
+	def getUsersProjects(user_id, includeSupProj=false)
+		reportUsrs = getReportUsers(user_id)
+		usrIds = ""
+		sub_ord_projects = nil
+		if !reportUsrs.blank?
+			usrIds = reportUsrs.collect{|usr| usr.id }.map(&:inspect).join(', ')
+			if includeSupProj
+				usrIds = !usrIds.blank? ? (usrIds + ', ' + user_id.to_s) : user_id.to_s
+			end
+			sub_ord_projects = Project.find_by_sql("select distinct p.* from projects p " +
+							  "inner join members m on p.id = m.project_id " +
+							  "and m.user_id in (" + usrIds + ") and p.status = #{Project::STATUS_ACTIVE}" + " order by (p.name)")
+		end
+		sub_ord_projects
+	end
+	
+	def isSupervisorForUser(user_id)
+		ret = false
+		rptUsers = getReportUsers(User.current.id)
+		if !rptUsers.blank?
+			userIdArr = rptUsers.collect(&:id)
+			ret = userIdArr.include?(user_id)
+		end
+		ret
+	end
+
+	def getManageProject		
+		roleIds = ""
+		#isManager = false
+		roles = User.current.memberships.collect {|m| m.roles}.flatten.uniq
+		roles.any? {|role|
+			tmpIsManager = role.allowed_to?(:edit_time_entries) && role.allowed_to?(:view_time_entries)
+			if tmpIsManager
+				#isManager = tmpIsManager
+				roleIds = roleIds.blank? ? role.id.to_s : roleIds + ", " + role.id.to_s
+			end
+		}
+		members = nil, projectIdArr = Array.new
+		if !roleIds.blank?
+			members = Member.joins(:member_roles).where("#{Member.table_name}.user_id = #{User.current.id} and #{MemberRole.table_name}.role_id in (#{roleIds})")
+			projectIdArr = members.collect{|i| i.project_id} if !members.blank?
+		end
+		projectIdArr
+	end	
+	
+	def isSupervisorApproval
+		(!Setting.plugin_redmine_wktime['ftte_supervisor_based_approval'].blank? && Setting.plugin_redmine_wktime['ftte_supervisor_based_approval'].to_i == 1)
+	end
+	
+	def canSupervisorEdit
+		(!Setting.plugin_redmine_wktime.blank? && !Setting.plugin_redmine_wktime['ftte_edit_time_log'].blank? && Setting.plugin_redmine_wktime['ftte_edit_time_log'].to_i == 1)
+	end
+	
+	# Get the projet members based on their reporters
+	def getSupervisorMembers(projectId, page=nil)
+		members = Array.new
+		userIds = nil	
+		userList = getReportUsers(User.current.id)
+		userIds = userList.collect{|usr| usr.id }.map(&:inspect).join(', ')
+		#if (!context[:params][:includeSupr].blank? && context[:params][:includeSupr])
+		userIds = !userIds.blank? ? (userIds + ', ' + User.current.id.to_s) : User.current.id.to_s
+		#end
+		cond = "1=1"
+		if ((!page.blank? && !userList.blank? && userList.size > 0) || !isAccountUser)
+			cond =	"#{User.table_name}.id in(#{userIds})"
+		end
+		if !projectId.blank?					
+			members = getProjectMembers(projectId,cond)
+		end
+		members
+	end
+	
+	def getSuperViewPermission			
+		userList = getReportUsers(User.current.id)
+		userIds = userList.collect{|usr| usr.id }.map(&:inspect).join(', ')
+		if userIds.blank?
+			userIds = User.current.id
+		end
+		cond =	"user_id in(#{userIds})"
+		projMember = Member.where(cond)
+		showMenu = projMember.size > 0
+		showMenu
+	end
+	
+	# ============ End of supervisor code merge =========
 end

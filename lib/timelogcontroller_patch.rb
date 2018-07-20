@@ -137,10 +137,10 @@ module TimelogControllerPatch
 							else
 								redirect_back_or_default project_time_entries_path(@time_entry.project)
 							end
-							}
-							format.api  { render :action => 'show', :status => :created, :location => time_entry_url(@time_entry) }
-						end
-					else
+						}
+						format.api  { render :action => 'show', :status => :created, :location => time_entry_url(@time_entry) }
+					end
+				else
 					respond_to do |format|
 						format.html { render :action => 'new' }
 						format.api  { render_validation_errors(@time_entry) }

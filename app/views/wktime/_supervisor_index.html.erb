@@ -1,0 +1,137 @@
+<%#= javascript_include_tag 'index', :plugin => "fotonation_te" %>
+<table>
+<%
+#wktime_helper = Object.new.extend(WktimeHelper)
+%>
+
+<%
+	me = false
+	my_direct_report = false
+	my_report = false 
+	if isAccountUser && !isSupervisor #wktime_helper
+		opt_proj = true
+	else
+		opt_proj = false
+	end
+	opt_grp =false
+	if params[:tab] == 'wkexpense'
+		projectid = session[:wkexpense][:project_id]
+		groupid =session[:wkexpense][:group_id]
+		userid = session[:wkexpense][:user_id]
+		filter_type = session[:wkexpense][:filter_type]
+	else
+		projectid = session[:wktimes][:project_id]
+		groupid =session[:wktimes][:group_id]
+		userid = session[:wktimes][:user_id]		
+		filter_type = session[:wktimes][:filter_type]
+	end
+
+	if filter_type == '1' 
+			opt_proj = true	
+	elsif filter_type == '2'
+		opt_grp = true
+	elsif filter_type == '3' || filter_type.blank?
+		me = true	
+	elsif filter_type == '4'
+		my_direct_report = true	
+	elsif filter_type == '5'
+		my_report = true	
+	end
+	
+ %>
+
+<% if isSupervisor() || isAccountUser # wktime_helper.%>
+<% if isSupervisor() # wktime_helper.%>
+<tr>
+<td>
+<%= radio_button_tag 'filter_type', '3', me, 
+:onclick => '$("#group_id").attr("disabled", true);$("#project_id").attr("disabled", true);$("#user_id").attr("disabled", true);' %>
+<span style="font-weight:bold">
+<%=l(:label_me).capitalize %>
+</span>
+</td>
+
+</tr>
+
+<tr>
+<td>
+<%= radio_button_tag 'filter_type', '4', my_direct_report, 
+:onclick => 'myReportUser(this,"#{User.current.id}");$("#group_id").attr("disabled", true);$("#project_id").attr("disabled", true);$("#user_id").removeAttr("disabled");' %>
+<span style="font-weight:bold">
+<%=l(:label_my_direct_reports)%>
+</span>
+</td>
+</tr>
+
+<tr>
+<td>
+<%= radio_button_tag 'filter_type', '5', my_report, 
+:onclick => 'myReportUser(this,"#{User.current.id}");$("#group_id").attr("disabled", true);$("#project_id").attr("disabled", true);$("#user_id").removeAttr("disabled");' %>
+<span style="font-weight:bold">
+<%=l(:label_my_reports)%>
+</span>
+</td>
+</tr>
+<% end %>
+</table>
+<table>
+<% if !@manage_view_spenttime_projects.blank? %>
+<tr>
+<th><%= radio_button_tag 'filter_type', '1', opt_proj,
+ :onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#user_id").removeAttr("disabled");$("#group_id").attr("disabled", true);$("#project_id").removeAttr("disabled");' %>
+<%=l(:field_project)%></th>
+<td class="project" align="left"><%=h select_tag('project_id', 
+	options_for_select(options_for_wktime_project(@manage_view_spenttime_projects),
+	:selected => !projectid.nil? ? projectid.to_i: @selected_project.id),:disabled => @use_group,
+	:onchange => "projChanged(this, #{User.current.id}, true);") %></td>
+</tr>
+<% end %>
+<% if !@groups.blank? %>
+<tr>
+<th><%= radio_button_tag 'filter_type', '2', opt_grp, 
+:onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#user_id").removeAttr("disabled");$("#group_id").removeAttr("disabled");$("#project_id").attr("disabled", true);' %>
+<%=l(:label_group_plural)%></th>
+<td>
+	<%=h select_tag('group_id',
+	options_for_select( @groups.collect {|p| [p.name, p.id ]},
+	:selected => (groupid.nil? ? 0 : groupid)),:disabled => !@use_group,
+	:onchange => "grpChanged(this, #{User.current.id}, true);") %>
+</td>
+</tr>
+<% end %>
+<tr>
+<th><%=l(:label_member)%></th>
+<td>
+<%# show the blank value if more than one user is in the list %>
+<%=h select_tag('user_id',
+	options_for_select( [["All Users","0"]] + (@members.blank? ? [] : @members),
+		:selected => userid.nil? ? (@user.nil? ? User.current.id : @user.id) : userid),
+	:onchange => 'this.form.submit();') %></td>
+</tr>
+<tr>
+
+</table>
+<script type="text/javascript"> 
+$(document).ready(function()
+{
+	<% if me %> 
+		$("#user_id").attr("disabled", true);
+	<% end %>
+	<% if me || my_direct_report || my_report %>
+		$("#group_id").attr("disabled", true);
+		$("#project_id").attr("disabled", true);
+	<% end %>
+	<% if opt_proj %>
+		$("#group_id").attr("disabled", true);
+		$("#project_id").removeAttr("disabled");
+		$("#user_id").attr("disabled", false);
+	<% end %>
+	<% if opt_grp %>
+		$("#project_id").attr("disabled", true);
+		$("#group_id").removeAttr("disabled");
+	<% end %>
+});
+userCurrentUrl ="<%= "#{url_for(:controller => 'wktime', :action => 'getMyReportUsers')}" %>";
+ </script>
+ 
+<% end %>

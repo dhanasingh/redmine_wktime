@@ -107,8 +107,9 @@ include QueriesHelper
 	setup
 	findWkTE(@startday)
 	@editable = @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r'
-	hookPerm = call_hook(:controller_check_editable, {:editable => @editable, :user => @user})
-	@editable = hookPerm.blank? ? @editable : hookPerm[0]
+	# hookPerm = call_hook(:controller_check_editable, {:editable => @editable, :user => @user})
+	# @editable = hookPerm.blank? ? @editable : hookPerm[0]
+	@editable = canSupervisorEdit if isSupervisorApproval && @editable && isSupervisor
 	#below two lines are hook code for lock TE
 	# hookPerm = call_hook(:controller_check_locked, {:startdate => @startday})
 	# @locked = hookPerm.blank? ? false : hookPerm[0]
@@ -662,9 +663,9 @@ include QueriesHelper
 	def getusers
 		project = Project.find(params[:project_id])
 		userStr = ""
-		userList = call_hook(:controller_project_member, {:project_id => params[:project_id], :page => params[:page]})
-		if !userList.blank?
-			projmembers = userList[0].blank? ? nil : userList[0]
+		# userList = call_hook(:controller_project_member, {:project_id => params[:project_id], :page => params[:page]})
+		if isSupervisorApproval #!userList.blank?
+			projmembers = getSupervisorMembers(params[:project_id], params[:page]) #userList[0].blank? ? nil : userList[0]
 		else
 			projmembers = project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
 		end
@@ -820,9 +821,9 @@ include QueriesHelper
 			@te_projects = @entries.collect{|entry| entry.project}.uniq
 			te_projects = @approvable_projects & @te_projects if !@te_projects.blank?			
 		end
-		hookPerm = call_hook(:controller_check_approvable, {:params => params})		
-		if !hookPerm.blank?
-			ret = hookPerm[0]
+		# hookPerm = call_hook(:controller_check_approvable, {:params => params})		
+		if isSupervisorApproval #!hookPerm.blank?
+			ret = isSupervisor #hookPerm[0]
 		end
 		ret = true if isAccountUser
 		ret = ((ret || !te_projects.blank?) && (@user.id != User.current.id || (!Setting.plugin_redmine_wktime['wktime_own_approval'].blank? && 
@@ -1187,6 +1188,26 @@ include QueriesHelper
 		l(:label_spent_for)
 	end
 	
+	# ============ supervisor code merge =========
+	
+	def getMyReportUsers
+		userStr =''
+		members = Array.new
+		if params[:filter_type].to_s == '4'
+			members = getDirectReportUsers (User.current.id)
+		elsif params[:filter_type].to_s == '5'
+			members = getReportUsers(User.current.id)		
+		end
+		members.each do |m|
+			userStr << m.id.to_s() + ',' + m.firstname + ' ' + m.lastname + "\n"
+		end
+		respond_to do |format|
+			format.text  { render :text => userStr }
+		end 
+	end
+	 
+	# ============ End of supervisor code merge =========
+	
 private
 	
 	def getManager(user, approver)
@@ -1262,9 +1283,9 @@ private
 				ret = (@user.id == User.current.id && @logtime_projects.size > 0)
 			end
 		end
-		editPermission = call_hook(:controller_check_permission, {:params => params})
-		if	!editPermission.blank? 
-			ret = editPermission[0] || (@user.id == User.current.id && @logtime_projects.size > 0)
+		# editPermission = call_hook(:controller_check_permission, {:params => params})
+		if	isSupervisorApproval #!editPermission.blank? 
+			ret = isSupervisorForUser((params[:user_id]).to_i) || (@user.id == User.current.id && @logtime_projects.size > 0) #editPermission[0] 
 		end
 		return (ret || isAccountUser)
 	end
@@ -1278,9 +1299,17 @@ private
 		else
 			group_id = session[:wktimes][:group_id]
 		end
-		grpMember = call_hook(:controller_group_member,{ :group_id => group_id})
-		if !grpMember.blank?
-			userList = grpMember[0].blank? ? userList : grpMember[0]
+		# grpMember = call_hook(:controller_group_member,{ :group_id => group_id})
+		if isSupervisorApproval #!grpMember.blank?
+			#userList = grpMember[0].blank? ? userList : grpMember[0]
+			userIds = getReportUserIdsStr
+			cond = "1=1"
+			unless isAccountUser
+				cond =	"#{User.table_name}.id in(#{userIds})"
+			end
+			unless group_id.blank?		
+				userList = getGroupMembersByCond(group_id,cond) #getGroupMembersByCond
+			end	
 		else
 			projMembers = []			
 			groupusers = nil
@@ -1549,10 +1578,10 @@ private
   
   def user_allowed_to?(privilege, entity)
 	setup
-	hookPerm = call_hook(:controller_check_permission, {:params => params})
+	# hookPerm = call_hook(:controller_check_permission, {:params => params})
 	allow = false
-	if !hookPerm.blank? && (@user != User.current)
-		allow = hookPerm[0]
+	if isSupervisorApproval && (@user != User.current) # !hookPerm.blank? 
+		allow = isSupervisorForUser((params[:user_id]).to_i) #hookPerm[0]
 	else
 		allow = User.current.allowed_to?(privilege, entity)
 	end
@@ -1579,9 +1608,9 @@ private
   
   
     def check_editperm_redirect
-		hookPerm = call_hook(:controller_edit_timelog_permission, {:params => params})
-		if !hookPerm.blank?
-			allow = hookPerm[0] || (check_editPermission && @user.id == User.current.id) || isAccountUser
+		# hookPerm = call_hook(:controller_edit_timelog_permission, {:params => params})
+		if isSupervisorApproval #!hookPerm.blank?
+			allow = (canSupervisorEdit && isSupervisorForUser((params[:user_id]).to_i)) || (check_editPermission && @user.id == User.current.id) || isAccountUser
 		else
 			allow = check_editPermission
 		end
@@ -1784,11 +1813,11 @@ private
 			filter_type = session[:wktimes][:filter_type]
 			project_id = session[:wktimes][:project_id]
 		end
-		hookMem = call_hook(:controller_get_member, { :filter_type => filter_type})
-		if filter_type == '1' || (hookMem.blank? && filter_type !='2')
-			hookProjMem = call_hook(:controller_project_member, {  :project_id => project_id})
-			if !hookProjMem.blank?
-				projMem = hookProjMem[0].blank? ? [] : hookProjMem[0]
+		# hookMem = call_hook(:controller_get_member, { :filter_type => filter_type})
+		if filter_type == '1' #|| (hookMem.blank? && filter_type !='2')
+			# hookProjMem = call_hook(:controller_project_member, {  :project_id => project_id})
+			if isSupervisorApproval #!hookProjMem.blank?
+				projMem = getSupervisorMembers(project_id) #hookProjMem[0].blank? ? [] : hookProjMem[0]
 			else				
 				projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC") if !@selected_project.blank?
 			end				
@@ -1802,8 +1831,17 @@ private
 		else		
 			projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC") if !@selected_project.blank?		
 			@members = projMem.collect{|m| [ m.name, m.user_id ] } if !projMem.blank?
-			if !hookMem.blank?
-				@members = hookMem[0].blank? ? @members : hookMem[0]		
+			if isSupervisorApproval # !hookMem.blank?
+				userList = Array.new
+				if filter_type == '4'			
+					userList = getDirectReportUsers (User.current.id)			
+				elsif filter_type == '5'
+					userList = getReportUsers(User.current.id)
+				end
+				userList.each do |users|
+					@members << [users.name,users.id.to_s()]					
+				end	
+				# @members = hookMem[0].blank? ? @members : hookMem[0]		
 			end
 		end
 		@members = @members.uniq
@@ -1862,32 +1900,36 @@ private
 	
 	def set_managed_projects
 		# from version 1.7, the project member with 'edit time logs' permission is considered as managers
-		mng_projects = call_hook(:controller_set_manage_projects)
-		if !mng_projects.blank?
-			@manage_projects = mng_projects[0].blank? ? nil : mng_projects[0]
-		else
+		# mng_projects = call_hook(:controller_set_manage_projects)
+		# if !mng_projects.blank?
+			# @manage_projects = mng_projects[0].blank? ? nil : mng_projects[0]
+		# else
 			if isAccountUser
 				@manage_projects = getAccountUserProjects
+			elsif isSupervisorApproval
+				@manage_projects = getUsersProjects(User.current.id, true)
 			else
 				@manage_projects ||= Project.where(Project.allowed_to_condition(User.current, :edit_time_entries)).order('name')
 			end
-		end		
+		# end		
 		@manage_projects =	setTEProjects(@manage_projects)	
 		
 		# @manage_view_spenttime_projects contains project list of current user with edit_time_entries and view_time_entries permission
 		# @manage_view_spenttime_projects is used to fill up the dropdown in list page for managers
-		view_projects = call_hook(:controller_set_view_projects)
-		if !view_projects.blank?
-			@manage_view_spenttime_projects = view_projects[0].blank? ? nil : view_projects[0]
-		else
-			if isAccountUser
-				@manage_view_spenttime_projects = getAccountUserProjects
+		# view_projects = call_hook(:controller_set_view_projects)
+		# if !view_projects.blank?
+			# @manage_view_spenttime_projects = view_projects[0].blank? ? nil : view_projects[0]
+		# else
+			if isAccountUser || isSupervisorApproval
+				@manage_view_spenttime_projects = @manage_projects #getAccountUserProjects
+			# elsif isSupervisorApproval
+				# @manage_view_spenttime_projects = getUsersProjects(User.current.id, true)
 			else
 				@view_spenttime_projects ||= Project.where(Project.allowed_to_condition(User.current, :view_time_entries)).order('name')
 				@manage_view_spenttime_projects = @manage_projects & @view_spenttime_projects
+				@manage_view_spenttime_projects = setTEProjects(@manage_view_spenttime_projects)
 			end
-		end
-		@manage_view_spenttime_projects = setTEProjects(@manage_view_spenttime_projects)
+		# end
 
 		# @currentUser_loggable_projects contains project list of current user with log_time permission
 		# @currentUser_loggable_projects is used to show/hide new time & expense sheet link	
@@ -2267,8 +2309,9 @@ private
 	end
 	
 	def set_edit_time_logs
-		editPermission = call_hook(:controller_edit_timelog_permission, {:params => params})
-		@edittimelogs  = editPermission.blank? ? '' : editPermission[0].to_s
+		# editPermission = call_hook(:controller_edit_timelog_permission, {:params => params})
+		# @edittimelogs  = editPermission.blank? ? '' : editPermission[0].to_s
+		@edittimelogs  = isSupervisorApproval ? (canSupervisorEdit && isSupervisorForUser((params[:user_id]).to_i)).to_s : ''
 	end
 	
 	def is_member_of_any_project

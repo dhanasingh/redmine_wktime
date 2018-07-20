@@ -1,4 +1,4 @@
-var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl, blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupAccUrl, purSupContactUrl, purSupPayUrl, wklocationUrl,  wkproductUrl, wkproductitemUrl, wkshipmentUrl, wkUomUrl, wkbrandUrl, wkattributegroupUrl, wkassetUrl, wkassetdepreciationUrl, wkgrpPermissionUrl, wkSchedulingUrl, wkShiftUrl, wkPublicHolidayUrl; 
+var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl, blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupAccUrl, purSupContactUrl, purSupPayUrl, wklocationUrl,  wkproductUrl, wkproductitemUrl, wkshipmentUrl, wkUomUrl, wkbrandUrl, wkattributegroupUrl, wkassetUrl, wkassetdepreciationUrl, wkgrpPermissionUrl, wkSchedulingUrl, wkShiftUrl, wkPublicHolidayUrl, userCurrentUrl; 
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -778,6 +778,21 @@ function loadSpentFors(id, Dropdown, needBlank, uid)
 		data: {project_id: id, user_id: uid, format:fmt},
 		success: function(data){updateUserDD(data, clientDropdown, uid, needBlank, false,"");
 		},
+		beforeSend: function(){ $this.addClass('ajax-loading'); },
+		complete: function(){ $this.removeClass('ajax-loading'); }
+	});
+}
+
+function myReportUser(optionID,userID){	
+	var userDropdown = document.getElementById("user_id");
+	var fmt = 'text';
+	var $this = $(this);
+	var value = optionID.value;
+	$.ajax({
+		url: userCurrentUrl,
+		type: 'get',
+		data: { filter_type:value, user_id: userID, format:fmt},
+		success: function(data){ updateUserDD(data, userDropdown, userID, true, false); },
 		beforeSend: function(){ $this.addClass('ajax-loading'); },
 		complete: function(){ $this.removeClass('ajax-loading'); }
 	});

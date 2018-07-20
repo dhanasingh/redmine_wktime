@@ -29,19 +29,19 @@
 <tr>
 <th><%=h userLbl %></th>
 <td>
-<% ddMember = call_hook(:view_member_dropdown, {:project_id => @selected_project.id, :page => 'new'}) %>
-<% if !ddMember.blank? %>	 
-<%=	ddMember %>
+<% projmem = nil #ddMember = call_hook(:view_member_dropdown, {:project_id => @selected_project.id, :page => 'new'}) %>
+<% if isSupervisorApproval #!ddMember.blank? %>	 
+	<% projmem = getSupervisorMembers(@selected_project.id, 'new') #=	ddMember %>
 <% else %>
-<% 
-	projmem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
-	projmem = projmem.to_a.uniq if !projmem.nil?
-%>
+	<% 
+		projmem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
+		projmem = projmem.to_a.uniq if !projmem.nil?
+	%>		
+<% end %>		
 <%=h select_tag('user_id',
 	options_for_select( projmem.collect{|m| [ m.name, m.user_id ] },
 		:selected =>  @user.nil? ? User.current.id : @user.id), :onchange => "userChanged(this, true)") %>
-<% userId = projmem[0].blank? ? "" : projmem[0].user_id   %>		
-<% end %>		
+<% userId = projmem[0].blank? ? "" : projmem[0].user_id   %>
 </td>
 </tr>
 <% else %>
