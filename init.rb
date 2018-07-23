@@ -304,82 +304,82 @@ module FttePatch
 	end
   end
   
-  module ProjectPatch
-	def self.included(base)
-		#base.send(:include)
+  # module ProjectPatch
+	# def self.included(base)
+		# #base.send(:include)
 		
-		base.class_eval do
-		  # Returns a SQL conditions string used to find all projects for which +user+ has the given +permission+
-		  #
-		  # Valid options:
-		  # * :skip_pre_condition => true       don't check that the module is enabled (eg. when the condition is already set elsewhere in the query)
-		  # * :project => project               limit the condition to project
-		  # * :with_subprojects => true         limit the condition to project and its subprojects
-		  # * :member => true                   limit the condition to the user projects
-		  def self.allowed_to_condition(user, permission, options={})
-			perm = Redmine::AccessControl.permission(permission)
-			base_statement = (perm && perm.read? ? "#{Project.table_name}.status <> #{Project::STATUS_ARCHIVED}" : "#{Project.table_name}.status = #{Project::STATUS_ACTIVE}")
-			if !options[:skip_pre_condition] && perm && perm.project_module
-			  # If the permission belongs to a project module, make sure the module is enabled
-			  base_statement << " AND EXISTS (SELECT 1 AS one FROM #{EnabledModule.table_name} em WHERE em.project_id = #{Project.table_name}.id AND em.name='#{perm.project_module}')"
-			end
-			if project = options[:project]
-			  project_statement = project.project_condition(options[:with_subprojects])
-			  base_statement = "(#{project_statement}) AND (#{base_statement})"
-			end
+		# base.class_eval do
+		  # # Returns a SQL conditions string used to find all projects for which +user+ has the given +permission+
+		  # #
+		  # # Valid options:
+		  # # * :skip_pre_condition => true       don't check that the module is enabled (eg. when the condition is already set elsewhere in the query)
+		  # # * :project => project               limit the condition to project
+		  # # * :with_subprojects => true         limit the condition to project and its subprojects
+		  # # * :member => true                   limit the condition to the user projects
+		  # def self.allowed_to_condition(user, permission, options={})
+			# perm = Redmine::AccessControl.permission(permission)
+			# base_statement = (perm && perm.read? ? "#{Project.table_name}.status <> #{Project::STATUS_ARCHIVED}" : "#{Project.table_name}.status = #{Project::STATUS_ACTIVE}")
+			# if !options[:skip_pre_condition] && perm && perm.project_module
+			  # # If the permission belongs to a project module, make sure the module is enabled
+			  # base_statement << " AND EXISTS (SELECT 1 AS one FROM #{EnabledModule.table_name} em WHERE em.project_id = #{Project.table_name}.id AND em.name='#{perm.project_module}')"
+			# end
+			# if project = options[:project]
+			  # project_statement = project.project_condition(options[:with_subprojects])
+			  # base_statement = "(#{project_statement}) AND (#{base_statement})"
+			# end
 			
-			wktime_helper = Object.new.extend(WktimeHelper)
-			if user.admin?
-			  base_statement
-			# Path code for overide redmine spentime 
-			elsif wktime_helper.isSupervisorApproval && wktime_helper.isSupervisor && !wktime_helper.isAccountUser && wktime_helper.overrideSpentTime
-				base_statement + self.getSupervisorCondStr(user)
-			else
-			  statement_by_role = {}
-			  unless options[:member]
-				role = user.builtin_role
-				if role.allowed_to?(permission)
-				  s = "#{Project.table_name}.is_public = #{connection.quoted_true}"
-				  if user.id
-					group = role.anonymous? ? Group.anonymous : Group.non_member
-					principal_ids = [user.id, group.id].compact
-					s = "(#{s} AND #{Project.table_name}.id NOT IN (SELECT project_id FROM #{Member.table_name} WHERE user_id IN (#{principal_ids.join(',')})))"
-				  end
-				  statement_by_role[role] = s
-				end
-			  end
-			  user.project_ids_by_role.each do |role, project_ids|
-				if role.allowed_to?(permission) && project_ids.any?
-				  statement_by_role[role] = "#{Project.table_name}.id IN (#{project_ids.join(',')})"
-				end
-			  end
-			  if statement_by_role.empty?
-				"1=0"
-			  else
-				if block_given?
-				  statement_by_role.each do |role, statement|
-					if s = yield(role, user)
-					  statement_by_role[role] = "(#{statement} AND (#{s}))"
-					end
-				  end
-				end
-				"((#{base_statement}) AND (#{statement_by_role.values.join(' OR ')}))"
-			  end
-			end
-		  end
+			# wktime_helper = Object.new.extend(WktimeHelper)
+			# if user.admin?
+			  # base_statement
+			# # Path code for overide redmine spentime 
+			# elsif wktime_helper.isSupervisorApproval && wktime_helper.isSupervisor && !wktime_helper.isAccountUser && wktime_helper.overrideSpentTime
+				# base_statement + self.getSupervisorCondStr(user)
+			# else
+			  # statement_by_role = {}
+			  # unless options[:member]
+				# role = user.builtin_role
+				# if role.allowed_to?(permission)
+				  # s = "#{Project.table_name}.is_public = #{connection.quoted_true}"
+				  # if user.id
+					# group = role.anonymous? ? Group.anonymous : Group.non_member
+					# principal_ids = [user.id, group.id].compact
+					# s = "(#{s} AND #{Project.table_name}.id NOT IN (SELECT project_id FROM #{Member.table_name} WHERE user_id IN (#{principal_ids.join(',')})))"
+				  # end
+				  # statement_by_role[role] = s
+				# end
+			  # end
+			  # user.project_ids_by_role.each do |role, project_ids|
+				# if role.allowed_to?(permission) && project_ids.any?
+				  # statement_by_role[role] = "#{Project.table_name}.id IN (#{project_ids.join(',')})"
+				# end
+			  # end
+			  # if statement_by_role.empty?
+				# "1=0"
+			  # else
+				# if block_given?
+				  # statement_by_role.each do |role, statement|
+					# if s = yield(role, user)
+					  # statement_by_role[role] = "(#{statement} AND (#{s}))"
+					# end
+				  # end
+				# end
+				# "((#{base_statement}) AND (#{statement_by_role.values.join(' OR ')}))"
+			  # end
+			# end
+		  # end
 		  
-		  def self.getSupervisorCondStr(user)
-			wktime_helper = Object.new.extend(WktimeHelper)
-			cond = ""
-			project_ids = wktime_helper.getUsersProjects(user.id, true).collect{|proj| proj.id }.map(&:inspect).join(', ')
-			unless project_ids.blank?
-				cond = " AND #{Project.table_name}.id IN (#{project_ids})"
-			end
-			cond
-		  end
-		end
-	end
-  end
+		  # def self.getSupervisorCondStr(user)
+			# wktime_helper = Object.new.extend(WktimeHelper)
+			# cond = ""
+			# project_ids = wktime_helper.getUsersProjects(user.id, true).collect{|proj| proj.id }.map(&:inspect).join(', ')
+			# unless project_ids.blank?
+				# cond = " AND #{Project.table_name}.id IN (#{project_ids})"
+			# end
+			# cond
+		  # end
+		# end
+	# end
+  # end
  
   module TimeEntryQueryPatch
 	def self.included(base)
@@ -480,7 +480,7 @@ end
 Rails.configuration.to_prepare do
 	# Add module to User class
 	User.send(:include, FttePatch::UserPatch)
-	Project.send(:include, FttePatch::ProjectPatch)
+	# Project.send(:include, FttePatch::ProjectPatch)
 	TimeEntry.send(:include, FttePatch::TimeEntryPatch)
 	
 	#if ActiveRecord::Base.connection.table_exists? "#{Setting.table_name}"
