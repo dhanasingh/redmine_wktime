@@ -1550,7 +1550,8 @@ end
 	# =========== Supervisor feature code merge ==========
 	
 	def overrideSpentTime
-		(!Setting.plugin_redmine_wktime['ftte_override_spent_time_report'].blank? && Setting.plugin_redmine_wktime['ftte_override_spent_time_report'].to_i == 1)
+		# (!Setting.plugin_redmine_wktime['ftte_override_spent_time_report'].blank? && Setting.plugin_redmine_wktime['ftte_override_spent_time_report'].to_i == 1)
+		true
 	end
 	
 	def getDirectReportUsers(user_id)
@@ -1639,7 +1640,8 @@ end
 	end
 	
 	def canSupervisorEdit
-		(!Setting.plugin_redmine_wktime.blank? && !Setting.plugin_redmine_wktime['ftte_edit_time_log'].blank? && Setting.plugin_redmine_wktime['ftte_edit_time_log'].to_i == 1)
+		#(!Setting.plugin_redmine_wktime.blank? && !Setting.plugin_redmine_wktime['ftte_edit_time_log'].blank? && Setting.plugin_redmine_wktime['ftte_edit_time_log'].to_i == 1)
+		true
 	end
 	
 	# Get the projet members based on their reporters
