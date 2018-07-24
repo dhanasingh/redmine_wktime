@@ -398,19 +398,21 @@ function projectChanged(projDropdown, row){
 				complete: function(){ $this.removeClass('ajax-loading'); }
 			});
 		}
-		$.ajax({
-			url: clientUrl,
-			type: 'get',
-			data: {project_id: id, user_id: uid, format:fmt},
-			success: function(data){
-				//var actId = getDefaultActId(data);
-				//var items = data.split('\n');
-				//var needBlankOption = !(items.length-1 == 1 || actId != null);
-				updateDropdown(data, row, clientDropdown, false, true, true, null);
-			},
-			beforeSend: function(){ $this.addClass('ajax-loading'); },
-			complete: function(){ $this.removeClass('ajax-loading'); }
-		});
+		if (isDropdown("time_entry[][spent_for_attributes][spent_for_key]")){
+			$.ajax({
+				url: clientUrl,
+				type: 'get',
+				data: {project_id: id, user_id: uid, format:fmt},
+				success: function(data){
+					//var actId = getDefaultActId(data);
+					//var items = data.split('\n');
+					//var needBlankOption = !(items.length-1 == 1 || actId != null);
+					updateDropdown(data, row, clientDropdown, false, true, true, null);
+				},
+				beforeSend: function(){ $this.addClass('ajax-loading'); },
+				complete: function(){ $this.removeClass('ajax-loading'); }
+			});
+		}
 	}
 }
 
