@@ -55,7 +55,7 @@ class DayViewRenderer < SheetViewRenderer
 			self.spent_for_join.to_s + 
 			" left outer join (select t.*, sf.spent_on_time, sf.spent_for_id, sf.spent_for_type, sf.spent_id, sf.spent_type  from time_entries t 
 			inner join wk_spent_fors sf on (t.id = sf.spent_id and sf.spent_type = 'TimeEntry' and t.spent_on = '#{givenValues[:selected_date]}')) te on te.issue_id = i.id and te.user_id = #{givenValues[:user_id]}
-			and te.spent_for_type = ap.parent_type and te.spent_for_id = ap.parent_id" 
+			and COALESCE(te.spent_for_type,'') = COALESCE(ap.parent_type,'') and COALESCE(te.spent_for_id, 0) = COALESCE(ap.parent_id, 0)" 
 			#time_entries te on te.spent_on = '#{@selectedDate}' and te.issue_id = i.id and te.user_id = #{@user.id} 
 			#left outer join wk_spent_fors sf on sf.spent_type = 'TimeEntry' and sf.spent_for_type = ap.parent_type and sf.spent_for_id = ap.parent_id
 		sqlStr = sqlStr + " Where (ia.id IS NOT NULL OR te.id IS NOT NULL OR i.assigned_to_id = #{givenValues[:user_id]} )" 

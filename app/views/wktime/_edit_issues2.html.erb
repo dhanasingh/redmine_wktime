@@ -123,7 +123,7 @@ if params[:enter_issue_id].blank?
 		activities.blank? ? nil : options_for_select(activities, :selected => entry.nil? ? 0 : entry.activity_id),
 		:style=> "width:#{Setting.plugin_redmine_wktime['wktime_actv_dd_width']}px" ) %>
 	<% else %>
-		<%= entry.activity.name unless entry.nil?%>
+		<%= activity.blank? ? entry.activity_id : activity.name unless entry.nil?%>
 	<% end %>
 	</td>
 <% else %>
@@ -199,5 +199,8 @@ if params[:enter_issue_id].blank?
 			<%=h spentOnTime %>
 		<% end %>
 		</td>
+<% else %>
+		<%=h hidden_field_tag(isTemplate ? '__template__time_entry[][spent_for_attributes][spent_date_hr]' : 'time_entry[][spent_for_attributes][spent_date_hr]', 
+		0  ) %>
 <% end %>
 <% @wday_index = 1 %>
