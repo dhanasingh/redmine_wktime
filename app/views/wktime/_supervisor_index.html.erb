@@ -1,4 +1,5 @@
-<table>
+<div class="div-left">
+ <table>
 	<%
 		me = false
 		my_direct_report = false
@@ -68,7 +69,7 @@
 				</td>
 			</tr>
 		<% end %>
-</table>
+ </table>
 <table>
 	<% if !@manage_view_spenttime_projects.blank? %>
 		<tr>
@@ -129,4 +130,5 @@ userCurrentUrl ="<%= "#{url_for(:controller => 'wktime', :action => 'getMyReport
  </script>
  <% else %>
 	</table>
-<% end %>
+ <% end %>
+</div>
