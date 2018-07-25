@@ -74,7 +74,7 @@
 <%  sellSpentFor =  ""
     spentForIdVal = ""
 	if @spentType == 'E' && !@expenseEntry.blank?
-		selectedSpentFor = @expenseEntry.project_id.to_s +'|'+@expenseEntry.spent_for.spent_for_type+'_'+@expenseEntry.spent_for.spent_for_id 	
+		selectedSpentFor = @expenseEntry.project_id.to_s + '|' + @expenseEntry.spent_for.spent_for_type.to_s + '_' + @expenseEntry.spent_for.spent_for_id.to_s
 		spentForIdVal = @expenseEntry.spent_for.id	
 	elsif (@spentType == 'T' || @spentType.blank?) && (!@time_entry.blank? && !@time_entry.spent_for.blank?)
 		selectedSpentFor = @time_entry.project_id.to_s + '|' + @time_entry.spent_for.spent_for_type.to_s + '_' + @time_entry.spent_for.spent_for_id.to_s
