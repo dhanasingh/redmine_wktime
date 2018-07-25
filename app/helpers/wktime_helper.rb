@@ -1548,12 +1548,7 @@ end
 	end
 	
 	# =========== Supervisor feature code merge ==========
-	
-	def overrideSpentTime
-		# (!Setting.plugin_redmine_wktime['ftte_override_spent_time_report'].blank? && Setting.plugin_redmine_wktime['ftte_override_spent_time_report'].to_i == 1)
-		true
-	end
-	
+		
 	def getDirectReportUsers(user_id)
 		cond =	['parent_id = ?', user_id]
 		userList = User.where(cond).order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC") 
@@ -1566,7 +1561,7 @@ end
 		.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
 	end
   
-	def isSupervisor()
+	def isSupervisor
 		directSubOrdCnt = User.where(:parent_id => User.current.id).count
 		ret =  directSubOrdCnt > 0 ? true : false
 	end
@@ -1641,7 +1636,14 @@ end
 	
 	def canSupervisorEdit
 		#(!Setting.plugin_redmine_wktime.blank? && !Setting.plugin_redmine_wktime['ftte_edit_time_log'].blank? && Setting.plugin_redmine_wktime['ftte_edit_time_log'].to_i == 1)
-		true
+		# Move the canSupervisorEdit and overrideSpentTime under one isSupervisorApproval settings
+		isSupervisorApproval
+	end
+	
+	def overrideSpentTime
+		# (!Setting.plugin_redmine_wktime['ftte_override_spent_time_report'].blank? && Setting.plugin_redmine_wktime['ftte_override_spent_time_report'].to_i == 1)
+		# Move the canSupervisorEdit and overrideSpentTime under one isSupervisorApproval settings
+		isSupervisorApproval
 	end
 	
 	# Get the projet members based on their reporters

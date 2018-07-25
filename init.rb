@@ -401,7 +401,6 @@ module FttePatch
 			orgCondStatement = statement
 			condStatement = orgCondStatement
 			
-			#wktime_helper = Object.new.extend(WktimeHelper)
 			wktime_helper = Object.new.extend(WktimeHelper)
 			if wktime_helper.overrideSpentTime
 				isAccountUser = wktime_helper.isAccountUser
@@ -458,7 +457,8 @@ module FttePatch
 					#if (!Setting.plugin_redmine_wktime['ftte_view_only_own_spent_time'].blank? && 
 					#Setting.plugin_redmine_wktime['ftte_view_only_own_spent_time'].to_i == 1) && 
 					if !isAccountUser && !User.current.admin? && !isManager
-						condStatement = condStatement.blank? ? condStatement : condStatement + " AND (#{TimeEntry.table_name}.user_id = " + User.current.id.to_s + ")"
+						cond = " (#{TimeEntry.table_name}.user_id = " + User.current.id.to_s + ")"
+						condStatement = condStatement.blank? ? cond : condStatement + " AND #{cond}"
 					elsif isManager && !isAccountUser && !User.current.admin?
 						user_id = filters["user_id"][:values] if !filters["user_id"].blank?
 						if !user_id.blank? && user_id.is_a?(Array) && (user_id.include?("me") || user_id.include?(User.current.id.to_s))
