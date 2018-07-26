@@ -414,7 +414,7 @@ fr:
   label_transaction_type: Transaction Type
   label_transaction_date: Transaction Date
   label_ledger: Ledger
-  label_ledger_infromation: Ledger Information
+  label_ledger_information: Ledger Information
   label_accounting_admin: Accounting Admin Group
   label_bank_ac: Bank Accounts
   label_bank_occ_ac: Bank OCC A/c
