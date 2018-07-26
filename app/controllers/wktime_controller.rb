@@ -655,7 +655,7 @@ include QueriesHelper
 		issueAssignee = userIssues + assignedIssueUser 
 		issueAssignee = issueAssignee.uniq
 		issueAssignee = issueAssignee.sort_by{|subject| subject}
-		assignedIssues = issueAssignee.collect {|issue| [issue.project.name + " # " + issue.subject, issue.id]}
+		assignedIssues = issueAssignee.collect {|issue| [issue.project.name + " #" + issue.id.to_s + ": " + issue.subject, issue.id]}
 		assignedIssues.unshift( ["", ""]) if needBlank
 		assignedIssues
 	end
