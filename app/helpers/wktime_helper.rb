@@ -1131,8 +1131,7 @@ end
 	
 	def showBilling
 		(!Setting.plugin_redmine_wktime['wktime_enable_billing_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_billing_module'].to_i == 1 ) && isModuleAdmin('wktime_billing_groups')
-			
+			Setting.plugin_redmine_wktime['wktime_enable_billing_module'].to_i == 1 ) #&& isModuleAdmin('wktime_billing_groups')			
 	end
 	
 	# Return the given type of custom Fields array
