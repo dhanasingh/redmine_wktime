@@ -154,7 +154,7 @@ if params[:enter_issue_id].blank?
 		billableProjects = locationBillProject.collect {|billProj| [billProj.parent.name, billProj.parent_type.to_s + '_' + billProj.parent_id.to_s]}
 	end
 %>
-<% if showBilling %>
+<% if showBilling && controller.showSpentFor%>
 	<td class="issue" align="left" width="<%= Setting.plugin_redmine_wktime['wktime_project_dd_width'] %>px">
 	<% if @editable %>
 		<%=h select_tag(isTemplate ? '__template__time_entry[][spent_for_attributes][spent_for_key]' : 'time_entry[][spent_for_attributes][spent_for_key]', 
@@ -188,7 +188,7 @@ if params[:enter_issue_id].blank?
 
 <%= render :partial => controller.getCFInRowHTML , :locals => {:entry => entry, :isTemplate => false }%>
 
-<% if @renderer.showSpentOnInRow %>
+<% if @renderer.showSpentOnInRow && controller.showSpentFor%>
 				
 		<td class="issue" align="left" width="<%= Setting.plugin_redmine_wktime['wktime_issue_dd_width'] %>px">
 		<% if @editable %>
@@ -199,7 +199,7 @@ if params[:enter_issue_id].blank?
 			<%=h spentOnTime %>
 		<% end %>
 		</td>
-<% else %>
+<% elsif controller.showSpentFor %>
 		<%=h hidden_field_tag(isTemplate ? '__template__time_entry[][spent_for_attributes][spent_date_hr]' : 'time_entry[][spent_for_attributes][spent_date_hr]', 
 		0  ) %>
 <% end %>

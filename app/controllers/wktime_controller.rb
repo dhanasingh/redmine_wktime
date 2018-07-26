@@ -715,7 +715,11 @@ include QueriesHelper
 	
 	def filterTrackerVisible
 		!Setting.plugin_redmine_wktime['wktime_allow_user_filter_tracker'].blank?  && Setting.plugin_redmine_wktime['wktime_allow_user_filter_tracker'].to_i == 1
-	end  
+	end
+
+	def showSpentFor
+		true
+	end  	
  
 	def getUnit(entry)
 		nil

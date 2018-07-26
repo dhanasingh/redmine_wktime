@@ -48,6 +48,10 @@ class WkexpenseController < WktimeController
 	false
   end
   
+  def showSpentFor
+	false
+  end
+  
   def getUnit(entry)
 	entry.nil? ? number_currency_format_unit : entry[:currency]
   end
