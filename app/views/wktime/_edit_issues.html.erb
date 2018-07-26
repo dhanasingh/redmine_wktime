@@ -82,7 +82,7 @@ currencySym = ""
 	<td class="project"></td>
 	<td class="issue"></td>
 	<td class="activity"></td>
-	<% if showBilling %>
+	<% if showBilling && controller.showSpentFor%>
 		<td></td>
 	<% end %>
 	<% if controller.enterCommentInRow %>	

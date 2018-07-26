@@ -1407,9 +1407,10 @@ private
 								teEntry.project_id = entry['project_id']
 								teEntry.issue_id = nil if entry['issue_id'].blank?
 								teEntry.user_id = @user.id
-								teEntry.spent_on = @startday + k
 								if @renderer.showSpentOnInRow
-									teEntry.spent_on = entry['spent_for_attributes']['spent_on_time']
+									teEntry.spent_on = showSpentFor ? entry['spent_for_attributes']['spent_on_time'] : entry['spent_on']
+								else
+									teEntry.spent_on = @startday + k
 								end
 								
 								unless entry['spent_for_attributes'].blank? 

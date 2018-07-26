@@ -16,7 +16,7 @@
 				showWorkHeader = true;
 				footerRows = 2;
 				headerRows = 4;
-				<% if showBilling %>
+				<% if showBilling && controller.showSpentFor%>
 					hStartIndex = hStartIndex + 1 ;
 				<% end %>
 				<% if @renderer.showSpentOnInRow %>

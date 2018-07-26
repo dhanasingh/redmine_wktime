@@ -9,7 +9,7 @@
 <% else %>
 	<th align="left"></th>
 <% end %>
-<% if showBilling %>
+<% if showBilling && controller.showSpentFor %>
 	<th align="left" width="<%= Setting.plugin_redmine_wktime['wktime_project_dd_width'] %>px" ><%= controller.getLblSpentFor %></th>
 <% end %>
 

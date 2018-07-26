@@ -154,7 +154,7 @@ if params[:enter_issue_id].blank?
 		billableProjects = locationBillProject.collect {|billProj| [billProj.parent.name, billProj.parent_type.to_s + '_' + billProj.parent_id.to_s]}
 	end
 %>
-<% if showBilling && controller.showSpentFor%>
+<% if showBilling && controller.showSpentFor %>
 	<td class="issue" align="left" width="<%= Setting.plugin_redmine_wktime['wktime_project_dd_width'] %>px">
 	<% if @editable %>
 		<%=h select_tag(isTemplate ? '__template__time_entry[][spent_for_attributes][spent_for_key]' : 'time_entry[][spent_for_attributes][spent_for_key]', 
@@ -188,13 +188,16 @@ if params[:enter_issue_id].blank?
 
 <%= render :partial => controller.getCFInRowHTML , :locals => {:entry => entry, :isTemplate => false }%>
 
-<% if @renderer.showSpentOnInRow && controller.showSpentFor%>
-				
+<% if @renderer.showSpentOnInRow %>	
 		<td class="issue" align="left" width="<%= Setting.plugin_redmine_wktime['wktime_issue_dd_width'] %>px">
 		<% if @editable %>
-			<%=h date_field_tag(isTemplate ? '__template__time_entry[][spent_for_attributes][spent_on_time]' : 'time_entry[][spent_for_attributes][spent_on_time]', entry.blank? || entry.spent_on.blank? ? @selectedDate : entry.spent_on)  %>
-			<%=h select_tag(isTemplate ? '__template__time_entry[][spent_for_attributes][spent_date_hr]' : 'time_entry[][spent_for_attributes][spent_date_hr]', options_for_number_select(0, 23, 1, !spentOnTime.blank? ? ((spentOnTime.localtime).strftime("%H")).to_i : 00 )) %>
-			<%=h select_tag(isTemplate ? '__template__time_entry[][spent_for_attributes][spent_date_min]' : 'time_entry[][spent_for_attributes][spent_date_min]', options_for_number_select(0, 59, 1, !spentOnTime.blank? ? ((spentOnTime.localtime).strftime("%M")).to_i : 00 )) %>
+			<% if controller.showSpentFor %>	
+				<%=h date_field_tag(isTemplate ? '__template__time_entry[][spent_for_attributes][spent_on_time]' : 'time_entry[][spent_for_attributes][spent_on_time]', entry.blank? || entry.spent_on.blank? ? @selectedDate : entry.spent_on)  %>
+				<%=h select_tag(isTemplate ? '__template__time_entry[][spent_for_attributes][spent_date_hr]' : 'time_entry[][spent_for_attributes][spent_date_hr]', options_for_number_select(0, 23, 1, !spentOnTime.blank? ? ((spentOnTime.localtime).strftime("%H")).to_i : 00 )) %>
+				<%=h select_tag(isTemplate ? '__template__time_entry[][spent_for_attributes][spent_date_min]' : 'time_entry[][spent_for_attributes][spent_date_min]', options_for_number_select(0, 59, 1, !spentOnTime.blank? ? ((spentOnTime.localtime).strftime("%M")).to_i : 00 )) %>
+			<% else %>
+				<%=h date_field_tag(isTemplate ? '__template__time_entry[][spent_on]' : 'time_entry[][spent_on]', entry.blank? || entry.spent_on.blank? ? @selectedDate : entry.spent_on)  %>
+			<% end %>
 		<% else %>
 			<%=h spentOnTime %>
 		<% end %>
