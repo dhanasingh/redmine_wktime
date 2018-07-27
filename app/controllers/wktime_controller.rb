@@ -1833,9 +1833,7 @@ private
 			userList.each do |users|
 				@members << [users.name,users.id.to_s()]
 			end		
-		else		
-			projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC") if !@selected_project.blank?		
-			@members = projMem.collect{|m| [ m.name, m.user_id ] } if !projMem.blank?
+		else			
 			if isSupervisorApproval # !hookMem.blank?
 				userList = Array.new
 				if filter_type == '4'			
@@ -1846,7 +1844,10 @@ private
 				userList.each do |users|
 					@members << [users.name,users.id.to_s()]					
 				end	
-				# @members = hookMem[0].blank? ? @members : hookMem[0]		
+				# @members = hookMem[0].blank? ? @members : hookMem[0]	
+			else
+				projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC") if !@selected_project.blank?		
+				@members = projMem.collect{|m| [ m.name, m.user_id ] } if !projMem.blank?
 			end
 		end
 		@members = @members.uniq

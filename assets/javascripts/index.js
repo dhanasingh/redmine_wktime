@@ -795,7 +795,7 @@ function myReportUser(optionID,userID){
 		url: userCurrentUrl,
 		type: 'get',
 		data: { filter_type:value, user_id: userID, format:fmt},
-		success: function(data){ updateUserDD(data, userDropdown, userID, true, false); },
+		success: function(data){ updateUserDD(data, userDropdown, userID, true, false, "All Users"); },
 		beforeSend: function(){ $this.addClass('ajax-loading'); },
 		complete: function(){ $this.removeClass('ajax-loading'); }
 	});
