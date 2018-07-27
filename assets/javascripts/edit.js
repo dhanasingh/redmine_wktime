@@ -398,7 +398,7 @@ function projectChanged(projDropdown, row){
 				complete: function(){ $this.removeClass('ajax-loading'); }
 			});
 		}
-		if (isDropdown("time_entry[][spent_for_attributes][spent_for_key]")){
+		if (clientDropdown.length > 0){ // To check for dropdown if element there it will give 1
 			$.ajax({
 				url: clientUrl,
 				type: 'get',
