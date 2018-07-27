@@ -168,7 +168,7 @@ module TimelogControllerPatch
 				end
 			end
 			
-			if errorMsg.blank?
+			if errorMsg.blank? && params[:log_type] != 'E'
 				spentForModel = model.blank? ? @time_entry : model
 				saveSpentFors(spentForModel)
 			end
@@ -251,7 +251,7 @@ module TimelogControllerPatch
 					redirect_to :controller => 'timelog',:action => 'edit'					
 				end
 			end
-			if errorMsg.blank?
+			if errorMsg.blank? && params[:log_type] != 'E'
 				spentForModel = model.blank? ? @time_entry : model
 				saveSpentFors(spentForModel)
 			end
