@@ -36,6 +36,7 @@ module WkpayrollHelper
 		unless periodType.blank?
 			case periodType.upcase
 			when 'H'
+				intervals << [startDate, endDate]
 			when 'D'
 				intervals << [startDate, endDate]
 			when 'W'
