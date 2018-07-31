@@ -1416,8 +1416,10 @@ private
 								unless entry['spent_for_attributes'].blank? 
 									unless entry['spent_for_attributes']['spent_for_key'].blank?
 										spentFor = getSpentFor(entry['spent_for_attributes']['spent_for_key'])
-										teEntry.spent_for.spent_for_type = spentFor[0]
-										teEntry.spent_for.spent_for_id = spentFor[1].to_i
+										if spentFor[1].to_i > 0
+											teEntry.spent_for.spent_for_type = spentFor[0]
+											teEntry.spent_for.spent_for_id = spentFor[1].to_i
+										end
 									end
 									teEntry.spent_for.spent_on_time = getDateTime(teEntry.spent_on, entry['spent_for_attributes']['spent_date_hr'], entry['spent_for_attributes']['spent_date_min'], 0)
 								end
@@ -1879,8 +1881,10 @@ private
 		@spentForId = nil
 		unless spentForKey.blank?
 			spentFor = getSpentFor(spentForKey)
-			@spentForType = spentFor[0]
-			@spentForId = spentFor[1].to_i
+			if spentFor[1].to_i > 0
+				@spentForType = spentFor[0]
+				@spentForId = spentFor[1].to_i
+			end
 		end
 		if api_request? && params[:issue_id].blank?
 			@issueId = params[:"wk_#{teName}"][:issue_id]	
