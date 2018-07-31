@@ -25,9 +25,12 @@ class WkMaterialEntry < ActiveRecord::Base
   belongs_to :user
   belongs_to :activity, :class_name => 'TimeEntryActivity'
   belongs_to :inventory_item, :class_name => 'WkInventoryItem'
-   
+  
+  has_one :spent_for, as: :spent, class_name: 'WkSpentFor', :dependent => :destroy  
    
   attr_protected :user_id, :tyear, :tmonth, :tweek
+  
+  accepts_nested_attributes_for :spent_for
   
   scope :visible, lambda {|*args|
     joins(:project).

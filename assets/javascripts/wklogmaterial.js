@@ -1,5 +1,14 @@
  $(document).ready(function() {	
 	hideLogDetails(null);
+	if(document.getElementById("time_entry_project_id") != null)
+	{
+		$('#time_entry_project_id').change(function(){
+			var project=$(this);			
+			uid = document.getElementById('userId').value;
+		    loadSpentFors(project.val(), 'spent_for', false, uid)
+		});
+	}
+	  
 });
 
 function updateTotal(currId, nxtId, setId, currencyId)

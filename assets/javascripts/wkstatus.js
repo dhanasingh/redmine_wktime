@@ -14,28 +14,38 @@ $(document).ready(function(){
 	$('#quick-search').append( $('#startdiv') ); 
 	$('#quick-search').append( $('#enddiv') );
 	
-	 var spentTypeDD = '<table><tr><td><label for="select" style="text-transform:   none;">Spent Type</label></td>'
-            +'<td><select name="spent_type" id="spent_type" onchange="spentTypeValue(this);">'
-            +'<option value="T">Time</option>'
-			+'<option value="E">Expense</option>'
-            +'<option value="M">Material</option>'
-			+'<option value="A">Asset</option>'
-            +'</select></td></tr></table>';
-			
-	if(document.querySelector("h2").innerHTML == "Spent time")	
+	if(document.getElementById('spent_type') == null)
 	{
-		$("#query_form_content").append(spentTypeDD);		
-		var spcheck = sessionStorage.getItem("spent_type") == null ? "T" : sessionStorage.getItem("spent_type");
-		if(document.getElementById('spent_type') != null) {
-			var ddl = document.getElementById('spent_type');
-			var opts = ddl.options.length;
-			for (var i=0; i<opts; i++){
-				if (ddl.options[i].value == spcheck){
-					ddl.options[i].selected = true;
-					break;
-				}
-			}
+		var spentTypeDD = '<table><tr><td><label for="select" style="text-transform:   none;">Spent Type</label></td>'
+            +'<td><select name="spent_type" id="spent_type" onchange="spentTypeValue(this);">'           
+            +'</select></td></tr></table>';
+	}
+			
+	if(document.querySelector("h2") && document.querySelector("h2").innerHTML == "Spent time")	
+	{
+		if(document.getElementById('spent_type') == null)
+		{	
+			$("#query_form_content").append(spentTypeDD);
 		}
+		var spentDD = document.getElementById('spent_type');
+		var userid = document.getElementById('spent_time_user_id').value;
+		var spentDDUrl = document.getElementById('getspenttype_url').value;	
+		var $this = $(this);
+		if(document.getElementById('spent_type') != null)
+		{
+			var ddloption =  document.getElementById('spent_type').options;			
+			if(ddloption.length == 0)
+			{
+				$.ajax({
+				url: spentDDUrl,
+				type: 'get',
+				data: {type: 'spentType'},
+				success: function(data){ updateUserDD(data, spentDD, userid, false, false, "");},
+				beforeSend: function(){ $this.addClass('ajax-loading'); },
+				complete: function(){ spentTypeSelection(); $this.removeClass('ajax-loading'); }	      
+				});
+			}
+		}			
 	}
 	else {
 		sessionStorage.clear();
@@ -86,6 +96,21 @@ function spentTypeValue(elespent)
 	 spentTypeVal = elespent.options[elespent.selectedIndex].value;
 	 sessionStorage.setItem("spent_type", spentTypeVal);
 	 document.getElementById("query_form").submit();
+}
+
+function spentTypeSelection()
+{
+	var spcheck = sessionStorage.getItem("spent_type") == null ? "T" : sessionStorage.getItem("spent_type");
+	if(document.getElementById('spent_type') != null) {
+		var ddl = document.getElementById('spent_type');
+		var opts = ddl.options.length;
+		for (var i=0; i<opts; i++){
+			if (ddl.options[i].value == spcheck){
+				ddl.options[i].selected = true;
+				break;
+			}
+		}
+	}
 }
 
 function showEntryWarning(entrydate){

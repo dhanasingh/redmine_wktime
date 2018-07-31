@@ -1,5 +1,22 @@
+# ERPmine - ERP for service industry
+# Copyright (C) 2011-2018  Adhi software pvt ltd
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 class WkproductitemController < WkinventoryController
   unloadable 
+  menu_item :wkproduct
   before_filter :require_login
   before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :transfer, :updateTransfer]
 
@@ -7,11 +24,14 @@ class WkproductitemController < WkinventoryController
   include WkgltransactionHelper
   include WkpayrollHelper
   include WkassetHelper
+  include WkshipmentHelper
   
 	def index
 		set_filter_session
 		productId = session[controller_name][:product_id]
 		brandId = session[controller_name][:brand_id]
+		locationId =session[controller_name][:location_id]
+		availabilityId =session[controller_name][:availability]
 		sqlwhere = ""
 		unless productId.blank?
 			sqlwhere = " AND pit.product_id = #{productId}"
@@ -20,32 +40,53 @@ class WkproductitemController < WkinventoryController
 		unless brandId.blank?
 			sqlwhere = sqlwhere + " AND pit.brand_id = #{brandId}"
 		end
+		
+		unless locationId.blank?
+			sqlwhere = sqlwhere + " AND iit.location_id = #{locationId}"
+		end
+		
+		unless availabilityId.blank?
+			if availabilityId == 'A'
+				sqlwhere = sqlwhere + " AND ap.matterial_entry_id IS NULL"
+			else
+				sqlwhere = sqlwhere + " AND ap.matterial_entry_id IS NOT NULL"
+			end		
+		end
 		sqlStr = getProductInventorySql + sqlwhere
 		findBySql(sqlStr, WkProductItem)
 	end
 	
 	def getProductInventorySql
-		sqlStr = "select iit.id as inventory_item_id, pit.id as product_item_id, iit.status, p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as product_attribute_name, iit.serial_number, iit.currency, iit.selling_price, iit.total_quantity, iit.available_quantity, uom.short_desc as uom_short_desc, l.name as location_name, (case when iit.product_type is null then p.product_type else iit.product_type end) as product_type from wk_product_items pit 
+		sqlStr = "select iit.id as inventory_item_id, pit.id as product_item_id, iit.product_item_id as inv_product_item_id, piit.product_item_id as parent_product_item_id, iit.status, p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as product_attribute_name, iit.serial_number, iit.currency, iit.selling_price, iit.total_quantity, iit.available_quantity, uom.short_desc as uom_short_desc, l.name as location_name, (case when iit.product_type is null then p.product_type else iit.product_type end) as product_type, iit.is_loggable, ap.name as asset_name, piit.id as parent_id, pap.name as parent_name, ap.owner_type, ap.currency as asset_currency, ap.rate, ap.rate_per, ap.current_value, pcr.child_count from wk_product_items pit 
 		left outer join wk_inventory_items iit on iit.product_item_id = pit.id 
+		left outer join wk_inventory_items piit on iit.parent_id = piit.id 
+		left outer join (select count(parent_id) child_count, parent_id from wk_inventory_items group by parent_id) pcr on pcr.parent_id = iit.id
 		left outer join wk_products p on pit.product_id = p.id
 		left outer join wk_brands b on pit.brand_id = b.id
 		left outer join wk_product_models m on pit.product_model_id = m.id
 		left outer join wk_product_attributes a on iit.product_attribute_id = a.id
 		left outer join wk_locations l on iit.location_id = l.id
 		left outer join wk_mesure_units uom on iit.uom_id = uom.id
-		where ((case when iit.product_type is null then p.product_type else iit.product_type end) = '#{getItemType}' OR (case when iit.product_type is null then p.product_type else iit.product_type end) IS NULL) "
+		left outer join wk_asset_properties ap on ap.inventory_item_id = iit.id
+		left outer join wk_asset_properties pap on pap.inventory_item_id = piit.id
+		where ((case when iit.product_type is null then p.product_type else iit.product_type end) = '#{getItemType}' OR (case when iit.product_type is null then p.product_type else iit.product_type end) IS NULL) AND pcr.child_count IS NULL "
 		sqlStr
 	end
 	
 	def edit
 	    @productItem = nil
 		@inventoryItem = nil
+		@parentEntry = nil
+		@newItem = to_boolean(params[:newItem])
 	    unless params[:product_item_id].blank?
 		   @productItem = WkProductItem.find(params[:product_item_id])
 		end 
 		unless params[:inventory_item_id].blank?
 		   @inventoryItem = WkInventoryItem.find(params[:inventory_item_id])
 		end 
+		unless params[:parentId].blank?
+			@parentEntry = WkInventoryItem.find(params[:parentId])
+		end
 	end	
 	
 	def transfer
@@ -72,14 +113,31 @@ class WkproductitemController < WkinventoryController
 		if productItem.save()
 			inventoryItem = nil
 			if !params[:available_quantity].blank?
-				inventoryItem = updateInventoryItem(productItem.id) 
+				locationId = params[:location_id].to_i
+				unless params[:parent_id].blank?
+					invItem = WkInventoryItem.find(params[:parent_id].to_i)
+					locationId = invItem.location_id
+				end
+				inventoryItem = updateInventoryItem(productItem.id, locationId) 
 			elsif !params[:inventory_item_id].blank?
 				inventoryItem = WkInventoryItem.find(params[:inventory_item_id].to_i)
 				inventoryItem.selling_price = params[:selling_price]
 				inventoryItem.is_loggable = params[:is_loggable]
 				inventoryItem.save
 			end
-			assetProperty = updateAssetProperty(inventoryItem) if !inventoryItem.blank? && inventoryItem.product_type == 'A'
+			unless inventoryItem.blank?
+				assetProperty = updateAssetProperty(inventoryItem) if inventoryItem.product_type != 'I' #!inventoryItem.blank? &&
+				assetAccountingHash = Hash.new
+				assetValue = 0
+				if inventoryItem.product_type == 'A'
+						assetValue = (inventoryItem.total_quantity*(inventoryItem.cost_price+inventoryItem.over_head_price))
+						# assetTotal = assetTotal + assetValue
+						accountingLedger = WkProductItem.find(inventoryItem.product_item_id).product.ledger_id
+						ledgerId = ((!accountingLedger.blank? && accountingLedger > 0) ? accountingLedger : getSettingCfId("inventory_db_ledger"))
+						assetAccountingHash[ledgerId] = assetValue
+				end
+				postShipmentAccounting(inventoryItem.shipment, assetAccountingHash, assetValue)
+			end
 		    redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
 		    flash[:notice] = l(:notice_successful_update)
 		else
@@ -95,10 +153,10 @@ class WkproductitemController < WkinventoryController
 		unless availQuantity < 0 || transferQty <= 0
 			sourceItem.available_quantity = availQuantity
 			if sourceItem.save()
-				targetItem = updateInventoryItem(params[:product_item_id].to_i)
+				targetItem = updateInventoryItem(params[:product_item_id].to_i, params[:location_id].to_i)
 				if sourceItem.product_type == 'A'
 					depreciationFreq = Setting.plugin_redmine_wktime['wktime_depreciation_frequency']
-					finacialPeriodArr = getFinancialPeriodArray(Date.today, Date.today, depreciationFreq)
+					finacialPeriodArr = getFinancialPeriodArray(Date.today, Date.today, depreciationFreq, 1)
 					finacialPeriod = finacialPeriodArr[0]
 					targetAssetProp = sourceItem.asset_property.dup
 					targetAssetProp.inventory_item_id = targetItem.id
@@ -118,10 +176,11 @@ class WkproductitemController < WkinventoryController
 		end
 	end
 	
-	def updateInventoryItem(productItemId)
+	def updateInventoryItem(productItemId, locationId)
 		sysCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 		if params[:inventory_item_id].blank?
 			inventoryItem = WkInventoryItem.new
+			inventoryItem.product_type = params[:product_type].blank? ? getItemType : params[:product_type]
 		else
 			inventoryItem = WkInventoryItem.find(params[:inventory_item_id].to_i)
 		end
@@ -129,7 +188,7 @@ class WkproductitemController < WkinventoryController
 		unless params[:transfer_item_id].blank?
 			transferItem = WkInventoryItem.find(params[:transfer_item_id].to_i)
 			inventoryItem = transferItem.dup
-			inventoryItem.parent_id = params[:transfer_item_id].to_i
+			inventoryItem.from_id = params[:transfer_item_id].to_i
 			inventoryItem.supplier_invoice_id = nil
 			inventoryItem.lock_version = 0
 			inventoryItem.shipment_id = transferItem.shipment_id
@@ -148,6 +207,7 @@ class WkproductitemController < WkinventoryController
 			inventoryItem.over_head_price = getExchangedAmount(params[:currency], params[:over_head_price]) 
 			inventoryItem.is_loggable = params[:is_loggable]
 		end
+		inventoryItem.parent_id = params[:parent_id] unless params[:parent_id].blank?
 		inventoryItem.notes = params[:notes]
 		inventoryItem.selling_price = getExchangedAmount(params[:currency], params[:selling_price])
 		inventoryItem.total_quantity = params[:total_quantity]
@@ -155,8 +215,9 @@ class WkproductitemController < WkinventoryController
 		inventoryItem.available_quantity = params[:available_quantity]
 		inventoryItem.status = inventoryItem.available_quantity == 0 ? 'c' : 'o'
 		inventoryItem.uom_id = params[:uom_id].to_i
-		inventoryItem.location_id = params[:location_id].to_i
+		inventoryItem.location_id = locationId		
 		inventoryItem.save()
+		updateShipment(inventoryItem)
 		inventoryItem
 	end
 	
@@ -164,6 +225,7 @@ class WkproductitemController < WkinventoryController
 		sysCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 		if params[:asset_property_id].blank?
 			assetProperty = WkAssetProperty.new
+			updateShipment(inventoryItem)
 			assetProperty.inventory_item_id = inventoryItem.id
 		else
 			assetProperty = inventoryItem.asset_property
@@ -175,6 +237,16 @@ class WkproductitemController < WkinventoryController
 		assetProperty.owner_type = params[:owner_type]
 		assetProperty.save()
 		assetProperty
+	end
+	
+	def updateShipment(inventoryItem)
+		wkShipmentObj = WkShipment.new
+		wkShipmentObj.shipment_type = 'N'
+		wkShipmentObj.shipment_date = Date.today		
+		wkShipmentObj.serial_number = params[:serial_number]
+		wkShipmentObj.save()
+		inventoryItem.shipment_id = wkShipmentObj.id
+		inventoryItem.save()
 	end
 	
 	def destroy
@@ -205,10 +277,12 @@ class WkproductitemController < WkinventoryController
 
 	def set_filter_session
 		if params[:searchlist].blank? && session[controller_name].nil?
-			session[controller_name] = {:product_id => params[:product_id], :brand_id => params[:brand_id]}
+			session[controller_name] = {:product_id => params[:product_id], :brand_id => params[:brand_id], :location_id => params[:location_id], :availability => params[:availability] }
 		elsif params[:searchlist] == controller_name
 			session[controller_name][:product_id] = params[:product_id]
 			session[controller_name][:brand_id] = params[:brand_id]
+			session[controller_name][:location_id] = params[:location_id]
+			session[controller_name][:availability] = params[:availability]
 		end
 		
 	end
@@ -253,5 +327,41 @@ class WkproductitemController < WkinventoryController
 	
 	def showAssetProperties
 		false
+	end
+	
+	def newItemLabel
+		l(:label_new_product_item)
+	end
+	
+	def newAsset
+		false
+	end
+	
+	def editItemLabel
+		l(:label_edit_product_item)
+	end
+	
+	def getIventoryListHeader
+		headerHash = { 'product_name' => l(:label_product), 'brand_name' => l(:label_brand), 'product_model_name' => l(:label_model), 'product_attribute_name' => l(:label_attribute), 'serial_number' => l(:label_serial_number), 'currency' => l(:field_currency), 'selling_price' => l(:label_selling_price), 'total_quantity' => l(:label_total_quantity), 'available_quantity' => l(:label_available_quantity), 'uom_short_desc' => l(:label_uom), 'location_name' => l(:label_location) }
+	end
+	
+	def showProductItem
+		true
+	end
+	
+	def showAdditionalInfo
+		true
+	end
+	
+	def showInventoryFields
+		true
+	end
+	
+	def lblInventory
+		l(:label_inventory)
+	end
+	
+	def newcomponentLbl
+		l(:label_new_component)
 	end
 end

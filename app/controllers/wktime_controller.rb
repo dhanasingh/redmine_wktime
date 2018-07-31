@@ -19,6 +19,7 @@ class WktimeController < WkbaseController
 unloadable
 
 include WktimeHelper
+include WkcrmHelper
 
 before_filter :require_login
 before_filter :check_perm_and_redirect, :only => [:edit, :update, :destroy] # user without edit permission can't destroy
@@ -106,8 +107,9 @@ include QueriesHelper
 	setup
 	findWkTE(@startday)
 	@editable = @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r'
-	hookPerm = call_hook(:controller_check_editable, {:editable => @editable, :user => @user})
-	@editable = hookPerm.blank? ? @editable : hookPerm[0]
+	# hookPerm = call_hook(:controller_check_editable, {:editable => @editable, :user => @user})
+	# @editable = hookPerm.blank? ? @editable : hookPerm[0]
+	@editable = canSupervisorEdit if isSupervisorApproval && @editable && isSupervisor
 	#below two lines are hook code for lock TE
 	# hookPerm = call_hook(:controller_check_locked, {:startdate => @startday})
 	# @locked = hookPerm.blank? ? false : hookPerm[0]
@@ -284,7 +286,7 @@ include QueriesHelper
 				#redirect_back_or_default :action => 'index'
 				#redirect_to :action => 'index' , :tab => params[:tab]
                 if params[:wktime_save_continue] 
-				      redirect_to :action => 'edit' , :startday => !@entries.present? ? @startday  : @startday+ 7, :user_id => @user.id, :project_id => params[:project_id]  
+				      redirect_to :action => 'edit' , :startday => !@entries.present? ? @startday  : @startday+ @renderer.getDaysPerSheet, :user_id => @user.id, :project_id => params[:project_id], :sheet_view => @renderer.getSheetType   
 				else                                                                                                
 				      redirect_to :action => 'index' , :tab => params[:tab]                   
 				end 
@@ -295,7 +297,7 @@ include QueriesHelper
 				redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday, :isError => true,
 				:enter_issue_id => 1	
 				else
-					redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday, :isError => true
+					redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday,:sheet_view => @renderer.getSheetType, :project_id => @projectId, :isError => true
 				end
 			end
 		}
@@ -531,12 +533,139 @@ include QueriesHelper
 		end
 	end
 	
+	def getclients
+		project = nil
+		error = nil
+		teUser = User.find(params[:user_id])
+		project_id = params[:project_id]
+		if !project_id.blank?
+			project = Project.find(project_id)
+		elsif !params[:issue_id].blank?
+			issue = Issue.find(params[:issue_id])
+			project = issue.project
+			project_id = project.id
+			u_id = params[:user_id]
+			user = User.find(u_id)
+			if !user_allowed_to?(:log_time, project)
+				error = "403"
+			end
+		else
+			error = "403"
+		end
+		clientStr =""
+		usrLocationId = teUser.wk_user.blank? ? nil : teUser.wk_user.location_id
+		unless project.blank?
+			project.account_projects.includes(:parent).order(:parent_type).each do |ap|
+				clientStr << project_id.to_s() + '|' + ap.parent_type + '_' + ap.parent_id.to_s() + '|' + "" + (params[:separator].blank? ? '|' : params[:separator] ) + ap.parent.name + "\n" if ap.parent.location_id == usrLocationId
+			end
+		end
+	
+		# respond_to do |format|
+			# format.text  { 
+			# if error.blank?
+				# render :text => clientStr 
+			# else
+				# render_403
+			# end
+			# }
+		# end
+		respond_to do |format|
+			format.text  { render :text => clientStr }
+		end
+	end
+	
+	def getuserclients
+		error = nil
+		teUser = User.find(params[:user_id])
+		userClients = getClientsByUser(teUser.id, false)
+		clientStr =""
+		usrLocationId = teUser.wk_user.blank? ? nil : teUser.wk_user.location_id
+		userClients.each do |ap|
+			clientStr << ap[1].to_s + ',' + ap[0].to_s + "\n"
+		end
+	
+		respond_to do |format|
+			format.text  { 
+			if error.blank?
+				render :text => clientStr 
+			else
+				render_403
+			end
+			}
+		end
+	end
+	
+	def getClientsByUser(userId, needBlank)
+		set_loggable_projects
+		set_managed_projects
+		userProjects = @logtime_projects.blank? ? @manage_projects : @logtime_projects
+		userProjects = @logtime_projects & @manage_projects if !@manage_projects.blank? && !@logtime_projects.blank?
+		projectids = Array.new
+		user = User.find(userId)
+		billableClients = Array.new
+		usrLocationId = user.wk_user.blank? ? nil : user.wk_user.location_id
+		unless userProjects.blank?
+			userProjects.each do |project|
+				projectids << project.id
+			end
+		end
+		usrBillableProjects = WkAccountProject.includes(:parent).where(:project_id => projectids)
+		locationBillProject = usrBillableProjects.select {|bp| bp.parent.location_id == usrLocationId}
+		locationBillProject = locationBillProject.sort_by{|parent_type| parent_type}
+		billableClients = locationBillProject.collect {|billProj| [billProj.parent.name, billProj.parent_type.to_s + '_' + billProj.parent_id.to_s]}
+		billableClients.unshift(["", ""]) if needBlank
+		billableClients = billableClients.uniq
+		billableClients
+	end
+	
+	def getuserissues
+		error = nil
+		teUser = User.find(params[:user_id])
+		userIssues = getIssuesByUser(teUser.id, false)
+		clientStr = ""
+		usrLocationId = teUser.wk_user.blank? ? nil : teUser.wk_user.location_id
+		userIssues.each do |issue|
+			clientStr << issue[1].to_s + ',' + issue[0].to_s + "\n"
+		end
+		
+		respond_to do |format|
+			format.text  { render :text => clientStr }
+		end
+	end
+	
+	def getIssuesByUser(userId, needBlank)
+		set_loggable_projects
+		set_managed_projects
+		userProjects = @logtime_projects.blank? ? @manage_projects : @logtime_projects
+		userProjects = @logtime_projects & @manage_projects if !@manage_projects.blank? && !@logtime_projects.blank?
+		projectids = Array.new
+		assignedIssues = Array.new
+		user = User.find(userId)
+		usrLocationId = user.wk_user.blank? ? nil : user.wk_user.location_id
+		unless userProjects.blank?
+			userProjects.each do |project|
+				projectids << project.id
+			end
+		end
+		#userIssues = Issue.includes(:project).joins("INNER JOIN custom_values cv on cv.customized_type = 'Issue' and cv.customized_id = issues.id and cv.custom_field_id = #{getSettingCfId('wktime_additional_assignee')} AND (cv.value = '#{userId}' OR issues.assigned_to_id = #{userId})")
+		
+		#userIssues = Issue.includes(:project).joins("INNER JOIN wk_issue_assignees ia on ((ia.issue_id = issues.id and ia.user_id = #{userId}) OR issues.assigned_to_id = #{userId})")
+		userIssues = Issue.includes(:project).joins("INNER JOIN wk_issue_assignees ia on (ia.issue_id = issues.id and ia.user_id = #{userId}) ") 
+		assignedIssueUser = Issue.includes(:project).where(:assigned_to_id => userId)
+		issueAssignee = userIssues + assignedIssueUser 
+		issueAssignee = issueAssignee.uniq
+		issueAssignee = issueAssignee.sort_by{|subject| subject}
+		assignedIssues = issueAssignee.collect {|issue| [issue.project.name + " #" + issue.id.to_s + ": " + issue.subject, issue.id]}
+		assignedIssues.unshift( ["", ""]) if needBlank
+		assignedIssues
+	end
+	
 	def getusers
 		project = Project.find(params[:project_id])
 		userStr = ""
-		userList = call_hook(:controller_project_member, {:project_id => params[:project_id], :page => params[:page]})
-		if !userList.blank?
-			projmembers = userList[0].blank? ? nil : userList[0]
+		# userList = call_hook(:controller_project_member, {:project_id => params[:project_id], :page => params[:page]})
+		if isSupervisorApproval #!userList.blank?
+			projmembers = getSupervisorMembers(params[:project_id], params[:page]) #userList[0].blank? ? nil : userList[0]
 		else
 			projmembers = project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
 		end
@@ -586,7 +715,11 @@ include QueriesHelper
 	
 	def filterTrackerVisible
 		!Setting.plugin_redmine_wktime['wktime_allow_user_filter_tracker'].blank?  && Setting.plugin_redmine_wktime['wktime_allow_user_filter_tracker'].to_i == 1
-	end  
+	end
+
+	def showSpentFor
+		true
+	end  	
  
 	def getUnit(entry)
 		nil
@@ -692,9 +825,9 @@ include QueriesHelper
 			@te_projects = @entries.collect{|entry| entry.project}.uniq
 			te_projects = @approvable_projects & @te_projects if !@te_projects.blank?			
 		end
-		hookPerm = call_hook(:controller_check_approvable, {:params => params})		
-		if !hookPerm.blank?
-			ret = hookPerm[0]
+		# hookPerm = call_hook(:controller_check_approvable, {:params => params})		
+		if isSupervisorApproval #!hookPerm.blank?
+			ret = isSupervisor #hookPerm[0]
 		end
 		ret = true if isAccountUser
 		ret = ((ret || !te_projects.blank?) && (@user.id != User.current.id || (!Setting.plugin_redmine_wktime['wktime_own_approval'].blank? && 
@@ -1013,6 +1146,71 @@ include QueriesHelper
 			redirect_to :action => 'new'
 		end		
 	 end
+	 
+	def getSheetView
+		"W"
+	end
+	
+	def hideprevTemplate
+		false
+	end
+	
+	def showProjectDD
+		true
+	end
+	
+	def getLblSpentOn
+		l(:field_start_date)
+	end
+	
+	def getDefultProject
+		nil #get from settings
+	end
+	
+	def showActivityDD
+		true
+	end
+	
+	def getDefultActivity
+		nil #get from settings
+	end
+	
+	def hasApprovalSystem
+		!Setting.plugin_redmine_wktime['wktime_use_approval_system'].blank? &&
+				Setting.plugin_redmine_wktime['wktime_use_approval_system'].to_i == 1 
+	end
+	
+	def getEntityLabel
+		l(:label_wktime)
+	end
+	
+	def getLblIssue
+		l(:field_issue)
+	end
+	
+	def getLblSpentFor
+		l(:label_spent_for)
+	end
+	
+	# ============ supervisor code merge =========
+	
+	def getMyReportUsers
+		userStr =''
+		members = Array.new
+		if params[:filter_type].to_s == '4'
+			members = getDirectReportUsers (User.current.id)
+		elsif params[:filter_type].to_s == '5'
+			members = getReportUsers(User.current.id)		
+		end
+		members.each do |m|
+			userStr << m.id.to_s() + ',' + m.firstname + ' ' + m.lastname + "\n"
+		end
+		respond_to do |format|
+			format.text  { render :text => userStr }
+		end 
+	end
+	 
+	# ============ End of supervisor code merge =========
 	
 private
 	
@@ -1089,9 +1287,9 @@ private
 				ret = (@user.id == User.current.id && @logtime_projects.size > 0)
 			end
 		end
-		editPermission = call_hook(:controller_check_permission, {:params => params})
-		if	!editPermission.blank? 
-			ret = editPermission[0] || (@user.id == User.current.id && @logtime_projects.size > 0)
+		# editPermission = call_hook(:controller_check_permission, {:params => params})
+		if	isSupervisorApproval #!editPermission.blank? 
+			ret = isSupervisorForUser((params[:user_id]).to_i) || (@user.id == User.current.id && @logtime_projects.size > 0) #editPermission[0] 
 		end
 		return (ret || isAccountUser)
 	end
@@ -1105,9 +1303,17 @@ private
 		else
 			group_id = session[:wktimes][:group_id]
 		end
-		grpMember = call_hook(:controller_group_member,{ :group_id => group_id})
-		if !grpMember.blank?
-			userList = grpMember[0].blank? ? userList : grpMember[0]
+		# grpMember = call_hook(:controller_group_member,{ :group_id => group_id})
+		if isSupervisorApproval #!grpMember.blank?
+			#userList = grpMember[0].blank? ? userList : grpMember[0]
+			userIds = getReportUserIdsStr
+			cond = "1=1"
+			unless isAccountUser
+				cond =	"#{User.table_name}.id in(#{userIds})"
+			end
+			unless group_id.blank?		
+				userList = getGroupMembersByCond(group_id,cond) #getGroupMembersByCond
+			end	
 		else
 			projMembers = []			
 			groupusers = nil
@@ -1193,13 +1399,30 @@ private
 						if disabled[k] == "false"
 							if(!id.blank? || !hours[j].blank?)
 								teEntry = nil
-								teEntry = getTEEntry(id)									
+								teEntry = getTEEntry(id)
+								
+								entry.permit! #(spent_for: [ :spent_for_type, :spent_on_time ])
 								teEntry.attributes = entry
 								# since project_id and user_id is protected
 								teEntry.project_id = entry['project_id']
 								teEntry.issue_id = nil if entry['issue_id'].blank?
 								teEntry.user_id = @user.id
-								teEntry.spent_on = @startday + k
+								if @renderer.showSpentOnInRow
+									teEntry.spent_on = showSpentFor ? entry['spent_for_attributes']['spent_on_time'] : entry['spent_on']
+								else
+									teEntry.spent_on = @startday + k
+								end
+								
+								unless entry['spent_for_attributes'].blank? 
+									unless entry['spent_for_attributes']['spent_for_key'].blank?
+										spentFor = getSpentFor(entry['spent_for_attributes']['spent_for_key'])
+										if spentFor[1].to_i > 0
+											teEntry.spent_for.spent_for_type = spentFor[0]
+											teEntry.spent_for.spent_for_id = spentFor[1].to_i
+										end
+									end
+									teEntry.spent_for.spent_on_time = getDateTime(teEntry.spent_on, entry['spent_for_attributes']['spent_date_hr'], entry['spent_for_attributes']['spent_date_min'], 0)
+								end
 								#for one comment, it will be automatically loaded into the object
 								# for different comments, load it separately
 								unless comments.blank?
@@ -1227,7 +1450,6 @@ private
 										end
 									end
 								end
-								
 								@entries << teEntry	
 							end
 							j += 1
@@ -1363,10 +1585,10 @@ private
   
   def user_allowed_to?(privilege, entity)
 	setup
-	hookPerm = call_hook(:controller_check_permission, {:params => params})
+	# hookPerm = call_hook(:controller_check_permission, {:params => params})
 	allow = false
-	if !hookPerm.blank? && (@user != User.current)
-		allow = hookPerm[0]
+	if isSupervisorApproval && (@user != User.current) # !hookPerm.blank? 
+		allow = isSupervisorForUser((params[:user_id]).to_i) #hookPerm[0]
 	else
 		allow = User.current.allowed_to?(privilege, entity)
 	end
@@ -1393,9 +1615,9 @@ private
   
   
     def check_editperm_redirect
-		hookPerm = call_hook(:controller_edit_timelog_permission, {:params => params})
-		if !hookPerm.blank?
-			allow = hookPerm[0] || (check_editPermission && @user.id == User.current.id) || isAccountUser
+		# hookPerm = call_hook(:controller_edit_timelog_permission, {:params => params})
+		if isSupervisorApproval #!hookPerm.blank?
+			allow = (canSupervisorEdit && isSupervisorForUser((params[:user_id]).to_i)) || (check_editPermission && @user.id == User.current.id) || isAccountUser
 		else
 			allow = check_editPermission
 		end
@@ -1598,11 +1820,11 @@ private
 			filter_type = session[:wktimes][:filter_type]
 			project_id = session[:wktimes][:project_id]
 		end
-		hookMem = call_hook(:controller_get_member, { :filter_type => filter_type})
-		if filter_type == '1' || (hookMem.blank? && filter_type !='2')
-			hookProjMem = call_hook(:controller_project_member, {  :project_id => project_id})
-			if !hookProjMem.blank?
-				projMem = hookProjMem[0].blank? ? [] : hookProjMem[0]
+		# hookMem = call_hook(:controller_get_member, { :filter_type => filter_type})
+		if filter_type == '1' #|| (hookMem.blank? && filter_type !='2')
+			# hookProjMem = call_hook(:controller_project_member, {  :project_id => project_id})
+			if isSupervisorApproval #!hookProjMem.blank?
+				projMem = getSupervisorMembers(project_id) #hookProjMem[0].blank? ? [] : hookProjMem[0]
 			else				
 				projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC") if !@selected_project.blank?
 			end				
@@ -1613,11 +1835,21 @@ private
 			userList.each do |users|
 				@members << [users.name,users.id.to_s()]
 			end		
-		else		
-			projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC") if !@selected_project.blank?		
-			@members = projMem.collect{|m| [ m.name, m.user_id ] } if !projMem.blank?
-			if !hookMem.blank?
-				@members = hookMem[0].blank? ? @members : hookMem[0]		
+		else			
+			if isSupervisorApproval # !hookMem.blank?
+				userList = Array.new
+				if filter_type == '4'			
+					userList = getDirectReportUsers (User.current.id)			
+				elsif filter_type == '5'
+					userList = getReportUsers(User.current.id)
+				end
+				userList.each do |users|
+					@members << [users.name,users.id.to_s()]					
+				end	
+				# @members = hookMem[0].blank? ? @members : hookMem[0]	
+			else
+				projMem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC") if !@selected_project.blank?		
+				@members = projMem.collect{|m| [ m.name, m.user_id ] } if !projMem.blank?
 			end
 		end
 		@members = @members.uniq
@@ -1635,9 +1867,39 @@ private
 		else
 			user_id = params[:user_id]			
 		end
+		if api_request? && params[:project_id].blank?
+			@projectId = params[:"wk_#{teName}"][:project_id]	
+		else
+			@projectId = params[:project_id]			
+		end
+		if api_request? && params[:spent_for_key].blank?
+			spentForKey = params[:"wk_#{teName}"][:spent_for_key]	
+		else
+			spentForKey = params[:spent_for_key]			
+		end
+		@spentForType = nil
+		@spentForId = nil
+		unless spentForKey.blank?
+			spentFor = getSpentFor(spentForKey)
+			if spentFor[1].to_i > 0
+				@spentForType = spentFor[0]
+				@spentForId = spentFor[1].to_i
+			end
+		end
+		if api_request? && params[:issue_id].blank?
+			@issueId = params[:"wk_#{teName}"][:issue_id]	
+		else
+			@issueId = params[:issue_id]			
+		end
 		# if user has changed the startday
+		@selectedDate = startday
+		if api_request? && params[:sheet_view].blank?
+			@selectedDate = params[:"wk_#{teName}"][:selected_date].to_s.to_date
+		end
 		@startday ||= getStartDay(startday)
 		@user ||= User.find(user_id)
+		sheetView = params[:sheet_view].blank? ? 'W' : params[:sheet_view]
+		@renderer = SheetViewRenderer.getInstance(sheetView)
 	end
   
 	def set_user_projects
@@ -1648,32 +1910,36 @@ private
 	
 	def set_managed_projects
 		# from version 1.7, the project member with 'edit time logs' permission is considered as managers
-		mng_projects = call_hook(:controller_set_manage_projects)
-		if !mng_projects.blank?
-			@manage_projects = mng_projects[0].blank? ? nil : mng_projects[0]
-		else
+		# mng_projects = call_hook(:controller_set_manage_projects)
+		# if !mng_projects.blank?
+			# @manage_projects = mng_projects[0].blank? ? nil : mng_projects[0]
+		# else
 			if isAccountUser
 				@manage_projects = getAccountUserProjects
+			elsif isSupervisorApproval
+				@manage_projects = getUsersProjects(User.current.id, true)
 			else
 				@manage_projects ||= Project.where(Project.allowed_to_condition(User.current, :edit_time_entries)).order('name')
 			end
-		end		
+		# end		
 		@manage_projects =	setTEProjects(@manage_projects)	
 		
 		# @manage_view_spenttime_projects contains project list of current user with edit_time_entries and view_time_entries permission
 		# @manage_view_spenttime_projects is used to fill up the dropdown in list page for managers
-		view_projects = call_hook(:controller_set_view_projects)
-		if !view_projects.blank?
-			@manage_view_spenttime_projects = view_projects[0].blank? ? nil : view_projects[0]
-		else
-			if isAccountUser
-				@manage_view_spenttime_projects = getAccountUserProjects
+		# view_projects = call_hook(:controller_set_view_projects)
+		# if !view_projects.blank?
+			# @manage_view_spenttime_projects = view_projects[0].blank? ? nil : view_projects[0]
+		# else
+			if isAccountUser || isSupervisorApproval
+				@manage_view_spenttime_projects = @manage_projects #getAccountUserProjects
+			# elsif isSupervisorApproval
+				# @manage_view_spenttime_projects = getUsersProjects(User.current.id, true)
 			else
 				@view_spenttime_projects ||= Project.where(Project.allowed_to_condition(User.current, :view_time_entries)).order('name')
 				@manage_view_spenttime_projects = @manage_projects & @view_spenttime_projects
+				@manage_view_spenttime_projects = setTEProjects(@manage_view_spenttime_projects)
 			end
-		end
-		@manage_view_spenttime_projects = setTEProjects(@manage_view_spenttime_projects)
+		# end
 
 		# @currentUser_loggable_projects contains project list of current user with log_time permission
 		# @currentUser_loggable_projects is used to show/hide new time & expense sheet link	
@@ -1714,8 +1980,10 @@ private
 	def set_project_issues(entries)
 		@projectIssues ||= Hash.new
 		@projActivities ||= Hash.new
+		@projClients ||= Hash.new
 		@projectIssues.clear
 		@projActivities.clear
+		@projClients.clear
 		entries.each do |entry|
 			set_visible_issues(entry)
 		end
@@ -1761,6 +2029,9 @@ private
         end
         if @projActivities[project_id].blank?
             @projActivities[project_id] = project.activities unless project.nil?
+        end 
+		if @projClients[project_id].blank?
+            @projClients[project_id] = project.account_projects.includes(:parent) unless project.nil?
         end 
     end
 	
@@ -1874,10 +2145,32 @@ private
 	end
 	
 	def findEntriesByCond(cond)
-		#TimeEntry.find(:all, :conditions => cond, :order => 'project_id, issue_id, activity_id, spent_on')
-		#TimeEntry.where(cond).order('project_id, issue_id, activity_id, spent_on')
-		TimeEntry.joins(:project).joins(:activity).joins("LEFT OUTER JOIN issues ON issues.id = time_entries.issue_id").where(cond).order('projects.name, issues.subject, enumerations.name, time_entries.spent_on')
+		#TimeEntry.joins(:project).joins(:activity).joins("LEFT OUTER JOIN issues ON issues.id = time_entries.issue_id").where(cond).order('projects.name, issues.subject, enumerations.name, time_entries.spent_on')
+		@renderer.getSheetEntries(cond, TimeEntry, getFiletrParams)
 	end
+	
+	def getFiletrParams
+		#issueUsersCFId = getSettingCfId('wktime_additional_assignee') #22 # :issue_cf_id => issueUsersCFId,
+		givenValues = {:user_id => @user.id, :project_id => @projectId, :selected_date => @selectedDate, :spent_for_type => @spentForType, :spent_for_id => @spentForId, :issue_id => @issueId }
+	end
+	
+	# def findIssueVwEntries
+		# issueUsersCFId = getSettingCfId('wktime_additional_assignee') #22#getSettingCfId(settingId)
+		# sqlStr = "select i.id as issue_id, i.subject as issue_name, i.project_id, i.assigned_to_id, 
+			# p.name as project_name, ap.id as account_project_id, ap.parent_id, ap.parent_type,
+			# te.id as time_entry_id, te.id, COALESCE(te.spent_on,'#{@selectedDate}') as spent_on , COALESCE(te.hours,0) as hours, te.activity_id, te.comments, te.spent_on_time, 
+			# te.spent_for_id, te.spent_for_type, te.spent_id, te.spent_type from issues i 
+			# inner join projects p on (p.id = i.project_id and project_id in (#{@projectId}))
+			# inner join custom_values cv on (i.id = cv.customized_id and cv.customized_type = 'Issue' and cv.custom_field_id = #{issueUsersCFId} and cv.value = '#{@user.id}') OR i.assigned_to_id = #{@user.id}
+			# left outer join wk_account_projects ap on (ap.project_id = p.id)
+			# left outer join (select t.*, sf.spent_on_time, sf.spent_for_id, sf.spent_for_type, sf.spent_id, sf.spent_type  from time_entries t 
+			# inner join wk_spent_fors sf on (t.id = sf.spent_id and sf.spent_type = 'TimeEntry' and t.spent_on = '#{@selectedDate}')) te on te.issue_id = i.id and te.user_id = #{@user.id}
+			# and te.spent_for_type = ap.parent_type and te.spent_for_id = ap.parent_id" 
+			# #time_entries te on te.spent_on = '#{@selectedDate}' and te.issue_id = i.id and te.user_id = #{@user.id} 
+			# #left outer join wk_spent_fors sf on sf.spent_type = 'TimeEntry' and sf.spent_for_type = ap.parent_type and sf.spent_for_id = ap.parent_id
+		# #sqlStr = sqlStr + " Where "
+		# TimeEntry.find_by_sql(sqlStr)
+	# end
 	
 	def setValueForSpField(teEntry,spValue,decimal_separator,entry)
 		teEntry.hours = spValue.blank? ? nil : spValue.to_hours
@@ -2026,8 +2319,9 @@ private
 	end
 	
 	def set_edit_time_logs
-		editPermission = call_hook(:controller_edit_timelog_permission, {:params => params})
-		@edittimelogs  = editPermission.blank? ? '' : editPermission[0].to_s
+		# editPermission = call_hook(:controller_edit_timelog_permission, {:params => params})
+		# @edittimelogs  = editPermission.blank? ? '' : editPermission[0].to_s
+		@edittimelogs  = isSupervisorApproval ? (canSupervisorEdit && isSupervisorForUser((params[:user_id]).to_i)).to_s : ''
 	end
 	
 	def is_member_of_any_project

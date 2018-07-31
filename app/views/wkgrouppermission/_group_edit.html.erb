@@ -5,6 +5,7 @@
 	moduleHash = {"IN" => l(:label_inventory), "SC" => l(:label_scheduling) }	
 	permissionArr = Array.new
 	permissionArr = @groupPermission.pluck(:permission_id) unless @groupPermission.blank?
+
 %>
 
 <%= form_tag({:controller => controller_name, :action => 'index', :tab => "wkgrouppermission"}, :method => :get, :id => 'filter_query_form') do %>
@@ -36,7 +37,7 @@
 						<% isPermission = permissionArr.include? mn.id %>
 						<p><label style="text-align: left; float:left;">
 							<%= check_box_tag "is_permission#{count}", 1, isPermission     -%>
-							<%= l_or_humanize(mn.name, :prefix => "erpmine_module_") %></label>
+							<%= l(("#{mn.name}"), :prefix => "erpmine_module_") %></label>
 						</p>
 						<%=h hidden_field_tag("permission_id#{count}", mn.id) %>
 						<%=h hidden_field_tag("count", count) %>

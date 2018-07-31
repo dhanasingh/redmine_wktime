@@ -1,4 +1,4 @@
-<h2><%= l(:label_contact_plural) %></h2>
+<h2><%= controller.contactLbl %></h2>
 <%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
 <%= hidden_field_tag 'contact_id', @conEditEntry.blank? ? "" : @conEditEntry[0].id %>
 <div id="account_form">
@@ -12,7 +12,9 @@
 <div style="clear:both;"></div>
 <div>
 	<%= submit_tag l(:button_save) ,:id => 'wkcontact_save'%>
+	
 </div>
+
 <% end %>
 <% unless @conEditEntry.blank? %>
 	</br>

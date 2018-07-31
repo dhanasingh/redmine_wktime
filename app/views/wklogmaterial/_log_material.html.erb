@@ -1,12 +1,37 @@
 
 <%= javascript_include_tag 'wklogmaterial', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%
+	Issue.class_eval do
+		has_one :wk_issue, :dependent => :destroy, :class_name => 'WkIssue'
+		has_many :assignees, :dependent => :destroy, :class_name => 'WkIssueAssignee'
+		accepts_nested_attributes_for :assignees
+		accepts_nested_attributes_for :wk_issue
+		def erpmineissues
+			self.wk_issue ||= WkIssue.new(:issue => self, :project => self.project)
+		end	
+	end
+
+	Project.class_eval do
+		has_many :account_projects, :dependent => :destroy, :class_name => 'WkAccountProject'
+		#has_many :parents, through: :account_projects
+	end
+
+	TimeEntry.class_eval do
+	  has_one :spent_for, as: :spent, class_name: 'WkSpentFor', :dependent => :destroy
+	  has_one :invoice_item, through: :spent_for
+	  
+	  accepts_nested_attributes_for :spent_for
+	end
+
+%>
 <% catagoriesList = { 's'  => l(:label_salaried), 'h' =>  l(:label_hourly) }  %>
 <% logmaterial_helper = Object.new.extend(WklogmaterialHelper)	%>
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
 <% wkasset_helper = Object.new.extend(WkassetHelper) %>
 <% rateperHash = wkasset_helper.getRatePerHash(false) %>
 <% logtype = logmaterial_helper.getLogHash %>
+<% spentForsValue = wktime_helper.getSpentFors(User.current.id, @time_entry.project_id) %>
 <% if (Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].blank? &&
 			Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].to_i == 0 ) %>
 			<% logtype.delete("M") %>
@@ -29,7 +54,7 @@
 <% uomArr = logmaterial_helper.getUOMArray(nil, false)  %>
 <% productId = @materialEntry.blank? ? ( productArr.blank? ? 0 : productArr[0][1]) : @materialEntry.inventory_item.product_item.product.id    %>
 <!-- Below Array contains the inventory item id and combination of brand, model, partnumber, attribute, selling price as display field  -->
-<% ltype = @spentType == 'M' ? 'I' : 'A'  %>
+<% ltype = @spentType == 'M' ? 'I' : @spentType  %>
 <% locId = locationArr[0][1] unless locationArr.blank? %>
 <% locationId = @materialEntry.blank? ? locId : @materialEntry.inventory_item.location_id %>
 <% itemArr = logmaterial_helper.getPdtItemArr(productId, false, ltype, locationId)  %>
@@ -43,9 +68,26 @@
 <%= hidden_field_tag 'expense_entry_id', (@expenseEntry.blank? ? '' : @expenseEntry.id) %>
 <% expenseAmount = @expenseEntry.blank? ? "" : @expenseEntry.amount  %>
 <%  assetObj = @materialEntry.blank? ? nil : @materialEntry.inventory_item.asset_property %>
-<% disable = @materialEntry.blank? || @materialEntry.invoice_item_id.blank? ? false : true  %>
+<% disable = @materialEntry.blank? || @materialEntry.spent_for.blank? || @materialEntry.spent_for.invoice_item_id.blank? ? false : true  %>
+<%#=h hidden_field_tag('getclients_url', "#{url_for(:controller => 'wktime', :action => 'getclients', :user_id => User.current.id, :separator => ',')}") %>
+<%= hidden_field_tag 'userId', User.current.id %>
+<%  sellSpentFor =  ""
+    spentForIdVal = ""
+	if @spentType == 'E' && !@expenseEntry.blank?
+		selectedSpentFor = @expenseEntry.project_id.to_s + '|' + @expenseEntry.spent_for.spent_for_type.to_s + '_' + @expenseEntry.spent_for.spent_for_id.to_s
+		spentForIdVal = @expenseEntry.spent_for.id	
+	elsif (@spentType == 'T' || @spentType.blank?) && (!@time_entry.blank? && !@time_entry.spent_for.blank?)
+		selectedSpentFor = @time_entry.project_id.to_s + '|' + @time_entry.spent_for.spent_for_type.to_s + '_' + @time_entry.spent_for.spent_for_id.to_s
+		spentForIdVal = @time_entry.spent_for.id		
+	elsif !@materialEntry.blank?
+		selectedSpentFor = @materialEntry.project_id.to_s + '|' + @materialEntry.spent_for.spent_for_type.to_s + '_' + @materialEntry.spent_for.spent_for_id.to_s
+		spentForIdVal = @materialEntry.spent_for.id
+	end
+%>
+<%= hidden_field_tag 'spentForId', spentForIdVal %>
 <script type="text/javascript"> 
 	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
+   getClientsUrl = 	"<%= "#{url_for(:controller => "wktime", :action => 'getclients', :user_id => User.current.id, :separator => ',')}" %>";
 </script>
 
 <table style="padding-left:100px;">
@@ -53,17 +95,27 @@
 		<th align="right" ><%= l(:label_log_type) %><span style="color:red;">*</span></th>
 		<td align="left">
 			<%=h select_tag('log_type', options_for_select(logtype.invert, :selected => (@spentType.blank? ? "T" : @spentType)), :style => "width:155px;", :onchange => "hideLogDetails(#{User.current.id});") %>
-		</td>		
+		</td>
+	</tr>
+</table>
+
+<table id='spent_for_tbl' style="padding-left:100px;">
+	<tr>	
+		<th align="right" ><%= l(:label_spent_for) %><span style="color:red;">*</span></th>
+		<td align="left">
+			<%=h select_tag('spent_for', options_for_select(spentForsValue, :selected => selectedSpentFor.blank? ? spentForsValue : selectedSpentFor), :style => "width:155px;") %>
+		</td>
 	</tr>
 </table>
 
 <table id="materialtable" style="padding-left:65px; display:none;">
 	
 	<tr>	
-		<th align="right" ><%= l(:label_product) %><span style="color:red;">*</span></th>
+		<th align="right" ><%= l(:label_location) %><span style="color:red;">*</span></th>
 		<td align="left">
-			<%=h select_tag('product', options_for_select(productArr, :selected => (productId.blank? ? productArr : productId) ), :style => "width:155px;", :onchange => "productChanged(this.id, 'product_item', #{User.current.id}, true, false, 'log_type', 'location_id'); ", :disabled => disable) %>
+			<%=h select_tag('location_id', options_for_select(locationArr, :selected => (locationId.blank? ? locationArr : locationId) ), :style => "width:155px;", :onchange => "productChanged('product', 'product_item', #{User.current.id}, true, false, 'log_type', 'location_id'); ", :disabled => disable) %>
 		</td>
+		
 		
 		<th align="right"><%= l(:label_available_quantity) %></th>
 		<% availableQuantity = itemObj.blank? ? " " : itemObj.available_quantity  %>
@@ -71,10 +123,11 @@
 	</tr>
 	
 	<tr>		
-		<th align="right" ><%= l(:label_location) %><span style="color:red;">*</span></th>
+		<th align="right" ><%= l(:label_product) %><span style="color:red;">*</span></th>
 		<td align="left">
-			<%=h select_tag('location_id', options_for_select(locationArr, :selected => (locationId.blank? ? locationArr : locationId) ), :style => "width:155px;", :onchange => "productChanged('product', 'product_item', #{User.current.id}, true, false, 'log_type', 'location_id'); ", :disabled => disable) %>
+			<%=h select_tag('product', options_for_select(productArr, :selected => (productId.blank? ? productArr : productId) ), :style => "width:155px;", :onchange => "productChanged(this.id, 'product_item', #{User.current.id}, true, false, 'log_type', 'location_id'); ", :disabled => disable) %>
 		</td>
+		
 		<% totQuantity = @materialEntry.blank? ? 1 : @materialEntry.quantity  %>
 		<th align="right"><%= l(:label_quantity) %><span style="color:red;">*</span></th>
 		<td align="left" style="padding-left: 40px;">
@@ -112,7 +165,7 @@
 				<% costPrice = itemObj.blank? ? "" : itemObj.cost_price %>
 				<%=h text_field_tag("product_cost_price", costPrice.blank? ? "" : ("%.2f" % costPrice) ,:size => 20, :disabled => true, :style => "width:100px; text-align:right; float:right") %> 
 			</td>
-		<% elsif @spentType == 'A' %>
+		<% elsif @spentType != 'T' && @spentType != 'E' && @spentType != 'I'  %>
 			<th align="right"><%= l(:label_done) %></th>
 			<% isDone = assetObj.blank? || assetObj.matterial_entry_id.blank? ? true :  false  %>
 			<td align="left" style="padding-left: 10px;"><%= check_box_tag("is_done", 1, isDone, :disabled => disable) %></td>
@@ -138,3 +191,4 @@
 		</td>
 	</tr>
 </table>
+

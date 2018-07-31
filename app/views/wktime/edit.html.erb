@@ -10,13 +10,18 @@
 		minHourAlertMsg = "<%= l(:text_wk_warning_min_hour, :value => "#{controller.minHour}").html_safe %>";
 		minHourperWeekAlertMsg = "<%= l(:text_wk_warning_min_hour_week, :value => "#{controller.minHourPerWeek}").html_safe %>";
 		maxHourperWeekAlertMsg = "<%= l(:text_wk_warning_max_hour_week, :value => "#{controller.maxHourPerWeek}").html_safe %>";
-		editUrl = '<%= raw(url_for(:controller => controller.controller_name, :action => "edit", :startday => @startday, :user_id => params[:user_id]))%>';
+		editUrl = '<%= raw(url_for(:controller => controller.controller_name, :action => "edit", :startday => @startday, :user_id => params[:user_id], :sheet_view => params[:sheet_view], :project_id => params[:project_id]))%>';
 		breakvalue = '<%= Setting.plugin_redmine_wktime['wktime_break_time'] %>'
-		<% if !Setting.plugin_redmine_wktime['wktime_work_time_header'].blank? &&  
-		 		Setting.plugin_redmine_wktime['wktime_work_time_header'].to_i == 1 %>		
+		<% if @renderer.showWorkTimeHeader && controller.showWorktimeHeader %>		
 				showWorkHeader = true;
 				footerRows = 2;
 				headerRows = 4;
+				<% if showBilling && controller.showSpentFor%>
+					hStartIndex = hStartIndex + 1 ;
+				<% end %>
+				<% if @renderer.showSpentOnInRow %>
+					hStartIndex = hStartIndex + 1 ;
+				<% end %>
 				<% if controller.enterCommentInRow %>
 					hStartIndex = hStartIndex + 1 ;
 				<% end %>
@@ -101,7 +106,7 @@
 
 
 <div style="float: left;">
-<h2><%= l(:label_wktime) %></h2>
+<h2><%= controller.getEntityLabel %></h2>
 </div>
 <div style="clear: both;"></div>
 <%=h hidden_field_tag('tab', "#{controller_name}") %>

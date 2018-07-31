@@ -38,8 +38,7 @@ class WkMaterialEntryQuery < Query
 
   def initialize(attributes=nil, *args)
     super attributes
-    self.filters ||= {}
-    add_filter('spent_on', '*') unless filters.present?
+    self.filters ||= { 'spent_on' => {:operator => "*", :values => []} }
   end
 
   def initialize_available_filters
@@ -67,7 +66,7 @@ class WkMaterialEntryQuery < Query
     add_available_filter("issue.fixed_version_id",
       :type => :list,
       :name => l("label_attribute_of_issue", :name => l(:field_fixed_version)),
-      :values => lambda { fixed_version_values }) if project
+      :values => lambda { fixed_version_values }) 
 
     add_available_filter("user_id",
       :type => :list_optional, :values => lambda { author_values }
@@ -89,7 +88,11 @@ class WkMaterialEntryQuery < Query
   end
 
   def default_columns_names   
-	@default_columns_names ||= [:project, :spent_on, :user, :activity, :issue, :comments, :inventory_item_id, :quantity, :currency, :selling_price ]
+	@default_columns_names ||= begin
+      default_columns = [:spent_on, :user, :activity, :issue, :comments, :inventory_item_id, :quantity, :currency, :selling_price]
+
+      project.present? ? default_columns : [:project] | default_columns
+    end
   end
 
   def default_totalable_names
@@ -98,6 +101,13 @@ class WkMaterialEntryQuery < Query
 
   def default_sort_criteria
     [['spent_on', 'desc']]
+  end
+
+  # If a filter against a single issue is set, returns its id, otherwise nil.
+  def filtered_issue_id
+    if value_for('issue_id').to_s =~ /\A(\d+)\z/
+      $1
+    end
   end
 
   def base_scope
@@ -147,7 +157,7 @@ class WkMaterialEntryQuery < Query
   end
 
   def sql_for_issue_fixed_version_id_field(field, operator, value)
-    issue_ids = Issue.where(:fixed_version_id => value.first.to_i).pluck(:id)
+    issue_ids = Issue.where(:fixed_version_id => value.map(&:to_i)).pluck(:id)
     case operator
     when "="
       if issue_ids.any?

@@ -3,6 +3,12 @@
   get 'wktime/getissues', :to => 'wktime#getissues'
 
   get 'wktime/getactivities', :to => 'wktime#getactivities'
+
+  get 'wktime/getclients', :to => 'wktime#getclients'
+
+  get 'wktime/getuserclients', :to => 'wktime#getuserclients'
+
+  get 'wktime/getuserissues', :to => 'wktime#getuserissues'
   
   get 'wktime/getusers', :to => 'wktime#getusers'
 
@@ -35,7 +41,10 @@
   #get 'wktime/updateAttendance', :to => 'wktime#updateAttendance'
 match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance', :via => [:get]  
     
-  get 'wktime/time_rpt', :to => 'wktime#time_rpt'  
+  get 'wktime/time_rpt', :to => 'wktime#time_rpt' 
+  
+  # For Supervisor feature
+	get 'wktime/getMyReportUsers', :to => 'wktime#getMyReportUsers'
   
   #For Weekly expenses
   
@@ -60,6 +69,12 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
   get 'wkexpense/getissues', :to => 'wkexpense#getissues'
 
   get 'wkexpense/getactivities', :to => 'wkexpense#getactivities'
+
+  get 'wkexpense/getclients', :to => 'wkexpense#getclients'
+
+  get 'wkexpense/getuserclients', :to => 'wkexpense#getuserclients'
+
+  get 'wkexpense/getuserissues', :to => 'wkexpense#getuserissues'
   
   post 'wkexpense/sendSubReminderEmail', :to => 'wkexpense#sendSubReminderEmail'
   
@@ -550,3 +565,5 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wkpublicholiday/index', :to => 'wkpublicholiday#index'
 	
 	post 'wkpublicholiday/update', :to => 'wkpublicholiday#update'
+	
+	get 'wklogmaterial/loadSpentType', :to => 'wklogmaterial#loadSpentType'

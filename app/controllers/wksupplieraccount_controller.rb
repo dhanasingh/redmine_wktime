@@ -7,6 +7,10 @@ class WksupplieraccountController < WkaccountController
 		'S'
 	end
 	
+	def getContactType
+		'C'
+	end
+	
 	def getContactController
 		'wksuppliercontact'
 	end

@@ -1,7 +1,7 @@
 <%= javascript_include_tag 'crmactivity', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
-	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds')}" %>";
+	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds', :additionalContactType => controller.additionalContactType)}" %>";
 </script>
 <%
 	hr = []
@@ -25,10 +25,10 @@
 <%	accArr = options_for_wktime_account(false, accountType)
 	if !@activityEntry.blank?
 		entityType = @activityEntry[0].parent_type == 'WkCrmContact' ? contactType : accountType
-		accArr = relatedValues(@activityEntry[0].parent_type, @activityEntry[0].parent_id, entityType)	
+		accArr = relatedValues(@activityEntry[0].parent_type, @activityEntry[0].parent_id, entityType, false, controller.additionalContactType)	
     elsif !params[:parentType].blank?
 		entityType = params[:parentType] == 'WkCrmContact' ? contactType : accountType 
-		accArr = relatedValues(params[:parentType], params[:parentId], entityType)
+		accArr = relatedValues(params[:parentType], params[:parentId], entityType, false, controller.additionalContactType)
 	end	
  %>
 <%= form_tag({:controller => 'wkcrmactivity', :action => 'update'}, :method => :get, :id => 'query_form') do %>
@@ -41,7 +41,7 @@
 	<%=h hidden_field_tag('load_act_type', (!@activityEntry.blank? ? @activityEntry[0].activity_type : 'C') ) %>
 	<table >
 		<tr>
-		<th align="left" ><%= l(:field_activity) + " " + l(:label_type) %></th>
+		<th align="left" ><%= l(:label_activity_type) %></th>
 		<td  align="left" style="padding-left:40px;"><%=h select_tag("activity_type", options_for_select(acttypeHash.invert, :selected => !@activityEntry.blank? ? @activityEntry[0].activity_type : 'C'), :style => "width:190px;", :onchange => "loadStatus(this.id)") %></td>	
 		<td></td>
 		<td></td>
@@ -85,7 +85,7 @@
 		</tr>
 		
 		<tr>
-			<th align="left" style="padding-left:60px;"><label id="lblduration"><%= l(:label_duration) %></label></th>
+			<th align="left" style="padding-left:92px;"><label id="lblduration"><%= l(:label_duration) %></label></th>
 			<%  t = !@activityEntry.blank? ? @activityEntry[0].duration : 0
 				mm, ss = t.divmod(60)
 				hh, mm = mm.divmod(60) 

@@ -3,6 +3,7 @@
 
 <%=h hidden_field_tag('getissues_url', "#{url_for(:controller => controller.controller_name, :action => 'getissues')}") %>
 <%=h hidden_field_tag('getactivities_url', "#{url_for(:controller => controller.controller_name, :action => 'getactivities')}") %>
+<%=h hidden_field_tag('getclients_url', "#{url_for(:controller => controller.controller_name, :action => 'getclients', :user_id => @user.id)}") %>
 <%=h hidden_field_tag('deleterow_url', "#{url_for(:controller => controller.controller_name, :action => 'deleterow')}") %>
 
 <div style="overflow: auto">
@@ -12,8 +13,12 @@
 	<th align="right"><%=l(:field_user)%></th>
 	<td><%=h @user.name %>
 		<%=h hidden_field_tag('user_id', @user.id) %>
+		<%=h hidden_field_tag('sheet_view', @renderer.getSheetType) %>
+		<%=h hidden_field_tag('project_id', @projectId) %>
+		<%=h hidden_field_tag('selected_date', @selectedDate) %>
 	</td>
 </tr>
+<% @startday = @selectedDate if @renderer.useSelectedDtAsStart %>
 <tr>
 	<th align="right"><%=l(:field_start_date)%></th>
 	<td><%=h format_date(@startday) %>
@@ -24,13 +29,14 @@
 <tr>
 	<th></th>
 	<td>
-		<%= link_to("\xc2\xab " + l(:label_previous ), {:controller => controller.controller_name, :action => 'edit', :startday => @startday-7, :user_id => @user.id, :project_id => params[:project_id]},
+		<%= link_to("\xc2\xab " + l(:label_previous ), {:controller => controller.controller_name, :action => 'edit', :startday => @startday - @renderer.getDaysPerSheet, :user_id => @user.id, :project_id => params[:project_id], :sheet_view => @renderer.getSheetType},
 								:title => l(:label_wk_prev_week_tip)) %>
 		|
-		<%= link_to(l(:label_next) + " \xc2\xbb", {:controller => controller.controller_name, :action => 'edit', :startday => @startday+7, :user_id => @user.id, :project_id => params[:project_id]},
+		<%= link_to(l(:label_next) + " \xc2\xbb", {:controller => controller.controller_name, :action => 'edit', :startday => @startday + @renderer.getDaysPerSheet, :user_id => @user.id, :project_id => params[:project_id], :sheet_view => @renderer.getSheetType},
 								:title => l(:label_wk_next_week_tip)) %>
 	</td>
 </tr>
+<% if @renderer.showTEStatus %>
 <tr>
 	<th align="right"><%=l(:field_status)%></th>
 	<% # the default status on new wktime object is 'new' %>
@@ -54,3 +60,4 @@
 		<% end %>
 	</td>
 </tr>
+<% end%>

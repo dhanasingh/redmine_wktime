@@ -1,0 +1,51 @@
+<%
+	Issue.class_eval do
+		has_one :wk_issue, :dependent => :destroy, :class_name => 'WkIssue'
+		has_many :assignees, :dependent => :destroy, :class_name => 'WkIssueAssignee'
+		accepts_nested_attributes_for :assignees
+		accepts_nested_attributes_for :wk_issue
+		def erpmineissues
+			self.wk_issue ||= WkIssue.new(:issue => self, :project => self.project)
+		end	
+	end
+
+	Project.class_eval do
+		has_many :account_projects, :dependent => :destroy, :class_name => 'WkAccountProject'
+		#has_many :parents, through: :account_projects
+	end
+
+	TimeEntry.class_eval do
+	  has_one :spent_for, as: :spent, class_name: 'WkSpentFor', :dependent => :destroy
+	  has_one :invoice_item, through: :spent_for
+	  
+	  accepts_nested_attributes_for :spent_for
+	end
+
+%>
+<%  wkexpense_helper = Object.new.extend(WkexpenseHelper) 
+	wkasset_helper = Object.new.extend(WkassetHelper)
+ 	rateHash = wkasset_helper.getRatePerHash(false)
+%>
+
+<fieldset>
+<legend><b><%= "Billing Details" %></b></legend>
+<table>
+		<tr>			
+			<th align="left"><%= l(:field_rate) %></th>
+			<td style="padding-left:40px;"><%= @issue.erpmineissues.currency %> <%= @issue.erpmineissues.rate%> <%= rateHash[@issue.erpmineissues.rate_per] %></td>
+			
+		</tr>
+		<tr>
+			<th align="left"><%= l(:label_additional_assignee) %></th>
+			<td style="padding-left:40px;">
+				<% @issue.assignees.each do | issue | %>
+					<table>
+						<tr>
+							<td><%= issue.user.name  %></td
+						</tr>
+					</table>
+				<% end %>
+			</td>
+		</tr>
+</table>
+</fieldset>

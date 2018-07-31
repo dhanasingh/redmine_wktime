@@ -12,16 +12,17 @@ lblAccrualMultiplier = "<%=l(:label_accrual_multiplier) %>";
 lblLeaveIssue = "<%=l(:label_wk_leave_issue) %>";
 lblYear = "<%=l(:label_year) %>";
 </script>
+<%= render :partial => 'settings/ftte_settings' %>
 <fieldset style="display: inline-block; vertical-align: top;">
 	<legend><%= l(:report_attendance) %></legend>
 		
-	<p style="padding-left: 190px;">
+	<p style="padding-left: 210px;">
 	<%= check_box_tag('settings[wktime_enable_clock_in_out]', 1, @settings['wktime_enable_clock_in_out'].to_i == 1) %> <label><%= l(:label_wk_enable_clock_in_out) %></label>
 	</p>
-	<p style="padding-left: 190px;">
+	<p style="padding-left: 210px;">
 	<%= check_box_tag('settings[wktime_work_time_header]', 1, @settings['wktime_work_time_header'].to_i == 1) %> <label><%= l(:label_wk_work_time_header) %></label>
 	</p> 
-	<p style="padding-left: 190px;">
+	<p style="padding-left: 210px;">
 		<%
 		breakTime = []
 		if(@settings['wktime_break_time'].blank?)
@@ -43,10 +44,10 @@ lblYear = "<%=l(:label_year) %>";
 			options_for_select(breakTime, :selected => 'settings[wktime_break_time]'), :multiple=> true, :style => "width:200px; height:100px;")%>	
 
 	</p>			
-	<p style="padding-left: 190px;">
-		<%= link_to "Add", "javascript:showBreakTimeDialog('Add');", :class => "button"%>  |
-		<%= link_to "Edit", "javascript:showBreakTimeDialog('Edit');", :class => "button"%>  |
-		<%= link_to "Delete", "javascript:removeSelectedValue('settings_wktime_break_time');", :class => "button" %>
+	<p style="padding-left: 210px;">
+		<%= link_to l(:button_add), "javascript:showBreakTimeDialog('Add');", :class => "button"%>  |
+		<%= link_to l(:button_edit), "javascript:showBreakTimeDialog('Edit');", :class => "button"%>  |
+		<%= link_to l(:button_delete), "javascript:removeSelectedValue('settings_wktime_break_time');", :class => "button" %>
 	</p>
 	
 	<div id="breaktime-dlg" title="<%= l(:label_wk_break_time) %>">
@@ -89,7 +90,7 @@ lblYear = "<%=l(:label_year) %>";
 			<p><%= l(:label_hours_note) %></p>		
 	</div>
 	
-	<p style="padding-left: 190px;">
+	<p style="padding-left: 210px;">
 		<%
 		leave = []
 		issue_list = Issue.order('subject')
@@ -123,10 +124,10 @@ lblYear = "<%=l(:label_year) %>";
 				options_for_select(leave, :selected => 'settings[wktime_leave]'), :multiple=> true, :style => "min-width:200px; height:100px;")%>	
 
 		</p>			
-		<p style="padding-left: 190px;">
-			<%= link_to "Add", "javascript:showLeaveDialog('Add');", :class => "button"%>  |
-			<%= link_to "Edit", "javascript:showLeaveDialog('Edit');", :class => "button"%>  |
-			<%= link_to "Delete", "javascript:removeSelectedValue('settings_wktime_leave');", :class => "button" %>
+		<p style="padding-left: 210px;">
+			<%= link_to l(:button_add), "javascript:showLeaveDialog('Add');", :class => "button"%>  |
+			<%= link_to l(:button_edit), "javascript:showLeaveDialog('Edit');", :class => "button"%>  |
+			<%= link_to l(:button_delete), "javascript:removeSelectedValue('settings_wktime_leave');", :class => "button" %>
 		</p>
 	
 	<div id="leave-dlg" title="<%= l(:label_wk_leave) %>">
@@ -218,27 +219,27 @@ lblYear = "<%=l(:label_year) %>";
 			available_fields = allFields.select {|key,value|  !selectedfld.include? key.to_s}
 		end		
 	%>
-	<!-- <p style="padding-left: 190px;">
+	<!-- <p style="padding-left: 210px;">
 		<label><%#= l(:label_wk_attn_join_date) %> </label><%#=h select_tag('settings[wktime_attn_join_date_cf]', 
 			options_for_select(cfd, :selected =>  @settings['wktime_attn_join_date_cf'])) %>
 	</p>
-	 <p style="padding-left: 190px;">
+	 <p style="padding-left: 210px;">
 		<label><%#= l(:label_wk_attn_termination_date) %> </label><%#=h select_tag('settings[wktime_attn_terminate_date_cf]', 
 			options_for_select(cfd, :selected =>  @settings['wktime_attn_terminate_date_cf'])) %>
 	</p>
-	 <p style="padding-left: 190px;">
+	 <p style="padding-left: 210px;">
 		<label><%#= l(:label_wk_attn_user_dob) %> </label><%#=h select_tag('settings[wktime_attn_user_dob_cf]', 
 			options_for_select(cfd, :selected =>  @settings['wktime_attn_user_dob_cf'])) %>
 	</p>
-	 <p style="padding-left: 190px;">
+	 <p style="padding-left: 210px;">
 		<label><%#= l(:label_wk_designation) %> </label><%#=h select_tag('settings[wktime_attn_designation_cf]', 
 			options_for_select(cfs, :selected =>  @settings['wktime_attn_designation_cf'])) %>
 	</p>
-	<p style="padding-left: 190px;">
+	<p style="padding-left: 210px;">
 		<label><%#= l(:label_employee_id) %> </label><%#=h select_tag('settings[wktime_attn_employee_id_cf]', 
 			options_for_select(cfs, :selected =>  @settings['wktime_attn_employee_id_cf'])) %>
 	</p>
-	<p style="padding-left: 190px;">
+	<p style="padding-left: 210px;">
 		<label><%#= l(:label_gender) %> </label><%#=h select_tag('settings[wktime_gender_cf]', 
 			options_for_select(cfs, :selected =>  @settings['wktime_gender_cf'])) %>
 	</p> -->
@@ -247,10 +248,10 @@ lblYear = "<%=l(:label_year) %>";
 <fieldset style="display: inline-block; vertical-align: top; min-width: 100px; width:540px; height:540px;">
        <legend><%= l(:button_import) %></legend>
 		<%= l(:label_redmine_restart_warning) %>
-	    <p style="padding-left: 130px;">
+	    <p style="padding-left: 160px;">
 			<%= check_box_tag('settings[wktime_auto_import]', 1, @settings['wktime_auto_import'].to_i == 1) %> <label><%= l(:label_auto_import) %></label>
 		</p>
-			<p style="padding-left: 130px;">	
+			<p style="padding-left: 160px;">	
 			<label><%= l(:label_auto_import_time) %></label>
 			<%
 			hr = []
@@ -269,27 +270,27 @@ lblYear = "<%=l(:label_year) %>";
 										   [30, 30],
 										   [45, 45]], :selected => @settings['wktime_auto_import_time_min'].blank? ? 0 : @settings['wktime_auto_import_time_min']))%>								   
 		</p>		
-        <p style="padding-left: 130px;">
+        <p style="padding-left: 160px;">
 			  <label><%= l(:label_path) %></label><%= text_field_tag 'settings[wktime_file_to_import]', @settings['wktime_file_to_import'], :size => 40 %> 
 		</p> 
-		 <p style="padding-left: 130px;">
+		 <p style="padding-left: 160px;">
 			<%= check_box_tag('settings[wktime_import_file_headers]', 1, @settings['wktime_import_file_headers'].to_i == 1) %> <label><%= l(:label_import_file_headers) %></label>
 		</p>
-	    <p style="padding-left: 130px;">
+	    <p style="padding-left: 160px;">
 		  <label><%= l(:label_fields_separator) %></label>
 		  <%= select_tag 'settings[wktime_field_separator]', 
 				options_for_select([[l(:label_comma_char), ','], [l(:label_semi_colon_char), ';']], :selected => @settings['wktime_field_separator'].blank? ? 0 : @settings['wktime_field_separator']) %>
 		</p>
-		 <p style="padding-left: 130px;">
+		 <p style="padding-left: 160px;">
 		  <label><%= l(:label_fields_wrapper) %></label>
 		  <%= select_tag 'settings[wktime_field_wrapper]',
 			  options_for_select([[l(:label_quote_char), "'"], [l(:label_double_quote_char), '"']], :selected => @settings['wktime_field_wrapper'].blank? ? 0 : @settings['wktime_field_wrapper']) %>
 		</p>
-		 <p style="padding-left: 130px;">
+		 <p style="padding-left: 160px;">
 		  <label><%= l(:label_encoding) %></label>
 		  <%= select_tag 'settings[wktime_field_encoding]', options_for_select(Setting::ENCODINGS, :selected => @settings['wktime_field_encoding'].blank? ? 0 : @settings['wktime_field_encoding']) %>
 		</p>
-		<p style="padding-left: 130px;">
+		<p style="padding-left: 160px;">
 		  <label><%= l(:setting_date_format) %></label>
 		  <% wktime_helper = Object.new.extend(WktimeHelper) %>
 		  <%= select_tag 'settings[wktime_field_datetime]', options_for_select(wktime_helper.date_format_options, :selected => @settings['wktime_field_datetime'].blank? ? 0 : @settings['wktime_field_datetime'] ) %>
@@ -298,7 +299,7 @@ lblYear = "<%=l(:label_year) %>";
 		<thead>
 		<tr>
 		<td></td>
-		<td><p style="margin-left: -190px;"><label><%= l(:label_available_fields) %></label></p></td>
+		<td><p style="margin-left: -210px;"><label><%= l(:label_available_fields) %></label></p></td>
 		<td></td>
 		<td><p style="margin-left: -200px;"><label><%= l(:label_fields_in_file) %></p></label></td>
 		</tr>

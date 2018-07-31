@@ -35,8 +35,7 @@ class WkExpenseEntryQuery < Query
 
   def initialize(attributes=nil, *args)
     super attributes
-    self.filters ||= {}
-    add_filter('spent_on', '*') unless filters.present?
+    self.filters ||= { 'spent_on' => {:operator => "*", :values => []} }
   end
 
   def initialize_available_filters
@@ -64,7 +63,7 @@ class WkExpenseEntryQuery < Query
     add_available_filter("issue.fixed_version_id",
       :type => :list,
       :name => l("label_attribute_of_issue", :name => l(:field_fixed_version)),
-      :values => lambda { fixed_version_values }) if project
+      :values => lambda { fixed_version_values })
 
     add_available_filter("user_id",
       :type => :list_optional, :values => lambda { author_values }
@@ -97,7 +96,11 @@ class WkExpenseEntryQuery < Query
   end
 
   def default_columns_names
-    @default_columns_names ||= [:project, :spent_on, :user, :activity, :issue, :comments,:currency, :amount ]
+	@default_columns_names ||= begin
+      default_columns = [:spent_on, :user, :activity, :issue, :comments, :currency, :amount]
+
+      project.present? ? default_columns : [:project] | default_columns
+    end
   end
   
   def default_totalable_names
@@ -106,6 +109,13 @@ class WkExpenseEntryQuery < Query
   
   def default_sort_criteria
     [['spent_on', 'desc']]
+  end
+
+  # If a filter against a single issue is set, returns its id, otherwise nil.
+  def filtered_issue_id
+    if value_for('issue_id').to_s =~ /\A(\d+)\z/
+      $1
+    end
   end
   
   # Returns sum of all the spent amount
@@ -119,7 +129,79 @@ class WkExpenseEntryQuery < Query
       includes(:activity).
       references(:activity).
       left_join_issue.
-      where(statement)
+      where(getSupervisorCondStr)
+  end
+  
+  def getSupervisorCondStr
+	orgCondStatement = statement
+	condStatement = orgCondStatement
+	
+	wktime_helper = Object.new.extend(WktimeHelper)
+	isAccountUser = wktime_helper.isAccountUser
+	isSupervisor = wktime_helper.isSupervisor
+	projectIdArr = wktime_helper.getManageProject()
+	isManager = projectIdArr.blank? ? false : true
+	
+	if isSupervisor && !isAccountUser && !User.current.admin?
+		userIdArr = Array.new
+		user_cond = ""
+		rptUsers = wktime_helper.getReportUsers(User.current.id)
+		userIdArr = rptUsers.collect(&:id) if !rptUsers.blank?
+		userIdArr = userIdArr << User.current.id.to_s
+		userIds = "#{userIdArr.join(',')}"
+		user_cond = "#{WkExpenseEntry.table_name}.user_id IN (#{userIds})"
+		
+		if condStatement.blank?
+			condStatement = "(#{user_cond})" if !user_cond.blank?
+		else				
+			if filters["user_id"].blank?			
+				condStatement = user_cond.blank? ? condStatement : condStatement + " AND (#{user_cond})"
+			else
+				user_id = filters["user_id"][:values]
+				userIdStrArr = userIdArr.collect{|i| i.to_s}
+				filterUserIds = userIdStrArr & filters["user_id"][:values]
+				
+				if !filterUserIds.blank?
+					if user_id.is_a?(Array) && user_id.include?("me")
+						filterUserIds << (User.current.id).to_s
+					end
+					filters["user_id"][:values] = filterUserIds
+					condStatement = statement
+					filters["user_id"][:values] = user_id #Setting the filter values to retain the filter on page
+				else
+					if user_id.is_a?(Array) && user_id.include?("me")
+						filters["user_id"][:values] = [User.current.id.to_s]
+						condStatement = statement
+						filters["user_id"][:values] = user_id
+					else
+						condStatement = "1=0"
+					end
+				end
+			end
+		end
+		if isManager
+			mgrCondStatement = ""
+			if !orgCondStatement.blank?
+				mgrCondStatement = orgCondStatement + " AND "
+			end
+			mgrCondStatement = mgrCondStatement + "(#{WkExpenseEntry.table_name}.project_id in (" + projectIdArr.collect{|i| i.to_s}.join(',') + "))"
+			condStatement = condStatement.blank? ? condStatement : "(" + condStatement + ") OR (" + mgrCondStatement + ")"
+		end
+	else
+		#if (!Setting.plugin_redmine_wktime['ftte_view_only_own_spent_time'].blank? && 
+		#Setting.plugin_redmine_wktime['ftte_view_only_own_spent_time'].to_i == 1) && 
+		if !isAccountUser && !User.current.admin? && !isManager
+			condStatement = condStatement.blank? ? condStatement : condStatement + " AND (#{WkExpenseEntry.table_name}.user_id = " + User.current.id.to_s + ")"
+		elsif isManager && !isAccountUser && !User.current.admin?
+			user_id = filters["user_id"][:values] if !filters["user_id"].blank?
+			if !user_id.blank? && user_id.is_a?(Array) && (user_id.include?("me") || user_id.include?(User.current.id.to_s))
+				condStatement = condStatement
+			else
+				condStatement = condStatement.blank? ? condStatement : "(" + condStatement + ") AND (#{WkExpenseEntry.table_name}.project_id in (" + projectIdArr.collect{|i| i.to_s}.join(',') + "))"
+			end
+		end
+	end
+	condStatement
   end
 
   def results_scope(options={})
@@ -149,7 +231,7 @@ class WkExpenseEntryQuery < Query
   end
 
   def sql_for_issue_fixed_version_id_field(field, operator, value)
-    issue_ids = Issue.where(:fixed_version_id => value.first.to_i).pluck(:id)
+   issue_ids = Issue.where(:fixed_version_id => value.map(&:to_i)).pluck(:id)
     case operator
     when "="
       if issue_ids.any?

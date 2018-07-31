@@ -3,7 +3,11 @@
 @trOpen = false
 @row = 0
 @total_hours = 0.0
-thours = nums = Array[0.0, 0.0, 0.0, 0.0,0.0, 0.0, 0.0]
+dayHrArr = Array.new
+for i in 0.. @renderer.getDaysPerSheet - 1
+	dayHrArr << 0.0
+end
+thours = nums = dayHrArr #Array[0.0, 0.0, 0.0, 0.0,0.0, 0.0, 0.0]
 prev_entry = nil
 entry = nil 
 currencySym = ""
@@ -26,7 +30,11 @@ currencySym = ""
 <% unless entries.blank?
 	col_values = []
 	matrix_values = []
-	weeklyHash = getWeeklyView(entries, controller.getUnitLabel, false)	
+	#isWeeklyVw = true
+	#if @sheetView == 'I'
+	#	isWeeklyVw = false
+	#end
+	weeklyHash = getWeeklyView(entries, controller.getUnitLabel, false, @renderer.getStartOfSheet(@selectedDate), @renderer.getDaysPerSheet)
 	weeklyHash.each do |key, matrix|
 		matrix.each do |rows|
 			issueWritten = false
@@ -39,7 +47,7 @@ currencySym = ""
 						<% # this is a new Row %>
 						<% # close the previously opened row first %>
 						<%= render :partial => 'edit_hours', :locals => {:entry => nil, :isTemplate => false,
-							:padAt => 'end', :padTill => 8}%>
+							:padAt => 'end', :padTill => @renderer.getDaysPerSheet + 1}%>
 					
 						<%= render :partial => 'edit_issues2', :locals => {:entry => entry, :isTemplate => false}%>		
 						<% issueWritten = true %>
@@ -49,7 +57,7 @@ currencySym = ""
 							:padAt => 'begin', :padTill => i+1}%>
 					<%= render :partial => 'edit_hours', :locals => {:entry => entry, :isTemplate => false, 
 					:padAt => 'begin', :padTill => i+2}%>	
-					<% thours[i] += entry.hours unless @prev_template%>
+					<% thours[i] += entry.hours unless @prev_template || entry.hours.blank?%>
 					<% @total_hours += entry.hours unless @prev_template%>
 					<% currencySym = controller.getUnit(entry) %>
 				<% end %>
@@ -67,13 +75,16 @@ currencySym = ""
 	
 	<% # pad any incomplete days %>
 	<%= render :partial => 'edit_hours', :locals => {:entry => nil, :isTemplate => false,
-		:padAt => 'end', :padTill => 8}%>
+		:padAt => 'end', :padTill => @renderer.getDaysPerSheet + 1}%>
 
 	<!-- row for putting the total -->
 	<tr>
 	<td class="project"></td>
 	<td class="issue"></td>
 	<td class="activity"></td>
+	<% if showBilling && controller.showSpentFor%>
+		<td></td>
+	<% end %>
 	<% if controller.enterCommentInRow %>	
 		<td class="comments"></td>
 	<% end %> <!-- for currency -->
@@ -88,6 +99,9 @@ currencySym = ""
 			<td ></td>
 		<% end %>
 	<% end %>
+	<% if @renderer.showSpentOnInRow %>
+		<td></td>
+	<% end %>
 	<% thours.each_with_index do |th,i| %>		
 		<td align="center"><%= currencySym %>&nbsp;<span id=<%= "day_total_#{i+1}" %>><%= ("%.2f" % th) %></span></td>
 	<% end %>
@@ -98,7 +112,7 @@ currencySym = ""
 	</td>
 	</tr>	
 	<%=h hidden_field_tag('hidden_clock_in_out', "" )  %>
-	 <% if controller.showWorktimeHeader %>
+	 <% if controller.showWorktimeHeader && @renderer.showWorkTimeHeader %>
 		<!-- Remaining Hours -->
 		<%= render :partial => 'worktime_header', :locals => {:str => 'remaining_hours', :isEditable => false, :value => '0.0'}%>
 	<% end %>
@@ -109,16 +123,14 @@ currencySym = ""
 	<% if @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r' %>
 			<%= submit_tag l(:button_save), :id => 'wktime_save', :name => 'wktime_save',  :disabled => !(@row > 0)%>
 			<%= submit_tag l(:button_save_continue), :id => 'wktime_save_continue', :name => 'wktime_save_continue' , :disabled => !(@row > 0)%>
-		<% if !Setting.plugin_redmine_wktime['wktime_use_approval_system'].blank? &&
-				Setting.plugin_redmine_wktime['wktime_use_approval_system'].to_i == 1 %>	
+		<% if controller.hasApprovalSystem && !@renderer.showSpentOnInRow %>	
 				<%= submit_tag l(:button_submit),:id => 'wktime_submit', :name => 'wktime_submit', :onclick => "return validateMinhour('#{controller.minHour}','#{getNonWorkingDayColumn(params[:startday])}','#{controller.minHourPerWeek}', '#{controller.maxHourPerWeek}');" , :disabled => !(@row > 0)%>
 		<% end %>
 	<% end %>
-	<% if !Setting.plugin_redmine_wktime['wktime_use_approval_system'].blank? &&
-		Setting.plugin_redmine_wktime['wktime_use_approval_system'].to_i == 1 %>
+	<% if controller.hasApprovalSystem && !@renderer.showSpentOnInRow  %>
 		<% if !@wktime.nil? && @wktime.status == 's' %>
 			<%= submit_tag l(:button_wk_unsubmit), :name => 'wktime_unsubmit', :disabled => !(@row > 0)%>
-			<% if controller.check_approvable_status() %>		
+			<% if controller.check_approvable_status()%>		
 				<%= submit_tag l(:button_wk_approve), :name => 'wktime_approve', :disabled => !(@row > 0)%>
 				<%=h hidden_field_tag('wktime_notes', "") %>
 				<% # the jquery dialog box doesn't port the reject button value%>
@@ -127,7 +139,7 @@ currencySym = ""
 					:onclick => "return showNotes();" %>
 			<% end %>
 		<% elsif  !@wktime.nil? && @wktime.status == 'a' %>
-			<% if controller.check_approvable_status()  %>		
+			<% if controller.check_approvable_status() %>		
 				<%= submit_tag l(:button_wk_unapprove), :id => 'wktime_unapprove', :name => 'wktime_unapprove'%>
 			<% end %>
 		<% end %>

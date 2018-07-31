@@ -1,6 +1,9 @@
 <tr>
 	<td ></td>
 	<td ></td>
+	<% if showBilling && controller.showSpentFor%>
+		<td></td>
+	<% end %>
 	<% if controller.enterCommentInRow %>
 		<td ></td>
 	<% end %>
@@ -12,7 +15,9 @@
 			<td ></td>
 		<% end %>
 	<% end %>
-	
+	<% if @renderer.showSpentOnInRow %>
+		<td></td>
+	<% end %>
 	<td align = "right">
 		<%= l(:"label_#{str}") %>
 	</td>
@@ -21,7 +26,7 @@
 	<% count = 0 %>
 	<% futureTime = Time.now %>
 	<% currentTime = Time.now %>	
-	<% for i in 0..6%>	
+	<% for i in 0.. @renderer.getDaysPerSheet - 1%>	
 		<% if (@startday + i) == Date.today %>
 			<% col_num = i %>
 			<% @wkmultiple = controller.findAttnEntries %>

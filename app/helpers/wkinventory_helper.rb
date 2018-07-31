@@ -6,6 +6,17 @@ module WkinventoryHelper
 		if needBlank
 			productType = { '' => "", 'I'  => l(:label_inventory), 'A' =>  l(:label_asset) }
 		end
+		additionalProducts = call_hook :additional_product_type
+		unless additionalProducts.blank?
+			if additionalProducts.is_a?(Array) 
+				additionalProducts.each do | hsh |
+					productType =  productType.merge(hsh)
+				end
+			else
+				mergeHash = eval(additionalProducts)
+				productType =  productType.merge(mergeHash)
+			end
+		end
 		productType
 	end
 	

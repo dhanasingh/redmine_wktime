@@ -19,7 +19,7 @@
 		<p>
 		<%= check_box_tag('settings[wktime_allow_blank_issue]', 1, @settings['wktime_allow_blank_issue'].to_i == 1) %> <label><%= l(:label_wk_allow_blank_issue) %> </label>
 		</p>
-		<p>
+		<p>	
 		<%= check_box_tag('settings[wktime_enter_comment_in_row]', 1, @settings['wktime_enter_comment_in_row'].to_i == 1) %> <label><%= l(:label_wk_enter_comment_in_row) %> </label>
 		</p>
 		<p>
@@ -27,9 +27,9 @@
 		</p>
 		<%
 			accountGroups = Array.new
-			accGroup = Group.order('lastname')
+			accGroup = Group.all.sort
 			unless accGroup.blank?
-				accountGroups = accGroup.collect {|t| [t.lastname, t.id] }
+				accountGroups = accGroup.collect {|t| [t.name, t.id] }
 			end
 			accountGroups.unshift(["",0])
 		%>
@@ -37,43 +37,50 @@
 			<label><%=l(:label_wk_account_groups)%></label>
 			<%=  select_tag('settings[wktime_account_groups]',
 					options_for_select(accountGroups, :selected => @settings['wktime_account_groups'].blank? ? 0 : @settings['wktime_account_groups']), :multiple=> true)%>
-		</p>	
+		</p>
+		<%
+			wktime_helper = Object.new.extend(WktimeHelper)
+			issue_custom_fields = IssueCustomField.order('name')
+			cfuser = wktime_helper.getCfListArr(issue_custom_fields, 'user', false)
+		%>
+		
+		
 </fieldset>
 
 
 <fieldset style="display: inline-block; vertical-align: top; min-width: 100px; height:460px; width:480px;">
 	<legend><%= l(:label_wktime) %></legend>
 	
-	<p style="padding-left: 240px;">
+	<p style="padding-left: 260px;">
 		<label><%= l(:label_wk_default_work_time) %></label><%= text_field_tag 'settings[wktime_default_work_time]', @settings['wktime_default_work_time'], :size => 3 %>
 	</p>
 	
-	<p style="padding-left: 240px;">
+	<p style="padding-left: 260px;">
 		<%= check_box_tag('settings[wktime_restr_max_hour]', 1, @settings['wktime_restr_max_hour'].to_i == 1, :onchange => "ValidateMinMaxHours('settings_wktime_max_hour_day', '#{l(:label_max_min_hours_day_msg)}');") %> <label><%= l(:label_wk_restr_max_hour) %></label>
 	</p>
-	<p style="padding-left: 240px;">
+	<p style="padding-left: 260px;">
 		<label><%= l(:label_wk_max_hour_day) %></label><%= text_field_tag 'settings[wktime_max_hour_day]', @settings['wktime_max_hour_day'], :size => 3, :onchange => "ValidateMinMaxHours(this.id, '#{l(:label_max_min_hours_day_msg)}');" %>
 	</p>
-	<p style="padding-left: 240px;">
+	<p style="padding-left: 260px;">
 		<%= check_box_tag('settings[wktime_restr_min_hour]', 1, @settings['wktime_restr_min_hour'].to_i == 1, :onchange => "ValidateMinMaxHours('settings_wktime_min_hour_day', '#{l(:label_max_min_hours_day_msg)}');") %> <label><%= l(:label_wk_restr_min_hour) %></label>
 	</p>
-	<p style="padding-left: 240px;">
+	<p style="padding-left: 260px;">
 		<label><%= l(:label_wk_min_hour_day) %></label><%= text_field_tag 'settings[wktime_min_hour_day]', @settings['wktime_min_hour_day'], :size => 3, :onchange => "ValidateMinMaxHours(this.id, '#{l(:label_max_min_hours_day_msg)}');" %>
 	</p>
 	
 	
-	<p style="padding-left: 240px;">
+	<p style="padding-left: 260px;">
 		<%= check_box_tag('settings[wktime_restr_max_hour_week]', 1, @settings['wktime_restr_max_hour_week'].to_i == 1, :onchange => "ValidateMinMaxHours('settings_wktime_max_hour_week', '#{l(:label_max_min_hours_day_msg)}');") %> <label><%= l(:label_wk_restr_max_hour_week) %></label>
 	</p>	
-	<p style="padding-left: 240px;">
+	<p style="padding-left: 260px;">
 		<label><%= l(:label_wk_max_hour_week) %></label><%= text_field_tag 'settings[wktime_max_hour_week]', @settings['wktime_max_hour_week'], :size => 3, :onchange => "ValidateMinMaxHours(this.id, '#{l(:label_max_min_hours_day_msg)}');" %>
 	</p>
 	
-	<p style="padding-left: 240px;">
+	<p style="padding-left: 260px;">
 		<%= check_box_tag('settings[wktime_restr_min_hour_week]', 1, @settings['wktime_restr_min_hour_week'].to_i == 1, :onchange => "ValidateMinMaxHours('settings_wktime_min_hour_week', '#{l(:label_max_min_hours_day_msg)}');") %> <label><%= l(:label_wk_restr_min_hour_week) %></label>
 	</p>
 	
-	<p style="padding-left: 240px;">
+	<p style="padding-left: 260px;">
 		<label><%= l(:label_wk_min_hour_week) %></label><%= text_field_tag 'settings[wktime_min_hour_week]', @settings['wktime_min_hour_week'], :size => 3, :onchange => "ValidateMinMaxHours(this.id, '#{l(:label_max_min_hours_day_msg)}');" %>
 	</p>
 	
@@ -84,12 +91,12 @@
 			cfs.unshift(["",0])
 	%>
 
-	 <p style="padding-left: 240px;">
+	 <p style="padding-left: 260px;">
 		<label><%= l(:label_wk_enter_cf_in_row) + "[1]" %> </label><%=h select_tag('settings[wktime_enter_cf_in_row1]', 
 			options_for_select(cfs, :selected =>  @settings['wktime_enter_cf_in_row1']),
 			:onchange => "updateCustFldDD(this,'settings_wktime_enter_cf_in_row2');") %>
 	</p>
-	 <p style="padding-left: 240px;">	 
+	 <p style="padding-left: 260px;">	 
 		<label><%= l(:label_wk_enter_cf_in_row) + "[2]" %> </label><%=h select_tag('settings[wktime_enter_cf_in_row2]', 
 			options_for_select(cfs, :selected =>  @settings['wktime_enter_cf_in_row2']),
 			:onchange => "updateCustFldDD(this,'settings_wktime_enter_cf_in_row1');")%>
@@ -103,19 +110,19 @@
 		end
 		trackers.unshift(["",0])
 	%>
-	<p style="padding-left: 240px;">
+	<p style="padding-left: 260px;">
 		<label><%=l(:label_wk_filter_issue_tracker)%></label>
 		<%=  select_tag('settings[wktime_issues_filter_tracker]',
 				options_for_select(trackers, :selected => @settings['wktime_issues_filter_tracker'].blank? ? 0 : @settings['wktime_issues_filter_tracker']), :multiple=> true)%>
 	</p>
 
-	<p style="padding-left: 240px;">
+	<p style="padding-left: 260px;">
 		<label><%=l(:label_wk_allow_user_filter_tracker)%></label>
 		 <%= check_box_tag('settings[wktime_allow_user_filter_tracker]',1,@settings['wktime_allow_user_filter_tracker'].to_i == 1) %>
 	</p>
 
 </fieldset>
-<fieldset style="display: inline-block; vertical-align: top; width: 438px; height: 200px;   ">
+<fieldset style="display: inline-block; vertical-align: top; width: 488px; height: 200px;   ">
 	<legend><%= l(:label_display) %></legend>
 	<p>
 	  <label><%= l(:label_wk_project_dd_width) %></label><%= text_field_tag 'settings[wktime_project_dd_width]', @settings['wktime_project_dd_width'], :size => 3 %> px

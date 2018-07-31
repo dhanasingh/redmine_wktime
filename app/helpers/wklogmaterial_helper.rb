@@ -3,12 +3,25 @@ include ApplicationHelper
 include WktimeHelper
 include WkassetHelper
 	def getLogHash
-		{
+		spentTypeHash = {
 			'T' => l(:label_wktime),
 			'E' => l(:label_wkexpense),
 			'M' => l(:label_material),
 			'A' => l(:label_asset)
 		}
+		additionalProducts = call_hook :additional_spent_type
+		unless additionalProducts.blank?
+			if additionalProducts.is_a?(Array) 
+				additionalProducts.each do | hsh |
+					spentTypeHash =  spentTypeHash.merge(hsh)
+				end
+			else
+				mergeHash = eval(additionalProducts)
+				spentTypeHash =  spentTypeHash.merge(mergeHash)
+			end
+		end
+		
+		spentTypeHash
 	end
 	
 	def getProductCatagoryArray(model, categoryId, needBlank)
@@ -55,7 +68,7 @@ include WkassetHelper
 		sqlQuery = sqlQuery  + " and it.product_type = '#{logType}' " unless logType.blank?
 		sqlQuery = sqlQuery + " and (wap.matterial_entry_id is null or wme.user_id = #{User.current.id}) "
 		sqlQuery = sqlQuery + " and it.location_id = #{locationId} " unless locationId.blank?
-		sqlQuery = sqlQuery + " and it.is_loggable = #{true} " if logType == 'A'
+		sqlQuery = sqlQuery + " and it.is_loggable = #{true} " if logType == 'A' 
 		pctObj = WkInventoryItem.find_by_sql(sqlQuery)
 		pctObj
 	end
@@ -66,7 +79,7 @@ include WkassetHelper
 		rateperhash = getRatePerHash(false)
 		pctObj.each do | entry|
 			attributeName = entry.product_attribute.blank? ? "" : entry.product_attribute.name
-			if logType == 'A'
+			if logType == 'A' 
 			
 				pctArr << [(entry.asset_name.to_s() + ' - ' + entry.rate.to_s() + ' - ' + rateperhash[entry.rate_per].to_s()), entry.id.to_s() ]  
 			else
@@ -103,6 +116,26 @@ include WkassetHelper
 			inventoryItemObj.save
 		end
 		inventoryItemObj
+	end
+	
+	def saveMatterialEntries(id, projectId, userId, issueId, quantity, sellingPrice, currency, activityId, spentOn, invItemId, uomId)
+		if id.blank?
+			matterialObj = WkMaterialEntry.new
+		else
+			matterialObj = WkMaterialEntry.find(id.to_i)
+		end
+		matterialObj.project_id = projectId
+		matterialObj.user_id = userId
+		matterialObj.issue_id = issueId
+		matterialObj.quantity = quantity
+		matterialObj.selling_price = sellingPrice
+		matterialObj.currency = currency
+		matterialObj.activity_id = activityId
+		matterialObj.spent_on = spentOn
+		matterialObj.inventory_item_id = invItemId
+		matterialObj.uom_id = uomId
+		matterialObj.save
+		matterialObj
 	end
 	
 end

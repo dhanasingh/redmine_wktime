@@ -4,9 +4,9 @@
 		<thead>
 			<tr>
 				<th class="lbl-txt-align"><%= controller.getAccountLbl + " " +  l(:field_name) %></th>
+				<th class="lbl-txt-align"><%= l(:label_location) %></th>
 				<th class="lbl-txt-align"><%= l(:label_account_address) %></th>
-				<th class="lbl-txt-align"><%= l(:label_work_phone) %></th>
-			<!--	<th class="lbl-txt-align"><%= l(:label_email) %></th> -->
+				<th class="lbl-txt-align"><%= l(:label_work_phone) %></th>			
 				<th class="lbl-txt-align"><%= l(:label_country) %></th>
 				<th class="lbl-txt-align"><%= l(:label_city) %></th>
 				<th></th>
@@ -16,6 +16,7 @@
 			<% @account_entries.each do |entry| %>
 				<tr>
 					  <td class="lbl-txt-align"><%=h entry.name %></td>
+					  <td class="lbl-txt-align"><%=h entry.location_id.blank? ? "" : entry.location.name %></td>
 					  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.address1 %></td>
 					  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.work_phone %></td>
 					<!--  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.email %></td> -->
