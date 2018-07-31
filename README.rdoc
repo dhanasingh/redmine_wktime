@@ -68,16 +68,18 @@ If an apache passenger module is used then make sure the following settings are 
 
 Release Notes for 3.3
 Features:
-	   - Supervisor approval
-	   - Issueview added
+	   - Supervisor feature
+	   - Issue view is introduced for Timesheets
 	   - Multiple Assignee for issue
-	   - Added spent for in Timeentry for billing
+	   - The time entries can be specified for a customer
 	   - Related contacts for contact
 	   
 Bug Fixing:
 	   - Main menu shown in all the views
 	   - Crash when editing time entries on personal page
 	   
+We would like to thank Addison for partially sponcered this release.
+
 Customization:
 	For any Customization/Support, please contact us, our consulting team will be happy to help you
 
