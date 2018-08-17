@@ -66,17 +66,10 @@ If an apache passenger module is used then make sure the following settings are 
 	b) RailsAppSpawnerIdleTime 0
 	c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for 3.3
-Features:
-	   - Supervisor feature
-	   - Issue view is introduced for Timesheets
-	   - Multiple Assignee for issue
-	   - The time entries can be specified for a customer
-	   - Related contacts for contact
+Release Notes for 3.3.1
 	   
 Bug Fixing:
-	   - Main menu shown in all the views
-	   - Crash when editing time entries on personal page
+	   - Billing details shown on issue even when billing is disabled
 	   
 We would like to thank Addison for partially sponcered this release.
 
