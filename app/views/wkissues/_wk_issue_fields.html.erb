@@ -1,5 +1,6 @@
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
 <% wkasset_helper = Object.new.extend(WkassetHelper) %>
+<% wktime_helper = Object.new.extend(WktimeHelper) %>
 <%
 	Issue.class_eval do
 		has_one :wk_issue, :dependent => :destroy, :class_name => 'WkIssue'
@@ -35,16 +36,18 @@
 %>
 
 <fieldset class="box tabular">
-<legend><%= "Billing Details" %></legend>
-<table style="padding-left:130px;">
-	<%= labelled_fields_for :erpmineissues, @issue.erpmineissues do |issue_fields| %>
-		<tr>
-		<td style="padding-left:40px;"><%= issue_fields.select :currency, wkexpense_helper.options_for_currency %></td>
-		<td style="padding-left:40px;"><%= issue_fields.text_field :rate %> </td>
-		<td style="padding-left:40px;"><%= issue_fields.select :rate_per, wkasset_helper.getRatePerHash(false).invert %></td>
-		</tr>
-	<% end %>
-</table>	
+<legend><%= l(:label_additional_details) %></legend>
+<% if wktime_helper.showBilling %>
+	<table style="padding-left:130px;">
+		<%= labelled_fields_for :erpmineissues, @issue.erpmineissues do |issue_fields| %>
+			<tr>
+			<td style="padding-left:40px;"><%= issue_fields.select :currency, wkexpense_helper.options_for_currency %></td>
+			<td style="padding-left:40px;"><%= issue_fields.text_field :rate %> </td>
+			<td style="padding-left:40px;"><%= issue_fields.select :rate_per, wkasset_helper.getRatePerHash(false).invert %></td>
+			</tr>
+		<% end %>
+	</table>
+<% end %>	
 	<table style="padding-left:35px;">
 	<tr>
 			<th align="left" ><%= l(:label_additional_assignee) %></th>

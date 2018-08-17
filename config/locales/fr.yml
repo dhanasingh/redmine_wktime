@@ -884,4 +884,5 @@ fr:
   label_ftte_override_spent_time_report: "Override built-in spent time reports"
   label_ftte_supervisor_based_approval: "Use supervisor based approval system "
   label_ftte_view_only_own_spent_time: "View only own spent time"
+  label_additional_details: Additional Details
 
