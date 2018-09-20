@@ -101,7 +101,7 @@
 
 <table id='spent_for_tbl' style="padding-left:100px;">
 	<tr>	
-		<th align="right" ><%= l(:label_spent_for) %><span style="color:red;">*</span></th>
+		<th align="right" ><%= l(:label_spent_for) %></th>
 		<td align="left">
 			<%=h select_tag('spent_for', options_for_select(spentForsValue, :selected => selectedSpentFor.blank? ? spentForsValue : selectedSpentFor), :style => "width:155px;") %>
 		</td>
