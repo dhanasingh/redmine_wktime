@@ -62,7 +62,8 @@ en:
   label_wk_allow_user_filter_tracker: Allow User Filtering by Tracker
   label_wk_filter_issue_tracker: Filter Issue by Tracker
   label_wk_currency: Currency
-  label_wk_time: Weekly Time  
+  label_wk_time: Weekly Time
+  label_total_expense: Total Expense 
  
   label_wkexpense_reports: Expense Report
   label_spent_expense: Spent Expense

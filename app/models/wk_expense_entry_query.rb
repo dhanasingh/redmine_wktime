@@ -30,6 +30,7 @@ class WkExpenseEntryQuery < Query
     QueryAssociationColumn.new(:issue, :tracker, :caption => :field_tracker, :sortable => "#{Tracker.table_name}.position"),
     QueryAssociationColumn.new(:issue, :status, :caption => :field_status, :sortable => "#{IssueStatus.table_name}.position"),
     QueryColumn.new(:comments),
+	QueryColumn.new(:currency),
 	QueryColumn.new(:amount, :sortable => "#{WkExpenseEntry.table_name}.amount", :totalable => true),
   ]
 
