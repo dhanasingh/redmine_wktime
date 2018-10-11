@@ -1,18 +1,18 @@
-<h2><%= l(:label_tax) %></h2>
+<h2><%= l(:label_wk_custom_fields) %></h2>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <script type="text/javascript">
 	blgtaxUrl = '<%=url_for(:controller => "wktax", :action => "index", :tab => "wktax")%>';
 	blgexcrateUrl = '<%=url_for(:controller => "wkexchangerate", :action => "index", :tab => "wkexchangerate")%>';
-	crmenumUrl = '<%=url_for(:controller => "wkcrmenumeration", :action => "index", :tab => "wkcrmenumeration")%>';
+    crmenumUrl = '<%=url_for(:controller => "wkcrmenumeration", :action => "index", :tab => "wkcrmenumeration")%>';
 	wklocationUrl =  '<%=url_for(:controller => "wklocation", :action => "index", :tab => "wklocation")%>';
+  wkcustomfldUrl =  '<%=url_for(:controller => "wkcustomfields", :action => "index", :tab => "wkcustomfields")%>';
 	wkgrpPermissionUrl =  '<%=url_for(:controller => "wkgrouppermission", :action => "index", :tab => "wkgrouppermission")%>';
-	wkcustomfldUrl =  '<%=url_for(:controller => "wkcustomfields", :action => "index", :tab => "wkcustomfields")%>';
     prevTab = 'tab-<%= "#{controller_name}" %>';
-//	grpUrl="<%= "#{url_for(:controller => "wkpayroll", :action => 'getMembersbyGroup')}" %>";
-		//getMembersbyGroup
 </script>
 <%= render_tabs time_expense_tabs %>
-
+<div class="wk-contextual">
+		xD
+</div>
+<div style="clear: both;"></div>
 <%= hidden_field_tag 'back_url', url_for(params) %>
-
-<%= render :partial => 'wktax/tax_list'%>

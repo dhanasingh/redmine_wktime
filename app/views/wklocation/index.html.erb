@@ -1,12 +1,13 @@
 <h2><%= l(:label_location) %></h2>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<script type="text/javascript">     
+<script type="text/javascript">
 	blgtaxUrl = '<%=url_for(:controller => "wktax", :action => "index", :tab => "wktax")%>';
 	blgexcrateUrl = '<%=url_for(:controller => "wkexchangerate", :action => "index", :tab => "wkexchangerate")%>';
 	crmenumUrl = '<%=url_for(:controller => "wkcrmenumeration", :action => "index", :tab => "wkcrmenumeration")%>';
 	wklocationUrl =  '<%=url_for(:controller => "wklocation", :action => "index", :tab => "wklocation")%>';
 	wkgrpPermissionUrl =  '<%=url_for(:controller => "wkgrouppermission", :action => "index", :tab => "wkgrouppermission")%>';
-    prevTab = 'tab-<%= "#{controller_name}" %>';   
+	wkcustomfldUrl =  '<%=url_for(:controller => "wkcustomfields", :action => "index", :tab => "wkcustomfields")%>';
+    prevTab = 'tab-<%= "#{controller_name}" %>';
 //	grpUrl="<%= "#{url_for(:controller => "wkpayroll", :action => 'getMembersbyGroup')}" %>";
 		//getMembersbyGroup
 </script>
@@ -17,12 +18,12 @@
 <%=h hidden_field_tag('tab', "wklocation") %>
 <%	locName = session[:wklocation][:locName] %>
 <%	locType = session[:wklocation][:locType] %>
-<div class="wk-contextual"> 
+<div class="wk-contextual">
 		<label for='name' style="float:left"><%= l(:field_name)   %>&nbsp;&nbsp;</label>
-			<%= text_field_tag 'location_name', locName, :size => 30, :style=> "float: left;" %>	
+			<%= text_field_tag 'location_name', locName, :size => 30, :style=> "float: left;" %>
 		<label style="float:left; padding-left: 20px;"><%= l(:label_type) %>&nbsp;&nbsp;</label>
 			<%=h select_tag('location_type', options_for_select(options_for_enum_select('LT', locType, true)), :style=> "float: left;") %></td>
-			
+
 		<label style="float:left; padding-left: 20px;">&nbsp;</label>
 		<%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %>
 		<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload', :style=>"float:left; " %>
