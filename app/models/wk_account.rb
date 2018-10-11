@@ -21,6 +21,7 @@ class WkAccount < ActiveRecord::Base
   has_many :billable_projects, as: :parent, class_name: "WkAccountProject", :dependent => :destroy
   has_many :invoices, as: :parent, class_name: "WkInvoice", :dependent => :restrict_with_error
   has_many :invoice_items, through: :invoices
+  has_many :custom_values, -> { where(custom_field: CustomField.where(field_format: "company"))}, :foreign_key => "value", :primary_key => "id", :dependent => :destroy
   has_many :projects, through: :billable_projects
   has_many :contracts, as: :parent, class_name: "WkContract", :dependent => :destroy
   has_many :opportunities, as: :parent, class_name: "WkOpportunity", :dependent => :destroy
@@ -30,11 +31,11 @@ class WkAccount < ActiveRecord::Base
   belongs_to :location, :class_name => 'WkLocation'
   validates_presence_of :name
   validate :hasAnyValues
-  
+
   def hasAnyValues
 	name.blank? && address_id.blank? && activity_id.blank? && industry.blank? && annual_revenue.blank? && assigned_user_id.blank? && id.blank?
   end
-  
+
   # Returns account's contracts for the given project
   # or nil if the account do not have contract
   def contract(project)
@@ -45,5 +46,5 @@ class WkAccount < ActiveRecord::Base
 	end
 	contract
   end
-  
+
 end

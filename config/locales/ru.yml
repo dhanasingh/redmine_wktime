@@ -884,4 +884,11 @@ ru:
   label_ftte_supervisor_based_approval: "Use supervisor based approval system "
   label_ftte_view_only_own_spent_time: "View only own spent time"
   label_additional_details: Additional Details
+  # Custom Fields labels
+  label_wkcrmcontact_field: CRM contact
+  label_wkcrmaccount_field: CRM account
+  label_wkcrmlead_field: CRM lead
+  label_account_deleted: Deleted account
+  label_lead_deleted: Deleted lead
+  label_contact_deleted: Deleted contact
 

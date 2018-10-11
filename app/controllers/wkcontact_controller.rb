@@ -3,29 +3,29 @@ class WkcontactController < WkcrmController
 
 	def index
 		set_filter_session
-		contactName = session[controller_name][:contactname] 			
+		contactName = session[controller_name][:contactname]
 		accountId =  session[controller_name][:account_id]
 		locationId = session[controller_name][:location_id]
 		wkcontact = nil
-		if !contactName.blank? &&  !accountId.blank? 
+		if !contactName.blank? &&  !accountId.blank?
 			if accountId == 'AA'
 				wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where.not(:account_id => nil).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
 			else
 				wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => accountId).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
 			end
-			
-		elsif contactName.blank? &&  !accountId.blank? 
+
+		elsif contactName.blank? &&  !accountId.blank?
 			if accountId == 'AA'
 				wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where.not(:account_id => nil)
 			else
 				wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => accountId)
 			end
-			
+
 		elsif !contactName.blank? &&  accountId.blank?
 			wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => nil).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
 		else
 			wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => nil)
-		end	
+		end
 		if !locationId.blank?
 			wkcontact = wkcontact.where("wk_crm_contacts.location_id = ? ", locationId.to_i)
 		end
@@ -33,16 +33,16 @@ class WkcontactController < WkcrmController
 	end
 
 	def edit
-		@conEditEntry = nil		
+		@conEditEntry = nil
 		unless params[:contact_id].blank?
 			@conEditEntry = WkCrmContact.where(:id => params[:contact_id].to_i)
 		end
 	end
-	
+
 	def update
 		errorMsg = nil
 		if params[:contact_id].blank?
-		    wkContact = WkCrmContact.new 
+		    wkContact = WkCrmContact.new
 	    else
 		    wkContact = WkCrmContact.find(params[:contact_id].to_i)
 	    end
@@ -68,12 +68,12 @@ class WkcontactController < WkcrmController
 		unless addrId.blank?
 			wkContact.address_id = addrId
 		end
-		unless wkContact.valid?		
-			errorMsg = wkContact.errors.full_messages.join("<br>")	
+		unless wkContact.valid?
+			errorMsg = wkContact.errors.full_messages.join("<br>")
 		else
 			wkContact.save
 		end
-		
+
 		if errorMsg.blank?
 			redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
 		    flash[:notice] = l(:notice_successful_update)
@@ -81,11 +81,13 @@ class WkcontactController < WkcrmController
 			flash[:error] = errorMsg
 		    redirect_to :controller => controller_name,:action => 'edit'
 		end
-		
+
 	end
-	
+
 	def destroy
-	    contact = WkCrmContact.find(params[:contact_id].to_i)
+    contact = WkCrmContact.find(params[:contact_id].to_i
+    JournalDetail.where(property: "cf", prop_key: CustomField.where(field_format: "crm_contact"), old_value: contact.id).update_all(old_value: "deleted")
+    JournalDetail.where(property: "cf", prop_key: CustomField.where(field_format: "crm_contact"), value: contact.id).update_all(value: "deleted")
 		if contact.destroy
 			flash[:notice] = l(:notice_successful_delete)
 		else
@@ -93,7 +95,7 @@ class WkcontactController < WkcrmController
 		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end
-	
+
 	def set_filter_session
         if params[:searchlist].blank? && session[controller_name].nil?
 			session[controller_name] = {:contactname => params[:contactname], :account_id => params[:account_id], :location_id => params[:location_id] }
@@ -102,16 +104,16 @@ class WkcontactController < WkcrmController
 			session[controller_name][:account_id] = params[:account_id]
 			session[controller_name][:location_id] = params[:location_id]
 		end
-		
+
     end
-	
+
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
 		@contact = entries.order(updated_at: :desc).limit(@limit).offset(@offset)
 	end
-	
-	def setLimitAndOffset		
+
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -124,13 +126,13 @@ class WkcontactController < WkcrmController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
+		end
 	end
-	
+
 	def getAccountLbl
 		l(:label_account)
 	end
-	
+
 	def contactLbl
 		l(:label_contact_plural)
 	end

@@ -22,6 +22,7 @@ class WkCrmContact < ActiveRecord::Base
   belongs_to :address, :class_name => 'WkAddress', :dependent => :destroy
   belongs_to :assigned_user, :class_name => 'User'
   has_one :lead, foreign_key: 'contact_id', class_name: 'WkLead', :dependent => :destroy
+  has_many :custom_values, -> { where(custom_field: CustomField.where(field_format: "crm_contact"))}, :foreign_key => "value", :primary_key => "id", :dependent => :destroy
   has_many :activities, as: :parent, class_name: 'WkCrmActivity', :dependent => :destroy
   has_many :opportunities, as: :parent, class_name: 'WkOpportunity', :dependent => :destroy
   has_many :projects, through: :billable_projects
@@ -31,7 +32,7 @@ class WkCrmContact < ActiveRecord::Base
   has_many :contacts, foreign_key: "contact_id", class_name: "WkCrmContact"
   has_many :spent_fors, as: :spent_for, class_name: 'WkSpentFor', :dependent => :restrict_with_error
   belongs_to :location, :class_name => 'WkLocation'
-   
+
   validates_presence_of :last_name
    # Different ways of displaying/sorting users
   NAME_FORMATS = {
@@ -81,7 +82,7 @@ class WkCrmContact < ActiveRecord::Base
         :setting_order => 8
       },
   }
-  
+
   # Return user's full name for display
   def name(formatter = nil)
     f = self.class.name_formatter(formatter)
@@ -91,7 +92,7 @@ class WkCrmContact < ActiveRecord::Base
       @name ||= eval('"' + f[:string] + '"')
     end
   end
-  
+
   # Returns contact's contracts for the given project
   # or nil if the contact do not have contract
   def contract(project)

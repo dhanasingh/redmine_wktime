@@ -898,3 +898,10 @@ pl:
   label_ftte_supervisor_based_approval: "Use supervisor based approval system "
   label_ftte_view_only_own_spent_time: "View only own spent time"
   label_additional_details: Additional Details
+  # field format labels
+  label_wkcrmcontact_field: Kontakt CRM
+  label_wkcrmaccount_field: Firma CRM
+  label_wkcrmlead_field: Lead CRM
+  label_account_deleted: Działalność usunięta
+  label_lead_deleted: Lead usunięty
+  label_contact_deleted: Kontakt usunięty
