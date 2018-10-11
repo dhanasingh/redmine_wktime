@@ -7,7 +7,7 @@
 		</p>
 
 		<p>
-		<%= check_box_tag('settings[wktime_auto_approve]', 1, @settings['wktime_uuto_approve'].to_i == 1) %> <label><%= "#{l(:label_auto_approve_with_te)}"%></label>
+		<%= check_box_tag('settings[wktime_uuto_approve]', 1, @settings['wktime_uuto_approve'].to_i == 1) %> <label><%= "#{l(:label_auto_approve_with_te)}"%></label>
 		</p>
 		<p>
 		<%= check_box_tag('settings[wktime_own_approval]', 1, @settings['wktime_own_approval'].to_i == 1) %> <label><%= l(:label_wk_own_approve,l(:label_te)) %></label>
