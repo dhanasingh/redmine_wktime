@@ -66,13 +66,13 @@ lbldebitLedger = "<%= l(:label_debit_with_ledger) %>";
 <fieldset>
 <legend><%= l(:label_payroll) %></legend>
 	
-	<p style="margin-left: -70px;">
+	<p>
 			<%= check_box_tag('settings[wktime_auto_generate_salary]', 1, @settings['wktime_auto_generate_salary'].to_i == 1) %> <label><%= l(:label_auto_generate_salary) %></label>
 	</p>
 	
-	<p style="margin-left: -70px;"><label><%= l(:label_pay_period) %></label>
+	<p><label><%= l(:label_pay_period) %></label>
 	    <%= select_tag 'settings[wktime_pay_period]', options_for_select(hash_pay_period.invert, :selected => @settings['wktime_pay_period']) %></p>
-	<p style="margin-left: -70px;">	
+	<p>	
 			<label><%= l(:label_pay_day) %></label>
 			<%= select_tag('settings[wktime_pay_day]', options_for_select([[l('date.day_names')[0], 0],
 										   [l('date.day_names')[1], 1],
@@ -98,46 +98,46 @@ lbldebitLedger = "<%= l(:label_debit_with_ledger) %>";
 		leaveIssueslist.unshift(["",0]) 
 	%>
 	
-    <p style="margin-left: -70px;"><label><%= l(:label_loss_of_pay) %></label>
+    <p><label><%= l(:label_loss_of_pay) %></label>
 	 <%= select_tag 'settings[wktime_loss_of_pay]', options_for_select(leaveIssueslist, :selected =>  @settings['wktime_loss_of_pay']) %></p>
 	
-	<p style="margin-left: -70px;">
+	<p>
 			<%= check_box_tag('settings[salary_auto_post_gl]', 1, @settings['salary_auto_post_gl'].to_i == 1) %> <label><%= l(:label_auto_post_gl) %></label>
 	</p>
 	
-	<p style="margin-left: -70px;"><label><%= l(:label_credit_with_ledger)  %></label>
+	<p><label><%= l(:label_credit_with_ledger)  %></label>
 	    <%= select_tag 'settings[wktime_cr_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['wktime_cr_ledger']) %></p>
 		 
-<p style="margin-left: -70px;">
+<p>
 <label><%= l(:label_basic) %></label>
 		<%=  select_tag('settings[wktime_payroll_basic]',
 			options_for_select(basiclist), :multiple=> true, :style => "width:390px; height:60px;")%>	
 
 	</p>			
-	<p style="margin-left: -70px;">
+	<p>
 		<%= link_to l(:button_add), "javascript:payrollDialogAction('Basic', 'Add');", :class => "button", :id => "basic_add"%>  
 		<%= link_to l(:button_edit), "javascript:payrollDialogAction('Basic', 'Edit');", :class => "button"%>  
 	</p>
 		
 	
-<p style="margin-left: -70px;">
+<p>
 <label><%= l(:label_allowances) %></label>
 		<%=  select_tag('settings[wktime_payroll_allowances]',
 			options_for_select(allowancelist), :multiple=> true, :style => "width:390px; height:100px;")%>	
 
 	</p>			
-	<p style="margin-left: -70px;">
+	<p>
 		<%= link_to l(:button_add), "javascript:payrollDialogAction('Allowances', 'Add');", :class => "button"%>  |
 		<%= link_to l(:button_edit), "javascript:payrollDialogAction('Allowances', 'Edit');", :class => "button"%>  |
 		<%= link_to l(:button_delete), "javascript:removeSelectedValue('settings_wktime_payroll_allowances');", :class => "button" %>
 	</p>
-<p style="margin-left: -70px;">
+<p>
 <label><%= l(:label_deduction) %></label>
 		<%=  select_tag('settings[wktime_payroll_deduction]',
 			options_for_select(deductionlist), :multiple=> true, :style => "width:390px; height:100px;")%>	
 
 	</p>			
-	<p style="margin-left: -70px;">
+	<p>
 		<%= link_to l(:button_add), "javascript:payrollDialogAction('Deduction', 'Add');", :class => "button"%>  |
 		<%= link_to l(:button_edit), "javascript:payrollDialogAction('Deduction', 'Edit');", :class => "button"%>  |
 		<%= link_to l(:button_delete), "javascript:removeSelectedValue('settings_wktime_payroll_deduction');", :class => "button" %>
