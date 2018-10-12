@@ -296,6 +296,12 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 
   get 'wkcustomfields/index', :to => 'wkcustomfields#index'
 
+  get 'wkcustomfields/edit', :to => 'wkcustomfields#edit'
+
+  delete 'wkcustomfields/destroy', :to => 'wkcustomfields#destroy'
+
+  post 'wkcustomfields/update', :to => 'wkcustomfields#update'
+
 	get 'wkcrmenumeration/index', :to => 'wkcrmenumeration#index'
 
 	get 'wkcrmenumeration/edit', :to => 'wkcrmenumeration#edit'

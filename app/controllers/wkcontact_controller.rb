@@ -85,7 +85,7 @@ class WkcontactController < WkcrmController
 	end
 
 	def destroy
-    contact = WkCrmContact.find(params[:contact_id].to_i
+    contact = WkCrmContact.find(params[:contact_id].to_i)
     JournalDetail.where(property: "cf", prop_key: CustomField.where(field_format: "crm_contact"), old_value: contact.id).update_all(old_value: "deleted")
     JournalDetail.where(property: "cf", prop_key: CustomField.where(field_format: "crm_contact"), value: contact.id).update_all(value: "deleted")
 		if contact.destroy
