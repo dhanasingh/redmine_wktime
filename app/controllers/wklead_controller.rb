@@ -1,7 +1,7 @@
 class WkleadController < WkcrmController
   unloadable
   include WktimeHelper
-
+  include WkcustomfieldsHelper
 
 	def index
 		@leadEntries = WkLead.all
@@ -91,8 +91,13 @@ class WkleadController < WkcrmController
 
 	def edit
 		@lead = nil
-		@lead = WkLead.find(params[:lead_id]) unless params[:lead_id].blank?
-		@lead
+    @wcf = nil
+    @relationDict = nil
+    unless params[:lead_id].blank?
+  		@lead = WkLead.find(params[:lead_id])
+      @wcf = WkCustomField.where(custom_fields_id: CustomField.where(field_format: "wk_lead"))
+      @relationDict = getRelationDict(@lead)
+  	end
 	end
 
 	def update

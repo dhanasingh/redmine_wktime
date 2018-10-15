@@ -18,6 +18,7 @@
 class WkaccountController < WkcrmController
 
 before_filter :require_login
+include WkcustomfieldsHelper
 
     def index
 		@account_entries = nil
@@ -55,10 +56,15 @@ before_filter :require_login
    end
 
    	def edit
-	     @accountEntry = nil
-		 unless params[:account_id].blank?
-		  @accountEntry = WkAccount.find(params[:account_id])
-		end
+	    @accountEntry = nil
+      @wcf = nil
+      @relationDict = nil
+
+		  unless params[:account_id].blank?
+		    @accountEntry = WkAccount.find(params[:account_id])
+        @wcf = WkCustomField.where(custom_fields_id: CustomField.where(field_format: "company"))
+        @relationDict = getRelationDict(@accountEntry)
+		  end
     end
 
 	def update

@@ -10,11 +10,34 @@
 	wkgrpPermissionUrl =  '<%=url_for(:controller => "wkgrouppermission", :action => "index", :tab => "wkgrouppermission")%>';
     prevTab = 'tab-<%= "#{controller_name}" %>';
 </script>
-<%= render_tabs time_expense_tabs %>
-<div class="wk-contextual">
-	<%= link_to l(:label_new_custom_field_relation), wkcustomfields_edit_path, :class => 'icon icon-add' %>
-</div>
 
+<%= render_tabs time_expense_tabs %>
+<%= hidden_field_tag 'back_url', url_for(params) %>
+<%=h hidden_field_tag('tab', "WkCustomFields") %>
+<%= form_tag({:controller => "wkcustomfields", :action => 'index'}, :method => :get, :id => 'query_form') do %>
+<%= hidden_field_tag "searchlist", "wkcustomfields" %>
+<%=h hidden_field_tag('tab', "wkcustomfields") %>
+<% cfName = session[:wkcustomfields][:cfName] %>
+<% wcfName = session[:wkcustomfields][:wcfName] %>
+<% wcfCrm = session[:wkcustomfields][:wcfCrm] %>
+<% wcfRelatedTo = session[:wkcustomfields][:wcfRelatedTo] %>
+<div class="wk-contextual">
+		<label for='wcfName' style="float:left"><%= l(:label_display_as) %>&nbsp;&nbsp;</label>
+			<%= text_field_tag 'wcfName', wcfName, :size => 30, :style=> "float: left;" %>
+		<label for='cfName' style="float:left"><%= l(:label_custom_field) %>&nbsp;&nbsp;</label>
+			<%= text_field_tag 'cfName', cfName, :size => 30, :style=> "float: left;" %>
+		<label style="float:left; padding-left: 20px;"><%= l(:label_crm) %>&nbsp;&nbsp;</label>
+			<%=h select_tag('wcfCrm', options_for_select(options_for_wk_field_format_select), :style=> "float: left;") %></td>
+		<label style="float:left; padding-left: 20px;"><%= l(:label_relates_to) %>&nbsp;&nbsp;</label>
+			<%=h select_tag('wcfRelatedTo', options_for_select(options_for_custom_field_type_select), :style=> "float: left;") %></td>
+
+		<label style="float:left; padding-left: 20px;">&nbsp;</label>
+		<%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %>
+		<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload', :style=>"float:left; " %>
+			<%= link_to l(:label_new_custom_field_relation), wkcustomfields_edit_path, :class => 'icon icon-add' %>
+</div>
+<% end %>
+</br>
 <div class="autoscroll">
 <table class="list time-entries">
   <thead>
@@ -73,4 +96,4 @@
 </table>
 </div>
 <div style="clear: both;"></div>
-<%= hidden_field_tag 'back_url', url_for(params) %>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

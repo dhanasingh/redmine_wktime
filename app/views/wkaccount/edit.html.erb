@@ -21,4 +21,7 @@
 	<div>
 		<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @accountEntry }%>
 	</div>
+	<div>
+		<%= render partial: "wkcustomfields/relations", locals: { entry: @accountEntry, relationDict: @relationDict, wcf: @wcf }%>
+	</div>
 <% end %>

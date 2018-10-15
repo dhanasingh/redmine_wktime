@@ -12,7 +12,7 @@
 <div style="clear:both;"></div>
 <div>
 	<%= submit_tag l(:button_save) ,:id => 'wkcontact_save'%>
-	
+
 </div>
 
 <% end %>
@@ -20,5 +20,8 @@
 	</br>
 	<div>
 		<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @conEditEntry[0] }%>
+	</div>
+	<div>
+		<%= render partial: "wkcustomfields/relations", locals: { entry: @conEditEntry.first, relationDict: @relationDict, wcf: @wcf }%>
 	</div>
 <% end %>

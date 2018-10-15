@@ -1,5 +1,6 @@
 class WkcontactController < WkcrmController
   unloadable
+  include WkcustomfieldsHelper
 
 	def index
 		set_filter_session
@@ -34,8 +35,12 @@ class WkcontactController < WkcrmController
 
 	def edit
 		@conEditEntry = nil
+    @wcf = nil
+    @relationDict = nil
 		unless params[:contact_id].blank?
 			@conEditEntry = WkCrmContact.where(:id => params[:contact_id].to_i)
+      @wcf = WkCustomField.where(custom_fields_id: CustomField.where(field_format: "crm_contact"))
+      @relationDict = getRelationDict(@conEditEntry.first())
 		end
 	end
 

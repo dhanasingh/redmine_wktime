@@ -5,7 +5,32 @@ class WkcustomfieldsController < ApplicationController
 
 
   def index
-    @wkcustomfields = WkCustomField.all
+  set_filter_session
+    wcfName = session[:wkcustomfields][:wcfName]
+    cfName = session[:wkcustomfields][:cfName]
+    wcfRelatedTo = session[:wkcustomfields][:wcfRelatedTo]
+    wcfCrm = session[:wkcustomfields][:wcfCrm]
+    wkcustomfields = nil
+    if !wcfName.blank?
+      wkcustomfields = WkCustomField.where("LOWER(display_as) like LOWER(?) ", "%#{wcfName}%")
+
+    else
+      wkcustomfields = WkCustomField.all
+    end
+    if !cfName.blank? or !wcfRelatedTo.blank? or !wcfCrm.blank?
+      custom_fields = CustomField.all
+      if !cfName.blank?
+        custom_fields = custom_fields.where("LOWER(name) LIKE LOWER(?) ", "%#{cfName}%")
+      end
+      if !wcfRelatedTo.blank?
+        custom_fields = custom_fields.where(type: wcfRelatedTo)
+      end
+      if !wcfCrm.blank?
+        custom_fields = custom_fields.where(field_format: wcfCrm)
+      end
+      wkcustomfields = wkcustomfields.where(custom_fields_id: custom_fields.ids)
+    end
+    formPagination(wkcustomfields)
   end
 
   def edit
@@ -54,4 +79,38 @@ class WkcustomfieldsController < ApplicationController
 			return false
 		end
 	end
+end
+
+def formPagination(entries)
+  @entry_count = entries.count
+      setLimitAndOffset()
+  @wkcustomfields = entries.order(display_as: :asc, id: :asc).limit(@limit).offset(@offset)
+end
+
+def set_filter_session
+  if params[:searchlist].blank? && session[:wkcustomfields].nil?
+    session[:wkcustomfields] = {:cfName => params[:cfName], :wcfName => params[:wcfName], :wcfCrm => params[:wcfCrm], :wcfRelatedTo => params[:wcfRelatedTo] }
+  elsif params[:searchlist] =='wkcustomfields'
+    session[:wkcustomfields][:cfName] = params[:cfName]
+    session[:wkcustomfields][:wcfCrm] = params[:wcfCrm]
+    session[:wkcustomfields][:wcfRelatedTo] = params[:wcfRelatedTo]
+    session[:wkcustomfields][:wcfName] = params[:wcfName]
+  end
+
+  def setLimitAndOffset
+		if api_request?
+			@offset, @limit = api_offset_and_limit
+			if !params[:limit].blank?
+				@limit = params[:limit]
+			end
+			if !params[:offset].blank?
+				@offset = params[:offset]
+			end
+		else
+			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
+			@limit = @entry_pages.per_page
+			@offset = @entry_pages.offset
+		end
+	end
+
 end
