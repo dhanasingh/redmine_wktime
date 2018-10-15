@@ -174,7 +174,7 @@ function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, bla
 {	
 	var items = itemStr.split('\n');
 	var i, index, val, text, start;
-	if(dropdown.options != null){
+	if(dropdown != null && dropdown.options != null){
 		dropdown.options.length = 0;
 		if(needBlankOption){
 			dropdown.options[0] = new Option(blankText, "0", false, false) 
