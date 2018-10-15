@@ -147,20 +147,20 @@ lbldebitLedger = "<%= l(:label_debit_with_ledger) %>";
 
 <div id="payroll-dlg" title="<%= l(:label_basic) %>">
 <fieldset>
-	<p><label><%= l(:field_name) %></label><%= text_field_tag 'name', "", :maxlength => 50, :style => "width:150px; float:right; " %><p>
+	<p><label><%= l(:field_name) %></label>&emsp;<%= text_field_tag 'name', "", :maxlength => 50 %><p>
 	
-	<p id = "payroll_frequency"><label><%= l(:label_frequency) %></label><%= select_tag 'frequency', options_for_select(hash_frequency.invert), :style => "width:155px; float:right; " %></p>
+	<p id = "payroll_frequency"><label><%= l(:label_frequency) %></label>&emsp;<%= select_tag 'frequency', options_for_select(hash_frequency.invert) %></p>
 	
 	<p id="payroll_start_date"><label><%= l(:field_start_date) %></label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= date_field_tag('start_date', "", {:id => 'start_date', :size => 12, :style => "width:130px; "}) + calendar_for('start_date') %></p>
 	
 	<p id="basic_salary_type"><label><%= l(:label_salary_type) %></label>
-	<%= select_tag 'salary_type', options_for_select(hash_salary_type.invert), :style => "width:155px; float:right; " %></p>
+	<%= select_tag 'salary_type', options_for_select(hash_salary_type.invert)%></p>
 	
 	
-	<p id="basic_factor">	<label><%= l(:label_factor) %></label><%= text_field_tag 'basic_field_factor', "", :maxlength => 7, :style => " width:150px; float:right; " %></p>
+	<p id="basic_factor">	<label><%= l(:label_factor) %></label>&emsp;<%= text_field_tag 'basic_field_factor', "", :maxlength => 7%></p>
 	
-	<p ><label id="ledgersLabel"><%= l(:label_debit_with_ledger)  %></label>
-	    <%= select_tag 'payroll_db_ledger', options_for_select(ledgerhash.invert) , :style => "width:155px; float:right; " %></p>
+	<p ><label id="ledgersLabel"><%= l(:label_debit_with_ledger)  %></label>&emsp;
+	    <%= select_tag 'payroll_db_ledger', options_for_select(ledgerhash.invert) %></p>
 	
 	<p id="allowance_dependent">
 		<table id = "table_payroll_dependent">
@@ -172,7 +172,7 @@ lbldebitLedger = "<%= l(:label_debit_with_ledger) %>";
 					<th style="font-weight:normal;"><%= l(:label_factor) %></th>
 				</tr>
 				<tr>
-					<td><%= select_tag 'dep_value', options_for_select(deplist), :style => " width:100px; float:right; " %></td>
+					<td><%= select_tag 'dep_value', options_for_select(deplist)%></td>
 					<td> *</td>
 					<td><%= text_field_tag 'factor', "", :size => 5, :maxlength => 7 %></td>
 				</tr>
