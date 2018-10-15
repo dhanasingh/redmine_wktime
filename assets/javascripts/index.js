@@ -174,7 +174,7 @@ function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, bla
 {	
 	var items = itemStr.split('\n');
 	var i, index, val, text, start;
-	if(dropdown.options != null){
+	if(dropdown != null && dropdown.options != null){
 		dropdown.options.length = 0;
 		if(needBlankOption){
 			dropdown.options[0] = new Option(blankText, "0", false, false) 
@@ -629,7 +629,9 @@ function hideLogDetails(uid)
 	{
 		document.getElementById('time_entry_hours').style.display = 'block';
 		$('label[for="time_entry_hours"]').css('display', 'block');
-		document.getElementById("spent_for_tbl").style.display = 'block';
+		if(document.getElementById("spent_for_tbl")){
+			document.getElementById("spent_for_tbl").style.display = 'block';
+		}
 		//$('label[for="time_entry_hours"]').html('Hours<span style="color:red;">*</span>');
 		document.getElementById("materialtable").style.display = 'none';
 		document.getElementById("expensetable").style.display = 'none';
@@ -639,7 +641,9 @@ function hideLogDetails(uid)
 		$('label[for="time_entry_hours"]').css('display', 'none');
 		//$('label[for="time_entry_hours"]').html('Amount<span style="color:red;">*</span>');
 		document.getElementById("materialtable").style.display = 'none';
-		document.getElementById("spent_for_tbl").style.display = 'none';
+		if(document.getElementById("spent_for_tbl")){
+			document.getElementById("spent_for_tbl").style.display = 'none';
+		}
 		document.getElementById("expensetable").style.display = 'block';
 	}
 	else 
@@ -647,7 +651,9 @@ function hideLogDetails(uid)
 		document.getElementById('time_entry_hours').style.display = 'none';
 		$('label[for="time_entry_hours"]').css('display', 'none');
 		document.getElementById("expensetable").style.display = 'none';
-		document.getElementById("spent_for_tbl").style.display = 'block';
+		if(document.getElementById("spent_for_tbl")){
+			document.getElementById("spent_for_tbl").style.display = 'block';
+		}
 		document.getElementById("materialtable").style.display = 'block';
 		if(uid != null) {
 			productCategoryChanged('product', uid, logType);
