@@ -5,6 +5,18 @@ include WktimeHelper
     [['',''],[l(:label_accounts), 'company'],[l(:label_lead_plural), 'wk_lead'],[l(:label_contact_plural), 'crm_contact']]
   end
 
+  def custom_fields_of_type_ids(type)
+    CustomField.where(type: type, field_format: ['crm_contact', 'wk_lead', 'company']).ids
+  end
+
+  def options_for_project_select
+    return_arr = []
+    Project.all do |p|
+      return_arr << [p.name,p.id]
+    end
+    return_arr
+  end
+
   def options_for_custom_field_type_select
     [ ['' , ''],
       [l(:field_issue), 'IssueCustomField'],
@@ -19,6 +31,25 @@ include WktimeHelper
       [l(:enumeration_doc_categories) , 'DocumentCategoryCustomField'],
       [l(:label_wk_time), "WktimeCustomField"]
     ]
+  end
+
+  def options_for_wk_custom_field_select(wcf)
+    options = []
+    wcf.each do |cf|
+      option = "#{cf.name} (" + l(:label_relates_to) + ' '
+      options_for_custom_field_type_select.each do |ft|
+        (cf.type.eql? ft[1]) ? option += ft[0] : next
+        break
+      end
+      option += ' ' + l(:label_crm) + ' '
+      options_for_wk_field_format_select.each do |ff|
+        (cf.field_format.eql? ff[1]) ? option += ff[0] : next
+        break
+      end
+      option += ' )'
+      options << [option, cf.id]
+    end
+    options
   end
 
   def getRelationDict(entry)

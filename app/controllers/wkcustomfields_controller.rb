@@ -49,7 +49,9 @@ class WkcustomfieldsController < ApplicationController
 		    wcfObj = WkCustomField.find(params[:wcf_id].to_i)
 		end
 		wcfObj.display_as = params[:display_as]
-		wcfObj.custom_fields_id = params[:custom_field_id].to_i
+    unless params[:custom_fields_id].blank?
+		  wcfObj.custom_fields_id = params[:custom_fields_id].to_i
+    end
 		unless wcfObj.valid?
 			errorMsg = errorMsg.blank? ? wcfObj.errors.full_messages.join("<br>") : wcfObj.errors.full_messages.join("<br>") + "<br/>" + errorMsg
 		end

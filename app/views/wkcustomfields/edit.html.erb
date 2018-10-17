@@ -1,11 +1,24 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
+<script>
+	function wkcustomfield_selected(selObj){
+			if(<%= custom_fields_of_type_ids('DocumentCustomField') %>.indexOf(parseInt(selObj.value)) !== -1){
+				$('#SpecificSettings').html(`<%= render :partial => "wkcustomfields/documents", locals: {wkcustomfields: @wkcustomfields, wcfEntry: @wcfEntry} %>`);
+			}else {
+				$('#SpecificSettings').html(`<%= render :partial => "wkcustomfields/nondocuments", locals: {wkcustomfields: @wkcustomfields, wcfEntry: @wcfEntry} %>`);
+			}
+	}
+	$( document ).ready(function(){
+		wkcustomfield_selected($('#custom_fields_id').get(0));
+	});
+</script>
 	<h2><b><%= l(:label_wk_custom_fields) %></b></h2>
 	<div id="wkcustomfield_form">
 		<% wkcustomfield = @wcfEntry.blank? ? nil : @wcfEntry %>
 		<%=h hidden_field_tag('wcf_id', @wcfEntry.blank? ? "" : @wcfEntry.id) %>
-		<fieldset class="box tabular">
+		<div class="splitcontentleft">
+			<fieldset class="box tabular">
 				<table>
 					<tr>
 						<th align="left"><%= l(:label_display_as) %><span style="color:red;">*</span></th>
@@ -15,50 +28,17 @@
 					<tr>
 						<th align="left"><%= l(:label_wk_custom_fields) %><span style="color:red;">*</span></th>
 						<td align="left" style="padding-left:40px;">
-							<select id="custom_fields_id" name="custom_field_id">
-  						<% @wkcustomfields.each  do |cf| %>
-							  <option value="<%= cf.id %>"<% if selectedWcfId==cf.id %> selected<%end%>><%= cf.name %>
-									( <%= l(:label_relates_to) %>
-									<% if cf.type == "IssueCustomField" %>
-										<%= l(:field_issue) %>
-									<% elsif cf.type == "TimeEntryCustomField" %>
-										<%= l(:label_spent_time) %>
-									<% elsif cf.type == "ProjectCustomField" %>
-										<%= l(:label_project_plural) %>
-									<% elsif cf.type == "VersionCustomField" %>
-										<%= l(:label_version_plural) %>
-									<% elsif cf.type == "DocumentCustomField" %>
-										<%= l(:label_document_plural) %>
-									<% elsif cf.type == "UserCustomField" %>
-										<%= l(:label_user_plural) %>
-									<% elsif cf.type == "GroupCustomField" %>
-										<%= l(:label_group_plural) %>
-									<% elsif cf.type == "TimeEntryActivityCustomField" %>
-										<%= l(:enumeration_activities) %>
-									<% elsif cf.type == "IssuePriorityCustomField" %>
-										<%= l(:enumeration_issue_priorities) %>
-									<% elsif cf.type == "DocumentCategoryCustomField" %>
-										<%= l(:enumeration_doc_categories) %>
-									<% elsif cf.type == "WktimeCustomField" %>
-									  <%= l(:label_wk_time) %>
-									<% end %>
-									, <%= l(:label_crm) %>
-									<% if cf.field_format == "company" %>
-										<%= l(:label_accounts) %>
-									<% elsif cf.field_format == "wk_lead" %>
-										<%= l(:label_lead_plural) %>
-									<% elsif cf.field_format == "crm_contact" %>
-										<%= l(:label_contact_plural) %>
-									<% end %>
-									)
-								</option>
-
-							<% end %>
-							</select>
+							<%=h select_tag('custom_fields_id', options_for_select(options_for_wk_custom_field_select(@wkcustomfields), selectedWcfId), :style=> "float: left;", :onchange=> 'wkcustomfield_selected(this);') %><%= link_to l(:label_custom_field_new), new_custom_field_path, :class => 'icon icon-add' %></td>
 						</td>
 					</tr>
 				</table>
 			</fieldset>
+		</div>
+	</div>
+	<div class="splitcontentright">
+		<fieldset id="SpecificSettings" class="box tabular">
+			Something went wrong. Do you block javascripts?
+		</fieldset>
 	</div>
 	<div style="clear:both;"></div>
 	<div>

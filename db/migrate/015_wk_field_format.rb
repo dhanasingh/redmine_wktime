@@ -1,8 +1,13 @@
 class WkFieldFormat < ActiveRecord::Migration
   def self.up
     create_table :wk_custom_fields do |t|
-      t.references :custom_fields
-      t.string :display_as
+      t.references :custom_fields, null:false
+      t.string :display_as, null:false
+      t.references :projects
+      t.boolean :allow_users_change_project
+      t.references :enumerations
+      t.boolean :allow_users_change_enumeration
+      t.boolean :render_creation
     end
   end
 

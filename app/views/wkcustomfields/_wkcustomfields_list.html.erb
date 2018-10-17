@@ -1,0 +1,58 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div class="autoscroll">
+<table class="list time-entries">
+  <thead>
+       <tr>
+				<th class="lbl-txt-align"><%= l(:label_display_as) %></th>
+				<th class="lbl-txt-align"><%= l(:label_custom_field) %></th>
+				<th class="lbl-txt-align"><%= l(:label_crm) %></th>
+				<th class="lbl-txt-align"><%= l(:label_relates_to) %></th>
+				<th></th>
+         </tr>
+  </thead>
+   <tbody>
+ 	<% wkcustomfields.each  do |cf| %>
+		<tr>
+			<td class="lbl-txt-align"><%= cf.display_as %></td>
+			<td class="lbl-txt-align"><%= cf.custom_field.name %></td>
+			<td class="lbl-txt-align">
+				<% if cf.custom_field.field_format == "company" %>
+					<%= l(:label_accounts) %>
+				<% elsif cf.custom_field.field_format == "wk_lead" %>
+					<%= l(:label_lead_plural) %>
+				<% elsif cf.custom_field.field_format == "crm_contact" %>
+					<%= l(:label_contact_plural) %>
+				<% end %>
+			</td>
+			<td class="lbl-txt-align">
+				<% if cf.custom_field.type == "IssueCustomField" %>
+					<%= l(:field_issue) %>
+				<% elsif cf.custom_field.type == "TimeEntryCustomField" %>
+					<%= l(:label_spent_time) %>
+				<% elsif cf.custom_field.type == "ProjectCustomField" %>
+					<%= l(:label_project_plural) %>
+				<% elsif cf.custom_field.type == "VersionCustomField" %>
+					<%= l(:label_version_plural) %>
+				<% elsif cf.custom_field.type == "DocumentCustomField" %>
+					<%= l(:label_document_plural) %>
+				<% elsif cf.custom_field.type == "UserCustomField" %>
+					<%= l(:label_user_plural) %>
+				<% elsif cf.custom_field.type == "GroupCustomField" %>
+					<%= l(:label_group_plural) %>
+				<% elsif cf.custom_field.type == "TimeEntryActivityCustomField" %>
+					<%= l(:enumeration_activities) %>
+				<% elsif cf.custom_field.type == "IssuePriorityCustomField" %>
+					<%= l(:enumeration_issue_priorities) %>
+				<% elsif cf.custom_field.type == "DocumentCategoryCustomField" %>
+					<%= l(:enumeration_doc_categories) %>
+				<% elsif cf.custom_field.type == "WktimeCustomField" %>
+					<%= l(:label_wk_time) %>
+				<% end %>
+			</td>
+			<td><%= link_to image_tag('edit.png'), {:controller => controller_name, :action => 'edit', :wcf_id => cf.id, :tab => 'wkcustomfields'}, :title => l(:button_edit) %>
+			<%= link_to image_tag('delete.png'), {:controller => controller_name, :action => 'destroy', :wcf_id => cf.id, :tab => 'wkcustomfields'},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
+		</tr>
+	<% end %>
+   </tbody>
+</table>
+</div>

@@ -3,6 +3,7 @@ require_dependency 'custom_fields_helper'
 require_dependency '../lib/redmine/menu_manager'
 require 'fileutils'
 require 'timelogcontroller_patch'
+require 'custom_field_patch'
 require 'field_format_patch'
 require 'time_report_patch'
 require_dependency 'timelog_helper_patch'
@@ -26,7 +27,7 @@ Issue.class_eval do
 	accepts_nested_attributes_for :wk_issue
 	def erpmineissues
 		self.wk_issue ||= WkIssue.new(:issue => self, :project => self.project)
-	end	
+	end
 end
 
 Project.class_eval do
@@ -37,7 +38,7 @@ end
 TimeEntry.class_eval do
   has_one :spent_for, as: :spent, class_name: 'WkSpentFor', :dependent => :destroy
   has_one :invoice_item, through: :spent_for
-  
+
   accepts_nested_attributes_for :spent_for
 end
 
@@ -50,7 +51,7 @@ module Redmine::MenuManager::MenuHelper
 
   def render_main_menu(project)
     if menu_name = controller.current_menu(project)
-        render_menu(menu_name(project), project) 
+        render_menu(menu_name(project), project)
     end
   end
 
@@ -78,17 +79,17 @@ end
 module WktimeHelperPatch
 	def self.included(base)
 		CustomFieldsHelper::CUSTOM_FIELDS_TABS << {:name => 'WktimeCustomField', :partial => 'custom_fields/index', :label => :label_wk_time}
-	end	
+	end
 end
 
 module ProjectsControllerPatch
-	def self.included(base)     
+	def self.included(base)
 	  base.class_eval do
-		def destroy	
+		def destroy
 			 @project_to_destroy = @project
 			if api_request? || params[:confirm]
 				wktime_helper = Object.new.extend(WktimeHelper)
-				ret = wktime_helper.getStatus_Project_Issue(nil,@project_to_destroy.id)			
+				ret = wktime_helper.getStatus_Project_Issue(nil,@project_to_destroy.id)
 				if ret
 					#render_403
 					#return false
@@ -106,21 +107,21 @@ module ProjectsControllerPatch
 			# hide project in layout
 			@project = nil
 		end
-	  end	  
-	end	
+	  end
+	end
 end
 
 module IssuesControllerPatch
- def self.included(base)     
+ def self.included(base)
   base.class_eval do
-	def destroy		
+	def destroy
 		@hours = TimeEntry.where(:issue_id => @issues.map(&:id)).sum(:hours).to_f
 		@amount = WkExpenseEntry.where(:issue_id => @issues.map(&:id)).sum(:amount).to_f
 		if @hours > 0 || @amount > 0
 			wktime_helper = Object.new.extend(WktimeHelper)
 			issue_id = @issues.map(&:id)
 		    ret = wktime_helper.getStatus_Project_Issue(issue_id[0],nil)
-			if ret				
+			if ret
 				flash.now[:error] = l(:error_project_issue_associate)
 				return
 			else
@@ -147,7 +148,7 @@ module IssuesControllerPatch
 		end
 		@issues.each do |issue|
 		  begin
-		 
+
 			issue.reload.destroy
 		  rescue ::ActiveRecord::RecordNotFound # raised by #reload if issue no longer exists
 			# nothing to do, issue was already deleted (eg. by a parent)
@@ -162,7 +163,7 @@ module IssuesControllerPatch
  end
 end
 
-  
+
 CustomFieldsHelper.send(:include, WktimeHelperPatch)
 ProjectsController.send(:include, ProjectsControllerPatch)
 IssuesController.send(:include, IssuesControllerPatch)
@@ -182,16 +183,16 @@ module FttePatch
 		belongs_to :supervisor, :class_name => 'User', :foreign_key => 'parent_id'
 		include FTTE::NestedSet::UserNestedSet
         safe_attributes 'parent_id', 'lft', 'rgt'
-      end	  
+      end
     end
   end
-  
+
   module UserAllowedToPatch
 	def self.included(base)
       #base.send(:include)
 
       base.class_eval do
-        def allowed_to?(action, context, options={}, &block)	
+        def allowed_to?(action, context, options={}, &block)
 			wktime_helper = Object.new.extend(WktimeHelper)
 			isAccountUser = wktime_helper.isAccountUser
 			isSupervisor = wktime_helper.isSupervisor
@@ -200,18 +201,18 @@ module FttePatch
 			  if ((isAccountUser || isSupervisor) && action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
 				return true
 			  end
-			  
+
 			  if (action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
 				(context.allows_to?(:log_time) || context.allows_to?(:edit_time_entries) || context.allows_to?(:edit_own_time_entries))
 			  end
 			  # =========== Patch code end =======
-			  
+
 			  return false unless context.allows_to?(action)
 			  # Admin users are authorized for anything else
 			  return true if admin?
 
 			  roles = roles_for_project(context)
-			  
+
 			  return false unless roles
 			  roles.any? {|role|
 				(context.is_public? || role.member?) &&
@@ -227,15 +228,15 @@ module FttePatch
 			  end
 			elsif context
 			  raise ArgumentError.new("#allowed_to? context argument must be a Project, an Array of projects or nil")
-			elsif options[:global]			  
+			elsif options[:global]
 			  # Admin users are always authorized
 			  return true if admin?
-			  
+
 			  # ======= Patch Code start ==========
 			  if ((isAccountUser || isSupervisor) && action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
 				return true
 			  end
-			  
+
 			  # authorize if user has at least one role that has this permission
 			  roles = self.roles.to_a | [builtin_role]
 			  roles.any? {|role|
@@ -252,14 +253,14 @@ module FttePatch
 			  false
 			end
 		end
-      end	  
+      end
     end
   end
- 
+
   module TimeEntryPatch
 	def self.included(base)
 		#base.send(:include)
-		
+
 		base.class_eval do
 			def editable_by?(usr)
 				# === Patch code for supervisor edit =====
@@ -269,17 +270,17 @@ module FttePatch
 				else
 					visible?(usr) && (
 					  (usr == user && usr.allowed_to?(:edit_own_time_entries, project)) || usr.allowed_to?(:edit_time_entries, project)
-					)				
+					)
 				end
 			end
 		end
 	end
   end
-   
+
   module ApplicationControllerPatch
 	def self.included(base)
 		# base.send(:include)
-		
+
 		base.class_eval do
 			def authorize(ctrl = params[:controller], action = params[:action], global = false)
 				allowed = User.current.allowed_to?({:controller => ctrl, :action => action}, @project || @projects, :global => global)
@@ -290,7 +291,7 @@ module FttePatch
 					# isSupervisor = wktime_helper.isSupervisor
 					if @project && @project.archived?
 						render_403 :message => :notice_not_authorized_archived_project
-					elsif ((action == 'edit' || action == 'update' || action == 'destroy') && ctrl == 'timelog' && (wktime_helper.isSupervisor && 
+					elsif ((action == 'edit' || action == 'update' || action == 'destroy') && ctrl == 'timelog' && (wktime_helper.isSupervisor &&
 					wktime_helper.canSupervisorEdit)) && wktime_helper.overrideSpentTime
 						true
 					elsif ((action == 'index' || action == 'report')  && ctrl == 'timelog') && wktime_helper.overrideSpentTime
@@ -304,11 +305,11 @@ module FttePatch
 		end
 	end
   end
-  
+
   # module ProjectPatch
 	# def self.included(base)
 		# #base.send(:include)
-		
+
 		# base.class_eval do
 		  # # Returns a SQL conditions string used to find all projects for which +user+ has the given +permission+
 		  # #
@@ -328,11 +329,11 @@ module FttePatch
 			  # project_statement = project.project_condition(options[:with_subprojects])
 			  # base_statement = "(#{project_statement}) AND (#{base_statement})"
 			# end
-			
+
 			# wktime_helper = Object.new.extend(WktimeHelper)
 			# if user.admin?
 			  # base_statement
-			# # Path code for overide redmine spentime 
+			# # Path code for overide redmine spentime
 			# elsif wktime_helper.isSupervisorApproval && wktime_helper.isSupervisor && !wktime_helper.isAccountUser && wktime_helper.overrideSpentTime
 				# base_statement + self.getSupervisorCondStr(user)
 			# else
@@ -368,7 +369,7 @@ module FttePatch
 			  # end
 			# end
 		  # end
-		  
+
 		  # def self.getSupervisorCondStr(user)
 			# wktime_helper = Object.new.extend(WktimeHelper)
 			# cond = ""
@@ -381,7 +382,7 @@ module FttePatch
 		# end
 	# end
   # end
- 
+
   module TimeEntryQueryPatch
 	def self.included(base)
       # base.send(:include)
@@ -396,19 +397,19 @@ module FttePatch
 			  left_join_issue.
 			  where(getSupervisorCondStr)
 		end
-		
+
 		#========= Patch method to get supervision condition string ======
 		def getSupervisorCondStr
 			orgCondStatement = statement
 			condStatement = orgCondStatement
-			
+
 			wktime_helper = Object.new.extend(WktimeHelper)
 			if wktime_helper.overrideSpentTime
 				isAccountUser = wktime_helper.isAccountUser
 				isSupervisor = wktime_helper.isSupervisor
 				projectIdArr = wktime_helper.getManageProject()
 				isManager = projectIdArr.blank? ? false : true
-				
+
 				if isSupervisor && !isAccountUser && !User.current.admin?
 					userIdArr = Array.new
 					user_cond = ""
@@ -417,24 +418,24 @@ module FttePatch
 					userIdArr = userIdArr << User.current.id.to_s
 					userIds = "#{userIdArr.join(',')}"
 					user_cond = "#{TimeEntry.table_name}.user_id IN (#{userIds})"
-					
+
 					if condStatement.blank?
 						condStatement = "(#{user_cond})" if !user_cond.blank?
-					else				
-						if filters["user_id"].blank?			
+					else
+						if filters["user_id"].blank?
 							condStatement = user_cond.blank? ? condStatement : condStatement + " AND (#{user_cond})"
-						else						
+						else
 							user_id = filters["user_id"][:values]
 							userIdStrArr = userIdArr.collect{|i| i.to_s}
 							filterUserIds = userIdStrArr & filters["user_id"][:values]
-							
+
 							if !filterUserIds.blank?
 								if user_id.is_a?(Array) && user_id.include?("me")
 									filterUserIds << (User.current.id).to_s
 								end
 								filters["user_id"][:values] = filterUserIds #overriding user filters to get query condition for supervisor
 								condStatement = statement
-								filters["user_id"][:values] = user_id #Setting the filter values to retain the filter on page						
+								filters["user_id"][:values] = user_id #Setting the filter values to retain the filter on page
 							else
 								if user_id.is_a?(Array) && user_id.include?("me")
 									filters["user_id"][:values] = [User.current.id.to_s]
@@ -455,8 +456,8 @@ module FttePatch
 						condStatement = condStatement.blank? ? condStatement : "(" + condStatement + ") OR (" + mgrCondStatement + ")"
 					end
 				else
-					#if (!Setting.plugin_redmine_wktime['ftte_view_only_own_spent_time'].blank? && 
-					#Setting.plugin_redmine_wktime['ftte_view_only_own_spent_time'].to_i == 1) && 
+					#if (!Setting.plugin_redmine_wktime['ftte_view_only_own_spent_time'].blank? &&
+					#Setting.plugin_redmine_wktime['ftte_view_only_own_spent_time'].to_i == 1) &&
 					if !isAccountUser && !User.current.admin? && !isManager
 						cond = " (#{TimeEntry.table_name}.user_id = " + User.current.id.to_s + ")"
 						condStatement = condStatement.blank? ? cond : condStatement + " AND #{cond}"
@@ -472,7 +473,7 @@ module FttePatch
 			end
 			condStatement
 		end
-		
+
 	  end
 	end
   end
@@ -483,7 +484,7 @@ Rails.configuration.to_prepare do
 	User.send(:include, FttePatch::UserPatch)
 	# Project.send(:include, FttePatch::ProjectPatch)
 	TimeEntry.send(:include, FttePatch::TimeEntryPatch)
-	
+
 	#if ActiveRecord::Base.connection.table_exists? "#{Setting.table_name}"
 	#	if (!Setting.plugin_redmine_wktime['ftte_override_spent_time_report'].blank? && Setting.plugin_redmine_wktime['ftte_override_spent_time_report'].to_i == 1)
 		#end
@@ -501,7 +502,7 @@ Redmine::Plugin.register :redmine_wktime do
   version '3.3.2'
   url 'http://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
-  
+
   settings(:partial => 'settings',
            :default => {
              'wktime_project_dd_width' => '150',
@@ -525,7 +526,7 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_enter_comment_in_row' => '1',
  			 'wktime_use_detail_popup' => '0',
  			 'wktime_use_approval_system' => '0',
- 			 'wktime_uuto_approve' => '0',			 
+ 			 'wktime_uuto_approve' => '0',
 			 'wktime_submission_ack' => 'I Acknowledge that the hours entered are accurate to the best of my knowledge',
 			 'wktime_enter_cf_in_row1' => '0',
 			 'wktime_enter_cf_in_row2' => '0',
@@ -537,10 +538,10 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_allow_user_filter_tracker' => '0',
 			 'wktime_nonsub_mail_notification' => '0',
 			 'wktime_nonsub_mail_message' => 'You are receiving this notification for timesheet non submission',
-			 'wktime_submission_deadline' => '0',			
+			 'wktime_submission_deadline' => '0',
 			 'wktime_nonsub_sch_hr' => '23',
 			 'wktime_nonsub_sch_min' => '0',
-			 'wkexpense_projects' => [''],			
+			 'wkexpense_projects' => [''],
 			 'wktime_allow_filter_issue' => '0',
 			 'wktime_account_groups' => ['0'],
 			 'wktime_enable_clock_in_out' => '0',
@@ -599,25 +600,25 @@ Redmine::Plugin.register :redmine_wktime do
 			 'ftte_override_spent_time_report' => '0',
 			 'ftte_supervisor_based_approved' => '0',
 			 'ftte_view_only_own_spent_time' => '0'
-  })  
-	menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_erpmine, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 
-  	
+  })
+	menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_erpmine, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission }
+
   project_module :time_tracking do
-	permission :approve_time_entries,  {:wktime => [:update]}, :require => :member	
+	permission :approve_time_entries,  {:wktime => [:update]}, :require => :member
   end
-  
-  
+
+
   Redmine::MenuManager.map :wktime_menu do |menu|
 	  menu.push :wktime, { :controller => 'wktime', :action => 'index' }, :caption => :label_te, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showTimeExpense }
-	  menu.push :wkattendance, { :controller => 'wkattendance', :action => 'index' }, :caption => :label_hr, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && (Object.new.extend(WktimeHelper).showAttendance || Object.new.extend(WktimeHelper).showPayroll || Object.new.extend(WktimeHelper).showShiftScheduling)}	  
+	  menu.push :wkattendance, { :controller => 'wkattendance', :action => 'index' }, :caption => :label_hr, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && (Object.new.extend(WktimeHelper).showAttendance || Object.new.extend(WktimeHelper).showPayroll || Object.new.extend(WktimeHelper).showShiftScheduling)}
 	  menu.push :wklead, { :controller => 'wklead', :action => 'index' }, :caption => :label_crm, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showCRMModule }
 	  menu.push :wkinvoice, { :controller => 'wkinvoice', :action => 'index' }, :caption => :label_wk_billing, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showBilling && Object.new.extend(WktimeHelper).isModuleAdmin('wktime_billing_groups')}
 	  menu.push :wkgltransaction, { :controller => 'wkgltransaction', :action => 'index' }, :caption => :label_accounting, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showAccounting }
 	  menu.push :wkrfq, { :controller => 'wkrfq', :action => 'index' }, :caption => :label_purchasing, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showPurchase }
 	  menu.push :wkproduct, { :controller => 'wkproduct', :action => 'index' }, :caption => :label_inventory, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showInventory }
-	  menu.push :wkreport, { :controller => 'wkreport', :action => 'index' }, :caption => :label_report_plural, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showReports}	
-	  menu.push :wkcrmenumeration, { :controller => 'wkcrmenumeration', :action => 'index' }, :caption => :label_settings, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).hasSettingPerm } 
-	end	
+	  menu.push :wkreport, { :controller => 'wkreport', :action => 'index' }, :caption => :label_report_plural, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showReports}
+	  menu.push :wkcrmenumeration, { :controller => 'wkcrmenumeration', :action => 'index' }, :caption => :label_settings, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).hasSettingPerm }
+	end
 
 end
 
@@ -635,9 +636,9 @@ Rails.configuration.to_prepare do
 				else
 					cronSt = "#{min} #{hr} * * #{submissionDeadline}"
 				end
-				scheduler.cron cronSt do		
+				scheduler.cron cronSt do
 					begin
-						Rails.logger.info "==========Non submission mail job - Started=========="			
+						Rails.logger.info "==========Non submission mail job - Started=========="
 						wktime_helper = Object.new.extend(WktimeHelper)
 						wktime_helper.sendNonSubmissionMail()
 					rescue Exception => e
@@ -646,15 +647,15 @@ Rails.configuration.to_prepare do
 				end
 			end
 		end
-		
+
 		if (!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? && Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1)
 			require 'rufus/scheduler'
 			scheduler2 = Rufus::Scheduler.new
 			#Scheduler will run at 12:01 AM on 1st of every month
 			cronSt = "01 00 01 * *"
-			scheduler2.cron cronSt do		
+			scheduler2.cron cronSt do
 				begin
-					Rails.logger.info "==========Attendance job - Started=========="			
+					Rails.logger.info "==========Attendance job - Started=========="
 					wkattn_helper = Object.new.extend(WkattendanceHelper)
 					wkattn_helper.populateWkUserLeaves(Date.today)
 					Rails.logger.info "==========Attendance job - Completed=========="
@@ -663,16 +664,16 @@ Rails.configuration.to_prepare do
 				end
 			end
 		end
-		
+
 		if (!Setting.plugin_redmine_wktime['wktime_auto_import'].blank? && Setting.plugin_redmine_wktime['wktime_auto_import'].to_i == 1)
 			require 'rufus/scheduler'
-			importScheduler = Rufus::Scheduler.new		
+			importScheduler = Rufus::Scheduler.new
 			import_helper = Object.new.extend(WkimportattendanceHelper)
 			intervalMin = import_helper.calcSchdulerInterval
 			#Scheduler will run at every intervalMin
-			importScheduler.every intervalMin do	
+			importScheduler.every intervalMin do
 				begin
-					Rails.logger.info "==========Import Attendance - Started=========="	
+					Rails.logger.info "==========Import Attendance - Started=========="
 					filePath = Setting.plugin_redmine_wktime['wktime_file_to_import']
 					# Sort the files by modified date ascending order
 					sortedFilesArr = Dir.entries(filePath).sort_by { |x| File.mtime(filePath + "/" +  x) }
@@ -685,14 +686,14 @@ Rails.configuration.to_prepare do
 						if isSuccess
 							FileUtils.mv filePath + "/" + filename, filePath+'/Processed', :force => true
 							Rails.logger.info("====== #{filename} moved processed directory=========")
-						end	
+						end
 					end
 				rescue Exception => e
 					Rails.logger.error "Import failed: #{e.message}"
 				end
 			end
 		end
-		
+
 		if (!Setting.plugin_redmine_wktime['wktime_auto_generate_salary'].blank? && Setting.plugin_redmine_wktime['wktime_auto_generate_salary'].to_i == 1)
 			require 'rufus/scheduler'
 			salaryScheduler = Rufus::Scheduler.new
@@ -705,11 +706,11 @@ Rails.configuration.to_prepare do
 				#Scheduler will run at 12:01 AM on payDay of every week
 				cronSt = "01 00 * * #{payDay}"
 			end
-			salaryScheduler.cron cronSt do		
+			salaryScheduler.cron cronSt do
 				begin
 					currentMonthStart = Date.civil(Date.today.year, Date.today.month, Date.today.day)
 					runJob = true
-					# payperiod is bi-weekly then run scheduler every two weeks 
+					# payperiod is bi-weekly then run scheduler every two weeks
 					if payperiod == 'bw'
 						salaryCount = WkSalary.where("salary_date between '#{currentMonthStart-14}' and '#{currentMonthStart-1}'").count
 						runJob = false if salaryCount > 0
@@ -718,14 +719,14 @@ Rails.configuration.to_prepare do
 						Rails.logger.info "==========Payroll job - Started=========="
 						wkpayroll_helper = Object.new.extend(WkpayrollHelper)
 						errorMsg = wkpayroll_helper.generateSalaries(nil,currentMonthStart)
-						Rails.logger.info "===== Payroll generated Successfully =====" 
+						Rails.logger.info "===== Payroll generated Successfully ====="
 					end
 				rescue Exception => e
 					Rails.logger.info "Job failed: #{e.message}"
 				end
 			end
 		end
-		
+
 		if (!Setting.plugin_redmine_wktime['wktime_auto_generate_invoice'].blank? && Setting.plugin_redmine_wktime['wktime_auto_generate_invoice'].to_i == 1)
 			require 'rufus/scheduler'
 			invoiceScheduler = Rufus::Scheduler.new
@@ -739,7 +740,7 @@ Rails.configuration.to_prepare do
 				#Scheduler will run at 12:01 AM on invDay of every week
 				cronSt = "01 00 * * #{invDay.blank? ? 0 : invDay}"
 			end
-			invoiceScheduler.cron cronSt do		
+			invoiceScheduler.cron cronSt do
 				begin
 					invoicePeriod = nil
 					fromDate = nil
@@ -786,7 +787,7 @@ Rails.configuration.to_prepare do
 				end
 			end
 		end
-		
+
 		if (!Setting.plugin_redmine_wktime['auto_apply_depreciation'].blank? && Setting.plugin_redmine_wktime['auto_apply_depreciation'].to_i == 1)
 			require 'rufus/scheduler'
 			deprScheduler = Rufus::Scheduler.new
@@ -796,27 +797,27 @@ Rails.configuration.to_prepare do
 			depreciationFreq = wkinventory_helper.getFrequencyMonth(Setting.plugin_redmine_wktime['wktime_depreciation_frequency'])
 			#Scheduler will run at 12:01 AM on 1st of every month
 			cronSt = "01 00 01 * *"
-			deprScheduler.cron cronSt do		
+			deprScheduler.cron cronSt do
 				begin
 					unless (( financialStart - Date.today.month + 12)%depreciationFreq) > 0
 						Rails.logger.info "==========Depreciation job - Started=========="
 						depreciation_helper = Object.new.extend(WkassetdepreciationHelper)
 						errorMsg = depreciation_helper.previewOrSaveDepreciation(Date.today - 1, Date.today - 1, nil, false)
-						Rails.logger.info "===== Depreciation applied Successfully =====" 
+						Rails.logger.info "===== Depreciation applied Successfully ====="
 					end
 				rescue Exception => e
 					Rails.logger.info "Job failed: #{e.message}"
 				end
 			end
 		end
-		
+
 		if (!Setting.plugin_redmine_wktime['wk_auto_shift_scheduling'].blank? && Setting.plugin_redmine_wktime['wk_auto_shift_scheduling'].to_i == 1)
 			require 'rufus/scheduler'
 			shiftschedular = Rufus::Scheduler.new
 			#Scheduler will run at 12:01 AM on 1st of every month
-			cronSt = "01 00 01 * *"			
-			shiftschedular.cron cronSt do		
-				begin					
+			cronSt = "01 00 01 * *"
+			shiftschedular.cron cronSt do
+				begin
 					Rails.logger.info "========== Shift Scheduling job - Started=========="
 					scheduling_helper = Object.new.extend(WkschedulingHelper)
 					scheduling_helper.autoShiftScheduling
@@ -830,34 +831,34 @@ Rails.configuration.to_prepare do
 end
 
 class WktimeHook < Redmine::Hook::ViewListener
-	def controller_timelog_edit_before_save(context={ })	
-		wktime_helper = Object.new.extend(WktimeHelper)	
-		if !context[:time_entry].hours.blank? && !context[:time_entry].activity_id.blank?				
-			status = wktime_helper.getTimeEntryStatus(context[:time_entry].spent_on,context[:time_entry].user_id)		
-			if !status.blank? && ('a' == status || 's' == status || 'l' == status)					
+	def controller_timelog_edit_before_save(context={ })
+		wktime_helper = Object.new.extend(WktimeHelper)
+		if !context[:time_entry].hours.blank? && !context[:time_entry].activity_id.blank?
+			status = wktime_helper.getTimeEntryStatus(context[:time_entry].spent_on,context[:time_entry].user_id)
+			if !status.blank? && ('a' == status || 's' == status || 'l' == status)
 				 raise "#{l(:label_warning_wktime_time_entry)}"
-			end			
+			end
 		end
 	end
-	
-	# def view_layouts_base_html_head(context={})	
+
+	# def view_layouts_base_html_head(context={})
 		# wktime_helper = Object.new.extend(WktimeHelper)
 		# host_with_subdir = wktime_helper.getHostAndDir(context[:request])
 		# "<input type='hidden' id='getspenttype_url' value='#{url_for(:controller => 'wklogmaterial', :action => 'loadSpentType', :host => host_with_subdir, :only_path => true)}'>"
-		
-	
+
+
 		# javascript_include_tag('wkstatus', :plugin => 'redmine_wktime') + "\n" +
 		# javascript_include_tag('index', :plugin => 'redmine_wktime') + "\n" +
-		# stylesheet_link_tag('lockwarning', :plugin => 'redmine_wktime')		
-		
-		
+		# stylesheet_link_tag('lockwarning', :plugin => 'redmine_wktime')
+
+
 	# end
-	
-	def view_timelog_edit_form_bottom(context={ })		
+
+	def view_timelog_edit_form_bottom(context={ })
 		showWarningMsg(context[:request],context[:time_entry].user_id, true)
 	end
-	
-	def view_issues_edit_notes_bottom(context={})	
+
+	def view_issues_edit_notes_bottom(context={})
 		showWarningMsg(context[:request], User.current.id, false)
 	end
 
@@ -865,67 +866,67 @@ class WktimeHook < Redmine::Hook::ViewListener
 		wktime_helper = Object.new.extend(WktimeHelper)
 		host_with_subdir = wktime_helper.getHostAndDir(req)
 		"<div id='divError'>
-			<font color='red'></font>		
+			<font color='red'></font>
 		</div>
 		<input type='hidden' id='getstatus_url' value='#{url_for(:controller => 'wktime', :action => 'getStatus', :host => host_with_subdir, :only_path => true, :user_id => user_id)}'>
 		<input type='hidden' id='getissuetracker_url' value='#{url_for(:controller => 'wktime', :action => 'getTracker', :host => host_with_subdir, :only_path => true)}'>
 		<input type='hidden' id='log_time_page' value='#{log_time_page}'>
 		<input type='hidden' id='label_issue_warn' value='#{l(:label_warning_wktime_issue_tracker)}'>
 		<input type='hidden' id='label_time_warn' value='#{l(:label_warning_wktime_time_entry)}'>"
-	end	
-		
-	def controller_issues_edit_before_save(context={})	
+	end
+
+	def controller_issues_edit_before_save(context={})
 		if !context[:time_entry].blank?
 			if !context[:time_entry].hours.blank? && !context[:time_entry].activity_id.blank?
-				wktime_helper = Object.new.extend(WktimeHelper)				
-				status= wktime_helper.getTimeEntryStatus(context[:time_entry].spent_on,context[:time_entry].user_id)		
-				if !status.blank? && ('a' == status || 's' == status || 'l' == status)				
-					 raise "#{l(:label_warning_wktime_time_entry)}"					
-				end			
-			end	
+				wktime_helper = Object.new.extend(WktimeHelper)
+				status= wktime_helper.getTimeEntryStatus(context[:time_entry].spent_on,context[:time_entry].user_id)
+				if !status.blank? && ('a' == status || 's' == status || 'l' == status)
+					 raise "#{l(:label_warning_wktime_time_entry)}"
+				end
+			end
 		end
 	end
-	render_on :view_layouts_base_content, :partial => 'wktime/attendance_widget'	
+	render_on :view_layouts_base_content, :partial => 'wktime/attendance_widget'
 	render_on :view_timelog_edit_form_bottom, :partial => 'wklogmaterial/log_material'
 	render_on :view_users_form, :partial => 'wkuser/wk_user', locals: { myaccount: false }
 	render_on :view_users_form_preferences, :partial => 'wkuser/wk_user_address', locals: { myaccount: false }
 	render_on :view_my_account, :partial => 'wkuser/wk_user', locals: { myaccount: true }
 	render_on :view_my_account_preferences, :partial => 'wkuser/wk_user_address', locals: { myaccount: true }
 	render_on :view_issues_form_details_bottom, :partial => 'wkissues/wk_issue_fields'
-	
+
 	def controller_issues_edit_before_save(context={})
 		saveErpmineIssues(context[:issue], context[:params][:erpmineissues])
 		saveErpmineIssueAssignee(context[:issue], context[:issue][:project_id], context[:params][:wk_issue_assignee])
 	end
-	
-	def controller_issues_new_before_save(context={})	
+
+	def controller_issues_new_before_save(context={})
 		saveErpmineIssues(context[:issue], context[:params][:erpmineissues])
 		saveErpmineIssueAssignee(context[:issue], context[:issue][:project_id], context[:params][:wk_issue_assignee])
 	end
-	
+
 	def saveErpmineIssues(issueObj, issueParm)
 		issueObj.erpmineissues.safe_attributes = issueParm
 	end
-	
-	def saveErpmineIssueAssignee(issueObj, projectId, userIdArr)		
+
+	def saveErpmineIssueAssignee(issueObj, projectId, userIdArr)
 		 assigneeAttributes = Array.new
 		# userIdArr.each do |userId|
-			# assigneeAttributes << {user_id: userId.to_i, project_id: projectId}			
+			# assigneeAttributes << {user_id: userId.to_i, project_id: projectId}
 		# end
-		# issueObj.assignees_attributes = assigneeAttributes		
+		# issueObj.assignees_attributes = assigneeAttributes
 		WkIssueAssignee.where(:issue_id => issueObj.id).where.not(:user_id => userIdArr).delete_all()
 		unless userIdArr.blank?
-			userIdArr.collect{ |id| 
+			userIdArr.collect{ |id|
 				iscount = WkIssueAssignee.where("issue_id = ? and user_id = ? ", issueObj.id, id).count
 				unless iscount > 0
 					assigneeAttributes << {user_id: id.to_i, project_id: projectId}
-				end						
+				end
 			}
 		end
-		issueObj.assignees_attributes = assigneeAttributes	
+		issueObj.assignees_attributes = assigneeAttributes
 	end
-	
+
 	render_on :view_issues_show_description_bottom, :partial => 'wkissues/show_wk_issues'
 	render_on :view_layouts_base_html_head, :partial => 'wkbase/base_header'
-		
+
 end
