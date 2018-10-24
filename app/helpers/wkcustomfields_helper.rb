@@ -10,8 +10,16 @@ include WktimeHelper
   end
 
   def options_for_project_select
-    return_arr = []
-    Project.all do |p|
+    return_arr = [['','']]
+    User.current.projects.select(:id, :name).each do |p|
+      return_arr << [p.name,p.id]
+    end
+    return_arr
+  end
+
+  def options_for_document_type_select
+    return_arr = [['','']]
+    Enumeration.where(type: "DocumentCategory").each do |p|
       return_arr << [p.name,p.id]
     end
     return_arr

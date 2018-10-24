@@ -1,100 +1,134 @@
-<% if !entry.nil? and entry.custom_values.any? %>
 
+<% if wcf.any? %>
+<%= javascript_tag do %>
+function get_project(event, link_id, select_id){
+  event.preventDefault();
+  var projectId = $('#'+select_id).val();
+  if(projectId == ''){
+    alert("<%= l':you_have_to_pick_project' %>");
+  }else{
+    var link = $('#'+link_id).attr("href");
+    var newLink = link.replace('project_id', projectId);
+    window.open(newLink, "_self");
+  }
+};
+<% end %>
 </br>
   <div id="relations" class="relations">
     <% wcfse = wcf.map(&:display_as).uniq %>
     <% wcfse.each do |wcfs| %>
-      <% if entry.custom_values.where(custom_field_id: wcf.where(display_as: wcfs).map(&:custom_fields_id)).any? %>
          <label><%= wcfs %></label>
          <div>
            <div class="wk-contextual">
-               <%= link_to l(:label_new_item, l(:label_document_plural)), url_for(controller: "documents", action: "new", project_id: "1"), class: 'icon icon-time-add' %>
-               <%= select_tag("project_for_#{wcfs}", options_for_select(options_for_project_select)) %>
+            <% wcf.where(display_as: wcfs).each do |wkcustomfield| %>
+              <% if wkcustomfield.render_creation %>
+                <% case CustomField.where(id: wkcustomfield.custom_fields_id).first.type %>
+                <% when "DocumentCustomField" %>
+                  <% link_id = 'new_document_link_for_' + wkcustomfield.id.to_s %>
+                  <% select_id = 'project_for_' + wkcustomfield.id.to_s %>
+                  <% disabled = !wkcustomfield.allow_users_change_project %>
+                  <%= link_to l(:label_document_new) + ' ' + l(:label_in) + ' ' + wkcustomfield.custom_field.name.to_s , url_for(controller: "documents", action: "new", project_id: 'project_id', "document[custom_field_values][#{wkcustomfield.custom_field.id.to_s}]" => entry.id, :continue => true, :back_url => request.fullpath), class: 'icon icon-time-add', id: link_id, onclick: "get_project(event, '#{link_id}', '#{select_id}')".html_safe %>
+                  <%= select_tag(select_id, options_for_select(options_for_project_select, selected: wkcustomfield.projects_id), disabled: disabled ) %>
+                <% when "IssueCustomField" %>
+                  <% link_id = 'new_issue_link_for_' + wkcustomfield.id.to_s %>
+                  <% select_id = 'project_for_' + wkcustomfield.id.to_s %>
+                  <% disabled = !wkcustomfield.allow_users_change_project %>
+                  <%= link_to l(:label_issue_new) + ' ' + l(:label_in) + ' ' + wkcustomfield.custom_field.name.to_s, url_for(controller: "issues", action: "new", project_id: 'project_id', "issue[custom_field_values][#{wkcustomfield.custom_field.id.to_s}]" => entry.id, :continue => true, :back_url => request.fullpath), class: 'icon icon-time-add', id: link_id, onclick: "get_project(event, '#{link_id}', '#{select_id}')".html_safe %>
+                  <%= select_tag(select_id, options_for_select(options_for_project_select, selected: wkcustomfield.projects_id), disabled: disabled ) %>
+                <% when "VersionCustomField" %>
+                  <% link_id = 'new_version_link_for_' + wkcustomfield.id.to_s %>
+                  <% select_id = 'project_for_' + wkcustomfield.id.to_s %>
+                  <% disabled = !wkcustomfield.allow_users_change_project %>
+                  <%= link_to l(:label_version_new) + ' ' + l(:label_in) + ' ' + wkcustomfield.custom_field.name.to_s, url_for(controller: "versions", action: "new", project_id: 'project_id', "version[custom_field_values][#{wkcustomfield.custom_field.id.to_s}]" => entry.id, :continue => true, :back_url => request.fullpath), class: 'icon icon-time-add', id: link_id, onclick: "get_project(event, '#{link_id}', '#{select_id}')".html_safe %>
+                  <%= select_tag(select_id, options_for_select(options_for_project_select, selected: wkcustomfield.projects_id), disabled: disabled ) %>
+                <% else %>
+                <% end %>
+              <% end %>
+            <% end %>
            </div>
          <table class="list">
            <thead>
                 <tr>
                  <th class="lbl-txt-align"><%= l(:label_custom_field) %></th>
-                 <th class="lbl-txt-align"><%= l(:label_crm) %></th>
                  <th class="lbl-txt-align"><%= l(:label_relates_to) %></th>
                  <th></th>
+                 <th class="lbl-txt-align"><%= l(:field_updated_on) %></th>
                 </tr>
            </thead>
             <tbody>
-              <% wcf.where(display_as: wcfs).each do |section_values| %>
-                <% entry.custom_values.where(custom_field_id: section_values.custom_fields_id).each do |wcv| %>
+              <% @customValues[wcfs].each do |wcv| %>
                 <tr>
-                  <td class="lbl-txt-align"><%= section_values.custom_field.name %></td>
-                  <td class="lbl-txt-align">
-                    <% if wcv.custom_field.field_format == "company" %>
-                      <%= l(:label_accounts) %>
-                    <% elsif wcv.custom_field.field_format == "wk_lead" %>
-                      <%= l(:label_lead_plural) %>
-                    <% elsif wcv.custom_field.field_format == "crm_contact" %>
-                      <%= l(:label_contact_plural) %>
-                    <% end %>
-                  </td>
+                  <td class="lbl-txt-align"><%= wcv.custom_field.name %></td>
                   <td class="lbl-txt-align">
                     <% if wcv.custom_field.type == "IssueCustomField" %>
                       <%= l(:field_issue) %>
                     </td> <% related_value =  relationDict['issue'].find(wcv.customized_id) %>
                     <td><%= link_to related_value.subject, related_value %></td>
+                    <td><%= format_time(related_value.updated_on) %></td>
                     <% elsif wcv.custom_field.type == "TimeentryCustomField" %>
                       <%= l(:label_spent_time) %>
                     </td> <% related_value = relationDict['spent_time'].find(wcv.customized_id) %>
                     <td><%= link_to "time entry: #{related_value.id.to_s}", related_value %></td>
+                    <td><%= format_time(related_value.updated_on) %></td>
                     <% elsif wcv.custom_field.type == "ProjectCustomField" %>
                       <%= l(:label_project_plural) %>
                     </td><% related_value = relationDict['project'].find(wcv.customized_id) %>
                     <td><%= link_to related_value.name, related_value %></td>
+                    <td><%= format_time(related_value.updated_on) %></td>
                     <% elsif wcv.custom_field.type == "VersionCustomField" %>
                       <%= l(:label_version_plural) %>
                     </td><% related_value = relationDict['version'].find(wcv.customized_id) %>
                     <td><%= link_to related_value.name, related_value %></td>
+                    <td><%= format_time(related_value.updated_on) %></td>
                     <% elsif wcv.custom_field.type == "DocumentCustomField" %>
                       <%= l(:label_document_plural) %>
                     </td><% related_value = relationDict['document'].find(wcv.customized_id) %>
                     <td><%= link_to related_value.title, related_value %></td>
+                    <td><%= format_time(related_value.updated_on) %></td>
                     <% elsif wcv.custom_field.type == "UserCustomField" %>
                       <%= l(:label_user_plural) %>
                     </td><% related_value = relationDict['user'].find(wcv.customized_id) %>
                     <td><%= link_to related_value.name, related_value %></td>
+                    <td><%= format_time(related_value.updated_on) %></td>
                     <% elsif wcv.custom_field.type == "GroupCustomField" %>
                       <%= l(:label_group_plural) %>
                     </td><% related_value = relationDict['group'].find(wcv.customized_id) %>
                     <td><%= link_to related_value.name, related_value %></td>
+                    <td><%= format_time(related_value.updated_on) %></td>
                     <% elsif wcv.custom_field.type == "TimeentryActivityCustomField" %>
                       <%= l(:enumeration_activities) %>
                     </td><% related_value = relationDict['time_entry_activity'].find(wcv.customized_id) %>
                     <td><%= link_to related_value.name, related_value %></td>
+                    <td><%= format_time(related_value.updated_on) %></td>
                     <% elsif wcv.custom_field.type == "IssuePriorityCustomField" %>
                       <%= l(:enumeration_issue_priorities) %>
                     </td><% related_value = relationDict['issue_priority'].find(wcv.customized_id) %>
                     <td><%= link_to related_value.name, related_value %></td>
+                    <td><%= format_time(related_value.updated_on) %></td>
                     <% elsif wcv.custom_field.type == "DocumentCategoryCustomField" %>
                       <%= l(:enumeration_doc_categories) %>
                     </td><% related_value = relationDict['document_category'].find(wcv.customized_id) %>
                     <td><%= link_to related_value.name, related_value %></td>
+                    <td><%= format_time(related_value.updated_on) %></td>
                     <% elsif wcv.custom_field.type == "WktimeCustomField" %>
                       <%= l(:label_wk_time) %>
                     </td><% related_value = relationDict['wktime'].find(wcv.customized_id) %>
                     <td><%= link_to "wk time: #{related_value.id.to_s}", related_value %></td>
+                    <td><%= format_time(related_value.updated_on) %></td>
                     <% else %>
-                      error
                     </td>
-                    <td>dunno</td>
+                    <td></td>
+                    <td></td>
                     <% end %>
                 </tr>
-                <% end %>
           <% end %>
         </tbody>
       </table>
+      <span class="pagination"><%= pagination_links_full @cv_entry_pages[wcfs], @cv_entry_count[wcfs] %></span>
     </div>
-      <% end %>
     <% end %>
 </div>
-<% end %>
-
 <script>
 $( "#relations" ).accordion();
 </script>
+<% end %>

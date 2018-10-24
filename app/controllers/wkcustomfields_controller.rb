@@ -13,7 +13,6 @@ class WkcustomfieldsController < ApplicationController
     wkcustomfields = nil
     if !wcfName.blank?
       wkcustomfields = WkCustomField.where("LOWER(display_as) like LOWER(?) ", "%#{wcfName}%")
-
     else
       wkcustomfields = WkCustomField.all
     end
@@ -49,9 +48,13 @@ class WkcustomfieldsController < ApplicationController
 		    wcfObj = WkCustomField.find(params[:wcf_id].to_i)
 		end
 		wcfObj.display_as = params[:display_as]
-    unless params[:custom_fields_id].blank?
-		  wcfObj.custom_fields_id = params[:custom_fields_id].to_i
-    end
+	  wcfObj.custom_fields_id = params[:custom_fields_id]
+    wcfObj.render_creation = params[:render_creation]
+    wcfObj.allow_users_change_project = params[:allow_users_change_project]
+    wcfObj.projects_id = params[:projects_id]
+    wcfObj.enumerations_id = params[:enumerations_id]
+    wcfObj.allow_users_change_enumeration = params[:allow_users_change_enumeration]
+
 		unless wcfObj.valid?
 			errorMsg = errorMsg.blank? ? wcfObj.errors.full_messages.join("<br>") : wcfObj.errors.full_messages.join("<br>") + "<br/>" + errorMsg
 		end
@@ -61,7 +64,7 @@ class WkcustomfieldsController < ApplicationController
 		    flash[:notice] = l(:notice_successful_update)
 		else
 			flash[:error] = errorMsg
-		    redirect_to :controller => controller_name,:action => 'edit', :id => wcfObj.id
+		    redirect_to :controller => controller_name, :action => 'edit', :wcf_id => wcfObj.id
 		end
   end
 

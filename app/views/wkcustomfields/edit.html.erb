@@ -5,8 +5,12 @@
 	function wkcustomfield_selected(selObj){
 			if(<%= custom_fields_of_type_ids('DocumentCustomField') %>.indexOf(parseInt(selObj.value)) !== -1){
 				$('#SpecificSettings').html(`<%= render :partial => "wkcustomfields/documents", locals: {wkcustomfields: @wkcustomfields, wcfEntry: @wcfEntry} %>`);
+			}else if (<%= custom_fields_of_type_ids('IssueCustomField') %>.indexOf(parseInt(selObj.value)) !== -1){
+				$('#SpecificSettings').html(`<%= render :partial => "wkcustomfields/issues", locals: {wkcustomfields: @wkcustomfields, wcfEntry: @wcfEntry} %>`);
+			}else if (<%= custom_fields_of_type_ids('VersionCustomField') %>.indexOf(parseInt(selObj.value)) !== -1){
+				$('#SpecificSettings').html(`<%= render :partial => "wkcustomfields/versions", locals: {wkcustomfields: @wkcustomfields, wcfEntry: @wcfEntry} %>`);
 			}else {
-				$('#SpecificSettings').html(`<%= render :partial => "wkcustomfields/nondocuments", locals: {wkcustomfields: @wkcustomfields, wcfEntry: @wcfEntry} %>`);
+				$('#SpecificSettings').html('');
 			}
 	}
 	$( document ).ready(function(){
@@ -37,7 +41,7 @@
 	</div>
 	<div class="splitcontentright">
 		<fieldset id="SpecificSettings" class="box tabular">
-			Something went wrong. Do you block javascripts?
+
 		</fieldset>
 	</div>
 	<div style="clear:both;"></div>

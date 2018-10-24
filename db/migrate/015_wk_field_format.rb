@@ -12,7 +12,7 @@ class WkFieldFormat < ActiveRecord::Migration
   end
 
   def self.down
-    drop_table :wk_custom_fields
     CustomField.where(field_format: ["company","wk_lead","crm_contact"]).destroy_all
+    drop_table :wk_custom_fields
   end
 end

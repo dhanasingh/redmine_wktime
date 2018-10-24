@@ -1,1 +1,24 @@
-jest dokumentem
+<table>
+  <tr>
+    <th align="left"><%= l(:label_display_creation) %>:</th>
+    <% @wcfEntry.blank? ? render_is_checked = false : render_is_checked = @wcfEntry.render_creation %>
+    <td align="left" style="padding-left:40px;"><%=h check_box_tag('render_creation', '1', checked = render_is_checked ) %> </td>
+  </tr>
+  <tr>
+    <th align="left"><%= l(:label_users_can_pick_project) %>:</th>
+    <% wcfEntry.blank? ? is_project_checked = false : is_project_checked = wcfEntry.allow_users_change_project %>
+    <td align="left" style="padding-left:40px;"><%=h check_box_tag('allow_users_change_project', '1', checked = is_project_checked ) %> </td>
+  </tr>
+    <th align="left"><%= l(:label_default_project) %>:</th>
+    <td align="left" style="padding-left:40px;"><%=h select_tag( 'projects_id', options_for_select(options_for_project_select, wcfEntry.blank? ? '' : wcfEntry.projects_id))%></td>
+  </tr>
+  <tr>
+    <th align="left"><%= l(:label_users_can_pick_document_type) %>:</th>
+    <% wcfEntry.blank? ? is_doc_type_checked = false : is_doc_type_checked = wcfEntry.allow_users_change_enumeration %>
+    <td align="left" style="padding-left:40px;"><%=h check_box_tag("allow_users_change_enumeration", '1', checked = is_doc_type_checked) %> </td>
+  </tr>
+  <tr>
+    <th align="left"><%= l(:label_default_document_type) %>:</th>
+    <td align="left" style="padding-left:40px;"><%=h select_tag( 'enumerations_id', options_for_select(options_for_document_type_select, wcfEntry.blank? ? '' : wcfEntry.enumerations_id))%></td>
+  </tr>
+</table>

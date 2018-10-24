@@ -19,4 +19,5 @@ module WkaccountHelper
 include WktimeHelper
 include WkinvoiceHelper
 include WkcrmenumerationHelper
+include WkcustomfieldsHelper
 end

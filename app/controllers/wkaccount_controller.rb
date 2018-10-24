@@ -16,10 +16,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkaccountController < WkcrmController
-
 before_filter :require_login
 include WkcustomfieldsHelper
-
     def index
 		@account_entries = nil
 		if params[:accountname].blank?
@@ -32,6 +30,28 @@ include WkcustomfieldsHelper
 		end
 		formPagination(entries)
     end
+
+  def customValuesPagination(entries, wkcustomfield_id)
+    @cv_entry_count[wkcustomfield_id] = entries.count
+    setCustomValuesLimitAndOffset(wkcustomfield_id)
+    @customValues[wkcustomfield_id] = entries.limit(@limit).offset(@offset)
+  end
+
+  def setCustomValuesLimitAndOffset(wkcustomfield_id)
+    if api_request?
+      @offset, @limit = api_offset_and_limit
+      if !params[:limit].blank?
+        @limit = params[:limit]
+      end
+      if !params[:offset].blank?
+        @offset = params[:offset]
+      end
+    else
+      @cv_entry_pages[wkcustomfield_id] = Paginator.new @cv_entry_count[wkcustomfield_id], per_page_option, params["page#{wkcustomfield_id}"]
+      @limit = @cv_entry_pages[wkcustomfield_id].per_page
+      @offset = @cv_entry_pages[wkcustomfield_id].offset
+    end
+  end
 
 	def formPagination(entries)
 		@entry_count = entries.count
@@ -56,14 +76,21 @@ include WkcustomfieldsHelper
    end
 
    	def edit
+      @cv_entry_count = {}
+      @cv_entry_pages = {}
 	    @accountEntry = nil
       @wcf = nil
       @relationDict = nil
-
+      @customValues = {}
 		  unless params[:account_id].blank?
 		    @accountEntry = WkAccount.find(params[:account_id])
         @wcf = WkCustomField.where(custom_fields_id: CustomField.where(field_format: "company"))
+        @wcf.map(&:display_as).uniq.each do |section|
+          custom_value_entries = @accountEntry.custom_values.where(custom_field_id: WkCustomField.where(display_as: section).map(&:custom_fields_id).uniq)
+          customValuesPagination(custom_value_entries, section)
+        end
         @relationDict = getRelationDict(@accountEntry)
+        @options_for_project_select = options_for_project_select
 		  end
     end
 

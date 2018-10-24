@@ -162,7 +162,7 @@ module Redmine
       end
 
       def possible_values_records(custom_field, object=nil)
-        target_class.joins("INNER JOIN wk_accounts ON wk_accounts.id = wk_crm_contacts.account_id").select("wk_crm_contacts.first_name, wk_crm_contacts.last_name, wk_crm_contacts.id", "wk_accounts.name AS acc_name").where("wk_crm_contacts.account_id is not null").order("first_name ASC, last_name ASC")
+        target_class.joins("LEFT JOIN wk_accounts ON wk_accounts.id = wk_crm_contacts.account_id").select("wk_crm_contacts.first_name, wk_crm_contacts.last_name, wk_crm_contacts.id", "wk_accounts.name AS acc_name").order("first_name ASC, last_name ASC")
       end
 
       def insert_company(name)
