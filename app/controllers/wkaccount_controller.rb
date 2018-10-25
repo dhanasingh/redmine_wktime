@@ -47,7 +47,7 @@ include WkcustomfieldsHelper
         @offset = params[:offset]
       end
     else
-      @cv_entry_pages[wkcustomfield_id] = Paginator.new @cv_entry_count[wkcustomfield_id], per_page_option, params["page#{wkcustomfield_id}"]
+      @cv_entry_pages[wkcustomfield_id] = Paginator.new @cv_entry_count[wkcustomfield_id], per_page_option, params["pagewk#{wkcustomfield_id}"], "pagewk#{wkcustomfield_id}"
       @limit = @cv_entry_pages[wkcustomfield_id].per_page
       @offset = @cv_entry_pages[wkcustomfield_id].offset
     end
