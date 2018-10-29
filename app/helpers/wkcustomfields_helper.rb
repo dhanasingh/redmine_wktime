@@ -89,4 +89,42 @@ include WktimeHelper
     returnDict
   end
 
+  def customValuesPagination(entries, wkcustomfield_id, sort_by)
+    @cv_entry_count[wkcustomfield_id] = entries.count
+    setCustomValuesLimitAndOffset(wkcustomfield_id)
+    order_by = sort_by.split('-')[0]
+    if sort_by.split('-')[1].eql? 'desc'
+      order = 'desc'
+    else
+      order = 'asc'
+    end
+    case order_by
+    when 'custom_field'
+      entries = entries.order("custom_field_id " + order)
+    when 'customized_type'
+      entries = entries.order("customized_type " + order)
+    when 'name'
+      entries = entries.joins("LEFT JOIN issues AS i ON custom_values.customized_id = i.id AND custom_values.customized_type='Issue'").joins("LEFT JOIN projects AS p ON custom_values.customized_id = p.id AND custom_values.customized_type='Project'").joins("LEFT JOIN documents AS d ON custom_values.customized_id = d.id AND custom_values.customized_type='Document'").joins("LEFT JOIN time_entries AS t ON custom_values.customized_type='TimeEntry' AND t.id=custom_values.customized_id").joins("LEFT JOIN versions AS v ON custom_values.customized_type='Version' and v.id=custom_values.customized_id").order("COALESCE(i.subject, p.name, d.title, v.name) " + order)
+    else
+      entries = entries.joins("LEFT JOIN issues AS i ON custom_values.customized_id = i.id AND custom_values.customized_type='Issue'").joins("LEFT JOIN projects AS p ON custom_values.customized_id = p.id AND custom_values.customized_type='Project'").joins("LEFT JOIN documents AS d ON custom_values.customized_id = d.id AND custom_values.customized_type='Document'").joins("LEFT JOIN time_entries AS t ON custom_values.customized_type='TimeEntry' AND t.id=custom_values.customized_id").joins("LEFT JOIN versions AS v ON custom_values.customized_type='Version' and v.id=custom_values.customized_id").order("COALESCE(i.updated_on, p.updated_on, d.created_on, t.updated_on, v.updated_on) " + order)
+    end
+    @customValues[wkcustomfield_id] = entries.limit(@limit).offset(@offset)
+  end
+
+  def setCustomValuesLimitAndOffset(wkcustomfield_id)
+    if api_request?
+      @offset, @limit = api_offset_and_limit
+      if !params[:limit].blank?
+        @limit = params[:limit]
+      end
+      if !params[:offset].blank?
+        @offset = params[:offset]
+      end
+    else
+      @cv_entry_pages[wkcustomfield_id] = Paginator.new @cv_entry_count[wkcustomfield_id], per_page_option, params["pagewk#{wkcustomfield_id}"], "pagewk#{wkcustomfield_id}"
+      @limit = @cv_entry_pages[wkcustomfield_id].per_page
+      @offset = @cv_entry_pages[wkcustomfield_id].offset
+    end
+  end
+
 end

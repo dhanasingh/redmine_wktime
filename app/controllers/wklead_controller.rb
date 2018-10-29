@@ -96,6 +96,12 @@ class WkleadController < WkcrmController
     unless params[:lead_id].blank?
   		@lead = WkLead.find(params[:lead_id])
       @wcf = WkCustomField.where(custom_fields_id: CustomField.where(field_format: "wk_lead"))
+      @wcf.map(&:display_as).uniq.each do |section|
+        custom_value_entries = @lead.custom_values.where(custom_field_id: WkCustomField.where(display_as: section).map(&:custom_fields_id).uniq)
+        sortCustomValuesBy = params["sort_#{section}_by"].nil? ? 'date' : params["sort_#{section}_by"]
+        @sort_by[section] = sortCustomValuesBy
+        customValuesPagination(custom_value_entries, section, sortCustomValuesBy)
+      end
       @relationDict = getRelationDict(@lead)
   	end
 	end
