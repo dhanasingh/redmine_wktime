@@ -1,20 +1,56 @@
 
 <% if wcf.any? %>
 <%= javascript_tag do %>
-function get_project(event, link_id, select_id){
-  event.preventDefault();
-  var projectId = $('#'+select_id).val();
-  if(projectId == ''){
-    alert("<%= l':you_have_to_pick_project' %>");
-  }else{
-    var link = $('#'+link_id).attr("href");
+$( document ).ready(function() {
+
+  $(".new_related").mousedown(function(event){
+      event.preventDefault();
+      if (event.button == 1){
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+      }
+      console.log(event);
+      mouseDownFired = true;
+      var input = $( this );
+      console.log('Im here');
+      var projectId = $('#project_for_'+this.id.split("for_")[1]).val();
+      if(projectId == ''){
+        alert("<%= l(:label_you_have_to_pick_project) %>");
+        return false;
+      }
+      var link = input.attr("href");
+      var newLink = link.replace('project_id', projectId);
+      if(event.which === 1){
+        return;
+      }else if (event.which === 2){
+        window.open(newLink)
+      }
+  });
+
+  $(".new_related").mousedown(function(event){
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+    event.preventDefault();
+    return false;
+  });
+
+  $(".new_related").click(function(event){
+    event.preventDefault();
+    var input = $( this );
+    console.log("im here");
+    var projectId = $('#project_for_'+this.id.split("for_")[1]).val();
+    if(projectId == ''){
+      return;
+    }
+    var link = input.attr("href");
     var newLink = link.replace('project_id', projectId);
-    if(event.which === 1){
-      window.open(newLink, "_self");}
-    else if(event.which === 2){
-      window.open(newLink);}
-  }
-};
+    window.open(newLink, "_self");
+    if(mouseDownFired){
+      mouseDownFired = false;
+      return;
+    }
+  });
+});
 <% end %>
 </br>
   <div id="relations" class="relations">
@@ -31,20 +67,26 @@ function get_project(event, link_id, select_id){
                   <% select_id = 'project_for_' + wkcustomfield.id.to_s %>
                   <% doc_type = wkcustomfield.enumeration.nil? ? '' : wkcustomfield.enumeration %>
                   <% disabled = !wkcustomfield.allow_users_change_project %>
-                  <%= link_to l(:label_document_new) + ' ' + l(:label_relates_to) + ' ' + wkcustomfield.custom_field.name.to_s + ' ' + l(:label_in) , url_for(controller: "documents", action: "new", project_id: 'project_id', "document[custom_field_values][#{wkcustomfield.custom_field.id.to_s}]" => entry.id, :continue => true, "document[enumeration]" => doc_type, :back_url => request.fullpath), class: 'icon icon-time-add new_related', id: link_id, onmousedown: "get_project(event, '#{link_id}', '#{select_id}')".html_safe, onclick: "get_project(event, '#{link_id}', '#{select_id}')".html_safe %>
-                  <%= select_tag(select_id, options_for_select(options_for_project_select, selected: wkcustomfield.projects_id), disabled: disabled ) %>
+                  <div>
+                    <%= link_to l(:label_document_new) + ' ' + l(:label_relates_to) + ' ' + wkcustomfield.custom_field.name.to_s + ' ' + l(:label_in) , url_for(controller: "documents", action: "new", project_id: 'project_id', "document[custom_field_values][#{wkcustomfield.custom_field.id.to_s}]" => entry.id, :continue => true, "document[enumeration]" => doc_type, :back_url => request.fullpath), class: 'icon icon-time-add new_related', id: link_id %>
+                    <%= select_tag(select_id, options_for_select(options_for_project_select, selected: wkcustomfield.projects_id), disabled: disabled ) %>
+                  </div>
                 <% when "IssueCustomField" %>
                   <% link_id = 'new_issue_link_for_' + wkcustomfield.id.to_s %>
                   <% select_id = 'project_for_' + wkcustomfield.id.to_s %>
                   <% disabled = !wkcustomfield.allow_users_change_project %>
-                  <%= link_to l(:label_issue_new) + ' ' + l(:label_relates_to) + ' ' + wkcustomfield.custom_field.name.to_s + ' ' + l(:label_in), url_for(controller: "issues", action: "new", project_id: 'project_id', "issue[custom_field_values][#{wkcustomfield.custom_field.id.to_s}]" => entry.id, :continue => true, :back_url => request.fullpath), class: 'icon icon-time-add new_related', id: link_id, onmousedown: "get_project(event, '#{link_id}', '#{select_id}')".html_safe, onclick: "get_project(event, '#{link_id}', '#{select_id}')".html_safe %>
-                  <%= select_tag(select_id, options_for_select(options_for_project_select, selected: wkcustomfield.projects_id), disabled: disabled ) %>
+                  <div>
+                    <%= link_to l(:label_issue_new) + ' ' + l(:label_relates_to) + ' ' + wkcustomfield.custom_field.name.to_s + ' ' + l(:label_in), url_for(controller: "issues", action: "new", project_id: 'project_id', "issue[custom_field_values][#{wkcustomfield.custom_field.id.to_s}]" => entry.id, :continue => true, :back_url => request.fullpath), class: 'icon icon-time-add new_related', id: link_id %>
+                    <%= select_tag(select_id, options_for_select(options_for_project_select, selected: wkcustomfield.projects_id), disabled: disabled ) %>
+                  </div>
                 <% when "VersionCustomField" %>
                   <% link_id = 'new_version_link_for_' + wkcustomfield.id.to_s %>
                   <% select_id = 'project_for_' + wkcustomfield.id.to_s %>
                   <% disabled = !wkcustomfield.allow_users_change_project %>
-                  <%= link_to l(:label_version_new) + ' ' + l(:label_relates_to) + ' ' + wkcustomfield.custom_field.name.to_s + ' ' + l(:label_in), url_for(controller: "versions", action: "new", project_id: 'project_id', "version[custom_field_values][#{wkcustomfield.custom_field.id.to_s}]" => entry.id, :continue => true, :back_url => request.fullpath), class: 'icon icon-time-add new_related', id: link_id, onmousedown: "get_project(event, '#{link_id}', '#{select_id}')".html_safe, onclick: "get_project(event, '#{link_id}', '#{select_id}')".html_safe %>
-                  <%= select_tag(select_id, options_for_select(options_for_project_select, selected: wkcustomfield.projects_id), disabled: disabled ) %>
+                  <div>
+                    <%= link_to l(:label_version_new) + ' ' + l(:label_relates_to) + ' ' + wkcustomfield.custom_field.name.to_s + ' ' + l(:label_in), url_for(controller: "versions", action: "new", project_id: 'project_id', "version[custom_field_values][#{wkcustomfield.custom_field.id.to_s}]" => entry.id, :continue => true, :back_url => request.fullpath), class: 'icon icon-time-add new_related', id: link_id %>
+                    <%= select_tag(select_id, options_for_select(options_for_project_select, selected: wkcustomfield.projects_id), disabled: disabled ) %>
+                  </div>
                 <% else %>
                 <% end %>
               <% end %>
