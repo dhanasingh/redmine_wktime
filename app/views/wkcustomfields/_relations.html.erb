@@ -5,10 +5,8 @@ $( document ).ready(function() {
 
   $(".new_related").mousedown(function(event){
       event.preventDefault();
-      if (event.button == 1){
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-      }
+      event.stopImmediatePropagation();
+      event.stopPropagation();
       console.log(event);
       mouseDownFired = true;
       var input = $( this );
@@ -27,7 +25,7 @@ $( document ).ready(function() {
       }
   });
 
-  $(".new_related").mousedown(function(event){
+  $(".new_related").mouseup(function(event){
     event.stopImmediatePropagation();
     event.stopPropagation();
     event.preventDefault();
@@ -36,6 +34,8 @@ $( document ).ready(function() {
 
   $(".new_related").click(function(event){
     event.preventDefault();
+    event.stopImmediatePropagation();
+    event.stopPropagation();
     var input = $( this );
     console.log("im here");
     var projectId = $('#project_for_'+this.id.split("for_")[1]).val();
