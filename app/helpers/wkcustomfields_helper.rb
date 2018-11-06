@@ -9,6 +9,24 @@ include WktimeHelper
     CustomField.where(type: type, field_format: ['crm_contact', 'wk_lead', 'company']).ids
   end
 
+  def options_for_section_custom_field(section)
+    return_arr = [['','']]
+    WkCustomField.where(display_as: section).all.each do |wcf|
+      return_arr << [wcf.custom_field.name, wcf.custom_fields_id]
+    end
+    return_arr
+  end
+
+  def options_for_section_related_to(section)
+    return_arr = [['','']]
+    CustomField.where(id: WkCustomField.where(display_as: section).map(&:custom_fields_id)).map(&:type).uniq.each do |type|
+      related_to = custom_field_hash[type]
+      return_arr << [related_to, type]
+    end
+    return_arr.uniq
+
+  end
+
   def options_for_project_select
     return_arr = [['','']]
     User.current.projects.select(:id, :name).each do |p|
@@ -40,6 +58,21 @@ include WktimeHelper
       [l(:label_wk_time), "WktimeCustomField"]
     ]
   end
+
+  def custom_field_hash
+    {'IssueCustomField'=>l(:field_issue),
+    'TimeEntryCustomField'=>l(:label_spent_time),
+    'ProjectCustomField'=>l(:label_project_plural) ,
+    'VersionCustomField'=>l(:label_version_plural) ,
+    'DocumentCustomField'=>l(:label_document_plural) ,
+    'UserCustomField'=>l(:label_user_plural) ,
+    'GroupCustomField'=>l(:label_group_plural) ,
+    'TimeEntryActivityCustomField'=>l(:enumeration_activities) ,
+    'IssuePriorityCustomField'=>l(:enumeration_issue_priorities) ,
+    'DocumentCategoryCustomField'=> l(:enumeration_doc_categories) ,
+    "WktimeCustomField"=>l(:label_wk_time)}
+  end
+
 
   def options_for_wk_custom_field_select(wcf)
     options = []
@@ -105,8 +138,12 @@ include WktimeHelper
       entries = entries.order("customized_type " + order)
     when 'name'
       entries = entries.joins("LEFT JOIN issues AS i ON custom_values.customized_id = i.id AND custom_values.customized_type='Issue'").joins("LEFT JOIN projects AS p ON custom_values.customized_id = p.id AND custom_values.customized_type='Project'").joins("LEFT JOIN documents AS d ON custom_values.customized_id = d.id AND custom_values.customized_type='Document'").joins("LEFT JOIN time_entries AS t ON custom_values.customized_type='TimeEntry' AND t.id=custom_values.customized_id").joins("LEFT JOIN versions AS v ON custom_values.customized_type='Version' and v.id=custom_values.customized_id").order("COALESCE(i.subject, p.name, d.title, v.name) " + order)
-    else
+    when 'updated_on'
       entries = entries.joins("LEFT JOIN issues AS i ON custom_values.customized_id = i.id AND custom_values.customized_type='Issue'").joins("LEFT JOIN projects AS p ON custom_values.customized_id = p.id AND custom_values.customized_type='Project'").joins("LEFT JOIN documents AS d ON custom_values.customized_id = d.id AND custom_values.customized_type='Document'").joins("LEFT JOIN time_entries AS t ON custom_values.customized_type='TimeEntry' AND t.id=custom_values.customized_id").joins("LEFT JOIN versions AS v ON custom_values.customized_type='Version' and v.id=custom_values.customized_id").order("COALESCE(i.updated_on, p.updated_on, d.created_on, t.updated_on, v.updated_on) " + order)
+    when 'created_on'
+      entries = entries.joins("LEFT JOIN issues AS i ON custom_values.customized_id = i.id AND custom_values.customized_type='Issue'").joins("LEFT JOIN projects AS p ON custom_values.customized_id = p.id AND custom_values.customized_type='Project'").joins("LEFT JOIN documents AS d ON custom_values.customized_id = d.id AND custom_values.customized_type='Document'").joins("LEFT JOIN time_entries AS t ON custom_values.customized_type='TimeEntry' AND t.id=custom_values.customized_id").joins("LEFT JOIN versions AS v ON custom_values.customized_type='Version' and v.id=custom_values.customized_id").order("COALESCE(i.created_on, p.created_on, d.created_on, t.created_on, v.created_on) " + order)
+    else
+      entries = entries.joins("LEFT JOIN issues AS i ON custom_values.customized_id = i.id AND custom_values.customized_type='Issue'").joins("LEFT JOIN projects AS p ON custom_values.customized_id = p.id AND custom_values.customized_type='Project'").joins("LEFT JOIN documents AS d ON custom_values.customized_id = d.id AND custom_values.customized_type='Document'").joins("LEFT JOIN time_entries AS t ON custom_values.customized_type='TimeEntry' AND t.id=custom_values.customized_id").joins("LEFT JOIN versions AS v ON custom_values.customized_type='Version' and v.id=custom_values.customized_id").order("COALESCE(i.created_on, p.created_on, d.created_on, t.created_on, v.created_on) desc")
     end
     @customValues[wkcustomfield_id] = entries.limit(@limit).offset(@offset)
   end

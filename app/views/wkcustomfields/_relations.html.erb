@@ -26,6 +26,24 @@ $( document ).ready(function() {
          <label><%= wcfs %></label>
          <div>
            <div class="wk-contextual">
+             <%= form_tag(params.merge(action: 'edit', controller: controller_name), method: :get) do %>
+             <%= hidden_field_tag "searchlist", "#{wcfs}" %>
+             <%= hidden_field_tag "account_id", entry.id %>
+             <% @sort_by.each do |section, value| %>
+             <%= hidden_field_tag "sort_#{section}_by", value %>
+             <% end %>
+             <label for='cfName' style="float:left"><%= l(:label_custom_field) %>&nbsp;&nbsp;</label>
+              <%=h select_tag('cfName', options_for_select(options_for_section_custom_field(wcfs)), :style=> "float: left;") %></td>
+             <label for='relatedTo' style="float:left"><%= l(:label_related_to) %>&nbsp;&nbsp;</label>
+              <%=h select_tag('cfName', options_for_select(options_for_section_related_to(wcfs)), :style=> "float: left;") %></td>
+             <label for='linkTo' style="float:left"><%= l(:label_link) %>&nbsp;&nbsp;</label>
+              <%= text_field_tag 'linkTo', '',:size => 30, :style=> "float: left;" %>
+             <label style="float:left; padding-left: 20px;">&nbsp;</label>
+             <%= date_field_tag('from', nil, {:id => 'from', :style => 'float:left', :size => 10 }) %>
+             <%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %>
+            <%= l(:label_created_on) %> <%= l(:start) %>
+             <% end %>
+
             <% wcf.where(display_as: wcfs).each do |wkcustomfield| %>
               <% if wkcustomfield.render_creation %>
                 <% case CustomField.where(id: wkcustomfield.custom_fields_id).first.type %>
@@ -89,12 +107,21 @@ $( document ).ready(function() {
                     <th class="lbl-txt-align"><%= link_to l(:label_link), params.merge("sort_#{wcfs}_by" => "name-asc") %></th>
                   <% end %>
 
-                  <% if @sort_by[wcfs].eql? 'date-asc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:field_updated_on) + '▼'.html_safe, params.merge("sort_#{wcfs}_by" => "date-desc") %></th>
-                  <% elsif @sort_by[wcfs].eql? 'date-desc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:field_updated_on) + '▲'.html_safe, params.merge("sort_#{wcfs}_by" => "date-asc") %></th>
+                  <% if @sort_by[wcfs].eql? 'updated_on-asc' %>
+                    <th class="lbl-txt-align"><%= link_to l(:field_updated_on) + '▼'.html_safe, params.merge("sort_#{wcfs}_by" => "updated_on-desc") %></th>
+                  <% elsif @sort_by[wcfs].eql? 'updated_on-desc' %>
+                    <th class="lbl-txt-align"><%= link_to l(:field_updated_on) + '▲'.html_safe, params.merge("sort_#{wcfs}_by" => "updated_on-asc") %></th>
                   <% else %>
-                    <th class="lbl-txt-align"><%= link_to l(:field_updated_on), params.merge("sort_#{wcfs}_by" => "date-asc") %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:field_updated_on), params.merge("sort_#{wcfs}_by" => "updated_on-asc") %></th>
+                  <% end %>
+
+
+                  <% if @sort_by[wcfs].eql? 'created_on-asc' %>
+                    <th class="lbl-txt-align"><%= link_to l(:field_created_on) + '▼'.html_safe, params.merge("sort_#{wcfs}_by" => "created_on-desc") %></th>
+                  <% elsif @sort_by[wcfs].eql? 'created_on-desc' %>
+                    <th class="lbl-txt-align"><%= link_to l(:field_created_on) + '▲'.html_safe, params.merge("sort_#{wcfs}_by" => "created_on-asc") %></th>
+                  <% else %>
+                    <th class="lbl-txt-align"><%= link_to l(:field_created_on), params.merge("sort_#{wcfs}_by" => "created_on-asc") %></th>
                   <% end %>
                 </tr>
            </thead>
@@ -105,63 +132,75 @@ $( document ).ready(function() {
                   <td class="lbl-txt-align">
                     <% if wcv.custom_field.type == "IssueCustomField" %>
                       <%= l(:field_issue) %>
-                    </td> <% related_value =  relationDict['issue'].find(wcv.customized_id) %>
-                    <td><%= link_to related_value.subject, related_value %></td>
-                    <td><%= format_time(related_value.updated_on) %></td>
+                    </td> <% related_value =  wcv.customized %>
+                    <td class="lbl-txt-align"><%= link_to related_value.subject, related_value %></td>
+                    <td class="lbl-txt-align"><%= format_time(related_value.updated_on) %></td>
+                    <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
                     <% elsif wcv.custom_field.type == "TimeentryCustomField" %>
                       <%= l(:label_spent_time) %>
                     </td> <% related_value = relationDict['spent_time'].find(wcv.customized_id) %>
-                    <td><%= link_to "time entry: #{related_value.id.to_s}", related_value %></td>
-                    <td><%= format_time(related_value.updated_on) %></td>
+                    <td class="lbl-txt-align"><%= link_to "time entry: #{related_value.id.to_s}", related_value %></td>
+                    <td class="lbl-txt-align"><%= format_time(related_value.updated_on) %></td>
+                    <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
                     <% elsif wcv.custom_field.type == "ProjectCustomField" %>
                       <%= l(:label_project_plural) %>
                     </td><% related_value = relationDict['project'].find(wcv.customized_id) %>
-                    <td><%= link_to related_value.name, related_value %></td>
-                    <td><%= format_time(related_value.updated_on) %></td>
+                    <td class="lbl-txt-align"><%= link_to related_value.name, related_value %></td>
+                    <td class="lbl-txt-align"><%= format_time(related_value.updated_on) %></td>
+                    <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
                     <% elsif wcv.custom_field.type == "VersionCustomField" %>
                       <%= l(:label_version_plural) %>
                     </td><% related_value = relationDict['version'].find(wcv.customized_id) %>
-                    <td><%= link_to related_value.name, related_value %></td>
-                    <td><%= format_time(related_value.updated_on) %></td>
+                    <td class="lbl-txt-align"><%= link_to related_value.name, related_value %></td>
+                    <td class="lbl-txt-align"><%= format_time(related_value.updated_on) %></td>
+                    <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
                     <% elsif wcv.custom_field.type == "DocumentCustomField" %>
                       <%= l(:label_document_plural) %>
                     </td><% related_value = relationDict['document'].find(wcv.customized_id) %>
-                    <td><%= link_to related_value.title, related_value %></td>
-                    <td><%= format_time(related_value.updated_on) %></td>
+                    <td class="lbl-txt-align"><%= link_to related_value.title, related_value %></td>
+                    <td class="lbl-txt-align"><%= format_time(related_value.updated_on) %></td>
+                    <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
                     <% elsif wcv.custom_field.type == "UserCustomField" %>
                       <%= l(:label_user_plural) %>
                     </td><% related_value = relationDict['user'].find(wcv.customized_id) %>
-                    <td><%= link_to related_value.name, related_value %></td>
-                    <td><%= format_time(related_value.updated_on) %></td>
+                    <td class="lbl-txt-align"><%= link_to related_value.name, related_value %></td>
+                    <td class="lbl-txt-align"><%= format_time(related_value.updated_on) %></td>
+                    <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
                     <% elsif wcv.custom_field.type == "GroupCustomField" %>
                       <%= l(:label_group_plural) %>
                     </td><% related_value = relationDict['group'].find(wcv.customized_id) %>
-                    <td><%= link_to related_value.name, related_value %></td>
-                    <td><%= format_time(related_value.updated_on) %></td>
+                    <td class="lbl-txt-align"><%= link_to related_value.name, related_value %></td>
+                    <td class="lbl-txt-align"><%= format_time(related_value.updated_on) %></td>
+                    <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
                     <% elsif wcv.custom_field.type == "TimeentryActivityCustomField" %>
                       <%= l(:enumeration_activities) %>
                     </td><% related_value = relationDict['time_entry_activity'].find(wcv.customized_id) %>
-                    <td><%= link_to related_value.name, related_value %></td>
-                    <td><%= format_time(related_value.updated_on) %></td>
+                    <td class="lbl-txt-align"><%= link_to related_value.name, related_value %></td>
+                    <td class="lbl-txt-align"><%= format_time(related_value.updated_on) %></td>
+                    <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
                     <% elsif wcv.custom_field.type == "IssuePriorityCustomField" %>
                       <%= l(:enumeration_issue_priorities) %>
                     </td><% related_value = relationDict['issue_priority'].find(wcv.customized_id) %>
-                    <td><%= link_to related_value.name, related_value %></td>
-                    <td><%= format_time(related_value.updated_on) %></td>
+                    <td class="lbl-txt-align"><%= link_to related_value.name, related_value %></td>
+                    <td class="lbl-txt-align"><%= format_time(related_value.updated_on) %></td>
+                    <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
                     <% elsif wcv.custom_field.type == "DocumentCategoryCustomField" %>
                       <%= l(:enumeration_doc_categories) %>
                     </td><% related_value = relationDict['document_category'].find(wcv.customized_id) %>
-                    <td><%= link_to related_value.name, related_value %></td>
-                    <td><%= format_time(related_value.updated_on) %></td>
+                    <td class="lbl-txt-align"><%= link_to related_value.name, related_value %></td>
+                    <td class="lbl-txt-align"><%= format_time(related_value.updated_on) %></td>
+                    <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
                     <% elsif wcv.custom_field.type == "WktimeCustomField" %>
                       <%= l(:label_wk_time) %>
                     </td><% related_value = relationDict['wktime'].find(wcv.customized_id) %>
-                    <td><%= link_to "wk time: #{related_value.id.to_s}", related_value %></td>
-                    <td><%= format_time(related_value.updated_on) %></td>
+                    <td class="lbl-txt-align"><%= link_to "wk time: #{related_value.id.to_s}", related_value %></td>
+                    <td class="lbl-txt-align"><%= format_time(related_value.updated_on) %></td>
+                    <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
                     <% else %>
                     </td>
-                    <td></td>
-                    <td></td>
+                    <td class="lbl-txt-align"></td>
+                    <td class="lbl-txt-align"></td>
+                    <td class="lbl-txt-align"></td>
                     <% end %>
                 </tr>
           <% end %>
