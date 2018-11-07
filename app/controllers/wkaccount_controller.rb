@@ -61,14 +61,16 @@ include WkcustomfieldsHelper
       @relationDict = nil
       @sort_by = {}
       @customValues = {}
+      @filter = {}
 		  unless params[:account_id].blank?
 		    @accountEntry = WkAccount.find(params[:account_id])
         @wcf = WkCustomField.where(custom_fields_id: CustomField.where(field_format: "company"))
         @wcf.map(&:display_as).uniq.each do |section|
           custom_value_entries = @accountEntry.custom_values.where(custom_field_id: WkCustomField.where(display_as: section).map(&:custom_fields_id).uniq)
-          sortCustomValuesBy = params["sort_#{section}_by"].nil? ? 'date' : params["sort_#{section}_by"]
+          sortCustomValuesBy = params["sort_#{section}_by"].nil? ? nil : params["sort_#{section}_by"]
           @sort_by[section] = sortCustomValuesBy
-          customValuesPagination(custom_value_entries, section, sortCustomValuesBy)
+          @filter[section]= setCustomValuesFilter(params, section).clone
+          customValuesPagination(custom_value_entries, section, sortCustomValuesBy, @filter.any? ? @filter[section] : nil )
         end
         @relationDict = getRelationDict(@accountEntry)
         @options_for_project_select = options_for_project_select

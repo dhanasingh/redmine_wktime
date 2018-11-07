@@ -40,6 +40,7 @@ class WkcontactController < WkcrmController
     @wcf = nil
     @relationDict = nil
     @sort_by = {}
+    @filter = {}
     @customValues = {}
 		unless params[:contact_id].blank?
 			@conEditEntry = WkCrmContact.where(:id => params[:contact_id].to_i)
@@ -47,8 +48,9 @@ class WkcontactController < WkcrmController
       @wcf.map(&:display_as).uniq.each do |section|
         custom_value_entries = @conEditEntry.first.custom_values.where(custom_field_id: WkCustomField.where(display_as: section).map(&:custom_fields_id).uniq)
         sortCustomValuesBy = params["sort_#{section}_by"].nil? ? 'date' : params["sort_#{section}_by"]
+        @filter[section]= setCustomValuesFilter(params, section).clone
         @sort_by[section] = sortCustomValuesBy
-        customValuesPagination(custom_value_entries, section, sortCustomValuesBy)
+        customValuesPagination(custom_value_entries, section, sortCustomValuesBy, @filter[section])
       end
       @relationDict = getRelationDict(@conEditEntry.first())
 		end

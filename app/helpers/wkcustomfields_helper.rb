@@ -122,15 +122,52 @@ include WktimeHelper
     returnDict
   end
 
-  def customValuesPagination(entries, wkcustomfield_id, sort_by)
+  def customValuesPagination(entries, wkcustomfield_id, sort_by, filter=nil)
+    unless sort_by.nil?
+      order_by = sort_by.split('-')[0]
+
+      if sort_by.split('-')[1].eql? 'desc'
+        order = 'desc'
+      else
+        order = 'asc'
+      end
+    end
+    unless filter.nil?
+      unless filter['custom_field'].nil?
+        entries = entries.where(custom_field_id: filter['custom_field'])
+      end
+      unless filter['relatedTo'].nil?
+        entries = entries.where(custom_field_id: CustomField.where(type: filter['relatedTo']).ids)
+      end
+      unless filter['name'].nil?
+        name = filter['name']
+        entries = entries.joins("LEFT JOIN issues AS i ON custom_values.customized_id = i.id AND custom_values.customized_type='Issue'").joins("LEFT JOIN projects AS p ON custom_values.customized_id = p.id AND custom_values.customized_type='Project'").joins("LEFT JOIN documents AS d ON custom_values.customized_id = d.id AND custom_values.customized_type='Document'").joins("LEFT JOIN time_entries AS t ON custom_values.customized_type='TimeEntry' AND t.id=custom_values.customized_id").joins("LEFT JOIN versions AS v ON custom_values.customized_type='Version' and v.id=custom_values.customized_id").where("LOWER(i.subject) LIKE LOWER('%#{name}%') OR LOWER(p.name) LIKE LOWER('%#{name}%') OR LOWER(d.title) LIKE LOWER('%#{name}%') OR LOWER(v.name) LIKE LOWER('%#{name}%')")
+      end
+      unless filter['creation_date_from'].nil? and filter['creation_date_to'].nil?
+        from = Date.parse(filter['creation_date_from']) unless filter['creation_date_from'].nil?
+        to = Date.parse(filter['creation_date_to']) unless filter['creation_date_to'].nil?
+        if !from.nil? and !to.nil?
+          entries = entries.joins("LEFT JOIN issues AS i ON custom_values.customized_id = i.id AND custom_values.customized_type='Issue'").joins("LEFT JOIN projects AS p ON custom_values.customized_id = p.id AND custom_values.customized_type='Project'").joins("LEFT JOIN documents AS d ON custom_values.customized_id = d.id AND custom_values.customized_type='Document'").joins("LEFT JOIN time_entries AS t ON custom_values.customized_type='TimeEntry' AND t.id=custom_values.customized_id").joins("LEFT JOIN versions AS v ON custom_values.customized_type='Version' and v.id=custom_values.customized_id").where("COALESCE(i.created_on, p.created_on, d.created_on, t.created_on, v.created_on) >= ? AND COALESCE(i.created_on, p.created_on, d.created_on, t.created_on, v.created_on) <= ?", from, to)
+        elsif !from.nil?
+          entries = entries.joins("LEFT JOIN issues AS i ON custom_values.customized_id = i.id AND custom_values.customized_type='Issue'").joins("LEFT JOIN projects AS p ON custom_values.customized_id = p.id AND custom_values.customized_type='Project'").joins("LEFT JOIN documents AS d ON custom_values.customized_id = d.id AND custom_values.customized_type='Document'").joins("LEFT JOIN time_entries AS t ON custom_values.customized_type='TimeEntry' AND t.id=custom_values.customized_id").joins("LEFT JOIN versions AS v ON custom_values.customized_type='Version' and v.id=custom_values.customized_id").where("COALESCE(i.created_on, p.created_on, d.created_on, t.created_on, v.created_on) >= ?", from)
+        elsif !to.nil?
+          entries = entries.joins("LEFT JOIN issues AS i ON custom_values.customized_id = i.id AND custom_values.customized_type='Issue'").joins("LEFT JOIN projects AS p ON custom_values.customized_id = p.id AND custom_values.customized_type='Project'").joins("LEFT JOIN documents AS d ON custom_values.customized_id = d.id AND custom_values.customized_type='Document'").joins("LEFT JOIN time_entries AS t ON custom_values.customized_type='TimeEntry' AND t.id=custom_values.customized_id").joins("LEFT JOIN versions AS v ON custom_values.customized_type='Version' and v.id=custom_values.customized_id").where("COALESCE(i.created_on, p.created_on, d.created_on, t.created_on, v.created_on) <= ?", to)
+        end
+      end
+      unless filter['update_date_from'].nil? and filter['update_date_to'].nil?
+        from = Date.parse(filter['update_date_from']) unless filter['update_date_from'].nil?
+        to = Date.parse(filter['update_date_to']) unless filter['update_date_to'].nil?
+        if !from.nil? and !to.nil?
+          entries = entries.joins("LEFT JOIN issues AS i ON custom_values.customized_id = i.id AND custom_values.customized_type='Issue'").joins("LEFT JOIN projects AS p ON custom_values.customized_id = p.id AND custom_values.customized_type='Project'").joins("LEFT JOIN documents AS d ON custom_values.customized_id = d.id AND custom_values.customized_type='Document'").joins("LEFT JOIN time_entries AS t ON custom_values.customized_type='TimeEntry' AND t.id=custom_values.customized_id").joins("LEFT JOIN versions AS v ON custom_values.customized_type='Version' and v.id=custom_values.customized_id").where("COALESCE(i.updated_on, p.updated_on, d.created_on, t.updated_on, v.updated_on) >= ? AND COALESCE(i.updated_on, p.updated_on, d.created_on, t.updated_on, v.updated_on) <= ?", from, to)
+        elsif !from.nil?
+          entries = entries.joins("LEFT JOIN issues AS i ON custom_values.customized_id = i.id AND custom_values.customized_type='Issue'").joins("LEFT JOIN projects AS p ON custom_values.customized_id = p.id AND custom_values.customized_type='Project'").joins("LEFT JOIN documents AS d ON custom_values.customized_id = d.id AND custom_values.customized_type='Document'").joins("LEFT JOIN time_entries AS t ON custom_values.customized_type='TimeEntry' AND t.id=custom_values.customized_id").joins("LEFT JOIN versions AS v ON custom_values.customized_type='Version' and v.id=custom_values.customized_id").where("COALESCE(i.updated_on, p.updated_on, d.created_on, t.updated_on, v.updated_on) >= ?", from)
+        elsif !to.nil?
+          entries = entries.joins("LEFT JOIN issues AS i ON custom_values.customized_id = i.id AND custom_values.customized_type='Issue'").joins("LEFT JOIN projects AS p ON custom_values.customized_id = p.id AND custom_values.customized_type='Project'").joins("LEFT JOIN documents AS d ON custom_values.customized_id = d.id AND custom_values.customized_type='Document'").joins("LEFT JOIN time_entries AS t ON custom_values.customized_type='TimeEntry' AND t.id=custom_values.customized_id").joins("LEFT JOIN versions AS v ON custom_values.customized_type='Version' and v.id=custom_values.customized_id").where("COALESCE(i.updated_on, p.updated_on, d.created_on, t.updated_on, v.updated_on) <= ?", to)
+        end
+      end
+    end
     @cv_entry_count[wkcustomfield_id] = entries.count
     setCustomValuesLimitAndOffset(wkcustomfield_id)
-    order_by = sort_by.split('-')[0]
-    if sort_by.split('-')[1].eql? 'desc'
-      order = 'desc'
-    else
-      order = 'asc'
-    end
     case order_by
     when 'custom_field'
       entries = entries.order("custom_field_id " + order)
@@ -162,6 +199,18 @@ include WktimeHelper
       @limit = @cv_entry_pages[wkcustomfield_id].per_page
       @offset = @cv_entry_pages[wkcustomfield_id].offset
     end
+  end
+
+  def setCustomValuesFilter(params, section)
+    filter = {}
+    filter['name']= params[:linkTo][section.to_s] unless params[:linkTo].nil? or params[:linkTo][section.to_s].nil? or params[:linkTo][section.to_s]==''
+    filter['custom_field']= params[:cfName][section.to_s] unless params[:cfName].nil? or params[:cfName][section.to_s].nil? or params[:cfName][section.to_s]==''
+    filter['relatedTo']= params[:relatedTo][section.to_s] unless params[:relatedTo].nil? or params[:relatedTo][section.to_s].nil? or params[:relatedTo][section.to_s]==''
+    filter['creation_date_from'] = params[:cfrom][section.to_s] unless params[:cfrom].nil? or params[:cfrom][section.to_s].nil? or params[:cfrom][section.to_s]==''
+    filter['creation_date_to'] = params[:cto][section.to_s] unless params[:cto].nil? or params[:cto][section.to_s].nil? or params[:cto][section.to_s]==''
+    filter['update_date_from'] = params[:ufrom][section.to_s] unless params[:ufrom].nil? or params[:ufrom][section.to_s].nil? or params[:ufrom][section.to_s]==''
+    filter['update_date_to'] = params[:uto][section.to_s] unless params[:uto].nil? or params[:uto][section.to_s].nil? or params[:uto][section.to_s]==''
+    filter.clone
   end
 
 end
