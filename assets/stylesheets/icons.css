@@ -1,0 +1,7 @@
+.icon.search {
+    width: 16px;
+    height: 16px;
+    display: block-inline;
+    background: url(/plugin_assets/redmine_wktime/images/search.png) no-repeat;
+    background-size: 80%; 
+}

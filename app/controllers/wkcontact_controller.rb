@@ -52,6 +52,7 @@ class WkcontactController < WkcrmController
         @sort_by[section] = sortCustomValuesBy
         customValuesPagination(custom_value_entries, section, sortCustomValuesBy, @filter[section])
       end
+      @filter[:current_section] = params[:current_section] unless params[:current_section].nil?
       @relationDict = getRelationDict(@conEditEntry.first())
 		end
 	end

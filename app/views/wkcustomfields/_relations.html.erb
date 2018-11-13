@@ -6,7 +6,7 @@ function no_project(){
 }
 
 $( document ).ready(function() {
-
+  $("#relations").accordion({ active: <%= @filter[:current_section].nil? ? 0 : @filter[:current_section] %> });
   $(".project_select").change(function(event){
     var link = $('#new_link_for_' + this.id.split('_for_')[1]);
       if( this.options[this.selectedIndex].value == "" ){
@@ -19,11 +19,13 @@ $( document ).ready(function() {
   });
 });
 
+
 function showSearchEngine(section){
   $('#search_for_'+section.toString()).css('display','block');
   $('#search_button_'+section.toString()).css('display','none');
-
 }
+
+
 <% end %>
 </br>
   <div id="relations" class="relations">
@@ -32,34 +34,37 @@ function showSearchEngine(section){
          <label><%= wcfs %></label>
          <div>
            <div class="wk-contextual">
-             <%= link_to l(:label_search), "javascript:showSearchEngine(#{index})", :class => 'icon icon-reload', :style => 'float:left;', :id => "search_button_#{index}" %>
-             <div id="<%="search_for_#{index}"%>" style="float:left; display:none;">
-               <%= form_tag(params.merge(action: 'edit', controller: controller_name), method: :get) do %>
-               <%= hidden_field_tag "account_id", entry.id if entry.is_a?(WkAccount) %>
-               <%= hidden_field_tag "lead_id", entry.id if entry.is_a?(WkLead) %>
-               <%= hidden_field_tag "contact_id", entry.id if entry.is_a?(WkCrmContact) %>
-               <%= hidden_field_tag "searchlist", "#{wcfs}" %>
-               <% @sort_by.each do |section, value| %>
-               <%= hidden_field_tag "sort_#{section}_by", value %>
-               <% end %>
-               <label for='<%="cfName[#{wcfs}]"%>' style="float:left"><%= l(:label_custom_field) %>&nbsp;&nbsp;</label>
-                <%=h select_tag("cfName[#{wcfs}]", options_for_select(options_for_section_custom_field(wcfs), selected: (@filter[wcfs].any? ? (@filter[wcfs]['custom_field'].nil? ? nil : @filter[wcfs]['custom_field']) : nil)), :style=> "float: left;") %></td>
-               <label for='<%="relatedTo[#{wcfs}]"%>' style="float:left"><%= l(:label_related_to) %>&nbsp;&nbsp;</label>
-                <%=h select_tag("relatedTo[#{wcfs}]", options_for_select(options_for_section_related_to(wcfs), selected: (@filter[wcfs].any? ? (@filter[wcfs]['custom_field'].nil? ? nil : @filter[wcfs]['relatedTo']) : nil)) , :style=> "float: left;") %></td>
-               <label for='<%="linkTo[#{wcfs}]"%>' style="float:left"><%= l(:label_link) %>&nbsp;&nbsp;</label>
-                <%= text_field_tag "linkTo[#{wcfs}]", (@filter[wcfs].any? ? (@filter[wcfs]['name'].nil? ? nil : @filter[wcfs]['name']) : nil),:size => 30, :style=> "float: left;" %>
-               <%= label("cfrom[#{wcfs}]",nil,l(:field_created_on), style: 'float:left;') %>
-               <%= date_field_tag("cfrom[#{wcfs}]", (@filter[wcfs].any? ? (@filter[wcfs]['creation_date_from'].nil? ? nil : @filter[wcfs]['creation_date_from']) : nil), {:id => 'from', :style => 'float:left', :size => 10 }) %>
-               <%= date_field_tag("cto[#{wcfs}]", (@filter[wcfs].any? ? (@filter[wcfs]['creation_date_to'].nil? ? nil : @filter[wcfs]['creation_date_to']) : nil), {:id => 'from', :style => 'float:left', :size => 10 }) %>
-               <%= label("ufrom[#{wcfs}]",nil,l(:field_updated_on), style: 'float:left; padding-left 20px;') %>
-               <%= date_field_tag("ufrom[#{wcfs}]", (@filter[wcfs].any? ? (@filter[wcfs]['update_date_from'].nil? ? nil : @filter[wcfs]['update_date_from']) : nil), {:id => 'from', :style => 'float:left', :size => 10 }) %>
-               <%= date_field_tag("uto[#{wcfs}]", (@filter[wcfs].any? ? (@filter[wcfs]['update_date_to'].nil? ? nil : @filter[wcfs]['update_date_to']) : nil), {:id => 'from', :style => 'float:left', :size => 10 }) %>
-               <%= link_to l(:button_clear), {:controller => controller_name, :action => 'edit', :account_id => entry.id}, :class => 'icon icon-reload' if entry.is_a?(WkAccount)%>
-               <%= link_to l(:button_clear), {:controller => controller_name, :action => 'edit', :contact_id => entry.id}, :class => 'icon icon-reload' if entry.is_a?(WkCrmContact)%>
-               <%= link_to l(:button_clear), {:controller => controller_name, :action => 'edit', :lead_id => entry.id}, :class => 'icon icon-reload' if entry.is_a?(WkLead)%>
-               <%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %>
-             </div>
-             <label style="float:left; padding-left: 20px;">&nbsp;</label>
+             <%= form_tag(params.merge(action: 'edit', controller: controller_name), method: :get) do %>
+             <fieldset>
+               <%= link_to "<span class='icon search'> </span>".html_safe + l(:label_search), "javascript:showSearchEngine(#{index})", :style => 'float:left;', :id => "search_button_#{index}" %>
+               <div id="<%="search_for_#{index}"%>" style="display:none;">
+                 <%= hidden_field_tag "account_id", entry.id if entry.is_a?(WkAccount) %>
+                 <%= hidden_field_tag "lead_id", entry.id if entry.is_a?(WkLead) %>
+                 <%= hidden_field_tag "contact_id", entry.id if entry.is_a?(WkCrmContact) %>
+                 <%= hidden_field_tag "searchlist", "#{wcfs}" %>
+                 <%= hidden_field_tag "current_section", "#{index}" %>
+                 <% @sort_by.each do |section, value| %>
+                  <%= hidden_field_tag "sort_#{section}_by", value %>
+                 <% end %>
+                 <%= label("cfName[#{wcfs}]", nil, l(:label_custom_field), style: '; display:inline-block; vertical-align:middle;')%>
+                 <%=h select_tag("cfName[#{wcfs}]", options_for_select(options_for_section_custom_field(wcfs), selected: (@filter[wcfs].any? ? (@filter[wcfs]['custom_field'].nil? ? nil : @filter[wcfs]['custom_field']) : nil)), style: '; display:inline-block; vertical-align:middle;') %></td>
+                 <%= label("relatedTo[#{wcfs}]", nil, l(:label_related_to), style: '; display:inline-block; vertical-align:middle;')%>
+                 <%=h select_tag("relatedTo[#{wcfs}]", options_for_select(options_for_section_related_to(wcfs), selected: (@filter[wcfs].any? ? (@filter[wcfs]['relatedTo'].nil? ? nil : @filter[wcfs]['relatedTo']) : nil)) , style: '; display:inline-block; vertical-align:middle;') %></td>
+                 <%= label("linkTo[#{wcfs}]", nil, l(:label_link), style: '; display:inline-block; vertical-align:middle;')%>
+                 <%= text_field_tag "linkTo[#{wcfs}]", (@filter[wcfs].any? ? (@filter[wcfs]['name'].nil? ? nil : @filter[wcfs]['name']) : nil),:size => 30, style: '; display:inline-block; vertical-align:middle;' %>
+                 <%= label("cfrom[#{wcfs}]",nil,l(:field_created_on), style: '; display:inline-block; vertical-align:middle;') %>
+                 <%= date_field_tag("cfrom[#{wcfs}]", (@filter[wcfs].any? ? (@filter[wcfs]['creation_date_from'].nil? ? nil : @filter[wcfs]['creation_date_from']) : nil), {:id => "cfrom[#{wcfs}]", style: '; display:inline-block; vertical-align:middle;', :size => 10 }) %>
+                 <%= date_field_tag("cto[#{wcfs}]", (@filter[wcfs].any? ? (@filter[wcfs]['creation_date_to'].nil? ? nil : @filter[wcfs]['creation_date_to']) : nil), {:id => "cto[#{wcfs}]", style: '; display:inline-block; vertical-align:middle;', :size => 10 }) %>
+                 <%= label("ufrom[#{wcfs}]",nil,l(:field_updated_on), style: '; padding-left 20px; vertical-align:middle;') %>
+                 <%= date_field_tag("ufrom[#{wcfs}]", (@filter[wcfs].any? ? (@filter[wcfs]['update_date_from'].nil? ? nil : @filter[wcfs]['update_date_from']) : nil), {:id => "ufrom[#{wcfs}]", style: '; display:inline-block; vertical-align:middle;', :size => 10 }) %>
+                 <%= date_field_tag("uto[#{wcfs}]", (@filter[wcfs].any? ? (@filter[wcfs]['update_date_to'].nil? ? nil : @filter[wcfs]['update_date_to']) : nil), {:id => "uto[#{wcfs}]", style: '; display:inline-block; vertical-align:middle;', :size => 10 }) %>
+                 <%= link_to l(:button_clear), {:controller => controller_name, :action => 'edit', :account_id => entry.id}, :style=>";", :class => 'icon icon-reload' if entry.is_a?(WkAccount)%>
+                 <%= link_to l(:button_clear), {:controller => controller_name, :action => 'edit', :contact_id => entry.id}, :style=>";", :class => 'icon icon-reload' if entry.is_a?(WkCrmContact)%>
+                 <%= link_to l(:button_clear), {:controller => controller_name, :action => 'edit', :lead_id => entry.id}, :style=>";", :class => 'icon icon-reload' if entry.is_a?(WkLead)%>
+                 <%= submit_tag l(:button_apply), :class => "small", :style=>";", :name => nil %>
+                 <label style="; padding-left: 20px;">&nbsp;</label>
+               </div>
+             </fieldset>
              <% end %>
 
             <% wcf.where(display_as: wcfs).each do |wkcustomfield| %>
@@ -102,44 +107,44 @@ function showSearchEngine(section){
            <thead>
                 <tr>
                   <% if @sort_by[wcfs].eql? 'custom_field-asc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:label_custom_field) + '▼'.html_safe, params.merge("sort_#{wcfs}_by" => "custom_field-desc") %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:label_custom_field) + '▼'.html_safe, params.merge("sort_#{wcfs}_by" => "custom_field-desc", current_section: index) %></th>
                   <% elsif @sort_by[wcfs].eql? 'custom_field-desc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:label_custom_field) + '▲'.html_safe, params.merge("sort_#{wcfs}_by" => "custom_field-asc") %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:label_custom_field) + '▲'.html_safe, params.merge("sort_#{wcfs}_by" => "custom_field-asc", current_section: index) %></th>
                   <% else %>
-                    <th class="lbl-txt-align"><%= link_to l(:label_custom_field), params.merge("sort_#{wcfs}_by" => "custom_field-asc") %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:label_custom_field), params.merge("sort_#{wcfs}_by" => "custom_field-asc", current_section: index) %></th>
                   <% end %>
 
                   <% if @sort_by[wcfs].eql? 'customized_type-asc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:label_related_to) + '▼'.html_safe, params.merge("sort_#{wcfs}_by" => "customized_type-desc") %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:label_related_to) + '▼'.html_safe, params.merge("sort_#{wcfs}_by" => "customized_type-desc", current_section: index) %></th>
                   <% elsif @sort_by[wcfs].eql? 'customized_type-desc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:label_related_to) + '▲'.html_safe, params.merge("sort_#{wcfs}_by" => "customized_type-asc") %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:label_related_to) + '▲'.html_safe, params.merge("sort_#{wcfs}_by" => "customized_type-asc", current_section: index) %></th>
                   <% else %>
-                    <th class="lbl-txt-align"><%= link_to l(:label_related_to), params.merge("sort_#{wcfs}_by" => "customized_type-asc") %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:label_related_to), params.merge("sort_#{wcfs}_by" => "customized_type-asc", current_section: index) %></th>
                   <% end %>
 
                   <% if @sort_by[wcfs].eql? 'name-asc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:label_link) + '▼'.html_safe, params.merge("sort_#{wcfs}_by" => "name-desc") %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:label_link) + '▼'.html_safe, params.merge("sort_#{wcfs}_by" => "name-desc", current_section: index) %></th>
                   <% elsif @sort_by[wcfs].eql? 'name-desc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:label_link) + '▲'.html_safe, params.merge("sort_#{wcfs}_by" => "name-asc") %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:label_link) + '▲'.html_safe, params.merge("sort_#{wcfs}_by" => "name-asc", current_section: index) %></th>
                   <% else %>
-                    <th class="lbl-txt-align"><%= link_to l(:label_link), params.merge("sort_#{wcfs}_by" => "name-asc") %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:label_link), params.merge("sort_#{wcfs}_by" => "name-asc", current_section: index) %></th>
                   <% end %>
 
                   <% if @sort_by[wcfs].eql? 'updated_on-asc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:field_updated_on) + '▼'.html_safe, params.merge("sort_#{wcfs}_by" => "updated_on-desc") %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:field_updated_on) + '▼'.html_safe, params.merge("sort_#{wcfs}_by" => "updated_on-desc", current_section: index) %></th>
                   <% elsif @sort_by[wcfs].eql? 'updated_on-desc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:field_updated_on) + '▲'.html_safe, params.merge("sort_#{wcfs}_by" => "updated_on-asc") %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:field_updated_on) + '▲'.html_safe, params.merge("sort_#{wcfs}_by" => "updated_on-asc", current_section: index) %></th>
                   <% else %>
-                    <th class="lbl-txt-align"><%= link_to l(:field_updated_on), params.merge("sort_#{wcfs}_by" => "updated_on-asc") %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:field_updated_on), params.merge("sort_#{wcfs}_by" => "updated_on-asc", current_section: index) %></th>
                   <% end %>
 
 
                   <% if @sort_by[wcfs].eql? 'created_on-asc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:field_created_on) + '▼'.html_safe, params.merge("sort_#{wcfs}_by" => "created_on-desc") %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:field_created_on) + '▼'.html_safe, params.merge("sort_#{wcfs}_by" => "created_on-desc", current_section: index) %></th>
                   <% elsif @sort_by[wcfs].eql? 'created_on-desc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:field_created_on) + '▲'.html_safe, params.merge("sort_#{wcfs}_by" => "created_on-asc") %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:field_created_on) + '▲'.html_safe, params.merge("sort_#{wcfs}_by" => "created_on-asc", current_section: index) %></th>
                   <% else %>
-                    <th class="lbl-txt-align"><%= link_to l(:field_created_on), params.merge("sort_#{wcfs}_by" => "created_on-asc") %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:field_created_on), params.merge("sort_#{wcfs}_by" => "created_on-asc", current_section: index) %></th>
                   <% end %>
                 </tr>
            </thead>

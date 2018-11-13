@@ -72,6 +72,7 @@ include WkcustomfieldsHelper
           @filter[section]= setCustomValuesFilter(params, section).clone
           customValuesPagination(custom_value_entries, section, sortCustomValuesBy, @filter.any? ? @filter[section] : nil )
         end
+        @filter[:current_section] = params[:current_section] unless params[:current_section].nil?
         @relationDict = getRelationDict(@accountEntry)
         @options_for_project_select = options_for_project_select
 		  end
