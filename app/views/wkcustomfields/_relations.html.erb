@@ -7,6 +7,30 @@ function no_project(){
 
 $( document ).ready(function() {
   $("#relations").accordion({ active: <%= @filter[:current_section].nil? ? 0 : @filter[:current_section] %> });
+
+  paginators = $('.pagination').toArray();
+
+  for(index in paginators){
+  paginator = paginators[index];
+  console.log(paginator.id)
+  links = $('#' + paginator.id +' a').toArray();
+  for(i in links){
+    link = links[i];
+    console.log(link);
+    uri=link.href;
+
+      var re = new RegExp("([?&])" + 'current_section' + "=.*?(&|$)", "i");
+      var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+      if (uri.match(re)) {
+        new_link_href=uri.replace(re, '$1' + 'current_section' + "=" + paginator.id.split('_cv_')[1] + '$2');
+      }
+      else {
+        new_link_href=uri + separator + 'current_section' + "=" + paginator.id.split('_cv_')[1];
+      }
+    link.href = new_link_href;
+    }
+  }
+
   $(".project_select").change(function(event){
     var link = $('#new_link_for_' + this.id.split('_for_')[1]);
       if( this.options[this.selectedIndex].value == "" ){
@@ -229,7 +253,7 @@ function showSearchEngine(section){
           <% end %>
         </tbody>
       </table>
-      <span class="pagination"><%= pagination_links_full @cv_entry_pages[wcfs], @cv_entry_count[wcfs] %></span>
+      <span class="pagination" id="pagination_cv_<%= index %>"><%= pagination_links_full @cv_entry_pages[wcfs], @cv_entry_count[wcfs] %></span>
     </div>
     <% end %>
 </div>
