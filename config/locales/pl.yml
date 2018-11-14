@@ -64,7 +64,12 @@ pl:
   label_wk_filter_issue_tracker: Filtruj Zagadnienie przez śledzenie
   label_wk_currency: Waluta
   label_wk_time: Tygodniowy czas
+<<<<<<< HEAD
 
+=======
+  label_total_expense: Total Expense  
+ 
+>>>>>>> 9074c8136dd2c3f7f90408483f95cb2eb2c07c96
   label_wkexpense_reports: Raport kosztów
   label_spent_expense: Poniesione Koszty
   label_wk_submission_deadline: Ostateczny termin przesłania

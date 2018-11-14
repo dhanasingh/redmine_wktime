@@ -44,7 +44,7 @@
 				<% @issue.assignees.each do | issue | %>
 					<table>
 						<tr>
-							<td><%= issue.user.name  %></td
+							<td><%= issue.try(:user).try(:name)  %></td
 						</tr>
 					</table>
 				<% end %>

@@ -1,4 +1,5 @@
-<fieldset style="display: inline-block; vertical-align: top; min-width: 100px; width:480px; height: 200px; ">
+<div class="splitcontentright">
+<fieldset >
 	<legend><%= l(:label_wkexpense) %></legend>
 	<%
 		trackers = Array.new
@@ -24,3 +25,4 @@
 		<%= select_tag('settings[wkexpense_projects]', options_for_select(projArr, :selected => @settings['wkexpense_projects'].blank? ? "" : @settings['wkexpense_projects']), :multiple => true) %>
 	</p>
 </fieldset>
+</div>

@@ -63,7 +63,12 @@ en:
   label_wk_filter_issue_tracker: Filter Issue by Tracker
   label_wk_currency: Currency
   label_wk_time: Weekly Time
+<<<<<<< HEAD
 
+=======
+  label_total_expense: Total Expense 
+ 
+>>>>>>> 9074c8136dd2c3f7f90408483f95cb2eb2c07c96
   label_wkexpense_reports: Expense Report
   label_spent_expense: Spent Expense
   label_wk_submission_deadline: Submission Deadline

@@ -30,6 +30,7 @@ class WkExpenseEntryQuery < Query
     QueryAssociationColumn.new(:issue, :tracker, :caption => :field_tracker, :sortable => "#{Tracker.table_name}.position"),
     QueryAssociationColumn.new(:issue, :status, :caption => :field_status, :sortable => "#{IssueStatus.table_name}.position"),
     QueryColumn.new(:comments),
+	QueryColumn.new(:currency),
 	QueryColumn.new(:amount, :sortable => "#{WkExpenseEntry.table_name}.amount", :totalable => true),
   ]
 
@@ -215,18 +216,18 @@ class WkExpenseEntryQuery < Query
   def sql_for_issue_id_field(field, operator, value)
     case operator
     when "="
-      "#{TimeEntry.table_name}.issue_id = #{value.first.to_i}"
+      "#{WkExpenseEntry.table_name}.issue_id = #{value.first.to_i}"
     when "~"
       issue = Issue.where(:id => value.first.to_i).first
       if issue && (issue_ids = issue.self_and_descendants.pluck(:id)).any?
-        "#{TimeEntry.table_name}.issue_id IN (#{issue_ids.join(',')})"
+        "#{WkExpenseEntry.table_name}.issue_id IN (#{issue_ids.join(',')})"
       else
         "1=0"
       end
     when "!*"
-      "#{TimeEntry.table_name}.issue_id IS NULL"
+      "#{WkExpenseEntry.table_name}.issue_id IS NULL"
     when "*"
-      "#{TimeEntry.table_name}.issue_id IS NOT NULL"
+      "#{WkExpenseEntry.table_name}.issue_id IS NOT NULL"
     end
   end
 
@@ -235,13 +236,13 @@ class WkExpenseEntryQuery < Query
     case operator
     when "="
       if issue_ids.any?
-        "#{TimeEntry.table_name}.issue_id IN (#{issue_ids.join(',')})"
+        "#{WkExpenseEntry.table_name}.issue_id IN (#{issue_ids.join(',')})"
       else
         "1=0"
       end
     when "!"
       if issue_ids.any?
-        "#{TimeEntry.table_name}.issue_id NOT IN (#{issue_ids.join(',')})"
+        "#{WkExpenseEntry.table_name}.issue_id NOT IN (#{issue_ids.join(',')})"
       else
         "1=1"
       end

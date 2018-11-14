@@ -70,11 +70,13 @@ If an apache passenger module is used then make sure the following settings are 
 	b) RailsAppSpawnerIdleTime 0
 	c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for 3.3.2
+Release Notes for 3.3.3
 	   
 Bug Fixing:
-	   - Spent for field is marked as mandatory in log time
-	   - Activity dropdown is not changed when changing the project in Timesheet
+	   - Expense Report shows total time label instead of total expense label
+	   - Currency column not available in expense detail
+	   - spent for field always shown in log time page
+	   
 	   
 We would like to thank Addison for partially sponcered this release.
 
