@@ -894,3 +894,11 @@ fr:
   label_lead_deleted: Deleted lead
   label_contact_deleted: Deleted contact
   label_wk_custom_fields: ERPMine custom fields
+  label_display_as: Display as
+  label_display_creation: Display creation?
+  label_users_can_pick_project: Allow users to pick project?
+  label_default_project: Default project
+  label_default_document_type: Default document type
+  label_you_have_to_pick_project: You have to pick project
+
+

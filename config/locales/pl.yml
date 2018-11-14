@@ -51,9 +51,9 @@ pl:
   label_start: Start
   label_end: Koniec
   label_remaining_hours: Pozostałe Godziny
-  label_warning_wktime_time_entry: "Lista obecności dla tego okresu została zablokowana, nie możesz zapisać czasu."
+  label_warning_wktime_time_entry: "Lista obecności dla tego okresu została zablokowana, nie możesz zapisać czasu."  
   label_warning_wktime_issue_tracker: "Śledzenie tego zagadnienia nie pozwala na zapisywanie czasu."
-
+  
   label_wk_first_day_of_week: Pierwszy dzień tygodnia
   label_wk_prev_week_tip: Poprzedni tydzień
   label_wk_next_week_tip: Następny tydzień
@@ -64,12 +64,8 @@ pl:
   label_wk_filter_issue_tracker: Filtruj Zagadnienie przez śledzenie
   label_wk_currency: Waluta
   label_wk_time: Tygodniowy czas
-<<<<<<< HEAD
-
-=======
   label_total_expense: Total Expense  
  
->>>>>>> 9074c8136dd2c3f7f90408483f95cb2eb2c07c96
   label_wkexpense_reports: Raport kosztów
   label_spent_expense: Poniesione Koszty
   label_wk_submission_deadline: Ostateczny termin przesłania
@@ -79,7 +75,7 @@ pl:
   label_redmine_restart_warning: "Uwaga: Każda zmiana poniższych ustawień harmonogramu wymaga restartu redmine"
   label_wk_minutes: Minuty
   label_wkexpense_entry_projects: Ogranicz wpisywanie wydatków do tych projektów
-
+  
   label_wk_public_holiday: Święta
   label_wk_description: Opis
   label_wk_date_exists: Taka data już istnieje
@@ -89,7 +85,7 @@ pl:
   button_continue: Kontynuuj
   button_add_row: Dodaj rząd
   button_new_wkexpense: Nowy arkusz kalkulacyjny
-
+  
   button_wk_unsubmit: Zrezygnuj
   button_save_continue: Zapisz i Kontynuuj
   button_wk_approve: Potwierdź
@@ -97,36 +93,36 @@ pl:
   button_wk_unapprove: Nie zatwierdzaj
   chkbox_prev_tmpl: Wzór z poprzedniego tygodnia
   chkbox_closed_issues: Załącz zamknięte zagadnienia z poprzedniego tygodnia
-
+  
   error_te_save_failed: "Nie udało się zapisać %{label}: %{error}"
   error_wktime_save_nothing: Nie ma niczego do zapisania
   error_not_permitted_save: Zapisanie niedozwolone
-
+  
   wk_status_new: Nowy
   wk_status_empty: Pusty
   wk_status_submitted: Wysłany
   wk_status_approved: Zatwierdzony
   wk_status_rejected: Odrzucony
-
+  
   text_start_of_week_confirmation: "Czy jesteś pewien? Status zostanie utracony na wcześniej wysłanym %{value}"
   text_wk_warning_min_hour: "Nie podałeś minimalnej ilości godzin (%{value}) wymaganych na dzień"
   text_wk_warning_max_hour: "Podana ilość godzin jest powyżej maksymalnej ilości godzin (%{value}) dozwolonej na dzień"
   field_amount: Wartość
   field_status_modified_by: "Zmodyfikowany przez"
-
+  
 
   label_wk_allow_filter_issue: Zezwalaj na filtorwanie użytkownika w moich zagadnieniach
   label_wk_no_user_current_project: Brak użytkowników w wybranym projekcie
-
+ 
   permission_approve_time_entries: Zatwierdź zapisany czas
   field_currency: Waluta
   error_project_issue_associate: Nie można usunąć ponieważ czas/wydatki jest powiązany
   error_time_entry_delete: "Nie można usunąć. Lista obecności z tym wejściem jest zamknięta"
-
+  
   label_user_filters: Filtr użytkownika
   label_submitted_by: Wysłane przez
   label_approved_by:  Zatwierdzone przez
-
+  
   label_wk_reminder: Wyślij przypomnienie
   label_wk_reminder_notes: Powiadomienia przypominające
   label_wk_sub_reminder: Wyślij e-mail przypominający o przesłaniu
@@ -140,8 +136,8 @@ pl:
   label_wk_timesheet: Lista obecności
   label_wk_expensesheet: Arkusz kalkulacyjny
   text_wk_no_reminder: Brak przypomnień do wysłania
-
-
+  
+  
   report_attendance: Frekwencja
   report_spent_time: Spędzony czas
   label_wk_break_time: Czas przerwy
@@ -176,7 +172,7 @@ pl:
   label_leave_beginning_of_mnth:  Pozostały urlop na początku miesiąca
   label_leave_during_mnth:  Urlop wykorzystany w ciągu miesiąca
   label_daily_workdone_inclede_ot:  Dzienna ilość godzin pracy wliczając nadgodziny(Jeżeli są)
-  label_total_hours_ot:  Nadgodzin ogółem
+  label_total_hours_ot:  Nadgodzin ogółem 
   label_total_hours_during_mnth:  Ogółem godzin w miesiącu
   label_total_no_of_maternity_leave:  Ogółem dni urlopu macierzyńskiego
   label_attn_sl_no:  Sl. numer
@@ -191,7 +187,7 @@ pl:
   label_hours_note: "Uwaga: Proszę podać czas w 24 godzinnym formacie(GG:MM)."
   label_no_leaves_configured : Nie skonfigurowano urlopów
   label_max_min_hours_day_msg : Minimalna ilość godzin jest większa niż maksymalna ilość godzin.
-
+  
   label_wk_restr_max_hour_week: Wymuś maks. ilość godzin na tydzień
   label_wk_max_hour_week: Maksimum godzin na tydzień
   label_wk_restr_min_hour_week: Wymuś min. ilość godzin na tydzień
@@ -202,7 +198,7 @@ pl:
   label_enable_attendance_module: Włącz moduł frekwencji
   label_enable_report_module: Włącz Raporty
   label_group_non_submission_email: Wybierz grupę osób, które nie przesłały listy obecności
-
+  
   error_expense_entry_delete: "Nie można usunąć. Arkusz kalkulacyjny z tym wejściem jest zamknięty"
   button_populate_leave: "Uruchom Okresowe Zakończenie Operacji"
   text_are_you_sure_want_to_run: "Jesteś pewien że chcesz wykonać tę operację?"
@@ -219,14 +215,14 @@ pl:
   label_fields_in_file: Pola w pliku
   label_import_file_headers: Nagłówki Pliku
   error_no_record_to_import: Brak rejestru do zaimportowania
-  warning_fields_in_file_not_configured: Pola w pliku nie są skonfigurowane w ustawieniach wtyczki obecności
-
+  warning_fields_in_file_not_configured: Pola w pliku nie są skonfigurowane w ustawieniach wtyczki obecności 
+  
   label_payroll: Lista Wypłat
   label_basic: Podstawowe wynagrodzenie
   label_deduction: Odliczenia
   label_gross: Brutto
   label_net: Netto
-  label_salarydate: Data wypłaty
+  label_salarydate: Data wypłaty  
   label_allowances: Dodatki
   label_frequency: Częstość
   label_pay_period: Okres płatności
@@ -277,7 +273,7 @@ pl:
   label_salary_component: Komponent wynagrodzenia
   label_override_common_setting: Nadpisz podstawowe ustawienie
   label_actual: Aktualne
-
+  
   label_wk_billing: Faktury
   label_enable_billing_module: Włącz moduł faktur
   label_accounts: Działalności
@@ -411,7 +407,7 @@ pl:
   label_sub_total: Suma całkowita
   label_round_off: Zaokrąglenie
   label_grand_total: Łączna suma
-
+  
   label_accounting: Rachunkowość
   label_accounting_group: Użytkownicy rachunkowości
   label_enable_accounting_module: Włącz moduł rachunkowości
@@ -495,7 +491,7 @@ pl:
   label_less_transferred: "Mniejszy: Przeniesiony"
   label_trans_row_validmsg: Transakcja musi zawierać minimum dwa rzędy.
   label_trans_total_validmsg: Transakcje przychodów i wydatków nie pasują.
-
+  
   label_crm: CRM
   label_lead_plural: Leads
   label_opportunity_plural: Możliwości
@@ -517,7 +513,7 @@ pl:
   label_recycled: Przetworzono
   label_dead: Wygaszony
   label_lead_source: Źródło lead'a
-  label_opportunity_amount: Wartość możliwości
+  label_opportunity_amount: Wartość możliwości
   label_referred_by: Poświadczony przez
   label_more: Więcej
   label_subject: Temat
@@ -596,9 +592,9 @@ pl:
   report_civilian_attendance: Civilian Attendance
   minimum_working_days_for_accrual: Minimum dni roboczych dla naliczonego urlopu
   label_accrual_multiplier: Mnożnik naliczania
-
+  
   label_enable_time_module: Włącz moduł czasu
-
+  
   label_payments: Płatność
   label_payment_date: Data płatności
   label_payment_type: Rodzaj płatności
@@ -620,7 +616,7 @@ pl:
   label_minus: Minus
   label_credit_from_prv_inv: "Dług z poprzedniej faktury #%{invId}"
   label_credit_from_prv_inv_pay: "Dług z poprzedniej faktury #%{invId} Płatność #%{payId}"
-
+  
   label_rfq: Zapytanie o ofertę
   label_quotes: Ceny
   label_purchase_order: Zamówienie
@@ -671,7 +667,7 @@ pl:
   error_please_select_rfq: Proszę wybrać zapytanie o cenę
   error_please_select_winning_quote: Proszę wybrać wygrywającą ofertę
   error_please_select_po: Proszę wybrać zamówienie
-
+  
   label_inventory: Magazyn
   label_inventory_admin_group: Administratorzy magazynu
   label_inventory_user_group: Użytkownicy magazynu
@@ -841,7 +837,7 @@ pl:
   text_edit_activity: Edytuj Aktywność
   label_number_shortcut: nr
   label_account_category: Kategoria Konta
-
+  
 
   VIEW INVENTORY: Przeglądnie magazynu
   DELETE INVENTORY: Usuwanie magazynu
@@ -916,4 +912,5 @@ pl:
   label_users_can_pick_project: Pozwól użytkowniką na wybór projektu?
   label_default_project: Domyślny projekt
   label_default_document_type: Domyślny typ dokumentu
-  you_have_to_pick_project: Musisz wybrać projekt
+  label_you_have_to_pick_project: Musisz wybrać projekt
+
