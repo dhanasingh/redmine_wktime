@@ -35,7 +35,7 @@
     <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :startday => entry.spent_on, :user_id => entry.user_id, :tab => controller.controller_name},
                                        :title => l(:button_edit) %>
 	<% if entry.status.blank? || entry.status == 'n' || entry.status == 'r' %>
-		<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :startday => entry.spent_on, :user_id => entry.user_id, :tab => controller.controller_name},
+		&nbsp;|&nbsp;<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :startday => entry.spent_on, :user_id => entry.user_id, :tab => controller.controller_name},
 											 :data => {:confirm => l(:text_are_you_sure)},
 											 :method => :delete,
 											 :title => l(:button_delete) %>
