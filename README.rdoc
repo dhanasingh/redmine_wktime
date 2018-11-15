@@ -70,7 +70,8 @@ If an apache passenger module is used then make sure the following settings are 
 	b) RailsAppSpawnerIdleTime 0
 	c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for 3.3.3
+<<<<<<< HEAD
+Release Notes for 3.3.
 	   
 Bug Fixing:
 	   - Expense Report shows total time label instead of total expense label
@@ -79,6 +80,18 @@ Bug Fixing:
 	   
 	   
 We would like to thank Addison for partially sponcered this release.
+=======
+Release Notes for 3.3.4
+
+Features:
+	   - Pipe symbol between the Edit and Delete icon in Timesheet list page
+	   
+Bug Fixing:
+	   - Uncaught RangeError: Invalid array length on My Account page
+	  
+	      
+We would like to thank Addison for partially sponsored this release.
+>>>>>>> 8d3456c2fa810250057683ff711a9407faaea547
 
 Customization:
 	For any Customization/Support, please contact us, our consulting team will be happy to help you

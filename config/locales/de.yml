@@ -87,7 +87,7 @@ de:
   button_new_wkexpense: New Expensesheet
 
   button_wk_unsubmit: Unsubmit
-  button_save_continue: Save and continue
+  button_save_continue: Speichern und weiter
   button_wk_approve: Genehmigen
   button_wk_reject: Ablehnen
   button_wk_unapprove: Unapprove
@@ -108,7 +108,7 @@ de:
   text_wk_warning_min_hour: "You have not entered the Minimum hours (%{value}) required per day"
   text_wk_warning_max_hour: "You have entered hours above Maximum hours (%{value}) allowed per day"
   field_amount: Amount
-  field_status_modified_by: "Modified by"
+  field_status_modified_by: "geändert von"
 
   label_wk_allow_filter_issue: Allow User filtering to My Issues
   label_wk_no_user_current_project: no users in selected project
