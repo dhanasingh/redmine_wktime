@@ -1,0 +1,9 @@
+<h2><%= l(:label_dashboards) %></h2>
+<% get_graphs_with_type.each do |graphName, gType| %>
+	<p>
+	<%= tag("embed",
+			:type => "image/svg+xml", :src => url_for(:controller => 'wkdashboard',
+			:action => 'graph',
+			:graph => graphName, :graph_type => gType)) %>
+	</p>
+<% end %>

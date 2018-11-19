@@ -885,4 +885,9 @@ en:
   label_ftte_supervisor_based_approval: "Use supervisor based approval system "
   label_ftte_view_only_own_spent_time: "View only own spent time"
   label_additional_details: Additional Details
+  
+  #Dashboards
+  label_dashboards: Dashboards
+  label_clock_in_users_over_time: Clock in users over time
+  label_no_of_users: No of users
 
