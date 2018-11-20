@@ -13,6 +13,8 @@ require 'SVG/Graph/Plot'
     case params[:graph]
     when "clock_in_users_over_time"
       data = graph_clock_in_users_over_time
+	when "expense_for_issues"
+      data = graph_expense_for_issues  
     end
     if data
       headers["Content-Type"] = "image/svg+xml"
@@ -55,4 +57,38 @@ require 'SVG/Graph/Plot'
 
     graph.burn
   end
+  
+  def graph_expense_for_issues
+    @current_date = User.current.today
+    # @date_from = @date_to << 11
+    # @date_from = Date.civil(@date_from.year, @date_from.month, 1)
+    expense_for_issues = WkExpenseEntry.
+	  where("spent_on BETWEEN ? AND ?", @current_date.at_beginning_of_month(), @current_date.at_end_of_month()).select("issue_id, sum(amount) as total_amount").group(:issue_id)
+    #expense_for_issues_by_month = [0] * 12
+    issue_expense_hash = expense_for_issues.map {|c| [c.issue_id,c.total_amount] }.to_h
+    fields = issue_expense_hash.keys.sort
+	issue_expense_arr = Array.new
+	fields.each {|c| issue_expense_arr << issue_expense_hash[c]}
+    #today = User.current.today
+    #12.times {|m| fields << month_name(((today.month - 1 - m) % 12) + 1)}
+
+    graph = SVG::Graph::Bar.new(
+      :height => 300,
+      :width => 800,
+      :fields => fields,
+      :stack => :side,
+      :scale_integers => true,
+      :step_x_labels => 1,
+      :show_data_values => false,
+      :graph_title => l(:label_expense_for_issues),
+      :show_graph_title => true
+    )
+
+    graph.add_data(
+      :data => issue_expense_arr[0..(fields.length - 1)],
+      :title => l(:label_total_expense_of_issues)
+    )
+
+    graph.burn
+  end  
 end

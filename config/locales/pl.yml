@@ -904,3 +904,5 @@ pl:
   label_dashboards: Dashboards
   label_clock_in_users_over_time: Clock in users over time
   label_no_of_users: No of users
+  label_expense_for_issues: Expense for issues
+  label_total_expense_of_issues: Total expense of the issues
