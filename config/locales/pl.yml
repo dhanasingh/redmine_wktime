@@ -912,3 +912,5 @@ pl:
   label_invoice_vs_payment_per_month: Invoice total and Payment total per month
   label_total_invoice: invoice total
   label_total_payment: payment total
+  label_assests_per_month: Assests per month
+  label_total_assests_per_month: Total assestes per month

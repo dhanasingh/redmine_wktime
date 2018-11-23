@@ -20,8 +20,11 @@ include WkcrmHelper
     when "lead_creation_and_conversion_per_month"
       data = graph_lead_creation_and_conversion_per_month
     when "invoice_vs_payment_per_month"
-      data = graph_invoice_vs_payment_per_month  
+      data = graph_invoice_vs_payment_per_month
+	when "assests_per_month"
+      data = graph_assests_per_month  	  
     end
+
     if data
       headers["Content-Type"] = "image/svg+xml"
       send_data(data, :type => "image/svg+xml", :disposition => "inline")
@@ -114,7 +117,7 @@ include WkcrmHelper
 	
     lead_creation_hash = createdLeadCounts.map {|c| [c.month_val.to_s,c.created_count] }.to_h
 	fields = []
-	12.times {|m| fields << month_name(((@date_to.month - 1 - m) % 12) + 1)}
+	12.times {|m| fields << month_name(((@date_to.month - 1 - m) % 12) + 1).first(3)}
 	
 	lead_creation_arr = [0]*12
     lead_creation_hash.each {|month, count| lead_creation_arr[@date_to.month - month.to_i] = count }
@@ -164,13 +167,13 @@ include WkcrmHelper
 	
     invoice_total_hash = toalInvoiceAmount.map {|c| [c.month_val.to_s,c.invoice_total.to_i] }.to_h
 	fields = []
-	12.times {|m| fields << month_name(((@date_to.month - 1 - m) % 12) + 1)}
+	12.times {|m| fields << month_name(((@date_to.month - 1 - m) % 12) + 1).first(3)}
 	invoice_total_arr = [0]*12
     invoice_total_hash.each {|month, sum| invoice_total_arr[@date_to.month - month.to_i] = sum }
 	
 	payment_total_hash = toalPayment.map {|c| [c.month_val.to_s,c.payment_total.to_i] }.to_h
 	fields = []
-	12.times {|m| fields << month_name(((@date_to.month - 1 - m) % 12) + 1)}
+	12.times {|m| fields << month_name(((@date_to.month - 1 - m) % 12) + 1).first(3)}
 	payment_total_arr = [0]*12
     payment_total_hash.each {|month, sum| payment_total_arr[@date_to.month - month.to_i] = sum }
 	
@@ -198,4 +201,56 @@ include WkcrmHelper
 
     graph.burn
   end  
+ 
+   def graph_assests_per_month
+    @date_to = User.current.today + 1.year
+    @date_from = @date_to << 11
+    @date_from = Date.civil(@date_from.year, @date_from.month, 1)
+    asset_value_by_month = WkAssetDepreciation.
+	where("depreciation_date BETWEEN ? AND ?", @date_from, @date_to).
+	select("extract(year from wk_asset_depreciations.depreciation_date) as year_val, extract(month from wk_asset_depreciations.depreciation_date) as month_val, sum(actual_amount) as total_amount").group("extract(year from wk_asset_depreciations.depreciation_date), extract(month from wk_asset_depreciations.depreciation_date)")
+	
+	assest_value_hash = Hash.new
+	asset_value_by_month.each {|c| assest_value_hash[(c.year_val.to_s + (c.month_val.to_s.length == 1 ? "0" : "") + c.month_val.to_s).to_i] = c.total_amount }
+	yearMonthArr = assest_value_hash.keys.sort
+	fields = []
+	12.times {|m| fields << month_name(((@date_to.month - 1 - m) % 12) + 1).first(3)} # + " " + ((((@date_to.month - 1 - m) % 12) + 1) < 1 ? @date_to.year - 1 : @date_to.year).to_s} 
+	assest_value_arr = [0]*12
+	last_year = @date_from.year
+	last_month = @date_from.month
+	last_total = 0
+    yearMonthArr.each do |yearMon|
+		year = yearMon.to_s.first(4).to_i
+		month = yearMon.to_s.last(2).to_i
+		while last_month != month && ((last_month + 1) % 12 != month) #(((last_month + 1) % 12) != month)
+			assest_value_arr[@date_to.month - ((last_month + 1) % 12)] = last_total
+			last_year += 1 #yearMon.to_s.first(4).to_i
+			last_month += 1 #yearMon.to_s.last(2).to_i
+		end
+		assest_value_arr[@date_to.month - yearMon.to_s.last(2).to_i] = assest_value_hash[yearMon]
+		last_year = year #yearMon.to_s.first(4).to_i
+		last_month = month #yearMon.to_s.last(2).to_i
+		last_total = assest_value_hash[yearMon]
+	end
+	
+
+    graph = SVG::Graph::Line.new(
+      :height => 300,
+      :width => 800,
+      :fields => fields.reverse,
+      :stack => :side,
+      :scale_integers => true,
+      :step_x_labels => 1,
+      :show_data_values => false,
+      :graph_title => l(:label_assests_per_month),
+      :show_graph_title => true
+    )
+
+    graph.add_data(
+      :data => assest_value_arr[0..11].reverse,
+      :title => l(:label_total_assests_per_month)
+    )
+
+    graph.burn
+  end
 end
