@@ -893,4 +893,10 @@ fr:
   label_no_of_users: No of users
   label_expense_for_issues: Expense for issues
   label_total_expense_of_issues: Total expense of the issues
+  label_lead_creation_and_conversion_per_month: lead creation and conversion per month
+  label_created_lead: created lead
+  label_converted_lead: converted lead
+  label_invoice_vs_payment_per_month: Invoice total and Payment total per month
+  label_total_invoice: invoice total
+  label_total_payment: payment total
 
