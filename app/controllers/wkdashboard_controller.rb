@@ -17,8 +17,8 @@ include WkcrmHelper
       data = graph_clock_in_users_over_time
 	when "expense_for_issues"
       data = graph_expense_for_issues
-    when "lead_creation_and_conversion_per_month"
-      data = graph_lead_creation_and_conversion_per_month
+    when "lead_generation_vs_conversion"
+      data = graph_lead_generation_vs_conversion
     when "invoice_vs_payment_per_month"
       data = graph_invoice_vs_payment_per_month
 	when "assests_per_month"
@@ -81,7 +81,7 @@ include WkcrmHelper
     #today = User.current.today
     #12.times {|m| fields << month_name(((today.month - 1 - m) % 12) + 1)}
 
-    graph = SVG::Graph::BarHorizontal.new(
+    graph = SVG::Graph::Pie.new(
       :height => 300,
       :width => 800,
       :fields => fields,
@@ -102,7 +102,7 @@ include WkcrmHelper
     graph.burn
   end
 
-  def graph_lead_creation_and_conversion_per_month
+  def graph_lead_generation_vs_conversion
 	@date_to = User.current.today
     @date_from = @date_to << 11
     @date_from = Date.civil(@date_from.year, @date_from.month, 1)
@@ -135,7 +135,7 @@ include WkcrmHelper
       :step_x_labels => 1,
       :step_y_labels => 1,
       :show_data_values => false,
-      :graph_title => l(:label_lead_creation_and_conversion_per_month),
+      :graph_title => l(:label_lead_generation_vs_conversion),
       :show_graph_title => true
     )
 
@@ -170,14 +170,20 @@ include WkcrmHelper
 	12.times {|m| fields << month_name(((@date_to.month - 1 - m) % 12) + 1).first(3)}
 	invoice_total_arr = [0]*12
     invoice_total_hash.each {|month, sum| invoice_total_arr[@date_to.month - month.to_i] = sum }
+	invoice_total_arr.reverse!
+	invoice_total_arr.each_with_index {|amt, index| invoice_total_arr[index] = amt + invoice_total_arr[index -1 ] if index != 0}
+	invoice_total_arr.reverse!
 	
 	payment_total_hash = toalPayment.map {|c| [c.month_val.to_s,c.payment_total.to_i] }.to_h
 	fields = []
 	12.times {|m| fields << month_name(((@date_to.month - 1 - m) % 12) + 1).first(3)}
 	payment_total_arr = [0]*12
     payment_total_hash.each {|month, sum| payment_total_arr[@date_to.month - month.to_i] = sum }
+	payment_total_arr.reverse!
+	payment_total_arr.each_with_index {|amt, index| payment_total_arr[index] = amt + payment_total_arr[index -1 ] if index != 0}
+	payment_total_arr.reverse!
 	
-    graph = SVG::Graph::Bar.new(
+    graph = SVG::Graph::Line.new(
       :height => 300,
       :width => 800,
       :fields => fields.reverse,
