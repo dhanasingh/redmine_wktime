@@ -1,9 +1,48 @@
+<html>
+<head>
+<style>
+* {
+    box-sizing: content-box;
+}
+
+/* Create Three equal columns that floats next to each other */
+.column {
+    float: left;
+    width: 32%;
+    padding: 8px;
+	height: 220px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+
+/* Responsive layout - makes the Three columns stack on top of each other instead of next to each other */
+@media screen and (max-width: 800px) {
+    .column {
+        width: 100%;
+    }
+}
+</style>
+</head>
+
+<body>
 <h2><%= l(:label_dashboards) %></h2>
-<% get_graphs_with_type.each do |graphName, gType| %>
-	<p>
+ <div class="row">
+  <% get_graphs_with_type.each do |graphName, gType| %>
+   <div class="column">
+    <p>
 	<%= tag("embed",
 			:type => "image/svg+xml", :src => url_for(:controller => 'wkdashboard',
 			:action => 'graph',
 			:graph => graphName, :graph_type => gType)) %>
-	</p>
-<% end %>
+    </p>
+   </div>
+  <% end %>
+ </div>
+</body>
+</html>

@@ -22,16 +22,51 @@ include WkcrmHelper
     when "invoice_vs_payment_per_month"
       data = graph_invoice_vs_payment_per_month
 	when "assests_per_month"
-      data = graph_assests_per_month  	  
+      data = graph_assests_per_month
+	when "profit_loss_per_month"
+	  data = graph_profit_loss_per_month
     end
 
     if data
-      headers["Content-Type"] = "image/svg+xml"
+      headers["Content-Type"] = params[:type]
       send_data(data, :type => "image/svg+xml", :disposition => "inline")
     else
       render_404
     end
   end
+  
+	
+  def get_graphs(graphType, fields, graphTitle, xTitle, yTitle)	
+	graph = SVG::Graph.const_get(graphType).new(
+      :height => 220,
+      :width => 400,
+      :fields => fields,
+      :stack => :side,
+      :scale_integers => true,
+      :step_x_labels => 2,
+      :show_data_values => false,
+      :graph_title => graphTitle,
+      :show_graph_title => true,
+	  :show_x_title => true,
+      :x_title => (graphType == "Pie" ? "" : xTitle),
+      :show_y_title => true,
+      :y_title_text_direction => :bt,
+      :y_title => (graphType == "Pie" ? "" : yTitle),
+	  :key => (graphType == "Pie" ? false : true),
+	  :key_position => :bottom,
+	  :show_data_labels =>  true,
+	  :show_actual_values => true,
+      :show_percent => false,
+	  :datapoint_font_size => 10,
+      :title_font_size => 14,
+      :x_label_font_size => 8,
+      :x_title_font_size => 12,
+      :y_label_font_size => 8,
+      :y_title_font_size => 12,
+      :key_font_size => 8
+    )
+	graph
+  end  
   
   def graph_clock_in_users_over_time
 	@date_to = User.current.today# - 4.days
@@ -47,21 +82,12 @@ include WkcrmHelper
     today = User.current.today
     24.times {|m| fields << m}
 
-    graph = SVG::Graph::Bar.new(
-      :height => 300,
-      :width => 800,
-      :fields => fields,
-      :stack => :side,
-      :scale_integers => true,
-      :step_x_labels => 2,
-      :show_data_values => false,
-      :graph_title => l(:label_clock_in_users_over_time),
-      :show_graph_title => true
-    )
-
+	graph = get_graphs("Bar", fields, l(:label_clock_in_users_over_time), l(:label_hours), l(:label_no_of_employees))
+	
+	
     graph.add_data(
       :data => clock_in_per_time[0..23],
-      :title => l(:label_no_of_users)
+      :title => l(:label_no_of_employees)
     )
 
     graph.burn
@@ -81,18 +107,7 @@ include WkcrmHelper
     #today = User.current.today
     #12.times {|m| fields << month_name(((today.month - 1 - m) % 12) + 1)}
 
-    graph = SVG::Graph::Pie.new(
-      :height => 300,
-      :width => 800,
-      :fields => fields,
-      :stack => :side,
-      :scale_integers => true,
-      :step_x_labels => 1,
-      :show_data_values => false,
-      :graph_title => l(:label_expense_for_issues),
-      :show_graph_title => true,
-	  :rotate_y_labels => false
-    )
+	graph = get_graphs("Pie", fields, l(:label_expense_for_issues), l(:label_hours), (:label_days))
 
     graph.add_data(
       :data => issue_expense_arr[0..(fields.length - 1)],
@@ -126,19 +141,8 @@ include WkcrmHelper
 	lead_conversation_arr = [0]*12
 	lead_conversation_hash.each {|month, count| lead_conversation_arr[@date_to.month - month.to_i] = count}
 	
-    graph = SVG::Graph::Line.new(
-      :height => 300,
-      :width => 800,
-      :fields => fields.reverse,
-      :stack => :side,
-      :scale_integers => true,
-      :step_x_labels => 1,
-      :step_y_labels => 1,
-      :show_data_values => false,
-      :graph_title => l(:label_lead_generation_vs_conversion),
-      :show_graph_title => true
-    )
-
+	graph = get_graphs("Line", fields, l(:label_lead_generation_vs_conversion), l(:label_months), l(:label_no_of_leads))
+	
     graph.add_data(
       :data => lead_creation_arr.reverse,
       :title => l(:label_created_lead)
@@ -183,18 +187,8 @@ include WkcrmHelper
 	payment_total_arr.each_with_index {|amt, index| payment_total_arr[index] = amt + payment_total_arr[index -1 ] if index != 0}
 	payment_total_arr.reverse!
 	
-    graph = SVG::Graph::Line.new(
-      :height => 300,
-      :width => 800,
-      :fields => fields.reverse,
-      :stack => :side,
-      :scale_integers => true,
-      :step_x_labels => 1,
-      :show_data_values => false,
-      :graph_title => l(:label_invoice_vs_payment_per_month),
-      :show_graph_title => true
-    )
-
+    graph = get_graphs("Line", fields, l(:label_invoice_vs_payment_per_month), l(:label_months), l(:label_amount))
+	
     graph.add_data(
       :data => invoice_total_arr.reverse,
       :title => l(:label_total_invoice)
@@ -239,18 +233,7 @@ include WkcrmHelper
 		last_total = assest_value_hash[yearMon]
 	end
 	
-
-    graph = SVG::Graph::Line.new(
-      :height => 300,
-      :width => 800,
-      :fields => fields.reverse,
-      :stack => :side,
-      :scale_integers => true,
-      :step_x_labels => 1,
-      :show_data_values => false,
-      :graph_title => l(:label_assests_per_month),
-      :show_graph_title => true
-    )
+	graph = get_graphs("Line", fields, l(:label_assests_per_month), l(:label_months), l(:label_amount))
 
     graph.add_data(
       :data => assest_value_arr[0..11].reverse,
@@ -259,4 +242,115 @@ include WkcrmHelper
 
     graph.burn
   end
+  
+def graph_profit_loss_per_month
+    @date_to = User.current.today + 1.month #- 1.year
+    @date_from = @date_to << 11
+    @date_from = Date.civil(@date_from.year, @date_from.month, 1)
+	
+		incomeDetail = WkGlTransactionDetail.joins("LEFT OUTER JOIN wk_ledgers on wk_ledgers.id = wk_gl_transaction_details.ledger_id").joins("LEFT OUTER JOIN wk_gl_transactions on wk_gl_transactions.id = wk_gl_transaction_details.gl_transaction_id" ).where('wk_ledgers.ledger_type IN (?) and wk_gl_transactions.trans_date between ? and ?', incomeLedgerTypes, @date_from, @date_to).select("SUM(wk_gl_transaction_details.amount) AS sum_amount, wk_ledgers.id as ledger_id, wk_ledgers.ledger_type, wk_gl_transaction_details.detail_type, extract(year from wk_gl_transactions.trans_date) AS trans_year, extract(month from wk_gl_transactions.trans_date) AS trans_month ").group('wk_ledgers.id, wk_ledgers.ledger_type, wk_gl_transaction_details.detail_type, extract(year from wk_gl_transactions.trans_date), extract(month from wk_gl_transactions.trans_date)')
+	
+	incomeHash = Hash.new
+	incomeDetail.each do |ic|
+		transDt = (ic.trans_year.to_i.to_s + (ic.trans_month.to_i.to_s.length == 1 ? "0" : "") + ic.trans_month.to_i.to_s).to_i
+		if incomeHash[transDt].blank?
+			incomeHash[transDt] = {ic.ledger_type => {ic.detail_type => ic.sum_amount}}
+		else
+			if incomeHash[transDt][ic.ledger_type].blank?
+				incomeHash[transDt][ic.ledger_type] = {ic.detail_type => ic.sum_amount}
+			else
+				if incomeHash[transDt][ic.ledger_type][ic.detail_type].blank?
+					incomeHash[transDt][ic.ledger_type][ic.detail_type] = ic.sum_amount
+				else
+					incomeHash[transDt][ic.ledger_type][ic.detail_type] += ic.sum_amount
+				end				
+			end			
+		end
+	end
+	
+	profitIncomeHash = Hash.new
+	incomeHash.each do |yearMon, ledTypeHash|
+		ledTypeHash.each do |ledgerType, trxAmountHash|
+			profitValHash = calculateBalance({ledgerType=> trxAmountHash['c'].to_f}, {ledgerType=> trxAmountHash['d'].to_f}, ledgerType)
+			unless profitIncomeHash[yearMon].blank?
+				profitIncomeHash[yearMon] += profitValHash[ledgerType].to_f
+			else
+				profitIncomeHash[yearMon] = profitValHash[ledgerType].to_f
+			end
+		end
+	end
+	
+	fields = []
+	12.times {|m| fields << month_name(((@date_to.month - 1 - m) % 12) + 1).first(3)}
+	
+	profit_income_arr = [0]*12
+    profitIncomeHash.each {|month, sum| profit_income_arr[@date_to.month - month.to_i] = sum }
+	
+	expenseDetail = WkGlTransactionDetail.joins("LEFT OUTER JOIN wk_ledgers on wk_ledgers.id = wk_gl_transaction_details.ledger_id").joins("LEFT OUTER JOIN wk_gl_transactions on wk_gl_transactions.id = wk_gl_transaction_details.gl_transaction_id" ).where('wk_ledgers.ledger_type IN (?) and wk_gl_transactions.trans_date between ? and ?', expenseLedgerTypes, @date_from, @date_to).select("SUM(wk_gl_transaction_details.amount) AS sum_amount, wk_ledgers.id as ledger_id, wk_ledgers.ledger_type, wk_gl_transaction_details.detail_type, extract(year from wk_gl_transactions.trans_date) AS trans_year, extract(month from wk_gl_transactions.trans_date) AS trans_month ").group('wk_ledgers.id, wk_ledgers.ledger_type, wk_gl_transaction_details.detail_type, extract(year from wk_gl_transactions.trans_date), extract(month from wk_gl_transactions.trans_date)')
+	expenseHash = Hash.new
+	expenseDetail.each do |ic|
+		transDt = (ic.trans_year.to_i.to_s + (ic.trans_month.to_i.to_s.length == 1 ? "0" : "") + ic.trans_month.to_i.to_s).to_i
+		if expenseHash[transDt].blank?
+			expenseHash[transDt] = {ic.ledger_type => {ic.detail_type => ic.sum_amount}}
+		else
+			if expenseHash[transDt][ic.ledger_type].blank?
+				expenseHash[transDt][ic.ledger_type] = {ic.detail_type => ic.sum_amount}
+			else
+				if expenseHash[transDt][ic.ledger_type][ic.detail_type].blank?
+					expenseHash[transDt][ic.ledger_type][ic.detail_type] = ic.sum_amount
+				else
+					expenseHash[transDt][ic.ledger_type][ic.detail_type] += ic.sum_amount
+				end				
+			end			
+		end
+	end
+	
+	profitExpenseHash = Hash.new
+	expenseHash.each do |yearMon, ledTypeHash|
+		ledTypeHash.each do |ledgerType, trxAmountHash|
+			profitValHash = calculateBalance({ledgerType=> trxAmountHash['c'].to_f}, {ledgerType=> trxAmountHash['d'].to_f}, ledgerType)
+			
+			unless profitExpenseHash[yearMon].blank?
+				profitExpenseHash[yearMon] += profitValHash[ledgerType].to_f
+			else
+				profitExpenseHash[yearMon] = profitValHash[ledgerType].to_f
+			end
+		end
+	end
+	
+	yearMonthArr = profitExpenseHash.keys.sort
+	fields = []
+	12.times {|m| fields << month_name(((@date_to.month - 1 - m) % 12) + 1).first(3)} # + " " + ((((@date_to.month - 1 - m) % 12) + 1) < 1 ? @date_to.year - 1 : @date_to.year).to_s} 
+	profit_expense_arr = [0]*12
+	last_year = @date_from.year
+	last_month = @date_from.month
+	last_total = 0
+    yearMonthArr.each do |yearMon|
+		year = yearMon.to_s.first(4).to_i
+		month = yearMon.to_s.last(2).to_i
+		while last_month != month && ((last_month + 1) % 12 != month) #(((last_month + 1) % 12) != month)
+			profit_expense_arr[@date_to.month - ((last_month + 1) % 12)] = last_total
+			last_year += 1 #yearMon.to_s.first(4).to_i
+			last_month += 1 #yearMon.to_s.last(2).to_i
+		end
+		profit_expense_arr[@date_to.month - yearMon.to_s.last(2).to_i] = profitExpenseHash[yearMon]
+		last_year = year #yearMon.to_s.first(4).to_i
+		last_month = month #yearMon.to_s.last(2).to_i
+		last_total = profitExpenseHash[yearMon]
+	end
+
+	graph = get_graphs("Line", fields, l(:label_profit_loss_per_month), l(:label_months), l(:label_amount))
+
+    graph.add_data(
+      :data => profit_income_arr.reverse,
+      :title => l(:label_total_income)
+    )
+	
+	graph.add_data(
+      :data => profit_expense_arr.reverse,
+      :title => l(:label_total_expense)
+    )
+
+    graph.burn
+  end  
 end
