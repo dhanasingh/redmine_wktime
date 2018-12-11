@@ -1,8 +1,8 @@
 class WkcrmController < WkbaseController
   unloadable
-  before_filter :require_login
-  before_filter :check_perm_and_redirect, :only => [:index, :edit, :update]
-  before_filter :check_crm_admin_and_redirect, :only => [:destroy]
+  before_action :require_login
+  before_action :check_perm_and_redirect, :only => [:index, :edit, :update]
+  before_action :check_crm_admin_and_redirect, :only => [:destroy]
   include WkcrmHelper
   
 	def index

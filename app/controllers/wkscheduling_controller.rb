@@ -17,7 +17,7 @@
 class WkschedulingController < WkbaseController
   unloadable
   menu_item :wkattendance
-  before_filter :require_login  
+  before_action :require_login  
   rescue_from Query::StatementInvalid, :with => :query_statement_invalid
 
   helper :issues

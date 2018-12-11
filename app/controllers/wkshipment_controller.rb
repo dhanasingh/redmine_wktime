@@ -1,6 +1,6 @@
 class WkshipmentController < WkinventoryController
   unloadable
-before_filter :require_login
+before_action :require_login
 
 include WkcrmHelper
 include WkshipmentHelper

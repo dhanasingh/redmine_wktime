@@ -1,7 +1,7 @@
 class WkorderentityController < WkbillingController
   unloadable
 
-before_filter :require_login
+before_action :require_login
 
 include WktimeHelper
 include WkinvoiceHelper

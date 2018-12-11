@@ -17,7 +17,7 @@
 class WkshiftController < ApplicationController
   unloadable
 	menu_item :wkattendance
-	before_filter :require_login
+	before_action :require_login
 
 
 

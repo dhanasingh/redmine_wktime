@@ -23,8 +23,8 @@ include WktimeHelper
 include WkattendanceHelper
 include WkimportattendanceHelper
 
-before_filter :require_login
-before_filter :check_perm_and_redirect, :only => [:edit, :update, :clockedit]
+before_action :require_login
+before_action :check_perm_and_redirect, :only => [:edit, :update, :clockedit]
 require 'csv' 
 
 	def index

@@ -25,7 +25,7 @@ include WkpayrollHelper
 include WkaccountingHelper
 include WkcrmHelper
 
-before_filter :require_login
+before_action :require_login
 	
 	def index
 		@groups = Group.sorted.all
