@@ -1,4 +1,4 @@
-class CreateWkResidentManagement  < ActiveRecord::Migration
+class CreateWkResidentManagement  < ActiveRecord::Migration[4.2]
 
 	def change
 		

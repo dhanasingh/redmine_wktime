@@ -1,4 +1,4 @@
-class CreateWkInventory < ActiveRecord::Migration
+class CreateWkInventory < ActiveRecord::Migration[4.2]
 
 	def change
 	

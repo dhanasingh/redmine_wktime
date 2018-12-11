@@ -1,6 +1,6 @@
 #!/bin/env ruby
 # encoding: utf-8
-class CreateWkCrm < ActiveRecord::Migration
+class CreateWkCrm < ActiveRecord::Migration[4.2]
 	class WkCrmEnumeration < ActiveRecord::Base
 		attr_protected :id
 	end

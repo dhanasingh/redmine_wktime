@@ -1,4 +1,4 @@
-class CreateWktimes < ActiveRecord::Migration
+class CreateWktimes < ActiveRecord::Migration[4.2]
   def change
     create_table :wktimes do |t|
 	  t.references :user, :null => false
