@@ -14,4 +14,4 @@
 
 <%= render :partial => 'wkaccount/account_index'%>
 
-<%= hidden_field_tag 'back_url', url_for(params) %>
+<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
