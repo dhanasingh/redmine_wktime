@@ -157,7 +157,7 @@ class WkpaymententityController < WkbillingController
 			end
 		end
 		respond_to do |format|
-			format.text  { render :text => projArr }
+			format.text  { render :plain => projArr }
 		end
 		
 	end

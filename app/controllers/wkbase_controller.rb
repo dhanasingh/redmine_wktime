@@ -41,7 +41,7 @@ include WkattendanceHelper
 		@lastAttnEntry = saveAttendance(@lastAttnEntry, entryTime, nil, User.current.id, false)
 		ret = 'done'
 		respond_to do |format|
-			format.text  { render :text => ret }
+			format.text  { render :plain => ret }
 		end
 	end
 	

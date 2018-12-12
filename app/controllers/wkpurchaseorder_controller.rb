@@ -66,7 +66,7 @@ class WkpurchaseorderController < WksupplierorderentityController
 			quoteIds <<  entry.id.to_s() + ',' + entry.invoice_number.to_s()  + "\n" 
 		end
 		respond_to do |format|
-			format.text  { render :text => quoteIds }
+			format.text  { render :plain => quoteIds }
 		end
 	end
 	

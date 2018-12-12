@@ -77,7 +77,7 @@ class WklogmaterialController < ApplicationController
 			end
 		end
 		respond_to do |format|
-			format.text  { render :text => pctArr }
+			format.text  { render :plain => pctArr }
 		end
 	end  
 	
@@ -89,7 +89,7 @@ class WklogmaterialController < ApplicationController
 			spentArr << key.to_s() + ',' +  value.to_s()  + "\n" 
 		end
 		respond_to do |format|
-			format.text  { render :text => spentArr }
+			format.text  { render :plain => spentArr }
 		end
 	end
 end

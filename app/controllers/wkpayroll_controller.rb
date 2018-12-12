@@ -233,7 +233,7 @@ include WkreportHelper
 			group_by_users << users.id.to_s() + ',' + users.name + "\n"
 		end
 		respond_to do |format|
-			format.text  { render :text => group_by_users }
+			format.text  { render :plain => group_by_users }
 		end
 	end	
 	

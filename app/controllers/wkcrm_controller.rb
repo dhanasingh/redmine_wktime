@@ -41,7 +41,7 @@ class WkcrmController < WkbaseController
 		end
 		
 		respond_to do |format|
-			format.text  { render :text => relatedArr }
+			format.text  { render :plain => relatedArr }
 		end
     end
 	

@@ -335,7 +335,7 @@ include WkinventoryHelper
 			end
 		end
 		respond_to do |format|
-			format.text  { render :text => itemArr }
+			format.text  { render :plain => itemArr }
 		end
 	end
 	
@@ -348,7 +348,7 @@ include WkinventoryHelper
 			end
 		end
 		respond_to do |format|
-			format.text  { render :text => siArr }
+			format.text  { render :plain => siArr }
 		end
 	end
 	
