@@ -36,7 +36,7 @@
   <% get_graphs_with_type.each do |graphName, gType| %>
    <div class="column">
     <p>
-	<%= tag("embed",
+	<%#= tag("embed",
 			:type => "image/svg+xml", :src => url_for(:controller => 'wkdashboard',
 			:action => 'graph',
 			:graph => graphName, :graph_type => gType)) %>

@@ -1,9 +1,11 @@
 class WkdashboardController < ApplicationController
-require 'SVG/Graph/Bar'
-require 'SVG/Graph/BarHorizontal'
-require 'SVG/Graph/Pie'
-require 'SVG/Graph/Line'
-require 'SVG/Graph/Plot'
+# TODO - Make compactible with redmine 4.0
+
+# require 'SVG/Graph/Bar'
+# require 'SVG/Graph/BarHorizontal'
+# require 'SVG/Graph/Pie'
+# require 'SVG/Graph/Line'
+# require 'SVG/Graph/Plot'
 
 include WkcrmHelper
 
