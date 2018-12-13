@@ -195,6 +195,8 @@ class WkpaymententityController < WkbillingController
 				oldpaymentItem.is_deleted = true
 				oldpaymentItem.save()
 				paymentItem = WkPaymentItem.new(oldpaymentItem.attributes)
+			# After Rails 5 when assigning all model object attributes into a new object it returns id attribute value also.
+				paymentItem.id = nil
 				paymentItem.created_at = nil
 				paymentItem.updated_at = nil
 				paymentItem = nil if params["amount#{i}"].to_f == 0
