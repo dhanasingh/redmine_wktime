@@ -109,7 +109,7 @@ class WkproductController < WkinventoryController
 		end
 		
 		if !arrId.blank?			
-			WkProductCategory.destroy_all(:id => arrId)
+			WkProductCategory.where(:id => arrId).destroy_all
 		end
 		
 		redirect_to :controller => 'wkproduct',:action => 'category' , :tab => 'wkproduct'
