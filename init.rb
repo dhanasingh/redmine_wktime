@@ -94,7 +94,7 @@ module ProjectsControllerPatch
 					 flash.now[:error] = l(:error_project_issue_associate)
 					 return
 				else
-				  WkExpenseEntry.delete_all(['project_id = ?', @project_to_destroy.id])
+				  WkExpenseEntry.where(['project_id = ?', @project_to_destroy.id]).delete_all
 				  @project_to_destroy.destroy
 				  respond_to do |format|
 					format.html { redirect_to admin_projects_path }
@@ -125,7 +125,7 @@ module IssuesControllerPatch
 			else
 				case params[:todo]
 				when 'destroy'
-					WkExpenseEntry.delete_all(['issue_id = ?', issue_id[0]])
+					WkExpenseEntry.where(['issue_id = ?', issue_id[0]]).delete_all
 				when 'nullify'
 					TimeEntry.where(['issue_id IN (?)', @issues]).update_all('issue_id = NULL')
 					WkExpenseEntry.where(['issue_id IN (?)', @issues]).update_all('issue_id = NULL')

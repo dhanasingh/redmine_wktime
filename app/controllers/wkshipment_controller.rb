@@ -215,7 +215,7 @@ include WkinventoryHelper
 		end
 		
 		if !arrId.blank?
-			WkInventoryItem.delete_all(:id => arrId)
+			WkInventoryItem.where(:id => arrId).delete_all
 		end
 		
 		postShipmentAccounting(@shipment, assetAccountingHash, assetTotal)

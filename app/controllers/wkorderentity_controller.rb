@@ -322,7 +322,7 @@ include WkorderentityHelper
 		
 		if !arrId.blank?
 			deleteBilledEntries(arrId)
-			WkInvoiceItem.delete_all(:id => arrId)
+			WkInvoiceItem.where(:id => arrId).delete_all
 		end
 		
 		parentId = @invoice.parent_id

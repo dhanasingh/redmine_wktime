@@ -193,7 +193,7 @@ private
   end
   
   def deleteWkEntity(cond) 
-	Wkexpense.delete_all(cond)
+	Wkexpense.where(cond).delete_all
   end 
   
   def delete(ids)
