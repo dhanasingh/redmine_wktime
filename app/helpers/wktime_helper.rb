@@ -1017,8 +1017,8 @@ end
 		if !Setting.plugin_redmine_wktime['wktime_break_time'].blank?
 			Setting.plugin_redmine_wktime['wktime_break_time'].each_with_index do |element,index|
 			  listboxArr = element.split('|')
-			  breakStart = currentEntryDate.change({ hour: listboxArr[0], min:listboxArr[1], sec: '00' })
-			  breakEnd = currentEntryDate.change({ hour: listboxArr[2], min:listboxArr[3], sec: '00' })
+			  breakStart = currentEntryDate.change({ hour: listboxArr[0], min: listboxArr[1], sec: 0 })
+			  breakEnd = currentEntryDate.change({ hour: listboxArr[2], min:listboxArr[3], sec: 0 })
 			  if(!(startTime>breakEnd || endTime < breakStart))
 				if startTime < breakStart
 					if endTime < breakEnd
