@@ -164,11 +164,11 @@ module WkattendanceHelper
 				entrydate = attnObj.start_time
 				start_local = entrydate.localtime
 				if ((startTime.localtime.to_date) != attnObj.start_time.localtime.to_date)
-					endtime = start_local.change({ hour: "23:59".to_time.strftime("%H"), min: "23:59".to_time.strftime("%M"), sec: '59' })
+					 endtime = start_local.change({ hour: "23:59".to_time.strftime("%H").to_i, min: "23:59".to_time.strftime("%M").to_i, sec: 59 })
 					nextDayStart = Time.parse("#{startTime.to_date.to_s} 00:00:00 ").localtime.to_s
 					wkattendance = addNewAttendance(nextDayStart,startTime,userId)
 				else
-					endtime = start_local.change({ hour: startTime.localtime.strftime("%H"), min:startTime.localtime.strftime("%M"), sec: startTime.localtime.strftime("%S") })
+					endtime = start_local.change({ hour: startTime.localtime.strftime("%H").to_i, min:startTime.localtime.strftime("%M").to_i, sec: startTime.localtime.strftime("%S").to_i })
 				end
 			else
 				endtime = endTime
