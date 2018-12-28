@@ -1,19 +1,31 @@
-class WkdashboardController < ApplicationController
+class WkdashboardController < WkbaseController
 # TODO - Make compactible with redmine 4.0
+before_action :require_login
 
-# require 'SVG/Graph/Bar'
-# require 'SVG/Graph/BarHorizontal'
-# require 'SVG/Graph/Pie'
-# require 'SVG/Graph/Line'
-# require 'SVG/Graph/Plot'
+require 'SVG/Graph/Bar'
+require 'SVG/Graph/BarHorizontal'
+require 'SVG/Graph/Pie'
+require 'SVG/Graph/Line'
+require 'SVG/Graph/Plot'
 
 include WkcrmHelper
+include WktimeHelper
 
   def index
+	if Setting.plugin_redmine_wktime['wktime_enable_dashboards_module'].blank? ||
+	   Setting.plugin_redmine_wktime['wktime_enable_dashboards_module'].to_i == 0
+	   redirect_to :controller => 'wktime',:action => 'index' , :tab => 'wktime'
+	else
+	  set_filter_session
+	  setMembers
+    end	
   end
   
   def graph
+	retrieve_date_range
     data = nil
+	@group_id = session[:wkdashboard][:group_id]
+    @project_id = session[:wkdashboard][:project_id]
     case params[:graph]
     when "clock_in_users_over_time"
       data = graph_clock_in_users_over_time
@@ -204,7 +216,7 @@ include WkcrmHelper
     graph.burn
   end  
  
-   def graph_assests_per_month
+  def graph_assests_per_month
     @date_to = User.current.today + 1.year
     @date_from = @date_to << 11
     @date_from = Date.civil(@date_from.year, @date_from.month, 1)
@@ -245,7 +257,7 @@ include WkcrmHelper
     graph.burn
   end
   
-def graph_profit_loss_per_month
+	def graph_profit_loss_per_month
     @date_to = User.current.today + 1.month #- 1.year
     @date_from = @date_to << 11
     @date_from = Date.civil(@date_from.year, @date_from.month, 1)
@@ -354,5 +366,21 @@ def graph_profit_loss_per_month
     )
 
     graph.burn
+  end
+
+  def set_filter_session
+	if session[:wkdashboard].nil?
+		session[:wkdashboard] = {:period_type => params[:period_type], :period => params[:period],:group_id => params[:group_id], :from => @from, :to => @to}
+	else
+		session[:wkdashboard][:project_id] = params[:project_id]
+		session[:wkdashboard][:group_id] = params[:group_id]
+		session[:wkdashboard][:period] = params[:period]
+		session[:wkdashboard][:from] = params[:from]
+		session[:wkdashboard][:to] = params[:to]
+	end
   end  
+
+	def setMembers		
+		@groups = Group.sorted.all
+	end		
 end
