@@ -26,6 +26,18 @@ include WktimeHelper
   
   def graph
 	retrieve_date_range
+	data = nil
+	@group_id = session[:wkdashboard][:group_id]
+	@project_id = session[:wkdashboard][:project_id]
+
+	if @from.blank? && @to.blank?
+		@to = User.current.today.end_of_month
+		@from = User.current.today.end_of_month - 12.months + 1.days
+	elsif @from.blank? && !@to.blank?
+		@from = @to - 12.months + 1.days
+	elsif @to.blank? && !@from.blank?
+		@to = @from + 12.months - 1.days
+	end
      graph_yml_data= YAML.load(ERB.new(File.read("#{Rails.root}/#{params[:gPath]}")).result).first   
      graph_datas = eval(graph_yml_data[1]['code_str'])    
      graph = get_graphs(graph_yml_data[1]['chart_type'], graph_datas['fields'], graph_yml_data[0],label_check(graph_yml_data[1]['x_title']), label_check(graph_yml_data[1]['y_title'])) 
