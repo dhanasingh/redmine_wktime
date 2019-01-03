@@ -1,6 +1,6 @@
  Clock in users over time:
   chart_type: Bar
-  code_str: "clock_in_date = if !@from.blank?; @from; elsif !@to.blank?; @to ; else; User.current.today ; end; clock_in_of_user = WkAttendance.joins('INNER JOIN groups_users ON groups_users.user_id = wk_attendances.user_id').select('wk_attendances.user_id, min(start_time) as clock_in').group(:user_id).where('start_time BETWEEN ? AND ?', clock_in_date.at_beginning_of_day().utc, clock_in_date.at_end_of_day().utc); if !@group_id.blank?; clock_in_of_user = clock_in_of_user.where('group_id = ?', @group_id); end; @clock_in_per_time = [0] * 24; clock_in_of_user.each {|c| @clock_in_per_time[c.clock_in.at_end_of_hour.hour] += 1 }; fields = []; 24.times {|m| fields << m};{ 'fields' => fields };"
+  code_str: "clock_in_of_user = WkAttendance.joins('LEFT JOIN groups_users ON groups_users.user_id = wk_attendances.user_id').select('wk_attendances.user_id, min(start_time) as clock_in').group(:user_id).where('start_time BETWEEN ? AND ?', @to.at_beginning_of_day().utc, @to.at_end_of_day().utc); if !@group_id.blank?; clock_in_of_user = clock_in_of_user.where('group_id IN (?)', @group_id); end; @clock_in_per_time = [0] * 24; clock_in_of_user.each {|c| @clock_in_per_time[c.clock_in.at_end_of_hour.hour] += 1 }; fields = []; 24.times {|m| fields << m};{ 'fields' => fields };"
   x_title: "label_hours"
   y_title: "label_no_of_employees"
   names_of_data:
