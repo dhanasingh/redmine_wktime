@@ -86,7 +86,8 @@ include WkpayrollHelper
       :x_title_font_size => 12,
       :y_label_font_size => 8,
       :y_title_font_size => 12,
-      :key_font_size => 8
+      :key_font_size => 8,
+	  :add_popups  => true
     )
 	graph
   end  
