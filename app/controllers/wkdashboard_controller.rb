@@ -12,6 +12,7 @@ require 'yaml'
 include WkdashboardHelper 
 include WkcrmHelper
 include WktimeHelper
+include WkpayrollHelper
 
   def index
 	if Setting.plugin_redmine_wktime['wktime_enable_dashboards_module'].blank? ||
@@ -38,6 +39,7 @@ include WktimeHelper
 	elsif @to.blank? && !@from.blank?
 		@to = @from + 12.months - 1.days
 	end
+
      graph_yml_data= YAML.load(ERB.new(File.read("#{Rails.root}/#{params[:gPath]}")).result).first   
      graph_datas = eval(graph_yml_data[1]['code_str'])    
      graph = get_graphs(graph_yml_data[1]['chart_type'], graph_datas['fields'], graph_yml_data[0],label_check(graph_yml_data[1]['x_title']), label_check(graph_yml_data[1]['y_title'])) 
