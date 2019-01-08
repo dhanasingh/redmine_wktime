@@ -25,7 +25,7 @@ include WkpayrollHelper
 include WkaccountingHelper
 include WkcrmHelper
 
-before_filter :require_login
+before_action :require_login
 	
 	def index
 		@groups = Group.sorted.all
@@ -74,7 +74,7 @@ before_filter :require_login
 			group_by_users << users.id.to_s() + ',' + users.name + "\n"
 		end
 		respond_to do |format|
-			format.text  { render :text => group_by_users }
+			format.text  { render :plain => group_by_users }
 		end
 	end	
 	

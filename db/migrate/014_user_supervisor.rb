@@ -1,4 +1,4 @@
-class UserSupervisor < ActiveRecord::Migration
+class UserSupervisor < ActiveRecord::Migration[4.2]
   def self.up   
 	add_column :users, :parent_id, :integer
     add_column :users, :lft, :integer

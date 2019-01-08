@@ -28,7 +28,9 @@ class WkMaterialEntry < ActiveRecord::Base
   
   has_one :spent_for, as: :spent, class_name: 'WkSpentFor', :dependent => :destroy  
    
-  attr_protected :user_id, :tyear, :tmonth, :tweek
+  # attr_protected :user_id, :tyear, :tmonth, :tweek
+  
+  accepts_nested_attributes_for :spent_for
   
   accepts_nested_attributes_for :spent_for
   

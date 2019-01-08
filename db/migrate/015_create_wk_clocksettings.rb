@@ -1,4 +1,4 @@
-class CreateWkClocksettings < ActiveRecord::Migration
+class CreateWkClocksettings < ActiveRecord::Migration[4.2]
     def change
       create_table :wk_clocksettings do |t|
         t.int :check_clock_state, :null => false

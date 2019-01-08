@@ -1,4 +1,4 @@
-class CreateWkAttendances < ActiveRecord::Migration
+class CreateWkAttendances < ActiveRecord::Migration[4.2]
   def change
     create_table :wk_attendances do |t|
 		t.references :user, :null => false

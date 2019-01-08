@@ -1,6 +1,6 @@
 class WkshipmentController < WkinventoryController
   unloadable
-before_filter :require_login
+before_action :require_login
 
 include WkcrmHelper
 include WkshipmentHelper
@@ -215,7 +215,7 @@ include WkinventoryHelper
 		end
 		
 		if !arrId.blank?
-			WkInventoryItem.delete_all(:id => arrId)
+			WkInventoryItem.where(:id => arrId).delete_all
 		end
 		
 		postShipmentAccounting(@shipment, assetAccountingHash, assetTotal)
@@ -335,7 +335,7 @@ include WkinventoryHelper
 			end
 		end
 		respond_to do |format|
-			format.text  { render :text => itemArr }
+			format.text  { render :plain => itemArr }
 		end
 	end
 	
@@ -348,7 +348,7 @@ include WkinventoryHelper
 			end
 		end
 		respond_to do |format|
-			format.text  { render :text => siArr }
+			format.text  { render :plain => siArr }
 		end
 	end
 	

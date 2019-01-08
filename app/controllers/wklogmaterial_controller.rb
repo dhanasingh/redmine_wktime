@@ -1,6 +1,6 @@
 class WklogmaterialController < ApplicationController
   unloadable
-  before_filter :require_login
+  before_action :require_login
 
   def index
   end 
@@ -77,7 +77,7 @@ class WklogmaterialController < ApplicationController
 			end
 		end
 		respond_to do |format|
-			format.text  { render :text => pctArr }
+			format.text  { render :plain => pctArr }
 		end
 	end  
 	
@@ -89,7 +89,11 @@ class WklogmaterialController < ApplicationController
 			spentArr << key.to_s() + ',' +  value.to_s()  + "\n" 
 		end
 		respond_to do |format|
+<<<<<<< HEAD
 			format.text  { render :text => spentArr }
+=======
+			format.text  { render :plain => spentArr }
+>>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 		end
 	end
 end
