@@ -1,4 +1,4 @@
-class CreateWkExpenseEntries < ActiveRecord::Migration
+class CreateWkExpenseEntries < ActiveRecord::Migration[4.2]
   def change
     create_table :wk_expense_entries do |t|
 	  t.column :project_id,  :integer,  :null => false
@@ -33,6 +33,4 @@ class CreateWkExpenseEntries < ActiveRecord::Migration
 	add_index  :wkexpenses, :user_id
 	add_index  :wkexpenses, :begin_date
   end
-end
-
 end

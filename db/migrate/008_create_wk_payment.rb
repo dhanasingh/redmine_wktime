@@ -1,4 +1,4 @@
-class CreateWkPayment < ActiveRecord::Migration
+class CreateWkPayment < ActiveRecord::Migration[4.2]
 
 	def change
 		
@@ -72,5 +72,4 @@ class CreateWkPayment < ActiveRecord::Migration
 		remove_reference :wk_contracts, :account, :class => "wk_accounts", :null => true
 		remove_reference :wk_account_projects, :account, :class => "wk_accounts", :null => true
 	end
-endd
 end

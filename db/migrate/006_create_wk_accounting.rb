@@ -1,8 +1,8 @@
 #!/bin/env ruby
 # encoding: utf-8
-class CreateWkAccounting < ActiveRecord::Migration
+class CreateWkAccounting < ActiveRecord::Migration[4.2]
   class WkLedger < ActiveRecord::Base
-    attr_protected :id
+    # attr_protected :id
   end
   
   def change
@@ -52,6 +52,4 @@ class CreateWkAccounting < ActiveRecord::Migration
                     :owner => 's'            
     ledger.save
   end
-end
-nd
 end

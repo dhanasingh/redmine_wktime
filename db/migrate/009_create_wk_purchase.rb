@@ -1,4 +1,4 @@
-class CreateWkPurchase < ActiveRecord::Migration
+class CreateWkPurchase < ActiveRecord::Migration[4.2]
 
 	def change
 		
@@ -75,5 +75,4 @@ class CreateWkPurchase < ActiveRecord::Migration
 		end		
 		
 	end
-endd
 end

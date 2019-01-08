@@ -1,4 +1,4 @@
-class CreateWkAttendances < ActiveRecord::Migration
+class CreateWkAttendances < ActiveRecord::Migration[4.2]
   def change
     create_table :wk_attendances do |t|
 		t.references :user, :null => false
@@ -20,7 +20,5 @@ class CreateWkAttendances < ActiveRecord::Migration
     end
 	add_index  :wk_user_leaves, :user_id
   end
-end
-
 end
 

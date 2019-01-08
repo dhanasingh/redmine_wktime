@@ -9,16 +9,17 @@ module UsersControllerPatch
 				@user.pref.safe_attributes = params[:pref]
 				
 				if @user.save
-					Mailer.account_information(@user, @user.password).deliver if params[:send_information]
-					
+					Mailer.deliver_account_information(@user, @user.password).deliver if params[:send_information]
+		
+	# ============= ERPmine_patch Redmine 4.0  =====================	
 					#Below code for save wk users
 					erpmineUserSave
-					
+	# =======================================				
 					respond_to do |format|
 						format.html {
 							flash[:notice] = l(:notice_user_successful_create, :id => view_context.link_to(@user.login, user_path(@user)))
 							if params[:continue]
-								attrs = params[:user].slice(:generate_password)
+								attrs = {:generate_password => @user.generate_password}
 								redirect_to new_user_path(:user => attrs)
 							else
 								redirect_to edit_user_path(@user)
@@ -51,13 +52,14 @@ module UsersControllerPatch
 				if @user.save
 					@user.pref.save
 					
+	# ============= ERPmine_patch Redmine 4.0  =====================
 					#Below code for save wk users
 					erpmineUserSave
-					
+	# ==============================				
 					if was_activated
-						Mailer.account_activated(@user).deliver
+						Mailer.deliver_account_activated(@user)
 					elsif @user.active? && params[:send_information] && @user != User.current
-						Mailer.account_information(@user, @user.password).deliver
+						Mailer.deliver_account_information(@user, @user.password)
 					end
 
 					respond_to do |format|
@@ -79,7 +81,8 @@ module UsersControllerPatch
 					end
 				end				
 			end
-			
+	
+	# ============= ERPmine_patch Redmine 4.0  =====================
 			def erpmineUserSave
 				@user.erpmineuser.safe_attributes = params[:erpmineuser]
 				@user.erpmineuser.address_id = updateAddress
@@ -108,19 +111,6 @@ module UsersControllerPatch
 				wkAddress.country = params[:country]
 				wkAddress.fax = params[:fax]
 				wkAddress.mobile = params[:mobile]
-				wkAddress.email = params[:email]
-				wkAddress.website = params[:website]
-				wkAddress.department = params[:department]
-				if wkAddress.valid?
-					wkAddress.save
-					addressId = wkAddress.id
-				end		
-				addressId
-			end
-			
-		end
-	end
-endwkAddress.mobile = params[:mobile]
 				wkAddress.email = params[:email]
 				wkAddress.website = params[:website]
 				wkAddress.department = params[:department]

@@ -1,4 +1,4 @@
-class CreateWkBilling < ActiveRecord::Migration
+class CreateWkBilling < ActiveRecord::Migration[4.2]
   def change
 	create_table :wk_addresses do |t|
 	  t.string :address1
@@ -109,6 +109,4 @@ class CreateWkBilling < ActiveRecord::Migration
 	end
 
   end
-end
-
 end
