@@ -1,4 +1,4 @@
-class CreateWkPayment < ActiveRecord::Migration[4.2]
+class CreateWkPayment < ActiveRecord::Migration
 
 	def change
 		

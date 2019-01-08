@@ -25,7 +25,7 @@ include Redmine::SafeAttributes
   
   acts_as_customizable
   
-  # attr_protected :user_id, :submitter_id, :statusupdater_id
+  attr_protected :user_id, :submitter_id, :statusupdater_id
   safe_attributes 'hours', 'notes', 'begin_date', 'status', 'submitted_on', 'statusupdate_on'
 
   validates_presence_of :user_id, :hours, :begin_date, :status

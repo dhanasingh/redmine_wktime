@@ -153,6 +153,9 @@ it:
   label_wk_attendance_start_date: Attendance start date
   label_clock_in: Clock in
   label_clock_out: Clock out
+  check_clock_state: Check clock state periodically
+  clock_interval_url: Url adress for clock state requests
+  check_clock_state_interval: Time interval in which application will perform requests for clock state in seconds
   label_wk_leave_exists: This leave already exists
   wk_field_balance: Balance
   wk_field_used: Used
@@ -249,6 +252,7 @@ it:
   label_ytd: YTD
   label_earning: Earnings
   label_payroll_settings: Payroll Settings
+  label_clock_settings: Clock Settings
   label_total_earning: Total Earnings
   label_total_deduction: Total Deductions
   label_net_earning: Net Earnings
@@ -882,25 +886,4 @@ it:
   label_ftte_supervisor_based_approval: "Use supervisor based approval system "
   label_ftte_view_only_own_spent_time: "View only own spent time"
   label_additional_details: Additional Details
-  
-  #Dashboards
-  label_dashboards: Dashboards
-  label_clock_in_users_over_time: Clock in users over time
-  label_no_of_users: No of users
-  label_expense_for_issues: Expense for issues
-  label_total_expense_of_issues: Total expense of the issues
-  label_lead_generation_vs_conversion: Lead generation vs conversion
-  label_created_lead: Created lead
-  label_converted_lead: Converted lead
-  label_invoice_vs_payment_per_month: Invoice total vs Payment total
-  label_total_invoice: Invoice total
-  label_total_payment: Payment total
-  label_assets_per_month: Assets per month
-  label_total_assets_per_month: Total assets
-  label_profit_loss_per_month: Profit and loss per month
-  label_total_income: Income total
-  label_total_expense: Expense total
-  label_months: Months
-  label_amount : Amount
-  label_no_of_leads: No of leads
-  label_no_of_employees: No of Employees
+

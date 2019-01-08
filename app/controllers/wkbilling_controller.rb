@@ -17,10 +17,10 @@
 
 class WkbillingController < WkbaseController
 
-before_action :require_login
+before_filter :require_login
 
 include WktimeHelper
-before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
+before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
 
 	
 	def check_perm_and_redirect

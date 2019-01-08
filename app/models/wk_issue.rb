@@ -19,7 +19,7 @@ class WkIssue < ActiveRecord::Base
   include Redmine::SafeAttributes
   belongs_to :project
   belongs_to :issue
-  # attr_protected :others, :issue_id, :project_id
+  attr_protected :others, :issue_id, :project_id
   
   safe_attributes 'project_id', 'issue_id', 'currency', 'rate', 'rate_per'
 end

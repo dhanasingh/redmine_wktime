@@ -22,7 +22,7 @@ class WkexchangerateController < WkbillingController
 		end
 		
 		if !arrId.blank?			
-			WkExCurrencyRate.where(:id => arrId).delete_all
+			WkExCurrencyRate.delete_all(:id => arrId)
 		end
 		
 		redirect_to :controller => 'wkexchangerate',:action => 'index' , :tab => 'wkexchangerate'

@@ -8,7 +8,7 @@
 </script>
 <%= render_tabs time_expense_tabs %>
 
-<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
+<%= hidden_field_tag 'back_url', url_for(params) %>
 
 <% wkaccounting_helper = Object.new.extend(WkaccountingHelper) %>
 <% ledgerType = wkaccounting_helper.getLedgerTypeHash %>

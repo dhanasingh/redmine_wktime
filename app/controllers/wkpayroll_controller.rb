@@ -18,9 +18,9 @@
 class WkpayrollController < WkbaseController
 
 menu_item :wkattendance
-before_action :require_login
-before_action :check_perm_and_redirect, :only => [:edit, :user_salary_settings]
-before_action :check_ta_admin_and_redirect, :only => [:gensalary]
+before_filter :require_login
+before_filter :check_perm_and_redirect, :only => [:edit, :user_salary_settings]
+before_filter :check_ta_admin_and_redirect, :only => [:gensalary]
 
 include WkpayrollHelper	
 include WktimeHelper
@@ -233,7 +233,7 @@ include WkreportHelper
 			group_by_users << users.id.to_s() + ',' + users.name + "\n"
 		end
 		respond_to do |format|
-			format.text  { render :plain => group_by_users }
+			format.text  { render :text => group_by_users }
 		end
 	end	
 	

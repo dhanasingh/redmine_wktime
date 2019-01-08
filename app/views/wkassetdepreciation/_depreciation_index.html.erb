@@ -1,4 +1,4 @@
-<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
+<%= hidden_field_tag 'back_url', url_for(params) %>
 <script type="text/javascript"> 
 	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
 	productAssetUrl="<%= "#{url_for(:controller => "wkasset", :action => 'getProductAsset')}" %>";

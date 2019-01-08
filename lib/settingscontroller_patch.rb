@@ -7,29 +7,23 @@ module SettingsControllerPatch
 					render_404
 				return
 				end
-	# ============= ERPmine_patch Redmine 4.0  =====================				
 				payrollValues = salaryComponentsHashVal if @plugin.id.to_s == "redmine_wktime"
-	# =====================	
+
 				if request.post?
 					setting = params[:settings] ? params[:settings].permit!.to_h : {}
 					Setting.send "plugin_#{@plugin.id}=", setting
-	# ============= ERPmine_patch Redmine 4.0  =====================					
 					saveSalaryComponents(payrollValues) if @plugin.id.to_s == "redmine_wktime"
-	# =====================					
 					flash[:notice] = l(:notice_successful_update)
 					redirect_to plugin_settings_path(@plugin)
 				else
 					@partial = @plugin.settings[:partial]
 					@settings = Setting.send "plugin_#{@plugin.id}"
-	# ============= ERPmine_patch Redmine 4.0  =====================					
 					retrieveSalarayComponents if @plugin.id.to_s == "redmine_wktime"
-	# =====================					
 				end
 				rescue Redmine::PluginNotFound
 					render_404
 			end
 			
-	# ============= ERPmine_patch Redmine 4.0  =====================		
 			def salaryComponentsHashVal			
 				settinghash = Hash.new()
 				payrollValues = Hash.new()
@@ -72,7 +66,7 @@ module SettingsControllerPatch
 				hashval["wktime_payroll_deduction"] = deduction
 				@settings.merge!(hashval)
 			end
-	# =====================			
+			
 			
 			
 		end

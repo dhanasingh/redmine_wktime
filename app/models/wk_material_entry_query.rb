@@ -195,7 +195,7 @@ class WkMaterialEntryQuery < Query
   end
 
   # Accepts :from/:to params as shortcut filters
-  def build_from_params(params, defaults={})
+  def build_from_params(params)
     super
     if params[:from].present? && params[:to].present?
       add_filter('spent_on', '><', [params[:from], params[:to]])

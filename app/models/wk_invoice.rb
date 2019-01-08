@@ -37,7 +37,7 @@ class WkInvoice < ActiveRecord::Base
   
   has_many :purchase_orders, through: :quote_po, :dependent => :restrict_with_error
   has_many :supplier_invoices, through: :po_sup_inv, :dependent => :restrict_with_error
-  # attr_protected :modifier_id
+  attr_protected :modifier_id
   
   #validates_presence_of :account_id
   validates_presence_of :parent_id, :parent_type

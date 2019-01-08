@@ -26,7 +26,7 @@ class WkExpenseEntry < TimeEntry
   belongs_to :activity, :class_name => 'TimeEntryActivity'
    
    
-  # attr_protected :user_id, :tyear, :tmonth, :tweek
+  attr_protected :user_id, :tyear, :tmonth, :tweek
   
   scope :visible, lambda {|*args|
     joins(:project).

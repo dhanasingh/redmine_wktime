@@ -1,8 +1,8 @@
 class WkattributegroupController < WkinventoryController
    unloadable
-   before_action :require_login
-   before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :edit_product_attribute, :updateProductAttribute]
-   before_action :check_admin_redirect, :only => [:destroy, :destroyProductAttribute]
+   before_filter :require_login
+   before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :edit_product_attribute, :updateProductAttribute]
+   before_filter :check_admin_redirect, :only => [:destroy, :destroyProductAttribute]
 
 
     def index

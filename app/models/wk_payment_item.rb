@@ -24,7 +24,7 @@ class WkPaymentItem < ActiveRecord::Base
   #belongs_to :gl_transaction , :class_name => 'WkGlTransaction', :dependent => :destroy
   scope :current_items, -> { where(is_deleted: false) }
   
-  # attr_protected :modifier_id
+  attr_protected :modifier_id
   
   validates_presence_of :payment_id
   validates_numericality_of :amount, :allow_nil => true, :message => :invalid

@@ -481,7 +481,7 @@ class RoundRobinSchedule
 	# Destroy schedules for the given interval , location and department
 	def destroySchedules(locationId, deptId, from, to)
 		userIds = WkUser.where(:location_id => locationId, :department_id => deptId).pluck(:user_id)
-		WkShiftSchedule.where(:schedule_date => from .. to, :user_id => userIds, :schedule_type => 'S').destroy_all
+		WkShiftSchedule.destroy_all(:schedule_date => from .. to, :user_id => userIds, :schedule_type => 'S')
 	end
 	
 	# return the day Off schedules for the users

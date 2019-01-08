@@ -47,7 +47,7 @@ class DayViewRenderer < SheetViewRenderer
 		end
 		sqlStr = "select i.id as issue_id, i.subject as issue_name, i.project_id, i.assigned_to_id, 
 			ap.id as account_project_id, ap.parent_id, ap.parent_type,
-			te.id as time_entry_id, te.id, te.user_id, COALESCE(te.spent_on,'#{givenValues[:selected_date]}') as spent_on , COALESCE(te.#{getSpField[modelClass.to_s]},0) as #{getSpField[modelClass.to_s]}, te.activity_id, te.comments, te.spent_on_time, 
+			te.id as time_entry_id, te.id, COALESCE(te.spent_on,'#{givenValues[:selected_date]}') as spent_on , COALESCE(te.#{getSpField[modelClass.to_s]},0) as #{getSpField[modelClass.to_s]}, te.activity_id, te.comments, te.spent_on_time, 
 			te.spent_for_id, te.spent_for_type, te.spent_id, te.spent_type #{getAdditionalField(modelClass.to_s, 'te')} from issues i " +
 			#p.name as project_name, inner join projects p on (p.id = i.project_id and project_id in (#{givenValues[:project_id]}) #{self.issue_join_cond})
 			" left join wk_issue_assignees ia on (i.id = ia.issue_id and ia.user_id = #{givenValues[:user_id]} )" + # OR i.assigned_to_id = #{givenValues[:user_id]}

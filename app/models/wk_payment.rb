@@ -25,7 +25,7 @@ class WkPayment < ActiveRecord::Base
   has_many :payment_items, foreign_key: "payment_id", class_name: "WkPaymentItem", :dependent => :destroy
   has_many :invoices, through: :payment_items 
   belongs_to :gl_transaction , :class_name => 'WkGlTransaction', :dependent => :destroy  
-  # attr_protected :modifier_id
+  attr_protected :modifier_id
   
   #validates_presence_of :account_id
   validates_presence_of :parent_id, :parent_type

@@ -19,7 +19,7 @@ class WkexpenseController < WktimeController
   unloadable  
   
   menu_item :issues
-  before_action :find_optional_project, :only => [:reportdetail, :report]
+  before_filter :find_optional_project, :only => [:reportdetail, :report]
   
   accept_api_auth :reportdetail, :index, :edit, :update, :destroy , :deleteEntries
   
@@ -193,7 +193,7 @@ private
   end
   
   def deleteWkEntity(cond) 
-	Wkexpense.where(cond).delete_all
+	Wkexpense.delete_all(cond)
   end 
   
   def delete(ids)

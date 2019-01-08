@@ -1,4 +1,4 @@
-class CreateWkSalaryComponents < ActiveRecord::Migration[4.2]
+class CreateWkSalaryComponents < ActiveRecord::Migration
   def change
     create_table :wk_salary_components do |t|
       t.string :name

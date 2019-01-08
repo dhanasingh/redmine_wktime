@@ -1,7 +1,7 @@
 class WkorderentityController < WkbillingController
   unloadable
 
-before_action :require_login
+before_filter :require_login
 
 include WktimeHelper
 include WkinvoiceHelper
@@ -322,7 +322,7 @@ include WkorderentityHelper
 		
 		if !arrId.blank?
 			deleteBilledEntries(arrId)
-			WkInvoiceItem.where(:id => arrId).delete_all
+			WkInvoiceItem.delete_all(:id => arrId)
 		end
 		
 		parentId = @invoice.parent_id

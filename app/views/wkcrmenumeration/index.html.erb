@@ -7,10 +7,11 @@
     crmenumUrl = '<%=url_for(:controller => "wkcrmenumeration", :action => "index", :tab => "wkcrmenumeration")%>';
 	wklocationUrl =  '<%=url_for(:controller => "wklocation", :action => "index", :tab => "wklocation")%>';
 	wkgrpPermissionUrl =  '<%=url_for(:controller => "wkgrouppermission", :action => "index", :tab => "wkgrouppermission")%>';
+	wkClockSettingUrl = '<%=url_for(:controller => "wkclocksettings", :action => "index", :tab => "wkclocksetting")%>';
     prevTab = 'tab-<%= "#{controller_name}" %>';   
 </script>
 <%= render_tabs time_expense_tabs %>
-<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
+<%= hidden_field_tag 'back_url', url_for(params) %>
 <%= form_tag({:controller => "wkcrmenumeration", :action => 'index'}, :method => :get, :id => 'query_form') do %>
 <%= hidden_field_tag "searchlist", "wkcrmenumeration" %>
 <%=h hidden_field_tag('tab', "wkcrmenumeration") %>

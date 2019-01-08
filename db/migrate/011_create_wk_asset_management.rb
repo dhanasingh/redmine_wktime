@@ -1,4 +1,4 @@
-class CreateWkAssetManagement < ActiveRecord::Migration[4.2]
+class CreateWkAssetManagement < ActiveRecord::Migration
 
 	def change
 	

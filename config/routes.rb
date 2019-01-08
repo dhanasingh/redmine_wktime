@@ -234,6 +234,8 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	delete 'wkgltransaction/destroy', :to => 'wkgltransaction#destroy'
 	
+	get 'wkbase/checkClockState', :to => 'wkbase#checkClockState'
+	
 	get 'wkledger/index', :to => 'wkledger#index'
 	
 	get 'wkledger/edit', :to => 'wkledger#edit'
@@ -543,6 +545,12 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wkgrouppermission/edit', :to => 'wkgrouppermission#edit'
 	
 	post 'wkgrouppermission/update', :to => 'wkgrouppermission#update'
+
+	get 'wkclocksettings/index', :to => 'wkclocksettings#index'
+
+	post 'wkclocksettings/update', :to => 'wkclocksettings#update'
+
+	get 'wkclocksettings/checkClockState', :to => 'wkclocksettings#checkClockState'
 	
 	get 'wkasset/getProductAsset', :to => 'wkasset#getProductAsset'
 	
@@ -567,7 +575,3 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	post 'wkpublicholiday/update', :to => 'wkpublicholiday#update'
 	
 	get 'wklogmaterial/loadSpentType', :to => 'wklogmaterial#loadSpentType'
-	
-	get 'wkdashboard/index', :to => 'wkdashboard#index'
-	
-	get 'wkdashboard/graph', :to => 'wkdashboard#graph'

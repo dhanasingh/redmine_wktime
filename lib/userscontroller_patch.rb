@@ -9,17 +9,16 @@ module UsersControllerPatch
 				@user.pref.safe_attributes = params[:pref]
 				
 				if @user.save
-					Mailer.deliver_account_information(@user, @user.password).deliver if params[:send_information]
-		
-	# ============= ERPmine_patch Redmine 4.0  =====================	
+					Mailer.account_information(@user, @user.password).deliver if params[:send_information]
+					
 					#Below code for save wk users
 					erpmineUserSave
-	# =======================================				
+					
 					respond_to do |format|
 						format.html {
 							flash[:notice] = l(:notice_user_successful_create, :id => view_context.link_to(@user.login, user_path(@user)))
 							if params[:continue]
-								attrs = {:generate_password => @user.generate_password}
+								attrs = params[:user].slice(:generate_password)
 								redirect_to new_user_path(:user => attrs)
 							else
 								redirect_to edit_user_path(@user)
@@ -52,14 +51,13 @@ module UsersControllerPatch
 				if @user.save
 					@user.pref.save
 					
-	# ============= ERPmine_patch Redmine 4.0  =====================
 					#Below code for save wk users
 					erpmineUserSave
-	# ==============================				
+					
 					if was_activated
-						Mailer.deliver_account_activated(@user)
+						Mailer.account_activated(@user).deliver
 					elsif @user.active? && params[:send_information] && @user != User.current
-						Mailer.deliver_account_information(@user, @user.password)
+						Mailer.account_information(@user, @user.password).deliver
 					end
 
 					respond_to do |format|
@@ -81,8 +79,7 @@ module UsersControllerPatch
 					end
 				end				
 			end
-	
-	# ============= ERPmine_patch Redmine 4.0  =====================
+			
 			def erpmineUserSave
 				@user.erpmineuser.safe_attributes = params[:erpmineuser]
 				@user.erpmineuser.address_id = updateAddress
@@ -120,7 +117,7 @@ module UsersControllerPatch
 				end		
 				addressId
 			end
-	# ===============================================		
+			
 		end
 	end
 end

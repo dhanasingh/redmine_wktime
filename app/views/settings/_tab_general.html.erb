@@ -4,8 +4,9 @@
 		<legend><%= l(:label_module_plural) %></legend>
 		<% moduleArr.each do |translated, m| %>
 			<%  m = m.downcase %>
+			<%  @settings["wktime_enable_#{m}_module"] = 1 if m == 'time' %>
 			<p><label style="text-align: left; float:left;">
-				<%= check_box_tag "settings[wktime_enable_#{m}_module]", 1, @settings["wktime_enable_#{m}_module"].to_i == 1 -%>
+				<%= check_box_tag "settings[wktime_enable_#{m}_module]", 1, @settings["wktime_enable_#{m}_module"].to_i == 1, :disabled => m == 'time' ? true : false     -%>
 				<%= l_or_humanize(translated, :prefix => "erpmine_module_") %></label>
 			</p>
 		<% end %>
