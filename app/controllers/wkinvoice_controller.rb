@@ -248,7 +248,7 @@ class WkinvoiceController < WkorderentityController
 			end
 		end
 		respond_to do |format|
-			format.text  { render :text => accArr }
+			format.text  { render :plain => accArr }
 		end
 		
     end

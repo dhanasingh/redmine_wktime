@@ -44,3 +44,5 @@ class CreateWkSalaryComponents < ActiveRecord::Migration
 
   end
 end
+
+end

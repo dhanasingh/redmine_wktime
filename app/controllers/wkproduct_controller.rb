@@ -1,7 +1,7 @@
 class WkproductController < WkinventoryController
   unloadable
-  before_filter :require_login
-  before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :category, :updateCategory]
+  before_action :require_login
+  before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :category, :updateCategory]
 
 
 	def index
@@ -109,7 +109,7 @@ class WkproductController < WkinventoryController
 		end
 		
 		if !arrId.blank?			
-			WkProductCategory.destroy_all(:id => arrId)
+			WkProductCategory.where(:id => arrId).destroy_all
 		end
 		
 		redirect_to :controller => 'wkproduct',:action => 'category' , :tab => 'wkproduct'

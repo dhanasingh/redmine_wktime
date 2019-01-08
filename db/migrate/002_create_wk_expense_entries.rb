@@ -34,3 +34,5 @@ class CreateWkExpenseEntries < ActiveRecord::Migration
 	add_index  :wkexpenses, :begin_date
   end
 end
+
+end

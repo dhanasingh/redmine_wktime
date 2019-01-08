@@ -17,9 +17,9 @@
 
 class WkaccountingController < WkbaseController	
   unloadable
-	before_filter :require_login
-	before_filter :check_perm_and_redirect, :only => [:index, :edit, :update]
-	before_filter :check_ac_admin_and_redirect, :only => [:destroy]
+	before_action :require_login
+	before_action :check_perm_and_redirect, :only => [:index, :edit, :update]
+	before_action :check_ac_admin_and_redirect, :only => [:destroy]
 	include WkaccountingHelper
 	def index
 	end

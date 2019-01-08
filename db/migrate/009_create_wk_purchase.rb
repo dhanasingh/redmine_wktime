@@ -75,4 +75,5 @@ class CreateWkPurchase < ActiveRecord::Migration
 		end		
 		
 	end
+endd
 end

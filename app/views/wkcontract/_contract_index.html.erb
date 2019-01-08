@@ -1,4 +1,4 @@
-<%= hidden_field_tag 'back_url', url_for(params) %>
+<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 	<%= form_tag({:controller => "wkcontract", :action => 'index', :tab => controller_name}, :method => :get, :id => 
      'query_form') do %>
 		<fieldset>

@@ -13,3 +13,5 @@ class UserSupervisor < ActiveRecord::Migration
     remove_column :users, :rgt
   end
 end
+
+end

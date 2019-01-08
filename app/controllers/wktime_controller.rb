@@ -21,11 +21,11 @@ unloadable
 include WktimeHelper
 include WkcrmHelper
 
-before_filter :require_login
-before_filter :check_perm_and_redirect, :only => [:edit, :update, :destroy] # user without edit permission can't destroy
-before_filter :check_editperm_redirect, :only => [:destroy]
-before_filter :check_view_redirect, :only => [:index]
-before_filter :check_log_time_redirect, :only => [:new]
+before_action :require_login
+before_action :check_perm_and_redirect, :only => [:edit, :update, :destroy] # user without edit permission can't destroy
+before_action :check_editperm_redirect, :only => [:destroy]
+before_action :check_view_redirect, :only => [:index]
+before_action :check_log_time_redirect, :only => [:new]
 
 accept_api_auth :index, :edit, :update, :destroy, :deleteEntries
 
@@ -303,7 +303,7 @@ include QueriesHelper
 		}
 		format.api{
 			if errorMsg.blank?
-				render :text => respMsg, :layout => nil
+				render :plain => respMsg, :layout => nil
 			else			
 				@error_messages = respMsg.split('\n')	
 				render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
@@ -322,7 +322,7 @@ include QueriesHelper
 			delete(ids)
 			respond_to do |format|
 				format.text  { 
-					render :text => 'OK' 
+					render :plain => 'OK' 
 				}
 				format.api {
 					render_api_ok
@@ -331,7 +331,7 @@ include QueriesHelper
 		else	
 			respond_to do |format|
 				format.text  { 
-					render :text => 'FAILED' 
+					render :plain => 'FAILED' 
 				}
 				format.api {
 					render_403
@@ -486,7 +486,7 @@ include QueriesHelper
 					issStr << issue.project_id.to_s() + '|' + issue.id.to_s() + '|' + issue.tracker.to_s() +  '|' + 
 							issue.subject  + "\n" if issue.visible?(user)
 					end	
-				render :text => issStr 
+				render :plain => issStr 
 				}	
 			end
 		else 
@@ -525,7 +525,7 @@ include QueriesHelper
 		respond_to do |format|
 			format.text  { 
 			if error.blank?
-				render :text => actStr 
+				render :plain => actStr 
 			else
 				render_403
 			end
@@ -563,14 +563,14 @@ include QueriesHelper
 		# respond_to do |format|
 			# format.text  { 
 			# if error.blank?
-				# render :text => clientStr 
+				# render :plain => clientStr 
 			# else
 				# render_403
 			# end
 			# }
 		# end
 		respond_to do |format|
-			format.text  { render :text => clientStr }
+			format.text  { render :plain => clientStr }
 		end
 	end
 	
@@ -587,7 +587,7 @@ include QueriesHelper
 		respond_to do |format|
 			format.text  { 
 			if error.blank?
-				render :text => clientStr 
+				render :plain => clientStr 
 			else
 				render_403
 			end
@@ -629,7 +629,7 @@ include QueriesHelper
 		end
 		
 		respond_to do |format|
-			format.text  { render :text => clientStr }
+			format.text  { render :plain => clientStr }
 		end
 	end
 	
@@ -676,7 +676,7 @@ include QueriesHelper
 			end
 		end
 		respond_to do |format|
-			format.text  { render :text => userStr }
+			format.text  { render :plain => userStr }
 		end
 	end
 
@@ -779,7 +779,7 @@ include QueriesHelper
 			status = nil
 		end
 		respond_to do |format|
-			format.text  { render :text => status }
+			format.text  { render :plain => status }
 		end	
 	end
 
@@ -808,7 +808,7 @@ include QueriesHelper
 			group_by_users << users.id.to_s() + ',' + users.name + "\n"
 		end
 		respond_to do |format|
-			format.text  { render :text => group_by_users }
+			format.text  { render :plain => group_by_users }
 		end
 	end	
 	
@@ -878,7 +878,7 @@ include QueriesHelper
 		end
 		
 		respond_to do |format|
-			format.text  { render :text => ret }
+			format.text  { render :plain => ret }
 		end	
 	end
 	
@@ -927,7 +927,7 @@ include QueriesHelper
 		end
 		respMsg = l(:text_wk_no_reminder) if (wkentries.blank? || (!wkentries.blank? && wkentries.size == 0))
 		respond_to do |format|
-			format.text  { render :text => respMsg }
+			format.text  { render :plain => respMsg }
 		end
 	end
 	
@@ -989,7 +989,7 @@ include QueriesHelper
 		end
 		respMsg = l(:text_wk_no_reminder) if (users.blank? || (!users.blank? && users.size == 0))
 		respond_to do |format|
-			format.text  { render :text => respMsg }
+			format.text  { render :plain => respMsg }
 		end
 	end
 	
@@ -1056,7 +1056,7 @@ include QueriesHelper
 			ret += !((wkattendance.end_time)).blank? ?  ((wkattendance.end_time.localtime).to_formatted_s(:time)).to_s : '00:00'
 		end
 		respond_to do |format|
-			format.text  { render :text => ret }
+			format.text  { render :plain => ret }
 		end
 	end
 	
@@ -1206,7 +1206,7 @@ include QueriesHelper
 			userStr << m.id.to_s() + ',' + m.firstname + ' ' + m.lastname + "\n"
 		end
 		respond_to do |format|
-			format.text  { render :text => userStr }
+			format.text  { render :plain => userStr }
 		end 
 	end
 	 
@@ -2205,7 +2205,7 @@ private
 	end
 	
 	def deleteWkEntity(cond) 
-	   Wktime.delete_all(cond)
+	   Wktime.where(cond).delete_all
 	end	
 	
 	def delete(ids)

@@ -4,7 +4,7 @@ class WkTeLock < ActiveRecord::Base
    belongs_to :creator, :class_name => 'User', :foreign_key => 'locked_by'
    belongs_to :updater, :class_name => 'User', :foreign_key => 'updated_by'
   safe_attributes 'lock_date', 'locked_by', 'updated_by'
-  attr_protected :locked_by, :updated_by
+  # attr_protected :locked_by, :updated_by
 
   validates_presence_of :lock_date
   

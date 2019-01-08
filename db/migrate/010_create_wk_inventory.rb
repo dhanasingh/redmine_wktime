@@ -160,4 +160,5 @@ class CreateWkInventory < ActiveRecord::Migration
 		end
 		
 	end
+endd
 end

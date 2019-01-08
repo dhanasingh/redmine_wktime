@@ -22,3 +22,5 @@ class CreateWkAttendances < ActiveRecord::Migration
   end
 end
 
+end
+

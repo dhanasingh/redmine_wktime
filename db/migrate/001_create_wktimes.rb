@@ -16,3 +16,5 @@ class CreateWktimes < ActiveRecord::Migration
 	add_index  :wktimes, :begin_date
   end
 end
+
+end

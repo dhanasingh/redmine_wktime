@@ -6,7 +6,7 @@
 		grpUrl="<%= "#{url_for(:controller => "wkattendance", :action => 'getMembersbyGroup')}" %>";
 		//getMembersbyGroup
 </script>
-<%= hidden_field_tag 'back_url', url_for(params) %>
+<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 <% if isAccountUser %>
 <div class="contextual">
 <%= link_to l(:"label_import_attendance"), url_for(:controller => "wkimportattendance", :action => 'new', :tab => controller.controller_name)%>

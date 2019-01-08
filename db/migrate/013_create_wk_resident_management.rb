@@ -55,4 +55,5 @@ class CreateWkResidentManagement  < ActiveRecord::Migration
 			end 
 		end
 	end
+endd
 end

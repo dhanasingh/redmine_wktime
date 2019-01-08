@@ -620,3 +620,105 @@ end
       end
     end
 
+flash[:error] = errMsg
+						redirect_back_or_default project_time_entries_path(@time_entry.project)
+					else
+						flash[:notice] = l(:notice_successful_update)
+						redirect_back_or_default project_time_entries_path(@time_entry.project)
+					end
+					 
+					}
+				end
+			end		
+		end
+	end
+	end
+end
+ # ==========================================
+ 
+	class Paginator
+      attr_reader :item_count, :per_page, :page, :page_param
+
+      def initialize(*args)
+        if args.first.is_a?(ActionController::Base)
+          args.shift
+          ActiveSupport::Deprecation.warn "Paginator no longer takes a controller instance as the first argument. Remove it from #new arguments."
+        end
+        item_count, per_page, page, page_param = *args
+
+        @item_count = item_count
+        @per_page = per_page
+        page = (page || 1).to_i
+        if page < 1
+          page = 1
+        end
+        @page = page
+        @page_param = page_param || :page
+      end
+
+      def offset
+        (page - 1) * per_page
+      end
+
+      def first_page
+        if item_count > 0
+          1
+        end
+      end
+
+      def previous_page
+        if page > 1
+          page - 1
+        end
+      end
+
+      def next_page
+        if last_item < item_count
+          page + 1
+        end
+      end
+
+      def last_page
+        if item_count > 0
+          (item_count - 1) / per_page + 1
+        end
+      end
+
+      def multiple_pages?
+        per_page < item_count
+      end
+
+      def first_item
+        item_count == 0 ? 0 : (offset + 1)
+      end
+
+      def last_item
+        l = first_item + per_page - 1
+        l > item_count ? item_count : l
+      end
+
+      def linked_pages
+        pages = []
+        if item_count > 0
+          pages += [first_page, page, last_page]
+          pages += ((page-2)..(page+2)).to_a.select {|p| p > first_page && p < last_page}
+        end
+        pages = pages.compact.uniq.sort
+        if pages.size > 1
+          pages
+        else
+          []
+        end
+      end
+
+      def items_per_page
+        ActiveSupport::Deprecation.warn "Paginator#items_per_page will be removed. Use #per_page instead."
+        per_page
+      end
+
+      def current
+        ActiveSupport::Deprecation.warn "Paginator#current will be removed. Use .offset instead of .current.offset."
+        self
+      end
+    end
+

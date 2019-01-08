@@ -71,4 +71,18 @@ module SettingsControllerPatch
 			
 		end
 	end
+enddate).to_s + '|' + (list.dependent_id).to_s + '|' + (list.factor).to_s + '|' + list.ledger_id.to_s if list.component_type == 'd'
+						
+					end
+				end
+				hashval["wktime_payroll_basic"] = basic
+				hashval["wktime_payroll_allowances"] = allowance
+				hashval["wktime_payroll_deduction"] = deduction
+				@settings.merge!(hashval)
+			end
+	# =====================			
+			
+			
+		end
+	end
 end

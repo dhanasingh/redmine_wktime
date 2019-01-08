@@ -180,4 +180,15 @@ module Redmine::Helpers
         @available_criteria
       end
     end	
+  end) && !cf.multiple?}.each do |cf|
+          @available_criteria["cf_#{cf.id}"] = {:sql => cf.group_statement,
+                                                 :joins => cf.join_for_order_statement,
+                                                 :format => cf.field_format,
+                                                 :custom_field => cf,
+                                                 :label => cf.name}
+        end
+
+        @available_criteria
+      end
+    end	
   end

@@ -4,16 +4,6 @@ var hasTrackerError = false;
 var spentTypeVal;
 
 $(document).ready(function(){
-	checkOrNotClockState = $('#check_clock_state_by_interval').val();
-	if(checkOrNotClockState == 'true'){
-			clockStateInterval = $('#clockstate_check_interval').val()
-		if (clockStateInterval.match(/^\d+$/) !== null) {
-			clockStateInterval = Number(clockStateInterval.match(/^\d+$/)[0]) * 1000;
-		} else {
-			clockStateInterval = 60000
-		}
-		setInterval(checkClockStateWkStatus, clockStateInterval);
-	}
 	var txtEntryDate;
 	var txtissuetracker;
 	var timeWarnMsg = document.getElementById('label_time_warn');
@@ -24,28 +14,38 @@ $(document).ready(function(){
 	$('#quick-search').append( $('#startdiv') ); 
 	$('#quick-search').append( $('#enddiv') );
 	
-	 var spentTypeDD = '<table><tr><td><label for="select" style="text-transform:   none;">Spent Type</label></td>'
-            +'<td><select name="spent_type" id="spent_type" onchange="spentTypeValue(this);">'
-            +'<option value="T">Time</option>'
-			+'<option value="E">Expense</option>'
-            +'<option value="M">Material</option>'
-			+'<option value="A">Asset</option>'
-            +'</select></td></tr></table>';
-			
-	if(document.querySelector("h2").innerHTML == "Spent time")	
+	if(document.getElementById('spent_type') == null)
 	{
-		$("#query_form_content").append(spentTypeDD);		
-		var spcheck = sessionStorage.getItem("spent_type") == null ? "T" : sessionStorage.getItem("spent_type");
-		if(document.getElementById('spent_type') != null) {
-			var ddl = document.getElementById('spent_type');
-			var opts = ddl.options.length;
-			for (var i=0; i<opts; i++){
-				if (ddl.options[i].value == spcheck){
-					ddl.options[i].selected = true;
-					break;
-				}
-			}
+		var spentTypeDD = '<table><tr><td><label for="select" style="text-transform:   none;">Spent Type</label></td>'
+            +'<td><select name="spent_type" id="spent_type" onchange="spentTypeValue(this);">'           
+            +'</select></td></tr></table>';
+	}
+			
+	if(document.querySelector("h2") && document.querySelector("h2").innerHTML == "Spent time")	
+	{
+		if(document.getElementById('spent_type') == null)
+		{	
+			$("#query_form_content").append(spentTypeDD);
 		}
+		var spentDD = document.getElementById('spent_type');
+		var userid = document.getElementById('spent_time_user_id').value;
+		var spentDDUrl = document.getElementById('getspenttype_url').value;	
+		var $this = $(this);
+		if(document.getElementById('spent_type') != null)
+		{
+			var ddloption =  document.getElementById('spent_type').options;			
+			if(ddloption.length == 0)
+			{
+				$.ajax({
+				url: spentDDUrl,
+				type: 'get',
+				data: {type: 'spentType'},
+				success: function(data){ updateUserDD(data, spentDD, userid, false, false, "");},
+				beforeSend: function(){ $this.addClass('ajax-loading'); },
+				complete: function(){ spentTypeSelection(); $this.removeClass('ajax-loading'); }	      
+				});
+			}
+		}			
 	}
 	else {
 		sessionStorage.clear();
@@ -75,6 +75,7 @@ $(document).ready(function(){
 	if( txtissuetracker != null)
 	{
 		showIssueWarning(txtissuetracker.value);
+		//txtissuetracker.onblur=function(){showIssueWarning(this.value)};
 		$("#time_entry_issue_id").change(function(event){
 			var tb = this;
 			event.preventDefault();						
@@ -95,6 +96,21 @@ function spentTypeValue(elespent)
 	 spentTypeVal = elespent.options[elespent.selectedIndex].value;
 	 sessionStorage.setItem("spent_type", spentTypeVal);
 	 document.getElementById("query_form").submit();
+}
+
+function spentTypeSelection()
+{
+	var spcheck = sessionStorage.getItem("spent_type") == null ? "T" : sessionStorage.getItem("spent_type");
+	if(document.getElementById('spent_type') != null) {
+		var ddl = document.getElementById('spent_type');
+		var opts = ddl.options.length;
+		for (var i=0; i<opts; i++){
+			if (ddl.options[i].value == spcheck){
+				ddl.options[i].selected = true;
+				break;
+			}
+		}
+	}
 }
 
 function showEntryWarning(entrydate){
@@ -217,45 +233,21 @@ function signAttendance(str)
 	var mm = d.getMinutes();
 	elementhour = hh + ":" + mm;
 	var datevalue = d;
-	var clockState = false;
 	if( str == 'start' )
 	{
-		clockState = true;
-		document.getElementById('clockin' ).style.display = "none";
-		document.getElementById('clockout').style.display = "block";
+	  document.getElementById('clockin' ).style.display = "none";
+	  document.getElementById('clockout').style.display = "block";
 	}
 	else
 	{
-		clockState = false;
-		document.getElementById('clockin' ).style.display = "block";
-		document.getElementById('clockout').style.display = "none";
+	  document.getElementById('clockin' ).style.display = "block";
+	  document.getElementById('clockout').style.display = "none";
 	}
 	var clkInOutUrl = document.getElementById('clockinout_url').value;	
 	$.ajax({	
 	url: clkInOutUrl,//'/updateClockInOut',
 	type: 'get',
-	data: {startdate : datevalue, str: clockState},
+	data: {startdate : datevalue, str: str},
 	success: function(data){ }   
-	});
-}
-
-function checkClockStateWkStatus()
-{
-	var clockStateUrl = $("#clockstate_url").val();
-	$.ajax({	
-	url: clockStateUrl,
-	type: 'get',
-	success: function(data)
-	{
-		var clockIn = document.getElementById('clockin');
-		var clockOut = document.getElementById('clockout');
-		if (data === "clockOn" && clockOut.style.display === "none") {
-			clockOut.style.display = "block";
-			clockIn.style.display = "none";
-		} else if (data === "clockOff" && clockIn.style.display === "none") {
-			clockOut.style.display = "none";
-			clockIn.style.display = "block";
-		}
-	}   
 	});
 }

@@ -666,14 +666,13 @@ end
 				{:name => 'wksupplieraccount', :partial => 'wktime/tab_content', :label => :label_supplier_account},
 				{:name => 'wksuppliercontact', :partial => 'wktime/tab_content', :label => :label_supplier_contact}
 			   ]
-		elsif params[:controller] == "wkcrmenumeration" || params[:controller] == "wktax" || params[:controller] == "wkexchangerate" || params[:controller] == "wklocation" || params[:controller] == "wkgrouppermission" || params[:controller] == "wkclocksettings"
+		elsif params[:controller] == "wkcrmenumeration" || params[:controller] == "wktax" || params[:controller] == "wkexchangerate" || params[:controller] == "wklocation" || params[:controller] == "wkgrouppermission"
 			tabs = [
 				{:name => 'wkcrmenumeration', :partial => 'wktime/tab_content', :label => :label_enumerations},
 				{:name => 'wklocation', :partial => 'wktime/tab_content', :label => :label_location},
 				{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax},
 				{:name => 'wkexchangerate', :partial => 'wktime/tab_content', :label => :label_exchange_rate},
-				{:name => 'wkgrouppermission', :partial => 'wktime/tab_content', :label => :label_permissions},
-				{:name => 'wkclocksetting', :partial => 'wktime/tab_content', :label => :label_clock_settings}
+				{:name => 'wkgrouppermission', :partial => 'wktime/tab_content', :label => :label_permissions}
 				
 			   ]
 		else
@@ -750,7 +749,7 @@ end
 		elsif ActiveRecord::Base.connection.adapter_name == 'SQLServer'		
 			sqlStr = "DateAdd(d, (((((DATEPART(dw," + dtfield + ")-1)%7)-1)+(8-" + startOfWeek.to_s + ")) % 7)*-1," + dtfield + ")"
 		else
-			# mysql - the weekday index for date (0 = Monday, 1 = Tuesday, ï¿½ 6 = Sunday)
+			# mysql - the weekday index for date (0 = Monday, 1 = Tuesday, … 6 = Sunday)
 			sqlStr = "adddate(" + dtfield + ",mod(weekday(" + dtfield + ")+(8-" + startOfWeek.to_s + "),7)*-1)"
 		end		
 		sqlStr
@@ -785,7 +784,7 @@ end
 				{:name => 'accounting', :partial => 'settings/tab_accounting', :label => :label_accounting},
 				{:name => 'CRM', :partial => 'settings/tab_crm', :label => :label_crm},
 				{:name => 'purchase', :partial => 'settings/tab_purchase', :label => :label_purchasing},
-				{:name => 'inventory', :partial => 'settings/tab_inventory', :label => :label_inventory},
+				{:name => 'inventory', :partial => 'settings/tab_inventory', :label => :label_inventory}
 				#{:name => 'shiftscheduling', :partial => 'settings/tab_shift_scheduling', :label => :label_scheduling}
 			   ]	
 	end	
@@ -1014,12 +1013,12 @@ end
 	
 	def computeWorkedHours(startTime,endTime, ishours)
 		currentEntryDate = startTime.localtime
-		workedHours = endTime - startTime
+		workedHours = endTime-startTime
 		if !Setting.plugin_redmine_wktime['wktime_break_time'].blank?
 			Setting.plugin_redmine_wktime['wktime_break_time'].each_with_index do |element,index|
 			  listboxArr = element.split('|')
-			  breakStart = currentEntryDate.change({ hour: listboxArr[0], min:listboxArr[1], sec: '00' })
-			  breakEnd = currentEntryDate.change({ hour: listboxArr[2], min:listboxArr[3], sec: '00' })
+			  breakStart = currentEntryDate.change({ hour: listboxArr[0], min: listboxArr[1], sec: 0 })
+			  breakEnd = currentEntryDate.change({ hour: listboxArr[2], min:listboxArr[3], sec: 0 })
 			  if(!(startTime>breakEnd || endTime < breakStart))
 				if startTime < breakStart
 					if endTime < breakEnd
@@ -1226,8 +1225,36 @@ end
 	
 	def showTimeExpense
 		(!Setting.plugin_redmine_wktime['wktime_enable_time_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_time_module'].to_i == 1) || (!Setting.plugin_redmine_wktime['wktime_enable_expense_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_expense_module'].to_i == 1)
+			Setting.plugin_redmine_wktime['wktime_enable_time_module'].to_i == 1) || 
+			(!Setting.plugin_redmine_wktime['wktime_enable_expense_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_expense_module'].to_i == 1) ||
+			# if none of the settings is checked
+			( (Setting.plugin_redmine_wktime['wktime_enable_dashboards_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_dashboards_module'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_time_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_time_module'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_expense_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_expense_module'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_shift'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_shift'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_payroll_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_payroll_module'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_billing_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_billing_module'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_accounting_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_accounting_module'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_crm_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_crm_module'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_purchase_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_purchase_module'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_report_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_report_module'].to_i == 0 ) ) ||
+			((Setting.plugin_redmine_wktime['wktime_enable_dashboards_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_dashboards_module'].to_i == 0))
 	end
 	
 	def getDatesSql(from, intervalVal, intervalType)
@@ -1330,7 +1357,8 @@ end
 	end
 	
 	def erpModules
-		erpmineModules = {l(:label_wktime) => 'Time',
+		erpmineModules = {l(:label_dashboards) => 'Dashboards',
+						  l(:label_wktime) => 'Time',
 						  l(:label_wkexpense) => 'Expense',
 						  l(:report_attendance) => 'Attendance',
 						  l(:label_shift_scheduling) => 'Shift Scheduling',

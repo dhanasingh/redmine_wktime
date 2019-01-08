@@ -108,3 +108,5 @@ class CreateWkCrm < ActiveRecord::Migration
 		end
   end
 end
+nd
+end

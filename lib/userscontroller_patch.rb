@@ -120,4 +120,17 @@ module UsersControllerPatch
 			
 		end
 	end
+endwkAddress.mobile = params[:mobile]
+				wkAddress.email = params[:email]
+				wkAddress.website = params[:website]
+				wkAddress.department = params[:department]
+				if wkAddress.valid?
+					wkAddress.save
+					addressId = wkAddress.id
+				end		
+				addressId
+			end
+	# ===============================================		
+		end
+	end
 end

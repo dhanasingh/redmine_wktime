@@ -121,4 +121,5 @@ class CreateWkScheduling  < ActiveRecord::Migration
 			end 
 		end
 	end
+endd
 end

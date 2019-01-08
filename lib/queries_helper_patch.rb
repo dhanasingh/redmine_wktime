@@ -49,4 +49,11 @@ module QueriesHelper
 		end
 	  end
 
+endasset_property.name
+   # =============================		
+		else
+		  format_object(value)
+		end
+	  end
+
 end
