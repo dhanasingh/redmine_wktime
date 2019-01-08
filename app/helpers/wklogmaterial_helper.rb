@@ -3,12 +3,25 @@ include ApplicationHelper
 include WktimeHelper
 include WkassetHelper
 	def getLogHash
-		{
+		spentTypeHash = {
 			'T' => l(:label_wktime),
 			'E' => l(:label_wkexpense),
 			'M' => l(:label_material),
 			'A' => l(:label_asset)
 		}
+		additionalProducts = call_hook :additional_spent_type
+		unless additionalProducts.blank?
+			if additionalProducts.is_a?(Array) 
+				additionalProducts.each do | hsh |
+					spentTypeHash =  spentTypeHash.merge(hsh)
+				end
+			else
+				mergeHash = eval(additionalProducts)
+				spentTypeHash =  spentTypeHash.merge(mergeHash)
+			end
+		end
+		
+		spentTypeHash
 	end
 	
 	def getProductCatagoryArray(model, categoryId, needBlank)
@@ -55,7 +68,7 @@ include WkassetHelper
 		sqlQuery = sqlQuery  + " and it.product_type = '#{logType}' " unless logType.blank?
 		sqlQuery = sqlQuery + " and (wap.matterial_entry_id is null or wme.user_id = #{User.current.id}) "
 		sqlQuery = sqlQuery + " and it.location_id = #{locationId} " unless locationId.blank?
-		sqlQuery = sqlQuery + " and it.is_loggable = #{true} " if logType == 'A'
+		sqlQuery = sqlQuery + " and it.is_loggable = #{true} " if logType == 'A' 
 		pctObj = WkInventoryItem.find_by_sql(sqlQuery)
 		pctObj
 	end
@@ -66,7 +79,7 @@ include WkassetHelper
 		rateperhash = getRatePerHash(false)
 		pctObj.each do | entry|
 			attributeName = entry.product_attribute.blank? ? "" : entry.product_attribute.name
-			if logType == 'A'
+			if logType == 'A' 
 			
 				pctArr << [(entry.asset_name.to_s() + ' - ' + entry.rate.to_s() + ' - ' + rateperhash[entry.rate_per].to_s()), entry.id.to_s() ]  
 			else
@@ -91,22 +104,6 @@ include WkassetHelper
 	def updateParentInventoryItem(inventoryItemId, productQuantity, materialQuantity)
 		inventoryItemObj = WkInventoryItem.find(inventoryItemId)
 		if materialQuantity.blank?
-			totalAvlQty = inventoryItemObj.available_quantity
-			materialQuantity = 0
-		else 
-			totalAvlQty = inventoryItemObj.available_quantity + materialQuantity
-		end
-		
-		if  totalAvlQty >= productQuantity 
-			qtyVal = materialQuantity - productQuantity
-			inventoryItemObj.incrementAvaQty(qtyVal)
-			inventoryItemObj.save
-		end
-		inventoryItemObj
-	end
-	
-end
-ialQuantity.blank?
 			totalAvlQty = inventoryItemObj.available_quantity
 			materialQuantity = 0
 		else 

@@ -1,13 +1,13 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
-	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds')}" %>";
+	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds', :additionalContactType => controller.additionalContactType)}" %>";
 </script>
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
 <%	accArr = options_for_wktime_account(false, 'A')
 	if !@oppEditEntry.blank?
-		accArr = relatedValues(@oppEditEntry[0].parent_type, @oppEditEntry[0].parent_id, 'A')	
+		accArr = relatedValues(@oppEditEntry[0].parent_type, @oppEditEntry[0].parent_id, 'A', false, controller.additionalContactType)	
     elsif !params[:parentType].blank?
-		accArr = relatedValues(params[:parentType], params[:parentId], 'A')		
+		accArr = relatedValues(params[:parentType], params[:parentId], 'A', false, controller.additionalContactType)		
 	end
 	relHash = relatedHash
 	relHash.delete("WkOpportunity")
@@ -16,19 +16,19 @@
 <%= form_tag({:controller => 'wkopportunity', :action => 'update'}, :method => :get, :id => 'query_form') do %>
 <%=h hidden_field_tag('opp_id', (!@oppEditEntry.blank? ? @oppEditEntry[0].id : "") ) %>
 <fieldset class="box tabular" style="height:260px; ">
-	<legend><%= l(:label_opportunity) + " " + l(:label_information) %></legend>
+	<legend><%= l(:label_opportunity_information) %></legend>
 	<table >
 		<tr>
-			<th align="left"><%= l(:label_opportunity) + " " + l(:field_name)  %><span style="color:red;">*</span></th>
+			<th align="left"><%= l(:label_opportunity_name)  %><span style="color:red;">*</span></th>
 			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_name", (!@oppEditEntry.blank? ? @oppEditEntry[0].name : ""), :style => "width:190px;") %></td>			
 			
-			<th align="left" style="padding-left:240px;"><%= l(:label_expected) + " " + l(:button_close) + " " + l(:field_spent_on) %></th>
+			<th align="left" style="padding-left:240px;"><%= l(:label_expected_date_to_close_project) %></th>
 			<td align="left" style="padding-left:40px;"><%= date_field_tag('expected_close_date',   Date.today, {:id => 'expected_close_date', :size => 12, :style => "width:160px;"}) + calendar_for('expected_close_date') %></td>
 		</tr>
 		<%  selectedSSId = @oppEditEntry.blank? ? nil : @oppEditEntry[0].sales_stage_id %>
 		<%  selectedOTId = @oppEditEntry.blank? ? nil : @oppEditEntry[0].opportunity_type_id %>
 		<tr>
-			<th align="left"><%= l(:label_txn_sales) + " " + l(:label_stage) %></th>
+			<th align="left"><%= l(:label_txn_sales_stage) %></th>
 			<td align="left" style="padding-left:40px;"><%=h select_tag('sales_stage', options_for_select(options_for_enum_select('SS', selectedSSId, true))) %></td>
 			
 			<th align="left" style="padding-left:240px;"><%= l(:label_type) %></th>
@@ -36,7 +36,7 @@
 		</tr>
 		
 		<tr>
-			<th align="left"><%= l(:label_opportunity) + " " + l(:field_amount) %></th>
+			<th align="left"><%= l(:label_opportunity_amount) %></th>
 			<td align="left" style="padding-left:40px;">
 			<%=h select_tag("currency",options_for_select(wkexpense_helper.options_for_currency, :selected => (!@oppEditEntry.blank? ? @oppEditEntry[0].currency : "") )) %>
 			<%=h text_field_tag("opp_amount", (!@oppEditEntry.blank? && !@oppEditEntry[0].amount.blank? ? @oppEditEntry[0].amount : ""), :style => "width:190px;") %></td>
@@ -83,8 +83,5 @@
 	</br>
 	<div>
 		<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @oppEditEntry[0] }%>
-	</div>
-<% end %>
- @oppEditEntry[0] }%>
 	</div>
 <% end %>

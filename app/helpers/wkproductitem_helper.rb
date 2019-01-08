@@ -1,8 +1,5 @@
-module WkproductitemHelper
-include WktimeHelper
-include WkshipmentHelper
-end
- pvt ltd
+# ERPmine - ERP for service industry
+# Copyright (C) 2011-2018  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License

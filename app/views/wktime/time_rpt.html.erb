@@ -101,7 +101,7 @@
 		%>
 		<% 
 		unless @entries.blank?		
-		weeklyHash = getWeeklyView(@entries, nil, false)
+		weeklyHash = getWeeklyView(@entries, nil, false, nil, 7)
 		weeklyHash.each do |key, matrix|
 			matrix_values, j = wktime_helper.getColumnValues(matrix, totals, unitLabel, false, 0, true)
 			matrix_values.each do |col_val|
@@ -162,6 +162,4 @@
 			</tr>
 		</table>
 	</div>
-</div>
-
 </div>

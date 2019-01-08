@@ -24,10 +24,10 @@
 	<%= text_field_tag 'oppname', accname.blank? ? "" : accname, :size => 30, :style=> "float: left;" %>	
 	<label style="float:left; padding-left: 20px;"><%= l(:label_account_name) %></label>
 		<%=h select_tag('account_id', options_for_select(accArr,  :selected => accId.nil? ? accArr : accId), :style=> "float: left;") %>
-        <%= link_to l(:label_new_item, l(:label_opportunity)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+        <%= link_to l(:label_new_item_adjusted, l(:label_opportunity)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
 </div>
 <%= render :partial => 'wkopportunity/date_range' %>
 
 <% end %>
 <%= render :partial => 'wkopportunity/opportunity_list', locals: { opportunities: @opportunity} %>
-<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>%></span>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

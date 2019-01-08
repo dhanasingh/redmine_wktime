@@ -33,9 +33,8 @@ class WksuppliercontactController < WkcontactController
 	def getAccountLbl
 		l(:label_supplier_account)
 	end
-
-end
-f lblNewContact
+	
+	def lblNewContact
 		l(:label_new_item, l(:label_supplier_contact))
 	end
 	

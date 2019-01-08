@@ -31,24 +31,71 @@ module WkpayrollHelper
 		salaryComponents
 	end
 	
-	def getFinancialPeriodArray(startDate, endDate, periodType)
+	def getIntervals(startDate, endDate, periodType, periodStart, inclusiveOfStart, inclusiveOfEnd)
+		intervals = Array.new
+		unless periodType.blank?
+			case periodType.upcase
+			when 'H'
+				intervals << [startDate, endDate]
+			when 'D'
+				intervals << [startDate, endDate]
+			when 'W'
+				intervals = getIntervalInWeeks(startDate, endDate, periodStart, inclusiveOfStart, inclusiveOfEnd)
+			else
+				intervals = getFinancialPeriodArray(startDate, endDate, periodType, periodStart)
+			end
+		end
+		intervals
+	end
+	
+	def getFinancialPeriodArray(startDate, endDate, periodType, monthStart)
 		finPeriodArr = Array.new
 		frequencyMonth = getFrequencyHash[periodType.downcase]
 		startFinDate = nil
 		endFinDate  = nil
+		startDate = startDate - (monthStart-1).days
+		endDate = endDate - (monthStart-1).days
 		financialStartMonth = getFinancialStart.to_i
 		startDateModVal = getDateModValue(startDate, financialStartMonth, frequencyMonth)
 		endDateModVal = getDateModValue(endDate, financialStartMonth, frequencyMonth)
 		subtractorStrat = startDateModVal != 0 ? frequencyMonth - startDateModVal : 0
 		subtractorEnd = endDateModVal == 0 ? frequencyMonth : endDateModVal
-		startFinDate = Date.civil(startDate.year, startDate.month, 1) - subtractorStrat.months
-		endFinDate = (Date.civil(endDate.year, endDate.month, 1) + subtractorEnd.months) - 1
+		startFinDate = Date.civil(startDate.year, startDate.month, monthStart) - subtractorStrat.months
+		endFinDate = (Date.civil(endDate.year, endDate.month, monthStart) + subtractorEnd.months) - 1.day
 		lastDate = startFinDate
 		until lastDate > endFinDate
-			finPeriodArr << [lastDate, (lastDate + frequencyMonth.months) -1 ]
+			finPeriodArr << [lastDate, (lastDate + frequencyMonth.months) -1.days ]
 			lastDate = lastDate + frequencyMonth.months
 		end
 		finPeriodArr
+	end
+	
+	# Return the intervals of week as array
+	# startDay the day of calendar week (0-6, Sunday is 0)	
+	# inclusiveOfStart - if true then includes the startDate's week  
+	# inclusiveOfEnd - if true then includes the endDate's week  
+	def getIntervalInWeeks(startDate, endDate, startDay, inclusiveOfStart, inclusiveOfEnd)
+		intervalArr = Array.new
+		periodStart = getWeekStartDt(startDate, startDay)	
+		periodEnd = getWeekStartDt(endDate, startDay) + 6.days
+		startIntervalDate = periodStart
+		unless periodStart + 6.days == periodEnd
+			unless inclusiveOfStart || startDate == periodStart
+				startIntervalDate = periodStart + 7.days
+			end
+			endIntervalDate = periodEnd
+			unless inclusiveOfEnd || endDate == periodEnd
+				endIntervalDate = periodEnd - 7.days
+			end
+			lastDate = startIntervalDate
+			until lastDate > endIntervalDate
+				intervalArr << [lastDate, lastDate + 6.days ]
+				lastDate = lastDate + 7.days
+			end
+		else
+			intervalArr << [periodStart, periodStart + 6.days ] if inclusiveOfStart || inclusiveOfEnd
+		end
+		intervalArr
 	end
 	
 	def getDateModValue(dateVal, stratMonth, monthFreq)
@@ -354,46 +401,6 @@ module WkpayrollHelper
 		deleteGlSalary(salaryDate)
 		glSalary = WkGlSalary.new
 		glSalary.salary_date = salaryDate
-		glSalary.gl_transaction_id = glTransaction.id
-		unless glSalary.valid?
-			errorMsg = glSalary.errors.full_messages.join("<br>")
-		else 
-			glSalary.save()
-		end
-		errorMsg
-	end
-	
-	def deleteGlSalary(salaryDate)
-		WkGlSalary.where(:salary_date =>salaryDate).destroy_all
-	end
-	
-	def getSalaryDetail(userid,salarydate)
-		sqlStr = getQueryStr + " where s.user_id = #{userid} and s.salary_date='#{salarydate}'"
-		@wksalaryEntries = WkUserSalaryComponents.find_by_sql(sqlStr)
-	end
-	
-	def getQueryStr
-		#joinDateCFId = !Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].blank? ? Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].to_i : 0
-		queryStr = "select u.id as user_id, u.firstname as firstname, u.lastname as lastname, sc.name as component_name, sc.id as sc_component_id, wu.join_date," + 
-		" wu.id1, wu.gender,"+
-		"  s.salary_date as salary_date, s.amount as amount, s.currency as currency," + 
-		" sc.component_type as component_type from wk_salaries s "+ 
-		" inner join wk_salary_components sc on s.salary_component_id=sc.id"+  
-		" inner join users u on s.user_id=u.id" + 
-		" left join wk_users wu on u.id = wu.user_id "
-	end
-	
-	def getYTDDetail(userId,salaryDate)
-		financialPeriodArr = getFinancialPeriodArray(salaryDate, salaryDate, 'a')
-		@financialPeriod = financialPeriodArr[0] 
-		ytdDetails = WkSalary.select("sum(amount) as amount, user_id, salary_component_id").where("user_id = #{userId} and salary_date between '#{@financialPeriod[0]}' and '#{salaryDate}'").group("user_id, salary_component_id")
-		ytdAmountHash = Hash.new()
-		ytdDetails.each do |entry|
-			ytdAmountHash[entry.salary_component_id] = entry.amount
-		end
-		ytdAmountHash
-	end
-endlaryDate
 		glSalary.gl_transaction_id = glTransaction.id
 		unless glSalary.valid?
 			errorMsg = glSalary.errors.full_messages.join("<br>")

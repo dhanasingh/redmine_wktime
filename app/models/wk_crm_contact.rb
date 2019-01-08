@@ -28,6 +28,10 @@ class WkCrmContact < ActiveRecord::Base
   has_many :contracts, as: :parent, class_name: "WkContract", :dependent => :destroy
   has_many :invoices, as: :parent, class_name: "WkInvoice", :dependent => :restrict_with_error
   has_many :invoice_items, through: :invoices
+  has_many :contacts, foreign_key: "contact_id", class_name: "WkCrmContact"
+  has_many :spent_fors, as: :spent_for, class_name: 'WkSpentFor', :dependent => :restrict_with_error
+  belongs_to :location, :class_name => 'WkLocation'
+   
   validates_presence_of :last_name
    # Different ways of displaying/sorting users
   NAME_FORMATS = {
@@ -92,15 +96,6 @@ class WkCrmContact < ActiveRecord::Base
   # or nil if the contact do not have contract
   def contract(project)
 		contract = contracts.where(:project_id => project.id).first
-		contract = contracts[0] if contract.blank?
-		contract
-  end
-
-  def self.name_formatter(formatter = nil)
-    NAME_FORMATS[formatter] || NAME_FORMATS[:firstname_lastname]
-  end
-end
- = contracts.where(:project_id => project.id).first
 		contract = contracts[0] if contract.blank?
 		contract
   end

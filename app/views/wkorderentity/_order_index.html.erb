@@ -27,7 +27,7 @@
 			<%#= link_to l(:button_apply), {:controller => controller_name, :action => action_name}, :class => 'icon icon-checked' %>
 			<%= link_to l(:button_clear), {:controller => controller_name, :action => action_name, :tab => 'clock'}, :class => 'icon icon-reload' %>
 			<% if controller.isInvGenUnbilledLink %>
-				<%= link_to l(:label_generate) + ' ' + l(:label_invoice), 'javascript:invoiceFormSubmission(false);', :name => 'generate', :class => 'icon icon-report' %>
+				<%= link_to l(:label_generate) + ' ' + l(:label_invoice_adjusted), 'javascript:invoiceFormSubmission(false);', :name => 'generate', :class => 'icon icon-report' %>
 				<%= link_to_function l(:label_preview_invoice), "javascript:invoiceFormSubmission(true); ", :class => 'icon icon-report' %>
 			<% end %>
 		 
@@ -52,4 +52,3 @@
 		<%= html_hours("%.2f" % @totalInvAmt) %></p>
 	</div>
 	<%= render :partial => 'wkorderentity/order_list'%>	
-list'%>	

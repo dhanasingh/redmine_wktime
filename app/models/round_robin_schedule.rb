@@ -449,7 +449,7 @@ class RoundRobinSchedule
 	
 	# return number of days between two dates
 	def getDaysBetween(from, to)
-		(to - from).to_i + 1
+		(to.to_date - from.to_date).to_i + 1
 	end
 	
 	# Save the scheduled hash entries
@@ -719,8 +719,5 @@ class RoundRobinSchedule
 			dayOffUserPrefHash[entry.schedule_date] = dayOffUserPrefHash[entry.schedule_date].blank? ? [entry.user_id] : (dayOffUserPrefHash[entry.schedule_date] + [entry.user_id])
 		end
 		dayOffUserPrefHash
-	end
-end
-efHash
 	end
 end

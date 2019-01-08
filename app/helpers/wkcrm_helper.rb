@@ -1,5 +1,6 @@
 module WkcrmHelper
 include WkinvoiceHelper
+include WkcrmenumerationHelper
 	
 	def getLeadList(from, to, groupId, userId)
 		userIdArr = nil
@@ -160,7 +161,7 @@ include WkinvoiceHelper
 		salType
 	end
 	
-	def relatedValues(relatedType, parentId, type)
+	def relatedValues(relatedType, parentId, type, needBlank, isContactType)
 		relatedArr = Array.new
 		relatedId = nil
 		if relatedType == "WkOpportunity"
@@ -168,7 +169,12 @@ include WkinvoiceHelper
 		elsif relatedType == "WkLead"
 			relatedId = WkLead.includes(:contact).where("wk_leads.status != ? OR wk_leads.id = ?",'C', parentId).order("wk_crm_contacts.first_name, wk_crm_contacts.last_name")
 		elsif relatedType == "WkCrmContact"
-			relatedId = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where(:contact_type => type).order(:first_name, :last_name)
+			hookType = call_hook(:additional_contact_type)
+			if hookType.blank? || !isContactType
+				relatedId = WkCrmContact.includes(:lead).where(:account_id => nil, :contact_id => nil).where(wk_leads: { status: ['C', nil] }).where(:contact_type => type).order(:first_name, :last_name)
+			else
+				relatedId = WkCrmContact.includes(:lead).where(:account_id => nil, :contact_id => nil).where(wk_leads: { status: ['C', nil] }).where("wk_crm_contacts.contact_type = '#{type}' or wk_crm_contacts.contact_type = '#{hookType}'").order(:first_name, :last_name)
+			end
 		else
 			relatedId = WkAccount.where(:account_type => type).order(:name)
 		end
@@ -183,7 +189,7 @@ include WkinvoiceHelper
 				end
 			end
 		end
-		
+		relatedArr.unshift(["", ""]) if needBlank
 		relatedArr
 	end
 	
@@ -194,10 +200,18 @@ include WkinvoiceHelper
 			accSections = ['wkcrmactivity', 'wkcrmcontact'] #, 'wkopportunity'
 			accSections << 'wkopportunity' unless curObj.account_type == 'S'
 		when 'WkCrmContact'
-			accSections = ['wkcrmactivity'] # , 'wkopportunity'
+			accSections = ['wkcrmactivity', 'wkcrmcontact'] # , 'wkopportunity'
 			accSections << 'wkopportunity' unless curObj.contact_type == 'SC'
+			hookSection = call_hook(:view_accordion_section, {:entity => entity, :curObj => curObj})
+			hookSection = hookSection.split(' ')
+		when 'WkInventoryItem'
+			accSections = ['wkproductitem']
 		else
 			accSections = ['wkcrmactivity']
+		end
+		
+		unless hookSection.blank?
+			accSections = accSections + hookSection
 		end
 		accSections
 	end
@@ -209,34 +223,6 @@ include WkinvoiceHelper
 	
 	def date_for_user_time_zone(y, m, d)
 		if tz = User.current.time_zone
-		  tz.local y, m, d
-		else
-		  Time.local y, m, d
-		end
-	end
-	
-	def getFromDateTime(dateVal)
-		date_for_user_time_zone(dateVal.year, dateVal.month, dateVal.day).yesterday.end_of_day
-	end
-	
-	def getToDateTime(dateVal)
-		date_for_user_time_zone(dateVal.year, dateVal.month, dateVal.day).end_of_day
-	end
-	
-	# This method returns billable project parents as hash
-	# Hash has parent_type as key and parent_id as value
-	def getProjectBillers(projectId)
-		accProjects = WkAccountProject.where(project_id: projectId).order(:parent_type, :parent_id)
-		parentIdHash = Hash.new
-		parentIdHash['WkAccount'] = []
-		parentIdHash['WkCrmContact'] = []
-		accProjects.each do |entry|
-			parentIdHash[entry.parent_type] = parentIdHash[entry.parent_type] << entry.parent_id
-		end
-		parentIdHash
-	end
-end
-nt.time_zone
 		  tz.local y, m, d
 		else
 		  Time.local y, m, d

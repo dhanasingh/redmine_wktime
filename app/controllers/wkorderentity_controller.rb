@@ -57,11 +57,11 @@ include WkorderentityHelper
 			end
 			if filter_type == '2'  || filter_type == '3' 
 				accProjects = WkAccountProject.where(sqlwhere).order(:parent_type, :parent_id)
-				previewBilling(accProjects)
-				accProjects.find_each do |accProj|
-				   errorMsg = generateInvoices(accProj, projectId, @to + 1, [@from, @to]) unless params[:generate].blank? || !to_boolean(params[:generate])#accProj.parent_id,accProj.parent_type
+				# previewBilling(accProjects)
+				# accProjects.find_each do |accProj|
+				   # errorMsg = generateInvoices(accProj, projectId, @to + 1, [@from, @to]) unless params[:generate].blank? || !to_boolean(params[:generate])#accProj.parent_id,accProj.parent_type
 				   
-				end
+				# end
 			end			
 			
 			if filter_type == '1'  
@@ -70,9 +70,19 @@ include WkorderentityHelper
 				else
 					accProjects = WkAccountProject.where(project_id: projectId).order(:parent_type, :parent_id)
 				end	
-				previewBilling(accProjects)
-				accProjects.each do |accProj|
-				   errorMsg = generateInvoices(accProj, projectId, @to + 1, [@from, @to]) unless params[:generate].blank? || !to_boolean(params[:generate])
+				# previewBilling(accProjects)
+				# accProjects.each do |accProj|
+				   # errorMsg = generateInvoices(accProj, projectId, @to + 1, [@from, @to]) unless params[:generate].blank? || !to_boolean(params[:generate])
+				   
+				# end
+			end
+			invoiceFreq = getInvFreqAndFreqStart
+			invIntervals = getIntervals(@from, @to, invoiceFreq["frequency"], invoiceFreq["start"], true, false)
+			@firstInterval = invIntervals[0]
+			previewBilling(accProjects, @from, @to)
+			invIntervals.each do |interval|
+				accProjects.find_each do |accProj|
+				   errorMsg = generateInvoices(accProj, projectId, interval[1] + 1, interval) unless params[:generate].blank? || !to_boolean(params[:generate])#accProj.parent_id,accProj.parent_type
 				   
 				end
 			end
@@ -218,7 +228,7 @@ include WkorderentityHelper
 			arrId = @invoice.invoice_items.pluck(:id)
 		else
 			@invoice = WkInvoice.new
-			invoicePeriod = [params[:inv_start_date], params[:inv_end_date]]
+			invoicePeriod = getInvoicePeriod(params[:inv_start_date], params[:inv_end_date])#[params[:inv_start_date], params[:inv_end_date]]
 			saveOrderInvoice(params[:parent_id], params[:parent_type],  params[:project_id1],params[:inv_date],  invoicePeriod, false, getInvoiceType)
 			
 		end
@@ -270,7 +280,7 @@ include WkorderentityHelper
 					idArr = params["entry_id#{i}"].split(' ')
 					idArr.each do | id |
 						timeEntry = TimeEntry.find(id)
-						updateBilledHours(timeEntry, @invoice.id)
+						updateBilledEntry(timeEntry, updatedItem.id)
 					end
 				elsif !params["entry_id#{i}"].blank?
 					scheduledEntry = WkBillingSchedule.find(params["entry_id#{i}"].to_i)
@@ -281,8 +291,9 @@ include WkorderentityHelper
 			end
 			unless params["material_id#{i}"].blank?
 				matterialEntry = WkMaterialEntry.find(params["material_id#{i}"].to_i)
-				matterialEntry.invoice_item_id = updatedItem.id
-				matterialEntry.save
+				updateBilledEntry(matterialEntry, updatedItem.id)
+				# matterialEntry.invoice_item_id = updatedItem.id
+				# matterialEntry.save
 			end
 			savedRows = savedRows + 1
 			tothash[updatedItem.project_id] = [(tothash[updatedItem.project_id].blank? ? 0 : tothash[updatedItem.project_id][0]) + updatedItem.amount, updatedItem.currency] if updatedItem.item_type != 'm'
@@ -365,6 +376,10 @@ include WkorderentityHelper
 	def deleteBilledEntries(invItemIdsArr)
 	end
 	
+	def getInvoicePeriod(startDate, endDate)
+		[startDate, endDate]
+	end
+	
 	def getOrderContract(invoice)
 		contractStr = nil
 		accContract = invoice.parent.contract(@invoiceItem[0].project)
@@ -420,48 +435,6 @@ include WkorderentityHelper
 			end
 		else
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
-			@limit = @entry_pages.per_page
-			@offset = @entry_pages.offset
-		end	
-	end	
-	
-	def getOrderComponetsId
-		'wktime_invoice_components'
-	end
-	
-	def getSupplierAddress(invoice)
-		Setting.plugin_redmine_wktime['wktime_company_name'] + "\n" +  Setting.plugin_redmine_wktime['wktime_company_address']
-	end
-	
-	def getCustomerAddress(invoice)
-		invoice.parent.name + "\n" + (invoice.parent.address.blank? ? "" : invoice.parent.address.fullAddress)
-	end
-	
-	def getAutoPostModule	
-	end
-	
-	def postableInvoice
-		false
-	end
-	
-	def deletePermission
-		false
-	end
-	
-	def addMaterialType
-		false
-	end
-	
-	def addAssetType
-		false
-	end
-	
-	def getAccountLbl
-		l(:label_account)
-	end
-	
-end
- @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
 		end	

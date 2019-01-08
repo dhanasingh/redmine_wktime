@@ -6,13 +6,10 @@
 	crmenumUrl = '<%=url_for(:controller => "wkcrmenumeration", :action => "index", :tab => "wkcrmenumeration")%>';
 	wklocationUrl =  '<%=url_for(:controller => "wklocation", :action => "index", :tab => "wklocation")%>';
 	wkgrpPermissionUrl =  '<%=url_for(:controller => "wkgrouppermission", :action => "index", :tab => "wkgrouppermission")%>';
+	wkClockSettingUrl = '<%=url_for(:controller => "wkclocksettings", :action => "index", :tab => "wkclocksetting")%>';
     prevTab = 'tab-<%= "#{controller_name}" %>';   
 //	grpUrl="<%= "#{url_for(:controller => "wkpayroll", :action => 'getMembersbyGroup')}" %>";
 		//getMembersbyGroup
-</script>
-<%= render_tabs time_expense_tabs %>
-
-<%= render :partial => 'wkexchangerate/exc_rate_index'%>mbersbyGroup
 </script>
 <%= render_tabs time_expense_tabs %>
 

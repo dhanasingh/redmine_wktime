@@ -94,7 +94,7 @@
 		%>
 		<% 
 		unless @entries.blank?			
-		weeklyHash = getWeeklyView(@entries, nil, false)	#controller.getUnitLabel
+		weeklyHash = getWeeklyView(@entries, nil, false, nil, 7)	#controller.getUnitLabel
 		weeklyHash.each do |key, matrix|
 			matrix_values, j = wktime_helper.getColumnValues(matrix, totals, nil, false, 0, true) #unitLabel
 			col_values = matrix_values[0]
@@ -151,4 +151,4 @@
 	</div>
 </div>
   
-<% html_title(l(:label_ta)) -%>ta)) -%>
+<% html_title(l(:label_ta)) -%>

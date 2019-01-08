@@ -158,30 +158,34 @@ module WkattendanceHelper
 	end
 
 	def saveAttendance(attnObj, startTime, endTime, userId, hasStartEnd)
-		wkattendance = nil
-		if(!attnObj.blank? && ((attnObj.end_time.blank? && ((startTime - attnObj.start_time.localtime)/3600) < 24 && ((startTime - attnObj.start_time.localtime)/3600) > 0 )|| hasStartEnd))
-			if !hasStartEnd
-				entrydate = attnObj.start_time
-				start_local = entrydate.localtime
-				if ((startTime.localtime.to_date) != attnObj.start_time.localtime.to_date)
-					endtime = start_local.change({ hour: "23:59".to_time.strftime("%H"), min: "23:59".to_time.strftime("%M"), sec: '59' })
-					nextDayStart = Time.parse("#{startTime.to_date.to_s} 00:00:00 ").localtime.to_s
-					wkattendance = addNewAttendance(nextDayStart,startTime,userId)
+			wkattendance = nil
+			if(!attnObj.blank? && ((attnObj.end_time.blank? && ((startTime - attnObj.start_time.localtime)/3600) < 24 && ((startTime - attnObj.start_time.localtime)/3600) > 0 )))
+				if !hasStartEnd
+					entrydate = attnObj.start_time
+					start_local = entrydate.localtime
+					if ((startTime.localtime.to_date) != attnObj.start_time.localtime.to_date)
+						endtime = start_local.change({ hour: "23:59".to_time.strftime("%H"), min: "23:59".to_time.strftime("%M"), sec: '59' })
+						nextDayStart = Time.parse("#{startTime.to_date.to_s} 00:00:00 ").localtime.to_s
+						wkattendance = addNewAttendance(nextDayStart,startTime,userId)
+					else
+						endtime = start_local.change({ hour: startTime.localtime.strftime("%H"), min:startTime.localtime.strftime("%M"), sec: startTime.localtime.strftime("%S") })
+					end
 				else
-					endtime = start_local.change({ hour: startTime.localtime.strftime("%H"), min:startTime.localtime.strftime("%M"), sec: startTime.localtime.strftime("%S") })
+					if !hasStartEnd
+						endtime = endTime
+					end
 				end
+				
+				attnObj.end_time = endtime
+				attnObj.hours = computeWorkedHours(attnObj.start_time,attnObj.end_time, true)
+				attnObj.save()
+				wkattendance = attnObj if wkattendance.blank?
 			else
-				endtime = endTime
+				if hasStartEnd
+					wkattendance = addNewAttendance(startTime,endTime,userId)
+				end
 			end
-			
-			attnObj.end_time = endtime
-			attnObj.hours = computeWorkedHours(attnObj.start_time,attnObj.end_time, true)
-			attnObj.save()
-			wkattendance = attnObj if wkattendance.blank?
-		else
-			wkattendance = addNewAttendance(startTime,endTime,userId)
-		end
-		wkattendance
+			wkattendance
 	end
 		
 	def getWorkedHours(userId,fromDate,toDate)
@@ -193,12 +197,6 @@ module WkattendanceHelper
 		queryStr = "select * from wk_user_leaves WHERE issue_id in (#{getLeaveIssueIds}) and accrual_on between '#{from}' and '#{to}'"
 		if !(isAccountUser || User.current.admin?)
 			queryStr = queryStr + " and user_id = #{User.current.id} "
-		end
-		queryStr
-	end
-
-end
-tr + " and user_id = #{User.current.id} "
 		end
 		queryStr
 	end

@@ -7,6 +7,10 @@ class WksupplieraccountController < WkaccountController
 		'S'
 	end
 	
+	def getContactType
+		'C'
+	end
+	
 	def getContactController
 		'wksuppliercontact'
 	end
@@ -28,10 +32,6 @@ class WksupplieraccountController < WkaccountController
 	
 	def getAccountLbl
 		l(:label_supplier_account)
-	end
-
-end
-abel_supplier_account)
 	end
 
 end

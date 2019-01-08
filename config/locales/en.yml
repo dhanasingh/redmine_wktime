@@ -62,7 +62,8 @@ en:
   label_wk_allow_user_filter_tracker: Allow User Filtering by Tracker
   label_wk_filter_issue_tracker: Filter Issue by Tracker
   label_wk_currency: Currency
-  label_wk_time: Weekly Time  
+  label_wk_time: Weekly Time
+  label_total_expense: Total Expense 
  
   label_wkexpense_reports: Expense Report
   label_spent_expense: Spent Expense
@@ -155,6 +156,9 @@ en:
   label_wk_attendance_start_date: Attendance start date
   label_clock_in: Clock in
   label_clock_out: Clock out
+  check_clock_state: Check clock state periodically
+  clock_interval_url: Url adress for clock state requests
+  check_clock_state_interval: Time interval in which application will perform requests for clock state in seconds
   label_wk_leave_exists: This leave already exists
   wk_field_balance: Balance
   wk_field_used: Used
@@ -250,6 +254,7 @@ en:
   label_ytd: YTD
   label_earning: Earnings
   label_payroll_settings: Payroll Settings
+  label_clock_settings: Clock Settings
   label_total_earning: Total Earnings
   label_total_deduction: Total Deductions
   label_net_earning: Net Earnings
@@ -278,6 +283,7 @@ en:
   label_contracts: Contracts
   label_acc_projects: Billable Projects
   label_invoice: Invoice
+  label_invoice_adjusted: Invoice
   label_tax: Tax  
   label_project_name: Project Name
   label_account_name: Account Name
@@ -293,6 +299,7 @@ en:
   label_invoice_no_prefix: Invoice number prefix
   label_taxname: Tax Name
   label_rate: Rate
+  label_exchange_rate: Rate
   label_tax_detail: Tax Detail
   label_new_tax: New Tax
   label_invoice_name: Item Description
@@ -340,7 +347,8 @@ en:
   label_attachment: Attachments
   label_edit_contract: Edit Contract
   label_project: Project 
-  label_account: Account 
+  label_account: Account
+  label_account_adjusted: Account
   label_contract_number: Contract Number
   label_contract_no_prefix: Contract number prefix
   label_new_contract: New Contract
@@ -407,7 +415,10 @@ en:
   label_accounting_group: Accounting User Group
   label_enable_accounting_module: Enable Accounting Module
   label_transaction: Transaction
+  label_transaction_type: Transaction Type
+  label_transaction_date: Transaction Date
   label_ledger: Ledger
+  label_ledger_information: Ledger Information
   label_accounting_admin: Accounting Admin Group
   label_bank_ac: Bank Accounts
   label_bank_occ_ac: Bank OCC A/c
@@ -451,6 +462,7 @@ en:
   label_txn_receipt: Receipt
   label_txn_journal: Journal
   label_txn_sales: Sales
+  label_txn_sales_stage: Sales Stage
   label_txn_credit_note: Credit Note
   label_txn_purchase: Purchase
   label_txn_debit_note: Debit Note
@@ -487,10 +499,14 @@ en:
   label_lead_plural: Leads
   label_opportunity_plural: Opportunities
   label_activity_plural: Activities
+  label_activity_type: Activity Type
   label_contact_plural: Contacts
   label_new_item: "New %{value}"
+  label_new_item_adjusted: "New %{value}"
+  label_new_item_third_case: "New %{value}"
   label_edit_item: "Edit %{value}"
   label_lead: Lead
+  label_lead_adjusted: Lead
   label_content_information: "%{value} Information"
   label_website: Website
   label_department: Department
@@ -512,8 +528,12 @@ en:
   label_start_date_time: "Start Date & Time"
   label_related_to: Related to
   label_contact: Contact
+  label_contact_adjusted: Contact
   label_task: Task
   label_opportunity: Opportunity
+  label_opportunity_information: Opportunity Information
+  label_opportunity_name: Opportunity Name
+  label_opportunity_type: Opportunity Type
   label_duration: Duration
   label_end_date_time: "End Date & Time"
   label_priority: Priority
@@ -685,8 +705,8 @@ en:
   label_product_items: Product Items
   label_category: Category
   label_populate_items: Populate Items
-  label_new_product_item: New Product Item
-  label_edit_product_item: Edit Product Item
+  label_new_product_item: New Item
+  label_edit_product_item: Edit Item
   label_product_item: Product Item
   label_part_number: Part Number
   label_inventory_information: Inventory Information
@@ -722,6 +742,9 @@ en:
   error_expense_delete: Unable delete the expense entries
   label_asset: Asset
   label_depreciation: Depreciation
+  label_depreciation_ledger: Depreciation Ledger
+  label_depreciation_type: Depreciation Type
+  label_depreciation_frequency: Depreciation Frequency
   field_inventory_item_id: Product
   label_rate_per: Product
   label_current_asset_value: Current Asset Value
@@ -758,6 +781,7 @@ en:
   label_scheduling: Scheduling
   label_schedule_preference: Schedule Preference
   label_shift: Shift
+  label_role_adjusted: Roles
   label_new_shift: New Shift
   label_required_staff: Required Staff
   label_count: Count
@@ -771,32 +795,6 @@ en:
   field_id2: Custom id2
   field_id3: Custom id3
   field_join_date: Join date
-  field_birth_date: Birth date
-  field_termination_date: Termination date
-  field_bank_name: Bank name
-  field_account_number: Bank account number
-  field_bank_code: Bank code
-  field_tax: Tax id
-  field_ss: SS id
-  field_custom_number1: Custom number1
-  field_custom_number2: Custom number2
-  field_custom_date1: Custom date1
-  field_custom_date2: Custom date2
-  field_billing_rate: Billing rate
-  field_billing_currency: Billing currency
-  field_location: Location 
-  field_department: Department
-  label_public_holiday: Public Holiday
-  label_schedule_on_weekend: Schedule on Weekend / Holiday
-  label_holiday: Holiday
-  label_day_off_per_frequency: Day off per frequency
-  label_schedule_shifts: Schedule Shifts
-  warning_apply_depreciation: Are you sure want to apply depreciation for the period
-  warning_schedule_shifts: Are you sure want to schedule shifts for the period
-  label_work: Work
-  field_shift: Shift
-  label_setting_preference: Allow user schedule preference
-  label_auto_scheduling: Auto Shift Scheduling  field_join_date: Join date
   field_birth_date: Birth date
   field_termination_date: Termination date
   field_bank_name: Bank name

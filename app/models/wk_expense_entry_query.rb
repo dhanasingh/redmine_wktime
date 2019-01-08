@@ -30,13 +30,13 @@ class WkExpenseEntryQuery < Query
     QueryAssociationColumn.new(:issue, :tracker, :caption => :field_tracker, :sortable => "#{Tracker.table_name}.position"),
     QueryAssociationColumn.new(:issue, :status, :caption => :field_status, :sortable => "#{IssueStatus.table_name}.position"),
     QueryColumn.new(:comments),
+	QueryColumn.new(:currency),
 	QueryColumn.new(:amount, :sortable => "#{WkExpenseEntry.table_name}.amount", :totalable => true),
   ]
 
   def initialize(attributes=nil, *args)
     super attributes
-    self.filters ||= {}
-    add_filter('spent_on', '*') unless filters.present?
+    self.filters ||= { 'spent_on' => {:operator => "*", :values => []} }
   end
 
   def initialize_available_filters
@@ -64,7 +64,7 @@ class WkExpenseEntryQuery < Query
     add_available_filter("issue.fixed_version_id",
       :type => :list,
       :name => l("label_attribute_of_issue", :name => l(:field_fixed_version)),
-      :values => lambda { fixed_version_values }) if project
+      :values => lambda { fixed_version_values })
 
     add_available_filter("user_id",
       :type => :list_optional, :values => lambda { author_values }
@@ -97,7 +97,11 @@ class WkExpenseEntryQuery < Query
   end
 
   def default_columns_names
-    @default_columns_names ||= [:project, :spent_on, :user, :activity, :issue, :comments,:currency, :amount ]
+	@default_columns_names ||= begin
+      default_columns = [:spent_on, :user, :activity, :issue, :comments, :currency, :amount]
+
+      project.present? ? default_columns : [:project] | default_columns
+    end
   end
   
   def default_totalable_names
@@ -106,6 +110,13 @@ class WkExpenseEntryQuery < Query
   
   def default_sort_criteria
     [['spent_on', 'desc']]
+  end
+
+  # If a filter against a single issue is set, returns its id, otherwise nil.
+  def filtered_issue_id
+    if value_for('issue_id').to_s =~ /\A(\d+)\z/
+      $1
+    end
   end
   
   # Returns sum of all the spent amount
@@ -119,103 +130,75 @@ class WkExpenseEntryQuery < Query
       includes(:activity).
       references(:activity).
       left_join_issue.
-      where(statement)
+      where(getSupervisorCondStr)
   end
-
-  def results_scope(options={})
-    order_option = [group_by_sort_order, (options[:order] || sort_clause)].flatten.reject(&:blank?)
-
-    base_scope.
-      order(order_option).
-      joins(joins_for_order_statement(order_option.join(',')))
-  end   
-
-  def sql_for_issue_id_field(field, operator, value)
-    case operator
-    when "="
-      "#{TimeEntry.table_name}.issue_id = #{value.first.to_i}"
-    when "~"
-      issue = Issue.where(:id => value.first.to_i).first
-      if issue && (issue_ids = issue.self_and_descendants.pluck(:id)).any?
-        "#{TimeEntry.table_name}.issue_id IN (#{issue_ids.join(',')})"
-      else
-        "1=0"
-      end
-    when "!*"
-      "#{TimeEntry.table_name}.issue_id IS NULL"
-    when "*"
-      "#{TimeEntry.table_name}.issue_id IS NOT NULL"
-    end
-  end
-
-  def sql_for_issue_fixed_version_id_field(field, operator, value)
-    issue_ids = Issue.where(:fixed_version_id => value.first.to_i).pluck(:id)
-    case operator
-    when "="
-      if issue_ids.any?
-        "#{TimeEntry.table_name}.issue_id IN (#{issue_ids.join(',')})"
-      else
-        "1=0"
-      end
-    when "!"
-      if issue_ids.any?
-        "#{TimeEntry.table_name}.issue_id NOT IN (#{issue_ids.join(',')})"
-      else
-        "1=1"
-      end
-    end
-  end
-
-  def sql_for_activity_id_field(field, operator, value)
-    condition_on_id = sql_for_field(field, operator, value, Enumeration.table_name, 'id')
-    condition_on_parent_id = sql_for_field(field, operator, value, Enumeration.table_name, 'parent_id')
-    ids = value.map(&:to_i).join(',')
-    table_name = Enumeration.table_name
-    if operator == '='
-      "(#{table_name}.id IN (#{ids}) OR #{table_name}.parent_id IN (#{ids}))"
-    else
-      "(#{table_name}.id NOT IN (#{ids}) AND (#{table_name}.parent_id IS NULL OR #{table_name}.parent_id NOT IN (#{ids})))"
-    end
-  end
-
-  def sql_for_issue_tracker_id_field(field, operator, value)
-    sql_for_field("tracker_id", operator, value, Issue.table_name, "tracker_id")
-  end
-
-  def sql_for_issue_status_id_field(field, operator, value)
-    sql_for_field("status_id", operator, value, Issue.table_name, "status_id")
-  end
-
-  # Accepts :from/:to params as shortcut filters
-  def build_from_params(params)
-    super
-    if params[:from].present? && params[:to].present?
-      add_filter('spent_on', '><', [params[:from], params[:to]])
-    elsif params[:from].present?
-      add_filter('spent_on', '>=', [params[:from]])
-    elsif params[:to].present?
-      add_filter('spent_on', '<=', [params[:to]])
-    end
-    self
-  end
-
-  def joins_for_order_statement(order_options)
-    joins = [super]
-
-    if order_options
-      if order_options.include?('issue_statuses')
-        joins << "LEFT OUTER JOIN #{IssueStatus.table_name} ON #{IssueStatus.table_name}.id = #{Issue.table_name}.status_id"
-      end
-      if order_options.include?('trackers')
-        joins << "LEFT OUTER JOIN #{Tracker.table_name} ON #{Tracker.table_name}.id = #{Issue.table_name}.tracker_id"
-      end
-    end
-
-    joins.compact!
-    joins.any? ? joins.join(' ') : nil
-  end
-end
-tatement.blank? ? condStatement : "(" + condStatement + ") AND (#{WkExpenseEntry.table_name}.project_id in (" + projectIdArr.collect{|i| i.to_s}.join(',') + "))"
+  
+  def getSupervisorCondStr
+	orgCondStatement = statement
+	condStatement = orgCondStatement
+	
+	wktime_helper = Object.new.extend(WktimeHelper)
+	isAccountUser = wktime_helper.isAccountUser
+	isSupervisor = wktime_helper.isSupervisor
+	projectIdArr = wktime_helper.getManageProject()
+	isManager = projectIdArr.blank? ? false : true
+	
+	if isSupervisor && !isAccountUser && !User.current.admin?
+		userIdArr = Array.new
+		user_cond = ""
+		rptUsers = wktime_helper.getReportUsers(User.current.id)
+		userIdArr = rptUsers.collect(&:id) if !rptUsers.blank?
+		userIdArr = userIdArr << User.current.id.to_s
+		userIds = "#{userIdArr.join(',')}"
+		user_cond = "#{WkExpenseEntry.table_name}.user_id IN (#{userIds})"
+		
+		if condStatement.blank?
+			condStatement = "(#{user_cond})" if !user_cond.blank?
+		else				
+			if filters["user_id"].blank?			
+				condStatement = user_cond.blank? ? condStatement : condStatement + " AND (#{user_cond})"
+			else
+				user_id = filters["user_id"][:values]
+				userIdStrArr = userIdArr.collect{|i| i.to_s}
+				filterUserIds = userIdStrArr & filters["user_id"][:values]
+				
+				if !filterUserIds.blank?
+					if user_id.is_a?(Array) && user_id.include?("me")
+						filterUserIds << (User.current.id).to_s
+					end
+					filters["user_id"][:values] = filterUserIds
+					condStatement = statement
+					filters["user_id"][:values] = user_id #Setting the filter values to retain the filter on page
+				else
+					if user_id.is_a?(Array) && user_id.include?("me")
+						filters["user_id"][:values] = [User.current.id.to_s]
+						condStatement = statement
+						filters["user_id"][:values] = user_id
+					else
+						condStatement = "1=0"
+					end
+				end
+			end
+		end
+		if isManager
+			mgrCondStatement = ""
+			if !orgCondStatement.blank?
+				mgrCondStatement = orgCondStatement + " AND "
+			end
+			mgrCondStatement = mgrCondStatement + "(#{WkExpenseEntry.table_name}.project_id in (" + projectIdArr.collect{|i| i.to_s}.join(',') + "))"
+			condStatement = condStatement.blank? ? condStatement : "(" + condStatement + ") OR (" + mgrCondStatement + ")"
+		end
+	else
+		#if (!Setting.plugin_redmine_wktime['ftte_view_only_own_spent_time'].blank? && 
+		#Setting.plugin_redmine_wktime['ftte_view_only_own_spent_time'].to_i == 1) && 
+		if !isAccountUser && !User.current.admin? && !isManager
+			condStatement = condStatement.blank? ? condStatement : condStatement + " AND (#{WkExpenseEntry.table_name}.user_id = " + User.current.id.to_s + ")"
+		elsif isManager && !isAccountUser && !User.current.admin?
+			user_id = filters["user_id"][:values] if !filters["user_id"].blank?
+			if !user_id.blank? && user_id.is_a?(Array) && (user_id.include?("me") || user_id.include?(User.current.id.to_s))
+				condStatement = condStatement
+			else
+				condStatement = condStatement.blank? ? condStatement : "(" + condStatement + ") AND (#{WkExpenseEntry.table_name}.project_id in (" + projectIdArr.collect{|i| i.to_s}.join(',') + "))"
 			end
 		end
 	end

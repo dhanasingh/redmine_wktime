@@ -1,61 +1,46 @@
 <%= error_messages_for 'time_entry' %>
 <%= back_url_hidden_field_tag %>
+<%= javascript_include_tag 'accountproject', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'edit', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
 	no_user = '<%=l(:label_wk_no_user_current_project) %>';
 	userUrl="<%= "#{url_for(:controller => controller_name, :action => 'getusers', :page => 'new')}" %>";
 </script>
-<table>
-
-<% if !@manage_projects.blank? %>
-<tr>
-<th><%=l(:field_project)%></th>
-<td class="project" align="left"><%=h select_tag('project_id', 
-	options_for_select(options_for_wktime_project(@manage_projects),
-	:selected => @selected_project.id),
-	:onchange => "projChanged(this, #{User.current.id}, false);") %></td>
-</tr>
-<tr>
-<th><%=l(:label_member)%></th>
-<td>
-<% ddMember = call_hook(:view_member_dropdown, {:project_id => @selected_project.id, :page => 'new'}) %>
-<% if !ddMember.blank? %>	 
-<%=	ddMember %>
-<% else %>
 <% 
-	projmem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
-	projmem = projmem.to_a.uniq if !projmem.nil?
+	userId = @user.nil? ? User.current.id : @user.id
 %>
-<%=h select_tag('user_id',
-	options_for_select( projmem.collect{|m| [ m.name, m.user_id ] },
-		:selected =>  @user.nil? ? User.current.id : @user.id)) %>
-		
-<% end %>		
-</td>
-</tr>
+<table>
+<%=h hidden_field_tag('getuser_clients_url', "#{url_for(:controller => controller.controller_name, :action => 'getuserclients')}") %>
+<%=h hidden_field_tag('getuser_issues_url', "#{url_for(:controller => controller.controller_name, :action => 'getuserissues')}") %>
+<% userLbl = l(:field_user) %>
+<% if !@manage_projects.blank? %>
+<% if controller.showProjectDD %>
+	<% userLbl = l(:label_member) %>
+	<tr>
+	<th><%=l(:field_project)%></th>
+	<td class="project" align="left"><%=h select_tag('project_id', 
+		options_for_select(options_for_wktime_project(@manage_projects),
+		:selected => @selected_project.id),
+		:onchange => "projChanged(this, #{User.current.id}, false);") %></td>
+	</tr>
 <% else %>
-<tr>
-<th width="100px" ><%=l(:field_user)%></th>
-<td>
-<%=h User.current.name %>
-<%=h hidden_field_tag('user_id', User.current.id) %>
-</td>
-</tr>
+	<%=h hidden_field_tag('project_id', @selected_project.id) %>
 <% end %>
 <tr>
-<th width="100px"><%=l(:field_start_date)%></th>
-<td><%=h date_field_tag('startday',@startday,:size => 10, :required => true) %><%= calendar_for('startday') %> 
-</td>
-</tr>
-<tr>
-<th width="100px"><%= l(:chkbox_prev_tmpl) %></th>
-<td><%= check_box_tag('prev_template', 1, true) %></td>
-</tr>
-</table>
-<% if !@manage_projects.blank? %>
-	<%= submit_tag l(:button_continue), :id => 'wktime_add' , :onclick => "return validateMember();"%>
+<th><%=h userLbl %></th>
+<td>
+<% projmem = nil #ddMember = call_hook(:view_member_dropdown, {:project_id => @selected_project.id, :page => 'new'}) %>
+<% if isSupervisorApproval #!ddMember.blank? %>	 
+	<% projmem = getSupervisorMembers(@selected_project.id, 'new') #=	ddMember %>
 <% else %>
-	<%= submit_tag l(:button_continue), :id => 'wktime_add' %>
-<% end %>ted =>  @user.nil? ? User.current.id : @user.id), :onchange => "userChanged(this, true)") %>
+	<% 
+		projmem = @selected_project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
+		projmem = projmem.to_a.uniq if !projmem.nil?
+	%>		
+<% end %>		
+<%=h select_tag('user_id',
+	options_for_select( projmem.collect{|m| [ m.name, m.user_id ] },
+		:selected =>  @user.nil? ? User.current.id : @user.id), :onchange => "userChanged(this, true)") %>
 <% userId = projmem[0].blank? ? "" : projmem[0].user_id   %>
 </td>
 </tr>

@@ -4,9 +4,8 @@ class WkcrmcontactController < WkcontactController
 	def getContactType
 		'C'
 	end
-
-end
-f lblNewContact
+	
+	def lblNewContact
 		l(:label_new_item, l(:label_contact))
 	end
 

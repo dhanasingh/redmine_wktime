@@ -44,7 +44,7 @@ include Redmine::I18n
 		
 		subject = "#{l(:label_wk_nonsub_mail_subject)}" + " " + startDate.to_s
 		body = !Setting.plugin_redmine_wktime['wktime_nonsub_mail_message'].blank? ? 
-		Setting.plugin_redmine_wktime['wktime_nonsub_mail_message'] : "You are receiving this notification for timesheet non submission"
+		Setting.plugin_redmine_wktime['wktime_nonsub_mail_message'] : "#{l(:nonsub_mail_message_content)}"
 		body += "\n #{l(:label_wk_submission_deadline)}" + " : " + "#{day_name(Setting.plugin_redmine_wktime['wktime_submission_deadline'].to_i)}"
 		body += "\n #{l(:field_name)} : #{user.firstname} #{user.lastname} "
 		body += "\n #{ l(:label_week) }" + " : " + startDate.to_s + " - " + (startDate+6).to_s

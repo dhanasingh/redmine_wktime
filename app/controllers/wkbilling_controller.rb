@@ -93,7 +93,8 @@ before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destr
 	
 	def getNewHeaderLbl
 	end
-enddef additionalContactType
+	
+	def additionalContactType
 		true
 	end
 end

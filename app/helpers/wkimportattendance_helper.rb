@@ -142,14 +142,14 @@ module WkimportattendanceHelper
 		csv
 	end
 	
-	def getFormatedTimeEntry(entryDateTime)
-		entryTime = nil
-		if !entryDateTime.blank?
-			entryLocal = entryDateTime.change(:offset => Time.current.localtime.strftime("%:z"))
-			entryTime = Time.parse("#{entryLocal.to_date.to_s} #{entryLocal.utc.to_time.to_s} ").localtime
-		end
-		entryTime
-	end
+	# def getFormatedTimeEntry(entryDateTime)
+		# entryTime = nil
+		# if !entryDateTime.blank?
+			# entryLocal = entryDateTime.change(:offset => Time.current.localtime.strftime("%:z"))
+			# entryTime = Time.parse("#{entryLocal.to_date.to_s} #{entryLocal.utc.to_time.to_s} ").localtime
+		# end
+		# entryTime
+	# end
 	
 	def getUserIdCFHash(cfId)
 		cfValHash = Hash.new
@@ -170,10 +170,6 @@ module WkimportattendanceHelper
 		interval = (Setting.plugin_redmine_wktime['wktime_auto_import_time_hr'].to_i*60) + (Setting.plugin_redmine_wktime['wktime_auto_import_time_min'].to_i)
 		intervalMin = interval>0 ? interval.to_s + 'm' : '60m'
 		intervalMin
-	end
-
-end
-alMin
 	end
 
 end

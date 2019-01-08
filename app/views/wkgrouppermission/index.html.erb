@@ -6,6 +6,7 @@
 	crmenumUrl = '<%=url_for(:controller => "wkcrmenumeration", :action => "index", :tab => "wkcrmenumeration")%>';
 	wklocationUrl =  '<%=url_for(:controller => "wklocation", :action => "index", :tab => "wklocation")%>';
 	wkgrpPermissionUrl =  '<%=url_for(:controller => "wkgrouppermission", :action => "index", :tab => "wkgrouppermission")%>';
+	wkClockSettingUrl = '<%=url_for(:controller => "wkclocksettings", :action => "index", :tab => "wkclocksetting")%>';
     prevTab = 'tab-<%= "#{controller_name}" %>';   
 //	grpUrl="<%= "#{url_for(:controller => "wkpayroll", :action => 'getMembersbyGroup')}" %>";
 		//getMembersbyGroup
@@ -20,12 +21,6 @@
   <%#= text_field_tag 'name', params[:name], :size => 30 %>
   <%#= submit_tag l(:button_apply), :class => "small", :name => nil %>
   <%#= link_to l(:button_clear), :class => 'icon icon-reload' %>
-  </fieldset>
-<%# end %>
-
-
--->
-<%= render :partial => 'wkgrouppermission/group_edit'%>class => 'icon icon-reload' %>
   </fieldset>
 <%# end %>
 

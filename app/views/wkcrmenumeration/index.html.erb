@@ -7,6 +7,7 @@
     crmenumUrl = '<%=url_for(:controller => "wkcrmenumeration", :action => "index", :tab => "wkcrmenumeration")%>';
 	wklocationUrl =  '<%=url_for(:controller => "wklocation", :action => "index", :tab => "wklocation")%>';
 	wkgrpPermissionUrl =  '<%=url_for(:controller => "wkgrouppermission", :action => "index", :tab => "wkgrouppermission")%>';
+	wkClockSettingUrl = '<%=url_for(:controller => "wkclocksettings", :action => "index", :tab => "wkclocksetting")%>';
     prevTab = 'tab-<%= "#{controller_name}" %>';   
 </script>
 <%= render_tabs time_expense_tabs %>
@@ -24,10 +25,9 @@
 		<label style="float:left; padding-left: 20px;">&nbsp;</label>
 		<%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %>
 		<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload', :style=>"float:left; " %>
-        <%= link_to l(:label_new_item, l(:label_enumerations)), url_for(:controller => controller_name, :action => 'edit', :enum_id => ""), :class => 'icon icon-time-add' %>
+        <%= link_to l(:label_new_item_third_case, l(:label_enumerations)), url_for(:controller => controller_name, :action => 'edit', :enum_id => ""), :class => 'icon icon-time-add' %>
 </div>
 <div style="clear: both;"></div>
 <% end %>
 <%= render :partial => 'wkcrmenumeration/enum_list', locals: { contacts: @contact}%>
-<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>m_list', locals: { contacts: @contact}%>
 <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

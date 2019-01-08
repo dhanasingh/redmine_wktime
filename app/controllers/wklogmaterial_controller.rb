@@ -8,6 +8,11 @@ class WklogmaterialController < ApplicationController
   def modifyProductDD
 		pctArr = ""	
 		productType = 'I'
+		hookLogType = 'A'
+		hookType = call_hook(:modify_product_log_type, :params => params)
+		unless hookType[0].blank?
+			hookLogType = hookType[0]
+		end
 		wklogmatterial_helper = Object.new.extend(WklogmaterialHelper)
 		wkasset_helper = Object.new.extend(WkassetHelper)
 		rateper = wkasset_helper.getRatePerHash(false)
@@ -35,7 +40,7 @@ class WklogmaterialController < ApplicationController
 			pctObj = WkInventoryItem.find(params[:id].to_i)	unless params[:id].blank?		
 		else
 			productType = params[:log_type]
-			if productType == 'A'				
+			if productType == 'A' || productType == hookLogType 			
 				pctObj = WkAssetProperty.where(:inventory_item_id => params[:id].to_i) unless params[:id].blank?
 			else
 				pctObj = WkInventoryItem.find(params[:id].to_i) unless params[:id].blank?
@@ -45,7 +50,7 @@ class WklogmaterialController < ApplicationController
 		if params[:ptype] == "product_item"
 			pctObj.each do | entry|
 				attributeName = entry.product_attribute.blank? ? "" : entry.product_attribute.name
-				if productType == 'A'
+				if productType == 'A' || productType == hookLogType
 					pctArr << entry.id.to_s() + ',' + (entry.asset_name.to_s() + ' - ' + entry.rate.to_s() + ' - ' + rateper[entry.rate_per].to_s()) + "\n"
 				else
 					pctArr << entry.id.to_s() + ',' +  (entry.brand_name.to_s() +' - '+ entry.product_model_name.to_s() +' - '+ entry.part_number.to_s() +' - '+ attributeName  +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s()) ) + "\n"  
@@ -53,7 +58,7 @@ class WklogmaterialController < ApplicationController
 				
 			end
 		elsif params[:ptype] == "inventory_item"
-			if productType == 'A' && !pctObj.blank?
+			if productType == 'A' || productType == hookLogType && !pctObj.blank?
 				pctObj.each do | entry|
 					unitLabel = '/ '					
 					unitLabel = unitLabel + rateper[entry.rate_per].to_s()
@@ -65,18 +70,7 @@ class WklogmaterialController < ApplicationController
 		elsif params[:ptype] == "product_attribute"
 			pctArr << pctObj.id.to_s() + ',' + pctObj.available_quantity.to_s() +','+ pctObj.cost_price.to_s()  +','+  pctObj.currency.to_s() + ',' +  pctObj.selling_price.to_s() unless pctObj.blank?  
 		elsif params[:ptype] == "uom_id"			
-				pctArr << pctObj.uom_id.to_s() + ',' +  pctObj.uom.name.to_s()  + "\n" unless pctObj.blank?			
-		else		
-			pctObj.each do | entry|
-				pctArr << entry.id.to_s() + ',' +  entry.name.to_s()  + "\n" 
-			end
-		end
-		respond_to do |format|
-			format.text  { render :text => pctArr }
-		end
-	end  
-end
-ank? ? "" : pctObj.uom.name.to_s())  + "\n" unless pctObj.blank?			
+				pctArr << pctObj.uom_id.to_s() + ',' +  (pctObj.uom.blank? ? "" : pctObj.uom.name.to_s())  + "\n" unless pctObj.blank?			
 		else		
 			pctObj.each do | entry|
 				pctArr << entry.id.to_s() + ',' +  entry.name.to_s()  + "\n" 

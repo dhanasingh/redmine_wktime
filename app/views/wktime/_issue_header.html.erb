@@ -1,10 +1,17 @@
-<% if params[:enter_issue_id].blank? %>
+<% if params[:enter_issue_id].blank? && controller.showProjectDD %>
 	<th align="left" width="<%= Setting.plugin_redmine_wktime['wktime_project_dd_width'] %>px" ><%= l(:field_project) %></th>
 <% else %>
 	<th align="left"></th>
 <% end %>
-<th align="left" width="<%= Setting.plugin_redmine_wktime['wktime_issue_dd_width'] %>px"><%= l(:field_issue)  %></th>
+<th align="left" width="<%= Setting.plugin_redmine_wktime['wktime_issue_dd_width'] %>px"><%= controller.getLblIssue %></th>
+<% if controller.showActivityDD %>
 <th align="left" width="<%= Setting.plugin_redmine_wktime['wktime_actv_dd_width'] %>px" ><%= l(:field_activity) %></th>
+<% else %>
+	<th align="left"></th>
+<% end %>
+<% if showBilling && controller.showSpentFor %>
+	<th align="left" width="<%= Setting.plugin_redmine_wktime['wktime_project_dd_width'] %>px" ><%= controller.getLblSpentFor %></th>
+<% end %>
 
 <% if !Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? &&
 	Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 1 %>
@@ -17,19 +24,13 @@
 <% end %>
 <%= render :partial => controller.getCFInRowHeaderHTML %>
 <% startOfWeek = getStartOfWeek %>
-<% for i in 0..6%>
-<!-- Martin Dube contribution: 'start of the week' configuration -->
-<th align="center" width="6px"><%= l('date.abbr_day_names')[(i+(startOfWeek))%7] %><br /><%= I18n.localize(@startday+i, :format=>:short) unless @startday.nil? %></th>
-<% end %>
-<th></th>
-
-<% if controller.showWorktimeHeader %>
-<!-- Start, End and Total -->	
-
-	<%= render :partial => 'worktime_header', :locals => {:str => 'start', :isEditable => true, :value => '0:00'}%>
-	<%= render :partial => 'worktime_header', :locals => {:str => 'end', :isEditable => true, :value => '0:00'}%>
-	<%= render :partial => 'worktime_header', :locals => {:str => 'total', :isEditable => false, :value => '0:00'}%>
-<% end %>:format=>:short) unless @startday.nil? %></th>
+<% if @renderer.showSpentOnInRow %>
+	<th align="left"><%= l(:field_spent_on)%></th>
+	<th class="lbl-txt-align" ><%= l(:field_hours) %></th>
+<% else %>
+	<% for i in 0.. @renderer.getDaysPerSheet - 1%>
+	<!-- Martin Dube contribution: 'start of the week' configuration -->
+	<th align="center" width="6px"><%= l('date.abbr_day_names')[(i+(startOfWeek))%7] %><br /><%= I18n.localize(@startday+i, :format=>:short) unless @startday.nil? %></th>
 	<% end %>
 	
 <% end %>

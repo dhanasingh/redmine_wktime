@@ -62,6 +62,10 @@ class WkExpenseEntry < TimeEntry
     errors.add :amount, :invalid if amount && (amount < 0 || amount >= 1000000)
     errors.add :project_id, :invalid if project.nil?
     errors.add :issue_id, :invalid if (issue_id && !issue) || (issue && project!=issue.project)
+  end
+  
+  def spent_for
+	WkSpentFor.where(:spent_type => 'WkExpenseEntry', :spent_id => self.id).first_or_initialize
   end  
   
   def hours=(h)
@@ -88,12 +92,6 @@ class WkExpenseEntry < TimeEntry
 	#set atom event title
 	def event_title()		
 		option = Proc.new {|o| "#{"%.2f" % o.hours} (#{(o.issue || o.project).event_title})"}		 
-		if option.is_a?(Proc)
-			option.call(self)
-		end
-	end
-end
-" % o.hours} (#{(o.issue || o.project).event_title})"}		 
 		if option.is_a?(Proc)
 			option.call(self)
 		end

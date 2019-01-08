@@ -4,10 +4,7 @@
 <tbody>
 	<% @row = 0 %>
 	<%= render :partial => 'edit_issues2', :locals => {:entry => nil, :isTemplate => true}%>
-	<%= render :partial => 'edit_hours', :locals => {:entry => nil, :isTemplate => true, :padAt => 'end', :padTill => 8}%>
-</tbody>
-</table>
-</div>}%>
+	<%= render :partial => 'edit_hours', :locals => {:entry => nil, :isTemplate => true, :padAt => 'end', :padTill => @renderer.getDaysPerSheet + 1}%>
 </tbody>
 </table>
 </div>

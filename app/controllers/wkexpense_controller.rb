@@ -48,6 +48,10 @@ class WkexpenseController < WktimeController
 	false
   end
   
+  def showSpentFor
+	false
+  end
+  
   def getUnit(entry)
 	entry.nil? ? number_currency_format_unit : entry[:currency]
   end
@@ -171,7 +175,8 @@ private
   end
   
   def findEntriesByCond(cond)
-	WkExpenseEntry.joins(:project).joins(:activity).joins("LEFT OUTER JOIN issues ON issues.id = wk_expense_entries.issue_id").where(cond).order('projects.name, issues.subject, enumerations.name, wk_expense_entries.spent_on')
+	#WkExpenseEntry.joins(:project).joins(:activity).joins("LEFT OUTER JOIN issues ON issues.id = wk_expense_entries.issue_id").where(cond).order('projects.name, issues.subject, enumerations.name, wk_expense_entries.spent_on')
+	@renderer.getSheetEntries(cond, WkExpenseEntry, getFiletrParams)
   end
   
   def setValueForSpField(teEntry,spValue,decimal_separator,entry)
@@ -289,13 +294,6 @@ private
   
   def setUserIdsInSession(ids)
 	session[:wkexpense][:all_user_ids] = ids
-  end
-  
-  def getUserIdsFromSession
-	session[:wkexpense][:all_user_ids]
-  end
-end
-ll_user_ids] = ids
   end
   
   def getUserIdsFromSession

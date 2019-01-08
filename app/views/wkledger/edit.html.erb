@@ -4,7 +4,7 @@
 <div class="autoscroll">
 <%= form_tag({:controller => controller_name, :action => 'update'}, :method => :get, :id => 'query_form') do %>
 	<fieldset class="box tabular" >
-		<legend><%= l(:label_ledger) + " " +  l(:label_information) %></legend>	
+		<legend><%= l(:label_ledger_information) %></legend>	
 		<%=h hidden_field_tag('ledger_id', @ledgersDetail[0].blank? ? "" : @ledgersDetail[0].id) %>
 		<table >
 			<tr>
@@ -20,7 +20,7 @@
 				</tr>
 			<% end %>
 			<tr>
-				<th align="left"><%= l(:wk_label_opening) + " " + l(:wk_field_balance)  %></th>
+				<th align="left"><%= l(:label_opening_balance)  %></th>
 				<td align="left" style="padding-left:40px;"><%= (@ledgersDetail[0].blank? || @ledgersDetail[0].currency.blank? ? Setting.plugin_redmine_wktime['wktime_currency'] : @ledgersDetail[0].currency) + " "  %><%=h text_field_tag("opening_balance", (@ledgersDetail[0].blank? ? "" : @ledgersDetail[0].opening_balance),:size => 20, :maxlength => 14) %> </td>			   
 			</tr>
 		</table>	

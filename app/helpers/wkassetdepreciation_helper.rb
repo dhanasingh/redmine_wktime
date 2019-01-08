@@ -10,7 +10,7 @@ module WkassetdepreciationHelper
 		depreciationFreq = Setting.plugin_redmine_wktime['wktime_depreciation_frequency']
 		depFreqValue = getFrequencyMonth(depreciationFreq)
 		depreciationArr = Array.new 
-		finacialPeriodArr = getFinancialPeriodArray(startDate, endDate, depreciationFreq)
+		finacialPeriodArr = getFinancialPeriodArray(startDate, endDate, depreciationFreq, 1)
 		unless assetId.blank?
 			assetEntries = WkInventoryItem.asset.joins(:asset_property, :product_item).where(:id => assetId, :wk_asset_properties => {:owner_type => 'O'}).order("wk_product_items.product_id").where("wk_inventory_items.available_quantity > ?", 0)
 		else
@@ -106,4 +106,3 @@ module WkassetdepreciationHelper
 		noOfMonth
 	end
 end
-nd

@@ -11,14 +11,13 @@
 				leadStatusArr.unshift(["",''])
 			%> 	
 			<%=h select_tag('status', options_for_select(leadStatusArr, :selected => params[:status])) %>
+			<label for='location'><%= l(:label_location) %>:</label>									
+			<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', params[:location_id], true)) %>
 			<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
 			<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
 		</fieldset>
 <% end %>
 <div class="wk-contextual">
-	<%= link_to l(:label_new_item, l(:label_lead)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
-</div>
-<%= render :partial => 'lead_list'%>k-contextual">
 	<%= link_to l(:label_new_item, l(:label_lead)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
 </div>
 <%= render :partial => 'lead_list'%>

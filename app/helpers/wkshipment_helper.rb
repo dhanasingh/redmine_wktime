@@ -1,38 +1,24 @@
+# ERPmine - ERP for service industry
+# Copyright (C) 2011-2018  Adhi software pvt ltd
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 module WkshipmentHelper
   include WktimeHelper
   include WkcrmHelper
 	
 	def product_item_select(sqlCond, needBlank, selectedVal)
-		ddArray = getProductItemArr(sqlCond, needBlank)		
-		options_for_select(ddArray, :selected => selectedVal)
-	end
-	
-	def getProductItemArr(sqlCond, needBlank)
-		ddArray = Array.new
-		if sqlCond.blank?
-			ddValues = WkProductItem.includes(:brand, :product_model).all 
-		else
-			ddValues = WkProductItem.where("#{sqlCond}")
-		end
-		unless ddValues.blank?
-			ddArray = ddValues.collect {|t| [(t.brand.blank? ? '' : t.brand.name.to_s) + ' - ' + (t.product_model.blank? ? '' : t.product_model.name.to_s) , t.id] }
-		end
-		ddArray.unshift(["",""]) if needBlank
-		ddArray
-	end
-	
-	def isUsedInventoryItem(invenItem)
-		ret = false
-		if invenItem.available_quantity != invenItem.total_quantity
-			ret = true
-		end
-		if invenItem.depreciations.count > 0
-			ret = true
-		end
-		ret
-	end
-end
-nk, selectedVal)
 		ddArray = getProductItemArr(sqlCond, needBlank)		
 		options_for_select(ddArray, :selected => selectedVal)
 	end

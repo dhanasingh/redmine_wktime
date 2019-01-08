@@ -1,34 +1,19 @@
-class WkassetController < WkproductitemController
-  unloadable
-	include WktimeHelper
-
-
-	def getItemType
-		'A'
-	end
-	
-	def showAssetProperties
-		true
-	end
-	
-	def getProductAsset
-		assetArr = ""
-		unless params[:id].blank?
-			pctObj = WkInventoryItem.joins(:product_item, :asset_property).where(:wk_product_items => {:product_id => params[:id].to_i}, :product_type => 'A').select("wk_inventory_items.id, wk_asset_properties.name")
-		else 
-			pctObj = WkInventoryItem.joins(:product_item, :asset_property).where(:product_type => 'A').select("wk_inventory_items.id, wk_asset_properties.name")
-		end
-		
-		pctObj.each do | entry |
-			assetArr << entry.id.to_s() + ',' +  entry.name.to_s()  + "\n" 
-		end
-		respond_to do |format|
-			format.text  { render :text => assetArr }
-		end
-	end
-
-end
-301, USA.
+# ERPmine - ERP for service industry
+# Copyright (C) 2011-2018  Adhi software pvt ltd
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 class WkassetController < WkproductitemController
   unloadable
 	menu_item :wkproduct

@@ -8,25 +8,25 @@
 	rAppEmailUrl="<%= "#{url_for(:controller => controller_name, :action => 'sendApprReminderEmail')}" %>";
 </script>
 <% if (!@currentUser_loggable_projects.blank? || !@manage_projects.blank?) %>
-<div class="contextual">
-<% if (isAccountUser) %>
-	<%= link_to l(:"button_new_lock"), url_for(:controller => controller_name, :action => 'lockte'), :class => 'icon icon-time-add' %>
-<% end %>
-<%= link_to l(:"button_new_#{controller_name}"), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
-</div>
+	<div class="contextual">
+	<% if (isAccountUser) %>
+		<%= link_to l(:"button_new_lock"), url_for(:controller => controller_name, :action => 'lockte'), :class => 'icon icon-time-add' %>
+	<% end %>
+	<%= link_to l(:"button_new_#{controller_name}"), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
+	</div>
 <% end %>
 <% if !@manage_projects.blank? %>
 
-<div id="reminder-email-dlg" title="Send Reminder Email">
-	<fieldset>
-		<p> <label><%= l(:label_wk_reminder_notes) %></label>
-		<textarea name="email_notes" id="email_notes" value="" cols="25" rows="2"> </textarea> </p>
-		<%= radio_button_tag 'reminder', '1' %>
-		<span><%= l(:label_wk_sub_reminder) %></span></br></br>
-		<%= radio_button_tag 'reminder', '2' %>
-		<span><%= l(:label_wk_appr_reminder) %></span>
-	</fieldset>
-</div>
+	<div id="reminder-email-dlg" title="Send Reminder Email">
+		<fieldset>
+			<p> <label><%= l(:label_wk_reminder_notes) %></label>
+			<textarea name="email_notes" id="email_notes" value="" cols="25" rows="2"> </textarea> </p>
+			<%= radio_button_tag 'reminder', '1' %>
+			<span><%= l(:label_wk_sub_reminder) %></span></br></br>
+			<%= radio_button_tag 'reminder', '2' %>
+			<span><%= l(:label_wk_appr_reminder) %></span>
+		</fieldset>
+	</div>
 
 <% end %>
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
@@ -54,9 +54,10 @@
 	end
 %>
 
-<% filters = call_hook(:view_te_filter) %>
-<% if !filters.blank? %>	 
-<%=	filters %>
+<% #filters = call_hook(:view_te_filter) %>
+<% if isSupervisorApproval %>	 
+	<%#=	filters %>
+	<%= render :partial => 'wktime/supervisor_index' %>
 <% else %>
 <% if !@manage_view_spenttime_projects.blank? %>
 <div class="div-left">
@@ -101,7 +102,7 @@ $(document).ready(function()
 <td>
 <%# show the blank value if more than one user is in the list %>
 <%=h select_tag('user_id',
-	options_for_select( [["All Users","0"]] + (@members.blank? ? [] : @members),
+	options_for_select( [[l(:all_users_for_select),"0"]] + (@members.blank? ? [] : @members),
 		:selected => userid.nil? ? (@user.nil? ? User.current.id : @user.id) : userid),
 	:onchange => 'this.form.submit();', :style=> "width:200px;") %></td>
 </tr>
@@ -141,5 +142,4 @@ $(document).ready(function()
 
 <% content_for :header_tags do %>
     <%= auto_discovery_link_tag(:atom, {:issue_id => @issue, :format => 'atom', :key => User.current.rss_key}, :title => l(:label_spent_time)) %>
-<% end %>mat => 'atom', :key => User.current.rss_key}, :title => l(:label_spent_time)) %>
 <% end %>

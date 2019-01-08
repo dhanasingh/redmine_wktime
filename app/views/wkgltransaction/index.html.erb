@@ -14,11 +14,11 @@
 	<div class="wk-contextual">
 		<b><label style="float:left;"><%= l(:label_ledger) %></label></b>
 	     <%=h select_tag("txn_ledger", options_for_select([['','']]+@ledgers, :selected => ledgerid.nil? ? @ledgers : ledgerid ), :style => "width:200px; float:left;") %>
-        <%= link_to l(:label_new) + l(:label_transaction), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+        <%= link_to l(:label_new_item_adjusted, l(:label_transaction)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
     </div>
 	<%= render :partial => 'wkgltransaction/date_range' %>
 <% end %>
 <div class="total-hours">
 	<p><%= l(:label_total) %>: &nbsp;<%= @transEntries[0].transaction_details[0].currency unless @transEntries[0].blank? || @transEntries[0].transaction_details[0].blank?%> <%= html_hours("%.2f" % @totalTransAmt.abs ) unless @totalTransAmt.blank? %> <%= @totalType %></p>
 </div>
-<%= render :partial => 'wkgltransaction/trans_list'%>	rans_list'%>	
+<%= render :partial => 'wkgltransaction/trans_list'%>	

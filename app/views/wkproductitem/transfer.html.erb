@@ -86,7 +86,7 @@
 					<tr>
 						<th align="left"><%= l(:label_uom) %></th>
 						<td align="left">
-							<%=h @transferItem.uom.short_desc %>
+							<%=h @transferItem.uom.short_desc unless @transferItem.uom.blank? %>
 						</td>
 					</tr> 
 					<tr>
@@ -106,7 +106,5 @@
 	<div style="clear:left;"></div>
 		<div align='center'>
 			<%= submit_tag l(:label_transfer) ,:id => 'wkproductitem_transfer'%>
-		</div>
-<% end %>m_transfer'%>
 		</div>
 <% end %>

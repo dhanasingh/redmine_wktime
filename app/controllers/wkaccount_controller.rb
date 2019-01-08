@@ -26,6 +26,9 @@ before_filter :require_login
 		else
 			entries = WkAccount.where(:account_type => getAccountType).where("name like ?", "%#{params[:accountname]}%")
 		end
+		if !params[:location_id].blank?
+			entries = entries.where(:location_id => params[:location_id].to_i)
+		end
 		formPagination(entries)
     end
 	
@@ -70,6 +73,7 @@ before_filter :require_login
 		wkaccount.account_category = params[:account_category]
 		wkaccount.description = params[:description]
 		wkaccount.account_billing = params[:account_billing].blank? ? 0 : params[:account_billing]
+		wkaccount.location_id = params[:location_id]
 		unless wkaccount.valid? 		
 			errorMsg = errorMsg.blank? ? wkaccount.errors.full_messages.join("<br>") : wkaccount.errors.full_messages.join("<br>") + "<br/>" + errorMsg
 		end
@@ -93,15 +97,6 @@ before_filter :require_login
 			flash[:notice] = l(:notice_successful_delete)
 		else
 			flash[:error] = account.errors.full_messages.join("<br>")
-		end
-		redirect_back_or_default :action => 'index', :tab => params[:tab]
-	end
-	
-	def getAccountLbl
-		l(:label_account)
-	end
-end
-.full_messages.join("<br>")
 		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end

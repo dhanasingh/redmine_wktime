@@ -2,9 +2,9 @@ module WkassetHelper
 include WktimeHelper
 
 	def getRatePerHash(needBlank)
-		ratePerHash = { 'h' => l(:label_hourly), 'd' => l(:label_daily), 'm' => l(:label_monthly), 'q' => l(:label_quarterly), 'sa' => l(:label_semi_annually), 'a' => l(:label_annually) }
+		ratePerHash = { 'h' => l(:label_hourly), 'd' => l(:label_daily), 'w' => l(:label_weekly), 'm' => l(:label_monthly), 'q' => l(:label_quarterly), 'sa' => l(:label_semi_annually), 'a' => l(:label_annually) }
 		if needBlank
-			ratePerHash = { '' => "", 'h' => l(:label_hourly), 'd' => l(:label_daily), 'm' => l(:label_monthly), 'q' => l(:label_quarterly), 'sa' => l(:label_semi_annually), 'a' => l(:label_annually) }
+			ratePerHash = { '' => "", 'h' => l(:label_hourly), 'd' => l(:label_daily), 'w' => l(:label_weekly), 'm' => l(:label_monthly), 'q' => l(:label_quarterly), 'sa' => l(:label_semi_annually), 'a' => l(:label_annually) }
 		end
 		ratePerHash
 	end
@@ -25,10 +25,6 @@ include WktimeHelper
 			curVal = latestDepreciation.actual_amount - latestDepreciation.depreciation_amount
 		end
 		curVal = curVal.round(2) unless curVal.blank?
-		curVal
-	end
-end
-l.round(2) unless curVal.blank?
 		curVal
 	end
 end

@@ -21,15 +21,13 @@ class WkInvoiceItem < ActiveRecord::Base
   belongs_to :invoice, :class_name => 'WkInvoice'
   belongs_to :modifier, :class_name => 'User'
   belongs_to :project
-  has_many :material_entries, foreign_key: "invoice_item_id", class_name: "WkMaterialEntry", :dependent => :nullify
+  # has_many :material_entries, foreign_key: "invoice_item_id", class_name: "WkMaterialEntry", :dependent => :nullify
+  has_many :spent_fors, foreign_key: "invoice_item_id", class_name: "WkSpentFor", :dependent => :nullify
   
   attr_protected :modifier_id
   
   validates_presence_of :invoice_id
   validates_numericality_of :amount, :allow_nil => true, :message => :invalid
   validates_numericality_of :quantity, :allow_nil => true, :message => :invalid
-  validates_numericality_of :rate, :allow_nil => true, :message => :invalid
-end
-true, :message => :invalid
   validates_numericality_of :rate, :allow_nil => true, :message => :invalid
 end

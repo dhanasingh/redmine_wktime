@@ -1,4 +1,4 @@
-<h2><%= l(:label_shift) + " " + l(:label_role_plural) %></h2>
+<h2><%= l(:label_shift) + " " + l(:label_role_adjusted) %></h2>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <%  locId = session[controller_name][:location_id]
 	depId = session[controller_name][:department_id]
@@ -11,5 +11,4 @@
  <% end %>
  <br/>
 <%= render :partial => 'wkshift/edit_shift_roles', locals: { location_id: locId, department_id: depId, shift_id: shiftId} %>
- 
  

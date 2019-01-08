@@ -21,8 +21,8 @@ include WktimeHelper
 include WkinvoiceHelper
 include WkcrmHelper
 
-end
-f saveBillableProjects(id, projectId, parentId, parentType, applyTax, itemizedBill, billingType)
+
+	def saveBillableProjects(id, projectId, parentId, parentType, applyTax, itemizedBill, billingType)
 		if !id.blank?
 			wkaccountproject = WkAccountProject.find(id.to_i)
 		else

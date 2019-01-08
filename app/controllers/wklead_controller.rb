@@ -12,7 +12,10 @@ class WkleadController < WkcrmController
 		elsif params[:lead_name].blank? && !params[:status].blank?
 			entries = WkLead.where(:status => params[:status]).joins(:contact).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{params[:lead_name]}%", "%#{params[:lead_name]}%")
 		else
-			entries = WkLead.where.not(:status => 'C')
+			entries = WkLead.joins(:contact).where.not(:status => 'C')
+		end
+		if !params[:location_id].blank?
+			entries = entries.where("wk_crm_contacts.location_id = ? ", params[:location_id].to_i)
 		end
 		formPagination(entries)
 	end
@@ -25,20 +28,37 @@ class WkleadController < WkcrmController
 	
 	def convert
 		@lead = nil
+		errorMsg = nil
 		@lead = WkLead.find(params[:lead_id]) unless params[:lead_id].blank?
 		@lead.status = 'C'
 		@lead.updated_by_user_id = User.current.id
-		@lead.save
+		#@lead.save
 		@contact = @lead.contact
 		@account = @lead.account
-		convertToAccount unless @account.blank?
-		convertToContact
+		hookcontactType = call_hook(:controller_convert_contact, {:params => params, :leadObj => @lead, :contactObj => @contact})
+		contactType = hookcontactType.blank? ? getContactType : hookcontactType[0][0]
+		@contact.contact_type = contactType
+		errorMsg = call_hook(:controller_updated_contact, {:params => params, :leadObj => @lead, :contactObj => @contact})
+		if errorMsg[0].blank?
+			@lead.save
+			convertToAccount unless @account.blank?
+			convertToContact #(contactType)
+		end
+		
+		
 		unless @account.blank?
 			flash[:notice] = l(:notice_successful_convert)
 			redirect_to :controller => 'wkcrmaccount',:action => 'edit', :account_id => @account.id
 		else
-			flash[:notice] = l(:notice_successful_convert)
-		    redirect_to :controller => 'wkcrmcontact',:action => 'edit', :contact_id => @contact.id
+			controllerName = hookcontactType.blank? ? 'wkcrmcontact' : hookcontactType[0][1]
+			if errorMsg[0].blank?
+				flash[:notice] = l(:notice_successful_convert)
+			else
+				flash[:error] = errorMsg[0]
+				controllerName = 'wklead'
+			end
+			
+		    redirect_to :controller => controllerName, :action => 'edit', :contact_id => @contact.id, :lead_id => @lead.id
 		end
 	end
 	
@@ -53,9 +73,9 @@ class WkleadController < WkcrmController
 		@account.save
 	end
 	
-	def convertToContact
-		@contact.updated_by_user_id = User.current.id
-		@contact.contact_type = getContactType
+	def convertToContact #(contactType)
+		@contact.updated_by_user_id = User.current.id		
+		#@contact.contact_type = contactType
 		unless @account.blank?
 			@contact.account_id = @account.id
 		end
@@ -84,6 +104,7 @@ class WkleadController < WkcrmController
 		# For Account table
 		wkaccount.name = params[:account_name]
 		wkaccount.description = params[:description]
+		wkaccount.location_id = params[:location_id]
 		if params[:lead_id].blank? || params[:lead_id].to_i == 0
 			wkLead = WkLead.new
 			wkContact = WkCrmContact.new
@@ -107,6 +128,7 @@ class WkleadController < WkcrmController
 		wkContact.description = params[:description]
 		wkContact.department = params[:department]
 		wkContact.salutation = params[:salutation]
+		wkContact.location_id = params[:location_id]
 		wkContact.created_by_user_id = User.current.id if wkContact.new_record?
 		wkContact.updated_by_user_id = User.current.id
 		if wkContact.valid?
@@ -136,48 +158,6 @@ class WkleadController < WkcrmController
 			end
 		else
 			flash[:error] = wkContact.errors.full_messages.join("<br>")
-		    redirect_to :controller => 'wklead',:action => 'edit', :lead_id => wkLead.id
-		end
-	end
-  
-    def destroy
-		WkLead.find(params[:lead_id].to_i).destroy
-		flash[:notice] = l(:notice_successful_delete)
-		redirect_back_or_default :action => 'index', :tab => params[:tab]
-    end
-	
-	def formPagination(entries)
-		@entry_count = entries.count
-		setLimitAndOffset()
-		@leadEntries = entries.limit(@limit).offset(@offset)
-	end
-  
-    def setLimitAndOffset		
-		if api_request?
-			@offset, @limit = api_offset_and_limit
-			if !params[:limit].blank?
-				@limit = params[:limit]
-			end
-			if !params[:offset].blank?
-				@offset = params[:offset]
-			end
-		else
-			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
-			@limit = @entry_pages.per_page
-			@offset = @entry_pages.offset
-		end	
-   end
-   
-	def getContactType
-		'C'
-	end
-	
-	def getAccountLbl
-		l(:label_account)
-	end
-
-end
-join("<br>")
 		    redirect_to :controller => 'wklead',:action => 'edit', :lead_id => wkLead.id
 		end
 	end

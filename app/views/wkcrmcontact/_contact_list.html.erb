@@ -5,6 +5,7 @@
          <tr>
 				<th class="lbl-txt-align"><%= l(:field_name)   %></th>
 				<th class="lbl-txt-align"><%=  l(:label_account_name) %></th>
+				<th class="lbl-txt-align"><%= l(:label_location) %></th>
 				<th class="lbl-txt-align"><%=  l(:field_title)  %></th>
 				<th class="lbl-txt-align"><%=  l(:label_email)  %></th>
 				<th class="lbl-txt-align"><%=  l(:label_work_phone)   %></th>
@@ -18,6 +19,7 @@
 		<tr>
 		    <td class="lbl-txt-align"><%=h entry.name  %></td>
 			<td class="lbl-txt-align"><%=h entry.account.name unless entry.account.blank?  %></td>
+			<td class="lbl-txt-align"><%=h entry.location_id.blank? ? "" : entry.location.name %></td>
 			<td class="lbl-txt-align"><%=h entry.title unless entry.title.blank?  %></td>
 			<td class="lbl-txt-align"><%=h entry.address.email unless entry.address.blank? %></td>
 			<td class="lbl-txt-align"><%=h entry.address.work_phone unless entry.address.blank? %></td>
@@ -26,12 +28,6 @@
 			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.getContactController, :action => 'edit', :contact_id => entry.id, :tab => controller.getContactController}, :title => l(:button_edit) %>
 			<% if controller.deletePermission %>
 				<%= link_to image_tag('delete.png'), {:controller => controller.getContactController, :action => 'destroy', :contact_id => entry.id, :tab => controller.getContactController},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
-			<% end %>
-		</tr>
-	<% end %>
-   </tbody>
-</table>
-</div>=> {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
 			<% end %>
 		</tr>
 	<% end %>

@@ -41,6 +41,12 @@ module WktimeHelper
 							value.blank? ? ['e','n','r','s','a'] : value)
 	end
 	
+	def options_for_sheet_select(value)
+		options_for_select([[l(:label_weekly), 'W'],
+							[l(:label_issue_view), 'I']],
+							value.blank? ? 'current_month' : value)
+	end
+	
 	def statusString(status)	
 		statusStr = l(:wk_status_new)
 		case status
@@ -104,7 +110,7 @@ module WktimeHelper
 			headers << (l('date.abbr_day_names')[(i+startOfWeek)%7] + "\n" + I18n.localize(@startday+i, :format=>:short)) unless @startday.nil?
 		end
 		csv << headers.collect {|c| Redmine::CodesetUtil.from_utf8(c.to_s, l(:general_csv_encoding) )  }
-		weeklyHash = getWeeklyView(entries, unitLabel, true) #should send false and form unique rows
+		weeklyHash = getWeeklyView(entries, unitLabel, true, nil, 7) #should send false and form unique rows
 		col_values = []
 		matrix_values = nil
 		totals = [0.0,0.0,0.0,0.0,0.0,0.0,0.0]
@@ -226,7 +232,7 @@ module WktimeHelper
 	pdf.Ln
 	render_table_header(pdf, columns, col_width, row_height, table_width)
 
-	weeklyHash = getWeeklyView(entries, unitLabel, true)
+	weeklyHash = getWeeklyView(entries, unitLabel, true, nil, 7)
 	col_values = []
 	matrix_values = []
 	totals = [0.0,0.0,0.0,0.0,0.0,0.0,0.0]
@@ -310,7 +316,7 @@ module WktimeHelper
 	def getKey(entry,unitLabel)
 		cf_in_row1_value = nil
 		cf_in_row2_value = nil
-		key = entry.project.id.to_s + (entry.issue.blank? ? '' : entry.issue.id.to_s) + (entry.activity.blank? ? '' : entry.activity.id.to_s) + (unitLabel.blank? ? '' : entry.currency)
+		key = entry.project.id.to_s + (entry.issue.blank? ? '' : entry.issue.id.to_s) + (entry.activity.blank? ? '' : entry.activity.id.to_s) + (unitLabel.blank? ? '' : entry.currency.to_s)
 		entry.custom_field_values.each do |custom_value|			
 			custom_field = custom_value.custom_field
 			if (!Setting.plugin_redmine_wktime['wktime_enter_cf_in_row1'].blank? &&	Setting.plugin_redmine_wktime['wktime_enter_cf_in_row1'].to_i == custom_field.id)
@@ -334,7 +340,7 @@ module WktimeHelper
 		key
 	end
 	
-	def getWeeklyView(entries, unitLabel, sumHours = false)
+	def getWeeklyView(entries, unitLabel, sumHours = false, startOfSheet, vwFrequency)
 		weeklyHash = Hash.new
 		prev_entry = nil		
 		entries.each do |entry|
@@ -351,10 +357,15 @@ module WktimeHelper
 					weeklyHash[key] = hourMatrix
 				end
 				
-				#Martin Dube contribution: 'start of the week' configuration
-				#wday returns 0 - 6, 0 is sunday
-				startOfWeek = getStartOfWeek
-				index = (entry.spent_on.wday+7-(startOfWeek))%7
+				unless startOfSheet.blank?
+					startOfWeek = startOfSheet
+				else
+					#Martin Dube contribution: 'start of the week' configuration
+					#wday returns 0 - 6, 0 is sunday
+					startOfWeek = getStartOfWeek
+				end
+				#index = (entry.spent_on.wday+7-(startOfWeek))%7
+				index = (entry.spent_on.wday+vwFrequency-(startOfWeek))%vwFrequency
 				updated = false
 				hourMatrix.each do |rows|
 					if rows[index].blank?
@@ -655,13 +666,14 @@ end
 				{:name => 'wksupplieraccount', :partial => 'wktime/tab_content', :label => :label_supplier_account},
 				{:name => 'wksuppliercontact', :partial => 'wktime/tab_content', :label => :label_supplier_contact}
 			   ]
-		elsif params[:controller] == "wkcrmenumeration" || params[:controller] == "wktax" || params[:controller] == "wkexchangerate" || params[:controller] == "wklocation" || params[:controller] == "wkgrouppermission"
+		elsif params[:controller] == "wkcrmenumeration" || params[:controller] == "wktax" || params[:controller] == "wkexchangerate" || params[:controller] == "wklocation" || params[:controller] == "wkgrouppermission" || params[:controller] == "wkclocksettings"
 			tabs = [
 				{:name => 'wkcrmenumeration', :partial => 'wktime/tab_content', :label => :label_enumerations},
 				{:name => 'wklocation', :partial => 'wktime/tab_content', :label => :label_location},
 				{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax},
 				{:name => 'wkexchangerate', :partial => 'wktime/tab_content', :label => :label_exchange_rate},
-				{:name => 'wkgrouppermission', :partial => 'wktime/tab_content', :label => :label_permissions}
+				{:name => 'wkgrouppermission', :partial => 'wktime/tab_content', :label => :label_permissions},
+				{:name => 'wkclocksetting', :partial => 'wktime/tab_content', :label => :label_clock_settings}
 				
 			   ]
 		else
@@ -738,7 +750,7 @@ end
 		elsif ActiveRecord::Base.connection.adapter_name == 'SQLServer'		
 			sqlStr = "DateAdd(d, (((((DATEPART(dw," + dtfield + ")-1)%7)-1)+(8-" + startOfWeek.to_s + ")) % 7)*-1," + dtfield + ")"
 		else
-			# mysql - the weekday index for date (0 = Monday, 1 = Tuesday, … 6 = Sunday)
+			# mysql - the weekday index for date (0 = Monday, 1 = Tuesday, ï¿½ 6 = Sunday)
 			sqlStr = "adddate(" + dtfield + ",mod(weekday(" + dtfield + ")+(8-" + startOfWeek.to_s + "),7)*-1)"
 		end		
 		sqlStr
@@ -766,14 +778,14 @@ end
 	def settings_tabs		   
 		tabs = [
 				{:name => 'general', :partial => 'settings/tab_general', :label => :label_general},
-				{:name => 'wktime', :partial => 'settings/tab_time', :label => :label_te},
+				{:name => 'wktime_settings', :partial => 'settings/tab_time', :label => :label_te},
 				{:name => 'attendance', :partial => 'settings/tab_attendance', :label => :report_attendance},
-				{:name => 'payroll', :partial => 'settings/tab_payroll', :label => :label_payroll},
+				{:name => 'payroll_settings', :partial => 'settings/tab_payroll', :label => :label_payroll},
 				{:name => 'billing', :partial => 'settings/tab_billing', :label => :label_wk_billing},
 				{:name => 'accounting', :partial => 'settings/tab_accounting', :label => :label_accounting},
 				{:name => 'CRM', :partial => 'settings/tab_crm', :label => :label_crm},
 				{:name => 'purchase', :partial => 'settings/tab_purchase', :label => :label_purchasing},
-				{:name => 'inventory', :partial => 'settings/tab_inventory', :label => :label_inventory}
+				{:name => 'inventory', :partial => 'settings/tab_inventory', :label => :label_inventory},
 				#{:name => 'shiftscheduling', :partial => 'settings/tab_shift_scheduling', :label => :label_scheduling}
 			   ]	
 	end	
@@ -829,10 +841,10 @@ end
 		if User.current.logged?
 			viewProjects = Project.where(Project.allowed_to_condition(User.current, :view_time_entries ))
 			loggableProjects ||= Project.where(Project.allowed_to_condition(User.current, :log_time))
-			viewMenu = call_hook(:view_wktime_menu)
-			viewMenu  = viewMenu.blank? ? '' : (viewMenu.is_a?(Array) ? (viewMenu[0].blank? ? '': viewMenu[0].to_s) : viewMenu.to_s) 
+			# viewMenu = call_hook(:view_wktime_menu)
+			# viewMenu  = viewMenu.blank? ? '' : (viewMenu.is_a?(Array) ? (viewMenu[0].blank? ? '': viewMenu[0].to_s) : viewMenu.to_s) 
 			#@manger_user = (!viewMenu.blank? && to_boolean(viewMenu))	
-			ret = (!viewProjects.blank? && viewProjects.size > 0) || (!loggableProjects.blank? && loggableProjects.size > 0) || isAccountUser || (!viewMenu.blank? && to_boolean(viewMenu))
+			ret = (!viewProjects.blank? && viewProjects.size > 0) || (!loggableProjects.blank? && loggableProjects.size > 0) || isAccountUser || (isSupervisorApproval && getSuperViewPermission) #(!viewMenu.blank? && to_boolean(viewMenu))
 		end
 		ret
 	end
@@ -1002,7 +1014,7 @@ end
 	
 	def computeWorkedHours(startTime,endTime, ishours)
 		currentEntryDate = startTime.localtime
-		workedHours = endTime-startTime
+		workedHours = endTime - startTime
 		if !Setting.plugin_redmine_wktime['wktime_break_time'].blank?
 			Setting.plugin_redmine_wktime['wktime_break_time'].each_with_index do |element,index|
 			  listboxArr = element.split('|')
@@ -1120,8 +1132,7 @@ end
 	
 	def showBilling
 		(!Setting.plugin_redmine_wktime['wktime_enable_billing_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_billing_module'].to_i == 1 ) && isModuleAdmin('wktime_billing_groups')
-			
+			Setting.plugin_redmine_wktime['wktime_enable_billing_module'].to_i == 1 ) #&& isModuleAdmin('wktime_billing_groups')			
 	end
 	
 	# Return the given type of custom Fields array
@@ -1167,8 +1178,9 @@ end
 	def isBilledTimeEntry(tEntry)
 		ret = false
 		unless tEntry.blank?
-			cfEntry = tEntry.custom_value_for(getSettingCfId('wktime_billing_id_cf'))
-			ret = true unless cfEntry.blank? || cfEntry.value.blank?
+			#cfEntry = tEntry.custom_value_for(getSettingCfId('wktime_billing_id_cf'))
+			spentFor = tEntry.spent_for
+			ret = true unless spentFor.blank? || spentFor.invoice_item_id.blank?
 		end
 		ret
 	end
@@ -1299,7 +1311,13 @@ end
 			ddValues = model.where("#{sqlCond}").order("#{orderBySql}")
 		end
 		unless ddValues.blank?
-			ddArray = ddValues.collect {|t| [t["#{displayCol}"], t["#{valueCol}"]] }
+			#ddArray = ddValues.collect {|t| [t["#{displayCol}"], t["#{valueCol}"]] 
+			ddValues.each do | entry |
+				ddArray << [entry["#{displayCol}"], entry["#{valueCol}"]]
+				if model == WkLocation
+					selectedVal = entry.id if entry.is_default?
+				end
+			end
 		end
 		ddArray.unshift(["",""]) if needBlank
 		options_for_select(ddArray, :selected => selectedVal)
@@ -1312,39 +1330,9 @@ end
 	end
 	
 	def erpModules
-		erpmineModules = [l(:label_wktime),
-						  l(:label_wkexpense),
-						  l(:report_attendance),
-						  l(:label_shift_scheduling),
-						  l(:label_payroll),
-						  l(:label_wk_billing),
-						  l(:label_accounting),
-						  l(:label_crm),
-						  l(:label_txn_purchase),
-						  l(:label_inventory),
-						  l(:label_report)
-					 ]
-		erpmineModules
-	end
-	
-	def validateERPPermission(permission)
-		permissionArr = Array.new
-		user = User.current
-		user.groups.each do |group|
-		  groupPermission = WkGroupPermission.where(:group_id => group.id)
-		  groupPermission.each do |grp|				
-				shortname = grp.permission.short_name
-				permissionArr << shortname
-		  end
-		end		
-		return permissionArr.include? permission
-	end
-	
-	def showShiftScheduling
-		!Setting.plugin_redmine_wktime['wktime_enable_shift scheduling_module'].blank? && Setting.plugin_redmine_wktime['wktime_enable_shift scheduling_module'].to_i == 1
-	end
-	
-end:report_attendance) => 'Attendance',
+		erpmineModules = {l(:label_wktime) => 'Time',
+						  l(:label_wkexpense) => 'Expense',
+						  l(:report_attendance) => 'Attendance',
 						  l(:label_shift_scheduling) => 'Shift Scheduling',
 						  l(:label_payroll) => 'Payroll',
 						  l(:label_wk_billing) => 'Billing',

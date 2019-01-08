@@ -66,11 +66,17 @@ If an apache passenger module is used then make sure the following settings are 
 	b) RailsAppSpawnerIdleTime 0
 	c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for 3.2.1
-Bug Fixing:
-	   - Submit button for time sheets doesn't show up.
-	   - A new leave couldn't be configured from the plugin config page.
+Release Notes for 3.3.4
+
+Features:
+	   - Pipe symbol between the Edit and Delete icon in Timesheet list page
 	   
+Bug Fixing:
+	   - Uncaught RangeError: Invalid array length on My Account page
+	  
+	      
+We would like to thank Addison for partially sponsored this release.
+
 Customization:
 	For any Customization/Support, please contact us, our consulting team will be happy to help you
 
@@ -103,11 +109,6 @@ Resources:
 	
 	For more Videos: 
 	http://www.adhisoftware.co.in/products/erpmine/resources/
-	
-	
-	For more:	
-	http://www.adhisoftware.co.in/products/erpmine/resources/
-e.co.in/products/erpmine/resources/
 	
 	
 	For more:	
