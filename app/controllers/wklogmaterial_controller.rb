@@ -89,11 +89,7 @@ class WklogmaterialController < ApplicationController
 			spentArr << key.to_s() + ',' +  value.to_s()  + "\n" 
 		end
 		respond_to do |format|
-<<<<<<< HEAD
-			format.text  { render :text => spentArr }
-=======
 			format.text  { render :plain => spentArr }
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 		end
 	end
 end

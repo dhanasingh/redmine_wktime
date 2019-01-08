@@ -17,11 +17,7 @@
 
 class WkaccountprojectController < WkbillingController
 
-<<<<<<< HEAD
-before_filter :require_login
-=======
 before_action :require_login
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 include WkaccountprojectHelper
 
     def index

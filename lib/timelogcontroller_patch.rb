@@ -71,10 +71,7 @@ module TimelogControllerPatch
 		end
 
 		def edit
-<<<<<<< HEAD
-=======
 	# ============= ERPmine_patch Redmine 4.0  =====================
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 			sessionValidation
 			if session[:timelog][:spent_type] === "T"
 	# =======================	
@@ -115,14 +112,7 @@ module TimelogControllerPatch
 			unless hookModel[0].blank?
 				retrieve_query(hookModel[0], false)
 			end
-<<<<<<< HEAD
-			hookModel = call_hook(:retrieve_time_entry_query_model, :params => params)
-			unless hookModel[0].blank?
-				retrieve_query(hookModel[0], false)
-			end
-=======
 	# =====================		
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 		end
 
 		def create				
@@ -132,12 +122,7 @@ module TimelogControllerPatch
 				render_403
 				return
 			end
-<<<<<<< HEAD
-
-			
-=======
 	# ============= ERPmine_patch Redmine 4.0  =====================	
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 			model = nil
 			errorMsg = nil
 			if params[:log_type].blank? || params[:log_type] == 'T'
@@ -176,10 +161,7 @@ module TimelogControllerPatch
 						format.api  { render_validation_errors(@time_entry) }
 					end
 				end
-<<<<<<< HEAD
-=======
 	# ============= ERPmine_patch Redmine 4.0  =====================		
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 			else
 				hookType = call_hook(:create_time_entry_log_type, :params => params)
 				@logType = 'A'
@@ -206,10 +188,6 @@ module TimelogControllerPatch
 				spentForModel = model.blank? ? @time_entry : model
 				saveSpentFors(spentForModel)
 			end
-<<<<<<< HEAD
-			
-=======
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 		end
 		
 		def saveSpentFors(model)
@@ -253,10 +231,7 @@ module TimelogControllerPatch
 	
 		def update
 			@time_entry.safe_attributes = params[:time_entry]
-<<<<<<< HEAD
-=======
 	# ============= ERPmine_patch Redmine 4.0  =====================			
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 			model = nil
 			errorMsg = nil
 			if params[:log_type].blank? || params[:log_type] == 'T'
@@ -393,11 +368,7 @@ module TimelogControllerPatch
 				}
 			end
 		end
-<<<<<<< HEAD
-				
-=======
 	
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 		def set_filter_session
 			if params[:spent_type].blank?
 				session[:timelog] = {:spent_type => "T"}
@@ -408,10 +379,7 @@ module TimelogControllerPatch
 	# =======================================
 		
 		def find_time_entries
-<<<<<<< HEAD
-=======
 	# ============= ERPmine_patch Redmine 4.0  =====================		
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 			sessionValidation
 			if session[:timelog][:spent_type] === "T"
 	# ==========================================		
@@ -441,10 +409,7 @@ module TimelogControllerPatch
 		end
 		
 		def find_time_entry
-<<<<<<< HEAD
-=======
     # ============= ERPmine_patch Redmine 4.0  =====================	
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 			sessionValidation
 			if session[:timelog][:spent_type] === "T"
 	# ========================		
@@ -490,10 +455,7 @@ module TimelogControllerPatch
 				set_filter_session
 			end
 		end
-<<<<<<< HEAD
-=======
 	# =============================			
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 
 		def destroy
 	# ============= ERPmine_patch Redmine 4.0  =====================		

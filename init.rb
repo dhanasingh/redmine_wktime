@@ -60,11 +60,7 @@ module Redmine::MenuManager::MenuHelper
     if project && !project.new_record?
       :project_menu
     else
-<<<<<<< HEAD
 	  controllerArr = ["wktime", "wkexpense", "wkattendance", "wkreport", "wkpayroll",  "wkinvoice", "wkcrmaccount", "wkcontract", "wkaccountproject", "wktax", "wkgltransaction", "wkledger", "wklead", "wkopportunity", "wkcrmactivity", "wkcrmcontact", "wkcrmenumeration", "wkpayment", "wkexchangerate","wkpurchase","wkrfq","wkquote","wkpurchaseorder","wksupplierinvoice","wksupplierpayment","wksupplieraccount","wksuppliercontact", "wklocation", "wkproduct", "wkbrand", "wkattributegroup" , "wkproductitem", "wkshipment", "wkunitofmeasurement", "wkasset", "wkassetdepreciation", "wkgrouppermission", "wkscheduling", "wkshift", "wkpublicholiday", "wkdashboard", "wkclocksettings"]
-=======
-	  controllerArr = ["wktime", "wkexpense", "wkattendance", "wkreport", "wkpayroll",  "wkinvoice", "wkcrmaccount", "wkcontract", "wkaccountproject", "wktax", "wkgltransaction", "wkledger", "wklead", "wkopportunity", "wkcrmactivity", "wkcrmcontact", "wkcrmenumeration", "wkpayment", "wkexchangerate","wkpurchase","wkrfq","wkquote","wkpurchaseorder","wksupplierinvoice","wksupplierpayment","wksupplieraccount","wksuppliercontact", "wklocation", "wkproduct", "wkbrand", "wkattributegroup" , "wkproductitem", "wkshipment", "wkunitofmeasurement", "wkasset", "wkassetdepreciation", "wkgrouppermission", "wkscheduling", "wkshift", "wkpublicholiday", "wkdashboard"]
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 	  externalMenus = call_hook :external_erpmine_menus
 	   externalMenus = externalMenus.split(' ')
 	  unless externalMenus.blank?
@@ -226,69 +222,6 @@ module FttePatch
       #base.send(:include)
 
       base.class_eval do
-<<<<<<< HEAD
-        def allowed_to?(action, context, options={}, &block)	
-			wktime_helper = Object.new.extend(WktimeHelper)
-			isAccountUser = wktime_helper.isAccountUser
-			isSupervisor = wktime_helper.isSupervisor
-			if context && context.is_a?(Project)
-			  # ======= Patch Code for allow supervisor and TEadmin to view time_entry ==========
-			  if ((isAccountUser || isSupervisor) && action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
-				return true
-			  end
-			  
-			  if (action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
-				(context.allows_to?(:log_time) || context.allows_to?(:edit_time_entries) || context.allows_to?(:edit_own_time_entries))
-			  end
-			  # =========== Patch code end =======
-			  
-			  return false unless context.allows_to?(action)
-			  # Admin users are authorized for anything else
-			  return true if admin?
-
-			  roles = roles_for_project(context)
-			  
-			  return false unless roles
-			  roles.any? {|role|
-				(context.is_public? || role.member?) &&
-				role.allowed_to?(action) &&
-				(block_given? ? yield(role, self) : true)
-			  }
-			elsif context && context.is_a?(Array)
-			  if context.empty?
-				false
-			  else
-				# Authorize if user is authorized on every element of the array
-				context.map {|project| allowed_to?(action, project, options, &block)}.reduce(:&)
-			  end
-			elsif context
-			  raise ArgumentError.new("#allowed_to? context argument must be a Project, an Array of projects or nil")
-			elsif options[:global]			  
-			  # Admin users are always authorized
-			  return true if admin?
-			  
-			  # ======= Patch Code start ==========
-			  if ((isAccountUser || isSupervisor) && action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
-				return true
-			  end
-			  
-			  # authorize if user has at least one role that has this permission
-			  roles = self.roles.to_a | [builtin_role]
-			  roles.any? {|role|
-				# ======= Patch Code Start ==========
-				if (action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
-					(role.allowed_to?(:log_time) || role.allowed_to?(:edit_time_entries) || role.allowed_to?(:edit_own_time_entries))
-				else
-					role.allowed_to?(action) &&
-					(block_given? ? yield(role, self) : true)
-				end
-				# =========== Patch code end =======
-			  }
-			else
-			  false
-			end
-		end
-=======
 				def allowed_to?(action, context, options={}, &block)
 					# ======= ERPmine_patch Redmine 4.0 ==========
 					wktime_helper = Object.new.extend(WktimeHelper)
@@ -351,7 +284,6 @@ module FttePatch
 						false
 					end
 				end
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
       end	  
     end
   end
@@ -362,19 +294,12 @@ module FttePatch
 		
 		base.class_eval do
 			def editable_by?(usr)
-<<<<<<< HEAD
-				# === Patch code for supervisor edit =====
-=======
 				# === ERPmine_patch Redmine 4.0 for supervisor edit =====
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 				wktime_helper = Object.new.extend(WktimeHelper)
 				if ((!user.blank? && wktime_helper.isSupervisorForUser(user.id)) && wktime_helper.canSupervisorEdit)
 					true
 				else
-<<<<<<< HEAD
-=======
 				# =============================
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 					visible?(usr) && (
 					  (usr == user && usr.allowed_to?(:edit_own_time_entries, project)) || usr.allowed_to?(:edit_time_entries, project)
 					)				
@@ -389,23 +314,11 @@ module FttePatch
 		# base.send(:include)
 		
 		base.class_eval do
-<<<<<<< HEAD
-			def authorize(ctrl = params[:controller], action = params[:action], global = false)
-=======
 		  def authorize(ctrl = params[:controller], action = params[:action], global = false)
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 				allowed = User.current.allowed_to?({:controller => ctrl, :action => action}, @project || @projects, :global => global)
 				if allowed
 					true
 				else
-<<<<<<< HEAD
-					wktime_helper = Object.new.extend(WktimeHelper)
-					# isSupervisor = wktime_helper.isSupervisor
-					if @project && @project.archived?
-						render_403 :message => :notice_not_authorized_archived_project
-					elsif ((action == 'edit' || action == 'update' || action == 'destroy') && ctrl == 'timelog' && (wktime_helper.isSupervisor && 
-					wktime_helper.canSupervisorEdit)) && wktime_helper.overrideSpentTime
-=======
 				# ============= ERPmine_patch Redmine 4.0 =====================
 							wktime_helper = Object.new.extend(WktimeHelper)
 							# isSupervisor = wktime_helper.isSupervisor
@@ -415,18 +328,14 @@ module FttePatch
 						render_403 :message => :notice_not_authorized_archived_project
 				# ============= ERPmine_patch Redmine 4.0 =====================
 					elsif ((action == 'edit' || action == 'update' || action == 'destroy') && ctrl == 'timelog' && (wktime_helper.isSupervisor && wktime_helper.canSupervisorEdit)) && wktime_helper.overrideSpentTime
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 						true
 					elsif ((action == 'index' || action == 'report')  && ctrl == 'timelog') && wktime_helper.overrideSpentTime
 						#Object.new.extend(WktimeHelper).isAccountUser || isSupervisor
 						return true
-<<<<<<< HEAD
-=======
 				# =============================
 					elsif @project && !@project.allows_to?(:controller => ctrl, :action => action)
 						# Project module is disabled
 						render_403
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 					else
 						deny_access
 					end
@@ -513,101 +422,6 @@ module FttePatch
 	# end
   # end
  
-<<<<<<< HEAD
-  module TimeEntryQueryPatch
-	def self.included(base)
-      # base.send(:include)
-
-      base.class_eval do
-        unloadable
-		def base_scope
-			TimeEntry.visible.
-			  joins(:project, :user).
-			  includes(:activity).
-			  references(:activity).
-			  left_join_issue.
-			  where(getSupervisorCondStr)
-		end
-		
-		#========= Patch method to get supervision condition string ======
-		def getSupervisorCondStr
-			orgCondStatement = statement
-			condStatement = orgCondStatement
-			
-			wktime_helper = Object.new.extend(WktimeHelper)
-			if wktime_helper.overrideSpentTime
-				isAccountUser = wktime_helper.isAccountUser
-				isSupervisor = wktime_helper.isSupervisor
-				projectIdArr = wktime_helper.getManageProject()
-				isManager = projectIdArr.blank? ? false : true
-				
-				if isSupervisor && !isAccountUser && !User.current.admin?
-					userIdArr = Array.new
-					user_cond = ""
-					rptUsers = wktime_helper.getReportUsers(User.current.id)
-					userIdArr = rptUsers.collect(&:id) if !rptUsers.blank?
-					userIdArr = userIdArr << User.current.id.to_s
-					userIds = "#{userIdArr.join(',')}"
-					user_cond = "#{TimeEntry.table_name}.user_id IN (#{userIds})"
-					
-					if condStatement.blank?
-						condStatement = "(#{user_cond})" if !user_cond.blank?
-					else				
-						if filters["user_id"].blank?			
-							condStatement = user_cond.blank? ? condStatement : condStatement + " AND (#{user_cond})"
-						else						
-							user_id = filters["user_id"][:values]
-							userIdStrArr = userIdArr.collect{|i| i.to_s}
-							filterUserIds = userIdStrArr & filters["user_id"][:values]
-							
-							if !filterUserIds.blank?
-								if user_id.is_a?(Array) && user_id.include?("me")
-									filterUserIds << (User.current.id).to_s
-								end
-								filters["user_id"][:values] = filterUserIds #overriding user filters to get query condition for supervisor
-								condStatement = statement
-								filters["user_id"][:values] = user_id #Setting the filter values to retain the filter on page						
-							else
-								if user_id.is_a?(Array) && user_id.include?("me")
-									filters["user_id"][:values] = [User.current.id.to_s]
-									condStatement = statement
-									filters["user_id"][:values] = user_id
-								else
-									condStatement = "1=0"
-								end
-							end
-						end
-					end
-					if isManager
-						mgrCondStatement = ""
-						if !orgCondStatement.blank?
-							mgrCondStatement = orgCondStatement + " AND "
-						end
-						mgrCondStatement = mgrCondStatement + "(#{TimeEntry.table_name}.project_id in (" + projectIdArr.collect{|i| i.to_s}.join(',') + "))"
-						condStatement = condStatement.blank? ? condStatement : "(" + condStatement + ") OR (" + mgrCondStatement + ")"
-					end
-				else
-					#if (!Setting.plugin_redmine_wktime['ftte_view_only_own_spent_time'].blank? && 
-					#Setting.plugin_redmine_wktime['ftte_view_only_own_spent_time'].to_i == 1) && 
-					if !isAccountUser && !User.current.admin? && !isManager
-						cond = " (#{TimeEntry.table_name}.user_id = " + User.current.id.to_s + ")"
-						condStatement = condStatement.blank? ? cond : condStatement + " AND #{cond}"
-					elsif isManager && !isAccountUser && !User.current.admin?
-						user_id = filters["user_id"][:values] if !filters["user_id"].blank?
-						if !user_id.blank? && user_id.is_a?(Array) && (user_id.include?("me") || user_id.include?(User.current.id.to_s))
-							condStatement = condStatement
-						else
-							condStatement = condStatement.blank? ? condStatement : "(" + condStatement + ") AND (#{TimeEntry.table_name}.project_id in (" + projectIdArr.collect{|i| i.to_s}.join(',') + "))"
-						end
-					end
-				end
-			end
-			condStatement
-		end
-		
-	  end
-	end
-=======
  module TimeEntryQueryPatch
 	def self.included(base)
       # base.send(:include)
@@ -701,7 +515,6 @@ module FttePatch
 			# =============================
 			end
 		end
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
   end
 end
 
@@ -724,13 +537,8 @@ end
 Redmine::Plugin.register :redmine_wktime do
   name 'ERPmine'
   author 'Adhi Software Pvt Ltd'
-<<<<<<< HEAD
-  description 'ERPmine is an ERP for Service Industries. It has the following modules: Time & Expense, Attendance, Payroll, CRM, Billing, Accounting, Purchasing, Inventory, Asset and Schedule Shifts'
-  version '3.3.4'
-=======
   description 'ERPmine is an ERP for Service Industries. It has the following modules: Time & Expense, Attendance, Payroll, CRM, Billing, Accounting, Purchasing, Inventory, Asset , Reports and Dashboards'
   version '3.4'
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
   url 'http://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
   
@@ -830,12 +638,8 @@ Redmine::Plugin.register :redmine_wktime do
 			 'ftte_edit_time_log' => '0',
 			 'ftte_override_spent_time_report' => '0',
 			 'ftte_supervisor_based_approved' => '0',
-<<<<<<< HEAD
-			 'ftte_view_only_own_spent_time' => '0'
-=======
 			 'ftte_view_only_own_spent_time' => '0',
 			 'wktime_enable_dashboards_module' => '0'
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
   })  
 
 	 menu :top_menu, :wkdashboard, { :controller => 'wkdashboard', :action => 'index' }, :caption => :label_erpmine, :if => Proc.new { Object.new.extend(WkdashboardHelper).checkViewPermission } 

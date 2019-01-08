@@ -563,22 +563,14 @@ include QueriesHelper
 		# respond_to do |format|
 			# format.text  { 
 			# if error.blank?
-<<<<<<< HEAD
-				# render :text => clientStr 
-=======
 				# render :plain => clientStr 
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 			# else
 				# render_403
 			# end
 			# }
 		# end
 		respond_to do |format|
-<<<<<<< HEAD
-			format.text  { render :text => clientStr }
-=======
 			format.text  { render :plain => clientStr }
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 		end
 	end
 	
@@ -595,11 +587,7 @@ include QueriesHelper
 		respond_to do |format|
 			format.text  { 
 			if error.blank?
-<<<<<<< HEAD
-				render :text => clientStr 
-=======
 				render :plain => clientStr 
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 			else
 				render_403
 			end
@@ -641,11 +629,7 @@ include QueriesHelper
 		end
 		
 		respond_to do |format|
-<<<<<<< HEAD
-			format.text  { render :text => clientStr }
-=======
 			format.text  { render :plain => clientStr }
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 		end
 	end
 	
@@ -1222,11 +1206,7 @@ include QueriesHelper
 			userStr << m.id.to_s() + ',' + m.firstname + ' ' + m.lastname + "\n"
 		end
 		respond_to do |format|
-<<<<<<< HEAD
-			format.text  { render :text => userStr }
-=======
 			format.text  { render :plain => userStr }
->>>>>>> 5d117ffd53fca761822b9c06a276902cfa232dc1
 		end 
 	end
 	 
