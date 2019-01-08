@@ -1017,8 +1017,8 @@ end
 		if !Setting.plugin_redmine_wktime['wktime_break_time'].blank?
 			Setting.plugin_redmine_wktime['wktime_break_time'].each_with_index do |element,index|
 			  listboxArr = element.split('|')
-			  breakStart = currentEntryDate.change({ hour: listboxArr[0], min:listboxArr[1], sec: '00' })
-			  breakEnd = currentEntryDate.change({ hour: listboxArr[2], min:listboxArr[3], sec: '00' })
+			  breakStart = currentEntryDate.change({ hour: listboxArr[0], min: listboxArr[1], sec: 0 })
+			  breakEnd = currentEntryDate.change({ hour: listboxArr[2], min:listboxArr[3], sec: 0 })
 			  if(!(startTime>breakEnd || endTime < breakStart))
 				if startTime < breakStart
 					if endTime < breakEnd
@@ -1225,8 +1225,36 @@ end
 	
 	def showTimeExpense
 		(!Setting.plugin_redmine_wktime['wktime_enable_time_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_time_module'].to_i == 1) || (!Setting.plugin_redmine_wktime['wktime_enable_expense_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_expense_module'].to_i == 1)
+			Setting.plugin_redmine_wktime['wktime_enable_time_module'].to_i == 1) || 
+			(!Setting.plugin_redmine_wktime['wktime_enable_expense_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_expense_module'].to_i == 1) ||
+			# if none of the settings is checked
+			( (Setting.plugin_redmine_wktime['wktime_enable_dashboards_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_dashboards_module'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_time_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_time_module'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_expense_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_expense_module'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_shift'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_shift'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_payroll_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_payroll_module'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_billing_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_billing_module'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_accounting_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_accounting_module'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_crm_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_crm_module'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_purchase_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_purchase_module'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_inventory_module'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_report_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_report_module'].to_i == 0 ) ) ||
+			((Setting.plugin_redmine_wktime['wktime_enable_dashboards_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_dashboards_module'].to_i == 0))
 	end
 	
 	def getDatesSql(from, intervalVal, intervalType)
@@ -1329,7 +1357,8 @@ end
 	end
 	
 	def erpModules
-		erpmineModules = {l(:label_wktime) => 'Time',
+		erpmineModules = {l(:label_dashboards) => 'Dashboards',
+						  l(:label_wktime) => 'Time',
 						  l(:label_wkexpense) => 'Expense',
 						  l(:report_attendance) => 'Attendance',
 						  l(:label_shift_scheduling) => 'Shift Scheduling',

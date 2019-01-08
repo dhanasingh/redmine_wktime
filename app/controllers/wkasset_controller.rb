@@ -40,7 +40,7 @@ class WkassetController < WkproductitemController
 			assetArr << entry.id.to_s() + ',' +  entry.name.to_s()  + "\n" 
 		end
 		respond_to do |format|
-			format.text  { render :text => assetArr }
+			format.text  { render :plain => assetArr }
 		end
 	end
 	

@@ -23,8 +23,8 @@ include WktimeHelper
 include WkattendanceHelper
 include WkimportattendanceHelper
 
-before_filter :require_login
-before_filter :check_perm_and_redirect, :only => [:edit, :update, :clockedit]
+before_action :require_login
+before_action :check_perm_and_redirect, :only => [:edit, :update, :clockedit]
 require 'csv' 
 
 	def index
@@ -119,7 +119,7 @@ require 'csv'
 			group_by_users << users.id.to_s() + ',' + users.name + "\n"
 		end
 		respond_to do |format|
-			format.text  { render :text => group_by_users }
+			format.text  { render :plain => group_by_users }
 		end
 	end	
 	
@@ -310,7 +310,7 @@ require 'csv'
 			issue_by_project << issue.id.to_s() + ',' + issue.subject + "\n"
 		end
 		respond_to do |format|
-			format.text  { render :text => issue_by_project }
+			format.text  { render :plain => issue_by_project }
 		end
 	end	
 	
@@ -353,7 +353,7 @@ require 'csv'
 			project_by_issue = issues[0].project_id.to_s + '|' + issues[0].project.name 
 		end
 		respond_to do |format|
-			format.text  { render :text => project_by_issue }
+			format.text  { render :plain => project_by_issue }
 		end
 	end
 

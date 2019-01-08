@@ -1,0 +1,12 @@
+<% content_for :sidebar do %>
+	<%= render :partial => 'wkdashboard/sidebar' %>
+<% end %>
+	<h2><%= l(:label_dashboards) %></h2>
+		<% get_graphs_yaml_path.sort.each do |path| %>
+			<div class="icon-gravatar">
+				<%= tag("embed",
+				:type => "image/svg+xml", :src => url_for(:controller => 'wkdashboard',
+				:action => 'graph',
+				:gPath => path )) %>
+			</div>
+		<% end %>

@@ -21,7 +21,7 @@ class WkUser < ActiveRecord::Base
   belongs_to :role
   serialize :others
   
-  attr_protected :others, :user_id
+  # attr_protected :others, :user_id
   
   
   safe_attributes 	'role_id', 'id1','id2', 'id3',

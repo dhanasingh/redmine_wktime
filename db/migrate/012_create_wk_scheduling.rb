@@ -1,4 +1,4 @@
-class CreateWkScheduling  < ActiveRecord::Migration
+class CreateWkScheduling  < ActiveRecord::Migration[4.2]
 
 	def change
 				

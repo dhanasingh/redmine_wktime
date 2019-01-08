@@ -316,7 +316,7 @@ module WkpayrollHelper
 			if !value.blank?  
 				if key.to_s == 'payroll_deleted_ids'
 					dval = value.split('|')
-					WkSalaryComponents.delete_all(:id => dval.map(&:to_i))
+					WkSalaryComponents.where(:id => dval.map(&:to_i)).delete_all
 				else
 					for i in 0..value.length-1			
 						sval = value[i].split('|')		

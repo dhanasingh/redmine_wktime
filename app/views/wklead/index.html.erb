@@ -10,6 +10,6 @@
     prevTab = 'tab-<%= "#{controller_name}" %>';   
 </script>
 <%= render_tabs time_expense_tabs %>
-<%= hidden_field_tag 'back_url', url_for(params) %>
+<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 
 <%= render :partial => 'lead_index'%>

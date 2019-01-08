@@ -66,14 +66,12 @@ If an apache passenger module is used then make sure the following settings are 
 	b) RailsAppSpawnerIdleTime 0
 	c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for 3.3.4
+Release Notes for 3.4
 
 Features:
-	   - Pipe symbol between the Edit and Delete icon in Timesheet list page
+	   - Dashboards are introduced
 	   
-Bug Fixing:
-	   - Uncaught RangeError: Invalid array length on My Account page
-	  
+	   - Redmine-4.0 compatible 
 	      
 We would like to thank Addison for partially sponsored this release.
 
