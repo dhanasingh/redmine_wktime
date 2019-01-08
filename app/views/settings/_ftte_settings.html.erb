@@ -1,0 +1,12 @@
+<fieldset class="box tabular">
+<legend><%= l(:label_ftte_supervisor) %></legend>
+<!-- <p>	
+	<%#= check_box_tag('settings[ftte_edit_time_log]', 1, @settings['ftte_edit_time_log'].to_i == 1) %> <label><%#= l(:label_ftte_supervisor_edit_log) %></label>
+</p> -->
+<p>	
+	<%= check_box_tag('settings[ftte_supervisor_based_approval]', 1, @settings['ftte_supervisor_based_approval'].to_i == 1) %> <label><%= l(:label_ftte_supervisor_based_approval) %></label>
+</p>
+<!-- <p>	
+	<%#= check_box_tag('settings[ftte_override_spent_time_report]', 1, @settings['ftte_override_spent_time_report'].to_i == 1) %> <label><%#= l(:label_ftte_override_spent_time_report) %></label>
+</p> -->	
+</fieldset>

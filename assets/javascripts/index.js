@@ -1,4 +1,4 @@
-var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl, blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupAccUrl, purSupContactUrl, purSupPayUrl, wklocationUrl,  wkproductUrl, wkproductitemUrl, wkshipmentUrl, wkUomUrl, wkbrandUrl, wkattributegroupUrl, wkassetUrl, wkassetdepreciationUrl, wkgrpPermissionUrl, wkSchedulingUrl, wkShiftUrl, wkPublicHolidayUrl; 
+var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, userssettingsUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl, blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupAccUrl, purSupContactUrl, purSupPayUrl, wklocationUrl,  wkproductUrl, wkproductitemUrl, wkshipmentUrl, wkUomUrl, wkbrandUrl, wkattributegroupUrl, wkassetUrl, wkassetdepreciationUrl, wkgrpPermissionUrl, wkSchedulingUrl, wkShiftUrl, wkPublicHolidayUrl, userCurrentUrl, wkClockSettingUrl; 
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -168,15 +168,13 @@ function projChanged(projDropdown, userid, needBlankOption){
 		success: function(data){ updateUserDD(data, userDropdown, userid, needBlankOption, false,"All Users"); },
 		beforeSend: function(){ $this.addClass('ajax-loading'); },
 		complete: function(){ $this.removeClass('ajax-loading'); }
-	});
-	
+	});	
 }
-
 function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, blankText)
-{
+{	
 	var items = itemStr.split('\n');
 	var i, index, val, text, start;
-	if(dropdown != null){
+	if(dropdown != null && dropdown.options != null){
 		dropdown.options.length = 0;
 		if(needBlankOption){
 			dropdown.options[0] = new Option(blankText, "0", false, false) 
@@ -200,8 +198,6 @@ function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, bla
 		}
 	}
 }
-
-
 $(document).ready(function()
 {
 	changeProp('tab-wktime',wktimeIndexUrl);
@@ -244,9 +240,8 @@ $(document).ready(function()
 	changeProp('tab-wkscheduling',wkSchedulingUrl);
 	changeProp('tab-wkshift',wkShiftUrl);
 	changeProp('tab-wkpublicholiday',wkPublicHolidayUrl);
+	changeProp('tab-wkclocksetting',wkClockSettingUrl);
 });
-
-
 function changeProp(tab,indexUrl)
 {
 	var tab_te = document.getElementById(tab);
@@ -284,11 +279,13 @@ function reportChanged(reportDD, userid){
 }
 
 function grpChanged(grpDropdown, userid, needBlankOption){
+	
 	var id = grpDropdown.options[grpDropdown.selectedIndex].value;
 	var fmt = 'text';
 	var userDropdown = document.getElementById("user_id");
 	var $this = $(this);
 	$.ajax({
+		
 		url: grpUrl,
 		type: 'get',
 		data: {user_id: userid, format:fmt,group_id:id},
@@ -537,8 +534,15 @@ function productItemChanged(curDDId, qtyDD, cpDD, spDD, uid, logTypeId)
 	if(logTypeId != null)
 	{
 		logTypeVal = document.getElementById(logTypeId).value;
-		logType = logTypeVal == 'M' ? 'I' : logTypeVal;
+		if(logTypeVal == 'M')
+		{
+			logType =  'I';
+		}
+		else {
+			logType = logTypeVal
+		}		
 	}
+	
 	$.ajax({
 	url: productModifyUrl,
 	type: 'get',
@@ -626,6 +630,9 @@ function hideLogDetails(uid)
 	{
 		document.getElementById('time_entry_hours').style.display = 'block';
 		$('label[for="time_entry_hours"]').css('display', 'block');
+		if(document.getElementById("spent_for_tbl")){
+			document.getElementById("spent_for_tbl").style.display = 'block';
+		}
 		//$('label[for="time_entry_hours"]').html('Hours<span style="color:red;">*</span>');
 		document.getElementById("materialtable").style.display = 'none';
 		document.getElementById("expensetable").style.display = 'none';
@@ -635,6 +642,9 @@ function hideLogDetails(uid)
 		$('label[for="time_entry_hours"]').css('display', 'none');
 		//$('label[for="time_entry_hours"]').html('Amount<span style="color:red;">*</span>');
 		document.getElementById("materialtable").style.display = 'none';
+		if(document.getElementById("spent_for_tbl")){
+			document.getElementById("spent_for_tbl").style.display = 'none';
+		}
 		document.getElementById("expensetable").style.display = 'block';
 	}
 	else 
@@ -642,6 +652,9 @@ function hideLogDetails(uid)
 		document.getElementById('time_entry_hours').style.display = 'none';
 		$('label[for="time_entry_hours"]').css('display', 'none');
 		document.getElementById("expensetable").style.display = 'none';
+		if(document.getElementById("spent_for_tbl")){
+			document.getElementById("spent_for_tbl").style.display = 'block';
+		}
 		document.getElementById("materialtable").style.display = 'block';
 		if(uid != null) {
 			productCategoryChanged('product', uid, logType);
@@ -694,7 +707,7 @@ function validateAsset()
 	}
 	return valid;
 }
-
+/*
 function showorHide(isshow, divId)
 {
 	if(!isshow)
@@ -704,4 +717,93 @@ function showorHide(isshow, divId)
 	else {
 		document.getElementById(divId).style.disabled = false;
 	}
+}*/
+
+function sheetViewChange(field)
+{
+	if(field.value != "")
+	{
+		if(field.value == "I")
+		{
+			showorHide(true, 'spentForLbl', 'spent_for_key'); 
+			showorHide(true, 'issueLbl', 'issue_id');
+		}
+		else {
+			showorHide(false, 'spentForLbl', 'spent_for_key'); 
+			showorHide(false, 'issueLbl', 'issue_id');
+		}
+	}
+}
+
+function userChanged(userDropdown, needBlank){
+	
+	var userDD = document.getElementById('user_id');
+	var sheetViewDD = document.getElementById('sheet_view');
+	
+	if(userDD != null && sheetViewDD != null && sheetViewDD.value == "I")
+	{	
+		
+		var issDropdown = document.getElementById("issue_id");
+		var clientDropdown = document.getElementById("spent_for_key");
+		var issUrl = document.getElementById("getuser_issues_url").value;
+		var clientUrl = document.getElementById("getuser_clients_url").value;
+		var fmt = 'text';	 
+		var uid = document.getElementById("user_id").value;
+		var $this = $(this);
+		$.ajax({
+			url: issUrl,
+			type: 'get',
+			data: {user_id: userDD.value, format:fmt},
+			success: function(data){			
+				updateUserDD(data, issDropdown, userDD.value, needBlank, false,"");
+			},
+			beforeSend: function(){ $this.addClass('ajax-loading'); },
+			complete: function(){ $this.removeClass('ajax-loading'); }
+		});	
+		
+		$.ajax({
+			url: clientUrl,
+			type: 'get',
+			data: {user_id: userDD.value, format:fmt},
+			success: function(data){
+				//var actId = getDefaultActId(data);
+				//var items = data.split('\n');
+				//var needBlankOption = !(items.length-1 == 1 || actId != null);
+				updateUserDD(data, clientDropdown, userDD.value, needBlank, false,"");
+			},
+			beforeSend: function(){ $this.addClass('ajax-loading'); },
+			complete: function(){ $this.removeClass('ajax-loading'); }
+		});
+	}
+}
+
+function loadSpentFors(id, Dropdown, needBlank, uid)
+{
+	var clientDropdown = document.getElementById(Dropdown);
+	var $this = $(this);
+	var fmt = 'text';
+	$.ajax({
+		url: getClientsUrl,
+		type: 'get',
+		data: {project_id: id, user_id: uid, format:fmt},
+		success: function(data){updateUserDD(data, clientDropdown, uid, needBlank, false,"");
+		},
+		beforeSend: function(){ $this.addClass('ajax-loading'); },
+		complete: function(){ $this.removeClass('ajax-loading'); }
+	});
+}
+
+function myReportUser(optionID,userID){	
+	var userDropdown = document.getElementById("user_id");
+	var fmt = 'text';
+	var $this = $(this);
+	var value = optionID.value;
+	$.ajax({
+		url: userCurrentUrl,
+		type: 'get',
+		data: { filter_type:value, user_id: userID, format:fmt},
+		success: function(data){ updateUserDD(data, userDropdown, userID, true, false, "All Users"); },
+		beforeSend: function(){ $this.addClass('ajax-loading'); },
+		complete: function(){ $this.removeClass('ajax-loading'); }
+	});
 }

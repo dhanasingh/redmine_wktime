@@ -361,8 +361,10 @@ function projectChanged(projDropdown, row){
 		var fmt = 'text';
 		var issDropdown = document.getElementsByName("time_entry[][issue_id]");
 		var actDropdown = document.getElementsByName("time_entry[][activity_id]");
+		var clientDropdown = document.getElementsByName("time_entry[][spent_for_attributes][spent_for_key]");
 		var issUrl = document.getElementById("getissues_url").value;
 		var actUrl = document.getElementById("getactivities_url").value;
+		var clientUrl = document.getElementById("getclients_url").value;
 	 
 		var uid = document.getElementById("user_id").value;
 		var $this = $(this);    
@@ -381,20 +383,58 @@ function projectChanged(projDropdown, row){
 			beforeSend: function(){ $this.addClass('ajax-loading'); },
 			complete: function(){ $this.removeClass('ajax-loading'); }
 		});
-		$.ajax({
-			url: actUrl,
-			type: 'get',
-			data: {project_id: id, user_id: uid, format:fmt},
-			success: function(data){
-				var actId = getDefaultActId(data);
-				var items = data.split('\n');
-				var needBlankOption = !(items.length-1 == 1 || actId != null);
-				updateDropdown(data, row, actDropdown, false, needBlankOption, true, actId);
-			},
-			beforeSend: function(){ $this.addClass('ajax-loading'); },
-			complete: function(){ $this.removeClass('ajax-loading'); }
-		});
+		
+		if (actDropdown.length > 0){   //("time_entry[][activity_id]")){
+			$.ajax({ 
+				url: actUrl,
+				type: 'get',
+				data: {project_id: id, user_id: uid, format:fmt},
+				success: function(data){
+					var actId = getDefaultActId(data);
+					var items = data.split('\n');
+					var needBlankOption = !(items.length-1 == 1 || actId != null);
+					updateDropdown(data, row, actDropdown, false, needBlankOption, true, actId);
+				},
+				beforeSend: function(){ $this.addClass('ajax-loading'); },
+				complete: function(){ $this.removeClass('ajax-loading'); }
+			});
+		}		
+		updateClientDropdown(clientUrl, id, null, uid, fmt, row, clientDropdown);
+/* 		if (clientDropdown.length > 0){ // To check for dropdown if element there it will give 1
+			$.ajax({
+				url: clientUrl,
+				type: 'get',
+				data: {project_id: id, user_id: uid, format:fmt},
+				success: function(data){
+					//var actId = getDefaultActId(data);
+					//var items = data.split('\n');
+					//var needBlankOption = !(items.length-1 == 1 || actId != null);
+					updateDropdown(data, row, clientDropdown, false, true, true, null);
+				},
+				beforeSend: function(){ $this.addClass('ajax-loading'); },
+				complete: function(){ $this.removeClass('ajax-loading'); }
+			});
+		} */
 	}
+}
+
+function updateClientDropdown(clientUrl, projectId, issueId, uid, fmt, row, clientDropdown){
+	var $this = $(this);
+	if (clientDropdown.length > 0){
+		$.ajax({
+				url: clientUrl,
+				type: 'get',
+				data: {project_id: projectId, issue_id:issueId, user_id: uid, format:fmt},
+				success: function(data){
+					//var actId = getDefaultActId(data);
+					//var items = data.split('\n');
+					//var needBlankOption = !(items.length-1 == 1 || actId != null);
+					updateDropdown(data, row, clientDropdown, false, true, true, null);
+				},
+				beforeSend: function(){ $this.addClass('ajax-loading'); },
+				complete: function(){ $this.removeClass('ajax-loading'); }
+			});
+	}	
 }
 
 function trackerFilterChanged(trackerList){
@@ -460,26 +500,32 @@ function issueChanged(issueText, row){
 }
 	
 function issueIdChanged(id, row){
-	if(id != ''){
-		var fmt = 'text';
-		var actDropdown = document.getElementsByName("time_entry[][activity_id]");
-		var actUrl = document.getElementById("getactivities_url").value;
-
-		var uid = document.getElementById("user_id").value;
-
-		var $this = $(this);
-		$.ajax({
-			url: actUrl,
-			type: 'get',
-			data: {issue_id: id, user_id: uid, format:fmt},
-			success: function(data){ updateActDropdown(data, row, actDropdown);},
-			error: function(jqXHR, textStatus, errorThrown){
-				alert(issueField + " " + id  + " " + invalidMsg);
-			},
-			beforeSend: function(){ $this.addClass('ajax-loading'); },
-			complete: function(){ $this.removeClass('ajax-loading'); }
-		});
-	}
+	var actDropdown = document.getElementsByName("time_entry[][activity_id]");	
+	var clientDropdown = document.getElementsByName("time_entry[][spent_for_attributes][spent_for_key]");
+	var uid = document.getElementById("user_id").value;	       
+	var fmt = 'text';
+	if(id != ''){  
+		if(actDropdown.length > 0){               //&& isDropdown("time_entry[][activity_id]"))
+			var actUrl = document.getElementById("getactivities_url").value;
+			
+			var $this = $(this);
+			$.ajax({
+				url: actUrl,
+				type: 'get',
+				data: {issue_id: id, user_id: uid, format:fmt},
+				success: function(data){ updateActDropdown(data, row, actDropdown);},
+				error: function(jqXHR, textStatus, errorThrown){
+					alert(issueField + " " + id  + " " + invalidMsg);
+				},
+				beforeSend: function(){ $this.addClass('ajax-loading'); },
+				complete: function(){ $this.removeClass('ajax-loading'); }
+			});
+		}
+		if(clientDropdown.length > 0){
+			var clientUrl = document.getElementById("getclients_url").value;
+			updateClientDropdown(clientUrl, null, id, uid, fmt, row, clientDropdown);
+		}
+	}	
 }
 
 function updateIssDropdowns(itemStr, projDropdowns,projIds)
@@ -1566,3 +1612,11 @@ function convertSecToTime(seconds)
  var timeVal =  ((h > 0 ? h + ":" + (m < 10 ? "0" : "") : "") + (h > 0 ? m : ("0:" + m)) );
  return timeVal;
 }
+
+/* function isDropdown(idName) {
+    var element = document.getElementById(idName);
+	if(element != null){
+		if(element.tagName === 'SELECT') {return true;}
+	}
+    return false;
+} */

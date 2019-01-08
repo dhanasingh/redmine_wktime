@@ -254,4 +254,156 @@ class WkproductitemController < WkinventoryController
 	def showAssetProperties
 		false
 	end
+endle_quantity]
+		inventoryItem.status = inventoryItem.available_quantity == 0 ? 'c' : 'o'
+		inventoryItem.uom_id = params[:uom_id].to_i
+		inventoryItem.location_id = locationId		
+		inventoryItem.save()
+		updateShipment(inventoryItem)
+		inventoryItem
+	end
+	
+	def updateAssetProperty(inventoryItem)
+		sysCurrency = Setting.plugin_redmine_wktime['wktime_currency']
+		if params[:asset_property_id].blank?
+			assetProperty = WkAssetProperty.new
+			updateShipment(inventoryItem)
+			assetProperty.inventory_item_id = inventoryItem.id
+		else
+			assetProperty = inventoryItem.asset_property
+		end
+		assetProperty.name = params[:asset_name]
+		assetProperty.rate = params[:rate]
+		assetProperty.rate_per = params[:rate_per]
+		assetProperty.current_value = params[:current_value]
+		assetProperty.owner_type = params[:owner_type]
+		assetProperty.save()
+		assetProperty
+	end
+	
+	def updateShipment(inventoryItem)
+		wkShipmentObj = WkShipment.new
+		wkShipmentObj.shipment_type = 'N'
+		wkShipmentObj.shipment_date = Date.today		
+		wkShipmentObj.serial_number = params[:serial_number]
+		wkShipmentObj.save()
+		inventoryItem.shipment_id = wkShipmentObj.id
+		inventoryItem.save()
+	end
+	
+	def destroy
+		inventoryItem = nil
+		productItem = WkProductItem.find(params[:product_item_id].to_i)
+		unless params[:inventory_item_id].blank?
+			inventoryItem = WkInventoryItem.find(params[:inventory_item_id].to_i)
+			shipment = inventoryItem.shipment
+			if inventoryItem.destroy
+				invCount = productItem.inventory_items.count
+				shipInvCount = 0
+				shipInvCount = shipment.inventory_items.count unless shipment.blank?
+				productItem.destroy unless invCount>0
+				shipment.destroy unless shipInvCount>0 || shipment.blank?
+				flash[:notice] = l(:notice_successful_delete)
+			else
+				flash[:error] = inventoryItem.errors.full_messages.join("<br>")
+			end
+		else
+			if productItem.destroy
+				flash[:notice] = l(:notice_successful_delete)
+			else
+				flash[:error] = inventoryItem.errors.full_messages.join("<br>")
+			end
+		end
+		redirect_back_or_default :action => 'index', :tab => params[:tab]
+	end	  
+
+	def set_filter_session
+		if params[:searchlist].blank? && session[controller_name].nil?
+			session[controller_name] = {:product_id => params[:product_id], :brand_id => params[:brand_id], :location_id => params[:location_id], :availability => params[:availability] }
+		elsif params[:searchlist] == controller_name
+			session[controller_name][:product_id] = params[:product_id]
+			session[controller_name][:brand_id] = params[:brand_id]
+			session[controller_name][:location_id] = params[:location_id]
+			session[controller_name][:availability] = params[:availability]
+		end
+		
+	end
+
+	def setLimitAndOffset		
+		if api_request?
+			@offset, @limit = api_offset_and_limit
+			if !params[:limit].blank?
+				@limit = params[:limit]
+			end
+			if !params[:offset].blank?
+				@offset = params[:offset]
+			end
+		else
+			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
+			@limit = @entry_pages.per_page
+			@offset = @entry_pages.offset
+		end	
+	end
+	
+	def findBySql(query, model)
+		result = model.find_by_sql("select count(*) as id from (" + query + ") as v2")
+		@entry_count = result.blank? ? 0 : result[0].id
+        setLimitAndOffset()		
+		rangeStr = formPaginationCondition()
+		@productInventory = model.find_by_sql(query + " order by iit.id desc " + rangeStr )
+	end
+	
+	def formPaginationCondition
+		rangeStr = ""
+		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'				
+			rangeStr = " OFFSET " + @offset.to_s + " ROWS FETCH NEXT " + @limit.to_s + " ROWS ONLY "
+		else		
+			rangeStr = " LIMIT " + @limit.to_s +	" OFFSET " + @offset.to_s
+		end
+		rangeStr
+	end	
+
+	def getItemType
+		'I'
+	end
+	
+	def showAssetProperties
+		false
+	end
+	
+	def newItemLabel
+		l(:label_new_product_item)
+	end
+	
+	def newAsset
+		false
+	end
+	
+	def editItemLabel
+		l(:label_edit_product_item)
+	end
+	
+	def getIventoryListHeader
+		headerHash = { 'product_name' => l(:label_product), 'brand_name' => l(:label_brand), 'product_model_name' => l(:label_model), 'product_attribute_name' => l(:label_attribute), 'serial_number' => l(:label_serial_number), 'currency' => l(:field_currency), 'selling_price' => l(:label_selling_price), 'total_quantity' => l(:label_total_quantity), 'available_quantity' => l(:label_available_quantity), 'uom_short_desc' => l(:label_uom), 'location_name' => l(:label_location) }
+	end
+	
+	def showProductItem
+		true
+	end
+	
+	def showAdditionalInfo
+		true
+	end
+	
+	def showInventoryFields
+		true
+	end
+	
+	def lblInventory
+		l(:label_inventory)
+	end
+	
+	def newcomponentLbl
+		l(:label_new_component)
+	end
 end

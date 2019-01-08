@@ -35,3 +35,12 @@ class WksuppliercontactController < WkcontactController
 	end
 
 end
+f lblNewContact
+		l(:label_new_item, l(:label_supplier_contact))
+	end
+	
+	def contactLbl
+		l(:label_supplier_contact)
+	end
+
+end

@@ -81,4 +81,8 @@ end %>
 <p>Are you sure want to run this process</p>
 <p>Chose process date:<%= date_field_tag('start_date', "", {:id => 'start_date', :size => 12, :style => "width:130px; "}) + calendar_for('start_date') %></p>
 <p>Please Note: This will run the process for the previous month from the chosen date</p>
+</div>bel_period_end_note)) %>
 </div>
+
+<%= content_tag :div, class: "label_select_date_text", data: {select: l(:label_select_date_text)} do%>
+<% end %>

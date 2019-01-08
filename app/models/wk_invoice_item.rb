@@ -30,3 +30,6 @@ class WkInvoiceItem < ActiveRecord::Base
   validates_numericality_of :quantity, :allow_nil => true, :message => :invalid
   validates_numericality_of :rate, :allow_nil => true, :message => :invalid
 end
+true, :message => :invalid
+  validates_numericality_of :rate, :allow_nil => true, :message => :invalid
+end

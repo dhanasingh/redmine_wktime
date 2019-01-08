@@ -52,3 +52,17 @@ class WkInventoryItem < ActiveRecord::Base
   end
   
 end
+rentObj.available_quantity = self.total_quantity + parentObj.available_quantity
+		parentObj.save
+	end
+  end
+  
+  def assetName
+	name = ""
+	unless self.asset_property.blank?
+		name = self.asset_property.name	
+	end
+	name
+  end
+  
+end

@@ -123,3 +123,15 @@ include WkattendanceHelper
 
 	end
 end
+scue; end
+					@free_period = true
+			else		
+				@from = Date.civil(Date.today.year, Date.today.month, 1)
+				@to = (@from >> 1) - 1
+				end    
+			
+			@from, @to = @to, @from if @from && @to && @from > @to
+	
+		end
+	end
+	

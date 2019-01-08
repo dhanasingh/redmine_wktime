@@ -461,3 +461,49 @@ include WkorderentityHelper
 	end
 	
 end
+ @entry_count, per_page_option, params['page']
+			@limit = @entry_pages.per_page
+			@offset = @entry_pages.offset
+		end	
+	end	
+	
+	def getOrderComponetsId
+		'wktime_invoice_components'
+	end
+	
+	def getSupplierAddress(invoice)
+		Setting.plugin_redmine_wktime['wktime_company_name'] + "\n" +  Setting.plugin_redmine_wktime['wktime_company_address']
+	end
+	
+	def getCustomerAddress(invoice)
+		invoice.parent.name + "\n" + (invoice.parent.address.blank? ? "" : invoice.parent.address.fullAddress)
+	end
+	
+	def getAutoPostModule	
+	end
+	
+	def postableInvoice
+		false
+	end
+	
+	def deletePermission
+		false
+	end
+	
+	def addMaterialType
+		false
+	end
+	
+	def addAssetType
+		false
+	end
+	
+	def getAccountLbl
+		l(:label_account)
+	end
+	
+	def showProjectDD
+		false
+	end
+	
+end

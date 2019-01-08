@@ -794,4 +794,99 @@ it:
   label_work: Work
   field_shift: Shift
   label_setting_preference: Allow user schedule preference
+  label_auto_scheduling: Auto Shift Schedulingd3
+  field_join_date: Join date
+  field_birth_date: Birth date
+  field_termination_date: Termination date
+  field_bank_name: Bank name
+  field_account_number: Bank account number
+  field_bank_code: Bank code
+  field_tax: Tax id
+  field_ss: SS id
+  field_custom_number1: Custom number1
+  field_custom_number2: Custom number2
+  field_custom_date1: Custom date1
+  field_custom_date2: Custom date2
+  field_billing_rate: Billing rate
+  field_billing_currency: Billing currency
+  field_location: Location 
+  field_department: Department
+  label_public_holiday: Public Holiday
+  label_schedule_on_weekend: Schedule on Weekend / Holiday
+  label_holiday: Holiday
+  label_day_off_per_frequency: Day off per frequency
+  label_schedule_shifts: Schedule Shifts
+  warning_apply_depreciation: Are you sure want to apply depreciation for the period
+  warning_schedule_shifts: Are you sure want to schedule shifts for the period
+  label_work: Work
+  field_shift: Shift
+  label_setting_preference: Allow user schedule preference
   label_auto_scheduling: Auto Shift Scheduling
+
+  label_shift_and_scheduling: Shift Scheduling
+  label_auto_approve_with_te: Auto approve Time & Expense
+  label_credit_with_ledger: Credit Ledger
+  label_debit_with_ledger: Debit Ledger
+  label_txn_payment_with_credit_with_ledger: Payment Credit Ledger
+  label_txn_payment_with_debit_with_ledger: Payment Debit Ledger
+
+  gender_hash_male: Male
+  gender_hash_female: Female
+  gender_hash_others: Others
+
+  nonsub_mail_message_content: You are receiving this notification for timesheet non submission
+  submission_ack_message_content: I Acknowledge that the hours entered are accurate to the best of my knowledge
+  all_users_for_select: All Users
+  label_expected_date_to_close_project: Expected Chiudi Data
+  text_edit_activity: Edit Activity
+  label_number_shortcut: "No"
+  label_account_category: Account Category
+
+  VIEW INVENTORY: View inventory
+  DELETE INVENTORY: Delete inventory 
+  SCHEDULES SHIFT: Schedules shift 
+  EDIT SHIFT SCHEDULES: Edit shift schedules
+
+  label_active_on: On
+  label_active_off: Off
+
+  label_confirmation_salary_text: Are you sure want to generate salary on
+
+  label_period_end_confirmation: Are you sure want to run this process
+  label_period_end_note: 'Please: Note This will run the process for the previous month from the chosen date'
+  label_chose_process_date: 'Chose process date:'
+  label_title_end_process: Run Period End Process
+  label_select_date_text: Please select the date
+
+  label_report_type: Report Tipo
+
+  label_new_asset: New Asset
+  label_new_asset_item: New Asset
+  label_edit_asset_item: Edit Asset
+  label_additional_info: Additional Information
+  label_as: As
+  label_new_component: New Component
+  label_components: Components
+  label_sheet_view: Sheet view
+  label_issue_view: Issue view
+  label_spent_for: Spent For
+  label_availability: Available
+  label_in_use: In Use
+  label_additional_assignee: Additional Assignee
+  label_relationship: Contact Relationship
+  warning_select_project: Please select a project
+  warn_billable_project_not_configured: Billable projects not configured for %{name}
+  field_rate: Rate
+  field_rate_per: Per
+  label_invoice_generation_month: Invoice generation month
+  label_edit_component: Edit Component
+  # Supervisor lables  
+  label_ftte_supervisor: "Supervisor"
+  label_my_direct_reports: "My direct reports"
+  label_my_reports: "My reports"
+  label_ftte_supervisor_edit_log: "Allow supervisor to edit time logs"
+  label_ftte_override_spent_time_report: "Override built-in spent time reports"
+  label_ftte_supervisor_based_approval: "Use supervisor based approval system "
+  label_ftte_view_only_own_spent_time: "View only own spent time"
+  label_additional_details: Additional Details
+

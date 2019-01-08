@@ -252,3 +252,15 @@ class WkpaymententityController < WkbillingController
 	end
 	
 end
+		 "CASE WHEN p.parent_type = 'WkAccount'  THEN a.account_type ELSE c.contact_type END"
+	end	
+	
+	def getAuotPostId
+		'invoice_auto_post_gl'
+	end
+	
+	def getAutoPostModule
+		'payment'
+	end
+	
+end

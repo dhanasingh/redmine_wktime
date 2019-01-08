@@ -141,4 +141,5 @@ $(document).ready(function()
 
 <% content_for :header_tags do %>
     <%= auto_discovery_link_tag(:atom, {:issue_id => @issue, :format => 'atom', :key => User.current.rss_key}, :title => l(:label_spent_time)) %>
+<% end %>mat => 'atom', :key => User.current.rss_key}, :title => l(:label_spent_time)) %>
 <% end %>

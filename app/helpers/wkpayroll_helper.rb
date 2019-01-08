@@ -393,4 +393,44 @@ module WkpayrollHelper
 		end
 		ytdAmountHash
 	end
+endlaryDate
+		glSalary.gl_transaction_id = glTransaction.id
+		unless glSalary.valid?
+			errorMsg = glSalary.errors.full_messages.join("<br>")
+		else 
+			glSalary.save()
+		end
+		errorMsg
+	end
+	
+	def deleteGlSalary(salaryDate)
+		WkGlSalary.where(:salary_date =>salaryDate).destroy_all
+	end
+	
+	def getSalaryDetail(userid,salarydate)
+		sqlStr = getQueryStr + " where s.user_id = #{userid} and s.salary_date='#{salarydate}'"
+		@wksalaryEntries = WkUserSalaryComponents.find_by_sql(sqlStr)
+	end
+	
+	def getQueryStr
+		#joinDateCFId = !Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].blank? ? Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].to_i : 0
+		queryStr = "select u.id as user_id, u.firstname as firstname, u.lastname as lastname, sc.name as component_name, sc.id as sc_component_id, wu.join_date," + 
+		" wu.id1, wu.gender,"+
+		"  s.salary_date as salary_date, s.amount as amount, s.currency as currency," + 
+		" sc.component_type as component_type from wk_salaries s "+ 
+		" inner join wk_salary_components sc on s.salary_component_id=sc.id"+  
+		" inner join users u on s.user_id=u.id" + 
+		" left join wk_users wu on u.id = wu.user_id "
+	end
+	
+	def getYTDDetail(userId,salaryDate)
+		financialPeriodArr = getFinancialPeriodArray(salaryDate, salaryDate, 'a', 1)
+		@financialPeriod = financialPeriodArr[0] 
+		ytdDetails = WkSalary.select("sum(amount) as amount, user_id, salary_component_id").where("user_id = #{userId} and salary_date between '#{@financialPeriod[0]}' and '#{salaryDate}'").group("user_id, salary_component_id")
+		ytdAmountHash = Hash.new()
+		ytdDetails.each do |entry|
+			ytdAmountHash[entry.salary_component_id] = entry.amount
+		end
+		ytdAmountHash
+	end
 end

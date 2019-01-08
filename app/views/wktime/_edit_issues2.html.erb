@@ -143,4 +143,71 @@ if params[:enter_issue_id].blank?
 
 <%= render :partial => controller.getCFInRowHTML , :locals => {:entry => entry, :isTemplate => false }%>
 
+<% @wday_index = 1 %>unless projBillList.blank?
+		unless entry.blank?
+			entryFor = @renderer.getEntrySpentFor(entry)
+			parentId = entryFor[:parent_id]
+			parentType = entryFor[:parent_type]	
+			spentOnTime = entryFor[:spent_on_time]	
+		end
+		usrLocationId = @user.wk_user.blank? ? nil : @user.wk_user.location_id
+		spent_for_key = parentType.to_s + '_' + parentId.to_s
+		locationBillProject = projBillList.select {|bp| bp.parent.location_id == usrLocationId}
+		locationBillProject = locationBillProject.sort_by{|parent_type| parent_type}
+		billableProject = locationBillProject.detect {|billProj| billProj.parent_type == parentType && billProj.parent_id == parentId} unless entry.nil?
+		billableProjects = locationBillProject.collect {|billProj| [billProj.parent.name, billProj.parent_type.to_s + '_' + billProj.parent_id.to_s]}
+	end
+%>
+<% if showBilling && controller.showSpentFor %>
+	<td class="issue" align="left" width="<%= Setting.plugin_redmine_wktime['wktime_project_dd_width'] %>px">
+	<% if @editable %>
+		<%=h select_tag(isTemplate ? '__template__time_entry[][spent_for_attributes][spent_for_key]' : 'time_entry[][spent_for_attributes][spent_for_key]', 
+		billableProjects.blank? ? nil : options_for_select(billableProjects, :selected => spent_for_key),
+		:style=> "width:#{Setting.plugin_redmine_wktime['wktime_project_dd_width']}px" ) %>
+	<% else %>
+		<%= billableProject.parent.name unless billableProject.nil?%>
+	<% end %>
+	</td>
+<% end %>
+
+<%if !Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? &&
+	Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 1 %>
+	<td class="comments" align="left">
+	<% if @editable %>
+	
+		<%=h text_field_tag(isTemplate ? '__template__time_entry[][comments]' : 'time_entry[][comments]',  
+			 (entry.nil? ? '' : entry.comments),:size => 35)%>
+	<% else %>
+		<%=h entry.nil? ? '' : entry.comments%>
+	<% end %>
+	</td>
+<% end %>
+
+<!-- dropdown for currency -->
+<% if !(controller.getUnitDDHTML).blank? %>
+	<td align="left">
+			<%= render :partial => controller.getUnitDDHTML , :locals => {:entry => entry} %>
+	</td>
+<% end %>
+
+<%= render :partial => controller.getCFInRowHTML , :locals => {:entry => entry, :isTemplate => false }%>
+
+<% if @renderer.showSpentOnInRow %>	
+		<td class="issue" align="left" width="<%= Setting.plugin_redmine_wktime['wktime_issue_dd_width'] %>px">
+		<% if @editable %>
+			<% if controller.showSpentFor %>	
+				<%=h date_field_tag(isTemplate ? '__template__time_entry[][spent_for_attributes][spent_on_time]' : 'time_entry[][spent_for_attributes][spent_on_time]', entry.blank? || entry.spent_on.blank? ? @selectedDate : entry.spent_on)  %>
+				<%=h select_tag(isTemplate ? '__template__time_entry[][spent_for_attributes][spent_date_hr]' : 'time_entry[][spent_for_attributes][spent_date_hr]', options_for_number_select(0, 23, 1, !spentOnTime.blank? ? ((spentOnTime.localtime).strftime("%H")).to_i : 00 )) %>
+				<%=h select_tag(isTemplate ? '__template__time_entry[][spent_for_attributes][spent_date_min]' : 'time_entry[][spent_for_attributes][spent_date_min]', options_for_number_select(0, 59, 1, !spentOnTime.blank? ? ((spentOnTime.localtime).strftime("%M")).to_i : 00 )) %>
+			<% else %>
+				<%=h date_field_tag(isTemplate ? '__template__time_entry[][spent_on]' : 'time_entry[][spent_on]', entry.blank? || entry.spent_on.blank? ? @selectedDate : entry.spent_on)  %>
+			<% end %>
+		<% else %>
+			<%=h spentOnTime %>
+		<% end %>
+		</td>
+<% elsif controller.showSpentFor %>
+		<%=h hidden_field_tag(isTemplate ? '__template__time_entry[][spent_for_attributes][spent_date_hr]' : 'time_entry[][spent_for_attributes][spent_date_hr]', 
+		0  ) %>
+<% end %>
 <% @wday_index = 1 %>

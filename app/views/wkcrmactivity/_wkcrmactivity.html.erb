@@ -8,4 +8,5 @@
 	<label><%= l(:label_history) %></label>
 	<div>
 	<%= render partial: "wkcrmactivity/activity_list", locals: { activities: currentObj.blank? ? nil : currentObj.activities.where(:status => ['H', 'C', 'D']) } %>
+</div>%>
 </div>

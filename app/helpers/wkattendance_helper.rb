@@ -198,3 +198,9 @@ module WkattendanceHelper
 	end
 
 end
+tr + " and user_id = #{User.current.id} "
+		end
+		queryStr
+	end
+
+end

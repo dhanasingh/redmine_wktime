@@ -29,4 +29,16 @@
 	<%= render :partial => 'worktime_header', :locals => {:str => 'start', :isEditable => true, :value => '0:00'}%>
 	<%= render :partial => 'worktime_header', :locals => {:str => 'end', :isEditable => true, :value => '0:00'}%>
 	<%= render :partial => 'worktime_header', :locals => {:str => 'total', :isEditable => false, :value => '0:00'}%>
+<% end %>:format=>:short) unless @startday.nil? %></th>
+	<% end %>
+	
+<% end %>
+<th  align="center">&emsp;&emsp;&emsp;</th>
+
+<% if controller.showWorktimeHeader && @renderer.showWorkTimeHeader %>
+<!-- Start, End and Total -->	
+
+	<%= render :partial => 'worktime_header', :locals => {:str => 'start', :isEditable => true, :value => '0:00'}%>
+	<%= render :partial => 'worktime_header', :locals => {:str => 'end', :isEditable => true, :value => '0:00'}%>
+	<%= render :partial => 'worktime_header', :locals => {:str => 'total', :isEditable => false, :value => '0:00'}%>
 <% end %>

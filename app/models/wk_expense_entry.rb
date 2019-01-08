@@ -93,3 +93,9 @@ class WkExpenseEntry < TimeEntry
 		end
 	end
 end
+" % o.hours} (#{(o.issue || o.project).event_title})"}		 
+		if option.is_a?(Proc)
+			option.call(self)
+		end
+	end
+end

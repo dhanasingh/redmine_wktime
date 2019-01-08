@@ -549,4 +549,30 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wkpublicholiday/index', :to => 'wkpublicholiday#index'
 	
+	post 'wkpublicholiday/update', :to => 'wkpublicholiday#update'to => 'wkclocksettings#update'
+
+	get 'wkclocksettings/checkClockState', :to => 'wkclocksettings#checkClockState'
+	
+	get 'wkasset/getProductAsset', :to => 'wkasset#getProductAsset'
+	
+	get 'wkscheduling/index', :to => 'wkscheduling#index'	
+	
+	get 'wkshift/index', :to => 'wkshift#index'
+	
+	get 'wkshift/edit', :to => 'wkshift#edit'
+	
+	delete 'wkshift/destroy', :to => 'wkshift#destroy'
+	
+	get 'wkshift/update', :to => 'wkshift#update'
+	
+	post 'wkshift/shiftRoleUpdate', :to => 'wkshift#shiftRoleUpdate'
+	
+	get 'wkscheduling/edit', :to => 'wkscheduling#edit'
+	
+	post 'wkscheduling/update', :to => 'wkscheduling#update'
+	
+	get 'wkpublicholiday/index', :to => 'wkpublicholiday#index'
+	
 	post 'wkpublicholiday/update', :to => 'wkpublicholiday#update'
+	
+	get 'wklogmaterial/loadSpentType', :to => 'wklogmaterial#loadSpentType'

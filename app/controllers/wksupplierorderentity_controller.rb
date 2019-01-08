@@ -76,3 +76,7 @@ class WksupplierorderentityController < WkorderentityController
 		l(:label_supplier_account)
 	end
 end
+ef additionalContactType
+		false
+	end
+end

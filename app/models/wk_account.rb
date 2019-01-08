@@ -46,3 +46,9 @@ class WkAccount < ActiveRecord::Base
   end
   
 end
+s[0] if contract.blank?
+	end
+	contract
+  end
+  
+end

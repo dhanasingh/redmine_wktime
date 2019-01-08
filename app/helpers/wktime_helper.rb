@@ -1344,4 +1344,350 @@ end
 		!Setting.plugin_redmine_wktime['wktime_enable_shift scheduling_module'].blank? && Setting.plugin_redmine_wktime['wktime_enable_shift scheduling_module'].to_i == 1
 	end
 	
+end:report_attendance) => 'Attendance',
+						  l(:label_shift_scheduling) => 'Shift Scheduling',
+						  l(:label_payroll) => 'Payroll',
+						  l(:label_wk_billing) => 'Billing',
+						  l(:label_accounting) => 'Accounting',
+						  l(:label_crm) => 'CRM',
+						  l(:label_txn_purchase) => 'Purchase',
+						  l(:label_inventory) => 'Inventory',
+						  l(:label_report) => 'Report'
+					 }
+		erpmineModules
+	end
+
+	def validateERPPermission(permission)
+		permissionArr = Array.new
+		user = User.current
+		user.groups.each do |group|
+		  groupPermission = WkGroupPermission.where(:group_id => group.id)
+		  groupPermission.each do |grp|				
+				shortname = grp.permission.short_name
+				permissionArr << shortname
+		  end
+		end		
+		return permissionArr.include? permission
+	end
+	
+	def showShiftScheduling
+		!Setting.plugin_redmine_wktime['wktime_enable_shift scheduling_module'].blank? && Setting.plugin_redmine_wktime['wktime_enable_shift scheduling_module'].to_i == 1
+	end
+	
+	def options_for_number_select(startWith, endOn, incrementBy, selectedValue)
+		numArr = Array.new
+		num = startWith
+		until endOn < num && incrementBy > 0
+			if num < 10
+				numArr << ['0' + num.to_s,num]
+			else
+				numArr << [num,num]
+			end
+			num = num + incrementBy
+		end
+		options_for_select(numArr, :selected => selectedValue )
+	end
+	
+	def getSpentFor(spentForKey)
+		spentForArr = spentForKey.split('_')
+		spentForArr
+	end
+	
+	def getDateTime(dateVal, hrVal, minVal, secVal)
+		dateTimeVal = dateVal.to_datetime
+		dateTimeVal = getFormatedTimeEntry(dateTimeVal)
+		dateTimeVal = dateTimeVal.change(:hour => hrVal.to_i, :min => minVal.to_i, :sec => secVal.to_i)
+		dateTimeVal
+	end
+	
+	def getFormatedTimeEntry(entryDateTime)
+		entryTime = nil
+		if !entryDateTime.blank?
+			entryLocal = entryDateTime.change(:offset => Time.current.localtime.strftime("%:z"))
+			entryTime = Time.parse("#{entryLocal.to_date.to_s} #{entryLocal.utc.to_time.to_s} ").localtime
+		end
+		entryTime
+	end
+	
+	def saveSpentFor(id, spentForId, spentFortype, spentId, spentType, spentDate, spentHr, spentMm, invoiceId)
+		if id.blank?
+			spentObj = WkSpentFor.new
+		else
+			spentObj = WkSpentFor.find(id.to_i)
+		end
+		spentObj.spent_for_id = spentForId
+		spentObj.spent_for_type = spentFortype
+		spentObj.spent_id = spentId
+		spentObj.spent_type = spentType
+		spentObj.spent_on_time = getDateTime(spentDate, spentHr, spentMm, '00')
+		spentObj.invoice_item_id = invoiceId
+		spentObj.save
+	end
+	
+	def getMonthsBetween(startDate, endDate, startDay)
+		startDtPeriod = getPeroid(startDate, startDay, 'M')
+		endDtPeriod = getPeroid(endDate, startDay, 'M')
+		if startDtPeriod[0]  == endDtPeriod[0]
+			noOfMonths = (getDaysBetween(startDate, endDate)) /  (getDaysBetween(startDtPeriod[0], startDtPeriod[1]) * 1.0 )
+		else			
+			noOfMonths = (((getDaysBetween(startDate, startDtPeriod[1]) ) / (getDaysBetween(startDtPeriod[0], startDtPeriod[1]) * 1.0 )) + (getDaysBetween(endDtPeriod[0], endDate)/ (getDaysBetween(endDtPeriod[0], endDtPeriod[1]) * 1.0)) + (getMonthDiff((startDtPeriod[1] + 1.day) , (endDtPeriod[0] - 1.day))))
+		end
+		noOfMonths		
+	end
+	
+	def getPeroid(dateVal, startDay, periodType)
+		startDt = dateVal
+		endDt = dateVal
+		case periodType
+		when 'M'
+			startDt = (dateVal - (startDay -1).days).beginning_of_month + (startDay -1).days
+			endDt = (dateVal - (startDay -1).days).end_of_month + (startDay -1).days
+		when 'W'
+			startDt = getWeekStartDt(dateVal, startDay)	
+			endDt = startDt + 6.days
+		end
+		period = [startDt, endDt]
+		period
+	end
+	
+	# return number of months between two dates
+	def getMonthDiff(from, to)
+		(to.year * 12 + to.month) - (from.year * 12 + from.month)
+	end
+	
+	# return number of days between two dates
+	def getDaysBetween(from, to)
+		(to.to_date - from.to_date).to_i + 1
+	end
+	
+	# def getWeeksBetween(startDate, endDate, startDay)
+		# #startDay = getPluginSetting('wktime_pay_day')
+		# startDtPeriod = getPeroid(startDate, startDay, 'W')
+		# endDtPeriod = getPeroid(endDate, startDay, 'W')
+		# Rails.logger.info("******* startDtPeriod #{startDtPeriod} endDtPeriod #{endDtPeriod} **************************")
+		# if startDtPeriod[0]  == endDtPeriod[0]
+			# noOfDays = (getDaysBetween(startDate, endDate)) /  (getDaysBetween(startDtPeriod[0], startDtPeriod[1]) * 1.0 )
+		# else			
+			# noOfDays = ((getDaysBetween(startDate, startDtPeriod[1]) ) / (getDaysBetween(startDtPeriod[0], startDtPeriod[1]) * 1.0 )) + (getDaysBetween(endDtPeriod[0], endDate)/ (getDaysBetween(endDtPeriod[0], endDtPeriod[1]) * 1.0))
+			# noOfDays = noOfDays + getNoOfPeriod((startDtPeriod[1] + 1.day) , (endDtPeriod[0] - 1.day), 'W')
+		# end
+		# Rails.logger.info("================= noOfDays #{noOfDays} st #{((getDaysBetween(startDate, startDtPeriod[1])) / (getDaysBetween(startDtPeriod[0], startDtPeriod[1]) * 1.0 ))}  et #{(getDaysBetween(endDtPeriod[0], endDate)/ (getDaysBetween(endDtPeriod[0], endDtPeriod[1]) * 1.0))} ===========================")
+		# noOfDays		
+	# end
+	
+	#change the date to first day of week
+	def getWeekStartDt(date, startDay)	
+		startOfWeek = startDay
+		#Martin Dube contribution: 'start of the week' configuration
+		unless date.blank?			
+			#the day of calendar week (0-6, Sunday is 0)			
+			dayfirst_diff = (date.wday+7) - (startOfWeek)
+			date -= (dayfirst_diff%7)
+		end		
+		date
+	end
+	
+	# def getNoOfPeriod(from, to, periodType)
+		# case periodType
+		# when 'M'
+			# periodCount = getMonthDiff(from, to)
+		# when 'W'
+			# periodCount = getDaysBetween(from,to)/7
+		# end
+		# periodCount
+	# end
+	
+	def getDuration(from, to, durationAs, totalHours, calcByHours)
+	
+		duration = 0
+		case durationAs.upcase
+		when 'H'
+			duration = totalHours
+		when 'D'
+			duration = getDaysBetween(from, to)
+		when 'BW'
+			startDay = getInvWeekStartDay
+			duration = getDaysBetween(from, to)/14.0 #getWeeksBetween(from,to, startDay)/2.0	
+		when 'W'
+			startDay = getInvWeekStartDay
+			duration = getDaysBetween(from, to)/7.0 #getWeeksBetween(from,to, startDay)			
+		when 'M'
+			startDay = getMonthStartDay # should get from settings
+			duration = getMonthsBetween(from, to, startDay)
+		when 'Q'
+			startDay = getMonthStartDay # should get from settings
+			duration = getMonthsBetween(from, to, startDay)/3.0
+		when 'SA'
+			startDay = getMonthStartDay # should get from settings
+			duration = getMonthsBetween(from, to, startDay)/6.0
+		when 'A'
+			startDay = getMonthStartDay # should get from settings
+			duration = getMonthsBetween(from, to, startDay)/12.0
+		end
+		duration.round(2)
+	end
+	
+	# def getMonthStartDay
+		# 1
+	# end
+	
+	def getSpentFors(userId, projectId)
+		billableProjects = Array.new
+		unless projectId.blank? || userId.blank?
+			user = User.find(userId)
+			project = Project.find(projectId)
+			projBillList = project.account_projects.includes(:parent) unless project.blank?
+			usrLocationId = user.wk_user.blank? ? nil : user.wk_user.location_id
+			# spent_for_key = parentType.to_s + '_' + parentId.to_s
+			locationBillProject = projBillList.select {|bp| bp.parent.location_id == usrLocationId}
+			locationBillProject = locationBillProject.sort_by{|parent_type| parent_type}
+			#billableProject = locationBillProject.detect {|billProj| billProj.parent_type == parentType && billProj.parent_id == parentId} unless entry.nil?
+			billableProjects = locationBillProject.collect {|billProj| [billProj.parent.name, billProj.project_id.to_s + '|' + billProj.parent_type.to_s + '_' + billProj.parent_id.to_s]}
+		end
+		billableProjects
+	end
+	
+	def getInvWeekStartDay
+		startDay = Setting.plugin_redmine_wktime['wktime_generate_invoice_day']
+		startDay = 0 if startDay.blank?
+		startDay.to_i
+	end
+	
+	def getMonthStartDay
+		startDay = Setting.plugin_redmine_wktime['wktime_generate_invoice_month_start']
+		startDay = 1 if startDay.blank?
+		startDay.to_i
+	end
+	
+	# =========== Supervisor feature code merge ==========
+		
+	def getDirectReportUsers(user_id)
+		cond =	['parent_id = ?', user_id]
+		userList = User.where(cond).order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC") 
+		userList	
+	end
+  
+	def getReportUsers(user_id)  
+		supervisor = User.find(user_id)
+		reportees = User.where("(#{User.table_name}.lft > #{supervisor.lft} AND #{User.table_name}.rgt < #{supervisor.rgt})")
+		.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
+	end
+  
+	def isSupervisor
+		directSubOrdCnt = User.where(:parent_id => User.current.id).count
+		ret =  directSubOrdCnt > 0 ? true : false
+	end
+	
+	def getProjectMembers(projId, cond)
+		project = Project.find(projId)			
+		members = project.members.where(cond).order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC") #.distinct("#{User.table_name}.id")
+		members = members.to_a.uniq if !members.nil?
+	end
+	
+	def getGroupMembersByCond(grpId,cond)
+		scope=User.in_group(grpId).where(cond)
+		members = scope.sort
+		members
+	end
+	
+	def getReportUserIdsStr
+		userIds = nil
+		userList = getReportUsers(User.current.id)
+		userIds = userList.collect{|usr| usr.id }.map(&:inspect).join(', ')
+		userIds
+	end
+	
+	def getUsersProjects(user_id, includeSupProj=false)
+		reportUsrs = getReportUsers(user_id)
+		usrIds = ""
+		sub_ord_projects = nil
+		if !reportUsrs.blank?
+			usrIds = reportUsrs.collect{|usr| usr.id }.map(&:inspect).join(', ')
+			if includeSupProj
+				usrIds = !usrIds.blank? ? (usrIds + ', ' + user_id.to_s) : user_id.to_s
+			end
+			sub_ord_projects = Project.find_by_sql("select distinct p.* from projects p " +
+							  "inner join members m on p.id = m.project_id " +
+							  "and m.user_id in (" + usrIds + ") and p.status = #{Project::STATUS_ACTIVE}" + " order by (p.name)")
+		end
+		sub_ord_projects
+	end
+	
+	def isSupervisorForUser(user_id)
+		ret = false
+		rptUsers = getReportUsers(User.current.id)
+		if !rptUsers.blank?
+			userIdArr = rptUsers.collect(&:id)
+			ret = userIdArr.include?(user_id)
+		end
+		ret
+	end
+
+	def getManageProject		
+		roleIds = ""
+		#isManager = false
+		roles = User.current.memberships.collect {|m| m.roles}.flatten.uniq
+		roles.any? {|role|
+			tmpIsManager = role.allowed_to?(:edit_time_entries) && role.allowed_to?(:view_time_entries)
+			if tmpIsManager
+				#isManager = tmpIsManager
+				roleIds = roleIds.blank? ? role.id.to_s : roleIds + ", " + role.id.to_s
+			end
+		}
+		members = nil, projectIdArr = Array.new
+		if !roleIds.blank?
+			members = Member.joins(:member_roles).where("#{Member.table_name}.user_id = #{User.current.id} and #{MemberRole.table_name}.role_id in (#{roleIds})")
+			projectIdArr = members.collect{|i| i.project_id} if !members.blank?
+		end
+		projectIdArr
+	end	
+	
+	def isSupervisorApproval
+		(!Setting.plugin_redmine_wktime['ftte_supervisor_based_approval'].blank? && Setting.plugin_redmine_wktime['ftte_supervisor_based_approval'].to_i == 1)
+	end
+	
+	def canSupervisorEdit
+		#(!Setting.plugin_redmine_wktime.blank? && !Setting.plugin_redmine_wktime['ftte_edit_time_log'].blank? && Setting.plugin_redmine_wktime['ftte_edit_time_log'].to_i == 1)
+		# Move the canSupervisorEdit and overrideSpentTime under one isSupervisorApproval settings
+		isSupervisorApproval
+	end
+	
+	def overrideSpentTime
+		# (!Setting.plugin_redmine_wktime['ftte_override_spent_time_report'].blank? && Setting.plugin_redmine_wktime['ftte_override_spent_time_report'].to_i == 1)
+		# Move the canSupervisorEdit and overrideSpentTime under one isSupervisorApproval settings
+		isSupervisorApproval
+	end
+	
+	# Get the projet members based on their reporters
+	def getSupervisorMembers(projectId, page=nil)
+		members = Array.new
+		userIds = nil	
+		userList = getReportUsers(User.current.id)
+		userIds = userList.collect{|usr| usr.id }.map(&:inspect).join(', ')
+		#if (!context[:params][:includeSupr].blank? && context[:params][:includeSupr])
+		userIds = !userIds.blank? ? (userIds + ', ' + User.current.id.to_s) : User.current.id.to_s
+		#end
+		cond = "1=1"
+		if ((!page.blank? && !userList.blank? && userList.size > 0) || !isAccountUser)
+			cond =	"#{User.table_name}.id in(#{userIds})"
+		end
+		if !projectId.blank?					
+			members = getProjectMembers(projectId,cond)
+		end
+		members
+	end
+	
+	def getSuperViewPermission			
+		userList = getReportUsers(User.current.id)
+		userIds = userList.collect{|usr| usr.id }.map(&:inspect).join(', ')
+		if userIds.blank?
+			userIds = User.current.id
+		end
+		cond =	"user_id in(#{userIds})"
+		projMember = Member.where(cond)
+		showMenu = projMember.size > 0
+		showMenu
+	end
+	
+	# ============ End of supervisor code merge =========
 end

@@ -21,3 +21,7 @@ class WkAssetProperty < ActiveRecord::Base
   belongs_to :inventory_item, :class_name => 'WkInventoryItem'
   
 end
+gs_to :material_entry, foreign_key: "matterial_entry_id", class_name: "WkMaterialEntry"
+  scope :available_assets,  -> { where(:matterial_entry_id => nil) }
+  
+end

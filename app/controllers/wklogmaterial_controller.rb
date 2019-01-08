@@ -76,3 +76,26 @@ class WklogmaterialController < ApplicationController
 		end
 	end  
 end
+ank? ? "" : pctObj.uom.name.to_s())  + "\n" unless pctObj.blank?			
+		else		
+			pctObj.each do | entry|
+				pctArr << entry.id.to_s() + ',' +  entry.name.to_s()  + "\n" 
+			end
+		end
+		respond_to do |format|
+			format.text  { render :text => pctArr }
+		end
+	end  
+	
+	def loadSpentType
+		spentArr = ""
+		wklogtime_helper = Object.new.extend(WklogmaterialHelper)
+		spentTypeHash = wklogtime_helper.getLogHash
+		spentTypeHash.each do |key, value|
+			spentArr << key.to_s() + ',' +  value.to_s()  + "\n" 
+		end
+		respond_to do |format|
+			format.text  { render :text => spentArr }
+		end
+	end
+end

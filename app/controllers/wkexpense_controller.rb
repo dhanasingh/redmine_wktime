@@ -295,3 +295,10 @@ private
 	session[:wkexpense][:all_user_ids]
   end
 end
+ll_user_ids] = ids
+  end
+  
+  def getUserIdsFromSession
+	session[:wkexpense][:all_user_ids]
+  end
+end

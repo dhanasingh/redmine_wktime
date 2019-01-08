@@ -26,3 +26,5 @@ class WkAccountProject < ActiveRecord::Base
   #validates_uniqueness_of :project_id, :scope => :account_id
   validates_uniqueness_of :project_id, :scope => :parent_id
 end
+parent_type] 
+end

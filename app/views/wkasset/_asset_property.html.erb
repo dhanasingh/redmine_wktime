@@ -40,4 +40,10 @@
 			
 		</table>
 	</fieldset>
+</div>) %></th>
+				<td align="left" style="padding-left:40px;"><%=h select_tag("owner_type", options_for_select(getAssetTypeHash(false).invert, :selected => assetProperty.blank? ? getAssetTypeHash(false).invert : assetProperty.owner_type )) %></td>
+			</tr>
+			
+		</table>
+	</fieldset>
 </div>

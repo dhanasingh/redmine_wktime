@@ -215,3 +215,103 @@ class WkExpenseEntryQuery < Query
     joins.any? ? joins.join(' ') : nil
   end
 end
+tatement.blank? ? condStatement : "(" + condStatement + ") AND (#{WkExpenseEntry.table_name}.project_id in (" + projectIdArr.collect{|i| i.to_s}.join(',') + "))"
+			end
+		end
+	end
+	condStatement
+  end
+
+  def results_scope(options={})
+    order_option = [group_by_sort_order, (options[:order] || sort_clause)].flatten.reject(&:blank?)
+
+    base_scope.
+      order(order_option).
+      joins(joins_for_order_statement(order_option.join(',')))
+  end   
+
+  def sql_for_issue_id_field(field, operator, value)
+    case operator
+    when "="
+      "#{WkExpenseEntry.table_name}.issue_id = #{value.first.to_i}"
+    when "~"
+      issue = Issue.where(:id => value.first.to_i).first
+      if issue && (issue_ids = issue.self_and_descendants.pluck(:id)).any?
+        "#{WkExpenseEntry.table_name}.issue_id IN (#{issue_ids.join(',')})"
+      else
+        "1=0"
+      end
+    when "!*"
+      "#{WkExpenseEntry.table_name}.issue_id IS NULL"
+    when "*"
+      "#{WkExpenseEntry.table_name}.issue_id IS NOT NULL"
+    end
+  end
+
+  def sql_for_issue_fixed_version_id_field(field, operator, value)
+   issue_ids = Issue.where(:fixed_version_id => value.map(&:to_i)).pluck(:id)
+    case operator
+    when "="
+      if issue_ids.any?
+        "#{WkExpenseEntry.table_name}.issue_id IN (#{issue_ids.join(',')})"
+      else
+        "1=0"
+      end
+    when "!"
+      if issue_ids.any?
+        "#{WkExpenseEntry.table_name}.issue_id NOT IN (#{issue_ids.join(',')})"
+      else
+        "1=1"
+      end
+    end
+  end
+
+  def sql_for_activity_id_field(field, operator, value)
+    condition_on_id = sql_for_field(field, operator, value, Enumeration.table_name, 'id')
+    condition_on_parent_id = sql_for_field(field, operator, value, Enumeration.table_name, 'parent_id')
+    ids = value.map(&:to_i).join(',')
+    table_name = Enumeration.table_name
+    if operator == '='
+      "(#{table_name}.id IN (#{ids}) OR #{table_name}.parent_id IN (#{ids}))"
+    else
+      "(#{table_name}.id NOT IN (#{ids}) AND (#{table_name}.parent_id IS NULL OR #{table_name}.parent_id NOT IN (#{ids})))"
+    end
+  end
+
+  def sql_for_issue_tracker_id_field(field, operator, value)
+    sql_for_field("tracker_id", operator, value, Issue.table_name, "tracker_id")
+  end
+
+  def sql_for_issue_status_id_field(field, operator, value)
+    sql_for_field("status_id", operator, value, Issue.table_name, "status_id")
+  end
+
+  # Accepts :from/:to params as shortcut filters
+  def build_from_params(params)
+    super
+    if params[:from].present? && params[:to].present?
+      add_filter('spent_on', '><', [params[:from], params[:to]])
+    elsif params[:from].present?
+      add_filter('spent_on', '>=', [params[:from]])
+    elsif params[:to].present?
+      add_filter('spent_on', '<=', [params[:to]])
+    end
+    self
+  end
+
+  def joins_for_order_statement(order_options)
+    joins = [super]
+
+    if order_options
+      if order_options.include?('issue_statuses')
+        joins << "LEFT OUTER JOIN #{IssueStatus.table_name} ON #{IssueStatus.table_name}.id = #{Issue.table_name}.status_id"
+      end
+      if order_options.include?('trackers')
+        joins << "LEFT OUTER JOIN #{Tracker.table_name} ON #{Tracker.table_name}.id = #{Issue.table_name}.tracker_id"
+      end
+    end
+
+    joins.compact!
+    joins.any? ? joins.join(' ') : nil
+  end
+end

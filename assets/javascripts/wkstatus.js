@@ -4,6 +4,16 @@ var hasTrackerError = false;
 var spentTypeVal;
 
 $(document).ready(function(){
+	checkOrNotClockState = $('#check_clock_state_by_interval').val();
+	if(checkOrNotClockState == 'true'){
+			clockStateInterval = $('#clockstate_check_interval').val()
+		if (clockStateInterval.match(/^\d+$/) !== null) {
+			clockStateInterval = Number(clockStateInterval.match(/^\d+$/)[0]) * 1000;
+		} else {
+			clockStateInterval = 60000
+		}
+		setInterval(checkClockStateWkStatus, clockStateInterval);
+	}
 	var txtEntryDate;
 	var txtissuetracker;
 	var timeWarnMsg = document.getElementById('label_time_warn');
@@ -65,7 +75,6 @@ $(document).ready(function(){
 	if( txtissuetracker != null)
 	{
 		showIssueWarning(txtissuetracker.value);
-		//txtissuetracker.onblur=function(){showIssueWarning(this.value)};
 		$("#time_entry_issue_id").change(function(event){
 			var tb = this;
 			event.preventDefault();						
@@ -208,21 +217,45 @@ function signAttendance(str)
 	var mm = d.getMinutes();
 	elementhour = hh + ":" + mm;
 	var datevalue = d;
+	var clockState = false;
 	if( str == 'start' )
 	{
-	  document.getElementById('clockin' ).style.display = "none";
-	  document.getElementById('clockout').style.display = "block";
+		clockState = true;
+		document.getElementById('clockin' ).style.display = "none";
+		document.getElementById('clockout').style.display = "block";
 	}
 	else
 	{
-	  document.getElementById('clockin' ).style.display = "block";
-	  document.getElementById('clockout').style.display = "none";
+		clockState = false;
+		document.getElementById('clockin' ).style.display = "block";
+		document.getElementById('clockout').style.display = "none";
 	}
 	var clkInOutUrl = document.getElementById('clockinout_url').value;	
 	$.ajax({	
 	url: clkInOutUrl,//'/updateClockInOut',
 	type: 'get',
-	data: {startdate : datevalue, str: str},
+	data: {startdate : datevalue, str: clockState},
 	success: function(data){ }   
+	});
+}
+
+function checkClockStateWkStatus()
+{
+	var clockStateUrl = $("#clockstate_url").val();
+	$.ajax({	
+	url: clockStateUrl,
+	type: 'get',
+	success: function(data)
+	{
+		var clockIn = document.getElementById('clockin');
+		var clockOut = document.getElementById('clockout');
+		if (data === "clockOn" && clockOut.style.display === "none") {
+			clockOut.style.display = "block";
+			clockIn.style.display = "none";
+		} else if (data === "clockOff" && clockIn.style.display === "none") {
+			clockOut.style.display = "none";
+			clockIn.style.display = "block";
+		}
+	}   
 	});
 }

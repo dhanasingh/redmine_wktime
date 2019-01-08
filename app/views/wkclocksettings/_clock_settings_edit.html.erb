@@ -1,0 +1,30 @@
+<%
+    checkClockState = @clockSettings.check_clock_state.blank? ? 0 : @clockSettings.check_clock_state
+    clockIntervalUrl = @clockSettings.clock_interval_url.blank? ? "" : @clockSettings.clock_interval_url
+    checkClockStateInterval = @clockSettings.check_clock_state_interval.blank? ? "" : @clockSettings.check_clock_state_interval
+    isChecked = checkClockState == 1 ? true : false
+%>
+<%= form_tag({:controller => controller_name, :action => 'update'}, method: "post") do %>
+	<fieldset class="box tabular">
+
+		<p>
+			<label for = 'check_clock_state'>
+				<%= l(:check_clock_state) %>
+				<%= check_box_tag(:check_clock_state, value = 1, checked = isChecked) %>
+			</label>
+		</p>
+		<p>
+			<label for = 'clock_interval_url'>
+				<%= text_field_tag(:clock_interval_url, value = clockIntervalUrl) %>
+				<%= l(:clock_interval_url) %>
+			</label>
+		</p>
+		<p>
+			<label for = 'check_clock_state_interval'>
+				<%= text_field_tag(:check_clock_state_interval, value = checkClockStateInterval) %>
+				<%= l(:check_clock_state_interval) %>
+			</label>
+		</p>
+		<%= submit_tag l(:button_save) %>
+	</fieldset>
+<% end %>

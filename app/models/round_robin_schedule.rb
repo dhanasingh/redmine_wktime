@@ -721,3 +721,6 @@ class RoundRobinSchedule
 		dayOffUserPrefHash
 	end
 end
+efHash
+	end
+end

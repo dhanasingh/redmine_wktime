@@ -529,4 +529,320 @@ class WktimeHook < Redmine::Hook::ViewListener
 	render_on :view_users_form_preferences, :partial => 'wkuser/wk_user_address', locals: { myaccount: false }
 	render_on :view_my_account, :partial => 'wkuser/wk_user', locals: { myaccount: true }
 	render_on :view_my_account_preferences, :partial => 'wkuser/wk_user_address', locals: { myaccount: true }
+end 'wkgltransaction', :action => 'index' }, :caption => :label_accounting, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showAccounting }
+	  menu.push :wkrfq, { :controller => 'wkrfq', :action => 'index' }, :caption => :label_purchasing, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showPurchase }
+	  menu.push :wkproduct, { :controller => 'wkproduct', :action => 'index' }, :caption => :label_inventory, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showInventory }
+	  menu.push :wkreport, { :controller => 'wkreport', :action => 'index' }, :caption => :label_report_plural, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showReports}	
+	  menu.push :wkcrmenumeration, { :controller => 'wkcrmenumeration', :action => 'index' }, :caption => :label_settings, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).hasSettingPerm } 
+	end	
+
+end
+
+Rails.configuration.to_prepare do
+	if ActiveRecord::Base.connection.table_exists? "#{Setting.table_name}"
+		if (!Setting.plugin_redmine_wktime['wktime_nonsub_mail_notification'].blank? && Setting.plugin_redmine_wktime['wktime_nonsub_mail_notification'].to_i == 1)
+		require 'rufus/scheduler'
+			if (!Setting.plugin_redmine_wktime['wktime_use_approval_system'].blank? && Setting.plugin_redmine_wktime['wktime_use_approval_system'].to_i == 1)
+				submissionDeadline = Setting.plugin_redmine_wktime['wktime_submission_deadline']
+				hr = Setting.plugin_redmine_wktime['wktime_nonsub_sch_hr']
+				min = Setting.plugin_redmine_wktime['wktime_nonsub_sch_min']
+				scheduler = Rufus::Scheduler.new #changed from start_new to new to make compatible with latest version rufus scheduler 3.0.3
+				if hr == '0' && min == '0'
+					cronSt = "0 * * * #{submissionDeadline}"
+				else
+					cronSt = "#{min} #{hr} * * #{submissionDeadline}"
+				end
+				scheduler.cron cronSt do		
+					begin
+						Rails.logger.info "==========Non submission mail job - Started=========="			
+						wktime_helper = Object.new.extend(WktimeHelper)
+						wktime_helper.sendNonSubmissionMail()
+					rescue Exception => e
+						Rails.logger.info "Job failed: #{e.message}"
+					end
+				end
+			end
+		end
+		
+		if (!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? && Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1)
+			require 'rufus/scheduler'
+			scheduler2 = Rufus::Scheduler.new
+			#Scheduler will run at 12:01 AM on 1st of every month
+			cronSt = "01 00 01 * *"
+			scheduler2.cron cronSt do		
+				begin
+					Rails.logger.info "==========Attendance job - Started=========="			
+					wkattn_helper = Object.new.extend(WkattendanceHelper)
+					wkattn_helper.populateWkUserLeaves(Date.today)
+					Rails.logger.info "==========Attendance job - Completed=========="
+				rescue Exception => e
+					Rails.logger.info "Job failed: #{e.message}"
+				end
+			end
+		end
+		
+		if (!Setting.plugin_redmine_wktime['wktime_auto_import'].blank? && Setting.plugin_redmine_wktime['wktime_auto_import'].to_i == 1)
+			require 'rufus/scheduler'
+			importScheduler = Rufus::Scheduler.new		
+			import_helper = Object.new.extend(WkimportattendanceHelper)
+			intervalMin = import_helper.calcSchdulerInterval
+			#Scheduler will run at every intervalMin
+			importScheduler.every intervalMin do	
+				begin
+					Rails.logger.info "==========Import Attendance - Started=========="	
+					filePath = Setting.plugin_redmine_wktime['wktime_file_to_import']
+					# Sort the files by modified date ascending order
+					sortedFilesArr = Dir.entries(filePath).sort_by { |x| File.mtime(filePath + "/" +  x) }
+					sortedFilesArr.each do |filename|
+						next if File.directory? filePath + "/" + filename
+						isSuccess = import_helper.importAttendance(filePath + "/" + filename, true )
+						if !Dir.exists?("Processed")
+							FileUtils::mkdir_p filePath+'/Processed'#Dir.mkdir("Processed")
+						end
+						if isSuccess
+							FileUtils.mv filePath + "/" + filename, filePath+'/Processed', :force => true
+							Rails.logger.info("====== #{filename} moved processed directory=========")
+						end	
+					end
+				rescue Exception => e
+					Rails.logger.error "Import failed: #{e.message}"
+				end
+			end
+		end
+		
+		if (!Setting.plugin_redmine_wktime['wktime_auto_generate_salary'].blank? && Setting.plugin_redmine_wktime['wktime_auto_generate_salary'].to_i == 1)
+			require 'rufus/scheduler'
+			salaryScheduler = Rufus::Scheduler.new
+			payperiod = Setting.plugin_redmine_wktime['wktime_pay_period']
+			payDay = Setting.plugin_redmine_wktime['wktime_pay_day']
+			if payperiod == 'm'
+				#Scheduler will run at 12:01 AM on 1st of every month
+				cronSt = "01 00 01 * *"
+			else
+				#Scheduler will run at 12:01 AM on payDay of every week
+				cronSt = "01 00 * * #{payDay}"
+			end
+			salaryScheduler.cron cronSt do		
+				begin
+					currentMonthStart = Date.civil(Date.today.year, Date.today.month, Date.today.day)
+					runJob = true
+					# payperiod is bi-weekly then run scheduler every two weeks 
+					if payperiod == 'bw'
+						salaryCount = WkSalary.where("salary_date between '#{currentMonthStart-14}' and '#{currentMonthStart-1}'").count
+						runJob = false if salaryCount > 0
+					end
+					if runJob
+						Rails.logger.info "==========Payroll job - Started=========="
+						wkpayroll_helper = Object.new.extend(WkpayrollHelper)
+						errorMsg = wkpayroll_helper.generateSalaries(nil,currentMonthStart)
+						Rails.logger.info "===== Payroll generated Successfully =====" 
+					end
+				rescue Exception => e
+					Rails.logger.info "Job failed: #{e.message}"
+				end
+			end
+		end
+		
+		if (!Setting.plugin_redmine_wktime['wktime_auto_generate_invoice'].blank? && Setting.plugin_redmine_wktime['wktime_auto_generate_invoice'].to_i == 1)
+			require 'rufus/scheduler'
+			invoiceScheduler = Rufus::Scheduler.new
+			invPeriod = Setting.plugin_redmine_wktime['wktime_generate_invoice_period']
+			invDay = Setting.plugin_redmine_wktime['wktime_generate_invoice_day']
+			genInvFrom = Setting.plugin_redmine_wktime['wktime_generate_invoice_from'].to_date
+			if invPeriod == 'm' || invPeriod == 'q'
+				#Scheduler will run at 12:01 AM on 1st of every month
+				cronSt = "01 00 01 * *"
+			else
+				#Scheduler will run at 12:01 AM on invDay of every week
+				cronSt = "01 00 * * #{invDay.blank? ? 0 : invDay}"
+			end
+			invoiceScheduler.cron cronSt do		
+				begin
+					invoicePeriod = nil
+					fromDate = nil
+					currentMonthStart = Date.civil(Date.today.year, Date.today.month, Date.today.day)
+					runJob = true
+					case invPeriod
+					  when 'q'
+						fromDate = currentMonthStart<<4 < genInvFrom ? genInvFrom : currentMonthStart<<4
+						#Scheduler will run at 12:01 AM on 1st of every April, July, October and January months
+						runJob = false if (currentMonthStart.month%3)-1 > 0
+					  when 'w'
+						#Scheduler will run at 12:01 AM on invDay of every week
+						fromDate = currentMonthStart-7 < genInvFrom ? genInvFrom : currentMonthStart-7
+					  when 'bw'
+						invoiceCount = WkInvoice.where("invoice_date between '#{currentMonthStart-14}' and '#{currentMonthStart-1}'").count
+						runJob = false if invoiceCount > 0
+						fromDate = currentMonthStart-14 < genInvFrom ? genInvFrom : currentMonthStart-14
+					  else
+						#Scheduler will run at 12:01 AM on 1st of every month
+						fromDate = (currentMonthStart-1).beginning_of_month < genInvFrom ? genInvFrom : (currentMonthStart-1).beginning_of_month
+					end
+					invoicePeriod = [fromDate, currentMonthStart-1]
+					if runJob
+						Rails.logger.info "==========Invoice job - Started=========="
+						invoiceHelper = Object.new.extend(WkinvoiceHelper)
+						allAccProjets = WkAccountProject.all
+						errorMsg = nil
+						allAccProjets.each do |accProj|
+							errorMsg = invoiceHelper.generateInvoices(accProj, nil, currentMonthStart, invoicePeriod)#account.id
+						end
+						if errorMsg.blank?
+							Rails.logger.info "===== Invoice generated Successfully ====="
+						else
+							if errorMsg.is_a?(Hash)
+								Rails.logger.info "===== Invoice generated Successfully ====="
+								Rails.logger.info "===== Job failed: #{errorMsg['trans']} ====="
+							else
+								Rails.logger.info "===== Job failed: #{errorMsg} ====="
+							end
+						end
+					end
+				rescue Exception => e
+					Rails.logger.info "Job failed: #{e.message}"
+				end
+			end
+		end
+		
+		if (!Setting.plugin_redmine_wktime['auto_apply_depreciation'].blank? && Setting.plugin_redmine_wktime['auto_apply_depreciation'].to_i == 1)
+			require 'rufus/scheduler'
+			deprScheduler = Rufus::Scheduler.new
+			wkpayroll_helper = Object.new.extend(WkpayrollHelper)
+			wkinventory_helper = Object.new.extend(WkinventoryHelper)
+			financialStart = wkpayroll_helper.getFinancialStart.to_i
+			depreciationFreq = wkinventory_helper.getFrequencyMonth(Setting.plugin_redmine_wktime['wktime_depreciation_frequency'])
+			#Scheduler will run at 12:01 AM on 1st of every month
+			cronSt = "01 00 01 * *"
+			deprScheduler.cron cronSt do		
+				begin
+					unless (( financialStart - Date.today.month + 12)%depreciationFreq) > 0
+						Rails.logger.info "==========Depreciation job - Started=========="
+						depreciation_helper = Object.new.extend(WkassetdepreciationHelper)
+						errorMsg = depreciation_helper.previewOrSaveDepreciation(Date.today - 1, Date.today - 1, nil, false)
+						Rails.logger.info "===== Depreciation applied Successfully =====" 
+					end
+				rescue Exception => e
+					Rails.logger.info "Job failed: #{e.message}"
+				end
+			end
+		end
+		
+		if (!Setting.plugin_redmine_wktime['wk_auto_shift_scheduling'].blank? && Setting.plugin_redmine_wktime['wk_auto_shift_scheduling'].to_i == 1)
+			require 'rufus/scheduler'
+			shiftschedular = Rufus::Scheduler.new
+			#Scheduler will run at 12:01 AM on 1st of every month
+			cronSt = "01 00 01 * *"			
+			shiftschedular.cron cronSt do		
+				begin					
+					Rails.logger.info "========== Shift Scheduling job - Started=========="
+					scheduling_helper = Object.new.extend(WkschedulingHelper)
+					scheduling_helper.autoShiftScheduling
+					Rails.logger.info "==========  Shift Scheduling job - Finished=========="
+				rescue Exception => e
+					Rails.logger.info "Job failed: #{e.message}"
+				end
+			end
+		end
+	end
+end
+
+class WktimeHook < Redmine::Hook::ViewListener
+	def controller_timelog_edit_before_save(context={ })	
+		wktime_helper = Object.new.extend(WktimeHelper)	
+		if !context[:time_entry].hours.blank? && !context[:time_entry].activity_id.blank?				
+			status = wktime_helper.getTimeEntryStatus(context[:time_entry].spent_on,context[:time_entry].user_id)		
+			if !status.blank? && ('a' == status || 's' == status || 'l' == status)					
+				 raise "#{l(:label_warning_wktime_time_entry)}"
+			end			
+		end
+	end
+	
+	# def view_layouts_base_html_head(context={})	
+		# wktime_helper = Object.new.extend(WktimeHelper)
+		# host_with_subdir = wktime_helper.getHostAndDir(context[:request])
+		# "<input type='hidden' id='getspenttype_url' value='#{url_for(:controller => 'wklogmaterial', :action => 'loadSpentType', :host => host_with_subdir, :only_path => true)}'>"
+		
+	
+		# javascript_include_tag('wkstatus', :plugin => 'redmine_wktime') + "\n" +
+		# javascript_include_tag('index', :plugin => 'redmine_wktime') + "\n" +
+		# stylesheet_link_tag('lockwarning', :plugin => 'redmine_wktime')		
+		
+		
+	# end
+	
+	def view_timelog_edit_form_bottom(context={ })		
+		showWarningMsg(context[:request],context[:time_entry].user_id, true)
+	end
+	
+	def view_issues_edit_notes_bottom(context={})	
+		showWarningMsg(context[:request], User.current.id, false)
+	end
+
+	def showWarningMsg(req, user_id, log_time_page)
+		wktime_helper = Object.new.extend(WktimeHelper)
+		host_with_subdir = wktime_helper.getHostAndDir(req)
+		"<div id='divError'>
+			<font color='red'></font>		
+		</div>
+		<input type='hidden' id='getstatus_url' value='#{url_for(:controller => 'wktime', :action => 'getStatus', :host => host_with_subdir, :only_path => true, :user_id => user_id)}'>
+		<input type='hidden' id='getissuetracker_url' value='#{url_for(:controller => 'wktime', :action => 'getTracker', :host => host_with_subdir, :only_path => true)}'>
+		<input type='hidden' id='log_time_page' value='#{log_time_page}'>
+		<input type='hidden' id='label_issue_warn' value='#{l(:label_warning_wktime_issue_tracker)}'>
+		<input type='hidden' id='label_time_warn' value='#{l(:label_warning_wktime_time_entry)}'>"
+	end	
+		
+	def controller_issues_edit_before_save(context={})	
+		if !context[:time_entry].blank?
+			if !context[:time_entry].hours.blank? && !context[:time_entry].activity_id.blank?
+				wktime_helper = Object.new.extend(WktimeHelper)				
+				status= wktime_helper.getTimeEntryStatus(context[:time_entry].spent_on,context[:time_entry].user_id)		
+				if !status.blank? && ('a' == status || 's' == status || 'l' == status)				
+					 raise "#{l(:label_warning_wktime_time_entry)}"					
+				end			
+			end	
+		end
+	end
+	render_on :view_layouts_base_content, :partial => 'wktime/attendance_widget'	
+	render_on :view_timelog_edit_form_bottom, :partial => 'wklogmaterial/log_material'
+	render_on :view_users_form, :partial => 'wkuser/wk_user', locals: { myaccount: false }
+	render_on :view_users_form_preferences, :partial => 'wkuser/wk_user_address', locals: { myaccount: false }
+	render_on :view_my_account, :partial => 'wkuser/wk_user', locals: { myaccount: true }
+	render_on :view_my_account_preferences, :partial => 'wkuser/wk_user_address', locals: { myaccount: true }
+	render_on :view_issues_form_details_bottom, :partial => 'wkissues/wk_issue_fields'
+	
+	def controller_issues_edit_before_save(context={})
+		saveErpmineIssues(context[:issue], context[:params][:erpmineissues])
+		saveErpmineIssueAssignee(context[:issue], context[:issue][:project_id], context[:params][:wk_issue_assignee])
+	end
+	
+	def controller_issues_new_before_save(context={})	
+		saveErpmineIssues(context[:issue], context[:params][:erpmineissues])
+		saveErpmineIssueAssignee(context[:issue], context[:issue][:project_id], context[:params][:wk_issue_assignee])
+	end
+	
+	def saveErpmineIssues(issueObj, issueParm)
+		issueObj.erpmineissues.safe_attributes = issueParm
+	end
+	
+	def saveErpmineIssueAssignee(issueObj, projectId, userIdArr)		
+		 assigneeAttributes = Array.new
+		# userIdArr.each do |userId|
+			# assigneeAttributes << {user_id: userId.to_i, project_id: projectId}			
+		# end
+		# issueObj.assignees_attributes = assigneeAttributes		
+		WkIssueAssignee.where(:issue_id => issueObj.id).where.not(:user_id => userIdArr).delete_all()
+		unless userIdArr.blank?
+			userIdArr.collect{ |id| 
+				iscount = WkIssueAssignee.where("issue_id = ? and user_id = ? ", issueObj.id, id).count
+				unless iscount > 0
+					assigneeAttributes << {user_id: id.to_i, project_id: projectId}
+				end						
+			}
+		end
+		issueObj.assignees_attributes = assigneeAttributes	
+	end
+	
+	render_on :view_issues_show_description_bottom, :partial => 'wkissues/show_wk_issues'
+	render_on :view_layouts_base_html_head, :partial => 'wkbase/base_header'
+		
 end

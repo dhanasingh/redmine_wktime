@@ -45,4 +45,19 @@
 		
 		<div style="clear: both;"></div>
 	<% end %>
+	<% end %>	%><br/>
+		   &nbsp;<span id="totalhours" timer-on="<%= hideStart %>" totalhours="<%= totalhours %>"><%= totalhours1 %></span></label>  
+			
+		<div id="startdiv" style="float: right; position: relative; z-index: 9999;"  >
+		<% strt_image_tg = image_tag("widgetclockin.png", :id => 'clockin' , :plugin => "redmine_wktime", :title => l(:label_clock_in), :style => hideStart ? "display:none;" : "display:block;" ) %>
+		<%= link_to strt_image_tg, "javascript:signAttendance('start');", {:id => "clock_start"}  %>		
+		</div>
+		
+		<div id="enddiv" style="float: right; position: relative; z-index: 9999;" >
+		<% end_image_tg = image_tag("widgetclockout.png", :id => 'clockout', :plugin => "redmine_wktime", :title => l(:label_clock_out),:style => hideEnd ? "display:none;" : "display:block;" ) %>
+		<%= link_to end_image_tg, "javascript:signAttendance('end');", {:id => "clock_end"}  %>
+		</div>
+		<%= javascript_include_tag 'clock', :plugin => "redmine_wktime" %>
+		<div style="clear: both;"></div>
+	<% end %>
 	<% end %>	

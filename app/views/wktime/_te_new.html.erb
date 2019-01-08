@@ -55,4 +55,62 @@
 	<%= submit_tag l(:button_continue), :id => 'wktime_add' , :onclick => "return validateMember();"%>
 <% else %>
 	<%= submit_tag l(:button_continue), :id => 'wktime_add' %>
+<% end %>ted =>  @user.nil? ? User.current.id : @user.id), :onchange => "userChanged(this, true)") %>
+<% userId = projmem[0].blank? ? "" : projmem[0].user_id   %>
+</td>
+</tr>
+<% else %>
+<tr>
+<th width="100px" ><%=h userLbl %></th>
+<td>
+<%=h User.current.name %>
+<%=h hidden_field_tag('user_id', User.current.id) %>
+</td>
+</tr>
+<% end %>
+<tr>
+<th width="100px"><%= controller.getLblSpentOn %></th>
+<td><%=h date_field_tag('startday',@startday,:size => 10, :required => true) %><%= calendar_for('startday') %> 
+</td>
+</tr>
+<% unless controller.hideprevTemplate  %>
+<tr>
+<th width="100px"><%= l(:chkbox_prev_tmpl) %></th>
+<td><%= check_box_tag('prev_template', 1, true) %></td>
+</tr>
+<tr>
+<th width="100px"><%=l(:label_sheet_view)%></th>
+<td><%=h select_tag('sheet_view', 
+	options_for_sheet_select('W'),
+	:onchange => "sheetViewChange(this);") %> 
+</td>
+</tr>
+<% else %>
+	<%= hidden_field_tag :sheet_view, controller.getSheetView %>
+<% end %>
+<%
+	clients = Array.new
+	issues = Array.new
+	clients = controller.getClientsByUser(userId, true) unless userId.blank?
+	issues = controller.getIssuesByUser(userId, true) unless userId.blank?
+%>
+<tr>
+<th width="100px"><label id="spentForLbl" style="display:<%= controller.hideprevTemplate ? 'block' : 'none' %>;"><%=controller.getLblSpentFor%></label></th>
+<td><%=h select_tag('spent_for_key', 
+			options_for_select(clients),
+			:style=> "width:#{Setting.plugin_redmine_wktime['wktime_issue_dd_width']}px; display:#{ controller.hideprevTemplate ? 'block' : 'none' };" ) %> 
+</td>
+</tr>
+<tr>
+<th width="100px"><label id="issueLbl" style="display:<%= controller.hideprevTemplate ? 'block' : 'none' %>;"><%=controller.getLblIssue%></label></th>
+<td><%=h select_tag('issue_id', 
+			options_for_select(issues),
+			:style=> "width:#{Setting.plugin_redmine_wktime['wktime_issue_dd_width']}px; display:#{controller.hideprevTemplate ? 'block' : 'none' };" ) %> 
+</td>
+</tr>
+</table>
+<% if !@manage_projects.blank? %>
+	<%= submit_tag l(:button_continue), :id => 'wktime_add' , :onclick => "return validateMember();"%>
+<% else %>
+	<%= submit_tag l(:button_continue), :id => 'wktime_add' %>
 <% end %>

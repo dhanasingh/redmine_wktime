@@ -22,4 +22,9 @@
 <div style="clear: both;"></div>
 <% end %>
 <%= render :partial => 'wkcrmcontact/contact_list', locals: { contacts: @contact}%>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>ntroller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+</div>
+<div style="clear: both;"></div>
+<% end %>
+<%= render :partial => 'wkcrmcontact/contact_list', locals: { contacts: @contact}%>
 <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

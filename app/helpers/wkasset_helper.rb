@@ -28,3 +28,7 @@ include WktimeHelper
 		curVal
 	end
 end
+l.round(2) unless curVal.blank?
+		curVal
+	end
+end

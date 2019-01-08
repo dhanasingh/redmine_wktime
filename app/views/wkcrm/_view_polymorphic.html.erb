@@ -39,4 +39,5 @@
 <% end %>
 	<th align="left"><%= l(:field_name) %></th>
 	<td style="padding-left:<%=stylePadding%>px;"><%=h select_tag('related_parent', options_for_select(parentArr, :selected => parentObject.blank? ? (parentId.blank? ? "" : parentId) : parentObject.parent_id ), :onchange => "if(#{needParentProject}) {accProjChanged(#{User.current.id}, this.id, true, #{needblankType}); }") %></td>
+</tr>ect.parent_id ), :onchange => "if(#{needParentProject}) {accProjChanged(#{User.current.id}, this.id, true, #{needblankType}); }") %></td>
 </tr>

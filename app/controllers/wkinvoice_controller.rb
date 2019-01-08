@@ -286,4 +286,87 @@ class WkinvoiceController < WkorderentityController
 		true
 	end
 
+endd
+		
+	def getAccountProjIds
+		accArr = ""	
+		accProjId = getProjArrays(params[:parent_id], params[:parent_type] )
+		accPjt = WkAccountProject.where(:parent_id => params[:parent_id],:parent_type => params[:parent_type])
+		unless accPjt.blank?
+			if isAccountBilling(accPjt[0])
+				accArr << "0" + ',' + " " + "\n" 
+			end
+		end
+		
+		if !accProjId.blank?			
+			accProjId.each do | entry|
+				accArr <<  entry.project_id.to_s() + ',' + entry.project_name.to_s()  + "\n" 
+			end
+		end
+		respond_to do |format|
+			format.text  { render :text => accArr }
+		end
+		
+    end
+	
+	def getPopulateChkBox
+		l(:label_populate_unbilled_items)
+	end
+	
+	def isInvGenUnbilledLink
+		true
+	end
+	
+	def isInvPaymentLink
+		true
+	end
+	
+	def getLabelInvNum
+		l(:label_invoice_number)
+	end
+	
+	def getLabelNewInv
+		l(:label_new_invoice)
+	end
+	
+	def getItemLabel
+		l(:label_invoice_items)
+	end
+	
+	def getDateLbl
+		l(:label_invoice_date)
+	end	
+	
+	def getOrderNumberPrefix
+		'wktime_invoice_no_prefix'
+	end
+	
+	def getNewHeaderLbl
+		l(:label_new_invoice)
+	end
+	
+	def getAutoPostModule
+		'invoice'
+	end
+	
+	def postableInvoice
+		true
+	end
+	
+	def deletePermission
+		false
+	end
+	
+	def addMaterialType
+		true
+	end
+	
+	def addAssetType
+		true
+	end
+	
+	def showProjectDD
+		true
+	end
+
 end

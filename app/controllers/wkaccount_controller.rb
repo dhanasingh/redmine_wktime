@@ -101,3 +101,12 @@ before_filter :require_login
 		l(:label_account)
 	end
 end
+.full_messages.join("<br>")
+		end
+		redirect_back_or_default :action => 'index', :tab => params[:tab]
+	end
+	
+	def getAccountLbl
+		l(:label_account)
+	end
+end

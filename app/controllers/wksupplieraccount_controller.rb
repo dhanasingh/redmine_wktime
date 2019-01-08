@@ -31,3 +31,7 @@ class WksupplieraccountController < WkaccountController
 	end
 
 end
+abel_supplier_account)
+	end
+
+end

@@ -121,4 +121,34 @@ class WkcontactController < WkcrmController
 		l(:label_account)
 	end
 
+endion(entries)
+		@entry_count = entries.count
+        setLimitAndOffset()
+		@contact = entries.order(updated_at: :desc).limit(@limit).offset(@offset)
+	end
+	
+	def setLimitAndOffset		
+		if api_request?
+			@offset, @limit = api_offset_and_limit
+			if !params[:limit].blank?
+				@limit = params[:limit]
+			end
+			if !params[:offset].blank?
+				@offset = params[:offset]
+			end
+		else
+			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
+			@limit = @entry_pages.per_page
+			@offset = @entry_pages.offset
+		end	
+	end
+	
+	def getAccountLbl
+		l(:label_account)
+	end
+	
+	def contactLbl
+		l(:label_contact_plural)
+	end
+
 end

@@ -88,3 +88,7 @@ class WkMaterialEntry < ActiveRecord::Base
     self.tweek = spent_on ? Date.civil(spent_on.year, spent_on.month, spent_on.day).cweek : nil
   end
 end
+ ? spent_on.month : nil
+    self.tweek = spent_on ? Date.civil(spent_on.year, spent_on.month, spent_on.day).cweek : nil
+  end
+end

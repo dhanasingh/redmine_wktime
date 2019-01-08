@@ -71,3 +71,53 @@ class WkcrmController < WkbaseController
 	end
 
 end
+  + "\n" 
+				end
+			end
+		end
+		
+		respond_to do |format|
+			format.text  { render :text => relatedArr }
+		end
+    end
+	
+	def check_perm_and_redirect
+		unless check_permission
+			render_403
+			return false
+		end
+	end
+	
+	def check_crm_admin_and_redirect
+	  unless isModuleAdmin('wktime_crm_admin') 
+	    render_403
+	    return false
+	  end
+    end
+
+	def check_permission
+		ret = false
+		return isModuleAdmin('wktime_crm_group') || isModuleAdmin('wktime_crm_admin') 
+	end
+	
+	def getContactController
+		'wkcrmcontact'
+	end
+	
+	def getAccountType
+		'A'
+	end
+	
+	def getContactType
+		'C'
+	end
+	
+	def deletePermission
+		isModuleAdmin('wktime_crm_admin')
+	end
+	
+	def additionalContactType
+		true
+	end
+
+end

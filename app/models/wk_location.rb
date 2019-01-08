@@ -31,3 +31,14 @@ class WkLocation < ActiveRecord::Base
     end
   end 
 end
+> :restrict_with_error
+  before_save :check_default
+  
+  validates_presence_of :name
+  
+  def check_default
+    if is_default? && is_default_changed?
+      WkLocation.update_all({:is_default => false})
+    end
+  end 
+end

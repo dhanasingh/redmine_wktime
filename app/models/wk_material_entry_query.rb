@@ -213,3 +213,13 @@ class WkMaterialEntryQuery < Query
     joins.any? ? joins.join(' ') : nil
   end
 end
+      end
+      if order_options.include?('trackers')
+        joins << "LEFT OUTER JOIN #{Tracker.table_name} ON #{Tracker.table_name}.id = #{Issue.table_name}.tracker_id"
+      end
+    end
+
+    joins.compact!
+    joins.any? ? joins.join(' ') : nil
+  end
+end

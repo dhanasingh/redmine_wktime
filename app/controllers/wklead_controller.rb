@@ -177,3 +177,45 @@ class WkleadController < WkcrmController
 	end
 
 end
+join("<br>")
+		    redirect_to :controller => 'wklead',:action => 'edit', :lead_id => wkLead.id
+		end
+	end
+  
+    def destroy
+		WkLead.find(params[:lead_id].to_i).destroy
+		flash[:notice] = l(:notice_successful_delete)
+		redirect_back_or_default :action => 'index', :tab => params[:tab]
+    end
+	
+	def formPagination(entries)
+		@entry_count = entries.count
+		setLimitAndOffset()
+		@leadEntries = entries.order(updated_at: :desc).limit(@limit).offset(@offset)
+	end
+  
+    def setLimitAndOffset		
+		if api_request?
+			@offset, @limit = api_offset_and_limit
+			if !params[:limit].blank?
+				@limit = params[:limit]
+			end
+			if !params[:offset].blank?
+				@offset = params[:offset]
+			end
+		else
+			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
+			@limit = @entry_pages.per_page
+			@offset = @entry_pages.offset
+		end	
+   end
+   
+	def getContactType
+		'C'
+	end
+	
+	def getAccountLbl
+		l(:label_account)
+	end
+
+end

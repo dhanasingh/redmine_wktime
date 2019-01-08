@@ -106,3 +106,39 @@ include WkassetHelper
 	end
 	
 end
+ialQuantity.blank?
+			totalAvlQty = inventoryItemObj.available_quantity
+			materialQuantity = 0
+		else 
+			totalAvlQty = inventoryItemObj.available_quantity + materialQuantity
+		end
+		
+		if  totalAvlQty >= productQuantity 
+			qtyVal = materialQuantity - productQuantity
+			inventoryItemObj.incrementAvaQty(qtyVal)
+			inventoryItemObj.save
+		end
+		inventoryItemObj
+	end
+	
+	def saveMatterialEntries(id, projectId, userId, issueId, quantity, sellingPrice, currency, activityId, spentOn, invItemId, uomId)
+		if id.blank?
+			matterialObj = WkMaterialEntry.new
+		else
+			matterialObj = WkMaterialEntry.find(id.to_i)
+		end
+		matterialObj.project_id = projectId
+		matterialObj.user_id = userId
+		matterialObj.issue_id = issueId
+		matterialObj.quantity = quantity
+		matterialObj.selling_price = sellingPrice
+		matterialObj.currency = currency
+		matterialObj.activity_id = activityId
+		matterialObj.spent_on = spentOn
+		matterialObj.inventory_item_id = invItemId
+		matterialObj.uom_id = uomId
+		matterialObj.save
+		matterialObj
+	end
+	
+end

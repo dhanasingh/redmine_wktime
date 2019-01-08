@@ -141,3 +141,12 @@ currencySym = ""
 </div>
 </div>
 <%= context_menu %>
+
+<div class="splitcontentright">
+<div class="contextual">
+<% if @editable %>
+	<%= link_to l(:button_add_row), "#", { :onclick => "javascript:addRow();projectChanged(document.getElementsByName('time_entry[][project_id]'),0);", :class => 'icon icon-time-add' } %>
+<% end %>
+</div>
+</div>
+<%= context_menu %>

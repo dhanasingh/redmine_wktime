@@ -53,4 +53,25 @@
 	<%=h @wktime.blank? ? "" : (@wktime.updater.name unless @wktime.updater.blank?) %>
 		<% end %>
 	</td>
+</tr>>
+	<td>
+		<%=h statusString(@wktime.status) unless @wktime.blank? %>
+	</td>
 </tr>
+<tr>
+	<th align="right"><%=l(:label_submitted_by)%></th>
+	<td>
+	<% status = @wktime.status unless @wktime.blank? %>
+	<% if (status != 'n' && status != 'r'  )  %>
+	<%=h @wktime.blank? ? "" : (@wktime.submitter.name unless @wktime.submitter.blank?) %>
+	<% end %>	
+	</td>
+</tr>
+<tr>
+	<th align="right"><%=l(:label_approved_by)%></th>
+	<td><% if (status == 'a')  %>
+	<%=h @wktime.blank? ? "" : (@wktime.updater.name unless @wktime.updater.blank?) %>
+		<% end %>
+	</td>
+</tr>
+<% end%>

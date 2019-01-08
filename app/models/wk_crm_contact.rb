@@ -100,3 +100,12 @@ class WkCrmContact < ActiveRecord::Base
     NAME_FORMATS[formatter] || NAME_FORMATS[:firstname_lastname]
   end
 end
+ = contracts.where(:project_id => project.id).first
+		contract = contracts[0] if contract.blank?
+		contract
+  end
+
+  def self.name_formatter(formatter = nil)
+    NAME_FORMATS[formatter] || NAME_FORMATS[:firstname_lastname]
+  end
+end

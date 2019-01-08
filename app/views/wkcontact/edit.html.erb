@@ -19,4 +19,11 @@
 	<div>
 		<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @conEditEntry[0] }%>
 	</div>
+<% end %>:both;"></div>
+<% end %>
+<% unless @conEditEntry.blank? %>
+	</br>
+	<div>
+		<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @conEditEntry[0] }%>
+	</div>
 <% end %>
