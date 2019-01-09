@@ -158,8 +158,8 @@ pl:
   label_clock_in: Rozpoczęcie pracy
   label_clock_out: Zakończenie pracy
   check_clock_state: Sprawdzaj okresowo stan zegara
-  clock_interval_url: Adres na który zostanie wysłane rządanie o stan zegara
-  check_clock_state_interval: Interwał czasu wysyłania rządania o stan zegara w sekundach
+  clock_interval_url: Adres na który zostanie wysłane żądanie o stan zegara
+  check_clock_state_interval: Interwał czasu wysyłania żądania o stan zegara w sekundach
   label_wk_leave_exists: Ten urlop już istnieje
   wk_field_balance: Bilans
   wk_field_used: Użyte
@@ -255,7 +255,7 @@ pl:
   label_ytd: Od początku roku do
   label_earning: Przychody
   label_payroll_settings: Ustawienia Wypłat
-  label_clock_settings: Ustawienia Zegara
+  label_clock_settings: Zegar
   label_total_earning: Przychody ogółem
   label_total_deduction: Odliczenie ogółem
   label_net_earning: Przychody netto

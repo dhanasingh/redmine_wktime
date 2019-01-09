@@ -10,20 +10,21 @@
 		<p>
 			<label for = 'check_clock_state'>
 				<%= l(:check_clock_state) %>
-				<%= check_box_tag(:check_clock_state, value = 1, checked = isChecked) %>
 			</label>
+			<%= check_box_tag(:check_clock_state, value = 1, checked = isChecked) %>
 		</p>
 		<p>
 			<label for = 'clock_interval_url'>
-				<%= text_field_tag(:clock_interval_url, value = clockIntervalUrl) %>
 				<%= l(:clock_interval_url) %>
 			</label>
+			<%= text_field_tag(:clock_interval_url, value = clockIntervalUrl) %>
+
 		</p>
 		<p>
 			<label for = 'check_clock_state_interval'>
-				<%= text_field_tag(:check_clock_state_interval, value = checkClockStateInterval) %>
 				<%= l(:check_clock_state_interval) %>
 			</label>
+			<%= text_field_tag(:check_clock_state_interval, value = checkClockStateInterval) %>
 		</p>
 		<%= submit_tag l(:button_save) %>
 	</fieldset>

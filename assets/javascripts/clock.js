@@ -6,7 +6,7 @@ $(document).ready(function(){
 	let totalhours = $('#totalhours').attr("totalhours")
 	let totalTimeMs = Number(totalhours)*1000;
 	// checkClockState;
-	let clockState = setInterval(checkClockState, 5000)
+	let clockState = setInterval(checkClockState, 5000);
 
 	if (timerOn === 'true') {
 		msSinceClick = new Date().getTime();
