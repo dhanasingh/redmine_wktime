@@ -1,5 +1,5 @@
 <%= form_tag({}) do -%>	
-	<%= hidden_field_tag 'back_url', url_for(params) %>
+	<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 	<% wktime_helper = Object.new.extend(WktimeHelper) %>
 	<% if (wktime_helper.isAccountUser) %>
 

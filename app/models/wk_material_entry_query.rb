@@ -30,15 +30,15 @@ class WkMaterialEntryQuery < Query
     QueryAssociationColumn.new(:issue, :tracker, :caption => :field_tracker, :sortable => "#{Tracker.table_name}.position"),
     QueryAssociationColumn.new(:issue, :status, :caption => :field_status, :sortable => "#{IssueStatus.table_name}.position"),
     QueryColumn.new(:comments),
+	QueryColumn.new(:inventory_item_id),
     QueryColumn.new(:quantity, :sortable => "#{WkMaterialEntry.table_name}.quantity", :totalable => true),
 	QueryColumn.new(:currency),
-	QueryColumn.new(:selling_price, :sortable => "#{WkMaterialEntry.table_name}.selling_price", :totalable => true),
+	QueryColumn.new(:selling_price, :sortable => "#{WkMaterialEntry.table_name}.selling_price", :totalable => true),	
   ]
 
   def initialize(attributes=nil, *args)
     super attributes
-    self.filters ||= {}
-    add_filter('spent_on', '*') unless filters.present?
+    self.filters ||= { 'spent_on' => {:operator => "*", :values => []} }
   end
 
   def initialize_available_filters
@@ -66,7 +66,7 @@ class WkMaterialEntryQuery < Query
     add_available_filter("issue.fixed_version_id",
       :type => :list,
       :name => l("label_attribute_of_issue", :name => l(:field_fixed_version)),
-      :values => lambda { fixed_version_values }) if project
+      :values => lambda { fixed_version_values }) 
 
     add_available_filter("user_id",
       :type => :list_optional, :values => lambda { author_values }
@@ -79,27 +79,20 @@ class WkMaterialEntryQuery < Query
 
     add_available_filter "comments", :type => :text
     add_available_filter "quantity", :type => :float
-
-    add_custom_fields_filters(TimeEntryCustomField)
-    add_associations_custom_fields_filters :project
-    add_custom_fields_filters(issue_custom_fields, :issue)
-    add_associations_custom_fields_filters :user
   end
 
   def available_columns
     return @available_columns if @available_columns
-    @available_columns = self.class.available_columns.dup
-    @available_columns += TimeEntryCustomField.visible.
-                            map {|cf| QueryCustomFieldColumn.new(cf) }
-    @available_columns += issue_custom_fields.visible.
-                            map {|cf| QueryAssociationCustomFieldColumn.new(:issue, cf, :totalable => false) }
-    @available_columns += ProjectCustomField.visible.
-                            map {|cf| QueryAssociationCustomFieldColumn.new(:project, cf) }
+    @available_columns = self.class.available_columns.dup    
     @available_columns
   end
 
   def default_columns_names   
-	@default_columns_names ||= [:project, :spent_on, :user, :activity, :issue, :comments, :quantity, :currency, :selling_price ]
+	@default_columns_names ||= begin
+      default_columns = [:spent_on, :user, :activity, :issue, :comments, :inventory_item_id, :quantity, :currency, :selling_price]
+
+      project.present? ? default_columns : [:project] | default_columns
+    end
   end
 
   def default_totalable_names
@@ -110,10 +103,18 @@ class WkMaterialEntryQuery < Query
     [['spent_on', 'desc']]
   end
 
+  # If a filter against a single issue is set, returns its id, otherwise nil.
+  def filtered_issue_id
+    if value_for('issue_id').to_s =~ /\A(\d+)\z/
+      $1
+    end
+  end
+
   def base_scope
     WkMaterialEntry.visible.
       joins(:project, :user).
       includes(:activity).
+	  includes(:inventory_item).
       references(:activity).
       left_join_issue.
       where(statement)
@@ -140,33 +141,33 @@ class WkMaterialEntryQuery < Query
   def sql_for_issue_id_field(field, operator, value)
     case operator
     when "="
-      "#{TimeEntry.table_name}.issue_id = #{value.first.to_i}"
+      "#{WkMaterialEntry.table_name}.issue_id = #{value.first.to_i}"
     when "~"
       issue = Issue.where(:id => value.first.to_i).first
       if issue && (issue_ids = issue.self_and_descendants.pluck(:id)).any?
-        "#{TimeEntry.table_name}.issue_id IN (#{issue_ids.join(',')})"
+        "#{WkMaterialEntry.table_name}.issue_id IN (#{issue_ids.join(',')})"
       else
         "1=0"
       end
     when "!*"
-      "#{TimeEntry.table_name}.issue_id IS NULL"
+      "#{WkMaterialEntry.table_name}.issue_id IS NULL"
     when "*"
-      "#{TimeEntry.table_name}.issue_id IS NOT NULL"
+      "#{WkMaterialEntry.table_name}.issue_id IS NOT NULL"
     end
   end
 
   def sql_for_issue_fixed_version_id_field(field, operator, value)
-    issue_ids = Issue.where(:fixed_version_id => value.first.to_i).pluck(:id)
+    issue_ids = Issue.where(:fixed_version_id => value.map(&:to_i)).pluck(:id)
     case operator
     when "="
       if issue_ids.any?
-        "#{TimeEntry.table_name}.issue_id IN (#{issue_ids.join(',')})"
+        "#{WkMaterialEntry.table_name}.issue_id IN (#{issue_ids.join(',')})"
       else
         "1=0"
       end
     when "!"
       if issue_ids.any?
-        "#{TimeEntry.table_name}.issue_id NOT IN (#{issue_ids.join(',')})"
+        "#{WkMaterialEntry.table_name}.issue_id NOT IN (#{issue_ids.join(',')})"
       else
         "1=1"
       end
@@ -194,7 +195,7 @@ class WkMaterialEntryQuery < Query
   end
 
   # Accepts :from/:to params as shortcut filters
-  def build_from_params(params)
+  def build_from_params(params, defaults={})
     super
     if params[:from].present? && params[:to].present?
       add_filter('spent_on', '><', [params[:from], params[:to]])

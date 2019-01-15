@@ -6,10 +6,12 @@
 	blgexcrateUrl = '<%=url_for(:controller => "wkexchangerate", :action => "index", :tab => "wkexchangerate")%>';
     crmenumUrl = '<%=url_for(:controller => "wkcrmenumeration", :action => "index", :tab => "wkcrmenumeration")%>';
 	wklocationUrl =  '<%=url_for(:controller => "wklocation", :action => "index", :tab => "wklocation")%>';
+	wkgrpPermissionUrl =  '<%=url_for(:controller => "wkgrouppermission", :action => "index", :tab => "wkgrouppermission")%>';
+	wkClockSettingUrl = '<%=url_for(:controller => "wkclocksettings", :action => "index", :tab => "wkclocksetting")%>';
     prevTab = 'tab-<%= "#{controller_name}" %>';   
 </script>
 <%= render_tabs time_expense_tabs %>
-<%= hidden_field_tag 'back_url', url_for(params) %>
+<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 <%= form_tag({:controller => "wkcrmenumeration", :action => 'index'}, :method => :get, :id => 'query_form') do %>
 <%= hidden_field_tag "searchlist", "wkcrmenumeration" %>
 <%=h hidden_field_tag('tab', "wkcrmenumeration") %>
@@ -23,7 +25,7 @@
 		<label style="float:left; padding-left: 20px;">&nbsp;</label>
 		<%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %>
 		<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload', :style=>"float:left; " %>
-        <%= link_to l(:label_new_item, l(:label_enumerations)), url_for(:controller => controller_name, :action => 'edit', :enum_id => ""), :class => 'icon icon-time-add' %>
+        <%= link_to l(:label_new_item_third_case, l(:label_enumerations)), url_for(:controller => controller_name, :action => 'edit', :enum_id => ""), :class => 'icon icon-time-add' %>
 </div>
 <div style="clear: both;"></div>
 <% end %>

@@ -1,8 +1,8 @@
 class WklocationController < WkbaseController
   unloadable
   include WktimeHelper
-  before_filter :require_login
-  before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
+  before_action :require_login
+  before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
 
 
   def index

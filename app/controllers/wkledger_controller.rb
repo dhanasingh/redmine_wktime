@@ -17,8 +17,8 @@
 
 class WkledgerController < WkaccountingController
   unloadable
-  before_filter :check_ac_admin_and_redirect, :only => [:update, :destroy]
-  before_filter :check_perm_and_redirect, :only => [:index, :edit]
+  before_action :check_ac_admin_and_redirect, :only => [:update, :destroy]
+  before_action :check_perm_and_redirect, :only => [:index, :edit]
   include WkaccountingHelper
 
 
@@ -30,7 +30,7 @@ class WkledgerController < WkaccountingController
 			ledger = WkLedger.where(:ledger_type => ledgerType).where("name like ?", "%#{name}%")
 		end
 		if !ledgerType.blank? && name.blank?
-			ledger = WkLedger.where(:ledger_type => ledgerType)#.where("name like ?", "%#{name}%")
+			ledger = WkLedger.where(:ledger_type => ledgerType)
 		end
 		if ledgerType.blank? && !name.blank?
 			ledger = WkLedger.where("name like ?", "%#{name}%")
@@ -57,7 +57,7 @@ class WkledgerController < WkaccountingController
 		end
 		wkledger.name = params[:name]
 		wkledger.ledger_type = params[:ledger_type] unless params[:ledger_type].blank?
-		wkledger.currency = Setting.plugin_redmine_wktime['wktime_currency'] #params[:currency]
+		wkledger.currency = Setting.plugin_redmine_wktime['wktime_currency'] 
 		wkledger.opening_balance = params[:opening_balance].blank? ? 0 : params[:opening_balance]
 		wkledger.owner = wkledger.ledger_type =='SY' ? 's' : 'u'
 		unless wkledger.save()

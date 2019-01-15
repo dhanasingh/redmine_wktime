@@ -2,8 +2,19 @@ var warnMsg;
 var hasEntryError = false;
 var hasTrackerError = false;
 var spentTypeVal;
+var lastClockUpdate;
+var clockStateInterval;
+var checkLastClockUpdateIntervalFunction;
+var checkLastClockUpdateInterval;
+var checkClockStateIntervalFunction = '';
+var languageSet;
 
 $(document).ready(function(){
+
+	handleClockCheckingConditions();
+	$(window).unload(removeIntervalFromLocalStorage);
+
+	languageSet = $('html').attr('lang');
 	var txtEntryDate;
 	var txtissuetracker;
 	var timeWarnMsg = document.getElementById('label_time_warn');
@@ -14,26 +25,38 @@ $(document).ready(function(){
 	$('#quick-search').append( $('#startdiv') ); 
 	$('#quick-search').append( $('#enddiv') );
 	
-	 var spentTypeDD = '<table><tr><td><label for="select" style="text-transform:   none;">Spent Type</label></td>'
-            +'<td><select name="spent_type" id="spent_type" onchange="spentTypeValue(this);">'
-            +'<option value="T">Time</option>'
-            +'<option value="M">Material</option>'
-            +'</select></td></tr></table>';
-			
-	if(document.querySelector("h2").innerHTML == "Spent time")	
+	if(document.getElementById('spent_type') == null)
 	{
-		$("#query_form_content").append(spentTypeDD);		
-		var spcheck = sessionStorage.getItem("spent_type") == null ? "T" : sessionStorage.getItem("spent_type");
-		if(document.getElementById('spent_type') != null) {
-			var ddl = document.getElementById('spent_type');
-			var opts = ddl.options.length;
-			for (var i=0; i<opts; i++){
-				if (ddl.options[i].value == spcheck){
-					ddl.options[i].selected = true;
-					break;
-				}
-			}
+		var spentTypeDD = '<table><tr><td><label for="select" style="text-transform:   none;">Spent Type</label></td>'
+            +'<td><select name="spent_type" id="spent_type" onchange="spentTypeValue(this);">'           
+            +'</select></td></tr></table>';
+	}
+			
+	if(document.querySelector("h2") && document.querySelector("h2").innerHTML == "Spent time")	
+	{
+		if(document.getElementById('spent_type') == null)
+		{	
+			$("#query_form_content").append(spentTypeDD);
 		}
+		var spentDD = document.getElementById('spent_type');
+		var userid = document.getElementById('spent_time_user_id').value;
+		var spentDDUrl = document.getElementById('getspenttype_url').value;	
+		var $this = $(this);
+		if(document.getElementById('spent_type') != null)
+		{
+			var ddloption =  document.getElementById('spent_type').options;			
+			if(ddloption.length == 0)
+			{
+				$.ajax({
+				url: spentDDUrl,
+				type: 'get',
+				data: {type: 'spentType'},
+				success: function(data){ updateUserDD(data, spentDD, userid, false, false, "");},
+				beforeSend: function(){ $this.addClass('ajax-loading'); },
+				complete: function(){ spentTypeSelection(); $this.removeClass('ajax-loading'); }	      
+				});
+			}
+		}			
 	}
 	else {
 		sessionStorage.clear();
@@ -63,7 +86,6 @@ $(document).ready(function(){
 	if( txtissuetracker != null)
 	{
 		showIssueWarning(txtissuetracker.value);
-		//txtissuetracker.onblur=function(){showIssueWarning(this.value)};
 		$("#time_entry_issue_id").change(function(event){
 			var tb = this;
 			event.preventDefault();						
@@ -84,6 +106,21 @@ function spentTypeValue(elespent)
 	 spentTypeVal = elespent.options[elespent.selectedIndex].value;
 	 sessionStorage.setItem("spent_type", spentTypeVal);
 	 document.getElementById("query_form").submit();
+}
+
+function spentTypeSelection()
+{
+	var spcheck = sessionStorage.getItem("spent_type") == null ? "T" : sessionStorage.getItem("spent_type");
+	if(document.getElementById('spent_type') != null) {
+		var ddl = document.getElementById('spent_type');
+		var opts = ddl.options.length;
+		for (var i=0; i<opts; i++){
+			if (ddl.options[i].value == spcheck){
+				ddl.options[i].selected = true;
+				break;
+			}
+		}
+	}
 }
 
 function showEntryWarning(entrydate){
@@ -198,43 +235,7 @@ function showIssueMessage(data,divID) {
 		divID.style.display = 'none';
 	}
 }
-/*
-function updateAttendance()
-{
-	var attnEntriesId, attnStartTime, attnEndTime, attnhours;
-	var attnDayEntriesCnt = new Array();
-	var paramval = "";
-	var j;
-	attnDayEntriesCnt = document.getElementById('attnDayEntriesCnt') != null ? document.getElementById('attnDayEntriesCnt').value : -1;
-	for(j = 0; j < attnDayEntriesCnt ; j++)
-	{
-		
-		attnEntriesId = document.getElementById('attnEntriesId'+ j);
-		attnStartTime = document.getElementById('attnstarttime'+ j);
-		attnEndTime = document.getElementById('attnendtime'+ j);					
-		if (attnStartTime.defaultValue !=  attnStartTime.value  || attnEndTime.defaultValue !=  attnEndTime.value ) {						
-			paramval += ( !attnEntriesId.value ? (( "|" + "" ) + "|") : (attnEntriesId.value + "|") ) +  (!attnStartTime.value ? "0:00" : attnStartTime.value)  + "|" + (!attnEndTime.value ? "0:00" : attnEndTime.value)  + ",";
-			if(!attnStartTime.value && !attnEndTime.value)
-			{
-				document.getElementById('attnEntriesId'+ j).value = '';
-			}
-		}
-		
-	}
-	var datevalue = document.getElementById('startdate').value;
-	var userid = document.getElementById('user_id').value;
-	var nightshift = false;
-	var date = true;
-	
-	$.ajax({
-	url: '/updateAttendance',
-	type: 'get',
-	data: {editvalue : paramval, user_id:userid, startdate : datevalue,  nightshift : nightshift, isdate : date},
-	success: function(data){ },   
-	});
-}
 
-*/
 function signAttendance(str)
 {
 	var d = new Date();
@@ -242,21 +243,168 @@ function signAttendance(str)
 	var mm = d.getMinutes();
 	elementhour = hh + ":" + mm;
 	var datevalue = d;
+	var clockState = false;
 	if( str == 'start' )
 	{
-	  document.getElementById('clockin' ).style.display = "none";
-	  document.getElementById('clockout').style.display = "block";
+		clockState = true;
+		document.getElementById('clockin' ).style.display = "none";
+		document.getElementById('clockout').style.display = "block";
 	}
 	else
 	{
-	  document.getElementById('clockin' ).style.display = "block";
-	  document.getElementById('clockout').style.display = "none";
+		clockState = false;
+		document.getElementById('clockin' ).style.display = "block";
+		document.getElementById('clockout').style.display = "none";
 	}
 	var clkInOutUrl = document.getElementById('clockinout_url').value;	
 	$.ajax({	
 	url: clkInOutUrl,//'/updateClockInOut',
 	type: 'get',
-	data: {startdate : datevalue, str: str},
+	data: {startdate : datevalue, str: clockState},
 	success: function(data){ }   
 	});
+}
+
+function handleClockCheckingConditions(){
+	checkOrNotClockState = $('#check_clock_state_by_interval').val();
+	if(checkOrNotClockState == 'true'){
+			clockStateInterval = $('#clockstate_check_interval').val();
+			var clockIn = document.getElementById('clockin');
+			var clockOut = document.getElementById('clockout');
+			window.addEventListener('storage', function(e){
+				// check clockState if it changed change to displayed clock as well 
+				if(e.newValue !== 'test' && e.oldValue !== 'test' && e.key !== 'test' && e.key !== 'randomNumbersToCheckClockUpdate'){
+					if(checkClockStateIntervalFunction !== ''){
+						clearInterval(checkClockStateIntervalFunction);
+					}
+					var clockObjData = JSON.parse(e.newValue);
+					var clockState = clockObjData.clockState;
+					lastClockUpdate = clockObjData.checkTimestamp;
+
+					if (clockState === "clockOn" && clockOut.style.display === "none") {
+						clockOut.style.display = "block";
+						clockIn.style.display = "none";
+					} else if (clockState === "clockOff" && clockIn.style.display === "none") {
+						clockOut.style.display = "none";
+						clockIn.style.display = "block";
+					}
+				}
+			});
+		if (clockStateInterval.match(/^\d+$/) !== null) {
+			clockStateInterval = Number(clockStateInterval.match(/^\d+$/)[0]) * 1000;
+		} else {
+			clockStateInterval = 60000
+		}
+		checkLocalStorageClock();
+	}
+}
+
+function checkLocalStorageClock(){
+	var localStorageAvailability = isLocalStorageAvailable();
+	if(localStorageAvailability){
+		var clockDataFromStorage = localStorage.getItem('clockChecked');
+		if(clockDataFromStorage === null){
+			checkClockStateIntervalFunction = setInterval(checkClockStateWkStatus, clockStateInterval);
+		} else {
+			var clockObjData = JSON.parse(clockDataFromStorage);
+			var nowTimeStamp = new Date().getTime();
+
+			lastClockUpdate = clockObjData.checkTimestamp;
+
+			if(nowTimeStamp - clockObjData.checkTimestamp > clockStateInterval * 3){
+				checkClockStateIntervalFunction = setInterval(checkClockStateWkStatus, clockStateInterval);
+			} else {
+				checkLastClockUpdateInterval = generateRandomClockCheckInterval();
+				var usedRandomNumbersStr = localStorage.getItem('randomNumbersToCheckClockUpdate');
+				var usedRandomNumbersArr = [];
+				if(usedRandomNumbersStr !== null){
+					usedRandomNumbersArr = JSON.parse(usedRandomNumbersStr);
+					while(usedRandomNumbersArr.includes(checkLastClockUpdateInterval)){
+						checkLastClockUpdateInterval = generateRandomClockCheckInterval();
+					}
+				}
+				usedRandomNumbersArr.push(checkLastClockUpdateInterval);
+				localStorage.setItem('randomNumbersToCheckClockUpdate', JSON.stringify(usedRandomNumbersArr));
+				checkLastClockUpdateIntervalFunction = setInterval(checkLastClockUpdate, checkLastClockUpdateInterval);
+			}
+		}
+	} else {
+		checkClockStateIntervalFunction = setInterval(checkClockStateWkStatus, clockStateInterval);
+	}	
+}
+
+function isLocalStorageAvailable(){
+	var test = 'test';
+	try {
+		localStorage.setItem(test, test);
+		localStorage.removeItem(test);
+		return true;
+	} catch(e) {
+		return false;
+	}
+}
+
+function checkClockStateWkStatus(){
+	var clockStateUrl = $("#clockstate_url").val();
+	$.ajax({	
+	url: clockStateUrl,
+	type: 'get',
+	contentType: 'application/octet-stream',
+	success: function(data){
+		var clockIn = document.getElementById('clockin');
+		var clockOut = document.getElementById('clockout');
+		if (data === "clockOn" && clockOut.style.display === "none") {
+			clockOut.style.display = "block";
+			clockIn.style.display = "none";
+		} else if (data === "clockOff" && clockIn.style.display === "none") {
+			clockOut.style.display = "none";
+			clockIn.style.display = "block";
+		}
+		var checkTimestamp = new Date().getTime();
+		var clockObject = {
+			clockState: data,
+			checkTimestamp: checkTimestamp
+		}
+		lastClockUpdate = checkTimestamp;
+		var localStorageAvailability = isLocalStorageAvailable();
+		if(localStorageAvailability){
+			localStorage.setItem('clockChecked', JSON.stringify(clockObject));
+		}
+		if($('#connectionlostimg').css !== 'none'){
+			$('#connectionlostimg').css('display', 'none');
+		}
+
+	},
+	error: function(){
+		if($('#connectionlostimg').css !== 'inline-block'){
+			$('#connectionlostimg').css('display', 'inline-block');
+		}
+	},
+	});
+}
+
+function checkLastClockUpdate(){
+	var nowTimeStamp = new Date().getTime();
+	var msSinceLastUpdate = nowTimeStamp - lastClockUpdate;
+	var msConditionToCheckClockState = clockStateInterval * 2;
+	if(msSinceLastUpdate > msConditionToCheckClockState){
+		checkClockStateIntervalFunction = setInterval(checkClockStateWkStatus, clockStateInterval);
+		clearInterval(checkLastClockUpdateIntervalFunction);
+	}
+}
+
+function generateRandomClockCheckInterval(){
+	var randomNumFrom1To10 = Math.floor((Math.random() * 10) + 1);
+	var randomNumFrom1To50 = Math.floor((Math.random() * 50) + 1);
+	return Math.round((clockStateInterval + (clockStateInterval/randomNumFrom1To50))*randomNumFrom1To10);
+}
+
+function removeIntervalFromLocalStorage(){
+	var intervalsArr = JSON.parse(localStorage.getItem('randomNumbersToCheckClockUpdate'));
+	if(intervalsArr !== null && Array.isArray(intervalsArr)){
+		intervalsArr = intervalsArr.filter(interval => {
+			return interval !== checkLastClockUpdateInterval;
+		});
+		localStorage.setItem('randomNumbersToCheckClockUpdate', JSON.stringify(intervalsArr));
+	}
 }

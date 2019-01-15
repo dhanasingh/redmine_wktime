@@ -12,8 +12,6 @@ function disableComponents(fldId)
 {
 	var loadActType = document.getElementById("load_act_type");
 	var activityType = fldId == null ? loadActType.value : document.getElementById(fldId).value;
-//	var lblPriority = document.getElementById("lblpriority");
-//	var taskPriorityDd = document.getElementById("task_priority");
 	var lblduration = document.getElementById("lblduration");
 	var activityDuration = document.getElementById("activity_duration");
 	var activity_duration_min = document.getElementById("activity_duration_min");
@@ -28,8 +26,6 @@ function disableComponents(fldId)
 	var activity_status = document.getElementById("activity_status");
 	if(activityType == 'M')
 	{
-	//	lblPriority.style.display = 'none';
-	//	taskPriorityDd.style.display = 'none';
 		lblduration.style.display = 'block';
 		activityDuration.style.display = 'block';
 		activity_duration_min.style.display = 'block';
@@ -45,8 +41,6 @@ function disableComponents(fldId)
 		activity_status.style.cssFloat = "left";
 	}
 	if(activityType == 'C') {
-	//	lblPriority.style.display = 'none';
-	//	taskPriorityDd.style.display = 'none';
 		lblduration.style.display = 'block';
 		activityDuration.style.display = 'block';
 		activity_duration_min.style.display = 'block';
@@ -62,8 +56,6 @@ function disableComponents(fldId)
 		activity_status.style.cssFloat = "right";
 	}
 	if(activityType == 'T') {
-	//	lblPriority.style.display = 'block';
-	//	taskPriorityDd.style.display = 'block';
 		lblduration.style.display = 'none';
 		activityDuration.style.display = 'none';
 		activity_duration_min.style.display = 'none';

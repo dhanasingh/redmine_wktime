@@ -2,11 +2,13 @@ class WksupplieraccountController < WkaccountController
   unloadable
 
 	include WktimeHelper
-
-
-  
+	
 	def getAccountType
 		'S'
+	end
+	
+	def getContactType
+		'C'
 	end
 	
 	def getContactController
@@ -26,6 +28,10 @@ class WksupplieraccountController < WkaccountController
 	
 	def deletePermission
 		isModuleAdmin('wktime_pur_admin')
+	end
+	
+	def getAccountLbl
+		l(:label_supplier_account)
 	end
 
 end

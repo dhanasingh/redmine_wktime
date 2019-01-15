@@ -1,0 +1,56 @@
+<% productSqlCond = "product_type is null or product_type = '#{controller.getItemType}'" %>
+<%
+	productId = 0
+	brandId = 0
+	unless @productItem.blank?
+		productId = @productItem.product_id.to_i
+		brandId = @productItem.brand_id.to_i
+	else
+		firstProduct = WkProduct.where(productSqlCond).order(:name).first
+		productId = firstProduct.id unless firstProduct.blank?
+	end
+	brandSql = 'id in (select brand_id from wk_brand_products where product_id = ' + productId.to_s + ')'
+%>
+<div class="splitcontentleft">
+			<fieldset class="box tabular">
+				<legend><%=l(:label_product_item)%></legend>
+				<table>
+					<tr>
+						<th align="left"><%= l(:label_product) %></th>
+						<td align="left" style="padding-left:40px;">
+							<%=h select_tag("product_id", generic_options_for_select(WkProduct, productSqlCond, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_id, false), :onchange => "if(#{ controller.showProductItem }) { productChanged(this.id, 'brand_id', #{User.current.id}, true, true, null, null);productChanged(this.id, 'product_attribute_id', #{User.current.id}, false, false, null, null); }") %>
+						</td>
+					</tr> 
+					<% if controller.showProductItem %>
+					<tr>
+						<th align="left"><%= l(:label_brand) %></th>
+						<td align="left" style="padding-left:40px;">
+							<%=h select_tag("brand_id", generic_options_for_select(WkBrand, brandSql, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.brand_id, true), :onChange => "productChanged(this.id,'product_model_id', #{User.current.id}, false, true, null, null);") %>
+						</td>
+					</tr> 
+					<tr>
+						<th align="left"><%= l(:label_model) %></th>
+						<td align="left" style="padding-left:40px;">
+							<%=h select_tag("product_model_id", generic_options_for_select(WkProductModel, 'product_id = ' + productId.to_s + ' and brand_id = ' + brandId.to_s, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_model_id, true)) %>
+						</td>
+					</tr> 
+					<!--<tr>
+						<th align="left"><%#= l(:label_attribute) %></th>
+						<td align="left" style="padding-left:40px;">
+							<%#=h select_tag("product_attribute_id", generic_options_for_select(WkProductAttribute, nil, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_attribute_id, true)) %>
+						</td>
+					</tr> -->
+					<tr>
+						<th align="left"><%= l(:label_part_number) %></th>
+						<td align="left" style="padding-left:40px;"><%= text_field_tag "part_number",  @productItem.blank? ? '' : @productItem.part_number %></td>
+					</tr>
+					<% end  %>
+					<!-- <tr>
+						<th align="left"><%#= l(:label_additional_info) %></th>
+						<td align="left" style="padding-left:40px;">
+							<%#= check_box_tag('addinventory', 1, false, :onchange => "showorHide((this.checked ? true : false), 'inventoryDiv', 'assetDiv');") %>
+						</td>
+					<tr>-->
+			    </table>
+			</fieldset>
+		</div>

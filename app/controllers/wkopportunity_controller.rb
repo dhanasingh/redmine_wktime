@@ -31,15 +31,6 @@ class WkopportunityController < WkcrmController
 		else
 			oppDetails = WkOpportunity.all
 		end
-		# if !@from.blank? && !@to.blank? && !oppName.blank? && !accId.blank?
-			# oppDetails = WkOpportunity.where(:created_at => @from..@to, :account_id => accId).where("name like ?", "%#{oppName}%")
-		# elsif !@from.blank? && !@to.blank? && oppName.blank? && !accId.blank?
-			# oppDetails = WkOpportunity.where(:created_at => @from..@to, :account_id => accId)
-		# elsif !@from.blank? && !@to.blank? && !oppName.blank? && accId.blank?
-			# oppDetails = WkOpportunity.where(:created_at => @from..@to).where("name like ?", "%#{oppName}%")
-		# else
-			# oppDetails = WkOpportunity.all
-		# end
 		
 		formPagination(oppDetails)
     end

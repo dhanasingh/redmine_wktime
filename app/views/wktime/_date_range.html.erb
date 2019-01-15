@@ -32,7 +32,7 @@
 <% end %>
 </div>
 </fieldset>
-<% if !@manage_view_spenttime_projects.blank? %>
+<%# if !@manage_view_spenttime_projects.blank? %>
 <% if !@query.blank? %>
 <fieldset id="filters" class="collapsible <%= @query.new_record? ? "" : "collapsed" %>">
     <legend onclick="toggleFieldset(this);"><%= l(:label_user_filters) %></legend>
@@ -41,7 +41,7 @@
     </div>
 </fieldset>
 <% end %>
-<% end %>
+<%# end %>
 <p class="buttons">
 	<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
 	<%#= link_to l(:button_apply), {:controller => controller_name, :action => action_name, :project_id => @project, :issue_id => @issue}, :class => 'icon icon-checked' %>

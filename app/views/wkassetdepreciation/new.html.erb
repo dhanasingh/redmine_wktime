@@ -1,0 +1,8 @@
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+
+<%= form_tag({:controller => 'wkassetdepreciation', :action => 'edit'}, :method => :get, :id => 'depreciation_new') do %>
+
+<h2><%= l(:label_new_depreciation) %></h2>
+<%= render :partial => 'depreciation_new' %>
+
+<% end %>

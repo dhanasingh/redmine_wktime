@@ -10,14 +10,17 @@
 <%=h hidden_field_tag('tab', controller_name) %>
 <%	conName = session[controller_name][:contactname] %>
 <%	accId = session[controller_name][:account_id] %>
+<%	locId = session[controller_name][:location_id] %>
 <div class="wk-contextual"> 
 		<label for='name' style="float:left"><%= l(:field_name)  %>:</label>
 			<%= text_field_tag 'contactname', conName, :size => 30, :style=> "float: left;" %>	
-		<label style="float:left; padding-left: 20px;"><%= l(:label_account_name) %></label>
+		<label style="float:left; padding-left: 20px;"><%= controller.getAccountLbl %></label>
 			<%=h select_tag('account_id', options_for_select(accArr,  :selected => accId.nil? ? accArr : accId), :style=> "float: left;") %>
+		<label for='location' style="float:left; padding-left: 20px;"><%= l(:label_location) %>:</label>									
+			<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locId, true), :style=> "float: left;") %>
 		<%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %>
 		<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload', :style=>"float:left; " %>
-        <%= link_to l(:label_new_item, l(:label_contact)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+        <%= link_to controller.lblNewContact, url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
 </div>
 <div style="clear: both;"></div>
 <% end %>

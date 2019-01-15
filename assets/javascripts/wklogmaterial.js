@@ -1,24 +1,15 @@
-$(document).ready(function() {	
-	hideLogDetails();
+ $(document).ready(function() {	
+	hideLogDetails(null);
+	if(document.getElementById("time_entry_project_id") != null)
+	{
+		$('#time_entry_project_id').change(function(){
+			var project=$(this);			
+			uid = document.getElementById('userId').value;
+		    loadSpentFors(project.val(), 'spent_for', false, uid)
+		});
+	}
+	  
 });
-function hideLogDetails()
-{
-	var logType = document.getElementById("log_type").value;
-	if(logType == 'T')
-	{
-		document.getElementById('time_entry_hours').style.display = 'block';
-		$('label[for="time_entry_hours"]').css('display', 'block');
-		document.getElementById("materialtable").style.display = 'none';
-	}
-	else 
-	{
-		document.getElementById('time_entry_hours').style.display = 'none';
-		$('label[for="time_entry_hours"]').css('display', 'none');
-		document.getElementById("materialtable").style.display = 'block';
-		
-	}
-	
-}
 
 function updateTotal(currId, nxtId, setId, currencyId)
 {

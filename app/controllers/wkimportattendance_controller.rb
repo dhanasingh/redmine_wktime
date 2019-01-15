@@ -20,8 +20,8 @@ unloadable
 
 include WkimportattendanceHelper
 
-before_filter :require_login
-before_filter :check_ta_admin_and_redirect, :only => [:new]
+before_action :require_login
+before_action :check_ta_admin_and_redirect, :only => [:new]
 require 'csv'
 	
 	def new
@@ -33,7 +33,6 @@ require 'csv'
 			filePath = file.path 
 			begin
 				isSuccess = importAttendance(filePath, false)
-				#redirect_to :action => 'show'
 			rescue Exception => e
 				@errorMsg = "Import failed: #{e.message}"
 				flash[:error] = @errorMsg

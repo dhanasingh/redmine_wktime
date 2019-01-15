@@ -1,0 +1,127 @@
+<% activeHash = {1 => l(:label_active_on), 0 => l(:label_active_off)} %>
+<%= form_tag({:controller => "wkshift", :action => 'update', :tab => 'wkshift'}, :method => :get, :id => 'query_form') do %>
+<table class="list" id="commit-keywords">
+  <thead>
+    <tr>
+		<th></th>
+		<th><%= l(:field_name) %></th>
+		<th><%= l(:label_start_time) %></th>
+		<th><%= l(:label_end_time) %></th>
+		<th><%= l(:field_active) %></th>
+		<th><%= l(:field_is_schedulable) %></th>
+		<th></th>
+		<th class="buttons"></th>
+    </tr>
+  </thead>
+  <tbody>
+	<% unless @shiftentry.blank? %>
+		<% @shiftentry.each do |entry| %>
+			<tr class="commit-keywords">
+				<td>
+					<%= hidden_field_tag "shift_id[]",  entry.id  %>
+				</td>
+			    <td>			 
+					<%= text_field_tag "name[]",  entry.name  , :style => "width:150px;", :required => true  %> 
+			    </td>
+			    <td>
+					<%= text_field_tag "start_time[]", (!entry.start_time ? "" : entry.start_time.localtime.strftime('%R')) , :style => "width:150px;", :required => true  %>
+				</td>
+				<td>
+					<%= text_field_tag "end_time[]",  (!entry.end_time ? "" : entry.end_time.localtime.strftime('%R')), :style => "width:150px;", :required => true  %>
+				</td>
+				<td>
+					<%= select_tag("inactive[]", options_for_select(activeHash.invert, :selected => entry.in_active ? 1 : 0 )) %>
+				</td>
+				<td>
+					<%= select_tag("isschedulable[]", options_for_select(activeHash.invert, :selected => entry.is_schedulable ? 1 : 0 )) %>
+				</td>
+				<td>
+					<div class="tooltip">
+						<span class="tip">
+							<% unless entry.shift_roles.blank? %>
+								<div class="issue">
+								<% entry.shift_roles.each do | shiftrole | %>
+									<p><%= shiftrole.location.name unless shiftrole.location.blank?  %> - <%= shiftrole.department.name unless shiftrole.department.blank? %> - <%= shiftrole.role.name unless shiftrole.role.blank? %> : <%= shiftrole.staff_count %></p>
+								<% end %>
+								</div>
+							<% end %>
+							
+						</span>
+						<%= link_to l(:label_required_staff), url_for(:controller => controller_name, :action => 'edit', :shift_id => entry.id), :class => 'icon icon-time-add' %>
+					</div>
+				</td>
+			 
+				<td class="buttons">
+					<%= link_to(l(:button_delete), '#',
+							:class => 'delete-commit-keywords icon-only icon-del',
+							:title => l(:button_delete)) %>
+					
+				</td>
+			</tr>
+		<% end %>
+	<% else %>
+		<tr class="commit-keywords">
+			<td>
+				<%= hidden_field_tag "shift_id[]",  ""  %>
+			</td>
+			<td>
+				<%=  
+				text_field_tag "name[]",  ""  , :required => true,  :style => "width:150px;"  %> 
+			</td>
+			<td>
+				<%=	text_field_tag "start_time[]",  ""  , :required => true, :style => "width:150px;"  %>
+			</td>
+			
+			<td>
+				<%=	text_field_tag "end_time[]",  ""  , :required => true, :style => "width:150px;"  %>
+			</td>
+			<td>
+				<%= select_tag("inactive[]", options_for_select(activeHash.invert)) %>
+			</td>
+			<td>
+				<%= select_tag("isschedulable[]", options_for_select(activeHash.invert)) %>
+			</td>
+			<td></td>
+			<td class="buttons">
+				<%= link_to(l(:button_delete), '#',
+							:class => 'delete-commit-keywords icon-only icon-del',
+							:title => l(:button_delete)) %>
+			</td>
+		</tr>
+	<% end %>
+    <tr>
+      <td></td>
+	  <td></td>
+      <td></td>  
+	  <td></td>
+	  <td></td>
+	  <td></td>	 
+	  <td></td>	  
+      <td class="buttons">
+        <%= link_to(l(:button_add), '#',
+                    :class => 'add-commit-keywords icon-only icon-add',
+                    :title => l(:button_add)) %>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p><%= l(:label_hours_note) %></p>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
+<p><%= submit_tag l(:button_save) %></p>
+<% end %>
+
+<%= javascript_tag do %>
+$('#commit-keywords').on('click', 'a.delete-commit-keywords', function(e){
+  e.preventDefault();
+  if ($('#commit-keywords tbody tr.commit-keywords').length > 1) {
+    $(this).parents('#commit-keywords tr').remove();
+  } else {
+    $('#commit-keywords tbody tr.commit-keywords').find('input, select').val('');
+  }
+});
+$('#commit-keywords').on('click', 'a.add-commit-keywords', function(e){
+  e.preventDefault();
+  var row = $('#commit-keywords tr.commit-keywords:last');
+  row.clone().insertAfter(row).find('input, select').val('');
+});
+<% end %>

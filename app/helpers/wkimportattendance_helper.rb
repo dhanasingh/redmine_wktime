@@ -37,6 +37,7 @@ module WkimportattendanceHelper
 			lastAttnEntriesHash[entry.user_id] = entry
 		end
 		columnArr = Setting.plugin_redmine_wktime['wktime_fields_in_file']
+		wkUserCFHash = getUserIdWkCFHash(get_wkuser_custom_ids)
 		if !(csv.length > 0)
 			@errorMsg = @errorMsg.blank? ? l('error_no_record_to_import') : @errorMsg.to_s + " <br/>" + l('error_no_record_to_import')
 		end
@@ -44,12 +45,20 @@ module WkimportattendanceHelper
 			@errorMsg = @errorMsg.blank? ? l('warning_fields_in_file_not_configured') : @errorMsg.to_s + " <br/>" + l('warning_fields_in_file_not_configured')
 		end
 		if @errorMsg.blank?
+	
 			csv.each_with_index do |row,index|
 				# rowValueHash - Have the data of the current row
 				rowValueHash = Hash.new
 				columnArr.each_with_index do |col,i|
 					case col when "user_id"
-						rowValueHash["user_id"] = row[i]
+						rowValueHash["user_id"] = row[i]			
+					when "id1", "id2", "id3"
+						#rowValueHash["cf_id1"] = row[i]
+						if wkUserCFHash[col].blank? || wkUserCFHash[col][row[i]].blank?
+							@errorHash[index+1] = row[i] + " " + l('activerecord.errors.messages.invalid')
+						else
+							rowValueHash["user_id"] = wkUserCFHash[col][row[i]]	
+						end
 					when "start_time","end_time"
 						if row_date(row[i]).is_a?(DateTime) || (row[i].blank? && col == "end_time")
 							rowValueHash[col] = row_date(row[i]) 
@@ -142,14 +151,14 @@ module WkimportattendanceHelper
 		csv
 	end
 	
-	def getFormatedTimeEntry(entryDateTime)
-		entryTime = nil
-		if !entryDateTime.blank?
-			entryLocal = entryDateTime.change(:offset => Time.current.localtime.strftime("%:z"))
-			entryTime = Time.parse("#{entryLocal.to_date.to_s} #{entryLocal.utc.to_time.to_s} ").localtime
-		end
-		entryTime
-	end
+	# def getFormatedTimeEntry(entryDateTime)
+		# entryTime = nil
+		# if !entryDateTime.blank?
+			# entryLocal = entryDateTime.change(:offset => Time.current.localtime.strftime("%:z"))
+			# entryTime = Time.parse("#{entryLocal.to_date.to_s} #{entryLocal.utc.to_time.to_s} ").localtime
+		# end
+		# entryTime
+	# end
 	
 	def getUserIdCFHash(cfId)
 		cfValHash = Hash.new
@@ -161,6 +170,19 @@ module WkimportattendanceHelper
 		cfValHash
 	end
 	
+	def getUserIdWkCFHash(fieldNameArr)
+		fieldWkUserHash = Hash.new
+		wkUsers = WkUser.all
+		unless wkUsers.blank?
+			wkUsers.each do |wkusr|
+				fieldNameArr.each do |field|				
+					fieldWkUserHash[field] = fieldWkUserHash[field].blank? ? {wkusr[field] => wkusr.user_id} : fieldWkUserHash[field].merge({wkusr[field] => wkusr.user_id})
+				end
+			end
+		end
+		fieldWkUserHash
+	end
+	
 	def row_date(dateTimeStr)
 			format = Setting.plugin_redmine_wktime['wktime_field_datetime']#"%Y-%m-%d %T"
 			DateTime.strptime(dateTimeStr, format) rescue dateTimeStr
@@ -170,6 +192,10 @@ module WkimportattendanceHelper
 		interval = (Setting.plugin_redmine_wktime['wktime_auto_import_time_hr'].to_i*60) + (Setting.plugin_redmine_wktime['wktime_auto_import_time_min'].to_i)
 		intervalMin = interval>0 ? interval.to_s + 'm' : '60m'
 		intervalMin
+	end
+	
+	def get_wkuser_custom_ids
+		["id1", "id2", "id3"]
 	end
 
 end

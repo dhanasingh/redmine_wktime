@@ -25,8 +25,7 @@ include WkpayrollHelper
 include WkaccountingHelper
 include WkcrmHelper
 
-before_filter :require_login
-# before_filter :check_perm_and_redirect, :only => [:index]
+before_action :require_login
 	
 	def index
 		@groups = Group.sorted.all
@@ -38,7 +37,6 @@ before_filter :require_login
 			@members << [users.name,users.id.to_s()]
 		end	
 		showReport
-		#report #patched method
 	end
 	
 	def showReport
@@ -76,7 +74,7 @@ before_filter :require_login
 			group_by_users << users.id.to_s() + ',' + users.name + "\n"
 		end
 		respond_to do |format|
-			format.text  { render :text => group_by_users }
+			format.text  { render :plain => group_by_users }
 		end
 	end	
 	
@@ -131,9 +129,7 @@ before_filter :require_login
 			@to = (@from >> 1) - 1
 		  end
 		  @free_period = true
-		else
-		  # default
-		  # 'current_month'		
+		else		
 			@from = Date.civil(Date.today.year, Date.today.month, 1)
 			@to = (@from >> 1) - 1
 		end    
@@ -141,26 +137,5 @@ before_filter :require_login
 		session[:wkreport][:to] = @to
 		@from, @to = @to, @from if @from && @to && @from > @to
 
-	  end
-	
-    # def check_perm_and_redirect
-	  # unless check_permission
-	    # render_403
-	    # return false
-	  # end
-    # end
-
-	# def check_permission
-		# if params[:report_type] == 'pl_rpt' || params[:report_type] == 'balance_sheet'
-			# ret = isModuleAdmin('wktime_accounting_group') || isModuleAdmin('wktime_accounting_admin')
-		# elsif params[:report_type] == 'lead_conv_rpt' || params[:report_type] == 'sales_act_rpt'
-			# ret = isModuleAdmin('wktime_crm_group') || isModuleAdmin('wktime_crm_admin') 
-		# else
-			# ret = params[:user_id].to_i == User.current.id
-			# ret = (ret || isAccountUser || User.current.admin?)
-		# end
-		# ret = true if params[:report_type].blank?
-		# ret
-	# end	
-	
+	  end	
 end

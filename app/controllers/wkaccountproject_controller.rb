@@ -17,7 +17,8 @@
 
 class WkaccountprojectController < WkbillingController
 
-before_filter :require_login
+before_action :require_login
+include WkaccountprojectHelper
 
     def index
 		@accountproject = nil
@@ -49,16 +50,6 @@ before_filter :require_login
 			sqlwhere = sqlwhere + " project_id = '#{projectId}' " 
 		end
 		
-		# if accountId.blank? &&  !projectId.blank?
-			# sqlwhere = "project_id = #{projectId}"
-		# end
-		# if !accountId.blank? &&  projectId.blank?
-			# sqlwhere = "parent_id = #{accountId} and parent_type = 'WkAccount' "
-		# end
-		# if !accountId.blank? &&  !projectId.blank?
-			# sqlwhere = "parent_id = #{accountId} and parent_type = 'WkAccount' and project_id = #{projectId}"
-		# end
-		
 		if filter_type == '1' && projectId.blank?  #accountId.blank? && projectId.blank?
 			entries = WkAccountProject.all
 		else
@@ -86,22 +77,9 @@ before_filter :require_login
 		wkbillingschedule = nil
 		wkaccprojecttax = nil
 		arrId = []
-		if !params[:accountProjectId].blank?
-			wkaccountproject = WkAccountProject.find(params[:accountProjectId].to_i)
-		else
-			wkaccountproject = WkAccountProject.new
-		end
+		wkaccountproject = saveBillableProjects(params[:accountProjectId], params[:project_id], params[:related_parent], params[:related_to], params[:applytax], params[:itemized_bill], params[:billing_type])
 		
-		wkaccountproject.project_id = params[:project_id].to_i
-		wkaccountproject.parent_id = params[:related_parent].to_i
-		wkaccountproject.parent_type = params[:related_to]
-		wkaccountproject.apply_tax = params[:applytax]
-		wkaccountproject.itemized_bill = params[:itemized_bill]
-		wkaccountproject.billing_type = params[:billing_type]
 		
-		if !wkaccountproject.save			
-			errorMsg = wkaccountproject.errors.full_messages.join("<br>")
-		end
 		
 		unless wkaccountproject.id.blank?
 			
@@ -128,10 +106,10 @@ before_filter :require_login
 			if wkaccountproject.billing_type == 'FC'
 				milestonelength = params[:mtotalrow].to_i
 				for i in 1..milestonelength
-					if params["milestone_id#{i}"].blank? #&& !params["milestone#{i}"].blank?
+					if params["milestone_id#{i}"].blank? 
 						wkbillingschedule = WkBillingSchedule.new
 						wkbillingschedule.invoice_id = ""
-					else # if !params["milestone_id#{i}"].blank?
+					else 
 						wkbillingschedule = WkBillingSchedule.find(params["milestone_id#{i}"].to_i)
 						arrId << params["milestone_id#{i}"].to_i
 					end
@@ -139,7 +117,6 @@ before_filter :require_login
 					wkbillingschedule.bill_date = params["billdate#{i}"]#.strftime('%F')
 					wkbillingschedule.amount = params["amount#{i}"]
 					wkbillingschedule.currency = params["currency#{i}"]
-					#wkbillingschedule.invoice_id = ""
 					wkbillingschedule.account_project_id = wkaccountproject.id
 					if wkbillingschedule.save()	
 						arrId << wkbillingschedule.id

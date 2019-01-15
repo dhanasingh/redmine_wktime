@@ -4,6 +4,4 @@ class WkcrmaccountController < WkaccountController
 	def getAccountType
 		'A'
 	end		
-
-
 end

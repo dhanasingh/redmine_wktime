@@ -20,7 +20,7 @@
 			<%= render partial: "show_other_info"%>
 		</div>
 		<div class="splitcontentright">
-			<%= render partial: "show_contact_info", locals: { address: addressObj }%>
+			<%= render partial: "show_contact_info", locals: { address: addressObj, :disable => false }%>
 		</div>
 	<div style="clear:both;"></div>
 	<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @lead }%>

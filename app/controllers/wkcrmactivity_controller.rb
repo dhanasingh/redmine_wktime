@@ -97,7 +97,7 @@ class WkcrmactivityController < WkcrmController
 		end
 		
 		if errorMsg.blank?
-			#if params[:controller_from] != controller.controller_name#'wksupplieraccount' || params[:controller_from] == 'wksuppliercontact'
+			
 			if params[:controller_from] == 'wksupplieraccount'
 				redirect_to :controller => params[:controller_from],:action => params[:action_from] , :account_id => crmActivity.parent_id
 			elsif params[:controller_from] == 'wksuppliercontact'
@@ -108,7 +108,7 @@ class WkcrmactivityController < WkcrmController
 			$tempActivity = nil			
 			flash[:notice] = l(:notice_successful_update)
 		else
-			flash[:error] = errorMsg #wkaccount.errors.full_messages.join("<br>")
+			flash[:error] = errorMsg 
 			redirect_to :controller => 'wkcrmactivity',:action => 'edit', :isError => true
 		end	
     end
@@ -161,6 +161,4 @@ class WkcrmactivityController < WkcrmController
 			@offset = @entry_pages.offset
 		end	
 	end
-
-
 end

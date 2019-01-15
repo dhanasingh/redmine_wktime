@@ -9,7 +9,7 @@ This Plugin has the following modules:
     Clock In / Clock Out
     Check Leave Status
     Integrate with Attendance / Time clock devices
-    Attendance Report
+    Schedule Shifts
 3) PayRoll
     Setup Payroll data
     Generate Salary
@@ -34,10 +34,9 @@ This Plugin has the following modules:
 	Create Supplier Invoice and Supplier Payments
 	Report - Purchasing cycle
 8) Inventory
-    Create Product, Items and Shipments
-    Log Matterial Entries
-    Report - Stock Report.
-
+    Create Product, Items, Shipments and Asset
+    Log Material and Asset Entries
+    Report - Stock and Asset Report.
 	
 For more information on features, please refer to the user guide 
 	http://www.adhisoftware.co.in/wp-content/uploads/ERPmine-User-Guide.pdf
@@ -67,11 +66,14 @@ If an apache passenger module is used then make sure the following settings are 
 	b) RailsAppSpawnerIdleTime 0
 	c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for 3.0.1
+Release Notes for 3.4
+
 Features:
-	  - Translation for Russian
-Bug Fix
-	  - Plugin migration issue by timelog controller patch 
+	   - Dashboards are introduced
+	   
+	   - Redmine-4.0 compatible 
+	      
+We would like to thank Addison for partially sponsored this release.
 
 Customization:
 	For any Customization/Support, please contact us, our consulting team will be happy to help you
@@ -98,12 +100,18 @@ Resources:
 	http://www.adhisoftware.co.in/wp-content/uploads/TE-Overview.odp
 
 	Training Videos:
-	https://www.youtube.com/watch?v=CHAgSMmkKBE
+	https://www.youtube.com/watch?v=OntsLT1LeLg
+	https://www.youtube.com/watch?v=SzHo5Os-dvU
 	https://www.youtube.com/watch?v=hTgDepFzGXY
-	https://www.youtube.com/watch?v=5IgBbhrVF4k
+	
 	
 	For more Videos: 
 	http://www.adhisoftware.co.in/products/erpmine/resources/
+	
+	
+	For more:	
+	http://www.adhisoftware.co.in/products/erpmine/resources/
+ts/erpmine/resources/
 	
 	
 	For more:	

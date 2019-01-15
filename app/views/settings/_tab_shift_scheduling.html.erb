@@ -1,0 +1,34 @@
+<% frequency_hash = { 'm'  => l(:label_monthly), 'w' =>  l(:label_weekly) } %>
+<fieldset>
+	<legend><%= l(:label_shift_and_scheduling) %></legend>
+	<p>
+		<%= check_box_tag('settings[wk_schedule_on_weekend]', 1, @settings['wk_schedule_on_weekend'].to_i == 1) %> <label><%= l(:label_schedule_on_weekend) %></label>
+	</p>
+	<p>
+		<%= check_box_tag('settings[wk_user_schedule_preference]', 1, @settings['wk_user_schedule_preference'].to_i == 1) %> <label><%= l(:label_setting_preference) %></label>
+	</p>
+	<p>	
+		<label><%= l(:label_weekly) + " " + l(:label_holiday) %></label>
+		<%= select_tag('settings[wk_schedule_weekend]', options_for_select([[l('date.day_names')[0], 0],
+									   [l('date.day_names')[1], 1],
+									   [l('date.day_names')[2], 2],
+									   [l('date.day_names')[3], 3],
+									   [l('date.day_names')[4], 4],
+									   [l('date.day_names')[5], 5],
+									   [l('date.day_names')[6], 6]], :selected => @settings['wk_schedule_weekend']), :multiple => true)%>
+	</p>
+	<!--
+	<p>
+		<label><%#= l(:label_frequency)  %></label>
+		<%#= select_tag 'settings[wk_scheduling_frequency]', options_for_select(frequency_hash.invert, :selected => @settings['wk_scheduling_frequency']), :style => "width:100px;" %>
+	</p>
+	<p>
+		<label><%#= l(:label_day_off_per_frequency) %></label>
+		<%#= text_field_tag 'settings[wk_day_off_per_frequency]', @settings['wk_day_off_per_frequency'], :style => "width:100px;" %>
+	</p> -->
+	
+	<%= l(:label_redmine_restart_warning) %>
+	<p>
+		<%= check_box_tag('settings[wk_auto_shift_scheduling]', 1, @settings['wk_auto_shift_scheduling'].to_i == 1) %> <label><%= l(:label_auto_scheduling) %></label>
+	</p>
+</fieldset>

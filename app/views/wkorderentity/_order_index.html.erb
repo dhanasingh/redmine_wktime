@@ -1,5 +1,5 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<%= hidden_field_tag 'back_url', url_for(params) %>
+<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 
 	<%= form_tag({:controller => controller_name, :action => 'index', :tab => controller_name}, :method => :get, :id => 'query_form') do %>
 	<fieldset>
@@ -27,7 +27,7 @@
 			<%#= link_to l(:button_apply), {:controller => controller_name, :action => action_name}, :class => 'icon icon-checked' %>
 			<%= link_to l(:button_clear), {:controller => controller_name, :action => action_name, :tab => 'clock'}, :class => 'icon icon-reload' %>
 			<% if controller.isInvGenUnbilledLink %>
-				<%= link_to l(:label_generate) + ' ' + l(:label_invoice), 'javascript:invoiceFormSubmission(false);', :name => 'generate', :class => 'icon icon-report' %>
+				<%= link_to l(:label_generate) + ' ' + l(:label_invoice_adjusted), 'javascript:invoiceFormSubmission(false);', :name => 'generate', :class => 'icon icon-report' %>
 				<%= link_to_function l(:label_preview_invoice), "javascript:invoiceFormSubmission(true); ", :class => 'icon icon-report' %>
 			<% end %>
 		 

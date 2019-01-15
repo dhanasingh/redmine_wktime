@@ -1,7 +1,7 @@
 class WkproductController < WkinventoryController
   unloadable
-  before_filter :require_login
-  before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :category, :updateCategory]
+  before_action :require_login
+  before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :category, :updateCategory]
 
 
 	def index
@@ -46,11 +46,13 @@ class WkproductController < WkinventoryController
 		  product = WkProduct.find(params[:product_id])
 		end
 		product.name = params[:name]
-		product.product_type = params[:product_type]
+		product.product_type = params[:product_type].blank? ? nil : params[:product_type]
 		product.category_id = params[:category_id]
 		product.uom_id = params[:uom_id]
 		product.attribute_group_id = params[:attribute_group_id]
 		product.description = params[:description]
+		product.depreciation_rate = params[:depreciation_rate].to_f/100.00
+		product.ledger_id = params[:ledger_id]
 		if product.save()
 			unless product.id.blank?
 				taxId = params[:tax_id]	
@@ -107,7 +109,7 @@ class WkproductController < WkinventoryController
 		end
 		
 		if !arrId.blank?			
-			WkProductCategory.destroy_all(:id => arrId)
+			WkProductCategory.where(:id => arrId).destroy_all
 		end
 		
 		redirect_to :controller => 'wkproduct',:action => 'category' , :tab => 'wkproduct'
@@ -139,5 +141,4 @@ class WkproductController < WkinventoryController
 			@offset = @entry_pages.offset
 		end	
 	end
-
 end

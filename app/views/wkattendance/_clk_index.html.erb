@@ -6,7 +6,7 @@
 		grpUrl="<%= "#{url_for(:controller => "wkattendance", :action => 'getMembersbyGroup')}" %>";
 		//getMembersbyGroup
 </script>
-<%= hidden_field_tag 'back_url', url_for(params) %>
+<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 <% if isAccountUser %>
 <div class="contextual">
 <%= link_to l(:"label_import_attendance"), url_for(:controller => "wkimportattendance", :action => 'new', :tab => controller.controller_name)%>
@@ -33,7 +33,7 @@
 			<td>
 			<%# show the blank value if more than one user is in the list %>
 			<%=h select_tag('user_id',
-				options_for_select( [["All Users","0"]] + @members,
+				options_for_select( [[l(:all_users_for_select),"0"]] + @members,
 				:selected => userid.nil? ? (@user.nil? ? User.current.id : @user.id) : userid),
 				:style=> "width:200px;") %></td>
 			</tr>

@@ -30,26 +30,41 @@ module Redmine::Helpers
         unless @criteria.empty?
           time_columns = %w(tyear tmonth tweek spent_on)
           @hours = []
+	# ============= ERPmine_patch Redmine 4.0  ===================== 	  
 		  scopeArr = @scope.attribute_names
 		  
 		  if scopeArr.include? "selling_price"
+	# ======================================	  
 			  @scope.includes(:activity).
 				  reorder(nil).
 				  group(@criteria.collect{|criteria| @available_criteria[criteria][:sql]} + time_columns).
 				  joins(@criteria.collect{|criteria| @available_criteria[criteria][:joins]}.compact).
-				  sum(:selling_price).each do |hash, selling_price|
+	# ============= ERPmine_patch Redmine 4.0  ===================== 	  			  
+				  sum("wk_material_entries.selling_price * wk_material_entries.quantity").each do |hash, selling_price|
 				  h = {'hours' => selling_price}
 				(@criteria + time_columns).each_with_index do |name, i|
 				  h[name] = hash[i]
 				end
 				@hours << h
 			  end
-		 else
-		
+		 elsif scopeArr.include? "amount"
 			@scope.includes(:activity).
 				  reorder(nil).
 				  group(@criteria.collect{|criteria| @available_criteria[criteria][:sql]} + time_columns).
 				  joins(@criteria.collect{|criteria| @available_criteria[criteria][:joins]}.compact).
+				  sum(:amount).each do |hash, amount|
+				  h = {'hours' => amount}
+				(@criteria + time_columns).each_with_index do |name, i|
+				  h[name] = hash[i]
+				end
+				@hours << h
+			  end
+		 else		
+			@scope.includes(:activity).
+				  reorder(nil).
+				  group(@criteria.collect{|criteria| @available_criteria[criteria][:sql]} + time_columns).
+				  joins(@criteria.collect{|criteria| @available_criteria[criteria][:joins]}.compact).
+	# ==============================			  
 				  sum(:hours).each do |hash, hours|
 				  
 				h = {'hours' => hours}
@@ -105,13 +120,16 @@ module Redmine::Helpers
       end
 
       def load_available_criteria
+  # ============= ERPmine_patch Redmine 4.0  =====================	    
 		scopeArr = @scope.attribute_names
 		if scopeArr.include? "selling_price"
-			model =  WkMaterialEntry 			
+			model =  WkMaterialEntry
+		elsif scopeArr.include? "amount"
+			model = WkExpenseEntry
 		else
 			model =  TimeEntry
 		end
-		
+# =============================		
         @available_criteria = { 'project' => {:sql => "#{model.table_name}.project_id",
                                               :klass => Project,
                                               :label => :label_project},
@@ -137,6 +155,8 @@ module Redmine::Helpers
                                              :klass => Issue,
                                              :label => :label_issue}
                                }
+							   
+	# ============= ERPmine_patch Redmine 4.0  =====================	  
 		if scopeArr.include? "selling_price"
 			hashval = {
 						'Product Item' => {:sql => "#{WkMaterialEntry.table_name}.inventory_item_id",
@@ -145,15 +165,15 @@ module Redmine::Helpers
 					  }
 			@available_criteria.merge!(hashval)
 		end
-
+   # ==================================
         # Add time entry custom fields
-        custom_fields = TimeEntryCustomField.all
+        custom_fields = TimeEntryCustomField.visible
         # Add project custom fields
-        custom_fields += ProjectCustomField.all
+        custom_fields += ProjectCustomField.visible
         # Add issue custom fields
-        custom_fields += (@project.nil? ? IssueCustomField.for_all : @project.all_issue_custom_fields)
+        custom_fields += @project.nil? ? IssueCustomField.visible.for_all : @project.all_issue_custom_fields.visible
         # Add time entry activity custom fields
-        custom_fields += TimeEntryActivityCustomField.all
+        custom_fields += TimeEntryActivityCustomField.visible
 
         # Add list and boolean custom fields as available criteria
         custom_fields.select {|cf| %w(list bool).include?(cf.field_format) && !cf.multiple?}.each do |cf|

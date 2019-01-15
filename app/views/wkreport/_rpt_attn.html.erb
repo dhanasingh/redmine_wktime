@@ -152,7 +152,7 @@
 </thead>
 <tbody>
 <%
-	showSlno = true if Setting.plugin_redmine_wktime['wktime_attn_employee_id_cf'].blank? || Setting.plugin_redmine_wktime['wktime_attn_employee_id_cf'].to_i == 0
+	showSlno = false #if Setting.plugin_redmine_wktime['wktime_attn_employee_id_cf'].blank? || Setting.plugin_redmine_wktime['wktime_attn_employee_id_cf'].to_i == 0
 %>
 <% @userlist.each_with_index do |entry,index| -%>
 <%
@@ -173,8 +173,8 @@
 	<td class="lbl-txt-align"><%=h entry.employee_id %></td>
 <%end%>
 <td class="lbl-txt-align"><%=h entry.firstname + " " + entry.lastname %></td>
-<td class="lbl-txt-align"><%=h entry.joining_date.blank? ? '' : format_date(entry.joining_date.to_date) %></td>
-<td class="lbl-txt-align"><%=h entry.date_of_birth.blank? ? '' : format_date(entry.date_of_birth.to_date) %></td>
+<td class="lbl-txt-align"><%=h entry.join_date.blank? ? '' : format_date(entry.join_date.to_date) %></td>
+<td class="lbl-txt-align"><%=h entry.birth_date.blank? ? '' : format_date(entry.birth_date.to_date) %></td>
 <td class="lbl-txt-align"><%=h entry.designation %></td>
 <td ><%=h balance1 %></td>
 <td ><%=h balance2 %></td>

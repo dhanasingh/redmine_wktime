@@ -2,7 +2,9 @@
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :post, :id => 'query_form') do %>
 		<fieldset>
 			<%=h hidden_field_tag('tab', controller_name) %>
-			<label for='name'><%= l(:label_account_name) %>:</label>
+			<label for='location'><%= l(:label_location) %>:</label>									
+			<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', params[:location_id], true)) %>
+			<label for='name'><%= controller.getAccountLbl %>:</label>
 			<%= text_field_tag 'accountname', params[:accountname], :size => 30 %>
 			<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
 			<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>

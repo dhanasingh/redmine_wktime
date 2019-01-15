@@ -1,17 +1,18 @@
 class WkshipmentController < WkinventoryController
   unloadable
-before_filter :require_login
+before_action :require_login
 
 include WkcrmHelper
 include WkshipmentHelper
 include WkinvoiceHelper
 include WkgltransactionHelper
+include WkinventoryHelper
 
 
 	def index
 		set_filter_session
 		retrieve_date_range
-		sqlwhere = ""
+		sqlwhere = " wk_shipments.shipment_type != 'N' "
 		filter_type = session[controller_name][:polymorphic_filter]
 		contact_id = session[controller_name][:contact_id]
 		account_id = session[controller_name][:account_id]
@@ -32,29 +33,20 @@ include WkgltransactionHelper
 		end
 		
 		unless parentId.blank? 
-			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
-			sqlwhere = sqlwhere + " wk_shipments.parent_id = '#{parentId}' "
+			sqlwhere = sqlwhere + " and wk_shipments.parent_id = '#{parentId}' "
 		end
 		
 		unless parentType.blank?
-			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
-			sqlwhere = sqlwhere + " wk_shipments.parent_type = '#{parentType}'  "
+			sqlwhere = sqlwhere + " and wk_shipments.parent_type = '#{parentType}'  "
 		end
 		
-		if !@from.blank? && !@to.blank?			
-			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
-			sqlwhere = sqlwhere + " wk_shipments.shipment_date between '#{@from}' and '#{@to}'  "
+		if !@from.blank? && !@to.blank?	
+			sqlwhere = sqlwhere + " and wk_shipments.shipment_date between '#{@from}' and '#{@to}'  "
 		end
-		
-		unless sqlwhere.blank?
-			shipEntries = WkShipment.includes(:inventory_items).where(sqlwhere)
-		else
-			shipEntries = WkShipment.includes(:inventory_items)
-		end
+		shipEntries = WkShipment.includes(:inventory_items).where(sqlwhere)
 		
 		formPagination(shipEntries)
-		#@shipmentEntries = WkShipment.includes(:inventory_items).all
-		@totalShipAmt = @shipmentEntries.sum("wk_inventory_items.total_quantity*(wk_inventory_items.cost_price+wk_inventory_items.over_head_price)")
+		@totalShipAmt = @shipmentEntries.where("wk_inventory_items.parent_id is null").sum("wk_inventory_items.total_quantity*(wk_inventory_items.cost_price+wk_inventory_items.over_head_price)")
 	end
 
 	def new
@@ -136,7 +128,7 @@ include WkgltransactionHelper
 	def editShipment			
 		unless params[:shipment_id].blank?
 			@shipment = WkShipment.find(params[:shipment_id].to_i)
-			@shipmentItem = @shipment.inventory_items 
+			@shipmentItem = @shipment.inventory_items.shipment_item 
 		end		
 	end
   
@@ -146,15 +138,14 @@ include WkgltransactionHelper
 		arrId = nil
 		unless params["shipment_id"].blank?
 			@shipment = WkShipment.find(params["shipment_id"].to_i)
-			arrId = @shipment.inventory_items.pluck(:id)
+			arrId = @shipment.inventory_items.shipment_item.pluck(:id)
 		else
 			@shipment = WkShipment.new
 			@shipment.shipment_type = 'I'
 			@shipment.parent_id = params[:parent_id]
 			@shipment.parent_type = params[:parent_type]
 		end
-		@shipment.shipment_date = params[:shipment_date]
-		#@shipment.status = 'o'
+		@shipment.shipment_date = params[:shipment_date]		
 		@shipment.serial_number = params[:serial_number]
 		@shipment.save()
 		totalAmount = 0
@@ -163,7 +154,8 @@ include WkgltransactionHelper
 		savedRows = 0
 		deletedRows = 0
 		sysCurrency = Setting.plugin_redmine_wktime['wktime_currency']
-		#for i in 1..totalRow
+		assetAccountingHash = Hash.new
+		assetTotal = 0
 		while savedRows < totalRow
 			i = savedRows + deletedRows + 1
 			if params["item_id#{i}"].blank? && params["product_id#{i}"].blank?
@@ -190,35 +182,43 @@ include WkgltransactionHelper
 				shipmentItem.over_head_price = getExchangedAmount(params["currency#{i}"], params["over_head_price#{i}"])
 				shipmentItem.selling_price = getExchangedAmount(params["currency#{i}"], params["selling_price#{i}"]) 
 				shipmentItem.serial_number = params["serial_number#{i}"]
+				shipmentItem.product_type = params["product_type#{i}"]
 				shipmentItem.notes = params["notes#{i}"]
 				shipmentItem.available_quantity = params["total_quantity#{i}"] if shipmentItem.new_record? || shipmentItem.available_quantity == shipmentItem.total_quantity
 				shipmentItem.total_quantity = params["total_quantity#{i}"]
 				shipmentItem.status = 'o'
 				shipmentItem.uom_id = params["uom_id#{i}"].to_i unless params["uom_id#{i}"].blank?
 				shipmentItem.location_id = params["location_id#{i}"].to_i unless params["location_id#{i}"].blank?
+				if params["product_type#{i}"] == 'A' || params["product_type#{i}"] == 'RA'
+					assetValue = (shipmentItem.total_quantity*(shipmentItem.cost_price+shipmentItem.over_head_price))
+					assetTotal = assetTotal + assetValue
+					accountingLedger = WkProductItem.find(shipmentItem.product_item_id).product.ledger_id
+					ledgerId = ((!accountingLedger.blank? && accountingLedger > 0) ? accountingLedger : getSettingCfId("inventory_db_ledger"))
+					assetAccountingHash[ledgerId] = assetAccountingHash[ledgerId].blank? ? assetValue : assetAccountingHash[ledgerId] + assetValue
+					quantity = params["total_quantity#{i}"].to_i
+					shipmentItem.available_quantity = 1
+					shipmentItem.total_quantity = 1
+					for i in 1 .. quantity - 1
+						dupItem = shipmentItem.dup
+						# Below code for set parent id as shipment item id
+						# dupItem.available_quantity = 1
+						# dupItem.total_quantity = 1
+						# dupItem.parent_id = shipmentItem.id
+						dupItem.save
+						postAssetProperties(dupItem)
+					end
+				end
 				shipmentItem.save()
+				postAssetProperties(shipmentItem)
 			end
 			savedRows = savedRows + 1
 		end
 		
 		if !arrId.blank?
-			WkInventoryItem.delete_all(:id => arrId)
+			WkInventoryItem.where(:id => arrId).delete_all
 		end
 		
-		unless @shipment.id.blank?
-			totalAmount = @shipment.inventory_items.sum('total_quantity*(cost_price+over_head_price)')
-			moduleAmtHash = {'inventory' => [totalAmount.round, totalAmount.round]}
-			
-			transAmountArr = getTransAmountArr(moduleAmtHash)
-			if totalAmount > 0 && autoPostGL('inventory')
-				transId = @shipment.gl_transaction.blank? ? nil : @shipment.gl_transaction.id
-				glTransaction = postToGlTransaction('inventory', transId, @shipment.shipment_date, transAmountArr, @shipment.inventory_items[0].currency, nil, nil)
-				unless glTransaction.blank?
-					@shipment.gl_transaction_id = glTransaction.id
-					@shipment.save
-				end				
-			end
-		end
+		postShipmentAccounting(@shipment, assetAccountingHash, assetTotal)
 		
 		if errorMsg.nil? 
 			redirect_to :action => 'index' , :tab => controller_name
@@ -228,6 +228,8 @@ include WkgltransactionHelper
 			redirect_to :action => 'edit', :shipment_id => @shipment.id
 	   end
 	end
+	
+	
 	
 	def destroy
 		begin
@@ -314,6 +316,18 @@ include WkgltransactionHelper
 					itemArr << item.id.to_s() + ',' +  item.name + "\n"
 				end
 			end
+		elsif params[:update_DD] == 'product_type' && !params[:product_id].blank?
+			product = WkProduct.find(params[:product_id].to_i)
+			productTypeHash = getProductTypeHash(false)
+			unless product.blank?
+				unless product.product_type.blank?
+					itemArr << product.product_type.to_s() + ',' +  productTypeHash[product.product_type] + "\n"
+				else
+					productTypeHash.each do |key, val|
+						itemArr << key + ',' +  val + "\n"
+					end
+				end
+			end
 		else
 			productItemArr = getProductItemArr(sqlCond, false)
 			productItemArr.each do |item|
@@ -321,7 +335,7 @@ include WkgltransactionHelper
 			end
 		end
 		respond_to do |format|
-			format.text  { render :text => itemArr }
+			format.text  { render :plain => itemArr }
 		end
 	end
 	
@@ -334,7 +348,17 @@ include WkgltransactionHelper
 			end
 		end
 		respond_to do |format|
-			format.text  { render :text => siArr }
+			format.text  { render :plain => siArr }
 		end
 	end
+	
+	def postAssetProperties(inventoryItem)
+		assetObj = WkAssetProperty.where(:inventory_item_id => inventoryItem.id).first_or_initialize(:inventory_item_id => inventoryItem.id, :name => (inventoryItem.product_item.product.name.to_s + inventoryItem.id.to_s), :current_value => (inventoryItem.cost_price.to_f + inventoryItem.over_head_price.to_f).round(2), :owner_type => 'O', :rate_per => 'h') 
+		assetObj.save
+	end
+	
+	def additionalContactType
+		false
+	end
+	
 end

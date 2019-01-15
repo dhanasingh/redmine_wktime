@@ -1,7 +1,11 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'invoice', :plugin => "redmine_wktime" %>
-<%= javascript_include_tag 'accountproject', :plugin => "redmine_wktime" %>
 <h2><%= l(:label_product) %></h2>
+<%
+	ledgers = Array.new
+	ledgers << [ "", ""]
+	ledgers = ledgers + WkLedger.order(:name).pluck(:name, :id)
+%>
 <%= form_tag({:controller => "wkproduct", :action => 'update'}, :method => :post, :id => 'query_form') do %>
 	<fieldset class="box tabular" >
 	<legend><%= l(:label_details) %></legend>	
@@ -9,35 +13,71 @@
 	<table >
 		<tr>
 			<th align="left"><%= l(:field_name) %></th>
-			<td align="left" style="padding-left:40px;"><%=h text_field_tag("name",@productEntry.blank? ? nil : @productEntry.name, :required => true,:size => 85) %> </td></tr>
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("name",@productEntry.blank? ? nil : @productEntry.name, :required => true,:size => 85) %> </td>
+			<td></td>
 		</tr> 
 		<tr>
 			<th align="left"><%= l(:label_category) %></th>
 			<td align="left" style="padding-left:40px;">
 				<%=h select_tag("category_id", generic_options_for_select(WkProductCategory, nil, 'name', 'name', 'id', @productEntry.blank? ? nil : @productEntry.category_id, false)) %>
 			</td>
+			<td></td>
+		</tr> 
+		<tr>
+			<th align="left"><%= l(:label_type) %></th>
+			<td align="left" style="padding-left:40px;">
+				<%=h select_tag("product_type", options_for_select(getProductTypeHash(true).invert, :selected => @productEntry.blank? ? getProductTypeHash(true).invert : @productEntry.product_type ), :onchange => "hideProductType()") %>
+			</td>
+			<td></td>
 		</tr>  
+		<tr>
+			<th align="left" style="padding-left:90px;"><label id="lbl_depreciation"><%= l(:label_depreciation) %></label></th>
+			<td align="left" style="padding-left:40px;">
+				<%= text_field_tag "depreciation_rate",  @productEntry.blank? ? '' : @productEntry.depreciation_rate.to_f*100, :size => 75 %>
+			</td>
+			<td>
+				<b><label id="per_annum"> % <%=h l(:label_per_annum) %></label></b>
+			</td>
+		</tr> 
+		<tr>
+			<th align="left"style="padding-left:126px;"><label id="lbl_dep_type"><%#= l(:label_depreciation_type) %></label></th>
+			<td align="left" style="padding-left:40px;">
+				<%#=h select_tag("depreciation_type", options_for_select(getDepreciationTypeHash(true).invert, :selected => @productEntry.blank? ? getDepreciationTypeHash(true).invert : @productEntry.depreciation_type )) %>
+			</td>
+			<td></td>
+		</tr> 
+		<tr>
+			<th align="left" style="padding-left:130px;"><label id="lbl_depreciation_account"><%= l(:label_accounting_ledger) %></label></th>
+			<td align="left" style="padding-left:40px;">
+				<%=h select_tag("ledger_id", options_for_select(ledgers, :selected => @productEntry.blank? ? ledgers : @productEntry.ledger_id )) %>
+			</td>
+			<td></td>
+		</tr> 
 		<tr>
 			<th align="left"><%= l(:label_attribute) %></th>
 			<td align="left" style="padding-left:40px;">
 				<%=h select_tag("attribute_group_id", generic_options_for_select(WkAttributeGroup, nil, 'name', 'name', 'id', @productEntry.blank? ? nil : @productEntry.attribute_group_id, false), :disabled => false) %>
 			</td>
+			<td></td>
 		</tr> 
 		<tr>
 			<th align="left"><%= l(:label_uom) %></th>
 			<td align="left" style="padding-left:40px;">
 				<%=h select_tag("uom_id", generic_options_for_select(WkMesureUnit, nil, 'short_desc', 'short_desc', 'id', @productEntry.blank? ? nil : @productEntry.uom_id, false), :disabled => false) %>
 			</td>
+			<td></td>
 		</tr> 
 		<tr>				
 			<th align="left"><%= l(:field_description) %></th>
-			<td colspan=4 align="left" style="padding-left:40px;"><%=h text_area_tag("description",@productEntry.blank? ? '' : @productEntry.description, :maxlength => 255, :style => "width:600px; height:90px;") %> </td>
+			<td colspan=4 align="left" style="padding-left:40px;"><%=h text_area_tag("description",@productEntry.blank? ? '' : @productEntry.description, :maxlength => 255, :style => "width:600px; height:75px;") %> </td>
+			<td></td>
 		</tr>
 		<tr>
 			<th align="left"><%= l(:label_applicable_taxes) %></th>
 			<td align="left" style="padding-left:40px;">
 				<%=h select_tag('tax_id', generic_options_for_select(WkTax, nil, 'name', 'name', 'id', @productEntry.blank? ? nil : @applicableTaxes, false), :size => 5, :multiple=> true) %>
 			</td>
+			<td></td>
 		</tr>
 	</table>	
 </fieldset>

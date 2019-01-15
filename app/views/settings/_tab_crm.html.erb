@@ -1,15 +1,13 @@
 <fieldset>
 	<legend><%= l(:label_crm) %></legend>
 	
-	<p style="margin-left: -110px;">
-			<%= check_box_tag('settings[wktime_enable_crm_module]', 1, @settings['wktime_enable_crm_module'].to_i == 1) %> <label><%= l(:label_enable_crm_module) %></label>
-	</p>
+	
 	
 	<%
 			accountGroups = Array.new
-			accGroup = Group.order('lastname')
+			accGroup = Group.all.sort
 			unless accGroup.blank?
-				accountGroups = accGroup.collect {|t| [t.lastname, t.id] }
+				accountGroups = accGroup.collect {|t| [t.name, t.id] }
 			end
 			accountGroups.unshift(["",""])
 	%>

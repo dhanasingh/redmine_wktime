@@ -1,0 +1,35 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<h2><%= l(:label_depreciation) %></h2>
+<%= form_tag({:controller => "wkassetdepreciation", :action => 'update'}, :method => :post, :id => 'query_form') do %>
+	<fieldset class="box tabular" >
+	<legend><%= l(:label_details) %></legend>	
+	<%=h hidden_field_tag('depreciation_id', @depreciation.blank? ? nil : @depreciation.id) %>
+	<%=h hidden_field_tag('inventory_item_id', @depreciation.blank? ? nil : @depreciation.inventory_item_id) %>
+	<%=h hidden_field_tag('currency', @depreciation.blank? ? nil : @depreciation.currency) %>
+	<table >
+		<tr>
+			<th align="left"><%= l(:label_asset) + " " + l(:field_name) %></th>
+			<td align="left" style="padding-left:50px;"><%=h @asset.asset_property.blank? ? "" : @asset.asset_property.name %> </td></tr>
+		</tr> 
+		<tr>
+			<th align="left"><%= l(:label_product) %></th>
+			<td align="left" style="padding-left:50px;">
+				<%=h @asset.product_item.blank? ? "" : @asset.product_item.product.name %>
+			</td>
+		</tr> 
+		<tr>			
+			<th align="left"><%= l(:label_depreciation_date) %></th> 
+			<td align="left" style="padding-left:50px;"><%=h date_field_tag('depreciation_date', (@depreciation.blank? ? Date.today.to_s : @depreciation.depreciation_date.to_s), :size => 10) %> <%= calendar_for('depreciation_date') %></td>
+		</tr>
+		<tr>
+			<th align="left"><%= l(:label_previous_value) %></th>
+			<td align="left" style="padding-left:50px;"><label align='left'><b><%= @depreciation.currency unless @depreciation.blank? %></b></label><%= text_field_tag "actual_amount",  @depreciation.blank? ? '' : @depreciation.actual_amount %></td>
+		</tr> 
+		<tr>
+			<th align="left"><%= l(:label_depreciation) %></th>
+			<td align="left" style="padding-left:50px;"><label align='left'><b><%= @depreciation.currency unless @depreciation.blank? %></b></label><%= text_field_tag "depreciation_amount",  @depreciation.blank? ? '' : @depreciation.depreciation_amount %></td>
+		</tr> 
+	</table>	
+</fieldset>
+	<%= submit_tag l(:button_save), :class => "small", :name => nil %>
+<% end %>

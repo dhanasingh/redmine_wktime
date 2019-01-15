@@ -17,7 +17,7 @@
 
 class WkcontractController < WkbillingController
 
-before_filter :require_login
+before_action :require_login
 
 
  def index
@@ -48,18 +48,7 @@ before_filter :require_login
 		unless projectId.blank?
 			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
 			sqlwhere = sqlwhere + " project_id = '#{projectId}' " 
-		end
-		
-		# if parentId.blank? &&  !projectId.blank?
-			# sqlwhere = "project_id = #{projectId}"
-		# end
-		# if !parentId.blank? &&  projectId.blank?
-			# sqlwhere = "parent_id = #{parentId} and parent_type = '#{parentType}' "
-		# end
-		# if !parentId.blank? &&  !projectId.blank?
-			# sqlwhere = "parent_id = #{parentId} and parent_type = '#{parentType}' and project_id = #{projectId}"
-		# end
-		
+		end		
 				
 		if filter_type == '1' && projectId.blank? 
 			entries = WkContract.all

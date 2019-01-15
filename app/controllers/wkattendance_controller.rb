@@ -18,12 +18,13 @@
 class WkattendanceController < WkbaseController	
 unloadable 
 
+menu_item :wkattendance
 include WktimeHelper
 include WkattendanceHelper
 include WkimportattendanceHelper
 
-before_filter :require_login
-before_filter :check_perm_and_redirect, :only => [:edit, :update, :clockedit]
+before_action :require_login
+before_action :check_perm_and_redirect, :only => [:edit, :update, :clockedit]
 require 'csv' 
 
 	def index
@@ -40,7 +41,7 @@ require 'csv'
 		else
 			listboxArr = Setting.plugin_redmine_wktime['wktime_leave'][0].split('|')
 			issueId = listboxArr[0]
-			sqlStr = getListQueryStr + " where u.type = 'User' and (cvt.value is null or #{getConvertDateStr('cvt.value')} >= '#{lastMonthStartDt}')"
+			sqlStr = getListQueryStr + " where u.type = 'User' and (wu.termination_date is null or wu.termination_date >= '#{lastMonthStartDt}')"
 		end
 		if !isAccountUser
 			sqlStr = sqlStr + " and u.id = #{User.current.id} " 
@@ -118,7 +119,7 @@ require 'csv'
 			group_by_users << users.id.to_s() + ',' + users.name + "\n"
 		end
 		respond_to do |format|
-			format.text  { render :text => group_by_users }
+			format.text  { render :plain => group_by_users }
 		end
 	end	
 	
@@ -186,16 +187,14 @@ require 'csv'
 			@to = Date.today
 		  when 'current_year'
 			@from = Date.civil(Date.today.year, 1, 1)
-			@to = Date.today #Date.civil(Date.today.year, 12, 31)
+			@to = Date.today 
 		  end
-		#elsif params[:period_type] == '2' || (params[:period_type].nil? && (!params[:from].nil? || !params[:to].nil?))
+		
 		elsif period_type == '2' || (period_type.nil? && (!fromdate.nil? || !todate.nil?))
 		  begin; @from = fromdate.to_s.to_date unless fromdate.blank?; rescue; end
 		  begin; @to = todate.to_s.to_date unless todate.blank?; rescue; end
 		  @free_period = true
-		else
-		  # default
-		  # 'current_month'		
+		else				
 			@from = Date.civil(Date.today.year, Date.today.month, 1)
 			@to = Date.today #(@from >> 1) - 1
 		end    
@@ -219,7 +218,7 @@ require 'csv'
 	end
 	
 	def runPeriodEndProcess
-		populateWkUserLeaves
+		populateWkUserLeaves(params[:fromdate].to_s.to_date)
 		respond_to do |format|
 			format.html {				
 				flash[:notice] = l(:notice_successful_update)
@@ -277,7 +276,7 @@ require 'csv'
 		queryStr = ''
 		accrualOn = params[:accrual_on].blank? ? Date.civil(Date.today.year, Date.today.month, 1) -1 : params[:accrual_on].to_s.to_date
 		queryStr = "select u.id as user_id, u.firstname, u.lastname, i.id as issue_id,w.balance, w.accrual, w.used, w.accrual_on, w.id from users u " +
-			"left join custom_values cvt on (u.id = cvt.customized_id and cvt.value != '' and cvt.custom_field_id = #{getSettingCfId('wktime_attn_terminate_date_cf')} ) " +
+			"left join wk_users wu on u.id = wu.user_id " +
 			"cross join issues i left join wk_user_leaves w on w.user_id = u.id and w.issue_id = i.id
 			and w.accrual_on = '#{accrualOn}' "
 		queryStr
@@ -295,7 +294,7 @@ require 'csv'
 				selectColStr = selectColStr + ", (#{tAlias}.balance + #{tAlias}.accrual - #{tAlias}.used) as total#{index.to_s}"
 			end
 		end
-		queryStr = selectColStr + " from users u left join custom_values cvt on (u.id = cvt.customized_id and cvt.value != '' and cvt.custom_field_id = #{getSettingCfId('wktime_attn_terminate_date_cf')} ) " + joinTableStr 
+		queryStr = selectColStr + " from users u left join wk_users wu on u.id = wu.user_id " + joinTableStr 
 		
 		if !params[:group_id].blank?
 			queryStr = queryStr + " left join groups_users gu on u.id = gu.user_id"
@@ -311,7 +310,7 @@ require 'csv'
 			issue_by_project << issue.id.to_s() + ',' + issue.subject + "\n"
 		end
 		respond_to do |format|
-			format.text  { render :text => issue_by_project }
+			format.text  { render :plain => issue_by_project }
 		end
 	end	
 	
@@ -354,7 +353,7 @@ require 'csv'
 			project_by_issue = issues[0].project_id.to_s + '|' + issues[0].project.name 
 		end
 		respond_to do |format|
-			format.text  { render :text => project_by_issue }
+			format.text  { render :plain => project_by_issue }
 		end
 	end
 
@@ -426,7 +425,7 @@ require 'csv'
 		
 		if errorMsg.nil?	
 			redirect_to :controller => 'wkattendance',:action => 'clockindex' , :tab => 'clock'
-			flash[:notice] = sucessMsg #l(:notice_successful_update)
+			flash[:notice] = sucessMsg 
 		else
 			flash[:error] = errorMsg
 			redirect_to :action => 'edit'

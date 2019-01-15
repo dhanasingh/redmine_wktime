@@ -1,0 +1,88 @@
+<%= form_tag({:controller => "wkshift", :action => 'shiftRoleUpdate', :tab => 'wkshift'}, :method => :post, :id => 'query_form') do %>
+<% roleArr = Role.order(:name).pluck(:name, :id) %>
+<% actualIds = "" %>
+<%= hidden_field_tag "shift_id",  @shiftentry.blank? ? shift_id : @shiftentry[0].shift_id  %>
+<%= hidden_field_tag "location_id", location_id  %>
+<%= hidden_field_tag "department_id",  department_id  %>
+<table class="list" id="commit-keywords">
+  <thead>
+    <tr>
+		<th></th>		
+		<th><%= l(:field_role) %></th>
+		<th><%= l(:label_count) %></th>
+		<th class="buttons"></th>
+    </tr>
+  </thead>
+  <tbody>
+	<% unless @shiftentry.blank? %>
+		<% @shiftentry.each do |entry| %>
+			<tr class="commit-keywords">
+				<td>
+					<%= hidden_field_tag "shift_role_id[]",  entry.id  %>
+					<% actualIds = actualIds.blank? ? entry.id.to_s  : (actualIds + "," + entry.id.to_s) %>
+				</td>				
+			    <td>
+					<%=h select_tag('role_id[]', options_for_select(roleArr, :selected => entry.role_id), :required => true, :style => "width:150px;") %>	
+			    </td>
+			    <td>
+					<%= text_field_tag "staff_count[]",  entry.staff_count, :style => "width:150px;", :required => true  %>
+				</td>			        
+			 
+				<td class="buttons">
+					<%= link_to(l(:button_delete), '#',
+							:class => 'delete-commit-keywords icon-only icon-del',
+							:title => l(:button_delete)) %>					
+				</td>
+			</tr>
+		<% end %>
+	<% else %>
+		<tr class="commit-keywords">
+			<td>
+				<%= hidden_field_tag "shift_role_id[]",  ""  %>
+			</td>			
+			<td>
+				<%=h select_tag('role_id[]', options_for_select(roleArr), :required => true, :style => "width:150px;") %>	
+			</td>
+			<td>
+				<%= text_field_tag "staff_count[]",  "", :style => "width:150px;", :required => true  %>
+			</td>	
+	 
+			<td class="buttons">
+				<%= link_to(l(:button_delete), '#',
+							:class => 'delete-commit-keywords icon-only icon-del',
+							:title => l(:button_delete)) %>
+			</td>
+		</tr>
+	<% end %>
+    <tr>      
+	  <td></td>
+	  <td></td>
+      <td></td>      
+      <td class="buttons">
+        <%= link_to(l(:button_add), '#',
+                    :class => 'add-commit-keywords icon-only icon-add',
+                    :title => l(:button_add)) %>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<%= hidden_field_tag "actual_ids",  actualIds  %>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
+<p><%= submit_tag l(:button_save) %></p>
+<% end %>
+
+<%= javascript_tag do %>
+$('#commit-keywords').on('click', 'a.delete-commit-keywords', function(e){
+  e.preventDefault();
+  if ($('#commit-keywords tbody tr.commit-keywords').length > 1) {
+    $(this).parents('#commit-keywords tr').remove();
+  } else {
+    $('#commit-keywords tbody tr.commit-keywords').find('input, select').val('');
+  }
+});
+$('#commit-keywords').on('click', 'a.add-commit-keywords', function(e){
+  e.preventDefault();
+  var row = $('#commit-keywords tr.commit-keywords:last');
+  row.clone().insertAfter(row).find('input, select').val('');
+});
+<% end %>

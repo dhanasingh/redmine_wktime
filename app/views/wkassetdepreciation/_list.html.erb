@@ -1,0 +1,40 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div class="autoscroll">
+<table class="list time-entries">
+  <thead>
+         <tr>
+				<th class="lbl-txt-align"><%= l(:label_asset) %></th>
+				<th class="lbl-txt-align"><%= l(:label_product) %></th>
+				<th class="lbl-txt-align"><%= l(:label_purchase_date) %></th>
+				<th class="lbl-txt-align"><%= l(:label_purchase_value) %></th>
+				<th class="lbl-txt-align"><%= l(:label_previous_value) %></th>
+				<th class="lbl-txt-align"><%= l(:label_depreciation_date) %></th>
+				<th class="lbl-txt-align"><%= l(:label_depreciation) %></th>
+				<th class="lbl-txt-align"><%= l(:label_current_value) %></th>
+				<th></th>
+         </tr>
+  </thead>
+   <tbody>
+   <% @depreciation_entries.each do |entry| %>
+		 <tr>
+				<td class="lbl-txt-align"><%=h entry.asset_name %></td>
+				<td class="lbl-txt-align"><%=h entry.product_name %></td>
+				<td class="lbl-txt-align"><%=h entry.purchase_date %></td>
+				<td class="lbl-txt-align"><%=h html_hours("%.2f" % (entry.cost_price.to_f + entry.over_head_price.to_f)) %></td>
+				<td class="lbl-txt-align"><%=h html_hours("%.2f" % entry.actual_amount) %></td>
+				<td class="lbl-txt-align"><%=h entry.depreciation_date %></td>
+				<td class="lbl-txt-align"><%=h html_hours("%.2f" % entry.depreciation_amount) %></td>
+				<td class="lbl-txt-align"><%=h html_hours("%.2f" % (entry.actual_amount.to_f - entry.depreciation_amount.to_f) ) %></td>
+				<td align="center">
+					<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :depreciation_id => entry.id, :tab => controller.controller_name},
+										   :title => l(:button_edit) %>
+					<% if controller.hasDeletePermission %>
+						<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :depreciation_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+					<% end %>
+				</td>
+		</tr>
+	<% end %>
+   </tbody>
+</table>
+</div>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

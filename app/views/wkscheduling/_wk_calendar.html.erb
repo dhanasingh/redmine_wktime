@@ -1,0 +1,20 @@
+<table class="cal">
+<thead>
+<tr><th scope="col" title="<%= l(:label_week) %>" class="week-number"></th><% 7.times do |i| %><th scope="col"><%= day_name( (calendar.first_wday+i)%7 ) %></th><% end %></tr>
+</thead>
+<tbody>
+<tr>
+<% day = calendar.startdt
+while day <= calendar.enddt %>
+	<%= ("<td class='week-number' title='#{ l(:label_week) }'>#{(day+(11-day.cwday)%7).cweek}</td>".html_safe) if day.cwday == calendar.first_wday %>
+	<td class="<%= day.month==calendar.month ? 'even' : 'odd' %><%= ' today' if User.current.today == day %>">
+	
+	<p class="day-num"><%= day.day %></p>
+		<%= link_to_wkcalendar_display_day @schedulehash, :day => day, :limit => 3 %>	
+	</td>
+	<%= '</tr><tr>'.html_safe if day.cwday==calendar.last_wday and day!=calendar.enddt %>
+	<% day = day + 1
+end %>
+</tr>
+</tbody>
+</table>

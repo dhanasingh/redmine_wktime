@@ -1,8 +1,8 @@
 class WkbrandController < WkinventoryController
   unloadable
-  before_filter :require_login
-  before_filter :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :edit_product_model, :updateProductModel]
-  before_filter :check_admin_redirect, :only => [:destroy, :destroyProductModel]
+  before_action :require_login
+  before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :edit_product_model, :updateProductModel]
+  before_action :check_admin_redirect, :only => [:destroy, :destroyProductModel]
 
 
     def index
@@ -11,10 +11,6 @@ class WkbrandController < WkinventoryController
 		unless params[:name].blank?
 			sqlStr = "LOWER(name) like LOWER('%#{params[:name]}%')"
 		end
-		# unless params[:product_id].blank?
-			# sqlStr = sqlStr + " AND" unless sqlStr.blank?
-			# sqlStr = sqlStr + " wk_brand_products.product_id = #{params[:product_id]}"
-		# end
 		unless sqlStr.blank?
 			entries = WkBrand.where(sqlStr)
 		else

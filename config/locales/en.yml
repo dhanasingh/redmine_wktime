@@ -62,7 +62,8 @@ en:
   label_wk_allow_user_filter_tracker: Allow User Filtering by Tracker
   label_wk_filter_issue_tracker: Filter Issue by Tracker
   label_wk_currency: Currency
-  label_wk_time: Weekly Time  
+  label_wk_time: Weekly Time
+  label_total_expense: Total Expense 
  
   label_wkexpense_reports: Expense Report
   label_spent_expense: Spent Expense
@@ -155,6 +156,9 @@ en:
   label_wk_attendance_start_date: Attendance start date
   label_clock_in: Clock in
   label_clock_out: Clock out
+  check_clock_state: Check clock state periodically
+  clock_interval_url: Url adress for clock state requests
+  check_clock_state_interval: Time interval in which application will perform requests for clock state in seconds
   label_wk_leave_exists: This leave already exists
   wk_field_balance: Balance
   wk_field_used: Used
@@ -206,8 +210,8 @@ en:
   label_path: Import file path
   label_auto_import: Auto Import
   label_auto_import_time: Auto Import Every
-  label_start_time: Starttime
-  label_end_time: Endtime
+  label_start_time: Start Time
+  label_end_time: End Time
   label_user_id: Userid
   label_available_fields: Available Fields
   label_fields_in_file: Fields in File
@@ -226,7 +230,7 @@ en:
   label_pay_period: Pay Period
   label_salary_type: Salary Type
   label_monthly: Monthly
-  label_quartly: Quarterly
+  label_quarterly: Quarterly
   label_semi_annually: Semi Annually
   label_annually: Annually
   label_salaried: Salaried
@@ -249,7 +253,9 @@ en:
   label_emp_name: Employee Name
   label_ytd: YTD
   label_earning: Earnings
-  label_user_settings: User Settings
+  label_payroll_settings: Payroll Settings
+  label_clock_settings: Clock Settings
+  label_clock_state_error: Cannot check clock state
   label_total_earning: Total Earnings
   label_total_deduction: Total Deductions
   label_net_earning: Net Earnings
@@ -278,6 +284,7 @@ en:
   label_contracts: Contracts
   label_acc_projects: Billable Projects
   label_invoice: Invoice
+  label_invoice_adjusted: Invoice
   label_tax: Tax  
   label_project_name: Project Name
   label_account_name: Account Name
@@ -293,6 +300,7 @@ en:
   label_invoice_no_prefix: Invoice number prefix
   label_taxname: Tax Name
   label_rate: Rate
+  label_exchange_rate: Rate
   label_tax_detail: Tax Detail
   label_new_tax: New Tax
   label_invoice_name: Item Description
@@ -340,7 +348,8 @@ en:
   label_attachment: Attachments
   label_edit_contract: Edit Contract
   label_project: Project 
-  label_account: Account 
+  label_account: Account
+  label_account_adjusted: Account
   label_contract_number: Contract Number
   label_contract_no_prefix: Contract number prefix
   label_new_contract: New Contract
@@ -407,7 +416,10 @@ en:
   label_accounting_group: Accounting User Group
   label_enable_accounting_module: Enable Accounting Module
   label_transaction: Transaction
+  label_transaction_type: Transaction Type
+  label_transaction_date: Transaction Date
   label_ledger: Ledger
+  label_ledger_information: Ledger Information
   label_accounting_admin: Accounting Admin Group
   label_bank_ac: Bank Accounts
   label_bank_occ_ac: Bank OCC A/c
@@ -451,6 +463,7 @@ en:
   label_txn_receipt: Receipt
   label_txn_journal: Journal
   label_txn_sales: Sales
+  label_txn_sales_stage: Sales Stage
   label_txn_credit_note: Credit Note
   label_txn_purchase: Purchase
   label_txn_debit_note: Debit Note
@@ -487,10 +500,14 @@ en:
   label_lead_plural: Leads
   label_opportunity_plural: Opportunities
   label_activity_plural: Activities
+  label_activity_type: Activity Type
   label_contact_plural: Contacts
   label_new_item: "New %{value}"
+  label_new_item_adjusted: "New %{value}"
+  label_new_item_third_case: "New %{value}"
   label_edit_item: "Edit %{value}"
   label_lead: Lead
+  label_lead_adjusted: Lead
   label_content_information: "%{value} Information"
   label_website: Website
   label_department: Department
@@ -512,8 +529,12 @@ en:
   label_start_date_time: "Start Date & Time"
   label_related_to: Related to
   label_contact: Contact
+  label_contact_adjusted: Contact
   label_task: Task
   label_opportunity: Opportunity
+  label_opportunity_information: Opportunity Information
+  label_opportunity_name: Opportunity Name
+  label_opportunity_type: Opportunity Type
   label_duration: Duration
   label_end_date_time: "End Date & Time"
   label_priority: Priority
@@ -673,10 +694,10 @@ en:
   label_log_type: Log Type
   label_cost_price: Cost Price
   label_selling_price: Selling Price
-  label_over_head_price: Over Head Price
+  label_over_head_price: Over Head Cost
   label_org_cost_price: Original Cost Price
   label_org_selling_price: Original Selling Price
-  label_org_over_head_price: Original Over Head Price
+  label_org_over_head_price: Original Over Head Cost
   label_total_quantity: Total Quantity
   label_available_quantity: Available Quantity
   label_model: Model
@@ -685,14 +706,14 @@ en:
   label_product_items: Product Items
   label_category: Category
   label_populate_items: Populate Items
-  label_new_product_item: New Product Item
-  label_edit_product_item: Edit Product Item
+  label_new_product_item: New Item
+  label_edit_product_item: Edit Item
   label_product_item: Product Item
   label_part_number: Part Number
   label_inventory_information: Inventory Information
   button_transfer: Transfer to
   field_quantity: Quantity
-  field_selling_price: Selling Price
+  field_selling_price: Price
   report_stock: Stock Report
   label_stock_value: Stock value
   label_new_product: New Product
@@ -718,3 +739,176 @@ en:
   error_shipment_items_used: Could not delete the shipment. Some items in the shipment were used
   error_material_delete: Unable delete the material entries
   error_material_delete_billed: Could not delete the invoiced material entries
+  error_expense_amount: Amount cannot be empty
+  error_expense_delete: Unable delete the expense entries
+  label_asset: Asset
+  label_depreciation: Depreciation
+  label_depreciation_ledger: Depreciation Ledger
+  label_depreciation_type: Depreciation Type
+  label_depreciation_frequency: Depreciation Frequency
+  field_inventory_item_id: Product
+  label_rate_per: Product
+  label_current_asset_value: Current Asset Value
+  label_asset_type: Asset Type
+  label_rate_per: Rate Per
+  label_own: Own
+  label_rental: Rental
+  label_lease: Lease
+  label_daily: Daily
+  label_depreciation_type: Depreciation Type
+  label_accounting_ledger: Accounting Ledger
+  label_wdv: Written Down Value
+  label_stright_line: Stright Line
+  label_purchase_date: Purchase Date
+  label_purchase_value: Purchase Value
+  label_previous_value: Previous Value
+  label_depreciation_date: Depreciation Date
+  label_current_value: Current Value
+  label_apply_depreciation: Apply Depreciation
+  label_per_annum: Per Annum
+  label_no_asset_current_product: No Asset in selected Product
+  label_new_depreciation: New Depreciation
+  report_asset: Asset Report
+  label_last_depreciation_on: Last Depreciation on
+  label_loggable_asset: Loggable Asset
+  label_dep_auto_apply: Auto Apply Depreciation
+  label_done: Done
+  label_log: Log
+  label_owner: Owner
+  error_transfer_qty_greater_than_zero: Transfer Quantity Should be greater than zero
+  error_avail_qty_great_than_trans_qty: Transfer Quantity should be less than or equal to Available Quantity
+  label_per: per
+  label_depreciation_freq_warning: "Note: Any change to the depreciation frequency will delete last applied depreciations"
+  label_scheduling: Scheduling
+  label_schedule_preference: Schedule Preference
+  label_shift: Shift
+  label_role_adjusted: Roles
+  label_new_shift: New Shift
+  label_required_staff: Required Staff
+  label_count: Count
+  label_department: Department
+  label_day_off: Day Off
+  label_schedule_details: Schedule Details
+  label_shift_scheduling: Shift Scheduling
+  field_is_schedulable: Schedulable
+  field_gender: Gender
+  field_id1: Custom id1
+  field_id2: Custom id2
+  field_id3: Custom id3
+  field_join_date: Join date
+  field_birth_date: Birth date
+  field_termination_date: Termination date
+  field_bank_name: Bank name
+  field_account_number: Bank account number
+  field_bank_code: Bank code
+  field_tax: Tax id
+  field_ss: SS id
+  field_custom_number1: Custom number1
+  field_custom_number2: Custom number2
+  field_custom_date1: Custom date1
+  field_custom_date2: Custom date2
+  field_billing_rate: Billing rate
+  field_billing_currency: Billing currency
+  field_location: Location 
+  field_department: Department
+  label_public_holiday: Public Holiday
+  label_schedule_on_weekend: Schedule on Weekend / Holiday
+  label_holiday: Holiday
+  label_day_off_per_frequency: Day off per frequency
+  label_schedule_shifts: Schedule Shifts
+  warning_apply_depreciation: Are you sure want to apply depreciation for the period
+  warning_schedule_shifts: Are you sure want to schedule shifts for the period
+  label_work: Work
+  field_shift: Shift
+  label_setting_preference: Allow user schedule preference
+  label_auto_scheduling: Auto Shift Scheduling
+
+
+  label_shift_and_scheduling: Shift Scheduling
+  label_auto_approve_with_te: Auto approve Time & Expense
+  label_credit_with_ledger: Credit Ledger
+  label_debit_with_ledger: Debit Ledger
+  label_txn_payment_with_credit_with_ledger: Payment Credit Ledger
+  label_txn_payment_with_debit_with_ledger: Payment Debit Ledger
+
+  gender_hash_male: Male
+  gender_hash_female: Female
+  gender_hash_others: Others
+
+  nonsub_mail_message_content: You are receiving this notification for timesheet non submission
+  submission_ack_message_content: I Acknowledge that the hours entered are accurate to the best of my knowledge
+  all_users_for_select: All Users
+  label_expected_date_to_close_project: Expected Close Date
+  text_edit_activity: Edit Activity
+  label_number_shortcut: "No"
+  label_account_category: Account Category
+
+  VIEW INVENTORY: View inventory
+  DELETE INVENTORY: Delete inventory 
+  SCHEDULES SHIFT: Schedules shift 
+  EDIT SHIFT SCHEDULES: Edit shift schedules
+
+  label_active_on: On
+  label_active_off: Off
+
+  label_confirmation_salary_text: Are you sure want to generate salary on
+
+  label_period_end_confirmation: Are you sure want to run this process
+  label_period_end_note: 'Please: Note This will run the process for the previous month from the chosen date'
+  label_chose_process_date: 'Chose process date:'
+  label_title_end_process: Run Period End Process
+  label_select_date_text: Please select the date
+
+  label_report_type: Report Type
+
+  label_new_asset: New Asset
+  label_new_asset_item: New Asset
+  label_edit_asset_item: Edit Asset
+  label_additional_info: Additional Information
+  label_as: As
+  label_new_component: New Component
+  label_components: Components
+  label_sheet_view: Sheet view
+  label_issue_view: Issue view
+  label_spent_for: Spent For
+  label_availability: Available
+  label_in_use: In Use
+  label_additional_assignee: Additional Assignee
+  label_relationship: Contact Relationship
+  warning_select_project: Please select a project
+  warn_billable_project_not_configured: Billable projects not configured for %{name}
+  field_rate: Rate
+  field_rate_per: Per
+  label_invoice_generation_month: Invoice generation month
+  label_edit_component: Edit Component
+  # Supervisor lables  
+  label_ftte_supervisor: "Supervisor"
+  label_my_direct_reports: "My direct reports"
+  label_my_reports: "My reports"
+  label_ftte_supervisor_edit_log: "Allow supervisor to edit time logs"
+  label_ftte_override_spent_time_report: "Override built-in spent time reports"
+  label_ftte_supervisor_based_approval: "Use supervisor based approval system "
+  label_ftte_view_only_own_spent_time: "View only own spent time"
+  label_additional_details: Additional Details
+  
+  #Dashboards
+  label_dashboards: Dashboards
+  label_clock_in_users_over_time: Clock in users over time
+  label_no_of_users: No of users
+  label_expense_for_issues: Expense for issues
+  label_total_expense_of_issues: Total expense of the issues
+  label_lead_generation_vs_conversion: Lead generation vs conversion
+  label_created_lead: Created lead
+  label_converted_lead: Converted lead
+  label_invoice_vs_payment_per_month: Invoice total vs Payment total
+  label_total_invoice: Invoice total
+  label_total_payment: Payment total
+  label_assets_per_month: Assets per month
+  label_total_assets_per_month: Total assets  
+  label_profit_loss_per_month: Profit and loss per month
+  label_total_income: Income total
+  label_total_expense: Expense total
+  label_months: Months
+  label_amount : Amount
+  label_no_of_leads: No of leads
+  label_no_of_employees: No of Employees

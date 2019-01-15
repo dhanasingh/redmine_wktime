@@ -23,20 +23,23 @@ class WkinvoiceController < WkorderentityController
 	end
 
 	def newInvoice(parentId, parentType)
+		invoiceFreq = getInvFreqAndFreqStart
+		invIntervals = getIntervals(params[:start_date].to_date, params[:end_date].to_date, invoiceFreq["frequency"], invoiceFreq["start"], true, false)
 		if !params[:project_id].blank? && params[:project_id] != '0'
 			@projectsDD = Project.where(:id => params[:project_id].to_i).pluck(:name, :id)				
-			setTempEntity(params[:start_date], params[:end_date], parentId, parentType, params[:populate_items], params[:project_id])			
+			setTempEntity(invIntervals[0][0], invIntervals[0][1], parentId, parentType, params[:populate_items], params[:project_id])			
 		elsif (!params[:project_id].blank? && params[:project_id] == '0') || params[:isAccBilling] == "true"
 			accountProjects = WkAccountProject.where(:parent_type => parentType, :parent_id => parentId.to_i)	
 			unless accountProjects.blank?
 				@projectsDD = accountProjects[0].parent.projects.pluck(:name, :id)
-				setTempEntity(params[:start_date], params[:end_date], parentId, parentType, params[:populate_items], params[:project_id])
+				setTempEntity(invIntervals[0][0], invIntervals[0][1], parentId, parentType, params[:populate_items], params[:project_id])
 			else
-				flash[:error] = "No projects in name."
+				client = parentType.constantize.find(parentId)
+				flash[:error] = l(:warn_billable_project_not_configured, :name => client.name)
 				redirect_to :action => 'new'
 			end
 		else
-			flash[:error] = "Please select the projects"
+			flash[:error] = l(:warning_select_project)
 			redirect_to :action => 'new'
 		end
 	end
@@ -51,48 +54,58 @@ class WkinvoiceController < WkorderentityController
 		end		
 	end
 	
-	def previewBilling(accountProjects)
+	def getInvoicePeriod(startDate, endDate)
+		[startDate, endDate]
+	end
+	
+	def previewBilling(accountProjects, from, to)
 		lastParentId = 0
+		lastParentType = ""
 		@currency = nil
 		@listKey = 0
 		@invList = Hash.new{|hsh,key| hsh[key] = {} }
 		@previewBilling = true
 		isActBilling = false
 		totalInvAmt = 0
-		accountProjects.each do |accProj|
-			if isAccountBilling(accProj) 
-				if lastParentId != accProj.parent_id
-					setTempEntity(@from, @to, accProj.parent_id, accProj.parent_type, '1', '0')
-					isActBilling = true
+		invoiceFreq = getInvFreqAndFreqStart
+		invIntervals = getIntervals(from, to, invoiceFreq["frequency"], invoiceFreq["start"], true, false)
+		lastInvStart = nil
+		invIntervals.each do |interval|
+			accountProjects.each do |accProj|
+				if isAccountBilling(accProj) 
+					if (lastParentId != accProj.parent_id || lastParentType != accProj.parent_type) || lastInvStart != interval[0]
+						setTempEntity(interval[0], interval[1], accProj.parent_id, accProj.parent_type, '1', '0')
+						isActBilling = true
+					end
+					lastParentId = accProj.parent_id
+					lastParentType = accProj.parent_type
+					lastInvStart = interval[0]
+				else
+					isActBilling = false
+					setTempEntity(interval[0], interval[1], accProj.parent_id, accProj.parent_type, '1', accProj.project_id)
 				end
-				lastParentId = accProj.parent_id
-			else
-				isActBilling = false
-				setTempEntity(@from, @to, accProj.parent_id, accProj.parent_type, '1', accProj.project_id)
-			end
-			
-			if  (!@invList[@listKey]['amount'].blank? && @invList[@listKey]['amount'] != 0.0) 
-				totQuantity = 0
-				@invItems.each do |key, value|
-					totQuantity = totQuantity + value['item_quantity'] unless value['item_quantity'].blank?
+				
+				if  (!@invList[@listKey]['amount'].blank? && @invList[@listKey]['amount'] != 0.0) 
+					totQuantity = 0
+					@invItems.each do |key, value|
+						totQuantity = totQuantity + value['item_quantity'] unless value['item_quantity'].blank?
+					end
+					@invList[@listKey].store 'invoice_number', ""
+					@invList[@listKey].store 'parent_type', accProj.parent_type
+					@invList[@listKey].store 'parent_id', accProj.parent_id
+					@invList[@listKey].store 'name', accProj.parent.name
+					@invList[@listKey].store 'project', @invItems[0]['project_id'].blank? ? accProj.project.name : Project.find(@invItems[0]['project_id']).name
+					@invList[@listKey].store 'project_id', accProj.project_id
+					@invList[@listKey].store 'status', 'o'
+					@invList[@listKey].store 'quantity', totQuantity
+					@invList[@listKey].store 'start_date', interval[0]
+					@invList[@listKey].store 'end_date', interval[1]
+					@invList[@listKey].store 'isAccountBilling', isActBilling
+					totalInvAmt = totalInvAmt + @invList[@listKey]['amount']
+					@listKey = @listKey + 1
 				end
-				@invList[@listKey].store 'invoice_number', ""
-				@invList[@listKey].store 'parent_type', accProj.parent_type
-				@invList[@listKey].store 'parent_id', accProj.parent_id
-				@invList[@listKey].store 'name', accProj.parent.name
-				@invList[@listKey].store 'project', accProj.project.name
-				@invList[@listKey].store 'project_id', accProj.project_id
-				@invList[@listKey].store 'status', 'o'
-				@invList[@listKey].store 'quantity', totQuantity
-			#	@invList[@listKey].store 'invoice_date', Date.today
-				@invList[@listKey].store 'start_date', @from
-				@invList[@listKey].store 'end_date', @to
-				@invList[@listKey].store 'isAccountBilling', isActBilling
-				totalInvAmt = totalInvAmt + @invList[@listKey]['amount']
-			#	@invList[@listKey].store 'modified_by', User.current
-				@listKey = @listKey + 1
-			end
-		end	
+			end	
+		end
 		@entry_count = @invList.size
 		setLimitAndOffset()
 		invTotal = 0
@@ -117,9 +130,8 @@ class WkinvoiceController < WkorderentityController
 			taxGrandTotal = 0
 			creditAmount = 0
 			totMatterialAmt = 0.00
-			#if !params[:project_id].blank? && params[:project_id] == '0'
 			if !projectId.blank? && projectId == '0'
-				accPrtId = WkAccountProject.where(:parent_type => relatedTo, :parent_id => relatedParent.to_i) #, :project_id => params[:project_id].to_i
+				accPrtId = WkAccountProject.where(:parent_type => relatedTo, :parent_id => relatedParent.to_i) 
 			else
 				accPrtId = WkAccountProject.where(:parent_type => relatedTo, :parent_id => relatedParent.to_i, :project_id => projectId.to_i)
 			end
@@ -130,12 +142,13 @@ class WkinvoiceController < WkorderentityController
 			accPrtId.each do | apEntry|
 				if !populatedItems.blank? && populatedItems == '1'
 					@unbilled = true
+					matterialAmt = 0
 					if apEntry.billing_type == 'TM'
 						totAmount = saveTAMInvoiceItem(apEntry, true)
+						matterialAmt = addMaterialItem(apEntry, false) #.project_id
 					else
 						totAmount = getFcItems(apEntry, startDate, endDate)
-					end
-					matterialAmt = addMaterialItem(apEntry.project_id, false)				
+					end									
 					totMatterialAmt = totMatterialAmt + matterialAmt
 				else
 					@currency = params[:inv_currency]
@@ -158,18 +171,17 @@ class WkinvoiceController < WkorderentityController
 				totAmount = 0.00
 			end	
 			
-			unless (taxGrandTotal + grandTotal) == 0.0
+			unless (taxGrandTotal + grandTotal) == 0.0 && totMatterialAmt == 0.0
 				@invList[@listKey].store 'amount', (taxGrandTotal + grandTotal + totMatterialAmt) + creditAmount
 			end
 	end
 	
 	def getFcItems(accountProject, startDate, endDate)
-		#hashKey = 0
 		totalAmt = 0		
 		scheduledEntries = accountProject.wk_billing_schedules.where(:account_project_id => accountProject.id, :bill_date => startDate .. endDate, :invoice_id => nil)
 		scheduledEntries.each do |entry|
 			itemDesc = ""		
-			if isAccountBilling(entry.account_project) #scheduledEntry.account_project.parent.account_billing
+			if isAccountBilling(entry.account_project) 
 				itemDesc = entry.account_project.project.name + " - " + entry.milestone
 			else
 				itemDesc = entry.milestone
@@ -193,7 +205,7 @@ class WkinvoiceController < WkorderentityController
 		if accProjectEntry.billing_type == 'TM'
 			getRate = getProjectRateHash(accProjectEntry.project.custom_field_values)
 			if getRate.blank? || getRate['rate'].blank? || getRate['rate'] <= 0
-				rateHash = getIssueRateHash(accProjectEntry.project.issues.first.custom_field_values)
+				rateHash = getIssueRateHash(accProjectEntry.project.issues.first) #.custom_field_values
 				@currency = rateHash['currency']
 				if rateHash.blank? || rateHash['rate'].blank? || rateHash['rate'] <= 0
 					userRateHash = getUserRateHash(accProjectEntry.project.users.first.custom_field_values)
@@ -209,15 +221,17 @@ class WkinvoiceController < WkorderentityController
 	end
 	
 	def deleteBilledEntries(invItemIdsArr)
-		CustomField.find(getSettingCfId('wktime_billing_id_cf')).custom_values.where(:value => invItemIdsArr).delete_all unless getSettingCfId('wktime_billing_id_cf').blank? || getSettingCfId('wktime_billing_id_cf') == 0
+		#CustomField.find(getSettingCfId('wktime_billing_id_cf')).custom_values.where(:value => invItemIdsArr).delete_all unless getSettingCfId('wktime_billing_id_cf').blank? || getSettingCfId('wktime_billing_id_cf') == 0
+		spents = WkSpentFor.where(:invoice_item_id => invItemIdsArr)
+		spents.each do |spent|
+			spent.update(:invoice_item_id => nil)
+		end
+		materialEntries = WkMaterialEntry.where(:invoice_item_id => invItemIdsArr)
+		materialEntries.each do |mEntry|
+			mEntry.update(:invoice_item_id => nil)
+		end
 	end
-	
-	# def invreport
-		# @invoice = WkInvoice.find(params[:invoice_id].to_i)
-		# @invoiceItem = @invoice.invoice_items 
-		# render :action => 'invreport', :layout => false
-	# end
-	
+		
 	def getAccountProjIds
 		accArr = ""	
 		accProjId = getProjArrays(params[:parent_id], params[:parent_type] )
@@ -234,7 +248,7 @@ class WkinvoiceController < WkorderentityController
 			end
 		end
 		respond_to do |format|
-			format.text  { render :text => accArr }
+			format.text  { render :plain => accArr }
 		end
 		
     end
@@ -285,6 +299,18 @@ class WkinvoiceController < WkorderentityController
 	
 	def deletePermission
 		false
+	end
+	
+	def addMaterialType
+		true
+	end
+	
+	def addAssetType
+		true
+	end
+	
+	def showProjectDD
+		true
 	end
 
 end

@@ -1,8 +1,6 @@
 class WkexchangerateController < WkbillingController
   unloadable
 
-
-
 	def index
 		entries = WkExCurrencyRate.all	
 		formPagination(entries)
@@ -24,7 +22,7 @@ class WkexchangerateController < WkbillingController
 		end
 		
 		if !arrId.blank?			
-			WkExCurrencyRate.delete_all(:id => arrId)
+			WkExCurrencyRate.where(:id => arrId).delete_all
 		end
 		
 		redirect_to :controller => 'wkexchangerate',:action => 'index' , :tab => 'wkexchangerate'

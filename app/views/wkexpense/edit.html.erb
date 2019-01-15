@@ -7,8 +7,8 @@
 		lblWarnUnsavedTE = '<%=l(:text_warn_on_leaving_unsaved) %>'
 		decSeparator = '<%=l(:general_csv_decimal_separator) %>';
 		issueField = '<%= l(:field_issue) %>';
-		submissionack="<%= Setting.plugin_redmine_wktime[:wktime_submission_ack] %>";
-		editUrl = '<%=raw(url_for(:controller => controller.controller_name, :action => "edit", :startday => @startday, :user_id => params[:user_id]))%>';
+		submissionack="<%= Setting.plugin_redmine_wktime['wktime_submission_ack'] %>";
+		editUrl = '<%=raw(url_for(:controller => controller.controller_name, :action => "edit", :startday => @startday, :user_id => params[:user_id], :sheet_view => params[:sheet_view], :project_id => params[:project_id]))%>';
 		
 		<% if !Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? &&
 			Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 1 %>

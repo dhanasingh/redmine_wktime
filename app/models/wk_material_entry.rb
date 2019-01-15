@@ -25,9 +25,14 @@ class WkMaterialEntry < ActiveRecord::Base
   belongs_to :user
   belongs_to :activity, :class_name => 'TimeEntryActivity'
   belongs_to :inventory_item, :class_name => 'WkInventoryItem'
+  
+  has_one :spent_for, as: :spent, class_name: 'WkSpentFor', :dependent => :destroy  
    
-   
-  attr_protected :user_id, :tyear, :tmonth, :tweek
+  # attr_protected :user_id, :tyear, :tmonth, :tweek
+  
+  accepts_nested_attributes_for :spent_for
+  
+  accepts_nested_attributes_for :spent_for
   
   scope :visible, lambda {|*args|
     joins(:project).
@@ -69,9 +74,11 @@ class WkMaterialEntry < ActiveRecord::Base
     end
   end
   
+  # Returns true if the time entry can be edited by usr, otherwise false
   def editable_by?(usr)
-		wktime_helper = Object.new.extend(WktimeHelper)
-		wktime_helper.showInventory
+    visible?(usr) && (
+      (usr == user && usr.allowed_to?(:edit_own_time_entries, project)) || usr.allowed_to?(:edit_time_entries, project)
+    )
   end
   
   # Returns the custom_field_values that can be edited by the given user

@@ -34,3 +34,10 @@ table#wktimeOptions td, table#wktimeOptions th{
 table.nowrap {
     white-space: nowrap;
 }
+
+div.schedule {background:#ecd9c6; padding:6px; margin-bottom:6px; border: 1px solid #d7d7d7; border-radius:3px;}
+
+label.clockSettingsLabel{
+    width: 420px;
+    margin-right: 10px;
+}

@@ -45,8 +45,8 @@
 	<%
 		disable = true
 		wktime_helper = Object.new.extend(WktimeHelper)
-		disable = false if wktime_helper.isAccountUser && ( params[:user_id].to_i != User.current.id || (!Setting.plugin_redmine_wktime[:wktime_own_approval].blank? && 
-							Setting.plugin_redmine_wktime[:wktime_own_approval].to_i == 1 ))
+		disable = false if wktime_helper.isAccountUser && ( params[:user_id].to_i != User.current.id || (!Setting.plugin_redmine_wktime['wktime_own_approval'].blank? && 
+							Setting.plugin_redmine_wktime['wktime_own_approval'].to_i == 1 ))
 	%>
 	<% 
 		ids = ''

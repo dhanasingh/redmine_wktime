@@ -8,7 +8,7 @@
 </script>
 <%= render_tabs time_expense_tabs %>
 
-<%= hidden_field_tag 'back_url', url_for(params) %>
+<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 
 <% wkaccounting_helper = Object.new.extend(WkaccountingHelper) %>
 <% ledgerType = wkaccounting_helper.getLedgerTypeHash %>
@@ -27,7 +27,7 @@
 			<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
 	<div class="wk-contextual">
 		<% if isModuleAdmin('wktime_accounting_admin') %>
-			<%= link_to l(:label_new) + l(:label_ledger), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+			<%= link_to l(:label_new) + " " + l(:label_ledger), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
 		<% end %>
     </div>
 <% end %>

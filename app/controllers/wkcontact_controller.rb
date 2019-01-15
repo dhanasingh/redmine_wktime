@@ -1,14 +1,13 @@
 class WkcontactController < WkcrmController
   unloadable
 
-
-
 	def index
 		set_filter_session
 		contactName = session[controller_name][:contactname] 			
 		accountId =  session[controller_name][:account_id]
+		locationId = session[controller_name][:location_id]
 		wkcontact = nil
-		if !contactName.blank? &&  !accountId.blank?
+		if !contactName.blank? &&  !accountId.blank? 
 			if accountId == 'AA'
 				wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where.not(:account_id => nil).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
 			else
@@ -27,6 +26,9 @@ class WkcontactController < WkcrmController
 		else
 			wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => nil)
 		end	
+		if !locationId.blank?
+			wkcontact = wkcontact.where("wk_crm_contacts.location_id = ? ", locationId.to_i)
+		end
 		formPagination(wkcontact)
 	end
 
@@ -53,10 +55,13 @@ class WkcontactController < WkcrmController
 		wkContact.description = params[:description]
 		wkContact.department = params[:department]
 		wkContact.salutation = params[:salutation]
-		wkContact.account_id = params[:account_id]
+		wkContact.account_id = nil #params[:account_id]
+		wkContact.contact_id = nil
+		wkContact.account_id = params[:related_parent] if params[:related_to] == "WkAccount"
+		wkContact.contact_id = params[:related_parent] if params[:related_to] == "WkCrmContact"
+		wkContact.relationship_id = params[:relationship_id]
+		wkContact.location_id = params[:location_id]
 		wkContact.contact_type = getContactType
-	#	wkContact.parent_id = params[:related_parent]
-	#	wkContact.parent_type = params[:related_to].to_s
 		wkContact.created_by_user_id = User.current.id if wkContact.new_record?
 		wkContact.updated_by_user_id = User.current.id
 		addrId = updateAddress
@@ -91,10 +96,11 @@ class WkcontactController < WkcrmController
 	
 	def set_filter_session
         if params[:searchlist].blank? && session[controller_name].nil?
-			session[controller_name] = {:contactname => params[:contactname], :account_id => params[:account_id] }
+			session[controller_name] = {:contactname => params[:contactname], :account_id => params[:account_id], :location_id => params[:location_id] }
 		elsif params[:searchlist] == controller_name
 			session[controller_name][:contactname] = params[:contactname]
 			session[controller_name][:account_id] = params[:account_id]
+			session[controller_name][:location_id] = params[:location_id]
 		end
 		
     end
@@ -119,6 +125,14 @@ class WkcontactController < WkcrmController
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
 		end	
+	end
+	
+	def getAccountLbl
+		l(:label_account)
+	end
+	
+	def contactLbl
+		l(:label_contact_plural)
 	end
 
 end

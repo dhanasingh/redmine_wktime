@@ -1,7 +1,7 @@
 class WkorderentityController < WkbillingController
   unloadable
 
-before_filter :require_login
+before_action :require_login
 
 include WktimeHelper
 include WkinvoiceHelper
@@ -15,8 +15,6 @@ include WkorderentityHelper
 		set_filter_session
 		retrieve_date_range
 		sqlwhere = ""
-	#	accountId = session[:wkinvoice][:account_id]
-	#	projectId	= session[:wkinvoice][:project_id]
 		filter_type = session[controller_name][:polymorphic_filter]
 		contact_id = session[controller_name][:contact_id]
 		account_id = session[controller_name][:account_id]
@@ -50,7 +48,7 @@ include WkorderentityHelper
 			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
 			sqlwhere = sqlwhere + " parent_type = '#{parentType}'  "
 		end
-		#unless (params[:generate].blank? || ) || (          !to_boolean(params[:generate]) || !to_boolean(params[:preview_billing]))
+		
 		if (!params[:preview_billing].blank? && params[:preview_billing] == "true") ||
 		   (!params[:generate].blank? && params[:generate] == "true")
 			if !projectId.blank? && projectId.to_i != 0
@@ -59,11 +57,11 @@ include WkorderentityHelper
 			end
 			if filter_type == '2'  || filter_type == '3' 
 				accProjects = WkAccountProject.where(sqlwhere).order(:parent_type, :parent_id)
-				previewBilling(accProjects)
-				accProjects.find_each do |accProj|
-				   errorMsg = generateInvoices(accProj, projectId, @to + 1, [@from, @to]) unless params[:generate].blank? || !to_boolean(params[:generate])#accProj.parent_id,accProj.parent_type
+				# previewBilling(accProjects)
+				# accProjects.find_each do |accProj|
+				   # errorMsg = generateInvoices(accProj, projectId, @to + 1, [@from, @to]) unless params[:generate].blank? || !to_boolean(params[:generate])#accProj.parent_id,accProj.parent_type
 				   
-				end
+				# end
 			end			
 			
 			if filter_type == '1'  
@@ -72,9 +70,19 @@ include WkorderentityHelper
 				else
 					accProjects = WkAccountProject.where(project_id: projectId).order(:parent_type, :parent_id)
 				end	
-				previewBilling(accProjects)
-				accProjects.each do |accProj|
-				   errorMsg = generateInvoices(accProj, projectId, @to + 1, [@from, @to]) unless params[:generate].blank? || !to_boolean(params[:generate])#accProj.parent_id,accProj.parent_type
+				# previewBilling(accProjects)
+				# accProjects.each do |accProj|
+				   # errorMsg = generateInvoices(accProj, projectId, @to + 1, [@from, @to]) unless params[:generate].blank? || !to_boolean(params[:generate])
+				   
+				# end
+			end
+			invoiceFreq = getInvFreqAndFreqStart
+			invIntervals = getIntervals(@from, @to, invoiceFreq["frequency"], invoiceFreq["start"], true, false)
+			@firstInterval = invIntervals[0]
+			previewBilling(accProjects, @from, @to)
+			invIntervals.each do |interval|
+				accProjects.find_each do |accProj|
+				   errorMsg = generateInvoices(accProj, projectId, interval[1] + 1, interval) unless params[:generate].blank? || !to_boolean(params[:generate])#accProj.parent_id,accProj.parent_type
 				   
 				end
 			end
@@ -199,12 +207,12 @@ include WkorderentityHelper
 		@invoice.invoice_date = Date.today
 		@invoice.id = ""
 		@invoice.invoice_number = ""
-		@invoice.start_date = startDate #params[:start_date]
-		@invoice.end_date = endDate #params[:end_date]
+		@invoice.start_date = startDate 
+		@invoice.end_date = endDate 
 		@invoice.status = 'o'
 		@invoice.modifier_id = User.current.id
-		@invoice.parent_id = relatedParent #params[:related_parent].to_i
-		@invoice.parent_type = relatedTo #params[:related_to]		
+		@invoice.parent_id = relatedParent 
+		@invoice.parent_type = relatedTo 		
 	end
 	
 	def new
@@ -214,17 +222,15 @@ include WkorderentityHelper
 	def update
 		errorMsg = nil
 		invoiceItem = nil
-		#invItemId = WkInvoiceItem.select(:id).where(:invoice_id => params["invoice_id"].to_i) 
-		#arrId = invItemId.map {|i| i.id }
 		unless params["invoice_id"].blank?
 			@invoice = WkInvoice.find(params["invoice_id"].to_i)
 			@invoice.invoice_date = params[:inv_date]
 			arrId = @invoice.invoice_items.pluck(:id)
 		else
 			@invoice = WkInvoice.new
-			invoicePeriod = [params[:inv_start_date], params[:inv_end_date]]
+			invoicePeriod = getInvoicePeriod(params[:inv_start_date], params[:inv_end_date])#[params[:inv_start_date], params[:inv_end_date]]
 			saveOrderInvoice(params[:parent_id], params[:parent_type],  params[:project_id1],params[:inv_date],  invoicePeriod, false, getInvoiceType)
-			#addInvoice(params[:parent_id], params[:parent_type],  params[:project_id1],params[:inv_date],  invoicePeriod, false, getInvoiceType)
+			
 		end
 		@invoice.status = params[:field_status] unless params[:field_status].blank?
 		unless params[:inv_number].blank?
@@ -274,7 +280,7 @@ include WkorderentityHelper
 					idArr = params["entry_id#{i}"].split(' ')
 					idArr.each do | id |
 						timeEntry = TimeEntry.find(id)
-						updateBilledHours(timeEntry, @invoice.id)
+						updateBilledEntry(timeEntry, updatedItem.id)
 					end
 				elsif !params["entry_id#{i}"].blank?
 					scheduledEntry = WkBillingSchedule.find(params["entry_id#{i}"].to_i)
@@ -285,8 +291,9 @@ include WkorderentityHelper
 			end
 			unless params["material_id#{i}"].blank?
 				matterialEntry = WkMaterialEntry.find(params["material_id#{i}"].to_i)
-				matterialEntry.invoice_item_id = updatedItem.id
-				matterialEntry.save
+				updateBilledEntry(matterialEntry, updatedItem.id)
+				# matterialEntry.invoice_item_id = updatedItem.id
+				# matterialEntry.save
 			end
 			savedRows = savedRows + 1
 			tothash[updatedItem.project_id] = [(tothash[updatedItem.project_id].blank? ? 0 : tothash[updatedItem.project_id][0]) + updatedItem.amount, updatedItem.currency] if updatedItem.item_type != 'm'
@@ -315,7 +322,7 @@ include WkorderentityHelper
 		
 		if !arrId.blank?
 			deleteBilledEntries(arrId)
-			WkInvoiceItem.delete_all(:id => arrId)
+			WkInvoiceItem.where(:id => arrId).delete_all
 		end
 		
 		parentId = @invoice.parent_id
@@ -327,21 +334,13 @@ include WkorderentityHelper
 		addProductTaxes(productArr, true)
 		
 		unless @invoice.id.blank?
-			# case getInvoiceType			
-			# when 'Q'
-			  # saveRfqQuotes(params[:rfq_quote_id], params[:rfq_id].to_i, @invoice.id, params[:quote_won], params[:winning_note])	
-			# when 'PO'
-				# savePurchaseOrderQuotes(params[:po_id],  @invoice.id, params[:po_quote_id] )
-			# when 'SI'
-				# savePoSupInv(params[:si_id], params[:si_inv_id], @invoice.id)
-			# end
 			saveOrderRelations
 			totalAmount = @invoice.invoice_items.sum(:amount)
 			invoiceAmount = @invoice.invoice_items.where.not(:item_type => 'm').sum(:amount)
-			# moduleAmtHash key - module name , value - [crAmount, dbAmount]
-			moduleAmtHash = {'material' => [totalAmount.round - invoiceAmount.round, nil], getAutoPostModule => [invoiceAmount.round, totalAmount.round]}
 			
-			transAmountArr = getTransAmountArr(moduleAmtHash)
+			moduleAmtHash = {'inventory' => [nil, totalAmount.round - invoiceAmount.round], getAutoPostModule => [totalAmount.round, invoiceAmount.round]}
+			inverseModuleArr = ['inventory']
+			transAmountArr = getTransAmountArr(moduleAmtHash, inverseModuleArr)
 			if (totalAmount.round - totalAmount) != 0
 				addRoundInvItem(totalAmount)
 			end
@@ -377,6 +376,10 @@ include WkorderentityHelper
 	def deleteBilledEntries(invItemIdsArr)
 	end
 	
+	def getInvoicePeriod(startDate, endDate)
+		[startDate, endDate]
+	end
+	
 	def getOrderContract(invoice)
 		contractStr = nil
 		accContract = invoice.parent.contract(@invoiceItem[0].project)
@@ -394,8 +397,6 @@ include WkorderentityHelper
 		else
 			flash[:error] = invoice.errors.full_messages.join("<br>")
 		end
-		#invoice.destroy
-		#flash[:notice] = l(:notice_successful_delete)
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end    
 	
@@ -461,4 +462,21 @@ include WkorderentityHelper
 	def deletePermission
 		false
 	end
+	
+	def addMaterialType
+		false
+	end
+	
+	def addAssetType
+		false
+	end
+	
+	def getAccountLbl
+		l(:label_account)
+	end
+	
+	def showProjectDD
+		false
+	end
+	
 end

@@ -361,8 +361,10 @@ function projectChanged(projDropdown, row){
 		var fmt = 'text';
 		var issDropdown = document.getElementsByName("time_entry[][issue_id]");
 		var actDropdown = document.getElementsByName("time_entry[][activity_id]");
+		var clientDropdown = document.getElementsByName("time_entry[][spent_for_attributes][spent_for_key]");
 		var issUrl = document.getElementById("getissues_url").value;
 		var actUrl = document.getElementById("getactivities_url").value;
+		var clientUrl = document.getElementById("getclients_url").value;
 	 
 		var uid = document.getElementById("user_id").value;
 		var $this = $(this);    
@@ -381,20 +383,58 @@ function projectChanged(projDropdown, row){
 			beforeSend: function(){ $this.addClass('ajax-loading'); },
 			complete: function(){ $this.removeClass('ajax-loading'); }
 		});
-		$.ajax({
-			url: actUrl,
-			type: 'get',
-			data: {project_id: id, user_id: uid, format:fmt},
-			success: function(data){
-				var actId = getDefaultActId(data);
-				var items = data.split('\n');
-				var needBlankOption = !(items.length-1 == 1 || actId != null);
-				updateDropdown(data, row, actDropdown, false, needBlankOption, true, actId);
-			},
-			beforeSend: function(){ $this.addClass('ajax-loading'); },
-			complete: function(){ $this.removeClass('ajax-loading'); }
-		});
+		
+		if (actDropdown.length > 0){   //("time_entry[][activity_id]")){
+			$.ajax({ 
+				url: actUrl,
+				type: 'get',
+				data: {project_id: id, user_id: uid, format:fmt},
+				success: function(data){
+					var actId = getDefaultActId(data);
+					var items = data.split('\n');
+					var needBlankOption = !(items.length-1 == 1 || actId != null);
+					updateDropdown(data, row, actDropdown, false, needBlankOption, true, actId);
+				},
+				beforeSend: function(){ $this.addClass('ajax-loading'); },
+				complete: function(){ $this.removeClass('ajax-loading'); }
+			});
+		}		
+		updateClientDropdown(clientUrl, id, null, uid, fmt, row, clientDropdown);
+/* 		if (clientDropdown.length > 0){ // To check for dropdown if element there it will give 1
+			$.ajax({
+				url: clientUrl,
+				type: 'get',
+				data: {project_id: id, user_id: uid, format:fmt},
+				success: function(data){
+					//var actId = getDefaultActId(data);
+					//var items = data.split('\n');
+					//var needBlankOption = !(items.length-1 == 1 || actId != null);
+					updateDropdown(data, row, clientDropdown, false, true, true, null);
+				},
+				beforeSend: function(){ $this.addClass('ajax-loading'); },
+				complete: function(){ $this.removeClass('ajax-loading'); }
+			});
+		} */
 	}
+}
+
+function updateClientDropdown(clientUrl, projectId, issueId, uid, fmt, row, clientDropdown){
+	var $this = $(this);
+	if (clientDropdown.length > 0){
+		$.ajax({
+				url: clientUrl,
+				type: 'get',
+				data: {project_id: projectId, issue_id:issueId, user_id: uid, format:fmt},
+				success: function(data){
+					//var actId = getDefaultActId(data);
+					//var items = data.split('\n');
+					//var needBlankOption = !(items.length-1 == 1 || actId != null);
+					updateDropdown(data, row, clientDropdown, false, true, true, null);
+				},
+				beforeSend: function(){ $this.addClass('ajax-loading'); },
+				complete: function(){ $this.removeClass('ajax-loading'); }
+			});
+	}	
 }
 
 function trackerFilterChanged(trackerList){
@@ -460,26 +500,32 @@ function issueChanged(issueText, row){
 }
 	
 function issueIdChanged(id, row){
-	if(id != ''){
-		var fmt = 'text';
-		var actDropdown = document.getElementsByName("time_entry[][activity_id]");
-		var actUrl = document.getElementById("getactivities_url").value;
-
-		var uid = document.getElementById("user_id").value;
-
-		var $this = $(this);
-		$.ajax({
-			url: actUrl,
-			type: 'get',
-			data: {issue_id: id, user_id: uid, format:fmt},
-			success: function(data){ updateActDropdown(data, row, actDropdown);},
-			error: function(jqXHR, textStatus, errorThrown){
-				alert(issueField + " " + id  + " " + invalidMsg);
-			},
-			beforeSend: function(){ $this.addClass('ajax-loading'); },
-			complete: function(){ $this.removeClass('ajax-loading'); }
-		});
-	}
+	var actDropdown = document.getElementsByName("time_entry[][activity_id]");	
+	var clientDropdown = document.getElementsByName("time_entry[][spent_for_attributes][spent_for_key]");
+	var uid = document.getElementById("user_id").value;	       
+	var fmt = 'text';
+	if(id != ''){  
+		if(actDropdown.length > 0){               //&& isDropdown("time_entry[][activity_id]"))
+			var actUrl = document.getElementById("getactivities_url").value;
+			
+			var $this = $(this);
+			$.ajax({
+				url: actUrl,
+				type: 'get',
+				data: {issue_id: id, user_id: uid, format:fmt},
+				success: function(data){ updateActDropdown(data, row, actDropdown);},
+				error: function(jqXHR, textStatus, errorThrown){
+					alert(issueField + " " + id  + " " + invalidMsg);
+				},
+				beforeSend: function(){ $this.addClass('ajax-loading'); },
+				complete: function(){ $this.removeClass('ajax-loading'); }
+			});
+		}
+		if(clientDropdown.length > 0){
+			var clientUrl = document.getElementById("getclients_url").value;
+			updateClientDropdown(clientUrl, null, id, uid, fmt, row, clientDropdown);
+		}
+	}	
 }
 
 function updateIssDropdowns(itemStr, projDropdowns,projIds)
@@ -1166,12 +1212,7 @@ function getMinutes(day,str)
 		}
 		
 	}		
-	fldVal = !fldVal ? '00:00' : fldVal;
-	
-	/*if(!fldVal)
-	{
-		fldVal = "00:00";
-	}*/	
+	fldVal = !fldVal ? '00:00' : fldVal;	
 	fldVal = fldVal.split(":");
 	fldVal_min = (fldVal[0] * 60) + parseInt(fldVal[1]);	
 	return fldVal_min;
@@ -1401,107 +1442,7 @@ function showclkDialog(day)
 		}		
 	}
 }
-/*
-function setClockInOut(strid,id) {	
-	if(nscount > 0)
-	{
-		id++;
-	}
-	var d = new Date();
-	var hh = d.getHours();
-	var mm = d.getMinutes();
-	id++;
-	elementhour = hh + ":" + mm;
-	elementend = hh + ":" + mm;	
-	document.getElementById(strid + '_' + id).value = elementhour;
-	if( strid == 'start' )
-	{
-	  document.getElementById('end' ).style="display:inline; !important";
-	  document.getElementById('start').style="display:none; !important";
-	  document.getElementById('end_' + id).value = "00:00";
-	}
-	else
-	{
-	  document.getElementById('end' ).style="display:none; !important";
-	  document.getElementById('start').style="display:inline; !important";
-	}
-	updateClockInOut(elementhour, strid, id, elementend );
-}
 
-function updateClockInOut(entrytime, strid, id, elementend){
-	var $this = $(this);		
-	var hours,start,end, hoursdiff,hiddenvalue,updateendvalue;
-	var nsdiff, nshiddenvalue, nshours;
-	var paramval;
-	updateendvalue = document.getElementById('nightshift') != null ?  document.getElementById('nightshift').value : false;
-	elementid = document.getElementById('hd'+strid + '_' + id).value;
-	start = document.getElementById('start_' + id).value;
-	var endval =  document.getElementById('end_' + id).value;
-	if(strid == "end")
-	{				
-		end =  elementend ;
-		if(updateendvalue == "true")
-		{
-			document.getElementById('end_' + id).value = "23:59";
-		}
-		hoursdiff = getMinDiff(id, "");
-		hoursdiff = timeFormat(hoursdiff);
-		hoursdiff = calculatebreakTimeNew(hoursdiff, id, "");
-		hours = timeStringToFloat(hoursdiff);
-	}	
-	if(updateendvalue == "true")
-	{
-		document.getElementById('end_' + (id+1)).value = elementend;
-		nsdiff = getMinDiff((id+1), "");
-		nsdiff = timeFormat(nsdiff);
-		nsdiff = calculatebreakTimeNew(nsdiff, (id+1), "");
-		nshours = timeStringToFloat(nsdiff);
-		
-	}
-	paramval = (strid == 'start' ? "|"+ id  : elementid ) + "|" +  (strid == 'end' ? start : entrytime) + "|" + (strid == 'end' ? entrytime : "") + "|" + (strid == 'end' ? hours : "") + "|" + nshours + "|" + (id+1) + ",";
-	updateAtt(paramval,false, strid, id);
-}
-
-function hiddenClockInOut(data,strid,id){
-	var array = data.split(',');
-	
-	var updateendvalue = document.getElementById('nightshift') != null ?  document.getElementById('nightshift').value : false;
-	var setvalue = false;
-	if(updateendvalue && nscount == 0)
-	{
-		document.getElementById('end_' + (id)).value = "23:59";
-		id++;
-		setvalue = true;
-	}
-	hdstart = document.getElementById('hdstart_' + id);
-	hdstart.value = strid == 'start' ? array[1] : (setvalue ? array[1] : array[0] ) ;
-	
-	hdend = document.getElementById('hdend_' + id);
-	hdend.value = strid == 'start' ? array[1] : (setvalue ? array[1] : array[0] ) ;
-	
-	elementid = document.getElementById(strid + '_' + id);
-	elementid.value = strid == 'start' ? array[2] :  (setvalue ? array[3] : array[2] )  ;
-	
-	if(strid == 'end')
-	{			
-	    updateTotalHr(id, ["start_"+id, "end_"+id,"hoursstart_"+id]);	
-		updateRemainingHr(id, ["start_"+id, "end_"+id,"hoursstart_"+id]);
-		if(updateendvalue == "true")
-		{
-			updateTotalHr((id-1), ["start_"+(id-1), "end_"+(id-1),"hoursstart_"+(id-1)]);	
-			updateRemainingHr((id-1), ["start_"+(id-1), "end_"+(id-1),"hoursstart_"+(id-1)]);
-		}
-		
-	}
-	
-	
-	if(document.getElementById('nightshift') != null && updateendvalue )
-	{
-		document.getElementById('nightshift').value = false;
-		nscount = 1;
-	}
-}
-*/
 function timeFormat(minutes)
 {
 	var tot_Hr1 = 0,tot_min1 = 0,totTime1 ="";
@@ -1517,124 +1458,7 @@ function timeFormat(minutes)
 	};
 	return totTime1;
 }
-/*
-function calculatebreakTime(totTime, day, element)
-{
-	
-	var startval, endval, startBT,endBT;
-	var breakTime = new Array();
-	var breakValue = new Array();	
-	var count = 0, count1 = 0, count2 = 0  ;
-	var i =0, j = 0;
-	var minusdiff = 0;
-	var isminusdiff = false, isdbtotal = false, istottime = false;
-	var oldstartval, oldendvalue;
-	var nsendvalue = document.getElementById('nightshift') != null ?  document.getElementById('nightshift').value : false;
-	var attnDayEntriesCnt1 =  document.getElementById('attnDayEntriesCnt_'+day) != null ? document.getElementById('attnDayEntriesCnt_'+day).value : -1;
-	startval = document.getElementById(element ? element[0] : 'start_'+day).value;
-	endval = document.getElementById(element ? element[1] : 'end_'+day).value;	
-	if(startval && endval)
-	{					
-		breakTime = document.getElementById('break_time').value;
-		breakTime = breakTime.split(" ");	
-		var startBTime = new Array() ,endBTime = new Array();
-		if(breakTime !='')
-		{
-			for(i= 0; i < breakTime.length ; i++)
-			{				
-				breakValue =  breakTime[i].split('|');
-				if(breakValue[0]&&breakValue[1]&&breakValue[2]&&breakValue[3])
-				{
-					startBTime[i]= breakValue[0] + ":" + breakValue[1] + ":00" ;
-					endBTime[i] = breakValue[2] + ":" + breakValue[3] + ":00";	
-				}								
-			}
-		}
-		
-		var diffbetween,diffbetween1, diffbetween4,diffbetween5;
-		var dbtotal , stdiff;				
-		startval += ":00";
-		endval += ":00";
-		for(j=0;j < startBTime.length ; j++)
-		{
-			startBT = dateCompare(startval,startBTime[j],0);
-			endBT = dateCompare(endval,endBTime[j],0);
-			// calculate time from greater & less then break time and inbetween clock in/out
-			if((startBT == -1 && endBT == 1  ) || ( startBT == 0 && endBT == 0) || (startBT == 1 && endBT == -1  ) || 
-			(startBT == -1 && endBT == 0) || (startBT == 0 && endBT == 1) )  //|| (st1 == -1 && ed1 == -1  ) st ed
-			{
-				var oldval = stdiff;				
-				//stdiff  = diff(startBTime[j],endBTime[j]);
-				stdiff = getMinDiff(-1, [startBTime[j],endBTime[j]]);
-				stdiff = timeFormat(stdiff);
-				if(count == 1)
-				{
-					stdiff = MinutesDifferent(oldval,stdiff,1);
-				}
-				count = 1;						
-				minusdiff = MinutesDifferent(totTime,stdiff,0);						
-				if (startBT == 1 && endBT == -1 ) 
-				{
-					minusdiff = "0:00";
-				}
-				isminusdiff = true;
-			}
-			else
-			{
-				if(count != 1)
-				{
-					//break time greater then clock out time					
-					diffbetween = dateCompare(endval,endBTime[j],1);
-					diffbetween1 = dateCompare(startBTime[j],endval,1);
-					if(diffbetween == 2 && diffbetween1 == 2)
-					{
-						count1 = 1;
-						dbtotal = MinutesDifferent(startBTime[j],startval, 0 );
-						isdbtotal = true;
-					}
-					else{
-						if(count1 != 1 )
-						{
-							//break time less then clock in time							
-							diffbetween4 = dateCompare(startval,startBTime[j],2);
-							diffbetween5 = dateCompare(startval,endBTime[j],2);
-							if(diffbetween4 == 4 && diffbetween5 == 0)
-							{
-								count2 = 1;
-								dbtotal = MinutesDifferent(endval, endBTime[j], 0 );
-								isdbtotal = true;
-							}
-							else
-							{								
-								if(count2 != 1)
-								{
-									istottime = true;
-								}							
-							}
-							
-							
-						}
-					}
-					
-				}
-				
-			}				
-		}				
-	}
-	if(isminusdiff)
-	{
-		return minusdiff;
-	}
-	else if(isdbtotal)
-	{
-		return dbtotal;
-	}
-	else{
-		return totTime;
-	}
-	
-}
-*/
+
 function MinutesDifferent(totTime, stdiff, variation)
 {
 	var minutessdiff;   // minusdiff
@@ -1659,38 +1483,7 @@ function MinutesDifferent(totTime, stdiff, variation)
 	minutessdiff =  ((h > 0 ? h + ":" + (m < 10 ? "0" : "") : "") + (h > 0 ? m : ("0:" + m)) );
 	return minutessdiff;
 }
-/*
-function dateCompare(time1,time2,s) {
-  var t1 = new Date();
-  var parts = time1.split(":");
-  t1.setHours(parts[0],parts[1],parts[2],0);
-  var t2 = new Date();
-  parts = time2.split(":");
-  t2.setHours(parts[0],parts[1],parts[2],0);  
-  // returns 1 if greater, -1 if less and 0 if the same  
-  if(s == 1)
-  {
-	if (t1.getTime()<t2.getTime()) return 2;
-	if (t1.getTime()<t2.getTime()) return 3;  
-  }
-  else if (s == 2)
-  {
-	  if (t1.getTime() > t2.getTime()) return 4;
-	  if (t1.getTime() > t2.getTime()) return 5;
-  }
-  else if (s == 3)
-  {
-	  if (t1.getTime() > t2.getTime()) return 6;
-	  
-  }
-  else
-  {
-	  if (t1.getTime()>t2.getTime()) return 1;
-      if (t1.getTime()<t2.getTime()) return -1;
-  }
-  return 0;
-}
-*/
+
 function timeStringToFloat(time) {
   var hoursMinutes = time.split(/[.:]/);
   var hours = parseInt(hoursMinutes[0], 10);
@@ -1794,9 +1587,7 @@ function calculatebreakTimeNew(totTime, day, element){
        else
         workedHours = 0;
       }
-     }
-     //startBTime[i]= breakValue[0] + ":" + breakValue[1] + ":00" ;
-     //endBTime[i] = breakValue[2] + ":" + breakValue[3] + ":00"; 
+     }     
     }        
    }
   }
@@ -1821,3 +1612,11 @@ function convertSecToTime(seconds)
  var timeVal =  ((h > 0 ? h + ":" + (m < 10 ? "0" : "") : "") + (h > 0 ? m : ("0:" + m)) );
  return timeVal;
 }
+
+/* function isDropdown(idName) {
+    var element = document.getElementById(idName);
+	if(element != null){
+		if(element.tagName === 'SELECT') {return true;}
+	}
+    return false;
+} */

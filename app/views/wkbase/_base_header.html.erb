@@ -1,0 +1,5 @@
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'wkstatus', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'lockwarning', :plugin => "redmine_wktime" %>
+<%= hidden_field_tag 'spent_time_user_id', User.current.id %>
+<%= hidden_field_tag 'getspenttype_url', url_for(:controller => 'wklogmaterial', :action => 'loadSpentType') %>

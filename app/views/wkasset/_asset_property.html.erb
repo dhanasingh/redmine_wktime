@@ -1,0 +1,47 @@
+<div id="assetDiv" style="display:<%= invntItem.blank? ? 'none' : 'block' %>;" class="splitcontentleft">
+	<% 
+	isDisable = false
+	assetProperty = invntItem.asset_property unless invntItem.blank?
+	%>
+	<%=h hidden_field_tag('asset_property_id', assetProperty.blank? ? "" : assetProperty.id) %>
+	<fieldset class="box tabular">
+		<legend><%= controller.lblAsset %></legend>
+		<table width='100%'>  
+			<tr>
+				<th align="left"><%= l(:field_name) %></th>
+				<td align="left" style="padding-left:40px;"><%= text_field_tag "asset_name",  assetProperty.blank? ? '' : assetProperty.name, :disabled => isDisable %></td>
+			</tr>
+			<tr>
+				<th align="left"><%= controller.loggableAssetLbl %></th>
+				<td align="left" style="padding-left:40px;"><%= check_box_tag('is_loggable', 1, (invntItem.blank? ? false : invntItem.is_loggable)) %></td>
+			</tr>
+			<tr>
+				<th align="left"><%= controller.loggableRateLbl %></th>
+				<td align="left" style="padding-left:40px;">
+					<%= Setting.plugin_redmine_wktime['wktime_currency']  %>
+					<%= text_field_tag "rate",  assetProperty.blank? ? '' : assetProperty.rate, :disabled => isDisable %>
+					<b><%= l(:label_per)  %></b>
+					<%=h select_tag("rate_per", options_for_select(getRatePerHash(false).invert, :selected => assetProperty.blank? ? getRatePerHash(false).invert : assetProperty.rate_per )) %>
+				</td>
+			</tr>  
+			<!-- <tr>
+				<th align="left"><%#= l(:label_log) + " " + l(:label_rate_per) %></th>
+				<td align="left" style="padding-left:40px;">
+					<%#=h select_tag("rate_per", options_for_select(getRatePerHash(false).invert, :selected => assetProperty.blank? ? getRatePerHash(false).invert : assetProperty.rate_per )) %>
+				</td>
+			</tr> -->
+			<% assethook = call_hook(:view_asset_fields, :assetProperty => assetProperty) %>
+			<% if assethook.blank? %>
+				<tr>
+					<th align="left"><%= l(:label_current_asset_value) %></th>
+					<td align="left" style="padding-left:40px;"><label align='left'><b><%= assetProperty.blank? ? Setting.plugin_redmine_wktime['wktime_currency'] : assetProperty.currency %></b></label><%= text_field_tag "current_value",  assetProperty.blank? ? '' : assetProperty.current_value, :disabled => false %></td>
+				</tr>
+			<% end %>
+			<tr>
+				<th align="left"><%= l(:label_owner) + " " + l(:label_type) %></th>
+				<td align="left" style="padding-left:40px;"><%=h select_tag("owner_type", options_for_select(getAssetTypeHash(false).invert, :selected => assetProperty.blank? ? getAssetTypeHash(false).invert : assetProperty.owner_type )) %></td>
+			</tr>
+			
+		</table>
+	</fieldset>
+</div>
