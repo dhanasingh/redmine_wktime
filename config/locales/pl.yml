@@ -256,6 +256,7 @@ pl:
   label_earning: Przychody
   label_payroll_settings: Ustawienia Wypłat
   label_clock_settings: Zegar
+  label_clock_state_error: Nie udało się sprawdzić stanu zegara
   label_total_earning: Przychody ogółem
   label_total_deduction: Odliczenie ogółem
   label_net_earning: Przychody netto

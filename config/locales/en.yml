@@ -255,6 +255,7 @@ en:
   label_earning: Earnings
   label_payroll_settings: Payroll Settings
   label_clock_settings: Clock Settings
+  label_clock_state_error: Cannot check clock state
   label_total_earning: Total Earnings
   label_total_deduction: Total Deductions
   label_net_earning: Net Earnings

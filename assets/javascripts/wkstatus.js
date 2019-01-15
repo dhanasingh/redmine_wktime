@@ -9,15 +9,6 @@ var checkLastClockUpdateInterval;
 var checkClockStateIntervalFunction = '';
 var languageSet;
 
-var dict = {
-	pl: {
-		clockStateError: 'Nie udało się sprawdzić stanu zegara',
-	},
-	en: {
-		clockStateError: 'Cannot check clock state',
-	}
-}
-
 $(document).ready(function(){
 
 	handleClockCheckingConditions();
@@ -379,17 +370,16 @@ function checkClockStateWkStatus(){
 		if(localStorageAvailability){
 			localStorage.setItem('clockChecked', JSON.stringify(clockObject));
 		}
-		if($('#checkClockStateError').length > 0){
-			$('#checkClockStateError').remove();
+		if($('#connectionlostimg').css !== 'none'){
+			$('#connectionlostimg').css('display', 'none');
 		}
 
 	},
 	error: function(){
-		if(!($('#checkClockStateError').length > 0)){
-			$('#totalhours').after('<span id="checkClockStateError" style="margin-left: 5px; color: #FF7200;">'+dict[languageSet]['clockStateError']+'</span>');
+		if($('#connectionlostimg').css !== 'inline-block'){
+			$('#connectionlostimg').css('display', 'inline-block');
 		}
 	},
-	// timeout: clockStateInterval + 3
 	});
 }
 

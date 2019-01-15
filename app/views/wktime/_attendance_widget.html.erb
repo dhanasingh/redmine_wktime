@@ -37,7 +37,9 @@
 	<%=h hidden_field_tag('clockstate_check_interval',  "#{clockSettings.check_clock_state_interval.blank? ? false : clockSettings.check_clock_state_interval}" )  %>
 	<% if User.current.logged? && wktime_helper.checkViewPermission %>
 		<label id="appendlabel" style="float: right; position: relative; z-index: 9999; text-shadow: -1px -1px 0 #628DB6, 1px -1px 0 #628DB6, -1px 1px 0 #628DB6, 1px 1px 0 #628DB6;"><br/><%= l(:label_total_hours) %><br/>
-		   &nbsp;<span id="totalhours" timer-on="<%= hideStart %>" totalhours="<%= totalhours %>"><%= totalhours1 %></span></label>  
+		   &nbsp;<span id="totalhours" timer-on="<%= hideStart %>" totalhours="<%= totalhours %>"><%= totalhours1 %></span>
+			<%= image_tag("connectionlost.png", :id => 'connectionlostimg', :plugin => "redmine_wktime", :title => l(:label_clock_state_error), :style => "display: none; width: 35px; height: 25px; position:absolute; top: 25px; right: 15px;" ) %>
+		</label>  
 			
 		<div id="startdiv" style="float: right; position: relative; z-index: 9999;"  >
 		<% strt_image_tg = image_tag("widgetclockin.png", :id => 'clockin' , :plugin => "redmine_wktime", :title => l(:label_clock_in), :style => hideStart ? "display:none;" : "display:block;" ) %>
