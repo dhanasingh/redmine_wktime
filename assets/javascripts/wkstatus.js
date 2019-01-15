@@ -5,6 +5,7 @@ var spentTypeVal;
 var lastClockUpdate;
 var clockStateInterval;
 var checkLastClockUpdateIntervalFunction;
+var checkLastClockUpdateInterval;
 var checkClockStateIntervalFunction = '';
 var languageSet;
 
@@ -20,6 +21,8 @@ var dict = {
 $(document).ready(function(){
 
 	handleClockCheckingConditions();
+	$(window).unload(removeIntervalFromLocalStorage);
+
 	languageSet = $('html').attr('lang');
 	var txtEntryDate;
 	var txtissuetracker;
@@ -279,7 +282,7 @@ function handleClockCheckingConditions(){
 			var clockOut = document.getElementById('clockout');
 			window.addEventListener('storage', function(e){
 				// check clockState if it changed change to displayed clock as well 
-				if(e.newValue !== 'test' && e.oldValue !== 'test' && e.key !== 'test'){
+				if(e.newValue !== 'test' && e.oldValue !== 'test' && e.key !== 'test' && e.key !== 'randomNumbersToCheckClockUpdate'){
 					if(checkClockStateIntervalFunction !== ''){
 						clearInterval(checkClockStateIntervalFunction);
 					}
@@ -301,35 +304,42 @@ function handleClockCheckingConditions(){
 		} else {
 			clockStateInterval = 60000
 		}
-		var localStorageAvailability = isLocalStorageAvailable();
-		if(localStorageAvailability){
-			var clockDataFromStorage = localStorage.getItem('clockChecked');
-			if(clockDataFromStorage === null){
-				checkClockStateIntervalFunction =setInterval(checkClockStateWkStatus, clockStateInterval);
-			} else {
-				var clockDataObj = JSON.parse(clockDataFromStorage);
-				var nowTimeStamp = new Date().getTime();
-				if(nowTimeStamp - clockDataObj.checkTimestamp > clockStateInterval * 3){
-					checkClockStateIntervalFunction = setInterval(checkClockStateWkStatus, clockStateInterval);
-				} else {
-					var checkLastClockUpdateInterval = generateRandomClockCheckInterval();
-					var usedRandomNumbersStr = localStorage.getItem('randomNumbersToCheckClockUpdate');
-					var usedRandomNumbersArr = [];
-					if(usedRandomNumbersStr !== null){
-						usedRandomNumbersArr = JSON.parse(usedRandomNumbersStr);
-						while(usedRandomNumbersArr.includes(checkLastClockUpdateInterval)){
-							checkLastClockUpdateInterval = generateRandomClockCheckInterval();
-						}
-					}
-					usedRandomNumbersArr.push(checkLastClockUpdateInterval);
-					localStorage.setItem('randomNumbersToCheckClockUpdate', JSON.stringify(usedRandomNumbersArr));
-					checkLastClockUpdateIntervalFunction = setInterval(checkLastClockUpdate, checkLastClockUpdateInterval);
-				}
-			}
-		} else {
-			checkClockStateIntervalFunction = setInterval(checkClockStateWkStatus, clockStateInterval);
-		}		
+		checkLocalStorageClock();
 	}
+}
+
+function checkLocalStorageClock(){
+	var localStorageAvailability = isLocalStorageAvailable();
+	if(localStorageAvailability){
+		var clockDataFromStorage = localStorage.getItem('clockChecked');
+		if(clockDataFromStorage === null){
+			checkClockStateIntervalFunction = setInterval(checkClockStateWkStatus, clockStateInterval);
+		} else {
+			var clockObjData = JSON.parse(clockDataFromStorage);
+			var nowTimeStamp = new Date().getTime();
+
+			lastClockUpdate = clockObjData.checkTimestamp;
+
+			if(nowTimeStamp - clockObjData.checkTimestamp > clockStateInterval * 3){
+				checkClockStateIntervalFunction = setInterval(checkClockStateWkStatus, clockStateInterval);
+			} else {
+				checkLastClockUpdateInterval = generateRandomClockCheckInterval();
+				var usedRandomNumbersStr = localStorage.getItem('randomNumbersToCheckClockUpdate');
+				var usedRandomNumbersArr = [];
+				if(usedRandomNumbersStr !== null){
+					usedRandomNumbersArr = JSON.parse(usedRandomNumbersStr);
+					while(usedRandomNumbersArr.includes(checkLastClockUpdateInterval)){
+						checkLastClockUpdateInterval = generateRandomClockCheckInterval();
+					}
+				}
+				usedRandomNumbersArr.push(checkLastClockUpdateInterval);
+				localStorage.setItem('randomNumbersToCheckClockUpdate', JSON.stringify(usedRandomNumbersArr));
+				checkLastClockUpdateIntervalFunction = setInterval(checkLastClockUpdate, checkLastClockUpdateInterval);
+			}
+		}
+	} else {
+		checkClockStateIntervalFunction = setInterval(checkClockStateWkStatus, clockStateInterval);
+	}	
 }
 
 function isLocalStorageAvailable(){
@@ -348,8 +358,8 @@ function checkClockStateWkStatus(){
 	$.ajax({	
 	url: clockStateUrl,
 	type: 'get',
+	contentType: 'application/octet-stream',
 	success: function(data){
-		var clockState;
 		var clockIn = document.getElementById('clockin');
 		var clockOut = document.getElementById('clockout');
 		if (data === "clockOn" && clockOut.style.display === "none") {
@@ -359,10 +369,12 @@ function checkClockStateWkStatus(){
 			clockOut.style.display = "none";
 			clockIn.style.display = "block";
 		}
+		var checkTimestamp = new Date().getTime();
 		var clockObject = {
 			clockState: data,
-			checkTimestamp: new Date().getTime()
+			checkTimestamp: checkTimestamp
 		}
+		lastClockUpdate = checkTimestamp;
 		var localStorageAvailability = isLocalStorageAvailable();
 		if(localStorageAvailability){
 			localStorage.setItem('clockChecked', JSON.stringify(clockObject));
@@ -384,7 +396,7 @@ function checkClockStateWkStatus(){
 function checkLastClockUpdate(){
 	var nowTimeStamp = new Date().getTime();
 	var msSinceLastUpdate = nowTimeStamp - lastClockUpdate;
-	var msConditionToCheckClockState = clockStateInterval * 3;
+	var msConditionToCheckClockState = clockStateInterval * 2;
 	if(msSinceLastUpdate > msConditionToCheckClockState){
 		checkClockStateIntervalFunction = setInterval(checkClockStateWkStatus, clockStateInterval);
 		clearInterval(checkLastClockUpdateIntervalFunction);
@@ -394,5 +406,15 @@ function checkLastClockUpdate(){
 function generateRandomClockCheckInterval(){
 	var randomNumFrom1To10 = Math.floor((Math.random() * 10) + 1);
 	var randomNumFrom1To50 = Math.floor((Math.random() * 50) + 1);
-	return (clockStateInterval + (clockStateInterval/randomNumFrom1To10))*randomNumFrom1To50;
+	return Math.round((clockStateInterval + (clockStateInterval/randomNumFrom1To50))*randomNumFrom1To10);
+}
+
+function removeIntervalFromLocalStorage(){
+	var intervalsArr = JSON.parse(localStorage.getItem('randomNumbersToCheckClockUpdate'));
+	if(intervalsArr !== null && Array.isArray(intervalsArr)){
+		intervalsArr = intervalsArr.filter(interval => {
+			return interval !== checkLastClockUpdateInterval;
+		});
+		localStorage.setItem('randomNumbersToCheckClockUpdate', JSON.stringify(intervalsArr));
+	}
 }

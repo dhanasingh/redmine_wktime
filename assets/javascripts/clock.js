@@ -6,7 +6,8 @@ $(document).ready(function(){
 	let totalhours = $('#totalhours').attr("totalhours")
 	let totalTimeMs = Number(totalhours)*1000;
 	// checkClockState;
-	let clockState = setInterval(checkClockState, 5000);
+	var clockStateInterval = $('#clockstate_check_interval').val();
+	let clockState = setInterval(checkClockState, clockStateInterval);
 
 	if (timerOn === 'true') {
 		msSinceClick = new Date().getTime();
@@ -19,6 +20,7 @@ $(document).ready(function(){
 	});
 
 	$('#clockout').click(function(){
+		totalTimeMs = convertDisplayedTimeToMs($('#totalhours').text())
 		clearTimeout(t);
 	})
 
@@ -64,5 +66,21 @@ $(document).ready(function(){
 			clockIn();
 		}
 
+	}
+
+	function convertDisplayedTimeToMs(displayedTime){
+		var timeArr = displayedTime.split(':');
+		var secSummary = 0;
+		var msSummary = 0;
+		var hours = timeArr[0]; 
+		var min = timeArr[1]; 
+		var sec = timeArr[2]; 
+
+		secSummary += Number(hours) * 3600;
+		secSummary += Number(min) * 60;
+		secSummary += Number(sec);
+
+		msSummary = secSummary * 1000;
+		return msSummary;
 	}
 });

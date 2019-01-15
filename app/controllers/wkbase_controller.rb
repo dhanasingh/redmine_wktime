@@ -45,7 +45,7 @@ class WkbaseController < ApplicationController
 				endTime = entryTime
 				clockState = false
 			end
-			
+						
 			@lastAttnEntry = saveAttendance(@lastAttnEntry, entryTime, endTime, User.current.id, clockState)
 	
 			ret = 'done'

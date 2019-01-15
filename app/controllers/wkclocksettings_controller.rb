@@ -22,16 +22,23 @@ class WkclocksettingsController < ApplicationController
 
     def checkClockState
 		lastAttnEntries = findLastAttnEntry(true)
+		
 		if !lastAttnEntries.blank?
 			lastAttnEntry = lastAttnEntries[0]
 		end
-		if lastAttnEntry.end_time.blank?
-			respond_to do |format|
-				format.text  { render :text => "clockOn" }
-			end
-		else
+		if lastAttnEntry.nil? || lastAttnEntry == 0
 			respond_to do |format|
 				format.text  { render :text => "clockOff" }
+			end
+		else
+			if lastAttnEntry.end_time.blank?
+				respond_to do |format|
+					format.text  { render :text => "clockOn" }
+				end
+			else
+				respond_to do |format|
+					format.text  { render :text => "clockOff" }
+				end
 			end
 		end
 	end

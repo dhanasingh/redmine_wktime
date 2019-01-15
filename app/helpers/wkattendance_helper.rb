@@ -170,17 +170,18 @@ module WkattendanceHelper
 				else
 					endtime = start_local.change({ hour: startTime.localtime.strftime("%H").to_i, min:startTime.localtime.strftime("%M").to_i, sec: startTime.localtime.strftime("%S").to_i })
 				end
-				
-				attnObj.end_time = endtime
-				attnObj.hours = computeWorkedHours(attnObj.start_time,attnObj.end_time, true)
-				attnObj.save()
-				wkattendance = attnObj if wkattendance.blank?
 			else
-				if hasStartEnd
-					wkattendance = addNewAttendance(startTime,endTime,userId)
-				end
+				endtime = endTime
 			end
-			wkattendance
+			
+			attnObj.end_time = endtime
+			attnObj.hours = computeWorkedHours(attnObj.start_time,attnObj.end_time, true)
+			attnObj.save()
+			wkattendance = attnObj if wkattendance.blank?
+		else
+			wkattendance = addNewAttendance(startTime,endTime,userId)
+		end
+		wkattendance
 	end
 		
 	def getWorkedHours(userId,fromDate,toDate)
@@ -195,5 +196,5 @@ module WkattendanceHelper
 		end
 		queryStr
 	end
-end
+
 end
