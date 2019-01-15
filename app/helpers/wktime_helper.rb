@@ -1014,7 +1014,7 @@ end
 	
 	def computeWorkedHours(startTime,endTime, ishours)
 		currentEntryDate = startTime.localtime
-		workedHours = endTime - startTime
+		workedHours = endTime.nil? ? 0 : endTime - startTime
 		if !Setting.plugin_redmine_wktime['wktime_break_time'].blank?
 			Setting.plugin_redmine_wktime['wktime_break_time'].each_with_index do |element,index|
 			  listboxArr = element.split('|')
