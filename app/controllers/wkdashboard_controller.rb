@@ -15,8 +15,9 @@ include WktimeHelper
 include WkpayrollHelper
 
   def index
-	if Setting.plugin_redmine_wktime['wktime_enable_dashboards_module'].blank? ||
-	   Setting.plugin_redmine_wktime['wktime_enable_dashboards_module'].to_i == 0
+	# if Setting.plugin_redmine_wktime['wktime_enable_dashboards_module'].blank? ||
+	   # Setting.plugin_redmine_wktime['wktime_enable_dashboards_module'].to_i == 0
+	if !showDashboard || !hasSettingPerm
 	   redirect_to :controller => 'wktime',:action => 'index' , :tab => 'wktime'
 	else
 	  set_filter_session

@@ -19,6 +19,7 @@ $(document).ready(function(){
 		var spentTypeDD = '<table><tr><td><label for="select" style="text-transform:   none;">Spent Type</label></td>'
             +'<td><select name="spent_type" id="spent_type" onchange="spentTypeValue(this);">'           
             +'</select></td></tr></table>';
+		var spentTypeHF = '<input type="hidden" name="spent_type" id="spent_typeHF" value="">'
 	}
 			
 	if(document.querySelector("h2") && document.querySelector("h2").innerHTML == "Spent time")	
@@ -26,6 +27,7 @@ $(document).ready(function(){
 		if(document.getElementById('spent_type') == null)
 		{	
 			$("#query_form_content").append(spentTypeDD);
+			$("#csv-export-form").append(spentTypeHF);
 		}
 		var spentDD = document.getElementById('spent_type');
 		var userid = document.getElementById('spent_time_user_id').value;
@@ -88,7 +90,10 @@ $(document).ready(function(){
 				}
 			}, 500);		
 		});	
-	}	
+	}
+	$(".time-entries.selected,.icon.icon-reload").click(function(){
+		sessionStorage.clear();
+	});
 });
 
 function spentTypeValue(elespent)
@@ -101,6 +106,7 @@ function spentTypeValue(elespent)
 function spentTypeSelection()
 {
 	var spcheck = sessionStorage.getItem("spent_type") == null ? "T" : sessionStorage.getItem("spent_type");
+	$("#spent_typeHF").val(spcheck);
 	if(document.getElementById('spent_type') != null) {
 		var ddl = document.getElementById('spent_type');
 		var opts = ddl.options.length;
