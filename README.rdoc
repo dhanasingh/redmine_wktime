@@ -66,14 +66,11 @@ If an apache passenger module is used then make sure the following settings are 
 	b) RailsAppSpawnerIdleTime 0
 	c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for 3.4
+Release Notes for 3.4.1
 
-Features:
-	   - Dashboards are introduced
-	   
-	   - Redmine-4.0 compatible 
-	      
-We would like to thank Addison for partially sponsored this release.
+Bug Fixing:
+	   - CSV does not contain Currency and Amount columns in expense detail
+	   - Dashboards is visible for all users
 
 Customization:
 	For any Customization/Support, please contact us, our consulting team will be happy to help you
