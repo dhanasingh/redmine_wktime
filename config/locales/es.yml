@@ -273,10 +273,10 @@ es:
   label_override_common_setting: Override common setting
   label_actual: Actual
 
-  label_wk_billing: Billing
-  label_enable_billing_module: Enable Billing module
-  label_accounts: Accounts
-  label_contracts: Contracts
+  label_wk_billing: Facturación
+  label_enable_billing_module: Habilitar el módulo de facturación
+  label_accounts: Cuentas
+  label_contracts: Contratos
   label_acc_projects: Billable Projects
   label_invoice: Factura
   label_invoice_adjusted: Factura
@@ -643,7 +643,7 @@ es:
   label_supplier_account: Supplier Account
   label_supplier_contact: Supplier Contact
   label_winning_quote: Winning Quote
-  label_purchasing: Comprando
+  label_purchasing: Compras
   label_enable_pur_module: Enable Purchase Module
   label_pur_user_group: Purchase User Group
   label_pur_admin_group: Purchase Admin Group
@@ -667,7 +667,7 @@ es:
   error_please_select_winning_quote: Please select Winning Quote
   error_please_select_po: Please select Purchase Order
 
-  label_inventory: inventario
+  label_inventory: Inventario
   label_inventory_admin_group: Grupo administrador de inventarios
   label_inventory_user_group: Grupo usuario de inventarios
   label_enable_inventory_module: Activar módulo de inventario
