@@ -410,9 +410,9 @@ es:
   label_accounting: Contabilidad
   label_accounting_group: Accounting User Group
   label_enable_accounting_module: Habilitar módulo de contabilidad
-  label_transaction: Transación
-  label_transaction_type: Tipo de transación
-  label_transaction_date: Fecha de transación
+  label_transaction: Transacción
+  label_transaction_type: Tipo de transacción
+  label_transaction_date: Fecha de transacción
   label_ledger: Balance
   label_ledger_information: Información de balance
   label_accounting_admin: Grupo de administración contable
@@ -488,7 +488,7 @@ es:
   error_cn_msg: Credit note should have sundry creditors/debitors, cash and bank as credit and should not have cash and bank as debit.
   error_dn_msg: Debit note should have sundry creditors/debitors, cash and bank as debit and should not have cash and bank as credit.
   label_less_transferred: "Less: Transferred"
-  label_trans_row_validmsg: La transacción contiene como mínimo ddos filas.
+  label_trans_row_validmsg: La transacción contiene como mínimo dos filas.
   label_trans_total_validmsg: Transaction debit and credit does not match.
 
   label_crm: Clientes
