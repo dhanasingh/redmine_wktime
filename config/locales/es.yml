@@ -1,0 +1,909 @@
+# Spanish strings go here for Rails i18n
+es:
+  my_label: "Mi etiqueta"
+  label_wktime: Tiempo
+  label_wk_project_dd_width: Project Dropdown Width
+  label_wk_issue_dd_width: Issue Dropdown Width
+  label_wk_actv_dd_width: Activity Dropdown Width
+  label_wk_restr_max_hour: Enforce Max hour per day
+  label_wk_max_hour_day: Max hour per day
+  label_wk_restr_min_hour: Enforce Min hour per day
+  label_wk_min_hour_day: Min hour per day
+  label_wk_page_width: Ancho de página
+  label_wk_page_height: Altura de página
+  label_wk_margin_top: Margen superior
+  label_wk_margin_bottom: Margen inferior
+  label_wk_margin_left: Margen izquierdo
+  label_wk_margin_right: Margen derecho
+  label_wk_line_space: Line Space
+  label_wk_header_logo: Logo del encabezado
+  label_wk_purchase_order: Orden de compra
+  label_wk_signature: Firma
+  label_wk_submitted_by: Enviado por
+  label_wk_approved_by: Aprobado por
+  label_wk_enter_issue_id: Enter issue as ID
+  label_wk_work_time_header: Show work time header
+  label_wk_allow_blank_issue: Permitir peticiones en blanco
+  label_wk_enter_comment_in_row: Enter Comment in row
+  label_wk_enter_cf_in_row: Enter Custom Field in row
+  label_wk_use_detail_popup: Use Detail Time Entry Popup
+  label_wk_approval_system: Sistema de aprobación
+  label_wk_use_approval_system: Usar sistema de aprobación
+  label_wk_auto_approve: "Auto aprobar"
+  label_wk_submission_ack: Submission Acknowledgement Text
+  label_wk_reject_reason: Motivo de rechazo
+  label_wk_account_groups: T&E Admin Groups
+
+  label_wk_enter_issue_As: Ingresar petición como
+  label_wk_enter_issue_Description: Enter issue as Subject
+  label_wk_own_approve: "Approver Can Approve their own %{value}"
+  label_wk_reject_timesheet: Rejected Time Sheet
+  label_wk_reject_expense: Gasto rechazado
+  label_wk_submittedon: Presentado el
+  label_wk_rejectedby: Rechazado por
+  label_wk_rejectedon: Rechazado el
+  label_wk_timesheet_reject: Your time sheet has been rejected
+  label_wk_expense_reject: Your expense has been rejected
+  label_wk_previous_template_week: Number of Weeks to consider for previous week template
+  label_wk_dropdown: Dropdown
+  label_wk_issueid: ID de Peticion
+  label_start: Inicio
+  label_end: Fin
+  label_remaining_hours: Horas restantes
+  label_warning_wktime_time_entry: "The timesheet for this period is locked, you cannot log time."
+  label_warning_wktime_issue_tracker: "The tracker of this issue is not allowed for time logging."
+
+  label_wk_first_day_of_week: Primer día de la semana
+  label_wk_prev_week_tip: Semana anterior
+  label_wk_next_week_tip: Semana siguiente
+  label_wkexpense: Gastos
+  label_te: Tiempo y Gastos
+  label_ta: Tiempo y Presentismo
+  label_wk_allow_user_filter_tracker: Allow User Filtering by Tracker
+  label_wk_filter_issue_tracker: Filter Issue by Tracker
+  label_wk_currency: Moneda
+  label_wk_time: Tiempo semanal
+  label_total_expense: Gastos totales
+
+  label_wkexpense_reports: Informe de Gastos
+  label_spent_expense: Spent Expense
+  label_wk_submission_deadline: Submission Deadline
+  label_wk_nonsub_mail_subject: Non submission time notification
+  label_wk_nonsub_mail_notification: Send email for non submission
+  label_wk_nonsub_mail_message: Non submission email message
+  label_redmine_restart_warning: "Nota: Any change to the below scheduler settings require redmine restart"
+  label_wk_minutes: Minutes
+  label_wkexpense_entry_projects: Restrict Expense Entry to these projects
+
+  label_wk_public_holiday: Feriado Públicos
+  label_wk_description: Descripción
+  label_wk_date_exists: Esta fecha ya existe
+  label_wk_select_holiday: Por favor seleccione un feriado
+
+  button_new_wktime: New Timesheet
+  button_continue: Continuar
+  button_add_row: Agregar fila
+  button_new_wkexpense: New Expensesheet
+
+  button_wk_unsubmit: Desinscribirse
+  button_save_continue: Guardar y continuar
+  button_wk_approve: Aprobar
+  button_wk_reject: Rechazar
+  button_wk_unapprove: Desaprobar
+  chkbox_prev_tmpl: Previous Week's Template
+  chkbox_closed_issues: Include Previous Weeks' Closed Issues
+
+  error_te_save_failed: "Could not save %{label}: %{error}"
+  error_wktime_save_nothing: Nada para guardar
+  error_not_permitted_save: No tiene permitido guardar
+
+  wk_status_new: Nuevo
+  wk_status_empty: Vacío
+  wk_status_submitted: Presentado
+  wk_status_approved: Aprobado
+  wk_status_rejected: Rechazado
+
+  text_start_of_week_confirmation: "Are you Sure? Status will be lost on the previously submitted %{value}"
+  text_wk_warning_min_hour: "You have not entered the Minimum hours (%{value}) required per day"
+  text_wk_warning_max_hour: "You have entered hours above Maximum hours (%{value}) allowed per day"
+  field_amount: Monto
+  field_status_modified_by: "Modificado por"
+
+
+  label_wk_allow_filter_issue: Allow User filtering to My Issues
+  label_wk_no_user_current_project: no hay usuarios en el proyecto seleccionado
+
+  permission_approve_time_entries: Approve time logs
+  field_currency: Moneda
+  error_project_issue_associate: Cannot be deleted because time/expense entries associated
+  error_time_entry_delete: "Cannot be deleted. The timesheet with this entry is locked"
+
+  label_user_filters: Filtros de usuario
+  label_submitted_by: Presentado por
+  label_approved_by:  Aprobado por
+
+  label_wk_reminder: Enviar recordatorio
+  label_wk_reminder_notes: Notas del recordatorio
+  label_wk_sub_reminder: Send submission email reminder
+  label_wk_appr_reminder: Send approval email reminder
+  wk_submission_reminder: "%{value} submission reminder"
+  wk_sub_reminder_text: "This is a reminder to submit your %{value} for"
+  wk_approval_reminder: "%{value} approval reminder"
+  wk_appr_reminder_text: "This is a reminder to approve %{value}s for:"
+  wk_sub_confirmation_text: "%{value} submission reminder sent to:"
+  wk_appr_confirmation_text: "%{value} approval reminder sent to:"
+  label_wk_timesheet: Timesheet
+  label_wk_expensesheet: Expensesheet
+  text_wk_no_reminder: No hay recordatorios para enviar
+
+
+  report_attendance: Presentismo
+  report_spent_time: Tiempo utilizado
+  label_wk_break_time: Break Time
+  label_wk_enable_clock_in_out: Enable Clock In / Clock Out
+  label_wk_sick_leave_accrual: Sick Leave Accrual
+  label_wk_paid_leave_accrual: Paid Leave Accrual
+  label_wk_leave_accrual_after: Accrual after
+  label_wk_select_break_time: Please select a break time
+  label_hours_per_month: hour(s)/month
+  label_wk_sick_leave: Sick Leave
+  label_wk_holiday: Feriado
+  label_wk_paid_leave: Paid Leave
+  label_wk_leave: Leave
+  label_wk_leave_issue: Leave issue
+  label_wk_leave_accrual: Accrual
+  label_wk_leave_accrual_on: Accrual on
+  label_wk_attendance_start_date: Attendance start date
+  label_clock_in: Marcar entrada
+  label_clock_out: Marcar salida
+  label_wk_leave_exists: This leave already exists
+  wk_field_balance: Balance
+  wk_field_used: Usado
+  wk_field_remaining: Restante
+  label_wk_leave_short_name: Nombre corto
+  label_difference: Diferencias
+  label_total_hours:  Horas totales
+  label_wk_attn_join_date:  Joining date
+  label_wk_attn_termination_date:  Termination date
+  label_wk_attn_user_dob:  Fecha de nacimiento
+  label_wk_designation:  Designación
+  label_employee_id:  Employee Id
+  label_leave_beginning_of_mnth:  Leave Credit at the Beginning of the Month
+  label_leave_during_mnth:  Leave Availed During the Month
+  label_daily_workdone_inclede_ot:  Daily Hours of Work done including Overtime(If any)
+  label_total_hours_ot:  Total OT hours
+  label_total_hours_during_mnth:  Total hours for month
+  label_total_no_of_maternity_leave:  Total Maternity leave days
+  label_attn_sl_no:  Sl. No.
+  wk_label_opening: Apertura
+  wk_label_closing: Cierre
+  label_wk_default_work_time: Default work time
+  label_wk_attn_for: Para
+  label_wk_form_q: FORM-Q
+  label_wk_register_for_shops: REGISTER OF EMPLOYMENT FOR SHOPS AND ESTABLISHMENTS
+  label_wk_name_address: Nombre y dirección del establecimiento
+  label_date_of_entry_into_service: Día de entrada en servicio
+  label_hours_note: "Note: Please enter time in 24 hours format(HH:MM)."
+  label_no_leaves_configured : No leaves configured
+  label_max_min_hours_day_msg : Min hours is greater than Max hours.
+
+  label_wk_restr_max_hour_week: Enforce Max hour per week
+  label_wk_max_hour_week: Máximas horas por semana
+  label_wk_restr_min_hour_week: Enforce Min hour per week
+  label_wk_min_hour_week: Mínimas horas por semana
+  text_wk_warning_min_hour_week: "You have not entered the Minimum hours (%{value}) required per week"
+  text_wk_warning_max_hour_week: "You have entered hours above Maximum hours (%{value}) allowed per week"
+  label_enable_expense_module: Habilidar módulo de gastos
+  label_enable_attendance_module: Habilidar módulo de presentismo
+  label_enable_report_module: Activar Informes
+  label_group_non_submission_email: Target group of non submission email
+
+  error_expense_entry_delete: "Cannot be deleted. The expensesheet with this entry is locked"
+  button_populate_leave: "Run Period End Process"
+  text_are_you_sure_want_to_run: "Are you sure you want to run this process ?"
+  label_clock: Marcar entrada/salida
+  label_hours: Horas
+  label_import_attendance: Importar Presentismo
+  label_path: Import file path
+  label_auto_import: Auto Importar
+  label_auto_import_time: Auto Import Every
+  label_start_time: Inicio
+  label_end_time: Fin
+  label_user_id: Userid
+  label_available_fields: Campos disponibles
+  label_fields_in_file: Campos en el archivo
+  label_import_file_headers: File Headers
+  error_no_record_to_import: Ningún registro para importar
+  warning_fields_in_file_not_configured: Fields in file not configured in plugin attendance settings
+
+  label_payroll: Payroll
+  label_basic: Basic Pay
+  label_deduction: Deducciones
+  label_gross: Bruto
+  label_net: Neto
+  label_salarydate: Salary Date
+  label_allowances: Allowances
+  label_frequency: Frecuencia
+  label_pay_period: Pay Period
+  label_salary_type: Tipo de salario
+  label_monthly: Mensual
+  label_quarterly: Cuatrimestral
+  label_semi_annually: Semestral
+  label_annually: Anual
+  label_salaried: Salaried
+  label_weekly: Semanal
+  label_bi_weekly: Bi-Weekly
+  label_hourly: Horario
+  label_dependent: Depende de
+  label_basic_name: El nombre ya existe
+  label_name_errormsg: Por favor ingrese un nombre
+  label_date_errormsg: Por favor ingrese la fecha inicial
+  label_auto_generate_salary: Auto generar salario
+  label_generate_salary: Genrar salario
+  label_pay_day: Día de pago
+  label_salary_detail: Detalles del salario
+  label_loss_of_pay: Loss Of Pay
+  label_financial_year_start: Comienzo del año financiero
+  label_salary_detail: Detalles del salario
+  report_payslip: Pay Slip
+  label_period: Periodo
+  label_emp_name: Nombre del empleado
+  label_ytd: YTD
+  label_earning: Ganancias
+  label_payroll_settings: Payroll Settings
+  label_total_earning: Total Earnings
+  label_total_deduction: Total Deductions
+  label_net_earning: Net Earnings
+  label_wk_form_r: FORM-R
+  label_register_wages: Register of Wages
+  label_wages_rule: See Sub Rule(5) of rule 11 of Tamilnadu Shops and Establishments Rule, 1948
+  label_wages_period: Wages Period Month
+  label_company_name: Nombre de la empresa
+  label_address: Dirección
+  label_enable_payroll_module: Enable Payroll module
+  label_gender: Gender
+  label_ytd_description: YTD - Year to Date from %{start} to %{end}
+  label_component: Componente
+  label_factor: Factor
+  label_generate: Generar
+  report_payroll: Payroll report
+  label_factor_errormsg: Please Enter the Factor
+  label_dependent_field: Campo dependiente
+  label_salary_component: Componenete del salario
+  label_override_common_setting: Override common setting
+  label_actual: Actual
+
+  label_wk_billing: Billing
+  label_enable_billing_module: Enable Billing module
+  label_accounts: Accounts
+  label_contracts: Contracts
+  label_acc_projects: Billable Projects
+  label_invoice: Factura
+  label_invoice_adjusted: Factura
+  label_tax: Impuesto
+  label_project_name: Nombre del proyecto
+  label_account_name: Nombre de la cuenta
+  label_invoice_date: Fecha de la factura
+  label_end_date: Fecha de finalización
+  label_user_billing_rate: User Billing Rate
+  label_user_billing_currency: User Billing Currency
+  label_project_billing_rate: Project Billing Rate
+  label_project_billing_currency: Project Billing Currency
+  label_billing_id: Time Entry Billing Id
+  label_generate_invoice_from: Generate invoice from
+  label_auto_generate_invoice: Auto generate invoice
+  label_invoice_no_prefix: Invoice number prefix
+  label_taxname: Nombre del impuesto
+  label_rate: Tasa
+  label_exchange_rate: Tasa
+  label_tax_detail: Detalle del impuesto
+  label_new_tax: Nuevo impuesto
+  label_invoice_name: Item Description
+  label_item_type: Item Type
+  label_quantity: Cantidad
+  label_invoice_number: Número de factura
+  label_invoice_items: Items de la factura
+  label_billing_type: Billing Type
+  label_apply_tax: Aplicar impuesto
+  label_itemized_bill: Itemized Bill
+  label_invoice_items: Invoice Items
+  label_new_tax: Nuevo impuesto
+  label_new_account: Nueva cuenta
+  label_edit_account: Editar cuenta
+  label_account_type: Tipo de cuenta
+  label_account_address: Dirección
+  label_account_address1: Dirección1
+  label_account_address2: Dirección2
+  label_work_phone: Teléfono Laboral
+  label_email: Email
+  label_country: País
+  label_city : Ciudad
+  label_account_detail: Detalles de cuenta
+  label_account_information: Información de cuenta
+  label_address_information: Información de dirección
+  label_state : Estado
+  label_fax : Fax
+  label_mobile : Celular
+  label_home_phone: Teléfono personal
+  label_pin: Pin
+  label_invoice_generate_period: Invoice generate period
+  label_invoice_generation_day: Invoice generation day
+  label_time_material: Time and Material
+  label_fixed_cost: Costo fijo
+  label_milestone: Milestone
+  label_date: Fecha
+  label_applicable_taxes: Impuestos aplicables
+  label_billing_schedules: Cronogramas de pagos
+  label_new_billing_project: New Billing Project
+  label_billing_groups: Billing Admin Groups
+  label_start_date: Fecha inicial
+  label_end_date: Fecha final
+  label_contract_name: Nombre del contrato
+  label_file_name: Nombre del archivo
+  label_attachment: Adjuntos
+  label_edit_contract: Editar contrato
+  label_project: Proyecto
+  label_account: Cuenta
+  label_account_adjusted: Cuenta
+  label_contract_number: Contract Number
+  label_contract_no_prefix: Prefijo de contrato
+  label_new_contract: Nuevo contrato
+  label_contract_information: Información de contrato
+  label_pin: Pin Code
+  label_invoice_components: Invoice Components
+  label_import_export_code: Import Export Code
+  label_satellite_station: Satellite Station
+  label_destination: Destino
+  label_payment_terms: Condiciones de pago
+  label_bankers_reference: Banker's Reference
+  label_name_address_of: Name & Address of the %{value}
+  label_bank_code_no: Bank code No
+  label_amount_in_words: Monto en palabras
+  label_man_hour_day_month: Man Hour / Man Day / Man Month / Project
+  label_desc_of_sftwr_services: Description of the Software Services
+  label_cntrt_purchase_work_order: Contract / Purchase Order / Work Order / Agreement Date & Reference
+  label_bank: Banco
+  label_customer: Cliente
+  label_supplier: Proveedor
+  label_export_invoice: Imprimir
+  label_authorized_signatory: Firmante autorizado
+  label_place: Lugar
+  label_erpmine: ERPmine
+  label_trillion: trillón
+  label_billion: billón
+  label_million: millón
+  label_thousand: mil
+  label_hundred: cien
+  label_ninety: noventa
+  label_eighty: ochenta
+  label_seventy: setenta
+  label_sixty: sesenta
+  label_fifty: cincuenta
+  label_forty: cuarenta
+  label_thirty: treinta
+  label_twenty: veinte
+  label_nineteen: diecinueve
+  label_eighteen: dieciocho
+  label_seventeen: diecisiete
+  label_sixteen: dieciseis
+  label_fifteen: quince
+  label_fourteen: catorce
+  label_thirteen: trece
+  label_twelve: doce
+  label_eleven: once
+  label_ten: diez
+  label_nine: nueve
+  label_eight: ocho
+  label_seven: siete
+  label_six: seis
+  label_five: cinco
+  label_four: cuatro
+  label_three: tres
+  label_two: dos
+  label_one: uno
+  label_bill_date: Bill Date
+  label_account_billing: Account Billing
+  label_sub_total: Sub total
+  label_round_off: Round Off
+  label_grand_total: Grand Total
+
+  label_accounting: Contabilidad
+  label_accounting_group: Accounting User Group
+  label_enable_accounting_module: Habilitar módulo de contabilidad
+  label_transaction: Transación
+  label_transaction_type: Tipo de transación
+  label_transaction_date: Fecha de transación
+  label_ledger: Ledger
+  label_ledger_information: Ledger Information
+  label_accounting_admin: Accounting Admin Group
+  label_bank_ac: Cuentas Bancarias
+  label_bank_occ_ac: Bank OCC A/c
+  label_bank_od_ac: Bank OD A/c
+  label_branch_division: Branch / Division
+  label_capital_account: Capital Account
+  label_cash_in_hand: Efectivo
+  label_current_assets: Activos actuales
+  label_current_liabilities: Current Liabilities
+  label_deposits: Depositos (Activos)
+  label_direct_expenses: Gastos directos
+  label_direct_incomes: Ingresos directos
+  label_duties_taxes: Duties & Taxes
+  label_fixed_assets: Activos fijos
+  label_indirect_expenses: Gastos indirectos
+  label_indirect_incomes: Ingresos indirectos
+  label_investments: Inversiones
+  label_loans_advances: Loans & Advances (activos)
+  label_loans: Loans (Liability)
+  label_misc_expenses: Gastos varios (activos)
+  label_provisions: Provisions
+  label_purchase_accounts: Purchase Accounts
+  label_reserves_surplus: Reserves & Surplus
+  label_retained_earnings: Retained Earnings
+  label_sales_accounts: Sales Accounts
+  label_secured_loans: Secured Loans
+  label_stock_in_hand: Stock-in-hand
+  label_sundry_creditors: Sundry Creditors
+  label_sundry_debtors: Sundry Debtors
+  label_suspense_ac: Suspense A/c
+  label_unsecured_loans: Unsecured Loans
+  report_profit_loss: Profit & Loss A/c
+  label_particulars: Particulares
+  label_trading_account: Trading Account
+  label_profit: Ganancia
+  label_cost_of_sales: Costo de ventas
+  label_statement: Statement
+  label_income: Ingreso
+  label_txn_contra: Contra
+  label_txn_payment: Pago
+  label_txn_receipt: Recibido
+  label_txn_journal: Journal
+  label_txn_sales: Ventas
+  label_txn_sales_stage: Sales Stage
+  label_txn_credit_note: Nota de crédito
+  label_txn_purchase: Compra
+  label_txn_debit_note: Nota de débito
+  label_type: Tipo
+  label_particulars: Particulares
+  label_debit: Debito
+  label_credit: Credito
+  label_date: Decha
+  report_balance_sheet: Balance Sheet
+  label_as_at: As at
+  label_of_funds: "%{value} of Funds"
+  label_application: Aplicación
+  label_current: Actual
+  label_original: Original
+  label_auto_post_gl: Auto post to General/Ledger
+  error_ledger_trans_associate: Cannot be deleted because transactions associated
+  label_unable_delete: Imposible borrar.
+  label_row_valid_msg: Por favor complete las filas agregadas.
+  error_system_ledger_cant_delete: System ledger Cannot be delete
+  error_trans_msg: Could not save transaction. Please configure auto post to general ledger settings
+  label_salary: Salario
+  error_contra_msg: Contra should contain bank and cash ledgers only.
+  error_payment_msg: Payment should have bank or cash as Credit.
+  error_receipt_msg: Receipt should have bank or cash as Debit.
+  error_purchase_msg: Purchase should have sundry creditors/debitors, cash and bank as credit and purchase group as debit.
+  error_sales_msg: Sales should have sundry creditors/debitors, cash and bank as debit and sales group as credit.
+  error_cn_msg: Credit note should have sundry creditors/debitors, cash and bank as credit and should not have cash and bank as debit.
+  error_dn_msg: Debit note should have sundry creditors/debitors, cash and bank as debit and should not have cash and bank as credit.
+  label_less_transferred: "Less: Transferred"
+  label_trans_row_validmsg: Transaction contain minimum two rows.
+  label_trans_total_validmsg: Transaction debit and credit does not match.
+
+  label_crm: CRM
+  label_lead_plural: Leads
+  label_opportunity_plural: Oportunidades
+  label_activity_plural: Actividades
+  label_activity_type: Tipo de actividad
+  label_contact_plural: Contactos
+  label_new_item: "Nuevo %{value}"
+  label_new_item_adjusted: "Nuevo %{value}"
+  label_new_item_third_case: "Nuevo %{value}"
+  label_edit_item: "Editar %{value}"
+  label_lead: Lead
+  label_lead_adjusted: Lead
+  label_content_information: "%{value} Information"
+  label_website: Website
+  label_department: Departamento
+  label_assigned: Asignado
+  label_in_process: En proceso
+  label_converted: Convertido
+  label_recycled: Reciclado
+  label_dead: Dead
+  label_lead_source: Lead Source
+  label_opportunity_amount: Opportunity Amount
+  label_referred_by: Referred By
+  label_more: Mas
+  label_subject: Asunto
+  label_inbound: Entrante
+  label_outbound: Saliente
+  label_planned: Planeado
+  label_held: Held
+  label_not_held: Not held
+  label_start_date_time: "Start Date & Time"
+  label_related_to: Related to
+  label_contact: Contacto
+  label_contact_adjusted: Contacto
+  label_task: Tarea
+  label_opportunity: Oportunidad
+  label_opportunity_information: Información de la oportunidad
+  label_opportunity_name: Nombre de la oportunidad
+  label_opportunity_type: Tipo de oportunidad
+  label_duration: Duración
+  label_end_date_time: "End Date & Time"
+  label_priority: Prioridad
+  label_medium: Media
+  label_call: Llamado
+  label_meeting: Reunión
+  label_location: Ubicación
+  label_not_started: Not Started
+  label_completed: Completos
+  label_pending_input: Pending Input
+  label_deferred: Deferred
+  button_convert_lead: Convert Lead
+  label_expected: Esperado
+  label_business: Business
+  label_existing: Existente
+  label_stage: Stage
+  label_prospecting: Prospecting
+  label_analysis: Analisis
+  label_qualification: Qualification
+  label_needs_analysis: Necesidades
+  label_value_proposition: Value Proposition
+  label_decision_makers: Id.Decision Makers
+  label_perception: Percepción
+  label_proposal_quote: Proposal/Price Quote
+  label_negotiation: Negotiation/Review
+  label_lost: Perdida
+  label_won: Ganancia
+  label_cold: Cold
+  label_self: Self
+  label_generated: Generado
+  label_employee: Empleado
+  label_partner: Partner
+  label_direct: Direct
+  label_conference: Conference
+  label_trade: Trade
+  label_word_of_mouth: Word of Mouth
+  label_other: Otro
+  label_probability: Probabilidad
+  label_step: Paso
+  label_mr: Sr.
+  label_ms: Srta.
+  label_mrs: Sra.
+  label_dr: Dr.
+  label_prof: Prof.
+  text_are_you_sure_want_to: "Are you sure want to %{value}?"
+  notice_successful_convert: Successful conversion.
+  label_enable_crm_module: Enable CRM Module
+  label_crm_user_group: CRM User Group
+  label_crm_admin_group: CRM Admin Group
+  label_position: Posición
+  report_lead_conversion: Lead Conversion
+  report_sales_activity: Actividad de ventas
+  label_sales_cycle: Ciclo de ventas
+  label_conversion_rate: Conversion Rate
+  label_completed_date_time: "Completed Date & Time"
+  label_completion_time: Completion Time
+  label_days: Días
+  label_average: Promedio
+  report_civilian_attendance: Civilian Attendance
+  minimum_working_days_for_accrual: Minimum working days for leave accrual
+  label_accrual_multiplier: Accrual Multiplier
+
+  label_enable_time_module: Enable Time Module
+
+  label_payments: Pagos
+  label_payment_date: Fecha de pago
+  label_payment_type: Tipo de pago
+  label_reference_number: Reference Number
+  label_exchange_rate: Tasa de cambio
+  label_from_currency: Desde moneda
+  label_to_currency: A moneda
+  report_order_to_cash: AR Aging
+  label_to_currency: A moneda
+  label_new_invoice: Nueva factura
+  label_populate_unbilled_items: Populate Unbilled Items
+  label_issue_billing_currency: Issue Billing Currency
+  label_issue_billing_rate: Issue Billing Rate
+  label_preview_invoice: Unbilled Invoice
+  label_fluctuation: Fluctuación
+  label_pay_invoice: Aceptar pago
+  label_unbilled: Sin facturar
+  label_payment_items: Payment Items
+  label_minus: Menos
+  label_credit_from_prv_inv: "Credit From Previous Invoice #%{invId}"
+  label_credit_from_prv_inv_pay: "Credit From Previous Invoice #%{invId} Payment #%{payId}"
+
+  label_rfq: RFQ
+  label_quotes: Quotes
+  label_purchase_order: Purchase Order
+  label_supplier_invoice: Supplier Invoice
+  label_supplier_payment: Supplier Payment
+  label_new_rfq: New RFQ
+  label_rfq_details: RFQ Details
+  label_new_quote: New Quote
+  label_new_pur_order: New Purchase Order
+  label_populate_quote_items: Populate From Quote
+  label_quote_number: Quote Number
+  label_po_number: PO Number
+  label_quote_date: Quote Date
+  label_po_date: Purchase Order Date
+  label_won: Won
+  label_won_note: Wining Note
+  label_quote_items: Quote Items
+  label_po_items: Purchase Order Items
+  label_rfq_name: RFQ Name
+  label_new_sup_invoice: New Supplier Invoice
+  label_si_items: Supplier Invoice Items
+  label_sp_number: Supplier Invoice Number
+  label_sp_date: Supplier Invoice Date
+  label_populate_purchase_items: Populate Purchase Order
+  label_supplier_account: Supplier Account
+  label_supplier_contact: Supplier Contact
+  label_winning_quote: Winning Quote
+  label_purchasing: Comprando
+  label_enable_pur_module: Enable Purchase Module
+  label_pur_user_group: Purchase User Group
+  label_pur_admin_group: Purchase Admin Group
+  report_purchase_cycle: Purchase Cycle
+  label_quote_number_prefix: Quote Number Prefix
+  label_po_number_prefix: PO Number Prefix
+  label_si_number_prefix: SI Number Prefix
+  label_in_days: En días
+  button_new_lock: Lock T&E
+  field_lock_date: Lock Time/Expense sheets up to
+  label_lock: Lock T&E
+  label_last_lock_by: "Last Locked by: %{name}"
+  label_quote_components: Quote Components
+  label_po_components: Purchase Order Components
+  label_si_components: Supplier Invoice Components
+  label_all_accounts: Todas las cuentas
+  label_opening_balance: Balance inicial
+  label_current_total: Total actual
+  label_closing_balance: Balance de cierre
+  error_please_select_rfq: Please select RFQ
+  error_please_select_winning_quote: Please select Winning Quote
+  error_please_select_po: Please select Purchase Order
+
+  label_inventory: inventario
+  label_inventory_admin_group: Grupo administrador de inventarios
+  label_inventory_user_group: Grupo usuario de inventarios
+  label_enable_inventory_module: Activar módulo de inventario
+  label_hr: RRHH
+  label_location: Ubicación
+  label_product: Producto
+  label_shipment: Envío
+  label_category: Categoría
+  label_uom: Unidad de medida
+  label_item: Item
+  label_new_shipment: New Shipment
+  label_shipment_items: Shipment Items
+  label_shipment_date: Shipment Date
+  label_serial_number: Número de serie
+  label_material: Material
+  label_cost_price: Precio de costo
+  label_sell_price: Precio de venta
+  label_brand: Marca
+  label_log_type: Log Type
+  label_cost_price: Precio de costo
+  label_selling_price: Precio de venta
+  label_over_head_price: Over Head Cost
+  label_org_cost_price: Original Cost Price
+  label_org_selling_price: Original Selling Price
+  label_org_over_head_price: Original Over Head Cost
+  label_total_quantity: Cantidad total
+  label_available_quantity: Cantidad disponible
+  label_model: Modelo
+  label_attribute_group: Attribute Group
+  label_product_catagory: Product Catagory
+  label_product_items: Product Items
+  label_category: Categoría
+  label_populate_items: Populate Items
+  label_new_product_item: Nuevo ítem
+  label_edit_product_item: Editar ítem
+  label_product_item: Product Item
+  label_part_number: Número de parte
+  label_inventory_information: Información de inventario
+  button_transfer: Transferir a
+  field_quantity: Cantidad
+  field_selling_price: Precio
+  report_stock: Stock Report
+  label_stock_value: Stock value
+  label_new_product: Nuevo producto
+  label_new_category: Nueva categoría
+  label_new_brand: Nueva marca
+  label_new_model: Nuevo modelo
+  label_location_type: Tipo de ubicación
+  label_new_location: Nueva ubicación
+  label_location_detail: Detalles de la ubicación
+  label_new_model: Nuevo modelo
+  label_product_model: Modelo de producto
+  label_product_attribute: Product Attribute
+  label_new_product_attribute: Nuevos atributos
+  label_new_attribute_group: New Attribute Group
+  label_models: Modelos
+  label_attributes: Atrubutos
+  label_transfer: Transferir
+  label_selling_price_error: Selling price cannot be empty
+  label_quantity_error: Quantity cannot be empty
+  label_project_error: Project cannot be empty
+  label_issue_error: Issue cannot be empty
+  label_activity_error: Activity cannot be empty
+  error_shipment_items_used: Could not delete the shipment. Some items in the shipment were used
+  error_material_delete: Unable delete the material entries
+  error_material_delete_billed: Could not delete the invoiced material entries
+  error_expense_amount: Amount cannot be empty
+  error_expense_delete: Unable delete the expense entries
+  label_asset: Activo
+  label_depreciation: Depreciación
+  label_depreciation_ledger: Depreciation Ledger
+  label_depreciation_type: Depreciation Type
+  label_depreciation_frequency: Depreciation Frequency
+  field_inventory_item_id: Producto
+  label_rate_per: Producto
+  label_current_asset_value: Valor actual del activo
+  label_asset_type: Tipo de activo
+  label_rate_per: Rate Per
+  label_own: Propio
+  label_rental: Alquiler
+  label_lease: Lease
+  label_daily: Diario
+  label_depreciation_type: Tipo de depreciación
+  label_accounting_ledger: Accounting Ledger
+  label_wdv: Written Down Value
+  label_stright_line: Línea recta
+  label_purchase_date: Fecha de compra
+  label_purchase_value: Valor de compra
+  label_previous_value: Valor anterior
+  label_depreciation_date: Depreciation Date
+  label_current_value: Valor actual
+  label_apply_depreciation: Aplicar depreciación
+  label_per_annum: Por año
+  label_no_asset_current_product: No Asset in selected Product
+  label_new_depreciation: Nueva depreciación
+  report_asset: Asset Report
+  label_last_depreciation_on: Last Depreciation on
+  label_loggable_asset: Loggable Asset
+  label_dep_auto_apply: Auto Apply Depreciation
+  label_done: Done
+  label_log: Log
+  label_owner: Propietario
+  error_transfer_qty_greater_than_zero: Transfer Quantity Should be greater than zero
+  error_avail_qty_great_than_trans_qty: Transfer Quantity should be less than or equal to Available Quantity
+  label_per: por
+  label_depreciation_freq_warning: "Note: Any change to the depreciation frequency will delete last applied depreciations"
+  label_scheduling: Scheduling
+  label_schedule_preference: Schedule Preference
+  label_shift: Turno
+  label_role_adjusted: Roles
+  label_new_shift: Nuevo turno
+  label_required_staff: Personal requerido
+  label_count: Cuenta
+  label_department: Departamento
+  label_day_off: Día libre
+  label_schedule_details: Schedule Details
+  label_shift_scheduling: Shift Scheduling
+  field_is_schedulable: Schedulable
+  field_gender: Género
+  field_id1: Custom id1
+  field_id2: Custom id2
+  field_id3: Custom id3
+  field_join_date: Join date
+  field_birth_date: Fecha de nacimiento
+  field_termination_date: Termination date
+  field_bank_name: Nombre del banco
+  field_account_number: Número de cuenta bancaria
+  field_bank_code: Código bancario
+  field_tax: id de impuesto
+  field_ss: SS id
+  field_custom_number1: Custom number1
+  field_custom_number2: Custom number2
+  field_custom_date1: Custom date1
+  field_custom_date2: Custom date2
+  field_billing_rate: Billing rate
+  field_billing_currency: Billing currency
+  field_location: Ubicación
+  field_department: Departamento
+  label_public_holiday: Feriado público
+  label_schedule_on_weekend: Schedule on Weekend / Holiday
+  label_holiday: Feriado
+  label_day_off_per_frequency: Day off per frequency
+  label_schedule_shifts: Schedule Shifts
+  warning_apply_depreciation: Are you sure want to apply depreciation for the period
+  warning_schedule_shifts: Are you sure want to schedule shifts for the period
+  label_work: Trabajo
+  field_shift: Turno
+  label_setting_preference: Allow user schedule preference
+  label_auto_scheduling: Auto Shift Scheduling
+
+
+  label_shift_and_scheduling: Shift Scheduling
+  label_auto_approve_with_te: Auto approve Time & Expense
+  label_credit_with_ledger: Balance de crédito
+  label_debit_with_ledger: Balance de débito
+  label_txn_payment_with_credit_with_ledger: Payment Credit Ledger
+  label_txn_payment_with_debit_with_ledger: Payment Debit Ledger
+
+  gender_hash_male: Masculino
+  gender_hash_female: Femenino
+  gender_hash_others: Otro
+
+  nonsub_mail_message_content: You are receiving this notification for timesheet non submission
+  submission_ack_message_content: I Acknowledge that the hours entered are accurate to the best of my knowledge
+  all_users_for_select: Todos los usuarios
+  label_expected_date_to_close_project: Fecha de cierre esperada
+  text_edit_activity: Editar actividad
+  label_number_shortcut: "No"
+  label_account_category: Categoría de cuenta
+
+  VIEW INVENTORY: Ver inventario
+  DELETE INVENTORY: Eliminar inventario
+  SCHEDULES SHIFT: Agendar turnos
+  EDIT SHIFT SCHEDULES: Editar agenda de turnos
+
+  label_active_on: On
+  label_active_off: Off
+
+  label_confirmation_salary_text: Are you sure want to generate salary on
+
+  label_period_end_confirmation: Are you sure want to run this process
+  label_period_end_note: 'Please: Note This will run the process for the previous month from the chosen date'
+  label_chose_process_date: 'Chose process date:'
+  label_title_end_process: Run Period End Process
+  label_select_date_text: Please select the date
+
+  label_report_type: Tipo de Informe
+
+  label_new_asset: Nuevo Activo
+  label_new_asset_item: Nuevo Activo
+  label_edit_asset_item: Editar Activo
+  label_additional_info: Información adicional
+  label_as: como
+  label_new_component: Nuevo componente
+  label_components: Components
+  label_sheet_view: Sheet view
+  label_issue_view: Issue view
+  label_spent_for: Spent For
+  label_availability: Disponible
+  label_in_use: En uso
+  label_additional_assignee: Additional Assignee
+  label_relationship: Relación de contacto
+  warning_select_project: Please select a project
+  warn_billable_project_not_configured: Billable projects not configured for %{name}
+  field_rate: Tasa
+  field_rate_per: Por
+  label_invoice_generation_month: Invoice generation month
+  label_edit_component: Editar Componente
+  # Supervisor lables
+  label_ftte_supervisor: "Supervisor"
+  label_my_direct_reports: "Mis informes directos"
+  label_my_reports: "Mis Informes"
+  label_ftte_supervisor_edit_log: "Permitir al supervisor editar los registros de tiempo"
+  label_ftte_override_spent_time_report: "Override built-in spent time reports"
+  label_ftte_supervisor_based_approval: "Use supervisor based approval system "
+  label_ftte_view_only_own_spent_time: "View only own spent time"
+  label_additional_details: Detalles adicionales
+
+  #Dashboards
+  label_dashboards: Dashboards
+  label_clock_in_users_over_time: Clock in users over time
+  label_no_of_users: Número de usuarios
+  label_expense_for_issues: Gastos para peticiones
+  label_total_expense_of_issues: Gastos totales para las peticiones
+  label_lead_generation_vs_conversion: Lead generation vs conversion
+  label_created_lead: Created lead
+  label_converted_lead: Converted lead
+  label_invoice_vs_payment_per_month: Invoice total vs Payment total
+  label_total_invoice: Total factura
+  label_total_payment: Total pago
+  label_assets_per_month: Assets per month
+  label_total_assets_per_month: Total assets
+  label_profit_loss_per_month: Profit and loss per month
+  label_total_income: Ingresos Totales
+  label_total_expense: Egresos Totales
+  label_months: Meses
+  label_amount : Monto
+  label_no_of_leads: No of leads
+  label_no_of_employees: Número de empleados
