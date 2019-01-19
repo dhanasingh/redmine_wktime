@@ -1,39 +1,39 @@
 = ERPmine
 
 This Plugin has the following modules:
-1) Time & Expense
+1. Time & Expense
     Submit Time & Expense Sheets
     Approve Time & Expense Sheets
     Print Time & Expense Sheets
-2) Attendance
+1. Attendance
     Clock In / Clock Out
     Check Leave Status
     Integrate with Attendance / Time clock devices
     Schedule Shifts
-3) PayRoll
+1. PayRoll
     Setup Payroll data
     Generate Salary
-    Report – Salary Register
-    Report – Salary Slip
-4) Billing
+    Report â€“ Salary Register
+    Report â€“ Salary Slip
+1. Billing
     Setup Billable Projects
     Generate Invoices
-	Payments
+    Payments
     Print Invoices
-5) Accounting
-	Create Ledgers
-	Post Financial Transaction 
-    Report – Balance Sheet
-    Report – Profit & Loss A/c Report
-6) CRM
-	Create Lead,Opportunity, Activity and Contacts
-	Report – Lead Conversion
-    Report – Sales Activity
-7) Purchasing
-	Create RFQ, Quote, Purchase Order, 
-	Create Supplier Invoice and Supplier Payments
-	Report - Purchasing cycle
-8) Inventory
+1. Accounting
+    Create Ledgers
+    Post Financial Transaction 
+    Report â€“ Balance Sheet
+    Report â€“ Profit & Loss A/c Report
+1. CRM
+    Create Lead,Opportunity, Activity and Contacts
+    Report â€“ Lead Conversion
+    Report â€“ Sales Activity
+1. Purchasing
+    Create RFQ, Quote, Purchase Order, 
+    Create Supplier Invoice and Supplier Payments
+    Report - Purchasing cycle
+1. Inventory
     Create Product, Items, Shipments and Asset
     Log Material and Asset Entries
     Report - Stock and Asset Report.
@@ -50,64 +50,53 @@ So run the following command for db migration
   
 When uninstalling the plugin, be sure to remove the db changes by running
 
-	rake redmine:plugins:migrate NAME=redmine_wktime VERSION=0 RAILS_ENV=production
+  rake redmine:plugins:migrate NAME=redmine_wktime VERSION=0 RAILS_ENV=production
 
 This plugin uses js and css assets and it will be copied to public/plugin_asset/redmine_wktime
 folder upon server startup, so please make sure public/plugin_asset/redmine_wktime has proper access.
 The pdf export requires rmagick gem.
 
-Starting from version 1.5, it requires the gem rufus-scheduler.
+Starting from version 1.5, it requires the gem `rufus-scheduler`.
 so run the following command to install the gem
 	bundle install
 	
 For rufus-scheduler to work , the rails application should be up all the time.
-If an apache passenger module is used then make sure the following settings are made
-	a) PassengerMinInstances 1
-	b) RailsAppSpawnerIdleTime 0
-	c) PassengerPreStart http://rails-app-url/	
+If an apache passenger module is used then make sure the following settings are made:
+    a) PassengerMinInstances 1
+    b) RailsAppSpawnerIdleTime 0
+    c) PassengerPreStart http://rails-app-url/
 
-Release Notes for 3.4
+== Release Notes for 3.4
 
-Features:
-	   - Dashboards are introduced
-	   
-	   - Redmine-4.0 compatible 
+=== Features
+    - Dashboards are introduced
+    - Redmine-4.0 compatible 
 	      
 We would like to thank Addison for partially sponsored this release.
 
-Customization:
-	For any Customization/Support, please contact us, our consulting team will be happy to help you
+=== Customization
+	
+For any Customization/Support, please contact us, our consulting team will be happy to help you
+    Adhi Software Pvt Ltd
+    http://www.adhisoftware.co.in
+    info@adhisoftware.co.in
+    +1 732 202 5490 
+    +91 44 27470401
+    +91 44 27470402
 
-	Adhi Software Pvt Ltd
-	http://www.adhisoftware.co.in
-	info@adhisoftware.co.in
-	+1 732 202 5490 
-	+91 44 27470401
-	+91 44 27470402
-
-	Here are the Customizations we have done for our clients:
-		1.	Monthly Calendar - Puny Human
-		2.	Supervisor Approvals - Fotonation
-		3.	Hide Modules and Limit Non Submission Mail - Lyra Network
+Here are the Customizations we have done for our clients:
+1. Monthly Calendar - Puny Human
+2. Supervisor Approvals - Fotonation
+3. Hide Modules and Limit Non Submission Mail - Lyra Network
 		
 Please provide your rating at http://www.redmine.org/plugins/wk-time
 	
-Resources:
-	User guide:
-	http://www.adhisoftware.co.in/wp-content/uploads/ERPmine-User-Guide.pdf
-
-	Overview presentation in open office format:
-	http://www.adhisoftware.co.in/wp-content/uploads/TE-Overview.odp
-
-	Training Videos:
-	https://www.youtube.com/watch?v=OntsLT1LeLg
-	https://www.youtube.com/watch?v=SzHo5Os-dvU
-	https://www.youtube.com/watch?v=hTgDepFzGXY
-	
-	
-	For more Videos: 
-	http://www.adhisoftware.co.in/products/erpmine/resources/
-	
-	
-	For more:	
-	http://www.adhisoftware.co.in/products/erpmine/resources/
+== Resources
+- User guide: http://www.adhisoftware.co.in/wp-content/uploads/ERPmine-User-Guide.pdf
+- Overview presentation in open office format: http://www.adhisoftware.co.in/wp-content/uploads/TE-Overview.odp
+- Training Videos:
+  - https://www.youtube.com/watch?v=OntsLT1LeLg
+  - https://www.youtube.com/watch?v=SzHo5Os-dvU
+  - https://www.youtube.com/watch?v=hTgDepFzGXY
+- For more Videos: http://www.adhisoftware.co.in/products/erpmine/resources/
+- For more: http://www.adhisoftware.co.in/products/erpmine/resources/
