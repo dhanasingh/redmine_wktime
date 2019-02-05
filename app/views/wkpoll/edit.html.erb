@@ -1,0 +1,88 @@
+<%= javascript_include_tag 'poll', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+
+<% 	if @edit_Poll_Entry.blank?
+		poll_Name = nil
+		status = nil
+		active = nil
+		poll_id = nil
+		poll_question_id = nil
+	else
+		poll_id = @edit_Poll_Entry.first.id
+		poll_choice_id = @edit_Poll_Entry.first.poll_choice_id
+		poll_question_id = @edit_Poll_Entry.first.poll_question_id
+		poll_Name = @edit_Poll_Entry.first.poll_name
+		status = @edit_Poll_Entry.first.status
+		inActive = @edit_Poll_Entry.first.in_active
+	end 
+%>
+<% if @edit_Poll_Entry.blank?%>
+<h2><%= l(:label_new_poll) %></h2>
+<% else %>
+<h2><%= l(:label_edit_poll) %></h2>
+<% end %>
+<% content_for :sidebar do %>
+	<%= render :partial => 'sidebar' %>
+<% end %>
+
+<%= form_tag({:controller => 'wkpoll', :action => 'updatepoll'}, :method => :post, :id => 'query_form') do %>
+	<%=h hidden_field_tag('poll_id', poll_id) %>
+	<%=h hidden_field_tag('poll_question_id', poll_question_id) %>
+	<fieldset class="box tabular">
+		<table id="newpoll" class="odd-even" align='left'>
+			<tr>
+				<th align="left"><%= l(:label_poll_name) %></th>
+				<td align="left" style="padding-left:40px;">
+					<%=h text_field_tag("poll_name", poll_Name, :size => 40) %> 
+				</td>
+			</tr>
+			<tr>
+				<th align="left"><%= l(:label_poll_choices) %></th>
+				<td></td>
+			</tr>
+			<% if @edit_Poll_Entry.blank? %>
+				<tr>
+					<td></td>
+					<td align="left" style="padding-left:40px;">
+							<%=h text_field_tag("pollChoices0_", "", :size => 40) %>
+							<%=link_to image_tag('delete.png'), "javascript:deleterow(0);", :title => l(:button_delete)%>
+					</td>
+				</tr>
+			<% else %>
+				<% @edit_Poll_Entry.each_with_index do |entry, index| %>
+					<tr>
+						<td></td>
+						<td align="left" style="padding-left:40px;">
+							<%=h text_field_tag(("pollChoices" + index.to_s + "_" + (entry.poll_choice_id).to_s), entry.name, :size => 40) %>
+							<%=link_to image_tag('delete.png'), "javascript:deleterow(" + index.to_s + ");", :title => l(:button_delete) %>
+						</td>
+					</tr>
+				<% end %>
+			<% end %>
+					
+			<tr id="lastrow">
+				<td></td>
+				<td align="right" style="padding-left:40px;">
+					<%= link_to l(:button_add), "#", { :onclick => "javascript:addrows();", :class => 'icon icon-add' } %>
+				</td>
+			</tr>
+			<% unless poll_id.blank? %>
+				<tr>
+					<th align="left"><%= l(:label_status) %></th>
+					<td align="left" style="padding-left:40px;">
+						<%=h select_tag("poll_status", options_for_select(getPollStatusArr.drop(1), status)) %>
+					</td>
+				</tr>
+				<tr>
+					<th align="left"><%= l(:label_inactive) %></th>
+					<td align="left" style="padding-left:40px;">
+						<%=h check_box_tag("poll_inactive", true, inActive ) %>
+					</td>
+				</tr>
+			<% end %>
+		</table>
+	</fieldset>
+	<div>
+		<%= submit_tag l(:button_save), :id => 'wkpoll_save' %>
+	</div>
+<% end %>	

@@ -1,0 +1,89 @@
+<h2><%= l(:label_poll) %></h2>
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<script type="text/javascript">
+   wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "leave")%>';     
+   clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>'; 
+   payrollUrl = '<%=url_for(:controller => "wkpayroll", :action => "index", :tab => "payroll")%>';
+   userssettingsUrl = '<%=url_for(:controller => "wkpayroll", :action => "usrsettingsindex", :tab => "usersettings")%>'; 
+	wkSchedulingUrl = '<%=url_for(:controller => "wkscheduling", :action => "index", :tab => "wkscheduling")%>';
+	wkShiftUrl = '<%=url_for(:controller => "wkshift", :action => "index", :tab => "wkshift")%>';  
+	wkPublicHolidayUrl = '<%=url_for(:controller => "wkpublicholiday", :action => "index", :tab => "wkpublicholiday")%>';
+	wkPollUrl = '<%=url_for(:controller => "wkpoll", :action => "index", :tab => "wkpoll")%>';
+</script>
+
+<%= render_tabs time_expense_tabs %>
+<% if User.current.admin? %>
+   <% content_for :sidebar do %>
+      <%= render :partial => 'sidebar' %>
+   <% end %>
+<% end %>
+
+<% unless @poll_Entries.blank? %>
+<div>
+<%= form_tag({:controller => 'wkpoll', :action => 'update_Selected_polls'}, :method => :post, :id => 'query_form') do %>
+   <fieldset class="box tabular">
+      <legend><%=l(:label_poll_questions)%>:</legend>
+      <% @poll_Entries.each do |entry| %>
+		 <fieldset class="box tabular">
+         <table id="newpoll" class="odd-even">
+            <tr>
+               <th align="left"><%= l(:label_poll_name) %></th>
+               <td align="left" style="padding-left:40px;"><%= entry.name %></td>
+            </tr>
+            <tr>
+               <th align="left"><%= l(:label_poll_choices) %></th>
+               <td></td>
+            </tr>
+            <% @poll_Choice_Entries.each do |choice_entry| %>
+            <% if choice_entry.poll_id == entry.id
+            %>
+            <tr>
+               <td></td>
+               <td align="left" style="padding-left:40px;">
+                 <%= radio_button_tag("poll_sel_choice"+ (entry.id).to_s, choice_entry.id, false) %>
+                 <%= choice_entry.name %>
+               </td>
+            <tr>
+            <% end %>
+            <% end %>
+         </table>
+		 </fieldset>			
+      <% end %>
+   <div>
+      <%= submit_tag l(:button_save), :id => 'wkpoll_save' %>
+   </div>
+   </fieldset>
+
+<% end %>
+</div>
+<% end %>
+
+<% unless @closed_polled_Entries.blank? %>
+<div>
+   <fieldset class="box tabular">
+      <legend><%=l(:label_poll_result)%>:</legend>
+      <% @closed_polled_Entries.each do |entry| %>
+	  <fieldset class="box tabular">
+         <table class="odd-even">
+            <tr>
+               <th align="left"><%= l(:label_poll_name) %></th>
+               <td align="left" style="padding-left:40px;"><%= entry.name %></td>
+            </tr>
+            <tr>
+               <th align="left"><%= l(:label_poll_choices) %></th>
+               <td>
+			   </td>
+            </tr>
+            <tr>
+               <td></td>
+               <td>
+			    <%= render :partial => 'graph', :locals => { :entry => entry } %>
+               </td>
+            <tr>
+         </table>
+		 </fieldset>
+      <% end %>
+   </fieldset>
+</div>											  
+<% end %>

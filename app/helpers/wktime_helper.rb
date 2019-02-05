@@ -611,7 +611,7 @@ end
 				{:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime},
 				{:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense}
 			   ]
-		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" || params[:controller] == "wkscheduling"  || params[:controller] == "wkschedulepreference" || params[:controller] == "wkshift" || params[:controller] == "wkpublicholiday"
+		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" || params[:controller] == "wkscheduling"  || params[:controller] == "wkschedulepreference" || params[:controller] == "wkshift" || params[:controller] == "wkpublicholiday" || params[:controller] == "wkpoll" 
 				tabs = []
 				if showAttendance
 					tabs << {:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave}
@@ -623,7 +623,6 @@ end
 				if showPayroll
 					tabs << {:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll}
 					tabs <<	{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_payroll_settings}
-					
 				end
 				
 				if showShiftScheduling
@@ -632,7 +631,11 @@ end
 					@editShiftSchedules = validateERPPermission("E_SHIFT")
 					if @schedulesShift && @editShiftSchedules
 						tabs <<	{:name => 'wkshift', :partial => 'wktime/tab_content', :label => :label_shift}
-					end					
+					end
+				end
+				
+				if showPoll
+					tabs << {:name => 'wkpoll', :partial => 'wktime/tab_content', :label => :label_poll}
 				end
 				
 		elsif params[:controller] == "wklead" || params[:controller] == "wkcrmaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact"
@@ -1129,6 +1132,11 @@ end
 			Setting.plugin_redmine_wktime['wktime_enable_payroll_module'].to_i == 1
 	end
 	
+	def showPoll
+		!Setting.plugin_redmine_wktime['wktime_enable_poll_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_poll_module'].to_i == 1
+    end
+	
 	def showBilling
 		(!Setting.plugin_redmine_wktime['wktime_enable_billing_module'].blank? &&
 			Setting.plugin_redmine_wktime['wktime_enable_billing_module'].to_i == 1 ) #&& isModuleAdmin('wktime_billing_groups')			
@@ -1241,6 +1249,8 @@ end
 			Setting.plugin_redmine_wktime['wktime_enable_shift'].to_i == 0) &&
 			(Setting.plugin_redmine_wktime['wktime_enable_payroll_module'].blank? ||
 			Setting.plugin_redmine_wktime['wktime_enable_payroll_module'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_poll_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_poll_module'].to_i == 0) &&
 			(Setting.plugin_redmine_wktime['wktime_enable_billing_module'].blank? ||
 			Setting.plugin_redmine_wktime['wktime_enable_billing_module'].to_i == 0) &&
 			(Setting.plugin_redmine_wktime['wktime_enable_accounting_module'].blank? ||
@@ -1362,6 +1372,7 @@ end
 						  l(:label_wkexpense) => 'Expense',
 						  l(:report_attendance) => 'Attendance',
 						  l(:label_shift_scheduling) => 'Shift Scheduling',
+						  l(:label_poll) => 'Poll',
 						  l(:label_payroll) => 'Payroll',
 						  l(:label_wk_billing) => 'Billing',
 						  l(:label_accounting) => 'Accounting',

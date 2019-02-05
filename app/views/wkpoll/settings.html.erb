@@ -1,0 +1,52 @@
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+
+<% content_for :sidebar do %>
+<%= render :partial => 'sidebar' %>
+<% end %>
+
+<%= form_tag({:controller => "wkpoll", :action => 'settings'}, :method => :get, :id => 'query_form') do %>
+	<h2><%= l(:label_poll_settings) %></h2>
+	<fieldset>
+		<%=h hidden_field_tag('tab', "wkpoll") %>
+		<%= l(:field_status) %>
+			<%=h select_tag('status', options_for_select(getPollStatusArr, :selected => params[:status])) %>
+			
+		<%= l(:label_active) %>
+		<%=h select_tag('ActiveStatus', options_for_select(getPollActiveStatusArr, :selected => params[:ActiveStatus])) %>
+		<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
+		<%= link_to l(:button_clear), {:controller => controller_name, :action => 'settings', :tab => controller_name}, :class => 'icon icon-reload' %>			
+	</fieldset>
+<% end %>
+	<div class="autoscroll">
+		<div class="wk-contextual">
+		<%= link_to l(:label_new_poll), url_for(:controller => "wkpoll", :action => "edit"), :class => 'icon icon-time-add' %>
+		</div>
+		
+		<table class="list poll">
+			<thead>
+				<tr>				
+					<th class="lbl-txt-align">#</th>
+					<th class="lbl-txt-align"><%= l(:label_poll_name) %></th>
+					<th class="lbl-txt-align"><%= l(:label_status) %></th>	
+					<th class="lbl-txt-align"><%= l(:label_active) %></th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+
+			<% @all_polls.each do |entry| %>
+				<tr>
+					<td class="lbl-txt-align"><%=h entry.id %></td>		 
+					<td class="lbl-txt-align"><%=h entry.name %></td>		 
+					<td class="lbl-txt-align"><%=h entry.status == "O" ? "Open" : "Close" %></td>		 
+					<td class="lbl-txt-align"><%=h entry.in_active ? "Inactive" : "Active" %></td>		 
+					<td class="lbl-txt-align">
+						<%= link_to image_tag('edit.png'), {:controller => "wkpoll", :action => 'edit', :poll_id => entry.id, :tab => "wkpoll"}, :title => l(:button_edit) %>
+						<%= link_to image_tag('delete.png'), {:controller => "wkpoll", :action => 'destroy', :poll_id => entry.id, :tab => "wkpoll"},  :data => {:confirm => l(:text_are_you_sure)}, :title => l(:button_delete) %>
+					</td>
+				</tr>
+			<% end %>
+			</tbody>
+		</table>
+	</div>

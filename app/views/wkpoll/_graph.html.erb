@@ -1,0 +1,59 @@
+<div class="poll-graph" >
+	<canvas id="choices_selected_by_user<%= entry.id %>" width="350" height="200"></canvas>
+</div>
+
+<%= javascript_tag do %>
+$(document).ready(function(){
+  $.getJSON(<%= raw url_for(:controller => 'wkpoll',
+    :action => 'graph',
+	:graph => "choices_selected_by_user",
+	:poll_id => entry.id).to_json %>, function(data){
+	
+    var chartData = {
+      labels: data['labels'],
+      datasets: [{
+        label: <%= raw l(:label_no_of_users).to_json %>,
+        backgroundColor: 'rgba(153, 102, 255, 1)',
+        borderColor: 'rgb(153, 102, 255, 1)',
+        borderWidth: 3,
+        data: data['choices']
+      }]
+    };
+    new Chart(document.getElementById("choices_selected_by_user<%= entry.id %>").getContext("2d"), {
+      type: 'horizontalBar',
+      data: chartData,
+      options: { 
+	  tooltips: {
+         enabled: true
+       },        
+       scales:  {
+            xAxes: [{ 
+			ticks: {
+                display: false
+            },
+			gridLines : {
+					drawBorder: false,
+                    display : false
+                }
+            }],
+			yAxes: [{   
+			barThickness : 20,
+			gridLines : {
+			drawBorder: true,
+                    display : false
+                }
+            }]	
+        },
+        responsive: false,
+		maintainAspectRatio: false,
+        legend: {position: 'right'}
+      }
+    });
+  });
+  });
+<% end %>
+
+
+<% content_for :header_tags do %>
+  <%= javascript_include_tag "Chart.bundle.min" %>
+<% end %>
