@@ -907,3 +907,19 @@ ru:
   label_amount : Amount
   label_no_of_leads: No of leads
   label_no_of_employees: No of Employees
+  
+  #poll
+  label_poll: Poll
+  label_poll_settings: Poll Settings
+  label_poll_name: Name
+  label_status: Status
+  label_active: Active
+  label_inactive: InActive
+  label_new_poll: New Poll
+  label_edit_poll: Edit Poll
+  label_poll_choices: Poll Choices
+  label_open: Open
+  label_close: Close
+  label_poll_name: Poll Name
+  label_poll_result: Polls Result
+  label_poll_questions: Polls
