@@ -122,7 +122,7 @@ include WkreportHelper
 			end
 		end
 		if errorMsg.nil?	
-			redirect_to :action => 'usrsettingsindex' , :tab => 'usersettings'
+			redirect_to :action => 'usrsettingsindex' , :tab => 'payroll'
 			flash[:notice] = l(:notice_successful_update)
 		else
 			flash[:error] = errorMsg

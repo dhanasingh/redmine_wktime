@@ -622,7 +622,7 @@ end
 				
 				if showPayroll
 					tabs << {:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll}
-					tabs <<	{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_payroll_settings}
+					#tabs <<	{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_payroll_settings}
 				end
 				
 				if showShiftScheduling
