@@ -571,3 +571,17 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wkdashboard/index', :to => 'wkdashboard#index'
 	
 	get 'wkdashboard/graph', :to => 'wkdashboard#graph'
+	
+	get 'wkpoll/index', :to => 'wkpoll#index'
+	
+	get 'wkpoll/settings', :to => 'wkpoll#settings'
+
+	get 'wkpoll/edit', :to => 'wkpoll#edit'
+	
+	get 'wkpoll/destroy', :to => 'wkpoll#destroy'
+	
+	post 'wkpoll/updatepoll', :to => 'wkpoll#updatepoll'
+	
+	post 'wkpoll/update_Selected_polls', :to => 'wkpoll#update_Selected_polls'
+	
+	get 'wkpoll/graph', :to => 'wkpoll#graph'
