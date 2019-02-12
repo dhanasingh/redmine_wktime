@@ -6,7 +6,7 @@ require 'timelogcontroller_patch'
 require 'time_report_patch'
 require_dependency 'queries_helper_patch'
 require 'userscontroller_patch'
-require 'settingscontroller_patch'
+#require 'settingscontroller_patch'
 require_dependency 'ftte/ftte_hook'
 require 'wkapplication_helper_patch'
 
@@ -198,7 +198,7 @@ CustomFieldsHelper.send(:include, WktimeHelperPatch)
 ProjectsController.send(:include, ProjectsControllerPatch)
 IssuesController.send(:include, IssuesControllerPatch)
 TimelogController.send(:include, TimelogControllerPatch)
-SettingsController.send(:include, SettingsControllerPatch)
+#SettingsController.send(:include, SettingsControllerPatch)
 UsersController.send(:include, UsersControllerPatch)
 
 # Patches for Supervisor

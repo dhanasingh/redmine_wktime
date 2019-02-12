@@ -252,7 +252,7 @@ pl:
   label_ytd: Od początku roku do
   label_earning: Przychody
   label_payroll_settings: Ustawienia Wypłat
-  label_payroll_user_settings: Payroll User Settings
+  label_payroll_user_settings: User Settings
   label_total_earning: Przychody ogółem
   label_total_deduction: Odliczenie ogółem
   label_net_earning: Przychody netto
@@ -938,3 +938,9 @@ pl:
   label_poll_name: Poll Name
   label_poll_result: Polls Result
   label_poll_questions: Polls
+  
+  label_calculated_fields: Calculated Fields
+  label_basic_allowance_total: Basic and Allowance Total
+  label_basic_otal: Basic Total
+  label_allowance_total: Allowance Total
+  label_deduction: Deduction Total

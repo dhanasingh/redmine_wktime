@@ -1,0 +1,168 @@
+<%= javascript_include_tag 'payrollsettings', :plugin => "redmine_wktime" %>
+<h2><%= l(:label_payroll_settings) %></h2>
+
+<% content_for :sidebar do %>
+	<%= render :partial => 'sidebar' %>
+<% end %>
+
+<script type="text/javascript"> 
+	payroll_name = "<%=l(:label_basic_name) %>";
+	payroll_name_errormsg = "<%=l(:label_name_errormsg) %>";
+	payroll_date_errormsg = "<%=l(:label_date_errormsg) %>";
+	payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
+	lblcreditLedger = "<%= l(:label_credit_with_ledger) %>";
+	lbldebitLedger = "<%= l(:label_debit_with_ledger) %>";
+	selectListAlertMsg = "<%=l(:actionview_instancetag_blank_option) %>";
+	attendanceAlertMsg = "<%= l(:text_are_you_sure) %>";
+</script>
+<% @ledgers = ["", ""] %> 
+<% @ledgers << WkLedger.order(:name).pluck(:name, :id) %> 
+<%  ledgerhash = Hash[*@ledgers.flatten].invert %>
+<% dlgcontent = false %>
+<% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
+<% hash_salary_type = { 's'  => l(:label_salaried), 'h' =>  l(:label_hourly) } %>
+<% hash_pay_period = { 'm'  => l(:label_monthly), 'bw' =>  l(:label_bi_weekly), 'w' => l(:label_weekly) } %>
+<% hash_frequency = { '' => "", 'm'  => l(:label_monthly), 'q' =>  l(:label_quarterly), 'sa' => l(:label_semi_annually), 'a' => l(:label_annually) } %>
+<% calculated_field_type = { 'BAT' => l(:label_basic_allowance_total), 'AT' => l(:label_allowance_total), 'BT' => l(:label_basic_total), 'DT' => l(:label_deduction) } %>
+<%	
+	deplist = Array.new
+	basiclist = Array.new
+	allowancelist = Array.new
+	deductionlist = Array.new
+	calculatedFieldsList = Array.new
+	sal_com_hash = Hash.new
+	dep_list = WkSalaryComponents.order('name')
+	deplist << [ "", '' ] if dep_list.count > 0
+	unless dep_list.blank?
+		dep_list.each do |list|  
+			deplist << [ list.name , list.id ]
+			sal_com_hash = Hash[dep_list.map { |u| [u.id, u.name] }]
+		end
+	end
+	
+	if(@payrollsettings['wktime_payroll_basic'].blank?)
+		basiclist = ''
+	else
+		@payrollsettings['wktime_payroll_basic'].each do |element|
+		  listboxArr = element.split('|')
+		  optionText = listboxArr[1] +' : ' + hash_salary_type[listboxArr[2]] +' : ' + listboxArr[3] + (listboxArr[4].blank? ? ':' : ':' + (!ledgerhash.blank? ? (!ledgerhash[listboxArr[4].to_i].blank? ? ledgerhash[listboxArr[4].to_i] : listboxArr[4].to_s) : listboxArr[4].to_s) )
+		  basiclist << [optionText,element]
+		end
+	end
+	
+	if(@payrollsettings['wktime_payroll_allowances'].blank?)
+		allowancelist = ''
+	else
+		@payrollsettings['wktime_payroll_allowances'].each do |element|
+		  allowanceArr = element.split('|')
+		  optionText = allowanceArr[1] +' : ' + (allowanceArr[2].blank? ? '' :hash_frequency[allowanceArr[2]]) +' : ' + (allowanceArr[3].blank? ? '' : allowanceArr[3]) + (!allowanceArr[4].blank? ? ' : ' + sal_com_hash[allowanceArr[4].to_i] + ' : ' : ' : ')  + (allowanceArr[5].blank? ? "" : allowanceArr[5]) + (allowanceArr[6].blank? ? ':' : ':' + (!ledgerhash.blank? ?  (!ledgerhash[allowanceArr[6].to_i].blank? ?  ledgerhash[allowanceArr[6].to_i] : allowanceArr[6].to_s) : allowanceArr[6].to_s ) )
+		  allowancelist << [optionText,element]
+		end
+	end
+	
+	if(@payrollsettings['wktime_payroll_deduction'].blank?)
+		deductionlist = ''
+	else
+		@payrollsettings['wktime_payroll_deduction'].each do |element|
+		deductionArr = element.split('|')
+		optionText = deductionArr[1] +' : ' + (deductionArr[2].blank? ? '' : hash_frequency[deductionArr[2]]) +' : ' + (deductionArr[3].blank? ? '' : deductionArr[3]) + (!deductionArr[4].blank? ? (' : ' + sal_com_hash[deductionArr[4].to_i] + ' : ') : ' : ')  + (deductionArr[5].blank? ? "" : deductionArr[5]) + (deductionArr[6].blank? ? ':' : ':' + (!ledgerhash.blank? ? (!ledgerhash[deductionArr[6].to_i].blank? ?  ledgerhash[deductionArr[6].to_i] : deductionArr[6].to_s) : deductionArr[6].to_s ) )
+		  deductionlist << [optionText,element]
+		end
+	end
+	if(@payrollsettings['wktime_payroll_calculated_fields'].blank?)
+		calculatedFieldsList = ''
+	else
+		@payrollsettings['wktime_payroll_calculated_fields'].each do |element|
+		calculatedFieldsArr = element.split('|')
+		optionText = (calculatedFieldsArr[1] +' : ' + (calculatedFieldsArr[2].blank? ? '' : calculated_field_type[calculatedFieldsArr[2]]))
+		calculatedFieldsList << [optionText, element]
+		end
+	end
+	
+%>
+<%= form_tag({:controller => controller_name, :action => 'payrollsettings'}, :method => :post) do %>
+	<%= hidden_field_tag 'settings[payroll_deleted_ids]', "" %>
+	<fieldset>
+		<table><tr>
+			<td><label><%= l(:label_basic) %></label></td>
+			<td><%=  select_tag('settings[wktime_payroll_basic]',
+					options_for_select(basiclist), :multiple=> true, :style => "width:390px; height:18px;")%></td>
+
+			</tr>			
+			<tr>
+				<td></td><td><%= link_to l(:button_add), "javascript:payrollDialogAction('Basic', 'Add');", :class => "button", :id => "basic_add"%>
+				<%= link_to l(:button_edit), "javascript:payrollDialogAction('Basic', 'Edit');", :class => "button"%></td>
+			</tr>
+			<tr>
+			<td><label><%= l(:label_allowances) %></label></td>
+			<td><%=  select_tag('settings[wktime_payroll_allowances]',
+					options_for_select(allowancelist), :multiple=> true, :style => "width:390px; height:80px;")%></td>
+
+			</tr>			
+			<tr>
+				<td></td><td><%= link_to l(:button_add), "javascript:payrollDialogAction('Allowances', 'Add');", :class => "button"%>  |
+				<%= link_to l(:button_edit), "javascript:payrollDialogAction('Allowances', 'Edit');", :class => "button"%>  |
+				<%= link_to l(:button_delete), "javascript:removeSelectedValue('settings_wktime_payroll_allowances');", :class => "button" %></td>
+			</tr>
+			<tr>
+				<td><label><%= l(:label_deduction) %></label></td>
+				<td><%=  select_tag('settings[wktime_payroll_deduction]',
+					options_for_select(deductionlist), :multiple=> true, :style => "width:390px; height:80px;")%></td>
+			</tr>
+			<tr>
+				<td></td><td><%= link_to l(:button_add), "javascript:payrollDialogAction('Deduction', 'Add');", :class => "button"%>  |
+				<%= link_to l(:button_edit), "javascript:payrollDialogAction('Deduction', 'Edit');", :class => "button"%>  |
+				<%= link_to l(:button_delete), "javascript:removeSelectedValue('settings_wktime_payroll_deduction');", :class => "button" %></td>
+			</tr>
+			<tr>
+				<td><label><%= l(:label_calculated_fields) %></label></td>
+				<td><%=  select_tag('settings[wktime_payroll_calculated_fields]',
+					options_for_select(calculatedFieldsList), :multiple=> true, :style => "width:390px; height:80px;")%></td>
+			</tr>
+			<tr>
+				<td></td><td><%= link_to l(:button_add), "javascript:payrollDialogAction('Calculated Fields', 'Add');", :class => "button"%>  |
+				<%= link_to l(:button_edit), "javascript:payrollDialogAction('Calculated Fields', 'Edit');", :class => "button"%>  |
+				<%= link_to l(:button_delete), "javascript:removeSelectedValue('settings_wktime_payroll_calculated_fields');", :class => "button" %></td>
+			</tr>
+			</table>
+	</fieldset>
+
+		<div id="payroll-dlg" title="<%= l(:label_basic) %>" >
+			<p><label><%= l(:field_name) %></label>&emsp;<%= text_field_tag 'name', "", :maxlength => 50 %><p>
+			
+			<p id = "payroll_frequency"><label><%= l(:label_frequency) %></label>&emsp;<%= select_tag 'frequency', options_for_select(hash_frequency.invert) %></p>
+			
+			<p id="payroll_start_date"><label><%= l(:field_start_date) %></label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= date_field_tag('start_date', "", {:id => 'start_date', :size => 12, :style => "width:130px; "}) + calendar_for('start_date') %></p>
+			
+			<p id="basic_salary_type"><label><%= l(:label_salary_type) %></label>
+			<%= select_tag 'salary_type', options_for_select(hash_salary_type.invert)%></p>
+			
+			
+			<p id="basic_factor">	<label><%= l(:label_factor) %></label>&emsp;<%= text_field_tag 'basic_field_factor', "", :maxlength => 7%></p>
+			
+			<p id="payrollDBLedger"><label id="ledgersLabel"><%= l(:label_debit_with_ledger)  %></label>&emsp;
+	   		 <%= select_tag 'payroll_db_ledger', options_for_select(ledgerhash.invert) %></p>
+
+			<p id="calculatedFieldsType" style="display:none"><label id="TypeLabel"><%= l(:label_type)  %></label>&emsp;
+				<%= select_tag 'calculated_fields_type', options_for_select(get_calculated_field_types()) %></p>
+			
+			<p id="allowance_dependent">
+				<table id = "table_payroll_dependent">
+					<tr>
+						<th rowspan="3" valign="justify" style="font-weight:normal;"><label><%= l(:label_dependent) %></label></th>
+						<tr>
+							<th style="font-weight:normal;"><%= l(:label_component) %></th>
+							<th></th>
+							<th style="font-weight:normal;"><%= l(:label_factor) %></th>
+						</tr>
+						<tr>
+							<td><%= select_tag 'dep_value', options_for_select(deplist)%></td>
+							<td> *</td>
+							<td><%= text_field_tag 'factor', "", :size => 5, :maxlength => 7 %></td>
+						</tr>
+					</tr>
+				</table>
+			</p>
+		</div>
+	<div><%= submit_tag l(:button_apply), :class => 'button-small', :name => 'submit' %></div>
+<% end %>

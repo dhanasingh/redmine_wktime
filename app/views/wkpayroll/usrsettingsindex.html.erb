@@ -1,16 +1,9 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<h2><%= l(:label_payroll) %></h2>
-<script type="text/javascript"> 
-    wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "leave")%>';     
-    clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>';
-	payrollUrl = '<%=url_for(:controller => "wkpayroll", :action => "index", :tab => "payroll")%>';
-	wkSchedulingUrl = '<%=url_for(:controller => "wkscheduling", :action => "index", :tab => "wkscheduling")%>';
-	wkShiftUrl = '<%=url_for(:controller => "wkshift", :action => "index", :tab => "wkshift")%>';  
-	wkPublicHolidayUrl = '<%=url_for(:controller => "wkpublicholiday", :action => "index", :tab => "wkpublicholiday")%>';
-	grpUrl="<%= "#{url_for(:controller => "wkpayroll", :action => 'getMembersbyGroup')}" %>";
-		//getMembersbyGroup
-</script>
-<%= render_tabs time_expense_tabs %>
+<h2><%= l(:label_payroll_user_settings) %></h2>
+
+<% content_for :sidebar do %>
+	<%= render :partial => 'sidebar' %>
+<% end %>
 
 <%= render :partial => 'wkpayroll/user_setting_list'%>
 <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

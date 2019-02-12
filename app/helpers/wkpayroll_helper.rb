@@ -325,13 +325,13 @@ module WkpayrollHelper
 						else
 							wksalaryComponents = WkSalaryComponents.new
 						end
-						if key.to_s == 'basic'				
+						if key.to_s == 'basic'
 							wksalaryComponents.name = sval[1]
 							wksalaryComponents.component_type = 'b'
 							wksalaryComponents.salary_type = sval[2]
 							wksalaryComponents.factor = sval[3]
 							wksalaryComponents.ledger_id = sval[4]							
-						else
+						elsif key.to_s != 'Calculated_Fields'
 							wksalaryComponents.name = sval[1]
 							wksalaryComponents.frequency = sval[2]
 							wksalaryComponents.start_date = sval[3]
@@ -339,6 +339,10 @@ module WkpayrollHelper
 							wksalaryComponents.dependent_id = sval[4]
 							wksalaryComponents.factor = sval[5]
 							wksalaryComponents.ledger_id = sval[6]
+						else
+							wksalaryComponents.name = sval[1]
+							wksalaryComponents.component_type = 'c'
+							wksalaryComponents.salary_type = sval[2]
 						end
 							wksalaryComponents.save()
 					end
@@ -439,5 +443,13 @@ module WkpayrollHelper
 			ytdAmountHash[entry.salary_component_id] = entry.amount
 		end
 		ytdAmountHash
+	end
+	def get_calculated_field_types
+		{
+			l(:label_basic_allowance_total) => 'BAT',
+			l(:label_allowance_total) => 'AT',
+			l(:label_basic_total) => 'BT',
+			l(:label_deduction) => "DT"
+		}
 	end
 end

@@ -249,7 +249,7 @@ it:
   label_ytd: YTD
   label_earning: Earnings
   label_payroll_settings: Payroll Settings
-  label_payroll_user_settings: Payroll User Settings
+  label_payroll_user_settings: User Settings
   label_total_earning: Total Earnings
   label_total_deduction: Total Deductions
   label_net_earning: Net Earnings
@@ -921,3 +921,9 @@ it:
   label_poll_name: Poll Name
   label_poll_result: Polls Result
   label_poll_questions: Polls
+  
+  label_calculated_fields: Calculated Fields
+  label_basic_allowance_total: Basic and Allowance Total
+  label_basic_otal: Basic Total
+  label_allowance_total: Allowance Total
+  label_deduction: Deduction Total

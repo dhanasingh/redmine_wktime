@@ -121,8 +121,8 @@ include WkreportHelper
 				end
 			end
 		end
-		if errorMsg.nil?	
-			redirect_to :action => 'usrsettingsindex' , :tab => 'payroll'
+		if errorMsg.nil?
+			redirect_to :action => 'usrsettingsindex'
 			flash[:notice] = l(:notice_successful_update)
 		else
 			flash[:error] = errorMsg
@@ -349,5 +349,50 @@ include WkreportHelper
 		end
 		sqlStr = selectStr + sqlStr
 		findBySql(sqlStr)
+	end
+	
+	def payrollsettings
+		if request.post?
+			payrollValues = salaryComponentsHashVal(params[:settings])
+			savePayrollSettings(payrollValues)
+			flash[:notice] = l(:notice_successful_update)
+			redirect_to controller: controller_name, action: 'index', tab: controller_name
+		else
+			retrieveSalarayComponents()
+		end
+	end
+
+	def salaryComponentsHashVal settinghash
+		payrollValues = Hash.new()
+		if !settinghash.blank? 
+			payrollValues[:basic] = settinghash["wktime_payroll_basic"]
+			payrollValues[:allowances] = settinghash["wktime_payroll_allowances"]
+			payrollValues[:deduction] = settinghash["wktime_payroll_deduction"]
+			payrollValues[:Calculated_Fields] = settinghash["wktime_payroll_calculated_fields"]
+			payrollValues[:payroll_deleted_ids] = settinghash["payroll_deleted_ids"]
+		end
+		payrollValues
+	end
+
+	def retrieveSalarayComponents
+		dep_list = WkSalaryComponents.order('name')
+		basic = Array.new
+		allowance = Array.new
+		deduction = Array.new
+		calculated_fields = Array.new
+		hashval = Hash.new()
+		unless dep_list.blank?
+			dep_list.each do |list| 
+			basic = [list.id.to_s + '|' + list.name + '|' + list.salary_type + '|' + list.factor.to_s + '|' + list.ledger_id.to_s ]  if list.component_type == 'b'	
+			allowance << list.id.to_s + '|' + list.name+'|'+list.frequency.to_s+'|'+ (list.start_date).to_s+'|'+(list.dependent_id).to_s+'|'+list.factor.to_s + '|' + list.ledger_id.to_s	if list.component_type == 'a'
+			deduction << list.id.to_s + '|' + list.name + '|' + list.frequency.to_s + '|' + (list.start_date).to_s + '|' + (list.dependent_id).to_s + '|' + (list.factor).to_s + '|' + list.ledger_id.to_s if list.component_type == 'd'
+			calculated_fields << list.id.to_s + '|' + list.name + '|' + list.salary_type if list.component_type == 'c'
+			end
+		end
+		hashval["wktime_payroll_basic"] = basic
+		hashval["wktime_payroll_allowances"] = allowance
+		hashval["wktime_payroll_deduction"] = deduction
+		hashval["wktime_payroll_calculated_fields"] = calculated_fields
+		@payrollsettings = hashval
 	end
 end

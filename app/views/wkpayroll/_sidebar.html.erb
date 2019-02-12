@@ -1,5 +1,9 @@
-<h2><%= l(:label_settings) %></h2>
+<h3><%= l(:label_settings) %></h3>
 
 <ul>
-<li><%= link_to l(:label_payroll_user_settings), url_for(:controller => "wkpayroll", :action => "usrsettingsindex", :tab => "payroll") %></li>
+<li><%= link_to l(:label_payroll), url_for(:controller => "wkpayroll", :action => "index", :tab => "payroll") %></li>
+<li><%= link_to l(:label_payroll_user_settings), url_for(:controller => "wkpayroll", :action => "usrsettingsindex") %></li>
+<% if User.current.admin? %>
+<li><%= link_to l(:label_payroll_settings), url_for(:controller => "wkpayroll", :action => "payrollsettings") %></li>
+<% end %>
 <ul>
