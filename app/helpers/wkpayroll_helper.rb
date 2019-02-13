@@ -143,7 +143,8 @@ module WkpayrollHelper
 		errorMsg
 	end
 	
-	def getdependentvalue(dependent_id, type, user_id)
+	def getDependentValue(dependent_id, type, user_id)
+
 		dependent_value = ""
 		@userSalaries.each do |cf|
 			if cf.sc_id.to_i == dependent_id.to_i && type == "component_type" && user_id == cf.user_id
@@ -168,7 +169,7 @@ module WkpayrollHelper
 
 		@userSalaries.each do |cf|
 			if cf.sc_component_type == 'a' && cf.user_id == user_id
-				allowance_total = allowance_total + (cf.dependent_id.blank? ? cf.factor : (getdependentvalue(cf.dependent_id,"component_type", cf.user_id)== 'b' ? basic_total * cf.factor : 0))
+				allowance_total = allowance_total + (cf.dependent_id.blank? ? cf.factor : (getDependentValue(cf.dependent_id,"component_type", cf.user_id)== 'b' ? basic_total * cf.factor : 0))
 			end
 		end
 
@@ -179,13 +180,13 @@ module WkpayrollHelper
 				if cf.dependent_id.blank?
 					dependent_total = cf.factor
 				else
-					case getdependentvalue(cf.dependent_id, "component_type", cf.user_id)
+					case getDependentValue(cf.dependent_id, "component_type", cf.user_id)
 					when 'b'
 						dependent_total = basic_total * cf.factor
 					when 'a'
 						dependent_total = allowance_total * cf.factor
 					when 'c'
-						salary_type = getdependentvalue(cf.dependent_id, "salary_type", cf.user_id)
+						salary_type = getDependentValue(cf.dependent_id, "salary_type", cf.user_id)
 						if salary_type == 'BAT'
 							dependent_total = basic_allowance_total * cf.factor
 						elsif salary_type == 'BT'
@@ -223,8 +224,8 @@ module WkpayrollHelper
 
 		@userSalEntryHash = Hash.new()
 		@userSalaries.each do |cf|
-			totals = getAllTotals(cf.user_id)
 			if cf.sc_component_type == "c"
+				totals = getAllTotals(cf.user_id)
 				cf.factor = totals[cf.sc_salary_type]
 			end
 			@userSalEntryHash[cf.sc_id.to_s + '_' + cf.user_id.to_s] = cf

@@ -83,7 +83,6 @@
 					<th class="lbl-txt-align"><%= l(:label_actual) %></th>
 				</tr>
 			</thead>
-			<% Rails.logger.info("======= actualSalValHash['d'] = #{actualSalValHash['d'].inspect} ===============") %>
 			<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['d'], salaryComponents: salaryComponents, actualSalVal: actualSalValHash['d']}%>
 			<tr>
 				<th></th>
