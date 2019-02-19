@@ -1,7 +1,7 @@
-module WkpollHelper
+module WksurveyHelper
 include WktimeHelper
 
-  def getPollStatusArr
+  def getSurveyStatusArr
 	{
 		"" => '',
 		l(:label_open) => 'O',
@@ -9,7 +9,7 @@ include WktimeHelper
 	}
   end
 	
-  def getPollActiveStatusArr
+  def getSurveyActiveStatusArr
 	{
 		"" => '',
 		l(:label_active) => '0' ,

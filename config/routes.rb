@@ -576,16 +576,16 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wkdashboard/graph', :to => 'wkdashboard#graph'
 	
-	get 'wkpoll/index', :to => 'wkpoll#index'
+	get 'wksurvey/index', :to => 'wksurvey#index'
 	
-	get 'wkpoll/settings', :to => 'wkpoll#settings'
+	get 'wksurvey/settings', :to => 'wksurvey#settings'
 
-	get 'wkpoll/edit', :to => 'wkpoll#edit'
+	get 'wksurvey/edit', :to => 'wksurvey#edit'
 	
-	get 'wkpoll/destroy', :to => 'wkpoll#destroy'
+	get 'wksurvey/destroy', :to => 'wksurvey#destroy'
 	
-	post 'wkpoll/updatepoll', :to => 'wkpoll#updatepoll'
+	post 'wksurvey/updateSurvey', :to => 'wksurvey#updateSurvey'
 	
-	post 'wkpoll/update_Selected_polls', :to => 'wkpoll#update_Selected_polls'
+	post 'wksurvey/update_selected_survey', :to => 'wksurvey#update_selected_survey'
 	
-	get 'wkpoll/graph', :to => 'wkpoll#graph'
+	get 'wksurvey/graph', :to => 'wksurvey#graph'

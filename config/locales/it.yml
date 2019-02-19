@@ -906,21 +906,20 @@ it:
   label_no_of_leads: No of leads
   label_no_of_employees: No of Employees
   
-  #poll
-  label_poll: Poll
-  label_poll_settings: Poll Settings
-  label_poll_name: Name
+    #Survey
+  label_survey: Survey
+  label_survey_settings: Survey Settings
+  label_survey_name: Name
   label_status: Status
   label_active: Active
   label_inactive: InActive
-  label_new_poll: New Poll
-  label_edit_poll: Edit Poll
-  label_poll_choices: Poll Choices
+  label_new_survey: New Survey
+  label_edit_survey: Edit Survey
+  label_survey_choices: Survey Choices
   label_open: Open
   label_close: Close
-  label_poll_name: Poll Name
-  label_poll_result: Polls Result
-  label_poll_questions: Polls
+  #label_survey_name: Survey Name
+  label_survey_result: Survey Result
   
   label_calculated_fields: Calculated Fields
   label_basic_allowance_total: Basic and Allowance Total

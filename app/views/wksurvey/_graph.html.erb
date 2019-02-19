@@ -1,13 +1,13 @@
-<div class="poll-graph" >
+<div class="survey-graph" >
 	<canvas id="choices_selected_by_user<%= entry.id %>" width="350" height="200"></canvas>
 </div>
 
 <%= javascript_tag do %>
 $(document).ready(function(){
-  $.getJSON(<%= raw url_for(:controller => 'wkpoll',
+  $.getJSON(<%= raw url_for(:controller => 'wksurvey',
     :action => 'graph',
 	:graph => "choices_selected_by_user",
-	:poll_id => entry.id).to_json %>, function(data){
+	:survey_id => entry.id).to_json %>, function(data){
 	
     var chartData = {
       labels: data['labels'],
@@ -19,13 +19,38 @@ $(document).ready(function(){
         data: data['choices']
       }]
     };
+	
+		Chart.pluginService.register({
+			beforeRender: function (chart) {
+				if (chart.config.options.showAllTooltips) {
+					// create an array of tooltips
+					// we can't use the chart tooltip because there is only one tooltip per chart
+					chart.pluginTooltips = [];
+					chart.config.data.datasets.forEach(function (dataset, i) {
+						chart.getDatasetMeta(i).data.forEach(function (sector, j) {
+							chart.pluginTooltips.push(new Chart.Tooltip({
+								_chart: chart.chart,
+								_chartInstance: chart,
+								_data: chart.data,
+								_options: chart.options.tooltips,
+								_active: [sector]
+							}, chart));
+						});
+					});
+
+					// turn off normal tooltips
+					chart.options.tooltips.enabled = false;
+				}
+			}
+			});
+	
+	
+	
     new Chart(document.getElementById("choices_selected_by_user<%= entry.id %>").getContext("2d"), {
       type: 'horizontalBar',
       data: chartData,
-      options: { 
-	  tooltips: {
-         enabled: true
-       },        
+      options: {
+	  showAllTooltips: true,
        scales:  {
             xAxes: [{ 
 			ticks: {
