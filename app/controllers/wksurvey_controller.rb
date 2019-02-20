@@ -4,23 +4,11 @@ class WksurveyController < ApplicationController
     
   before_action :require_login
   before_action :check_perm_and_redirect, :only => [:edit, :update]
-  before_action :check_survey_perm_and_redirect, :only => [:index]
+  before_action :check_survey_perm_and_redirect, :only => [:survey]
 
   include WktimeHelper
-
+  
   def index
-  
-	@survey_Entries = WkSurveySelChoice.joins("INNER JOIN wk_survey_choices ON wk_survey_choices.id = wk_survey_sel_choices.survey_choice_id AND wk_survey_sel_choices.user_id = " + (User.current.id).to_s).joins("RIGHT JOIN wk_survey_questions ON wk_survey_questions.id = wk_survey_choices.survey_question_id").joins("INNER JOIN wk_surveys ON wk_survey_questions.survey_id = wk_surveys.id")
-
-	@survey_Choice_Entries = @survey_Entries.joins("INNER JOIN wk_survey_choices AS SC ON wk_survey_questions.id = SC.survey_question_id").where("wk_surveys.status = 'O' AND wk_surveys.in_active = FALSE AND wk_survey_sel_choices.survey_choice_id IS NULL").select("SC.id, SC.name, wk_surveys.id AS survey_id").order("survey_id, SC.id")
-	
-	@survey_Entries = @survey_Entries.where("wk_surveys.status = 'O' AND wk_surveys.in_active = FALSE AND wk_survey_sel_choices.survey_choice_id IS NULL").select("wk_surveys.id, wk_surveys.name")
-    
-    @closed_surveyed_Entries = WkSurvey.joins("INNER JOIN wk_survey_questions ON wk_survey_questions.survey_id = wk_surveys.id").where("wk_surveys.status = 'C' AND wk_surveys.in_active = FALSE").select("wk_surveys.id, wk_surveys.name")
-
-  end
-  
-  def settings
     @all_surveys = nil
 		@all_surveys = WkSurvey.all
 
@@ -35,6 +23,18 @@ class WksurveyController < ApplicationController
 		formPagination(@all_surveys)
   end
   
+  def survey
+  
+	@survey_Entries = WkSurveySelChoice.joins("INNER JOIN wk_survey_choices ON wk_survey_choices.id = wk_survey_sel_choices.survey_choice_id AND wk_survey_sel_choices.user_id = " + (User.current.id).to_s).joins("RIGHT JOIN wk_survey_questions ON wk_survey_questions.id = wk_survey_choices.survey_question_id").joins("INNER JOIN wk_surveys ON wk_survey_questions.survey_id = wk_surveys.id")
+
+	@survey_Choice_Entries = @survey_Entries.joins("INNER JOIN wk_survey_choices AS SC ON wk_survey_questions.id = SC.survey_question_id").where("wk_surveys.status = 'O' AND wk_surveys.in_active = FALSE AND wk_survey_sel_choices.survey_choice_id IS NULL").select("SC.id, SC.name, wk_surveys.id AS survey_id").order("survey_id, SC.id")
+	
+	@survey_Entries = @survey_Entries.where("wk_surveys.status = 'O' AND wk_surveys.in_active = FALSE AND wk_survey_sel_choices.survey_choice_id IS NULL").select("wk_surveys.id, wk_surveys.name")
+    
+    @closed_surveyed_Entries = WkSurvey.joins("INNER JOIN wk_survey_questions ON wk_survey_questions.survey_id = wk_surveys.id").where("wk_surveys.status = 'C' AND wk_surveys.in_active = FALSE").select("wk_surveys.id, wk_surveys.name")
+
+  end
+ 
   def edit
 	@edit_Survey_Entry = nil		
 		unless params[:survey_id].blank?
@@ -67,12 +67,12 @@ class WksurveyController < ApplicationController
 	end
 
 	survey_question_id = params[:survey_question_id].blank? ? nil : params[:survey_question_id]
-	surveyQuestions << {id: survey_question_id, name: params[:survey_name], types: "RB", wk_survey_choices_attributes: surveyChoices}
+	surveyQuestions << {id: survey_question_id, name: params[:survey_name], question_type: "RB", wk_survey_choices_attributes: surveyChoices}
 	wksurvey.wk_survey_questions_attributes = surveyQuestions
 
 	if wksurvey.valid?
 		wksurvey.save
-		redirect_to :controller => controller_name, :action => 'settings', :tab => controller_name
+		redirect_to :controller => controller_name, :action => 'index', :tab => controller_name
 		flash[:notice] = l(:notice_successful_update)
 	elsif !params[:survey_id].blank?
 		flash[:error] = wksurvey.errors.full_messages.join("<br>")
@@ -105,7 +105,7 @@ class WksurveyController < ApplicationController
 	else
 		flash[:error] = errMsg
 	end
-	redirect_to :controller => controller_name, :action => 'settings', :tab => controller_name
+	redirect_to :controller => controller_name, :action => 'index', :tab => controller_name
   end  
   
   def destroy
@@ -115,7 +115,7 @@ class WksurveyController < ApplicationController
 	else
 		flash[:error] = survey.errors.full_messages.join("<br>")
 	end
-	redirect_back_or_default :action => 'settings', :tab => params[:tab]
+	redirect_back_or_default :action => 'index', :tab => params[:tab]
   end
   
   def formPagination(entries)

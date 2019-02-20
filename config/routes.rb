@@ -576,9 +576,9 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wkdashboard/graph', :to => 'wkdashboard#graph'
 	
-	get 'wksurvey/index', :to => 'wksurvey#index'
+	get 'wksurvey/survey', :to => 'wksurvey#survey'
 	
-	get 'wksurvey/settings', :to => 'wksurvey#settings'
+	get 'wksurvey/index', :to => 'wksurvey#index'
 
 	get 'wksurvey/edit', :to => 'wksurvey#edit'
 	

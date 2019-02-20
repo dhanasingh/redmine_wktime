@@ -1,72 +1,65 @@
 <h2><%= l(:label_survey) %></h2>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<script type="text/javascript">
+   wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "leave")%>';     
+   clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>'; 
+   payrollUrl = '<%=url_for(:controller => "wkpayroll", :action => "index", :tab => "payroll")%>';
+	wkSchedulingUrl = '<%=url_for(:controller => "wkscheduling", :action => "index", :tab => "wkscheduling")%>';
+	wkShiftUrl = '<%=url_for(:controller => "wkshift", :action => "index", :tab => "wkshift")%>';  
+	wkPublicHolidayUrl = '<%=url_for(:controller => "wkpublicholiday", :action => "index", :tab => "wkpublicholiday")%>';
+	apply_warn = '<%=l(:warning_schedule_shifts) %>';
+	wkSurveyUrl = '<%=url_for(:controller => "wksurvey", :action => "index", :tab => "wksurvey")%>';
+</script>
 
-<% unless @survey_Entries.blank? %>
-<div>
-<%= form_tag({:controller => 'wksurvey', :action => 'update_selected_survey'}, :method => :post, :id => 'query_form') do %>
-   <fieldset class="box tabular">
-      <legend><%=l(:label_survey)%>:</legend>
-      <% @survey_Entries.each do |entry| %>
-		 <fieldset class="box tabular">
-         <table id="newsurvey" class="odd-even">
-            <tr>
-               <th align="left"><%= l(:label_survey_name) %></th>
-               <td align="left" style="padding-left:40px;"><%= entry.name %></td>
-            </tr>
-            <tr>
-               <th align="left"><%= l(:label_survey_choices) %></th>
-               <td></td>
-            </tr>
-            <% @survey_Choice_Entries.each do |choice_entry| %>
-            <% if choice_entry.survey_id == entry.id
-            %>
-            <tr>
-               <td></td>
-               <td align="left" style="padding-left:40px;">
-                 <%= radio_button_tag("survey_sel_choice"+ (entry.id).to_s, choice_entry.id, false) %>
-                 <%= choice_entry.name %>
-               </td>
-            <tr>
-            <% end %>
-            <% end %>
-         </table>
-		 </fieldset>			
-      <% end %>
-   <div>
-      <%= submit_tag l(:button_save), :id => 'wksurvey_save' %>
-   </div>
-   </fieldset>
+<%= render_tabs time_expense_tabs %>
+<%= form_tag({:controller => "wksurvey", :action => 'index'}, :method => :get, :id => 'query_form') do %>
+	<fieldset>
+		<%=h hidden_field_tag('tab', "wksurvey") %>
+		<%= l(:field_status) %>
+			<%=h select_tag('status', options_for_select(getSurveyStatusArr, :selected => params[:status])) %>
+			
+		<%= l(:label_active) %>
+		<%=h select_tag('ActiveStatus', options_for_select(getSurveyActiveStatusArr, :selected => params[:ActiveStatus])) %>
+		<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
+		<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>			
+	</fieldset>
+<% end %>
+	<div class="autoscroll">
+	<% if User.current.admin? %>
+		<div class="wk-contextual">
+		<%= link_to l(:label_new_survey), url_for(:controller => "wksurvey", :action => "edit"), :class => 'icon icon-time-add' %>
+		</div>
+	<% end %>	
+		
+		<table class="list survey">
+			<thead>
+				<tr>				
+					<th class="lbl-txt-align">#</th>
+					<th class="lbl-txt-align"><%= l(:label_survey_name) %></th>
+					<th class="lbl-txt-align"><%= l(:label_status) %></th>	
+					<th class="lbl-txt-align"><%= l(:label_active) %></th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
 
-<% end %>
-</div>
-<% end %>
-
-<% unless @closed_surveyed_Entries.blank? %>
-<div>
-   <fieldset class="box tabular">
-      <legend><%=l(:label_survey_result)%>:</legend>
-      <% @closed_surveyed_Entries.each do |entry| %>
-	  <fieldset class="box tabular">
-         <table class="odd-even">
-            <tr>
-               <th align="left"><%= l(:label_survey_name) %></th>
-               <td align="left" style="padding-left:40px;"><%= entry.name %></td>
-            </tr>
-            <tr>
-               <th align="left"><%= l(:label_survey_choices) %></th>
-               <td>
-			   </td>
-            </tr>
-            <tr>
-               <td></td>
-               <td>
-			    <%= render :partial => 'graph', :locals => { :entry => entry } %>
-               </td>
-            <tr>
-         </table>
-		 </fieldset>
-      <% end %>
-   </fieldset>
-</div>											  
-<% end %>
+			<% @all_surveys.each do |entry| %>
+				<tr>
+					<td class="lbl-txt-align"><%=h entry.id %></td>		 
+					<td class="lbl-txt-align"><%=h link_to entry.name , url_for(:controller => "wksurvey", :action => "survey", :tab => "wksurvey")%></td>		 
+					<td class="lbl-txt-align"><%=h entry.status == "O" ? "Open" : "Close" %></td>		 
+					<td class="lbl-txt-align"><%=h entry.in_active ? "Inactive" : "Active" %></td>
+					<% if User.current.admin? %>
+						<td class="lbl-txt-align">
+							<%= link_to image_tag('edit.png'), {:controller => "wksurvey", :action => 'edit', :survey_id => entry.id, :tab => "wksurvey"}, :title => l(:button_edit) %>
+							<%= link_to image_tag('delete.png'), {:controller => "wksurvey", :action => 'destroy', :survey_id => entry.id, :tab => "wksurvey"},  :data => {:confirm => l(:text_are_you_sure)}, :title => l(:button_delete) %>
+						</td>
+					<% else %>
+						<td></td>
+					<% end %>
+				</tr>
+			<% end %>
+			</tbody>
+		</table>
+	</div>
