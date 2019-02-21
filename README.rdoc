@@ -13,8 +13,8 @@ This Plugin has the following modules:
 3) PayRoll
     Setup Payroll data
     Generate Salary
-    Report – Salary Register
-    Report – Salary Slip
+    Report â€“ Salary Register
+    Report â€“ Salary Slip
 4) Billing
     Setup Billable Projects
     Generate Invoices
@@ -23,12 +23,12 @@ This Plugin has the following modules:
 5) Accounting
 	Create Ledgers
 	Post Financial Transaction 
-    Report – Balance Sheet
-    Report – Profit & Loss A/c Report
+    Report â€“ Balance Sheet
+    Report â€“ Profit & Loss A/c Report
 6) CRM
 	Create Lead,Opportunity, Activity and Contacts
-	Report – Lead Conversion
-    Report – Sales Activity
+	Report â€“ Lead Conversion
+    Report â€“ Sales Activity
 7) Purchasing
 	Create RFQ, Quote, Purchase Order, 
 	Create Supplier Invoice and Supplier Payments
@@ -46,11 +46,11 @@ Unpack the zip file to the plugins folder of Redmine.
 Starting from version 1.2, it requires db migration.
 So run the following command for db migration
 
-  rake redmine:plugins:migrate NAME=redmine_wktime RAILS_ENV=production
+ rake redmine:plugins:migrate NAME=redmine_wktime RAILS_ENV=production
   
 When uninstalling the plugin, be sure to remove the db changes by running
 
-	rake redmine:plugins:migrate NAME=redmine_wktime VERSION=0 RAILS_ENV=production
+ rake redmine:plugins:migrate NAME=redmine_wktime VERSION=0 RAILS_ENV=production
 
 This plugin uses js and css assets and it will be copied to public/plugin_asset/redmine_wktime
 folder upon server startup, so please make sure public/plugin_asset/redmine_wktime has proper access.
@@ -58,7 +58,8 @@ The pdf export requires rmagick gem.
 
 Starting from version 1.5, it requires the gem rufus-scheduler.
 so run the following command to install the gem
-	bundle install
+
+ bundle install
 	
 For rufus-scheduler to work , the rails application should be up all the time.
 If an apache passenger module is used then make sure the following settings are made
