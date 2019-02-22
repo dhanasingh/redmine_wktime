@@ -910,23 +910,26 @@ fr:
   label_no_of_leads: No of leads
   label_no_of_employees: No of Employees
  
-    #Survey
+  #Survey
   label_survey: Survey
-  label_survey_settings: Survey Settings
-  label_survey_name: Name
   label_status: Status
   label_active: Active
   label_inactive: InActive
   label_new_survey: New Survey
   label_edit_survey: Edit Survey
-  label_survey_choices: Survey Choices
+  label_question_choices: Question Choices
   label_open: Open
   label_close: Close
-  #label_survey_name: Survey Name
+  label_new: New
+  label_survey_name: Survey Name
+  label_question_name: Question Name
   label_survey_result: Survey Result
-  
+  label_survey_questions: Survey Questions
+  button_add_question: Add Question
+
+  #payroll
   label_calculated_fields: Calculated Fields
   label_basic_allowance_total: Basic and Allowance Total
-  label_basic_otal: Basic Total
+  label_basic_total: Basic Total
   label_allowance_total: Allowance Total
   label_deduction: Deduction Total

@@ -584,7 +584,7 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	get 'wksurvey/destroy', :to => 'wksurvey#destroy'
 	
-	post 'wksurvey/updateSurvey', :to => 'wksurvey#updateSurvey'
+	post 'wksurvey/save_survey', :to => 'wksurvey#save_survey'
 	
 	post 'wksurvey/update_survey', :to => 'wksurvey#update_survey'
 	
