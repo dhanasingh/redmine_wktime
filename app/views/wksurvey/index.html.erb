@@ -47,7 +47,7 @@
 			<% @all_surveys.each do |entry| %>
 				<tr>
 					<td class="lbl-txt-align"><%=h entry.id %></td>		 
-					<td class="lbl-txt-align"><%=h link_to entry.name , url_for(:controller => "wksurvey", :action => "survey", :tab => "wksurvey")%></td>		 
+					<td class="lbl-txt-align"><%=h link_to entry.name , url_for(:controller => "wksurvey", :action => "survey", :survey_id => entry.id, :tab => "wksurvey")%></td>		 
 					<td class="lbl-txt-align"><%=h entry.status == "O" ? "Open" : "Close" %></td>		 
 					<td class="lbl-txt-align"><%=h entry.in_active ? "Inactive" : "Active" %></td>
 					<% if User.current.admin? %>

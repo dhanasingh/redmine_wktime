@@ -1,30 +1,28 @@
-<div class="survey-graph" >
-	<canvas id="choices_selected_by_user<%= entry.id %>" width="350" height="200"></canvas>
+<div>
+	<canvas id="survey_result_graph<%= entry.question_id %>" width="350" height="200"></canvas>
 </div>
 
 <%= javascript_tag do %>
 $(document).ready(function(){
   $.getJSON(<%= raw url_for(:controller => 'wksurvey',
     :action => 'graph',
-	:graph => "choices_selected_by_user",
-	:survey_id => entry.id).to_json %>, function(data){
+	:graph => "graph",
+	:question_id => entry.question_id).to_json %>, function(data){
 	
     var chartData = {
       labels: data['labels'],
       datasets: [{
         label: <%= raw l(:label_no_of_users).to_json %>,
-        backgroundColor: 'rgba(153, 102, 255, 1)',
-        borderColor: 'rgb(153, 102, 255, 1)',
-        borderWidth: 3,
-        data: data['choices']
+        backgroundColor: 'rgba(54, 162, 235, 0.3)',
+        borderColor: 'rgba(54, 162, 235, 0.3)',
+        borderWidth: 1,
+        data: data['emp_count_per_choices']
       }]
     };
-	
+
 		Chart.pluginService.register({
 			beforeRender: function (chart) {
 				if (chart.config.options.showAllTooltips) {
-					// create an array of tooltips
-					// we can't use the chart tooltip because there is only one tooltip per chart
 					chart.pluginTooltips = [];
 					chart.config.data.datasets.forEach(function (dataset, i) {
 						chart.getDatasetMeta(i).data.forEach(function (sector, j) {
@@ -37,20 +35,54 @@ $(document).ready(function(){
 							}, chart));
 						});
 					});
-
-					// turn off normal tooltips
 					chart.options.tooltips.enabled = false;
 				}
+			},
+			afterDraw: function (chart, easing) {
+				if (chart.config.options.showAllTooltips) {
+					if (!chart.allTooltipsOnce) {
+						if (easing !== 1)
+							return;
+						chart.allTooltipsOnce = true;
+					}
+					chart.options.tooltips.enabled = true;
+					Chart.helpers.each(chart.pluginTooltips, function (tooltip) {
+						tooltip.initialize();
+						tooltip.update();
+						tooltip.pivot();
+						tooltip.transition(easing).draw();
+					});
+					chart.options.tooltips.enabled = false;
+				}
+			},
+			beforeDraw: function (chart, easing) {
+			if (chart.config.options.chartArea && chart.config.options.chartArea.backgroundColor) {
+				var ctx = chart.chart.ctx;
+				var chartArea = chart.chartArea;
+				ctx.save();
+				ctx.fillStyle = chart.config.options.chartArea.backgroundColor;
+				ctx.fillRect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
+				ctx.restore();
 			}
-			});
+		}
+	});
 	
-	
-	
-    new Chart(document.getElementById("choices_selected_by_user<%= entry.id %>").getContext("2d"), {
+    new Chart(document.getElementById("survey_result_graph<%= entry.question_id %>").getContext("2d"), {
       type: 'horizontalBar',
       data: chartData,
       options: {
+	  		tooltips: {
+			bodyFontColor: 'rgba(0, 0, 125, 1)',
+			backgroundColor: 'rgba(0, 0, 0, 0)',
+			bodyFontSize: 12,
+		callbacks: {
+         title: function() {}
+      }
+		},
 	  showAllTooltips: true,
+	  chartArea: {
+			backgroundColor: "#F0F0F0",
+		},
        scales:  {
             xAxes: [{ 
 			ticks: {
@@ -65,13 +97,14 @@ $(document).ready(function(){
 			barThickness : 20,
 			gridLines : {
 			drawBorder: true,
-                    display : false
+            display : false
                 }
             }]	
         },
         responsive: false,
 		maintainAspectRatio: false,
-        legend: {position: 'right'}
+        legend: {display : false,
+		position: 'right'}
       }
     });
   });

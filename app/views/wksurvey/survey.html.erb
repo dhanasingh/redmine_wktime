@@ -1,72 +1,71 @@
-<h2><%= l(:label_survey) %></h2>
-<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 
-<% unless @survey_Entries.blank? %>
-<div>
-<%= form_tag({:controller => 'wksurvey', :action => 'update_selected_survey'}, :method => :post, :id => 'query_form') do %>
-   <fieldset class="box tabular">
-      <legend><%=l(:label_survey)%>:</legend>
-      <% @survey_Entries.each do |entry| %>
-		 <fieldset class="box tabular">
-         <table id="newsurvey" class="odd-even">
-            <tr>
-               <th align="left"><%= l(:label_survey_name) %></th>
-               <td align="left" style="padding-left:40px;"><%= entry.name %></td>
-            </tr>
-            <tr>
-               <th align="left"><%= l(:label_survey_choices) %></th>
-               <td></td>
-            </tr>
-            <% @survey_Choice_Entries.each do |choice_entry| %>
-            <% if choice_entry.survey_id == entry.id
-            %>
-            <tr>
-               <td></td>
-               <td align="left" style="padding-left:40px;">
-                 <%= radio_button_tag("survey_sel_choice"+ (entry.id).to_s, choice_entry.id, false) %>
-                 <%= choice_entry.name %>
-               </td>
-            <tr>
-            <% end %>
-            <% end %>
-         </table>
-		 </fieldset>			
-      <% end %>
-   <div>
-      <%= submit_tag l(:button_save), :id => 'wksurvey_save' %>
-   </div>
-   </fieldset>
+<% if @survey_details.status == "O" %>
+	<h2><%= l(:label_survey) %></h2>
+	<fieldset class="box tabular">
+		<h3><%= l(:label_survey_name) %>:&nbsp;&nbsp; <%= @survey_details.name %></h3>
+		<% unless @survey_Entries.blank? %>
+			<div>
+				<%= form_tag({:controller => 'wksurvey', :action => 'update_survey'}, :method => :post, :id => 'query_form') do %>
+					<% @survey_Entries.each do |entry| %>
+						<fieldset class="box tabular">
+							<table>
+								<tr>
+									<th align="left"><%= l(:label_question_name) %></th>
+									<td align="left" style="padding-left:40px;"><%= entry.question_name %></td>
+								</tr>
+								<tr>
+									<th align="left"><%= l(:label_question_choices) %></th>
+									<td></td>
+								</tr>
+								<% @question_Choice_Entries.each do |choice_entry| %>
+									<% if choice_entry.survey_question_id == entry.question_id %>
+										<tr>
+											<td></td>
+											<td align="left" style="padding-left:40px;">
+											<%= radio_button_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_"+ (entry.sel_survey_id).to_s, choice_entry.id, false) %>
+											<%= choice_entry.name %>
+											</td>
+										<tr>
+									<% end %>
+								<% end %>
+							</table>
+						</fieldset>			
+					<% end %>
+					<div>
+					<%= submit_tag l(:button_save), :id => 'wksurvey_save' %>
+					</div>
+				<% end %>
+			</div>
+		<% end %>
+	</fieldset>
 
-<% end %>
-</div>
-<% end %>
+<% else %>
 
-<% unless @closed_surveyed_Entries.blank? %>
-<div>
-   <fieldset class="box tabular">
-      <legend><%=l(:label_survey_result)%>:</legend>
-      <% @closed_surveyed_Entries.each do |entry| %>
-	  <fieldset class="box tabular">
-         <table class="odd-even">
-            <tr>
-               <th align="left"><%= l(:label_survey_name) %></th>
-               <td align="left" style="padding-left:40px;"><%= entry.name %></td>
-            </tr>
-            <tr>
-               <th align="left"><%= l(:label_survey_choices) %></th>
-               <td>
-			   </td>
-            </tr>
-            <tr>
-               <td></td>
-               <td>
-			    <%= render :partial => 'graph', :locals => { :entry => entry } %>
-               </td>
-            <tr>
-         </table>
-		 </fieldset>
-      <% end %>
-   </fieldset>
-</div>											  
+	<% unless @closed_surveyed_Entries.blank? %>
+		<div>
+			<h2><%=l(:label_survey_result)%></h2>
+			<fieldset class="box tabular">
+				<h3><%= l(:label_survey_name) %>:&nbsp;&nbsp; <%= @survey_details.name %></h3>
+				<% @closed_surveyed_Entries.each do |entry| %>
+					<fieldset class="box tabular">
+						<table class="odd-even">
+							<tr>
+								<th align="left"><%= l(:label_question_name) %></th>
+								<td align="left" style="padding-left:40px;"><%= entry.question_name %></td>
+							</tr>
+							<tr>
+								<th align="left"><%= l(:label_question_choices) %></th>
+								<td></td>
+							</tr>
+							<tr>
+								<td></td>
+								<td><%= render :partial => 'graph', :locals => { :entry => entry } %></td>
+							<tr>
+						</table>
+				</fieldset>
+				<% end %>
+			</fieldset>
+		</div>											  
+	<% end %>
 <% end %>

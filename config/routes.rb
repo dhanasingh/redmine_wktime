@@ -586,6 +586,6 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	
 	post 'wksurvey/updateSurvey', :to => 'wksurvey#updateSurvey'
 	
-	post 'wksurvey/update_selected_survey', :to => 'wksurvey#update_selected_survey'
+	post 'wksurvey/update_survey', :to => 'wksurvey#update_survey'
 	
 	get 'wksurvey/graph', :to => 'wksurvey#graph'
