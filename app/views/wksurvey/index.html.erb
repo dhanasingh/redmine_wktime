@@ -13,7 +13,7 @@
 </script>
 
 <%= render_tabs time_expense_tabs %>
-<%= form_tag({:controller => "wksurvey", :action => 'index'}, :method => :get, :id => 'query_form') do %>
+<%= form_tag({:controller => "wksurvey", :action => 'index'}, :method => :get, :id => 'filter_form') do %>
 	<fieldset>
 		<%=h hidden_field_tag('tab', "wksurvey") %>
 		<%= l(:field_status) %>
@@ -21,7 +21,7 @@
 			
 		<%= l(:label_active) %>
 		<%=h select_tag('ActiveStatus', options_for_select(getSurveyActiveStatusArr, :selected => params[:ActiveStatus])) %>
-		<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
+		<%= link_to_function l(:button_apply), '$("#filter_form").submit()', :class => 'icon icon-checked' %>
 		<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>			
 	</fieldset>
 <% end %>
@@ -46,9 +46,15 @@
 
 			<% @all_surveys.each do |entry| %>
 				<tr>
-					<td class="lbl-txt-align"><%=h entry.id %></td>		 
-					<td class="lbl-txt-align"><%=h link_to entry.name , url_for(:controller => "wksurvey", :action => "survey", :survey_id => entry.id, :tab => "wksurvey")%></td>		 
-					<td class="lbl-txt-align"><%=h entry.status == "O" ? "Open" : "Close" %></td>		 
+					<td class="lbl-txt-align"><%=h entry.id %></td>
+						<td class="lbl-txt-align">
+							<% if entry.status != "N" %>
+								<%=h link_to entry.name, url_for(:controller => "wksurvey", :action => "survey", :survey_id => entry.id, :tab => "wksurvey")%>
+							<% else %>
+								<%=h entry.name %>
+							<% end %>
+						</td>
+					<td class="lbl-txt-align"><%=h getSurveyStatus[entry.status] %></td>		 
 					<td class="lbl-txt-align"><%=h entry.in_active ? "Inactive" : "Active" %></td>
 					<% if User.current.admin? %>
 						<td class="lbl-txt-align">

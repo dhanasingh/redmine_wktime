@@ -16,5 +16,13 @@ include WktimeHelper
 		l(:label_active) => '0' ,
 		l(:label_inactive) => '1'
 	}
-  end	
+  end
+  
+  def getSurveyStatus
+	{
+		'N' => l(:label_new),
+		'O' => l(:label_open),
+		'C' => l(:label_close)
+	}
+  end
 end

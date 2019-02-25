@@ -1,6 +1,6 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 
-<% if @survey_details.status == "O" %>
+<% if @survey_details.status == "O" && !@survey_details.in_active%>
 	<h2><%= l(:label_survey) %></h2>
 	<fieldset class="box tabular">
 		<h3><%= l(:label_survey_name) %>:&nbsp;&nbsp; <%= @survey_details.name %></h3>
@@ -23,7 +23,7 @@
 										<tr>
 											<td></td>
 											<td align="left" style="padding-left:40px;">
-											<%= radio_button_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_"+ (entry.sel_survey_id).to_s, choice_entry.id, false) %>
+											<%= radio_button_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_"+ (entry.survey_response_id).to_s, choice_entry.id, false) %>
 											<%= choice_entry.name %>
 											</td>
 										<tr>
