@@ -12,7 +12,7 @@
 		survey_name = @edit_Question_Entries.first.survey_name
 		status = @edit_Question_Entries.first.status
 		inActive = @edit_Question_Entries.first.in_active
-		responseSurveyID =  @edit_Question_Entries.first.responseSurveyID
+		responseSurveyID = (@edit_Question_Entries.first).response_survey_id
 	end 
 %>
 <% if @edit_Question_Entries.blank?%>

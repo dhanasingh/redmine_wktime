@@ -49,12 +49,14 @@ class WksurveyController < ApplicationController
     unless params[:survey_id].blank?
       @edit_Question_Entries = WkSurvey.joins("INNER JOIN wk_survey_responses ON wk_survey_responses.survey_id = wk_surveys.id")
       .joins("LEFT JOIN wk_survey_questions ON wk_survey_questions.survey_id = wk_surveys.id")
-      .where(:id => params[:survey_id].to_i).select("wk_surveys.id, wk_surveys.name AS survey_name, wk_surveys.status,
-      wk_surveys.in_active, wk_survey_questions.id AS question_id, wk_survey_questions.name AS question_name, wk_survey_responses.id AS responseSurveyID")
+      .where(:id => params[:survey_id].to_i).select("wk_surveys.id, wk_surveys.name AS survey_name, 
+        wk_surveys.status, wk_surveys.in_active, wk_survey_questions.id AS question_id, 
+        wk_survey_questions.name AS question_name, wk_survey_responses.id AS response_survey_id")
     
       @edit_Choice_Entries = WkSurvey.joins("LEFT JOIN wk_survey_questions ON wk_survey_questions.survey_id = wk_surveys.id")
       .joins("LEFT JOIN wk_survey_choices ON wk_survey_questions.id = wk_survey_choices.survey_question_id")
-      .where(:id => params[:survey_id].to_i).select("wk_survey_questions.id AS question_id, wk_survey_choices.id AS choice_id, wk_survey_choices.name")
+      .where(:id => params[:survey_id].to_i)
+      .select("wk_survey_questions.id AS question_id, wk_survey_choices.id AS choice_id, wk_survey_choices.name")
     end
   end
   
