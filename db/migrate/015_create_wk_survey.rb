@@ -25,7 +25,7 @@ class CreateWkSurvey< ActiveRecord::Migration[4.2]
 
         create_table :wk_survey_responses do |t|
             t.references :survey, :class => "wk_surveys", :null => false, index: true
-            t.references :parent, polymorphic: true, index: true
+            t.references :dependent, polymorphic: true, index: true
             t.timestamps null: false
         end
 

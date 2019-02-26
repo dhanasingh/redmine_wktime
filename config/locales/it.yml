@@ -922,6 +922,7 @@ it:
   label_survey_result: Survey Result
   label_survey_questions: Survey Questions
   button_add_question: Add Question
+  button_delete_question: Delete Question
 
   #payroll
   label_calculated_fields: Calculated Fields
