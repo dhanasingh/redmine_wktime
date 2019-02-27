@@ -1,6 +1,6 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 
-<% if @survey_details.status == "O" && !@survey_details.in_active%>
+<% if (@survey_details).status == "O" %>
 	<h2><%= l(:label_survey) %></h2>
 	<fieldset class="box tabular">
 		<h3><%= l(:label_survey_name) %>:&nbsp;&nbsp; <%= @survey_details.name %></h3>
@@ -40,7 +40,7 @@
 		<% end %>
 	</fieldset>
 
-<% else %>
+<% elsif (@survey_details).status == "C" %>
 
 	<% unless @closed_surveyed_Entries.blank? %>
 		<div>

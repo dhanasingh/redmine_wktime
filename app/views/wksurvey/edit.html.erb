@@ -4,14 +4,12 @@
 <% 	if @edit_Question_Entries.blank?
 		survey_name = nil
 		status = nil
-		inActive = nil
 		survey_id = nil
 		responseSurveyID = nil
 	else
 		survey_id = @edit_Question_Entries.first.id
 		survey_name = @edit_Question_Entries.first.survey_name
 		status = @edit_Question_Entries.first.status
-		inActive = @edit_Question_Entries.first.in_active
 		responseSurveyID = (@edit_Question_Entries.first).response_survey_id
 	end 
 %>
@@ -32,23 +30,15 @@
 	<table>
 		<tr>
 		<th align="left"><%= l(:label_survey_name) %></th>
-		<td align="left" style="padding-left:40px;">
+		<td align="left">
 			<%=h text_field_tag("survey_name", survey_name, :size => 40) %>
 		</td>
         <tr>
             <th align="left"><%= l(:label_status) %></th>
-            <td align="left" style="padding-left:40px;">
+            <td align="left">
                 <%=h select_tag("survey_status", options_for_select(getSurveyStatusArr.drop(1), status)) %>
             </td>
         </tr>
-	<% unless @edit_Question_Entries.blank? %>
-        <tr>
-            <th align="left"><%= l(:label_inactive) %></th>
-            <td align="left" style="padding-left:40px;">
-                <%=h check_box_tag("survey_inactive", true, inActive ) %>
-            </td>
-        </tr>
-	<% end %>
 	</table>
 	</fieldset>
     
@@ -62,7 +52,7 @@
 				<table width="100%">
 					<tr>
 						<th width="10%" align="left"><%= l(:label_question_name) %></th>
-						<td align="left" style="padding-left:40px;">
+						<td align="left">
 							<%=h text_field_tag("questionName_" + (question.question_id).to_s + "_" + qIndex.to_s, question.question_name, :size => 40) %>
 						</td>
 						<td width="60%" align="right">
@@ -80,12 +70,12 @@
 							firstchoice = false
 							%>
 								<th align="left"><%= l(:label_question_choices) %></th>
-								<td align="left" style="padding-left:40px;">
+								<td align="left">
 									<%=h text_field_tag(("questionChoices_" + (question.question_id).to_s + "_" + qIndex.to_s + "_" + (choice.choice_id).to_s + "_" + cIndex.to_s), choice.name, :size => 40) %>
 								</td>
 							<% else %>
 								<td></td>
-								<td align="left" style="padding-left:40px;">
+								<td align="left">
 									<%=h text_field_tag(("questionChoices_" + (question.question_id).to_s + "_" + qIndex.to_s + "_" + (choice.choice_id).to_s + "_" + cIndex.to_s), choice.name, :size => 40) %>
 									<%=link_to image_tag('delete.png'), "javascript:deleterow(" + qIndex.to_s + "," +(question.question_id).to_s + "," + cIndex.to_s + "," + (choice.choice_id).to_s + ");", :title => l(:button_delete) %>
 								</td>
@@ -97,7 +87,7 @@
 							
 					<tr id="lastrow_<%=qIndex%>">
 						<td></td>
-						<td align="right" style="padding-left:40px;">
+						<td align="right">
 							<%= link_to l(:button_add), "#", { :onclick => "javascript:addrows(" + qIndex.to_s + "," + (question.question_id).to_s + ");", :class => 'icon icon-add' } %>
 						</td>
 						<td></td>
@@ -122,7 +112,7 @@
 	<table width="100%">
 		<tr>
 			<th width="10%" align="left"><%= l(:label_question_name) %></th>
-			<td align="left" style="padding-left:40px;">
+			<td align="left">
 				<%=h text_field_tag("questionName__QINDEX", "", :size => 40) %>
 			</td>
 			<td width="60%" align="right">
@@ -131,14 +121,14 @@
 		</tr>
 		<tr>
 			<th align="left"><%= l(:label_question_choices) %></th>
-			<td align="left" style="padding-left:40px;">
+			<td align="left">
 				<%=h text_field_tag("questionChoices__QINDEX__0", "", :size => 40) %>
 			</td>
 			<td></td>
 		</tr>
 		<tr id="lastrow_QINDEX">
 			<td></td>
-			<td align="right" style="padding-left:40px;">
+			<td align="right">
 				<%= link_to l(:button_add), "#", { :onclick => "javascript:addrows(QINDEX, '');", :class => 'icon icon-add' } %>
 			</td>
 			<td></td>

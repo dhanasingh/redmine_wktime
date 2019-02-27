@@ -12,15 +12,11 @@ class WksurveyController < ApplicationController
     surveys = WkSurvey.all
 
     unless User.current.admin?
-      surveys = surveys.where("status != 'N' AND in_active = False")
-    end
+	  surveys = surveys.joins("INNER JOIN groups_users ON groups_users.group_id = wk_surveys.group_id AND groups_users.user_id =" + (User.current.id).to_s).where("status IN ('O', 'C')")
+	end
 
     unless params[:status].blank?
       surveys = surveys.where(:status => params[:status])
-    end
-
-    unless params[:ActiveStatus].blank?
-      surveys = surveys.where(:in_active => params[:ActiveStatus])
     end
 
     formPagination(surveys)
@@ -28,18 +24,24 @@ class WksurveyController < ApplicationController
   end
   
   def survey
-  
-	  @survey_details = WkSurvey.find(params[:survey_id])
+    @survey_details = WkSurvey.all
+	
+	unless User.current.admin?
+		@survey_details = @survey_details.joins("INNER JOIN groups_users ON groups_users.group_id = wk_surveys.group_id AND groups_users.user_id =" + (User.current.id).to_s)
+	end
+	@survey_details = @survey_details.where("wk_surveys.id = ?", params[:survey_id])
+	@survey_details = @survey_details.first
+	if @survey_details.blank? || (["N", "A"].include? (@survey_details).status)
+		render_404
+	elsif (@survey_details).status == "O"
+		@survey_Entries = WkSurveySelChoice.joins("INNER JOIN wk_survey_choices ON wk_survey_choices.id = wk_survey_sel_choices.survey_choice_id AND wk_survey_sel_choices.user_id = " + (User.current.id).to_s).joins("RIGHT JOIN wk_survey_questions ON wk_survey_questions.id = wk_survey_choices.survey_question_id").joins("INNER JOIN wk_surveys ON wk_survey_questions.survey_id = wk_surveys.id")
 
-    if @survey_details.status == "O" && !@survey_details.in_active
-      @survey_Entries = WkSurveySelChoice.joins("INNER JOIN wk_survey_choices ON wk_survey_choices.id = wk_survey_sel_choices.survey_choice_id AND wk_survey_sel_choices.user_id = " + (User.current.id).to_s).joins("RIGHT JOIN wk_survey_questions ON wk_survey_questions.id = wk_survey_choices.survey_question_id").joins("INNER JOIN wk_surveys ON wk_survey_questions.survey_id = wk_surveys.id")
+		@question_Choice_Entries = @survey_Entries.joins("INNER JOIN wk_survey_choices AS SC ON wk_survey_questions.id = SC.survey_question_id").where("wk_surveys.id = ? AND wk_surveys.status = 'O' AND wk_survey_sel_choices.survey_choice_id IS NULL", params[:survey_id]).select("SC.id, SC.name, wk_survey_questions.id AS survey_question_id").order("survey_question_id, SC.id")
 
-      @question_Choice_Entries = @survey_Entries.joins("INNER JOIN wk_survey_choices AS SC ON wk_survey_questions.id = SC.survey_question_id").where("wk_surveys.id = ? AND wk_surveys.status = 'O' AND wk_surveys.in_active = FALSE AND wk_survey_sel_choices.survey_choice_id IS NULL", params[:survey_id]).select("SC.id, SC.name, wk_survey_questions.id AS survey_question_id").order("survey_question_id, SC.id")
-
-      @survey_Entries = @survey_Entries.joins("INNER JOIN wk_survey_responses ON wk_surveys.id = wk_survey_responses.survey_id").where("wk_surveys.id = ? AND wk_surveys.status = 'O' AND wk_surveys.in_active = FALSE AND wk_survey_sel_choices.survey_choice_id IS NULL", params[:survey_id]).select("wk_surveys.id, wk_surveys.name, wk_survey_questions.id AS question_id, wk_survey_questions.name AS question_name, wk_survey_responses.id AS survey_response_id")
-    else
-      @closed_surveyed_Entries = WkSurvey.joins("INNER JOIN wk_survey_questions ON wk_survey_questions.survey_id = wk_surveys.id").where("wk_surveys.id = ? AND wk_surveys.status = 'C' AND wk_surveys.in_active = FALSE", params[:survey_id]).select("wk_surveys.id, wk_surveys.name, wk_survey_questions.id AS question_id, wk_survey_questions.name AS question_name")
-    end
+		@survey_Entries = @survey_Entries.joins("INNER JOIN wk_survey_responses ON wk_surveys.id = wk_survey_responses.survey_id").where("wk_surveys.id = ? AND wk_surveys.status = 'O' AND wk_survey_sel_choices.survey_choice_id IS NULL", params[:survey_id]).select("wk_surveys.id, wk_surveys.name, wk_survey_questions.id AS question_id, wk_survey_questions.name AS question_name, wk_survey_responses.id AS survey_response_id")
+	elsif (@survey_details).status == "C"
+		@closed_surveyed_Entries = WkSurvey.joins("LEFT JOIN wk_survey_questions ON wk_survey_questions.survey_id = wk_surveys.id").where("wk_surveys.id = ? AND wk_surveys.status = 'C'", params[:survey_id]).select("wk_surveys.id, wk_surveys.name, wk_survey_questions.id AS question_id, wk_survey_questions.name AS question_name")
+	end
   end
  
   def edit
@@ -50,7 +52,7 @@ class WksurveyController < ApplicationController
       @edit_Question_Entries = WkSurvey.joins("INNER JOIN wk_survey_responses ON wk_survey_responses.survey_id = wk_surveys.id")
       .joins("LEFT JOIN wk_survey_questions ON wk_survey_questions.survey_id = wk_surveys.id")
       .where(:id => params[:survey_id].to_i).select("wk_surveys.id, wk_surveys.name AS survey_name, 
-        wk_surveys.status, wk_surveys.in_active, wk_survey_questions.id AS question_id, 
+        wk_surveys.status, wk_survey_questions.id AS question_id, 
         wk_survey_questions.name AS question_name, wk_survey_responses.id AS response_survey_id")
     
       @edit_Choice_Entries = WkSurvey.joins("LEFT JOIN wk_survey_questions ON wk_survey_questions.survey_id = wk_surveys.id")
@@ -71,8 +73,7 @@ class WksurveyController < ApplicationController
       survey = WkSurvey.new
       survey_dependents = {:id => nil}
 		else
-			survey = WkSurvey	.find(params[:survey_id].to_i)
-      survey.in_active = params[:survey_inactive].blank? ? false : true
+		survey = WkSurvey	.find(params[:survey_id].to_i)
       survey_dependents = {:id => params[:responseSurveyID]}
 		end
 		survey.name = params[:survey_name]
@@ -211,12 +212,12 @@ class WksurveyController < ApplicationController
 		question_id = params[:question_id]
 
 		surveyed_employees_per_choice = WkSurvey.
-			joins("INNER JOIN wk_survey_questions ON wk_surveys.id = wk_survey_questions.survey_id").joins("
-			INNER JOIN wk_survey_choices ON wk_survey_choices.survey_question_id = wk_survey_questions.id").joins("
-			LEFT JOIN wk_survey_sel_choices ON wk_survey_sel_choices.survey_choice_id = wk_survey_choices.id").where("wk_surveys.status = 'C' AND wk_surveys.in_active IS FALSE AND wk_survey_questions.id = ?", question_id).select("COUNT(wk_survey_sel_choices.user_id) as emp_count, wk_survey_choices.id").group("wk_surveys.id, wk_survey_choices.id").order("wk_survey_choices.id")
+				joins("INNER JOIN wk_survey_questions ON wk_surveys.id = wk_survey_questions.survey_id").joins("
+				INNER JOIN wk_survey_choices ON wk_survey_choices.survey_question_id = wk_survey_questions.id").joins("
+				LEFT JOIN wk_survey_sel_choices ON wk_survey_sel_choices.survey_choice_id = wk_survey_choices.id").where("wk_surveys.status = 'C' AND wk_survey_questions.id = ?", question_id).select("COUNT(wk_survey_sel_choices.user_id) as emp_count, wk_survey_choices.id").group("wk_surveys.id, wk_survey_choices.id").order("wk_survey_choices.id")
 
 		question_choices = WkSurvey.
-			joins("INNER JOIN wk_survey_questions ON wk_surveys.id = wk_survey_questions.survey_id").joins("INNER JOIN wk_survey_choices ON wk_survey_choices.survey_question_id = wk_survey_questions.id").where("wk_surveys.status = 'C' AND wk_surveys.in_active IS FALSE AND wk_survey_questions.id = ?", question_id).select("wk_survey_choices.name").order("wk_survey_choices.id")
+				joins("INNER JOIN wk_survey_questions ON wk_surveys.id = wk_survey_questions.survey_id").joins("INNER JOIN wk_survey_choices ON wk_survey_choices.survey_question_id = wk_survey_questions.id").where("wk_surveys.status = 'C' AND wk_survey_questions.id = ?", question_id).select("wk_survey_choices.name").order("wk_survey_choices.id")
 		
 		fields = Array.new
 		question_choices.each {|choice| fields << choice.name}

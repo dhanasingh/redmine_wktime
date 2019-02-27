@@ -909,13 +909,12 @@ it:
   #Survey
   label_survey: Survey
   label_status: Status
-  label_active: Active
-  label_inactive: InActive
   label_new_survey: New Survey
   label_edit_survey: Edit Survey
   label_question_choices: Question Choices
   label_open: Open
   label_close: Close
+  label_archived: Archived
   label_new: New
   label_survey_name: Survey Name
   label_question_name: Question Name

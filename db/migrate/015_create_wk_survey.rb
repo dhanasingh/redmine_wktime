@@ -3,9 +3,8 @@ class CreateWkSurvey< ActiveRecord::Migration[4.2]
 
         create_table :wk_surveys do |t|
             t.string :name, :null => false
-            t.string :survey_type
             t.string :status, :null => false, :limit => 3, :default => 'N'
-            t.boolean :in_active, :default => false
+			t.references :group, :class => Group
             t.timestamps null: false
         end
 
