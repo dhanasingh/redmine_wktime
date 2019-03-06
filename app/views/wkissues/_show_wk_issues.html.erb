@@ -28,27 +28,29 @@
  	rateHash = wkasset_helper.getRatePerHash(false)
 %>
 
-<fieldset>
-<legend><b><%= l(:label_additional_details) %></b></legend>
-<table>
-	<% if wktime_helper.showBilling %>	
-		<tr>			
-			<th align="left"><%= l(:field_rate) %></th>
-			<td style="padding-left:40px;"><%= @issue.erpmineissues.currency %> <%= @issue.erpmineissues.rate%> <%= rateHash[@issue.erpmineissues.rate_per] %></td>
-			
-		</tr>
-	<% end %>
-		<tr>
-			<th align="left"><%= l(:label_additional_assignee) %></th>
-			<td style="padding-left:40px;">
-				<% @issue.assignees.each do | issue | %>
-					<table>
-						<tr>
-							<td><%= issue.try(:user).try(:name)  %></td
-						</tr>
-					</table>
-				<% end %>
-			</td>
-		</tr>
-</table>
-</fieldset>
+<% if(Setting.plugin_redmine_wktime['label_no_additional_details_for_issue'].blank? && Setting.plugin_redmine_wktime['label_no_additional_details_for_issue'].to_i == 0) %>
+	<fieldset>
+	<legend><b><%= l(:label_additional_details) %></b></legend>
+	<table>
+		<% if wktime_helper.showBilling %>	
+			<tr>			
+				<th align="left"><%= l(:field_rate) %></th>
+				<td style="padding-left:40px;"><%= @issue.erpmineissues.currency %> <%= @issue.erpmineissues.rate%> <%= rateHash[@issue.erpmineissues.rate_per] %></td>
+				
+			</tr>
+		<% end %>
+			<tr>
+				<th align="left"><%= l(:label_additional_assignee) %></th>
+				<td style="padding-left:40px;">
+					<% @issue.assignees.each do | issue | %>
+						<table>
+							<tr>
+								<td><%= issue.try(:user).try(:name)  %></td
+							</tr>
+						</table>
+					<% end %>
+				</td>
+			</tr>
+	</table>
+	</fieldset>
+<% end %>

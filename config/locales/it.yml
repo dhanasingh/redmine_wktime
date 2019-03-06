@@ -922,6 +922,8 @@ it:
   label_survey_questions: Survey Questions
   button_add_question: Add Question
   button_delete_question: Delete Question
+  
+  label_no_additional_details_for_issue: No Additional Details for Issue
 
   #payroll
   label_calculated_fields: Calculated Fields

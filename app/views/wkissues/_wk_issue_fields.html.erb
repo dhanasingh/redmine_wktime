@@ -35,26 +35,28 @@
 	end
 %>
 
-<fieldset class="box tabular">
-<legend><%= l(:label_additional_details) %></legend>
-<% if wktime_helper.showBilling %>
-	<table style="padding-left:130px;">
-		<%= labelled_fields_for :erpmineissues, @issue.erpmineissues do |issue_fields| %>
-			<tr>
-			<td style="padding-left:40px;"><%= issue_fields.select :currency, wkexpense_helper.options_for_currency %></td>
-			<td style="padding-left:40px;"><%= issue_fields.text_field :rate %> </td>
-			<td style="padding-left:40px;"><%= issue_fields.select :rate_per, wkasset_helper.getRatePerHash(false).invert %></td>
+<% if(Setting.plugin_redmine_wktime['label_no_additional_details_for_issue'].blank? && Setting.plugin_redmine_wktime['label_no_additional_details_for_issue'].to_i == 0) %>
+	<fieldset class="box tabular">
+	<legend><%= l(:label_additional_details) %></legend>
+	<% if wktime_helper.showBilling %>
+		<table style="padding-left:130px;">
+			<%= labelled_fields_for :erpmineissues, @issue.erpmineissues do |issue_fields| %>
+				<tr>
+				<td style="padding-left:40px;"><%= issue_fields.select :currency, wkexpense_helper.options_for_currency %></td>
+				<td style="padding-left:40px;"><%= issue_fields.text_field :rate %> </td>
+				<td style="padding-left:40px;"><%= issue_fields.select :rate_per, wkasset_helper.getRatePerHash(false).invert %></td>
+				</tr>
+			<% end %>
+		</table>
+	<% end %>	
+		<table style="padding-left:35px;">
+		<tr>
+				<th align="left" ><%= l(:label_additional_assignee) %></th>
+				<td align="left">
+					<%=h select_tag('wk_issue_assignee', options_for_select((memberArr.blank? ? [] : memberArr), :selected => @issue.assignees.map { |a| a.user_id }), :size => 5, :multiple=> true) %>
+				</td>
 			</tr>
-		<% end %>
-	</table>
-<% end %>	
-	<table style="padding-left:35px;">
-	<tr>
-			<th align="left" ><%= l(:label_additional_assignee) %></th>
-			<td align="left">
-				<%=h select_tag('wk_issue_assignee', options_for_select((memberArr.blank? ? [] : memberArr), :selected => @issue.assignees.map { |a| a.user_id }), :size => 5, :multiple=> true) %>
-			</td>
-		</tr>
-	</table>
-	
-</fieldset>
+		</table>
+		
+	</fieldset>
+<% end %>
