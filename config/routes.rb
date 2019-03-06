@@ -589,3 +589,5 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	post 'wksurvey/update_survey', :to => 'wksurvey#update_survey'
 	
 	get 'wksurvey/graph', :to => 'wksurvey#graph'
+	
+	get 'wksurvey/survey_for_auto_complete', :to => 'wksurvey#survey_for_auto_complete'

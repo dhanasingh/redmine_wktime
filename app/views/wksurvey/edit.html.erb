@@ -1,104 +1,144 @@
 <%= javascript_include_tag 'survey', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 
-<% 	if @edit_Question_Entries.blank?
+<% 	if @edit_Survey_Entry.blank?
 		survey_name = nil
 		status = nil
 		survey_id = nil
 		responseSurveyID = nil
+		group_id = ''
+		survey_for_id = nil
+		survey_for = nil
+		isDisable = false
 	else
-		survey_id = @edit_Question_Entries.first.id
-		survey_name = @edit_Question_Entries.first.survey_name
-		status = @edit_Question_Entries.first.status
-		responseSurveyID = (@edit_Question_Entries.first).response_survey_id
+		survey_id = @edit_Survey_Entry.first.id
+		survey_name = @edit_Survey_Entry.first.survey_name
+		status = @edit_Survey_Entry.first.status
+		responseSurveyID = (@edit_Survey_Entry.first).response_survey_id
+		group_id =  @edit_Survey_Entry.first.group_id
+		survey_for = (@edit_Survey_Entry.first).survey_for_type
+		survey_for_id = (@edit_Survey_Entry.first).survey_for_id
+		isDisable = isStatusNew((@edit_Survey_Entry.first).status)
 	end 
 %>
-<% if @edit_Question_Entries.blank?%>
+<% if @edit_Survey_Entry.blank?%>
 <h2><%= l(:label_new_survey) %></h2>
 <% else %>
 <h2><%= l(:label_edit_survey) %></h2>
 <% end %>
 
-
 <div>
-<%= form_tag({:controller => 'wksurvey', :action => 'save_survey'}, :method => :post, :id => 'query_form') do %>
+<%= form_tag({:controller => 'wksurvey', :action => 'save_survey'}, :method => :post, :id => 'survey_form') do %>
 	<%=h hidden_field_tag('survey_id', survey_id) %>
 	<%=h hidden_field_tag('responseSurveyID', responseSurveyID) %>
 	<%=h hidden_field_tag('delete_question_ids', "") %>
 
-	<fieldset>
+	<fieldset class="box tabular">
 	<table>
 		<tr>
-		<th align="left"><%= l(:label_survey_name) %></th>
+		<th align="left"><%= l(:label_survey_name) %><span style="color:red;">*</span></th>
 		<td align="left">
-			<%=h text_field_tag("survey_name", survey_name, :size => 40) %>
+			<%=h text_field_tag("survey_name", survey_name, :disabled => isDisable, :size => "40%") %>
 		</td>
+		<tr>
+		<th align="left"><%= l(:label_survey_for) %></th>
+		<td>
+			<%=h select_tag("survey_for", options_for_select(getSurveyFor,survey_for), :disabled => isDisable) %>
+			<%=h text_field_tag("survey_for_id", survey_for_id, :disabled => isDisable, :size => 3) %>
+			<span id="SurveyFor"></span>
+			<%=h hidden_field_tag('IsSurveyForValid', false) %>
+		</td>
+        </tr>
         <tr>
             <th align="left"><%= l(:label_status) %></th>
             <td align="left">
                 <%=h select_tag("survey_status", options_for_select(getSurveyStatusArr.drop(1), status)) %>
             </td>
         </tr>
+		<tr>
+			<th align="left"><%= l(:label_user_group) %></th>
+				<td>
+					<%=h select_tag('group_id', options_for_select(getUserGroup, :selected => group_id), :disabled => isDisable) %>
+				</td>
+			<td></td>
+		</tr>
 	</table>
 	</fieldset>
     
 	<div id="accordion">
 		<h2><%= l(:label_survey_questions) %></h2>
 		<div id="questionsection">
-		<% unless @edit_Question_Entries.blank? || ((@edit_Question_Entries.first).question_id).blank? %>
-			<% @edit_Question_Entries.each_with_index do |question, qIndex| %>
-			<%=h hidden_field_tag('deleteChoiceIds_' + qIndex.to_s, "") %>
-			<fieldset id="QuestionID_<%=qIndex.to_s%>" class="surveyquestions">
-				<table width="100%">
-					<tr>
-						<th width="10%" align="left"><%= l(:label_question_name) %></th>
-						<td align="left">
-							<%=h text_field_tag("questionName_" + (question.question_id).to_s + "_" + qIndex.to_s, question.question_name, :size => 40) %>
-						</td>
-						<td width="60%" align="right">
-							<%=link_to (image_tag('delete.png') + l(:button_delete_question)), "javascript:deletequestion(" + qIndex.to_s + ",'" + (question.question_id).to_s + "');", :title => l(:button_delete) %>
-						</td>
-					</tr>
-					<% 
-					firstchoice = true;
-					@edit_Choice_Entries.each_with_index do |choice, cIndex| 
-					if choice.question_id == question.question_id
-					%>
+			<% unless @edit_Question_Entries.blank? || ((@edit_Question_Entries.first).question_id).blank? %>
+				<% @edit_Question_Entries.each_with_index do |question, qIndex| %>
+					<%=h hidden_field_tag('deleteChoiceIds_' + qIndex.to_s, "") %>
+					<fieldset id="QuestionID_<%=qIndex.to_s%>" class="surveyquestions">
+					<table width="100%">
 						<tr>
-							<% 
-							if firstchoice
-							firstchoice = false
-							%>
-								<th align="left"><%= l(:label_question_choices) %></th>
-								<td align="left">
-									<%=h text_field_tag(("questionChoices_" + (question.question_id).to_s + "_" + qIndex.to_s + "_" + (choice.choice_id).to_s + "_" + cIndex.to_s), choice.name, :size => 40) %>
-								</td>
-							<% else %>
-								<td></td>
-								<td align="left">
-									<%=h text_field_tag(("questionChoices_" + (question.question_id).to_s + "_" + qIndex.to_s + "_" + (choice.choice_id).to_s + "_" + cIndex.to_s), choice.name, :size => 40) %>
-									<%=link_to image_tag('delete.png'), "javascript:deleterow(" + qIndex.to_s + "," +(question.question_id).to_s + "," + cIndex.to_s + "," + (choice.choice_id).to_s + ");", :title => l(:button_delete) %>
-								</td>
-							<% end %>
-						<td></td>
+							<td class="indexNo"><b><%=(qIndex+1).to_s + "."%></b></td>
+							<th width="15%" align="left"><%= l(:label_question_name) %></th>
+							<td align="left">
+								<%=h text_field_tag("questionName_" + (question.question_id).to_s + "_" + qIndex.to_s, question.question_name, :disabled => isDisable, :size => "40%") %>
+							</td>
+							<% unless isDisable%>
+								<td width="45%" align="right">
+									<%=link_to (image_tag('delete.png') + l(:button_delete_question)), "javascript:deletequestion(" + qIndex.to_s + ",'" + (question.question_id).to_s + "');", :title => l(:button_delete) %>
+							    </td>
+						   <% end %>
 						</tr>
-					<% end
-					end %>
-							
-					<tr id="lastrow_<%=qIndex%>">
-						<td></td>
-						<td align="right">
-							<%= link_to l(:button_add), "#", { :onclick => "javascript:addrows(" + qIndex.to_s + "," + (question.question_id).to_s + ");", :class => 'icon icon-add' } %>
-						</td>
-						<td></td>
-					</tr>
-				</table>
-			</fieldset>
+						<tr>
+							<td></td>
+							<th align="left"><%= l(:label_question_type) %></th>
+							<td>
+								<%=h select_tag('question_type_' + qIndex.to_s,
+								options_for_select( getQuestionType, :selected => question.question_type), :disabled => isDisable, 
+								:onchange => "check_question_type('" + qIndex.to_s + "')") %>
+							</td>
+							<td></td>
+						</tr>
+						<% firstchoice = true %>
+						<% @edit_Choice_Entries.each_with_index do |choice, cIndex| %>
+							<% if (choice.question_id == question.question_id) %>
+							<tr>
+								<td></td>
+								<% if firstchoice %>
+									<% firstchoice = false %>
+									<th align="left"><%= l(:label_question_choices) %></th>
+									<td align="left">
+										<%=h text_field_tag(("questionChoices_" + (question.question_id).to_s + "_" + qIndex.to_s + "_" + (choice.choice_id).to_s + "_" + cIndex.to_s), choice.name, :disabled => isDisable, :size => "40%") %>
+									</td>
+								<% else %>
+									<td></td>
+									<td align="left">
+										<%=h text_field_tag(("questionChoices_" + (question.question_id).to_s + "_" + qIndex.to_s + "_" + (choice.choice_id).to_s + "_" + cIndex.to_s), choice.name, :disabled => isDisable, :size => "40%") %>
+									<% unless isDisable%>
+										<%=link_to image_tag('delete.png'), "javascript:deleterow(" + qIndex.to_s + "," +(question.question_id).to_s + "," + cIndex.to_s + "," + (choice.choice_id).to_s + ");", :title => l(:button_delete) %>
+									<% end %>	
+									</td>
+								<% end %>
+								<td></td>
+							</tr>
+							<% end %>
+						<% end %>
+								
+						<% unless isDisable%>
+							<tr id="lastrow_<%=qIndex%>">
+								<td></td>
+								<td></td>
+									<td align="left">
+										<%= link_to l(:button_add), "#", { :onclick => "javascript:addrows(" + qIndex.to_s + "," + (question.question_id).to_s + ");", :class => 'icon icon-add' } %>
+									</td>
+								<td></td>
+							</tr>
+						<% end %>	
+					</table>
+					</fieldset>
+				<% end %>
 			<% end %>
-		<% end %>
-			<div id="add_link" class="wk-contextual">
-				<%= link_to l(:button_add_question), "#", { :onclick => "javascript:addquestion();", :class => 'icon icon-add' } %>
-			</div>
+			<% unless isDisable%>
+				<div id="add_link" class="wk-contextual">
+					<%= link_to l(:button_add_question), "#", { :onclick => "javascript:addquestion();", :class => 'icon icon-add' } %>
+				</div>
+		   <% end %>	
 		</div>
 	</div>
 
@@ -106,33 +146,51 @@
 		<%= submit_tag l(:button_save), :id => 'wksurvey_save' %>
 	</div>
 <% end %>
+
 <div id="add_question_template" style="display:none">
 	<%=h hidden_field_tag('deleteChoiceIds_QINDEX', '') %>
 	<fieldset id="QuestionID_QINDEX" class="surveyquestions">
 	<table width="100%">
 		<tr>
-			<th width="10%" align="left"><%= l(:label_question_name) %></th>
+			<td class="indexNo"><b>SINDEX.</b></td>
+			<th width="15%" align="left"><%= l(:label_question_name) %></th>
 			<td align="left">
-				<%=h text_field_tag("questionName__QINDEX", "", :size => 40) %>
+				<%=h text_field_tag("questionName__QINDEX", "", :disabled => isDisable, :size => "40%") %>
 			</td>
-			<td width="60%" align="right">
-				<%=link_to (image_tag('delete.png') + l(:button_delete_question)), "javascript:deletequestion(QINDEX,'')", :title => l(:button_delete) %>
-			</td>
+			<% unless isDisable%>
+				<td width="45%" align="right">
+					<%=link_to (image_tag('delete.png') + l(:button_delete_question)), "javascript:deletequestion(QINDEX,'')", :title => l(:button_delete) %>	
+				</td>
+		   <% end %>
 		</tr>
 		<tr>
+			<td></td>
+			<th align="left"><%= l(:label_question_type) %></th>
+			<td>
+				<%=h select_tag('question_type_QINDEX',
+					options_for_select( getQuestionType,
+					:selected => 'RB'), :disabled => isDisable, :onchange => "check_question_type('QINDEX')") %>
+			</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
 			<th align="left"><%= l(:label_question_choices) %></th>
 			<td align="left">
-				<%=h text_field_tag("questionChoices__QINDEX__0", "", :size => 40) %>
+				<%=h text_field_tag("questionChoices__QINDEX__0", "", :disabled => isDisable, :size => "40%") %>
 			</td>
 			<td></td>
 		</tr>
-		<tr id="lastrow_QINDEX">
-			<td></td>
-			<td align="right">
-				<%= link_to l(:button_add), "#", { :onclick => "javascript:addrows(QINDEX, '');", :class => 'icon icon-add' } %>
-			</td>
-			<td></td>
-		</tr>
+		<% unless isDisable%>
+			<tr id="lastrow_QINDEX">
+				<td></td>
+				<td></td>
+				<td align="left">
+					<%= link_to l(:button_add), "#", { :onclick => "javascript:addrows(QINDEX, '');", :class => 'icon icon-add' } %>	
+				</td>
+				<td></td>
+			</tr>
+		<% end %>
 	</table>
 	</fieldset>
 </div>

@@ -908,7 +908,7 @@ ru:
   label_amount : Amount
   label_no_of_leads: No of leads
   label_no_of_employees: No of Employees
-  
+
   #Survey
   label_survey: Survey
   label_status: Status
@@ -917,14 +917,23 @@ ru:
   label_question_choices: Question Choices
   label_open: Open
   label_close: Close
-  label_archived: Archived
   label_new: New
+  label_archived: Archived
   label_survey_name: Survey Name
   label_question_name: Question Name
+  label_question_type: Question Type
   label_survey_result: Survey Result
   label_survey_questions: Survey Questions
   button_add_question: Add Question
   button_delete_question: Delete Question
+  label_check_box: Check Box
+  label_radio_button: Radio Button
+  label_text_box: Text Box
+  label_text_area: Text Area
+  label_user_group: User Group				
+  label_survey_for: Survey for
+  notice_surveyfor_unsuccessful: Survey For is invalid
+  label_recursion: Recursion
   
   label_no_additional_details_for_issue: No Additional Details for Issue
   label_create_supplier_invoice_without_purchase_order: Create Supplier invoice without Purchase order

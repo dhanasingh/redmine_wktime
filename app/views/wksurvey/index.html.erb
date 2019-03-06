@@ -2,9 +2,9 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <script type="text/javascript">
-   wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "leave")%>';     
-   clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>'; 
-   payrollUrl = '<%=url_for(:controller => "wkpayroll", :action => "index", :tab => "payroll")%>';
+	wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "leave")%>';     
+	clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>'; 
+	payrollUrl = '<%=url_for(:controller => "wkpayroll", :action => "index", :tab => "payroll")%>';
 	wkSchedulingUrl = '<%=url_for(:controller => "wkscheduling", :action => "index", :tab => "wkscheduling")%>';
 	wkShiftUrl = '<%=url_for(:controller => "wkshift", :action => "index", :tab => "wkshift")%>';  
 	wkPublicHolidayUrl = '<%=url_for(:controller => "wkpublicholiday", :action => "index", :tab => "wkpublicholiday")%>';
@@ -14,16 +14,29 @@
 
 <%= render_tabs time_expense_tabs %>
 <%= form_tag({:controller => "wksurvey", :action => 'index'}, :method => :get, :id => 'filter_form') do %>
+	<%=h hidden_field_tag('tab', "wksurvey") %>
 	<fieldset>
-		<%=h hidden_field_tag('tab', "wksurvey") %>
-		<%= l(:field_status) %>
-			<%=h select_tag('status', options_for_select(getSurveyStatusArr, :selected => params[:status])) %>
-		
-		<%= link_to_function l(:button_apply), '$("#filter_form").submit()', :class => 'icon icon-checked' %>
-		<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>			
+		<table><tr>
+			<td>
+				<%= l(:field_status) %>
+				<%=h select_tag('status', options_for_select(getSurveyStatusArr, :selected => params[:status])) %>
+			</td>
+			<td>
+				<%= l(:label_user_group) %>
+				<%=h select_tag('filter_group_id', options_for_select(getUserGroup(), 
+				:selected => params[:filter_group_id])) %>
+			</td>
+			<td>
+				<%= link_to_function l(:button_apply), '$("#filter_form").submit()', :class => 'icon icon-checked' %>
+			</td>
+			<td>
+				<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', 
+				:tab => controller_name}, :class => 'icon icon-reload' %>
+			</td>
+		</tr></table>
 	</fieldset>
 <% end %>
-	<div class="autoscroll">
+<div class="autoscroll">
 	<% if User.current.admin? %>
 		<div class="wk-contextual">
 		<%= link_to l(:label_new_survey), url_for(:controller => "wksurvey", :action => "edit"), :class => 'icon icon-time-add' %>
@@ -31,15 +44,13 @@
 	<% end %>	
 		
 		<table class="list survey">
-			<thead>
-				<tr>				
-					<th class="lbl-txt-align">#</th>
-					<th class="lbl-txt-align"><%= l(:label_survey_name) %></th>
-					<th class="lbl-txt-align"><%= l(:label_status) %></th>
-					<th></th>
-				</tr>
-			</thead>
-			<tbody>
+			<tr>				
+				<th class="lbl-txt-align">#</th>
+				<th class="lbl-txt-align"><%= l(:label_survey_name) %></th>
+				<th class="lbl-txt-align"><%= l(:label_status) %></th>
+				<th class="lbl-txt-align"><%= l(:label_user_group) %></th>
+				<th></th>
+			</tr>
 
 			<% @all_surveys.each do |entry| %>
 				<tr>
@@ -52,16 +63,14 @@
 							<% end %>
 						</td>
 					<td class="lbl-txt-align"><%=h getSurveyStatusArr.invert[entry.status] %></td>
-					<% if User.current.admin? %>
-						<td class="lbl-txt-align">
+					<td class="lbl-txt-align"><%=h getUserGroup.invert[entry.group_id] %></td>
+					<td class="lbl-txt-align">
+						<% if User.current.admin? %>
 							<%= link_to image_tag('edit.png'), {:controller => "wksurvey", :action => 'edit', :survey_id => entry.id, :tab => "wksurvey"}, :title => l(:button_edit) %>
 							<%= link_to image_tag('delete.png'), {:controller => "wksurvey", :action => 'destroy', :survey_id => entry.id, :tab => "wksurvey"},  :data => {:confirm => l(:text_are_you_sure)}, :title => l(:button_delete) %>
-						</td>
-					<% else %>
-						<td></td>
-					<% end %>
+						<% end %>
+					</td>
 				</tr>
 			<% end %>
-			</tbody>
 		</table>
 	</div>

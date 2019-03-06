@@ -62,7 +62,7 @@ class CreateWkPurchase < ActiveRecord::Migration[4.2]
 		end
 		
 		create_table :wk_po_supplier_invoices do |t|
-			t.references :purchase_order, :class => "wk_invoices", :null => true, :index => true
+			t.references :purchase_order, :class => "wk_invoices", :null => false, :index => true
 			t.references :supplier_inv, :class => "wk_invoices", :null => true, :index => true
 			t.timestamps null: false
 		end
