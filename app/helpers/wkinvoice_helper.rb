@@ -67,7 +67,7 @@ include WkpayrollHelper
 			end
 			if totalAmount > 0 && autoPostGL(getAutoPostModule)
 				transId = @invoice.gl_transaction.blank? ? nil : @invoice.gl_transaction.id
-				glTransaction = postToGlTransaction('invoice', transId, @invoice.invoice_date, transAmountArr, @invoice.invoice_items[0].currency, nil, nil)
+				glTransaction = postToGlTransaction('invoice', transId, @invoice.invoice_date, transAmountArr, @invoice.invoice_items[0].currency, invoiceDesc(@invoice,invoiceAmount), nil)
 				unless glTransaction.blank?
 					@invoice.gl_transaction_id = glTransaction.id
 					@invoice.save
@@ -811,6 +811,16 @@ include WkpayrollHelper
 		invMonthDay = getMonthStartDay #should get from settings
 		periodStart = periodType.upcase == 'W' ? invDay : invMonthDay
 		periodStart
+	end
+	
+	def invoiceDesc(invObj,invAmount)
+		if invObj.parent_type == "WkCrmContact"
+			accName = WkCrmContact.find(invObj.parent_id)
+		else
+			accName = WkAccount.find(invObj.parent_id)
+		end
+		inv_desc = "AccName:" + accName.name + " InvNo:#" + invObj.invoice_number.to_s + " Amt:" + invObj.invoice_items[0].currency.to_s + invAmount.to_s
+		inv_desc
 	end
 	
 end

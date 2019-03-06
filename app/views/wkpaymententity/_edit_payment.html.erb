@@ -49,6 +49,7 @@
 		<%= hidden_field_tag("payment_item_id#{row_index}",   paymentItemId ) %>
 		<%= hidden_field_tag("credit_issued#{row_index}",   creditIssued ) %>
 		<%= hidden_field_tag("paid_amount#{row_index}",   currentPaidAmt ) %>
+		<%= hidden_field_tag("invoice_no#{row_index}",   invoiceObj.invoice_number ) %>
 		<tr>
 			<td class="lbl-txt-align"><%=h invoiceObj.invoice_number  %></td>
 			<td align="right"><label align="right"><%=  html_hours("%.2f" % invoiceAmount) unless invoiceAmount.blank?  %></td></label>
