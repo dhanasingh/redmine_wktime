@@ -23,10 +23,14 @@ class WkgltransactionController < WkaccountingController
 		@selectedLedger = nil
 		@ledgers = WkLedger.order(:name).pluck(:name, :id)
 		@ledgerId = session[:wkgltransaction][:ledger_id]
+		transactionType = session[:wkgltransaction][:trans_type]
 		if !@from.blank? && !@to.blank?
 			transaction = WkGlTransaction.includes(:transaction_details).where(:trans_date => @from .. @to)
 		else
 			transaction = WkGlTransaction.includes(:transaction_details)
+		end
+		unless transactionType.blank?
+			transaction = transaction.where(:trans_type => transactionType)
 		end
 		@totalTransAmt = nil
 		@totalType = nil
@@ -263,14 +267,14 @@ class WkgltransactionController < WkaccountingController
   
    def set_filter_session
         if params[:searchlist].blank? && session[:wkgltransaction].nil?
-			session[:wkgltransaction] = {:period_type => params[:period_type],:period => params[:period],	:ledger_id =>	params[:txn_ledger],	                      
-								   :from => @from, :to => @to}
+			session[:wkgltransaction] = {:period_type => params[:period_type],:period => params[:period],	:ledger_id =>	params[:txn_ledger],:from => @from, :to => @to, :trans_type =>params[:trans_type]}
 		elsif params[:searchlist] =='wkgltransaction'
 			session[:wkgltransaction][:period_type] = params[:period_type]
 			session[:wkgltransaction][:period] = params[:period]
 			session[:wkgltransaction][:from] = params[:from]
 			session[:wkgltransaction][:to] = params[:to]
 			session[:wkgltransaction][:ledger_id] = params[:txn_ledger]
+			session[:wkgltransaction][:trans_type] = params[:trans_type]
 		end
 		
     end
