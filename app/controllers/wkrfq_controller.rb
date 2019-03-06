@@ -1,6 +1,7 @@
 class WkrfqController < ApplicationController
   unloadable
   include WktimeHelper
+  include WkorderentityHelper
   before_action :require_login
   before_action :check_perm_and_redirect, :only => [:index, :edit, :update]
   before_action :check_pur_admin_and_redirect, :only => [:destroy]
@@ -20,20 +21,25 @@ class WkrfqController < ApplicationController
 		else
 			entries = WkRfq.all
 		end
-		formPagination(entries)
+		formPagination(entries, "list")
     end
 	
-	def formPagination(entries)
+	def formPagination(entries, sectiontype)
 		@entry_count = entries.count
         setLimitAndOffset()
-		@rfqEntries = entries.limit(@limit).offset(@offset)
+		if(sectiontype == "list")
+			@rfqEntries = entries.limit(@limit).offset(@offset)
+		else
+			@invoiceEntries = entries.order(:id).limit(@limit).offset(@offset)
+		end
 	end
 	
 	def edit
 	    @rfqEntry = nil
 	    unless params[:rfq_id].blank?
 		   @rfqEntry = WkRfq.find(params[:rfq_id])
-		end 
+			quoteList()
+		end
 	end	
     
 	def update	
@@ -105,5 +111,32 @@ class WkrfqController < ApplicationController
 	    return false
 	  end
     end
-
+	
+	def controller_name
+		if action_name == "edit"
+			"wkquote"
+		else
+			"wkrfq"
+		end
+	end
+	
+	def quoteList
+		rfqId = params[:rfq_id]
+		invIds = getInvoiceIds(rfqId, 'Q', false)
+		Rails.logger.info("====invIds R = #{ invIds.inspect}}====")
+		invEntries = WkInvoice.includes(:invoice_items).where( :id => invIds)
+		formPagination(invEntries, "quote")
+	end
+	
+	def getLabelInvNum
+		l(:label_quote_number)
+	end
+	
+	def getDateLbl
+		l(:label_quote_date)
+	end
+	
+	def isInvPaymentLink
+		false
+	end
 end

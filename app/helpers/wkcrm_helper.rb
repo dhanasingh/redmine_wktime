@@ -206,6 +206,8 @@ include WkcrmenumerationHelper
 			hookSection = hookSection.split(' ')
 		when 'WkInventoryItem'
 			accSections = ['wkproductitem']
+		when 'WkRfq'
+			accSections = ['wkquote']
 		else
 			accSections = ['wkcrmactivity']
 		end

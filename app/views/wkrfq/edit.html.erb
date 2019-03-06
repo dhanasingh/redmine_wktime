@@ -33,3 +33,9 @@
 </fieldset>
 <%= submit_tag l(:button_save), :class => "small", :name => nil %>
 <% end %>
+<% unless @rfqEntry.blank? %>
+	</br>
+	<div>
+		<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @rfqEntry }%>
+	</div>
+<% end %>
