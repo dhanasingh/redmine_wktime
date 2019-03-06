@@ -15,5 +15,6 @@
 	<% rfq_arr = getRfqArray(false) #WkRfq.where(:status => 'o').order(id: :desc).pluck(:name, :id) %>
 	<% rfqId = rfq_arr.blank? ? 0 : rfq_arr[0][1]  %>
 	<th align="left"><label><%= l(:label_purchase_order) %></label></th>
-	<td><%=h select_tag('po_id', options_for_rfqPO_select(false, rfqId )) %></td>
+	<td><%=h select_tag('po_id', options_for_rfqPO_select(((!Setting.plugin_redmine_wktime['label_create_supplier_invoice_without_purchase_order'].blank? && Setting.plugin_redmine_wktime['label_create_supplier_invoice_without_purchase_order'].to_i == 1) ? true : false), rfqId )) %></td>
 <% end %>
+	
