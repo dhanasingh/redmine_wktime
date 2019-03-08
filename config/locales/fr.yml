@@ -844,6 +844,7 @@ fr:
   DELETE INVENTORY: Delete inventory 
   SCHEDULES SHIFT: Schedules shift 
   EDIT SHIFT SCHEDULES: Edit shift schedules
+  EDIT SURVEY: Edit survey
 
   label_active_on: On
   label_active_off: Off
@@ -898,13 +899,13 @@ fr:
   label_created_lead: Created lead
   label_converted_lead: Converted lead
   label_invoice_vs_payment_per_month: Invoice total vs Payment total
-  label_total_invoice: Invoice total
-  label_total_payment: Payment total
+  label_total_invoice: Invoice
+  label_total_payment: Payment
   label_assets_per_month: Assets per month
-  label_total_assets_per_month: Total assets
+  label_total_assets_per_month: Assets
   label_profit_loss_per_month: Profit and loss per month
-  label_total_income: Income total
-  label_total_expense: Expense total
+  label_total_income: Income
+  label_total_expense: Expense
   label_months: Months
   label_amount : Amount
   label_no_of_leads: No of leads
@@ -934,7 +935,6 @@ fr:
   label_user_group: User Group				
   label_survey_for: Survey for
   notice_surveyfor_unsuccessful: Survey For is invalid
-  label_recursion: Recursion
   
   label_no_additional_details_for_issue: No Additional Details for Issue
   label_create_supplier_invoice_without_purchase_order: Create Supplier invoice without Purchase order

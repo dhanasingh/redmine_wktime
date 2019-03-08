@@ -5,32 +5,29 @@
 		survey_name = nil
 		status = nil
 		survey_id = nil
-		responseSurveyID = nil
 		group_id = ''
 		survey_for_id = nil
 		survey_for = nil
 		isDisable = false
 	else
-		survey_id = @edit_Survey_Entry.first.id
-		survey_name = @edit_Survey_Entry.first.survey_name
-		status = @edit_Survey_Entry.first.status
-		responseSurveyID = (@edit_Survey_Entry.first).response_survey_id
-		group_id =  @edit_Survey_Entry.first.group_id
-		survey_for = (@edit_Survey_Entry.first).survey_for_type
-		survey_for_id = (@edit_Survey_Entry.first).survey_for_id
-		isDisable = isStatusNew((@edit_Survey_Entry.first).status)
+		survey_id = @edit_Survey_Entry.id
+		survey_name = @edit_Survey_Entry.name
+		status = @edit_Survey_Entry.status
+		group_id =  @edit_Survey_Entry.group_id
+		survey_for = @edit_Survey_Entry.survey_for_type
+		survey_for_id = @edit_Survey_Entry.survey_for_id
+		isDisable = isStatusNew(@edit_Survey_Entry.status)
 	end 
 %>
 <% if @edit_Survey_Entry.blank?%>
-<h2><%= l(:label_new_survey) %></h2>
+	<%= title l(:label_new_survey) %>
 <% else %>
-<h2><%= l(:label_edit_survey) %></h2>
+	<%= title l(:label_edit_survey) %>
 <% end %>
 
 <div>
 <%= form_tag({:controller => 'wksurvey', :action => 'save_survey'}, :method => :post, :id => 'survey_form') do %>
 	<%=h hidden_field_tag('survey_id', survey_id) %>
-	<%=h hidden_field_tag('responseSurveyID', responseSurveyID) %>
 	<%=h hidden_field_tag('delete_question_ids', "") %>
 
 	<fieldset class="box tabular">

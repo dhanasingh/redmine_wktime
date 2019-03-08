@@ -634,10 +634,6 @@ end
 					end
 				end
 				
-				if showSurvey
-					tabs << {:name => 'wksurvey', :partial => 'wktime/tab_content', :label => :label_survey}
-				end
-				
 		elsif params[:controller] == "wklead" || params[:controller] == "wkcrmaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact"
 			tabs = [
 				{:name => 'wklead', :partial => 'wktime/tab_content', :label => :label_lead_plural},
@@ -752,7 +748,7 @@ end
 		elsif ActiveRecord::Base.connection.adapter_name == 'SQLServer'		
 			sqlStr = "DateAdd(d, (((((DATEPART(dw," + dtfield + ")-1)%7)-1)+(8-" + startOfWeek.to_s + ")) % 7)*-1," + dtfield + ")"
 		else
-			# mysql - the weekday index for date (0 = Monday, 1 = Tuesday, … 6 = Sunday)
+			# mysql - the weekday index for date (0 = Monday, 1 = Tuesday, ï¿½ 6 = Sunday)
 			sqlStr = "adddate(" + dtfield + ",mod(weekday(" + dtfield + ")+(8-" + startOfWeek.to_s + "),7)*-1)"
 		end		
 		sqlStr
@@ -1372,13 +1368,13 @@ end
 						  l(:label_wkexpense) => 'Expense',
 						  l(:report_attendance) => 'Attendance',
 						  l(:label_shift_scheduling) => 'Shift Scheduling',
-						  l(:label_survey) => 'Survey',
 						  l(:label_payroll) => 'Payroll',
 						  l(:label_wk_billing) => 'Billing',
 						  l(:label_accounting) => 'Accounting',
 						  l(:label_crm) => 'CRM',
 						  l(:label_txn_purchase) => 'Purchase',
 						  l(:label_inventory) => 'Inventory',
+						  l(:label_survey) => 'Survey',
 						  l(:label_report) => 'Report'
 					 }
 		erpmineModules

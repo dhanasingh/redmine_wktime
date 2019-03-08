@@ -1,18 +1,18 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 
 <% if (@survey_details).status == "O" %>
-	<h2><%= l(:label_survey) %></h2>.
+	<%= title l(:label_survey) %>
 	<fieldset class="box tabular">
 		<h3><%= l(:label_survey_name) %>:&nbsp;&nbsp; <%= @survey_details.name %></h3>
 <% elsif (@survey_details).status == "C" %>
-	<h2><%=l(:label_survey_result)%></h2>
+	<%= title l(:label_survey_result) %>
 	<fieldset class="box tabular">
 		<h3><%= l(:label_survey_name) %>:&nbsp;&nbsp; <%= @survey_details.name %></h3>
 <% end %>
 
 <% if (@survey_details).status == "O" && !@question_Entries.blank? %>
 		<%= form_tag({:controller => 'wksurvey', :action => 'update_survey'}, :method => :post, :id => 'query_form') do %>
-			<%=h hidden_field_tag("survey_response_id", (@question_Entries.first).survey_response_id) %>
+			<%=h hidden_field_tag("survey_id", (@question_Entries.first).id) %>
 			<% @question_Entries.each do |entry| %>
 				<%=h hidden_field_tag("question_type_"+ (entry.question_id).to_s, entry.question_type) %>
 				<fieldset class="box tabular">
@@ -45,7 +45,7 @@
 					<% elsif entry.question_type == 'TB' || entry.question_type == 'MTB' %>
 					<tr>
 						<td></td>
-						<td>
+						<td align="left" style="padding-left:40px;">
 						<% if entry.question_type == 'TB' %>
 							<%=h text_field_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_") %>
 						<% elsif entry.question_type == 'MTB' %>

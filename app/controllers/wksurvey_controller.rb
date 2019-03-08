@@ -1,12 +1,13 @@
 class WksurveyController < ApplicationController
 
-  menu_item :wkattendance
+  menu_item :wksurvey
     
   before_action :require_login
-  before_action :check_perm_and_redirect, :only => [:edit, :update]
-  before_action :check_survey_perm_and_redirect, :only => [:survey]
+  before_action :check_perm_and_redirect, :only => [:edit, :save_survey]
+  before_action :check_survey_perm_and_redirect, :only => [:survey, :update_survey, :index]
 
   include WktimeHelper
+  include WksurveyHelper
   
 	def index
 		
@@ -24,7 +25,7 @@ class WksurveyController < ApplicationController
 	end
 	
 	def get_survey_with_userGroup
-		if User.current.admin?
+		if checkEditSurveyPermission
 			WkSurvey.all
 		else
 			WkSurvey.joins("LEFT JOIN groups_users ON groups_users.group_id = wk_surveys.group_id")
@@ -43,27 +44,31 @@ class WksurveyController < ApplicationController
 			render_404
 		
 		elsif (@survey_details).status == "O"
-			survey_Entries = WkSurvey.joins("INNER JOIN wk_survey_responses ON wk_surveys.id = wk_survey_responses.survey_id")
-			.joins("INNER JOIN wk_survey_questions ON wk_surveys.id = wk_survey_questions.survey_id")
+			
+			survey_Entries = WkSurveyResponse.joins("INNER JOIN wk_survey_sel_choices ON  wk_survey_responses.id = wk_survey_sel_choices.survey_response_id 
+				AND wk_survey_responses.user_id = " + (User.current.id).to_s)
+			.joins("RIGHT JOIN wk_survey_questions ON wk_survey_questions.id = wk_survey_sel_choices.survey_question_id")
+			.joins("LEFT JOIN wk_surveys ON wk_surveys.id = wk_survey_questions.survey_id")
 			.joins("LEFT JOIN wk_survey_choices ON wk_survey_questions.id = wk_survey_choices.survey_question_id")
-			.joins("LEFT JOIN wk_survey_sel_choices ON wk_survey_questions.id = wk_survey_sel_choices.survey_question_id 
-				AND wk_survey_sel_choices.user_id = " + (User.current.id).to_s)
-			.where("wk_surveys.status = 'O' AND wk_surveys.id = ? AND wk_survey_sel_choices.survey_question_id IS NULL", params[:survey_id])
+			.where("wk_surveys.status = 'O' AND wk_surveys.id = ? AND wk_survey_sel_choices.survey_question_id IS NULL 
+				AND (wk_survey_choices.id IS NOT NULL OR wk_survey_questions.question_type IN ('TB', 'MTB'))", params[:survey_id])
 
 			@question_Choice_Entries = survey_Entries.select("wk_survey_choices.id, wk_survey_choices.name, 
 				wk_survey_questions.id AS survey_question_id")
 			.order("wk_surveys.id, wk_survey_questions.id, wk_survey_choices.id")
 
 			@question_Entries = survey_Entries.group("wk_survey_questions.id, wk_surveys.id, wk_surveys.name,
-				wk_survey_questions.name, wk_survey_questions.question_type, wk_survey_responses.id")
+				wk_survey_questions.name, wk_survey_questions.question_type")
 			.select("wk_surveys.id, wk_surveys.name, wk_survey_questions.id AS question_id, 
-				wk_survey_questions.name AS question_name, wk_survey_questions.question_type AS question_type, wk_survey_responses.id AS survey_response_id")
+				wk_survey_questions.name AS question_name, wk_survey_questions.question_type AS question_type")
 				.order("wk_surveys.id, wk_survey_questions.id")
 		
 		elsif (@survey_details).status == "C"
-			@closed_surveyed_Entries = WkSurvey.joins("LEFT JOIN wk_survey_questions ON wk_survey_questions.survey_id = wk_surveys.id")
+			@closed_surveyed_Entries = WkSurvey.joins("INNER JOIN wk_survey_questions ON wk_survey_questions.survey_id = wk_surveys.id")
+			.joins("INNER JOIN wk_survey_choices ON wk_survey_questions.id = wk_survey_choices.survey_question_id")
 			.where("wk_surveys.id = ? AND wk_surveys.status = 'C' AND wk_survey_questions.question_type NOT IN ('TB', 'MTB')", params[:survey_id])
-			.select("wk_surveys.id, wk_surveys.name, wk_survey_questions.id AS question_id, wk_survey_questions.name AS question_name")
+			.group("wk_surveys.id, wk_surveys.name, wk_survey_questions.id, wk_survey_questions.name")
+			.select("wk_surveys.id, wk_surveys.name, wk_survey_questions.id AS question_id, wk_survey_questions.name AS question_name").order("wk_surveys.id, wk_survey_questions.id")
 		end
   end
  
@@ -74,16 +79,18 @@ class WksurveyController < ApplicationController
     @edit_Choice_Entries = nil
 
     unless params[:survey_id].blank?
-	  @edit_Survey_Entry = WkSurvey.joins("INNER JOIN wk_survey_responses ON wk_survey_responses.survey_id = wk_surveys.id").where(:id => params[:survey_id].to_i).select("wk_surveys.id, wk_surveys.status, wk_surveys.name AS survey_name, wk_surveys.group_id,  wk_survey_responses.id AS response_survey_id, wk_survey_responses.survey_for_type AS survey_for_type, wk_survey_responses.survey_for_id AS survey_for_id")
+	  @edit_Survey_Entry = WkSurvey.find(params[:survey_id].to_i)
 	  
       @edit_Question_Entries = WkSurvey.joins("LEFT JOIN wk_survey_questions ON wk_survey_questions.survey_id = wk_surveys.id")
       .where(:id => params[:survey_id].to_i).select("wk_survey_questions.id AS question_id, 
-        wk_survey_questions.name AS question_name, wk_survey_questions.question_type")
+				wk_survey_questions.name AS question_name, wk_survey_questions.question_type")
+				.order("question_id")
 		
       @edit_Choice_Entries = WkSurvey.joins("LEFT JOIN wk_survey_questions ON wk_survey_questions.survey_id = wk_surveys.id")
       .joins("LEFT JOIN wk_survey_choices ON wk_survey_questions.id = wk_survey_choices.survey_question_id")
       .where(:id => params[:survey_id].to_i)
-      .select("wk_survey_questions.id AS question_id, wk_survey_choices.id AS choice_id, wk_survey_choices.name")
+			.select("wk_survey_questions.id AS question_id, wk_survey_choices.id AS choice_id, wk_survey_choices.name")
+			.order("question_id, choice_id")
     end
   end
   
@@ -93,8 +100,6 @@ class WksurveyController < ApplicationController
 		surveyQuestions = Array.new
 		questions = Hash.new
 		questionChoices = Hash.new
-		surveyFor = Hash.new
-		survey_response_id = params[:responseSurveyID].blank? ? nil : params[:responseSurveyID]
 
 		if params[:survey_id].blank?
 			survey = WkSurvey.new
@@ -109,11 +114,11 @@ class WksurveyController < ApplicationController
 			survey.group_id = params[:group_id]
 
 			if params[:survey_for].blank? && params[:survey_for_id].blank?
-				survey_for_type = nil
-				survey_for_id = nil
+				survey.survey_for_type = nil
+				survey.survey_for_id = nil
 			elsif params[:IsSurveyForValid] == "true"
-				survey_for_type =  params[:survey_for]
-				survey_for_id = params[:survey_for_id]
+				survey.survey_for_type =  params[:survey_for]
+				survey.survey_for_id = params[:survey_for_id]
 			else
 				errmsg = l(:notice_surveyfor_unsuccessful) + "<br>"
 			end
@@ -159,9 +164,7 @@ class WksurveyController < ApplicationController
 				end
 			end
 			
-			surveyFor = {:id => survey_response_id, :survey_for_type => survey_for_type, :survey_for_id => survey_for_id}
 			survey.wk_survey_questions_attributes = surveyQuestions
-			survey.wk_survey_responses_attributes = surveyFor
 		else
 			survey.status = params[:survey_status]
 		end
@@ -184,39 +187,35 @@ class WksurveyController < ApplicationController
   def update_survey
   
 		errMsg = ""
-		survey_response_id = params[:survey_response_id]
-		surveyChoices = Array.new										 
- 
+		surveyChoices = Array.new
+		survey_response = WkSurveyResponse.new
+		survey_response.ip_address = request.remote_ip
+		survey_response.user_id = User.current.id
+		survey_response.survey_id = params[:survey_id]
+
 		params.each do |choice_nameVal|
 			if ((choice_nameVal.first).include? "survey_sel_choice") && !(choice_nameVal.last).blank?
 				sel_ids = (choice_nameVal.first).split("_")
 				questionID = sel_ids[3]
 				questionTypeName = "question_type_" + questionID
 				questionType = params[questionTypeName]
-				surveyChoices << {qID: questionID, qType: questionType, value: choice_nameVal.last}
+				survey_choice_id = (['RB','CB'].include? questionType) ? choice_nameVal.last : nil
+				choice_text = (['TB','MTB'].include? questionType) ? choice_nameVal.last : nil
+				surveyChoices << {survey_question_id: questionID, survey_choice_id: survey_choice_id, choice_text: choice_text}
 			end
 		end
-	
-		surveyChoices.each do |survey_choice|
-			survey_choice_id = (['RB','CB'].include? survey_choice[:qType]) ? survey_choice[:value] : nil
-			choice_text = (['TB','MTB'].include? survey_choice[:qType]) ? survey_choice[:value] : nil
-			wk_Sel_choice = WkSurveySelChoice.new(user_id: User.current.id, survey_choice_id: survey_choice_id, 
-				survey_question_id: survey_choice[:qID], survey_response_id: survey_response_id, ip_address: request.remote_ip, choice_text: choice_text)
-		
-			if wk_Sel_choice.valid?
-				wk_Sel_choice.save
-			else
-				errMsg = wk_Sel_choice.errors.full_messages.join("<br>")
-			end
-		end
-	
-		if errMsg.blank?
+
+		survey_response.wk_survey_sel_choices_attributes = surveyChoices
+
+		if survey_response.valid?
+			survey_response.save
 			flash[:notice] = l(:notice_successful_update)
 		else
-			flash[:error] = errMsg
+			flash[:error] = survey_response.errors.full_messages.join("<br>")
 		end
+
 		redirect_to :controller => controller_name, :action => 'index', :tab => controller_name
-  end  
+  end
   
   def destroy
 		survey = WkSurvey.find(params[:survey_id].to_i)
@@ -250,10 +249,10 @@ class WksurveyController < ApplicationController
 			@offset = @entry_pages.offset
 			@offset
 		end
-  end
-  
+	end
+	
   def check_perm_and_redirect
-		if !User.current.admin? || !showSurvey
+		if !checkEditSurveyPermission || !showSurvey
 			render_403
 			return false
 		end
@@ -272,29 +271,36 @@ class WksurveyController < ApplicationController
 
 		surveyed_employees_per_choice = WkSurvey
 		.joins("INNER JOIN wk_survey_questions ON wk_surveys.id = wk_survey_questions.survey_id")
-		.joins("INNER JOIN wk_survey_choices ON wk_survey_choices.survey_question_id = wk_survey_questions.id")
-		.joins("LEFT JOIN wk_survey_sel_choices ON wk_survey_sel_choices.survey_choice_id = wk_survey_choices.id")
+		.joins("INNER JOIN wk_survey_choices ON wk_survey_questions.id = wk_survey_choices.survey_question_id")
+		.joins("INNER JOIN wk_survey_sel_choices ON wk_survey_choices.id = wk_survey_sel_choices.survey_choice_id")
+		.joins("INNER JOIN wk_survey_responses ON wk_survey_responses.survey_id = wk_surveys.id
+			AND wk_survey_responses.id = wk_survey_sel_choices.survey_response_id")
 		.where("wk_surveys.status = 'C' AND wk_survey_questions.id = ?", question_id)
-		.select("COUNT(wk_survey_sel_choices.user_id) as emp_count, wk_survey_choices.id")
-		.group("wk_surveys.id, wk_survey_choices.id").order("wk_survey_choices.id")
+		.select("COUNT(wk_survey_responses.user_id) as emp_count, wk_survey_choices.id")
+		.group("wk_surveys.id, wk_survey_questions.id, wk_survey_choices.id").order("wk_survey_choices.id")
 
 		question_choices = WkSurvey
 		.joins("INNER JOIN wk_survey_questions ON wk_surveys.id = wk_survey_questions.survey_id")
 		.joins("INNER JOIN wk_survey_choices ON wk_survey_choices.survey_question_id = wk_survey_questions.id")
 		.where("wk_surveys.status = 'C' AND wk_survey_questions.id = ?", question_id)
-		.select("wk_survey_choices.name").order("wk_survey_choices.id")
+		.select("wk_survey_choices.name, wk_survey_choices.id").order("wk_survey_choices.id")
 		
 		fields = Array.new
 		question_choices.each {|choice| fields << choice.name}
 
+		sel_choices = Hash.new
+		surveyed_employees_per_choice.each do |choice| 
+			sel_choices[choice.id] = choice.emp_count
+		end
+
 		employees_per_choice = Array.new
-		surveyed_employees_per_choice.each_with_index do |choice, index|
-			employees_per_choice[index] = choice.emp_count
+		question_choices.each do |choice|
+			employees_per_choice << (sel_choices[choice.id].blank? ? 0 : sel_choices[choice.id])
 		end
 
 		data = {
-			:labels => fields.reverse,
-			:emp_count_per_choices => employees_per_choice.reverse,
+			:labels => fields,
+			:emp_count_per_choices => employees_per_choice,
 		}
 	
     if data
