@@ -2,7 +2,7 @@
 <%  lastmName = ""
 	firstApperence = 0 
 	count = 1
-	moduleHash = {"IN" => l(:label_inventory), "SC" => l(:label_scheduling) }	
+	moduleHash = {"IN" => l(:label_inventory), "SC" => l(:label_scheduling), "SU" => l(:label_survey) }	
 	permissionArr = Array.new
 	permissionArr = @groupPermission.pluck(:permission_id) unless @groupPermission.blank?
 
