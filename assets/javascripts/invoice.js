@@ -455,7 +455,7 @@ function setDescription(isonload){
 				var index = (this.name).replace("amount","");
 				var invoiceNo = $("#invoice_no" + index).val();
 				var currency = $("#currency" + index).val();
-				var desc = "AccName:" + accName + " InvNo:#" + invoiceNo + " Amt:" + currency + amount;
+				var desc = "AccName:" + accName + " InvNo:#" + invoiceNo + " PaymentAmt:" + currency + amount;
 				if(oldDesc != ""){
 					desc = oldDesc + "\n"+ desc;
 				}

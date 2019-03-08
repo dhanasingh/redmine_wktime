@@ -819,7 +819,7 @@ include WkpayrollHelper
 		else
 			accName = WkAccount.find(invObj.parent_id)
 		end
-		inv_desc = "AccName:" + accName.name + " InvNo:#" + invObj.invoice_number.to_s + " Amt:" + invObj.invoice_items[0].currency.to_s + invAmount.to_s
+		inv_desc = "AccName:" + accName.name + " InvNo:#" + invObj.invoice_number.to_s + " InvoiceAmt:" + invObj.invoice_items[0].currency.to_s + invAmount.to_s
 		inv_desc
 	end
 	
