@@ -47,9 +47,9 @@
 						<td></td>
 						<td align="left" style="padding-left:40px;">
 						<% if entry.question_type == 'TB' %>
-							<%=h text_field_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_") %>
+							<%=h text_field_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", nil, size: 60) %>
 						<% elsif entry.question_type == 'MTB' %>
-							<%=h text_area_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_") %>
+							<%=h text_area_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", nil, rows: 5, cols: 60) %>
 						<% end %>
 						</td>
 					</tr>
