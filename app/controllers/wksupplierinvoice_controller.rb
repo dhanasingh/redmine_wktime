@@ -5,15 +5,19 @@ class WksupplierinvoiceController < WksupplierorderentityController
 
 	def newSupOrderEntity(parentId, parentType)
 		super
-		if params[:rfq_id].blank? || params[:po_id].blank?
+		if params[:rfq_id].blank? || ((Setting.plugin_redmine_wktime['label_create_supplier_invoice_without_purchase_order'].blank? || Setting.plugin_redmine_wktime['label_create_supplier_invoice_without_purchase_order'] == 0) && params[:po_id].blank?)
 			errorMsg = ""
 			errorMsg = l(:error_please_select_rfq) + " <br/>" if params[:rfq_id].blank?
 			#errorMsg = errorMsg + "Please select the Quote \n" if params[:quote_id].blank?
 			errorMsg = errorMsg + l(:error_please_select_po) + " <br/>" if params[:po_id].blank?
 			flash[:error] = errorMsg
 			redirect_to :action => 'new'
-		else		
-			@poId =params[:po_id].to_i
+		else
+			if(params[:po_id] != "")
+				@poId =params[:po_id].to_i
+			else
+				@poId = ""
+			end
 			if !params[:populate_items].blank? && params[:populate_items] == '1'
 				@invoiceItem = WkInvoiceItem.where(:invoice_id => params[:po_id].to_i).select(:name, :rate, :amount, :quantity, :item_type, :currency, :project_id, :modifier_id,  :invoice_id )
 			end 
@@ -45,7 +49,9 @@ class WksupplierinvoiceController < WksupplierorderentityController
 		quoteIds = ""	
 		rfqObj = ""
 		rfqObj = WkInvoice.where(:id => getInvoiceIds(params[:rfq_id].to_i, 'PO', false), :parent_id => params[:parent_id].to_i, :parent_type => params[:parent_type]).order(:id)
-		
+		if !Setting.plugin_redmine_wktime['label_create_supplier_invoice_without_purchase_order'].blank? && Setting.plugin_redmine_wktime['label_create_supplier_invoice_without_purchase_order'].to_i == 1
+			quoteIds << "," + "\n"
+		end
 		rfqObj.each do | entry|
 			quoteIds <<  entry.id.to_s() + ',' + entry.invoice_number.to_s()  + "\n" 
 		end

@@ -378,41 +378,6 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 		}
 	}		
 	
-	function removeSelectedValue(elementId)
-	{
-		var listbox=document.getElementById(elementId);
-		if(listbox != null && listbox.options.selectedIndex >= 0)
-         { 				
-			if (confirm(attendanceAlertMsg))
-			{
-				//removes options from listbox			
-				//listbox.remove(listbox.options.selectedIndex);
-				
-				var i;
-				for(i=listbox.options.length-1;i>=0;i--)
-				{					
-					if(listbox.options[i].selected)	
-					{
-						if(elementId == 'settings_wktime_payroll_allowances' || elementId == 'settings_wktime_payroll_deduction')
-						{
-							var listboxArr = listbox.options[i].value.split('|');
-							var payroll_ids = document.getElementById('settings_payroll_deleted_ids').value;
-							ids = payroll_ids == "" ? listboxArr[0] : (payroll_ids + "|" + listboxArr[0]);
-							document.getElementById('settings_payroll_deleted_ids').value = ids;
-						}						
-						listbox.remove(i);
-					}
-				
-			
-				}
-			}			
-		}
-		else if(listbox != null && listbox.options.length >0)
-		{
-			alert(selectListAlertMsg);
-		}
-	}
-	
 	$("form").submit(function() {
 		var listbox=document.getElementById("settings_wktime_public_holiday");
 		if(listbox != null)
@@ -452,32 +417,6 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 			for(i = 0; i < fldInFiles.options.length; i++)
 			{
 				fldInFiles.options[i].selected = true;
-			}						
-		}
-		var wktime_payroll_basic=document.getElementById("settings_wktime_payroll_basic");
-		if(wktime_payroll_basic != null)
-         { 
-			for(i = 0; i < wktime_payroll_basic.options.length; i++)
-			{
-				wktime_payroll_basic.options[i].selected = true;
-			}						
-		}
-		
-		var payroll_allowances=document.getElementById("settings_wktime_payroll_allowances");
-		if(payroll_allowances != null)
-         { 
-			for(i = 0; i < payroll_allowances.options.length; i++)
-			{
-				payroll_allowances.options[i].selected = true;
-			}						
-		}
-		
-		var payroll_deduction=document.getElementById("settings_wktime_payroll_deduction");
-		if(payroll_deduction != null)
-         { 
-			for(i = 0; i < payroll_deduction.options.length; i++)
-			{
-				payroll_deduction.options[i].selected = true;
 			}						
 		}
 		var quotelistbox=document.getElementById("settings_wktime_quote_components");

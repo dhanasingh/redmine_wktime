@@ -5,15 +5,19 @@
     blgledgerUrl = '<%=url_for(:controller => "wkledger", :action => "index", :tab => "wkledger")%>';
     prevTab = 'tab-<%= "#{controller_name}" %>';   
 </script>
+<% transactionType = transTypeHash %>
 <%= render_tabs time_expense_tabs %>
 
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
 	<%= hidden_field_tag "searchlist", "#{controller_name}" %>	
 	<%	ledgerid =session[:wkgltransaction][:ledger_id] %>
+	<%	trans_type =session[:wkgltransaction][:trans_type] %>
 	<div class="wk-contextual">
 		<b><label style="float:left;"><%= l(:label_ledger) %></label></b>
 	     <%=h select_tag("txn_ledger", options_for_select([['','']]+@ledgers, :selected => ledgerid.nil? ? @ledgers : ledgerid ), :style => "width:200px; float:left;") %>
+		<b><label style="float:left; padding-left: 5px;"><%= l(:label_type) %></label></b>
+		 <%=h select_tag("trans_type", options_for_select(transactionType.invert, :selected => trans_type ), :style => "width:150px;float:left;") %>
         <%= link_to l(:label_new_item_adjusted, l(:label_transaction)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
     </div>
 	<%= render :partial => 'wkgltransaction/date_range' %>

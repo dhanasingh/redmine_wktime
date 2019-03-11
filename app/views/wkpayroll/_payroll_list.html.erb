@@ -14,7 +14,13 @@
          </tr>
   </thead>
    <tbody>
+   <% basic_total = 0 %>
+   <% allowance_total = 0 %>
+   <% deduction_total = 0 %>
    <% @payroll_entries.each do |entry| %>
+		<%  basic_total += entry.basic unless entry.basic.blank? %>
+		<%  allowance_total += entry.allowance unless entry.allowance.blank? %>
+		<%  deduction_total += entry.deduction unless entry.deduction.blank? %>
 		 <tr>
 				<td class="lbl-txt-align"><%=h entry.firstname + ' ' + entry.lastname %></td>
 				<td class="lbl-txt-align"><%=h entry.salarydate %></td>
@@ -29,6 +35,18 @@
 		</tr>
 	<% end %>
    </tbody>
+	<% if !@payroll_entries.blank? %>
+		<tr>
+				<th class="lbl-txt-align"><%= l(:label_total) %></th>
+				<th></th>
+				<th class="lbl-txt-align"><%=h @payroll_entries[0].currency %>&nbsp;<%= "%.2f" % basic_total %></th>
+				<th class="lbl-txt-align"><%=h @payroll_entries[0].currency %>&nbsp;<%= "%.2f" % allowance_total %></th>
+				<th class="lbl-txt-align"><%=h @payroll_entries[0].currency %>&nbsp;<%= "%.2f" % deduction_total %></th>
+				<th class="lbl-txt-align"><%=h @payroll_entries[0].currency %>&nbsp;<%= "%.2f" % @total_gross %></th>
+				<th class="lbl-txt-align"><%=h @payroll_entries[0].currency %>&nbsp;<%= "%.2f" % @total_net %></th>
+				<th></th>
+		</tr>
+	<% end %>
 </table>
 </div>
 

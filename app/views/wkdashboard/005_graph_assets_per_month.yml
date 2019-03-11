@@ -1,5 +1,5 @@
- Assets per month: 
-  chart_type: Line
+ Assets: 
+  chart_type: line
   code_str:   "asset_value_by_month = WkAssetDepreciation.where('depreciation_date BETWEEN ? AND ?', (@to - 12.months + 1.days), @to).select('extract(year from wk_asset_depreciations.depreciation_date) as year_val, extract(month from wk_asset_depreciations.depreciation_date) as month_val, sum(actual_amount - depreciation_amount) as total_amount').group('extract(year from wk_asset_depreciations.depreciation_date), extract(month from wk_asset_depreciations.depreciation_date)') ;assest_value_hash = Hash.new ;asset_value_by_month.each {|c| assest_value_hash[(c.year_val.to_s + (c.month_val.to_s.length == 1 ? '0' : '') + c.month_val.to_s).to_i] = c.total_amount } ;yearMonthArr = assest_value_hash.keys.sort ;fields = [] ;12.times {|m| fields << month_name(((@to.month - 1 - m) % 12) + 1).first(3)}; @assest_value_arr = [0]*12 ;last_month = (@to - 12.months + 1.days).month ;last_total = 0 ;yearMonthArr.each do |yearMon| ;month = yearMon.to_s.last(2).to_i ;while last_month != month && ((last_month + 1) % 12 != month); @assest_value_arr[@to.month - ((last_month + 1) % 12)] = last_total; last_month += 1; end; @assest_value_arr[@to.month - yearMon.to_s.last(2).to_i] = assest_value_hash[yearMon]; last_month = month; last_total = assest_value_hash[yearMon]; end;{ 'fields' => fields.reverse };"
   x_title: "label_months"
   y_title: "label_amount"

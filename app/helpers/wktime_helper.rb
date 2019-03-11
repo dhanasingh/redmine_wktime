@@ -611,7 +611,7 @@ end
 				{:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime},
 				{:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense}
 			   ]
-		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" || params[:controller] == "wkscheduling"  || params[:controller] == "wkschedulepreference" || params[:controller] == "wkshift" || params[:controller] == "wkpublicholiday"
+		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" || params[:controller] == "wkscheduling"  || params[:controller] == "wkschedulepreference" || params[:controller] == "wkshift" || params[:controller] == "wkpublicholiday" || params[:controller] == "wksurvey" 
 				tabs = []
 				if showAttendance
 					tabs << {:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave}
@@ -622,8 +622,7 @@ end
 				
 				if showPayroll
 					tabs << {:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll}
-					tabs <<	{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_payroll_settings}
-					
+					#tabs <<	{:name => 'usersettings', :partial => 'wktime/tab_content', :label => :label_payroll_settings}
 				end
 				
 				if showShiftScheduling
@@ -632,7 +631,7 @@ end
 					@editShiftSchedules = validateERPPermission("E_SHIFT")
 					if @schedulesShift && @editShiftSchedules
 						tabs <<	{:name => 'wkshift', :partial => 'wktime/tab_content', :label => :label_shift}
-					end					
+					end
 				end
 				
 		elsif params[:controller] == "wklead" || params[:controller] == "wkcrmaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact"
@@ -749,7 +748,7 @@ end
 		elsif ActiveRecord::Base.connection.adapter_name == 'SQLServer'		
 			sqlStr = "DateAdd(d, (((((DATEPART(dw," + dtfield + ")-1)%7)-1)+(8-" + startOfWeek.to_s + ")) % 7)*-1," + dtfield + ")"
 		else
-			# mysql - the weekday index for date (0 = Monday, 1 = Tuesday, … 6 = Sunday)
+			# mysql - the weekday index for date (0 = Monday, 1 = Tuesday, ï¿½ 6 = Sunday)
 			sqlStr = "adddate(" + dtfield + ",mod(weekday(" + dtfield + ")+(8-" + startOfWeek.to_s + "),7)*-1)"
 		end		
 		sqlStr
@@ -1129,6 +1128,11 @@ end
 			Setting.plugin_redmine_wktime['wktime_enable_payroll_module'].to_i == 1
 	end
 	
+	def showSurvey
+		!Setting.plugin_redmine_wktime['wktime_enable_survey_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_survey_module'].to_i == 1
+    end
+	
 	def showBilling
 		(!Setting.plugin_redmine_wktime['wktime_enable_billing_module'].blank? &&
 			Setting.plugin_redmine_wktime['wktime_enable_billing_module'].to_i == 1 ) #&& isModuleAdmin('wktime_billing_groups')			
@@ -1241,6 +1245,8 @@ end
 			Setting.plugin_redmine_wktime['wktime_enable_shift'].to_i == 0) &&
 			(Setting.plugin_redmine_wktime['wktime_enable_payroll_module'].blank? ||
 			Setting.plugin_redmine_wktime['wktime_enable_payroll_module'].to_i == 0) &&
+			(Setting.plugin_redmine_wktime['wktime_enable_survey_module'].blank? ||
+			Setting.plugin_redmine_wktime['wktime_enable_survey_module'].to_i == 0) &&
 			(Setting.plugin_redmine_wktime['wktime_enable_billing_module'].blank? ||
 			Setting.plugin_redmine_wktime['wktime_enable_billing_module'].to_i == 0) &&
 			(Setting.plugin_redmine_wktime['wktime_enable_accounting_module'].blank? ||
@@ -1368,6 +1374,7 @@ end
 						  l(:label_crm) => 'CRM',
 						  l(:label_txn_purchase) => 'Purchase',
 						  l(:label_inventory) => 'Inventory',
+						  l(:label_survey) => 'Survey',
 						  l(:label_report) => 'Report'
 					 }
 		erpmineModules

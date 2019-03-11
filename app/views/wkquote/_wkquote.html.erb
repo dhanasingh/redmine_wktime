@@ -1,0 +1,7 @@
+<label><%= l(:label_quotes) %></label>
+<div>
+	<div class="wk-contextual">
+		<%= link_to l(:label_new_quote), url_for(:controller => 'wkquote',  :action => 'new', :rfq_id => currentObj.id), :class => 'icon icon-time-add'%>
+	</div>
+	<%= render :partial => 'wkorderentity/order_list' %>
+</div>

@@ -2,11 +2,165 @@
 	<%= render :partial => 'wkdashboard/sidebar' %>
 <% end %>
 	<h2><%= l(:label_dashboards) %></h2>
-		<% get_graphs_yaml_path.sort.each do |path| %>
-			<div class="icon-gravatar">
-				<%= tag("embed",
-				:type => "image/svg+xml", :src => url_for(:controller => 'wkdashboard',
-				:action => 'graph',
-				:gPath => path )) %>
-			</div>
-		<% end %>
+
+<div id="graph" >
+</div>
+
+<%= javascript_tag do %>
+$(document).ready(function(){
+<% get_graphs_yaml_path.sort.each do |path| %>
+	var divstring = '<div class="icon-gravatar"><canvas id="<%=path%>" width="330" height="240"></canvas></div>';
+	$("#graph").append(divstring);
+  $.getJSON(<%= raw url_for(:controller => 'wkdashboard',
+    :action => 'graph',
+	:gPath => path).to_json %>, function(data){
+	var isNonPiechart = (data['graphtype'] != "pie") ? true : false;
+	var isPieChart = (data['graphtype'] == "pie") ? true : false;
+	var bgcolor = isNonPiechart ? 'rgba(255, 99, 132, 1)' : [ "#FF6384", "#84FF63","#8463FF","#6384FF","#F7464A", "#46BFBD", "#FDB45C", "#FEDCBA","#ABCDEF", "#DDDDDD", "#ABCABC", "#949FB1", "#4D5360"];
+	var bordercolor = isNonPiechart ? 'rgba(255, 99, 132, 1)' : 'rgba(255, 99, 132, 0.3)'
+	
+    var dataArr = [{
+		label: data['legentTitle1'],
+		fill: false,
+		backgroundColor: bgcolor,
+		borderColor: bordercolor,
+		borderWidth: 3,
+		data: data['graphpoints1']
+		}];
+	 if(data['legentTitle2']){
+		dataArr.push({
+			label: data['legentTitle2'],
+			fill: false,
+			backgroundColor: 'rgba(54, 162, 235, 0.7)',
+			borderColor: 'rgb(54, 162, 235)',
+			data: data['graphpoints2']
+		});
+	  }
+    var chartData = {
+      labels: data['labels'],
+      datasets: dataArr
+    };
+	
+	Chart.pluginService.register({
+			beforeRender: function (chart) {
+				if (chart.config.options.showAllTooltips) {
+					chart.pluginTooltips = [];
+					chart.config.data.datasets.forEach(function (dataset, i) {
+						chart.getDatasetMeta(i).data.forEach(function (sector, j) {
+							chart.pluginTooltips.push(new Chart.Tooltip({
+								_chart: chart.chart,
+								_chartInstance: chart,
+								_data: chart.data,
+								_options: chart.options.tooltips,
+								_active: [sector]
+							}, chart));
+						});
+					});
+					chart.options.tooltips.enabled = false;
+				}
+			},
+			afterDraw: function (chart, easing) {
+				if (chart.config.options.showAllTooltips) {
+					if (!chart.allTooltipsOnce) {
+						if (easing !== 1)
+							return;
+						chart.allTooltipsOnce = true;
+					}
+					chart.options.tooltips.enabled = true;
+					Chart.helpers.each(chart.pluginTooltips, function (tooltip) {
+						tooltip.initialize();
+						tooltip.update();
+						tooltip.pivot();
+						tooltip.transition(easing).draw();
+					});
+					chart.options.tooltips.enabled = false;
+				}
+			},
+		beforeDraw: function (chart, easing) {
+			if (chart.config.options.chartArea && chart.config.options.chartArea.backgroundColor) {
+				var ctx = chart.chart.ctx;
+				var chartArea = chart.chartArea;
+				ctx.save();
+				ctx.fillStyle = chart.config.options.chartArea.backgroundColor;
+				ctx.fillRect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
+				ctx.restore();
+			}
+		}
+	});
+		
+	new Chart(document.getElementById("<%=path%>").getContext("2d"), {
+		type: data['graphtype'],
+		data: chartData,
+		options: {
+		tooltips: {
+			titleFontColor: 'rgba(0, 0, 0, 1)',
+			bodyFontColor: 'rgba(0, 0, 0, 1)',
+			backgroundColor: 'rgba(0, 0, 0, 0)',
+			bodyFontSize: 12
+		},
+		showAllTooltips: isPieChart,
+		chartArea: {
+			backgroundColor: 'rgba(240, 240, 240, 1)'
+		},
+		scales: {
+			yAxes: [{
+			gridLines : {
+					drawBorder: isNonPiechart,
+					display : isNonPiechart
+				},
+			ticks: {
+					display: isNonPiechart,
+					autoSkip: false,
+					maxRotation: 0,
+					minRotation: 0
+				},
+				scaleLabel: {
+					display: isNonPiechart,
+					labelString: data['yTitle'],
+					fontColor: "#ff0000"
+					}
+				}],
+			xAxes: [{
+			gridLines : {
+					drawBorder: isNonPiechart,
+					display : isNonPiechart
+				},
+				ticks: {
+					display: isNonPiechart,
+					autoSkip: true,
+					maxRotation: 0,
+					minRotation: 0
+				},
+				scaleLabel: {
+					display: isNonPiechart,
+					labelString: data['xTitle'],
+					fontColor: '#ff0000'
+				}
+			}],
+		},
+		elements: {
+		  rectangle: 
+		  {
+		  borderWidth: 2
+		  }
+		},
+		responsive: true,
+		legend: {
+		  display: isNonPiechart,
+		  position: 'bottom'
+		  },
+		title: {fontColor: "#000",
+		  display: true,
+		  text: data['graphName']
+			}
+		}
+	});
+  });
+<% end %>
+  });
+<% end %>
+
+
+<% content_for :header_tags do %>
+  <%= javascript_include_tag "Chart.bundle.min" %>
+<% end %>

@@ -346,7 +346,7 @@ include WkorderentityHelper
 			end
 			if totalAmount > 0 && autoPostGL(getAutoPostModule) && postableInvoice
 				transId = @invoice.gl_transaction.blank? ? nil : @invoice.gl_transaction.id
-				glTransaction = postToGlTransaction(getAutoPostModule, transId, @invoice.invoice_date, transAmountArr, @invoice.invoice_items[0].currency, nil, nil)
+				glTransaction = postToGlTransaction(getAutoPostModule, transId, @invoice.invoice_date, transAmountArr, @invoice.invoice_items[0].currency, invoiceDesc(@invoice,invoiceAmount), nil)
 				unless glTransaction.blank?
 					@invoice.gl_transaction_id = glTransaction.id
 					@invoice.save

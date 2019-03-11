@@ -436,3 +436,31 @@ function showWinningNote()
 		document.getElementById("winning_note").style.display = 'none';
 	}
 }
+$().ready(function(){
+	setDescription(false);
+	$("[id^=amount]").change(function(){
+		setDescription(true);
+	});
+});
+function setDescription(isonload){
+	if(isonload){
+		$("#description").val("");
+	}
+	if($("#description").val() == "" || isonload){
+		$("[id^=amount]").each(function(){
+			var oldDesc = $("#description").val();
+			var amount = this.value;
+			if(amount > 0){
+				var accName = $("#related_parent :selected").text();
+				var index = (this.name).replace("amount","");
+				var invoiceNo = $("#invoice_no" + index).val();
+				var currency = $("#currency" + index).val();
+				var desc = "AccName:" + accName + " InvNo:#" + invoiceNo + " PaymentAmt:" + currency + amount;
+				if(oldDesc != ""){
+					desc = oldDesc + "\n"+ desc;
+				}
+				$("#description").val(desc);
+			}
+		});
+	}
+}

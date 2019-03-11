@@ -57,6 +57,10 @@
 		  <label><%= l(:label_si_number_prefix) %></label><%= text_field_tag 'settings[wktime_si_no_prefix]', @settings['wktime_si_no_prefix'], :size => 13 %> 
 	</p>
 	
+	<p>	
+		  <%= check_box_tag('settings[label_create_supplier_invoice_without_purchase_order]', 1, @settings['label_create_supplier_invoice_without_purchase_order'].to_i == 1)%> <label><%= l(:label_create_supplier_invoice_without_purchase_order) %> </label>
+	</p>
+	
 </fieldset>
 </div>
 

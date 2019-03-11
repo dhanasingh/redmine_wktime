@@ -143,6 +143,73 @@ module WkpayrollHelper
 		errorMsg
 	end
 	
+	def getDependentValue(dependent_id, type, user_id)
+
+		dependent_value = ""
+		@userSalaries.each do |cf|
+			if cf.sc_id.to_i == dependent_id.to_i && type == "component_type" && user_id == cf.user_id
+				dependent_value = cf.sc_component_type
+			elsif cf.sc_id.to_i == dependent_id.to_i && type == "salary_type" && user_id == cf.user_id
+				dependent_value = cf.sc_salary_type
+			end
+		end
+		dependent_value
+	end
+
+	def getAllTotals(user_id)
+
+		totals = Hash.new()
+		basic_total = 0
+		allowance_total = 0
+		deduction_total = 0
+
+		@userSalaries.each do |cf|
+			basic_total = basic_total + cf.factor if cf.sc_component_type == 'b' && cf.user_id == user_id
+		end
+
+		@userSalaries.each do |cf|
+			if cf.sc_component_type == 'a' && cf.user_id == user_id
+				allowance_total = allowance_total + (cf.dependent_id.blank? ? cf.factor : (getDependentValue(cf.dependent_id,"component_type", cf.user_id)== 'b' ? basic_total * cf.factor : 0))
+			end
+		end
+
+		basic_allowance_total = basic_total + allowance_total
+
+		@userSalaries.each do |cf|
+			if cf.sc_component_type == 'd' && cf.user_id == user_id
+				if cf.dependent_id.blank?
+					dependent_total = cf.factor
+				else
+					case getDependentValue(cf.dependent_id, "component_type", cf.user_id)
+					when 'b'
+						dependent_total = basic_total * cf.factor
+					when 'a'
+						dependent_total = allowance_total * cf.factor
+					when 'c'
+						salary_type = getDependentValue(cf.dependent_id, "salary_type", cf.user_id)
+						if salary_type == 'BAT'
+							dependent_total = basic_allowance_total * cf.factor
+						elsif salary_type == 'BT'
+							dependent_total = basic_total * cf.factor
+						elsif salary_type == 'AT'
+							dependent_total = allowance_total * cf.factor
+						else
+							dependent_total = 0
+						end
+					else
+						dependent_total = 0
+					end
+				end
+				deduction_total = deduction_total + dependent_total
+			end
+		end
+		totals['BT'] = basic_total
+		totals['AT'] = allowance_total
+		totals['DT'] = deduction_total
+		totals['BAT'] = basic_allowance_total
+		totals
+	end
+
 	def getUserSalaryHash(userIds,salaryDate)
 		userSalaryHash = Hash.new()
 		payPeriod = getPayPeriod(salaryDate)
@@ -153,13 +220,21 @@ module WkpayrollHelper
 			queryStr = queryStr + " and u.type = 'User'"
 		end
 		queryStr = queryStr  + " order by u.id, sc.salary_type"
-		userSalaries = WkUserSalaryComponents.find_by_sql(queryStr)
-		salaryComponents = getSalaryComponentsArr
-		@userSalEntryHash = Hash[userSalaries.map { |cf| [cf.sc_id.to_s + '_' + cf.user_id.to_s, cf] }]
+		@userSalaries = WkUserSalaryComponents.find_by_sql(queryStr)
+
+		@userSalEntryHash = Hash.new()
+		@userSalaries.each do |cf|
+			if cf.sc_component_type == "c"
+				totals = getAllTotals(cf.user_id)
+				cf.factor = totals[cf.sc_salary_type]
+			end
+			@userSalEntryHash[cf.sc_id.to_s + '_' + cf.user_id.to_s] = cf
+		end
+		
 		lastUserId = -1
 		multiplier = 1.0
 		
-		userSalaries.each do |entry|
+		@userSalaries.each do |entry|
 			isAddSalComp = isAddCompToSal(entry,payPeriod)
 			if isAddSalComp
 				if lastUserId != entry.user_id
@@ -325,13 +400,13 @@ module WkpayrollHelper
 						else
 							wksalaryComponents = WkSalaryComponents.new
 						end
-						if key.to_s == 'basic'				
+						if key.to_s == 'basic'
 							wksalaryComponents.name = sval[1]
 							wksalaryComponents.component_type = 'b'
 							wksalaryComponents.salary_type = sval[2]
 							wksalaryComponents.factor = sval[3]
 							wksalaryComponents.ledger_id = sval[4]							
-						else
+						elsif key.to_s != 'Calculated_Fields'
 							wksalaryComponents.name = sval[1]
 							wksalaryComponents.frequency = sval[2]
 							wksalaryComponents.start_date = sval[3]
@@ -339,6 +414,10 @@ module WkpayrollHelper
 							wksalaryComponents.dependent_id = sval[4]
 							wksalaryComponents.factor = sval[5]
 							wksalaryComponents.ledger_id = sval[6]
+						else
+							wksalaryComponents.name = sval[1]
+							wksalaryComponents.component_type = 'c'
+							wksalaryComponents.salary_type = sval[2]
 						end
 							wksalaryComponents.save()
 					end
@@ -439,5 +518,13 @@ module WkpayrollHelper
 			ytdAmountHash[entry.salary_component_id] = entry.amount
 		end
 		ytdAmountHash
+	end
+	def get_calculated_field_types
+		{
+			l(:label_basic_allowance_total) => 'BAT',
+			l(:label_allowance_total) => 'AT',
+			l(:label_basic_total) => 'BT',
+			l(:label_deduction) => "DT"
+		}
 	end
 end

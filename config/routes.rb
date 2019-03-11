@@ -167,6 +167,10 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
    
    post 'wkpayroll/usrsettingsindex', :to => 'wkpayroll#usrsettingsindex'
    
+   get 'wkpayroll/payrollsettings', :to => 'wkpayroll#payrollsettings'
+
+   post 'wkpayroll/payrollsettings', :to => 'wkpayroll#payrollsettings'
+   
    
     #For Billing
     get 'wkbilling/index', :to => 'wkbilling#index'	
@@ -571,3 +575,19 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wkdashboard/index', :to => 'wkdashboard#index'
 	
 	get 'wkdashboard/graph', :to => 'wkdashboard#graph'
+	
+	get 'wksurvey/survey', :to => 'wksurvey#survey'
+	
+	get 'wksurvey/index', :to => 'wksurvey#index'
+
+	get 'wksurvey/edit', :to => 'wksurvey#edit'
+	
+	get 'wksurvey/destroy', :to => 'wksurvey#destroy'
+	
+	post 'wksurvey/save_survey', :to => 'wksurvey#save_survey'
+	
+	post 'wksurvey/update_survey', :to => 'wksurvey#update_survey'
+	
+	get 'wksurvey/graph', :to => 'wksurvey#graph'
+	
+	get 'wksurvey/survey_for_auto_complete', :to => 'wksurvey#survey_for_auto_complete'

@@ -16,9 +16,9 @@
 				<label for='name'><%= l(:label_user) %>:</label>
 				<%= text_field_tag 'name', params[:name], :size => 30 %>
 				<%= submit_tag l(:button_apply), :class => "small", :name => "list" %>
-				<%= link_to l(:button_clear), {:controller => controller_name, :action => 'usrsettingsindex', :tab => 'usersettings'}, :class => 'icon icon-reload' %>
+				<%= link_to l(:button_clear), {:controller => controller_name, :action => 'usrsettingsindex', :tab => 'payroll'}, :class => 'icon icon-reload' %>
 			</fieldset>
-		<%=h hidden_field_tag('tab', 'usersettings') %>
+		<%=h hidden_field_tag('tab', 'payroll') %>
 		<% end %>
 	&nbsp;
 	<% end %>
@@ -36,7 +36,7 @@
 						<td style="text-align: left;"><%=h entry.firstname + ' ' + entry.lastname%></td>
 
 						<td align="center">
-							<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'user_salary_settings', :user_id => entry.user_id, :tab => 'usersettings'},
+							<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'user_salary_settings', :user_id => entry.user_id, :tab => 'payroll'},
 															   :title => l(:button_edit) %>
 						</td>
 					</tr>

@@ -251,6 +251,7 @@ de:
   label_ytd: YTD
   label_earning: Earnings
   label_payroll_settings: Payroll Settings
+  label_payroll_user_settings: User Settings
   label_total_earning: Total Earnings
   label_total_deduction: Total Deductions
   label_net_earning: Net Earnings
@@ -840,6 +841,7 @@ de:
   DELETE INVENTORY: Delete inventory 
   SCHEDULES SHIFT: Schedules shift 
   EDIT SHIFT SCHEDULES: Edit shift schedules
+  EDIT SURVEY: Edit survey
 
   label_active_on: On
   label_active_off: Off
@@ -894,14 +896,49 @@ de:
   label_created_lead: Created lead
   label_converted_lead: Converted lead
   label_invoice_vs_payment_per_month: Invoice total vs Payment total
-  label_total_invoice: Invoice total
-  label_total_payment: Payment total
+  label_total_invoice: Invoice
+  label_total_payment: Payment
   label_assets_per_month: Assets per month
-  label_total_assets_per_month: Total assets
+  label_total_assets_per_month: Assets
   label_profit_loss_per_month: Profit and loss per month
-  label_total_income: Income total
-  label_total_expense: Expense total
+  label_total_income: Income
+  label_total_expense: Expense
   label_months: Months
   label_amount : Amount
   label_no_of_leads: No of leads
   label_no_of_employees: No of Employees
+
+  #Survey
+  label_survey: Survey
+  label_status: Status
+  label_new_survey: New Survey
+  label_edit_survey: Edit Survey
+  label_question_choices: Question Choices
+  label_open: Open
+  label_close: Close
+  label_new: New
+  label_archived: Archived
+  label_survey_name: Survey Name
+  label_question_name: Question Name
+  label_question_type: Question Type
+  label_survey_result: Survey Result
+  label_survey_questions: Survey Questions
+  button_add_question: Add Question
+  button_delete_question: Delete Question
+  label_check_box: Check Box
+  label_radio_button: Radio Button
+  label_text_box: Text Box
+  label_text_area: Text Area
+  label_user_group: User Group				
+  label_survey_for: Survey for
+  notice_surveyfor_unsuccessful: Survey For is invalid
+  
+  label_no_additional_details_for_issue: No Additional Details for Issue
+  label_create_supplier_invoice_without_purchase_order: Create Supplier invoice without Purchase order
+
+  #payroll
+  label_calculated_fields: Calculated Fields
+  label_basic_allowance_total: Basic and Allowance Total
+  label_basic_total: Basic Total
+  label_allowance_total: Allowance Total
+  label_deduction: Deduction Total
