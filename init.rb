@@ -535,8 +535,8 @@ end
 Redmine::Plugin.register :redmine_wktime do
   name 'ERPmine'
   author 'Adhi Software Pvt Ltd'
-  description 'ERPmine is an ERP for Service Industries. It has the following modules: Time & Expense, Attendance, Payroll, CRM, Billing, Accounting, Purchasing, Inventory, Asset , Reports and Dashboards'
-  version '3.4.1'
+  description 'ERPmine is an ERP for Service Industries. It has the following modules: Time & Expense, Attendance, Payroll, CRM, Billing, Accounting, Purchasing, Inventory, Asset , Reports, Dashboards and Survey'
+  version '3.5'
   url 'http://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
   
