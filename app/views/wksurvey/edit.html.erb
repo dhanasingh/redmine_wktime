@@ -35,13 +35,13 @@
 		<tr>
 		<th align="left"><%= l(:label_survey_name) %><span style="color:red;">*</span></th>
 		<td align="left">
-			<%=h text_field_tag("survey_name", survey_name, :disabled => isDisable, :size => "40%") %>
+			<%=h text_field_tag("survey_name", survey_name, :disabled => isDisable, :size => "40%", :maxlength => 100) %>
 		</td>
 		<tr>
 		<th align="left"><%= l(:label_survey_for) %></th>
 		<td>
 			<%=h select_tag("survey_for", options_for_select(getSurveyFor,survey_for), :disabled => isDisable) %>
-			<%=h text_field_tag("survey_for_id", survey_for_id, :disabled => isDisable, :size => 3) %>
+			<%=h text_field_tag("survey_for_id", survey_for_id, :disabled => isDisable, :size => 3, :maxlength => 30) %>
 			<span id="SurveyFor"></span>
 			<%=h hidden_field_tag('IsSurveyForValid', false) %>
 		</td>
@@ -74,7 +74,7 @@
 							<td class="indexNo"><b><%=(qIndex+1).to_s + "."%></b></td>
 							<th width="15%" align="left"><%= l(:label_question_name) %></th>
 							<td align="left">
-								<%=h text_field_tag("questionName_" + (question.question_id).to_s + "_" + qIndex.to_s, question.question_name, :disabled => isDisable, :size => "40%") %>
+								<%=h text_field_tag("questionName_" + (question.question_id).to_s + "_" + qIndex.to_s, question.question_name, :disabled => isDisable, :size => "40%", :maxlength => 255) %>
 							</td>
 							<% unless isDisable%>
 								<td width="45%" align="right">
@@ -101,12 +101,12 @@
 									<% firstchoice = false %>
 									<th align="left"><%= l(:label_question_choices) %></th>
 									<td align="left">
-										<%=h text_field_tag(("questionChoices_" + (question.question_id).to_s + "_" + qIndex.to_s + "_" + (choice.choice_id).to_s + "_" + cIndex.to_s), choice.name, :disabled => isDisable, :size => "40%") %>
+										<%=h text_field_tag(("questionChoices_" + (question.question_id).to_s + "_" + qIndex.to_s + "_" + (choice.choice_id).to_s + "_" + cIndex.to_s), choice.name, :disabled => isDisable, :size => "40%", :maxlength => 255) %>
 									</td>
 								<% else %>
 									<td></td>
 									<td align="left">
-										<%=h text_field_tag(("questionChoices_" + (question.question_id).to_s + "_" + qIndex.to_s + "_" + (choice.choice_id).to_s + "_" + cIndex.to_s), choice.name, :disabled => isDisable, :size => "40%") %>
+										<%=h text_field_tag(("questionChoices_" + (question.question_id).to_s + "_" + qIndex.to_s + "_" + (choice.choice_id).to_s + "_" + cIndex.to_s), choice.name, :disabled => isDisable, :size => "40%", :maxlength => 255) %>
 									<% unless isDisable%>
 										<%=link_to image_tag('delete.png'), "javascript:deleterow(" + qIndex.to_s + "," +(question.question_id).to_s + "," + cIndex.to_s + "," + (choice.choice_id).to_s + ");", :title => l(:button_delete) %>
 									<% end %>	
@@ -152,7 +152,7 @@
 			<td class="indexNo"><b>SINDEX.</b></td>
 			<th width="15%" align="left"><%= l(:label_question_name) %></th>
 			<td align="left">
-				<%=h text_field_tag("questionName__QINDEX", "", :disabled => isDisable, :size => "40%") %>
+				<%=h text_field_tag("questionName__QINDEX", "", :disabled => isDisable, :size => "40%", :maxlength => 255) %>
 			</td>
 			<% unless isDisable%>
 				<td width="45%" align="right">
@@ -174,7 +174,7 @@
 			<td></td>
 			<th align="left"><%= l(:label_question_choices) %></th>
 			<td align="left">
-				<%=h text_field_tag("questionChoices__QINDEX__0", "", :disabled => isDisable, :size => "40%") %>
+				<%=h text_field_tag("questionChoices__QINDEX__0", "", :disabled => isDisable, :size => "40%", :maxlength => 255) %>
 			</td>
 			<td></td>
 		</tr>

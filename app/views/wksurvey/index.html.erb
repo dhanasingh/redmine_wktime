@@ -6,14 +6,14 @@
 	<%=h hidden_field_tag('tab', "wksurvey") %>
 	<fieldset>
 		<table><tr>
-			<td>
+			<th>
 				<%= l(:field_status) %>
 				<%=h select_tag('status', options_for_select(getSurveyStatusArr, :selected => params[:status])) %>
-			</td>
-			<td>
+			</th>
+			<td style="padding-left:15px;">
 				<%= link_to_function l(:button_apply), '$("#filter_form").submit()', :class => 'icon icon-checked' %>
 			</td>
-			<td>
+			<td style="padding-left:10px;">
 				<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', 
 				:tab => controller_name}, :class => 'icon icon-reload' %>
 			</td>

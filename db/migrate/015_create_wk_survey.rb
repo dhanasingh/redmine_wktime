@@ -4,7 +4,7 @@ class CreateWkSurvey< ActiveRecord::Migration[4.2]
 	change_column_null :wk_po_supplier_invoices, :purchase_order_id, true
 	
     create_table :wk_surveys do |t|
-      t.string :name, :null => false, :limit => 100
+      t.string :name, :null => false
       t.string :status, :null => false, :limit => 5, :default => 'N'
       t.references :group, :class => Group
       t.references :survey_for, polymorphic: true, index: true
@@ -14,14 +14,14 @@ class CreateWkSurvey< ActiveRecord::Migration[4.2]
     end
 
     create_table :wk_survey_questions do |t|
-      t.string :name, :null => false, :limit => 100
+      t.string :name, :null => false
       t.string :question_type, :limit => 5, :default => 'RB'
       t.references :survey, :class => "wk_surveys", :null => false, index: true
       t.timestamps null: false
     end
 
     create_table :wk_survey_choices do |t|
-      t.string :name, :null => false, :limit => 100
+      t.string :name, :null => false
       t.references :survey_question, :class => "wk_survey_questions", :null => false, index: true
       t.float :points
       t.timestamps null: false
