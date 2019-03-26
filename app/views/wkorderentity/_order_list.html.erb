@@ -38,7 +38,7 @@
 			<td class="lbl-txt-align"><%=h entry.invoice_date  %></td>			
 			<td class="lbl-txt-align"><%=h entry.start_date  %></td>
 			<td class="lbl-txt-align"><%=h entry.end_date  %></td>
-			<td class="lbl-txt-align"><%=h html_hours("%.2f" % entry.invoice_items.sum(:quantity))   %></td>
+			<td class="lbl-txt-align"><%=h html_hours("%.4f" % entry.invoice_items.sum(:quantity))   %></td>
 			<td class="lbl-txt-align"><%= entry.invoice_items[0].currency unless entry.invoice_items[0].blank?%> <%=h html_hours("%.2f" % entry.invoice_items.sum(:amount))  %></td>
 			<td class="lbl-txt-align"><%=h entry.modifier.name  %></td>
 			<% if controller.isInvPaymentLink %>
