@@ -299,7 +299,7 @@ include WkpayrollHelper
 					@invItems[@itemCount].store 'item_type', 'i'
 					@invItems[@itemCount].store 'rate', rateHash['rate'].round(2)
 					@invItems[@itemCount].store 'currency', rateHash['currency']
-					@invItems[@itemCount].store 'item_quantity', quantity.round(2)
+					@invItems[@itemCount].store 'item_quantity', quantity.round(4)
 					@invItems[@itemCount].store 'item_amount', itemAmount.round(2)
 					@itemCount = @itemCount + 1
 					oldIssueId = entry.issue_id
@@ -361,11 +361,11 @@ include WkpayrollHelper
 					@invItems[@itemCount].store 'item_type', 'i'
 					@invItems[@itemCount].store 'rate', rateHash['rate']
 					@invItems[@itemCount].store 'currency', rateHash['currency']
-					@invItems[@itemCount].store 'item_quantity', pjtQuantity.round(2)
+					@invItems[@itemCount].store 'item_quantity', pjtQuantity.round(4)
 					@invItems[@itemCount].store 'item_amount', itemAmount.round(2)
 					@itemCount = @itemCount + 1
 					oldIssueId = entry.issue_id
-					totalAmount = (totalAmount + itemAmount).round(2)
+					totalAmount = (totalAmount + itemAmount).round(4)
 					errorMsg = totalAmount
 				end
 				unless isCreate
@@ -705,7 +705,7 @@ include WkpayrollHelper
 			end
 			desc = productName + " " + brandName + " " + modelName + " " + assetName 
 			rate = mEntry.selling_price.round(2)
-			qty = mEntry.quantity.round(2)
+			qty = mEntry.quantity.round(4)
 			curr = mEntry.inventory_item.currency
 			amount = (rate * qty)
 			pType = mEntry.inventory_item.product_type.downcase
@@ -729,7 +729,7 @@ include WkpayrollHelper
 			@invItems[@itemCount].store 'item_type', productType
 			@invItems[@itemCount].store 'rate', rate
 			@invItems[@itemCount].store 'currency', curr
-			@invItems[@itemCount].store 'item_quantity', qty.round(2)
+			@invItems[@itemCount].store 'item_quantity', qty.round(4)
 			@invItems[@itemCount].store 'item_amount', amount
 			@itemCount = @itemCount + 1
 			partialMatAmount = partialMatAmount + amount.round(2)

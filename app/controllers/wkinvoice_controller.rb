@@ -97,7 +97,7 @@ class WkinvoiceController < WkorderentityController
 					@invList[@listKey].store 'project', @invItems[0]['project_id'].blank? ? accProj.project.name : Project.find(@invItems[0]['project_id']).name
 					@invList[@listKey].store 'project_id', accProj.project_id
 					@invList[@listKey].store 'status', 'o'
-					@invList[@listKey].store 'quantity', totQuantity
+					@invList[@listKey].store 'quantity', totQuantity.round(4)
 					@invList[@listKey].store 'start_date', interval[0]
 					@invList[@listKey].store 'end_date', interval[1]
 					@invList[@listKey].store 'isAccountBilling', isActBilling
