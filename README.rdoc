@@ -66,20 +66,9 @@ If an apache passenger module is used then make sure the following settings are 
 	b) RailsAppSpawnerIdleTime 0
 	c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for 3.5
-Features:
-	   - Survey is introduced.
-	   - Quote section in RFQ details.
-	   - Drop down list for account type in Accounting.
-	   - Change SVG charts to 'Chart.js'.
-	   - Auto ESI calculation from gross salary in Payroll.
-	   - Auto post description for Invoice and Payment.
-	   - Total for Payroll list page.
+Release Notes for 3.5.1
 
-Bug Fixing:
-	   - AR report does not have currency sign.
-	   - Without Purchase Order not able to create Supplier Invoice.
-	   - Can not hide additional details in Issue.
+	- Minor code changes.
 
 Customization:
 	For any Customization/Support, please contact us, our consulting team will be happy to help you
