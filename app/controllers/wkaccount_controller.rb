@@ -23,7 +23,7 @@ include WkcustomfieldsHelper
 		if params[:accountname].blank?
 		   entries = WkAccount.where(:account_type => getAccountType)
 		else
-			entries = WkAccount.where(:account_type => getAccountType).where("name like ?", "%#{params[:accountname]}%")
+			entries = WkAccount.where(:account_type => getAccountType).where('lower(name) like ?', "%#{params[:accountname].downcase}%")
 		end
 		if !params[:location_id].blank?
 			entries = entries.where(:location_id => params[:location_id].to_i)

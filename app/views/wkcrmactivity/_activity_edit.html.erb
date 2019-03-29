@@ -1,6 +1,6 @@
 <%= javascript_include_tag 'crmactivity', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<script type="text/javascript"> 
+<script type="text/javascript">
 	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds', :additionalContactType => controller.additionalContactType)}" %>";
 </script>
 <%
@@ -25,11 +25,11 @@
 <%	accArr = options_for_wktime_account(false, accountType)
 	if !@activityEntry.blank?
 		entityType = @activityEntry[0].parent_type == 'WkCrmContact' ? contactType : accountType
-		accArr = relatedValues(@activityEntry[0].parent_type, @activityEntry[0].parent_id, entityType, false, controller.additionalContactType)	
+		accArr = relatedValues(@activityEntry[0].parent_type, @activityEntry[0].parent_id, entityType, false, controller.additionalContactType)
     elsif !params[:parentType].blank?
-		entityType = params[:parentType] == 'WkCrmContact' ? contactType : accountType 
+		entityType = params[:parentType] == 'WkCrmContact' ? contactType : accountType
 		accArr = relatedValues(params[:parentType], params[:parentId], entityType, false, controller.additionalContactType)
-	end	
+	end
  %>
 <%= form_tag({:controller => 'wkcrmactivity', :action => 'update'}, :method => :get, :id => 'query_form') do %>
 
@@ -42,13 +42,13 @@
 	<table >
 		<tr>
 		<th align="left" ><%= l(:label_activity_type) %></th>
-		<td  align="left" style="padding-left:40px;"><%=h select_tag("activity_type", options_for_select(acttypeHash.invert, :selected => !@activityEntry.blank? ? @activityEntry[0].activity_type : 'C'), :style => "width:190px;", :onchange => "loadStatus(this.id)") %></td>	
+		<td  align="left" style="padding-left:40px;"><%=h select_tag("activity_type", options_for_select(acttypeHash.invert, :selected => !@activityEntry.blank? ? @activityEntry[0].activity_type : 'C'), :style => "width:190px;", :onchange => "loadStatus(this.id)") %></td>
 		<td></td>
 		<td></td>
 		<td></td>
-		<td></td>		
+		<td></td>
 		</tr>
-		
+
 		<tr>
 			<th align="left"><%= l(:label_subject) %><span style="color:red;">*</span></th>
 			<td align="left" style="padding-left:40px;"><%=h text_field_tag("activity_subject",(!@activityEntry.blank? ? @activityEntry[0].name : ""),:size => 20, :style => "width:180px;") %> </td>
@@ -57,21 +57,21 @@
 			<td align="left" style="padding-left:40px;"><%=h select_tag("activity_direction", options_for_select(directionHash.invert, :selected => (!@activityEntry.blank? ? @activityEntry[0].direction : 'I') ), :style => "width:200px; float:left;") %>
 			<%=h select_tag("activity_status", options_for_select(meetCallStatusHash.invert, :selected =>(!@activityEntry.blank? ? @activityEntry[0].status : 'P') ), :style=>"float:right;") %>
 			<%=h select_tag("task_status", options_for_select(taskStatusHash.invert, :selected => (!@activityEntry.blank? ? @activityEntry[0].status : 'NS') )) %>
-			
-			</td>		
+
+			</td>
 			<td></td>
 		</tr>
 
 		<tr>
-			<th align="left"><%= l(:label_start_date_time) %></th>			
+			<th align="left"><%= l(:label_start_date_time) %></th>
 			<td align="left" style="padding-left:40px;" ><%= date_field_tag('activity_start_date', !@activityEntry.blank? && !@activityEntry[0].start_date.blank? ? (@activityEntry[0].start_date.localtime).strftime("%Y-%m-%d") :  Date.today, {:id => 'activity_start_date', :size => 12, :style => "width:160px;"}) + calendar_for('activity_start_date') %></td>
 			<td><%= select_tag("start_hour", options_for_select(hr, :selected => !@activityEntry.blank? && !@activityEntry[0].start_date.blank? ? ((@activityEntry[0].start_date.localtime).strftime("%H")).to_i : 00 ))%> :
 			<%= select_tag("start_min", options_for_select([['00',00],
 										   [15, 15],
 										   [30, 30],
-										   [45, 45]], :selected => !@activityEntry.blank? && !@activityEntry[0].start_date.blank? ? (@activityEntry[0].start_date.localtime).strftime("%M") : 0))%>		</td>	
+										   [45, 45]], :selected => !@activityEntry.blank? && !@activityEntry[0].start_date.blank? ? (@activityEntry[0].start_date.localtime).strftime("%M") : 0))%>		</td>
 
-			<th align="left" style="padding-left:240px;"><label id="lblEndDate"><%= l(:label_end_date_time) %></label></th>			
+			<th align="left" style="padding-left:240px;"><label id="lblEndDate"><%= l(:label_end_date_time) %></label></th>
 			<td align="left" style="padding-left:40px;"><div id="enddatediv" style="display: inline-block; vertical-align: top;" ><%= date_field_tag('activity_end_date', !@activityEntry.blank? && !@activityEntry[0].end_date.blank? ? (@activityEntry[0].end_date.localtime).strftime("%Y-%m-%d") :  Date.today, {:id => 'activity_end_date', :size => 12, :style => "width:160px;"}) + calendar_for('activity_end_date') %></div> </td>
 			<td align="left">
 			<%= select_tag("end_hour", options_for_select(hr, :selected => !@activityEntry.blank? && !@activityEntry[0].end_date.blank? ? ((@activityEntry[0].end_date.localtime).strftime("%H")).to_i : 0))%></td>
@@ -79,41 +79,41 @@
 			<%= select_tag("end_min", options_for_select([['00',00],
 										   [15, 15],
 										   [30, 30],
-										   [45, 45]], :selected => !@activityEntry.blank? && !@activityEntry[0].end_date.blank? ? (@activityEntry[0].end_date.localtime).strftime("%M") : 0))%>		</td>	
+										   [45, 45]], :selected => !@activityEntry.blank? && !@activityEntry[0].end_date.blank? ? (@activityEntry[0].end_date.localtime).strftime("%M") : 0))%>		</td>
 				<div style="clear: both;"></div>
-			
+
 		</tr>
-		
+
 		<tr>
 			<th align="left" style="padding-left:92px;"><label id="lblduration"><%= l(:label_duration) %></label></th>
 			<%  t = !@activityEntry.blank? ? @activityEntry[0].duration : 0
 				mm, ss = t.divmod(60)
-				hh, mm = mm.divmod(60) 
-				dd, hh = hh.divmod(24)    %>			
-			<td align="left" style="padding-left:40px;"><%=h text_field_tag("activity_duration",(!@activityEntry.blank? ? hh  : ""),:size => 20, :style => "width:180px;") %></td>	
+				hh, mm = mm.divmod(60)
+				dd, hh = hh.divmod(24)    %>
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("activity_duration",(!@activityEntry.blank? ? hh  : ""),:size => 20, :style => "width:180px;") %></td>
 			<td><%= select_tag("activity_duration_min", options_for_select([['00',00],
 										   [15, 15],
 										   [30, 30],
-										   [45, 45]], :selected => !@activityEntry.blank? ? mm : 00))%>		</td>		   
-			<th align="left" style="padding-left:240px;"><label id="lblLocation"><%= l(:label_location) %></label></th>		
-			<td align="left" style="padding-left:40px;"><%=h text_field_tag("location", !@activityEntry.blank? && !@activityEntry[0].location.blank? ? @activityEntry[0].location :  "", :style => "width:190px;") %> </td>	
-			<td></td>			
+										   [45, 45]], :selected => !@activityEntry.blank? ? mm : 00))%>		</td>
+			<th align="left" style="padding-left:240px;"><label id="lblLocation"><%= l(:label_location) %></label></th>
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("location", !@activityEntry.blank? && !@activityEntry[0].location.blank? ? @activityEntry[0].location :  "", :style => "width:190px;") %> </td>
+			<td></td>
 		</tr>
-		
+
 		<tr>
 			<th align="left" ><%= l(:label_related_to) %></th>
-			<td align="left" style="padding-left:40px;"><%=h select_tag("related_to", options_for_select(relHash.invert, :selected => (!@activityEntry.blank? ? @activityEntry[0].parent_type : (params[:parentType].blank? ? "" : params[:parentType]))), :onchange => "actRelatedDd(#{User.current.id}, false, false, '#{accountType}', '#{contactType}', false)", :style => "width:200px;") %></td>		
-			
-			<td align="left" ><%=h select_tag("related_parent", options_for_select(accArr, :selected => (!@activityEntry.blank? ? @activityEntry[0].parent_id : (params[:parentId].blank? ? "" : params[:parentId]))), :style => "width:200px;") %></td> 
+			<td align="left" style="padding-left:40px;"><%=h select_tag("related_to", options_for_select(relHash.invert, :selected => (!@activityEntry.blank? ? @activityEntry[0].parent_type : (params[:parentType].blank? ? "" : params[:parentType]))), :onchange => "actRelatedDd(#{User.current.id}, false, false, '#{accountType}', '#{contactType}', false)", :style => "width:200px;") %></td>
+
+			<td align="left" ><%=h select_tag("related_parent", options_for_select(accArr, :selected => (!@activityEntry.blank? ? @activityEntry[0].parent_id : (params[:parentId].blank? ? "" : params[:parentId]))), :style => "width:200px;") %></td>
 			<td></td>
 		<td></td>
 		<td></td>
-			
+
 		<!--	<th align="left" style="padding-left:240px;"><label id="lblpriority"><%= l(:label_priority) %></label></th>
 			<td align="left" style="padding-left:40px;"><%=h select_tag("task_priority", options_for_select(taskPriorityHash.invert), :style => "width:190px;") %> </td>
 			<td></td> -->
 		</tr>
-		
+
 		<tr>
 			<th align="left" ><%= l(:field_assigned_to) %></th>
 			 <td align="left" style="padding-left:40px;"><%=h select_tag('assigned_user_id', options_for_select(groupOfUsers, :selected => !@activityEntry.blank? ? @activityEntry[0].assigned_user_id : ""),:required => true) %></td>
@@ -122,18 +122,18 @@
 			 <td></td>
 			 <td></td>
 		</tr>
-		
+
 		<tr>
 		<th align="left" ><%= l(:field_description) %></th>
-		<td colspan="4" align="left" style="padding-left:40px;"><%= text_area_tag 'activity_description', (!@activityEntry.blank? ? @activityEntry[0].description : ""), :maxlength => 255, :style => "width:605px" %></td>		
-		
+		<td colspan="4" align="left" style="padding-left:40px;"><%= text_area_tag 'activity_description', (!@activityEntry.blank? ? @activityEntry[0].description : ""), :style => "width:605px" %></td>		
+
 		</tr>
-		
+
 	</table>
 </fieldset>
 
 	<div>
 		<%= submit_tag l(:button_save) ,:id => 'wkactivity_save'%>
 	</div>
-	
+
 	<% end %>

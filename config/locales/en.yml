@@ -899,5 +899,7 @@ en:
   label_default_project: Default project
   label_default_document_type: Default document type
   label_you_have_to_pick_project: You have to pick project
+  label_new_custom_field_relation: New custom field relation
+
 
 

@@ -12,6 +12,9 @@ require 'userscontroller_patch'
 require 'settingscontroller_patch'
 require_dependency 'ftte/ftte_hook'
 
+Rails.application.paths["app/overrides"] ||= []
+Rails.application.paths["app/overrides"] << File.expand_path("../app/overrides", __FILE__)
+
 User.class_eval do
 	has_one :wk_user, :dependent => :destroy, :class_name => 'WkUser'
 	has_many :shift_schdules, :dependent => :destroy, :class_name => 'WkShiftSchedule'

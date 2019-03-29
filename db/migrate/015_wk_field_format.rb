@@ -5,6 +5,7 @@ class WkFieldFormat < ActiveRecord::Migration
       t.string :display_as, null:false
       t.references :projects
       t.boolean :allow_users_change_project
+      t.boolean :allow_users_change_enumeration
       t.references :enumerations
       t.boolean :render_creation
     end
