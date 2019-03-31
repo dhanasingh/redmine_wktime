@@ -48,11 +48,11 @@ module WkreportHelper
 	def hasViewPermission(reportName)
 		ret = true
 		if reportName == 'report_profit_loss' || reportName == 'report_balance_sheet'
-			ret = isModuleAdmin('wktime_accounting_group') || isModuleAdmin('wktime_accounting_admin')
+			ret = validateERPPermission("B_ACC_PRVLG") || validateERPPermission("A_ACC_PRVLG")
 		elsif reportName == 'report_lead_conversion' || reportName == 'report_sales_activity'
-			ret = (isModuleAdmin('wktime_crm_group') || isModuleAdmin('wktime_crm_admin') ) && isChecked('wktime_enable_crm_module')
+			ret = (validateERPPermission("B_CRM_PRVLG") || validateERPPermission("A_CRM_PRVLG") ) && isChecked('wktime_enable_crm_module')
 		elsif reportName == 'report_order_to_cash'
-			ret = isModuleAdmin('wktime_billing_groups')
+			ret = validateERPPermission("M_BILL")
 		end
 		ret
 	end

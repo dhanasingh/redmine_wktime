@@ -845,6 +845,14 @@ pl:
   SCHEDULES SHIFT: Harmonogramy zmian
   EDIT SHIFT SCHEDULES: Edytowanie harmonogramów zmian
   EDIT SURVEY: Edit survey
+  BASIC CRM PRIVILEGE: Basic CRM privilege
+  ADMIN CRM PRIVILEGE: Admin CRM privilege
+  MANAGE BILLING: Manage Billing
+  BASIC ACCOUNTING PRIVILEGE: Basic Accounting privilege
+  ADMIN ACCOUNTING PRIVILEGE: Admin Accounting privilege
+  BASIC PURCHASING PRIVILEGE: Basic Purchasing privilege
+  ADMIN PURCHASING PRIVILEGE: Admin Purchasing privilege
+  ADMIN ERPMINE : Admin ERPmine
 
   Analyst: Analityk
   Competitor: Rywal

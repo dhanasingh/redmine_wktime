@@ -25,7 +25,7 @@
 			</tr>
 		</table>	
 	</fieldset>
-<% if isModuleAdmin('wktime_accounting_admin') %>	
+<% if validateERPPermission("A_ACC_PRVLG") %>	
 	<%= submit_tag l(:button_save), :class => "small", :name => nil %>
 <% end %>
 <% end %>

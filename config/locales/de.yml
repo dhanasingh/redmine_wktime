@@ -842,6 +842,14 @@ de:
   SCHEDULES SHIFT: Schedules shift 
   EDIT SHIFT SCHEDULES: Edit shift schedules
   EDIT SURVEY: Edit survey
+  BASIC CRM PRIVILEGE: Basic CRM privilege
+  ADMIN CRM PRIVILEGE: Admin CRM privilege
+  MANAGE BILLING: Manage Billing
+  BASIC ACCOUNTING PRIVILEGE: Basic Accounting privilege
+  ADMIN ACCOUNTING PRIVILEGE: Admin Accounting privilege
+  BASIC PURCHASING PRIVILEGE: Basic Purchasing privilege
+  ADMIN PURCHASING PRIVILEGE: Admin Purchasing privilege
+  ADMIN ERPMINE : Admin ERPmine
 
   label_active_on: On
   label_active_off: Off

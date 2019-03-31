@@ -4,7 +4,7 @@
 	groupId = session[:wkreport][:group_id]
 	userId = session[:wkreport][:user_id]
 	if userId.blank?			
-		userId = isModuleAdmin('wktime_crm_group') ? User.current.id : 0
+		userId = validateERPPermission("B_CRM_PRVLG") ? User.current.id : 0
 	end
 	@leadList = getLeadList(@from, @to, groupId, userId)
 %>

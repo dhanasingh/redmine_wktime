@@ -50,11 +50,11 @@ class WksupplierpaymentController < WkpaymententityController
 	end
 	
 	def check_permission		
-		return isModuleAdmin('wktime_pur_group') || isModuleAdmin('wktime_pur_admin') 
+		return validateERPPermission("B_PUR_PRVLG") || validateERPPermission("A_PUR_PRVLG") 
 	end
 	
 	def check_crm_admin_and_redirect
-	  unless isModuleAdmin('wktime_pur_admin') 
+	  unless validateERPPermission("A_PUR_PRVLG") 
 	    render_403
 	    return false
 	  end

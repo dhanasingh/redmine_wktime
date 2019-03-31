@@ -23,7 +23,7 @@
 </tr>
 <% filterhook = call_hook :add_report_filters %>
 <% if filterhook.blank?  %>
-	<% if User.current.admin? || isAccountUser || isModuleAdmin('wktime_crm_admin')  %>
+	<% if User.current.admin? || isAccountUser || validateERPPermission("A_CRM_PRVLG")  %>
 	<tr>
 	<th align="left"><%=l(:label_group_plural)%> </th>
 	<td style="padding-left:20px;">
