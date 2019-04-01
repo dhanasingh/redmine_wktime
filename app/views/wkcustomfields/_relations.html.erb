@@ -131,42 +131,42 @@ function showSearchEngine(section){
            <thead>
                 <tr>
                   <% if @sort_by[wcfs].eql? 'custom_field-asc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:label_custom_field) + '▼'.html_safe, params.merge("sort_#{wcfs}_by" => "custom_field-desc", current_section: index) %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:label_custom_field), params.merge("sort_#{wcfs}_by" => "custom_field-desc", current_section: index), class: 'sort desc' %></th>
                   <% elsif @sort_by[wcfs].eql? 'custom_field-desc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:label_custom_field) + '▲'.html_safe, params.merge("sort_#{wcfs}_by" => "custom_field-asc", current_section: index) %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:label_custom_field), params.merge("sort_#{wcfs}_by" => "custom_field-asc", current_section: index), class: 'sort asc' %></th>
                   <% else %>
                     <th class="lbl-txt-align"><%= link_to l(:label_custom_field), params.merge("sort_#{wcfs}_by" => "custom_field-asc", current_section: index) %></th>
                   <% end %>
 
                   <% if @sort_by[wcfs].eql? 'customized_type-asc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:label_related_to) + '▼'.html_safe, params.merge("sort_#{wcfs}_by" => "customized_type-desc", current_section: index) %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:label_related_to), params.merge("sort_#{wcfs}_by" => "customized_type-desc", current_section: index), class: 'sort desc' %></th>
                   <% elsif @sort_by[wcfs].eql? 'customized_type-desc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:label_related_to) + '▲'.html_safe, params.merge("sort_#{wcfs}_by" => "customized_type-asc", current_section: index) %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:label_related_to), params.merge("sort_#{wcfs}_by" => "customized_type-asc", current_section: index), class: 'sort asc' %></th>
                   <% else %>
                     <th class="lbl-txt-align"><%= link_to l(:label_related_to), params.merge("sort_#{wcfs}_by" => "customized_type-asc", current_section: index) %></th>
                   <% end %>
 
                   <% if @sort_by[wcfs].eql? 'name-asc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:label_link) + '▼'.html_safe, params.merge("sort_#{wcfs}_by" => "name-desc", current_section: index) %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:label_link), params.merge("sort_#{wcfs}_by" => "name-desc", current_section: index), class: 'sort desc' %></th>
                   <% elsif @sort_by[wcfs].eql? 'name-desc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:label_link) + '▲'.html_safe, params.merge("sort_#{wcfs}_by" => "name-asc", current_section: index) %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:label_link), params.merge("sort_#{wcfs}_by" => "name-asc", current_section: index), class: 'sort asc' %></th>
                   <% else %>
                     <th class="lbl-txt-align"><%= link_to l(:label_link), params.merge("sort_#{wcfs}_by" => "name-asc", current_section: index) %></th>
                   <% end %>
 
                   <% if @sort_by[wcfs].eql? 'updated_on-asc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:field_updated_on) + '▼'.html_safe, params.merge("sort_#{wcfs}_by" => "updated_on-desc", current_section: index) %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:field_updated_on), params.merge("sort_#{wcfs}_by" => "updated_on-desc", current_section: index), class: 'sort desc' %></th>
                   <% elsif @sort_by[wcfs].eql? 'updated_on-desc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:field_updated_on) + '▲'.html_safe, params.merge("sort_#{wcfs}_by" => "updated_on-asc", current_section: index) %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:field_updated_on), params.merge("sort_#{wcfs}_by" => "updated_on-asc", current_section: index), class: 'sort asc' %></th>
                   <% else %>
                     <th class="lbl-txt-align"><%= link_to l(:field_updated_on), params.merge("sort_#{wcfs}_by" => "updated_on-asc", current_section: index) %></th>
                   <% end %>
 
 
                   <% if @sort_by[wcfs].eql? 'created_on-asc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:field_created_on) + '▼'.html_safe, params.merge("sort_#{wcfs}_by" => "created_on-desc", current_section: index) %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:field_created_on), params.merge("sort_#{wcfs}_by" => "created_on-desc", current_section: index), class: 'sort desc' %></th>
                   <% elsif @sort_by[wcfs].eql? 'created_on-desc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:field_created_on) + '▲'.html_safe, params.merge("sort_#{wcfs}_by" => "created_on-asc", current_section: index) %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:field_created_on), params.merge("sort_#{wcfs}_by" => "created_on-asc", current_section: index), class: 'sort asc' %></th>
                   <% else %>
                     <th class="lbl-txt-align"><%= link_to l(:field_created_on), params.merge("sort_#{wcfs}_by" => "created_on-asc", current_section: index) %></th>
                   <% end %>
