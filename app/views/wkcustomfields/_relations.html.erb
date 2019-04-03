@@ -1,4 +1,3 @@
-
 <% if wcf.any? %>
 <%= javascript_tag do %>
 function no_project(){
@@ -7,7 +6,9 @@ function no_project(){
 
 $( document ).ready(function() {
   $("#relations").accordion({ active: <%= @filter[:current_section].nil? ? 0 : @filter[:current_section] %> });
-
+  if(<%= @filter[:current_section].nil? ? 'false' : 'true '%>){
+    document.getElementById('relations').scrollIntoView();
+  }
   paginators = $('.pagination').toArray();
 
   for(index in paginators){
@@ -16,7 +17,6 @@ $( document ).ready(function() {
   links = $('#' + paginator.id +' a').toArray();
   for(i in links){
     link = links[i];
-    console.log(link);
     uri=link.href;
 
       var re = new RegExp("([?&])" + 'current_section' + "=.*?(&|$)", "i");
@@ -57,7 +57,7 @@ function showSearchEngine(section){
     <% wcfse.each.with_index do |wcfs, index| %>
          <label><%= wcfs %></label>
          <div>
-           <div class="wk-contextual">
+           <div id="relations-box-<%= index %>" class="wk-contextual">
              <%= form_tag(params.merge(action: 'edit', controller: controller_name), method: :get) do %>
              <fieldset>
                <%= link_to "<span class='icon search'> </span>".html_safe + l(:label_search), "javascript:showSearchEngine(#{index})", :style => 'float:left;', :id => "search_button_#{index}" %>
