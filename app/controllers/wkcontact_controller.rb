@@ -11,13 +11,17 @@ class WkcontactController < WkcrmController
 		if !contactName.blank? &&  !accountId.blank?
 			if accountId == 'AA'
 				wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where.not(:account_id => nil).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
-			else
+      elsif accountId == 'EV'
+        wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
+      else
 				wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => accountId).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
 			end
 
 		elsif contactName.blank? &&  !accountId.blank?
 			if accountId == 'AA'
 				wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where.not(:account_id => nil)
+      elsif accountId == 'EV'
+        wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] })
 			else
 				wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => accountId)
 			end
@@ -115,14 +119,13 @@ class WkcontactController < WkcrmController
 	end
 
 	def set_filter_session
-        if params[:searchlist].blank? && session[controller_name].nil?
+    if params[:searchlist].blank? && session[controller_name].nil?
 			session[controller_name] = {:contactname => params[:contactname], :account_id => params[:account_id], :location_id => params[:location_id] }
 		elsif params[:searchlist] == controller_name
 			session[controller_name][:contactname] = params[:contactname]
 			session[controller_name][:account_id] = params[:account_id]
 			session[controller_name][:location_id] = params[:location_id]
 		end
-
     end
 
 	def formPagination(entries)

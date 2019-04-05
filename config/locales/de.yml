@@ -34,7 +34,7 @@ de:
   label_wk_submission_ack: Submission Acknowledgement Text
   label_wk_reject_reason: Ablehnungsgrund
   label_wk_account_groups: T&E Admin Groups
-  
+
   label_wk_enter_issue_As: Enter Issue As
   label_wk_enter_issue_Description: Enter issue as Subject
   label_wk_own_approve: "Approver Can Approve their own %{value}"
@@ -51,7 +51,7 @@ de:
   label_start: Start
   label_end: Ende
   label_remaining_hours: Rest Stunden
-  label_warning_wktime_time_entry: "The timesheet for this period is locked, you cannot log time."  
+  label_warning_wktime_time_entry: "The timesheet for this period is locked, you cannot log time."
   label_warning_wktime_issue_tracker: "The tracker of this issue is not allowed for time logging."
 
   label_wk_first_day_of_week: Erster Wochentag
@@ -64,7 +64,7 @@ de:
   label_wk_filter_issue_tracker: Filter Issue by Tracker
   label_wk_currency: Waehrung
   label_wk_time: Wochenzeit
-  label_total_expense: Total Expense 
+  label_total_expense: Total Expense
 
   label_wkexpense_reports: Kosten Report
   label_spent_expense: Spent Expense
@@ -117,11 +117,11 @@ de:
   field_currency: Currency
   error_project_issue_associate: Cannot be deleted because time/expense entries associated
   error_time_entry_delete: "Cannot be deleted. The timesheet with this entry is locked"
-  
+
   label_user_filters: User filters
   label_submitted_by: Submitted by
   label_approved_by:  Approved by
-  
+
   label_wk_reminder: Send Reminder
   label_wk_reminder_notes: Reminder Notes
   label_wk_sub_reminder: Send submission email reminder
@@ -134,8 +134,8 @@ de:
   wk_appr_confirmation_text: "%{value} approval reminder sent to:"
   label_wk_timesheet: Timesheet
   label_wk_expensesheet: Expensesheet
-  text_wk_no_reminder: No reminders to send  
-  
+  text_wk_no_reminder: No reminders to send
+
   report_attendance: Attendance
   report_spent_time: Benötigte Zeit
   label_wk_break_time: Break Time
@@ -185,18 +185,18 @@ de:
   label_hours_note: "Note: Please enter time in 24 hours format(HH:MM)."
   label_no_leaves_configured : No leaves configured
   label_max_min_hours_day_msg : Min hours is greater than Max hours.
-  
+
   label_wk_restr_max_hour_week: Enforce Max hour per week
   label_wk_max_hour_week: Max hour per week
   label_wk_restr_min_hour_week: Enforce Min hour per week
   label_wk_min_hour_week: Min hour per week
   text_wk_warning_min_hour_week: "You have not entered the Minimum hours (%{value}) required per week"
   text_wk_warning_max_hour_week: "You have entered hours above Maximum hours (%{value}) allowed per week"
-  label_enable_expense_module: Enable Expense module 
+  label_enable_expense_module: Enable Expense module
   label_enable_attendance_module: Enable Attendance module
   label_enable_report_module: Enable Reports
   label_group_non_submission_email: Target group of non submission email
-  
+
   error_expense_entry_delete: "Cannot be deleted. The expensesheet with this entry is locked"
   button_populate_leave: "Run Period End Process"
   text_are_you_sure_want_to_run: "Are you sure you want to run this process ?"
@@ -214,14 +214,14 @@ de:
   label_import_file_headers: File Headers
   error_no_record_to_import: No Record to Import
   warning_fields_in_file_not_configured: Fields in file not configured in plugin attendance settings
-  
+
   label_payroll: Payroll
   label_basic: Basic Pay
   label_allowance: Allowance
   label_deduction: Deductions
   label_gross: Gross
   label_net: Net
-  label_salarydate: Salary Date  
+  label_salarydate: Salary Date
   label_allowances: Allowances
   label_frequency: Frequency
   label_pay_period: Pay Period
@@ -260,7 +260,7 @@ de:
   label_wages_period: Wages Period Month
   label_company_name: Company Name
   label_address: Address
-  label_enable_payroll_module: Enable Payroll module 
+  label_enable_payroll_module: Enable Payroll module
   label_gender: Gender
   label_ytd_description: YTD - Year to Date from %{start} to %{end}
   label_component: Component
@@ -272,7 +272,7 @@ de:
   label_salary_component: Salary Component
   label_override_common_setting: Override common setting
   label_actual: Actual
-  
+
   label_wk_billing: Billing
   label_enable_billing_module: Enable Billing module
   label_accounts: Accounts
@@ -317,11 +317,11 @@ de:
   label_work_phone: Work Phone
   label_email: Email
   label_country: Country
-  label_city : City 
+  label_city : City
   label_account_detail: Account Detail
   label_account_information: Account Information
   label_address_information: Address Information
-  label_state : State 
+  label_state : State
   label_fax : Fax
   label_mobile : Mobile
   label_home_phone: Home Phone
@@ -342,7 +342,7 @@ de:
   label_file_name: File Name
   label_attachment: Attachments
   label_edit_contract: Edit Contract
-  label_project: Project 
+  label_project: Project
   label_account: Account
   label_account_adjusted: Account
   label_contract_number: Contract Number
@@ -399,13 +399,13 @@ de:
   label_four: four
   label_three: three
   label_two: two
-  label_one: one  
+  label_one: one
   label_bill_date: Bill Date
   label_account_billing: Account Billing
   label_sub_total: Sub total
   label_round_off: Round Off
   label_grand_total: Grand Total
-  
+
   label_accounting: Accounting
   label_accounting_group: Accounting User Group
   label_enable_accounting_module: Enable Accounting Module
@@ -478,10 +478,10 @@ de:
   label_row_valid_msg: Please fill the added rows.
   error_system_ledger_cant_delete: System ledger Cannot be delete
   error_trans_msg: Could not save transaction. Please configure auto post to general ledger settings
-  label_salary: Salary  
+  label_salary: Salary
   error_contra_msg: Contra should contain bank and cash ledgers only.
   error_payment_msg: Payment should have bank or cash as Credit.
-  error_receipt_msg: Receipt should have bank or cash as Debit.   
+  error_receipt_msg: Receipt should have bank or cash as Debit.
   error_purchase_msg: Purchase should have sundry creditors/debitors, cash and bank as credit and purchase group as debit.
   error_sales_msg: Sales should have sundry creditors/debitors, cash and bank as debit and sales group as credit.
   error_cn_msg: Credit note should have sundry creditors/debitors, cash and bank as credit and should not have cash and bank as debit.
@@ -489,7 +489,7 @@ de:
   label_less_transferred: "Less: Transferred"
   label_trans_row_validmsg: Transaction contain minimum two rows.
   label_trans_total_validmsg: Transaction debit and credit does not match.
-  
+
   label_crm: CRM
   label_lead_plural: Leads
   label_opportunity_plural: Opportunities
@@ -548,7 +548,7 @@ de:
   label_prospecting: Prospecting
   label_analysis: Analysis
   label_qualification: Qualification
-  label_needs_analysis: Needs 
+  label_needs_analysis: Needs
   label_value_proposition: Value Proposition
   label_decision_makers: Id.Decision Makers
   label_perception: Perception
@@ -590,9 +590,9 @@ de:
   report_civilian_attendance: Civilian Attendance
   minimum_working_days_for_accrual: Minimum working days for leave accrual
   label_accrual_multiplier: Accrual Multiplier
-  
+
   label_enable_time_module: Enable Time Module
-  
+
   label_payments: Payments
   label_payment_date: Payment Date
   label_payment_type: Payment Type
@@ -614,7 +614,7 @@ de:
   label_minus: Minus
   label_credit_from_prv_inv: "Credit From Previous Invoice #%{invId}"
   label_credit_from_prv_inv_pay: "Credit From Previous Invoice #%{invId} Payment #%{payId}"
-  
+
   label_rfq: RFQ
   label_quotes: Quotes
   label_purchase_order: Purchase Order
@@ -656,7 +656,7 @@ de:
   label_lock: Lock T&E
   label_last_lock_by: "Last Locked by: %{name}"
   label_quote_components: Quote Components
-  label_po_components: Purchase Order Components  
+  label_po_components: Purchase Order Components
   label_si_components: Supplier Invoice Components
   label_all_accounts: All Accounts
   label_opening_balance: Opening Balance
@@ -665,7 +665,7 @@ de:
   error_please_select_rfq: Please select RFQ
   error_please_select_winning_quote: Please select Winning Quote
   error_please_select_po: Please select Purchase Order
-  
+
   label_inventory: Inventory
   label_inventory_admin_group: Inventory Admin Group
   label_inventory_user_group: Inventory User Group
@@ -803,7 +803,7 @@ de:
   field_custom_date2: Custom date2
   field_billing_rate: Billing rate
   field_billing_currency: Billing currency
-  field_location: Location 
+  field_location: Location
   field_department: Department
   label_public_holiday: Public Holiday
   label_schedule_on_weekend: Schedule on Weekend / Holiday
@@ -837,8 +837,8 @@ de:
   label_account_category: Account Category
 
   VIEW INVENTORY: View inventory
-  DELETE INVENTORY: Delete inventory 
-  SCHEDULES SHIFT: Schedules shift 
+  DELETE INVENTORY: Delete inventory
+  SCHEDULES SHIFT: Schedules shift
   EDIT SHIFT SCHEDULES: Edit shift schedules
 
   label_active_on: On
@@ -874,7 +874,7 @@ de:
   field_rate_per: Per
   label_invoice_generation_month: Invoice generation month
   label_edit_component: Edit Component
-  # Supervisor lables  
+  # Supervisor lables
   label_ftte_supervisor: "Supervisor"
   label_my_direct_reports: "My direct reports"
   label_my_reports: "My reports"
@@ -897,5 +897,5 @@ de:
   label_default_project: Default project
   label_default_document_type: Default document type
   label_you_have_to_pick_project: You have to pick project
-
-
+  label_all_and_without_account: All and without Account
+  label_without_account: Without Account
