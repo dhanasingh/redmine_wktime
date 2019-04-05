@@ -258,6 +258,6 @@ function showSearchEngine(section){
     <% end %>
 </div>
 <script>
-$( "#relations" ).accordion({ heightStyle: "content", collapsible: true});
+$.when( $( "#relations" ).accordion({ heightStyle: "content", collapsible: true});).then(document.getElementById('relations').scrollIntoView(););
 </script>
 <% end %>
