@@ -331,4 +331,49 @@ class WksurveyController < ApplicationController
 
 		render :json => data
   end
+
+  def email_user
+
+	errMsg = ''
+	user_group = params[:user_group]
+	survey_id = params[:survey_id]
+	additional_emails = params[:additional_emails]
+	includeUserGroup = params[:includeUserGroup]
+	url = url_for(:controller => 'wksurvey', :action => 'survey', :survey_id => survey_id, :tab => 'wksurvey')
+	defaultNotes = "Please click on the following link to take a survey (" + (WkSurvey.find(params[:survey_id])).name + ")"
+	email_notes = defaultNotes + "\n" + url + "\n" + params[:email_notes] +"\n By Redmine Administrator"
+
+	if includeUserGroup == "true"
+		users = User.joins('INNER JOIN groups_users ON users.id = user_id')
+		users.where(:group_id => user_group) unless user_group.blank?
+		users.each do |user|
+		errMsg += sent_emails(user.language, user.mail, email_notes).to_s
+		end
+	end
+	unless additional_emails.blank?
+		additional_emails.each do |email|
+			errMsg += sent_emails(nil, email, email_notes).to_s
+		end
+	end
+	errMsg = 'ok' if errMsg.blank?
+	render :plain => errMsg
+  end
+
+  def email_user_permission
+    survey = WkSurvey.find(params[:survey_id])
+	if survey.blank? || survey.status != 'O'
+		render_403
+		return false
+	end
+  end
+
+  def sent_emails(language, email_id, emailNotes)
+	begin
+	  WkMailer.email_user(language, email_id, emailNotes).deliver
+	rescue Exception => e
+	  errMsg = (e.message).to_s
+	end
+	errMsg
+  end
+
 end

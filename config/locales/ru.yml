@@ -934,6 +934,13 @@ ru:
   label_user_group: User Group				
   label_survey_for: Survey for
   notice_surveyfor_unsuccessful: Survey For is invalid
+  button_email_user: Email User
+  label_email_notes: Email Notes
+  label_email_users: Email Users
+  label_survey_reminder: Survey Reminder
+  label_aditional_emails: Aditional Emails
+  label_notes: Notes
+  label_include_user_group: Sending Emails to
   
   label_no_additional_details_for_issue: No Additional Details for Issue
   label_create_supplier_invoice_without_purchase_order: Create Supplier invoice without Purchase order

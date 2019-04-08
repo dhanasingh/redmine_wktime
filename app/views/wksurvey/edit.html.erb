@@ -56,6 +56,7 @@
 			<th align="left"><%= l(:label_user_group) %></th>
 				<td>
 					<%=h select_tag('group_id', options_for_select(getUserGroup, :selected => group_id), :disabled => isDisable) %>
+					<%=h hidden_field_tag('user_group', group_id) %>
 				</td>
 			<td></td>
 		</tr>
@@ -141,6 +142,7 @@
 
 	<div>
 		<%= submit_tag l(:button_save), :id => 'wksurvey_save' %>
+<%= link_to l(:button_email_user), "javascript:showConfirmationDlg();", :class => 'icon icon-email-add'%>
 	</div>
 <% end %>
 
@@ -191,4 +193,22 @@
 	</table>
 	</fieldset>
 </div>
+</div>
+<% userGroupName = group_id.blank? ? l(:all_users_for_select) : getUserGroup.invert[group_id] + " Group" %>
+<div id="reminder-email-dlg" title="<%=l(:label_email_users) %>">
+	<fieldset class="">
+		<p> <label><%= l(:label_notes) %></label>
+			<textarea name="email_notes" id="email_notes" value="" cols="25" rows="2"> </textarea>
+		</p>
+		<p>
+			<%=h check_box_tag("includeUserGroup", 1, true) %>
+			<label for="includeUserGroup"><%=h l(:label_include_user_group) +" "+ userGroupName %></label>
+		</p>
+		<p> <label><%= l(:label_aditional_emails) %></label>
+			<textarea name="additional_emails" id="additional_emails" value="" cols="25" rows="2"> </textarea>
+		</p>
+	</fieldset>
+	<div id="dialog-confirm" title="Empty the recycle bin?">
+  		<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0px 10px 0px 10px;"></span>Do you want to continue?</p>
+	</div>
 </div>

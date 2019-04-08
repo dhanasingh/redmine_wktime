@@ -1,3 +1,91 @@
+$(function()
+{
+	$( "#accordion" ).accordion({
+		collapsible: true,
+		active: false,
+		heightStyle: "content"
+	});
+
+	$('[id^=question_type_]').each(function(){
+		check_question_type(((this.name).split('_'))[2]);
+	});
+
+	if($('#survey_status').val() != 'O')
+		$('.icon-email-add').hide();
+
+	$('#survey_for').change(function(){
+		$('#survey_for_id').val('');
+	});
+
+	validateSurveyFor();
+
+	$('#survey_for_id, #survey_for').change(function(){
+		validateSurveyFor();
+	});
+
+	$("#reminder-email-dlg").dialog({
+		autoOpen: false,
+		resizable: false,
+		modal: true,
+		buttons: [
+		{
+			text: 'Ok',
+			id: 'btnOk',
+			click: function() {
+
+				var email_notes = $('#email_notes').val();
+				var survey_id = $('#survey_id').val();
+				var user_group = $('#user_group').val();
+				var includeUserGroup = $('#includeUserGroup').prop("checked");
+				var additional_emails = $('#additional_emails').val();
+				var isNotValid = false;
+
+				if(additional_emails != ''){
+					additional_emails = additional_emails.split(';');
+					$.each(additional_emails, function( index, email ) {
+						if(!validateEmail(email))
+							isNotValid = true;
+					});
+				}
+				
+				if(isNotValid || (additional_emails == '' && !includeUserGroup)){
+					alert('Validation failed');
+					return false;
+				}
+				$("#reminder-email-dlg").dialog("close");
+				var url = '/wksurvey/email_user';
+				$.ajax({
+					url: url,
+					type: 'get',
+					data: { user_group: user_group, survey_id: survey_id, email_notes: email_notes, additional_emails: additional_emails,
+							includeUserGroup: includeUserGroup},
+					success: function(data){
+						if(data != "ok") {
+							alert(data);
+						}
+					},
+					error: function(xhr,status,error) {
+						$('#email_notes').val('');
+					},
+					beforeSend: function(){
+						$(this).parent().addClass('ajax-loading');
+					},
+					complete: function(){
+						$(this).parent().removeClass('ajax-loading');
+					}
+				});
+			}
+		},
+		{
+			text: 'Cancel',
+			id: 'btnCancel',
+			click: function() {
+				$( this ).dialog( "close" );
+			}
+		}]
+	});
+});
+
 function addrows(qINDEX, qID)
 {
 	var lastEleName = $('[id^=questionChoices_'+ qID + '_'+ qINDEX +']').last().attr('name');
@@ -63,20 +151,6 @@ function reOrderIndex(){
 		$(this).html('<b>'+(index+1)+'.</b>');
 	});
 }
-
-$(function()
-{
-    $( "#accordion" ).accordion({
-			collapsible: true,
-			active: false,
-			heightStyle: "content"
-	});
-
-	$('[id^=question_type_]').each(function(){
-		check_question_type(((this.name).split('_'))[2]);
-	});
-	
-});
 
 function check_question_type(qIndex){
 	var question_type = $('#question_type_'+qIndex).val();
@@ -154,18 +228,6 @@ function validateSurveyFor(){
 	}
 }
 
-$(document).ready(function(){
-	$('#survey_for').change(function(){
-		$('#survey_for_id').val('');
-	});
-
-	validateSurveyFor();
-		
-	$('#survey_for_id, #survey_for').change(function(){
-		validateSurveyFor();
-	});
-});
-
 observeAutocompleteField('survey_for_id',
 	function(request, callback) {
 		var url = "/wksurvey/survey_for_auto_complete?surveyFor="+ $('#survey_for').val() +"&surveyForID="+ $('#survey_for_id').val()+"&method=search";
@@ -190,3 +252,15 @@ observeAutocompleteField('survey_for_id',
 		}
 	}
 );
+
+function showConfirmationDlg(){
+
+	$('#email_notes').val('');
+	$('#additional_emails').val('');
+	$( "#reminder-email-dlg" ).dialog( "open" );
+}
+
+function validateEmail($email) {
+  var emailReg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+  return emailReg.test( $email );
+}
