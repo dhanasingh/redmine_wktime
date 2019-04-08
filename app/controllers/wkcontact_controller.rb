@@ -29,7 +29,7 @@ class WkcontactController < WkcrmController
 		elsif !contactName.blank? &&  accountId.blank?
 			wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => nil).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
 		else
-			wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => nil)
+			wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] })
 		end
 		if !locationId.blank?
 			wkcontact = wkcontact.where("wk_crm_contacts.location_id = ? ", locationId.to_i)
