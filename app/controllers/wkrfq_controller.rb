@@ -123,7 +123,6 @@ class WkrfqController < ApplicationController
 	def quoteList
 		rfqId = params[:rfq_id]
 		invIds = getInvoiceIds(rfqId, 'Q', false)
-		Rails.logger.info("====invIds R = #{ invIds.inspect}}====")
 		invEntries = WkInvoice.includes(:invoice_items).where( :id => invIds)
 		formPagination(invEntries, "quote")
 	end

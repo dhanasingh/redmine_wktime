@@ -593,3 +593,9 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wksurvey/survey_for_auto_complete', :to => 'wksurvey#survey_for_auto_complete'
 
 	get 'wksurvey/email_user', :to => 'wksurvey#email_user'
+
+	resources :projects do
+    resource :wkaccountproject, :only => [:index], :controller => :wkaccountproject do
+      get :index
+		end
+ end

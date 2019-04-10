@@ -279,7 +279,7 @@ pl:
   label_enable_billing_module: Włącz moduł faktur
   label_accounts: Działalności
   label_contracts: Umowy
-  label_acc_projects: Płatne projekty
+  label_acc_projects: Account Projects
   label_invoice: Faktura
   label_invoice_adjusted: Fakturę
   label_tax: podatek
@@ -336,7 +336,7 @@ pl:
   label_date: Data
   label_applicable_taxes: Obowiązujące podatki
   label_billing_schedules: Harmonogramy płatności
-  label_new_billing_project: Nowy projekt rozliczeniowy
+  label_new_billing_project: New Account Project
   label_billing_groups: Administratorzy grup rozliczeń
   label_start_date: Data rozpoczęcia
   label_end_date: Data zakończenia

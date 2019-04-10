@@ -18,44 +18,14 @@
 class WkaccountprojectController < WkbillingController
 
 before_action :require_login
+before_action :account_project_permission
+before_action :check_account_proj_module_permission
+
 include WkaccountprojectHelper
 
-    def index
-		@accountproject = nil
-		sqlwhere = ""
-		set_filter_session
-		filter_type = session[:accountproject][:polymorphic_filter]
-		contact_id = session[:accountproject][:contact_id]
-		account_id = session[:accountproject][:account_id]
-		projectId	= session[:accountproject][:project_id]
-				
-		if filter_type == '2' && !contact_id.blank?
-			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
-			sqlwhere = sqlwhere + " parent_id = '#{contact_id}'  and parent_type = 'WkCrmContact'  "
-		elsif filter_type == '2' && contact_id.blank?
-			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
-			sqlwhere = sqlwhere + " parent_type = 'WkCrmContact'  "
-		end
-		
-		if filter_type == '3' && !account_id.blank?
-			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
-			sqlwhere = sqlwhere + " parent_id = '#{account_id}'  and parent_type = 'WkAccount'  "
-		elsif filter_type == '3' && account_id.blank?
-			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
-			sqlwhere = sqlwhere + " parent_type = 'WkAccount'  "
-		end
-		
-		unless projectId.blank?
-			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
-			sqlwhere = sqlwhere + " project_id = '#{projectId}' " 
-		end
-		
-		if filter_type == '1' && projectId.blank?  #accountId.blank? && projectId.blank?
-			entries = WkAccountProject.all
-		else
-			entries = WkAccountProject.where(sqlwhere)
-		end	
-		formPagination(entries)	
+		def index
+			set_filter_session
+			formPagination(accountProjctList)
     end
 	
 	def edit
@@ -78,8 +48,6 @@ include WkaccountprojectHelper
 		wkaccprojecttax = nil
 		arrId = []
 		wkaccountproject = saveBillableProjects(params[:accountProjectId], params[:project_id], params[:related_parent], params[:related_to], params[:applytax], params[:itemized_bill], params[:billing_type])
-		
-		
 		
 		unless wkaccountproject.id.blank?
 			
@@ -127,9 +95,9 @@ include WkaccountprojectHelper
 			end
 			WkBillingSchedule.where(:account_project_id => wkaccountproject.id).where.not(:id => arrId).delete_all()
 		end
-				
+		projectEntry = Project.find(params[:project_id])
 		if errorMsg.nil? 
-			redirect_to :action => 'index' , :tab => 'wkaccountproject'
+			redirect_to :project_id => projectEntry.identifier, :controller => controller_name, :action => 'index'
 			flash[:notice] = l(:notice_successful_update)
 	    else
 			flash[:error] = errorMsg
@@ -138,23 +106,13 @@ include WkaccountprojectHelper
 	end
 	
 	def destroy
+		projectEntry = Project.find(params[:project_id])
 		WkAccountProject.find(params[:account_project_id].to_i).destroy
 		
 		flash[:notice] = l(:notice_successful_delete)
-		redirect_back_or_default :action => 'index', :tab => params[:tab]
+		redirect_back_or_default :project_id => projectEntry.identifier, :action => 'index'
 	end	  
     
-    def set_filter_session
-        if params[:searchlist].blank? && session[:accountproject].nil?
-			session[:accountproject] = {:contact_id => params[:contact_id], :account_id => params[:account_id], :project_id => params[:project_id], :polymorphic_filter =>  params[:polymorphic_filter] }
-		elsif params[:searchlist] =='accountproject'
-			session[:accountproject][:contact_id] = params[:contact_id]
-			session[:accountproject][:project_id] = params[:project_id]
-			session[:accountproject][:account_id] = params[:account_id]
-			session[:accountproject][:polymorphic_filter] = params[:polymorphic_filter]
-		end
-		
-   end
    
     def setLimitAndOffset		
 		if api_request?
@@ -178,4 +136,29 @@ include WkaccountprojectHelper
 		@accountproject = entries.limit(@limit).offset(@offset)
 	end
 
+	def account_project_permission
+		project_id = params[:project_id]
+		params[:project_id] = (Project.all).first.identifier if params[:project_id].blank?
+		contact_id = params[:contact_id].blank? ? nil : WkCrmContact.where(:id => params[:contact_id])
+		contact_id = (contact_id.first).id unless contact_id.blank?
+		account_id = params[:account_id].blank? ? nil : WkAccount.where(:id => params[:account_id])
+		account_id = (account_id.first).id unless account_id.blank?
+
+		if !showCRMModule
+			render_403 
+			return false
+		elsif project_id.blank? && contact_id.blank? && account_id.blank?
+			render_404
+			return false
+		elsif !params[:project_id].blank?
+			find_project_by_project_id
+		end
+	end
+
+	def check_account_proj_module_permission	
+		unless User.current.allowed_to?(:view_accounts, @project)
+				render_403
+				return false
+			end
+		end
 end

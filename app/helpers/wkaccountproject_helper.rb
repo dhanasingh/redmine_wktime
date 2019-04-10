@@ -21,7 +21,6 @@ include WktimeHelper
 include WkinvoiceHelper
 include WkcrmHelper
 
-
 	def saveBillableProjects(id, projectId, parentId, parentType, applyTax, itemizedBill, billingType)
 		if !id.blank?
 			wkaccountproject = WkAccountProject.find(id.to_i)
@@ -42,4 +41,53 @@ include WkcrmHelper
 		wkaccountproject
 	end
 
+	def accountProjctList
+		
+		sqlwhere = ""
+		if controller_name == "wkaccountproject"
+			filter_type = session["wkaccountproject"][:polymorphic_filter]
+			contact_id = session["wkaccountproject"][:contact_id]
+			account_id = session["wkaccountproject"][:account_id]
+			projectId = params[:project_id]
+		else
+			filter_type = nil
+			contact_id = params[:contact_id]
+			account_id = params[:account_id]
+			projectId = params[:project_id]
+		end
+		if !projectId.blank?
+			sqlwhere += " identifier = '#{projectId}' "
+		end
+		if filter_type == '2' || (filter_type.blank? && !contact_id.blank?)
+			sqlwhere += " and "  unless sqlwhere.blank?
+			sqlwhere += " wk_account_projects.parent_type = 'WkCrmContact' "
+			sqlwhere += " and wk_account_projects.parent_id = '#{contact_id}' " unless contact_id.blank?
+		end
+		
+		if filter_type == '3' || (filter_type.blank? && !account_id.blank?)
+			sqlwhere += " and "  unless sqlwhere.blank?
+			sqlwhere += " wk_account_projects.parent_type = 'WkAccount' "
+			sqlwhere += " and wk_account_projects.parent_id = '#{account_id}' " unless account_id.blank?
+		end
+		entries = WkAccountProject.joins("INNER JOIN projects ON projects.id = project_id")
+		entries = entries.where(sqlwhere) unless sqlwhere.blank?
+		entries
+	end
+	
+    def set_filter_session
+        if params[:searchlist].blank? && session["wkaccountproject"].nil?
+			session["wkaccountproject"] = {:contact_id => params[:contact_id], :account_id => params[:account_id], :project_id => params[:project_id], :polymorphic_filter =>  params[:polymorphic_filter] }
+		elsif params[:searchlist] == "wkaccountproject"
+			session["wkaccountproject"][:contact_id] = params[:contact_id]
+			session["wkaccountproject"][:account_id] = params[:account_id]
+			session["wkaccountproject"][:polymorphic_filter] = params[:polymorphic_filter]
+		end
+		
+   end
+
+   def get_project_id(project_id=params[:project_id])
+    projectEntry = Project.where(:identifier => project_id)	
+	projectEntry = projectEntry.first unless projectEntry.blank?
+	projectId  = projectEntry.id
+   end
 end

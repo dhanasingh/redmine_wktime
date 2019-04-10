@@ -611,7 +611,7 @@ end
 				{:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime},
 				{:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense}
 			   ]
-		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" || params[:controller] == "wkscheduling"  || params[:controller] == "wkschedulepreference" || params[:controller] == "wkshift" || params[:controller] == "wkpublicholiday" || params[:controller] == "wksurvey" 
+		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" || params[:controller] == "wkscheduling"  || params[:controller] == "wkschedulepreference" || params[:controller] == "wkshift" || params[:controller] == "wkpublicholiday" 
 				tabs = []
 				if showAttendance
 					tabs << {:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave}
@@ -643,12 +643,11 @@ end
 				{:name => 'wkcrmcontact', :partial => 'wktime/tab_content', :label => :label_contact_plural}
 			   ]
 		
-		elsif params[:controller] == "wkinvoice" || params[:controller] == "wkcontract" || params[:controller] == "wkaccountproject"  || params[:controller] == "wkpayment" 		
+		elsif params[:controller] == "wkinvoice" || params[:controller] == "wkcontract" || params[:controller] == "wkpayment" 		
 			tabs = [
 				{:name => 'wkinvoice', :partial => 'wktime/tab_content', :label => :label_invoice},
 				{:name => 'wkpayment', :partial => 'wktime/tab_content', :label => :label_payments},
-				{:name => 'wkcontract', :partial => 'wktime/tab_content', :label => :label_contracts},
-				{:name => 'wkaccountproject', :partial => 'wktime/tab_content', :label => :label_acc_projects}
+				{:name => 'wkcontract', :partial => 'wktime/tab_content', :label => :label_contracts}
 			   ]
 		elsif params[:controller] == "wkgltransaction" || params[:controller] == "wkledger"
 			tabs = [

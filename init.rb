@@ -644,9 +644,14 @@ Redmine::Plugin.register :redmine_wktime do
 	 menu :top_menu, :wkdashboard, { :controller => 'wkdashboard', :action => 'index' }, :caption => :label_erpmine, :if => Proc.new { Object.new.extend(WkdashboardHelper).checkViewPermission } 
   	
   project_module :time_tracking do
-	permission :approve_time_entries,  {:wktime => [:update]}, :require => :member	
-  end
-  
+		permission :approve_time_entries,  {:wktime => [:update]}, :require => :member	
+	end
+
+	project_module :Accounts do
+		permission :view_accounts, {:wkaccountproject => [:index]}
+	end
+	menu :project_menu, :wkaccountproject, { controller: :wkaccountproject, action: :index },
+	  caption: :label_accounts, param: :project_id, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showCRMModule }
   
   Redmine::MenuManager.map :wktime_menu do |menu|
 	  menu.push :wkdashboard, { :controller => 'wkdashboard', :action => 'index' }, :caption => :label_dashboards, :if => Proc.new { Object.new.extend(WkdashboardHelper).checkViewPermission && Object.new.extend(WkdashboardHelper).showDashboard && Object.new.extend(WktimeHelper).hasSettingPerm}
