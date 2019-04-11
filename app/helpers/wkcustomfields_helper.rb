@@ -96,28 +96,30 @@ include WktimeHelper
   def getRelationDict(entry)
     returnDict = {}
     if entry.custom_values.any?
-      issues = Issue.where(id: entry.custom_values.where(custom_field: CustomField.where(type: 'IssueCustomField')).map(&:customized_id).uniq)
+      Rails.logger.error "Im there"
+      issues = entry.custom_values.where(customized_type: 'Issue').map(&:customized).group_by { |x| x.id }
       issues.any? ? returnDict['issue'] = issues : nil
-      time_entries = TimeEntry.where(id: entry.custom_values.where(custom_field: CustomField.where(type: 'TimeEntryCustomField')).map(&:customized_id).uniq)
+      time_entries = entry.custom_values.where(customized_type: 'TimeEntry').map(&:customized).group_by { |x| x.id }
       time_entries.any? ? returnDict['time_entry'] = time_entries : nil
-      projects = Project.where(id: entry.custom_values.where(custom_field: CustomField.where(type: 'ProjectCustomField')).map(&:customized_id).uniq)
+      projects = entry.custom_values.where(customized_type: 'Project').map(&:customized).group_by { |x| x.id }
       projects.any? ? returnDict['project'] = projects : nil
-      versions = Version.where(id: entry.custom_values.where(custom_field: CustomField.where(type: 'VersionCustomField')).map(&:customized_id).uniq)
+      versions = entry.custom_values.where(customized_type: 'Version').map(&:customized).group_by { |x| x.id }
       versions.any? ? returnDict['version'] = versions : nil
-      documents = Document.where(id: entry.custom_values.where(custom_field: CustomField.where(type: 'DocumentCustomField')).map(&:customized_id).uniq)
+      documents = entry.custom_values.where(customized_type: 'Document').map(&:customized).group_by { |x| x.id }
       documents.any? ? returnDict['document'] = documents : nil
-      users = User.where(id: entry.custom_values.where(custom_field: CustomField.where(type: 'UserCustomField')).map(&:customized_id).uniq)
+      users = entry.custom_values.where(customized_type: 'User').map(&:customized).group_by { |x| x.id }
       users.any? ? returnDict['user'] = users : nil
-      groups = Group.where(id: entry.custom_values.where(custom_field: CustomField.where(type: 'GroupCustomField')).map(&:customized_id).uniq)
+      groups = entry.custom_values.where(customized_type: 'Group').map(&:customized).group_by { |x| x.id }
       groups.any? ? returnDict['group'] = groups : nil
-      time_entry_activities = TimeEntryActivity.where(id: entry.custom_values.where(custom_field: CustomField.where(type: 'TimeEntryActivityCustomField')).map(&:customized_id).uniq)
+      time_entry_activities = entry.custom_values.where(customized_type: 'TimeEntryActivity').map(&:customized).group_by { |x| x.id }
       time_entry_activities.any? ? returnDict['time_entry_activity'] = time_entry_activities : nil
-      issue_priorities = IssuePriority.where(id: entry.custom_values.where(custom_field: CustomField.where(type: 'IssuePriorityCustomField')).map(&:customized_id).uniq)
+      issue_priorities = entry.custom_values.where(customized_type: 'IssuePriority').map(&:customized).group_by { |x| x.id }
       issue_priorities.any? ? returnDict['issue_priority'] = issue_priorities : nil
-      document_categories = DocumentCategory.where(id: entry.custom_values.where(custom_field: CustomField.where(type: 'DocumentCategoryCustomField')).map(&:customized_id).uniq)
+      document_categories = entry.custom_values.where(customized_type: 'DocumentCategory').map(&:customized).group_by { |x| x.id }
       document_categories.any? ? returnDict['document_category'] = document_categories : nil
-      wktimes = Wktime.where(id: entry.custom_values.where(custom_field: CustomField.where(type: 'WktimeCustomField')).map(&:customized_id).uniq)
+      wktimes = entry.custom_values.where(customized_type: 'TimeEntry').map(&:customized).group_by { |x| x.id }
       wktimes.any? ? returnDict['wktime'] = wktimes : nil
+      Rails.logger.error "ANd there"
     end
     returnDict
   end
