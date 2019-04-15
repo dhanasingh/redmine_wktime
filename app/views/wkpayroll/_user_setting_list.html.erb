@@ -1,3 +1,5 @@
+<%= javascript_include_tag 'wkpayroll', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <%= form_tag({}) do -%>	
 	<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 	<% wktime_helper = Object.new.extend(WktimeHelper) %>
@@ -27,6 +29,13 @@
 			<thead>
 				<tr>
 					<th style="text-align: left;"><%= l(:field_user) %></th>
+					<% @salary_components.each do |compoment| %>
+						<th style="text-align: center;">
+							<label style="padding-right: 10px;"><%= compoment.name %></label>
+							<% (compoment.name).gsub! ' ', '_' %>
+							<a class="icon icon-edit" style="cursor: pointer;" id="<%= compoment.name %>" onClick=" bulk_edit('<%= compoment.name %>');" title="Edit"></a>
+						</th>
+					<% end %>
 					<th></th>
 				</tr>
 			</thead>
@@ -34,7 +43,15 @@
 				<% @payroll_entries.each do |entry| -%>
 					<tr class="time-entry <%= cycle("odd", "even") %> <%= entry.status == 3 ? "user locked" : "" %>" >
 						<td style="text-align: left;"><%=h entry.firstname + ' ' + entry.lastname%></td>
-
+						<% @salary_components.each do |compoment|
+							factor = compoment.factor
+							@user_salary_components.each do |user_compoment|
+								if user_compoment.user_id == entry.user_id && user_compoment.salary_component_id == compoment.id
+									factor = user_compoment.factor
+								end
+							end %>
+							<td style="text-align: center;" id="td_<%= compoment.name + '_' + entry.user_id.to_s + '_' + compoment.id.to_s %>"><%= factor %></td>
+						<% end %>
 						<td align="center">
 							<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'user_salary_settings', :user_id => entry.user_id, :tab => 'payroll'},
 															   :title => l(:button_edit) %>

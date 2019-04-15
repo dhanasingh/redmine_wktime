@@ -89,40 +89,16 @@ include WkreportHelper
 
 	def updateUserSalary
 		userId = params[:user_id]
-		salaryComponents = getSalaryComponentsArr
-		errorMsg = nil
-		salaryComponents.each do |entry| 
-			componentId = entry[1]
-			userSalarycomp = WkUserSalaryComponents.where("user_id = #{userId} and salary_component_id = #{componentId}")
-			wkUserSalComp = userSalarycomp[0] 
-			userSettingHash = getUserSettingHistoryHash(wkUserSalComp) unless wkUserSalComp.blank?
-			if params['is_override' + componentId.to_s()].blank?
-				unless wkUserSalComp.blank?
-					saveUsrSalCompHistory(userSettingHash) 
-					wkUserSalComp.destroy()
-				end			
-			else
-				dependentId = params['dependent_id' + componentId.to_s()].to_i 
+		salary_cmpts = get_salary_components
+		u_salary_cmpts = Array.new
+		salary_cmpts.each do |component|
+				componentId = component.id
+				is_override = params['is_override' + componentId.to_s()]
+				dependent_id = params['dependent_id' + componentId.to_s()].to_i
 				factor = params['factor' + componentId.to_s()]
-				if wkUserSalComp.blank?
-					wkUserSalComp = WkUserSalaryComponents.new
-					wkUserSalComp.user_id = userId
-					wkUserSalComp.salary_component_id = componentId
-					wkUserSalComp.dependent_id = dependentId if dependentId > 0
-					wkUserSalComp.factor = factor 
-				else
-					wkUserSalComp.dependent_id = dependentId > 0 ? dependentId : nil 
-					wkUserSalComp.factor = factor 
-				end
-				if (wkUserSalComp.changed? && !wkUserSalComp.new_record?) || wkUserSalComp.destroyed?
-					saveUsrSalCompHistory(userSettingHash) 
-				end
-				
-				if !wkUserSalComp.save()
-					errorMsg = wkuserleave.errors.full_messages.join('\n')
-				end
+				u_salary_cmpts << {:user_id => userId, :component_id => componentId, :dependent_id => dependent_id, :factor => factor, :is_override => is_override}
 			end
-		end
+			errorMsg = saveUserSalary(u_salary_cmpts, false)
 		if errorMsg.nil?
 			redirect_to :action => 'usrsettingsindex'
 			flash[:notice] = l(:notice_successful_update)
@@ -351,6 +327,8 @@ include WkreportHelper
 		end
 		sqlStr = selectStr + sqlStr
 		findBySql(sqlStr)
+		@salary_components = get_salary_components
+		@user_salary_components = WkUserSalaryComponents.all
 	end
 	
 	def payrollsettings
@@ -397,4 +375,68 @@ include WkreportHelper
 		hashval["wktime_payroll_calculated_fields"] = calculated_fields
 		@payrollsettings = hashval
 	end
+	    
+	def save_bulk_edit
+    
+		salary_cmpts = get_salary_components
+		u_salary_cmpts = Array.new
+		params.each do |param|
+				salary_cmpts.each do |component|
+						if ((param.first).include? (component.name + "_")) && (!(param.last).blank?)
+								param_elmts = (param.first).split('_')
+								user_id = (param_elmts[-2]).blank? ? nil : param_elmts[-2]
+								componentId = param_elmts.last
+								u_salary_cmpts << {:user_id => user_id, :component_id => componentId, :dependent_id => nil, :factor => param.last, :is_override => 1 }
+						end
+				end
+		end
+		errmsg = saveUserSalary(u_salary_cmpts, true)
+		errmsg = "ok" if errmsg.blank?
+		render :plain => errmsg
+end
+
+def get_salary_components
+		WkSalaryComponents.where("component_type != 'c'")
+end
+
+def saveUserSalary(u_salary_cmpts, is_bulkEdit)
+		return_val = false
+		salaryComponents = getSalaryComponentsArr
+		errorMsg = nil
+		u_salary_cmpts.each do |entry|
+				userId = entry["user_id".to_sym]
+				componentId = (entry["component_id".to_sym]).to_i
+				userSalarycomp = WkUserSalaryComponents.where("user_id = #{userId} and salary_component_id = #{componentId}")
+				wkUserSalComp = userSalarycomp[0]
+				old_dependent_id = wkUserSalComp.blank? ? 0 : wkUserSalComp.dependent_id
+				dependentId = is_bulkEdit ? old_dependent_id.to_i : (entry["dependent_id".to_sym]).to_i
+				userSettingHash = getUserSettingHistoryHash(wkUserSalComp) unless wkUserSalComp.blank?
+				if (entry["is_override".to_sym]).blank?
+						unless wkUserSalComp.blank?
+								saveUsrSalCompHistory(userSettingHash) 
+								wkUserSalComp.destroy()
+						end			
+				else
+						factor = entry["factor".to_sym]
+						if wkUserSalComp.blank?
+								wkUserSalComp = WkUserSalaryComponents.new
+								wkUserSalComp.user_id = userId
+								wkUserSalComp.salary_component_id = componentId
+								wkUserSalComp.dependent_id = dependentId if dependentId > 0
+								wkUserSalComp.factor = factor 
+						else
+								wkUserSalComp.dependent_id = dependentId > 0 ? dependentId : nil 
+								wkUserSalComp.factor = factor 
+						end
+						if (wkUserSalComp.changed? && !wkUserSalComp.new_record?) || wkUserSalComp.destroyed?
+								saveUsrSalCompHistory(userSettingHash) 
+						end
+						if !wkUserSalComp.save()
+								errorMsg = wkUserSalComp.errors.full_messages.join('\n')
+						end
+				end
+		end
+		errorMsg
+end
+
 end

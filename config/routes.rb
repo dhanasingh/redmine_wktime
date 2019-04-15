@@ -169,9 +169,10 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
    
    get 'wkpayroll/payrollsettings', :to => 'wkpayroll#payrollsettings'
 
-   post 'wkpayroll/payrollsettings', :to => 'wkpayroll#payrollsettings'
-   
-   
+	 post 'wkpayroll/payrollsettings', :to => 'wkpayroll#payrollsettings'
+
+	post 'wkpayroll/save_bulk_edit', :to => 'wkpayroll#save_bulk_edit'
+
     #For Billing
     get 'wkbilling/index', :to => 'wkbilling#index'	
 	
