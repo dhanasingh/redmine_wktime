@@ -203,7 +203,8 @@ include WkpayrollHelper
 			userTotalHours = timeEntries.group(:user_id).sum(:hours)
 			invDay = getInvWeekStartDay #Setting.plugin_redmine_wktime['wktime_generate_invoice_day']
 			invMonthDay = getMonthStartDay #should get from settings
-			invoicedUsers = Array.new # In user billing avoid repeated entry for same user																	 
+			invoicedUsers = Array.new # In user billing avoid repeated entry for same user in generate invoice
+			invoiced_users = Array.new # In user billing avoid repeated entry for same user in unbilled invoice
 			timeEntries.order(:issue_id, :user_id, :id).each_with_index do |entry, index|
 				#rateHash = getUserRateHash(entry.user.custom_field_values)
 				unless entry.issue.blank?
@@ -292,7 +293,8 @@ include WkpayrollHelper
 					userIdVal= []
 				end
 				userIdVal << entry.id
-				if isCreate && ((oldIssueId == 0 || oldIssueId != entry.issue_id) || (isUserBilling && lastUserId != entry.user_id))		
+				if isCreate && ((oldIssueId == 0 || oldIssueId != entry.issue_id) || (isUserBilling && lastUserId != entry.user_id)) && !(invoiced_users.include? entry.user_id)
+					invoiced_users << entry.user_id
 					itemAmount = rateHash['rate'] * quantity
 					@invItems[@itemCount].store 'project_id', accountProject.project_id
 					@invItems[@itemCount].store 'item_desc', description
