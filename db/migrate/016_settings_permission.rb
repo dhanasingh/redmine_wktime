@@ -36,7 +36,10 @@ class SettingsPermission< ActiveRecord::Migration[4.2]
 			SQL
        end
 	  
-       dir.down do
+       dir.down do 			
+			execute <<-SQL
+			  DELETE FROM wk_group_permissions WHERE permission_id IN (SELECT ID FROM wk_permissions WHERE short_name IN ('B_CRM_PRVLG', 'A_CRM_PRVLG', 'M_BILL', 'B_ACC_PRVLG', 'A_ACC_PRVLG', 'B_PUR_PRVLG', 'A_PUR_PRVLG', 'ADM_ERP'))
+			SQL
 	   
 			execute <<-SQL
 			  DELETE from wk_permissions where short_name = 'B_CRM_PRVLG';

@@ -1386,9 +1386,11 @@ end
 		user = User.current
 		user.groups.each do |group|
 		  groupPermission = WkGroupPermission.where(:group_id => group.id)
-		  groupPermission.each do |grp|				
+		  groupPermission.each do |grp|
+			unless grp.permission.blank?
 				shortname = grp.permission.short_name
 				permissionArr << shortname
+			end
 		  end
 		end		
 		return permissionArr.include? permission
