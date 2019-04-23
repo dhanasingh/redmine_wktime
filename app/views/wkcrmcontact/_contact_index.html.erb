@@ -1,4 +1,5 @@
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
+<fieldset>
 <%
 	accountType = controller.getContactType == 'SC' ? 'S' : 'A'
 	accArr = options_for_wktime_account(false, accountType)
@@ -13,17 +14,39 @@
 <%	accId = session[controller_name][:account_id] %>
 <%	locId = session[controller_name][:location_id] %>
 <div class="wk-contextual">
-		<label for='name' style="float:left"><%= l(:field_name)  %>:</label>
-			<%= text_field_tag 'contactname', conName, :size => 30, :style=> "float: left;" %>
-		<label style="float:left; padding-left: 20px;"><%= controller.getAccountLbl %></label>
-			<%=h select_tag('account_id', options_for_select(accArr,  :selected => accId.nil? ? accArr : accId), :style=> "float: left;") %>
-		<label for='location' style="float:left; padding-left: 20px;"><%= l(:label_location) %>:</label>
-			<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locId, true), :style=> "float: left;") %>
-		<%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %>
-		<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload', :style=>"float:left; " %>
-        <%= link_to controller.lblNewContact, url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+	<div class="form-group" style="display: block;float: left;">
+		<label for='name'><%= l(:field_name)  %>:</label>
+			<%= text_field_tag 'contactname', conName, :size => 30 %>
+	</div>
+	<div class="form-group" style="display: block;float: left;">
+		<label><%= controller.getAccountLbl %>:</label>
+			<%=h select_tag('account_id', options_for_select(accArr,  :selected => accId.nil? ? accArr : accId)) %>
+	</div>
+	<div class="form-group" style="display: block;float: left;">
+		<label for='location'><%= l(:label_location) %>:</label>
+			<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locId, true)) %>
+	</div>
+	<div class="form-group" style="display: block;float: left;">
+		<label for='phone'><%= l(:label_phone) %></label>
+			<%= text_field_tag 'phone', params[:phone], :size => 30 %>
+	</div>
+	<div class="form-group" style="display: block;float: left;">
+		<label for='address'><%= l(:label_address) %></label>
+			<%= text_field_tag 'address', params[:address], :size => 30 %>
+	</div>
+	<div class="form-group" style="display: block;float: left;">
+		<label for='city'><%= l(:label_city) %></label>
+			<%= text_field_tag 'city', params[:city], :size => 30 %>
+	</div>
+	<br><br>
+		<%= submit_tag l(:button_apply), :class => "small", :name => nil, style: "float: left" %>
+		<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload', style: "float: left" %>
+				<div style="clear: both;"></div>
 </div>
-<div style="clear: both;"></div>
+</fieldset>
 <% end %>
+<div class="wk-contextual">
+	<%= link_to controller.lblNewContact, url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+</div>
 <%= render :partial => 'wkcrmcontact/contact_list', locals: { contacts: @contact}%>
 <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

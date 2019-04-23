@@ -2,19 +2,36 @@
 <%= form_tag({:controller => "wklead", :action => 'index'}, :method => :post, :id => 'query_form') do %>
 		<fieldset>
 			<%=h hidden_field_tag('tab', "wklead") %>
-			<label for='name'><%= l(:label_lead) %>:</label>			
+		<div class="form-group" style="display: block;float: left;">
+			<label for='name'><%= l(:label_lead) %>:</label>
 			<%= text_field_tag 'lead_name', params[:lead_name], :size => 30 %>
 			<%= l(:field_status) %>
 			<%  leadStatusArr = Array.new
-			    getLeadStatusArr.collect {|ind| 
+			    getLeadStatusArr.collect {|ind|
 		        leadStatusArr << ind unless ind[1] == 'C'}
 				leadStatusArr.unshift(["",''])
-			%> 	
+			%>
 			<%=h select_tag('status', options_for_select(leadStatusArr, :selected => params[:status])) %>
-			<label for='location'><%= l(:label_location) %>:</label>									
+		</div>
+		<div class="form-group" style="display: block;float: left;">
+			<label for='location'><%= l(:label_location) %>:</label>
 			<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', params[:location_id], true)) %>
-			<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
-			<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
+		</div>
+		<div class="form-group" style="display: block;float: left;">
+				<label for='phone' style="float:left; display: inline-block"><%= l(:label_phone) %></label>
+					<%= text_field_tag 'phone', params[:phone], :size => 30, :style=> "float: left;display: inline-block;" %>
+				</div>
+				<div class="form-group" style="display: block;float: left;">
+				<label for='address' style="float:left; display: inline-block"><%= l(:label_address) %></label>
+					<%= text_field_tag 'address', params[:address], :size => 30, :style=> "float: left;display: inline-block;" %>
+				</div>
+				<div class="form-group" style="display: block;float: left;">
+				<label for='city' style="float:left; display: inline-block"><%= l(:label_city) %></label>
+					<%= text_field_tag 'city', params[:city], :size => 30, :style=> "float: left;display: inline-block;" %>
+			</div>
+			<br><br>
+				<%= submit_tag l(:button_apply), :class => "small", :name => nil, style: "float: left" %>
+				<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload', style: "float: left" %>
 		</fieldset>
 <% end %>
 <div class="wk-contextual">

@@ -28,6 +28,15 @@ include WkcustomfieldsHelper
 		if !params[:location_id].blank?
 			entries = entries.where(:location_id => params[:location_id].to_i)
 		end
+    if !params[:address].blank?
+      entries = entries.joins(:address).where("LOWER(wk_addresses.address1) LIKE ? OR LOWER(wk_addresses.address2) LIKE ?", "%#{params[:address].downcase}%", "%#{params[:address].downcase}%")
+    end
+    if !params[:city].blank?
+      entries = entries.joins(:address).where("LOWER(wk_addresses.city) LIKE ?", "%#{params[:city].downcase}%")
+    end
+    if !params[:phone].blank?
+      entries = entries.joins(:address).where("LOWER(wk_addresses.work_phone) LIKE ? OR LOWER(wk_addresses.home_phone) LIKE ? OR LOWER(wk_addresses.mobile) LIKE ?", "%#{params[:phone].downcase}%", "%#{params[:phone].downcase}%", "%#{params[:phone].downcase}%")
+    end
 		formPagination(entries)
     end
 

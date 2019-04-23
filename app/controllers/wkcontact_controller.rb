@@ -31,9 +31,23 @@ class WkcontactController < WkcrmController
 		else
 			wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] })
 		end
+
 		if !locationId.blank?
 			wkcontact = wkcontact.where("wk_crm_contacts.location_id = ? ", locationId.to_i)
 		end
+
+    if !params[:address].blank?
+      wkcontact = wkcontact.joins(:address).where("LOWER(wk_addresses.address1) LIKE ? OR LOWER(wk_addresses.address2) LIKE ?", "%#{params[:address].downcase}%", "%#{params[:address].downcase}%")
+    end
+
+    if !params[:city].blank?
+      wkcontact = wkcontact.joins(:address).where("LOWER(wk_addresses.city) LIKE ?", "%#{params[:city].downcase}%")
+    end
+
+    if !params[:phone].blank?
+      wkcontact = wkcontact.joins(:address).where("LOWER(wk_addresses.work_phone) LIKE ? OR LOWER(wk_addresses.home_phone) LIKE ? OR LOWER(wk_addresses.mobile) LIKE ?", "%#{params[:phone].downcase}%", "%#{params[:phone].downcase}%", "%#{params[:phone].downcase}%")
+    end
+
 		formPagination(wkcontact)
 	end
 

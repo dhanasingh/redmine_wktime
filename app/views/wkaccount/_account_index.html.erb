@@ -2,15 +2,30 @@
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :post, :id => 'query_form') do %>
 		<fieldset>
 			<%=h hidden_field_tag('tab', controller_name) %>
-			<label for='location'><%= l(:label_location) %>:</label>									
-			<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', params[:location_id], true)) %>
-			<label for='name'><%= controller.getAccountLbl %>:</label>
+			<div class="form-group" style="display: block;float: left;">
+				<label for='location'><%= l(:label_location) %>:</label>
+				<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', params[:location_id], true)) %>
+			</div>
+			<div class="form-group" style="display: block;float: left;"><label for='name'><%= controller.getAccountLbl %>:</label>
 			<%= text_field_tag 'accountname', params[:accountname], :size => 30 %>
+		</div><br><br>
+			<div class="form-group" style="display: block;float: left;">
+				<label for='phone'><%= l(:label_phone) %>:</label>
+				<%= text_field_tag 'phone', params[:phone], :size => 30 %>
+			</div>
+			<div class="form-group" style="display: block;float: left;">
+				<label for='address'><%= l(:label_address) %>:</label>
+				<%= text_field_tag 'address', params[:address], :size => 30 %>
+			</div>
+			<div class="form-group" style="display: block;float: left;">
+				<label for='city'><%= l(:label_city) %>:</label>
+				<%= text_field_tag 'city', params[:city], :size => 30 %>
+			</div><br><br>
 			<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
 			<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
 		</fieldset>
 <% end %>
 		<div class="wk-contextual">
-			<%= link_to l(:label_new_account), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+			<%= link_to l(:label_new_account), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add'%>
 		</div>
 <%= render :partial => 'wkaccount/account_list'%>
