@@ -84,6 +84,10 @@ $(function()
 			}
 		}]
 	});
+	showHideRecurEvery();
+	$('#recur').change(function(){
+		showHideRecurEvery();
+	});
 });
 
 function addrows(qINDEX, qID)
@@ -263,4 +267,11 @@ function showConfirmationDlg(){
 function validateEmail($email) {
   var emailReg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
   return emailReg.test( $email );
+}
+
+function showHideRecurEvery(){
+	if($("#recur").prop("checked"))
+		$("#tr_recur_every").show();
+	else
+		$("#tr_recur_every").hide();
 }

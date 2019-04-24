@@ -1,8 +1,9 @@
-class WksurveyController < ApplicationController
+class WksurveyController < WkbaseController
 
   menu_item :wksurvey
     
-  before_action :require_login
+	before_action :require_login
+	before_action :check_proj_survey_permission
   before_action :check_perm_and_redirect, :only => [:edit, :save_survey]
   before_action :check_survey_perm_and_redirect, :only => [:survey, :update_survey, :index]
 
@@ -13,6 +14,14 @@ class WksurveyController < ApplicationController
 		
 		surveys = get_survey_with_userGroup
 
+		unless params[:project_id].blank?
+			surveys = surveys.where("(survey_for_type = 'Project' AND survey_for_id = ?) OR (survey_for_type = 'Project' AND survey_for_id IS NULL)", @project.id)
+		end
+		
+    unless params[:survey_name].blank?
+      surveys = surveys.where("LOWER(name) LIKE lower('%#{params[:survey_name]}%')")
+		end
+
     unless params[:status].blank?
       surveys = surveys.where(:status => params[:status])
 		end
@@ -20,6 +29,10 @@ class WksurveyController < ApplicationController
     unless params[:filter_group_id].blank?
       surveys = surveys.where(:group_id => params[:filter_group_id])
     end
+
+		if controller_name == "wksurvey" && params[:project_id].blank?
+			surveys = surveys.where("survey_for_type IS NULL")
+		end
 
     formPagination(surveys)
 	end
@@ -35,6 +48,7 @@ class WksurveyController < ApplicationController
 
 	def survey
 		
+		params[:survey_id] = params[:id] unless params[:id].blank?
     @survey_details = get_survey_with_userGroup
 
 		@survey_details = @survey_details.where("wk_surveys.id = ? AND status IN ('O', 'C')", params[:survey_id])
@@ -70,13 +84,14 @@ class WksurveyController < ApplicationController
 			.group("wk_surveys.id, wk_surveys.name, wk_survey_questions.id, wk_survey_questions.name")
 			.select("wk_surveys.id, wk_surveys.name, wk_survey_questions.id AS question_id, wk_survey_questions.name AS question_name").order("wk_surveys.id, wk_survey_questions.id")
 		end
-  end
+	end
  
   def edit
 
     @edit_Survey_Entry = nil
     @edit_Question_Entries = nil
     @edit_Choice_Entries = nil
+		params[:survey_id] = params[:id] unless params[:id].blank?
 
     unless params[:survey_id].blank?
 	  @edit_Survey_Entry = WkSurvey.find(params[:survey_id].to_i)
@@ -112,12 +127,13 @@ class WksurveyController < ApplicationController
 			survey.name = params[:survey_name]
 			survey.status = params[:survey_status]
 			survey.group_id = params[:group_id]
+			survey.recur = params[:recur].blank? ? false : params[:recur]
+			survey.recur_every =  params[:recur].blank? ? nil : params[:recur_every]
+			survey.survey_for_type = params[:survey_for].blank? ? nil : params[:survey_for]
 
-			if params[:survey_for].blank? && params[:survey_for_id].blank?
-				survey.survey_for_type = nil
+			if params[:survey_for_id].blank?
 				survey.survey_for_id = nil
 			elsif params[:IsSurveyForValid] == "true"
-				survey.survey_for_type =  params[:survey_for]
 				survey.survey_for_id = params[:survey_for_id]
 			else
 				errmsg = l(:notice_surveyfor_unsuccessful) + "<br>"
@@ -171,12 +187,20 @@ class WksurveyController < ApplicationController
 
 		if survey.valid? && errmsg.blank?	
 			survey.save
-			redirect_to :controller => controller_name, :action => 'index', :tab => controller_name
+			if params[:project_id].blank?
+				redirect_to :controller => controller_name, :action => 'index', :tab => controller_name
+			else
+				redirect_to :project_id => params[:project_id],:controller => controller_name
+			end
 			flash[:notice] = l(:notice_successful_update)
 		elsif params[:survey_id].blank? && errmsg.blank?
 		    errmsg = errmsg + survey.errors.full_messages.join("<br>")
 			flash[:error] = errmsg
-			redirect_to :controller => controller_name, :action => 'edit'
+			if params[:project_id].blank?
+				redirect_to :controller => controller_name, :action => 'edit'
+			else
+				redirect_to :project_id => params[:project_id],:controller => controller_name, :action => 'edit'
+			end
 		else
 			errmsg  = errmsg + survey.errors.full_messages.join("<br>")
 			flash[:error] = errmsg
@@ -214,7 +238,11 @@ class WksurveyController < ApplicationController
 			flash[:error] = survey_response.errors.full_messages.join("<br>")
 		end
 
-		redirect_to :controller => controller_name, :action => 'index', :tab => controller_name
+		if params[:project_id].blank?
+			redirect_to :controller => controller_name, :action => 'index', :tab => controller_name
+		else
+			redirect_to :project_id => params[:project_id], :controller => controller_name, :action => 'index'
+		end
   end
   
   def destroy
@@ -316,17 +344,35 @@ class WksurveyController < ApplicationController
 		surveyFor = params[:method] == "search" ? "%" + params[:surveyForID] + "%" : nil
 		data = Hash.new
 		data = []
+		case params[:surveyFor]
+			when "Project"
+				result = Project.where("id = ? OR LOWER(name) LIKE LOWER(?)", surveyForID, surveyFor)
+				result.each do  |r|
+					data << {id: r.id, label: "Project #" + r.id.to_s + ": " + r.name, value: r.id}
+				end
+			when "Issue"
+				result = Issue.where("id = ? OR LOWER(subject) LIKE LOWER(?)", surveyForID, surveyFor)
+				result.each do  |r|
+					data << {id: r.id, label: "Issue #" + r.id.to_s + ": " + r.subject, value: r.id}
+				end
+				
+			when "Accounts"
+				result = WkAccount.where("account_type = 'A' AND id = ? OR LOWER(name) LIKE LOWER(?)", surveyForID, surveyFor)
+				result.each do  |r|
+					data << {id: r.id, label: "Account #" + r.id.to_s + ": " + r.name, value: r.id}
+				end
 
-		if params[:surveyFor] == "Project"
-			result = Project.where("id = ? OR LOWER(name) LIKE LOWER(?)", surveyForID, surveyFor)
-			result.each do  |r|
-				data << {id: r.id, label: "Project #" + r.id.to_s + ": " + r.name, value: r.id}
-			end
-		elsif params[:surveyFor] == "Issue"
-			result = Issue.where("id = ? OR LOWER(subject) LIKE LOWER(?)", surveyForID, surveyFor)
-			result.each do  |r|
-				data << {id: r.id, label: "Issue #" + r.id.to_s + ": " + r.subject, value: r.id}
-			end
+			when "Contact"
+				sql = "SELECT C.first_name, C.last_name, C.id FROM wk_crm_contacts AS C
+					LEFT JOIN wk_leads AS L ON L.contact_id = C.id
+					WHERE (L.status = 'C' OR L.contact_id IS NULL)"
+				surveyForIDSql = " AND (C.id = #{surveyForID})"
+				surveyForSql = " AND (C.id = #{surveyForID} OR LOWER(C.first_name) LIKE LOWER('#{surveyFor}') OR LOWER(C.last_name) LIKE LOWER('#{surveyFor}'))" unless surveyFor.blank?
+				sql += params[:method] == "search" ? surveyForSql : surveyForIDSql
+				result = WkCrmContact.find_by_sql(sql)
+				result.each do  |r|
+					data << {id: r.id, label: "Contact #" + r.id.to_s + ": " + r.first_name + " " + r.last_name, value: r.id}
+				end
 		end
 
 		render :json => data
@@ -375,5 +421,29 @@ class WksurveyController < ApplicationController
 	end
 	errMsg
   end
+
+	def check_proj_survey_permission
+
+		unless params[:project_id].blank?
+			find_project_by_project_id
+		end
+
+		unless params[:id].blank? || @project.blank?
+			survey = WkSurvey.where(:id => params[:id], :survey_for_type => 'Project', :survey_for_id => @project.id)
+			if survey.blank?
+				render_404
+				return false
+			end
+		end
+
+		if !params[:survey_id].blank? && params[:project_id].blank?
+			survey = WkSurvey.where(:id => params[:survey_id], :survey_for_type => nil, :survey_for_id => nil)
+			if survey.blank?
+				render_404
+				return false
+			end
+		end
+
+	end
 
 end

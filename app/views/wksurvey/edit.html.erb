@@ -6,18 +6,22 @@
 		status = nil
 		survey_id = nil
 		group_id = ''
-		survey_for_id = nil
-		survey_for = nil
 		isDisable = false
+		recur = false
+		recur_every = nil
 	else
 		survey_id = @edit_Survey_Entry.id
 		survey_name = @edit_Survey_Entry.name
 		status = @edit_Survey_Entry.status
 		group_id =  @edit_Survey_Entry.group_id
-		survey_for = @edit_Survey_Entry.survey_for_type
-		survey_for_id = @edit_Survey_Entry.survey_for_id
 		isDisable = isStatusNew(@edit_Survey_Entry.status)
-	end 
+		recur = @edit_Survey_Entry.recur
+		recur_every = @edit_Survey_Entry.recur_every
+	end
+	unless params[:project_id].blank?
+		survey_for_id = @project.id
+		survey_for = "Project"
+	end
 %>
 <% if @edit_Survey_Entry.blank?%>
 	<%= title l(:label_new_survey) %>
@@ -27,6 +31,7 @@
 
 <div>
 <%= form_tag({:controller => 'wksurvey', :action => 'save_survey'}, :method => :post, :id => 'survey_form') do %>
+	<%=h hidden_field_tag('project_id', params[:project_id]) %>
 	<%=h hidden_field_tag('survey_id', survey_id) %>
 	<%=h hidden_field_tag('delete_question_ids', "") %>
 
@@ -40,7 +45,7 @@
 		<tr>
 		<th align="left"><%= l(:label_survey_for) %></th>
 		<td>
-			<%=h select_tag("survey_for", options_for_select(getSurveyFor,survey_for), :disabled => isDisable) %>
+			<%=h select_tag("survey_for", options_for_select(getSurveyFor, survey_for), :disabled => isDisable) %>
 			<%=h text_field_tag("survey_for_id", survey_for_id, :disabled => isDisable, :size => 3, :maxlength => 30) %>
 			<span id="SurveyFor"></span>
 			<%=h hidden_field_tag('IsSurveyForValid', false) %>
@@ -54,10 +59,20 @@
         </tr>
 		<tr>
 			<th align="left"><%= l(:label_user_group) %></th>
-				<td>
-					<%=h select_tag('group_id', options_for_select(getUserGroup, :selected => group_id), :disabled => isDisable) %>
-					<%=h hidden_field_tag('user_group', group_id) %>
-				</td>
+			<td>
+				<%=h select_tag('group_id', options_for_select(getUserGroup, :selected => group_id), :disabled => isDisable) %>
+				<%=h hidden_field_tag('user_group', group_id) %>
+			</td>
+			<td></td>
+		</tr>
+		<tr>
+			<th align="left"><%= l(:label_recur) %></th>
+			<td><%= check_box_tag 'recur', true, recur %></td>
+			<td></td>
+		</tr>
+		<tr id="tr_recur_every">
+			<th align="left"><%= l(:label_recur_every) %></th>
+			<td><%=h text_field_tag("recur_every", recur_every, :size => "1", :maxlength => 10) %></td>
 			<td></td>
 		</tr>
 	</table>

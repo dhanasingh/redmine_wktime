@@ -2,57 +2,20 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 
-<%= form_tag({:controller => "wksurvey", :action => 'index'}, :method => :get, :id => 'filter_form') do %>
-	<%=h hidden_field_tag('tab', "wksurvey") %>
-	<fieldset>
-		<table><tr>
-			<th>
-				<%= l(:field_status) %>
-				<%=h select_tag('status', options_for_select(getSurveyStatusArr, :selected => params[:status])) %>
-			</th>
-			<td style="padding-left:15px;">
-				<%= link_to_function l(:button_apply), '$("#filter_form").submit()', :class => 'icon icon-checked' %>
-			</td>
-			<td style="padding-left:10px;">
-				<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', 
-				:tab => controller_name}, :class => 'icon icon-reload' %>
-			</td>
-		</tr></table>
-	</fieldset>
-<% end %>
-<div class="autoscroll">
-	<% if checkEditSurveyPermission %>
-		<div class="contextual">
-		<%= link_to l(:label_new_survey), url_for(:controller => "wksurvey", :action => "edit"), :class => 'icon icon-time-add' %>
-		</div>
-	<% end %>	
-		
-		<table class="list survey">
-			<tr>				
-				<th class="lbl-txt-align">#</th>
-				<th class="lbl-txt-align"><%= l(:label_survey_name) %></th>
-				<th class="lbl-txt-align"><%= l(:label_status) %></th>
-				<th></th>
-			</tr>
+<%= render :partial => 'index_filter' %>
 
-			<% @all_surveys.each do |entry| %>
-				<tr>
-					<td class="lbl-txt-align"><%=h entry.id %></td>
-						<td class="lbl-txt-align">
-							<% if ['O', 'C'].include? (entry.status )%>
-								<%=h link_to entry.name, url_for(:controller => "wksurvey", :action => "survey", :survey_id => entry.id, :tab => "wksurvey")%>
-							<% else %>
-								<%=h entry.name %>
-							<% end %>
-						</td>
-					<td class="lbl-txt-align"><%=h getSurveyStatusArr.invert[entry.status] %></td>
-					<td class="lbl-txt-align">
-						<% if checkEditSurveyPermission %>
-							<%= link_to image_tag('edit.png'), {:controller => "wksurvey", :action => 'edit', :survey_id => entry.id, :tab => "wksurvey"}, :title => l(:button_edit) %>
-							<%= link_to image_tag('delete.png'), {:controller => "wksurvey", :action => 'destroy', :survey_id => entry.id, :tab => "wksurvey"},  :data => {:confirm => l(:text_are_you_sure)}, :title => l(:button_delete) %>
-						<% end %>
-					</td>
-				</tr>
-			<% end %>
-		</table>
-	</div>
+<div class="autoscroll">
+    <% if checkEditSurveyPermission %>
+        <div class="contextual">
+        <% if params[:project_id].blank? %>
+            <%= link_to l(:label_new_survey), url_for(:controller => "wksurvey", :action => "edit"), :class => 'icon icon-time-add' %>
+        <% else %>
+            <%= link_to l(:label_new_survey), url_for(:project_id => params[:project_id], :controller => "wksurvey", :action => "edit"), :class => 'icon icon-time-add' %>
+        <% end %>
+        </div>
+    <% end %>	
+    
+	<%= render :partial => 'survey_list' %>
+
+    <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
+</div>

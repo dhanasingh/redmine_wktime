@@ -34,7 +34,9 @@ module WksurveyHelper
 		{
 			"" => '',
 			l(:label_project) => 'Project',
-			l(:label_issue) => 'Issue'
+			l(:label_issue) => 'Issue',
+			l(:label_accounts) => 'Accounts',
+			l(:label_contact) => 'Contact'
 		}
   end
 
