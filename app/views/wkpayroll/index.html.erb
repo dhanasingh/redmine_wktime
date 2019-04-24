@@ -46,10 +46,11 @@
 			<% end %>
 		</table>
 		<%= render :partial => 'wkpayroll/date_range' %>
-	<% end %>	
-	<% if !@payroll_entries.blank? %>
+	<% end %>
+
+	<% unless @payrollEntries.blank? %>
 		<div class="total-hours">
-			<p><%= l(:label_total) %>: <%= @payroll_entries[0].currency %>&nbsp;<%= @total_gross %></p>
+			<p><%= l(:label_total) %>: <%= @payrollEntries.values[0][:currency] %>&nbsp;<%= @total_gross %></p>
 		</div>
 	<% end %>
 <%= render :partial => 'wkpayroll/payroll_list'%>

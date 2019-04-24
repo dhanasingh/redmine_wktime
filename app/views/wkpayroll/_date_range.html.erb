@@ -19,7 +19,7 @@
 </span>
 </div>
 <div style="clear:both"></div>
-<%=h hidden_field_tag('generate', false) %>
+<%=h hidden_field_tag('generate', '') %>
 <% if action_name =='reportdetail' || action_name =='report' %>
 <%=h hidden_field_tag('control', "#{action_name}") %>
 <% end %>
@@ -31,7 +31,8 @@
 	<%#= link_to l(:button_apply), {:controller => controller_name, :action => action_name}, :class => 'icon icon-checked' %>
 	<%= link_to l(:button_clear), {:controller => controller_name, :action => action_name, :tab => 'payroll'}, :class => 'icon icon-reload' %>
   <% if isAccountUser %>
-	<%= link_to l(:label_generate_salary), 'javascript:payrollFormSubmission();', :name => 'generate', :class => 'icon icon-report' %>
+  <%= link_to l(:label_generate_salary), 'javascript:payrollFormSubmission(true);', :name => 'generate', :class => 'icon icon-report' %>
+  <%= link_to l(:label_unpaid_salary), 'javascript:payrollFormSubmission(false);', :class => 'icon icon-report' %>
   <% end %>
 </p>
 

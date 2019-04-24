@@ -27,12 +27,13 @@ include WktimeHelper
 include WkreportHelper
 
 	def index
-        @payroll_entries = nil
+		isGeneratePayroll = params[:generate]
+		@isPreview = params[:generate].blank? ? false : !to_boolean(params[:generate])
 		@total_gross = 0
 		@total_net = 0
-	    @groups = Group.sorted.all
-        set_filter_session
-        retrieve_date_range
+	  	@groups = Group.sorted.all
+    	set_filter_session
+    	retrieve_date_range
 		@members = Array.new
 		userIds = Array.new
 		userList = getGroupMembers
@@ -49,42 +50,98 @@ include WkreportHelper
 		elsif user_id.to_i != 0 && group_id.to_i == 0
 		   ids = user_id.to_i
 		elsif group_id.to_i != 0
-		   ids =user_id.to_i == 0 ? (userIds.blank? ? 0 : userIds.join(',')) : user_id.to_i
+			ids = user_id.to_i == 0 ? (userIds.blank? ? 0 : userIds.join(',')) : user_id.to_i
 		else
 		   ids = userIds.join(',')
 		end
-		unless params[:generate].blank? || !to_boolean(params[:generate])
-			generatePayroll(ids,@to +1)
-		else
-			sqlQuery = " select vw.user_id as user_id, u.firstname as firstname,u.lastname as lastname," + 
-			" vw.salary_date as salarydate, vw.allowance as allowance, vw.deduction as deduction," + 
-			" vw.basic as basic, vw.currency as currency from (select v.user_id as user_id, v.salary_date as salary_date, max(v.currency) as currency," + 
-			" sum(allowance) as allowance, sum(deduction) as deduction, sum(basic) as basic" +
-			" from (select ws.user_id, ws.salary_date, max(ws.currency) as currency," +
-			" SUM(CASE WHEN wsc.component_type = 'a' THEN ws.amount END) AS allowance," +
-			" SUM(CASE WHEN wsc.component_type = 'd' THEN ws.amount END) AS deduction," +
-			" SUM(CASE WHEN wsc.component_type = 'b' THEN ws.amount END) AS basic" +
-			" from wk_salaries ws inner join wk_salary_components wsc on wsc.id = ws.salary_component_id" +
-			" group by ws.user_id,wsc.component_type,ws.salary_date) v " +
-			" group by v.user_id,v.salary_date) vw  inner join users u on u.id = vw.user_id" +
-			" where vw.user_id in (#{ids}) "
-			
-			if !@from.blank? && !@to.blank?
-				sqlQuery = sqlQuery + " and vw.salary_date between '#{@from}' and '#{@to}'"
+
+		unless isGeneratePayroll.blank?
+			payrollAmount = generatePayroll(ids, @to +1, isGeneratePayroll)
+		end
+		
+		unless isGeneratePayroll == "false"
+			payrollAmount = get_wksalaries_in_hash_format(ids, nil)
+		end
+
+		form_payroll_entries(payrollAmount, ids)
+
+		@entry_count = @payrollEntries.size
+		setLimitAndOffset()
+
+		@total_gross = @payrollEntries.sum { |k, p| p[:BT] + p[:AT] }
+		@total_net = @payrollEntries.sum { |k, p| p[:BT] + p[:AT] - p[:DT] }
+	end
+
+	def get_wksalaries_in_hash_format(userId, salaryDate)
+		payrollAmount = Array.new
+		payroll_salaries = WkSalary.all
+
+		if !salaryDate.blank?
+			payroll_salaries = payroll_salaries.where("salary_date = '#{salaryDate}'")
+		elsif !@from.blank? && !@to.blank?
+			payroll_salaries = payroll_salaries.where("salary_date between '#{@from}' and '#{@to}'")
+		end
+
+		unless userId.blank?
+			payroll_salaries = payroll_salaries.where("user_id IN (#{userId})")
+		end
+
+		payroll_salaries.each do |entry|
+			payrollAmount << {:user_id => entry.user_id, :component_id => entry.salary_component_id, :amount => (entry.amount).round, :currency => entry.currency, :salary_date => entry.salary_date}
+		end
+	end
+
+	def form_payroll_entries(payrollAmount, userId)
+		usersDetails = User.where("id IN (#{userId})")
+		salaryComponents = WkSalaryComponents.all
+		basic_Total = nil
+		allowance_total = nil
+		deduction_total = nil
+		@payrollEntries = Hash.new
+
+		payrollAmount.each do |payroll|
+			key = payroll[:user_id].to_s + "_" + payroll[:salary_date].to_s
+			if @payrollEntries[key].blank?
+				@payrollEntries[key] = { :uID => payroll[:user_id], :firstname => nil, :lastname => nil, :salDate => payroll[:salary_date], :BT => 0, :AT => 0, :DT => 0, :currency => nil, :details => {:b => [], :a => [], :d => []}}
 			end
-			
-			sqlQuery = sqlQuery + " order by u.firstname,vw.salary_date desc"
-			findBySql(sqlQuery)	
-			@total_gross = @payroll_entries.sum { |p| p.basic + p.allowance }
-			@total_net = @payroll_entries.sum { |p| p.basic + p.allowance - p.deduction }
+
+			usersDetails.each do |user|
+				if payroll[:user_id] == user.id
+					@payrollEntries[key][:firstname] = user.firstname
+					@payrollEntries[key][:lastname] = user.lastname
+				end
+			end
+
+			salaryComponents.each do |s_cmpt|
+				if payroll[:salary_component_id] == s_cmpt.id
+					@payrollEntries[key][:currency] = payroll[:currency]
+					case s_cmpt.component_type
+					when "b"
+						@payrollEntries[key][:BT] = @payrollEntries[key][:BT].to_i + payroll[:amount].to_i
+						@payrollEntries[key][:details][:b] << [s_cmpt.name, payroll[:amount].to_i, payroll[:currency]]
+					when "a"
+						@payrollEntries[key][:AT] = @payrollEntries[key][:AT].to_i + payroll[:amount].to_i
+						@payrollEntries[key][:details][:a] << [s_cmpt.name, payroll[:amount].to_i, payroll[:currency]]
+					when "d"
+						@payrollEntries[key][:DT] = @payrollEntries[key][:DT] + payroll[:amount].to_i
+						@payrollEntries[key][:details][:d] << [s_cmpt.name, payroll[:amount].to_i, payroll[:currency]]
+					end
+				end
+			end
 		end
 	end
 
 	def edit
 		userid = params[:user_id]
 		salarydate = params[:salary_date]
-		getSalaryDetail(userid,salarydate)
-		render :action => 'edit'
+		key = userid.to_s + "_" + salarydate.to_s
+		if to_boolean(params[:isPreview])
+			payrollAmount = generatePayroll(userid, salarydate.to_date, "false")
+		else
+			payrollAmount = get_wksalaries_in_hash_format(userid, salarydate)
+		end	
+		form_payroll_entries(payrollAmount, userid)
+		@payrollDetails = @payrollEntries[key][:details]
 	end
 
 	def updateUserSalary
@@ -108,20 +165,21 @@ include WkreportHelper
 		end	
 	end
 	
-	def generatePayroll(userIds,salaryDate)
-		errorMsg = generateSalaries(userIds,salaryDate)
-		if  !errorMsg.blank? &&  errorMsg == 1			
-			flash[:notice] =  l(:label_salary) + " " +  l(:notice_successful_update) 
-			if isChecked('salary_auto_post_gl')
-				flash[:error] = l(:error_trans_msg)
+	def generatePayroll(userIds, salaryDate, isGeneratePayroll)
+		errorMsg = generateSalaries(userIds,salaryDate, isGeneratePayroll)
+		if to_boolean(isGeneratePayroll)
+			if errorMsg.nil?
+				redirect_to :action => 'index' , :tab => 'wkpayroll'
+				flash[:notice] = l(:notice_successful_update)		
+			elsif !errorMsg.blank? &&  errorMsg == 1			
+				flash[:notice] =  l(:label_salary) + " " +  l(:notice_successful_update) 
+				if isChecked('salary_auto_post_gl')
+					flash[:error] = l(:error_trans_msg)
+				end
+				redirect_to :action => 'index'
 			end
-			
-			redirect_to :action => 'index'
 		end
-		if errorMsg.nil?	
-			redirect_to :action => 'index' , :tab => 'wkpayroll'
-			flash[:notice] = l(:notice_successful_update)		
-		end	
+		payroll_list = @payrollList
 	end
 
 	def user_salary_settings

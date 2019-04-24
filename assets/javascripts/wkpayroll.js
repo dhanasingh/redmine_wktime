@@ -10,17 +10,25 @@ function overrideSettings(chkboxelement){
 	factorTxtBox.disabled = !isOverride;
 }
 
-function payrollFormSubmission()
+function payrollFormSubmission(isGenerate)
 { 
 	var dateval = new Date(document.getElementById("to").value);
+	var fromdateval = new Date(document.getElementById("from").value);
 	dateval.setDate(dateval.getDate() + 1);
 	var salaryDate = dateval.getFullYear() + '-' + (("0" + (dateval.getMonth() + 1)).slice(-2)) + '-' + (("0" + dateval.getDate()).slice(-2));
 	const confirmationText = $('.label_confirmation_salary_text').data('confirmation');
-	var isFormSubmission = confirm(`${confirmationText} ` + salaryDate);
-	if (isFormSubmission == true) {
-		document.getElementById("generate").value = true; 
-		document.getElementById("query_form").submit();
-	} 
+
+	if(!isNaN(dateval.getFullYear()) || !isNaN(fromdateval.getFullYear()))
+	{
+		var isFormSubmission = isGenerate ? confirm(`${confirmationText} ` + salaryDate) : true;
+		document.getElementById("generate").value = isGenerate;
+		if(isFormSubmission)
+			document.getElementById("query_form").submit();
+	}
+	else
+	{
+		alert("Please select valid date range");
+	}
 }
 
 

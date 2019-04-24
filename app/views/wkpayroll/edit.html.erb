@@ -1,3 +1,13 @@
+<% 
+ componentHash = Hash.new
+ total=0
+ gross=0
+ net=0
+ key = params[:user_id] + "_" + params[:salary_date]
+ firstName = @payrollEntries[key][:firstname]
+ salaryDate = @payrollEntries[key][:salDate]
+ componentHash = @payrollDetails
+%>
 <div>
 <h2><b><%=l(:label_salary_detail) %></b></h2>
 
@@ -5,26 +15,17 @@
 <table>
 	<tr>
 		<td><b><%=l(:field_user)%></b></td>
-		<td><%=h @wksalaryEntries[0].firstname %></td>
+		<td><%=h firstName %></td>
 	</tr>
 	<tr>
 		<td><b><%=l(:label_salarydate)%></b></td>
-		<td><%=h @wksalaryEntries[0].salary_date %></td>
+		<td><%=h salaryDate %></td>
 	</tr>
 </table>
 </div>
- <% 
-	componentHash = Hash.new()
-	total=0
-	gross=0
-	net=0
-	@wksalaryEntries.each do |entry|
-		componentHash[entry.component_type] = componentHash[entry.component_type].blank? ? [[entry.component_name,entry.amount,entry.currency]] :  componentHash[entry.component_type] << [entry.component_name,entry.amount,entry.currency]
-	end 
- %>
  <fieldset style="width: 94%;margin:1px 34px 0px 1px;background-color:#F6F6F6;float:right"><legend><b><%=l(:label_basic)%></b></legend>
 	<table width="100px">
-		<% componentHash['b'].each do |entry| %>
+	<% componentHash[:b].each do |entry| %>
 			<tr>
 				<td><b><%=h entry[0]  %></b></td>
 				<td><%=h entry[2]%><%=h "%.2f" % entry[1] %></td>
@@ -38,7 +39,7 @@
  <fieldset class="box tabular" style="display: inline-block; vertical-align: top; width:45%;"><legend><b><%=l(:label_allowances)%></b></legend>
 	<table style="width:100%;border-collapse: collapse;" >
 	<% total=0 %>
-		<% componentHash['a'].each do |entry| %>
+	<% componentHash[:a].each do |entry| %>
 			<tr>
 				<td style="border: 1px solid black;border-style: outset;border-collapse: collapse;background-color:white;"><b><%=h entry[0]  %></b></td>
 				<td style="border: 1px solid black;border-collapse: collapse;border-style: inset;text-align:right;background-color:white;"><%=h entry[2]%> <%=h "%.2f" % entry[1] %></td>
@@ -49,7 +50,7 @@
 		<%gross=gross+total%>
 		<tr>
 			<td style="border: 1px solid black;border-collapse: collapse;border-style: outset;background-color:white;"><b><%=l(:label_total) %></b></td>
-			<td style="border: 1px solid black;border-collapse: collapse;border-style: inset;text-align:right;background-color:white;"><%=h componentHash['b'][0][2]%> <%=h "%.2f" % total %></td>
+			<td style="border: 1px solid black;border-collapse: collapse;border-style: inset;text-align:right;background-color:white;"><%=h componentHash[:b][0][2]%> <%=h "%.2f" % total %></td>
 		</tr>
 	</table>
 </fieldset>
@@ -59,7 +60,7 @@
   <fieldset class="box tabular" style="display: inline-block; vertical-align: top; width:45%; "><legend><b><%=l(:label_deduction)%></b></legend>
 	<table style="width:100%;border-collapse: collapse;">
 		<% total=0 %>
-		<% componentHash['d'].each do |entry| %>
+		<% componentHash[:d].each do |entry| %>
 			<tr>
 				<td style="border: 1px solid black;border-collapse: collapse;border-style: outset;background-color:white;"><b><%=h entry[0]  %></b></td>
 				<td style="border: 1px solid black;border-collapse: collapse;border-style: inset;text-align:right;background-color:white;"><%=h entry[2]%> <%=h "%.2f" % entry[1] %></td>
@@ -69,7 +70,7 @@
 		<%net=gross-total%>
 			<tr>
 				<td style="border: 1px solid black;border-collapse: collapse;border-style: outset;background-color:white;"><b><%=l(:label_total) %></b></td>
-				<td style="border: 1px solid black;border-collapse: collapse;border-style: inset;text-align:right;background-color:white;"><%=h componentHash['b'][0][2]%> <%=h "%.2f" % total %></td>
+				<td style="border: 1px solid black;border-collapse: collapse;border-style: inset;text-align:right;background-color:white;"><%=h componentHash[:b][0][2]%> <%=h "%.2f" % total %></td>
 			</tr>
 	</table>
  </fieldset><br>
@@ -77,11 +78,11 @@
 		<table width="15%" align="right" style="border-collapse: collapse;border: 0px solid black;">
 			<tr>
 				<td style="float:left; "><b><%=l(:label_gross) %></b></td>
-				<td style="text-align:right; border-left: solid 0px black;"><%=h componentHash['b'][0][2]%> <%=h "%.2f" % gross%> </td>
+				<td style="text-align:right; border-left: solid 0px black;"><%=h componentHash[:b][0][2]%> <%=h "%.2f" % gross%> </td>
 			</tr>
 			<tr>
 				<td style="float:left;"><b><%=l(:label_net)%></b>
-				<td style="text-align:right; border-left: solid 0px black;"><%=h componentHash['b'][0][2]%> <%=h "%.2f" % net%></td>
+				<td style="text-align:right; border-left: solid 0px black;"><%=h componentHash[:b][0][2]%> <%=h "%.2f" % net%></td>
 			</tr>
 		</table>
 	</div>
