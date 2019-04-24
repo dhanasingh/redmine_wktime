@@ -65,8 +65,20 @@ include WkreportHelper
 
 		form_payroll_entries(payrollAmount, ids)
 
-		@entry_count = @payrollEntries.size
+		payrollEntriesArr = @payrollEntries.to_a
+		@entry_count = @payrollEntries.length()
+		@payrollEntries = Hash.new
 		setLimitAndOffset()
+		page_no = (params['page'].blank? ? 1 : params['page']).to_i
+		from = @offset
+		to = (@limit * page_no)
+
+		payrollEntriesArr.each_with_index do |entry, index|
+			index += 1
+			if index > from && index <= to
+				@payrollEntries[entry.first] = entry.last
+			end
+		end
 
 		@total_gross = @payrollEntries.sum { |k, p| p[:BT] + p[:AT] }
 		@total_net = @payrollEntries.sum { |k, p| p[:BT] + p[:AT] - p[:DT] }
