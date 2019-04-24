@@ -976,3 +976,5 @@ pl:
   label_basic_total: Basic Total
   label_allowance_total: Allowance Total
   label_deduction: Deduction Total
+
+  label_main_location: Main location

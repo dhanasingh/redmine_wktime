@@ -17,7 +17,7 @@
  </style>
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
 	<table style="width:100%; border-collapse: collapse;">
-		 <caption style="text-align:center"><b><%= Setting.plugin_redmine_wktime['wktime_company_name'] %><br><%= l(:report_balance_sheet) %></b></br>
+		 <caption style="text-align:center"><b><%= getMainLocation %><br><%= l(:report_balance_sheet) %></b></br>
 		 <%= l(:label_as_at) + " " + @to.to_formatted_s(:long) %>
 		<thead bgcolor="#e6e6e6">
 			<tr style="border-bottom: solid thin;border-top: solid thin;">

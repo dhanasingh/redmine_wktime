@@ -1,9 +1,11 @@
 class SettingsPermission< ActiveRecord::Migration[4.2]
 	def change
-		
+
+		add_column :wk_locations, :is_main, :boolean
+	
 		reversible do |dir|
 		
-				dir.up do
+			dir.up do
 				execute <<-SQL
 					INSERT INTO wk_permissions(id, name, short_name, modules, created_at, updated_at) VALUES (6, 'BASIC CRM PRIVILEGE', 'B_CRM_PRVLG', 'CRM', current_timestamp, current_timestamp);
 				SQL
@@ -35,9 +37,9 @@ class SettingsPermission< ActiveRecord::Migration[4.2]
 				execute <<-SQL
 					INSERT INTO wk_permissions(id, name, short_name, modules, created_at, updated_at) VALUES (13, 'ADMIN ERPMINE', 'ADM_ERP', '', current_timestamp, current_timestamp);
 				SQL
-				end
+			end
 			
-				dir.down do 			
+			dir.down do 			
 				execute <<-SQL
 					DELETE FROM wk_group_permissions WHERE permission_id IN (SELECT ID FROM wk_permissions WHERE short_name IN ('B_CRM_PRVLG', 'A_CRM_PRVLG', 'M_BILL', 'B_ACC_PRVLG', 'A_ACC_PRVLG', 'B_PUR_PRVLG', 'A_PUR_PRVLG', 'ADM_ERP'))
 				SQL
@@ -73,7 +75,7 @@ class SettingsPermission< ActiveRecord::Migration[4.2]
 				execute <<-SQL
 					DELETE from wk_permissions where short_name = 'ADM_ERP';
 				SQL
-				end 
+			end 
 		end
 
 		change_table :wk_survey_responses do |t|

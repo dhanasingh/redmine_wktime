@@ -37,7 +37,7 @@
 <div style="clear:both;"></div>
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
 	<table style="width:100%; border-collapse: collapse;"border="1";>
-		 <caption style="text-align:center"><b><%= Setting.plugin_redmine_wktime['wktime_company_name'] %><br><%= l(:report_purchase_cycle) + " " + l(:label_report) %></b></br>
+		 <caption style="text-align:center"><b><%= getMainLocation %><br><%= l(:report_purchase_cycle) + " " + l(:label_report) %></b></br>
 		 <%= @from.strftime("%d-%b-%Y") + " " + l(:label_date_to) + " " + @to.strftime("%d-%b-%Y")%>
 		
 		<thead bgcolor="#e6e6e6">

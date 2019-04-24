@@ -143,5 +143,21 @@ module WkreportHelper
 		sqlStr = "select 'WkAccount' #{parentSql} as parent_type, id as parent_id from wk_accounts where account_type = 'A' union select 'WkCrmContact' #{parentSql} as parent_type, id as parent_id from wk_crm_contacts where contact_type in ('C', 'RA')"
 		sqlStr
 	end
+	
+	def getMainLocation
+		allLocation = WkLocation.all
+		mainLocation = allLocation.where(:is_main => true)
+		allLocation = mainLocation unless mainLocation.blank?
+		allLocation = allLocation.blank? ? "" : allLocation.first.name
+		allLocation
+	end
+	
+	def getAddress	
+		address_list = WkAddress.joins("RIGHT JOIN wk_locations ON wk_addresses.id = wk_locations.address_id")
+		mainAddress = address_list.where("wk_locations.is_main = true")
+		address_list = mainAddress unless mainAddress.blank?
+		address_list = (address_list.blank? || address_list.first.id.blank?) ? "" : address_list.first.fullAddress
+		address_list
+	end
 
 end

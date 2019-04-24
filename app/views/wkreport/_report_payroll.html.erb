@@ -7,7 +7,7 @@
 	@userlist = User.find_by_sql(userSqlStr)
 	queryStr = getQueryStr + 			
 			"left join groups_users gu on (gu.user_id = u.id and gu.group_id = #{groupId}) " +
-			"where u.type = 'User' and (wu.termination_date >= '#{from}' or (u.status = #{User::STATUS_ACTIVE} and wu.termination_date is null))"
+			"where u.type = 'User' and component_type != 'c'  and (wu.termination_date >= '#{from}' or (u.status = #{User::STATUS_ACTIVE} and wu.termination_date is null))"
 	if groupId.to_i > 0 && userId.to_i < 1
 		queryStr = queryStr + " and gu.group_id is not null"
 	elsif userId.to_i > 0
@@ -113,8 +113,8 @@
 <div>
 		<div style="float:left">
  <caption style="text-align:left"><b><%= l(:label_wk_form_r) %><br/><%= l(:label_register_wages) %><br/><%= l(:label_wages_rule) %></b></br>
- <b><%= l(:label_wk_name_address) %>:</b> <%= Setting.plugin_redmine_wktime['wktime_company_name'] %>
- <%= Setting.plugin_redmine_wktime['wktime_company_address'] %>
+ <b><%= l(:label_wk_name_address) %>:</b> <%= getMainLocation %>
+ <%= getAddress %>
  <b><%= l(:label_wages_period) %>:</b> <%= @salary_data[0].blank? ? session[:wkreport][:from] :  @salary_data[0].salary_date %>
   </caption> 
   </div>

@@ -50,7 +50,7 @@ class WksupplierorderentityController < WkorderentityController
 	end
 	
 	def getCustomerAddress(invoice)
-		Setting.plugin_redmine_wktime['wktime_company_name'] + "\n" +  Setting.plugin_redmine_wktime['wktime_company_address']
+		getMainLocation + "\n" +  getAddress
 	end
 	
 	def getPaymentController

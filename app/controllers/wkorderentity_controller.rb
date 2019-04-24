@@ -7,6 +7,7 @@ include WktimeHelper
 include WkinvoiceHelper
 include WkbillingHelper
 include WkorderentityHelper
+include WkreportHelper
 
 	def index
 		@projects = nil
@@ -445,7 +446,7 @@ include WkorderentityHelper
 	end
 	
 	def getSupplierAddress(invoice)
-		Setting.plugin_redmine_wktime['wktime_company_name'] + "\n" +  Setting.plugin_redmine_wktime['wktime_company_address']
+		getMainLocation + "\n" +  getAddress
 	end
 	
 	def getCustomerAddress(invoice)
