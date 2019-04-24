@@ -2,27 +2,29 @@
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :post, :id => 'query_form') do %>
 		<fieldset>
 			<%=h hidden_field_tag('tab', controller_name) %>
-			<div class="form-group" style="display: block;float: left;">
+			<div class="form-group">
 				<label for='location'><%= l(:label_location) %>:</label>
-				<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', params[:location_id], true)) %>
+				<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', params[:location_id], true), class: 'small-select') %>
 			</div>
-			<div class="form-group" style="display: block;float: left;"><label for='name'><%= controller.getAccountLbl %>:</label>
-			<%= text_field_tag 'accountname', params[:accountname], :size => 30 %>
-		</div><br><br>
-			<div class="form-group" style="display: block;float: left;">
+			<div class="form-group"><label for='name'><%= controller.getAccountLbl %>:</label>
+			<%= text_field_tag 'accountname', params[:accountname] %>
+		</div>
+			<div class="form-group">
 				<label for='phone'><%= l(:label_phone) %>:</label>
-				<%= text_field_tag 'phone', params[:phone], :size => 30 %>
+				<%= text_field_tag 'phone', params[:phone] %>
 			</div>
-			<div class="form-group" style="display: block;float: left;">
+			<div class="form-group">
 				<label for='address'><%= l(:label_address) %>:</label>
-				<%= text_field_tag 'address', params[:address], :size => 30 %>
+				<%= text_field_tag 'address', params[:address] %>
 			</div>
-			<div class="form-group" style="display: block;float: left;">
+			<div class="form-group">
 				<label for='city'><%= l(:label_city) %>:</label>
-				<%= text_field_tag 'city', params[:city], :size => 30 %>
-			</div><br><br>
-			<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
-			<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
+				<%= text_field_tag 'city', params[:city] %>
+			</div>
+			<div class="set">
+				<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
+				<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
+			</div>
 		</fieldset>
 <% end %>
 		<div class="wk-contextual">
