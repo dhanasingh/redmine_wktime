@@ -56,33 +56,55 @@ class WksurveyController < WkbaseController
 
 		if @survey_details.blank?
 			render_404
-		
-		elsif (@survey_details).status == "O"
-			
-			survey_Entries = WkSurveyResponse.joins("INNER JOIN wk_survey_sel_choices ON  wk_survey_responses.id = wk_survey_sel_choices.survey_response_id 
-				AND wk_survey_responses.user_id = " + (User.current.id).to_s)
-			.joins("RIGHT JOIN wk_survey_questions ON wk_survey_questions.id = wk_survey_sel_choices.survey_question_id")
-			.joins("LEFT JOIN wk_surveys ON wk_surveys.id = wk_survey_questions.survey_id")
-			.joins("LEFT JOIN wk_survey_choices ON wk_survey_questions.id = wk_survey_choices.survey_question_id")
-			.where("wk_surveys.status = 'O' AND wk_surveys.id = ? AND wk_survey_sel_choices.survey_question_id IS NULL 
-				AND (wk_survey_choices.id IS NOT NULL OR wk_survey_questions.question_type IN ('TB', 'MTB'))", params[:survey_id])
+			return false
+		else
 
-			@question_Choice_Entries = survey_Entries.select("wk_survey_choices.id, wk_survey_choices.name, 
-				wk_survey_questions.id AS survey_question_id")
-			.order("wk_surveys.id, wk_survey_questions.id, wk_survey_choices.id")
+			@isSurvey = @survey_details.status == "O" ? true : false
+			if @survey_details.status == "O"
 
-			@question_Entries = survey_Entries.group("wk_survey_questions.id, wk_surveys.id, wk_surveys.name,
-				wk_survey_questions.name, wk_survey_questions.question_type")
-			.select("wk_surveys.id, wk_surveys.name, wk_survey_questions.id AS question_id, 
-				wk_survey_questions.name AS question_name, wk_survey_questions.question_type AS question_type")
-				.order("wk_surveys.id, wk_survey_questions.id")
-		
-		elsif (@survey_details).status == "C"
-			@closed_surveyed_Entries = WkSurvey.joins("INNER JOIN wk_survey_questions ON wk_survey_questions.survey_id = wk_surveys.id")
-			.joins("INNER JOIN wk_survey_choices ON wk_survey_questions.id = wk_survey_choices.survey_question_id")
-			.where("wk_surveys.id = ? AND wk_surveys.status = 'C' AND wk_survey_questions.question_type NOT IN ('TB', 'MTB')", params[:survey_id])
-			.group("wk_surveys.id, wk_surveys.name, wk_survey_questions.id, wk_survey_questions.name")
-			.select("wk_surveys.id, wk_surveys.name, wk_survey_questions.id AS question_id, wk_survey_questions.name AS question_name").order("wk_surveys.id, wk_survey_questions.id")
+				@question_Entries = WkSurvey.find_by_sql("
+					SELECT S.id, S.name, SQ.id AS question_id, SQ.name AS question_name, SQ.question_type AS question_type
+					FROM wk_surveys AS S
+					INNER JOIN wk_survey_questions AS SQ ON S.id = SQ.survey_id
+					LEFT JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id
+					WHERE S.status = 'O'AND S.id = #{params[:survey_id]}
+					GROUP BY SQ.id, S.id, S.name, SQ.name, SQ.question_type")
+
+				@question_Choice_Entries = WkSurvey.find_by_sql("
+					SELECT SC.id, SC.name, SQ.id AS survey_question_id
+					FROM wk_surveys AS S
+					INNER JOIN wk_survey_questions AS SQ ON S.id = SQ.survey_id
+					LEFT JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id 
+					WHERE S.status = 'O'AND S.id = #{params[:survey_id]}")
+
+				response_Qry = params[:response_id].blank? ? "" : " AND SR.id = #{params[:response_id]}"
+				@survey_result = WkSurvey.find_by_sql("
+					SELECT  S.id, S.name, SQ.id AS question_id, SQ.name AS question_name, SR.user_id, SSC.survey_choice_id, SSC.choice_text, SQ.question_type
+					FROM wk_surveys AS S
+					INNER JOIN wk_survey_questions AS SQ ON SQ.survey_id = S.id
+					INNER JOIN wk_survey_responses AS SR ON SR.survey_id = S.id
+					INNER JOIN wk_survey_sel_choices AS SSC ON SSC.survey_response_id = SR.id AND SQ.id = SSC.survey_question_id
+					WHERE S.id = #{params[:survey_id]} AND S.status = 'O' AND SR.user_id = #{User.current.id}" + response_Qry)
+
+			elsif @survey_details.status == "C"
+				@closed_surveyed_Entries = WkSurvey.find_by_sql("
+					SELECT S.id, S.name, SQ.id AS question_id, SQ.name AS question_name 
+					FROM wk_surveys AS S
+					INNER JOIN wk_survey_questions AS SQ ON wk_survey_questions.survey_id = S.id 
+					INNER JOIN wk_survey_choices AS SC ON wk_survey_questions.id = wk_survey_choices.survey_question_id 
+					WHERE (S.id = #{params[:survey_id]} AND S.status = 'C' AND wk_survey_questions.question_type NOT IN ('TB', 'MTB')) 
+					GROUP BY S.id, S.name, wk_survey_questions.id, wk_survey_questions.name 
+					ORDER BY S.id, wk_survey_questions.id")
+			end
+
+			@survey_responses = WkSurvey.find_by_sql("SELECT S.id AS survey_id, SR.id, to_char(date_trunc('second', SR.created_at), 'YYYY-MM-DD HH24:MI') AS response_date
+				FROM wk_surveys AS S
+				INNER JOIN wk_survey_responses AS SR ON S.id = SR.survey_id
+				WHERE S.id =  #{params[:survey_id]}
+				ORDER BY SR.created_at DESC")
+
+			@isRecurEnabled =  @survey_details.recur && (@survey_details.created_at + @survey_details.recur_every.days <= Time.now) ? true : false
+			@showSideNav = !@survey_responses.blank? && (@survey_responses.size >= 2 || (@survey_responses.size == 1 && @isRecurEnabled)) ? true : false
 		end
 	end
  
@@ -231,11 +253,12 @@ class WksurveyController < WkbaseController
 
 		survey_response.wk_survey_sel_choices_attributes = surveyChoices
 
-		if survey_response.valid?
+		if survey_response.valid? && !surveyChoices.blank?
 			survey_response.save
 			flash[:notice] = l(:notice_successful_update)
 		else
 			flash[:error] = survey_response.errors.full_messages.join("<br>")
+			flash[:error] += l(:notice_unsucessful_survey_response) if surveyChoices.blank?
 		end
 
 		if params[:project_id].blank?

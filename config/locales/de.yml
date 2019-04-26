@@ -950,6 +950,10 @@ de:
   label_include_user_group: Sending Emails to
   label_recur: Recur
   label_recur_every: Recur Every
+  label_previous_responses: Previous Responses
+  label_response: Response
+  label_new_response: New Response
+  notice_unsucessful_survey_response: No Questions Responsed
   
   label_no_additional_details_for_issue: No Additional Details for Issue
   label_create_supplier_invoice_without_purchase_order: Create Supplier invoice without Purchase order

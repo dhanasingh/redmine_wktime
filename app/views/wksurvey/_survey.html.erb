@@ -1,0 +1,75 @@
+<%= form_tag({:controller => 'wksurvey', :action => 'update_survey'}, :method => :post, :id => 'query_form') do %>
+    <%=h hidden_field_tag('project_id', params[:project_id]) %>
+    <%=h hidden_field_tag("survey_id", (@question_Entries.first).id) %>
+    <% @question_Entries.each do |entry| %>
+        <%=h hidden_field_tag("question_type_"+ (entry.question_id).to_s, entry.question_type) %>
+        <% 	choice_text = nil
+            sel_choices = Hash.new
+            isDisable = !params[:response_id].blank? ? true : false
+            if (params[:response_id].blank? && !@isRecurEnabled) || !params[:response_id].blank?
+                @survey_result.each do |result_entry|
+                    if entry.question_id == result_entry.question_id
+                        if ["TB","MTB"].include? result_entry.question_type
+                            choice_text = result_entry.choice_text
+                            isDisable = true
+                        else
+                            sel_choices[result_entry.survey_choice_id] = true
+                            isDisable = true
+                        end
+                    end
+                end
+            end
+        %>
+        <fieldset class="box tabular">
+        <table>
+            <tr>
+                <th align="left"><%= l(:label_question_name) %></th>
+                <td align="left" style="padding-left:40px;"><%= entry.question_name %></td>
+            </tr>
+            <tr>
+                <th align="left"><%= l(:label_question_choices) %></th>
+                <td></td>
+            </tr>
+
+            <% if ["RB","CB"].include? entry.question_type %>
+                <% @question_Choice_Entries.each do |choice_entry| %>
+                    <% if choice_entry.survey_question_id == entry.question_id %>
+                    <% isChecked = sel_choices[choice_entry.id].blank? ? false : true %>
+                    <tr>
+                        <td></td>
+                        <td align="left" style="padding-left:40px;">
+                            <% case entry.question_type %>
+                            <% when 'CB' %>
+                                <%= check_box_tag(("survey_sel_choice_"+ (entry.question_id).to_s + "_" + (choice_entry.id).to_s  ), choice_entry.id, isChecked, :disabled => isDisable) %>
+                                <%= choice_entry.name %>
+                            <% when 'RB' %>
+                                <%= radio_button_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", choice_entry.id, isChecked, :disabled => isDisable) %>
+                                <%= choice_entry.name %>
+                            <% end %>
+                        </td>
+                    </tr>
+                    <% end %>
+                <% end %>
+
+            <% elsif ["TB","MTB"].include? entry.question_type %>
+                <tr>
+                    <td></td>
+                    <td align="left" style="padding-left:40px;">
+                        <% case entry.question_type %>
+                        <% when 'TB' %>
+                            <%=h text_field_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", choice_text, size: 60, :disabled => isDisable) %>
+                        <% when 'MTB' %>
+                            <%=h text_area_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", choice_text, rows: 5, cols: 60, :disabled => isDisable) %>
+                        <% end %>
+                    </td>
+                </tr>
+            <% end %>
+        </table>
+        </fieldset>			
+    <% end %>
+    <% if params[:response_id].blank? %>
+        <div>
+        <%= submit_tag l(:button_save), :id => 'wksurvey_save' %>
+        </div>
+    <% end %>
+<% end %>

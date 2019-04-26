@@ -1,0 +1,14 @@
+<h3><%= l(:label_previous_responses) %></h3>
+
+<ul>
+    <% @survey_responses.each do |response| %>
+        <% 
+            if params[:project_id].blank?
+                url = {:controller => "wksurvey", :action => "survey", :survey_id => response.survey_id, :response_id => response.id, :tab => "wksurvey"}
+            else
+                url = {:project_id => params[:project_id], :controller => "wksurvey", :action => "survey", :id=> response.survey_id, :response_id => response.id}
+            end
+        %>
+        <li><%= link_to (l(:label_response) + "(" + response.response_date + ")"), url_for(url) %></li>
+    <% end %>
+</ul>
