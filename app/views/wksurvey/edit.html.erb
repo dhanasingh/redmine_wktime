@@ -9,6 +9,17 @@
 		isDisable = false
 		recur = false
 		recur_every = nil
+		
+		if !params[:project_id].blank?
+			survey_for_id = @project.id
+			survey_for = "Project"
+		elsif !params[:contact_id].blank?
+			survey_for_id = params[:contact_id]
+			survey_for = "Contact"
+		elsif !params[:account_id].blank?
+			survey_for_id = params[:account_id]
+			survey_for = "Accounts"
+		end
 	else
 		survey_id = @edit_Survey_Entry.id
 		survey_name = @edit_Survey_Entry.name
@@ -17,10 +28,8 @@
 		isDisable = isStatusNew(@edit_Survey_Entry.status)
 		recur = @edit_Survey_Entry.recur
 		recur_every = @edit_Survey_Entry.recur_every
-	end
-	unless params[:project_id].blank?
-		survey_for_id = @project.id
-		survey_for = "Project"
+		survey_for = @edit_Survey_Entry.survey_for_type
+		survey_for_id = @edit_Survey_Entry.survey_for_id
 	end
 %>
 <% if @edit_Survey_Entry.blank?%>
@@ -67,13 +76,13 @@
 		</tr>
 		<tr>
 			<th align="left"><%= l(:label_recur) %></th>
-			<td><%= check_box_tag 'recur', true, recur %></td>
-			<td></td>
-		</tr>
-		<tr id="tr_recur_every">
-			<th align="left"><%= l(:label_recur_every) %></th>
-			<td><%=h text_field_tag("recur_every", recur_every, :size => "1", :maxlength => 10) %></td>
-			<td></td>
+			<td>
+				<%= check_box_tag 'recur', true, recur %>	
+				<span id="tr_recur_every">
+					<b><%= l(:label_recur_every) %></b>
+					<%=h text_field_tag("recur_every", recur_every, :size => "3", :maxlength => 10) %>&nbsp;<b><%= l(:label_day_plural) %></b>
+				</span>
+			</td>
 		</tr>
 	</table>
 	</fieldset>
@@ -128,7 +137,9 @@
 									<% end %>	
 									</td>
 								<% end %>
-								<td></td>
+			                     <td align="right">
+								 <b><%= l(:label_points) %></b>&nbsp;<%=h text_field_tag(("points_" + (question.question_id).to_s + "_" + qIndex.to_s + "_" + (choice.choice_id).to_s + "_" + cIndex.to_s), choice.points, :size => 5, :maxlength => 10) %>
+								</td>
 							</tr>
 							<% end %>
 						<% end %>
@@ -173,7 +184,7 @@
 			</td>
 			<% unless isDisable%>
 				<td width="45%" align="right">
-					<%=link_to (image_tag('delete.png') + l(:button_delete_question)), "javascript:deletequestion(QINDEX,'')", :title => l(:button_delete) %>	
+					<%=link_to (image_tag('delete.png') + l(:button_delete_question)), "javascript:deletequestion(QINDEX,'')", :title => l(:button_delete) %>
 				</td>
 		   <% end %>
 		</tr>
@@ -193,7 +204,9 @@
 			<td align="left">
 				<%=h text_field_tag("questionChoices__QINDEX__0", "", :disabled => isDisable, :size => "40%", :maxlength => 255) %>
 			</td>
-			<td></td>
+			<td align="right">
+			  <b><%= l(:label_points) %></b>&nbsp;<%=h text_field_tag("points__QINDEX__0", "", :size => 5, :maxlength => 10) %>
+			</td>
 		</tr>
 		<% unless isDisable%>
 			<tr id="lastrow_QINDEX">

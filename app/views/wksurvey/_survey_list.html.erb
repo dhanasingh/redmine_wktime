@@ -5,13 +5,15 @@
         <th class="lbl-txt-align"><%= l(:label_status) %></th>
         <th></th>
     </tr>
+	<% survey_helper = Object.new.extend(WksurveyHelper) %>
+	<% @all_surveys = survey_helper.surveyList(params) %>
     <% @all_surveys.each do |entry| %>
         <tr>
             <td class="lbl-txt-align"><%=h entry.id %></td>
                 <td class="lbl-txt-align">
                     <% if ['O', 'C'].include? (entry.status )%>
                         <% if params[:project_id].blank? %>
-                            <%=h link_to entry.name, url_for(:controller => "wksurvey", :action => "survey", :survey_id => entry.id, :tab => "wksurvey")%>
+                            <%=h link_to entry.name, url_for(survey_helper.get_survey_url("survey", entry.id, params))%>
                         <% else %>
                             <%= link_to entry.name, url_for(:project_id => params[:project_id], :controller => "wksurvey", :id => entry.id, :action => "survey") %>
                         <% end %>
@@ -19,11 +21,11 @@
                         <%=h entry.name %>
                     <% end %>
                 </td>
-            <td class="lbl-txt-align"><%=h getSurveyStatusArr.invert[entry.status] %></td>
+            <td class="lbl-txt-align"><%=h survey_helper.getSurveyStatusArr.invert[entry.status] %></td>
             <td class="lbl-txt-align">
-                <% if checkEditSurveyPermission %>
+                <% if survey_helper.checkEditSurveyPermission %>
                     <% if params[:project_id].blank?
-                        editLink = {:controller => "wksurvey", :action => 'edit', :survey_id => entry.id, :tab => "wksurvey"}
+						editLink = survey_helper.get_survey_url("edit", entry.id, params)
                     else
                         editLink = {:controller => "wksurvey", :action => 'edit', :id => entry.id}
                     end %>

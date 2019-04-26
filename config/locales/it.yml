@@ -953,6 +953,7 @@ it:
   label_response: Response
   label_new_response: New Response
   notice_unsucessful_survey_response: No Questions Responsed
+  label_points: Points
   
   label_no_additional_details_for_issue: No Additional Details for Issue
   label_create_supplier_invoice_without_purchase_order: Create Supplier invoice without Purchase order

@@ -3,7 +3,7 @@ class WksurveyController < WkbaseController
   menu_item :wksurvey
     
 	before_action :require_login
-	before_action :check_proj_survey_permission
+	before_action :survey_authentication
   before_action :check_perm_and_redirect, :only => [:edit, :save_survey]
   before_action :check_survey_perm_and_redirect, :only => [:survey, :update_survey, :index]
 
@@ -11,39 +11,12 @@ class WksurveyController < WkbaseController
   include WksurveyHelper
   
 	def index
-		
-		surveys = get_survey_with_userGroup
-
-		unless params[:project_id].blank?
-			surveys = surveys.where("(survey_for_type = 'Project' AND survey_for_id = ?) OR (survey_for_type = 'Project' AND survey_for_id IS NULL)", @project.id)
-		end
-		
-    unless params[:survey_name].blank?
-      surveys = surveys.where("LOWER(name) LIKE lower('%#{params[:survey_name]}%')")
-		end
-
-    unless params[:status].blank?
-      surveys = surveys.where(:status => params[:status])
-		end
-		
-    unless params[:filter_group_id].blank?
-      surveys = surveys.where(:group_id => params[:filter_group_id])
-    end
-
+		surveys = surveyList(params)
 		if controller_name == "wksurvey" && params[:project_id].blank?
 			surveys = surveys.where("survey_for_type IS NULL")
 		end
 
     formPagination(surveys)
-	end
-	
-	def get_survey_with_userGroup
-		if checkEditSurveyPermission
-			WkSurvey.all
-		else
-			WkSurvey.joins("LEFT JOIN groups_users ON groups_users.group_id = wk_surveys.group_id")
-			.where("status IN ('O', 'C') AND (groups_users.user_id =" + (User.current.id).to_s + " OR wk_surveys.group_id IS NULL)")
-		end
 	end
 
 	def survey
@@ -126,7 +99,7 @@ class WksurveyController < WkbaseController
       @edit_Choice_Entries = WkSurvey.joins("LEFT JOIN wk_survey_questions ON wk_survey_questions.survey_id = wk_surveys.id")
       .joins("LEFT JOIN wk_survey_choices ON wk_survey_questions.id = wk_survey_choices.survey_question_id")
       .where(:id => params[:survey_id].to_i)
-			.select("wk_survey_questions.id AS question_id, wk_survey_choices.id AS choice_id, wk_survey_choices.name")
+			.select("wk_survey_questions.id AS question_id, wk_survey_choices.id AS choice_id, wk_survey_choices.name, wk_survey_choices.points")
 			.order("question_id, choice_id")
     end
   end
@@ -175,10 +148,11 @@ class WksurveyController < WkbaseController
 
 				if ((ele_nameVal.first).include? "questionChoices_") && (!(ele_nameVal.last).blank?)
 					choice_ele = (ele_nameVal.first).split("_")
-					questionChoiceID = (choice_ele[3]).blank? ? nil : choice_ele[3]
+					questionChoiceID = (choice_ele[3]).blank? ? "" : choice_ele[3]
 					qIndex = choice_ele[2]
+					choice_points = params["points_"+ choice_ele[1] + "_" + qIndex + "_" + questionChoiceID + "_" + choice_ele[4]]
 					questionChoices[qIndex] = [] if questionChoices[qIndex].blank?
-					questionChoices[qIndex] << {id: questionChoiceID, name: ele_nameVal.last}
+					questionChoices[qIndex] << {id: questionChoiceID, name: ele_nameVal.last, points: choice_points }
 					deleteChoiceName = "deleteChoiceIds_"+qIndex.to_s
 					unless params[deleteChoiceName].blank?
 						deleteChoiceIds = params[deleteChoiceName].split(",")
@@ -445,28 +419,33 @@ class WksurveyController < WkbaseController
 	errMsg
   end
 
-	def check_proj_survey_permission
-
-		unless params[:project_id].blank?
-			find_project_by_project_id
-		end
-
-		unless params[:id].blank? || @project.blank?
-			survey = WkSurvey.where(:id => params[:id], :survey_for_type => 'Project', :survey_for_id => @project.id)
-			if survey.blank?
-				render_404
-				return false
-			end
-		end
-
-		if !params[:survey_id].blank? && params[:project_id].blank?
-			survey = WkSurvey.where(:id => params[:survey_id], :survey_for_type => nil, :survey_for_id => nil)
-			if survey.blank?
-				render_404
-				return false
-			end
-		end
-
+  def survey_authentication
+	
+	#project tab
+	unless params[:project_id].blank?
+		find_project_by_project_id
 	end
+	
+	is_survey_not_permitted = false
+	if !params[:id].blank? && !@project.blank?
+		survey = WkSurvey.where(:id => params[:id])
+		is_survey_not_permitted = true if survey.blank?
+	#ERPmine tab
+	elsif !params[:contact_id].blank? && params[:project_id].blank?
+		contact = WkCrmContact.where(:id => params[:contact_id])
+		is_survey_not_permitted = true if contact.blank?
+	elsif !params[:account_id].blank? && params[:project_id].blank?
+		account = WkAccount.where(:id => params[:account_id])
+		is_survey_not_permitted = true if account.blank?
+	elsif !params[:survey_id].blank? && params[:project_id].blank?
+		survey = WkSurvey.where(:id => params[:survey_id])
+		is_survey_not_permitted = true if survey.blank?
+	end
+	
+	if is_survey_not_permitted
+		render_404
+		return false
+	end
+  end
 
 end
