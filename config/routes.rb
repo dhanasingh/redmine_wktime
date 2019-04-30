@@ -599,9 +599,11 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 
 	get 'projects/:project_id/wksurvey/edit', to: 'wksurvey#edit'
 
-	get 'projects/:project_id/wksurvey/:id/edit', to: 'wksurvey#edit'
+	get 'projects/:project_id/wksurvey/:survey_id/edit', to: 'wksurvey#edit'
 	
-	get 'projects/:project_id/wksurvey/:id/survey', to: 'wksurvey#survey'
+	get 'projects/:project_id/wksurvey/:survey_id/survey', to: 'wksurvey#survey'
+
+	get 'projects/:project_id/wksurvey/:survey_id/destroy', to: 'wksurvey#destroy'
 
 	resources :projects do
     resource :wkaccountproject, :only => [:index], :controller => :wkaccountproject do

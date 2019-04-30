@@ -1,12 +1,14 @@
 <%= form_tag({:controller => 'wksurvey', :action => 'update_survey'}, :method => :post, :id => 'query_form') do %>
     <%=h hidden_field_tag('project_id', params[:project_id]) %>
+    <%=h hidden_field_tag('contact_id', params[:contact_id]) %>
+    <%=h hidden_field_tag('account_id', params[:account_id]) %>
     <%=h hidden_field_tag("survey_id", (@question_Entries.first).id) %>
     <% @question_Entries.each do |entry| %>
         <%=h hidden_field_tag("question_type_"+ (entry.question_id).to_s, entry.question_type) %>
         <% 	choice_text = nil
             sel_choices = Hash.new
-            isDisable = !params[:response_id].blank? ? true : false
-            if (params[:response_id].blank? && !@isRecurEnabled) || !params[:response_id].blank?
+            isDisable = !params[:response_id].blank? && !(params[:response_id] == "new") ? true : false
+            if !(params[:response_id] == "new") && !(@isRecurEnabled && params[:response_id].blank?)
                 @survey_result.each do |result_entry|
                     if entry.question_id == result_entry.question_id
                         if ["TB","MTB"].include? result_entry.question_type
@@ -67,7 +69,7 @@
         </table>
         </fieldset>			
     <% end %>
-    <% if params[:response_id].blank? %>
+    <% if params[:response_id].blank? || params[:response_id] == "new" %>
         <div>
         <%= submit_tag l(:button_save), :id => 'wksurvey_save' %>
         </div>

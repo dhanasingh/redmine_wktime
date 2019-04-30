@@ -7,13 +7,11 @@
 	<fieldset class="box tabular">
 		<% if  @isSurvey %>
 			<%= render :partial => "survey" %>
+			<% content_for :sidebar do %>
+				<%= render :partial => 'sidebar' %>
+			<% end %>
 		<% else %>
 			<%= render :partial => "survey_result" %>
 		<% end %>
 	</fieldset>
-	<% if @showSideNav %>
-		<% content_for :sidebar do %>
-	  		<%= render :partial => 'sidebar' %>
-		<% end %>
-	<% end %>
 <% end %>

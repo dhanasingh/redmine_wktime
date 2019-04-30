@@ -2,22 +2,22 @@ module WksurveyHelper
 	include WktimeHelper
 
   def getSurveyStatusArr
-		{
-			"" => '',
-			l(:label_new) => 'N',
-			l(:label_open) => 'O',
-			l(:label_close) => 'C',
-			l(:label_archived) => 'A'
-		}
+	{
+		"" => '',
+		l(:label_new) => 'N',
+		l(:label_open) => 'O',
+		l(:label_close) => 'C',
+		l(:label_archived) => 'A'
+	}
   end
 
   def getQuestionType
-		{
-			l(:label_check_box) => 'CB',
-			l(:label_radio_button) => 'RB',
-			l(:label_text_box) => 'TB',
-			l(:label_text_area) => 'MTB'
-		}
+	{
+		l(:label_check_box) => 'CB',
+		l(:label_radio_button) => 'RB',
+		l(:label_text_box) => 'TB',
+		l(:label_text_area) => 'MTB'
+	}
 	end
 	
 	def getUserGroup
@@ -34,7 +34,6 @@ module WksurveyHelper
 		{
 			"" => '',
 			l(:label_project) => 'Project',
-			l(:label_issue) => 'Issue',
 			l(:label_accounts) => 'Accounts',
 			l(:label_contact) => 'Contact'
 		}
@@ -53,13 +52,8 @@ module WksurveyHelper
 	end 
 	
 	def surveyList(params)
+
 		surveys = get_survey_with_userGroup
-
-		unless params[:project_id].blank?
-			project_id = (Project.where(:identifier  => params[:project_id])).first
-			surveys = surveys.where("(survey_for_type = 'Project' AND survey_for_id = ?) OR (survey_for_type = 'Project' AND survey_for_id IS NULL)", project_id.id)
-		end
-
 		unless params[:survey_name].blank?
 			surveys = surveys.where("LOWER(name) LIKE lower('%#{params[:survey_name]}%')")
 		end
@@ -68,19 +62,8 @@ module WksurveyHelper
 			surveys = surveys.where(:status => params[:status])
 		end
 
-		unless params[:filter_group_id].blank?
-			surveys = surveys.where(:group_id => params[:filter_group_id])
-		end
-
-		unless params[:contact_id].blank?
-			surveys = surveys.where("(survey_for_type = 'Contact' AND survey_for_id = ?) OR (survey_for_type = 'Contact' AND survey_for_id IS NULL)", params[:contact_id])
-		end
-
-		unless params[:account_id].blank?
-			surveys = surveys.where("(survey_for_type = 'Accounts' AND survey_for_id = ?) OR (survey_for_type = 'Accounts' AND survey_for_id IS NULL)", params[:account_id])
-		end
-
-		surveys
+    getSurveyForType(params)
+    surveys = surveys.where(survey_for_type: @surveyForType, survey_for_id: [nil, @surveyForID])
 	end
 	
 	def get_survey_with_userGroup
@@ -92,13 +75,45 @@ module WksurveyHelper
 		end
 	end
 	
-	def get_survey_url(action, id, params)
-		urlHash = { :controller => "wksurvey", :action => action, :survey_id => id, :tab => "wksurvey" }
-		if !params[:contact_id].blank?
+	def get_survey_url(urlHash, params, redirect)
+
+		if !params[:project_id].blank?
+			urlHash[:project_id] = params[:project_id]
+		elsif !params[:contact_id].blank?
 			urlHash[:contact_id] = params[:contact_id]
+			if redirect
+				urlHash[:controller] = "wkcrmcontact" 
+				urlHash[:action] = 'edit'
+			end
 		elsif !params[:account_id].blank?
 			urlHash[:account_id] = params[:account_id]
+			if redirect
+				urlHash[:controller] = "wkcrmaccount"
+				urlHash[:action] = 'edit'
+			end
 		end
 		urlHash
+	end
+
+	def get_project_id
+		project_id = (Project.where(:identifier  => params[:project_id])).first
+		project_id.id
+	end
+
+	def getSurveyForType(params)
+
+		if !params[:project_id].blank?
+			@surveyForType = "Project"
+			@surveyForID = get_project_id
+		elsif !params[:contact_id].blank?
+			@surveyForType = "Contact"
+			@surveyForID = params[:contact_id]
+		elsif !params[:account_id].blank?
+			@surveyForType = "Accounts"
+			@surveyForID = params[:account_id]
+		else
+			@surveyForType = nil
+			@surveyForID = nil
+		end
 	end
 end
