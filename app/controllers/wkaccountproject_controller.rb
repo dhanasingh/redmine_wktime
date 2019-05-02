@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkaccountprojectController < WkbillingController
+class WkaccountprojectController < WkbaseController
 
 before_action :require_login
 before_action :account_project_permission
@@ -157,8 +157,27 @@ include WkaccountprojectHelper
 
 	def check_account_proj_module_permission	
 		unless User.current.allowed_to?(:view_accounts, @project)
-				render_403
-				return false
-			end
+			render_403
+			return false
 		end
+	end
+	   
+	def getOrderContactType
+		'C'
+	end
+
+	def additionalContactType
+		true
+	end
+
+	def getOrderAccountType
+		'A'
+	end
+
+	def getAccountDDLbl
+		l(:label_account)
+	end
+
+	def getAdditionalDD
+	end	
 end
