@@ -85,7 +85,7 @@ class WksurveyController < WkbaseController
           WHERE survey_id = #{params[:survey_id]}
           GROUP BY survey_id
         ) AS SR1 ON S.id = SR1.survey_id
-        WHERE S.id = #{params[:survey_id]}" + surveyForQry +
+        WHERE S.id = #{params[:survey_id]} AND SR.user_id = #{User.current.id}" + surveyForQry +
         "ORDER BY SR.created_at DESC")
         
       @isRecurEnabled = false
