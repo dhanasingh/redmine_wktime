@@ -605,6 +605,8 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 
 	get 'projects/:project_id/wksurvey/:survey_id/destroy', to: 'wksurvey#destroy'
 
+	get 'wkpayroll/export', :to => 'wkpayroll#export'
+
 	resources :projects do
     resource :wkaccountproject, :only => [:index], :controller => :wkaccountproject do
       get :index

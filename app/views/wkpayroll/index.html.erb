@@ -56,4 +56,15 @@
 <%= render :partial => 'wkpayroll/payroll_list'%>
 
 
+<% other_formats_links do |f| %>
+	<% url = "?format=csv"
+		params.each do |name, val|
+			if !['controller', 'action', 'utf8'].include?(name)
+				url = url + "&" + (name + "=" + val)
+			end
+		end
+	%>
+	<%= link_to 'CSV', url_for(:controller => controller_name, :action => 'export') + url %>	
+<% end %>
+
 <% html_title(l(:label_ta)) -%>

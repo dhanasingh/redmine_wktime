@@ -17,16 +17,39 @@
 
 class WkpayrollController < WkbaseController
 
-menu_item :wkattendance
-before_action :require_login
-before_action :check_perm_and_redirect, :only => [:edit, :user_salary_settings]
-before_action :check_ta_admin_and_redirect, :only => [:gensalary]
+	menu_item :wkattendance
+	before_action :require_login
+	before_action :check_perm_and_redirect, :only => [:edit, :user_salary_settings]
+	before_action :check_ta_admin_and_redirect, :only => [:gensalary]
 
-include WkpayrollHelper	
-include WktimeHelper
-include WkreportHelper
+	include WkpayrollHelper
+	include WktimeHelper
+	include WkreportHelper
 
 	def index
+
+		payrollEntries
+		payrollEntriesArr = @payrollEntries.to_a
+		@entry_count = @payrollEntries.length()
+		@payrollEntries = Hash.new
+		setLimitAndOffset()
+		page_no = (params['page'].blank? ? 1 : params['page']).to_i
+		from = @offset
+		to = (@limit * page_no)
+
+		payrollEntriesArr.each_with_index do |entry, index|
+			index += 1
+			if index > from && index <= to
+				@payrollEntries[entry.first] = entry.last
+			end
+		end
+
+		@total_gross = @payrollEntries.sum { |k, p| p[:BT] + p[:AT] }
+		@total_net = @payrollEntries.sum { |k, p| p[:BT] + p[:AT] - p[:DT] }
+
+	end
+
+	def payrollEntries
 		isGeneratePayroll = params[:generate]
 		@isPreview = params[:generate].blank? ? false : !to_boolean(params[:generate])
 		@total_gross = 0
@@ -65,23 +88,6 @@ include WkreportHelper
 
 		form_payroll_entries(payrollAmount, ids)
 
-		payrollEntriesArr = @payrollEntries.to_a
-		@entry_count = @payrollEntries.length()
-		@payrollEntries = Hash.new
-		setLimitAndOffset()
-		page_no = (params['page'].blank? ? 1 : params['page']).to_i
-		from = @offset
-		to = (@limit * page_no)
-
-		payrollEntriesArr.each_with_index do |entry, index|
-			index += 1
-			if index > from && index <= to
-				@payrollEntries[entry.first] = entry.last
-			end
-		end
-
-		@total_gross = @payrollEntries.sum { |k, p| p[:BT] + p[:AT] }
-		@total_net = @payrollEntries.sum { |k, p| p[:BT] + p[:AT] - p[:DT] }
 	end
 
 	def get_wksalaries_in_hash_format(userId, salaryDate)
@@ -463,13 +469,13 @@ include WkreportHelper
 		errmsg = saveUserSalary(u_salary_cmpts, true)
 		errmsg = "ok" if errmsg.blank?
 		render :plain => errmsg
-end
+	end
 
-def get_salary_components
+	def get_salary_components
 		WkSalaryComponents.where("component_type != 'c'")
-end
+	end
 
-def saveUserSalary(u_salary_cmpts, is_bulkEdit)
+	def saveUserSalary(u_salary_cmpts, is_bulkEdit)
 		return_val = false
 		salaryComponents = getSalaryComponentsArr
 		errorMsg = nil
@@ -507,6 +513,15 @@ def saveUserSalary(u_salary_cmpts, is_bulkEdit)
 				end
 		end
 		errorMsg
-end
+	end
+
+	def export
+		respond_to do |format|
+			payrollEntries
+			format.csv {
+				send_data(payroll_to_csv(@payrollEntries), :type => 'text/csv; header=present', :filename => 'payroll.csv')
+			}
+		end
+	end
 
 end
