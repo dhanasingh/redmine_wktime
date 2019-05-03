@@ -21,7 +21,7 @@ end
         <tr>
             <td class="lbl-txt-align"><%=h entry.id %></td>
                 <td class="lbl-txt-align">
-                    <% if ['O', 'C'].include? (entry.status )%>
+                    <% unless survey_helper.get_survey_with_userGroup(entry.id).blank? %>
                         <% urlhash = {:controller => "wksurvey", :action => "survey", :survey_id => entry.id} %>
                         <%=h link_to entry.name, url_for(survey_helper.get_survey_url(urlhash, params, false))%>
                     <% else %>

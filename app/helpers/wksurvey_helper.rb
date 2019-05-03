@@ -53,7 +53,7 @@ module WksurveyHelper
 	
 	def surveyList(params)
 
-		surveys = get_survey_with_userGroup
+		surveys = get_survey_with_userGroup(nil)
 		unless params[:survey_name].blank?
 			surveys = surveys.where("LOWER(name) LIKE lower('%#{params[:survey_name]}%')")
 		end
@@ -68,13 +68,15 @@ module WksurveyHelper
         surveys
 	end
 	
-	def get_survey_with_userGroup
-		if checkEditSurveyPermission
-			WkSurvey.all
+	def get_survey_with_userGroup(survey_id)
+		if checkEditSurveyPermission && survey_id.blank?
+			survey = WkSurvey.all
 		else
-			WkSurvey.joins("LEFT JOIN groups_users ON groups_users.group_id = wk_surveys.group_id")
+			survey = WkSurvey.joins("LEFT JOIN groups_users ON groups_users.group_id = wk_surveys.group_id")
 			.where("status IN ('O', 'C') AND (groups_users.user_id =" + (User.current.id).to_s + " OR wk_surveys.group_id IS NULL)")
 		end
+		survey = survey.where(:id => survey_id) unless survey_id.blank?
+		survey
 	end
 	
 	def get_survey_url(urlHash, params, redirect)

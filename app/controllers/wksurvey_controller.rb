@@ -5,6 +5,7 @@ class WksurveyController < WkbaseController
   before_action :survey_authentication
   before_action :check_perm_and_redirect, :only => [:edit, :save_survey]
   before_action :check_survey_perm_and_redirect, :only => [:survey, :update_survey, :index]
+  before_action :email_user_permission, :only => [:email_user]
   include WktimeHelper
   include WksurveyHelper
 
@@ -16,7 +17,7 @@ class WksurveyController < WkbaseController
 
   def survey
     
-    @survey_details = get_survey_with_userGroup
+    @survey_details = get_survey_with_userGroup(nil)
     @survey_details = @survey_details.where("wk_surveys.id = ? AND status IN ('O', 'C')", params[:survey_id])
     @survey_details = @survey_details.first
     @showresult = params[:showresult].blank? ? false : true
@@ -427,7 +428,7 @@ class WksurveyController < WkbaseController
   end
         
   def check_survey_perm_and_redirect
-    if !showSurvey
+    if !showSurvey || get_survey_with_userGroup(params[:survey_id]).blank?
       render_403
       return false
     end
