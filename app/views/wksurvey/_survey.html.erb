@@ -2,6 +2,7 @@
     <%=h hidden_field_tag('project_id', params[:project_id]) %>
     <%=h hidden_field_tag('contact_id', params[:contact_id]) %>
     <%=h hidden_field_tag('account_id', params[:account_id]) %>
+    <%=h hidden_field_tag('issue_id', params[:issue_id]) %>
     <%=h hidden_field_tag("survey_id", (@question_Entries.first).id) %>
     <% @question_Entries.each do |entry| %>
         <%=h hidden_field_tag("question_type_"+ (entry.question_id).to_s, entry.question_type) %>

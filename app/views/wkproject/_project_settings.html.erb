@@ -1,0 +1,6 @@
+<% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
+<%= labelled_fields_for :erpmineproject, @project.erpmineproject do |project_fields| %>
+    <p><%= project_fields.text_field :billing_rate %></p>
+    <p><%= project_fields.select :billing_currency, wkexpense_helper.options_for_currency %></p>
+    <p><%= project_fields.check_box :is_issueSurvey_allowed, :no_label => true  %><label><%= l(:label_allow_survey_for_issue) %></label></p>
+<% end %>

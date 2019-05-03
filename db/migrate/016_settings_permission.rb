@@ -86,5 +86,13 @@ class SettingsPermission< ActiveRecord::Migration[4.2]
 		  t.rename :recur_after, :recur_every
 		end
 
+		create_table :wk_projects do |t|
+			t.references :project, :null => false
+			t.float :billing_rate
+			t.column :billing_currency, :string, :limit => 5, :default => '$'
+			t.boolean :is_issueSurvey_allowed, :default => false
+			t.timestamps null: false
+		end
+
   end
 end

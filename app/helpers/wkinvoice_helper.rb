@@ -167,7 +167,7 @@ include WkpayrollHelper
 	# Quantity calculate from the time entries for the project
 	def saveTAMInvoiceItem(accountProject, isCreate)
 		# Get the rate and currency in rateHash
-		rateHash = getProjectRateHash(accountProject.project.custom_field_values)
+		rateHash = getProjectRateHash(accountProject.project_id)
 		# genInvFrom = Setting.plugin_redmine_wktime['wktime_generate_invoice_from']
 		genInvFrom = getUnbillEntryStart(@invoice.start_date) #genInvFrom.blank? ? @invoice.start_date : genInvFrom.to_date
 		# timeEntries = TimeEntry.joins("left outer join custom_values on time_entries.id = custom_values.customized_id and custom_values.customized_type = 'TimeEntry' and custom_values.custom_field_id = #{getSettingCfId('wktime_billing_id_cf')}").where(project_id: accountProject.project_id, spent_on: genInvFrom .. @invoice.end_date).where("custom_values.value is null OR #{getSqlLengthQry("custom_values.value")} = 0 ")
@@ -409,15 +409,12 @@ include WkpayrollHelper
 	end
 	
 	# Return RateHash which contains rate and currency for project
-	def getProjectRateHash(projectCustVals)
+	def getProjectRateHash(project_id)
 		rateHash = Hash.new
-		projectCustVals.each do |custVal|
-			case custVal.custom_field_id 
-				when getSettingCfId('wktime_project_billing_rate_cf') 
-					rateHash["rate"] = custVal.value.to_f
-				when getSettingCfId('wktime_project_billing_currency_cf')  
-					rateHash["currency"] = custVal.value
-			end
+		wk_project = WkProject.where(:project_id => project_id )
+		unless wk_project.blank?
+			rateHash["rate"] = wk_project.first.billing_rate.round(4) unless wk_project.first.billing_rate.blank?
+			rateHash["currency"] = wk_project.first.billing_currency
 		end
 		rateHash
 	end

@@ -62,8 +62,10 @@ module WksurveyHelper
 			surveys = surveys.where(:status => params[:status])
 		end
 
-    getSurveyForType(params)
-    surveys = surveys.where(survey_for_type: @surveyForType, survey_for_id: [nil, @surveyForID])
+		getSurveyForType(params)
+		surveys = surveys.where(survey_for_type: @surveyForType, survey_for_id: [nil, @surveyForID])
+		surveys = surveys.where(status: ["O", "C"]) unless params[:isIssue].blank?
+        surveys
 	end
 	
 	def get_survey_with_userGroup
@@ -92,19 +94,31 @@ module WksurveyHelper
 				urlHash[:action] = 'edit'
 			end
 		end
+
+		if !params[:issue_id].blank? && redirect
+			urlHash = Hash.new
+			urlHash[:controller] = "issues"
+			urlHash[:action] = 'show'
+			urlHash[:id] = params[:issue_id]
+		elsif !params[:issue_id].blank?
+			urlHash[:issue_id] = params[:issue_id]
+		end
 		urlHash
 	end
 
-	def get_project_id
+	def get_project_id(params)
 		project_id = (Project.where(:identifier  => params[:project_id])).first
 		project_id.id
 	end
 
 	def getSurveyForType(params)
 
-		if !params[:project_id].blank?
+		if !params[:issue_id].blank? && params[:isIssue].blank?
+			@surveyForType = "Issues"
+			@surveyForID = params[:issue_id]
+		elsif !params[:project_id].blank?
 			@surveyForType = "Project"
-			@surveyForID = get_project_id
+			@surveyForID = get_project_id(params)
 		elsif !params[:contact_id].blank?
 			@surveyForType = "Contact"
 			@surveyForID = params[:contact_id]

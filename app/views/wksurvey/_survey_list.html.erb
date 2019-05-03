@@ -1,4 +1,11 @@
-<table class="list time-entries">
+<%
+if params[:isIssue] == "true"
+    style = "list issues odd-even"
+else   
+    style = "list time-entries"
+end
+%>
+<table class="<%= style %>">
     <tr>				
         <th class="lbl-txt-align">#</th>
         <th class="lbl-txt-align"><%= l(:label_survey_name) %></th>
@@ -23,7 +30,7 @@
                 </td>
             <td class="lbl-txt-align"><%=h survey_helper.getSurveyStatusArr.invert[entry.status] %></td>
             <td class="lbl-txt-align">
-                <% if survey_helper.checkEditSurveyPermission %>
+                <% if survey_helper.checkEditSurveyPermission && params[:isIssue].blank? %>
                     <% urlhash = {:controller => "wksurvey", :action => "edit", :survey_id => entry.id} %>
                     <%= link_to image_tag('edit.png'), url_for(survey_helper.get_survey_url(urlhash, params, false)), :title => l(:button_edit) %>
                     <% urlhash = {:controller => "wksurvey", :action => "destroy", :survey_id => entry.id} %>

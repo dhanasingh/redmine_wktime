@@ -12,6 +12,7 @@
 	Project.class_eval do
 		has_many :account_projects, :dependent => :destroy, :class_name => 'WkAccountProject'
 		#has_many :parents, through: :account_projects
+		has_one :wk_project, :dependent => :destroy, :class_name => 'WkProject'
 	end
 
 	TimeEntry.class_eval do
@@ -52,5 +53,18 @@
 				</td>
 			</tr>
 	</table>
+	</fieldset>
+<% end %>
+
+<% # Issue Survey list %>
+<% issueSurveyPermission = WkProject.where(:project_id => @issue.project_id) %>
+<% if wktime_helper.showSurvey && (@project.module_enabled?("Survey")) && !issueSurveyPermission.blank? && issueSurveyPermission.first.is_issueSurvey_allowed %>
+	<% params = Hash.new %>
+	<% params[:project_id] = Project.find(@issue.project_id).identifier %>
+	<% params[:isIssue] = "true" %>
+	<% params[:issue_id] = @issue.id %>
+	<fieldset>
+		<legend><b><%= l(:label_survey) %></b></legend>
+		<%= render :partial => 'wksurvey/survey_list', locals:{ :params => params} %>
 	</fieldset>
 <% end %>

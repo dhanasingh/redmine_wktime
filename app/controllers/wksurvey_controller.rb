@@ -133,7 +133,7 @@ class WksurveyController < WkbaseController
       flash[:error] += l(:notice_unsucessful_survey_response) if surveyChoices.blank?
     end
 
-    urlHash = {:controller => controller_name, :action => 'index', :tab => controller_name}
+    urlHash = {:controller => controller_name, :action => 'index'}
     urlHash = get_survey_url(urlHash, params, true)
     redirect_to urlHash
       
