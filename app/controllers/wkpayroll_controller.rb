@@ -462,7 +462,7 @@ class WkpayrollController < WkbaseController
 								param_elmts = (param.first).split('_')
 								user_id = (param_elmts[-2]).blank? ? nil : param_elmts[-2]
 								componentId = param_elmts.last
-								u_salary_cmpts << {:user_id => user_id, :component_id => componentId, :dependent_id => nil, :factor => param.last, :is_override => 1 }
+								u_salary_cmpts << {:user_id => user_id, :component_id => componentId, :dependent_id => component.dependent_id, :factor => param.last, :is_override => 1 }
 						end
 				end
 		end
@@ -485,7 +485,7 @@ class WkpayrollController < WkbaseController
 				userSalarycomp = WkUserSalaryComponents.where("user_id = #{userId} and salary_component_id = #{componentId}")
 				wkUserSalComp = userSalarycomp[0]
 				old_dependent_id = wkUserSalComp.blank? ? 0 : wkUserSalComp.dependent_id
-				dependentId = is_bulkEdit ? old_dependent_id.to_i : (entry["dependent_id".to_sym]).to_i
+				dependentId = (is_bulkEdit && old_dependent_id > 0) ? old_dependent_id.to_i : (entry["dependent_id".to_sym]).to_i
 				userSettingHash = getUserSettingHistoryHash(wkUserSalComp) unless wkUserSalComp.blank?
 				if (entry["is_override".to_sym]).blank?
 						unless wkUserSalComp.blank?
