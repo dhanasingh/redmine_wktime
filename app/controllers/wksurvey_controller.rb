@@ -428,7 +428,7 @@ class WksurveyController < WkbaseController
   end
         
   def check_survey_perm_and_redirect
-    if !showSurvey || get_survey_with_userGroup(params[:survey_id]).blank?
+    if !showSurvey || (!params[:survey_id].blank? && get_survey_with_userGroup(params[:survey_id]).blank?)
       render_403
       return false
     end
