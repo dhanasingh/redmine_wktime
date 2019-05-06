@@ -112,23 +112,18 @@ module WkpayrollHelper
 	end
 	
 	def generateSalaries(userIds, salaryDate, isGeneratePayroll)
-		payrollList = Array.new		
+		@payrollList = Array.new		
 		userSalaryHash = getUserSalaryHash(userIds,salaryDate)
 		payperiod = Setting.plugin_redmine_wktime['wktime_pay_period']
 		currency = Setting.plugin_redmine_wktime['wktime_currency']
 		errorMsg = nil
-		deleteWkSalaries(userIds,salaryDate)
 		unless userSalaryHash.blank?
 			userSalaryHash.each do |userId, salary|
 				salary.each do |componentId, amount|
-					payrollList << {:user_id => userId, :salary_component_id => componentId, :amount => amount.round, :currency => currency, :salary_date => salaryDate}
+					@payrollList << {:user_id => userId, :salary_component_id => componentId, :amount => amount.round, :currency => currency, :salary_date => salaryDate}
 				end
-		 end
-			@payrollList = payrollList
- 
-			if isGeneratePayroll == "true"
-			 errorMsg = SavePayroll(payrollList)
-			end
+		 	end
+			 errorMsg = SavePayroll(@payrollList,userIds,salaryDate) if isGeneratePayroll == "true"
 		else	
 			errorMsg = l(:error_wktime_save_nothing)
 		end		
@@ -526,7 +521,8 @@ module WkpayrollHelper
 		}
 	end
 
-	def SavePayroll(payrollList)
+	def SavePayroll(payrollList,userIds,salaryDate)
+		deleteWkSalaries(userIds, salaryDate)
 		errorMsg = nil
 		payrollList.each do |list|
 			userSalary = WkSalary.new
