@@ -33,7 +33,9 @@
 						<th style="text-align: center;">
 							<label style="padding-right: 10px;"><%= compoment.name %></label>
 							<% (compoment.name).gsub! ' ', '_' %>
-							<a class="icon icon-edit" style="cursor: pointer;" id="<%= compoment.name %>" onClick=" bulk_edit('<%= compoment.name %>');" title="Edit"></a>
+							<% if isAccountUser %>
+								<a class="icon icon-edit" style="cursor: pointer;" id="<%= compoment.name %>" onClick=" bulk_edit('<%= compoment.name %>');" title="Edit"></a>
+							<% end %>
 						</th>
 					<% end %>
 					<th></th>
