@@ -485,7 +485,7 @@ class WkpayrollController < WkbaseController
 				userSalarycomp = WkUserSalaryComponents.where("user_id = #{userId} and salary_component_id = #{componentId}")
 				wkUserSalComp = userSalarycomp[0]
 				old_dependent_id = wkUserSalComp.blank? ? 0 : wkUserSalComp.dependent_id
-				dependentId = (is_bulkEdit && old_dependent_id > 0) ? old_dependent_id.to_i : (entry["dependent_id".to_sym]).to_i
+				dependentId = (is_bulkEdit && old_dependent_id.to_i  > 0) ? old_dependent_id.to_i : (entry["dependent_id".to_sym]).to_i
 				userSettingHash = getUserSettingHistoryHash(wkUserSalComp) unless wkUserSalComp.blank?
 				if (entry["is_override".to_sym]).blank?
 						unless wkUserSalComp.blank?
