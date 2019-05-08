@@ -69,13 +69,13 @@ function runperiodDatePicker()
 	$( "#myDialog" ).dialog( "open" );
 }
 
-function bulk_edit(ele){
-	var button = $('#'+ele).prop('title');
+function bulk_edit(colname){
+	var button = $('#'+colname).prop('title');
 	if(button == 'Edit'){
-		$('#'+ele).prop('title', 'Update');
-		$('#'+ele).removeClass();
-		$('#'+ele).addClass("icon icon-save");
-		$('[id^="td_'+ele+'"]').each(function(){
+		$('#'+colname).prop('title', 'Update');
+		$('#'+colname).removeClass();
+		$('#'+colname).addClass("icon icon-save");
+		$('[id^="td_'+colname+'"]').each(function(){
 			if((this.id).split("_").length > 2){
 				var text = $(this).text();
 				var name = (this.id).substr(3)
@@ -88,11 +88,11 @@ function bulk_edit(ele){
 	else if(button == 'Update'){
 		var form_data = {}
 		var isInvalid = false;
-		$('[id^="'+ele+'"]').each(function(){
+		$('[id^="'+colname+'"]').each(function(){
 			var ele_id = (this.id).split("_");
 			if(ele_id[ele_id.length-1] > 0){
-				var val = parseFloat(this.value);
-				var old_val = parseFloat($('#h_'+this.id).val());
+				var val = this.value;
+				var old_val = $('#h_'+this.id).val();
 				if( isNaN(val)){
 					isInvalid = true;
 				}else if(val != old_val){
@@ -112,13 +112,7 @@ function bulk_edit(ele){
 					if(data != "ok") {
 						alert(data);
 					}else{
-						$('#'+ele).prop('title', 'Edit');
-						$('#'+ele).removeClass();
-						$('#'+ele).addClass("icon icon-edit");
-						$('[id^="'+ele+'"]').each(function(){
-							if((this.id).split("_").length > 2)
-	 							$('#td_'+this.id).html(this.value);
-	 					});
+						setUserPayrollValues(colname, true);
 					}
 				},
 				beforeSend: function(){
@@ -129,6 +123,26 @@ function bulk_edit(ele){
 				}
 			});
 		}
+		else if(Object.keys(form_data).length == 0 && !isInvalid){
+			setUserPayrollValues(colname, true);
+		}
+		else{
+			setUserPayrollValues(colname, false);
+		}
 	}
 
+}
+
+function setUserPayrollValues(colname, isValid){
+	$('[id^="'+colname+'"]').each(function(){
+		if(!isValid){
+			this.value = $('#h_'+this.id).val();
+		}
+		else if((this.id).split("_").length > 2){
+			$('#'+colname).prop('title', 'Edit');
+			$('#'+colname).removeClass();
+			$('#'+colname).addClass("icon icon-edit");
+			$('#td_'+this.id).html(this.value);
+		}
+	});
 }
