@@ -240,7 +240,7 @@ en:
   label_date_errormsg: Please Enter the Start date
   label_auto_generate_salary: Auto generate salary
   label_generate_salary: Generate Salary
-  label_unpaid_salary: Unpaid Salary
+  label_preview_salary: Preview Salary
   label_pay_day: Pay day
   label_salary_detail: Salary Details
   label_loss_of_pay: Loss Of Pay
