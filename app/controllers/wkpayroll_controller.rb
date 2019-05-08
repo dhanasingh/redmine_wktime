@@ -466,11 +466,10 @@ class WkpayrollController < WkbaseController
 		u_salary_cmpts = Array.new
 		params.each do |param|
 				salary_cmpts.each do |component|
-						if ((param.first).include? (component.name + "_")) && (!(param.last).blank?)
-								param_elmts = (param.first).split('_')
-								user_id = (param_elmts[-2]).blank? ? nil : param_elmts[-2]
-								componentId = param_elmts.last
-								u_salary_cmpts << {:user_id => user_id, :component_id => componentId, :dependent_id => component.dependent_id, :factor => param.last, :is_override => 1 }
+					param_elmts = (param.first).split('_')
+						if param_elmts.first.to_i == component.id && (!(param.last).blank?)
+								user_id = param_elmts.last.blank? ? nil : param_elmts.last
+								u_salary_cmpts << {:user_id => user_id, :component_id => param_elmts.first, :dependent_id => component.dependent_id, :factor => param.last, :is_override => 1 }
 						end
 				end
 		end

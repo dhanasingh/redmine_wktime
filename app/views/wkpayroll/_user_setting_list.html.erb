@@ -32,9 +32,8 @@
 					<% @salary_components.each do |compoment| %>
 						<th style="text-align: center;">
 							<label style="padding-right: 10px;"><%= compoment.name %></label>
-							<% (compoment.name).gsub! ' ', '_' %>
 							<% if isAccountUser %>
-								<a class="icon icon-edit" style="cursor: pointer;" id="<%= compoment.name %>" onClick=" bulk_edit('<%= compoment.name %>');" title="Edit"></a>
+								<a class="icon icon-edit" style="cursor: pointer;" id="<%= compoment.id %>" onClick=" bulk_edit('<%= compoment.id %>');" title="Edit"></a>
 							<% end %>
 						</th>
 					<% end %>
@@ -52,7 +51,7 @@
 									factor = user_compoment.factor
 								end
 							end %>
-							<td style="text-align: center;" id="td_<%= compoment.name + '_' + entry.user_id.to_s + '_' + compoment.id.to_s %>"><%= factor %></td>
+							<td style="text-align: center;" id="td_<%= compoment.id.to_s + '_' + entry.user_id.to_s %>"><%= factor %></td>
 						<% end %>
 						<td align="center">
 							<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'user_salary_settings', :user_id => entry.user_id, :tab => 'payroll'},

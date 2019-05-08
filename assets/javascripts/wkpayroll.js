@@ -69,36 +69,31 @@ function runperiodDatePicker()
 	$( "#myDialog" ).dialog( "open" );
 }
 
-function bulk_edit(colname){
-	var button = $('#'+colname).prop('title');
+function bulk_edit(colID){
+	var button = $('#'+colID).prop('title');
 	if(button == 'Edit'){
-		$('#'+colname).prop('title', 'Update');
-		$('#'+colname).removeClass();
-		$('#'+colname).addClass("icon icon-save");
-		$('[id^="td_'+colname+'"]').each(function(){
-			if((this.id).split("_").length > 2){
-				var text = $(this).text();
-				var name = (this.id).substr(3)
-				var input = '<input id="'+ name +'" name="'+ name +'" type="text" value="' + text + '" maxlength="7" size="10" />';
-				input += '<input name="h_'+ name +'" id="h_'+ name +'" type="hidden" value="' + text + '">';
-	 			$(this).html(input);
- 			}
+		$('#'+colID).prop('title', 'Update');
+		$('#'+colID).removeClass();
+		$('#'+colID).addClass("icon icon-save");
+		$('[id^="td_'+colID+'_"]').each(function(){
+			var text = $(this).text();
+			var name = (this.id).substr(3)
+			var input = '<input id="'+ name +'" name="'+ name +'" type="text" value="' + text + '" maxlength="7" size="10" />';
+			input += '<input name="h_'+ name +'" id="h_'+ name +'" type="hidden" value="' + text + '">';
+			$(this).html(input);
 		});
 	}
 	else if(button == 'Update'){
 		var form_data = {}
 		var isInvalid = false;
-		$('[id^="'+colname+'"]').each(function(){
-			var ele_id = (this.id).split("_");
-			if(ele_id[ele_id.length-1] > 0){
-				var val = this.value;
-				var old_val = $('#h_'+this.id).val();
-				if( isNaN(val)){
-					isInvalid = true;
-				}else if(val != old_val){
-					form_data[this.name] = val;
- 				}
- 			}
+		$('[id^="'+colID+'_"]').each(function(){
+			var val = this.value;
+			var old_val = $('#h_'+this.id).val();
+			if( isNaN(val)){
+				isInvalid = true;
+			}else if(val != old_val){
+				form_data[this.name] = val;
+			}
 		});
 		
 		if(!isInvalid && Object.keys(form_data).length > 0){
@@ -112,7 +107,7 @@ function bulk_edit(colname){
 					if(data != "ok") {
 						alert(data);
 					}else{
-						setUserPayrollValues(colname, true);
+						setUserPayrollValues(colID, true);
 					}
 				},
 				beforeSend: function(){
@@ -124,24 +119,24 @@ function bulk_edit(colname){
 			});
 		}
 		else if(Object.keys(form_data).length == 0 && !isInvalid){
-			setUserPayrollValues(colname, true);
+			setUserPayrollValues(colID, true);
 		}
 		else{
-			setUserPayrollValues(colname, false);
+			setUserPayrollValues(colID, false);
 		}
 	}
 
 }
 
-function setUserPayrollValues(colname, isValid){
-	$('[id^="'+colname+'"]').each(function(){
+function setUserPayrollValues(colID, isValid){
+	$('[id^="'+colID+'_"]').each(function(){
 		if(!isValid){
 			this.value = $('#h_'+this.id).val();
 		}
-		else if((this.id).split("_").length > 2){
-			$('#'+colname).prop('title', 'Edit');
-			$('#'+colname).removeClass();
-			$('#'+colname).addClass("icon icon-edit");
+		else{
+			$('#'+colID).prop('title', 'Edit');
+			$('#'+colID).removeClass();
+			$('#'+colID).addClass("icon icon-edit");
 			$('#td_'+this.id).html(this.value);
 		}
 	});
