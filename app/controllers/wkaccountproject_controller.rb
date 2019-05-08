@@ -155,8 +155,8 @@ include WkaccountprojectHelper
 		end
 	end
 
-	def check_account_proj_module_permission	
-		unless User.current.allowed_to?(:view_accounts, @project)
+	def check_account_proj_module_permission
+		if params[:contact_id].blank? && params[:account_id].blank? && !params[:project_id].blank? && !User.current.allowed_to?(:view_accounts, @project)
 			render_403
 			return false
 		end
