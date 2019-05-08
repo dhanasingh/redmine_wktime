@@ -20,7 +20,8 @@ class WkpayrollController < WkbaseController
 	menu_item :wkattendance
 	before_action :require_login
 	before_action :check_perm_and_redirect, :only => [:edit, :user_salary_settings]
-	before_action :check_ta_admin_and_redirect, :only => [:gensalary]
+	before_action :check_admin_perm_and_redirect, :only => [:index]
+	before_action :check_setting_admin_perm_and_redirect, :only => [:payrollsettings, :save_bulk_edit]
 
 	include WkpayrollHelper
 	include WktimeHelper
@@ -360,26 +361,27 @@ class WkpayrollController < WkbaseController
 
 	end
 	
-    def check_perm_and_redirect
-	  unless check_permission
+  def check_perm_and_redirect
+	  unless params[:user_id].to_i == User.current.id
 	    render_403
 	    return false
 	  end
-    end
-
-	def check_permission
-		ret = false
-		ret = params[:user_id].to_i == User.current.id
-		return (ret || isAccountUser)
-	end
+  end
 	
-	def check_ta_admin_and_redirect
-		unless isAccountUser
+	def check_admin_perm_and_redirect
+		if !params[:generate].blank? && !isAccountUser
 			render_403
 			return false
 		end
 	end
 	
+	def check_setting_admin_perm_and_redirect
+		unless isAccountUser
+			render_403
+			return false
+		end
+	end
+
 	def usrsettingsindex
 		@status = params[:status] || 1
 		@groups = Group.all.sort
