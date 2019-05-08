@@ -7,7 +7,7 @@
     <% if @showSideNav %>
         <% @survey_responses.each do |response| %>
             <% urlhash = {:controller => "wksurvey", :action => "survey", :survey_id=> response.survey_id, :response_id => response.id} %>
-            <li><%= link_to (l(:label_response) + "(" + response.response_date + ")"), url_for(get_survey_url(urlhash, params, false)) %></li>
+            <li><%= link_to (l(:label_response) + "(" + response.response_date.strftime("%Y-%m-%d %H:%M") + ")"), url_for(get_survey_url(urlhash, params, false)) %></li>
         <% end %>
     <% end %>
     <% if @showSideNav || @survey_responses.size == 1 %>

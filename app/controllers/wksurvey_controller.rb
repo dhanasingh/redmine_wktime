@@ -77,8 +77,8 @@ class WksurveyController < WkbaseController
       else
         surveyForQry = " AND SR.survey_for_type = '#{@surveyForType}' AND SR.survey_for_id = #{@surveyForID} "
       end
-      @survey_responses = WkSurvey.find_by_sql("SELECT S.id AS survey_id, SR.id, to_char(date_trunc('second', SR.created_at),
-        'YYYY-MM-DD HH24:MI') AS response_date, SR1.created_at AS response_created
+      @survey_responses = WkSurvey.find_by_sql("SELECT S.id AS survey_id, SR.id, SR.created_at AS response_date, 
+          SR1.created_at AS response_created
         FROM wk_surveys AS S
         INNER JOIN wk_survey_responses AS SR ON S.id = SR.survey_id
         LEFT JOIN (
