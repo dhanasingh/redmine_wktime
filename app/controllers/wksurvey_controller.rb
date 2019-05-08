@@ -468,6 +468,9 @@ class WksurveyController < WkbaseController
     if is_survey_not_permitted
       render_404
       return false
+    elsif !params[:project_id].blank? && !User.current.allowed_to?(:view_survey, @project)
+      render_403
+      return false
     end
   end
 
