@@ -1,5 +1,7 @@
 class WkgrouppermissionController < ApplicationController
   unloadable
+  include WktimeHelper
+  before_action :check_permission_tab_and_redirect, :only => [:index, :edit, :update]
 
 	def index
 		@groups =  nil
@@ -59,6 +61,13 @@ class WkgrouppermissionController < ApplicationController
 		
 		redirect_to :controller => 'wkgrouppermission',:action => 'index' , :tab => 'wkgrouppermission', :group_id => params[:group_id].to_i			
 		flash[:notice] = l(:notice_successful_update)
+	end
+	
+	def check_permission_tab_and_redirect
+		unless (User.current.id == 1) || validateERPPermission("ADM_ERP")
+			render_403
+			return false
+		end
 	end
 
 end

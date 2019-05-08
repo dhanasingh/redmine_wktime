@@ -1359,7 +1359,7 @@ end
 	
 	def hasSettingPerm
 		ret = false
-		ret = (User.current.id == 1) || validateERPPermission("ADM_ERP")
+		ret = (User.current.id == 1) || validateERPPermission("ADM_ERP") || isAccountUser || (validateERPPermission("V_INV") && validateERPPermission("D_INV")) || validateERPPermission("A_ACC_PRVLG") || validateERPPermission("A_CRM_PRVLG") || validateERPPermission("A_PUR_PRVLG") || validateERPPermission("M_BILL")
 		ret
 	end
 	
