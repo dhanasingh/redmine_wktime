@@ -362,11 +362,17 @@ class WkpayrollController < WkbaseController
 	end
 	
   def check_perm_and_redirect
-	  unless params[:user_id].to_i == User.current.id
+	  unless check_permission
 	    render_403
 	    return false
 	  end
-  end
+	end
+	
+	def check_permission
+		ret = false
+		ret = params[:user_id].to_i == User.current.id
+		return (ret || isAccountUser)
+	end
 	
 	def check_admin_perm_and_redirect
 		if !params[:generate].blank? && !isAccountUser
