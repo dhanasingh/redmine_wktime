@@ -98,6 +98,7 @@
 		<p style="text-align: center;">
 			<caption style="text-align:center"><b>
 				<%= getMainLocation %></br><%= l(:report_payroll_bank) %></b></br>
+				<b><%= l(:label_wages_period) %>:</b> <%= @salary_data.blank? && @salary_data[0].blank? ? session[:wkreport][:from] :  @salary_data[0].salary_date %>
 			</caption>
 		</p>
 	</div>
