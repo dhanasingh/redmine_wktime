@@ -293,7 +293,7 @@ include WkpayrollHelper
 					userIdVal= []
 				end
 				userIdVal << entry.id
-				if isCreate && ((oldIssueId == 0 || oldIssueId != entry.issue_id) || (isUserBilling && lastUserId != entry.user_id)) && !(invoiced_users.include? entry.user_id)
+				if isCreate && ((oldIssueId == 0 || oldIssueId != entry.issue_id) || (isUserBilling && lastUserId != entry.user_id)) && !((invoiced_users.include? entry.user_id) && !accountProject.itemized_bill && isUserBilling)
 					invoiced_users << entry.user_id
 					itemAmount = rateHash['rate'] * quantity
 					@invItems[@itemCount].store 'project_id', accountProject.project_id
