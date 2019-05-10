@@ -14,8 +14,8 @@ This Plugin has the following modules:
 3) PayRoll
     Setup Payroll data
     Generate Salary
-    Report – Salary Register
-    Report – Salary Slip
+    Report ï¿½ Salary Register
+    Report ï¿½ Salary Slip
 4) Billing
     Setup Billable Projects
     Generate Invoices
@@ -24,12 +24,12 @@ This Plugin has the following modules:
 5) Accounting
     Create Ledgers
     Post Financial Transaction 
-    Report – Balance Sheet
-    Report – Profit & Loss A/c Report
+    Report ï¿½ Balance Sheet
+    Report ï¿½ Profit & Loss A/c Report
 6) CRM
     Create Lead,Opportunity, Activity and Contacts
-    Report – Lead Conversion
-    Report – Sales Activity
+    Report ï¿½ Lead Conversion
+    Report ï¿½ Sales Activity
 7) Purchasing
     Create RFQ, Quote, Purchase Order, 
     Create Supplier Invoice and Supplier Payments
@@ -71,9 +71,23 @@ If an apache passenger module is used then make sure the following settings are 
   b) RailsAppSpawnerIdleTime 0
   c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for 3.5.1
+Release Notes for 3.6
 
-  - Minor code changes.
+  Features:
+    - Payroll module-Edit box in user setting for all individual employees
+    - Save and Continue for Accounting Transaction
+    - Accounting Transaction Remember Previous values
+    - Main Location
+    - Billable Projects in Project / Account
+    - Notify Users to take the Survey
+    - CSV Report on Payroll list page
+    - Preview salary
+    - Payroll Bank Report
+    - Entity Surveys
+
+  Bug Fixing:
+    - Move Permissions to Settings tab
+    - Double entry on preview bill
 
 Customization:
 
