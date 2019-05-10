@@ -7,7 +7,7 @@
 	@userlist = User.find_by_sql(userSqlStr)
 	queryStr = getQueryStr + 			
 			"left join groups_users gu on (gu.user_id = u.id and gu.group_id = #{groupId}) " +
-			"where u.type = 'User' and component_type != 'c'  and (wu.termination_date >= '#{from}' or (u.status = #{User::STATUS_ACTIVE} and wu.termination_date is null))"
+			"where u.type = 'User' and component_type != 'c' and (wu.termination_date >= '#{from}' or (u.status = #{User::STATUS_ACTIVE} and wu.termination_date is null))"
 	if groupId.to_i > 0 && userId.to_i < 1
 		queryStr = queryStr + " and gu.group_id is not null"
 	elsif userId.to_i > 0
@@ -25,24 +25,9 @@
 	#end
 	queryStr = queryStr + " order by s.user_id"
 	@salary_data = WkSalary.find_by_sql(queryStr)
-	usercol = ["Id", "Name", "Gender", "Designation"]
-	basiccol = Array.new
-	allowancecol = Array.new
-	deductioncol = Array.new
-	allComponents = WkSalaryComponents.all
-	allComponents.each do |entry|
-		if entry.component_type == 'b'
-			basiccol << entry.name
-		end
-		if entry.component_type == 'a'
-			allowancecol << entry.name
-		end
-		if entry.component_type == 'd'
-			deductioncol << entry.name
-		end
-	end
-	totalcol = ["Gross", "Deduction", "Net", "Signature", "Total Unpaid"]
-	@headerarr = usercol + basiccol + allowancecol + deductioncol + totalcol
+	usercol = ["#", "Name", "Routing Number", "Account Number"]
+	totalcol = ["Net"]
+	@headerarr = usercol + totalcol
 	@salaryval = Hash.new{|hsh,key| hsh[key] = {} }
 	@totalhash = Hash.new{|hsh,key| hsh[key] = {} }
 	compTotalHash = Hash.new
@@ -50,6 +35,7 @@
 	totgross = 0 
 	totdeduction = 0
 	last_salary_date = 	nil
+	syscurrency = Setting.plugin_redmine_wktime['wktime_currency']
 	@salary_data.each do |entry|	
 		@salaryval["#{entry.user_id}"].store "#{entry.component_name}", "#{entry.amount}"	
 		if entry.user_id != last_id || entry.salary_date.to_date != last_salary_date
@@ -64,7 +50,7 @@
 			compTotalHash[entry.component_name] = compTotalHash[entry.component_name] + entry.amount
 		end
 		if entry.component_type == 'b' || entry.component_type == 'a'
-			totgross = totgross + entry.amount 
+			totgross = totgross + entry.amount
 			compTotalHash['Gross'] = entry.amount + (compTotalHash['Gross'].blank? ? 0 : compTotalHash['Gross'])
 		end
 		if entry.component_type == 'd'
@@ -74,65 +60,62 @@
 		@totalhash["#{entry.user_id}"].store "gross", "#{totgross}" 
 		@totalhash["#{entry.user_id}"].store "deduction", "#{totdeduction}"
 	end
-	
 	compTotalHash['Net'] = (compTotalHash['Gross'].blank? ? 0 : compTotalHash['Gross'])  - (compTotalHash['Deduction'].blank? ? 0 : compTotalHash['Deduction'])
 	@rowval = Hash.new{|hsh,key| hsh[key] = {} }
 	@userdetails = Hash.new{|hsh,key| hsh[key] = {} }
+	count = 1
+	
 	@userlist.each do |user|
-		@userdetails["#{user.id}"].store "Employee_Id", "#{user.employee_id}"
-		@userdetails["#{user.id}"].store "Name", "#{user.firstname}"
-		@userdetails["#{user.id}"].store "Gender", "#{user.gender}"
-		@userdetails["#{user.id}"].store "Designation", "#{user.designation}"	
+		@userdetails["#{user.id}"].store "#", "#{count}"
+		@userdetails["#{user.id}"].store "Name", "#{user.firstname + " " + user.lastname }"
+		@userdetails["#{user.id}"].store "Routing Number", "#{user.bank_code}"
+		@userdetails["#{user.id}"].store "Account Number", "#{user.account_number}"
 		@headerarr.each do |entry|
 			@rowval["#{user.id}"].store "#{entry}", "#{@salaryval["#{user.id}"]["#{entry}"]}"
 		end
 		
-		@rowval["#{user.id}"]["Id"] = @userdetails["#{user.id}"]["Employee_Id"] 
+		@rowval["#{user.id}"]["#"] = @userdetails["#{user.id}"]["#"] 
 		@rowval["#{user.id}"]["Name"] = @userdetails["#{user.id}"]["Name"]
-		@rowval["#{user.id}"]["Gender"] = @userdetails["#{user.id}"]["Gender"]
-		@rowval["#{user.id}"]["Designation"] = @userdetails["#{user.id}"]["Designation"]
-		@rowval["#{user.id}"]["Gross"] = @totalhash["#{user.id}"]["gross"]
-		@rowval["#{user.id}"]["Deduction"] = @totalhash["#{user.id}"]["deduction"]
-		@rowval["#{user.id}"]["Net"] = (@totalhash["#{user.id}"]["gross"]).to_f - (@totalhash["#{user.id}"]["deduction"]).to_f
+		@rowval["#{user.id}"]["Routing Number"] = @userdetails["#{user.id}"]["Routing Number"]
+		@rowval["#{user.id}"]["Account Number"] = @userdetails["#{user.id}"]["Account Number"]
+		@rowval["#{user.id}"]["Net"] = syscurrency.to_s + ((@totalhash["#{user.id}"]["gross"]).to_f - (@totalhash["#{user.id}"]["deduction"]).to_f).to_s
+		count = count + 1
 	end
 %>
-<%= stylesheet_link_tag 'application' , :media => "all" %>
-<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 
 <style type="text/css">		
 		.tbl-report{
-			width : 2200px;
+			width : 1350px;
 			table-layout: fixed; !important;
 			word-wrap: break-word; !important;
-			text-align: center; 
-			margin-top:5px; margin-bottom:10px; padding-left: 10px; color:#333333;
+			text-align: center;
+			margin-top:5px; margin-bottom:10px; padding-left: 50px; color:#333333;
 			font-family:Verdana, sans-serif; font-size:12px; 
 		}
  </style>
-<div id="wages-rpt-dlg", style="overflow-x:auto;">
-<div>
-		<div style="float:left">
- <caption style="text-align:left"><b><%= l(:label_wk_form_r) %><br/><%= l(:label_register_wages) %><br/><%= l(:label_wages_rule) %></b></br>
- <b><%= l(:label_wk_name_address) %>:</b> <%= getMainLocation %>
- <%= getAddress %>
- <b><%= l(:label_wages_period) %>:</b> <%= @salary_data[0].blank? ? session[:wkreport][:from] :  @salary_data[0].salary_date %>
-  </caption> 
-  </div>
-		<div style="float:right">
-			<table>
-				<tr>
-					<td>
-						<% logo = Setting.plugin_redmine_wktime['wktime_header_logo'] %>					
-						<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>						
-							<%= image_tag("#{logo}", :plugin => "redmine_wktime") %>
-						<% end %>
-					</td>
-				</tr>
-			</table>
-		</div>
-		</div>
-		<div style="clear:both;"></div>
-<table class="tbl-report" border="1" style="border-collapse:collapse;" cellspacing="0",frame="box">
+<div id="attn-rpt-dlg", style="overflow-x:auto;">
+	<div style="float:left; width:90%;">
+		<p style="text-align: center;">
+			<caption style="text-align:center"><b>
+				<%= getMainLocation %></br><%= l(:report_payroll_bank) %></b></br>
+				<b><%= l(:label_wages_period) %>:</b> <%= @salary_data.blank? && @salary_data[0].blank? ? session[:wkreport][:from] :  @salary_data[0].salary_date %>
+			</caption>
+		</p>
+	</div>
+	<div style="float:right">
+		<table>
+			<tr>
+				<td>
+					<% logo = Setting.plugin_redmine_wktime['wktime_header_logo'] %>					
+					<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>						
+						<%= image_tag("#{logo}", :plugin => "redmine_wktime") %>
+					<% end %>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div style="clear:both;"></div>
+<table class="tbl-report" border="1" style="border-collapse:collapse;",frame="box">
 <% count = 0 %>  
  <thead bgcolor="#e6e6e6">
  <tr>
@@ -145,15 +128,15 @@
  <% @rowval.each do |key, value| %>
 	<tr class="<%= cycle("odd", "even") %>">
 		<% value.each do |k,v| %>
-			<td> <%= v.to_s %> </td>
+		   <td> <%= v.to_s %> </td>
 		<% end %>
 	</tr>
  <% end %>
  <tr>
-	<th colspan=<%=usercol.length%>> <%= l(:label_total) %> </th>
+	<th  align='right' colspan=<%=usercol.length%>> <%= l(:label_total) %>:&nbsp;</th>
 		<% @headerarr.each_with_index do |entry, index| %>
 			<% unless usercol.length > index %>
-				<th> <%= compTotalHash[entry] %> </th> 
+				<th> <%= syscurrency %><%= compTotalHash[entry] %> </th> 
 			<% end %>
 		<% end %>
  </tr>

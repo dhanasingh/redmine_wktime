@@ -22,7 +22,7 @@ class WkLocation < ActiveRecord::Base
   belongs_to :location_type, :class_name => 'WkCrmEnumeration'
   has_many :contacts, foreign_key: "location_id", class_name: "WkCrmContact", :dependent => :restrict_with_error
   has_many :acounts, foreign_key: "location_id", class_name: "WkAccount", :dependent => :restrict_with_error
-  before_save :check_default
+  before_save :check_default, :check_main
   
   validates_presence_of :name
   
@@ -31,4 +31,10 @@ class WkLocation < ActiveRecord::Base
       WkLocation.update_all({:is_default => false})
     end
   end 
+  
+  def check_main
+    if is_main? && is_main_changed?
+      WkLocation.update_all({:is_main => false})
+    end
+  end
 end

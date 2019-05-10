@@ -39,6 +39,7 @@ class WklocationController < WkbaseController
 		locationObj.name = params[:location_name]
 		locationObj.location_type_id = params[:location_type]
 		locationObj.is_default = params[:defaultValue]
+		locationObj.is_main = params[:defaultMain]
 		unless locationObj.valid? 		
 			errorMsg = errorMsg.blank? ? locationObj.errors.full_messages.join("<br>") : locationObj.errors.full_messages.join("<br>") + "<br/>" + errorMsg
 		end

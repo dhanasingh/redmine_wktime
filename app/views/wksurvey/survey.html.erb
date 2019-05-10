@@ -1,87 +1,17 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 
-<% if (@survey_details).status == "O" %>
-	<%= title l(:label_survey) %>
-	<fieldset class="box tabular">
-		<h3><%= l(:label_survey_name) %>:&nbsp;&nbsp; <%= @survey_details.name %></h3>
-<% elsif (@survey_details).status == "C" %>
-	<%= title l(:label_survey_result) %>
-	<fieldset class="box tabular">
-		<h3><%= l(:label_survey_name) %>:&nbsp;&nbsp; <%= @survey_details.name %></h3>
-<% end %>
+<%= title l(@isSurvey ? :label_survey : :label_survey_result) %>
+<h3><%= l(:label_survey_name) %>:&nbsp;&nbsp; <%= @survey_details.name %></h3>
 
-<% if (@survey_details).status == "O" && !@question_Entries.blank? %>
-		<%= form_tag({:controller => 'wksurvey', :action => 'update_survey'}, :method => :post, :id => 'query_form') do %>
-			<%=h hidden_field_tag("survey_id", (@question_Entries.first).id) %>
-			<% @question_Entries.each do |entry| %>
-				<%=h hidden_field_tag("question_type_"+ (entry.question_id).to_s, entry.question_type) %>
-				<fieldset class="box tabular">
-				<table>
-					<tr>
-						<th align="left"><%= l(:label_question_name) %></th>
-						<td align="left" style="padding-left:40px;"><%= entry.question_name %></td>
-					</tr>
-					<tr>
-						<th align="left"><%= l(:label_question_choices) %></th>
-						<td></td>
-					</tr>
-					<% if entry.question_type == 'RB' || entry.question_type == 'CB' %>
-					<% @question_Choice_Entries.each do |choice_entry| %>
-						<% if choice_entry.survey_question_id == entry.question_id %>
-						<tr>
-							<td></td>
-							<td align="left" style="padding-left:40px;">
-									<% if entry.question_type == 'CB' %>
-										<%= check_box_tag(("survey_sel_choice_"+ (entry.question_id).to_s + "_" + (choice_entry.id).to_s  ), choice_entry.id, false) %>
-										<%= choice_entry.name %>
-									<% else %>
-										<%= radio_button_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", choice_entry.id, false) %>
-										<%= choice_entry.name %>
-									<% end %>
-							</td>
-						</tr>
-						<% end %>
-					<% end %>
-					<% elsif entry.question_type == 'TB' || entry.question_type == 'MTB' %>
-					<tr>
-						<td></td>
-						<td align="left" style="padding-left:40px;">
-						<% if entry.question_type == 'TB' %>
-							<%=h text_field_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", nil, size: 60) %>
-						<% elsif entry.question_type == 'MTB' %>
-							<%=h text_area_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", nil, rows: 5, cols: 60) %>
-						<% end %>
-						</td>
-					</tr>
-					<% end %>
-				</table>
-				</fieldset>			
+<% unless @closed_surveyed_Entries.blank? && @question_Entries.blank? %>
+	<fieldset class="box tabular">
+		<% if  @isSurvey %>
+			<%= render :partial => "survey" %>
+			<% content_for :sidebar do %>
+				<%= render :partial => 'sidebar' %>
 			<% end %>
-			<div>
-			<%= submit_tag l(:button_save), :id => 'wksurvey_save' %>
-			</div>
+		<% else %>
+			<%= render :partial => "survey_result" %>
 		<% end %>
-
-<% elsif (@survey_details).status == "C" && !@closed_surveyed_Entries.blank? %>
-		<% @closed_surveyed_Entries.each do |entry| %>
-			<fieldset class="box tabular">
-				<table class="odd-even">
-					<tr>
-						<th align="left"><%= l(:label_question_name) %></th>
-						<td align="left" style="padding-left:40px;"><%= entry.question_name %></td>
-					</tr>
-					<tr>
-						<th align="left"><%= l(:label_question_choices) %></th>
-						<td></td>
-					</tr>
-					<tr>
-						<td></td>
-						<td><%= render :partial => 'graph', :locals => { :entry => entry } %></td>
-					<tr>
-				</table>
-		</fieldset>
-		<% end %>
-<% end %>
-<% if ["O", "C"].include? (@survey_details).status %>
-</fieldset>
+	</fieldset>
 <% end %>

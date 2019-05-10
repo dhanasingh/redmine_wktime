@@ -197,10 +197,10 @@ include WkcrmenumerationHelper
 		accSections = ['wkcrmactivity']
 		case entity
 		when 'WkAccount'
-			accSections = ['wkcrmactivity', 'wkcrmcontact'] #, 'wkopportunity'
+			accSections = ['wkcrmactivity', 'wkcrmcontact', 'wkaccountproject', 'wksurvey'] #, 'wkopportunity'
 			accSections << 'wkopportunity' unless curObj.account_type == 'S'
 		when 'WkCrmContact'
-			accSections = ['wkcrmactivity', 'wkcrmcontact'] # , 'wkopportunity'
+			accSections = ['wkcrmactivity', 'wkcrmcontact', 'wkaccountproject', 'wksurvey'] # , 'wkopportunity'
 			accSections << 'wkopportunity' unless curObj.contact_type == 'SC'
 			hookSection = call_hook(:view_accordion_section, {:entity => entity, :curObj => curObj})
 			hookSection = hookSection.split(' ')

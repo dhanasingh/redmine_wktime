@@ -169,9 +169,10 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
    
    get 'wkpayroll/payrollsettings', :to => 'wkpayroll#payrollsettings'
 
-   post 'wkpayroll/payrollsettings', :to => 'wkpayroll#payrollsettings'
-   
-   
+	 post 'wkpayroll/payrollsettings', :to => 'wkpayroll#payrollsettings'
+
+	post 'wkpayroll/save_bulk_edit', :to => 'wkpayroll#save_bulk_edit'
+
     #For Billing
     get 'wkbilling/index', :to => 'wkbilling#index'	
 	
@@ -591,3 +592,23 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wksurvey/graph', :to => 'wksurvey#graph'
 	
 	get 'wksurvey/survey_for_auto_complete', :to => 'wksurvey#survey_for_auto_complete'
+
+	get 'wksurvey/email_user', :to => 'wksurvey#email_user'
+
+	get 'projects/:project_id/wksurvey', to: 'wksurvey#index'
+
+	get 'projects/:project_id/wksurvey/edit', to: 'wksurvey#edit'
+
+	get 'projects/:project_id/wksurvey/:survey_id/edit', to: 'wksurvey#edit'
+	
+	get 'projects/:project_id/wksurvey/:survey_id/survey', to: 'wksurvey#survey'
+
+	get 'projects/:project_id/wksurvey/:survey_id/destroy', to: 'wksurvey#destroy'
+
+	get 'wkpayroll/export', :to => 'wkpayroll#export'
+
+	resources :projects do
+    resource :wkaccountproject, :only => [:index], :controller => :wkaccountproject do
+      get :index
+		end
+ end

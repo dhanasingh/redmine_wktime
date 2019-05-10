@@ -68,6 +68,7 @@ class WkgltransactionController < WkaccountingController
     end
    
     def update
+		set_transaction_session
 		errorMsg = nil
 		wkgltransaction = nil
 		wktxnDetail = nil
@@ -142,7 +143,8 @@ class WkgltransactionController < WkaccountingController
 			#errorMsg = l(:label_transaction) + " " + l('activerecord.errors.messages.invalid')
 		end
 		if errorMsg.blank?
-		    redirect_to :controller => 'wkgltransaction',:action => 'index' , :tab => 'wkgltransaction'			
+			action_name = params[:gltransaction_save_continue].blank? ? "index" : "edit"
+		    redirect_to :controller => 'wkgltransaction', :action => action_name, :tab => 'wkgltransaction'			
 			$temptxnDetail = nil
 			$tempTransaction = nil
 		    flash[:notice] = l(:notice_successful_update)
@@ -351,6 +353,13 @@ class WkgltransactionController < WkaccountingController
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
 		end	
+	end
+	
+	def set_transaction_session
+		session[:wkgltransaction][:start_date] = params[:date]
+		session[:wkgltransaction][:txn_type] = params[:txn_type]
+		session[:wkgltransaction][:ledger_id1] = params[:txn_particular1]
+		session[:wkgltransaction][:ledger_id2] = params[:txn_particular2]
 	end
 
 end

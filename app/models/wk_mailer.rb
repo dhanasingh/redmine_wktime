@@ -84,4 +84,14 @@ include Redmine::I18n
 		
 		mail :from => User.current.mail, :to => User.current.mail, :subject => subject, :body => body
 	end
+
+	def email_user(language, email_id, emailNotes)
+
+		unless language.blank?
+			set_language_if_valid(language)
+		end
+		subject = l(:label_survey_reminder)
+
+		mail :from => User.current.mail, :to => email_id, :reply_to => User.current.mail, :subject => subject, :body => emailNotes
+	end
  end

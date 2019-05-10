@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkaccountController < WkcrmController
-
+	include WkaccountprojectHelper
 before_action :require_login
 
     def index
@@ -29,13 +29,14 @@ before_action :require_login
 		if !params[:location_id].blank?
 			entries = entries.where(:location_id => params[:location_id].to_i)
 		end
+		entries = entries.order(:name)
 		formPagination(entries)
     end
 	
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
-		@account_entries = entries.order(:name).limit(@limit).offset(@offset)
+		@account_entries = entries.limit(@limit).offset(@offset)
 	end
   
     def setLimitAndOffset		
@@ -54,9 +55,13 @@ before_action :require_login
 		end	
    end
    
-   	def edit
+	   def edit
+		
 	     @accountEntry = nil
 		 unless params[:account_id].blank?
+			set_filter_session
+			@accountproject = formPagination(accountProjctList)
+	
 		  @accountEntry = WkAccount.find(params[:account_id])
 		end
     end	

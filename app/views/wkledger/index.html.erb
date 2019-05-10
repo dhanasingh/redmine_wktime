@@ -26,7 +26,7 @@
 			<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
 			<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
 	<div class="wk-contextual">
-		<% if isModuleAdmin('wktime_accounting_admin') %>
+		<% if validateERPPermission("A_ACC_PRVLG") %>
 			<%= link_to l(:label_new) + " " + l(:label_ledger), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
 		<% end %>
     </div>

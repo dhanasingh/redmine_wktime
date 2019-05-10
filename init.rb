@@ -31,7 +31,12 @@ end
 Project.class_eval do
 	has_many :account_projects, :dependent => :destroy, :class_name => 'WkAccountProject'
 	#has_many :parents, through: :account_projects
+	has_one :wk_project, :dependent => :destroy, :class_name => 'WkProject'
+	def erpmineproject
+			self.wk_project ||= WkProject.new(:project => self)
+	end	
 end
+
 
 TimeEntry.class_eval do
   has_one :spent_for, as: :spent, class_name: 'WkSpentFor', :dependent => :destroy
@@ -82,31 +87,90 @@ end
 
 module ProjectsControllerPatch
 	def self.included(base)     
-	  base.class_eval do
-		def destroy	
-			 @project_to_destroy = @project
-			if api_request? || params[:confirm]
-			# ============= ERPmine_patch Redmine 4.0 =====================
-				wktime_helper = Object.new.extend(WktimeHelper)
-				ret = wktime_helper.getStatus_Project_Issue(nil,@project_to_destroy.id)			
-				if ret
-					#render_403
-					#return false
-					 flash.now[:error] = l(:error_project_issue_associate)
-					 return
-				else
-				  WkExpenseEntry.where(['project_id = ?', @project_to_destroy.id]).delete_all
-			# =============================
-				  @project_to_destroy.destroy
+		base.class_eval do
+			def create
+				@issue_custom_fields = IssueCustomField.sorted.to_a
+				@trackers = Tracker.sorted.to_a
+				@project = Project.new
+				@project.safe_attributes = params[:project]
+			
+				if @project.save
+					# ============= ERPmine_patch Redmine 4.0 =====================
+					 @project.erpmineproject.safe_attributes = params[:erpmineproject]
+					 @project.erpmineproject.save
+					# =============================
+				  unless User.current.admin?
+					@project.add_default_member(User.current)
+				  end
 				  respond_to do |format|
-					format.html { redirect_to admin_projects_path }
-					format.api  { render_api_ok }
+					format.html {
+					  flash[:notice] = l(:notice_successful_create)
+					  if params[:continue]
+						attrs = {:parent_id => @project.parent_id}.reject {|k,v| v.nil?}
+						redirect_to new_project_path(attrs)
+					  else
+						redirect_to settings_project_path(@project)
+					  end
+					}
+					format.api  { render :action => 'show', :status => :created, :location => url_for(:controller => 'projects', :action => 'show', :id => @project.id) }
+				  end
+				else
+				  respond_to do |format|
+					format.html { render :action => 'new' }
+					format.api  { render_validation_errors(@project) }
 				  end
 				end
 			end
-			# hide project in layout
-			@project = nil
-		end
+
+			def update
+				@project.safe_attributes = params[:project]
+				if @project.save
+					# ============= ERPmine_patch Redmine 4.0 =====================
+					 @project.erpmineproject.safe_attributes = params[:erpmineproject]
+					 @project.erpmineproject.save
+					# =============================
+					respond_to do |format|
+						format.html {
+							flash[:notice] = l(:notice_successful_update)
+							redirect_to settings_project_path(@project, params[:tab])
+						}
+						format.api  { render_api_ok }
+					end
+				else
+					respond_to do |format|
+						format.html {
+							settings
+							render :action => 'settings'
+						}
+						format.api  { render_validation_errors(@project) }
+					end
+				end
+			end
+			
+		  def destroy	
+			 @project_to_destroy = @project
+				if api_request? || params[:confirm]
+				# ============= ERPmine_patch Redmine 4.0 =====================
+					wktime_helper = Object.new.extend(WktimeHelper)
+					ret = wktime_helper.getStatus_Project_Issue(nil,@project_to_destroy.id)			
+					if ret
+						#render_403
+						#return false
+						flash.now[:error] = l(:error_project_issue_associate)
+						return
+					else
+						WkExpenseEntry.where(['project_id = ?', @project_to_destroy.id]).delete_all
+				# =============================
+						@project_to_destroy.destroy
+						respond_to do |format|
+						format.html { redirect_to admin_projects_path }
+						format.api  { render_api_ok }
+						end
+					end
+				end
+				# hide project in layout
+				@project = nil
+		  end
 	  end	  
 	end	
 end
@@ -536,7 +600,7 @@ Redmine::Plugin.register :redmine_wktime do
   name 'ERPmine'
   author 'Adhi Software Pvt Ltd'
   description 'ERPmine is an ERP for Service Industries. It has the following modules: Time & Expense, Attendance, Payroll, CRM, Billing, Accounting, Purchasing, Inventory, Asset , Reports, Dashboards and Survey'
-  version '3.5.1'
+  version '3.6'
   url 'http://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
   
@@ -644,16 +708,28 @@ Redmine::Plugin.register :redmine_wktime do
 	 menu :top_menu, :wkdashboard, { :controller => 'wkdashboard', :action => 'index' }, :caption => :label_erpmine, :if => Proc.new { Object.new.extend(WkdashboardHelper).checkViewPermission } 
   	
   project_module :time_tracking do
-	permission :approve_time_entries,  {:wktime => [:update]}, :require => :member	
-  end
+		permission :approve_time_entries,  {:wktime => [:update]}, :require => :member	
+	end
+
+	project_module :Accounts do
+		permission :view_accounts, {:wkaccountproject => [:index]}
+	end
+	
+	menu :project_menu, :wkaccountproject, { controller: :wkaccountproject, action: :index },
+	  caption: :label_accounts, param: :project_id, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showCRMModule }
   
-  
+	project_module :Survey do
+		permission :view_survey, {:wksurvey => [:index]}
+	end
+
+	menu :project_menu, :wksurvey, { :controller => 'wksurvey', :action => 'index' }, :caption => :label_survey, param: :project_id, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showSurvey }
+
   Redmine::MenuManager.map :wktime_menu do |menu|
 	  menu.push :wkdashboard, { :controller => 'wkdashboard', :action => 'index' }, :caption => :label_dashboards, :if => Proc.new { Object.new.extend(WkdashboardHelper).checkViewPermission && Object.new.extend(WkdashboardHelper).showDashboard && Object.new.extend(WktimeHelper).hasSettingPerm}
 	  menu.push :wktime, { :controller => 'wktime', :action => 'index' }, :caption => :label_te, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showTimeExpense }
 	  menu.push :wkattendance, { :controller => 'wkattendance', :action => 'index' }, :caption => :label_hr, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && (Object.new.extend(WktimeHelper).showAttendance || Object.new.extend(WktimeHelper).showPayroll || Object.new.extend(WktimeHelper).showShiftScheduling)}
 	  menu.push :wklead, { :controller => 'wklead', :action => 'index' }, :caption => :label_crm, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showCRMModule }
-	  menu.push :wkinvoice, { :controller => 'wkinvoice', :action => 'index' }, :caption => :label_wk_billing, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showBilling && Object.new.extend(WktimeHelper).isModuleAdmin('wktime_billing_groups')}
+	  menu.push :wkinvoice, { :controller => 'wkinvoice', :action => 'index' }, :caption => :label_wk_billing, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showBilling && Object.new.extend(WktimeHelper).validateERPPermission("M_BILL")}
 	  menu.push :wkgltransaction, { :controller => 'wkgltransaction', :action => 'index' }, :caption => :label_accounting, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showAccounting }
 	  menu.push :wkrfq, { :controller => 'wkrfq', :action => 'index' }, :caption => :label_purchasing, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showPurchase }
 		menu.push :wkproduct, { :controller => 'wkproduct', :action => 'index' }, :caption => :label_inventory, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showInventory }
@@ -762,7 +838,7 @@ Rails.configuration.to_prepare do
 					if runJob
 						Rails.logger.info "==========Payroll job - Started=========="
 						wkpayroll_helper = Object.new.extend(WkpayrollHelper)
-						errorMsg = wkpayroll_helper.generateSalaries(nil,currentMonthStart)
+						errorMsg = wkpayroll_helper.generateSalaries(nil,currentMonthStart,"true")
 						Rails.logger.info "===== Payroll generated Successfully =====" 
 					end
 				rescue Exception => e
@@ -972,5 +1048,6 @@ class WktimeHook < Redmine::Hook::ViewListener
 	
 	render_on :view_issues_show_description_bottom, :partial => 'wkissues/show_wk_issues'
 	render_on :view_layouts_base_html_head, :partial => 'wkbase/base_header'
+	render_on :view_projects_form, :partial => 'wkproject/project_settings'
 		
 end

@@ -111,26 +111,19 @@ module WkpayrollHelper
 		financialMonthStr
 	end
 	
-	def generateSalaries(userIds,salaryDate)
+	def generateSalaries(userIds, salaryDate, isGeneratePayroll)
+		@payrollList = Array.new		
 		userSalaryHash = getUserSalaryHash(userIds,salaryDate)
 		payperiod = Setting.plugin_redmine_wktime['wktime_pay_period']
 		currency = Setting.plugin_redmine_wktime['wktime_currency']
 		errorMsg = nil
-		deleteWkSalaries(userIds,salaryDate)
 		unless userSalaryHash.blank?
 			userSalaryHash.each do |userId, salary|
 				salary.each do |componentId, amount|
-					userSalary = WkSalary.new
-					userSalary.user_id = userId
-					userSalary.currency = currency
-					userSalary.amount = amount.round
-					userSalary.salary_component_id = componentId
-					userSalary.salary_date = salaryDate
-					if !userSalary.save()
-						errorMsg = userSalary.errors.full_messages.join('\n')
-					end
+					@payrollList << {:user_id => userId, :salary_component_id => componentId, :amount => amount.round, :currency => currency, :salary_date => salaryDate}
 				end
-			end
+		 	end
+			 errorMsg = SavePayroll(@payrollList,userIds,salaryDate) if isGeneratePayroll == "true"
 		else	
 			errorMsg = l(:error_wktime_save_nothing)
 		end		
@@ -527,4 +520,62 @@ module WkpayrollHelper
 			l(:label_deduction) => "DT"
 		}
 	end
+
+	def SavePayroll(payrollList,userIds,salaryDate)
+		deleteWkSalaries(userIds, salaryDate)
+		errorMsg = nil
+		payrollList.each do |list|
+			userSalary = WkSalary.new
+			userSalary.user_id = list[:user_id]
+			userSalary.currency = list[:currency]
+			userSalary.amount = (list[:amount]).round
+			userSalary.salary_component_id = list[:salary_component_id]
+			userSalary.salary_date = list[:salary_date]
+				if !userSalary.save()
+					errorMsg += userSalary.errors.full_messages.join('\n')
+				end
+		end
+		errorMsg
+	end
+
+	def payroll_to_csv(payrollentries)
+		decimal_separator = l(:general_csv_decimal_separator)
+		grandBasicTotal = ""
+		grandAllowanceTotal = ""
+		grandDeductionTotal = ""
+		grandGrossTotal = ""
+		grandNetTotal = ""
+		currency = ""
+		export = Redmine::Export::CSV.generate do |csv|
+		  # csv header fields
+		  headers = [l(:field_user),
+					 l(:label_salarydate),
+					 l(:label_basic),
+					 l(:label_allowances),
+					 l(:label_deduction),
+					 l(:label_gross),
+					 l(:label_net),
+					 ]
+			csv << headers.collect {|c| Redmine::CodesetUtil.from_utf8(c.to_s, l(:general_csv_encoding))}
+			payrollentries.each do |key, payroll_data|
+				currency =  payroll_data[:currency]
+				gross = payroll_data[:BT].to_i+ payroll_data[:AT].to_i
+				net = gross  - payroll_data[:DT].to_i unless gross.blank?
+				grandBasicTotal = grandBasicTotal.to_i + payroll_data[:BT].to_i
+				grandAllowanceTotal = grandAllowanceTotal.to_i + payroll_data[:AT].to_i
+				grandDeductionTotal = grandDeductionTotal.to_i + payroll_data[:DT].to_i
+				grandGrossTotal = grandGrossTotal.to_i + gross.to_i
+				grandNetTotal = grandNetTotal.to_i + net.to_i
+				
+				dataArr = [payroll_data[:firstname].to_s + " " + payroll_data[:lastname].to_s, payroll_data[:salDate], currency + payroll_data[:BT].to_s,
+					currency + payroll_data[:AT].to_s, currency + payroll_data[:DT].to_s, currency + gross.to_s , currency + net.to_s]
+				
+				csv << dataArr.collect {|c| Redmine::CodesetUtil.from_utf8(c.to_s, l(:general_csv_encoding))}
+			end
+				totalArr = ["", "Total", currency + grandBasicTotal.to_s, currency + grandAllowanceTotal.to_s, currency + grandDeductionTotal.to_s,
+					currency + grandGrossTotal.to_s, currency + grandNetTotal.to_s ]
+			  csv << totalArr.collect {|t| Redmine::CodesetUtil.from_utf8(t.to_s, l(:general_csv_encoding))}
+		end
+		export
+  end
 end

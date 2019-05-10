@@ -53,7 +53,7 @@ class WkcrmController < WkbaseController
 	end
 	
 	def check_crm_admin_and_redirect
-	  unless isModuleAdmin('wktime_crm_admin') 
+	  unless validateERPPermission("A_CRM_PRVLG") 
 	    render_403
 	    return false
 	  end
@@ -61,7 +61,7 @@ class WkcrmController < WkbaseController
 
 	def check_permission
 		ret = false
-		return isModuleAdmin('wktime_crm_group') || isModuleAdmin('wktime_crm_admin') 
+		return validateERPPermission("B_CRM_PRVLG") || validateERPPermission("A_CRM_PRVLG") 
 	end
 	
 	def getContactController
@@ -77,7 +77,7 @@ class WkcrmController < WkbaseController
 	end
 	
 	def deletePermission
-		isModuleAdmin('wktime_crm_admin')
+		validateERPPermission("A_CRM_PRVLG")
 	end
 	
 	def additionalContactType

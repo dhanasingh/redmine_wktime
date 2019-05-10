@@ -6,29 +6,6 @@
 <div class="splitcontentleft">
 <fieldset>
 	<legend><%= l(:label_purchasing) %></legend>
-	
-	
-	
-	<%
-			accountGroups = Array.new
-			accGroup = Group.all.sort
-			unless accGroup.blank?
-				accountGroups = accGroup.collect {|t| [t.name, t.id] }
-			end
-			accountGroups.unshift(["",""])
-	%>
-	<p>
-		<label><%=l(:label_pur_user_group)%></label>
-		<%=  select_tag('settings[wktime_pur_group]',
-				options_for_select(accountGroups, :selected => @settings['wktime_pur_group'].blank? ? "" : @settings['wktime_pur_group']))%>
-	</p>
-	
-	<p>
-		<label><%=l(:label_pur_admin_group)%></label>
-		<%=  select_tag('settings[wktime_pur_admin]',
-				options_for_select(accountGroups, :selected => @settings['wktime_pur_admin'].blank? ? "" : @settings['wktime_pur_admin']))%>
-	</p>
-	
 	<p>
 			<%= check_box_tag('settings[supplier_invoice_auto_post_gl]', 1, @settings['supplier_invoice_auto_post_gl'].to_i == 1) %> <label><%= l(:label_auto_post_gl) %></label>
 	</p>

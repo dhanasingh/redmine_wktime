@@ -1,0 +1,18 @@
+<% @closed_surveyed_Entries.each do |entry| %>
+    <fieldset class="box tabular">
+        <table class="odd-even">
+            <tr>
+                <th align="left"><%= l(:label_question_name) %></th>
+                <td align="left" style="padding-left:40px;"><%= entry.question_name %></td>
+            </tr>
+            <tr>
+                <th align="left"><%= l(:label_question_choices) %></th>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td><%= render :partial => 'graph', :locals => { :entry => entry } %></td>
+            <tr>
+        </table>
+</fieldset>
+<% end %>

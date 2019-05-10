@@ -31,7 +31,7 @@ before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destr
 	end
 	
 	def check_permission
-		return isModuleAdmin('wktime_billing_groups')
+		return validateERPPermission("M_BILL")
 	end
 	
 	def getOrderAccountType

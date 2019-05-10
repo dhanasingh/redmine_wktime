@@ -100,14 +100,6 @@ lblInvCompVal = "<%=l(:field_value) %>";
 		<label><%#= l(:label_billing_id) %> </label><%#=h select_tag('settings[wktime_billing_id_cf]', 
 			options_for_select(cfBillIndicator, :selected =>  @settings['wktime_billing_id_cf'])) %>
 	</p> -->
-	<p>
-		<label><%= l(:label_project_billing_rate) %> </label><%=h select_tag('settings[wktime_project_billing_rate_cf]', 
-			options_for_select(cfProjRate, :selected =>  @settings['wktime_project_billing_rate_cf'])) %>
-	</p>
-	<p>
-		<label><%= l(:label_project_billing_currency) %> </label><%=h select_tag('settings[wktime_project_billing_currency_cf]', 
-			options_for_select(cfProjCurrency, :selected =>  @settings['wktime_project_billing_currency_cf'])) %>
-	</p>
 	<!--
 	<p>
 		<label><%#= l(:label_user_billing_rate) %> </label><%#=h select_tag('settings[wktime_user_billing_rate_cf]', 
@@ -128,19 +120,6 @@ lblInvCompVal = "<%=l(:field_value) %>";
 			options_for_select(cfIssueRate, :selected =>  @settings['wktime_issue_billing_rate_cf'])) %>
 	</p>
 	-->
-	<%
-			accountGroups = Array.new
-			accGroup = Group.all.sort
-			unless accGroup.blank?
-				accountGroups = accGroup.collect {|t| [t.name, t.id] }
-			end
-			accountGroups.unshift(["",""])
-		%>
-		<p>
-			<label><%=l(:label_billing_groups)%></label>
-			<%=  select_tag('settings[wktime_billing_groups]',
-					options_for_select(accountGroups, :selected => @settings['wktime_billing_groups'].blank? ? "" : @settings['wktime_billing_groups']))%>
-		</p>	
 </fieldset>
 </div>
 

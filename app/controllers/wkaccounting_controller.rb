@@ -32,7 +32,7 @@ class WkaccountingController < WkbaseController
 	end
 	
 	def check_ac_admin_and_redirect
-	  unless isModuleAdmin('wktime_accounting_admin') 
+	  unless validateERPPermission("A_ACC_PRVLG") 
 	    render_403
 	    return false
 	  end
@@ -40,6 +40,6 @@ class WkaccountingController < WkbaseController
 
 	def check_permission
 		ret = false
-		return isModuleAdmin('wktime_accounting_group') || isModuleAdmin('wktime_accounting_admin') 
+		return validateERPPermission("B_ACC_PRVLG") || validateERPPermission("A_ACC_PRVLG") 
 	end
 end

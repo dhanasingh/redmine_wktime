@@ -48,18 +48,18 @@ module WkreportHelper
 	def hasViewPermission(reportName)
 		ret = true
 		if reportName == 'report_profit_loss' || reportName == 'report_balance_sheet'
-			ret = isModuleAdmin('wktime_accounting_group') || isModuleAdmin('wktime_accounting_admin')
+			ret = validateERPPermission("B_ACC_PRVLG") || validateERPPermission("A_ACC_PRVLG")
 		elsif reportName == 'report_lead_conversion' || reportName == 'report_sales_activity'
-			ret = (isModuleAdmin('wktime_crm_group') || isModuleAdmin('wktime_crm_admin') ) && isChecked('wktime_enable_crm_module')
+			ret = (validateERPPermission("B_CRM_PRVLG") || validateERPPermission("A_CRM_PRVLG") ) && isChecked('wktime_enable_crm_module')
 		elsif reportName == 'report_order_to_cash'
-			ret = isModuleAdmin('wktime_billing_groups')
+			ret = validateERPPermission("M_BILL")
 		end
 		ret
 	end
 	
 	def getUserQueryStr(group_id,user_id, from)
 		queryStr = "select u.id , gu.group_id, u.firstname, u.lastname,wu.termination_date, wu.join_date, " +
-			"wu.birth_date, wu.id1 as employee_id, rs.name as designation, wu.gender from users u " +
+			"wu.birth_date, wu.id1 as employee_id, rs.name as designation, wu.gender, wu.account_number, wu.bank_code from users u " +
 			"left join groups_users gu on (gu.user_id = u.id and gu.group_id = #{group_id}) " +
 			"left join wk_users wu on u.id = wu.user_id " +
 			"left join roles rs on rs.id = wu.role_id " +
@@ -142,6 +142,22 @@ module WkreportHelper
 		end
 		sqlStr = "select 'WkAccount' #{parentSql} as parent_type, id as parent_id from wk_accounts where account_type = 'A' union select 'WkCrmContact' #{parentSql} as parent_type, id as parent_id from wk_crm_contacts where contact_type in ('C', 'RA')"
 		sqlStr
+	end
+	
+	def getMainLocation
+		allLocation = WkLocation.all
+		mainLocation = allLocation.where(:is_main => true)
+		allLocation = mainLocation unless mainLocation.blank?
+		allLocation = allLocation.blank? ? "" : allLocation.first.name
+		allLocation
+	end
+	
+	def getAddress	
+		address_list = WkAddress.joins("RIGHT JOIN wk_locations ON wk_addresses.id = wk_locations.address_id")
+		mainAddress = address_list.where("wk_locations.is_main = true")
+		address_list = mainAddress unless mainAddress.blank?
+		address_list = (address_list.blank? || address_list.first.id.blank?) ? "" : address_list.first.fullAddress
+		address_list
 	end
 
 end

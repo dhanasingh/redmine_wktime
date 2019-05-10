@@ -1,5 +1,6 @@
 class WkcontactController < WkcrmController
   unloadable
+  include WkaccountprojectHelper
 
 	def index
 		set_filter_session
@@ -35,6 +36,8 @@ class WkcontactController < WkcrmController
 	def edit
 		@conEditEntry = nil		
 		unless params[:contact_id].blank?
+			set_filter_session
+			@accountproject = formPagination(accountProjctList)
 			@conEditEntry = WkCrmContact.where(:id => params[:contact_id].to_i)
 		end
 	end

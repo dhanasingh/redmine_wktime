@@ -611,7 +611,7 @@ end
 				{:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime},
 				{:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense}
 			   ]
-		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" || params[:controller] == "wkscheduling"  || params[:controller] == "wkschedulepreference" || params[:controller] == "wkshift" || params[:controller] == "wkpublicholiday" || params[:controller] == "wksurvey" 
+		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" || params[:controller] == "wkscheduling"  || params[:controller] == "wkschedulepreference" || params[:controller] == "wkshift" || params[:controller] == "wkpublicholiday" 
 				tabs = []
 				if showAttendance
 					tabs << {:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave}
@@ -643,12 +643,11 @@ end
 				{:name => 'wkcrmcontact', :partial => 'wktime/tab_content', :label => :label_contact_plural}
 			   ]
 		
-		elsif params[:controller] == "wkinvoice" || params[:controller] == "wkcontract" || params[:controller] == "wkaccountproject"  || params[:controller] == "wkpayment" 		
+		elsif params[:controller] == "wkinvoice" || params[:controller] == "wkcontract" || params[:controller] == "wkpayment" 		
 			tabs = [
 				{:name => 'wkinvoice', :partial => 'wktime/tab_content', :label => :label_invoice},
 				{:name => 'wkpayment', :partial => 'wktime/tab_content', :label => :label_payments},
-				{:name => 'wkcontract', :partial => 'wktime/tab_content', :label => :label_contracts},
-				{:name => 'wkaccountproject', :partial => 'wktime/tab_content', :label => :label_acc_projects}
+				{:name => 'wkcontract', :partial => 'wktime/tab_content', :label => :label_contracts}
 			   ]
 		elsif params[:controller] == "wkgltransaction" || params[:controller] == "wkledger"
 			tabs = [
@@ -780,8 +779,6 @@ end
 				{:name => 'attendance', :partial => 'settings/tab_attendance', :label => :report_attendance},
 				{:name => 'payroll_settings', :partial => 'settings/tab_payroll', :label => :label_payroll},
 				{:name => 'billing', :partial => 'settings/tab_billing', :label => :label_wk_billing},
-				{:name => 'accounting', :partial => 'settings/tab_accounting', :label => :label_accounting},
-				{:name => 'CRM', :partial => 'settings/tab_crm', :label => :label_crm},
 				{:name => 'purchase', :partial => 'settings/tab_purchase', :label => :label_purchasing},
 				{:name => 'inventory', :partial => 'settings/tab_inventory', :label => :label_inventory}
 				#{:name => 'shiftscheduling', :partial => 'settings/tab_shift_scheduling', :label => :label_scheduling}
@@ -1190,7 +1187,7 @@ end
 	
 	def showAccounting
 		(!Setting.plugin_redmine_wktime['wktime_enable_accounting_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_accounting_module'].to_i == 1 ) && (isModuleAdmin('wktime_accounting_group') || isModuleAdmin('wktime_accounting_admin') )
+			Setting.plugin_redmine_wktime['wktime_enable_accounting_module'].to_i == 1 ) && (validateERPPermission("B_ACC_PRVLG") || validateERPPermission("A_ACC_PRVLG"))
 	end
 	
 	def isChecked(settingName)
@@ -1199,7 +1196,7 @@ end
 	
 	def showCRMModule
 		(!Setting.plugin_redmine_wktime['wktime_enable_crm_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_crm_module'].to_i == 1 ) && (isModuleAdmin('wktime_crm_group') || isModuleAdmin('wktime_crm_admin') )
+			Setting.plugin_redmine_wktime['wktime_enable_crm_module'].to_i == 1 ) && (validateERPPermission("B_CRM_PRVLG") || validateERPPermission("A_CRM_PRVLG"))
 	end
 	
 	def getGroupUserIdsArr(groupId)
@@ -1207,9 +1204,13 @@ end
 		userIdArr
 	end
 	
-	def getGroupUserArr(groupId)
+	def getGroupUserArr(shortName)
 		userIdArr = Array.new
-		userIds = User.in_group(groupId).all
+		userIds = WkPermission.joins("INNER JOIN wk_group_permissions AS GP ON wk_permissions.id = permission_id ")
+							   .joins("INNER JOIN groups_users AS GU ON GP.group_id = GU.group_id")
+							   .joins("INNER JOIN users AS U ON GU.user_id = U.id")
+							   .where("short_name = ?", shortName)
+							   .select("U.id, U.firstname, U.lastname")
 		if !userIds.blank?
 			userIds.each do | entry|				
 				userIdArr <<  [(entry.firstname + " " + entry.lastname), entry.id  ]
@@ -1220,8 +1221,8 @@ end
 	
 	def groupOfUsers
 		grpArr = nil
-		grpArr = (getGroupUserArr(getSettingCfId('wktime_crm_group')) + 
-				  getGroupUserArr(getSettingCfId('wktime_crm_admin'))).uniq
+		grpArr = (getGroupUserArr('B_CRM_PRVLG') + 
+				 getGroupUserArr('A_CRM_PRVLG')).uniq
 		grpArr.unshift(["",0]) 
 			
 		grpArr
@@ -1320,7 +1321,7 @@ end
 		
 	def showPurchase
 		(!Setting.plugin_redmine_wktime['wktime_enable_purchase_module'].blank? &&
-			Setting.plugin_redmine_wktime['wktime_enable_purchase_module'].to_i == 1 ) && (isModuleAdmin('wktime_pur_group') || isModuleAdmin('wktime_pur_admin') )
+			Setting.plugin_redmine_wktime['wktime_enable_purchase_module'].to_i == 1 ) && (validateERPPermission("B_PUR_PRVLG") || validateERPPermission("A_PUR_PRVLG"))
 	end
 	
 	def showInventory
@@ -1358,7 +1359,7 @@ end
 	
 	def hasSettingPerm
 		ret = false
-		ret = isModuleAdmin('wktime_inventory_admin') || isModuleAdmin('wktime_accounting_admin') || isModuleAdmin('wktime_crm_admin') || isModuleAdmin('wktime_pur_admin') || isAccountUser || isModuleAdmin('wktime_billing_groups')
+		ret = (User.current.id == 1) || validateERPPermission("ADM_ERP") || isAccountUser || (validateERPPermission("V_INV") && validateERPPermission("D_INV")) || validateERPPermission("A_ACC_PRVLG") || validateERPPermission("A_CRM_PRVLG") || validateERPPermission("A_PUR_PRVLG") || validateERPPermission("M_BILL")
 		ret
 	end
 	
@@ -1385,9 +1386,11 @@ end
 		user = User.current
 		user.groups.each do |group|
 		  groupPermission = WkGroupPermission.where(:group_id => group.id)
-		  groupPermission.each do |grp|				
+		  groupPermission.each do |grp|
+			unless grp.permission.blank?
 				shortname = grp.permission.short_name
 				permissionArr << shortname
+			end
 		  end
 		end		
 		return permissionArr.include? permission

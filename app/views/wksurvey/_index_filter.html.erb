@@ -1,0 +1,24 @@
+<%= form_tag({:controller => "wksurvey", :action => 'index'}, :method => :get, :id => 'filter_form') do %>
+	<%=h hidden_field_tag('tab', "wksurvey") %>
+	<fieldset>
+		<table>
+			<tr>
+				<th>
+					<%= l(:label_survey_name) %>
+					<%=h text_field_tag("survey_name", params[:survey_name], :size => "20px", :maxlength => 100) %>
+				</th>
+				<th>
+					<%= l(:field_status) %>
+					<%=h select_tag('status', options_for_select(getSurveyStatusArr, :selected => params[:status])) %>
+				</th>
+				<td style="padding-left:15px;">
+					<%= link_to_function l(:button_apply), '$("#filter_form").submit()', :class => 'icon icon-checked' %>
+				</td>
+				<td style="padding-left:10px;">
+					<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', 
+					:tab => controller_name}, :class => 'icon icon-reload' %>
+				</td>
+			</tr>
+		</table>
+	</fieldset>
+<% end %>

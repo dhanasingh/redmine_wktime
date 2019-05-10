@@ -240,6 +240,7 @@ en:
   label_date_errormsg: Please Enter the Start date
   label_auto_generate_salary: Auto generate salary
   label_generate_salary: Generate Salary
+  label_preview_salary: Preview Salary
   label_pay_day: Pay day
   label_salary_detail: Salary Details
   label_loss_of_pay: Loss Of Pay
@@ -278,7 +279,7 @@ en:
   label_enable_billing_module: Enable Billing module
   label_accounts: Accounts
   label_contracts: Contracts
-  label_acc_projects: Billable Projects
+  label_acc_projects: Account Projects
   label_invoice: Invoice
   label_invoice_adjusted: Invoice
   label_tax: Tax  
@@ -335,7 +336,7 @@ en:
   label_date: Date
   label_applicable_taxes: Applicable Taxes
   label_billing_schedules: Billing Schedules
-  label_new_billing_project: New Billing Project
+  label_new_billing_project: New Account Project
   label_billing_groups: Billing Admin Groups
   label_start_date: Start Date
   label_end_date: End Date
@@ -844,6 +845,14 @@ en:
   SCHEDULES SHIFT: Schedules shift 
   EDIT SHIFT SCHEDULES: Edit shift schedules
   EDIT SURVEY: Edit survey
+  BASIC CRM PRIVILEGE: Basic CRM privilege
+  ADMIN CRM PRIVILEGE: Admin CRM privilege
+  MANAGE BILLING: Manage Billing
+  BASIC ACCOUNTING PRIVILEGE: Basic Accounting privilege
+  ADMIN ACCOUNTING PRIVILEGE: Admin Accounting privilege
+  BASIC PURCHASING PRIVILEGE: Basic Purchasing privilege
+  ADMIN PURCHASING PRIVILEGE: Admin Purchasing privilege
+  ADMIN ERPMINE : Admin ERPmine
 
   label_active_on: On
   label_active_off: Off
@@ -934,6 +943,21 @@ en:
   label_user_group: User Group				
   label_survey_for: Survey for
   notice_surveyfor_unsuccessful: Survey For is invalid
+  button_email_user: Email User
+  label_email_notes: Email Notes
+  label_email_users: Email Users
+  label_survey_reminder: Survey Reminder
+  label_additional_emails: Additional Emails
+  label_notes: Notes
+  label_include_user_group: Sending Emails to
+  label_recur: Recur
+  label_recur_every: Recur Every
+  label_previous_responses: Previous Responses
+  label_response: Response
+  label_new_response: New Response
+  notice_unsucessful_survey_response: No Questions Responsed
+  label_points: Points
+  label_allow_survey_for_issue: Allow Survey for Issue
   
   label_no_additional_details_for_issue: No Additional Details for Issue
   label_create_supplier_invoice_without_purchase_order: Create Supplier invoice without Purchase order
@@ -944,3 +968,7 @@ en:
   label_basic_total: Basic Total
   label_allowance_total: Allowance Total
   label_deduction: Deduction Total
+
+  label_main_location: Main location
+  
+  report_payroll_bank: Payroll Bank Report

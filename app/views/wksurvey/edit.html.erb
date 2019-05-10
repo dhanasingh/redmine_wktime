@@ -6,18 +6,31 @@
 		status = nil
 		survey_id = nil
 		group_id = ''
-		survey_for_id = nil
-		survey_for = nil
 		isDisable = false
+		recur = false
+		recur_every = nil
+		
+		if !params[:project_id].blank?
+			survey_for_id = @project.id
+			survey_for = "Project"
+		elsif !params[:contact_id].blank?
+			survey_for_id = params[:contact_id]
+			survey_for = "Contact"
+		elsif !params[:account_id].blank?
+			survey_for_id = params[:account_id]
+			survey_for = "Accounts"
+		end
 	else
 		survey_id = @edit_Survey_Entry.id
 		survey_name = @edit_Survey_Entry.name
 		status = @edit_Survey_Entry.status
 		group_id =  @edit_Survey_Entry.group_id
+		isDisable = isStatusNew(@edit_Survey_Entry.status)
+		recur = @edit_Survey_Entry.recur
+		recur_every = @edit_Survey_Entry.recur_every
 		survey_for = @edit_Survey_Entry.survey_for_type
 		survey_for_id = @edit_Survey_Entry.survey_for_id
-		isDisable = isStatusNew(@edit_Survey_Entry.status)
-	end 
+	end
 %>
 <% if @edit_Survey_Entry.blank?%>
 	<%= title l(:label_new_survey) %>
@@ -27,6 +40,9 @@
 
 <div>
 <%= form_tag({:controller => 'wksurvey', :action => 'save_survey'}, :method => :post, :id => 'survey_form') do %>
+	<%=h hidden_field_tag('project_id', params[:project_id]) %>
+	<%=h hidden_field_tag('contact_id', params[:contact_id]) %>
+	<%=h hidden_field_tag('account_id', params[:account_id]) %>
 	<%=h hidden_field_tag('survey_id', survey_id) %>
 	<%=h hidden_field_tag('delete_question_ids', "") %>
 
@@ -40,7 +56,7 @@
 		<tr>
 		<th align="left"><%= l(:label_survey_for) %></th>
 		<td>
-			<%=h select_tag("survey_for", options_for_select(getSurveyFor,survey_for), :disabled => isDisable) %>
+			<%=h select_tag("survey_for", options_for_select(getSurveyFor, survey_for), :disabled => isDisable) %>
 			<%=h text_field_tag("survey_for_id", survey_for_id, :disabled => isDisable, :size => 3, :maxlength => 30) %>
 			<span id="SurveyFor"></span>
 			<%=h hidden_field_tag('IsSurveyForValid', false) %>
@@ -54,10 +70,21 @@
         </tr>
 		<tr>
 			<th align="left"><%= l(:label_user_group) %></th>
-				<td>
-					<%=h select_tag('group_id', options_for_select(getUserGroup, :selected => group_id), :disabled => isDisable) %>
-				</td>
+			<td>
+				<%=h select_tag('group_id', options_for_select(getUserGroup, :selected => group_id), :disabled => isDisable) %>
+				<%=h hidden_field_tag('user_group', group_id) %>
+			</td>
 			<td></td>
+		</tr>
+		<tr>
+			<th align="left"><%= l(:label_recur) %></th>
+			<td>
+				<%= check_box_tag 'recur', true, recur, :disabled => isDisable  %>	
+				<span id="tr_recur_every">
+					<b><%= l(:label_recur_every) %></b>
+					<%=h text_field_tag("recur_every", recur_every, :size => "3", :maxlength => 10, :disabled => isDisable) %>&nbsp;<b><%= l(:label_day_plural) %></b>
+				</span>
+			</td>
 		</tr>
 	</table>
 	</fieldset>
@@ -112,7 +139,9 @@
 									<% end %>	
 									</td>
 								<% end %>
-								<td></td>
+			          			<td align="right">
+								 <b><%= l(:label_points) %></b>&nbsp;<%=h text_field_tag(("points_" + (question.question_id).to_s + "_" + qIndex.to_s + "_" + (choice.choice_id).to_s + "_" + cIndex.to_s), choice.points, :size => 5, :maxlength => 10, :disabled => isDisable) %>
+								</td>
 							</tr>
 							<% end %>
 						<% end %>
@@ -141,6 +170,7 @@
 
 	<div>
 		<%= submit_tag l(:button_save), :id => 'wksurvey_save' %>
+<%= link_to l(:button_email_user), "javascript:showConfirmationDlg();", :class => 'icon icon-email-add'%>
 	</div>
 <% end %>
 
@@ -152,13 +182,11 @@
 			<td class="indexNo"><b>SINDEX.</b></td>
 			<th width="15%" align="left"><%= l(:label_question_name) %></th>
 			<td align="left">
-				<%=h text_field_tag("questionName__QINDEX", "", :disabled => isDisable, :size => "40%", :maxlength => 255) %>
+				<%=h text_field_tag("questionName__QINDEX", "", :size => "40%", :maxlength => 255) %>
 			</td>
-			<% unless isDisable%>
-				<td width="45%" align="right">
-					<%=link_to (image_tag('delete.png') + l(:button_delete_question)), "javascript:deletequestion(QINDEX,'')", :title => l(:button_delete) %>	
-				</td>
-		   <% end %>
+			<td width="45%" align="right">
+				<%=link_to (image_tag('delete.png') + l(:button_delete_question)), "javascript:deletequestion(QINDEX,'')", :title => l(:button_delete) %>
+			</td>
 		</tr>
 		<tr>
 			<td></td>
@@ -166,7 +194,7 @@
 			<td>
 				<%=h select_tag('question_type_QINDEX',
 					options_for_select( getQuestionType,
-					:selected => 'RB'), :disabled => isDisable, :onchange => "check_question_type('QINDEX')") %>
+					:selected => 'RB'), :onchange => "check_question_type('QINDEX')") %>
 			</td>
 			<td></td>
 		</tr>
@@ -174,21 +202,40 @@
 			<td></td>
 			<th align="left"><%= l(:label_question_choices) %></th>
 			<td align="left">
-				<%=h text_field_tag("questionChoices__QINDEX__0", "", :disabled => isDisable, :size => "40%", :maxlength => 255) %>
+				<%=h text_field_tag("questionChoices__QINDEX__0", "", :size => "40%", :maxlength => 255) %>
+			</td>
+			<td align="right">
+			  <b><%= l(:label_points) %></b>&nbsp;<%=h text_field_tag("points__QINDEX__0", "", :size => 5, :maxlength => 10) %>
+			</td>
+		</tr>
+		<tr id="lastrow_QINDEX">
+			<td></td>
+			<td></td>
+			<td align="left">
+				<%= link_to l(:button_add), "#", { :onclick => "javascript:addrows(QINDEX, '');", :class => 'icon icon-add' } %>	
 			</td>
 			<td></td>
 		</tr>
-		<% unless isDisable%>
-			<tr id="lastrow_QINDEX">
-				<td></td>
-				<td></td>
-				<td align="left">
-					<%= link_to l(:button_add), "#", { :onclick => "javascript:addrows(QINDEX, '');", :class => 'icon icon-add' } %>	
-				</td>
-				<td></td>
-			</tr>
-		<% end %>
 	</table>
 	</fieldset>
 </div>
+</div>
+
+<% userGroupName = group_id.blank? ? l(:all_users_for_select) : getUserGroup.invert[group_id] + " Group" %>
+<div id="reminder-email-dlg" title="<%=l(:label_email_users) %>">
+	<fieldset class="">
+		<p> <label><%= l(:label_notes) %></label>
+			<textarea name="email_notes" id="email_notes" value="" cols="25" rows="2"> </textarea>
+		</p>
+		<p>
+			<%=h check_box_tag("includeUserGroup", 1, true) %>
+			<label for="includeUserGroup"><%=h l(:label_include_user_group) +" "+ userGroupName %></label>
+		</p>
+		<p> <label><%= l(:label_additional_emails) %></label>
+			<textarea name="additional_emails" id="additional_emails" value="" cols="25" rows="2"> </textarea>
+		</p>
+	</fieldset>
+	<div id="dialog-confirm" title="Empty the recycle bin?">
+  		<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0px 10px 0px 10px;"></span>Do you want to continue?</p>
+	</div>
 </div>

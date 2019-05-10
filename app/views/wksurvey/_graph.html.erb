@@ -2,12 +2,13 @@
 	<canvas id="survey_result_graph<%= entry.question_id %>" width="350" height="200"></canvas>
 </div>
 
+<% getSurveyForType(params) %>
 <%= javascript_tag do %>
 $(document).ready(function(){
   $.getJSON(<%= raw url_for(:controller => 'wksurvey',
     :action => 'graph',
 	:graph => "graph",
-	:question_id => entry.question_id).to_json %>, function(data){
+	:question_id => entry.question_id, :surveyForType => @surveyForType, :surveyForID => @surveyForID).to_json %>, function(data){
 	
     var chartData = {
       labels: data['labels'],
