@@ -7,10 +7,10 @@
 		<%= hidden_field_tag "searchlist", controller_name %>
 		<%=h hidden_field_tag('tab', controller_name) %>
 		<%
-			productId =session[controller_name][:product_id]
-			brandId =session[controller_name][:brand_id]
-			locationId =session[controller_name][:location_id]
-			availabilityId =session[controller_name][:availability]
+			productId = session[controller_name].try(:product_id)
+			brandId = session[controller_name].try(:brand_id)
+			locationId =session[controller_name].try(:location_id)
+			availabilityId =session[controller_name].try(:availability)
 		%>
 		<fieldset>
 				<table>
