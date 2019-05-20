@@ -37,7 +37,8 @@ $(document).ready(function()
 <% #contactArr.unshift(["",'']) if blankForContactDD %>
 <% accountArr = options_for_wktime_account(blankForActDD, controller.getOrderAccountType) %>
 <%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	
-<%	projArr = options_for_wktime_project(projects,true) 
+<%	projArr = options_for_wktime_project(projects,true)
+	projArr.shift()
 	isPjtBlank = true
 	if pjtChanged  
 
@@ -67,12 +68,12 @@ $(document).ready(function()
 	<th align="left"><%= radio_button_tag 'polymorphic_filter', '2', contactSelection, :onclick => ' $("#account_id").attr("disabled", true);$("#contact_id").removeAttr("disabled");' %>
 	<%= l(:label_contact) %></th>
 	<td><%=h select_tag('contact_id', options_for_select(contactArr, :selected => contact_id.blank? ? contactArr : contact_id  ),
-	:onchange => " if(#{pjtChanged}) { accProjChanged(#{User.current.id}, this.id, false, #{blankOptionForPjt}); } if(#{loadSIDD}) { getSupplierInvoice(#{User.current.id}, 'si_id'); }   ") %>
+	:onchange => " if(#{pjtChanged}) { accProjChanged('', this.id, false, #{blankOptionForPjt}); } if(#{loadSIDD}) { getSupplierInvoice(#{User.current.id}, 'si_id'); }   ") %>
 	</td>
 
 	<th align="left"><%= radio_button_tag 'polymorphic_filter', '3', accountSelection, :onclick => '$("#account_id").removeAttr("disabled");$("#contact_id").attr("disabled", true);' %><%= controller.getAccountDDLbl %></th>
 	<td><%=h select_tag('account_id', options_for_select(accountArr, :selected => account_id.blank? ? accountArr : account_id ),
-	:onchange => " if(#{pjtChanged}) { accProjChanged(#{User.current.id}, this.id, false, #{blankOptionForPjt}); } if(#{loadSIDD}) { getSupplierInvoice(#{User.current.id}, 'si_id'); } ") %></td>
+	:onchange => " if(#{pjtChanged}) { accProjChanged('', this.id, false, #{blankOptionForPjt}); } if(#{loadSIDD}) { getSupplierInvoice(#{User.current.id}, 'si_id'); } ") %></td>
 
 	<% if isproject %>
 		<th align="left"><label><%= l(:label_project) %></label></th>

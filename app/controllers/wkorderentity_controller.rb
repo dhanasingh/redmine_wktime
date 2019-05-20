@@ -103,7 +103,7 @@ include WkreportHelper
 			end
 		else	
 			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
-			sqlwhere = " invoice_type = '#{getInvoiceType}'"	
+			sqlwhere = sqlwhere + " invoice_type = '#{getInvoiceType}'"	
 			if !@from.blank? && !@to.blank?			
 				sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
 				sqlwhere = sqlwhere + " invoice_date between '#{@from}' and '#{@to}'  "
