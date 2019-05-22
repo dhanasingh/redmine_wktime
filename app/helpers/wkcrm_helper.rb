@@ -204,7 +204,7 @@ include WkcrmenumerationHelper
 			accSections << 'wkopportunity' unless curObj.contact_type == 'SC'
 			hookSection = call_hook(:view_accordion_section, {:entity => entity, :curObj => curObj})
 			hookSection = hookSection.split(' ')
-			sectionsToRemove = call_hook(:remove_exsisting_accordion_section, {:curObj => curObj})
+			sectionsToRemove = call_hook(:remove_existing_accordion_section, {:curObj => curObj})
 			sectionsToRemove = sectionsToRemove.split(' ')
 		when 'WkInventoryItem'
 			accSections = ['wkproductitem']
