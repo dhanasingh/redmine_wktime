@@ -956,6 +956,10 @@ de:
   notice_unsucessful_survey_response: No Questions Responsed
   label_points: Points
   label_allow_survey_for_issue: Allow Survey for Issue
+  label_user_performance_review: User Performance Review
+  label_review: Review
+  label_reviewer_only: Reviewer Only
+  label_mandatory: Mandatory
   
   label_no_additional_details_for_issue: No Additional Details for Issue
   label_create_supplier_invoice_without_purchase_order: Create Supplier invoice without Purchase order

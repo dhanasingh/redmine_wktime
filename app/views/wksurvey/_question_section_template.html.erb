@@ -1,0 +1,56 @@
+<div id="add_question_template" style="display:none">
+	<%=h hidden_field_tag('deleteChoiceIds_QINDEX', '') %>
+    <%=h hidden_field_tag('allowPoints_QINDEX', false) %>
+	<fieldset id="QuestionID_QINDEX" class="surveyquestions">
+	<table width="100%">
+		<tr>
+			<td class="indexNo"><b>SINDEX.</b></td>
+			<th width="15%" align="left"><%= l(:label_question_name) %></th>
+			<td align="left">
+				<%=h text_field_tag("questionName__QINDEX", "", :size => "40%", :maxlength => 255) %>
+			</td>
+			<td width="45%" align="right">
+				<%=link_to (image_tag('delete.png') + l(:button_delete_question)), "javascript:deletequestion(QINDEX,'')", :title => l(:button_delete) %>
+			</td>
+		</tr>
+		<tr class="revieweronly">
+			<td></td>
+			<th align="left"><%= l(:label_reviewer_only) %></th>
+			<td><%= check_box_tag 'reviewerOnly_QINDEX', true, false %></td>
+		</tr>
+		<tr>
+			<td></td>
+			<th align="left"><%= l(:label_mandatory) %></th>
+			<td><%= check_box_tag 'mandatory_QINDEX', true, false %></td>
+		</tr>
+		<tr>
+			<td></td>
+			<th align="left"><%= l(:label_question_type) %></th>
+			<td>
+				<%=h select_tag('question_type_QINDEX',
+					options_for_select( getQuestionType,
+					:selected => 'RB'), :onchange => "question_type_changed('QINDEX')") %>
+			</td>
+			<td id="lastColQuesType_QINDEX" align="right"></td>
+		</tr>
+		<tr>
+			<td></td>
+			<th align="left"><%= l(:label_question_choices) %></th>
+			<td align="left">
+				<%=h text_field_tag("questionChoices__QINDEX__0", "", :size => "40%", :maxlength => 255) %>
+			</td>
+			<td id="points_QINDEX" align="right">
+			  <b><%= l(:label_points) %></b>&nbsp;<%=h text_field_tag("points__QINDEX__0", "", :size => 5, :maxlength => 10) %>
+			</td>
+		</tr>
+		<tr id="lastrow_QINDEX">
+			<td></td>
+			<td></td>
+			<td align="left">
+				<%= link_to l(:button_add), "#", { :onclick => "javascript:addrows(QINDEX, '');", :class => 'icon icon-add' } %>	
+			</td>
+			<td></td>
+		</tr>
+	</table>
+	</fieldset>
+</div>

@@ -1,16 +1,17 @@
 class WksurveyController < WkbaseController
 
+  unloadable 
   menu_item :wksurvey
+  menu_item :wkattendance, :only => :user_survey
   before_action :require_login
   before_action :survey_authentication
-  before_action :check_perm_and_redirect, :only => [:edit, :save_survey]
+  before_action :check_perm_and_redirect, :only => [:edit, :save_survey, :destroy]
   before_action :check_survey_perm_and_redirect, :only => [:survey, :update_survey, :index]
   before_action :email_user_permission, :only => [:email_user]
   include WktimeHelper
   include WksurveyHelper
 
   def index
-
     surveys = surveyList(params)
     formPagination(surveys)
   end
@@ -18,8 +19,7 @@ class WksurveyController < WkbaseController
   def survey
     
     @survey_details = get_survey_with_userGroup(nil)
-    @survey_details = @survey_details.where("wk_surveys.id = ? AND status IN ('O', 'C')", params[:survey_id])
-    @survey_details = @survey_details.first
+    @survey_details = @survey_details.where("wk_surveys.id = ? AND status IN ('O', 'C')", params[:survey_id]).first
     @showresult = params[:showresult].blank? ? false : true
     getSurveyForType(params)
 
@@ -58,7 +58,7 @@ class WksurveyController < WkbaseController
           FROM wk_surveys AS S
           INNER JOIN wk_survey_questions AS SQ ON SQ.survey_id = S.id
           INNER JOIN wk_survey_responses AS SR ON SR.survey_id = S.id
-          INNER JOIN wk_survey_sel_choices AS SSC ON SSC.survey_response_id = SR.id AND SQ.id = SSC.survey_question_id
+          INNER JOIN wk_survey_answers AS SSC ON SSC.survey_response_id = SR.id AND SQ.id = SSC.survey_question_id
           WHERE S.id = #{params[:survey_id]} AND S.status = 'O' AND SR.user_id = #{User.current.id}" + surveyForQry + response_Qry)
 
       elsif @survey_details.status == "C" || @showresult
@@ -124,7 +124,7 @@ class WksurveyController < WkbaseController
       end
     end
 
-    survey_response.wk_survey_sel_choices_attributes = surveyChoices
+    survey_response.wk_survey_answers_attributes = surveyChoices
 
     if survey_response.valid? && !surveyChoices.blank?
       survey_response.save
@@ -152,7 +152,7 @@ class WksurveyController < WkbaseController
 
       @edit_Question_Entries = WkSurvey.joins("LEFT JOIN wk_survey_questions ON wk_survey_questions.survey_id = wk_surveys.id")
       .where(:id => params[:survey_id].to_i).select("wk_survey_questions.id AS question_id, wk_survey_questions.name AS question_name, 
-        wk_survey_questions.question_type").order("question_id")
+        wk_survey_questions.question_type, is_reviewer_only, is_mandatory").order("question_id")
         
       @edit_Choice_Entries = WkSurvey.joins("LEFT JOIN wk_survey_questions ON wk_survey_questions.survey_id = wk_surveys.id")
         .joins("LEFT JOIN wk_survey_choices ON wk_survey_questions.id = wk_survey_choices.survey_question_id")
@@ -164,7 +164,7 @@ class WksurveyController < WkbaseController
 
   def save_survey
 
-    errmsg = "";
+    errmsg = ""
     surveyQuestions = Array.new
     questions = Hash.new
     questionChoices = Hash.new
@@ -183,6 +183,7 @@ class WksurveyController < WkbaseController
       survey.recur = params[:recur].blank? ? false : params[:recur]
       survey.recur_every =  params[:recur].blank? ? nil : params[:recur_every]
       survey.survey_for_type = params[:survey_for].blank? ? nil : params[:survey_for]
+      survey.is_review = params[:review].blank? ? false : params[:review]
 
       if params[:survey_for_id].blank?
         survey.survey_for_id = nil
@@ -193,30 +194,40 @@ class WksurveyController < WkbaseController
       end
 
       params.each do |ele_nameVal|
-
+        #Question Array
         if ((ele_nameVal.first).include? "questionName_") && (!(ele_nameVal.last).blank?)
           question_ele = (ele_nameVal.first).split('_')
           questionID = (question_ele[1]).blank? ? nil : question_ele[1]
           qIndex = question_ele.last
-          questions[qIndex] = [] if questions[qIndex].blank?
-          questions[qIndex] << questionID
-          questions[qIndex] << params["question_type_"+qIndex]
-          questions[qIndex] << ele_nameVal.last
+          qType = params["question_type_"+qIndex]
+          reviewerOnly = params["reviewerOnly_"+qIndex]
+          mandatory = params["mandatory_"+qIndex]
+          questions[qIndex] = [questionID, qType, ele_nameVal.last, reviewerOnly.blank? ? false : true, mandatory.blank? ? false : true]
         end
 
-        if ((ele_nameVal.first).include? "questionChoices_") && (!(ele_nameVal.last).blank?)
+        if (((ele_nameVal.first).include? "questionChoices_") || ((ele_nameVal.first).include? "qpoints_") || ((ele_nameVal.first).include? "deleteChoiceIds_")) && (!(ele_nameVal.last).blank?)
           choice_ele = (ele_nameVal.first).split("_")
-          questionChoiceID = (choice_ele[3]).blank? ? "" : choice_ele[3]
-          qIndex = choice_ele[2]
-          choice_points = params["points_"+ choice_ele[1] + "_" + qIndex + "_" + questionChoiceID + "_" + choice_ele[4]]
-          questionChoices[qIndex] = [] if questionChoices[qIndex].blank?
-          questionChoices[qIndex] << {id: questionChoiceID, name: ele_nameVal.last, points: choice_points }
-          deleteChoiceName = "deleteChoiceIds_"+qIndex.to_s
-          unless params[deleteChoiceName].blank?
-            deleteChoiceIds = params[deleteChoiceName].split(",")
+          # Deleted Choices Array
+          if ((ele_nameVal.first).include? "deleteChoiceIds_")
+            qIndex = choice_ele[1]
+            deleteChoiceIds = ele_nameVal.last.split(",")
+            questionChoices[qIndex] = [] if questionChoices[qIndex].blank?
             deleteChoiceIds.each do |deleteChoiceID|
               questionChoices[qIndex] << { id: deleteChoiceID, _destroy: '1'}
             end
+            # Text box Questions Points Array
+          elsif ((ele_nameVal.first).include? "qpoints_" )
+            qIndex = choice_ele[1]
+            questionChoices[qIndex] = [] if questionChoices[qIndex].blank?
+            questionChoices[qIndex] << {id: nil, name: nil, points: ele_nameVal.last } if params["allowPoints_" + qIndex] == "true"
+            # Choices Array
+          elsif ((ele_nameVal.first).include? "questionChoices_")
+            questionChoiceID = (choice_ele[3]).blank? ? "" : choice_ele[3]
+            qIndex = choice_ele[2]
+            choice_points = params["points_"+ choice_ele[1] + "_" + qIndex + "_" + questionChoiceID + "_" + choice_ele[4]]
+            choice_name = params["questionChoices_"+ choice_ele[1] + "_" + qIndex + "_" + questionChoiceID + "_" + choice_ele[4]]
+            questionChoices[qIndex] = [] if questionChoices[qIndex].blank?
+            questionChoices[qIndex] << {id: questionChoiceID, name: choice_name, points: choice_points }
           end
         end
       end
@@ -224,7 +235,7 @@ class WksurveyController < WkbaseController
       questions.each do |question|
         questionChoice = question.first
         questionChoiceArr = questionChoices[questionChoice].blank? ? Array.new : questionChoices[questionChoice]
-        surveyQuestions << {id: (question.last).first, name: (question.last).last, question_type: ((question.last)[1].blank? ? "RB" : (question.last)[1]), wk_survey_choices_attributes: questionChoiceArr}
+        surveyQuestions << {id: (question.last).first, name: (question.last)[2], question_type: ((question.last)[1].blank? ? "RB" : (question.last)[1]), is_reviewer_only: (question.last)[3], is_mandatory: (question.last)[4], wk_survey_choices_attributes: questionChoiceArr}
       end
 
       unless params[:delete_question_ids].blank?
@@ -241,23 +252,14 @@ class WksurveyController < WkbaseController
 
     if survey.valid? && errmsg.blank?	
       survey.save
-      urlHash = {:controller => controller_name, :action => 'index'}
-      urlHash = get_survey_url(urlHash, params, true)
+      urlHash = {:surveyForType => params[:survey_for], :surveyForID => params[:survey_for_id] }
+      urlHash = get_survey_redirect_url(urlHash, params)
       redirect_to urlHash
       flash[:notice] = l(:notice_successful_update)
-
-    elsif params[:survey_id].blank? && errmsg.blank?
-      errmsg = errmsg + survey.errors.full_messages.join("<br>")
-      flash[:error] = errmsg
-      urlHash = {:controller => controller_name, :action => 'edit'}
-      urlHash = get_survey_url(urlHash, params, false)
-      redirect_to urlHash
-
     else
       errmsg  = errmsg + survey.errors.full_messages.join("<br>")
       flash[:error] = errmsg
-      urlHash = {:controller => controller_name, :action => 'edit', :survey_id => params[:survey_id]}
-      urlHash = get_survey_url(urlHash, params, false)
+      urlHash = { :project_id => params[:project_id], :controller => controller_name, :action => 'edit', :survey_id => params[:survey_id], :surveyForType => params[:survey_for], :surveyForID => params[:survey_for_id] }
       redirect_to urlHash
     end
   end
@@ -275,7 +277,7 @@ class WksurveyController < WkbaseController
       FROM wk_surveys AS S
       INNER JOIN wk_survey_questions AS SQ ON S.id = SQ.survey_id
       INNER JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id
-      INNER JOIN wk_survey_sel_choices AS SCC ON SC.id = SCC.survey_choice_id
+      INNER JOIN wk_survey_answers AS SCC ON SC.id = SCC.survey_choice_id
       INNER JOIN wk_survey_responses AS SR ON SR.survey_id = S.id	AND SR.id = SCC.survey_response_id
       WHERE SQ.id = #{question_id} "+ surveyForQry +
       "GROUP BY S.id, SQ.id, SC.id
@@ -326,13 +328,13 @@ class WksurveyController < WkbaseController
           data << {id: r.id, label: "Project #" + r.id.to_s + ": " + r.name, value: r.id}
       end
         
-    when "Accounts"
+    when "WkAccount"
       result = WkAccount.where("account_type = 'A' AND id = ? OR LOWER(name) LIKE LOWER(?)", surveyForID, surveyFor)
       result.each do  |r|
           data << {id: r.id, label: "Account #" + r.id.to_s + ": " + r.name, value: r.id}
       end
 
-    when "Contact"
+    when "WkCrmContact"
       sql = "SELECT C.first_name, C.last_name, C.id FROM wk_crm_contacts AS C
           LEFT JOIN wk_leads AS L ON L.contact_id = C.id
           WHERE (L.status = 'C' OR L.contact_id IS NULL)"
@@ -342,6 +344,16 @@ class WksurveyController < WkbaseController
       result = WkCrmContact.find_by_sql(sql)
       result.each do  |r|
           data << {id: r.id, label: "Contact #" + r.id.to_s + ": " + r.first_name + " " + r.last_name, value: r.id}
+      end
+
+    when "User"
+      result = User.all
+      surveyForIDSql = " (id = #{surveyForID})"
+      surveyForSql = " (id = #{surveyForID} OR LOWER(firstname) LIKE LOWER('#{surveyFor}') OR LOWER(lastname) LIKE LOWER('#{surveyFor}'))" unless surveyFor.blank?
+      result = result.where(params[:method] == "search" ? surveyForSql : surveyForIDSql)
+      
+      result.each do  |r|
+          data << {id: r.id, label: "User #" + r.id.to_s + ": " + r.firstname + " " + r.lastname, value: r.id}
       end
     end
 
@@ -391,8 +403,8 @@ class WksurveyController < WkbaseController
     else
       flash[:error] = survey.errors.full_messages.join("<br>")
     end
-    urlHash = {:controller => controller_name, :action => 'index'}
-    urlHash = get_survey_url(urlHash, params, true)
+    urlHash = {:surveyForType => params[:surveyForType], :surveyForID => params[:surveyForID] }
+    urlHash = get_survey_redirect_url(urlHash, params)
     redirect_to urlHash
   end
   
@@ -444,12 +456,14 @@ class WksurveyController < WkbaseController
 
   def survey_authentication
     
+    is_survey_not_permitted = false
     #project tab
-    unless params[:project_id].blank?
+    if !params[:project_id].blank? && !get_project_id(params[:project_id]).blank?
       find_project_by_project_id
+    elsif !params[:project_id].blank? && get_project_id(params[:project_id]).blank?
+      is_survey_not_permitted = true
     end
 
-    is_survey_not_permitted = false
     if !params[:id].blank? && !@project.blank?
       survey = WkSurvey.where(:id => params[:id])
       is_survey_not_permitted = true if survey.blank?
@@ -474,4 +488,7 @@ class WksurveyController < WkbaseController
     end
   end
 
+  def user_survey
+    index
+  end
 end

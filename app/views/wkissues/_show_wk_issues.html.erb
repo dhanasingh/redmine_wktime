@@ -61,7 +61,7 @@
 <% if wktime_helper.showSurvey && (@project.module_enabled?("Survey")) && !issueSurveyPermission.blank? && issueSurveyPermission.first.is_issueSurvey_allowed %>
 	<% params = Hash.new %>
 	<% params[:project_id] = Project.find(@issue.project_id).identifier %>
-	<% params[:isIssue] = "true" %>
+	<% params[:isIssue] = true %>
 	<% params[:issue_id] = @issue.id %>
 	<fieldset>
 		<legend><b><%= l(:label_survey) %></b></legend>

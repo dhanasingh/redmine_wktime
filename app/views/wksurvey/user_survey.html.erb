@@ -1,0 +1,28 @@
+
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+
+<%= title l(:label_user_performance_review) %>
+<script type="text/javascript">
+    wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "leave")%>';     
+    clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>'; 
+    payrollUrl = '<%=url_for(:controller => "wkpayroll", :action => "index", :tab => "payroll")%>';
+    userssettingsUrl = '<%=url_for(:controller => "wkpayroll", :action => "usrsettingsindex", :tab => "usersettings")%>'; 
+    wkSchedulingUrl = '<%=url_for(:controller => "wkscheduling", :action => "index", :tab => "wkscheduling")%>';
+    wkShiftUrl = '<%=url_for(:controller => "wkshift", :action => "index", :tab => "wkshift")%>';  
+    wkPublicHolidayUrl = '<%=url_for(:controller => "wkpublicholiday", :action => "index", :tab => "wkpublicholiday")%>';
+    wkSurveyUrl = '<%=url_for(:controller => "wksurvey", :action => "user_survey", :tab => "wksurvey", :surveyForType => 'User')%>';
+</script>
+<%= render_tabs time_expense_tabs %>
+
+<div class="autoscroll">
+    <% if checkEditSurveyPermission %>
+        <div class="contextual">
+            <%= link_to l(:label_new_survey), url_for(:controller => "wksurvey", :action => "edit", :surveyForType => 'User', :surveyForID => User.current.id), :class => 'icon icon-time-add' %>
+        </div>
+    <% end %>	
+    
+	<%= render :partial => 'survey_list' %>
+
+    <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
+</div>

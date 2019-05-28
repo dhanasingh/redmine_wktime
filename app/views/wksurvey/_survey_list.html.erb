@@ -1,4 +1,10 @@
 <%
+survey_helper = Object.new.extend(WksurveyHelper)
+
+unless controller_name == "wksurvey"
+    @all_surveys = survey_helper.surveyList(params)
+end
+
 if params[:isIssue] == "true"
     style = "list issues odd-even"
 else   
@@ -12,18 +18,13 @@ end
         <th class="lbl-txt-align"><%= l(:label_status) %></th>
         <th></th>
     </tr>
-	<% survey_helper = Object.new.extend(WksurveyHelper) %>
-    <%  unless controller_name == "wksurvey"
-            @all_surveys = survey_helper.surveyList(params)
-        end
-    %>
     <% @all_surveys.each do |entry| %>
+        <% urlhash = { :survey_id => entry.id, :surveyForType => entry.survey_for_type, :surveyForID => entry.survey_for_id } %>
         <tr>
             <td class="lbl-txt-align"><%=h entry.id %></td>
                 <td class="lbl-txt-align">
                     <% unless survey_helper.get_survey_with_userGroup(entry.id).blank? %>
-                        <% urlhash = {:controller => "wksurvey", :action => "survey", :survey_id => entry.id} %>
-                        <%=h link_to entry.name, url_for(survey_helper.get_survey_url(urlhash, params, false))%>
+                        <%=h link_to entry.name, url_for(survey_helper.get_survey_url(urlhash, params, "survey")) %>
                     <% else %>
                         <%=h entry.name %>
                     <% end %>
@@ -31,10 +32,8 @@ end
             <td class="lbl-txt-align"><%=h survey_helper.getSurveyStatusArr.invert[entry.status] %></td>
             <td class="lbl-txt-align">
                 <% if survey_helper.checkEditSurveyPermission && params[:isIssue].blank? %>
-                    <% urlhash = {:controller => "wksurvey", :action => "edit", :survey_id => entry.id} %>
-                    <%= link_to image_tag('edit.png'), url_for(survey_helper.get_survey_url(urlhash, params, false)), :title => l(:button_edit) %>
-                    <% urlhash = {:controller => "wksurvey", :action => "destroy", :survey_id => entry.id} %>
-                    <%= link_to image_tag('delete.png'), url_for(survey_helper.get_survey_url(urlhash, params, false)), :data => {:confirm => l(:text_are_you_sure)}, :title => l(:button_delete) %>
+                    <%= link_to image_tag('edit.png'), url_for(survey_helper.get_survey_url(urlhash, params, "edit")), :title => l(:button_edit) %>
+                    <%= link_to image_tag('delete.png'), url_for(survey_helper.get_survey_url(urlhash, params, "destroy")), :data => {:confirm => l(:text_are_you_sure)}, :title => l(:button_delete) %>
                 <% end %>
             </td>
         </tr>

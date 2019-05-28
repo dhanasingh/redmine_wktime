@@ -611,7 +611,7 @@ end
 				{:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime},
 				{:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense}
 			   ]
-		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" || params[:controller] == "wkscheduling"  || params[:controller] == "wkschedulepreference" || params[:controller] == "wkshift" || params[:controller] == "wkpublicholiday" 
+		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" || params[:controller] == "wkscheduling"  || params[:controller] == "wkschedulepreference" || params[:controller] == "wkshift" || params[:controller] == "wkpublicholiday" || params[:controller] == "wksurvey"
 				tabs = []
 				if showAttendance
 					tabs << {:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave}
@@ -634,6 +634,9 @@ end
 					end
 				end
 				
+				if showSurvey
+					tabs << {:name => 'wksurvey', :partial => 'wktime/tab_content', :label => :label_user_performance_review}
+				end
 		elsif params[:controller] == "wklead" || params[:controller] == "wkcrmaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact"
 			tabs = [
 				{:name => 'wklead', :partial => 'wktime/tab_content', :label => :label_lead_plural},
@@ -1376,6 +1379,7 @@ end
 						  l(:label_txn_purchase) => 'Purchase',
 						  l(:label_inventory) => 'Inventory',
 						  l(:label_survey) => 'Survey',
+						  l(:label_user_performance_review) => 'Survey',
 						  l(:label_report) => 'Report'
 					 }
 		erpmineModules

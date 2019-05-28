@@ -7,15 +7,9 @@
 <div class="autoscroll">
     <% if checkEditSurveyPermission %>
         <div class="contextual">
-        <% if params[:project_id].blank? %>
-            <%= link_to l(:label_new_survey), url_for(:controller => "wksurvey", :action => "edit"), :class => 'icon icon-time-add' %>
-        <% else %>
             <%= link_to l(:label_new_survey), url_for(:project_id => params[:project_id], :controller => "wksurvey", :action => "edit"), :class => 'icon icon-time-add' %>
-        <% end %>
         </div>
-    <% end %>	
-    
+    <% end %>
 	<%= render :partial => 'survey_list' %>
-
     <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
 </div>
