@@ -1,7 +1,8 @@
 class CreateWkSurveyReview < ActiveRecord::Migration[4.2]
 	def change
 
-		create_table :wk_survey_ans_review do |t|
+		create_table :wk_survey_ans_reviews do |t|
+			t.references :user, :class => "User", :null => false, index: true
 			t.references :survey_answer, :class => "wk_survey_sel_choices", :null => false, index: true
 			t.text :comment_text
 			t.timestamps null: false
