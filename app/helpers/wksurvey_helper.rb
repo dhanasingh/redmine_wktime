@@ -167,7 +167,8 @@ module WksurveyHelper
             @surveyForType = "User"
             @surveyForID = User.current.id
         else
-            @surveyForType = nil
+            survey_for = params[:surveyForType].blank? ? params[:survey_for] : params[:surveyForType]
+            @surveyForType = survey_for.blank? ? nil : survey_for
             @surveyForID = nil
         end
         if surveyFor.blank?

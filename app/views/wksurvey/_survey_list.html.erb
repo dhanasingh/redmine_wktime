@@ -23,10 +23,10 @@ end
         <tr>
             <td class="lbl-txt-align"><%=h index+1 %></td>
             <td class="lbl-txt-align">
-                <% unless survey_helper.get_survey_with_userGroup(entry.id).blank? %>
-                    <%=h link_to entry.name, url_for(survey_helper.get_survey_url(urlhash, params, "survey")) %>
-                <% else %>
+                <% if survey_helper.get_survey_with_userGroup(entry.id).blank? || (@surveyForID.blank? && !@surveyForType.blank?) %>
                     <%=h entry.name %>
+                <% else %>
+                    <%=h link_to entry.name, url_for(survey_helper.get_survey_url(urlhash, params, "survey")) %>
                 <% end %>
             </td>
             <td class="lbl-txt-align"><%=h survey_helper.getSurveyStatus.invert[entry.status] %></td>

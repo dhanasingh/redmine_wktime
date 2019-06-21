@@ -21,11 +21,11 @@ end
         <tr>
             <td class="lbl-txt-align"><%=h index+1 %></td>
             <td class="lbl-txt-align">
-            <% #if entry[:status] != "O"  %>
-                <%=h link_to entry[:name], url_for(survey_helper.get_survey_url(urlhash, params, "survey")) %>
-            <% #else %>
-                <%#= entry[:name] %>
-            <% #end %>
+            <% if @surveyForID.blank? && !@surveyForType.blank? %>
+                <%= entry[:name] %>
+            <% else %>
+                <%= link_to entry[:name], url_for(survey_helper.get_survey_url(urlhash, params, "survey")) %>
+            <% end %>
             </td>
             <td class="lbl-txt-align"><%=h survey_helper.getResponseStatus.invert[entry[:status]] %></td>
             <td class="lbl-txt-align"><%=h entry[:firstname] + " " + entry[:lastname] %></td>
