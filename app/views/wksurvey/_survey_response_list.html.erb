@@ -1,0 +1,35 @@
+<%
+survey_helper = Object.new.extend(WksurveyHelper)
+
+if params[:isIssue] == "true"
+    style = "list issues odd-even"
+else   
+    style = "list time-entries"
+end
+%>
+<table class="<%= style %>">
+    <tr>
+        <th class="lbl-txt-align">#</th>
+        <th class="lbl-txt-align"><%= l(:label_survey) %></th>
+        <th class="lbl-txt-align"><%= l(:label_response_status) %></th>
+        <th class="lbl-txt-align"><%= l(:label_response_by) %></th>
+        <th class="lbl-txt-align"><%= l(:label_response_date) %></th>
+    </tr>
+    <% @response_entries.each_with_index do |entry, index| %>
+        <% entry = entry.last %>
+        <% urlhash = { :survey_id => entry[:survey_id], :surveyForType => entry[:survey_for_type], :surveyForID => entry[:survey_for_id], response_id: entry[:id] } %>
+        <tr>
+            <td class="lbl-txt-align"><%=h index+1 %></td>
+            <td class="lbl-txt-align">
+            <% #if entry[:status] != "O"  %>
+                <%=h link_to entry[:name], url_for(survey_helper.get_survey_url(urlhash, params, "survey")) %>
+            <% #else %>
+                <%#= entry[:name] %>
+            <% #end %>
+            </td>
+            <td class="lbl-txt-align"><%=h survey_helper.getResponseStatus.invert[entry[:status]] %></td>
+            <td class="lbl-txt-align"><%=h entry[:firstname] + " " + entry[:lastname] %></td>
+            <td class="lbl-txt-align"><%=h entry[:status_date].strftime("%Y-%m-%d") %></</td>
+        </tr>
+    <% end %>
+</table>

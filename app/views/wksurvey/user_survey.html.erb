@@ -2,7 +2,7 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 
-<%= title l(:label_user_performance_review) %>
+<%= title l(:label_survey) %>
 <script type="text/javascript">
     wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "leave")%>';     
     clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>'; 
@@ -20,9 +20,7 @@
         <div class="contextual">
             <%= link_to l(:label_new_survey), url_for(:controller => "wksurvey", :action => "edit", :surveyForType => 'User', :surveyForID => User.current.id), :class => 'icon icon-time-add' %>
         </div>
-    <% end %>	
-    
+    <% end %>
 	<%= render :partial => 'survey_list' %>
-
     <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
 </div>

@@ -235,7 +235,7 @@ function validateSurveyFor(){
 	var surveyFor = $('#survey_for').val();
 	var surveyForID = $('#survey_for_id').val();
 	if(surveyForID != '' && surveyFor != ''){
-	var URL = "/wksurvey/survey_for_auto_complete?surveyFor="+ surveyFor +"&surveyForID="+surveyForID+"&method=filter";
+	var URL = "/wksurvey/find_survey_for?surveyFor="+ surveyFor +"&surveyForID="+surveyForID+"&method=filter";
       $.ajax({
         url: URL,
 		type: 'get',
@@ -261,7 +261,7 @@ function validateSurveyFor(){
 }
 
 observeAutocompleteField('survey_for_id',	function(request, callback) {
-		var url = "/wksurvey/survey_for_auto_complete?surveyFor="+ $('#survey_for').val() +"&surveyForID="+ $('#survey_for_id').val()+"&method=search";
+		var url = "/wksurvey/find_survey_for?surveyFor="+ $('#survey_for').val() +"&surveyForID="+ $('#survey_for_id').val()+"&method=search";
 		var data = {
 			term: request.term
 		};

@@ -5,7 +5,7 @@ unless controller_name == "wksurvey"
     @all_surveys = survey_helper.surveyList(params)
 end
 
-if params[:isIssue] == "true"
+if params[:isIssue]
     style = "list issues odd-even"
 else   
     style = "list time-entries"
@@ -14,25 +14,30 @@ end
 <table class="<%= style %>">
     <tr>				
         <th class="lbl-txt-align">#</th>
-        <th class="lbl-txt-align"><%= l(:label_survey_name) %></th>
+        <th class="lbl-txt-align"><%= l(:label_survey) %></th>
         <th class="lbl-txt-align"><%= l(:label_status) %></th>
         <th></th>
     </tr>
-    <% @all_surveys.each do |entry| %>
+    <% @all_surveys.each_with_index do |entry, index| %>
         <% urlhash = { :survey_id => entry.id, :surveyForType => entry.survey_for_type, :surveyForID => entry.survey_for_id } %>
         <tr>
-            <td class="lbl-txt-align"><%=h entry.id %></td>
-                <td class="lbl-txt-align">
-                    <% unless survey_helper.get_survey_with_userGroup(entry.id).blank? %>
-                        <%=h link_to entry.name, url_for(survey_helper.get_survey_url(urlhash, params, "survey")) %>
-                    <% else %>
-                        <%=h entry.name %>
-                    <% end %>
-                </td>
-            <td class="lbl-txt-align"><%=h survey_helper.getSurveyStatusArr.invert[entry.status] %></td>
+            <td class="lbl-txt-align"><%=h index+1 %></td>
             <td class="lbl-txt-align">
+                <% unless survey_helper.get_survey_with_userGroup(entry.id).blank? %>
+                    <%=h link_to entry.name, url_for(survey_helper.get_survey_url(urlhash, params, "survey")) %>
+                <% else %>
+                    <%=h entry.name %>
+                <% end %>
+            </td>
+            <td class="lbl-txt-align"><%=h survey_helper.getSurveyStatus.invert[entry.status] %></td>
+            <td class="lbl-txt-align">
+                <% unless survey_helper.get_survey_with_userGroup(entry.id).blank? %>
+                    <%= link_to image_tag("withoutcommant.png", :plugin => "redmine_wktime"), url_for(survey_helper.get_survey_url(urlhash, params, "survey_response")), :title => l(:label_survey_response) %>&emsp;
+                <% end %>
                 <% if survey_helper.checkEditSurveyPermission && params[:isIssue].blank? %>
-                    <%= link_to image_tag('edit.png'), url_for(survey_helper.get_survey_url(urlhash, params, "edit")), :title => l(:button_edit) %>
+                    <% urlhash[:showresult] = true %>
+                    <%= link_to image_tag("graph.png", :plugin => "redmine_wktime"), url_for(survey_helper.get_survey_url(urlhash, params, "survey")), :title => l(:label_survey_result) %>&emsp;
+                    <%= link_to image_tag('edit.png'), url_for(survey_helper.get_survey_url(urlhash, params, "edit")), :title => l(:button_edit) %>&emsp;
                     <%= link_to image_tag('delete.png'), url_for(survey_helper.get_survey_url(urlhash, params, "destroy")), :data => {:confirm => l(:text_are_you_sure)}, :title => l(:button_delete) %>
                 <% end %>
             </td>

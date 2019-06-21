@@ -1,19 +1,19 @@
 <%= javascript_include_tag 'survey', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 
-<% 	@isBlankSurvey = @edit_Survey_Entry.blank?
-	survey_name = @isBlankSurvey ? nil : @edit_Survey_Entry.name
-	status = @isBlankSurvey ? nil : @edit_Survey_Entry.status
-	survey_id = @isBlankSurvey ? nil : @edit_Survey_Entry.id
-	group_id = @isBlankSurvey ? '' : @edit_Survey_Entry.group_id
-	isDisable = @isBlankSurvey ? false : @edit_Survey_Entry.status != 'N'
-	recur = @isBlankSurvey ? false : @edit_Survey_Entry.recur
-	recur_every = @isBlankSurvey ? nil : @edit_Survey_Entry.recur_every
-	survey_for = @isBlankSurvey ? params[:surveyForType] : @edit_Survey_Entry.survey_for_type
-	survey_for_id = @isBlankSurvey ? params[:surveyForID] : @edit_Survey_Entry.survey_for_id
-	is_review =  @isBlankSurvey ? false : @edit_Survey_Entry.is_review
+<% 	@isBlankSurvey = @survey.blank?
+	survey_name = @isBlankSurvey ? nil : @survey.name
+	status = @isBlankSurvey ? nil : @survey.status
+	survey_id = @isBlankSurvey ? nil : @survey.id
+	group_id = @isBlankSurvey ? '' : @survey.group_id
+	isDisable = @isBlankSurvey ? false : @survey.status != 'N'
+	recur = @isBlankSurvey ? false : @survey.recur
+	recur_every = @isBlankSurvey ? nil : @survey.recur_every
+	survey_for = @isBlankSurvey ? @surveyForType : @survey.survey_for_type
+	survey_for_id = @isBlankSurvey ? @surveyForID : @survey.survey_for_id
+	is_review =  @isBlankSurvey ? false : @survey.is_review
 %>
-<% if @edit_Survey_Entry.blank?%>
+<% if @survey.blank?%>
 	<%= title l(:label_new_survey) %>
 <% else %>
 	<%= title l(:label_edit_survey) %>
@@ -43,7 +43,7 @@
 				<tr>
 						<th align="left"><%= l(:label_status) %></th>
 						<td align="left">
-							<%=h select_tag("survey_status", options_for_select(getSurveyStatusArr.drop(1), status)) %>
+							<%=h select_tag("survey_status", options_for_select(getSurveyStatus.drop(1), status)) %>
 						</td>
 				</tr>
 		<tr>

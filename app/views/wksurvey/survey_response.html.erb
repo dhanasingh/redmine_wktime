@@ -1,0 +1,5 @@
+<%= title l(:label_survey_response) %>
+<div class="autoscroll">
+	<%= render :partial => 'survey_response_list' %>
+    <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
+</div>

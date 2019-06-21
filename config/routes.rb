@@ -591,13 +591,17 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 
 	get 'wksurvey/graph', :to => 'wksurvey#graph'
 
-	get 'wksurvey/survey_for_auto_complete', :to => 'wksurvey#survey_for_auto_complete'
+	get 'wksurvey/find_survey_for', :to => 'wksurvey#find_survey_for'
 
 	get 'wksurvey/email_user', :to => 'wksurvey#email_user'
 
 	get 'projects/:project_id/wksurvey', to: 'wksurvey#index'
 
 	get 'wksurvey/user_survey', to: 'wksurvey#user_survey'
+
+	post 'wksurvey/update_status', :to => 'wksurvey#update_status'
+
+	get 'wksurvey/survey_response', :to => 'wksurvey#survey_response'
 
 	get 'wkpayroll/export', :to => 'wkpayroll#export'
 

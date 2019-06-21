@@ -635,7 +635,7 @@ end
 				end
 				
 				if showSurvey
-					tabs << {:name => 'wksurvey', :partial => 'wktime/tab_content', :label => :label_user_performance_review}
+					tabs << {:name => 'wksurvey', :partial => 'wktime/tab_content', :label => :label_survey}
 				end
 		elsif params[:controller] == "wklead" || params[:controller] == "wkcrmaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact"
 			tabs = [
@@ -1379,7 +1379,6 @@ end
 						  l(:label_txn_purchase) => 'Purchase',
 						  l(:label_inventory) => 'Inventory',
 						  l(:label_survey) => 'Survey',
-						  l(:label_user_performance_review) => 'Survey',
 						  l(:label_report) => 'Report'
 					 }
 		erpmineModules

@@ -2,12 +2,12 @@ module WksurveyHelper
 
     include WktimeHelper
 
-    def getSurveyStatusArr
+    def getSurveyStatus
         {
             "" => '',
             l(:label_new) => 'N',
             l(:label_open) => 'O',
-            l(:label_close) => 'C',
+            l(:label_closed) => 'C',
             l(:label_archived) => 'A'
         }
     end
@@ -32,13 +32,15 @@ module WksurveyHelper
     end
 
     def getSurveyFor
-        {
+        survey_types = {
             "" => '',
             l(:label_project) => 'Project',
             l(:label_accounts) => 'WkAccount',
             l(:label_contact) => 'WkCrmContact',
             l(:label_user) => 'User'
         }
+        call_hook(:add_survey_for, :survey_types => survey_types)
+        survey_types
     end
 
     def checkEditSurveyPermission
@@ -57,13 +59,14 @@ module WksurveyHelper
         end
 
         getSurveyForType(params)
-        unless params[:survey_for].blank?
-            surveys = surveys.where(survey_for_type: params[:survey_for])
+        if !params[:survey_for].blank? || (@surveyForID.blank? && !@surveyForType.blank?)
+            survey_for = !params[:survey_for].blank? ? params[:survey_for] : @surveyForType
+            surveys = surveys.where(survey_for_type: survey_for)
         else
             surveys = surveys.where(survey_for_type: @surveyForType, survey_for_id: [nil, @surveyForID])
             surveys = surveys.where(status: ["O", "C"]) unless params[:isIssue].blank?
-            surveys
         end
+        surveys
     end
 
     def get_survey_with_userGroup(survey_id)
@@ -91,24 +94,29 @@ module WksurveyHelper
             urlHash[:action] = 'user_survey'
             urlHash[:tab] = 'wksurvey'
         elsif urlHash[:surveyForType] == "Project" && !urlHash[:surveyForID].blank?
+            project_name = get_project_name(urlHash[:surveyForID].to_i)
             urlHash = Hash.new
-            urlHash[:project_id] = get_project_name(params[:survey_for_id])
+            urlHash[:project_id] = project_name
             urlHash[:controller] = "wksurvey"
         elsif urlHash[:surveyForType] == "Issue" && !urlHash[:surveyForID].blank?
+            surveyForID = urlHash[:surveyForID]
             urlHash = Hash.new
             urlHash[:controller] = "issues"
             urlHash[:action] = 'show'
-            urlHash[:issue_id] = params[:issue_id]
+            urlHash[:id] = params[:issue_id].blank? ? surveyForID : params[:issue_id]
         else
             urlHash[:controller] = "wksurvey"
             urlHash[:action] = 'index'
         end
+        call_hook(:get_survey_redirect_url, urlHash: urlHash, params: params)
         urlHash
     end
 
     def get_survey_url(urlHash, params, method)
         urlHash[:controller] = "wksurvey"
         urlHash[:action] = method
+        call_hook(:get_survey_url, urlHash: urlHash, params: params)
+
         if urlHash[:surveyForType] == "WkAccount"
             urlHash[:surveyForID] = params[:account_id] if urlHash[:surveyForID].blank?
         elsif urlHash[:surveyForType] == "WkCrmContact"
@@ -137,25 +145,43 @@ module WksurveyHelper
     end
 
     def getSurveyForType(params)
+        surveyFor = Hash.new
+        call_hook(:getSurveyForType, surveyFor: surveyFor, params: params)
 
-        if !params[:issue_id].blank? && params[:isIssue].blank?
+        if !surveyFor.blank?
+            @surveyForType = surveyFor[:surveyForType]
+            @surveyForID = surveyFor[:surveyForID]
+        elsif (!params[:issue_id].blank? && params[:isIssue].blank?) || params[:surveyForType] == "Issue"
             @surveyForType = "Issue"
-            @surveyForID = params[:issue_id]
-        elsif !params[:project_id].blank?
+            @surveyForID = params[:issue_id].blank? ? params[:surveyForID] : params[:issue_id]
+        elsif !params[:project_id].blank? || params[:surveyForType] == "Project"
             @surveyForType = "Project"
-            @surveyForID = get_project_id(params[:project_id])
-        elsif !params[:contact_id].blank?
+            @surveyForID = params[:project_id].blank? ? params[:surveyForID] : get_project_id(params[:project_id])
+        elsif !params[:contact_id].blank? || params[:surveyForType] == "WkCrmContact"
             @surveyForType = "WkCrmContact"
-            @surveyForID = params[:contact_id]
-        elsif !params[:account_id].blank?
+            @surveyForID = params[:contact_id].blank? ? params[:surveyForID] : params[:contact_id]
+        elsif !params[:account_id].blank? || params[:surveyForType] == "WkAccount"
             @surveyForType = "WkAccount"
-            @surveyForID = params[:account_id]
-        elsif params[:surveyForType] == 'User'
+            @surveyForID = params[:account_id].blank? ? params[:surveyForID] : params[:account_id]
+        elsif params[:surveyForType] == 'User' || params[:surveyForType] == "User"
             @surveyForType = "User"
             @surveyForID = User.current.id
         else
             @surveyForType = nil
             @surveyForID = nil
         end
+        if surveyFor.blank?
+            surveyFor[:surveyForType] = @surveyForType
+            surveyFor[:surveyForID] = @surveyForID
+        end
+        surveyFor
+    end
+
+    def getResponseStatus
+        {
+            l(:label_open) => 'O',
+            l(:label_closed) => 'C',
+            l(:label_reviewed) => 'R'
+        }
     end
 end
