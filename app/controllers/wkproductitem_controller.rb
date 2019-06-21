@@ -28,10 +28,10 @@ class WkproductitemController < WkinventoryController
   
 	def index
 		set_filter_session
-		productId = session[controller_name].try(:product_id)
-		brandId = session[controller_name].try(:brand_id)
-		locationId =session[controller_name].try(:location_id)
-		availabilityId =session[controller_name].try(:availability)
+		productId = session[controller_name].try(:[], :product_id)
+		brandId = session[controller_name].try(:[], :brand_id)
+		locationId =session[controller_name].try(:[], :location_id)
+		availabilityId =session[controller_name].try(:[], :availability)
 		sqlwhere = ""
 		unless productId.blank?
 			sqlwhere = " AND pit.product_id = #{productId}"
