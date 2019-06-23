@@ -93,7 +93,7 @@ module WkattendanceHelper
 			if !entries.blank?				
 				entries.each do |entry|				
 					userJoinDate = entry.join_date.blank? ? entry.created_on.to_date : entry.join_date.to_date
-					yearDiff = ((Date.today - userJoinDate).to_i / 365.0)
+					yearDiff = (((currentMonthStart - 1) - userJoinDate).to_i / 365.0)
 					accrualAfter = leaveAccAfter["#{entry.issue_id}"].to_f						
 					includeAccrual = yearDiff >= accrualAfter ? true : false
 					accrual = leaveAccrual["#{entry.issue_id}"].to_f
