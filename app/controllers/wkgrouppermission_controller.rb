@@ -64,7 +64,7 @@ class WkgrouppermissionController < ApplicationController
 	end
 	
 	def check_permission_tab_and_redirect
-		unless (User.current.id == 1) || validateERPPermission("ADM_ERP")
+		unless (User.current.admin) || validateERPPermission("ADM_ERP")
 			render_403
 			return false
 		end
