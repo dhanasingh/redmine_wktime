@@ -233,4 +233,67 @@ include WktimeHelper
 		end
 		transtype
 	end
+	
+	def getEachLedgerCDAmt(asOnDate, ledgerType)
+		typeArr = ['c', 'd']
+		detailHash = Hash.new
+		typeArr.each do |type|
+			detailHash[type] = WkGlTransactionDetail.includes(:ledger, :wkgltransaction).where('wk_gl_transaction_details.detail_type = ? and wk_ledgers.ledger_type IN (?) and wk_gl_transactions.trans_date <= ?', type, ledgerType, asOnDate).references(:ledger,:wkgltransaction).group('wk_ledgers.id').sum('wk_gl_transaction_details.amount')
+		end
+		creditDebitHash = Hash.new
+		unless detailHash.blank?
+			ledgers = WkLedger.where(:ledger_type => ledgerType)
+			ledgers.each do |ledger|
+				key = ledger.name 
+				creditDebitHash[key] = Hash.new if creditDebitHash[key].blank?
+				creditDebitHash[key]['d'] = detailHash['d'][ledger.id]
+				creditDebitHash[key]['c'] = detailHash['c'][ledger.id]
+			end
+		end
+		creditDebitHash	
+	end
+	
+	def getTBSubEntries(asOnDate, ledgerType)
+		subEntriesHash = nil
+		unless getLedgerTypeGrpHash[ledgerType].blank?
+			subEntriesHash = Hash.new
+			getLedgerTypeGrpHash[ledgerType].each do |subType|
+				subEntriesHash[subType] = getEachLedgerCDAmt(asOnDate, [subType])
+			end
+		end
+		subEntriesHash
+	end
+
+	def getCreditDebitTotal(mainHash, subHash)
+		@debitTot = 0
+		@creditTot =0
+		creditDebitTotHash = Hash.new
+		unless mainHash.blank?
+			mainHash.each do |ledger, entry|
+				entry.each do |type, amount|
+					if type == 'd'
+						@debitTot += amount unless amount.blank?
+					else
+						@creditTot += amount unless amount.blank?
+					end
+				end 
+			end
+		end
+		unless subHash.blank?
+			subHash.each do |mainLedger, entry|
+				entry.each do |subLedger, value|
+					value.each do |type, amount|
+						if type == 'd'
+							@debitTot += amount unless amount.blank?
+						else
+							@creditTot += amount unless amount.blank?
+						end
+					end
+				end 
+			end
+		end
+		creditDebitTotHash['debit'] = @debitTot
+		creditDebitTotHash['credit'] = @creditTot
+		creditDebitTotHash
+	end
 end
