@@ -19,29 +19,26 @@ class WkpublicholidayController < ApplicationController
   menu_item :wkattendance
   
 	def index
-		set_filter_session
 		@year ||= User.current.today.year
 		@month ||= User.current.today.month
 		if params[:year] and params[:year].to_i > 1900
 			@year = params[:year].to_i
-			if params[:month] and params[:month].to_i > 0 and params[:month].to_i < 13
+			if params.key?("month")
 				@month = params[:month].to_i
 			end
 		end
 		
-		locationId = session[controller_name][:location_id]
-		departmentId = session[controller_name][:department_id]
+		locationId = params[:location_id]
 		
-		@calendar = Redmine::Helpers::Calendar.new(Date.civil(@year, @month, 1), current_language, :month)
-		
-		unless locationId.blank?
-			entries = WkPublicHoliday.where(:location_id => locationId)
-		else
+		if locationId == 'AA'
 			entries = WkPublicHoliday.all
+		else
+			entries = WkPublicHoliday.where(:location_id => locationId)
 		end
 		
-		unless params[:month].blank?
-			entries = entries.where(:holiday_date => @calendar.startdt..@calendar.enddt)
+		if !params[:month].blank? || @month > 0
+			calendar = Redmine::Helpers::Calendar.new(Date.civil(@year, @month, 1), current_language, :month)
+			entries = entries.where(:holiday_date => calendar.startdt..calendar.enddt)
 		else			
 			unless params[:year].blank?
 				@year_from = params[:year].to_i	
@@ -119,15 +116,4 @@ class WkpublicholidayController < ApplicationController
 			@offset = @entry_pages.offset
 		end	
 	end
-	
-	def set_filter_session
-		if params[:searchlist].blank? && session[controller_name].nil?
-			session[controller_name] = {:location_id => params[:location_id], :department_id => params[:department_id]}
-		elsif params[:searchlist] == controller_name
-			session[controller_name][:location_id] = params[:location_id]
-			session[controller_name][:department_id] = params[:department_id]			
-		end
-		
-	end
-
 end

@@ -14,20 +14,17 @@
 <%= form_tag({:controller => controller_name, :action => 'index'},  :method => :get, :id => 'query_form') do %>
 <%=h hidden_field_tag('tab', "#{controller_name}") %>
 <%= hidden_field_tag "searchlist", "#{controller_name}" %>
-<%
-	locId = session[controller_name][:location_id]
-	depId = session[controller_name][:department_id]
-	
-%>
+<% locId = params[:location_id] %>
 
 <%#= render :partial => 'wklocation/location_filter', :locals => { locationId: locId, departmentId: depId, isApply: false }  %>
-			
-<p style="float:right;">
-  <%= link_to_previous_month(@year, @month, :accesskey => accesskey(:previous)) %> | <%= link_to_next_month(@year, @month, :accesskey => accesskey(:next)) %>
-</p>
+<% if @month > 0 %>	
+	<p style="float:right;">
+	<%= link_to_previous_month(@year, @month, :accesskey => accesskey(:previous)) %> | <%= link_to_next_month(@year, @month, :accesskey => accesskey(:next)) %>
+	</p>
+<% end %>
 <p class="buttons">
 <%=h l(:label_location) %>
-<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locId, true)) %>
+<%=h select_tag("location_id", selectLocation(WkLocation ,locId)) %>
 
 
 <%= label_tag('month', l(:label_month)) %>

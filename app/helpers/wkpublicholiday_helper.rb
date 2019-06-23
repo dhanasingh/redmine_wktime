@@ -15,7 +15,20 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 module WkpublicholidayHelper
-include WktimeHelper
-include WkcrmenumerationHelper
-include CalendarsHelper
+  include WktimeHelper
+  include WkcrmenumerationHelper
+  include CalendarsHelper
+
+  def selectLocation(model, locId)
+    ddArray = Array.new
+    ddValues = model.all
+    unless ddValues.blank?
+        ddValues.each do | entry |
+            ddArray << [ entry.name, entry.id ]
+            locId = entry.id if locId.nil? && entry.is_default?
+        end
+    end
+    ddArray.unshift(["",""],[l(:label_all_locations),'AA'])
+    options_for_select(ddArray, :selected => locId)
+  end
 end
