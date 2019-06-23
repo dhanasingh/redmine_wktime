@@ -162,4 +162,141 @@ include WkaccountingHelper
 		end
 		crDbLedger
 	end
+	
+	def detailsTransaction
+		{
+			l(:label_days) => 'days',
+			l(:label_week) => 'week',
+			l(:label_month) => 'month',
+			l(:label_year) => 'year'
+		}
+	end
+	
+	def csv_format_conversion(transEntries)
+		decimal_separator = l(:general_csv_decimal_separator)
+		transactions = Array.new
+		export = Redmine::Export::CSV.generate do |csv|
+			# csv header fields
+			if @summaryTransaction == 'days'
+				headers = [
+					l(:label_type),
+					l(:label_date),
+					l(:label_particulars),
+					l(:label_debit),
+					l(:label_credit)
+				]
+					
+				crTotal = 0 
+				dbTotal =0 
+				openingBalance = 0
+				openingBalHash = nil
+				asOnDate =  nil
+				asOnDate = (@from.to_date) -1 unless @from.blank?
+				asOnDate = transEntries.minimum(:trans_date) - 1 unless transEntries.minimum(:trans_date).blank? #@from.blank? ?  Date.today : @from
+				openingBalHash = getEachLedgerBSAmt(asOnDate, [@selectedLedger.ledger_type]) unless @ledgerId.blank? || asOnDate.blank?
+				#openingBalance = openingBalHash.values[0] unless openingBalHash.blank? @selectedLedger
+				transEntries.each do |entry| 
+					entry_details = entry.transaction_details.includes(:ledger).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type') 
+					transTotal = entry_details.inject(0){|sum,x| sum + x[1] }/2
+					unless @ledgerId.blank?
+						#openingBalance = openingBalHash[@selectedLedger.name] unless openingBalHash.blank? || openingBalHash[@selectedLedger.name].blank?
+						selectedLedgerEntries = entry.transaction_details.includes(:ledger).where(:wk_gl_transaction_details => { :ledger_id => @ledgerId }).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type')
+						otherDetailTypeEntries = entry.transaction_details.includes(:ledger).where.not(:wk_gl_transaction_details => { :detail_type=> selectedLedgerEntries[0][2]}).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type') #:ledger_id => @ledgerId, 
+						partLedgerName = otherDetailTypeEntries[0][3]
+						#trAmount = selectedLedgerEntries[0][1]
+					else
+						detailType = 'c'
+						case entry.trans_type
+						when 'C'
+							detailType = 'c'
+						when 'P'
+							detailType = 'd'
+						when 'R'
+							detailType = 'c'
+						when 'J'
+							detailType = 'd'
+						end
+						selectedLedgerEntries = entry.transaction_details.includes(:ledger).where(:wk_gl_transaction_details => { :detail_type => detailType }).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type')
+						otherDetailTypeEntries = entry.transaction_details.includes(:ledger).where.not(:wk_gl_transaction_details => { :detail_type => detailType }).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type')
+						partLedgerName = selectedLedgerEntries[0][3]
+						#trAmount = selectedLedgerEntries[0][1]
+					end
+					dbAmount = nil
+					crAmount = nil
+					selectedLedgerEntries.each do |trans|
+						 unless trans[1].blank? 
+							if trans[2] == 'c' #selectedLedgerEntries[0][2]
+								crAmount = crAmount.blank? ? trans[1] : crAmount + trans[1]
+								crTotal = crTotal + trans[1]
+							else
+								dbAmount = dbAmount.blank? ? trans[1] : dbAmount + trans[1]
+								dbTotal = dbTotal + trans[1]
+							end
+						end
+					end
+
+					transactions << [transTypeHash[entry.trans_type], entry.trans_date, partLedgerName, dbAmount.blank? ? "" : "%.2f" % dbAmount, crAmount.blank? ? "" : "%.2f" % crAmount]
+				end
+				unless @selectedLedger.blank? || (incomeLedgerTypes.include? @selectedLedger.ledger_type) || (expenseLedgerTypes.include? @selectedLedger.ledger_type)
+					openingBalance = openingBalHash[@selectedLedger.name] unless openingBalHash.blank? || openingBalHash[@selectedLedger.name].blank?
+					isSubCr = isSubtractCr(@selectedLedger.ledger_type)
+					if isSubCr
+						currentBal = dbTotal - crTotal
+						#closeBal = currentBal + openingBalance
+					else
+						currentBal = crTotal - dbTotal
+					end
+					closeBal = currentBal + openingBalance
+
+					if ((isSubCr && openingBalance > 0) || (!isSubCr && openingBalance < 0))
+						transactions << ["", "", (l(:label_opening_balance) + ":"), ("%.2f" % openingBalance.abs), ""]
+					else
+						transactions << ["", "", (l(:label_opening_balance) + ":"), "", ("%.2f" % openingBalance.abs)]
+					end
+					transactions << ["", "", l(:label_current_total), "%.2f" % dbTotal, "%.2f" % crTotal]
+
+					if ((isSubCr && closeBal > 0) || (!isSubCr && closeBal < 0))
+						transactions << ["", "", l(:label_closing_balance), "%.2f" % closeBal.abs, ""]
+					else
+						transactions << ["", "", l(:label_closing_balance), "", "%.2f" % closeBal.abs]
+					end
+				end
+			else
+				headers = [
+					l(:label_date_range),
+					l(:label_debit),
+					l(:label_credit),
+					l(:label_closing_balance)
+				]
+				asOnDate =  @from -1 unless @from.blank?
+				openingBalHash = getEachLedgerBSAmt(asOnDate, [@selectedLedger.ledger_type]) unless @ledgerId.blank? || asOnDate.blank?
+				unless @selectedLedger.blank? || (incomeLedgerTypes.include? @selectedLedger.ledger_type) || (expenseLedgerTypes.include? @selectedLedger.ledger_type)
+						openingBalance = openingBalHash[@selectedLedger.name] unless openingBalHash.blank? || openingBalHash[@selectedLedger.name].blank?
+						isSubCr = isSubtractCr(@selectedLedger.ledger_type)
+				end
+				openingBal = openingBalance.nil? ? 0 : "%.2f" % openingBalance.abs
+				csv << [l(:label_opening_balance), openingBal, "", ""].collect {|c| Redmine::CodesetUtil.from_utf8(c.to_s, l(:general_csv_encoding))}
+				
+				debitTotal = 0
+				creditTotal = 0
+				closeBal = 0
+				@summaryHash.each do |key, value|
+					debitTotal += value[:DT].to_f unless value[:DT].blank?
+					creditTotal += value[:CT].to_f unless value[:CT].blank?
+					diff = isSubCr ? (value[:DT].to_f - value[:CT].to_f) : (value[:CT].to_f - value[:DT].to_f)
+					closeBal = (key == @summaryHash.keys.first) ? (diff + openingBalance.to_f) : (diff + closeBal)
+					dateRange = key.dup
+					transactions << [dateRange, value[:DT], value[:CT], closeBal.abs]
+				end
+				if !@summaryHash.blank?
+					transactions << [l(:label_total), debitTotal, creditTotal, closeBal.abs]
+				end
+      		end
+			csv << headers.collect {|c| Redmine::CodesetUtil.from_utf8(c.to_s, l(:general_csv_encoding))}
+			transactions.each do |transaction|
+        		csv << transaction.collect {|c| Redmine::CodesetUtil.from_utf8(c.to_s, l(:general_csv_encoding))}
+			end
+		end
+		export
+	end
 end

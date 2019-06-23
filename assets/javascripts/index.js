@@ -65,6 +65,12 @@ $(document).ready(function() {
 			}
 		]
 	});
+
+	//Hide summaryDD in Trasaction
+	$("#txn_ledger").change(function() {
+		hideSummaryDD(this.value);
+	});
+	hideSummaryDD($("#txn_ledger").val());
 });
 
 function openReportPopup(){
@@ -822,4 +828,14 @@ function getprojects(ele, isAccProj, isSIProj){
 	if(isSIProj){
 		getSupplierInvoice('', 'si_id')
 	}
-}	
+}
+
+function hideSummaryDD(value) {
+    if(value != ""){
+		$( "#trans_summary" ).show();
+	}
+	else{
+		$("#summary_trans").val("days");
+		$( "#trans_summary" ).hide();
+	}
+}

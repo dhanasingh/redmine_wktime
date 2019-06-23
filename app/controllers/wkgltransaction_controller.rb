@@ -17,17 +17,34 @@
 
 class WkgltransactionController < WkaccountingController
   unloadable
-   def index
-	    set_filter_session
-        retrieve_date_range
-		@selectedLedger = nil
+  include WkgltransactionHelper
+  
+	 def index
 		@ledgers = WkLedger.order(:name).pluck(:name, :id)
-		@ledgerId = session[:wkgltransaction][:ledger_id]
-		transactionType = session[:wkgltransaction][:trans_type]
-		if !@from.blank? && !@to.blank?
-			transaction = WkGlTransaction.includes(:transaction_details).where(:trans_date => @from .. @to)
+		if params[:is_summary_edit] != 'true'
+			set_filter_session
+			retrieve_date_range
+			@selectedLedger = nil
+			@ledgerId = session[:wkgltransaction][:ledger_id]
+			transactionType = session[:wkgltransaction][:trans_type]
+			@summaryTransaction = session[:wkgltransaction][:summary_trans]
+		else
+			@summaryTransaction = params[:summary_by].to_s
+			@from = params[:from]
+			@to = params[:to]
+			transactionType = session[:wkgltransaction][:trans_type]
+			@ledgerId = params[:ledger_id]
+			@free_period = true
+		end
+		if @summaryTransaction != 'days'
+			transaction = WkGlTransaction.joins(:transaction_details)
 		else
 			transaction = WkGlTransaction.includes(:transaction_details)
+		end
+		if !@from.blank? && !@to.blank?
+			transaction = transaction.where(:trans_date => @from .. @to)
+		else
+			transaction = transaction
 		end
 		unless transactionType.blank?
 			transaction = transaction.where(:trans_type => transactionType)
@@ -37,15 +54,58 @@ class WkgltransactionController < WkaccountingController
 		unless @ledgerId.blank?
 			@selectedLedger = WkLedger.find(@ledgerId)
 			transaction = transaction.where( :wk_gl_transaction_details => { :ledger_id => @ledgerId })
-			formPagination(transaction)
-			isSubCr = isSubtractCr(@selectedLedger.ledger_type)
-			totalDbTransAmt = @transEntries.where( :wk_gl_transaction_details => { :detail_type => "d" }).sum("wk_gl_transaction_details.amount")
-			totalCrTransAmt = @transEntries.where( :wk_gl_transaction_details => { :detail_type => "c" }).sum("wk_gl_transaction_details.amount")
-			@totalTransAmt = isSubCr ? totalDbTransAmt - totalCrTransAmt : totalCrTransAmt - totalDbTransAmt
-			if (isSubCr && @totalTransAmt > 0) || (!isSubCr && @totalTransAmt < 0)
-				@totalType = 'dr'
+			if @summaryTransaction != 'days'
+				if @summaryTransaction == 'month'
+					summary_by = 'extract(year from trans_date) , tmonth'
+					alice_name = 'tmonth, extract(year from trans_date) AS tyear'
+				elsif @summaryTransaction == 'week'
+					summary_by = 'tyear, tweek'
+					alice_name = 'tweek, tyear'
+				else @summaryTransaction == 'year'
+					summary_by = 'extract(year from trans_date)'
+					alice_name = 'extract(year from trans_date) AS tyear'
+				end
+				transaction = transaction.group(" #{summary_by}, detail_type, ledger_id").select(" #{alice_name}, detail_type, ledger_id, sum(amount) as amount").order(" #{summary_by}")
+				@summaryHash = Hash.new
+				debitTotal = 0
+				creditTotal = 0
+				closeBalTotal = 0
+				closeBal = 0
+				transaction.each do |entry|
+					if (entry.tyear > 0 && ((@summaryTransaction == 'week' && entry.tweek > 0) || (@summaryTransaction == 'month' && entry.tmonth > 0))) || entry.tyear > 0
+						if @summaryTransaction == 'month'
+							summary = (Date::MONTHNAMES[entry.tmonth].to_s) + "_"
+							beginning_date= Date.civil(entry.tyear, entry.tmonth, 1)
+							end_date = beginning_date.end_of_month
+						elsif @summaryTransaction == 'week'
+							summary = (entry.tweek).to_s + "_week_"
+							beginning_date = Date.commercial(entry.tyear, entry.tweek, 1)
+							end_date = Date.commercial(entry.tyear, entry.tweek, 7)
+						else
+							summary = ""
+							beginning_date= Date.civil(entry.tyear, 1)
+							end_date = beginning_date.end_of_year
+						end
+						key = (summary).to_s + (entry.tyear).to_s
+						@summaryHash[key] = Hash.new if @summaryHash[key].blank?
+						@summaryHash[key][:DT] = entry.amount if entry.detail_type == 'd'
+						@summaryHash[key][:CT] = entry.amount if entry.detail_type == 'c'
+						@summaryHash[key][:beginning_date] = beginning_date
+						@summaryHash[key][:end_date] = end_date
+						@summaryHash[key][:ledger_id] = entry.ledger_id
+					end
+				end
 			else
-				@totalType = 'cr'
+				formPagination(transaction)
+				isSubCr = isSubtractCr(@selectedLedger.ledger_type)
+				totalDbTransAmt = @transEntries.where( :wk_gl_transaction_details => { :detail_type => "d" }).sum("wk_gl_transaction_details.amount")
+				totalCrTransAmt = @transEntries.where( :wk_gl_transaction_details => { :detail_type => "c" }).sum("wk_gl_transaction_details.amount")
+				@totalTransAmt = isSubCr ? totalDbTransAmt - totalCrTransAmt : totalCrTransAmt - totalDbTransAmt
+				if (isSubCr && @totalTransAmt > 0) || (!isSubCr && @totalTransAmt < 0)
+					@totalType = 'dr'
+				else
+					@totalType = 'cr'
+				end
 			end
 		else
 			formPagination(transaction)
@@ -267,9 +327,9 @@ class WkgltransactionController < WkaccountingController
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end
   
-   def set_filter_session
-        if params[:searchlist].blank? && session[:wkgltransaction].nil?
-			session[:wkgltransaction] = {:period_type => params[:period_type],:period => params[:period],	:ledger_id =>	params[:txn_ledger],:from => @from, :to => @to, :trans_type =>params[:trans_type]}
+	def set_filter_session
+		if params[:searchlist].blank? && session[:wkgltransaction].nil?
+			session[:wkgltransaction] = {:period_type => params[:period_type],:period => params[:period],	:ledger_id =>	params[:txn_ledger],:from => @from, :to => @to, :trans_type =>params[:trans_type], :summary_trans => params[:summary_trans].blank? ? 'days' : params[:summary_trans]}
 		elsif params[:searchlist] =='wkgltransaction'
 			session[:wkgltransaction][:period_type] = params[:period_type]
 			session[:wkgltransaction][:period] = params[:period]
@@ -277,9 +337,9 @@ class WkgltransactionController < WkaccountingController
 			session[:wkgltransaction][:to] = params[:to]
 			session[:wkgltransaction][:ledger_id] = params[:txn_ledger]
 			session[:wkgltransaction][:trans_type] = params[:trans_type]
+			session[:wkgltransaction][:summary_trans] = params[:summary_trans]
 		end
-		
-    end
+	end
    
    # Retrieves the date range based on predefined ranges or specific from/to param dates
 	def retrieve_date_range
@@ -362,4 +422,12 @@ class WkgltransactionController < WkaccountingController
 		session[:wkgltransaction][:ledger_id2] = params[:txn_particular2]
 	end
 
+	def export
+		respond_to do |format|
+			index
+			format.csv {
+				send_data(csv_format_conversion(@transEntries), :type => 'text/csv; header=present', :filename => 'gltransaction.csv')
+			}
+		end
+	end
 end

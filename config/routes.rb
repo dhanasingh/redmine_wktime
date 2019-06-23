@@ -605,6 +605,8 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 
 	get 'wkpayroll/export', :to => 'wkpayroll#export'
 
+	get 'wkgltransaction/export', :to => 'wkgltransaction#export'
+
 	resources :projects do
     resource :wkaccountproject, :only => [:index], :controller => :wkaccountproject do
       get :index

@@ -13,16 +13,36 @@
 	<%= hidden_field_tag "searchlist", "#{controller_name}" %>	
 	<%	ledgerid =session[:wkgltransaction][:ledger_id] %>
 	<%	trans_type =session[:wkgltransaction][:trans_type] %>
+	<% summary_trans =  params[:summary_by].blank? ? session[:wkgltransaction][:summary_trans] : params[:summary_by] %>
 	<div class="wk-contextual">
 		<b><label style="float:left;"><%= l(:label_ledger) %></label></b>
 	     <%=h select_tag("txn_ledger", options_for_select([['','']]+@ledgers, :selected => ledgerid.nil? ? @ledgers : ledgerid ), :style => "width:200px; float:left;") %>
 		<b><label style="float:left; padding-left: 5px;"><%= l(:label_type) %></label></b>
 		 <%=h select_tag("trans_type", options_for_select(transactionType.invert, :selected => trans_type ), :style => "width:150px;float:left;") %>
+		<span id="trans_summary">
+		 <b><label  style="float:left; padding-left: 10px;"><%= l(:label_summary_by) %></label></b>
+			<%=h select_tag("summary_trans", options_for_select(detailsTransaction, :selected => summary_trans), :style => "float:left;") %>
+		</span>
         <%= link_to l(:label_new_item_adjusted, l(:label_transaction)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
     </div>
 	<%= render :partial => 'wkgltransaction/date_range' %>
 <% end %>
-<div class="total-hours">
-	<p><%= l(:label_total) %>: &nbsp;<%= @transEntries[0].transaction_details[0].currency unless @transEntries[0].blank? || @transEntries[0].transaction_details[0].blank?%> <%= html_hours("%.2f" % @totalTransAmt.abs ) unless @totalTransAmt.blank? %> <%= @totalType %></p>
-</div>
-<%= render :partial => 'wkgltransaction/trans_list'%>	
+<% if @summaryTransaction == 'days' %>
+	<div class="total-hours">
+		<p><%= l(:label_total) %>: &nbsp;<%= @transEntries[0].transaction_details[0].currency unless @transEntries[0].blank? || @transEntries[0].transaction_details[0].blank?%> <%= html_hours("%.2f" % @totalTransAmt.abs ) unless @totalTransAmt.blank? %> <%= @totalType %></p>
+	</div>
+   <%= render :partial => 'wkgltransaction/trans_list'%>
+<% else %>
+	<%= render :partial => 'wkgltransaction/summary_trans_list'%>
+<% end %>
+
+<% other_formats_links do |f| %>
+	<% url = "?format=csv"
+		params.each do |name, val|
+			if !['controller', 'action', 'utf8'].include?(name)
+				url = url + "&" + (name + "=" + val)
+			end
+		end
+	%>
+	<%= link_to 'CSV', url_for(:controller => controller_name, :action => 'export') + url %>	
+<% end %>
