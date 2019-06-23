@@ -30,7 +30,7 @@
 		timeEntriesSqlStr = timeEntriesSqlStr + " AND TE.user_id = #{user_id}"
     end
     
-    if !(validateERPPermission('TE_ADM_PRVLG') || User.current.admin?)
+    if !(validateERPPermission('A_TE_PRVLG') || User.current.admin?)
 		timeEntriesSqlStr = timeEntriesSqlStr + " AND TE.user_id = #{User.current.id} "
 	end
     

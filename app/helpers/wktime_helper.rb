@@ -842,7 +842,7 @@ end
 			# viewMenu = call_hook(:view_wktime_menu)
 			# viewMenu  = viewMenu.blank? ? '' : (viewMenu.is_a?(Array) ? (viewMenu[0].blank? ? '': viewMenu[0].to_s) : viewMenu.to_s) 
 			#@manger_user = (!viewMenu.blank? && to_boolean(viewMenu))	
-			ret = (!viewProjects.blank? && viewProjects.size > 0) || (!loggableProjects.blank? && loggableProjects.size > 0) || isAccountUser || (isSupervisorApproval && getSuperViewPermission) #(!viewMenu.blank? && to_boolean(viewMenu))
+			ret = (!viewProjects.blank? && viewProjects.size > 0) || (!loggableProjects.blank? && loggableProjects.size > 0) || validateERPPermission('A_TE_PRVLG') || (isSupervisorApproval && getSuperViewPermission) #(!viewMenu.blank? && to_boolean(viewMenu))
 		end
 		ret
 	end
@@ -877,32 +877,7 @@ end
 	def getProjectSqlString(project_id)
 		" where t.project_id = #{project_id} and (w.status ='s' OR w.status ='a')"
 	end
-	
-	def isAccountUser
-		group = nil
-		isAccountUser = false
-		groupusers = Array.new
-		accountGrpIds = Setting.plugin_redmine_wktime['wktime_account_groups'] if !Setting.plugin_redmine_wktime['wktime_account_groups'].blank?
-		if !accountGrpIds.blank?
-			accountGrpIds = accountGrpIds.collect{|i| i.to_i}
-		end
 
-		if !accountGrpIds.blank?
-			accountGrpIds.each do |group_id|
-				scope = User.in_group(group_id)	
-				groupusers << scope.all
-			end
-		end
-		grpUserIds = Array.new	
-		#grpUserIds = groupusers[0].collect{|user| user.id}.uniq if !groupusers.blank? && !groupusers[0].blank?
-		groupusers.each do |groupuser|
-			groupuser.each do |user|
-					 grpUserIds << user.id
-			end
-		end
-  		isAccountUser = grpUserIds.include?(User.current.id)
-	end
-	
 	def getAccountUserProjects
 		Project.where(:status => "#{Project::STATUS_ACTIVE}").order('name')
 	end
@@ -1351,9 +1326,7 @@ end
 			#ddArray = ddValues.collect {|t| [t["#{displayCol}"], t["#{valueCol}"]] 
 			ddValues.each do | entry |
 				ddArray << [entry["#{displayCol}"], entry["#{valueCol}"]]
-				if model == WkLocation
-					selectedVal = entry.id if entry.is_default?
-				end
+				selectedVal = entry.id if model == WkLocation && selectedVal.nil? && entry.is_default?
 			end
 		end
 		ddArray.unshift(["",""]) if needBlank
@@ -1362,7 +1335,7 @@ end
 	
 	def hasSettingPerm
 		ret = false
-		ret = (User.current.id == 1) || validateERPPermission("ADM_ERP") || isAccountUser || (validateERPPermission("V_INV") && validateERPPermission("D_INV")) || validateERPPermission("A_ACC_PRVLG") || validateERPPermission("A_CRM_PRVLG") || validateERPPermission("A_PUR_PRVLG") || validateERPPermission("M_BILL")
+		ret = (User.current.id == 1) || validateERPPermission("ADM_ERP") || validateERPPermission('A_TE_PRVLG') || (validateERPPermission("V_INV") && validateERPPermission("D_INV")) || validateERPPermission("A_ACC_PRVLG") || validateERPPermission("A_CRM_PRVLG") || validateERPPermission("A_PUR_PRVLG") || validateERPPermission("M_BILL")
 		ret
 	end
 	
@@ -1388,14 +1361,14 @@ end
 		permissionArr = Array.new
 		user = User.current
 		user.groups.each do |group|
-		  groupPermission = WkGroupPermission.where(:group_id => group.id)
-		  groupPermission.each do |grp|
-			unless grp.permission.blank?
-				shortname = grp.permission.short_name
-				permissionArr << shortname
-			end
+			groupPermission = WkGroupPermission.where(:group_id => group.id)
+			groupPermission.each do |grp|
+				unless grp.permission.blank?
+					shortname = grp.permission.short_name
+					permissionArr << shortname
+				end
 		  end
-		end		
+		end
 		return permissionArr.include? permission
 	end
 	
@@ -1697,7 +1670,7 @@ end
 		userIds = !userIds.blank? ? (userIds + ', ' + User.current.id.to_s) : User.current.id.to_s
 		#end
 		cond = "1=1"
-		if ((!page.blank? && !userList.blank? && userList.size > 0) || !isAccountUser)
+		if ((!page.blank? && !userList.blank? && userList.size > 0) || !validateERPPermission('A_TE_PRVLG'))
 			cond =	"#{User.table_name}.id in(#{userIds})"
 		end
 		if !projectId.blank?					

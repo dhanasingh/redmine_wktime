@@ -807,3 +807,19 @@ function myReportUser(optionID,userID){
 		complete: function(){ $this.removeClass('ajax-loading'); }
 	});
 }
+
+function getprojects(ele, isAccProj, isSIProj){
+	switch(ele.value){
+		case '2': ddeleID = 'contact_id'
+		break;
+		case '3': ddeleID = 'account_id'
+		break;
+		default : ddeleID = ele.id
+	}
+	if(isAccProj){
+		accProjChanged('', ddeleID, false, true);
+	}
+	if(isSIProj){
+		getSupplierInvoice('', 'si_id')
+	}
+}	

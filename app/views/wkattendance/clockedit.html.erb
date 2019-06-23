@@ -57,11 +57,11 @@
 	<% loop do  %>	
 	<tr class="time-entry <%= cycle("odd", "even") %>">
 		<%=h hidden_field_tag("attnEntriesId#{j}",  (entry_id.blank? ? "" : entry_id[j]) )  %>
-		<td><%=h text_field_tag("attnstarttime#{j}", start_time.blank? ? "" : start_time[j] ,:onchange => "#{} ", :size => 10, :disabled => isAccountUser ? false : true, :required => true,  :onchange => "validateHr(this,#{(j)}, ['attnstarttime#{j}', 'attnendtime#{j}', 'hoursdiff#{j}', #{true}]);") %>
+		<td><%=h text_field_tag("attnstarttime#{j}", start_time.blank? ? "" : start_time[j] ,:onchange => "#{} ", :size => 10, :disabled => validateERPPermission('A_TE_PRVLG') ? false : true, :required => true,  :onchange => "validateHr(this,#{(j)}, ['attnstarttime#{j}', 'attnendtime#{j}', 'hoursdiff#{j}', #{true}]);") %>
 		</td>
-		<td><%=h text_field_tag("attnendtime#{j}", end_time.blank? ? "" : end_time[j],:size => 10, :disabled => isAccountUser ? false : true, :onchange => "validateHr(this,#{(j)}, ['attnstarttime#{j}', 'attnendtime#{j}', 'hoursdiff#{j}', #{true}]);") %>
+		<td><%=h text_field_tag("attnendtime#{j}", end_time.blank? ? "" : end_time[j],:size => 10, :disabled => validateERPPermission('A_TE_PRVLG') ? false : true, :onchange => "validateHr(this,#{(j)}, ['attnstarttime#{j}', 'attnendtime#{j}', 'hoursdiff#{j}', #{true}]);") %>
 		</td>		
-		<td><%=h text_field_tag("hoursdiff#{j}", hours.blank? ? 0 : hours[j].to_f,:size => 10, :disabled => isAccountUser ? false : true, :required => true) %>
+		<td><%=h text_field_tag("hoursdiff#{j}", hours.blank? ? 0 : hours[j].to_f,:size => 10, :disabled => validateERPPermission('A_TE_PRVLG') ? false : true, :required => true) %>
 		</td>
 		<% totalhours += hours.blank? ? 0 : hours[j].to_f  %>
 		<% break if j ==  start_time.length-1 || start_time.blank?  %>
@@ -70,18 +70,18 @@
 	<% end %>
 	<tr class="time-entry <%= cycle("odd", "even") %>" >
 		<td></td><td style="font-weight: bold; "><label><%= l(:label_total_hours) %></label></td>
-		<td><%=h text_field_tag("tothours", totalhours.round(2),:size => 10, :disabled => isAccountUser ? false : true, :required => true) %>
+		<td><%=h text_field_tag("tothours", totalhours.round(2),:size => 10, :disabled => validateERPPermission('A_TE_PRVLG') ? false : true, :required => true) %>
 		</td>
 	</tr>
 	</table>
 	<span style="margin-left:5.0em;">
-	<%  if isAccountUser    %>
+	<%  if validateERPPermission('A_TE_PRVLG') %>
 		<label style = "float:left;"><%= l(:label_hours_note) %></label>
 	<% end %>
 	</span>
 	<br>
 	<p style="float: left; padding-left: 90px;">
-	<%= submit_tag l(:button_save),  :hidden => isAccountUser ? false : true, :id => 'wkattendance_save', :disabled => false %></p>
+	<%= submit_tag l(:button_save),  :hidden => validateERPPermission('A_TE_PRVLG') ? false : true, :id => 'wkattendance_save', :disabled => false %></p>
 	</div>
 	</div>
 <% end %>

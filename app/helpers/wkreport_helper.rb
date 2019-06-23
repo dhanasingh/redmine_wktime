@@ -70,7 +70,7 @@ module WkreportHelper
 			queryStr = queryStr + " and u.id = #{user_id}"
 		end
 		
-		if !(validateERPPermission('TE_ADM_PRVLG') || User.current.admin?)
+		if !(validateERPPermission('A_TE_PRVLG') || User.current.admin?)
 			queryStr = queryStr + " and u.id = #{User.current.id} "
 		end
 		#queryStr = queryStr + " order by u.created_on"

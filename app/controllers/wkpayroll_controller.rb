@@ -69,7 +69,7 @@ class WkpayrollController < WkbaseController
 		user_id = session[:wkpayroll][:user_id]
 		group_id = session[:wkpayroll][:group_id]
 		
-		if user_id.blank? || !isAccountUser
+		if user_id.blank? || !validateERPPermission('A_TE_PRVLG')
 		   ids = User.current.id
 		elsif user_id.to_i != 0 && group_id.to_i == 0
 		   ids = user_id.to_i
@@ -371,18 +371,18 @@ class WkpayrollController < WkbaseController
 	def check_permission
 		ret = false
 		ret = params[:user_id].to_i == User.current.id
-		return (ret || isAccountUser)
+		return (ret || validateERPPermission('A_TE_PRVLG'))
 	end
 	
 	def check_admin_perm_and_redirect
-		if !params[:generate].blank? && !isAccountUser
+		if !params[:generate].blank? && !validateERPPermission('A_TE_PRVLG')
 			render_403
 			return false
 		end
 	end
 	
 	def check_setting_admin_perm_and_redirect
-		unless isAccountUser
+		unless validateERPPermission('A_TE_PRVLG')
 			render_403
 			return false
 		end
@@ -397,7 +397,7 @@ class WkpayrollController < WkbaseController
 			sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id"
 		end
 		sqlStr = sqlStr + " where u.type = 'User' "
-		if !isAccountUser
+		if !validateERPPermission('A_TE_PRVLG')
 			sqlStr = sqlStr + " and u.id = #{User.current.id} " 
 		end
 		if !@status.blank?

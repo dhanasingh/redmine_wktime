@@ -92,12 +92,17 @@ function invoiceAddRow(tableId, rowCount)
 
 function addAmount(fldId)
 {
+	console.log(fldId);
 	var cloumnId = parseInt(fldId.replace(/[^0-9\.]/g, ''));
+	console.log(cloumnId);
 	var rate = document.getElementById('rate'+  cloumnId);
+	console.log(rate);
 	var quantity = document.getElementById('quantity'+  cloumnId);
+	var exchangerate_amount = document.getElementById('exchangerate_amount'+ cloumnId)
 	if(rate.value != null && quantity.value != null)
 	{
-		document.getElementById("amount"+  cloumnId).innerHTML = rate.value * quantity.value;
+		document.getElementById("amount"+  cloumnId).innerHTML = (rate.value * quantity.value * exchangerate_amount.value).toFixed(2);
+		document.getElementById("original_amount"+  cloumnId).innerHTML = (rate.value * quantity.value).toFixed(2);
 	}	
 	var table = document.getElementById('invoiceTable');
 	var len = table.rows.length;
@@ -454,8 +459,8 @@ function setDescription(isonload){
 				var accName = $("#related_parent :selected").text();
 				var index = (this.name).replace("amount","");
 				var invoiceNo = $("#invoice_no" + index).val();
-				var currency = $("#currency" + index).val();
-				var desc = "AccName:" + accName + " InvNo:#" + invoiceNo + " PaymentAmt:" + currency + amount;
+				var org_currency = $("#invoice_org_currency" + index).val();
+				var desc = "AccName:" + accName + " InvNo:#" + invoiceNo + " PaymentAmt:" + org_currency + amount;
 				if(oldDesc != ""){
 					desc = oldDesc + "\n"+ desc;
 				}

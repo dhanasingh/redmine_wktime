@@ -3,7 +3,7 @@
 <%= form_tag({}) do -%>	
 	<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 	<% wktime_helper = Object.new.extend(WktimeHelper) %>
-	<% if (wktime_helper.isAccountUser) %>
+	<% if (wktime_helper.validateERPPermission('A_TE_PRVLG')) %>
 
 		<%= form_tag({:controller => controller_name, :action => 'usrsettingsindex'}, :method => :get) do %>
 			<fieldset><legend><%= l(:label_filter_plural) %></legend>
@@ -32,7 +32,7 @@
 					<% @salary_components.each do |compoment| %>
 						<th style="text-align: center;">
 							<label style="padding-right: 10px;"><%= compoment.name %></label>
-							<% if isAccountUser %>
+							<% if validateERPPermission('A_TE_PRVLG') %>
 								<a class="icon icon-edit" style="cursor: pointer;" id="<%= compoment.id %>" onClick=" bulk_edit('<%= compoment.id %>');" title="Edit"></a>
 							<% end %>
 						</th>

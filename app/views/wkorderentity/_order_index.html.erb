@@ -36,11 +36,7 @@
 	<% end %>
 	<div class="total-hours">
 		<p><%= l(:label_total) %>: &nbsp;
-		<% if @previewBilling %>
-			<%= @currency %>
-		<% else %>
-			<%= @invoiceEntries[0].invoice_items[0].currency unless @invoiceEntries[0].blank? || @invoiceEntries[0].invoice_items[0].blank?%>
-		<% end %>
+		<%= Setting.plugin_redmine_wktime['wktime_currency']%>
 		<%= html_hours("%.2f" % @totalInvAmt) %></p>
 	</div>
 	<%= render :partial => 'wkorderentity/order_list'%>	

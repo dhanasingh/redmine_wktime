@@ -7,7 +7,7 @@
 		//getMembersbyGroup
 </script>
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
-<% if isAccountUser %>
+<% if validateERPPermission('A_TE_PRVLG') %>
 <div class="contextual">
 <%= link_to l(:"label_import_attendance"), url_for(:controller => "wkimportattendance", :action => 'new', :tab => controller.controller_name)%>
 </div>
@@ -19,7 +19,7 @@
 	<%	groupid =session[:wkattendance][:group_id]
 		userid =session[:wkattendance][:user_id] %>	
 		<table>
-			<% if isAccountUser %>
+			<% if validateERPPermission('A_TE_PRVLG') %>
 			<tr>
 			<th><%=l(:label_group_plural)%> </th>
 			<% if !@groups.blank? %>

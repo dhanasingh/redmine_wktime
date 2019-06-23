@@ -287,12 +287,12 @@ module FttePatch
 				def allowed_to?(action, context, options={}, &block)
 					# ======= ERPmine_patch Redmine 4.0 ==========
 					wktime_helper = Object.new.extend(WktimeHelper)
-					isAccountUser = wktime_helper.isAccountUser
+					valid_ERP_perm = wktime_helper.validateERPPermission('A_TE_PRVLG')
 					isSupervisor = wktime_helper.isSupervisor
 					# =============================
 					if context && context.is_a?(Project)
 						# ======= ERPmine_patch Redmine 4.0 for allow supervisor and TEadmin to view time_entry ==========
-						if ((isAccountUser || isSupervisor) && action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
+						if ((valid_ERP_perm || isSupervisor) && action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
 						return true
 						end
 						
@@ -326,7 +326,7 @@ module FttePatch
 						return true if admin?
 						
 						# ======= ERPmine_patch Redmine 4.0 ==========
-						if ((isAccountUser || isSupervisor) && action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
+						if ((valid_ERP_perm || isSupervisor) && action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
 						return true
 						end
 						# =============================
@@ -506,12 +506,12 @@ module FttePatch
 				
 				wktime_helper = Object.new.extend(WktimeHelper)
 				if wktime_helper.overrideSpentTime
-					isAccountUser = wktime_helper.isAccountUser
+					valid_ERP_perm = wktime_helper.validateERPPermission('A_TE_PRVLG')
 					isSupervisor = wktime_helper.isSupervisor
 					projectIdArr = wktime_helper.getManageProject()
 					isManager = projectIdArr.blank? ? false : true
 					
-					if isSupervisor && !isAccountUser && !User.current.admin?
+					if isSupervisor && !valid_ERP_perm && !User.current.admin?
 						userIdArr = Array.new
 						user_cond = ""
 						rptUsers = wktime_helper.getReportUsers(User.current.id)
@@ -559,10 +559,10 @@ module FttePatch
 					else
 						#if (!Setting.plugin_redmine_wktime['ftte_view_only_own_spent_time'].blank? && 
 						#Setting.plugin_redmine_wktime['ftte_view_only_own_spent_time'].to_i == 1) && 
-						if !isAccountUser && !User.current.admin? && !isManager
+						if !valid_ERP_perm && !User.current.admin? && !isManager
 							cond = " (#{TimeEntry.table_name}.user_id = " + User.current.id.to_s + ")"
 							condStatement = condStatement.blank? ? cond : condStatement + " AND #{cond}"
-						elsif isManager && !isAccountUser && !User.current.admin?
+						elsif isManager && !valid_ERP_perm && !User.current.admin?
 							user_id = filters["user_id"][:values] if !filters["user_id"].blank?
 							if !user_id.blank? && user_id.is_a?(Array) && (user_id.include?("me") || user_id.include?(User.current.id.to_s))
 								condStatement = condStatement
@@ -705,21 +705,21 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_enable_survey_module' => '0'
   })  
 
-	 menu :top_menu, :wkdashboard, { :controller => 'wkdashboard', :action => 'index' }, :caption => :label_erpmine, :if => Proc.new { Object.new.extend(WkdashboardHelper).checkViewPermission } 
+	menu :top_menu, :wkdashboard, { :controller => 'wkdashboard', :action => 'index' }, :caption => :label_erpmine, :if => Proc.new { Object.new.extend(WkdashboardHelper).checkViewPermission } 
   	
-  project_module :time_tracking do
+  	project_module :time_tracking do
 		permission :approve_time_entries,  {:wktime => [:update]}, :require => :member	
 	end
 
 	project_module :Accounts do
-		permission :view_accounts, {:wkaccountproject => [:index]}
+		permission :view_accounts, {:wkaccountproject => [:index]}, :public => true
 	end
 	
 	menu :project_menu, :wkaccountproject, { controller: :wkaccountproject, action: :index },
 	  caption: :label_accounts, param: :project_id, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showCRMModule }
   
 	project_module :Survey do
-		permission :view_survey, {:wksurvey => [:index]}
+		permission :view_survey, {:wksurvey => [:index]}, :public => true
 	end
 
 	menu :project_menu, :wksurvey, { :controller => 'wksurvey', :action => 'index' }, :caption => :label_survey, param: :project_id, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showSurvey }
@@ -732,10 +732,8 @@ Redmine::Plugin.register :redmine_wktime do
 	  menu.push :wkinvoice, { :controller => 'wkinvoice', :action => 'index' }, :caption => :label_wk_billing, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showBilling && Object.new.extend(WktimeHelper).validateERPPermission("M_BILL")}
 	  menu.push :wkgltransaction, { :controller => 'wkgltransaction', :action => 'index' }, :caption => :label_accounting, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showAccounting }
 	  menu.push :wkrfq, { :controller => 'wkrfq', :action => 'index' }, :caption => :label_purchasing, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showPurchase }
-		menu.push :wkproduct, { :controller => 'wkproduct', :action => 'index' }, :caption => :label_inventory, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showInventory }
-		
-		menu.push :wksurvey, { :controller => 'wksurvey', :action => 'index' }, :caption => :label_survey, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showSurvey }
-
+	  menu.push :wkproduct, { :controller => 'wkproduct', :action => 'index' }, :caption => :label_inventory, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showInventory }
+      menu.push :wksurvey, { :controller => 'wksurvey', :action => 'index' }, :caption => :label_survey, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showSurvey }
 	  menu.push :wkreport, { :controller => 'wkreport', :action => 'index' }, :caption => :label_report_plural, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showReports}	
 	  menu.push :wkcrmenumeration, { :controller => 'wkcrmenumeration', :action => 'index' }, :caption => :label_settings, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).hasSettingPerm } 
 	end	

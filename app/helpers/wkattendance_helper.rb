@@ -191,7 +191,7 @@ module WkattendanceHelper
 	
 	def getLeaveQueryStr(from,to)
 		queryStr = "select * from wk_user_leaves WHERE issue_id in (#{getLeaveIssueIds}) and accrual_on between '#{from}' and '#{to}'"
-		if !(isAccountUser || User.current.admin?)
+		if !(validateERPPermission('A_TE_PRVLG') || User.current.admin?)
 			queryStr = queryStr + " and user_id = #{User.current.id} "
 		end
 		queryStr

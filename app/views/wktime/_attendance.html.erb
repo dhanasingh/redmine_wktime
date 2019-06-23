@@ -1,4 +1,4 @@
-<%=h hidden_field_tag('isAccountUser', isAccountUser )  %>  
+<%=h hidden_field_tag('isAccountUser', validateERPPermission('A_TE_PRVLG')) %>  
 <% $entryId = Array.new %>
 <% entrydate = Array.new %>
 <% $entryStartTime = Array.new %>
@@ -24,7 +24,7 @@
 <% $headerEntriesId = Array.new %>
 <% $headerhoursdiff = Array.new %>
 <% st = Array.new %>
-<% disable = isAccountUser ? (User.current.id == @user.id ? !(!Setting.plugin_redmine_wktime['wktime_own_approval'].blank? && 
+<% disable = validateERPPermission('A_TE_PRVLG') ? (User.current.id == @user.id ? !(!Setting.plugin_redmine_wktime['wktime_own_approval'].blank? && 
 	Setting.plugin_redmine_wktime['wktime_own_approval'].to_i == 1 ) : false) : true	%>
 <%=h hidden_field_tag("break_time" , Setting.plugin_redmine_wktime['wktime_break_time'] )  %> 
 <% for i in 1..7 %>
@@ -75,7 +75,7 @@
 					<%= l(:label_total_hours) %></label>
 					<%= text_field_tag "grandTotal_#{i}"  , "" , :size => 4, :disabled => disable %></p>
 		</fieldset>
-		<%  if isAccountUser    %>
+		<%  if validateERPPermission('A_TE_PRVLG') %>
 			<p><%= l(:label_hours_note) %></p>
 		<% end %>
 	<% end %>

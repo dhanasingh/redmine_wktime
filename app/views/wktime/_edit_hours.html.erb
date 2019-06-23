@@ -21,7 +21,7 @@
 				if !entry.nil?
 					disable = disable && !entry.id.blank?
 				end
-				disable = false if isAccountUser
+				disable = false if validateERPPermission('A_TE_PRVLG')
 				disable = true if isBilledTimeEntry(entry)
 			end
 			%>

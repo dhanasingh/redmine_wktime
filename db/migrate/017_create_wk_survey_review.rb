@@ -27,17 +27,17 @@ class CreateWkSurveyReview < ActiveRecord::Migration[4.2]
 		reversible do |dir|
 			dir.up do
 				execute <<-SQL
-					INSERT INTO wk_permissions(id, name, short_name, modules, created_at, updated_at) VALUES (14, 'T&E ADMIN PRIVILEGE', 'TE_ADM_PRVLG', '', current_timestamp, current_timestamp);
+					INSERT INTO wk_permissions(id, name, short_name, modules, created_at, updated_at) VALUES (14, 'T&E ADMIN PRIVILEGE', 'A_TE_PRVLG', '', current_timestamp, current_timestamp);
 					SQL
 			end
 				
 			dir.down do 
 				execute <<-SQL
-					DELETE FROM wk_group_permissions WHERE permission_id IN (SELECT ID FROM wk_permissions WHERE short_name IN ('TE_ADM_PRVLG'))
+					DELETE FROM wk_group_permissions WHERE permission_id IN (SELECT ID FROM wk_permissions WHERE short_name IN ('A_TE_PRVLG'))
 				SQL
 				
 				execute <<-SQL
-					DELETE from wk_permissions where short_name = 'TE_ADM_PRVLG';
+					DELETE from wk_permissions where short_name = 'A_TE_PRVLG';
 				SQL
 			end
 		end

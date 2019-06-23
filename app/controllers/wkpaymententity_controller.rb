@@ -31,15 +31,15 @@ class WkpaymententityController < WkbillingController
 		contact_id = session[controller_name][:contact_id]
 		account_id = session[controller_name][:account_id]
 		
-		sqlStr = "select p.*, pmi.payment_amount, CASE WHEN p.parent_type = 'WkAccount' THEN a.name" +
+		sqlStr = "select p.*, pmi.payment_amount, pmi.payment_original_amount, CASE WHEN p.parent_type = 'WkAccount' THEN a.name" +
 			" ELSE #{concatColumnsSql(['c.first_name', 'c.last_name'], nil, ' ')} END as name," +
 			" (#{getPersonTypeSql}) as entity_type" + 
-			" from wk_payments p left join (select sum(amount) as payment_amount," +
+			" from wk_payments p left join (select sum(original_amount) as payment_original_amount, sum(amount) as payment_amount," +
 			" payment_id from wk_payment_items where is_deleted = #{false} group by payment_id) pmi" +
 			" on(pmi.payment_id = p.id)" +
 			" left join wk_accounts a on (p.parent_type = 'WkAccount' and p.parent_id = a.id)" +
 			" left join wk_crm_contacts c on (p.parent_type = 'WkCrmContact' and p.parent_id = c.id)" +
-			" where pmi.payment_amount > 0 " 
+			" where pmi.payment_amount > 0 and pmi.payment_original_amount > 0" 
 		sqlHook = call_hook :payment_additional_where_query
 		if filter_type == '2' && !contact_id.blank?			
 			sqlwhere = sqlwhere + " and p.parent_id = '#{contact_id}'  and p.parent_type = 'WkCrmContact' and ((#{getPersonTypeSql}) = '#{getOrderContactType}' " + (sqlHook.blank? ? " )" : sqlHook[0] + ")" )
@@ -205,19 +205,19 @@ class WkpaymententityController < WkbillingController
 			end
 			unless paymentItem.blank?
 				unless @payment.id.blank?									
-					updatedItem = updatePaymentItem(paymentItem, @payment.id, params["invoice_id#{i}"], payAmount, params["currency#{i}"] ) 
+					updatedItem = updatePaymentItem(paymentItem, @payment.id, params["invoice_id#{i}"], payAmount, params["invoice_org_currency#{i}"])
 				end	
 			end	
 		end
 		
 		unless @payment.id.blank?
-			totalAmount = @payment.payment_items.current_items.sum(:amount)
+			totalAmount = @payment.payment_items.current_items.sum(:original_amount)
 			moduleAmtHash = {getAutoPostModule => [totalAmount.round, totalAmount.round]}
 			
 			transAmountArr = getTransAmountArr(moduleAmtHash, nil)
 			if totalAmount > 0 && isChecked(getAuotPostId)
 				transId = @payment.gl_transaction.blank? ? nil : @payment.gl_transaction.id
-				glTransaction = postToGlTransaction(getAutoPostModule, transId, @payment.payment_date, transAmountArr, @payment.payment_items[0].currency, @payment.description, nil )
+				glTransaction = postToGlTransaction(getAutoPostModule, transId, @payment.payment_date, transAmountArr, @payment.payment_items[0].original_currency, @payment.description, nil )
 				unless glTransaction.blank?
 					@payment.gl_transaction_id = glTransaction.id
 					@payment.save

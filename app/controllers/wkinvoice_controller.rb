@@ -87,8 +87,10 @@ class WkinvoiceController < WkorderentityController
 				
 				if  (!@invList[@listKey]['amount'].blank? && @invList[@listKey]['amount'] != 0.0) 
 					totQuantity = 0
+					org_currency = ""
 					@invItems.each do |key, value|
 						totQuantity = totQuantity + value['item_quantity'] unless value['item_quantity'].blank?
+						org_currency = value['currency']
 					end
 					@invList[@listKey].store 'invoice_number', ""
 					@invList[@listKey].store 'parent_type', accProj.parent_type
@@ -101,6 +103,7 @@ class WkinvoiceController < WkorderentityController
 					@invList[@listKey].store 'start_date', interval[0]
 					@invList[@listKey].store 'end_date', interval[1]
 					@invList[@listKey].store 'isAccountBilling', isActBilling
+					@invList[@listKey].store 'currency', org_currency
 					totalInvAmt = totalInvAmt + @invList[@listKey]['amount']
 					@listKey = @listKey + 1
 				end
@@ -112,7 +115,8 @@ class WkinvoiceController < WkorderentityController
 		totlist = @invList.first(@limit*@entry_pages.page).last(@limit)
 		totlist.each do |key, value|
 			unless value.empty?
-				invTotal = invTotal + value['amount'].to_i unless value['amount'].blank?
+				amount = getExchangedAmount(value['currency'], value['amount'])
+				invTotal = invTotal + amount
 			end
 		end
 		@totalInvAmt = invTotal #totalInvAmt

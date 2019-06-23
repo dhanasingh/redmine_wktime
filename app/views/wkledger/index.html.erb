@@ -11,9 +11,8 @@
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 
 <% wkaccounting_helper = Object.new.extend(WkaccountingHelper) %>
-<% ledgerType = wkaccounting_helper.getLedgerTypeHash %>
-<% ledgerType[:""] = "" %>
-
+<% ledgerType = wkaccounting_helper.getLedgerTypeHash
+ ledgerType = {'' =>  ""}.merge(ledgerType) %> 
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
 	<%= hidden_field_tag "searchlist", "#{controller_name}" %>	
 	<%=h hidden_field_tag('tab', controller_name) %>

@@ -20,8 +20,8 @@
 			<td class="lbl-txt-align"><%=h entry.payment.payment_date.strftime("%Y-%m-%d") %></td>
 			<td class="lbl-txt-align"><%=h payTypeHash[entry.payment.payment_type_id] %></td>
 			<td class="lbl-txt-align"><%=h entry.payment.reference_number  %></td>
-			<td class="lbl-txt-align"><%= entry.currency %><%=h html_hours("%.2f" % entry.amount)  %></td>
-			<% grandTotal = grandTotal + entry.amount %>
+			<td class="lbl-txt-align"><%= entry.original_currency %><%=h html_hours("%.2f" % entry.original_amount)  %></td>
+			<% grandTotal = grandTotal + entry.original_amount %>
 		</tr>
 	<% end %>
 	<tr>

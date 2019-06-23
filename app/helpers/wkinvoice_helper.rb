@@ -51,13 +51,13 @@ include WkpayrollHelper
 		@invoice.invoice_number = getPluginSetting(getOrderNumberPrefix)
 		unless isgenerate
 			errorMsg = saveInvoice
-		else			
+		else
 			errorMsg = generateInvoiceItems(projectId)
 		end
 		
 		unless @invoice.id.blank?
-			totalAmount = @invoice.invoice_items.sum(:amount)
-			invoiceAmount = @invoice.invoice_items.where.not(:item_type => 'm').sum(:amount)
+			totalAmount = @invoice.invoice_items.sum(:original_amount)
+			invoiceAmount = @invoice.invoice_items.where.not(:item_type => 'm').sum(:original_amount)
 			# moduleAmtHash key - module name , value - [crAmount, dbAmount]
 			moduleAmtHash = {'inventory' => [nil, totalAmount.round - invoiceAmount.round], getAutoPostModule => [totalAmount.round, invoiceAmount.round]}
 			inverseModuleArr = ['inventory']
@@ -67,7 +67,7 @@ include WkpayrollHelper
 			end
 			if totalAmount > 0 && autoPostGL(getAutoPostModule)
 				transId = @invoice.gl_transaction.blank? ? nil : @invoice.gl_transaction.id
-				glTransaction = postToGlTransaction('invoice', transId, @invoice.invoice_date, transAmountArr, @invoice.invoice_items[0].currency, invoiceDesc(@invoice,invoiceAmount), nil)
+				glTransaction = postToGlTransaction('invoice', transId, @invoice.invoice_date, transAmountArr, @invoice.invoice_items[0].original_currency, invoiceDesc(@invoice,invoiceAmount), nil)
 				unless glTransaction.blank?
 					@invoice.gl_transaction_id = glTransaction.id
 					@invoice.save
@@ -135,7 +135,7 @@ include WkpayrollHelper
 					end
 				end
 				invItem = saveFCInvoiceItem(entry)
-				totalAmount = totalAmount + invItem.amount
+				totalAmount = totalAmount + invItem.original_amount
 				entry.invoice_id = @invoice.id
 				entry.save
 			end
@@ -312,7 +312,7 @@ include WkpayrollHelper
 				unless isCreate
 					lasInvItmId = invItem.id 
 					updateBilledEntry(entry, lasInvItmId)
-					totalAmount = totalAmount + invItem.amount
+					totalAmount = totalAmount + invItem.original_amount
 				end
 			end
 		else
@@ -372,8 +372,8 @@ include WkpayrollHelper
 				end
 				unless isCreate
 					lasInvItmId = invItem.id 
-					updateBilledEntry(entry, lasInvItmId) 
-					totalAmount = totalAmount + invItem.amount 
+					updateBilledEntry(entry, lasInvItmId)
+					totalAmount = totalAmount + invItem.original_amount 
 				end
 			end			
 		end
@@ -385,18 +385,23 @@ include WkpayrollHelper
 	end
 	
 	# Update invoice item by the given invoice item Object
-	def updateInvoiceItem(invItem, projectId, description, rate, quantity, currency, itemType, amount, creditInvoiceId, crPaymentItemId, productId)
+	def updateInvoiceItem(invItem, projectId, description, rate, quantity, org_currency, itemType, org_amount, creditInvoiceId, crPaymentItemId, productId)
+		toCurrency = Setting.plugin_redmine_wktime['wktime_currency']
+		amount = getExchangedAmount(org_currency, org_amount)
+		
 		invItem.project_id = projectId
 		invItem.name = description
 		invItem.rate = rate 
-		invItem.currency = currency
+		invItem.original_currency = org_currency
 		invItem.quantity = quantity
 		invItem.item_type = itemType unless itemType.blank?
-		invItem.amount = amount.round(2) #invItem.rate * invItem.quantity
+		invItem.original_amount = org_amount.round(2) #invItem.rate * invItem.quantity
 		invItem.modifier_id = User.current.id
 		invItem.product_id = productId
 		invItem.credit_invoice_id = creditInvoiceId unless creditInvoiceId.blank?
 		invItem.credit_payment_item_id = crPaymentItemId unless crPaymentItemId.blank?
+		invItem.amount = amount.round(2)
+		invItem.currency = toCurrency
 		invItem.save()
 		invItem
 	end
@@ -472,8 +477,8 @@ include WkpayrollHelper
 	
 	# Add an invoice item for the round off value
 	def addRoundInvItem(totalAmount)
-		invItem = @invoice.invoice_items.new()		
-		updateInvoiceItem(invItem, @invoice.invoice_items[0].project_id, l(:label_round_off), nil, nil, @invoice.invoice_items[0].currency, 'r', (totalAmount.round - totalAmount), nil, nil, nil)		
+		invItem = @invoice.invoice_items.new()
+		updateInvoiceItem(invItem, @invoice.invoice_items[0].project_id, l(:label_round_off), nil, nil, @invoice.invoice_items[0].original_currency, 'r', (totalAmount.round - totalAmount), nil, nil, nil)		
 	end
 	
 	# Return the Query string with SQL length function for the given column
@@ -818,7 +823,7 @@ include WkpayrollHelper
 		else
 			accName = WkAccount.find(invObj.parent_id)
 		end
-		inv_desc = "AccName:" + accName.name + " InvNo:#" + invObj.invoice_number.to_s + " InvoiceAmt:" + invObj.invoice_items[0].currency.to_s + invAmount.to_s
+		inv_desc = "AccName:" + accName.name + " InvNo:#" + invObj.invoice_number.to_s + " InvoiceAmt:" + invObj.invoice_items[0].original_currency.to_s + invAmount.to_s
 		inv_desc
 	end
 	

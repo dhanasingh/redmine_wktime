@@ -1,5 +1,5 @@
 <%
-	if params[:user_id].blank? || (params[:user_id].to_i == User.current.id && params[:user_id].to_i > 0) || isAccountUser || User.current.admin?
+	if params[:user_id].blank? || (params[:user_id].to_i == User.current.id && params[:user_id].to_i > 0) || validateERPPermission('A_TE_PRVLG') || User.current.admin?
 		useSpentTime = params[:report_type] == 'report_spent_time'
 		if !params[:group_id].blank?
 			group_id = params[:group_id]
@@ -39,7 +39,7 @@
 		elsif user_id.to_i > 0
 			leaveSql = leaveSql + " Where u.id = #{user_id}"
 		end
-		if isAccountUser || User.current.admin?
+		if validateERPPermission('A_TE_PRVLG') || User.current.admin?
 			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}'")
 			if useSpentTime
 				sqlStr = "select user_id,spent_on,sum(hours) as hours from time_entries where issue_id not in (#{getLeaveIssueIds}) and spent_on between '#{@from}' and '#{@to}' group by user_id,spent_on"
