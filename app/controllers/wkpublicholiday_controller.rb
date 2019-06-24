@@ -28,14 +28,16 @@ class WkpublicholidayController < ApplicationController
 			end
 		end
 		
-		locationId = params[:location_id]
+		location = WkLocation.where(:is_default => 'true').first
+		locationId = !params[:location_id].blank? ?  params[:location_id] : (location.blank? ? nil : location.id)
 		
-		if locationId == 'AA'
-			entries = WkPublicHoliday.all
-		else
+		entries = WkPublicHoliday.all
+		if locationId == "0"
+			entries = WkPublicHoliday.where(location_id: nil)
+		elsif !locationId.blank? && !(["0", "All"].include? locationId)
 			entries = WkPublicHoliday.where(:location_id => locationId)
 		end
-		
+		@locationId = locationId.blank? ? "All" :  locationId
 		if !params[:month].blank? || @month > 0
 			calendar = Redmine::Helpers::Calendar.new(Date.civil(@year, @month, 1), current_language, :month)
 			entries = entries.where(:holiday_date => calendar.startdt..calendar.enddt)
@@ -69,7 +71,7 @@ class WkpublicholidayController < ApplicationController
 				arrId.delete(params[:ph_id][i].to_i)
 			end
 			publicHoliday.holiday_date = params[:holiday_date][i]
-			publicHoliday.location_id = params[:location_id][i]
+			publicHoliday.location_id = params[:location_id][i] if params[:location_id][i] != "0"
 			publicHoliday.description = params[:description][i]
 			if publicHoliday.new_record?
 				publicHoliday.created_by_user_id = User.current.id

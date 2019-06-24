@@ -28,7 +28,7 @@ module WkpublicholidayHelper
             locId = entry.id if locId.nil? && entry.is_default?
         end
     end
-    ddArray.unshift(["",""],[l(:label_all_locations),'AA'])
+    ddArray.unshift(["","0"],[l(:label_all_locations),'All'])
     options_for_select(ddArray, :selected => locId)
   end
 end

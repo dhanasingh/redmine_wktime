@@ -14,7 +14,7 @@
 <%= form_tag({:controller => controller_name, :action => 'index'},  :method => :get, :id => 'query_form') do %>
 <%=h hidden_field_tag('tab', "#{controller_name}") %>
 <%= hidden_field_tag "searchlist", "#{controller_name}" %>
-<% locId = params[:location_id] %>
+<% locId = params[:location_id].blank? ? @locationId : params[:location_id] %>
 
 <%#= render :partial => 'wklocation/location_filter', :locals => { locationId: locId, departmentId: depId, isApply: false }  %>
 <% if @month > 0 %>	
