@@ -108,7 +108,7 @@ class WkshiftController < ApplicationController
 			shiftRoleEntries.role_id = params[:role_id][i].to_i
 			shiftRoleEntries.shift_id = params[:shift_id].to_i
 			shiftRoleEntries.staff_count = params[:staff_count][i].to_i
-			shiftRoleEntries.location_id = params[:location_id]
+			shiftRoleEntries.location_id = params[:location_id] if params[:location_id] != "0"
 			shiftRoleEntries.department_id = params[:department_id].to_i == 0 ? nil : params[:department_id].to_i 
 			if shiftRoleEntries.new_record?
 				shiftRoleEntries.created_by_user_id = User.current.id

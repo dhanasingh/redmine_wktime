@@ -21,13 +21,15 @@ before_action :require_login
 
     def index
 		@account_entries = nil
+		location = WkLocation.where(:is_default => 'true').first
 		if params[:accountname].blank?
 		   entries = WkAccount.where(:account_type => getAccountType)
 		else
 			entries = WkAccount.where(:account_type => getAccountType).where("name like ?", "%#{params[:accountname]}%")
 		end
-		if !params[:location_id].blank?
-			entries = entries.where(:location_id => params[:location_id].to_i)
+		if (!params[:location_id].blank? || !location.blank?) && params[:location_id] != "0"
+			location_id = !params[:location_id].blank? ? params[:location_id].to_i : location.id.to_i
+			entries = entries.where(:location_id => location_id)
 		end
 		entries = entries.order(:name)
 		formPagination(entries)
@@ -78,7 +80,7 @@ before_action :require_login
 		wkaccount.account_category = params[:account_category]
 		wkaccount.description = params[:description]
 		wkaccount.account_billing = params[:account_billing].blank? ? 0 : params[:account_billing]
-		wkaccount.location_id = params[:location_id]
+		wkaccount.location_id = params[:location_id] if params[:location_id] != "0"
 		unless wkaccount.valid? 		
 			errorMsg = errorMsg.blank? ? wkaccount.errors.full_messages.join("<br>") : wkaccount.errors.full_messages.join("<br>") + "<br/>" + errorMsg
 		end

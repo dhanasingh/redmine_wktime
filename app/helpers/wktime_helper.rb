@@ -1329,7 +1329,12 @@ end
 				selectedVal = entry.id if model == WkLocation && selectedVal.nil? && entry.is_default?
 			end
 		end
-		ddArray.unshift(["",""]) if needBlank
+		
+		if model == WkLocation
+			ddArray = ddArray.unshift([" ","0"]) if needBlank
+		else
+			ddArray = ddArray.unshift(["",""]) if needBlank
+		end
 		options_for_select(ddArray, :selected => selectedVal)
 	end
 	

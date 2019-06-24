@@ -32,6 +32,7 @@ class WkproductitemController < WkinventoryController
 		brandId = session[controller_name].try(:[], :brand_id)
 		locationId =session[controller_name].try(:[], :location_id)
 		availabilityId =session[controller_name].try(:[], :availability)
+		location = WkLocation.where(:is_default => 'true').first
 		sqlwhere = ""
 		unless productId.blank?
 			sqlwhere = " AND pit.product_id = #{productId}"
@@ -41,8 +42,9 @@ class WkproductitemController < WkinventoryController
 			sqlwhere = sqlwhere + " AND pit.brand_id = #{brandId}"
 		end
 		
-		unless locationId.blank?
-			sqlwhere = sqlwhere + " AND iit.location_id = #{locationId}"
+		if (!locationId.blank? || !location.blank?) && locationId != "0"
+			location_id = !locationId.blank? ? locationId.to_i : location.id.to_i
+			sqlwhere = sqlwhere + " AND iit.location_id = #{location_id}"
 		end
 		
 		unless availabilityId.blank?
@@ -215,7 +217,7 @@ class WkproductitemController < WkinventoryController
 		inventoryItem.available_quantity = params[:available_quantity]
 		inventoryItem.status = inventoryItem.available_quantity == 0 ? 'c' : 'o'
 		inventoryItem.uom_id = params[:uom_id].to_i
-		inventoryItem.location_id = locationId		
+		inventoryItem.location_id = locationId if params[:location_id] != "0"	
 		inventoryItem.save()
 		updateShipment(inventoryItem)
 		inventoryItem
@@ -283,8 +285,7 @@ class WkproductitemController < WkinventoryController
 			session[controller_name][:brand_id] = params[:brand_id]
 			session[controller_name][:location_id] = params[:location_id]
 			session[controller_name][:availability] = params[:availability]
-		end
-		
+		end	
 	end
 
 	def setLimitAndOffset		

@@ -86,9 +86,6 @@
 	proj_expense = Hash.new
 	inBtwMonths.each do |monthVal|
 		@time_entries.each do |tme_details|
-			#spent_month = tme_details.spent_month + 1
-			#spent_year = spent_month > 12 ? tme_details.spent_year+1 : tme_details.spent_year
-			#spent_month = spent_month > 12 ? 1 : spent_month
 			key = tme_details.user_id.to_s + "_" + monthVal.last.to_i.to_s + "_" + (monthVal.first).to_s+ "_" + tme_details.project_id.to_s
 			inv_key = monthVal.last.to_i.to_s + "_" + (monthVal.first).to_s+ "_" + tme_details.project_id.to_s
 			unless @payrollEntries[key].blank?
@@ -123,7 +120,6 @@
 		if grand_total.blank?
 			grand_total = {:income => 0, :expense => 0}
 		end
-		#unless proj_expense[key].blank?
 			proj_expense[key] = proj_expense[key].blank? ? 0 : proj_expense[key]
 			revenue = invoice.invoice_amt
 			expense = ((proj_expense[key]*over_head)/100).round(2)
@@ -138,7 +134,6 @@
 			row_total[row_key][:expense] = row_total[row_key][:expense] + org_expense
 			grand_total[:income] = grand_total[:income] + revenue
 			grand_total[:expense] = grand_total[:expense] + org_expense
-		#end
 	end
 %>
 
