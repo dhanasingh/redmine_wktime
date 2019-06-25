@@ -254,6 +254,7 @@
 					<% profit = (grand_total[:income] - grand_total[:expense]) %>
 					<% percentage = ((profit/grand_total[:income])*100).round(2) unless grand_total[:income] == 0 %>
 					<% percentage = percentage.blank? ? 0 : percentage %>
+					<% percentage = percentage > 0 ? percentage : 0 %>
 					<li align="left"><b><%= currency %>&nbsp;<%=h html_hours("%.2f" % profit ) %>&nbsp;<%= "(" + percentage.to_s + "%)" %></b></li>
 				</ul></td>
         	</tr>
