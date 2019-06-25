@@ -1,8 +1,8 @@
 <%
-survey_helper = Object.new.extend(WksurveyHelper)
+helperObj = Object.new.extend(WksurveyHelper)
 
 unless controller_name == "wksurvey"
-    @all_surveys = survey_helper.surveyList(params)
+    @all_surveys = helperObj.surveyList(params)
 end
 
 if params[:isIssue]
@@ -23,22 +23,24 @@ end
         <tr>
             <td class="lbl-txt-align"><%=h index+1 %></td>
             <td class="lbl-txt-align">
-                <% if survey_helper.get_survey_with_userGroup(entry.id).blank? || (@surveyForID.blank? && !@surveyForType.blank?) %>
+                <% if helperObj.get_survey_with_userGroup(entry.id).blank? || (@surveyForID.blank? && !@surveyForType.blank?) %>
                     <%=h entry.name %>
                 <% else %>
-                    <%=h link_to entry.name, url_for(survey_helper.get_survey_url(urlhash, params, "survey")) %>
+                    <%=h link_to entry.name, url_for(helperObj.get_survey_url(urlhash, params, "survey")) %>
                 <% end %>
             </td>
-            <td class="lbl-txt-align"><%=h survey_helper.getSurveyStatus.invert[entry.status] %></td>
+            <td class="lbl-txt-align"><%=h helperObj.getSurveyStatus.invert[entry.status] %></td>
             <td class="lbl-txt-align">
-                <% unless survey_helper.get_survey_with_userGroup(entry.id).blank? %>
-                    <%= link_to image_tag("withoutcommant.png", :plugin => "redmine_wktime"), url_for(survey_helper.get_survey_url(urlhash, params, "survey_response")), :title => l(:label_survey_response) %>&emsp;
+                <% if !helperObj.get_survey_with_userGroup(entry.id).blank? %>
+                    <%= link_to image_tag("withoutcommant.png", :plugin => "redmine_wktime"), url_for(helperObj.get_survey_url(urlhash, params, "survey_response")), :title => l(:label_survey_response) %>&emsp;
                 <% end %>
-                <% if survey_helper.checkEditSurveyPermission && params[:isIssue].blank? %>
+                <% if !helperObj.get_survey_with_userGroup(entry.id).blank? && helperObj.checkEditSurveyPermission %>
                     <% urlhash[:showresult] = true %>
-                    <%= link_to image_tag("graph.png", :plugin => "redmine_wktime"), url_for(survey_helper.get_survey_url(urlhash, params, "survey")), :title => l(:label_survey_result) %>&emsp;
-                    <%= link_to image_tag('edit.png'), url_for(survey_helper.get_survey_url(urlhash, params, "edit")), :title => l(:button_edit) %>&emsp;
-                    <%= link_to image_tag('delete.png'), url_for(survey_helper.get_survey_url(urlhash, params, "destroy")), :data => {:confirm => l(:text_are_you_sure)}, :title => l(:button_delete) %>
+                    <%= link_to image_tag("stats.png"), url_for(helperObj.get_survey_url(urlhash, params, "survey")), :title => l(:label_survey_result) %>&emsp;
+                <% end %>
+                <% if helperObj.checkEditSurveyPermission && params[:isIssue].blank? %>
+                    <%= link_to image_tag('edit.png'), url_for(helperObj.get_survey_url(urlhash, params, "edit")), :title => l(:button_edit) %>&emsp;
+                    <%= link_to image_tag('delete.png'), url_for(helperObj.get_survey_url(urlhash, params, "destroy")), :data => {:confirm => l(:text_are_you_sure)}, :title => l(:button_delete) %>
                 <% end %>
             </td>
         </tr>
