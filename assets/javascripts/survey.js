@@ -320,8 +320,7 @@ function validation(){
 	$("[name^='survey_sel_choice_']").each(function(){
 		if($(this).prop('required')){
 			switch(this.type) {
-				case "textbox":
-					console.log($(this).val());
+				case "text":
 					if($(this).val() == ""){
 						isUnAnswered = true;
 						return false;
