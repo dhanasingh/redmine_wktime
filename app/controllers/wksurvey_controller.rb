@@ -335,6 +335,8 @@ class WksurveyController < WkbaseController
 
     if params[:surveyForID].blank?
       surveyForQry = " AND SR.survey_for_type IS NULL AND SR.survey_for_id IS NULL "
+    elsif params[:surveyForType] == "User"
+      surveyForQry = " AND SR.survey_for_type = '#{params[:surveyForType]}' "
     else
       surveyForQry = " AND SR.survey_for_type = '#{params[:surveyForType]}' AND SR.survey_for_id = #{params[:surveyForID]} "
     end
@@ -565,7 +567,7 @@ class WksurveyController < WkbaseController
     end
     @response_status = WkSurveyResponse.joins("INNER JOIN wk_statuses AS ST ON ST.status_for_id = wk_survey_responses.id 
       AND ST.status_for_type = 'WkSurveyResponse'")
-    .where(" wk_survey_responses.survey_id = #{survey_id} " + (@surveyForType.blank? ? " AND wk_survey_responses.user_id = #{User.current.id}" : "") + condStr)
+    .where(" wk_survey_responses.survey_id = #{survey_id} AND wk_survey_responses.user_id = #{User.current.id}" + condStr)
     .order("status_date DESC")
     .select("wk_survey_responses.id, ST.status, ST.status_date").first
   end

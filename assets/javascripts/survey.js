@@ -308,7 +308,7 @@ function showHideRecurEvery(){
 }
 
 function survey_submit(){
-	$("input[name^='survey_sel_choice_']").each(function(){
+	$("[name^='survey_sel_choice_']").each(function(){
 		$(this).prop('required', false);
 	});
 	$("#commit").val("Save");
