@@ -71,7 +71,7 @@ class WkpublicholidayController < ApplicationController
 				arrId.delete(params[:ph_id][i].to_i)
 			end
 			publicHoliday.holiday_date = params[:holiday_date][i]
-			publicHoliday.location_id = params[:location_id][i] if params[:location_id][i] != "0"
+			publicHoliday.location_id = params[:location_id][i] == "0" ? nil : params[:location_id][i]
 			publicHoliday.description = params[:description][i]
 			if publicHoliday.new_record?
 				publicHoliday.created_by_user_id = User.current.id

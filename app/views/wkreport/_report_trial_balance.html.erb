@@ -33,7 +33,7 @@
 				@debitTotal = 0 
 				@ledgerArr = ['C', 'L', 'CL', 'SP', 'DI', 'DE', 'II', 'IE', 'SA', 'PA', 'FA', 'CA']
 				@ledgerArr.each do |type|
-					@mainEnriesHash[type] = getEachLedgerCDAmt(@to, [type])
+					@mainEnriesHash[type] = getEachLedgerCDAmt(@to, type)
 					@subEntriesHash[type] = getTBSubEntries(@to, type)
 					@creditDebitTotalHash[type] = getCreditDebitTotal(@mainEnriesHash[type], @subEntriesHash[type])
 				end

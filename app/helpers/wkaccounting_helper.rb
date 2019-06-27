@@ -243,11 +243,12 @@ include WktimeHelper
 		creditDebitHash = Hash.new
 		unless detailHash.blank?
 			ledgers = WkLedger.where(:ledger_type => ledgerType)
+			isSubCr = isSubtractCr(ledgerType)
 			ledgers.each do |ledger|
 				key = ledger.name 
 				creditDebitHash[key] = Hash.new if creditDebitHash[key].blank?
-				creditDebitHash[key]['d'] = detailHash['d'][ledger.id]
-				creditDebitHash[key]['c'] = detailHash['c'][ledger.id]
+				creditDebitHash[key]['d'] = isSubCr ? (detailHash['d'][ledger.id].to_i + (ledger.opening_balance).to_i) : detailHash['d'][ledger.id]
+				creditDebitHash[key]['c'] = isSubCr ? detailHash['c'][ledger.id] : (detailHash['c'][ledger.id].to_i + (ledger.opening_balance).to_i)
 			end
 		end
 		creditDebitHash	
