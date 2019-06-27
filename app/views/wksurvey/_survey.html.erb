@@ -8,14 +8,8 @@
     <% @question_Entries.each do |entry| %>
         <% isReviewerOnly = ActiveModel::Type::Boolean.new.cast(entry.is_reviewer_only) %>
         <% isMandatory = ActiveModel::Type::Boolean.new.cast(entry.is_mandatory) && !(["CB"].include? entry.question_type) %>
-        <% if !isReviewerOnly || (@isReview && isReviewerOnly) %>
-        <% if isReviewerOnly && !@isSuprDisable
-                oldIsDisable = @isDisable
-                @isDisable = @isSuprDisable
-            elsif !oldIsDisable.blank?
-                @isDisable = oldIsDisable
-                oldIsDisable = nil
-            end
+        <% if !isReviewerOnly || (@isReview && isReviewerOnly)
+            disableReviewerOnly = isReviewerOnly && !@isReviewed
             if @reviewerOnlyQuestions.blank? && isReviewerOnly
                 @reviewerOnlyQuestions = entry.question_id.to_s
             elsif isReviewerOnly
@@ -32,7 +26,9 @@
         <fieldset class="box tabular">
         <table>
             <tr>
-                <th align="left"><%= l(:label_question_name) %></th>
+                <th align="left"><%= l(:label_question_name) %>
+                <% if isMandatory %><%= content_tag(:span, "*", :class => "required") %><% end %>
+                </th>
                 <td align="left" style="padding-left:40px;"><%= entry.question_name %></td>
             </tr>
             <tr>
@@ -51,10 +47,10 @@
                         <td align="left" style="padding-left:40px;">
                             <% case entry.question_type %>
                             <% when 'CB' %>
-                                <%= check_box_tag(("survey_sel_choice_"+ (entry.question_id).to_s + "_" + (choice_entry.id).to_s  ), choice_entry.id, isChecked, :disabled => @isDisable, :required => isMandatory) %>
+                                <%= check_box_tag(("survey_sel_choice_"+ (entry.question_id).to_s + "_" + (choice_entry.id).to_s  ), choice_entry.id, isChecked, :disabled => disableReviewerOnly ? @isReviewed : @isDisable, :required => isMandatory) %>
                                 <%= choice_entry.name %>
                             <% when 'RB' %>
-                                <%= radio_button_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", choice_entry.id, isChecked, :disabled => @isDisable, :required => isMandatory) %>
+                                <%= radio_button_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", choice_entry.id, isChecked, :disabled => disableReviewerOnly ? @isReviewed : @isDisable, :required => isMandatory) %>
                                 <%= choice_entry.name %>
                             <% end %>
                         </td>
@@ -68,9 +64,9 @@
                     <td align="left" style="padding-left:40px;">
                         <% case entry.question_type %>
                         <% when 'TB' %>
-                            <%=h text_field_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", choice_text, size: 60, :disabled => @isDisable, :required => isMandatory, :autofocus => false) %>
+                            <%=h text_field_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", choice_text, size: 60, :disabled => disableReviewerOnly ? @isReviewed : @isDisable, :required => isMandatory, :autofocus => false) %>
                         <% when 'MTB' %>
-                            <%=h text_area_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", choice_text, rows: 5, cols: 60, :disabled => @isDisable, :required => isMandatory, :autofocus => false) %>
+                            <%=h text_area_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", choice_text, rows: 5, cols: 60, :disabled => disableReviewerOnly ? @isReviewed : @isDisable, :required => isMandatory, :autofocus => false) %>
                         <% end %>
                     </td>
                 </tr>
@@ -79,7 +75,7 @@
             <tr>
                 <th align="left"><%= l(:label_review_comment) %></th>
                 <td align="left" style="padding-left:40px;">
-                    <%=h text_area_tag("survey_review_"+ (entry.question_id).to_s, comment_text, rows: 5, cols: 60, :disabled => @isSuprDisable, :required => false)   %>
+                    <%=h text_area_tag("survey_review_"+ (entry.question_id).to_s, comment_text, rows: 5, cols: 60, :disabled => @isReviewed, :required => false)   %>
                 </td>
             </tr>
             <% end %>
@@ -88,10 +84,11 @@
         <% end %>
     <% end %>
     <%=h hidden_field_tag("reviewerOnlyQuestions", @reviewerOnlyQuestions) %>
-    <% if (!@isDisable || @isReview) && !@isSuprDisable %>
+    <% if (!@isDisable || @isReview) && !@isReviewed %>
         <div>
-        <%= button_tag(l(:button_save), type: 'button', onclick: '$("#survey_form").submit(); return false;') %>
-        <%= submit_tag l(:button_submit), data: { confirm: "Are you sure you want to submit the survey? Once you submit, You won't able to edit again"} %>
+        <%= button_tag(l(:button_save), type: 'button', onclick: 'survey_submit();') %>
+        <%= button_tag(l(:button_submit), type: 'button', onclick: 'validation();') %>
+        <%=h hidden_field_tag("commit", "") %>
         </div>
     <% end %>
 <% end %>

@@ -145,6 +145,7 @@ class WksurveyController < WkbaseController
         .group("SQ.id, wk_surveys.id, wk_surveys.name, SQ.name, SQ.question_type")
         .select("wk_surveys.id, wk_surveys.name, SQ.id AS question_id, SQ.name AS question_name, SQ.question_type AS question_type,
           SQ.is_mandatory, SQ.is_reviewer_only")
+        .order("SQ.is_reviewer_only, SQ.id")
 
       @question_Choice_Entries = WkSurvey.joins("INNER JOIN wk_survey_questions AS SQ ON wk_surveys.id = SQ.survey_id
         LEFT JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id")
@@ -183,7 +184,7 @@ class WksurveyController < WkbaseController
       reviewUsers = User.where(parent_id: User.current.id).pluck(:id)
       @reviewer = !@survey_response.blank? && (reviewUsers.include? @survey_response.first.user_id) && @survey.is_review && !@isResetResponse
       @isReview = @reviewer || (!@response_status.blank? && "R" == @responseStatus)
-      @isSuprDisable = ("R" == @responseStatus)
+      @isReviewed = ("R" == @responseStatus)
     else
       @survey_result_Entries = WkSurvey.find_by_sql("
         SELECT S.id, S.name, SQ.id AS question_id, SQ.name AS question_name 
@@ -401,7 +402,7 @@ class WksurveyController < WkbaseController
     when "WkCrmContact"
       sql = "SELECT C.first_name, C.last_name, C.id FROM wk_crm_contacts AS C
           LEFT JOIN wk_leads AS L ON L.contact_id = C.id
-          WHERE (L.status = 'C' OR L.contact_id IS NULL)"
+          WHERE (L.status = 'C' OR L.contact_id IS NULL) AND C.contact_type = 'C' "
       surveyForIDSql = " AND (C.id = #{surveyForID})"
       surveyForSql = " AND (C.id = #{surveyForID} OR LOWER(C.first_name) LIKE LOWER('#{surveyFor}') OR LOWER(C.last_name) LIKE LOWER('#{surveyFor}'))" unless surveyFor.blank?
       sql += params[:method] == "search" ? surveyForSql : surveyForIDSql

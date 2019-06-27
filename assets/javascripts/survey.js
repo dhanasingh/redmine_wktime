@@ -297,8 +297,56 @@ function validateEmail($email) {
 }
 
 function showHideRecurEvery(){
-	if($("#recur").prop("checked"))
+	if($("#recur").prop("checked")){
 		$("#tr_recur_every").show();
-	else
+		$("#recur_every").prop('required', true);
+	}
+	else{
 		$("#tr_recur_every").hide();
+		$("#recur_every").prop('required', false);
+	}
+}
+
+function survey_submit(){
+	$("input[name^='survey_sel_choice_']").each(function(){
+		$(this).prop('required', false);
+	});
+	$("#commit").val("Save");
+	$("#survey_form").submit();
+}
+
+function validation(){
+	isUnAnswered = false;
+	$("[name^='survey_sel_choice_']").each(function(){
+		if($(this).prop('required')){
+			switch(this.type) {
+				case "textbox":
+					console.log($(this).val());
+					if($(this).val() == ""){
+						isUnAnswered = true;
+						return false;
+					}
+				break;
+				case "radio":
+					if(!$.isNumeric($("input[name='"+this.name+"']:checked").val())){
+						isUnAnswered = true;
+						return false;
+					}
+				break;
+				case "textarea":
+					if($(this).val() == ""){
+						isUnAnswered = true;
+						return false;
+					}
+				break;
+			}
+		}
+	});
+	if(!isUnAnswered && confirm("Are you sure you want to submit the survey? Once you submit, You won't able to edit again")){
+		$("#commit").val("Submit");
+		$("#survey_form").submit();
+	}
+	else if(isUnAnswered){
+		alert("Please must answer the mandatory questions");
+	}
 }
