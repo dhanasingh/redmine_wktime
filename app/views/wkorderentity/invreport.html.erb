@@ -59,8 +59,8 @@
 											<td style="width:16%;" ></td>
 											<td style="width:16%;" align="right" ><b><%=h l(:label_sub_total) %></b></td>
 											<td style="width:16%;" align="right"><b><%=h "%.2f" % @invoiceItem.where(:project_id => lastProjectId, :item_type => 'i').sum(:quantity) %></b></td>
-											<td style="width:16%;" align="center" ><b><%=h entry.currency %></b></td>
-											<td style="width:16%;" align="right" ><b><%=h "%.2f" % @invoiceItem.where(:project_id => lastProjectId, :item_type => 'i').sum(:amount) %></b></td>
+											<td style="width:16%;" align="center" ><b><%=h entry.original_currency %></b></td>
+											<td style="width:16%;" align="right" ><b><%=h "%.2f" % @invoiceItem.where(:project_id => lastProjectId, :item_type => 'i').sum(:original_amount) %></b></td>
 										</tr>
 									<% end %>
 									
@@ -70,8 +70,8 @@
 												<td style="width:16%;" ></td>
 												<td style="width:16%;" align="right"><b><%=h l(:label_total) %></b></td>
 												<td style="width:16%;" align="right" ><b><%=h "%.2f" %  @invoiceItem.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:quantity) %></b></td>
-												<td style="width:16%;" align="center"><b><%=h entry.currency %></b></td>
-												<td style="width:16%;" align="right" ><b><%=h "%.2f" % @invoiceItem.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:amount) %></b></td>
+												<td style="width:16%;" align="center"><b><%=h entry.original_currency %></b></td>
+												<td style="width:16%;" align="right" ><b><%=h "%.2f" % @invoiceItem.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:original_amount) %></b></td>
 										</tr>
 									<% end %>
 										<tr style="width:100%;" >
@@ -79,8 +79,8 @@
 											<td style="width:16%;" ><%=h (entry.item_type == 'i' && @invoice.invoice_type == 'I') ? l(:field_hours) : (entry.item_type == 'm' ? l(:label_material) : (entry.item_type == 'a' ? l(:label_rental) : '' ) ) %></td>
 											<td style="width:16%;" align="right" ><%=h ("%.2f" % entry.rate).to_s + (entry.item_type == 'i' || entry.item_type == 'c' || entry.item_type == 'm' || entry.item_type == 'a' ? '' : ( controller.addAdditionalTax ? '' : "%"))  unless entry.rate.blank? %></td>
 											<td style="width:16%;" align="right" ><%=h "%.2f" % entry.quantity unless entry.quantity.blank? %></td>
-											<td style="width:16%;" align="center" ><%=h entry.currency %></td>
-											<td style="width:16%;" align="right" ><%=h "%.2f" % entry.amount unless entry.amount.blank?%></td>		
+											<td style="width:16%;" align="center" ><%=h entry.original_currency %></td>
+											<td style="width:16%;" align="right" ><%=h "%.2f" % entry.original_amount unless entry.original_amount.blank?%></td>		
 										</tr>
 									
 								<% end %>
@@ -93,8 +93,8 @@
 									<td style="width:16%;" ></td>
 									<td style="width:16%;" align="right"><b><%=h l(:label_total) %></b></td>
 									<td style="width:16%;" align="right" ><b><%=h "%.2f" %  @invoiceItem.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:quantity) %></b></td>
-									<td style="width:16%;" align="center"><b><%=h @invoiceItem[0].currency %></b></td>
-									<td style="width:16%;" align="right"><b><%=h "%.2f" % @invoiceItem.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:amount) %></b></td>
+									<td style="width:16%;" align="center"><b><%=h @invoiceItem[0].original_currency %></b></td>
+									<td style="width:16%;" align="right"><b><%=h "%.2f" % @invoiceItem.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:original_amount) %></b></td>
 							</tr>
 							<% @invoiceItem.where(:item_type => 'r').each do | entry | %>								
 									<tr  style="width:100%;border-top: solid thin;">
@@ -102,8 +102,8 @@
 										<td style="width:16%;" ><%=h (entry.item_type == 'i' && @invoice.invoice_type == 'I') ? l(:field_hours) : '' %></td>
 										<td style="width:16%;" align="right"><%=h "%.2f" % entry.rate unless entry.rate.blank? %></td>
 										<td style="width:16%;" align="right"><%=h "%.2f" % entry.quantity unless entry.quantity.blank? %></td>
-										<td style="width:16%;" align="center"><%=h entry.currency %></td>
-										<td style="width:16%;" align="right"><%=h "%.2f" % entry.amount unless entry.amount.blank?%></td>
+										<td style="width:16%;" align="center"><%=h entry.original_currency %></td>
+										<td style="width:16%;" align="right"><%=h "%.2f" % entry.original_amount unless entry.original_amount.blank?%></td>
 									</tr>								
 							<% end %>
 							</table>
@@ -117,15 +117,15 @@
 								<td style="width:16%;"></td>
 								<td style="width:16%;" align="right" ><b><%=h  l(:label_grand_total)   %></b></td>					
 								<td style="width:16%;" align="right"><b><%=h "%.2f" % @invoiceItem.sum(:quantity) %></b></td>
-								<td style="width:16%;" align="center" ><b><%=h @invoiceItem[0].currency %></b></td>
-								<td style="width:16%;" align="right" ><b><%=h "%.2f" % @invoiceItem.sum(:amount) %></b></td>
+								<td style="width:16%;" align="center" ><b><%=h @invoiceItem[0].original_currency %></b></td>
+								<td style="width:16%;" align="right" ><b><%=h "%.2f" % @invoiceItem.sum(:original_amount) %></b></td>
 							</tr>
 						</table>
 					</td>					
 				</tr>
 				<tr style="width:100%;">
 					<td align="left" colspan="1" width="20%"><b><%= l(:label_amount_in_words) %></b></td>
-					<td align="left" colspan="5" width="35%"><%=h numberInWords(@invoiceItem.sum(:amount)) + " " + l(:label_only) + "." %></td>
+					<td align="left" colspan="5" width="35%"><%=h numberInWords(@invoiceItem.sum(:original_amount)) + " " + l(:label_only) + "." %></td>
 				</tr>
 				<% unless Setting.plugin_redmine_wktime[controller.getOrderComponetsId].blank? 
 				Setting.plugin_redmine_wktime[controller.getOrderComponetsId].each do |element| 

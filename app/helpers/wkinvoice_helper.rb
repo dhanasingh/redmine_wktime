@@ -469,7 +469,7 @@ include WkpayrollHelper
 			projectTaxes.each do |projtax|
 				invItem = @invoice.invoice_items.new()
 				rate = projtax.tax.rate_pct.blank? ? 0 : projtax.tax.rate_pct
-				amount = (rate/100) * totalAmount
+				amount = ((rate/100) * totalAmount).round(2)
 				updateInvoiceItem(invItem, accountProject.project_id, projtax.tax.name, rate, nil, currency, 't', amount, nil, nil, nil) 			
 			end
 		end
