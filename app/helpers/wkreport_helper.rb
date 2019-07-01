@@ -51,7 +51,7 @@ module WkreportHelper
 			ret = validateERPPermission("B_ACC_PRVLG") || validateERPPermission("A_ACC_PRVLG")
 		elsif reportName == 'report_lead_conversion' || reportName == 'report_sales_activity'
 			ret = (validateERPPermission("B_CRM_PRVLG") || validateERPPermission("A_CRM_PRVLG") ) && isChecked('wktime_enable_crm_module')
-		elsif reportName == 'report_order_to_cash'
+		elsif reportName == 'report_order_to_cash' || reportName == 'report_project_profitability'
 			ret = validateERPPermission("M_BILL")
 		end
 		ret
