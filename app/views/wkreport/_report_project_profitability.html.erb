@@ -67,12 +67,12 @@
 
 	invoice_details = WkInvoice.find_by_sql(invoice_details)
 
-	billable_projects = "SELECT wp.project_id, P.name
-							FROM wk_projects WP
-							INNER JOIN projects AS P ON wp.project_id = P.id
+	billable_projects = "SELECT WP.project_id, P.name
+							FROM wk_projects AS WP
+							INNER JOIN projects AS P ON WP.project_id = P.id
 							WHERE is_billable IS TRUE "
 	if projectId.to_i > 0
-		billable_projects = billable_projects + "AND wp.project_id = #{projectId} "	
+		billable_projects = billable_projects + "AND WP.project_id = #{projectId} "	
 	end
 	@billable_projects = WkProject.find_by_sql(billable_projects)
 
@@ -151,7 +151,7 @@
 			<tr>
 				<td>
 					<% logo = Setting.plugin_redmine_wktime['wktime_header_logo'] %>
-					<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>						
+						<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>	
 						<%= image_tag("#{logo}", :plugin => "redmine_wktime") %>
 					<% end %>
 				</td>
@@ -194,11 +194,11 @@
 									end
 								%>
 								<br>
-								<li align="left"><%= currency %>&nbsp;<%=h html_hours("%.2f" % detail_entries[key][:revenue]) %></li>
+								<li align="center"><%= currency %>&nbsp;<%=h html_hours("%.2f" % detail_entries[key][:revenue]) %></li>
 
-								<li align="left"><%= currency %>&nbsp;<%=h html_hours("%.2f" % detail_entries[key][:expense]) %></li>
+								<li align="center"><%= currency %>&nbsp;<%=h html_hours("%.2f" % detail_entries[key][:expense]) %></li>
 
-								<li align="left"><%= currency %>&nbsp;<%=h html_hours("%.2f" % detail_entries[key][:profit] ) %>&nbsp;<%= "(" + detail_entries[key][:profit_percentage].to_s + "%)" %></li>
+								<li align="center"><%= currency %>&nbsp;<%=h html_hours("%.2f" % detail_entries[key][:profit] ) %>&nbsp;<%= "(" + detail_entries[key][:profit_percentage].to_s + "%)" %></li>
 							</ul></td>
 					<% end %>
 					<td><ul style="list-style-type:none;">
@@ -208,25 +208,25 @@
 							end
 						%>
 						<br>
-						<li align="left"><b><%= currency %>&nbsp;<%=h html_hours("%.2f" % row_total[row_key][:income]) %></li>
-						<li align="left"><b><%= currency %>&nbsp;<%=h html_hours("%.2f" % row_total[row_key][:expense]) %></li>
+						<li align="center"><b><%= currency %>&nbsp;<%=h html_hours("%.2f" % row_total[row_key][:income]) %></li>
+						<li align="center"><b><%= currency %>&nbsp;<%=h html_hours("%.2f" % row_total[row_key][:expense]) %></li>
 						<% profit = (row_total[row_key][:income] - row_total[row_key][:expense]) %>
 						<% percentage = ((profit/row_total[row_key][:income])*100).round(2) unless row_total[row_key][:income] == 0 %>
 						<% percentage = percentage.blank? ? 0 : percentage %>
 						<% percentage = percentage > 0 ? percentage : 0 %>
-						<li align="left"><b><%= currency %>&nbsp;<%=h html_hours("%.2f" % profit) %>&nbsp;<%= "(" + percentage.to_s + "%)" %></li>
+						<li align="center"><b><%= currency %>&nbsp;<%=h html_hours("%.2f" % profit) %>&nbsp;<%= "(" + percentage.to_s + "%)" %></li>
 					</ul></td>
 				</tr>
 			<% end %>
 
 			<tr style="width:100%;">
-					<td></td>
-					<td colspan="<%= columnCount+2%>" style="border-bottom: solid medium;"></td>
-				</tr>
+				<td></td>
+				<td colspan="<%= columnCount+2%>" style="border-bottom: solid medium;"></td>
+			</tr>
 			<tr style="width:100%;">
 				<td align="left">
 					<ul style="list-style-type:none;">
-					<li align="left"><b><%=h l(:label_total) %></b></li>
+					<li align="center"><b><%=h l(:label_total) %></b></li>
 					<li align="right"><b><%=h l(:label_profit) %></b></li>
 				</ul></td>
 				<% inBtwMonths.each do |monthVal| %>
@@ -242,7 +242,7 @@
 						<% percentage = ((profit/col_total[col_key][:income])*100).round(2) unless col_total[col_key][:income] == 0 %>
 						<% percentage = percentage.blank? ? 0 : percentage %>
 						<% percentage = percentage > 0 ? percentage : 0 %>
-						<li align="left"><b><%= currency %>&nbsp;<%=h html_hours("%.2f" % profit ) %>&nbsp;<%= "(" + percentage.to_s + "%)" %></b></li>
+						<li align="center"><b><%= currency %>&nbsp;<%=h html_hours("%.2f" % profit ) %>&nbsp;<%= "(" + percentage.to_s + "%)" %></b></li>
 					</ul></td>
 				<% end %>
 				<td><ul style="list-style-type:none;">
@@ -256,7 +256,7 @@
 					<% percentage = ((profit/grand_total[:income])*100).round(2) unless grand_total[:income] == 0 %>
 					<% percentage = percentage.blank? ? 0 : percentage %>
 					<% percentage = percentage > 0 ? percentage : 0 %>
-					<li align="left"><b><%= currency %>&nbsp;<%=h html_hours("%.2f" % profit ) %>&nbsp;<%= "(" + percentage.to_s + "%)" %></b></li>
+					<li align="center"><b><%= currency %>&nbsp;<%=h html_hours("%.2f" % profit ) %>&nbsp;<%= "(" + percentage.to_s + "%)" %></b></li>
 				</ul></td>
         	</tr>
 		</tbody>
