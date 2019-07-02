@@ -91,14 +91,13 @@
 			unless @payrollEntries[key].blank?
 				user_salaries = @payrollEntries[key][:BT] + @payrollEntries[key][:AT]
 				if !tme_details.user_hours.blank?
-					proj_expense[inv_key] = ((tme_details.proj_hours/tme_details.user_hours)*user_salaries).round(2)
+					proj_expense[inv_key] = proj_expense[inv_key].to_i + ((tme_details.proj_hours/tme_details.user_hours)*user_salaries).round(2)
 				else
-					proj_expense[inv_key] = 0
+					proj_expense[inv_key] =  proj_expense[inv_key].to_i
 				end		
 			end
 		end
 	end
-		
 	detail_entries = Hash.new
 	col_total = Hash.new
 	row_total = Hash.new

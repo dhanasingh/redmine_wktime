@@ -101,10 +101,10 @@
                             <% month_val = u_detail.first.to_s %>
                             <% total_percentage[month_val] = (total_percentage[month_val].to_f + percentage) %>
                             <% total_percentage[key] = (total_percentage[key].to_f + percentage) %>
-                            <td align="right"><%= percentage.to_s + "%"  %></td>
+                            <td align="center"><%= percentage.to_s + "%"  %></td>
                         <% end %>
                         <% @month_count = inBtwMonths.length %>
-                        <td align="right"><%= (total_percentage[key]/@month_count).round(2).to_s + "%"  %></td>
+                        <td align="center"><%= (total_percentage[key]/@month_count).round(2).to_s + "%"  %></td>
                 </tr>    
             <% end %>
             <tr>
@@ -114,11 +114,11 @@
                     <% user_count = user_list.length%>
                     <% month_year = (monthVal.first).to_s + ","  + (monthVal.last).to_s %>
                     <% avg = (user_count > 0) ? (total_percentage[month_year].to_f/user_count.to_f).round(2) : 0  %>
-                    <td align="right"><%= avg.to_s + "%" %></td>
+                    <td align="center"><%= avg.to_s + "%" %></td>
                     <% @overall_avg += avg.to_f %>
                 <% end %>
                 <% total_avg = @month_count.blank? ? 0 : (@overall_avg/@month_count.to_f).round(2)%>
-                <td align="right"><%= total_avg.to_s + "%" %></td>
+                <td align="center"><%= total_avg.to_s + "%" %></td>
             </tr>
          </tbody>    
     </table>
