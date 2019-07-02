@@ -65,6 +65,7 @@ class WkgltransactionController < WkaccountingController
 					summary_by = 'extract(year from trans_date)'
 					alice_name = 'extract(year from trans_date) AS tyear'
 				end
+				@transDate = @from.blank? ? (transaction.minimum(:trans_date) - 1) : @from -1
 				transaction = transaction.group(" #{summary_by}, detail_type, ledger_id").select(" #{alice_name}, detail_type, ledger_id, sum(amount) as amount").order(" #{summary_by}")
 				@summaryHash = Hash.new
 				debitTotal = 0
