@@ -247,8 +247,14 @@ include WktimeHelper
 			ledgers.each do |ledger|
 				key = ledger.name 
 				creditDebitHash[key] = Hash.new if creditDebitHash[key].blank?
-				creditDebitHash[key]['d'] = isSubCr ? (detailHash['d'][ledger.id].to_i + (ledger.opening_balance).to_i) : detailHash['d'][ledger.id]
-				creditDebitHash[key]['c'] = isSubCr ? detailHash['c'][ledger.id] : (detailHash['c'][ledger.id].to_i + (ledger.opening_balance).to_i)
+				if !detailHash['d'][ledger.id].blank? && !detailHash['c'][ledger.id].blank?
+					creditDebitDiff = (detailHash['d'][ledger.id]) - (detailHash['c'][ledger.id])
+					creditDebitHash[key]['d'] = creditDebitDiff > 0 ? creditDebitDiff.abs : nil
+					creditDebitHash[key]['c'] = creditDebitDiff < 0 ? creditDebitDiff.abs : nil
+				else
+					creditDebitHash[key]['d'] = isSubCr ? (ledger.opening_balance == 0 ? detailHash['d'][ledger.id] : detailHash['d'][ledger.id].to_i + (ledger.opening_balance).to_i) : detailHash['d'][ledger.id]
+					creditDebitHash[key]['c'] = isSubCr ? detailHash['c'][ledger.id] : (ledger.opening_balance == 0 ? detailHash['c'][ledger.id] : detailHash['c'][ledger.id].to_i + (ledger.opening_balance).to_i)
+				end
 			end
 		end
 		creditDebitHash	
