@@ -268,14 +268,14 @@ include WkaccountingHelper
 					l(:label_credit),
 					l(:label_closing_balance)
 				]
-				asOnDate =  @from -1 unless @from.blank?
-				openingBalHash = getEachLedgerBSAmt(asOnDate, [@selectedLedger.ledger_type]) unless @ledgerId.blank? || asOnDate.blank?
+				openingBalHash = getEachLedgerBSAmt(@transDate, [@selectedLedger.ledger_type]) unless @ledgerId.blank? || @transDate.blank?
 				unless @selectedLedger.blank? || (incomeLedgerTypes.include? @selectedLedger.ledger_type) || (expenseLedgerTypes.include? @selectedLedger.ledger_type)
 						openingBalance = openingBalHash[@selectedLedger.name] unless openingBalHash.blank? || openingBalHash[@selectedLedger.name].blank?
 						isSubCr = isSubtractCr(@selectedLedger.ledger_type)
 				end
 				openingBal = openingBalance.nil? ? 0 : "%.2f" % openingBalance.abs
-				csv << [l(:label_opening_balance), openingBal, "", ""].collect {|c| Redmine::CodesetUtil.from_utf8(c.to_s, l(:general_csv_encoding))}
+				openBalType = (isSubCr && openingBalance > 0) || (!isSubCr && openingBalance < 0) ? 'dr' : 'cr' unless openingBalance.nil?
+				csv << [l(:label_opening_balance), openingBal, openBalType, ""].collect {|c| Redmine::CodesetUtil.from_utf8(c.to_s, l(:general_csv_encoding))}
 				
 				debitTotal = 0
 				creditTotal = 0
