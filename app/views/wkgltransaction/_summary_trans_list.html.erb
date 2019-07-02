@@ -10,7 +10,8 @@
 <% unless @ledgerId.blank?  %>
 	<div>
 	<% openingBal = openingBalance.nil? ? 0 : "%.2f" % openingBalance.abs %>
-		<p><b><%= l(:label_opening_balance) %> :</b>&nbsp;<%= openingBal %> </p>
+	<% openBalType = (isSubCr && openingBalance > 0) || (!isSubCr && openingBalance < 0) ? 'dr' : 'cr' unless openingBalance.nil? %>
+		<p><b><%= l(:label_opening_balance) %> :</b>&nbsp;<%= openingBal %> <%= openBalType %> </p>
 	</div>
 	<thead>
 		</tr>
