@@ -11,6 +11,7 @@ This Plugin has the following modules:
     Check Leave Status
     Integrate with Attendance / Time clock devices
     Schedule Shifts
+    Report � User Utilization Report
 3) PayRoll
     Setup Payroll data
     Generate Salary
@@ -21,11 +22,13 @@ This Plugin has the following modules:
     Generate Invoices
     Payments
     Print Invoices
+    Report � Project profitability
 5) Accounting
     Create Ledgers
     Post Financial Transaction 
     Report � Balance Sheet
     Report � Profit & Loss A/c Report
+    Report � Trail Balance
 6) CRM
     Create Lead,Opportunity, Activity and Contacts
     Report � Lead Conversion
@@ -71,23 +74,28 @@ If an apache passenger module is used then make sure the following settings are 
   b) RailsAppSpawnerIdleTime 0
   c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for 3.6
+Release Notes for 3.7
 
   Features:
-    - Payroll module-Edit box in user setting for all individual employees
-    - Save and Continue for Accounting Transaction
-    - Accounting Transaction Remember Previous values
-    - Main Location
-    - Billable Projects in Project / Account
-    - Notify Users to take the Survey
-    - CSV Report on Payroll list page
-    - Preview salary
-    - Payroll Bank Report
-    - Entity Surveys
+    - Employee Performance Review
+    - User Utilization Report
+    - Project profitability Report
+    - Trail Balance Report
+    - Summary of accounting transactions
+    - Configuration for User detail section
+    - CSV format for Accounting Transactions
 
   Bug Fixing:
-    - Move Permissions to Settings tab
-    - Double entry on preview bill
+    - Null pointer in product item controller and view
+    - Search and Filters
+    - Account filter not working on Billing page
+    - Permission for public holiday
+    - Leave Accruals happening before first year
+    - Administrator should see the permissions page
+    - Activity dropdown not loading properly
+    - Move T&E Admin Groups configuration to permissions page
+    - Mixed currency in AR Ageing Report
+    - Remove view accounts and view survey permission from roles and permission
 
 Customization:
 
