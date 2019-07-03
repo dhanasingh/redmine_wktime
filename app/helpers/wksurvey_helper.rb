@@ -73,8 +73,11 @@ module WksurveyHelper
         if checkEditSurveyPermission && survey_id.blank?
             survey = WkSurvey.all
         else
-            survey = WkSurvey.joins("LEFT JOIN groups_users ON groups_users.group_id = wk_surveys.group_id")
-            .where("status IN ('O', 'C') AND (groups_users.user_id =" + (User.current.id).to_s + " OR wk_surveys.group_id IS NULL)")
+            survey = WkSurvey.joins("LEFT JOIN groups_users ON groups_users.group_id = wk_surveys.group_id
+                LEFT JOIN users ON users.id = groups_users.user_id")
+            .where("wk_surveys.status IN ('O', 'C') AND (groups_users.user_id = #{(User.current.id).to_s} 
+                OR wk_surveys.group_id IS NULL OR (users.parent_id = #{(User.current.id).to_s} 
+                AND wk_surveys.is_review IS TRUE))")
         end
         survey = survey.where(:id => survey_id) unless survey_id.blank?
         survey

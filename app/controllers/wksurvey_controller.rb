@@ -133,7 +133,6 @@ class WksurveyController < WkbaseController
   end
 
   def survey
-    get_survey(params[:survey_id])
     showresult = params[:showresult].blank? ? false : true
     getSurveyForType(params)
     @isSurvey = @survey.status == "O" && !showresult ? true : false
@@ -554,8 +553,6 @@ class WksurveyController < WkbaseController
 
   def get_survey(survey_id, isEditSurvey = false)
     survey = isEditSurvey ? WkSurvey.all : get_survey_with_userGroup(survey_id)
-    survey = survey.where("wk_surveys.id = ? " , survey_id)
-    survey = survey.where("status IN ('O', 'C')") unless isEditSurvey
     @survey = survey.first
   end
   
