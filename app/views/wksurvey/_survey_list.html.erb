@@ -31,11 +31,11 @@ end
             </td>
             <td class="lbl-txt-align"><%=h helperObj.getSurveyStatus.invert[entry.status] %></td>
             <td class="lbl-txt-align">
-                <% if !helperObj.get_survey_with_userGroup(entry.id).blank? && (entry.is_review || entry.recur) %>
+                <% if (["O","C"].include? entry.status) && (entry.is_review || entry.recur) %>
                     <%= link_to image_tag("withoutcommant.png", :plugin => "redmine_wktime"), url_for(helperObj.get_survey_url(urlhash, params, "survey_response")), :title => l(:label_survey_response) %>&emsp;
                 <% else %>&emsp;&emsp;&nbsp;
                 <% end %>
-                <% if !helperObj.get_survey_with_userGroup(entry.id).blank? && helperObj.checkEditSurveyPermission %>
+                <% if (["O","C"].include? entry.status) && helperObj.checkEditSurveyPermission %>
                     <% urlhash[:showresult] = true %>
                     <%= link_to image_tag("stats.png"), url_for(helperObj.get_survey_url(urlhash, params, "survey")), :title => l(:label_survey_result) %>&emsp;
                 <% else %>&emsp;&emsp;&nbsp;

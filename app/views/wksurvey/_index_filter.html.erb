@@ -11,7 +11,7 @@
 					<%= l(:field_status) %>
 					<%=h select_tag('status', options_for_select(getSurveyStatus, :selected => params[:status])) %>
 				</th>
-				<% if params[:project_id].blank? %>
+				<% if params[:project_id].blank? && checkEditSurveyPermission %>
 					<th>
 						<%= l(:label_survey_for) %>
 						<%=h select_tag("survey_for", options_for_select(getSurveyFor, :selected => params[:survey_for].blank? ? params[:surveyForType] : params[:survey_for]), :onchange => '$("#filter_form").submit()') %>

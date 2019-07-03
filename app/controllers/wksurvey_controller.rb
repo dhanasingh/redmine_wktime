@@ -565,8 +565,10 @@ class WksurveyController < WkbaseController
     end
     @response_status = WkSurveyResponse.joins("INNER JOIN wk_statuses AS ST ON ST.status_for_id = wk_survey_responses.id 
       AND ST.status_for_type = 'WkSurveyResponse'
-      INNER JOIN users AS U ON wk_survey_responses.user_id = U.id")
-    .where(" wk_survey_responses.survey_id = #{survey_id} AND (wk_survey_responses.user_id = #{User.current.id} OR U.parent_id = #{User.current.id})" + condStr)
+      INNER JOIN users AS U ON wk_survey_responses.user_id = U.id
+      INNER JOIN wk_surveys AS S ON S.id = wk_survey_responses.survey_id")
+    .where(" S.id = #{survey_id} AND (wk_survey_responses.user_id = #{User.current.id} 
+      OR (U.parent_id = #{(User.current.id).to_s} AND S.is_review IS TRUE))" + condStr)
     .order("status_date DESC")
     .select("wk_survey_responses.id, ST.status, ST.status_date").first
   end
