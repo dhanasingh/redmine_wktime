@@ -43,7 +43,7 @@ require 'csv'
 			issueId = listboxArr[0]
 			sqlStr = getListQueryStr + " where u.type = 'User' and (wu.termination_date is null or wu.termination_date >= '#{lastMonthStartDt}')"
 		end
-		if !isAccountUser
+		if !validateERPPermission('A_TE_PRVLG')
 			sqlStr = sqlStr + " and u.id = #{User.current.id} " 
 		end
 		if !@status.blank?
@@ -75,7 +75,7 @@ require 'csv'
 		group_id = session[:wkattendance][:group_id]
 		status = session[:wkattendance][:status]
 		
-		if user_id.blank? || !isAccountUser
+		if user_id.blank? || !validateERPPermission('A_TE_PRVLG')
 		   ids = User.current.id
 		elsif user_id.to_i != 0 && group_id.to_i == 0
 		   ids = user_id.to_i
@@ -340,7 +340,7 @@ require 'csv'
 	def check_permission
 		ret = false
 		ret = params[:user_id].to_i == User.current.id
-		return (ret || isAccountUser)
+		return (ret || validateERPPermission('A_TE_PRVLG'))
 	end
 	
 	def getProjectByIssue

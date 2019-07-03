@@ -7,6 +7,7 @@
 		selectedPTId = @payment.blank? ? nil : @payment.payment_type_id
 		totalAmount = nil
 		currency = nil
+		orgCurrency = nil
 		if @payment.blank?
 			parentType = params[:related_to]
 			parentId = params[:related_parent]
@@ -16,6 +17,7 @@
 				totalInvAmount = @accInvoices.to_a.sum(&:total_invoice_amount)
 				totalPaidAmount = @accInvoices.to_a.sum(&:total_paid_amount)
 				currency = @accInvoices[0].invoice_items[0].currency
+				orgCurrency = @accInvoices[0].invoice_items[0].original_currency
 				totalSubAmount = totalInvAmount - totalPaidAmount
 				totalAmount = totalSubAmount if totalSubAmount > 0
 			end
@@ -27,6 +29,7 @@
 			creditIssued = isCreditIssued(@payment.id)
 			totalAmount = @payment.payment_items.current_items.sum(:amount)
 			currency = @payment.payment_items.current_items[0].currency
+			orgCurrency = @payment.payment_items.current_items[0].original_currency
 		end
 		
 		paytotalAmount = 0
@@ -39,12 +42,12 @@
 		unless payList.blank?
 			payList.each do |entry|
 				if entry.class.name == 'WkInvoice'
-					invoiceAmount = entry.invoice_items.sum(:amount)
-					paidAmount = entry.payment_items.current_items.sum(:amount)
+					invoiceAmount = entry.invoice_items.sum(:original_amount)
+					paidAmount = entry.payment_items.current_items.sum(:original_amount)
 					next unless invoiceAmount - paidAmount > 0 && invoiceAmount > 0
 					currentPaidAmt = invoiceAmount - paidAmount
 				else
-					currentPaidAmt = entry.amount
+					currentPaidAmt = entry.original_amount
 				end
 				paytotalAmount = paytotalAmount + currentPaidAmt unless currentPaidAmt.blank?
 			end
@@ -57,7 +60,7 @@
 			<tr>
 			<%= render partial: "wkpaymententity/payment_filter", locals: { projectId: projectId, parentType: parentType, parentId: parentId, needBlankAcc: false, showProject: false, isDisable: isDisable }%>
 			<th align="left"><%= l(:label_total) %></th> 
-			<td align="left" style="padding-left:40px;"> <%= currency.to_s + " " + paytotalAmount.to_s %> </td>
+			<td align="left" style="padding-left:40px;"> <%= orgCurrency.to_s + " " + paytotalAmount.to_s %> </td>
 			</tr>
 		
 	<% end %>

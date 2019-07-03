@@ -1,15 +1,30 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'survey', :plugin => "redmine_wktime" %>
 
 <%= title l(@isSurvey ? :label_survey : :label_survey_result) %>
-<h3><%= l(:label_survey_name) %>:&nbsp;&nbsp; <%= @survey_details.name %></h3>
+<h3><%= l(:label_survey_name) %>:&nbsp;&nbsp; <%= @survey.name %></h3>
 
-<% unless @closed_surveyed_Entries.blank? && @question_Entries.blank? %>
+<% if @reviewer %>
+<fieldset class="box tabular">
+	<% response_id = !params[:response_id].blank? ? params[:response_id] : (!@response_status.blank? && @responseStatus == "O" ? @response_status.id : nil) %>
+	<%= form_tag({:controller => 'wksurvey', :action => 'update_status'}, :method => :post) do %>
+		<%=h hidden_field_tag("survey_response_id", response_id) %>
+		<%=h hidden_field_tag("survey_id", @survey.id) %>
+		<table>
+			<tr>
+				<th align="left"><%= l(:label_response_status) %></th>
+				<th align="left" style="padding-left:10px;"><%= select_tag('response_status', options_for_select(getResponseStatus, :selected => @responseStatus)) %></th>
+				<th style="padding-left:10px;"><%= submit_tag l(:button_submit) %></th>
+			</tr>
+		</table>
+	<% end %>
+</fieldset>
+<% end %>
+
+<% unless @survey_result_Entries.blank? && @question_Entries.blank? %>
 	<fieldset class="box tabular">
 		<% if  @isSurvey %>
 			<%= render :partial => "survey" %>
-			<% content_for :sidebar do %>
-				<%= render :partial => 'sidebar' %>
-			<% end %>
 		<% else %>
 			<%= render :partial => "survey_result" %>
 		<% end %>

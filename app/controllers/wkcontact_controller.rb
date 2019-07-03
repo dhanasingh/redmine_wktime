@@ -8,6 +8,7 @@ class WkcontactController < WkcrmController
 		accountId =  session[controller_name][:account_id]
 		locationId = session[controller_name][:location_id]
 		wkcontact = nil
+		location = WkLocation.where(:is_default => 'true').first
 		if !contactName.blank? &&  !accountId.blank? 
 			if accountId == 'AA'
 				wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where.not(:account_id => nil).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
@@ -27,8 +28,9 @@ class WkcontactController < WkcrmController
 		else
 			wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => nil)
 		end	
-		if !locationId.blank?
-			wkcontact = wkcontact.where("wk_crm_contacts.location_id = ? ", locationId.to_i)
+		if (!locationId.blank? || !location.blank?) && locationId != "0"
+			location_id = !locationId.blank? ? locationId.to_i : location.id.to_i
+			wkcontact = wkcontact.where("wk_crm_contacts.location_id = ? ", location_id)
 		end
 		formPagination(wkcontact)
 	end
@@ -63,7 +65,7 @@ class WkcontactController < WkcrmController
 		wkContact.account_id = params[:related_parent] if params[:related_to] == "WkAccount"
 		wkContact.contact_id = params[:related_parent] if params[:related_to] == "WkCrmContact"
 		wkContact.relationship_id = params[:relationship_id]
-		wkContact.location_id = params[:location_id]
+		wkContact.location_id = params[:location_id] if params[:location_id] != "0"
 		wkContact.contact_type = getContactType
 		wkContact.created_by_user_id = User.current.id if wkContact.new_record?
 		wkContact.updated_by_user_id = User.current.id

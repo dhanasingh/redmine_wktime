@@ -8,6 +8,7 @@
 	wkSchedulingUrl = '<%=url_for(:controller => "wkscheduling", :action => "index", :tab => "wkscheduling")%>';
 	wkShiftUrl = '<%=url_for(:controller => "wkshift", :action => "index", :tab => "wkshift")%>';  
 	wkPublicHolidayUrl = '<%=url_for(:controller => "wkpublicholiday", :action => "index", :tab => "wkpublicholiday")%>';
+	wkSurveyUrl = '<%=url_for(:controller => "wksurvey", :action => "user_survey", :tab => "wksurvey", :surveyForType => 'User')%>';
        
 	grpUrl="<%= "#{url_for(:controller => "wkpayroll", :action => 'getMembersbyGroup')}" %>";
 		//getMembersbyGroup
@@ -25,7 +26,7 @@
 		userid =session[:wkpayroll][:user_id] %>	
 		<table>
 		
-			<% if wktime_helper.isAccountUser %>
+			<% if wktime_helper.validateERPPermission('A_TE_PRVLG') %>
 			<tr>
 			<th><%=l(:label_group_plural)%> </th>
 			<% if !@groups.blank? %>

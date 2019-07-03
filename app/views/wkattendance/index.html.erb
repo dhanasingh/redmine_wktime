@@ -7,6 +7,7 @@
 	wkSchedulingUrl = '<%=url_for(:controller => "wkscheduling", :action => "index", :tab => "wkscheduling")%>';
 	wkShiftUrl = '<%=url_for(:controller => "wkshift", :action => "index", :tab => "wkshift")%>'; 
 	wkPublicHolidayUrl = '<%=url_for(:controller => "wkpublicholiday", :action => "index", :tab => "wkpublicholiday")%>';
+	wkSurveyUrl = '<%=url_for(:controller => "wksurvey", :action => "user_survey", :tab => "wksurvey", :surveyForType => 'User')%>';
 </script>
 
 <%= render_tabs time_expense_tabs %>

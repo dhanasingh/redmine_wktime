@@ -34,7 +34,7 @@ include WkcrmenumerationHelper
 		# For Account table
 		wkaccount.name = params[:account_name]
 		wkaccount.description = params[:description]
-		wkaccount.location_id = params[:location_id]
+		wkaccount.location_id = params[:location_id] if params[:location_id] != "0"
 		if params[:lead_id].blank? || params[:lead_id].to_i == 0
 			wkLead = WkLead.new
 			wkContact = WkCrmContact.new
@@ -58,7 +58,7 @@ include WkcrmenumerationHelper
 		wkContact.description = params[:description]
 		wkContact.department = params[:department]
 		wkContact.salutation = params[:salutation]
-		wkContact.location_id = params[:location_id]
+		wkContact.location_id = params[:location_id] if params[:location_id] != "0"
 		wkContact.created_by_user_id = User.current.id if wkContact.new_record?
 		wkContact.updated_by_user_id = User.current.id
 		if wkContact.valid?

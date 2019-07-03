@@ -8,6 +8,7 @@ include WkinvoiceHelper
 include WkbillingHelper
 include WkorderentityHelper
 include WkreportHelper
+include WkgltransactionHelper
 
 	def index
 		@projects = nil
@@ -103,7 +104,7 @@ include WkreportHelper
 			end
 		else	
 			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
-			sqlwhere = " invoice_type = '#{getInvoiceType}'"	
+			sqlwhere = sqlwhere + " invoice_type = '#{getInvoiceType}'"	
 			if !@from.blank? && !@to.blank?			
 				sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
 				sqlwhere = sqlwhere + " invoice_date between '#{@from}' and '#{@to}'  "
@@ -268,12 +269,12 @@ include WkreportHelper
 			unless params["item_id#{i}"].blank?			
 				arrId.delete(params["item_id#{i}"].to_i)
 				invoiceItem = WkInvoiceItem.find(params["item_id#{i}"].to_i)
-				amount = params["rate#{i}"].to_f * params["quantity#{i}"].to_f
-				updatedItem = updateInvoiceItem(invoiceItem, pjtId,  params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, invoiceItem.currency, itemType, amount, crInvoiceId, crPaymentId, params["product_id#{i}"])
+				org_amount = params["rate#{i}"].to_f * params["quantity#{i}"].to_f
+				updatedItem = updateInvoiceItem(invoiceItem, pjtId,  params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, invoiceItem.original_currency, itemType, org_amount, crInvoiceId, crPaymentId, params["product_id#{i}"])
 			else				
 				invoiceItem = @invoice.invoice_items.new
-				amount = params["rate#{i}"].to_f * params["quantity#{i}"].to_f
-				updatedItem = updateInvoiceItem(invoiceItem, pjtId, params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, params["currency#{i}"], itemType, amount, crInvoiceId, crPaymentId, params["product_id#{i}"])
+				org_amount = params["rate#{i}"].to_f * params["quantity#{i}"].to_f
+				updatedItem = updateInvoiceItem(invoiceItem, pjtId, params["name#{i}"], params["rate#{i}"].to_f, params["quantity#{i}"].to_f, params["original_currency#{i}"], itemType, org_amount, crInvoiceId, crPaymentId, params["product_id#{i}"])
 			end
 			if !params[:populate_unbilled].blank? && params[:populate_unbilled] == "true" && params[:creditfrominvoice].blank? && !params["entry_id#{i}"].blank?
 				accProject = WkAccountProject.where(:project_id => pjtId)
@@ -297,7 +298,7 @@ include WkreportHelper
 				# matterialEntry.save
 			end
 			savedRows = savedRows + 1
-			tothash[updatedItem.project_id] = [(tothash[updatedItem.project_id].blank? ? 0 : tothash[updatedItem.project_id][0]) + updatedItem.amount, updatedItem.currency] if updatedItem.item_type != 'm'
+			tothash[updatedItem.project_id] = [(tothash[updatedItem.project_id].blank? ? 0 : tothash[updatedItem.project_id][0]) + updatedItem.original_amount, updatedItem.original_currency] if updatedItem.item_type != 'm'
 			
 			unless params["product_id#{i}"].blank?
 				productId = params["product_id#{i}"]
@@ -336,8 +337,8 @@ include WkreportHelper
 		
 		unless @invoice.id.blank?
 			saveOrderRelations
-			totalAmount = @invoice.invoice_items.sum(:amount)
-			invoiceAmount = @invoice.invoice_items.where.not(:item_type => 'm').sum(:amount)
+			totalAmount = @invoice.invoice_items.sum(:original_amount)
+			invoiceAmount = @invoice.invoice_items.where.not(:item_type => 'm').sum(:original_amount)
 			
 			moduleAmtHash = {'inventory' => [nil, totalAmount.round - invoiceAmount.round], getAutoPostModule => [totalAmount.round, invoiceAmount.round]}
 			inverseModuleArr = ['inventory']
@@ -347,7 +348,7 @@ include WkreportHelper
 			end
 			if totalAmount > 0 && autoPostGL(getAutoPostModule) && postableInvoice
 				transId = @invoice.gl_transaction.blank? ? nil : @invoice.gl_transaction.id
-				glTransaction = postToGlTransaction(getAutoPostModule, transId, @invoice.invoice_date, transAmountArr, @invoice.invoice_items[0].currency, invoiceDesc(@invoice,invoiceAmount), nil)
+				glTransaction = postToGlTransaction(getAutoPostModule, transId, @invoice.invoice_date, transAmountArr, @invoice.invoice_items[0].original_currency, invoiceDesc(@invoice,invoiceAmount), nil)
 				unless glTransaction.blank?
 					@invoice.gl_transaction_id = glTransaction.id
 					@invoice.save

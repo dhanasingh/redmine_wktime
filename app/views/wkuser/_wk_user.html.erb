@@ -16,6 +16,7 @@
 	shiftArr.unshift(["",''])
 %>
 </fieldset>
+<% if(Setting.plugin_redmine_wktime['label_no_additional_details_for_user'].blank? && Setting.plugin_redmine_wktime['label_no_additional_details_for_user'].to_i == 0) %>
 <div >
 	<fieldset class="box tabular">
 		<legend><%=l(:label_details)%></legend>				
@@ -29,14 +30,14 @@
 			<%= calendar_for('erpmine_birth_date') %>	
 			<% unless myaccount %>
 				<p><%= user_fields.text_field :billing_rate, :disabled => disable %></p>			
-				<p><%= user_fields.select :billing_currency, currArr, :disabled => disable %></p>
+				<p><%= user_fields.select :billing_currency, currArr, {}, :disabled => disable %></p>
 			<% end %>
-			<p><%= user_fields.select :role_id, roleArr, :disabled => disable %></p>
-			<p><%= user_fields.select :gender, genderHash.invert, :disabled => disable %></p>
-			<p><%= user_fields.select :location_id, locationArr, :disabled => disable %></p>
-			<p><%= user_fields.select :department_id, departmentArr, :disabled => disable %></p>
+			<p><%= user_fields.select :role_id, roleArr, {}, :disabled => disable %></p>
+			<p><%= user_fields.select :gender, genderHash.invert, {}, :disabled => disable %></p>
+			<p><%= user_fields.select :location_id, locationArr, {}, :disabled => disable %></p>
+			<p><%= user_fields.select :department_id, departmentArr, {}, :disabled => disable %></p>
 			<p><%= user_fields.check_box :is_schedulable, :disabled => disable %></p>
-			<p><%= user_fields.select :shift_id, shiftArr, :disabled => disable %></p>
+			<p><%= user_fields.select :shift_id, shiftArr, {}, :disabled => disable %></p>
 			<p><%= user_fields.text_field :bank_name, :disabled => disable %></p>
 			<p><%= user_fields.text_field :account_number,  :disabled => disable %></p>
 			<p><%= user_fields.text_field :bank_code, :disabled => disable %></p>			
@@ -57,6 +58,7 @@
 		<% end %>		
 	</fieldset>
 </div>
+<% end %>
 <% if myaccount %>
 <script type="text/javascript">
 $(document).ready(function() {

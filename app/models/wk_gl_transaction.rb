@@ -22,4 +22,11 @@ class WkGlTransaction < ActiveRecord::Base
   has_many :gl_salaries, foreign_key: "gl_transaction_id", class_name: "WkGlSalary", :dependent => :destroy
   has_many :depreciations, foreign_key: "gl_transaction_id", class_name: "WkAssetDepreciation", :dependent => :nullify
   validates_presence_of :trans_date
+  
+  def trans_date=(date)
+    super
+    self.tyear = trans_date ? trans_date.cwyear : nil
+    self.tmonth = trans_date ? trans_date.month : nil
+    self.tweek = trans_date ? Date.civil(trans_date.year, trans_date.month, trans_date.day).cweek : nil
+  end
 end

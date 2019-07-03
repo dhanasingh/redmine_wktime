@@ -21,73 +21,79 @@
 					<% actualIds = actualIds.blank? ? entry.id.to_s  : (actualIds + "," + entry.id.to_s) %>
 				</td>
 			    <td>			 
-					<%= date_field_tag('holiday_date[]', entry.holiday_date, :required => true, :style => "width:150px;") %><%= calendar_for('holiday_date[]') %> 
+					<%= date_field_tag('holiday_date[]', entry.holiday_date, :required => true, :style => "width:150px;", :disabled => !validateERPPermission('A_TE_PRVLG')) %><%= calendar_for('holiday_date[]') %> 
 			    </td>
 				<td>
-					<%=h select_tag("location_id[]", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', entry.location_id, true), :style => "width:150px;") %>
+					<%=h select_tag("location_id[]", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', entry.location_id.nil? ? "" : entry.location_id , true), :style => "width:150px;", :disabled => !validateERPPermission('A_TE_PRVLG') ) %>
 				</td> 
 				<!--
 				<td>
 					<%#=h select_tag('department_id[]', options_for_select(options_for_enum_select('DP', entry.department_id, true)), :style => "width:120px;") %>
 				</td> -->
 			    <td>
-					<%= text_field_tag "description[]",  entry.description, :style => "width:150px;", :required => true  %>
-				</td>			        
-			 
-				<td class="buttons">
-					
-						<%= link_to(l(:button_delete), '#',
-							:class => 'delete-commit-keywords icon-only icon-del',
-							:title => l(:button_delete)) %>
-					
+					<%= text_field_tag "description[]",  entry.description, :style => "width:150px;", :required => true, :disabled => !validateERPPermission('A_TE_PRVLG')  %>
 				</td>
+				<% if validateERPPermission('A_TE_PRVLG') %>
+					<td class="buttons">
+						
+							<%= link_to(l(:button_delete), '#',
+								:class => 'delete-commit-keywords icon-only icon-del',
+								:title => l(:button_delete)) %>
+						
+					</td>
+				<% end %>
 			</tr>
 		<% end %>
 	<% else %>
-		<tr class="commit-keywords">
-			<td>
-				<%= hidden_field_tag "ph_id[]",  ""  %>				
-			</td>
-			<td>
-				<%= date_field_tag('holiday_date[]',Date.today.to_s, :style => "width:150px;", :required => true) %><%= calendar_for('holiday_date[]') %> 
-			</td>
-			<td>
-				<%=h select_tag("location_id[]", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', nil, true), :style => "width:150px;") %>
-			</td> 
-			<!--
-			<td>
-				<%#=h select_tag('department_id[]', options_for_select(options_for_enum_select('DP', nil, true)), :style => "width:150px;") %>
-			</td>
-			-->
-			<td>
-				<%=  
-				text_field_tag "description[]",  ""  , :required => true, :style => "width:150px;"  %>
-			</td>
-		 
-			<td class="buttons">
-				<%= link_to(l(:button_delete), '#',
-							:class => 'delete-commit-keywords icon-only icon-del',
-							:title => l(:button_delete)) %>
-			</td>
-		</tr>
+		<% if validateERPPermission('A_TE_PRVLG') %>
+			<tr class="commit-keywords">
+				<td>
+					<%= hidden_field_tag "ph_id[]",  ""  %>				
+				</td>
+				<td>
+					<%= date_field_tag('holiday_date[]',Date.today.to_s, :style => "width:150px;", :required => true) %><%= calendar_for('holiday_date[]') %> 
+				</td>
+				<td>
+					<%=h select_tag("location_id[]", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', nil, true), :style => "width:150px;") %>
+				</td> 
+				<!--
+				<td>
+					<%#=h select_tag('department_id[]', options_for_select(options_for_enum_select('DP', nil, true)), :style => "width:150px;") %>
+				</td>
+				-->
+				<td>
+					<%=  
+					text_field_tag "description[]",  ""  , :required => true, :style => "width:150px;"  %>
+				</td> 
+					<td class="buttons">
+						<%= link_to(l(:button_delete), '#',
+									:class => 'delete-commit-keywords icon-only icon-del',
+									:title => l(:button_delete)) %>
+					</td>
+			</tr>
+		<% end %>
 	<% end %>
     <tr>
       <td></td>
 	  <td></td>
 	  
 	  <td></td>
-      <td></td>      
-      <td class="buttons">
-        <%= link_to(l(:button_add), '#',
-                    :class => 'add-commit-keywords icon-only icon-add',
-                    :title => l(:button_add)) %>
-      </td>
+			<td></td>
+			<% if validateERPPermission('A_TE_PRVLG') %>     
+				<td class="buttons">
+					<%= link_to(l(:button_add), '#',
+											:class => 'add-commit-keywords icon-only icon-add',
+											:title => l(:button_add)) %>
+				</td>
+			<% end %>
     </tr>
   </tbody>
 </table>
 <%= hidden_field_tag "actual_ids",  actualIds  %>
 <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
-<p><%= submit_tag l(:button_save) %></p>
+<% if validateERPPermission('A_TE_PRVLG') %>
+		<p><%= submit_tag l(:button_save) %></p>
+	<% end %>
 <% end %>
 
 <%= javascript_tag do %>

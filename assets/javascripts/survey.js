@@ -7,7 +7,7 @@ $(function()
 	});
 
 	$('[id^=question_type_]').each(function(){
-		check_question_type(((this.name).split('_'))[2]);
+		question_type_changed(((this.name).split('_'))[2]);
 	});
 
 	if($('#survey_status').val() != 'O')
@@ -84,10 +84,23 @@ $(function()
 			}
 		}]
 	});
+	
 	showHideRecurEvery();
 	$('#recur').change(function(){
 		showHideRecurEvery();
 	});
+
+	$('#review').on('change', function(){
+		if($('#review:checked').val())
+			$('.revieweronly').show();
+		else{
+			$('.revieweronly').hide();
+			$("input[id^='reviewerOnly_']").each(function(){
+				$(this).prop("checked", false);
+			});
+		}
+	});
+	$('#review').trigger("change");
 });
 
 function addrows(qINDEX, qID)
@@ -123,7 +136,7 @@ function addquestion()
 	var clonedDiv = $('#add_question_template').html();
 	if($(".surveyquestions").length > 1){
 		var lastEleName = $('[id^=questionName_]').eq(-2).attr('name');
-		var namearr = lastEleName.split("_");console.log(namearr)
+		var namearr = lastEleName.split("_");
 		var qID = parseInt(namearr[2]) + 1;
 	}
 	else{
@@ -156,16 +169,30 @@ function reOrderIndex(){
 	});
 }
 
-function check_question_type(qIndex){
+function question_type_changed(qIndex){
 	var question_type = $('#question_type_'+qIndex).val();
 	$('[id^=questionChoices_]').each(function(){
 		var ele_index = ((this.name).split('_'))[2];
 		var choice_id = ((this.name).split('_'))[3];
-		var question_id = ((this.name).split('_'))[3];
+		var choice_index = ((this.name).split('_'))[4];
+		var quesID = ((this.name).split('_'))[1];
 
 		if((question_type == 'TB' || question_type == 'MTB') && ele_index == qIndex){
 			$(this).parents('tr').hide();
 			$('[id^=lastrow_'+qIndex+']').hide();
+			if(!$('#lastColQuesType_'+qIndex).children().length){
+				if($('#points_'+qIndex+':first').length){
+					var clonedDiv = $('#points_'+qIndex+':first').html();
+				}
+				else{
+					var clonedDiv = $('#points_QINDEX').html();
+					clonedDiv = clonedDiv.replace(/\QINDEX/g,qIndex);
+				}
+				$('#lastColQuesType_'+qIndex).html(clonedDiv);
+				$('#points_'+quesID+'_'+ele_index+'_'+choice_id+'_'+choice_index).attr('name','qpoints_'+qIndex);
+				$('#points_'+quesID+'_'+ele_index+'_'+choice_id+'_'+choice_index).attr('id','qpoints_'+qIndex);
+				$('#allowPoints_'+qIndex).val(true);
+			}
 
 			if(choice_id != ''){
 				$('#deleteChoiceIds_' + qIndex).val(function(){
@@ -185,6 +212,7 @@ function check_question_type(qIndex){
 		else if(ele_index == qIndex){
 			$(this).parents('tr').show();
 			$('[id^=lastrow_'+qIndex+']').show();
+			$('#lastColQuesType_'+qIndex).html("");
 
 			if(choice_id != '' && $('#deleteChoiceIds_' + qIndex).val() != ''){
 				$('#deleteChoiceIds_' + qIndex).val(function(){
@@ -207,7 +235,7 @@ function validateSurveyFor(){
 	var surveyFor = $('#survey_for').val();
 	var surveyForID = $('#survey_for_id').val();
 	if(surveyForID != '' && surveyFor != ''){
-	var URL = "/wksurvey/survey_for_auto_complete?surveyFor="+ surveyFor +"&surveyForID="+surveyForID+"&method=filter";
+	var URL = "/wksurvey/find_survey_for?surveyFor="+ surveyFor +"&surveyForID="+surveyForID+"&method=filter";
       $.ajax({
         url: URL,
 		type: 'get',
@@ -232,9 +260,8 @@ function validateSurveyFor(){
 	}
 }
 
-observeAutocompleteField('survey_for_id',
-	function(request, callback) {
-		var url = "/wksurvey/survey_for_auto_complete?surveyFor="+ $('#survey_for').val() +"&surveyForID="+ $('#survey_for_id').val()+"&method=search";
+observeAutocompleteField('survey_for_id',	function(request, callback) {
+		var url = "/wksurvey/find_survey_for?surveyFor="+ $('#survey_for').val() +"&surveyForID="+ $('#survey_for_id').val()+"&method=search";
 		var data = {
 			term: request.term
 		};
@@ -270,8 +297,55 @@ function validateEmail($email) {
 }
 
 function showHideRecurEvery(){
-	if($("#recur").prop("checked"))
+	if($("#recur").prop("checked")){
 		$("#tr_recur_every").show();
-	else
+		$("#recur_every").prop('required', true);
+	}
+	else{
 		$("#tr_recur_every").hide();
+		$("#recur_every").prop('required', false);
+	}
+}
+
+function survey_submit(){
+	$("[name^='survey_sel_choice_']").each(function(){
+		$(this).prop('required', false);
+	});
+	$("#commit").val("Save");
+	$("#survey_form").submit();
+}
+
+function validation(){
+	isUnAnswered = false;
+	$("[name^='survey_sel_choice_']").each(function(){
+		if($(this).prop('required')){
+			switch(this.type) {
+				case "text":
+					if($(this).val() == ""){
+						isUnAnswered = true;
+						return false;
+					}
+				break;
+				case "radio":
+					if(!$.isNumeric($("input[name='"+this.name+"']:checked").val())){
+						isUnAnswered = true;
+						return false;
+					}
+				break;
+				case "textarea":
+					if($(this).val() == ""){
+						isUnAnswered = true;
+						return false;
+					}
+				break;
+			}
+		}
+	});
+	if(!isUnAnswered && confirm("Are you sure you want to submit the survey? Once you submit, You won't able to edit again")){
+		$("#commit").val("Submit");
+		$("#survey_form").submit();
+	}
+	else if(isUnAnswered){
+		alert("Please must answer the mandatory questions");
+	}
 }

@@ -93,7 +93,7 @@ module WkattendanceHelper
 			if !entries.blank?				
 				entries.each do |entry|				
 					userJoinDate = entry.join_date.blank? ? entry.created_on.to_date : entry.join_date.to_date
-					yearDiff = ((Date.today - userJoinDate).to_i / 365.0)
+					yearDiff = (((currentMonthStart - 1) - userJoinDate).to_i / 365.0)
 					accrualAfter = leaveAccAfter["#{entry.issue_id}"].to_f						
 					includeAccrual = yearDiff >= accrualAfter ? true : false
 					accrual = leaveAccrual["#{entry.issue_id}"].to_f
@@ -191,7 +191,7 @@ module WkattendanceHelper
 	
 	def getLeaveQueryStr(from,to)
 		queryStr = "select * from wk_user_leaves WHERE issue_id in (#{getLeaveIssueIds}) and accrual_on between '#{from}' and '#{to}'"
-		if !(isAccountUser || User.current.admin?)
+		if !(validateERPPermission('A_TE_PRVLG') || User.current.admin?)
 			queryStr = queryStr + " and user_id = #{User.current.id} "
 		end
 		queryStr

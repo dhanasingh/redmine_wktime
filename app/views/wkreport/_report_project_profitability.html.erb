@@ -1,0 +1,263 @@
+<% 
+	userId = session[:wkreport][:user_id].blank? ? 0 : session[:wkreport][:user_id]
+	groupId = session[:wkreport][:group_id].blank? ? 0 : session[:wkreport][:group_id]
+	projectId = session[:wkreport][:project_id].blank? ? 0 : session[:wkreport][:project_id]
+	currency = Setting.plugin_redmine_wktime['wktime_currency']
+	from = session[:wkreport][:from]
+	to = session[:wkreport][:to]
+	te_from = from -1.month
+	te_to = to -1.month
+ 	betwn_mnth_count = getInBtwMonthsArr(from, to)
+
+    if betwn_mnth_count.length > 12
+        from = Date.civil(to.year,to.month, 1) - 11.month
+		to = Date.civil((to + 1.month).year,(to + 1.month).month, 1) - 1
+		te_from = Date.civil(te_to.year,te_to.month, 1) - 11.month
+        te_to = Date.civil((te_to + 1.month).year,(te_to + 1.month).month, 1) - 1
+    else
+	    from = Date.civil(from.year,from.month, 1)
+		to = Date.civil((to + 1.month).year,(to + 1.month).month, 1) - 1
+		te_from = Date.civil(te_from.year,te_from.month, 1)
+        te_to = Date.civil((te_to + 1.month).year,(te_to + 1.month).month, 1) - 1
+	end
+
+	inBtwMonths = getInBtwMonthsArr(from, to)
+	columnCount = inBtwMonths.length
+	queryStr = "SELECT U.id as user_id, U.firstname as firstname, U.lastname as lastname, SC.name as component_name, SC.id as sc_component_id, 
+			S.salary_date as salary_date, S.amount as amount, S.currency as currency, SC.component_type as component_type, M.project_id
+		FROM wk_salaries AS S
+		INNER JOIN wk_salary_components AS SC on S.salary_component_id=SC.id
+		INNER JOIN users AS U on S.user_id=U.id
+		INNER JOIN members AS M ON M.user_id = U.id
+		INNER JOIN wk_projects AS P ON P.project_id = M.project_id AND P.is_billable IS TRUE
+		WHERE S.salary_date  BETWEEN '#{from}' AND '#{to}'
+		ORDER BY M.user_id, M.project_id"
+
+	@salary_data = WkSalary.find_by_sql(queryStr)
+
+	te_details = "SELECT M.user_id, M.project_id, SUM(TE.hours) AS proj_hours, UT.spent_month, UT.spent_year, UT.user_hours
+		FROM time_entries AS TE
+		INNER JOIN(
+			SELECT TE.user_id, SUM(TE.hours) AS user_hours, extract(month from TE.spent_on) AS spent_month,
+				extract(year from TE.spent_on) AS spent_year
+					FROM time_entries AS TE
+			LEFT JOIN members AS M ON M.user_id = TE.user_id AND M.project_id = TE.project_id 
+			AND TE.spent_on BETWEEN  '#{te_from}' AND '#{te_to}'
+			GROUP BY TE.user_id, spent_month, spent_year
+				) AS UT ON UT.user_id = TE.user_id AND UT.spent_year = extract(year from TE.spent_on) 
+				AND UT.spent_month = extract(month from TE.spent_on) AND TE.spent_on BETWEEN  '#{te_from}' AND '#{te_to}'
+		RIGHT JOIN members AS M ON M.user_id = TE.user_id AND M.project_id = TE.project_id
+		GROUP BY M.user_id, M.project_id, UT.spent_month, UT.spent_year, UT.user_hours "
+
+	@time_entries = TimeEntry.find_by_sql(te_details)
+
+	invoice_details = "	SELECT SUM(II.amount) AS invoice_amt, EXTRACT(MONTH FROM I.invoice_date) AS inv_month,
+			EXTRACT(YEAR FROM I.invoice_date) AS inv_year, II.project_id, WP.profit_overhead_percentage, P.name
+		FROM wk_invoices AS I
+		INNER JOIN wk_invoice_items AS II ON II.invoice_id = I.id
+		INNER JOIN wk_projects AS WP ON WP.project_id = II.project_id AND WP.is_billable IS TRUE
+		INNER JOIN projects AS P ON II.project_id = P.id
+		WHERE I.invoice_type = 'I' AND I.invoice_date BETWEEN '#{from}' AND '#{to}' "
+										
+		if projectId.to_i > 0
+			invoice_details = invoice_details + "AND II.project_id = #{projectId} "
+		end
+
+	invoice_details	= invoice_details + " GROUP BY EXTRACT(MONTH FROM I.invoice_date), EXTRACT(YEAR FROM I.invoice_date), II.project_id, WP.profit_overhead_percentage, P.name"
+
+	invoice_details = WkInvoice.find_by_sql(invoice_details)
+
+	billable_projects = "SELECT WP.project_id, P.name
+							FROM wk_projects AS WP
+							INNER JOIN projects AS P ON WP.project_id = P.id
+							WHERE is_billable IS TRUE "
+	if projectId.to_i > 0
+		billable_projects = billable_projects + "AND WP.project_id = #{projectId} "	
+	end
+	@billable_projects = WkProject.find_by_sql(billable_projects)
+
+	payrollAmount = Array.new
+	@salary_data.each do |entry|
+		payrollAmount << {:project_id => entry.project_id, :user_id => entry.user_id, :component_id => entry.sc_component_id, :amount => (entry.amount).round, :currency => entry.currency, :salary_date => entry.salary_date}
+	end
+
+	form_salaries_hash(payrollAmount, userId)
+
+	proj_expense = Hash.new
+	inBtwMonths.each do |monthVal|
+		@time_entries.each do |tme_details|
+			key = tme_details.user_id.to_s + "_" + monthVal.last.to_i.to_s + "_" + (monthVal.first).to_s+ "_" + tme_details.project_id.to_s
+			inv_key = monthVal.last.to_i.to_s + "_" + (monthVal.first).to_s+ "_" + tme_details.project_id.to_s
+			unless @payrollEntries[key].blank?
+				user_salaries = @payrollEntries[key][:BT] + @payrollEntries[key][:AT]
+				if !tme_details.user_hours.blank?
+					proj_expense[inv_key] = proj_expense[inv_key].to_i + ((tme_details.proj_hours/tme_details.user_hours)*user_salaries).round(2)
+				else
+					proj_expense[inv_key] =  proj_expense[inv_key].to_i
+				end		
+			end
+		end
+	end
+	detail_entries = Hash.new
+	col_total = Hash.new
+	row_total = Hash.new
+	grand_total = Hash.new
+	invoice_details.each do |invoice|
+		key = invoice.inv_month.to_i.to_s + "_" + invoice.inv_year.to_i.to_s + "_" + invoice.project_id.to_s
+		col_key = invoice.inv_month.to_i.to_s + "_" + invoice.inv_year.to_i.to_s
+		row_key = invoice.project_id.to_s
+		over_head = invoice.profit_overhead_percentage.blank? ? 0 : invoice.profit_overhead_percentage
+		if detail_entries[key].blank?
+			detail_entries[key] = {:revenue => 0, :expense => 0, :profit => 0, :profit_percentage => 0}
+		end
+		if col_total[col_key].blank?
+			col_total[col_key] = {:income => 0, :expense => 0}
+		end
+		if row_total[row_key].blank?
+			row_total[row_key] = {:income => 0, :expense => 0}
+		end
+		if grand_total.blank?
+			grand_total = {:income => 0, :expense => 0}
+		end
+			proj_expense[key] = proj_expense[key].blank? ? 0 : proj_expense[key]
+			revenue = invoice.invoice_amt
+			expense = ((proj_expense[key]*over_head)/100).round(2)
+			org_expense = proj_expense[key] + expense
+			profit = revenue - org_expense
+			profit_percentage = ((profit/revenue)*100).round(2)
+			profit_percentage = profit_percentage > 0 ? profit_percentage : 0
+			detail_entries[key] = {:revenue => revenue, :expense => org_expense, :profit => profit, :profit_percentage => profit_percentage }
+			col_total[col_key][:income] = col_total[col_key][:income] + revenue
+			col_total[col_key][:expense] = col_total[col_key][:expense] + org_expense
+			row_total[row_key][:income] = row_total[row_key][:income] + revenue
+			row_total[row_key][:expense] = row_total[row_key][:expense] + org_expense
+			grand_total[:income] = grand_total[:income] + revenue
+			grand_total[:expense] = grand_total[:expense] + org_expense
+	end
+%>
+
+<div id="attn-rpt-dlg", style="overflow-x:auto;">
+	<div style="float:left; width:90%;">
+		<p style="text-align: center;">
+			<caption style="text-align:center"><b>
+				<%= getMainLocation %><br><%= l(:report_project_profitability) %></b></br>
+				<%= from.to_formatted_s(:long) + " " + l(:label_date_to) + " " + to.to_formatted_s(:long)%>
+			</caption>
+		</p>
+	</div>
+	<div style="float:right">
+		<table>
+			<tr>
+				<td>
+					<% logo = Setting.plugin_redmine_wktime['wktime_header_logo'] %>
+						<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>	
+						<%= image_tag("#{logo}", :plugin => "redmine_wktime") %>
+					<% end %>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<table style="width:100%;">
+		<thead bgcolor="#e6e6e6">
+			<tr style="border-bottom: solid thin;border-top: solid thin;">
+				<th align="center" ><%= l(:label_project) %></th>
+				<% inBtwMonths.each do |monthVal| %>
+					<th align="center"><%= monthVal[0]%><br/><%= I18n.t("date.abbr_month_names")[monthVal[1]]%></th>
+				<% end %>
+				<th align="center" ><%= l(:label_total) %></th>
+			</tr>
+		</thead>
+		
+		<tbody>
+			<% @billable_projects.each do |project| %>
+				<% row_key = project.project_id.to_s %>
+				<tr style="width:100%;">
+					<td></td>
+					<td colspan="<%= columnCount+2%>" style="border-bottom: solid thin;"></td>
+				</tr>				
+				<tr style="width:100%;">
+					<td align="left" >
+						<ul style="list-style-type:none;">
+							<li align="left"><b><%= project.name%></b></li>
+							<li align="right"><%=h l(:label_revenue) %></li>
+							<li align="right"><%=h l(:label_wkexpense) %></li>
+							<li align="right"><%=h l(:label_profit) %></li>
+						</ul>
+					</td>
+					<% inBtwMonths.each do |monthVal| %>
+						<%  key = monthVal.last.to_i.to_s + "_" + (monthVal.first).to_s + "_" + project.project_id.to_s  %>
+							<td><ul style="list-style-type:none;">
+								<%
+									if detail_entries[key].blank? 
+										detail_entries[key] = {:revenue => 0, :expense => 0, :profit => 0, :profit_percentage => 0}
+									end
+								%>
+								<br>
+								<li align="center"><%= currency %>&nbsp;<%=h html_hours("%.2f" % detail_entries[key][:revenue]) %></li>
+
+								<li align="center"><%= currency %>&nbsp;<%=h html_hours("%.2f" % detail_entries[key][:expense]) %></li>
+
+								<li align="center"><%= currency %>&nbsp;<%=h html_hours("%.2f" % detail_entries[key][:profit] ) %>&nbsp;<%= "(" + detail_entries[key][:profit_percentage].to_s + "%)" %></li>
+							</ul></td>
+					<% end %>
+					<td><ul style="list-style-type:none;">
+						<%
+							if row_total[row_key].blank?
+								row_total[row_key] = {:income => 0, :expense => 0 }
+							end
+						%>
+						<br>
+						<li align="center"><b><%= currency %>&nbsp;<%=h html_hours("%.2f" % row_total[row_key][:income]) %></li>
+						<li align="center"><b><%= currency %>&nbsp;<%=h html_hours("%.2f" % row_total[row_key][:expense]) %></li>
+						<% profit = (row_total[row_key][:income] - row_total[row_key][:expense]) %>
+						<% percentage = ((profit/row_total[row_key][:income])*100).round(2) unless row_total[row_key][:income] == 0 %>
+						<% percentage = percentage.blank? ? 0 : percentage %>
+						<% percentage = percentage > 0 ? percentage : 0 %>
+						<li align="center"><b><%= currency %>&nbsp;<%=h html_hours("%.2f" % profit) %>&nbsp;<%= "(" + percentage.to_s + "%)" %></li>
+					</ul></td>
+				</tr>
+			<% end %>
+
+			<tr style="width:100%;">
+				<td></td>
+				<td colspan="<%= columnCount+2%>" style="border-bottom: solid medium;"></td>
+			</tr>
+			<tr style="width:100%;">
+				<td align="left">
+					<ul style="list-style-type:none;">
+					<li align="center"><b><%=h l(:label_total) %></b></li>
+					<li align="right"><b><%=h l(:label_profit) %></b></li>
+				</ul></td>
+				<% inBtwMonths.each do |monthVal| %>
+					<%  col_key = monthVal.last.to_i.to_s + "_" + (monthVal.first).to_s %>
+					<td><ul style="list-style-type:none;">
+						<%
+							if col_total[col_key].blank?
+								col_total[col_key] = {:income => 0, :expense => 0 }
+							end
+						%>
+						<br>
+						<% profit = (col_total[col_key][:income] - col_total[col_key][:expense]) %>
+						<% percentage = ((profit/col_total[col_key][:income])*100).round(2) unless col_total[col_key][:income] == 0 %>
+						<% percentage = percentage.blank? ? 0 : percentage %>
+						<% percentage = percentage > 0 ? percentage : 0 %>
+						<li align="center"><b><%= currency %>&nbsp;<%=h html_hours("%.2f" % profit ) %>&nbsp;<%= "(" + percentage.to_s + "%)" %></b></li>
+					</ul></td>
+				<% end %>
+				<td><ul style="list-style-type:none;">
+					<%
+						if grand_total.blank?
+							grand_total = {:income => 0, :expense => 0 }
+						end
+					%>
+					<br>
+					<% profit = (grand_total[:income] - grand_total[:expense]) %>
+					<% percentage = ((profit/grand_total[:income])*100).round(2) unless grand_total[:income] == 0 %>
+					<% percentage = percentage.blank? ? 0 : percentage %>
+					<% percentage = percentage > 0 ? percentage : 0 %>
+					<li align="center"><b><%= currency %>&nbsp;<%=h html_hours("%.2f" % profit ) %>&nbsp;<%= "(" + percentage.to_s + "%)" %></b></li>
+				</ul></td>
+        	</tr>
+		</tbody>
+	</table>
+</div>

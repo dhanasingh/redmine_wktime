@@ -22,7 +22,10 @@
    end 
 %>
 <% row_index = 1 %>
+<% org_total = 0 %>
 <% total = 0 %>
+<% toCurrency = Setting.plugin_redmine_wktime['wktime_currency']
+%>
 <%	#if @invoice.parent.account_billing
 	#	projects = @invoice.parent.billable_projects.collect{|m| [ m.project.name, m.project_id ] } 
 	#else
@@ -55,6 +58,8 @@
 			<th></th>
 			<th class="lbl-txt-align" ><%= l(:label_rate) %></th>
 			<th class="lbl-txt-align" ><%= l(:label_quantity) %></th>
+			<th class="lbl-txt-align" ><%= l(:field_original_amount) %></th>
+			<th></th>	
 			<th class="lbl-txt-align" ><%= l(:field_amount) %></th>
 			<th></th>			
          </tr>
@@ -67,6 +72,10 @@
 		%>
        <% @invoiceItem.where(sqlString).each do |entry| %>
 			<tr onclick="  row_id  = this.rowIndex ">
+			<% 
+				exchangeRate = getExchangeRate(entry.original_currency, entry.currency)
+				exchangeRate = exchangeRate.blank? ? 1 : exchangeRate
+			 %>
 				<td class="lbl-txt-align" headers="item_id">
 					<%=h hidden_field_tag("item_id#{row_index}",   entry.id )  %>
 				</td>
@@ -85,20 +94,27 @@
 				</td>
 				<td class="lbl-txt-align" headers="item_type">
 					<%=h select_tag("item_type#{row_index.to_s}", options_for_select(itemHash.invert, :selected => entry.item_type), :disabled => true) %>
-					<%=h hidden_field_tag("hd_item_type#{row_index.to_s}",  entry.item_type )  %>
+					<%=h hidden_field_tag("hd_item_type#{row_index.to_s}", entry.item_type )  %>
 				</td>
-				<td class="lbl-txt-align" headers="currency">
-					<%=h hidden_field_tag("currency#{row_index}",   entry.currency )  %>
+				<td class="lbl-txt-align" headers="original_currency">
+					<%=h hidden_field_tag("original_currency#{row_index}", entry.original_currency )  %>
 				</td>
 				<td class="lbl-txt-align" headers="rate">
-					<%= entry.currency %><%= text_field_tag "rate#{row_index}",   ("%.2f" % entry.rate) ,:maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)", :disabled => isDisable %>
+					<%= entry.original_currency %><%= text_field_tag "rate#{row_index}", ("%.2f" % entry.rate) ,:maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)", :disabled => isDisable %>
 				</td>
 				<td class="lbl-txt-align" headers="quantity">
-					<%= text_field_tag "quantity#{row_index}", ("%.4f" % entry.quantity unless entry.quantity.blank?), :maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)", :disabled => isDisable %>
+					<%= text_field_tag "quantity#{row_index}", ("%.4f" % entry.quantity unless entry.quantity.blank?), :maxlength => 14, :style => "width:150px;", :onchange => "addAmount(this.id)", :disabled => isDisable %>
+				</td>
+				<td class="lbl-txt-align" headers="original_amount">
+					<%= entry.original_currency %><label id="original_amount<%= row_index.to_s %>" ><%= html_hours("%.2f" % entry.original_amount)  unless entry.original_amount.blank? %></label>
+				</td>
+				<td class="lbl-txt-align" headers="exchangerate_amount">
+					<%=h hidden_field_tag("exchangerate_amount#{row_index}", exchangeRate )  %>
 				</td>
 				<td class="lbl-txt-align" headers="amount">
-					<%= entry.currency %><label id="amount<%= row_index.to_s %>" ><%= html_hours("%.2f" % entry.amount)  %></label>
+					<%= entry.currency %><label id="amount<%= row_index.to_s %>" ><%= html_hours("%.2f" % entry.amount)  unless entry.amount.blank? %></label>
 				</td>
+				<% org_total = org_total + entry.original_amount unless entry.original_amount.blank? %>
 				<% total = total + entry.amount %>
 				<td>
 					<% unless isDisable %>
@@ -111,9 +127,13 @@
 		    <% row_index = row_index + 1 %>
 		<% end %>
 	<% elsif @unbilled && !@invItems.blank? %>
-		<%=h hidden_field_tag("populate_unbilled",   @unbilled )  %>
-		
-		<% @invItems.each do |key, value| %>	
+		<%=h hidden_field_tag("populate_unbilled",   @unbilled )  %>	
+		<% @invItems.each do |key, value| %>
+			<% 
+				exchangeRate = getExchangeRate(@currency, toCurrency)
+				exchangeRate = exchangeRate.blank? ? 1 : exchangeRate
+				amount = (value['item_amount'] * exchangeRate)
+			%>
 			<tr onclick="  row_id  = this.rowIndex ">
 				<%=h hidden_field_tag("entry_id#{row_index}",   value['milestone_id'] )  %>
 				<%=h hidden_field_tag("creditfrominvoice#{row_index}",  value['creditfromInvoice'] )  %>
@@ -135,8 +155,8 @@
 					<%=h select_tag("item_type#{row_index.to_s}", options_for_select(itemHash.invert, :selected => value['item_type'] .blank? ? itemHash.invert  : value['item_type'] ), :disabled => @preBilling) %>
 					<%=h hidden_field_tag("hd_item_type#{row_index.to_s}", value['item_type'] )  %>
 				</td>
-				<td class="lbl-txt-align" headers="currency">
-					<%=h hidden_field_tag("currency#{row_index}",   @currency )  %>
+				<td class="lbl-txt-align" headers="original_currency">
+					<%=h hidden_field_tag("original_currency#{row_index}",   @currency )  %>
 				</td>
 				<td class="lbl-txt-align" headers="rate">
 					<%=  @currency %><%= text_field_tag "rate#{row_index}",   value['rate'] ,:maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)", :disabled => @preBilling %>
@@ -144,10 +164,17 @@
 				<td class="lbl-txt-align" headers="quantity">
 					<%= text_field_tag "quantity#{row_index}", value['item_quantity'], :maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)", :disabled => @preBilling %>
 				</td>
-				<td class="lbl-txt-align" headers="amount">
-					<%= @currency %><label id="amount<%= row_index.to_s %>" ><%= html_hours("%.2f"% value['item_amount']) %></label>
+				<td class="lbl-txt-align" headers="original_amount">
+					<%= @currency %><label id="original_amount<%= row_index.to_s %>" ><%= html_hours("%.2f"% value['item_amount']) %></label>
 				</td>
-				<% total = total + value['item_amount'] unless value['item_amount'].blank? %>
+				<td class="lbl-txt-align" headers="exchangerate_amount">
+					<%=h hidden_field_tag("exchangerate_amount#{row_index}", exchangeRate )  %>
+				</td>
+				<td class="lbl-txt-align" headers="amount">
+					<%= toCurrency %><label id="amount<%= row_index.to_s %>" ><%= html_hours("%.2f"% amount) %></label>
+				</td>
+				<% org_total = org_total + value['item_amount'] %>
+				<% total = total + amount %>
 				<td>
 					<% if !@preBilling && !isDisable %>
 					<%= link_to image_tag('delete.png'), "javascript:deleteRow('invoiceTable', 'totalrow');", :id => row_index,
@@ -160,6 +187,11 @@
 		<% end %>
 	<% else %>
 		<tr onclick="  row_id  = this.rowIndex ">
+			<% 
+				exchangeRate = getExchangeRate(@currency, toCurrency)
+				exchangeRate = exchangeRate.blank? ? 1 : exchangeRate
+				exchange_amount = exchangeRate
+			%>
 			<td class="lbl-txt-align" headers="item_id">
 				<%=h hidden_field_tag("item_id#{row_index}",   "" )  %>
 			</td>
@@ -177,8 +209,8 @@
 			<td class="lbl-txt-align" headers="item_type">
 				<%=h select_tag("item_type#{row_index.to_s}", options_for_select(itemHash.invert)) %>
 			</td>
-			<td class="lbl-txt-align" headers="currency">
-				<%=h hidden_field_tag("currency#{row_index}",   @currency )  %>
+			<td class="lbl-txt-align" headers="original_currency">
+				<%=h hidden_field_tag("original_currency#{row_index}",   @currency )  %>
 			</td>
 			<td class="lbl-txt-align" headers="rate">
 				<%=  @currency %><%= text_field_tag "rate#{row_index}",   "" ,:maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)" %>
@@ -186,10 +218,17 @@
 			<td class="lbl-txt-align" headers="quantity">
 				<%= text_field_tag "quantity#{row_index}", "", :maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)" %>
 			</td>
-			<td class="lbl-txt-align" headers="amount">
-				<%= @currency %><label id="amount<%= row_index.to_s %>" ><%= 0.00  %></label>
+			<td class="lbl-txt-align" headers="original_amount">
+				<%= @currency %><label id="original_amount<%= row_index.to_s %>" ><%= 0.00  %></label>
 			</td>
-			<% total = 0 #total + entry.amount %>
+			<td class="lbl-txt-align" headers="exchangerate_amount">
+				<%=h hidden_field_tag("exchangerate_amount#{row_index}", exchange_amount )  %>
+			</td>
+			<td class="lbl-txt-align" headers="amount">
+				<%= toCurrency %><label id="amount<%= row_index.to_s %>" ><%= 0.00  %></label>
+			</td>
+			<% org_total = 0 #org_total + entry.amount %>
+			<% total = 0 %>
 			<td>
 				<%= link_to image_tag('delete.png'), "javascript:deleteRow('invoiceTable', 'totalrow');", :id => row_index,
 						:data => {:confirm => l(:text_are_you_sure)},
@@ -202,7 +241,7 @@
 </table>
 
 <%# if @invoiceItem.where(:item_type => 't').count > 0 %>
-<b><label id="invsubtotal" style="float:right; padding-right:110px;"><%= l(:label_sub_total) + "  : " %>  <%= @invoiceItem.blank? ? @currency : (@invoiceItem[0].blank? ? @currency : @invoiceItem[0].currency) %><%= html_hours("%.2f" % total) %> </label></b>
+<b><label id="invsubtotal" style="float:right; padding-right:60px;"><%= l(:label_sub_total) + "  : " %>  <%= @invoiceItem.blank? ? @currency : (@invoiceItem[0].blank? ? @currency : @invoiceItem[0].original_currency) %><%= html_hours("%.2f" % org_total) %>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= toCurrency %><%= html_hours("%.2f" % total) %> </label></b>
 <%# end %>
 <%# unless @invoiceItem.blank? %>
 <% tax_index = 1 %>
@@ -211,13 +250,17 @@
 	<% unless @invoiceItem.blank? %>
 		<% @invoiceItem.where(:item_type => 't').each do |entry| %>
 				<tr>
+				<% 
+					tax_amount = getExchangedAmount( entry.original_currency, entry.original_amount)
+			 	%>
 					<td class="lbl-txt-align" ><%=h hidden_field_tag("tax_id#{tax_index}",   entry.id )  %></td>
 					<td class="lbl-txt-align" ><%=h entry.project.name%></td>
 					<td  style="text-align:left; !important" ><%=  entry.name %></td>				
 					<td  style=" text-align:right; !important"><label id="taxitem_type<%= tax_index.to_s %>"><%= l(:label_tax) %></label></td>
 					<td  style=" text-align:right; !important"><label id="taxrate<%= tax_index.to_s %>"><%=    ("%.2f" % entry.rate) %></label> <label>%</label> </td>
 					<td class="lbl-txt-align" ><%=h hidden_field_tag("tax_pjt_id#{tax_index}",   entry.project_id )  %></td>
-					<td  style=" padding-right:90px;  text-align:right; !important" ><%= entry.currency %><label id="taxamount<%= tax_index.to_s %>"><%= html_hours("%.2f" % entry.amount)   %></label></td>
+					<td  style=" padding-right:40px;  text-align:right; !important" ><%= entry.original_currency %><label id="taxamount<%= tax_index.to_s %>"><%= html_hours("%.2f" % entry.original_amount) unless entry.original_amount.blank? %>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= toCurrency %><%= html_hours("%.2f" % entry.amount) %></label></td>
+					<% org_total = org_total + entry.original_amount unless entry.original_amount.blank? %>
 					<% total = total + entry.amount %>
 				 </tr>
 				  <% tax_index = tax_index + 1 %>
@@ -225,6 +268,9 @@
 	<% else %>
 		<% if !@taxVal.blank? %>
 		<% @taxVal.each do |key, value| %>
+			<% 
+				tax_amount = getExchangedAmount(value['currency'], value['amount'])
+			%>
 			<tr class="<%= cycle("odd", "even") %>" >
 			<td class="lbl-txt-align" >
 				<%=h hidden_field_tag("tax_id#{tax_index}",   "" )  %>
@@ -244,17 +290,19 @@
 					<%=h hidden_field_tag("tax_product_id#{tax_index}",  value['product_id'] )  %>
 				<% end %>
 			</td>
-			<td  style=" padding-right:90px;  text-align:right; !important" >
+			<td  style=" padding-right:40px;  text-align:right; !important" >
 				<%= value['currency'] %><label id="taxamount<%= tax_index.to_s %>">
-				<%= html_hours("%.2f" % value['amount'])   %></label>
+				<%= html_hours("%.2f" % value['amount'])   %>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= toCurrency %><%= html_hours("%.2f" % tax_amount) %></label>
 			</td>
-			<% total = total + value['amount'] %>
+			<% org_total = org_total + value['amount'] %>
+			<% total = total + tax_amount %>
 			</tr>
 			<% tax_index = tax_index + 1 %>
 		<% end %>
 		<% end %>
 	<% end %>
-	<tr><td colspan="8" style="padding-right:90px;"><b><label id="invtotalamount" style="float:right;">Total : <%= @invoiceItem.blank? ? @currency : (@invoiceItem[0].blank? ? @currency : @invoiceItem[0].currency) %> <%= html_hours("%.2f" % total) %> </label></b><td></tr>
+
+	<tr><td colspan="8" style="padding-right:25px;"><b><label id="invtotalamount" style="float:right;">Total : <%= @invoiceItem.blank? ? @currency : (@invoiceItem[0].blank? ? @currency : @invoiceItem[0].original_currency) %> <%= html_hours("%.2f" % org_total) %> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= toCurrency %><%= html_hours("%.2f" % total) %></label></b><td></tr>
 </table>
 <% end %>
 <% round_index = 1 %>
@@ -270,13 +318,20 @@
 				<td class="lbl-txt-align" style="width:140px;"><label id="rounditem_type<%= round_index.to_s %>"></label></td>
 				<td class="lbl-txt-align" style="width:330px;"></td>
 				<td class="lbl-txt-align" style="width:330px;"></td>
-				<td class="lbl-txt-align" style="padding-right:120px;" ><%= entry.currency %><label id="roundamount"><%= html_hours("%.2f" % entry.amount)   %></label></td>
+				<td class="lbl-txt-align" style="padding-right:65px;" ><%= entry.original_currency %><label id="roundamount"><%= html_hours("%.2f" % entry.original_amount)   %>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= toCurrency %><%= html_hours("%.2f" % entry.amount) %></label></td>
+				<% org_total = org_total + entry.original_amount %>
 				<% total = total + entry.amount %>
-			 </tr>	
-			<tr><td colspan="8" style="padding-right:120px;"><b><label id="roundtotalamount" style="float:right;">Total : <%= @invoiceItem[0].blank? ? "" : @invoiceItem[0].currency %> <%= html_hours("%.2f" % total) %> </label></b><td></tr>
+			 </tr>
+			
+			<tr>
+				<td colspan="8" style="padding-right:50px;"><b><label id="roundtotalamount" style="float:right;">Total : <%= @invoiceItem[0].blank? ? "" : @invoiceItem[0].original_currency %> <%= html_hours("%.2f" % org_total) %>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= toCurrency %><%= html_hours("%.2f" % total) %> </label></b><td>
+			</tr>
 			  <% round_index = round_index + 1 %>	
 		<% end %>
 		<% if isRundFOrInvItem %>
+			<% 
+				roundOff_amount = getExchangedAmount( @currency, (org_total.round - org_total))
+			%>
 			<tr>
 				<td class="lbl-txt-align" style="width:20px;">
 					<%=h hidden_field_tag("round_id#{round_index}",   "" )  %>
@@ -287,15 +342,19 @@
 				<td class="lbl-txt-align" style="width:140px;"><label id="rounditem_type<%= round_index.to_s %>"></label></td>
 				<td class="lbl-txt-align" style="width:330px;"></td>
 				<td class="lbl-txt-align" style="width:330px;"></td>
-				<td class="lbl-txt-align" style="padding-right:120px;" ><%= @currency %><label id="roundamount"><%= html_hours("%.2f" % (total.round - total))   %></label></td>
-				<% total = total + (total.round - total) %>
-			</tr>	
+				<td class="lbl-txt-align" style="padding-right:85px;" ><%= @currency %><label id="roundamount"><%= html_hours("%.2f" % (org_total.round - org_total))   %>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= toCurrency %><%= html_hours("%.2f" % roundOff_amount) %></label></td>
+				<% org_total = org_total + (org_total.round - org_total) %>
+				<% total = total + roundOff_amount %>
+			</tr>
 			<tr>
-				<td colspan="8" style="padding-right:120px;"><b><label id="roundtotalamount" style="float:right;">Total : <%= @invoiceItem.blank? ? @currency : (@invoiceItem[0].blank? ? @currency : @invoiceItem[0].currency) %> <%= html_hours("%.2f" % total) %> </label></b><td>
+				<td colspan="8" style="padding-right:50px;"><b><label id="roundtotalamount" style="float:right;">Total : <%= @invoiceItem.blank? ? @currency : (@invoiceItem[0].blank? ? @currency : @invoiceItem[0].original_currency) %> <%= html_hours("%.2f" % org_total) %> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= toCurrency %><%= html_hours("%.2f" % total) %></label></b><td>
 			</tr>
 			 <% round_index = round_index + 1 %>
 		<% end %>
 	<% else %>
+		<% 
+			roundOff_amount = getExchangedAmount( @currency, (org_total.round - org_total))
+		%>
 		<tr>
 			<td class="lbl-txt-align" style="width:20px;">
 				<%=h hidden_field_tag("round_id#{round_index}",   "" )  %>
@@ -306,10 +365,11 @@
 			<td class="lbl-txt-align" style="width:140px;"><label id="rounditem_type<%= round_index.to_s %>"></label></td>
 			<td class="lbl-txt-align" style="width:330px;"></td>
 			<td class="lbl-txt-align" style="width:330px;"></td>
-			<td class="lbl-txt-align" style="padding-right:120px;" ><%= @currency %><label id="roundamount"><%= html_hours("%.2f" % (total.round - total))   %></label></td>
-			<% total = total + (total.round - total) %>
-		 </tr>	
-		<tr><td colspan="8" style="padding-right:120px;"><b><label id="roundtotalamount" style="float:right;">Total : <%= @invoiceItem.blank? ? @currency : (@invoiceItem[0].blank? ? @currency : @invoiceItem[0].currency) %> <%= html_hours("%.2f" % total) %> </label></b><td></tr>
+			<td class="lbl-txt-align" style="padding-right:65px;" ><%= @currency %><label id="roundamount"><%= html_hours("%.2f" % (org_total.round - org_total)) %>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= toCurrency %><%= html_hours("%.2f" % roundOff_amount) %></label></td>
+			<% org_total = org_total + (org_total.round - org_total) %>
+			<% total = total + roundOff_amount %>
+		 </tr>
+		<tr><td colspan="8" style="padding-right:50px;"><b><label id="roundtotalamount" style="float:right;">Total : <%= @invoiceItem.blank? ? @currency : (@invoiceItem[0].blank? ? @currency : @invoiceItem[0].original_currency) %> <%= html_hours("%.2f" % org_total) %>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <%= toCurrency %><%= html_hours("%.2f" % total) %></label></b><td></tr>
 		  <% round_index = round_index + 1 %>
 	<% end %>
 </table>
@@ -335,6 +395,6 @@
 <% if !@invoice.id.blank? && controller.isInvPaymentLink  %>
 <br/>
 <br/>
-<h2 ><%= l(:label_payments) %></h2> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<h2 ><%= l(:label_payments) %></h2> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp
 <%= render :partial => 'inv_payment_items_list' %>
 <% end %>

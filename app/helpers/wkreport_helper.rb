@@ -47,11 +47,11 @@ module WkreportHelper
 	
 	def hasViewPermission(reportName)
 		ret = true
-		if reportName == 'report_profit_loss' || reportName == 'report_balance_sheet'
+		if reportName == 'report_profit_loss' || reportName == 'report_balance_sheet' || reportName == 'report_trial_balance'
 			ret = validateERPPermission("B_ACC_PRVLG") || validateERPPermission("A_ACC_PRVLG")
 		elsif reportName == 'report_lead_conversion' || reportName == 'report_sales_activity'
 			ret = (validateERPPermission("B_CRM_PRVLG") || validateERPPermission("A_CRM_PRVLG") ) && isChecked('wktime_enable_crm_module')
-		elsif reportName == 'report_order_to_cash'
+		elsif reportName == 'report_order_to_cash' || reportName == 'report_project_profitability'
 			ret = validateERPPermission("M_BILL")
 		end
 		ret
@@ -70,7 +70,7 @@ module WkreportHelper
 			queryStr = queryStr + " and u.id = #{user_id}"
 		end
 		
-		if !(isAccountUser || User.current.admin?)
+		if !(validateERPPermission('A_TE_PRVLG') || User.current.admin?)
 			queryStr = queryStr + " and u.id = #{User.current.id} "
 		end
 		#queryStr = queryStr + " order by u.created_on"
@@ -160,4 +160,44 @@ module WkreportHelper
 		address_list
 	end
 
+	def form_salaries_hash(payrollAmount, userId)
+
+		usersDetails = User.where("id IN (#{userId})")
+		salaryComponents = WkSalaryComponents.all
+		basic_Total = nil
+		allowance_total = nil
+		deduction_total = nil
+		@payrollEntries = Hash.new
+
+		payrollAmount.each do |payroll|
+			key = payroll[:user_id].to_s + "_" + payroll[:salary_date].strftime("%m").to_i.to_s + "_" + payroll[:salary_date].strftime("%Y").to_s + "_" + payroll[:project_id].to_s
+			
+			if @payrollEntries[key].blank?
+				@payrollEntries[key] = {:projId => payroll[:project_id], :uID => payroll[:user_id], :firstname => nil, :lastname => nil, :salDate => payroll[:salary_date], :BT => 0, :AT => 0, :DT => 0, :currency => nil, :details => {:b => [], :a => [], :d => []}}
+			end
+
+			usersDetails.each do |user|
+				if payroll[:user_id] == user.id
+					@payrollEntries[key][:firstname] = user.firstname
+					@payrollEntries[key][:lastname] = user.lastname
+				end
+			end
+			salaryComponents.each do |s_cmpt|
+				if payroll[:component_id] == s_cmpt.id
+					@payrollEntries[key][:currency] = payroll[:currency]
+					case s_cmpt.component_type
+					when "b"
+						@payrollEntries[key][:BT] = @payrollEntries[key][:BT].to_i + payroll[:amount].to_i
+						@payrollEntries[key][:details][:b] << [s_cmpt.name, payroll[:amount].to_i, payroll[:currency]]
+					when "a"
+						@payrollEntries[key][:AT] = @payrollEntries[key][:AT].to_i + payroll[:amount].to_i
+						@payrollEntries[key][:details][:a] << [s_cmpt.name, payroll[:amount].to_i, payroll[:currency]]
+					when "d"
+						@payrollEntries[key][:DT] = @payrollEntries[key][:DT] + payroll[:amount].to_i
+						@payrollEntries[key][:details][:d] << [s_cmpt.name, payroll[:amount].to_i, payroll[:currency]]
+					end
+				end
+			end
+		end
+	end
 end

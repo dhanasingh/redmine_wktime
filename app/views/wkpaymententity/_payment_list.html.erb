@@ -10,6 +10,7 @@
 				<th class="lbl-txt-align"><%=  l(:field_name) %></th>
 				<th class="lbl-txt-align"><%=  l(:label_payment_date) %></th>
 				<th class="lbl-txt-align"><%=  l(:label_payment_type)  %></th>
+				<th class="lbl-txt-align"><%=  l(:field_original_amount)  %></th>
 				<th class="lbl-txt-align"><%=  l(:field_amount)  %></th>
 				<th></th>
          </tr>
@@ -22,6 +23,7 @@
 			<td class="lbl-txt-align"><%=h entry.name %></td>
 			<td class="lbl-txt-align"><%=h entry.payment_date.strftime("%Y-%m-%d") %></td>
 			<td class="lbl-txt-align"><%=h payTypeHash[entry.payment_type_id] %></td>
+			<td class="lbl-txt-align"><%= entry.payment_items[0].original_currency unless entry.payment_items[0].blank?%> <%=h html_hours("%.2f" % entry.payment_original_amount) unless entry.payment_original_amount.blank?   %></td>	
 			<td class="lbl-txt-align"><%= entry.payment_items[0].currency unless entry.payment_items[0].blank?%> <%=h html_hours("%.2f" % entry.payment_amount) unless entry.payment_amount.blank?   %></td>
 			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller_name, :action => 'edit', :payment_id => entry.id, :tab => controller_name}, :title => l(:button_edit) %></td>
 		</tr>

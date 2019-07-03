@@ -1,4 +1,4 @@
-var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl, blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupAccUrl, purSupContactUrl, purSupPayUrl, wklocationUrl,  wkproductUrl, wkproductitemUrl, wkshipmentUrl, wkUomUrl, wkbrandUrl, wkattributegroupUrl, wkassetUrl, wkassetdepreciationUrl, wkgrpPermissionUrl, wkSchedulingUrl, wkShiftUrl, wkPublicHolidayUrl, userCurrentUrl; 
+var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl, blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupAccUrl, purSupContactUrl, purSupPayUrl, wklocationUrl,  wkproductUrl, wkproductitemUrl, wkshipmentUrl, wkUomUrl, wkbrandUrl, wkattributegroupUrl, wkassetUrl, wkassetdepreciationUrl, wkgrpPermissionUrl, wkSchedulingUrl, wkShiftUrl, wkPublicHolidayUrl, userCurrentUrl, wkSurveyUrl; 
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -65,6 +65,12 @@ $(document).ready(function() {
 			}
 		]
 	});
+
+	//Hide summaryDD in Trasaction
+	$("#txn_ledger").change(function() {
+		hideSummaryDD(this.value);
+	});
+	hideSummaryDD($("#txn_ledger").val());
 });
 
 function openReportPopup(){
@@ -240,6 +246,7 @@ $(document).ready(function()
 	changeProp('tab-wkscheduling',wkSchedulingUrl);
 	changeProp('tab-wkshift',wkShiftUrl);
 	changeProp('tab-wkpublicholiday',wkPublicHolidayUrl);
+	changeProp('tab-wksurvey',wkSurveyUrl);
 });
 function changeProp(tab,indexUrl)
 {
@@ -805,4 +812,30 @@ function myReportUser(optionID,userID){
 		beforeSend: function(){ $this.addClass('ajax-loading'); },
 		complete: function(){ $this.removeClass('ajax-loading'); }
 	});
+}
+
+function getprojects(ele, isAccProj, isSIProj){
+	switch(ele.value){
+		case '2': ddeleID = 'contact_id'
+		break;
+		case '3': ddeleID = 'account_id'
+		break;
+		default : ddeleID = ele.id
+	}
+	if(isAccProj){
+		accProjChanged('', ddeleID, false, true);
+	}
+	if(isSIProj){
+		getSupplierInvoice('', 'si_id')
+	}
+}
+
+function hideSummaryDD(value) {
+    if(value != ""){
+		$( "#trans_summary" ).show();
+	}
+	else{
+		$("#summary_trans").val("days");
+		$( "#trans_summary" ).hide();
+	}
 }

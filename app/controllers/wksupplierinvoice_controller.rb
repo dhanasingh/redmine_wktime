@@ -19,7 +19,7 @@ class WksupplierinvoiceController < WksupplierorderentityController
 				@poId = ""
 			end
 			if !params[:populate_items].blank? && params[:populate_items] == '1'
-				@invoiceItem = WkInvoiceItem.where(:invoice_id => params[:po_id].to_i).select(:name, :rate, :amount, :quantity, :item_type, :currency, :project_id, :modifier_id,  :invoice_id )
+				@invoiceItem = WkInvoiceItem.where(:invoice_id => params[:po_id].to_i).select(:name, :rate, :amount, :quantity, :item_type, :currency, :project_id, :modifier_id,  :invoice_id, :original_amount, :original_currency )
 			end 
 		end
 	end

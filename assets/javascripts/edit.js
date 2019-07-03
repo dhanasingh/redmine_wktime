@@ -384,7 +384,7 @@ function projectChanged(projDropdown, row){
 			complete: function(){ $this.removeClass('ajax-loading'); }
 		});
 		
-		if (actDropdown.length > 0 && actDropdown.type == 'dropdown'){   //("time_entry[][activity_id]")){
+		if (actDropdown.length > 0 && actDropdown[0].type == 'select-one'){   //("time_entry[][activity_id]")){
 			$.ajax({ 
 				url: actUrl,
 				type: 'get',

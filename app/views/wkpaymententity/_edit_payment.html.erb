@@ -15,6 +15,7 @@
    <tbody>
 	<% payableAmount = 0 %>
 	<% 
+		invoiceOrgCurrency = nil
 		currency = nil 
 		creditIssued = false
 	%>
@@ -23,23 +24,27 @@
 			#creditIssued = false
 			if entry.class.name == 'WkInvoice'
 				invoiceObj = entry
+				invoiceOrgAmount = entry.invoice_items.sum(:original_amount)
 				invoiceAmount = entry.invoice_items.sum(:amount)
-				paidAmount = entry.payment_items.current_items.sum(:amount)
-				next unless invoiceAmount - paidAmount > 0 && invoiceAmount > 0
-				currentPaidAmt = invoiceAmount - paidAmount
-				balanceAmount = invoiceAmount - paidAmount
+				paidAmount = entry.payment_items.current_items.sum(:original_amount)
+				next unless invoiceOrgAmount - paidAmount > 0 && invoiceOrgAmount > 0
+				currentPaidAmt = invoiceOrgAmount - paidAmount
+				balanceAmount = invoiceOrgAmount - paidAmount
 				paymentItemId = nil
-				currency = invoiceObj.invoice_items[0].currency 
+				currency = invoiceObj.invoice_items[0].currency
+				invoiceOrgCurrency = invoiceObj.invoice_items[0].original_currency
 			else
 				invoiceObj = entry.invoice
+				invoiceOrgAmount = invoiceObj.invoice_items.sum(:original_amount)
 				invoiceAmount = invoiceObj.invoice_items.sum(:amount)
-				paidAmount = invoiceObj.payment_items.current_items.sum(:amount)
+				paidAmount = invoiceObj.payment_items.current_items.sum(:original_amount)
 				balanceAmount = nil
-				balanceAmount = invoiceAmount - paidAmount if invoiceAmount - paidAmount > 0 && invoiceAmount > 0
-				currentPaidAmt = entry.amount
+				balanceAmount = invoiceOrgAmount - paidAmount if invoiceOrgAmount - paidAmount > 0 && invoiceOrgAmount > 0
+				currentPaidAmt = entry.original_amount
 				paymentItemId = entry.id
 				creditIssued = isCreditIssued(entry.id) if !creditIssued
-				currency = invoiceObj.payment_items[0].currency 
+				currency = invoiceObj.payment_items[0].currency
+				invoiceOrgCurrency = invoiceObj.invoice_items[0].original_currency
 			end
 			payableAmount = payableAmount + currentPaidAmt unless currentPaidAmt.blank?
 		%>
@@ -50,11 +55,13 @@
 		<%= hidden_field_tag("credit_issued#{row_index}",   creditIssued ) %>
 		<%= hidden_field_tag("paid_amount#{row_index}",   currentPaidAmt ) %>
 		<%= hidden_field_tag("invoice_no#{row_index}",   invoiceObj.invoice_number ) %>
+		<%= hidden_field_tag("invoice_org_amount#{row_index}",   invoiceOrgAmount ) %>
+		<%= hidden_field_tag("invoice_org_currency#{row_index}",   invoiceOrgCurrency ) %>
 		<tr>
 			<td class="lbl-txt-align"><%=h invoiceObj.invoice_number  %></td>
-			<td align="right"><label align="right"><%=  html_hours("%.2f" % invoiceAmount) unless invoiceAmount.blank?  %></td></label>
+			<td align="right"><label align="right"><%= invoiceOrgCurrency %>&nbsp;<%=  html_hours("%.2f" % invoiceOrgAmount) unless invoiceOrgAmount.blank?  %></td></label>
 			<td align="right"><%=  html_hours("%.2f" % balanceAmount) unless balanceAmount.blank? %></td>
-			<td class="lbl-txt-align" headers="amount"><label id="payment_currency"><%= currency %></label><%= text_field_tag "amount#{row_index}",   ("%.2f" % currentPaidAmt) ,:maxlength => 14,  :style => "width:150px;", :disabled => creditIssued, :onchange => "paymentItemTotal('paymentTable', 'amount', 'payItemtotal');"  %></td>
+			<td class="lbl-txt-align" headers="amount"><label id="payment_currency"><%= invoiceOrgCurrency %></label><%= text_field_tag "amount#{row_index}",   ("%.2f" % currentPaidAmt) ,:maxlength => 14,  :style => "width:150px;", :disabled => creditIssued, :onchange => "paymentItemTotal('paymentTable', 'amount', 'payItemtotal');"  %></td>
 		 </tr>	
 		 <% row_index = row_index + 1 %>
 	<% end %>
@@ -62,7 +69,7 @@
 			<td class="lbl-txt-align"></td>
 			<td align="right"></td>
 			<td align="right"><b><%= "Total " %></b></td>
-			<td class="lbl-txt-align" headers="amount"><b><%= currency %><label id="payItemtotal"><%=h  payableAmount %></label></b></td>
+			<td class="lbl-txt-align" headers="amount"><b><%= invoiceOrgCurrency %>&nbsp;<label id="payItemtotal"><%=h  payableAmount %></label></b></td>
 			<%= hidden_field_tag("tot_pay_amount",   payableAmount ) %>
 		 </tr>	
    </tbody>

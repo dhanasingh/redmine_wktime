@@ -12,12 +12,17 @@ include WkbillingHelper
 							value.blank? ? 'WkAccount' : value)
 	end
 	
-	def updatePaymentItem(payItem, paymentId, invoiceId, amount, currency) #, transId
+	def updatePaymentItem(payItem, paymentId, invoiceId, orgAmount, orgCurrency) # transId
+
+		toCurrency = Setting.plugin_redmine_wktime['wktime_currency']
+		amount = getExchangedAmount(orgCurrency, orgAmount)
 		payItem.payment_id = paymentId
 		payItem.invoice_id = invoiceId
 		payItem.is_deleted = false
-		payItem.currency = currency
+		payItem.currency = toCurrency
 		payItem.amount = amount
+		payItem.original_amount = orgAmount
+		payItem.original_currency = orgCurrency
 		payItem.modified_by_user_id = User.current.id
 		if payItem.new_record?
 			payItem.created_by_user_id = User.current.id

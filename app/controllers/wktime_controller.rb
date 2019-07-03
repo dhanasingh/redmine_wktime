@@ -130,7 +130,7 @@ include QueriesHelper
 	isError = params[:isError].blank? ? false : to_boolean(params[:isError])
 	if (!$tempEntries.blank? && isError)
 		@entries.each do |entry|	
-			if !entry.editable_by?(User.current) && !isAccountUser && !isBilledTimeEntry(entry)
+			if !entry.editable_by?(User.current) && !validateERPPermission('A_TE_PRVLG') && !isBilledTimeEntry(entry)
 				$tempEntries << entry
 			end
 		end
@@ -196,7 +196,7 @@ include QueriesHelper
 						if (!entry.id.blank? && !entry.editable_by?(User.current))
 							allowSave = false
 						end
-						allowSave = true if (to_boolean(@edittimelogs) || isAccountUser || !isBilledTimeEntry(entry))
+						allowSave = true if (to_boolean(@edittimelogs) || validateERPPermission('A_TE_PRVLG') || !isBilledTimeEntry(entry))
 						#if !((Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? ||
 						#		Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 0) && 
 						#		entry.issue.blank?)
@@ -829,7 +829,7 @@ include QueriesHelper
 		if isSupervisorApproval #!hookPerm.blank?
 			ret = isSupervisor #hookPerm[0]
 		end
-		ret = true if isAccountUser
+		ret = true if validateERPPermission('A_TE_PRVLG')
 		ret = ((ret || !te_projects.blank?) && (@user.id != User.current.id || (!Setting.plugin_redmine_wktime['wktime_own_approval'].blank? && 
 							Setting.plugin_redmine_wktime['wktime_own_approval'].to_i == 1 )))? true: false
 		
@@ -1291,7 +1291,7 @@ private
 		if	isSupervisorApproval #!editPermission.blank? 
 			ret = isSupervisorForUser((params[:user_id]).to_i) || (@user.id == User.current.id && @logtime_projects.size > 0) #editPermission[0] 
 		end
-		return (ret || isAccountUser)
+		return (ret || validateERPPermission('A_TE_PRVLG'))
 	end
 	
 	def getGrpMembers
@@ -1308,7 +1308,7 @@ private
 			#userList = grpMember[0].blank? ? userList : grpMember[0]
 			userIds = getReportUserIdsStr
 			cond = "1=1"
-			unless isAccountUser
+			unless validateERPPermission('A_TE_PRVLG')
 				cond =	"#{User.table_name}.id in(#{userIds})"
 			end
 			unless group_id.blank?		
@@ -1617,7 +1617,7 @@ private
     def check_editperm_redirect
 		# hookPerm = call_hook(:controller_edit_timelog_permission, {:params => params})
 		if isSupervisorApproval #!hookPerm.blank?
-			allow = (canSupervisorEdit && isSupervisorForUser((params[:user_id]).to_i)) || (check_editPermission && @user.id == User.current.id) || isAccountUser
+			allow = (canSupervisorEdit && isSupervisorForUser((params[:user_id]).to_i)) || (check_editPermission && @user.id == User.current.id) || validateERPPermission('A_TE_PRVLG')
 		else
 			allow = check_editPermission
 		end
@@ -1652,7 +1652,7 @@ private
 				allowed = false
 			end
 		end
-		allowed = true if isAccountUser && !hasBilledEntry
+		allowed = true if validateERPPermission('A_TE_PRVLG') && !hasBilledEntry
 		return allowed
 	end
 	
@@ -1914,7 +1914,7 @@ private
 		# if !mng_projects.blank?
 			# @manage_projects = mng_projects[0].blank? ? nil : mng_projects[0]
 		# else
-			if isAccountUser
+			if validateERPPermission('A_TE_PRVLG')
 				@manage_projects = getAccountUserProjects
 			elsif isSupervisorApproval
 				@manage_projects = getUsersProjects(User.current.id, true)
@@ -1930,7 +1930,7 @@ private
 		# if !view_projects.blank?
 			# @manage_view_spenttime_projects = view_projects[0].blank? ? nil : view_projects[0]
 		# else
-			if isAccountUser || isSupervisorApproval
+			if validateERPPermission('A_TE_PRVLG') || isSupervisorApproval
 				@manage_view_spenttime_projects = @manage_projects #getAccountUserProjects
 			# elsif isSupervisorApproval
 				# @manage_view_spenttime_projects = getUsersProjects(User.current.id, true)

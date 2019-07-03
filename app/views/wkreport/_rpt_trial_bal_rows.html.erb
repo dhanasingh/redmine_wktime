@@ -1,0 +1,14 @@
+<% entries.each do |ledgername, entry| %>
+	<% if !entry.blank? && (!entry["d"].nil? || !entry["c"].nil?) %>
+		<tr style="width:100%;">
+			<td align="left" style="padding-left: <%= padding %>px;"><%= ledgername %></td>
+			<% entry.each do |type, val| %>
+				<% if type == 'd' %>
+					<td > <%= "%.2f" % val unless val.blank? %></td>
+				<% else %>
+					<td> <%= "%.2f" % val unless val.blank? %></td>
+				<% end %>
+			<% end %>
+		</tr>
+	<% end %>
+<% end %>

@@ -1,0 +1,61 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div class="autoscroll">
+<table class="list time-entries">
+<%	openingBalHash = getEachLedgerBSAmt(@transDate, [@selectedLedger.ledger_type]) unless @ledgerId.blank? || @transDate.blank?
+	unless @selectedLedger.blank? || (incomeLedgerTypes.include? @selectedLedger.ledger_type) || (expenseLedgerTypes.include? @selectedLedger.ledger_type)
+		openingBalance = openingBalHash[@selectedLedger.name] unless openingBalHash.blank? || openingBalHash[@selectedLedger.name].blank?
+		isSubCr = isSubtractCr(@selectedLedger.ledger_type)
+	end
+	%>
+<% unless @ledgerId.blank?  %>
+	<div>
+	<% openingBal = openingBalance.nil? ? 0 : "%.2f" % openingBalance.abs %>
+	<% openBalType = (isSubCr && openingBalance > 0) || (!isSubCr && openingBalance < 0) ? 'dr' : 'cr' unless openingBalance.nil? %>
+		<p><b><%= l(:label_opening_balance) %> :</b>&nbsp;<%= openingBal %> <%= openBalType %> </p>
+	</div>
+	<thead>
+		</tr>
+			<tr>
+					<th class="lbl-txt-align"><%=  l(:label_date_range) %></th>
+					<th class="lbl-txt-align"><%= l(:label_debit) %></th>
+					<th class="lbl-txt-align"><%= l(:label_credit) %></th>
+					<th class="lbl-txt-align"><%= l(:label_closing_balance) %></th>
+					<th></th>
+			</tr>
+	</thead>
+	<tbody>
+ 		<%  
+			debitTotal = 0
+			creditTotal = 0
+			closeBal = 0 
+		%>
+		<% @summaryHash.each do |key, value| %>
+			<% debitTotal += value[:DT].to_f unless value[:DT].blank? %>
+			<% creditTotal += value[:CT].to_f unless value[:CT].blank? %>
+			<%	diff = isSubCr ? (value[:DT].to_f - value[:CT].to_f) : (value[:CT].to_f - value[:DT].to_f) %>
+			<% if key == @summaryHash.keys.first
+					closeBal = diff + openingBalance.to_f
+				else 
+					closeBal = diff + closeBal
+				end %>
+			<tr>
+				<td class="lbl-txt-align"><%=h key %></td>
+				<td class="lbl-txt-align"><%=h value[:DT].to_f %></td>
+				<td class="lbl-txt-align"><%=h value[:CT].to_f %></td>
+				<td class="lbl-txt-align"><%=h closeBal.abs %></td>
+				<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'index', :summary_by => 'days', :from => value[:beginning_date], :to => value[:end_date], :is_summary_edit => true, :summary_period => 2, :ledger_id => value[:ledger_id], :tab => controller.controller_name},   :title => l(:button_edit)  %> </td>
+			</tr>
+		<% end %>
+	</tbody>
+	<% unless @summaryHash.blank? %>
+		<tr>
+			<th class="lbl-txt-align"><%=  l(:label_total) %></th>
+			<th class="lbl-txt-align"><%= debitTotal %></th>
+			<th class="lbl-txt-align"><%= creditTotal %></th>
+			<th class="lbl-txt-align"><%= closeBal.abs %></th>
+			<th></th>
+		</tr>
+	<% end %>
+<% end %>
+</table>
+</div>

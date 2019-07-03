@@ -4,7 +4,7 @@
 		me = false
 		my_direct_report = false
 		my_report = false 
-		if isAccountUser && !isSupervisor
+		if validateERPPermission('A_TE_PRVLG') && !isSupervisor
 			opt_proj = true
 		else
 			opt_proj = false
@@ -36,7 +36,7 @@
 		
 	%>
 
-	<% if isSupervisor() || isAccountUser %>
+	<% if isSupervisor() || validateERPPermission('A_TE_PRVLG') %>
 		<% if isSupervisor() %>
 			<tr>
 				<td>

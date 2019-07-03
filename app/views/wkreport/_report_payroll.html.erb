@@ -2,7 +2,8 @@
 	userId = session[:wkreport][:user_id].blank? ? 0 : session[:wkreport][:user_id]
 	from = session[:wkreport][:from]
 	to = (from >> 1) - 1
-	groupId = session[:wkreport][:group_id].blank?  ? 0 : session[:wkreport][:group_id]				
+	groupId = session[:wkreport][:group_id].blank? ? 0 : session[:wkreport][:group_id]
+	
 	userSqlStr = getUserQueryStr(groupId, userId, from)
 	@userlist = User.find_by_sql(userSqlStr)
 	queryStr = getQueryStr + 			
@@ -16,7 +17,7 @@
 	
 	queryStr = queryStr + " and s.salary_date  between '#{from}' and '#{to}' "
 	
-	if !(isAccountUser || User.current.admin?)
+	if !(validateERPPermission('A_TE_PRVLG') || User.current.admin?)
 		queryStr = queryStr + " and u.id = #{User.current.id} "
 	end
 	

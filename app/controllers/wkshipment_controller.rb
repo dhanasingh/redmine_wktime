@@ -188,7 +188,7 @@ include WkinventoryHelper
 				shipmentItem.total_quantity = params["total_quantity#{i}"]
 				shipmentItem.status = 'o'
 				shipmentItem.uom_id = params["uom_id#{i}"].to_i unless params["uom_id#{i}"].blank?
-				shipmentItem.location_id = params["location_id#{i}"].to_i unless params["location_id#{i}"].blank?
+				shipmentItem.location_id = params["location_id#{i}"].to_i if !params["location_id#{i}"].blank? && params["location_id#{i}"] != "0"
 				if params["product_type#{i}"] == 'A' || params["product_type#{i}"] == 'RA'
 					assetValue = (shipmentItem.total_quantity*(shipmentItem.cost_price+shipmentItem.over_head_price))
 					assetTotal = assetTotal + assetValue

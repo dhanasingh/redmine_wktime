@@ -44,7 +44,7 @@ require 'csv'
 	end
 	
 	def check_ta_admin_and_redirect
-		unless isAccountUser
+		unless validateERPPermission('A_TE_PRVLG')
 			render_403
 			return false
 		end

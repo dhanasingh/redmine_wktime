@@ -1,4 +1,4 @@
-class WkSurveySelChoice < ActiveRecord::Base
+class WkSurveyAnswer < ActiveRecord::Base
 
   belongs_to :survey_choice , :class_name => 'WkSurveyChoice'
   belongs_to :survey_question , :class_name => 'WkSurveyQuestion'

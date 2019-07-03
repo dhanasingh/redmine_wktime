@@ -102,7 +102,7 @@
 		</table>
 	</div>
 	<br>
-	<% if isAccountUser %>
+	<% if validateERPPermission('A_TE_PRVLG') %>
 	<span style="margin-left:25.0em;"></span><%= submit_tag l(:button_save), :hidden => false, :id => 'wk_user_sal_setting_save', :disabled => false %>
 	<% end %>
 	</div>

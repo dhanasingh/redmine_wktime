@@ -923,7 +923,7 @@ it:
   label_edit_survey: Edit Survey
   label_question_choices: Question Choices
   label_open: Open
-  label_close: Close
+  label_closed: Closed
   label_new: New
   label_archived: Archived
   label_survey_name: Survey Name
@@ -948,13 +948,22 @@ it:
   label_notes: Notes
   label_include_user_group: Sending Emails to
   label_recur: Recur
-  label_recur_every: Recur Every
-  label_previous_responses: Previous Responses
-  label_response: Response
-  label_new_response: New Response
-  notice_unsucessful_survey_response: No Questions Responsed
+  label_recur_every: Every
   label_points: Points
   label_allow_survey_for_issue: Allow Survey for Issue
+  label_review: Review Required
+  label_reviewer_only: For Reviewer Only
+  label_mandatory: Mandatory
+  button_close: Close
+  button_submit: Submit
+  label_user_name: User Name
+  label_response_date: Response Date
+  label_survey_response: Survey Response
+  label_reviewed: Reviewed
+  label_review_comment: Review Comment
+  label_response_by: Response By
+  label_response_status: Response Status
+  notice_unsuccessful_save: Unable to save
   
   label_no_additional_details_for_issue: No Additional Details for Issue
   label_create_supplier_invoice_without_purchase_order: Create Supplier invoice without Purchase order
@@ -967,5 +976,17 @@ it:
   label_deduction: Deduction Total
 
   label_main_location: Main location
+  label_all_locations: All Locations
   
   report_payroll_bank: Payroll Bank Report
+  
+  label_billable: Billable
+  report_user_utilization: User Utilization
+  label_no_additional_details_for_user: No Additional Details for User
+  report_project_profitability: Project Profitability
+  label_revenue: Revenue
+  field_original_amount: Original Amount
+  T&E ADMIN PRIVILEGE : T&E Admin privilege
+
+  label_summary_by: Summary by  
+  report_trial_balance: Trial Balance Report
