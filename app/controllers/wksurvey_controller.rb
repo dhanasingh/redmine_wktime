@@ -199,7 +199,7 @@ class WksurveyController < WkbaseController
 
   def survey_response
     getSurveyForType(params)
-    condStr = @survey.is_review ? " AND (U.id = #{User.current.id} OR U.parent_id = #{User.current.id}) " : ""
+    condStr = @survey.is_review ? " AND (U.id = #{User.current.id} OR U.parent_id = #{User.current.id}) " : " AND U.id = #{User.current.id} "
     @surveyResponseList = WkSurveyResponse.joins("INNER JOIN wk_statuses AS ST ON ST.status_for_id = wk_survey_responses.id 
       AND ST.status_for_type = 'WkSurveyResponse'
       INNER JOIN wk_surveys AS S ON S.id = wk_survey_responses.survey_id
@@ -507,7 +507,7 @@ class WksurveyController < WkbaseController
     if !showSurvey || (!checkEditSurveyPermission && (["edit", "save_survey"].include? action_name))
       render_403
       return false
-    elsif (@survey.blank? && (["survey", "update_survey"].include? action_name)) || (action_name == "email_user" && @survey.status != 'O') ||  (action_name == "update_survey" && @survey.status != 'O') || (action_name == "survey_response" && survey.blank?)
+    elsif (@survey.blank? && (["survey", "update_survey"].include? action_name)) || (action_name == "email_user" && @survey.status != 'O') ||  (action_name == "update_survey" && @survey.status != 'O') || (action_name == "survey_response" && survey.blank?) || (action_name == "survey" && !(["O", "C"].include? @survey.status))
       render_404
       return false
     end
@@ -551,8 +551,9 @@ class WksurveyController < WkbaseController
     index
   end
 
-  def get_survey(survey_id, isEditSurvey = false)
+  def get_survey(survey_id, isEditSurvey)
     survey = isEditSurvey ? WkSurvey.all : get_survey_with_userGroup(survey_id)
+    survey = survey.where(id: survey_id) unless survey_id.blank?
     @survey = survey.first
   end
   
