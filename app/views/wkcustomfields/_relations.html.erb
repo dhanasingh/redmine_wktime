@@ -1,3 +1,4 @@
+
 <% if wcf.any? %>
 <%= javascript_tag do %>
 function no_project(){
@@ -6,9 +7,7 @@ function no_project(){
 
 $( document ).ready(function() {
   $("#relations").accordion({ active: <%= @filter[:current_section].nil? ? 0 : @filter[:current_section] %> });
-  if(<%= @filter[:current_section].nil? ? 'false' : 'true '%>){
-    document.getElementById('relations').scrollIntoView();
-  }
+
   paginators = $('.pagination').toArray();
 
   for(index in paginators){
@@ -17,6 +16,7 @@ $( document ).ready(function() {
   links = $('#' + paginator.id +' a').toArray();
   for(i in links){
     link = links[i];
+    console.log(link);
     uri=link.href;
 
       var re = new RegExp("([?&])" + 'current_section' + "=.*?(&|$)", "i");
@@ -57,7 +57,7 @@ function showSearchEngine(section){
     <% wcfse.each.with_index do |wcfs, index| %>
          <label><%= wcfs %></label>
          <div>
-           <div id="relations-box-<%= index %>" class="wk-contextual">
+           <div class="wk-contextual">
              <%= form_tag(params.merge(action: 'edit', controller: controller_name), method: :get) do %>
              <fieldset>
                <%= link_to "<span class='icon search'> </span>".html_safe + l(:label_search), "javascript:showSearchEngine(#{index})", :style => 'float:left;', :id => "search_button_#{index}" %>
@@ -131,42 +131,42 @@ function showSearchEngine(section){
            <thead>
                 <tr>
                   <% if @sort_by[wcfs].eql? 'custom_field-asc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:label_custom_field), params.merge("sort_#{wcfs}_by" => "custom_field-desc", current_section: index), class: 'sort desc' %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:label_custom_field), params.merge("sort_#{wcfs}_by" => "custom_field-desc", current_section: index), class: 'cfsort asc' %></th>
                   <% elsif @sort_by[wcfs].eql? 'custom_field-desc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:label_custom_field), params.merge("sort_#{wcfs}_by" => "custom_field-asc", current_section: index), class: 'sort asc' %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:label_custom_field), params.merge("sort_#{wcfs}_by" => "custom_field-asc", current_section: index), class: 'cfsort desc' %></th>
                   <% else %>
                     <th class="lbl-txt-align"><%= link_to l(:label_custom_field), params.merge("sort_#{wcfs}_by" => "custom_field-asc", current_section: index) %></th>
                   <% end %>
 
                   <% if @sort_by[wcfs].eql? 'customized_type-asc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:label_related_to), params.merge("sort_#{wcfs}_by" => "customized_type-desc", current_section: index), class: 'sort desc' %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:label_related_to), params.merge("sort_#{wcfs}_by" => "customized_type-desc", current_section: index), class: 'cfsort asc' %></th>
                   <% elsif @sort_by[wcfs].eql? 'customized_type-desc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:label_related_to), params.merge("sort_#{wcfs}_by" => "customized_type-asc", current_section: index), class: 'sort asc' %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:label_related_to), params.merge("sort_#{wcfs}_by" => "customized_type-asc", current_section: index), class: 'cfsort desc' %></th>
                   <% else %>
                     <th class="lbl-txt-align"><%= link_to l(:label_related_to), params.merge("sort_#{wcfs}_by" => "customized_type-asc", current_section: index) %></th>
                   <% end %>
 
                   <% if @sort_by[wcfs].eql? 'name-asc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:label_link), params.merge("sort_#{wcfs}_by" => "name-desc", current_section: index), class: 'sort desc' %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:label_link), params.merge("sort_#{wcfs}_by" => "name-desc", current_section: index), class: 'cfsort asc' %></th>
                   <% elsif @sort_by[wcfs].eql? 'name-desc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:label_link), params.merge("sort_#{wcfs}_by" => "name-asc", current_section: index), class: 'sort asc' %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:label_link), params.merge("sort_#{wcfs}_by" => "name-asc", current_section: index), class: 'cfsort desc' %></th>
                   <% else %>
                     <th class="lbl-txt-align"><%= link_to l(:label_link), params.merge("sort_#{wcfs}_by" => "name-asc", current_section: index) %></th>
                   <% end %>
 
                   <% if @sort_by[wcfs].eql? 'updated_on-asc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:field_updated_on), params.merge("sort_#{wcfs}_by" => "updated_on-desc", current_section: index), class: 'sort desc' %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:field_updated_on), params.merge("sort_#{wcfs}_by" => "updated_on-desc", current_section: index), class: 'cfsort asc' %></th>
                   <% elsif @sort_by[wcfs].eql? 'updated_on-desc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:field_updated_on), params.merge("sort_#{wcfs}_by" => "updated_on-asc", current_section: index), class: 'sort asc' %></th>
+                    <th class="lbl-txt-align"><%= link_to l(:field_updated_on), params.merge("sort_#{wcfs}_by" => "updated_on-asc", current_section: index), class: 'cfsort desc' %></th>
                   <% else %>
                     <th class="lbl-txt-align"><%= link_to l(:field_updated_on), params.merge("sort_#{wcfs}_by" => "updated_on-asc", current_section: index) %></th>
                   <% end %>
 
 
-                  <% if @sort_by[wcfs].eql? 'created_on-asc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:field_created_on), params.merge("sort_#{wcfs}_by" => "created_on-desc", current_section: index), class: 'sort desc' %></th>
-                  <% elsif @sort_by[wcfs].eql? 'created_on-desc' %>
-                    <th class="lbl-txt-align"><%= link_to l(:field_created_on), params.merge("sort_#{wcfs}_by" => "created_on-asc", current_section: index), class: 'sort asc' %></th>
+                  <% if @sort_by[wcfs].eql? 'created_on-asc' or @sort_by[wcfs].blank? %>
+                    <th class="lbl-txt-align"><%= link_to l(:field_created_on), params.merge("sort_#{wcfs}_by" => "created_on-desc", current_section: index), class: 'cfsort asc' %></th>
+                  <% elsif @sort_by[wcfs].eql? 'created_on-desc'  %>
+                    <th class="lbl-txt-align"><%= link_to l(:field_created_on), params.merge("sort_#{wcfs}_by" => "created_on-asc", current_section: index), class: 'cfsort desc' %></th>
                   <% else %>
                     <th class="lbl-txt-align"><%= link_to l(:field_created_on), params.merge("sort_#{wcfs}_by" => "created_on-asc", current_section: index) %></th>
                   <% end %>
@@ -185,61 +185,61 @@ function showSearchEngine(section){
                     <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
                     <% elsif wcv.custom_field.type == "TimeentryCustomField" %>
                       <%= l(:label_spent_time) %>
-                    </td> <% related_value = relationDict['spent_time'][wcv.customized_id][0] %>
+                    </td> <% related_value = relationDict['spent_time'].find(wcv.customized_id) %>
                     <td class="lbl-txt-align"><%= link_to "time entry: #{related_value.id.to_s}", related_value %></td>
                     <td class="lbl-txt-align"><%= format_time(related_value.updated_on) %></td>
                     <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
                     <% elsif wcv.custom_field.type == "ProjectCustomField" %>
                       <%= l(:label_project_plural) %>
-                    </td><% related_value = relationDict['project'][wcv.customized_id][0] %>
+                    </td><% related_value = relationDict['project'].find(wcv.customized_id) %>
                     <td class="lbl-txt-align"><%= link_to related_value.name, related_value %></td>
                     <td class="lbl-txt-align"><%= format_time(related_value.updated_on) %></td>
                     <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
                     <% elsif wcv.custom_field.type == "VersionCustomField" %>
                       <%= l(:label_version_plural) %>
-                    </td><% related_value = relationDict['version'][wcv.customized_id][0] %>
+                    </td><% related_value = relationDict['version'].find(wcv.customized_id) %>
                     <td class="lbl-txt-align"><%= link_to related_value.name, related_value %></td>
                     <td class="lbl-txt-align"><%= format_time(related_value.updated_on) %></td>
                     <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
                     <% elsif wcv.custom_field.type == "DocumentCustomField" %>
                       <%= l(:label_document_plural) %>
-                    </td><% related_value = relationDict['document'][wcv.customized_id][0] %>
+                    </td><% related_value = relationDict['document'].find(wcv.customized_id) %>
                     <td class="lbl-txt-align"><%= link_to related_value.title, related_value %></td>
                     <td class="lbl-txt-align"><%= format_time(related_value.updated_on) %></td>
                     <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
                     <% elsif wcv.custom_field.type == "UserCustomField" %>
                       <%= l(:label_user_plural) %>
-                    </td><% related_value = relationDict['user'][wcv.customized_id][0] %>
+                    </td><% related_value = relationDict['user'].find(wcv.customized_id) %>
                     <td class="lbl-txt-align"><%= link_to related_value.name, related_value %></td>
                     <td class="lbl-txt-align"><%= format_time(related_value.updated_on) %></td>
                     <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
                     <% elsif wcv.custom_field.type == "GroupCustomField" %>
                       <%= l(:label_group_plural) %>
-                    </td><% related_value = relationDict['group'][wcv.customized_id][0] %>
+                    </td><% related_value = relationDict['group'].find(wcv.customized_id) %>
                     <td class="lbl-txt-align"><%= link_to related_value.name, related_value %></td>
                     <td class="lbl-txt-align"><%= format_time(related_value.updated_on) %></td>
                     <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
                     <% elsif wcv.custom_field.type == "TimeentryActivityCustomField" %>
                       <%= l(:enumeration_activities) %>
-                    </td><% related_value = relationDict['time_entry_activity'][wcv.customized_id][0] %>
+                    </td><% related_value = relationDict['time_entry_activity'].find(wcv.customized_id) %>
                     <td class="lbl-txt-align"><%= link_to related_value.name, related_value %></td>
                     <td class="lbl-txt-align"><%= format_time(related_value.updated_on) %></td>
                     <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
                     <% elsif wcv.custom_field.type == "IssuePriorityCustomField" %>
                       <%= l(:enumeration_issue_priorities) %>
-                    </td><% related_value = relationDict['issue_priority'][wcv.customized_id][0] %>
+                    </td><% related_value = relationDict['issue_priority'].find(wcv.customized_id) %>
                     <td class="lbl-txt-align"><%= link_to related_value.name, related_value %></td>
                     <td class="lbl-txt-align"><%= format_time(related_value.updated_on) %></td>
                     <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
                     <% elsif wcv.custom_field.type == "DocumentCategoryCustomField" %>
                       <%= l(:enumeration_doc_categories) %>
-                    </td><% related_value = relationDict['document_category'][wcv.customized_id][0] %>
+                    </td><% related_value = relationDict['document_category'].find(wcv.customized_id) %>
                     <td class="lbl-txt-align"><%= link_to related_value.name, related_value %></td>
                     <td class="lbl-txt-align"><%= format_time(related_value.updated_on) %></td>
                     <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
                     <% elsif wcv.custom_field.type == "WktimeCustomField" %>
                       <%= l(:label_wk_time) %>
-                    </td><% related_value = relationDict['wktime'][wcv.customized_id][0] %>
+                    </td><% related_value = relationDict['wktime'].find(wcv.customized_id) %>
                     <td class="lbl-txt-align"><%= link_to "wk time: #{related_value.id.to_s}", related_value %></td>
                     <td class="lbl-txt-align"><%= format_time(related_value.updated_on) %></td>
                     <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
@@ -258,6 +258,6 @@ function showSearchEngine(section){
     <% end %>
 </div>
 <script>
-$.when( $( "#relations" ).accordion({ heightStyle: "content", collapsible: true});).then(document.getElementById('relations').scrollIntoView(););
+$( "#relations" ).accordion({ heightStyle: "content", collapsible: true});
 </script>
 <% end %>

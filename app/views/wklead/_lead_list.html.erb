@@ -17,7 +17,8 @@
 		<tbody>
 			<% @leadEntries.each do |entry| %>
 				<tr>
-					<td class="lbl-txt-align"><%=h entry.contact.name %></td>
+					<td class="lbl-txt-align"><%= link_to entry.contact.name , {:controller => controller.controller_name, :action => 'edit', :lead_id => entry.id,:address_id => entry.address.blank? ? "" : entry.address.id}, :title => l(:button_edit) %> </td>
+
 					<!-- <td class="lbl-txt-align"><%#= link_to entry.contact.last_name, url_for(:controller => controller_name, :action => 'show', :lead_id => entry.id,:address_id => entry.contact.address.blank? ? "" : entry.contact.address.id) %></td> -->
 					<td class="lbl-txt-align"><%=h getLeadStatusHash[entry.status] %></td>
 					<td class="lbl-txt-align"><%=h entry.account.blank? ? "" : entry.account.name %></td>

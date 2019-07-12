@@ -17,7 +17,7 @@
    <tbody>
 	<% contacts.each do |entry| %>
 		<tr>
-		    <td class="lbl-txt-align"><%=h entry.name  %></td>
+		    <td class="lbl-txt-align"><%= link_to entry.name , {:controller => controller.getContactController, :action => 'edit', :contact_id => entry.id, :tab => controller.getContactController}, :title => l(:button_edit) %></td>
 			<td class="lbl-txt-align"><%=h entry.account.name unless entry.account.blank?  %></td>
 			<td class="lbl-txt-align"><%=h entry.location_id.blank? ? "" : entry.location.name %></td>
 			<td class="lbl-txt-align"><%=h entry.title unless entry.title.blank?  %></td>

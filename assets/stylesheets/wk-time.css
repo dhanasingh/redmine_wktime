@@ -38,23 +38,6 @@ table.nowrap {
 div.schedule {background:#ecd9c6; padding:6px; margin-bottom:6px; border: 1px solid #d7d7d7; border-radius:3px;}
 
 
-select.small-select {
-  font-size: 12px;
-}
-
-select.small-select option{
-    font-size: 3pt;
-}
-
-div.form-group {
-    padding-left: 12px;
-    padding-top: 5px;
-    display: block;
-    float: left;
-}
-
-div.set{
-    display: block;
-    clear: left;
-    padding-top: 10px;
-}
+a.cfsort { padding-right: 16px; background-position: 100% 50%; background-repeat: no-repeat; }
+a.cfsort.asc { background-image: url(../../../images/sort_asc.png); }
+a.cfsort.desc { background-image: url(../../../images/sort_desc.png); }

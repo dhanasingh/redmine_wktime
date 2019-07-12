@@ -15,7 +15,7 @@
 		<tbody>
 			<% @account_entries.each do |entry| %>
 				<tr>
-					  <td class="lbl-txt-align"><%=h entry.name %></td>
+					  <td class="lbl-txt-align"><%= link_to entry.name, {:controller => controller.controller_name, :action => 'edit', :account_id => entry.id,:address_id => entry.address.blank? ? "" : entry.address.id}, :title => l(:button_edit) %></td>
 					  <td class="lbl-txt-align"><%=h entry.location_id.blank? ? "" : entry.location.name %></td>
 					  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.address1 %></td>
 					  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.work_phone %></td>
