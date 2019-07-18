@@ -4,6 +4,7 @@ module Redmine
   module FieldFormat
     class ErpFormat < RecordList
       self.searchable_supported = true
+      self.bulk_edit_supported = false
 
       def possible_values_options(custom_field, object=nil)
         possible_values_records(custom_field, object).map {|u| [u.name, u.id.to_s]}

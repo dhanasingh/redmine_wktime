@@ -96,7 +96,6 @@ include WktimeHelper
   def getRelationDict(entry)
     returnDict = {}
     if entry.custom_values.any?
-      Rails.logger.error "Im there"
       issues = entry.custom_values.where(customized_type: 'Issue').map(&:customized).group_by { |x| x.id }
       issues.any? ? returnDict['issue'] = issues : nil
       time_entries = entry.custom_values.where(customized_type: 'TimeEntry').map(&:customized).group_by { |x| x.id }
@@ -119,7 +118,6 @@ include WktimeHelper
       document_categories.any? ? returnDict['document_category'] = document_categories : nil
       wktimes = entry.custom_values.where(customized_type: 'TimeEntry').map(&:customized).group_by { |x| x.id }
       wktimes.any? ? returnDict['wktime'] = wktimes : nil
-      Rails.logger.error "ANd there"
     end
     returnDict
   end

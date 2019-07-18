@@ -6,17 +6,20 @@ function no_project(){
 }
 
 $( document ).ready(function() {
-  $("#relations").accordion({ active: <%= @filter[:current_section].nil? ? 0 : @filter[:current_section] %> });
+  if(<%= @filter[:current_section].nil? ? 'false' : 'true '%>){
+
+    document.getElementById('relations').scrollIntoView();
+  }
 
   paginators = $('.pagination').toArray();
 
   for(index in paginators){
   paginator = paginators[index];
-  console.log(paginator.id)
+
   links = $('#' + paginator.id +' a').toArray();
   for(i in links){
     link = links[i];
-    console.log(link);
+
     uri=link.href;
 
       var re = new RegExp("([?&])" + 'current_section' + "=.*?(&|$)", "i");
@@ -57,7 +60,7 @@ function showSearchEngine(section){
     <% wcfse.each.with_index do |wcfs, index| %>
          <label><%= wcfs %></label>
          <div>
-           <div class="wk-contextual">
+           <div id="relations-box-<%= index %>" class="wk-contextual">
              <%= form_tag(params.merge(action: 'edit', controller: controller_name), method: :get) do %>
              <fieldset>
                <%= link_to "<span class='icon search'> </span>".html_safe + l(:label_search), "javascript:showSearchEngine(#{index})", :style => 'float:left;', :id => "search_button_#{index}" %>
@@ -174,6 +177,7 @@ function showSearchEngine(section){
            </thead>
             <tbody>
               <% @customValues[wcfs].each do |wcv| %>
+                <% Rails.logger.error "THE WCV = #{wcv.customized_id} and #{relationDict['document'][wcv.customized_id]}" %>
                 <tr>
                   <td class="lbl-txt-align"><%= wcv.custom_field.name %></td>
                   <td class="lbl-txt-align">
@@ -203,7 +207,7 @@ function showSearchEngine(section){
                     <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
                     <% elsif wcv.custom_field.type == "DocumentCustomField" %>
                       <%= l(:label_document_plural) %>
-                    </td><% related_value = relationDict['document'].find(wcv.customized_id) %>
+                    </td><% related_value = relationDict['document'][wcv.customized_id][0] %>
                     <td class="lbl-txt-align"><%= link_to related_value.title, related_value %></td>
                     <td class="lbl-txt-align"><%= format_time(related_value.updated_on) %></td>
                     <td class="lbl-txt-align"><%= format_time(related_value.created_on) %></td>
@@ -258,6 +262,6 @@ function showSearchEngine(section){
     <% end %>
 </div>
 <script>
-$( "#relations" ).accordion({ heightStyle: "content", collapsible: true});
+$("#relations").accordion({ heightStyle: "content", collapsible: true, active: <%= @filter[:current_section].nil? ? 0 : @filter[:current_section] %> }).scrollIntoView();;
 </script>
 <% end %>
