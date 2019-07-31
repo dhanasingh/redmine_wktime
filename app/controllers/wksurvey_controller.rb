@@ -133,80 +133,63 @@ class WksurveyController < WkbaseController
   end
 
   def survey
-    showresult = params[:showresult].blank? ? false : true
     getSurveyForType(params)
-    @isSurvey = @survey.status == "O" && !showresult ? true : false
+    @question_Entries = WkSurvey.joins("INNER JOIN wk_survey_questions AS SQ ON wk_surveys.id = SQ.survey_id
+      LEFT JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id")
+      .where("wk_surveys.id = #{params[:survey_id]}")
+      .group("SQ.id, wk_surveys.id, wk_surveys.name, SQ.name, SQ.question_type")
+      .select("wk_surveys.id, wk_surveys.name, SQ.id AS question_id, SQ.name AS question_name, SQ.question_type AS question_type,
+        SQ.is_mandatory, SQ.is_reviewer_only")
+      .order("SQ.is_reviewer_only, SQ.id")
 
-    if @isSurvey
-      @question_Entries = WkSurvey.joins("INNER JOIN wk_survey_questions AS SQ ON wk_surveys.id = SQ.survey_id
-        LEFT JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id")
-        .where("wk_surveys.status = 'O'AND wk_surveys.id = #{params[:survey_id]}")
-        .group("SQ.id, wk_surveys.id, wk_surveys.name, SQ.name, SQ.question_type")
-        .select("wk_surveys.id, wk_surveys.name, SQ.id AS question_id, SQ.name AS question_name, SQ.question_type AS question_type,
-          SQ.is_mandatory, SQ.is_reviewer_only")
-        .order("SQ.is_reviewer_only, SQ.id")
+    @question_Choice_Entries = WkSurvey.joins("INNER JOIN wk_survey_questions AS SQ ON wk_surveys.id = SQ.survey_id
+      LEFT JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id")
+      .where("wk_surveys.id = #{params[:survey_id]}")
+      .select("SC.id, SC.name, SQ.id AS survey_question_id")
 
-      @question_Choice_Entries = WkSurvey.joins("INNER JOIN wk_survey_questions AS SQ ON wk_surveys.id = SQ.survey_id
-        LEFT JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id")
-        .where("wk_surveys.status = 'O'AND wk_surveys.id = #{params[:survey_id]}")
-        .select("SC.id, SC.name, SQ.id AS survey_question_id")
+    surveyFor_cnd = " AND wk_survey_responses.survey_for_type" + (@surveyForID.blank? ? " IS NULL " : " = '#{@surveyForType}' ") +
+      " AND wk_survey_responses.survey_for_id" + (@surveyForID.blank? ? " IS NULL " : " = #{@surveyForID} ")
 
-      surveyFor_cnd = " AND wk_survey_responses.survey_for_type" + (@surveyForID.blank? ? " IS NULL " : " = '#{@surveyForType}' ") +
-        " AND wk_survey_responses.survey_for_id" + (@surveyForID.blank? ? " IS NULL " : " = #{@surveyForID} ")
+    get_response_status(params[:survey_id], params[:response_id])
+    @responseStatus = @response_status.blank? ? nil : @response_status.status
+    @isResetResponse = (!@response_status.blank? && @survey.recur && (@response_status.status_date + @survey.recur_every.days <= Time.now))
+    @isDisable = !(@response_status.blank? || @responseStatus == "O" && (params[:response_id].blank? || (!params[:response_id].blank? && 
+      params[:response_id].to_i == @response_status.id)) || @isResetResponse) || ((!@response_status.blank? || @responseStatus == "O") &&
+      !([@response_status.user_id, @response_status.parent_id].include? User.current.id))
+    responseID = params[:response_id].blank? && !@response_status.blank? ? @response_status.id : params[:response_id]
 
-      get_response_status(params[:survey_id], params[:response_id])
-      @survey_response_list = WkSurveyResponse.find_by_sql("SELECT wk_survey_responses.survey_id, wk_survey_responses.id,
-          MAX(ST.status_date) AS response_date
-        FROM wk_survey_responses
-        INNER JOIN wk_statuses AS ST ON ST.status_for_id = wk_survey_responses.id AND ST.status_for_type = 'WkSurveyResponse'
-        WHERE wk_survey_responses.survey_id = #{params[:survey_id]}" + surveyFor_cnd + "GROUP BY wk_survey_responses.survey_id,wk_survey_responses.id ORDER BY response_date DESC")
-      @responseStatus = @response_status.blank? ? nil : @response_status.status
-      @isResetResponse = (!@response_status.blank? && @survey.recur && (@response_status.status_date + @survey.recur_every.days <= Time.now))
-      @isDisable = !(@response_status.blank? || @responseStatus == "O" && (params[:response_id].blank? || (!params[:response_id].blank? && params[:response_id].to_i == @response_status.id)) || @isResetResponse)
-      responseID = params[:response_id].blank? && !@response_status.blank? ? @response_status.id : params[:response_id]
-
-      if @isResetResponse
-        @survey_response = nil
-      else
-        @survey_response = WkSurvey.joins("
-          INNER JOIN wk_survey_questions AS SQ ON SQ.survey_id = wk_surveys.id
-          INNER JOIN wk_survey_responses ON wk_survey_responses.survey_id = wk_surveys.id
-          INNER JOIN wk_survey_answers AS SA ON SA.survey_response_id = wk_survey_responses.id AND SQ.id = SA.survey_question_id
-          INNER JOIN wk_statuses AS ST ON ST.status_for_id = wk_survey_responses.id AND ST.status_for_type = 'WkSurveyResponse'
-          LEFT JOIN wk_survey_reviews AS SR ON SR.survey_response_id = wk_survey_responses.id AND SR.survey_question_id = SQ.id")
-          .where(" wk_surveys.id = #{params[:survey_id]}" + (responseID.blank? ? surveyFor_cnd + " AND wk_survey_responses.user_id = #{User.current.id} " : " AND wk_survey_responses.id = #{responseID} "))
-          .group(" wk_surveys.id, wk_surveys.name, SQ.id, SQ.name, SA.survey_choice_id, SA.choice_text, 
-            SQ.question_type, wk_survey_responses.id, SR.comment_text")
-          .select(" wk_surveys.id, wk_surveys.name, SQ.id AS question_id, SQ.name AS question_name, wk_survey_responses.user_id, 
-            SA.survey_choice_id, SA.choice_text, SQ.question_type, MAX(ST.status_date) AS status_date, wk_survey_responses.id, SR.comment_text")
-      end
-      reviewUsers = User.where(parent_id: User.current.id).pluck(:id)
-      @reviewer = !@survey_response.blank? && (reviewUsers.include? @survey_response.first.user_id) && @survey.is_review && !@isResetResponse
-      @isReview = @reviewer || (!@response_status.blank? && "R" == @responseStatus)
-      @isReviewed = ("R" == @responseStatus)
+    if @isResetResponse
+      @survey_response = nil
     else
-      @survey_result_Entries = WkSurvey.find_by_sql("
-        SELECT S.id, S.name, SQ.id AS question_id, SQ.name AS question_name 
-        FROM wk_surveys AS S
-        INNER JOIN wk_survey_questions AS SQ ON SQ.survey_id = S.id 
-        INNER JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id 
-        WHERE (S.id = #{params[:survey_id]} AND SQ.question_type NOT IN ('TB', 'MTB')) AND SQ.is_reviewer_only IS FALSE 
-        GROUP BY S.id, S.name, SQ.id, SQ.name 
-        ORDER BY S.id, SQ.id")
+      @survey_response = WkSurvey.joins("
+        INNER JOIN wk_survey_questions AS SQ ON SQ.survey_id = wk_surveys.id
+        INNER JOIN wk_survey_responses ON wk_survey_responses.survey_id = wk_surveys.id
+        INNER JOIN wk_survey_answers AS SA ON SA.survey_response_id = wk_survey_responses.id AND SQ.id = SA.survey_question_id
+        INNER JOIN wk_statuses AS ST ON ST.status_for_id = wk_survey_responses.id AND ST.status_for_type = 'WkSurveyResponse'
+        LEFT JOIN wk_survey_reviews AS SR ON SR.survey_response_id = wk_survey_responses.id AND SR.survey_question_id = SQ.id")
+        .where(" wk_surveys.id = #{params[:survey_id]}" + (responseID.blank? ? surveyFor_cnd + " AND wk_survey_responses.user_id = #{User.current.id} " : " AND wk_survey_responses.id = #{responseID} "))
+        .group(" wk_surveys.id, wk_surveys.name, SQ.id, SQ.name, SA.survey_choice_id, SA.choice_text, 
+          SQ.question_type, wk_survey_responses.id, SR.comment_text")
+        .select(" wk_surveys.id, wk_surveys.name, SQ.id AS question_id, SQ.name AS question_name, wk_survey_responses.user_id, 
+          SA.survey_choice_id, SA.choice_text, SQ.question_type, MAX(ST.status_date) AS status_date, wk_survey_responses.id, SR.comment_text")
     end
-
+    reviewUsers = User.where(parent_id: User.current.id).pluck(:id)
+    @reviewer = !@survey_response.blank? && (reviewUsers.include? @survey_response.first.user_id) && @survey.is_review && !@isResetResponse
+    @isReview = @reviewer || (!@response_status.blank? && "R" == @responseStatus)
+    @isReviewed = ("R" == @responseStatus)
   end
 
   def survey_response
     getSurveyForType(params)
-    condStr = @survey.is_review ? " AND (U.id = #{User.current.id} OR U.parent_id = #{User.current.id}) " : " AND U.id = #{User.current.id} "
+    condStr = @survey.is_review ? " (U.id = #{User.current.id} OR U.parent_id = #{User.current.id}) " : " U.id = #{User.current.id} "
     @surveyResponseList = WkSurveyResponse.joins("INNER JOIN wk_statuses AS ST ON ST.status_for_id = wk_survey_responses.id 
       AND ST.status_for_type = 'WkSurveyResponse'
       INNER JOIN wk_surveys AS S ON S.id = wk_survey_responses.survey_id
       INNER JOIN users AS U ON U.id = user_id AND U.type = 'User'")
-    .where("survey_id = #{params[:survey_id]} " + " AND wk_survey_responses.survey_for_type " + (@surveyForType.blank? ? " IS NULL " : " = '#{@surveyForType}' ") + condStr)
-    .group("survey_id, wk_survey_responses.id, S.name, S.survey_for_type, S.survey_for_id, ST.status, U.firstname, U.lastname, U.parent_id")
-    .select("MAX(ST.status_date) AS status_date, ST.status, survey_id, wk_survey_responses.id, user_id, S.name,
+      .where("survey_id = #{params[:survey_id]} " + " AND wk_survey_responses.survey_for_type " + (@surveyForType.blank? ? 
+        " IS NULL " : " = '#{@surveyForType}' AND ( ") + condStr + " OR true = #{validateERPPermission("E_SUR")})")
+      .group("survey_id, wk_survey_responses.id, S.name, S.survey_for_type, S.survey_for_id, ST.status, U.firstname, U.lastname, U.parent_id")
+      .select("MAX(ST.status_date) AS status_date, ST.status, survey_id, wk_survey_responses.id, user_id, S.name,
       S.survey_for_type, wk_survey_responses.survey_for_id, U.firstname, U.lastname, U.parent_id")
 
     responseEntries = Hash.new
@@ -219,6 +202,7 @@ class WksurveyController < WkbaseController
                 parent_id: response.parent_id }
         end
     end
+    
     @response_entries = Hash.new
     @entry_count = responseEntries.length
     responseEntries = responseEntries.to_a
@@ -326,6 +310,17 @@ class WksurveyController < WkbaseController
     urlHash = {:controller => controller_name, :action => 'index', :surveyForType => survey_response.survey_for_type}
     urlHash = get_survey_redirect_url(urlHash, params)
     redirect_to urlHash
+  end
+
+  def survey_result
+    @survey_result_Entries = WkSurvey.find_by_sql("
+      SELECT S.id, S.name, SQ.id AS question_id, SQ.name AS question_name 
+      FROM wk_surveys AS S
+      INNER JOIN wk_survey_questions AS SQ ON SQ.survey_id = S.id 
+      INNER JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id 
+      WHERE (S.id = #{params[:survey_id]} AND SQ.question_type NOT IN ('TB', 'MTB')) 
+      GROUP BY S.id, S.name, SQ.id, SQ.name 
+      ORDER BY S.id, SQ.id")
   end
 
   def graph
@@ -507,9 +502,11 @@ class WksurveyController < WkbaseController
     if !showSurvey || (!checkEditSurveyPermission && (["edit", "save_survey"].include? action_name))
       render_403
       return false
-    elsif (@survey.blank? && (["survey", "update_survey"].include? action_name)) || (action_name == "email_user" && @survey.status != 'O') ||  (action_name == "update_survey" && @survey.status != 'O') || (action_name == "survey_response" && survey.blank?) || (action_name == "survey" && !(["O", "C"].include? @survey.status))
-      render_404
-      return false
+    elsif (["email_user", "update_survey", "survey"].include? action_name && (@survey.blank? || @survey.status)) ||
+      (action_name == "survey_response" && survey.blank?) || (action_name == "survey_result" && @survey.status != "C" && 
+        !validateERPPermission("E_SUR"))
+        render_404
+        return false
     end
   end
 
@@ -568,8 +565,8 @@ class WksurveyController < WkbaseController
       INNER JOIN users AS U ON wk_survey_responses.user_id = U.id
       INNER JOIN wk_surveys AS S ON S.id = wk_survey_responses.survey_id")
     .where(" S.id = #{survey_id} AND (wk_survey_responses.user_id = #{User.current.id} 
-      OR (U.parent_id = #{(User.current.id).to_s} AND S.is_review IS TRUE))" + condStr)
+      OR (U.parent_id = #{(User.current.id).to_s} OR true = #{validateERPPermission("E_SUR")}))" + condStr)
     .order("status_date DESC")
-    .select("wk_survey_responses.id, ST.status, ST.status_date").first
+    .select("wk_survey_responses.id, ST.status, ST.status_date, U.firstname, U.lastname, U.parent_id, wk_survey_responses.user_id").first
   end
 end

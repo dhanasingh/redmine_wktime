@@ -19,30 +19,35 @@ end
         <th></th>
     </tr>
     <% @all_surveys.each_with_index do |entry, index| %>
-        <% urlhash = { :survey_id => entry.id, :surveyForType => entry.survey_for_type, :surveyForID => entry.survey_for_id } %>
+        <% urlhash = { :survey_id => entry.id, :surveyForType => entry.survey_for_type, :surveyForID => entry.survey_for_id }
+        action = entry.status == "O" ? "survey" : "survey_result"
+        %>
         <tr>
             <td class="lbl-txt-align"><%=h index+1 %></td>
             <td class="lbl-txt-align">
                 <% if helperObj.get_survey_with_userGroup(entry.id).blank? || (@surveyForID.blank? && !@surveyForType.blank?) %>
                     <%=h entry.name %>
                 <% else %>
-                    <%=h link_to entry.name, url_for(helperObj.get_survey_url(urlhash, params, "survey")) %>
+                    <%=h link_to entry.name, url_for(helperObj.get_survey_url(urlhash, params, action)) %>
                 <% end %>
             </td>
             <td class="lbl-txt-align"><%=h helperObj.getSurveyStatus.invert[entry.status] %></td>
             <td class="lbl-txt-align">
-                <% if (["O","C"].include? entry.status) && (entry.is_review || entry.recur) %>
-                    <%= link_to image_tag("withoutcommant.png", :plugin => "redmine_wktime"), url_for(helperObj.get_survey_url(urlhash, params, "survey_response")), :title => l(:label_survey_response) %>&emsp;
+                <% if (["O","C"].include? entry.status) %>
+                    <%= link_to image_tag("withoutcommant.png", :plugin => "redmine_wktime"), 
+                        url_for(helperObj.get_survey_url(urlhash, params, "survey_response")), :title => l(:label_survey_response) %>&emsp;
                 <% else %>&emsp;&emsp;&nbsp;
                 <% end %>
                 <% if (["O","C"].include? entry.status) && helperObj.checkEditSurveyPermission %>
-                    <% urlhash[:showresult] = true %>
-                    <%= link_to image_tag("stats.png"), url_for(helperObj.get_survey_url(urlhash, params, "survey")), :title => l(:label_survey_result) %>&emsp;
+                    <%= link_to image_tag("stats.png"), url_for(helperObj.get_survey_url(urlhash, params, "survey_result")), 
+                        :title => l(:label_survey_result) %>&emsp;
                 <% else %>&emsp;&emsp;&nbsp;
                 <% end %>
                 <% if helperObj.checkEditSurveyPermission && params[:isIssue].blank? %>
-                    <%= link_to image_tag('edit.png'), url_for(helperObj.get_survey_url(urlhash, params, "edit")), :title => l(:button_edit) %>&emsp;
-                    <%= link_to image_tag('delete.png'), url_for(helperObj.get_survey_url(urlhash, params, "destroy")), :data => {:confirm => l(:text_are_you_sure)}, :title => l(:button_delete) %>
+                    <%= link_to image_tag('edit.png'), url_for(helperObj.get_survey_url(urlhash, params, "edit")), 
+                        :title => l(:button_edit) %>&emsp;
+                    <%= link_to image_tag('delete.png'), url_for(helperObj.get_survey_url(urlhash, params, "destroy")), 
+                        :data => {:confirm => l(:text_are_you_sure)}, :title => l(:button_delete) %>
                 <% end %>
             </td>
         </tr>

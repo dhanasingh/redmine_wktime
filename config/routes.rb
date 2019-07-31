@@ -603,6 +603,8 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 
 	get 'wksurvey/survey_response', :to => 'wksurvey#survey_response'
 
+	get 'wksurvey/survey_result', :to => 'wksurvey#survey_result'
+
 	get 'wkpayroll/export', :to => 'wkpayroll#export'
 
 	get 'wkgltransaction/export', :to => 'wkgltransaction#export'

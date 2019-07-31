@@ -1,0 +1,11 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'survey', :plugin => "redmine_wktime" %>
+
+<%= title l(:label_survey_result) %>
+<h3><%= l(:label_survey_name) %>:&nbsp;&nbsp; <%= @survey.name %></h3>
+
+<% unless @survey_result_Entries.blank? && @question_Entries.blank? %>
+	<fieldset class="box tabular">
+		<%= render :partial => "survey_result" %>
+	</fieldset>
+<% end %>
