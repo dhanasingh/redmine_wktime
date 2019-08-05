@@ -1,4 +1,4 @@
-<% 
+<%
 	userId = session[:wkreport][:user_id].blank? ? 0 : session[:wkreport][:user_id]
 	groupId = session[:wkreport][:group_id].blank? ? 0 : session[:wkreport][:group_id]
 	projectId = session[:wkreport][:project_id].blank? ? 0 : session[:wkreport][:project_id]
@@ -23,7 +23,7 @@
 
 	inBtwMonths = getInBtwMonthsArr(from, to)
 	columnCount = inBtwMonths.length
-	queryStr = "SELECT U.id as user_id, U.firstname as firstname, U.lastname as lastname, SC.name as component_name, SC.id as sc_component_id, 
+	queryStr = "SELECT U.id as user_id, U.firstname as firstname, U.lastname as lastname, SC.name as component_name, SC.id as sc_component_id,
 			S.salary_date as salary_date, S.amount as amount, S.currency as currency, SC.component_type as component_type, M.project_id
 		FROM wk_salaries AS S
 		INNER JOIN wk_salary_components AS SC on S.salary_component_id=SC.id
@@ -41,13 +41,15 @@
 			SELECT TE.user_id, SUM(TE.hours) AS user_hours, extract(month from TE.spent_on) AS spent_month,
 				extract(year from TE.spent_on) AS spent_year
 					FROM time_entries AS TE
-			LEFT JOIN members AS M ON M.user_id = TE.user_id AND M.project_id = TE.project_id 
+			LEFT JOIN members AS M ON M.user_id = TE.user_id AND M.project_id = TE.project_id
+			INNER JOIN wk_projects AS WP ON WP.project_id = M.project_id AND WP.is_billable IS TRUE
 			AND TE.spent_on BETWEEN  '#{te_from}' AND '#{te_to}'
 			GROUP BY TE.user_id, spent_month, spent_year
-				) AS UT ON UT.user_id = TE.user_id AND UT.spent_year = extract(year from TE.spent_on) 
+				) AS UT ON UT.user_id = TE.user_id AND UT.spent_year = extract(year from TE.spent_on)
 				AND UT.spent_month = extract(month from TE.spent_on) AND TE.spent_on BETWEEN  '#{te_from}' AND '#{te_to}'
 		RIGHT JOIN members AS M ON M.user_id = TE.user_id AND M.project_id = TE.project_id
-		GROUP BY M.user_id, M.project_id, UT.spent_month, UT.spent_year, UT.user_hours "
+		GROUP BY M.user_id, M.project_id, UT.spent_month, UT.spent_year, UT.user_hours
+		HAVING SUM(TE.hours) > 0"
 
 	@time_entries = TimeEntry.find_by_sql(te_details)
 
@@ -58,7 +60,7 @@
 		INNER JOIN wk_projects AS WP ON WP.project_id = II.project_id AND WP.is_billable IS TRUE
 		INNER JOIN projects AS P ON II.project_id = P.id
 		WHERE I.invoice_type = 'I' AND I.invoice_date BETWEEN '#{from}' AND '#{to}' "
-										
+
 		if projectId.to_i > 0
 			invoice_details = invoice_details + "AND II.project_id = #{projectId} "
 		end
@@ -70,10 +72,15 @@
 	billable_projects = "SELECT WP.project_id, P.name
 							FROM wk_projects AS WP
 							INNER JOIN projects AS P ON WP.project_id = P.id
-							WHERE is_billable IS TRUE "
+							INNER JOIN wk_invoice_items AS II ON II.project_id = WP.project_id
+							INNER JOIN wk_invoices AS I ON I.id = II.invoice_id
+							WHERE I.invoice_type = 'I' AND I.invoice_date BETWEEN '#{from}' AND '#{to}' AND is_billable IS TRUE "
+							
 	if projectId.to_i > 0
 		billable_projects = billable_projects + "AND WP.project_id = #{projectId} "	
 	end
+
+	billable_projects = billable_projects + " GROUP BY WP.project_id, P.name "
 	@billable_projects = WkProject.find_by_sql(billable_projects)
 
 	payrollAmount = Array.new
@@ -85,16 +92,16 @@
 
 	proj_expense = Hash.new
 	inBtwMonths.each do |monthVal|
-		@time_entries.each do |tme_details|
-			key = tme_details.user_id.to_s + "_" + monthVal.last.to_i.to_s + "_" + (monthVal.first).to_s+ "_" + tme_details.project_id.to_s
-			inv_key = monthVal.last.to_i.to_s + "_" + (monthVal.first).to_s+ "_" + tme_details.project_id.to_s
-			unless @payrollEntries[key].blank?
+	mnth_year = monthVal.last.to_i.to_s + "_" + (monthVal.first).to_s
+		@time_entries.each do |te_detail|
+			mnth = te_detail.spent_month+1 > 12 ? 1 : te_detail.spent_month+1
+			year = te_detail.spent_month == 12 ? te_detail.spent_year+1 : te_detail.spent_year
+			key = te_detail.user_id.to_s + "_" + monthVal.last.to_i.to_s + "_" + (monthVal.first).to_s+ "_" + te_detail.project_id.to_s
+			inv_key = monthVal.last.to_i.to_s + "_" + (monthVal.first).to_s+ "_" + te_detail.project_id.to_s
+			if mnth_year == (mnth.to_i.to_s + "_" + year.to_i.to_s) && !@payrollEntries[key].blank?
 				user_salaries = @payrollEntries[key][:BT] + @payrollEntries[key][:AT]
-				if !tme_details.user_hours.blank?
-					proj_expense[inv_key] = proj_expense[inv_key].to_i + ((tme_details.proj_hours/tme_details.user_hours)*user_salaries).round(2)
-				else
-					proj_expense[inv_key] =  proj_expense[inv_key].to_i
-				end		
+				proj_expense[inv_key] = te_detail.user_hours.blank? ? proj_expense[inv_key].to_i : 
+					proj_expense[inv_key].to_i + ((te_detail.proj_hours/te_detail.user_hours)*user_salaries).round(2)
 			end
 		end
 	end
@@ -150,7 +157,7 @@
 			<tr>
 				<td>
 					<% logo = Setting.plugin_redmine_wktime['wktime_header_logo'] %>
-						<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>	
+						<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>
 						<%= image_tag("#{logo}", :plugin => "redmine_wktime") %>
 					<% end %>
 				</td>
@@ -167,14 +174,14 @@
 				<th align="center" ><%= l(:label_total) %></th>
 			</tr>
 		</thead>
-		
+
 		<tbody>
 			<% @billable_projects.each do |project| %>
 				<% row_key = project.project_id.to_s %>
 				<tr style="width:100%;">
 					<td></td>
 					<td colspan="<%= columnCount+2%>" style="border-bottom: solid thin;"></td>
-				</tr>				
+				</tr>
 				<tr style="width:100%;">
 					<td align="left" >
 						<ul style="list-style-type:none;">
@@ -188,7 +195,7 @@
 						<%  key = monthVal.last.to_i.to_s + "_" + (monthVal.first).to_s + "_" + project.project_id.to_s  %>
 							<td><ul style="list-style-type:none;">
 								<%
-									if detail_entries[key].blank? 
+									if detail_entries[key].blank?
 										detail_entries[key] = {:revenue => 0, :expense => 0, :profit => 0, :profit_percentage => 0}
 									end
 								%>
