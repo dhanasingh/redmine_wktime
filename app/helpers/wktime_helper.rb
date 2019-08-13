@@ -629,9 +629,6 @@ end
 					tabs <<  {:name => 'wkscheduling', :partial => 'wktime/tab_content', :label => :label_scheduling}
 					@schedulesShift = validateERPPermission("S_SHIFT")
 					@editShiftSchedules = validateERPPermission("E_SHIFT")
-					if @schedulesShift && @editShiftSchedules
-						tabs <<	{:name => 'wkshift', :partial => 'wktime/tab_content', :label => :label_shift}
-					end
 				end
 				
 				if showSurvey
@@ -681,9 +678,6 @@ end
 				{:name => 'wkproduct', :partial => 'wktime/tab_content', :label => :label_product},
 				{:name => 'wkproductitem', :partial => 'wktime/tab_content', :label => :label_item},
 				{:name => 'wkshipment', :partial => 'wktime/tab_content', :label => :label_shipment},
-				{:name => 'wkbrand', :partial => 'wktime/tab_content', :label => :label_brand},
-				{:name => 'wkattributegroup', :partial => 'wktime/tab_content', :label => :label_attribute},
-				{:name => 'wkunitofmeasurement', :partial => 'wktime/tab_content', :label => :label_uom},
 				{:name => 'wkasset', :partial => 'wktime/tab_content', :label => :label_asset},
 				{:name => 'wkassetdepreciation', :partial => 'wktime/tab_content', :label => :label_depreciation}
 			   ]

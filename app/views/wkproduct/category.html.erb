@@ -81,3 +81,6 @@ $('#commit-keywords').on('click', 'a.add-commit-keywords', function(e){
   row.clone().insertAfter(row).find('input, select').val('');
 });
 <% end %>
+<% content_for :sidebar do %>
+      <%= render :partial => 'sidebar' %>
+<% end %>

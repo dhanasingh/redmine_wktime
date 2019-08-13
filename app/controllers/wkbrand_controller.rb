@@ -1,5 +1,6 @@
 class WkbrandController < WkinventoryController
   unloadable
+  menu_item :wkproduct
   before_action :require_login
   before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :edit_product_model, :updateProductModel]
   before_action :check_admin_redirect, :only => [:destroy, :destroyProductModel]
