@@ -13,9 +13,14 @@ end
 %>
 <table class="<%= style %>">
     <tr>				
-        <th class="lbl-txt-align">#</th>
-        <th class="lbl-txt-align"><%= l(:label_survey) %></th>
-        <th class="lbl-txt-align"><%= l(:label_status) %></th>
+        <th>#</th>
+        <% if action_name == "index" %>
+            <%= sort_header_tag('survey', :caption => l(:label_survey), class: "lbl-txt-align") %>
+            <%= sort_header_tag('status', :caption => l(:label_status)) %>
+        <% else %>
+            <th class="lbl-txt-align"><%= l(:label_survey) %></th>
+            <th><%= l(:label_status) %></th>
+        <% end %>
         <th></th>
     </tr>
     <% @all_surveys.each_with_index do |entry, index| %>
@@ -23,7 +28,7 @@ end
         action = entry.status == "O" ? "survey" : "survey_result"
         %>
         <tr>
-            <td class="lbl-txt-align"><%=h index+1 %></td>
+            <td><%=h index+1 %></td>
             <td class="lbl-txt-align">
                 <% if helperObj.get_survey_with_userGroup(entry.id).blank? || (@surveyForID.blank? && !@surveyForType.blank?) %>
                     <%=h entry.name %>
@@ -31,8 +36,8 @@ end
                     <%=h link_to entry.name, url_for(helperObj.get_survey_url(urlhash, params, action)) %>
                 <% end %>
             </td>
-            <td class="lbl-txt-align"><%=h helperObj.getSurveyStatus.invert[entry.status] %></td>
-            <td class="lbl-txt-align">
+            <td><%=h helperObj.getSurveyStatus.invert[entry.status] %></td>
+            <td>
                 <% if (["O","C"].include? entry.status) %>
                     <%= link_to image_tag("withoutcommant.png", :plugin => "redmine_wktime"), 
                         url_for(helperObj.get_survey_url(urlhash, params, "survey_response")), :title => l(:label_survey_response) %>&emsp;

@@ -2,7 +2,16 @@
 <div class="autoscroll">
 <table class="list time-entries">
   <thead>
-         <tr>
+		<tr>
+			<% if params[:generate] != "false" %>
+				<%= sort_header_tag('user', :caption => l(:field_user), class: "lbl-txt-align") %>
+				<%= sort_header_tag('salary_date', :caption => l(:label_salarydate), class: "lbl-txt-align") %>
+				<%= sort_header_tag('basic_pay', :caption => l(:label_basic), class: "lbl-txt-align") %>
+				<%= sort_header_tag('allowances', :caption => l(:label_allowances), class: "lbl-txt-align") %>
+				<%= sort_header_tag('deduction_total', :caption => l(:label_deduction), class: "lbl-txt-align") %>
+				<%= sort_header_tag('gross', :caption => l(:label_gross), class: "lbl-txt-align") %>
+				<%= sort_header_tag('net', :caption => l(:label_net), class: "lbl-txt-align") %>
+			<% else %>
 				<th class="lbl-txt-align"><%= l(:field_user) %></th>
 				<th class="lbl-txt-align"><%= l(:label_salarydate) %></th>
 				<th class="lbl-txt-align"><%= l(:label_basic) %></th>
@@ -10,8 +19,9 @@
 				<th class="lbl-txt-align"><%= l(:label_deduction) %></th>
 				<th class="lbl-txt-align"><%= l(:label_gross) %></th>
 				<th class="lbl-txt-align"><%= l(:label_net) %></th>
-				<th></th>
-         </tr>
+			<% end %>
+			<th></th>
+		</tr>
   </thead>
    <tbody>
    <% basic_total = 0 %>

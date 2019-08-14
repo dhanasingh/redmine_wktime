@@ -9,8 +9,13 @@ class WksurveyController < WkbaseController
   include WksurveyHelper
 
   def index
+    sort_init 'id', 'asc'
+    
+    sort_update 'survey' => "#{WkSurvey.table_name}.name",
+                'status' => "#{WkSurvey.table_name}.status"
+
     surveys = surveyList(params)
-    formPagination(surveys)
+    formPagination(surveys.reorder(sort_clause))
   end
 
   def edit
@@ -180,6 +185,12 @@ class WksurveyController < WkbaseController
   end
 
   def survey_response
+    sort_init 'id', 'asc'
+
+    sort_update 'Response_By' => "CONCAT(U.firstname, U.lastname)",
+                'Response_status' => "ST.status",
+                'Response_date' => "status_date"
+
     getSurveyForType(params)
     condStr = validateERPPermission("E_SUR") ? "" : (@survey.is_review ? 
       " AND (U.id = #{User.current.id} OR U.parent_id = #{User.current.id}) " : " AND  U.id = #{User.current.id} ")
@@ -191,16 +202,19 @@ class WksurveyController < WkbaseController
         " IS NULL " : " = '#{@surveyForType}'") + condStr)
       .group("survey_id, wk_survey_responses.id, S.name, S.survey_for_type, S.survey_for_id, ST.status, U.firstname, U.lastname, U.parent_id")
       .select("MAX(ST.status_date) AS status_date, ST.status, survey_id, wk_survey_responses.id, user_id, S.name,
-      S.survey_for_type, wk_survey_responses.survey_for_id, U.firstname, U.lastname, U.parent_id")
+      S.survey_for_type, wk_survey_responses.survey_for_id, U.firstname, U.lastname, U.parent_id").order("user_id ASC")
 
+    @surveyResponseList = @surveyResponseList.reorder(sort_clause)
     responseEntries = Hash.new
     @surveyResponseList.each do |response|
         responseID = response.id
-        if responseEntries[responseID].blank? || (!responseEntries[responseID].blank? && response.status_date > responseEntries[responseID][:status_date].to_datetime)
+        if responseEntries[responseID].blank? || (!responseEntries[responseID].blank? && 
+          response.status_date > responseEntries[responseID][:status_date].to_datetime)
+            responseEntries.delete(responseID)
             responseEntries[responseID] = { id: response.id, survey_id: response.survey_id, status_date: response.status_date, 
-                status: response.status, user_id: response.user_id, name: response.name, survey_for_type: response.survey_for_type, 
-                survey_for_id: response.survey_for_id, firstname: response.firstname, lastname: response.lastname, 
-                parent_id: response.parent_id }
+              status: response.status, user_id: response.user_id, name: response.name, survey_for_type: response.survey_for_type, 
+              survey_for_id: response.survey_for_id, firstname: response.firstname, lastname: response.lastname, 
+              parent_id: response.parent_id }
         end
     end
     
@@ -438,7 +452,7 @@ class WksurveyController < WkbaseController
 
     if includeUserGroup == "true"
         users = User.joins('INNER JOIN groups_users ON users.id = user_id')
-        users.where(:group_id => user_group) unless user_group.blank?
+        users.where("groups_users.group_id = #{user_group}") unless user_group.blank?
         users.each do |user|
         errMsg += sent_emails(user.language, user.mail, email_notes).to_s
         end

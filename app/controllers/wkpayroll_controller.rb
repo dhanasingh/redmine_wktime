@@ -28,8 +28,17 @@ class WkpayrollController < WkbaseController
 	include WkreportHelper
 
 	def index
-
-		payrollEntries
+		sort_init 'id', 'asc'
+    
+		sort_update 'user' => "CONCAT(U.firstname, U.lastname)",
+					'salary_date' => "S.salary_date",
+					'basic_pay' => "basic_pay",
+					'allowances' => "allowances	",
+					'deduction_total' => "deduction_total",
+					'gross' => "gross",
+					'net' => "net"
+	
+		payrollEntries()
 		payrollEntriesArr = @payrollEntries.to_a
 		@entry_count = @payrollEntries.length()
 		@payrollEntries = Hash.new
@@ -93,20 +102,35 @@ class WkpayrollController < WkbaseController
 
 	def get_wksalaries_in_hash_format(userId, salaryDate)
 		payrollAmount = Array.new
-		payroll_salaries = WkSalary.all
+		sql_contd = " WHERE "
 
 		if !salaryDate.blank?
-			payroll_salaries = payroll_salaries.where("salary_date = '#{salaryDate}'")
+			sql_contd += " S.salary_date = '#{salaryDate}' "
 		elsif !@from.blank? && !@to.blank?
-			payroll_salaries = payroll_salaries.where("salary_date between '#{@from}' and '#{@to}'")
+			sql_contd += " S.salary_date between '#{@from}' AND '#{@to}' "
 		end
 
 		unless userId.blank?
-			payroll_salaries = payroll_salaries.where("user_id IN (#{userId})")
+			sql_contd += " AND " if sql_contd != " WHERE "
+			sql_contd += " S.user_id IN (#{userId}) "
 		end
-
+		orderSQL = sort_clause.blank? ? "" : sort_clause.first
+		payroll_salaries = WkSalary.find_by_sql("SELECT S.*, concat(U.firstname, U.lastname) AS user, (SAL.basic_pay + SAL.allowances) AS gross,
+			((SAL.basic_pay + SAL.allowances) - SAL.deduction_total) AS net
+			FROM wk_salaries AS S
+			INNER JOIN (
+				SELECT S.user_id, S.salary_date, SUM(CASE WHEN SA.component_type = 'a' THEN S.amount ELSE 0 END) AS allowances,
+					SUM(CASE WHEN SA.component_type = 'b' THEN S.amount ELSE 0 END) AS basic_pay,
+					SUM(CASE WHEN SA.component_type = 'd' THEN S.amount ELSE 0 END) AS deduction_total
+				FROM wk_salaries AS S
+				INNER JOIN wk_salary_components AS SA ON SA.id = S.salary_component_id" + sql_contd +
+				"GROUP BY S.user_id, S.salary_date
+			) AS SAL ON S.user_id = SAL.user_id AND S.salary_date = SAL.salary_date
+			LEFT JOIN users AS U ON U.id = S.user_id" + sql_contd + " ORDER BY " + orderSQL)
+		
 		payroll_salaries.each do |entry|
-			payrollAmount << {:user_id => entry.user_id, :component_id => entry.salary_component_id, :amount => (entry.amount).round, :currency => entry.currency, :salary_date => entry.salary_date}
+			payrollAmount << {:user_id => entry.user_id, :component_id => entry.salary_component_id, :amount => (entry.amount).round, 
+								:currency => entry.currency, :salary_date => entry.salary_date}
 		end
 	end
 
