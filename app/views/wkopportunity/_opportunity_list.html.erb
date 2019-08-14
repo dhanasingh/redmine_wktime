@@ -5,17 +5,29 @@
 <div class="autoscroll">
 <table class="list time-entries">
   <thead>
+      <% if action_name == 'index' %>
          <tr>
-				<th class="lbl-txt-align"><%= l(:field_name)   %></th>
-			<!--	<th class="lbl-txt-align"><%#=  l(:label_account_name) %></th> -->
+				<%= sort_header_tag('opportunity_name', :caption => l(:field_name), class: "lbl-txt-align") %>
+				<%= sort_header_tag('parent_type', :caption => l(:label_related_to), class: "lbl-txt-align") %>
+				<%= sort_header_tag('sales_stage', :caption => l(:label_txn_sales_stage), class: "lbl-txt-align") %>
+				<%= sort_header_tag('amount', :caption => l(:label_amount), class: "lbl-txt-align") %>
+				<%= sort_header_tag('close_date', :caption => l(:label_expected_date_to_close_project), class: "lbl-txt-align") %>
+				<%= sort_header_tag('assigned_user_id', :caption => l(:field_assigned_to), class: "lbl-txt-align") %>
+				<%= sort_header_tag('updated_at', :caption => l(:label_modified).capitalize, class: "lbl-txt-align") %>
+				<th></th>
+         </tr>
+      <% else %>
+         <tr>
+				<th class="lbl-txt-align"><%= l(:field_name) %></th>
 				<th class="lbl-txt-align"><%= l(:label_related_to) %></th>
 				<th class="lbl-txt-align"><%=  l(:label_txn_sales_stage) %></th>
-				<th class="lbl-txt-align"><%=  l(:field_amount)  %></th>
-				<th class="lbl-txt-align"><%=  l(:label_expected_date_to_close_project)  %></th>
-				<th class="lbl-txt-align"><%=  l(:field_assigned_to)  %></th>
+				<th class="lbl-txt-align"><%=  l(:field_amount) %></th>
+				<th class="lbl-txt-align"><%=  l(:label_expected_date_to_close_project) %></th>
+				<th class="lbl-txt-align"><%=  l(:field_assigned_to) %></th>
 				<th class="lbl-txt-align"><%= l(:label_modified).capitalize %></th>
 				<th></th>
          </tr>
+	  <% end %>	 
   </thead>
    <tbody>
 	<% opportunities.each do |entry| %>

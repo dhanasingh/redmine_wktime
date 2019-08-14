@@ -2,18 +2,30 @@ class WkopportunityController < WkcrmController
   unloadable
   include WktimeHelper
 
-
     def index
+		sort_init 'id', 'asc'
+
+		sort_update 'opportunity_name' => "#{WkOpportunity.table_name}.name",
+					'parent_type' => "#{WkOpportunity.table_name}.parent_type",
+					'sales_stage' => "E.name",
+					'amount' => "#{WkOpportunity.table_name}.amount",
+					'close_date' => "#{WkOpportunity.table_name}.close_date",
+					'assigned_user_id' => "CONCAT(U.firstname, U.lastname)",
+					'updated_at' => "#{WkOpportunity.table_name}.updated_at"
+
 		set_filter_session
 		retrieve_date_range
 		oppName = session[:wkopportunity][:oppname]
 		accId = session[:wkopportunity][:account_id]
-		oppDetails = nil
+
+		oppDetails = WkOpportunity.joins("LEFT JOIN users AS U ON wk_opportunities.assigned_user_id = U.id
+			LEFT JOIN wk_crm_enumerations AS E on wk_opportunities.sales_stage_id = E.id")
+
 		filterSql = ""
 		filterHash = Hash.new
 		unless @from.blank? || @to.blank?
-			filterSql = filterSql + " created_at between :from AND :to"
-			filterHash = {:from => getFromDateTime(@from), :to => getToDateTime(@to)}  
+			filterSql = filterSql + " wk_opportunities.created_at between :from AND :to"
+			filterHash = {:from => getFromDateTime(@from), :to => getToDateTime(@to)}
 		end
 		unless oppName.blank?
 			filterSql = filterSql + " AND" unless filterSql.blank?
@@ -27,12 +39,10 @@ class WkopportunityController < WkcrmController
 			filterHash[:parent_type] = 'WkAccount'
 		end
 		unless filterHash.blank? || filterSql.blank?
-			oppDetails = WkOpportunity.where(filterSql, filterHash)
-		else
-			oppDetails = WkOpportunity.all
+			oppDetails = oppDetails.where(filterSql, filterHash)
 		end
 		
-		formPagination(oppDetails)
+		formPagination(oppDetails.reorder(sort_clause))
     end
   
     def edit

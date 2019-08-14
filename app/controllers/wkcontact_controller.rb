@@ -3,36 +3,49 @@ class WkcontactController < WkcrmController
   include WkaccountprojectHelper
 
 	def index
+		sort_init 'id', 'asc'
+
+		sort_update 'name' => "CONCAT(wk_crm_contacts.first_name, wk_crm_contacts.last_name)",
+					'acc_name' => "A.name",
+					'location_name' => "L.name",
+					'title' => "#{WkCrmContact.table_name}.title",
+					'assigned_user_id' => "CONCAT(U.firstname, U.lastname)",
+					'updated_at' => "#{WkCrmContact.table_name}.updated_at"
+
 		set_filter_session
-		contactName = session[controller_name][:contactname] 			
+		contactName = session[controller_name][:contactname]
 		accountId =  session[controller_name][:account_id]
 		locationId = session[controller_name][:location_id]
-		wkcontact = nil
+
+		wkcontact = WkCrmContact.joins("LEFT JOIN wk_accounts AS A ON wk_crm_contacts.account_id = A.id
+			LEFT JOIN wk_locations AS L on wk_crm_contacts.location_id = L.id
+			LEFT JOIN users AS U on wk_crm_contacts.assigned_user_id = U.id")
+
 		location = WkLocation.where(:is_default => 'true').first
-		if !contactName.blank? &&  !accountId.blank? 
+		if !contactName.blank? &&  !accountId.blank?
 			if accountId == 'AA'
-				wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where.not(:account_id => nil).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
+				wkcontact = wkcontact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where.not(:account_id => nil).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
 			else
-				wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => accountId).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
+				wkcontact = wkcontact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => accountId).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
 			end
-			
-		elsif contactName.blank? &&  !accountId.blank? 
+		
+		elsif contactName.blank? &&  !accountId.blank?
 			if accountId == 'AA'
-				wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where.not(:account_id => nil)
+				wkcontact = wkcontact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where.not(:account_id => nil)
 			else
-				wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => accountId)
+				wkcontact = wkcontact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => accountId)
 			end
-			
+		
 		elsif !contactName.blank? &&  accountId.blank?
-			wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => nil).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
+			wkcontact = wkcontact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => nil).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
 		else
-			wkcontact = WkCrmContact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => nil)
-		end	
+			wkcontact = wkcontact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => nil)
+		end
 		if (!locationId.blank? || !location.blank?) && locationId != "0"
 			location_id = !locationId.blank? ? locationId.to_i : location.id.to_i
 			wkcontact = wkcontact.where("wk_crm_contacts.location_id = ? ", location_id)
 		end
-		formPagination(wkcontact)
+		formPagination(wkcontact.reorder(sort_clause))
 	end
 
 	def edit

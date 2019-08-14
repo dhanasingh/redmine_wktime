@@ -1,28 +1,44 @@
 class WkleadController < WkcrmController
   unloadable
   include WktimeHelper
-	include WkleadHelper
-
+  include WkleadHelper
 
 	def index
-		@leadEntries = WkLead.all
-		location = WkLocation.where(:is_default => 'true').first
+		sort_init 'id', 'asc'
+		
+		sort_update 'lead_name' => "CONCAT(wk_crm_contacts.first_name, wk_crm_contacts.last_name)",
+			'status' => "#{WkLead.table_name}.status",
+			'location_name' => "L.name",
+			'acc_name' => "A.name",
+			'created_by_user_id' => "CONCAT(U.firstname, U.lastname)",
+			'updated_at' => "#{WkLead.table_name}.updated_at"
 
-		if !params[:lead_name].blank? && !params[:status].blank?
-		   entries = WkLead.where(:status => params[:status]).joins(:contact).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{params[:lead_name]}%", "%#{params[:lead_name]}%")
-		elsif !params[:lead_name].blank? && params[:status].blank?
-			entries = WkLead.where.not(:status => 'C').joins(:contact).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{params[:lead_name]}%", "%#{params[:lead_name]}%")
-		elsif params[:lead_name].blank? && !params[:status].blank?
-			entries = WkLead.where(:status => params[:status]).joins(:contact).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{params[:lead_name]}%", "%#{params[:lead_name]}%")
+		set_filter_session
+		leadName = session[controller_name][:lead_name]
+		status = session[controller_name][:status]
+		locationId = session[controller_name][:location_id]
+		location = WkLocation.where(:is_default => 'true').first
+		
+		entries = WkLead.joins("LEFT JOIN users AS U ON wk_leads.created_by_user_id = U.id
+			LEFT JOIN wk_accounts AS A on wk_leads.account_id = A.id
+			LEFT JOIN wk_crm_contacts AS C on wk_leads.contact_id = C.id
+			LEFT JOIN wk_locations AS L on wk_crm_contacts.location_id = L.id")
+
+		if !leadName.blank? && !status.blank?
+		    entries = entries.where(:status => status).joins(:contact).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{leadName}%", "%#{leadName}%")
+		elsif !leadName.blank? && status.blank?
+			entries = entries.where.not(:status => 'C').joins(:contact).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{leadName}%", "%#{leadName}%")
+		elsif leadName.blank? && !status.blank?
+			entries = entries.where(:status => status).joins(:contact).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{leadName}%", "%#{leadName}%")
 		else
-			entries = WkLead.joins(:contact).where.not(:status => 'C')
+			entries = entries.joins(:contact).where.not(:status => 'C')
 		end
 
-		if (!params[:location_id].blank? || !location.blank?) && params[:location_id] != "0"
-			location_id = !params[:location_id].blank? ? params[:location_id].to_i : location.id.to_i
+		if (!locationId.blank? || !location.blank?) && locationId != "0"
+			location_id = !locationId.blank? ? locationId.to_i : location.id.to_i
 			entries = entries.where("wk_crm_contacts.location_id = ? ", location_id)
 		end
-		formPagination(entries)
+		formPagination(entries.reorder(sort_clause))
 	end
 	  
 	def show
@@ -152,5 +168,16 @@ class WkleadController < WkcrmController
 	def getAccountLbl
 		l(:label_account)
 	end
+
+	def set_filter_session
+        if params[:searchlist].blank? && session[controller_name].nil?
+			session[controller_name] = {:lead_name => params[:lead_name], :status => params[:status], :location_id => params[:location_id] }
+		elsif params[:searchlist] == controller_name
+			session[controller_name][:lead_name] = params[:lead_name]
+		    session[controller_name][:status] = params[:status]
+			session[controller_name][:location_id] = params[:location_id]
+		end
+		
+    end
 
 end

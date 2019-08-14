@@ -17,6 +17,8 @@
 
 class WkbaseController < ApplicationController
 unloadable
+helper :sort
+include SortHelper
 include WkattendanceHelper
 
 	def index

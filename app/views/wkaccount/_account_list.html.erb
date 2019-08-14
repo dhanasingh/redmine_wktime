@@ -3,12 +3,12 @@
 	<table class="list time-entries">
 		<thead>
 			<tr>
-				<th class="lbl-txt-align"><%= controller.getAccountLbl + " " +  l(:field_name) %></th>
-				<th class="lbl-txt-align"><%= l(:label_location) %></th>
+			    <%= sort_header_tag('acc_name', :caption => l(:field_name), :class => "lbl-txt-align") %>
+				<%= sort_header_tag('location_name', :caption => l(:label_location), :class => "lbl-txt-align") %>
 				<th class="lbl-txt-align"><%= l(:label_account_address) %></th>
-				<th class="lbl-txt-align"><%= l(:label_work_phone) %></th>			
-				<th class="lbl-txt-align"><%= l(:label_country) %></th>
-				<th class="lbl-txt-align"><%= l(:label_city) %></th>
+				<th class="lbl-txt-align"><%= l(:label_work_phone) %></th>
+				<%= sort_header_tag('country', :caption => l(:label_country), :class => "lbl-txt-align") %>
+				<%= sort_header_tag('city', :caption => l(:label_city), :class => "lbl-txt-align") %>
 				<th></th>
 			</tr>
 		</thead>
