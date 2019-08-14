@@ -10,7 +10,7 @@ include WkpayrollHelper
 
   def index
 	if !showDashboard || !hasSettingPerm
-	   redirect_to :controller => 'wktime',:action => 'index' , :tab => 'wktime'
+	   redirect_to set_module
 	else
 	  set_filter_session
 	  setMembers

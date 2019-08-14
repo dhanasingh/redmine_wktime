@@ -705,7 +705,8 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_enable_survey_module' => '0'
   })  
 
-	menu :top_menu, :wkdashboard, { :controller => 'wkdashboard', :action => 'index' }, :caption => :label_erpmine, :if => Proc.new { Object.new.extend(WkdashboardHelper).checkViewPermission } 
+	menu :top_menu, :wkdashboard, { :controller => 'wkdashboard', :action => 'index' }, :caption => :label_erpmine,
+	 :if => Proc.new { ActiveModel::Type::Boolean.new.cast(Object.new.extend(WktimeHelper).show_plugin_name) || Object.new.extend(WktimeHelper).hasSettingPerm } 
   	
   	project_module :time_tracking do
 		permission :approve_time_entries,  {:wktime => [:update]}, :require => :member	
@@ -725,21 +726,20 @@ Redmine::Plugin.register :redmine_wktime do
 	menu :project_menu, :wksurvey, { :controller => 'wksurvey', :action => 'index' }, :caption => :label_survey, param: :project_id, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showSurvey }
 
   Redmine::MenuManager.map :wktime_menu do |menu|
-	  menu.push :wkdashboard, { :controller => 'wkdashboard', :action => 'index' }, :caption => :label_dashboards, :if => Proc.new { Object.new.extend(WkdashboardHelper).checkViewPermission && Object.new.extend(WkdashboardHelper).showDashboard && Object.new.extend(WktimeHelper).hasSettingPerm}
-	  menu.push :wktime, { :controller => 'wktime', :action => 'index' }, :caption => :label_te, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showTimeExpense }
-	  menu.push :wkattendance, { :controller => 'wkattendance', :action => 'index' }, :caption => :label_hr, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && (Object.new.extend(WktimeHelper).showAttendance || Object.new.extend(WktimeHelper).showPayroll || Object.new.extend(WktimeHelper).showShiftScheduling)}
+	  menu.push :wkdashboard, { :controller => 'wkdashboard', :action => 'index' }, :caption => :label_dashboards, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WkdashboardHelper).showDashboard && Object.new.extend(WktimeHelper).hasSettingPerm}
+	  menu.push :wktime, { :controller => 'wktime', :action => 'index' }, :caption => :label_te, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && (Object.new.extend(WktimeHelper).showTime || Object.new.extend(WktimeHelper).showExpense)}
+	  menu.push :wkattendance, { :controller => 'wkattendance', :action => 'index' }, :caption => :label_hr, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && (Object.new.extend(WktimeHelper).showAttendance || Object.new.extend(WktimeHelper).showPayroll || Object.new.extend(WktimeHelper).showShiftScheduling || Object.new.extend(WktimeHelper).showSurvey)}
 	  menu.push :wklead, { :controller => 'wklead', :action => 'index' }, :caption => :label_crm, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showCRMModule }
 	  menu.push :wkinvoice, { :controller => 'wkinvoice', :action => 'index' }, :caption => :label_wk_billing, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showBilling && Object.new.extend(WktimeHelper).validateERPPermission("M_BILL")}
 	  menu.push :wkgltransaction, { :controller => 'wkgltransaction', :action => 'index' }, :caption => :label_accounting, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showAccounting }
 	  menu.push :wkrfq, { :controller => 'wkrfq', :action => 'index' }, :caption => :label_purchasing, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showPurchase }
 	  menu.push :wkproduct, { :controller => 'wkproduct', :action => 'index' }, :caption => :label_inventory, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showInventory }
       menu.push :wksurvey, { :controller => 'wksurvey', :action => 'index' }, :caption => :label_survey, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showSurvey }
-	  menu.push :wkreport, { :controller => 'wkreport', :action => 'index' }, :caption => :label_report_plural, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showReports}	
+	  menu.push :wkreport, { :controller => 'wkreport', :action => 'index' }, :caption => :label_report_plural, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showReports && Object.new.extend(WktimeHelper).validateERPPermission("V_REPORT")}	
 	  menu.push :wkcrmenumeration, { :controller => 'wkcrmenumeration', :action => 'index' }, :caption => :label_settings, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).hasSettingPerm } 
 	end	
 
 end
-
 Rails.configuration.to_prepare do
 	if ActiveRecord::Base.connection.table_exists? "#{Setting.table_name}"
 		if (!Setting.plugin_redmine_wktime['wktime_nonsub_mail_notification'].blank? && Setting.plugin_redmine_wktime['wktime_nonsub_mail_notification'].to_i == 1)

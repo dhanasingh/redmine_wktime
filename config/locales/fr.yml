@@ -854,6 +854,7 @@ fr:
   BASIC PURCHASING PRIVILEGE: Basic Purchasing privilege
   ADMIN PURCHASING PRIVILEGE: Admin Purchasing privilege
   ADMIN ERPMINE : Admin ERPmine
+  VIEW REPORT: View Report
 
   label_active_on: On
   label_active_off: Off
@@ -994,3 +995,4 @@ fr:
 
   label_summary_by: Summary by  
   report_trial_balance: Trial Balance Report
+  label_all_projects: All Projects

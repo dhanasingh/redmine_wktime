@@ -26,6 +26,7 @@ include WkaccountingHelper
 include WkcrmHelper
 
 before_action :require_login
+before_action :check_perm_and_redirect
 	
 	def index
 		@groups = Group.sorted.all
@@ -137,5 +138,12 @@ before_action :require_login
 		session[:wkreport][:to] = @to
 		@from, @to = @to, @from if @from && @to && @from > @to
 
-	  end	
+	  end
+	  
+	  def check_perm_and_redirect
+		unless validateERPPermission("V_REPORT")
+			render_403
+			return false
+		end
+	  end
 end
