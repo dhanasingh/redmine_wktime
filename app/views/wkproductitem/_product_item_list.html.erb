@@ -5,9 +5,13 @@
 	<% assetTypeHash = getAssetTypeHash(false) %>
 	<table class="list time-entries">
 		<thead>
-			<tr>	
-				<%headerHash.values.each do |header|%>
-					<th class="lbl-txt-align"><%= header %></th>
+			<tr>
+				<%headerHash.each do |key, header|%>
+					<% if action_name == 'index' && !(["is_loggable", "currency"].include? key) %>
+						<%= sort_header_tag(key, :caption => header, class: "lbl-txt-align") %>
+					<%else%>
+						<th class="lbl-txt-align"><%= header %></th>
+					<%end%>
 				<%end%>
 				<th></th>
 			</tr>
@@ -16,9 +20,9 @@
 			<% @productInventory.each do |entry| %>
 				<% inventoryID = entry.id.blank? ? (entry.parent_id.blank? ? entry.inventory_item_id : entry.parent_id) : entry.id %>
 				<% productItemID = entry.id.blank? ? (entry.parent_product_item_id.blank? ? entry.inv_product_item_id : entry.parent_product_item_id) : entry.product_item_id %>
-				
+
 				<tr>
-					<% headerHash.keys.each do |colName|%>						
+					<% headerHash.keys.each do |colName|%>
 						<% if colName == "rate" || colName == "current_value" %>
 							<% ratePer = entry.id.blank? ? ratePerHash[entry['rate_per']] : ratePerHash[entry.asset_property['rate_per']] %>
 							<td class="lbl-txt-align"><%=h (entry.id.blank? ? entry.asset_currency : entry.asset_property.currency).to_s + " "  %><%=h entry.id.blank? ? entry[colName] : entry.asset_property[colName] %><%=h " " + ratePer.to_s %></td>
@@ -30,10 +34,10 @@
 							<td class="lbl-txt-align"><%=h entry.id.blank? ? entry[colName] : entry.product_item.product.name  %></td>
 						<% elsif colName == "parent_name" %>
 							<% appartmentName = entry["parent_name"].blank? ? entry["asset_name"] : entry[colName] %>
-							<td class="lbl-txt-align"><%=h entry.id.blank? ? appartmentName : (entry.parent.blank? ? "" : entry.parent.assetName) %></td>						
-						<% elsif colName == "asset_name" %>							
+							<td class="lbl-txt-align"><%=h entry.id.blank? ? appartmentName : (entry.parent.blank? ? "" : entry.parent.assetName) %></td>
+						<% elsif colName == "asset_name" %>
 							<% bedName = entry["parent_name"].blank? ? '' : entry[colName] %>
-							<td class="lbl-txt-align"><%=h entry.id.blank? ? bedName : entry.assetName  %></td>							
+							<td class="lbl-txt-align"><%=h entry.id.blank? ? bedName : entry.assetName  %></td>
 						<% elsif colName == "product_attribute_name" %>
 							<td class="lbl-txt-align"><%=h entry.id.blank? ? entry[colName] : (entry.product_attribute.blank? ? "" : entry.product_attribute.name)  %></td>
 						<% elsif colName == "location_name" %>
@@ -42,7 +46,7 @@
 							<td class="lbl-txt-align"><%=h entry[colName] %></td>
 						<% end %>
 					<%end%>
-					  <td align="center">					  
+					  <td align="center">
 						  <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :inventory_item_id => inventoryID, :product_item_id => productItemID}, :title => l(:button_edit) %> 
 						  <% if controller.hasDeletePermission %>
 							<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :inventory_item_id => inventoryID, :product_item_id => entry.product_item_id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>

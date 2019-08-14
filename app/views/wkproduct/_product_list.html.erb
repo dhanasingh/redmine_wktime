@@ -24,9 +24,9 @@
   <thead>
          <tr>
 				<th class="lbl-txt-align">#</th>
-				<th class="lbl-txt-align"><%= l(:field_name) %></th>
-				<th class="lbl-txt-align"><%= l(:label_category) %></th>
-				<th class="lbl-txt-align"><%= l(:label_uom) %></th>
+				<%= sort_header_tag('product_name', :caption => l(:field_name), class: "lbl-txt-align") %>
+				<%= sort_header_tag('category', :caption => l(:label_category), class: "lbl-txt-align") %>
+				<%= sort_header_tag('uom', :caption => l(:label_uom), class: "lbl-txt-align") %>
 				<th></th>
          </tr>
   </thead>

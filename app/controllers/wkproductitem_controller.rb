@@ -27,6 +27,23 @@ class WkproductitemController < WkinventoryController
   include WkshipmentHelper
   
 	def index
+
+		sort_init 'id', 'asc'
+		sort_update 'product_name' => "product_name",
+					'brand_name' => "brand_name",
+					'product_model_name' => "product_model_name",
+					'product_attribute_name' => "product_attribute_name",
+					'serial_number' => "iit.serial_number",
+					'selling_price' => "iit.selling_price",
+					'total_quantity' => "iit.total_quantity",
+					'available_quantity' => "iit.available_quantity",
+					'uom' => "uom_short_desc",
+					'location_name' => "location_name",
+					'parent_name' => "parent_name",
+					'asset_name' => "asset_name",
+					'owner_type' => "ap.owner_type",
+					'rate' => "ap.rate"
+
 		set_filter_session
 		productId = session[controller_name].try(:[], :product_id)
 		brandId = session[controller_name].try(:[], :brand_id)
@@ -55,6 +72,7 @@ class WkproductitemController < WkinventoryController
 			end		
 		end
 		sqlStr = getProductInventorySql + sqlwhere
+		sqlStr = sqlStr + " ORDER BY " + (sort_clause.present? ? sort_clause.first : " iit.id desc ")
 		findBySql(sqlStr, WkProductItem)
 	end
 	
@@ -309,7 +327,7 @@ class WkproductitemController < WkinventoryController
 		@entry_count = result.blank? ? 0 : result[0].id
         setLimitAndOffset()		
 		rangeStr = formPaginationCondition()
-		@productInventory = model.find_by_sql(query + " order by iit.id desc " + rangeStr )
+		@productInventory = model.find_by_sql(query + rangeStr )
 	end
 	
 	def formPaginationCondition

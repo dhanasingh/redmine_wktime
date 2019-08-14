@@ -5,6 +5,11 @@ class WkproductController < WkinventoryController
 
 
 	def index
+		sort_init 'id', 'asc'
+		sort_update 'product_name' => "name",
+					'category' => "category_id",
+					'uom' => "uom_id"
+
 		set_filter_session
 		categoryId = session[controller_name][:category_id]
 		name = session[controller_name][:name]
@@ -22,7 +27,7 @@ class WkproductController < WkinventoryController
 		else
 			entries = WkProduct.all
 		end
-		formPagination(entries)
+		formPagination(entries.reorder(sort_clause))
     end
 	
 	def formPagination(entries)

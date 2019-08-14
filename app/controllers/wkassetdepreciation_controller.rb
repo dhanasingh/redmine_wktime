@@ -10,6 +10,14 @@ class WkassetdepreciationController < WkassetController
 
 
 	def index
+		sort_init 'id', 'asc'
+		sort_update 'asset_name' => "asset_name",
+					'product_name' => "product_name",
+					'purchase_date' => "purchase_date",
+					'previous_value' => "dep.actual_amount",
+					'depreciation_date' => "dep.depreciation_date",
+					'depreciation' => "dep.depreciation_amount"
+
         @depreciation_entries = nil
         set_filter_session
         retrieve_date_range
@@ -38,6 +46,7 @@ class WkassetdepreciationController < WkassetController
 			unless sqlwhere.blank?
 				sqlStr = sqlStr + " WHERE " + sqlwhere
 			end
+			sqlStr = sqlStr + " ORDER BY " + (sort_clause.present? ? sort_clause.first : " dep.depreciation_date desc, p.name asc")
 			findBySql(sqlStr, WkAssetDepreciation)
 		end
 	end
@@ -226,7 +235,7 @@ class WkassetdepreciationController < WkassetController
 		@entry_count = result.blank? ? 0 : result[0].id
         setLimitAndOffset()		
 		rangeStr = formPaginationCondition()	
-		@depreciation_entries = model.find_by_sql(query + " order by dep.depreciation_date desc, p.name asc " + rangeStr )
+		@depreciation_entries = model.find_by_sql(query + rangeStr )
 	end
 	
 	def formPaginationCondition

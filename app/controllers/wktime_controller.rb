@@ -33,7 +33,15 @@ helper :custom_fields
 helper :queries
 include QueriesHelper
  
-  def index	
+  def index
+	sort_init 'id', 'asc'
+	sort_update 'start_date' => "spent_on",
+				'user_name' => "CONCAT(un.firstname,' ' ,un.lastname)",
+				'hours' => "hours",
+				'status' => "status",
+				'modified_by' => "status_updater",
+				'amount' => "amount"
+
 	user_custom_fields = CustomField.where(['is_filter = ? AND type = ?', true, "UserCustomField"])
 	@query = nil
 	unless user_custom_fields.blank?
@@ -92,6 +100,7 @@ include QueriesHelper
 	end
 	teQuery = getTEQuery(@from, @to, ids)
 	query = getQuery(teQuery, ids, @from, @to, status)
+	query = query + " ORDER BY " + (sort_clause.present? ? sort_clause.first : "tmp3.spent_on desc, tmp3.user_id")
 	findBySql(query)
     respond_to do |format|
       format.html {        
@@ -2072,8 +2081,8 @@ private
 		end		
 
 		wkSqlStr = " left outer join " + entityNames[0] + " w on v1.startday = w.begin_date and v1.user_id = w.user_id " +
-					"left outer join users un on un.id = w.statusupdater_id"
-					
+					"left outer join users un on un.id = w.statusupdater_id "
+		
 		query = formQuery(wkSelectStr, sqlStr, wkSqlStr)
 	end
 	
@@ -2089,6 +2098,7 @@ private
 		query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids})) tmp3 "
 		query = query + " left outer join (select min( #{getDateSqlString('t.spent_on')} ) as min_spent_on, t.user_id as usrid from time_entries t, users u "
 		query = query + " where u.id = t.user_id and u.id in (#{ids}) group by t.user_id ) vw on vw.usrid = tmp3.user_id "
+		query = query + " left join users AS un on un.id = tmp3.user_id "
 		query = query + getWhereCond(status)
 	end
 	
@@ -2099,7 +2109,7 @@ private
         setLimitAndOffset()		
 		rangeStr = formPaginationCondition()
 		
-		@entries = TimeEntry.find_by_sql(query + " order by tmp3.spent_on desc, tmp3.user_id " + rangeStr )
+		@entries = TimeEntry.find_by_sql(query + rangeStr )
 		@unit = nil
 		result = TimeEntry.find_by_sql("select sum(v2." + spField + ") as " + spField + " from (" + query + ") as v2")		
 		@total_hours = result.blank? ? 0 : result[0].hours

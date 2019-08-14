@@ -16,16 +16,17 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkattendanceController < WkbaseController	
-unloadable 
+	unloadable 
 
-menu_item :wkattendance
-include WktimeHelper
-include WkattendanceHelper
-include WkimportattendanceHelper
+	menu_item :wkattendance
+	include WktimeHelper
+	include WkattendanceHelper
+	include WkimportattendanceHelper
 
-before_action :require_login
-before_action :check_perm_and_redirect, :only => [:edit, :update, :clockedit]
-require 'csv' 
+	before_action :require_login
+	before_action :check_perm_and_redirect, :only => [:edit, :update, :clockedit]
+	before_action :check_index_perm, :only => [:index]
+	require 'csv' 
 
 	def index
 		@status = params[:status] || 1
@@ -431,6 +432,14 @@ require 'csv'
 			redirect_to :action => 'edit'
 		end	
 	end
-	
-	
+
+	def check_index_perm
+		redirect = set_attendance_module
+		if !showAttendance && redirect.blank?
+			render_403
+		elsif !showAttendance
+			redirect_to redirect
+		end
+
+	end
 end

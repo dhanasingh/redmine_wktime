@@ -7,6 +7,9 @@ class WkattributegroupController < WkinventoryController
 
 
     def index
+		sort_init 'id', 'asc'
+		sort_update 'name' => "name",
+					'description' => "description"
 		@groupEntries = nil
 		sqlStr = ""
 		unless params[:name].blank?
@@ -17,7 +20,7 @@ class WkattributegroupController < WkinventoryController
 		else
 			entries = WkAttributeGroup.all
 		end
-		@groupEntries = formPagination(entries)
+		@groupEntries = formPagination(entries.reorder(sort_clause))
     end
 	
 	def formPagination(entries)

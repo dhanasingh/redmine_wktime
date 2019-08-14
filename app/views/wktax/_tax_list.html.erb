@@ -15,8 +15,8 @@
 <table class="list time-entries">
   <thead>
          <tr>
-				<th class="lbl-txt-align"><%= l(:label_taxname) %></th>
-				<th class="lbl-txt-align"><%= l(:label_rate) %></th>
+				<%= sort_header_tag('name', :caption => l(:label_taxname), class: "lbl-txt-align") %>
+				<%= sort_header_tag('rate', :caption => l(:label_rate), class: "lbl-txt-align") %>
 				<th></th>
          </tr>
   </thead>

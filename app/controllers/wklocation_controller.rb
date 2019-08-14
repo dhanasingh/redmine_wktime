@@ -6,6 +6,12 @@ class WklocationController < WkbaseController
 
 
   def index
+	sort_init 'id', 'asc'
+	sort_update 'name' => "name",
+				'type' => "#{WkCrmEnumeration.table_name}.name",
+				'city' => "#{WkAddress.table_name}.city",
+				'state' => "#{WkAddress.table_name}.state"
+
 	set_filter_session
 		locationName = session[:wklocation][:locName]		
 		locationType =  session[:wklocation][:locType]
@@ -18,8 +24,11 @@ class WklocationController < WkbaseController
 			wklocation = WkLocation.where("LOWER(name) like LOWER(?) ", "%#{locationName}%")
 		else
 			wklocation = WkLocation.all
-		end	
-		formPagination(wklocation)
+		end
+
+		wklocation = wklocation.joins("LEFT JOIN wk_addresses ON wk_locations.address_id = wk_addresses.id")
+							.joins("LEFT JOIN wk_crm_enumerations ON wk_locations.location_type_id = wk_crm_enumerations.id")
+		formPagination(wklocation.reorder(sort_clause))
   end
   
   def edit

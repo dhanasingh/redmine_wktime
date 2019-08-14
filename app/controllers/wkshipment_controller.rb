@@ -10,6 +10,11 @@ include WkinventoryHelper
 
 
 	def index
+		sort_init 'id', 'asc'
+		sort_update 'serial_number' => "#{WkShipment.table_name}.serial_number",
+					'shipment_name' => "#{WkShipment.table_name}.parent_type",
+					'shipment_date' => "#{WkShipment.table_name}.shipment_date"
+
 		set_filter_session
 		retrieve_date_range
 		sqlwhere = " wk_shipments.shipment_type != 'N' "
@@ -44,8 +49,7 @@ include WkinventoryHelper
 			sqlwhere = sqlwhere + " and wk_shipments.shipment_date between '#{@from}' and '#{@to}'  "
 		end
 		shipEntries = WkShipment.includes(:inventory_items).where(sqlwhere)
-		
-		formPagination(shipEntries)
+		formPagination(shipEntries.reorder(sort_clause))
 		@totalShipAmt = @shipmentEntries.where("wk_inventory_items.parent_id is null").sum("wk_inventory_items.total_quantity*(wk_inventory_items.cost_price+wk_inventory_items.over_head_price)")
 	end
 

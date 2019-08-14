@@ -3,9 +3,9 @@
 <table class="list time-entries">
   <thead>
          <tr>
-				<th class="lbl-txt-align"><%= l(:label_serial_number) %></th>
-				<th class="lbl-txt-align"><%= l(:field_name) %></th>
-				<th class="lbl-txt-align"><%= l(:label_shipment_date) %></th>		
+				<%= sort_header_tag('serial_number', :caption => l(:label_serial_number), class: "lbl-txt-align") %>
+				<%= sort_header_tag('shipment_name', :caption => l(:field_name), class: "lbl-txt-align") %>
+				<%= sort_header_tag('shipment_date', :caption => l(:label_shipment_date), class: "lbl-txt-align") %>
 				<th class="lbl-txt-align"><%= l(:field_amount) %></th>
 				<th></th>
          </tr>
@@ -16,7 +16,7 @@
 		    <td class="lbl-txt-align"><%=h entry.serial_number  %></td>
 			<!-- <td class="lbl-txt-align"><%# =h entry.parent_type == 'WkAccount' ? 'Account' : 'Contact'  %></td> -->
 			<td class="lbl-txt-align"><%=h entry.parent.name  %></td>
-			<td class="lbl-txt-align"><%=h entry.shipment_date  %></td>	
+			<td class="lbl-txt-align"><%=h entry.shipment_date  %></td>
 			<td class="lbl-txt-align"><%= entry.inventory_items.shipment_item[0].currency unless entry.inventory_items.shipment_item[0].blank?%> <%=h html_hours("%.2f" % entry.inventory_items.shipment_item.sum('total_quantity*(cost_price+over_head_price)'))  %></td>
 			<td class="lbl-txt-align">
 				<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :shipment_id => entry.id, :tab => controller.controller_name},

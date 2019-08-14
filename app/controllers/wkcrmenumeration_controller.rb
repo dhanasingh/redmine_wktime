@@ -1,10 +1,15 @@
-class WkcrmenumerationController < ApplicationController
+class WkcrmenumerationController < WkbaseController
   unloadable
   include WktimeHelper
   before_action :require_login
   before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
 
     def index
+		sort_init 'id', 'asc'
+		sort_update 'type' => "enum_type",
+					'name' => "name",
+					'position' => "position"
+
 		set_filter_session
 		enumName = session[:wkcrmenumeration][:enumname]		
 		enumType =  session[:wkcrmenumeration][:enumType]
@@ -18,7 +23,7 @@ class WkcrmenumerationController < ApplicationController
 		else
 			wkcrmenum = WkCrmEnumeration.all
 		end	
-		formPagination(wkcrmenum)
+		formPagination(wkcrmenum.reorder(sort_clause))
     end
   
     def edit

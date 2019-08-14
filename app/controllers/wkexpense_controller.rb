@@ -148,7 +148,8 @@ private
 		query = query + dtRangeForUsrSqlStr + " left join " + teSqlStr
 		query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids}) ) tmp3 "
 		query = query + " left outer join (select min( #{getDateSqlString('t.spent_on')} ) as min_spent_on, t.user_id as usrid from wk_expense_entries t, users u "
-		query = query + " where u.id = t.user_id and u.id in (#{ids}) group by t.user_id ) vw on vw.usrid = tmp3.user_id "
+    query = query + " where u.id = t.user_id and u.id in (#{ids}) group by t.user_id ) vw on vw.usrid = tmp3.user_id "
+		query = query + " left join users AS un on un.id = tmp3.user_id "
 		query = query + getWhereCond(status)
 	end
   
@@ -158,13 +159,13 @@ private
 	@entry_count = result[0].id	
 	setLimitAndOffset()	
 	rangeStr = formPaginationCondition()
-	@entries = WkExpenseEntry.find_by_sql(query + " order by tmp3.spent_on desc, tmp3.user_id " + rangeStr)
+	@entries = WkExpenseEntry.find_by_sql(query + rangeStr)
 	@unit = @entries.blank? ? number_currency_format_unit : @entries[0][:currency]
 	result = WkExpenseEntry.find_by_sql("select sum(v2." + spField + ") as " + spField + " from (" + query + ") as v2")	
 	@total_hours = result[0].amount
   end
   
-  def getTEAllTimeRange(ids)	
+  def getTEAllTimeRange(ids)
 	teQuery = "select v.startday as startday from (select #{getDateSqlString('t.spent_on')} as startday " +
 				"from wk_expense_entries t where user_id in (#{ids})) v group by v.startday order by v.startday"
 	teResult = WkExpenseEntry.find_by_sql(teQuery)

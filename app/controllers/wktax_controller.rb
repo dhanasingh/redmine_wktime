@@ -20,13 +20,16 @@ class WktaxController < WkbillingController
 before_action :require_login
 
     def index
+		sort_init 'id', 'asc'
+		sort_update 'name' => "name",
+					'rate' => "rate_pct"
 		@tax_entries = nil
 		if params[:taxname].blank?
 			entries = WkTax.all
 		else
 			entries = WkTax.where("name like ?", "%#{params[:taxname]}%")
 		end
-		formPagination(entries)
+		formPagination(entries.reorder(sort_clause))
     end
 	
 	def formPagination(entries)
