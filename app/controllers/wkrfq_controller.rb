@@ -1,4 +1,4 @@
-class WkrfqController < ApplicationController
+class WkrfqController < WkbaseController
   unloadable
   include WktimeHelper
   include WkorderentityHelper
@@ -7,6 +7,11 @@ class WkrfqController < ApplicationController
   before_action :check_pur_admin_and_redirect, :only => [:destroy]
 
     def index
+			sort_init 'id', 'asc'
+			sort_update 'name' => "name",
+						'status' => "status",
+						'start_date' => "start_date",
+						'end_date' => "end_date"
 		@rfqEntries = nil
 		sqlStr = ""
 		unless params[:rfqname].blank?
@@ -21,7 +26,7 @@ class WkrfqController < ApplicationController
 		else
 			entries = WkRfq.all
 		end
-		formPagination(entries, "list")
+		formPagination(entries.reorder(sort_clause), "list")
     end
 	
 	def formPagination(entries, sectiontype)

@@ -21,6 +21,13 @@ before_action :require_login
 
 
  def index
+	sort_init 'id', 'asc'
+	sort_update 'contract_number' => "contract_number",
+				'start_date' => "start_date",
+				'end_date' => "end_date",
+				'project' => "projects.name",
+				'type' => "parent_type",
+				'name' => "CASE WHEN wk_contracts.parent_type = 'WkAccount' THEN a.name ELSE CONCAT(c.first_name, c.last_name) END"
 		@contract_entries = nil
 		sqlwhere = ""
 		set_filter_session
@@ -48,14 +55,14 @@ before_action :require_login
 		unless projectId.blank?
 			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
 			sqlwhere = sqlwhere + " project_id = '#{projectId}' " 
-		end		
-				
-		if filter_type == '1' && projectId.blank? 
-			entries = WkContract.all
-		else
-			entries = WkContract.where(sqlwhere)
-		end	
-		formPagination(entries)	
+		end
+		entries = WkContract.joins("LEFT JOIN projects ON projects.id = wk_contracts.project_id
+			LEFT JOIN wk_accounts a on (wk_contracts.parent_type = 'WkAccount' and wk_contracts.parent_id = a.id)
+			LEFT JOIN wk_crm_contacts c on (wk_contracts.parent_type = 'WkCrmContact' and wk_contracts.parent_id = c.id)").all
+		unless filter_type == '1' && projectId.blank? 
+			entries = entries.where(sqlwhere)
+		end
+		formPagination(entries.reorder(sort_clause))
     end
 
     def set_filter_session

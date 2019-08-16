@@ -5,11 +5,11 @@
 <table class="list time-entries">
 <thead>
 <tr>
-<th class="lbl-txt-align"><%= l(:field_user) %></th>
-<th class="lbl-txt-align"><%= l(:field_start_date) %></th>
-<th class="lbl-txt-align"><%= l(:label_clock_in) %></th>
-<th class="lbl-txt-align"><%= l(:label_clock_out) %></th>
-<th class="lbl-txt-align"><%= l(:label_hours) %></th>
+<%= sort_header_tag('name', :caption => l(:field_user), class: "lbl-txt-align") %>
+<%= sort_header_tag('start_date', :caption => l(:field_start_date), class: "lbl-txt-align") %>
+<%= sort_header_tag('clock_in', :caption => l(:label_clock_in), class: "lbl-txt-align") %>
+<%= sort_header_tag('clock_out', :caption => l(:label_clock_out), class: "lbl-txt-align") %>
+<%= sort_header_tag('hours', :caption => l(:label_hours), class: "lbl-txt-align") %>
 <th></th>
 </tr>
 </thead>

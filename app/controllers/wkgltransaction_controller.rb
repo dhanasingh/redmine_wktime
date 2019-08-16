@@ -20,6 +20,9 @@ class WkgltransactionController < WkaccountingController
   include WkgltransactionHelper
   
 	 def index
+		sort_init 'id', 'asc'
+		sort_update 'trans_date' => "trans_date",
+								'trans_type' => "trans_type"
 		@ledgers = WkLedger.order(:name).pluck(:name, :id)
 		if params[:is_summary_edit] != 'true'
 			set_filter_session
@@ -43,8 +46,6 @@ class WkgltransactionController < WkaccountingController
 		end
 		if !@from.blank? && !@to.blank?
 			transaction = transaction.where(:trans_date => @from .. @to)
-		else
-			transaction = transaction
 		end
 		unless transactionType.blank?
 			transaction = transaction.where(:trans_type => transactionType)
@@ -98,7 +99,7 @@ class WkgltransactionController < WkaccountingController
 					end
 				end
 			else
-				formPagination(transaction)
+				formPagination(transaction.reorder(sort_clause))
 				isSubCr = isSubtractCr(@selectedLedger.ledger_type)
 				totalDbTransAmt = @transEntries.where( :wk_gl_transaction_details => { :detail_type => "d" }).sum("wk_gl_transaction_details.amount")
 				totalCrTransAmt = @transEntries.where( :wk_gl_transaction_details => { :detail_type => "c" }).sum("wk_gl_transaction_details.amount")
@@ -110,7 +111,7 @@ class WkgltransactionController < WkaccountingController
 				end
 			end
 		else
-			formPagination(transaction)
+			formPagination(transaction.reorder(sort_clause))
 		end
    end
    

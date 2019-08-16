@@ -23,6 +23,15 @@ class WkpaymententityController < WkbillingController
 	include WkpaymententityHelper
 	
     def index
+			sort_init 'id', 'asc'
+			sort_update 'id' => "p.id",
+			'payment_date' => "p.payment_date",
+			'type' => "p.parent_type",
+			'name' => "CASE WHEN p.parent_type = 'WkAccount' THEN a.name ELSE CONCAT(c.first_name, c.last_name) END",
+			'payment_type' => "p.payment_type_id",
+			'original_amount' => "payment_original_amount",
+			'amount' => "payment_amount"
+
 		@payment_entries = nil
 		sqlwhere = ""
 		set_filter_session
@@ -62,7 +71,7 @@ class WkpaymententityController < WkbillingController
 		end	
 		
 		sqlStr = sqlStr + sqlwhere unless sqlwhere.blank?
-		sqlStr = sqlStr + " order by p.id desc"
+		sqlStr = sqlStr + " ORDER BY " + (sort_clause.present? ? sort_clause.first : " p.id desc")
 		findBySql(sqlStr)				
     end
 	
@@ -108,16 +117,16 @@ class WkpaymententityController < WkbillingController
 			session[controller_name][:contact_id] = params[:contact_id]
 			session[controller_name][:account_id] = params[:account_id]
 			session[controller_name][:polymorphic_filter] = params[:polymorphic_filter]
-		end
+	end
 		
     end
 	
-    def findBySql(query)
+  def findBySql(query)
 		result = WkPayment.find_by_sql("select count(*) as id from (" + query + ") as v2")
 	    @entry_count = result.blank? ? 0 : result[0].id
 	    setLimitAndOffset()		
 	    rangeStr = formPaginationCondition()	
-	    @payment_entries = WkPayment.find_by_sql(query + rangeStr)
+			@payment_entries = WkPayment.find_by_sql(query + rangeStr)
 		result = WkPayment.find_by_sql("select sum(v2.payment_amount) as payment_amount from (" + query + ") as v2")
 		@totalPayAmt = result.blank? ? 0 : result[0].payment_amount
 	end

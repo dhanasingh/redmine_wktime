@@ -23,6 +23,9 @@ class WkledgerController < WkaccountingController
 
 
     def index
+		sort_init 'id', 'asc'
+		sort_update 'name' => "name",
+								'type' => "ledger_type"
 		set_filter_session
 		ledgerType = session[:wkledger][:ledger_type]
 		name = session[:wkledger][:ledger_name]
@@ -38,7 +41,7 @@ class WkledgerController < WkaccountingController
 		if ledgerType.blank? && name.blank?
 			ledger = WkLedger.all
 		end
-		formPagination(ledger)
+		formPagination(ledger.reorder(sort_clause))
 		@ledgerdd = @ledgers.pluck(:name, :id)
 		@totalAmt = @ledgers.sum(:opening_balance)
     end

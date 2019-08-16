@@ -29,6 +29,8 @@ class WkattendanceController < WkbaseController
 	require 'csv' 
 
 	def index
+		sort_init 'id', 'asc'
+		sort_update 'name' =>  "CONCAT(u.firstname, u.lastname)"
 		@status = params[:status] || 1
 		@groups = Group.all.sort
 		sqlStr = ""
@@ -56,10 +58,17 @@ class WkattendanceController < WkbaseController
 		if !params[:name].blank?
 			sqlStr = sqlStr + " and (LOWER(u.firstname) like LOWER('%#{params[:name]}%') or LOWER(u.lastname) like LOWER('%#{params[:name]}%'))"
 		end
+		sqlStr = sqlStr + " ORDER BY " + (sort_clause.present? ? sort_clause.first : "u.firstname")
 		findBySql(sqlStr, WkUserLeave)
 	end
 	
 	def clockindex
+		sort_init 'id', 'asc'
+		sort_update 'name' =>  "vw.firstname",
+								'start_date'=> "entry_date",
+								'clock_in'=> "cast(evw.start_time as time)",
+								'clock_out'=> "cast(evw.end_time as time)",
+								'hours'=> "evw.hours"
 		@clk_entries = nil
 		@groups = Group.sorted.all
 		set_filter_session
@@ -102,6 +111,7 @@ class WkattendanceController < WkbaseController
 			 (select min(start_time) as start_time, max(end_time) as end_time, " + getConvertDateStr('start_time') + "
 			 entry_date,sum(hours) as hours, user_id from wk_attendances WHERE " + getConvertDateStr('start_time') +" between '#{@from}' and '#{@to}'			
 			 group by user_id, " + getConvertDateStr('start_time') + ") evw on (vw.selected_date = evw.entry_date and vw.id = evw.user_id) where vw.id in(#{ids}) "
+			 sqlQuery = sqlQuery + " ORDER BY " + (sort_clause.present? ? sort_clause.first : "vw.selected_date desc, vw.firstname")
 			findBySql(sqlQuery, WkAttendance)
 	end
 	
@@ -380,9 +390,9 @@ class WkattendanceController < WkbaseController
         setLimitAndOffset()		
 		rangeStr = formPaginationCondition()		
 		if model == WkUserLeave
-			@leave_entries = model.find_by_sql(query + " order by u.firstname " + rangeStr )
+			@leave_entries = model.find_by_sql(query + rangeStr )
 		else
-			@clk_entries = model.find_by_sql(query + " order by vw.selected_date desc, vw.firstname " + rangeStr )
+			@clk_entries = model.find_by_sql(query + rangeStr )
 		end
 	end
 	

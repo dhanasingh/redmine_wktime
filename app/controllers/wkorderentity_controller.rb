@@ -11,6 +11,20 @@ include WkreportHelper
 include WkgltransactionHelper
 
 	def index
+		sort_init 'id', 'asc'
+
+		sort_update 'invoice_number' => "invoice_number",
+					'invoice_date' => "invoice_date",
+					'status' => "wk_invoices.status",
+					'name' => "CASE WHEN wk_invoices.parent_type = 'WkAccount' THEN a.name ELSE CONCAT(c.first_name, c.last_name) END",
+					'project' => "projects.name",
+					'start_date' => "start_date",
+					'end_date' => "end_date",
+					'amount' => "amount",
+					'original_amount' => "original_amt",
+					'quantity' => "quantity",
+					'modified' =>  "CONCAT(users.firstname, users.lastname)"
+
 		@projects = nil
 		errorMsg = nil
 		@previewBilling = false
@@ -109,13 +123,9 @@ include WkgltransactionHelper
 				sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
 				sqlwhere = sqlwhere + " invoice_date between '#{@from}' and '#{@to}'  "
 			end
-			
-			if filter_type == '1' && (projectId.blank? || projectId == 0)
-				invEntries = WkInvoice.includes(:invoice_items).where(sqlwhere)
-			else
-				invEntries = WkInvoice.includes(:invoice_items).where(sqlwhere)
-			end
-			
+
+			invEntries = WkInvoice.where(sqlwhere)
+	
 			if !projectId.blank? && projectId.to_i != 0
 				invEntries = invEntries.where( :wk_invoice_items => { :project_id => projectId })
 			end	
@@ -123,9 +133,22 @@ include WkgltransactionHelper
 			if !rfqId.blank? && rfqId.to_i != 0
 				invIds = getInvoiceIds(rfqId, getInvoiceType, false)
 				invEntries = invEntries.where( :id => invIds)
-			end	
-			formPagination(invEntries)
-			@totalInvAmt = @invoiceEntries.sum("wk_invoice_items.amount") unless @previewBilling
+			end
+			invEntries = invEntries.joins("LEFT JOIN wk_invoice_items ON wk_invoice_items.invoice_id = wk_invoices.id
+				LEFT JOIN projects ON wk_invoice_items.project_id = projects.id
+				LEFT JOIN users ON wk_invoices.modifier_id = users.id
+				LEFT JOIN wk_accounts a on (wk_invoices.parent_type = 'WkAccount' and wk_invoices.parent_id = a.id)
+				LEFT JOIN wk_crm_contacts c on (wk_invoices.parent_type = 'WkCrmContact' and wk_invoices.parent_id = c.id)
+				").group("wk_invoices.id, CASE WHEN wk_invoices.parent_type = 'WkAccount' THEN a.name ELSE CONCAT(c.first_name, c.last_name) END, projects.name,
+				CONCAT(users.firstname, users.lastname)")
+				.select("wk_invoices.*, SUM(wk_invoice_items.quantity) AS quantity, SUM(wk_invoice_items.amount) AS amount, SUM(wk_invoice_items.original_amount)
+				 AS original_amt")
+			formPagination(invEntries.reorder(sort_clause))
+
+			unless @previewBilling
+				amounts = @invoiceEntries.reorder(["wk_invoices.id ASC"]).pluck("SUM(wk_invoice_items.amount)")
+				@totalInvAmt = amounts.inject(0, :+)
+			end
 		end
 	end	
 	
@@ -403,25 +426,25 @@ include WkgltransactionHelper
 	end    
 	
   	def set_filter_session
-        if params[:searchlist].blank? && session[controller_name].nil?
-			session[controller_name] = {:period_type => params[:period_type],:period => params[:period], :contact_id => params[:contact_id], :account_id => params[:account_id], :project_id => params[:project_id], :polymorphic_filter =>  params[:polymorphic_filter], :rfq_id => params[:rfq_id], :from => @from, :to => @to}
-		elsif params[:searchlist] == controller_name
-			session[controller_name][:period_type] = params[:period_type]
-			session[controller_name][:period] = params[:period]
-			session[controller_name][:from] = params[:from]
-			session[controller_name][:to] = params[:to]
-			session[controller_name][:contact_id] = params[:contact_id]
-			session[controller_name][:project_id] = params[:project_id]
-			session[controller_name][:account_id] = params[:account_id]
-			session[controller_name][:polymorphic_filter] = params[:polymorphic_filter]
-			session[controller_name][:rfq_id] = params[:rfq_id]
+      if params[:searchlist].blank? && session[controller_name].nil?
+				session[controller_name] = {:period_type => params[:period_type],:period => params[:period], :contact_id => params[:contact_id], :account_id => params[:account_id], :project_id => params[:project_id], :polymorphic_filter =>  params[:polymorphic_filter], :rfq_id => params[:rfq_id], :from => @from, :to => @to}
+			elsif params[:searchlist] == controller_name
+				session[controller_name][:period_type] = params[:period_type]
+				session[controller_name][:period] = params[:period]
+				session[controller_name][:from] = params[:from]
+				session[controller_name][:to] = params[:to]
+				session[controller_name][:contact_id] = params[:contact_id]
+				session[controller_name][:project_id] = params[:project_id]
+				session[controller_name][:account_id] = params[:account_id]
+				session[controller_name][:polymorphic_filter] = params[:polymorphic_filter]
+				session[controller_name][:rfq_id] = params[:rfq_id]
 		end
 		
    end
    
 	
 	def formPagination(entries)
-		@entry_count = entries.count
+		@entry_count = entries.length
         setLimitAndOffset()
 		@invoiceEntries = entries.order(:id).limit(@limit).offset(@offset)
 	end
