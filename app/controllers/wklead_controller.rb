@@ -120,8 +120,7 @@ class WkleadController < WkcrmController
 
 		wkLead = update_without_redirect
 		if @wkContact.valid?
-			isConvert = wkLead.status == 'C' && wkLead.status_changed?
-			if params[:wklead_save_convert] || isConvert
+			if params[:wklead_save_convert] || @isConvert
 				redirect_to :action => 'convert', :lead_id => wkLead.id
 			else
 				redirect_to :controller => 'wklead',:action => 'index' , :tab => 'wklead'
