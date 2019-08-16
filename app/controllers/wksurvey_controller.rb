@@ -452,7 +452,7 @@ class WksurveyController < WkbaseController
 
     if includeUserGroup == "true"
         users = User.joins('INNER JOIN groups_users ON users.id = user_id')
-        users.where("groups_users.group_id = #{user_group}") unless user_group.blank?
+        users = users.where("groups_users.group_id = #{user_group}") unless user_group.blank?
         users.each do |user|
         errMsg += sent_emails(user.language, user.mail, email_notes).to_s
         end
