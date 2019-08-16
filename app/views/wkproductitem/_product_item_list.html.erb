@@ -42,6 +42,8 @@
 							<td class="lbl-txt-align"><%=h entry.id.blank? ? entry[colName] : (entry.product_attribute.blank? ? "" : entry.product_attribute.name)  %></td>
 						<% elsif colName == "location_name" %>
 							<td class="lbl-txt-align"><%=h entry.id.blank? ? entry[colName] : (entry.location.blank? ? "" : entry.location.name)  %></td>
+						<% elsif colName == "project_name" %>
+							<td class="lbl-txt-align"><%=h entry.id.blank? ? entry[colName] : (entry.project.blank? ? "" : entry.project.name)  %></td>
 						<% else %>
 							<td class="lbl-txt-align"><%=h entry[colName] %></td>
 						<% end %>

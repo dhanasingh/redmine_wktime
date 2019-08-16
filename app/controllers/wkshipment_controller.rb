@@ -21,6 +21,7 @@ include WkinventoryHelper
 		filter_type = session[controller_name][:polymorphic_filter]
 		contact_id = session[controller_name][:contact_id]
 		account_id = session[controller_name][:account_id]
+		projectId =session[controller_name].try(:[], :project_id)
 		parentType = ""
 		parentId = ""
 		if filter_type == '2' && !contact_id.blank?
@@ -48,7 +49,13 @@ include WkinventoryHelper
 		if !@from.blank? && !@to.blank?	
 			sqlwhere = sqlwhere + " and wk_shipments.shipment_date between '#{@from}' and '#{@to}'  "
 		end
-		shipEntries = WkShipment.includes(:inventory_items).where(sqlwhere)
+
+		shipEntries = WkShipment.includes(:inventory_items)
+		projectId = nil if projectId.blank?
+		shipmentIDs = projectId != 'AP' ? shipEntries.where(wk_inventory_items: {project_id: projectId}).pluck(:id) : []
+		shipEntries = shipEntries.where(sqlwhere)
+		shipEntries = shipEntries.where(" wk_shipments.id IN (?)", shipmentIDs) if shipmentIDs.length > 0
+
 		formPagination(shipEntries.reorder(sort_clause))
 		@totalShipAmt = @shipmentEntries.where("wk_inventory_items.parent_id is null").sum("wk_inventory_items.total_quantity*(wk_inventory_items.cost_price+wk_inventory_items.over_head_price)")
 	end
@@ -193,6 +200,7 @@ include WkinventoryHelper
 				shipmentItem.status = 'o'
 				shipmentItem.uom_id = params["uom_id#{i}"].to_i unless params["uom_id#{i}"].blank?
 				shipmentItem.location_id = params["location_id#{i}"].to_i if !params["location_id#{i}"].blank? && params["location_id#{i}"] != "0"
+				shipmentItem.project_id = params["project_id#{i}"].to_i if !params["project_id#{i}"].blank? && params["project_id#{i}"] != "0"
 				if params["product_type#{i}"] == 'A' || params["product_type#{i}"] == 'RA'
 					assetValue = (shipmentItem.total_quantity*(shipmentItem.cost_price+shipmentItem.over_head_price))
 					assetTotal = assetTotal + assetValue

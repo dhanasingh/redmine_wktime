@@ -42,13 +42,15 @@ class WkproductitemController < WkinventoryController
 					'parent_name' => "parent_name",
 					'asset_name' => "asset_name",
 					'owner_type' => "ap.owner_type",
-					'rate' => "ap.rate"
+					'rate' => "ap.rate",
+					'project_name' => "project_name"
 
 		set_filter_session
 		productId = session[controller_name].try(:[], :product_id)
 		brandId = session[controller_name].try(:[], :brand_id)
 		locationId =session[controller_name].try(:[], :location_id)
 		availabilityId =session[controller_name].try(:[], :availability)
+		projectId =session[controller_name].try(:[], :project_id)
 		location = WkLocation.where(:is_default => 'true').first
 		sqlwhere = ""
 		unless productId.blank?
@@ -71,13 +73,19 @@ class WkproductitemController < WkinventoryController
 				sqlwhere = sqlwhere + " AND ap.matterial_entry_id IS NOT NULL"
 			end		
 		end
+		
+		if projectId.blank?
+			sqlwhere = sqlwhere + " AND iit.project_id IS NULL"
+		elsif projectId != 'AP'
+			sqlwhere = sqlwhere + " AND iit.project_id = #{projectId}"
+		end
 		sqlStr = getProductInventorySql + sqlwhere
 		sqlStr = sqlStr + " ORDER BY " + (sort_clause.present? ? sort_clause.first : " iit.id desc ")
 		findBySql(sqlStr, WkProductItem)
 	end
 	
 	def getProductInventorySql
-		sqlStr = "select iit.id as inventory_item_id, pit.id as product_item_id, iit.product_item_id as inv_product_item_id, piit.product_item_id as parent_product_item_id, iit.status, p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as product_attribute_name, iit.serial_number, iit.currency, iit.selling_price, iit.total_quantity, iit.available_quantity, uom.short_desc as uom_short_desc, l.name as location_name, (case when iit.product_type is null then p.product_type else iit.product_type end) as product_type, iit.is_loggable, ap.name as asset_name, piit.id as parent_id, pap.name as parent_name, ap.owner_type, ap.currency as asset_currency, ap.rate, ap.rate_per, ap.current_value, pcr.child_count from wk_product_items pit 
+		sqlStr = "select iit.id as inventory_item_id, pit.id as product_item_id, iit.product_item_id as inv_product_item_id, piit.product_item_id as parent_product_item_id, iit.status, p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as product_attribute_name, iit.serial_number, iit.currency, iit.selling_price, iit.total_quantity, iit.available_quantity, uom.short_desc as uom_short_desc, l.name as location_name, projects.name as project_name, (case when iit.product_type is null then p.product_type else iit.product_type end) as product_type, iit.is_loggable, ap.name as asset_name, piit.id as parent_id, pap.name as parent_name, ap.owner_type, ap.currency as asset_currency, ap.rate, ap.rate_per, ap.current_value, pcr.child_count from wk_product_items pit 
 		left outer join wk_inventory_items iit on iit.product_item_id = pit.id 
 		left outer join wk_inventory_items piit on iit.parent_id = piit.id 
 		left outer join (select count(parent_id) child_count, parent_id from wk_inventory_items group by parent_id) pcr on pcr.parent_id = iit.id
@@ -86,6 +94,7 @@ class WkproductitemController < WkinventoryController
 		left outer join wk_product_models m on pit.product_model_id = m.id
 		left outer join wk_product_attributes a on iit.product_attribute_id = a.id
 		left outer join wk_locations l on iit.location_id = l.id
+		left outer join projects on iit.project_id = projects.id
 		left outer join wk_mesure_units uom on iit.uom_id = uom.id
 		left outer join wk_asset_properties ap on ap.inventory_item_id = iit.id
 		left outer join wk_asset_properties pap on pap.inventory_item_id = piit.id
@@ -235,7 +244,8 @@ class WkproductitemController < WkinventoryController
 		inventoryItem.available_quantity = params[:available_quantity]
 		inventoryItem.status = inventoryItem.available_quantity == 0 ? 'c' : 'o'
 		inventoryItem.uom_id = params[:uom_id].to_i
-		inventoryItem.location_id = locationId if params[:location_id] != "0"	
+		inventoryItem.location_id = locationId if params[:location_id] != "0"
+		inventoryItem.project_id = params[:project_id]	
 		inventoryItem.save()
 		updateShipment(inventoryItem)
 		inventoryItem
@@ -297,12 +307,13 @@ class WkproductitemController < WkinventoryController
 
 	def set_filter_session
 		if params[:searchlist].blank? && session[controller_name].nil?
-			session[controller_name] = {:product_id => params[:product_id], :brand_id => params[:brand_id], :location_id => params[:location_id], :availability => params[:availability] }
+			session[controller_name] = {:product_id => params[:product_id], :brand_id => params[:brand_id], :location_id => params[:location_id], :availability => params[:availability], :project_id => params[:project_id] }
 		elsif params[:searchlist] == controller_name
 			session[controller_name][:product_id] = params[:product_id]
 			session[controller_name][:brand_id] = params[:brand_id]
 			session[controller_name][:location_id] = params[:location_id]
 			session[controller_name][:availability] = params[:availability]
+			session[controller_name][:project_id] = params[:project_id]
 		end	
 	end
 
@@ -361,7 +372,7 @@ class WkproductitemController < WkinventoryController
 	end
 	
 	def getIventoryListHeader
-		headerHash = { 'product_name' => l(:label_product), 'brand_name' => l(:label_brand), 'product_model_name' => l(:label_model), 'product_attribute_name' => l(:label_attribute), 'serial_number' => l(:label_serial_number), 'currency' => l(:field_currency), 'selling_price' => l(:label_selling_price), 'total_quantity' => l(:label_total_quantity), 'available_quantity' => l(:label_available_quantity), 'uom_short_desc' => l(:label_uom), 'location_name' => l(:label_location) }
+		headerHash = { 'project_name' => l(:label_project), 'product_name' => l(:label_product), 'brand_name' => l(:label_brand), 'product_model_name' => l(:label_model), 'product_attribute_name' => l(:label_attribute), 'serial_number' => l(:label_serial_number), 'currency' => l(:field_currency), 'selling_price' => l(:label_selling_price), 'total_quantity' => l(:label_total_quantity), 'available_quantity' => l(:label_available_quantity), 'uom_short_desc' => l(:label_uom), 'location_name' => l(:label_location) }
 	end
 	
 	def showProductItem

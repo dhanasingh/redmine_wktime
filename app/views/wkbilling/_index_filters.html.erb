@@ -44,8 +44,13 @@ $(document).ready(function()
 		projArr = accountProjects.collect{|m| [ m.project_name, m.project_id ] } if !accountProjects.blank?
 		if !project_id.blank? && polymorphic_filter != '1'
 				projArr.unshift(["", '0'])
-			end
 		end
+	end
+
+	if controller_name == 'wkshipment'
+		projArr[0] = [l(:label_all_projects),'AP']
+		projArr.unshift(["",''])
+	end
 %> 
 <table>
 <tr>

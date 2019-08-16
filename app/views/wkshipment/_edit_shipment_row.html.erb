@@ -75,7 +75,10 @@
 	</td>	
 	<td class="lbl-txt-align" headers="location_id">
 		<%=h select_tag("location_id#{row_index.to_s}", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', entry.location_id, false), :disabled => isDisable, :style => "width: 100%;", :required => true) %>
-	</td>				
+	</td>	
+	<td class="lbl-txt-align" headers="project_id">
+		<%=h select_tag("project_id#{row_index.to_s}", options_for_select(getProjects, :selected => entry.project_id), :disabled => isDisable, :style => "width: 100%;") %>
+	</td>			
 	<% #total = total + entry.org_cost_price unless entry.org_cost_price.blank? %>
 	<td>
 		<% unless isDisable || !controller.hasDeletePermission %>
