@@ -36,7 +36,8 @@ class WkpayrollController < WkbaseController
 					'allowances' => "allowances	",
 					'deduction_total' => "deduction_total",
 					'gross' => "gross",
-					'net' => "net"
+					'net' => "net",
+					'join_date' => "join_date"
 	
 		payrollEntries()
 		payrollEntriesArr = @payrollEntries.to_a
@@ -114,9 +115,9 @@ class WkpayrollController < WkbaseController
 			sql_contd += " AND " if sql_contd != " WHERE "
 			sql_contd += " S.user_id IN (#{userId}) "
 		end
-		orderSQL = sort_clause.blank? ? "" : sort_clause.first
+		orderSQL = (params[:format] == 'csv' || sort_clause.blank?) ? "" : " ORDER BY "+ sort_clause.first
 		payroll_salaries = WkSalary.find_by_sql("SELECT S.*, concat(U.firstname, U.lastname) AS user, (SAL.basic_pay + SAL.allowances) AS gross,
-			((SAL.basic_pay + SAL.allowances) - SAL.deduction_total) AS net
+			((SAL.basic_pay + SAL.allowances) - SAL.deduction_total) AS net, WU.join_date
 			FROM wk_salaries AS S
 			INNER JOIN (
 				SELECT S.user_id, S.salary_date, SUM(CASE WHEN SA.component_type = 'a' THEN S.amount ELSE 0 END) AS allowances,
@@ -126,7 +127,7 @@ class WkpayrollController < WkbaseController
 				INNER JOIN wk_salary_components AS SA ON SA.id = S.salary_component_id" + sql_contd +
 				"GROUP BY S.user_id, S.salary_date
 			) AS SAL ON S.user_id = SAL.user_id AND S.salary_date = SAL.salary_date
-			LEFT JOIN users AS U ON U.id = S.user_id" + sql_contd + " ORDER BY " + orderSQL)
+			LEFT JOIN users AS U ON U.id = S.user_id LEFT JOIN wk_users WU ON WU.user_id = U.id" + sql_contd + orderSQL)
 		
 		payroll_salaries.each do |entry|
 			payrollAmount << {:user_id => entry.user_id, :component_id => entry.salary_component_id, :amount => (entry.amount).round, 
@@ -135,7 +136,7 @@ class WkpayrollController < WkbaseController
 	end
 
 	def form_payroll_entries(payrollAmount, userId)
-		usersDetails = User.where("id IN (#{userId})")
+		usersDetails = User.joins("LEFT JOIN wk_users WU ON WU.user_id = users.id").where("users.id IN (#{userId})").select("users.*, WU.join_date")
 		salaryComponents = WkSalaryComponents.all
 		basic_Total = nil
 		allowance_total = nil
@@ -145,13 +146,14 @@ class WkpayrollController < WkbaseController
 		payrollAmount.each do |payroll|
 			key = payroll[:user_id].to_s + "_" + payroll[:salary_date].to_s
 			if @payrollEntries[key].blank?
-				@payrollEntries[key] = { :uID => payroll[:user_id], :firstname => nil, :lastname => nil, :salDate => payroll[:salary_date], :BT => 0, :AT => 0, :DT => 0, :currency => nil, :details => {:b => [], :a => [], :d => []}}
+				@payrollEntries[key] = { :uID => payroll[:user_id], :firstname => nil, :lastname => nil, :joinDate => nil, :salDate => payroll[:salary_date], :BT => 0, :AT => 0, :DT => 0, :currency => nil, :details => {:b => [], :a => [], :d => []}}
 			end
 
 			usersDetails.each do |user|
 				if payroll[:user_id] == user.id
 					@payrollEntries[key][:firstname] = user.firstname
 					@payrollEntries[key][:lastname] = user.lastname
+					@payrollEntries[key][:joinDate] = user.join_date
 				end
 			end
 

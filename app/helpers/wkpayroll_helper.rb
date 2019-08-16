@@ -548,7 +548,8 @@ module WkpayrollHelper
 		currency = ""
 		export = Redmine::Export::CSV.generate do |csv|
 		  # csv header fields
-		  headers = [l(:field_user),
+			headers = [l(:field_user),
+					 l(:field_join_date),
 					 l(:label_salarydate),
 					 l(:label_basic),
 					 l(:label_allowances),
@@ -567,12 +568,12 @@ module WkpayrollHelper
 				grandGrossTotal = grandGrossTotal.to_i + gross.to_i
 				grandNetTotal = grandNetTotal.to_i + net.to_i
 				
-				dataArr = [payroll_data[:firstname].to_s + " " + payroll_data[:lastname].to_s, payroll_data[:salDate], currency + payroll_data[:BT].to_s,
-					currency + payroll_data[:AT].to_s, currency + payroll_data[:DT].to_s, currency + gross.to_s , currency + net.to_s]
+				dataArr = [payroll_data[:firstname].to_s + " " + payroll_data[:lastname].to_s, payroll_data[:joinDate], payroll_data[:salDate], currency +
+				 payroll_data[:BT].to_s, currency + payroll_data[:AT].to_s, currency + payroll_data[:DT].to_s, currency + gross.to_s , currency + net.to_s]
 				
 				csv << dataArr.collect {|c| Redmine::CodesetUtil.from_utf8(c.to_s, l(:general_csv_encoding))}
 			end
-				totalArr = ["", "Total", currency + grandBasicTotal.to_s, currency + grandAllowanceTotal.to_s, currency + grandDeductionTotal.to_s,
+				totalArr = ["","", "Total", currency + grandBasicTotal.to_s, currency + grandAllowanceTotal.to_s, currency + grandDeductionTotal.to_s,
 					currency + grandGrossTotal.to_s, currency + grandNetTotal.to_s ]
 			  csv << totalArr.collect {|t| Redmine::CodesetUtil.from_utf8(t.to_s, l(:general_csv_encoding))}
 		end
