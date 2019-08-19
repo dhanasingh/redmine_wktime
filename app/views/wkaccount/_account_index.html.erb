@@ -1,5 +1,5 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<%= form_tag({:controller => controller_name, :action => 'index'}, :method => :post, :id => 'query_form') do %>
+<%= form_tag({:controller => controller_name, :action => 'index', :tab => controller_name}, :method => :post, :id => 'query_form') do %>
 		<%= hidden_field_tag "searchlist", controller_name %>
 		<fieldset>
 			<%=h hidden_field_tag('tab', controller_name) %>

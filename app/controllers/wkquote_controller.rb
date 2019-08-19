@@ -17,6 +17,7 @@
 
 class WkquoteController < WksupplierorderentityController
   unloadable
+  menu_item :wkrfq
   
   @@quotemutex = Mutex.new
   

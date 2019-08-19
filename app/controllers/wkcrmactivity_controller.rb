@@ -18,6 +18,7 @@
 
 class WkcrmactivityController < WkcrmController
   unloadable
+  menu_item :wklead
   include WktimeHelper
 
 	def index

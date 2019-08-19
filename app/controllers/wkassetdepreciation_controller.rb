@@ -1,5 +1,6 @@
 class WkassetdepreciationController < WkassetController
   unloadable
+  menu_item :wkproduct
   include WktimeHelper
   include WkinventoryHelper
   include WkpayrollHelper

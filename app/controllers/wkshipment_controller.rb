@@ -1,5 +1,6 @@
 class WkshipmentController < WkinventoryController
   unloadable
+  menu_item :wkproduct
 before_action :require_login
 
 include WkcrmHelper
