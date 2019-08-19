@@ -160,7 +160,8 @@ class WksurveyController < WkbaseController
     @isResetResponse = (!@response_status.blank? && @survey.recur && (@response_status.status_date + @survey.recur_every.days <= Time.now))
     @isDisable = !(@response_status.blank? || @responseStatus == "O" && (params[:response_id].blank? || (!params[:response_id].blank? && 
       params[:response_id].to_i == @response_status.id)) || @isResetResponse) || ((!@response_status.blank? || @responseStatus == "O") &&
-      !([@response_status.user_id, @response_status.parent_id].include? User.current.id))
+      !([@response_status.user_id, @response_status.parent_id].include? User.current.id)) || @survey.status == "C" ||
+      (User.current.id == @response_status.try(:parent_id) && @responseStatus == "O")
     responseID = params[:response_id].blank? && !@response_status.blank? ? @response_status.id : params[:response_id]
 
     if @isResetResponse
@@ -180,7 +181,7 @@ class WksurveyController < WkbaseController
     end
     reviewUsers = User.where(parent_id: User.current.id).pluck(:id)
     @reviewer = !@survey_response.blank? && (reviewUsers.include? @survey_response.first.user_id) && @survey.is_review && !@isResetResponse
-    @isReview = @reviewer || (!@response_status.blank? && "R" == @responseStatus)
+    @isReview = (@reviewer || (!@response_status.blank? && "R" == @responseStatus)) && (@responseStatus != "O")
     @isReviewed = ("R" == @responseStatus)
   end
 
@@ -517,9 +518,9 @@ class WksurveyController < WkbaseController
     if !showSurvey || (!checkEditSurveyPermission && (["edit", "save_survey"].include? action_name))
       render_403
       return false
-    elsif (["email_user", "update_survey", "survey"].include? action_name && (@survey.blank? || @survey.status)) ||
-      (action_name == "survey_response" && survey.blank?) || (action_name == "survey_result" && @survey.status != "C" && 
-        !validateERPPermission("E_SUR"))
+    elsif (["email_user", "update_survey"].include? action_name && @survey.try(:status) != "O") ||
+      (action_name == "survey_response" && survey.blank?) || (action_name == "survey_result" && @survey.try(:status) != "C" && 
+        !validateERPPermission("E_SUR")) || ("survey" == action_name && !(["O", "C"].include? @survey.try(:status)))
         render_404
         return false
     end
@@ -573,7 +574,7 @@ class WksurveyController < WkbaseController
     if !response_id.blank?
       condStr = " AND wk_survey_responses.id = #{response_id.to_i}"
     else
-      condStr = " AND (wk_survey_responses.user_id = #{User.current.id} OR (U.parent_id = #{(User.current.id).to_s} AND S.is_review IS TRUE)) 
+      condStr = " AND (wk_survey_responses.user_id = #{User.current.id}) 
         AND wk_survey_responses.survey_for_type" + (@surveyForID.blank? ? 
         " IS NULL " : " = '#{@surveyForType}' ") + " AND wk_survey_responses.survey_for_id" + (@surveyForID.blank? ? 
         " IS NULL " : " = #{@surveyForID} ")

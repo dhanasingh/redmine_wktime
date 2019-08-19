@@ -24,16 +24,14 @@ end
         <th></th>
     </tr>
     <% @all_surveys.each_with_index do |entry, index| %>
-        <% urlhash = { :survey_id => entry.id, :surveyForType => entry.survey_for_type, :surveyForID => entry.survey_for_id }
-        action = entry.status == "O" ? "survey" : "survey_result"
-        %>
+        <% urlhash = { :survey_id => entry.id, :surveyForType => entry.survey_for_type, :surveyForID => entry.survey_for_id } %>
         <tr>
             <td><%=h index+1 %></td>
             <td class="lbl-txt-align">
                 <% if helperObj.get_survey_with_userGroup(entry.id).blank? || (@surveyForID.blank? && !@surveyForType.blank?) %>
                     <%=h entry.name %>
                 <% else %>
-                    <%=h link_to entry.name, url_for(helperObj.get_survey_url(urlhash, params, action)) %>
+                    <%=h link_to entry.name, url_for(helperObj.get_survey_url(urlhash, params, "survey")) %>
                 <% end %>
             </td>
             <td><%=h helperObj.getSurveyStatus.invert[entry.status] %></td>
@@ -43,7 +41,7 @@ end
                         url_for(helperObj.get_survey_url(urlhash, params, "survey_response")), :title => l(:label_survey_response) %>&emsp;
                 <% else %>&emsp;&emsp;&nbsp;
                 <% end %>
-                <% if (["O","C"].include? entry.status) && helperObj.checkEditSurveyPermission %>
+                <% if (entry.status == "O" && validateERPPermission("E_SUR")) || entry.status == "C" %>
                     <%= link_to image_tag("stats.png"), url_for(helperObj.get_survey_url(urlhash, params, "survey_result")), 
                         :title => l(:label_survey_result) %>&emsp;
                 <% else %>&emsp;&emsp;&nbsp;

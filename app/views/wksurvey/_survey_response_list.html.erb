@@ -17,7 +17,8 @@ end
     </tr>
     <% @response_entries.each_with_index do |entry, index| %>
         <% entry = entry.last %>
-        <% if User.current.id == entry[:user_id] || (User.current.id == entry[:parent_id] || validateERPPermission("E_SUR")) && entry[:status] != "O" %>
+        <% if User.current.id == entry[:user_id] || (User.current.id == entry[:parent_id] || 
+            validateERPPermission("E_SUR")) %>
             <% urlhash = { :survey_id => entry[:survey_id], :surveyForType => entry[:survey_for_type], :surveyForID => entry[:survey_for_id], response_id: entry[:id] } %>
             <tr>
                 <td class="lbl-txt-align"><%=h index+1 %></td>

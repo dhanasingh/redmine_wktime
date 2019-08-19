@@ -16,7 +16,7 @@
             elsif isReviewerOnly
                 @reviewerOnlyQuestions += "," + entry.question_id.to_s
             end
-            isMandatory = true if isReviewerOnly
+            isMandatory = isReviewerOnly && entry.question_type != "CB"
         %>
         <%=h hidden_field_tag("question_type_"+ (entry.question_id).to_s, entry.question_type) %>
         <%=h hidden_field_tag("isReviewerOnly_"+ (entry.question_id).to_s, isReviewerOnly) %>
