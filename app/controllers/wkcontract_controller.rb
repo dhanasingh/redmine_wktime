@@ -56,7 +56,7 @@ before_action :require_login
 			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
 			sqlwhere = sqlwhere + " project_id = '#{projectId}' " 
 		end
-		entries = WkContract.joins("LEFT JOIN projects ON projects.id = wk_contracts.project_id
+		entries = WkContract.joins("LEFT JOIN (SELECT id, name FROM projects) AS projects ON projects.id = wk_contracts.project_id
 			LEFT JOIN wk_accounts a on (wk_contracts.parent_type = 'WkAccount' and wk_contracts.parent_id = a.id)
 			LEFT JOIN wk_crm_contacts c on (wk_contracts.parent_type = 'WkCrmContact' and wk_contracts.parent_id = c.id)").all
 		unless filter_type == '1' && projectId.blank? 

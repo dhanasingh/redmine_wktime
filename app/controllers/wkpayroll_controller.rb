@@ -28,17 +28,6 @@ class WkpayrollController < WkbaseController
 	include WkreportHelper
 
 	def index
-		sort_init 'id', 'asc'
-    
-		sort_update 'user' => "CONCAT(U.firstname, U.lastname)",
-					'salary_date' => "S.salary_date",
-					'basic_pay' => "basic_pay",
-					'allowances' => "allowances	",
-					'deduction_total' => "deduction_total",
-					'gross' => "gross",
-					'net' => "net",
-					'join_date' => "join_date"
-	
 		payrollEntries()
 		payrollEntriesArr = @payrollEntries.to_a
 		@entry_count = @payrollEntries.length()
@@ -61,6 +50,16 @@ class WkpayrollController < WkbaseController
 	end
 
 	def payrollEntries
+		sort_init 'id', 'asc'
+		
+		sort_update 'user' => "CONCAT(U.firstname, U.lastname)",
+					'salary_date' => "S.salary_date",
+					'basic_pay' => "basic_pay",
+					'allowances' => "allowances	",
+					'deduction_total' => "deduction_total",
+					'gross' => "gross",
+					'net' => "net",
+					'join_date' => "join_date"
 		isGeneratePayroll = params[:generate]
 		@isPreview = params[:generate].blank? ? false : !to_boolean(params[:generate])
 		@total_gross = 0
@@ -115,7 +114,7 @@ class WkpayrollController < WkbaseController
 			sql_contd += " AND " if sql_contd != " WHERE "
 			sql_contd += " S.user_id IN (#{userId}) "
 		end
-		orderSQL = (params[:format] == 'csv' || sort_clause.blank?) ? "" : " ORDER BY "+ sort_clause.first
+		orderSQL = (sort_clause.blank?) ? "" : " ORDER BY "+ sort_clause.first
 		payroll_salaries = WkSalary.find_by_sql("SELECT S.*, concat(U.firstname, U.lastname) AS user, (SAL.basic_pay + SAL.allowances) AS gross,
 			((SAL.basic_pay + SAL.allowances) - SAL.deduction_total) AS net, WU.join_date
 			FROM wk_salaries AS S

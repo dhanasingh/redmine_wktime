@@ -135,8 +135,8 @@ include WkgltransactionHelper
 				invEntries = invEntries.where( :id => invIds)
 			end
 			invEntries = invEntries.joins("LEFT JOIN wk_invoice_items ON wk_invoice_items.invoice_id = wk_invoices.id
-				LEFT JOIN projects ON wk_invoice_items.project_id = projects.id
-				LEFT JOIN users ON wk_invoices.modifier_id = users.id
+				LEFT JOIN (SELECT id, name FROM projects) AS projects ON wk_invoice_items.project_id = projects.id
+				LEFT JOIN (SELECT id, firstname, lastname FROM users) AS users ON wk_invoices.modifier_id = users.id
 				LEFT JOIN wk_accounts a on (wk_invoices.parent_type = 'WkAccount' and wk_invoices.parent_id = a.id)
 				LEFT JOIN wk_crm_contacts c on (wk_invoices.parent_type = 'WkCrmContact' and wk_invoices.parent_id = c.id)
 				").group("wk_invoices.id, CASE WHEN wk_invoices.parent_type = 'WkAccount' THEN a.name ELSE CONCAT(c.first_name, c.last_name) END, projects.name,
