@@ -706,7 +706,7 @@ Redmine::Plugin.register :redmine_wktime do
   })  
 
 	menu :top_menu, :wkdashboard, { :controller => 'wkdashboard', :action => 'index' }, :caption => :label_erpmine,
-	 :if => Proc.new { ActiveModel::Type::Boolean.new.cast(Object.new.extend(WktimeHelper).show_plugin_name) || Object.new.extend(WktimeHelper).hasSettingPerm } 
+	 :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && ActiveModel::Type::Boolean.new.cast(Object.new.extend(WktimeHelper).show_plugin_name) } 
   	
   	project_module :time_tracking do
 		permission :approve_time_entries,  {:wktime => [:update]}, :require => :member	

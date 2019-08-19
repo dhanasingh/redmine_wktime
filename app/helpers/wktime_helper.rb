@@ -627,8 +627,6 @@ end
 				
 				if showShiftScheduling
 					tabs <<  {:name => 'wkscheduling', :partial => 'wktime/tab_content', :label => :label_scheduling}
-					@schedulesShift = validateERPPermission("S_SHIFT")
-					@editShiftSchedules = validateERPPermission("E_SHIFT")
 				end
 				
 				if showSurvey

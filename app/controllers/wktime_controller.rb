@@ -100,7 +100,7 @@ include QueriesHelper
 	end
 	teQuery = getTEQuery(@from, @to, ids)
 	query = getQuery(teQuery, ids, @from, @to, status)
-	query = query + " ORDER BY " + (sort_clause.present? ? sort_clause.first : "tmp3.spent_on desc, tmp3.user_id")
+	query = query + " ORDER BY " + (sort_clause.present? ? sort_clause.first + ", spent_on DESC " : "tmp3.spent_on desc, tmp3.user_id")
 	findBySql(query)
     respond_to do |format|
       format.html {        
