@@ -14,7 +14,7 @@ end
 <table class="<%= style %>">
     <tr>				
         <th>#</th>
-        <% if action_name == "index" %>
+        <% if ["index", "user_survey"].include? action_name %>
             <%= sort_header_tag('survey', :caption => l(:label_survey), class: "lbl-txt-align") %>
             <%= sort_header_tag('status', :caption => l(:label_status)) %>
         <% else %>
