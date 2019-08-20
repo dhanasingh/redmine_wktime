@@ -19,7 +19,7 @@ class WkopportunityController < WkcrmController
 		oppName = session[:wkopportunity][:oppname]
 		accId = session[:wkopportunity][:account_id]
 
-		oppDetails = WkOpportunity.joins("LEFT JOIN users AS U ON wk_opportunities.assigned_user_id = U.id
+		oppDetails = WkOpportunity.joins("LEFT JOIN (SELECT id, firstname, lastname FROM users) AS U ON wk_opportunities.assigned_user_id = U.id
 			LEFT JOIN wk_crm_enumerations AS E on wk_opportunities.sales_stage_id = E.id")
 
 		filterSql = ""

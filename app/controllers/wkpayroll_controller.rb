@@ -114,7 +114,7 @@ class WkpayrollController < WkbaseController
 			sql_contd += " AND " if sql_contd != " WHERE "
 			sql_contd += " S.user_id IN (#{userId}) "
 		end
-		orderSQL = (sort_clause.blank?) ? "" : " ORDER BY "+ sort_clause.first
+		orderSQL = (action_name == 'edit' || sort_clause.blank?)  ? "" : " ORDER BY "+ sort_clause.first
 		payroll_salaries = WkSalary.find_by_sql("SELECT S.*, concat(U.firstname, U.lastname) AS user, (SAL.basic_pay + SAL.allowances) AS gross,
 			((SAL.basic_pay + SAL.allowances) - SAL.deduction_total) AS net, WU.join_date
 			FROM wk_salaries AS S

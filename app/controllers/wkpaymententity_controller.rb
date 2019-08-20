@@ -23,7 +23,7 @@ class WkpaymententityController < WkbillingController
 	include WkpaymententityHelper
 	
     def index
-			sort_init 'id', 'asc'
+			sort_init 'id', 'desc'
 			sort_update 'id' => "p.id",
 			'payment_date' => "p.payment_date",
 			'type' => "p.parent_type",
