@@ -29,9 +29,10 @@
 			<table>
 				<tr>
 					<th align="left"><%= l(:label_response_status) %></th>
-					<th align="left" style="padding-left:10px;"><%= select_tag('response_status', 
-						options_for_select(getResponseStatus, :selected => @responseStatus)) %></th>
-					<th style="padding-left:10px;"><%= submit_tag l(:button_submit) %></th>
+					<th align="left" style="padding-left:10px;">
+						<%= select_tag('response_status', options_for_select(getResponseStatus, :selected => @responseStatus)) %>
+					</th>
+					<th style="padding-left:10px;"><%= button_tag l(:button_submit) %></th>
 				</tr>
 			</table>
 		<% end %>
