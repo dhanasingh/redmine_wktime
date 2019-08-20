@@ -39,8 +39,8 @@ class WkproductitemController < WkinventoryController
 					'available_quantity' => "iit.available_quantity",
 					'uom' => "uom_short_desc",
 					'location_name' => "location_name",
-					'parent_name' => "parent_name",
-					'asset_name' => "asset_name",
+					'parent_name' => "CASE WHEN pap.name IS NULL THEN ap.name ELSE pap.name END",
+					'asset_name' => "CASE WHEN pap.name IS NULL THEN NULL ELSE ap.name END",
 					'owner_type' => "ap.owner_type",
 					'rate' => "ap.rate",
 					'project_name' => "project_name"
@@ -143,11 +143,13 @@ class WkproductitemController < WkinventoryController
 			inventoryItem = nil
 			if !params[:available_quantity].blank?
 				locationId = params[:location_id].to_i
+				projId = params[:project_id]
 				unless params[:parent_id].blank?
 					invItem = WkInventoryItem.find(params[:parent_id].to_i)
 					locationId = invItem.location_id
+					projId = invItem.project_id
 				end
-				inventoryItem = updateInventoryItem(productItem.id, locationId) 
+				inventoryItem = updateInventoryItem(productItem.id, locationId,projId) 
 			elsif !params[:inventory_item_id].blank?
 				inventoryItem = WkInventoryItem.find(params[:inventory_item_id].to_i)
 				inventoryItem.selling_price = params[:selling_price]
@@ -182,7 +184,7 @@ class WkproductitemController < WkinventoryController
 		unless availQuantity < 0 || transferQty <= 0
 			sourceItem.available_quantity = availQuantity
 			if sourceItem.save()
-				targetItem = updateInventoryItem(params[:product_item_id].to_i, params[:location_id].to_i)
+				targetItem = updateInventoryItem(params[:product_item_id].to_i, params[:location_id].to_i, params[:project_id].to_i)
 				if sourceItem.product_type == 'A'
 					depreciationFreq = Setting.plugin_redmine_wktime['wktime_depreciation_frequency']
 					finacialPeriodArr = getFinancialPeriodArray(Date.today, Date.today, depreciationFreq, 1)
@@ -205,7 +207,7 @@ class WkproductitemController < WkinventoryController
 		end
 	end
 	
-	def updateInventoryItem(productItemId, locationId)
+	def updateInventoryItem(productItemId, locationId, projId)
 		sysCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 		if params[:inventory_item_id].blank?
 			inventoryItem = WkInventoryItem.new
@@ -245,7 +247,7 @@ class WkproductitemController < WkinventoryController
 		inventoryItem.status = inventoryItem.available_quantity == 0 ? 'c' : 'o'
 		inventoryItem.uom_id = params[:uom_id].to_i
 		inventoryItem.location_id = locationId if params[:location_id] != "0"
-		inventoryItem.project_id = params[:project_id]	
+		inventoryItem.project_id = projId
 		inventoryItem.save()
 		updateShipment(inventoryItem)
 		inventoryItem
