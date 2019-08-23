@@ -30,7 +30,7 @@ class WkopportunityController < WkcrmController
 		end
 		unless oppName.blank?
 			filterSql = filterSql + " AND" unless filterSql.blank?
-			filterSql = filterSql + " LOWER(name) like LOWER(:name)"
+			filterSql = filterSql + " LOWER(wk_opportunities.name) like LOWER(:name)"
 			filterHash[:name] = "%#{oppName}%"
 		end
 		unless accId.blank?
