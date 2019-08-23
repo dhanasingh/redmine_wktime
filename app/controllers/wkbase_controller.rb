@@ -79,10 +79,10 @@ include WkattendanceHelper
 	def retrieve_date_range
 		@free_period = false
 		@from, @to = nil, nil
-		period_type = session[controller_name][:period_type]
-		period = session[controller_name][:period]
-		fromdate = session[controller_name][:from]
-		todate = session[controller_name][:to]
+		period_type = session[controller_name].try( :[], :period_type)
+		period = session[controller_name].try( :[], :period)
+		fromdate = session[controller_name].try( :[], :from)
+		todate = session[controller_name].try( :[], :to)
 		
 		if (period_type == '1' || (period_type.nil? && !period.nil?)) 
 		    case period.to_s

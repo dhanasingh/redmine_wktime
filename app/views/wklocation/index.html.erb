@@ -13,10 +13,10 @@
 <%= render_tabs time_expense_tabs %>
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 <%= form_tag({:controller => "wklocation", :action => 'index'}, :method => :get, :id => 'query_form') do %>
-<%= hidden_field_tag "searchlist", "wklocation" %>
+<%= hidden_field_tag "searchlist", controller_name %>
 <%=h hidden_field_tag('tab', "wklocation") %>
-<%	locName = session[:wklocation][:locName] %>
-<%	locType = session[:wklocation][:locType] %>
+<%	locName = session[controller_name].try(:[], :location_name) %>
+<%	locType = session[controller_name].try(:[], :location_type) %>
 <div class="wk-contextual"> 
 		<label for='name' style="float:left"><%= l(:field_name)   %>&nbsp;&nbsp;</label>
 			<%= text_field_tag 'location_name', locName, :size => 30, :style=> "float: left;" %>	

@@ -35,19 +35,11 @@
 <%= hidden_field_tag "searchlist", "#{controller_name}" %>
 
 <%
-	if params[:tab] == 'wkexpense'
-		projectid = session[:wkexpense][:project_id]
-		groupid =session[:wkexpense][:group_id]
-		userid = session[:wkexpense][:user_id]
-		status = session[:wkexpense][:status]
-		filter_type = session[:wkexpense][:filter_type]
-	else
-		projectid = session[:wktimes][:project_id]
-		groupid =session[:wktimes][:group_id]
-		userid = session[:wktimes][:user_id]
-		status = session[:wktimes][:status]
-		filter_type = session[:wktimes][:filter_type]
-	end
+	projectid = session[controller_name].try(:[], :project_id)
+	groupid =session[controller_name].try(:[], :group_id)
+	userid = session[controller_name].try(:[], :user_id)
+	status = session[controller_name].try(:[], :status)
+	filter_type = session[controller_name].try(:[], :filter_type)
 	projGrp =false
 	if filter_type == '1' || filter_type.blank?
 		projGrp = true	

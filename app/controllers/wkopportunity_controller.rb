@@ -16,8 +16,8 @@ class WkopportunityController < WkcrmController
 
 		set_filter_session
 		retrieve_date_range
-		oppName = session[:wkopportunity][:oppname]
-		accId = session[:wkopportunity][:account_id]
+		oppName = session[controller_name].try(:[], :oppname)
+		accId = session[controller_name].try(:[], :account_id)
 
 		oppDetails = WkOpportunity.joins("LEFT JOIN (SELECT id, firstname, lastname FROM users) AS U ON wk_opportunities.assigned_user_id = U.id
 			LEFT JOIN wk_crm_enumerations AS E on wk_opportunities.sales_stage_id = E.id")
@@ -107,17 +107,17 @@ class WkopportunityController < WkcrmController
   
   
     def set_filter_session
-        if params[:searchlist].blank? && session[:wkopportunity].nil?
-			session[:wkopportunity] = {:period_type => params[:period_type],:period => params[:period],	:from => @from, :to => @to, :oppname => params[:oppname], :account_id => params[:account_id] }
-		elsif params[:searchlist] =='wkopportunity'
-			session[:wkopportunity][:period_type] = params[:period_type]
-			session[:wkopportunity][:period] = params[:period]
-			session[:wkopportunity][:from] = params[:from]
-			session[:wkopportunity][:to] = params[:to]
-			session[:wkopportunity][:oppname] = params[:oppname]
-			session[:wkopportunity][:account_id] = params[:account_id]
+		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
+		if params[:searchlist] == controller_name
+			filters = [:period_type, :oppname, :account_id, :period, :from, :to]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
 		end
-		
     end
    	
 	def formPagination(entries)

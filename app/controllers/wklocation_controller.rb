@@ -13,22 +13,21 @@ class WklocationController < WkbaseController
 				'state' => "#{WkAddress.table_name}.state"
 
 	set_filter_session
-		locationName = session[:wklocation][:locName]		
-		locationType =  session[:wklocation][:locType]
-		wklocation = nil
-		if !locationName.blank? &&  !locationType.blank? && locationType.to_i != 0
-			wklocation = WkLocation.where(:location_type_id => locationType.to_i).where("LOWER(name) like LOWER(?) ", "%#{locationName}%")
-		elsif locationName.blank? &&  !locationType.blank? && locationType.to_i != 0
-			wklocation = WkLocation.where(:location_type_id => locationType.to_i)
-		elsif !locationName.blank? &&  (locationType.blank? ||  locationType.to_i == 0 )
-			wklocation = WkLocation.where("LOWER(name) like LOWER(?) ", "%#{locationName}%")
-		else
-			wklocation = WkLocation.all
-		end
+	locationName = session[controller_name].try(:[], :location_name)
+	locationType =  session[controller_name].try(:[], :location_type)
+	wklocation = WkLocation.all
+	
+	if locationType.present? && locationType.to_i != 0
+		wklocation = wklocation.where(:location_type_id => locationType.to_i)
+	end
 
-		wklocation = wklocation.joins("LEFT JOIN wk_addresses ON wk_locations.address_id = wk_addresses.id")
-							.joins("LEFT JOIN wk_crm_enumerations ON wk_locations.location_type_id = wk_crm_enumerations.id")
-		formPagination(wklocation.reorder(sort_clause))
+	if locationName.present?
+		wklocation = wklocation.where("LOWER(wk_locations.name) like LOWER(?) ", "%#{locationName}%")
+	end
+
+	wklocation = wklocation.joins("LEFT JOIN wk_addresses ON wk_locations.address_id = wk_addresses.id")
+		.joins("LEFT JOIN wk_crm_enumerations ON wk_locations.location_type_id = wk_crm_enumerations.id")
+	formPagination(wklocation.reorder(sort_clause))
   end
   
   def edit
@@ -77,13 +76,17 @@ class WklocationController < WkbaseController
   end
 
   def set_filter_session
-        if params[:searchlist].blank? && session[:wklocation].nil?
-			session[:wklocation] = {:locName => params[:location_name], :locType => params[:location_type] }
-		elsif params[:searchlist] =='wklocation'
-			session[:wklocation][:locName] = params[:location_name]
-			session[:wklocation][:locType] = params[:location_type]
+	if params[:searchlist] == controller_name
+		session[controller_name] = Hash.new if session[controller_name].nil?
+		filters = [:location_name, :location_type]
+		filters.each do |param|
+			if params[param].blank? && session[controller_name].try(:[], param).present?
+				session[controller_name].delete(param)
+			elsif params[param].present?
+				session[controller_name][param] = params[param]
+			end
 		end
-		
+	end
     end
 	
 	def check_perm_and_redirect

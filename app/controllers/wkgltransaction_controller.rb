@@ -28,15 +28,15 @@ class WkgltransactionController < WkaccountingController
 			set_filter_session
 			retrieve_date_range
 			@selectedLedger = nil
-			@ledgerId = session[:wkgltransaction][:ledger_id]
-			transactionType = session[:wkgltransaction][:trans_type]
-			@summaryTransaction = session[:wkgltransaction][:summary_trans]
+			@ledgerId = session[controller_name].try(:[], :txn_ledger)
+			transactionType = session[controller_name].try(:[], :trans_type)
+			@summaryTransaction = session[controller_name].try(:[], :summary_trans)
 		else
 			@summaryTransaction = params[:summary_by].to_s
 			@from = params[:from]
 			@to = params[:to]
-			transactionType = session[:wkgltransaction][:trans_type]
-			@ledgerId = params[:ledger_id]
+			transactionType = session[controller_name].try(:[], :trans_type)
+			@ledgerId = params[:txn_ledger]
 			@free_period = true
 		end
 		if @summaryTransaction != 'days'
@@ -331,16 +331,16 @@ class WkgltransactionController < WkaccountingController
 	end
   
 	def set_filter_session
-		if params[:searchlist].blank? && session[:wkgltransaction].nil?
-			session[:wkgltransaction] = {:period_type => params[:period_type],:period => params[:period],	:ledger_id =>	params[:txn_ledger],:from => @from, :to => @to, :trans_type =>params[:trans_type], :summary_trans => params[:summary_trans].blank? ? 'days' : params[:summary_trans]}
-		elsif params[:searchlist] =='wkgltransaction'
-			session[:wkgltransaction][:period_type] = params[:period_type]
-			session[:wkgltransaction][:period] = params[:period]
-			session[:wkgltransaction][:from] = params[:from]
-			session[:wkgltransaction][:to] = params[:to]
-			session[:wkgltransaction][:ledger_id] = params[:txn_ledger]
-			session[:wkgltransaction][:trans_type] = params[:trans_type]
-			session[:wkgltransaction][:summary_trans] = params[:summary_trans]
+		session[controller_name] = {:summary_trans => "days"} if session[controller_name].nil?
+		if params[:searchlist] == controller_name
+			filters = [:period_type, :period, :txn_ledger, :from, :to, :trans_type, :summary_trans]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
 		end
 	end
    
@@ -348,10 +348,10 @@ class WkgltransactionController < WkaccountingController
 	def retrieve_date_range
 		@free_period = false
 		@from, @to = nil, nil
-		period_type = session[:wkgltransaction][:period_type]
-		period = session[:wkgltransaction][:period]
-		fromdate = session[:wkgltransaction][:from]
-		todate = session[:wkgltransaction][:to]
+		period_type = session[controller_name].try(:[], :period_type)
+		period = session[controller_name].try(:[], :period)
+		fromdate = session[controller_name].try(:[], :from)
+		todate = session[controller_name].try(:[], :to)
 		
 		if (period_type == '1' || (period_type.nil? && !period.nil?)) 
 		    case period.to_s
@@ -419,10 +419,10 @@ class WkgltransactionController < WkaccountingController
 	end
 	
 	def set_transaction_session
-		session[:wkgltransaction][:start_date] = params[:date]
-		session[:wkgltransaction][:txn_type] = params[:txn_type]
-		session[:wkgltransaction][:ledger_id1] = params[:txn_particular1]
-		session[:wkgltransaction][:ledger_id2] = params[:txn_particular2]
+		session[controller_name][:start_date] = params[:date]
+		session[controller_name][:txn_type] = params[:txn_type]
+		session[controller_name][:ledger_id1] = params[:txn_particular1]
+		session[controller_name][:ledger_id2] = params[:txn_particular2]
 	end
 
 	def export

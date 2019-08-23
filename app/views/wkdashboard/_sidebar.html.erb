@@ -1,11 +1,11 @@
 <%
 	projects = Project.all.map{|project| [project.name, project.id]}
-	project_id = session[:wkdashboard][:project_id]
-	period = session[:wkdashboard][:period]
-	groupid = session[:wkdashboard][:group_id]
+	project_id = session[controller_name].try( :[], :project_id)
+	period = session[controller_name].try( :[], :period)
+	groupid = session[controller_name].try( :[], :group_id)
 %>
-
-<%= form_tag({}, :method => :get, :id => 'project_id') do %>
+<%= form_tag({}, :method => :get) do %>
+	<%= hidden_field_tag "searchlist", controller_name %>
 	<div>
 		<h3><%= l(:label_project_plural) %></h3>
 		<%=h select_tag('project_id', options_for_select(projects, :selected => project_id), multiple: true )  %>

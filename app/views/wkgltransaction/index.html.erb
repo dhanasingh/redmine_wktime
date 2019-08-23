@@ -11,9 +11,9 @@
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
 	<%= hidden_field_tag "searchlist", "#{controller_name}" %>	
-	<%	ledgerid =session[:wkgltransaction][:ledger_id] %>
-	<%	trans_type =session[:wkgltransaction][:trans_type] %>
-	<% summary_trans =  params[:summary_by].blank? ? session[:wkgltransaction][:summary_trans] : params[:summary_by] %>
+	<%	ledgerid =session[controller_name].try(:[], :txn_ledger) %>
+	<%	trans_type =session[controller_name].try(:[], :trans_type) %>
+	<% summary_trans =  params[:summary_by].blank? ? session[controller_name].try(:[], :summary_trans) : params[:summary_by] %>
 	<div class="wk-contextual">
 		<b><label style="float:left;"><%= l(:label_ledger) %></label></b>
 	     <%=h select_tag("txn_ledger", options_for_select([['','']]+@ledgers, :selected => ledgerid.nil? ? @ledgers : ledgerid ), :style => "width:200px; float:left;") %>
