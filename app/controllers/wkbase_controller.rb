@@ -16,10 +16,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkbaseController < ApplicationController
-unloadable
-helper :sort
-include SortHelper
-include WkattendanceHelper
+	unloadable
+	helper :sort
+	include SortHelper
+	include WkattendanceHelper
+	before_action :clear_sort_session
 
 	def index
 	end
@@ -123,5 +124,11 @@ include WkattendanceHelper
 		
 		@from, @to = @to, @from if @from && @to && @from > @to
 
+	end
+
+	def clear_sort_session
+		session.each do |key, values|
+			session.delete(key) if key.include? "_index_sort"
+		end
 	end
 end
