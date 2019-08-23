@@ -18,8 +18,8 @@
 	<% 
 	logmaterial_helper = Object.new.extend(WklogmaterialHelper)
 	productArr = logmaterial_helper.getProductArray(WkProduct, '', 'A', true) 
-	productId =session[controller_name][:product_id]
-	assetId =session[controller_name][:inventory_item_id]
+	productId =session[controller_name].try(:[], :product_id)
+	assetId =session[controller_name].try(:[], :inventory_item_id)
 	assetItemArr = controller.getInventoryAssetItems(productId, 'A', true)
 	%>
 	<table>

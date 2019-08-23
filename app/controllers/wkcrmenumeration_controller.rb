@@ -11,8 +11,8 @@ class WkcrmenumerationController < WkbaseController
 					'position' => "position"
 
 		set_filter_session
-		enumName = session[:wkcrmenumeration][:enumname]		
-		enumType =  session[:wkcrmenumeration][:enumType]
+		enumName = session[controller_name].try(:[], :enumname)
+		enumType =  session[controller_name].try(:[], :enumType)
 		wkcrmenum = nil
 		if !enumName.blank? &&  !enumType.blank?
 			wkcrmenum = WkCrmEnumeration.where(:enum_type => enumType).where("LOWER(name) like LOWER(?)", "%#{enumName}%")
@@ -56,13 +56,17 @@ class WkcrmenumerationController < WkbaseController
   end
   
     def set_filter_session
-        if params[:searchlist].blank? && session[:wkcrmenumeration].nil?
-			session[:wkcrmenumeration] = {:enumname => params[:enumname], :enumType => params[:enumType] }
-		elsif params[:searchlist] =='wkcrmenumeration'
-			session[:wkcrmenumeration][:enumname] = params[:enumname]
-			session[:wkcrmenumeration][:enumType] = params[:enumType]
+		if params[:searchlist] == controller_name
+			session[controller_name] = Hash.new if session[controller_name].nil?
+			filters = [:enumname, :enumType]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
 		end
-		
     end
 	
 	def formPagination(entries)

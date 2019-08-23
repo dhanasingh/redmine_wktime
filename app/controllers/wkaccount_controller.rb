@@ -28,8 +28,8 @@ class WkaccountController < WkcrmController
 					'location_name' => "L.name"
 					
 		set_filter_session
-		locationId = session[controller_name][:location_id]
-		accName = session[controller_name][:accountname]
+		locationId = session[controller_name].try(:[], :location_id)
+		accName = session[controller_name].try(:[], :accountname)
 		@account_entries = nil
 		location = WkLocation.where(:is_default => 'true').first
 
@@ -127,11 +127,16 @@ class WkaccountController < WkcrmController
 	end
 
 	def set_filter_session
-		if params[:searchlist].blank? && session[controller_name].nil?
-			session[controller_name] = {:location_id => params[:location_id], :accountname => params[:accountname] }
-		elsif params[:searchlist] == controller_name
-			session[controller_name][:location_id] = params[:location_id]
-			session[controller_name][:accountname] = params[:accountname]
+		if params[:searchlist] == controller_name
+			session[controller_name] = Hash.new if session[controller_name].nil?
+			filters = [:location_id, :accountname]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
 		end
 	end	
 

@@ -25,10 +25,10 @@
 <%  relatedArrhash = Hash[*relatedArr.flatten].invert %>
 
 <%= form_tag({:controller => "wkcrmactivity", :action => 'index', :tab => "wkcrmactivity"}, :method => :get, :id => 'query_form') do %>
-	<%= hidden_field_tag "searchlist", "wkcrmactivity" %>
+	<%= hidden_field_tag "searchlist", controller_name %>
 	<%=h hidden_field_tag('tab', "wkcrmactivity") %>
-	<%	actType =session[:wkcrmactivity][:activity_type]
-		actRelated = session[:wkcrmactivity][:related_to] %>
+	<%	actType =session[controller_name].try(:[], :activity_type)
+		actRelated = session[controller_name].try(:[], :related_to) %>
 		<th align="left" ><%= l(:label_activity_type) %></th>
 		<td  align="left" style="padding-left:40px;"><%=h select_tag("activity_type", options_for_select(actTypehash, :selected => !actType.blank? ? actType : ""), :style => "width:190px;") %></td>
 	<th align="left" ><%= l(:label_related_to) %></th>

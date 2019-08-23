@@ -81,9 +81,9 @@ class WkattendanceController < WkbaseController
 			userIds << users.id
 		end
 		ids = nil
-		user_id = session[:wkattendance][:user_id]
-		group_id = session[:wkattendance][:group_id]
-		status = session[:wkattendance][:status]
+		user_id = session[controller_name].try(:[], :user_id)
+		group_id = session[controller_name].try(:[], :group_id)
+		status = session[controller_name].try(:[], :status)
 		
 		if user_id.blank? || !validateERPPermission('A_TE_PRVLG')
 		   ids = User.current.id
@@ -140,7 +140,7 @@ class WkattendanceController < WkbaseController
 		if (!params[:group_id].blank?)
 			group_id = params[:group_id]
 		else
-			group_id = session[:wkattendance][:group_id]
+			group_id = session[controller_name].try(:[], :group_id)
 		end
 		
 		if !group_id.blank? && group_id.to_i > 0
@@ -152,15 +152,16 @@ class WkattendanceController < WkbaseController
 	end
 	
 	def set_filter_session
-		if params[:searchlist].blank? && session[:wkattendance].nil?
-			session[:wkattendance] = {:period_type => params[:period_type], :period => params[:period],:group_id => params[:group_id], :user_id => params[:user_id], :from => @from, :to => @to}
-		elsif params[:searchlist] =='wkattendance'
-			session[:wkattendance][:period_type] = params[:period_type]
-			session[:wkattendance][:period] = params[:period]
-			session[:wkattendance][:group_id] = params[:group_id]
-			session[:wkattendance][:user_id] = params[:user_id]
-			session[:wkattendance][:from] = params[:from]
-			session[:wkattendance][:to] = params[:to]
+		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
+		if params[:searchlist] == controller_name
+			filters = [:period_type, :period, :group_id, :user_id, :from, :to]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
 		end
 	end
 	
@@ -168,10 +169,10 @@ class WkattendanceController < WkbaseController
 	  def retrieve_date_range
 		@free_period = false
 		@from, @to = nil, nil
-		period_type = session[:wkattendance][:period_type]
-		period = session[:wkattendance][:period]
-		fromdate = session[:wkattendance][:from]
-		todate = session[:wkattendance][:to]
+		period_type = session[controller_name].try(:[], :period_type)
+		period = session[controller_name].try(:[], :period)
+		fromdate = session[controller_name].try(:[], :from)
+		todate = session[controller_name].try(:[], :to)
 		if (period_type == '1' || (period_type.nil? && !period.nil?)) 
 		  case period.to_s
 		  when 'today'

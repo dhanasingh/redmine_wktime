@@ -8,9 +8,9 @@
 <%	accArr.unshift(["",''])  %>
 <%= hidden_field_tag "searchlist", controller_name %>
 <%=h hidden_field_tag('tab', controller_name) %>
-<%	conName = session[controller_name][:contactname] %>
-<%	accId = session[controller_name][:account_id] %>
-<%	locId = session[controller_name][:location_id] %>
+<%	conName = session[controller_name].try(:[], :contactname) %>
+<%	accId = session[controller_name].try(:[], :account_id) %>
+<%	locId = session[controller_name].try(:[], :location_id) %>
 <div class="wk-contextual"> 
 		<label for='name' style="float:left"><%= l(:field_name)  %>:</label>
 			<%= text_field_tag 'contactname', conName, :size => 30, :style=> "float: left;" %>	

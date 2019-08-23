@@ -4,9 +4,9 @@
 		<fieldset>
 			<%=h hidden_field_tag('tab', controller_name) %>
 			<label for='location'><%= l(:label_location) %>:</label>									
-			<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', session[controller_name][:location_id], true)) %>
+			<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', session[controller_name].try(:[], :location_id), true)) %>
 			<label for='name'><%= controller.getAccountLbl %>:</label>
-			<%= text_field_tag 'accountname', session[controller_name][:accountname], :size => 30 %>
+			<%= text_field_tag 'accountname', session[controller_name].try(:[], :accountname), :size => 30 %>
 			<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
 			<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
 		</fieldset>

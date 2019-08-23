@@ -31,10 +31,10 @@ before_action :require_login
 		@contract_entries = nil
 		sqlwhere = ""
 		set_filter_session
-		filter_type = session[:contract][:polymorphic_filter]
-		contact_id = session[:contract][:contact_id]
-		account_id = session[:contract][:account_id]
-		projectId	= session[:contract][:project_id]
+		filter_type = session[controller_name].try(:[], :polymorphic_filter)
+		contact_id = session[controller_name].try(:[], :contact_id)
+		account_id = session[controller_name].try(:[], :account_id)
+		projectId	= session[controller_name].try(:[], :project_id)
 				
 		if filter_type == '2' && !contact_id.blank?
 			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
@@ -66,15 +66,17 @@ before_action :require_login
     end
 
     def set_filter_session
-        if params[:searchlist].blank? && session[:contract].nil?
-			session[:contract] = {:contact_id => params[:contact_id], :account_id => params[:account_id], :project_id => params[:project_id], :polymorphic_filter =>  params[:polymorphic_filter] }
-		elsif params[:searchlist] =='contract'
-			session[:contract][:contact_id] = params[:contact_id]
-			session[:contract][:project_id] = params[:project_id]
-			session[:contract][:account_id] = params[:account_id]
-			session[:contract][:polymorphic_filter] = params[:polymorphic_filter]
+		if params[:searchlist] == controller_name
+			session[controller_name] = Hash.new if session[controller_name].nil?
+			filters = [:contact_id, :project_id, :account_id, :polymorphic_filter]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
 		end
-		
    end
    
    def setLimitAndOffset		

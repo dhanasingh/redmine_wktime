@@ -45,9 +45,9 @@ include WkcrmHelper
 		
 		sqlwhere = ""
 		if controller_name == "wkaccountproject"
-			filter_type = session["wkaccountproject"][:polymorphic_filter]
-			contact_id = session["wkaccountproject"][:contact_id]
-			account_id = session["wkaccountproject"][:account_id]
+			filter_type = session[controller_name].try(:[], :polymorphic_filter)
+			contact_id = session[controller_name].try(:[], :contact_id)
+			account_id = session[controller_name].try(:[], :account_id)
 			projectId = params[:project_id]
 		else
 			filter_type = nil
@@ -75,14 +75,17 @@ include WkcrmHelper
 	end
 	
     def set_filter_session
-        if params[:searchlist].blank? && session["wkaccountproject"].nil?
-			session["wkaccountproject"] = {:contact_id => params[:contact_id], :account_id => params[:account_id], :project_id => params[:project_id], :polymorphic_filter =>  params[:polymorphic_filter] }
-		elsif params[:searchlist] == "wkaccountproject"
-			session["wkaccountproject"][:contact_id] = params[:contact_id]
-			session["wkaccountproject"][:account_id] = params[:account_id]
-			session["wkaccountproject"][:polymorphic_filter] = params[:polymorphic_filter]
+		session[controller_name] = {:project_id => params[:project_id]} if session[controller_name].nil?
+		if params[:searchlist] == controller_name
+			filters = [:contact_id, :account_id, :polymorphic_filter]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
 		end
-		
    end
 
    def get_project_id(project_id=params[:project_id])

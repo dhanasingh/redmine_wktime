@@ -13,9 +13,9 @@ class WkcontactController < WkcrmController
 					'updated_at' => "#{WkCrmContact.table_name}.updated_at"
 
 		set_filter_session
-		contactName = session[controller_name][:contactname]
-		accountId =  session[controller_name][:account_id]
-		locationId = session[controller_name][:location_id]
+		contactName = session[controller_name].try(:[], :contactname)
+		accountId =  session[controller_name].try(:[], :account_id)
+		locationId = session[controller_name].try(:[], :location_id)
 
 		wkcontact = WkCrmContact.joins("LEFT JOIN wk_accounts AS A ON wk_crm_contacts.account_id = A.id
 			LEFT JOIN wk_locations AS L on wk_crm_contacts.location_id = L.id
@@ -113,14 +113,17 @@ class WkcontactController < WkcrmController
 	end
 	
 	def set_filter_session
-        if params[:searchlist].blank? && session[controller_name].nil?
-			session[controller_name] = {:contactname => params[:contactname], :account_id => params[:account_id], :location_id => params[:location_id] }
-		elsif params[:searchlist] == controller_name
-			session[controller_name][:contactname] = params[:contactname]
-			session[controller_name][:account_id] = params[:account_id]
-			session[controller_name][:location_id] = params[:location_id]
+		if params[:searchlist] == controller_name
+			session[controller_name] = Hash.new if session[controller_name].nil?
+			filters = [:contactname, :account_id, :location_id]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
 		end
-		
     end
 	
 	def formPagination(entries)
