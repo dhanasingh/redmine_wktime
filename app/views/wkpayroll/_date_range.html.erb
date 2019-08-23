@@ -2,7 +2,7 @@
 <fieldset id="date-range" class="collapsible">
 <legend onclick="toggleFieldset(this);"><%= l(:label_date_range) %></legend>
 <div>
-<% period = session[:wkpayroll][:period] %>
+<% period = session[controller_name].try(:[], :period) %>
 <div class="div-left">
 <%= radio_button_tag 'period_type', '1', !@free_period, :onclick => '$("#from,#to").attr("disabled", true);$("#period").removeAttr("disabled");' %>
 <%= select_tag 'period', options_for_period_select(period),

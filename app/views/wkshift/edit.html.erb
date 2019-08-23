@@ -1,7 +1,7 @@
 <h2><%= l(:label_shift) + " " + l(:label_role_adjusted) %></h2>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-<%  locId = session[controller_name][:location_id]
-	depId = session[controller_name][:department_id]
+<%  locId = session[controller_name].try(:[], :location_id)
+	depId = session[controller_name].try(:[], :department_id)
 	shiftId = @shiftObj.blank? ? "" : @shiftObj.id
 %>
  <%= form_tag({:controller => 'wkshift', :action => 'edit'}, :method => :get, :id => 'query_form') do %>

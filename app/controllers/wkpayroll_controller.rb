@@ -75,8 +75,8 @@ class WkpayrollController < WkbaseController
 			userIds << users.id
 		end
 		ids = nil
-		user_id = session[:wkpayroll][:user_id]
-		group_id = session[:wkpayroll][:group_id]
+		user_id = session[controller_name].try(:[], :user_id)
+		group_id = session[controller_name].try(:[], :group_id)
 		
 		if user_id.blank? || !validateERPPermission('A_TE_PRVLG')
 		   ids = User.current.id
@@ -290,19 +290,17 @@ class WkpayrollController < WkbaseController
 	end
 
 	def set_filter_session
-        if params[:searchlist].blank? && session[:wkpayroll].nil?
-			session[:wkpayroll] = {:period_type => params[:period_type],:period => params[:period],
-			                       :group_id => params[:group_id], :user_id => params[:user_id], 
-								   :from => @from, :to => @to}
-		elsif params[:searchlist] =='wkpayroll'
-			session[:wkpayroll][:period_type] = params[:period_type]
-			session[:wkpayroll][:period] = params[:period]
-			session[:wkpayroll][:group_id] = params[:group_id]
-			session[:wkpayroll][:user_id] = params[:user_id]
-			session[:wkpayroll][:from] = params[:from]
-			session[:wkpayroll][:to] = params[:to]
+		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
+		if params[:searchlist] == controller_name
+			filters = [:period_type, :period, :group_id, :user_id, :from, :to]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
 		end
-		
    end
    
    def getMembersbyGroup
@@ -323,7 +321,7 @@ class WkpayrollController < WkbaseController
 		if (!params[:group_id].blank?)
 			group_id = params[:group_id]
 		else
-			group_id = session[:wkpayroll][:group_id]
+			group_id = session[controller_name].try(:[], :group_id)
 		end
 		
 		if !group_id.blank? && group_id.to_i > 0
@@ -338,10 +336,10 @@ class WkpayrollController < WkbaseController
 	def retrieve_date_range
 		@free_period = false
 		@from, @to = nil, nil
-		period_type = session[:wkpayroll][:period_type]
-		period = session[:wkpayroll][:period]
-		fromdate = session[:wkpayroll][:from]
-		todate = session[:wkpayroll][:to]
+		period_type = session[controller_name].try(:[], :period_type)
+		period = session[controller_name].try(:[], :period)
+		fromdate = session[controller_name].try(:[], :from)
+		todate = session[controller_name].try(:[], :to)
 		
 		if (period_type == '1' || (period_type.nil? && !period.nil?)) 
 		    case period.to_s

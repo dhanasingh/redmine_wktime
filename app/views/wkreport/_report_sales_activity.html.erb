@@ -1,8 +1,8 @@
 <%
-	@to = session[:wkreport][:to]
-	@from = session[:wkreport][:from]
-	groupId = session[:wkreport][:group_id]
-	userId = session[:wkreport][:user_id]
+	@to = session[controller_name].try(:[], :to)
+	@from = session[controller_name].try(:[], :from)
+	groupId = session[controller_name].try(:[], :group_id)
+	userId = session[controller_name].try(:[], :user_id)
 	if userId.blank?			
 		userId = validateERPPermission("B_CRM_PRVLG") ? User.current.id : 0
 	end

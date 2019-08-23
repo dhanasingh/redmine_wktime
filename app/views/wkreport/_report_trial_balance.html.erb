@@ -1,6 +1,6 @@
 <%
-	@to = session[:wkreport][:to]
-	@from = session[:wkreport][:from]
+	@to = session[controller_name].try(:[], :to)
+	@from = session[controller_name].try(:[], :from)
 %>
 <%= stylesheet_link_tag 'application' , :media => "all" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>

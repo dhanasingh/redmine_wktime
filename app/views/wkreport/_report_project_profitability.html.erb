@@ -1,10 +1,10 @@
 <%
-	userId = session[:wkreport][:user_id].blank? ? 0 : session[:wkreport][:user_id]
-	groupId = session[:wkreport][:group_id].blank? ? 0 : session[:wkreport][:group_id]
-	projectId = session[:wkreport][:project_id].blank? ? 0 : session[:wkreport][:project_id]
+	userId = session[controller_name].try(:[], :user_id).blank? ? 0 : session[controller_name].try(:[], :user_id)
+	groupId = session[controller_name].try(:[], :group_id).blank? ? 0 : session[controller_name].try(:[], :group_id)
+	projectId = session[controller_name].try(:[], :project_id).blank? ? 0 : session[controller_name].try(:[], :project_id)
 	currency = Setting.plugin_redmine_wktime['wktime_currency']
-	from = session[:wkreport][:from]
-	to = session[:wkreport][:to]
+	from = session[controller_name].try(:[], :from)
+	to = session[controller_name].try(:[], :to)
 	te_from = from -1.month
 	te_to = to -1.month
  	betwn_mnth_count = getInBtwMonthsArr(from, to)

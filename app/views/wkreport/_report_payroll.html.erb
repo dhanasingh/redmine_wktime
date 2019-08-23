@@ -1,8 +1,8 @@
 <%
-	userId = session[:wkreport][:user_id].blank? ? 0 : session[:wkreport][:user_id]
-	from = session[:wkreport][:from]
+	userId = session[controller_name].try(:[], :user_id).blank? ? 0 : session[controller_name].try(:[], :user_id)
+	from = session[controller_name].try(:[], :from)
 	to = (from >> 1) - 1
-	groupId = session[:wkreport][:group_id].blank? ? 0 : session[:wkreport][:group_id]
+	groupId = session[controller_name].try(:[], :group_id).blank?  ? 0 : session[controller_name].try(:[], :group_id)
 	
 	userSqlStr = getUserQueryStr(groupId, userId, from)
 	@userlist = User.find_by_sql(userSqlStr)
@@ -116,7 +116,7 @@
  <caption style="text-align:left"><b><%= l(:label_wk_form_r) %><br/><%= l(:label_register_wages) %><br/><%= l(:label_wages_rule) %></b></br>
  <b><%= l(:label_wk_name_address) %>:</b> <%= getMainLocation %>
  <%= getAddress %>
- <b><%= l(:label_wages_period) %>:</b> <%= @salary_data[0].blank? ? session[:wkreport][:from] :  @salary_data[0].salary_date %>
+ <b><%= l(:label_wages_period) %>:</b> <%= @salary_data[0].blank? ? session[controller_name].try(:[], :from) :  @salary_data[0].salary_date %>
   </caption> 
   </div>
 		<div style="float:right">

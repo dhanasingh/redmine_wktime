@@ -36,9 +36,9 @@ class WkpaymententityController < WkbillingController
 		sqlwhere = ""
 		set_filter_session
 		retrieve_date_range
-		filter_type = session[controller_name][:polymorphic_filter]
-		contact_id = session[controller_name][:contact_id]
-		account_id = session[controller_name][:account_id]
+		filter_type = session[controller_name].try(:[], :polymorphic_filter)
+		contact_id = session[controller_name].try(:[], :contact_id)
+		account_id = session[controller_name].try(:[], :account_id)
 		
 		sqlStr = "select p.*, pmi.payment_amount, pmi.payment_original_amount, CASE WHEN p.parent_type = 'WkAccount' THEN a.name" +
 			" ELSE #{concatColumnsSql(['c.first_name', 'c.last_name'], nil, ' ')} END as name," +
@@ -107,19 +107,18 @@ class WkpaymententityController < WkbillingController
 	end
 
 	def set_filter_session
-        if params[:searchlist].blank? && session[controller_name].nil?
-			session[controller_name] = {:period_type => params[:period_type],:period => params[:period], :contact_id => params[:contact_id], :account_id => params[:account_id], :polymorphic_filter =>  params[:polymorphic_filter], :from => @from, :to => @to }
-		elsif params[:searchlist] == controller_name
-			session[controller_name][:period_type] = params[:period_type]
-			session[controller_name][:period] = params[:period]
-			session[controller_name][:from] = params[:from]
-			session[controller_name][:to] = params[:to]
-			session[controller_name][:contact_id] = params[:contact_id]
-			session[controller_name][:account_id] = params[:account_id]
-			session[controller_name][:polymorphic_filter] = params[:polymorphic_filter]
-	end
-		
-    end
+		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
+		if params[:searchlist] == controller_name
+			filters = [:period_type, :period, :from, :to, :contact_id, :account_id, :polymorphic_filter]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
+		end
+  end
 	
   def findBySql(query)
 		result = WkPayment.find_by_sql("select count(*) as id from (" + query + ") as v2")

@@ -4,7 +4,7 @@
 		if !params[:group_id].blank?
 			group_id = params[:group_id]
 		else
-			group_id = session[:wkreport][:group_id]
+			group_id = session[controller_name].try(:[], :group_id)
 		end
 		
 		if group_id.blank?
@@ -14,7 +14,7 @@
 		if !params[:user_id].blank?
 			user_id = params[:user_id]
 		else
-			user_id = session[:wkreport][:user_id]
+			user_id = session[controller_name].try(:[], :user_id)
 		end
 		
 		if user_id.blank?

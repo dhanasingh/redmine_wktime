@@ -1,7 +1,7 @@
 
 <%
-    fromDate = session[:wkreport][:from]
-    toDate = session[:wkreport][:to]
+    fromDate = session[controller_name].try(:[], :from)
+    toDate = session[controller_name].try(:[], :to)
     betwn_mnth_count = getInBtwMonthsArr(fromDate, toDate)
 
     if betwn_mnth_count.length > 12
@@ -12,8 +12,8 @@
         @to = Date.civil((toDate + 1.month).year,(toDate + 1.month).month, 1) - 1
     end
 
-	group_id = session[:wkreport][:group_id].blank? ? 0 : session[:wkreport][:group_id]
-    user_id = session[:wkreport][:user_id].blank? ? 0 : session[:wkreport][:user_id]
+	group_id = session[controller_name].try(:[], :group_id).blank? ? 0 : session[controller_name].try(:[], :group_id)
+    user_id = session[controller_name].try(:[], :user_id).blank? ? 0 : session[controller_name].try(:[], :user_id)
 
     userSqlStr = getUserQueryStr(group_id, user_id, @from)
     user_list = User.find_by_sql(userSqlStr)

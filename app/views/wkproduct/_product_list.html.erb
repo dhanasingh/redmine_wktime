@@ -3,8 +3,8 @@
 		<%= hidden_field_tag "searchlist", controller_name %>
 		<%=h hidden_field_tag('tab', controller_name) %>
 		<%
-			categoryId =session[controller_name][:category_id]
-			name =session[controller_name][:name]
+			categoryId =session[controller_name].try(:[], :category_id)
+			name =session[controller_name].try(:[], :name)
 		%>
 	  <fieldset>
 		 <%=h hidden_field_tag('tab', "wkproduct") %>

@@ -43,10 +43,10 @@ class WkschedulingController < WkbaseController
 		
 		@calendar = Redmine::Helpers::Calendar.new(Date.civil(@year, @month, 1), current_language, :month)
 		userIds = schedulingFilterValues 
-		shiftId = session[controller_name][:shift_id]
-		dayOff = session[controller_name][:day_off]	
-		departmentId =  session[controller_name][:department_id]
-		locationId =  session[controller_name][:location_id]
+		shiftId = session[controller_name].try(:[], :shift_id)
+		dayOff = session[controller_name].try(:[], :day_off)
+		departmentId =  session[controller_name].try(:[], :department_id)
+		locationId =  session[controller_name].try(:[], :location_id)
 		startDt = @calendar.startdt
 		# get start date of the  first full week of the given month
 		if @month != @calendar.startdt.month
@@ -101,8 +101,8 @@ class WkschedulingController < WkbaseController
 		@editShiftSchedules = validateERPPermission("E_SHIFT")					
 		userIds = schedulingFilterValues
 		scheduleDate =  params[:date]
-		shiftId = session[controller_name][:shift_id]
-		dayOff = session[controller_name][:day_off]
+		shiftId = session[controller_name].try(:[], :shift_id)
+		dayOff = session[controller_name].try(:[], :day_off)
 		@isScheduled = false
 		if params[:schedule_type].to_s == 'S'
 			@isScheduled = true
@@ -197,8 +197,8 @@ class WkschedulingController < WkbaseController
 	def schedulingFilterValues		
 		userIds = User.current.id
 		set_filter_session
-		departmentId =  session[controller_name][:department_id]
-		locationId =  session[controller_name][:location_id]
+		departmentId =  session[controller_name].try(:[], :department_id)
+		locationId =  session[controller_name].try(:[], :location_id)
 		sqlStr = getLocationDeptSql
 		if @schedulesShift || @editShiftSchedules
 			if (!departmentId.blank? && departmentId.to_i != 0 ) && !locationId.blank?
@@ -230,13 +230,16 @@ class WkschedulingController < WkbaseController
 	end
 	
 	def set_filter_session
-		if params[:searchlist].blank? && session[controller_name].nil?
-			session[controller_name] = {:location_id => params[:location_id], :department_id => params[:department_id], :shift_id => params[:shift_id]} 
-		elsif params[:searchlist] == controller_name
-			session[controller_name][:location_id] = params[:location_id]
-			session[controller_name][:department_id] = params[:department_id]
-			session[controller_name][:shift_id] =  params[:shift_id]
-			session[controller_name][:day_off] =  params[:day_off]
+		if params[:searchlist] == controller_name
+			session[controller_name] = Hash.new if session[controller_name].nil?
+			filters = [:location_id, :department_id, :shift_id, :day_off]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
 		end
 	end
 end
