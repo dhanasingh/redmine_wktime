@@ -6,7 +6,7 @@
 				<% if action_name == "index" && !@previewBilling  %>
 					<%= sort_header_tag('invoice_number', :caption => controller.getLabelInvNum, class: "lbl-txt-align") %>
 					<%= sort_header_tag('name', :caption => l(:field_name), class: "lbl-txt-align") %>
-					<%= sort_header_tag('project', :caption => l(:label_project), class: "lbl-txt-align") %>
+					<th class="lbl-txt-align"><%= l(:label_project) %></th>
 					<%= sort_header_tag('status', :caption => l(:field_status), class: "lbl-txt-align") %>
 					<%= sort_header_tag('invoice_date', :caption => controller.getDateLbl, class: "lbl-txt-align") %>
 					<%= sort_header_tag('start_date', :caption => l(:field_start_date), class: "lbl-txt-align") %>
