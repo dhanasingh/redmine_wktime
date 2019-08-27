@@ -25,10 +25,10 @@ class WkledgerController < WkaccountingController
     def index
 		sort_init 'id', 'asc'
 		sort_update 'name' => "name",
-								'type' => "ledger_type"
+								'type' => "CASE WHEN wk_ledgers.ledger_type = 'SY' THEN '' ELSE ledger_type END"
 		set_filter_session
 		ledgerType = session[:wkledger].try(:[], :ledger_type)
-		name = session[:wkledger].try(:[], :ledger_name)
+		name = session[:wkledger].try(:[], :name)
 		if !ledgerType.blank? && !name.blank?
 			ledger = WkLedger.where(:ledger_type => ledgerType).where("name like ?", "%#{name}%")
 		end
