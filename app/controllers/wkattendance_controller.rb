@@ -16,18 +16,21 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkattendanceController < WkbaseController	
-unloadable 
+	unloadable 
 
-menu_item :wkattendance
-include WktimeHelper
-include WkattendanceHelper
-include WkimportattendanceHelper
+	menu_item :wkattendance
+	include WktimeHelper
+	include WkattendanceHelper
+	include WkimportattendanceHelper
 
-before_action :require_login
-before_action :check_perm_and_redirect, :only => [:edit, :update, :clockedit]
-require 'csv' 
+	before_action :require_login
+	before_action :check_perm_and_redirect, :only => [:edit, :update, :clockedit]
+	before_action :check_index_perm, :only => [:index]
+	require 'csv' 
 
 	def index
+		sort_init 'id', 'asc'
+		sort_update 'name' =>  "CONCAT(u.firstname, u.lastname)"
 		@status = params[:status] || 1
 		@groups = Group.all.sort
 		sqlStr = ""
@@ -55,10 +58,17 @@ require 'csv'
 		if !params[:name].blank?
 			sqlStr = sqlStr + " and (LOWER(u.firstname) like LOWER('%#{params[:name]}%') or LOWER(u.lastname) like LOWER('%#{params[:name]}%'))"
 		end
+		sqlStr = sqlStr + " ORDER BY " + (sort_clause.present? ? sort_clause.first : "u.firstname")
 		findBySql(sqlStr, WkUserLeave)
 	end
 	
 	def clockindex
+		sort_init 'id', 'asc'
+		sort_update 'name' =>  "vw.firstname",
+								'start_date'=> "entry_date",
+								'clock_in'=> "cast(evw.start_time as time)",
+								'clock_out'=> "cast(evw.end_time as time)",
+								'hours'=> "evw.hours"
 		@clk_entries = nil
 		@groups = Group.sorted.all
 		set_filter_session
@@ -71,9 +81,9 @@ require 'csv'
 			userIds << users.id
 		end
 		ids = nil
-		user_id = session[:wkattendance][:user_id]
-		group_id = session[:wkattendance][:group_id]
-		status = session[:wkattendance][:status]
+		user_id = session[controller_name].try(:[], :user_id)
+		group_id = session[controller_name].try(:[], :group_id)
+		status = session[controller_name].try(:[], :status)
 		
 		if user_id.blank? || !validateERPPermission('A_TE_PRVLG')
 		   ids = User.current.id
@@ -101,6 +111,7 @@ require 'csv'
 			 (select min(start_time) as start_time, max(end_time) as end_time, " + getConvertDateStr('start_time') + "
 			 entry_date,sum(hours) as hours, user_id from wk_attendances WHERE " + getConvertDateStr('start_time') +" between '#{@from}' and '#{@to}'			
 			 group by user_id, " + getConvertDateStr('start_time') + ") evw on (vw.selected_date = evw.entry_date and vw.id = evw.user_id) where vw.id in(#{ids}) "
+			 sqlQuery = sqlQuery + " ORDER BY " + (sort_clause.present? ? sort_clause.first : "vw.selected_date desc, vw.firstname")
 			findBySql(sqlQuery, WkAttendance)
 	end
 	
@@ -129,7 +140,7 @@ require 'csv'
 		if (!params[:group_id].blank?)
 			group_id = params[:group_id]
 		else
-			group_id = session[:wkattendance][:group_id]
+			group_id = session[controller_name].try(:[], :group_id)
 		end
 		
 		if !group_id.blank? && group_id.to_i > 0
@@ -141,15 +152,16 @@ require 'csv'
 	end
 	
 	def set_filter_session
-		if params[:searchlist].blank? && session[:wkattendance].nil?
-			session[:wkattendance] = {:period_type => params[:period_type], :period => params[:period],:group_id => params[:group_id], :user_id => params[:user_id], :from => @from, :to => @to}
-		elsif params[:searchlist] =='wkattendance'
-			session[:wkattendance][:period_type] = params[:period_type]
-			session[:wkattendance][:period] = params[:period]
-			session[:wkattendance][:group_id] = params[:group_id]
-			session[:wkattendance][:user_id] = params[:user_id]
-			session[:wkattendance][:from] = params[:from]
-			session[:wkattendance][:to] = params[:to]
+		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
+		if params[:searchlist] == controller_name
+			filters = [:period_type, :period, :group_id, :user_id, :from, :to]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
 		end
 	end
 	
@@ -157,10 +169,10 @@ require 'csv'
 	  def retrieve_date_range
 		@free_period = false
 		@from, @to = nil, nil
-		period_type = session[:wkattendance][:period_type]
-		period = session[:wkattendance][:period]
-		fromdate = session[:wkattendance][:from]
-		todate = session[:wkattendance][:to]
+		period_type = session[controller_name].try(:[], :period_type)
+		period = session[controller_name].try(:[], :period)
+		fromdate = session[controller_name].try(:[], :from)
+		todate = session[controller_name].try(:[], :to)
 		if (period_type == '1' || (period_type.nil? && !period.nil?)) 
 		  case period.to_s
 		  when 'today'
@@ -379,9 +391,9 @@ require 'csv'
         setLimitAndOffset()		
 		rangeStr = formPaginationCondition()		
 		if model == WkUserLeave
-			@leave_entries = model.find_by_sql(query + " order by u.firstname " + rangeStr )
+			@leave_entries = model.find_by_sql(query + rangeStr )
 		else
-			@clk_entries = model.find_by_sql(query + " order by vw.selected_date desc, vw.firstname " + rangeStr )
+			@clk_entries = model.find_by_sql(query + rangeStr )
 		end
 	end
 	
@@ -431,6 +443,14 @@ require 'csv'
 			redirect_to :action => 'edit'
 		end	
 	end
-	
-	
+
+	def check_index_perm
+		redirect = set_attendance_module
+		if !showAttendance && redirect.blank?
+			render_403
+		elsif !showAttendance
+			redirect_to redirect
+		end
+
+	end
 end

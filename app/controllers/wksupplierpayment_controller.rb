@@ -16,6 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 class WksupplierpaymentController < WkpaymententityController
   unloadable
+  menu_item :wkrfq
   
 	def getOrderAccountType
 		'S'

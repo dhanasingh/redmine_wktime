@@ -45,11 +45,11 @@ class WkInvoice < ActiveRecord::Base
   before_save :increase_inv_key
   
   def total_invoice_amount
-	self.invoice_items.sum(:amount)
+	self.invoice_items.sum(:original_amount)
   end
   
   def total_paid_amount
-	self.payment_items.current_items.sum(:amount)
+	self.payment_items.current_items.sum(:original_amount)
   end
   
   def increase_inv_key  

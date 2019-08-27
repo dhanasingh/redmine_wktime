@@ -1,9 +1,9 @@
 
 <%
-    fromDate = session[:wkreport][:from]
-    toDate = session[:wkreport][:to]
+    fromDate = session[controller_name].try(:[], :from)
+    toDate = session[controller_name].try(:[], :to)
     betwn_mnth_count = getInBtwMonthsArr(fromDate, toDate)
-    
+
     if betwn_mnth_count.length > 12
         @from = Date.civil(toDate.year,toDate.month, 1) - 11.month
         @to = Date.civil((toDate + 1.month).year,(toDate + 1.month).month, 1) - 1
@@ -11,30 +11,31 @@
 	    @from = Date.civil(fromDate.year,fromDate.month, 1)
         @to = Date.civil((toDate + 1.month).year,(toDate + 1.month).month, 1) - 1
     end
-    
-	group_id = session[:wkreport][:group_id].blank? ? 0 : session[:wkreport][:group_id]
-    user_id = session[:wkreport][:user_id].blank? ? 0 : session[:wkreport][:user_id]
-    
+
+	group_id = session[controller_name].try(:[], :group_id).blank? ? 0 : session[controller_name].try(:[], :group_id)
+    user_id = session[controller_name].try(:[], :user_id).blank? ? 0 : session[controller_name].try(:[], :user_id)
+
     userSqlStr = getUserQueryStr(group_id, user_id, @from)
     user_list = User.find_by_sql(userSqlStr)
 
-    timeEntriesSqlStr = "SELECT TE.user_id, SUM(hours) AS total, is_billable, tyear, tmonth 
+    timeEntriesSqlStr = "SELECT TE.user_id, SUM(hours) AS total, CASE WHEN is_billable IS NULL THEN false ELSE is_billable END AS is_billable, tyear, tmonth 
         FROM time_entries AS TE
-        INNER JOIN wk_projects AS WP ON WP.project_id = TE.project_id
+        LEFT JOIN wk_projects AS WP ON WP.project_id = TE.project_id
 		LEFT JOIN groups_users AS GU ON (GU.user_id = TE.user_id AND GU.group_id =  #{group_id})
         WHERE (spent_on BETWEEN '#{@from}' AND '#{@to}')"
- 
+
     if group_id.to_i > 0 && user_id.to_i < 1
 		timeEntriesSqlStr = timeEntriesSqlStr + " AND GU.group_id is not null"
 	elsif user_id.to_i > 0
 		timeEntriesSqlStr = timeEntriesSqlStr + " AND TE.user_id = #{user_id}"
     end
-    
+
     if !(validateERPPermission('A_TE_PRVLG') || User.current.admin?)
 		timeEntriesSqlStr = timeEntriesSqlStr + " AND TE.user_id = #{User.current.id} "
 	end
-    
-    timeEntriesSqlStr = timeEntriesSqlStr + " GROUP BY TE.user_id, is_billable, tyear, tmonth ORDER BY user_id, tyear, tmonth"           
+
+    timeEntriesSqlStr = timeEntriesSqlStr + " GROUP BY TE.user_id, CASE WHEN is_billable IS NULL THEN false ELSE is_billable END, tyear, tmonth 
+        ORDER BY user_id, tyear, tmonth"           
     time_entries = TimeEntry.find_by_sql(timeEntriesSqlStr)
 
     inBtwMonths = getInBtwMonthsArr(@from, @to)
@@ -66,8 +67,8 @@
 	<table>
 		<tr>
 			<td>
-				<% logo = Setting.plugin_redmine_wktime['wktime_header_logo'] %>					
-				<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>						
+				<% logo = Setting.plugin_redmine_wktime['wktime_header_logo'] %>
+				<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>					
 					<%= image_tag("#{logo}", :plugin => "redmine_wktime") %>
 				<% end %>
 			</td>
@@ -105,7 +106,7 @@
                         <% end %>
                         <% @month_count = inBtwMonths.length %>
                         <td align="center"><%= (total_percentage[key]/@month_count).round(2).to_s + "%"  %></td>
-                </tr>    
+                </tr>
             <% end %>
             <tr>
                 <th class="lbl-txt-align"><%= l(:label_average) %></th>
@@ -120,6 +121,6 @@
                 <% total_avg = @month_count.blank? ? 0 : (@overall_avg/@month_count.to_f).round(2)%>
                 <td align="center"><%= total_avg.to_s + "%" %></td>
             </tr>
-         </tbody>    
+         </tbody>
     </table>
 </div>

@@ -61,7 +61,13 @@ $(function() {
 			}
 		}
 	});
-	
+
+	$("[id^='rowheader_'").each(function(){
+		var id = this.id.split("_")[1];
+		var height = $(this).height();
+		$(".rowcontent_"+id).height(height);
+	});
+
 });
 
 function runperiodDatePicker()

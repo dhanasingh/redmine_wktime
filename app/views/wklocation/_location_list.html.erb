@@ -3,11 +3,11 @@
 <table class="list time-entries">
   <thead>
          <tr>
-				<th class="lbl-txt-align"><%= l(:field_name)   %></th>
-				<th class="lbl-txt-align"><%= l(:label_type)   %></th>
-				<th class="lbl-txt-align"><%= l(:label_account_address1)   %></th>				
-				<th class="lbl-txt-align"><%= l(:label_city)   %></th>	
-				<th class="lbl-txt-align"><%= l(:label_state)   %></th>					
+				<%= sort_header_tag('name', :caption => l(:field_name), class: "lbl-txt-align") %>
+				<%= sort_header_tag('type', :caption => l(:label_type), class: "lbl-txt-align") %>
+				<th class="lbl-txt-align"><%= l(:label_account_address1)   %></th>
+				<%= sort_header_tag('city', :caption => l(:label_city), class: "lbl-txt-align") %>
+				<%= sort_header_tag('state', :caption => l(:label_state), class: "lbl-txt-align") %>
 				<th class="lbl-txt-align"><%= l(:field_is_default)   %></th>
 				<th class="lbl-txt-align"><%= l(:label_main_location)   %></th>
 				<th></th>

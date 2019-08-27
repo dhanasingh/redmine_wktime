@@ -29,8 +29,8 @@ class WkshiftController < ApplicationController
 	def edit
 		entries = nil
 		set_filter_session
-		departmentId =  session[controller_name][:department_id]
-		locationId =  session[controller_name][:location_id]
+		departmentId =  session[controller_name].try(:[], :department_id)
+		locationId =  session[controller_name].try(:[], :location_id)
 		unless params[:shift_id].blank?
 			@shiftObj = WkShift.find(params[:shift_id].to_i)			
 			if (!departmentId.blank? && departmentId.to_i != 0 ) && !locationId.blank?
@@ -151,13 +151,17 @@ class WkshiftController < ApplicationController
 	end
 	
 	def set_filter_session
-		if params[:searchlist].blank? && session[controller_name].nil?
-			session[controller_name] = {:location_id => params[:location_id], :department_id => params[:department_id]}
-		elsif params[:searchlist] == controller_name
-			session[controller_name][:location_id] = params[:location_id]
-			session[controller_name][:department_id] = params[:department_id]			
+		if params[:searchlist] == controller_name
+			session[controller_name] = Hash.new if session[controller_name].nil?
+			filters = [:location_id, :department_id]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
 		end
-		
 	end
 
 end

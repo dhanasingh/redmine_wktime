@@ -71,4 +71,10 @@ module WkshipmentHelper
 			end
 		end
 	end
+
+	def getProjects
+		projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') 	
+		projArr = options_for_wktime_project(projects, true)
+		projArr
+	end
 end

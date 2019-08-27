@@ -18,20 +18,31 @@
 
 class WkcrmactivityController < WkcrmController
   unloadable
-
-	include WktimeHelper
+  menu_item :wklead
+  include WktimeHelper
 
 	def index
+		sort_init 'id', 'asc'
+
+		sort_update 'activity_type' => "#{WkCrmActivity.table_name}.activity_type",
+					'subject_name' => "#{WkCrmActivity.table_name}.name",
+					'status' => "#{WkCrmActivity.table_name}.status",
+					'parent_type' => "#{WkCrmActivity.table_name}.parent_type",
+					'start_date' => "#{WkCrmActivity.table_name}.start_date",
+					'end_date' => "#{WkCrmActivity.table_name}.end_date",
+					'assigned_user_id' => "CONCAT(U.firstname, U.lastname)",
+					'updated_at' => "#{WkCrmActivity.table_name}.updated_at"
+
 	    set_filter_session
-	    retrieve_date_range
-	    crmactivity = nil
-		actType = session[:wkcrmactivity][:activity_type]
-		relatedTo = session[:wkcrmactivity][:related_to]
+		retrieve_date_range
+
+		crmactivity = WkCrmActivity.joins("LEFT JOIN users AS U ON wk_crm_activities.assigned_user_id = U.id")
+
+		actType = session[controller_name].try(:[], :activity_type)
+		relatedTo = session[controller_name].try(:[], :related_to)
 	   		
 		if !@from.blank? && !@to.blank?
-			crmactivity = WkCrmActivity.where(:start_date => getFromDateTime(@from) .. getToDateTime(@to))
-		else
-			crmactivity = WkCrmActivity.all
+			crmactivity = crmactivity.where(:start_date => getFromDateTime(@from) .. getToDateTime(@to))
 		end
 		
 		if (!actType.blank?) && (relatedTo.blank?)
@@ -45,8 +56,7 @@ class WkcrmactivityController < WkcrmController
 		if (!actType.blank?) && (!relatedTo.blank?)
 			crmactivity = crmactivity.where(:activity_type => actType, :parent_type => relatedTo)
 		end
-		
-		formPagination(crmactivity)
+		formPagination(crmactivity.reorder(sort_clause))
 	end
   
     def edit
@@ -126,18 +136,18 @@ class WkcrmactivityController < WkcrmController
 		end
     end
 	
-	 def set_filter_session
-        if params[:searchlist].blank? && session[:wkcrmactivity].nil?
-			session[:wkcrmactivity] = {:period_type => params[:period_type],:period => params[:period],	:activity_type =>	params[:activity_type],	 :from => @from, :to => @to}
-		elsif params[:searchlist] =='wkcrmactivity'
-			session[:wkcrmactivity][:period_type] = params[:period_type]
-			session[:wkcrmactivity][:period] = params[:period]
-			session[:wkcrmactivity][:from] = params[:from]
-			session[:wkcrmactivity][:to] = params[:to]
-			session[:wkcrmactivity][:activity_type] = params[:activity_type]
-			session[:wkcrmactivity][:related_to] = params[:related_to]
+	def set_filter_session
+		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
+		if params[:searchlist] == controller_name
+			filters = [:period_type, :period, :from, :to, :activity_type, :related_to]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
 		end
-		
     end
    
 	def formPagination(entries)

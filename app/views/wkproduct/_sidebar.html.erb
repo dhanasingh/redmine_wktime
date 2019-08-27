@@ -1,0 +1,10 @@
+<h3> <%= l(:label_product) %> </h3>
+<ul>
+	<li><%= link_to l(:label_product), url_for(:controller => "wkproduct", :action => "index") %></li>
+	<li><%= link_to l(:label_category), url_for(:controller => "wkproduct", :action => "category") %></li>
+	<li><%= link_to l(:label_brand), url_for(:controller => "wkbrand", :action => "index") %></li>
+	<li><%= link_to l(:label_attribute), url_for(:controller => "wkattributegroup", :action => "index") %></li>
+	<li><%= link_to l(:label_uom), url_for(:controller => "wkunitofmeasurement", :action => "index") %> </li>
+</ul>
+
+

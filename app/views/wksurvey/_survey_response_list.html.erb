@@ -9,15 +9,16 @@ end
 %>
 <table class="<%= style %>">
     <tr>
-        <th class="lbl-txt-align">#</th>
+        <th>#</th>
         <th class="lbl-txt-align"><%= l(:label_survey) %></th>
-        <th class="lbl-txt-align"><%= l(:label_response_status) %></th>
-        <th class="lbl-txt-align"><%= l(:label_response_by) %></th>
-        <th class="lbl-txt-align"><%= l(:label_response_date) %></th>
+        <%= sort_header_tag('Response_status', :caption => l(:label_response_status)) %>
+        <%= sort_header_tag('Response_By', :caption => l(:label_response_by)) %>
+        <%= sort_header_tag('Response_date', :caption => l(:label_response_date)) %>
     </tr>
     <% @response_entries.each_with_index do |entry, index| %>
         <% entry = entry.last %>
-        <% if User.current.id == entry[:user_id] || (User.current.id == entry[:parent_id] && entry[:status] != "O")  %>
+        <% if User.current.id == entry[:user_id] || (User.current.id == entry[:parent_id] || 
+            validateERPPermission("E_SUR")) %>
             <% urlhash = { :survey_id => entry[:survey_id], :surveyForType => entry[:survey_for_type], :surveyForID => entry[:survey_for_id], response_id: entry[:id] } %>
             <tr>
                 <td class="lbl-txt-align"><%=h index+1 %></td>

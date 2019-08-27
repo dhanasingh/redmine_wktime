@@ -1,11 +1,15 @@
 class WkattributegroupController < WkinventoryController
    unloadable
+   menu_item :wkproduct
    before_action :require_login
    before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :edit_product_attribute, :updateProductAttribute]
    before_action :check_admin_redirect, :only => [:destroy, :destroyProductAttribute]
 
 
     def index
+		sort_init 'id', 'asc'
+		sort_update 'name' => "name",
+					'description' => "description"
 		@groupEntries = nil
 		sqlStr = ""
 		unless params[:name].blank?
@@ -16,7 +20,7 @@ class WkattributegroupController < WkinventoryController
 		else
 			entries = WkAttributeGroup.all
 		end
-		@groupEntries = formPagination(entries)
+		@groupEntries = formPagination(entries.reorder(sort_clause))
     end
 	
 	def formPagination(entries)

@@ -1,6 +1,6 @@
 <%
-	@to = session[:wkreport][:to]
-	@from = session[:wkreport][:from]
+	@to = session[controller_name].try(:[], :to)
+	@from = session[controller_name].try(:[], :from)
 	sqlStr =  "select rfq.id as rfq_id, rfq.name as rfq_name, rfq.start_date as rfq_start, rq.quote_id," + 
 		" q.invoice_date as quote_date, rq.won_date, poq.purchase_order_id, po.invoice_date po_date," +
 		" sipo.supplier_inv_id, si.invoice_date as si_date, CASE WHEN pay.paid_amount >= inv.invoice_amount THEN pay.payment_date ELSE null END as payment_date from wk_rfqs rfq" +

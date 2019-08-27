@@ -23,13 +23,22 @@ class WkpaymententityController < WkbillingController
 	include WkpaymententityHelper
 	
     def index
+			sort_init 'id', 'desc'
+			sort_update 'id' => "p.id",
+			'payment_date' => "p.payment_date",
+			'type' => "p.parent_type",
+			'name' => "CASE WHEN p.parent_type = 'WkAccount' THEN a.name ELSE CONCAT(c.first_name, c.last_name) END",
+			'payment_type' => "p.payment_type_id",
+			'original_amount' => "payment_original_amount",
+			'amount' => "payment_amount"
+
 		@payment_entries = nil
 		sqlwhere = ""
 		set_filter_session
 		retrieve_date_range
-		filter_type = session[controller_name][:polymorphic_filter]
-		contact_id = session[controller_name][:contact_id]
-		account_id = session[controller_name][:account_id]
+		filter_type = session[controller_name].try(:[], :polymorphic_filter)
+		contact_id = session[controller_name].try(:[], :contact_id)
+		account_id = session[controller_name].try(:[], :account_id)
 		
 		sqlStr = "select p.*, pmi.payment_amount, pmi.payment_original_amount, CASE WHEN p.parent_type = 'WkAccount' THEN a.name" +
 			" ELSE #{concatColumnsSql(['c.first_name', 'c.last_name'], nil, ' ')} END as name," +
@@ -62,7 +71,7 @@ class WkpaymententityController < WkbillingController
 		end	
 		
 		sqlStr = sqlStr + sqlwhere unless sqlwhere.blank?
-		sqlStr = sqlStr + " order by p.id desc"
+		sqlStr = sqlStr + " ORDER BY " + (sort_clause.present? ? sort_clause.first : " p.id desc")
 		findBySql(sqlStr)				
     end
 	
@@ -98,26 +107,25 @@ class WkpaymententityController < WkbillingController
 	end
 
 	def set_filter_session
-        if params[:searchlist].blank? && session[controller_name].nil?
-			session[controller_name] = {:period_type => params[:period_type],:period => params[:period], :contact_id => params[:contact_id], :account_id => params[:account_id], :polymorphic_filter =>  params[:polymorphic_filter], :from => @from, :to => @to }
-		elsif params[:searchlist] == controller_name
-			session[controller_name][:period_type] = params[:period_type]
-			session[controller_name][:period] = params[:period]
-			session[controller_name][:from] = params[:from]
-			session[controller_name][:to] = params[:to]
-			session[controller_name][:contact_id] = params[:contact_id]
-			session[controller_name][:account_id] = params[:account_id]
-			session[controller_name][:polymorphic_filter] = params[:polymorphic_filter]
+		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
+		if params[:searchlist] == controller_name
+			filters = [:period_type, :period, :from, :to, :contact_id, :account_id, :polymorphic_filter]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
 		end
-		
-    end
+  end
 	
-    def findBySql(query)
+  def findBySql(query)
 		result = WkPayment.find_by_sql("select count(*) as id from (" + query + ") as v2")
 	    @entry_count = result.blank? ? 0 : result[0].id
 	    setLimitAndOffset()		
 	    rangeStr = formPaginationCondition()	
-	    @payment_entries = WkPayment.find_by_sql(query + rangeStr)
+			@payment_entries = WkPayment.find_by_sql(query + rangeStr)
 		result = WkPayment.find_by_sql("select sum(v2.payment_amount) as payment_amount from (" + query + ") as v2")
 		@totalPayAmt = result.blank? ? 0 : result[0].payment_amount
 	end

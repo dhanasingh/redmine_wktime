@@ -9,7 +9,7 @@
 		needRfqBlankdd = false
 	end
 %>
-<%= render partial: "wkquote/quoteadditionaldd", locals: { rfq_id: session[controller_name][:rfq_id], onchngeMethodName: onchgVal, needRfqBlank: needRfqBlankdd }%>
+<%= render partial: "wkquote/quoteadditionaldd", locals: { rfq_id: session[controller_name].try(:[], :rfq_id), onchngeMethodName: onchgVal, needRfqBlank: needRfqBlankdd }%>
 	
 <% if reqQuotePoDD %>
 	<% rfq_arr = getRfqArray(false) #WkRfq.where(:status => 'o').order(id: :desc).pluck(:name, :id) %>

@@ -5,15 +5,16 @@
 <table class="list time-entries">
 <thead>
 <tr>
-<th><%= l(:field_start_date) %></th>
-<th class="lbl-txt-align"><%= l(:field_user) %></th>
-<%#= call_hook(:view_list_column_header) %>
+<%= sort_header_tag('start_date', :caption => l(:field_start_date)) %>
+<%= sort_header_tag('user_name', :caption => l(:field_user), class: "lbl-txt-align") %>
 <% if isSupervisorApproval %>
-	<th class="lbl-txt-align"><%= l(:label_ftte_supervisor) %></th>
+	<%= sort_header_tag('user_name', :caption => l(:label_ftte_supervisor), class: "lbl-txt-align") %>
 <% end %>
-<th><%= controller.getLabelforSpField %></th>
-<th><%= l(:field_status) %></th>
-<th class="lbl-txt-align"><%= l(:field_status_modified_by) %></th>
+
+<% headerName = controller.getLabelforSpField == "Hours" ? 'hours' : 'amount' %>
+<%= sort_header_tag(headerName, :caption => controller.getLabelforSpField) %>
+<%= sort_header_tag('status', :caption => l(:field_status)) %>
+<%= sort_header_tag('modified_by', :caption => l(:field_status_modified_by), class: "lbl-txt-align") %>
 <th></th>
 </tr>
 </thead>

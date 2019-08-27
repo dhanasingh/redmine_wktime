@@ -2,6 +2,19 @@
 <div class="autoscroll">
 <table class="list time-entries">
   <thead>
+      <% if action_name == 'index' %>
+         <tr>
+				<%= sort_header_tag('name', :caption => l(:field_name), class: "lbl-txt-align") %>
+				<%= sort_header_tag('acc_name', :caption => l(:label_account_name), class: "lbl-txt-align") %>
+				<%= sort_header_tag('location_name', :caption => l(:label_location), class: "lbl-txt-align") %>
+				<%= sort_header_tag('title', :caption => l(:field_title), class: "lbl-txt-align") %>
+				<th class="lbl-txt-align"><%=  l(:label_email)  %></th>
+				<th class="lbl-txt-align"><%=  l(:label_work_phone)   %></th>
+				<%= sort_header_tag('assigned_user_id', :caption => l(:field_assigned_to), class: "lbl-txt-align") %>
+				<%= sort_header_tag('updated_at', :caption => l(:label_modified).capitalize, class: "lbl-txt-align") %>
+				<th></th>
+         </tr>
+      <% else %>
          <tr>
 				<th class="lbl-txt-align"><%= l(:field_name)   %></th>
 				<th class="lbl-txt-align"><%=  l(:label_account_name) %></th>
@@ -13,6 +26,7 @@
 				<th class="lbl-txt-align"><%= l(:label_modified).capitalize %></th>
 				<th></th>
          </tr>
+	  <% end %>	 
   </thead>
    <tbody>
 	<% contacts.each do |entry| %>

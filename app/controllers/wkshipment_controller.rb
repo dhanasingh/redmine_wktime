@@ -1,5 +1,6 @@
 class WkshipmentController < WkinventoryController
   unloadable
+  menu_item :wkproduct
 before_action :require_login
 
 include WkcrmHelper
@@ -10,12 +11,18 @@ include WkinventoryHelper
 
 
 	def index
+		sort_init 'id', 'asc'
+		sort_update 'serial_number' => "#{WkShipment.table_name}.serial_number",
+					'shipment_name' => "#{WkShipment.table_name}.parent_type",
+					'shipment_date' => "#{WkShipment.table_name}.shipment_date"
+
 		set_filter_session
 		retrieve_date_range
 		sqlwhere = " wk_shipments.shipment_type != 'N' "
-		filter_type = session[controller_name][:polymorphic_filter]
-		contact_id = session[controller_name][:contact_id]
-		account_id = session[controller_name][:account_id]
+		filter_type = session[controller_name].try(:[], :polymorphic_filter)
+		contact_id = session[controller_name].try(:[], :contact_id)
+		account_id = session[controller_name].try(:[], :account_id)
+		projectId =session[controller_name].try(:[], :project_id)
 		parentType = ""
 		parentId = ""
 		if filter_type == '2' && !contact_id.blank?
@@ -43,9 +50,14 @@ include WkinventoryHelper
 		if !@from.blank? && !@to.blank?	
 			sqlwhere = sqlwhere + " and wk_shipments.shipment_date between '#{@from}' and '#{@to}'  "
 		end
-		shipEntries = WkShipment.includes(:inventory_items).where(sqlwhere)
-		
-		formPagination(shipEntries)
+
+		shipEntries = WkShipment.includes(:inventory_items)
+		projectId = nil if projectId.blank?
+		shipmentIDs = projectId != 'AP' ? shipEntries.where(wk_inventory_items: {project_id: projectId}).pluck(:id) : []
+		shipEntries = shipEntries.where(sqlwhere)
+		shipEntries = shipEntries.where(" wk_shipments.id IN (?)", shipmentIDs) if shipmentIDs.length > 0
+
+		formPagination(shipEntries.reorder(sort_clause))
 		@totalShipAmt = @shipmentEntries.where("wk_inventory_items.parent_id is null").sum("wk_inventory_items.total_quantity*(wk_inventory_items.cost_price+wk_inventory_items.over_head_price)")
 	end
 
@@ -189,6 +201,7 @@ include WkinventoryHelper
 				shipmentItem.status = 'o'
 				shipmentItem.uom_id = params["uom_id#{i}"].to_i unless params["uom_id#{i}"].blank?
 				shipmentItem.location_id = params["location_id#{i}"].to_i if !params["location_id#{i}"].blank? && params["location_id#{i}"] != "0"
+				shipmentItem.project_id = params["project_id#{i}"].to_i if !params["project_id#{i}"].blank? && params["project_id#{i}"] != "0"
 				if params["product_type#{i}"] == 'A' || params["product_type#{i}"] == 'RA'
 					assetValue = (shipmentItem.total_quantity*(shipmentItem.cost_price+shipmentItem.over_head_price))
 					assetTotal = assetTotal + assetValue
@@ -243,23 +256,20 @@ include WkinventoryHelper
 			flash[:error] = l(:error_shipment_items_used)
 		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
-	end  
+	end
 
 	def set_filter_session
-		if params[:searchlist].blank? && session[controller_name].nil?
-			session[controller_name] = {:period_type => params[:period_type],:period => params[:period], :contact_id => params[:contact_id], :account_id => params[:account_id], :project_id => params[:project_id], :polymorphic_filter =>  params[:polymorphic_filter], :rfq_id => params[:rfq_id], :from => @from, :to => @to}
-		elsif params[:searchlist] == controller_name
-			session[controller_name][:period_type] = params[:period_type]
-			session[controller_name][:period] = params[:period]
-			session[controller_name][:from] = params[:from]
-			session[controller_name][:to] = params[:to]
-			session[controller_name][:contact_id] = params[:contact_id]
-			session[controller_name][:project_id] = params[:project_id]
-			session[controller_name][:account_id] = params[:account_id]
-			session[controller_name][:polymorphic_filter] = params[:polymorphic_filter]
-			session[controller_name][:rfq_id] = params[:rfq_id]
+		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
+		if params[:searchlist] == controller_name
+			filters = [:period_type, :period, :contact_id, :account_id, :project_id, :polymorphic_filter, :rfq_id, :from, :to]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
 		end
-		
 	end
 	
 	def formPagination(entries)

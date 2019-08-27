@@ -25,6 +25,7 @@ class WkInventoryItem < ActiveRecord::Base
   belongs_to :parent, foreign_key: "parent_id", class_name: "WkInventoryItem"
   belongs_to :uom, class_name: "WkMesureUnit"
   belongs_to :product_attribute, :class_name => 'WkProductAttribute'
+  belongs_to :project, :class_name => 'Project'
   has_many :material_entries, foreign_key: "inventory_item_id", class_name: "WkMaterialEntry", :dependent => :restrict_with_error
   has_many :transferred_items, foreign_key: "parent_id", class_name: "WkInventoryItem", :dependent => :restrict_with_error
   has_one :asset_property, foreign_key: "inventory_item_id", class_name: "WkAssetProperty", :dependent => :destroy

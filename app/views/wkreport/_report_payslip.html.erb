@@ -1,7 +1,7 @@
 <%
-	userId = (session[:wkreport][:user_id].blank? || (session[:wkreport][:user_id]).to_i < 1) ? User.current.id : session[:wkreport][:user_id]
-	from = session[:wkreport][:from]
-	to = session[:wkreport][:to]
+	userId = (session[controller_name].try(:[], :user_id).blank? || (session[controller_name].try(:[], :user_id)).to_i < 1) ? User.current.id : session[controller_name].try(:[], :user_id)
+	from = session[controller_name].try(:[], :from)
+	to = session[controller_name].try(:[], :to)
 	minSalaryDate = WkSalary.where("salary_date between '#{from}' and '#{to}'").minimum(:salary_date)
 	if minSalaryDate.blank?
 		@wksalaryEntries = nil

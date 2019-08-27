@@ -5,11 +5,9 @@
 <%
 	if !params[:control].blank? && (params[:control] ='reportdetail' || params[:control] ='report') && (action_name == 'reportdetail' || action_name =='report')
 		period = params[:period]
-	elsif params[:tab] == 'wkexpense'
-		period = session[:wkexpense][:period]
 	else
-		period = session[:wktimes][:period]
-	end
+    period = session[controller_name].try(:[], :period)
+  end
 %>
 <div class="div-left">
 <%= radio_button_tag 'period_type', '1', !@free_period, :onclick => '$("#from,#to").attr("disabled", true);$("#period").removeAttr("disabled");' %>

@@ -10,7 +10,7 @@ include WkpayrollHelper
 
   def index
 	if !showDashboard || !hasSettingPerm
-	   redirect_to :controller => 'wktime',:action => 'index' , :tab => 'wktime'
+	   redirect_to set_module
 	else
 	  set_filter_session
 	  setMembers
@@ -21,8 +21,8 @@ include WkpayrollHelper
   def graph
 	retrieve_date_range
 	data = nil
-	@group_id = session[:wkdashboard][:group_id]
-	@project_id = session[:wkdashboard][:project_id]
+	@group_id = session[controller_name].try(:[], :group_id)
+	@project_id = session[controller_name].try(:[], :project_id)
 
 	if @from.blank? && @to.blank?
 		@to = User.current.today.end_of_month
@@ -52,16 +52,18 @@ include WkpayrollHelper
   end
   
   def set_filter_session
-	if session[:wkdashboard].nil?
-		session[:wkdashboard] = {:period_type => params[:period_type], :period => params[:period],:group_id => params[:group_id], :from => @from, :to => @to}
-	else
-		session[:wkdashboard][:project_id] = params[:project_id]
-		session[:wkdashboard][:group_id] = params[:group_id]
-		session[:wkdashboard][:period] = params[:period]
-		session[:wkdashboard][:from] = params[:from]
-		session[:wkdashboard][:to] = params[:to]
+	if params[:searchlist] == controller_name
+		session[controller_name] = Hash.new if session[controller_name].nil?
+		filters = [:project_id, :group_id, :period, :from, :to]
+		filters.each do |param|
+			if params[param].blank? && session[controller_name].try(:[], param).present?
+				session[controller_name].delete(param)
+			elsif params[param].present?
+				session[controller_name][param] = params[param]
+			end
+		end
 	end
-  end  
+  end
 
   def setMembers		
 	@groups = Group.sorted.all

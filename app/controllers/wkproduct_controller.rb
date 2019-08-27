@@ -5,9 +5,14 @@ class WkproductController < WkinventoryController
 
 
 	def index
+		sort_init 'id', 'asc'
+		sort_update 'product_name' => "name",
+					'category' => "category_id",
+					'uom' => "uom_id"
+
 		set_filter_session
-		categoryId = session[controller_name][:category_id]
-		name = session[controller_name][:name]
+		categoryId = session[controller_name].try(:[], :category_id)
+		name = session[controller_name].try(:[], :name)
 		@productEntries = nil
 		sqlStr = ""
 		unless name.blank?
@@ -22,7 +27,7 @@ class WkproductController < WkinventoryController
 		else
 			entries = WkProduct.all
 		end
-		formPagination(entries)
+		formPagination(entries.reorder(sort_clause))
     end
 	
 	def formPagination(entries)
@@ -117,13 +122,17 @@ class WkproductController < WkinventoryController
 	end  
 
 	def set_filter_session
-		if params[:searchlist].blank? && session[controller_name].nil?
-			session[controller_name] = {:category_id => params[:category_id], :name => params[:name]}
-		elsif params[:searchlist] == controller_name
-			session[controller_name][:category_id] = params[:category_id]
-			session[controller_name][:name] = params[:name]
+		if params[:searchlist] == controller_name
+			session[controller_name] = Hash.new if session[controller_name].nil?
+			filters = [:category_id, :name]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
 		end
-		
 	end
   
 	def setLimitAndOffset		

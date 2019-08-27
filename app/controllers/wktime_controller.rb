@@ -33,7 +33,15 @@ helper :custom_fields
 helper :queries
 include QueriesHelper
  
-  def index	
+  def index
+	sort_init 'id', 'asc'
+	sort_update 'start_date' => "spent_on",
+				'user_name' => "CONCAT(un.firstname,' ' ,un.lastname)",
+				'hours' => "hours",
+				'status' => "status",
+				'modified_by' => "status_updater",
+				'amount' => "amount"
+
 	user_custom_fields = CustomField.where(['is_filter = ? AND type = ?', true, "UserCustomField"])
 	@query = nil
 	unless user_custom_fields.blank?
@@ -43,17 +51,10 @@ include QueriesHelper
     retrieve_date_range	
 	@from = getStartDay(@from)
 	@to = getEndDay(@to)
-	if !params[:tab].blank? && params[:tab] =='wkexpense'
-		user_id = session[:wkexpense][:user_id]
-		group_id = session[:wkexpense][:group_id]
-		status = session[:wkexpense][:status]
-		userfilter = getValidUserCF(session[:wkexpense][:filters], user_custom_fields)
-	else
-		user_id = session[:wktimes][:user_id]
-		group_id = session[:wktimes][:group_id]
-		status = session[:wktimes][:status]
-		userfilter = getValidUserCF(session[:wktimes][:filters], user_custom_fields)
-	end
+	user_id = session[controller_name].try(:[], :user_id)
+	group_id = session[controller_name].try(:[], :group_id)
+	status = session[controller_name].try(:[], :status)
+	userfilter = getValidUserCF(session[controller_name].try(:[], :filters), user_custom_fields)
 	
 	unless userfilter.blank? || @query.blank?
 		@query.filters = userfilter
@@ -92,6 +93,7 @@ include QueriesHelper
 	end
 	teQuery = getTEQuery(@from, @to, ids)
 	query = getQuery(teQuery, ids, @from, @to, status)
+	query = query + " ORDER BY " + (sort_clause.present? ? sort_clause.first + ", spent_on DESC " : "tmp3.spent_on desc, tmp3.user_id")
 	findBySql(query)
     respond_to do |format|
       format.html {        
@@ -1084,11 +1086,8 @@ include QueriesHelper
 	end
 	
 	def time_rpt
-		@user = (session[:wkreport][:user_id].blank? || (session[:wkreport][:user_id]).to_i < 1) ? User.current : User.find(session[:wkreport][:user_id])
-		#@user = User.find(session[:wkreport][:user_id].blank? ? User.current.id : session[:wkreport][:user_id])#User.current
+		@user = (session[:wkreport].try(:[], :user_id).blank? || (session[:wkreport].try(:[], :user_id)).to_i < 1) ? User.current : User.find(session[:wkreport].try(:[], :user_id))
 		@startday = getStartDay((session[:wkreport][:from]).to_s.to_date)
-		#@entries = findEntries()
-		
 		render :action => 'time_rpt', :layout => false
 	end	
 	
@@ -1298,10 +1297,8 @@ private
 		userList = []
 		if !params[:group_id].blank?
 			group_id = params[:group_id]
-		elsif !params[:tab].blank? && params[:tab] =='wkexpense'
-			group_id = session[:wkexpense][:group_id]
 		else
-			group_id = session[:wktimes][:group_id]
+			group_id = session[controller_name].try(:[], :group_id)
 		end
 		# grpMember = call_hook(:controller_group_member,{ :group_id => group_id})
 		if isSupervisorApproval #!grpMember.blank?
@@ -1752,16 +1749,11 @@ private
 		period_type =  params[:period_type]
 		period = params[:period]
 		fromdate = todate= nil
-	elsif params[:tab] == 'wkexpense'
-		period_type = session[:wkexpense][:period_type]
-		period = session[:wkexpense][:period]
-		fromdate = session[:wkexpense][:from]
-		todate = session[:wkexpense][:to]
 	else
-		period_type = session[:wktimes][:period_type]
-		period = session[:wktimes][:period]
-		fromdate = session[:wktimes][:from]
-		todate = session[:wktimes][:to]
+		period_type = session[controller_name].try(:[], :period_type)
+		period = session[controller_name].try(:[], :period)
+		fromdate = session[controller_name].try(:[], :from)
+		todate = session[controller_name].try(:[], :to)
 	end
 
     if (period_type == '1' || (period_type.nil? && !period.nil?)) 
@@ -1813,13 +1805,8 @@ private
 		@groups = Group.sorted.all
 		@members = Array.new
 		projMem = nil
-		if !params[:tab].blank? && params[:tab] =='wkexpense'
-			filter_type = session[:wkexpense][:filter_type]
-			project_id = session[:wkexpense][:project_id]
-		else
-			filter_type = session[:wktimes][:filter_type]
-			project_id = session[:wktimes][:project_id]
-		end
+		filter_type = session[controller_name].try(:[], :filter_type)
+		project_id = session[controller_name].try(:[], :project_id)
 		# hookMem = call_hook(:controller_get_member, { :filter_type => filter_type})
 		if filter_type == '1' #|| (hookMem.blank? && filter_type !='2')
 			# hookProjMem = call_hook(:controller_project_member, {  :project_id => project_id})
@@ -2072,8 +2059,8 @@ private
 		end		
 
 		wkSqlStr = " left outer join " + entityNames[0] + " w on v1.startday = w.begin_date and v1.user_id = w.user_id " +
-					"left outer join users un on un.id = w.statusupdater_id"
-					
+					"left outer join users un on un.id = w.statusupdater_id "
+		
 		query = formQuery(wkSelectStr, sqlStr, wkSqlStr)
 	end
 	
@@ -2089,6 +2076,7 @@ private
 		query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids})) tmp3 "
 		query = query + " left outer join (select min( #{getDateSqlString('t.spent_on')} ) as min_spent_on, t.user_id as usrid from time_entries t, users u "
 		query = query + " where u.id = t.user_id and u.id in (#{ids}) group by t.user_id ) vw on vw.usrid = tmp3.user_id "
+		query = query + " left join users AS un on un.id = tmp3.user_id "
 		query = query + getWhereCond(status)
 	end
 	
@@ -2099,7 +2087,7 @@ private
         setLimitAndOffset()		
 		rangeStr = formPaginationCondition()
 		
-		@entries = TimeEntry.find_by_sql(query + " order by tmp3.spent_on desc, tmp3.user_id " + rangeStr )
+		@entries = TimeEntry.find_by_sql(query + rangeStr )
 		@unit = nil
 		result = TimeEntry.find_by_sql("select sum(v2." + spField + ") as " + spField + " from (" + query + ") as v2")		
 		@total_hours = result.blank? ? 0 : result[0].hours
@@ -2275,11 +2263,10 @@ private
 	end	
 	
 	def getSelectedProject(projList, setFirstProj)
-		#selected_proj_id = params[:project_id]
 		if !params[:tab].blank? && params[:tab] =='wkexpense'		
-			selected_proj_id = session[:wkexpense][:project_id].blank? ? params[:project_id] : session[:wkexpense][:project_id]
+			selected_proj_id = session[controller_name].try(:[], :project_id).blank? ? params[:project_id] : session[controller_name].try(:[], :project_id)
 		elsif !session[:wktimes].blank?
-			selected_proj_id = session[:wktimes][:project_id]
+			selected_proj_id = session[:controller_name].try(:[], :project_id)
 		end
 		if !selected_proj_id.blank? && !setFirstProj #( !isAccountUser || !projList.blank? )
 			sel_project = projList.select{ |proj| proj.id == selected_proj_id.to_i } if !projList.blank?	
@@ -2337,38 +2324,18 @@ private
 	end
 	
 	def set_filter_session
-	 
-		if params[:searchlist].blank? && (session[:wktimes].nil? || session[:wkexpense].nil?)
-			session[:wktimes] = {:period_type => params[:period_type], :period => params[:period],:from => params[:from],:to => params[:to],
-			:project_id => params[:project_id], :filter_type => params[:filter_type],:user_id => params[:user_id],:status => params[:status],
-			:group_id => params[:group_id], :filters => @query.blank? ? nil : @query.filters }
-			session[:wkexpense] = {:period_type => params[:period_type], :period => params[:period],:from => params[:from],:to => params[:to],
-			:project_id => params[:project_id], :filter_type => params[:filter_type],:user_id => params[:user_id],:status => params[:status],
-			:group_id => params[:group_id], :filters => @query.blank? ? nil : @query.filters }
-			#session[:wkexpense]  = session[:wktimes] 
-		elsif params[:searchlist] =='wktime' || api_request?
-			session[:wktimes][:period_type] = params[:period_type]
-			session[:wktimes][:period] = params[:period]
-			session[:wktimes][:from] = params[:from]
-			session[:wktimes][:to] = params[:to]
-			session[:wktimes][:project_id] = params[:project_id]
-			session[:wktimes][:filter_type] = params[:filter_type]
-			session[:wktimes][:user_id] = params[:user_id]
-			session[:wktimes][:status] = params[:status]
-			session[:wktimes][:group_id] = params[:group_id]
-			session[:wktimes][:filters] = @query.blank? ? nil : @query.filters
-		elsif params[:searchlist] =='wkexpense' || api_request?
-			session[:wkexpense][:period_type] = params[:period_type]
-			session[:wkexpense][:period] = params[:period]
-			session[:wkexpense][:from] = params[:from]
-			session[:wkexpense][:to] = params[:to]
-			session[:wkexpense][:project_id] = params[:project_id]
-			session[:wkexpense][:filter_type] = params[:filter_type]
-			session[:wkexpense][:user_id] = params[:user_id]
-			session[:wkexpense][:status] = params[:status]
-			session[:wkexpense][:group_id] = params[:group_id]
-			session[:wkexpense][:filters] = @query.blank? ? nil : @query.filters
-		end		
+		session[controller_name] = {:filters => @query.blank? ? nil : @query.filters} if session[controller_name].nil?
+		if params[:searchlist] == controller_name || api_request?
+			session[controller_name][:filters] = @query.blank? ? nil : @query.filters
+			filters = [:period_type, :period, :from, :to, :project_id, :filter_type, :user_id, :status, :group_id]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
+		end
 	end
 	
 	def findTEEntryBySql(query)
@@ -2380,23 +2347,23 @@ private
 	end
 	
 	def getUserCFFromSession
-		session[:wktimes][:filters]
+		session[controller_name].try(:[], :filters)
 	end
 	
 	def getUserIdFromSession
 		#return user_id from session
-		session[:wktimes][:user_id]
+		session[controller_name].try(:[], :user_id)
 	end
 	
 	def getStatusFromSession
-		session[:wktimes][:status]
+		session[controller_name].try(:[], :status)
 	end
 	
 	def setUserIdsInSession(ids)
-		session[:wktimes][:all_user_ids] = ids
+		session[controller_name][:all_user_ids] = ids
 	end
 	
 	def getUserIdsFromSession
-		session[:wktimes][:all_user_ids]
+		session[controller_name].try(:[], :all_user_ids)
 	end
 end

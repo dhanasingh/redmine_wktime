@@ -28,8 +28,7 @@ class WkpayrollController < WkbaseController
 	include WkreportHelper
 
 	def index
-
-		payrollEntries
+		payrollEntries()
 		payrollEntriesArr = @payrollEntries.to_a
 		@entry_count = @payrollEntries.length()
 		@payrollEntries = Hash.new
@@ -51,6 +50,16 @@ class WkpayrollController < WkbaseController
 	end
 
 	def payrollEntries
+		sort_init 'id', 'asc'
+		
+		sort_update 'user' => "CONCAT(U.firstname, U.lastname)",
+					'salary_date' => "S.salary_date",
+					'basic_pay' => "basic_pay",
+					'allowances' => "allowances	",
+					'deduction_total' => "deduction_total",
+					'gross' => "gross",
+					'net' => "net",
+					'join_date' => "join_date"
 		isGeneratePayroll = params[:generate]
 		@isPreview = params[:generate].blank? ? false : !to_boolean(params[:generate])
 		@total_gross = 0
@@ -66,8 +75,8 @@ class WkpayrollController < WkbaseController
 			userIds << users.id
 		end
 		ids = nil
-		user_id = session[:wkpayroll][:user_id]
-		group_id = session[:wkpayroll][:group_id]
+		user_id = session[controller_name].try(:[], :user_id)
+		group_id = session[controller_name].try(:[], :group_id)
 		
 		if user_id.blank? || !validateERPPermission('A_TE_PRVLG')
 		   ids = User.current.id
@@ -93,25 +102,40 @@ class WkpayrollController < WkbaseController
 
 	def get_wksalaries_in_hash_format(userId, salaryDate)
 		payrollAmount = Array.new
-		payroll_salaries = WkSalary.all
+		sql_contd = " WHERE "
 
 		if !salaryDate.blank?
-			payroll_salaries = payroll_salaries.where("salary_date = '#{salaryDate}'")
+			sql_contd += " S.salary_date = '#{salaryDate}' "
 		elsif !@from.blank? && !@to.blank?
-			payroll_salaries = payroll_salaries.where("salary_date between '#{@from}' and '#{@to}'")
+			sql_contd += " S.salary_date between '#{@from}' AND '#{@to}' "
 		end
 
 		unless userId.blank?
-			payroll_salaries = payroll_salaries.where("user_id IN (#{userId})")
+			sql_contd += " AND " if sql_contd != " WHERE "
+			sql_contd += " S.user_id IN (#{userId}) "
 		end
-
+		orderSQL = (action_name == 'edit' || sort_clause.blank?)  ? "" : " ORDER BY "+ sort_clause.first
+		payroll_salaries = WkSalary.find_by_sql("SELECT S.*, concat(U.firstname, U.lastname) AS user, (SAL.basic_pay + SAL.allowances) AS gross,
+			((SAL.basic_pay + SAL.allowances) - SAL.deduction_total) AS net, WU.join_date
+			FROM wk_salaries AS S
+			INNER JOIN (
+				SELECT S.user_id, S.salary_date, SUM(CASE WHEN SA.component_type = 'a' THEN S.amount ELSE 0 END) AS allowances,
+					SUM(CASE WHEN SA.component_type = 'b' THEN S.amount ELSE 0 END) AS basic_pay,
+					SUM(CASE WHEN SA.component_type = 'd' THEN S.amount ELSE 0 END) AS deduction_total
+				FROM wk_salaries AS S
+				INNER JOIN wk_salary_components AS SA ON SA.id = S.salary_component_id" + sql_contd +
+				"GROUP BY S.user_id, S.salary_date
+			) AS SAL ON S.user_id = SAL.user_id AND S.salary_date = SAL.salary_date
+			LEFT JOIN users AS U ON U.id = S.user_id LEFT JOIN wk_users WU ON WU.user_id = U.id" + sql_contd + orderSQL)
+		
 		payroll_salaries.each do |entry|
-			payrollAmount << {:user_id => entry.user_id, :component_id => entry.salary_component_id, :amount => (entry.amount).round, :currency => entry.currency, :salary_date => entry.salary_date}
+			payrollAmount << {:user_id => entry.user_id, :component_id => entry.salary_component_id, :amount => (entry.amount).round, 
+								:currency => entry.currency, :salary_date => entry.salary_date}
 		end
 	end
 
 	def form_payroll_entries(payrollAmount, userId)
-		usersDetails = User.where("id IN (#{userId})")
+		usersDetails = User.joins("LEFT JOIN wk_users WU ON WU.user_id = users.id").where("users.id IN (#{userId})").select("users.*, WU.join_date")
 		salaryComponents = WkSalaryComponents.all
 		basic_Total = nil
 		allowance_total = nil
@@ -121,13 +145,14 @@ class WkpayrollController < WkbaseController
 		payrollAmount.each do |payroll|
 			key = payroll[:user_id].to_s + "_" + payroll[:salary_date].to_s
 			if @payrollEntries[key].blank?
-				@payrollEntries[key] = { :uID => payroll[:user_id], :firstname => nil, :lastname => nil, :salDate => payroll[:salary_date], :BT => 0, :AT => 0, :DT => 0, :currency => nil, :details => {:b => [], :a => [], :d => []}}
+				@payrollEntries[key] = { :uID => payroll[:user_id], :firstname => nil, :lastname => nil, :joinDate => nil, :salDate => payroll[:salary_date], :BT => 0, :AT => 0, :DT => 0, :currency => nil, :details => {:b => [], :a => [], :d => []}}
 			end
 
 			usersDetails.each do |user|
 				if payroll[:user_id] == user.id
 					@payrollEntries[key][:firstname] = user.firstname
 					@payrollEntries[key][:lastname] = user.lastname
+					@payrollEntries[key][:joinDate] = user.join_date
 				end
 			end
 
@@ -265,19 +290,17 @@ class WkpayrollController < WkbaseController
 	end
 
 	def set_filter_session
-        if params[:searchlist].blank? && session[:wkpayroll].nil?
-			session[:wkpayroll] = {:period_type => params[:period_type],:period => params[:period],
-			                       :group_id => params[:group_id], :user_id => params[:user_id], 
-								   :from => @from, :to => @to}
-		elsif params[:searchlist] =='wkpayroll'
-			session[:wkpayroll][:period_type] = params[:period_type]
-			session[:wkpayroll][:period] = params[:period]
-			session[:wkpayroll][:group_id] = params[:group_id]
-			session[:wkpayroll][:user_id] = params[:user_id]
-			session[:wkpayroll][:from] = params[:from]
-			session[:wkpayroll][:to] = params[:to]
+		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
+		if params[:searchlist] == controller_name
+			filters = [:period_type, :period, :group_id, :user_id, :from, :to]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
 		end
-		
    end
    
    def getMembersbyGroup
@@ -298,7 +321,7 @@ class WkpayrollController < WkbaseController
 		if (!params[:group_id].blank?)
 			group_id = params[:group_id]
 		else
-			group_id = session[:wkpayroll][:group_id]
+			group_id = session[controller_name].try(:[], :group_id)
 		end
 		
 		if !group_id.blank? && group_id.to_i > 0
@@ -313,10 +336,10 @@ class WkpayrollController < WkbaseController
 	def retrieve_date_range
 		@free_period = false
 		@from, @to = nil, nil
-		period_type = session[:wkpayroll][:period_type]
-		period = session[:wkpayroll][:period]
-		fromdate = session[:wkpayroll][:from]
-		todate = session[:wkpayroll][:to]
+		period_type = session[controller_name].try(:[], :period_type)
+		period = session[controller_name].try(:[], :period)
+		fromdate = session[controller_name].try(:[], :from)
+		todate = session[controller_name].try(:[], :to)
 		
 		if (period_type == '1' || (period_type.nil? && !period.nil?)) 
 		    case period.to_s

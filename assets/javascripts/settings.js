@@ -7,7 +7,22 @@ var selectedIssue="";
 $(document).ready(function(){
 	updateCustFldDD(document.getElementById('settings_wktime_enter_cf_in_row1'),'settings_wktime_enter_cf_in_row2');
 	updateCustFldDD(document.getElementById('settings_wktime_enter_cf_in_row2'),'settings_wktime_enter_cf_in_row1');	
-	dialogAction();	
+	dialogAction();
+
+	//check all for module
+	checked_modules();
+	$(".modules").click(function () {
+		checked_modules();
+	});
+
+	$(".checkall").click(function () {
+		if ($(this).is(":checked")){
+			$(".modules").prop("checked", true);
+		}else {
+			$(".modules").prop("checked", false);
+		}
+		checked_modules();
+	});
 });
 
 function dialogAction()
@@ -599,5 +614,18 @@ function listbox_moveacross(sourceID, destID) {
 				 }
 				count--;
 		}
+	}
+}
+
+function checked_modules(){
+	if ($('.modules:checked').length == $('.modules').length){
+		$(".checkall").prop('checked', true);
+		$("#puncheckall").show();
+		$("#pcheckall").hide();
+	}
+	else{
+		$(".checkall").prop('checked', false);
+		$("#puncheckall").hide();
+		$("#pcheckall").show();
 	}
 }

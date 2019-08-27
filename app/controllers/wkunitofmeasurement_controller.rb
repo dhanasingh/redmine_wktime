@@ -1,9 +1,8 @@
 class WkunitofmeasurementController < WkinventoryController
   unloadable
   before_action :require_login
-
-
-
+  menu_item :wkproduct
+  
   def index
 		entries = WkMesureUnit.all	
 		formPagination(entries)

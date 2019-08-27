@@ -3,14 +3,14 @@
 	<table class="list time-entries">
 		<thead>
 			<tr>
-				<th class="lbl-txt-align"><%= l(:field_name) %></th>
-				<th class="lbl-txt-align"><%= l(:field_status) %></th>
-				<th class="lbl-txt-align"><%= l(:label_account_name) %></th>
-				<th class="lbl-txt-align"><%= l(:label_location) %></th>
+				<%= sort_header_tag('lead_name', :caption => l(:field_name), class: "lbl-txt-align") %>
+                <%= sort_header_tag('status', :caption => l(:field_status), class: "lbl-txt-align") %>
+				<%= sort_header_tag('acc_name', :caption => l(:label_account_name), class: "lbl-txt-align") %>
+				<%= sort_header_tag('location_name', :caption => l(:label_location), class: "lbl-txt-align") %>
 				<th class="lbl-txt-align"><%= l(:label_work_phone) %></th>
 				<th class="lbl-txt-align"><%= l(:label_email) %></th>
-				<th class="lbl-txt-align"><%= l(:field_status_modified_by) %></th>
-				<th class="lbl-txt-align"><%= l(:field_updated_on)%></th>
+				<%= sort_header_tag('created_by_user_id', :caption => l(:field_status_modified_by), class: "lbl-txt-align") %>
+				<%= sort_header_tag('updated_at', :caption => l(:field_updated_on), class: "lbl-txt-align") %>
 				<th></th>
 			</tr>
 		</thead>

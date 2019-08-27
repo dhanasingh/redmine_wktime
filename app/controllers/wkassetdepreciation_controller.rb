@@ -1,5 +1,6 @@
 class WkassetdepreciationController < WkassetController
   unloadable
+  menu_item :wkproduct
   include WktimeHelper
   include WkinventoryHelper
   include WkpayrollHelper
@@ -10,11 +11,19 @@ class WkassetdepreciationController < WkassetController
 
 
 	def index
+		sort_init 'id', 'asc'
+		sort_update 'asset_name' => "asset_name",
+					'product_name' => "product_name",
+					'purchase_date' => "purchase_date",
+					'previous_value' => "dep.actual_amount",
+					'depreciation_date' => "dep.depreciation_date",
+					'depreciation' => "dep.depreciation_amount"
+
         @depreciation_entries = nil
         set_filter_session
         retrieve_date_range
-		productId = session[:wkassetdepreciation][:product_id]
-		assetId = session[:wkassetdepreciation][:inventory_item_id]
+		productId = session[controller_name].try(:[], :product_id)
+		assetId = session[controller_name].try(:[], :inventory_item_id)
 		unless params[:generate].blank? || !to_boolean(params[:generate])
 			applyDepreciation(@from, @to, productId, assetId)
 		else
@@ -38,6 +47,7 @@ class WkassetdepreciationController < WkassetController
 			unless sqlwhere.blank?
 				sqlStr = sqlStr + " WHERE " + sqlwhere
 			end
+			sqlStr = sqlStr + " ORDER BY " + (sort_clause.present? ? sort_clause.first : " dep.depreciation_date desc, p.name asc")
 			findBySql(sqlStr, WkAssetDepreciation)
 		end
 	end
@@ -111,28 +121,27 @@ class WkassetdepreciationController < WkassetController
 	end
 
 	def set_filter_session
-        if params[:searchlist].blank? && session[:wkassetdepreciation].nil?
-			session[:wkassetdepreciation] = {:product_id => params[:product_id], :inventory_item_id => params[:inventory_item_id],:period => params[:period], 
-								   :from => @from, :to => @to}
-		elsif params[:searchlist] =='wkassetdepreciation'
-			session[:wkassetdepreciation][:product_id] = params[:product_id]
-			session[:wkassetdepreciation][:inventory_item_id] = params[:inventory_item_id]
-			session[:wkassetdepreciation][:period_type] = params[:period_type]
-			session[:wkassetdepreciation][:period] = params[:period]
-			session[:wkassetdepreciation][:from] = params[:from]
-			session[:wkassetdepreciation][:to] = params[:to]
+		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
+		if params[:searchlist] == controller_name
+			filters = [:product_id, :inventory_item_id, :period_type, :period, :from, :to]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
 		end
-		
 	end
    
     # Retrieves the date range based on predefined ranges or specific from/to param dates
 	def retrieve_date_range
 		@free_period = false
 		@from, @to = nil, nil
-		period_type = session[:wkassetdepreciation][:period_type]
-		period = session[:wkassetdepreciation][:period]
-		fromdate = session[:wkassetdepreciation][:from]
-		todate = session[:wkassetdepreciation][:to]
+		period_type = session[controller_name].try(:[], :period_type)
+		period = session[controller_name].try(:[], :period)
+		fromdate = session[controller_name].try(:[], :from)
+		todate = session[controller_name].try(:[], :to)
 		
 		if (period_type == '1' || (period_type.nil? && !period.nil?)) 
 		    case period.to_s
@@ -226,7 +235,7 @@ class WkassetdepreciationController < WkassetController
 		@entry_count = result.blank? ? 0 : result[0].id
         setLimitAndOffset()		
 		rangeStr = formPaginationCondition()	
-		@depreciation_entries = model.find_by_sql(query + " order by dep.depreciation_date desc, p.name asc " + rangeStr )
+		@depreciation_entries = model.find_by_sql(query + rangeStr )
 	end
 	
 	def formPaginationCondition

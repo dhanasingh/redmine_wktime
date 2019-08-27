@@ -3,8 +3,8 @@
 		<%= hidden_field_tag "searchlist", controller_name %>
 		<%=h hidden_field_tag('tab', controller_name) %>
 		<%
-			categoryId =session[controller_name][:category_id]
-			name =session[controller_name][:name]
+			categoryId =session[controller_name].try(:[], :category_id)
+			name =session[controller_name].try(:[], :name)
 		%>
 	  <fieldset>
 		 <%=h hidden_field_tag('tab', "wkproduct") %>
@@ -18,16 +18,15 @@
  <% end %>
  <div class="wk-contextual">
         <%= link_to l(:label_new_product), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
-		<%= link_to l(:label_category), url_for(:controller => controller_name, :action => 'category'), :class => 'icon icon-time-add' %>
  </div>
 <div class="autoscroll">
 <table class="list time-entries">
   <thead>
          <tr>
 				<th class="lbl-txt-align">#</th>
-				<th class="lbl-txt-align"><%= l(:field_name) %></th>
-				<th class="lbl-txt-align"><%= l(:label_category) %></th>
-				<th class="lbl-txt-align"><%= l(:label_uom) %></th>
+				<%= sort_header_tag('product_name', :caption => l(:field_name), class: "lbl-txt-align") %>
+				<%= sort_header_tag('category', :caption => l(:label_category), class: "lbl-txt-align") %>
+				<%= sort_header_tag('uom', :caption => l(:label_uom), class: "lbl-txt-align") %>
 				<th></th>
          </tr>
   </thead>

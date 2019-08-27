@@ -4,8 +4,8 @@
 <table class="list time-entries">
   <thead>
          <tr>
-				<th class="lbl-txt-align"><%=  l(:label_type) %></th>
-				<th class="lbl-txt-align"><%=  l(:label_date) %></th>
+				<%= sort_header_tag('trans_type', :caption => l(:label_type), class: "lbl-txt-align") %>
+				<%= sort_header_tag('trans_date', :caption => l(:label_date), class: "lbl-txt-align") %>
 				<th class="lbl-txt-align"><%= l(:label_particulars) %></th>
 				<th class="lbl-txt-align"><%= l(:label_debit)  %></th>
 				<th class="lbl-txt-align"><%= l(:label_credit) %></th>	

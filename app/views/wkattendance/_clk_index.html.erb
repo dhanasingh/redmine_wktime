@@ -16,8 +16,8 @@
 	<%= form_tag({:controller => controller_name, :action => 'clockindex'}, :method => :get, :id => 'query_form') do %>
 	<%=h hidden_field_tag('tab', "clock") %>
 	<%= hidden_field_tag "searchlist", "#{controller_name}" %>
-	<%	groupid =session[:wkattendance][:group_id]
-		userid =session[:wkattendance][:user_id] %>	
+	<%	groupid =session[controller_name].try(:[], :group_id)
+		userid =session[controller_name].try(:[], :user_id) %>	
 		<table>
 			<% if validateERPPermission('A_TE_PRVLG') %>
 			<tr>

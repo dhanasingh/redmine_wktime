@@ -34,7 +34,7 @@ runperiodUrl="<%= "#{url_for(:controller => controller_name, :action => 'runPeri
 <table class="list time-entries">
 <thead>
 <tr>
-<th class="lbl-txt-align"><%= l(:field_user) %></th>
+<%= sort_header_tag('name', :caption => l(:field_user), class: "lbl-txt-align") %>
 <%
 	isAvailable = false
 	lastAccrualOn = Date.civil(Date.today.year, Date.today.month, 1) -1

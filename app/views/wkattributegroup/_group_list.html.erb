@@ -17,8 +17,8 @@
   <thead>
          <tr>
 				<th class="lbl-txt-align">#</th>
-				<th class="lbl-txt-align"><%= l(:field_name) %></th>
-				<th class="lbl-txt-align"><%= l(:field_description) %></th>
+				<%= sort_header_tag('name', :caption => l(:field_name), class: "lbl-txt-align") %>
+				<%= sort_header_tag('description', :caption => l(:field_description), class: "lbl-txt-align") %>
 				<th></th>
          </tr>
   </thead>

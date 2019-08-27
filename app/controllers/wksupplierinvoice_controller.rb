@@ -1,5 +1,6 @@
 class WksupplierinvoiceController < WksupplierorderentityController
   unloadable
+  menu_item :wkrfq
 
 	@@simutex = Mutex.new
 

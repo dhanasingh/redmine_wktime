@@ -1,11 +1,15 @@
 class WkbrandController < WkinventoryController
   unloadable
+  menu_item :wkproduct
   before_action :require_login
   before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :edit_product_model, :updateProductModel]
   before_action :check_admin_redirect, :only => [:destroy, :destroyProductModel]
 
 
     def index
+		sort_init 'id', 'asc'
+		sort_update 'name' => "name",
+					'description' => "description"
 		@brandEntries = nil
 		sqlStr = ""
 		unless params[:name].blank?
@@ -17,7 +21,7 @@ class WkbrandController < WkinventoryController
 			entries = WkBrand.all
 		end
 		orderColumn = 'name'
-		@brandEntries = formPagination(entries,  orderColumn)
+		@brandEntries = formPagination(entries.reorder(sort_clause),  orderColumn)
     end
 	
 	def formPagination(entries, orderColumn)

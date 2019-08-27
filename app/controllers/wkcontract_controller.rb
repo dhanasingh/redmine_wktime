@@ -21,13 +21,20 @@ before_action :require_login
 
 
  def index
+	sort_init 'id', 'asc'
+	sort_update 'contract_number' => "contract_number",
+				'start_date' => "start_date",
+				'end_date' => "end_date",
+				'project' => "projects.name",
+				'type' => "parent_type",
+				'name' => "CASE WHEN wk_contracts.parent_type = 'WkAccount' THEN a.name ELSE CONCAT(c.first_name, c.last_name) END"
 		@contract_entries = nil
 		sqlwhere = ""
 		set_filter_session
-		filter_type = session[:contract][:polymorphic_filter]
-		contact_id = session[:contract][:contact_id]
-		account_id = session[:contract][:account_id]
-		projectId	= session[:contract][:project_id]
+		filter_type = session[controller_name].try(:[], :polymorphic_filter)
+		contact_id = session[controller_name].try(:[], :contact_id)
+		account_id = session[controller_name].try(:[], :account_id)
+		projectId	= session[controller_name].try(:[], :project_id)
 				
 		if filter_type == '2' && !contact_id.blank?
 			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
@@ -48,26 +55,28 @@ before_action :require_login
 		unless projectId.blank?
 			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
 			sqlwhere = sqlwhere + " project_id = '#{projectId}' " 
-		end		
-				
-		if filter_type == '1' && projectId.blank? 
-			entries = WkContract.all
-		else
-			entries = WkContract.where(sqlwhere)
-		end	
-		formPagination(entries)	
+		end
+		entries = WkContract.joins("LEFT JOIN (SELECT id, name FROM projects) AS projects ON projects.id = wk_contracts.project_id
+			LEFT JOIN wk_accounts a on (wk_contracts.parent_type = 'WkAccount' and wk_contracts.parent_id = a.id)
+			LEFT JOIN wk_crm_contacts c on (wk_contracts.parent_type = 'WkCrmContact' and wk_contracts.parent_id = c.id)").all
+		unless filter_type == '1' && projectId.blank? 
+			entries = entries.where(sqlwhere)
+		end
+		formPagination(entries.reorder(sort_clause))
     end
 
     def set_filter_session
-        if params[:searchlist].blank? && session[:contract].nil?
-			session[:contract] = {:contact_id => params[:contact_id], :account_id => params[:account_id], :project_id => params[:project_id], :polymorphic_filter =>  params[:polymorphic_filter] }
-		elsif params[:searchlist] =='contract'
-			session[:contract][:contact_id] = params[:contact_id]
-			session[:contract][:project_id] = params[:project_id]
-			session[:contract][:account_id] = params[:account_id]
-			session[:contract][:polymorphic_filter] = params[:polymorphic_filter]
+		if params[:searchlist] == controller_name
+			session[controller_name] = Hash.new if session[controller_name].nil?
+			filters = [:contact_id, :project_id, :account_id, :polymorphic_filter]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
 		end
-		
    end
    
    def setLimitAndOffset		

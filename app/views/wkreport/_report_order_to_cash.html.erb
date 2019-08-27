@@ -1,7 +1,7 @@
 <%
-	fromDate = session[:wkreport][:from]
-	toDate = session[:wkreport][:to]
-	projectId = session[:wkreport][:project_id]
+	fromDate = session[controller_name].try(:[], :from)
+	toDate = session[controller_name].try(:[], :to)
+	projectId = session[controller_name].try(:[], :project_id)
 	from = Date.civil(fromDate.year,fromDate.month, 1)
 	to = Date.civil((toDate + 1.month).year,(toDate + 1.month).month, 1) - 1 
 	inBtwMonths = getInBtwMonthsArr(from, to) 

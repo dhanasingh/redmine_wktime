@@ -12,10 +12,10 @@
 <%= render_tabs time_expense_tabs %>
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 <%= form_tag({:controller => "wkcrmenumeration", :action => 'index'}, :method => :get, :id => 'query_form') do %>
-<%= hidden_field_tag "searchlist", "wkcrmenumeration" %>
+<%= hidden_field_tag "searchlist", controller_name %>
 <%=h hidden_field_tag('tab', "wkcrmenumeration") %>
-<%	enumerationName = session[:wkcrmenumeration][:enumname] %>
-<%	enumerationType = session[:wkcrmenumeration][:enumType] %>
+<%	enumerationName = session[controller_name].try(:[], :enumname) %>
+<%	enumerationType = session[controller_name].try(:[], :enumType) %>
 <div class="wk-contextual"> 
 		<label for='name' style="float:left"><%= l(:field_name)   %>&nbsp;&nbsp;</label>
 			<%= text_field_tag 'enumname', enumerationName, :size => 30, :style=> "float: left;" %>	

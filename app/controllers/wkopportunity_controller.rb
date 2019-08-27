@@ -1,23 +1,36 @@
 class WkopportunityController < WkcrmController
   unloadable
+  menu_item :wklead
   include WktimeHelper
 
-
     def index
+		sort_init 'id', 'asc'
+
+		sort_update 'opportunity_name' => "#{WkOpportunity.table_name}.name",
+					'parent_type' => "#{WkOpportunity.table_name}.parent_type",
+					'sales_stage' => "E.name",
+					'amount' => "#{WkOpportunity.table_name}.amount",
+					'close_date' => "#{WkOpportunity.table_name}.close_date",
+					'assigned_user_id' => "CONCAT(U.firstname, U.lastname)",
+					'updated_at' => "#{WkOpportunity.table_name}.updated_at"
+
 		set_filter_session
 		retrieve_date_range
-		oppName = session[:wkopportunity][:oppname]
-		accId = session[:wkopportunity][:account_id]
-		oppDetails = nil
+		oppName = session[controller_name].try(:[], :oppname)
+		accId = session[controller_name].try(:[], :account_id)
+
+		oppDetails = WkOpportunity.joins("LEFT JOIN (SELECT id, firstname, lastname FROM users) AS U ON wk_opportunities.assigned_user_id = U.id
+			LEFT JOIN wk_crm_enumerations AS E on wk_opportunities.sales_stage_id = E.id")
+
 		filterSql = ""
 		filterHash = Hash.new
 		unless @from.blank? || @to.blank?
-			filterSql = filterSql + " created_at between :from AND :to"
-			filterHash = {:from => getFromDateTime(@from), :to => getToDateTime(@to)}  
+			filterSql = filterSql + " wk_opportunities.created_at between :from AND :to"
+			filterHash = {:from => getFromDateTime(@from), :to => getToDateTime(@to)}
 		end
 		unless oppName.blank?
 			filterSql = filterSql + " AND" unless filterSql.blank?
-			filterSql = filterSql + " LOWER(name) like LOWER(:name)"
+			filterSql = filterSql + " LOWER(wk_opportunities.name) like LOWER(:name)"
 			filterHash[:name] = "%#{oppName}%"
 		end
 		unless accId.blank?
@@ -27,12 +40,10 @@ class WkopportunityController < WkcrmController
 			filterHash[:parent_type] = 'WkAccount'
 		end
 		unless filterHash.blank? || filterSql.blank?
-			oppDetails = WkOpportunity.where(filterSql, filterHash)
-		else
-			oppDetails = WkOpportunity.all
+			oppDetails = oppDetails.where(filterSql, filterHash)
 		end
 		
-		formPagination(oppDetails)
+		formPagination(oppDetails.reorder(sort_clause))
     end
   
     def edit
@@ -96,17 +107,17 @@ class WkopportunityController < WkcrmController
   
   
     def set_filter_session
-        if params[:searchlist].blank? && session[:wkopportunity].nil?
-			session[:wkopportunity] = {:period_type => params[:period_type],:period => params[:period],	:from => @from, :to => @to, :oppname => params[:oppname], :account_id => params[:account_id] }
-		elsif params[:searchlist] =='wkopportunity'
-			session[:wkopportunity][:period_type] = params[:period_type]
-			session[:wkopportunity][:period] = params[:period]
-			session[:wkopportunity][:from] = params[:from]
-			session[:wkopportunity][:to] = params[:to]
-			session[:wkopportunity][:oppname] = params[:oppname]
-			session[:wkopportunity][:account_id] = params[:account_id]
+		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
+		if params[:searchlist] == controller_name
+			filters = [:period_type, :oppname, :account_id, :period, :from, :to]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
 		end
-		
     end
    	
 	def formPagination(entries)

@@ -3,12 +3,12 @@
 	<table class="list time-entries">
 		<thead>
 			<tr>
-				<th class="lbl-txt-align"><%= l(:label_contract_number) %></th>
-				<th class="lbl-txt-align"><%= l(:label_type) %></th>
-				<th class="lbl-txt-align"><%= l(:field_name) %></th>
-				<th class="lbl-txt-align"><%= l(:label_project) %></th>				
-				<th class="lbl-txt-align"><%= l(:label_start_date) %></th>
-				<th class="lbl-txt-align"><%= l(:label_end_date) %></th>
+				<%= sort_header_tag('contract_number', :caption => l(:label_contract_number), class: "lbl-txt-align") %>
+				<%= sort_header_tag('type', :caption => l(:label_type), class: "lbl-txt-align") %>
+				<%= sort_header_tag('name', :caption => l(:field_name), class: "lbl-txt-align") %>
+				<%= sort_header_tag('project', :caption => l(:label_project), class: "lbl-txt-align") %>
+				<%= sort_header_tag('start_date', :caption => l(:label_start_date), class: "lbl-txt-align") %>			
+				<%= sort_header_tag('end_date', :caption => l(:label_end_date), class: "lbl-txt-align") %>
 				<th></th>
 			</tr>
 		</thead>

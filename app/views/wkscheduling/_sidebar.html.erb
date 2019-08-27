@@ -1,0 +1,7 @@
+<h3> <%= l(:label_scheduling) %> </h3>
+<ul>
+    <li><%= link_to l(:label_scheduling), url_for(:controller => "wkscheduling", :action => "index", :tab => "wkscheduling") %></li>
+    <% if validateERPPermission("S_SHIFT") && validateERPPermission("E_SHIFT") %>
+        <li><%= link_to l(:label_shift), url_for(:controller => "wkshift", :action => "index") %></li>
+    <% end %>
+</ul>

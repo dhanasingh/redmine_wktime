@@ -11,7 +11,11 @@
 			brandId = session[controller_name].try(:[], :brand_id)
 			locationId =session[controller_name].try(:[], :location_id)
 			availabilityId =session[controller_name].try(:[], :availability)
+			projectId =session[controller_name].try(:[], :project_id)
 		%>
+		<%	projArr = getProjects %>
+		<%	projArr[0] = [l(:label_all_projects),'AP'] %>
+		<%	projArr.unshift(["",''])  %>
 		<fieldset>
 				<table>
 					<tr>
@@ -34,6 +38,8 @@
 								<%=h select_tag("availability", options_for_select(availabilityHash.invert, :selected=> availabilityId)) %>
 							</td>
 						<% end %>
+						<th align="left"><%= l(:label_project) %></th>
+						<td align="left" style="padding-left:40px;"><%=h select_tag("project_id", options_for_select(projArr, :selected=> projectId)) %></td>
 					</tr>
 			    </table>
 				<p style="float:right; margin-top:-30px;">					

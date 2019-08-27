@@ -26,6 +26,7 @@ include WkaccountingHelper
 include WkcrmHelper
 
 before_action :require_login
+before_action :check_perm_and_redirect
 	
 	def index
 		@groups = Group.sorted.all
@@ -51,17 +52,17 @@ before_action :require_login
 	end
 	
 	def set_filter_session
-		if params[:searchlist].blank? && session[:wkreport].nil?
-			session[:wkreport] = {:report_type => params[:report_type], :period_type => params[:period_type], :period => params[:period],:group_id => params[:group_id], :user_id => params[:user_id], :from => @from, :to => @to, :project_id => params[:project_id] }
-		elsif params[:searchlist] =='wkreport'
-			session[:wkreport][:report_type] = params[:report_type]
-			session[:wkreport][:period_type] = params[:period_type]
-			session[:wkreport][:period] = params[:period]
-			session[:wkreport][:group_id] = params[:group_id]
-			session[:wkreport][:user_id] = params[:user_id]
-			session[:wkreport][:from] = params[:from]
-			session[:wkreport][:to] = params[:to].blank? ? Date.today : params[:to]
-			session[:wkreport][:project_id] = params[:project_id]
+		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
+		if params[:searchlist] == controller_name
+			params[:to] ||= Date.today
+			filters = [:report_type, :period_type, :period, :from, :to, :group_id, :project_id, :user_id]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
 		end
 	end
 	
@@ -84,7 +85,7 @@ before_action :require_login
 		if (!params[:group_id].blank?)
 			group_id = params[:group_id]
 		else
-			group_id = session[:wkreport][:group_id]
+			group_id = session[controller_name].try(:[], :group_id)
 		end
 		
 		if !group_id.blank? && group_id.to_i > 0
@@ -101,10 +102,10 @@ before_action :require_login
 	  def retrieve_date_range
 		@free_period = false
 		@from, @to = nil, nil
-		period_type = session[:wkreport][:period_type]
-		period = session[:wkreport][:period]
-		fromdate = session[:wkreport][:from]
-		todate = session[:wkreport][:to]
+		period_type = session[controller_name].try(:[], :period_type)
+		period = session[controller_name].try(:[], :period)
+		fromdate = session[controller_name].try(:[], :from)
+		todate = session[controller_name].try(:[], :to)
 
 		if (period_type == '1' || (period_type.nil? && !period.nil?)) 
 		  case period.to_s
@@ -133,9 +134,16 @@ before_action :require_login
 			@from = Date.civil(Date.today.year, Date.today.month, 1)
 			@to = (@from >> 1) - 1
 		end    
-		session[:wkreport][:from] = @from
-		session[:wkreport][:to] = @to
+		session[controller_name][:from] = @from
+		session[controller_name][:to] = @to
 		@from, @to = @to, @from if @from && @to && @from > @to
 
-	  end	
+	  end
+	  
+	  def check_perm_and_redirect
+		unless validateERPPermission("V_REPORT")
+			render_403
+			return false
+		end
+	  end
 end

@@ -9,15 +9,15 @@ dbcrvalidMsg =  "<%= l(:label_trans_total_validmsg)  %>";
 transrowMsg =  "<%= l(:label_trans_row_validmsg)  %>";
 </script>
 <%	
-   trans_particular1 =session[:wkgltransaction][:ledger_id1]
-   trans_particular2 =session[:wkgltransaction][:ledger_id2]
+   trans_particular1 =session[controller_name].try(:[], :ledger_id1)
+   trans_particular2 =session[controller_name].try(:[], :ledger_id2)
    if !@transEntry.blank? 
      @transEntry = @transEntry[0] unless @transEntry[0].blank?
      txn_type = @transEntry.trans_type
      trans_date = @transEntry.trans_date
-   elsif !session[:wkgltransaction].blank?
-     txn_type = session[:wkgltransaction][:txn_type]
-     trans_date = session[:wkgltransaction][:start_date]
+   elsif !session[controller_name].blank?
+     txn_type = session[controller_name][:txn_type]
+     trans_date = session[controller_name][:start_date]
    else
      txn_type =""
      trans_date = Date.today

@@ -1,5 +1,6 @@
 class WksupplieraccountController < WkaccountController
   unloadable
+  menu_item :wkrfq
 
 	include WktimeHelper
 	

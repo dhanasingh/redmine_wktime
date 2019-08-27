@@ -78,6 +78,7 @@ include WkcrmenumerationHelper
 			if wkContact.save
 				wkLead.contact_id = wkContact.id
 			end
+			@isConvert = wkLead.status == 'C' && wkLead.status_changed?
 			wkLead.save
 		end
 		@wkContact = wkContact

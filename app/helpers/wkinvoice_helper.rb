@@ -598,19 +598,19 @@ include WkpayrollHelper
 	
 	def calInvPaidAmount(parentType, parentId, projectId, invoiceId, isCreate)
 		totalCreditAmount = 0
-		queryString = "select inv.*,i.parent_id, i.parent_type, iit.project_id, iit.currency, pit.id as payment_item_id, pit.amount, pit.payment_id, pay.paid_amount, coalesce(inv.inv_amount - pay.paid_amount, inv.inv_amount , - pay.paid_amount) as total_credit,
+		queryString = "select inv.*,i.parent_id, i.parent_type, iit.project_id, iit.original_currency, pit.id as payment_item_id, pit.original_amount, pit.payment_id, pay.paid_amount, coalesce(inv.inv_amount - pay.paid_amount, inv.inv_amount , - pay.paid_amount) as total_credit,
 		 pcr.given_pay_credit, icr.given_inv_credit,
 		 coalesce(inv.inv_amount - pay.paid_amount, inv.inv_amount , - pay.paid_amount, 0) -  coalesce(pcr.given_pay_credit, 0) -  coalesce(icr.given_inv_credit, 0)  as available_pay_credit from
-		(select i.id, sum(it.amount) inv_amount
+		(select i.id, sum(it.original_amount) inv_amount
 		from wk_invoices i
 		left outer join wk_invoice_items it on i.id = it.invoice_id
 		group by i.id) inv
-		left join (select sum(amount) paid_amount, invoice_id from wk_payment_items where is_deleted = #{false} group by invoice_id) pay on pay.invoice_id = inv.id
+		left join (select sum(original_amount) paid_amount, invoice_id from wk_payment_items where is_deleted = #{false} group by invoice_id) pay on pay.invoice_id = inv.id
 		left join wk_payment_items pit on(inv.id = pit.invoice_id and pit.is_deleted = #{false})
-		left join (select gcr.*, invitm.invoice_id from (select sum(amount) given_pay_credit, credit_payment_item_id from wk_invoice_items
+		left join (select gcr.*, invitm.invoice_id from (select sum(original_amount) given_pay_credit, credit_payment_item_id from wk_invoice_items
 		where credit_payment_item_id is not null group by credit_payment_item_id) gcr
 		left join wk_payment_items invitm on (invitm.id = gcr.credit_payment_item_id and invitm.is_deleted = #{false})) pcr on (pcr.credit_payment_item_id = pit.id OR  pcr.invoice_id = inv.id)
-		left join (select sum(amount) given_inv_credit, credit_invoice_id from wk_invoice_items
+		left join (select sum(original_amount) given_inv_credit, credit_invoice_id from wk_invoice_items
 		where credit_invoice_id is not null group by credit_invoice_id) icr on (icr.credit_invoice_id = inv.id)
 		left join wk_invoices i on i.id = inv.id
 		left join (select i.id, min(it.id) as inv_item_id
@@ -638,7 +638,7 @@ include WkpayrollHelper
 				@invItems[@itemCount].store 'item_type', 'c'
 				@invItems[@itemCount].store 'rate', entry.available_pay_credit
 				@invItems[@itemCount].store 'item_quantity', 1
-				@invItems[@itemCount].store 'currency', entry.currency
+				@invItems[@itemCount].store 'currency', entry.original_currency
 				@invItems[@itemCount].store 'item_amount', entry.available_pay_credit
 				totalCreditAmount = totalCreditAmount + entry.available_pay_credit
 				credit_invoice_id = nil
@@ -658,7 +658,7 @@ include WkpayrollHelper
 				if isCreate
 					invItem = WkInvoiceItem.new
 					invItem.invoice_id = invoiceId
-					updateInvoiceItem(invItem, entry.project_id, creditDesc, entry.available_pay_credit, 1, entry.currency, 'c', entry.available_pay_credit, credit_invoice_id, entry.payment_item_id, nil)
+					updateInvoiceItem(invItem, entry.project_id, creditDesc, entry.available_pay_credit, 1, entry.original_currency, 'c', entry.available_pay_credit, credit_invoice_id, entry.payment_item_id, nil)
 				end
 				@itemCount = @itemCount + 1
 			end

@@ -6,10 +6,8 @@
     clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>';
 	payrollUrl = '<%=url_for(:controller => "wkpayroll", :action => "index", :tab => "payroll")%>';
 	wkSchedulingUrl = '<%=url_for(:controller => "wkscheduling", :action => "index", :tab => "wkscheduling")%>';
-	wkShiftUrl = '<%=url_for(:controller => "wkshift", :action => "index", :tab => "wkshift")%>';  
 	wkPublicHolidayUrl = '<%=url_for(:controller => "wkpublicholiday", :action => "index", :tab => "wkpublicholiday")%>';
 	wkSurveyUrl = '<%=url_for(:controller => "wksurvey", :action => "user_survey", :tab => "wksurvey", :surveyForType => 'User')%>';
-       
 	grpUrl="<%= "#{url_for(:controller => "wkpayroll", :action => 'getMembersbyGroup')}" %>";
 		//getMembersbyGroup
 </script>
@@ -22,8 +20,8 @@
 <%= form_tag({:controller => controller_name, :action => 'index', :tap => 'payroll'}, :method => :get, :id => 'query_form') do %>
 	<%= hidden_field_tag "searchlist", "#{controller_name}" %>
 	<%=h hidden_field_tag('tab', 'payroll') %>
-	<%	groupid =session[:wkpayroll][:group_id]
-		userid =session[:wkpayroll][:user_id] %>	
+	<%	groupid =session[:wkpayroll].try(:[], :group_id)
+		userid =session[:wkpayroll].try(:[], :user_id) %>	
 		<table>
 		
 			<% if wktime_helper.validateERPPermission('A_TE_PRVLG') %>

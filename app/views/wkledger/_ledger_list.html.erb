@@ -6,8 +6,8 @@
 <table class="list time-entries">
   <thead>
          <tr>
-				<th class="lbl-txt-align"><%= l(:field_name)   %></th>
-				<th class="lbl-txt-align"><%=  l(:label_type) %></th>				
+				<%= sort_header_tag('name', :caption => l(:field_name), class: "lbl-txt-align") %>
+				<%= sort_header_tag('type', :caption => l(:label_type), class: "lbl-txt-align") %>			
 			<!--	<th class="lbl-txt-align"><%= l(:field_amount) %></th> -->
 				<th></th>
          </tr>

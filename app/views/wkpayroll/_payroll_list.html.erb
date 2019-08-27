@@ -2,16 +2,28 @@
 <div class="autoscroll">
 <table class="list time-entries">
   <thead>
-         <tr>
+		<tr>
+			<% if params[:generate] != "false" %>
+				<%= sort_header_tag('user', :caption => l(:field_user), class: "lbl-txt-align") %>
+				<%= sort_header_tag('join_date', :caption => l(:field_join_date), class: "lbl-txt-align") %>
+				<%= sort_header_tag('salary_date', :caption => l(:label_salarydate), class: "lbl-txt-align") %>
+				<%= sort_header_tag('basic_pay', :caption => l(:label_basic), class: "lbl-txt-align") %>
+				<%= sort_header_tag('allowances', :caption => l(:label_allowances), class: "lbl-txt-align") %>
+				<%= sort_header_tag('deduction_total', :caption => l(:label_deduction), class: "lbl-txt-align") %>
+				<%= sort_header_tag('gross', :caption => l(:label_gross), class: "lbl-txt-align") %>
+				<%= sort_header_tag('net', :caption => l(:label_net), class: "lbl-txt-align") %>
+			<% else %>
 				<th class="lbl-txt-align"><%= l(:field_user) %></th>
+				<th class="lbl-txt-align"><%= l(:field_join_date) %></th>
 				<th class="lbl-txt-align"><%= l(:label_salarydate) %></th>
 				<th class="lbl-txt-align"><%= l(:label_basic) %></th>
 				<th class="lbl-txt-align"><%= l(:label_allowances) %></th>
 				<th class="lbl-txt-align"><%= l(:label_deduction) %></th>
 				<th class="lbl-txt-align"><%= l(:label_gross) %></th>
 				<th class="lbl-txt-align"><%= l(:label_net) %></th>
-				<th></th>
-         </tr>
+			<% end %>
+			<th></th>
+		</tr>
   </thead>
    <tbody>
    <% basic_total = 0 %>
@@ -25,6 +37,7 @@
 		<% userName = (entry[:firstname].blank? ? '' : entry[:firstname]) + ' ' + (entry[:lastname].blank? ? '' : entry[:lastname]) %>
 		 <tr>
 				<td class="lbl-txt-align"><%=h userName %></td>
+				<td class="lbl-txt-align"><%=h entry[:joinDate] %></td>
 				<td class="lbl-txt-align"><%=h entry[:salDate] %></td>
 				<td class="lbl-txt-align"><%=h entry[:currency] %>&nbsp;<%=h html_hours("%.2f" % entry[:BT]) %></td>
 				<td class="lbl-txt-align"><%=h entry[:currency] %>&nbsp;<%=h html_hours("%.2f" % entry[:AT]) %></td>
@@ -39,6 +52,7 @@
 	<% unless @payrollEntries.blank? %>
 		<tr>
 				<th class="lbl-txt-align"><%= l(:label_total) %></th>
+				<th></th>
 				<th></th>
 				<th class="lbl-txt-align"><%=h @payrollEntries.values[0][:currency]%>&nbsp;<%= "%.2f" % basic_total %></th>
 				<th class="lbl-txt-align"><%=h @payrollEntries.values[0][:currency]%>&nbsp;<%= "%.2f" % allowance_total %></th>

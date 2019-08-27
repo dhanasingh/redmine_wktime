@@ -3,9 +3,9 @@
 <table class="list time-entries">
   <thead>
          <tr>
-				<th class="lbl-txt-align"><%= l(:label_type)   %></th>
-				<th class="lbl-txt-align"><%= l(:field_name)   %></th>	
-				<th class="lbl-txt-align"><%= l(:label_position)   %></th>					
+		 		<%= sort_header_tag('type', :caption => l(:label_type), class: "lbl-txt-align") %>
+		 		<%= sort_header_tag('name', :caption => l(:field_name), class: "lbl-txt-align") %>
+		 		<%= sort_header_tag('position', :caption => l(:label_position), class: "lbl-txt-align") %>
 				<th class="lbl-txt-align"><%= l(:field_active)   %></th>
 				<th class="lbl-txt-align"><%= l(:field_is_default)   %></th>
 				<th></th>

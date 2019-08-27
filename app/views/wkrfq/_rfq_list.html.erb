@@ -18,10 +18,10 @@
   <thead>
          <tr>
 				<th class="lbl-txt-align">#</th>
-				<th class="lbl-txt-align"><%= l(:field_name) %></th>
-				<th class="lbl-txt-align"><%= l(:field_status) %></th>
-				<th class="lbl-txt-align"><%= l(:label_start_date) %></th>
-				<th class="lbl-txt-align"><%= l(:label_end_date) %></th>
+				<%= sort_header_tag('name', :caption => l(:field_name), class: "lbl-txt-align") %>
+				<%= sort_header_tag('status', :caption => l(:field_status), class: "lbl-txt-align") %>
+				<%= sort_header_tag('start_date', :caption => l(:label_start_date), class: "lbl-txt-align") %>
+				<%= sort_header_tag('end_date', :caption => l(:label_end_date), class: "lbl-txt-align") %>
 				<th></th>
          </tr>
   </thead>

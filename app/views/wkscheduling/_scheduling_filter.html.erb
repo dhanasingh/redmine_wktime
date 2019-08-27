@@ -3,10 +3,10 @@
 %>
 <%= hidden_field_tag "searchlist", controller_name %>
 <%
-	shiftId = session[controller_name][:shift_id]
-	depId = session[controller_name][:department_id]
-	locationId = session[controller_name][:location_id]
-	dayOff = session[controller_name][:day_off]
+	shiftId = session[controller_name].try(:[], :shift_id)
+	depId = session[controller_name].try(:[], :department_id)
+	locationId = session[controller_name].try(:[], :location_id)
+	dayOff = session[controller_name].try(:[], :day_off)
 	dateVal = params[:date]
 %>
 <% scheduleasHash = {'' => "", 'W' => l(:label_work), 'O' => l(:label_day_off)} %>

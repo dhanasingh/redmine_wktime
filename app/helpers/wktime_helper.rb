@@ -627,11 +627,6 @@ end
 				
 				if showShiftScheduling
 					tabs <<  {:name => 'wkscheduling', :partial => 'wktime/tab_content', :label => :label_scheduling}
-					@schedulesShift = validateERPPermission("S_SHIFT")
-					@editShiftSchedules = validateERPPermission("E_SHIFT")
-					if @schedulesShift && @editShiftSchedules
-						tabs <<	{:name => 'wkshift', :partial => 'wktime/tab_content', :label => :label_shift}
-					end
 				end
 				
 				if showSurvey
@@ -681,9 +676,6 @@ end
 				{:name => 'wkproduct', :partial => 'wktime/tab_content', :label => :label_product},
 				{:name => 'wkproductitem', :partial => 'wktime/tab_content', :label => :label_item},
 				{:name => 'wkshipment', :partial => 'wktime/tab_content', :label => :label_shipment},
-				{:name => 'wkbrand', :partial => 'wktime/tab_content', :label => :label_brand},
-				{:name => 'wkattributegroup', :partial => 'wktime/tab_content', :label => :label_attribute},
-				{:name => 'wkunitofmeasurement', :partial => 'wktime/tab_content', :label => :label_uom},
 				{:name => 'wkasset', :partial => 'wktime/tab_content', :label => :label_asset},
 				{:name => 'wkassetdepreciation', :partial => 'wktime/tab_content', :label => :label_depreciation}
 			   ]
@@ -1349,8 +1341,8 @@ end
 						  l(:label_wktime) => 'Time',
 						  l(:label_wkexpense) => 'Expense',
 						  l(:report_attendance) => 'Attendance',
-						  l(:label_shift_scheduling) => 'Shift Scheduling',
 						  l(:label_payroll) => 'Payroll',
+						  l(:label_shift_scheduling) => 'Shift Scheduling',
 						  l(:label_wk_billing) => 'Billing',
 						  l(:label_accounting) => 'Accounting',
 						  l(:label_crm) => 'CRM',
@@ -1697,4 +1689,108 @@ end
 	end
 	
 	# ============ End of supervisor code merge =========
+	
+	def showTime
+		!Setting.plugin_redmine_wktime['wktime_enable_time_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_time_module'].to_i == 1
+  	end
+	
+	def show_plugin_name
+		show_erpmine = 'false'
+		erpModules.values.each do | erpmodule |
+			perm_setting = WkPermission.where(:modules => erpmodule)
+			erpmodule = erpmodule.downcase
+			unless perm_setting.first.blank?
+				perm_setting.each do | permission |
+					show_erpmine = 'true' if Setting.plugin_redmine_wktime["wktime_enable_#{erpmodule}_module"].to_i == 1 && validateERPPermission(permission.short_name)
+				end
+			else
+				show_erpmine = 'true' if Setting.plugin_redmine_wktime["wktime_enable_#{erpmodule}_module"].to_i == 1
+			end
+		end
+		show_erpmine
+	end
+
+	def set_module
+		redirect = { :action => 'index'}
+		erpModules.values.each do | erpmodule |
+			case erpmodule
+				when "Time"
+					if showTime && checkViewPermission
+						redirect[:controller] = 'wktime' 
+						return redirect
+					end
+				when "Expense"
+					if showExpense && checkViewPermission
+						redirect[:controller] = 'wkexpense'
+						return redirect
+					end
+				when "Attendance"
+					if showAttendance
+						redirect[:controller] = 'wkattendance'
+						return redirect
+					end
+				when "Payroll"
+					if showPayroll
+						redirect[:controller] = 'wkpayroll'
+						return redirect
+					end
+				when "Shift Scheduling"
+					if showShiftScheduling
+						redirect[:controller] = 'wkscheduling'
+						return redirect
+					end
+				when "CRM"
+					if showCRMModule && (validateERPPermission("B_CRM_PRVLG") || validateERPPermission("A_CRM_PRVLG"))
+						redirect[:controller] = 'wklead'
+						return redirect
+					end
+				when "Billing"
+					if showBilling && validateERPPermission("M_BILL")
+						redirect[:controller] = 'wkinvoice'
+						return redirect
+					end
+				when "Accounting"
+					if showAccounting && (validateERPPermission("A_ACC_PRVLG") || validateERPPermission("B_ACC_PRVLG"))
+						redirect[:controller] = 'wkgltransaction'
+						return redirect
+					end
+				when "Purchase"
+					if showPurchase && validateERPPermission("B_PUR_PRVLG")
+						redirect[:controller] = 'wkrfq'
+						return redirect
+					end
+				when "Inventory"
+					if showInventory && (validateERPPermission("V_INV") || validateERPPermission("D_INV"))
+						redirect[:controller] = 'wkproduct'
+						return redirect
+					end
+				when "Survey"
+					if showSurvey
+						redirect[:controller] = 'wksurvey'
+						return redirect	
+					end
+				when "Report"
+					if showReports && validateERPPermission("V_REPORT")
+						redirect[:controller] = 'wkreport'
+						return redirect
+					end
+			end
+		end
+	end
+
+	def set_attendance_module
+		redirect = {:action => 'index'}
+		if showPayroll
+			redirect[:controller] = 'wkpayroll'
+		elsif showShiftScheduling
+			redirect[:controller] = 'wkscheduling'
+		elsif showSurvey
+			redirect[:controller] = 'wksurvey'
+			redirect[:action] = 'user_survey'
+		else
+			redirect = Hash.new
+		end
+		redirect
+	end
 end

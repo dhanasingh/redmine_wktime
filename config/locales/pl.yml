@@ -854,6 +854,7 @@ pl:
   BASIC PURCHASING PRIVILEGE: Basic Purchasing privilege
   ADMIN PURCHASING PRIVILEGE: Admin Purchasing privilege
   ADMIN ERPMINE : Admin ERPmine
+  VIEW REPORT: View Report
 
   Analyst: Analityk
   Competitor: Rywal
@@ -1007,3 +1008,4 @@ pl:
 
   label_summary_by: Summary by  
   report_trial_balance: Trial Balance Report
+  label_all_projects: All Projects

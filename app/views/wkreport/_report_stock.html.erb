@@ -1,12 +1,18 @@
 <%
-	sqlStr = " select p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as attribute_name, inv.stock_value, inv.stock_quantity, um.short_desc, inv.currency from wk_product_items pitm
-inner join (select product_item_id, product_attribute_id, uom_id, currency, sum((cost_price + over_head_price) * available_quantity) as stock_value, sum(available_quantity) as stock_quantity from wk_inventory_items where product_type='I'
- group by product_item_id, product_attribute_id, uom_id, currency) inv on (inv.product_item_id = pitm.id) 
+	projectId = session[controller_name].try(:[], :project_id).blank? ? 0 : session[controller_name].try(:[], :project_id)
+	sqlStr = " select p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as attribute_name, inv.stock_value, inv.stock_quantity, um.short_desc, projects.name as project_name, inv.currency from wk_product_items pitm
+inner join (select product_item_id, product_attribute_id, uom_id, project_id, currency, sum((cost_price + over_head_price) * available_quantity) as stock_value, sum(available_quantity) as stock_quantity from wk_inventory_items where product_type='I'
+ group by product_item_id, product_attribute_id, uom_id, project_id, currency) inv on (inv.product_item_id = pitm.id) 
  left join wk_products p on (p.id = pitm.product_id)
  left join wk_product_models m on (m.id = pitm.product_model_id)
  left join wk_brands b on (b.id = pitm.brand_id)
  left join wk_product_attributes a on (a.id = inv.product_attribute_id)
- left join wk_mesure_units um on (um.id = inv.uom_id)"
+ left join wk_mesure_units um on (um.id = inv.uom_id)
+ left join projects on (projects.id = inv.project_id)"
+
+  if projectId.to_i > 0
+	sqlStr = sqlStr + "where inv.project_id = #{projectId} "
+  end
 	entries = WkInventoryItem.find_by_sql(sqlStr)
 %>
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
@@ -35,6 +41,7 @@ inner join (select product_item_id, product_attribute_id, uom_id, currency, sum(
 			
 			<thead bgcolor="#e6e6e6">
 				<tr>
+					<th class="lbl-txt-align"><%= l(:label_project) %></th>
 					<th class="lbl-txt-align"><%= l(:label_product) %></th>
 					<th class="lbl-txt-align"><%= l(:label_brand) %></th>
 					<th align="lbl-txt-align"><%= l(:label_model) %></th>
@@ -56,6 +63,7 @@ inner join (select product_item_id, product_attribute_id, uom_id, currency, sum(
 							count = count +1
 						%>
 						<tr class="<%= cycle("odd", "even") %>">
+								<td align='left'><%= entry.project_name %></td>
 								<td align='left'><%= entry.product_name %></td>
 								<td align='left'><%= entry.brand_name %></td>
 								<td align='left'><%= entry.product_model_name %></td>
@@ -68,6 +76,7 @@ inner join (select product_item_id, product_attribute_id, uom_id, currency, sum(
 				<% end %>
 				<% if count>0 %>
 					<tr bgcolor="#e6e6e6">
+						<td></td>
 						<td></td>
 						<td></td>
 						<td></td>

@@ -1,5 +1,18 @@
 <%= javascript_include_tag 'wkpayroll', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<style>
+.table-wrapper {
+	overflow-x:scroll;
+	margin-left: 260px;
+}
+th:first-child {
+	white-space: normal !important;
+	text-align: left;
+	left: 5px;
+	width: 260px;
+	position: absolute;
+}
+</style>
 <%= form_tag({}) do -%>	
 	<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 	<% wktime_helper = Object.new.extend(WktimeHelper) %>
@@ -24,11 +37,11 @@
 		<% end %>
 	&nbsp;
 	<% end %>
-	<div class="autoscroll">
+	<div class="table-wrapper">
 		<table class="list time-entries">
 			<thead>
 				<tr>
-					<th style="text-align: left;"><%= l(:field_user) %></th>
+					<th><%= l(:field_user) %></th>
 					<% @salary_components.each do |compoment| %>
 						<th style="text-align: center;">
 							<label style="padding-right: 10px;"><%= compoment.name %></label>
@@ -43,7 +56,7 @@
 			<tbody>
 				<% @payroll_entries.each do |entry| -%>
 					<tr class="time-entry <%= cycle("odd", "even") %> <%= entry.status == 3 ? "user locked" : "" %>" >
-						<td style="text-align: left;"><%=h entry.firstname + ' ' + entry.lastname%></td>
+						<th id="rowheader_<%=entry.user_id%>"><%=h entry.firstname + ' ' + entry.lastname%></th>
 						<% @salary_components.each do |compoment|
 							factor = compoment.factor
 							@user_salary_components.each do |user_compoment|
@@ -51,7 +64,7 @@
 									factor = user_compoment.factor
 								end
 							end %>
-							<td style="text-align: center;" id="td_<%= compoment.id.to_s + '_' + entry.user_id.to_s %>"><%= factor %></td>
+							<td class="rowcontent_<%=entry.user_id%>" style="text-align: center;" id="td_<%= compoment.id.to_s + '_' + entry.user_id.to_s %>"><%= factor %></td>
 						<% end %>
 						<td align="center">
 							<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'user_salary_settings', :user_id => entry.user_id, :tab => 'payroll'},

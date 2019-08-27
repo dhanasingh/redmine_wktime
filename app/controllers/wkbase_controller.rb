@@ -16,8 +16,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkbaseController < ApplicationController
-unloadable
-include WkattendanceHelper
+	unloadable
+	helper :sort
+	include SortHelper
+	include WkattendanceHelper
+	before_action :clear_sort_session
 
 	def index
 	end
@@ -77,10 +80,10 @@ include WkattendanceHelper
 	def retrieve_date_range
 		@free_period = false
 		@from, @to = nil, nil
-		period_type = session[controller_name][:period_type]
-		period = session[controller_name][:period]
-		fromdate = session[controller_name][:from]
-		todate = session[controller_name][:to]
+		period_type = session[controller_name].try( :[], :period_type)
+		period = session[controller_name].try( :[], :period)
+		fromdate = session[controller_name].try( :[], :from)
+		todate = session[controller_name].try( :[], :to)
 		
 		if (period_type == '1' || (period_type.nil? && !period.nil?)) 
 		    case period.to_s
@@ -121,5 +124,11 @@ include WkattendanceHelper
 		
 		@from, @to = @to, @from if @from && @to && @from > @to
 
+	end
+
+	def clear_sort_session
+		session.each do |key, values|
+			session.delete(key) if key.include? "_index_sort"
+		end
 	end
 end

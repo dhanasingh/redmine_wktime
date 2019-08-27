@@ -1,5 +1,6 @@
 class WkcrmcontactController < WkcontactController
   unloadable
+  menu_item :wklead
 	
 	def getContactType
 		'C'

@@ -17,23 +17,37 @@
 
 class WkaccountController < WkcrmController
 	include WkaccountprojectHelper
-before_action :require_login
+    before_action :require_login
 
-    def index
+	def index
+		sort_init 'id', 'asc'
+
+		sort_update 'acc_name' => "#{WkAccount.table_name}.name",
+					'country' => "A.country",
+					'city' => "A.city",
+					'location_name' => "L.name"
+					
+		set_filter_session
+		locationId = session[controller_name].try(:[], :location_id)
+		accName = session[controller_name].try(:[], :accountname)
 		@account_entries = nil
 		location = WkLocation.where(:is_default => 'true').first
-		if params[:accountname].blank?
-		   entries = WkAccount.where(:account_type => getAccountType)
+
+		entries = WkAccount.joins("LEFT JOIN wk_locations AS L ON wk_accounts.location_id = L.id
+			LEFT JOIN wk_addresses AS A on wk_accounts.address_id = A.id")
+
+		if accName.blank?
+			entries = entries.where(:account_type => getAccountType)
 		else
-			entries = WkAccount.where(:account_type => getAccountType).where("name like ?", "%#{params[:accountname]}%")
+			entries = entries.where(:account_type => getAccountType).where("wk_accounts.name like ?", "%#{accName}%")
 		end
-		if (!params[:location_id].blank? || !location.blank?) && params[:location_id] != "0"
-			location_id = !params[:location_id].blank? ? params[:location_id].to_i : location.id.to_i
+		if (!locationId.blank? || !location.blank?) && locationId != "0"
+			location_id = !locationId.blank? ? locationId.to_i : location.id.to_i
 			entries = entries.where(:location_id => location_id)
 		end
 		entries = entries.order(:name)
-		formPagination(entries)
-    end
+		formPagination(entries.reorder(sort_clause))
+	end
 	
 	def formPagination(entries)
 		@entry_count = entries.count
@@ -111,4 +125,19 @@ before_action :require_login
 	def getAccountLbl
 		l(:label_account)
 	end
+
+	def set_filter_session
+		if params[:searchlist] == controller_name
+			session[controller_name] = Hash.new if session[controller_name].nil?
+			filters = [:location_id, :accountname]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
+		end
+	end	
+
 end

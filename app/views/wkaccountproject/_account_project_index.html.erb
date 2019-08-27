@@ -3,12 +3,12 @@
 
 	<%= form_tag({:controller => "wkaccountproject", :action => 'index', :tab => controller_name}, :method => :get, :id => 'query_form') do %>
 	<fieldset>
-	<%= hidden_field_tag "searchlist", "wkaccountproject" %>
+	<%= hidden_field_tag "searchlist", controller_name %>
 	<%=h hidden_field_tag('tab', "wkaccountproject") %>
-	<%	contactId =session[:wkaccountproject][:contact_id]
-		accountId =session[:wkaccountproject][:account_id]
-		filterSession =session[:wkaccountproject][:polymorphic_filter]
-		projid =session[:wkaccountproject][:project_id] %>
+	<%	contactId =session[controller_name].try(:[], :contact_id)
+		accountId =session[controller_name].try(:[], :account_id)
+		filterSession =session[controller_name].try(:[], :polymorphic_filter)
+		projid =session[controller_name].try(:[], :project_id) %>
 		<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :filter_session => filterSession, :project_id => projid, :pjtChanged => false, :isapply => true, :isproject => false, :isAll => true, :blankOptionForPjt => true, :blankForActDD => true, :blankForContactDD => true, :isFilter => true, :loadSIDD => false } %>
 	
 			<div style="clear:both;"></div>
