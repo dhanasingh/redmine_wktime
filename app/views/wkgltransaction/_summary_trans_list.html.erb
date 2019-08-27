@@ -50,9 +50,9 @@
 	<% unless @summaryHash.blank? %>
 		<tr>
 			<th class="lbl-txt-align"><%=  l(:label_total) %></th>
-			<th class="lbl-txt-align"><%= debitTotal %></th>
-			<th class="lbl-txt-align"><%= creditTotal %></th>
-			<th class="lbl-txt-align"><%= closeBal.abs %></th>
+			<th class="lbl-txt-align"><%= "%.2f" % debitTotal %></th>
+			<th class="lbl-txt-align"><%= "%.2f" % creditTotal %></th>
+			<th class="lbl-txt-align"><%= "%.2f" % closeBal.abs %></th>
 			<th></th>
 		</tr>
 	<% end %>
