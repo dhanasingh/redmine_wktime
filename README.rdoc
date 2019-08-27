@@ -74,28 +74,31 @@ If an apache passenger module is used then make sure the following settings are 
   b) RailsAppSpawnerIdleTime 0
   c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for 3.7
+Release Notes for 3.7.1
 
   Features:
-    - Employee Performance Review
-    - User Utilization Report
-    - Project profitability Report
-    - Trail Balance Report
-    - Summary of accounting transactions
-    - Configuration for User detail section
-    - CSV format for Accounting Transactions
+    - Sorting for all list pages
+    - Project for inventory module
 
   Bug Fixing:
-    - Null pointer in product item controller and view
-    - Search and Filters
-    - Account filter not working on Billing page
-    - Permission for public holiday
-    - Leave Accruals happening before first year
-    - Administrator should see the permissions page
-    - Activity dropdown not loading properly
-    - Move T&E Admin Groups configuration to permissions page
-    - Mixed currency in AR Ageing Report
-    - Remove view accounts and view survey permission from roles and permission
+    - Redesign inventory module
+    - Move shift tab to scheduling
+    - Balance sheet has zero amount
+    - Add Currency in asset report
+    - Join date in payroll list
+    - Freeze user name section in payroll user setting
+    - Recurrence and Reviewer check not required
+    - Result view for survey editors
+    - User Utilization is incorrectly showing 100%
+    - use billable projects for project profitability report
+    - Asset Report isn't pulling all the asset values during the period
+    - Converting lead directly on CRM isn't working properly. It doesn't list out on accounts page
+    - Unbilled invoice showing incorrect credit amounts
+    - Location dropdown values aren't retained in CRM module
+    - Invoice showing 'Accept payment' link incorrectly
+    - Survey Response details
+    - Survey Result for reviewer only questions also
+    - Hide ERPmine link in top menu
 
 Customization:
 
