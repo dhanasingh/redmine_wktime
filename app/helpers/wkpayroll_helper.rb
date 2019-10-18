@@ -579,4 +579,34 @@ module WkpayrollHelper
 		end
 		export
   end
+
+
+	def getGroupMembers
+		userList = nil
+		group_id = nil
+		if (!params[:group_id].blank?)
+			group_id = params[:group_id]
+		else
+			group_id = session[controller_name].try(:[], :group_id)
+		end
+		
+		if !group_id.blank? && group_id.to_i > 0
+			userList = User.in_group(group_id) 
+		else
+			userList = User.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
+		end
+		userList
+	end
+	
+	def getUsersAndGroups
+		userList = getGroupMembers
+		@groups = Group.sorted.all
+		@members = Array.new
+		userIds = Array.new
+		userList.each do |users|
+			@members << [users.name,users.id.to_s()]
+			userIds << users.id
+		end
+		userIds
+	end
 end

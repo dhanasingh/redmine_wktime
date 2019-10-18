@@ -455,25 +455,16 @@ class WksurveyController < WkbaseController
         users = User.joins('INNER JOIN groups_users ON users.id = user_id')
         users = users.where("groups_users.group_id = #{user_group}") unless user_group.blank?
         users.each do |user|
-        errMsg += sent_emails(user.language, user.mail, email_notes).to_s
+        errMsg += sent_emails(l(:label_survey_reminder), user.language, user.mail, email_notes).to_s
         end
     end
     unless additional_emails.blank?
         additional_emails.each do |email|
-            errMsg += sent_emails(nil, email, email_notes).to_s
+            errMsg += sent_emails(l(:label_survey_reminder), nil, email, email_notes).to_s
         end
     end
     errMsg = 'ok' if errMsg.blank?
     render :plain => errMsg
-  end
-
-  def sent_emails(language, email_id, emailNotes)
-    begin
-      WkMailer.email_user(language, email_id, emailNotes).deliver
-    rescue Exception => e
-      errMsg = (e.message).to_s
-    end
-    errMsg
   end
 
   def destroy

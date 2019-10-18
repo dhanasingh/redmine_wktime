@@ -1,0 +1,28 @@
+<table class="list time-entries">
+	<thead>
+		<tr>
+			<th class="lbl-txt-align"><%= l(:field_user) %></th>
+			<th class="lbl-txt-align"><%= l(:label_leave_type) %></th>
+			<th class="lbl-txt-align"><%= l(:label_start_date) %></th>
+			<th class="lbl-txt-align"><%= l(:label_end_date) %></th>
+			<th class="lbl-txt-align"><%= l(:label_status) %></th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		<% @leaveReqEntires.each do |entry| %>
+		<% status = getLeaveStatus[entry.try(:status)] %>
+			<tr>
+				<td><%= entry.user_name %></td>
+				<td><%= entry.leave_type.subject %></td>
+				<td><%= entry.startDate %></td>
+				<td><%= entry.endDate %></td>
+				<td><%= status %></td>
+				<td align="center">
+					<%= link_to image_tag('edit.png'), {:controller => controller_name, :action => 'edit', :id => entry.id, 
+						:tab => controller_name}, :title => l(:button_edit) %>
+				</td></td>
+			</tr>
+		<% end %>
+	</tbody>
+</table>

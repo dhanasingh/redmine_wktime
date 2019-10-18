@@ -64,16 +64,9 @@ class WkpayrollController < WkbaseController
 		@isPreview = params[:generate].blank? ? false : !to_boolean(params[:generate])
 		@total_gross = 0
 		@total_net = 0
-	  	@groups = Group.sorted.all
     	set_filter_session
     	retrieve_date_range
-		@members = Array.new
-		userIds = Array.new
-		userList = getGroupMembers
-		userList.each do |users|
-			@members << [users.name,users.id.to_s()]
-			userIds << users.id
-		end
+		userIds = getUsersAndGroups
 		ids = nil
 		user_id = session[controller_name].try(:[], :user_id)
 		group_id = session[controller_name].try(:[], :group_id)
@@ -314,23 +307,6 @@ class WkpayrollController < WkbaseController
 			format.text  { render :plain => group_by_users }
 		end
 	end	
-	
-	def getGroupMembers
-		userList = nil
-		group_id = nil
-		if (!params[:group_id].blank?)
-			group_id = params[:group_id]
-		else
-			group_id = session[controller_name].try(:[], :group_id)
-		end
-		
-		if !group_id.blank? && group_id.to_i > 0
-			userList = User.in_group(group_id) 
-		else
-			userList = User.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
-		end
-		userList
-	end
 	
    # Retrieves the date range based on predefined ranges or specific from/to param dates
 	def retrieve_date_range

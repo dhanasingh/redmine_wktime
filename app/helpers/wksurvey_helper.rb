@@ -192,4 +192,14 @@ module WksurveyHelper
             l(:label_reviewed) => 'R'
         }
     end
+    
+    def sent_emails(subject, language, email_id, emailNotes)
+      begin
+        WkMailer.email_user(subject, language, email_id, emailNotes).deliver
+      rescue Exception => e
+        errMsg = (e.message).to_s
+      end
+      errMsg
+    end
+  
 end

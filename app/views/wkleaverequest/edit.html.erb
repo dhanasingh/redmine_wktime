@@ -1,0 +1,42 @@
+<h2><%= l(:label_new_leave_request) %></h2>
+<%= form_tag({:action => 'save'}, :method => :post) do %>
+	<%= hidden_field_tag('lveReqID', @leaveReqEntry.try(:id)) %>
+	<fieldset class="box tabular">
+		<table>
+			<tr>
+				<th align="left"><%= l(:label_user_name) %></th>
+				<td align="left"><%=  @leaveReqEntry.blank? ? User.current.name : @leaveReqEntry.try(:user_name) %></td>
+			<tr>
+			<tr>
+				<th align="left"><%= l(:label_status) %></th>
+				<td align="left"><%= getLeaveStatus[@leaveReqStatus] %></td>
+			<tr>
+			<tr>
+				<th align="left"><%= l(:label_leave_type) %></th>
+				<td align="left">
+					<%=h select_tag("leave_type_id", options_for_select(get_leave_type, selected: @leaveReqEntry.try(:leave_type_id)), 
+						disabled: @readonly) %>
+				</td>
+			<tr>
+			<tr>
+				<%= ("<th>" + l(:label_date_start_end, :start => ("</th><th align='left'>" + 
+					date_field_tag('start_date', @leaveReqEntry.try(:startDate), :id => 'start_date', :size => 8, 
+						onchange: "dateRangeValidation('start_date', 'end_date')", disabled: @readonly) + calendar_for('start_date')), 
+					:end => (date_field_tag('end_date', @leaveReqEntry.try(:endDate), :id => 'end_date', :size => 8, 
+						onchange: "dateRangeValidation('start_date', 'end_date')", disabled: @readonly) + calendar_for('end_date')))).html_safe 
+				%>
+			</tr>
+			<tr>
+				<th align="left"><%= l(:label_reason) %></th>
+				<td align="left">
+					<%= text_area_tag("leave_reasons", @leaveReqEntry.try(:leave_reasons), rows: 5, cols: 60, disabled: @readonly) %>
+				</td>
+			</tr>
+		</table>
+	</fieldset>
+	<div>
+		<% getButtonLabels.each do |key, label| %>
+			<%= submit_tag(l(label), name: "submit_" + key) %>
+		<% end %>
+	</div>	
+<% end %>
