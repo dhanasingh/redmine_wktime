@@ -11,23 +11,30 @@ runperiodUrl="<%= "#{url_for(:controller => controller_name, :action => 'runPeri
 <%= link_to l(:"button_populate_leave"), "javascript:runperiodDatePicker()" %>
 </div>
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get) do %>
-<fieldset><legend><%= l(:label_filter_plural) %></legend>
-<label for='status'><%= l(:field_status) %>:</label>
-<%= select_tag 'status', users_status_options_for_select(@status), :class => "small", :onchange => "this.form.submit(); return false;"  %>
+	<fieldset><legend><%= l(:label_filter_plural) %></legend>
+		<p>
+			<label for='status'><%= l(:field_status) %>:</label>
+			<%= select_tag 'status', users_status_options_for_select(@status), :class => "small", 
+				:onchange => "this.form.submit(); return false;"  %>
 
-<% if @groups.present? %>
-<label for='group_id'><%= l(:label_group) %>:</label>
-<%= select_tag 'group_id', content_tag('option') + options_from_collection_for_select(@groups, :id, :name, params[:group_id].to_i), :onchange => "this.form.submit(); return false;"  %>
-<% end %>
+			<% if @groups.present? %>
+			<label for='group_id'><%= l(:label_group) %>:</label>
+			<%= select_tag 'group_id', content_tag('option') + options_from_collection_for_select(@groups, :id, :name, params[:group_id].to_i), 
+				:onchange => "this.form.submit(); return false;"  %>
+			<% end %>
 
-<label for='name'><%= l(:label_user) %>:</label>
-<%= text_field_tag 'name', params[:name], :size => 30 %>
-<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
-<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
-</fieldset>
-<%=h hidden_field_tag('tab', "#{controller_name}") %>
-<% end %>
-&nbsp;
+			<label for='name'><%= l(:label_user) %>:</label>
+			<%= text_field_tag 'name', params[:name], :size => 30 %>
+		</p>
+		<p>
+			<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
+			<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, 
+				:class => 'icon icon-reload' %>
+		</p>
+	</fieldset>
+	<%=h hidden_field_tag('tab', "#{controller_name}") %>
+	<% end %>
+	&nbsp;
 <% end %>
 
 <div class="autoscroll">
@@ -67,7 +74,8 @@ end %>
 	end
 end %>
 <td align="center">
-    <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :user_id => entry.user_id, :accrual_on => lastAccrualOn, :tab => controller.controller_name},
+	<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :user_id => entry.user_id, 
+		:accrual_on => lastAccrualOn, :tab => controller.controller_name},
                                        :title => l(:button_edit) %>
 </td>
 </tr>

@@ -40,6 +40,12 @@
 			<% end %>
 		</table>
 		<%= render :partial => 'wkattendance/date_range' %>
+		<p class="buttons">
+			<%= link_to_function l(:button_apply), '$("#query_form").submit()', :class => 'icon icon-checked' %>
+			<%#= link_to l(:button_apply), {:controller => controller_name, :action => action_name}, :class => 'icon icon-checked' %>
+		<%= link_to l(:button_clear), {:controller => controller_name, :action => action_name, :tab => 'clock'}, :class => 'icon icon-reload' %>
+		
+		</p>
 	<% end %>
 &nbsp;
 <%= render :partial => 'wkattendance/clk_list'%>
