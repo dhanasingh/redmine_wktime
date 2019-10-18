@@ -992,3 +992,15 @@ de:
   label_summary_by: Summary by  
   report_trial_balance: Trial Balance Report
   label_all_projects: All Projects
+  
+  label_leave_request: Leave Request
+  label_new_leave_request: New Leave Request
+  label_leave_type: Leave Type
+  label_reason: Comment
+  label_date_start_end: Start Date %{start} End Date %{end}
+  wk_status_cancelled: Cancelled
+  button_cancel_leave: Cancel Leave
+  label_leave_request_notification: Leave Request Notification
+  label_by: By
+  label_leave_email_note: Leave request has been
+  label_documents: Documents

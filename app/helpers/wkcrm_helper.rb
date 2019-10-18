@@ -1,6 +1,7 @@
 module WkcrmHelper
 include WkinvoiceHelper
 include WkcrmenumerationHelper
+include WkdocumentHelper
 	
 	def getLeadList(from, to, groupId, userId)
 		userIdArr = nil
@@ -197,10 +198,10 @@ include WkcrmenumerationHelper
 		accSections = ['wkcrmactivity']
 		case entity
 		when 'WkAccount'
-			accSections = ['wkcrmactivity', 'wkcrmcontact', 'wkaccountproject', 'wksurvey'] #, 'wkopportunity'
+			accSections = ['wkcrmactivity', 'wkcrmcontact', 'wkaccountproject', 'wksurvey', 'wkdocument']
 			accSections << 'wkopportunity' unless curObj.account_type == 'S'
 		when 'WkCrmContact'
-			accSections = ['wkcrmactivity', 'wkcrmcontact', 'wkaccountproject', 'wksurvey'] # , 'wkopportunity'
+			accSections = ['wkcrmactivity', 'wkcrmcontact', 'wkaccountproject', 'wksurvey', 'wkdocument']
 			accSections << 'wkopportunity' unless curObj.contact_type == 'SC'
 			hookSection = call_hook(:view_accordion_section, {:entity => entity, :curObj => curObj})
 			hookSection = hookSection.split(' ')
@@ -210,6 +211,10 @@ include WkcrmenumerationHelper
 			accSections = ['wkproductitem']
 		when 'WkRfq'
 			accSections = ['wkquote']
+		when 'WkCrmActivity'
+			accSections = ["wkdocument"]
+		when 'WkOpportunity'
+			accSections = ['wkcrmactivity', 'wkdocument']
 		else
 			accSections = ['wkcrmactivity']
 		end
