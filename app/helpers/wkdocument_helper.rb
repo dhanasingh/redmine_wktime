@@ -23,10 +23,13 @@ module WkdocumentHelper
             url[:container_type] = 'WkCrmContact'
             url[:container_id] = params[:contact_id]
         end
+        call_hook(:getDocAccordionSection, {url: url, controller_name: controller_name, params: params})
         url
     end
 
     def getRedirectUrl(container_id, container_type)
+        url = Hash.new
+        call_hook(:getDocRedirectUrl, {url: url, container_id: container_id, container_type: container_type})
         case(container_type)
         when 'WkAccount'
             url = {controller: 'wkcrmaccount', action: 'edit', account_id: container_id}
@@ -39,4 +42,12 @@ module WkdocumentHelper
         end
         url
     end
+
+	def delete_documents(id)
+        url = getDocumentType
+        attachments = Attachment.where(container_id: id,container_type: url[:container_type])
+        unless attachments.delete_all
+            flash[:error] = attachments.errors.full_messages.join("<br>")
+        end
+	end
 end

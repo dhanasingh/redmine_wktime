@@ -106,6 +106,7 @@ class WkcontactController < WkcrmController
 	    contact = WkCrmContact.find(params[:contact_id].to_i)
 		if contact.destroy
 			flash[:notice] = l(:notice_successful_delete)
+			delete_documents(params[:contact_id])
 		else
 			flash[:error] = contact.errors.full_messages.join("<br>")
 		end
