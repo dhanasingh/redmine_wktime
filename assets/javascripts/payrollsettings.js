@@ -30,9 +30,13 @@ $(document).ready(function(){
 					startdate = document.getElementById("start_date").value;				
 					var dependent = document.getElementById("dep_value") ;
 					var factor = document.getElementById("factor");
+					var cond_dependent = document.getElementById("cond_dep_value") ;
+					var logic_condition = document.getElementById("operator");
+					var condition_value = document.getElementById("cond_value");
+					var condId = document.getElementById("comp_cond_id");
 				}
 				var ledgerId = document.getElementById("payroll_db_ledger");
-				if( !checkDuplicateComponent(listBox,name.value) && name.value != "" && (basic_field_factor.value != "" || dlgname != 'Basic' ) && ( (startdate != "" || (frequency.value == '' || frequency.value == 'm')  ) || dlgname == 'Basic') ){
+				if( !checkDuplicateComponent(listBox,name.value) && name.value != "" && (basic_field_factor.value != "" || dlgname != 'Basic' ) && ((startdate   != "" || (frequency.value == '' || frequency.value == 'm')  ) || dlgname == 'Basic') && ((cond_dependent.value && condition_value.value &&      logic_condition.value) || (cond_dependent.value == "" && condition_value.value == ""  && logic_condition.value == ""))){
 					if('Add'== basicAction){
 						opt = document.createElement("option");
 						listBox.options.add(opt);
@@ -49,9 +53,10 @@ $(document).ready(function(){
 							desc = desc + "|"  + frequency.value;
 							opttext = opttext + " : "  + (frequency.value == '' ? '' : frequency.options[frequency.selectedIndex].text)  + " : "  + startdate;
 						//	}						
-							desc = desc + "|"  + startdate;
-							desc = desc + "|"  + dependent.value + "|"  + (factor.value == '' ? 0 : factor.value) + "|"  + ledgerId.value ;
-							opttext = opttext  +  (dependent.value != "" ? " : " + dependent.options[dependent.selectedIndex].text : " : " ) + " : " +  (factor.value == '' ? 0 : factor.value) + (ledgerId.value == '' ? '' : " : " + ledgerId.options[ledgerId.selectedIndex].text );
+							desc = desc + "|" + startdate;
+							desc = desc + "|" + dependent.value + "|" + (factor.value == '' ? 0 : factor.value) +"|" + ledgerId.value + "|" + condId.value +   "|" + cond_dependent.value + "|" + logic_condition.value + "|" + condition_value.value;
+							
+							opttext = opttext + (dependent.value != '' ? " : " + dependent.options[dependent.selectedIndex].text : '' ) + " : " + (factor.value == '' ? 0 : factor.value) + (ledgerId.value == '' ? '' : " : " + ledgerId.options[ledgerId.selectedIndex].text)	+ (cond_dependent.value != '' ? " : " + cond_dependent.options[cond_dependent.selectedIndex].text : " : " ) + " : " + (logic_condition.value != '' ? logic_condition.options[logic_condition.selectedIndex].text + " : " : " : " ) + (condition_value.value == '' ? '' : condition_value.value);
 						}
 						else if (dlgname != 'Calculated Fields'){
 							desc = desc + "|"  + salary_type.value;			
@@ -90,9 +95,14 @@ $(document).ready(function(){
 					{
 						alertMsg += payroll_factor_errormsg + "\n";
 					}
-					if(((frequency.value != "" && startdate == "") || (frequency.value != "m" && startdate == "")) && dlgname != 'Basic' && !checkDuplicateComponent(listBox,name.value) )
+					if(((frequency.value != "" && startdate == "") || ((frequency.value && frequency.value != "m") && startdate == "")) && dlgname != 'Basic' && dlgname != 'Calculated Fields' && !checkDuplicateComponent(listBox,name.value))
 					{
 						alertMsg +=  payroll_date_errormsg + "\n";
+					}
+					if((cond_dependent.value || condition_value.value || logic_condition.value) && (cond_dependent.value == "" || (condition_value.value).trim() == "" || logic_condition.value == "") && dlgname != 'Basic' && 
+						dlgname != 'Calculated Fields')
+					{
+						alertMsg +=  payroll_condition_errormsg + "\n";
 					}
 					alert(alertMsg);
 				}
@@ -203,8 +213,13 @@ function payrollDialogAction(dlg, action)
 		var csdep_value = document.getElementById("dep_value");
 		var csfactor = document.getElementById('factor');
 		var csledger = document.getElementById('payroll_db_ledger');
+		var cscond_dep_value = document.getElementById("cond_dep_value");
+		var cssymbol = document.getElementById("operator");
+		var cscond_value = document.getElementById("cond_value");
+		var cscond_id = document.getElementById("comp_cond_id");
 		if('Add' == action)
-		{	
+		{
+	        hideOwnComponent('')
 			csName.value = '';
 			editedname =  "" ;
 			csFrequency.value = '';
@@ -212,12 +227,17 @@ function payrollDialogAction(dlg, action)
 			csdep_value.value = '';
 			csfactor.value = '';
 			csledger.value = '';
-			$( "#payroll-dlg" ).dialog( "open" )	
+			cscond_id.value = '';
+			cscond_dep_value.value = '';
+			cssymbol.value = '';
+			cscond_value.value = '';
+			$( "#payroll-dlg" ).dialog( "open" )
 		}
 		else if('Edit' == action && listbox != null && listbox.options.selectedIndex >=0)
-		{		
+		{
 			var listboxArr = listbox.options[listbox.selectedIndex].value.split('|');
 			payrollId = listboxArr[0];
+			hideOwnComponent(payrollId)
 			csName.value = listboxArr[1];
 			editedname =  listboxArr[1] ;
 			csFrequency.value = listboxArr[2];
@@ -225,6 +245,10 @@ function payrollDialogAction(dlg, action)
 			csdep_value.value = listboxArr[4];
 			csfactor.value = listboxArr[5];
 			csledger.value = listboxArr[6];
+			cscond_id.value = listboxArr[7];
+			cscond_dep_value.value = listboxArr[8];
+			cssymbol.value = listboxArr[9];
+			cscond_value.value = listboxArr[10];
 			$( "#payroll-dlg" ).dialog( "open" )
 		}
 		else if(listbox != null && listbox.options.length >0)
@@ -313,4 +337,13 @@ function removeSelectedValue(elementId)
 	{
 		alert(selectListAlertMsg);
 	}
+}
+
+function hideOwnComponent(payrollId)
+{
+	$(".component option").each(function()
+	{
+		if($(this).val() == payrollId) $(this).hide();
+		else $(this).show();
+	});
 }

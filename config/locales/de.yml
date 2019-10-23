@@ -1004,3 +1004,10 @@ de:
   label_by: By
   label_leave_email_note: Leave request has been
   label_documents: Documents
+
+  #ESI Calculate on Payroll
+  label_equal: '=='
+  label_less_than: '<'
+  label_greater_than: '>'
+  label_if: If
+  label_condition_errormsg: Condition can not be blank

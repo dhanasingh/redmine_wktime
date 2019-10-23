@@ -10,6 +10,7 @@
 	payroll_name_errormsg = "<%=l(:label_name_errormsg) %>";
 	payroll_date_errormsg = "<%=l(:label_date_errormsg) %>";
 	payroll_factor_errormsg = "<%=l(:label_factor_errormsg) %>";
+	payroll_condition_errormsg = "<%=l(:label_condition_errormsg) %>";
 	lblcreditLedger = "<%= l(:label_credit_with_ledger) %>";
 	lbldebitLedger = "<%= l(:label_debit_with_ledger) %>";
 	selectListAlertMsg = "<%=l(:actionview_instancetag_blank_option) %>";
@@ -24,6 +25,7 @@
 <% hash_pay_period = { 'm'  => l(:label_monthly), 'bw' =>  l(:label_bi_weekly), 'w' => l(:label_weekly) } %>
 <% hash_frequency = { '' => "", 'm'  => l(:label_monthly), 'q' =>  l(:label_quarterly), 'sa' => l(:label_semi_annually), 'a' => l(:label_annually) } %>
 <% calculated_field_type = { 'BAT' => l(:label_basic_allowance_total), 'AT' => l(:label_allowance_total), 'BT' => l(:label_basic_total), 'DT' => l(:label_deduction) } %>
+<% logical_cond = getLogicalCond.invert %>
 <%	
 	deplist = Array.new
 	basiclist = Array.new
@@ -55,7 +57,7 @@
 	else
 		@payrollsettings['wktime_payroll_allowances'].each do |element|
 		  allowanceArr = element.split('|')
-		  optionText = allowanceArr[1] +' : ' + (allowanceArr[2].blank? ? '' :hash_frequency[allowanceArr[2]]) +' : ' + (allowanceArr[3].blank? ? '' : allowanceArr[3]) + (!allowanceArr[4].blank? ? ' : ' + sal_com_hash[allowanceArr[4].to_i] + ' : ' : ' : ')  + (allowanceArr[5].blank? ? "" : allowanceArr[5]) + (allowanceArr[6].blank? ? ':' : ':' + (!ledgerhash.blank? ?  (!ledgerhash[allowanceArr[6].to_i].blank? ?  ledgerhash[allowanceArr[6].to_i] : allowanceArr[6].to_s) : allowanceArr[6].to_s ) )
+		  optionText = allowanceArr[1] +' : ' + (allowanceArr[2].blank? ? '' :hash_frequency[allowanceArr[2]]) +' : ' + (allowanceArr[3].blank? ? '' : allowanceArr[3]) + (!allowanceArr[4].blank? ? ' : ' + sal_com_hash[allowanceArr[4].to_i] + ' : ' : ' : ')  + (allowanceArr[5].blank? ? "" : allowanceArr[5]) + ' : ' + (allowanceArr[6].blank? ? '' : (!ledgerhash.blank? ?  (!ledgerhash[allowanceArr[6].to_i].blank? ?  (ledgerhash[allowanceArr[6].to_i]) : allowanceArr[6].to_s) : allowanceArr[6].to_s ) ) + ' : ' + (allowanceArr[8].blank? ? '' : sal_com_hash[allowanceArr[8].to_i])+ ' : ' + (allowanceArr[9].blank? ? '' : logical_cond[allowanceArr[9]])+ ' : ' + (allowanceArr[10].blank? ? '' : allowanceArr[10])
 		  allowancelist << [optionText,element]
 		end
 	end
@@ -65,7 +67,7 @@
 	else
 		@payrollsettings['wktime_payroll_deduction'].each do |element|
 		deductionArr = element.split('|')
-		optionText = deductionArr[1] +' : ' + (deductionArr[2].blank? ? '' : hash_frequency[deductionArr[2]]) +' : ' + (deductionArr[3].blank? ? '' : deductionArr[3]) + (!deductionArr[4].blank? ? (' : ' + sal_com_hash[deductionArr[4].to_i] + ' : ') : ' : ')  + (deductionArr[5].blank? ? "" : deductionArr[5]) + (deductionArr[6].blank? ? ':' : ':' + (!ledgerhash.blank? ? (!ledgerhash[deductionArr[6].to_i].blank? ?  ledgerhash[deductionArr[6].to_i] : deductionArr[6].to_s) : deductionArr[6].to_s ) )
+		optionText = deductionArr[1] + ' : ' + (deductionArr[2].blank? ? '' : hash_frequency[deductionArr[2]]) + ' : ' + (deductionArr[3].blank? ? '' : deductionArr[3]) + (!deductionArr[4].blank? ? (' : ' + sal_com_hash[deductionArr[4].to_i] + ' : ') : ' : ') + (deductionArr[5].blank? ? '' : deductionArr[5]) + ' : ' + (deductionArr[6].blank? ? '' : (!ledgerhash.blank? ?  (!ledgerhash[deductionArr[6].to_i].blank? ?  (ledgerhash[deductionArr[6].to_i]) : deductionArr[6].to_s) : deductionArr[6].to_s ) ) + ' : ' + (deductionArr[8].blank? ? '' : sal_com_hash[deductionArr[8].to_i])+ ' : ' + (deductionArr[9].blank? ? '' : logical_cond[deductionArr[9]])+ ' : ' + (deductionArr[10].blank? ? '' : deductionArr[10]) 
 		  deductionlist << [optionText,element]
 		end
 	end
@@ -82,6 +84,7 @@
 %>
 <%= form_tag({:controller => controller_name, :action => 'payrollsettings'}, :method => :post) do %>
 	<%= hidden_field_tag 'settings[payroll_deleted_ids]', "" %>
+	<%= hidden_field_tag 'comp_cond_id', "" %>
 	<fieldset>
 		<table><tr>
 			<td><label><%= l(:label_basic) %></label></td>
@@ -156,10 +159,16 @@
 							<th style="font-weight:normal;"><%= l(:label_factor) %></th>
 						</tr>
 						<tr>
-							<td><%= select_tag 'dep_value', options_for_select(deplist)%></td>
-							<td> *</td>
+							<td><%= select_tag 'dep_value', options_for_select(deplist), class: 'component' %></td>
+							<td align="center"> * </td>
 							<td><%= text_field_tag 'factor', "", :size => 5, :maxlength => 7 %></td>
 						</tr>
+					</tr>
+					<tr>
+						<th valign="justify" style="font-weight:normal;"><%= l(:label_if) %></th>
+						<td><%= select_tag 'cond_dep_value', options_for_select(deplist), class: 'component' %></td>
+						<td><%= select_tag 'operator', options_for_select(getLogicalCond)%></td>
+						<td><%= text_field_tag 'cond_value', "", :size => 5, :maxlength => 7 %></td>
 					</tr>
 				</table>
 			</p>

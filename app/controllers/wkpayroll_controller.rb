@@ -419,7 +419,7 @@ class WkpayrollController < WkbaseController
 			payrollValues = salaryComponentsHashVal(params[:settings])
 			savePayrollSettings(payrollValues)
 			flash[:notice] = l(:notice_successful_update)
-			redirect_to controller: controller_name, action: 'index', tab: controller_name
+			redirect_to controller: controller_name, action: 'index', tab: "payroll"
 		else
 			retrieveSalarayComponents()
 		end
@@ -438,7 +438,9 @@ class WkpayrollController < WkbaseController
 	end
 
 	def retrieveSalarayComponents
-		dep_list = WkSalaryComponents.order('name')
+		dep_list = WkSalaryComponents.joins("LEFT JOIN wk_component_conditions CC ON CC.salary_component_id = wk_salary_components.id")
+							.select("wk_salary_components.*, CC.id AS cond_id, CC.left_hand_side, CC.operators, CC.right_hand_side")
+							.order('name')
 		basic = Array.new
 		allowance = Array.new
 		deduction = Array.new
@@ -447,8 +449,8 @@ class WkpayrollController < WkbaseController
 		unless dep_list.blank?
 			dep_list.each do |list| 
 			basic = [list.id.to_s + '|' + list.name + '|' + list.salary_type + '|' + list.factor.to_s + '|' + list.ledger_id.to_s ]  if list.component_type == 'b'	
-			allowance << list.id.to_s + '|' + list.name+'|'+list.frequency.to_s+'|'+ (list.start_date).to_s+'|'+(list.dependent_id).to_s+'|'+list.factor.to_s + '|' + list.ledger_id.to_s	if list.component_type == 'a'
-			deduction << list.id.to_s + '|' + list.name + '|' + list.frequency.to_s + '|' + (list.start_date).to_s + '|' + (list.dependent_id).to_s + '|' + (list.factor).to_s + '|' + list.ledger_id.to_s if list.component_type == 'd'
+			allowance << list.id.to_s + '|' + list.name+'|'+list.frequency.to_s+'|'+ (list.start_date).to_s+'|'+(list.dependent_id).to_s+'|'+list.factor.to_s + '|' + list.ledger_id.to_s + '|' + list.cond_id.to_s + '|' + (list.left_hand_side).to_s + '|' + (list.operators).to_s + '|' + (list.right_hand_side).to_s  if list.component_type == 'a'
+			deduction << list.id.to_s + '|' + list.name + '|' + list.frequency.to_s + '|' + (list.start_date).to_s + '|' + (list.dependent_id).to_s + '|' + (list.factor).to_s + '|' + list.ledger_id.to_s + '|' + list.cond_id.to_s + '|' + (list.left_hand_side).to_s + '|' + (list.operators).to_s + '|' + (list.right_hand_side).to_s  if list.component_type == 'd'
 			calculated_fields << list.id.to_s + '|' + list.name + '|' + list.salary_type if list.component_type == 'c'
 			end
 		end

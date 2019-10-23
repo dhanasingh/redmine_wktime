@@ -244,19 +244,22 @@ module WkpayrollHelper
 						lastUserId = entry.user_id
 					end
 				end
-				if userSalaryHash[entry.user_id].blank?
-					salDetailHash = Hash.new()
-					if entry.dependent_id.blank?
-						salDetailHash[entry.sc_id] = (entry.factor)*multiplier
+				userSalaryHash[entry.user_id][entry.sc_id] = 0 if userSalaryHash[entry.user_id].present?
+				if compCondition(entry) || entry.salary_component_id.present?
+					if userSalaryHash[entry.user_id].blank?
+						salDetailHash = Hash.new()
+						if entry.dependent_id.blank?
+							salDetailHash[entry.sc_id] = (entry.factor)*multiplier
+						else
+							salDetailHash[entry.sc_id] = computeFactor(entry.user_id,entry.dependent_id,entry.factor,multiplier)
+						end
+						userSalaryHash[entry.user_id] = salDetailHash
 					else
-						salDetailHash[entry.sc_id] = computeFactor(entry.user_id,entry.dependent_id,entry.factor,multiplier)
-					end
-					userSalaryHash[entry.user_id] = salDetailHash
-				else
-					if entry.dependent_id.blank?
-						userSalaryHash[entry.user_id][entry.sc_id] = entry.factor*multiplier
-					else
-						userSalaryHash[entry.user_id][entry.sc_id] = computeFactor(entry.user_id,entry.dependent_id,entry.factor,multiplier)
+						if entry.dependent_id.blank?
+							userSalaryHash[entry.user_id][entry.sc_id] = entry.factor*multiplier
+						else
+							userSalaryHash[entry.user_id][entry.sc_id] = computeFactor(entry.user_id,entry.dependent_id,entry.factor,multiplier)
+						end
 					end
 				end
 			else
@@ -276,12 +279,14 @@ module WkpayrollHelper
 		"sc.factor as sc_factor, sc.salary_type as sc_salary_type, wu.termination_date, " + 
 		"usc.factor as usc_factor, usc.dependent_id as usc_dependent_id, " + 
 		"usc.salary_component_id as salary_component_id, usc.id as user_salary_component_id, " + 
-		"u.id as user_id, u.firstname as firstname, u.lastname as lastname, "+ 
+		"u.id as user_id, u.firstname as firstname, u.lastname as lastname, " + 
+		"cc.left_hand_side, cc.operators, cc.right_hand_side, " + 
 		"case when usc.id is null then sc.dependent_id else usc.dependent_id end as dependent_id, " + 
 		"case when usc.id is null then sc.factor else usc.factor end as factor FROM users u " + 
 		"left join wk_salary_components sc on (1 = 1) " + 
 		"left join wk_user_salary_components usc on (sc.id = usc.salary_component_id and  usc.user_id = u.id) " +
-		"left join wk_users wu on u.id = wu.user_id "
+		"left join wk_users wu on u.id = wu.user_id " +
+		"left join wk_component_conditions cc on (sc.id = cc.salary_component_id) "
 		sqlStr
 	end
 	
@@ -384,9 +389,10 @@ module WkpayrollHelper
 			if !value.blank?  
 				if key.to_s == 'payroll_deleted_ids'
 					dval = value.split('|')
-					WkSalaryComponents.where(:id => dval.map(&:to_i)).delete_all
+					WkSalaryComponents.where(:id => dval.map(&:to_i)).destroy_all
 				else
-					for i in 0..value.length-1			
+					for i in 0..value.length-1
+						componentCond = Array.new			
 						sval = value[i].split('|')		
 						if !sval[0].blank?
 							wksalaryComponents =  WkSalaryComponents.find(sval[0])
@@ -407,6 +413,11 @@ module WkpayrollHelper
 							wksalaryComponents.dependent_id = sval[4]
 							wksalaryComponents.factor = sval[5]
 							wksalaryComponents.ledger_id = sval[6]
+							if sval[8].present? && sval[9].present? && sval[10].present?
+								componentCondId = sval[7].blank? ? nil : sval[7]
+								componentCond << {id: componentCondId, left_hand_side: sval[8], operators: sval[9], right_hand_side: sval[10]}
+								wksalaryComponents.wk_component_conditions_attributes = componentCond
+							end
 						else
 							wksalaryComponents.name = sval[1]
 							wksalaryComponents.component_type = 'c'
@@ -608,5 +619,35 @@ module WkpayrollHelper
 			userIds << users.id
 		end
 		userIds
+	end
+
+	def getLogicalCond
+		{
+			"" => '',
+			l(:label_equal) => "EQ",   
+			l(:label_less_than) => "LT",
+			l(:label_greater_than) => "GT",
+			l(:label_less_or_equal) => "LTE",
+			l(:label_greater_or_equal) => "GTE"
+		}    	
+	end
+
+	def compCondition(entry)
+			condEntry = @userSalEntryHash[(entry.left_hand_side).to_s + '_' + (entry.user_id).to_s]
+			case entry.operators
+				when "EQ"
+					cond = condEntry.factor == (entry.right_hand_side)
+				when "LT"
+					cond = condEntry.factor < (entry.right_hand_side)
+				when "LTE"
+					cond = condEntry.factor <= (entry.right_hand_side)
+				when "GT"
+					cond = condEntry.factor > (entry.right_hand_side)
+				when "GTE"
+					cond = condEntry.factor >= (entry.right_hand_side)
+				else
+					cond = true
+			end
+		cond
 	end
 end
