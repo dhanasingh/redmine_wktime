@@ -36,7 +36,7 @@
 					@mainEnriesHash[type] = getEachLedgerBSAmt(@to, [type])
 					@subEntriesHash[type] = getSubEntries(@from, @to, type)
 					if type == 'PL'
-						defLedgerEnries = getEachLedgerBSAmt(@to, ['SY'])
+						defLedgerEnries = getEachLedgerSumAmt(@from, @to, ['SY'])
 						unless defLedgerEnries.blank?
 							tempEnries = Hash.new
 							tempEnries[l(:label_less_transferred)] = defLedgerEnries.values[0]

@@ -106,7 +106,8 @@ include WktimeHelper
 				totalExpense = totalExpense + getEntriesTotal(subEntriesHash[type])
 			end
 			subEntriesHash.clear
-			subEntriesHash[l(:wk_label_opening)+ " " + l(:wk_field_balance)] = totalIncome - totalExpense + (defLedger[0].opening_balance.blank? ? 0 : defLedger[0].opening_balance)
+			plOpeningBal = getEachLedgerBSAmt(bsEndDate, ['SY']).blank? ? 0 : getEachLedgerBSAmt(bsEndDate, ['SY']).values[0]
+			subEntriesHash[l(:wk_label_opening)+ " " + l(:wk_field_balance)] = totalIncome - totalExpense + (defLedger[0].opening_balance.blank? ? 0 : defLedger[0].opening_balance) + plOpeningBal
 			subEntriesHash[l(:label_current)+ " " + l(:label_period)] = getPLfor(from, asOnDate)
 			
 		end
