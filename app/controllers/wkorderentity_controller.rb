@@ -145,7 +145,7 @@ include WkgltransactionHelper
 
 			unless @previewBilling
 				amounts = @invoiceEntries.reorder(["wk_invoices.id ASC"]).pluck("SUM(wk_invoice_items.amount)")
-				@totalInvAmt = amounts.inject(0, :+)
+				@totalInvAmt = amounts.compact.inject(0, :+)
 			end
 		end
 	end	
