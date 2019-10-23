@@ -5,8 +5,8 @@
 	<%= render partial: 'sidebar' %>
 <% end %>
 
-<% 	group_id = params[:group_id].present? ? params[:group_id] : 0
-	userID = params[:user_id].present? ? params[:user_id] : 0
+<% 	group_id =session[controller_name].try(:[], :group_id)
+	userID =session[controller_name].try(:[], :user_id)
 	statusList = {'' => ''}.merge(getLeaveStatus)
 %>
 <script type="text/javascript"> 
@@ -14,6 +14,7 @@
 </script>
 <fieldset><legend><%= l(:label_filter_plural) %></legend>
 	<%= form_tag({controller: controller_name, action: 'index'}, method: :get) do %>
+		<%= hidden_field_tag("searchlist", controller_name) %>
 		<% if isLeaveReqAdmin %>
 		<p>
 			<%=l(:label_group_plural)%>
@@ -28,9 +29,9 @@
 		<% end %>
 		<p>
 			<label><%= l(:label_leave_type) %></label>
-			<%= select_tag('leave_type', options_for_select(get_leave_type.unshift(['','']), params[:leave_type])) %>
+			<%= select_tag('leave_type', options_for_select(get_leave_type.unshift(['','']), session[controller_name].try(:[], :leave_type))) %>
 			<label><%= l(:label_status) %></label>
-			<%= select_tag('status', options_for_select(statusList.invert, params[:status])) %>
+			<%= select_tag('status', options_for_select(statusList.invert, session[controller_name].try(:[], :status))) %>
 		</p>
 		<p>
 			<%= submit_tag l(:button_apply), class: "small", name: nil %>

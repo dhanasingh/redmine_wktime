@@ -9,7 +9,7 @@ class WkLeaveReq < ActiveRecord::Base
   validates_presence_of :leave_type, :start_date, :end_date
   
   scope :get_all, ->{
-    joins(:wkstatus).select("wk_leave_reqs.*, wk_statuses.status")
+    joins(:wkstatus, :user, :leave_type).select("wk_leave_reqs.*, wk_statuses.status")
     .where("status_date = (SELECT MAX(S.status_date) FROM wk_statuses AS S WHERE S.status_for_id = wk_leave_reqs.id GROUP BY S.status_for_id)")
   }
 

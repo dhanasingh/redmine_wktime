@@ -5,17 +5,24 @@ class WkleaverequestController < WkbaseController
   include WksurveyHelper
 
   def index
+    sort_init 'start_date', 'desc'
+		sort_update 'user_name' => "CONCAT(users.firstname, users.lastname)",
+                'leave_type' => "issues.subject",
+                'start_date' => "start_date",
+                'end_date' => "end_date",
+                'status' => "wk_statuses.status"
+    set_filter_session
     getUsersAndGroups
     lveReqEntires = WkLeaveReq.get_all
     lveReqEntires = lveReqEntires.leaveReqSupervisor if isSupervisor && !validateERPPermission("ADM_ERP")
     lveReqEntires = lveReqEntires.leaveReqUser unless isSupervisor || validateERPPermission("ADM_ERP")
+
+    lveReqEntires = lveReqEntires.leaveType(session[controller_name][:leave_type]) if session[controller_name].try(:[], :leave_type).present?
+    lveReqEntires = lveReqEntires.userGroup(session[controller_name][:group_id]) if session[controller_name].try(:[], :group_id).present? && session[controller_name].try(:[], :group_id) != "0"
+    lveReqEntires = lveReqEntires.groupUser(session[controller_name][:user_id]) if session[controller_name].try(:[], :user_id).present? && session[controller_name].try(:[], :user_id) != "0"
+    lveReqEntires = lveReqEntires.leaveReqStatus(session[controller_name][:status]) if session[controller_name].try(:[], :status).present?
     
-    lveReqEntires = lveReqEntires.like(params[:user_name]) if params[:user_name].present?
-    lveReqEntires = lveReqEntires.leaveType(params[:leave_type]) if params[:leave_type].present?
-    lveReqEntires = lveReqEntires.userGroup(params[:group_id]) if params[:group_id].present? && params[:group_id] != "0"
-    lveReqEntires = lveReqEntires.groupUser(params[:user_id]) if params[:user_id].present? && params[:user_id] != "0"
-    lveReqEntires = lveReqEntires.leaveReqStatus(params[:status]) if params[:status].present?
-    
+    lveReqEntires = lveReqEntires.reorder(sort_clause)
     @leave_count = lveReqEntires.length
     @leave_pages = Paginator.new @leave_count, per_page_option, params['page']
     @leaveReqEntires = lveReqEntires.order("user_id ASC, start_date DESC").limit(@leave_pages.per_page).offset(@leave_pages.offset).to_a
@@ -77,4 +84,19 @@ class WkleaverequestController < WkbaseController
 			redirect_to action: 'edit', id: params[:id]
     end
   end
+	
+	def set_filter_session
+    if params[:searchlist] == controller_name
+			session[controller_name] = Hash.new if session[controller_name].nil?
+			filters = [:group_id, :user_id, :leave_type, :status]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
+			end
+		end
+  end
+
 end
