@@ -41,7 +41,7 @@ end
                         url_for(helperObj.get_survey_url(urlhash, params, "survey_response")), :title => l(:label_survey_response) %>&emsp;
                 <% else %>&emsp;&emsp;&nbsp;
                 <% end %>
-                <% if (entry.status == "O" && validateERPPermission("E_SUR")) || entry.status == "C" %>
+                <% if (entry.status == "O" && helperObj.validateERPPermission("E_SUR")) || entry.status == "C" || helperObj.getResponseGroup(entry.id).present? %>
                     <%= link_to image_tag("stats.png"), url_for(helperObj.get_survey_url(urlhash, params, "survey_result")), 
                         :title => l(:label_survey_result) %>&emsp;
                 <% else %>&emsp;&emsp;&nbsp;

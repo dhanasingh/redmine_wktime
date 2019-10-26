@@ -2,13 +2,17 @@
 	<canvas id="survey_result_graph<%= entry.question_id %>" width="350" height="200"></canvas>
 </div>
 
+<% content_for :header_tags do %>
+  <%= javascript_include_tag "Chart.bundle.min" %>
+<% end %>
+
 <% getSurveyForType(params) %>
 <%= javascript_tag do %>
 $(document).ready(function(){
   $.getJSON(<%= raw url_for(:controller => 'wksurvey',
     :action => 'graph',
 	:graph => "graph",
-	:question_id => entry.question_id, :surveyForType => @surveyForType, :surveyForID => @surveyForID).to_json %>, function(data){
+	:question_id => entry.question_id, :surveyForType => @surveyForType, :surveyForID => @surveyForID, responsedGrpDate: params[:responsedGrpDate], survey_id: @survey.id).to_json %>, function(data){
 	
     var chartData = {
       labels: data['labels'],
@@ -111,9 +115,4 @@ $(document).ready(function(){
     });
   });
   });
-<% end %>
-
-
-<% content_for :header_tags do %>
-  <%= javascript_include_tag "Chart.bundle.min" %>
 <% end %>

@@ -31,6 +31,11 @@
                 </tr>
                 <tr>
                     <td></td>
+                    <th align="left"><%= l(:label_not_rpt) %></th>
+                    <td><%= check_box_tag 'notInRpt_' + qIndex.to_s, true, ActiveModel::Type::Boolean.new.cast(question.not_in_report), :disabled => isDisable %></td>
+                </tr>
+                <tr>
+                    <td></td>
                     <th align="left"><%= l(:label_question_type) %></th>
                     <td>
                         <%=h select_tag('question_type_' + qIndex.to_s,

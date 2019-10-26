@@ -1011,3 +1011,7 @@ it:
   label_greater_than: '>'
   label_if: If
   label_condition_errormsg: Condition can not be blank
+  
+  label_clos_curr_resp: Close current responses
+  label_clos_responses: Closed responses
+  label_not_rpt: Do not show in report
