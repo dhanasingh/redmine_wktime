@@ -1,7 +1,9 @@
 <% if action_name == 'print_survey_result' %>
     <%= title l(:label_survey_result) %>
     <h3><%= l(:label_survey_name) %>:&nbsp;&nbsp; <%= @survey.name %></h3>
+	<% if getResponseGroup.present? %>
         <b><%= l(:label_clos_responses) %></b>:&nbsp; <%= params[:responsedGrpDate].present? ? params[:responsedGrpDate] : getResponseGroup.max[1] if getResponseGroup.present?%>
+    <% end %>
 <% end %>
 
 <div>

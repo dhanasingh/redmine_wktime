@@ -8,6 +8,7 @@
 	<%= link_to l(:label_export_invoice), "javascript:void(window.open('#{url}', '_blank', 'location=yes,scrollbars=yes,status=yes'));", 
 		style: 'color:blue;text-decoration: underline;' %>
 </div>
+<div style="clear:both;">
 <%= form_tag({:controller => "wksurvey", :action => 'survey_result'}, :method => :get, :id => 'result_form') do %>
 	<%=h hidden_field_tag('survey_id', params[:survey_id]) %>
 	<%=h hidden_field_tag('surveyForID', params[:surveyForID]) %>
@@ -20,6 +21,9 @@
 			<%= link_to_function l(:button_apply), '$("#result_form").submit()', :class => 'icon icon-checked' %>
 	<% end %>
 <% end %>
+</div>
+<div>
 	<fieldset class="box tabular">
 		<%= render :partial => "survey_result" %>
 	</fieldset>
+</div>	

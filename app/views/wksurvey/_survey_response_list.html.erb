@@ -1,19 +1,22 @@
 
-<%
-    survey_helper = Object.new.extend(WksurveyHelper)
-    response_grp = survey_helper.getResponseGroup(params[:survey_id]).insert(0, [""], ["ALL"])
-%>
-<%= form_tag({:controller => "wksurvey", :action => 'survey_response'}, :method => :get, :id => 'response_form') do %> 
-	<%=h hidden_field_tag('survey_id', params[:survey_id]) %>
-    <%=h hidden_field_tag('surveyForID', params[:surveyForID]) %>
-    <%=h hidden_field_tag('surveyForType', params[:surveyForType]) %>
-    <p>
-        <b><%= l(:label_clos_responses) %></b>&nbsp;
-        <%=h select_tag('responsedGrpDate', options_for_select(response_grp,
-            selected: params[:responsedGrpDate].present? ? params[:responsedGrpDate] : response_grp[0]), onchange: '$("#response_form").submit()') %>
-        <%= link_to_function l(:button_apply), '$("#response_form").submit()', :class => 'icon icon-checked' %>
-    </p>
+<% survey_helper = Object.new.extend(WksurveyHelper) %>
+<% if @survey.recur %>
+    <% response_grp = survey_helper.getResponseGroup(params[:survey_id]).insert(0, [""], ["ALL"]) %>
+    <div>
+    <%= form_tag({:controller => "wksurvey", :action => 'survey_response'}, :method => :get, :id => 'response_form') do %> 
+        <%=h hidden_field_tag('survey_id', params[:survey_id]) %>
+        <%=h hidden_field_tag('surveyForID', params[:surveyForID]) %>
+        <%=h hidden_field_tag('surveyForType', params[:surveyForType]) %>
+        <p>
+            <b><%= l(:label_clos_responses) %></b>&nbsp;
+            <%=h select_tag('responsedGrpDate', options_for_select(response_grp,
+                selected: params[:responsedGrpDate].present? ? params[:responsedGrpDate] : response_grp[0]), onchange: '$("#response_form").submit()') %>
+            <%= link_to_function l(:button_apply), '$("#response_form").submit()', :class => 'icon icon-checked' %>
+        </p>
+    <% end %>
+    </div>
 <% end %>
+<div>
 <table class="list time-entries">
     <tr>
         <th>#</th>
@@ -46,3 +49,4 @@
         <% end %>
     <% end %>
 </table>
+</div>

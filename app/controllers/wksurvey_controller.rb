@@ -143,7 +143,8 @@ class WksurveyController < WkbaseController
     getSurveyForType(params)
     @question_Entries = WkSurvey.joins("INNER JOIN wk_survey_questions AS SQ ON wk_surveys.id = SQ.survey_id
       LEFT JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id")
-      .where("wk_surveys.id = #{params[:survey_id]}")
+      .where("wk_surveys.id = #{params[:survey_id]}  AND ((SQ.question_type IN ('RB', 'CB') AND SC.id IS NOT NULL) OR
+       SQ.question_type NOT IN ('RB', 'CB'))") 
       .group("SQ.id, wk_surveys.id, wk_surveys.name, SQ.name, SQ.question_type")
       .select("wk_surveys.id, wk_surveys.name, SQ.id AS question_id, SQ.name AS question_name, SQ.question_type AS question_type,
         SQ.is_mandatory, SQ.is_reviewer_only")

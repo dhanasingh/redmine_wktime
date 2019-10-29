@@ -1,5 +1,5 @@
 <div>
-	<canvas id="survey_result_graph<%= entry.question_id %>" width="350" height="200"></canvas>
+	<canvas id="survey_result_graph<%= entry.question_id %>" width="600" height="200"></canvas>
 </div>
 
 <% content_for :header_tags do %>
@@ -92,20 +92,23 @@ $(document).ready(function(){
             xAxes: [{ 
 			ticks: {
                 display: false,
-								beginAtZero: true
+				beginAtZero: true
             },
 			gridLines : {
 					drawBorder: false,
                     display : false
                 }
             }],
-			yAxes: [{   
-			barThickness : 20,
-			gridLines : {
-			drawBorder: true,
-            display : false
-                }
-            }]	
+			yAxes: [{
+				afterFit: function(scaleInstance) {
+					scaleInstance.width = 250;
+				},
+				barThickness : 20,
+				gridLines : {
+				drawBorder: true,
+				display : false
+					}
+				}]	
         },
         responsive: false,
 		maintainAspectRatio: false,
