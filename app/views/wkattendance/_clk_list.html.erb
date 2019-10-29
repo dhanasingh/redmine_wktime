@@ -9,7 +9,9 @@
                 <%= sort_header_tag('name', :caption => l(:field_user), class: "lbl-txt-align") %>
                 <%= sort_header_tag('start_date', :caption => l(:field_start_date), class: "lbl-txt-align") %>
                 <th class="lbl-txt-align"><label style="padding-right: 10px;"><%= l(:label_clock_in) %></label>
-                    <a class="icon icon-edit" id="editIcon" style="cursor: pointer;" onClick=" bulkEdit();" title="Edit"></a>
+                    <% if validateERPPermission('A_TE_PRVLG') %>
+                        <a class="icon icon-edit" id="editIcon" style="cursor: pointer;" onClick=" bulkEdit();" title="Edit"></a>
+                    <% end %>
                 </th>
                 <th class="lbl-txt-align"><%= l(:label_clock_out) %></th>
                 <%= sort_header_tag('hours', :caption => l(:label_hours), class: "lbl-txt-align") %>
@@ -30,7 +32,7 @@
                         <%=h !entry.end_time ? "" : entry.end_time.localtime.strftime('%R') %>
                     </td>
                     <td class="lbl-txt-align" id="hours_<%=entry.id.to_s + "_" + index.to_s%>">
-                        <%=h !entry.hours ? "0:00" : (entry.hours).round(2) %>
+                        <%=h !entry.hours ? "0.0" : (entry.hours).round(2) %>
                     </td>
                     <td align="center">
                         <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'clockedit', 

@@ -17,15 +17,14 @@ function validateHrFormat(inputEl){
         clkInTime = $.trim($(clockInEl).val()),
         clkOutTime = $.trim($(clockOutEl).val()),
         err_msg = '';
-    console.log(defaultValue)
 
     if(!clkInTime && clkOutTime){
         err_msg += "Please enter Clock In";
-	}else if(clkInTime && !clkOutTime || !clkInTime && !clkOutTime){
-        $(hoursEl).text("0.0");
     }else if(currentVal.match(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/) == null){
 		$(inputEl).val(defaultValue);
 		err_msg += "Not a valid time format";
+	}else if(clkInTime && !clkOutTime || !clkInTime && !clkOutTime){
+        $(hoursEl).text("0.0");
     }else if(convertHoursToSecs(clkInTime) > convertHoursToSecs(clkOutTime)){
 		$(inputEl).val(defaultValue);
 		err_msg += "The Clock In time can't be greater then Clock Out time";
