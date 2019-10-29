@@ -965,6 +965,7 @@ de:
   label_response_by: Response By
   label_response_status: Response Status
   notice_unsuccessful_save: Unable to save
+  label_reviewed_by: Reviewed By
   
   label_no_additional_details_for_issue: No Additional Details for Issue
   label_create_supplier_invoice_without_purchase_order: Create Supplier invoice without Purchase order

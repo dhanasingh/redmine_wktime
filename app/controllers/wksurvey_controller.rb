@@ -168,17 +168,18 @@ class WksurveyController < WkbaseController
     if @isResetResponse
       @survey_response = nil
     else
-      @survey_response = WkSurvey.joins("
-        INNER JOIN wk_survey_questions AS SQ ON SQ.survey_id = wk_surveys.id
-        INNER JOIN wk_survey_responses ON wk_survey_responses.survey_id = wk_surveys.id
+      @survey_response = WkSurveyResponse.joins("
+        INNER JOIN wk_survey_questions AS SQ ON SQ.survey_id = wk_survey_responses.survey_id
         INNER JOIN wk_survey_answers AS SA ON SA.survey_response_id = wk_survey_responses.id AND SQ.id = SA.survey_question_id
         INNER JOIN wk_statuses AS ST ON ST.status_for_id = wk_survey_responses.id AND ST.status_for_type = 'WkSurveyResponse'
         LEFT JOIN wk_survey_reviews AS SR ON SR.survey_response_id = wk_survey_responses.id AND SR.survey_question_id = SQ.id")
-        .where(" wk_surveys.id = #{params[:survey_id]}" + (responseID.blank? ? surveyFor_cnd + " AND wk_survey_responses.user_id = #{User.current.id} " : " AND wk_survey_responses.id = #{responseID} "))
-        .group(" wk_surveys.id, wk_surveys.name, SQ.id, SQ.name, SA.survey_choice_id, SA.choice_text, 
-          SQ.question_type, wk_survey_responses.id, SR.comment_text")
-        .select(" wk_surveys.id, wk_surveys.name, SQ.id AS question_id, SQ.name AS question_name, wk_survey_responses.user_id, 
-          SA.survey_choice_id, SA.choice_text, SQ.question_type, MAX(ST.status_date) AS status_date, wk_survey_responses.id, SR.comment_text")
+        .where(" wk_survey_responses.survey_id = #{params[:survey_id]}" + (responseID.blank? ? surveyFor_cnd + 
+          " AND wk_survey_responses.user_id = #{User.current.id} " : " AND wk_survey_responses.id = #{responseID} "))
+        .group(" wk_survey_responses.survey_id, SQ.id, SQ.name, SA.survey_choice_id, SA.choice_text, 
+          SQ.question_type, wk_survey_responses.id, SR.comment_text, SR.user_id")
+        .select(" wk_survey_responses.survey_id, SQ.id AS question_id, SQ.name AS question_name, wk_survey_responses.user_id,
+          SR.user_id AS reviewer, SA.survey_choice_id, SA.choice_text, SQ.question_type, MAX(ST.status_date) AS status_date,
+          wk_survey_responses.id, SR.comment_text")
     end
     reviewUsers = getReportUsers(User.current.id).pluck(:id)
     @reviewer = @survey.is_review && params[:response_id].present? && reviewUsers.include?(@response_status.try(:user_id))

@@ -1,11 +1,11 @@
 <% response_id = !params[:response_id].blank? ? params[:response_id] : 
     (!@response_status.blank? && @responseStatus == "O" ? @response_status.id : nil) %>
 <%= form_tag({:controller => 'wksurvey', :action => 'update_survey'}, :method => :post, :id => 'survey_form') do %>
-    <%=h hidden_field_tag('surveyForID', params[:surveyForID]) %>
-    <%=h hidden_field_tag('surveyForType', params[:surveyForType]) %>
-    <%=h hidden_field_tag("survey_id", @survey.id) %>
-    <%=h hidden_field_tag("isReview", @isReview) %>
-    <%=h hidden_field_tag("survey_response_id", response_id) %>
+    <%= hidden_field_tag('surveyForID', params[:surveyForID]) %>
+    <%= hidden_field_tag('surveyForType', params[:surveyForType]) %>
+    <%= hidden_field_tag("survey_id", @survey.id) %>
+    <%= hidden_field_tag("isReview", @isReview) %>
+    <%= hidden_field_tag("survey_response_id", response_id) %>
     <% @question_Entries.each do |entry| %>
         <% isReviewerOnly = ActiveModel::Type::Boolean.new.cast(entry.is_reviewer_only) %>
         <% isMandatory = ActiveModel::Type::Boolean.new.cast(entry.is_mandatory) && !(["CB"].include? entry.question_type) %>
@@ -16,14 +16,14 @@
             elsif isReviewerOnly
                 @reviewerOnlyQuestions += "," + entry.question_id.to_s
             end
-            isMandatory = isReviewerOnly && entry.question_type != "CB"
+            isMandatory = entry.question_type != "CB"
+            survey_ans = @survey_response.present? ? @survey_response.where("SA.survey_question_id = #{entry.question_id}").first : nil
+            choice_text = survey_ans.try(:choice_text)
+            comment_text = survey_ans.try(:comment_text)
+            reviewerName = survey_ans.user_name(survey_ans.try(:reviewer)) if survey_ans.try(:reviewer).present?
         %>
-        <%=h hidden_field_tag("question_type_"+ (entry.question_id).to_s, entry.question_type) %>
-        <%=h hidden_field_tag("isReviewerOnly_"+ (entry.question_id).to_s, isReviewerOnly) %>
-        <%  survey_ans = @survey_response.blank? ? nil : @survey_response.where("SA.survey_question_id = #{entry.question_id}").first 
-            choice_text = (!@survey_response.blank? && !survey_ans.blank?) ? survey_ans.choice_text : nil
-            comment_text = (!@survey_response.blank? && !survey_ans.blank?) ? survey_ans.comment_text : nil
-        %>
+        <%= hidden_field_tag("question_type_"+ (entry.question_id).to_s, entry.question_type) %>
+        <%= hidden_field_tag("isReviewerOnly_"+ (entry.question_id).to_s, isReviewerOnly) %>
         <fieldset class="box tabular">
         <table>
             <tr>
@@ -69,10 +69,10 @@
                     <td align="left" style="padding-left:40px;">
                         <% case entry.question_type %>
                         <% when 'TB' %>
-                            <%=h text_field_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", choice_text, size: 60, 
+                            <%= text_field_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", choice_text, size: 60, 
                                 :disabled => disableReviewerOnly ? @isReviewed : @isDisable, :required => isMandatory, :autofocus => false) %>
                         <% when 'MTB' %>
-                            <%=h text_area_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", choice_text, rows: 5, cols: 60, 
+                            <%= text_area_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", choice_text, rows: 5, cols: 60, 
                                 :disabled => disableReviewerOnly ? @isReviewed : @isDisable, :required => isMandatory, :autofocus => false) %>
                         <% end %>
                     </td>
@@ -82,21 +82,25 @@
             <tr>
                 <th align="left"><%= l(:label_review_comment) %></th>
                 <td align="left" style="padding-left:40px;">
-                    <%=h text_area_tag("survey_review_"+ (entry.question_id).to_s, comment_text, rows: 5, cols: 60, :disabled => @isReviewed, 
+                    <%= text_area_tag("survey_review_"+ (entry.question_id).to_s, comment_text, rows: 5, cols: 60, :disabled => @isReviewed, 
                         :required => false)   %>
                 </td>
+            </tr>
+            <tr>
+                <th align="left"><%= l(:label_reviewed_by) %></th>
+                <td style="padding-left:40px;"><%= reviewerName %></td>
             </tr>
             <% end %>
         </table>
         </fieldset>
         <% end %>
     <% end %>
-    <%=h hidden_field_tag("reviewerOnlyQuestions", @reviewerOnlyQuestions) %>
+    <%= hidden_field_tag("reviewerOnlyQuestions", @reviewerOnlyQuestions) %>
     <% if (!@isDisable || @isReview) && !@isReviewed %>
         <div>
         <%= button_tag(l(:button_save), type: 'button', onclick: 'survey_submit();') %>
         <%= button_tag(l(:button_submit), type: 'button', onclick: 'validation();') %>
-        <%=h hidden_field_tag("commit", "") %>
+        <%= hidden_field_tag("commit", "") %>
         </div>
     <% end %>
 <% end %>

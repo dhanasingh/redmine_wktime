@@ -10,5 +10,9 @@ class WkSurveyResponse < ActiveRecord::Base
     accepts_nested_attributes_for :wk_statuses, allow_destroy: true
     accepts_nested_attributes_for :wk_survey_reviews, allow_destroy: true
 	
-	validates_presence_of :user_id, :survey_id
-  end
+    validates_presence_of :user_id, :survey_id
+    
+    def user_name(id)
+        User.find(id).name
+    end
+end
