@@ -16,7 +16,7 @@
             elsif isReviewerOnly
                 @reviewerOnlyQuestions += "," + entry.question_id.to_s
             end
-            isMandatory = entry.question_type != "CB"
+            isMandatory = isMandatory && entry.question_type != "CB"
             survey_ans = @survey_response.present? ? @survey_response.where("SA.survey_question_id = #{entry.question_id}").first : nil
             choice_text = survey_ans.try(:choice_text)
             comment_text = survey_ans.try(:comment_text)
@@ -32,12 +32,11 @@
                 </th>
                 <td align="left" style="padding-left:40px;"><%= entry.question_name %></td>
             </tr>
-            <tr>
-                <th align="left"><%= l(:label_question_choices) %></th>
-                <td></td>
-            </tr>
-
             <% if ["RB","CB"].include? entry.question_type %>
+                <tr>
+                    <th align="left"><%= l(:label_question_choices) %></th>
+                    <td></td>
+                </tr>
                 <% @question_Choice_Entries.each do |choice_entry| %>
                     <% if choice_entry.survey_question_id == entry.question_id %>
                     <%  survey_ans = @survey_response.blank? ? nil : @survey_response.where("SA.survey_choice_id = #{choice_entry.id} 
