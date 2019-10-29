@@ -203,7 +203,7 @@ module WkpayrollHelper
 		totals
 	end
 
-	def getUserSalaryHash(userIds,salaryDate)
+	def getUserSalaryHash(userIds,salaryDate, userSetting=false)
 		userSalaryHash = Hash.new()
 		payPeriod = getPayPeriod(salaryDate)
 		queryStr = getUserSalaryQueryStr + " Where (wu.termination_date is null or wu.termination_date >= '#{payPeriod[0]}') and sc.id is not null " 
@@ -245,7 +245,7 @@ module WkpayrollHelper
 					end
 				end
 				userSalaryHash[entry.user_id][entry.sc_id] = 0 if userSalaryHash[entry.user_id].present?
-				if compCondition(entry) || entry.salary_component_id.present?
+				if compCondition(entry) || entry.salary_component_id.present? || userSetting
 					if userSalaryHash[entry.user_id].blank?
 						salDetailHash = Hash.new()
 						if entry.dependent_id.blank?
@@ -413,11 +413,13 @@ module WkpayrollHelper
 							wksalaryComponents.dependent_id = sval[4]
 							wksalaryComponents.factor = sval[5]
 							wksalaryComponents.ledger_id = sval[6]
-							if sval[8].present? && sval[9].present? && sval[10].present?
-								componentCondId = sval[7].blank? ? nil : sval[7]
+							componentCondId = sval[7].blank? ? nil : sval[7]
+							if sval[8].blank? && sval[9].blank? && sval[10].blank? && componentCondId.present?
+								componentCond << { id: componentCondId, _destroy: '1'}
+							elsif (sval[8].present? && sval[9].present? && sval[10].present?)
 								componentCond << {id: componentCondId, left_hand_side: sval[8], operators: sval[9], right_hand_side: sval[10]}
-								wksalaryComponents.wk_component_conditions_attributes = componentCond
 							end
+							wksalaryComponents.wk_component_conditions_attributes = componentCond
 						else
 							wksalaryComponents.name = sval[1]
 							wksalaryComponents.component_type = 'c'

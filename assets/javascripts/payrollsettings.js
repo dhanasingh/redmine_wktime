@@ -17,6 +17,10 @@ $(document).ready(function(){
 				var opt,desc="",opttext="";
 				var frequency = "";
 				var startdate = "";
+				var cond_dependent = "" ;
+				var logic_condition = "";
+				var condition_value = "";
+				var factor ="";
 				listBoxID = dlgname == 'Calculated Fields' ? 'settings_wktime_payroll_calculated_fields' : (dlgname == 'Basic' ? "settings_wktime_payroll_basic" : (dlgname == 'Allowances' ? 'settings_wktime_payroll_allowances' : 'settings_wktime_payroll_deduction'))
 				var listBox = document.getElementById(listBoxID);
 				var name = document.getElementById("name");									
@@ -29,14 +33,14 @@ $(document).ready(function(){
 					frequency = document.getElementById("frequency");
 					startdate = document.getElementById("start_date").value;				
 					var dependent = document.getElementById("dep_value") ;
-					var factor = document.getElementById("factor");
-					var cond_dependent = document.getElementById("cond_dep_value") ;
-					var logic_condition = document.getElementById("operator");
-					var condition_value = document.getElementById("cond_value");
+					factor = document.getElementById("factor");
+					cond_dependent = document.getElementById("cond_dep_value") ;
+					logic_condition = document.getElementById("operator");
+					condition_value = document.getElementById("cond_value");
 					var condId = document.getElementById("comp_cond_id");
 				}
 				var ledgerId = document.getElementById("payroll_db_ledger");
-				if( !checkDuplicateComponent(listBox,name.value) && name.value != "" && (basic_field_factor.value != "" || dlgname != 'Basic' ) && ((startdate   != "" || (frequency.value == '' || frequency.value == 'm')  ) || dlgname == 'Basic') && ((cond_dependent.value && condition_value.value &&      logic_condition.value) || (cond_dependent.value == "" && condition_value.value == ""  && logic_condition.value == ""))){
+				if( !checkDuplicateComponent(listBox,name.value) && name.value != "" && (basic_field_factor.value != "" || dlgname != 'Basic' ) && ((startdate   != "" || (frequency.value == '' || frequency.value == 'm')  ) || dlgname == 'Basic') && ((cond_dependent.value && condition_value.value &&      logic_condition.value) || (cond_dependent.value == "" && condition_value.value == ""  && logic_condition.value == "") || dlgname == 'Basic')){
 					if('Add'== basicAction){
 						opt = document.createElement("option");
 						listBox.options.add(opt);
@@ -99,7 +103,7 @@ $(document).ready(function(){
 					{
 						alertMsg +=  payroll_date_errormsg + "\n";
 					}
-					if((cond_dependent.value || condition_value.value || logic_condition.value) && (cond_dependent.value == "" || (condition_value.value).trim() == "" || logic_condition.value == "") && dlgname != 'Basic' && 
+					if((cond_dependent.value || condition_value.value || logic_condition.value) && (cond_dependent.value == "" || condition_value.value == "" || logic_condition.value == "") && dlgname != 'Basic' && 
 						dlgname != 'Calculated Fields')
 					{
 						alertMsg +=  payroll_condition_errormsg + "\n";
