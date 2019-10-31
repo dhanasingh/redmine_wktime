@@ -86,7 +86,7 @@ include WkpayrollHelper
 		unless @invoice.save
 			errorMsg = @invoice.errors.full_messages.join("<br>")
 		else
-			call_hook(:controller_after_save_invoice, {:attributes => @invoice.attributes})
+			call_hook(:controller_after_save_invoice, {:attributes => @invoice.attributes}) if @invoice.parent_type != "WkAccount"
 		end
 		errorMsg
 	end
