@@ -1024,5 +1024,5 @@ fr:
 
   error_not_valid: Not a valid time format
   error_enter_clk_in: Please enter Clock In
-  error_greater_then: The Clock In time can't be greater then Clock Out time
+  error_greater_then: The Clock In time cannot be greater then Clock Out time
   error_invalid_document: Document is invalid
