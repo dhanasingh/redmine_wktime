@@ -78,17 +78,19 @@
                 </tr>
             <% end %>
             <% if @isReview && !isReviewerOnly %>
-            <tr>
-                <th align="left"><%= l(:label_review_comment) %></th>
-                <td align="left" style="padding-left:40px;">
-                    <%= text_area_tag("survey_review_"+ (entry.question_id).to_s, comment_text, rows: 5, cols: 60, :disabled => @isReviewed, 
-                        :required => false)   %>
-                </td>
-            </tr>
-            <tr>
-                <th align="left"><%= l(:label_reviewed_by) %></th>
-                <td style="padding-left:40px;"><%= reviewerName %></td>
-            </tr>
+                <tr>
+                    <th align="left"><%= l(:label_review_comment) %></th>
+                    <td align="left" style="padding-left:40px;">
+                        <%= text_area_tag("survey_review_"+ (entry.question_id).to_s, comment_text, rows: 5, cols: 60, :disabled => @isReviewed, 
+                            :required => false)   %>
+                    </td>
+                </tr>
+                <% if reviewerName.present? %>
+                    <tr>
+                        <th align="left"><%= l(:label_reviewed_by) %></th>
+                        <td style="padding-left:40px;"><%= reviewerName %></td>
+                    </tr>
+                <% end %>
             <% end %>
         </table>
         </fieldset>

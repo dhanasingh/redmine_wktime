@@ -359,9 +359,9 @@ class WksurveyController < WkbaseController
 
     question_id = params[:question_id]
 
-    if params[:surveyForID].blank?
+    if params[:surveyForID].blank? && params[:surveyForType].blank?
       surveyForQry = " AND SR.survey_for_type IS NULL AND SR.survey_for_id IS NULL "
-    elsif params[:surveyForType] == "User"
+    elsif params[:surveyForType].present? && params[:surveyForID].blank?
       surveyForQry = " AND SR.survey_for_type = '#{params[:surveyForType]}' "
     else
       surveyForQry = " AND SR.survey_for_type = '#{params[:surveyForType]}' AND SR.survey_for_id = #{params[:surveyForID]} "
@@ -531,7 +531,7 @@ class WksurveyController < WkbaseController
   end
 
   def check_perm_and_redirect
-    get_survey(params[:survey_id], (["edit","survey_response","survey_result"].include?(action_name)) && validateERPPermission("E_SUR") || action_name == "graph") unless params[:survey_id].blank?
+    get_survey(params[:survey_id], (["edit","survey_response","survey_result", "print_survey_result"].include?(action_name)) && validateERPPermission("E_SUR") || action_name == "graph") unless params[:survey_id].blank?
     survey = get_survey_with_userGroup(params[:survey_id]) unless params[:survey_id].blank? && action_name == "survey_response"
     closed_response = getResponseGroup(params[:survey_id]) unless params[:survey_id].blank?
     if !showSurvey || (!checkEditSurveyPermission && (["edit", "save_survey"].include? action_name))
