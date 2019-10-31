@@ -8,6 +8,6 @@
 		options_for_select(sal_component, :selected =>  compEntry[2], :required => true), options = {:disabled => (validateERPPermission('A_TE_PRVLG') ? !compEntry[1] : true)} ) %></td>
 		<td><%=h text_field_tag('factor' + compEntry[0].sc_id.to_s, compEntry[3], :size => 10, :maxlength => 7, :disabled => (validateERPPermission('A_TE_PRVLG') ? !compEntry[1] : true), :required => true) %>
 		</td>
-		<td align='right'><%=h "%.2f" % actualSalVal[compEntry[0].sc_id] %>
+		<td align='right'><%=h "%.2f" % actualSalVal[compEntry[0].sc_id] %></td>
 	</tr>
 <% end %>

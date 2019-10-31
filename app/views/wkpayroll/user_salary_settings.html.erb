@@ -1,114 +1,114 @@
-<%= form_tag({:controller => 'wkpayroll', :action => 'updateUserSalary'}, :method => :post, :id => 'query_form') do %>
 <%= javascript_include_tag 'wkpayroll', :plugin => "redmine_wktime" %>
 <% settingCurreny = Setting.plugin_redmine_wktime['wktime_currency'] %>
-<div>
-<h2><%= "User Salary Settings" %></h2>
-<div>
-<table>
-	<tr>
-		<th align="left"><%=l(:field_user)%></th>
-		<td><%=h @userSalaryEntries[0].firstname + " " + @userSalaryEntries[0].lastname %></td>
-	</tr>
-</table>
-<div>
-<br/>
-	<% 
+<% 
 	salaryComponents = getSalaryComponentsArr
 	userId = params[:user_id]
 	isdisabled = true
 	salEntryByTypeHash = {'a' => [], 'b'=> [], 'd'=> [], 'c' => []}
 	actualSalValHash = Hash.new{|hsh,key| hsh[key] = {} }
 	@userSalaryEntries.each do |entry| 
-		isOverride = entry.user_salary_component_id.blank? ? false : true
-		if isOverride
-			dependent_id = entry.usc_dependent_id.blank? ? 0 : entry.usc_dependent_id
-			factor = entry.usc_factor.blank? ? 0 : (entry.usc_factor)
-		else
-			dependent_id = entry.sc_dependent_id.blank? ? 0 : entry.sc_dependent_id
-			factor = entry.sc_factor.blank? ? 0 : (entry.sc_factor)
-		end
-		actualSalValHash[entry.sc_component_type].store entry.sc_id, @userSalHash[entry.user_id][entry.sc_id] unless @userSalHash[entry.user_id].blank?
-		salEntryByTypeHash[entry.sc_component_type] << [entry, isOverride, dependent_id, factor] unless entry.sc_component_type.blank?
+	isOverride = entry.user_salary_component_id.blank? ? false : true
+	if isOverride
+		dependent_id = entry.usc_dependent_id.blank? ? 0 : entry.usc_dependent_id
+		factor = entry.usc_factor.blank? ? 0 : (entry.usc_factor)
+	else
+		dependent_id = entry.sc_dependent_id.blank? ? 0 : entry.sc_dependent_id
+		factor = entry.sc_factor.blank? ? 0 : (entry.sc_factor)
 	end
-	%>
-	
-	<fieldset style="width: 94%;margin:1px 34px 0px 1px;background-color:#F6F6F6;float:right"><legend><b><%=l(:label_basic)%></b></legend>
-		<table "width:100%; border-collapse: collapse;">
-			<thead>
-				<tr>
-					<th class="lbl-txt-align" style="padding:0 5px 0 5px;"><%= l(:label_override_common_setting) %></th>
-					<th class="lbl-txt-align" style="padding:0 5px 0 5px;"><%= l(:label_salary_component) %></th>
-					<th class="lbl-txt-align" style="padding:0 5px 0 5px;"><%= l(:label_dependent_field) %></th>
-					<th class="lbl-txt-align" style="padding:0 5px 0 5px;"><%= l(:label_factor) %></th>
-					<th class="lbl-txt-align"><%= l(:label_actual) %></th>
-				</tr>
-			</thead>
-			<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['b'], salaryComponents: salaryComponents, actualSalVal: actualSalValHash['b']}%>
-		</table>
-	</fieldset>
-		&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-		
-	 <fieldset class="box tabular" style="display: inline-block; vertical-align: top; width:45%;"><legend><b><%=l(:label_allowances)%></b></legend>
-		<table style="width:100%;border-collapse: collapse;" >
-			<thead>
-				<tr>
-					<th class="lbl-txt-align"><%= l(:label_override_common_setting) %></th>
-					<th class="lbl-txt-align"><%= l(:label_salary_component) %></th>
-					<th class="lbl-txt-align"><%= l(:label_dependent_field) %></th>
-					<th class="lbl-txt-align"><%= l(:label_factor) %></th>
-					<th class="lbl-txt-align"><%= l(:label_actual) %></th>
-				</tr>
-			</thead>
-			<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['a'], salaryComponents: salaryComponents, actualSalVal: actualSalValHash['a']}%>
-			<tr>
-				<th></th>
-				<th></th>
-				<th></th>
-				<th class="lbl-txt-align"><%= l(:label_gross) %></th>
-				<th align='right' style="border-bottom: solid thin;border-top: solid thin;"><%= settingCurreny %><%=  "%.2f" % (actualSalValHash['a'].values.sum + actualSalValHash['b'].values.sum) %></th>
-			</tr>
-		</table>
-	</fieldset>
-		&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-		
-		
-	  <fieldset class="box tabular" style="display: inline-block; vertical-align: top; width:45%; "><legend><b><%=l(:label_deduction)%></b></legend>
-		<table style="width:100%;border-collapse: collapse;">
-			<thead>
-				<tr>
-					<th class="lbl-txt-align"><%= l(:label_override_common_setting) %></th>
-					<th class="lbl-txt-align"><%= l(:label_salary_component) %></th>
-					<th class="lbl-txt-align"><%= l(:label_dependent_field) %></th>
-					<th class="lbl-txt-align"><%= l(:label_factor) %></th>
-					<th class="lbl-txt-align"><%= l(:label_actual) %></th>
-				</tr>
-			</thead>
-			<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['d'], salaryComponents: salaryComponents, actualSalVal: actualSalValHash['d']}%>
-			<tr>
-				<th></th>
-				<th></th>
-				<th></th>
-				<th class="lbl-txt-align"><%= l(:label_deduction) %></th>
-				<th align='right' style="border-bottom: solid thin;border-top: solid thin;"><%= settingCurreny %><%=  "%.2f" % actualSalValHash['d'].values.sum %></th>
-			</tr>
-		</table>
-	 </fieldset><br>
-	<div style="padding-right:50px;">
-		<table width="15%" align="right" style="border-collapse: collapse;border: 0px solid black;">
-			<tr>
-				<td style="float:left;"><b><%=l(:label_net)%></b>
-				<td style="text-align:right; border-left: solid 0px black;"><b><%= settingCurreny %> <%=h "%.2f" % (actualSalValHash['b'].values.sum + actualSalValHash['a'].values.sum - actualSalValHash['d'].values.sum) %></b></td>
-			</tr>
-		</table>
-	</div>
-	<br>
-	<% if validateERPPermission('A_TE_PRVLG') %>
-	<span style="margin-left:25.0em;"></span><%= submit_tag l(:button_save), :hidden => false, :id => 'wk_user_sal_setting_save', :disabled => false %>
+	actualSalValHash[entry.sc_component_type].store entry.sc_id, @userSalHash[entry.user_id][entry.sc_id] unless @userSalHash[entry.user_id].blank?
+	salEntryByTypeHash[entry.sc_component_type] << [entry, isOverride, dependent_id, factor] unless entry.sc_component_type.blank?
+end
+%>
+
+<div>
+	<% html_title(l(:label_ta)) -%>
+	<h2><%= "User Salary Settings" %></h2>
+	<div>
+	<table>
+		<tr>
+			<th align="left"><%=l(:field_user)%></th>
+			<td><%=h @userSalaryEntries[0].firstname + " " + @userSalaryEntries[0].lastname %></td>
+		</tr>
+	</table>
+	<div><br/>
+
+	<% if actualSalValHash.present?%>
+		<%= form_tag({:controller => 'wkpayroll', :action => 'updateUserSalary'}, :method => :post, :id => 'query_form') do %>
+			<%=h hidden_field_tag('user_id', userId) %>
+			<fieldset style="width: 94%;margin:1px 34px 0px 1px;background-color:#F6F6F6;float:right"><legend><b><%=l(:label_basic)%></b></legend>
+				<table "width:100%; border-collapse: collapse;">
+					<thead>
+						<tr>
+							<th class="lbl-txt-align" style="padding:0 5px 0 5px;"><%= l(:label_override_common_setting) %></th>
+							<th class="lbl-txt-align" style="padding:0 5px 0 5px;"><%= l(:label_salary_component) %></th>
+							<th class="lbl-txt-align" style="padding:0 5px 0 5px;"><%= l(:label_dependent_field) %></th>
+							<th class="lbl-txt-align" style="padding:0 5px 0 5px;"><%= l(:label_factor) %></th>
+							<th class="lbl-txt-align"><%= l(:label_actual) %></th>
+						</tr>
+					</thead>
+					<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['b'], salaryComponents: salaryComponents, actualSalVal: actualSalValHash['b']}%>
+				</table>
+			</fieldset>
+				&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+				
+			<fieldset class="box tabular" style="display: inline-block; vertical-align: top; width:45%;"><legend><b><%=l(:label_allowances)%></b></legend>
+				<table style="width:100%;border-collapse: collapse;" >
+					<thead>
+						<tr>
+							<th class="lbl-txt-align"><%= l(:label_override_common_setting) %></th>
+							<th class="lbl-txt-align"><%= l(:label_salary_component) %></th>
+							<th class="lbl-txt-align"><%= l(:label_dependent_field) %></th>
+							<th class="lbl-txt-align"><%= l(:label_factor) %></th>
+							<th class="lbl-txt-align"><%= l(:label_actual) %></th>
+						</tr>
+					</thead>
+					<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['a'], salaryComponents: salaryComponents, actualSalVal: actualSalValHash['a']}%>
+					<tr>
+						<th></th>
+						<th></th>
+						<th></th>
+						<th class="lbl-txt-align"><%= l(:label_gross) %></th>
+						<th align='right' style="border-bottom: solid thin;border-top: solid thin;"><%= settingCurreny %><%=  "%.2f" % (actualSalValHash['a'].values.sum + actualSalValHash['b'].values.sum) %></th>
+					</tr>
+				</table>
+			</fieldset>
+				&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+				
+				
+			<fieldset class="box tabular" style="display: inline-block; vertical-align: top; width:45%; "><legend><b><%=l(:label_deduction)%></b></legend>
+				<table style="width:100%;border-collapse: collapse;">
+					<thead>
+						<tr>
+							<th class="lbl-txt-align"><%= l(:label_override_common_setting) %></th>
+							<th class="lbl-txt-align"><%= l(:label_salary_component) %></th>
+							<th class="lbl-txt-align"><%= l(:label_dependent_field) %></th>
+							<th class="lbl-txt-align"><%= l(:label_factor) %></th>
+							<th class="lbl-txt-align"><%= l(:label_actual) %></th>
+						</tr>
+					</thead>
+					<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['d'], salaryComponents: salaryComponents, actualSalVal: actualSalValHash['d']}%>
+					<tr>
+						<th></th>
+						<th></th>
+						<th></th>
+						<th class="lbl-txt-align"><%= l(:label_deduction) %></th>
+						<th align='right' style="border-bottom: solid thin;border-top: solid thin;"><%= settingCurreny %><%=  "%.2f" % actualSalValHash['d'].values.sum %></th>
+					</tr>
+				</table>
+			</fieldset><br>
+			<div style="padding-right:50px;">
+				<table width="15%" align="right" style="border-collapse: collapse;border: 0px solid black;">
+					<tr>
+						<td style="float:left;"><b><%=l(:label_net)%></b>
+						<td style="text-align:right; border-left: solid 0px black;"><b><%= settingCurreny %> <%=h "%.2f" % (actualSalValHash['b'].values.sum + actualSalValHash['a'].values.sum - actualSalValHash['d'].values.sum) %></b></td>
+					</tr>
+				</table>
+			</div>
+			<br>
+			<% if validateERPPermission('A_TE_PRVLG') %>
+			<span style="margin-left:25.0em;"></span><%= submit_tag l(:button_save), :hidden => false, :id => 'wk_user_sal_setting_save', :disabled => false %>
+			<% end %>
+			</div>
+		<% end %>
 	<% end %>
-	</div>
-	</div>
-<%=h hidden_field_tag('user_id', userId) %>
-
-
-<% html_title(l(:label_ta)) -%>
-<% end %>
+</div>
