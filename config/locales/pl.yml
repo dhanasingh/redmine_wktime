@@ -1033,3 +1033,9 @@ pl:
   label_clos_curr_resp: Close current responses
   label_clos_responses: Closed responses
   label_not_rpt: Do not show in report
+  label_warning_clos_responses: Are you sure want to close the current survey responses
+
+  error_not_valid: Not a valid time format
+  error_enter_clk_in: Please enter Clock In
+  error_greater_then: The Clock In time can't be greater then Clock Out time
+  error_invalid_document: Document is invalid
