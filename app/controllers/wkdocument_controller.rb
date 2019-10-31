@@ -37,11 +37,11 @@ class WkdocumentController < WkbaseController
   def download
     if !(validateERPPermission("B_CRM_PRVLG") || validateERPPermission("A_CRM_PRVLG"))
       render_403
-    elsif stale?(:etag => @attachment.digest)
+    else
       @attachment.increment_download
       send_file @attachment.diskfile, :filename => filename_for_content_disposition(@attachment.filename),
-                                        :type => detect_content_type(@attachment),
-                                        :disposition => disposition(@attachment)
+                                      :type => detect_content_type(@attachment),
+                                      :disposition => disposition(@attachment) if stale?(:etag => @attachment.digest)
     end
   end
 
