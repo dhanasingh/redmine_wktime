@@ -361,7 +361,7 @@ class WksurveyController < WkbaseController
 
     if params[:surveyForID].blank? && params[:surveyForType].blank?
       surveyForQry = " AND SR.survey_for_type IS NULL AND SR.survey_for_id IS NULL "
-    elsif params[:surveyForType].present? && params[:surveyForID].blank?
+    elsif params[:surveyForType].present? && params[:surveyForID].blank? || params[:surveyForType] == 'User'
       surveyForQry = " AND SR.survey_for_type = '#{params[:surveyForType]}' "
     else
       surveyForQry = " AND SR.survey_for_type = '#{params[:surveyForType]}' AND SR.survey_for_id = #{params[:surveyForID]} "
