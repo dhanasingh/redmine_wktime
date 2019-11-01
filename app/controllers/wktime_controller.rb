@@ -2263,10 +2263,10 @@ private
 	end	
 	
 	def getSelectedProject(projList, setFirstProj)
-		if !params[:tab].blank? && params[:tab] =='wkexpense'		
+		if !params[:tab].blank? && params[:tab] =='wkexpense'
 			selected_proj_id = session[controller_name].try(:[], :project_id).blank? ? params[:project_id] : session[controller_name].try(:[], :project_id)
-		elsif !session[:wktimes].blank?
-			selected_proj_id = session[:controller_name].try(:[], :project_id)
+		elsif !session[controller_name].blank?
+			selected_proj_id = session[controller_name].try(:[], :project_id)
 		end
 		if !selected_proj_id.blank? && !setFirstProj #( !isAccountUser || !projList.blank? )
 			sel_project = projList.select{ |proj| proj.id == selected_proj_id.to_i } if !projList.blank?	

@@ -69,9 +69,9 @@ class WkaccountController < WkcrmController
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
 		end	
-   end
+   	end
    
-	   def edit
+	def edit
 		
 	     @accountEntry = nil
 		 unless params[:account_id].blank?
@@ -116,6 +116,7 @@ class WkaccountController < WkcrmController
 		account = WkAccount.find(params[:id].to_i)
 		if account.destroy
 			flash[:notice] = l(:notice_successful_delete)
+			delete_documents(params[:id])
 		else
 			flash[:error] = account.errors.full_messages.join("<br>")
 		end

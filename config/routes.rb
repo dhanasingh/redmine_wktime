@@ -119,17 +119,19 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
    
   get 'wkattendance/getProjectByIssue', :to => 'wkattendance#getProjectByIssue' 
 
-   get 'wkattendance/clockindex', :to => 'wkattendance#clockindex'
+  get 'wkattendance/clockindex', :to => 'wkattendance#clockindex'
    
-   post 'wkattendance/clockindex', :to => 'wkattendance#clockindex'
+  post 'wkattendance/clockindex', :to => 'wkattendance#clockindex'
 
   match 'wkattendance/clockedit', :to => 'wkattendance#clockedit', :via => [:get, :post]  
 
-get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
+  get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
   
   get 'wkattendance/getMembersbyGroup', :to => 'wkattendance#getMembersbyGroup'
   
   post 'wkattendance/saveClockInOut', :to => 'wkattendance#saveClockInOut'
+  
+  post 'wkattendance/save_bulk_edit', :to => 'wkattendance#save_bulk_edit'
   
   #For Report   
   get 'wkreport/index', :to => 'wkreport#index'
@@ -610,7 +612,25 @@ get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 	get 'wkgltransaction/export', :to => 'wkgltransaction#export'
 
 	resources :projects do
-    resource :wkaccountproject, :only => [:index], :controller => :wkaccountproject do
-      get :index
+    	resource :wkaccountproject, :only => [:index], :controller => :wkaccountproject do
+      		get :index
 		end
- end
+	 end
+
+	get 'wkleaverequest/index', :to => 'wkleaverequest#index'
+
+	get 'wkleaverequest/edit', :to => 'wkleaverequest#edit'
+
+	post 'wkleaverequest/save', :to => 'wkleaverequest#save'
+ 
+	get 'wkdocument/new', :to => 'wkdocument#new'
+
+	post 'wkdocument/save', :to => 'wkdocument#save'
+
+	get 'wkdocument/download', :to => 'wkdocument#download'
+
+	get 'wkdocument/destroy', :to => 'wkdocument#destroy'
+
+	get 'wksurvey/close_current_response', :to => 'wksurvey#close_current_response'
+
+	get 'wksurvey/print_survey_result', :to => 'wksurvey#print_survey_result'

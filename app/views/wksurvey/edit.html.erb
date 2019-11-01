@@ -60,7 +60,10 @@
 				<%= check_box_tag 'recur', true, recur, :disabled => isDisable  %>
 				<span id="tr_recur_every">
 					<b><%= l(:label_recur_every) %></b>
-					<%=h text_field_tag("recur_every", recur_every, :size => "3", :maxlength => 10, :disabled => isDisable) %>&nbsp;<b><%= l(:label_day_plural) %></b>
+					<%=h text_field_tag("recur_every", recur_every, :size => "3", :maxlength => 10, :disabled => isDisable) %>&nbsp;<b><%= l(:label_day_plural) %></b> &nbsp;
+                    <% if @isBlankSurvey ? false : @survey.status == 'O'%>
+						<%= link_to l(:label_clos_curr_resp), url_for(:survey_id => params[:survey_id], :controller => "wksurvey", :action => "close_current_response"), :data => {:confirm => l(:label_warning_clos_responses)} %>
+					<% end %>				
 				</span>
 			</td>
 		</tr>

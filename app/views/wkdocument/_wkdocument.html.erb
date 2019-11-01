@@ -1,0 +1,36 @@
+<label><%= l(:label_documents) %></label>
+<% getDocuments() %>
+<div>
+    <div class="contextual">
+        <%= link_to(l(:label_document_new), url_for(getDocumentType), :class => 'icon icon-add') %>
+    </div>
+
+    <table class="list files">
+        <thead><tr>
+        <th><%= l(:field_filename) %></th>
+        <th><%= l(:label_date) %></th>
+        <th><%= l(:field_filesize) %></th>
+        <th><%= l(:label_downloads_abbr) %></th>
+        <th><%= l(:field_digest) %></th>
+        <th></th>
+        </tr></thead>
+        <tbody>
+            <% @attachments.each do |file| %>
+            <tr class="file">
+                <td class="filename"><span title="<%= file.description %>"><%= file.filename %></span></td>
+                <td class="created_on"><%= format_time(file.created_on) %></td>
+                <td class="filesize"><%= number_to_human_size(file.filesize) %></td>
+                <td class="downloads"><%= file.downloads %></td>
+                <td class="digest"><%= file.digest_type %>: <%= file.digest %></td>
+                <td>
+                <%= link_to file.filename, url_for(controller: "wkdocument", action: "download", id: file.id), 
+                        class: 'icon-only icon-download', title: l(:button_download) %>
+                <%= link_to(l(:button_delete), url_for(controller: "wkdocument", action: "destroy", id: file.id), 
+                        class: 'icon-only icon-del', title: l(:button_delete), 
+                        data: {:confirm => l(:text_are_you_sure)}) if validateERPPermission("A_CRM_PRVLG") %>
+                </td>
+            </tr>
+            <% end %>
+        </tbody>
+    </table>
+</div>

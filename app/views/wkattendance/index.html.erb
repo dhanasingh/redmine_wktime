@@ -12,3 +12,7 @@
 <%= render_tabs time_expense_tabs %>
 <%= render :partial => 'attn_index' %>
 <% html_title(l(:label_ta)) -%>
+
+<% content_for :sidebar do %>
+   <%= render :partial => 'wkleaverequest/sidebar' %>
+<% end %>

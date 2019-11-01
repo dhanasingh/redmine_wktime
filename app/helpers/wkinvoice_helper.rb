@@ -86,7 +86,7 @@ include WkpayrollHelper
 		unless @invoice.save
 			errorMsg = @invoice.errors.full_messages.join("<br>")
 		else
-			call_hook(:controller_after_save_invoice, {:attributes => @invoice.attributes})
+			call_hook(:controller_after_save_invoice, {:attributes => @invoice.attributes}) if @invoice.parent_type != "WkAccount"
 		end
 		errorMsg
 	end
@@ -600,7 +600,7 @@ include WkpayrollHelper
 		totalCreditAmount = 0
 		queryString = "select inv.*,i.parent_id, i.parent_type, iit.project_id, iit.original_currency, pit.id as payment_item_id, pit.original_amount, pit.payment_id, pay.paid_amount, coalesce(inv.inv_amount - pay.paid_amount, inv.inv_amount , - pay.paid_amount) as total_credit,
 		 pcr.given_pay_credit, icr.given_inv_credit,
-		 coalesce(inv.inv_amount - pay.paid_amount, inv.inv_amount , - pay.paid_amount, 0) -  coalesce(pcr.given_pay_credit, 0) -  coalesce(icr.given_inv_credit, 0)  as available_pay_credit from
+		 coalesce(inv.inv_amount - pay.paid_amount, inv.inv_amount , - pay.paid_amount, 0) -  coalesce(pcr.given_pay_credit, 0) -  coalesce(icr.given_inv_credit, 0)  as available_pay_credit, i.invoice_number from
 		(select i.id, sum(it.original_amount) inv_amount
 		from wk_invoices i
 		left outer join wk_invoice_items it on i.id = it.invoice_id
@@ -647,11 +647,11 @@ include WkpayrollHelper
 					credit_invoice_id = entry.id
 					@invItems[@itemCount].store 'milestone_id', entry.id
 					@invItems[@itemCount].store 'creditfromInvoice', true
-					creditDesc = l(:label_credit_from_prv_inv, :invId => entry.id)
+					creditDesc = l(:label_credit_from_prv_inv, :invId => entry.invoice_number)
 				else
 					@invItems[@itemCount].store 'milestone_id', entry.payment_item_id
 					@invItems[@itemCount].store 'creditfromInvoice', false
-					creditDesc =  l(:label_credit_from_prv_inv_pay, :invId => entry.id, :payId => entry.payment_item_id)
+					creditDesc =  l(:label_credit_from_prv_inv_pay, :invId => entry.invoice_number, :payId => entry.payment_id)
 				end
 				@invItems[@itemCount].store 'item_desc', creditDesc
 				

@@ -127,6 +127,7 @@ class WkcrmactivityController < WkcrmController
 		parentId = WkCrmActivity.find(params[:activity_id].to_i).parent_id
 		trans = WkCrmActivity.find(params[:activity_id].to_i).destroy
 		flash[:notice] = l(:notice_successful_delete)
+		delete_documents(params[:activity_id])
 		if params[:controller_from] == 'wksupplieraccount'
 			redirect_to :controller => params[:controller_from],:action => params[:action_from] , :account_id => parentId
 		elsif params[:controller_from] == 'wksuppliercontact'

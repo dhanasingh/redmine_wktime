@@ -3,7 +3,7 @@
 
 <%= title l(:label_survey) %>
 <h3><%= l(:label_survey_name) %>:&nbsp;&nbsp; <%= @survey.name %></h3>
-<% if @response_status.present? %>
+<% if @response_status.present? && !@isResetResponse%>
 	<fieldset class="box tabular">
 		<table width="40%">
 			<tr>

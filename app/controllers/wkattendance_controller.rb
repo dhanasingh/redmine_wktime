@@ -98,7 +98,7 @@ class WkattendanceController < WkbaseController
 			getAllTimeRange(ids, false)
 		end
 		noOfDays = 't4.i*1*10000 + t3.i*1*1000 + t2.i*1*100 + t1.i*1*10 + t0.i*1'
-		sqlQuery = "select vw.id as user_id, vw.firstname, vw.lastname, vw.created_on, vw.selected_date as entry_date, evw.start_time, evw.end_time, evw.hours from
+		sqlQuery = "select evw.id, vw.id as user_id, vw.firstname, vw.lastname, vw.created_on, vw.selected_date as entry_date, evw.start_time, evw.end_time, evw.hours from
 			(select u.id, u.firstname, u.lastname, u.created_on, v.selected_date from" + 
 			"(select " + getAddDateStr(@from, noOfDays) + " selected_date from " +
 			"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t0,
@@ -107,10 +107,12 @@ class WkattendanceController < WkbaseController
 			 (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t3,
 			 (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9)t4)v,
 			 (select u.id, u.firstname, u.lastname, u.created_on from users u where u.type = 'User' ) u
-			 WHERE  v.selected_date between '#{@from}' and '#{@to}' order by u.id, v.selected_date) vw left join
-			 (select min(start_time) as start_time, max(end_time) as end_time, " + getConvertDateStr('start_time') + "
-			 entry_date,sum(hours) as hours, user_id from wk_attendances WHERE " + getConvertDateStr('start_time') +" between '#{@from}' and '#{@to}'			
-			 group by user_id, " + getConvertDateStr('start_time') + ") evw on (vw.selected_date = evw.entry_date and vw.id = evw.user_id) where vw.id in(#{ids}) "
+			 WHERE  v.selected_date between '#{@from}' and '#{@to}' AND u.id in (#{ids})
+			 order by u.id, v.selected_date) vw 
+			left join(
+				 select id, start_time, end_time, " + getConvertDateStr('start_time') + " entry_date, hours, user_id from wk_attendances 
+				 WHERE " + getConvertDateStr('start_time') +" between '#{@from}' and '#{@to}' AND user_id in (#{ids})
+			) evw on (vw.selected_date = evw.entry_date and vw.id = evw.user_id) where vw.id in (#{ids}) "
 			 sqlQuery = sqlQuery + " ORDER BY " + (sort_clause.present? ? sort_clause.first : "vw.selected_date desc, vw.firstname")
 			findBySql(sqlQuery, WkAttendance)
 	end
@@ -275,7 +277,7 @@ class WkattendanceController < WkbaseController
 			end
 		end
 		
-		if errorMsg.nil?	
+		if errorMsg.nil?
 			redirect_to :controller => 'wkattendance',:action => 'index' , :tab => 'wkattendance'
 			flash[:notice] = l(:notice_successful_update)
 		else
@@ -422,11 +424,7 @@ class WkattendanceController < WkbaseController
 				sucessMsg = l(:notice_successful_delete)
 			else
 				if !params["attnEntriesId#{i}"].blank?
-					wkattendance =  WkAttendance.find(params["attnEntriesId#{i}"].to_i)				
-					wkattendance.start_time =  getFormatedTimeEntry(entry_start_time)
-					wkattendance.end_time = getFormatedTimeEntry(entry_end_time) #if !entry_end_time.blank?
-					wkattendance.hours = computeWorkedHours(wkattendance.start_time, wkattendance.end_time, true) if !wkattendance.end_time.blank?
-					wkattendance.save()
+					saveAttendance(params["attnEntriesId#{i}"], getFormatedTimeEntry(entry_start_time), getFormatedTimeEntry(entry_end_time))
 					sucessMsg = l(:notice_successful_update) 				
 				else
 					addNewAttendance(getFormatedTimeEntry(entry_start_time),getFormatedTimeEntry(entry_end_time), params[:user_id].to_i)
@@ -452,5 +450,45 @@ class WkattendanceController < WkbaseController
 			redirect_to redirect
 		end
 
+	end
+
+	def save_bulk_edit
+		err_msg = ''
+		params.each do |param, val|
+			splits = param.split("_")
+			key = "#{splits[1].to_s}_#{splits[2].to_s}"
+			attnd_id = splits[1]
+			if ["clockin_" + key].include?(param) && val.present? && (params["h_clockin_" + key] != val ||
+					params["clockout_" + key] != params["h_clockout_" + key])
+				start_time = params["startdate_" + key] + " " +  params["clockin_" + key] + ":00"
+				start_time = DateTime.strptime(start_time, "%Y-%m-%d %T") rescue start_time
+				end_time = params["startdate_" + key] + " " +  params["clockout_" + key] + ":00" if params["clockout_" + key].present?
+				end_time = DateTime.strptime(end_time, "%Y-%m-%d %T") rescue end_time
+				startTime = getFormatedTimeEntry(start_time)
+				endTime = getFormatedTimeEntry(end_time)
+				begin
+					if params["clockin_" + key] == '0:00' && params["clockout_" + key] == '0:00' && attnd_id.present?
+						wkattendance =  WkAttendance.find(attnd_id.to_i)
+						wkattendance.destroy()
+					elsif attnd_id.present?
+						wkattendance = saveAttendance(attnd_id, startTime, endTime)
+					else
+						wkattendance = addNewAttendance(startTime, endTime, params["userID_" + key].to_i)
+					end
+				rescue
+					err_msg += wkattendance.errors.full_messages.join('\n')
+				end
+			end
+		end
+		render :plain => err_msg
+	end
+
+	def saveAttendance(id, startTime, endTime)
+		wkattendance =  WkAttendance.find(id.to_i)
+		wkattendance.start_time =  startTime
+		wkattendance.end_time = endTime
+		wkattendance.hours = computeWorkedHours(wkattendance.start_time, wkattendance.end_time, true) if wkattendance.end_time.present?
+		wkattendance.save()
+		wkattendance
 	end
 end

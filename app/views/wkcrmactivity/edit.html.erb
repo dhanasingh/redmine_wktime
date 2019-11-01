@@ -1,2 +1,8 @@
 <h2><%= l(:text_edit_activity) %></h2>
 <%= render :partial => 'wkcrmactivity/activity_edit'%>
+<% unless @activityEntry.blank? %>
+	</br>
+	<div>
+		<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @activityEntry[0] } %>
+	</div>
+<% end %>

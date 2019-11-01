@@ -11,28 +11,28 @@ This Plugin has the following modules:
     Check Leave Status
     Integrate with Attendance / Time clock devices
     Schedule Shifts
-    Report � User Utilization Report
+    Report - User Utilization
 3) PayRoll
     Setup Payroll data
     Generate Salary
-    Report � Salary Register
-    Report � Salary Slip
+    Report - Salary Register
+    Report - Salary Slip
 4) Billing
     Setup Billable Projects
     Generate Invoices
     Payments
     Print Invoices
-    Report � Project profitability
+    Report - Project profitability
 5) Accounting
     Create Ledgers
     Post Financial Transaction 
-    Report � Balance Sheet
-    Report � Profit & Loss A/c Report
-    Report � Trail Balance
+    Report - Balance Sheet
+    Report - Profit & Loss A/c
+    Report - Trail Balance
 6) CRM
     Create Lead,Opportunity, Activity and Contacts
-    Report � Lead Conversion
-    Report � Sales Activity
+    Report - Lead Conversion
+    Report - Sales Activity
 7) Purchasing
     Create RFQ, Quote, Purchase Order, 
     Create Supplier Invoice and Supplier Payments
@@ -40,7 +40,7 @@ This Plugin has the following modules:
 8) Inventory
     Create Product, Items, Shipments and Asset
     Log Material and Asset Entries
-    Report - Stock and Asset Report.
+    Report - Stock and Asset
 
 For more information on features, please refer to the user guide 
 	http://www.adhisoftware.co.in/wp-content/uploads/ERPmine-User-Guide.pdf
@@ -74,31 +74,25 @@ If an apache passenger module is used then make sure the following settings are 
   b) RailsAppSpawnerIdleTime 0
   c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for 3.7.1
+Release Notes for v3.8
 
   Features:
-    - Sorting for all list pages
-    - Project for inventory module
+    - Bulk edit for Clock-in & Clock-Out list page
+    - Additional component condition for payroll settings
+    - Attachments for CRM Entities
+    - Leave Request
+    - Close Current Responses for recur surveys
+    - Supervisor of Supervisor for review surveys
+    - Show Response text answers also in survey result
 
   Bug Fixing:
-    - Redesign inventory module
-    - Move shift tab to scheduling
-    - Balance sheet has zero amount
-    - Add Currency in asset report
-    - Join date in payroll list
-    - Freeze user name section in payroll user setting
-    - Recurrence and Reviewer check not required
-    - Result view for survey editors
-    - User Utilization is incorrectly showing 100%
-    - use billable projects for project profitability report
-    - Asset Report isn't pulling all the asset values during the period
-    - Converting lead directly on CRM isn't working properly. It doesn't list out on accounts page
-    - Unbilled invoice showing incorrect credit amounts
-    - Location dropdown values aren't retained in CRM module
-    - Invoice showing 'Accept payment' link incorrectly
-    - Survey Response details
-    - Survey Result for reviewer only questions also
-    - Hide ERPmine link in top menu
+    - Incorrect P&L opening and closing balance in Balance Sheet report
+    - Show invoice & Payment number instead of database id for credit invoice description
+    - Don't show other users hyperlink to editor in survey response list
+    - Don't collapse the survey question section by default
+    - Restrict to select same dependent field in payroll salary settings
+    - Billing Internal page error
+    - Project dropdown is not working properly in Timesheet
 
 Customization:
 

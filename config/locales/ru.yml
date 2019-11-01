@@ -967,6 +967,7 @@ ru:
   label_response_by: Response By
   label_response_status: Response Status
   notice_unsuccessful_save: Unable to save
+  label_reviewed_by: Reviewed By
   
   label_no_additional_details_for_issue: No Additional Details for Issue
   label_create_supplier_invoice_without_purchase_order: Create Supplier invoice without Purchase order
@@ -994,3 +995,32 @@ ru:
   label_summary_by: Summary by  
   report_trial_balance: Trial Balance Report
   label_all_projects: All Projects
+  
+  label_leave_request: Leave Request
+  label_new_leave_request: New Leave Request
+  label_leave_type: Leave Type
+  label_reason: Comment
+  label_date_start_end: Start Date %{start} End Date %{end}
+  wk_status_cancelled: Cancelled
+  button_cancel_leave: Cancel Leave
+  label_leave_request_notification: Leave Request Notification
+  label_by: By
+  label_leave_email_note: Leave request has been
+  label_documents: Documents
+
+  #ESI Calculate on Payroll
+  label_equal: '=='
+  label_less_than: '<'
+  label_greater_than: '>'
+  label_if: If
+  label_condition_errormsg: Condition can not be blank
+  
+  label_clos_curr_resp: Close current responses
+  label_clos_responses: Closed responses
+  label_not_rpt: Do not show in report
+  label_warning_clos_responses: Are you sure want to close the current survey responses
+
+  error_not_valid: Not a valid time format
+  error_enter_clk_in: Please enter Clock In
+  error_greater_then: The Clock In time cannot be greater than Clock Out time
+  error_invalid_document: Document is invalid

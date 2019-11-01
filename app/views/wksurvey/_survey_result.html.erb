@@ -1,18 +1,40 @@
-<% @survey_result_Entries.each do |entry| %>
-    <fieldset class="box tabular">
-        <table class="odd-even">
-            <tr>
-                <th align="left"><%= l(:label_question_name) %></th>
-                <td align="left" style="padding-left:40px;"><%= entry.question_name %></td>
-            </tr>
-            <tr>
-                <th align="left"><%= l(:label_question_choices) %></th>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td><%= render :partial => 'graph', :locals => { :entry => entry } %></td>
-            <tr>
-        </table>
-</fieldset>
+<% if action_name == 'print_survey_result' %>
+    <%= title l(:label_survey_result) %>
+    <h3><%= l(:label_survey_name) %>:&nbsp;&nbsp; <%= @survey.name %></h3>
+	<% if getResponseGroup.present? %>
+        <b><%= l(:label_clos_responses) %></b>:&nbsp; <%= params[:responsedGrpDate].present? ? params[:responsedGrpDate] : getResponseGroup.max[1] if getResponseGroup.present?%>
+    <% end %>
 <% end %>
+
+<div>
+    <% @survey_result_Entries.each do |entry| %>
+        <fieldset class="box tabular">
+            <table class="odd-even">
+                <tr>
+                    <th align="left"><%= entry.question_name %></th>
+                </tr>
+                <tr>
+                    <td><%= render :partial => 'graph', :locals => { :entry => entry } %></td>
+                <tr>
+            </table>
+        </fieldset>
+    <% end %>
+</div>
+<div>
+    <% @survey_txt_questions.each do |qn_entry| %>
+        <fieldset class="box tabular">
+            <table>
+                <tr>
+                    <th align="left" style="white-space: nowrap"><%= qn_entry.question_name %></th>
+                </tr>
+                <% @survey_txt_answers.each do |ans_entry| %>
+                    <% if qn_entry.question_id == ans_entry.question_id %>
+                        <tr>
+                            <td style="padding-left: 50px;"><%= ans_entry.choice_text %></td>
+                        <tr>
+                    <% end %>
+                <% end %>
+            </table>
+        </fieldset>
+    <% end %>
+</div>

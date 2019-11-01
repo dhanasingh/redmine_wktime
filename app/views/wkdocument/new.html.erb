@@ -1,0 +1,10 @@
+<h2><%=l(:label_document_new)%></h2>
+
+<%= form_tag(url_for(controller: "wkdocument", action: "save"), :multipart => true, :class => "tabular") do %>
+    <%= hidden_field_tag("container_type", params[:container_type]) %>
+    <%= hidden_field_tag("container_id", params[:container_id]) %>
+    <div class="box">
+        <p><label><%=l(:label_attachment_plural)%></label><%= render :partial => 'attachments/form' %></p>
+    </div>
+    <%= submit_tag l(:button_add) %>
+<% end %>

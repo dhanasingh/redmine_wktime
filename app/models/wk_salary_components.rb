@@ -18,4 +18,6 @@
 class WkSalaryComponents < ActiveRecord::Base
   Redmine::SafeAttributes
   has_many :salaries, foreign_key: "salary_component_id", class_name: "WkSalary"
+  has_many :wk_component_conditions, foreign_key: "salary_component_id", class_name: "WkComponentCondition", :dependent => :destroy
+  accepts_nested_attributes_for :wk_component_conditions, allow_destroy: true
 end

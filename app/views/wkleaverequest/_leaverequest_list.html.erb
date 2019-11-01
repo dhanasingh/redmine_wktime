@@ -1,0 +1,28 @@
+<table class="list time-entries">
+	<thead>
+		<tr>
+			<%= sort_header_tag('user_name', :caption => l(:field_user), class: "lbl-txt-align") %>
+			<%= sort_header_tag('leave_type', :caption => l(:label_leave_type), class: "lbl-txt-align") %>
+			<%= sort_header_tag('start_date', :caption => l(:label_start_date), class: "lbl-txt-align") %>
+			<%= sort_header_tag('end_date', :caption => l(:label_end_date), class: "lbl-txt-align") %>
+			<%= sort_header_tag('status', :caption => l(:label_status), class: "lbl-txt-align") %>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		<% @leaveReqEntires.each do |entry| %>
+		<% status = getLeaveStatus[entry.try(:status)] %>
+			<tr>
+				<td><%= entry.user_name %></td>
+				<td><%= entry.leave_type.subject %></td>
+				<td><%= entry.startDate %></td>
+				<td><%= entry.endDate %></td>
+				<td><%= status %></td>
+				<td align="center">
+					<%= link_to image_tag('edit.png'), {:controller => controller_name, :action => 'edit', :id => entry.id, 
+						:tab => controller_name}, :title => l(:button_edit) %>
+				</td></td>
+			</tr>
+		<% end %>
+	</tbody>
+</table>

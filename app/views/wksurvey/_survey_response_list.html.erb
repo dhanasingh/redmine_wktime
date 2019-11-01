@@ -1,38 +1,52 @@
-<%
-survey_helper = Object.new.extend(WksurveyHelper)
 
-if params[:isIssue] == "true"
-    style = "list issues odd-even"
-else   
-    style = "list time-entries"
-end
-%>
-<table class="<%= style %>">
+<% survey_helper = Object.new.extend(WksurveyHelper) %>
+<% if @survey.recur %>
+    <% response_grp = survey_helper.getResponseGroup(params[:survey_id]).insert(0, [""], ["ALL"]) %>
+    <div>
+    <%= form_tag({:controller => "wksurvey", :action => 'survey_response'}, :method => :get, :id => 'response_form') do %> 
+        <%=h hidden_field_tag('survey_id', params[:survey_id]) %>
+        <%=h hidden_field_tag('surveyForID', params[:surveyForID]) %>
+        <%=h hidden_field_tag('surveyForType', params[:surveyForType]) %>
+        <p>
+            <b><%= l(:label_clos_responses) %></b>&nbsp;
+            <%=h select_tag('responsedGrpDate', options_for_select(response_grp,
+                selected: params[:responsedGrpDate].present? ? params[:responsedGrpDate] : response_grp[0]), onchange: '$("#response_form").submit()') %>
+            <%= link_to_function l(:button_apply), '$("#response_form").submit()', :class => 'icon icon-checked' %>
+        </p>
+    <% end %>
+    </div>
+<% end %>
+<div>
+<table class="list time-entries">
     <tr>
         <th>#</th>
         <th class="lbl-txt-align"><%= l(:label_survey) %></th>
         <%= sort_header_tag('Response_status', :caption => l(:label_response_status)) %>
         <%= sort_header_tag('Response_By', :caption => l(:label_response_by)) %>
         <%= sort_header_tag('Response_date', :caption => l(:label_response_date)) %>
+        <%= sort_header_tag('Cls_Resp_date', :caption => l(:label_clos_responses)) %>
     </tr>
     <% @response_entries.each_with_index do |entry, index| %>
         <% entry = entry.last %>
-        <% if User.current.id == entry[:user_id] || (User.current.id == entry[:parent_id] || 
-            validateERPPermission("E_SUR")) %>
+            <% if User.current.id == entry[:user_id] || ((entry[:reviewers]).include? entry[:user_id]) || validateERPPermission("E_SUR") %>
             <% urlhash = { :survey_id => entry[:survey_id], :surveyForType => entry[:survey_for_type], :surveyForID => entry[:survey_for_id], response_id: entry[:id] } %>
             <tr>
                 <td class="lbl-txt-align"><%=h index+1 %></td>
                 <td class="lbl-txt-align">
-                <% if @surveyForID.blank? && !@surveyForType.blank? %>
-                    <%= entry[:name] %>
+                    <% if (@survey.is_review && (entry[:reviewers].include? entry[:user_id]) && entry[:status] != 'O') || User.current.id == entry[:user_id] %>
+                        <%= link_to entry[:name], url_for(survey_helper.get_survey_url(urlhash, params, "survey")) %>
                 <% else %>
-                    <%= link_to entry[:name], url_for(survey_helper.get_survey_url(urlhash, params, "survey")) %>
+                    <%= entry[:name] %>
                 <% end %>
                 </td>
                 <td class="lbl-txt-align"><%=h survey_helper.getResponseStatus.invert[entry[:status]] %></td>
                 <td class="lbl-txt-align"><%=h entry[:firstname] + " " + entry[:lastname] %></td>
                 <td class="lbl-txt-align"><%=h entry[:status_date].strftime("%Y-%m-%d") %></</td>
+                <td class="lbl-txt-align">
+                        <%= entry[:group_date].localtime.strftime("%Y-%m-%d %H:%M:%S") if entry[:group_date].present? %>
+                </td>
             </tr>
         <% end %>
     <% end %>
 </table>
+</div>

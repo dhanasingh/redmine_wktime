@@ -64,16 +64,9 @@ class WkpayrollController < WkbaseController
 		@isPreview = params[:generate].blank? ? false : !to_boolean(params[:generate])
 		@total_gross = 0
 		@total_net = 0
-	  	@groups = Group.sorted.all
     	set_filter_session
     	retrieve_date_range
-		@members = Array.new
-		userIds = Array.new
-		userList = getGroupMembers
-		userList.each do |users|
-			@members << [users.name,users.id.to_s()]
-			userIds << users.id
-		end
+		userIds = getUsersAndGroups
 		ids = nil
 		user_id = session[controller_name].try(:[], :user_id)
 		group_id = session[controller_name].try(:[], :group_id)
@@ -231,7 +224,7 @@ class WkpayrollController < WkbaseController
 		sqlStr = getUserSalaryQueryStr
 		sqlStr = sqlStr + "Where u.id = #{userId} and u.type = 'User'" +
 		"order by u.id, sc.component_type"
-		@userSalHash = getUserSalaryHash(userId, Date.today.at_end_of_month + 1)
+		@userSalHash = getUserSalaryHash(userId, Date.today.at_end_of_month + 1, true)
 		@userSalaryEntries = WkUserSalaryComponents.find_by_sql(sqlStr)
 	end
 
@@ -314,23 +307,6 @@ class WkpayrollController < WkbaseController
 			format.text  { render :plain => group_by_users }
 		end
 	end	
-	
-	def getGroupMembers
-		userList = nil
-		group_id = nil
-		if (!params[:group_id].blank?)
-			group_id = params[:group_id]
-		else
-			group_id = session[controller_name].try(:[], :group_id)
-		end
-		
-		if !group_id.blank? && group_id.to_i > 0
-			userList = User.in_group(group_id) 
-		else
-			userList = User.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
-		end
-		userList
-	end
 	
    # Retrieves the date range based on predefined ranges or specific from/to param dates
 	def retrieve_date_range
@@ -443,7 +419,7 @@ class WkpayrollController < WkbaseController
 			payrollValues = salaryComponentsHashVal(params[:settings])
 			savePayrollSettings(payrollValues)
 			flash[:notice] = l(:notice_successful_update)
-			redirect_to controller: controller_name, action: 'index', tab: controller_name
+			redirect_to controller: controller_name, action: 'index', tab: "payroll"
 		else
 			retrieveSalarayComponents()
 		end
@@ -462,7 +438,9 @@ class WkpayrollController < WkbaseController
 	end
 
 	def retrieveSalarayComponents
-		dep_list = WkSalaryComponents.order('name')
+		dep_list = WkSalaryComponents.joins("LEFT JOIN wk_component_conditions CC ON CC.salary_component_id = wk_salary_components.id")
+							.select("wk_salary_components.*, CC.id AS cond_id, CC.left_hand_side, CC.operators, CC.right_hand_side")
+							.order('name')
 		basic = Array.new
 		allowance = Array.new
 		deduction = Array.new
@@ -471,8 +449,8 @@ class WkpayrollController < WkbaseController
 		unless dep_list.blank?
 			dep_list.each do |list| 
 			basic = [list.id.to_s + '|' + list.name + '|' + list.salary_type + '|' + list.factor.to_s + '|' + list.ledger_id.to_s ]  if list.component_type == 'b'	
-			allowance << list.id.to_s + '|' + list.name+'|'+list.frequency.to_s+'|'+ (list.start_date).to_s+'|'+(list.dependent_id).to_s+'|'+list.factor.to_s + '|' + list.ledger_id.to_s	if list.component_type == 'a'
-			deduction << list.id.to_s + '|' + list.name + '|' + list.frequency.to_s + '|' + (list.start_date).to_s + '|' + (list.dependent_id).to_s + '|' + (list.factor).to_s + '|' + list.ledger_id.to_s if list.component_type == 'd'
+			allowance << list.id.to_s + '|' + list.name+'|'+list.frequency.to_s+'|'+ (list.start_date).to_s+'|'+(list.dependent_id).to_s+'|'+list.factor.to_s + '|' + list.ledger_id.to_s + '|' + list.cond_id.to_s + '|' + (list.left_hand_side).to_s + '|' + (list.operators).to_s + '|' + (list.right_hand_side).to_s  if list.component_type == 'a'
+			deduction << list.id.to_s + '|' + list.name + '|' + list.frequency.to_s + '|' + (list.start_date).to_s + '|' + (list.dependent_id).to_s + '|' + (list.factor).to_s + '|' + list.ledger_id.to_s + '|' + list.cond_id.to_s + '|' + (list.left_hand_side).to_s + '|' + (list.operators).to_s + '|' + (list.right_hand_side).to_s  if list.component_type == 'd'
 			calculated_fields << list.id.to_s + '|' + list.name + '|' + list.salary_type if list.component_type == 'c'
 			end
 		end
