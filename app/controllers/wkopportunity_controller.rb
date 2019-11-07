@@ -1,7 +1,7 @@
 class WkopportunityController < WkcrmController
   unloadable
   include WktimeHelper
-
+  helper_method :sort_column, :sort_direction
 
     def index
 		set_filter_session
@@ -12,7 +12,7 @@ class WkopportunityController < WkcrmController
 		filterSql = ""
 		filterHash = Hash.new
 		unless @from.blank? || @to.blank?
-			filterSql = filterSql + " created_at between :from AND :to"
+			filterSql = filterSql + " wk_opportunities.created_at between :from AND :to"
 			filterHash = {:from => getFromDateTime(@from), :to => getToDateTime(@to)}  
 		end
 		unless oppName.blank?
@@ -110,9 +110,12 @@ class WkopportunityController < WkcrmController
     end
    	
 	def formPagination(entries)
+		helperColumn = []
+		relatedHash.each {|key, value| helperColumn.push("select '#{key}' as parent_type, '#{value}' as related_hash")}
+		helperColumn = helperColumn.join(" union ")
 		@entry_count = entries.count
         setLimitAndOffset()
-		@opportunity = entries.order(updated_at: :desc).limit(@limit).offset(@offset)
+		@opportunity = entries.joins("LEFT JOIN wk_crm_enumerations ON wk_crm_enumerations.id = wk_opportunities.sales_stage_id").joins("LEFT JOIN users ON users.id = wk_opportunities.assigned_user_id").joins("JOIN (#{helperColumn}) AS related_types ON wk_opportunities.parent_type = related_types.parent_type").order(sort_column + " " + sort_direction + ", name asc").limit(@limit).offset(@offset)
 	end
 	
 	def setLimitAndOffset		
@@ -131,4 +134,13 @@ class WkopportunityController < WkcrmController
 		end	
 	end
 
+	def sort_column
+		allColumns = WkOpportunity.column_names()
+		allColumns.push("users.lastname", "wk_opportunities.updated_at", "wk_crm_enumerations.name", "related_hash")
+		allColumns.include?(params[:sort]) ? params[:sort] : "wk_opportunities.updated_at"
+	end
+
+	def sort_direction
+		%w[asc desc].include?(params[:direction]) ? params[:direction] : "asc"
+	end
 end

@@ -6,14 +6,14 @@
 <table class="list time-entries">
   <thead>
          <tr>
-				<th class="lbl-txt-align"><%= l(:field_name)   %></th>
-			<!--	<th class="lbl-txt-align"><%#=  l(:label_account_name) %></th> -->
-				<th class="lbl-txt-align"><%= l(:label_related_to) %></th>
-				<th class="lbl-txt-align"><%=  l(:label_txn_sales_stage) %></th>
-				<th class="lbl-txt-align"><%=  l(:field_amount)  %></th>
-				<th class="lbl-txt-align"><%=  l(:label_expected_date_to_close_project)  %></th>
-				<th class="lbl-txt-align"><%=  l(:field_assigned_to)  %></th>
-				<th class="lbl-txt-align"><%= l(:label_modified).capitalize %></th>
+				<th class="lbl-txt-align"><%= sortable "name", l(:field_name)   %></th>
+			<!--	<th class="lbl-txt-align"><%#= l(:label_account_name) %></th> -->
+				<th class="lbl-txt-align"><%=  sortable "related_hash", l(:label_related_to) %></th>
+				<th class="lbl-txt-align"><%=  sortable "wk_crm_enumerations.name", l(:label_txn_sales_stage) %></th>
+				<th class="lbl-txt-align"><%=  sortable "amount", l(:field_amount)  %></th>
+				<th class="lbl-txt-align"><%=  sortable "close_date", l(:label_expected_date_to_close_project)  %></th>
+				<th class="lbl-txt-align"><%=  sortable "users.lastname", l(:field_assigned_to)  %></th>
+				<th class="lbl-txt-align"><%= sortable "wk_opportunities.updated_at", l(:label_modified).capitalize %></th>
 				<th></th>
          </tr>
   </thead>

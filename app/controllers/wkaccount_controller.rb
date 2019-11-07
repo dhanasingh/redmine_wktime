@@ -18,6 +18,8 @@
 class WkaccountController < WkcrmController
 before_filter :require_login
 include WkcustomfieldsHelper
+helper_method :sort_column, :sort_direction
+
     def index
 		@account_entries = nil
 		if params[:accountname].blank?
@@ -43,7 +45,7 @@ include WkcustomfieldsHelper
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
-		@account_entries = entries.order(:name).limit(@limit).offset(@offset)
+		@account_entries = entries.joins(:address).joins("LEFT JOIN wk_locations ON wk_locations.id = wk_accounts.location_id").order("COALESCE(#{sort_column})" + " " + sort_direction + ", wk_accounts.name asc").limit(@limit).offset(@offset)
 	end
 
     def setLimitAndOffset
@@ -132,4 +134,17 @@ include WkcustomfieldsHelper
 	def getAccountLbl
 		l(:label_account)
 	end
+
+	private
+
+	def sort_column
+		allColumns = [WkAccount, WkAddress].flat_map(&:column_names)
+		allColumns.push("wk_accounts.name", "wk_locations.name")
+		allColumns.include?(params[:sort]) ? params[:sort] : "wk_accounts.name"
+	end
+
+	def sort_direction
+		%w[asc desc].include?(params[:direction]) ? params[:direction] : "asc"
+	end
+
 end

@@ -3,14 +3,14 @@
 	<table class="list time-entries">
 		<thead>
 			<tr>
-				<th class="lbl-txt-align"><%= l(:label_activity_type) %></th>
-				<th class="lbl-txt-align"><%= l(:field_subject) %></th>
-				<th class="lbl-txt-align"><%= l(:field_status) %></th>
-				<th class="lbl-txt-align"><%= l(:label_related_to) %></th>
-				<th class="lbl-txt-align"><%= l(:label_start_date_time) %></th>
-				<th class="lbl-txt-align"><%= l(:label_end_date_time) %></th>
-				<th class="lbl-txt-align"><%= l(:field_assigned_to) %></th>
-				<th class="lbl-txt-align"><%= l(:field_updated_on) %></th>
+				<th class="lbl-txt-align"><%= sortable "activity_type", l(:label_activity_type) %></th>
+				<th class="lbl-txt-align"><%= sortable "name", l(:field_subject) %></th>
+				<th class="lbl-txt-align"><%= sortable "status", l(:field_status) %></th>
+				<th class="lbl-txt-align"><%= sortable "related_hash", l(:label_related_to) %></th>
+				<th class="lbl-txt-align"><%= sortable "start_date", l(:label_start_date_time) %></th>
+				<th class="lbl-txt-align"><%= sortable "end_date", l(:label_end_date_time) %></th>
+				<th class="lbl-txt-align"><%= sortable "users.lastname", l(:field_assigned_to) %></th>
+				<th class="lbl-txt-align"><%= sortable "updated_at", l(:field_updated_on) %></th>
 
 
 				<th></th>

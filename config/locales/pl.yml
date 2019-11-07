@@ -912,7 +912,7 @@ pl:
   label_users_can_pick_project: Pozwól użytkowniką na wybór projektu?
   label_default_project: Domyślny projekt
   label_default_document_type: Domyślny typ dokumentu
-  label_you_have_to_pick_project: Musisz wybrać projekt
+  label_you_have_to_pick_project: Aby dodać element należy najpierw wybrać projekt.
   label_all_and_without_account: Wszystkie działalności i ich brak
   label_without_account: Brak działalności
   label_phone: Telefon

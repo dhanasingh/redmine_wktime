@@ -1,6 +1,9 @@
 class WkcontactController < WkcrmController
   unloadable
   include WkcustomfieldsHelper
+  include WkcrmcontactHelper
+  include WkcontactHelper
+	helper_method :sort_column, :sort_direction
 
 	def index
 		set_filter_session
@@ -144,8 +147,12 @@ class WkcontactController < WkcrmController
 
 	def formPagination(entries)
 		@entry_count = entries.count
-        setLimitAndOffset()
-		@contact = entries.order(updated_at: :desc).limit(@limit).offset(@offset)
+		setLimitAndOffset()
+		if(sort_column == "last_name")
+			@contact = entries.joins(:address).joins(:account).joins("LEFT JOIN users ON users.id = wk_crm_contacts.assigned_user_id").joins("LEFT JOIN wk_locations ON wk_locations.id = wk_accounts.location_id").order("COALESCE(#{sort_column})" + " " + sort_direction + ", first_name asc").limit(@limit).offset(@offset)
+		else
+			@contact = entries.joins(:address).joins(:account).joins("LEFT JOIN users ON users.id = wk_crm_contacts.assigned_user_id").joins("LEFT JOIN wk_locations ON wk_locations.id = wk_accounts.location_id").order("COALESCE(#{sort_column})" + " " + sort_direction + ", last_name asc, first_name asc").limit(@limit).offset(@offset)
+		end
 	end
 
 	def setLimitAndOffset
@@ -171,5 +178,18 @@ class WkcontactController < WkcrmController
 	def contactLbl
 		l(:label_contact_plural)
 	end
+
+	private
+
+	def sort_column
+		allColumns = [WkCrmContact, WkAccount, WkAddress, WkLocation].flat_map(&:column_names).uniq
+		allColumns.push("wk_locations.name", "wk_accounts.name", "users.lastname", "wk_crm_contacts.updated_at")
+		allColumns.include?(params[:sort]) ? params[:sort] : "last_name"
+	end
+
+	def sort_direction
+		%w[asc desc].include?(params[:direction]) ? params[:direction] : "asc"
+	end
+
 
 end

@@ -2,11 +2,12 @@ class WkleadController < WkcrmController
   unloadable
   include WktimeHelper
   include WkcustomfieldsHelper
+  helper_method :sort_column, :sort_direction
 
 	def index
 		@leadEntries = WkLead.all
 		if !params[:lead_name].blank? && !params[:status].blank?
-		   entries = WkLead.where(:status => params[:status]).joins(:contact).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{params[:lead_name]}%", "%#{params[:lead_name]}%")
+			entries = WkLead.where(:status => params[:status]).joins(:contact).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{params[:lead_name]}%", "%#{params[:lead_name]}%")
 		elsif !params[:lead_name].blank? && params[:status].blank?
 			entries = WkLead.where.not(:status => 'C').joins(:contact).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{params[:lead_name]}%", "%#{params[:lead_name]}%")
 		elsif params[:lead_name].blank? && !params[:status].blank?
@@ -14,18 +15,20 @@ class WkleadController < WkcrmController
 		else
 			entries = WkLead.joins(:contact).where.not(:status => 'C')
 		end
+
 		if !params[:location_id].blank?
 			entries = entries.where("wk_crm_contacts.location_id = ? ", params[:location_id].to_i)
 		end
-    if !params[:address].blank?
-      entries = entries.joins(contact: [:address]).where("LOWER(wk_addresses.address1) LIKE ? OR LOWER(wk_addresses.address2) LIKE ?", "%#{params[:address].downcase}%", "%#{params[:address].downcase}%")
-    end
-    if !params[:city].blank?
-      entries = entries.joins(contact: [:address]).where("LOWER(wk_addresses.city) LIKE ?", "%#{params[:city].downcase}%")
-    end
-    if !params[:phone].blank?
-      entries = entries.joins(contact: [:address]).where("LOWER(wk_addresses.work_phone) LIKE ? OR LOWER(wk_addresses.home_phone) LIKE ? OR LOWER(wk_addresses.mobile) LIKE ?", "%#{params[:phone].downcase}%", "%#{params[:phone].downcase}%", "%#{params[:phone].downcase}%")
-    end
+		if !params[:address].blank?
+			entries = entries.joins(contact: [:address]).where("LOWER(wk_addresses.address1) LIKE ? OR LOWER(wk_addresses.address2) LIKE ?", "%#{params[:address].downcase}%", "%#{params[:address].downcase}%")
+		end
+		if !params[:city].blank?
+			entries = entries.joins(contact: [:address]).where("LOWER(wk_addresses.city) LIKE ?", "%#{params[:city].downcase}%")
+		end
+		if !params[:phone].blank?
+			 entries = entries.joins(contact: [:address]).where("LOWER(wk_addresses.work_phone) LIKE ? OR LOWER(wk_addresses.home_phone) LIKE ? OR LOWER(wk_addresses.mobile) LIKE ?", "%#{params[:phone].downcase}%", "%#{params[:phone].downcase}%", "%#{params[:phone].downcase}%")
+		end
+		@entryTab = entries
 		formPagination(entries)
 	end
 
@@ -186,22 +189,26 @@ class WkleadController < WkcrmController
 		end
 	end
 
-    def destroy
-    lead = WkLead.find(params[:lead_id].to_i)
-    JournalDetail.where(property: "cf", prop_key: CustomField.where(field_format: "wk_lead"), old_value: lead.id).update_all(old_value: "deleted")
-    JournalDetail.where(property: "cf", prop_key: CustomField.where(field_format: "wk_lead"), value: lead.id).update_all(value: "deleted")
+	def destroy
+		lead = WkLead.find(params[:lead_id].to_i)
+		JournalDetail.where(property: "cf", prop_key: CustomField.where(field_format: "wk_lead").to_s.to_i, old_value: lead.id).update_all(old_value: "deleted")
+		JournalDetail.where(property: "cf", prop_key: CustomField.where(field_format: "wk_lead").to_s.to_i, value: lead.id).update_all(value: "deleted")
 		lead.destroy
 		flash[:notice] = l(:notice_successful_delete)
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
-    end
+	end
 
 	def formPagination(entries)
 		@entry_count = entries.count
 		setLimitAndOffset()
-		@leadEntries = entries.order(updated_at: :desc).limit(@limit).offset(@offset)
+		if(sort_column == "last_name")
+			@leadEntries = entries.joins(contact: [:address]).joins("LEFT JOIN wk_accounts ON wk_accounts.id = wk_leads.account_id").joins("LEFT JOIN wk_locations ON wk_locations.id = wk_accounts.location_id").joins("LEFT JOIN users ON users.id = wk_leads.updated_by_user_id").order(sort_column  + " " + sort_direction + ", first_name asc").limit(@limit).offset(@offset)
+		else
+			@leadEntries = entries.joins(contact: [:address]).joins("LEFT JOIN wk_accounts ON wk_accounts.id = wk_leads.account_id").joins("LEFT JOIN wk_locations ON wk_locations.id = wk_accounts.location_id").joins("LEFT JOIN users ON users.id = wk_leads.updated_by_user_id").order(sort_column  + " " + sort_direction + ", last_name asc, first_name asc").limit(@limit).offset(@offset)
+		end
 	end
 
-    def setLimitAndOffset
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -215,7 +222,7 @@ class WkleadController < WkcrmController
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
 		end
-   end
+	end
 
 	def getContactType
 		'C'
@@ -223,6 +230,18 @@ class WkleadController < WkcrmController
 
 	def getAccountLbl
 		l(:label_account)
+	end
+
+	private
+
+	def sort_column
+		allColumns = [WkLead, WkAddress, WkCrmContact].flat_map(&:column_names).uniq
+		allColumns.push("wk_accounts.name", "wk_addresses.work_phone", "wk_leads.updated_at", "wk_locations.name", "users.lastname")
+		allColumns.include?(params[:sort]) ? params[:sort] : "last_name"
+	end
+
+	def sort_direction
+		%w[asc desc].include?(params[:direction]) ? params[:direction] : "asc"
 	end
 
 end

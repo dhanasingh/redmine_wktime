@@ -3,14 +3,14 @@
 <table class="list time-entries">
   <thead>
          <tr>
-				<th class="lbl-txt-align"><%= l(:field_name)   %></th>
-				<th class="lbl-txt-align"><%=  l(:label_account_name) %></th>
-				<th class="lbl-txt-align"><%= l(:label_location) %></th>
-				<th class="lbl-txt-align"><%=  l(:field_title)  %></th>
-				<th class="lbl-txt-align"><%=  l(:label_email)  %></th>
-				<th class="lbl-txt-align"><%=  l(:label_work_phone)   %></th>
-				<th class="lbl-txt-align"><%=  l(:field_assigned_to)  %></th>
-				<th class="lbl-txt-align"><%= l(:label_modified).capitalize %></th>
+				<th class="lbl-txt-align"><%=  sortable "last_name", l(:field_name)   %></th>
+				<th class="lbl-txt-align"><%=  sortable "wk_accounts.name", l(:label_account_name) %></th>
+				<th class="lbl-txt-align"><%=  sortable "wk_locations.name", l(:label_location) %></th>
+				<th class="lbl-txt-align"><%=  sortable "title", l(:field_title)  %></th>
+				<th class="lbl-txt-align"><%=  sortable "email", l(:label_email)  %></th>
+				<th class="lbl-txt-align"><%=  sortable "work_phone", l(:label_work_phone)   %></th>
+				<th class="lbl-txt-align"><%=  sortable "users.lastname", l(:field_assigned_to)  %></th>
+				<th class="lbl-txt-align"><%=  sortable "wk_crm_contacts.updated_at", l(:label_modified).capitalize %></th>
 				<th></th>
          </tr>
   </thead>

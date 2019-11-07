@@ -18,6 +18,7 @@
 
 class WkcrmactivityController < WkcrmController
   unloadable
+  helper_method :sort_column, :sort_direction
 
 	include WktimeHelper
 
@@ -142,8 +143,11 @@ class WkcrmactivityController < WkcrmController
    
 	def formPagination(entries)
 		@entry_count = entries.count
-        setLimitAndOffset()
-		@activity = entries.order(updated_at: :desc).limit(@limit).offset(@offset)
+		setLimitAndOffset()
+		helperColumn = []
+		relatedHash.each {|hash, value| helperColumn.push("select '#{hash}' as parent_type, '#{value}' as related_hash")}
+		helperColumn = helperColumn.join(" union ")
+		@activity = entries.joins("LEFT JOIN users ON users.id = wk_crm_activities.assigned_user_id").joins("JOIN (#{helperColumn}) AS related_types ON wk_crm_activities.parent_type = related_types.parent_type").order(sort_column + " " + sort_direction + ", name asc").limit(@limit).offset(@offset)
 	end
 	
 	def setLimitAndOffset		
@@ -160,5 +164,15 @@ class WkcrmactivityController < WkcrmController
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
 		end	
+	end
+
+	def sort_column
+		allColumns = WkCrmActivity.column_names()
+		allColumns.push("users.lastname", "related_hash")
+		allColumns.include?(params[:sort]) ? params[:sort] : "updated_at"
+	end
+
+	def sort_direction
+		%w[asc desc].include?(params[:direction]) ? params[:direction] : "asc"
 	end
 end

@@ -20,4 +20,6 @@ include WktimeHelper
 include WkinvoiceHelper
 include WkcrmenumerationHelper
 include WkcustomfieldsHelper
+include WkcrmHelper
+
 end
