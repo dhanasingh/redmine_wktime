@@ -113,6 +113,7 @@ class WkgltransactionController < WkaccountingController
 		else
 			formPagination(transaction.reorder(sort_clause))
 		end
+		transaction
    end
    
     def edit
@@ -427,9 +428,9 @@ class WkgltransactionController < WkaccountingController
 
 	def export
 		respond_to do |format|
-			index
+			transactionEntries = index
 			format.csv {
-				send_data(csv_format_conversion(@transEntries), :type => 'text/csv; header=present', :filename => 'gltransaction.csv')
+				send_data(csv_format_conversion(transactionEntries), :type => 'text/csv; header=present', :filename => 'gltransaction.csv')
 			}
 		end
 	end
