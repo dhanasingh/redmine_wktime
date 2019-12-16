@@ -162,8 +162,8 @@ class WksurveyController < WkbaseController
     @responseStatus = @response_status.blank? ? nil : @response_status.status
     @isResetResponse = @survey.recur && !@response_status.blank? && params[:response_id].blank? && 
     (@response_status.status_date + @survey.recur_every.days <= Time.now)
-    @isDisable = (!(@isResetResponse || @survey.status == "O" && ( @responseStatus.blank? ||
-    (@responseStatus == "O" && @response_status.try(:user_id) == User.current.id))) || @survey.recur && !@isResetResponse && @survey.getGroupName.present?)
+    @isDisable = !(@survey.status == "O" && (@isResetResponse || ( @responseStatus.blank? ||
+    (@responseStatus == "O" && @response_status.try(:user_id) == User.current.id)))) || @survey.recur && !@isResetResponse && @survey.getGroupName.present?
     responseID = params[:response_id].blank? && !@response_status.blank? ? @response_status.id : params[:response_id]
 
     if @isResetResponse
