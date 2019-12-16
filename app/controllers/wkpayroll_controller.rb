@@ -190,14 +190,19 @@ class WkpayrollController < WkbaseController
 				factor = params['factor' + componentId.to_s()]
 				u_salary_comps << {:user_id => userId, :component_id => componentId, :dependent_id => dependent_id, :factor => factor, :is_override => is_override}
 			end
-			errorMsg = saveUserSalary(u_salary_comps, false)
-		if errorMsg.nil?
-			redirect_to :action => 'usrsettingsindex'
-			flash[:notice] = l(:notice_successful_update)
-		else
-			flash[:error] = errorMsg
-			redirect_to :action => 'user_salary_settings'
-		end	
+			errorMsg = saveUserSalary(u_salary_comps, false)	
+			if errorMsg.nil?
+				if params[:taxsettings].present?
+						redirect_to :action => 'income_tax', action_type: 'userSettings', user_id: userId, method: 'saveTaxVal',
+												 taxsettings: params[:taxsettings].permit!.to_h
+				else
+					redirect_to :action => 'usrsettingsindex'
+					flash[:notice] = l(:notice_successful_update)
+				end
+			else
+				flash[:error] = errorMsg
+				redirect_to :action => 'user_salary_settings'
+			end
 	end
 	
 	def generatePayroll(userIds, salaryDate, isGeneratePayroll)
@@ -224,6 +229,7 @@ class WkpayrollController < WkbaseController
 		"order by u.id, sc.component_type"
 		@userSalHash = getUserSalaryHash(userId, Date.today.at_end_of_month + 1)
 		@userSalaryEntries = WkUserSalaryComponents.find_by_sql(sqlStr)
+		getTaxSettingVal
 	end
 
 	def saveUsrSalCompHistory(userSalCompHash)
@@ -425,6 +431,13 @@ class WkpayrollController < WkbaseController
 		if request.post?
 			payrollValues = salaryComponentsHashVal(params[:settings])
 			savePayrollSettings(payrollValues)
+			params[:taxsettings].each do |key, value|
+				taxSettings = WkSetting.where("name = ?", key ).first
+				taxSettings = WkSetting.new if taxSettings.blank?
+				taxSettings.name = key
+				taxSettings.value = value
+				taxSettings.save()
+			end
 			flash[:notice] = l(:notice_successful_update)
 			redirect_to action: 'payrollsettings', tab: "payroll"
 		else
@@ -581,6 +594,13 @@ class WkpayrollController < WkbaseController
 				send_data(payroll_to_csv(@payrollEntries), :type => 'text/csv; header=present', :filename => 'payroll.csv')
 			}
 		end
+	end
+
+	def income_tax
+		if params[:action_type] == "ajaxCall"
+			render json: params[:data]
+		end
+		getTaxSettingVal
 	end
 
 end

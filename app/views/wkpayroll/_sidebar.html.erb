@@ -6,4 +6,7 @@
 <% if validateERPPermission('A_TE_PRVLG') %>
 <li><%= link_to l(:label_payroll_settings), url_for(:controller => "wkpayroll", :action => "payrollsettings") %></li>
 <% end %>
+<% if validateERPPermission('A_TE_PRVLG') && getTaxSettingVal['tax_rule'].present? %>
+    <li><%= link_to l(:label_income_tax_settings), url_for(controller: "wkpayroll", action: "income_tax", action_type: "taxSettings") %></li>
+<% end %>
 <ul>
