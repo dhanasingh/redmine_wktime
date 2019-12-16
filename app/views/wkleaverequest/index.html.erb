@@ -16,6 +16,7 @@
 	<%= form_tag({controller: controller_name, action: 'index'}, method: :get) do %>
 		<%= hidden_field_tag("searchlist", controller_name) %>
 		<% if isLeaveReqAdmin %>
+		<% period = session[:wkleaverequest].try(:[], :period) %>
 		<p>
 			<%=l(:label_group_plural)%>
 			<% if !@groups.blank? %>
@@ -33,6 +34,25 @@
 			<label><%= l(:label_status) %></label>
 			<%= select_tag('status', options_for_select(statusList.invert, session[controller_name].try(:[], :status))) %>
 		</p>
+		<fieldset id="date-range" class="collapsible">
+			<legend onclick="toggleFieldset(this);"><%= l(:label_date_range) %></legend>
+			<div>
+				<%= radio_button_tag 'period_type', '1', !@free_period, :onclick => '$("#from,#to").attr("disabled", true);$("#period").removeAttr("disabled");' %>
+				<%= select_tag 'period', options_for_period_select(period),
+										:onchange => 'this.form.submit();',
+										:onfocus => '$("period_type_1").checked = true;',
+										:disabled => @free_period %>
+				<%= radio_button_tag 'period_type', '2', @free_period, :onclick => '$("#from,#to").removeAttr("disabled");$("#period").attr("disabled", true);' %>
+				<span onclick="$('period_type_2').checked = true;">
+				<%= l(:label_date_from_to, :start => ( date_field_tag('from', @from, {:id => 'from', :size => 10, :disabled => !@free_period,
+				 		:onchange =>"dateRangeValidation('from', 'to')"}) +
+						calendar_for('from')), :end => ( date_field_tag('to', @to, {:id => 'to', :size => 10, :disabled => !@free_period,
+						 :onchange =>"dateRangeValidation('from', 'to')"}) +
+						calendar_for('to'))).html_safe %>
+				</span>
+			</div>
+		<div style="clear:both"></div>
+		</fieldset>
 		<p>
 			<%= submit_tag l(:button_apply), class: "small", name: nil %>
 			<%= link_to l(:button_clear), {controller: controller_name, action: 'index', tab: controller_name}, class: 'icon icon-reload' %>

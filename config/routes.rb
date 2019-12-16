@@ -634,3 +634,5 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	post 'wksurvey/close_current_response', :to => 'wksurvey#close_current_response'
 
 	get 'wksurvey/print_survey_result', :to => 'wksurvey#print_survey_result'
+
+	get 'wkleaverequest/getLeaveAvailableHours', :to => 'wkleaverequest#getLeaveAvailableHours'

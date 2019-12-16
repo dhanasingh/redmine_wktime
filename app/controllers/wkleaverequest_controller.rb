@@ -10,17 +10,20 @@ class WkleaverequestController < WkbaseController
                 'leave_type' => "issues.subject",
                 'start_date' => "start_date",
                 'end_date' => "end_date",
+                'submitted_date' => "created_at",
                 'status' => "wk_statuses.status"
     set_filter_session
     getUsersAndGroups
+    retrieve_date_range
     lveReqEntires = WkLeaveReq.get_all
-    lveReqEntires = lveReqEntires.leaveReqSupervisor if isSupervisor && !validateERPPermission("ADM_ERP")
-    lveReqEntires = lveReqEntires.leaveReqUser unless isSupervisor || validateERPPermission("ADM_ERP")
+    lveReqEntires = lveReqEntires.leaveReqSupervisor if isSupervisor && !validateERPPermission("A_TE_PRVLG")
+    lveReqEntires = lveReqEntires.leaveReqUser unless isSupervisor || validateERPPermission("A_TE_PRVLG")
 
     lveReqEntires = lveReqEntires.leaveType(session[controller_name][:leave_type]) if session[controller_name].try(:[], :leave_type).present?
     lveReqEntires = lveReqEntires.userGroup(session[controller_name][:group_id]) if session[controller_name].try(:[], :group_id).present? && session[controller_name].try(:[], :group_id) != "0"
     lveReqEntires = lveReqEntires.groupUser(session[controller_name][:user_id]) if session[controller_name].try(:[], :user_id).present? && session[controller_name].try(:[], :user_id) != "0"
     lveReqEntires = lveReqEntires.leaveReqStatus(session[controller_name][:status]) if session[controller_name].try(:[], :status).present?
+    lveReqEntires = lveReqEntires.dateFilter(@from, @to) if !@from.blank? && !@to.blank?
     
     lveReqEntires = lveReqEntires.reorder(sort_clause)
     @leave_count = lveReqEntires.length
@@ -67,6 +70,7 @@ class WkleaverequestController < WkbaseController
         email_id = leaveReq.user.mail
         status = "UnApproved" if leaveReq.status == 'S'
       end
+      ccMailId = leaveReq.admingroupMail - [email_id]
       if email_id.present?
         emailNotes = l(:label_leave_email_note).to_s + " #{status} #{l(:label_by)} " + user.name
         emailNotes += "\n\n" + "#{l(:field_user)}: " + leaveReq.user_name
@@ -74,7 +78,7 @@ class WkleaverequestController < WkbaseController
         emailNotes += "\n" + l(:label_start_date).to_s + ": " + leaveReq.startDate.to_s + " " + l(:label_end_date) + ": " + leaveReq.endDate.to_s
         emailNotes += "\n" + l(:label_status).to_s + ": " + status
         emailNotes += "\n" + l(:label_reason).to_s + ": " + leaveReq.leave_reasons if leaveReq.leave_reasons.present?
-        err_msg = sent_emails(l(:label_leave_request_notification), user.language, email_id, emailNotes)
+        err_msg = sent_emails(l(:label_leave_request_notification), user.language, email_id, emailNotes, ccMailId)
       end
 			redirect_to action: 'index'
 			flash[:notice] = l(:notice_successful_update)
@@ -86,9 +90,10 @@ class WkleaverequestController < WkbaseController
   end
 	
 	def set_filter_session
+		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
     if params[:searchlist] == controller_name
 			session[controller_name] = Hash.new if session[controller_name].nil?
-			filters = [:group_id, :user_id, :leave_type, :status]
+			filters = [:group_id, :user_id, :leave_type, :status, :period, :from, :to]
 			filters.each do |param|
 				if params[param].blank? && session[controller_name].try(:[], param).present?
 					session[controller_name].delete(param)
@@ -97,6 +102,66 @@ class WkleaverequestController < WkbaseController
 				end
 			end
 		end
+  end
+
+  def retrieve_date_range
+		@free_period = false
+		@from, @to = nil, nil
+		period_type = session[controller_name].try(:[], :period_type)
+		period = session[controller_name].try(:[], :period)
+		fromdate = session[controller_name].try(:[], :from)
+		todate = session[controller_name].try(:[], :to)
+		
+		if (period_type == '1' || (period_type.nil? && !period.nil?)) 
+		    case period.to_s
+			  when 'today'
+				@from = @to = Date.today
+			  when 'yesterday'
+				@from = @to = Date.today - 1
+			  when 'current_week'
+				@from = getStartDay(Date.today - (Date.today.cwday - 1)%7)
+				@to = @from + 6
+			  when 'last_week'
+				@from =getStartDay(Date.today - 7 - (Date.today.cwday - 1)%7)
+				@to = @from + 6
+			  when '7_days'
+				@from = Date.today - 7
+				@to = Date.today
+			  when 'current_month'
+				@from = Date.civil(Date.today.year, Date.today.month, 1)
+				@to = (@from >> 1) - 1
+			  when 'last_month'
+				@from = Date.civil(Date.today.year, Date.today.month, 1) << 1
+				@to = (@from >> 1) - 1
+			  when '30_days'
+				@from = Date.today - 30
+				@to = Date.today
+			  when 'current_year'
+				@from = Date.civil(Date.today.year, 1, 1)
+				@to = Date.civil(Date.today.year, 12, 31)
+	        end
+		elsif period_type == '2' || (period_type.nil? && (!fromdate.nil? || !todate.nil?))
+		    begin; @from = fromdate.to_s.to_date unless fromdate.blank?; rescue; end
+		    begin; @to = todate.to_s.to_date unless todate.blank?; rescue; end
+		    @free_period = true
+		else
+		  # default
+		  # 'current_month'		
+			@from = Date.civil(Date.today.year, Date.today.month, 1)
+			@to = (@from >> 1) - 1
+	    end    
+		
+		@from, @to = @to, @from if @from && @to && @from > @to
+
+  end
+  
+  def getLeaveAvailableHours
+    available_hours = 0
+    data = []
+    userHours = WkUserLeave.leaveAvailableHours(params[:issue_id], params[:user_id]).first
+    available_hours = userHours.balance + userHours.accrual if userHours.present?
+    data << { label: "Available" , hours: available_hours.to_s + " hours"}
+    render :json => data
   end
 
 end

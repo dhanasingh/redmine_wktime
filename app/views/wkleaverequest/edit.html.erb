@@ -1,6 +1,8 @@
+<%= javascript_include_tag 'attendance', :plugin => "redmine_wktime" %>
 <h2><%= l(:label_new_leave_request) %></h2>
 <%= form_tag({:action => 'save'}, :method => :post) do %>
 	<%= hidden_field_tag('lveReqID', @leaveReqEntry.try(:id)) %>
+	<%= hidden_field_tag('user_id', @leaveReqEntry.blank? ? User.current.id : @leaveReqEntry.user_id) %>
 	<fieldset class="box tabular">
 		<table>
 			<tr>
@@ -15,7 +17,8 @@
 				<th align="left"><%= l(:label_leave_type) %></th>
 				<td align="left">
 					<%=h select_tag("leave_type_id", options_for_select(get_leave_type, selected: @leaveReqEntry.try(:leave_type_id)), 
-						disabled: @readonly) %>
+						disabled: @readonly) %>					
+					<span id="AvailableHours" style="padding-left: 5px;"></span>
 				</td>
 			<tr>
 			<tr>

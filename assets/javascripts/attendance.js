@@ -1,3 +1,11 @@
+$(function()
+{
+	leaveAvailable();
+	$('#leave_type_id').change(function(){
+		leaveAvailable();
+	});
+});
+
 function getTextBoxField(name, inputEl, splitVal){
     value = $.trim($(inputEl).text());
     var input = '<input id="txt_'+ name +'_'+splitVal[1]+'_'+splitVal[2]+'" name="'+ name +'_'+splitVal[1]+'_'+splitVal[2]+'"';
@@ -107,4 +115,26 @@ function convertHoursToSecs(timeStr){
     // minutes are worth 60 seconds. Hours are worth 60 minutes.
     var seconds = (+splits[0]) * 60 * 60 + (+splits[1]) * 60;
     return seconds;
+}
+
+function leaveAvailable(){
+    var issueID = $('#leave_type_id').val();
+    var userID = $('#user_id').val();
+	var url = "/wkleaverequest/getLeaveAvailableHours?issue_id="+ issueID +"&user_id=" + userID;
+      $.ajax({
+        url: url,
+		type: 'get',
+		success: function(data){
+			var result = data[0];
+            $('#AvailableHours').show();
+            var label = ' <b>' + result.label + '</b>' + '<span style="padding-left: 5px;">' + result.hours + '</span>';
+            $('#AvailableHours').html(label);
+        },
+        beforeSend: function(){
+            $(this).parent().addClass('ajax-loading');
+        },
+        complete: function(){
+            $(this).parent().removeClass('ajax-loading');
+        }
+	  });
 }
