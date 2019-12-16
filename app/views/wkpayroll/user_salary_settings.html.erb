@@ -7,17 +7,18 @@
 	salEntryByTypeHash = {'a' => [], 'b'=> [], 'd'=> [], 'c' => []}
 	actualSalValHash = Hash.new{|hsh,key| hsh[key] = {} }
 	@userSalaryEntries.each do |entry| 
-	isOverride = entry.user_salary_component_id.blank? ? false : true
-	if isOverride
-		dependent_id = entry.usc_dependent_id.blank? ? 0 : entry.usc_dependent_id
-		factor = entry.usc_factor.blank? ? 0 : (entry.usc_factor)
-	else
-		dependent_id = entry.sc_dependent_id.blank? ? 0 : entry.sc_dependent_id
-		factor = entry.sc_factor.blank? ? 0 : (entry.sc_factor)
+		isOverride = entry.user_salary_component_id.blank? ? false : true
+		if isOverride
+			dependent_id = entry.usc_dependent_id.blank? ? 0 : entry.usc_dependent_id
+			factor = entry.usc_factor.blank? ? 0 : (entry.usc_factor)
+		else
+			key = entry.id.to_s + "_" + entry.user_id.to_s
+			factor = @userSalCompHash[key].present? ? (@userSalCompHash[key]).factor : 0.00
+			dependent_id = @userSalCompHash[key].present? ? (@userSalCompHash[key]).dependent_id : 0
+		end
+		actualSalValHash[entry.sc_component_type].store entry.sc_id, @userSalHash[entry.user_id][entry.sc_id] unless @userSalHash[entry.user_id].blank?
+		salEntryByTypeHash[entry.sc_component_type] << [entry, isOverride, dependent_id, factor] unless entry.sc_component_type.blank?
 	end
-	actualSalValHash[entry.sc_component_type].store entry.sc_id, @userSalHash[entry.user_id][entry.sc_id] unless @userSalHash[entry.user_id].blank?
-	salEntryByTypeHash[entry.sc_component_type] << [entry, isOverride, dependent_id, factor] unless entry.sc_component_type.blank?
-end
 %>
 
 <div>

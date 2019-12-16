@@ -22,5 +22,10 @@ class WkSalary < ActiveRecord::Base
   belongs_to :user
   belongs_to :salary_component, :class_name => 'WkSalaryComponents', :foreign_key => 'salary_component_id'
   
-  # attr_protected :user_id, :salary_component_id
+  scope :get_gross, ->(userID, from_date, to_date){
+    joins(:salary_component)
+    .where("component_type IN ('b','a') AND user_id = ? AND salary_date BETWEEN ? and ?", userID, from_date, to_date)
+    .select("sum(amount) AS gross_amount, wk_salaries.user_id")
+    .group("wk_salaries.user_id")
+  }
 end

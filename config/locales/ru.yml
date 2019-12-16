@@ -1035,3 +1035,9 @@ ru:
   label_cess: Cess
   
   label_submitted_date: Submitted Date
+  label_equal_operator: "="
+  label_multiplier: "*"
+  label_between: Between
+  alert_eq_operator: For equal operator the dependent component should be blank
+  label_semi_ba_total: Semi Annual Basic and Allowance Total
+  label_annual_ba_total: Annual Basic and Allowance Total
