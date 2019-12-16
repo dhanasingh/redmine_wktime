@@ -1024,3 +1024,12 @@ en:
   error_enter_clk_in: Please enter Clock In
   error_greater_then: The Clock In time cannot be greater than Clock Out time
   error_invalid_document: Document is invalid
+  
+  label_grp_name: Group Name
+  label_alert: Alert
+  notice_successful_close: Successful closed current responses.
+  error_no_record: No record to update.
+
+  report_tax: Tax Report
+  label_tds: TDS
+  label_cess: Cess

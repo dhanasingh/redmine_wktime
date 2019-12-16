@@ -22,7 +22,7 @@
 <% if @reviewer && @survey.status == "O" %>
 	<fieldset class="box tabular">
 		<% response_id = !params[:response_id].blank? ? params[:response_id] : 
-			(!@response_status.blank? && @responseStatus == "O" ? @response_status.id : nil) %>
+			(!@response_status.blank? && @responseStatus == "O" && !@isResetResponse ? @response_status.id : nil) %>
 		<%= form_tag({:controller => 'wksurvey', :action => 'update_status'}, :method => :post) do %>
 			<%=h hidden_field_tag("survey_response_id", response_id) %>
 			<%=h hidden_field_tag("survey_id", @survey.id) %>
