@@ -640,3 +640,5 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wkpayroll/income_tax', :to => 'wkpayroll#income_tax'
 
 	post 'wkpayroll/income_tax', :to => 'wkpayroll#income_tax'
+
+	get 'wkpayroll/getRecursiveComp', :to => 'wkpayroll#getRecursiveComp'

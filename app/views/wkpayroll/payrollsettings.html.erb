@@ -149,7 +149,7 @@
 		</tr>
 		<tr>
 			<th valign="justify" style="font-weight:normal;"><%= l(:label_if) %><%= hidden_field_tag("compDepConID_INDEX","") %></th>
-			<td><%= select_tag('condDepID_INDEX', options_for_select(getSalaryCompNames.invert), class: "condElements_INDEX") %></td>
+			<td><%= select_tag('condDepID_INDEX', options_for_select(getSalaryCompNames.invert), class: "component condElements_INDEX") %></td>
 			<td>
 				<%= select_tag('condOp_INDEX', options_for_select(getLogicalCond), class: "condElements_INDEX", 
 				onchange: "showFactor(this);") %>

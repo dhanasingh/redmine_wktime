@@ -13,7 +13,7 @@ $(document).ready(function(){
 		autoOpen: false,
 		resizable: false,
 		modal: false,
-		width: 450,
+		width: 510,
 		buttons: {
 			"Ok": function() {
 				var opt, desc = "", opttext = "";
@@ -197,7 +197,7 @@ function payrollDialogAction(dlg, action)
 		if('Add' == action){
 			editedname = "" ;
 			setupDependent(salaryCompDepLen);
-			hideOwnComponent('');
+			hideRecusiveComp(dlg, '');
 			$("#payroll-dlg").dialog("open");
 		}
 		else if('Edit' == action && listbox != null && listbox.options.selectedIndex >=0){
@@ -207,7 +207,7 @@ function payrollDialogAction(dlg, action)
 			salaryCompValueSet = getValueSet(salaryComps);
 			setupDependent(salaryCompDepLen);
 			setupdialog(salaryCompValueSet);
-			hideOwnComponent(listboxArr[0]);
+			hideRecusiveComp(dlg, listboxArr[0]);
 			$( "#payroll-dlg" ).dialog( "open" )
 		}
 		else if(listbox != null && listbox.options.length >0){
@@ -375,14 +375,6 @@ function removeSelectedValue(elementID)
 	}
 }
 
-function hideOwnComponent(payrollId)
-{
-	$(".component option").each(function(){
-		if($(this).val() == payrollId) $(this).hide();
-		else $(this).show();
-	});
-}
-
 function showFactor(thisEle){
 	var index = thisEle.name.split("_")[1]
 	if($(thisEle).val() == "BW")
@@ -446,7 +438,7 @@ function validation(){
 	if( basic_field_factor == "" && dlgname == 'settings_basic')
 		alertMsg += payroll_factor_errormsg + "\n";
 
-	if(((frequency != "" && startdate == "") || ((frequency && frequency != "m") && startdate == "")) && dlgname != 'settings_basic' &&
+		if( frequency && frequency != 'm' && startdate == "" && dlgname != 'settings_basic' &&
 		dlgname != 'settings_calculated_fields' && !checkDuplicateComponent(name)){
 		alertMsg +=  payroll_date_errormsg + "\n";
 	}
@@ -478,4 +470,23 @@ function validation(){
 		}
 	})
 	return alertMsg;
+}
+
+function hideRecusiveComp(dlg, ownCompID){
+	var url = '/wkpayroll/getRecursiveComp';
+	$.ajax({
+		url: url,
+		type: 'get',
+		data: { component_type: dlg },
+		success: function(data){
+			var data = $.parseJSON(data);
+			data.push(parseInt(ownCompID));
+			console.log(data);
+			$("#salaryCompDeps .component option").each(function(){
+				salComID = parseInt($(this).val());
+				if(data.includes(salComID)) $(this).hide(data);
+				else $(this).show();
+			});
+		} 
+	});
 }
