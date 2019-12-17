@@ -673,7 +673,7 @@ module WkpayrollHelper
 			when "GTE"
 				cond = lhs >= compCond.rhs
 			when "BW"
-				cond = compCond.rhs <= lhs && lhs >= compCond.rhs2
+				cond = compCond.rhs <= lhs && lhs <= compCond.rhs2
 			else
 				cond = true
 		end
