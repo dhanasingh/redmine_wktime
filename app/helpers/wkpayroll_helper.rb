@@ -143,7 +143,8 @@ module WkpayrollHelper
 			allowance_total = 0
 			basic_total = 0
 			@userSalCompHash.each do |key, userComp|
-				basic_total = basic_total + userComp.factor if userComp.sc_component_type == 'b' && userComp.user_id == user_id
+				basic_total += userComp.factor if userComp.sc_component_type == 'b' &&
+					userComp.user_id == user_id && userComp.factor.present?
 			end
 			totals['BT'] = basic_total
 
@@ -176,7 +177,7 @@ module WkpayrollHelper
 			@userSalCompHash.each do |key, userComp|
 				next unless userComp.sc_component_type == 'd' && userComp.user_id == user_id
 				factor = userComp.dependent_id.present? ? computeFactor(userComp.user_id, userComp.dependent_id, userComp.factor, 1) : userComp.factor
-				deduction_total = deduction_total + factor
+				deduction_total += factor if factor.present?
 			end
 			totals['DT'] = deduction_total
 		end
@@ -363,11 +364,11 @@ module WkpayrollHelper
 	def computeFactor(userId, dependentId, factor, multiplier, isSalCompCond = false)
 		salEntry = @userSalCompHash[dependentId.to_s + '_' + userId.to_s]
 		if isSalCompCond
-			factor = salEntry.factor
+			factor = salEntry.present? ? salEntry.factor : 0
 		else
 			factor = factor*(salEntry.factor.blank? ? 0 : salEntry.factor)*multiplier
 		end
-		if salEntry.dependent_id.present?
+		if salEntry&.dependent_id.present?
 			factor = computeFactor(userId, salEntry.dependent_id, factor, multiplier)
 		end
 		factor
@@ -602,8 +603,8 @@ module WkpayrollHelper
 				grandGrossTotal = grandGrossTotal.to_i + gross.to_i
 				grandNetTotal = grandNetTotal.to_i + net.to_i
 				
-				dataArr = [payroll_data[:firstname].to_s + " payroll_data[:lastname].to_s, payroll_data[:joinDate], payroll_data[:salDate], currency +
-				 payroll_data[:BT].to_s, currency + payroll_data[:AT].to_s, currency + payroll_data[:DT].to_s, currency + gross.to_s , currency + net.to_s"]
+				dataArr = [payroll_data[:firstname].to_s + " " + payroll_data[:lastname].to_s, payroll_data[:joinDate], payroll_data[:salDate], currency +
+				 payroll_data[:BT].to_s, currency + payroll_data[:AT].to_s, currency + payroll_data[:DT].to_s, currency + gross.to_s , currency + net.to_s]
 				
 				csv << dataArr.collect {|c| Redmine::CodesetUtil.from_utf8(c.to_s, l(:general_csv_encoding))}
 			end

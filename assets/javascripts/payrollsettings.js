@@ -39,11 +39,10 @@ $(document).ready(function(){
 							var compNames = getSalaryComps();
 							compDepsVal = "";
 							compDepsText = "";
-							
 							$.each(compNames, function(index, name){
 								if(Array.isArray(name)){
-									for(var i=1; i < $(".compDep").length; i++){
-										var compDepIndex = i.toString();
+									$("#salaryCompDeps .compDep").each(function(i){
+										var compDepIndex = (this.id.split('_')[1]).toString();
 										$.each(name, function(dep_index, dep_name){
 											if(Array.isArray(dep_name)){
 												$.each(dep_name, function(condIndex, condName){
@@ -69,11 +68,11 @@ $(document).ready(function(){
 												if(dep_index != 0) compDepsText += ":";
 											}
 										});
-										if(i+1 < $(".compDep").length){
+										if(i+1 < $("#salaryCompDeps .compDep").length){
 											compDepsVal += "-";
 											compDepsText += ":";
 										}
-									}
+									});
 								}
 								else{
 									compDepsVal += $('#'+name).val();
@@ -154,7 +153,7 @@ function payrollDialogAction(dlg, action)
 	basicAction = action;
 	dlgname = dlg;
 	listbox = document.getElementById(dlgname);
-	$("#ledgersLabel").innerHTML = dlg == 'settings_deduction' ? lblcreditLedger : lbldebitLedger;
+	$("#ledgersLabel").html(dlg == "settings_deduction" ? lblcreditLedger : lbldebitLedger);
 	if('settings_basic' == dlg){
 		$("#basic_salary_type").show();
 		$("#basic_factor").show();
@@ -386,6 +385,7 @@ function showFactor(thisEle){
 }
 
 function addDependent(){
+	hideRecusiveComp(dlgname, $("#salaryCompID").val());
 	var clonedTable = $("#compDepTemplate").html();
 	var depsCount = $(".compDep").length;
 	if(depsCount > 1){
@@ -481,7 +481,6 @@ function hideRecusiveComp(dlg, ownCompID){
 		success: function(data){
 			var data = $.parseJSON(data);
 			data.push(parseInt(ownCompID));
-			console.log(data);
 			$("#salaryCompDeps .component option").each(function(){
 				salComID = parseInt($(this).val());
 				if(data.includes(salComID)) $(this).hide(data);
