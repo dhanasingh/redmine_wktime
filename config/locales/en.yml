@@ -167,7 +167,7 @@ en:
   label_wk_attn_termination_date:  Termination date
   label_wk_attn_user_dob:  Date of birth
   label_wk_designation:  Designation
-  label_employee_id:  Employee Id
+  label_employee_id:  Employee ID
   label_leave_beginning_of_mnth:  Leave Credit at the Beginning of the Month
   label_leave_during_mnth:  Leave Availed During the Month
   label_daily_workdone_inclede_ot:  Daily Hours of Work done including Overtime(If any)
@@ -798,7 +798,7 @@ en:
   field_bank_name: Bank name
   field_account_number: Bank account number
   field_bank_code: Bank code
-  field_tax: Tax id
+  field_tax: Tax ID
   field_ss: SS id
   field_custom_number1: Custom number1
   field_custom_number2: Custom number2

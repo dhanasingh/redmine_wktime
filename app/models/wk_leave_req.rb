@@ -67,7 +67,7 @@ class WkLeaveReq < ActiveRecord::Base
   end
 
   scope :dateFilter, ->(from, to){
-    where("wk_leave_reqs.start_date between ? and ? ", from, to )
+    where("DATE(wk_leave_reqs.start_date) between ? and ? ", from, to )
   }
 
 end

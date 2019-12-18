@@ -799,7 +799,7 @@ fr:
   field_bank_name: Bank name
   field_account_number: Bank account number
   field_bank_code: Bank code
-  field_tax: Tax id
+  field_tax: Tax ID
   field_ss: SS id
   field_custom_number1: Custom number1
   field_custom_number2: Custom number2
