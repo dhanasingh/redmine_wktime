@@ -202,10 +202,10 @@ class WksurveyController < WkbaseController
     getSurveyForType(params)
     condStr = validateERPPermission("E_SUR") ? "" : (@survey.is_review ? " AND (U.id IN (#{users}) OR U.parent_id = #{User.current.id}) " : " AND  U.id = #{User.current.id} ")
 
-    if params[:responsedGrpName].blank?
+    if params[:grpdName].blank?
       condStr += " AND group_name IS NULL"
     else
-      condStr += params[:responsedGrpName] == "ALL" ? " " : " AND group_name = '#{params[:responsedGrpName]}' " 
+      condStr += params[:grpdName] == "ALL" ? " " : " AND group_name = '#{params[:grpdName]}' " 
     end
     @surveyResponseList = WkSurveyResponse.joins("INNER JOIN wk_statuses AS ST ON ST.status_for_id = wk_survey_responses.id 
       AND ST.status_for_type = 'WkSurveyResponse'
@@ -353,8 +353,14 @@ class WksurveyController < WkbaseController
 
       @survey_txt_questions = WkSurvey.surveyTextQuestion(params[:survey_id])
       txt_answers= WkSurvey.getTextAnswer(params[:survey_id], params[:surveyForType])
-      txt_answers = txt_answers.currentRespTxtAnswer if @survey.recur && params[:responsedGrpName].blank?
-      txt_answers = txt_answers.responsedTextAnswer(params[:responsedGrpName]) if params[:responsedGrpName].present?
+      isAdmin = (User.current.admin? || validateERPPermission("E_SUR"))
+      if @survey.recur?
+        txt_answers = txt_answers.currentRespTxtAnswer if params[:grpdName].blank? && isAdmin
+        txt_answers = txt_answers.responsedTextAnswer(params[:grpdName]) if params[:grpdName].present? && isAdmin
+
+        grpdName = params[:grpdName].present? ? params[:grpdName] : getResponseGroup.last
+        txt_answers = txt_answers.responsedTextAnswer(grpdName) if !isAdmin
+      end
       @survey_txt_answers = txt_answers
   end
 
@@ -371,11 +377,14 @@ class WksurveyController < WkbaseController
     end
 
     groupNameCond = ""
-
-    if params[:responsedGrpName].blank?
-      groupNameCond = " AND group_name IS NULL "
-    else
-      groupNameCond = params[:responsedGrpName] == "ALL" ? "" : " AND group_name = '#{params[:responsedGrpName]}' "
+    if @survey.recur?
+      if params[:grpdName].present?
+        groupNameCond = " AND group_name = '#{params[:grpdName]}' "
+      elsif params[:grpdName].blank? && (User.current.admin? || validateERPPermission("E_SUR"))
+        groupNameCond = " AND group_name IS NULL "
+      else
+        groupNameCond = " AND group_name = '#{getResponseGroup.last}' "
+      end
     end
 
     surveyed_employees_per_choice = WkSurvey.find_by_sql("SELECT COUNT(SR.user_id) AS emp_count, SC.id 

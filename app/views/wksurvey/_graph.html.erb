@@ -12,7 +12,7 @@
 		$.getJSON(<%= raw url_for(:controller => 'wksurvey',
 		:action => 'graph',
 		:graph => "graph",
-		:question_id => entry.question_id, :surveyForType => @surveyForType, :surveyForID => @surveyForID, responsedGrpName: params[:responsedGrpName], survey_id: @survey.id).to_json %>, function(data){
+		:question_id => entry.question_id, :surveyForType => @surveyForType, :surveyForID => @surveyForID, grpdName: params[:grpdName], survey_id: @survey.id).to_json %>, function(data){
 			var chartData = {
 				labels: data['labels'],
 				datasets: [{

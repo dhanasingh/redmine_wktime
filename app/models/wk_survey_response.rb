@@ -14,9 +14,9 @@ class WkSurveyResponse < ActiveRecord::Base
 
     scope :getClosedResp, ->(surveyID){
         select("COUNT(id), group_name, survey_id ")
-        .group("survey_id, group_name")
+        .group("survey_id, group_name, group_date")
         .where("survey_id = #{surveyID}")
-        .order("group_name")
+        .order("group_date")
     }
 
     scope :updateRespGrp, ->(surveyID, group_date, grp_name){
