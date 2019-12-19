@@ -22,7 +22,7 @@ class WkleaverequestController < WkbaseController
     lveReqEntires = lveReqEntires.leaveType(session[controller_name][:leave_type]) if session[controller_name].try(:[], :leave_type).present?
     lveReqEntires = lveReqEntires.userGroup(session[controller_name][:group_id]) if session[controller_name].try(:[], :group_id).present? && session[controller_name].try(:[], :group_id) != "0"
     lveReqEntires = lveReqEntires.groupUser(session[controller_name][:user_id]) if session[controller_name].try(:[], :user_id).present? && session[controller_name].try(:[], :user_id) != "0"
-    lveReqEntires = lveReqEntires.leaveReqStatus(session[controller_name][:status]) if session[controller_name].try(:[], :status).present?
+    lveReqEntires = lveReqEntires.leaveReqStatus(session[controller_name][:lveStatus]) if session[controller_name].try(:[], :lveStatus).present?
     lveReqEntires = lveReqEntires.dateFilter(@from, @to) if !@from.blank? && !@to.blank?
     
     lveReqEntires = lveReqEntires.reorder(sort_clause)
@@ -93,7 +93,7 @@ class WkleaverequestController < WkbaseController
 		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
     if params[:searchlist] == controller_name
 			session[controller_name] = Hash.new if session[controller_name].nil?
-			filters = [:group_id, :user_id, :leave_type, :status, :period, :from, :to]
+			filters = [:group_id, :user_id, :leave_type, :lveStatus, :period, :from, :to]
 			filters.each do |param|
 				if params[param].blank? && session[controller_name].try(:[], param).present?
 					session[controller_name].delete(param)
