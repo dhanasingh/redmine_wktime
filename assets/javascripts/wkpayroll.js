@@ -147,25 +147,3 @@ function setUserPayrollValues(colID, isValid){
 		}
 	});
 }
-
-function calculateTax(userId, compId){
-	var url = "/wkpayroll/income_tax?action_type="+ 'calculateTax' +"&user_id="+userId;
-	$.ajax({
-		url: url,
-		type: 'get',
-		data: $('#query_form').serialize(),
-		cache: false,
-		success: function(data){
-			var result = data[0];
-			$('#is_override'+compId).prop('checked', true);
-			$('#factor'+compId).prop('disabled', false);
-			$('#factor'+compId).val(result.monthTax);
-		},
-		beforeSend: function(){
-			$(this).parent().addClass('ajax-loading');
-		},
-		complete: function(){
-			$(this).parent().removeClass('ajax-loading');
-		}
-	});
-}

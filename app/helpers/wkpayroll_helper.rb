@@ -738,26 +738,6 @@ module WkpayrollHelper
 		end
 		[dependentID, factor]
 	end
-
-	def getCompVal(userId, compId, startDate , endDate)
-		compVal = 0
-		curVal = 0
-		financialPeriod = Array.new
-		lastDate = startDate
-		until lastDate > endDate
-			financialPeriod << [lastDate, (lastDate + 1.months) -1.days]
-			lastDate = lastDate + 1.months
-		end
-
-		financialPeriod.each do |start_date, end_date|
-			userSalaryHash = getUserSalaryHash(userId, start_date)
-			curVal = userSalaryHash[userId.to_i][compId] if userSalaryHash[userId.to_i][compId].present?
-			salaries = WkSalary.where("user_id = ? and salary_component_id = ? and salary_date between ? and ?", userId, compId,
-				start_date, end_date).first
-			compVal = compVal + ( salaries.present? ? salaries.amount : curVal)
-		end
-		compVal
-	end
 	
 	def getTaxSettingVal
 		@taxSettingVal = {}

@@ -250,7 +250,7 @@ it:
   label_ytd: YTD
   label_earning: Earnings
   label_payroll_settings: Payroll Settings
-  label_payroll_user_settings: User Settings
+  label_payroll_user_settings: User Payroll Settings
   label_total_earning: Total Earnings
   label_total_deduction: Total Deductions
   label_net_earning: Net Earnings

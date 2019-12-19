@@ -597,7 +597,7 @@ class WkpayrollController < WkbaseController
 	end
 
 	def income_tax
-		if params[:action_type] == "ajaxCall"
+		if params[:action_type] == "calculatetax"
 			render json: params[:data]
 		end
 		getTaxSettingVal

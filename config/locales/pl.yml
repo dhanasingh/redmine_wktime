@@ -253,7 +253,7 @@ pl:
   label_ytd: Od początku roku do
   label_earning: Przychody
   label_payroll_settings: Ustawienia Wypłat
-  label_payroll_user_settings: User Settings
+  label_payroll_user_settings: User Payroll Settings
   label_total_earning: Przychody ogółem
   label_total_deduction: Odliczenie ogółem
   label_net_earning: Przychody netto

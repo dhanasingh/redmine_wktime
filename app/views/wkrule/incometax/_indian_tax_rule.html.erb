@@ -1,6 +1,19 @@
 <% 
-    require 'json' 
+    require 'json'
     taxComp =  @taxSettingVal['tax_settings'].blank? ? {} : JSON.parse(@taxSettingVal['tax_settings'])
+    if action_type != "taxSettings"
+        financialStartMonth = getFinancialStart
+        start_year = Date.today.month < 4 ? (Date.today.year)-1 : Date.today.year
+        startDate = ('01-' + financialStartMonth + '-' + start_year.to_s).to_date
+        endDate = (startDate + 1.year) - 1.day
+        user = WkUser.where("user_id = ?", userId).first
+        unless user.join_date.blank?
+            userDate = (user.join_date.to_date + 1.month).at_beginning_of_month
+            if startDate < userDate
+                startDate = userDate
+            end
+        end
+    end
 %>
 <% if(action_type == "taxSettings") %>
     <h2><%= l(:label_income_tax_settings) %> (<%= l("#{@taxSettingVal['tax_rule']}") %>)</h2>
@@ -14,7 +27,7 @@
         taxSettings.value = params[:taxsettings].to_json
         taxSettings.save()
         flash[:notice] = l(:notice_successful_update)
-        controller.redirect_to controller: controller_name, action: 'income_tax', tab: "payroll", action_type: 'taxSettings'
+        controller.redirect_to action: 'income_tax', tab: "payroll", action_type: 'taxSettings'
        end %>
     <%= form_tag({controller: controller_name, action: 'income_tax', action_type: 'taxSettings'}, method: :post) do %>
         <fieldset>
@@ -52,9 +65,30 @@
         <div><%= submit_tag l(:button_save) %></div>
     <% end %>
 <% elsif(action_type == "userSettings") %>
-	<%=h hidden_field_tag('std_deduction', taxComp["std_deduction"].to_i) %>
-    <% disabled = !validateERPPermission('A_TE_PRVLG') %>
+    <%= javascript_tag do %>
+        function calculateTax(userId, compId){
+            var url = "/wkpayroll/income_tax?action_type="+ 'calculateTax' +"&user_id="+userId;
+            $.ajax({
+                url: url,
+                type: 'post',
+                data: $('#query_form').serialize(),
+                cache: false,
+                success: function(data){
+                    $('#is_override'+compId).prop('checked', true);
+                    $('#factor'+compId).prop('disabled', false);
+                    $('#factor'+compId).val(data.monthTax);
+                },
+                beforeSend: function(){
+                    $(this).parent().addClass('ajax-loading');
+                },
+                complete: function(){
+                    $(this).parent().removeClass('ajax-loading');
+                }
+            });
+        }
+    <% end %>
     <%  
+        disabled = !validateERPPermission('A_TE_PRVLG')
         if(params[:method] == "saveTaxVal")
             incomeTax = WkIncomeTax.where("user_id = ? and name = 'income_tax'", userId).first
             incomeTax = WkIncomeTax.new if incomeTax.blank?
@@ -65,87 +99,73 @@
             flash[:notice] = l(:notice_successful_update)
             controller.redirect_to :action => 'usrsettingsindex'
         end
-
-        sectionAmt = 0
-        deductionAmt = 0
-        profTaxAmt =0
-        hraVal = []
         taxValue = {}
-        financialStartMonth = getFinancialStart
-        start_year = Date.today.month < 4 ? (Date.today.year)-1 : Date.today.year
-        startDate = ('01-' + financialStartMonth + '-' + start_year.to_s).to_date
-        endDate = (startDate + 1.year) - 1.day
-        user = WkUser.where("user_id = ?", userId).first
-        unless user.join_date.blank?
-            userDate = (user.join_date.to_date + 1.month).at_beginning_of_month
-            if startDate < userDate
-                startDate = userDate
+        prof_tax = 0
+        financialPeriod = Array.new
+		lastDate = startDate
+		until lastDate > endDate
+			financialPeriod << [lastDate, (lastDate + 1.months) -1.days]
+			lastDate = lastDate + 1.months
+        end
+        totals = Hash.new
+        financialPeriod.each do |start_date, end_date|
+            salaries = WkSalary.where("user_id = ? and salary_date between ? and ?", userId, start_date, end_date)
+            if salaries.present?
+                compHash = salaries.map{|p| [p.salary_component_id.to_s, p.amount]}.to_h
+                taxComp.each do |name, id|
+                    totals[name] ||= 0 
+                    totals[name] += compHash[id] if name != "prof_tax" && name != "std_deduction" && id.present?
+                end
+            else
+                userSalaryHash = getUserSalaryHash(userId, start_date)
+                taxComp.each do |name, id|
+                    totals[name] ||= 0
+                    totals[name] += userSalaryHash[userId.to_i][id.to_i] if name != "prof_tax" && name != "std_deduction" && id.present?
+                end
             end
-        end        
-        gross = getCompVal(userId, taxComp["gross"].to_i, startDate , endDate)
-        pf = getCompVal(userId, taxComp["pf"].to_i, startDate , endDate)
-        basic = getCompVal(userId, taxComp["basic"].to_i, startDate , endDate)
-        hra = getCompVal(userId, taxComp["hra"].to_i, startDate , endDate)
-        child_educ = getCompVal(userId, taxComp["edu_allowance"].to_i, startDate , endDate)
-        
-        profTaxVal = WkSalary.where("user_id = ? and salary_component_id =? and salary_date between ? and ?",userId,taxComp["prof_tax"].to_i,
-                        startDate,endDate)
-        userSalaryHash = getUserSalaryHash(userId, startDate- 1.month)
-        curVal = userSalaryHash[userId.to_i][taxComp["prof_tax"].to_i].blank? ? 0 : userSalaryHash[userId.to_i][taxComp["prof_tax"].to_i]
-        if profTaxVal.blank? || ((4..9).to_a.include? startDate.month)
-            prof_tax = curVal * 2
+        end
+        profTaxStartDate1 = ('01-09-' + start_year.to_s).to_date
+        profTaxEndDate1 = (profTaxStartDate1 + 1.months) -1.days 
+        profTaxStartDate2 = ('01-03-' + endDate.year.to_s).to_date
+        profTaxEndDate2 = (profTaxStartDate2 + 1.months) -1.days
+        prof_tax_id = taxComp["prof_tax"].to_i
+        taxValues = WkSalary.where("user_id = ? and salary_component_id = ? and (salary_date between ? and ? or salary_date between ? and ?)", 
+            userId, taxComp["prof_tax"].to_i, profTaxStartDate1, profTaxEndDate1, profTaxStartDate2, profTaxEndDate2)
+        if taxValues.count == 2
+            taxValues.each do |tax_value|
+                prof_tax += tax_value.amount
+            end
+        elsif taxValues.count == 1
+            prof_tax = taxValues.first.amount * 2
         else
-            profTaxVal.each do |value|
-                profTaxAmt = profTaxAmt + value.amount
-            end
-            prof_tax = profTaxAmt + curVal
+            prof_tax = 0
         end
         taxEntries = WkIncomeTax.where("user_id = ?", userId).first
         if taxEntries.present?
             taxValue =  JSON.parse(taxEntries.value)
-            sectionAmt = taxValue['insurance'].to_i + taxValue['tuition_fee'].to_i + pf
-            sectionAmt = sectionAmt > 150000 ? 150000 : sectionAmt
-            deductionAmt = taxComp["std_deduction"].to_i + taxValue['home_loan'].to_i + taxValue['travel_allowance'].to_i + taxValue['medical_insurance'].to_i +
-                             taxValue['edu_loan'].to_i + prof_tax + (child_educ > 1200 ? 1200 : child_educ)
-            hraVal = [((taxValue['rent'].to_i) - 0.1 * basic), basic / 2, hra].min
-            taxable_income = gross + taxValue['addl_income'].to_i - deductionAmt - sectionAmt - hraVal
-            taxIncome = taxable_income
-            if taxIncome <= 500000
-			    taxVal = 0
-            else
-                taxIncome = taxIncome - 500000
-                if taxIncome > 500000
-                    taxIncome = taxIncome - 500000
-                    taxVal = 112500 + (0.3 * taxIncome)
-                else
-                    taxVal = 12500 + (0.2 * taxIncome)
-                end
-                taxVal = taxVal + (0.04 * taxVal)
-            end
-            monthTax = taxVal / 12
+            hraVal = [((taxValue['rent'].to_i) - 0.1 * totals["basic"]), totals["basic"] / 2, totals["hra"]].min
         end
     %>
-	<%=h hidden_field_tag('gross', gross) %>
-	<%=h hidden_field_tag('pf', pf) %>
-	<%=h hidden_field_tag('basic', basic) %>
-	<%=h hidden_field_tag('hra', hra) %>
-	<%=h hidden_field_tag('child_educ', child_educ) %>
-	<%=h hidden_field_tag('prof_tax', prof_tax) %>
+    <% taxComp.each do |name, id| %>
+        <%= hidden_field_tag(name, totals[name]) if name != "prof_tax" && name != "std_deduction"  %>
+    <% end %>
+	<%= hidden_field_tag('std_deduction', taxComp["std_deduction"].to_i) %>
+	<%= hidden_field_tag('prof_tax', prof_tax) %>
     <div>
         <div class="splitcontentleft">
             <div class="box tabular">
                 <table>
                     <tr>
-                        <td><%= "Annual Gross" %></td><td><%= gross %></td>
+                        <td><%= "Annual Gross" %></td><td><%=  "%.2f" % totals["gross"] %></td>
                     </tr>
                     <tr>
-                        <td><%= "PF" %></td><td><%= pf %></td>
+                        <td><%= "PF" %></td><td><%=  "%.2f" % totals["pf"] %></td>
                     </tr>
                     <tr>
-                        <td><%= "Professional Tax" %></td><td><%= prof_tax %></td>
+                        <td><%= "Professional Tax" %></td><td><%=  "%.2f" % prof_tax %></td>
                     </tr>
                     <tr>
-                        <td><%= "Children’s Education Allowance" %></td><td><%= child_educ %></td>
+                        <td><%= "Children’s Education Allowance" %></td><td><%=  "%.2f" % totals["edu_allowance"] %>  <%= "(Max. Rs 1200)" %> </td>
                     </tr>
                     <tr>
                         <td><%= "Standard Deduction" %></td><td><%= taxComp["std_deduction"] %></td>
@@ -188,12 +208,12 @@
                     <tr>
                         <td></td>
                         <td><%= "Basic Salary" %></td>
-                        <td><%= basic %></td>
+                        <td><%=  "%.2f" % totals["basic"] %></td>
                     </tr>
                     <tr>
                         <td></td>
                         <td><%= "HRA received" %></td>
-                        <td><%= hra %></td>
+                        <td><%=  "%.2f" % totals["hra"] %></td>
                     </tr>
                     <tr>
                         <td></td>
@@ -203,46 +223,52 @@
                     <tr>
                         <td></td>
                         <td><%= "Final HRA" %></td>
-                        <td><%= hraVal unless hraVal.blank? %></td>
+                        <td><%=  "%.2f" % hraVal unless hraVal.blank? %></td>
                     </tr>
-                </table>
-            </div>
-            <div class="box tabular">
-                <table>
-                    <tr><td><b><%= "Taxable Income" %></b></td><td><%= taxable_income %></td></tr>
-                    <tr><td><b><%= "Tax" %></b></td><td><%= "%.2f" % taxVal unless taxVal.blank? %></td></tr>
-                    <tr><td><b><%= "Tax Per Month" %></b></td><td><%= "%.2f" % monthTax unless monthTax.blank? %></td></tr>
                 </table>
             </div>
         </div>
     <div style="clear:both;"></div>
-<% else %>
-    <%      
-        data = []
-        sectionAmt = params['taxsettings']['insurance'].to_i + params['taxsettings']['tuition_fee'].to_i + params[:pf].to_i
-        sectionAmt = sectionAmt > 150000 ? 150000 : sectionAmt
-        deductionAmt = params[:std_deduction].to_i + params['taxsettings']['home_loan'].to_i + params['taxsettings']['travel_allowance'].to_i +
-                         params['taxsettings']['medical_insurance'].to_i + params['taxsettings']['edu_loan'].to_i + params[:prof_tax].to_i +
-                          (params[:child_educ].to_i > 1200 ? 1200 : params[:child_educ].to_i)
-        basic = params[:basic].to_i
-        hraVal = [(params['taxsettings']['rent'].to_i - 0.1 * basic), basic / 2, params[:hra].to_i].min
-        taxIncome = params[:gross].to_i + params['taxsettings']['addl_income'].to_i - deductionAmt - sectionAmt - hraVal
-        if taxIncome <= 500000
-            taxVal = 0
+<%
+# For Apply Tax 
+else
+    monthCount =((12 * (endDate.year - startDate.year) + endDate.month - startDate.month).abs) + 1 if startDate && endDate
+    sectionAmt = params['taxsettings']['insurance'].to_i + params['taxsettings']['tuition_fee'].to_i + params[:pf].to_i
+    sectionAmt = sectionAmt > 150000 ? 150000 : sectionAmt
+    deductionAmt = params[:std_deduction].to_i + params['taxsettings']['home_loan'].to_i + params['taxsettings']['travel_allowance'].to_i +
+                        params['taxsettings']['medical_insurance'].to_i + params['taxsettings']['edu_loan'].to_i + params[:prof_tax].to_i +
+                        (params[:edu_allowance].to_i > 1200 ? 1200 : params[:edu_allowance].to_i)
+    basic = params[:basic].to_i
+    hraVal = [(params['taxsettings']['rent'].to_i - 0.1 * basic), basic / 2, params[:hra].to_i].min
+    taxIncome = params[:gross].to_i + params['taxsettings']['addl_income'].to_i - deductionAmt - sectionAmt - hraVal
+    
+    tdsId = @taxSettingVal['income_tax'].to_i
+    grossId = taxComp["gross"].to_i
+    generatedSal = WkSalary.find_by_sql("SELECT wk_salaries.salary_date, amount FROM wk_salaries
+                                    INNER JOIN (select max(salary_date) as sal_date, user_id from wk_salaries where user_id = #{userId} GROUP BY user_id) as SD 
+                                    ON SD.sal_date = wk_salaries.salary_date AND SD.user_id = wk_salaries.user_id
+                                    where wk_salaries.user_id = #{userId} and salary_component_id = #{grossId}").first
+    if generatedSal.present? && generatedSal.amount < params[:gross].to_i       
+        tdsAmt = WkSalary.find_by_sql("SELECT sum(amount) as amount from wk_salaries where wk_salaries.user_id = #{userId} and
+                                        salary_component_id = #{tdsId}").first.amount
+        taxIncome -= tdsAmt
+        salDate = generatedSal.salary_date.to_date
+        monthCount = ((12 * (endDate.year - salDate.year) + endDate.month - salDate.month).abs)
+    end
+    taxIncome -= 500000
+    taxVal = 0
+    if taxIncome > 0
+        if taxIncome > 500000
+            taxIncome -= 500000
+            taxVal = 112500 + (0.3 * taxIncome)
         else
-            taxIncome = taxIncome - 500000
-            if taxIncome > 500000
-                taxIncome = taxIncome - 500000
-                taxVal = 112500 + (0.3 * taxIncome)
-            else
-                taxVal = 12500 + (0.2 * taxIncome)
-            end
-            taxVal = taxVal + (0.04 * taxVal)
+            taxVal = 12500 + (0.2 * taxIncome)
         end
-        monthTax = taxVal / 12
-        monthTax = monthTax.blank? ? 0 : "%.2f" % monthTax
-        data << {monthTax: monthTax}
-        controller.redirect_to action: "income_tax", data: data, action_type: "ajaxCall"
-    %>
-    <%  %>
-<% end %>
+        taxVal += (0.04 * taxVal)
+    end
+    monthTax = taxVal / monthCount
+    monthTax = monthTax.blank? ? 0 : "%.2f" % monthTax
+    data = {monthTax: monthTax}
+    controller.redirect_to action: "income_tax", data: data, action_type: "calculatetax"
+ end
+ %>
