@@ -13,7 +13,9 @@ $(document).ready(function(){
 		autoOpen: false,
 		resizable: false,
 		modal: false,
-		width: 510,
+		width: 850,
+		height: 380,
+		overflow: 'auto',
 		buttons: {
 			"Ok": function() {
 				var opt, desc = "", opttext = "";

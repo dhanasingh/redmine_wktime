@@ -88,40 +88,44 @@
 	<div><%= submit_tag l(:button_apply), :class => 'button-small', :name => 'submit' %></div>
 <% end %>
 <div id="payroll-dlg" title="<%= l(:label_basic) %>" >
+	<div class="box tabular">
 
-	<%= hidden_field_tag("salaryCompID","") %>
-	<%= hidden_field_tag("basicCompDepID","") %>
-	<p>
-		<label><%= l(:field_name) %></label>&emsp;<%= text_field_tag 'name', "", :maxlength => 50 %>
-	<p>
+		<%= hidden_field_tag("salaryCompID","") %>
+		<%= hidden_field_tag("basicCompDepID","") %>
+		<p>
+			<label><%= l(:field_name) %></label><%= text_field_tag 'name', "", :maxlength => 50 %>
+		</p>
 
-	<p id = "payroll_frequency">
-		<label><%= l(:label_frequency) %></label>&emsp;
-		<%= select_tag 'frequency', options_for_select(getSalaryFrequency.invert) %>
-	</p>
+		<p id = "payroll_frequency">
+			<label><%= l(:label_frequency) %></label>
+			<%= select_tag 'frequency', options_for_select(getSalaryFrequency.invert) %>
+		</p>
 
-	<p id="payroll_start_date">
-		<label><%= l(:field_start_date) %></label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		<%= date_field_tag('start_date', "", {:id => 'start_date', :size => 12, :style => "width:130px; "}) + calendar_for('start_date') %>
-	</p>
+		<p id="payroll_start_date">
+			<label><%= l(:field_start_date) %></label>
+			<%= date_field_tag('start_date', "", {:id => 'start_date', :size => 12, :style => "width:130px; "}) + calendar_for('start_date') %>
+		</p>
 
-	<p id="basic_salary_type">
-		<label><%= l(:label_salary_type) %></label>
-		<%= select_tag 'salary_type', options_for_select(getSalaryType.invert)%>
-	</p>
+		<p id="basic_salary_type">
+			<label><%= l(:label_salary_type) %></label>
+			<%= select_tag 'salary_type', options_for_select(getSalaryType.invert)%>
+		</p>
 
-	<p id="basic_factor">	<label><%= l(:label_factor) %></label>&emsp;<%= text_field_tag 'basic_field_factor', "", :maxlength => 7%></p>
+		<p id="basic_factor">
+			<label><%= l(:label_factor) %></label><%= text_field_tag 'basic_field_factor', "", :maxlength => 7 %>
+		</p>
 
-	<p id="payrollDBLedger">
-		<label id="ledgersLabel"><%= l(:label_debit_with_ledger) %></label>&emsp;
-		<%= select_tag 'db_ledger', options_for_select(getLedgerNames.invert) %>
-	</p>
+		<p id="payrollDBLedger">
+			<label id="ledgersLabel"><%= l(:label_debit_with_ledger) %></label>
 
-	<p id="calculatedFieldsType" style="display:none">
-		<label id="TypeLabel"><%= l(:label_type)  %></label>&emsp;
-		<%= select_tag 'calculated_fields_type', options_for_select(get_calculated_field_types) %>
-	</p>
+			<%= select_tag 'db_ledger', options_for_select(getLedgerNames.invert) %>
+		</p>
 
+		<p id="calculatedFieldsType" style="display:none">
+			<label id="TypeLabel"><%= l(:label_type)  %></label>
+			<%= select_tag 'calculated_fields_type', options_for_select(get_calculated_field_types) %>
+		</p>
+	</div>
 	<div id="addDeps">
 		<div id="salaryCompDeps"></div>
 		<p style="float: right;">
@@ -131,32 +135,35 @@
 </div>
 
 <div id="compDepTemplate" style="display: none;">
-	<table id="compDep_INDEX" class="compDep">
-		<tr>
-			<th rowspan="3" valign="justify" style="font-weight:normal;">
-				<label><%= l(:label_dependent) %></label><%= hidden_field_tag("compDepID_INDEX","") %>
-			</th>
+	<div id="compDep_INDEX" class="box tabular compDep">
+		<table>
 			<tr>
+				<th></th>
 				<th style="font-weight:normal;"><%= l(:label_component) %></th>
 				<th></th>
 				<th style="font-weight:normal;"><%= l(:label_factor) %></th>
+				<th colspan="6"></th>
 			</tr>
 			<tr>
+				<td valign="justify" style="font-weight:normal">
+					<label style="padding-left: 90px;font-weight: normal;"><%= l(:label_dependent) %></label>
+					<%= hidden_field_tag("compDepID_INDEX","") %>
+				</td>
 				<td><%= select_tag('depID_INDEX', options_for_select(getSalaryCompNames.invert), class: "component depElements") %></td>
 				<td align="center"><%= select_tag('factorOp_INDEX', options_for_select(getFactorOperators), class: "depElements") %></td>
 				<td><%= text_field_tag('factor_INDEX', "", size: 5, maxlength: 7, class: "depElements") %></td>
+
+				<td valign="justify" style="font-weight:normal;padding-left: 20px;"><%= l(:label_if) %><%= hidden_field_tag("compDepConID_INDEX","") %></td>
+				<td><%= select_tag('condDepID_INDEX', options_for_select(getSalaryCompNames.invert), class: "component condElements_INDEX") %></td>
+				<td>
+					<%= select_tag('condOp_INDEX', options_for_select(getLogicalCond), class: "condElements_INDEX", 
+					onchange: "showFactor(this);") %>
+				</td>
+
+				<td><%= text_field_tag('condFactor_INDEX', "", size: 5, maxlength: 7, class: "condElements_INDEX") %></td>
+				<td><%= text_field_tag('condFactor2_INDEX', "", size: 5, maxlength: 7, class: "condElements_INDEX") %></td>
+				<td><%= link_to image_tag('delete.png'), "javascript:deleterow(INDEX);", :title => l(:button_delete) %></td>
 			</tr>
-		</tr>
-		<tr>
-			<th valign="justify" style="font-weight:normal;"><%= l(:label_if) %><%= hidden_field_tag("compDepConID_INDEX","") %></th>
-			<td><%= select_tag('condDepID_INDEX', options_for_select(getSalaryCompNames.invert), class: "component condElements_INDEX") %></td>
-			<td>
-				<%= select_tag('condOp_INDEX', options_for_select(getLogicalCond), class: "condElements_INDEX", 
-				onchange: "showFactor(this);") %>
-			</td>
-			<td><%= text_field_tag('condFactor_INDEX', "", size: 5, maxlength: 7, class: "condElements_INDEX") %></td>
-			<td><%= text_field_tag('condFactor2_INDEX', "", size: 5, maxlength: 7, class: "condElements_INDEX") %></td>
-			<td><%= link_to image_tag('delete.png'), "javascript:deleterow(INDEX);", :title => l(:button_delete) %></td>
-		</tr>
-	</table>
+		</table>
+	</div>
 </div>
