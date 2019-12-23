@@ -34,31 +34,31 @@
             <table>
                 <tr>
                     <td><%= "Annual Gross" %></td>
-                    <td><%= select_tag 'taxsettings[gross]', options_for_select(getSalaryCompNames.invert, taxComp["gross"]) %></td>
+                    <td><%= select_tag 'taxsettings[annual_gross]', options_for_select(getSalaryCompNames.invert, taxComp["annual_gross"]) %></td>
                 </tr>
                 <tr>
                     <td><%= "PF" %></td>
-                    <td><%= select_tag 'taxsettings[pf]', options_for_select(getSalaryCompNames.invert, taxComp["pf"]) %></td>
+                    <td><%= select_tag 'taxsettings[annual_pf]', options_for_select(getSalaryCompNames.invert, taxComp["annual_pf"]) %></td>
                 </tr>
                 <tr>
                     <td><%= "Professional Tax" %></td>
-                    <td><%= select_tag 'taxsettings[prof_tax]', options_for_select(getSalaryCompNames.invert, taxComp["prof_tax"]) %></td>
+                    <td><%= select_tag 'taxsettings[annual_prof_tax]', options_for_select(getSalaryCompNames.invert, taxComp["annual_prof_tax"]) %></td>
                 </tr>
                 <tr>
                     <td><%= "Basic Salary" %></td>
-                    <td><%= select_tag 'taxsettings[basic]', options_for_select(getSalaryCompNames.invert, taxComp["basic"]) %></td>
+                    <td><%= select_tag 'taxsettings[annual_basic]', options_for_select(getSalaryCompNames.invert, taxComp["annual_basic"]) %></td>
                 </tr>
                 <tr>
                     <td><%= "HRA" %></td>
-                    <td><%= select_tag 'taxsettings[hra]', options_for_select(getSalaryCompNames.invert, taxComp["hra"]) %></td>
+                    <td><%= select_tag 'taxsettings[annual_hra]', options_for_select(getSalaryCompNames.invert, taxComp["annual_hra"]) %></td>
                 </tr>
                 <tr>
                     <td><%= "Children’s Education Allowance" %></td>
-                    <td><%= select_tag 'taxsettings[edu_allowance]', options_for_select(getSalaryCompNames.invert, taxComp["edu_allowance"]) %></td>
+                    <td><%= select_tag 'taxsettings[annual_edu_allowance]', options_for_select(getSalaryCompNames.invert, taxComp["annual_edu_allowance"]) %></td>
                 </tr>
                 <tr>
                     <td><%= "Standard Deduction" %></td>
-                    <td><%= text_field_tag("taxsettings[std_deduction]", taxComp["std_deduction"], size: 20) %></td>
+                    <td><%= text_field_tag("taxsettings[annual_std_deduction]", taxComp["annual_std_deduction"], size: 20) %></td>
                 </tr>
             </table>
         </fieldset>
@@ -67,24 +67,36 @@
 <% elsif(action_type == "userSettings") %>
     <%= javascript_tag do %>
         function calculateTax(userId, compId){
-            var url = "/wkpayroll/income_tax?action_type="+ 'calculateTax' +"&user_id="+userId;
-            $.ajax({
-                url: url,
-                type: 'post',
-                data: $('#query_form').serialize(),
-                cache: false,
-                success: function(data){
-                    $('#is_override'+compId).prop('checked', true);
-                    $('#factor'+compId).prop('disabled', false);
-                    $('#factor'+compId).val(data.monthTax);
-                },
-                beforeSend: function(){
-                    $(this).parent().addClass('ajax-loading');
-                },
-                complete: function(){
-                    $(this).parent().removeClass('ajax-loading');
-                }
+            if(!validateUserSalComps()){
+                var url = "/wkpayroll/income_tax?action_type="+ 'calculateTax' +"&user_id="+userId;
+                $.ajax({
+                    url: url,
+                    type: 'post',
+                    data: $('#query_form').serialize(),
+                    cache: false,
+                    success: function(data){
+                        $('#is_override'+compId).prop('checked', true);
+                        $('#factor'+compId).prop('disabled', false).val(data.monthTax);
+                    },
+                    beforeSend: function(){
+                        $(this).parent().addClass('ajax-loading');
+                    },
+                    complete: function(){
+                        $(this).parent().removeClass('ajax-loading');
+                    }
+                });
+            }
+        }
+
+        function validateUserSalComps(){
+            var isEdited = false;
+            $(".salComp").each(function(){
+                editedVal = $("#h_"+this.name).val();
+                if(this.value == -1 && editedVal == "") editedVal = -1;
+                if(editedVal != this.value) isEdited = true;
             });
+            if(isEdited) isEdited = !confirm("Are you sure want to apply tax without save?");
+            return isEdited;
         }
     <% end %>
     <%  
@@ -114,61 +126,100 @@
                 compHash = salaries.map{|p| [p.salary_component_id.to_s, p.amount]}.to_h
                 taxComp.each do |name, id|
                     totals[name] ||= 0 
-                    totals[name] += compHash[id] if name != "prof_tax" && name != "std_deduction" && id.present?
+                    totals[name] += compHash[id] if !["annual_prof_tax", "annual_std_deduction"].include?(name) && compHash[id].present?
                 end
             else
                 userSalaryHash = getUserSalaryHash(userId, start_date)
                 taxComp.each do |name, id|
                     totals[name] ||= 0
-                    totals[name] += userSalaryHash[userId.to_i][id.to_i] if name != "prof_tax" && name != "std_deduction" && id.present?
+                    totals[name] += userSalaryHash[userId.to_i][id.to_i].to_f if !["annual_prof_tax", "annual_std_deduction"].include?(name) &&
+                     id.present? && userSalaryHash[userId.to_i][id.to_i].present?
                 end
             end
         end
-        profTaxStartDate1 = ('01-09-' + start_year.to_s).to_date
-        profTaxEndDate1 = (profTaxStartDate1 + 1.months) -1.days 
-        profTaxStartDate2 = ('01-03-' + endDate.year.to_s).to_date
-        profTaxEndDate2 = (profTaxStartDate2 + 1.months) -1.days
-        prof_tax_id = taxComp["prof_tax"].to_i
-        taxValues = WkSalary.where("user_id = ? and salary_component_id = ? and (salary_date between ? and ? or salary_date between ? and ?)", 
-            userId, taxComp["prof_tax"].to_i, profTaxStartDate1, profTaxEndDate1, profTaxStartDate2, profTaxEndDate2)
-        if taxValues.count == 2
-            taxValues.each do |tax_value|
-                prof_tax += tax_value.amount
+        profTaxID = taxComp["annual_prof_tax"]
+        if profTaxID.present?
+            salComp = WkSalaryComponents.where("id = ?", profTaxID).first
+            freqDate = salComp.start_date
+            case salComp.frequency
+            when "sa"
+                startMonth1 = (freqDate.to_date + 7.months).at_beginning_of_month
+                profTaxDate1 = ('01-' + startMonth1.month.to_s + '-' + start_year.to_s).to_date
+                profTaxDate2 = profTaxDate1 + 6.months
+                taxValues = WkSalary.where("user_id = ? and salary_component_id = ? and (salary_date between ? and ? or salary_date between ? and ?)", userId, 
+                                profTaxID, profTaxDate1, profTaxDate1.at_end_of_month, profTaxDate2, profTaxDate2.at_end_of_month)
+                if taxValues.count == 2
+                    taxValues.each do |tax_value|
+                        prof_tax += tax_value.amount
+                    end
+                elsif taxValues.count == 1
+                    prof_tax = taxValues.first.amount * 2
+                else
+                    prof_tax = 0
+                end
+            when "a"
+                taxValues = WkSalary.where("user_id = ? and salary_component_id = ? and salary_date between ? and ?", userId, profTaxID, startDate, endDate)
+                prof_tax = taxValues.first.amount
+            when "m"
+                financialPeriod.each do |start_date, end_date|
+                    taxValues = WkSalary.where("user_id = ? and salary_component_id = ? and salary_date between ? and ?", userId, profTaxID,
+                                 start_date, end_date)
+                    if taxValues.present?
+                        prof_tax += taxValues.first.amount
+                    else
+                        userSalaryHash = getUserSalaryHash(userId, start_date)
+                        prof_tax += userSalaryHash[userId.to_i][profTaxID.to_i]
+                    end
+                end
+            when "q"
+                quaterStartDate = ('01-' + freqDate.to_date.month.to_s + '-' + start_year.to_s).to_date
+                if quaterStartDate >= startDate && quaterStartDate <= endDate
+                    while quaterStartDate < endDate
+                        quaterEndDate = (quaterStartDate + 3.months) - 1.day
+                        taxValues = WkSalary.where("user_id = ? and salary_component_id = ? and salary_date between ? and ?", userId, profTaxID,
+                                    quaterStartDate, quaterEndDate)
+                        if taxValues.present?
+                            taxValues.each do |tax_value|
+                                prof_tax += tax_value.amount
+                            end
+                        else
+                            userSalaryHash = getUserSalaryHash(userId, quaterStartDate)
+                            prof_tax += userSalaryHash[userId.to_i][profTaxID.to_i]
+                        end
+                        quaterStartDate = quaterStartDate + 3.months
+                    end
+                end
             end
-        elsif taxValues.count == 1
-            prof_tax = taxValues.first.amount * 2
-        else
-            prof_tax = 0
         end
         taxEntries = WkIncomeTax.where("user_id = ?", userId).first
         if taxEntries.present?
             taxValue =  JSON.parse(taxEntries.value)
-            hraVal = [((taxValue['rent'].to_i) - 0.1 * totals["basic"]), totals["basic"] / 2, totals["hra"]].min
+            hraVal = [((taxValue['rent'].to_i) - 0.1 * totals["annual_basic"]), totals["annual_basic"] / 2, totals["annual_hra"]].min
         end
     %>
     <% taxComp.each do |name, id| %>
-        <%= hidden_field_tag(name, totals[name]) if name != "prof_tax" && name != "std_deduction"  %>
+        <%= hidden_field_tag(name, totals[name]) if name != "annual_prof_tax" && name != "annual_std_deduction"  %>
     <% end %>
-	<%= hidden_field_tag('std_deduction', taxComp["std_deduction"].to_i) %>
-	<%= hidden_field_tag('prof_tax', prof_tax) %>
+	<%= hidden_field_tag('annual_std_deduction', taxComp["annual_std_deduction"].to_i) %>
+	<%= hidden_field_tag('annual_prof_tax', prof_tax) %>
     <div>
         <div class="splitcontentleft">
             <div class="box tabular">
                 <table>
                     <tr>
-                        <td><%= "Annual Gross" %></td><td><%=  "%.2f" % totals["gross"] %></td>
+                        <td><%= "Annual Gross" %></td><td><%=  "%.2f" % totals["annual_gross"] %></td>
                     </tr>
                     <tr>
-                        <td><%= "PF" %></td><td><%=  "%.2f" % totals["pf"] %></td>
+                        <td><%= "PF" %></td><td><%=  "%.2f" % totals["annual_pf"] %></td>
                     </tr>
                     <tr>
                         <td><%= "Professional Tax" %></td><td><%=  "%.2f" % prof_tax %></td>
                     </tr>
                     <tr>
-                        <td><%= "Children’s Education Allowance" %></td><td><%=  "%.2f" % totals["edu_allowance"] %>  <%= "(Max. Rs 1200)" %> </td>
+                        <td><%= "Children’s Education Allowance" %></td><td><%=  "%.2f" % totals["annual_edu_allowance"] %>  <%= "(Max. Rs 1200)" %> </td>
                     </tr>
                     <tr>
-                        <td><%= "Standard Deduction" %></td><td><%= taxComp["std_deduction"] %></td>
+                        <td><%= "Standard Deduction" %></td><td><%= taxComp["annual_std_deduction"] %></td>
                     </tr>
                     <tr>
                         <td><%= "Additional Income" %></td>
@@ -208,12 +259,12 @@
                     <tr>
                         <td></td>
                         <td><%= "Basic Salary" %></td>
-                        <td><%=  "%.2f" % totals["basic"] %></td>
+                        <td><%=  "%.2f" % totals["annual_basic"] %></td>
                     </tr>
                     <tr>
                         <td></td>
                         <td><%= "HRA received" %></td>
-                        <td><%=  "%.2f" % totals["hra"] %></td>
+                        <td><%=  "%.2f" % totals["annual_hra"] %></td>
                     </tr>
                     <tr>
                         <td></td>
@@ -233,23 +284,23 @@
 # For Apply Tax 
 else
     monthCount =((12 * (endDate.year - startDate.year) + endDate.month - startDate.month).abs) + 1 if startDate && endDate
-    sectionAmt = params['taxsettings']['insurance'].to_i + params['taxsettings']['tuition_fee'].to_i + params[:pf].to_i
-    sectionAmt = sectionAmt > 150000 ? 150000 : sectionAmt
-    deductionAmt = params[:std_deduction].to_i + params['taxsettings']['home_loan'].to_i + params['taxsettings']['travel_allowance'].to_i +
-                        params['taxsettings']['medical_insurance'].to_i + params['taxsettings']['edu_loan'].to_i + params[:prof_tax].to_i +
-                        (params[:edu_allowance].to_i > 1200 ? 1200 : params[:edu_allowance].to_i)
-    basic = params[:basic].to_i
-    hraVal = [(params['taxsettings']['rent'].to_i - 0.1 * basic), basic / 2, params[:hra].to_i].min
-    taxIncome = params[:gross].to_i + params['taxsettings']['addl_income'].to_i - deductionAmt - sectionAmt - hraVal
+    section80CAmt = params['taxsettings']['insurance'].to_i + params['taxsettings']['tuition_fee'].to_i + params[:annual_pf].to_i
+    section80CAmt = section80CAmt > 150000 ? 150000 : section80CAmt
+    deductionAmt = params[:annual_std_deduction].to_i + params['taxsettings']['home_loan'].to_i + params['taxsettings']['travel_allowance'].to_i +
+                        params['taxsettings']['medical_insurance'].to_i + params['taxsettings']['edu_loan'].to_i + params[:annual_prof_tax].to_i +
+                        (params[:annual_edu_allowance].to_i > 1200 ? 1200 : params[:annual_edu_allowance].to_i)
+    basic = params[:annual_basic].to_i
+    hraVal = [(params['taxsettings']['rent'].to_i - 0.1 * basic), basic / 2, params[:annual_hra].to_i].min
+    taxIncome = params[:annual_gross].to_i + params['taxsettings']['addl_income'].to_i - deductionAmt - section80CAmt - hraVal
     
     tdsId = @taxSettingVal['income_tax'].to_i
-    grossId = taxComp["gross"].to_i
+    grossId = taxComp["annual_gross"].to_i
     generatedSal = WkSalary.find_by_sql("SELECT wk_salaries.salary_date, amount FROM wk_salaries
                                     INNER JOIN (select max(salary_date) as sal_date, user_id from wk_salaries where user_id = #{userId} GROUP BY user_id) as SD 
                                     ON SD.sal_date = wk_salaries.salary_date AND SD.user_id = wk_salaries.user_id
                                     where wk_salaries.user_id = #{userId} and salary_component_id = #{grossId}").first
-    if generatedSal.present? && generatedSal.amount < params[:gross].to_i       
-        tdsAmt = WkSalary.find_by_sql("SELECT sum(amount) as amount from wk_salaries where wk_salaries.user_id = #{userId} and
+    if generatedSal.present? && generatedSal.amount < params[:gross].to_i
+        tdsAmt = WkSalary.find_by_sql("SELECT sum(amount) as amount from wk_salaries where user_id = #{userId} and
                                         salary_component_id = #{tdsId}").first.amount
         taxIncome -= tdsAmt
         salDate = generatedSal.salary_date.to_date
