@@ -19,6 +19,7 @@
 		actualSalValHash[entry.sc_component_type].store entry.sc_id, @userSalHash[entry.user_id][entry.sc_id] unless @userSalHash[entry.user_id].blank?
 		salEntryByTypeHash[entry.sc_component_type] << [entry, isOverride, dependent_id, factor] unless entry.sc_component_type.blank?
 	end
+	grossVal = "%.2f" % (actualSalValHash['a'].values.sum + actualSalValHash['b'].values.sum)
 %>
 
 <div>
@@ -36,7 +37,6 @@
 	<% if actualSalValHash.present?%>
 		<%= form_tag({:controller => 'wkpayroll', :action => 'updateUserSalary'}, :method => :post, :id => 'query_form') do %>
 			<%=h hidden_field_tag('user_id', userId) %>
-			<% grossVal = "%.2f" % (actualSalValHash['a'].values.sum + actualSalValHash['b'].values.sum) %>
 			<%= hidden_field_tag('gross', grossVal) %>
 			<fieldset style="width: 94%;margin:1px 34px 0px 1px;background-color:#F6F6F6;float:right"><legend><b><%=l(:label_basic)%></b></legend>
 				<table "width:100%; border-collapse: collapse;">
