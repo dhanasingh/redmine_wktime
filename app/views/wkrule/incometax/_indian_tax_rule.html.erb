@@ -317,7 +317,7 @@ else
     tdsValue = WkSalary.where("user_id = ? and salary_component_id = ? and salary_date between ? and ? ", userId, tdsID, startDate, endDate )
     if tdsValue.present?
         tdsAmt = tdsValue.sum(:amount)
-        taxVal -= tdsAmt if taxVal != 0 && taxval >= tdsAmt 
+        taxVal -= tdsAmt if taxVal != 0 && taxVal >= tdsAmt 
         monthCount -= tdsValue.count
     end
     monthTax = taxVal / monthCount

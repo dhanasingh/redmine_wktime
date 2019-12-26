@@ -774,7 +774,7 @@ module WkpayrollHelper
 		salaryComponents = salaryComponents.reject{|name, id| name.include?(compEntry.sc_name.to_s) }
 		filterSalComps = getSalCompsByCompType(compEntry.sc_component_type)
 		if compEntry.sc_component_type == 'b'
-			salaryComponents = []
+			salaryComponents = [[ "", '-1']]
 		else
 			salaryComponents.delete_if {|c| filterSalComps.include?(c.last)}
 		end
