@@ -759,4 +759,24 @@ module WkpayrollHelper
 		end
 		taxRuleArr.sort!
 	end
+
+	def getSalCompsByCompType(comp_type)
+		if comp_type == 'settings_allowances' || comp_type == 'a'
+			filterSalComps = WkSalaryComponents.where("salary_type in('BAT', 'AT', 'SBA', 'ABA', 'DT')").pluck(:id)
+		else
+			filterSalComps = WkSalaryComponents.where("salary_type in('DT')").pluck(:id)
+		end
+		filterSalComps
+	end
+
+	def filterSalComps(compEntry)
+		salaryComponents = getSalaryComponentsArr
+		salaryComponents = salaryComponents.reject{|name, id| name.include?(compEntry.sc_name.to_s) }
+		filterSalComps = getSalCompsByCompType(compEntry.sc_component_type)
+		if compEntry.sc_component_type == 'b'
+			salaryComponents = []
+		else
+			salaryComponents.delete_if {|c| filterSalComps.include?(c.last)}
+		end
+	end
 end

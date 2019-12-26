@@ -13,8 +13,8 @@ $(document).ready(function(){
 		autoOpen: false,
 		resizable: false,
 		modal: false,
-		width: 850,
-		height: 420,
+		width: 920,
+		height: 450,
 		overflow: 'auto',
 		buttons: {
 			"Ok": function() {

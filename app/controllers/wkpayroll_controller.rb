@@ -603,13 +603,8 @@ class WkpayrollController < WkbaseController
 		getTaxSettingVal
 	end
 
-	def getRecursiveComp()
-		if params[:component_type] == 'settings_allowances'
-			recursiveComp = WkSalaryComponents.where("salary_type in('BAT', 'AT', 'SBA', 'ABA')").pluck(:id)
-		else
-			recursiveComp = WkSalaryComponents.where("salary_type in('DT')").pluck(:id)
-		end
-		render :plain => recursiveComp
+	def getRecursiveComp
+		render(plain: getSalCompsByCompType(params[:component_type]))
 	end
 
 end

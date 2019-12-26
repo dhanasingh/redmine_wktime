@@ -1,7 +1,6 @@
 <%= javascript_include_tag 'wkpayroll', :plugin => "redmine_wktime" %>
 <% settingCurreny = Setting.plugin_redmine_wktime['wktime_currency'] %>
-<% 
-	salaryComponents = getSalaryComponentsArr
+<%
 	userId = params[:user_id]
 	isdisabled = true
 	salEntryByTypeHash = {'a' => [], 'b'=> [], 'd'=> [], 'c' => []}
@@ -49,7 +48,7 @@
 							<th class="lbl-txt-align"><%= l(:label_actual) %></th>
 						</tr>
 					</thead>
-					<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['b'], salaryComponents: salaryComponents, actualSalVal: actualSalValHash['b']}%>
+					<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['b'], actualSalVal: actualSalValHash['b']}%>
 				</table>
 			</fieldset>
 				&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
@@ -65,7 +64,7 @@
 							<th class="lbl-txt-align"><%= l(:label_actual) %></th>
 						</tr>
 					</thead>
-					<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['a'], salaryComponents: salaryComponents, actualSalVal: actualSalValHash['a']}%>
+					<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['a'], actualSalVal: actualSalValHash['a']}%>
 					<tr>
 						<th></th>
 						<th></th>
@@ -89,7 +88,7 @@
 							<th class="lbl-txt-align"><%= l(:label_actual) %></th>
 						</tr>
 					</thead>
-					<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['d'], salaryComponents: salaryComponents, actualSalVal: actualSalValHash['d']}%>
+					<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['d'], actualSalVal: actualSalValHash['d']}%>
 					<tr>
 						<th></th>
 						<th></th>
