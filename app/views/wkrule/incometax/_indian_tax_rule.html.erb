@@ -194,7 +194,7 @@
         taxEntries = WkIncomeTax.where("user_id = ?", userId).first
         if taxEntries.present?
             taxValue =  JSON.parse(taxEntries.value)
-            rentVal = taxValue['rent'].blank? ? 0 : ((taxValue['rent'].to_i) - 0.1 * totals["annual_basic"].to_i)
+            rentVal = taxValue['rent'].to_i == 0 ? 0 : ((taxValue['rent'].to_i) - 0.1 * totals["annual_basic"].to_i)
             hraVal = [rentVal, totals["annual_basic"].to_i / 2, totals["annual_hra"].to_i].min
         end
     %>
@@ -297,23 +297,10 @@ else
                         params['taxsettings']['medical_insurance'].to_i + params['taxsettings']['edu_loan'].to_i + params[:annual_prof_tax].to_i +
                         (params[:annual_edu_allowance].to_i > 1200 ? 1200 : params[:annual_edu_allowance].to_i)
     basic = params[:annual_basic].to_i
-    rentVal = params['taxsettings']['rent'].blank? ? 0 : (params['taxsettings']['rent'].to_i - 0.1 * basic)
+    rentVal = params['taxsettings']['rent'].to_i == 0 ? 0 : (params['taxsettings']['rent'].to_i - 0.1 * basic)
     hraVal = [rentVal, basic / 2, params[:annual_hra].to_i].min
     taxIncome = params[:annual_gross].to_i + params['taxsettings']['addl_income'].to_i - deductionAmt - section80CAmt - hraVal
-    
-    tdsId = @taxSettingVal['income_tax'].to_i
-    grossId = taxComp["annual_gross"].to_i
-    generatedSal = WkSalary.find_by_sql("SELECT wk_salaries.salary_date, amount FROM wk_salaries
-                                    INNER JOIN (select max(salary_date) as sal_date, user_id from wk_salaries where user_id = #{userId} GROUP BY user_id) as SD 
-                                    ON SD.sal_date = wk_salaries.salary_date AND SD.user_id = wk_salaries.user_id
-                                    where wk_salaries.user_id = #{userId} and salary_component_id = #{grossId}").first
-    if generatedSal.present? && generatedSal.amount < params[:gross].to_i
-        tdsAmt = WkSalary.find_by_sql("SELECT sum(amount) as amount from wk_salaries where user_id = #{userId} and
-                                        salary_component_id = #{tdsId}").first.amount
-        taxIncome -= tdsAmt
-        salDate = generatedSal.salary_date.to_date
-        monthCount = ((12 * (endDate.year - salDate.year) + endDate.month - salDate.month).abs)
-    end
+
     taxIncome -= 500000
     taxVal = 0
     if taxIncome > 0
@@ -324,6 +311,14 @@ else
             taxVal = 12500 + (0.2 * taxIncome)
         end
         taxVal += (0.04 * taxVal)
+    end 
+    
+    tdsID = @taxSettingVal['income_tax'].to_i
+    tdsValue = WkSalary.where("user_id = ? and salary_component_id = ? and salary_date between ? and ? ", userId, tdsID, startDate, endDate )
+    if tdsValue.present?
+        tdsAmt = tdsValue.sum(:amount)
+        taxVal -= tdsAmt if taxVal != 0 && taxval >= tdsAmt 
+        monthCount -= tdsValue.count
     end
     monthTax = taxVal / monthCount
     monthTax = monthTax.blank? ? 0 : "%.2f" % monthTax
