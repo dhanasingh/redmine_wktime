@@ -87,7 +87,7 @@
 
 	<div><%= submit_tag l(:button_apply), :class => 'button-small', :name => 'submit' %></div>
 <% end %>
-<div id="payroll-dlg" title="<%= l(:label_basic) %>" >
+<div id="payroll-dlg" title="<%= l(:label_basic) %>" style="padding-right: 25px;" >
 	<div class="box tabular" style="width: 100%;">
 
 		<%= hidden_field_tag("salaryCompID","") %>
@@ -149,15 +149,15 @@
 					<label style="padding-left: 90px;font-weight: normal;"><%= l(:label_dependent) %></label>
 					<%= hidden_field_tag("compDepID_INDEX","") %>
 				</td>
-				<td><%= select_tag('depID_INDEX', options_for_select(getSalaryCompNames.invert), class: "component depElements") %></td>
+				<td><%= select_tag('depID_INDEX', options_for_select(getSalaryCompNames.invert), class: "component depElements", style: "width: 125px") %></td>
 				<td align="center"><%= select_tag('factorOp_INDEX', options_for_select(getFactorOperators), class: "depElements") %></td>
 				<td><%= text_field_tag('factor_INDEX', "", size: 5, maxlength: 7, class: "depElements") %></td>
 
 				<td valign="justify" style="font-weight:normal;padding-left: 20px;"><%= l(:label_if) %><%= hidden_field_tag("compDepConID_INDEX","") %></td>
-				<td><%= select_tag('condDepID_INDEX', options_for_select(getSalaryCompNames.invert), class: "component condElements_INDEX") %></td>
+				<td><%= select_tag('condDepID_INDEX', options_for_select(getSalaryCompNames.invert), class: "component condElements_INDEX", style: "width: 125px") %></td>
 				<td>
 					<%= select_tag('condOp_INDEX', options_for_select(getLogicalCond), class: "condElements_INDEX", 
-					onchange: "showFactor(this);") %>
+					onchange: "showFactor(this);", style: "width: 50px") %>
 				</td>
 
 				<td><%= text_field_tag('condFactor_INDEX', "", size: 5, maxlength: 7, class: "condElements_INDEX") %></td>
