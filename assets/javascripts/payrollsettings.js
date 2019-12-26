@@ -14,7 +14,7 @@ $(document).ready(function(){
 		resizable: false,
 		modal: false,
 		width: 850,
-		height: 380,
+		height: 420,
 		overflow: 'auto',
 		buttons: {
 			"Ok": function() {
