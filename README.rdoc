@@ -9,6 +9,7 @@ This Plugin has the following modules:
 2) Attendance
     Clock In / Clock Out
     Check Leave Status
+    Leave Request
     Integrate with Attendance / Time clock devices
     Schedule Shifts
     Report - User Utilization
@@ -17,6 +18,7 @@ This Plugin has the following modules:
     Generate Salary
     Report - Salary Register
     Report - Salary Slip
+    Report - Tax
 4) Billing
     Setup Billable Projects
     Generate Invoices
@@ -74,25 +76,23 @@ If an apache passenger module is used then make sure the following settings are 
   b) RailsAppSpawnerIdleTime 0
   c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for v3.8
+Release Notes for v3.9
 
   Features:
-    - Bulk edit for Clock-in & Clock-Out list page
-    - Additional component condition for payroll settings
-    - Attachments for CRM Entities
-    - Leave Request
-    - Close Current Responses for recur surveys
-    - Supervisor of Supervisor for review surveys
-    - Show Response text answers also in survey result
+    - Income Tax Calculations
+    - Tax Report
+    - Add Group name for close current response in survey
+    - Add email notification for T&E admin in Leave request
+    - Show available leave hours in new leave request
+    - Add Date range filter for leave request
+    - Add cancel leave button in submitted leave request
 
   Bug Fixing:
-    - Incorrect P&L opening and closing balance in Balance Sheet report
-    - Show invoice & Payment number instead of database id for credit invoice description
-    - Don't show other users hyperlink to editor in survey response list
-    - Don't collapse the survey question section by default
-    - Restrict to select same dependent field in payroll salary settings
-    - Billing Internal page error
-    - Project dropdown is not working properly in Timesheet
+    - Viewing survey result before closing
+    - CSV should have all data in transaction page
+    - Incorrect ESI Roundoff
+    - Sender's email ID shouldn't be used in Leave request emails
+    - Include survey name in email subject
 
 Customization:
 
