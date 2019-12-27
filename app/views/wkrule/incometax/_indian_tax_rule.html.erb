@@ -194,8 +194,8 @@
         taxEntries = WkIncomeTax.where("user_id = ?", userId).first
         if taxEntries.present?
             taxValue =  JSON.parse(taxEntries.value)
-            rentVal = taxValue['rent'].to_i == 0 ? 0 : ((taxValue['rent'].to_i) - 0.1 * totals["annual_basic"].to_i)
-            hraVal = [rentVal, totals["annual_basic"].to_i / 2, totals["annual_hra"].to_i].min
+            rentVal = taxValue['rent'].to_f == 0.0 ? 0 : ((taxValue['rent'].to_f) - 0.1 * totals["annual_basic"].to_f)
+            hraVal = [rentVal, totals["annual_basic"].to_f / 2, totals["annual_hra"].to_f].min
         end
     %>
     <% taxComp.each do |name, id| %>
@@ -204,7 +204,7 @@
     <% taxValue.each do |name, value| %>
         <%= hidden_field_tag('h_taxsettings_' + name, value) %>
     <% end %>
-	<%= hidden_field_tag('annual_std_deduction', taxComp["annual_std_deduction"].to_i) %>
+	<%= hidden_field_tag('annual_std_deduction', taxComp["annual_std_deduction"].to_f) %>
 	<%= hidden_field_tag('annual_prof_tax', prof_tax) %>
     <div>
         <div class="splitcontentleft">
@@ -291,15 +291,15 @@
 # For Apply Tax 
 else
     monthCount =((12 * (endDate.year - startDate.year) + endDate.month - startDate.month).abs) + 1 if startDate && endDate
-    section80CAmt = params['taxsettings']['insurance'].to_i + params['taxsettings']['tuition_fee'].to_i + params[:annual_pf].to_i
+    section80CAmt = params['taxsettings']['insurance'].to_f + params['taxsettings']['tuition_fee'].to_f + params[:annual_pf].to_f
     section80CAmt = section80CAmt > 150000 ? 150000 : section80CAmt
-    deductionAmt = params[:annual_std_deduction].to_i + params['taxsettings']['home_loan'].to_i + params['taxsettings']['travel_allowance'].to_i +
-                        params['taxsettings']['medical_insurance'].to_i + params['taxsettings']['edu_loan'].to_i + params[:annual_prof_tax].to_i +
-                        (params[:annual_edu_allowance].to_i > 1200 ? 1200 : params[:annual_edu_allowance].to_i)
-    basic = params[:annual_basic].to_i
-    rentVal = params['taxsettings']['rent'].to_i == 0 ? 0 : (params['taxsettings']['rent'].to_i - 0.1 * basic)
-    hraVal = [rentVal, basic / 2, params[:annual_hra].to_i].min
-    taxIncome = params[:annual_gross].to_i + params['taxsettings']['addl_income'].to_i - deductionAmt - section80CAmt - hraVal
+    deductionAmt = params[:annual_std_deduction].to_f + params['taxsettings']['home_loan'].to_f + params['taxsettings']['travel_allowance'].to_f +
+                        params['taxsettings']['medical_insurance'].to_f + params['taxsettings']['edu_loan'].to_f + params[:annual_prof_tax].to_f +
+                        (params[:annual_edu_allowance].to_f > 1200 ? 1200 : params[:annual_edu_allowance].to_f)
+    basic = params[:annual_basic].to_f
+    rentVal = params['taxsettings']['rent'].to_f == 0.0 ? 0 : (params['taxsettings']['rent'].to_f - 0.1 * basic)
+    hraVal = [rentVal, basic / 2, params[:annual_hra].to_f].min
+    taxIncome = params[:annual_gross].to_f + params['taxsettings']['addl_income'].to_f - deductionAmt - section80CAmt - hraVal
 
     taxIncome -= 500000
     taxVal = 0
