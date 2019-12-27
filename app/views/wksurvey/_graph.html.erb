@@ -1,5 +1,5 @@
 <div>
-	<canvas id="survey_result_graph<%= entry.question_id %>" width="600" height="200"></canvas>
+	<canvas id="survey_result_graph<%= entry.question_id %>" width="600" height=<%= entry.count * 55 %>></canvas>
 </div>
 
 <% content_for :header_tags do %>
@@ -8,114 +8,99 @@
 
 <% getSurveyForType(params) %>
 <%= javascript_tag do %>
-$(document).ready(function(){
-  $.getJSON(<%= raw url_for(:controller => 'wksurvey',
-    :action => 'graph',
-	:graph => "graph",
-	:question_id => entry.question_id, :surveyForType => @surveyForType, :surveyForID => @surveyForID, responsedGrpDate: params[:responsedGrpDate], survey_id: @survey.id).to_json %>, function(data){
-	
-    var chartData = {
-      labels: data['labels'],
-      datasets: [{
-        label: <%= raw l(:label_no_of_users).to_json %>,
-        backgroundColor: 'rgba(54, 162, 235, 0.3)',
-        borderColor: 'rgba(54, 162, 235, 0.3)',
-        borderWidth: 1,
-        data: data['emp_count_per_choices']
-      }]
-    };
+	$(document).ready(function(){
+		$.getJSON(<%= raw url_for(:controller => 'wksurvey',
+		:action => 'graph',
+		:graph => "graph",
+		:question_id => entry.question_id, :surveyForType => @surveyForType, :surveyForID => @surveyForID, grpdName: params[:grpdName], survey_id: @survey.id).to_json %>, function(data){
+			var chartData = {
+				labels: data['labels'],
+				datasets: [{
+					backgroundColor: 'rgba(54, 162, 235, 0.3)',
+					borderColor: 'rgba(54, 162, 235, 0.3)',
+					borderWidth: 1,
+					data: data['emp_count_per_choices']
+				}]
+			};
+			
+			new Chart(document.getElementById("survey_result_graph<%= entry.question_id %>").getContext("2d"), {
+				type: 'horizontalBar',
+				data: chartData,
+				options: {
+					layout: {
+						padding: {
+						left: 0,
+						right: 20,
+						top: 0,
+						bottom: 0
+						}
+					},
+					events: [],
+					responsive: true,
+					maintainAspectRatio: false,
+					legend: {
+						display: false,
+						position: 'right'
+					},
+					scales: {
+						xAxes: [{ 
+							ticks: {
+								display: false,
+								beginAtZero: true
+							},
+							gridLines : {
+								drawBorder: false,
+								display : false
+							}
+						}],
+						yAxes: [{
+							afterFit: function(scaleInstance) {
+								scaleInstance.width = 250;
+							},
+							barThickness : 20,
+							gridLines : {
+								drawBorder: true,
+								display : false
+							}
+						}]	
+					},
+					animation: {
+						duration: 1,
+						onComplete: function() {
+							var chartInstance = this.chart,
+							ctx = chartInstance.ctx;
 
-		Chart.pluginService.register({
-			beforeRender: function (chart) {
-				if (chart.config.options.showAllTooltips) {
-					chart.pluginTooltips = [];
-					chart.config.data.datasets.forEach(function (dataset, i) {
-						chart.getDatasetMeta(i).data.forEach(function (sector, j) {
-							chart.pluginTooltips.push(new Chart.Tooltip({
-								_chart: chart.chart,
-								_chartInstance: chart,
-								_data: chart.data,
-								_options: chart.options.tooltips,
-								_active: [sector]
-							}, chart));
-						});
-					});
-					chart.options.tooltips.enabled = false;
-				}
-			},
-			afterDraw: function (chart, easing) {
-				if (chart.config.options.showAllTooltips) {
-					if (!chart.allTooltipsOnce) {
-						if (easing !== 1)
-							return;
-						chart.allTooltipsOnce = true;
+							ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+							ctx.textAlign = 'top';
+							ctx.textBaseline = 'middle';
+
+							this.data.datasets.forEach(function(dataset, i) {
+								var meta = chartInstance.controller.getDatasetMeta(i);
+								meta.data.forEach(function(bar, index) {
+									if (dataset.data[index] > 0) {
+										var data = dataset.data[index];
+										ctx.fillText(data, bar._model.x + 3, bar._model.y);
+									}
+								});
+							});
+						}
 					}
-					chart.options.tooltips.enabled = true;
-					Chart.helpers.each(chart.pluginTooltips, function (tooltip) {
-						tooltip.initialize();
-						tooltip.update();
-						tooltip.pivot();
-						tooltip.transition(easing).draw();
-					});
-					chart.options.tooltips.enabled = false;
-				}
-			},
-			beforeDraw: function (chart, easing) {
-			if (chart.config.options.chartArea && chart.config.options.chartArea.backgroundColor) {
-				var ctx = chart.chart.ctx;
-				var chartArea = chart.chartArea;
-				ctx.save();
-				ctx.fillStyle = chart.config.options.chartArea.backgroundColor;
-				ctx.fillRect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
-				ctx.restore();
-			}
-		}
-	});
-	
-    new Chart(document.getElementById("survey_result_graph<%= entry.question_id %>").getContext("2d"), {
-      type: 'horizontalBar',
-      data: chartData,
-      options: {
-	  		tooltips: {
-			bodyFontColor: 'rgba(0, 0, 125, 1)',
-			backgroundColor: 'rgba(0, 0, 0, 0)',
-			bodyFontSize: 12,
-		callbacks: {
-         title: function() {}
-      }
-		},
-	  showAllTooltips: true,
-	  chartArea: {
-			backgroundColor: "#F0F0F0",
-		},
-       scales:  {
-            xAxes: [{ 
-			ticks: {
-                display: false,
-				beginAtZero: true
-            },
-			gridLines : {
-					drawBorder: false,
-                    display : false
-                }
-            }],
-			yAxes: [{
-				afterFit: function(scaleInstance) {
-					scaleInstance.width = 250;
 				},
-				barThickness : 20,
-				gridLines : {
-				drawBorder: true,
-				display : false
+				plugins: [{
+					beforeInit: function (chart) {
+						chart.data.labels.forEach(function (value, index, array) {
+							var a = [];
+							a.push(value.slice(0, 40));
+							var i = 1;
+							while(value.length > (i * 40)){
+								a.push(value.slice(i * 40, (i + 1) * 40));
+								i++;
+							}
+							array[index] = a;
+						})
 					}
-				}]	
-        },
-        responsive: false,
-		maintainAspectRatio: false,
-        legend: {display : false,
-		position: 'right'}
-      }
-    });
-  });
-  });
+				}]
+			});
+		});
+	});
 <% end %>

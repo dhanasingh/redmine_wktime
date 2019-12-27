@@ -9,8 +9,8 @@
         <%=h hidden_field_tag('surveyForType', params[:surveyForType]) %>
         <p>
             <b><%= l(:label_clos_responses) %></b>&nbsp;
-            <%=h select_tag('responsedGrpDate', options_for_select(response_grp,
-                selected: params[:responsedGrpDate].present? ? params[:responsedGrpDate] : response_grp[0]), onchange: '$("#response_form").submit()') %>
+            <%=h select_tag('grpdName', options_for_select(response_grp,
+                selected: params[:grpdName].present? ? params[:grpdName] : response_grp[0]), onchange: '$("#response_form").submit()') %>
             <%= link_to_function l(:button_apply), '$("#response_form").submit()', :class => 'icon icon-checked' %>
         </p>
     <% end %>
@@ -43,7 +43,7 @@
                 <td class="lbl-txt-align"><%=h entry[:firstname] + " " + entry[:lastname] %></td>
                 <td class="lbl-txt-align"><%=h entry[:status_date].strftime("%Y-%m-%d") %></</td>
                 <td class="lbl-txt-align">
-                        <%= entry[:group_date].localtime.strftime("%Y-%m-%d %H:%M:%S") if entry[:group_date].present? %>
+                        <%= entry[:group_name] if entry[:group_name].present? %>
                 </td>
             </tr>
         <% end %>

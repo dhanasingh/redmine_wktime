@@ -100,6 +100,28 @@ $(function()
 		}
 	});
 	$('#review').trigger("change");
+
+	$("#add-grp-name").dialog({
+		autoOpen: false,
+		resizable: false,
+		modal: true,
+		buttons: [
+		{
+			 text: 'Ok',
+			 id: 'btnOk',
+			 click: function(){
+			$("#closedResp_form").submit();
+			 }
+		},
+		{
+			text: 'Cancel',
+			id: 'btnCancel',
+			click: function() {
+				$( this ).dialog( "close" );
+			}
+		}]
+
+	});
 });
 
 function addrows(qINDEX, qID)
@@ -290,6 +312,9 @@ function showConfirmationDlg(){
 	$( "#reminder-email-dlg" ).dialog( "open" );
 }
 
+function addGrpName(){
+	$( "#add-grp-name" ).dialog( "open" );
+}
 function validateEmail($email) {
   var emailReg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
   return emailReg.test( $email );

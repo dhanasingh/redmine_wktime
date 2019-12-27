@@ -20,5 +20,6 @@ class WkGroupPermission < ActiveRecord::Base
   
    belongs_to :group , :class_name => 'Group'
    belongs_to :permission , :class_name => 'WkPermission'
-  
+   has_many :users, :through => :group
+   has_many :email_address, :through => :users
 end

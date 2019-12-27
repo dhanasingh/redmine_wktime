@@ -38,7 +38,7 @@ th:first-child {
 	&nbsp;
 	<% end %>
 	<div class="table-wrapper">
-		<table class="list time-entries">
+		<table class="list odd-even">
 			<thead>
 				<tr>
 					<th><%= l(:field_user) %></th>
@@ -58,12 +58,9 @@ th:first-child {
 					<tr class="time-entry <%= cycle("odd", "even") %> <%= entry.status == 3 ? "user locked" : "" %>" >
 						<th id="rowheader_<%=entry.user_id%>"><%=h entry.firstname + ' ' + entry.lastname%></th>
 						<% @salary_components.each do |compoment|
-							factor = compoment.factor
-							@user_salary_components.each do |user_compoment|
-								if user_compoment.user_id == entry.user_id && user_compoment.salary_component_id == compoment.id
-									factor = user_compoment.factor
-								end
-							end %>
+							key = compoment.id.to_s + "_" + entry.user_id.to_s
+							factor = @userSalCompHash[key].present? ? (@userSalCompHash[key]).factor : 0.00
+						%>
 							<td class="rowcontent_<%=entry.user_id%>" style="text-align: center;" id="td_<%= compoment.id.to_s + '_' + entry.user_id.to_s %>"><%= factor %></td>
 						<% end %>
 						<td align="center">

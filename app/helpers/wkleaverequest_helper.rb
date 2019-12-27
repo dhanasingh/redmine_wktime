@@ -22,7 +22,7 @@ module WkleaverequestHelper
 	end
 
 	def isLeaveReqAdmin
-		validateERPPermission("ADM_ERP") || isSupervisor
+		validateERPPermission("A_TE_PRVLG") || isSupervisor
 	end
 
 	def getButtonLabels
@@ -35,16 +35,17 @@ module WkleaverequestHelper
 					buttonLabel['R'] = 'button_wk_reject'
 				else
 					buttonLabel['N'] = 'button_wk_unsubmit'
+					buttonLabel['C'] = 'button_cancel_leave'
 				end
 			when 'A'
 				buttonLabel['S'] = 'button_wk_unapprove' if (isLeaveReqAdmin && !isUser)
 			when 'N'
 				if isUser
-					buttonLabel['S'] = ['button_submit']
+					buttonLabel['S'] = 'button_submit'
 					buttonLabel['C'] = 'button_cancel_leave'
 				end
 			when ''
-				buttonLabel['S'] = ['button_submit']
+				buttonLabel['S'] = 'button_submit'
 		end
 		buttonLabel
 	end

@@ -3,7 +3,7 @@
 <%= title l(:label_survey_result) %>
 <h3><%= l(:label_survey_name) %>:&nbsp;&nbsp; <%= @survey.name %></h3>
 
-<% url = url_for(controller: 'wksurvey', action: 'print_survey_result', survey_id: params[:survey_id], responsedGrpDate: params[:responsedGrpDate], surveyForID: params[:surveyForID], surveyForType: params[:surveyForType]) %>
+<% url = url_for(controller: 'wksurvey', action: 'print_survey_result', survey_id: params[:survey_id], grpdName: params[:grpdName], surveyForID: params[:surveyForID], surveyForType: params[:surveyForType]) %>
 <div class ="contextual">
 	<%= link_to l(:label_export_invoice), "javascript:void(window.open('#{url}', '_blank', 'location=yes,scrollbars=yes,status=yes'));", 
 		style: 'color:blue;text-decoration: underline;' %>
@@ -14,10 +14,11 @@
 	<%=h hidden_field_tag('surveyForID', params[:surveyForID]) %>
     <%=h hidden_field_tag('surveyForType', params[:surveyForType]) %>
 
-	<% if getResponseGroup.present? %>
+    <% response_grp = (User.current.admin || validateERPPermission("E_SUR")) ? getResponseGroup.reverse.insert(0, [""]) : getResponseGroup.reverse%>
+	<% if @survey.recur %>
 		<b><%= l(:label_clos_responses) %></b>&nbsp;
-		<%= select_tag('responsedGrpDate', options_for_select(getResponseGroup,
-		selected: params[:responsedGrpDate].present? ? params[:responsedGrpDate] : getResponseGroup.max[1]), onchange: '$("#result_form").submit()') %>
+		<%= select_tag('grpdName', options_for_select(response_grp,
+		selected: params[:grpdName].present? ? params[:grpdName] : response_grp[0]), onchange: '$("#result_form").submit()') %>
 			<%= link_to_function l(:button_apply), '$("#result_form").submit()', :class => 'icon icon-checked' %>
 	<% end %>
 <% end %>

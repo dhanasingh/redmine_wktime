@@ -25,4 +25,10 @@ include Redmine::SafeAttributes
   # attr_protected :user_id, :issue_id
   safe_attributes 'balance', 'issue_id', 'accrual_on', 'used', 'accrual'
   
+  scope :leaveAvailableHours, ->(issue_id, user_id){
+    joins("INNER JOIN (select  max(accrual_on) as accrual_on from wk_user_leaves) as LAH ON LAH.accrual_on = wk_user_leaves.accrual_on")
+    .where("user_id=#{user_id} and issue_id=#{issue_id}")
+    .select("user_id, issue_id, balance, accrual")
+  }
+  
 end

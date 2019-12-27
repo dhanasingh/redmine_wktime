@@ -631,6 +631,14 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 
 	get 'wkdocument/destroy', :to => 'wkdocument#destroy'
 
-	get 'wksurvey/close_current_response', :to => 'wksurvey#close_current_response'
+	post 'wksurvey/close_current_response', :to => 'wksurvey#close_current_response'
 
 	get 'wksurvey/print_survey_result', :to => 'wksurvey#print_survey_result'
+
+	get 'wkleaverequest/getLeaveAvailableHours', :to => 'wkleaverequest#getLeaveAvailableHours'
+
+	get 'wkpayroll/income_tax', :to => 'wkpayroll#income_tax'
+
+	post 'wkpayroll/income_tax', :to => 'wkpayroll#income_tax'
+
+	get 'wkpayroll/getRecursiveComp', :to => 'wkpayroll#getRecursiveComp'

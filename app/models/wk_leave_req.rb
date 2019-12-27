@@ -52,13 +52,22 @@ class WkLeaveReq < ActiveRecord::Base
     self.user.name
   end
 
+  def admingroupMail
+    user_mail = WkGroupPermission.joins(:permission).joins(:email_address)
+      .where("wk_permissions.short_name = 'A_TE_PRVLG'").pluck(:address)
+    user_mail
+  end
+
   def supervisor_mail
     if self.user.parent_id.blank?
-      userID = WkGroupPermission.joins(:permission).joins("INNER JOIN groups_users ON groups_users.group_id = wk_group_permissions.group_id")
-        .where("wk_permissions.short_name = 'ADM_ERP'").select("groups_users.user_id").first
-      userID.blank? ? nil : User.find(userID.user_id).mail
+      userID = admingroupMail.first
     else
       User.find(self.user.parent_id).mail
     end
   end
+
+  scope :dateFilter, ->(from, to){
+    where("DATE(wk_leave_reqs.start_date) between ? and ? ", from, to )
+  }
+
 end

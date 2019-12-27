@@ -164,7 +164,7 @@ it:
   label_wk_attn_termination_date:  Termination date
   label_wk_attn_user_dob:  Date of birth
   label_wk_designation:  Designation
-  label_employee_id:  Employee Id
+  label_employee_id:  Employee ID
   label_leave_beginning_of_mnth:  Leave Credit at the Beginning of the Month
   label_leave_during_mnth:  Leave Availed During the Month
   label_daily_workdone_inclede_ot:  Daily Hours of Work done including Overtime(If any)
@@ -250,7 +250,7 @@ it:
   label_ytd: YTD
   label_earning: Earnings
   label_payroll_settings: Payroll Settings
-  label_payroll_user_settings: User Settings
+  label_payroll_user_settings: User Payroll Settings
   label_total_earning: Total Earnings
   label_total_deduction: Total Deductions
   label_net_earning: Net Earnings
@@ -796,7 +796,7 @@ it:
   field_bank_name: Bank name
   field_account_number: Bank account number
   field_bank_code: Bank code
-  field_tax: Tax id
+  field_tax: Tax ID
   field_ss: SS id
   field_custom_number1: Custom number1
   field_custom_number2: Custom number2
@@ -1022,3 +1022,27 @@ it:
   error_enter_clk_in: Please enter Clock In
   error_greater_then: The Clock In time cannot be greater than Clock Out time
   error_invalid_document: Document is invalid
+  
+  label_grp_name: Group Name
+  label_alert: Alert
+  notice_successful_close: Successful closed current responses.
+  error_no_record: No record to update.
+
+  report_tax: Tax Report
+  label_tds: TDS
+  label_cess: Cess
+  
+  label_submitted_date: Submitted Date
+  label_equal_operator: "="
+  label_multiplier: "*"
+  label_between: Between
+  alert_eq_operator: For equal operator the dependent component should be blank
+  label_semi_ba_total: Semi Annual Basic and Allowance Total
+  label_annual_ba_total: Annual Basic and Allowance Total
+
+  #Income Tax
+  label_income_tax_settings: Income Tax Settings
+  label_tax_rule: Income Tax Rule
+  label_income_tax: Income Tax
+  label_apply_tax: Apply Tax
+  indian_tax_rule: Indian Tax Rule

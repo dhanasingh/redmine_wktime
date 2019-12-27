@@ -135,131 +135,123 @@ module WkpayrollHelper
 		end
 		errorMsg
 	end
-	
-	def getDependentValue(dependent_id, type, user_id)
 
-		dependent_value = ""
-		@userSalaries.each do |cf|
-			if cf.sc_id.to_i == dependent_id.to_i && type == "component_type" && user_id == cf.user_id
-				dependent_value = cf.sc_component_type
-			elsif cf.sc_id.to_i == dependent_id.to_i && type == "salary_type" && user_id == cf.user_id
-				dependent_value = cf.sc_salary_type
-			end
-		end
-		dependent_value
-	end
-
-	def getAllTotals(user_id)
-
+	def getCalculatedFieldValue(user_id, salary_type, salaryDate)
 		totals = Hash.new()
-		basic_total = 0
-		allowance_total = 0
-		deduction_total = 0
-
-		@userSalaries.each do |cf|
-			basic_total = basic_total + cf.factor if cf.sc_component_type == 'b' && cf.user_id == user_id
-		end
-
-		@userSalaries.each do |cf|
-			if cf.sc_component_type == 'a' && cf.user_id == user_id
-				allowance_total = allowance_total + (cf.dependent_id.blank? ? cf.factor : (getDependentValue(cf.dependent_id,"component_type", cf.user_id)== 'b' ? basic_total * cf.factor : 0))
+		if ["BT", "BAT", "AT", "ABA", "SBA"].include?(salary_type)
+			# For basic total
+			allowance_total = 0
+			basic_total = 0
+			@userSalCompHash.each do |key, userComp|
+				basic_total += userComp.factor if userComp.sc_component_type == 'b' &&
+					userComp.user_id == user_id && userComp.factor.present?
 			end
-		end
+			totals['BT'] = basic_total
 
-		basic_allowance_total = basic_total + allowance_total
+			# For allowance total
+			@userSalCompHash.each do |key, userComp|
+				next unless userComp.sc_component_type == 'a' && userComp.user_id == user_id
+				factor = userComp.dependent_id.present? ? computeFactor(userComp.user_id, userComp.dependent_id, userComp.factor, 1) : userComp.factor
+				allowance_total = allowance_total + factor.to_f
+				totals['AT'] = allowance_total
+			end
+			totals['BAT'] = totals['BT'] + totals['AT']
 
-		@userSalaries.each do |cf|
-			if cf.sc_component_type == 'd' && cf.user_id == user_id
-				if cf.dependent_id.blank?
-					dependent_total = cf.factor
+			# For Annual Gross and Semi Annual Gross
+			if ["ABA", "SBA"].include?(salary_type)
+				if salary_type == "SBA"
+					toDate = salaryDate.last_month.end_of_month
+					fromDate = salaryDate.beginning_of_month - 5.month
 				else
-					case getDependentValue(cf.dependent_id, "component_type", cf.user_id)
-					when 'b'
-						dependent_total = basic_total * cf.factor
-					when 'a'
-						dependent_total = allowance_total * cf.factor
-					when 'c'
-						salary_type = getDependentValue(cf.dependent_id, "salary_type", cf.user_id)
-						if salary_type == 'BAT'
-							dependent_total = basic_allowance_total * cf.factor
-						elsif salary_type == 'BT'
-							dependent_total = basic_total * cf.factor
-						elsif salary_type == 'AT'
-							dependent_total = allowance_total * cf.factor
-						else
-							dependent_total = 0
-						end
-					else
-						dependent_total = 0
-					end
+					toDate = salaryDate.last_month.end_of_month
+					fromDate = salaryDate.beginning_of_month - 11.month
 				end
-				deduction_total = deduction_total + dependent_total
+				wksalary = WkSalary.get_gross(user_id, fromDate, toDate)
+				totals[salary_type] = totals['BAT'] + (wksalary.present? ? wksalary.map(&:gross_amount).first : 0)
 			end
 		end
-		totals['BT'] = basic_total
-		totals['AT'] = allowance_total
-		totals['DT'] = deduction_total
-		totals['BAT'] = basic_allowance_total
-		totals
+
+		# For deduction total
+		if salary_type == "DT"
+			deduction_total = 0
+			@userSalCompHash.each do |key, userComp|
+				next unless userComp.sc_component_type == 'd' && userComp.user_id == user_id
+				factor = userComp.dependent_id.present? ? computeFactor(userComp.user_id, userComp.dependent_id, userComp.factor, 1) : userComp.factor
+				deduction_total += factor if factor.present?
+			end
+			totals['DT'] = deduction_total
+		end
+		totals[salary_type]
 	end
 
-	def getUserSalaryHash(userIds,salaryDate, userSetting=false)
+	def getUserSalaryHash(userIds, salaryDate)
 		userSalaryHash = Hash.new()
-		payPeriod = getPayPeriod(salaryDate)
-		queryStr = getUserSalaryQueryStr + " Where (wu.termination_date is null or wu.termination_date >= '#{payPeriod[0]}') and sc.id is not null " 
+		@payPeriod = getPayPeriod(salaryDate)
+		queryStr = getUserSalaryQueryStr + " Where (wu.termination_date is null or wu.termination_date >= '#{@payPeriod[0]}') and sc.id is not null " 
 		unless userIds.blank?
-			queryStr = queryStr + " and u.id in (#{userIds}) "
+			@queryStr = queryStr + " and u.id in (#{userIds}) "
 		else
-			queryStr = queryStr + " and u.type = 'User'"
+			@queryStr = queryStr + " and u.type = 'User'"
 		end
-		queryStr = queryStr  + " order by u.id, sc.salary_type"
-		@userSalaries = WkUserSalaryComponents.find_by_sql(queryStr)
-
-		@userSalEntryHash = Hash.new()
-		@userSalaries.each do |cf|
-			if cf.sc_component_type == "c"
-				totals = getAllTotals(cf.user_id)
-				cf.factor = totals[cf.sc_salary_type]
-			end
-			@userSalEntryHash[cf.sc_id.to_s + '_' + cf.user_id.to_s] = cf
-		end
+		queryStr = @queryStr  + " order by u.id, sc_component_type, sc_salary_type"
+		@userSalaries = WkSalaryComponents.find_by_sql(queryStr)
+		@userSalCompHash = Hash.new()
 		
+		#Obtain dependent id and factor of b, a and c components
+		@userSalaries.each do |salComp|
+			if ["b", "a"].include?(salComp.sc_component_type)
+				returnVal = getSalCompDep(salComp.id, salComp.user_id)
+				salComp.dependent_id = returnVal[0]
+				salComp.factor = returnVal[1]
+				@userSalCompHash[salComp.sc_id.to_s + '_' + salComp.user_id.to_s] = salComp
+			end
+			
+			if salComp.sc_component_type == "c" && salComp.sc_salary_type != "DT"
+				total = getCalculatedFieldValue(salComp.user_id, salComp.sc_salary_type, salaryDate)
+				salComp.factor = total
+				@userSalCompHash[salComp.sc_id.to_s + '_' + salComp.user_id.to_s] = salComp
+			end
+			
+			if salComp.sc_component_type == "d"
+				returnVal = getSalCompDep(salComp.id, salComp.user_id)
+				salComp.dependent_id = returnVal[0]
+				salComp.factor = returnVal[1]
+				@userSalCompHash[salComp.sc_id.to_s + '_' + salComp.user_id.to_s] = salComp
+			end
+		end
+
+		#For Dependent Total
+		@userSalaries.each do |salComp|
+			if salComp.sc_component_type == "c" && salComp.sc_salary_type == "DT"
+				total = getCalculatedFieldValue(salComp.user_id, salComp.sc_salary_type, salaryDate)
+				salComp.factor = total
+				@userSalCompHash[salComp.sc_id.to_s + '_' + salComp.user_id.to_s] = salComp
+			end
+		end
+
 		lastUserId = -1
 		multiplier = 1.0
-		
 		@userSalaries.each do |entry|
-			isAddSalComp = isAddCompToSal(entry,payPeriod)
-			if isAddSalComp
+			isAddSalComp = isAddCompToSal(entry,@payPeriod)
+			if isAddSalComp && entry.factor.present?
 				if lastUserId != entry.user_id
-					if entry.sc_salary_type == 'h'
-						multiplier = getWorkedHours(entry.user_id, payPeriod[0], payPeriod[1])
-						lastUserId = entry.user_id
-					else
-						multiplier = 1.0
-						terminationDate = nil
-						if !entry.termination_date.blank? && entry.termination_date.to_date.between?(payPeriod[0],payPeriod[1])
-							terminationDate = entry.termination_date.to_date
-						end
-						multiplier = computeProrate(payPeriod,terminationDate,entry.user_id)
-						lastUserId = entry.user_id
-					end
+					multiplier = getMultiplier(entry, @payPeriod)
+					lastUserId = entry.user_id
 				end
 				userSalaryHash[entry.user_id][entry.sc_id] = 0 if userSalaryHash[entry.user_id].present?
-				if compCondition(entry) || entry.salary_component_id.present? || userSetting
-					if userSalaryHash[entry.user_id].blank?
-						salDetailHash = Hash.new()
-						if entry.dependent_id.blank?
-							salDetailHash[entry.sc_id] = (entry.factor)*multiplier
-						else
-							salDetailHash[entry.sc_id] = computeFactor(entry.user_id,entry.dependent_id,entry.factor,multiplier)
-						end
-						userSalaryHash[entry.user_id] = salDetailHash
+				if userSalaryHash[entry.user_id].blank?
+					salDetailHash = Hash.new()
+					if entry.dependent_id.blank?
+						salDetailHash[entry.sc_id] = (entry.factor)*multiplier
 					else
-						if entry.dependent_id.blank?
-							userSalaryHash[entry.user_id][entry.sc_id] = entry.factor*multiplier
-						else
-							userSalaryHash[entry.user_id][entry.sc_id] = computeFactor(entry.user_id,entry.dependent_id,entry.factor,multiplier)
-						end
+						salDetailHash[entry.sc_id] = computeFactor(entry.user_id,entry.dependent_id,entry.factor,multiplier)
+					end
+					userSalaryHash[entry.user_id] = salDetailHash
+				else
+					if entry.dependent_id.blank?
+						userSalaryHash[entry.user_id][entry.sc_id] = entry.factor*multiplier
+					else
+						userSalaryHash[entry.user_id][entry.sc_id] = computeFactor(entry.user_id,entry.dependent_id,entry.factor,multiplier)
 					end
 				end
 			else
@@ -274,19 +266,14 @@ module WkpayrollHelper
 	end
 	
 	def getUserSalaryQueryStr
-		sqlStr = "SELECT sc.id as sc_id, sc.name as sc_name, sc.component_type as sc_component_type, sc.frequency as sc_frequency, " + 
-		"sc.start_date as sc_start_date, sc.dependent_id as sc_dependent_id, " + 
-		"sc.factor as sc_factor, sc.salary_type as sc_salary_type, wu.termination_date, " + 
-		"usc.factor as usc_factor, usc.dependent_id as usc_dependent_id, " + 
-		"usc.salary_component_id as salary_component_id, usc.id as user_salary_component_id, " + 
-		"u.id as user_id, u.firstname as firstname, u.lastname as lastname, " + 
-		"cc.left_hand_side, cc.operators, cc.right_hand_side, " + 
-		"case when usc.id is null then sc.dependent_id else usc.dependent_id end as dependent_id, " + 
-		"case when usc.id is null then sc.factor else usc.factor end as factor FROM users u " + 
-		"left join wk_salary_components sc on (1 = 1) " + 
-		"left join wk_user_salary_components usc on (sc.id = usc.salary_component_id and  usc.user_id = u.id) " +
-		"left join wk_users wu on u.id = wu.user_id " +
-		"left join wk_component_conditions cc on (sc.id = cc.salary_component_id) "
+		sqlStr = "SELECT sc.id, sc.id as sc_id, sc.name as sc_name, sc.component_type as sc_component_type, 
+				sc.frequency as sc_frequency, sc.start_date as sc_start_date, sc.salary_type as sc_salary_type, wu.termination_date, 
+				usc.factor as usc_factor, usc.dependent_id as usc_dependent_id, usc.salary_component_id as salary_component_id,
+				usc.id as user_salary_component_id, u.id as user_id, u.firstname, u.lastname, usc.factor, usc.dependent_id
+			FROM users u
+			left join wk_salary_components sc on (1 = 1)
+			left join wk_user_salary_components usc on (sc.id = usc.salary_component_id and  usc.user_id = u.id)
+			left join wk_users wu on u.id = wu.user_id "
 		sqlStr
 	end
 	
@@ -306,6 +293,20 @@ module WkpayrollHelper
 		isAddComp
 	end
 	
+	def getMultiplier(entry, payPeriod)
+		if entry.sc_salary_type == 'h'
+			multiplier = getWorkedHours(entry.user_id, payPeriod[0], payPeriod[1])
+		else
+			multiplier = 1.0
+			terminationDate = nil
+			if !entry.termination_date.blank? && entry.termination_date.to_date.between?(payPeriod[0],payPeriod[1])
+				terminationDate = entry.termination_date.to_date
+			end
+			multiplier = computeProrate(payPeriod,terminationDate,entry.user_id)
+		end
+		multiplier
+	end
+
 	def getFrequencyHash
 		frequency = { "m" => 1, "q" => 3, "sa" => 6, "a" =>12 }
 	end
@@ -360,13 +361,16 @@ module WkpayrollHelper
 		lossOfPayDays
 	end
 	
-	def computeFactor(userId, dependentId, factor,multiplier)
-		salEntry = @userSalEntryHash[dependentId.to_s + '_' + userId.to_s]
-		factor = factor*(salEntry.factor.blank? ? 0 : salEntry.factor)*multiplier
-		if !salEntry.dependent_id.blank?
-			factor = computeFactor(userId, salEntry.dependent_id, factor,multiplier)
+	def computeFactor(userId, dependentId, factor, multiplier, isSalCompCond = false)
+		salEntry = @userSalCompHash[dependentId.to_s + '_' + userId.to_s]
+		if isSalCompCond
+			factor = salEntry.present? ? salEntry.factor : 0
+		else
+			factor = factor*(salEntry.factor.blank? ? 0 : salEntry.factor)*multiplier
 		end
-		amount = factor
+		if salEntry&.dependent_id.present?
+			factor = computeFactor(userId, salEntry.dependent_id, factor, multiplier)
+		end
 		factor
 	end
 	
@@ -383,49 +387,64 @@ module WkpayrollHelper
 	end
 	
 	def savePayrollSettings(settingsValue)
-		sval = Array.new
-		dval = 	Array.new	
-		settingsValue.select {|key,value| 
-			if !value.blank?  
-				if key.to_s == 'payroll_deleted_ids'
+		dval = 	Array.new
+		settingsValue.select {|key,value|
+			if !value.blank? 
+				if key.to_s == 'dep_del_ids'
+					dval = value.split('|')
+					WkSalCompDependent.where(:id => dval.map(&:to_i)).destroy_all
+				elsif key.to_s == 'cond_del_ids'
+					dval = value.split('|')
+					WkSalCompCondition.where(:id => dval.map(&:to_i)).destroy_all
+				elsif key.to_s == 'comp_del_ids'
 					dval = value.split('|')
 					WkSalaryComponents.where(:id => dval.map(&:to_i)).destroy_all
 				else
 					for i in 0..value.length-1
-						componentCond = Array.new			
-						sval = value[i].split('|')		
-						if !sval[0].blank?
-							wksalaryComponents =  WkSalaryComponents.find(sval[0])
+						componentCond = Array.new
+						wkcompDep = Array.new
+						comps = value[i].split('|')
+						if !comps[0].blank?
+							wksalaryComps =  WkSalaryComponents.find(comps[0])
 						else
-							wksalaryComponents = WkSalaryComponents.new
+							wksalaryComps = WkSalaryComponents.new
 						end
 						if key.to_s == 'basic'
-							wksalaryComponents.name = sval[1]
-							wksalaryComponents.component_type = 'b'
-							wksalaryComponents.salary_type = sval[2]
-							wksalaryComponents.factor = sval[3]
-							wksalaryComponents.ledger_id = sval[4]							
+							wksalaryComps.name = comps[1]
+							wksalaryComps.component_type = 'b'
+							wksalaryComps.salary_type = comps[2]
+							wksalaryComps.ledger_id = comps[5]
+							wksalaryComps.salary_comp_deps_attributes = [{id: checkEmpty(comps[3]), dependent_id: nil, 
+								factor: comps[4], factor_op: "EQ"}]
 						elsif key.to_s != 'Calculated_Fields'
-							wksalaryComponents.name = sval[1]
-							wksalaryComponents.frequency = sval[2]
-							wksalaryComponents.start_date = sval[3]
-							wksalaryComponents.component_type = key.to_s == 'allowances' ? 'a' : 'd'
-							wksalaryComponents.dependent_id = sval[4]
-							wksalaryComponents.factor = sval[5]
-							wksalaryComponents.ledger_id = sval[6]
-							componentCondId = sval[7].blank? ? nil : sval[7]
-							if sval[8].blank? && sval[9].blank? && sval[10].blank? && componentCondId.present?
-								componentCond << { id: componentCondId, _destroy: '1'}
-							elsif (sval[8].present? && sval[9].present? && sval[10].present?)
-								componentCond << {id: componentCondId, left_hand_side: sval[8], operators: sval[9], right_hand_side: sval[10]}
+							wksalaryComps.name = comps[1]
+							wksalaryComps.frequency = comps[2]
+							wksalaryComps.start_date = comps[3]
+							wksalaryComps.component_type = key.to_s == 'allowances' ? 'a' : 'd'
+							wksalaryComps.ledger_id = comps[4]
+							if comps[5].present?
+								strDepConds = comps[5].split("-")
+								strDepConds.each do |strDep_cond|
+									depCond = strDep_cond.split('_')
+									wkcompCond = Hash.new
+									if depCond[4] != "::::"
+										compCond = depCond[4].split(":")
+										wkcompCond = {id: checkEmpty(compCond[0]), lhs: compCond[1], operators: compCond[2], rhs: compCond[3], 
+											rhs2: compCond[4].present? ? compCond[4] : 0}
+									end
+									compDepSets = {id: checkEmpty(depCond[0]), dependent_id: depCond[1], factor: depCond[3], 
+										factor_op: depCond[2]}
+									compDepSets[:salary_comp_cond_attributes] = wkcompCond if wkcompCond.present?
+									wkcompDep << compDepSets
+								end
+								wksalaryComps.salary_comp_deps_attributes = wkcompDep if wkcompDep.present?
 							end
-							wksalaryComponents.wk_component_conditions_attributes = componentCond
 						else
-							wksalaryComponents.name = sval[1]
-							wksalaryComponents.component_type = 'c'
-							wksalaryComponents.salary_type = sval[2]
+							wksalaryComps.name = comps[1]
+							wksalaryComps.component_type = 'c'
+							wksalaryComps.salary_type = comps[2]
 						end
-							wksalaryComponents.save()
+							wksalaryComps.save()
 					end
 				end
 			end		
@@ -525,12 +544,15 @@ module WkpayrollHelper
 		end
 		ytdAmountHash
 	end
+
 	def get_calculated_field_types
 		{
 			l(:label_basic_allowance_total) => 'BAT',
 			l(:label_allowance_total) => 'AT',
 			l(:label_basic_total) => 'BT',
-			l(:label_deduction) => "DT"
+			l(:label_deduction) => "DT",
+			l(:label_semi_ba_total) => "SBA",
+			l(:label_annual_ba_total) => "ABA"
 		}
 	end
 
@@ -591,8 +613,7 @@ module WkpayrollHelper
 			  csv << totalArr.collect {|t| Redmine::CodesetUtil.from_utf8(t.to_s, l(:general_csv_encoding))}
 		end
 		export
-  end
-
+  	end
 
 	def getGroupMembers
 		userList = nil
@@ -604,10 +625,12 @@ module WkpayrollHelper
 		end
 		
 		if !group_id.blank? && group_id.to_i > 0
-			userList = User.in_group(group_id) 
+			userList = User.in_group(group_id)
 		else
 			userList = User.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
 		end
+		userList = userList.where("(LOWER(firstname) like LOWER('%#{params[:name]}%') or LOWER(lastname) like LOWER('%#{params[:name]}%'))") if params[:name].present?
+		userList = userList.where("status = ?", params[:status]) if params[:status].present?
 		userList
 	end
 	
@@ -630,26 +653,130 @@ module WkpayrollHelper
 			l(:label_less_than) => "LT",
 			l(:label_greater_than) => "GT",
 			l(:label_less_or_equal) => "LTE",
-			l(:label_greater_or_equal) => "GTE"
-		}    	
+			l(:label_greater_or_equal) => "GTE",
+			l(:label_between) => "BW"
+		}
 	end
 
-	def compCondition(entry)
-			condEntry = @userSalEntryHash[(entry.left_hand_side).to_s + '_' + (entry.user_id).to_s]
-			case entry.operators
-				when "EQ"
-					cond = condEntry.factor == (entry.right_hand_side)
-				when "LT"
-					cond = condEntry.factor < (entry.right_hand_side)
-				when "LTE"
-					cond = condEntry.factor <= (entry.right_hand_side)
-				when "GT"
-					cond = condEntry.factor > (entry.right_hand_side)
-				when "GTE"
-					cond = condEntry.factor >= (entry.right_hand_side)
-				else
-					cond = true
-			end
+	def compCondition(compCond, userID, salComp)
+		returnVal = Array.new
+		multiplier = getMultiplier(salComp, @payPeriod)
+		lhs = computeFactor(userID, compCond.lhs, 0, multiplier, true)
+		case compCond.operators
+			when "EQ"
+				cond = lhs == compCond.rhs
+			when "LT"
+				cond = lhs < compCond.rhs
+			when "LTE"
+				cond = lhs <= compCond.rhs
+			when "GT"
+				cond = lhs > compCond.rhs
+			when "GTE"
+				cond = lhs >= compCond.rhs
+			when "BW"
+				cond = compCond.rhs <= lhs && lhs <= compCond.rhs2
+			else
+				cond = true
+		end
 		cond
+	end
+
+	def getFactorOperators
+		{
+			l(:label_equal_operator) => "EQ",
+			l(:label_multiplier) => "MUL"
+		}
+	end
+
+	def getSalaryFrequency
+		{
+			'' => "",
+			'm'  => l(:label_monthly),
+			'q' =>  l(:label_quarterly),
+			'sa' => l(:label_semi_annually),
+			'a' => l(:label_annually)
+		}
+	end
+
+	def getSalaryType
+		{
+			's' => l(:label_salaried),
+			'h' =>  l(:label_hourly)
+		}
+	end
+
+	def getLedgerNames
+		WkLedger.order(:name).map{|p| [p.id.to_s, p.name]}.to_h
+	end
+
+	def getSalaryCompNames
+		salary_comps = WkSalaryComponents.all.order('name')
+		salaryCompNames = {"": ""}.merge(salary_comps.map{|p| [p.id.to_s, p.name]}.to_h)
+	end
+
+	def checkEmpty(val)
+		val.present? ? val : nil
+	end
+
+	def getSalCompDep(salCompID, userID)
+		queryStr = @queryStr + " AND sc.id = #{salCompID} AND u.id = #{userID} "
+		salComp = WkSalaryComponents.find_by_sql(queryStr).first
+		factor = 0
+		dependentID = ''
+		if salComp.factor.present?
+			factor = salComp.factor
+			dependentID = salComp.dependent_id
+		else
+			compDeps = salComp.salary_comp_deps
+			compDeps.each do |comp_dep|
+				compCond = comp_dep.salary_comp_cond
+				if compCond.blank? || compCondition(compCond, salComp.user_id, salComp)
+					factor = comp_dep.factor
+					dependentID = comp_dep.dependent_id
+				end
+			end
+		end
+		[dependentID, factor]
+	end
+	
+	def getTaxSettingVal
+		@taxSettingVal = {}
+		taxEntries = WkSetting.all
+		if taxEntries.present?
+				taxEntries.each do |entry|
+						@taxSettingVal[entry.name] = entry.value
+				end
+		end
+		@taxSettingVal
+	end
+
+	def get_tax_rule
+		taxRuleArr = []
+		Dir["plugins/redmine_wktime/app/views/wkrule/incometax/_*"].each do |f|
+			fileName = File.basename(f, ".html.erb")
+			fileName.slice!(0)
+			taxRuleArr << [l(:"#{fileName}"), fileName]
+		end
+		taxRuleArr.sort!
+	end
+
+	def getSalCompsByCompType(comp_type)
+		if comp_type == 'settings_allowances' || comp_type == 'a'
+			filterSalComps = WkSalaryComponents.where("salary_type in('BAT', 'AT', 'SBA', 'ABA', 'DT')").pluck(:id)
+		else
+			filterSalComps = WkSalaryComponents.where("salary_type in('DT')").pluck(:id)
+		end
+		filterSalComps
+	end
+
+	def filterSalComps(compEntry)
+		salaryComponents = getSalaryComponentsArr
+		salaryComponents = salaryComponents.reject{|name, id| name.include?(compEntry.sc_name.to_s) }
+		filterSalComps = getSalCompsByCompType(compEntry.sc_component_type)
+		if compEntry.sc_component_type == 'b'
+			salaryComponents = [[ "", '-1']]
+		else
+			salaryComponents.delete_if {|c| filterSalComps.include?(c.last)}
+		end
 	end
 end

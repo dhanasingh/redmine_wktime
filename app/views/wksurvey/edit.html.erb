@@ -62,7 +62,7 @@
 					<b><%= l(:label_recur_every) %></b>
 					<%=h text_field_tag("recur_every", recur_every, :size => "3", :maxlength => 10, :disabled => isDisable) %>&nbsp;<b><%= l(:label_day_plural) %></b> &nbsp;
                     <% if @isBlankSurvey ? false : @survey.status == 'O'%>
-						<%= link_to l(:label_clos_curr_resp), url_for(:survey_id => params[:survey_id], :controller => "wksurvey", :action => "close_current_response"), :data => {:confirm => l(:label_warning_clos_responses)} %>
+						<%= link_to l(:label_clos_curr_resp), "javascript:addGrpName();" %>
 					<% end %>				
 				</span>
 			</td>
@@ -103,4 +103,18 @@
 	<div id="dialog-confirm" title="Empty the recycle bin?">
   		<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0px 10px 0px 10px;"></span>Do you want to continue?</p>
 	</div>
+</div>
+
+<div id="add-grp-name" title="<%=l(:label_alert)%>">
+	<%= form_tag({action: 'close_current_response'}, method: :post, id: 'closedResp_form') do %>
+	<%= hidden_field_tag('survey_id', survey_id) %>
+		<fieldset>
+			<p> <label><%= l(:label_grp_name) %></label>
+				<input type="text" name="grp_name" id="grp_name" value="" maxlength="255">
+			</p>
+		</fieldset>
+		<div id="dialog-confirm">
+			<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0px 10px 0px 10px;"></span><%= l(:label_warning_clos_responses) %></p>
+		</div>
+	<% end %>
 </div>

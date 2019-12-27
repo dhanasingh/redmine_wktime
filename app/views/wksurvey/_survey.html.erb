@@ -1,5 +1,5 @@
 <% response_id = !params[:response_id].blank? ? params[:response_id] : 
-    (!@response_status.blank? && @responseStatus == "O" ? @response_status.id : nil) %>
+    (!@response_status.blank? && @responseStatus == "O" && !@isResetResponse ? @response_status.id : nil) %>
 <%= form_tag({:controller => 'wksurvey', :action => 'update_survey'}, :method => :post, :id => 'survey_form') do %>
     <%= hidden_field_tag('surveyForID', params[:surveyForID]) %>
     <%= hidden_field_tag('surveyForType', params[:surveyForType]) %>

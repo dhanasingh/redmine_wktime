@@ -1,23 +1,24 @@
 <%= javascript_include_tag 'wkpayroll', :plugin => "redmine_wktime" %>
 <% settingCurreny = Setting.plugin_redmine_wktime['wktime_currency'] %>
-<% 
-	salaryComponents = getSalaryComponentsArr
+<%
 	userId = params[:user_id]
 	isdisabled = true
 	salEntryByTypeHash = {'a' => [], 'b'=> [], 'd'=> [], 'c' => []}
 	actualSalValHash = Hash.new{|hsh,key| hsh[key] = {} }
 	@userSalaryEntries.each do |entry| 
-	isOverride = entry.user_salary_component_id.blank? ? false : true
-	if isOverride
-		dependent_id = entry.usc_dependent_id.blank? ? 0 : entry.usc_dependent_id
-		factor = entry.usc_factor.blank? ? 0 : (entry.usc_factor)
-	else
-		dependent_id = entry.sc_dependent_id.blank? ? 0 : entry.sc_dependent_id
-		factor = entry.sc_factor.blank? ? 0 : (entry.sc_factor)
+		isOverride = entry.user_salary_component_id.blank? ? false : true
+		if isOverride
+			dependent_id = entry.usc_dependent_id.blank? ? 0 : entry.usc_dependent_id
+			factor = entry.usc_factor.blank? ? 0 : (entry.usc_factor)
+		else
+			key = entry.id.to_s + "_" + entry.user_id.to_s
+			factor = @userSalCompHash[key].present? ? (@userSalCompHash[key]).factor : 0.00
+			dependent_id = @userSalCompHash[key].present? ? (@userSalCompHash[key]).dependent_id : 0
+		end
+		actualSalValHash[entry.sc_component_type].store entry.sc_id, @userSalHash[entry.user_id][entry.sc_id] unless @userSalHash[entry.user_id].blank?
+		salEntryByTypeHash[entry.sc_component_type] << [entry, isOverride, dependent_id, factor] unless entry.sc_component_type.blank?
 	end
-	actualSalValHash[entry.sc_component_type].store entry.sc_id, @userSalHash[entry.user_id][entry.sc_id] unless @userSalHash[entry.user_id].blank?
-	salEntryByTypeHash[entry.sc_component_type] << [entry, isOverride, dependent_id, factor] unless entry.sc_component_type.blank?
-end
+	grossVal = "%.2f" % (actualSalValHash['a'].values.sum + actualSalValHash['b'].values.sum)
 %>
 
 <div>
@@ -35,6 +36,7 @@ end
 	<% if actualSalValHash.present?%>
 		<%= form_tag({:controller => 'wkpayroll', :action => 'updateUserSalary'}, :method => :post, :id => 'query_form') do %>
 			<%=h hidden_field_tag('user_id', userId) %>
+			<%= hidden_field_tag('gross', grossVal) %>
 			<fieldset style="width: 94%;margin:1px 34px 0px 1px;background-color:#F6F6F6;float:right"><legend><b><%=l(:label_basic)%></b></legend>
 				<table "width:100%; border-collapse: collapse;">
 					<thead>
@@ -46,7 +48,7 @@ end
 							<th class="lbl-txt-align"><%= l(:label_actual) %></th>
 						</tr>
 					</thead>
-					<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['b'], salaryComponents: salaryComponents, actualSalVal: actualSalValHash['b']}%>
+					<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['b'], actualSalVal: actualSalValHash['b']}%>
 				</table>
 			</fieldset>
 				&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
@@ -62,13 +64,13 @@ end
 							<th class="lbl-txt-align"><%= l(:label_actual) %></th>
 						</tr>
 					</thead>
-					<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['a'], salaryComponents: salaryComponents, actualSalVal: actualSalValHash['a']}%>
+					<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['a'], actualSalVal: actualSalValHash['a']}%>
 					<tr>
 						<th></th>
 						<th></th>
 						<th></th>
 						<th class="lbl-txt-align"><%= l(:label_gross) %></th>
-						<th align='right' style="border-bottom: solid thin;border-top: solid thin;"><%= settingCurreny %><%=  "%.2f" % (actualSalValHash['a'].values.sum + actualSalValHash['b'].values.sum) %></th>
+						<th align='right' style="border-bottom: solid thin;border-top: solid thin;"><%= settingCurreny %><%= grossVal %></th>
 					</tr>
 				</table>
 			</fieldset>
@@ -86,7 +88,7 @@ end
 							<th class="lbl-txt-align"><%= l(:label_actual) %></th>
 						</tr>
 					</thead>
-					<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['d'], salaryComponents: salaryComponents, actualSalVal: actualSalValHash['d']}%>
+					<%= render :partial => 'wkpayroll/user_sal_setting_comp_row', locals: { salCompTypeValues: salEntryByTypeHash['d'], actualSalVal: actualSalValHash['d']}%>
 					<tr>
 						<th></th>
 						<th></th>
@@ -105,6 +107,17 @@ end
 				</table>
 			</div>
 			<br>
+			<% if @taxSettingVal['tax_rule'].present? %>
+				<div style="width: 98%;margin:1px 34px 0px 1px;float:right">
+					<fieldset class="collapsible">
+						<legend onclick="toggleFieldset(this);"><h3><%= l(:label_income_tax_settings) %></h3></legend>
+    					<div style="display: none;">
+							<%= render partial: "wkrule/incometax/#{@taxSettingVal['tax_rule'].to_s}", locals: { action_type: "userSettings",
+									userId: params[:user_id]} %>
+    					</div>
+					</fieldset>
+				</div>
+			<% end %>
 			<% if validateERPPermission('A_TE_PRVLG') %>
 			<span style="margin-left:25.0em;"></span><%= submit_tag l(:button_save), :hidden => false, :id => 'wk_user_sal_setting_save', :disabled => false %>
 			<% end %>

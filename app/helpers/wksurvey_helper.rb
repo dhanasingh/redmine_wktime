@@ -192,25 +192,18 @@ module WksurveyHelper
         }
     end
     
-    def sent_emails(subject, language, email_id, emailNotes)
+    def sent_emails(subject, language, email_id, emailNotes, ccMailId = [])
       begin
-        WkMailer.email_user(subject, language, email_id, emailNotes).deliver
+        WkMailer.email_user(subject, language, email_id, emailNotes, ccMailId).deliver
       rescue Exception => e
         errMsg = (e.message).to_s
       end
       errMsg
     end
 
-    def getResponseGroup(survey_id=params[:survey_id], result_cond=false)
-        groupedDates = Array.new
-        closedResponses = WkSurveyResponse.group("survey_id, group_date").select("COUNT(id), group_date, survey_id ")
-        .where("survey_id = #{survey_id}").order("group_date DESC")
-        closedResponses = closedResponses.where.not(group_date: nil) if result_cond
-        closedResponses.each do |date|
-            groupedDates << [(date.group_date.localtime).strftime("%Y-%m-%d %H:%M:%S").to_s, 
-                    (date.group_date.localtime).strftime("%Y-%m-%d %H:%M:%S.%6N") ] if date.group_date.present?
-        end
-        groupedDates
+    def getResponseGroup(survey_id=params[:survey_id])
+        closedResponses = WkSurveyResponse.getClosedResp(survey_id)
+        groupedNames = closedResponses.pluck(:group_name).compact
     end
   
 end

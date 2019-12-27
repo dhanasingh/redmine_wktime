@@ -1,0 +1,135 @@
+<%
+	groupId = session[controller_name].try(:[], :group_id).blank? ? 0 : session[controller_name].try(:[], :group_id)
+	userId = session[controller_name].try(:[], :user_id).blank? ? 0 : session[controller_name].try(:[], :user_id)
+	fromDate = session[controller_name].try(:[], :from)
+	toDate = session[controller_name].try(:[], :to)
+	betwn_mnth_count = getInBtwMonthsArr(fromDate, toDate)
+
+    if betwn_mnth_count.length > 12
+        fromDate = Date.civil(toDate.year,toDate.month, 1) - 11.month
+        toDate = Date.civil((toDate + 1.month).year,(toDate + 1.month).month, 1) - 1
+	end
+
+	inBtwMonths = getInBtwMonthsArr(fromDate, toDate)
+	userSqlStr = getUserQueryStr(groupId, userId, fromDate)
+	@userlist = User.find_by_sql(userSqlStr)
+
+	queryStr = getQueryStr + 			
+			"left join groups_users gu on (gu.user_id = u.id and gu.group_id = #{groupId}) " +
+			"where u.type = 'User' and component_type != 'c'  and (wu.termination_date >= '#{fromDate}' or (u.status = #{User::STATUS_ACTIVE} and wu.termination_date is null))"
+	if groupId.to_i > 0 && userId.to_i < 1
+		queryStr = queryStr + " and gu.group_id is not null"
+	elsif userId.to_i > 0
+		queryStr = queryStr + " and s.user_id = #{userId}"
+	end
+	
+	queryStr = queryStr + " and s.salary_date  between '#{fromDate}' and '#{toDate}' "
+	
+	if !(validateERPPermission('A_TE_PRVLG') || User.current.admin?)
+		queryStr = queryStr + " and u.id = #{User.current.id} "
+	end
+
+	queryStr = queryStr + " order by s.user_id"
+	@salary_data = WkSalary.find_by_sql(queryStr)
+
+	tds_id = WkSetting.where("name = 'income_tax'").first
+
+	total = Hash.new
+	grossTotalHash = Hash.new
+	tdsHash = Hash.new
+	total_tds = Hash.new
+	total_gross = Hash.new
+	@salary_data.each do |entry|
+		key = entry.salary_date.strftime("%Y") + "_" + entry.salary_date.strftime("%-m") + "_" + entry.user_id.to_s
+		if tds_id.value.to_i == entry.sc_component_id
+			tdsHash[key] ||= 0
+			tdsHash[key] = entry.amount
+		end
+		if entry.component_type == 'b' || entry.component_type == 'a'
+			grossTotalHash[key] ||= 0
+			grossTotalHash[key] = entry.amount + grossTotalHash[key]
+		end
+	end
+%>
+<%= stylesheet_link_tag 'application' , :media => "all" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div style="float:right">
+	<table>
+		<tr>
+			<td>
+				<% logo = Setting.plugin_redmine_wktime['wktime_header_logo'] %>
+				<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + 		logo)) %>					
+					<%= image_tag("#{logo}", :plugin => "redmine_wktime") %>
+				<% end %>
+			</td>
+		</tr>
+	</table>
+</div>
+<div style="clear:both;"></div>
+<div id="attn-rpt-dlg", style="overflow-x:auto;">
+	<div style="text-align: center; font-size: 15px;">
+    	<caption><b><%= getMainLocation %><br><%= l(:report_tax) %></b></br>
+        <%= fromDate.strftime("%d-%b-%Y") + " " + l(:label_date_to) + " " + toDate.strftime("%d-%b-%Y")%>
+	</div>
+	<% inBtwMonths.each do |mnth|%>
+		<% keyMnth =  "_"  + (mnth.last).to_s %>
+		<b style="font-size: 15px;"><%= Date::MONTHNAMES[mnth.last].to_s + " " + mnth.first.to_s%></b>
+		<table style="width:100%; border-collapse: collapse;"border="1";>
+			<tr bgcolor="#e6e6e6">
+				<th style="text-align: center;" width="10%"><%= l(:label_employee_id) %></th>
+				<th style="text-align: center;" width="10%"><%= l(:field_tax) %></th>
+				<th style="text-align: center;" width="10%"><%= l(:label_user_name) %></th>
+				<th style="text-align: center;" width="10%"><%= l(:label_gross) %></th>
+				<th style="text-align: center;" width="10%"><%= l(:label_tds) %></th>
+				<th style="text-align: center;" width="10%"><%= l(:label_cess) %></th>
+				<th style="text-align: center;" width="10%"><%= l(:label_total) %></th>
+			</tr>
+			<% @userlist.each do |user| %>
+				<% 	
+					key = (mnth.first).to_s  + "_"  + (mnth.last).to_s + "_" + user.id.to_s
+					gross = 0
+					tds = 0
+					cess = 0
+					taxTotal = 0
+
+					gross = grossTotalHash[key] if grossTotalHash[key].present?
+					tds = (tdsHash[key]/1.04).round() if tdsHash[key].present?
+					cess =  (tdsHash[key] - tds) if tdsHash[key].present?
+					taxTotal = tdsHash[key] if tdsHash[key].present?
+
+					total["g" + keyMnth] ||= 0
+					total["g" + keyMnth] += gross
+
+					total["tds" + keyMnth] ||= 0 
+					total["tds" + keyMnth] += tds
+
+					total["c" + keyMnth] ||= 0 
+					total["c" + keyMnth] += cess
+
+					total["t" + keyMnth] ||= 0 
+					total["t" + keyMnth] += taxTotal
+				%>
+				<% if taxTotal > 0%>
+					<tr>
+						<td align="center"><%= user.employee_id %></td>
+						<td align="center"><%= user.tax_id %></td>
+						<td align="center"><%= user.firstname %></td>
+						<td align="center"><%= gross %></td>
+						<td align="center"><%= tds %></td>
+						<td align="center"><%= cess %></td>
+						<td align="center"><%= taxTotal %></td>
+					</tr>
+				<% end %>
+			<% end %>
+			<tr>
+				<th align="center" colspan="3"><%= l(:label_total) %></th>
+				<td align="center"><%= total["g" + keyMnth] if total["t" + keyMnth] > 0 %></td>
+				<td align="center"><%= total["tds" + keyMnth] if total["t" + keyMnth] > 0 %></td>
+				<td align="center"><%= total["c" + keyMnth] if total["t" + keyMnth] > 0 %></td>
+				<td align="center"><%= total["t" + keyMnth] if total["t" + keyMnth] > 0 %></td>
+			</tr>
+		</table>
+		<br>
+		<br>
+	<% end %>
+</div>

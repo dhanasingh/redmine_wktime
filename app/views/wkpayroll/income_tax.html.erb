@@ -1,0 +1,3 @@
+<% if @taxSettingVal['tax_rule'].present? %>
+    <%= render partial: "wkrule/incometax/#{@taxSettingVal['tax_rule'].to_s}" , locals: {action_type: params[:action_type], userId: params[:user_id]} %>
+<% end %>

@@ -1,84 +1,108 @@
-
-var basicAction="";
+var basicAction = "";
 var payrollId = 0;
-var editedname="";
+var editedname = "";
+var salaryCompDepLen = 1;
+var dlgname = "";
+var listbox = "";
 $(document).ready(function(){
-	var listBox = document.getElementById("settings_wktime_payroll_basic");
-	if ($('#settings_wktime_payroll_basic').children().length != 0) {
-		document.getElementById('basic_add').style.display = 'none';
+	if ($('#settings_basic').children().length != 0) {
+		$("#basic_add").hide();
 	}
-	document.getElementById('settings_payroll_deleted_ids').value = "";
-	$( "#payroll-dlg" ).dialog({
+	$("#settings_comp_del_ids").val("");
+	$("#payroll-dlg" ).dialog({
 		autoOpen: false,
 		resizable: false,
-		modal: false,		
+		modal: false,
+		width: 920,
+		height: 450,
+		overflow: 'auto',
 		buttons: {
 			"Ok": function() {
-				var opt,desc="",opttext="";
-				var frequency = "";
-				var startdate = "";
-				var cond_dependent = "" ;
-				var logic_condition = "";
-				var condition_value = "";
-				var factor ="";
-				listBoxID = dlgname == 'Calculated Fields' ? 'settings_wktime_payroll_calculated_fields' : (dlgname == 'Basic' ? "settings_wktime_payroll_basic" : (dlgname == 'Allowances' ? 'settings_wktime_payroll_allowances' : 'settings_wktime_payroll_deduction'))
-				var listBox = document.getElementById(listBoxID);
-				var name = document.getElementById("name");									
-				var salary_type = document.getElementById("salary_type"); 
-				var cftype = document.getElementById("calculated_fields_type"); 
-				var pay_period = document.getElementById("pay_period");
-				var basic_field_factor = document.getElementById("basic_field_factor");
-				if(dlgname != 'Basic')
-				{
-					frequency = document.getElementById("frequency");
-					startdate = document.getElementById("start_date").value;				
-					var dependent = document.getElementById("dep_value") ;
-					factor = document.getElementById("factor");
-					cond_dependent = document.getElementById("cond_dep_value") ;
-					logic_condition = document.getElementById("operator");
-					condition_value = document.getElementById("cond_value");
-					var condId = document.getElementById("comp_cond_id");
-				}
-				var ledgerId = document.getElementById("payroll_db_ledger");
-				if( !checkDuplicateComponent(listBox,name.value) && name.value != "" && (basic_field_factor.value != "" || dlgname != 'Basic' ) && ((startdate   != "" || (frequency.value == '' || frequency.value == 'm')  ) || dlgname == 'Basic') && ((cond_dependent.value && condition_value.value &&      logic_condition.value) || (cond_dependent.value == "" && condition_value.value == ""  && logic_condition.value == "") || dlgname == 'Basic')){
+				var opt, desc = "", opttext = "";
+				var name = $("#name").val();
+				var salary_type = $("#salary_type").val();
+				var cftype = $("#calculated_fields_type").val();
+				var basic_field_factor = $("#basic_field_factor").val();
+				var ledgerId = $("#db_ledger").val();
+				var alertMsg = validation();
+				if(!alertMsg){
 					if('Add'== basicAction){
 						opt = document.createElement("option");
-						listBox.options.add(opt);
+						listbox.options.add(opt);
 					}
 					else if('Edit' == basicAction){ 						
-						opt = listBox.options[listBox.selectedIndex];
+						opt = listbox.options[listbox.selectedIndex];
 					}
-					if (name.value != ""){
-						desc = ( (payrollId != 0 && basicAction == 'Edit') ?  payrollId + "|" : "|" )  + name.value
-						opttext = name.value											
-						if(dlgname != 'Basic' && dlgname != 'Calculated Fields')
+					if (name != ""){
+						desc = ( (payrollId != 0 && basicAction == 'Edit') ?  payrollId + "|" : "|" )  + name
+						opttext = name											
+						if(dlgname != 'settings_basic' && dlgname != 'settings_calculated_fields')
 						{
-						//	if (frequency.value != ""){
-							desc = desc + "|"  + frequency.value;
-							opttext = opttext + " : "  + (frequency.value == '' ? '' : frequency.options[frequency.selectedIndex].text)  + " : "  + startdate;
-						//	}						
-							desc = desc + "|" + startdate;
-							desc = desc + "|" + dependent.value + "|" + (factor.value == '' ? 0 : factor.value) +"|" + ledgerId.value + "|" + condId.value +   "|" + cond_dependent.value + "|" + logic_condition.value + "|" + condition_value.value;
-							
-							opttext = opttext + (dependent.value != '' ? " : " + dependent.options[dependent.selectedIndex].text : '' ) + " : " + (factor.value == '' ? 0 : factor.value) + (ledgerId.value == '' ? '' : " : " + ledgerId.options[ledgerId.selectedIndex].text)	+ (cond_dependent.value != '' ? " : " + cond_dependent.options[cond_dependent.selectedIndex].text : " : " ) + " : " + (logic_condition.value != '' ? logic_condition.options[logic_condition.selectedIndex].text + " : " : " : " ) + (condition_value.value == '' ? '' : condition_value.value);
+							var compNames = getSalaryComps();
+							compDepsVal = "";
+							compDepsText = "";
+							$.each(compNames, function(index, name){
+								if(Array.isArray(name)){
+									$("#salaryCompDeps .compDep").each(function(i){
+										var compDepIndex = (this.id.split('_')[1]).toString();
+										$.each(name, function(dep_index, dep_name){
+											if(Array.isArray(dep_name)){
+												$.each(dep_name, function(condIndex, condName){
+													if(condIndex != 0){
+														compDepsVal += ":";
+														if(condIndex > 1) compDepsText += ":";
+													}
+													compDepsVal += $('#'+condName+compDepIndex).val();
+													if($('#'+condName+compDepIndex).is("select") && condIndex != 0)
+														compDepsText += $("#"+condName+compDepIndex+" :selected").text();
+													else if(condIndex != 0)
+														compDepsText += $("#"+condName+compDepIndex).val();
+												});
+											}
+											else{
+												compDepsVal += $('#'+dep_name+compDepIndex).val();
+												if($('#'+dep_name+compDepIndex).is("select") && dep_index != 0)
+													compDepsText += $("#"+dep_name+compDepIndex+" :selected").text();
+												else if(dep_index != 0)
+													compDepsText += $("#"+dep_name+compDepIndex).val();
+												
+												compDepsVal += "_";
+												if(dep_index != 0) compDepsText += ":";
+											}
+										});
+										if(i+1 < $("#salaryCompDeps .compDep").length){
+											compDepsVal += "-";
+											compDepsText += ":";
+										}
+									});
+								}
+								else{
+									compDepsVal += $('#'+name).val();
+									if($('#'+name).is("select") && index != 0)
+										compDepsText += $('#'+name+' :selected').text();
+									else if(index != 0)
+										compDepsText += $('#'+name).val();
+									compDepsVal += "|";
+									if(index != 0) compDepsText += ":";
+								}
+							});
+							desc = compDepsVal;
+							opttext = compDepsText;
 						}
-						else if (dlgname != 'Calculated Fields'){
-							desc = desc + "|"  + salary_type.value;			
-							if (salary_type.value != ""){
-								opttext = opttext  + " : " + salary_type.options[salary_type.selectedIndex].text;
-							}
-							desc = desc + "|"  + (basic_field_factor.value == null ? 0 : basic_field_factor.value) + "|"  + ledgerId.value;			
-							opttext = opttext  + " : " + (basic_field_factor.value == null ? 0 : basic_field_factor.value) ;
-							if (ledgerId.value != ""){
-								opttext = opttext  + " : " + ledgerId.options[ledgerId.selectedIndex].text;
-							}
+						else if (dlgname != 'settings_calculated_fields'){
+							desc = desc + "|"  + salary_type;
+							opttext += (salary_type != "") ? ":" + $("#salary_type :selected").text() : "";
+							opttext += ":" + (basic_field_factor == null ? 0 : basic_field_factor);
+							opttext += (ledgerId != "") ? ":" + $("#db_ledger :selected").text() : "";
+							desc += "|" + $("#basicCompDepID").val()  + "|"  + (basic_field_factor == null ? 0 : basic_field_factor)+
+								"|" + ledgerId;
 						}
 						else{
 							desc = desc ;
 							opttext = opttext ;
-							desc = desc + "|"  + cftype.value;
-							if (cftype.value != ""){
-								opttext = opttext + " : " + cftype.options[cftype.selectedIndex].text;
+							desc = desc + "|"  + cftype;
+							if (cftype != ""){
+								opttext = opttext + " : " + $("#calculated_fields_type :selected").text();
 							}
 						}
 					}
@@ -87,28 +111,8 @@ $(document).ready(function(){
 					$( this ).dialog( "close" );	
 				}
 				else{
-					var alertMsg = "";
-					if(name.value == "")
-					{
-						alertMsg += payroll_name_errormsg + "\n";
-					}
-					if(checkDuplicateComponent(listBox, name.value)){
-						alertMsg += payroll_name + "\n";
-					}
-					if( basic_field_factor.value == "" && dlgname == 'Basic')
-					{
-						alertMsg += payroll_factor_errormsg + "\n";
-					}
-					if(((frequency.value != "" && startdate == "") || ((frequency.value && frequency.value != "m") && startdate == "")) && dlgname != 'Basic' && dlgname != 'Calculated Fields' && !checkDuplicateComponent(listBox,name.value))
-					{
-						alertMsg +=  payroll_date_errormsg + "\n";
-					}
-					if((cond_dependent.value || condition_value.value || logic_condition.value) && (cond_dependent.value == "" || condition_value.value == "" || logic_condition.value == "") && dlgname != 'Basic' && 
-						dlgname != 'Calculated Fields')
-					{
-						alertMsg +=  payroll_condition_errormsg + "\n";
-					}
-					alert(alertMsg);
+
+					err_msg = alert(alertMsg);
 				}
 				
 			},
@@ -117,151 +121,101 @@ $(document).ready(function(){
 			}
 		}
 	});	
-	
-	$("form").submit(function() {
-		
-		var wktime_payroll_basic=document.getElementById("settings_wktime_payroll_basic");
-		if(wktime_payroll_basic != null)
-		{
-			for(i = 0; i < wktime_payroll_basic.options.length; i++)
-			{
-				wktime_payroll_basic.options[i].selected = true;
-			}
-		}
-		
-		var payroll_allowances=document.getElementById("settings_wktime_payroll_allowances");
-		if(payroll_allowances != null)
-		{
-			for(i = 0; i < payroll_allowances.options.length; i++)
-			{
-				payroll_allowances.options[i].selected = true;
-			}						
-		}
-		
-		var payroll_deduction=document.getElementById("settings_wktime_payroll_deduction");
-		if(payroll_deduction != null)
-		{ 
-			for(i = 0; i < payroll_deduction.options.length; i++)
-			{
-				payroll_deduction.options[i].selected = true;
-			}						
-		}
-		var payroll_calculated_fields=document.getElementById("settings_wktime_payroll_calculated_fields");
-		if(payroll_calculated_fields != null)
-		{ 
-			for(i = 0; i < payroll_calculated_fields.options.length; i++)
-			{
-				payroll_calculated_fields.options[i].selected = true;
-			}						
+
+	$("form").submit(function(){
+		var compsTypeIDs = [ "settings_basic", "settings_allowances", "settings_deduction", "settings_calculated_fields"];
+		selectAllComponents(compsTypeIDs);
+	});
+
+	$("body").on("change","[class^='condElements_']", function(){
+		cls_name = $(this).attr("class");
+		var isblank = true;
+		$('.' + cls_name + '').each(function() {
+			if(this.value != "") isblank = false;
+			return;
+		});
+		index = cls_name.split('_')[1];
+		condID = $("#compDepConID_" + index).val();
+		if(isblank && condID != ""){
+			$('#settings_cond_del_ids').val(function(){
+				if(this.value == ''){
+					return condID;
+				}
+				return this.value + ',' + condID;
+			});
 		}
 	});
+
 });
 
 function payrollDialogAction(dlg, action)
 {
-	$( "#payroll-dlg" ).dialog({ title: (dlg == 'Basic' ? "Basic Pay" : dlg) });
+	$("#salaryCompDeps").html("");
+	$( "#payroll-dlg" ).dialog({ title: getTitle(dlg)});
 	basicAction = action;
 	dlgname = dlg;
-	listBoxID = dlgname == 'Calculated Fields' ? 'settings_wktime_payroll_calculated_fields' : (dlgname == 'Basic' ? "settings_wktime_payroll_basic" : (dlgname == 'Allowances' ? 'settings_wktime_payroll_allowances' : 'settings_wktime_payroll_deduction'))
-	var listbox = document.getElementById(listBoxID);
-	if(dlg == 'Deduction')
-	{
-		document.getElementById("ledgersLabel").innerHTML = lblcreditLedger;
-	}
-	else{
-		document.getElementById("ledgersLabel").innerHTML = lbldebitLedger;
-	}
-	if('Basic' == dlg)
-	{
-		document.getElementById("basic_salary_type").style.display = 'block';
-		document.getElementById("basic_factor").style.display = 'block';
-		document.getElementById("table_payroll_dependent").style.display = 'none';		
-		document.getElementById("payroll_frequency").style.display = 'none';
-		document.getElementById("payroll_start_date").style.display = 'none';
+	listbox = document.getElementById(dlgname);
+	$("#ledgersLabel").html(dlg == "settings_deduction" ? lblcreditLedger : lbldebitLedger);
+	if('settings_basic' == dlg){
+		$("#basic_salary_type").show();
+		$("#basic_factor").show();
+		$("#table_payroll_dependent").hide();
+		$("#payroll_frequency").hide();
+		$("#payroll_start_date").hide();
 		$('#calculatedFieldsType').hide();
 		$('#payrollDBLedger').show();
-		if('Add' == action)
-		{	
-			editedname =  "" ;
-			$( "#payroll-dlg" ).dialog( "open" )	
-		}		
-		else if('Edit' == action && listbox != null && listbox.options.selectedIndex >=0)
-		{
+		$("#addDeps").hide();
+		if('Add' == action){
+			editedname = "" ;
+			$("#payroll-dlg").dialog("open");	
+		}
+		else if('Edit' == action && listbox != null && listbox.options.selectedIndex >= 0){
 			var listboxArr = listbox.options[listbox.selectedIndex].value.split('|');
 			payrollId = listboxArr[0];
-			document.getElementById("name").value = listboxArr[1];
-			editedname =  listboxArr[1] ;
-			document.getElementById("salary_type").value = listboxArr[2];
-			document.getElementById('basic_field_factor').value = listboxArr[3];
-			document.getElementById('payroll_db_ledger').value = listboxArr[4];
-			$( "#payroll-dlg" ).dialog( "open" )			
+			$("#name").val(listboxArr[1]);
+			editedname = listboxArr[1];
+			$("#salary_type").val(listboxArr[2]);
+			$('#basicCompDepID').val(listboxArr[3]);
+			$('#basic_field_factor').val(listboxArr[4]);
+			$('#db_ledger').val(listboxArr[5]);
+			$("#payroll-dlg").dialog("open");
 		}
-	    else if(listbox != null && listbox.options.length >0)
-		{		
+	    else if(listbox != null && listbox.options.length >0){
 			alert(selectListAlertMsg);				
-		}
-					
+		}			
 	}
-	else if(('Allowances' == dlg) || ('Deduction' == dlg))
-	{
-		document.getElementById("basic_salary_type").style.display = 'none';
-		document.getElementById("basic_factor").style.display = 'none';
+	else if(('settings_allowances' == dlg) || ('settings_deduction' == dlg)){
+		$("#payroll_start_date").show();
 		$('#calculatedFieldsType').hide();
-		document.getElementById("table_payroll_dependent").style.display = 'block'; 
-		document.getElementById("payroll_frequency").style.display = 'block';
-		document.getElementById("payroll_start_date").style.display = 'block';
-		document.getElementById("payrollDBLedger").style.display = 'block';
-		var csName = document.getElementById("name");
-		var csFrequency = document.getElementById("frequency");
-		var csstart_date = document.getElementById('start_date');
-		var csdep_value = document.getElementById("dep_value");
-		var csfactor = document.getElementById('factor');
-		var csledger = document.getElementById('payroll_db_ledger');
-		var cscond_dep_value = document.getElementById("cond_dep_value");
-		var cssymbol = document.getElementById("operator");
-		var cscond_value = document.getElementById("cond_value");
-		var cscond_id = document.getElementById("comp_cond_id");
-		if('Add' == action)
-		{
-	        hideOwnComponent('')
-			csName.value = '';
-			editedname =  "" ;
-			csFrequency.value = '';
-			csstart_date.value = '';
-			csdep_value.value = '';
-			csfactor.value = '';
-			csledger.value = '';
-			cscond_id.value = '';
-			cscond_dep_value.value = '';
-			cssymbol.value = '';
-			cscond_value.value = '';
-			$( "#payroll-dlg" ).dialog( "open" )
+		$('#payrollDBLedger').show();
+		$("#table_payroll_dependent").show();		
+		$("#payroll_frequency").show();
+		$("#basic_factor").hide();
+		$("#basic_salary_type").hide();
+		$("#addDeps").show();
+		var emptyValueSet = getValueSet([])
+		setupdialog(emptyValueSet);
+		if('Add' == action){
+			editedname = "" ;
+			setupDependent(salaryCompDepLen);
+			hideRecusiveComp(dlg, '');
+			$("#payroll-dlg").dialog("open");
 		}
-		else if('Edit' == action && listbox != null && listbox.options.selectedIndex >=0)
-		{
+		else if('Edit' == action && listbox != null && listbox.options.selectedIndex >=0){
 			var listboxArr = listbox.options[listbox.selectedIndex].value.split('|');
-			payrollId = listboxArr[0];
-			hideOwnComponent(payrollId)
-			csName.value = listboxArr[1];
-			editedname =  listboxArr[1] ;
-			csFrequency.value = listboxArr[2];
-			csstart_date.value = listboxArr[3];
-			csdep_value.value = listboxArr[4];
-			csfactor.value = listboxArr[5];
-			csledger.value = listboxArr[6];
-			cscond_id.value = listboxArr[7];
-			cscond_dep_value.value = listboxArr[8];
-			cssymbol.value = listboxArr[9];
-			cscond_value.value = listboxArr[10];
+			editedname = listboxArr[1];
+			var  salaryComps = listbox.options[listbox.selectedIndex].value.split('|');
+			salaryCompValueSet = getValueSet(salaryComps);
+			setupDependent(salaryCompDepLen);
+			setupdialog(salaryCompValueSet);
+			hideRecusiveComp(dlg, listboxArr[0]);
 			$( "#payroll-dlg" ).dialog( "open" )
 		}
-		else if(listbox != null && listbox.options.length >0)
-		{		
+		else if(listbox != null && listbox.options.length >0){
 			alert(selectListAlertMsg);				
 		}
 	}
-	else if('Calculated Fields' == dlg)
-	{
+	else if('settings_calculated_fields' == dlg){
 		$("#basic_salary_type").hide();
 		$("#table_payroll_dependent").hide();
 		$("#payrollDBLedger").hide();
@@ -269,68 +223,147 @@ function payrollDialogAction(dlg, action)
 		$("#payroll_start_date").hide();
 		$('#basic_factor').hide();
 		$('#calculatedFieldsType').show();
-		var csName = document.getElementById("name");
-		var cftype = document.getElementById('calculated_fields_type');
-		
-		if('Add' == action)
-		{	
-			csName.value = '';
-			editedname =  '';
-			cftype.value = 'BAT';
-			$( "#payroll-dlg" ).dialog( "open" )	
+		$("#addDeps").hide();
+		if('Add' == action){
+			editedname = "" ;
+			$('#name').val('');
+			$("#calculated_fields_type").val('BAT');
+			$("#payroll-dlg").dialog("open");
 		}
-		else if('Edit' == action && listbox != null && listbox.options.selectedIndex >=0)
-		{		
+		else if('Edit' == action && listbox != null && listbox.options.selectedIndex >=0){
 			var listboxArr = listbox.options[listbox.selectedIndex].value.split('|');
 			payrollId = listboxArr[0];
-			csName.value = listboxArr[1];
-			editedname =  listboxArr[1] ;
-			cftype.value = listboxArr[2];
-			$( "#payroll-dlg" ).dialog( "open" )
+			editedname = listboxArr[1];
+			$('#name').val(listboxArr[1]);
+			$('#calculated_fields_type').val(listboxArr[2]);
+			$("#payroll-dlg").dialog("open");
 		}
-		else if(listbox != null && listbox.options.length >0)
-		{		
+		else if(listbox != null && listbox.options.length >0){
 			alert(selectListAlertMsg);				
 		}
 	}
 }
 
-function checkDuplicateComponent(listbox, newValue)
+function selectAllComponents(compsTypeIDs){
+	for(type of compsTypeIDs){
+		var ddList = document.getElementById(type);
+		if(ddList != null){ 
+			for(i = 0; i < ddList.options.length; i++){
+				ddList.options[i].selected = true;
+			}
+		}
+	}
+}
+
+function getSalaryComps(){
+	var dep_conds = ["compDepConID_", "condDepID_", "condOp_", "condFactor_", "condFactor2_"];
+	var comp_deps = ["compDepID_", "depID_", "factorOp_", "factor_", dep_conds];
+	var compNames = ["salaryCompID", "name", "frequency", "start_date", "db_ledger", comp_deps];
+	return compNames;
+}
+
+function getValueSet(salaryComps){
+	var valueSet = {};
+	var compNames = getSalaryComps();
+	$.each(compNames, function(index, name){
+		if(Array.isArray(name)){
+			var dep_valueSet = {};
+			var depCondValueSet = {};
+			var depsConds = index < salaryComps.length ? (salaryComps[index]).split("-") : [''];
+			salaryCompDepLen = depsConds.length;
+			$.each(depsConds, function(depsCondsIndex, depsCondsName){
+				var depComps = depsCondsIndex < depsConds.length && depsConds[0] != '' ? depsCondsName.split("_") : [];
+				depsCondsIndex += 1;
+				$.each(name, function(dep_index, dep_name){
+					if(Array.isArray(dep_name)){
+						var depConds = dep_index < depComps.length ? (depComps[dep_index]).split(":") : [];
+						$.each(dep_name, function(condIndex, condName){
+							depCondValueSet[condName+depsCondsIndex] = condIndex < depConds.length ? depConds[condIndex] : '';
+						});
+					}
+					else{
+							dep_valueSet[dep_name+depsCondsIndex] = dep_index < depComps.length ? depComps[dep_index] : (dep_name == 'factorOp_' ? 'EQ' : '');
+					}
+				});
+			});
+			dep_valueSet["depConds"] = depCondValueSet;
+			valueSet["depComps"] = dep_valueSet;
+		}
+		else{
+			valueSet[name] = index < salaryComps.length ? salaryComps[index] : '';
+		}
+	});
+	return valueSet;
+}
+
+function setupdialog(emptyValueSet){
+	$.each(emptyValueSet, function(id, val){
+		if(val != "" && val.constructor == Object){
+			$.each(val, function(depID, depVal){
+				if(depVal != "" && depVal.constructor == Object){
+					$.each(depVal, function(condID, condVal){
+						$('#'+condID).val(condVal);
+					});
+				}
+				else{
+					$('#'+depID).val(depVal);
+				}
+			});
+		}
+		else{
+			$('#'+id).val(val);
+		}
+	});
+
+	//For condition factor
+	$("[id^='condOp_']").each(function(){
+		showFactor(this);
+	});
+}
+
+function getTitle(title){
+	switch(title){
+		case "settings_basic":
+			return label_basic;
+		case "settings_allowances":
+			return label_allowances;
+		case "settings_deduction":
+			return label_deduction;
+		case "settings_calculated_fields":
+			return label_calculated_fields;
+	}
+}
+
+function checkDuplicateComponent(newValue)
 {
 	isDuplicate = false;
 	var listboxArr;	
-	for(i=0; i< listbox.options.length; i++)
-	 {
-		listboxArr=listbox.options[i].value.split('|');	
-		if(newValue == listboxArr[1] && (editedname != newValue ) )
-		{
-			isDuplicate=true;
-		}
-	 }		 
-	 return isDuplicate;
+	for(i=0; i < listbox.options.length; i++){
+		listboxArr = listbox.options[i].value.split('|');	
+		if(newValue.toLowerCase() == (listboxArr[1]).toLowerCase() && (editedname.toLowerCase() != newValue.toLowerCase()))
+			isDuplicate = true;
+	}
+	return isDuplicate;
 }
 
-function removeSelectedValue(elementId)
+function removeSelectedValue(elementID)
 {
-	var listbox=document.getElementById(elementId);
+	var listbox = document.getElementById(elementID);
 	if(listbox != null && listbox.options.selectedIndex >= 0)
 	 { 				
 		if (confirm(attendanceAlertMsg))
 		{
-			//removes options from listbox			
-			//listbox.remove(listbox.options.selectedIndex);
-			
-			var i;
-			for(i=listbox.options.length-1;i>=0;i--)
+			//removes options from listbox
+			for(var i = listbox.options.length-1; i >= 0; i--)
 			{					
 				if(listbox.options[i].selected)	
 				{
-					if(elementId == 'settings_wktime_payroll_allowances' || elementId == 'settings_wktime_payroll_deduction' || elementId == 'settings_wktime_payroll_calculated_fields')
+					if(elementID == 'settings_allowances' || elementID == 'settings_deduction' || elementID == 'settings_calculated_fields')
 					{
 						var listboxArr = listbox.options[i].value.split('|');
-						var payroll_ids = document.getElementById('settings_payroll_deleted_ids').value;
+						var payroll_ids = $('#settings_comp_del_ids').val();
 						ids = payroll_ids == "" ? listboxArr[0] : (payroll_ids + "|" + listboxArr[0]);
-						document.getElementById('settings_payroll_deleted_ids').value = ids;
+						$('#settings_comp_del_ids').val(ids);
 					}
 					listbox.remove(i);
 				}
@@ -343,11 +376,118 @@ function removeSelectedValue(elementId)
 	}
 }
 
-function hideOwnComponent(payrollId)
-{
-	$(".component option").each(function()
-	{
-		if($(this).val() == payrollId) $(this).hide();
-		else $(this).show();
+function showFactor(thisEle){
+	var index = thisEle.name.split("_")[1]
+	if($(thisEle).val() == "BW")
+		$("#condFactor2_"+index).show();
+	else{
+		$("#condFactor2_"+index).hide();
+		$("#condFactor2_"+index).val('');
+	}
+}
+
+function addDependent(){
+	hideRecusiveComp(dlgname, $("#salaryCompID").val());
+	var clonedTable = $("#compDepTemplate").html();
+	var depsCount = $(".compDep").length;
+	if(depsCount > 1){
+		index = ($(".compDep").last().attr("id")).split("_")[1];
+		depsCount = parseInt(index) + 1;
+	}
+	clonedTable = clonedTable.replace(/INDEX/g, depsCount);
+	$("#salaryCompDeps").append(clonedTable);
+}
+
+function deleterow(index){
+	depID = $("#compDepID_" + index).val();
+	if(depID != ""){
+		$('#settings_dep_del_ids').val(function(){
+			if(this.value == ''){
+				return depID;
+			}
+			return this.value + ',' + depID;
+		});
+	}
+	$("#compDep_"+index).remove();
+}
+
+function setupDependent(salaryCompDepLen){
+	var clonedTable = $("#compDepTemplate").html();
+	for(var i=1; i <= salaryCompDepLen; i++){
+		cloned = clonedTable.replace(/INDEX/g, i);
+		$("#salaryCompDeps").append(cloned);
+	}
+
+	//For condition factor
+	$("[id^='condOp_']").each(function(){
+		showFactor(this);
+	});
+}
+
+function validation(){
+	var name = $("#name").val();
+	var basic_field_factor = $("#basic_field_factor").val();
+	var	frequency = $("#frequency").val();
+	var	startdate = $("#start_date").val();
+	var alertMsg = "";
+
+	if(name == "")
+		alertMsg += payroll_name_errormsg + "\n";
+
+	if(checkDuplicateComponent(name))
+		alertMsg += payroll_name + "\n";
+
+	if( basic_field_factor == "" && dlgname == 'settings_basic')
+		alertMsg += payroll_factor_errormsg + "\n";
+
+		if( frequency && frequency != 'm' && startdate == "" && dlgname != 'settings_basic' &&
+		dlgname != 'settings_calculated_fields' && !checkDuplicateComponent(name)){
+		alertMsg +=  payroll_date_errormsg + "\n";
+	}
+
+	$(".compDep").each(function(){
+
+		tabel_id = $(this).attr('id');
+		splitedVal = tabel_id.split('_')
+		if ($.isNumeric(splitedVal[1])){
+			index = splitedVal[1]
+
+			var	dependent_op = $("#factorOp_"+ index).val();
+			var	dependent_id = $("#depID_"+ index).val();
+			var	cond_dependent = $("#condDepID_"+ index).val();
+			var	logic_condition = $("#condOp_"+ index).val();
+			var	condition_value = $("#condFactor_"+ index).val();
+			var other_cond_value =  (cond_dependent == "" || condition_value == "" || logic_condition == "") ? false : true ;
+
+			if (dependent_id != "" && dependent_op == 'EQ')
+				alertMsg +=  equalOpAlertMsg + "\n";
+
+			if (logic_condition == 'BW')
+				other_cond_value = $("#condFactor2_"+ index).val();
+
+			if((cond_dependent || condition_value || logic_condition || other_cond_value) && (cond_dependent == "" || condition_value == "" || logic_condition == "" || other_cond_value == "") && 
+				dlgname != 'settings_basic' && dlgname != 'settings_calculated_fields'){
+				alertMsg +=  payroll_condition_errormsg + "\n";
+			}
+		}
+	})
+	return alertMsg;
+}
+
+function hideRecusiveComp(dlg, ownCompID){
+	var url = '/wkpayroll/getRecursiveComp';
+	$.ajax({
+		url: url,
+		type: 'get',
+		data: { component_type: dlg },
+		success: function(data){
+			var data = $.parseJSON(data);
+			data.push(parseInt(ownCompID));
+			$("#salaryCompDeps .component option").each(function(){
+				salComID = parseInt($(this).val());
+				if(data.includes(salComID)) $(this).hide(data);
+				else $(this).show();
+			});
+		} 
 	});
 }
