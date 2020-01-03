@@ -208,7 +208,7 @@ function isChanged(elType) {
 	return warn;
 }
 
-function showComment(row, col) {
+function showComment(row, col, title) {
 	var images = $( 'img[name="custfield_img'+row+'[]"]' );
 	var width = 300;
 	var height = 350;
@@ -245,10 +245,10 @@ function showComment(row, col) {
 	posX = $(currImage).offset().left - $(document).scrollLeft() - width + $(currImage).outerWidth();
 	posY = $(currImage).offset().top - $(document).scrollTop() + $(currImage).outerHeight();
 	$("#comment-dlg").dialog({width:width, height:height ,position:[posX, posY]});
-	$( "#comment-dlg" ).dialog( "open" );
+	$( "#comment-dlg" ).dialog('option', 'title', title).dialog( "open" );
 }
 
-function showNotes() {
+function showNotes(title) {
 	var rejectBtn = $( 'input[name="wktime_reject"]' );
 	var width = 300;
 	var height = 200;
@@ -257,7 +257,7 @@ function showNotes() {
 	posX = $(rejectBtn).offset().left - $(document).scrollLeft() - width + $(rejectBtn).outerWidth();
 	posY = $(rejectBtn).offset().top - $(document).scrollTop() + $(rejectBtn).outerHeight();
 	$("#notes-dlg").dialog({width:width, height:height ,position:[posX, posY]});
-	$( "#notes-dlg" ).dialog( "open" );
+	$( "#notes-dlg" ).dialog('option', 'title', title).dialog( "open" );
 	//return false so the form is not posted
 	return false;
 }

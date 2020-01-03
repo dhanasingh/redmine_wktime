@@ -1,4 +1,8 @@
-var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl, blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl, blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupAccUrl, purSupContactUrl, purSupPayUrl, wklocationUrl,  wkproductUrl, wkproductitemUrl, wkshipmentUrl, wkassetUrl, wkassetdepreciationUrl, wkgrpPermissionUrl, wkSchedulingUrl, wkPublicHolidayUrl, userCurrentUrl, wkSurveyUrl; 
+var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, payrollUrl, blgaccUrl, blgcontractsUrl, blgaccpjtsUrl,
+	blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl,
+	blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupAccUrl, purSupContactUrl, purSupPayUrl,
+	wklocationUrl,  wkproductUrl, wkproductitemUrl, wkshipmentUrl, wkassetUrl, wkassetdepreciationUrl, wkgrpPermissionUrl, wkSchedulingUrl,
+	wkPublicHolidayUrl, userCurrentUrl, wkSurveyUrl;
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -71,6 +75,43 @@ $(document).ready(function() {
 		hideSummaryDD(this.value);
 	});
 	hideSummaryDD($("#txn_ledger").val());
+
+	changeProp('tab-wktime',wktimeIndexUrl);
+	changeProp('tab-wkexpense',wkexpIndexUrl);
+	changeProp('tab-leave',wkattnIndexUrl);
+	changeProp('tab-clock',clockInOutUrl);
+	changeProp('tab-payroll',payrollUrl);
+	changeProp('tab-wkcrmaccount',blgaccUrl);
+	changeProp('tab-wkcontract',blgcontractsUrl);
+	changeProp('tab-wkaccountproject',blgaccpjtsUrl);
+	changeProp('tab-wkinvoice',blginvoiceUrl);
+	changeProp('tab-wktax',blgtaxUrl);
+	changeProp('tab-wkgltransaction',blgtxnUrl);
+	changeProp('tab-wkledger',blgledgerUrl);
+	changeProp('tab-wklead',crmleadsUrl);
+	changeProp('tab-wkopportunity',crmopportunityUrl);
+	changeProp('tab-wkcrmactivity',crmactivityUrl);
+	changeProp('tab-wkcrmcontact',crmcontactUrl);
+	changeProp('tab-wkcrmenumeration',crmenumUrl);
+	changeProp('tab-wkpayment',blgpaymentUrl);
+	changeProp('tab-wkexchangerate',blgexcrateUrl);
+	changeProp('tab-wkrfq',purRfqUrl);
+	changeProp('tab-wkquote',purQuoteUrl);
+	changeProp('tab-wkpurchaseorder',purPurOrderUrl);
+	changeProp('tab-wksupplierinvoice',purSupInvUrl);
+	changeProp('tab-wksupplierpayment',purSupPayUrl);
+	changeProp('tab-wksupplieraccount',purSupAccUrl);
+	changeProp('tab-wksuppliercontact',purSupContactUrl);
+	changeProp('tab-wklocation',wklocationUrl);
+	changeProp('tab-wkproduct',wkproductUrl);
+	changeProp('tab-wkproductitem',wkproductitemUrl);
+	changeProp('tab-wkasset',wkassetUrl);
+	changeProp('tab-wkassetdepreciation',wkassetdepreciationUrl);
+	changeProp('tab-wkshipment',wkshipmentUrl);
+	changeProp('tab-wkgrouppermission',wkgrpPermissionUrl);
+	changeProp('tab-wkscheduling',wkSchedulingUrl);
+	changeProp('tab-wkpublicholiday',wkPublicHolidayUrl);
+	changeProp('tab-wksurvey',wkSurveyUrl);
 });
 
 function openReportPopup(){
@@ -110,7 +151,7 @@ function openReportPopup(){
 	window.open(popupUrl, '_blank', 'location=yes,scrollbars=yes,status=yes, resizable=yes'); 
 }
 
-function showReminderEmailDlg() {
+function showReminderEmailDlg(title) {
 	var teStatusOpt = document.getElementById('status').options;	
 	var isSubm = false;
 	var isAppr = false;
@@ -147,7 +188,7 @@ function showReminderEmailDlg() {
 			break;
 		}
 	}
-	$( "#reminder-email-dlg" ).dialog( "open" );
+	$( "#reminder-email-dlg" ).dialog('option', 'title', title).dialog( "open" );
 }
 
 function resetReminderEmailDlg() {
@@ -204,46 +245,7 @@ function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, bla
 		}
 	}
 }
-$(document).ready(function()
-{
-	changeProp('tab-wktime',wktimeIndexUrl);
-	changeProp('tab-wkexpense',wkexpIndexUrl);
-	changeProp('tab-leave',wkattnIndexUrl);
-	changeProp('tab-clock',clockInOutUrl);
-	changeProp('tab-payroll',payrollUrl);
-	//changeProp('tab-usersettings',userssettingsUrl);
-	changeProp('tab-wkcrmaccount',blgaccUrl);
-	changeProp('tab-wkcontract',blgcontractsUrl);
-	changeProp('tab-wkaccountproject',blgaccpjtsUrl);
-	changeProp('tab-wkinvoice',blginvoiceUrl);
-	changeProp('tab-wktax',blgtaxUrl);
-	changeProp('tab-wkgltransaction',blgtxnUrl);
-	changeProp('tab-wkledger',blgledgerUrl);
-	changeProp('tab-wklead',crmleadsUrl);
-	changeProp('tab-wkopportunity',crmopportunityUrl);
-	changeProp('tab-wkcrmactivity',crmactivityUrl);
-	changeProp('tab-wkcrmcontact',crmcontactUrl);
-	changeProp('tab-wkcrmenumeration',crmenumUrl);
-	changeProp('tab-wkpayment',blgpaymentUrl);
-	changeProp('tab-wkexchangerate',blgexcrateUrl);
-	changeProp('tab-wkrfq',purRfqUrl);
-	changeProp('tab-wkquote',purQuoteUrl);
-	changeProp('tab-wkpurchaseorder',purPurOrderUrl);
-	changeProp('tab-wksupplierinvoice',purSupInvUrl);
-	changeProp('tab-wksupplierpayment',purSupPayUrl);
-	changeProp('tab-wksupplieraccount',purSupAccUrl);
-	changeProp('tab-wksuppliercontact',purSupContactUrl);
-	changeProp('tab-wklocation',wklocationUrl);
-	changeProp('tab-wkproduct',wkproductUrl);
-	changeProp('tab-wkproductitem',wkproductitemUrl);
-	changeProp('tab-wkasset',wkassetUrl);
-	changeProp('tab-wkassetdepreciation',wkassetdepreciationUrl);
-	changeProp('tab-wkshipment',wkshipmentUrl);
-	changeProp('tab-wkgrouppermission',wkgrpPermissionUrl);
-	changeProp('tab-wkscheduling',wkSchedulingUrl);
-	changeProp('tab-wkpublicholiday',wkPublicHolidayUrl);
-	changeProp('tab-wksurvey',wkSurveyUrl);
-});
+
 function changeProp(tab,indexUrl)
 {
 	var tab_te = document.getElementById(tab);

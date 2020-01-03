@@ -592,7 +592,10 @@ Rails.configuration.to_prepare do
 	#end
 	User.send(:include, FttePatch::UserAllowedToPatch)
 	ApplicationController.send(:include, FttePatch::ApplicationControllerPatch)
-	TimeEntryQuery.send(:include, FttePatch::TimeEntryQueryPatch)
+	if ActiveRecord::Base.connection.table_exists?("#{User.table_name}") &&
+		ActiveRecord::Base.connection.column_exists?("#{User.table_name}", :parent_id)
+		TimeEntryQuery.send(:include, FttePatch::TimeEntryQueryPatch)
+	end
 
 end
 
