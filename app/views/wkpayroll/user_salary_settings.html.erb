@@ -110,7 +110,7 @@
 			<% if @taxSettingVal['tax_rule'].present? %>
 				<div style="width: 98%;margin:1px 34px 0px 1px;float:right">
 					<fieldset class="collapsible">
-						<legend onclick="toggleFieldset(this);"><h3><%= l(:label_income_tax_settings) %></h3></legend>
+						<legend onclick="toggleFieldset(this);" class="icon icon-collapsed"><h3><%= l(:label_income_tax_settings) %></h3></legend>
     					<div style="display: none;">
 							<%= render partial: "wkrule/incometax/#{@taxSettingVal['tax_rule'].to_s}", locals: { action_type: "userSettings",
 									userId: params[:user_id]} %>
@@ -119,9 +119,8 @@
 				</div>
 			<% end %>
 			<% if validateERPPermission('A_TE_PRVLG') %>
-			<span style="margin-left:25.0em;"></span><%= submit_tag l(:button_save), :hidden => false, :id => 'wk_user_sal_setting_save', :disabled => false %>
+			<span style="margin-left:25.0em;"><%= submit_tag l(:button_save), :hidden => false, :id => 'wk_user_sal_setting_save', :disabled => false %></span>
 			<% end %>
-			</div>
 		<% end %>
 	<% end %>
 </div>

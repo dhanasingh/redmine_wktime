@@ -15,27 +15,31 @@
 <fieldset><legend><%= l(:label_filter_plural) %></legend>
 	<%= form_tag({controller: controller_name, action: 'index'}, method: :get) do %>
 		<%= hidden_field_tag("searchlist", controller_name) %>
-		<% if isLeaveReqAdmin %>
 		<% period = session[:wkleaverequest].try(:[], :period) %>
-		<p>
-			<%=l(:label_group_plural)%>
-			<% if !@groups.blank? %>
-				<%= select_tag('group_id', options_for_select( [["", 0]] + (@groups.collect {|p| [p.name, p.id ]}),
-					:selected => group_id), :onchange => "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %>
+		<table>
+			<% if isLeaveReqAdmin %>
+				<tr>
+					<th><label><%=l(:label_group_plural)%></label></th>
+					<td>
+						<%= select_tag('group_id', options_for_select( [["", 0]] + (@groups.collect {|p| [p.name, p.id ]}),
+							:selected => group_id), :onchange => "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %>
+					</td>
+					<th style="padding-left: 10px;"><label><%=l(:label_member)%></label></th>
+					<td>
+						<%= select_tag('user_id', options_for_select( [[l(:all_users_for_select), 0]] + @members, :selected => userID),
+							:style=> "width:200px;") %>
+					</td>
+				</tr>
 			<% end %>
-			<%=l(:label_member)%>
-			<%= select_tag('user_id', options_for_select( [[l(:all_users_for_select), 0]] + @members, :selected => userID),
-				:style=> "width:200px;") %>
-		</p>
-		<% end %>
-		<p>
-			<label><%= l(:label_leave_type) %></label>
-			<%= select_tag('leave_type', options_for_select(get_leave_type.unshift(['','']), session[controller_name].try(:[], :leave_type))) %>
-			<label><%= l(:label_status) %></label>
-			<%= select_tag('lveStatus', options_for_select(statusList.invert, session[controller_name].try(:[], :lveStatus))) %>
-		</p>
+			<tr>
+				<th><label><%= l(:label_leave_type) %></label></th>
+				<td><%= select_tag('leave_type', options_for_select(get_leave_type.unshift(['','']), session[controller_name].try(:[], :leave_type))) %></td>
+				<th style="padding-left: 10px;"><label><%= l(:label_status) %></label></th>
+				<td><%= select_tag('lveStatus', options_for_select(statusList.invert, session[controller_name].try(:[], :lveStatus))) %></td>
+			</tr>
+		</table>
 		<fieldset id="date-range" class="collapsible">
-			<legend onclick="toggleFieldset(this);"><%= l(:label_date_range) %></legend>
+			<legend onclick="toggleFieldset(this);" class="icon icon-expended"><%= l(:label_date_range) %></legend>
 			<div>
 				<%= radio_button_tag 'period_type', '1', !@free_period, :onclick => '$("#from,#to").attr("disabled", true);$("#period").removeAttr("disabled");' %>
 				<%= select_tag 'period', options_for_period_select(period),

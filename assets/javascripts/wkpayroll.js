@@ -76,11 +76,9 @@ function runperiodDatePicker()
 }
 
 function bulk_edit(colID){
-	var button = $('#'+colID).prop('title');
+	var button = $('#'+colID).attr('action');
 	if(button == 'Edit'){
-		$('#'+colID).prop('title', 'Update');
-		$('#'+colID).removeClass();
-		$('#'+colID).addClass("icon icon-save");
+		$('#'+colID).attr('action', 'Update').removeClass().addClass("icon icon-save");
 		$('[id^="td_'+colID+'_"]').each(function(){
 			var text = $(this).text();
 			var name = (this.id).substr(3)
@@ -93,12 +91,13 @@ function bulk_edit(colID){
 		var form_data = {}
 		var isInvalid = false;
 		$('[id^="'+colID+'_"]').each(function(){
-			var val = this.value;
+			var textVal = this.value;
 			var old_val = $('#h_'+this.id).val();
-			if( isNaN(val)){
+			if( isNaN(textVal)){
 				isInvalid = true;
-			}else if(val != old_val){
-				form_data[this.name] = val;
+			}else if(textVal != old_val){
+				depID = $('#dep_'+this.id).val();
+				form_data[this.name] = [textVal, depID]
 			}
 		});
 		
@@ -140,9 +139,7 @@ function setUserPayrollValues(colID, isValid){
 			this.value = $('#h_'+this.id).val();
 		}
 		else{
-			$('#'+colID).prop('title', 'Edit');
-			$('#'+colID).removeClass();
-			$('#'+colID).addClass("icon icon-edit");
+			$('#'+colID).attr('action', 'Edit').removeClass().addClass("icon icon-edit");
 			$('#td_'+this.id).html(this.value);
 		}
 	});

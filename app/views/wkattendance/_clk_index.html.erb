@@ -29,7 +29,7 @@
 					:selected => !groupid.nil? ? groupid.to_i: 0), :onchange => "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %>
 				</td>
 			<% end %>
-			<th><%=l(:label_member)%></th>
+			<th style="padding-left: 10px;"><%=l(:label_member)%></th>
 			<td>
 			<%# show the blank value if more than one user is in the list %>
 			<%=h select_tag('user_id',
