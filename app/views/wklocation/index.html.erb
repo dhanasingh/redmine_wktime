@@ -17,16 +17,18 @@
 <%=h hidden_field_tag('tab', "wklocation") %>
 <%	locName = session[controller_name].try(:[], :location_name) %>
 <%	locType = session[controller_name].try(:[], :location_type) %>
-<div class="wk-contextual"> 
-		<label for='name' style="float:left"><%= l(:field_name)   %>&nbsp;&nbsp;</label>
-			<%= text_field_tag 'location_name', locName, :size => 30, :style=> "float: left;" %>	
-		<label style="float:left; padding-left: 20px;"><%= l(:label_type) %>&nbsp;&nbsp;</label>
-			<%=h select_tag('location_type', options_for_select(options_for_enum_select('LT', locType, true)), :style=> "float: left;") %></td>
-			
-		<label style="float:left; padding-left: 20px;">&nbsp;</label>
-		<%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %>
-		<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload', :style=>"float:left; " %>
-        <%= link_to l(:label_new_location), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+<fieldset>
+	<table>
+			<th><label for='name' style="float:left;"><%= l(:field_name)%></label></th>
+				<td><%= text_field_tag 'location_name', locName, :size => 30, :style=> "float: left;" %></td>
+			<th><label style="float:left;padding-left: 10px;"><%= l(:label_type) %></label></th>
+				<td><%=h select_tag('location_type', options_for_select(options_for_enum_select('LT', locType, true)), :style=> "float: left;") %></td>
+			<td><%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %></td>
+			<td><%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload', :style=>"float:left; " %></td>
+	</table>
+</fieldset>
+<div class="wk-contextual">
+	<%= link_to l(:label_new_location), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
 </div>
 <div style="clear: both;"></div>
 <% end %>

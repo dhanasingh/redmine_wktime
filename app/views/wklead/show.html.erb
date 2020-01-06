@@ -15,12 +15,14 @@
 		<% addressObj = @lead.blank? ? nil : @lead.contact.address %>
 		<%=h hidden_field_tag('lead_id', @lead.blank? ? "" :@lead.id) %>
 		<%=h hidden_field_tag('address_id', @lead.blank? ? "" :@lead.contact.address_id) %>
-		<div class="splitcontentleft">
-			<%= render partial: "show_lead_info", locals: { currentObj: @lead, isAccount: false, isContact: false}%>
-			<%= render partial: "show_other_info"%>
-		</div>
-		<div class="splitcontentright">
-			<%= render partial: "show_contact_info", locals: { address: addressObj, :disable => false }%>
+		<div class="splitcontent">
+			<div class="splitcontentleft">
+				<%= render partial: "show_lead_info", locals: { currentObj: @lead, isAccount: false, isContact: false}%>
+				<%= render partial: "show_other_info"%>
+			</div>
+			<div class="splitcontentright">
+				<%= render partial: "show_contact_info", locals: { address: addressObj, :disable => false }%>
+			</div>
 		</div>
 	<div style="clear:both;"></div>
 	<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @lead }%>

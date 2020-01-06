@@ -18,26 +18,22 @@
 		end
 	%>
 	<h2><b><%= @productItem.blank? ?  newLbl : editLbl %></b></h2>
-	
-	
+
 	<div id="product_item_form">
-           <%=h hidden_field_tag('product_item_id', @productItem.blank? ? "" :@productItem.id) %>
-		   <%=h hidden_field_tag('inventory_item_id', @inventoryItem.blank? ? "" :@inventoryItem.id) %>
-			<%=h hidden_field_tag('product_type', controller.getItemType) %>	
-			<%= call_hook(:view_product_item, :inventoryItem => @inventoryItem) %>
-			<%# if controller.showProductItem  %>
-				<%= render :partial => 'wkproductitem/edit_product_item' %>			
-			<%# end %>	
-			<div style="clear:both;"></div>
+		<%=h hidden_field_tag('product_item_id', @productItem.blank? ? "" :@productItem.id) %>
+		<%=h hidden_field_tag('inventory_item_id', @inventoryItem.blank? ? "" :@inventoryItem.id) %>
+		<%=h hidden_field_tag('product_type', controller.getItemType) %>	
+		<%= call_hook(:view_product_item, :inventoryItem => @inventoryItem) %>
+			<%= render :partial => 'wkproductitem/edit_product_item' %>	
+		<div style="clear:both;"></div>
 		<fieldset id="date-range" class="collapsible">
-			<legend onclick="toggleFieldset(this);"><%= l(:label_additional_info) %></legend>
-		
-		<% if controller.showAssetProperties  # if controller.showAssetProperties && !@inventoryItem.blank?%>
-			<%= render :partial => 'wkasset/asset_property', locals: {invntItem: @inventoryItem, isTransfer: false}%>
-		<% end %>
-		<%# if (!@inventoryItem.blank? || controller.newAsset) %>
-			<%= render :partial => 'wkproductitem/edit_inventory', locals: {invntItem: @inventoryItem, isTransfer: false}%>		
-		<%# end %>
+			<legend onclick="toggleFieldset(this);" class="icon icon-<%= @inventoryItem.blank? ? "collapsed" : "expended" %>"><%= l(:label_additional_info) %></legend>
+			<div class="splitcontent" style="display:<%= @inventoryItem.blank? ? 'none' : 'flex' %>;">
+				<% if controller.showAssetProperties %>
+					<%= render :partial => 'wkasset/asset_property', locals: {invntItem: @inventoryItem, isTransfer: false}%>
+				<% end %>
+				<%= render :partial => 'wkproductitem/edit_inventory', locals: {invntItem: @inventoryItem, isTransfer: false}%>
+			</div>
 		</fieldset>
 	</div>
 	<div style="clear:both;"></div>

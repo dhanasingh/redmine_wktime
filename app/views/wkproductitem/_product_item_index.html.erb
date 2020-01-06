@@ -20,26 +20,26 @@
 				<table>
 					<tr>
 						<th align="left"><%= l(:label_location) %></th>
-						<td align="left" style="padding-left:40px;"><%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, true)) %></td>
+						<td align="left"><%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, true)) %></td>
 						<% if controller.getItemType == "I" || controller.getItemType == "A" %>
-							<th align="left"><%= l(:label_product) %></th>
-							<td align="left" style="padding-left:40px;">
+							<th align="left" style="padding-left: 10px;"><%= l(:label_product) %></th>
+							<td align="left">
 								<%=h select_tag("product_id", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', productId, true)) %>
 							</td>
 						<% end %>
 						<% if controller.getItemType == "I" %>
-							<th align="left"><%= l(:label_brand) %></th>
-							<td align="left" style="padding-left:40px;">
+							<th align="left" style="padding-left: 10px;"><%= l(:label_brand) %></th>
+							<td align="left">
 								<%=h select_tag("brand_id", generic_options_for_select(WkBrand, nil, 'name', 'name', 'id', brandId, true)) %>
 							</td>
 						<% else %>
-							<th align="left"><%= l(:label_availability) %></th>
-							<td align="left" style="padding-left:40px;">
+							<th align="left" style="padding-left: 10px;"><%= l(:label_availability) %></th>
+							<td align="left">
 								<%=h select_tag("availability", options_for_select(availabilityHash.invert, :selected=> availabilityId)) %>
 							</td>
 						<% end %>
-						<th align="left"><%= l(:label_project) %></th>
-						<td align="left" style="padding-left:40px;"><%=h select_tag("project_id", options_for_select(projArr, :selected=> projectId)) %></td>
+						<th align="left" style="padding-left: 10px;"><%= l(:label_project) %></th>
+						<td align="left"><%=h select_tag("project_id", options_for_select(projArr, :selected=> projectId)) %></td>
 					</tr>
 			    </table>
 				<p style="float:right; margin-top:-30px;">					

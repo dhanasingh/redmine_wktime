@@ -29,7 +29,7 @@
 				<td align="left">
 					<%=h select_tag('product_id', options_for_select(productArr, :selected => (productId.blank? ? productArr : productId) ), :style => "width:155px;", :onchange => "productAssetChanged(this.id, 'inventory_item_id', #{User.current.id}, true); ") %>
 				</td>
-				<th align="right" ><%= l(:label_asset) %></th>
+				<th align="right" style="padding-left: 10px;"><%= l(:label_asset) %></th>
 				<td align="left">
 					<%=h select_tag('inventory_item_id', options_for_select(assetItemArr, :selected => (assetId.blank? ? productArr : assetId) ), :style => "width:155px;") %>
 				</td>

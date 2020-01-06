@@ -2,20 +2,24 @@
 <%= form_tag({:controller => "wklead", :action => 'index'}, :method => :post, :id => 'query_form') do %>
 		<%= hidden_field_tag "searchlist", controller_name %>
 		<fieldset>
-			<%=h hidden_field_tag('tab', "wklead") %>
-			<label for='name'><%= l(:label_lead) %>:</label>			
-			<%= text_field_tag 'lead_name', session[controller_name].try(:[], :lead_name), :size => 30 %>
-			<%= l(:field_status) %>
-			<%  leadStatusArr = Array.new
-			    getLeadStatusArr.collect {|ind| 
-		        leadStatusArr << ind unless ind[1] == 'C'}
-				leadStatusArr.unshift(["",''])
-			%> 	
-			<%=h select_tag('status', options_for_select(leadStatusArr, :selected => session[controller_name].try(:[], :status))) %>
-			<label for='location'><%= l(:label_location) %>:</label>									
-			<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', session[controller_name].try(:[], :location_id), true)) %>
-			<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
-			<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
+			<table>
+				<tr>
+					<%=h hidden_field_tag('tab', "wklead") %>
+					<th><label for='name'><%= l(:label_lead) %></label></th>
+					<td><%= text_field_tag 'lead_name', session[controller_name].try(:[], :lead_name), :size => 30 %></td>
+					<th><label style="padding-left: 10px;"><%= l(:field_status) %></label></th>
+					<%  leadStatusArr = Array.new
+						getLeadStatusArr.collect {|ind| 
+						leadStatusArr << ind unless ind[1] == 'C'}
+						leadStatusArr.unshift(["",''])
+					%> 	
+					<td><%=h select_tag('status', options_for_select(leadStatusArr, :selected => session[controller_name].try(:[], :status))) %></td>
+					<th><label for='location' style="padding-left: 10px;"><%= l(:label_location) %></label></th>								
+					<td><%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', session[controller_name].try(:[], :location_id), true)) %></td>
+					<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %></td>
+					<td><%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %></td>
+				</tr>
+			</table>
 		</fieldset>
 <% end %>
 <div class="wk-contextual">

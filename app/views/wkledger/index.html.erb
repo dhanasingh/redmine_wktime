@@ -18,12 +18,18 @@
 	<%=h hidden_field_tag('tab', controller_name) %>
 	<%	ledger_type =session[:wkledger].try(:[], :ledger_type) %>
 	<%	ledgername =session[:wkledger].try(:[], :name) %>
-			<label ><%= l(:field_name) %>:</label>
-			<%= text_field_tag 'name', ledgername, :size => 30 %>
-			<label ><%= l(:label_type) %>:</label>
-			<%=h select_tag("ledger_type", options_for_select(ledgerType.invert, :selected => ledger_type ), :style => "width:160px; ") %>
-			<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
-			<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
+	<fieldset>
+		<table>
+			<tr>
+				<th><label><%= l(:field_name) %></label></th>
+				<td><%= text_field_tag 'name', ledgername, :size => 30 %></td>
+				<th><label style="padding-left: 10px;"><%= l(:label_type) %></label></th>
+				<td><%=h select_tag("ledger_type", options_for_select(ledgerType.invert, :selected => ledger_type ), :style => "width:160px; ") %></td>
+				<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %></td>
+				<td><%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %></td>
+			</tr>
+		</table>
+	</fieldset>
 	<div class="wk-contextual">
 		<% if validateERPPermission("A_ACC_PRVLG") %>
 			<%= link_to l(:label_new) + " " + l(:label_ledger), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>

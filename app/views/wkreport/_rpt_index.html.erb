@@ -31,8 +31,8 @@
 		options_for_select( [["",0]] + (@groups.collect {|p| [p.name, p.id ]}),
 		:selected => !groupid.nil? ? groupid.to_i: 0), :onchange => "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %>
 	</td>
-	<th align="left"><%=l(:label_member)%></th>
-	<td style="padding-left:20px;">
+	<th align="left" style="padding-left:10px;"><%=l(:label_member)%></th>
+	<td>
 	<%# show the blank value if more than one user is in the list %>
 	<%=h select_tag('user_id',
 		options_for_select( [[l(:all_users_for_select),"0"]] + @members,

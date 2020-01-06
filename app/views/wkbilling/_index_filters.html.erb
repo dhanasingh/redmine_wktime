@@ -71,7 +71,7 @@ $(document).ready(function()
 	:onchange => " if(#{pjtChanged}) { accProjChanged('', this.id, false, #{blankOptionForPjt}); } if(#{loadSIDD}) { getSupplierInvoice(#{User.current.id}, 'si_id'); } ") %></td>
 
 	<% if isproject %>
-		<th align="left"><label><%= l(:label_project) %></label></th>
+		<th align="left" style="padding-left: 10px;"><label><%= l(:label_project) %></label></th>
 		<td><%=h select_tag('project_id', options_for_select(projArr, :selected => project_id.nil? ? projArr : project_id)) %></td>
 	<% end  %>
 	

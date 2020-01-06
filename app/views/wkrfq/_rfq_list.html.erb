@@ -1,14 +1,18 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
  <%= form_tag({:controller => 'wkrfq', :action => 'index'}, :method => :post, :id => 'query_form') do %>
-	  <fieldset>
-		 <%=h hidden_field_tag('tab', "wkrfq") %>
-		 <label for='name'><%= l(:field_name) %>:</label>
-		 <%= text_field_tag 'rfqname', params[:rfqname], :size => 30 %>
-		 <label ><%= l(:label_date) %>:</label>
-		 <%=h date_field_tag('rfq_date',params[:rfq_date], :size => 10) %> <%= calendar_for('rfq_date') %>
-		 <%= submit_tag l(:button_apply), :class => "small", :name => nil %>
-		 <%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
-	  </fieldset>
+	<fieldset>
+		<table>
+			<tr>
+				<%=h hidden_field_tag('tab', "wkrfq") %>
+				<th><label for='name'><%= l(:field_name) %></label></th>
+				<td><%= text_field_tag 'rfqname', params[:rfqname], :size => 30 %></td>
+				<th><label style="padding-left: 10px;"><%= l(:label_date) %></label></th>
+				<td><%=h date_field_tag('rfq_date',params[:rfq_date], :size => 10) %> <%= calendar_for('rfq_date') %></td>
+				<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %></td>
+				<td><%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %></td>
+			</tr>
+		</table>
+	</fieldset>
  <% end %>
  <div class="wk-contextual">
         <%= link_to l(:label_new_rfq), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
