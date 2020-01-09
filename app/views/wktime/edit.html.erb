@@ -7,6 +7,7 @@
 		issueField = '<%= l(:field_issue) %>';
 		invalidMsg = " <%= (CGI.unescapeHTML l('activerecord.errors.messages.invalid')).html_safe %>";
 		submissionack="<%= Setting.plugin_redmine_wktime['wktime_submission_ack'] %>";
+		maxHourAlertMsg = "<%= l(:text_wk_warning_max_hour, :value => "#{controller.maxHour}").html_safe %>";
 		minHourAlertMsg = "<%= l(:text_wk_warning_min_hour, :value => "#{controller.minHour}").html_safe %>";
 		minHourperWeekAlertMsg = "<%= l(:text_wk_warning_min_hour_week, :value => "#{controller.minHourPerWeek}").html_safe %>";
 		maxHourperWeekAlertMsg = "<%= l(:text_wk_warning_max_hour_week, :value => "#{controller.maxHourPerWeek}").html_safe %>";

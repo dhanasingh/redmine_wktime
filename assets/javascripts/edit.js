@@ -15,6 +15,7 @@ var hStartIndex = 2;
 var issueField = 'Issue';
 var submissionack="";
 var minHourAlertMsg="";
+var maxHourAlertMsg="";
 var decSeparator = ".";
 var lblPleaseSelect = "";
 var lblWarnUnsavedTE = "";
@@ -1361,7 +1362,7 @@ function issueAutocomplete(txtissue,row){
         });
 }
 
-function validateMinhour(minHour,nonWorkingDay, minHoursPerWeek, maxHoursPerWeek){
+function validateMinhour(maxHour, minHour,nonWorkingDay, minHoursPerWeek, maxHoursPerWeek){
 	var valid=true;
 	var totalhr = document.getElementById("total_hours").innerHTML;
 	totalhr = Number(totalhr);
@@ -1381,10 +1382,16 @@ function validateMinhour(minHour,nonWorkingDay, minHoursPerWeek, maxHoursPerWeek
 					valid=false;
 					break;
 				}
+
+				if (dayTotal > Number(maxHour)){ 
+					msg = maxHourAlertMsg;
+					valid=false;
+					break;
+				}
 			}
 		 }
 	 }
-	 
+
 	 if(minHoursPerWeek != 0 && !isNaN(minHoursPerWeek) && totalhr < minHoursPerWeek)
 	 {
 		msg += "\n" + minHourperWeekAlertMsg;

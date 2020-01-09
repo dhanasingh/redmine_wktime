@@ -1,4 +1,4 @@
-<h2><%= l(:text_edit_activity) %></h2>
+<h2><%=@activityEntry.blank? ? l(:label_new_item_adjusted, l(:field_activity)) : l(:text_edit_activity) %></h2>
 <%= render :partial => 'wkcrmactivity/activity_edit'%>
 <% unless @activityEntry.blank? %>
 	</br>
