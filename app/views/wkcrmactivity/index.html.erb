@@ -12,9 +12,6 @@
 <%= render_tabs time_expense_tabs %>
 
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
-<div class="wk-contextual">
-        <%= link_to l(:label_new_item_adjusted, l(:field_activity)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
-</div>
 
 <% actType = ["", ""] %> 
 <% actType << acttypeHash.to_a %> 
@@ -29,11 +26,16 @@
 	<%=h hidden_field_tag('tab', "wkcrmactivity") %>
 	<%	actType =session[controller_name].try(:[], :activity_type)
 		actRelated = session[controller_name].try(:[], :related_to) %>
-		<th align="left" ><%= l(:label_activity_type) %></th>
-		<td  align="left" style="padding-left:40px;"><%=h select_tag("activity_type", options_for_select(actTypehash, :selected => !actType.blank? ? actType : ""), :style => "width:190px;") %></td>
-	<th align="left" ><%= l(:label_related_to) %></th>
-			<td align="left" style="padding-left:40px;"><%=h select_tag("related_to", options_for_select(relatedArrhash, :selected => (!actRelated.blank? ? actRelated : "")), :style => "width:200px;") %></td>	
-<%= render :partial => 'wkcrmactivity/date_range' %>
+		<table>
+			<th align="left" ><%= l(:label_activity_type) %>:</th>
+			<td  align="left"><%=h select_tag("activity_type", options_for_select(actTypehash, :selected => !actType.blank? ? actType : ""), :style => "width:190px;") %></td>
+			<th align="left" style="padding-left:10px;"><%= l(:label_related_to) %>:</th>
+			<td align="left"><%=h select_tag("related_to", options_for_select(relatedArrhash, :selected => (!actRelated.blank? ? actRelated : "")), :style => "width:200px;") %></td>
+		</table>
+	<%= render :partial => 'wkcrmactivity/date_range' %>
 <% end %>
+<div class="wk-contextual">
+	<%= link_to l(:label_new_item_adjusted, l(:field_activity)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+</div>
 <%= render partial: "activity_list", locals: { activities:  @activity } %>
 <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

@@ -159,7 +159,7 @@ class WkleaverequestController < WkbaseController
     available_hours = 0
     data = []
     userHours = WkUserLeave.leaveAvailableHours(params[:issue_id], params[:user_id]).first
-    available_hours = userHours.balance + userHours.accrual if userHours.present?
+    available_hours = userHours.balance + userHours.accrual - userHours.used  if userHours.present?
     data << { label: "Available" , hours: available_hours.to_s + " hours"}
     render :json => data
   end

@@ -3,8 +3,7 @@
     <h3><%= l(:label_survey_name) %>:&nbsp;&nbsp; <%= @survey.name %></h3>
 	<% if @survey.recur %>
         <b><%= l(:label_clos_responses) %></b>:&nbsp; 
-            <%= params[:grpdName].present? ? params[:grpdName] : (params[:grpdName].blank? && 
-                (User.current.admin? || validateERPPermission("E_SUR"))) ? "" : getResponseGroup.last %>
+            <%= params[:grpdName].present? ? params[:grpdName] : (params[:grpdName].blank? && validateERPPermission("E_SUR")) ? "" : getResponseGroup.last %>
     <% end %>
 <% end %>
 

@@ -76,23 +76,9 @@ If an apache passenger module is used then make sure the following settings are 
   b) RailsAppSpawnerIdleTime 0
   c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for v3.9
+Release Notes for v3.9.1
 
-  Features:
-    - Income Tax Calculations
-    - Tax Report
-    - Add Group name for close current response in survey
-    - Add email notification for T&E admin in Leave request
-    - Show available leave hours in new leave request
-    - Add Date range filter for leave request
-    - Add cancel leave button in submitted leave request
-
-  Bug Fixing:
-    - Viewing survey result before closing
-    - CSV should have all data in transaction page
-    - Incorrect ESI Roundoff
-    - Sender's email ID shouldn't be used in Leave request emails
-    - Include survey name in email subject
+  - Redmine-4.1 compatible
 
 Customization:
 

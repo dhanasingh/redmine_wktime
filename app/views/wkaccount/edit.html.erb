@@ -4,11 +4,13 @@
 		<% addressObj = @accountEntry.blank? ? nil : @accountEntry.address %>
 		<%=h hidden_field_tag('account_id', @accountEntry.blank? ? "" : @accountEntry.id) %>
 		<%=h hidden_field_tag('address_id', @accountEntry.blank? ? "" : @accountEntry.address_id) %>
-		<div class="splitcontentleft">
-			<%= render partial: "wklead/lead_info", locals: { contactObj: nil, leadObj: nil, accountObj: @accountEntry, isAccount: true, isContact: false }%>
-		</div>
-		<div class="splitcontentright">
-			<%= render partial: "wklead/contact_info", locals: { address: addressObj, :disable => false }%>
+		<div class="splitcontent">
+			<div class="splitcontentleft">
+				<%= render partial: "wklead/lead_info", locals: { contactObj: nil, leadObj: nil, accountObj: @accountEntry, isAccount: true, isContact: false }%>
+			</div>
+			<div class="splitcontentright">
+				<%= render partial: "wklead/contact_info", locals: { address: addressObj, :disable => false }%>
+			</div>
 		</div>
 	</div>
 	<div style="clear:both;"></div>

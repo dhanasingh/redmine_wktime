@@ -14,7 +14,7 @@
 	<%=h hidden_field_tag('surveyForID', params[:surveyForID]) %>
     <%=h hidden_field_tag('surveyForType', params[:surveyForType]) %>
 
-    <% response_grp = (User.current.admin || validateERPPermission("E_SUR")) ? getResponseGroup.reverse.insert(0, [""]) : getResponseGroup.reverse%>
+    <% response_grp = (validateERPPermission("E_SUR")) ? getResponseGroup.reverse.insert(0, [""]) : getResponseGroup.reverse%>
 	<% if @survey.recur %>
 		<b><%= l(:label_clos_responses) %></b>&nbsp;
 		<%= select_tag('grpdName', options_for_select(response_grp,

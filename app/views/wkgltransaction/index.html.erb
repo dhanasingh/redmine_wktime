@@ -15,17 +15,17 @@
 	<%	trans_type =session[controller_name].try(:[], :trans_type) %>
 	<% summary_trans =  params[:summary_by].blank? ? session[controller_name].try(:[], :summary_trans) : params[:summary_by] %>
 	<div class="wk-contextual">
-		<b><label style="float:left;"><%= l(:label_ledger) %></label></b>
+		<b><label style="float:left;padding-top: 5px;"><%= l(:label_ledger) %>:</label></b>
 	     <%=h select_tag("txn_ledger", options_for_select([['','']]+@ledgers, :selected => ledgerid.nil? ? @ledgers : ledgerid ), :style => "width:200px; float:left;") %>
-		<b><label style="float:left; padding-left: 5px;"><%= l(:label_type) %></label></b>
+		<b><label style="float:left; padding-left: 10px;padding-top: 5px;"><%= l(:label_type) %>:</label></b>
 		 <%=h select_tag("trans_type", options_for_select(transactionType.invert, :selected => trans_type ), :style => "width:150px;float:left;") %>
 		<span id="trans_summary">
-		 <b><label  style="float:left; padding-left: 10px;"><%= l(:label_summary_by) %></label></b>
+		 <b><label  style="float:left; padding-left: 10px;padding-top: 5px;"><%= l(:label_summary_by) %>:</label></b>
 			<%=h select_tag("summary_trans", options_for_select(detailsTransaction, :selected => summary_trans), :style => "float:left;") %>
 		</span>
         <%= link_to l(:label_new_item_adjusted, l(:label_transaction)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
     </div>
-	<%= render :partial => 'wkgltransaction/date_range' %>
+	<p><%= render :partial => 'wkgltransaction/date_range' %></p>
 <% end %>
 <% if @summaryTransaction == 'days' %>
 	<div class="total-hours">

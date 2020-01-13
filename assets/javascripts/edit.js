@@ -15,6 +15,7 @@ var hStartIndex = 2;
 var issueField = 'Issue';
 var submissionack="";
 var minHourAlertMsg="";
+var maxHourAlertMsg="";
 var decSeparator = ".";
 var lblPleaseSelect = "";
 var lblWarnUnsavedTE = "";
@@ -208,7 +209,7 @@ function isChanged(elType) {
 	return warn;
 }
 
-function showComment(row, col) {
+function showComment(row, col, title) {
 	var images = $( 'img[name="custfield_img'+row+'[]"]' );
 	var width = 300;
 	var height = 350;
@@ -245,10 +246,10 @@ function showComment(row, col) {
 	posX = $(currImage).offset().left - $(document).scrollLeft() - width + $(currImage).outerWidth();
 	posY = $(currImage).offset().top - $(document).scrollTop() + $(currImage).outerHeight();
 	$("#comment-dlg").dialog({width:width, height:height ,position:[posX, posY]});
-	$( "#comment-dlg" ).dialog( "open" );
+	$( "#comment-dlg" ).dialog('option', 'title', title).dialog( "open" );
 }
 
-function showNotes() {
+function showNotes(title) {
 	var rejectBtn = $( 'input[name="wktime_reject"]' );
 	var width = 300;
 	var height = 200;
@@ -257,7 +258,7 @@ function showNotes() {
 	posX = $(rejectBtn).offset().left - $(document).scrollLeft() - width + $(rejectBtn).outerWidth();
 	posY = $(rejectBtn).offset().top - $(document).scrollTop() + $(rejectBtn).outerHeight();
 	$("#notes-dlg").dialog({width:width, height:height ,position:[posX, posY]});
-	$( "#notes-dlg" ).dialog( "open" );
+	$( "#notes-dlg" ).dialog('option', 'title', title).dialog( "open" );
 	//return false so the form is not posted
 	return false;
 }
@@ -1361,30 +1362,38 @@ function issueAutocomplete(txtissue,row){
         });
 }
 
-function validateMinhour(minHour,nonWorkingDay, minHoursPerWeek, maxHoursPerWeek){
+function validateMinhour(maxHour, minHour,nonWorkingDay, minHoursPerWeek, maxHoursPerWeek){
 	var valid=true;
 	var totalhr = document.getElementById("total_hours").innerHTML;
+	var minHrCond = minHour!=0 && !isNaN(minHour);
+	var maxHrCond = maxHour!=0 && !isNaN(maxHour);
 	totalhr = Number(totalhr);
 	 minHour=minHour.replace(decSeparator, '\.');
 	 if(isNaN(minHour)){
 		minHour=minHour.replace(',', '\.');
 	 }
 	 var msg ="";
-	 if (minHour!=0 && !isNaN(minHour)) { 	
+	 if (minHrCond || maxHrCond) { 	
 		 for (i=1;i<=7;i++){
 			var dayTotal= document.getElementById('day_total_'+i).innerHTML;
 			dayTotal = Number(dayTotal.replace(decSeparator, '\.'));
 			if(nonWorkingDay.indexOf(i.toString())== -1 || dayTotal > 0){				
 				
-				if (dayTotal< Number(minHour)){ 
+				if (dayTotal < Number(minHour) && minHrCond){ 
 					msg = minHourAlertMsg;
+					valid=false;
+					break;
+				}
+
+				if (dayTotal > Number(maxHour) && maxHrCond){ 
+					msg = maxHourAlertMsg;
 					valid=false;
 					break;
 				}
 			}
 		 }
 	 }
-	 
+
 	 if(minHoursPerWeek != 0 && !isNaN(minHoursPerWeek) && totalhr < minHoursPerWeek)
 	 {
 		msg += "\n" + minHourperWeekAlertMsg;

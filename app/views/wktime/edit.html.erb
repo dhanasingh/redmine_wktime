@@ -7,6 +7,7 @@
 		issueField = '<%= l(:field_issue) %>';
 		invalidMsg = " <%= (CGI.unescapeHTML l('activerecord.errors.messages.invalid')).html_safe %>";
 		submissionack="<%= Setting.plugin_redmine_wktime['wktime_submission_ack'] %>";
+		maxHourAlertMsg = "<%= l(:text_wk_warning_max_hour, :value => "#{controller.maxHour}").html_safe %>";
 		minHourAlertMsg = "<%= l(:text_wk_warning_min_hour, :value => "#{controller.minHour}").html_safe %>";
 		minHourperWeekAlertMsg = "<%= l(:text_wk_warning_min_hour_week, :value => "#{controller.minHourPerWeek}").html_safe %>";
 		maxHourperWeekAlertMsg = "<%= l(:text_wk_warning_max_hour_week, :value => "#{controller.maxHourPerWeek}").html_safe %>";
@@ -44,7 +45,7 @@
 		
 	</script>
 
-	<div id="comment-dlg" title="<%= l(:label_attribute_plural) %>">
+	<div id="comment-dlg">
 	<!-- modified class .ui-widget-header to change the header color -->
 		<span id="_edit_comm_proj_">project</span>, 
 		<span id="_edit_comm_iss_">issue</span>,
@@ -90,7 +91,7 @@
 
 	</div>
 
-	<div id="notes-dlg" title="<%= l(:button_wk_reject) %>">
+	<div id="notes-dlg">
 
 		<fieldset>
 			<p> <label><%= l(:label_wk_reject_reason) %></label>

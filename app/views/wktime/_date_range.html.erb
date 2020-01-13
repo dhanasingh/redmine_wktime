@@ -1,6 +1,6 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <fieldset id="date-range" class="collapsible">
-<legend onclick="toggleFieldset(this);"><%= l(:label_date_range) %></legend>
+<legend onclick="toggleFieldset(this);" class="icon icon-expended"><%= l(:label_date_range) %></legend>
 <div>
 <%
 	if !params[:control].blank? && (params[:control] ='reportdetail' || params[:control] ='report') && (action_name == 'reportdetail' || action_name =='report')
@@ -33,7 +33,7 @@
 <%# if !@manage_view_spenttime_projects.blank? %>
 <% if !@query.blank? %>
 <fieldset id="filters" class="collapsible <%= @query.new_record? ? "" : "collapsed" %>">
-    <legend onclick="toggleFieldset(this);"><%= l(:label_user_filters) %></legend>
+    <legend onclick="toggleFieldset(this);" class="icon icon-expended"><%= l(:label_user_filters) %></legend>
     <div style="<%= @query.new_record? ? "" : "display: none;" %>">
       <%= render :partial => 'queries/filters', :locals => {:query => @query} %>
     </div>
@@ -47,7 +47,7 @@
   <% if (!Setting.plugin_redmine_wktime['wktime_use_approval_system'].blank? && Setting.plugin_redmine_wktime['wktime_use_approval_system'].to_i == 1) %>
     <% if !@manage_projects.blank? %>
 		<%#= image_tag('email.png') %>
-		<%= link_to l(:label_wk_reminder), "javascript:showReminderEmailDlg();", :class => 'icon icon-email-add'%> 
+		<%= link_to l(:label_wk_reminder), "javascript:showReminderEmailDlg('Send Reminder Email');", :class => 'icon icon-email-add'%> 
 	<% end %>
   <% end %>
 </p>

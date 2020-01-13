@@ -3,11 +3,13 @@
 <%= hidden_field_tag 'contact_id', @conEditEntry.blank? ? "" : @conEditEntry[0].id %>
 <div id="account_form">
 	<% addressObj =  @conEditEntry.blank? ?  nil : @conEditEntry[0].address  %>
-	<div class="splitcontentleft">
-		<%= render partial: "wklead/lead_info", locals: { contactObj: @conEditEntry.blank? ? nil : @conEditEntry[0], leadObj: nil, accountObj: nil, isAccount: false, isContact: true }%>
-	</div>
-	<div class="splitcontentright">
-		<%= render partial: "wklead/contact_info", locals: { address: addressObj, :disable => false }%>
+	<div class="splitcontent">
+		<div class="splitcontentleft">
+			<%= render partial: "wklead/lead_info", locals: { contactObj: @conEditEntry.blank? ? nil : @conEditEntry[0], leadObj: nil, accountObj: nil, isAccount: false, isContact: true }%>
+		</div>
+		<div class="splitcontentright">
+			<%= render partial: "wklead/contact_info", locals: { address: addressObj, :disable => false }%>
+		</div>
 	</div>
 <div style="clear:both;"></div>
 <div>
@@ -22,3 +24,4 @@
 		<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @conEditEntry[0] }%>
 	</div>
 <% end %>
+</div>

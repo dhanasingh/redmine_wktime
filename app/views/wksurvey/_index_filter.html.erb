@@ -7,12 +7,12 @@
 					<%= l(:label_survey_name) %>
 					<%=h text_field_tag("survey_name", params[:survey_name], :size => "20px", :maxlength => 100) %>
 				</th>
-				<th>
+				<th style="padding-left: 10px;">
 					<%= l(:field_status) %>
 					<%=h select_tag('status', options_for_select(getSurveyStatus, :selected => params[:status])) %>
 				</th>
 				<% if params[:project_id].blank? && checkEditSurveyPermission %>
-					<th>
+					<th style="padding-left: 10px;">
 						<%= l(:label_survey_for) %>
 						<%=h select_tag("survey_for", options_for_select(getSurveyFor, :selected => params[:survey_for].blank? ? params[:surveyForType] : params[:survey_for]), :onchange => '$("#filter_form").submit()') %>
 					</th>

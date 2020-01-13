@@ -2,48 +2,45 @@
 <%= form_tag({:controller => 'wkproductitem', :action => 'updateTransfer'}, :method => :post, :id => 'query_form') do %>
 	<h2><b><%=l(:label_transfer) %></b></h2>
 	<div id="product_item_form">
-           <%=h hidden_field_tag('product_item_id', @transferItem.product_item_id) %>
-		   <%=h hidden_field_tag('transfer_item_id', @transferItem.id) %>
-		   <% productItem = @transferItem.product_item %>
-		<div class="splitcontentleft">
-			<fieldset class="box tabular">
-				<legend><%=l(:label_product_item)%></legend>
-				<table width='100%'>
-					<tr>
-						<th align="left" width='30%'><%= l(:label_product) %></th>
-						<td align="left" width='70%'>
-							<%=h productItem.product.name %>
-						</td>
-					</tr> 
-					<tr>
-						<th align="left"><%= l(:label_brand) %></th>
-						<td align="left">
-							<%=h productItem.brand.name unless productItem.brand.blank?  %>
-						</td>
-					</tr> 
-					<tr>
-						<th align="left"><%= l(:label_model) %></th>
-						<td align="left">
-							<%=h productItem.product_model.name unless productItem.product_model.blank? %>
-						</td>
-					</tr> 
-					<!-- <tr>
-						<th align="left"><%#= l(:label_attribute) %></th>
-						<td align="left">
-							<%#=h productItem.product_attribute.name unless productItem.product_attribute.blank? %>
-						</td>
-					</tr> -->
-					<tr>
-						<th align="left"><%= l(:label_part_number) %></th>
-						<td align="left">
-							<%=h productItem.part_number %>
-						</td>
-					</tr>
-			    </table>
-			</fieldset>
+		<%=h hidden_field_tag('product_item_id', @transferItem.product_item_id) %>
+		<%=h hidden_field_tag('transfer_item_id', @transferItem.id) %>
+		<% productItem = @transferItem.product_item %>
+		<div class="splitcontent">
+			<div class="splitcontentleft">
+				<fieldset class="box tabular">
+					<legend><%=l(:label_product_item)%></legend>
+					<table width='100%'>
+						<tr>
+							<th align="left" width='30%'><%= l(:label_product) %></th>
+							<td align="left" width='70%'>
+								<%=h productItem.product.name %>
+							</td>
+						</tr> 
+						<tr>
+							<th align="left"><%= l(:label_brand) %></th>
+							<td align="left">
+								<%=h productItem.brand.name unless productItem.brand.blank?  %>
+							</td>
+						</tr> 
+						<tr>
+							<th align="left"><%= l(:label_model) %></th>
+							<td align="left">
+								<%=h productItem.product_model.name unless productItem.product_model.blank? %>
+							</td>
+						</tr>
+						<tr>
+							<th align="left"><%= l(:label_part_number) %></th>
+							<td align="left">
+								<%=h productItem.part_number %>
+							</td>
+						</tr>
+					</table>
+				</fieldset>
+			</div>
+			<%= render :partial => 'wkproductitem/edit_inventory', locals: {invntItem: @transferItem, isTransfer: true}%>
 		</div>
-		<%= render :partial => 'wkproductitem/edit_inventory', locals: {invntItem: @transferItem, isTransfer: true}%>
-		<div class="splitcontentleft">
+		<div class="splitcontent">
+			<div class="splitcontentleft">
 			<fieldset class="box tabular">
 				<legend><%=l(:label_inventory)%></legend>
 				<table width='100%'>  
@@ -99,8 +96,11 @@
 						<th align="left"><%= l(:field_notes) %></th>
 						<td align="left"><%=h @transferItem.notes %></td>
 					</tr>  		
-			    </table>
+				</table>
 			</fieldset>
+			</div>
+			<div class="splitcontentright">
+			</div>
 		</div>
 	</div>
 	<div style="clear:left;"></div>

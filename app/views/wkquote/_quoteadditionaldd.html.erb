@@ -1,4 +1,4 @@
-<th align="left"><label><%= l(:label_rfq) %></label></th>
+<th align="left" style="padding-left: 10px;"><label><%= l(:label_rfq) %></label></th>
 <td>
 	<%=h select_tag('rfq_id', options_for_rfq_select((params[:rfq_id].blank? ? rfq_id : params[:rfq_id]), needRfqBlank), :onchange=>"#{onchngeMethodName} ") %>
 </td>

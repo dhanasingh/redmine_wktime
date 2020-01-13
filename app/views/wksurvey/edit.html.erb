@@ -88,7 +88,7 @@
 
 <% userGroupName = group_id.blank? ? l(:all_users_for_select) : getUserGroup.invert[group_id] + " Group" %>
 <div id="reminder-email-dlg" title="<%=l(:label_email_users) %>">
-	<fieldset class="">
+	<fieldset>
 		<p> <label><%= l(:label_notes) %></label>
 			<textarea name="email_notes" id="email_notes" value="" cols="25" rows="2"> </textarea>
 		</p>
@@ -100,7 +100,7 @@
 			<textarea name="additional_emails" id="additional_emails" value="" cols="25" rows="2"> </textarea>
 		</p>
 	</fieldset>
-	<div id="dialog-confirm" title="Empty the recycle bin?">
+	<div id="dialog-confirm">
   		<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0px 10px 0px 10px;"></span>Do you want to continue?</p>
 	</div>
 </div>

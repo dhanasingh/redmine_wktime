@@ -1,7 +1,7 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
 <fieldset id="date-range" class="collapsible">
-<legend onclick="toggleFieldset(this);"><%= l(:label_date_range) %></legend>
+<legend onclick="toggleFieldset(this);" class="icon icon-expended"><%= l(:label_date_range) %></legend>
 <div>
 <% period = session[controller_name].try(:[], :period) %>
 <div class="div-left">

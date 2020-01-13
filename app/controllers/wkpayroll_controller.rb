@@ -209,7 +209,7 @@ class WkpayrollController < WkbaseController
 		errorMsg = generateSalaries(userIds,salaryDate, isGeneratePayroll)
 		if to_boolean(isGeneratePayroll)
 			if errorMsg.nil?
-				redirect_to :action => 'index' , :tab => 'wkpayroll'
+				redirect_to action: 'index' , tab: 'payroll'
 				flash[:notice] = l(:notice_successful_update)		
 			elsif !errorMsg.blank? &&  errorMsg == 1			
 				flash[:notice] =  l(:label_salary) + " " +  l(:notice_successful_update) 
@@ -528,13 +528,13 @@ class WkpayrollController < WkbaseController
 	def save_bulk_edit
 		salary_cmpts = get_salary_components
 		u_salary_cmpts = Array.new
-		params.each do |param|
+		params.each do |key, valueSet|
 				salary_cmpts.each do |component|
-					param_elmts = (param.first).split('_')
-						if param_elmts.first.to_i == component.id && (!(param.last).blank?)
-								user_id = param_elmts.last.blank? ? nil : param_elmts.last
-								u_salary_cmpts << {:user_id => user_id, :component_id => param_elmts.first,
-									:dependent_id => component.dependent_id, :factor => param.last, :is_override => 1 }
+					keys = key.split('_')
+						if keys.first.to_i == component.id && (!(valueSet.first).blank?)
+								user_id = keys.last.blank? ? nil : keys.last
+								u_salary_cmpts << {:user_id => user_id, :component_id => keys.first,
+									:dependent_id => valueSet.last, :factor => valueSet.first, :is_override => 1 }
 						end
 				end
 		end

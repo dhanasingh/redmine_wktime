@@ -12,25 +12,30 @@ runperiodUrl="<%= "#{url_for(:controller => controller_name, :action => 'runPeri
 </div>
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get) do %>
 	<fieldset><legend><%= l(:label_filter_plural) %></legend>
-		<p>
-			<label for='status'><%= l(:field_status) %>:</label>
-			<%= select_tag 'status', users_status_options_for_select(@status), :class => "small", 
-				:onchange => "this.form.submit(); return false;"  %>
-
-			<% if @groups.present? %>
-			<label for='group_id'><%= l(:label_group) %>:</label>
-			<%= select_tag 'group_id', content_tag('option') + options_from_collection_for_select(@groups, :id, :name, params[:group_id].to_i), 
-				:onchange => "this.form.submit(); return false;"  %>
-			<% end %>
-
-			<label for='name'><%= l(:label_user) %>:</label>
-			<%= text_field_tag 'name', params[:name], :size => 30 %>
-		</p>
-		<p>
-			<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
-			<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, 
-				:class => 'icon icon-reload' %>
-		</p>
+		<table>
+			<tr>
+				<th><label for='status'><%= l(:field_status) %></label></th>
+				<td>
+					<%= select_tag 'status', users_status_options_for_select(@status), :class => "small", :onchange => "this.form.submit(); return false;"  %>
+				</td>
+				<th style="padding-left: 10px;"><label for='group_id'><%= l(:label_group) %></label></th>
+				<% if @groups.present? %>
+					<td>
+						<%= select_tag 'group_id', content_tag('option') + options_from_collection_for_select(@groups, :id, :name, params[:group_id].to_i), 
+								:onchange => "this.form.submit(); return false;"  %>
+					</td>
+				<% end %>
+				<th style="padding-left: 10px;"><label for='name'><%= l(:label_user) %></label></th>
+				<td><%= text_field_tag 'name', params[:name], :size => 30 %></td>
+			</tr>
+			<tr>
+				<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %></td>
+				<td>
+					<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, 
+						:class => 'icon icon-reload' %>
+				</td>
+			</tr>
+		</table>
 	</fieldset>
 	<%=h hidden_field_tag('tab', "#{controller_name}") %>
 	<% end %>

@@ -11,28 +11,30 @@
 
 <%= render_tabs time_expense_tabs %>
 <%= form_tag({:controller => controller_name, :action => 'index'},  :method => :get, :id => 'query_form') do %>
-<%=h hidden_field_tag('tab', "#{controller_name}") %>
-<%= hidden_field_tag "searchlist", "#{controller_name}" %>
-<% locId = params[:location_id].blank? ? @locationId : params[:location_id] %>
+	<%=h hidden_field_tag('tab', "#{controller_name}") %>
+	<%= hidden_field_tag "searchlist", "#{controller_name}" %>
+	<% locId = params[:location_id].blank? ? @locationId : params[:location_id] %>
 
-<%#= render :partial => 'wklocation/location_filter', :locals => { locationId: locId, departmentId: depId, isApply: false }  %>
-<% if @month > 0 %>	
-	<p style="float:right;">
-	<%= link_to_previous_month(@year, @month, :accesskey => accesskey(:previous)) %> | <%= link_to_next_month(@year, @month, :accesskey => accesskey(:next)) %>
-	</p>
-<% end %>
-<p class="buttons">
-<%=h l(:label_location) %>
-<%=h select_tag("location_id", selectLocation(WkLocation ,locId)) %>
-
-
-<%= label_tag('month', l(:label_month)) %>
-<%= select_month(@month, :prefix => "month", :include_blank => true, :discard_type => true) %>
-<%= label_tag('year', l(:label_year)) %>
-<%= select_year(@year, :prefix => "year", :discard_type => true) %>
-
-<%= link_to_function l(:button_apply), '$("#query_form").submit()', :class => 'icon icon-checked' %>
-<%= link_to l(:button_clear), { :project_id => @project, :set_filter => 1 }, :class => 'icon icon-reload' %>
-</p>
+	<%#= render :partial => 'wklocation/location_filter', :locals => { locationId: locId, departmentId: depId, isApply: false }  %>
+	<fieldset><legend><%= l(:label_filter_plural) %></legend>
+		<table>
+			<tr>
+				<th><%= l(:label_location) %></th>
+				<td><%=h select_tag("location_id", selectLocation(WkLocation ,locId)) %></td>
+				<th style="padding-left: 10px;"><%= label_tag('month', l(:label_month)) %></th>
+				<td><%= select_month(@month, :prefix => "month", :include_blank => true, :discard_type => true) %></td>
+				<th style="padding-left: 10px;"><%= label_tag('year', l(:label_year)) %></th>
+				<td><%= select_year(@year, :prefix => "year", :discard_type => true) %></td>
+				<td><%= link_to_function l(:button_apply), '$("#query_form").submit()', :class => 'icon icon-checked' %></td>
+				<td><%= link_to l(:button_clear), { :project_id => @project, :set_filter => 1 }, :class => 'icon icon-reload' %></td>
+			</tr>
+		</table>
+	</fieldset>
+	<% if @month > 0 %>
+		<p style="float:right;">
+		<%= link_to_previous_month(@year, @month, :accesskey => accesskey(:previous)) %> | <%= link_to_next_month(@year, @month,
+			 :accesskey => accesskey(:next)) %>
+		</p>
+	<% end %>
 <% end %>
 <%= render :partial => 'wkpublicholiday/ph_index'%>

@@ -1,5 +1,5 @@
-<%= javascript_include_tag 'attendance', :plugin => "redmine_wktime" %>
-<h2><%= l(:label_new_leave_request) %></h2>
+<%= javascript_include_tag 'leaverequest', :plugin => "redmine_wktime" %>
+<h2><%= @leaveReqEntry.blank? ? l(:label_new_leave_request) : l(:label_edit_leave_request) %></h2>
 <%= form_tag({:action => 'save'}, :method => :post) do %>
 	<%= hidden_field_tag('lveReqID', @leaveReqEntry.try(:id)) %>
 	<%= hidden_field_tag('user_id', @leaveReqEntry.blank? ? User.current.id : @leaveReqEntry.user_id) %>

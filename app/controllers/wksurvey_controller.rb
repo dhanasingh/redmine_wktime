@@ -343,7 +343,7 @@ class WksurveyController < WkbaseController
 
   def survey_result
     @survey_result_Entries = WkSurvey.find_by_sql("
-      SELECT sc.count, S.id, S.name, SQ.id AS question_id, SQ.name AS question_name 
+      SELECT count(*) AS count, S.id, S.name, SQ.id AS question_id, SQ.name AS question_name 
       FROM wk_surveys AS S
       INNER JOIN wk_survey_questions AS SQ ON SQ.survey_id = S.id 
       INNER JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id 
@@ -353,7 +353,7 @@ class WksurveyController < WkbaseController
 
       @survey_txt_questions = WkSurvey.surveyTextQuestion(params[:survey_id])
       txt_answers= WkSurvey.getTextAnswer(params[:survey_id], params[:surveyForType])
-      isAdmin = (User.current.admin? || validateERPPermission("E_SUR"))
+      isAdmin = (validateERPPermission("E_SUR"))
       if @survey.recur?
         txt_answers = txt_answers.currentRespTxtAnswer if params[:grpdName].blank? && isAdmin
         txt_answers = txt_answers.responsedTextAnswer(params[:grpdName]) if params[:grpdName].present? && isAdmin
@@ -380,7 +380,7 @@ class WksurveyController < WkbaseController
     if @survey.recur?
       if params[:grpdName].present?
         groupNameCond = " AND group_name = '#{params[:grpdName]}' "
-      elsif params[:grpdName].blank? && (User.current.admin? || validateERPPermission("E_SUR"))
+      elsif params[:grpdName].blank? && (validateERPPermission("E_SUR"))
         groupNameCond = " AND group_name IS NULL "
       else
         groupNameCond = " AND group_name = '#{getResponseGroup.last}' "

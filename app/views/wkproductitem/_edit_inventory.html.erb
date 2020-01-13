@@ -1,4 +1,4 @@
-<div id ="inventoryDiv" style="display:<%= invntItem.blank? ? 'none' : 'block' %>;" class="<%= controller.showAssetProperties ? 'splitcontentright' : 'splitcontentleft' %> ">
+<div id ="inventoryDiv" class="<%= controller.showAssetProperties ? 'splitcontentright' : 'splitcontentleft' %> ">
 	<% 
 	#isDisable = isTransfer 
 	isDisable = isUsedInventoryItem(invntItem)

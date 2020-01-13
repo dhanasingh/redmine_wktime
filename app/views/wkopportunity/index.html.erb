@@ -14,20 +14,25 @@
 
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 <%= form_tag({:controller => "wkopportunity", :action => 'index', :tab => "wkopportunity"}, :method => :post, :id => 'query_form') do %>
-<%=h hidden_field_tag('tab', "wkopportunity") %>
-<%= hidden_field_tag "searchlist", "wkopportunity" %>
-<%	accname = session[:wkopportunity].try(:[], :oppname) %>
-<%	accId = session[:wkopportunity].try(:[], :account_id) %>
-<%	accArr = options_for_wktime_account(true, 'A') %>		
-<div class="wk-contextual">
-    <label for='name' style="float:left"><%= l(:label_opportunity) + " " + l(:field_name) %>:</label>
-	<%= text_field_tag 'oppname', accname.blank? ? "" : accname, :size => 30, :style=> "float: left;" %>	
-	<label style="float:left; padding-left: 20px;"><%= l(:label_account_name) %></label>
-		<%=h select_tag('account_id', options_for_select(accArr,  :selected => accId.nil? ? accArr : accId), :style=> "float: left;") %>
-        <%= link_to l(:label_new_item_adjusted, l(:label_opportunity)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
-</div>
-<%= render :partial => 'wkopportunity/date_range' %>
-
+	<%=h hidden_field_tag('tab', "wkopportunity") %>
+	<%= hidden_field_tag "searchlist", "wkopportunity" %>
+	<%	accname = session[:wkopportunity].try(:[], :oppname) %>
+	<%	accId = session[:wkopportunity].try(:[], :account_id) %>
+	<%	accArr = options_for_wktime_account(true, 'A') %>
+	<fieldset>
+		<table>
+			<tr>
+				<th><label for='name' style="float:left;"><%= l(:label_opportunity) + " " + l(:field_name) %></label></th>
+				<td><%= text_field_tag 'oppname', accname.blank? ? "" : accname, :size => 30, :style=> "float: left;" %></td>
+				<th><label style="float:left;padding-left: 10px;"><%= l(:label_account_name) %></label></th>
+				<td><%=h select_tag('account_id', options_for_select(accArr,  :selected => accId.nil? ? accArr : accId), :style=> "float: left;") %></td>
+			</tr>
+		</table>
+	</fieldset>				
+	<div class="wk-contextual">
+			<%= link_to l(:label_new_item_adjusted, l(:label_opportunity)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+	</div>
+	<p><%= render :partial => 'wkopportunity/date_range' %></p>
 <% end %>
 <%= render :partial => 'wkopportunity/opportunity_list', locals: { opportunities: @opportunity} %>
 <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

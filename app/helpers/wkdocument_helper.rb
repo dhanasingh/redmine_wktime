@@ -10,7 +10,7 @@ module WkdocumentHelper
     def getDocumentType
         url = {controller: 'wkdocument', action: 'new'}
         case(controller_name)
-        when 'wkcrmaccount'
+        when 'wkcrmaccount', 'wksupplieraccount'
             url[:container_type] = 'WkAccount'
             url[:container_id] = params[:account_id]
         when 'wkopportunity'
@@ -19,7 +19,7 @@ module WkdocumentHelper
         when 'wkcrmactivity'
             url[:container_type] = 'WkCrmActivity'
             url[:container_id] = params[:activity_id]
-        when 'wkcrmcontact'
+        when 'wkcrmcontact', 'wksuppliercontact'
             url[:container_type] = 'WkCrmContact'
             url[:container_id] = params[:contact_id]
         end

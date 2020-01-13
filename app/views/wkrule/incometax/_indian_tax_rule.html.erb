@@ -121,12 +121,20 @@
         end
         totals = Hash.new
         financialPeriod.each do |start_date, end_date|
-            salaries = WkSalary.where("user_id = ? and salary_date between ? and ?", userId, start_date, end_date)
+            salaries = WkSalary.joins("LEFT JOIN wk_salary_components SC ON wk_salaries.salary_component_id = SC.id")
+                            .where("user_id = ? and salary_date between ? and ?", userId, start_date, end_date)
+                            .select("wk_salaries.salary_component_id, wk_salaries.amount, SC.component_type")
             if salaries.present?
                 compHash = salaries.map{|p| [p.salary_component_id.to_s, p.amount]}.to_h
                 taxComp.each do |name, id|
-                    totals[name] ||= 0 
-                    totals[name] += compHash[id] if !["annual_prof_tax", "annual_std_deduction"].include?(name) && compHash[id].present?
+                    totals[name] ||= 0
+                    if name == "annual_gross"
+                        salaries.each do |entry|
+                            totals[name] += entry.amount if ["a", "b"].include?(entry.component_type)
+                        end
+                    else
+                        totals[name] += compHash[id] if !["annual_prof_tax", "annual_std_deduction"].include?(name) && compHash[id].present?
+                    end
                 end
             else
                 userSalaryHash = getUserSalaryHash(userId, start_date)
@@ -206,7 +214,7 @@
     <% end %>
 	<%= hidden_field_tag('annual_std_deduction', taxComp["annual_std_deduction"].to_f) %>
 	<%= hidden_field_tag('annual_prof_tax', prof_tax) %>
-    <div>
+    <div class="splitcontent">
         <div class="splitcontentleft">
             <div class="box tabular">
                 <table>
@@ -317,7 +325,7 @@ else
     tdsValue = WkSalary.where("user_id = ? and salary_component_id = ? and salary_date between ? and ? ", userId, tdsID, startDate, endDate )
     if tdsValue.present?
         tdsAmt = tdsValue.sum(:amount)
-        taxVal -= tdsAmt if taxVal != 0 && taxVal >= tdsAmt 
+        taxVal = (taxVal >= tdsAmt) ? taxVal- tdsAmt : 0
         monthCount -= tdsValue.count
     end
     monthTax = taxVal / monthCount
