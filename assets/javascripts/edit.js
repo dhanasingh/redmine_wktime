@@ -1365,25 +1365,27 @@ function issueAutocomplete(txtissue,row){
 function validateMinhour(maxHour, minHour,nonWorkingDay, minHoursPerWeek, maxHoursPerWeek){
 	var valid=true;
 	var totalhr = document.getElementById("total_hours").innerHTML;
+	var minHrCond = minHour!=0 && !isNaN(minHour);
+	var maxHrCond = maxHour!=0 && !isNaN(maxHour);
 	totalhr = Number(totalhr);
 	 minHour=minHour.replace(decSeparator, '\.');
 	 if(isNaN(minHour)){
 		minHour=minHour.replace(',', '\.');
 	 }
 	 var msg ="";
-	 if (minHour!=0 && !isNaN(minHour)) { 	
+	 if (minHrCond || maxHrCond) { 	
 		 for (i=1;i<=7;i++){
 			var dayTotal= document.getElementById('day_total_'+i).innerHTML;
 			dayTotal = Number(dayTotal.replace(decSeparator, '\.'));
 			if(nonWorkingDay.indexOf(i.toString())== -1 || dayTotal > 0){				
 				
-				if (dayTotal< Number(minHour)){ 
+				if (dayTotal < Number(minHour) && minHrCond){ 
 					msg = minHourAlertMsg;
 					valid=false;
 					break;
 				}
 
-				if (dayTotal > Number(maxHour)){ 
+				if (dayTotal > Number(maxHour) && maxHrCond){ 
 					msg = maxHourAlertMsg;
 					valid=false;
 					break;
