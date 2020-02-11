@@ -1,4 +1,7 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div class="wk-contextual">
+	<%= link_to l(:label_new_rfq), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+</div>
  <%= form_tag({:controller => 'wkrfq', :action => 'index'}, :method => :post, :id => 'query_form') do %>
 	<fieldset>
 		<table>
@@ -14,9 +17,6 @@
 		</table>
 	</fieldset>
  <% end %>
- <div class="wk-contextual">
-        <%= link_to l(:label_new_rfq), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
- </div>
 <div class="autoscroll">
 <table class="list time-entries">
   <thead>

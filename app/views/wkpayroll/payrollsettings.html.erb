@@ -1,10 +1,8 @@
 <%= javascript_include_tag 'payrollsettings', :plugin => "redmine_wktime" %>
-<h2><%= l(:label_payroll_settings) %></h2>
-
-<% content_for :sidebar do %>
+<div class="contextual">
 	<%= render :partial => 'sidebar' %>
-<% end %>
-
+</div>
+<%= title l(:label_payroll_settings) %>
 <script type="text/javascript"> 
 	payroll_name = "<%=l(:label_basic_name) %>";
 	payroll_name_errormsg = "<%=l(:label_name_errormsg) %>";

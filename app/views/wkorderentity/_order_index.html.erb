@@ -1,5 +1,8 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
+<div class="wk-contextual">
+	<%= link_to controller.getLabelNewInv, url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-add' %>
+</div>
 
 	<%= form_tag({:controller => controller_name, :action => 'index', :tab => controller_name}, :method => :get, :id => 'query_form') do %>
 	<fieldset>
@@ -19,9 +22,6 @@
 			<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :rfq_id => rfqId, :filter_session => filterSession, :project_id => projid, :pjtChanged => controller.needChangedProject, :isapply => false, :isproject => true, :isAll => true, :blankOptionForPjt => true, :blankForActDD => true, :blankForContactDD => true, :needQuotePoDD => false, :isFilter => true, :loadSIDD => false } %>
 		
 			<p style="float:left;"><%= render :partial => 'wkorderentity/date_range' %></p>
-			<p style="float:right; margin-top:-40px;">
-				<%= link_to controller.getLabelNewInv, url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
-			</p>
 		<p class="buttons">
 			<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
 			<%#= link_to l(:button_apply), {:controller => controller_name, :action => action_name}, :class => 'icon icon-checked' %>

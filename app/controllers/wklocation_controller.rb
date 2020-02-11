@@ -1,5 +1,6 @@
 class WklocationController < WkbaseController
   unloadable
+  menu_item :wkcrmenumeration
   include WktimeHelper
   before_action :require_login
   before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]

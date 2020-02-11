@@ -1,4 +1,4 @@
-<h2><%= l(:label_enumerations) %></h2>
+<%= title l(:label_enumerations) %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
@@ -11,6 +11,9 @@
 </script>
 <%= render_tabs time_expense_tabs %>
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
+<div class="wk-contextual">
+	<%= link_to l(:label_new_item_third_case, l(:label_enumerations)), url_for(:controller => controller_name, :action => 'edit', :enum_id => ""), :class => 'icon icon-add' %>
+</div>
 <%= form_tag({:controller => "wkcrmenumeration", :action => 'index'}, :method => :get, :id => 'query_form') do %>
 	<%= hidden_field_tag "searchlist", controller_name %>
 	<%=h hidden_field_tag('tab', "wkcrmenumeration") %>
@@ -28,10 +31,6 @@
 			</tr>
 		</table>
 	</fieldset>
-	<div class="wk-contextual">
-			<%= link_to l(:label_new_item_third_case, l(:label_enumerations)), url_for(:controller => controller_name, :action => 'edit', :enum_id => ""), :class => 'icon icon-time-add' %>
-	</div>
-	<div style="clear: both;"></div>
 <% end %>
 <%= render :partial => 'wkcrmenumeration/enum_list', locals: { contacts: @contact}%>
 <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

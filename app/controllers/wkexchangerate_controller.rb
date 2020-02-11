@@ -1,5 +1,6 @@
 class WkexchangerateController < WkbillingController
   unloadable
+  menu_item :wkcrmenumeration
 
 	def index
 		entries = WkExCurrencyRate.all	

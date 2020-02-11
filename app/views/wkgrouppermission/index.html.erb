@@ -1,4 +1,4 @@
-<h2><%= l(:label_group) + " " + l(:label_permissions) %></h2>
+<%= title l(:label_group) + " " + l(:label_permissions) %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript">     
 	blgtaxUrl = '<%=url_for(:controller => "wktax", :action => "index", :tab => "wktax")%>';

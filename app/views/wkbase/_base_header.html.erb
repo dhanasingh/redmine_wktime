@@ -3,3 +3,24 @@
 <%= stylesheet_link_tag 'lockwarning', :plugin => "redmine_wktime" %>
 <%= hidden_field_tag 'spent_time_user_id', User.current.id %>
 <%= hidden_field_tag 'getspenttype_url', url_for(:controller => 'wklogmaterial', :action => 'loadSpentType') %>
+
+<!-- For SideBar theme -->
+<% if Setting.ui_theme == "SideBar" %>
+    <%= stylesheet_link_tag 'sidebar', :plugin => "redmine_wktime" %>
+    <%= javascript_tag do %>
+        $(function() {
+            $("#top-menu .wkdashboard").attr("title", "ERPmine");
+            var topMenus = [];
+            $("#top-menu ul li a").each(function() {
+                var classNames = ($(this).attr('class')).split(" ");
+                var menuItem = classNames[0];
+                if(menuItem == "wkdashboard" && $("#main-menu ul").children("li").length > 0) {
+                    var firstMenu =$("#main-menu ul").children("li").find("a").first().attr("href");
+                    if(firstMenu.startsWith("/wk") || firstMenu.startsWith("/rm")) {
+                        $("."+menuItem).parent('li').addClass("active");
+                    }
+                }
+            });
+        });
+    <% end %>
+<% end %>

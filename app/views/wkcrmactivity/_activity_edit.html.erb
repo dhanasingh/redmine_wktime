@@ -33,7 +33,7 @@
  %>
 <%= form_tag({:controller => 'wkcrmactivity', :action => 'update'}, :method => :get, :id => 'query_form') do %>
 
-<fieldset class="box tabular" style="height:280px; ">
+<fieldset class="box tabular">
 	<legend><%= l(:field_activity) + " " + l(:label_information) %></legend>
 	<%=h hidden_field_tag('controller_from', params[:controller_from] ) %>
 	<%=h hidden_field_tag('action_from', params[:action_from] ) %>
@@ -53,8 +53,8 @@
 			<th align="left"><%= l(:label_subject) %><span style="color:red;">*</span></th>
 			<td align="left" style="padding-left:40px;"><%=h text_field_tag("activity_subject",(!@activityEntry.blank? ? @activityEntry[0].name : ""),:size => 20, :style => "width:180px;") %> </td>
 			<td></td>
-			<th align="left" style="padding-left:240px;"><label id="lblStatus"><%= l(:field_status) %></label></th>
-			<td align="left" style="padding-left:40px;"><%=h select_tag("activity_direction", options_for_select(directionHash.invert, :selected => (!@activityEntry.blank? ? @activityEntry[0].direction : 'I') ), :style => "width:200px; float:left;") %>
+			<th align="left" style="padding-left:150px;"><label id="lblStatus"><%= l(:field_status) %></label></th>
+			<td align="left" style="padding-left:40px;"><%=h select_tag("activity_direction", options_for_select(directionHash.invert, :selected => (!@activityEntry.blank? ? @activityEntry[0].direction : 'I') ), :style => "float:left;margin-right: 3px;") %>
 			<%=h select_tag("activity_status", options_for_select(meetCallStatusHash.invert, :selected =>(!@activityEntry.blank? ? @activityEntry[0].status : 'P') ), :style=>"float:right;") %>
 			<%=h select_tag("task_status", options_for_select(taskStatusHash.invert, :selected => (!@activityEntry.blank? ? @activityEntry[0].status : 'NS') )) %>
 			
@@ -71,7 +71,7 @@
 										   [30, 30],
 										   [45, 45]], :selected => !@activityEntry.blank? && !@activityEntry[0].start_date.blank? ? (@activityEntry[0].start_date.localtime).strftime("%M") : 0))%>		</td>	
 
-			<th align="left" style="padding-left:240px;"><label id="lblEndDate"><%= l(:label_end_date_time) %></label></th>			
+			<th align="left" style="padding-left:150px;"><label id="lblEndDate"><%= l(:label_end_date_time) %></label></th>			
 			<td align="left" style="padding-left:40px;"><div id="enddatediv" style="display: inline-block; vertical-align: top;" ><%= date_field_tag('activity_end_date', !@activityEntry.blank? && !@activityEntry[0].end_date.blank? ? (@activityEntry[0].end_date.localtime).strftime("%Y-%m-%d") :  Date.today, {:id => 'activity_end_date', :size => 12, :style => "width:160px;"}) + calendar_for('activity_end_date') %></div> </td>
 			<td align="left">
 			<%= select_tag("end_hour", options_for_select(hr, :selected => !@activityEntry.blank? && !@activityEntry[0].end_date.blank? ? ((@activityEntry[0].end_date.localtime).strftime("%H")).to_i : 0))%></td>
@@ -95,7 +95,7 @@
 										   [15, 15],
 										   [30, 30],
 										   [45, 45]], :selected => !@activityEntry.blank? ? mm : 00))%>		</td>		   
-			<th align="left" style="padding-left:240px;"><label id="lblLocation"><%= l(:label_location) %></label></th>		
+			<th align="left" style="padding-left:150px;"><label id="lblLocation"><%= l(:label_location) %></label></th>		
 			<td align="left" style="padding-left:40px;"><%=h text_field_tag("location", !@activityEntry.blank? && !@activityEntry[0].location.blank? ? @activityEntry[0].location :  "", :style => "width:190px;") %> </td>	
 			<td></td>			
 		</tr>

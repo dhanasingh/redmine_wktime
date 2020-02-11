@@ -37,7 +37,7 @@
 <div class="wk-contextual">
 <h2 style="float:left;"><%= controller.getItemLabel %></h2>
 <% if !@preBilling && !isDisable %>
-<%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('invoiceTable', 'totalrow');",  :class => 'icon icon-time-add' } %>
+<%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('invoiceTable', 'totalrow');",  :class => 'icon icon-add' } %>
 <% end %>
 <%# unless @invoiceItem.blank? %>
 <%#= link_to l(:label_pay_invoice), url_for(:controller => "wkpayment", :action => 'edit', :load_payment => true, :related_to => @invoice.parent_type, :related_parent => @invoice.parent_id, :project_id => 0 ),  :class => 'icon icon-report' %>
