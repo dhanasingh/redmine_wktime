@@ -1,7 +1,7 @@
 <h2><%= l(:label_attributes) %></h2>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
  <div class="wk-contextual">
-        <%= link_to l(:label_new_product_attribute), url_for(:controller => controller_name, :action => 'edit_product_attribute', :group_id => attrGroup.id), :class => 'icon icon-time-add' %>
+        <%= link_to l(:label_new_product_attribute), url_for(:controller => controller_name, :action => 'edit_product_attribute', :group_id => attrGroup.id), :class => 'icon icon-add' %>
  </div>
 <% unless @groupAttrEntries.blank? %>
 	<div class="autoscroll">

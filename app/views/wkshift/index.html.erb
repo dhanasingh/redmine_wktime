@@ -1,6 +1,8 @@
-<h2><%= l(:label_shift) %></h2>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<div class="contextual">
+    <%= actions_dropdown do %>
+      <%= link_to l(:label_scheduling), url_for(:controller => "wkscheduling", :action => "index", :tab => "wkscheduling") %>
+    <% end %>
+</div>
+<%= title l(:label_shift) %>
 <%= render :partial => 'wkshift/shift_index'%>
-<% content_for :sidebar do %>
-      <%= render :partial => 'wkscheduling/sidebar' %>
-<% end %>

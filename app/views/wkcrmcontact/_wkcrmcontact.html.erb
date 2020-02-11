@@ -1,7 +1,7 @@
 <label><%= l(:label_contact_plural) %></label>
 <div>
 	<div class="wk-contextual">
-			<%= link_to l(:label_new_item, l(:label_contact)), url_for(:controller => controller.getContactController, :action => 'edit', :parentType => currentObj.class.name, :parentId => currentObj.id), :class => 'icon icon-time-add' %>
+			<%= link_to l(:label_new_item, l(:label_contact)), url_for(:controller => controller.getContactController, :action => 'edit', :parentType => currentObj.class.name, :parentId => currentObj.id), :class => 'icon icon-add' %>
 	</div>
 	<%= render partial: "wkcrmcontact/contact_list", locals: { contacts: currentObj.contacts} %>
 </div>

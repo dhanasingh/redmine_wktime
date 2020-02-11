@@ -138,7 +138,7 @@ module WkreportHelper
 	def getAccountContactSql
 		parentSql = ""
 		if ActiveRecord::Base.connection.adapter_name == 'Mysql2'
-			parentSql = "COLLATE utf8_unicode_ci"
+			parentSql = "COLLATE utf8mb4_unicode_ci"
 		end
 		sqlStr = "select 'WkAccount' #{parentSql} as parent_type, id as parent_id from wk_accounts where account_type = 'A' union select 'WkCrmContact' #{parentSql} as parent_type, id as parent_id from wk_crm_contacts where contact_type in ('C', 'RA')"
 		sqlStr

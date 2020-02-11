@@ -11,7 +11,7 @@
 </label>
 <div>
 	<div class="wk-contextual">
-			<%= link_to newAccordianLink, url_for(:controller => controller_name, :action => 'edit', :newItem => true, :parentId => currentObj.id), :class => 'icon icon-time-add' %>
+			<%= link_to newAccordianLink, url_for(:controller => controller_name, :action => 'edit', :newItem => true, :parentId => currentObj.id), :class => 'icon icon-add' %>
 	</div>
 	<% @productInventory = currentObj.components.includes(:asset_property, :product_item) %>
 	<%= render :partial => 'wkproductitem/product_item_list'%>

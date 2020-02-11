@@ -1,4 +1,7 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<div class="wk-contextual">
+	<%= link_to l(:label_new_account), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+</div>
 <%= form_tag({:controller => controller_name, :action => 'index', :tab => controller_name}, :method => :post, :id => 'query_form') do %>
 	<%= hidden_field_tag "searchlist", controller_name %>
 	<fieldset>
@@ -15,7 +18,4 @@
 		</table>
 	</fieldset>
 <% end %>
-<div class="wk-contextual">
-	<%= link_to l(:label_new_account), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
-</div>
 <%= render :partial => 'wkaccount/account_list'%>

@@ -1,7 +1,7 @@
 <label><%= l(:label_activity_plural) %></label>
 <div>
 	<div class="wk-contextual">
-			<%= link_to l(:label_new_item_adjusted, l(:field_activity)), url_for(:controller => 'wkcrmactivity', :action => 'edit', :parentType => currentObj.class.name, :parentId => currentObj.id, :controller_from => controller_name, :action_from => action_name), :class => 'icon icon-time-add' %>
+			<%= link_to l(:label_new_item_adjusted, l(:field_activity)), url_for(:controller => 'wkcrmactivity', :action => 'edit', :parentType => currentObj.class.name, :parentId => currentObj.id, :controller_from => controller_name, :action_from => action_name), :class => 'icon icon-add' %>
 	</div>
 	<%= render partial: "wkcrmactivity/activity_list", locals: { activities: currentObj.blank? ? nil : currentObj.activities.where.not(:status => ['H', 'C', 'D']) } %>
 	</div>

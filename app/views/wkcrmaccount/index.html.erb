@@ -1,4 +1,4 @@
-<h2><%= l(:label_accounts) %></h2>
+<%= title l(:label_accounts) %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
     blgaccUrl = '<%=url_for(:controller => "wkcrmaccount", :action => "index", :tab => "wkcrmaccount")%>';

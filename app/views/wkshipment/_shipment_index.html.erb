@@ -1,8 +1,13 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 
-	<%= form_tag({:controller => controller_name, :action => 'index', :tab => controller_name}, :method => :get, :id => 'query_form') do %>
+<div class="wk-contextual">
+	<%= link_to l(:label_new_shipment), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-add' %>
+</div>
+<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
+<%= form_tag({:controller => controller_name, :action => 'index', :tab => controller_name}, :method => :get, :id => 'query_form') do %>
 	<fieldset>
+		<legend><%= l(:label_filter_plural) %></legend>
 		<%= hidden_field_tag "searchlist", controller_name %>
 		<%=h hidden_field_tag('tab', controller_name) %>
 		<%= hidden_field_tag "preview_billing", false %>
@@ -19,29 +24,16 @@
 			<%= render partial: "wkbilling/index_filters", locals: { :contact_id => contactId, :account_id => accountId, :rfq_id => rfqId, :filter_session => filterSession, :project_id => projid, :pjtChanged => false, :isapply => false, :isproject => true, :isAll => true, :blankOptionForPjt => false, :blankForActDD => true, :blankForContactDD => true, :needQuotePoDD => false, :isFilter => true, :loadSIDD => false} %>
 		
 			<p style="float:left;"><%= render :partial => 'wkshipment/date_range' %></p>
-			<p style="float:right; margin-top:-40px;">
-				<%= link_to l(:label_new_shipment), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
-			</p>
-		<p class="buttons">
+		<div>
 			<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
 			<%#= link_to l(:button_apply), {:controller => controller_name, :action => action_name}, :class => 'icon icon-checked' %>
 			<%= link_to l(:button_clear), {:controller => controller_name, :action => action_name, :tab => 'clock'}, :class => 'icon icon-reload' %>
-			
-		 
-		</p>
-	<!--
-	<%#	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	
-	<%#	projArr = options_for_wktime_project(projects,true) %>
-	<%#	accArr = options_for_wktime_account(true, 'A') %>
-		<label><%#= l(:label_account_name) %></label>
-		<%#=h select_tag('account_id', options_for_select(accArr, :selected => accid.nil? ? accArr : accid), :onchange => "accProjChanged(#{User.current.id});") %>
-		<label><%#= l(:label_project) %></label>
-		<%#=h select_tag('project_id', options_for_select([["",""]] + (@projects.blank? ? [] : @projects), :selected => projid.nil? ? projArr : projid)) %>		-->
+		</div>
 	</fieldset>	
-	<% end %>
-	<div class="total-hours">
-		<p><%= l(:label_total) %>: &nbsp;
-			<%= @shipmentEntries[0].inventory_items[0].currency unless @shipmentEntries[0].blank? || @shipmentEntries[0].inventory_items[0].blank?%>
-		<%= html_hours("%.2f" % @totalShipAmt) %></p>
-	</div>
-	<%= render :partial => 'wkshipment/shipment_list'%>	
+<% end %>
+<div class="total-hours">
+	<p><%= l(:label_total) %>: &nbsp;
+		<%= @shipmentEntries[0].inventory_items[0].currency unless @shipmentEntries[0].blank? || @shipmentEntries[0].inventory_items[0].blank?%>
+	<%= html_hours("%.2f" % @totalShipAmt) %></p>
+</div>
+<%= render :partial => 'wkshipment/shipment_list'%>	

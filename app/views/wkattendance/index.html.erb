@@ -1,4 +1,4 @@
-<h2><%= l(:report_attendance) %></h2>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript">
    wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "leave")%>';     
@@ -9,10 +9,7 @@
 	wkSurveyUrl = '<%=url_for(:controller => "wksurvey", :action => "user_survey", :tab => "wksurvey", :surveyForType => 'User')%>';
 </script>
 
+<%= title l(:report_attendance) %>
 <%= render_tabs time_expense_tabs %>
 <%= render :partial => 'attn_index' %>
 <% html_title(l(:label_ta)) -%>
-
-<% content_for :sidebar do %>
-   <%= render :partial => 'wkleaverequest/sidebar' %>
-<% end %>
