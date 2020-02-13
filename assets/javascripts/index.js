@@ -16,6 +16,7 @@ $(document).ready(function() {
 		autoOpen: false,
 		resizable: false,
 		modal: true,
+		width: 380,
 		buttons: [
 			{
 				text: 'Ok',

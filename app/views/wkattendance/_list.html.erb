@@ -5,13 +5,15 @@ runperiodUrl="<%= "#{url_for(:controller => controller_name, :action => 'runPeri
 <%= form_tag({}) do -%>	
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
-<% if (wktime_helper.validateERPPermission('A_TE_PRVLG')) %>
 <div class="wk-contextual">
-	<%= link_to l(:"button_populate_leave"), "javascript:runperiodDatePicker()" %>&nbsp;
+	<% if (wktime_helper.validateERPPermission('A_TE_PRVLG')) %>
+		<%= link_to l(:"button_populate_leave"), "javascript:runperiodDatePicker()" %>&nbsp;
+	<% end %>
 	<%= actions_dropdown do %>
 		<%= link_to l(:label_leave_request), url_for(controller: "wkleaverequest", action: "index") %>
 	<% end %>
 </div>
+<% if (wktime_helper.validateERPPermission('A_TE_PRVLG')) %>
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get) do %>
 	<fieldset>
 		<legend><%= l(:label_filter_plural) %></legend>
