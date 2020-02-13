@@ -424,7 +424,7 @@ class WkattendanceController < WkbaseController
 				sucessMsg = l(:notice_successful_delete)
 			else
 				if !params["attnEntriesId#{i}"].blank?
-					saveAttendance(params["attnEntriesId#{i}"], getFormatedTimeEntry(entry_start_time), getFormatedTimeEntry(entry_end_time))
+					updateClockInOutEntry(params["attnEntriesId#{i}"], getFormatedTimeEntry(entry_start_time), getFormatedTimeEntry(entry_end_time))
 					sucessMsg = l(:notice_successful_update) 				
 				else
 					addNewAttendance(getFormatedTimeEntry(entry_start_time),getFormatedTimeEntry(entry_end_time), params[:user_id].to_i)
@@ -471,7 +471,7 @@ class WkattendanceController < WkbaseController
 						wkattendance =  WkAttendance.find(attnd_id.to_i)
 						wkattendance.destroy()
 					elsif attnd_id.present?
-						wkattendance = saveAttendance(attnd_id, startTime, endTime)
+						wkattendance = updateClockInOutEntry(attnd_id, startTime, endTime)
 					else
 						wkattendance = addNewAttendance(startTime, endTime, params["userID_" + key].to_i)
 					end
@@ -483,7 +483,7 @@ class WkattendanceController < WkbaseController
 		render :plain => err_msg
 	end
 
-	def saveAttendance(id, startTime, endTime)
+	def updateClockInOutEntry(id, startTime, endTime)
 		wkattendance =  WkAttendance.find(id.to_i)
 		wkattendance.start_time =  startTime
 		wkattendance.end_time = endTime

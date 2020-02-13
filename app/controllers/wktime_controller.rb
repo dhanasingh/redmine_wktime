@@ -213,7 +213,7 @@ include QueriesHelper
 						#	break unless errorMsg.blank?
 						#end
 					end				
-					if !params[:wktime_submit].blank? && useApprovalSystem 
+					if !errorMsg.blank? && !params[:wktime_submit].blank? && useApprovalSystem 
 						@wktime.submitted_on = Date.today
 						@wktime.submitter_id = User.current.id
 						@wktime.status = :s					
@@ -1696,7 +1696,8 @@ private
 					entry.activity_id = -1
 				end
 			else
-				errorMsg = l(:error_not_permitted_save)
+				errorMsg = "For project: " + entry.project.name + (entry.issue_id.present? ? " , issue #" + entry.issue_id.to_s + ": " +
+				entry.issue.subject : " ")
 			end
 		end
 		return errorMsg
