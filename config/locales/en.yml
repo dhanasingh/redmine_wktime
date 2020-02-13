@@ -1050,3 +1050,6 @@ en:
   indian_tax_rule: Indian Tax Rule
   label_all_time: all time
   label_edit_leave_request: Edit Leave Request
+
+  label_survey_email_notes: Please click on the following link to take a survey
+  label_redmine_administrator: By Redmine Administrator

@@ -159,14 +159,14 @@ class WksurveyController < WkbaseController
       " AND wk_survey_responses.survey_for_id" + (@surveyForID.blank? ? " IS NULL " : " = #{@surveyForID} ")
 
     get_response_status(params[:survey_id], params[:response_id])
-    @responseStatus = @response_status.blank? ? nil : @response_status.status
-    @isResetResponse = @survey.recur && !@response_status.blank? && params[:response_id].blank? && 
-    (@response_status.status_date + @survey.recur_every.days <= Time.now)
-    @isDisable = !(@survey.status == "O" && (@isResetResponse || ( @responseStatus.blank? ||
-    (@responseStatus == "O" && @response_status.try(:user_id) == User.current.id)))) || @survey.recur && !@isResetResponse && @survey.getGroupName.present?
-    responseID = params[:response_id].blank? && !@response_status.blank? ? @response_status.id : params[:response_id]
+    @responseStatus = @response.blank? ? nil : @response.status
+    allowRecur = @survey.recur && @response.present? && (@response.status_date + @survey.recur_every.days <= Time.now)
+    @newResponse = @survey.status == "O" && (@response.blank? || allowRecur)
+    editResponse = @survey.status == "O" && (@survey.getGroupName.blank? && @responseStatus == "O")
+    @enabled = (@newResponse || editResponse) && (@response.blank? || @response.user_id == User.current.id)
+    responseID = params[:response_id].blank? && !@response.blank? ? @response.id : params[:response_id]
 
-    if @isResetResponse
+    if @newResponse
       @survey_response = nil
     else
       @survey_response = WkSurveyResponse.joins("
@@ -183,8 +183,8 @@ class WksurveyController < WkbaseController
           wk_survey_responses.id, SR.comment_text")
     end
     reviewUsers = getReportUsers(User.current.id).pluck(:id)
-    @reviewer = @survey.is_review && params[:response_id].present? && reviewUsers.include?(@response_status.try(:user_id))
-    @isReviewed = "R" == @responseStatus && !@isResetResponse
+    @reviewer = @survey.is_review && params[:response_id].present? && reviewUsers.include?(@response.try(:user_id))
+    @isReviewed = "R" == @responseStatus && !@newResponse
     @isReview = @reviewer && "O" != @responseStatus || @isReviewed
   end
 
@@ -294,8 +294,8 @@ class WksurveyController < WkbaseController
     else
       status = params[:isReview] == "true" ? "C" : "O"
     end
-    if (@response_status.try(:status) != status && @response_status.try(:id) == params[:survey_response_id]) || 
-        @response_status.try(:id) != params[:survey_response_id]
+    if (@response.try(:status) != status && @response.try(:id) == params[:survey_response_id]) || 
+        @response.try(:id) != params[:survey_response_id]
       responseStatus << {status: status, status_date: Time.now, status_for_type: 'WkSurveyResponse'}
     end
 
@@ -323,7 +323,7 @@ class WksurveyController < WkbaseController
     responseStatus = Array.new
     survey_response = WkSurveyResponse.find(params[:survey_response_id])
     get_response_status(params[:survey_id], params[:survey_response_id])
-    if @response_status.blank? || (!@response_status.blank? && @response_status.status != params[:response_status])
+    if @response.blank? || (!@response.blank? && @response.status != params[:response_status])
       responseStatus << {status: params[:response_status], status_date: Time.now, status_for_type: 'WkSurveyResponse'}
     end
     survey_response.wk_statuses_attributes = responseStatus
@@ -480,23 +480,21 @@ class WksurveyController < WkbaseController
   def email_user
 
     errMsg = ''
-    user_group = params[:user_group]
     survey_id = params[:survey_id]
-    additional_emails = params[:additional_emails]
-    includeUserGroup = params[:includeUserGroup]
+    @survey = WkSurvey.find(survey_id)
     url = url_for(:controller => 'wksurvey', :action => 'survey', :survey_id => survey_id, :tab => 'wksurvey')
-    defaultNotes = "Please click on the following link to take a survey (" + (WkSurvey.find(params[:survey_id])).name + ")"
-    email_notes = defaultNotes + "\n" + url + "\n" + params[:email_notes] +"\n By Redmine Administrator"
+    defaultNotes = l(:label_survey_email_notes)
+    email_notes = params[:email_notes] + "\n\n" + defaultNotes + "\n" + url  + "\n\n" + l(:label_redmine_administrator)
 
-    if includeUserGroup == "true"
+    if params[:includeUserGroup] == "true"
         users = User.joins('INNER JOIN groups_users ON users.id = user_id')
-        users = users.where("groups_users.group_id = #{user_group}") unless user_group.blank?
+        users = users.where("groups_users.group_id = #{params[:user_group]}") unless params[:user_group].blank?
         users.each do |user|
         errMsg += sent_emails(l(:label_survey_reminder) + "_" + @survey.name, user.language, user.mail, email_notes).to_s
         end
     end
-    unless additional_emails.blank?
-        additional_emails.each do |email|
+    if params[:additional_emails].present?
+        params[:additional_emails].each do |email|
             errMsg += sent_emails(l(:label_survey_reminder), nil, email, email_notes).to_s
         end
     end
@@ -608,7 +606,7 @@ class WksurveyController < WkbaseController
         " IS NULL " : " = '#{@surveyForType}' ") + " AND wk_survey_responses.survey_for_id" + (@surveyForID.blank? ? 
         " IS NULL " : " = #{@surveyForID} ")
     end
-    @response_status = WkSurveyResponse.joins("INNER JOIN wk_statuses AS ST ON ST.status_for_id = wk_survey_responses.id 
+    @response = WkSurveyResponse.joins("INNER JOIN wk_statuses AS ST ON ST.status_for_id = wk_survey_responses.id 
       AND ST.status_for_type = 'WkSurveyResponse'
       INNER JOIN users AS U ON wk_survey_responses.user_id = U.id
       INNER JOIN wk_surveys AS S ON S.id = wk_survey_responses.survey_id")
