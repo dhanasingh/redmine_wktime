@@ -30,7 +30,7 @@ transrowMsg =  "<%= l(:label_trans_row_validmsg)  %>";
 	<%=h hidden_field_tag("gl_transaction_id",   transId  )  %>
 	<tr><td><b><label><%= l(:label_transaction_type)%></label></b></td><td><%=h select_tag('txn_type', options_for_select(transTypeHash.invert,  :selected => txn_type ), :required => true, :style => "width:150px;") %></td></tr>
 	<tr><td><b><label><%= l(:label_transaction_date)  %></label></b></td><td>
-	<%= date_field_tag('date', trans_date, {:id => 'start_date', :size => 12, :style => "width:130px; "}) + calendar_for('start_date') %>
+	<%= date_field_tag('date', trans_date, {:id => 'start_date', :size => 12, :style => "width:150px; "}) + calendar_for('start_date') %>
 	</td>	
 	</tr>
 	</table>

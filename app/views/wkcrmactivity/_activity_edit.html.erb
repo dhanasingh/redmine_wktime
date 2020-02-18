@@ -74,12 +74,12 @@
 			<th align="left" style="padding-left:150px;"><label id="lblEndDate"><%= l(:label_end_date_time) %></label></th>			
 			<td align="left" style="padding-left:40px;"><div id="enddatediv" style="display: inline-block; vertical-align: top;" ><%= date_field_tag('activity_end_date', !@activityEntry.blank? && !@activityEntry[0].end_date.blank? ? (@activityEntry[0].end_date.localtime).strftime("%Y-%m-%d") :  Date.today, {:id => 'activity_end_date', :size => 12, :style => "width:160px;"}) + calendar_for('activity_end_date') %></div> </td>
 			<td align="left">
-			<%= select_tag("end_hour", options_for_select(hr, :selected => !@activityEntry.blank? && !@activityEntry[0].end_date.blank? ? ((@activityEntry[0].end_date.localtime).strftime("%H")).to_i : 0))%></td>
+			<%= select_tag("end_hour", options_for_select(hr, :selected => !@activityEntry.blank? && !@activityEntry[0].end_date.blank? ? ((@activityEntry[0].end_date.localtime).strftime("%H")).to_i : 0), :style => "width: 50px;")%></td>
 			<td align="left">
 			<%= select_tag("end_min", options_for_select([['00',00],
 										   [15, 15],
 										   [30, 30],
-										   [45, 45]], :selected => !@activityEntry.blank? && !@activityEntry[0].end_date.blank? ? (@activityEntry[0].end_date.localtime).strftime("%M") : 0))%>		</td>	
+										   [45, 45]], :selected => !@activityEntry.blank? && !@activityEntry[0].end_date.blank? ? (@activityEntry[0].end_date.localtime).strftime("%M") : 0), :style => "width:50px;")%>		</td>	
 				<div style="clear: both;"></div>
 			
 		</tr>
