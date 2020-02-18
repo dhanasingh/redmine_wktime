@@ -16,7 +16,7 @@
                 var menuItem = classNames[0];
                 if(menuItem == "wkdashboard" && $("#main-menu ul").children("li").length > 0) {
                     var firstMenu =$("#main-menu ul").children("li").find("a").first().attr("href");
-                    if(firstMenu.startsWith("/wk") || firstMenu.startsWith("/rm")) {
+                    if(firstMenu.match("^/wk") || firstMenu.match("^/rm")) {
                         $("."+menuItem).parent('li').addClass("active");
                     }
                 }
