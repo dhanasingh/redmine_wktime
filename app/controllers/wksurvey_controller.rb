@@ -5,7 +5,6 @@ class WksurveyController < WkbaseController
   menu_item :wkattendance, :only => :user_survey
   before_action :require_login, :survey_url_validation, :check_perm_and_redirect
   
-  include WktimeHelper
   include WksurveyHelper
 
   def index
@@ -161,7 +160,7 @@ class WksurveyController < WkbaseController
     get_response_status(params[:survey_id], params[:response_id])
     @responseStatus = @response.blank? ? nil : @response.status
     allowRecur = @survey.recur && @response.present? && (@response.status_date + @survey.recur_every.days <= Time.now)
-    @newResponse = @survey.status == "O" && (@response.blank? || allowRecur)
+    @newResponse = @survey.status == "O" && (@response.blank? || allowRecur) && params[:response_id].blank?
     editResponse = @survey.status == "O" && (@survey.getGroupName.blank? && @responseStatus == "O")
     @enabled = (@newResponse || editResponse) && (@response.blank? || @response.user_id == User.current.id)
     responseID = params[:response_id].blank? && !@response.blank? ? @response.id : params[:response_id]
@@ -195,10 +194,7 @@ class WksurveyController < WkbaseController
                 'Response_status' => "ST.status",
                 'Response_date' => "status_date"
 
-    members = getReportUsers(User.current.id).pluck(:id)
-    users = members << User.current.id
-    users = users.join(',')
-
+    users = convertUsersIntoString()
     getSurveyForType(params)
     condStr = validateERPPermission("E_SUR") ? "" : (@survey.is_review ? " AND (U.id IN (#{users}) OR U.parent_id = #{User.current.id}) " : " AND  U.id = #{User.current.id} ")
 
@@ -227,7 +223,7 @@ class WksurveyController < WkbaseController
             responseEntries[responseID] = { id: response.id, survey_id: response.survey_id, status_date: response.status_date, 
               status: response.status, user_id: response.user_id, name: response.name, survey_for_type: response.survey_for_type, 
               survey_for_id: response.survey_for_id, firstname: response.firstname, lastname: response.lastname, 
-              reviewers: members, group_name: response.group_name}
+              reviewers: getReportingUsers, group_name: response.group_name}
         end
     end
     
@@ -539,15 +535,21 @@ class WksurveyController < WkbaseController
   end
 
   def check_perm_and_redirect
-    get_survey(params[:survey_id], (["edit","survey_response","survey_result", "print_survey_result"].include?(action_name)) && validateERPPermission("E_SUR") || action_name == "graph") unless params[:survey_id].blank?
+    get_survey(params[:survey_id], (["edit","survey_response","survey_result", "print_survey_result"].include?(action_name)) &&
+      validateERPPermission("E_SUR") || action_name == "graph") unless params[:survey_id].blank?
     survey = get_survey_with_userGroup(params[:survey_id]) unless params[:survey_id].blank? && action_name == "survey_response"
     closed_response = getResponseGroup(params[:survey_id]) unless params[:survey_id].blank?
+    if "survey" == action_name
+      allowSupervisor = "survey" == action_name && params[:response_id].present?
+      survey = get_survey_with_userGroup(params[:survey_id], allowSupervisor).first
+    end
     if !showSurvey || (!checkEditSurveyPermission && (["edit", "save_survey"].include? action_name))
       render_403
       return false
     elsif (["email_user", "update_survey"].include? action_name && @survey.try(:status) != "O") ||
-      (action_name == "survey_response" && survey.blank? && !(validateERPPermission("E_SUR"))) || (action_name == "survey_result" && @survey.try(:status) != "C" && 
-      !(validateERPPermission("E_SUR") || closed_response.present?)) || ("survey" == action_name && !(["O", "C"].include? @survey.try(:status)))
+      (action_name == "survey_response" && survey.blank? && !(validateERPPermission("E_SUR"))) ||
+      (action_name == "survey_result" && @survey.try(:status) != "C" && !(validateERPPermission("E_SUR") || closed_response.present?)) ||
+      ("survey" == action_name && !(["O", "C"].include? @survey.try(:status)))
         render_404
         return false
     end

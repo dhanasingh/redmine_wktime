@@ -28,7 +28,7 @@ end
         <tr>
             <td><%=h index+1 %></td>
             <td class="lbl-txt-align">
-                <% if helperObj.get_survey_with_userGroup(entry.id).blank? || (@surveyForID.blank? && !@surveyForType.blank?) %>
+                <% if helperObj.get_survey_with_userGroup(entry.id, false).blank? || (@surveyForID.blank? && !@surveyForType.blank?) %>
                     <%=h entry.name %>
                 <% else %>
                     <%=h link_to entry.name, url_for(helperObj.get_survey_url(urlhash, params, "survey")) %>

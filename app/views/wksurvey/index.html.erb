@@ -1,5 +1,5 @@
 <% if checkEditSurveyPermission %>
-    <div class="wk-contextual">
+    <div class="contextual">
         <%= link_to l(:label_new_survey), url_for(:project_id => params[:project_id], :controller => "wksurvey", :action => "edit"), :class => 'icon icon-add' %>
     </div>
 <% end %><%= title l(:label_survey) %>
