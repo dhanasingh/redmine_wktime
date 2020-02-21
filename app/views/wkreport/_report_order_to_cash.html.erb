@@ -6,7 +6,7 @@
 	to = Date.civil((toDate + 1.month).year,(toDate + 1.month).month, 1) - 1 
 	inBtwMonths = getInBtwMonthsArr(from, to) 
 		sqlStr = "select ac.*, idt.inv_amount, pdt.pay_amount, idt.inv_currency, pdt.pay_currency, oi.prv_invoice_amount, op.prv_payment_amount,
-	coalesce(a.name, cc.first_name ||' ' || cc.last_name) as name from (select p.parent_id, p.parent_type, extract(year from v.selected_date) as year_val, extract(month from v.selected_date) as month_val from
+	coalesce(a.name, CONCAT(cc.first_name,' ',cc.last_name)) as name from (select p.parent_id, p.parent_type, extract(year from v.selected_date) as year_val, extract(month from v.selected_date) as month_val from
 	#{getDatesSql(from, 1, 'month')},
 	(#{getAccountContactSql}) p
 	where v.selected_date between '#{from}' and '#{to}') ac

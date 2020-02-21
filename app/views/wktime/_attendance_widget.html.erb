@@ -5,6 +5,23 @@
   	  @lastAttnEntry = lastAttnEntries[0]
    end   
 %>
+<style>
+#clockINOUT {
+	float: right; 
+	display: flex; 
+	flex-direction: row-reverse; 
+	cursor: pointer; 
+	margin-left: 10px;
+}
+#appendlabel{
+    padding-top: 5px;
+    padding-left: 4px;
+	font-size: 13px;
+}
+#startdiv, #enddiv{
+	float: right;
+}
+</style>
 <% if (!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? &&
 		Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1) && (!Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].blank? && Setting.plugin_redmine_wktime['wktime_enable_attendance_module'].to_i == 1 ) %>	
 	<%	if !@lastAttnEntry.blank?
@@ -26,23 +43,19 @@
 		imgname = "#{imglabel}" == "start" ? "clockin1.jpg" : "clockout1.jpg" %>	
 	<% totalhours = (wktime_helper.totalhours)*3600 %>
 	<% totalhours = (hideStart ? ( !remaininghr.blank? ? remaininghr.round(0)+totalhours : totalhours) : totalhours ) %>
-	<% totalhours1 = Time.at(totalhours).utc.strftime("%H:%M:%S") %>
+	<% totalhours1 = Time.at(totalhours).utc.strftime("%H:%M") %>
 	<% host_with_subdir = wktime_helper.getHostAndDir(request) %>
 	<%=h hidden_field_tag('clockinout_url',  "#{url_for(:controller => 'wkbase', :action => 'updateClockInOut', :host => host_with_subdir, :only_path => true)}" )  %>
 	<% if User.current.logged? && wktime_helper.checkViewPermission %>
-		<label id="appendlabel" style="float: right; display: inline; position: relative; z-index: 9999; text-shadow: -1px -1px 0 #628DB6, 1px -1px 0 #628DB6, -1px 1px 0 #628DB6, 1px 1px 0 #628DB6;"><br/><%= l(:label_total_hours) %><br/>
-		   &nbsp;<%= totalhours1 %></label>  
-			
-		<div id="startdiv" style="float: right; display: inline; position: relative; z-index: 9999;"  >
-		<% strt_image_tg = image_tag("widgetclockin.png", :id => 'clockin' , :plugin => "redmine_wktime", :title => l(:label_clock_in), :style => hideStart ? "display:none;" : "display:block;" ) %>
-		<%= link_to strt_image_tg, "javascript:signAttendance('start');", {:id => "clock_start"}  %>		
+	<div id="clockINOUT">
+		<span id="appendlabel"><%= totalhours1 %></span>	
+		<div id="startdiv">
+			<%= image_tag("widgetclockin.png", :id => 'clockin' , :plugin => "redmine_wktime", :style => hideStart ? "display:none;" : "display:block;" ) %>		
 		</div>
-		
-		<div id="enddiv" style="float: right; display: inline; position: relative; z-index: 9999;" >
-		<% end_image_tg = image_tag("widgetclockout.png", :id => 'clockout', :plugin => "redmine_wktime", :title => l(:label_clock_out),:style => hideEnd ? "display:none;" : "display:block;" ) %>
-		<%= link_to end_image_tg, "javascript:signAttendance('end');", {:id => "clock_end"}  %>		
+		<div id="enddiv">
+			<%= image_tag("widgetclockout.png", :id => 'clockout', :plugin => "redmine_wktime", :style => hideEnd ? "display:none;" : "display:block;") %>		
 		</div>
-		
+	</div>
 		<div style="clear: both;"></div>
 	<% end %>
 	<% end %>	

@@ -1,3 +1,11 @@
+<div class="wk-contextual">
+	<%  parentAccountId = 0
+		parentArr = options_for_wktime_account(false, controller.getOrderAccountType) 
+		parentAccountId = parentArr[0][1].to_i if !parentArr.blank?
+	%>
+	
+	<%= link_to l(:label_new_item_adjusted, l(:label_payments)), url_for(:controller => controller_name, :action => 'edit', :load_payment => true, :related_to => "WkAccount", :related_parent => parentAccountId, :project_id => 0), :class => 'icon icon-add' %> 
+</div>
 <%= form_tag({:controller => controller_name, :action => 'index', :tab => controller_name}, :method => :get, :id => 
      'query_form') do %>
 		<fieldset>
@@ -17,12 +25,6 @@
 	<div class="total-hours">
 		<p style="float:left;"><%= l(:label_total) %>: &nbsp;<%= @payment_entries[0].payment_items[0].currency unless @payment_entries[0].blank? || @payment_entries[0].payment_items[0].blank?%> <%= html_hours("%.2f" % @totalPayAmt) unless @totalPayAmt.blank? %></p>
 	</div>
-	<%  parentAccountId = 0
-		parentArr = options_for_wktime_account(false, controller.getOrderAccountType) 
-		parentAccountId = parentArr[0][1].to_i if !parentArr.blank?
-	%>
-	
-	<%= link_to l(:label_new_item_adjusted, l(:label_payments)), url_for(:controller => controller_name, :action => 'edit', :load_payment => true, :related_to => "WkAccount", :related_parent => parentAccountId, :project_id => 0), :class => 'icon icon-time-add' %> 
 </div>
 <div style="clear:both;"></div>
 <%= render partial: "wkpaymententity/payment_list" %>

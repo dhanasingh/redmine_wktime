@@ -5,7 +5,6 @@ class WksurveyController < WkbaseController
   menu_item :wkattendance, :only => :user_survey
   before_action :require_login, :survey_url_validation, :check_perm_and_redirect
   
-  include WktimeHelper
   include WksurveyHelper
 
   def index
@@ -159,14 +158,14 @@ class WksurveyController < WkbaseController
       " AND wk_survey_responses.survey_for_id" + (@surveyForID.blank? ? " IS NULL " : " = #{@surveyForID} ")
 
     get_response_status(params[:survey_id], params[:response_id])
-    @responseStatus = @response_status.blank? ? nil : @response_status.status
-    @isResetResponse = @survey.recur && !@response_status.blank? && params[:response_id].blank? && 
-    (@response_status.status_date + @survey.recur_every.days <= Time.now)
-    @isDisable = !(@survey.status == "O" && (@isResetResponse || ( @responseStatus.blank? ||
-    (@responseStatus == "O" && @response_status.try(:user_id) == User.current.id)))) || @survey.recur && !@isResetResponse && @survey.getGroupName.present?
-    responseID = params[:response_id].blank? && !@response_status.blank? ? @response_status.id : params[:response_id]
+    @responseStatus = @response.blank? ? nil : @response.status
+    allowRecur = @survey.recur && @response.present? && (@response.status_date + @survey.recur_every.days <= Time.now)
+    @newResponse = @survey.status == "O" && (@response.blank? || allowRecur) && params[:response_id].blank?
+    editResponse = @survey.status == "O" && (@survey.getGroupName.blank? && @responseStatus == "O")
+    @enabled = (@newResponse || editResponse) && (@response.blank? || @response.user_id == User.current.id)
+    responseID = params[:response_id].blank? && !@response.blank? ? @response.id : params[:response_id]
 
-    if @isResetResponse
+    if @newResponse
       @survey_response = nil
     else
       @survey_response = WkSurveyResponse.joins("
@@ -183,8 +182,8 @@ class WksurveyController < WkbaseController
           wk_survey_responses.id, SR.comment_text")
     end
     reviewUsers = getReportUsers(User.current.id).pluck(:id)
-    @reviewer = @survey.is_review && params[:response_id].present? && reviewUsers.include?(@response_status.try(:user_id))
-    @isReviewed = "R" == @responseStatus && !@isResetResponse
+    @reviewer = @survey.is_review && params[:response_id].present? && reviewUsers.include?(@response.try(:user_id))
+    @isReviewed = "R" == @responseStatus && !@newResponse
     @isReview = @reviewer && "O" != @responseStatus || @isReviewed
   end
 
@@ -195,10 +194,7 @@ class WksurveyController < WkbaseController
                 'Response_status' => "ST.status",
                 'Response_date' => "status_date"
 
-    members = getReportUsers(User.current.id).pluck(:id)
-    users = members << User.current.id
-    users = users.join(',')
-
+    users = convertUsersIntoString()
     getSurveyForType(params)
     condStr = validateERPPermission("E_SUR") ? "" : (@survey.is_review ? " AND (U.id IN (#{users}) OR U.parent_id = #{User.current.id}) " : " AND  U.id = #{User.current.id} ")
 
@@ -227,7 +223,7 @@ class WksurveyController < WkbaseController
             responseEntries[responseID] = { id: response.id, survey_id: response.survey_id, status_date: response.status_date, 
               status: response.status, user_id: response.user_id, name: response.name, survey_for_type: response.survey_for_type, 
               survey_for_id: response.survey_for_id, firstname: response.firstname, lastname: response.lastname, 
-              reviewers: members, group_name: response.group_name}
+              reviewers: getReportingUsers, group_name: response.group_name}
         end
     end
     
@@ -294,8 +290,8 @@ class WksurveyController < WkbaseController
     else
       status = params[:isReview] == "true" ? "C" : "O"
     end
-    if (@response_status.try(:status) != status && @response_status.try(:id) == params[:survey_response_id]) || 
-        @response_status.try(:id) != params[:survey_response_id]
+    if (@response.try(:status) != status && @response.try(:id) == params[:survey_response_id]) || 
+        @response.try(:id) != params[:survey_response_id]
       responseStatus << {status: status, status_date: Time.now, status_for_type: 'WkSurveyResponse'}
     end
 
@@ -323,7 +319,7 @@ class WksurveyController < WkbaseController
     responseStatus = Array.new
     survey_response = WkSurveyResponse.find(params[:survey_response_id])
     get_response_status(params[:survey_id], params[:survey_response_id])
-    if @response_status.blank? || (!@response_status.blank? && @response_status.status != params[:response_status])
+    if @response.blank? || (!@response.blank? && @response.status != params[:response_status])
       responseStatus << {status: params[:response_status], status_date: Time.now, status_for_type: 'WkSurveyResponse'}
     end
     survey_response.wk_statuses_attributes = responseStatus
@@ -480,23 +476,21 @@ class WksurveyController < WkbaseController
   def email_user
 
     errMsg = ''
-    user_group = params[:user_group]
     survey_id = params[:survey_id]
-    additional_emails = params[:additional_emails]
-    includeUserGroup = params[:includeUserGroup]
+    @survey = WkSurvey.find(survey_id)
     url = url_for(:controller => 'wksurvey', :action => 'survey', :survey_id => survey_id, :tab => 'wksurvey')
-    defaultNotes = "Please click on the following link to take a survey (" + (WkSurvey.find(params[:survey_id])).name + ")"
-    email_notes = defaultNotes + "\n" + url + "\n" + params[:email_notes] +"\n By Redmine Administrator"
+    defaultNotes = l(:label_survey_email_notes)
+    email_notes = params[:email_notes] + "\n\n" + defaultNotes + "\n" + url  + "\n\n" + l(:label_redmine_administrator)
 
-    if includeUserGroup == "true"
+    if params[:includeUserGroup] == "true"
         users = User.joins('INNER JOIN groups_users ON users.id = user_id')
-        users = users.where("groups_users.group_id = #{user_group}") unless user_group.blank?
+        users = users.where("groups_users.group_id = #{params[:user_group]}") unless params[:user_group].blank?
         users.each do |user|
         errMsg += sent_emails(l(:label_survey_reminder) + "_" + @survey.name, user.language, user.mail, email_notes).to_s
         end
     end
-    unless additional_emails.blank?
-        additional_emails.each do |email|
+    if params[:additional_emails].present?
+        params[:additional_emails].each do |email|
             errMsg += sent_emails(l(:label_survey_reminder), nil, email, email_notes).to_s
         end
     end
@@ -541,15 +535,21 @@ class WksurveyController < WkbaseController
   end
 
   def check_perm_and_redirect
-    get_survey(params[:survey_id], (["edit","survey_response","survey_result", "print_survey_result"].include?(action_name)) && validateERPPermission("E_SUR") || action_name == "graph") unless params[:survey_id].blank?
+    get_survey(params[:survey_id], (["edit","survey_response","survey_result", "print_survey_result"].include?(action_name)) &&
+      validateERPPermission("E_SUR") || action_name == "graph") unless params[:survey_id].blank?
     survey = get_survey_with_userGroup(params[:survey_id]) unless params[:survey_id].blank? && action_name == "survey_response"
     closed_response = getResponseGroup(params[:survey_id]) unless params[:survey_id].blank?
+    if "survey" == action_name
+      allowSupervisor = "survey" == action_name && params[:response_id].present?
+      survey = get_survey_with_userGroup(params[:survey_id], allowSupervisor).first
+    end
     if !showSurvey || (!checkEditSurveyPermission && (["edit", "save_survey"].include? action_name))
       render_403
       return false
     elsif (["email_user", "update_survey"].include? action_name && @survey.try(:status) != "O") ||
-      (action_name == "survey_response" && survey.blank? && !(validateERPPermission("E_SUR"))) || (action_name == "survey_result" && @survey.try(:status) != "C" && 
-      !(validateERPPermission("E_SUR") || closed_response.present?)) || ("survey" == action_name && !(["O", "C"].include? @survey.try(:status)))
+      (action_name == "survey_response" && survey.blank? && !(validateERPPermission("E_SUR"))) ||
+      (action_name == "survey_result" && @survey.try(:status) != "C" && !(validateERPPermission("E_SUR") || closed_response.present?)) ||
+      ("survey" == action_name && !(["O", "C"].include? @survey.try(:status)))
         render_404
         return false
     end
@@ -608,7 +608,7 @@ class WksurveyController < WkbaseController
         " IS NULL " : " = '#{@surveyForType}' ") + " AND wk_survey_responses.survey_for_id" + (@surveyForID.blank? ? 
         " IS NULL " : " = #{@surveyForID} ")
     end
-    @response_status = WkSurveyResponse.joins("INNER JOIN wk_statuses AS ST ON ST.status_for_id = wk_survey_responses.id 
+    @response = WkSurveyResponse.joins("INNER JOIN wk_statuses AS ST ON ST.status_for_id = wk_survey_responses.id 
       AND ST.status_for_type = 'WkSurveyResponse'
       INNER JOIN users AS U ON wk_survey_responses.user_id = U.id
       INNER JOIN wk_surveys AS S ON S.id = wk_survey_responses.survey_id")

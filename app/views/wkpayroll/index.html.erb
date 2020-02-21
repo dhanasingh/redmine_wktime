@@ -1,6 +1,6 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'wkpayroll', :plugin => "redmine_wktime" %>
-<h2><%= l(:label_payroll) %></h2>
+<%= title l(:label_payroll) %>
 <script type="text/javascript"> 
     wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "leave")%>';     
     clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>';
@@ -12,9 +12,9 @@
 		//getMembersbyGroup
 </script>
 <%= render_tabs time_expense_tabs %>
-   <% content_for :sidebar do %>
-      <%= render :partial => 'sidebar' %>
-   <% end %>
+<div class="wk-contextual">
+	<%= render :partial => 'sidebar' %>
+</div>
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
 <%= form_tag({:controller => controller_name, :action => 'index', :tap => 'payroll'}, :method => :get, :id => 'query_form') do %>
@@ -65,5 +65,3 @@
 	%>
 	<%= link_to 'CSV', url_for(:controller => controller_name, :action => 'export') + url %>	
 <% end %>
-
-<% html_title(l(:label_ta)) -%>

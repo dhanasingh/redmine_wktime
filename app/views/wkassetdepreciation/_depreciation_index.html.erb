@@ -4,8 +4,8 @@
 	productAssetUrl="<%= "#{url_for(:controller => "wkasset", :action => 'getProductAsset')}" %>";
 </script>
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
-<div class="contextual">
-<%= link_to l(:label_new_depreciation), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
+<div class="wk-contextual">
+<%= link_to l(:label_new_depreciation), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-add' %>
 </div>
 <%= form_tag({:controller => controller_name, :action => 'index', :tab => controller_name}, :method => :get, :id => 'query_form') do %>
 	<%= hidden_field_tag "searchlist", "#{controller_name}" %>
@@ -22,19 +22,22 @@
 	assetId =session[controller_name].try(:[], :inventory_item_id)
 	assetItemArr = controller.getInventoryAssetItems(productId, 'A', true)
 	%>
-	<table>
-		<% if validateERPPermission("V_INV") || validateERPPermission("D_INV") %>
-			<tr>
-				<th align="right" ><%= l(:label_product) %></th>
-				<td align="left">
-					<%=h select_tag('product_id', options_for_select(productArr, :selected => (productId.blank? ? productArr : productId) ), :style => "width:155px;", :onchange => "productAssetChanged(this.id, 'inventory_item_id', #{User.current.id}, true); ") %>
-				</td>
-				<th align="right" style="padding-left: 10px;"><%= l(:label_asset) %></th>
-				<td align="left">
-					<%=h select_tag('inventory_item_id', options_for_select(assetItemArr, :selected => (assetId.blank? ? productArr : assetId) ), :style => "width:155px;") %>
-				</td>
-			</tr>
-		<% end %>
-	</table>
+ 	<fieldset>
+		<legend><%= l(:label_filter_plural) %></legend>
+		<table>
+			<% if validateERPPermission("V_INV") || validateERPPermission("D_INV") %>
+				<tr>
+					<th align="right" ><%= l(:label_product) %></th>
+					<td align="left">
+						<%=h select_tag('product_id', options_for_select(productArr, :selected => (productId.blank? ? productArr : productId) ), :style => "width:155px;", :onchange => "productAssetChanged(this.id, 'inventory_item_id', #{User.current.id}, true); ") %>
+					</td>
+					<th align="right" style="padding-left: 10px;"><%= l(:label_asset) %></th>
+					<td align="left">
+						<%=h select_tag('inventory_item_id', options_for_select(assetItemArr, :selected => (assetId.blank? ? productArr : assetId) ), :style => "width:155px;") %>
+					</td>
+				</tr>
+			<% end %>
+		</table>
 	<%= render :partial => 'wkassetdepreciation/date_range' %>
+	</fieldset>
 <% end %>

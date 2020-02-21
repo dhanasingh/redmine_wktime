@@ -26,6 +26,7 @@ $(function()
 		autoOpen: false,
 		resizable: false,
 		modal: true,
+		width:	380,
 		buttons: [
 		{
 			text: 'Ok',
@@ -128,7 +129,7 @@ function addrows(qINDEX, qID)
 	var namearr = lastEleName.split("_");
 	var cINDEX = parseInt(namearr[4]) + 1;
 	var param = qINDEX +","+ (qID == '' ? -1 : qID) +","+ cINDEX +", -1"
-	var newele = "<tr><td></td><td></td><td align='left'> <input type='text' name='questionChoices_"+ qID +'_'+ qINDEX +"__"+cINDEX+"' id='questionChoices_"+ qID +'_'+ qINDEX +"__"+cINDEX+"' size='40%' maxlength='255'/><a title='Delete' href='javascript:deleterow("+ param +");'><img src='/images/delete.png'> </a> </td><td align='right'><b>Points</b>&nbsp;<input type='text' name='points_"+ qID +'_'+ qINDEX +"__"+cINDEX+"' id='points_"+ qID +'_'+ qINDEX +"__"+cINDEX+"' size='5' maxlength='10'/></td></tr>";
+	var newele = "<tr><td></td><td></td><td align='left'> <input type='text' name='questionChoices_"+ qID +'_'+ qINDEX +"__"+cINDEX+"' id='questionChoices_"+ qID +'_'+ qINDEX +"__"+cINDEX+"' size='40%' maxlength='255'/>&nbsp;<a title='Delete' href='javascript:deleterow("+ param +");'><img src='/images/delete.png'> </a> </td><td align='right'><b>Points</b>&nbsp;<input type='text' name='points_"+ qID +'_'+ qINDEX +"__"+cINDEX+"' id='points_"+ qID +'_'+ qINDEX +"__"+cINDEX+"' size='5' maxlength='10'/></td></tr>";
 	$("#lastrow_"+qINDEX).before(newele);
 	$('#questionChoices_'+ qID +'_'+ qINDEX +'__'+cINDEX).focus();
 }

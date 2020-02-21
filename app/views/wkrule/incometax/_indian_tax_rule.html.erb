@@ -16,10 +16,10 @@
     end
 %>
 <% if(action_type == "taxSettings") %>
+    <div class="contextual">
+	    <%= render :partial => 'sidebar' %>
+    </div>
     <h2><%= l(:label_income_tax_settings) %> (<%= l("#{@taxSettingVal['tax_rule']}") %>)</h2>
-    <% content_for :sidebar do %>
-	    <%= render partial: 'sidebar' %>
-    <% end %>
     <% if request.post?
         taxSettings = WkSetting.where("name = 'tax_settings'" ).first
         taxSettings = WkSetting.new if taxSettings.blank?
@@ -63,6 +63,7 @@
             </table>
         </fieldset>
         <div><%= submit_tag l(:button_save) %></div>
+        <% html_title(l(:label_income_tax_settings)) -%>
     <% end %>
 <% elsif(action_type == "userSettings") %>
     <%= javascript_tag do %>

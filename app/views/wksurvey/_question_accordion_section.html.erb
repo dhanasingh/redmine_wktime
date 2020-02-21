@@ -11,10 +11,10 @@
                     <td class="indexNo"><b><%=(qIndex+1).to_s + "."%></b></td>
                     <th width="15%" align="left"><%= l(:label_question_name) %></th>
                     <td align="left">
-                        <%=h text_field_tag("questionName_" + (question.question_id).to_s + "_" + qIndex.to_s, question.question_name, :disabled => isDisable, :size => "40%", :maxlength => 255) %>
+                        <%=h text_field_tag("questionName_" + (question.question_id).to_s + "_" + qIndex.to_s, question.question_name, :disabled => isDisable, :size => "40%", :maxlength => 255) %>&nbsp;
                     </td>
                     <% unless isDisable%>
-                        <td width="45%" align="right">
+                        <td width="35%" align="right">
                             <%=link_to (image_tag('delete.png') + l(:button_delete_question)), "javascript:deletequestion(" + qIndex.to_s + ",'" + (question.question_id).to_s + "');", :title => l(:button_delete) %>
                         </td>
                     <% end %>

@@ -1,3 +1,6 @@
+<div class="wk-contextual">
+	<%= link_to l(:label_new_contract), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+</div>
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 	<%= form_tag({:controller => "wkcontract", :action => 'index', :tab => controller_name}, :method => :get, :id => 
      'query_form') do %>
@@ -21,7 +24,4 @@
 
 		</fieldset>
 	<% end %>
-	<div class="wk-contextual">
-			<%= link_to l(:label_new_contract), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
-	</div>
  <%= render :partial => 'wkcontract/contract_list'%>

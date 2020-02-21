@@ -15,7 +15,7 @@
  %>
 <%= form_tag({:controller => 'wkopportunity', :action => 'update'}, :method => :get, :id => 'query_form') do %>
 <%=h hidden_field_tag('opp_id', (!@oppEditEntry.blank? ? @oppEditEntry[0].id : "") ) %>
-<fieldset class="box tabular" style="height:260px; ">
+<fieldset class="box tabular">
 	<legend><%= l(:label_opportunity_information) %></legend>
 	<table >
 		<tr>

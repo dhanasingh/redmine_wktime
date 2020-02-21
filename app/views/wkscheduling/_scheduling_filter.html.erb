@@ -10,32 +10,26 @@
 	dateVal = params[:date]
 %>
 <% scheduleasHash = {'' => "", 'W' => l(:label_work), 'O' => l(:label_day_off)} %>
-<fieldset class="box tabular">
-	<legend><%= l(:label_filter_plural) %></legend>
-	<table>
-		<tr>
-			<th><%= l(:label_location) %></th>
-			<td><%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, true), :disabled => false, :style => "float:left; width:120px;") %></td>
-			
-			<th> <%= l(:label_department) %></th>
-			<td><%=h select_tag('department_id', options_for_select(options_for_enum_select('DP', depId, true)), :style => "float:left; width:120px;") %></td>
+<label><%= l(:label_location) %></label>&nbsp;
+<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, true), :disabled => false, :style => "width:120px;") %>&nbsp;
 
-			<th><%= l(:label_user) %></th>
-			<td><%= text_field_tag 'name', params[:name], :size => 30 %></td>
-			
-			<th> <%= l(:label_shift) %></th>
-			<td><%=h select_tag('shift_id', options_for_select(shiftArr, :selected => shiftId.blank? ? shiftArr : shiftId), :style => "float:left; width:120px;") %></td>		 
-			
-			<th><%= l(:label_day_off) %></th>
-			<td><%=h select_tag('day_off', options_for_select(scheduleasHash.invert, :selected => dayOff), :style => "float:left; width:120px;") %></td>
-			
-			<% if isApply %>
-				<th> <%= l(:field_spent_on) %></th>
-				<td><%= date_field_tag('date', dateVal.blank? ? Date.today.to_s : dateVal,:size => 15, :required => true, :maxlength => 15) %><%= calendar_for('date') %></td>
-				<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %></td>
-				<td><%= link_to_function l(:button_clear), '$("#query_form").submit(); return false;', :class => 'icon icon-reload' %></td>
-				
-			<% end %>
-		</tr>
-	</table>
-</fieldset>
+<label> <%= l(:label_department) %></label>&nbsp;
+<%=h select_tag('department_id', options_for_select(options_for_enum_select('DP', depId, true)), :style => "width:120px;") %>&nbsp;
+
+<label><%= l(:label_user) %></label>&nbsp;
+<%= text_field_tag 'name', params[:name], :size => 30 %>&nbsp;
+
+<label><%= l(:label_shift) %></label>&nbsp;
+<%=h select_tag('shift_id', options_for_select(shiftArr, :selected => shiftId.blank? ? shiftArr : shiftId), :style => "width:120px;") %>&nbsp;<br><br>
+
+<label><%= l(:label_day_off) %></label>&nbsp;
+<%=h select_tag('day_off', options_for_select(scheduleasHash.invert, :selected => dayOff), :style => "width:120px;") %>&nbsp;
+
+<% if isApply %>
+	<label><%= l(:field_spent_on) %></label>&nbsp;
+	<%= date_field_tag('date', dateVal.blank? ? Date.today.to_s : dateVal,:size => 15, :required => true, :maxlength => 15) %><%= calendar_for('date') %>&nbsp;
+	<p>
+		<%= submit_tag l(:button_apply), :class => "small", :name => nil %>&nbsp;
+		<%= link_to_function l(:button_clear), '$("#schedule_form").submit(); return false;', :class => 'icon icon-reload' %>
+	</p>
+<% end %>

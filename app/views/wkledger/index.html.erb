@@ -1,4 +1,4 @@
-<h2><%= l(:label_ledger) %></h2>
+<%= title l(:label_ledger) %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
@@ -10,6 +10,11 @@
 
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 
+<div class="wk-contextual">
+	<% if validateERPPermission("A_ACC_PRVLG") %>
+		<%= link_to l(:label_new) + " " + l(:label_ledger), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+	<% end %>
+</div>
 <% wkaccounting_helper = Object.new.extend(WkaccountingHelper) %>
 <% ledgerType = wkaccounting_helper.getLedgerTypeHash
  ledgerType = {'' =>  ""}.merge(ledgerType) %> 
@@ -30,11 +35,6 @@
 			</tr>
 		</table>
 	</fieldset>
-	<div class="wk-contextual">
-		<% if validateERPPermission("A_ACC_PRVLG") %>
-			<%= link_to l(:label_new) + " " + l(:label_ledger), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
-		<% end %>
-    </div>
 <% end %>
 
 <div class="total-hours">

@@ -1,6 +1,8 @@
-<h2><%= l(:label_attribute_group) %></h2>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<%= render :partial => 'wkattributegroup/group_list'%>
-<% content_for :sidebar do %>
+<div class="wk-contextual" style="float:right;">
+      <%= link_to l(:label_new_attribute_group), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>&nbsp;
       <%= render :partial => 'wkproduct/sidebar' %>
-<% end %>
+</div>
+<h2><%= l(:label_attribute_group) %></h2>
+<%= render :partial => 'wkattributegroup/group_list'%>

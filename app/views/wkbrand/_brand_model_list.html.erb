@@ -1,8 +1,7 @@
 <h2><%= l(:label_models) %></h2>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
  <div class="wk-contextual">
-        <%= link_to l(:label_new_model), url_for(:controller => controller_name, :action => 'edit_product_model', :brand_id => brand.id), :class => 'icon icon-time-add' %>
-		<%#= link_to l(:label_category), url_for(:controller => controller_name, :action => 'category'), :class => 'icon icon-time-add' %>
+        <%= link_to l(:label_new_model), url_for(:controller => controller_name, :action => 'edit_product_model', :brand_id => brand.id), :class => 'icon icon-add' %>
  </div>
 <% unless @productModelEntries.blank? %>
 	<div class="autoscroll">

@@ -9,10 +9,13 @@ $(document).ready(function(){
 	var timeWarnMsg = document.getElementById('label_time_warn');
 	var issueWarnMsg = document.getElementById('label_issue_warn');
 	
-	$('#quick-search').append( $('<br>') );	
-	$('#quick-search').append( $('#appendlabel') );	
-	$('#quick-search').append( $('#startdiv') ); 
-	$('#quick-search').append( $('#enddiv') );
+	$('#project-jump').after($('#clockINOUT'));
+	$('#clockINOUT').click(function(){
+		var name = $('#clockin').is(':visible') ? 'start' : 'end';
+		signAttendance(name);
+	});
+	clockTitle = $('#clockin').is(':visible') ? 'Clock in' : 'Clock out';
+	$("#clockINOUT").attr('title',clockTitle);
 	
 	if(document.getElementById('spent_type') == null)
 	{
@@ -243,11 +246,13 @@ function signAttendance(str)
 	{
 	  document.getElementById('clockin' ).style.display = "none";
 	  document.getElementById('clockout').style.display = "block";
+	  $("#clockINOUT").attr('title','Clock out');
 	}
 	else
 	{
 	  document.getElementById('clockin' ).style.display = "block";
 	  document.getElementById('clockout').style.display = "none";
+	  $("#clockINOUT").attr('title','Clock in');
 	}
 	var clkInOutUrl = document.getElementById('clockinout_url').value;	
 	$.ajax({	

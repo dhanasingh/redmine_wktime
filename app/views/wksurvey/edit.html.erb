@@ -90,14 +90,14 @@
 <div id="reminder-email-dlg" title="<%=l(:label_email_users) %>">
 	<fieldset>
 		<p> <label><%= l(:label_notes) %></label>
-			<textarea name="email_notes" id="email_notes" value="" cols="25" rows="2"> </textarea>
+			<textarea name="email_notes" id="email_notes" value="" style="width: 300px;min-height: 35px;"> </textarea>
 		</p>
 		<p>
 			<%=h check_box_tag("includeUserGroup", 1, true) %>
-			<label for="includeUserGroup"><%=h l(:label_include_user_group) +" "+ userGroupName %></label>
+			<%=h l(:label_include_user_group) %> <label for="includeUserGroup"><%=h userGroupName %></label>
 		</p>
 		<p> <label><%= l(:label_additional_emails) %></label>
-			<textarea name="additional_emails" id="additional_emails" value="" cols="25" rows="2"> </textarea>
+			<textarea name="additional_emails" id="additional_emails" value="" style="width: 300px;min-height: 35px;"> </textarea>
 		</p>
 	</fieldset>
 	<div id="dialog-confirm">

@@ -1,5 +1,6 @@
 class WkgrouppermissionController < ApplicationController
   unloadable
+  menu_item :wkcrmenumeration
   include WktimeHelper
   before_action :check_permission_tab_and_redirect, :only => [:index, :edit, :update]
 

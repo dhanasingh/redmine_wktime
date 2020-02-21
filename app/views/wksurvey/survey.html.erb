@@ -3,7 +3,7 @@
 
 <%= title l(:label_survey) %>
 <h3><%= l(:label_survey_name) %>:&nbsp;&nbsp; <%= @survey.name %></h3>
-<% if @response_status.present? && !@isResetResponse%>
+<% if @response.present? && !@newResponse%>
 	<fieldset class="box tabular">
 		<table width="40%">
 			<tr>
@@ -12,9 +12,9 @@
 				<th class="lbl-txt-align"><%= l(:label_response_date) %></th>
 			</tr>
 			<tr>
-				<td><%= getResponseStatus.invert[@response_status.status] %></td>
-				<td><%= @response_status.firstname %> <%= @response_status.lastname %></td>
-				<td><%= @response_status.status_date.strftime("%Y-%m-%d") %></td>
+				<td><%= getResponseStatus.invert[@response.status] %></td>
+				<td><%= @response.firstname %> <%= @response.lastname %></td>
+				<td><%= @response.status_date.strftime("%Y-%m-%d") %></td>
 			</tr>
 		</table>
 	</fieldset>
@@ -22,7 +22,7 @@
 <% if @reviewer && @survey.status == "O" %>
 	<fieldset class="box tabular">
 		<% response_id = !params[:response_id].blank? ? params[:response_id] : 
-			(!@response_status.blank? && @responseStatus == "O" && !@isResetResponse ? @response_status.id : nil) %>
+			(!@response.blank? && @responseStatus == "O" && !@newResponse ? @response.id : nil) %>
 		<%= form_tag({:controller => 'wksurvey', :action => 'update_status'}, :method => :post) do %>
 			<%=h hidden_field_tag("survey_response_id", response_id) %>
 			<%=h hidden_field_tag("survey_id", @survey.id) %>

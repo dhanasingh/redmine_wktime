@@ -7,8 +7,9 @@ class FtteHook < Redmine::Hook::ViewListener
 		else
 			users = User.where.not(:lft => nil, :rgt => nil).order('firstname')
 		end
+		usrList = []
 		unless users.blank?
-			usrList = users.collect {|t| ["#{t.firstname + ' ' + t.lastname}", t.id] }			
+			usrList = users.collect {|t| ["#{t.firstname + ' ' + t.lastname}", t.id] }
 			usrList.unshift(["",""])
 		end
 		"<p>" + "#{context[:form].select :parent_id, usrList, :label => :label_ftte_supervisor}" + "</p>"

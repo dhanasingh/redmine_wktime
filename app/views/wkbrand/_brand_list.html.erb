@@ -8,10 +8,6 @@
 		 <%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
 	  </fieldset>
  <% end %>
- <div class="wk-contextual">
-        <%= link_to l(:label_new_brand), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
-		<%#= link_to l(:label_category), url_for(:controller => controller_name, :action => 'category'), :class => 'icon icon-time-add' %>
- </div>
 <div class="autoscroll">
 <table class="list time-entries">
   <thead>

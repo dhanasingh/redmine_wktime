@@ -1,28 +1,28 @@
-<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
- <%= form_tag({:controller => 'wkproduct', :action => 'index'}, :method => :post, :id => 'query_form') do %>
-		<%= hidden_field_tag "searchlist", controller_name %>
-		<%=h hidden_field_tag('tab', controller_name) %>
-		<%
-			categoryId =session[controller_name].try(:[], :category_id)
-			name =session[controller_name].try(:[], :name)
-		%>
-	  <fieldset>
-		<table>
-			<tr>
-				<%=h hidden_field_tag('tab', "wkproduct") %>
-				<th><label ><%= l(:label_category) %></label></th>
-				<td><%=h select_tag("category_id", generic_options_for_select(WkProductCategory, nil, 'name', 'name', 'id', categoryId, true), :disabled => false) %></td>
-				<th><label for='name' style="padding-left: 10px;"><%= l(:field_name) %></label><th>
-				<td><%= text_field_tag 'name', name, :size => 30 %></td>
-				<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %></td>
-				<td><%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %></td>
-			</tr>
-		</table>	  
-	  </fieldset>
- <% end %>
- <div class="wk-contextual">
-        <%= link_to l(:label_new_product), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
- </div>
+<div class="wk-contextual">
+	<%= link_to l(:label_new_product), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>&nbsp;
+	<%= render :partial => 'sidebar' %>
+</div>
+<%= form_tag({:controller => 'wkproduct', :action => 'index'}, :method => :post, :id => 'query_form') do %>
+	<%= hidden_field_tag "searchlist", controller_name %>
+	<%=h hidden_field_tag('tab', controller_name) %>
+	<%
+		categoryId =session[controller_name].try(:[], :category_id)
+		name =session[controller_name].try(:[], :name)
+	%>
+	<fieldset>
+	<table>
+		<tr>
+			<%=h hidden_field_tag('tab', "wkproduct") %>
+			<th><label ><%= l(:label_category) %></label></th>
+			<td><%=h select_tag("category_id", generic_options_for_select(WkProductCategory, nil, 'name', 'name', 'id', categoryId, true), :disabled => false) %></td>
+			<th><label for='name' style="padding-left: 10px;"><%= l(:field_name) %></label><th>
+			<td><%= text_field_tag 'name', name, :size => 30 %></td>
+			<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %></td>
+			<td><%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %></td>
+		</tr>
+	</table>	  
+	</fieldset>
+<% end %>
 <div class="autoscroll">
 <table class="list time-entries">
   <thead>

@@ -7,9 +7,9 @@
 			<td class="indexNo"><b>SINDEX.</b></td>
 			<th width="15%" align="left"><%= l(:label_question_name) %></th>
 			<td align="left">
-				<%=h text_field_tag("questionName__QINDEX", "", :size => "40%", :maxlength => 255) %>
+				<%=h text_field_tag("questionName__QINDEX", "", :size => "40%", :maxlength => 255) %>&nbsp;
 			</td>
-			<td width="45%" align="right">
+			<td width="35%" align="right">
 				<%=link_to (image_tag('delete.png') + l(:button_delete_question)), "javascript:deletequestion(QINDEX,'')", :title => l(:button_delete) %>
 			</td>
 		</tr>

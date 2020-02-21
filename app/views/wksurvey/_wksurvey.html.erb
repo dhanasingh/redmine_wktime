@@ -5,7 +5,7 @@
 %>
 <div>
     <div class="wk-contextual">
-		<%= link_to l(:label_new_survey), url_for(:controller => "wksurvey", :action => "edit", :surveyForType => surveyFor[:surveyForType], :surveyForID => surveyFor[:surveyForID]), :class => 'icon icon-time-add' %>
+		<%= link_to l(:label_new_survey), url_for(:controller => "wksurvey", :action => "edit", :surveyForType => surveyFor[:surveyForType], :surveyForID => surveyFor[:surveyForID]), :class => 'icon icon-add' %>
     </div>
 	<%= render :partial => 'wksurvey/survey_list', :local => {:params => params}%>
 </div>

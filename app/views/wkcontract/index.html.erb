@@ -1,4 +1,4 @@
-<h2><%= l(:label_contracts) %></h2>
+<%= title l(:label_contracts) %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
     blgcontractsUrl = '<%=url_for(:controller => "wkcontract", :action => "index", :tab => "wkcontract")%>'; 

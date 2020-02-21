@@ -1,4 +1,4 @@
-<h2><%= l(:label_scheduling) %></h2>
+<%= title l(:label_scheduling) %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <script type="text/javascript">
@@ -14,34 +14,37 @@
 <%= render_tabs time_expense_tabs %>
 <%=h hidden_field_tag('tab', "#{controller_name}") %>
 
+<div class="wk-contextual">
+  <%= link_to_previous_month(@year, @month, :accesskey => accesskey(:previous)) %> | <%= link_to_next_month(@year, @month, :accesskey => accesskey(:next)) %>&nbsp;
+  <% if validateERPPermission("S_SHIFT") && validateERPPermission("E_SHIFT") %>
+    <%= actions_dropdown do %>
+      <%= link_to l(:label_shift), url_for(:controller => "wkshift", :action => "index") %>
+    <% end %>
+  <% end %>
+</div>
 <%= form_tag({:controller => controller_name, :action => 'index', :project_id => @project},  :method => :get, :id => 'schedule_form') do %>
   <%= hidden_field_tag 'set_filter', '1' %>
   <%=h hidden_field_tag('tab', "#{controller_name}") %>
   <%=h hidden_field_tag('generate', false) %>
-  <% if @schedulesShift %>
-    <%= render :partial => 'wkscheduling/scheduling_filter', :locals => {:isApply => false} %>
-  <% end %>
-  <table>
-    <tr>
-      <th><%= label_tag('month', l(:label_month)) %></th>
-      <td><%= select_month(@month, :prefix => "month", :discard_type => true) %></td>
-      <th style="padding-left: 10px;"><%= label_tag('year', l(:label_year)) %></th>
-      <td><%= select_year(@year, :prefix => "year", :discard_type => true) %></td>
-      <td><%= link_to_function l(:button_apply), '$("#schedule_form").submit()', :class => 'icon icon-checked' %></td>
-      <td><%= link_to l(:button_clear), { :project_id => @project, :set_filter => 1 }, :class => 'icon icon-reload' %></td>
-      <td>
-        <% if @schedulesShift %>
-          <%= link_to l(:label_schedule_shifts), 'javascript:scheduleFormSubmission();', :name => 'generate', :class => 'icon icon-report' %>
-        <% end %>
-      </td>
-    </tr>
-  </table>
-  <p style="float:right;">
-    <%= link_to_previous_month(@year, @month, :accesskey => accesskey(:previous)) %> | <%= link_to_next_month(@year, @month, :accesskey => accesskey(:next)) %>
-  </p>
+  <fieldset class="box">
+    <legend><%= l(:label_filter_plural) %></legend>
+    <div>
+      <% if @schedulesShift %>
+        <%= render :partial => 'wkscheduling/scheduling_filter', :locals => {:isApply => false} %>
+      <% end %>
+      <%= label_tag('month', l(:label_month)) %>&nbsp;
+      <%= select_month(@month, :prefix => "month", :discard_type => true) %>&nbsp;
+      <%= label_tag('year', l(:label_year)) %>&nbsp;
+      <%= select_year(@year, :prefix => "year", :discard_type => true) %>&nbsp;
+    </div>
+    <p>
+      <%= link_to_function l(:button_apply), '$("#schedule_form").submit()', :class => 'icon icon-checked' %>&nbsp;
+      <%= link_to l(:button_clear), { :project_id => @project, :set_filter => 1 }, :class => 'icon icon-reload' %>&nbsp;
+      <% if @schedulesShift %>
+        <%= link_to l(:label_schedule_shifts), 'javascript:scheduleFormSubmission();', :name => 'generate', :class => 'icon icon-report' %>
+      <% end %>
+    </p>
+  </fieldset>
 <% end %>
 <%= render :partial => 'wkscheduling/wk_calendar', :locals => {:calendar => @calendar} %>
 <div id="ajax-indicator" style="display:none;"><span><%= l(:label_loading) %></span></div>
-<% content_for :sidebar do %>
-      <%= render :partial => 'sidebar' %>
-<% end %>

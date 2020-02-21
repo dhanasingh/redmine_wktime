@@ -2,6 +2,9 @@
 <script type="text/javascript"> 
 	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
 </script>
+<div class="wk-contextual">
+	<%= link_to controller.newItemLabel, url_for(:controller => controller_name, :action => 'edit', :newItem => true), :class => 'icon icon-add' %>
+</div>
 	<%= form_tag({:controller => controller_name, :action => 'index', :tab => controller_name}, :method => :get, :id => 
      'query_form') do %>
 		<%= hidden_field_tag "searchlist", controller_name %>
@@ -16,42 +19,28 @@
 		<%	projArr = getProjects %>
 		<%	projArr[0] = [l(:label_all_projects),'AP'] %>
 		<%	projArr.unshift(["",''])  %>
-		<fieldset>
-				<table>
-					<tr>
-						<th align="left"><%= l(:label_location) %></th>
-						<td align="left"><%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, true)) %></td>
-						<% if controller.getItemType == "I" || controller.getItemType == "A" %>
-							<th align="left" style="padding-left: 10px;"><%= l(:label_product) %></th>
-							<td align="left">
-								<%=h select_tag("product_id", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', productId, true)) %>
-							</td>
-						<% end %>
-						<% if controller.getItemType == "I" %>
-							<th align="left" style="padding-left: 10px;"><%= l(:label_brand) %></th>
-							<td align="left">
-								<%=h select_tag("brand_id", generic_options_for_select(WkBrand, nil, 'name', 'name', 'id', brandId, true)) %>
-							</td>
-						<% else %>
-							<th align="left" style="padding-left: 10px;"><%= l(:label_availability) %></th>
-							<td align="left">
-								<%=h select_tag("availability", options_for_select(availabilityHash.invert, :selected=> availabilityId)) %>
-							</td>
-						<% end %>
-						<th align="left" style="padding-left: 10px;"><%= l(:label_project) %></th>
-						<td align="left"><%=h select_tag("project_id", options_for_select(projArr, :selected=> projectId)) %></td>
-					</tr>
-			    </table>
-				<p style="float:right; margin-top:-30px;">					
-					<%= link_to controller.newItemLabel, url_for(:controller => controller_name, :action => 'edit', :newItem => true), :class => 'icon icon-time-add' %>
-				</p>
-				<p class="buttons">
-					<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
-					<%#= link_to l(:button_apply), {:controller => controller_name, :action => action_name}, :class => 'icon icon-checked' %>
-					<%= link_to l(:button_clear), {:controller => controller_name, :action => action_name, :tab => 'clock'}, :class => 'icon icon-reload' %>
-				</p>
+		<fieldset style="font-wight: bold;">
+			<%= l(:label_location) %>&nbsp;
+			<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, true)) %>&nbsp;
+			<% if controller.getItemType == "I" || controller.getItemType == "A" %>
+				<%= l(:label_product) %>&nbsp;
+				<%=h select_tag("product_id", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', productId, true)) %>&nbsp;
+			<% end %>
+			<% if controller.getItemType == "I" %>
+				<%= l(:label_brand) %>&nbsp;
+				<%=h select_tag("brand_id", generic_options_for_select(WkBrand, nil, 'name', 'name', 'id', brandId, true)) %>&nbsp;
+				</td>
+			<% else %>
+				<%= l(:label_availability) %>&nbsp;
+				<%=h select_tag("availability", options_for_select(availabilityHash.invert, :selected=> availabilityId)) %>
+				</td>&nbsp;
+			<% end %>
+			<%= l(:label_project) %>&nbsp;
+			<%=h select_tag("project_id", options_for_select(projArr, :selected=> projectId)) %>&nbsp;
+			<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>&nbsp;
+			<%= link_to l(:button_clear), {:controller => controller_name, :action => action_name, :tab => 'clock'}, :class => 'icon icon-reload' %>
 		</fieldset>
-		</br>
+		<br>
 	<% end %>
  <%= render :partial => 'wkproductitem/product_item_list'%>
  <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

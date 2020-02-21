@@ -1,6 +1,7 @@
-<h2><%= l(:label_brand) %></h2>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<%= render :partial => 'wkbrand/brand_list'%>
-<% content_for :sidebar do %>
+<div class="wk-contextual" style="float:right;">
+      <%= link_to l(:label_new_brand), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>&nbsp;
       <%= render :partial => 'wkproduct/sidebar' %>
-<% end %>
+ </div>
+ <%=  title l(:label_brand) %>
+<%= render :partial => 'wkbrand/brand_list'%>

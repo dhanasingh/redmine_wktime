@@ -1,0 +1,16 @@
+  /* For Time & Expense */
+#wktimeStatus th, #wktimeStatus td{
+    height: 0px;
+  }
+  
+  /* For User Payroll Settings */
+  #userpayroll th:first-child { left: 62px;}
+  #userpayroll{
+    border-radius: 0px;
+    border: 0px;
+  }
+
+  /* ERPmine logo */
+  #top-menu #wkdashboard-icon {
+    background-image: url('../images/erpmine-logo.png');
+}

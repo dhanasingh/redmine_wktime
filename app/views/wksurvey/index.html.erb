@@ -1,15 +1,13 @@
-<%= title l(:label_survey) %>
+<% if checkEditSurveyPermission %>
+    <div class="contextual">
+        <%= link_to l(:label_new_survey), url_for(:project_id => params[:project_id], :controller => "wksurvey", :action => "edit"), :class => 'icon icon-add' %>
+    </div>
+<% end %><%= title l(:label_survey) %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-
 <%= render :partial => 'index_filter' %>
 
 <div class="autoscroll">
-    <% if checkEditSurveyPermission %>
-        <div class="contextual">
-            <%= link_to l(:label_new_survey), url_for(:project_id => params[:project_id], :controller => "wksurvey", :action => "edit"), :class => 'icon icon-time-add' %>
-        </div>
-    <% end %>
 	<%= render :partial => 'survey_list' %>
     <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
 </div>

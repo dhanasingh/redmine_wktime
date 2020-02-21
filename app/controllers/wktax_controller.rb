@@ -18,6 +18,7 @@
 class WktaxController < WkbillingController
 
 before_action :require_login
+menu_item :wkcrmenumeration
 
     def index
 		sort_init 'id', 'asc'

@@ -1,3 +1,6 @@
+<div class="wk-contextual">
+	<%= link_to controller.lblNewContact, url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+</div>
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
 	<%	
 		accountType = controller.getContactType == 'SC' ? 'S' : 'A'
@@ -25,9 +28,6 @@
 			</tr>
 		</table>
 	</fieldset>
-	<div class="wk-contextual">
-		<%= link_to controller.lblNewContact, url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
-	</div>
 	<div style="clear: both;"></div>
 <% end %>
 <%= render :partial => 'wkcrmcontact/contact_list', locals: { contacts: @contact}%>

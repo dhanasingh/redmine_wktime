@@ -18,6 +18,7 @@
 class WkcontractController < WkbillingController
 
 before_action :require_login
+menu_item :wkinvoice
 
 
  def index

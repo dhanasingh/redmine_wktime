@@ -17,5 +17,6 @@
 
 class WkpaymentController < WkpaymententityController
   unloadable
+	menu_item :wkinvoice
   
 end

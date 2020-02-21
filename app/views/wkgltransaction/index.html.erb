@@ -1,4 +1,4 @@
-<h2><%= l(:label_transaction) %></h2>
+<%= title l(:label_transaction) %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
     blgtxnUrl = '<%=url_for(:controller => "wkgltransaction", :action => "index", :tab => "wkgltransaction")%>';
@@ -9,6 +9,9 @@
 <%= render_tabs time_expense_tabs %>
 
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
+<div class="wk-contextual">
+	<%= link_to l(:label_new_item_adjusted, l(:label_transaction)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+</div>
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
 	<%= hidden_field_tag "searchlist", "#{controller_name}" %>	
 	<%	ledgerid =session[controller_name].try(:[], :txn_ledger) %>
@@ -22,8 +25,7 @@
 		<span id="trans_summary">
 		 <b><label  style="float:left; padding-left: 10px;padding-top: 5px;"><%= l(:label_summary_by) %>:</label></b>
 			<%=h select_tag("summary_trans", options_for_select(detailsTransaction, :selected => summary_trans), :style => "float:left;") %>
-		</span>
-        <%= link_to l(:label_new_item_adjusted, l(:label_transaction)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
+		</span>&nbsp;
     </div>
 	<p><%= render :partial => 'wkgltransaction/date_range' %></p>
 <% end %>

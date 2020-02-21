@@ -1,4 +1,4 @@
-<h2><%= l(:label_item) %></h2>
+<%= title l(:label_item) %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript">
 	wkproductUrl = '<%=url_for(:controller => "wkproduct", :action => "index", :tab => "wkproduct")%>';
@@ -9,5 +9,4 @@
     prevTab = 'tab-<%= "#{controller_name}" %>';
 </script>
 <%= render_tabs time_expense_tabs %>
-<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 <%= render :partial => 'wkproductitem/product_item_index'%>

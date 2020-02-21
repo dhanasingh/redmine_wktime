@@ -1,7 +1,5 @@
-<% content_for :sidebar do %>
-	<%= render :partial => 'wkdashboard/sidebar' %>
-<% end %>
-	<h2><%= l(:label_dashboards) %></h2>
+<%= title l(:label_dashboards) %>
+<%= render :partial => 'wkdashboard/filters' %>
 
 <div id="graph" >
 </div>
@@ -9,7 +7,7 @@
 <%= javascript_tag do %>
 $(document).ready(function(){
 <% get_graphs_yaml_path.sort.each do |path| %>
-	var divstring = '<div class="icon-gravatar"><canvas id="<%=path%>" width="330" height="240"></canvas></div>';
+	var divstring = '<div class="icon-gravatar" style="margin-left: 40px;"><canvas id="<%=path%>" width="330" height="240" ></canvas></div>';
 	$("#graph").append(divstring);
   $.getJSON(<%= raw url_for(:controller => 'wkdashboard',
     :action => 'graph',

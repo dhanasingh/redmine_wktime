@@ -1,4 +1,4 @@
-<h2><%= l(:label_activity_plural) %></h2>
+<%= title l(:label_activity_plural) %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
@@ -21,6 +21,9 @@
 <% relatedArr << relatedHash.to_a %> 
 <%  relatedArrhash = Hash[*relatedArr.flatten].invert %>
 
+<div class="wk-contextual">
+	<%= link_to l(:label_new_item_adjusted, l(:field_activity)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+</div>
 <%= form_tag({:controller => "wkcrmactivity", :action => 'index', :tab => "wkcrmactivity"}, :method => :get, :id => 'query_form') do %>
 	<%= hidden_field_tag "searchlist", controller_name %>
 	<%=h hidden_field_tag('tab', "wkcrmactivity") %>
@@ -34,8 +37,5 @@
 		</table>
 	<%= render :partial => 'wkcrmactivity/date_range' %>
 <% end %>
-<div class="wk-contextual">
-	<%= link_to l(:label_new_item_adjusted, l(:field_activity)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-time-add' %>
-</div>
 <%= render partial: "activity_list", locals: { activities:  @activity } %>
 <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
