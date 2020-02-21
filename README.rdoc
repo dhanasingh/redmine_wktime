@@ -76,9 +76,9 @@ If an apache passenger module is used then make sure the following settings are 
   b) RailsAppSpawnerIdleTime 0
   c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for v3.9.1
+Release Notes for v3.9.2
 
-  - Redmine-4.1 compatible
+  - Fixed some bugs.
 
 Customization:
 
