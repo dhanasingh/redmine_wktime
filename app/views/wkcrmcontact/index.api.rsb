@@ -1,0 +1,13 @@
+api.array :wk_contact, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+  @contact.each do |entry|
+    api.entry do
+      api.id entry.id
+      api.name entry.name
+      api.account_name entry.account.name unless entry.account.nil?
+      api.location entry.location.name unless entry.location_id.nil?
+      api.title entry.title unless entry.title.nil?
+      api.work_phone entry.address.work_phone unless entry.address.nil?
+      api.email entry.address.email unless entry.address.nil?
+    end
+  end
+end

@@ -18,6 +18,8 @@
 class WkaccountController < WkcrmController
 	include WkaccountprojectHelper
     before_action :require_login
+    
+  accept_api_auth :index
 
 	def index
 		sort_init 'id', 'asc'
@@ -47,6 +49,12 @@ class WkaccountController < WkcrmController
 		end
 		entries = entries.order(:name)
 		formPagination(entries.reorder(sort_clause))
+		respond_to do |format|
+			format.html {        
+			  render :layout => !request.xhr?
+			}
+			format.api
+		end
 	end
 	
 	def formPagination(entries)
@@ -128,7 +136,7 @@ class WkaccountController < WkcrmController
 	end
 
 	def set_filter_session
-		if params[:searchlist] == controller_name
+		if params[:searchlist] == controller_name || api_request?
 			session[controller_name] = Hash.new if session[controller_name].nil?
 			filters = [:location_id, :accountname]
 			filters.each do |param|

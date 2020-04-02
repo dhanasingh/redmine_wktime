@@ -1,6 +1,7 @@
 class WkcontactController < WkcrmController
   unloadable
   include WkaccountprojectHelper
+  accept_api_auth :index
 
 	def index
 		sort_init 'id', 'asc'
@@ -46,6 +47,12 @@ class WkcontactController < WkcrmController
 			wkcontact = wkcontact.where("wk_crm_contacts.location_id = ? ", location_id)
 		end
 		formPagination(wkcontact.reorder(sort_clause))
+		respond_to do |format|
+			format.html {        
+			  render :layout => !request.xhr?
+			}
+			format.api
+		end
 	end
 
 	def edit
@@ -114,7 +121,7 @@ class WkcontactController < WkcrmController
 	end
 	
 	def set_filter_session
-		if params[:searchlist] == controller_name
+		if params[:searchlist] == controller_name || api_request?
 			session[controller_name] = Hash.new if session[controller_name].nil?
 			filters = [:contactname, :account_id, :location_id]
 			filters.each do |param|

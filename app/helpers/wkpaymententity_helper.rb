@@ -37,5 +37,11 @@ include WkbillingHelper
 		creditIssued = true if issuedCrCount>0
 		creditIssued
 	end
+
+	def getPayTypeHash
+		payType = WkCrmEnumeration.where(:enum_type => "PT").order(enum_type: :asc, name: :asc).pluck(:id, :name)
+		payTypeHash = Hash[*payType.flatten]
+		payTypeHash
+	end
 	
 end

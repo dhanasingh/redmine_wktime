@@ -21,6 +21,7 @@ class WkpaymententityController < WkbillingController
     include WkbillingHelper
     include WktimeHelper
 	include WkpaymententityHelper
+	accept_api_auth :index
 	
     def index
 			sort_init 'id', 'desc'
@@ -72,7 +73,13 @@ class WkpaymententityController < WkbillingController
 		
 		sqlStr = sqlStr + sqlwhere unless sqlwhere.blank?
 		sqlStr = sqlStr + " ORDER BY " + (sort_clause.present? ? sort_clause.first : " p.id desc")
-		findBySql(sqlStr)				
+		findBySql(sqlStr)
+		respond_to do |format|
+			format.html {        
+			  render :layout => !request.xhr?
+			}
+			format.api
+		end				
     end
 	
 	def edit
@@ -108,7 +115,7 @@ class WkpaymententityController < WkbillingController
 
 	def set_filter_session
 		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
-		if params[:searchlist] == controller_name
+		if params[:searchlist] == controller_name || api_request?
 			filters = [:period_type, :period, :from, :to, :contact_id, :account_id, :polymorphic_filter]
 			filters.each do |param|
 				if params[param].blank? && session[controller_name].try(:[], param).present?

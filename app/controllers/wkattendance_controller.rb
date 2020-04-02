@@ -26,7 +26,9 @@ class WkattendanceController < WkbaseController
 	before_action :require_login
 	before_action :check_perm_and_redirect, :only => [:edit, :update, :clockedit]
 	before_action :check_index_perm, :only => [:index]
-	require 'csv' 
+	require 'csv'
+	
+	accept_api_auth :clockindex, :clockedit, :saveClockInOut
 
 	def index
 		sort_init 'id', 'asc'
@@ -115,6 +117,12 @@ class WkattendanceController < WkbaseController
 			) evw on (vw.selected_date = evw.entry_date and vw.id = evw.user_id) where vw.id in (#{ids}) "
 			 sqlQuery = sqlQuery + " ORDER BY " + (sort_clause.present? ? sort_clause.first : "vw.selected_date desc, vw.firstname")
 			findBySql(sqlQuery, WkAttendance)
+			respond_to do |format|
+				format.html {        
+				  render :layout => !request.xhr?
+				}
+				format.api
+			end
 	end
 	
 	
@@ -122,6 +130,12 @@ class WkattendanceController < WkbaseController
 		sqlQuery = "select a.id,a.user_id, a.start_time, a.end_time, a.hours, u.firstname, u.lastname FROM users u
 			left join wk_attendances a  on u.id = a.user_id and #{getConvertDateStr('a.start_time')} = '#{params[:date]}' where u.id = '#{params[:user_id]}' ORDER BY a.start_time"
 		@wkattnEntries = WkAttendance.find_by_sql(sqlQuery)
+		respond_to do |format|
+			format.html {
+				render :layout => !request.xhr?
+			} 
+			format.api
+		end
 	end	
 	
 	def getMembersbyGroup
@@ -155,7 +169,7 @@ class WkattendanceController < WkbaseController
 	
 	def set_filter_session
 		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
-		if params[:searchlist] == controller_name
+		if params[:searchlist] == controller_name || api_request?
 			filters = [:period_type, :period, :group_id, :user_id, :from, :to]
 			filters.each do |param|
 				if params[param].blank? && session[controller_name].try(:[], param).present?
@@ -410,35 +424,57 @@ class WkattendanceController < WkbaseController
 	end
 	
 	def saveClockInOut
-		errorMsg =nil
-		sucessMsg = nil
 		endtime = nil
-		for i in 0..params[:attnDayEntriesCnt].to_i-1
-			starttime = params[:startdate] + " " +  params["attnstarttime#{i}"] + ":00"
-			entry_start_time = DateTime.strptime(starttime, "%Y-%m-%d %T") rescue starttime
-			endtime = params[:startdate] + " " +  params["attnendtime#{i}"] + ":00" if !params["attnendtime#{i}"].blank?
-			entry_end_time = DateTime.strptime(endtime, "%Y-%m-%d %T") rescue endtime
-			if params["attnstarttime#{i}"] == '0:00' && params["attnendtime#{i}"] == '0:00' 
-				wkattendance =  WkAttendance.find(params["attnEntriesId#{i}"].to_i)	if !params["attnEntriesId#{i}"].blank?
-				wkattendance.destroy()
-				sucessMsg = l(:notice_successful_delete)
-			else
-				if !params["attnEntriesId#{i}"].blank?
-					updateClockInOutEntry(params["attnEntriesId#{i}"], getFormatedTimeEntry(entry_start_time), getFormatedTimeEntry(entry_end_time))
-					sucessMsg = l(:notice_successful_update) 				
+		if api_request?
+			params['clock'].each do |cEntries|
+				starttime = params[:startdate] + " " +  cEntries['clock_in'] + ":00"
+				entry_start_time = DateTime.strptime(starttime, "%Y-%m-%d %T") rescue starttime
+				endtime = params[:startdate] + " " +  cEntries['clock_out'] + ":00" if !cEntries['clock_out'].blank?
+				entry_end_time = DateTime.strptime(endtime, "%Y-%m-%d %T") rescue endtime
+				if cEntries['clock_in'] == '0:00' && cEntries['clock_out'] == '0:00' 
+					wkattendance =  WkAttendance.find(cEntries['id']) if !cEntries['id'].blank?
+					wkattendance.destroy()
 				else
-					addNewAttendance(getFormatedTimeEntry(entry_start_time),getFormatedTimeEntry(entry_end_time), params[:user_id].to_i)
-					sucessMsg = l(:notice_successful_update)
-				end			
+					if !cEntries['id'].blank?
+						updateClockInOutEntry(cEntries['id'], getFormatedTimeEntry(entry_start_time), getFormatedTimeEntry(entry_end_time))
+					else
+						addNewAttendance(getFormatedTimeEntry(entry_start_time),getFormatedTimeEntry(entry_end_time), params[:user_id].to_i)
+					end
+				end
+			end
+		else
+			errorMsg =nil
+			sucessMsg = nil
+			endtime = nil
+			for i in 0..params[:attnDayEntriesCnt].to_i-1
+				starttime = params[:startdate] + " " +  params["attnstarttime#{i}"] + ":00"
+				entry_start_time = DateTime.strptime(starttime, "%Y-%m-%d %T") rescue starttime
+				endtime = params[:startdate] + " " +  params["attnendtime#{i}"] + ":00" if !params["attnendtime#{i}"].blank?
+				entry_end_time = DateTime.strptime(endtime, "%Y-%m-%d %T") rescue endtime
+				if params["attnstarttime#{i}"] == '0:00' && params["attnendtime#{i}"] == '0:00' 
+					wkattendance =  WkAttendance.find(params["attnEntriesId#{i}"].to_i)	if !params["attnEntriesId#{i}"].blank?
+					wkattendance.destroy()
+					sucessMsg = l(:notice_successful_delete)
+				else
+					if !params["attnEntriesId#{i}"].blank?
+						updateClockInOutEntry(params["attnEntriesId#{i}"], getFormatedTimeEntry(entry_start_time), getFormatedTimeEntry(entry_end_time))
+						sucessMsg = l(:notice_successful_update) 				
+					else
+						addNewAttendance(getFormatedTimeEntry(entry_start_time),getFormatedTimeEntry(entry_end_time), params[:user_id].to_i)
+						sucessMsg = l(:notice_successful_update)
+					end			
+				end
 			end
 		end
 		
-		if errorMsg.nil?	
-			redirect_to :controller => 'wkattendance',:action => 'clockindex' , :tab => 'clock'
-			flash[:notice] = sucessMsg 
-		else
-			flash[:error] = errorMsg
-			redirect_to :action => 'edit'
+		if !api_request?
+			if errorMsg.nil?	
+				redirect_to :controller => 'wkattendance',:action => 'clockindex' , :tab => 'clock'
+				flash[:notice] = sucessMsg 
+			else
+				flash[:error] = errorMsg
+				redirect_to :action => 'edit'
+			end	
 		end	
 	end
 

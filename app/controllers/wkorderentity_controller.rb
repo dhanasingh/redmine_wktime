@@ -9,6 +9,7 @@ include WkbillingHelper
 include WkorderentityHelper
 include WkreportHelper
 include WkgltransactionHelper
+accept_api_auth :index
 
 	def index
 		sort_init 'id', 'asc'
@@ -147,7 +148,13 @@ include WkgltransactionHelper
 				amounts = @invoiceEntries.reorder(["wk_invoices.id ASC"]).pluck("SUM(wk_invoice_items.amount)")
 				@totalInvAmt = amounts.compact.inject(0, :+)
 			end
-		end
+			respond_to do |format|
+				format.html {        
+				  render :layout => !request.xhr?
+				}
+				format.api
+			end
+		end		
 	end	
 	
 	def edit
@@ -425,7 +432,7 @@ include WkgltransactionHelper
 	
   	def set_filter_session
 			session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
-		if params[:searchlist] == controller_name
+		if params[:searchlist] == controller_name || api_request?
 			filters = [:period_type, :period, :from, :to, :contact_id, :account_id, :project_id, :polymorphic_filter, :rfq_id]
 			filters.each do |param|
 				if params[param].blank? && session[controller_name].try(:[], param).present?

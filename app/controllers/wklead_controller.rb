@@ -2,6 +2,7 @@ class WkleadController < WkcrmController
   unloadable
   include WktimeHelper
   include WkleadHelper
+  accept_api_auth :index
 
 	def index
 		sort_init 'id', 'asc'
@@ -39,6 +40,12 @@ class WkleadController < WkcrmController
 			entries = entries.where("wk_crm_contacts.location_id = ? ", location_id)
 		end
 		formPagination(entries.reorder(sort_clause))
+		respond_to do |format|
+			format.html {        
+			  render :layout => !request.xhr?
+			}
+			format.api
+		end
 	end
 	  
 	def show
@@ -169,7 +176,7 @@ class WkleadController < WkcrmController
 	end
 
 	def set_filter_session
-		if params[:searchlist] == controller_name
+		if params[:searchlist] == controller_name || api_request?
 			session[controller_name] = Hash.new if session[controller_name].nil?
 			filters = [:lead_name, :status, :location_id]
 			filters.each do |param|

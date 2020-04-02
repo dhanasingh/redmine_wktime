@@ -2,6 +2,7 @@ class WkopportunityController < WkcrmController
   unloadable
   menu_item :wklead
   include WktimeHelper
+  accept_api_auth :index
 
     def index
 		sort_init 'id', 'asc'
@@ -44,6 +45,12 @@ class WkopportunityController < WkcrmController
 		end
 		
 		formPagination(oppDetails.reorder(sort_clause))
+		respond_to do |format|
+			format.html {        
+			  render :layout => !request.xhr?
+			}
+			format.api
+		end
     end
   
     def edit
@@ -109,7 +116,7 @@ class WkopportunityController < WkcrmController
   
     def set_filter_session
 		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
-		if params[:searchlist] == controller_name
+		if params[:searchlist] == controller_name || api_request?
 			filters = [:period_type, :oppname, :account_id, :period, :from, :to]
 			filters.each do |param|
 				if params[param].blank? && session[controller_name].try(:[], param).present?
