@@ -20,6 +20,7 @@ unloadable
 
 include WktimeHelper
 include WkcrmHelper
+require 'json'
 
 before_action :require_login
 before_action :check_perm_and_redirect, :only => [:edit, :update, :destroy] # user without edit permission can't destroy
@@ -27,7 +28,7 @@ before_action :check_editperm_redirect, :only => [:destroy]
 before_action :check_view_redirect, :only => [:index]
 before_action :check_log_time_redirect, :only => [:new]
 
-accept_api_auth :index, :edit, :update, :destroy, :deleteEntries
+accept_api_auth :index, :edit, :update, :destroy, :deleteEntries, :getProjects, :getissues, :getactivities
 
 helper :custom_fields
 helper :queries
@@ -349,11 +350,13 @@ include QueriesHelper
 	
 	def gatherIDs
 		ids = Array.new
+		teName = getTEName()
 		entityNames = getEntityNames()
-		entries = params[:"#{entityNames[1]}"]
+		param = JSON.parse(params[:"wk_#{teName}"])
+		entries = param["#{entityNames[1]}"]
 		if !entries.blank?
 			entries.each do |entry|		
-				ids << entry[:id]
+				ids << entry["id"]
 			end
 		end
 		ids
@@ -519,19 +522,25 @@ include QueriesHelper
 		else
 			error = "403"
 		end
-		actStr =""
-		project.activities.each do |a|
-			actStr << project_id.to_s() + '|' + a.id.to_s() + '|' + a.is_default.to_s() + '|' + a.name + "\n"
-		end
-	
-		respond_to do |format|
-			format.text  { 
-			if error.blank?
-				render :plain => actStr 
+
+		if error.blank?
+			if params[:format].present?
+				actStr =""
+				project.activities.each do |a|
+				actStr << project_id.to_s() + '|' + a.id.to_s() + '|' + a.is_default.to_s() + '|' + a.name + "\n"
+				end
+				respond_to do |format|
+					format.text  { 
+						render :plain => actStr 
+				}
+				end
 			else
-				render_403
+				activities = []
+				activities = project.activities.map { |act| { value: act.id, label: act.name }}
+				render json: activities 
 			end
-			}
+		else
+			render_403
 		end
 	end
 	
@@ -1211,6 +1220,22 @@ include QueriesHelper
 	 
 	# ============ End of supervisor code merge =========
 	
+	def getProjects
+		set_loggable_projects
+		if params[:format].present?
+			respond_to do |format|
+				format.text {
+					projs = ""
+					@logtime_projects.map { |proj| projs << proj.id.to_s + '|' + proj.name + "\n" }
+					render plain: projs
+				}
+			end
+		else
+			projs = @logtime_projects.map { |proj| { value: proj.id, label: proj.name }}
+			render json: projs
+		end
+	end
+
 private
 	
 	def getManager(user, approver)
@@ -1846,22 +1871,22 @@ private
   	def setup
 		teName = getTEName()
 		if api_request? && params[:startday].blank?
-			startday = params[:"wk_#{teName}"][:startday].to_s.to_date
+			startday = params[:"wk_#{teName}"].try(:[], :startday).to_s.to_date
 		else
 			startday = params[:startday].to_s.to_date				
 		end
 		if api_request? && params[:user_id].blank?
-			user_id = params[:"wk_#{teName}"][:user][:id]		
+			user_id = params[:"wk_#{teName}"].try([:user], :id)
 		else
 			user_id = params[:user_id]			
 		end
 		if api_request? && params[:project_id].blank?
-			@projectId = params[:"wk_#{teName}"][:project_id]	
+			@projectId = params[:"wk_#{teName}"].try(:[], :project_id)
 		else
 			@projectId = params[:project_id]			
 		end
 		if api_request? && params[:spent_for_key].blank?
-			spentForKey = params[:"wk_#{teName}"][:spent_for_key]	
+			spentForKey = params[:"wk_#{teName}"].try(:[], :spent_for_key)
 		else
 			spentForKey = params[:spent_for_key]			
 		end
@@ -1875,14 +1900,14 @@ private
 			end
 		end
 		if api_request? && params[:issue_id].blank?
-			@issueId = params[:"wk_#{teName}"][:issue_id]	
+			@issueId = params[:"wk_#{teName}"].try(:[], :issue_id)
 		else
 			@issueId = params[:issue_id]			
 		end
 		# if user has changed the startday
 		@selectedDate = startday
 		if api_request? && params[:sheet_view].blank?
-			@selectedDate = params[:"wk_#{teName}"][:selected_date].to_s.to_date
+			@selectedDate = params[:"wk_#{teName}"].try(:[], :selected_date).to_s.to_date
 		end
 		@startday ||= getStartDay(startday)
 		@user ||= User.find(user_id)

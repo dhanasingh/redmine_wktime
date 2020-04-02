@@ -36,7 +36,9 @@
   
   post 'wktime/sendApprReminderEmail', :to => 'wktime#sendApprReminderEmail'
   
-  get 'wktime/testapi', :to => 'wktime#testapi' 
+  get 'wktime/testapi', :to => 'wktime#testapi'
+
+  get 'wktime/getProjects', :to => 'wktime#getProjects'
   
   #get 'wktime/updateAttendance', :to => 'wktime#updateAttendance'
 match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance', :via => [:get]  
