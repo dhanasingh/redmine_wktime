@@ -261,6 +261,8 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	
 	get 'wkcrm/index', :to => 'wkcrm#index'
 	
+	get 'wkcrm/getCrmUsers', to: 'wkcrm#getCrmUsers'
+
 	get 'wklead/index', :to => 'wklead#index'
 	
 	post 'wklead/index', :to => 'wklead#index'
@@ -311,6 +313,8 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	
 	delete 'wkcrmenumeration/destroy', :to => 'wkcrmenumeration#destroy' 
 	
+	get 'wkcrmenumeration/getCrmEnumerations', to: 'wkcrmenumeration#getCrmEnumerations'
+
 	get 'wkreport/report', :to => 'wkreport#report'
 	
 	# get 'wkreport/sales_act_rpt', :to => 'wkreport#sales_act_rpt'
@@ -531,6 +535,8 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	
 	delete 'wklocation/destroy', :to => 'wklocation#destroy'
 	
+	get 'wklocation/getlocations', to: 'wklocation#getlocations'
+
 	get 'wkunitofmeasurement/update', :to => 'wkunitofmeasurement#update'
 	
 	get 'wkshipment/getSupplierInvoices', :to => 'wkshipment#getSupplierInvoices'
@@ -580,6 +586,8 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wkdashboard/index', :to => 'wkdashboard#index'
 	
 	get 'wkdashboard/graph', :to => 'wkdashboard#graph'
+	
+	get 'wkdashboard/getGraphs', to: 'wkdashboard#getGraphs'
 	
 	get 'wksurvey/survey', :to => 'wksurvey#survey'
 	
@@ -644,7 +652,3 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	post 'wkpayroll/income_tax', :to => 'wkpayroll#income_tax'
 
 	get 'wkpayroll/getRecursiveComp', :to => 'wkpayroll#getRecursiveComp'
-	
-	get 'wkcrmenumeration/getCrmEnumerations', :to => 'wkcrmenumeration#getCrmEnumerations'
-	
-	get 'wkcrm/getCrmUsers', :to => 'wkcrm#getCrmUsers'

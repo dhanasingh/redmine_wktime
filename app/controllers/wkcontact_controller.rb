@@ -1,7 +1,7 @@
 class WkcontactController < WkcrmController
   unloadable
   include WkaccountprojectHelper
-  accept_api_auth :index
+  accept_api_auth :index, :edit, :update
 
 	def index
 		sort_init 'id', 'asc'
@@ -62,9 +62,24 @@ class WkcontactController < WkcrmController
 			@accountproject = formPagination(accountProjctList)
 			@conEditEntry = WkCrmContact.where(:id => params[:contact_id].to_i)
 		end
+
+		respond_to do |format|
+			format.html {        
+			  render :layout => !request.xhr?
+			}
+			format.api
+		end
 	end
 	
 	def update
+		if api_request?
+			(params[:wk_crmaccount] || []).each{|param| params[param.first] = param.last }
+			params.delete("wk_crmaccount")
+			params[:contact_id] = params["id"]
+			(params[:address] || []).each{|addr| params[addr.first] = addr.last }
+			params.delete("address")
+		end
+
 		errorMsg = nil
 		if params[:contact_id].blank?
 		    wkContact = WkCrmContact.new 
@@ -89,24 +104,33 @@ class WkcontactController < WkcrmController
 		wkContact.contact_type = getContactType
 		wkContact.created_by_user_id = User.current.id if wkContact.new_record?
 		wkContact.updated_by_user_id = User.current.id
-		addrId = updateAddress
-		unless addrId.blank?
-			wkContact.address_id = addrId
-		end
-		unless wkContact.valid?		
-			errorMsg = wkContact.errors.full_messages.join("<br>")	
-		else
+		if wkContact.valid?
+			addrId = updateAddress
+			wkContact.address_id = addrId unless addrId.blank?
 			wkContact.save
-		end
-		
-		if errorMsg.blank?
-			redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
-		    flash[:notice] = l(:notice_successful_update)
 		else
-			flash[:error] = errorMsg
-		    redirect_to :controller => controller_name,:action => 'edit'
+			errorMsg = wkContact.errors.full_messages.join("<br>")
 		end
-		
+
+		respond_to do |format|
+			format.html {
+				if errorMsg.blank?
+					redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
+						flash[:notice] = l(:notice_successful_update)
+				else
+					flash[:error] = errorMsg
+						redirect_to :controller => controller_name,:action => 'edit'
+				end
+			}
+			format.api{
+				if errorMsg.blank?
+					render :plain => errorMsg, :layout => nil
+				else			
+					@error_messages = errorMsg.split('\n')	
+					render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+				end
+			}
+		end
 	end
 	
 	def destroy
