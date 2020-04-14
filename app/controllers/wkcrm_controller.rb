@@ -4,12 +4,14 @@ class WkcrmController < WkbaseController
   before_action :check_perm_and_redirect, :only => [:index, :edit, :update]
   before_action :check_crm_admin_and_redirect, :only => [:destroy]
   include WkcrmHelper
+  include WktimeHelper
+  accept_api_auth :getActRelatedIds, :getCrmUsers
   
 	def index
 	end 
 	
 	def getActRelatedIds
-		relatedArr = ""	
+		relatedArr = params[:format] == "json" ? [] : ""	
 		relatedId = nil
 		
 		if params[:related_type] == "WkOpportunity"
@@ -28,20 +30,16 @@ class WkcrmController < WkbaseController
 			relatedId = WkAccount.where(:account_type => params[:account_type]).order(:name)
 		end
 		
-		if !relatedId.blank?
-			relatedId.each do | entry|	
-				if params[:related_type] == "WkLead"
-					relatedArr <<  entry.id.to_s() + ',' + entry.contact.name  + "\n" 
-				elsif params[:related_type].to_s == "WkCrmContact"
-					relatedArr <<  entry.id.to_s() + ',' + entry.name  + "\n"
-				else
-					relatedArr <<  entry.id.to_s() + ',' + entry.name  + "\n" 
-				end
+		(relatedId || []).each do | entry|
+			if params[:format] == "json"
+				relatedArr << { value: entry.id, label: (params[:related_type] == "WkLead" ? entry.contact.name : entry.name) }
+			else
+				relatedArr << entry.id.to_s() + ',' + (params[:related_type] == "WkLead" ? entry.contact.name : entry.name) + "\n"
 			end
 		end
-		
 		respond_to do |format|
-			format.text  { render :plain => relatedArr }
+			format.text  { render :plain => relatedArr}
+			format.api {render :json => relatedArr}
 		end
     end
 	
@@ -82,6 +80,13 @@ class WkcrmController < WkbaseController
 	
 	def additionalContactType
 		true
+	end
+
+	def getCrmUsers
+		users = groupOfUsers
+		grpUser = []
+		grpUser = users.map { |usr| { value: usr[1], label: usr[0] }}
+		render json: grpUser
 	end
 
 end

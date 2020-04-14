@@ -20,6 +20,7 @@ class WkcrmactivityController < WkcrmController
   unloadable
   menu_item :wklead
   include WktimeHelper
+	accept_api_auth :index, :edit, :update
 
 	def index
 		sort_init 'id', 'asc'
@@ -57,9 +58,15 @@ class WkcrmactivityController < WkcrmController
 			crmactivity = crmactivity.where(:activity_type => actType, :parent_type => relatedTo)
 		end
 		formPagination(crmactivity.reorder(sort_clause))
+		respond_to do |format|
+			format.html {        
+				render :layout => !request.xhr?
+			}
+			format.api
+		end
 	end
   
-    def edit
+  def edit
 		@activityEntry = nil
 		unless params[:activity_id].blank?
 			@activityEntry = WkCrmActivity.where(:id => params[:activity_id].to_i)
@@ -67,7 +74,13 @@ class WkcrmactivityController < WkcrmController
 		isError = params[:isError].blank? ? false : to_boolean(params[:isError])
 		if !$tempActivity.blank?  && isError
 			@activityEntry = $tempActivity
-		end
+			respond_to do |format|
+				format.html {        
+					render :layout => !request.xhr?
+				}
+				format.api
+			end
+	end
     end
   
     def update
@@ -121,9 +134,9 @@ class WkcrmactivityController < WkcrmController
 			flash[:error] = errorMsg 
 			redirect_to :controller => 'wkcrmactivity',:action => 'edit', :isError => true
 		end	
-    end
+  end
   
-    def destroy
+  def destroy
 		parentId = WkCrmActivity.find(params[:activity_id].to_i).parent_id
 		trans = WkCrmActivity.find(params[:activity_id].to_i).destroy
 		flash[:notice] = l(:notice_successful_delete)
@@ -135,11 +148,11 @@ class WkcrmactivityController < WkcrmController
 		else
 			redirect_back_or_default :action => 'index', :tab => params[:tab]
 		end
-    end
+  end
 	
 	def set_filter_session
 		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
-		if params[:searchlist] == controller_name
+		if params[:searchlist] == controller_name || api_request?
 			filters = [:period_type, :period, :from, :to, :activity_type, :related_to]
 			filters.each do |param|
 				if params[param].blank? && session[controller_name].try(:[], param).present?

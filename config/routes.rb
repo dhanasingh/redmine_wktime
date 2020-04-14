@@ -285,7 +285,7 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	
 	get 'wkcrm/getActRelatedIds', :to => 'wkcrm#getActRelatedIds'
 	
-	get 'wkcrmactivity/update', :to => 'wkcrmactivity#update'
+	post 'wkcrmactivity/update', :to => 'wkcrmactivity#update'
 	
 	delete 'wkcrmactivity/destroy', :to => 'wkcrmactivity#destroy'
 	
@@ -644,3 +644,7 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	post 'wkpayroll/income_tax', :to => 'wkpayroll#income_tax'
 
 	get 'wkpayroll/getRecursiveComp', :to => 'wkpayroll#getRecursiveComp'
+	
+	get 'wkcrmenumeration/getCrmEnumerations', :to => 'wkcrmenumeration#getCrmEnumerations'
+	
+	get 'wkcrm/getCrmUsers', :to => 'wkcrm#getCrmUsers'
