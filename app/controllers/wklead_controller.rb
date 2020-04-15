@@ -2,7 +2,7 @@ class WkleadController < WkcrmController
   unloadable
   include WktimeHelper
   include WkleadHelper
-  accept_api_auth :index
+  accept_api_auth :index, :edit, :getleadstatus, :getuserGrp, :update
 
 	def index
 		sort_init 'id', 'asc'
@@ -124,8 +124,15 @@ class WkleadController < WkcrmController
 	end
 	  
 	def update
-
+		if api_request?
+			(params[:params] || []).each{|param| params[param.first] = param.last }
+			params.delete("params")
+			(params[:address] || []).each{|addr| params[addr.first] = addr.last }
+			params.delete("address")
+		end
 		wkLead = update_without_redirect
+		respond_to do |format|
+			format.html {
 		if @wkContact.valid?
 			if params[:wklead_save_convert] || @isConvert
 				redirect_to :action => 'convert', :lead_id => wkLead.id
@@ -137,6 +144,17 @@ class WkleadController < WkcrmController
 			flash[:error] = @wkContact.errors.full_messages.join("<br>")
 		    redirect_to :controller => 'wklead',:action => 'edit', :lead_id => wkLead.id
 		end 
+	}
+	format.api{
+		errorMsg = @wkContact.errors.full_messages.join("<br>")
+		if errorMsg.blank?
+			render :plain => errorMsg, :layout => nil
+		else		
+			@error_messages = errorMsg.split('\n')	
+			render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+		end
+	}
+end
 	end
   
     def destroy
@@ -188,5 +206,19 @@ class WkleadController < WkcrmController
 			end
 		end
     end
+	
+	def getleadstatus	
+		statuArr = getLeadStatusArr
+		status = []
+		status = statuArr.map { |sts| { value: sts[1], label: sts[0] }}
+		render json: status
+	end
+
+	def getuserGrp
+		users = groupOfUsers
+		grpUser = []
+		grpUser = users.map { |usr| { value: usr[1], label: usr[0] }}
+		render json: grpUser
+	end
 
 end

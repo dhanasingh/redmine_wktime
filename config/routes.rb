@@ -652,3 +652,11 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	post 'wkpayroll/income_tax', :to => 'wkpayroll#income_tax'
 
 	get 'wkpayroll/getRecursiveComp', :to => 'wkpayroll#getRecursiveComp'
+
+	get 'wklead/getleadstatus', :to => 'wklead#getleadstatus'
+
+	get 'wklocation/getlocations', :to => 'wklocation#getlocations'
+
+	get 'wkcrmenumeration/getCrmEnumerations', :to => 'wkcrmenumeration#getCrmEnumerations'
+
+	get 'wklead/getuserGrp', :to => 'wklead#getuserGrp'
