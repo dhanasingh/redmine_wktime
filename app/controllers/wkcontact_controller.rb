@@ -73,9 +73,8 @@ class WkcontactController < WkcrmController
 	
 	def update
 		if api_request?
-			(params[:wk_crmaccount] || []).each{|param| params[param.first] = param.last }
-			params.delete("wk_crmaccount")
-			params[:contact_id] = params["id"]
+			(params[:params] || []).each{|param| params[param.first] = param.last }
+			params.delete("params")
 			(params[:address] || []).each{|addr| params[addr.first] = addr.last }
 			params.delete("address")
 		end

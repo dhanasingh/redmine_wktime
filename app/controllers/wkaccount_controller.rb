@@ -97,10 +97,8 @@ class WkaccountController < WkcrmController
 	
 	def update
 		if api_request?
-			(params[:wk_crmaccount] || []).each{|param| params[param.first] = param.last }
-			params.delete("wk_crmaccount")
-			params[:account_id] = params["id"]
-			params[:account_name] = params["name"]
+			(params[:params] || []).each{|param| params[param.first] = param.last }
+			params.delete("params")
 			(params[:address] || []).each{|addr| params[addr.first] = addr.last }
 			params.delete("address")
 		end
@@ -139,7 +137,8 @@ class WkaccountController < WkcrmController
 			format.api{
 				if errorMsg.blank?
 					render :plain => errorMsg, :layout => nil
-				else			
+				else
+					Rails.logger.info("---------errorMsg=#{errorMsg}-------------")
 					@error_messages = errorMsg.split('\n')	
 					render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
 				end
