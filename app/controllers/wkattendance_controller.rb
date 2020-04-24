@@ -467,14 +467,24 @@ class WkattendanceController < WkbaseController
 			end
 		end
 		
-		if !api_request?
+		respond_to do |format|
+			format.html {
 			if errorMsg.nil?	
 				redirect_to :controller => 'wkattendance',:action => 'clockindex' , :tab => 'clock'
 				flash[:notice] = sucessMsg 
 			else
 				flash[:error] = errorMsg
 				redirect_to :action => 'edit'
-			end	
+			end
+		}
+		format.api{
+		if errorMsg.blank?
+			render :plain => errorMsg, :layout => nil
+		else		
+			@error_messages = errorMsg.split('\n')	
+			render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+		end
+		}
 		end	
 	end
 
