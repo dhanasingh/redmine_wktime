@@ -9,7 +9,8 @@ include WkbillingHelper
 include WkorderentityHelper
 include WkreportHelper
 include WkgltransactionHelper
-accept_api_auth :index
+
+accept_api_auth :index, :edit, :update, :getInvProj
 
 	def index
 		sort_init 'id', 'asc'
@@ -250,6 +251,22 @@ accept_api_auth :index
 	end
 	
 	def update
+		if api_request?
+			(params[:params] || []).each{|param| params[param.first] = param.last }
+			params.delete("params")
+			row_index =0
+			params['invoiceItems'].each do |index, data|
+				if data['hd_item_type'] != 't' && data['hd_item_type'] != 'r'
+					row_index = row_index+1
+					data.each do | item |
+						params[item.first + (row_index).to_s] = item.last					
+					end
+				end
+			end
+			params['totalrow'] = row_index
+			params.delete("invoiceItemEntries")
+			params.delete("invoiceItems")
+		end
 		errorMsg = nil
 		invoiceItem = nil
 		unless params["invoice_id"].blank?
@@ -384,13 +401,25 @@ accept_api_auth :index
 			end
 		end
 		
-		if errorMsg.nil? 
-			redirect_to :action => 'index' , :tab => controller_name
-			flash[:notice] = l(:notice_successful_update)
-	   else
-			flash[:error] = errorMsg
-			redirect_to :action => 'edit', :invoice_id => @invoice.id
-	   end
+		respond_to do |format|
+			format.html {
+				if errorMsg.nil? 
+					redirect_to :action => 'index' , :tab => controller_name
+					flash[:notice] = l(:notice_successful_update)
+				else
+						flash[:error] = errorMsg
+						redirect_to :action => 'edit', :invoice_id => @invoice.id
+				end
+			}
+			format.api{
+				if errorMsg.blank?
+					render :plain => errorMsg, :layout => nil
+				else		
+					@error_messages = errorMsg.split('\n')	
+					render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+				end
+			}
+		end
 	end
 	
 	def getHeaderLabel
@@ -504,6 +533,18 @@ accept_api_auth :index
 	
 	def showProjectDD
 		false
+	end
+
+	def getInvProj
+		@projectsDD = Array.new
+		@invList = Hash.new{|hsh,key| hsh[key] = {} }
+		if !params[:new_invoice].blank? && params[:new_invoice] == "true"
+			newOrderEntity(params[:parent_id], params[:parent_type])
+		end
+		editOrderEntity
+		invProj = []	
+		invProj = @projectsDD.map { |name, id| { value: id, label:  name }} if @projectsDD.present?
+		render json: invProj
 	end
 	
 end

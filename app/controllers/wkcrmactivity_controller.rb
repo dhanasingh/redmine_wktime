@@ -80,10 +80,14 @@ class WkcrmactivityController < WkcrmController
 				}
 				format.api
 			end
-	end
-    end
+		end
+  end
   
-    def update
+  def update
+		if api_request?
+			(params[:params] || []).each{|param| params[param.first] = param.last }
+			params.delete("params")
+		end
 		errorMsg = nil
 		crmActivity = nil
 		@tempCrmActivity ||= Array.new
@@ -118,21 +122,32 @@ class WkcrmactivityController < WkcrmController
 			crmActivity.save()
 			$tempActivity = nil 
 		end
-		
-		if errorMsg.blank?
-			
-			if params[:controller_from] == 'wksupplieraccount'
-				redirect_to :controller => params[:controller_from],:action => params[:action_from] , :account_id => crmActivity.parent_id
-			elsif params[:controller_from] == 'wksuppliercontact'
-				redirect_to :controller => params[:controller_from],:action => params[:action_from] , :contact_id => crmActivity.parent_id
-			else
-				redirect_to :controller => 'wkcrmactivity',:action => 'index' , :tab => 'wkcrmactivity'
-			end
-			$tempActivity = nil			
-			flash[:notice] = l(:notice_successful_update)
-		else
-			flash[:error] = errorMsg 
-			redirect_to :controller => 'wkcrmactivity',:action => 'edit', :isError => true
+
+		respond_to do |format|
+			format.html {
+				if errorMsg.blank?
+					if params[:controller_from] == 'wksupplieraccount'
+						redirect_to :controller => params[:controller_from],:action => params[:action_from] , :account_id => crmActivity.parent_id
+					elsif params[:controller_from] == 'wksuppliercontact'
+						redirect_to :controller => params[:controller_from],:action => params[:action_from] , :contact_id => crmActivity.parent_id
+					else
+						redirect_to :controller => 'wkcrmactivity',:action => 'index' , :tab => 'wkcrmactivity'
+					end
+					$tempActivity = nil			
+					flash[:notice] = l(:notice_successful_update)
+				else
+					flash[:error] = errorMsg 
+					redirect_to :controller => 'wkcrmactivity',:action => 'edit', :isError => true
+				end
+			}
+			format.api{
+				if errorMsg.blank?
+					render :plain => errorMsg, :layout => nil
+				else			
+					@error_messages = errorMsg.split('\n')	
+					render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+				end
+			}
 		end	
   end
   

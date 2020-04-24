@@ -44,4 +44,13 @@ include WkbillingHelper
 		payTypeHash
 	end
 	
+	def getInvoiceOrgAmount(invoiceObj)
+		org_amount = invoiceObj.invoice_items.sum(:original_amount)
+		org_amount
+	end
+	
+	def getPaymentOrgAmount(invoiceObj)
+		org_amount = invoiceObj.payment_items.current_items.sum(:original_amount)
+		org_amount
+	end
 end

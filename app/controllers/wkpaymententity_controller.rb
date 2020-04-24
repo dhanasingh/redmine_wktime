@@ -21,7 +21,7 @@ class WkpaymententityController < WkbillingController
     include WkbillingHelper
     include WktimeHelper
 	include WkpaymententityHelper
-	accept_api_auth :index
+	accept_api_auth :index, :edit, :update
 	
     def index
 			sort_init 'id', 'desc'
@@ -95,11 +95,17 @@ class WkpaymententityController < WkbillingController
 		else	
 			unless params[:payment_id].blank?
 				@payment = WkPayment.find(params[:payment_id].to_i)
-				@payemntItem = @payment.payment_items.current_items 
+				@paymentItem = @payment.payment_items.current_items 
 				unless params[:is_report].blank? || !to_boolean(params[:is_report])
-					@payemntItem = @payemntItem.order(:project_id, :item_type)			
+					@paymentItem = @paymentItem.order(:project_id, :item_type)			
 				end
 			end
+		end
+		respond_to do |format|
+				format.html {        
+					render :layout => !request.xhr?
+				}
+				format.api
 		end
 	end
 	
@@ -178,6 +184,17 @@ class WkpaymententityController < WkbillingController
 	end
 	
 	def update
+		if api_request?
+			(params[:params] || []).each{|param| params[param.first] = param.last }
+			params.delete("params")
+			params['payment_entries'].each_with_index do |entry, index|
+				entry.each do | item |
+					params[item.first + (index+1).to_s] = item.last				
+				end
+			end
+			params['totalrow'] = params['payment_entries'].length
+			params.delete("payment_entries")
+		end
 		errorMsg = nil
 		paymentItem = nil
 		unless params["payment_id"].blank?
@@ -240,13 +257,25 @@ class WkpaymententityController < WkbillingController
 			end
 		end
 		
-		if errorMsg.nil? 
-			redirect_to :action => 'index' , :tab => controller_name
-			flash[:notice] = l(:notice_successful_update)
-	   else
-			flash[:error] = errorMsg
-			redirect_to :action => 'edit', :payment_id => @payment.id
-	   end
+		respond_to do |format|
+			format.html {
+					if errorMsg.nil? 
+							redirect_to :action => 'index' , :tab => controller_name
+							flash[:notice] = l(:notice_successful_update)
+					else
+							flash[:error] = errorMsg
+							redirect_to :action => 'edit', :payment_id => @payment.id
+					end
+			}
+			format.api{
+					if errorMsg.nil?
+							render :plain => errorMsg, :layout => nil
+					else			
+							@error_messages = errorMsg.split('\n')	
+							render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+					end
+			}
+		end
 	end
 
 	def getItemLabel

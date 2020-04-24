@@ -660,3 +660,5 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wkcrmenumeration/getCrmEnumerations', :to => 'wkcrmenumeration#getCrmEnumerations'
 
 	get 'wklead/getuserGrp', :to => 'wklead#getuserGrp'
+
+	get 'wkinvoice/getInvProj', :to => 'wkinvoice#getInvProj'

@@ -138,7 +138,6 @@ class WkaccountController < WkcrmController
 				if errorMsg.blank?
 					render :plain => errorMsg, :layout => nil
 				else
-					Rails.logger.info("---------errorMsg=#{errorMsg}-------------")
 					@error_messages = errorMsg.split('\n')	
 					render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
 				end

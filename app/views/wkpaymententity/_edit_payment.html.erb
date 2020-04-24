@@ -24,9 +24,9 @@
 			#creditIssued = false
 			if entry.class.name == 'WkInvoice'
 				invoiceObj = entry
-				invoiceOrgAmount = entry.invoice_items.sum(:original_amount)
+				invoiceOrgAmount = getInvoiceOrgAmount(invoiceObj)
 				invoiceAmount = entry.invoice_items.sum(:amount)
-				paidAmount = entry.payment_items.current_items.sum(:original_amount)
+				paidAmount = getPaymentOrgAmount(invoiceObj)
 				next unless invoiceOrgAmount - paidAmount > 0 && invoiceOrgAmount > 0
 				currentPaidAmt = invoiceOrgAmount - paidAmount
 				balanceAmount = invoiceOrgAmount - paidAmount
@@ -35,9 +35,9 @@
 				invoiceOrgCurrency = invoiceObj.invoice_items[0].original_currency
 			else
 				invoiceObj = entry.invoice
-				invoiceOrgAmount = invoiceObj.invoice_items.sum(:original_amount)
+				invoiceOrgAmount = getInvoiceOrgAmount(invoiceObj)
 				invoiceAmount = invoiceObj.invoice_items.sum(:amount)
-				paidAmount = invoiceObj.payment_items.current_items.sum(:original_amount)
+				paidAmount = getPaymentOrgAmount(invoiceObj)
 				balanceAmount = nil
 				balanceAmount = invoiceOrgAmount - paidAmount if invoiceOrgAmount - paidAmount > 0 && invoiceOrgAmount > 0
 				currentPaidAmt = entry.original_amount

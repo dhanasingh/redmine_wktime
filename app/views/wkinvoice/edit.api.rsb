@@ -1,0 +1,36 @@
+api.invoice do
+  if @invoice.present?
+    api.id @invoice.id
+    api.invoice_number @invoice.invoice_number
+    api.inv_date @invoice.invoice_date
+    api.inv_start_date @invoice.start_date
+    api.inv_end_date @invoice.end_date
+    api.field_status @invoice.status
+    api.modifier_id @invoice.modifier_id
+    api.modifier_name @invoice.modifier.name
+    api.parent_name @invoice.parent.name
+    api.gl_transaction_id @invoice.gl_transaction_id
+    api.parent_type @invoice.parent_type
+    api.parent_id @invoice.parent_id
+    api.invoice_type @invoice.invoice_type
+    api.invoice_num_key @invoice.invoice_num_key
+    api.array :invoiceItemEntries do
+      if @invoiceItem.present?
+        @invoiceItem.each do |invoice_item|
+          api.invoice_item do
+            api.item_id invoice_item.id
+            api.name invoice_item.name
+            api.project_id invoice_item.project_id
+            api.rate invoice_item.rate
+            api.amount invoice_item.amount
+            api.quantity invoice_item.quantity
+            api.hd_item_type invoice_item.item_type
+            api.currency invoice_item.currency
+            api.original_currency invoice_item.original_currency
+            api.original_amount invoice_item.original_amount
+          end
+        end
+      end
+    end
+  end
+end
