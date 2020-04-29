@@ -30,18 +30,17 @@ class WkcrmController < WkbaseController
 			relatedId = WkAccount.where(:account_type => params[:account_type]).order(:name)
 		end
 		
-		(relatedId || []).each do | entry|
-			if params[:format] == "json"
-				relatedArr << { value: entry.id, label: (params[:related_type] == "WkLead" ? entry.contact.name : entry.name) }
-			else
-				relatedArr << entry.id.to_s() + ',' + (params[:related_type] == "WkLead" ? entry.contact.name : entry.name) + "\n"
-			end
-		end
 		respond_to do |format|
-			format.text  { render :plain => relatedArr}
-			format.api {render :json => relatedArr}
+			format.text  {
+				(relatedId || []).each{ |entry| relatedArr << entry.id.to_s() + ',' + (params[:related_type] == "WkLead" ? entry.contact.name : entry.name) + "\n" }
+				render :plain => relatedArr
+			}
+			format.json {
+				(relatedId || []).each{ |entry| relatedArr << { value: entry.id, label: (params[:related_type] == "WkLead" ? entry.contact.name : entry.name) }}
+				render :json => relatedArr
+			}
 		end
-    end
+	end
 	
 	def check_perm_and_redirect
 		unless check_permission
