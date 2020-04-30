@@ -83,6 +83,7 @@ class WkcrmController < WkbaseController
 
 	def getCrmUsers
 		users = groupOfUsers
+		users.shift()
 		grpUser = []
 		grpUser = users.map { |usr| { value: usr[1], label: usr[0] }}
 		render json: grpUser
