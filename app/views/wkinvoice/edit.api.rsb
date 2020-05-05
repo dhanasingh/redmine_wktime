@@ -1,3 +1,4 @@
+invoiceItems = @invoiceItem || @invItems.values || []
 api.invoice do
   if @invoice.present?
     api.id @invoice.id
@@ -14,22 +15,20 @@ api.invoice do
     api.parent_id @invoice.parent_id
     api.invoice_type @invoice.invoice_type
     api.invoice_num_key @invoice.invoice_num_key
-    api.array :invoiceItemEntries do
-      if @invoiceItem.present?
-        @invoiceItem.each do |invoice_item|
-          api.invoice_item do
-            api.item_id invoice_item.id
-            api.name invoice_item.name
-            api.project_id invoice_item.project_id
-            api.rate invoice_item.rate
-            api.amount invoice_item.amount
-            api.quantity invoice_item.quantity
-            api.hd_item_type invoice_item.item_type
-            api.currency invoice_item.currency
-            api.original_currency invoice_item.original_currency
-            api.original_amount invoice_item.original_amount
-          end
-        end
+  end
+  api.array :invoiceItemEntries do
+    invoiceItems.each do |invItem|
+      api.invoice_item do
+        api.item_id invItem.try(:id) 
+        api.name invItem.try(:name)
+        api.project_id invItem["project_id"]
+        api.rate invItem["rate"]
+        api.amount invItem["amount"]
+        api.quantity invItem["quantity"]
+        api.hd_item_type invItem["item_type"]
+        api.currency invItem["currency"]
+        api.original_currency invItem["original_currency"]
+        api.original_amount invItem["original_amount"]
       end
     end
   end

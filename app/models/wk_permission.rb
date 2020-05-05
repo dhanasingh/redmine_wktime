@@ -18,4 +18,14 @@
 class WkPermission < ActiveRecord::Base
   unloadable
   
+  has_many :grpPermission, foreign_key: "permission_id", :class_name => 'WkGroupPermission'
+  has_many :group , :through => :grpPermission
+  has_many :users, :through => :group
+
+  scope :getPermissions, -> {
+    joins(:grpPermission, :users)
+    .select("count(wk_permissions.id), wk_permissions.short_name")
+    .where("users.id = ? ", User.current.id )
+    .group("users.id, wk_permissions.short_name")
+  }
 end

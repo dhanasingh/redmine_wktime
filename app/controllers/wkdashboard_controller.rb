@@ -26,6 +26,9 @@ class WkdashboardController < WkbaseController
 		@group_id = session[controller_name].try(:[], :group_id)
 		@project_id = session[controller_name].try(:[], :project_id)
 
+		@from = params[:from].present? ? params[:from].to_date : @from
+		@to = params[:to].present? ? params[:to].to_date : @to
+
 		if @from.blank? && @to.blank?
 			@to = User.current.today.end_of_month
 			@from = User.current.today.end_of_month - 12.months + 1.days

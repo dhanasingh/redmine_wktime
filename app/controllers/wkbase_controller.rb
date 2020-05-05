@@ -17,10 +17,12 @@
 
 class WkbaseController < ApplicationController
 	unloadable
+	before_action :require_login
+	before_action :clear_sort_session
+	accept_api_auth :getUserPermissions
 	helper :sort
 	include SortHelper
 	include WkattendanceHelper
-	before_action :clear_sort_session
 
 	def index
 	end
@@ -129,6 +131,23 @@ class WkbaseController < ApplicationController
 	def clear_sort_session
 		session.each do |key, values|
 			session.delete(key) if key.include? "_index_sort"
+		end
+	end
+
+	def getUserPermissions
+		wkpermissons = WkPermission.getPermissions
+		respond_to do |format|
+			format.json {
+				permissons = []
+				(wkpermissons || []).each{ |perm| permissons << perm.short_name }
+				@user = User.current
+				user = { id: @user.id, login: @user.login, firstname: @user.firstname, lastname: @user.lastname, created_on: @user.created_on, last_login_on: @user.last_login_on }
+				user['admin'] = @user.admin? if User.current.admin? || (User.current == @user)
+				user['mail'] = @user.mail if User.current.admin? || !@user.pref.hide_mail
+				user['api_key'] = @user.api_key if User.current.admin? || (User.current == @user)
+				user['status'] = @user.status if User.current.admin?
+				render :json => { permissions: permissons, user: user}
+			}
 		end
 	end
 end
