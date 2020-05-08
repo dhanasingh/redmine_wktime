@@ -223,14 +223,14 @@ class WkpayrollController < WkbaseController
 		errorMsg = generateSalaries(userIds,salaryDate, isGeneratePayroll)
 		if to_boolean(isGeneratePayroll)
 			if errorMsg.nil?
-				redirect_to action: 'index' , tab: 'payroll'
+				#redirect_to action: 'index' , tab: 'payroll'
 				flash[:notice] = l(:notice_successful_update)		
 			elsif !errorMsg.blank? &&  errorMsg == 1			
 				flash[:notice] =  l(:label_salary) + " " +  l(:notice_successful_update) 
 				if isChecked('salary_auto_post_gl')
 					flash[:error] = l(:error_trans_msg)
 				end
-				redirect_to :action => 'index'
+				#redirect_to :action => 'index'
 			end
 		end
 		payroll_list = @payrollList
