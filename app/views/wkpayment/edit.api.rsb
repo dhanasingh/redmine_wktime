@@ -6,7 +6,7 @@ api.wk_payment do
     api.reference_number @payment.reference_number
     api.description @payment.description 
   end
-  api.related_parent @payment ? @payment.parent_id : params[:related_parent]
+  api.related_parent @payment ? @payment.parent_id : params[:related_parent].to_i
   api.related_to @payment ? @payment.parent_type : params[:related_to]
   api.array :payment_entries do
     if @paymentItem.present?

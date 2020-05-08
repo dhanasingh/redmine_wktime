@@ -92,7 +92,9 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
   
   delete 'wkexpense/deleteEntries', :to => 'wkexpense#deleteEntries' 
   
-  get 'wkexpense/time_rpt', :to => 'wkexpense#time_rpt' 
+  get 'wkexpense/time_rpt', :to => 'wkexpense#time_rpt'
+	
+	get 'wkexpense/getCurrency', :to => 'wkexpense#getCurrency' 
  
   resources :projects do	
 	resources :wk_expense_entries, :controller => 'wkexpense' do

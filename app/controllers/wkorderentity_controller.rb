@@ -1,16 +1,13 @@
 class WkorderentityController < WkbillingController
   unloadable
 
-before_action :require_login
-
-include WktimeHelper
-include WkinvoiceHelper
-include WkbillingHelper
-include WkorderentityHelper
-include WkreportHelper
-include WkgltransactionHelper
-
-accept_api_auth :index, :edit, :update, :getInvProj
+	before_action :require_login
+	include WktimeHelper
+	include WkinvoiceHelper
+	include WkbillingHelper
+	include WkorderentityHelper
+	include WkreportHelper
+	include WkgltransactionHelper
 
 	def index
 		sort_init 'id', 'asc'

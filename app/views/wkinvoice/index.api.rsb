@@ -4,7 +4,7 @@ api.array :wk_invoice, api_meta(:total_count => @entry_count, :offset => @offset
       api.id entry.id
       api.invoice_number entry.invoice_number
       api.name entry.parent.name
-      api.project entry.invoice_items[0].project.name unless entry.invoice_items[0].nil?
+      api.project entry.invoice_items[0].project.name if entry.invoice_items[0].present? && entry.invoice_items[0].project.present?
       api.invoice_date entry.invoice_date
       api.start_date entry.start_date
       api.end_date entry.end_date

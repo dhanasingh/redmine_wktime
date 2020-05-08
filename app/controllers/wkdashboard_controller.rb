@@ -1,8 +1,8 @@
 class WkdashboardController < WkbaseController
 
 	before_action :require_login
-	require 'yaml'
 	accept_api_auth :getGraphs, :graph
+	require 'yaml'
 
 	include WkdashboardHelper 
 	include WkcrmHelper

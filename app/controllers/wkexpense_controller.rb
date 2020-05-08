@@ -21,7 +21,7 @@ class WkexpenseController < WktimeController
   menu_item :issues
   before_action :find_optional_project, :only => [:reportdetail, :report]
   
-  accept_api_auth :reportdetail, :index, :edit, :update, :destroy , :deleteEntries
+  accept_api_auth :reportdetail, :index, :edit, :update, :destroy , :deleteEntries, :getCurrency
   
   include WkexpenseHelper
   include SortHelper  
@@ -129,6 +129,13 @@ class WkexpenseController < WktimeController
   def minHourPerWeek
 	0
   end
+
+	def getCurrency
+    wkCurrency = options_for_currency
+		currencies = wkCurrency.map { |cur| { value: cur[1], label: cur[0] }}
+    render json: currencies
+  end
+  
 private
   def getSpecificField
 	"amount"
