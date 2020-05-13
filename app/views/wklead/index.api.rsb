@@ -5,7 +5,7 @@ api.array :wk_lead, api_meta(:total_count => @entry_count, :offset => @offset, :
       api.status getLeadStatusHash[entry.status]
       api.name entry.contact.name unless entry.contact.nil?
       api.account_name entry.account.name unless entry.account.nil?
-      api.location entry.contact.location.name unless entry.contact.nil?
+      api.location entry.contact.location.name unless entry.contact.location.nil?
       api.work_phone entry.contact.address.work_phone unless entry.contact.address.nil?
       api.email entry.contact.address.email unless entry.contact.address.nil?
     end
