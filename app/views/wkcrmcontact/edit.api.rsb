@@ -10,10 +10,10 @@ api.wk_contact do
 		api.assigned_user_id conEditEntry.assigned_user_id
 		api.salutation conEditEntry.salutation
 		api.description conEditEntry.description
-		api.account_id conEditEntry.account_id
+		api.related_to conEditEntry.account_id ? 'WkAccount' : 'WkCrmContact'
+		api.related_parent conEditEntry.account_id ? conEditEntry.account_id : conEditEntry.contact_id
 		api.contact_type conEditEntry.contact_type
 		api.location_id conEditEntry.location_id
-		api.contact_id conEditEntry.contact_id
 		api.relationship_id conEditEntry.relationship_id
 		api.address(
 			address_id: conEditEntry.address.id, address1: conEditEntry.address.address1, address2: conEditEntry.address.address2,
