@@ -138,15 +138,10 @@ class WkbaseController < ApplicationController
 		wkpermissons = WkPermission.getPermissions
 		respond_to do |format|
 			format.json {
-				permissons = []
-				(wkpermissons || []).each{ |perm| permissons << perm.short_name }
-				@user = User.current
-				user = { id: @user.id, login: @user.login, firstname: @user.firstname, lastname: @user.lastname, created_on: @user.created_on, last_login_on: @user.last_login_on }
-				user['admin'] = @user.admin? if User.current.admin? || (User.current == @user)
-				user['mail'] = @user.mail if User.current.admin? || !@user.pref.hide_mail
-				user['api_key'] = @user.api_key if User.current.admin? || (User.current == @user)
-				user['status'] = @user.status if User.current.admin?
-				render :json => { permissions: permissons, user: user}
+				permissons = (wkpermissons || []).map{ |perm| perm.short_name }
+				modules = []
+				Setting.plugin_redmine_wktime.each{ |key, val| modules << key.split("_")[2] if key.start_with?("wktime_enable_") && val == "1" }
+				render json: { permissions: permissons, modules: modules}
 			}
 		end
 	end
