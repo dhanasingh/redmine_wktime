@@ -75,7 +75,7 @@ class WkdashboardController < WkbaseController
 	end
 
 	def getGraphs
-		graphs = get_graphs_yaml_path
+		graphs = get_graphs_yaml_path().sort
 		graphDetails = []
 		graphs.each{ |path| graphDetails << graph(path) }
 		render json: graphDetails
