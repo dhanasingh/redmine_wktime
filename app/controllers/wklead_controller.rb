@@ -2,7 +2,7 @@ class WkleadController < WkcrmController
   unloadable
   include WktimeHelper
   include WkleadHelper
-  accept_api_auth :index, :edit, :getleadstatus, :getuserGrp, :update
+  accept_api_auth :index, :edit, :getuserGrp, :update
 
 	def index
 		sort_init 'id', 'asc'
@@ -205,13 +205,6 @@ end
 				end
 			end
 		end
-    end
-	
-	def getleadstatus	
-		statuArr = getLeadStatusArr
-		status = []
-		status = statuArr.map { |sts| { value: sts[1], label: sts[0] }}
-		render json: status
 	end
 
 	def getuserGrp

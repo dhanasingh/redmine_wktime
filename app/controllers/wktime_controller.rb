@@ -219,7 +219,7 @@ include QueriesHelper
 							#	break unless errorMsg.blank?
 							#end
 						end				
-						if !errorMsg.blank? && !params[:wktime_submit].blank? && useApprovalSystem 
+						if !params[:wktime_submit].blank? && useApprovalSystem 
 							@wktime.submitted_on = Date.today
 							@wktime.submitter_id = User.current.id
 							@wktime.status = :s					
