@@ -5,7 +5,7 @@
 <%= hidden_field_tag 'getspenttype_url', url_for(:controller => 'wklogmaterial', :action => 'loadSpentType') %>
 
 <!-- For SideBar theme -->
-<% if Setting.ui_theme == "SideBar" %>
+<% if Setting.ui_theme.to_s.downcase == "sidebar" %>
     <%= stylesheet_link_tag 'sidebar', :plugin => "redmine_wktime" %>
     <%= javascript_tag do %>
         $(function() {
