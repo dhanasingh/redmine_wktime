@@ -350,11 +350,6 @@ include QueriesHelper
 	
 	# API
 	def deleteEntries
-		if api_request? && params[:params].present?
-			key = "wk_" + getTEName()
-			params[key] = params[:params]
-			params.delete("params")
-		end
 		deleterow
 	end
 	
@@ -362,7 +357,7 @@ include QueriesHelper
 		ids = Array.new
 		teName = getTEName()
 		entityNames = getEntityNames()
-		entries = params[:"wk_#{teName}"]["#{entityNames[1]}"]
+		entries = JSON.parse(params["#{entityNames[1]}"])
 		if !entries.blank?
 			entries.each do |entry|		
 				ids << entry["id"]
