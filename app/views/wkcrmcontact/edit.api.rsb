@@ -1,0 +1,25 @@
+api.wk_contact do
+	if @conEditEntry.present?
+		conEditEntry = @conEditEntry.first
+		api.contact_id conEditEntry.id
+		api.first_name conEditEntry.first_name
+		api.last_name conEditEntry.last_name
+		api.address_id conEditEntry.address_id
+		api.contact_title conEditEntry.title
+		api.department conEditEntry.department
+		api.assigned_user_id conEditEntry.assigned_user_id
+		api.salutation conEditEntry.salutation
+		api.description conEditEntry.description
+		api.related_to conEditEntry.account_id ? 'WkAccount' : 'WkCrmContact'
+		api.related_parent conEditEntry.account_id ? conEditEntry.account_id : conEditEntry.contact_id
+		api.contact_type conEditEntry.contact_type
+		api.location_id conEditEntry.location_id
+		api.relationship_id conEditEntry.relationship_id
+		api.address(
+			address_id: conEditEntry.address.id, address1: conEditEntry.address.address1, address2: conEditEntry.address.address2,
+			work_phone: conEditEntry.address.work_phone, mobile: conEditEntry.address.mobile, email: conEditEntry.address.email,
+			fax: conEditEntry.address.fax, city: conEditEntry.address.city, country: conEditEntry.address.country,
+			state: conEditEntry.address.state, pin: conEditEntry.address.pin, website: conEditEntry.address.website
+		) if conEditEntry.address.present?
+	end
+end

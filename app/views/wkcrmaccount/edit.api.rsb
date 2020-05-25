@@ -1,0 +1,16 @@
+api.wk_account do
+	if @accountEntry.present?
+		api.account_id @accountEntry.id
+		api.account_name @accountEntry.name
+		api.account_billing @accountEntry.account_billing
+		api.account_category @accountEntry.account_category
+		api.location_id @accountEntry.location_id
+		api.description @accountEntry.description
+			api.address(
+			id: @accountEntry.address.id, address1: @accountEntry.address.address1, address2: @accountEntry.address.address2,
+			work_phone: @accountEntry.address.work_phone, mobile: @accountEntry.address.mobile, email: @accountEntry.address.email,
+			fax: @accountEntry.address.fax, city: @accountEntry.address.city, country: @accountEntry.address.country,
+			state: @accountEntry.address.state, pin: @accountEntry.address.pin, website: @accountEntry.address.website
+		) if @accountEntry.address.present?
+	end
+end

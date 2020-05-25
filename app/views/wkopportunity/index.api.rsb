@@ -1,0 +1,13 @@
+api.array :wk_opportunity, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+  @opportunity.each do |entry|
+    api.entry do
+      api.id entry.id
+      api.name entry.name
+      api.related_to relatedHash[entry.parent_type]
+      api.sales_stage getSaleStageHash[entry.sales_stage_id] unless entry.sales_stage_id.nil?
+      api.currency entry.currency
+      api.amount entry.amount
+      api.closed_date entry.close_date.localtime.strftime("%Y-%m-%d")
+    end
+  end
+end

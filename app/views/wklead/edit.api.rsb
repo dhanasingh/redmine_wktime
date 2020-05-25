@@ -1,0 +1,33 @@
+
+api.lead do
+    if @lead
+        api.lead_id @lead.id
+        api.account_id @lead.account_id
+        api.status @lead.status
+        api.opportunity_amount @lead.opportunity_amount
+        api.lead_source_id @lead.lead_source_id
+        api.referred_by @lead.referred_by
+        api.contact_id @lead.contact.id
+        api.first_name @lead.contact.first_name
+        api.last_name @lead.contact.last_name
+        api.department @lead.contact.department
+        api.location_id @lead.contact.location_id
+        api.description @lead.contact.description
+        api.assigned_user_id @lead.contact.assigned_user_id
+        api.account_name @lead.account.name if @lead.account.present?
+        api.address(
+            address_id: @lead.contact.address.id,
+            address1: @lead.contact.address.address1,
+            address2: @lead.contact.address.address2,
+            work_phone: @lead.contact.address.work_phone,
+            mobile: @lead.contact.address.mobile,
+            email: @lead.contact.address.email,
+            fax: @lead.contact.address.fax,
+            city: @lead.contact.address.city,
+            country: @lead.contact.address.country,
+            state: @lead.contact.address.state,
+            website: @lead.contact.address.website,
+            pin: @lead.contact.address.pin,
+        ) unless @lead.contact.address.nil?
+    end
+end

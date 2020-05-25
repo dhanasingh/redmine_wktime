@@ -4,7 +4,7 @@ class WklocationController < WkbaseController
   include WktimeHelper
   before_action :require_login
   before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
-
+	accept_api_auth :getlocations
 
   def index
 	sort_init 'id', 'asc'
@@ -119,4 +119,10 @@ class WklocationController < WkbaseController
 		end	
 	end
 
+	def getlocations
+		wklocations = WkLocation.order(name: :asc)
+		locations = []
+		locations = wklocations.map { |loc| { value: loc.id, label: loc.name }}
+		render json: locations
+	end
 end

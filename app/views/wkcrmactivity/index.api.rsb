@@ -1,0 +1,15 @@
+api.array :wk_activities, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+  @activity.each do |entry|
+    api.entry do
+      api.id entry.id
+      api.activity_type acttypeHash[entry.activity_type] unless entry.activity_type.nil?
+      api.subject entry.name
+      api.status (entry.activity_type == 'M' || entry.activity_type == 'C' ? meetCallStatusHash[entry.status] : 
+            taskStatusHash[entry.status])
+      api.related_to relatedHash[entry.parent_type]
+      api.start_date entry.start_date.localtime.strftime("%Y-%m-%d %H:%M:%S")
+      api.end_date entry.end_date.localtime.strftime("%Y-%m-%d %H:%M:%S") unless entry.end_date.nil?
+      api.assignee entry.assigned_user.name(:firstname_lastname) unless entry.assigned_user.nil?
+    end
+  end
+end

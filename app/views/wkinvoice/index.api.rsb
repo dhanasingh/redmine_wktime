@@ -1,0 +1,19 @@
+api.array :wk_invoice, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+  @invoiceEntries.each do |entry|
+    api.entry do
+      api.id entry.id
+      api.invoice_number entry.invoice_number
+      api.name entry.parent.name
+      api.project entry.invoice_items[0].project.name if entry.invoice_items[0].present? && entry.invoice_items[0].project.present?
+      api.invoice_date entry.invoice_date
+      api.start_date entry.start_date
+      api.end_date entry.end_date
+      api.status (entry.status == 'o' ? 'open' : 'closed')
+      api.quantity ("%.4f" % entry.invoice_items.sum(:quantity))
+      api.amount ("%.2f" % entry.invoice_items.sum(:amount))
+      api.org_amount ("%.2f" % entry.invoice_items.sum(:original_amount))
+			api.org_currency entry.invoice_items[0].original_currency unless entry.invoice_items[0].blank?
+			api.currency entry.invoice_items[0].currency unless entry.invoice_items[0].blank?
+    end
+  end
+end

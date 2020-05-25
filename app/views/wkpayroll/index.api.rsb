@@ -1,0 +1,14 @@
+api.array :wk_payroll do
+  @payrollEntries.each do |key, entry|
+    api.entry do
+      api.id entry[:uID]
+      api.name entry[:firstname] + ' ' + entry[:lastname]
+      api.joindate entry[:joinDate]
+      api.saldate entry[:salDate]
+      api.basic entry[:BT]
+      api.allowance entry[:AT]
+      api.deduction entry[:DT]
+      api.currency entry[:currency]
+    end
+  end
+end

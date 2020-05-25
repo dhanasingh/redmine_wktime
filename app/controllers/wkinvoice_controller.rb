@@ -16,6 +16,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkinvoiceController < WkorderentityController
+
+	accept_api_auth :index, :edit, :update, :getInvProj, :getAccountProjIds
 	@@invmutex = Mutex.new
 
 	def newOrderEntity(parentId, parentType)	
@@ -237,25 +239,23 @@ class WkinvoiceController < WkorderentityController
 	end
 		
 	def getAccountProjIds
-		accArr = ""	
 		accProjId = getProjArrays(params[:parent_id], params[:parent_type] )
-		accPjt = WkAccountProject.where(:parent_id => params[:parent_id],:parent_type => params[:parent_type])
-		unless accPjt.blank?
-			if isAccountBilling(accPjt[0])
-				accArr << "0" + ',' + " " + "\n" 
-			end
-		end
-		
-		if !accProjId.blank?			
-			accProjId.each do | entry|
-				accArr <<  entry.project_id.to_s() + ',' + entry.project_name.to_s()  + "\n" 
-			end
-		end
+		accPjt = WkAccountProject.where(parent_id: params[:parent_id], parent_type: params[:parent_type])
+		accProjs = ""
+		accProjs << "0" + ',' + " " + "\n" if accPjt.present? && isAccountBilling(accPjt[0])
+
 		respond_to do |format|
-			format.text  { render :plain => accArr }
+			format.text{
+				(accProjId || []).each{ |proj| accProjs << proj.project_id.to_s() + ',' + proj.project_name.to_s()  + "\n" }
+				render(plain: accProjs)
+			}
+			format.json{
+				accProjs = []
+				(accProjId || []).each{ |proj| accProjs << { value: proj.project_id, label: proj.project_name }}
+				render(json: accProjs)
+			}
 		end
-		
-    end
+	end
 	
 	def getPopulateChkBox
 		l(:label_populate_unbilled_items)

@@ -2,6 +2,7 @@ class WkleadController < WkcrmController
   unloadable
   include WktimeHelper
   include WkleadHelper
+  accept_api_auth :index, :edit, :getuserGrp, :update
 
 	def index
 		sort_init 'id', 'asc'
@@ -39,6 +40,12 @@ class WkleadController < WkcrmController
 			entries = entries.where("wk_crm_contacts.location_id = ? ", location_id)
 		end
 		formPagination(entries.reorder(sort_clause))
+		respond_to do |format|
+			format.html {        
+			  render :layout => !request.xhr?
+			}
+			format.api
+		end
 	end
 	  
 	def show
@@ -117,8 +124,15 @@ class WkleadController < WkcrmController
 	end
 	  
 	def update
-
+		if api_request?
+			(params[:params] || []).each{|param| params[param.first] = param.last }
+			params.delete("params")
+			(params[:address] || []).each{|addr| params[addr.first] = addr.last }
+			params.delete("address")
+		end
 		wkLead = update_without_redirect
+		respond_to do |format|
+			format.html {
 		if @wkContact.valid?
 			if params[:wklead_save_convert] || @isConvert
 				redirect_to :action => 'convert', :lead_id => wkLead.id
@@ -130,6 +144,17 @@ class WkleadController < WkcrmController
 			flash[:error] = @wkContact.errors.full_messages.join("<br>")
 		    redirect_to :controller => 'wklead',:action => 'edit', :lead_id => wkLead.id
 		end 
+	}
+	format.api{
+		errorMsg = @wkContact.errors.full_messages.join("<br>")
+		if errorMsg.blank?
+			render :plain => errorMsg, :layout => nil
+		else		
+			@error_messages = errorMsg.split('\n')	
+			render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+		end
+	}
+end
 	end
   
     def destroy
@@ -169,7 +194,7 @@ class WkleadController < WkcrmController
 	end
 
 	def set_filter_session
-		if params[:searchlist] == controller_name
+		if params[:searchlist] == controller_name || api_request?
 			session[controller_name] = Hash.new if session[controller_name].nil?
 			filters = [:lead_name, :status, :location_id]
 			filters.each do |param|
@@ -180,6 +205,13 @@ class WkleadController < WkcrmController
 				end
 			end
 		end
-    end
+	end
+
+	def getuserGrp
+		users = groupOfUsers
+		grpUser = []
+		grpUser = users.map { |usr| { value: usr[1], label: usr[0] }}
+		render json: grpUser
+	end
 
 end

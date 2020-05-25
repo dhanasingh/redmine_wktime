@@ -1,0 +1,17 @@
+api.wk_activity do
+  if @activityEntry.present?
+    api.crm_activity_id @activityEntry[0].id
+    api.activity_type @activityEntry[0].activity_type
+    api.activity_subject @activityEntry[0].name
+    api.related_parent @activityEntry[0].parent_id
+    api.related_to @activityEntry[0].parent_type
+    api.assigned_user_id @activityEntry[0].assigned_user_id
+    api.status @activityEntry[0].status
+    api.activity_direction @activityEntry[0].direction
+    api.activity_start_date @activityEntry[0].start_date.localtime unless @activityEntry[0].start_date.nil?
+    api.activity_end_date @activityEntry[0].end_date.localtime unless @activityEntry[0].end_date.nil?
+    api.activity_duration @activityEntry[0].duration
+    api.location @activityEntry[0].location
+    api.activity_description @activityEntry[0].description
+  end
+end

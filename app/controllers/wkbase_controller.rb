@@ -17,10 +17,12 @@
 
 class WkbaseController < ApplicationController
 	unloadable
+	before_action :require_login
+	before_action :clear_sort_session
+	accept_api_auth :getUserPermissions
 	helper :sort
 	include SortHelper
 	include WkattendanceHelper
-	before_action :clear_sort_session
 
 	def index
 	end
@@ -129,6 +131,18 @@ class WkbaseController < ApplicationController
 	def clear_sort_session
 		session.each do |key, values|
 			session.delete(key) if key.include? "_index_sort"
+		end
+	end
+
+	def getUserPermissions
+		wkpermissons = WkPermission.getPermissions
+		respond_to do |format|
+			format.json {
+				permissons = (wkpermissons || []).map{ |perm| perm.short_name }
+				modules = []
+				Setting.plugin_redmine_wktime.each{ |key, val| modules << key.split("_")[2] if key.start_with?("wktime_enable_") && val == "1" }
+				render json: { permissions: permissons, modules: modules}
+			}
 		end
 	end
 end

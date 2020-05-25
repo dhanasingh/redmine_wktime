@@ -27,6 +27,8 @@ class WkpayrollController < WkbaseController
 	include WktimeHelper
 	include WkreportHelper
 
+	accept_api_auth :index, :edit
+
 	def index
 		payrollEntries()
 		payrollEntriesArr = @payrollEntries.to_a
@@ -45,6 +47,12 @@ class WkpayrollController < WkbaseController
 		end
 		@total_gross = @payrollEntries.sum { |k, p| p[:BT] + p[:AT] }
 		@total_net = @payrollEntries.sum { |k, p| p[:BT] + p[:AT] - p[:DT] }
+		respond_to do |format|
+      format.html {        
+        render :layout => !request.xhr?
+      }
+      format.api
+		end
 
 	end
 
@@ -177,6 +185,12 @@ class WkpayrollController < WkbaseController
 		end	
 		form_payroll_entries(payrollAmount, userid)
 		@payrollDetails = @payrollEntries[key][:details]
+		respond_to do |format|
+			format.html {
+				render :layout => !request.xhr?
+			} 
+			format.api
+		end
 	end
 
 	def updateUserSalary
@@ -209,14 +223,14 @@ class WkpayrollController < WkbaseController
 		errorMsg = generateSalaries(userIds,salaryDate, isGeneratePayroll)
 		if to_boolean(isGeneratePayroll)
 			if errorMsg.nil?
-				redirect_to action: 'index' , tab: 'payroll'
+				#redirect_to action: 'index' , tab: 'payroll'
 				flash[:notice] = l(:notice_successful_update)		
 			elsif !errorMsg.blank? &&  errorMsg == 1			
 				flash[:notice] =  l(:label_salary) + " " +  l(:notice_successful_update) 
 				if isChecked('salary_auto_post_gl')
 					flash[:error] = l(:error_trans_msg)
 				end
-				redirect_to :action => 'index'
+				#redirect_to :action => 'index'
 			end
 		end
 		payroll_list = @payrollList
@@ -288,7 +302,7 @@ class WkpayrollController < WkbaseController
 
 	def set_filter_session
 		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
-		if params[:searchlist] == controller_name
+		if params[:searchlist] == controller_name || api_request?
 			filters = [:period_type, :period, :group_id, :user_id, :from, :to]
 			filters.each do |param|
 				if params[param].blank? && session[controller_name].try(:[], param).present?

@@ -20,9 +20,9 @@ function payrollFormSubmission(isGenerate)
 
 	if(!isNaN(dateval.getFullYear()) || !isNaN(fromdateval.getFullYear()))
 	{
-		var isFormSubmission = isGenerate ? confirm(`${confirmationText} ` + salaryDate) : true;
-		document.getElementById("generate").value = isGenerate;
-		if(isFormSubmission)
+		var response = isGenerate && confirm(`${confirmationText} ` + salaryDate);
+		document.getElementById("generate").value = isGenerate && response;
+		if(response || !isGenerate )
 			document.getElementById("query_form").submit();
 	}
 	else

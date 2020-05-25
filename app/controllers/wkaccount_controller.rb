@@ -16,6 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkaccountController < WkcrmController
+
 	include WkaccountprojectHelper
     before_action :require_login
 
@@ -47,6 +48,12 @@ class WkaccountController < WkcrmController
 		end
 		entries = entries.order(:name)
 		formPagination(entries.reorder(sort_clause))
+		respond_to do |format|
+			format.html {        
+			  render :layout => !request.xhr?
+			}
+			format.api
+		end
 	end
 	
 	def formPagination(entries)
@@ -80,9 +87,22 @@ class WkaccountController < WkcrmController
 	
 		  @accountEntry = WkAccount.find(params[:account_id])
 		end
+		respond_to do |format|
+			format.html {        
+			  render :layout => !request.xhr?
+			}
+			format.api
+		end
     end	
 	
 	def update
+		if api_request?
+			(params[:params] || []).each{|param| params[param.first] = param.last }
+			params.delete("params")
+			(params[:address] || []).each{|addr| params[addr.first] = addr.last }
+			params.delete("address")
+		end
+
 		errorMsg = nil
 		if params[:account_id].blank? || params[:account_id].to_i == 0
 			wkaccount = WkAccount.new
@@ -95,20 +115,33 @@ class WkaccountController < WkcrmController
 		wkaccount.description = params[:description]
 		wkaccount.account_billing = params[:account_billing].blank? ? 0 : params[:account_billing]
 		wkaccount.location_id = params[:location_id] if params[:location_id] != "0"
-		unless wkaccount.valid? 		
+
+		if wkaccount.valid?
+			addrId = updateAddress
+			wkaccount.address_id = addrId if addrId.present?
+			wkaccount.save
+		else
 			errorMsg = errorMsg.blank? ? wkaccount.errors.full_messages.join("<br>") : wkaccount.errors.full_messages.join("<br>") + "<br/>" + errorMsg
 		end
-		if errorMsg.nil?
-			addrId = updateAddress
-			unless addrId.blank?
-				wkaccount.address_id = addrId
-			end			
-			wkaccount.save
-		    redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
-		    flash[:notice] = l(:notice_successful_update)
-		else
-			flash[:error] = errorMsg #wkaccount.errors.full_messages.join("<br>")
-		    redirect_to :controller => controller_name,:action => 'edit', :account_id => wkaccount.id
+
+		respond_to do |format|
+			format.html {
+				if errorMsg.nil?
+					redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name 
+					flash[:notice] = l(:notice_successful_update)
+				else
+					flash[:error] = errorMsg #wkaccount.errors.full_messages.join("<br>")
+					redirect_to :controller => controller_name, :action => 'edit', :account_id => wkaccount.id
+				end
+			}
+			format.api{
+				if errorMsg.blank?
+					render :plain => errorMsg, :layout => nil
+				else
+					@error_messages = errorMsg.split('\n')	
+					render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+				end
+			}
 		end
 	end
 	
@@ -128,7 +161,7 @@ class WkaccountController < WkcrmController
 	end
 
 	def set_filter_session
-		if params[:searchlist] == controller_name
+		if params[:searchlist] == controller_name || api_request?
 			session[controller_name] = Hash.new if session[controller_name].nil?
 			filters = [:location_id, :accountname]
 			filters.each do |param|

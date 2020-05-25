@@ -20,6 +20,7 @@ class WkcrmactivityController < WkcrmController
   unloadable
   menu_item :wklead
   include WktimeHelper
+	accept_api_auth :index, :edit, :update
 
 	def index
 		sort_init 'id', 'asc'
@@ -57,9 +58,15 @@ class WkcrmactivityController < WkcrmController
 			crmactivity = crmactivity.where(:activity_type => actType, :parent_type => relatedTo)
 		end
 		formPagination(crmactivity.reorder(sort_clause))
+		respond_to do |format|
+			format.html {        
+				render :layout => !request.xhr?
+			}
+			format.api
+		end
 	end
   
-    def edit
+  def edit
 		@activityEntry = nil
 		unless params[:activity_id].blank?
 			@activityEntry = WkCrmActivity.where(:id => params[:activity_id].to_i)
@@ -67,10 +74,20 @@ class WkcrmactivityController < WkcrmController
 		isError = params[:isError].blank? ? false : to_boolean(params[:isError])
 		if !$tempActivity.blank?  && isError
 			@activityEntry = $tempActivity
+			respond_to do |format|
+				format.html {        
+					render :layout => !request.xhr?
+				}
+				format.api
+			end
 		end
-    end
+  end
   
-    def update
+  def update
+		if api_request?
+			(params[:params] || []).each{|param| params[param.first] = param.last }
+			params.delete("params")
+		end
 		errorMsg = nil
 		crmActivity = nil
 		@tempCrmActivity ||= Array.new
@@ -105,25 +122,36 @@ class WkcrmactivityController < WkcrmController
 			crmActivity.save()
 			$tempActivity = nil 
 		end
-		
-		if errorMsg.blank?
-			
-			if params[:controller_from] == 'wksupplieraccount'
-				redirect_to :controller => params[:controller_from],:action => params[:action_from] , :account_id => crmActivity.parent_id
-			elsif params[:controller_from] == 'wksuppliercontact'
-				redirect_to :controller => params[:controller_from],:action => params[:action_from] , :contact_id => crmActivity.parent_id
-			else
-				redirect_to :controller => 'wkcrmactivity',:action => 'index' , :tab => 'wkcrmactivity'
-			end
-			$tempActivity = nil			
-			flash[:notice] = l(:notice_successful_update)
-		else
-			flash[:error] = errorMsg 
-			redirect_to :controller => 'wkcrmactivity',:action => 'edit', :isError => true
+
+		respond_to do |format|
+			format.html {
+				if errorMsg.blank?
+					if params[:controller_from] == 'wksupplieraccount'
+						redirect_to :controller => params[:controller_from],:action => params[:action_from] , :account_id => crmActivity.parent_id
+					elsif params[:controller_from] == 'wksuppliercontact'
+						redirect_to :controller => params[:controller_from],:action => params[:action_from] , :contact_id => crmActivity.parent_id
+					else
+						redirect_to :controller => 'wkcrmactivity',:action => 'index' , :tab => 'wkcrmactivity'
+					end
+					$tempActivity = nil			
+					flash[:notice] = l(:notice_successful_update)
+				else
+					flash[:error] = errorMsg 
+					redirect_to :controller => 'wkcrmactivity',:action => 'edit', :isError => true
+				end
+			}
+			format.api{
+				if errorMsg.blank?
+					render :plain => errorMsg, :layout => nil
+				else			
+					@error_messages = errorMsg.split('\n')	
+					render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+				end
+			}
 		end	
-    end
+  end
   
-    def destroy
+  def destroy
 		parentId = WkCrmActivity.find(params[:activity_id].to_i).parent_id
 		trans = WkCrmActivity.find(params[:activity_id].to_i).destroy
 		flash[:notice] = l(:notice_successful_delete)
@@ -135,11 +163,11 @@ class WkcrmactivityController < WkcrmController
 		else
 			redirect_back_or_default :action => 'index', :tab => params[:tab]
 		end
-    end
+  end
 	
 	def set_filter_session
 		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
-		if params[:searchlist] == controller_name
+		if params[:searchlist] == controller_name || api_request?
 			filters = [:period_type, :period, :from, :to, :activity_type, :related_to]
 			filters.each do |param|
 				if params[param].blank? && session[controller_name].try(:[], param).present?

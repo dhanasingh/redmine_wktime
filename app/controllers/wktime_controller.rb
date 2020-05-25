@@ -20,6 +20,7 @@ unloadable
 
 include WktimeHelper
 include WkcrmHelper
+require 'json'
 
 before_action :require_login
 before_action :check_perm_and_redirect, :only => [:edit, :update, :destroy] # user without edit permission can't destroy
@@ -27,7 +28,7 @@ before_action :check_editperm_redirect, :only => [:destroy]
 before_action :check_view_redirect, :only => [:index]
 before_action :check_log_time_redirect, :only => [:new]
 
-accept_api_auth :index, :edit, :update, :destroy, :deleteEntries
+accept_api_auth :index, :edit, :update, :destroy, :deleteEntries, :getProjects, :getissues, :getactivities
 
 helper :custom_fields
 helper :queries
@@ -155,142 +156,147 @@ include QueriesHelper
   end
 
   # called when save is clicked on the page
-  def update
-	setup	
-	set_loggable_projects
-	set_edit_time_logs
-	@wktime = nil
-	errorMsg = nil
-	respMsg = nil	
-	wkattendance = nil
-	findWkTE(@startday)	
-	@wktime = getWkEntity if @wktime.nil?
-	allowApprove = false
-	if api_request?
-		errorMsg = gatherAPIEntries	
-		errorMsg = validateMinMaxHr(@startday) if errorMsg.blank?
-		total = @total		
-		allowApprove = true if check_approvable_status		
-	else
-		total = params[:total].to_f
-		gatherEntries
-		allowApprove = true		
-	end	
-	errorMsg = gatherWkCustomFields(@wktime) if @wkvalidEntry && errorMsg.blank?
-	wktimeParams = params[:wktime]
-	cvParams = wktimeParams[:custom_field_values] unless wktimeParams.blank?	
-	useApprovalSystem = (!Setting.plugin_redmine_wktime['wktime_use_approval_system'].blank? &&
+	def update
+		if api_request? && params[:params].present?
+			key = "wk_" + getTEName()
+			params[key] = params[:params]
+			params.delete("params")
+		end
+		setup
+		set_loggable_projects
+		set_edit_time_logs
+		@wktime = nil
+		errorMsg = nil
+		respMsg = nil	
+		wkattendance = nil
+		findWkTE(@startday)	
+		@wktime = getWkEntity if @wktime.nil?
+		allowApprove = false
+		if api_request?
+			errorMsg = gatherAPIEntries	
+			errorMsg = validateMinMaxHr(@startday) if errorMsg.blank?
+			total = @total		
+			allowApprove = true if check_approvable_status		
+		else
+			total = params[:total].to_f
+			gatherEntries
+			allowApprove = true		
+		end
+		errorMsg = gatherWkCustomFields(@wktime) if @wkvalidEntry && errorMsg.blank?
+		wktimeParams = params[:wktime]
+		cvParams = wktimeParams[:custom_field_values] unless wktimeParams.blank?	
+		useApprovalSystem = (!Setting.plugin_redmine_wktime['wktime_use_approval_system'].blank? &&
 							Setting.plugin_redmine_wktime['wktime_use_approval_system'].to_i == 1)
 							
-	@wktime.transaction do
-		begin				
-			if errorMsg.blank? && (!params[:wktime_save].blank? || !params[:wktime_save_continue].blank? ||
-				(!params[:wktime_submit].blank? && @wkvalidEntry && useApprovalSystem))		
-				if !@wktime.nil? && ( @wktime.status == 'n' || @wktime.status == 'r')			
-					@wktime.status = :n
-					# save each entry
-					entrycount=0
-					entrynilcount=0	
-					@entries.each do |entry|			
-						entrycount += 1
-						entrynilcount += 1 if (entry.hours).blank?
-						allowSave = true
-						if (!entry.id.blank? && !entry.editable_by?(User.current))
-							allowSave = false
-						end
-						allowSave = true if (to_boolean(@edittimelogs) || validateERPPermission('A_TE_PRVLG') || !isBilledTimeEntry(entry))
-						#if !((Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? ||
-						#		Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 0) && 
-						#		entry.issue.blank?)
-							if allowSave
-								errorMsg = updateEntry(entry) 
-							else
-								errorMsg = l(:error_not_permitted_save) if !api_request?
+		@wktime.transaction do
+			begin				
+				if errorMsg.blank? && (!params[:wktime_save].blank? || !params[:wktime_save_continue].blank? ||
+					(!params[:wktime_submit].blank? && @wkvalidEntry && useApprovalSystem))		
+					if !@wktime.nil? && ( @wktime.status == 'n' || @wktime.status == 'r')			
+						@wktime.status = :n
+						# save each entry
+						entrycount=0
+						entrynilcount=0	
+						@entries.each do |entry|			
+							entrycount += 1
+							entrynilcount += 1 if (entry.hours).blank?
+							allowSave = true
+							if (!entry.id.blank? && !entry.editable_by?(User.current))
+								allowSave = false
 							end
-							break unless errorMsg.blank?
-						#else
-						#	errorMsg = "#{l(:field_issue)} #{l('activerecord.errors.messages.blank')} "
-						#	break unless errorMsg.blank?
-						#end
-					end				
-					if !errorMsg.blank? && !params[:wktime_submit].blank? && useApprovalSystem 
+							allowSave = true if (to_boolean(@edittimelogs) || validateERPPermission('A_TE_PRVLG') || !isBilledTimeEntry(entry))
+							#if !((Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].blank? ||
+							#		Setting.plugin_redmine_wktime['wktime_allow_blank_issue'].to_i == 0) && 
+							#		entry.issue.blank?)
+								if allowSave
+									errorMsg = updateEntry(entry) 
+								else
+									errorMsg = l(:error_not_permitted_save) if !api_request?
+								end
+								break unless errorMsg.blank?
+							#else
+							#	errorMsg = "#{l(:field_issue)} #{l('activerecord.errors.messages.blank')} "
+							#	break unless errorMsg.blank?
+							#end
+						end				
+						if !params[:wktime_submit].blank? && useApprovalSystem 
+							@wktime.submitted_on = Date.today
+							@wktime.submitter_id = User.current.id
+							@wktime.status = :s					
+							if !Setting.plugin_redmine_wktime['wktime_uuto_approve'].blank? &&
+								Setting.plugin_redmine_wktime['wktime_uuto_approve'].to_i == 1
+								@wktime.status = :a
+							end
+						end
+					end
+					setTotal(@wktime,total)
+					#if (errorMsg.blank? && total > 0.0)
+					errorMsg = 	updateWktime if (errorMsg.blank? && ((!@entries.blank? && entrycount!=entrynilcount) || @teEntrydisabled))	
+				end
+
+				if errorMsg.blank? && useApprovalSystem
+					if !@wktime.nil? && @wktime.status == 's'					
+						if !params[:wktime_approve].blank? && allowApprove					 
+							errorMsg = updateStatus(:a)
+						elsif (!params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank?) && allowApprove
+							if api_request?
+								teName = getTEName()
+								if !params[:"wk_#{teName}"].blank? && !params[:"wk_#{teName}"][:notes].blank?
+									@wktime.notes = params[:"wk_#{teName}"][:notes]
+								end
+							else
+								@wktime.notes = params[:wktime_notes] unless params[:wktime_notes].blank?
+							end
+							errorMsg = updateStatus(:r)
+							if email_delivery_enabled? 
+								sendRejectionEmail
+							end
+						elsif !params[:wktime_unsubmit].blank?
+							errorMsg = updateStatus(:n)
+						end
+					elsif !params[:wktime_unapprove].blank? && !@wktime.nil? && @wktime.status == 'a' && allowApprove
+						errorMsg = updateStatus(:s)
+					elsif !params[:wktime_submit].blank? && !@wktime.nil? && ( @wktime.status == 'n' || @wktime.status == 'r')	
+						#if TE sheet is read only mode with submit button		
 						@wktime.submitted_on = Date.today
-						@wktime.submitter_id = User.current.id
-						@wktime.status = :s					
+						@wktime.submitter_id = User.current.id							
 						if !Setting.plugin_redmine_wktime['wktime_uuto_approve'].blank? &&
 							Setting.plugin_redmine_wktime['wktime_uuto_approve'].to_i == 1
-							@wktime.status = :a
-						end
-					end
-				end
-				setTotal(@wktime,total)
-				#if (errorMsg.blank? && total > 0.0)
-				errorMsg = 	updateWktime if (errorMsg.blank? && ((!@entries.blank? && entrycount!=entrynilcount) || @teEntrydisabled))	
-			end
-
-			if errorMsg.blank? && useApprovalSystem
-				if !@wktime.nil? && @wktime.status == 's'					
-					if !params[:wktime_approve].blank? && allowApprove					 
-						errorMsg = updateStatus(:a)
-					elsif (!params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank?) && allowApprove
-						if api_request?
-							teName = getTEName()
-							if !params[:"wk_#{teName}"].blank? && !params[:"wk_#{teName}"][:notes].blank?
-								@wktime.notes = params[:"wk_#{teName}"][:notes]
-							end
+							errorMsg = updateStatus(:a)
 						else
-							@wktime.notes = params[:wktime_notes] unless params[:wktime_notes].blank?
+							errorMsg = updateStatus(:s)
 						end
-						errorMsg = updateStatus(:r)
-						if email_delivery_enabled? 
-							sendRejectionEmail
-						end
-					elsif !params[:wktime_unsubmit].blank?
-						errorMsg = updateStatus(:n)
-					end
-				elsif !params[:wktime_unapprove].blank? && !@wktime.nil? && @wktime.status == 'a' && allowApprove
-					errorMsg = updateStatus(:s)
-				elsif !params[:wktime_submit].blank? && !@wktime.nil? && ( @wktime.status == 'n' || @wktime.status == 'r')	
-					#if TE sheet is read only mode with submit button		
-					@wktime.submitted_on = Date.today
-					@wktime.submitter_id = User.current.id							
-					if !Setting.plugin_redmine_wktime['wktime_uuto_approve'].blank? &&
-						Setting.plugin_redmine_wktime['wktime_uuto_approve'].to_i == 1
-						errorMsg = updateStatus(:a)
-					else
-						errorMsg = updateStatus(:s)
 					end
 				end
+			rescue Exception => e			
+				errorMsg = e.message
 			end
-		rescue Exception => e			
-			errorMsg = e.message
-		end
-		if errorMsg.nil?			
-			#when the are entries or it is not a save action
-			if !@entries.blank? || !params[:wktime_approve].blank? || 
-				(!params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank?) ||
-				!params[:wktime_unsubmit].blank? || !params[:wktime_unapprove].blank? ||
-				((!params[:wktime_submit].blank? || !cvParams.blank?) && total > 0.0) # && @wkvalidEntry
-				respMsg = l(:notice_successful_update)
+			if errorMsg.nil?			
+				#when the are entries or it is not a save action
+				if !@entries.blank? || !params[:wktime_approve].blank? || 
+					(!params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank?) ||
+					!params[:wktime_unsubmit].blank? || !params[:wktime_unapprove].blank? ||
+					((!params[:wktime_submit].blank? || !cvParams.blank?) && total > 0.0) # && @wkvalidEntry
+					respMsg = l(:notice_successful_update)
+				else
+					respMsg = l(:error_wktime_save_nothing)
+				end			
 			else
-				respMsg = l(:error_wktime_save_nothing)
-			end			
-		else
-			respMsg = l(:error_te_save_failed, :label => setEntityLabel, :error => errorMsg)
-			raise ActiveRecord::Rollback
+				respMsg = l(:error_te_save_failed, :label => setEntityLabel, :error => errorMsg)
+				raise ActiveRecord::Rollback
+			end
 		end
-	end
-  	respond_to do |format|
+		respond_to do |format|
 		format.html {
 			if errorMsg.nil?
 				flash[:notice] = respMsg
 				$tempEntries = nil
 				#redirect_back_or_default :action => 'index'
 				#redirect_to :action => 'index' , :tab => params[:tab]
-                if params[:wktime_save_continue] 
-				      redirect_to :action => 'edit' , :startday => !@entries.present? ? @startday  : @startday+ @renderer.getDaysPerSheet, :user_id => @user.id, :project_id => params[:project_id], :sheet_view => @renderer.getSheetType   
+								if params[:wktime_save_continue] 
+							redirect_to :action => 'edit' , :startday => !@entries.present? ? @startday  : @startday+ @renderer.getDaysPerSheet, :user_id => @user.id, :project_id => params[:project_id], :sheet_view => @renderer.getSheetType   
 				else                                                                                                
-				      redirect_to :action => 'index' , :tab => params[:tab]                   
+							redirect_to :action => 'index' , :tab => params[:tab]                   
 				end 
 			else
 				flash[:error] = respMsg
@@ -310,9 +316,9 @@ include QueriesHelper
 				@error_messages = respMsg.split('\n')	
 				render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
 			end
-		}
-	end  
-  end
+			}
+		end  
+	end
 	
 	def deleterow	
 		if check_editPermission		
@@ -343,17 +349,18 @@ include QueriesHelper
 	end
 	
 	# API
-	def deleteEntries	
+	def deleteEntries
 		deleterow
 	end
 	
 	def gatherIDs
 		ids = Array.new
+		teName = getTEName()
 		entityNames = getEntityNames()
-		entries = params[:"#{entityNames[1]}"]
+		entries = JSON.parse(params["#{entityNames[1]}"])
 		if !entries.blank?
 			entries.each do |entry|		
-				ids << entry[:id]
+				ids << entry["id"]
 			end
 		end
 		ids
@@ -519,19 +526,25 @@ include QueriesHelper
 		else
 			error = "403"
 		end
-		actStr =""
-		project.activities.each do |a|
-			actStr << project_id.to_s() + '|' + a.id.to_s() + '|' + a.is_default.to_s() + '|' + a.name + "\n"
-		end
-	
-		respond_to do |format|
-			format.text  { 
-			if error.blank?
-				render :plain => actStr 
+
+		if error.blank?
+			if params[:format].present?
+				actStr =""
+				project.activities.each do |a|
+				actStr << project_id.to_s() + '|' + a.id.to_s() + '|' + a.is_default.to_s() + '|' + a.name + "\n"
+				end
+				respond_to do |format|
+					format.text  { 
+						render :plain => actStr 
+				}
+				end
 			else
-				render_403
+				activities = []
+				activities = project.activities.map { |act| { value: act.id, label: act.name }}
+				render json: activities 
 			end
-			}
+		else
+			render_403
 		end
 	end
 	
@@ -1211,6 +1224,22 @@ include QueriesHelper
 	 
 	# ============ End of supervisor code merge =========
 	
+	def getProjects
+		set_loggable_projects
+		if params[:format].present?
+			respond_to do |format|
+				format.text {
+					projs = ""
+					@logtime_projects.map { |proj| projs << proj.id.to_s + '|' + proj.name + "\n" }
+					render plain: projs
+				}
+			end
+		else
+			projs = @logtime_projects.map { |proj| { value: proj.id, label: proj.name }}
+			render json: projs
+		end
+	end
+
 private
 	
 	def getManager(user, approver)
@@ -1846,22 +1875,22 @@ private
   	def setup
 		teName = getTEName()
 		if api_request? && params[:startday].blank?
-			startday = params[:"wk_#{teName}"][:startday].to_s.to_date
+			startday = params[:"wk_#{teName}"].try(:[], :startday).to_s.to_date
 		else
 			startday = params[:startday].to_s.to_date				
 		end
 		if api_request? && params[:user_id].blank?
-			user_id = params[:"wk_#{teName}"][:user][:id]		
+			user_id = params[:"wk_#{teName}"].try([:user], :id)
 		else
 			user_id = params[:user_id]			
 		end
 		if api_request? && params[:project_id].blank?
-			@projectId = params[:"wk_#{teName}"][:project_id]	
+			@projectId = params[:"wk_#{teName}"].try(:[], :project_id)
 		else
 			@projectId = params[:project_id]			
 		end
 		if api_request? && params[:spent_for_key].blank?
-			spentForKey = params[:"wk_#{teName}"][:spent_for_key]	
+			spentForKey = params[:"wk_#{teName}"].try(:[], :spent_for_key)
 		else
 			spentForKey = params[:spent_for_key]			
 		end
@@ -1875,14 +1904,14 @@ private
 			end
 		end
 		if api_request? && params[:issue_id].blank?
-			@issueId = params[:"wk_#{teName}"][:issue_id]	
+			@issueId = params[:"wk_#{teName}"].try(:[], :issue_id)
 		else
 			@issueId = params[:issue_id]			
 		end
 		# if user has changed the startday
 		@selectedDate = startday
 		if api_request? && params[:sheet_view].blank?
-			@selectedDate = params[:"wk_#{teName}"][:selected_date].to_s.to_date
+			@selectedDate = params[:"wk_#{teName}"].try(:[], :selected_date).to_s.to_date
 		end
 		@startday ||= getStartDay(startday)
 		@user ||= User.find(user_id)

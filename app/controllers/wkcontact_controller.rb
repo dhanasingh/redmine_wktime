@@ -1,6 +1,7 @@
 class WkcontactController < WkcrmController
   unloadable
   include WkaccountprojectHelper
+  accept_api_auth :index, :edit, :update
 
 	def index
 		sort_init 'id', 'asc'
@@ -46,6 +47,12 @@ class WkcontactController < WkcrmController
 			wkcontact = wkcontact.where("wk_crm_contacts.location_id = ? ", location_id)
 		end
 		formPagination(wkcontact.reorder(sort_clause))
+		respond_to do |format|
+			format.html {        
+			  render :layout => !request.xhr?
+			}
+			format.api
+		end
 	end
 
 	def edit
@@ -55,9 +62,23 @@ class WkcontactController < WkcrmController
 			@accountproject = formPagination(accountProjctList)
 			@conEditEntry = WkCrmContact.where(:id => params[:contact_id].to_i)
 		end
+
+		respond_to do |format|
+			format.html {        
+			  render :layout => !request.xhr?
+			}
+			format.api
+		end
 	end
 	
 	def update
+		if api_request?
+			(params[:params] || []).each{|param| params[param.first] = param.last }
+			params.delete("params")
+			(params[:address] || []).each{|addr| params[addr.first] = addr.last }
+			params.delete("address")
+		end
+
 		errorMsg = nil
 		if params[:contact_id].blank?
 		    wkContact = WkCrmContact.new 
@@ -82,24 +103,33 @@ class WkcontactController < WkcrmController
 		wkContact.contact_type = getContactType
 		wkContact.created_by_user_id = User.current.id if wkContact.new_record?
 		wkContact.updated_by_user_id = User.current.id
-		addrId = updateAddress
-		unless addrId.blank?
-			wkContact.address_id = addrId
-		end
-		unless wkContact.valid?		
-			errorMsg = wkContact.errors.full_messages.join("<br>")	
-		else
+		if wkContact.valid?
+			addrId = updateAddress
+			wkContact.address_id = addrId unless addrId.blank?
 			wkContact.save
-		end
-		
-		if errorMsg.blank?
-			redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
-		    flash[:notice] = l(:notice_successful_update)
 		else
-			flash[:error] = errorMsg
-		    redirect_to :controller => controller_name,:action => 'edit'
+			errorMsg = wkContact.errors.full_messages.join("<br>")
 		end
-		
+
+		respond_to do |format|
+			format.html {
+				if errorMsg.blank?
+					redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
+						flash[:notice] = l(:notice_successful_update)
+				else
+					flash[:error] = errorMsg
+						redirect_to :controller => controller_name,:action => 'edit'
+				end
+			}
+			format.api{
+				if errorMsg.blank?
+					render :plain => errorMsg, :layout => nil
+				else			
+					@error_messages = errorMsg.split('\n')	
+					render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+				end
+			}
+		end
 	end
 	
 	def destroy
@@ -114,7 +144,7 @@ class WkcontactController < WkcrmController
 	end
 	
 	def set_filter_session
-		if params[:searchlist] == controller_name
+		if params[:searchlist] == controller_name || api_request?
 			session[controller_name] = Hash.new if session[controller_name].nil?
 			filters = [:contactname, :account_id, :location_id]
 			filters.each do |param|

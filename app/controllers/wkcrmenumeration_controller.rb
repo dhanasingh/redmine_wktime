@@ -3,6 +3,8 @@ class WkcrmenumerationController < WkbaseController
   include WktimeHelper
   before_action :require_login
   before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
+    
+  accept_api_auth :getCrmEnumerations
 
     def index
 		sort_init 'id', 'asc'
@@ -105,4 +107,15 @@ class WkcrmenumerationController < WkbaseController
 		end
 	end
 
+	def getCrmEnumerations
+		if params[:enum_type]
+			wkcrmenums = WkCrmEnumeration.where(enum_type: params[:enum_type], active: true)
+				.order(enum_type: :asc, position: :asc, name: :asc)
+			enums = []
+			enums = wkcrmenums.map{ |enum| { value: enum.id, label: enum.name }}
+			render json: enums
+		else
+			render_403
+		end
+	end
 end

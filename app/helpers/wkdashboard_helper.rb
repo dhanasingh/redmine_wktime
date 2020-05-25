@@ -6,10 +6,10 @@ module WkdashboardHelper
   
   def get_graphs_yaml_path
 	 files_array = []
-	 Dir["plugins/redmine_wktime/app/views/wkdashboard/*.yml"].each do |f| 
+	 Dir["plugins/redmine_wktime/config/wkdashboard/*.yml"].each do |f| 
 		file_name = File.basename(f)	
 		files_array << ["#{file_name}"] 
-	 end   
+	 end
   end
   
   def label_check(l_name)     

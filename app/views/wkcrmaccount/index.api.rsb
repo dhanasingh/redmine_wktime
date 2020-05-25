@@ -1,0 +1,13 @@
+api.array :wk_accounts, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+  @account_entries.each do |entry|
+    api.entry do
+      api.id entry.id
+      api.name entry.name
+      api.location entry.location.name unless entry.location_id.nil?
+      api.address entry.address.address1 unless entry.address.nil?
+      api.work_phone entry.address.work_phone unless entry.address.nil?
+      api.country entry.address.country unless entry.address.nil?
+      api.city entry.address.city unless entry.address.nil?
+    end
+  end    
+end

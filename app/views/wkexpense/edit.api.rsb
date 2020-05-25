@@ -1,5 +1,6 @@
 api.wk_expense do
-  api.user(:id => @user.id, :name => @user.name)
+  api.id @user.id
+  api.name @user.name
   api.startday @startday
   api.status statusString(@wktime.status) unless @wktime.nil?
   api.total @wktime.amount unless @wktime.nil?

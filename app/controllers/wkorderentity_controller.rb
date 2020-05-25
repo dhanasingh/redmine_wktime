@@ -1,14 +1,13 @@
 class WkorderentityController < WkbillingController
   unloadable
 
-before_action :require_login
-
-include WktimeHelper
-include WkinvoiceHelper
-include WkbillingHelper
-include WkorderentityHelper
-include WkreportHelper
-include WkgltransactionHelper
+	before_action :require_login
+	include WktimeHelper
+	include WkinvoiceHelper
+	include WkbillingHelper
+	include WkorderentityHelper
+	include WkreportHelper
+	include WkgltransactionHelper
 
 	def index
 		sort_init 'id', 'asc'
@@ -147,7 +146,13 @@ include WkgltransactionHelper
 				amounts = @invoiceEntries.reorder(["wk_invoices.id ASC"]).pluck("SUM(wk_invoice_items.amount)")
 				@totalInvAmt = amounts.compact.inject(0, :+)
 			end
-		end
+			respond_to do |format|
+				format.html {        
+				  render :layout => !request.xhr?
+				}
+				format.api
+			end
+		end		
 	end	
 	
 	def edit
@@ -243,6 +248,22 @@ include WkgltransactionHelper
 	end
 	
 	def update
+		if api_request?
+			(params[:params] || []).each{|param| params[param.first] = param.last }
+			params.delete("params")
+			row_index =0
+			params['invoiceItems'].each do |index, data|
+				if data['hd_item_type'] != 't' && data['hd_item_type'] != 'r'
+					row_index = row_index+1
+					data.each do | item |
+						params[item.first + (row_index).to_s] = item.last					
+					end
+				end
+			end
+			params['totalrow'] = row_index
+			params.delete("invoiceItemEntries")
+			params.delete("invoiceItems")
+		end
 		errorMsg = nil
 		invoiceItem = nil
 		unless params["invoice_id"].blank?
@@ -377,13 +398,25 @@ include WkgltransactionHelper
 			end
 		end
 		
-		if errorMsg.nil? 
-			redirect_to :action => 'index' , :tab => controller_name
-			flash[:notice] = l(:notice_successful_update)
-	   else
-			flash[:error] = errorMsg
-			redirect_to :action => 'edit', :invoice_id => @invoice.id
-	   end
+		respond_to do |format|
+			format.html {
+				if errorMsg.nil? 
+					redirect_to :action => 'index' , :tab => controller_name
+					flash[:notice] = l(:notice_successful_update)
+				else
+						flash[:error] = errorMsg
+						redirect_to :action => 'edit', :invoice_id => @invoice.id
+				end
+			}
+			format.api{
+				if errorMsg.blank?
+					render :plain => errorMsg, :layout => nil
+				else		
+					@error_messages = errorMsg.split('\n')	
+					render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+				end
+			}
+		end
 	end
 	
 	def getHeaderLabel
@@ -425,7 +458,7 @@ include WkgltransactionHelper
 	
   	def set_filter_session
 			session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
-		if params[:searchlist] == controller_name
+		if params[:searchlist] == controller_name || api_request?
 			filters = [:period_type, :period, :from, :to, :contact_id, :account_id, :project_id, :polymorphic_filter, :rfq_id]
 			filters.each do |param|
 				if params[param].blank? && session[controller_name].try(:[], param).present?
@@ -497,6 +530,18 @@ include WkgltransactionHelper
 	
 	def showProjectDD
 		false
+	end
+
+	def getInvProj
+		@projectsDD = Array.new
+		@invList = Hash.new{|hsh,key| hsh[key] = {} }
+		if !params[:new_invoice].blank? && params[:new_invoice] == "true"
+			newOrderEntity(params[:parent_id], params[:parent_type])
+		end
+		editOrderEntity
+		invProj = []	
+		invProj = @projectsDD.map { |name, id| { value: id, label:  name }} if @projectsDD.present?
+		render json: invProj
 	end
 	
 end

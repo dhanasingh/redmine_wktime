@@ -1,0 +1,46 @@
+api.wk_payment do
+  if @payment.present?
+    api.payment_id @payment.id
+    api.payment_type_id @payment.payment_type_id
+    api.payment_date @payment.payment_date
+    api.reference_number @payment.reference_number
+    api.description @payment.description 
+  end
+  api.related_parent @payment ? @payment.parent_id : params[:related_parent].to_i
+  api.related_to @payment ? @payment.parent_type : params[:related_to]
+  api.array :payment_entries do
+    if @paymentItem.present?
+      @paymentItem.each do |entry|
+        api.entry do
+          api.invoice_id entry.invoice.id
+          api.payment_item_id entry.id
+          api.credit_issued isCreditIssued(entry.id)
+          api.invoice_no entry.invoice.invoice_number
+          api.invoice_org_amount getInvoiceOrgAmount(entry.invoice)
+          api.payment_org_amount getPaymentOrgAmount(entry.invoice)
+          api.invoice_org_currency entry.invoice.invoice_items[0].original_currency
+          api.paid_amount entry.original_amount
+          api.amount entry.original_amount
+        end
+      end
+    elsif @accInvoices.present?
+      @accInvoices.each do |entry|
+        invoiceOrgAmnt = getInvoiceOrgAmount(entry)
+        paymentOrgAmnt = getPaymentOrgAmount(entry)
+        amount = invoiceOrgAmnt - paymentOrgAmnt
+        if amount > 0 && invoiceOrgAmnt > 0
+          api.entry do
+            api.invoice_id entry.id
+            api.credit_issued false
+            api.invoice_no entry.invoice_number
+            api.invoice_org_amount invoiceOrgAmnt
+            api.payment_org_amount paymentOrgAmnt
+            api.invoice_org_currency entry.invoice_items[0].original_currency
+            api.paid_amount amount
+            api.amount amount
+          end
+        end
+      end
+    end
+  end
+end
