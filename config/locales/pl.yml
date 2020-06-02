@@ -477,6 +477,7 @@ pl:
   label_current: Aktualnie
   label_original: Oryginalna
   label_auto_post_gl: Auto. wysyłanie do rejestru.
+  label_auto_round_gl: Auto round invoices
   error_ledger_trans_associate: Nie można usunąć ponieważ są powiązane transakcje
   label_unable_delete: Nie można usunąć.
   label_row_valid_msg: Proszę wypełnić dodane rzędy.
