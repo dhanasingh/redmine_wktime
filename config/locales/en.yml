@@ -1053,3 +1053,5 @@ en:
 
   label_survey_email_notes: Please click on the following link to take a survey
   label_redmine_administrator: By Redmine Administrator
+
+  label_enable_issue_logger: Enable Issue Logger

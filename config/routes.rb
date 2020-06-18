@@ -664,3 +664,7 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wkinvoice/getInvProj', :to => 'wkinvoice#getInvProj'
 
 	get 'wkbase/getUserPermissions', :to => 'wkbase#getUserPermissions'
+	
+	get 'wkbase/autocomplete', :to => 'wkbase#autocomplete'
+
+	get 'wkbase/updateTimeEntry', :to => 'wkbase#updateTimeEntry'

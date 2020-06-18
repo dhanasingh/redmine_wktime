@@ -1,8 +1,13 @@
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
+<% base_helper = Object.new.extend(WkbaseHelper) %>
 <% 
    lastAttnEntries = wktime_helper.findLastAttnEntry(true)
    if !lastAttnEntries.blank? 
   	  @lastAttnEntry = lastAttnEntries[0]
+   end 
+   lastTimeEntries = WkSpentFor.lastEntry
+   if !lastTimeEntries.blank? 
+  	  @lastTimeEntry = lastTimeEntries[0]
    end   
 %>
 <style>
@@ -20,6 +25,13 @@
 }
 #startdiv, #enddiv{
 	float: right;
+}
+#issueLog {
+	cursor: pointer;
+	margin-left: 10px;
+}
+#issueTime, #issueTracker{
+	padding-left: 4px;
 }
 </style>
 <% if (!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? &&
@@ -47,8 +59,9 @@
 	<% host_with_subdir = wktime_helper.getHostAndDir(request) %>
 	<%=h hidden_field_tag('clockinout_url',  "#{url_for(:controller => 'wkbase', :action => 'updateClockInOut', :host => host_with_subdir, :only_path => true)}" )  %>
 	<% if User.current.logged? && wktime_helper.checkViewPermission %>
+	<div style="clear: both;"></div>	
 	<div id="clockINOUT">
-		<span id="appendlabel"><%= totalhours1 %></span>	
+		<span id="appendlabel"><%= totalhours1 %></span>
 		<div id="startdiv">
 			<%= image_tag("widgetclockin.png", :id => 'clockin' , :plugin => "redmine_wktime", :style => hideStart ? "display:none;" : "display:block;" ) %>		
 		</div>
@@ -56,6 +69,36 @@
 			<%= image_tag("widgetclockout.png", :id => 'clockout', :plugin => "redmine_wktime", :style => hideEnd ? "display:none;" : "display:block;") %>		
 		</div>
 	</div>
+<% end %>	
+<% if (!Setting.plugin_redmine_wktime['label_enable_issue_logger'].blank? &&
+	Setting.plugin_redmine_wktime['label_enable_issue_logger'].to_i == 1) %>
+		<%	if !@lastTimeEntry.blank?
+					tracker = Tracker.joins(" Left join issues ON issues.tracker_id = trackers.id").where('issues.id=?', @lastTimeEntry.issue_id).first
+					trackerName =  tracker.name + '#' + @lastTimeEntry.issue_id.to_s
+					if(@lastTimeEntry.end_on.blank? && @lastTimeEntry.start_on > 24.hour.ago)
+						remainingTimehr =  (wktime_helper.computeWorkedHours(@lastTimeEntry.start_on, Time.now.localtime, false))
+					end
+				end
+		%>
+		<% totalhours = 0.0 %>
+		<% totalhours = remainingTimehr.round(0) if !remainingTimehr.blank? %>
+		<% totalhours1 = Time.at(totalhours).utc.strftime("%H:%M") %>	
+		<% imgName = remainingTimehr.blank? ? "start.png" : "finish.png" %>	
+		<% if User.current.logged? && wktime_helper.checkViewPermission %>
+			<%= issue = Issue.select(:id, :subject)
+					text = image_tag(imgName, plugin: "redmine_wktime")
+					trigger = content_tag('span', text, class: 'drdn-trigger')
+					url = '/wkbase/autocomplete.js'
+					q = text_field_tag('q', '', id: 'issues-quick-search', class: 'autocomplete', data: {automcomplete_url: url},
+														autocomplete: 'off')
+					content = content_tag('div', content_tag('div', q, class: 'quick-search') +
+												content_tag('div', base_helper.getIssueList(issue), class: 'drdn-items issues selection'),
+												class: 'drdn-content' )
+					content_tag('div', trigger + content, id: "issueLog", class: "drdn") 
+			 %>
+			<span id="issueTracker"><%= trackerName %></span>
+			<span id="issueTime"><%= totalhours1 %></span>
+		<% end %>
 		<div style="clear: both;"></div>
 	<% end %>
 	<% end %>	

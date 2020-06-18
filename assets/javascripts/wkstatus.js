@@ -10,12 +10,32 @@ $(document).ready(function(){
 	var issueWarnMsg = document.getElementById('label_issue_warn');
 	
 	$('#project-jump').after($('#clockINOUT'));
+  $("#project-jump").after($("#issueTime"));
+  $("#project-jump").after($("#issueTracker"));
+  $("#project-jump").after($("#issueLog"));
 	$('#clockINOUT').click(function(){
 		var name = $('#clockin').is(':visible') ? 'start' : 'end';
 		signAttendance(name);
 	});
 	clockTitle = $('#clockin').is(':visible') ? 'Clock in' : 'Clock out';
 	$("#clockINOUT").attr('title',clockTitle);
+
+	observeSearchfield('issues-quick-search', null, $('#issues-quick-search').data('automcomplete-url'));
+	$(".issue_select").click(function () {
+		var issueID = $(this).attr("id");
+		var projectId = 3;
+		var activityID = 8;
+		var datevalue = new Date();
+		alert(datevalue)
+		var URL = "/wkbase/updateTimeEntry?issue_id="+ issueID + "&project_id=" +projectId + "&activity_id="+ activityID;
+				$.ajax({
+					url: URL,
+					type: 'get',
+					data: {date : datevalue},
+					success: function(data){ }
+				});
+				$(".drdn.expanded").removeClass("expanded");
+  });
 	
 	if(document.getElementById('spent_type') == null)
 	{

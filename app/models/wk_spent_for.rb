@@ -28,4 +28,17 @@ class WkSpentFor < ActiveRecord::Base
   scope :material_entries,  -> { where(:spent_type => "WkMaterialEntry") }
   scope :unbilled_entries,  -> { where(:invoice_item => nil) }
   
+  scope :lastEntry, -> {
+    joins("INNER JOIN time_entries TE ON TE.id = wk_spent_fors.spent_id AND spent_type = 'TimeEntry' AND user_id=#{User.current.id}")
+    .joins("INNER JOIN (
+      select  max(spent_on_time) as spent_on_time, spent_id, user_id 
+      from wk_spent_fors
+      INNER JOIN time_entries ON time_entries.id = wk_spent_fors.spent_id AND spent_type = 'TimeEntry' 
+      where start_on is NOT NULL and end_on is NULL AND user_id=#{User.current.id}
+      AND CURRENT_TIMESTAMP - spent_on_time < '24:00:00'
+      group by spent_id, user_id
+      ) as ST ON ST.spent_on_time = wk_spent_fors.spent_on_time AND TE.id =ST.spent_id")
+    .select("wk_spent_fors.*, TE.project_id, TE.issue_id, TE.hours, TE.id as te_id")
+  }
+  
 end
