@@ -146,47 +146,32 @@ class WkbaseController < ApplicationController
 		end
 	end
 
-	def updateTimeEntry 
-		lastTimeEntries = WkSpentFor.lastEntry
-		if !lastTimeEntries.blank? 
-			 @lastTimeEntry = lastTimeEntries[0]
-		end
-		currentDate = (DateTime.parse params[:date])
-		entryTime  =  Time.parse("#{currentDate.to_date.to_s} #{currentDate.utc.to_time.to_s} ").localtime
-		timeEntry = saveIssueLog(@lastTimeEntry, entryTime)
-		ret = 'done'
-		render json: timeEntry
-	end
+	def saveTimeLog
+		entryTime = Time.now
+		entryTime = entryTime - (entryTime.utc_offset.seconds + (params[:offSet].to_i).minutes)
 
-	def saveIssueLog(timeObj, startTime)
-		timeEntryAttributes = { project_id: params[:project_id], user_id: User.current.id, issue_id: params[:issue_id], hours: 0.1, comments: l(:label_auto_populated_entry), activity_id: params[:activity_id], spent_on: Date.today, author_id: User.current.id }
-		spent_for = { spent_for_id: nil, spent_for_type: 'TimeEntry', spent_on_time: Date.today.to_datetime }
-		if(!timeObj.blank? && (timeObj.end_on.blank? && ((startTime - timeObj.start_on.localtime)/3600) < 24 && ((startTime - timeObj.start_on.localtime)/3600) > 0 ))
-			entrydate = timeObj.start_on
-			start_local = entrydate.localtime
-			if ((startTime.localtime.to_date) != timeObj.start_on.localtime.to_date)
-				 endtime = start_local.change({ hour: "23:59".to_time.strftime("%H").to_i, min: "23:59".to_time.strftime("%M").to_i, sec: 59 })
-				nextDayStart = Time.parse("#{startTime.to_date.to_s} 00:00:00 ").localtime.to_s
-				spent_for[:start_on] = nextDayStart
-				spent_for[:end_on] = startTime
-				timeEntryAttributes[:spent_for_attributes] = spent_for
-				timeEntry = TimeEntry.new(timeEntryAttributes)
-				timeEntry.save()
-			else
-				endtime = start_local.change({ hour: startTime.localtime.strftime("%H").to_i, min:startTime.localtime.strftime("%M").to_i, sec: startTime.localtime.strftime("%S").to_i })
-				teEntry = TimeEntry.find(timeObj.te_id)
-				teEntry.hours = computeWorkedHours(timeObj.start_on,endtime, true)
-				teEntry.spent_for.end_on = endtime
-				teEntry.save()
-				timeEntry = teEntry
-			end
+		lastTimeEntry = WkSpentFor.lastEntry.first
+		if lastTimeEntry.blank?
+			project = Issue.find(params[:issue_id]).project
+			activityID = project.activities.first.id
+			timeEntryAttr = {
+				project_id: project.id, user_id: User.current.id, issue_id: params[:issue_id], hours: 0.1, comments: l(:label_auto_populated_entry), activity_id: activityID,
+				spent_on: Date.today, author_id: User.current.id, spent_for_attributes: { spent_on_time: entryTime, start_on: entryTime }
+			}
+			timeEntry = TimeEntry.new(timeEntryAttr)
 		else
-			spent_for[:start_on] = startTime
-			timeEntryAttributes[:spent_for_attributes] = spent_for
-			timeEntry = TimeEntry.new(timeEntryAttributes)
-			timeEntry.save()
+			timeEntry = TimeEntry.find(lastTimeEntry.id)
+			start  = DateTime.strptime(timeEntry.spent_for.start_on.to_s, "%Y-%m-%d %H:%M:%S %z").to_time
+			finish = DateTime.strptime(entryTime.to_s, "%Y-%m-%d %H:%M:%S %z").to_time
+			finish += 24*60*60 if finish < start
+			timeEntry.hours = ((finish-start)/3600).round(2)
+			timeEntry.spent_for.end_on = entryTime
 		end
-		timeEntry
+		timeEntry.save
+		trackerName = timeEntry.issue.tracker.to_s + '#' + timeEntry.issue_id.to_s
+		respond_to do |format|
+			format.text  { render :plain => trackerName }
+		end
 	end
 
 end

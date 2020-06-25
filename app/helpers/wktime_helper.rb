@@ -1408,7 +1408,7 @@ end
 		entryTime
 	end
 	
-	def saveSpentFor(id, spentForId, spentFortype, spentId, spentType, spentDate, spentHr, spentMm, invoiceId)
+	def saveSpentFor(id, spentForId, spentFortype, spentId, spentType, spentDate, spentHr, spentMm, invoiceId, startON =nil, endON =nil)
 		if id.blank?
 			spentObj = WkSpentFor.new
 		else
@@ -1420,6 +1420,10 @@ end
 		spentObj.spent_type = spentType
 		spentObj.spent_on_time = getDateTime(spentDate, spentHr, spentMm, '00')
 		spentObj.invoice_item_id = invoiceId
+		if isChecked("label_enable_issue_logger") && spentType == "TimeEntry"
+			spentObj.start_on = startON
+			spentObj.end_on = endON
+		end
 		spentObj.save
 	end
 	

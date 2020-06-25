@@ -1,6 +1,0 @@
-<%
-  issue = Issue.select(:id, :subject)
-  issues = getIssueList(issue, params)
-  issues = content_tag('span', l(:label_no_data)) if issues.blank?
-%>
-$('#issueLog .drdn-items.issues').html('<%= escape_javascript issues %>');

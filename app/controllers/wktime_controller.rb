@@ -21,6 +21,7 @@ unloadable
 include WktimeHelper
 include WkcrmHelper
 require 'json'
+include ActionView::Helpers::TagHelper
 
 before_action :require_login
 before_action :check_perm_and_redirect, :only => [:edit, :update, :destroy] # user without edit permission can't destroy
@@ -484,27 +485,39 @@ include QueriesHelper
 			issues = Issue.includes(:status).references(:status).where(cond).order('project_id')
 		end
 		#issues.compact!
-		issues = issues.select(&:present?)
-		user = User.find(params[:user_id])
+		user = params[:user_id].present? ? User.find(params[:user_id]) : User.current 
 
-		if  !params[:format].blank?
-			respond_to do |format|
-				format.text  { 
-					issStr =""
-					issues.each do |issue|
-					issStr << issue.project_id.to_s() + '|' + issue.id.to_s() + '|' + issue.tracker.to_s() +  '|' + 
-							issue.subject  + "\n" if issue.visible?(user)
-					end	
-				render :plain => issStr 
-				}	
+		if !params[:autocomplete]
+			issues = issues.select(&:present?)
+			if  !params[:format].blank?
+				respond_to do |format|
+					format.text  { 
+						issStr =""
+						issues.each do |issue|
+						issStr << issue.project_id.to_s() + '|' + issue.id.to_s() + '|' + issue.tracker.to_s() +  '|' + 
+								issue.subject  + "\n" if issue.visible?(user)
+						end	
+					render :plain => issStr 
+					}	
+				end
+			else 
+				issStr=[]
+				issues.each do |issue|            
+					issStr << {:value => issue.id.to_s(), :label => issue.tracker.to_s() +  " #" + issue.id.to_s() + ": " + issue.subject }  if issue.visible?(user)
+				end 
+				
+				render :json => issStr 
 			end
-		else 
-			issStr=[]
-			issues.each do |issue|            
-				issStr << {:value => issue.id.to_s(), :label => issue.tracker.to_s() +  " #" + issue.id.to_s() + ": " + issue.subject }  if issue.visible?(user)
-			end 
-			
-			render :json => issStr 
+		else
+			subject = params[:q].present? ? "%"+(params[:q]).downcase+"%" : ""
+			issues = issues.where("subject like ? OR issues.id = ?", subject, params[:q].to_i) if params[:q].present?
+			issueRlt = (+"").html_safe
+			issues.each do |issue|
+				issueRlt << content_tag("span", "#"+issue.id.to_s+": "+issue.subject, class: "issue_select", id: issue.id ) if issue.visible?(user) && User.current.allowed_to?(:log_time, issue.project)
+			end
+			issueRlt = content_tag("span", l(:label_no_data)) if issueRlt.blank?
+			issueRlt = "$('#issueLog .drdn-items.issues').html('" + issueRlt + "');"
+			render js: issueRlt
 		end
 	end
   

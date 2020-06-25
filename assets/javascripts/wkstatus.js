@@ -10,32 +10,12 @@ $(document).ready(function(){
 	var issueWarnMsg = document.getElementById('label_issue_warn');
 	
 	$('#project-jump').after($('#clockINOUT'));
-  $("#project-jump").after($("#issueTime"));
-  $("#project-jump").after($("#issueTracker"));
-  $("#project-jump").after($("#issueLog"));
 	$('#clockINOUT').click(function(){
 		var name = $('#clockin').is(':visible') ? 'start' : 'end';
 		signAttendance(name);
 	});
 	clockTitle = $('#clockin').is(':visible') ? 'Clock in' : 'Clock out';
 	$("#clockINOUT").attr('title',clockTitle);
-
-	observeSearchfield('issues-quick-search', null, $('#issues-quick-search').data('automcomplete-url'));
-	$(".issue_select").click(function () {
-		var issueID = $(this).attr("id");
-		var projectId = 3;
-		var activityID = 8;
-		var datevalue = new Date();
-		alert(datevalue)
-		var URL = "/wkbase/updateTimeEntry?issue_id="+ issueID + "&project_id=" +projectId + "&activity_id="+ activityID;
-				$.ajax({
-					url: URL,
-					type: 'get',
-					data: {date : datevalue},
-					success: function(data){ }
-				});
-				$(".drdn.expanded").removeClass("expanded");
-  });
 	
 	if(document.getElementById('spent_type') == null)
 	{
@@ -117,6 +97,28 @@ $(document).ready(function(){
 	$(".time-entries.selected,.icon.icon-reload").click(function(){
 		sessionStorage.clear();
 	});
+	
+	//Time Tracking
+  $("#project-jump").after($("#issueLog"));
+	observeSearchfield('issues-quick-search', null, $('#issues-quick-search').data('automcomplete-url'));
+	$('#issueLog span').on('click', function(){
+		if($('#issue-content').length == 0){
+			saveTimeLog(this);
+		}
+		else{
+			projectID = $("#projectID").val();
+			$.ajax({
+				url: $('#issues-quick-search').data('automcomplete-url'),
+				type: 'get',
+				data: {q: '', project_id: projectID},
+				success: function(data){eval(data); }
+			});
+		}
+	});
+
+	$('.drdn-items.issues .issue_select').live('click', function(){
+		saveTimeLog(this);
+  });
 });
 
 function spentTypeValue(elespent)
@@ -281,4 +283,30 @@ function signAttendance(str)
 	data: {startdate : datevalue, str: str},
 	success: function(data){ }   
 	});
+}
+
+function saveTimeLog(ele){
+	imgName = $("#imgName").val();
+	var issueID = ele.id;
+	var date = new Date();
+  var offSet = date.getTimezoneOffset();
+	var URL = "/wkbase/saveTimeLog";
+		$.ajax({
+			url: URL,
+			type: 'get',
+			data: {offSet : offSet, issue_id : issueID},
+			success: function(data){
+				if(imgName == 'start'){
+					$("#issueImg img").attr('src','/plugin_assets/redmine_wktime/images/finish.png');
+					$('#issue-tracker').show();
+					$('#issue-tracker').html(data);
+				}
+				else{
+					$("#issueImg img").attr('src','/plugin_assets/redmine_wktime/images/start.png');
+					$('#issue-tracker').hide();
+				}
+				$(".drdn.content").remove();
+			}
+		});
+		$(".drdn.expanded").removeClass("expanded");
 }

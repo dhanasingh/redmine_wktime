@@ -193,6 +193,14 @@ module TimelogControllerPatch
 		def saveSpentFors(model)
 			spentForId = nil
 			spentFortype = nil
+			start_time = nil
+			end_time = nil
+			# ======Time Tracking=======
+			if isChecked("label_enable_issue_logger") && model.class.name == "TimeEntry"
+				start_time = Time.new(params[:start_time]['(1i)'], params[:start_time]['(2i)'], params[:start_time]['(3i)'], params[:start_time]['(4i)'], params[:start_time]['(5i)'], params[:start_time]['(6i)'])
+				end_time = Time.new(params[:end_time]['(1i)'], params[:end_time]['(2i)'], params[:end_time]['(3i)'], params[:end_time]['(4i)'], params[:end_time]['(5i)'], params[:end_time]['(6i)'])
+			end
+
 			unless params[:spent_for].blank?
 				spentFors = params[:spent_for].split('|')
 				spentForVal = spentFors[1].split('_')
@@ -200,7 +208,7 @@ module TimelogControllerPatch
 				spentFortype = spentForVal[0]
 			end
 			wktime_helper = Object.new.extend(WktimeHelper)
-			wktime_helper.saveSpentFor(params[:spentForId], spentForId, spentFortype, model.id, model.class.name, model.spent_on, '00', '00', nil)
+			wktime_helper.saveSpentFor(params[:spentForId], spentForId, spentFortype, model.id, model.class.name, model.spent_on, '00', '00', nil, start_time, end_time)
 		end
 		
 		def validateMatterial

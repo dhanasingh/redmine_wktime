@@ -193,4 +193,23 @@
 		</td>
 	</tr>
 </table>
+<!-- Time Tracker-->
+<% if wktime_helper.isChecked("label_enable_issue_logger") && (@spentType == "T" || @spentType.blank?) %>
+	<% start_on = @time_entry.spent_for &&  @time_entry.spent_for.start_on ? @time_entry.spent_for.start_on.localtime : Time.now %>
+	<% end_on = @time_entry.spent_for &&  @time_entry.spent_for.end_on ? @time_entry.spent_for.end_on.localtime : nil %>
+	<table id="issuelogtable" style="padding-left:95px;">
+		<tr>	
+			<th align="right" ><%= l(:label_start_time) %></th>
+			<td id="start_time" align="left">
+				<%= time_select("start_time", "", selected: start_on, include_blank: true) %>
+			</td>
+		</tr>
+		<tr>
+			<th align="right" ><%= l(:label_end_time) %></th>
+			<td id="end_time" align="left" >
+				<%= time_select("end_time","", selected: end_on, include_blank: true) %>
+			</td>
+		</tr>
+	</table>
+<% end %>
 

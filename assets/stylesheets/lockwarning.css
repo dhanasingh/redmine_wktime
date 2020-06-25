@@ -11,14 +11,3 @@ div.flash.error, #divError {
   border-color: #dd0000;
   color: #880000;
 }
-#issueLog .drdn-trigger{
-  width: 25px;
-  height: 25px;
-  background-repeat: no-repeat;
-  background-position: center;
-  font-size: 0px;
-}
-#issueLog .drdn-items > * {
-  color: #555 !important;
-}
-#issueLog .drdn-content {width:280px;}

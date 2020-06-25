@@ -38,7 +38,9 @@ class WkSpentFor < ActiveRecord::Base
       AND CURRENT_TIMESTAMP - spent_on_time < '24:00:00'
       group by spent_id, user_id
       ) as ST ON ST.spent_on_time = wk_spent_fors.spent_on_time AND TE.id =ST.spent_id")
-    .select("wk_spent_fors.*, TE.project_id, TE.issue_id, TE.hours, TE.id as te_id")
+    .joins("INNER JOIN issues I ON TE.issue_id= I.id")
+    .joins("INNER JOIN trackers T ON I.tracker_id= T.id")
+    .select("wk_spent_fors.start_on, wk_spent_fors.end_on, TE.project_id, TE.issue_id, TE.hours, TE.id, T.name")
   }
   
 end

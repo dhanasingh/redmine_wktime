@@ -113,6 +113,35 @@ $(document).ready(function() {
 	changeProp('tab-wkscheduling',wkSchedulingUrl);
 	changeProp('tab-wkpublicholiday',wkPublicHolidayUrl);
 	changeProp('tab-wksurvey',wkSurveyUrl);
+	
+	//Time Tracking
+	$("#start_time").change(function() {
+		if($('#time_entry_hours').val() != ''){
+			setEndTime();
+		}
+	});
+	$("#time_entry_hours").change(function() {
+		if($('#start_time__4i').val() != ''){
+			setEndTime();
+		}
+	});
+	$("#end_time").change(function() {
+		var start = $('#start_time__4i').val();
+		if(start != ''){
+			start_time = new Date($('#start_time__1i').val(), $('#start_time__2i').val(), $('#start_time__3i').val(), $('#start_time__4i').val(), $('#start_time__5i').val());
+			end_time = new Date($('#end_time__1i').val(), $('#end_time__2i').val(), $('#end_time__3i').val(), $('#end_time__4i').val(), $('#end_time__5i').val())
+			if(end_time >= start_time){
+				var hours = (end_time.getTime() - start_time.getTime()) / 1000/3600;;
+				hours = hours.toFixed(2);
+				$('#time_entry_hours').val(hours);
+			}
+			else{
+				alert('End time should be greater than Start time')
+				$("#end_time__4i").val('');
+				$("#end_time__5i").val('');
+			}
+		}
+	});
 });
 
 function openReportPopup(){
@@ -638,6 +667,9 @@ function hideLogDetails(uid)
 		if(document.getElementById("spent_for_tbl")){
 			document.getElementById("spent_for_tbl").style.display = 'block';
 		}
+		if(document.getElementById("issuelogtable")){
+			document.getElementById("issuelogtable").style.display = 'block';
+		}
 		//$('label[for="time_entry_hours"]').html('Hours<span style="color:red;">*</span>');
 		document.getElementById("materialtable").style.display = 'none';
 		document.getElementById("expensetable").style.display = 'none';
@@ -650,6 +682,9 @@ function hideLogDetails(uid)
 		if(document.getElementById("spent_for_tbl")){
 			document.getElementById("spent_for_tbl").style.display = 'none';
 		}
+		if(document.getElementById("issuelogtable")){
+			document.getElementById("issuelogtable").style.display = 'none';
+		}
 		document.getElementById("expensetable").style.display = 'block';
 	}
 	else 
@@ -659,6 +694,9 @@ function hideLogDetails(uid)
 		document.getElementById("expensetable").style.display = 'none';
 		if(document.getElementById("spent_for_tbl")){
 			document.getElementById("spent_for_tbl").style.display = 'block';
+		}
+		if(document.getElementById("issuelogtable")){
+			document.getElementById("issuelogtable").style.display = 'none';
 		}
 		document.getElementById("materialtable").style.display = 'block';
 		if(uid != null) {
@@ -837,4 +875,26 @@ function hideSummaryDD(value) {
 		$("#summary_trans").val("days");
 		$( "#trans_summary" ).hide();
 	}
+}
+
+function setEndTime(){
+	var te_hours = $('#time_entry_hours').val();
+	start_time = new Date($('#start_time__1i').val(), $('#start_time__2i').val(), $('#start_time__3i').val(), $('#start_time__4i').val(), $('#start_time__5i').val())
+	if(te_hours.includes(':')){
+		te_hours = te_hours.split(':')
+		totalMin = parseInt(te_hours[0] * 60) + parseInt(te_hours[1]);
+	}
+	else{
+		var hours = Math.floor(te_hours);
+		var minutes = Math.round((te_hours - hours) * 60);
+		totalMin = parseInt(hours * 60) + parseInt(minutes);
+	}	
+	start_time.setMinutes( start_time.getMinutes() + totalMin );
+	hours = start_time.getHours() < 10 ? "0" + start_time.getHours() : start_time.getHours();
+	minutes = start_time.getMinutes() < 10 ? "0" + start_time.getMinutes() : start_time.getMinutes();
+	$("#end_time__1i").val(start_time.getFullYear());
+	$("#end_time__2i").val(start_time.getMonth());
+	$("#end_time__3i").val(start_time.getDate());
+	$("#end_time__4i").val(hours);
+	$("#end_time__5i").val(minutes);
 }
