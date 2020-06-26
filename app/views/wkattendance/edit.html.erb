@@ -45,7 +45,7 @@
 	<%
 		disable = true
 		wktime_helper = Object.new.extend(WktimeHelper)
-		disable = false if wktime_helper.validateERPPermission('A_TE_PRVLG') && ( params[:user_id].to_i != User.current.id || (!Setting.plugin_redmine_wktime['wktime_own_approval'].blank? && 
+		disable = false if wktime_helper.validateERPPermission('A_ATTEND') && ( params[:user_id].to_i != User.current.id || (!Setting.plugin_redmine_wktime['wktime_own_approval'].blank? && 
 							Setting.plugin_redmine_wktime['wktime_own_approval'].to_i == 1 ))
 	%>
 	<% 

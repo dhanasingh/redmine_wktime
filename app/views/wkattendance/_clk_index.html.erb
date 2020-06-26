@@ -10,7 +10,7 @@
 %>
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 
-<% if validateERPPermission('A_TE_PRVLG') %>
+<% if validateERPPermission('A_ATTEND') %>
 	<div class="wk-contextual">
 		<%= link_to l(:"label_import_attendance"), url_for(:controller => "wkimportattendance", :action => 'new', :tab => controller.controller_name)%>
 	</div>
@@ -21,7 +21,7 @@
 	<%= hidden_field_tag "searchlist", "#{controller_name}" %>
 	<fieldset>
 		<legend><%= l(:label_filter_plural) %></legend>
-		<% if validateERPPermission('A_TE_PRVLG') %>
+		<% if validateERPPermission('A_ATTEND') %>
 			<label><%= l(:label_group_plural) %></label>&nbsp;
 			<% if !@groups.blank? %>
 				<%=h select_tag('group_id',

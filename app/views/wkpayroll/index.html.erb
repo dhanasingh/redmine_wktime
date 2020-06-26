@@ -24,7 +24,7 @@
 		userid =session[:wkpayroll].try(:[], :user_id) %>	
 		<table>
 		
-			<% if wktime_helper.validateERPPermission('A_TE_PRVLG') %>
+			<% if wktime_helper.validateERPPermission('A_PAYRL') %>
 			<tr>
 			<th><%=l(:label_group_plural)%> </th>
 			<% if !@groups.blank? %>

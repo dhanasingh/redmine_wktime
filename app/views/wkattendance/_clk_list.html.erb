@@ -16,7 +16,7 @@
 					<%= sort_header_tag('start_date', :caption => l(:field_start_date), class: "lbl-txt-align", style:(show_on_map ? "width:25%" : "")) %>
 					<% if !show_on_map %>
 						<th class="lbl-txt-align"><label style="padding-right: 10px;"><%= l(:label_clock_in) %></label>
-							<% if validateERPPermission('A_TE_PRVLG') %>
+							<% if validateERPPermission('A_ATTEND') %>
 								<a class="icon icon-edit" id="editIcon" style="cursor: pointer;" onClick=" bulkEdit();" action="Edit"></a>
 							<% end %>
 						</th>

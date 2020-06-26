@@ -77,7 +77,7 @@ class WkpayrollController < WkbaseController
 		user_id = session[controller_name].try(:[], :user_id)
 		group_id = session[controller_name].try(:[], :group_id)
 		
-		if user_id.blank? || !validateERPPermission('A_TE_PRVLG')
+		if user_id.blank? || !validateERPPermission('A_PAYRL')
 		   ids = User.current.id
 		elsif user_id.to_i != 0 && group_id.to_i == 0
 		   ids = user_id.to_i
@@ -388,18 +388,18 @@ class WkpayrollController < WkbaseController
 	def check_permission
 		ret = false
 		ret = params[:user_id].to_i == User.current.id
-		return (ret || validateERPPermission('A_TE_PRVLG'))
+		return (ret || validateERPPermission('A_PAYRL'))
 	end
 	
 	def check_admin_perm_and_redirect
-		if !params[:generate].blank? && !validateERPPermission('A_TE_PRVLG')
+		if !params[:generate].blank? && !validateERPPermission('A_PAYRL')
 			render_403
 			return false
 		end
 	end
 	
 	def check_setting_admin_perm_and_redirect
-		unless validateERPPermission('A_TE_PRVLG')
+		unless validateERPPermission('A_PAYRL')
 			render_403
 			return false
 		end
@@ -414,7 +414,7 @@ class WkpayrollController < WkbaseController
 			sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id"
 		end
 		sqlStr = sqlStr + " where u.type = 'User' "
-		if !validateERPPermission('A_TE_PRVLG')
+		if !validateERPPermission('A_PAYRL')
 			sqlStr = sqlStr + " and u.id = #{User.current.id} " 
 		end
 		if !@status.blank?
@@ -431,7 +431,7 @@ class WkpayrollController < WkbaseController
 		@salary_components = get_salary_components
 
 		userIds = nil
-		if !validateERPPermission('A_TE_PRVLG')
+		if !validateERPPermission('A_PAYRL')
 			userIds = User.current.id
 		else
 			alluserIds = getUsersAndGroups

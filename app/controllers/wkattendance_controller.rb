@@ -48,7 +48,7 @@ class WkattendanceController < WkbaseController
 			issueId = listboxArr[0]
 			sqlStr = getListQueryStr + " where u.type = 'User' and (wu.termination_date is null or wu.termination_date >= '#{lastMonthStartDt}')"
 		end
-		if !validateERPPermission('A_TE_PRVLG')
+		if !validateERPPermission('A_ATTEND')
 			sqlStr = sqlStr + " and u.id = #{User.current.id} " 
 		end
 		if !@status.blank?
@@ -87,7 +87,7 @@ class WkattendanceController < WkbaseController
 		group_id = session[controller_name].try(:[], :group_id)
 		status = session[controller_name].try(:[], :status)
 		
-		if user_id.blank? || !validateERPPermission('A_TE_PRVLG')
+		if user_id.blank? || !validateERPPermission('A_ATTEND')
 		   ids = User.current.id
 		elsif user_id.to_i != 0 && group_id.to_i == 0
 		   ids = user_id.to_i
@@ -373,7 +373,7 @@ class WkattendanceController < WkbaseController
 	def check_permission
 		ret = false
 		ret = params[:user_id].to_i == User.current.id
-		return (ret || validateERPPermission('A_TE_PRVLG'))
+		return (ret || validateERPPermission('A_ATTEND'))
 	end
 	
 	def getProjectByIssue

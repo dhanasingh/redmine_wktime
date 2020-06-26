@@ -44,18 +44,18 @@ class AddAdditionalPermissions < ActiveRecord::Migration[5.2]
 
     add_column :wk_spent_fors, :start_on, :datetime
     add_column :wk_spent_fors, :end_on, :datetime
-    add_column :wk_spent_fors, :s_longitude, :decimal
-    add_column :wk_spent_fors, :s_latitude, :decimal
-    add_column :wk_spent_fors, :e_longitude, :decimal
-    add_column :wk_spent_fors, :e_latitude, :decimal
-    add_column :wk_attendances, :s_longitude, :decimal
-    add_column :wk_attendances, :s_latitude, :decimal
-    add_column :wk_attendances, :e_longitude, :decimal
-    add_column :wk_attendances, :e_latitude, :decimal
-    add_column :wk_addresses, :longitude, :decimal
-    add_column :wk_addresses, :latitude, :decimal
-    add_column :wk_locations, :longitude, :decimal
-    add_column :wk_locations, :latitude, :decimal
+    add_column :wk_spent_fors, :s_longitude, :decimal, precision: 30, scale: 20
+    add_column :wk_spent_fors, :s_latitude, :decimal, precision: 30, scale: 20
+    add_column :wk_spent_fors, :e_longitude, :decimal, precision: 30, scale: 20
+    add_column :wk_spent_fors, :e_latitude, :decimal, precision: 30, scale: 20
+    add_column :wk_attendances, :s_longitude, :decimal, precision: 30, scale: 20
+    add_column :wk_attendances, :s_latitude, :decimal, precision: 30, scale: 20
+    add_column :wk_attendances, :e_longitude, :decimal, precision: 30, scale: 20
+    add_column :wk_attendances, :e_latitude, :decimal, precision: 30, scale: 20
+    add_column :wk_addresses, :longitude, :decimal, precision: 30, scale: 20
+    add_column :wk_addresses, :latitude, :decimal, precision: 30, scale: 20
+    add_column :wk_locations, :longitude, :decimal, precision: 30, scale: 20
+    add_column :wk_locations, :latitude, :decimal, precision: 30, scale: 20
     add_reference :wk_asset_properties, :gl_transaction, :class => "wk_gl_transactions", :null => true, index: true
   end
 end

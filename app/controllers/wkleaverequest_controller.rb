@@ -16,8 +16,8 @@ class WkleaverequestController < WkbaseController
     getUsersAndGroups
     retrieve_date_range
     lveReqEntires = WkLeaveReq.get_all
-    lveReqEntires = lveReqEntires.leaveReqSupervisor if isSupervisor && !validateERPPermission("A_TE_PRVLG")
-    lveReqEntires = lveReqEntires.leaveReqUser unless isSupervisor || validateERPPermission("A_TE_PRVLG")
+    lveReqEntires = lveReqEntires.leaveReqSupervisor if isSupervisor && !validateERPPermission("A_ATTEND")
+    lveReqEntires = lveReqEntires.leaveReqUser unless isSupervisor || validateERPPermission("A_ATTEND")
 
     lveReqEntires = lveReqEntires.leaveType(session[controller_name][:leave_type]) if session[controller_name].try(:[], :leave_type).present?
     lveReqEntires = lveReqEntires.userGroup(session[controller_name][:group_id]) if session[controller_name].try(:[], :group_id).present? && session[controller_name].try(:[], :group_id) != "0"

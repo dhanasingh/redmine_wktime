@@ -16,7 +16,7 @@ th:first-child {
 <%= form_tag({}) do -%>	
 	<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 	<% wktime_helper = Object.new.extend(WktimeHelper) %>
-	<% if (wktime_helper.validateERPPermission('A_TE_PRVLG')) %>
+	<% if (wktime_helper.validateERPPermission('A_PAYRL')) %>
 
 		<%= form_tag({:controller => controller_name, :action => 'usrsettingsindex'}, :method => :get) do %>
 			<fieldset><legend><%= l(:label_filter_plural) %></legend>
@@ -45,7 +45,7 @@ th:first-child {
 					<% @salary_components.each do |compoment| %>
 						<th style="text-align: center;">
 							<label style="padding-right: 10px;"><%= compoment.name %></label>
-							<% if validateERPPermission('A_TE_PRVLG') %>
+							<% if validateERPPermission('A_PAYRL') %>
 								<a class="icon icon-edit" style="cursor: pointer;" id="<%= compoment.id %>" onClick=" bulk_edit('<%= compoment.id %>');" action="Edit"></a>
 							<% end %>
 						</th>
