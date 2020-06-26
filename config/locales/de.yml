@@ -1054,3 +1054,9 @@ de:
   label_save_geo_location: Save Geolocation
   label_show_on_map: Show on Map
   label_save_c_geolocation: Save current Geolocation
+
+  ADMIN ATTENDANCE PRIVILEGE: Admin Attendance Privilege
+  ADMIN PAYROLL PRIVILEGE: Admin Payroll Privilege
+  RECEIVE LEAVE NOTIFICATION: Receive Leave Notification
+
+  report_account_payable: AP Aging

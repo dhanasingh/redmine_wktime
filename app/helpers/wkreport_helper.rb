@@ -51,7 +51,7 @@ module WkreportHelper
 			ret = validateERPPermission("B_ACC_PRVLG") || validateERPPermission("A_ACC_PRVLG")
 		elsif reportName == 'report_lead_conversion' || reportName == 'report_sales_activity'
 			ret = (validateERPPermission("B_CRM_PRVLG") || validateERPPermission("A_CRM_PRVLG") ) && isChecked('wktime_enable_crm_module')
-		elsif reportName == 'report_order_to_cash' || reportName == 'report_project_profitability'
+		elsif reportName == 'report_order_to_cash' || reportName == 'report_project_profitability' || reportName == 'report_account_payable'
 			ret = validateERPPermission("M_BILL")
 		end
 		ret
@@ -135,14 +135,21 @@ module WkreportHelper
 		inBtwMnthArr
 	end
 	
-	def getAccountContactSql
+	def getAccountContactSql(rptName=nil)
 		parentSql = ""
 		if ActiveRecord::Base.connection.adapter_name == 'Mysql2'
 			encoding = ActiveRecord::Base.connection_config[:encoding]
 			encoding ||= "utf8"
 			parentSql = "COLLATE #{encoding}_unicode_ci"
 		end
-		sqlStr = "select 'WkAccount' #{parentSql} as parent_type, id as parent_id from wk_accounts where account_type = 'A' union select 'WkCrmContact' #{parentSql} as parent_type, id as parent_id from wk_crm_contacts where contact_type in ('C', 'RA')"
+		if rptName == "AP-Aging"
+			accCond = "S"
+			conCond = "'SC'"
+		else
+			accCond = "A"
+			conCond = "'C', 'RA'"
+		end
+		sqlStr = "select 'WkAccount' #{parentSql} as parent_type, id as parent_id from wk_accounts where account_type = '#{accCond}' union select 'WkCrmContact' #{parentSql} as parent_type, id as parent_id from wk_crm_contacts where contact_type in (#{conCond})"
 		sqlStr
 	end
 	
