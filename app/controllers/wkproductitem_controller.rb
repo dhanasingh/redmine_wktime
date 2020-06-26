@@ -175,7 +175,7 @@ class WkproductitemController < WkinventoryController
 		    redirect_to :controller => controller_name,:action => 'edit' , :product_item_id => params[:product_item_id], :inventory_item_id => params[:inventory_item_id], :tab => controller_name
 		    flash[:error] = productItem.errors.full_messages.join("<br>")
 		end
-    end
+  end
     
 	def updateTransfer
 		sourceItem = WkInventoryItem.find(params[:transfer_item_id].to_i)
@@ -249,7 +249,7 @@ class WkproductitemController < WkinventoryController
 		inventoryItem.location_id = locationId if params[:location_id] != "0"
 		inventoryItem.project_id = projId
 		inventoryItem.save()
-		updateShipment(inventoryItem)
+		updateShipment(inventoryItem) if inventoryItem.product_type == 'I' && inventoryItem.blank?
 		inventoryItem
 	end
 	
