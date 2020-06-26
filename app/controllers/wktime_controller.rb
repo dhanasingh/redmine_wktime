@@ -21,7 +21,6 @@ unloadable
 include WktimeHelper
 include WkcrmHelper
 require 'json'
-include ActionView::Helpers::TagHelper
 
 before_action :require_login
 before_action :check_perm_and_redirect, :only => [:edit, :update, :destroy] # user without edit permission can't destroy
@@ -1425,11 +1424,12 @@ private
 					ids = params['ids' + (i+1).to_s()]
 					comments = params['comments' + (i+1).to_s()]
 					disabled = params['disabled' + (i+1).to_s()]
+					spentForIds = params['spentForId' + (i+1).to_s()]
 					@wkvalidEntry=true	
 					if use_detail_popup
 						custom_values.clear
 						custom_fields.each do |cf|
-							custom_values[cf.id] = params["_custom_field_values_#{cf.id}" + (i+1).to_s()]
+							custom_values[cf.id] = params["_custom_field_values_#{cf.id}"+"_"+(i+1).to_s()]
 						end
 					end
 					
@@ -1439,7 +1439,8 @@ private
 							if(!id.blank? || !hours[j].blank?)
 								teEntry = nil
 								teEntry = getTEEntry(id)
-								
+								spentForAttributes = teEntry.spent_for
+								entry[:spent_for_attributes][:id] = spentForIds[k] if spentForIds.present?
 								entry.permit! #(spent_for: [ :spent_for_type, :spent_on_time ])
 								teEntry.attributes = entry
 								# since project_id and user_id is protected
@@ -1451,7 +1452,7 @@ private
 								else
 									teEntry.spent_on = @startday + k
 								end
-								
+
 								unless entry['spent_for_attributes'].blank? 
 									unless entry['spent_for_attributes']['spent_for_key'].blank?
 										spentFor = getSpentFor(entry['spent_for_attributes']['spent_for_key'])
@@ -1462,6 +1463,18 @@ private
 									end
 									teEntry.spent_for.spent_on_time = getDateTime(teEntry.spent_on, entry['spent_for_attributes']['spent_date_hr'], entry['spent_for_attributes']['spent_date_min'], 0)
 								end
+								# save GeoLocation
+								if isChecked('te_save_geo_location') && params[:latitude].present? && params[:longitude].present?
+									if teEntry.spent_for.s_latitude.blank? && teEntry.spent_for.s_longitude.blank?
+										teEntry.spent_for.s_latitude = params[:latitude]
+										teEntry.spent_for.s_longitude = params[:longitude]
+									end
+									if teEntry.spent_for.e_latitude.blank? && teEntry.spent_for.e_longitude.blank?
+										teEntry.spent_for.e_latitude = params[:latitude]
+										teEntry.spent_for.e_longitude = params[:longitude]
+									end
+								end
+
 								#for one comment, it will be automatically loaded into the object
 								# for different comments, load it separately
 								unless comments.blank?

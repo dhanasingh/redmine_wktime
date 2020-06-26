@@ -38,6 +38,12 @@
 		<%= render :partial => 'wkattendance/date_range' %>
 		<%= link_to_function l(:button_apply), '$("#query_form").submit()', :class => 'icon icon-checked' %>&nbsp;
 		<%= link_to l(:button_clear), {:controller => controller_name, :action => action_name, :tab => 'clock'}, :class => 'icon icon-reload' %>
+		<% if wktime_helper.isChecked('te_save_geo_location') %>
+			<label style="padding-left:5px">
+				<%= check_box_tag('show_on_map', true, params[:show_on_map] || false, onclick: '$("#query_form").submit(); return false;') %>
+				<%= l(:label_show_on_map) %>
+			</label>
+		<% end %>
 	</fieldset>
 <% end %>
 

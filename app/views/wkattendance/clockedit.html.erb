@@ -83,5 +83,21 @@
 	<p style="float: left; padding-left: 90px;">
 	<%= submit_tag l(:button_save),  :hidden => validateERPPermission('A_TE_PRVLG') ? false : true, :id => 'wkattendance_save', :disabled => false %></p>
 	</div>
+		<% if isChecked('att_save_geo_location') %>
+			<% 	startLocations = @wkattnEntries.map{ |entry|
+						(!entry.id || entry.s_longitude == entry.e_longitude && entry.s_latitude == entry.e_latitude) ? ["",""] : [ entry.s_longitude || "", entry.s_latitude || "",
+						l(:label_clock_in)+": "+entry.start_time.localtime.strftime('%R')+"\n"+l(:label_clock_out)+": "+
+						(entry.end_time ? entry.end_time.localtime.strftime('%R') : "")+"\n"+l(:label_hours)+": "+entry.hours.to_s, "S" ]
+					}
+					endLocations = @wkattnEntries.map{ |entry|
+						(!entry.id) ? ["",""] : [ entry.e_longitude || "", entry.e_latitude || "", l(:label_clock_in)+": "+entry.start_time.localtime.strftime('%R')+"\n"+
+						l(:label_clock_out)+": "+(entry.end_time ? entry.end_time.localtime.strftime('%R') : "")+"\n"++"\n"+l(:label_hours)+": "+entry.hours.to_s, "E" ]
+					}
+					locations = startLocations + endLocations
+					locations = [["", ""]] if locations.length == 0
+			%>
+			<div  id="mapContainer" style="float: right;width: 300px;height: 200px"></div>
+			<%= render partial: "wkgeolocation/location_map", locals: { locations: locations } %>
+		<% end %>
 	</div>
 <% end %>

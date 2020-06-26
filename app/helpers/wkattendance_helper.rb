@@ -153,6 +153,14 @@ module WkattendanceHelper
 		wkattendance.end_time = endEntry
 		wkattendance.hours = computeWorkedHours(wkattendance.start_time,wkattendance.end_time, true) unless endEntry.blank?
 		wkattendance.user_id = userId
+		if isChecked('att_save_geo_location')
+			wkattendance.s_latitude = params[:latitude]
+			wkattendance.s_longitude = params[:longitude]
+			if endEntry.present?
+				wkattendance.e_latitude = params[:latitude]
+				wkattendance.e_longitude = params[:longitude]
+			end
+		end
 		wkattendance.save()
 		wkattendance
 	end
@@ -176,6 +184,10 @@ module WkattendanceHelper
 			
 			attnObj.end_time = endtime
 			attnObj.hours = computeWorkedHours(attnObj.start_time,attnObj.end_time, true)
+			if endtime.present? && isChecked('att_save_geo_location')
+				attnObj.e_latitude = params[:latitude]
+				attnObj.e_longitude = params[:longitude]
+			end
 			attnObj.save()
 			wkattendance = attnObj if wkattendance.blank?
 		else

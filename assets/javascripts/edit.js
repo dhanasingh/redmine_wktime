@@ -269,7 +269,7 @@ function showCustomField() {
 		var i, cust_field, ck_cust_field, custom_fields, cust_vals;
 		for(i=0; i < cust_fids.length; i++){
 			cust_field = $( "#" + cust_fids[i]);
-			custom_fields = $('input[name="'+cust_fids[i]+comment_row+'[]"]');
+			custom_fields = $('input[name="'+cust_fids[i]+'_'+comment_row+'[]"]');
 			
 			if(cust_field.is("select")){
 				//if the value is not set, it could be an array
@@ -297,7 +297,7 @@ function updateCustomField() {
 		for(i=0; i < cust_fids.length; i++)
 		{		
 			cust_field = $( "#" + cust_fids[i]);
-			custom_fields = $('input[name="'+cust_fids[i]+comment_row+'[]"]');
+			custom_fields = $('input[name="'+cust_fids[i]+'_'+comment_row+'[]"]');
 			if(cust_field.attr('type') == "hidden"){
 				//the checkbox also has a hidden field
 				ck_cust_field = $('input[id="'+cust_fids[i]+'"][type="checkbox"]');
@@ -844,7 +844,7 @@ function renameCellIDs(cell, index, newIndex){
 		var cust_fids = cf_ids.split(',');
 		var i, j, cust_field, custom_fields;
 		for(i=0; i < cust_fids.length; i++){
-				renameProperty(cell, 'input', cust_fids[i], index, newIndex);
+				renameProperty(cell, 'input', cust_fids[i]+'_', index, newIndex);
 		}
 	}
 

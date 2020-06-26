@@ -1068,3 +1068,7 @@ pl:
 
   label_survey_email_notes: Please click on the following link to take a survey
   label_redmine_administrator: By Redmine Administrator
+
+  label_save_geo_location: Save Geolocation
+  label_show_on_map: Show on Map
+  label_save_c_geolocation: Save current Geolocation

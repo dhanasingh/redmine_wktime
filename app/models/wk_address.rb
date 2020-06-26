@@ -23,7 +23,7 @@ class WkAddress < ActiveRecord::Base
   validate :hasAnyValues
   
   def hasAnyValues
-	errors.add(:base, (l(:label_address)  + " " + l('activerecord.errors.messages.blank'))) if address1.blank? && address2.blank? && work_phone.blank? && home_phone.blank? && mobile.blank? && email.blank? && fax.blank? && city.blank? && country.blank? && state.blank? && pin.blank? && department.blank? && department.blank? && id.blank?
+	errors.add(:base, (l(:label_address)  + " " + l('activerecord.errors.messages.blank'))) if address1.blank? && address2.blank? && work_phone.blank? && home_phone.blank? && mobile.blank? && email.blank? && fax.blank? && city.blank? && country.blank? && state.blank? && pin.blank? && department.blank? && department.blank? && id.blank? && longitude.blank? && latitude.blank?
   end
   
   def fullAddress

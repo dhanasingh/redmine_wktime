@@ -28,6 +28,11 @@
 				<td><%=h select_tag('location_type', options_for_select(options_for_enum_select('LT', locType, true)), :style=> "float: left;") %></td>
 			<td><%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %></td>
 			<td><%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload', :style=>"float:left; " %></td>
+			<% if isChecked('te_save_geo_location') %>
+				<td>
+					<label style="padding-left:5px"><%= check_box_tag('show_on_map', true, params[:show_on_map] || false, onclick: '$("#query_form").submit(); return false;') %><%= l(:label_show_on_map) %></label>
+				</td>
+			<% end %>
 	</table>
 </fieldset>
 <% end %>

@@ -1,51 +1,61 @@
 <script type="text/javascript"> 
-    not_valid_errormsg = "<%=l(:error_not_valid) %>";
-    enter_clk_in_errormsg = "<%=l(:error_enter_clk_in) %>";
-    greater_then_errormsg = "<%=l(:error_greater_then) %>";
+	not_valid_errormsg = "<%=l(:error_not_valid) %>";
+	enter_clk_in_errormsg = "<%=l(:error_enter_clk_in) %>";
+	greater_then_errormsg = "<%=l(:error_greater_then) %>";
 </script>
+<% show_on_map = params[:show_on_map].present? && params[:show_on_map] %>
 
 <%= form_tag({}, id: "clockList") do -%>
-<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
-<div class="autoscroll">
-    <table class="list time-entries">
-        <thead>
-            <tr>
-                <%= sort_header_tag('name', :caption => l(:field_user), class: "lbl-txt-align") %>
-                <%= sort_header_tag('start_date', :caption => l(:field_start_date), class: "lbl-txt-align") %>
-                <th class="lbl-txt-align"><label style="padding-right: 10px;"><%= l(:label_clock_in) %></label>
-                    <% if validateERPPermission('A_TE_PRVLG') %>
-                        <a class="icon icon-edit" id="editIcon" style="cursor: pointer;" onClick=" bulkEdit();" action="Edit"></a>
-                    <% end %>
-                </th>
-                <th class="lbl-txt-align"><%= l(:label_clock_out) %></th>
-                <%= sort_header_tag('hours', :caption => l(:label_hours), class: "lbl-txt-align") %>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            <% @clk_entries.each_with_index do |entry, index| %>
-                <tr class="<%= cycle('odd', 'even') %> <%= !entry.start_time ? 'user locked' : '' %>" id="<%=entry.id.to_s + "_" + index.to_s%>">
-                    <%= hidden_field_tag("startdate_#{entry.id.to_s + "_" + index.to_s}", entry.entry_date) %>
-                    <%= hidden_field_tag("userID_#{entry.id.to_s + "_" + index.to_s}", entry.user_id) %>
-                    <td class="lbl-txt-align"><%=h entry.firstname %></td>
-                    <td class="lbl-txt-align"><%=h entry.entry_date %></td>
-                    <td class="lbl-txt-align" id="clockin_<%=entry.id.to_s + "_" + index.to_s%>">
-                        <%=h !entry.start_time ? "" : entry.start_time.localtime.strftime('%R') %>
-                    </td>
-                    <td class="lbl-txt-align" id="clockout_<%=entry.id.to_s + "_" + index.to_s%>">
-                        <%=h !entry.end_time ? "" : entry.end_time.localtime.strftime('%R') %>
-                    </td>
-                    <td class="lbl-txt-align" id="hours_<%=entry.id.to_s + "_" + index.to_s%>">
-                        <%=h !entry.hours ? "0.0" : (entry.hours).round(2) %>
-                    </td>
-                    <td align="center">
-                        <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'clockedit', 
-                            :user_id => entry.user_id, :date => entry.entry_date,  :tab => controller.controller_name}, 
-                            :title => l(:button_edit) %>
-                    </td>
-                </tr>
-            <% end %>
-        </tbody>
-    </table>
-</div>
+	<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
+	<div class="autoscroll">
+
+		<table class="list time-entries" style="width:<%= !show_on_map ? "100%" : "35%" %>; float:left;">
+			<thead>
+				<tr>
+					<%= sort_header_tag('name', :caption => l(:field_user), class: "lbl-txt-align", style:(show_on_map ? "width:55%" : "")) %>
+					<%= sort_header_tag('start_date', :caption => l(:field_start_date), class: "lbl-txt-align", style:(show_on_map ? "width:25%" : "")) %>
+					<% if !show_on_map %>
+						<th class="lbl-txt-align"><label style="padding-right: 10px;"><%= l(:label_clock_in) %></label>
+							<% if validateERPPermission('A_TE_PRVLG') %>
+								<a class="icon icon-edit" id="editIcon" style="cursor: pointer;" onClick=" bulkEdit();" action="Edit"></a>
+							<% end %>
+						</th>
+						<th class="lbl-txt-align"><%= l(:label_clock_out) %></th>
+					<% end %>	
+					<%= sort_header_tag('hours', caption: l(:label_hours), class: "lbl-txt-align", style:(show_on_map ? "width:10%" : "")) %>
+					<th style="<%= show_on_map ? "width:10%" : "" %>"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<% @clk_entries.each_with_index do |entry, index| %>
+					<tr class="<%= cycle('odd', 'even') %> <%= !entry.start_time ? 'user locked' : '' %>" id="<%=entry.id.to_s + "_" + index.to_s%>">
+						<%= hidden_field_tag("startdate_#{entry.id.to_s + "_" + index.to_s}", entry.entry_date) %>
+						<%= hidden_field_tag("userID_#{entry.id.to_s + "_" + index.to_s}", entry.user_id) %>
+						<td class="lbl-txt-align"><%=h entry.firstname %></td>
+						<td class="lbl-txt-align"><%=h entry.entry_date %></td>
+						<% if !show_on_map %>
+							<td class="lbl-txt-align" id="clockin_<%=entry.id.to_s + "_" + index.to_s%>">
+								<%=h !entry.start_time ? "" : entry.start_time.localtime.strftime('%R') %>
+							</td>
+							<td class="lbl-txt-align" id="clockout_<%=entry.id.to_s + "_" + index.to_s%>">
+								<%=h !entry.end_time ? "" : entry.end_time.localtime.strftime('%R') %>
+							</td>
+						<% end %>
+						<td class="lbl-txt-align" id="hours_<%=entry.id.to_s + "_" + index.to_s%>">
+								<%=h !entry.hours ? "0.0" : (entry.hours).round(2) %>
+						</td>
+						<td align="center">
+								<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'clockedit', 
+										:user_id => entry.user_id, :date => entry.entry_date,  :tab => controller.controller_name}, 
+										:title => l(:button_edit) %>
+						</td>
+					</tr>
+				<% end %>
+			</tbody>
+		</table>
+
+		<% if show_on_map %>
+			<%= render partial: "wkgeolocation/show_on_map", locals: { entries: @clk_entries, model: "attendance", height: '94%', width: '64%' } %>
+		<% end %>
+	</div>
 <% end -%>

@@ -71,17 +71,25 @@
 <% disable = @materialEntry.blank? || @materialEntry.spent_for.blank? || @materialEntry.spent_for.invoice_item_id.blank? ? false : true  %>
 <%#=h hidden_field_tag('getclients_url', "#{url_for(:controller => 'wktime', :action => 'getclients', :user_id => User.current.id, :separator => ',')}") %>
 <%= hidden_field_tag 'userId', User.current.id %>
-<%  sellSpentFor =  ""
-    spentForIdVal = ""
+<%
 	if @spentType == 'E' && !@expenseEntry.blank?
-		selectedSpentFor = @expenseEntry.project_id.to_s + '|' + @expenseEntry.spent_for.spent_for_type.to_s + '_' + @expenseEntry.spent_for.spent_for_id.to_s
-		spentForIdVal = @expenseEntry.spent_for.id	
+		objEntry = @expenseEntry
 	elsif (@spentType == 'T' || @spentType.blank?) && (!@time_entry.blank? && !@time_entry.spent_for.blank?)
-		selectedSpentFor = @time_entry.project_id.to_s + '|' + @time_entry.spent_for.spent_for_type.to_s + '_' + @time_entry.spent_for.spent_for_id.to_s
-		spentForIdVal = @time_entry.spent_for.id		
+		objEntry = @time_entry
 	elsif !@materialEntry.blank?
-		selectedSpentFor = @materialEntry.project_id.to_s + '|' + @materialEntry.spent_for.spent_for_type.to_s + '_' + @materialEntry.spent_for.spent_for_id.to_s
-		spentForIdVal = @materialEntry.spent_for.id
+		objEntry = @materialEntry
+	end
+	selectedSpentFor = objEntry.present? ? objEntry.project_id.to_s + '|' + objEntry.spent_for.spent_for_type.to_s + '_' + objEntry.spent_for.spent_for_id.to_s : ""
+	spentForIdVal = objEntry.present? ? objEntry.spent_for.id : ""
+	endLocations =  objEntry.blank? ? ["",""] : [
+		objEntry.spent_for.e_longitude || "", objEntry.spent_for.e_latitude || "", objEntry.project.name+ "\n"+ objEntry.issue.subject+"\n"+objEntry.hours.to_s, "E"
+	]
+	if objEntry.blank? || (objEntry.spent_for.s_longitude == objEntry.spent_for.e_longitude && objEntry.spent_for.s_latitude == objEntry.spent_for.e_latitude)
+		startLocations = ["",""]
+	else
+		startLocations = [
+			objEntry.spent_for.s_longitude || "", objEntry.spent_for.s_latitude || "", objEntry.project.name+ "\n"+ objEntry.issue.subject+"\n"+objEntry.hours.to_s, "S"
+		]
 	end
 %>
 <%= hidden_field_tag 'spentForId', spentForIdVal %>
@@ -193,6 +201,7 @@
 		</td>
 	</tr>
 </table>
+
 <!-- Time Tracker-->
 <% if wktime_helper.isChecked("label_enable_issue_logger") && (@spentType == "T" || @spentType.blank?) %>
 	<% start_on = @time_entry.spent_for &&  @time_entry.spent_for.start_on ? @time_entry.spent_for.start_on.localtime : Time.now %>
@@ -213,3 +222,12 @@
 	</table>
 <% end %>
 
+<% if wktime_helper.isChecked('te_save_geo_location') %>
+	<!-- Geolocation -->
+	<table style="padding-left:100px;">
+		<tr><td>
+			<div id='mapContainer' style="width:300px;height:300px;"></div>
+			<%= render partial: "wkgeolocation/location_map", locals: { locations: [startLocations, endLocations] } %>
+		</td></tr>
+	</table>
+<% end %>

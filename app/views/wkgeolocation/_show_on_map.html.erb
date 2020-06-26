@@ -1,0 +1,36 @@
+<%  model = "" if local_assigns[:model].blank?
+    case model
+    when "spent_for"
+      startLocations = entries.map{|entry|
+      [ entry.spent_for.try(:s_longitude) || '', entry.spent_for.try(:s_latitude) || '',
+      entry.project.name+ "\n"+(entry.issue ? entry.issue.subject : "")+"\n"+entry.hours.to_s, "E"
+      ]}
+      endLocations = entries.map{|entry|
+      (entry.spent_for && entry.spent_for.s_longitude == entry.spent_for.e_longitude && entry.spent_for.s_latitude == entry.spent_for.e_latitude) ? ["",""] :
+        [ entry.spent_for.try(:e_longitude) || '', entry.spent_for.try(:e_latitude) || '', entry.project.name+ "\n"+(entry.issue ? entry.issue.subject : "")+"\n"+entry.hours.to_s, "S" ]}
+      locations = startLocations + endLocations
+    when "attendance"
+      startLocations = entries.map{ |entry|
+        (!entry.id || entry.s_longitude == entry.e_longitude && entry.s_latitude == entry.e_latitude) ? ["",""] : [ entry.s_longitude || "", entry.s_latitude || "",
+        l(:label_clock_in)+": "+entry.start_time.localtime.strftime('%R')+"\n"+l(:label_clock_out)+": "+
+        (entry.end_time ? entry.end_time.localtime.strftime('%R') : "")+"\n"+l(:label_hours)+": "+entry.hours.to_s, "S" ]
+      }
+      endLocations = entries.map{ |entry|
+        (!entry.id) ? ["",""] : [ entry.e_longitude || "", entry.e_latitude || "", l(:label_clock_in)+": "+entry.start_time.localtime.strftime('%R')+"\n"+
+        l(:label_clock_out)+": "+(entry.end_time ? entry.end_time.localtime.strftime('%R') : "")+"\n"++"\n"+l(:label_hours)+": "+entry.hours.to_s, "E" ]
+      }
+      locations = startLocations + endLocations
+    when "address"
+      locations = entries.map{|entry| [ entry.address.try(:longitude) || "", entry.address.try(:latitude) || "" ]}
+    end
+    locations = [["", ""]] if locations.length == 0
+%>
+
+<div id="mapheader" style="width: <%=width%>; height: <%=height%>;float: left;padding-left: 5px;min-height: 600px;">
+  <div style="text-align: right;padding-top:5px;">
+    <%= link_to_function l(:button_close), '$("#show_on_map").prop("checked", false);$("#query_form").submit()', :class => 'icon fa-close' %>
+  </div>
+  <div id='mapContainer'style="width: inherit; height: inherit;"></div>
+</div>
+<%= render partial: "wkgeolocation/location_map", locals: { locations: locations, show_on_map: true } %>
+<div style="clear: both;"></div>

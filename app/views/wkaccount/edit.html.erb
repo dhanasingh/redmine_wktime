@@ -9,7 +9,7 @@
 				<%= render partial: "wklead/lead_info", locals: { contactObj: nil, leadObj: nil, accountObj: @accountEntry, isAccount: true, isContact: false }%>
 			</div>
 			<div class="splitcontentright">
-				<%= render partial: "wklead/contact_info", locals: { address: addressObj, :disable => false }%>
+				<%= render partial: "wklead/contact_info", locals: { address: addressObj, :disable => false, showMap: true  }%>
 			</div>
 		</div>
 	</div>

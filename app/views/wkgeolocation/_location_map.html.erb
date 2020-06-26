@@ -1,0 +1,161 @@
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.3.1/css/ol.css" type="text/css">
+<script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.3.1/build/ol.js"></script>
+<style>
+  .ol-popup {
+      font-family: 'Lucida Grande', Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif !important;
+      font-size: 12px;
+      position: absolute;
+      background-color: white;
+      -webkit-filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+      filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid #cccccc;
+      bottom: 12px;
+      left: -50px;
+      min-width: 100px;
+  }
+
+  .ol-popup:after,
+  .ol-popup:before {
+      top: 100%;
+      border: solid transparent;
+      content: " ";
+      height: 0;
+      width: 0;
+      position: absolute;
+      pointer-events: none;
+  }
+
+  .ol-popup:after {
+      border-top-color: white;
+      border-width: 10px;
+      left: 48px;
+      margin-left: -10px;
+  }
+
+  .ol-popup:before {
+      border-top-color: #cccccc;
+      border-width: 11px;
+      left: 48px;
+      margin-left: -11px;
+  }
+
+  .ol-popup-closer {
+      text-decoration: none;
+      position: absolute;
+      top: 2px;
+      right: 8px;
+  }
+
+  .ol-popup-closer:after {
+      content: "✖";
+      color: #c3c3c3;
+  }
+</style>
+<%= hidden_field_tag('latitude', locations[0][1]) %>
+<%= hidden_field_tag('longitude', locations[0][1]) %>
+
+<div id="popup" class="ol-popup" style="display:none">
+  <div id="popup-content" style="white-space: pre-wrap;"></div>
+</div>
+
+<script>
+  var locations = <%= raw(locations) || [] %>;
+  var show_on_map = <%= raw(local_assigns[:show_on_map] || false) %>;
+  locations = locations.filter(function(value, index){ return value[0] && value[1] });
+
+  $(function(){
+    if(locations.length > 0 || show_on_map)
+      showMap(0, 0);
+    else
+      $('#mapContainer').hide();
+  });
+
+  function showMap(long, lat){
+    $('#mapContainer').show().html('<div id="map" style="height:inherit;width:inherit;position: absolute;"></div>');
+    if(locations.length == 1 && long == locations[0][0] && lat == locations[0][1]) locations.shift();
+    if(long > 0 && lat > 0) locations.push([ long, lat, null, 'C' ]);
+    if(locations > 1){
+      var longitudeAvg = locations.reduce(function(total, ele){ return (Array.isArray(total) ? total[0] : total) + ele[0] })/ locations.length;
+      var latitudeAvg = locations.reduce(function(total, ele){ return (Array.isArray(total) ? total[1] : total) + ele[1] })/ locations.length;
+    }
+    else{
+      var longitudeAvg = locations.length > 0 ? locations[0][0] : 0;
+      var latitudeAvg = locations.length > 0 ? locations[0][1] : 0;
+    }
+    let mapPoints = [];
+
+    for(let i=0; i < locations.length; i++){
+      //Set locations and PopUp details
+      let popupDetail = locations[i][2];
+      window['location'+i] = new ol.Feature({
+        geometry: new ol.geom.Point(ol.proj.fromLonLat([ locations[i][0], locations[i][1] ])),
+        popupDetail: popupDetail
+      });
+
+      // Set Map Marker imgages
+      switch (locations[i][3]) {
+        case 'C': var imageName = 'current_location_marker.png';
+        break;
+        case 'S': var imageName = 's_location_marker.png';
+        break;
+        case 'E': var imageName = 'e_location_marker.png';
+        break;
+        default: var imageName = 'e_location_marker.png';
+      }
+      (window['location'+i]).setStyle( new ol.style.Style({
+          image: new ol.style.Icon({ src: '/plugin_assets/redmine_wktime/images/'+imageName})
+        }));
+      mapPoints.push(window['location'+i]);
+    }
+
+    var map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        })
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([longitudeAvg, latitudeAvg]),
+        zoom: locations.length > 0 ? 8 : 0
+      })
+    });
+
+    var layer = new ol.layer.Vector({
+      source: new ol.source.Vector({
+        features: mapPoints
+      }),
+      // style: new ol.style.Style({
+      //   image: new ol.style.Icon({ src: '/plugin_assets/redmine_wktime/images/location_marker.png' })
+      // })
+    });
+    map.addLayer(layer);
+
+    var container = document.getElementById('popup');
+    map.on('pointermove', function (event) {
+      if (event.dragging) {
+        return;
+      }
+      if (map.hasFeatureAtPixel(event.pixel) === true) {
+        var feature = map.forEachFeatureAtPixel(event.pixel,function(feature){ return feature; });
+        const popupDetail = feature.get('popupDetail');
+        if(popupDetail){
+          $('#popup-content').html(popupDetail);
+          var coordinates = feature.getGeometry().getCoordinates();
+          $('#popup').show();
+          let overlay = new ol.Overlay({ element: container });
+          map.addOverlay(overlay);
+          overlay.setPosition(coordinates);
+        }
+      } else {
+        $('#popup').show();
+        let overlay = new ol.Overlay({ element: container });
+        map.addOverlay(overlay);
+        overlay.setPosition(undefined);
+      }
+    });
+
+  }
+</script>

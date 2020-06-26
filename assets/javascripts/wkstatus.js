@@ -264,6 +264,7 @@ function signAttendance(str)
 	var mm = d.getMinutes();
 	elementhour = hh + ":" + mm;
 	var datevalue = d;
+  var offSet = d.getTimezoneOffset();
 	if( str == 'start' )
 	{
 	  document.getElementById('clockin' ).style.display = "none";
@@ -276,37 +277,47 @@ function signAttendance(str)
 	  document.getElementById('clockout').style.display = "none";
 	  $("#clockINOUT").attr('title','Clock in');
 	}
-	var clkInOutUrl = document.getElementById('clockinout_url').value;	
-	$.ajax({	
-	url: clkInOutUrl,//'/updateClockInOut',
-	type: 'get',
-	data: {startdate : datevalue, str: str},
-	success: function(data){ }   
+	var clkInOutUrl = document.getElementById('clockinout_url').value;
+	var data = { startdate : datevalue, str: str, offSet: offSet };
+	// Sending Geolocation params
+	if(myLatitude && myLongitude){
+		data['latitude'] = myLatitude;
+		data['longitude'] = myLongitude;
+	}
+	$.ajax({
+		url: clkInOutUrl,
+		type: 'get',
+		data: data,
+		success: function(data){ }
 	});
 }
 
 function saveTimeLog(ele){
-	imgName = $("#imgName").val();
-	var issueID = ele.id;
-	var date = new Date();
-  var offSet = date.getTimezoneOffset();
-	var URL = "/wkbase/saveTimeLog";
-		$.ajax({
-			url: URL,
-			type: 'get',
-			data: {offSet : offSet, issue_id : issueID},
-			success: function(data){
-				if(imgName == 'start'){
-					$("#issueImg img").attr('src','/plugin_assets/redmine_wktime/images/finish.png');
-					$('#issue-tracker').show();
-					$('#issue-tracker').html(data);
-				}
-				else{
-					$("#issueImg img").attr('src','/plugin_assets/redmine_wktime/images/start.png');
-					$('#issue-tracker').hide();
-				}
-				$(".drdn.content").remove();
+	const imgName = $("#imgName").val();
+	let date = new Date();
+  const offSet = date.getTimezoneOffset();
+	let data = { offSet : offSet, issue_id : ele.id };
+	// Sending Geolocation params
+	if(myLatitude && myLongitude){
+		data['latitude'] = myLatitude;
+		data['longitude'] = myLongitude;
+	}
+	$.ajax({
+		url: '/wkbase/saveTimeLog',
+		type: 'get',
+		data: data,
+		success: function(reponse){
+			if(imgName == 'start'){
+				$('#issueImg img').attr('src','/plugin_assets/redmine_wktime/images/finish.png');
+				$('#issue-tracker').show();
+				$('#issue-tracker').html(reponse);
 			}
-		});
-		$(".drdn.expanded").removeClass("expanded");
+			else{
+				$('#issueImg img').attr('src','/plugin_assets/redmine_wktime/images/start.png');
+				$('#issue-tracker').hide();
+			}
+			$('.drdn.content').remove();
+		}
+	});
+	$('.drdn.expanded').removeClass('expanded');
 }

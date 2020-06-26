@@ -24,6 +24,7 @@
 				disable = false if validateERPPermission('A_TE_PRVLG')
 				disable = true if isBilledTimeEntry(entry)
 			end
+			spentForId = entry.present? && entry.spent_for.present? ? entry.spent_for.id : nil
 			%>
 			<%#if this is from a previous template, don't print the hours%>
 			<td class="hours">
@@ -34,6 +35,7 @@
 				
 				<%=h hidden_field_tag('ids' + @row.to_s() +'[]', entry.nil? || @prev_template ? '' : entry.id) %>
 				<%=h hidden_field_tag('disabled' + @row.to_s() +'[]', disable ) %>
+				<%= hidden_field_tag('spentForId' + @row.to_s() +'[]', spentForId ) %>
 				
 				<% cvs = [] %>
 				<% show_custfield_img = false %>
@@ -62,7 +64,7 @@
 								Setting.plugin_redmine_wktime['wktime_enter_cf_in_row2'].to_i == custom_value.custom_field.id))%>	
 								
 								<% cv = custom_value.custom_field.multiple? ?  custom_value.value.join(',') : custom_value.value %>
-								<%=h hidden_field_tag('_custom_field_values_' + custom_value.custom_field.id.to_s + @row.to_s() +'[]', cv) %>
+								<%=h hidden_field_tag('_custom_field_values_' + custom_value.custom_field.id.to_s + "_" + @row.to_s() +'[]', cv) %>
 								<% cvs << cv unless cv.blank? %>
 							
 							<% end %>
