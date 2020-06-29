@@ -33,6 +33,7 @@ accept_api_auth :index, :edit, :update, :destroy, :deleteEntries, :getProjects, 
 helper :custom_fields
 helper :queries
 include QueriesHelper
+include ActionView::Helpers::TagHelper
  
   def index
 	sort_init 'id', 'asc'

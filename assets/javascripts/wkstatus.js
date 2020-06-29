@@ -116,7 +116,7 @@ $(document).ready(function(){
 		}
 	});
 
-	$('.drdn-items.issues .issue_select').live('click', function(){
+	$(document).on('click', '.drdn-items.issues .issue_select', function(){
 		saveTimeLog(this);
   });
 });
