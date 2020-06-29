@@ -15,6 +15,7 @@
 			locationId =session[controller_name].try(:[], :location_id)
 			availabilityId =session[controller_name].try(:[], :availability)
 			projectId =session[controller_name].try(:[], :project_id)
+			isDisposed =session[controller_name].try(:[], :is_dispose)
 		%>
 		<%	projArr = getProjects %>
 		<%	projArr[0] = [l(:label_all_projects),'AP'] %>
@@ -37,6 +38,9 @@
 			<% end %>
 			<%= l(:label_project) %>&nbsp;
 			<%=h select_tag("project_id", options_for_select(projArr, :selected=> projectId)) %>&nbsp;
+			<% if controller.getItemType == "A" %>
+				<label><%= check_box_tag('is_dispose', 1, isDisposed) %> <%= l(:label_disposed) %></label>&nbsp;
+			<% end %>
 			<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>&nbsp;
 			<%= link_to l(:button_clear), {:controller => controller_name, :action => action_name, :tab => 'clock'}, :class => 'icon icon-reload' %>
 		</fieldset>

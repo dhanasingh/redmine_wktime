@@ -27,4 +27,16 @@ include WktimeHelper
 		curVal = curVal.round(2) unless curVal.blank?
 		curVal
 	end
+
+	def getRemainingDepreciation(entry, inventory_item_id)
+		depreciationAmt = 0
+		sourceAmount = Setting.plugin_redmine_wktime['wktime_depreciation_type'] == 'SL' ?  entry.current_value : entry.previous_value
+		noOfdays = (Date.today - entry.depreciation_date).to_i
+		leapYear = Date.today.leap? ? 366 : 365
+		depreciationRate = WkInventoryItem.asset.joins(:asset_property, :product_item).where(:id => inventory_item_id ).order("wk_product_items.product_id").first
+		rate = depreciationRate.product_item.product.depreciation_rate
+		depreciationAmt = (rate/leapYear) * sourceAmount.to_f * noOfdays
+		depreciationAmt
+	end
+
 end

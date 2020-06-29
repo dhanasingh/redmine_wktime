@@ -898,3 +898,16 @@ function setEndTime(){
 	$("#end_time__4i").val(hours);
 	$("#end_time__5i").val(minutes);
 }
+
+function profitLossAmount(disposeAmnt)
+{
+	var currentVal = $('#asset_current_value').val();
+	var currency = $('#currency').val();
+	var profitLossAmnt = 0;
+	if(disposeAmnt != "")
+	{
+		profitLossAmnt = disposeAmnt - currentVal;
+	}
+	profit_loss = currency + " " + profitLossAmnt.toFixed(2);
+	$("#profit_loss").html(profit_loss);	
+}

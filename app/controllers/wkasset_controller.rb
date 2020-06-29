@@ -18,6 +18,7 @@ class WkassetController < WkproductitemController
   unloadable
 	menu_item :wkproduct
 	include WktimeHelper
+	include WkassetdepreciationHelper
 
 
 	def getItemType
@@ -30,17 +31,15 @@ class WkassetController < WkproductitemController
 	
 	def getProductAsset
 		assetArr = ""
-		unless params[:id].blank?
-			pctObj = WkInventoryItem.joins(:product_item, :asset_property).where(:wk_product_items => {:product_id => params[:id].to_i}, :product_type => 'A').select("wk_inventory_items.id, wk_asset_properties.name")
-		else 
-			pctObj = WkInventoryItem.joins(:product_item, :asset_property).where(:product_type => 'A').select("wk_inventory_items.id, wk_asset_properties.name")
-		end
+		assetItems = WkInventoryItem.joins(:product_item, :asset_property).where("product_type = 'A'").select("wk_inventory_items.id, wk_asset_properties.name")
+		assetItems = assetItems.where(" wk_product_items.product_id = ?", params[:id].to_i) unless params[:id].blank?
+		assetItems = assetItems.where(" is_disposed is NOT TRUE") if params[:newDepr] == "true"
 		
-		pctObj.each do | entry |
+		assetItems.each do | entry |
 			assetArr << entry.id.to_s() + ',' +  entry.name.to_s()  + "\n" 
 		end
 		respond_to do |format|
-			format.text  { render :plain => assetArr }
+			format.text  { render plain: assetArr }
 		end
 	end
 	
@@ -90,6 +89,46 @@ class WkassetController < WkproductitemController
 	
 	def editcomponentLbl
 		l(:label_edit_component)
+	end
+
+	def dispose_asset
+		inventory_item_id = params[:inventory_item_id].to_i
+		@disposeAssetEntry = WkAssetProperty.disposeAsset(inventory_item_id).first
+		@depreciationAmount = getRemainingDepreciation(@disposeAssetEntry, inventory_item_id)
+	end
+
+	def updateDisposedAsset
+		assetProperty = WkAssetProperty.find(params[:asset_property_id])
+		assetProperty.is_disposed = true
+		assetProperty.disposed_rate = params[:dispose_amount].to_f
+		#update Remaining Depreciation
+		depreciation = WkAssetDepreciation.new
+		depreciation.depreciation_date = Date.today
+		depreciation.currency = params[:currency]
+		depreciation.inventory_item_id = params[:inventory_item_id]
+		depreciation.actual_amount = params[:asset_previous_value].to_f
+		depreciation.depreciation_amount = params[:depreciation_amount].to_f
+		if assetProperty.is_disposed && assetProperty.save() && depreciation.save()
+			assetLedgerId = assetProperty.inventory_item.product_item.product.ledger_id
+			assetDisposalLedgerId = getSettingCfId("asset_disposal_ledger")
+			if assetLedgerId && assetDisposalLedgerId
+				asset_value = (params[:dispose_amount].to_f - params[:asset_current_value].to_f).round(2).abs
+				transAmounts = [{ assetLedgerId => params[:asset_current_value].to_f}, {assetDisposalLedgerId => asset_value}]
+				glTransaction = postToGlTransaction("asset", nil, Date.today, transAmounts, assetProperty.currency, nil, nil)
+				unless glTransaction.blank?
+					WkAssetProperty.where(:id => assetProperty.id).update(gl_transaction_id: glTransaction.id)
+				end
+			end
+			unless assetLedgerId.blank?
+				productDepAmtHash = { assetLedgerId => depreciation.depreciation_amount}
+				postDepreciationToAccouning([depreciation.id], [depreciation.gl_transaction_id], depreciation.depreciation_date, productDepAmtHash, depreciation.depreciation_amount, depreciation.currency)
+			end
+			redirect_to controller: controller_name, action:"index", tab: controller_name
+			flash[:notice] = l(:notice_successful_update)
+		else
+			redirect_to controller: controller_name, action: "dispose_asset", inventory_item_id: params[:inventory_item_id], tab: controller_name
+			flash[:error] = assetProperty.errors.full_messages.join("<br>")
+		end
 	end
 
 end

@@ -31,11 +31,18 @@
 				</td>
 			</tr> -->
 			<% assethook = call_hook(:view_asset_fields, :assetProperty => assetProperty) %>
-			<% if assethook.blank? %>
+			<% if assethook.blank? || controller.getItemType == 'A' %>
 				<tr>
-					<th align="left"><%= l(:label_current_asset_value) %></th>
-					<td align="left" style="padding-left:40px;"><label align='left'><b><%= assetProperty.blank? ? Setting.plugin_redmine_wktime['wktime_currency'] : assetProperty.currency %></b></label><%= text_field_tag "current_value",  assetProperty.blank? ? '' : assetProperty.current_value, :disabled => false %></td>
+					<th align="left"><%= l(:label_asset_value) %></th>
+					<td align="left" style="padding-left:40px;"><b><%= assetProperty.blank? ? Setting.plugin_redmine_wktime['wktime_currency'] : assetProperty.currency %></b> <%= text_field_tag "current_value",  assetProperty.blank? ? '' : assetProperty.current_value, :disabled => false %></td>
 				</tr>
+				<% if invntItem && @lastDepr %>
+					<tr>
+						<th align="left"><%= l(:label_current_asset_value) %></th>
+						<td align="left" style="padding-left:40px;"><b><%= @lastDepr.currency %></b> <%= "%.2f" % @lastDepr.current_value %>
+						&nbsp; <b> on </b> &nbsp;<%= @lastDepr.depreciation_date %></td>
+					</tr>
+				<% end %>
 			<% end %>
 			<tr>
 				<th align="left"><%= l(:label_owner) + " " + l(:label_type) %></th>

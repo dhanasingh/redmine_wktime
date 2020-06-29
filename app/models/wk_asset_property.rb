@@ -21,5 +21,21 @@ class WkAssetProperty < ActiveRecord::Base
   belongs_to :inventory_item, :class_name => 'WkInventoryItem'
   belongs_to :material_entry, foreign_key: "matterial_entry_id", class_name: "WkMaterialEntry"
   scope :available_assets,  -> { where(:matterial_entry_id => nil) }
+
+  scope :disposeAsset, ->(inventory_item_id){
+    joins("LEFT JOIN wk_asset_depreciations AS ad ON ad.inventory_item_id = wk_asset_properties.inventory_item_id")
+    .joins("LEFT JOIN (
+      SELECT MAX(depreciation_date) AS depreciation_date, inventory_item_id
+      FROM wk_asset_depreciations where inventory_item_id =#{inventory_item_id} group by inventory_item_id
+      )  AS D  ON D.inventory_item_id = ad.inventory_item_id  AND D.depreciation_date = ad.depreciation_date")
+    .joins("LEFT JOIN wk_inventory_items AS it ON wk_asset_properties.inventory_item_id = it.id")
+    .joins("LEFT JOIN wk_shipments AS s ON it.shipment_id = s.id")
+    .where("wk_asset_properties.inventory_item_id =#{inventory_item_id} AND (ad.depreciation_date IS NULL OR 
+      ad.depreciation_date IS NOT NULL AND D.depreciation_date IS NOT NULL)")
+    .select("wk_asset_properties.name, wk_asset_properties.id AS asset_property_id, wk_asset_properties.currency, is_disposed,
+      disposed_rate, depreciation_amount, wk_asset_properties.current_value,
+      CASE WHEN D.depreciation_date IS NULL THEN shipment_date ELSE D.depreciation_date END AS depreciation_date,
+      CASE WHEN depreciation_amount > 0 THEN actual_amount - depreciation_amount ELSE wk_asset_properties.current_value END AS previous_value")
+  }
   
 end

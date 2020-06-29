@@ -3,13 +3,13 @@
 <script type="text/javascript"> 
 	no_asset = '<%=l(:label_no_asset_current_product) %>';
 	assetUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
-	productAssetUrl="<%= "#{url_for(:controller => "wkasset", :action => 'getProductAsset')}" %>";
+	productAssetUrl="<%= "#{url_for(controller: "wkasset", action: 'getProductAsset', newDepr: 'true')}" %>";
 </script>
 <% 
 logmaterial_helper = Object.new.extend(WklogmaterialHelper)
 productArr = logmaterial_helper.getProductArray(WkProduct, '', 'A', false) 
 productId = productArr.blank? ? 0 : productArr[0][1]
-assetItemArr = controller.getInventoryAssetItems(productId, 'A', false)
+assetItemArr = controller.getInventoryAssetItems(productId, 'A', false, true)
 %>
 <table>
 	<%=h hidden_field_tag('new_depreciation', true) %>
