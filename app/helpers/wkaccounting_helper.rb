@@ -235,11 +235,16 @@ include WktimeHelper
 		transtype
 	end
 	
-	def getEachLedgerCDAmt(asOnDate, ledgerType)
+	def getEachLedgerCDAmt(from, to, ledgerType)
 		typeArr = ['c', 'd']
 		detailHash = Hash.new
 		typeArr.each do |type|
-			detailHash[type] = WkGlTransactionDetail.includes(:ledger, :wkgltransaction).where('wk_gl_transaction_details.detail_type = ? and wk_ledgers.ledger_type IN (?) and wk_gl_transactions.trans_date <= ?', type, ledgerType, asOnDate).references(:ledger,:wkgltransaction).group('wk_ledgers.id').sum('wk_gl_transaction_details.amount')
+			glTransaction = WkGlTransactionDetail.includes(:ledger, :wkgltransaction)
+				.where("wk_gl_transaction_details.detail_type = ? and wk_ledgers.ledger_type IN (?) and
+				wk_gl_transactions.trans_date <= ?", type, ledgerType, to)
+			glTransaction = glTransaction.where("wk_gl_transactions.trans_date between ? and ?", from, to) if ['DI', 'DE', 'II', 'IE', 'SA', 'PA'].include? ledgerType
+			detailHash[type] = glTransaction.references(:ledger,:wkgltransaction).group('wk_ledgers.id')
+					.sum('wk_gl_transaction_details.amount')
 		end
 		creditDebitHash = Hash.new
 		unless detailHash.blank?
@@ -261,12 +266,12 @@ include WktimeHelper
 		creditDebitHash	
 	end
 	
-	def getTBSubEntries(asOnDate, ledgerType)
+	def getTBSubEntries(from, to, ledgerType)
 		subEntriesHash = nil
 		unless getLedgerTypeGrpHash[ledgerType].blank?
 			subEntriesHash = Hash.new
 			getLedgerTypeGrpHash[ledgerType].each do |subType|
-				subEntriesHash[subType] = getEachLedgerCDAmt(asOnDate, [subType])
+				subEntriesHash[subType] = getEachLedgerCDAmt(from, to, [subType])
 			end
 		end
 		subEntriesHash
