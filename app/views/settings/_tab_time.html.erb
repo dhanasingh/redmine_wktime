@@ -113,20 +113,6 @@
 </div>
 
 <div style="clear:both"></div>
-<div class="splitcontentleft">
-<fieldset >
-	<legend><%= l(:label_display) %></legend>
-	<p>
-	  <label><%= l(:label_wk_project_dd_width) %></label><%= text_field_tag 'settings[wktime_project_dd_width]', @settings['wktime_project_dd_width'], :size => 3 %> px
-	</p>
-	<p>
-	  <label><%= l(:label_wk_issue_dd_width) %></label><%= text_field_tag 'settings[wktime_issue_dd_width]', @settings['wktime_issue_dd_width'], :size => 3 %> px
-	</p>
-	<p>
-	  <label><%= l(:label_wk_actv_dd_width) %></label><%= text_field_tag 'settings[wktime_actv_dd_width]', @settings['wktime_actv_dd_width'], :size => 3 %> px
-	</p>
-</fieldset>
-</div>
 <%custom_fields = TimeEntryCustomField.order('name')%>
 <% if !custom_fields.blank? %>
 <div style = "display:none">
