@@ -2,14 +2,22 @@ module WkdashboardHelper
 	# Return the graphs with its type
 	# key - graph name, value - graph type 
 	include WkreportHelper
+	include WktimeHelper
 	include Redmine::I18n
   
   def get_graphs_yaml_path
-	 files_array = []
-	 Dir["plugins/redmine_wktime/config/wkdashboard/*.yml"].each do |f| 
-		file_name = File.basename(f)	
-		files_array << ["#{file_name}"] 
-	 end
+		permittedfiles = []
+		ymlFiles = Dir["plugins/redmine_wktime/config/wkdashboard/*.yml"].map{ |file| file }
+		ymlFiles.each do |file|
+			fileName = File.basename(file).split("_").first
+			nonPermChart = !['001', '002', '003', '004', '005', '006'].include?(fileName)
+			if(nonPermChart || (fileName == '001' && showAttendance) || (fileName == '002' && showExpense) ||
+				(fileName == '003' && showCRMModule) || (fileName == '004' && showBilling && validateERPPermission("M_BILL")) ||
+				(fileName == '005' && showInventory) || (fileName == '006' && showAccounting))
+					permittedfiles << file
+			end	
+		end
+		permittedfiles
   end
   
   def label_check(l_name)     
