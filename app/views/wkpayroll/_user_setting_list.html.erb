@@ -19,17 +19,19 @@ th:first-child {
 	<% if (wktime_helper.validateERPPermission('A_PAYRL')) %>
 
 		<%= form_tag({:controller => controller_name, :action => 'usrsettingsindex'}, :method => :get) do %>
+			<%= hidden_field_tag "searchlist", "#{controller_name}" %>
+			<%	groupid =session[:wkpayroll].try(:[], :group_id) %>
 			<fieldset><legend><%= l(:label_filter_plural) %></legend>
 				<b><label for='status'><%= l(:field_status) %>:</label></b>
 				<%= select_tag 'status', users_status_options_for_select(@status), :class => "small", :onchange => "this.form.submit(); return false;"  %>
 
 				<% if @groups.present? %>
 				<b><label for='group_id' style="padding-left: 10px;"><%= l(:label_group) %>:</label></b>
-				<%= select_tag 'group_id', content_tag('option') + options_from_collection_for_select(@groups, :id, :name, params[:group_id].to_i), :onchange => "this.form.submit(); return false;"  %>
+				<%= select_tag 'group_id', content_tag('option') + options_from_collection_for_select(@groups, :id, :name,  !groupid.nil? ? groupid.to_i: 0), :onchange => "this.form.submit(); return false;"  %>
 				<% end %>
 
 				<b><label for='name' style="padding-left: 10px;"><%= l(:label_user) %>:</label></b>
-				<%= text_field_tag 'name', params[:name], :size => 30 %>
+				<%= text_field_tag 'name', session[controller_name].try(:[], :name), :size => 30 %>
 				<%= submit_tag l(:button_apply), :class => "small", :name => "list" %>
 				<%= link_to l(:button_clear), {:controller => controller_name, :action => 'usrsettingsindex', :tab => 'payroll'}, :class => 'icon icon-reload' %>
 			</fieldset>

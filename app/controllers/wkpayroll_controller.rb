@@ -303,7 +303,7 @@ class WkpayrollController < WkbaseController
 	def set_filter_session
 		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
 		if params[:searchlist] == controller_name || api_request?
-			filters = [:period_type, :period, :group_id, :user_id, :from, :to]
+			filters = [:period_type, :period, :group_id, :user_id, :from, :to, :status, :name]
 			filters.each do |param|
 				if params[param].blank? && session[controller_name].try(:[], param).present?
 					session[controller_name].delete(param)
@@ -406,11 +406,13 @@ class WkpayrollController < WkbaseController
 	end
 
 	def usrsettingsindex
-		@status = params[:status] || 1
+		set_filter_session
+		@status = session[controller_name][:status] || 1
 		@groups = Group.all.sort
+		group_id = session[controller_name].try(:[], :group_id)
 		sqlStr = ""
 		selectStr = " select u.id as user_id, u.firstname, u.lastname, u.status from users u"
-		if !params[:group_id].blank?
+		if group_id.to_i != 0
 			sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id"
 		end
 		sqlStr = sqlStr + " where u.type = 'User' "
@@ -420,11 +422,11 @@ class WkpayrollController < WkbaseController
 		if !@status.blank?
 			sqlStr = sqlStr + " and u.status = #{@status}"
 		end
-		if !params[:group_id].blank?
-			sqlStr = sqlStr + " and gu.group_id = #{params[:group_id]}"
+		if group_id.to_i != 0
+			sqlStr = sqlStr + " and gu.group_id = #{group_id}"
 		end
-		if !params[:name].blank?
-			sqlStr = sqlStr + " and (LOWER(u.firstname) like LOWER('%#{params[:name]}%') or LOWER(u.lastname) like LOWER('%#{params[:name]}%'))"
+		if !session[controller_name][:name].blank?
+			sqlStr = sqlStr + " and (LOWER(u.firstname) like LOWER('%#{session[controller_name][:name]}%') or LOWER(u.lastname) like LOWER('%#{session[controller_name][:name]}%'))"
 		end
 		sqlStr = selectStr + sqlStr
 		findBySql(sqlStr)
