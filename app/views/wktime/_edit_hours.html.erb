@@ -22,7 +22,7 @@
 					disable = disable && !entry.id.blank?
 				end
 				disable = false if validateERPPermission('A_TE_PRVLG')
-				disable = true if isBilledTimeEntry(entry)
+				disable = true if !@prev_template && isBilledTimeEntry(entry)
 			end
 			spentForId = entry.present? && entry.spent_for.present? ? entry.spent_for.id : nil
 			%>
