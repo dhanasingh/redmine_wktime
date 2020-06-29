@@ -1,6 +1,5 @@
 <% if action_name == 'print_survey_result' %>
-    <%= title l(:label_survey_result) %>
-    <h3><%= l(:label_survey_name) %>:&nbsp;&nbsp; <%= @survey.name %></h3>
+    <%= title @survey.name %>
 	<% if @survey.recur %>
         <b><%= l(:label_clos_responses) %></b>:&nbsp; 
             <%= params[:grpdName].present? ? params[:grpdName] : (params[:grpdName].blank? && validateERPPermission("E_SUR")) ? "" : getResponseGroup.last %>
@@ -16,6 +15,7 @@
                 </tr>
                 <tr>
                     <td><%= render :partial => 'graph', :locals => { :entry => entry } %></td>
+                    <th style="padding-left: 300px; font-size: 96px;" id="avgScore_<%= entry.question_id %>"></th>
                 <tr>
             </table>
         </fieldset>

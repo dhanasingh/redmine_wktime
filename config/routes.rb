@@ -670,3 +670,5 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wkbase/getUserPermissions', :to => 'wkbase#getUserPermissions'
 
 	get 'wkbase/saveTimeLog', :to => 'wkbase#saveTimeLog'
+
+	get 'wksurvey/print_survey', :to => 'wksurvey#print_survey'
