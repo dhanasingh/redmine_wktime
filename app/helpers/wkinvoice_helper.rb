@@ -62,7 +62,7 @@ include WkpayrollHelper
 			moduleAmtHash = {'inventory' => [nil, totalAmount.round - invoiceAmount.round], getAutoPostModule => [totalAmount.round, invoiceAmount.round]}
 			inverseModuleArr = ['inventory']
 			transAmountArr = getTransAmountArr(moduleAmtHash, inverseModuleArr)
-			if (totalAmount.round - totalAmount) != 0
+			if isChecked(getAutoRound) && (totalAmount.round - totalAmount) != 0
 				addRoundInvItem(totalAmount)
 			end
 			if totalAmount > 0 && autoPostGL(getAutoPostModule)

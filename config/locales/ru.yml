@@ -1076,3 +1076,4 @@ ru:
   label_asset_disposal_ledger: Asset Disposal Ledger
   label_asset_value: Asset Value
   text_are_you_sure_want_dispose_asset: "Are you sure you want to dispose asset?"
+  label_auto_round_gl: Auto round invoices
