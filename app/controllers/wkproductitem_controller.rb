@@ -257,7 +257,7 @@ class WkproductitemController < WkinventoryController
 		inventoryItem.location_id = locationId if params[:location_id] != "0"
 		inventoryItem.project_id = projId
 		inventoryItem.save()
-		updateShipment(inventoryItem) if inventoryItem.product_type == 'I' && inventoryItem.blank?
+		updateShipment(inventoryItem) if inventoryItem.product_type == 'I'
 		inventoryItem
 	end
 	
