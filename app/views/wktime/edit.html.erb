@@ -150,10 +150,11 @@
 			<% if isChecked('te_save_geo_location') %>
 			<% 	startLocations = @entries.map{ |entry|
 						!entry.spent_for || (entry.spent_for.s_longitude == entry.spent_for.e_longitude && entry.spent_for.s_latitude == entry.spent_for.e_latitude) ? ["",""] :
-						[ entry.spent_for.s_longitude || '', entry.spent_for.s_latitude || '', entry.project.name+ "\n"+ entry.issue.subject+"\n"+entry.hours.to_s, "S" ]
+						[ entry.spent_for.s_longitude || '', entry.spent_for.s_latitude || '', entry.project.name+ "\n"+ (entry.issue ? entry.issue.subject : "")+"\n"+entry.hours.to_s, "S" ]
 					}
 					endLocations = @entries.map{ |entry|
-						entry.spent_for ? [ entry.spent_for.e_longitude || '', entry.spent_for.e_latitude || '', entry.project.name+ "\n"+ entry.issue.subject+"\n"+entry.hours.to_s, "E" ] : ["",""]
+						entry.spent_for ? [ entry.spent_for.e_longitude || '', entry.spent_for.e_latitude || '', entry.project.name+ "\n"+
+						(entry.issue ? entry.issue.subject : "")+"\n"+entry.hours.to_s, "E" ] : ["",""]
 					}
 					locations = startLocations + endLocations
 					locations = [["", ""]] if locations.length == 0
