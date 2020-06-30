@@ -114,8 +114,8 @@
 	<% if show_on_map %>
 		<script>
 			$(function(){
-				$('.list.odd-even.time-entries').css({ 'width':'49%', float: 'left' });
-				$('.list.odd-even.time-entries').before($("#mapheader"));
+				$('.list.odd-even.time-entries').css({ width:'49%', float: 'left', 'table-layout': 'fixed' });
+				$('.list.odd-even.time-entries').after($("#mapheader"));
 			});
 		</script>
 		<%= render partial: "wkgeolocation/show_on_map", locals: { entries: @entries, height: '96%', width: '49%', model: 'spent_for' } %>
