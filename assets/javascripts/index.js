@@ -115,7 +115,7 @@ $(document).ready(function() {
 	changeProp('tab-wksurvey',wkSurveyUrl);
 	
 	//Time Tracking
-	$("#start_time").change(function() {
+	$('.start_time').change(function() {
 		if($('#time_entry_hours').val() != ''){
 			setEndTime();
 		}
@@ -123,23 +123,6 @@ $(document).ready(function() {
 	$("#time_entry_hours").change(function() {
 		if($('#start_time__4i').val() != ''){
 			setEndTime();
-		}
-	});
-	$("#end_time").change(function() {
-		var start = $('#start_time__4i').val();
-		if(start != ''){
-			start_time = new Date($('#start_time__1i').val(), $('#start_time__2i').val(), $('#start_time__3i').val(), $('#start_time__4i').val(), $('#start_time__5i').val());
-			end_time = new Date($('#end_time__1i').val(), $('#end_time__2i').val(), $('#end_time__3i').val(), $('#end_time__4i').val(), $('#end_time__5i').val())
-			if(end_time >= start_time){
-				var hours = (end_time.getTime() - start_time.getTime()) / 1000/3600;;
-				hours = hours.toFixed(2);
-				$('#time_entry_hours').val(hours);
-			}
-			else{
-				alert('End time should be greater than Start time')
-				$("#end_time__4i").val('');
-				$("#end_time__5i").val('');
-			}
 		}
 	});
 });
@@ -910,4 +893,20 @@ function profitLossAmount(disposeAmnt)
 	}
 	profit_loss = currency + " " + profitLossAmnt.toFixed(2);
 	$("#profit_loss").html(profit_loss);	
+}
+
+function setEnd(){
+	let start_time = new Date($('#start_time__1i').val(), $('#start_time__2i').val(), $('#start_time__3i').val(),
+			$('#start_time__4i').val(), $('#start_time__5i').val());
+	let end_time = new Date($('#start_time__1i').val(), $('#start_time__2i').val(), $('#start_time__3i').val(),
+			$('#end_time__4i').val(), $('#end_time__5i').val());
+	if(end_time < start_time){
+		end_time.setDate(start_time.getDate() + 1)
+	}
+	let hours = (end_time.getTime() - start_time.getTime()) / 1000/3600;
+	hours = hours.toFixed(2);
+	$("#end_time__1i").val(end_time.getFullYear());
+	$("#end_time__2i").val(end_time.getMonth());
+	$("#end_time__3i").val(end_time.getDate());
+	$('#time_entry_hours').val(hours);
 }

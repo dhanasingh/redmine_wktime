@@ -209,14 +209,14 @@
 	<table id="issuelogtable" style="padding-left:95px;">
 		<tr>	
 			<th align="right" ><%= l(:label_start_time) %></th>
-			<td id="start_time" align="left">
-				<%= time_select("start_time", "", selected: start_on, include_blank: true) %>
+			<td align="left">
+				<%= time_select("start_time", "", {selected: start_on, include_blank: true}, {class: "start_time"}) %>
 			</td>
 		</tr>
 		<tr>
 			<th align="right" ><%= l(:label_end_time) %></th>
-			<td id="end_time" align="left" >
-				<%= time_select("end_time","", selected: end_on, include_blank: true) %>
+			<td align="left" >
+				<%= time_select("end_time","", {selected: end_on, include_blank: true}, {class: 'end_time', onchange: "setEnd()"}) %>
 			</td>
 		</tr>
 	</table>
