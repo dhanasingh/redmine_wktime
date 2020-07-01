@@ -198,10 +198,10 @@ class WksurveyController < WkbaseController
     getSurveyForType(params)
     condStr = validateERPPermission("E_SUR") ? "" : (@survey.is_review ? " AND (U.id IN (#{users}) OR U.parent_id = #{User.current.id}) " : " AND  U.id = #{User.current.id} ")
 
-    if params[:grpdName].blank?
+    if params[:groupName].blank?
       condStr += " AND group_name IS NULL"
     else
-      condStr += params[:grpdName] == "ALL" ? " " : " AND group_name = '#{params[:grpdName]}' " 
+      condStr += params[:groupName] == "ALL" ? " " : " AND group_name = '#{params[:groupName]}' " 
     end
     @surveyResponseList = WkSurveyResponse.joins("INNER JOIN wk_statuses AS ST ON ST.status_for_id = wk_survey_responses.id 
       AND ST.status_for_type = 'WkSurveyResponse'
@@ -355,31 +355,26 @@ class WksurveyController < WkbaseController
       txt_answers= WkSurvey.getTextAnswer(params[:survey_id], params[:surveyForType])
       isAdmin = (validateERPPermission("E_SUR"))
       if @survey.recur?
-        txt_answers = txt_answers.currentRespTxtAnswer if params[:grpdName].blank? && isAdmin
-        txt_answers = txt_answers.responsedTextAnswer(params[:grpdName]) if params[:grpdName].present? && isAdmin
+        txt_answers = txt_answers.currentRespTxtAnswer if params[:groupName].blank? && isAdmin
+        txt_answers = txt_answers.responsedTextAnswer(params[:groupName]) if params[:groupName].present? && isAdmin
 
-        grpdName = params[:grpdName].present? ? params[:grpdName] : getResponseGroup.last
-        txt_answers = txt_answers.responsedTextAnswer(grpdName) if !isAdmin
+        groupName = params[:groupName].present? ? params[:groupName] : getResponseGroup.last
+        txt_answers = txt_answers.responsedTextAnswer(groupName) if !isAdmin
       end
       @survey_txt_answers = txt_answers
   end
 
   def graph
-    if params[:chartTyp] == 'line'
-      qusAvg = WkSurvey.find_by_sql("SELECT SUM(SC.name)/count(SR.user_id) AS qus_avg, SQ.id AS question_id, S.id AS survey_id, CASE WHEN SR.group_name IS NULL THEN 'New' ELSE SR.group_name END AS grp
-        FROM wk_surveys AS S
-        INNER JOIN wk_survey_questions AS SQ ON S.id = SQ.survey_id
-        INNER JOIN wk_survey_choices AS SC ON SC.survey_question_id = SQ.id
-        INNER JOIN wk_survey_responses AS SR ON S.id = SR.survey_id
-        INNER JOIN wk_survey_answers AS SA ON SR.id = SA.survey_response_id AND SQ.id = SA.survey_question_id AND SC.id = SA.survey_choice_id
-        WHERE S.id = #{params[:survey_id]} and SQ.id = #{params[:question_id]}
-        GROUP BY S.id, SQ.id, SR.group_date, SR.group_name
-        ORDER BY grp")
+    if params[:groupName] == 'trendChart'
+      questionAvg = []
+      questionLabels = []
+      wkquestionAvg = WkSurvey.surveyAvgQuestion(params[:survey_id], params[:question_id], castFormat)
+      wkquestionAvg.each{ |entry| questionAvg << entry.questionavg; questionLabels << entry.grpname;}
 
       data = {
-        :labels => qusAvg.pluck(:grp),
-        :average => qusAvg.pluck(:qus_avg),
-        :grptype => params[:chartTyp]
+        :labels => questionLabels,
+        :average => questionAvg,
+        :graphtype => "line"
       }
     else
       question_id = params[:question_id]
@@ -394,9 +389,9 @@ class WksurveyController < WkbaseController
 
       groupNameCond = ""
       if @survey.recur?
-        if params[:grpdName].present?
-          groupNameCond = " AND group_name = '#{params[:grpdName]}' "
-        elsif params[:grpdName].blank? && (validateERPPermission("E_SUR"))
+        if params[:groupName].present?
+          groupNameCond = " AND group_name = '#{params[:groupName]}' "
+        elsif params[:groupName].blank? && (validateERPPermission("E_SUR"))
           groupNameCond = " AND group_name IS NULL "
         else
           groupNameCond = " AND group_name = '#{getResponseGroup.last}' "
@@ -432,15 +427,19 @@ class WksurveyController < WkbaseController
       totalScore = 0
       question_choices.each do |choice|
         employees_per_choice << (sel_choices[choice.id].blank? ? 0 : sel_choices[choice.id])
-        totalScore += choice.name.to_i * sel_choices[choice.id].to_i if choice.name.to_i != 0
+        totalScore += choice.name.to_i * sel_choices[choice.id].to_i if validateTrendingChart()
       end
 
-      avgScore = totalScore / employees_per_choice.inject(0, :+).to_f
+      avgScore = 0
+      if validateTrendingChart()
+        avgScore = totalScore / employees_per_choice.inject(0, :+).to_f
+      end
 
       data = {
         :labels => fields,
         :emp_count_per_choices => employees_per_choice,
-        :avg_score => avgScore.round(2)
+        :avg_score => avgScore.round(2),
+        :showAvg => validateTrendingChart()
       }
     end
 
@@ -664,5 +663,18 @@ class WksurveyController < WkbaseController
   def print_survey
     survey
     render :action => 'print_survey', :layout => false
+  end
+
+  def castFormat
+    case ActiveRecord::Base.connection.adapter_name
+    when "PostgreSQL"
+      return "INT"
+    when "Mysql2"
+      return "SIGNED"
+    when "SQLServer"
+      return "INT"
+    else
+      return "INTEGER"
+    end
   end
 end

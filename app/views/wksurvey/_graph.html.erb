@@ -9,11 +9,10 @@
 <% getSurveyForType(params) %>
 <%= javascript_tag do %>
 	$(document).ready(function(){
-		$.getJSON(<%= raw url_for(:controller => 'wksurvey',
-		:action => 'graph',
-		:graph => "graph",
-		:question_id => entry.question_id, :surveyForType => @surveyForType, :surveyForID => @surveyForID, grpdName: params[:grpdName], survey_id: @survey.id, chartTyp: params[:grpdName] == "Trending Chart" ? "line" : "horizontalBar").to_json %>, function(data){
-			if (data['grptype'] == "line"){
+		var url = <%= raw url_for(controller: 'wksurvey', action: 'graph', graph: "graph", question_id: entry.question_id, surveyForType: @surveyForType,
+			surveyForID: @surveyForID, groupName: params[:groupName], survey_id: @survey.id, groupName: params[:groupName]).to_json %>;
+		$.getJSON(url, function(data){
+			if (data['graphtype'] == "line"){
 				var chartData = {
 				labels: data['labels'],
 					datasets: [{
@@ -29,14 +28,14 @@
 					type: 'line',
 					data: chartData,
 					options: {
-      tooltips: {
-         mode: 'index',
-         intersect: false
-      },
-      hover: {
-         mode: 'index',
-         intersect: false
-      },
+					tooltips: {
+						mode: 'index',
+						intersect: false
+					},
+					hover: {
+						mode: 'index',
+						intersect: false
+					},
 						layout: {
 							padding: {
 							left: 0,
@@ -74,7 +73,9 @@
 			else
 			{
 				<%# for surveyquestion average %>
-				$('#avgScore_<%= entry.question_id %>').html(data['avg_score']);
+				if (data['showAvg']){
+					$('#avgScore_<%= entry.question_id %>').html(data['avg_score']);
+				}
 				var chartData = {
 					labels: data['labels'],
 					datasets: [{

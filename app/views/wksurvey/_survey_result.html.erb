@@ -2,7 +2,7 @@
     <%= title @survey.name %>
 	<% if @survey.recur %>
         <b><%= l(:label_clos_responses) %></b>:&nbsp; 
-            <%= params[:grpdName].present? ? params[:grpdName] : (params[:grpdName].blank? && validateERPPermission("E_SUR")) ? "" : getResponseGroup.last %>
+            <%= params[:groupName].present? ? params[:groupName] : (params[:groupName].blank? && validateERPPermission("E_SUR")) ? "" : getResponseGroup.last %>
     <% end %>
 <% end %>
 

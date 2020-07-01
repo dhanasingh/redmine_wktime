@@ -33,7 +33,7 @@
 		<% end %>
 	</fieldset>
 <% end %>
-
+<% allowPrint = allowPrint.blank? ? false : true %>
 <% unless @survey_result_Entries.blank? && @question_Entries.blank? %>
-	<%= render :partial => "response_detail" %>
+	<%= render :partial => "response_detail", :locals => { :allowPrint => allowPrint }  %>
 <% end %>

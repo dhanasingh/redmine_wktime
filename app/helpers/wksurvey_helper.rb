@@ -215,4 +215,15 @@ module WksurveyHelper
         users = getReportingUsers << User.current.id
         users = users.join(',')
     end
+
+    def validateTrendingChart
+      showTrendingChart = true
+			choices = WkSurvey.getSurveyChoices(params[:survey_id])
+      choices.each {|choice| showTrendingChart = false if !is_numeric? choice.name}
+      showTrendingChart
+    end
+
+    def is_numeric?(obj) 
+        obj.to_s.match(/\A[+-]?\d+?(\.\d+)?\Z/) != nil
+    end
 end

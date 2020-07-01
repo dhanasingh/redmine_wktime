@@ -11,6 +11,7 @@
         <% isMandatory = ActiveModel::Type::Boolean.new.cast(entry.is_mandatory) && !(["CB"].include? entry.question_type) %>
         <% if !isReviewerOnly || (@isReview && isReviewerOnly)
             disableReviewerOnly = isReviewerOnly && !@isReviewed
+            @enabled = @enabled && !allowPrint
             if @reviewerOnlyQuestions.blank? && isReviewerOnly
                 @reviewerOnlyQuestions = entry.question_id.to_s
             elsif isReviewerOnly
@@ -88,13 +89,11 @@
         <% end %>
     <% end %>
     <%= hidden_field_tag("reviewerOnlyQuestions", @reviewerOnlyQuestions) %>
-    <% if action_name != 'print_survey' %>
-        <% if (@enabled || @isReview) && !@isReviewed %>
-            <div>
-            <%= button_tag(l(:button_save), type: 'button', onclick: 'survey_submit();') %>
-            <%= button_tag(l(:button_submit), type: 'button', onclick: 'validation();') %>
-            <%= hidden_field_tag("commit", "") %>
-            </div>
-        <% end %>
+    <% if (@enabled || @isReview) && !@isReviewed %>
+        <div>
+        <%= button_tag(l(:button_save), type: 'button', onclick: 'survey_submit();') %>
+        <%= button_tag(l(:button_submit), type: 'button', onclick: 'validation();') %>
+        <%= hidden_field_tag("commit", "") %>
+        </div>
     <% end %>
 <% end %>
