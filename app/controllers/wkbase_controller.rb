@@ -160,7 +160,7 @@ class WkbaseController < ApplicationController
 			project = Issue.find(params[:issue_id]).project
 			activityID = project.activities.first.id
 			timeEntryAttr = {
-				project_id: project.id, user_id: User.current.id, issue_id: params[:issue_id], hours: 0.1, comments: l(:label_auto_populated_entry), activity_id: activityID,
+				project_id: project.id, user_id: User.current.id, issue_id: params[:issue_id], hours: 0.1, activity_id: activityID,
 				spent_on: Date.today, author_id: User.current.id, spent_for_attributes: { spent_on_time: entryTime, start_on: entryTime }
 			}
 			# save GeoLocation

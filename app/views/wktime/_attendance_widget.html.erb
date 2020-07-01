@@ -74,12 +74,12 @@
 		if lastTimeEntry.present?
 			trackerName = lastTimeEntry.name + '#' + lastTimeEntry.issue_id.to_s
 			if(lastTimeEntry.end_on.blank? && lastTimeEntry.start_on > 24.hour.ago)
-				remainingTimehr = (wktime_helper.computeWorkedHours(lastTimeEntry.start_on, Time.now.localtime, false))
+				remainingTimehr = (Time.now - lastTimeEntry.start_on)
 			end
 		end
 		totalhours = remainingTimehr.present? ? remainingTimehr.round(0) : 0.0 
 		issueHour = Time.at(totalhours).utc.strftime("%H:%M") 
-		imgName = remainingTimehr.present? ? "finish" : "start"
+		imgName = lastTimeEntry.present? ? "finish" : "start"
 		image = image_tag(imgName + '.png', plugin: "redmine_wktime")
 		trigger = content_tag("span", image, id: 'issueImg', class: "drdn-trigger")
 		issueURL = "/wktime/getissues?autocomplete=true"
@@ -89,9 +89,8 @@
 			content_tag("div", nil, class: "drdn-items issues"), class: "drdn-content", id: "issue-content" ) : ""
 		issueTime = content_tag("span", issueHour, class: "drdn-trigger", id: "issue-time")
 		issueTracker = content_tag("span", trackerName, class: "drdn-trigger", id: "issue-tracker",
-			style: "display:" + (remainingTimehr.present? ?  "block" : "none"))
+			style: "display:" + (lastTimeEntry.present? ?  "block" : "none"))
 %>
-	<%= hidden_field_tag('imgName', imgName ) %>
 	<%= hidden_field_tag('projectID', @project ? @project.id : "" ) %>
 	<%= content_tag("div", issueTime + issueTracker + trigger + content, id: "issueLog", class: "drdn") %>
 	<div style="clear: both;"></div>

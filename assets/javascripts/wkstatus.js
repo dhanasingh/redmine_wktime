@@ -102,7 +102,8 @@ $(document).ready(function(){
   $("#project-jump").after($("#issueLog"));
 	observeSearchfield('issues-quick-search', null, $('#issues-quick-search').data('automcomplete-url'));
 	$('#issueLog span').on('click', function(){
-		if($('#issue-content').length == 0){
+		let imgName = getIssuetrackerImg();
+		if(imgName == 'finish'){
 			saveTimeLog(this);
 		}
 		else{
@@ -293,7 +294,7 @@ function signAttendance(str)
 }
 
 function saveTimeLog(ele){
-	const imgName = $("#imgName").val();
+	let imgName = getIssuetrackerImg();
 	let date = new Date();
   const offSet = date.getTimezoneOffset();
 	let data = { offSet : offSet, issue_id : ele.id };
@@ -308,16 +309,22 @@ function saveTimeLog(ele){
 		data: data,
 		success: function(reponse){
 			if(imgName == 'start'){
-				$('#issueImg img').attr('src','/plugin_assets/redmine_wktime/images/finish.png');
+				$('#issueImg img').prop('src','/plugin_assets/redmine_wktime/images/finish.png');
 				$('#issue-tracker').show();
 				$('#issue-tracker').html(reponse);
 			}
 			else{
-				$('#issueImg img').attr('src','/plugin_assets/redmine_wktime/images/start.png');
+				$('#issueImg img').prop('src','/plugin_assets/redmine_wktime/images/start.png');
 				$('#issue-tracker').hide();
+				$('#issue-time').html('00:00');
 			}
-			$('.drdn.content').remove();
 		}
 	});
 	$('.drdn.expanded').removeClass('expanded');
+}
+
+function getIssuetrackerImg(){
+	let imgName = $('span#issueImg img').prop('src');
+	imgName = imgName.replace( /^.*?([^\/]+)\..+?$/, '$1' );
+	return imgName;
 }
