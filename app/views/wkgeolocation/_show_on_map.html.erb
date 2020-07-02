@@ -11,12 +11,12 @@
       locations = startLocations + endLocations
     when "attendance"
       startLocations = entries.map{ |entry|
-        (!entry.id || entry.s_longitude == entry.e_longitude && entry.s_latitude == entry.e_latitude) ? ["",""] : [ entry.s_longitude || "", entry.s_latitude || "",
+        (!entry.id || entry.s_longitude == entry.e_longitude && entry.s_latitude == entry.e_latitude) ? ["",""] : [ entry.s_longitude || "", entry.s_latitude || "", entry.user.name+"\n"+
         l(:label_clock_in)+": "+entry.start_time.localtime.strftime('%R')+"\n"+l(:label_clock_out)+": "+
         (entry.end_time ? entry.end_time.localtime.strftime('%R') : "")+"\n"+l(:label_hours)+": "+entry.hours.to_s, "S" ]
       }
       endLocations = entries.map{ |entry|
-        (!entry.id) ? ["",""] : [ entry.e_longitude || "", entry.e_latitude || "", l(:label_clock_in)+": "+entry.start_time.localtime.strftime('%R')+"\n"+
+        (!entry.id) ? ["",""] : [ entry.e_longitude || "", entry.e_latitude || "", entry.user.name+"\n"+ l(:label_clock_in)+": "+entry.start_time.localtime.strftime('%R')+"\n"+
         l(:label_clock_out)+": "+(entry.end_time ? entry.end_time.localtime.strftime('%R') : "")+"\n"++"\n"+l(:label_hours)+": "+entry.hours.to_s, "E" ]
       }
       locations = startLocations + endLocations
