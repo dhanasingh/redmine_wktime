@@ -33,9 +33,14 @@ class WkAssetProperty < ActiveRecord::Base
     .where("wk_asset_properties.inventory_item_id =#{inventory_item_id} AND (ad.depreciation_date IS NULL OR 
       ad.depreciation_date IS NOT NULL AND D.depreciation_date IS NOT NULL)")
     .select("wk_asset_properties.name, wk_asset_properties.id AS asset_property_id, wk_asset_properties.currency, is_disposed,
-      disposed_rate, depreciation_amount, wk_asset_properties.current_value,
+      disposed_rate, depreciation_amount,
+      CASE WHEN wk_asset_properties.current_value IS NOT NULL THEN wk_asset_properties.current_value
+           ELSE it.cost_price + it.over_head_price END AS current_value,
       CASE WHEN D.depreciation_date IS NULL THEN shipment_date ELSE D.depreciation_date END AS depreciation_date,
-      CASE WHEN depreciation_amount > 0 THEN actual_amount - depreciation_amount ELSE wk_asset_properties.current_value END AS previous_value")
+      CASE WHEN depreciation_amount IS NOT NULL THEN actual_amount - depreciation_amount
+           WHEN wk_asset_properties.current_value IS NOT NULL THEN wk_asset_properties.current_value
+           ELSE it.cost_price + it.over_head_price 
+      END AS previous_value")
   }
   
 end

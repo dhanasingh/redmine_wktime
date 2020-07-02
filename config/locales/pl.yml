@@ -1088,8 +1088,9 @@ pl:
   label_previous_asset_value: Previous Asset Value
   label_last_depreciation: Last Depreciation
   label_profit_loss: Profit/Loss
-  label_asset_disposal_ledger: Asset Disposal Ledger
+  label_asset_sale_ledger:  Profit/Loss of Asset Sale Ledger
+  label_asset_receipt_ledger: Asset Sale Receipt Ledger
   label_asset_value: Asset Value
-  text_are_you_sure_want_dispose_asset: "Are you sure you want to dispose asset?"
+  text_are_you_sure_want_dispose_asset: "Are you sure want to dispose asset?"
   label_auto_round_gl: Auto round invoices
   label_trend_chart: Trending Chart

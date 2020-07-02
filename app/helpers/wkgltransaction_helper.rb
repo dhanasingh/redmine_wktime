@@ -80,6 +80,10 @@ include WkaccountingHelper
 			end
 			transAmountArr.each_with_index do |amtHash, index|
 				detailType = index == 0 ? 'c' :'d'
+				if amtHash.key?("detail_type")
+					detailType = amtHash["detail_type"]
+					amtHash.delete("detail_type")
+				end
 				amtHash.each do |ledgerId, amount|
 					orgAmount = amount if isDiffCur
 					unless exchangeRate.blank?

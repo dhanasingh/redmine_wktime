@@ -57,8 +57,13 @@
 	</p>
 	
 	<p>
-		<label><%= l(:label_asset_disposal_ledger)  %></label>
-	    <%= select_tag 'settings[asset_disposal_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['asset_disposal_ledger']) %>
+		<label><%= l(:label_asset_receipt_ledger)  %></label>
+	    <%= select_tag 'settings[asset_receipt_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['asset_receipt_ledger']) %>
+	</p>
+	
+	<p>
+		<label><%= l(:label_asset_sale_ledger)  %></label>
+	    <%= select_tag 'settings[asset_sale_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['asset_sale_ledger']) %>
 	</p>
 		
 	<p>

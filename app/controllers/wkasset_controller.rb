@@ -98,30 +98,37 @@ class WkassetController < WkproductitemController
 	end
 
 	def updateDisposedAsset
+		sysCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 		assetProperty = WkAssetProperty.find(params[:asset_property_id])
 		assetProperty.is_disposed = true
 		assetProperty.disposed_rate = params[:dispose_amount].to_f
 		#update Remaining Depreciation
 		depreciation = WkAssetDepreciation.new
 		depreciation.depreciation_date = Date.today
-		depreciation.currency = params[:currency]
+		depreciation.currency = sysCurrency
 		depreciation.inventory_item_id = params[:inventory_item_id]
 		depreciation.actual_amount = params[:asset_previous_value].to_f
 		depreciation.depreciation_amount = params[:depreciation_amount].to_f
+		
 		if assetProperty.is_disposed && assetProperty.save() && depreciation.save()
 			assetLedgerId = assetProperty.inventory_item.product_item.product.ledger_id
-			assetDisposalLedgerId = getSettingCfId("asset_disposal_ledger")
-			if assetLedgerId && assetDisposalLedgerId
-				asset_value = (params[:dispose_amount].to_f - params[:asset_current_value].to_f).round(2).abs
-				transAmounts = [{ assetLedgerId => params[:asset_current_value].to_f}, {assetDisposalLedgerId => asset_value}]
-				glTransaction = postToGlTransaction("asset", nil, Date.today, transAmounts, assetProperty.currency, nil, nil)
+			assetReceiptLedgerId = getSettingCfId("asset_receipt_ledger")
+			assetSaleLedgerId = getSettingCfId("asset_sale_ledger")
+			if assetLedgerId && assetSaleLedgerId && assetReceiptLedgerId
+				transAmounts = []
+				asset_value = (assetProperty.disposed_rate - params[:asset_current_value].to_f).round(2)
+				transAmounts << {assetLedgerId => params[:asset_current_value].to_f, "detail_type" => "c"}
+				transAmounts << {assetSaleLedgerId => asset_value.abs, "detail_type" => asset_value > 0 ? "c" : "d"}
+				transAmounts << {assetReceiptLedgerId => assetProperty.disposed_rate, "detail_type" => "d"}
+				isDiffCur = Setting.plugin_redmine_wktime['wktime_currency'] != assetProperty.currency
+				glTransaction = saveGlTransaction("asset", nil, Date.today, 'J', nil, transAmounts, sysCurrency, isDiffCur, nil)
 				unless glTransaction.blank?
 					WkAssetProperty.where(:id => assetProperty.id).update(gl_transaction_id: glTransaction.id)
 				end
 			end
 			unless assetLedgerId.blank?
 				productDepAmtHash = { assetLedgerId => depreciation.depreciation_amount}
-				postDepreciationToAccouning([depreciation.id], [depreciation.gl_transaction_id], depreciation.depreciation_date, productDepAmtHash, depreciation.depreciation_amount, depreciation.currency)
+				postDepreciationToAccouning([depreciation.id], [depreciation.gl_transaction_id], depreciation.depreciation_date, productDepAmtHash, depreciation.depreciation_amount, sysCurrency)
 			end
 			redirect_to controller: controller_name, action:"index", tab: controller_name
 			flash[:notice] = l(:notice_successful_update)
