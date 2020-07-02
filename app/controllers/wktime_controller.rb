@@ -461,7 +461,8 @@ include ActionView::Helpers::TagHelper
 
 					issues = Issue.where(["((#{Issue.table_name}.assigned_to_id= ? OR #{Issue.table_name}.author_id= ?) #{trackerIDCond}) #{projCond}", params[:user_id], params[:user_id]]).order('project_id')
 				else
-					issues = Issue.where(:project_id => params[:project_id] || params[:project_ids]).order('project_id')
+					issues = Issue.order('project_id')
+					issues = issues.where(:project_id => params[:project_id] || params[:project_ids]) if params[:project_id].present? ||  params[:project_ids].present?
 				end
 			end
 		else	
