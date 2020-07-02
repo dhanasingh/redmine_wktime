@@ -48,21 +48,27 @@
 <%=h hidden_field_tag('tab', "#{controller_name}") %>
 <h2><%= l(:label_wkexpense) %></h2>
 
-<%= render :partial => 'wktime/edit_header' %>
-<% if !@wktime.blank? && @wktime.status == 'r' && !@wktime.notes.blank? %>
-	<tr>
-	<th align="left"><%=l(:label_wk_reject_reason)%></th>
-	<td><%=h @wktime.notes %>
-	</td>
-	</tr>
-<% end %>
-</table>
-</td>
-<td>
-	<%= render :partial => 'wktime/edit_options' %>
-</td>
-<td width="100%"></td>
-</td></table>
+<div style="overflow: auto">
+	<table id="wktimeHeader">
+		<tr valign="top"><td>
+			<table id="wktimeStatus" class="list nowrap">
+			<%= render :partial => 'wktime/edit_header' %>
+			<% if !@wktime.blank? && @wktime.status == 'r' && !@wktime.notes.blank? %>
+				<tr>
+				<th align="left"><%=l(:label_wk_reject_reason)%></th>
+				<td><%=h @wktime.notes %>
+				</td>
+				</tr>
+			<% end %>
+			</table>
+			</td>
+			<td>
+				<%= render :partial => 'wktime/edit_options' %>
+			</td>
+			<td width="100%"></td>
+			</td>
+		</tr>
+	</table>
 </div>
 
 <%= render :partial => 'wktime/edit_issues', :locals => { :entries => @prev_template ? @prev_entries : @entries }%>
