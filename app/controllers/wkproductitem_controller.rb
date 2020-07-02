@@ -80,12 +80,9 @@ class WkproductitemController < WkinventoryController
 		elsif projectId != 'AP'
 			sqlwhere = sqlwhere + " AND iit.project_id = #{projectId}"
 		end
-		
-		if isDisposed.blank?
-			sqlwhere = sqlwhere + " AND ap.is_disposed IS NOT TRUE"
-		else
-			sqlwhere = sqlwhere + " AND ap.is_disposed IS TRUE"
-		end
+
+		sqlwhere = sqlwhere + " AND ap.is_disposed IS #{isDisposed.blank? ? 'NOT' : ''} TRUE" if getItemType == "A"
+
 		sqlStr = getProductInventorySql + sqlwhere
 		sqlStr = sqlStr + " ORDER BY " + (sort_clause.present? ? sort_clause.first : " iit.id desc ")
 		findBySql(sqlStr, WkProductItem)
