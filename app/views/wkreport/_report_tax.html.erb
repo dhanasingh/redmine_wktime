@@ -91,14 +91,11 @@
 					tds = 0
 					cess = 0
 					taxTotal = 0
-
 					gross = grossTotalHash[key] if grossTotalHash[key].present?
 					tds = (tdsHash[key]/1.04).round() if tdsHash[key].present?
 					cess =  (tdsHash[key] - tds) if tdsHash[key].present?
 					taxTotal = tdsHash[key] if tdsHash[key].present?
 
-					total["g" + keyMnth] ||= 0
-					total["g" + keyMnth] += gross
 
 					total["tds" + keyMnth] ||= 0 
 					total["tds" + keyMnth] += tds
@@ -110,6 +107,10 @@
 					total["t" + keyMnth] += taxTotal
 				%>
 				<% if taxTotal > 0%>
+					<% 
+						total["g" + keyMnth] ||= 0
+						total["g" + keyMnth] += gross
+					%>
 					<tr>
 						<td align="center"><%= user.employee_id %></td>
 						<td align="center"><%= user.tax_id %></td>
