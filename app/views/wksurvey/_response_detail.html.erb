@@ -11,7 +11,7 @@
         <% isMandatory = ActiveModel::Type::Boolean.new.cast(entry.is_mandatory) && !(["CB"].include? entry.question_type) %>
         <% if !isReviewerOnly || (@isReview && isReviewerOnly)
             disableReviewerOnly = isReviewerOnly && !@isReviewed
-            @enabled = @enabled && !allowPrint
+            @enabled = @enabled && !isPrint
             if @reviewerOnlyQuestions.blank? && isReviewerOnly
                 @reviewerOnlyQuestions = entry.question_id.to_s
             elsif isReviewerOnly
@@ -60,11 +60,11 @@
                     <td align="left" style="padding-left:30px;">
                         <% case entry.question_type %>
                         <% when 'TB' %>
-                            <%= text_field_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", choice_text, size: 60, 
+                            <%= isPrint ? choice_text : text_field_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", choice_text, size: 60, 
                                 :disabled => disableReviewerOnly ? @isReviewed : !@enabled, :required => isMandatory, :autofocus => false) %>
                         <% when 'MTB' %>
-                            <%= text_area_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", choice_text, rows: 5, cols: 60, 
-                                :disabled => disableReviewerOnly ? @isReviewed : !@enabled, :required => isMandatory, :autofocus => false) %>
+                            <%= isPrint ? choice_text : text_area_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", choice_text, rows: 5, cols: 60, 
+                                :disabled => disableReviewerOnly ? @isReviewed : !@enabled, :required => isMandatory, :autofocus => false)%>
                         <% end %>
                     </td>
                 </tr>
@@ -73,8 +73,8 @@
                 <tr>
                     <th align="left"><%= l(:label_review_comment) %></th>
                     <td align="left" style="padding-left:40px;">
-                        <%= text_area_tag("survey_review_"+ (entry.question_id).to_s, comment_text, rows: 5, cols: 60, :disabled => @isReviewed, 
-                            :required => false)   %>
+                        <%= isPrint ? comment_text : text_area_tag("survey_review_"+ (entry.question_id).to_s, comment_text, rows: 5, cols: 60, :disabled => @isReviewed, 
+                            :required => false) %>
                     </td>
                 </tr>
                 <% if reviewerName.present? %>
