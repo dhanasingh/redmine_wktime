@@ -1,16 +1,16 @@
 <% if params[:enter_issue_id].blank? && controller.showProjectDD %>
-	<th align="left" width="<%= Setting.plugin_redmine_wktime['wktime_project_dd_width'] %>px" ><%= l(:field_project) %></th>
+	<th align="left" width="150px" ><%= l(:field_project) %></th>
 <% else %>
 	<th align="left"></th>
 <% end %>
-<th align="left" width="<%= Setting.plugin_redmine_wktime['wktime_issue_dd_width'] %>px"><%= controller.getLblIssue %></th>
+<th align="left" width="250px"><%= controller.getLblIssue %></th>
 <% if controller.showActivityDD %>
-<th align="left" width="<%= Setting.plugin_redmine_wktime['wktime_actv_dd_width'] %>px" ><%= l(:field_activity) %></th>
+<th align="left" width="75px" ><%= l(:field_activity) %></th>
 <% else %>
 	<th align="left"></th>
 <% end %>
 <% if showBilling && controller.showSpentFor %>
-	<th align="left" width="<%= Setting.plugin_redmine_wktime['wktime_project_dd_width'] %>px" ><%= controller.getLblSpentFor %></th>
+	<th align="left" width="150px" ><%= controller.getLblSpentFor %></th>
 <% end %>
 
 <% if !Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? &&
