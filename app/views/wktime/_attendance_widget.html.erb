@@ -85,8 +85,8 @@
 		issueURL = "/wktime/getissues?autocomplete=true"
 		issue = text_field_tag("issue", "", id: "issues-quick-search", class: "autocomplete", data: {automcomplete_url: issueURL},
 			autocomplete: "off", placeholder: "Select Issue")
-		content = lastTimeEntry.blank? ? content_tag("div", content_tag("div", issue, class: "quick-search") +
-			content_tag("div", nil, class: "drdn-items issues"), class: "drdn-content", id: "issue-content" ) : ""
+		content = content_tag("div", content_tag("div", issue, class: "quick-search") +
+			content_tag("div", nil, class: "drdn-items issues"), class: "drdn-content", id: "issue-content" )
 		issueTime = content_tag("span", issueHour, class: "drdn-trigger", id: "issue-time")
 		issueTracker = content_tag("span", trackerName, class: "drdn-trigger", id: "issue-tracker",
 			style: "display:" + (lastTimeEntry.present? ?  "block" : "none"))

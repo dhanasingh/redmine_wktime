@@ -35,12 +35,27 @@ class WkSpentFor < ActiveRecord::Base
       from wk_spent_fors
       INNER JOIN time_entries ON time_entries.id = wk_spent_fors.spent_id AND spent_type = 'TimeEntry' 
       where start_on is NOT NULL and end_on is NULL AND user_id=#{User.current.id}
-      AND CURRENT_TIMESTAMP - spent_on_time < '24:00:00'
+      AND spent_on_time > #{castFormat}
       group by spent_id, user_id
       ) as ST ON ST.spent_on_time = wk_spent_fors.spent_on_time AND TE.id =ST.spent_id")
     .joins("INNER JOIN issues I ON TE.issue_id= I.id")
     .joins("INNER JOIN trackers T ON I.tracker_id= T.id")
     .select("wk_spent_fors.start_on, wk_spent_fors.end_on, TE.project_id, TE.issue_id, TE.hours, TE.id, T.name")
   }
+
+  def self.castFormat
+    case ActiveRecord::Base.connection.adapter_name
+    when "PostgreSQL"
+      return "NOW() - '1 day'::INTERVAL"
+    when "Mysql2"
+      return "NOW() - INTERVAL 1 DAY"
+    when "SQLServer"
+      return "DATEADD(day, -1, GETDATE())"
+    when "SQLite"
+      return "datetime('now','-1 day')"
+    else
+      return "spent_on_time"
+    end
+  end
   
 end

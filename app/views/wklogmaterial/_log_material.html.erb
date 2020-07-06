@@ -216,7 +216,7 @@
 		<tr>
 			<th align="right" ><%= l(:label_end_time) %></th>
 			<td align="left" >
-				<%= time_select("end_time","", {selected: end_on, include_blank: true}, {class: 'end_time', onchange: "setEnd()"}) %>
+				<%= time_select("end_time","", {selected: end_on, include_blank: true}, {class: 'end_time', onchange: "calculateHours()"}) %>
 			</td>
 		</tr>
 	</table>
