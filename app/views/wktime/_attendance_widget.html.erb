@@ -97,7 +97,7 @@
 <% end %>
 
 <!-- Spent time show on map -->
-<% if controller_name == "timelog" && action_name == "index" && wktime_helper.isChecked('att_save_geo_location') %>
+<% if controller_name == "timelog" && action_name == "index" && wktime_helper.isChecked('te_save_geo_location') %>
 	<% show_on_map = params[:show_on_map].present? && params[:show_on_map] %>
 	<div id="show_map_filter" >
 		<label style="padding-left:5px">
@@ -113,8 +113,11 @@
 	<% if show_on_map %>
 		<script>
 			$(function(){
-				$('.list.odd-even.time-entries').css({ width:'49%', float: 'left', 'table-layout': 'fixed' });
-				$('.list.odd-even.time-entries').after($("#mapheader"));
+				$('#content .autoscroll').prepend('<div id="map-wrapper"></div>');
+				$('#map-wrapper').append('<div id="list-wrapper" style="width: 49%; float: left; overflow-x: scroll; padding-right: 5px"></div>');
+				$('.list.odd-even.time-entries').appendTo('#list-wrapper');
+				$('#mapheader').appendTo('#map-wrapper');
+				$('.list.odd-even.time-entries').css({ width:'50%'});
 			});
 		</script>
 		<%= render partial: "wkgeolocation/show_on_map", locals: { entries: @entries, height: '96%', width: '49%', model: 'spent_for' } %>

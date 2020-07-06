@@ -2,6 +2,8 @@ var warnMsg;
 var hasEntryError = false;
 var hasTrackerError = false;
 var spentTypeVal;
+var myLongitude = 0;
+var myLatitude = 0;
 
 $(document).ready(function(){
 	var txtEntryDate;

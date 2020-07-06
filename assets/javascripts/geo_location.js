@@ -1,6 +1,3 @@
-var myLongitude = 0;
-var myLatitude = 0;
-
 $(function(){
   getGeoLocation();
 });

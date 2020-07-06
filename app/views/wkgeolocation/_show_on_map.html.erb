@@ -2,7 +2,7 @@
     case model
     when "spent_for"
       startLocations = entries.map{|entry|
-      [ entry.spent_for.try(:s_longitude) || '', entry.spent_for.try(:s_latitude) || '',
+      [ entry.spent_for.try(:s_longitude) || '', entry.spent_for.try(:s_latitude) || '', entry.user.name+"\n"+
       entry.project.name+ "\n"+(entry.issue ? entry.issue.subject : "")+"\n"+entry.hours.to_s, "E"
       ]}
       endLocations = entries.map{|entry|
