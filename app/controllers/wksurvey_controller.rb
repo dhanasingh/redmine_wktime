@@ -625,6 +625,7 @@ class WksurveyController < WkbaseController
   end
   
   def get_response_status(survey_id, response_id)
+    getSurveyForType(params)
     if !response_id.blank?
       condStr = " AND wk_survey_responses.id = #{response_id.to_i}"
     else

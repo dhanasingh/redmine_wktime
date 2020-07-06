@@ -216,9 +216,9 @@ module WksurveyHelper
         users = users.join(',')
     end
 
-    def validateTrendingChart
+    def validateTrendingChart(survey_id=params[:survey_id], question_id=params[:question_id])
       showTrendingChart = true
-			choices = WkSurvey.getSurveyChoices(params[:survey_id])
+			choices = WkSurvey.getSurveyChoices(survey_id, question_id)
       choices.each {|choice| showTrendingChart = false if !is_numeric? choice.name}
       showTrendingChart
     end

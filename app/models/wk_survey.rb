@@ -51,8 +51,8 @@ class WkSurvey < ActiveRecord::Base
     .group("wk_surveys.id, wk_survey_questions.id, wk_survey_responses.group_date, wk_survey_responses.group_name")
   }
 
-  scope :getSurveyChoices, ->(survey_id){ joins(:wk_survey_questions, :wk_survey_choices)
-    .where("wk_surveys.id = #{survey_id}")
+  scope :getSurveyChoices, ->(survey_id, question_id){ joins(:wk_survey_questions, :wk_survey_choices)
+    .where("wk_surveys.id = #{survey_id} and wk_survey_choices.survey_question_id = #{question_id}")
     .select("wk_survey_choices.name")
     .group("wk_survey_choices.name")
   }

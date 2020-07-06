@@ -13,7 +13,7 @@
 	<%=h hidden_field_tag('surveyForID', params[:surveyForID]) %>
   <%=h hidden_field_tag('surveyForType', params[:surveyForType]) %>
 	<% 	response_grp = (validateERPPermission("E_SUR")) ? getResponseGroup.reverse.insert(0, [""]) : getResponseGroup.reverse
-			response_grp << [l(:label_trend_chart), "trendChart"] if validateTrendingChart
+			response_grp << [l(:label_trend_chart), "trendChart"]
 	%>
 	<% if @survey.recur %>
 		<b><%= l(:label_clos_responses) %></b>&nbsp;
