@@ -21,19 +21,19 @@
 					<% actualIds = actualIds.blank? ? entry.id.to_s  : (actualIds + "," + entry.id.to_s) %>
 				</td>
 			    <td>			 
-					<%= date_field_tag('holiday_date[]', entry.holiday_date, :required => true, :style => "width:150px;", :disabled => !validateERPPermission('A_TE_PRVLG')) %><%= calendar_for('holiday_date[]') %> 
+					<%= date_field_tag('holiday_date[]', entry.holiday_date, :required => true, :style => "width:150px;", :disabled => !validateERPPermission('A_ATTEND')) %><%= calendar_for('holiday_date[]') %> 
 			    </td>
 				<td>
-					<%=h select_tag("location_id[]", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', entry.location_id.nil? ? "" : entry.location_id , true), :style => "width:150px;", :disabled => !validateERPPermission('A_TE_PRVLG') ) %>
+					<%=h select_tag("location_id[]", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', entry.location_id.nil? ? "" : entry.location_id , true), :style => "width:150px;", :disabled => !validateERPPermission('A_ATTEND') ) %>
 				</td> 
 				<!--
 				<td>
 					<%#=h select_tag('department_id[]', options_for_select(options_for_enum_select('DP', entry.department_id, true)), :style => "width:120px;") %>
 				</td> -->
 			    <td>
-					<%= text_field_tag "description[]",  entry.description, :style => "width:150px;", :required => true, :disabled => !validateERPPermission('A_TE_PRVLG')  %>
+					<%= text_field_tag "description[]",  entry.description, :style => "width:150px;", :required => true, :disabled => !validateERPPermission('A_ATTEND')  %>
 				</td>
-				<% if validateERPPermission('A_TE_PRVLG') %>
+				<% if validateERPPermission('A_ATTEND') %>
 					<td class="buttons">
 						
 							<%= link_to(l(:button_delete), '#',
@@ -45,7 +45,7 @@
 			</tr>
 		<% end %>
 	<% else %>
-		<% if validateERPPermission('A_TE_PRVLG') %>
+		<% if validateERPPermission('A_ATTEND') %>
 			<tr class="commit-keywords">
 				<td>
 					<%= hidden_field_tag "ph_id[]",  ""  %>				
@@ -79,7 +79,7 @@
 	  
 	  <td></td>
 			<td></td>
-			<% if validateERPPermission('A_TE_PRVLG') %>     
+			<% if validateERPPermission('A_ATTEND') %>     
 				<td class="buttons">
 					<%= link_to(l(:button_add), '#',
 											:class => 'add-commit-keywords icon-only icon-add',
@@ -91,7 +91,7 @@
 </table>
 <%= hidden_field_tag "actual_ids",  actualIds  %>
 <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
-<% if validateERPPermission('A_TE_PRVLG') %>
+<% if validateERPPermission('A_ATTEND') %>
 		<p><%= submit_tag l(:button_save) %></p>
 	<% end %>
 <% end %>

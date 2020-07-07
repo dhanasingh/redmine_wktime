@@ -12,9 +12,9 @@ module WkassetdepreciationHelper
 		depreciationArr = Array.new 
 		finacialPeriodArr = getFinancialPeriodArray(startDate, endDate, depreciationFreq, 1)
 		unless assetId.blank?
-			assetEntries = WkInventoryItem.asset.joins(:asset_property, :product_item).where(:id => assetId, :wk_asset_properties => {:owner_type => 'O'}).order("wk_product_items.product_id").where("wk_inventory_items.available_quantity > ?", 0)
+			assetEntries = WkInventoryItem.asset.joins(:asset_property, :product_item).where(:id => assetId, :wk_asset_properties => {:owner_type => 'O'}).order("wk_product_items.product_id").where("wk_inventory_items.available_quantity > ? and is_disposed is not true", 0)
 		else
-			assetEntries = WkInventoryItem.asset.joins(:asset_property, :product_item).where("wk_asset_properties.owner_type = ? and wk_inventory_items.available_quantity > ? ", 'O', 0).order("wk_product_items.product_id")
+			assetEntries = WkInventoryItem.asset.joins(:asset_property, :product_item).where("wk_asset_properties.owner_type = ? and wk_inventory_items.available_quantity > ? and is_disposed is not true ", 'O', 0).order("wk_product_items.product_id")
 		end
 		errorMsg = ""
 		localCurrency = Setting.plugin_redmine_wktime['wktime_currency']

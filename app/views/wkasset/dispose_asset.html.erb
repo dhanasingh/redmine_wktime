@@ -1,0 +1,40 @@
+<h2><%= l(:label_dispose_asset) %></h2>
+<%= form_tag({controller: "wkasset", action: 'updateDisposedAsset'}, method: :post, id:'query_form') do %>
+  <%= hidden_field_tag('asset_property_id', @disposeAssetEntry.asset_property_id) %>
+  <%= hidden_field_tag('asset_previous_value', @disposeAssetEntry.previous_value) %>
+  <%= hidden_field_tag('depreciation_amount', @depreciationAmount) %>
+	<%= hidden_field_tag('inventory_item_id', params[:inventory_item_id]) %>
+  <%= hidden_field_tag('currency', @disposeAssetEntry.currency) %>
+  <% current = @disposeAssetEntry.previous_value.to_f - @depreciationAmount %>
+  <%= hidden_field_tag('asset_current_value', "%.2f" % current) %>
+  <% profitLoss =  @disposeAssetEntry.disposed_rate ? @disposeAssetEntry.disposed_rate.to_f - current.to_f : 0 %>
+	<fieldset class="box tabular" >
+    <table >
+      <tr>
+        <th align="left"><%= l(:label_asset) + " " + l(:field_name) %></th>
+        <td align="left" style="padding-left:50px;"><%= @disposeAssetEntry.name %> </td></tr>
+      </tr>
+      <tr>
+        <th align="left"><%= l(:label_previous_asset_value) %></th>
+        <td align="left" style="padding-left:50px;"><b><%= @disposeAssetEntry.currency %></b> <%= "%.2f" % @disposeAssetEntry.previous_value if @disposeAssetEntry.previous_value.present? %> </td>
+      </tr>
+      <tr>
+        <th align="left"><%= l(:label_last_depreciation) %></th>
+        <td align="left" style="padding-left:50px;"><b><%= @disposeAssetEntry.currency %></b> <%= "%.2f" % @depreciationAmount %> </td>
+      </tr>
+      <tr>
+        <th align="left"><%= l(:label_current_asset_value) %></th>
+        <td align="left" style="padding-left:50px;"><b><%= @disposeAssetEntry.currency %></b> <%= "%.2f" % current %></td>
+      </tr> 
+      <tr>
+        <th align="left"><%= l(:label_dispose_amount) %></th>
+        <td align="left" style="padding-left:50px;"><b><%= @disposeAssetEntry.currency %></b> <%= text_field_tag "dispose_amount", @disposeAssetEntry.disposed_rate, onkeyup: "profitLossAmount(this.value)" %></td>
+      </tr> 
+      <tr>
+        <th align="left"><%= l(:label_profit_loss) %></th>
+        <td id = "profit_loss" align="left" style="padding-left:50px;"></td>
+      </tr> 
+    </table>
+  </fieldset>
+	<%= submit_tag l(:label_dispose_asset), data: {confirm: l(:text_are_you_sure_want_dispose_asset)}  %>
+<% end %>

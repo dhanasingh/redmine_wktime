@@ -33,11 +33,13 @@
 				@debitTotal = 0 
 				@ledgerArr = ['C', 'L', 'CL', 'SP', 'DI', 'DE', 'II', 'IE', 'SA', 'PA', 'FA', 'CA']
 				@ledgerArr.each do |type|
-					@mainEnriesHash[type] = getEachLedgerCDAmt(@to, type)
-					@subEntriesHash[type] = getTBSubEntries(@to, type)
+					@mainEnriesHash[type] = getEachLedgerCDAmt(@from, @to, type)
+					@subEntriesHash[type] = getTBSubEntries(@from, @to, type)
 					@creditDebitTotalHash[type] = getCreditDebitTotal(@mainEnriesHash[type], @subEntriesHash[type])
 				end
 				@mainEnriesHash['PL'] = getSubEntries(@from, @to, 'PL')
+				defLedgerEnries = getEachLedgerSumAmt(@from, @to, ['SY'])
+				@profitLossAcc = @mainEnriesHash['PL']['Opening Balance'].to_f + defLedgerEnries.values[0].to_f
 			%>
 		<tr style="width:100%;">
 			<td><b><%= l(:label_particulars) %></b></td>
@@ -68,11 +70,11 @@
 				<%= render partial: "rpt_trial_bal_rows", locals: { entries: @mainEnriesHash[ledger], padding:25  }%>
 			<% end %>
 		<% end %>
-		<% @creditTotal += @mainEnriesHash['PL']['Opening Balance'] unless @mainEnriesHash['PL']['Opening Balance'].blank? %>
+		<% @creditTotal += @profitLossAcc unless @profitLossAcc.blank? %>
 		<tr style="width:100%;">
 			<td align="left"><b><%= l(:report_profit_loss) %></b></td>
 			<td style="border-bottom: solid thin;"><b><%=  %></b></td>
-			<td style="border-bottom: solid thin;"><b><%= @mainEnriesHash['PL']['Opening Balance'] %></b></td>
+			<td style="border-bottom: solid thin;"><b><%= "%.2f" %  @profitLossAcc %></b></td>
 		</tr>
 		<tr style="width:100%;">
 			<td align="left" style="padding-left: 25px;" style=""><b><%= l(:label_total) + " : "%></b></td>

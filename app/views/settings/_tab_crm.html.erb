@@ -1,0 +1,7 @@
+<fieldset>
+	<legend><%= l(:label_crm) %></legend>
+	<p>
+		<%= check_box_tag('settings[crm_save_geo_location]', 1, @settings['crm_save_geo_location'].to_i == 1) %>
+		<label for="settings_crm_save_geo_location"><%= l(:label_save_geo_location) %> </label>
+	</p>
+  </fieldset>

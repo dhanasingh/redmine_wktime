@@ -12,12 +12,12 @@ if params[:enter_issue_id].blank?
 	projects.unshift( [ entry.project.name, entry.project_id ] ) if !entry.nil? && project.blank?
 %>
 <% if controller.showProjectDD %>
-	<td class="issue" align="left" width="<%= Setting.plugin_redmine_wktime['wktime_project_dd_width'] %>px">
+	<td class="issue" align="left" width="150px">
 		<% project_name = entry.nil? ? (@logtime_projects.blank? ? 0 : @logtime_projects[0].id) : entry.project.name %>
 		<% if @editable %>
 			<%=h select_tag(isTemplate ? '__template__time_entry[][project_id]' : 'time_entry[][project_id]', 
 			options_for_select(projects, :selected =>  project_id),
-			:onchange => "projectChanged(this,#{@row.to_s()});", :style=> "width:#{Setting.plugin_redmine_wktime['wktime_project_dd_width']}px" ) %>
+			:onchange => "projectChanged(this,#{@row.to_s()});", :style=> "width:150px" ) %>
 		<% else %>
 			<% if project.blank? %>
 				<% if entry.nil? %>
@@ -74,11 +74,11 @@ if params[:enter_issue_id].blank?
 			
 	%>
 	
-	<td class="issue" align="left" width="<%= Setting.plugin_redmine_wktime['wktime_issue_dd_width'] %>px">
+	<td class="issue" align="left" width="250px">
 		<% if @editable %>
 			<%=h select_tag(isTemplate ? '__template__time_entry[][issue_id]' : 'time_entry[][issue_id]', 
 			options_for_select(issues, :selected =>  entry.nil? ? 0 : entry.issue_id, :required => true),
-			:style=> "width:#{Setting.plugin_redmine_wktime['wktime_issue_dd_width']}px" ) %>
+			:style=> "width:250px" ) %>
 		<% else %>
 			<%=  entry.issue.tracker.to_s() +  " #" + entry.issue.id.to_s() + ": " + entry.issue.subject if !entry.nil? && !entry.issue.nil? %>
 		<% end %>
@@ -88,10 +88,10 @@ if params[:enter_issue_id].blank?
 		<%=h hidden_field_tag(isTemplate ? '__template__time_entry[][project_id]' : 'time_entry[][project_id]', 
 		(entry.nil? ? '' : entry.project_id.to_s)  ) %>
 	</td>
-<td class="issue" colspan="-1" align="left" width="<%= Setting.plugin_redmine_wktime['wktime_issue_dd_width'] %>px">
+<td class="issue" colspan="-1" align="left" width="250px">
 		<%=h text_field_tag(isTemplate ? '__template__time_entry[][issue_id]' : 'time_entry[][issue_id]', 
 		entry.nil? ? '' : entry.issue_id, :onkeypress => "issueAutocomplete(this,#{@row.to_s()});", 
-		:style => "width:#{Setting.plugin_redmine_wktime['wktime_issue_dd_width']}px" ) %>
+		:style => "width:250px" ) %>
 </td>
 <% end %>
 
@@ -117,11 +117,11 @@ if params[:enter_issue_id].blank?
 	end
 %>
 <% if controller.showActivityDD %>
-	<td class="issue" align="left" width="<%= Setting.plugin_redmine_wktime['wktime_actv_dd_width'] %>px">
+	<td class="issue" align="left" width="75px">
 	<% if @editable %>
 		<%=h select_tag(isTemplate ? '__template__time_entry[][activity_id]' : 'time_entry[][activity_id]', 
 		activities.blank? ? nil : options_for_select(activities, :selected => entry.nil? ? 0 : entry.activity_id),
-		:style=> "width:#{Setting.plugin_redmine_wktime['wktime_actv_dd_width']}px" ) %>
+		:style=> "width:75px" ) %>
 	<% else %>
 		<%= activity.blank? ? entry.activity_id : activity.name unless entry.nil?%>
 	<% end %>
@@ -155,11 +155,11 @@ if params[:enter_issue_id].blank?
 	end
 %>
 <% if showBilling && controller.showSpentFor %>
-	<td class="issue" align="left" width="<%= Setting.plugin_redmine_wktime['wktime_project_dd_width'] %>px">
+	<td class="issue" align="left" width="150px">
 	<% if @editable %>
 		<%=h select_tag(isTemplate ? '__template__time_entry[][spent_for_attributes][spent_for_key]' : 'time_entry[][spent_for_attributes][spent_for_key]', 
 		billableProjects.blank? ? nil : options_for_select(billableProjects, :selected => spent_for_key),
-		:style=> "width:#{Setting.plugin_redmine_wktime['wktime_project_dd_width']}px" ) %>
+		:style=> "width:150px" ) %>
 	<% else %>
 		<%= billableProject.parent.name unless billableProject.nil?%>
 	<% end %>
@@ -189,7 +189,7 @@ if params[:enter_issue_id].blank?
 <%= render :partial => controller.getCFInRowHTML , :locals => {:entry => entry, :isTemplate => false }%>
 
 <% if @renderer.showSpentOnInRow %>	
-		<td class="issue" align="left" width="<%= Setting.plugin_redmine_wktime['wktime_issue_dd_width'] %>px">
+		<td class="issue" align="left" width="250px">
 		<% if @editable %>
 			<% if controller.showSpentFor %>	
 				<%=h date_field_tag(isTemplate ? '__template__time_entry[][spent_for_attributes][spent_on_time]' : 'time_entry[][spent_for_attributes][spent_on_time]', entry.blank? || entry.spent_on.blank? ? @selectedDate : entry.spent_on)  %>

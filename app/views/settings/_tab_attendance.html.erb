@@ -22,6 +22,10 @@ lblYear = "<%=l(:label_year) %>";
 	<%= check_box_tag('settings[wktime_enable_clock_in_out]', 1, @settings['wktime_enable_clock_in_out'].to_i == 1) %> <label><%= l(:label_wk_enable_clock_in_out) %></label>
 	</p>
 	<p>
+		<%= check_box_tag('settings[att_save_geo_location]', 1, @settings['att_save_geo_location'].to_i == 1) %>
+		<label for="settings_att_save_geo_location"><%= l(:label_save_geo_location) %></label>
+	</p>
+	<p>
 	<%= check_box_tag('settings[wktime_work_time_header]', 1, @settings['wktime_work_time_header'].to_i == 1) %> <label><%= l(:label_wk_work_time_header) %></label>
 	</p> 
 	<p>

@@ -112,51 +112,59 @@
 <div style="clear: both;"></div>
 <%=h hidden_field_tag('tab', "#{controller_name}") %>
 
-<%= render :partial => 'edit_header' %>
+<div style="overflow: auto">
+	<table id="wktimeHeader">
+		<tr valign="top"><td>
+			<table id="wktimeStatus" class="list nowrap">
+				<%= render :partial => 'edit_header' %>
 
-<% if !@wktime.blank? && @wktime.status == 'r' && !@wktime.notes.blank? %>
-	<tr>
-	<th align="right"><%=l(:label_wk_reject_reason)%></th>
-	<td><%=h @wktime.notes %>
-	</td>
-	</tr>
-<% end %>
+				<% if !@wktime.blank? && @wktime.status == 'r' && !@wktime.notes.blank? %>
+					<tr>
+						<th align="right"><%=l(:label_wk_reject_reason)%></th>
+						<td><%=h @wktime.notes %></td>
+					</tr>
+				<% end %>
 
-			<% custom_values = @wktime.nil? ?  Wktime.new.custom_field_values : @wktime.custom_field_values %>
-			<% unless custom_values.blank? %>
-				<% 
-					# wk time custom fields
-					wkcf_ids = ""
-					custom_values.each do |custom_value|
-						custom_field = custom_value.custom_field
-						if wkcf_ids.blank?
-							wkcf_ids = "wktime_custom_field_values_#{custom_field.id}" 
-						else
+				<% custom_values = @wktime.nil? ?  Wktime.new.custom_field_values : @wktime.custom_field_values %>
+				<% unless custom_values.blank? %>
+					<% 
+						# wk time custom fields
+						wkcf_ids = ""
+						custom_values.each do |custom_value|
+							custom_field = custom_value.custom_field
 							wkcf_ids += ",wktime_custom_field_values_#{custom_field.id}"
-						end
-				%>
-						<tr><th>
-						<% # = custom_field.name %> 
-						<% # Martin Dube Contribution: show required field in Wktime custom field %>
-						<%= custom_field_label_tag "wktime", custom_value %></th>
-						<td>
-						<% if @editable %>
-							<%= custom_field_tag "wktime", custom_value %>
-						<% else %>
-							<%=h custom_value.value %>
-						<% end %>
-						</td></tr>
-
-				<% 	end %>
-				<!-- script type="text/javascript"> wkcf_ids = '<%=wkcf_ids%>';</script -->
+					%>
+						<tr>
+							<th>
+								<% # Martin Dube Contribution: show required field in Wktime custom field %>
+								<%= custom_field_label_tag "wktime", custom_value %>
+							</th>
+							<td></td>
+						</tr>
+					<% end %>
+				<% end %>
+			</table>
+		</td>
+		<td><%= render :partial => 'edit_options' %></td>
+		<td width="100%">
+			<% if isChecked('te_save_geo_location') %>
+			<% 	startLocations = @entries.map{ |entry|
+						!entry.spent_for || (entry.spent_for.s_longitude == entry.spent_for.e_longitude && entry.spent_for.s_latitude == entry.spent_for.e_latitude) ? ["",""] :
+						[ entry.spent_for.s_longitude || '', entry.spent_for.s_latitude || '', entry.project.name+ "\n"+ (entry.issue ? entry.issue.subject : "")+"\n"+entry.hours.to_s, "S" ]
+					}
+					endLocations = @entries.map{ |entry|
+						entry.spent_for ? [ entry.spent_for.e_longitude || '', entry.spent_for.e_latitude || '', entry.project.name+ "\n"+
+						(entry.issue ? entry.issue.subject : "")+"\n"+entry.hours.to_s, "E" ] : ["",""]
+					}
+					locations = startLocations + endLocations
+					locations = [["", ""]] if locations.length == 0
+			%>
+				<div  id='mapContainer' style="float: right;width: 300px;height: 200px"></div>
+				<%= render partial: "wkgeolocation/location_map", locals: { locations: locations } %>
 			<% end %>
-</table>
-</td>
-<td>
-	<%= render :partial => 'edit_options' %>
-</td>
-<td width="100%"></td>
-</td></table>
+		</td>
+		</tr>
+	</table>
 </div>
 
 <%= render :partial => 'edit_issues', :locals => { :entries => @prev_template ? @prev_entries : @entries }%>

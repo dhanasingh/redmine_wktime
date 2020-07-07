@@ -33,6 +33,7 @@ accept_api_auth :index, :edit, :update, :destroy, :deleteEntries, :getProjects, 
 helper :custom_fields
 helper :queries
 include QueriesHelper
+include ActionView::Helpers::TagHelper
  
   def index
 	sort_init 'id', 'asc'
@@ -460,7 +461,8 @@ include QueriesHelper
 
 					issues = Issue.where(["((#{Issue.table_name}.assigned_to_id= ? OR #{Issue.table_name}.author_id= ?) #{trackerIDCond}) #{projCond}", params[:user_id], params[:user_id]]).order('project_id')
 				else
-					issues = Issue.where(:project_id => params[:project_id] || params[:project_ids]).order('project_id')
+					issues = Issue.order('project_id')
+					issues = issues.where(:project_id => params[:project_id] || params[:project_ids]) if params[:project_id].present? ||  params[:project_ids].present?
 				end
 			end
 		else	
@@ -484,27 +486,39 @@ include QueriesHelper
 			issues = Issue.includes(:status).references(:status).where(cond).order('project_id')
 		end
 		#issues.compact!
-		issues = issues.select(&:present?)
-		user = User.find(params[:user_id])
+		user = params[:user_id].present? ? User.find(params[:user_id]) : User.current 
 
-		if  !params[:format].blank?
-			respond_to do |format|
-				format.text  { 
-					issStr =""
-					issues.each do |issue|
-					issStr << issue.project_id.to_s() + '|' + issue.id.to_s() + '|' + issue.tracker.to_s() +  '|' + 
-							issue.subject  + "\n" if issue.visible?(user)
-					end	
-				render :plain => issStr 
-				}	
+		if !params[:autocomplete]
+			issues = issues.select(&:present?)
+			if  !params[:format].blank?
+				respond_to do |format|
+					format.text  { 
+						issStr =""
+						issues.each do |issue|
+						issStr << issue.project_id.to_s() + '|' + issue.id.to_s() + '|' + issue.tracker.to_s() +  '|' + 
+								issue.subject  + "\n" if issue.visible?(user)
+						end	
+					render :plain => issStr 
+					}	
+				end
+			else 
+				issStr=[]
+				issues.each do |issue|            
+					issStr << {:value => issue.id.to_s(), :label => issue.tracker.to_s() +  " #" + issue.id.to_s() + ": " + issue.subject }  if issue.visible?(user)
+				end 
+				
+				render :json => issStr 
 			end
-		else 
-			issStr=[]
-			issues.each do |issue|            
-				issStr << {:value => issue.id.to_s(), :label => issue.tracker.to_s() +  " #" + issue.id.to_s() + ": " + issue.subject }  if issue.visible?(user)
-			end 
-			
-			render :json => issStr 
+		else
+			subject = params[:q].present? ? "%"+(params[:q]).downcase+"%" : ""
+			issues = issues.where("subject like ? OR issues.id = ?", subject, params[:q].to_i) if params[:q].present?
+			issueRlt = (+"").html_safe
+			issues.each do |issue|
+				issueRlt << content_tag("span", "#"+issue.id.to_s+": "+issue.subject, class: "issue_select", id: issue.id ) if issue.visible?(user) && User.current.allowed_to?(:log_time, issue.project)
+			end
+			issueRlt = content_tag("span", l(:label_no_data)) if issueRlt.blank?
+			issueRlt = "$('#issueLog .drdn-items.issues').html('" + issueRlt + "');"
+			render js: issueRlt
 		end
 	end
   
@@ -861,18 +875,6 @@ include QueriesHelper
 	
 	def textfield_size
 	    4
-	end
-	
-	def checkDDWidth
-		ret = true
-		project_dd_width  = Setting.plugin_redmine_wktime['wktime_project_dd_width'].to_i
-		issue_dd_width  = Setting.plugin_redmine_wktime['wktime_issue_dd_width'].to_i
-		actv_dd_width  = Setting.plugin_redmine_wktime['wktime_actv_dd_width'].to_i
-		ddtotal = project_dd_width  + issue_dd_width  + actv_dd_width 
-		if ddtotal > 50
-		    ret = false
-		end
-		ret
 	end
 	
 	def getTracker
@@ -1412,11 +1414,12 @@ private
 					ids = params['ids' + (i+1).to_s()]
 					comments = params['comments' + (i+1).to_s()]
 					disabled = params['disabled' + (i+1).to_s()]
+					spentForIds = params['spentForId' + (i+1).to_s()]
 					@wkvalidEntry=true	
 					if use_detail_popup
 						custom_values.clear
 						custom_fields.each do |cf|
-							custom_values[cf.id] = params["_custom_field_values_#{cf.id}" + (i+1).to_s()]
+							custom_values[cf.id] = params["_custom_field_values_#{cf.id}"+"_"+(i+1).to_s()]
 						end
 					end
 					
@@ -1426,7 +1429,8 @@ private
 							if(!id.blank? || !hours[j].blank?)
 								teEntry = nil
 								teEntry = getTEEntry(id)
-								
+								spentForAttributes = teEntry.spent_for
+								entry[:spent_for_attributes][:id] = spentForIds[k] if spentForIds.present?
 								entry.permit! #(spent_for: [ :spent_for_type, :spent_on_time ])
 								teEntry.attributes = entry
 								# since project_id and user_id is protected
@@ -1438,7 +1442,7 @@ private
 								else
 									teEntry.spent_on = @startday + k
 								end
-								
+
 								unless entry['spent_for_attributes'].blank? 
 									unless entry['spent_for_attributes']['spent_for_key'].blank?
 										spentFor = getSpentFor(entry['spent_for_attributes']['spent_for_key'])
@@ -1449,6 +1453,18 @@ private
 									end
 									teEntry.spent_for.spent_on_time = getDateTime(teEntry.spent_on, entry['spent_for_attributes']['spent_date_hr'], entry['spent_for_attributes']['spent_date_min'], 0)
 								end
+								# save GeoLocation
+								if isChecked('te_save_geo_location') && params[:latitude].present? && params[:longitude].present?
+									if teEntry.spent_for.s_latitude.blank? && teEntry.spent_for.s_longitude.blank?
+										teEntry.spent_for.s_latitude = params[:latitude]
+										teEntry.spent_for.s_longitude = params[:longitude]
+									end
+									if teEntry.spent_for.e_latitude.blank? && teEntry.spent_for.e_longitude.blank?
+										teEntry.spent_for.e_latitude = params[:latitude]
+										teEntry.spent_for.e_longitude = params[:longitude]
+									end
+								end
+
 								#for one comment, it will be automatically loaded into the object
 								# for different comments, load it separately
 								unless comments.blank?

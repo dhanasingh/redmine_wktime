@@ -54,7 +54,12 @@ class WkLeaveReq < ActiveRecord::Base
 
   def admingroupMail
     user_mail = WkGroupPermission.joins(:permission).joins(:email_address)
-      .where("wk_permissions.short_name = 'A_TE_PRVLG'").pluck(:address)
+      .joins("INNER JOIN groups_users AS GU ON GU.user_id = groups_users.user_id")
+      .joins("INNER JOIN wk_group_permissions AS GP ON GP.group_id = GU.group_id")
+      .joins("INNER JOIN wk_permissions AS P ON P.id = GP.permission_id")
+      .where("wk_permissions.short_name = 'A_ATTEND' AND P.short_name = 'R_LEAVE'")
+      .group("address")
+      .pluck(:address)
     user_mail
   end
 

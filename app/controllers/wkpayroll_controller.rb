@@ -77,7 +77,7 @@ class WkpayrollController < WkbaseController
 		user_id = session[controller_name].try(:[], :user_id)
 		group_id = session[controller_name].try(:[], :group_id)
 		
-		if user_id.blank? || !validateERPPermission('A_TE_PRVLG')
+		if user_id.blank? || !validateERPPermission('A_PAYRL')
 		   ids = User.current.id
 		elsif user_id.to_i != 0 && group_id.to_i == 0
 		   ids = user_id.to_i
@@ -303,7 +303,7 @@ class WkpayrollController < WkbaseController
 	def set_filter_session
 		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
 		if params[:searchlist] == controller_name || api_request?
-			filters = [:period_type, :period, :group_id, :user_id, :from, :to]
+			filters = [:period_type, :period, :group_id, :user_id, :from, :to, :status, :name]
 			filters.each do |param|
 				if params[param].blank? && session[controller_name].try(:[], param).present?
 					session[controller_name].delete(param)
@@ -388,50 +388,52 @@ class WkpayrollController < WkbaseController
 	def check_permission
 		ret = false
 		ret = params[:user_id].to_i == User.current.id
-		return (ret || validateERPPermission('A_TE_PRVLG'))
+		return (ret || validateERPPermission('A_PAYRL'))
 	end
 	
 	def check_admin_perm_and_redirect
-		if !params[:generate].blank? && !validateERPPermission('A_TE_PRVLG')
+		if !params[:generate].blank? && !validateERPPermission('A_PAYRL')
 			render_403
 			return false
 		end
 	end
 	
 	def check_setting_admin_perm_and_redirect
-		unless validateERPPermission('A_TE_PRVLG')
+		unless validateERPPermission('A_PAYRL')
 			render_403
 			return false
 		end
 	end
 
 	def usrsettingsindex
-		@status = params[:status] || 1
+		set_filter_session
+		@status = session[controller_name][:status] || 1
 		@groups = Group.all.sort
+		group_id = session[controller_name].try(:[], :group_id)
 		sqlStr = ""
 		selectStr = " select u.id as user_id, u.firstname, u.lastname, u.status from users u"
-		if !params[:group_id].blank?
+		if group_id.to_i != 0
 			sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id"
 		end
 		sqlStr = sqlStr + " where u.type = 'User' "
-		if !validateERPPermission('A_TE_PRVLG')
+		if !validateERPPermission('A_PAYRL')
 			sqlStr = sqlStr + " and u.id = #{User.current.id} " 
 		end
 		if !@status.blank?
 			sqlStr = sqlStr + " and u.status = #{@status}"
 		end
-		if !params[:group_id].blank?
-			sqlStr = sqlStr + " and gu.group_id = #{params[:group_id]}"
+		if group_id.to_i != 0
+			sqlStr = sqlStr + " and gu.group_id = #{group_id}"
 		end
-		if !params[:name].blank?
-			sqlStr = sqlStr + " and (LOWER(u.firstname) like LOWER('%#{params[:name]}%') or LOWER(u.lastname) like LOWER('%#{params[:name]}%'))"
+		if !session[controller_name][:name].blank?
+			sqlStr = sqlStr + " and (LOWER(u.firstname) like LOWER('%#{session[controller_name][:name]}%') or LOWER(u.lastname) like LOWER('%#{session[controller_name][:name]}%'))"
 		end
 		sqlStr = selectStr + sqlStr
 		findBySql(sqlStr)
 		@salary_components = get_salary_components
 
 		userIds = nil
-		if !validateERPPermission('A_TE_PRVLG')
+		if !validateERPPermission('A_PAYRL')
 			userIds = User.current.id
 		else
 			alluserIds = getUsersAndGroups

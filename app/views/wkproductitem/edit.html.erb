@@ -38,7 +38,10 @@
 	</div>
 	<div style="clear:both;"></div>
 	<div  align='center'>
-		<%= submit_tag l(:button_save) ,:id => 'wkproductitem_save'%>
+		<%= submit_tag l(:button_save) ,:id => 'wkproductitem_save' %>
+		<% if controller.getItemType == "A" && @inventoryItem && !@inventoryItem.asset_property.is_disposed %>
+			<input type="button"  value="<%= l(:label_dispose_asset) %>" onclick="window.location.href='<%= url_for(controller: "wkasset", action: "dispose_asset", inventory_item_id: params[:inventory_item_id] ) %>'" />
+		<% end %>
 	</div>
 <% end %>
 

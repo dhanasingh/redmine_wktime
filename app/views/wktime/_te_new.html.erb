@@ -83,14 +83,14 @@
 <th width="100px"><label id="spentForLbl" style="display:<%= controller.hideprevTemplate ? 'block' : 'none' %>;"><%=controller.getLblSpentFor%></label></th>
 <td><%=h select_tag('spent_for_key', 
 			options_for_select(clients),
-			:style=> "width:#{Setting.plugin_redmine_wktime['wktime_issue_dd_width']}px; display:#{ controller.hideprevTemplate ? 'block' : 'none' };" ) %> 
+			:style=> "width:250px; display:#{ controller.hideprevTemplate ? 'block' : 'none' };" ) %> 
 </td>
 </tr>
 <tr>
 <th width="100px"><label id="issueLbl" style="display:<%= controller.hideprevTemplate ? 'block' : 'none' %>;"><%=controller.getLblIssue%></label></th>
 <td><%=h select_tag('issue_id', 
 			options_for_select(issues),
-			:style=> "width:#{Setting.plugin_redmine_wktime['wktime_issue_dd_width']}px; display:#{controller.hideprevTemplate ? 'block' : 'none' };" ) %> 
+			:style=> "width:250px; display:#{controller.hideprevTemplate ? 'block' : 'none' };" ) %> 
 </td>
 </tr>
 </table>

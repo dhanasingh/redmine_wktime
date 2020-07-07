@@ -55,6 +55,16 @@
 		<label><%= l(:label_depreciation_ledger)  %></label>
 	    <%= select_tag 'settings[wktime_depreciation_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['wktime_depreciation_ledger']) %>
 	</p>
+	
+	<p>
+		<label><%= l(:label_asset_receipt_ledger)  %></label>
+	    <%= select_tag 'settings[asset_receipt_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['asset_receipt_ledger']) %>
+	</p>
+	
+	<p>
+		<label><%= l(:label_asset_sale_ledger)  %></label>
+	    <%= select_tag 'settings[asset_sale_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['asset_sale_ledger']) %>
+	</p>
 		
 	<p>
 		<label><%= l(:label_depreciation_type) %></label>

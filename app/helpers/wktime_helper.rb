@@ -773,10 +773,10 @@ end
 				{:name => 'wktime_settings', :partial => 'settings/tab_time', :label => :label_te},
 				{:name => 'attendance', :partial => 'settings/tab_attendance', :label => :report_attendance},
 				{:name => 'payroll_settings', :partial => 'settings/tab_payroll', :label => :label_payroll},
+				{ :name => 'crm', :partial => 'settings/tab_crm', :label => :label_crm },
 				{:name => 'billing', :partial => 'settings/tab_billing', :label => :label_wk_billing},
 				{:name => 'purchase', :partial => 'settings/tab_purchase', :label => :label_purchasing},
 				{:name => 'inventory', :partial => 'settings/tab_inventory', :label => :label_inventory}
-				#{:name => 'shiftscheduling', :partial => 'settings/tab_shift_scheduling', :label => :label_scheduling}
 			   ]	
 	end	
 	
@@ -1408,7 +1408,7 @@ end
 		entryTime
 	end
 	
-	def saveSpentFor(id, spentForId, spentFortype, spentId, spentType, spentDate, spentHr, spentMm, invoiceId)
+	def saveSpentFor(id, spentForId, spentFortype, spentId, spentType, spentDate, spentHr, spentMm, invoiceId, startON=nil, endON=nil, latitude, longitude)
 		if id.blank?
 			spentObj = WkSpentFor.new
 		else
@@ -1420,6 +1420,21 @@ end
 		spentObj.spent_type = spentType
 		spentObj.spent_on_time = getDateTime(spentDate, spentHr, spentMm, '00')
 		spentObj.invoice_item_id = invoiceId
+		if isChecked("label_enable_issue_logger") && spentType == "TimeEntry"
+			spentObj.start_on = startON
+			spentObj.end_on = endON
+		end
+		# save GeoLocation
+		if isChecked('te_save_geo_location') && latitude.present? && longitude.present?
+			if spentObj.blank? || spentObj.s_longitude.blank? && spentObj.s_latitude.blank?
+				spentObj.s_longitude = longitude
+				spentObj.s_latitude = latitude
+			end
+			if spentObj.blank? || spentObj.e_longitude.blank? && spentObj.e_latitude.blank?
+				spentObj.e_longitude = longitude
+				spentObj.e_latitude = latitude
+			end
+		end
 		spentObj.save
 	end
 	

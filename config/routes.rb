@@ -493,7 +493,11 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
     
 	get 'wkasset/transfer', :to => 'wkasset#transfer'
 	
-	post 'wkasset/updateTransfer', :to => 'wkasset#updateTransfer'	
+	post 'wkasset/updateTransfer', :to => 'wkasset#updateTransfer'
+	 
+	get 'wkasset/dispose_asset', to: 'wkasset#dispose_asset'
+
+	post 'wkasset/updateDisposedAsset', to: 'wkasset#updateDisposedAsset'	
 	
 	get 'wkbrand/index', :to => 'wkbrand#index'
 	
@@ -664,3 +668,7 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wkinvoice/getInvProj', :to => 'wkinvoice#getInvProj'
 
 	get 'wkbase/getUserPermissions', :to => 'wkbase#getUserPermissions'
+
+	get 'wkbase/saveTimeLog', :to => 'wkbase#saveTimeLog'
+
+	get 'wksurvey/print_survey', :to => 'wksurvey#print_survey'

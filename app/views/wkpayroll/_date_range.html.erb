@@ -30,7 +30,7 @@
 	<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
 	<%#= link_to l(:button_apply), {:controller => controller_name, :action => action_name}, :class => 'icon icon-checked' %>
 	<%= link_to l(:button_clear), {:controller => controller_name, :action => action_name, :tab => 'payroll'}, :class => 'icon icon-reload' %>
-  <% if validateERPPermission('A_TE_PRVLG') %>
+  <% if validateERPPermission('A_PAYRL') %>
   <%= link_to l(:label_generate_salary), 'javascript:payrollFormSubmission(true);', :name => 'generate', :class => 'icon icon-report' %>
   <%= link_to l(:label_preview_salary), 'javascript:payrollFormSubmission(false);', :class => 'icon icon-report' %>
   <% end %>

@@ -26,8 +26,8 @@ class WkSurvey < ActiveRecord::Base
     .select("wk_survey_answers.choice_text")
   }
 
-  scope :responsedTextAnswer, ->(grpdName){
-    where("wk_survey_responses.group_name = '#{grpdName}'")
+  scope :responsedTextAnswer, ->(groupName){
+    where("wk_survey_responses.group_name = '#{groupName}'")
     .order("wk_survey_answers.survey_response_id")
   }
 
@@ -40,4 +40,20 @@ class WkSurvey < ActiveRecord::Base
       .order("wk_survey_responses.updated_at").last
     group_name = survey_response.try(:group_name)
   end
+
+  scope :surveyAvgQuestion, ->(survey_id, question_id, castFormat){
+    joins("INNER JOIN wk_survey_questions ON wk_surveys.id = wk_survey_questions.survey_id
+      INNER JOIN wk_survey_choices ON wk_survey_choices.survey_question_id = wk_survey_questions.id
+      INNER JOIN wk_survey_responses ON wk_surveys.id = wk_survey_responses.survey_id
+      INNER JOIN wk_survey_answers ON wk_survey_responses.id = wk_survey_answers.survey_response_id AND wk_survey_questions.id = wk_survey_answers.survey_question_id AND wk_survey_choices.id = wk_survey_answers.survey_choice_id")
+    .where("wk_surveys.id = #{survey_id} and wk_survey_questions.id = #{question_id} ")
+    .select("SUM(CAST(wk_survey_choices.name AS #{castFormat}))/count(wk_survey_responses.user_id) AS questionavg, wk_survey_questions.id AS question_id, wk_surveys.id AS survey_id, CASE WHEN wk_survey_responses.group_name IS NULL THEN 'Current' ELSE wk_survey_responses.group_name END AS grpname")
+    .group("wk_surveys.id, wk_survey_questions.id, wk_survey_responses.group_date, wk_survey_responses.group_name")
+  }
+
+  scope :getSurveyChoices, ->(survey_id, question_id){ joins(:wk_survey_questions, :wk_survey_choices)
+    .where("wk_surveys.id = #{survey_id} and wk_survey_choices.survey_question_id = #{question_id}")
+    .select("wk_survey_choices.name")
+    .group("wk_survey_choices.name")
+  }
 end

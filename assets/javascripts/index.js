@@ -638,6 +638,9 @@ function hideLogDetails(uid)
 		if(document.getElementById("spent_for_tbl")){
 			document.getElementById("spent_for_tbl").style.display = 'block';
 		}
+		if(document.getElementById("issuelogtable")){
+			document.getElementById("issuelogtable").style.display = 'block';
+		}
 		//$('label[for="time_entry_hours"]').html('Hours<span style="color:red;">*</span>');
 		document.getElementById("materialtable").style.display = 'none';
 		document.getElementById("expensetable").style.display = 'none';
@@ -650,6 +653,9 @@ function hideLogDetails(uid)
 		if(document.getElementById("spent_for_tbl")){
 			document.getElementById("spent_for_tbl").style.display = 'none';
 		}
+		if(document.getElementById("issuelogtable")){
+			document.getElementById("issuelogtable").style.display = 'none';
+		}
 		document.getElementById("expensetable").style.display = 'block';
 	}
 	else 
@@ -659,6 +665,9 @@ function hideLogDetails(uid)
 		document.getElementById("expensetable").style.display = 'none';
 		if(document.getElementById("spent_for_tbl")){
 			document.getElementById("spent_for_tbl").style.display = 'block';
+		}
+		if(document.getElementById("issuelogtable")){
+			document.getElementById("issuelogtable").style.display = 'none';
 		}
 		document.getElementById("materialtable").style.display = 'block';
 		if(uid != null) {
@@ -837,4 +846,17 @@ function hideSummaryDD(value) {
 		$("#summary_trans").val("days");
 		$( "#trans_summary" ).hide();
 	}
+}
+
+function profitLossAmount(disposeAmnt)
+{
+	var currentVal = $('#asset_current_value').val();
+	var currency = $('#currency').val();
+	var profitLossAmnt = 0;
+	if(disposeAmnt != "")
+	{
+		profitLossAmnt = disposeAmnt - currentVal;
+	}
+	profit_loss = currency + " " + profitLossAmnt.toFixed(2);
+	$("#profit_loss").html(profit_loss);	
 }

@@ -2,6 +2,8 @@ var warnMsg;
 var hasEntryError = false;
 var hasTrackerError = false;
 var spentTypeVal;
+var myLongitude = 0;
+var myLatitude = 0;
 
 $(document).ready(function(){
 	var txtEntryDate;
@@ -97,6 +99,29 @@ $(document).ready(function(){
 	$(".time-entries.selected,.icon.icon-reload").click(function(){
 		sessionStorage.clear();
 	});
+	
+	//Time Tracking
+  $("#project-jump").after($("#issueLog"));
+	observeSearchfield('issues-quick-search', null, $('#issues-quick-search').data('automcomplete-url'));
+	$('#issueLog span').on('click', function(){
+		let imgName = getIssuetrackerImg();
+		if(imgName == 'finish'){
+			saveTimeLog(this);
+		}
+		else{
+			projectID = $("#projectID").val();
+			$.ajax({
+				url: $('#issues-quick-search').data('automcomplete-url'),
+				type: 'get',
+				data: {q: '', project_id: projectID},
+				success: function(data){eval(data); }
+			});
+		}
+	});
+
+	$(document).on('click', '.drdn-items.issues .issue_select', function(){
+		saveTimeLog(this);
+  });
 });
 
 function spentTypeValue(elespent)
@@ -242,6 +267,7 @@ function signAttendance(str)
 	var mm = d.getMinutes();
 	elementhour = hh + ":" + mm;
 	var datevalue = d;
+  var offSet = d.getTimezoneOffset();
 	if( str == 'start' )
 	{
 	  document.getElementById('clockin' ).style.display = "none";
@@ -254,11 +280,53 @@ function signAttendance(str)
 	  document.getElementById('clockout').style.display = "none";
 	  $("#clockINOUT").attr('title','Clock in');
 	}
-	var clkInOutUrl = document.getElementById('clockinout_url').value;	
-	$.ajax({	
-	url: clkInOutUrl,//'/updateClockInOut',
-	type: 'get',
-	data: {startdate : datevalue, str: str},
-	success: function(data){ }   
+	var clkInOutUrl = document.getElementById('clockinout_url').value;
+	var data = { startdate : datevalue, str: str, offSet: offSet };
+	// Sending Geolocation params
+	if(myLatitude && myLongitude){
+		data['latitude'] = myLatitude;
+		data['longitude'] = myLongitude;
+	}
+	$.ajax({
+		url: clkInOutUrl,
+		type: 'get',
+		data: data,
+		success: function(data){ }
 	});
+}
+
+function saveTimeLog(ele){
+	let imgName = getIssuetrackerImg();
+	let date = new Date();
+  const offSet = date.getTimezoneOffset();
+	let data = { offSet : offSet, issue_id : ele.id };
+	// Sending Geolocation params
+	if(myLatitude && myLongitude){
+		data['latitude'] = myLatitude;
+		data['longitude'] = myLongitude;
+	}
+	$.ajax({
+		url: '/wkbase/saveTimeLog',
+		type: 'get',
+		data: data,
+		success: function(reponse){
+			if(imgName == 'start'){
+				$('#issueImg img').prop('src','/plugin_assets/redmine_wktime/images/finish.png');
+				$('#issue-tracker').show();
+				$('#issue-tracker').html(reponse);
+			}
+			else{
+				$('#issueImg img').prop('src','/plugin_assets/redmine_wktime/images/start.png');
+				$('#issue-tracker').hide();
+				$('#issue-time').html('00:00');
+			}
+		}
+	});
+	$('.drdn.expanded').removeClass('expanded');
+}
+
+function getIssuetrackerImg(){
+	let imgName = $('span#issueImg img').prop('src');
+	imgName = imgName.replace( /^.*?([^\/]+)\..+?$/, '$1' );
+	return imgName;
 }

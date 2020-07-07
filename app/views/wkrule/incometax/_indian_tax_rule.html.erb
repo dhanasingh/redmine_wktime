@@ -14,6 +14,16 @@
             end
         end
     end
+	# Income tax slab for FY 2020-21
+	incomeTaxSlab= {
+		0..250000 => 0,
+		250001..500000 => 0.05,
+		500001..750000 => 0.1, 
+		750001..1000000 => 0.15, 
+		1000001..1250000 => 0.2,             
+		1250001..1500000 => 0.25,
+		1500001...Float::INFINITY => 0.3
+	}
 %>
 <% if(action_type == "taxSettings") %>
     <div class="contextual">
@@ -36,7 +46,7 @@
                     <td><%= "Annual Gross" %></td>
                     <td><%= select_tag 'taxsettings[annual_gross]', options_for_select(getSalaryCompNames.invert, taxComp["annual_gross"]) %></td>
                 </tr>
-                <tr>
+                <!-- <tr>
                     <td><%= "PF" %></td>
                     <td><%= select_tag 'taxsettings[annual_pf]', options_for_select(getSalaryCompNames.invert, taxComp["annual_pf"]) %></td>
                 </tr>
@@ -59,7 +69,7 @@
                 <tr>
                     <td><%= "Standard Deduction" %></td>
                     <td><%= text_field_tag("taxsettings[annual_std_deduction]", taxComp["annual_std_deduction"], size: 20) %></td>
-                </tr>
+                </tr> -->
             </table>
         </fieldset>
         <div><%= submit_tag l(:button_save) %></div>
@@ -114,6 +124,7 @@
         end
         taxValue = {}
         prof_tax = 0
+        hraVal = 0
         financialPeriod = Array.new
 		lastDate = startDate
 		until lastDate > endDate
@@ -125,87 +136,106 @@
             salaries = WkSalary.joins("LEFT JOIN wk_salary_components SC ON wk_salaries.salary_component_id = SC.id")
                             .where("user_id = ? and salary_date between ? and ?", userId, start_date, end_date)
                             .select("wk_salaries.salary_component_id, wk_salaries.amount, SC.component_type")
+            # Tax calculation for FY 2019-2020
+            # if salaries.present?
+            #     compHash = salaries.map{|p| [p.salary_component_id.to_s, p.amount]}.to_h
+            #     taxComp.each do |name, id|
+            #         totals[name] ||= 0
+            #         if name == "annual_gross"
+            #             salaries.each do |entry|
+            #                 totals[name] += entry.amount if ["a", "b"].include?(entry.component_type)
+            #             end
+            #         else
+            #             totals[name] += compHash[id] if !["annual_prof_tax", "annual_std_deduction"].include?(name) && compHash[id].present?
+            #         end
+            #     end
+            # else
+            #     userSalaryHash = getUserSalaryHash(userId, start_date)
+            #     taxComp.each do |name, id|
+            #         totals[name] ||= 0
+            #         totals[name] += userSalaryHash[userId.to_i][id.to_i].to_f if !["annual_prof_tax", "annual_std_deduction"].include?(name) &&
+            #          id.present? && userSalaryHash[userId.to_i][id.to_i].present?
+            #     end
+            # end
             if salaries.present?
-                compHash = salaries.map{|p| [p.salary_component_id.to_s, p.amount]}.to_h
                 taxComp.each do |name, id|
                     totals[name] ||= 0
                     if name == "annual_gross"
                         salaries.each do |entry|
-                            totals[name] += entry.amount if ["a", "b"].include?(entry.component_type)
+                            totals[name] += entry.amount if ["a", "b"].include?(entry.component_type) && id.present?
                         end
-                    else
-                        totals[name] += compHash[id] if !["annual_prof_tax", "annual_std_deduction"].include?(name) && compHash[id].present?
                     end
                 end
             else
                 userSalaryHash = getUserSalaryHash(userId, start_date)
                 taxComp.each do |name, id|
-                    totals[name] ||= 0
-                    totals[name] += userSalaryHash[userId.to_i][id.to_i].to_f if !["annual_prof_tax", "annual_std_deduction"].include?(name) &&
-                     id.present? && userSalaryHash[userId.to_i][id.to_i].present?
+                        totals[name] ||= 0
+                        totals[name] += userSalaryHash[userId.to_i][id.to_i].to_f if ["annual_gross"].include?(name) &&
+                            id.present? && userSalaryHash[userId.to_i][id.to_i].present?
                 end
             end
         end
-        profTaxID = taxComp["annual_prof_tax"]
-        if profTaxID.present?
-            salComp = WkSalaryComponents.where("id = ?", profTaxID).first
-            freqDate = salComp.start_date
-            case salComp.frequency
-            when "sa"
-                startMonth1 = (freqDate.to_date + 7.months).at_beginning_of_month
-                profTaxDate1 = ('01-' + startMonth1.month.to_s + '-' + start_year.to_s).to_date
-                profTaxDate2 = profTaxDate1 + 6.months
-                taxValues = WkSalary.where("user_id = ? and salary_component_id = ? and (salary_date between ? and ? or salary_date between ? and ?)", userId, 
-                                profTaxID, profTaxDate1, profTaxDate1.at_end_of_month, profTaxDate2, profTaxDate2.at_end_of_month)
-                if taxValues.count == 2
-                    taxValues.each do |tax_value|
-                        prof_tax += tax_value.amount
-                    end
-                elsif taxValues.count == 1
-                    prof_tax = taxValues.first.amount * 2
-                else
-                    prof_tax = 0
-                end
-            when "a"
-                taxValues = WkSalary.where("user_id = ? and salary_component_id = ? and salary_date between ? and ?", userId, profTaxID, startDate, endDate)
-                prof_tax = taxValues.first.amount
-            when "m"
-                financialPeriod.each do |start_date, end_date|
-                    taxValues = WkSalary.where("user_id = ? and salary_component_id = ? and salary_date between ? and ?", userId, profTaxID,
-                                 start_date, end_date)
-                    if taxValues.present?
-                        prof_tax += taxValues.first.amount
-                    else
-                        userSalaryHash = getUserSalaryHash(userId, start_date)
-                        prof_tax += userSalaryHash[userId.to_i][profTaxID.to_i]
-                    end
-                end
-            when "q"
-                quaterStartDate = ('01-' + freqDate.to_date.month.to_s + '-' + start_year.to_s).to_date
-                if quaterStartDate >= startDate && quaterStartDate <= endDate
-                    while quaterStartDate < endDate
-                        quaterEndDate = (quaterStartDate + 3.months) - 1.day
-                        taxValues = WkSalary.where("user_id = ? and salary_component_id = ? and salary_date between ? and ?", userId, profTaxID,
-                                    quaterStartDate, quaterEndDate)
-                        if taxValues.present?
-                            taxValues.each do |tax_value|
-                                prof_tax += tax_value.amount
-                            end
-                        else
-                            userSalaryHash = getUserSalaryHash(userId, quaterStartDate)
-                            prof_tax += userSalaryHash[userId.to_i][profTaxID.to_i]
-                        end
-                        quaterStartDate = quaterStartDate + 3.months
-                    end
-                end
-            end
-        end
-        taxEntries = WkIncomeTax.where("user_id = ?", userId).first
-        if taxEntries.present?
-            taxValue =  JSON.parse(taxEntries.value)
-            rentVal = taxValue['rent'].to_f == 0.0 ? 0 : ((taxValue['rent'].to_f) - 0.1 * totals["annual_basic"].to_f)
-            hraVal = [rentVal, totals["annual_basic"].to_f / 2, totals["annual_hra"].to_f].min
-        end
+        # Tax calculation for FY 2019-2020
+        # profTaxID = taxComp["annual_prof_tax"]
+        # if profTaxID.present?
+        #     salComp = WkSalaryComponents.where("id = ?", profTaxID).first
+        #     freqDate = salComp.start_date
+        #     case salComp.frequency
+        #     when "sa"
+        #         startMonth1 = (freqDate.to_date + 7.months).at_beginning_of_month
+        #         profTaxDate1 = ('01-' + startMonth1.month.to_s + '-' + start_year.to_s).to_date
+        #         profTaxDate2 = profTaxDate1 + 6.months
+        #         taxValues = WkSalary.where("user_id = ? and salary_component_id = ? and (salary_date between ? and ? or salary_date between ? and ?)", userId, 
+        #                         profTaxID, profTaxDate1, profTaxDate1.at_end_of_month, profTaxDate2, profTaxDate2.at_end_of_month)
+        #         if taxValues.count == 2
+        #             taxValues.each do |tax_value|
+        #                 prof_tax += tax_value.amount
+        #             end
+        #         elsif taxValues.count == 1
+        #             prof_tax = taxValues.first.amount * 2
+        #         else
+        #             prof_tax = 0
+        #         end
+        #     when "a"
+        #         taxValues = WkSalary.where("user_id = ? and salary_component_id = ? and salary_date between ? and ?", userId, profTaxID, startDate, endDate)
+        #         prof_tax = taxValues.first.amount
+        #     when "m"
+        #         financialPeriod.each do |start_date, end_date|
+        #             taxValues = WkSalary.where("user_id = ? and salary_component_id = ? and salary_date between ? and ?", userId, profTaxID,
+        #                          start_date, end_date)
+        #             if taxValues.present?
+        #                 prof_tax += taxValues.first.amount
+        #             else
+        #                 userSalaryHash = getUserSalaryHash(userId, start_date)
+        #                 prof_tax += userSalaryHash[userId.to_i][profTaxID.to_i]
+        #             end
+        #         end
+        #     when "q"
+        #         quaterStartDate = ('01-' + freqDate.to_date.month.to_s + '-' + start_year.to_s).to_date
+        #         if quaterStartDate >= startDate && quaterStartDate <= endDate
+        #             while quaterStartDate < endDate
+        #                 quaterEndDate = (quaterStartDate + 3.months) - 1.day
+        #                 taxValues = WkSalary.where("user_id = ? and salary_component_id = ? and salary_date between ? and ?", userId, profTaxID,
+        #                             quaterStartDate, quaterEndDate)
+        #                 if taxValues.present?
+        #                     taxValues.each do |tax_value|
+        #                         prof_tax += tax_value.amount
+        #                     end
+        #                 else
+        #                     userSalaryHash = getUserSalaryHash(userId, quaterStartDate)
+        #                     prof_tax += userSalaryHash[userId.to_i][profTaxID.to_i]
+        #                 end
+        #                 quaterStartDate = quaterStartDate + 3.months
+        #             end
+        #         end
+        #     end
+        # end
+        # taxEntries = WkIncomeTax.where("user_id = ?", userId).first
+        # if taxEntries.present?
+        #     taxValue =  JSON.parse(taxEntries.value)
+        #     rentVal = taxValue['rent'].to_f == 0.0 ? 0 : ((taxValue['rent'].to_f) - 0.1 * totals["annual_basic"].to_f)
+        #     hraVal = [rentVal, totals["annual_basic"].to_f / 2, totals["annual_hra"].to_f].min
+        # end
     %>
     <% taxComp.each do |name, id| %>
         <%= hidden_field_tag(name, totals[name]) if name != "annual_prof_tax" && name != "annual_std_deduction"  %>
@@ -222,6 +252,7 @@
                     <tr>
                         <td><%= "Annual Gross" %></td><td><%= totals["annual_gross"].blank? ? 0 : "%.2f" % totals["annual_gross"] %></td>
                     </tr>
+                    <!--  Tax calculation for FY 2019-2020
                     <tr>
                         <td><%= "PF" %></td><td><%= totals["annual_pf"].blank? ? 0 : "%.2f" % totals["annual_pf"] %></td>
                     </tr>
@@ -264,11 +295,12 @@
                     <tr>
                         <td><%= "Interest on Education Loan" %></td>
                         <td><%= text_field_tag("taxsettings[edu_loan]", taxValue['edu_loan'], size: 20, disabled: disabled, class: "userSalComps") %></td>
-                    </tr>
+                    </tr> -->
                 </table>
             </div>
         </div>
         <div class="splitcontentright">
+        <!-- Tax calculation for FY 2019-2020
             <div class="box tabular">
                 <table>
                     <tr><td><b><%= "HRA" %></b></td></tr>
@@ -293,43 +325,54 @@
                         <td><%=  "%.2f" % hraVal unless hraVal.blank? %></td>
                     </tr>
                 </table>
-            </div>
+            </div> -->
         </div>
     <div style="clear:both;"></div>
 <%
 # For Apply Tax 
 else
-    monthCount =((12 * (endDate.year - startDate.year) + endDate.month - startDate.month).abs) + 1 if startDate && endDate
-    section80CAmt = params['taxsettings']['insurance'].to_f + params['taxsettings']['tuition_fee'].to_f + params[:annual_pf].to_f
-    section80CAmt = section80CAmt > 150000 ? 150000 : section80CAmt
-    deductionAmt = params[:annual_std_deduction].to_f + params['taxsettings']['home_loan'].to_f + params['taxsettings']['travel_allowance'].to_f +
-                        params['taxsettings']['medical_insurance'].to_f + params['taxsettings']['edu_loan'].to_f + params[:annual_prof_tax].to_f +
-                        (params[:annual_edu_allowance].to_f > 1200 ? 1200 : params[:annual_edu_allowance].to_f)
-    basic = params[:annual_basic].to_f
-    rentVal = params['taxsettings']['rent'].to_f == 0.0 ? 0 : (params['taxsettings']['rent'].to_f - 0.1 * basic)
-    hraVal = [rentVal, basic / 2, params[:annual_hra].to_f].min
-    taxIncome = params[:annual_gross].to_f + params['taxsettings']['addl_income'].to_f - deductionAmt - section80CAmt - hraVal
+    # Tax calculation for FY 2019-2020
+    # monthCount =((12 * (endDate.year - startDate.year) + endDate.month - startDate.month).abs) + 1 if startDate && endDate
+    # section80CAmt = params['taxsettings']['insurance'].to_f + params['taxsettings']['tuition_fee'].to_f + params[:annual_pf].to_f
+    # section80CAmt = section80CAmt > 150000 ? 150000 : section80CAmt
+    # deductionAmt = params[:annual_std_deduction].to_f + params['taxsettings']['home_loan'].to_f + params['taxsettings']['travel_allowance'].to_f +
+    #                     params['taxsettings']['medical_insurance'].to_f + params['taxsettings']['edu_loan'].to_f + params[:annual_prof_tax].to_f +
+    #                     (params[:annual_edu_allowance].to_f > 1200 ? 1200 : params[:annual_edu_allowance].to_f)
+    # basic = params[:annual_basic].to_f
+    # rentVal = params['taxsettings']['rent'].to_f == 0.0 ? 0 : (params['taxsettings']['rent'].to_f - 0.1 * basic)
+    # hraVal = [rentVal, basic / 2, params[:annual_hra].to_f].min
+    # taxIncome = params[:annual_gross].to_f + params['taxsettings']['addl_income'].to_f - deductionAmt - section80CAmt - hraVal
 
-    taxIncome -= 500000
-    taxVal = 0
-    if taxIncome > 0
-        if taxIncome > 500000
-            taxIncome -= 500000
-            taxVal = 112500 + (0.3 * taxIncome)
-        else
-            taxVal = 12500 + (0.2 * taxIncome)
-        end
-        taxVal += (0.04 * taxVal)
-    end 
+    # taxIncome -= 500000
+    # taxVal = 0
+    # if taxIncome > 0
+    #     if taxIncome > 500000
+    #         taxIncome -= 500000
+    #         taxVal = 112500 + (0.3 * taxIncome)
+    #     else
+    #         taxVal = 12500 + (0.2 * taxIncome)
+    #     end
+    #     taxVal += (0.04 * taxVal)
+    # end 
+	
+	# Income tax slab change for Fy 2020-21
+	monthCount =((12 * (endDate.year - startDate.year) + endDate.month - startDate.month).abs) + 1 if startDate && endDate
+	taxIncome = params[:annual_gross].to_f		
+	taxAmount = 0
+	incomeTaxSlab.each do |range, rate|
+		taxAmount += rate * (range.last - (range.first-1)) if taxIncome > range.last
+		taxAmount += rate * (taxIncome - (range.first-1)) if range === taxIncome && taxIncome > 500000
+    end
     
+	taxAmount += (0.04 * taxAmount)    
     tdsID = @taxSettingVal['income_tax'].to_i
     tdsValue = WkSalary.where("user_id = ? and salary_component_id = ? and salary_date between ? and ? ", userId, tdsID, startDate, endDate )
     if tdsValue.present?
         tdsAmt = tdsValue.sum(:amount)
-        taxVal = (taxVal >= tdsAmt) ? taxVal- tdsAmt : 0
+        taxAmount = (taxAmount >= tdsAmt) ? taxAmount- tdsAmt : 0
         monthCount -= tdsValue.count
     end
-    monthTax = taxVal / monthCount
+    monthTax = taxAmount / monthCount
     monthTax = monthTax.blank? ? 0 : "%.2f" % monthTax
     data = {monthTax: monthTax}
     controller.redirect_to action: "income_tax", data: data, action_type: "calculatetax"

@@ -48,7 +48,7 @@ class WkattendanceController < WkbaseController
 			issueId = listboxArr[0]
 			sqlStr = getListQueryStr + " where u.type = 'User' and (wu.termination_date is null or wu.termination_date >= '#{lastMonthStartDt}')"
 		end
-		if !validateERPPermission('A_TE_PRVLG')
+		if !validateERPPermission('A_ATTEND')
 			sqlStr = sqlStr + " and u.id = #{User.current.id} " 
 		end
 		if !@status.blank?
@@ -87,7 +87,7 @@ class WkattendanceController < WkbaseController
 		group_id = session[controller_name].try(:[], :group_id)
 		status = session[controller_name].try(:[], :status)
 		
-		if user_id.blank? || !validateERPPermission('A_TE_PRVLG')
+		if user_id.blank? || !validateERPPermission('A_ATTEND')
 		   ids = User.current.id
 		elsif user_id.to_i != 0 && group_id.to_i == 0
 		   ids = user_id.to_i
@@ -100,19 +100,23 @@ class WkattendanceController < WkbaseController
 			getAllTimeRange(ids, false)
 		end
 		noOfDays = 't4.i*1*10000 + t3.i*1*1000 + t2.i*1*100 + t1.i*1*10 + t0.i*1'
-		sqlQuery = "select evw.id, vw.id as user_id, vw.firstname, vw.lastname, vw.created_on, vw.selected_date as entry_date, evw.start_time, evw.end_time, evw.hours from
-			(select u.id, u.firstname, u.lastname, u.created_on, v.selected_date from" + 
-			"(select " + getAddDateStr(@from, noOfDays) + " selected_date from " +
-			"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t0,
-			 (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t1,
-			 (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t2,
-			 (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t3,
-			 (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9)t4)v,
-			 (select u.id, u.firstname, u.lastname, u.created_on from users u where u.type = 'User' ) u
-			 WHERE  v.selected_date between '#{@from}' and '#{@to}' AND u.id in (#{ids})
-			 order by u.id, v.selected_date) vw 
+		sqlQuery = "select evw.id, vw.id as user_id, vw.firstname, vw.lastname, vw.created_on, vw.selected_date as entry_date, evw.start_time, evw.end_time, evw.hours,
+				s_longitude, s_latitude, e_longitude, e_latitude
+			from (
+				select u.id, u.firstname, u.lastname, u.created_on, v.selected_date from" + 
+				"(select " + getAddDateStr(@from, noOfDays) + " selected_date from " +
+				"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t0,
+				(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t1,
+				(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t2,
+				(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t3,
+				(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9)t4)v,
+				(select u.id, u.firstname, u.lastname, u.created_on from users u where u.type = 'User'
+			) u
+			WHERE  v.selected_date between '#{@from}' and '#{@to}' AND u.id in (#{ids})
+			order by u.id, v.selected_date) vw 
 			left join(
-				 select id, start_time, end_time, " + getConvertDateStr('start_time') + " entry_date, hours, user_id from wk_attendances 
+				 select id, start_time, end_time, " + getConvertDateStr('start_time') + " entry_date, hours, user_id, s_longitude, s_latitude, e_longitude, e_latitude
+				 from wk_attendances
 				 WHERE " + getConvertDateStr('start_time') +" between '#{@from}' and '#{@to}' AND user_id in (#{ids})
 			) evw on (vw.selected_date = evw.entry_date and vw.id = evw.user_id) where vw.id in (#{ids}) "
 			 sqlQuery = sqlQuery + " ORDER BY " + (sort_clause.present? ? sort_clause.first : "vw.selected_date desc, vw.firstname")
@@ -127,7 +131,8 @@ class WkattendanceController < WkbaseController
 	
 	
 	def clockedit
-		sqlQuery = "select a.id,a.user_id, a.start_time, a.end_time, a.hours, u.firstname, u.lastname FROM users u
+		sqlQuery = "select a.id,a.user_id, a.start_time, a.end_time, a.hours, u.firstname, u.lastname, s_longitude, s_latitude, e_longitude, e_latitude
+			FROM users u
 			left join wk_attendances a  on u.id = a.user_id and #{getConvertDateStr('a.start_time')} = '#{params[:date]}' where u.id = '#{params[:user_id]}' ORDER BY a.start_time"
 		@wkattnEntries = WkAttendance.find_by_sql(sqlQuery)
 		respond_to do |format|
@@ -368,7 +373,7 @@ class WkattendanceController < WkbaseController
 	def check_permission
 		ret = false
 		ret = params[:user_id].to_i == User.current.id
-		return (ret || validateERPPermission('A_TE_PRVLG'))
+		return (ret || validateERPPermission('A_ATTEND'))
 	end
 	
 	def getProjectByIssue
@@ -531,6 +536,14 @@ class WkattendanceController < WkbaseController
 
 	def updateClockInOutEntry(id, startTime, endTime)
 		wkattendance =  WkAttendance.find(id.to_i)
+		if startTime != wkattendance.start_time && isChecked('att_save_geo_location')
+			wkattendance.s_latitude = params[:latitude]
+			wkattendance.s_longitude = params[:longitude]
+		end
+		if endTime.present? && isChecked('att_save_geo_location')
+			wkattendance.e_latitude = params[:latitude]
+			wkattendance.e_longitude = params[:longitude]
+		end
 		wkattendance.start_time =  startTime
 		wkattendance.end_time = endTime
 		wkattendance.hours = computeWorkedHours(wkattendance.start_time, wkattendance.end_time, true) if wkattendance.end_time.present?

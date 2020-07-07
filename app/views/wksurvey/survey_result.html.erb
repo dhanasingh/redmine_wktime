@@ -1,25 +1,24 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'survey', :plugin => "redmine_wktime" %>
-<%= title l(:label_survey_result) %>
-<h3><%= l(:label_survey_name) %>:&nbsp;&nbsp; <%= @survey.name %></h3>
 
-<% url = url_for(controller: 'wksurvey', action: 'print_survey_result', survey_id: params[:survey_id], grpdName: params[:grpdName], surveyForID: params[:surveyForID], surveyForType: params[:surveyForType]) %>
+<% url = url_for(controller: 'wksurvey', action: 'print_survey_result', survey_id: params[:survey_id], groupName: params[:groupName], surveyForID: params[:surveyForID], surveyForType: params[:surveyForType]) %>
 <div class ="contextual">
 	<%= link_to l(:label_export_invoice), "javascript:void(window.open('#{url}', '_blank', 'location=yes,scrollbars=yes,status=yes'));", 
 		style: 'color:blue;text-decoration: underline;' %>
 </div>
+<%= title @survey.name %>
 <div style="clear:both;">
 <%= form_tag({:controller => "wksurvey", :action => 'survey_result'}, :method => :get, :id => 'result_form') do %>
 	<%=h hidden_field_tag('survey_id', params[:survey_id]) %>
 	<%=h hidden_field_tag('surveyForID', params[:surveyForID]) %>
-    <%=h hidden_field_tag('surveyForType', params[:surveyForType]) %>
-
-    <% response_grp = (validateERPPermission("E_SUR")) ? getResponseGroup.reverse.insert(0, [""]) : getResponseGroup.reverse%>
+  <%=h hidden_field_tag('surveyForType', params[:surveyForType]) %>
+	<% 	response_grp = (validateERPPermission("E_SUR")) ? getResponseGroup.reverse.insert(0, [""]) : getResponseGroup.reverse
+			response_grp << [l(:label_trend_chart), "trendChart"]
+	%>
 	<% if @survey.recur %>
 		<b><%= l(:label_clos_responses) %></b>&nbsp;
-		<%= select_tag('grpdName', options_for_select(response_grp,
-		selected: params[:grpdName].present? ? params[:grpdName] : response_grp[0]), onchange: '$("#result_form").submit()') %>
-			<%= link_to_function l(:button_apply), '$("#result_form").submit()', :class => 'icon icon-checked' %>
+		<%= select_tag('groupName', options_for_select(response_grp, selected: params[:groupName]), onchange: '$("#result_form").submit()') %>
+		<%= link_to_function l(:button_apply), '$("#result_form").submit()', :class => 'icon icon-checked' %>
 	<% end %>
 <% end %>
 </div>
@@ -27,4 +26,4 @@
 	<fieldset class="box tabular">
 		<%= render :partial => "survey_result" %>
 	</fieldset>
-</div>	
+</div>

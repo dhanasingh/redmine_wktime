@@ -22,7 +22,7 @@ module WkleaverequestHelper
 	end
 
 	def isLeaveReqAdmin
-		validateERPPermission("A_TE_PRVLG") || isSupervisor
+		validateERPPermission("A_ATTEND") || isSupervisor
 	end
 
 	def getButtonLabels

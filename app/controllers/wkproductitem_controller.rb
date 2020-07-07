@@ -51,6 +51,7 @@ class WkproductitemController < WkinventoryController
 		locationId =session[controller_name].try(:[], :location_id)
 		availabilityId =session[controller_name].try(:[], :availability)
 		projectId =session[controller_name].try(:[], :project_id)
+		isDisposed =session[controller_name].try(:[], :is_dispose)
 		location = WkLocation.where(:is_default => 'true').first
 		sqlwhere = ""
 		unless productId.blank?
@@ -79,13 +80,16 @@ class WkproductitemController < WkinventoryController
 		elsif projectId != 'AP'
 			sqlwhere = sqlwhere + " AND iit.project_id = #{projectId}"
 		end
+
+		sqlwhere = sqlwhere + " AND ap.is_disposed IS #{isDisposed.blank? ? 'NOT' : ''} TRUE" if getItemType == "A"
+
 		sqlStr = getProductInventorySql + sqlwhere
 		sqlStr = sqlStr + " ORDER BY " + (sort_clause.present? ? sort_clause.first : " iit.id desc ")
 		findBySql(sqlStr, WkProductItem)
 	end
 	
 	def getProductInventorySql
-		sqlStr = "select iit.id as inventory_item_id, pit.id as product_item_id, iit.product_item_id as inv_product_item_id, piit.product_item_id as parent_product_item_id, iit.status, p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as product_attribute_name, iit.serial_number, iit.currency, iit.selling_price, iit.total_quantity, iit.available_quantity, uom.short_desc as uom_short_desc, l.name as location_name, projects.name as project_name, (case when iit.product_type is null then p.product_type else iit.product_type end) as product_type, iit.is_loggable, ap.name as asset_name, piit.id as parent_id, pap.name as parent_name, ap.owner_type, ap.currency as asset_currency, ap.rate, ap.rate_per, ap.current_value, pcr.child_count from wk_product_items pit 
+		sqlStr = "select iit.id as inventory_item_id, pit.id as product_item_id, iit.product_item_id as inv_product_item_id, piit.product_item_id as parent_product_item_id, iit.status, p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as product_attribute_name, iit.serial_number, iit.currency, iit.selling_price, iit.total_quantity, iit.available_quantity, uom.short_desc as uom_short_desc, l.name as location_name, projects.name as project_name, (case when iit.product_type is null then p.product_type else iit.product_type end) as product_type, iit.is_loggable, ap.name as asset_name, piit.id as parent_id, pap.name as parent_name, ap.owner_type, ap.currency as asset_currency, ap.rate, ap.rate_per, ap.current_value, pcr.child_count, ap.is_disposed from wk_product_items pit 
 		left outer join wk_inventory_items iit on iit.product_item_id = pit.id 
 		left outer join wk_inventory_items piit on iit.parent_id = piit.id 
 		left outer join (select count(parent_id) child_count, parent_id from wk_inventory_items group by parent_id) pcr on pcr.parent_id = iit.id
@@ -112,6 +116,7 @@ class WkproductitemController < WkinventoryController
 		end 
 		unless params[:inventory_item_id].blank?
 		   @inventoryItem = WkInventoryItem.find(params[:inventory_item_id])
+			 @lastDepr = WkAssetDepreciation.lastDepr(params[:inventory_item_id]).first
 		end 
 		unless params[:parentId].blank?
 			@parentEntry = WkInventoryItem.find(params[:parentId])
@@ -175,7 +180,7 @@ class WkproductitemController < WkinventoryController
 		    redirect_to :controller => controller_name,:action => 'edit' , :product_item_id => params[:product_item_id], :inventory_item_id => params[:inventory_item_id], :tab => controller_name
 		    flash[:error] = productItem.errors.full_messages.join("<br>")
 		end
-    end
+  end
     
 	def updateTransfer
 		sourceItem = WkInventoryItem.find(params[:transfer_item_id].to_i)
@@ -249,7 +254,7 @@ class WkproductitemController < WkinventoryController
 		inventoryItem.location_id = locationId if params[:location_id] != "0"
 		inventoryItem.project_id = projId
 		inventoryItem.save()
-		updateShipment(inventoryItem)
+		updateShipment(inventoryItem) if inventoryItem.product_type == 'I'
 		inventoryItem
 	end
 	
@@ -310,7 +315,7 @@ class WkproductitemController < WkinventoryController
 	def set_filter_session
 		if params[:searchlist] == controller_name
 			session[controller_name] = Hash.new if session[controller_name].nil?
-			filters = [:product_id, :brand_id, :location_id, :availability, :project_id]
+			filters = [:product_id, :brand_id, :location_id, :availability, :project_id, :is_dispose]
 			filters.each do |param|
 				if params[param].blank? && session[controller_name].try(:[], param).present?
 					session[controller_name].delete(param)

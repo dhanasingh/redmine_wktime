@@ -1,10 +1,10 @@
 <%= actions_dropdown do %>
     <%= link_to l(:label_payroll), url_for(:controller => "wkpayroll", :action => "index", :tab => "payroll") %>
     <%= link_to l(:label_payroll_user_settings), url_for(:controller => "wkpayroll", :action => "usrsettingsindex") %>
-    <% if validateERPPermission('A_TE_PRVLG') %>
+    <% if validateERPPermission('A_PAYRL') %>
         <%= link_to l(:label_payroll_settings), url_for(:controller => "wkpayroll", :action => "payrollsettings") %>
     <% end %>
-    <% if validateERPPermission('A_TE_PRVLG') && getTaxSettingVal['tax_rule'].present? %>
+    <% if validateERPPermission('A_PAYRL') && getTaxSettingVal['tax_rule'].present? %>
         <%= link_to l(:label_income_tax_settings), url_for(controller: "wkpayroll", action: "income_tax", action_type: "taxSettings") %>
     <% end %>
 <% end %>

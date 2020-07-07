@@ -23,6 +23,7 @@ class WkbaseController < ApplicationController
 	helper :sort
 	include SortHelper
 	include WkattendanceHelper
+	include WktimeHelper
 
 	def index
 	end
@@ -40,9 +41,9 @@ class WkbaseController < ApplicationController
 		lastAttnEntries = findLastAttnEntry(true)
 		if !lastAttnEntries.blank?
 			@lastAttnEntry = lastAttnEntries[0]
-		end	
-		currentDate = (DateTime.parse params[:startdate])
-		entryTime  =  Time.parse("#{currentDate.to_date.to_s} #{currentDate.utc.to_time.to_s} ").localtime
+		end
+		entryTime  =  Time.now
+		entryTime = entryTime - (entryTime.utc_offset.seconds + (params[:offSet].to_i).minutes)
 		@lastAttnEntry = saveAttendance(@lastAttnEntry, entryTime, nil, User.current.id, false)
 		ret = 'done'
 		respond_to do |format|
@@ -71,6 +72,10 @@ class WkbaseController < ApplicationController
 		wkAddress.email = params[:email]
 		wkAddress.website = params[:website]
 		wkAddress.department = params[:department]
+		if isChecked('crm_save_geo_location') && params[:save_current_location].to_i  == 1
+			wkAddress.longitude = params[:longitude]
+			wkAddress.latitude = params[:latitude]
+		end
 		if wkAddress.valid?
 			wkAddress.save
 			addressId = wkAddress.id
@@ -145,4 +150,43 @@ class WkbaseController < ApplicationController
 			}
 		end
 	end
+
+	def saveTimeLog
+		entryTime = Time.now
+		entryTime = entryTime - (entryTime.utc_offset.seconds + (params[:offSet].to_i).minutes)
+
+		lastTimeEntry = WkSpentFor.lastEntry.first
+		if lastTimeEntry.blank?
+			project = Issue.find(params[:issue_id]).project
+			activityID = project.activities.first.id
+			timeEntryAttr = {
+				project_id: project.id, user_id: User.current.id, issue_id: params[:issue_id], hours: 0.1, activity_id: activityID,
+				spent_on: Date.today, author_id: User.current.id, spent_for_attributes: { spent_on_time: entryTime, start_on: entryTime }
+			}
+			# save GeoLocation
+			if isChecked('te_save_geo_location') && params[:longitude].present? && params[:latitude].present?
+				timeEntryAttr[:spent_for_attributes][:s_longitude] =  params[:longitude]
+				timeEntryAttr[:spent_for_attributes][:s_latitude] = params[:latitude]
+			end
+			timeEntry = TimeEntry.new(timeEntryAttr)
+		else
+			timeEntry = TimeEntry.find(lastTimeEntry.id)
+			start  = DateTime.strptime(timeEntry.spent_for.start_on.to_s, "%Y-%m-%d %H:%M:%S %z").to_time
+			finish = DateTime.strptime(entryTime.to_s, "%Y-%m-%d %H:%M:%S %z").to_time
+			finish += 24*60*60 if finish < start
+			timeEntry.hours = ((finish-start)/3600).round(2)
+			timeEntry.spent_for.end_on = entryTime
+			# save GeoLocation
+			if isChecked('te_save_geo_location') && params[:longitude].present? && params[:latitude].present?
+				timeEntry.spent_for.e_longitude = params[:longitude]
+				timeEntry.spent_for.e_latitude = params[:latitude]
+			end
+		end
+		timeEntry.save
+		trackerName = timeEntry.issue.tracker.to_s + '#' + timeEntry.issue_id.to_s
+		respond_to do |format|
+			format.text  { render :plain => trackerName }
+		end
+	end
+
 end

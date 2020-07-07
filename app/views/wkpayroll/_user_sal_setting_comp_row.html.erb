@@ -4,10 +4,10 @@
 	<%= hidden_field_tag('h_dependent_id' + compEntry[0].sc_id.to_s, compEntry[2]) %>
 	<%= hidden_field_tag('h_factor' + compEntry[0].sc_id.to_s, compEntry[3]) %>
 	<tr>
-		<td><%=h check_box_tag('is_override' + compEntry[0].sc_id.to_s, value = "1", checked = compEntry[1], options = {:onchange => "overrideSettings(this);", :disabled => (validateERPPermission('A_TE_PRVLG') ? false : true)}) %>
+		<td><%=h check_box_tag('is_override' + compEntry[0].sc_id.to_s, value = "1", checked = compEntry[1], options = {:onchange => "overrideSettings(this);", :disabled => (validateERPPermission('A_PAYRL') ? false : true)}) %>
 		<td>
 			<%=h compEntry[0].sc_name %>
-			<% showCalTax = validateERPPermission('A_TE_PRVLG') && @taxSettingVal['tax_rule'].present? && (compEntry[0].sc_id == @taxSettingVal['income_tax'].to_i) %>
+			<% showCalTax = validateERPPermission('A_PAYRL') && @taxSettingVal['tax_rule'].present? && (compEntry[0].sc_id == @taxSettingVal['income_tax'].to_i) %>
 			<% if showCalTax %>
 				<%= link_to l(:label_apply_tax), '#',
 					onclick: "javascript:calculateTax("+ compEntry[0].user_id.to_s + "," +
@@ -17,12 +17,12 @@
 		<td>
 			<%=h select_tag('dependent_id' + compEntry[0].sc_id.to_s , 
 				options_for_select(sal_component, :selected =>  compEntry[2], :required => true), 
-				options = {:disabled => !(validateERPPermission('A_TE_PRVLG') && compEntry[1]) || showCalTax,
+				options = {:disabled => !(validateERPPermission('A_PAYRL') && compEntry[1]) || showCalTax,
 				class: showCalTax ? "" : "userSalComps", style: "min-width: 100px" } ) %>
 		</td>
 		<td>
 			<%=h text_field_tag('factor' + compEntry[0].sc_id.to_s, compEntry[3], :size => 10, :maxlength => 7, 
-				:disabled => !(validateERPPermission('A_TE_PRVLG') && compEntry[1]), :required => true,
+				:disabled => !(validateERPPermission('A_PAYRL') && compEntry[1]), :required => true,
 				class: showCalTax ? "" : "userSalComps" ) %>
 		</td>
 		<td align='right'><%=h "%.2f" % actualSalVal[compEntry[0].sc_id] %></td>

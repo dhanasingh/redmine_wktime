@@ -38,4 +38,7 @@
 		<p style="padding-left:220px;">
 			<%= check_box_tag('settings[label_no_additional_details_for_user]', 1, @settings['label_no_additional_details_for_user'].to_i == 1)%> <label><%= l(:label_no_additional_details_for_user) %> </label>
 		</p>
+		<p style="padding-left:245px;">
+			<label><%= l(:label_enable_issue_logger) %> <%= check_box_tag('settings[label_enable_issue_logger]', 1, @settings['label_enable_issue_logger'].to_i == 1)%></label>
+		</p>
 	</fieldset>

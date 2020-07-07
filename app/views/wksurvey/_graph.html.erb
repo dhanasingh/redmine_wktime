@@ -9,98 +9,162 @@
 <% getSurveyForType(params) %>
 <%= javascript_tag do %>
 	$(document).ready(function(){
-		$.getJSON(<%= raw url_for(:controller => 'wksurvey',
-		:action => 'graph',
-		:graph => "graph",
-		:question_id => entry.question_id, :surveyForType => @surveyForType, :surveyForID => @surveyForID, grpdName: params[:grpdName], survey_id: @survey.id).to_json %>, function(data){
-			var chartData = {
+		var url = <%= raw url_for(controller: 'wksurvey', action: 'graph', graph: "graph", question_id: entry.question_id, surveyForType: @surveyForType,
+			surveyForID: @surveyForID, groupName: params[:groupName], survey_id: @survey.id, groupName: params[:groupName]).to_json %>;
+		$.getJSON(url, function(data){
+			if (data['graphtype'] == "line"){
+				var chartData = {
 				labels: data['labels'],
-				datasets: [{
-					backgroundColor: 'rgba(54, 162, 235, 0.3)',
-					borderColor: 'rgba(54, 162, 235, 0.3)',
-					borderWidth: 1,
-					data: data['emp_count_per_choices']
-				}]
-			};
-			
-			new Chart(document.getElementById("survey_result_graph<%= entry.question_id %>").getContext("2d"), {
-				type: 'horizontalBar',
-				data: chartData,
-				options: {
-					layout: {
-						padding: {
-						left: 0,
-						right: 20,
-						top: 0,
-						bottom: 0
+					datasets: [{
+						backgroundColor: 'rgba(54, 162, 235, 0.3)',
+						borderColor: 'rgba(54, 162, 235, 0.3)',
+						borderWidth: 3,
+						fill: false,
+						data: data['average']
+					}]
+				};
+
+				new Chart(document.getElementById("survey_result_graph<%= entry.question_id %>").getContext("2d"), {
+					type: 'line',
+					data: chartData,
+					options: {
+					tooltips: {
+						mode: 'index',
+						intersect: false
+					},
+					hover: {
+						mode: 'index',
+						intersect: false
+					},
+						layout: {
+							padding: {
+							left: 0,
+							right: 20,
+							top: 0,
+							bottom: 0
+							}
+						},
+						responsive: true,
+						maintainAspectRatio: false,
+						legend: {
+							display: false,
+							position: 'right'
+						},
+						scales: {
+							xAxes: [{
+								gridLines : {
+									drawBorder: true,
+									display : false
+								}
+							}],
+							yAxes: [{
+								afterFit: function(scaleInstance) {
+									scaleInstance.width = 250;
+								},
+								gridLines : {
+									drawBorder: true,
+									display : false
+								}
+							}]	
 						}
 					},
-					events: [],
-					responsive: true,
-					maintainAspectRatio: false,
-					legend: {
-						display: false,
-						position: 'right'
-					},
-					scales: {
-						xAxes: [{ 
-							ticks: {
-								display: false,
-								beginAtZero: true
-							},
-							gridLines : {
-								drawBorder: false,
-								display : false
+				});
+			}
+			else
+			{
+				<%# for surveyquestion average %>
+				if (data['showAvg']){
+					$('#avgScore_<%= entry.question_id %>').html(data['avg_score']);
+				}
+				var chartData = {
+					labels: data['labels'],
+					datasets: [{
+						backgroundColor: 'rgba(54, 162, 235, 0.3)',
+						borderColor: 'rgba(54, 162, 235, 0.3)',
+						borderWidth: 1,
+						data: data['emp_count_per_choices']
+					}]
+				};
+				
+				new Chart(document.getElementById("survey_result_graph<%= entry.question_id %>").getContext("2d"), {
+					type: 'horizontalBar',
+					data: chartData,
+					options: {
+						layout: {
+							padding: {
+							left: 0,
+							right: 20,
+							top: 0,
+							bottom: 0
 							}
-						}],
-						yAxes: [{
-							afterFit: function(scaleInstance) {
-								scaleInstance.width = 250;
-							},
-							barThickness : 20,
-							gridLines : {
-								drawBorder: true,
-								display : false
-							}
-						}]	
-					},
-					animation: {
-						duration: 1,
-						onComplete: function() {
-							var chartInstance = this.chart,
-							ctx = chartInstance.ctx;
+						},
+						events: [],
+						responsive: true,
+						maintainAspectRatio: false,
+						legend: {
+							display: false,
+							position: 'right'
+						},
+						scales: {
+							xAxes: [{ 
+								ticks: {
+									display: false,
+									beginAtZero: true
+								},
+								gridLines : {
+									drawBorder: false,
+									display : false
+								}
+							}],
+							yAxes: [{
+								afterFit: function(scaleInstance) {
+									scaleInstance.width = 250;
+								},
+								barThickness : 20,
+								gridLines : {
+									drawBorder: true,
+									display : false
+								}
+							}]	
+						},
+						animation: {
+							duration: 1,
+							onComplete: function() {
+								var chartInstance = this.chart,
+								ctx = chartInstance.ctx;
 
-							ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
-							ctx.textAlign = 'top';
-							ctx.textBaseline = 'middle';
+								ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+								ctx.textAlign = 'top';
+								ctx.textBaseline = 'middle';
 
-							this.data.datasets.forEach(function(dataset, i) {
-								var meta = chartInstance.controller.getDatasetMeta(i);
-								meta.data.forEach(function(bar, index) {
-									if (dataset.data[index] > 0) {
-										var data = dataset.data[index];
-										ctx.fillText(data, bar._model.x + 3, bar._model.y);
-									}
+								this.data.datasets.forEach(function(dataset, i) {
+									var meta = chartInstance.controller.getDatasetMeta(i);
+									meta.data.forEach(function(bar, index) {
+										if (dataset.data[index] > 0) {
+											var data = dataset.data[index];
+											ctx.fillText(data, bar._model.x + 3, bar._model.y);
+										}
+									});
 								});
-							});
-						}
-					}
-				},
-				plugins: [{
-					beforeInit: function (chart) {
-						chart.data.labels.forEach(function (value, index, array) {
-							var a = [];
-							a.push(value.slice(0, 40));
-							var i = 1;
-							while(value.length > (i * 40)){
-								a.push(value.slice(i * 40, (i + 1) * 40));
-								i++;
 							}
-							array[index] = a;
-						})
-					}
-				}]
-			});
+						}
+					},
+					plugins: [{
+						beforeInit: function (chart) {
+							chart.data.labels.forEach(function (value, index, array) {
+								var a = [];
+								a.push(value.slice(0, 40));
+								var i = 1;
+								while(value.length > (i * 40)){
+									a.push(value.slice(i * 40, (i + 1) * 40));
+									i++;
+								}
+								array[index] = a;
+							})
+						}
+					}]
+				});
+			};
 		});
 	});
 <% end %>
