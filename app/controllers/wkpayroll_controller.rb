@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2016  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -114,7 +114,7 @@ class WkpayrollController < WkbaseController
 			sql_contd += " S.user_id IN (#{userId}) "
 		end
 		orderSQL = (action_name == 'edit' || sort_clause.blank?)  ? "" : " ORDER BY "+ sort_clause.first
-		payroll_salaries = WkSalary.find_by_sql("SELECT S.*, concat(U.firstname, U.lastname) AS user, (SAL.basic_pay + SAL.allowances) AS gross,
+		payroll_salaries = WkSalary.find_by_sql("SELECT S.*, concat(U.firstname, U.lastname) AS username, (SAL.basic_pay + SAL.allowances) AS gross,
 			((SAL.basic_pay + SAL.allowances) - SAL.deduction_total) AS net, WU.join_date
 			FROM wk_salaries AS S
 			INNER JOIN (
@@ -266,12 +266,11 @@ class WkpayrollController < WkbaseController
 		hUserSettingHash
 	end
 	
-    def findBySql(query)
-		result = WkSalary.find_by_sql("select count(*) as id from (" + query + ") as v2")
-	    @entry_count = result.blank? ? 0 : result[0].id
+		def findBySql(selectStr, query, orderStr)
+	    @entry_count = findCountBySql(query, WkSalary)
 	    setLimitAndOffset()		
 	    rangeStr = formPaginationCondition()	
-	    @payroll_entries = WkSalary.find_by_sql(query + rangeStr)
+	    @payroll_entries = WkSalary.find_by_sql(selectStr + query + orderStr + rangeStr)
 	end
 
 	def setLimitAndOffset		
@@ -410,8 +409,8 @@ class WkpayrollController < WkbaseController
 		@status = session[controller_name][:status] || 1
 		@groups = Group.all.sort
 		group_id = session[controller_name].try(:[], :group_id)
-		sqlStr = ""
-		selectStr = " select u.id as user_id, u.firstname, u.lastname, u.status from users u"
+		sqlStr = " from users u"
+		selectStr = " select u.id as user_id, u.firstname, u.lastname, u.status "
 		if group_id.to_i != 0
 			sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id"
 		end
@@ -428,8 +427,8 @@ class WkpayrollController < WkbaseController
 		if !session[controller_name][:name].blank?
 			sqlStr = sqlStr + " and (LOWER(u.firstname) like LOWER('%#{session[controller_name][:name]}%') or LOWER(u.lastname) like LOWER('%#{session[controller_name][:name]}%'))"
 		end
-		sqlStr = selectStr + sqlStr
-		findBySql(sqlStr)
+		orderStr = " order by u.id"
+		findBySql(selectStr, sqlStr, orderStr)
 		@salary_components = get_salary_components
 
 		userIds = nil

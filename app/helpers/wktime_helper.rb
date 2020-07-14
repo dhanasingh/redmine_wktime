@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2018  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -1807,5 +1807,10 @@ end
 			redirect = Hash.new
 		end
 		redirect
+	end
+
+	def booleanFormat(value)
+		value = value ? 1 : 0 if ActiveRecord::Base.connection.adapter_name == 'SQLServer'
+		return value
 	end
 end

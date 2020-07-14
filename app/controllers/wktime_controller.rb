@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2016  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -94,9 +94,9 @@ include ActionView::Helpers::TagHelper
 		getAllTimeRange(ids, true)
 	end
 	teQuery = getTEQuery(@from, @to, ids)
-	query = getQuery(teQuery, ids, @from, @to, status)
-	query = query + " ORDER BY " + (sort_clause.present? ? sort_clause.first + ", spent_on DESC " : "tmp3.spent_on desc, tmp3.user_id")
-	findBySql(query)
+	queries = getQuery(teQuery, ids, @from, @to, status)
+	orderStr =  + " ORDER BY " + (sort_clause.present? ? sort_clause.first + ", spent_on DESC " : "tmp3.spent_on desc, tmp3.user_id")
+	findBySql(queries[0], queries[1], orderStr)
     respond_to do |format|
       format.html {        
         render :layout => !request.xhr?
@@ -914,9 +914,9 @@ include ActionView::Helpers::TagHelper
 			setUserCFQuery
 			label_te = getTELabel
 			teQuery = getTEQuery(params[:from].to_date, params[:to].to_date, ids)
-			query = getQuery(teQuery, ids, params[:from].to_date, params[:to].to_date, status) #['e','r','n']
+			queries = getQuery(teQuery, ids, params[:from].to_date, params[:to].to_date, status) #['e','r','n']
 						
-			wkentries = findTEEntryBySql(query)			
+			wkentries = findTEEntryBySql(queries[0]+queries[1])			
 			wkentries.each do |entries|
 				user = entries.user
 				if !userHash.has_key?(user.id)
@@ -2112,31 +2112,30 @@ private
 	
 	def getQuery(teQuery, ids, from, to, status)
 		spField = getSpecificField()
-		dtRangeForUsrSqlStr =  "(" + getAllWeekSql(from, to) + ") tmp1"			
+		dtRangeForUsrSqlStr =  "(" + getAllWeekSql(from, to) + ") tmp1"		
 		teSqlStr = "(" + teQuery + ") tmp2"
-		
-		query = "select tmp3.user_id as user_id , tmp3.spent_on as spent_on, tmp3.#{spField} as #{spField}, tmp3.status as status, tmp3.status_updater as status_updater, tmp3.created_on as created_on from (select tmp1.id as user_id, tmp1.created_on, tmp1.selected_date as spent_on, " + 
+
+		selectStr = "select tmp3.user_id as user_id , tmp3.spent_on as spent_on, tmp3.#{spField} as #{spField}, tmp3.status as status, tmp3.status_updater as status_updater, tmp3.created_on as created_on"
+		query = " from (select tmp1.id as user_id, tmp1.created_on, tmp1.selected_date as spent_on, " +
 				"case when tmp2.#{spField} is null then 0 else tmp2.#{spField} end as #{spField}, " +
-				"case when tmp2.status is null then 'e' else tmp2.status end as status, tmp2.status_updater "
-		query = query + " from " + dtRangeForUsrSqlStr + " left join " + teSqlStr
+				"case when tmp2.status is null then 'e' else tmp2.status end as status, tmp2.status_updater from " + dtRangeForUsrSqlStr +
+				" left join " + teSqlStr
 		query = query + " on tmp1.id = tmp2.user_id and tmp1.selected_date = tmp2.spent_on where tmp1.id in (#{ids})) tmp3 "
 		query = query + " left outer join (select min( #{getDateSqlString('t.spent_on')} ) as min_spent_on, t.user_id as usrid from time_entries t, users u "
 		query = query + " where u.id = t.user_id and u.id in (#{ids}) group by t.user_id ) vw on vw.usrid = tmp3.user_id "
 		query = query + " left join users AS un on un.id = tmp3.user_id "
 		query = query + getWhereCond(status)
+		return [selectStr, query]
 	end
 	
-	def findBySql(query)		
+	def findBySql(selectStr, query, orderStr)
 		spField = getSpecificField()
-		result = TimeEntry.find_by_sql("select count(*) as id from (" + query + ") as v2")
-		@entry_count = result.blank? ? 0 : result[0].id
-        setLimitAndOffset()		
+		@entry_count = findCountBySql(query, TimeEntry)
+    setLimitAndOffset()
 		rangeStr = formPaginationCondition()
-		
-		@entries = TimeEntry.find_by_sql(query + rangeStr )
+		@entries = TimeEntry.find_by_sql(selectStr + query + orderStr + rangeStr)
 		@unit = nil
-		result = TimeEntry.find_by_sql("select sum(v2." + spField + ") as " + spField + " from (" + query + ") as v2")		
-		@total_hours = result.blank? ? 0 : result[0].hours
+		@total_hours = findSumBySql(query, spField, TimeEntry)
 	end
 	
 	def getWhereCond(status)
@@ -2343,7 +2342,7 @@ private
 	
 	def formPaginationCondition
 		rangeStr = ""
-		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'				
+		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'
 			rangeStr = " OFFSET " + @offset.to_s + " ROWS FETCH NEXT " + @limit.to_s + " ROWS ONLY "
 		else		
 			rangeStr = " LIMIT " + @limit.to_s +	" OFFSET " + @offset.to_s

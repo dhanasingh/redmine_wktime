@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2016  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -149,7 +149,8 @@ private
 		spField = getSpecificField()
 		dtRangeForUsrSqlStr =  "(" + getAllWeekSql(from, to) + ") tmp1"			
 		teSqlStr = "(" + teQuery + ") tmp2"
-		query = "select tmp3.user_id as user_id , tmp3.spent_on as spent_on, tmp3.#{spField} as #{spField}, tmp3.status as status, tmp3.status_updater as status_updater, tmp3.created_on as created_on, tmp3.currency as currency from (select tmp1.id as user_id, tmp1.created_on, tmp1.selected_date as spent_on, " +
+    selectStr = "select tmp3.user_id as user_id , tmp3.spent_on as spent_on, tmp3.#{spField} as #{spField}, tmp3.status as status, tmp3.status_updater as status_updater, tmp3.created_on as created_on, tmp3.currency as currency"
+    query = " from (select tmp1.id as user_id, tmp1.created_on, tmp1.selected_date as spent_on, " +
 				"case when tmp2.#{spField} is null then 0 else tmp2.#{spField} end as #{spField}, " +
 				"case when tmp2.status is null then 'e' else tmp2.status end as status, tmp2.currency, tmp2.status_updater from "
 		query = query + dtRangeForUsrSqlStr + " left join " + teSqlStr
@@ -157,19 +158,18 @@ private
 		query = query + " left outer join (select min( #{getDateSqlString('t.spent_on')} ) as min_spent_on, t.user_id as usrid from wk_expense_entries t, users u "
     query = query + " where u.id = t.user_id and u.id in (#{ids}) group by t.user_id ) vw on vw.usrid = tmp3.user_id "
 		query = query + " left join users AS un on un.id = tmp3.user_id "
-		query = query + getWhereCond(status)
+    query = query + getWhereCond(status)
+    return [selectStr, query]
 	end
   
-  def findBySql(query) 
-	spField = getSpecificField()
-	result = WkExpenseEntry.find_by_sql("select count(*) as id from (" + query + ") as v2")
-	@entry_count = result[0].id	
-	setLimitAndOffset()	
-	rangeStr = formPaginationCondition()
-	@entries = WkExpenseEntry.find_by_sql(query + rangeStr)
-	@unit = @entries.blank? ? number_currency_format_unit : @entries[0][:currency]
-	result = WkExpenseEntry.find_by_sql("select sum(v2." + spField + ") as " + spField + " from (" + query + ") as v2")	
-	@total_hours = result[0].amount
+  def findBySql(selectStr, query, orderStr)
+		spField = getSpecificField()
+		@entry_count = findCountBySql(query, WkExpenseEntry)
+    setLimitAndOffset()		
+		rangeStr = formPaginationCondition()
+		@entries = TimeEntry.find_by_sql(selectStr + query + orderStr + rangeStr)
+		@unit = nil		
+    @total_hours = findSumBySql(query, spField, WkExpenseEntry)
   end
   
   def getTEAllTimeRange(ids)

@@ -32,7 +32,7 @@
 						<%= hidden_field_tag("startdate_#{entry.id.to_s + "_" + index.to_s}", entry.entry_date) %>
 						<%= hidden_field_tag("userID_#{entry.id.to_s + "_" + index.to_s}", entry.user_id) %>
 						<td class="lbl-txt-align"><%=h entry.firstname %></td>
-						<td class="lbl-txt-align"><%=h entry.entry_date %></td>
+						<td class="lbl-txt-align"><%=h entry.entry_date.to_date %></td>
 						<% if !show_on_map %>
 							<td class="lbl-txt-align" id="clockin_<%=entry.id.to_s + "_" + index.to_s%>">
 								<%=h !entry.start_time ? "" : entry.start_time.localtime.strftime('%R') %>
