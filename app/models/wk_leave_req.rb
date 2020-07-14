@@ -77,7 +77,7 @@ class WkLeaveReq < ActiveRecord::Base
       .joins("INNER JOIN groups_users AS GU2 ON GU.user_id = GU2.user_id")
       .joins("INNER JOIN wk_group_permissions AS GP ON GP.group_id = GU2.group_id")
       .joins("INNER JOIN wk_permissions AS P2 ON P1.id = GP.permission_id")
-      .where("P1.short_name = 'A_ATTEND' AND P2.short_name = 'R_LEAVE'").where("E.notify": true)
+      .where("P1.short_name = 'A_ATTEND' AND P2.short_name = 'R_LEAVE' AND E.notify = ? ", true)
       .group("address")
       .pluck(:address)
     user_mail
