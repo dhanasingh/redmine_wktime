@@ -139,7 +139,7 @@ class WkpaymententityController < WkbillingController
 		setLimitAndOffset()		
 		rangeStr = formPaginationCondition()
 		@payment_entries = WkPayment.find_by_sql(selectStr + query + orderStr + rangeStr)
-	@totalPayAmt = findSumBySql(query, 'payment_amount')
+	@totalPayAmt = findSumBySql(query, 'payment_amount', WkPayment)
 	end
 
 	def setLimitAndOffset		
