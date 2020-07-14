@@ -1234,7 +1234,7 @@ end
 			Setting.plugin_redmine_wktime['wktime_enable_dashboards_module'].to_i == 0))
 	end
 	
-	def getDatesSql(from, intervalVal, intervalType)
+	def getDatesSql(from, intervalVal, intervalType, to)
 		sqlStr = "(select " + getAddMonthDateStr(from,intervalVal,intervalType) + " selected_date from " +
 			"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t0,
 			 (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t1,
@@ -1242,7 +1242,7 @@ end
 			 (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t3,
 			 (select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9)t4"
 		if intervalType == 'month'
-			sqlStr = sqlStr + " where #{getIntervalFormula(intervalVal)}<24000" 
+			sqlStr = sqlStr + " where #{getIntervalFormula(intervalVal)}<24000 AND " + getAddMonthDateStr(from,intervalVal,intervalType) + " BETWEEN '#{from}' and '#{to}'"
 		end
 		sqlStr = sqlStr + " )v"
 	
@@ -1812,5 +1812,15 @@ end
 	def booleanFormat(value)
 		value = value ? 1 : 0 if ActiveRecord::Base.connection.adapter_name == 'SQLServer'
 		return value
+	end
+
+	def getDatePart(colName, type, aliasName = nil)
+		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'		
+			monthStr = aliasName ? "#{type}(#{colName}) as #{aliasName}" : "#{type}(#{colName})"
+		else
+			# For MySQL, PostgreSQL, SQLite
+			monthStr =  aliasName ?  "extract(#{type} from #{colName}) as #{aliasName}" : "extract(#{type} from #{colName})"
+		end
+		monthStr
 	end
 end

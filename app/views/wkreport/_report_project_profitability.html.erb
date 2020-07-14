@@ -29,7 +29,7 @@
 		INNER JOIN wk_salary_components AS SC on S.salary_component_id=SC.id
 		INNER JOIN users AS U on S.user_id=U.id
 		INNER JOIN members AS M ON M.user_id = U.id
-		INNER JOIN wk_projects AS P ON P.project_id = M.project_id AND P.is_billable IS TRUE
+		INNER JOIN wk_projects AS P ON P.project_id = M.project_id AND P.is_billable = #{booleanFormat(true)}
 		WHERE S.salary_date  BETWEEN '#{from}' AND '#{to}'
 		ORDER BY M.user_id, M.project_id"
 
@@ -38,26 +38,25 @@
 	te_details = "SELECT M.user_id, M.project_id, SUM(TE.hours) AS proj_hours, UT.spent_month, UT.spent_year, UT.user_hours
 		FROM time_entries AS TE
 		INNER JOIN(
-			SELECT TE.user_id, SUM(TE.hours) AS user_hours, extract(month from TE.spent_on) AS spent_month,
-				extract(year from TE.spent_on) AS spent_year
+			SELECT TE.user_id, SUM(TE.hours) AS user_hours, #{getDatePart('TE.spent_on','month','spent_month')}, #{getDatePart('TE.spent_on','year','spent_year')}
 					FROM time_entries AS TE
 			LEFT JOIN members AS M ON M.user_id = TE.user_id AND M.project_id = TE.project_id
-			INNER JOIN wk_projects AS WP ON WP.project_id = M.project_id AND WP.is_billable IS TRUE
+			INNER JOIN wk_projects AS WP ON WP.project_id = M.project_id AND WP.is_billable = #{booleanFormat(true)}
 			AND TE.spent_on BETWEEN  '#{te_from}' AND '#{te_to}'
-			GROUP BY TE.user_id, spent_month, spent_year
-				) AS UT ON UT.user_id = TE.user_id AND UT.spent_year = extract(year from TE.spent_on)
-				AND UT.spent_month = extract(month from TE.spent_on) AND TE.spent_on BETWEEN  '#{te_from}' AND '#{te_to}'
+			GROUP BY TE.user_id, #{getDatePart('TE.spent_on','month')}, #{getDatePart('TE.spent_on','year')}
+				) AS UT ON UT.user_id = TE.user_id AND UT.spent_year = #{getDatePart('TE.spent_on','year')}
+				AND UT.spent_month = #{getDatePart('TE.spent_on','month')} AND TE.spent_on BETWEEN  '#{te_from}' AND '#{te_to}'
 		RIGHT JOIN members AS M ON M.user_id = TE.user_id AND M.project_id = TE.project_id
 		GROUP BY M.user_id, M.project_id, UT.spent_month, UT.spent_year, UT.user_hours
 		HAVING SUM(TE.hours) > 0"
 
 	@time_entries = TimeEntry.find_by_sql(te_details)
 
-	invoice_details = "	SELECT SUM(II.amount) AS invoice_amt, EXTRACT(MONTH FROM I.invoice_date) AS inv_month,
-			EXTRACT(YEAR FROM I.invoice_date) AS inv_year, II.project_id, WP.profit_overhead_percentage, P.name
+	invoice_details = "	SELECT SUM(II.amount) AS invoice_amt, #{getDatePart('I.invoice_date','month','inv_month')},
+	#{getDatePart('I.invoice_date','year','inv_year')}, II.project_id, WP.profit_overhead_percentage, P.name
 		FROM wk_invoices AS I
 		INNER JOIN wk_invoice_items AS II ON II.invoice_id = I.id
-		INNER JOIN wk_projects AS WP ON WP.project_id = II.project_id AND WP.is_billable IS TRUE
+		INNER JOIN wk_projects AS WP ON WP.project_id = II.project_id AND WP.is_billable = #{booleanFormat(true)}
 		INNER JOIN projects AS P ON II.project_id = P.id
 		WHERE I.invoice_type = 'I' AND I.invoice_date BETWEEN '#{from}' AND '#{to}' "
 
@@ -65,7 +64,7 @@
 			invoice_details = invoice_details + "AND II.project_id = #{projectId} "
 		end
 
-	invoice_details	= invoice_details + " GROUP BY EXTRACT(MONTH FROM I.invoice_date), EXTRACT(YEAR FROM I.invoice_date), II.project_id, WP.profit_overhead_percentage, P.name"
+	invoice_details	= invoice_details + " GROUP BY #{getDatePart('I.invoice_date','month')}, #{getDatePart('I.invoice_date','year')}, II.project_id, WP.profit_overhead_percentage, P.name"
 
 	invoice_details = WkInvoice.find_by_sql(invoice_details)
 
@@ -74,7 +73,7 @@
 							INNER JOIN projects AS P ON WP.project_id = P.id
 							INNER JOIN wk_invoice_items AS II ON II.project_id = WP.project_id
 							INNER JOIN wk_invoices AS I ON I.id = II.invoice_id
-							WHERE I.invoice_type = 'I' AND I.invoice_date BETWEEN '#{from}' AND '#{to}' AND is_billable IS TRUE "
+							WHERE I.invoice_type = 'I' AND I.invoice_date BETWEEN '#{from}' AND '#{to}' AND is_billable = #{booleanFormat(true)} "
 							
 	if projectId.to_i > 0
 		billable_projects = billable_projects + "AND WP.project_id = #{projectId} "	

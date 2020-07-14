@@ -1,3 +1,20 @@
+# ERPmine - ERP for service industry
+# Copyright (C) 2011-2020  Adhi software pvt ltd
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 class WkleadController < WkcrmController
   unloadable
   include WktimeHelper
@@ -23,21 +40,21 @@ class WkleadController < WkcrmController
 		entries = WkLead.joins("LEFT JOIN users AS U ON wk_leads.created_by_user_id = U.id
 			LEFT JOIN wk_accounts AS A on wk_leads.account_id = A.id
 			LEFT JOIN wk_crm_contacts AS C on wk_leads.contact_id = C.id
-			LEFT JOIN wk_locations AS L on wk_crm_contacts.location_id = L.id")
+			LEFT JOIN wk_locations AS L on C.location_id = L.id")
 
 		if !leadName.blank? && !status.blank?
-		    entries = entries.where(:status => status).joins(:contact).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{leadName}%", "%#{leadName}%")
+		    entries = entries.where(:status => status).joins(:contact).where("LOWER(C.first_name) like LOWER(?) OR LOWER(C.last_name) like LOWER(?)", "%#{leadName}%", "%#{leadName}%")
 		elsif !leadName.blank? && status.blank?
-			entries = entries.where.not(:status => 'C').joins(:contact).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{leadName}%", "%#{leadName}%")
+			entries = entries.where.not(:status => 'C').joins(:contact).where("LOWER(C.first_name) like LOWER(?) OR LOWER(C.last_name) like LOWER(?)", "%#{leadName}%", "%#{leadName}%")
 		elsif leadName.blank? && !status.blank?
-			entries = entries.where(:status => status).joins(:contact).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{leadName}%", "%#{leadName}%")
+			entries = entries.where(:status => status).joins(:contact).where("LOWER(C.first_name) like LOWER(?) OR LOWER(C.last_name) like LOWER(?)", "%#{leadName}%", "%#{leadName}%")
 		else
 			entries = entries.joins(:contact).where.not(:status => 'C')
 		end
 
 		if (!locationId.blank? || !location.blank?) && locationId != "0"
 			location_id = !locationId.blank? ? locationId.to_i : location.id.to_i
-			entries = entries.where("wk_crm_contacts.location_id = ? ", location_id)
+			entries = entries.where("C.location_id = ? ", location_id)
 		end
 		formPagination(entries.reorder(sort_clause))
 		respond_to do |format|

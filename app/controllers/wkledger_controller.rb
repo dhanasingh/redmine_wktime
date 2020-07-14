@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2016  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -44,7 +44,7 @@ class WkledgerController < WkaccountingController
 		end
 		formPagination(ledger.reorder(sort_clause))
 		@ledgerdd = @ledgers.pluck(:name, :id)
-		@totalAmt = @ledgers.sum(:opening_balance)
+		@totalAmt = @ledgers.sum(&:opening_balance)
     end
 	
 	def edit

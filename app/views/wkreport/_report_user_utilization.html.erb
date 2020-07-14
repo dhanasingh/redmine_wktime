@@ -18,7 +18,7 @@
     userSqlStr = getUserQueryStr(group_id, user_id, @from)
     user_list = User.find_by_sql(userSqlStr)
 
-    timeEntriesSqlStr = "SELECT TE.user_id, SUM(hours) AS total, CASE WHEN is_billable IS NULL THEN false ELSE is_billable END AS is_billable, tyear, tmonth 
+    timeEntriesSqlStr = "SELECT TE.user_id, SUM(hours) AS total, CASE WHEN is_billable IS NULL THEN #{booleanFormat(false)} ELSE is_billable END AS is_billable, tyear, tmonth 
         FROM time_entries AS TE
         LEFT JOIN wk_projects AS WP ON WP.project_id = TE.project_id
 		LEFT JOIN groups_users AS GU ON (GU.user_id = TE.user_id AND GU.group_id =  #{group_id})
@@ -34,7 +34,7 @@
 		timeEntriesSqlStr = timeEntriesSqlStr + " AND TE.user_id = #{User.current.id} "
 	end
 
-    timeEntriesSqlStr = timeEntriesSqlStr + " GROUP BY TE.user_id, CASE WHEN is_billable IS NULL THEN false ELSE is_billable END, tyear, tmonth 
+    timeEntriesSqlStr = timeEntriesSqlStr + " GROUP BY TE.user_id, CASE WHEN is_billable IS NULL THEN #{booleanFormat(false)} ELSE is_billable END, tyear, tmonth 
         ORDER BY user_id, tyear, tmonth"           
     time_entries = TimeEntry.find_by_sql(timeEntriesSqlStr)
 

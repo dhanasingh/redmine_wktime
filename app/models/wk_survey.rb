@@ -14,7 +14,7 @@ class WkSurvey < ActiveRecord::Base
   scope :surveyTextQuestion, ->(survey_id){
       joins(:wk_survey_questions)
       .where("wk_surveys.id = #{survey_id} AND wk_survey_questions.question_type IN ('TB', 'MTB') AND 
-          wk_survey_questions.not_in_report IS FALSE ")
+          wk_survey_questions.not_in_report = #{ActiveRecord::Base.connection.adapter_name == 'SQLServer' ? 0 : false} ")
       .select("wk_surveys.id, wk_surveys.name, wk_survey_questions.id AS question_id, wk_survey_questions.name AS question_name")
       .order("wk_surveys.id, wk_survey_questions.id")
   }

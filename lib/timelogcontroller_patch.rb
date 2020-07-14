@@ -116,7 +116,7 @@ module TimelogControllerPatch
 		end
 
 		def create				
-			@time_entry ||= TimeEntry.new(:project => @project, :issue => @issue, :user => User.current, :spent_on => User.current.today)
+			@time_entry ||= TimeEntry.new(:project => @project, :issue => @issue, :author => User.current, :user => User.current, :spent_on => User.current.today)
 			@time_entry.safe_attributes = params[:time_entry]
 			if @time_entry.project && !User.current.allowed_to?(:log_time, @time_entry.project)
 				render_403

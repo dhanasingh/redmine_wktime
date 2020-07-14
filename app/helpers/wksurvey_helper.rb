@@ -1,3 +1,20 @@
+# ERPmine - ERP for service industry
+# Copyright (C) 2011-2020  Adhi software pvt ltd
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 module WksurveyHelper
 
     include WktimeHelper
@@ -75,11 +92,11 @@ module WksurveyHelper
         else
             users = convertUsersIntoString()
             survey = WkSurvey.joins("INNER JOIN (
-                SELECT wk_surveys.id, count(wk_surveys.id) FROM wk_surveys
+                SELECT wk_surveys.id, count(wk_surveys.id) count FROM wk_surveys
                 LEFT JOIN groups_users ON groups_users.group_id = wk_surveys.group_id
                 LEFT JOIN users ON users.id = groups_users.user_id 
                 WHERE wk_surveys.status IN ('O', 'C') AND (groups_users.user_id = #{User.current.id} OR wk_surveys.group_id IS NULL)
-                    OR (#{checkSurveyPerm} = TRUE AND is_review IS TRUE AND users.id IN (#{users}))
+                    OR (#{booleanFormat(checkSurveyPerm)} = #{booleanFormat(true)} AND is_review = #{booleanFormat(true)} AND users.id IN (#{users}))
                 GROUP BY wk_surveys.id
                 ) AS S ON S.id = wk_surveys.id")
         end
