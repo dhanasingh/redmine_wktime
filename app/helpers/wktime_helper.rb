@@ -1408,7 +1408,7 @@ end
 		entryTime
 	end
 	
-	def saveSpentFor(id, spentForId, spentFortype, spentId, spentType, spentDate, spentHr, spentMm, invoiceId, startON=nil, endON=nil, latitude, longitude)
+	def saveSpentFor(id, spentForId, spentFortype, spentId, spentType, spentDate, spentHr, spentMm, invoiceId, startON=nil, endON=nil, latitude=nil, longitude=nil)
 		if id.blank?
 			spentObj = WkSpentFor.new
 		else
