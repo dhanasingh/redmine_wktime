@@ -1430,7 +1430,7 @@ private
 								teEntry = nil
 								teEntry = getTEEntry(id)
 								spentForAttributes = teEntry.spent_for
-								entry[:spent_for_attributes][:id] = spentForIds[k] if spentForIds.present?
+								entry[:spent_for_attributes][:id] = spentForIds[k] if spentForIds.present? && spentForIds[k].present?
 								entry.permit! #(spent_for: [ :spent_for_type, :spent_on_time ])
 								teEntry.attributes = entry
 								# since project_id and user_id is protected
