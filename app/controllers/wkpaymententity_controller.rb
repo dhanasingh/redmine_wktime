@@ -46,7 +46,7 @@ class WkpaymententityController < WkbillingController
 
 		sqlStr =
 			" from wk_payments p left join (select sum(original_amount) as payment_original_amount, sum(amount) as payment_amount," +
-			" payment_id from wk_payment_items where is_deleted = #{0} group by payment_id) pmi" +
+			" payment_id from wk_payment_items where is_deleted = #{booleanFormat(false)} group by payment_id) pmi" +
 			" on(pmi.payment_id = p.id)" +
 			" left join wk_accounts a on (p.parent_type = 'WkAccount' and p.parent_id = a.id)" +
 			" left join wk_crm_contacts c on (p.parent_type = 'WkCrmContact' and p.parent_id = c.id)" +
