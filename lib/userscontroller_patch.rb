@@ -11,7 +11,7 @@ module UsersControllerPatch
 				if @user.save
 					Mailer.deliver_account_information(@user, @user.password).deliver if params[:send_information]
 		
-	# ============= ERPmine_patch Redmine 4.0  =====================	
+	# ============= ERPmine_patch Redmine 4.1.1  =====================	
 					#Below code for save wk users
 					erpmineUserSave
 	# =======================================				
@@ -52,7 +52,7 @@ module UsersControllerPatch
 				if @user.save
 					@user.pref.save
 					
-	# ============= ERPmine_patch Redmine 4.0  =====================
+	# ============= ERPmine_patch Redmine 4.1.1  =====================
 					#Below code for save wk users
 					erpmineUserSave
 	# ==============================				
@@ -82,7 +82,7 @@ module UsersControllerPatch
 				end				
 			end
 	
-	# ============= ERPmine_patch Redmine 4.0  =====================
+	# ============= ERPmine_patch Redmine 4.1.1  =====================
 			def erpmineUserSave
 				@user.erpmineuser.safe_attributes = params[:erpmineuser]
 				@user.erpmineuser.address_id = updateAddress

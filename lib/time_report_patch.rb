@@ -30,7 +30,7 @@ module Redmine::Helpers
         unless @criteria.empty?
           time_columns = %w(tyear tmonth tweek spent_on)
           @hours = []
-	# ============= ERPmine_patch Redmine 4.0  ===================== 	  
+	# ============= ERPmine_patch Redmine 4.1.1  ===================== 	  
 		  scopeArr = @scope.attribute_names
 		  
 		  if scopeArr.include? "selling_price"
@@ -39,7 +39,7 @@ module Redmine::Helpers
 				  reorder(nil).
 				  group(@criteria.collect{|criteria| @available_criteria[criteria][:sql]} + time_columns).
 				  joins(@criteria.collect{|criteria| @available_criteria[criteria][:joins]}.compact).
-	# ============= ERPmine_patch Redmine 4.0  ===================== 	  			  
+	# ============= ERPmine_patch Redmine 4.1.1  ===================== 	  			  
 				  sum("wk_material_entries.selling_price * wk_material_entries.quantity").each do |hash, selling_price|
 				  h = {'hours' => selling_price}
 				(@criteria + time_columns).each_with_index do |name, i|
@@ -120,7 +120,7 @@ module Redmine::Helpers
       end
 
       def load_available_criteria
-  # ============= ERPmine_patch Redmine 4.0  =====================	    
+  # ============= ERPmine_patch Redmine 4.1.1  =====================	    
 		scopeArr = @scope.attribute_names
 		if scopeArr.include? "selling_price"
 			model =  WkMaterialEntry
@@ -156,7 +156,7 @@ module Redmine::Helpers
                                              :label => :label_issue}
                                }
 							   
-	# ============= ERPmine_patch Redmine 4.0  =====================	  
+	# ============= ERPmine_patch Redmine 4.1.1  =====================	  
 		if scopeArr.include? "selling_price"
 			hashval = {
 						'Product Item' => {:sql => "#{WkMaterialEntry.table_name}.inventory_item_id",

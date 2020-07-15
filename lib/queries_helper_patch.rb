@@ -28,7 +28,7 @@ module QueriesHelper
 		  link_to_if(value > 0, format_hours(value), project_time_entries_path(item.project, :issue_id => "~#{item.id}"))
 		when :attachments
 		  value.to_a.map {|a| format_object(a)}.join(" ").html_safe
-	# ============= ERPmine_patch Redmine 4.0  =====================	  
+	# ============= ERPmine_patch Redmine 4.1.1  =====================	  
 		when :inventory_item_id
 			val = item.inventory_item.product_item.product.name
 			assetObj = item.inventory_item.asset_property
