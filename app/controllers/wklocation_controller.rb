@@ -1,3 +1,20 @@
+# ERPmine - ERP for service industry
+# Copyright (C) 2011-2020  Adhi software pvt ltd
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 class WklocationController < WkbaseController
   unloadable
   menu_item :wkcrmenumeration
@@ -7,7 +24,7 @@ class WklocationController < WkbaseController
 	accept_api_auth :getlocations
 
   def index
-	sort_init 'id', 'asc'
+	sort_init 'name', 'asc'
 	sort_update 'name' => "name",
 				'type' => "#{WkCrmEnumeration.table_name}.name",
 				'city' => "#{WkAddress.table_name}.city",
@@ -100,7 +117,7 @@ class WklocationController < WkbaseController
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
-		@locationObj = entries.order(location_type_id: :asc, name: :asc).limit(@limit).offset(@offset)
+		@locationObj = entries.limit(@limit).offset(@offset)
 	end
 	
 	def setLimitAndOffset		

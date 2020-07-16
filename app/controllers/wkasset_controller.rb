@@ -114,7 +114,7 @@ class WkassetController < WkproductitemController
 			assetLedgerId = assetProperty.inventory_item.product_item.product.ledger_id
 			assetReceiptLedgerId = getSettingCfId("asset_receipt_ledger")
 			assetSaleLedgerId = getSettingCfId("asset_sale_ledger")
-			if assetLedgerId && assetSaleLedgerId && assetReceiptLedgerId
+			if assetLedgerId && assetSaleLedgerId > 0 && assetReceiptLedgerId > 0
 				transAmounts = []
 				asset_value = (assetProperty.disposed_rate - params[:asset_current_value].to_f).round(2)
 				transAmounts << {assetLedgerId => params[:asset_current_value].to_f, "detail_type" => "c"}
