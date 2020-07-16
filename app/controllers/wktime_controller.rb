@@ -95,7 +95,7 @@ include ActionView::Helpers::TagHelper
 	end
 	teQuery = getTEQuery(@from, @to, ids)
 	queries = getQuery(teQuery, ids, @from, @to, status)
-	orderStr =  + " ORDER BY " + (sort_clause.present? ? sort_clause.first + ", spent_on DESC " : "tmp3.spent_on desc, tmp3.user_id")
+	orderStr =  + " ORDER BY " + (sort_clause.present? ? sort_clause.first : "tmp3.spent_on desc, tmp3.user_id")
 	findBySql(queries[0], queries[1], orderStr)
     respond_to do |format|
       format.html {        

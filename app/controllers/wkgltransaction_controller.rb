@@ -20,7 +20,7 @@ class WkgltransactionController < WkaccountingController
   include WkgltransactionHelper
   
 	 def index
-		sort_init 'id', 'asc'
+		sort_init 'trans_date', 'desc'
 		sort_update 'trans_date' => "trans_date",
 								'trans_type' => "trans_type"
 		@ledgers = WkLedger.order(:name).pluck(:name, :id)
@@ -400,7 +400,7 @@ class WkgltransactionController < WkaccountingController
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
-		@transEntries = entries.order(trans_date: :desc).limit(@limit).offset(@offset)
+		@transEntries = entries.limit(@limit).offset(@offset)
 	end
 	
 	def setLimitAndOffset		

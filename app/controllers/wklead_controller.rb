@@ -22,9 +22,9 @@ class WkleadController < WkcrmController
   accept_api_auth :index, :edit, :getuserGrp, :update
 
 	def index
-		sort_init 'id', 'asc'
+		sort_init 'updated_at', 'desc'
 		
-		sort_update 'lead_name' => "CONCAT(wk_crm_contacts.first_name, wk_crm_contacts.last_name)",
+		sort_update 'lead_name' => "CONCAT(C.first_name, C.last_name)",
 			'status' => "#{WkLead.table_name}.status",
 			'location_name' => "L.name",
 			'acc_name' => "A.name",
@@ -183,7 +183,7 @@ end
 	def formPagination(entries)
 		@entry_count = entries.count
 		setLimitAndOffset()
-		@leadEntries = entries.order(updated_at: :desc).limit(@limit).offset(@offset)
+		@leadEntries = entries.limit(@limit).offset(@offset)
 	end
   
     def setLimitAndOffset		

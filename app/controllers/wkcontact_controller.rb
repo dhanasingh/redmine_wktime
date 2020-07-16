@@ -20,7 +20,7 @@ class WkcontactController < WkcrmController
   include WkaccountprojectHelper
 
 	def index
-		sort_init 'id', 'asc'
+		sort_init 'updated_at', 'desc'
 
 		sort_update 'name' => "CONCAT(wk_crm_contacts.first_name, wk_crm_contacts.last_name)",
 					'acc_name' => "A.name",
@@ -176,7 +176,7 @@ class WkcontactController < WkcrmController
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
-		@contact = entries.order(updated_at: :desc).limit(@limit).offset(@offset)
+		@contact = entries.limit(@limit).offset(@offset)
 	end
 	
 	def setLimitAndOffset		
