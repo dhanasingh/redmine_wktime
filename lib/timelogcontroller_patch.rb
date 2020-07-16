@@ -130,11 +130,7 @@ module TimelogControllerPatch
 				call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
 
 			# ============= ERPmine_patch Redmine 4.1.1  =====================
-				wktime_helper = Object.new.extend(WktimeHelper)
-				status = wktime_helper.getTimeEntryStatus(@time_entry.spent_on, @time_entry.user_id)
-				saveAccess = @time_entry.activity_id.blank? || @time_entry.hours.blank? || status.blank? || ('a' != status && 's' != status && 'l' != status)
-				@time_entry.errors[:base] << l(:label_warning_wktime_time_entry) if !saveAccess
-				if saveAccess && @time_entry.save
+				if statusValidation && @time_entry.save
 			#=====================
 					respond_to do |format|
 						format.html {
@@ -256,11 +252,7 @@ module TimelogControllerPatch
 				call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
 
 			# ============= ERPmine_patch Redmine 4.1.1  =====================
-				wktime_helper = Object.new.extend(WktimeHelper)
-				status = wktime_helper.getTimeEntryStatus(@time_entry.spent_on, @time_entry.user_id)
-				saveAccess = @time_entry.activity_id.blank? || @time_entry.hours.blank? || status.blank? || ('a' != status && 's' != status && 'l' != status)
-				@time_entry.errors[:base] << l(:label_warning_wktime_time_entry) if !saveAccess
-				if saveAccess && @time_entry.save
+				if statusValidation && @time_entry.save
 			#=====================
 					respond_to do |format|
 						format.html {
@@ -598,6 +590,14 @@ module TimelogControllerPatch
 			end
 			# ==========================================	
 		end
+
+		def statusValidation
+			wktime_helper = Object.new.extend(WktimeHelper)
+			status = wktime_helper.getTimeEntryStatus(@time_entry.spent_on, @time_entry.user_id)
+			valid = @time_entry.activity_id.blank? || @time_entry.hours.blank? || status.blank? || ('a' != status && 's' != status && 'l' != status)
+			@time_entry.errors[:base] << l(:label_warning_wktime_time_entry) if !valid
+			valid
+		end
 	end
 	end
 end
@@ -685,6 +685,6 @@ end
       def current
         ActiveSupport::Deprecation.warn "Paginator#current will be removed. Use .offset instead of .current.offset."
         self
-      end
+			end
     end
 
