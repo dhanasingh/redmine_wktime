@@ -40,10 +40,10 @@ class WkbrandController < WkinventoryController
 		@brandEntries = formPagination(entries.reorder(sort_clause))
     end
 	
-	def formPagination(entries)
+	def formPagination(entries,orderColumn = nil)
 		@entry_count = entries.count
-        setLimitAndOffset()
-		pageEntries = entries.limit(@limit).offset(@offset)
+		setLimitAndOffset()
+		pageEntries = entries.order(orderColumn).limit(@limit).offset(@offset)
 		pageEntries
 	end
 	
