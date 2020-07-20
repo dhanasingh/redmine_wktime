@@ -76,36 +76,9 @@ If an apache passenger module is used then make sure the following settings are 
   b) RailsAppSpawnerIdleTime 0
   c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for v4.0
+Release Notes for v4.0.1
 
-  Features:
-    - Record location on Spent time
-    - Show Spent time on map
-    - Record location on Attendance
-    - Show Attendance on map
-    - Record location for CRM
-    - Map for Location module
-    - Start/Stop log time for issue
-    - Disposed Assets
-    - Add permission to dashboard charts
-    - Add Attendance admin Permission
-    - Add Payroll admin Permission
-    - Add Receive leave Notification Permission
-    - Show asset current value in asset detail
-    - Add print for survey response
-    - Show average scores for each survey questions
-    - Create monthly chart for survey average score
-    - AP Aging Report
-
-  Bug Fixes:
-    - Do not show all direct income and expenses in Trail Balance Report
-    - User payroll setting page error
-    - Asset detail save issue
-    - Change gem source
-    - Cells are not editable when previous week template is used
-    - Check User has already answered the survey
-    - Remove the TE display settings
-    - Change Income tax slab
+  - Redmine-4.1.1 compatible
 
 Customization:
 
