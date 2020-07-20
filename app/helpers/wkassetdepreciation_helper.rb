@@ -1,3 +1,20 @@
+# ERPmine - ERP for service industry
+# Copyright (C) 2011-2020  Adhi software pvt ltd
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 module WkassetdepreciationHelper
 	include WktimeHelper
 	include WkinventoryHelper
@@ -11,11 +28,8 @@ module WkassetdepreciationHelper
 		depFreqValue = getFrequencyMonth(depreciationFreq)
 		depreciationArr = Array.new 
 		finacialPeriodArr = getFinancialPeriodArray(startDate, endDate, depreciationFreq, 1)
-		unless assetId.blank?
-			assetEntries = WkInventoryItem.asset.joins(:asset_property, :product_item).where(:id => assetId, :wk_asset_properties => {:owner_type => 'O'}).order("wk_product_items.product_id").where("wk_inventory_items.available_quantity > ? and is_disposed is not true", 0)
-		else
-			assetEntries = WkInventoryItem.asset.joins(:asset_property, :product_item).where("wk_asset_properties.owner_type = ? and wk_inventory_items.available_quantity > ? and is_disposed is not true ", 'O', 0).order("wk_product_items.product_id")
-		end
+		assetEntries = WkInventoryItem.asset.joins(:asset_property, :product_item).where("wk_asset_properties.owner_type = ? and wk_inventory_items.available_quantity > ? and  (is_disposed = #{booleanFormat(false)} OR is_disposed IS NULL) ", 'O', 0).order("wk_product_items.product_id")
+		assetEntries = assetEntries.where("wk_inventory_items.id=?",assetId) unless assetId.blank?
 		errorMsg = ""
 		localCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 		invCrLedger = getSettingCfId("inventory_cr_ledger")

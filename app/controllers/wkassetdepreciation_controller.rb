@@ -1,3 +1,20 @@
+# ERPmine - ERP for service industry
+# Copyright (C) 2011-2020  Adhi software pvt ltd
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 class WkassetdepreciationController < WkassetController
   unloadable
   menu_item :wkproduct
@@ -27,6 +44,7 @@ class WkassetdepreciationController < WkassetController
 		unless params[:generate].blank? || !to_boolean(params[:generate])
 			applyDepreciation(@from, @to, productId, assetId)
 		else
+			selectStr = "select dep.id, dep.depreciation_date, dep.actual_amount, dep.depreciation_amount, dep.currency, ap.name as asset_name, p.name as product_name, s.shipment_date as purchase_date, iit.cost_price, iit.over_head_price"
 			sqlwhere = ""
 			sqlStr = getDepreciationSql
 			if !productId.blank? && assetId.blank?
@@ -47,13 +65,13 @@ class WkassetdepreciationController < WkassetController
 			unless sqlwhere.blank?
 				sqlStr = sqlStr + " WHERE " + sqlwhere
 			end
-			sqlStr = sqlStr + " ORDER BY " + (sort_clause.present? ? sort_clause.first : " dep.depreciation_date desc, p.name asc")
-			findBySql(sqlStr, WkAssetDepreciation)
+			orderStr = " ORDER BY " + (sort_clause.present? ? sort_clause.first : " dep.depreciation_date desc, p.name asc")
+			findBySql(selectStr, sqlStr, orderStr)
 		end
 	end
 	
 	def getDepreciationSql
-		sqlStr = "select dep.id, dep.depreciation_date, dep.actual_amount, dep.depreciation_amount, dep.currency, ap.name as asset_name, p.name as product_name, s.shipment_date as purchase_date, iit.cost_price, iit.over_head_price from wk_asset_depreciations dep LEFT OUTER JOIN wk_inventory_items iit ON iit.id = dep.inventory_item_id LEFT OUTER JOIN wk_shipments s ON s.id = iit.shipment_id LEFT OUTER JOIN wk_asset_properties ap ON ap.inventory_item_id = iit.id LEFT OUTER JOIN wk_product_items pit ON pit.id = iit.product_item_id LEFT OUTER JOIN wk_products p ON p.id = pit.product_id"
+		sqlStr = " from wk_asset_depreciations dep LEFT OUTER JOIN wk_inventory_items iit ON iit.id = dep.inventory_item_id LEFT OUTER JOIN wk_shipments s ON s.id = iit.shipment_id LEFT OUTER JOIN wk_asset_properties ap ON ap.inventory_item_id = iit.id LEFT OUTER JOIN wk_product_items pit ON pit.id = iit.product_item_id LEFT OUTER JOIN wk_products p ON p.id = pit.product_id"
 		sqlStr
 	end
 	def new
@@ -229,12 +247,11 @@ class WkassetdepreciationController < WkassetController
 		end	
 	end
 	
-	def findBySql(query, model)
-		result = model.find_by_sql("select count(*) as id from (" + query + ") as v2")
-		@entry_count = result.blank? ? 0 : result[0].id
-        setLimitAndOffset()		
-		rangeStr = formPaginationCondition()	
-		@depreciation_entries = model.find_by_sql(query + rangeStr )
+	def findBySql(selectStr, query, orderStr)
+		@entry_count = findCountBySql(query, WkAssetDepreciation)
+		setLimitAndOffset()		
+		rangeStr = formPaginationCondition()
+		@depreciation_entries = WkAssetDepreciation.find_by_sql(selectStr + query + orderStr + rangeStr)
 	end
 	
 	def formPaginationCondition

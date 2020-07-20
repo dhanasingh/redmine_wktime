@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2016  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -38,7 +38,8 @@ class WkattendanceController < WkbaseController
 		sqlStr = ""
 		lastMonthStartDt = Date.civil(Date.today.year, Date.today.month, 1) << 1
 		if(Setting.plugin_redmine_wktime['wktime_leave'].blank?)
-			sqlStr = " select u.id as user_id, u.firstname, u.lastname, u.status, -1 as issue_id from users u"
+			selectStr = " select u.id as user_id, u.firstname, u.lastname, u.status, -1 as issue_id "
+			sqlStr = " from users u"
 			if !params[:group_id].blank?
 				sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id"
 			end
@@ -46,7 +47,9 @@ class WkattendanceController < WkbaseController
 		else
 			listboxArr = Setting.plugin_redmine_wktime['wktime_leave'][0].split('|')
 			issueId = listboxArr[0]
-			sqlStr = getListQueryStr + " where u.type = 'User' and (wu.termination_date is null or wu.termination_date >= '#{lastMonthStartDt}')"
+			queries = getListQueryStr
+			selectStr = queries[0]
+			sqlStr = queries[1] + " where u.type = 'User' and (wu.termination_date is null or wu.termination_date >= '#{lastMonthStartDt}')"
 		end
 		if !validateERPPermission('A_ATTEND')
 			sqlStr = sqlStr + " and u.id = #{User.current.id} " 
@@ -60,8 +63,8 @@ class WkattendanceController < WkbaseController
 		if !params[:name].blank?
 			sqlStr = sqlStr + " and (LOWER(u.firstname) like LOWER('%#{params[:name]}%') or LOWER(u.lastname) like LOWER('%#{params[:name]}%'))"
 		end
-		sqlStr = sqlStr + " ORDER BY " + (sort_clause.present? ? sort_clause.first : "u.firstname")
-		findBySql(sqlStr, WkUserLeave)
+		orderStr = " ORDER BY " + (sort_clause.present? ? sort_clause.first : "u.firstname")
+		findBySql(selectStr, sqlStr, orderStr, WkUserLeave)
 	end
 	
 	def clockindex
@@ -100,9 +103,9 @@ class WkattendanceController < WkbaseController
 			getAllTimeRange(ids, false)
 		end
 		noOfDays = 't4.i*1*10000 + t3.i*1*1000 + t2.i*1*100 + t1.i*1*10 + t0.i*1'
-		sqlQuery = "select evw.id, vw.id as user_id, vw.firstname, vw.lastname, vw.created_on, vw.selected_date as entry_date, evw.start_time, evw.end_time, evw.hours,
-				s_longitude, s_latitude, e_longitude, e_latitude
-			from (
+		selectStr = "select evw.id, vw.id as user_id, vw.firstname, vw.lastname, vw.created_on, vw.selected_date as entry_date, evw.start_time, evw.end_time, evw.hours,
+				s_longitude, s_latitude, e_longitude, e_latitude "
+		sqlQuery = " from (
 				select u.id, u.firstname, u.lastname, u.created_on, v.selected_date from" + 
 				"(select " + getAddDateStr(@from, noOfDays) + " selected_date from " +
 				"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t0,
@@ -112,15 +115,14 @@ class WkattendanceController < WkbaseController
 				(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9)t4)v,
 				(select u.id, u.firstname, u.lastname, u.created_on from users u where u.type = 'User'
 			) u
-			WHERE  v.selected_date between '#{@from}' and '#{@to}' AND u.id in (#{ids})
-			order by u.id, v.selected_date) vw 
+			WHERE  v.selected_date between '#{@from}' and '#{@to}' AND u.id in (#{ids})) vw 
 			left join(
 				 select id, start_time, end_time, " + getConvertDateStr('start_time') + " entry_date, hours, user_id, s_longitude, s_latitude, e_longitude, e_latitude
 				 from wk_attendances
 				 WHERE " + getConvertDateStr('start_time') +" between '#{@from}' and '#{@to}' AND user_id in (#{ids})
 			) evw on (vw.selected_date = evw.entry_date and vw.id = evw.user_id) where vw.id in (#{ids}) "
-			 sqlQuery = sqlQuery + " ORDER BY " + (sort_clause.present? ? sort_clause.first : "vw.selected_date desc, vw.firstname")
-			findBySql(sqlQuery, WkAttendance)
+			 orderStr = " ORDER BY " + (sort_clause.present? ? sort_clause.first : "vw.selected_date desc, vw.firstname")
+			findBySql(selectStr, sqlQuery, orderStr, WkAttendance)
 			respond_to do |format|
 				format.html {        
 				  render :layout => !request.xhr?
@@ -133,7 +135,7 @@ class WkattendanceController < WkbaseController
 	def clockedit
 		sqlQuery = "select a.id,a.user_id, a.start_time, a.end_time, a.hours, u.firstname, u.lastname, s_longitude, s_latitude, e_longitude, e_latitude
 			FROM users u
-			left join wk_attendances a  on u.id = a.user_id and #{getConvertDateStr('a.start_time')} = '#{params[:date]}' where u.id = '#{params[:user_id]}' ORDER BY a.start_time"
+			left join wk_attendances a  on u.id = a.user_id and #{getConvertDateStr('a.start_time')} = '#{params[:date].to_date}' where u.id = '#{params[:user_id]}' ORDER BY a.start_time"
 		@wkattnEntries = WkAttendance.find_by_sql(sqlQuery)
 		respond_to do |format|
 			format.html {
@@ -187,7 +189,7 @@ class WkattendanceController < WkbaseController
 	end
 	
 	# Retrieves the date range based on predefined ranges or specific from/to param dates
-	  def retrieve_date_range
+	def retrieve_date_range
 		@free_period = false
 		@from, @to = nil, nil
 		period_type = session[controller_name].try(:[], :period_type)
@@ -327,12 +329,12 @@ class WkattendanceController < WkbaseController
 				selectColStr = selectColStr + ", (#{tAlias}.balance + #{tAlias}.accrual - #{tAlias}.used) as total#{index.to_s}"
 			end
 		end
-		queryStr = selectColStr + " from users u left join wk_users wu on u.id = wu.user_id " + joinTableStr 
+		queryStr = " from users u left join wk_users wu on u.id = wu.user_id " + joinTableStr 
 		
 		if !params[:group_id].blank?
 			queryStr = queryStr + " left join groups_users gu on u.id = gu.user_id"
 		end
-		queryStr
+		return [selectColStr, queryStr]
 	end
 	
 	def getIssuesByProject
@@ -406,15 +408,14 @@ class WkattendanceController < WkbaseController
 		end	
 	end
 	
-	def findBySql(query, model)
-		result = model.find_by_sql("select count(*) as id from (" + query + ") as v2")
-		@entry_count = result.blank? ? 0 : result[0].id
-        setLimitAndOffset()		
+	def findBySql(selectStr, query, orderStr, model)
+		@entry_count = findCountBySql(query, model)
+    setLimitAndOffset()		
 		rangeStr = formPaginationCondition()		
 		if model == WkUserLeave
-			@leave_entries = model.find_by_sql(query + rangeStr )
+			@leave_entries = model.find_by_sql(selectStr + query +orderStr + rangeStr)
 		else
-			@clk_entries = model.find_by_sql(query + rangeStr )
+			@clk_entries = model.find_by_sql(selectStr + query +orderStr + rangeStr)
 		end
 	end
 	
@@ -432,9 +433,9 @@ class WkattendanceController < WkbaseController
 		endtime = nil
 		if api_request?
 			params['params'].each do |cEntries|
-				starttime = params[:startdate] + " " +  cEntries['clock_in'] + ":00"
+				starttime = params[:startdate].to_date.to_s + " " +  cEntries['clock_in'] + ":00"
 				entry_start_time = DateTime.strptime(starttime, "%Y-%m-%d %T") rescue starttime
-				endtime = params[:startdate] + " " +  cEntries['clock_out'] + ":00" if !cEntries['clock_out'].blank?
+				endtime = params[:startdate].to_date.to_s + " " +  cEntries['clock_out'] + ":00" if !cEntries['clock_out'].blank?
 				entry_end_time = DateTime.strptime(endtime, "%Y-%m-%d %T") rescue endtime
 				if cEntries['clock_in'] == '0:00' && cEntries['clock_out'] == '0:00' 
 					wkattendance =  WkAttendance.find(cEntries['id']) if !cEntries['id'].blank?
@@ -452,9 +453,9 @@ class WkattendanceController < WkbaseController
 			sucessMsg = nil
 			endtime = nil
 			for i in 0..params[:attnDayEntriesCnt].to_i-1
-				starttime = params[:startdate] + " " +  params["attnstarttime#{i}"] + ":00"
+				starttime = params[:startdate].to_date.to_s + " " +  params["attnstarttime#{i}"] + ":00"
 				entry_start_time = DateTime.strptime(starttime, "%Y-%m-%d %T") rescue starttime
-				endtime = params[:startdate] + " " +  params["attnendtime#{i}"] + ":00" if !params["attnendtime#{i}"].blank?
+				endtime = params[:startdate].to_date.to_s + " " +  params["attnendtime#{i}"] + ":00" if !params["attnendtime#{i}"].blank?
 				entry_end_time = DateTime.strptime(endtime, "%Y-%m-%d %T") rescue endtime
 				if params["attnstarttime#{i}"] == '0:00' && params["attnendtime#{i}"] == '0:00' 
 					wkattendance =  WkAttendance.find(params["attnEntriesId#{i}"].to_i)	if !params["attnEntriesId#{i}"].blank?
@@ -511,9 +512,9 @@ class WkattendanceController < WkbaseController
 			attnd_id = splits[1]
 			if ["clockin_" + key].include?(param) && val.present? && (params["h_clockin_" + key] != val ||
 					params["clockout_" + key] != params["h_clockout_" + key])
-				start_time = params["startdate_" + key] + " " +  params["clockin_" + key] + ":00"
+				start_time = params["startdate_" + key].to_date.to_s + " " +  params["clockin_" + key] + ":00"
 				start_time = DateTime.strptime(start_time, "%Y-%m-%d %T") rescue start_time
-				end_time = params["startdate_" + key] + " " +  params["clockout_" + key] + ":00" if params["clockout_" + key].present?
+				end_time = params["startdate_" + key].to_date.to_s + " " +  params["clockout_" + key] + ":00" if params["clockout_" + key].present?
 				end_time = DateTime.strptime(end_time, "%Y-%m-%d %T") rescue end_time
 				startTime = getFormatedTimeEntry(start_time)
 				endTime = getFormatedTimeEntry(end_time)

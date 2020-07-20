@@ -1,7 +1,22 @@
+# ERPmine - ERP for service industry
+# Copyright (C) 2011-2020  Adhi software pvt ltd
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 class WkorderentityController < WkbillingController
   unloadable
-
-	before_action :require_login
 	include WktimeHelper
 	include WkinvoiceHelper
 	include WkbillingHelper
@@ -137,11 +152,10 @@ class WkorderentityController < WkbillingController
 				LEFT JOIN wk_accounts a on (wk_invoices.parent_type = 'WkAccount' and wk_invoices.parent_id = a.id)
 				LEFT JOIN wk_crm_contacts c on (wk_invoices.parent_type = 'WkCrmContact' and wk_invoices.parent_id = c.id)
 				").group("wk_invoices.id, CASE WHEN wk_invoices.parent_type = 'WkAccount' THEN a.name ELSE CONCAT(c.first_name, c.last_name) END,
-				CONCAT(users.firstname, users.lastname)")
+				CONCAT(users.firstname, users.lastname), wk_invoices.status, wk_invoices.invoice_number, wk_invoices.start_date, wk_invoices.end_date, wk_invoices.invoice_date, wk_invoices.closed_on, wk_invoices.modifier_id, wk_invoices.gl_transaction_id, wk_invoices.parent_id, wk_invoices.invoice_type, wk_invoices.invoice_num_key, wk_invoices.created_at, wk_invoices.updated_at,wk_invoices.parent_type ")
 				.select("wk_invoices.*, SUM(wk_invoice_items.quantity) AS quantity, SUM(wk_invoice_items.amount) AS amount, SUM(wk_invoice_items.original_amount)
 				 AS original_amt")
 			formPagination(invEntries.reorder(sort_clause))
-
 			unless @previewBilling
 				amounts = @invoiceEntries.reorder(["wk_invoices.id ASC"]).pluck("SUM(wk_invoice_items.amount)")
 				@totalInvAmt = amounts.compact.inject(0, :+)

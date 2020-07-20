@@ -28,7 +28,7 @@
 <% if isSupervisorApproval %>
 	<td class="lbl-txt-align"><%=h entry.user.supervisor.blank? ? "" : entry.user.supervisor.name %></td>
 <% end %>
-<td ><%= controller.getUnit(entry) %>&nbsp;<%=h html_hours("%.2f" % entry.hours) %></td>
+<td ><%= controller.getUnit(entry) %>&nbsp;<%=h html_hours("%.2f" % (entry.hours || entry.amount || 0)) %></td>
 <td class="status"><%=h statusString(entry.status) unless entry.status.blank? %></td>
 <td class="lbl-txt-align"><%=h entry.status_updater %></td>
 <td align="center">

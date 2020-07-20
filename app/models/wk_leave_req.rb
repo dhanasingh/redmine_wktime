@@ -1,5 +1,21 @@
+# ERPmine - ERP for service industry
+# Copyright (C) 2011-2020  Adhi software pvt ltd
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 class WkLeaveReq < ActiveRecord::Base
-  unloadable
 
   belongs_to :user
   belongs_to :leave_type, class_name: "Issue"
@@ -53,11 +69,15 @@ class WkLeaveReq < ActiveRecord::Base
   end
 
   def admingroupMail
-    user_mail = WkGroupPermission.joins(:permission).joins(:email_address)
-      .joins("INNER JOIN groups_users AS GU ON GU.user_id = groups_users.user_id")
-      .joins("INNER JOIN wk_group_permissions AS GP ON GP.group_id = GU.group_id")
-      .joins("INNER JOIN wk_permissions AS P ON P.id = GP.permission_id")
-      .where("wk_permissions.short_name = 'A_ATTEND' AND P.short_name = 'R_LEAVE'")
+    user_mail = WkGroupPermission
+      .joins("INNER JOIN wk_permissions AS P1 ON P1.id = wk_group_permissions.permission_id")
+      .joins("INNER JOIN groups_users AS GU ON wk_group_permissions.group_id = GU.group_id")
+      .joins("INNER JOIN users AS U ON U.id = GU.user_id AND U.type IN ('User', 'AnonymousUser')")
+      .joins("INNER JOIN email_addresses AS E ON E.user_id = U.id")
+      .joins("INNER JOIN groups_users AS GU2 ON GU.user_id = GU2.user_id")
+      .joins("INNER JOIN wk_group_permissions AS GP ON GP.group_id = GU2.group_id")
+      .joins("INNER JOIN wk_permissions AS P2 ON P1.id = GP.permission_id")
+      .where("P1.short_name = 'A_ATTEND' AND P2.short_name = 'R_LEAVE' AND E.notify = ? ", true)
       .group("address")
       .pluck(:address)
     user_mail
@@ -72,7 +92,7 @@ class WkLeaveReq < ActiveRecord::Base
   end
 
   scope :dateFilter, ->(from, to){
-    where("DATE(wk_leave_reqs.start_date) between ? and ? ", from, to )
+    where(" wk_leave_reqs.start_date between ? and ? ", from, to )
   }
 
 end

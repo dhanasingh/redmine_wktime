@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2018  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -114,7 +114,7 @@ class WkassetController < WkproductitemController
 			assetLedgerId = assetProperty.inventory_item.product_item.product.ledger_id
 			assetReceiptLedgerId = getSettingCfId("asset_receipt_ledger")
 			assetSaleLedgerId = getSettingCfId("asset_sale_ledger")
-			if assetLedgerId && assetSaleLedgerId && assetReceiptLedgerId
+			if assetLedgerId && assetSaleLedgerId > 0 && assetReceiptLedgerId > 0
 				transAmounts = []
 				asset_value = (assetProperty.disposed_rate - params[:asset_current_value].to_f).round(2)
 				transAmounts << {assetLedgerId => params[:asset_current_value].to_f, "detail_type" => "c"}

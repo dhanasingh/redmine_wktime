@@ -1,3 +1,20 @@
+# ERPmine - ERP for service industry
+# Copyright (C) 2011-2020  Adhi software pvt ltd
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 class WksurveyController < WkbaseController
 
   unloadable 
@@ -144,7 +161,7 @@ class WksurveyController < WkbaseController
       LEFT JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id")
       .where("wk_surveys.id = #{params[:survey_id]}  AND ((SQ.question_type IN ('RB', 'CB') AND SC.id IS NOT NULL) OR
        SQ.question_type NOT IN ('RB', 'CB'))") 
-      .group("SQ.id, wk_surveys.id, wk_surveys.name, SQ.name, SQ.question_type")
+      .group("SQ.id, wk_surveys.id, wk_surveys.name, SQ.name, SQ.question_type, SQ.is_mandatory, SQ.is_reviewer_only")
       .select("wk_surveys.id, wk_surveys.name, SQ.id AS question_id, SQ.name AS question_name, SQ.question_type AS question_type,
         SQ.is_mandatory, SQ.is_reviewer_only")
       .order("SQ.is_reviewer_only, SQ.id")
@@ -176,7 +193,7 @@ class WksurveyController < WkbaseController
         .where(" wk_survey_responses.survey_id = #{params[:survey_id]}" + (responseID.blank? ? surveyFor_cnd + 
           " AND wk_survey_responses.user_id = #{User.current.id} " : " AND wk_survey_responses.id = #{responseID} "))
         .group(" wk_survey_responses.survey_id, SQ.id, SQ.name, SA.survey_choice_id, SA.choice_text, 
-          SQ.question_type, wk_survey_responses.id, SR.comment_text, SR.user_id")
+          SQ.question_type, wk_survey_responses.id, SR.comment_text, SR.user_id, wk_survey_responses.user_id")
         .select(" wk_survey_responses.survey_id, SQ.id AS question_id, SQ.name AS question_name, wk_survey_responses.user_id,
           SR.user_id AS reviewer, SA.survey_choice_id, SA.choice_text, SQ.question_type, MAX(ST.status_date) AS status_date,
           wk_survey_responses.id, SR.comment_text")
@@ -209,7 +226,7 @@ class WksurveyController < WkbaseController
       INNER JOIN users AS U ON U.id = user_id AND U.type = 'User'")
       .where("survey_id = #{params[:survey_id]} " + " AND wk_survey_responses.survey_for_type " + (@surveyForType.blank? ? 
         " IS NULL " : " = '#{@surveyForType}'") + condStr)
-      .group("survey_id, wk_survey_responses.id, S.name, S.survey_for_type, S.survey_for_id, ST.status, U.firstname, U.lastname, U.parent_id")
+      .group("survey_id, wk_survey_responses.id, S.name, S.survey_for_type, S.survey_for_id, ST.status, U.firstname, U.lastname, U.parent_id, wk_survey_responses.group_name, wk_survey_responses.user_id, wk_survey_responses.survey_for_id")
       .select("MAX(ST.status_date) AS status_date, ST.status, survey_id, wk_survey_responses.group_name, wk_survey_responses.id, user_id, S.name,
       S.survey_for_type, wk_survey_responses.survey_for_id, U.firstname, U.lastname, U.parent_id").order("user_id ASC")
 
@@ -347,7 +364,7 @@ class WksurveyController < WkbaseController
       FROM wk_surveys AS S
       INNER JOIN wk_survey_questions AS SQ ON SQ.survey_id = S.id 
       INNER JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id 
-      WHERE (S.id = #{params[:survey_id]} AND SQ.question_type NOT IN ('TB', 'MTB') AND SQ.not_in_report IS FALSE)
+      WHERE (S.id = #{params[:survey_id]} AND SQ.question_type NOT IN ('TB', 'MTB') AND SQ.not_in_report = #{booleanFormat(false)})
       GROUP BY S.id, S.name, SQ.id, SQ.name 
       ORDER BY S.id, SQ.id")
 

@@ -1,10 +1,26 @@
+# ERPmine - ERP for service industry
+# Copyright (C) 2011-2020  Adhi software pvt ltd
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 class WkcontactController < WkcrmController
   unloadable
   include WkaccountprojectHelper
-  accept_api_auth :index, :edit, :update
 
 	def index
-		sort_init 'id', 'asc'
+		sort_init 'updated_at', 'desc'
 
 		sort_update 'name' => "CONCAT(wk_crm_contacts.first_name, wk_crm_contacts.last_name)",
 					'acc_name' => "A.name",
@@ -25,22 +41,22 @@ class WkcontactController < WkcrmController
 		location = WkLocation.where(:is_default => 'true').first
 		if !contactName.blank? &&  !accountId.blank?
 			if accountId == 'AA'
-				wkcontact = wkcontact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where.not(:account_id => nil).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
+				wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id").where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where.not(:account_id => nil).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
 			else
-				wkcontact = wkcontact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => accountId).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
+				wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id").where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => accountId).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
 			end
 		
 		elsif contactName.blank? &&  !accountId.blank?
 			if accountId == 'AA'
-				wkcontact = wkcontact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where.not(:account_id => nil)
+				wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id").where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where.not(:account_id => nil)
 			else
-				wkcontact = wkcontact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => accountId)
+				wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id").where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => accountId)
 			end
 		
 		elsif !contactName.blank? &&  accountId.blank?
-			wkcontact = wkcontact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => nil).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
+			wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id").where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => nil).where("LOWER(wk_crm_contacts.first_name) like LOWER(?) OR LOWER(wk_crm_contacts.last_name) like LOWER(?)", "%#{contactName}%", "%#{contactName}%")
 		else
-			wkcontact = wkcontact.includes(:lead).where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => nil)
+			wkcontact = wkcontact.joins("LEFT OUTER JOIN wk_leads ON wk_crm_contacts.id = wk_leads.contact_id").where(:contact_type => getContactType, wk_leads: { status: ['C', nil] }).where(:account_id => nil)
 		end
 		if (!locationId.blank? || !location.blank?) && locationId != "0"
 			location_id = !locationId.blank? ? locationId.to_i : location.id.to_i
@@ -160,7 +176,7 @@ class WkcontactController < WkcrmController
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
-		@contact = entries.order(updated_at: :desc).limit(@limit).offset(@offset)
+		@contact = entries.limit(@limit).offset(@offset)
 	end
 	
 	def setLimitAndOffset		

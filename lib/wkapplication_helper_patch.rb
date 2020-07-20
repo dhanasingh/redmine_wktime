@@ -32,7 +32,7 @@ module WkApplicationHelperPatch
       object.visible? && html ? link_to_issue(object) : "##{object.id}"
     when 'Attachment'
       html ? link_to_attachment(object) : object.filename
-	# ============= ERPmine_patch Redmine 4.0  =====================  
+	# ============= ERPmine_patch Redmine 4.1.1  =====================  
 	when 'WkInventoryItem'
 	  brandName = obj.product_item.brand.blank? ? "" : obj.product_item.brand.name
 	  modelName = obj.product_item.product_model.blank? ? "" : obj.product_item.product_model.name

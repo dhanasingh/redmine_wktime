@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2017  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -18,5 +18,6 @@
 class WkpaymentController < WkpaymententityController
   unloadable
 	menu_item :wkinvoice
+	accept_api_auth :index, :edit, :update
   
 end

@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2016  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@ class WkgltransactionController < WkaccountingController
   include WkgltransactionHelper
   
 	 def index
-		sort_init 'id', 'asc'
+		sort_init 'trans_date', 'desc'
 		sort_update 'trans_date' => "trans_date",
 								'trans_type' => "trans_type"
 		@ledgers = WkLedger.order(:name).pluck(:name, :id)
@@ -57,14 +57,14 @@ class WkgltransactionController < WkaccountingController
 			transaction = transaction.where( :wk_gl_transaction_details => { :ledger_id => @ledgerId })
 			if @summaryTransaction != 'days'
 				if @summaryTransaction == 'month'
-					summary_by = 'extract(year from trans_date) , tmonth'
-					alice_name = 'tmonth, extract(year from trans_date) AS tyear'
+					summary_by = getDatePart('trans_date','year')+', tmonth'
+					alice_name = 'tmonth,' + getDatePart('trans_date','year', 'tyear')
 				elsif @summaryTransaction == 'week'
 					summary_by = 'tyear, tweek'
 					alice_name = 'tweek, tyear'
 				else @summaryTransaction == 'year'
-					summary_by = 'extract(year from trans_date)'
-					alice_name = 'extract(year from trans_date) AS tyear'
+					summary_by = getDatePart('trans_date','year')
+					alice_name = getDatePart('trans_date','year', 'tyear')
 				end
 				trans_date = transaction.minimum(:trans_date) - 1 unless transaction.minimum(:trans_date).blank?
 				@transDate = @from.blank? ? trans_date : @from -1
@@ -400,7 +400,7 @@ class WkgltransactionController < WkaccountingController
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
-		@transEntries = entries.order(trans_date: :desc).limit(@limit).offset(@offset)
+		@transEntries = entries.limit(@limit).offset(@offset)
 	end
 	
 	def setLimitAndOffset		

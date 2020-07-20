@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2018  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -638,7 +638,7 @@ class RoundRobinSchedule
 		end
 		sqlStr = "SELECT wu.user_id, #{selectShift} ls.last_schedule_date, wu.location_id, wu.department_id," + 
 			" wu.role_id from users u" + 
-			" inner join wk_users wu on (wu.user_id = u.id and wu.is_schedulable = #{true} and (wu.termination_date IS NULL OR wu.termination_date >= '#{to}') AND wu.join_date <= '#{from}')" +
+			" inner join wk_users wu on (wu.user_id = u.id and wu.is_schedulable = #{ActiveRecord::Base.connection.adapter_name == 'SQLServer' ? 1 : true} and (wu.termination_date IS NULL OR wu.termination_date >= '#{to}') AND wu.join_date <= '#{from}')" +
 			joinShiftStr +
 			" left join" +
 			" (select user_id #{shift}, max(schedule_date) as last_schedule_date from wk_shift_schedules where schedule_as = '#{scheduleAs}' and schedule_date < '#{from}' and schedule_type = 'S' group by user_id #{shift}) ls on (ls.user_id = u.id #{joinCond})" 

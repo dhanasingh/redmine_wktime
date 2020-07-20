@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2016  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -189,4 +189,13 @@ class WkbaseController < ApplicationController
 		end
 	end
 
+	def findCountBySql(query, model)
+		result = model.find_by_sql("select count(*) as counts " + query)
+	  return result.blank? ? 0 : result[0].counts
+	end
+
+	def findSumBySql(query, sumfield, model)
+		result = model.find_by_sql("select sum("+sumfield+") as total " + query)
+		return result.blank? ? 0 : result[0].total
+	end
 end

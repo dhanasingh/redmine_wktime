@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2017  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -21,7 +21,6 @@ class WkpaymententityController < WkbillingController
     include WkbillingHelper
     include WktimeHelper
 	include WkpaymententityHelper
-	accept_api_auth :index, :edit, :update
 	
     def index
 			sort_init 'id', 'desc'
@@ -41,15 +40,17 @@ class WkpaymententityController < WkbillingController
 		contact_id = session[controller_name].try(:[], :contact_id)
 		account_id = session[controller_name].try(:[], :account_id)
 		
-		sqlStr = "select p.*, pmi.payment_amount, pmi.payment_original_amount, CASE WHEN p.parent_type = 'WkAccount' THEN a.name" +
-			" ELSE #{concatColumnsSql(['c.first_name', 'c.last_name'], nil, ' ')} END as name," +
-			" (#{getPersonTypeSql}) as entity_type" + 
+		selectStr = "select p.*, pmi.payment_amount, pmi.payment_original_amount, CASE WHEN p.parent_type = 'WkAccount' THEN a.name" +
+		" ELSE #{concatColumnsSql(['c.first_name', 'c.last_name'], nil, ' ')} END as name," +
+		" (#{getPersonTypeSql}) as entity_type"
+
+		sqlStr =
 			" from wk_payments p left join (select sum(original_amount) as payment_original_amount, sum(amount) as payment_amount," +
-			" payment_id from wk_payment_items where is_deleted = #{false} group by payment_id) pmi" +
+			" payment_id from wk_payment_items where is_deleted = #{booleanFormat(false)} group by payment_id) pmi" +
 			" on(pmi.payment_id = p.id)" +
 			" left join wk_accounts a on (p.parent_type = 'WkAccount' and p.parent_id = a.id)" +
 			" left join wk_crm_contacts c on (p.parent_type = 'WkCrmContact' and p.parent_id = c.id)" +
-			" where pmi.payment_amount > 0 and pmi.payment_original_amount > 0" 
+			" where pmi.payment_amount > 0 and pmi.payment_original_amount > 0"  
 		sqlHook = call_hook :payment_additional_where_query
 		if filter_type == '2' && !contact_id.blank?			
 			sqlwhere = sqlwhere + " and p.parent_id = '#{contact_id}'  and p.parent_type = 'WkCrmContact' and ((#{getPersonTypeSql}) = '#{getOrderContactType}' " + (sqlHook.blank? ? " )" : sqlHook[0] + ")" )
@@ -72,8 +73,8 @@ class WkpaymententityController < WkbillingController
 		end	
 		
 		sqlStr = sqlStr + sqlwhere unless sqlwhere.blank?
-		sqlStr = sqlStr + " ORDER BY " + (sort_clause.present? ? sort_clause.first : " p.id desc")
-		findBySql(sqlStr)
+		orderStr = " ORDER BY " + (sort_clause.present? ? sort_clause.first : " p.id desc")
+		findBySql(selectStr, sqlStr, orderStr)
 		respond_to do |format|
 			format.html {        
 			  render :layout => !request.xhr?
@@ -133,14 +134,12 @@ class WkpaymententityController < WkbillingController
 		end
   end
 	
-  def findBySql(query)
-		result = WkPayment.find_by_sql("select count(*) as id from (" + query + ") as v2")
-	    @entry_count = result.blank? ? 0 : result[0].id
-	    setLimitAndOffset()		
-	    rangeStr = formPaginationCondition()	
-			@payment_entries = WkPayment.find_by_sql(query + rangeStr)
-		result = WkPayment.find_by_sql("select sum(v2.payment_amount) as payment_amount from (" + query + ") as v2")
-		@totalPayAmt = result.blank? ? 0 : result[0].payment_amount
+  def findBySql(selectStr, query, orderStr)
+		@entry_count = findCountBySql(query, WkPayment)
+		setLimitAndOffset()		
+		rangeStr = formPaginationCondition()
+		@payment_entries = WkPayment.find_by_sql(selectStr + query + orderStr + rangeStr)
+	@totalPayAmt = findSumBySql(query, 'payment_amount', WkPayment)
 	end
 
 	def setLimitAndOffset		

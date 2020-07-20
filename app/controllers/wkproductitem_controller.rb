@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2018  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 class WkproductitemController < WkinventoryController
   unloadable 
   menu_item :wkproduct
@@ -54,6 +55,7 @@ class WkproductitemController < WkinventoryController
 		isDisposed =session[controller_name].try(:[], :is_dispose)
 		location = WkLocation.where(:is_default => 'true').first
 		sqlwhere = ""
+		selectStr = "select iit.id as inventory_item_id, pit.id as product_item_id, iit.product_item_id as inv_product_item_id, piit.product_item_id as parent_product_item_id, iit.status, p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as product_attribute_name, iit.serial_number, iit.currency, iit.selling_price, iit.total_quantity, iit.available_quantity, uom.short_desc as uom_short_desc, l.name as location_name, projects.name as project_name, (case when iit.product_type is null then p.product_type else iit.product_type end) as product_type, iit.is_loggable, ap.name as asset_name, piit.id as parent_id, pap.name as parent_name, ap.owner_type, ap.currency as asset_currency, ap.rate, ap.rate_per, ap.current_value, pcr.child_count, ap.is_disposed"
 		unless productId.blank?
 			sqlwhere = " AND pit.product_id = #{productId}"
 		end
@@ -80,16 +82,16 @@ class WkproductitemController < WkinventoryController
 		elsif projectId != 'AP'
 			sqlwhere = sqlwhere + " AND iit.project_id = #{projectId}"
 		end
-
-		sqlwhere = sqlwhere + " AND ap.is_disposed IS #{isDisposed.blank? ? 'NOT' : ''} TRUE" if getItemType == "A"
+		disposedCond = isDisposed.present? && isDisposed == "1"
+		sqlwhere = sqlwhere + " AND (ap.is_disposed = #{booleanFormat(disposedCond)} #{!disposedCond ? 'OR ap.is_disposed IS NULL' : ''})" if getItemType == "A"
 
 		sqlStr = getProductInventorySql + sqlwhere
-		sqlStr = sqlStr + " ORDER BY " + (sort_clause.present? ? sort_clause.first : " iit.id desc ")
-		findBySql(sqlStr, WkProductItem)
+		orderStr = " ORDER BY " + (sort_clause.present? ? sort_clause.first : " iit.id desc")
+		findBySql(selectStr, sqlStr, orderStr)
 	end
 	
 	def getProductInventorySql
-		sqlStr = "select iit.id as inventory_item_id, pit.id as product_item_id, iit.product_item_id as inv_product_item_id, piit.product_item_id as parent_product_item_id, iit.status, p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as product_attribute_name, iit.serial_number, iit.currency, iit.selling_price, iit.total_quantity, iit.available_quantity, uom.short_desc as uom_short_desc, l.name as location_name, projects.name as project_name, (case when iit.product_type is null then p.product_type else iit.product_type end) as product_type, iit.is_loggable, ap.name as asset_name, piit.id as parent_id, pap.name as parent_name, ap.owner_type, ap.currency as asset_currency, ap.rate, ap.rate_per, ap.current_value, pcr.child_count, ap.is_disposed from wk_product_items pit 
+		sqlStr = " from wk_product_items pit 
 		left outer join wk_inventory_items iit on iit.product_item_id = pit.id 
 		left outer join wk_inventory_items piit on iit.parent_id = piit.id 
 		left outer join (select count(parent_id) child_count, parent_id from wk_inventory_items group by parent_id) pcr on pcr.parent_id = iit.id
@@ -342,12 +344,11 @@ class WkproductitemController < WkinventoryController
 		end	
 	end
 	
-	def findBySql(query, model)
-		result = model.find_by_sql("select count(*) as id from (" + query + ") as v2")
-		@entry_count = result.blank? ? 0 : result[0].id
-        setLimitAndOffset()		
+	def findBySql(selectStr, query, orderStr)
+		@entry_count = findCountBySql(query, WkProductItem)
+		setLimitAndOffset()		
 		rangeStr = formPaginationCondition()
-		@productInventory = model.find_by_sql(query + rangeStr )
+		@productInventory = WkProductItem.find_by_sql(selectStr + query + orderStr + rangeStr)
 	end
 	
 	def formPaginationCondition
