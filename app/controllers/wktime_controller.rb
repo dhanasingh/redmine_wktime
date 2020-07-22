@@ -1429,8 +1429,9 @@ private
 							if(!id.blank? || !hours[j].blank?)
 								teEntry = nil
 								teEntry = getTEEntry(id)
-								spentForAttributes = teEntry.spent_for
-								entry[:spent_for_attributes][:id] = spentForIds.present? && spentForIds[k].present? ? spentForIds[k] : nil
+								if getTEName == "time"
+									entry[:spent_for_attributes][:id] = spentForIds.present? && spentForIds[k].present? ? spentForIds[k] : nil
+								end
 								entry.permit!
 								teEntry.attributes = entry
 								# since project_id and user_id is protected
