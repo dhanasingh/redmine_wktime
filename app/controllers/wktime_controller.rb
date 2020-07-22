@@ -1422,16 +1422,17 @@ private
 							custom_values[cf.id] = params["_custom_field_values_#{cf.id}"+"_"+(i+1).to_s()]
 						end
 					end
-					
+
 					j = 0
 					ids.each_with_index do |id, k|
 						if disabled[k] == "false"
 							if(!id.blank? || !hours[j].blank?)
 								teEntry = nil
 								teEntry = getTEEntry(id)
-								spentForAttributes = teEntry.spent_for
-								entry[:spent_for_attributes][:id] = spentForIds[k] if spentForIds.present? && spentForIds[k].present?
-								entry.permit! #(spent_for: [ :spent_for_type, :spent_on_time ])
+								if getTEName == "time"
+									entry[:spent_for_attributes][:id] = spentForIds.present? && spentForIds[k].present? ? spentForIds[k] : nil
+								end
+								entry.permit!
 								teEntry.attributes = entry
 								# since project_id and user_id is protected
 								teEntry.project_id = entry['project_id']
