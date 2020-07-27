@@ -1429,9 +1429,7 @@ private
 							if(!id.blank? || !hours[j].blank?)
 								teEntry = nil
 								teEntry = getTEEntry(id)
-								if getTEName == "time"
-									entry[:spent_for_attributes][:id] = spentForIds.present? && spentForIds[k].present? ? spentForIds[k] : nil
-								end
+								setSpentForID(entry, spentForIds, k)
 								entry.permit!
 								teEntry.attributes = entry
 								# since project_id and user_id is protected
@@ -2411,5 +2409,10 @@ private
 	
 	def getUserIdsFromSession
 		session[controller_name].try(:[], :all_user_ids)
+	end
+
+	def setSpentForID(entry, spentForIds, k)
+		entry[:spent_for_attributes] = {} if entry[:spent_for_attributes].blank?
+		entry[:spent_for_attributes][:id] = spentForIds.present? && spentForIds[k].present? ? spentForIds[k] : nil
 	end
 end

@@ -76,10 +76,10 @@ If an apache passenger module is used then make sure the following settings are 
   b) RailsAppSpawnerIdleTime 0
   c) PassengerPreStart http://rails-app-url/	
 
-Release Notes for v4.0.2
+Release Notes for v4.0.3
 
-   Bug Fixes:
-    - Timesheet save issue
+   Bug Fix:
+    - Save issue in Timesheet due to spentfor
 
 Customization:
 

@@ -135,7 +135,10 @@ class WkexpenseController < WktimeController
 		currencies = wkCurrency.map { |cur| { value: cur[1], label: cur[0] }}
     render json: currencies
   end
-  
+
+  def setSpentForID(entry, spentForIds, k)
+  end
+
 private
   def getSpecificField
 	"amount"
