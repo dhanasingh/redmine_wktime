@@ -1430,6 +1430,7 @@ private
 								teEntry = nil
 								teEntry = getTEEntry(id)
 								if getTEName == "time"
+									entry[:spent_for_attributes] = {} if entry[:spent_for_attributes].blank?
 									entry[:spent_for_attributes][:id] = spentForIds.present? && spentForIds[k].present? ? spentForIds[k] : nil
 								end
 								entry.permit!
