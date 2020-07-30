@@ -2,8 +2,8 @@ api.array :clock_entries do
     @wkattnEntries.each do |clk_entry|
         api.clk_entry do
             api.id clk_entry.id
-            api.clock_in clk_entry.start_time.localtime.strftime('%R') unless clk_entry.start_time.nil?
-            api.clock_out clk_entry.end_time.localtime.strftime('%R') unless clk_entry.end_time.nil?
+            api.clock_in clk_entry.start_time.localtime unless clk_entry.start_time.nil?
+            api.clock_out clk_entry.end_time.localtime unless clk_entry.end_time.nil?
             api.hours clk_entry.hours
         end
     end

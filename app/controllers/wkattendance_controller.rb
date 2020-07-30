@@ -433,19 +433,14 @@ class WkattendanceController < WkbaseController
 		endtime = nil
 		if api_request?
 			params['params'].each do |cEntries|
-				starttime = params[:startdate].to_date.to_s + " " +  cEntries['clock_in'] + ":00"
-				entry_start_time = DateTime.strptime(starttime, "%Y-%m-%d %T") rescue starttime
-				endtime = params[:startdate].to_date.to_s + " " +  cEntries['clock_out'] + ":00" if !cEntries['clock_out'].blank?
-				entry_end_time = DateTime.strptime(endtime, "%Y-%m-%d %T") rescue endtime
-				if cEntries['clock_in'] == '0:00' && cEntries['clock_out'] == '0:00' 
-					wkattendance =  WkAttendance.find(cEntries['id']) if !cEntries['id'].blank?
-					wkattendance.destroy()
+				# starttime = params[:startdate].to_date.to_s + " " +  cEntries['clock_in'] + ":00"
+				# entry_start_time = DateTime.strptime(cEntries['clock_in'], "%Y-%m-%d %T") rescue starttime
+				# endtime = params[:startdate].to_date.to_s + " " +  cEntries['clock_out'] + ":00" if !cEntries['clock_out'].blank?
+				# entry_end_time = DateTime.strptime(cEntries['clock_out'], "%Y-%m-%d %T") rescue endtime
+				if !cEntries['id'].blank?
+					updateClockInOutEntry(cEntries['id'], cEntries['clock_in'], cEntries['clock_out'])
 				else
-					if !cEntries['id'].blank?
-						updateClockInOutEntry(cEntries['id'], getFormatedTimeEntry(entry_start_time), getFormatedTimeEntry(entry_end_time))
-					else
-						addNewAttendance(getFormatedTimeEntry(entry_start_time),getFormatedTimeEntry(entry_end_time), params[:user_id].to_i)
-					end
+					addNewAttendance(cEntries['clock_in'], cEntries['clock_out'], params[:user_id].to_i)
 				end
 			end
 		else
