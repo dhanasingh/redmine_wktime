@@ -19,7 +19,7 @@ class WkbaseController < ApplicationController
 	unloadable
 	before_action :require_login
 	before_action :clear_sort_session
-	accept_api_auth :getUserPermissions
+	accept_api_auth :getUserPermissions, :updateClockInOut
 	helper :sort
 	include SortHelper
 	include WkattendanceHelper
@@ -48,6 +48,7 @@ class WkbaseController < ApplicationController
 		ret = 'done'
 		respond_to do |format|
 			format.text  { render :plain => ret }
+			format.api{ render json: {} }
 		end
 	end
 	

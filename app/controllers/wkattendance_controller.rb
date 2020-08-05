@@ -28,7 +28,7 @@ class WkattendanceController < WkbaseController
 	before_action :check_index_perm, :only => [:index]
 	require 'csv'
 	
-	accept_api_auth :clockindex, :clockedit, :saveClockInOut
+	accept_api_auth :clockindex, :clockedit, :saveClockInOut, :getClockHours
 
 	def index
 		sort_init 'id', 'asc'
@@ -545,5 +545,18 @@ class WkattendanceController < WkbaseController
 		wkattendance.hours = computeWorkedHours(wkattendance.start_time, wkattendance.end_time, true) if wkattendance.end_time.present?
 		wkattendance.save()
 		wkattendance
+	end
+
+	def getClockHours
+		entries = findLastAttnEntry(true).first
+		showClock = isChecked("wktime_enable_clock_in_out") && isChecked("wktime_enable_attendance_module")
+		clock = {total_hours: 0, showClock: showClock, geoLocation: isChecked('att_save_geo_location')}
+		totalHour = totalhours * 3600
+		remaininghr = computeWorkedHours(entries.start_time, Time.now.localtime, false)
+		clock['start_time'] = entries.start_time ? entries.start_time : nil
+		clock['end_time'] = entries.end_time ? entries.end_time : nil
+		clock['total_hours'] = !entries.end_time && (entries.start_time > 24.hour.ago) ?
+			( !remaininghr.blank? ? remaininghr.round(0)+totalHour : totalHour) : totalHour
+		render json: clock
 	end
 end

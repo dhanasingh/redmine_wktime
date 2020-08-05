@@ -137,6 +137,8 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
   
   post 'wkattendance/save_bulk_edit', :to => 'wkattendance#save_bulk_edit'
   
+  get 'wkattendance/getClockHours', :to => 'wkattendance#getClockHours'
+  
   #For Report   
   get 'wkreport/index', :to => 'wkreport#index'
    
