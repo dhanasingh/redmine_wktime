@@ -25,7 +25,7 @@ class WkorderentityController < WkbillingController
 	include WkgltransactionHelper
 
 	def index
-		sort_init 'id', 'asc'
+		sort_init 'invoice_date', 'desc'
 
 		sort_update 'invoice_number' => "invoice_number",
 					'invoice_date' => "invoice_date",

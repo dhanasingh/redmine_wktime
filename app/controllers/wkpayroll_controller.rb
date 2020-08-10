@@ -57,7 +57,7 @@ class WkpayrollController < WkbaseController
 	end
 
 	def payrollEntries
-		sort_init 'id', 'asc'
+		sort_init 'salary_date', 'desc'
 		sort_update 'user' => "CONCAT(U.firstname, U.lastname)",
 					'salary_date' => "S.salary_date",
 					'basic_pay' => "basic_pay",

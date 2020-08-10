@@ -21,12 +21,13 @@ class WkaccountController < WkcrmController
     before_action :require_login
 
 	def index
-		sort_init 'id', 'asc'
+		sort_init 'updated_at', 'desc'
 
 		sort_update 'acc_name' => "#{WkAccount.table_name}.name",
 					'country' => "A.country",
 					'city' => "A.city",
-					'location_name' => "L.name"
+					'location_name' => "L.name",
+					'updated_at' => "#{WkAccount.table_name}.updated_at"
 					
 		set_filter_session
 		locationId = session[controller_name].try(:[], :location_id)
