@@ -1,8 +1,17 @@
-class WklogmaterialController < ApplicationController
+class WklogmaterialController < TimelogController
   unloadable
   before_action :require_login
+	accept_api_auth :loadSpentType, :index, :spent_log
+  helper :queries
+  include QueriesHelper
 
   def index
+		super
+		respond_to do |format|
+			format.api {
+				render(layout: "wklogmaterial/material_index") if params[:spent_type] == "M" || params[:spent_type] == "A"
+			}
+    end
   end 
   
   def modifyProductDD
@@ -80,16 +89,32 @@ class WklogmaterialController < ApplicationController
 			format.text  { render :plain => pctArr }
 		end
 	end  
-	
+
 	def loadSpentType
-		spentArr = ""
 		wklogtime_helper = Object.new.extend(WklogmaterialHelper)
 		spentTypeHash = wklogtime_helper.getLogHash
-		spentTypeHash.each do |key, value|
-			spentArr << key.to_s() + ',' +  value.to_s()  + "\n" 
-		end
 		respond_to do |format|
-			format.text  { render :plain => spentArr }
+			format.text  {
+				spentTypes = ""
+				spentTypeHash.each{|key, value| spentTypes << key.to_s() + ',' +  value.to_s()  + "\n" }
+				render(json: spentTypes)
+			}
+			format.json  {
+				spentTypes = []
+				spentTypeHash.delete("RA")  # if resident management Plugin present
+				spentTypeHash.delete("E") if !wklogtime_helper.isChecked('wktime_enable_expense_module')
+				if !wklogtime_helper.isChecked('wktime_enable_inventory_module')
+					spentTypeHash.delete("M")
+					spentTypeHash.delete("A")
+				end
+				spentTypeHash.each{|key, label| spentTypes << { value: key, label: label }}
+				render(json: spentTypes)
+			}
 		end
 	end
+
+  # Returns the TimeEntry scope for index and report actions
+  def time_entry_scope(options={})
+    @query.results_scope(options)
+  end
 end

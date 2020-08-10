@@ -12,7 +12,7 @@ module TimelogControllerPatch
 			preload(:project, :user)
 			# ============= ERPmine_patch Redmine 4.1.1  =====================	
 				if session[:timelog][:spent_type] === "A" || session[:timelog][:spent_type] === "M"
-					if params[:spent_type] === "M"
+					if session[:timelog][:spent_type] === "M"
 						productType = 'I'
 					else
 						productType = session[:timelog][:spent_type]
@@ -29,12 +29,15 @@ module TimelogControllerPatch
 					@entry_count = scope.count
 					@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 					@entries = scope.offset(@entry_pages.offset).limit(@entry_pages.per_page).to_a
-					render :layout => !request.xhr?
+
+			render :layout => !request.xhr?
 				}
 				format.api  {
 					@entry_count = scope.count
 					@offset, @limit = api_offset_and_limit
-					@entries = scope.offset(@offset).limit(@limit).preload(:custom_values => :custom_field).to_a
+					# ============= ERPmine_patch Redmine 4.1.1  =====================	
+					@entries = scope.offset(@offset).limit(@limit).to_a
+					# ================================
 				}
 				format.atom {
 					entries = scope.limit(Setting.feeds_limit.to_i).reorder("#{TimeEntry.table_name}.created_on DESC").to_a
@@ -54,15 +57,15 @@ module TimelogControllerPatch
 			# ============= ERPmine_patch Redmine 4.1.1  =====================	
 				set_filter_session
 				if session[:timelog][:spent_type] === "A" || session[:timelog][:spent_type] === "M"
-					productType = params[:spent_type] === "M" ? 'I' : 'A'
+					productType = session[:timelog][:spent_type] === "M" ? 'I' : 'A'
 					scope = scope.where("wk_inventory_items.product_type = '#{productType}' ")
 				end
 				hookQuery = call_hook(:time_entry_report_where_query, :params => params)
 				unless hookQuery[0].blank?
 					scope = scope.where(hookQuery[0])
 				end
-				@report = Redmine::Helpers::TimeReport.new(@project, @issue, params[:criteria], params[:columns], scope)
 			# ================================	
+			@report = Redmine::Helpers::TimeReport.new(@project, @issue, params[:criteria], params[:columns], scope)
 
 			respond_to do |format|
 			  format.html { render :layout => !request.xhr? }
@@ -73,35 +76,36 @@ module TimelogControllerPatch
 		def edit
 			# ============= ERPmine_patch Redmine 4.1.1  =====================
 				sessionValidation
-				if session[:timelog][:spent_type] === "T"
+				@spentType = session[:timelog][:spent_type]
+				if @spentType === "T"
 			# =======================	
 				@time_entry.safe_attributes = params[:time_entry]
 			# ============= ERPmine_patch Redmine 4.1.1  =====================
-				elsif session[:timelog][:spent_type] === "E"
-					@spentType = session[:timelog][:spent_type]
+				elsif @spentType === "E"
 					@expenseEntry = WkExpenseEntry.find(params[:id].to_i)					
 					@time_entry.project_id = @expenseEntry.project_id
 					@time_entry.issue_id = @expenseEntry.issue_id
 					@time_entry.activity_id = @expenseEntry.activity_id
 					@time_entry.comments = @expenseEntry.comments
 					@time_entry.spent_on = @expenseEntry.spent_on
+					@time_entry.user_id = @expenseEntry.user_id
 				else
-					@spentType = session[:timelog][:spent_type]
 					@materialEntry = WkMaterialEntry.find(params[:id].to_i)		
 					@time_entry.project_id = @materialEntry.project_id
 					@time_entry.issue_id = @materialEntry.issue_id
 					@time_entry.activity_id = @materialEntry.activity_id
 					@time_entry.comments = @materialEntry.comments
 					@time_entry.spent_on = @materialEntry.spent_on
+					@time_entry.user_id = @materialEntry.user_id
 				end
 			# =======================	
 		end
 
 		def retrieve_time_entry_query
 			# ============= ERPmine_patch Redmine 4.1.1  =====================
-				if !params[:spent_type].blank? && (params[:spent_type] == "M" || params[:spent_type] == "A")
+				if !session[:timelog].blank? && (session[:timelog][:spent_type] == "M" || session[:timelog][:spent_type] == "A")
 					retrieve_query(WkMaterialEntryQuery, false)
-				elsif !params[:spent_type].blank? && params[:spent_type] == "E"
+				elsif !session[:timelog].blank? && session[:timelog][:spent_type] == "E"
 					retrieve_query(WkExpenseEntryQuery, false)
 				else
 			# =====================	
@@ -112,6 +116,14 @@ module TimelogControllerPatch
 				unless hookModel[0].blank?
 					retrieve_query(hookModel[0], false)
 				end
+			# =====================
+		end
+
+		def new
+			@time_entry ||= TimeEntry.new(:project => @project, :issue => @issue, :author => User.current, :spent_on => User.current.today)
+			@spentType = session[:timelog][:spent_type]
+			@time_entry.safe_attributes = params[:time_entry]
+			# ============= ERPmine_patch Redmine 4.1.1  =====================
 			# =====================
 		end
 
@@ -130,7 +142,9 @@ module TimelogControllerPatch
 				call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
 
 			# ============= ERPmine_patch Redmine 4.1.1  =====================
-				if statusValidation && @time_entry.save
+			errorMsg = statusValidation(@time_entry)
+			@time_entry.errors[:base] << errorMsg if errorMsg.present?
+				if errorMsg.blank? && @time_entry.save
 			#=====================
 					respond_to do |format|
 						format.html {
@@ -252,7 +266,9 @@ module TimelogControllerPatch
 				call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
 
 			# ============= ERPmine_patch Redmine 4.1.1  =====================
-				if statusValidation && @time_entry.save
+				errorMsg = statusValidation(@time_entry)
+				@time_entry.errors[:base] << errorMsg if errorMsg.present?
+				if errorMsg.blank? && @time_entry.save
 			#=====================
 					respond_to do |format|
 						format.html {
@@ -354,12 +370,12 @@ module TimelogControllerPatch
 				@modelEntries = model.find(id.to_i)
 			end
 			projectId = Issue.find(params[:time_entry][:issue_id].to_i).project_id
-			@modelEntries.project_id = projectId # @project.blank? ? params[:time_entry][:project_id] : @project.id 
-			@modelEntries.user_id = User.current.id
-			@modelEntries.issue_id =  params[:time_entry][:issue_id].to_i			
+			@modelEntries.project_id = projectId
+			@modelEntries.user_id = params[:time_entry][:user_id].blank? ? User.current.id : params[:time_entry][:user_id].to_i
+			@modelEntries.issue_id =  params[:time_entry][:issue_id].to_i
 			@modelEntries.comments =  params[:time_entry][:comments]
 			@modelEntries.activity_id =  params[:time_entry][:activity_id].to_i
-			@modelEntries.spent_on = params[:time_entry][:spent_on]		
+			@modelEntries.spent_on = params[:time_entry][:spent_on]
 		end
 		
 		def saveExpense
@@ -387,8 +403,9 @@ module TimelogControllerPatch
 	
 		def set_filter_session
 			if params[:spent_type].blank?
-				session[:timelog] = {:spent_type => "T"}
+				session[:timelog] = {:spent_type => "T"} if session[:timelog].blank? || session[:timelog][:spent_type].blank?
 			else
+				session[:timelog] = {} if session[:timelog].blank?
 				session[:timelog][:spent_type] = params[:spent_type]
 			end
 		end
@@ -402,24 +419,17 @@ module TimelogControllerPatch
 				@time_entries = TimeEntry.where(:id => params[:id] || params[:ids]).
 					preload(:project => :time_entry_activities).
 					preload(:user).to_a
-
-				raise ActiveRecord::RecordNotFound if @time_entries.empty?
 				raise Unauthorized unless @time_entries.all? {|t| t.editable_by?(User.current)}
-				@projects = @time_entries.collect(&:project).compact.uniq
-				@project = @projects.first if @projects.size == 1
 			# ============= ERPmine_patch Redmine 4.1.1  =====================	
 				elsif session[:timelog][:spent_type] === "E"
-					@time_entry = TimeEntry.new
-					expenseEntry = WkExpenseEntry.find(params[:id])
-					@time_entry.id = expenseEntry.id
-					@project = expenseEntry.project
+					@time_entries = WkExpenseEntry.where(:id => params[:id] || params[:ids])
 				else
-					@time_entry = TimeEntry.new
-					materialEntry = WkMaterialEntry.find(params[:id])
-					@time_entry.id = materialEntry.id
-					@project = materialEntry.project
+					@time_entries = WkMaterialEntry.where(:id => params[:id] || params[:ids])
 				end
 			# ===================================
+			raise ActiveRecord::RecordNotFound if @time_entries.empty?
+			@projects = @time_entries.collect(&:project).compact.uniq
+			@project = @projects.first if @projects.size == 1
 			rescue ActiveRecord::RecordNotFound
 			render_404
 		end
@@ -454,10 +464,10 @@ module TimelogControllerPatch
 				sessionValidation
 				if session[:timelog][:spent_type] === "T"
 			# =============================
-			unless @time_entry.editable_by?(User.current)
-				render_403
-				return false
-			end
+					unless @time_entry.editable_by?(User.current)
+						render_403
+						return false
+					end
 			# ============= ERPmine_patch Redmine 4.1.1  =====================
 				elsif session[:timelog][:spent_type] === "E"
 					return true
@@ -475,6 +485,68 @@ module TimelogControllerPatch
 		end
 	# =============================	
 
+		def bulk_edit
+			# ============= ERPmine_patch Redmine 4.1.1  =====================
+			if session[:timelog][:spent_type] == "T"
+			# =============================
+				@target_projects = Project.allowed_to(:log_time).to_a
+				@custom_fields = TimeEntry.first.available_custom_fields.select {|field| field.format.bulk_edit_supported}
+				if params[:time_entry]
+					@target_project = @target_projects.detect {|p| p.id.to_s == params[:time_entry][:project_id].to_s}
+				end
+				if @target_project
+					@available_activities = @target_project.activities
+				else
+					@available_activities = @projects.map(&:activities).reduce(:&)
+				end
+			# ============= ERPmine_patch Redmine 4.1.1  =====================
+			else
+				render_404
+			end
+			# =============================
+			@time_entry_params = params[:time_entry] || {}
+			@time_entry_params[:custom_field_values] ||= {}
+		end
+
+		def bulk_update
+			attributes = parse_params_for_bulk_update(params[:time_entry])
+
+			unsaved_time_entries = []
+			saved_time_entries = []
+
+			@time_entries.each do |time_entry|
+				# ============= ERPmine_patch Redmine 4.1.1  =====================
+				errorMsg = ""
+				# =============================
+				time_entry.reload
+				time_entry.safe_attributes = attributes
+				call_hook(:controller_time_entries_bulk_edit_before_save, { :params => params, :time_entry => time_entry })
+				
+				# ============= ERPmine_patch Redmine 4.1.1  =====================
+				errorMsg = statusValidation(time_entry)
+				if errorMsg.blank? && time_entry.save
+				# =============================
+					saved_time_entries << time_entry
+				else
+					unsaved_time_entries << time_entry
+				end
+			end
+
+			if unsaved_time_entries.empty?
+				flash[:notice] = l(:notice_successful_update) unless saved_time_entries.empty?
+				redirect_back_or_default project_time_entries_path(@projects.first)
+			else
+				@saved_time_entries = @time_entries
+				@unsaved_time_entries = unsaved_time_entries
+				@time_entries = TimeEntry.where(:id => unsaved_time_entries.map(&:id)).
+					preload(:project => :time_entry_activities).
+					preload(:user).to_a
+
+				bulk_edit
+				render :action => 'bulk_edit'
+			end
+		end
+
 		def destroy
 			# ============= ERPmine_patch Redmine 4.1.1  =====================
 				wktime_helper = Object.new.extend(WktimeHelper)
@@ -485,119 +557,101 @@ module TimelogControllerPatch
 					destroyed = TimeEntry.transaction do
 						@time_entries.each do |t|
 						# ============= ERPmine_patch Redmine 4.1.1  =====================
-						status = wktime_helper.getTimeEntryStatus(t.spent_on, t.user_id)	
-						if !status.blank? && ('a' == status || 's' == status || 'l' == status)			
+						status = wktime_helper.getTimeEntryStatus(t.spent_on, t.user_id)
+						if !status.blank? && ('a' == status || 's' == status || 'l' == status)
 							errMsg = "#{l(:error_time_entry_delete)}"
+							raise ActiveRecord::Rollback
 						end
 						if errMsg.blank?
 						# ===========================			
-							unless (t.destroy && t.destroyed?)  
+							unless (t.destroy && t.destroyed?)
+								# ============= ERPmine_patch Redmine 4.1.1  =====================
+								errMsg = l(:notice_unable_delete_time_entry)
+								# ===========================
 								raise ActiveRecord::Rollback
 							end
 						end
 					end
 				end
-				respond_to do |format|
-					format.html {
-						# ============= ERPmine_patch Redmine 4.1.1  =====================			
-						if errMsg.blank?
-						# ==========================		
-							if destroyed
-								flash[:notice] = l(:notice_successful_delete)
-							else
-								flash[:error] = l(:notice_unable_delete_time_entry)
-							end
-						# ============= ERPmine_patch Redmine 4.1.1  =====================				
-						else
-							flash[:error] = errMsg
-						end
-						# ===========================		
-						redirect_back_or_default project_time_entries_path(@projects.first)
-					}
-					format.api  {
-						if destroyed
-							render_api_ok
-						else
-							render_validation_errors(@time_entries)
-						end
-					}
-				end
 			# ============= ERPmine_patch Redmine 4.1.1  =====================		
 			elsif session[:timelog][:spent_type] === "E"
 				destroyed = WkExpenseEntry.transaction do
-					begin
-					@expenseEntries = WkExpenseEntry.find(params[:id].to_i) unless params[:id].blank?
-					@time_entry.project_id = @expenseEntries.project_id
-					@expenseEntries.destroy
-					rescue => ex
-						errMsg = l(:error_expense_delete)
-						logger.error ex.message		
-						raise ActiveRecord::Rollback
+					@time_entries.each do |e|
+						status = wktime_helper.getExpenseEntryStatus(e.spent_on, e.user_id)
+						errMsg = "#{l(:error_expense_delete)}" if !status.blank? && ('a' == status || 's' == status || 'l' == status)
+						raise ActiveRecord::Rollback unless errMsg.blank? && e.destroy && e.destroyed?
 					end
-				end	
-				respond_to do |format|
-					format.html { 
-					unless errMsg.blank?
-						flash[:error] = errMsg
-						redirect_back_or_default project_time_entries_path(@time_entry.project)
-					else
-						flash[:notice] = l(:notice_successful_update)
-						redirect_back_or_default project_time_entries_path(@time_entry.project)
-					end
-					 
-					}
 				end
 			else
 				if wktime_helper.validateERPPermission("D_INV")
-				destroyed = WkMaterialEntry.transaction do
-					begin
-					@materialEntries = WkMaterialEntry.find(params[:id].to_i) unless params[:id].blank?
-					@time_entry.project_id = @materialEntries.project_id
-					if @materialEntries.spent_for.blank? || @materialEntries.spent_for.invoice_item_id.blank?
-						if session[:timelog][:spent_type] === "M"
-							inventoryItemObj = WkInventoryItem.find(@materialEntries.inventory_item_id)
-							inventoryItemObj.available_quantity = inventoryItemObj.available_quantity + @materialEntries.quantity
-							inventoryItemObj.save	
+					destroyed = WkMaterialEntry.transaction do
+						begin
+						if @time_entries.spent_for.blank? || @time_entries.spent_for.invoice_item_id.blank?
+							if session[:timelog][:spent_type] === "M"
+								inventoryItemObj = WkInventoryItem.find(@time_entries.inventory_item_id)
+								inventoryItemObj.available_quantity = inventoryItemObj.available_quantity + @time_entries.quantity
+								inventoryItemObj.save	
+							end
+							@time_entries.destroy
+						else
+							errMsg = l(:error_material_delete_billed)
+							logger.error ex.message		
+							raise ActiveRecord::Rollback
 						end
-						@materialEntries.destroy
-					else
-						errMsg = l(:error_material_delete_billed)
-						logger.error ex.message		
-						raise ActiveRecord::Rollback
+						rescue => ex
+							errMsg = l(:error_material_delete)
+							logger.error ex.message		
+							raise ActiveRecord::Rollback
+						end
+					end	
+					destroyed = WkMaterialEntry.transaction do
+						@time_entries.each do |m|
+							if m.spent_for.blank? || m.spent_for.invoice_item_id.blank?
+								if session[:timelog][:spent_type] === "M"
+									inventoryItemObj = WkInventoryItem.find(m.inventory_item_id)
+									inventoryItemObj.available_quantity = inventoryItemObj.available_quantity + m.quantity
+									inventoryItemObj.save	
+								end
+								raise ActiveRecord::Rollback unless m.destroy && m.destroyed?
+							else
+								errMsg = l(:error_material_delete_billed)	
+								raise ActiveRecord::Rollback
+							end
+						end
 					end
-					rescue => ex
-						errMsg = l(:error_material_delete)
-						logger.error ex.message		
-						raise ActiveRecord::Rollback
-					end
-				end	
 				else
 					render_403
 					return false
 				end
-				respond_to do |format|
-					format.html { 
-					unless errMsg.blank?
-						flash[:error] = errMsg
-						redirect_back_or_default project_time_entries_path(@time_entry.project)
-					else
-						flash[:notice] = l(:notice_successful_update)
-						redirect_back_or_default project_time_entries_path(@time_entry.project)
-					end
-					 
-					}
-				end
 			end
-			# ==========================================	
+			# ==========================================
+			respond_to do |format|
+				format.html {	
+						if destroyed
+							flash[:notice] = l(:notice_successful_delete)
+						else
+							flash[:error] = errMsg
+						end
+					redirect_back_or_default project_time_entries_path(@projects.first), :referer => true
+				}
+				format.api  {
+					if destroyed
+						render_api_ok
+					else
+						render_validation_errors(@time_entries)
+					end
+				}
+			end
 		end
 
-		def statusValidation
+		# ============= ERPmine_patch Redmine 4.1.1  =====================
+		def statusValidation(time_entry)
 			wktime_helper = Object.new.extend(WktimeHelper)
-			status = wktime_helper.getTimeEntryStatus(@time_entry.spent_on, @time_entry.user_id)
-			valid = @time_entry.activity_id.blank? || @time_entry.hours.blank? || status.blank? || ('a' != status && 's' != status && 'l' != status)
-			@time_entry.errors[:base] << l(:label_warning_wktime_time_entry) if !valid
-			valid
+			status = wktime_helper.getTimeEntryStatus(time_entry.spent_on, time_entry.user_id)
+			valid = time_entry.activity_id.blank? || time_entry.hours.blank? || status.blank? || ('a' != status && 's' != status && 'l' != status)
+			return valid ? nil : l(:label_warning_wktime_time_entry)
 		end
+		# =============================
 	end
 	end
 end

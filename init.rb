@@ -3,6 +3,7 @@ require_dependency 'custom_fields_helper'
 require_dependency '../lib/redmine/menu_manager'
 require 'fileutils'
 require 'timelogcontroller_patch'
+require 'contextMenusController_patch'
 require 'time_report_patch'
 require_dependency 'queries_helper_patch'
 require 'userscontroller_patch'
@@ -261,6 +262,7 @@ CustomFieldsHelper.send(:include, WktimeHelperPatch)
 ProjectsController.send(:include, ProjectsControllerPatch)
 IssuesController.send(:include, IssuesControllerPatch)
 TimelogController.send(:include, TimelogControllerPatch)
+ContextMenusController.send(:include, ContextMenusControllerPatch)
 UsersController.send(:include, UsersControllerPatch)
 
 # Patches for Supervisor

@@ -28,7 +28,7 @@ before_action :check_editperm_redirect, :only => [:destroy]
 before_action :check_view_redirect, :only => [:index]
 before_action :check_log_time_redirect, :only => [:new]
 
-accept_api_auth :index, :edit, :update, :destroy, :deleteEntries, :getProjects, :getissues, :getactivities
+accept_api_auth :index, :edit, :update, :destroy, :deleteEntries, :getProjects, :getissues, :getactivities, :getAPIUsers, :getclients
 
 helper :custom_fields
 helper :queries
@@ -581,25 +581,29 @@ include ActionView::Helpers::TagHelper
 		else
 			error = "403"
 		end
-		clientStr =""
 		usrLocationId = teUser.wk_user.blank? ? nil : teUser.wk_user.location_id
-		unless project.blank?
-			project.account_projects.includes(:parent).order(:parent_type).each do |ap|
-				clientStr << project_id.to_s() + '|' + ap.parent_type + '_' + ap.parent_id.to_s() + '|' + "" + (params[:separator].blank? ? '|' : params[:separator] ) + ap.parent.name + "\n" if ap.parent.location_id == usrLocationId
-			end
-		end
-	
-		# respond_to do |format|
-			# format.text  { 
-			# if error.blank?
-				# render :plain => clientStr 
-			# else
-				# render_403
-			# end
-			# }
-		# end
+		project = project.account_projects.includes(:parent).order(:parent_type) unless project.blank?
+
 		respond_to do |format|
-			format.text  { render :plain => clientStr }
+			format.text  {
+				clientStr =""
+				unless project.blank?
+					project.each do |ap|
+						clientStr << project_id.to_s() + '|' + ap.parent_type + '_' + ap.parent_id.to_s() + '|' + "" + (params[:separator].blank? ? '|' : params[:separator] ) + ap.parent.name + "\n" if ap.parent.location_id == usrLocationId
+					end
+				end
+				render plain: clientStr
+			}
+			format.json  {
+				spentFors = []
+				project.each{ |client|
+					spentFors << {
+						value: project_id.to_s() + '|' + client.parent_type + '_' + client.parent_id.to_s() + '|',
+						label: client.parent.name
+					} if client.parent.location_id == usrLocationId
+				} if project.present?
+				render(json: spentFors)
+			}
 		end
 	end
 	
@@ -688,8 +692,20 @@ include ActionView::Helpers::TagHelper
 		assignedIssues.unshift( ["", ""]) if needBlank
 		assignedIssues
 	end
-	
+
 	def getusers
+		projmembers = getProjMembers()
+		if !projmembers.nil?
+			projmembers.each do |m|
+				userStr << m.user_id.to_s() + ',' + m.name + "\n"
+			end
+		end
+		respond_to do |format|
+			format.text  { render :plain => userStr }
+		end
+	end
+
+	def getProjMembers
 		project = Project.find(params[:project_id])
 		userStr = ""
 		# userList = call_hook(:controller_project_member, {:project_id => params[:project_id], :page => params[:page]})
@@ -699,14 +715,9 @@ include ActionView::Helpers::TagHelper
 			projmembers = project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
 		end
 		if !projmembers.nil?
-			projmembers = projmembers.to_a.uniq 
-			projmembers.each do |m|
-				userStr << m.user_id.to_s() + ',' + m.name + "\n"
-			end
+			projmembers = projmembers.to_a.uniq
 		end
-		respond_to do |format|
-			format.text  { render :plain => userStr }
-		end
+		return projmembers
 	end
 
   # Export wktime to a single pdf file
@@ -827,20 +838,24 @@ include ActionView::Helpers::TagHelper
 			@offset = @entry_pages.offset
 		end	
 	end
-	
+
 	def getMembersbyGroup
 		group_by_users=""
-		userList=[]
-		set_managed_projects				
-		userList = getGrpMembers
-		userList.each do |users|
+		getGroupUsers.each do |users|
 			group_by_users << users.id.to_s() + ',' + users.name + "\n"
 		end
 		respond_to do |format|
 			format.text  { render :plain => group_by_users }
 		end
-	end	
-	
+	end
+
+	def getGroupUsers
+		userList=[]
+		set_managed_projects				
+		userList = getGrpMembers
+		return userList
+	end
+
 	def findTEProjects()		
 		entityNames = getEntityNames	
 		Project.find_by_sql("SELECT DISTINCT p.* FROM projects p INNER JOIN " + entityNames[1] + " t ON p.id=t.project_id  where t.spent_on BETWEEN '" + @startday.to_s +
@@ -1239,6 +1254,24 @@ include ActionView::Helpers::TagHelper
 		else
 			projs = @logtime_projects.map { |proj| { value: proj.id, label: proj.name }}
 			render json: projs
+		end
+	end
+
+	def getAPIUsers
+		case params["type"]
+		when "Project"
+			params[:project_id] = params[:id]
+			key = "user_id"
+			users = getProjMembers()
+		when "Group"
+			params[:group_id] = params[:id]
+			key = "id"
+			users = getGroupUsers()
+		end
+		reUsers = []
+		(users || []).each{|user| reUsers << { value: user[key], label: user.name }}
+		respond_to do |format|
+			format.json  { render(json: reUsers) }
 		end
 	end
 

@@ -133,7 +133,8 @@ function spentTypeValue(elespent)
 
 function spentTypeSelection()
 {
-	var spcheck = sessionStorage.getItem("spent_type") == null ? "T" : sessionStorage.getItem("spent_type");
+	const spent_type = (new URL(window.location.href)).searchParams.get("spent_type");
+	var spcheck = sessionStorage.getItem("spent_type") == null ? (spent_type ? spent_type : "T") : sessionStorage.getItem("spent_type");
 	$("#spent_typeHF").val(spcheck);
 	if(document.getElementById('spent_type') != null) {
 		var ddl = document.getElementById('spent_type');

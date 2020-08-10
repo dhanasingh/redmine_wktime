@@ -81,10 +81,10 @@
 	end
 	selectedSpentFor = objEntry.present? ? objEntry.project_id.to_s + '|' + objEntry.spent_for.spent_for_type.to_s + '_' + objEntry.spent_for.spent_for_id.to_s : ""
 	spentForIdVal = objEntry.present? ? objEntry.spent_for.id : ""
-	endLocations =  objEntry.blank? ? ["",""] : [
+	endLocations =  objEntry.blank? || (@spentType.present? && @spentType != 'T') ? ["",""] : [
 		objEntry.spent_for.e_longitude || "", objEntry.spent_for.e_latitude || "", objEntry.project.name+ "\n"+ objEntry.issue.subject+"\n"+objEntry.hours.to_s, "E"
 	]
-	if objEntry.blank? || (objEntry.spent_for.s_longitude == objEntry.spent_for.e_longitude && objEntry.spent_for.s_latitude == objEntry.spent_for.e_latitude)
+	if objEntry.blank? || (objEntry.spent_for.s_longitude == objEntry.spent_for.e_longitude && objEntry.spent_for.s_latitude == objEntry.spent_for.e_latitude) || (@spentType.present? && @spentType != 'T')
 		startLocations = ["",""]
 	else
 		startLocations = [
@@ -203,28 +203,28 @@
 </table>
 
 <!-- Time Tracker-->
-<% if wktime_helper.isChecked("label_enable_issue_logger") && (@spentType == "T" || @spentType.blank?) %>
+<% if wktime_helper.isChecked("label_enable_issue_logger") %>
 	<% start_on = @time_entry.spent_for &&  @time_entry.spent_for.start_on ? @time_entry.spent_for.start_on.localtime : Time.now %>
 	<% end_on = @time_entry.spent_for &&  @time_entry.spent_for.end_on ? @time_entry.spent_for.end_on.localtime : nil %>
 	<table id="issuelogtable" style="padding-left:95px;">
 		<tr>	
 			<th align="right" ><%= l(:label_start_time) %></th>
 			<td align="left">
-				<%= time_select("start_time", "", {selected: start_on, include_blank: true}, {class: "start_time"}) %>
+				<%= time_select("start_on", "time", {selected: start_on, include_blank: true}, {class: "start_on"}) %>
 			</td>
 		</tr>
 		<tr>
 			<th align="right" ><%= l(:label_end_time) %></th>
 			<td align="left" >
-				<%= time_select("end_time","", {selected: end_on, include_blank: true}, {class: 'end_time', onchange: "calculateHours()"}) %>
+				<%= time_select("end_on","time", {selected: end_on, include_blank: true}, {class: 'end_on'}) %>
 			</td>
 		</tr>
 	</table>
 <% end %>
 
-<% if wktime_helper.isChecked('te_save_geo_location') %>
+<% if wktime_helper.isChecked('te_save_geo_location') && ["T", "E", "M", "A"].include?(@spentType) %>
 	<!-- Geolocation -->
-	<table style="padding-left:100px;">
+	<table id="geolocation" style="padding-left:100px;">
 		<tr><td>
 			<div id='mapContainer' style="width:300px;height:300px;"></div>
 			<%= render partial: "wkgeolocation/location_map", locals: { locations: [startLocations, endLocations] } %>

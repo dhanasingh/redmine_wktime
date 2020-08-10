@@ -47,7 +47,9 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
   
   # For Supervisor feature
 	get 'wktime/getMyReportUsers', :to => 'wktime#getMyReportUsers'
-  
+
+	get 'wktime/getAPIUsers', to: 'wktime#getAPIUsers'
+
   #For Weekly expenses
   
   get 'wkexpense/index', :to => 'wkexpense#index'
@@ -588,9 +590,13 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wkpublicholiday/index', :to => 'wkpublicholiday#index'
 	
 	post 'wkpublicholiday/update', :to => 'wkpublicholiday#update'
-	
+
 	get 'wklogmaterial/loadSpentType', :to => 'wklogmaterial#loadSpentType'
-	
+
+	get 'wklogmaterial/index', to: 'wklogmaterial#index'
+
+	get 'wklogmaterial/spent_log_edit', :to => 'wklogmaterial#spent_log_edit'
+
 	get 'wkdashboard/index', :to => 'wkdashboard#index'
 	
 	get 'wkdashboard/graph', :to => 'wkdashboard#graph'

@@ -638,12 +638,12 @@ function hideLogDetails(uid)
 		if(document.getElementById("spent_for_tbl")){
 			document.getElementById("spent_for_tbl").style.display = 'block';
 		}
-		if(document.getElementById("issuelogtable")){
-			document.getElementById("issuelogtable").style.display = 'block';
-		}
 		//$('label[for="time_entry_hours"]').html('Hours<span style="color:red;">*</span>');
 		document.getElementById("materialtable").style.display = 'none';
 		document.getElementById("expensetable").style.display = 'none';
+		document.getElementById('issuelogtable').style.display = 'block';
+		$('#geolocation').show();
+		$('.start_on, .end_on').prop('onchange', 'calculateHours()');
 	}
 	else if(logType == 'E') {
 		document.getElementById('time_entry_hours').style.display = 'none';
@@ -653,26 +653,33 @@ function hideLogDetails(uid)
 		if(document.getElementById("spent_for_tbl")){
 			document.getElementById("spent_for_tbl").style.display = 'none';
 		}
-		if(document.getElementById("issuelogtable")){
-			document.getElementById("issuelogtable").style.display = 'none';
-		}
 		document.getElementById("expensetable").style.display = 'block';
+		document.getElementById('issuelogtable').style.display = 'block';
+		$('#geolocation').show();
+		$('.start_on, .end_on').val('');
+		$('.start_on, .end_on').prop('onchange', null);
 	}
 	else 
-	{		
+	{
 		document.getElementById('time_entry_hours').style.display = 'none';
 		$('label[for="time_entry_hours"]').css('display', 'none');
 		document.getElementById("expensetable").style.display = 'none';
 		if(document.getElementById("spent_for_tbl")){
 			document.getElementById("spent_for_tbl").style.display = 'block';
 		}
-		if(document.getElementById("issuelogtable")){
-			document.getElementById("issuelogtable").style.display = 'none';
-		}
 		document.getElementById("materialtable").style.display = 'block';
 		if(uid != null) {
 			productCategoryChanged('product', uid, logType);
 		}
+		if(logType == 'A') document.getElementById('issuelogtable').style.display = 'block';
+		if(logType == 'M') document.getElementById('issuelogtable').style.display = 'none';
+		if(logType == 'M' || logType == 'A'){
+			$('#geolocation').show();
+		} else {
+			$('#geolocation').hide();
+		}
+		$('.start_on, .end_on').val('');
+		$('.start_on, .end_on').prop('onchange', null);
 	}
 	
 }

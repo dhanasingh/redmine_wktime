@@ -226,13 +226,6 @@ private
 	errMsg
   end
   
-  def getExpenseEntryStatus(spent_on, user_id)
-		start_day = getStartDay(spent_on)
-		result = Wkexpense.where(['begin_date = ? AND user_id = ?', start_day, user_id])
-		result = result[0].blank? ? 'n' : result[0].status
-		return 	result	  
-  end
-  
   def findTEEntries(ids)
 	WkExpenseEntry.find(ids)
   end
