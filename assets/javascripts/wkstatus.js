@@ -290,7 +290,7 @@ function signAttendance(str)
 	}
 	$.ajax({
 		url: clkInOutUrl,
-		type: 'get',
+		type: 'post',
 		data: data,
 		success: function(data){ }
 	});

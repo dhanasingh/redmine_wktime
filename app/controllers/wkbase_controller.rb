@@ -48,7 +48,7 @@ class WkbaseController < ApplicationController
 		ret = 'done'
 		respond_to do |format|
 			format.text  { render :plain => ret }
-			format.api{ render json: {} }
+			format.api{ render :plain => ret }
 		end
 	end
 	

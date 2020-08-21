@@ -166,6 +166,10 @@ module WkattendanceHelper
 	end
 
 	def saveAttendance(attnObj, startTime, endTime, userId, hasStartEnd)
+		if api_request?
+			(params[:params] || []).each{|param| params[param.first] = param.last }
+			params.delete("params")
+		end
 		wkattendance = nil
 		if(!attnObj.blank? && ((attnObj.end_time.blank? && ((startTime - attnObj.start_time.localtime)/3600) < 24 && ((startTime - attnObj.start_time.localtime)/3600) > 0 )|| hasStartEnd))
 			if !hasStartEnd

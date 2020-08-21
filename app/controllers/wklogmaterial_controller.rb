@@ -1,7 +1,7 @@
 class WklogmaterialController < TimelogController
   unloadable
   before_action :require_login
-	accept_api_auth :loadSpentType, :index, :spent_log
+	accept_api_auth :loadSpentType, :index, :spent_log, :modifyProductDD, :create, :update 
   helper :queries
   include QueriesHelper
 
@@ -16,6 +16,7 @@ class WklogmaterialController < TimelogController
   
   def modifyProductDD
 		pctArr = ""	
+		productDetail = []	
 		productType = 'I'
 		hookLogType = 'A'
 		hookType = call_hook(:modify_product_log_type, :params => params)
@@ -58,35 +59,50 @@ class WklogmaterialController < TimelogController
 		
 		if params[:ptype] == "product_item"
 			pctObj.each do | entry|
-				attributeName = entry.product_attribute.blank? ? "" : entry.product_attribute.name
-				if productType == 'A' || productType == hookLogType
-					pctArr << entry.id.to_s() + ',' + (entry.asset_name.to_s() + ' - ' + entry.rate.to_s() + ' - ' + rateper[entry.rate_per].to_s()) + "\n"
+				product = {}
+				if productType == 'A' || productType == hookLogType					
+					product = {value: entry.id, label: entry.asset_name.to_s() + ' - ' + entry.rate.to_s() + ' - ' + rateper[entry.rate_per].to_s()}
 				else
-					pctArr << entry.id.to_s() + ',' +  (entry.brand_name.to_s() +' - '+ entry.product_model_name.to_s() +' - '+ entry.part_number.to_s() +' - '+ attributeName  +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s()) ) + "\n"  
+					attributeName = entry.product_attribute.blank? ? "" : entry.product_attribute.name					
+					product = {value: entry.id, label: entry.brand_name.to_s() +' - '+ entry.product_model_name.to_s() +' - '+ entry.part_number.to_s() +' - '+ attributeName  +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s())}
 				end
-				
+				productDetail << product				
 			end
 		elsif params[:ptype] == "inventory_item"
-			if productType == 'A' || productType == hookLogType && !pctObj.blank?
+			if (productType == 'A' || productType == hookLogType) && !pctObj.blank?
 				pctObj.each do | entry|
-					unitLabel = '/ '					
-					unitLabel = unitLabel + rateper[entry.rate_per].to_s()
-					pctArr << entry.inventory_item_id.to_s() + ',' + entry.inventory_item.available_quantity.to_s() + ',' + entry.inventory_item.cost_price.to_s() + ',' + entry.inventory_item.currency.to_s() + ',' + entry.rate.to_s() + ','+ unitLabel.to_s
+					product = {}
+					unitLabel = '/ ' + rateper[entry.rate_per].to_s()
+					product = {inventory_item_id: entry.inventory_item_id, available_quantity: entry.inventory_item.available_quantity,
+						cost_price: entry.inventory_item.cost_price, currency: entry.inventory_item.currency, rate: entry.rate,
+						unitLabel: unitLabel}
+					productDetail << product
 				end				
 			else
-				pctArr << pctObj.id.to_s() + ',' + pctObj.available_quantity.to_s() +','+ pctObj.cost_price.to_s()  +','+  pctObj.currency.to_s() + ',' +  pctObj.selling_price.to_s() + ',' + "" unless pctObj.blank?
+				productDetail << {id: pctObj.id, available_quantity: pctObj.available_quantity, cost_price: pctObj.cost_price,
+					currency: pctObj.currency, selling_price: pctObj.selling_price}	unless pctObj.blank?
 			end
 		elsif params[:ptype] == "product_attribute"
-			pctArr << pctObj.id.to_s() + ',' + pctObj.available_quantity.to_s() +','+ pctObj.cost_price.to_s()  +','+  pctObj.currency.to_s() + ',' +  pctObj.selling_price.to_s() unless pctObj.blank?  
-		elsif params[:ptype] == "uom_id"			
-				pctArr << pctObj.uom_id.to_s() + ',' +  (pctObj.uom.blank? ? "" : pctObj.uom.name.to_s())  + "\n" unless pctObj.blank?			
-		else		
+			productDetail << {id: pctObj.id, available_quantity: pctObj.available_quantity, cost_price: pctObj.cost_price,
+				currency: pctObj.currency, selling_price: pctObj.selling_price}	unless pctObj.blank?
+		elsif params[:ptype] == "uom_id"
+				productDetail << {value: pctObj.uom_id, label: pctObj.uom.blank? ? "" : pctObj.uom.name}	unless pctObj.blank?		
+		else
 			pctObj.each do | entry|
-				pctArr << entry.id.to_s() + ',' +  entry.name.to_s()  + "\n" 
+				productDetail << {value: entry.id, label: entry.name}
 			end
 		end
 		respond_to do |format|
-			format.text  { render :plain => pctArr }
+			format.text {
+				productDetail.each do |entry|
+					pct = ""
+					entry.each{|key, value| pct += value.to_s + ',' }
+					pct.slice!(pct.length - 1)
+					pctArr << pct + "\n"
+				end
+				render plain: pctArr
+			}
+			format.api { render json: productDetail }
 		end
 	end  
 

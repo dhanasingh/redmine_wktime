@@ -146,9 +146,7 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
   #For Report   
   get 'wkreport/index', :to => 'wkreport#index'
    
-  # get 'wkreport/reportattn', :to => 'wkreport#reportattn'  
-  
-  match 'updateClockInOut', :controller => 'wkattendance', :action => 'updateClockInOut', :via => [:get]
+  # get 'wkreport/reportattn', :to => 'wkreport#reportattn'
   
   get 'wkreport/getGroupMembers', :to => 'wkreport#getGroupMembers'
   
@@ -263,7 +261,7 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	
 	# get 'wkreport/balance_sheet', :to => 'wkreport#balance_sheet'
 	
-	get 'wkbase/updateClockInOut', :to => 'wkbase#updateClockInOut'
+	post 'wkbase/updateClockInOut', :to => 'wkbase#updateClockInOut'
 	
 	# For CRM
 	
@@ -682,3 +680,7 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wkbase/saveIssueTimeLog', :to => 'wkbase#saveIssueTimeLog'
 
 	get 'wksurvey/print_survey', :to => 'wksurvey#print_survey'
+
+	post 'wklogmaterial/create', to: 'wklogmaterial#create'
+
+	post 'wklogmaterial/update', to: 'wklogmaterial#update'

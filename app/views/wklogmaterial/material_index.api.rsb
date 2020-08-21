@@ -15,16 +15,24 @@ api.array :time_entries, api_meta(:total_count => @entry_count, :offset => @offs
       api.updated_on entry.updated_on
       if entry.spent_for.present?
         spent_for = entry.spent_for.spent_for_type ? entry.project.id.to_s + "|" + entry.spent_for.spent_for_type.to_s + "_" + entry.spent_for.spent_for_id.to_s : nil
-        api.spentFor(id: entry.spent_for.id, start_on: entry.spent_for.start_on, end_on: entry.spent_for.end_on, spent_for: spent_for)
+        api.spentFor(id: entry.spent_for.id, start_on: entry.spent_for.spent_on_time, end_on: entry.spent_for.end_on, spent_for: spent_for, clock_action: entry.spent_for.clock_action)
       end
 
-      api.quantity entry.quantity
+      api.location_id entry.inventory_item.location_id
+      api.log_type entry.inventory_item.product_type
+      api.product_id entry.inventory_item.product_item.product.id
+      api.product_item_id entry.inventory_item_id
+      api.uom_id entry.uom_id
+      api.product_quantity entry.quantity
+      api.available_quantity entry.inventory_item.available_quantity
       api.quantity_returned entry.quantity_returned
       api.org_selling_price entry.org_selling_price
       api.org_currency entry.org_currency
-      api.selling_price entry.selling_price
+      api.product_sell_price entry.selling_price
       api.currency entry.currency
+      api.rate_per assetObj.rate_per  if params[:spent_type] == "A"
       api.product product
+      api.is_done assetObj.nil? || assetObj.matterial_entry_id.nil?   
     end
   end
 end

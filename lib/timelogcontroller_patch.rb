@@ -124,7 +124,11 @@ module TimelogControllerPatch
 			@time_entry.safe_attributes = params[:time_entry]
 		end
 
-		def create			
+		def create
+			if api_request?
+				(params[:params] || []).each{|param| params[param.first] = param.last }
+				params.delete("params")
+			end			
 			@time_entry ||= TimeEntry.new(:project => @project, :issue => @issue, :author => User.current, :user => User.current, :spent_on => User.current.today)
 			@time_entry.safe_attributes = params[:time_entry]
 			if @time_entry.project && !User.current.allowed_to?(:log_time, @time_entry.project)
@@ -167,7 +171,7 @@ module TimelogControllerPatch
 								redirect_back_or_default project_time_entries_path(@time_entry.project)
 							end
 						}
-						format.api  { render :action => 'show', :status => :created, :location => time_entry_url(@time_entry) }
+						format.api  { renderTime(@time_entry) }
 					end
 				else
 					respond_to do |format|
@@ -205,6 +209,16 @@ module TimelogControllerPatch
 		end
 
 	# ============= ERPmine_patch Redmine 4.1.1  =====================
+		def renderTime(entry)
+			data = {}
+			data = {id: entry.id, hours: entry.hours, comments: entry.comments, spent_on: entry.spent_on}
+			data['project'] = {id: entry.project_id}
+			data['issue'] = {id: entry.issue_id}
+			data['activity'] = {id: entry.activity_id}
+			data['user'] = {id: entry.user_id}
+			render json: data
+		end
+
 		def saveSpentFors(model)
 			spentForId = nil
 			spentFortype = nil
