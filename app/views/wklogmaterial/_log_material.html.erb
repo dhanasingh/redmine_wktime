@@ -23,7 +23,6 @@
 	  
 	  accepts_nested_attributes_for :spent_for
 	end
-
 %>
 <% catagoriesList = { 's'  => l(:label_salaried), 'h' =>  l(:label_hourly) }  %>
 <% logmaterial_helper = Object.new.extend(WklogmaterialHelper)	%>
@@ -119,34 +118,27 @@
 <% end %>	
 
 <table id="materialtable" style="padding-left:65px; display:none;">
-	
-	<tr>	
+	<tr>
 		<th align="right" ><%= l(:label_location) %><span style="color:red;">*</span></th>
 		<td align="left">
 			<%=h select_tag('location_id', options_for_select(locationArr, :selected => (locationId.blank? ? locationArr : locationId) ), :style => "width:155px;", :onchange => "productChanged('product', 'product_item', #{User.current.id}, true, false, 'log_type', 'location_id'); ", :disabled => disable) %>
 		</td>
-		
-		
 		<th align="right"><%= l(:label_available_quantity) %></th>
 		<% availableQuantity = itemObj.blank? ? " " : itemObj.available_quantity  %>
 		<td align="left" ><label id="available_quantity" style="padding-left: 125px; text-align:right;"><%=h html_hours("%.2f" % availableQuantity ) unless availableQuantity.blank? %></label></td>
 	</tr>
-	
-	<tr>		
+	<tr>
 		<th align="right" ><%= l(:label_product) %><span style="color:red;">*</span></th>
 		<td align="left">
 			<%=h select_tag('product', options_for_select(productArr, :selected => (productId.blank? ? productArr : productId) ), :style => "width:155px;", :onchange => "productChanged(this.id, 'product_item', #{User.current.id}, true, false, 'log_type', 'location_id'); ", :disabled => disable) %>
 		</td>
-		
 		<% totQuantity = @materialEntry.blank? ? 1 : @materialEntry.quantity  %>
 		<th align="right"><%= l(:label_quantity) %><span style="color:red;">*</span></th>
 		<td align="left" style="padding-left: 40px;">
 			<%=h text_field_tag("product_quantity", ("%.2f" % totQuantity  ),:size => 10, :style => "width:80px;text-align:right;", :onchange => "updateTotal(this.id, 'product_sell_price', 'total', 'spcurrency');", :disabled => disable) %> 
 			<%=h select_tag("uom_id", options_for_select(uomArr, :selected => uomId.blank? ? uomArr  : uomId), :disabled => disable) %>
 		</td>
-		
 	</tr>
-	
 	<tr>		
 		<th align="right" ><%= l(:label_product_items) %><span style="color:red;">*</span></th>
 		<td align="left" >
@@ -164,8 +156,7 @@
 			<%=h assetObj.blank? ? "" : assetlabel %></label>
 		</td>
 		
-	</tr>	
-	
+	</tr>
 	<tr>	
 		<% if wktime_helper.isModuleAdmin('wktime_inventory_admin') && @spentType == 'M'  %>
 			<th align="right"><%= l(:label_cost_price) %><span style="color:red;">*</span></th>
@@ -190,8 +181,8 @@
 			<label id="total" style="padding-left: 127px; text-align:right;"><%=h (itemObj.blank? ? "" : itemObj.currency) %><%=h html_hours("%.2f" % netTotal ) unless netTotal.blank? %></label>
 		</td>
 	</tr>
-		
 </table>
+
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
 <table id="expensetable" style="padding-left:110px; display:none;">
 	<tr>
@@ -202,24 +193,66 @@
 	</tr>
 </table>
 
-<!-- Time Tracker-->
-<% if wktime_helper.isChecked("label_enable_issue_logger") %>
-	<% start_on = @time_entry.spent_for &&  @time_entry.spent_for.start_on ? @time_entry.spent_for.start_on.localtime : Time.now %>
-	<% end_on = @time_entry.spent_for &&  @time_entry.spent_for.end_on ? @time_entry.spent_for.end_on.localtime : nil %>
+<!-- Issue Time Tracker-->
+<% if wktime_helper.isChecked("label_enable_issue_logger") && (@spentType.blank? || @spentType == "T" || @spentType == "A") %>
+	<%
+		obj = @spentType.blank? || @spentType == "T" ? @time_entry : @materialEntry
+		startOn = nil
+		start_on = nil
+		if obj.present? && obj.spent_for && obj.spent_for.spent_on_time
+			seconds = Time.now - obj.spent_for.spent_on_time
+			start_on = (obj.spent_for.spent_on_time.localtime.to_s.split("T")).last
+			start_on = (start_on.split("+")).first
+		end
+		end_on = nil
+		if obj.present? && obj.spent_for && obj.spent_for.end_on
+			end_on = obj.spent_for.end_on.localtime
+			end_on = (end_on.to_s.split("T")).last
+			end_on = (end_on.split("+")).first
+		end
+		logger = WkSpentFor.getIssueLog(params[:id].blank? ? 0 : params[:id], @spentType).first
+		issuelogTimer = logger.present? ? wktime_helper.time_diff(Time.now, logger.spent_on_time) : "00:00"
+		issueStarted = logger.present? && logger.clock_action == "S"
+		imgName = issueStarted ? ["finish", "red"] : ["start", "green"]
+		image = image_tag(imgName[0] + ".png", plugin: "redmine_wktime", style: "height: 22px")
+		imageSpan = content_tag("div", image, class: "drdn-trigger issueLog", style: "float: left; padding:5px;")
+		buttonName = content_tag("div", (logger.present? ? "Stop" : "Start"), class: "drdn-trigger issueLog clock", style: "padding:5px; color: #{imgName[1]}; font-weight: bold;")
+		clock = issueStarted || logger.blank? ? content_tag("div",(imageSpan + buttonName), class: "issueLog", id: "issueLogger", style: "border: solid #{imgName[1]}; border-radius: 20px;") : nil
+	%>
+	<%= javascript_tag do %>
+		var label_warn_hours = "<%= l(:label_warn_hours) %>";
+		<% if issueStarted %>
+			$(function(){
+				$("#logTimer").timer({
+						action: 'start',
+						seconds: <%= seconds.to_i %>
+				});
+			});
+		<% end %>
+	<% end %>
+	<%= hidden_field_tag("clock_action", logger.present? ? logger.clock_action : nil ) %>
+	<%= hidden_field_tag("end_on", end_on, class: "end_on" ) %>
+	<%= hidden_field_tag("start_on", startOn, class: "start_on" ) %>
+	<%= hidden_field_tag("offSet", nil ) %>
+	<%= hidden_field_tag((issueStarted ? "time_entry[spent_on]" : "h_time_entry[spent_on]"), startOn ? startOn.to_date : nil, id: "h_time_entry_spent_on") %>
+	<%= hidden_field_tag((issueStarted ? "time_entry[hours]" : "h_time_entry[hours]"), "0.1", id: "h_time_entry_hours") %>
 	<table id="issuelogtable" style="padding-left:95px;">
-		<tr>	
+		<tr>
 			<th align="right" ><%= l(:label_start_time) %></th>
-			<td align="left">
-				<%= time_select("start_on", "time", {selected: start_on, include_blank: true}, {class: "start_on"}) %>
+			<td align="left" id="td_start_on"><%= start_on %></td>
+			<td id="s_issueLogger">
+				<%= clock %>
 			</td>
 		</tr>
 		<tr>
 			<th align="right" ><%= l(:label_end_time) %></th>
-			<td align="left" >
-				<%= time_select("end_on","time", {selected: end_on, include_blank: true}, {class: 'end_on'}) %>
-			</td>
+			<td align="left" id="td_end_on"><%= end_on %></td>
+			<td id="e_issueLogger"></td>
 		</tr>
 	</table>
+	<% if issueStarted %>
+		<span id="logTimer" ><%= issuelogTimer %></span>
+	<% end %>
 <% end %>
 
 <% if wktime_helper.isChecked('te_save_geo_location') && ["T", "E", "M", "A"].include?(@spentType) %>

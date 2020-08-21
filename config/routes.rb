@@ -1,5 +1,7 @@
   get 'wktime/index', :to => 'wktime#index'
 
+	get 'wktime/get_issue_loggers', :to => 'wktime#get_issue_loggers'
+
   get 'wktime/getissues', :to => 'wktime#getissues'
 
   get 'wktime/getactivities', :to => 'wktime#getactivities'
@@ -677,6 +679,6 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 
 	get 'wkbase/getUserPermissions', :to => 'wkbase#getUserPermissions'
 
-	get 'wkbase/saveTimeLog', :to => 'wkbase#saveTimeLog'
+	get 'wkbase/saveIssueTimeLog', :to => 'wkbase#saveIssueTimeLog'
 
 	get 'wksurvey/print_survey', :to => 'wksurvey#print_survey'

@@ -137,6 +137,8 @@ class WkexpenseController < WktimeController
   end
 
   def setSpentForID(entry, spentForIds, k)
+		entry[:spent_for_attributes] = {} if entry[:spent_for_attributes].blank?
+		entry[:spent_for_attributes][:id] = spentForIds.present? && spentForIds[k].present? ? spentForIds[k] : nil
   end
 
 private

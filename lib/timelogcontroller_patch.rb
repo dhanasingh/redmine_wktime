@@ -121,13 +121,10 @@ module TimelogControllerPatch
 
 		def new
 			@time_entry ||= TimeEntry.new(:project => @project, :issue => @issue, :author => User.current, :spent_on => User.current.today)
-			@spentType = session[:timelog][:spent_type]
 			@time_entry.safe_attributes = params[:time_entry]
-			# ============= ERPmine_patch Redmine 4.1.1  =====================
-			# =====================
 		end
 
-		def create				
+		def create			
 			@time_entry ||= TimeEntry.new(:project => @project, :issue => @issue, :author => User.current, :user => User.current, :spent_on => User.current.today)
 			@time_entry.safe_attributes = params[:time_entry]
 			if @time_entry.project && !User.current.allowed_to?(:log_time, @time_entry.project)
@@ -142,8 +139,8 @@ module TimelogControllerPatch
 				call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
 
 			# ============= ERPmine_patch Redmine 4.1.1  =====================
-			errorMsg = statusValidation(@time_entry)
-			@time_entry.errors[:base] << errorMsg if errorMsg.present?
+				errorMsg = statusValidation(@time_entry)
+				@time_entry.errors[:base] << errorMsg if errorMsg.present?
 				if errorMsg.blank? && @time_entry.save
 			#=====================
 					respond_to do |format|
@@ -200,7 +197,7 @@ module TimelogControllerPatch
 						end
 					end
 				end
-				if errorMsg.blank? && params[:log_type] != 'E'
+				if errorMsg.blank?
 					spentForModel = model.blank? ? @time_entry : model
 					saveSpentFors(spentForModel)
 				end
@@ -215,18 +212,18 @@ module TimelogControllerPatch
 			end_time = nil
 			# ======Time Tracking=======
 			wktime_helper = Object.new.extend(WktimeHelper)
-			if wktime_helper.isChecked("label_enable_issue_logger") && model.class.name == "TimeEntry"
-				start_time = Time.new(params[:start_time]['(1i)'], params[:start_time]['(2i)'], params[:start_time]['(3i)'], params[:start_time]['(4i)'], params[:start_time]['(5i)'], params[:start_time]['(6i)'])
-				end_time = Time.new(params[:end_time]['(1i)'], params[:end_time]['(2i)'], params[:end_time]['(3i)'], params[:end_time]['(4i)'], params[:end_time]['(5i)'], params[:end_time]['(6i)'])
+			if wktime_helper.isChecked("label_enable_issue_logger") && ["T", "A"].include?(params[:log_type])
+				dateTime = wktime_helper.get_current_DateTime(params[:offSet])
+				start_time = params[:clock_action] == "S" && model.spent_for.blank? ? dateTime : model.spent_for.spent_on_time if params[:clock_action].present?
+				end_time = params[:clock_action] == "E" && model.spent_for.end_on.blank? ? dateTime : model.spent_for.end_on if params[:clock_action].present? && model.spent_for.present?
 			end
-
 			unless params[:spent_for].blank?
 				spentFors = params[:spent_for].split('|')
 				spentForVal = spentFors[1].split('_')
 				spentForId = spentForVal[1]
 				spentFortype = spentForVal[0]
 			end
-			wktime_helper.saveSpentFor(params[:spentForId], spentForId, spentFortype, model.id, model.class.name, model.spent_on, '00', '00', nil, start_time, end_time, params[:latitude], params[:longitude])
+			wktime_helper.saveSpentFor(params[:spentForId], spentForId, spentFortype, model.id, model.class.name, model.spent_on, '00', '00', nil, start_time, end_time, params[:latitude], params[:longitude], params[:clock_action])
 		end
 		
 		def validateMatterial
@@ -259,14 +256,20 @@ module TimelogControllerPatch
 			@time_entry.safe_attributes = params[:time_entry]
 			# ============= ERPmine_patch Redmine 4.1.1  =====================	
 				model = nil
-				errorMsg = nil
+				errorMsg = ""
+				@spentType = params[:log_type].blank? ? "T" : params[:log_type]
 				if params[:log_type].blank? || params[:log_type] == 'T'
 			# =========================
 	
 				call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
 
 			# ============= ERPmine_patch Redmine 4.1.1  =====================
-				errorMsg = statusValidation(@time_entry)
+				if params[:clock_action] == "E" && @time_entry.spent_for.end_on.blank?
+					end_on = Time.now - (Time.now.utc_offset.seconds + (params[:offSet].to_i).minutes)
+					@time_entry.hours = ((end_on - @time_entry.spent_for.spent_on_time)/3600).round(2)
+				end
+				errorMsg += statusValidation(@time_entry)
+				errorMsg += "Can't Update Time Entry until stop the issue logger" if params[:clock_action] == "S" && @time_entry.spent_for.end_on.blank?
 				@time_entry.errors[:base] << errorMsg if errorMsg.present?
 				if errorMsg.blank? && @time_entry.save
 			#=====================
@@ -309,57 +312,64 @@ module TimelogControllerPatch
 
 	# ============= ERPmine_patch Redmine 4.1.1  =====================
 		def saveMatterial
-			wklog_helper = Object.new.extend(WklogmaterialHelper)	
+			wklog_helper = Object.new.extend(WklogmaterialHelper)
+			wktime_helper = Object.new.extend(WktimeHelper)
 			setEntries(WkMaterialEntry, params[:matterial_entry_id])
 			selPrice = params[:product_sell_price].to_f
 			@modelEntries.selling_price = selPrice.blank? ? 0.00 :  ("%.2f" % selPrice)
 			@modelEntries.uom_id = params[:uom_id]
-			inventoryId = ""			
-			begin							
-				if params[:log_type] == 'M' && !params[:inventory_item_id].blank?
-					inventoryObj = wklog_helper.updateParentInventoryItem(params[:inventory_item_id].to_i, params[:product_quantity].to_i, @modelEntries.quantity)
-					inventoryId =  inventoryObj.id 
-					currency =  inventoryObj.currency
+			inventoryId = ""
+			if params[:log_type] == 'M' && !params[:inventory_item_id].blank?
+				inventoryObj = wklog_helper.updateParentInventoryItem(params[:inventory_item_id].to_i, params[:product_quantity].to_i, @modelEntries.quantity)
+				inventoryId =  inventoryObj.id
+				currency =  inventoryObj.currency
+			else
+				inventoryId =  params[:inventory_item_id]
+				currency = Setting.plugin_redmine_wktime['wktime_currency']
+			end
+			if inventoryId.blank?
+				errorMsg = "Requested no of items not available in the stock"
+			else
+				if params[:log_type] == "A" && params[:clock_action] == "S" && @modelEntries.spent_for.blank?
+					quantity = "0.1"
+				elsif params[:log_type] == "A" && params[:clock_action] == "E" && @modelEntries.spent_for.present? && @modelEntries.spent_for.end_on.blank?
+					quantity = wktime_helper.getAssetQuantity(@modelEntries.spent_for.spent_on_time, wktime_helper.get_current_DateTime(params[:offSet]), params[:inventory_item_id])
 				else
-					inventoryId =  params[:inventory_item_id]
-					currency = Setting.plugin_redmine_wktime['wktime_currency']
+					quantity = params[:product_quantity].to_i
 				end
-				if inventoryId.blank?
-					errorMsg = "Requested no of items not available in the stock"
-				else
-					@modelEntries.inventory_item_id = inventoryId.to_i
-					@modelEntries.quantity = params[:product_quantity].to_i
-					@modelEntries.currency = currency
-					unless @modelEntries.valid?	
-						errorMsg = @modelEntries.errors.full_messages.join("<br>")
-					else 
-						@modelEntries.save
-					end
-					if params[:log_type] == 'A' || params[:log_type] == @logType
-						inventoryObj = WkInventoryItem.find(inventoryId.to_i)
-						assetObj = inventoryObj.asset_property
-						if params[:matterial_entry_id].blank? ||(params[:is_done].blank? || params[:is_done] == "0") 								
-							assetObj.matterial_entry_id = @modelEntries.id 
-						else
-							assetObj.matterial_entry_id = nil
-						end
-						assetObj.save
-					end
+				@modelEntries.inventory_item_id = inventoryId.to_i
+				@modelEntries.quantity = quantity
+				@modelEntries.currency = currency
+				unless @modelEntries.valid?	
+					errorMsg = @modelEntries.errors.full_messages.join("<br>")
+				else 
+					@modelEntries.save
 				end
-				respond_to do |format|
-					format.html { 
-					unless errorMsg.blank?
-						flash[:error] = errorMsg
-						render :action => 'new'
+				if params[:log_type] == 'A' || params[:log_type] == @logType
+					inventoryObj = WkInventoryItem.find(inventoryId.to_i)
+					assetObj = inventoryObj.asset_property
+					if params[:matterial_entry_id].blank? ||(params[:is_done].blank? || params[:is_done] == "0") 								
+						assetObj.matterial_entry_id = @modelEntries.id 
 					else
-						flash[:notice] = l(:notice_successful_update)
-						redirect_back_or_default project_time_entries_path(@time_entry.project)
+						assetObj.matterial_entry_id = nil
 					end
-					 
-					}
+					assetObj.save
 				end
-			rescue => ex
-				logger.error ex.message
+			end
+			respond_to do |format|
+				format.html { 
+				unless errorMsg.blank?
+					flash[:error] = errorMsg
+					if assetObj.present? && assetObj.id.present?
+						redirect_to :controller => 'timelog',:action => 'edit'	
+					else
+						render :action => 'new'
+					end
+				else
+					flash[:notice] = l(:notice_successful_update)
+					redirect_back_or_default project_time_entries_path(@time_entry.project)
+				end
+				}
 			end
 		end
 
@@ -388,7 +398,7 @@ module TimelogControllerPatch
 				@modelEntries.save
 			end
 			respond_to do |format|
-				format.html { 
+				format.html {
 				unless errorMsg.blank?
 					flash[:error] = errorMsg
 					render :action => 'new'
@@ -396,7 +406,9 @@ module TimelogControllerPatch
 					flash[:notice] = l(:notice_successful_update)
 					redirect_back_or_default project_time_entries_path(@time_entry.project)
 				end
-				 
+				}
+				format.api {
+					render(text: (errorMsg.blank? ? "done" : errorMsg))
 				}
 			end
 		end
@@ -649,7 +661,7 @@ module TimelogControllerPatch
 			wktime_helper = Object.new.extend(WktimeHelper)
 			status = wktime_helper.getTimeEntryStatus(time_entry.spent_on, time_entry.user_id)
 			valid = time_entry.activity_id.blank? || time_entry.hours.blank? || status.blank? || ('a' != status && 's' != status && 'l' != status)
-			return valid ? nil : l(:label_warning_wktime_time_entry)
+			return valid ? "" : l(:label_warning_wktime_time_entry)
 		end
 		# =============================
 	end

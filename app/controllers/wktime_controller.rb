@@ -420,7 +420,7 @@ include ActionView::Helpers::TagHelper
 		end
 		issueAssignToUsrCond
 	end
-	
+
 	def getissues
 		projectids = []
 		if !params[:term].blank? 
@@ -521,7 +521,27 @@ include ActionView::Helpers::TagHelper
 			render js: issueRlt
 		end
 	end
-  
+
+	def get_issue_loggers
+		if params[:type] == "finish"
+			issueLogs = WkSpentFor.getIssueLog
+			container = ""
+			timer = ""
+			issueLogs.each do |log|
+				dateTime = get_current_DateTime
+				hours = time_diff(dateTime, log.spent_on_time)
+				timespan = content_tag("span", hours.to_s, id: ("timer_" + log.id.to_s))
+				issuespan = content_tag("span", "#{log.project_name} - #{log.tracker_name} - #{log.issue_id}##{log.subject} " )
+				container << content_tag("span", (issuespan + timespan), class: "issue_select", id: log.id )
+				timer << "$('##{("timer_" + log.id.to_s)}').timer({ action: 'start', seconds: #{(dateTime - log.spent_on_time).to_i} });"
+			end
+			container = "$('#issueLog .drdn-items.issues').html('" + container + "');" + timer
+			render(js: container)
+		else
+			getissues
+		end
+	end
+
 	def getactivities
 		project = nil
 		error = nil

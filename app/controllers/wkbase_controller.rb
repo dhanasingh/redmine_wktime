@@ -152,17 +152,14 @@ class WkbaseController < ApplicationController
 		end
 	end
 
-	def saveTimeLog
-		entryTime = Time.now
-		entryTime = entryTime - (entryTime.utc_offset.seconds + (params[:offSet].to_i).minutes)
-
-		lastTimeEntry = WkSpentFor.lastEntry.first
-		if lastTimeEntry.blank?
+	def saveIssueTimeLog
+		entryTime = get_current_DateTime
+		if params[:issue_id].present?
 			project = Issue.find(params[:issue_id]).project
 			activityID = project.activities.first.id
 			timeEntryAttr = {
 				project_id: project.id, user_id: User.current.id, issue_id: params[:issue_id], hours: 0.1, activity_id: activityID,
-				spent_on: Date.today, author_id: User.current.id, spent_for_attributes: { spent_on_time: entryTime, start_on: entryTime }
+				spent_on: Date.today, author_id: User.current.id, spent_for_attributes: { spent_on_time: entryTime, clock_action: "S" }
 			}
 			# save GeoLocation
 			if isChecked('te_save_geo_location') && params[:longitude].present? && params[:latitude].present?
@@ -170,23 +167,48 @@ class WkbaseController < ApplicationController
 				timeEntryAttr[:spent_for_attributes][:s_latitude] = params[:latitude]
 			end
 			timeEntry = TimeEntry.new(timeEntryAttr)
+			timeEntry.save
 		else
-			timeEntry = TimeEntry.find(lastTimeEntry.id)
-			start  = DateTime.strptime(timeEntry.spent_for.start_on.to_s, "%Y-%m-%d %H:%M:%S %z").to_time
-			finish = DateTime.strptime(entryTime.to_s, "%Y-%m-%d %H:%M:%S %z").to_time
-			finish += 24*60*60 if finish < start
-			timeEntry.hours = ((finish-start)/3600).round(2)
-			timeEntry.spent_for.end_on = entryTime
-			# save GeoLocation
-			if isChecked('te_save_geo_location') && params[:longitude].present? && params[:latitude].present?
-				timeEntry.spent_for.e_longitude = params[:longitude]
-				timeEntry.spent_for.e_latitude = params[:latitude]
+			wkSpentFor = WkSpentFor.find(params[:id])
+			if(wkSpentFor.spent_type == "TimeEntry")
+				timeEntry = TimeEntry.find(wkSpentFor.spent_id)
+				start  = DateTime.strptime(timeEntry.spent_for.spent_on_time.to_s, "%Y-%m-%d %H:%M:%S %z").to_time
+				finish = DateTime.strptime(entryTime.to_s, "%Y-%m-%d %H:%M:%S %z").to_time
+				timeEntry.hours = ((finish-start)/3600).round(2)
+				timeEntry.spent_for.end_on = entryTime
+				timeEntry.spent_for.clock_action = "E"
+				# save GeoLocation
+				if isChecked('te_save_geo_location') && params[:longitude].present? && params[:latitude].present?
+					timeEntry.spent_for.e_longitude = params[:longitude]
+					timeEntry.spent_for.e_latitude = params[:latitude]
+				end
+				timeEntry.save
+			else
+				materialEntry = WkMaterialEntry.find(wkSpentFor.spent_id)
+				quantity = getAssetQuantity(materialEntry.spent_for.spent_on_time, entryTime, materialEntry.inventory_item_id)
+				materialEntry.quantity = quantity
+				materialEntry.spent_for.end_on = entryTime
+				materialEntry.spent_for.clock_action = "E"
+				# save GeoLocation
+				if isChecked('te_save_geo_location') && params[:longitude].present? && params[:latitude].present?
+					materialEntry.spent_for.e_longitude = params[:longitude]
+					materialEntry.spent_for.e_latitude = params[:latitude]
+				end
+				unless materialEntry.valid?
+					renderMsg = materialEntry.errors.full_messages.join("<br>")
+				else
+					materialEntry.save
+				end
+				inventoryObj = WkInventoryItem.find(materialEntry.inventory_item_id)
+				assetObj = inventoryObj.asset_property
+				assetObj.matterial_entry_id = nil
+				assetObj.save
 			end
 		end
-		timeEntry.save
-		trackerName = timeEntry.issue.tracker.to_s + '#' + timeEntry.issue_id.to_s
+		lastIssueLog = WkSpentFor.getIssueLog.first
+		renderMsg = lastIssueLog.blank? ? "start" : "finish" if renderMsg.blank?
 		respond_to do |format|
-			format.text  { render :plain => trackerName }
+			format.text  { render(js: renderMsg) }
 		end
 	end
 
