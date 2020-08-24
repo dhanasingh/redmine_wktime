@@ -106,7 +106,6 @@ $(document).ready(function(){
 	$('#issueLog span').on('click', function(){
 		const clock_action = $('#clock_action').val();
 		if(clock_action == 'S') $('#issue-content .quick-search').hide();
-		// let imgName = getIssuetrackerImg();
 		const offSet = (new Date).getTimezoneOffset();
 		projectID = $("#projectID").val();
 		$.ajax({
@@ -297,7 +296,6 @@ function signAttendance(str)
 }
 
 function saveIssueTimeLog(ele){
-	// let imgName = getIssuetrackerImg();
 	let date = new Date();
 	const offSet = date.getTimezoneOffset();
 	const clock_action = $('#clock_action').val();
@@ -328,10 +326,4 @@ function saveIssueTimeLog(ele){
 		}
 	});
 	$('.drdn.expanded').removeClass('expanded');
-}
-
-function getIssuetrackerImg(){
-	let imgName = $('span#issueImg img').prop('src');
-	imgName = imgName.replace( /^.*?([^\/]+)\..+?$/, '$1' );
-	return imgName;
 }

@@ -8,7 +8,6 @@
 		    loadSpentFors(project.val(), 'spent_for', false, uid)
 		});
 	}
-	// if($('#spentForId').val() != '') $('#log_type').prop('disabled', 'true');
 
 	//Time Tracking
 	if($('#spentForId').val() != '') $('#clock_action').val() == '' ? $('#issuelogtable').hide() : $('#issuelogtable').show();
@@ -30,7 +29,7 @@
 		$('#issuelogtable').show();
 	});
 
-	$('.issueLog').on('click', function(){
+	$('#issueLogger').on('click', function(){
 		var clock_action = $('#clock_action').val();
 		var newDate = new Date(); 
 		clock_action = clock_action == '' || clock_action == 'E' ? 'S' : 'E';
@@ -43,8 +42,7 @@
 			$('#time_entry_hours').val(0.1).prop('disabled', true);
 			$('#h_time_entry_hours').prop('name', 'time_entry[hours]');
 			$('.issueLog img').prop('src','/plugin_assets/redmine_wktime/images/finish.png');
-			$('#issueLogger').appendTo('#e_issueLogger').css({ border: 'solid red' });
-			$('.drdn-trigger.issueLog.clock').css('color', 'red');
+			$('#issueLogger').appendTo('#e_issueLogger').css({ background: 'red' }).html('stop');
 			$('#end_on').val('');
 			$('#start_on').val(newDate.toISOString());
 			$('#td_start_on').html(newDate.toISOString().split('T'));

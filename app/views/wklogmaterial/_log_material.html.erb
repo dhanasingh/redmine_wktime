@@ -214,18 +214,16 @@
 		issuelogTimer = logger.present? ? wktime_helper.time_diff(Time.now, logger.spent_on_time) : "00:00"
 		issueStarted = logger.present? && logger.clock_action == "S"
 		imgName = issueStarted ? ["finish", "red"] : ["start", "green"]
-		image = image_tag(imgName[0] + ".png", plugin: "redmine_wktime", style: "height: 22px")
-		imageSpan = content_tag("div", image, class: "drdn-trigger issueLog", style: "float: left; padding:5px;")
-		buttonName = content_tag("div", (logger.present? ? "Stop" : "Start"), class: "drdn-trigger issueLog clock", style: "padding:5px; color: #{imgName[1]}; font-weight: bold;")
-		clock = issueStarted || logger.blank? ? content_tag("div",(imageSpan + buttonName), class: "issueLog", id: "issueLogger", style: "border: solid #{imgName[1]}; border-radius: 20px;") : nil
+		button = issueStarted || logger.blank? ? content_tag("div", (logger.present? ? "Stop" : "Start"), class: "drdn-trigger issueLog clock", id: "issueLogger",
+			style: "color: white; font-weight: bold; border-radius: 20px; background: #{imgName[1]}; padding-left: 15px; padding-top: 5px; padding-bottom: 5px; padding-right: 15px;") : nil
 	%>
 	<%= javascript_tag do %>
 		var label_warn_hours = "<%= l(:label_warn_hours) %>";
 		<% if issueStarted %>
 			$(function(){
 				$("#logTimer").timer({
-						action: 'start',
-						seconds: <%= seconds.to_i %>
+					action: 'start',
+					seconds: <%= seconds.to_i %>
 				});
 			});
 		<% end %>
@@ -241,7 +239,7 @@
 			<th align="right" ><%= l(:label_start_time) %></th>
 			<td align="left" id="td_start_on"><%= start_on %></td>
 			<td id="s_issueLogger">
-				<%= clock %>
+				<%= button %>
 			</td>
 		</tr>
 		<tr>
