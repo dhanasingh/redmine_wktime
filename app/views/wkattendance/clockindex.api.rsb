@@ -7,6 +7,10 @@ api.array :wk_clkinout, api_meta(:total_count => @entry_count, :offset => @offse
         api.clock_out clk_entry.end_time.localtime.strftime('%R') unless clk_entry.end_time.nil?
         api.hours clk_entry.hours
         api.startdate clk_entry.entry_date
+        api.s_longitude clk_entry.s_longitude
+        api.s_latitude clk_entry.s_latitude
+        api.e_longitude clk_entry.e_longitude
+        api.e_latitude clk_entry.e_latitude
       end
   end
 end

@@ -41,4 +41,7 @@
 		<p style="padding-left:245px;">
 			<label><%= l(:label_enable_issue_logger) %> <%= check_box_tag('settings[label_enable_issue_logger]', 1, @settings['label_enable_issue_logger'].to_i == 1)%></label>
 		</p>
+		<p style="padding-left:220px;">
+		  <label><%= l(:label_mapbox_apikey) %></label><%= text_field_tag 'settings[label_mapbox_apikey]', @settings['label_mapbox_apikey']%>
+		</p>
 	</fieldset>
