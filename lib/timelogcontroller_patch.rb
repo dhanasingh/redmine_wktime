@@ -125,10 +125,6 @@ module TimelogControllerPatch
 		end
 
 		def create
-			if api_request?
-				(params[:params] || []).each{|param| params[param.first] = param.last }
-				params.delete("params")
-			end			
 			@time_entry ||= TimeEntry.new(:project => @project, :issue => @issue, :author => User.current, :user => User.current, :spent_on => User.current.today)
 			@time_entry.safe_attributes = params[:time_entry]
 			if @time_entry.project && !User.current.allowed_to?(:log_time, @time_entry.project)
@@ -137,48 +133,17 @@ module TimelogControllerPatch
 			end
 			# ============= ERPmine_patch Redmine 4.1.1  =====================	
 				model = nil
-				errorMsg = nil
+				errorMsg = ""
 				if params[:log_type].blank? || params[:log_type] == 'T'
 			#=====================
 				call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
 
 			# ============= ERPmine_patch Redmine 4.1.1  =====================
 				errorMsg = statusValidation(@time_entry)
-				@time_entry.errors[:base] << errorMsg if errorMsg.present?
-				if errorMsg.blank? && @time_entry.save
-			#=====================
-					respond_to do |format|
-						format.html {
-							flash[:notice] = l(:notice_successful_create)
-							if params[:continue]
-								options = {
-									:time_entry => {
-										:project_id => params[:time_entry][:project_id],
-										:issue_id => @time_entry.issue_id,
-										:spent_on => @time_entry.spent_on,
-										:activity_id => @time_entry.activity_id
-									},
-									:back_url => params[:back_url]
-								}
-								if params[:project_id] && @time_entry.project
-									redirect_to new_project_time_entry_path(@time_entry.project, options)
-								elsif params[:issue_id] && @time_entry.issue
-									redirect_to new_issue_time_entry_path(@time_entry.issue, options)
-								else
-									redirect_to new_time_entry_path(options)
-								end
-							else
-								redirect_back_or_default project_time_entries_path(@time_entry.project)
-							end
-						}
-						format.api  { renderTime(@time_entry) }
-					end
-				else
-					respond_to do |format|
-						format.html { render :action => 'new' }
-						format.api  { render_validation_errors(@time_entry) }
-					end
+				unless errorMsg.blank? && @time_entry.save
+					timeErrorMsg = @time_entry.errors.full_messages.join("<br>")
 				end
+			#=====================
 			# ============= ERPmine_patch Redmine 4.1.1  =====================
 				else
 					hookType = call_hook(:create_time_entry_log_type, :params => params)
@@ -191,32 +156,82 @@ module TimelogControllerPatch
 						saveMatterial if params[:log_type] == 'M' || params[:log_type] == 'A' || params[:log_type] == @logType
 						saveExpense if params[:log_type] == 'E'
 						model = @modelEntries
-					else
-						respond_to do |format|
-							format.html { 					
-								flash[:error] = errorMsg
-								render :action => 'new'
-							
-							}
-						end
 					end
 				end
 				if errorMsg.blank?
 					spentForModel = model.blank? ? @time_entry : model
 					saveSpentFors(spentForModel)
 				end
+				respond_to do |format|
+					format.html {
+					if errorMsg.blank? && timeErrorMsg.blank?
+						flash[:notice] = l(:notice_successful_update)
+						if params[:continue]
+							options = {
+								:time_entry => {
+									:project_id => params[:time_entry][:project_id],
+									:issue_id => @time_entry.issue_id,
+									:spent_on => @time_entry.spent_on,
+									:activity_id => @time_entry.activity_id
+								},
+								:back_url => params[:back_url]
+							}
+							if params[:project_id] && @time_entry.project
+								redirect_to new_project_time_entry_path(@time_entry.project, options)
+							elsif params[:issue_id] && @time_entry.issue
+								redirect_to new_issue_time_entry_path(@time_entry.issue, options)
+							else
+								redirect_to new_time_entry_path(options)
+							end
+						else
+							redirect_back_or_default project_time_entries_path(@time_entry.project)
+						end
+					else
+						flash[:error] = errorMsg if errorMsg.present?
+						if @assetObj.present? && @assetObj.id.present?
+							redirect_to :controller => 'timelog',:action => 'edit'
+						else
+							render :action => 'new'
+						end
+					end
+					}
+					format.api {
+						if errorMsg.blank? && timeErrorMsg.blank?
+							if params[:log_type].blank? || params[:log_type] == 'T' || params[:log_type] == 'A'
+								renderLog
+							else
+								render :plain => errorMsg, :layout => nil
+							end
+						else
+							errorMsg += timeErrorMsg if params[:log_type].blank? || params[:log_type] == 'T'
+							@error_messages = errorMsg.split('\n')	
+							render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+						end
+					}
+				end
 				#=====================
 		end
 
 	# ============= ERPmine_patch Redmine 4.1.1  =====================
-		def renderTime(entry)
-			data = {}
-			data = {id: entry.id, hours: entry.hours, comments: entry.comments, spent_on: entry.spent_on}
+		def renderLog
+			data = {}	
+			entry = params[:log_type] == 'A' ? @modelEntries : @time_entry
+			if(params[:log_type] == 'A')
+				inventoryItem = entry.inventory_item
+				assetObj = entry.inventory_item.asset_property
+				data = {log_type: 'A', id: entry.id, comments: entry.comments, spent_on: entry.spent_on, product_quantity: entry.quantity,product_sell_price: entry.selling_price, location_id: inventoryItem.location_id, rate_per: assetObj.rate_per,
+				product_id: inventoryItem.product_item.product.id, uom_id: entry.uom_id, product_item_id: inventoryItem.product_item_id, available_quantity: inventoryItem.available_quantity, is_done: assetObj.nil? || assetObj.matterial_entry_id.nil?, inventory_item_id: entry.inventory_item_id}
+				 spentFor = WkMaterialEntry.find(entry.id).spent_for
+			else
+				data = {log_type: 'T', id: entry.id, hours: entry.hours, comments: entry.comments, spent_on: entry.spent_on}
+				spentFor = TimeEntry.find(entry.id).spent_for
+			end
 			data['project'] = {id: entry.project_id}
 			data['issue'] = {id: entry.issue_id}
 			data['activity'] = {id: entry.activity_id}
 			data['user'] = {id: entry.user_id}
-			render json: data
+			data['spentFor'] = {id: spentFor.id, start_on: spentFor.spent_on_time, end_on: spentFor.end_on, clock_action: spentFor.clock_action}
+			render json: data.to_json
 		end
 
 		def saveSpentFors(model)
@@ -284,21 +299,8 @@ module TimelogControllerPatch
 				end
 				errorMsg += statusValidation(@time_entry)
 				errorMsg += "Can't Update Time Entry until stop the issue logger" if params[:clock_action] == "S" && @time_entry.spent_for.end_on.blank?
-				@time_entry.errors[:base] << errorMsg if errorMsg.present?
-				if errorMsg.blank? && @time_entry.save
-			#=====================
-					respond_to do |format|
-						format.html {
-						flash[:notice] = l(:notice_successful_update)
-						redirect_back_or_default project_time_entries_path(@time_entry.project)
-						}
-						format.api  { render_api_ok }
-					end
-				else
-					respond_to do |format|
-						format.html { render :action => 'edit' }
-						format.api  { render_validation_errors(@time_entry) }
-					end
+				unless errorMsg.blank? && @time_entry.save
+					timeErrorMsg = @time_entry.errors.full_messages.join("<br>")
 				end
 			# ============= ERPmine_patch Redmine 4.1.1  =====================	
 				else
@@ -317,9 +319,33 @@ module TimelogControllerPatch
 						redirect_to :controller => 'timelog',:action => 'edit'					
 					end
 				end
-				if errorMsg.blank? && params[:log_type] != 'E'
+				if errorMsg.blank?
 					spentForModel = model.blank? ? @time_entry : model
 					saveSpentFors(spentForModel)
+				end
+				respond_to do |format|					
+					format.html {
+						if errorMsg.blank? && timeErrorMsg.blank?
+							flash[:notice] = l(:notice_successful_update)
+							redirect_back_or_default project_time_entries_path(@time_entry.project)
+						else
+							flash[:error] = errorMsg if errorMsg.present?
+							if @assetObj.present? && @assetObj.id.present?
+								redirect_to :controller => 'timelog',:action => 'edit'
+							else
+								render :action => 'new'
+							end
+						end
+					}
+					format.api {
+						if errorMsg.blank? && timeErrorMsg.blank?
+							render :plain => errorMsg, :layout => nil
+						else
+							errorMsg += timeErrorMsg if params[:log_type].blank? || params[:log_type] == 'T'			
+							@error_messages = errorMsg.split('\n')	
+							render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+						end
+					}
 				end
 			#=====================
 		end
@@ -361,30 +387,16 @@ module TimelogControllerPatch
 				end
 				if params[:log_type] == 'A' || params[:log_type] == @logType
 					inventoryObj = WkInventoryItem.find(inventoryId.to_i)
-					assetObj = inventoryObj.asset_property
+					@assetObj = inventoryObj.asset_property
 					if params[:matterial_entry_id].blank? ||(params[:is_done].blank? || params[:is_done] == "0") 								
-						assetObj.matterial_entry_id = @modelEntries.id 
+						@assetObj.matterial_entry_id = @modelEntries.id 
 					else
-						assetObj.matterial_entry_id = nil
+						@assetObj.matterial_entry_id = nil
 					end
-					assetObj.save
+					@assetObj.save
 				end
 			end
-			respond_to do |format|
-				format.html { 
-				unless errorMsg.blank?
-					flash[:error] = errorMsg
-					if assetObj.present? && assetObj.id.present?
-						redirect_to :controller => 'timelog',:action => 'edit'	
-					else
-						render :action => 'new'
-					end
-				else
-					flash[:notice] = l(:notice_successful_update)
-					redirect_back_or_default project_time_entries_path(@time_entry.project)
-				end
-				}
-			end
+			return errorMsg
 		end
 
 		def setEntries(model, id)
@@ -411,20 +423,7 @@ module TimelogControllerPatch
 			else 
 				@modelEntries.save
 			end
-			respond_to do |format|
-				format.html {
-				unless errorMsg.blank?
-					flash[:error] = errorMsg
-					render :action => 'new'
-				else
-					flash[:notice] = l(:notice_successful_update)
-					redirect_back_or_default project_time_entries_path(@time_entry.project)
-				end
-				}
-				format.api {
-					render(text: (errorMsg.blank? ? "done" : errorMsg))
-				}
-			end
+			return errorMsg
 		end
 	
 		def set_filter_session
