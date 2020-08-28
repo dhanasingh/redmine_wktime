@@ -158,10 +158,9 @@ include ActionView::Helpers::TagHelper
 
   # called when save is clicked on the page
 	def update
-		if api_request? && params[:params].present?
+		if api_request? && params.present?
 			key = "wk_" + getTEName()
-			params[key] = params[:params]
-			params.delete("params")
+			params[key] = params
 		end
 		setup
 		set_loggable_projects
@@ -1484,7 +1483,7 @@ private
 							if(!id.blank? || !hours[j].blank?)
 								teEntry = nil
 								teEntry = getTEEntry(id)
-								setSpentForID(entry, spentForIds, k)
+								setSpentForID(entry, teEntry, spentForIds, k)
 								entry.permit!
 								teEntry.attributes = entry
 								# since project_id and user_id is protected
@@ -2466,7 +2465,7 @@ private
 		session[controller_name].try(:[], :all_user_ids)
 	end
 
-	def setSpentForID(entry, spentForIds, k)
+	def setSpentForID(entry, teEntry, spentForIds, k)
 		entry[:spent_for_attributes] = {} if entry[:spent_for_attributes].blank?
 		entry[:spent_for_attributes][:id] = spentForIds.present? && spentForIds[k].present? ? spentForIds[k] : nil
 	end

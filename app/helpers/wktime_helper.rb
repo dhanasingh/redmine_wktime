@@ -1439,11 +1439,11 @@ end
 
 		# save GeoLocation
 		if isChecked('te_save_geo_location') && latitude.present? && longitude.present?
-			if spentObj.blank? || spentObj.s_longitude.blank? && spentObj.s_latitude.blank?
+			if spentObj.blank? || spentObj.s_longitude.blank? && spentObj.s_latitude.blank? && (clock_action.blank? || clock_action == "S")
 				spentObj.s_longitude = longitude
 				spentObj.s_latitude = latitude
 			end
-			if spentObj.blank? || spentObj.e_longitude.blank? && spentObj.e_latitude.blank?
+			if spentObj.blank? || spentObj.e_longitude.blank? && spentObj.e_latitude.blank? && (clock_action.blank? || clock_action == "E")
 				spentObj.e_longitude = longitude
 				spentObj.e_latitude = latitude
 			end

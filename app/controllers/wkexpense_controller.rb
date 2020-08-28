@@ -136,9 +136,23 @@ class WkexpenseController < WktimeController
     render json: currencies
   end
 
-  def setSpentForID(entry, spentForIds, k)
-		entry[:spent_for_attributes] = {} if entry[:spent_for_attributes].blank?
-		entry[:spent_for_attributes][:id] = spentForIds.present? && spentForIds[k].present? ? spentForIds[k] : nil
+  def setSpentForID(entry, teEntry, spentForIds, k)
+		spent_for = {spent_type: 'WkExpenseEntry'}
+    spent_for[:id] = spentForIds.present? && spentForIds[k].present? ? spentForIds[k] : nil
+    
+    spent_for['spent_on_time'] = getDateTime(@startday + k, 0, 0, 0)
+		# save GeoLocation
+		if isChecked('te_save_geo_location') && params[:latitude].present? && params[:longitude].present?
+			if spent_for['s_latitude'].blank? && spent_for['s_longitude'].blank?
+				 spent_for['s_latitude'] = params[:latitude]
+				 spent_for['s_longitude'] = params[:longitude]
+			end
+			if spent_for['e_latitude'].blank? && spent_for['e_longitude'].blank?
+				 spent_for['e_latitude'] = params[:latitude]
+				 spent_for['e_longitude'] = params[:longitude]
+			end
+    end
+    teEntry.wkspentfor_attributes = spent_for
   end
 
 private
