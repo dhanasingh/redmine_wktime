@@ -1483,7 +1483,7 @@ private
 							if(!id.blank? || !hours[j].blank?)
 								teEntry = nil
 								teEntry = getTEEntry(id)
-								setSpentForID(entry, teEntry, spentForIds, k)
+								setSpentForID(entry, spentForIds, k)
 								entry.permit!
 								teEntry.attributes = entry
 								# since project_id and user_id is protected
@@ -1495,28 +1495,7 @@ private
 								else
 									teEntry.spent_on = @startday + k
 								end
-
-								unless entry['spent_for_attributes'].blank? 
-									unless entry['spent_for_attributes']['spent_for_key'].blank?
-										spentFor = getSpentFor(entry['spent_for_attributes']['spent_for_key'])
-										if spentFor[1].to_i > 0
-											teEntry.spent_for.spent_for_type = spentFor[0]
-											teEntry.spent_for.spent_for_id = spentFor[1].to_i
-										end
-									end
-									teEntry.spent_for.spent_on_time = getDateTime(teEntry.spent_on, entry['spent_for_attributes']['spent_date_hr'], entry['spent_for_attributes']['spent_date_min'], 0)
-								end
-								# save GeoLocation
-								if isChecked('te_save_geo_location') && params[:latitude].present? && params[:longitude].present?
-									if teEntry.spent_for.s_latitude.blank? && teEntry.spent_for.s_longitude.blank?
-										teEntry.spent_for.s_latitude = params[:latitude]
-										teEntry.spent_for.s_longitude = params[:longitude]
-									end
-									if teEntry.spent_for.e_latitude.blank? && teEntry.spent_for.e_longitude.blank?
-										teEntry.spent_for.e_latitude = params[:latitude]
-										teEntry.spent_for.e_longitude = params[:longitude]
-									end
-								end
+								setSpentFor(entry, teEntry, spentForIds, k)
 
 								#for one comment, it will be automatically loaded into the object
 								# for different comments, load it separately
@@ -1640,6 +1619,7 @@ private
 					setValueForSpField(teEntry,(entry[:"#{spField}"].to_s),decimal_separator,entry)			
 					@hrPerDay[entry[:spent_on]] = "#{@hrPerDay[entry[:spent_on]]}".to_f + (entry[:"#{spField}"].to_s).gsub(decimal_separator, '.').to_f
 					@total = @total + (entry[:"#{spField}"].to_s).gsub(decimal_separator, '.').to_f
+					setSpentFor(entry, teEntry, [entry[:spent_for_id]], 0)
 					@entries << teEntry
 				end
 			end
@@ -2465,8 +2445,29 @@ private
 		session[controller_name].try(:[], :all_user_ids)
 	end
 
-	def setSpentForID(entry, teEntry, spentForIds, k)
+	def setSpentForID(entry, spentForIds, k)
 		entry[:spent_for_attributes] = {} if entry[:spent_for_attributes].blank?
 		entry[:spent_for_attributes][:id] = spentForIds.present? && spentForIds[k].present? ? spentForIds[k] : nil
+	end
+
+	def setSpentFor(entry, teEntry, spentForIds, k)
+		spent_for = {}
+		spent_for[:id] = spentForIds.present? && spentForIds[k].present? ? spentForIds[k] : nil		
+		
+		unless entry['spent_for_attributes'].blank? 
+			unless entry['spent_for_attributes']['spent_for_key'].blank?
+				spentFor = getSpentFor(entry['spent_for_attributes']['spent_for_key'])
+				if spentFor[1].to_i > 0
+					spent_for['spent_for_type'] = spentFor[0]
+					spent_for['spent_for_id'] = spentFor[1].to_i
+				end
+			end
+			spent_for['spent_on_time'] = getDateTime(teEntry.spent_on, entry['spent_for_attributes']['spent_date_hr'], entry['spent_for_attributes']['spent_date_min'], 0)
+		end
+		spent_for['spent_on_time'] = getDateTime(teEntry.spent_on, 0, 0, 0) if entry['spent_for_attributes'].blank?
+		# save GeoLocation
+    saveGeoLocation(spent_for, params[:latitude], params[:longitude])
+    
+		teEntry.spent_for_attributes = spent_for
 	end
 end

@@ -84,10 +84,6 @@ class WkcrmactivityController < WkcrmController
   end
   
   def update
-		if api_request?
-			(params[:params] || []).each{|param| params[param.first] = param.last }
-			params.delete("params")
-		end
 		errorMsg = nil
 		crmActivity = nil
 		@tempCrmActivity ||= Array.new

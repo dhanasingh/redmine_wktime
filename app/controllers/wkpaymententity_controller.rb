@@ -184,15 +184,12 @@ class WkpaymententityController < WkbillingController
 	
 	def update
 		if api_request?
-			(params[:params] || []).each{|param| params[param.first] = param.last }
-			params.delete("params")
 			params['payment_entries'].each_with_index do |entry, index|
 				entry.each do | item |
 					params[item.first + (index+1).to_s] = item.last				
 				end
 			end
 			params['totalrow'] = params['payment_entries'].length
-			params.delete("payment_entries")
 		end
 		errorMsg = nil
 		paymentItem = nil

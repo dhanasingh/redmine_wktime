@@ -432,7 +432,7 @@ class WkattendanceController < WkbaseController
 	def saveClockInOut
 		endtime = nil
 		if api_request?
-			params['params'].each do |cEntries|
+			params['clock_entries'].each do |cEntries|
 				# starttime = params[:startdate].to_date.to_s + " " +  cEntries['clock_in'] + ":00"
 				# entry_start_time = DateTime.strptime(cEntries['clock_in'], "%Y-%m-%d %T") rescue starttime
 				# endtime = params[:startdate].to_date.to_s + " " +  cEntries['clock_out'] + ":00" if !cEntries['clock_out'].blank?

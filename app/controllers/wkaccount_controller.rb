@@ -97,13 +97,6 @@ class WkaccountController < WkcrmController
     end	
 	
 	def update
-		if api_request?
-			(params[:params] || []).each{|param| params[param.first] = param.last }
-			params.delete("params")
-			(params[:address] || []).each{|addr| params[addr.first] = addr.last }
-			params.delete("address")
-		end
-
 		errorMsg = nil
 		if params[:account_id].blank? || params[:account_id].to_i == 0
 			wkaccount = WkAccount.new

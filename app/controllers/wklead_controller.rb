@@ -141,12 +141,6 @@ class WkleadController < WkcrmController
 	end
 	  
 	def update
-		if api_request?
-			(params[:params] || []).each{|param| params[param.first] = param.last }
-			params.delete("params")
-			(params[:address] || []).each{|addr| params[addr.first] = addr.last }
-			params.delete("address")
-		end
 		wkLead = update_without_redirect
 		respond_to do |format|
 			format.html {

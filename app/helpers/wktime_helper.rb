@@ -1913,4 +1913,18 @@ end
 		end
 		return quantity
 	end
+
+	def saveGeoLocation(spentObj, latitude, longitude)
+		if isChecked('te_save_geo_location') && latitude.present? && longitude.present?
+			if spentObj['s_latitude'].blank? && spentObj['s_longitude'].blank?
+				spentObj['s_latitude'] = latitude
+				spentObj['s_longitude'] = longitude
+			end
+			if spentObj['e_latitude'].blank? && spentObj['e_longitude'].blank?
+				spentObj['e_latitude'] = latitude
+				spentObj['e_longitude'] = longitude
+			end
+		end
+	end
+
 end

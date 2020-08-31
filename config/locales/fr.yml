@@ -1081,3 +1081,6 @@ fr:
   text_are_you_sure_want_dispose_asset: "Are you sure want to dispose asset?"
   label_auto_round_gl: Auto round invoices
   label_trend_chart: Trending Chart
+
+  label_mapbox_apikey: Mapbox API key
+  label_api_key_info: If you are not have a api key get it from here
