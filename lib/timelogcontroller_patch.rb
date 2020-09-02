@@ -159,7 +159,7 @@ module TimelogControllerPatch
 						model = @modelEntries
 					end
 				end
-				if errorMsg.blank?
+				if errorMsg.blank? && timeErrorMsg.blank?
 					spentForModel = model.blank? ? @time_entry : model
 					spentForModel = saveSpentFors(spentForModel)
 					model = model.blank? ? @time_entry : model
@@ -320,13 +320,10 @@ module TimelogControllerPatch
 					if errorMsg.blank?
 						saveMatterial if params[:log_type] == 'M' || params[:log_type] == 'A' || params[:log_type] == @logType
 						saveExpense if params[:log_type] == 'E'
-						model = @modelEntries
-					else
-						flash[:error] = errorMsg
-						redirect_to :controller => 'timelog',:action => 'edit'					
+						model = @modelEntries					
 					end
 				end
-				if errorMsg.blank?
+				if errorMsg.blank? && timeErrorMsg.blank?
 					spentForModel = model.blank? ? @time_entry : model
 					saveSpentFors(spentForModel)
 				end

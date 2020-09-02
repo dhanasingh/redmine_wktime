@@ -14,7 +14,7 @@ api.array :time_entries, api_meta(:total_count => @entry_count, :offset => @offs
       api.created_on entry.created_on
       api.updated_on entry.updated_on
       if entry.spent_for.present?
-        spent_for = entry.spent_for.spent_for_type ? entry.project.id.to_s + "|" + entry.spent_for.spent_for_type.to_s + "_" + entry.spent_for.spent_for_id.to_s : nil
+        spent_for = entry.spent_for.spent_for_type ? entry.project.id.to_s + "|" + entry.spent_for.spent_for_type.to_s + "_" + entry.spent_for.spent_for_id.to_s + "|" : nil
         api.spentFor(id: entry.spent_for.id, start_on: entry.spent_for.spent_on_time, end_on: entry.spent_for.end_on, spent_for: spent_for, clock_action: entry.spent_for.clock_action)
       end
 
