@@ -104,7 +104,7 @@ $(document).ready(function(){
 		$("#project-jump").after($("#issueLog"));
 	observeSearchfield('issues-quick-search', null, $('#issues-quick-search').data('automcomplete-url'));
 	$('#issueLog span').on('click', function(){
-		const clock_action = $('#clock_action').val();
+		const clock_action = $('#g_clock_action').val();
 		if(clock_action == 'S') $('#issue-content .quick-search').hide();
 		const offSet = (new Date).getTimezoneOffset();
 		projectID = $("#projectID").val();
@@ -298,7 +298,7 @@ function signAttendance(str)
 function saveIssueTimeLog(ele){
 	let date = new Date();
 	const offSet = date.getTimezoneOffset();
-	const clock_action = $('#clock_action').val();
+	const clock_action = $('#g_clock_action').val();
 	let data = { offSet : offSet };
 	if(clock_action != 'S')
 		data['issue_id'] = ele.id
@@ -316,12 +316,12 @@ function saveIssueTimeLog(ele){
 		success: function(reponse){
 			if(reponse == 'finish'){
 				$('#issueImg img').prop('src','/plugin_assets/redmine_wktime/images/finish.png');
-				$('#clock_action').val('S');
+				$('#g_clock_action').val('S');
 			}
 			else{
 				$('#issueImg img').prop('src','/plugin_assets/redmine_wktime/images/start.png');
 				$('#issue-content .quick-search').show();
-				$('#clock_action').val('');
+				$('#g_clock_action').val('');
 			}
 		}
 	});

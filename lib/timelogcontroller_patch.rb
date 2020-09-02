@@ -131,7 +131,8 @@ module TimelogControllerPatch
 				render_403
 				return
 			end
-			# ============= ERPmine_patch Redmine 4.1.1  =====================	
+			# ============= ERPmine_patch Redmine 4.1.1  =====================
+				set_filter_session
 				model = nil
 				errorMsg = ""
 				if params[:log_type].blank? || params[:log_type] == 'T'
@@ -160,31 +161,36 @@ module TimelogControllerPatch
 				end
 				if errorMsg.blank?
 					spentForModel = model.blank? ? @time_entry : model
-					saveSpentFors(spentForModel)
+					spentForModel = saveSpentFors(spentForModel)
+					model = model.blank? ? @time_entry : model
 				end
 				respond_to do |format|
 					format.html {
 					if errorMsg.blank? && timeErrorMsg.blank?
 						flash[:notice] = l(:notice_successful_update)
-						if params[:continue]
-							options = {
-								:time_entry => {
-									:project_id => params[:time_entry][:project_id],
-									:issue_id => @time_entry.issue_id,
-									:spent_on => @time_entry.spent_on,
-									:activity_id => @time_entry.activity_id
-								},
-								:back_url => params[:back_url]
-							}
-							if params[:project_id] && @time_entry.project
-								redirect_to new_project_time_entry_path(@time_entry.project, options)
-							elsif params[:issue_id] && @time_entry.issue
-								redirect_to new_issue_time_entry_path(@time_entry.issue, options)
-							else
-								redirect_to new_time_entry_path(options)
-							end
+						if spentForModel.clock_action == "S"
+							redirect_to controller: 'timelog', action: 'edit', id: model.id
 						else
-							redirect_back_or_default project_time_entries_path(@time_entry.project)
+							if params[:continue]
+								options = {
+									:time_entry => {
+										:project_id => params[:time_entry][:project_id],
+										:issue_id => @time_entry.issue_id,
+										:spent_on => @time_entry.spent_on,
+										:activity_id => @time_entry.activity_id
+									},
+									:back_url => params[:back_url]
+								}
+								if params[:project_id] && @time_entry.project
+									redirect_to new_project_time_entry_path(@time_entry.project, options)
+								elsif params[:issue_id] && @time_entry.issue
+									redirect_to new_issue_time_entry_path(@time_entry.issue, options)
+								else
+									redirect_to new_time_entry_path(options)
+								end
+							else
+								redirect_back_or_default project_time_entries_path(@time_entry.project)
+							end
 						end
 					else
 						flash[:error] = errorMsg if errorMsg.present?
@@ -252,7 +258,7 @@ module TimelogControllerPatch
 				spentForId = spentForVal[1]
 				spentFortype = spentForVal[0]
 			end
-			wktime_helper.saveSpentFor(params[:spentForId], spentForId, spentFortype, model.id, model.class.name, model.spent_on, '00', '00', nil, start_time, end_time, params[:latitude], params[:longitude], params[:clock_action])
+			model = wktime_helper.saveSpentFor(params[:spentForId], spentForId, spentFortype, model.id, model.class.name, model.spent_on, '00', '00', nil, start_time, end_time, params[:latitude], params[:longitude], params[:clock_action])
 		end
 		
 		def validateMatterial
@@ -283,7 +289,8 @@ module TimelogControllerPatch
 	
 		def update
 			@time_entry.safe_attributes = params[:time_entry]
-			# ============= ERPmine_patch Redmine 4.1.1  =====================	
+			# ============= ERPmine_patch Redmine 4.1.1  =====================
+				set_filter_session
 				model = nil
 				errorMsg = ""
 				@spentType = params[:log_type].blank? ? "T" : params[:log_type]
@@ -427,11 +434,11 @@ module TimelogControllerPatch
 		end
 	
 		def set_filter_session
-			if params[:spent_type].blank?
+			if params[:spent_type].blank? && params[:log_type].blank?
 				session[:timelog] = {:spent_type => "T"} if session[:timelog].blank? || session[:timelog][:spent_type].blank?
 			else
 				session[:timelog] = {} if session[:timelog].blank?
-				session[:timelog][:spent_type] = params[:spent_type]
+				session[:timelog][:spent_type] = params[:log_type].blank? ? params[:spent_type] : params[:log_type]
 			end
 		end
 	# =======================================

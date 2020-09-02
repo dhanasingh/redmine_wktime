@@ -101,7 +101,7 @@
 		content = content_tag("div", content_tag("div", issue, class: "quick-search") +
 			content_tag("div", nil, class: "drdn-items issues"), class: "drdn-content", id: "issue-content", style: "width: max-content;" )
 %>
-	<%= hidden_field_tag('clock_action', lastIssueLog ? lastIssueLog.clock_action : nil ) %>
+	<%= hidden_field_tag('g_clock_action', lastIssueLog ? lastIssueLog.clock_action : nil ) %>
 	<%= hidden_field_tag('projectID', @project ? @project.id : "" ) %>
 	<%= content_tag("div", trigger + content, id: "issueLog", class: "drdn") %>
 	<div style="clear: both;"></div>

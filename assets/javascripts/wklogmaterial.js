@@ -45,7 +45,7 @@
 			$('#issueLogger').appendTo('#e_issueLogger').css({ background: 'red' }).html('stop');
 			$('#end_on').val('');
 			$('#start_on').val(newDate.toISOString());
-			$('#td_start_on').html(newDate.toISOString().split('T'));
+			// $('#td_start_on').html(newDate.toISOString().split('T'));
 			$('#offSet').val(newDate.getTimezoneOffset());
 			$('#new_time_entry').submit();
 		}
@@ -59,6 +59,10 @@
 			$('.edit_time_entry').submit();
 		}
 		$('#clock_action').val(clock_action);
+	});
+
+	$('.edit_time_entry .new_time_entry').submit(function(){
+		sessionStorage.setItem("spent_type", $('#log_type').val());
 	});
 });
 

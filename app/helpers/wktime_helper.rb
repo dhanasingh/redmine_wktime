@@ -1449,6 +1449,7 @@ end
 			end
 		end
 		spentObj.save
+		spentObj
 	end
 	
 	def getMonthsBetween(startDate, endDate, startDay)
