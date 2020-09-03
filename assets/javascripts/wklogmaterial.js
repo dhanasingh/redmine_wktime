@@ -10,7 +10,16 @@
 	}
 
 	//Time Tracking
-	if($('#spentForId').val() != '') $('#clock_action').val() == '' ? $('#issuelogtable').hide() : $('#issuelogtable').show();
+	const spent_id = (new URL(window.location.href)).pathname.split('/')[2];
+	if(parseInt(spent_id) > 0) $('#clock_action').val() == '' ? $('#issuelogtable').hide() : $('#issuelogtable').show();
+
+	$('#time_entry_user_id, #time_entry_hours, #log_type').change(function(){
+		const logType = $('#log_type').val();
+		if($('#time_entry_user_id').val() != $('#current_user').val() && $('#clock_action').val() == '' || ($('#time_entry_hours').val() != '' && logType == 'T'))
+			$('#issuelogtable').hide();
+		else if(['T', 'A'].includes(logType))
+			$('#issuelogtable').show();
+	});
 
 	if($('#clock_action').val() == 'S'){
 		$('#time_entry_spent_on').prop('disabled', true);
@@ -21,13 +30,6 @@
 		else
 			$('#logTimer').css({ 'padding-left': '10px', 'padding-right': '10px' }).insertAfter($('#product_quantity'));
 	}
-
-	$('#time_entry_hours').change(function() {
-		if($('#time_entry_hours').val() != '')
-			$('#issuelogtable').hide();
-		else
-		$('#issuelogtable').show();
-	});
 
 	$('#issueLogger').on('click', function(){
 		var clock_action = $('#clock_action').val();

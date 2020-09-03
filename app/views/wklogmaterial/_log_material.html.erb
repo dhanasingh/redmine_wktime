@@ -232,6 +232,7 @@
 	<%= hidden_field_tag("end_on", end_on, class: "end_on" ) %>
 	<%= hidden_field_tag("start_on", startOn, class: "start_on" ) %>
 	<%= hidden_field_tag("offSet", nil ) %>
+	<%= hidden_field_tag("current_user", User.current.id ) %>
 	<%= hidden_field_tag((issueStarted ? "time_entry[spent_on]" : "h_time_entry[spent_on]"), startOn ? startOn.to_date : nil, id: "h_time_entry_spent_on") %>
 	<%= hidden_field_tag((issueStarted ? "time_entry[hours]" : "h_time_entry[hours]"), "0.1", id: "h_time_entry_hours") %>
 	<table id="issuelogtable" style="padding-left:95px;">
