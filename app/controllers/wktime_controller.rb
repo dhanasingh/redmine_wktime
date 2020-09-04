@@ -1774,7 +1774,7 @@ private
 					entry.activity_id = -1
 				end
 			else
-				errorMsg = "For project: " + entry.project.name + (entry.issue_id.present? ? " , issue #" + entry.issue_id.to_s + ": " +
+				errorMsg = "For project: " + (entry.project ? entry.project.name : "") + (entry.issue_id.present? ? " , issue #" + entry.issue_id.to_s + ": " +
 				entry.issue.subject : " ")
 			end
 		end

@@ -142,16 +142,28 @@ class WkbaseController < ApplicationController
 
 	def getUserPermissions
 		wkpermissons = WkPermission.getPermissions
+		settings = {}
 		respond_to do |format|
 			format.json {
 				permissons = (wkpermissons || []).map{ |perm| perm.short_name }
-				modules = []
-				Setting.plugin_redmine_wktime.each{ |key, val| modules << key.split("_")[2] if key.start_with?("wktime_enable_") && val == "1" }
-				render json: { permissions: permissons, modules: modules, mapAPIkey: Setting.plugin_redmine_wktime['label_mapbox_apikey'],
-				issueLogger: isChecked("label_enable_issue_logger")}
+				Setting.plugin_redmine_wktime.each.each{ |key, val| settings[key] = val if val != "" }
+				configs = { 
+					permissions: permissons, mapAPIkey: Setting.plugin_redmine_wktime['label_mapbox_apikey'],
+					logEditPermission: getEditLogPermission,
+					settings: settings
+				}
+				render json: configs
 			}
 		end
 	end
+
+	def getEditLogPermission
+		projects = Project.all
+		user = User.current
+		projArr = []
+		projects.each{ |proj| projArr << proj.id if user.allowed_to?(:edit_own_time_entries, proj) || user.allowed_to?(:edit_time_entries, proj)}
+		projArr
+	end	
 
 	def saveIssueTimeLog
 		entryTime = get_current_DateTime

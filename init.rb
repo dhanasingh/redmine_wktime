@@ -344,6 +344,11 @@ module FttePatch
 							(block_given? ? yield(role, self) : true)
 						end
 						}
+						# ======= ERPmine_patch Redmine 4.1.1 ==========
+							if( action.is_a?(Hash) && action[:controller] == "wklogmaterial" && action[:action] == "index")
+								return true
+							end
+						# =============================
 					else
 						false
 					end
