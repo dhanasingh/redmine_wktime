@@ -121,7 +121,7 @@
 			$('#show_map_filter').appendTo('#showmap_header');
 		});
 	</script>
-	<% if show_on_map %>
+	<% if show_on_map && @entries.present? %>
 		<script>
 			$(function(){
 				$('#content .autoscroll').prepend('<div id="map-wrapper"></div>');

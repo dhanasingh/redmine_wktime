@@ -15,8 +15,12 @@
 
 	$('#time_entry_user_id, #time_entry_hours, #log_type').change(function(){
 		const logType = $('#log_type').val();
-		if($('#time_entry_user_id').val() != $('#current_user').val() && $('#clock_action').val() == '' || ($('#time_entry_hours').val() != '' && logType == 'T'))
+		const clockAction = $('#clock_action').val();
+		if((parseInt(spent_id) > 0 && clockAction == '') || (!(parseInt(spent_id) > 0) && clockAction == '') &&
+			(($('#time_entry_user_id').length > 0 && $('#time_entry_user_id').val() != $('#current_user').val()) || ( logType == 'T' && $('#time_entry_hours').val() != '')))
+		{
 			$('#issuelogtable').hide();
+		}
 		else if(['T', 'A'].includes(logType))
 			$('#issuelogtable').show();
 	});
