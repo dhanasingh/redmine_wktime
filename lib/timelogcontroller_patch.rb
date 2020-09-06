@@ -160,9 +160,8 @@ module TimelogControllerPatch
 					end
 				end
 				if errorMsg.blank? && timeErrorMsg.blank?
-					spentForModel = model.blank? ? @time_entry : model
-					spentForModel = saveSpentFors(spentForModel)
 					model = model.blank? ? @time_entry : model
+					spentForModel = saveSpentFors(model)
 				end
 				respond_to do |format|
 					format.html {
@@ -324,14 +323,18 @@ module TimelogControllerPatch
 					end
 				end
 				if errorMsg.blank? && timeErrorMsg.blank?
-					spentForModel = model.blank? ? @time_entry : model
-					saveSpentFors(spentForModel)
+					model = model.blank? ? @time_entry : model
+					spentForModel = saveSpentFors(model)
 				end
 				respond_to do |format|					
 					format.html {
 						if errorMsg.blank? && timeErrorMsg.blank?
 							flash[:notice] = l(:notice_successful_update)
-							redirect_back_or_default project_time_entries_path(@time_entry.project)
+							if spentForModel.clock_action == "E"
+								redirect_to controller: 'timelog', action: 'edit', id: model.id
+							else
+								redirect_back_or_default project_time_entries_path(@time_entry.project)
+							end
 						else
 							flash[:error] = errorMsg if errorMsg.present?
 							if @assetObj.present? && @assetObj.id.present?
