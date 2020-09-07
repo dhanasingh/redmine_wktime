@@ -575,13 +575,13 @@ function setProductLogAttribute(data, qtyDD, cpDD, spDD)
 		spVal = pctData[4] == "" ? "" : parseFloat(pctData[4]).toFixed(2);
 		document.getElementById(spDD).value = spVal;
 		document.getElementById('inventory_item_id').value = pctData[0];
-		document.getElementById('total').innerHTML = pctData[3] + (parseFloat(pctData[4] * 1).toFixed(2));		
-		if(pctData[5] != "")
+		document.getElementById('total').innerHTML = pctData[3] + (parseFloat(pctData[4] * 1).toFixed(2));
+		if(pctData[5] && pctData[5] != "")
 		{
-			document.getElementById('unittext').innerHTML = pctData[5]  ;
+			document.getElementById('unittext').innerHTML = pctData[5];
 		}
 		else{
-			document.getElementById('unittext').innerHTML = ""  ;
+			document.getElementById('unittext').innerHTML = "";
 		}
 		
 	}
