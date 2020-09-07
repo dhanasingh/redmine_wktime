@@ -13,11 +13,11 @@
 	const spent_id = (new URL(window.location.href)).pathname.split('/')[2];
 	if(parseInt(spent_id) > 0) $('#clock_action').val() == '' ? $('#issuelogtable').hide() : $('#issuelogtable').show();
 
-	$('#time_entry_user_id, #time_entry_hours, #log_type').change(function(){
+	$('#time_entry_user_id, #time_entry_hours, #log_type, #time_entry_spent_on').change(function(){
 		const logType = $('#log_type').val();
 		const clockAction = $('#clock_action').val();
 		if((parseInt(spent_id) > 0 && clockAction == '') || (!(parseInt(spent_id) > 0) && clockAction == '') &&
-			(($('#time_entry_user_id').length > 0 && $('#time_entry_user_id').val() != $('#current_user').val()) || ( logType == 'T' && $('#time_entry_hours').val() != '')))
+			(($('#time_entry_user_id').length > 0 && $('#time_entry_user_id').val() != $('#current_user').val()) || ( logType == 'T' && $('#time_entry_hours').val() != '')) || (!(parseInt(spent_id) > 0) && $('#time_entry_spent_on').val() != new Date().toJSON().slice(0,10).replace(/-/g,'-')))
 		{
 			$('#issuelogtable').hide();
 		}
