@@ -366,7 +366,7 @@ module TimelogControllerPatch
 			@modelEntry.uom_id = params[:uom_id]
 			inventoryId = ""
 			errorMsg = ""
-			errorMsg = l(:error_issue_logger) if params[:clock_action] == "S" && @modelEntry.spent_for.end_on.blank?
+			errorMsg = l(:error_issue_logger) if params[:clock_action] == "S" && @modelEntry.spent_for && @modelEntry.spent_for.end_on.blank?
 			if params[:log_type] == 'M' && !params[:inventory_item_id].blank?
 				inventoryObj = wklog_helper.updateParentInventoryItem(params[:inventory_item_id].to_i, params[:product_quantity].to_i, @modelEntry.quantity)
 				inventoryId =  inventoryObj.id
