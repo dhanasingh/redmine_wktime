@@ -80,7 +80,7 @@
 	end
 	selectedSpentFor = objEntry.present? ? objEntry.project_id.to_s + '|' + objEntry.spent_for.spent_for_type.to_s + '_' + objEntry.spent_for.spent_for_id.to_s : ""
 	spentForIdVal = objEntry.present? ? objEntry.spent_for.id : ""
-	issueSub = objEntry.issue.present? ? objEntry.issue.subject : ""
+	issueSub = objEntry && objEntry.issue.present? ? objEntry.issue.subject : ""
 	endLocations =  objEntry.blank? || (@spentType.present? && @spentType != 'T') ? ["",""] : [
 		objEntry.spent_for.e_longitude || "", objEntry.spent_for.e_latitude || "", objEntry.project.name+ "\n"+ issueSub+"\n"+objEntry.hours.to_s, "E"
 	]
