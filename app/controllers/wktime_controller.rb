@@ -1279,6 +1279,7 @@ include ActionView::Helpers::TagHelper
 	end
 
 	def getAPIUsers
+		key = "id"
 		case params["type"]
 		when "Project"
 			params[:project_id] = params[:id]
@@ -1286,8 +1287,9 @@ include ActionView::Helpers::TagHelper
 			users = getProjMembers()
 		when "Group"
 			params[:group_id] = params[:id]
-			key = "id"
 			users = getGroupUsers()
+		else
+			users = User.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
 		end
 		reUsers = []
 		(users || []).each{|user| reUsers << { value: user[key], label: user.name }}
@@ -1399,9 +1401,7 @@ private
 		else
 			projMembers = []			
 			groupusers = nil
-			
 			scope=User.in_group(group_id)  if !group_id.nil?
-		
 			groupusers = scope.all
 			#groupusers = getUsersbyGroup
 			projMembers = Principal.member_of(@manage_view_spenttime_projects)
