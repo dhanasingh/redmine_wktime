@@ -135,12 +135,13 @@ module TimelogControllerPatch
 				set_filter_session
 				model = nil
 				errorMsg = ""
+				errorMsg += l(:label_issue_error) if params[:clock_action] == "S" && params[:time_entry][:issue_id].blank?
 				if params[:log_type].blank? || params[:log_type] == 'T'
 			#=====================
 				call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
 
 			# ============= ERPmine_patch Redmine 4.1.1  =====================
-				errorMsg = statusValidation(@time_entry)
+				errorMsg += statusValidation(@time_entry)
 				unless errorMsg.blank? && @time_entry.save
 					timeErrorMsg = @time_entry.errors.full_messages.join("<br>")
 				end
@@ -152,7 +153,7 @@ module TimelogControllerPatch
 					unless hookType[0].blank?
 						@logType = hookType[0]
 					end
-					errorMsg = validateMatterial				
+					errorMsg += validateMatterial				
 					if errorMsg.blank?
 						saveMatterial if params[:log_type] == 'M' || params[:log_type] == 'A' || params[:log_type] == @logType
 						saveExpense if params[:log_type] == 'E'
@@ -340,7 +341,11 @@ module TimelogControllerPatch
 					}
 					format.api {
 						if errorMsg.blank? && timeErrorMsg.blank?
-							render :plain => errorMsg, :layout => nil
+							if params[:log_type].blank? || params[:log_type] == 'T' || params[:log_type] == 'A'
+								renderLog
+							else
+								render :plain => errorMsg, :layout => nil
+							end
 						else
 							errorMsg += timeErrorMsg if params[:log_type].blank? || params[:log_type] == 'T'			
 							@error_messages = errorMsg.split('\n')	
