@@ -387,7 +387,7 @@ module TimelogControllerPatch
 					elsif params[:log_type] == "A" && params[:clock_action] == "E" && @modelEntry.spent_for.present? && @modelEntry.spent_for.end_on.blank?
 						quantity = wktime_helper.getAssetQuantity(@modelEntry.spent_for.spent_on_time, wktime_helper.get_current_DateTime(params[:offSet]), params[:inventory_item_id])
 					else
-						quantity = params[:product_quantity].to_i
+						quantity = params[:product_quantity]
 					end
 					@modelEntry.inventory_item_id = inventoryId.to_i
 					@modelEntry.quantity = quantity
