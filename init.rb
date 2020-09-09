@@ -329,7 +329,11 @@ module FttePatch
 						
 						# ======= ERPmine_patch Redmine 4.1.1 ==========
 						if ((valid_ERP_perm || isSupervisor) && action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
-						return true
+							return true
+						end
+						# User Log API
+						if( action.is_a?(Hash) && action[:controller] == "wklogmaterial" && action[:action] == "index")
+							return true
 						end
 						# =============================
 						# authorize if user has at least one role that has this permission
@@ -344,11 +348,6 @@ module FttePatch
 							(block_given? ? yield(role, self) : true)
 						end
 						}
-						# ======= ERPmine_patch Redmine 4.1.1 ==========
-							if( action.is_a?(Hash) && action[:controller] == "wklogmaterial" && action[:action] == "index")
-								return true
-							end
-						# =============================
 					else
 						false
 					end

@@ -1894,7 +1894,8 @@ end
 	end
 
 	def getAssetQuantity(startDate, endDate, inventory_item_id)
-		obj = WkAssetProperty.find(inventory_item_id)
+		inventoryObj = WkInventoryItem.find(inventory_item_id)
+		obj = inventoryObj.asset_property
 		hours = ((endDate - startDate) / (60 * 60)).round(2)
 		case obj.rate_per
 		when "h"

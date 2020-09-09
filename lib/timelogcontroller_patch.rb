@@ -135,6 +135,7 @@ module TimelogControllerPatch
 				set_filter_session
 				model = nil
 				errorMsg = ""
+				timeErrorMsg = ""
 				errorMsg += l(:label_issue_error) if params[:clock_action] == "S" && params[:time_entry][:issue_id].blank?
 				if params[:log_type].blank? || params[:log_type] == 'T'
 			#=====================
@@ -155,8 +156,8 @@ module TimelogControllerPatch
 					end
 					errorMsg += validateMatterial				
 					if errorMsg.blank?
-						saveMatterial if params[:log_type] == 'M' || params[:log_type] == 'A' || params[:log_type] == @logType
-						saveExpense if params[:log_type] == 'E'
+						errorMsg += saveMatterial if params[:log_type] == 'M' || params[:log_type] == 'A' || params[:log_type] == @logType
+						errorMsg += saveExpense if params[:log_type] == 'E'
 						model = @modelEntry
 					end
 				end
@@ -293,6 +294,7 @@ module TimelogControllerPatch
 				set_filter_session
 				model = nil
 				errorMsg = ""
+				timeErrorMsg = ""
 				@spentType = params[:log_type].blank? ? "T" : params[:log_type]
 				if params[:log_type].blank? || params[:log_type] == 'T'
 			# =========================
@@ -316,8 +318,8 @@ module TimelogControllerPatch
 					end
 					errorMsg = validateMatterial
 					if errorMsg.blank?
-						saveMatterial if params[:log_type] == 'M' || params[:log_type] == 'A' || params[:log_type] == @logType
-						saveExpense if params[:log_type] == 'E'
+						errorMsg += saveMatterial if params[:log_type] == 'M' || params[:log_type] == 'A' || params[:log_type] == @logType
+						errorMsg += saveExpense if params[:log_type] == 'E'
 						model = @modelEntry
 					end
 				end
@@ -329,7 +331,7 @@ module TimelogControllerPatch
 					format.html {
 						if errorMsg.blank? && timeErrorMsg.blank?
 							flash[:notice] = l(:notice_successful_update)
-							if spentForModel.clock_action == "E"
+							if spentForModel.clock_action == "E" && params[:commit] != "Save"
 								redirect_to controller: 'timelog', action: 'edit', id: model.id
 							else
 								redirect_back_or_default project_time_entries_path(@time_entry.project)
@@ -366,42 +368,45 @@ module TimelogControllerPatch
 			@modelEntry.uom_id = params[:uom_id]
 			inventoryId = ""
 			errorMsg = ""
-			errorMsg = l(:error_issue_logger) if params[:clock_action] == "S" && @modelEntry.spent_for && @modelEntry.spent_for.end_on.blank?
-			if params[:log_type] == 'M' && !params[:inventory_item_id].blank?
-				inventoryObj = wklog_helper.updateParentInventoryItem(params[:inventory_item_id].to_i, params[:product_quantity].to_i, @modelEntry.quantity)
-				inventoryId =  inventoryObj.id
-				currency =  inventoryObj.currency
+			if params[:clock_action] == "S" && @modelEntry.spent_for && @modelEntry.spent_for.end_on.blank?
+				errorMsg = l(:error_issue_logger)
 			else
-				inventoryId =  params[:inventory_item_id]
-				currency = Setting.plugin_redmine_wktime['wktime_currency']
-			end
-			if inventoryId.blank?
-				errorMsg += l(:error_item_not_available)
-			else
-				if params[:log_type] == "A" && params[:clock_action] == "S" && @modelEntry.spent_for.blank?
-					quantity = "0.1"
-				elsif params[:log_type] == "A" && params[:clock_action] == "E" && @modelEntry.spent_for.present? && @modelEntry.spent_for.end_on.blank?
-					quantity = wktime_helper.getAssetQuantity(@modelEntry.spent_for.spent_on_time, wktime_helper.get_current_DateTime(params[:offSet]), params[:inventory_item_id])
+				if params[:log_type] == 'M' && !params[:inventory_item_id].blank?
+					inventoryObj = wklog_helper.updateParentInventoryItem(params[:inventory_item_id].to_i, params[:product_quantity].to_i, @modelEntry.quantity)
+					inventoryId =  inventoryObj.id
+					currency =  inventoryObj.currency
 				else
-					quantity = params[:product_quantity].to_i
+					inventoryId =  params[:inventory_item_id]
+					currency = Setting.plugin_redmine_wktime['wktime_currency']
 				end
-				@modelEntry.inventory_item_id = inventoryId.to_i
-				@modelEntry.quantity = quantity
-				@modelEntry.currency = currency
-				unless @modelEntry.valid?	
-					errorMsg = @modelEntry.errors.full_messages.join("<br>")
-				else 
-					@modelEntry.save
-				end
-				if params[:log_type] == 'A' || params[:log_type] == @logType
-					inventoryObj = WkInventoryItem.find(inventoryId.to_i)
-					@assetObj = inventoryObj.asset_property
-					if params[:matterial_entry_id].blank? ||(params[:is_done].blank? || params[:is_done] == "0") 								
-						@assetObj.matterial_entry_id = @modelEntry.id 
+				if inventoryId.blank?
+					errorMsg += l(:error_item_not_available)
+				else
+					if params[:log_type] == "A" && params[:clock_action] == "S" && @modelEntry.spent_for.blank?
+						quantity = "0.1"
+					elsif params[:log_type] == "A" && params[:clock_action] == "E" && @modelEntry.spent_for.present? && @modelEntry.spent_for.end_on.blank?
+						quantity = wktime_helper.getAssetQuantity(@modelEntry.spent_for.spent_on_time, wktime_helper.get_current_DateTime(params[:offSet]), params[:inventory_item_id])
 					else
-						@assetObj.matterial_entry_id = nil
+						quantity = params[:product_quantity].to_i
 					end
-					@assetObj.save
+					@modelEntry.inventory_item_id = inventoryId.to_i
+					@modelEntry.quantity = quantity
+					@modelEntry.currency = currency
+					unless @modelEntry.valid?	
+						errorMsg = @modelEntry.errors.full_messages.join("<br>")
+					else 
+						@modelEntry.save
+					end
+					if params[:log_type] == 'A' || params[:log_type] == @logType
+						inventoryObj = WkInventoryItem.find(inventoryId.to_i)
+						@assetObj = inventoryObj.asset_property
+						if params[:matterial_entry_id].blank? ||(params[:is_done].blank? || params[:is_done] == "0") 								
+							@assetObj.matterial_entry_id = @modelEntry.id 
+						else
+							@assetObj.matterial_entry_id = nil
+						end
+						@assetObj.save
+					end
 				end
 			end
 			return errorMsg
@@ -423,6 +428,7 @@ module TimelogControllerPatch
 		end
 		
 		def saveExpense
+			errorMsg = ""
 			setEntries(WkExpenseEntry, params[:expense_entry_id])
 			@modelEntry.amount = params[:expense_amount]
 			@modelEntry.currency = params[:wktime_currency]
