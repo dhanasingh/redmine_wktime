@@ -44,8 +44,9 @@ This Plugin has the following modules:
     Log Material and Asset Entries
     Report - Stock and Asset
 
-For more information on features, please refer to the user guide 
-	http://erpmine.org/attachments/download/24/ERPmine-User-Guide.pdf
+For more information on features, please refer to the user guide
+
+	http://www.erpmine.org/attachments/download/24/ERPmine-User-Guide.pdf
 
 INSTALLATION:
 
@@ -104,20 +105,24 @@ Customization:
   2. Supervisor Approvals - Fotonation
   3. Hide Modules and Limit Non Submission Mail - Lyra Network
 		
-Please provide your rating at https://www.redmine.org/plugins/wk-time
+	Please provide your rating at https://www.redmine.org/plugins/wk-time
 
 Resources:
 
-User guide:
-  http://erpmine.org/attachments/download/24/ERPmine-User-Guide.pdf
+	User guide:
 
-Overview presentation in open office format:
-  http://erpmine.org/attachments/download/23/erpmine-overview.odp
+		http://www.erpmine.org/attachments/download/24/ERPmine-User-Guide.pdf
 
-Training Videos:
-  https://www.youtube.com/watch?v=CHAgSMmkKBE
-  https://www.youtube.com/watch?v=hTgDepFzGXY
-  https://www.youtube.com/watch?v=5IgBbhrVF4k
+	Overview presentation in open office format:
 
-For more:
-  http://erpmine.org/projects/erpmine/wiki/Resources
+		http://www.erpmine.org/attachments/download/23/erpmine-overview.odp
+
+	Training Videos:
+
+		https://www.youtube.com/watch?v=CHAgSMmkKBE
+		https://www.youtube.com/watch?v=hTgDepFzGXY
+		https://www.youtube.com/watch?v=5IgBbhrVF4k
+
+	For more:
+
+		http://www.erpmine.org/projects/erpmine/wiki/Resources
