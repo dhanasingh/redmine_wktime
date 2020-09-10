@@ -513,7 +513,7 @@ include ActionView::Helpers::TagHelper
 			issues = issues.where("subject like ? OR issues.id = ?", subject, params[:q].to_i) if params[:q].present?
 			issueRlt = (+"").html_safe
 			issues.each do |issue|
-				issueRlt << content_tag("span", "#"+issue.id.to_s+": "+issue.subject, class: "issue_select", id: issue.id ) if issue.visible?(user) && User.current.allowed_to?(:log_time, issue.project)
+				issueRlt << content_tag("span", "#"+issue.id.to_s+": "+issue.subject, class: "issue_select", id: issue.id ) if issue.visible?(user) && showIssueLogger(issue.project)
 			end
 			issueRlt = content_tag("span", l(:label_no_data)) if issueRlt.blank?
 			issueRlt = "$('#issueLog .drdn-items.issues').html('" + issueRlt + "');"

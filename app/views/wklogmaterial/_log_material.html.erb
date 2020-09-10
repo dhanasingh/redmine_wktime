@@ -195,7 +195,8 @@
 </table>
 
 <!-- Issue Time Tracker-->
-<% if wktime_helper.isChecked("label_enable_issue_logger") && (@spentType.blank? || @spentType == "T" || @spentType == "A") %>
+<% if (@project.present? && wktime_helper.showIssueLogger(@project) || @project.blank? && wktime_helper.isChecked("label_enable_issue_logger")) && (@spentType.blank? || @spentType == "T" || @spentType == "A") %>
+	<%= hidden_field_tag("allowedProjects", wktime_helper.getEditLogPermission ) %>
 	<%
 		obj = @spentType.blank? || @spentType == "T" ? @time_entry : @materialEntry
 		startOn = nil

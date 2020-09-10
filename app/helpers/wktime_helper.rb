@@ -1929,4 +1929,17 @@ end
 		end
 	end
 
+	def showIssueLogger(project)
+		user = User.current
+		return (isChecked("label_enable_issue_logger") && (user.allowed_to?(:log_time, project) && (user.allowed_to?(:edit_own_time_entries, project) || user.allowed_to?(:edit_time_entries, project))))
+	end
+
+	def getEditLogPermission
+		projects = Project.active
+		user = User.current
+		projArr = []
+		projects.each{ |proj| projArr << proj.id if user.allowed_to?(:log_time, proj) && (user.allowed_to?(:edit_own_time_entries, proj) || user.allowed_to?(:edit_time_entries, proj))}
+		projArr
+	end
+
 end

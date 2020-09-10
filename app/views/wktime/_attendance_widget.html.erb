@@ -57,7 +57,7 @@
 	%>
 	<%= javascript_tag do %>
 		$(function(){
-			<% if @lastAttnEntry.end_time.blank? && @lastAttnEntry.start_time > 24.hour.ago %>
+			<% if @lastAttnEntry && @lastAttnEntry.end_time.blank? && @lastAttnEntry.start_time > 24.hour.ago %>
 				startTimer('start');
 			<% end %>
 			$("#clockINOUT").click(function(){

@@ -155,14 +155,6 @@ class WkbaseController < ApplicationController
 				render json: configs
 			}
 		end
-	end
-
-	def getEditLogPermission
-		projects = Project.all
-		user = User.current
-		projArr = []
-		projects.each{ |proj| projArr << proj.id if user.allowed_to?(:edit_own_time_entries, proj) || user.allowed_to?(:edit_time_entries, proj)}
-		projArr
 	end	
 
 	def saveIssueTimeLog
