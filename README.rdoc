@@ -45,7 +45,7 @@ This Plugin has the following modules:
     Report - Stock and Asset
 
 For more information on features, please refer to the user guide 
-	http://www.adhisoftware.co.in/wp-content/uploads/ERPmine-User-Guide.pdf
+	http://erpmine.org/attachments/download/24/ERPmine-User-Guide.pdf
 
 INSTALLATION:
 
@@ -74,48 +74,50 @@ For rufus-scheduler to work , the rails application should be up all the time.
 If an apache passenger module is used then make sure the following settings are made
   a) PassengerMinInstances 1
   b) RailsAppSpawnerIdleTime 0
-  c) PassengerPreStart http://rails-app-url/	
+  c) PassengerPreStart https://rails-app-url/	
 
-Release Notes for v4.0.3
+Release Notes for v4.0.4
+  Feature:
+    - Add issue logger for Asset on spent time
 
-   Bug Fix:
-    - Save issue in Timesheet due to spentfor
+   Bug Fixes:
+    - Cannot edit non time entries on spent time
+    - Show on map doesn't work for non time entries on spent time
 
 Customization:
 
-For any Customization/Support, please contact us, our consulting team will be happy to help you
+  For any Customization/Support, please contact us, our consulting team will be happy to help you
 
   Adhi Software Pvt Ltd
-  http://www.adhisoftware.co.in
-  info@adhisoftware.co.in
-  +1 732 202 5490 
-  +91 44 27470401
-  +91 44 27470402
+  12/B-35, 6th Cross Road
+  SIPCOT IT Park, Siruseri
+  Kancheepuram Dist
+  Tamilnadu - 603103
+  India
 
-Here are the Customizations we have done for our clients:
+  Website: http://www.adhisoftware.co.in
+  Email: info@adhisoftware.co.in
+  Phone: +91 44 27470401
+
+  Here are the Customizations we have done for our clients:
   1. Monthly Calendar - Puny Human
   2. Supervisor Approvals - Fotonation
   3. Hide Modules and Limit Non Submission Mail - Lyra Network
 		
-Please provide your rating at http://www.redmine.org/plugins/wk-time
+Please provide your rating at https://www.redmine.org/plugins/wk-time
 
 Resources:
 
 User guide:
-  http://www.adhisoftware.co.in/wp-content/uploads/ERPmine-User-Guide.pdf
+  http://erpmine.org/attachments/download/24/ERPmine-User-Guide.pdf
 
 Overview presentation in open office format:
-  http://www.adhisoftware.co.in/wp-content/uploads/TE-Overview.odp
+  http://erpmine.org/attachments/download/23/erpmine-overview.odp
 
 Training Videos:
-  https://www.youtube.com/watch?v=OntsLT1LeLg
-  https://www.youtube.com/watch?v=SzHo5Os-dvU
+  https://www.youtube.com/watch?v=CHAgSMmkKBE
   https://www.youtube.com/watch?v=hTgDepFzGXY
+  https://www.youtube.com/watch?v=5IgBbhrVF4k
 
-
-For more Videos: 
-  http://www.adhisoftware.co.in/products/erpmine/resources/
-
-
-For more:	
-  http://www.adhisoftware.co.in/products/erpmine/resources/
+For more:
+  http://erpmine.org/projects/erpmine/wiki/Resources
