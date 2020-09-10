@@ -65,7 +65,22 @@
 			<td>
 				<%= render :partial => 'wktime/edit_options' %>
 			</td>
-			<td width="100%"></td>
+			<td width="100%">
+				<% if isChecked('te_save_geo_location') %>
+				<% 	startLocations = @entries.map{ |entry|
+							!entry.spent_for || (entry.spent_for.s_longitude == entry.spent_for.e_longitude && entry.spent_for.s_latitude == entry.spent_for.e_latitude) ? ["",""] :
+							[ entry.spent_for.s_longitude || '', entry.spent_for.s_latitude || '', entry.project.name+ "\n"+ (entry.issue ? entry.issue.subject : "")+"\n"+entry.hours.to_s, "S" ]
+						}
+						endLocations = @entries.map{ |entry|
+							entry.spent_for ? [ entry.spent_for.e_longitude || '', entry.spent_for.e_latitude || '', entry.project.name+ "\n"+
+							(entry.issue ? entry.issue.subject : "")+"\n"+entry.hours.to_s, "E" ] : ["",""]
+						}
+						locations = startLocations + endLocations
+						locations = [["", ""]] if locations.length == 0
+				%>
+					<div  id='mapContainer' style="float: right;width: 300px;height: 200px"></div>
+					<%= render partial: "wkgeolocation/location_map", locals: { locations: locations } %>
+				<% end %>
 			</td>
 		</tr>
 	</table>

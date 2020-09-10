@@ -1,5 +1,7 @@
   get 'wktime/index', :to => 'wktime#index'
 
+	get 'wktime/get_issue_loggers', :to => 'wktime#get_issue_loggers'
+
   get 'wktime/getissues', :to => 'wktime#getissues'
 
   get 'wktime/getactivities', :to => 'wktime#getactivities'
@@ -47,7 +49,9 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
   
   # For Supervisor feature
 	get 'wktime/getMyReportUsers', :to => 'wktime#getMyReportUsers'
-  
+
+	get 'wktime/getAPIUsers', to: 'wktime#getAPIUsers'
+
   #For Weekly expenses
   
   get 'wkexpense/index', :to => 'wkexpense#index'
@@ -137,12 +141,12 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
   
   post 'wkattendance/save_bulk_edit', :to => 'wkattendance#save_bulk_edit'
   
+  get 'wkattendance/getClockHours', :to => 'wkattendance#getClockHours'
+  
   #For Report   
   get 'wkreport/index', :to => 'wkreport#index'
    
-  # get 'wkreport/reportattn', :to => 'wkreport#reportattn'  
-  
-  match 'updateClockInOut', :controller => 'wkattendance', :action => 'updateClockInOut', :via => [:get]
+  # get 'wkreport/reportattn', :to => 'wkreport#reportattn'
   
   get 'wkreport/getGroupMembers', :to => 'wkreport#getGroupMembers'
   
@@ -257,7 +261,7 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	
 	# get 'wkreport/balance_sheet', :to => 'wkreport#balance_sheet'
 	
-	get 'wkbase/updateClockInOut', :to => 'wkbase#updateClockInOut'
+	post 'wkbase/updateClockInOut', :to => 'wkbase#updateClockInOut'
 	
 	# For CRM
 	
@@ -586,9 +590,13 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wkpublicholiday/index', :to => 'wkpublicholiday#index'
 	
 	post 'wkpublicholiday/update', :to => 'wkpublicholiday#update'
-	
+
 	get 'wklogmaterial/loadSpentType', :to => 'wklogmaterial#loadSpentType'
-	
+
+	get 'wklogmaterial/index', to: 'wklogmaterial#index'
+
+	get 'wklogmaterial/spent_log_edit', :to => 'wklogmaterial#spent_log_edit'
+
 	get 'wkdashboard/index', :to => 'wkdashboard#index'
 	
 	get 'wkdashboard/graph', :to => 'wkdashboard#graph'
@@ -669,6 +677,10 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 
 	get 'wkbase/getUserPermissions', :to => 'wkbase#getUserPermissions'
 
-	get 'wkbase/saveTimeLog', :to => 'wkbase#saveTimeLog'
+	get 'wkbase/saveIssueTimeLog', :to => 'wkbase#saveIssueTimeLog'
 
 	get 'wksurvey/print_survey', :to => 'wksurvey#print_survey'
+
+	post 'wklogmaterial/create', to: 'wklogmaterial#create'
+
+	post 'wklogmaterial/update', to: 'wklogmaterial#update'

@@ -1,0 +1,39 @@
+api.array :time_entries, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+  @entries.each do |entry|
+      productName = entry.inventory_item.product_item.product.name
+			assetObj = entry.inventory_item.asset_property
+			product = assetObj.blank? ? productName : productName + " - " + assetObj.name
+    api.material_entry do
+      api.id entry.id
+      api.project(:id => entry.project_id, :name => entry.project.name) unless entry.project.nil?
+      api.issue(:id => entry.issue_id, :subject => entry.issue.subject) unless entry.issue.nil?
+      api.user(:id => entry.user_id, :name => entry.user.name) unless entry.user.nil?
+      api.activity(:id => entry.activity_id, :name => entry.activity.name) unless entry.activity.nil?
+      api.comments entry.comments
+      api.spent_on entry.spent_on
+      api.created_on entry.created_on
+      api.updated_on entry.updated_on
+      if entry.spent_for.present?
+        spent_for = entry.spent_for.spent_for_type ? entry.project.id.to_s + "|" + entry.spent_for.spent_for_type.to_s + "_" + entry.spent_for.spent_for_id.to_s + "|" : nil
+        api.spentFor(id: entry.spent_for.id, start_on: entry.spent_for.spent_on_time, end_on: entry.spent_for.end_on, spent_for: spent_for, clock_action: entry.spent_for.clock_action, s_longitude: entry.spent_for.s_longitude, s_latitude: entry.spent_for.s_latitude, e_longitude: entry.spent_for.e_longitude, e_latitude: entry.spent_for.e_latitude)
+      end
+
+      api.location_id entry.inventory_item.location_id
+      api.log_type entry.inventory_item.product_type
+      api.product_id entry.inventory_item.product_item.product.id
+      api.product_item_id entry.inventory_item.product_item.id
+      api.inventory_item_id entry.inventory_item.id
+      api.uom_id entry.uom_id
+      api.product_quantity entry.quantity
+      api.available_quantity entry.inventory_item.available_quantity
+      api.quantity_returned entry.quantity_returned
+      api.org_selling_price entry.org_selling_price
+      api.org_currency entry.org_currency
+      api.product_sell_price entry.selling_price
+      api.currency entry.currency
+      api.rate_per assetObj.rate_per  if params[:spent_type] == "A"
+      api.product product
+      api.is_done assetObj.nil? || assetObj.matterial_entry_id.nil?   
+    end
+  end
+end

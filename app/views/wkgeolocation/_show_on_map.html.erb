@@ -2,12 +2,14 @@
     case model
     when "spent_for"
       startLocations = entries.map{|entry|
+      fields = entry.spent_for.try(:spent_type) == 'WkMaterialEntry' ? entry.quantity || '' : entry.hours || ''
       [ entry.spent_for.try(:s_longitude) || '', entry.spent_for.try(:s_latitude) || '', entry.user.name+"\n"+
-      entry.project.name+ "\n"+(entry.issue ? entry.issue.subject : "")+"\n"+entry.hours.to_s, "E"
+      entry.project.name+ "\n"+(entry.issue ? entry.issue.subject : "")+"\n"+fields.to_s, "E"
       ]}
       endLocations = entries.map{|entry|
+      fields = entry.spent_for.try(:spent_type) == 'WkMaterialEntry' ? entry.quantity || '' : entry.hours || ''
       (entry.spent_for && entry.spent_for.s_longitude == entry.spent_for.e_longitude && entry.spent_for.s_latitude == entry.spent_for.e_latitude) ? ["",""] :
-        [ entry.spent_for.try(:e_longitude) || '', entry.spent_for.try(:e_latitude) || '', entry.project.name+ "\n"+(entry.issue ? entry.issue.subject : "")+"\n"+entry.hours.to_s, "S" ]}
+        [ entry.spent_for.try(:e_longitude) || '', entry.spent_for.try(:e_latitude) || '', entry.project.name+ "\n"+(entry.issue ? entry.issue.subject : "")+"\n"+fields.to_s, "S" ]}
       locations = startLocations + endLocations
     when "attendance"
       startLocations = entries.map{ |entry|

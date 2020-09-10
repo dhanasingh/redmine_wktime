@@ -1077,3 +1077,8 @@ it:
   text_are_you_sure_want_dispose_asset: "Are you sure want to dispose asset?"
   label_auto_round_gl: Auto round invoices
   label_trend_chart: Trending Chart
+
+  label_mapbox_apikey: Mapbox API key
+  label_api_key_info: If you are not have a api key get it from here
+  error_issue_logger: "Can't Update until stop the issue logger"
+  error_item_not_available: Requested no of items not available in the stock

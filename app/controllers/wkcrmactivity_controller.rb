@@ -23,7 +23,7 @@ class WkcrmactivityController < WkcrmController
 	accept_api_auth :index, :edit, :update
 
 	def index
-		sort_init 'id', 'asc'
+		sort_init 'updated_at', 'desc'
 
 		sort_update 'activity_type' => "#{WkCrmActivity.table_name}.activity_type",
 					'subject_name' => "#{WkCrmActivity.table_name}.name",
@@ -84,10 +84,6 @@ class WkcrmactivityController < WkcrmController
   end
   
   def update
-		if api_request?
-			(params[:params] || []).each{|param| params[param.first] = param.last }
-			params.delete("params")
-		end
 		errorMsg = nil
 		crmActivity = nil
 		@tempCrmActivity ||= Array.new
@@ -182,7 +178,7 @@ class WkcrmactivityController < WkcrmController
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
-		@activity = entries.order(updated_at: :desc).limit(@limit).offset(@offset)
+		@activity = entries.limit(@limit).offset(@offset)
 	end
 	
 	def setLimitAndOffset		

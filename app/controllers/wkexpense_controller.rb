@@ -137,6 +137,19 @@ class WkexpenseController < WktimeController
   end
 
   def setSpentForID(entry, spentForIds, k)
+		entry[:spent_for_attributes] = {} if entry[:spent_for_attributes].blank?
+    entry[:spent_for_attributes][:id] = spentForIds.present? && spentForIds[k].present? ? spentForIds[k] : nil
+  end
+
+  def setSpentFor(entry, teEntry, spentForIds, k)
+		spent_for = {spent_type: 'WkExpenseEntry'}
+    spent_for[:id] = spentForIds.present? && spentForIds[k].present? ? spentForIds[k] : nil
+    
+    spent_for['spent_on_time'] = getDateTime(teEntry.spent_on, 0, 0, 0)
+		# save GeoLocation
+    saveGeoLocation(spent_for, params[:latitude], params[:longitude])
+    
+    teEntry.wkspentfor_attributes = spent_for
   end
 
 private
@@ -224,13 +237,6 @@ private
 		end
 	end
 	errMsg
-  end
-  
-  def getExpenseEntryStatus(spent_on, user_id)
-		start_day = getStartDay(spent_on)
-		result = Wkexpense.where(['begin_date = ? AND user_id = ?', start_day, user_id])
-		result = result[0].blank? ? 'n' : result[0].status
-		return 	result	  
   end
   
   def findTEEntries(ids)

@@ -604,7 +604,14 @@ end
 		end
 		return 	result		
 	end
-	
+
+  def getExpenseEntryStatus(spent_on, user_id)
+		start_day = getStartDay(spent_on)
+		result = Wkexpense.where(['begin_date = ? AND user_id = ?', start_day, user_id])
+		result = result[0].blank? ? 'n' : result[0].status
+		return 	result	  
+  end
+
 	def time_expense_tabs
 		if params[:controller] == "wktime" || params[:controller] == "wkexpense" 
 			tabs = [
@@ -1408,7 +1415,7 @@ end
 		entryTime
 	end
 	
-	def saveSpentFor(id, spentForId, spentFortype, spentId, spentType, spentDate, spentHr, spentMm, invoiceId, startON=nil, endON=nil, latitude=nil, longitude=nil)
+	def saveSpentFor(id, spentForId, spentFortype, spentId, spentType, spentDate, spentHr, spentMm, invoiceId, startON=nil, endON=nil, latitude=nil, longitude=nil, clock_action=nil)
 		if id.blank?
 			spentObj = WkSpentFor.new
 		else
@@ -1418,24 +1425,31 @@ end
 		spentObj.spent_for_type = spentFortype
 		spentObj.spent_id = spentId
 		spentObj.spent_type = spentType
-		spentObj.spent_on_time = getDateTime(spentDate, spentHr, spentMm, '00')
 		spentObj.invoice_item_id = invoiceId
-		if isChecked("label_enable_issue_logger") && spentType == "TimeEntry"
-			spentObj.start_on = startON
-			spentObj.end_on = endON
+
+		if isChecked("label_enable_issue_logger")
+			spentObj.end_on = endON if clock_action.blank? || clock_action == "E"
+			spentObj.clock_action = clock_action if clock_action.present?
 		end
+		if startON.present?
+			spentObj.spent_on_time = startON
+		else
+			spentObj.spent_on_time = getDateTime(spentDate, spentHr, spentMm, '00')
+		end
+
 		# save GeoLocation
 		if isChecked('te_save_geo_location') && latitude.present? && longitude.present?
-			if spentObj.blank? || spentObj.s_longitude.blank? && spentObj.s_latitude.blank?
+			if spentObj.blank? || spentObj.s_longitude.blank? && spentObj.s_latitude.blank? && (clock_action.blank? || clock_action == "S")
 				spentObj.s_longitude = longitude
 				spentObj.s_latitude = latitude
 			end
-			if spentObj.blank? || spentObj.e_longitude.blank? && spentObj.e_latitude.blank?
+			if spentObj.blank? || spentObj.e_longitude.blank? && spentObj.e_latitude.blank? && (clock_action.blank? || clock_action == "E")
 				spentObj.e_longitude = longitude
 				spentObj.e_latitude = latitude
 			end
 		end
 		spentObj.save
+		spentObj
 	end
 	
 	def getMonthsBetween(startDate, endDate, startDay)
@@ -1823,4 +1837,109 @@ end
 		end
 		monthStr
 	end
+
+	def saveIssueLogger
+		entryTime = Time.now
+		entryTime = entryTime - (entryTime.utc_offset.seconds + (params[:offSet].to_i).minutes)
+
+		lastTimeEntry = WkSpentFor.getIssueLog.first
+		if lastTimeEntry.blank?
+			project = Issue.find(params[:issue_id]).project
+			activityID = project.activities.first.id
+			timeEntryAttr = {
+				project_id: project.id, user_id: User.current.id, issue_id: params[:issue_id], hours: 0.1, activity_id: activityID,
+				spent_on: Date.today, author_id: User.current.id, spent_for_attributes: { spent_on_time: entryTime, start_on: entryTime }
+			}
+			# save GeoLocation
+			if isChecked('te_save_geo_location') && params[:longitude].present? && params[:latitude].present?
+				timeEntryAttr[:spent_for_attributes][:s_longitude] =  params[:longitude]
+				timeEntryAttr[:spent_for_attributes][:s_latitude] = params[:latitude]
+			end
+			timeEntry = TimeEntry.new(timeEntryAttr)
+		else
+			timeEntry = TimeEntry.find(lastTimeEntry.id)
+			start  = DateTime.strptime(timeEntry.spent_for.start_on.to_s, "%Y-%m-%d %H:%M:%S %z").to_time
+			finish = DateTime.strptime(entryTime.to_s, "%Y-%m-%d %H:%M:%S %z").to_time
+			finish += 24*60*60 if finish < start
+			timeEntry.hours = ((finish-start)/3600).round(2)
+			timeEntry.spent_for.end_on = entryTime
+			# save GeoLocation
+			if isChecked('te_save_geo_location') && params[:longitude].present? && params[:latitude].present?
+				timeEntry.spent_for.e_longitude = params[:longitude]
+				timeEntry.spent_for.e_latitude = params[:latitude]
+			end
+		end
+		timeEntry.save
+	end
+
+	def time_diff(start_time, end_time)
+		seconds_diff = (start_time - end_time).to_i.abs
+	
+		hours = seconds_diff / 3600
+		seconds_diff -= hours * 3600
+	
+		minutes = seconds_diff / 60
+		seconds_diff -= minutes * 60
+	
+		seconds = seconds_diff
+	
+		"#{hours.to_s.rjust(2, '0')}:#{minutes.to_s.rjust(2, '0')}:#{seconds.to_s.rjust(2, '0')}"
+	end
+
+	def get_current_DateTime(offSet=nil)
+		offSet ||= params[:offSet]
+		dateTime = Time.now
+		dateTime = dateTime - (dateTime.utc_offset.seconds + (offSet.to_i).minutes)
+		dateTime = DateTime.strptime(dateTime.to_s, "%Y-%m-%d %H:%M:%S %z").to_time
+	end
+
+	def getAssetQuantity(startDate, endDate, inventory_item_id)
+		inventoryObj = WkInventoryItem.find(inventory_item_id)
+		obj = inventoryObj.asset_property
+		hours = ((endDate - startDate) / (60 * 60)).round(2)
+		case obj.rate_per
+		when "h"
+			quantity = hours 
+		when "d"
+			quantity = (hours / 24).round(2)
+		when "w"
+			quantity = (hours / (24 * 7)).round(2)
+		when "m"
+			quantity = (hours / (24 * 7 * 30.436875)).round(2)
+		when "q"
+			quantity = (hours / (24 * 7 * 30.436875 * 4)).round(2)
+		when "sa"
+			quantity = (hours / (24 * 7 * 30.436875 * 6)).round(2)
+		when "a"
+			quantity = (hours / (24 * 7 * 365.2425)).round(2)
+		end
+		return quantity
+	end
+
+	def saveGeoLocation(spentObj, latitude, longitude)
+		if isChecked('te_save_geo_location') && latitude.present? && longitude.present?
+			if spentObj['s_latitude'].blank? && spentObj['s_longitude'].blank?
+				spentObj['s_latitude'] = latitude
+				spentObj['s_longitude'] = longitude
+			end
+			if spentObj['e_latitude'].blank? && spentObj['e_longitude'].blank?
+				spentObj['e_latitude'] = latitude
+				spentObj['e_longitude'] = longitude
+			end
+		end
+	end
+
+	def showIssueLogger(project)
+		user = User.current
+		return (isChecked("label_enable_issue_logger") && (user.allowed_to?(:log_time, project) && (user.allowed_to?(:edit_own_time_entries, project) || user.allowed_to?(:edit_time_entries, project))))
+	end
+
+	def getEditLogPermission
+		projects = Project.active
+		user = User.current
+		projArr = []
+		projects.each{ |proj| projArr << proj.id if user.allowed_to?(:log_time, proj) && (user.allowed_to?(:edit_own_time_entries, proj) || user.allowed_to?(:edit_time_entries, proj))}
+		projArr
+	end
+
 end

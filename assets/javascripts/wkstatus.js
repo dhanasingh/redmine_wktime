@@ -101,26 +101,25 @@ $(document).ready(function(){
 	});
 	
 	//Time Tracking
-  $("#project-jump").after($("#issueLog"));
+		$("#project-jump").after($("#issueLog"));
 	observeSearchfield('issues-quick-search', null, $('#issues-quick-search').data('automcomplete-url'));
 	$('#issueLog span').on('click', function(){
-		let imgName = getIssuetrackerImg();
-		if(imgName == 'finish'){
-			saveTimeLog(this);
-		}
-		else{
-			projectID = $("#projectID").val();
-			$.ajax({
-				url: $('#issues-quick-search').data('automcomplete-url'),
-				type: 'get',
-				data: {q: '', project_id: projectID},
-				success: function(data){eval(data); }
-			});
-		}
+		const clock_action = $('#g_clock_action').val();
+		if(clock_action == 'S') $('#issue-content .quick-search').hide();
+		const offSet = (new Date).getTimezoneOffset();
+		projectID = $("#projectID").val();
+		$.ajax({
+			url: $('#issues-quick-search').data('automcomplete-url'),
+			type: 'get',
+			data: { q: '', project_id: projectID, type: clock_action == 'S' ? 'finish' : 'start', offSet: offSet },
+			success:function(data){
+				eval(data);
+			}
+		});
 	});
 
 	$(document).on('click', '.drdn-items.issues .issue_select', function(){
-		saveTimeLog(this);
+		saveIssueTimeLog(this);
   });
 });
 
@@ -133,7 +132,8 @@ function spentTypeValue(elespent)
 
 function spentTypeSelection()
 {
-	var spcheck = sessionStorage.getItem("spent_type") == null ? "T" : sessionStorage.getItem("spent_type");
+	const spent_type = (new URL(window.location.href)).searchParams.get("spent_type");
+	var spcheck = sessionStorage.getItem("spent_type") == null ? (spent_type ? spent_type : "T") : sessionStorage.getItem("spent_type");
 	$("#spent_typeHF").val(spcheck);
 	if(document.getElementById('spent_type') != null) {
 		var ddl = document.getElementById('spent_type');
@@ -289,44 +289,41 @@ function signAttendance(str)
 	}
 	$.ajax({
 		url: clkInOutUrl,
-		type: 'get',
+		type: 'post',
 		data: data,
 		success: function(data){ }
 	});
 }
 
-function saveTimeLog(ele){
-	let imgName = getIssuetrackerImg();
+function saveIssueTimeLog(ele){
 	let date = new Date();
-  const offSet = date.getTimezoneOffset();
-	let data = { offSet : offSet, issue_id : ele.id };
-	// Sending Geolocation params
+	const offSet = date.getTimezoneOffset();
+	const clock_action = $('#g_clock_action').val();
+	let data = { offSet : offSet };
+	if(clock_action != 'S')
+		data['issue_id'] = ele.id
+	else
+		data['id'] = ele.id
+
 	if(myLatitude && myLongitude){
 		data['latitude'] = myLatitude;
 		data['longitude'] = myLongitude;
 	}
 	$.ajax({
-		url: '/wkbase/saveTimeLog',
+		url: '/wkbase/saveIssueTimeLog',
 		type: 'get',
 		data: data,
 		success: function(reponse){
-			if(imgName == 'start'){
+			if(reponse == 'finish'){
 				$('#issueImg img').prop('src','/plugin_assets/redmine_wktime/images/finish.png');
-				$('#issue-tracker').show();
-				$('#issue-tracker').html(reponse);
+				$('#g_clock_action').val('S');
 			}
 			else{
 				$('#issueImg img').prop('src','/plugin_assets/redmine_wktime/images/start.png');
-				$('#issue-tracker').hide();
-				$('#issue-time').html('00:00');
+				$('#issue-content .quick-search').show();
+				$('#g_clock_action').val('');
 			}
 		}
 	});
 	$('.drdn.expanded').removeClass('expanded');
-}
-
-function getIssuetrackerImg(){
-	let imgName = $('span#issueImg img').prop('src');
-	imgName = imgName.replace( /^.*?([^\/]+)\..+?$/, '$1' );
-	return imgName;
 }

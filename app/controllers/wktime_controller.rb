@@ -28,7 +28,7 @@ before_action :check_editperm_redirect, :only => [:destroy]
 before_action :check_view_redirect, :only => [:index]
 before_action :check_log_time_redirect, :only => [:new]
 
-accept_api_auth :index, :edit, :update, :destroy, :deleteEntries, :getProjects, :getissues, :getactivities
+accept_api_auth :index, :edit, :update, :destroy, :deleteEntries, :getProjects, :getissues, :getactivities, :getAPIUsers, :getclients
 
 helper :custom_fields
 helper :queries
@@ -158,10 +158,9 @@ include ActionView::Helpers::TagHelper
 
   # called when save is clicked on the page
 	def update
-		if api_request? && params[:params].present?
+		if api_request? && params.present?
 			key = "wk_" + getTEName()
-			params[key] = params[:params]
-			params.delete("params")
+			params[key] = params
 		end
 		setup
 		set_loggable_projects
@@ -420,7 +419,7 @@ include ActionView::Helpers::TagHelper
 		end
 		issueAssignToUsrCond
 	end
-	
+
 	def getissues
 		projectids = []
 		if !params[:term].blank? 
@@ -514,14 +513,36 @@ include ActionView::Helpers::TagHelper
 			issues = issues.where("subject like ? OR issues.id = ?", subject, params[:q].to_i) if params[:q].present?
 			issueRlt = (+"").html_safe
 			issues.each do |issue|
-				issueRlt << content_tag("span", "#"+issue.id.to_s+": "+issue.subject, class: "issue_select", id: issue.id ) if issue.visible?(user) && User.current.allowed_to?(:log_time, issue.project)
+				issueRlt << content_tag("span", "#"+issue.id.to_s+": "+issue.subject, class: "issue_select", id: issue.id ) if issue.visible?(user) && showIssueLogger(issue.project)
 			end
 			issueRlt = content_tag("span", l(:label_no_data)) if issueRlt.blank?
 			issueRlt = "$('#issueLog .drdn-items.issues').html('" + issueRlt + "');"
 			render js: issueRlt
 		end
 	end
-  
+
+	def get_issue_loggers
+		if params[:type] == "finish"
+			issueLogs = WkSpentFor.getIssueLog
+			container = ""
+			timer = ""
+			issueLogs.each do |log|
+				dateTime = get_current_DateTime
+				hours = time_diff(dateTime, log.spent_on_time)
+				timespan = content_tag("span", hours.to_s, id: ("timer_" + log.id.to_s))
+				issuespan = content_tag("span", "#{log.project_name} - #{log.tracker_name} - #{log.issue_id}##{log.subject} " )
+				button = content_tag("span", "Stop", class: "issue_select", id: log.id,
+					style: "color: white; font-weight: bold; border-radius: 20px; background: red; padding-left: 10px; padding-top: 3px; padding-bottom: 3px; padding-right: 10px; margin-left: 5px; cursor: pointer;" )
+				container << content_tag("span", (issuespan + timespan + button))
+				timer << "$('##{("timer_" + log.id.to_s)}').timer({ action: 'start', seconds: #{(dateTime - log.spent_on_time).to_i} });"
+			end
+			container = "$('#issueLog .drdn-items.issues').html('" + container + "').css('cursor', 'default');" + timer
+			render(js: container)
+		else
+			getissues
+		end
+	end
+
 	def getactivities
 		project = nil
 		error = nil
@@ -581,25 +602,29 @@ include ActionView::Helpers::TagHelper
 		else
 			error = "403"
 		end
-		clientStr =""
 		usrLocationId = teUser.wk_user.blank? ? nil : teUser.wk_user.location_id
-		unless project.blank?
-			project.account_projects.includes(:parent).order(:parent_type).each do |ap|
-				clientStr << project_id.to_s() + '|' + ap.parent_type + '_' + ap.parent_id.to_s() + '|' + "" + (params[:separator].blank? ? '|' : params[:separator] ) + ap.parent.name + "\n" if ap.parent.location_id == usrLocationId
-			end
-		end
-	
-		# respond_to do |format|
-			# format.text  { 
-			# if error.blank?
-				# render :plain => clientStr 
-			# else
-				# render_403
-			# end
-			# }
-		# end
+		project = project.account_projects.includes(:parent).order(:parent_type) unless project.blank?
+
 		respond_to do |format|
-			format.text  { render :plain => clientStr }
+			format.text  {
+				clientStr =""
+				unless project.blank?
+					project.each do |ap|
+						clientStr << project_id.to_s() + '|' + ap.parent_type + '_' + ap.parent_id.to_s() + '|' + "" + (params[:separator].blank? ? '|' : params[:separator] ) + ap.parent.name + "\n" if ap.parent.location_id == usrLocationId
+					end
+				end
+				render plain: clientStr
+			}
+			format.json  {
+				spentFors = []
+				project.each{ |client|
+					spentFors << {
+						value: project_id.to_s() + '|' + client.parent_type + '_' + client.parent_id.to_s() + '|',
+						label: client.parent.name
+					} if client.parent.location_id == usrLocationId
+				} if project.present?
+				render(json: spentFors)
+			}
 		end
 	end
 	
@@ -688,8 +713,20 @@ include ActionView::Helpers::TagHelper
 		assignedIssues.unshift( ["", ""]) if needBlank
 		assignedIssues
 	end
-	
+
 	def getusers
+		projmembers = getProjMembers()
+		if !projmembers.nil?
+			projmembers.each do |m|
+				userStr << m.user_id.to_s() + ',' + m.name + "\n"
+			end
+		end
+		respond_to do |format|
+			format.text  { render :plain => userStr }
+		end
+	end
+
+	def getProjMembers
 		project = Project.find(params[:project_id])
 		userStr = ""
 		# userList = call_hook(:controller_project_member, {:project_id => params[:project_id], :page => params[:page]})
@@ -699,14 +736,9 @@ include ActionView::Helpers::TagHelper
 			projmembers = project.members.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
 		end
 		if !projmembers.nil?
-			projmembers = projmembers.to_a.uniq 
-			projmembers.each do |m|
-				userStr << m.user_id.to_s() + ',' + m.name + "\n"
-			end
+			projmembers = projmembers.to_a.uniq
 		end
-		respond_to do |format|
-			format.text  { render :plain => userStr }
-		end
+		return projmembers
 	end
 
   # Export wktime to a single pdf file
@@ -827,20 +859,24 @@ include ActionView::Helpers::TagHelper
 			@offset = @entry_pages.offset
 		end	
 	end
-	
+
 	def getMembersbyGroup
 		group_by_users=""
-		userList=[]
-		set_managed_projects				
-		userList = getGrpMembers
-		userList.each do |users|
+		getGroupUsers.each do |users|
 			group_by_users << users.id.to_s() + ',' + users.name + "\n"
 		end
 		respond_to do |format|
 			format.text  { render :plain => group_by_users }
 		end
-	end	
-	
+	end
+
+	def getGroupUsers
+		userList=[]
+		set_managed_projects				
+		userList = getGrpMembers
+		return userList
+	end
+
 	def findTEProjects()		
 		entityNames = getEntityNames	
 		Project.find_by_sql("SELECT DISTINCT p.* FROM projects p INNER JOIN " + entityNames[1] + " t ON p.id=t.project_id  where t.spent_on BETWEEN '" + @startday.to_s +
@@ -1242,6 +1278,26 @@ include ActionView::Helpers::TagHelper
 		end
 	end
 
+	def getAPIUsers
+		key = "id"
+		case params["type"]
+		when "Project"
+			params[:project_id] = params[:id]
+			key = "user_id"
+			users = getProjMembers()
+		when "Group"
+			params[:group_id] = params[:id]
+			users = getGroupUsers()
+		else
+			users = User.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
+		end
+		reUsers = []
+		(users || []).each{|user| reUsers << { value: user[key], label: user.name }}
+		respond_to do |format|
+			format.json  { render(json: reUsers) }
+		end
+	end
+
 private
 	
 	def getManager(user, approver)
@@ -1345,9 +1401,7 @@ private
 		else
 			projMembers = []			
 			groupusers = nil
-			
 			scope=User.in_group(group_id)  if !group_id.nil?
-		
 			groupusers = scope.all
 			#groupusers = getUsersbyGroup
 			projMembers = Principal.member_of(@manage_view_spenttime_projects)
@@ -1441,28 +1495,7 @@ private
 								else
 									teEntry.spent_on = @startday + k
 								end
-
-								unless entry['spent_for_attributes'].blank? 
-									unless entry['spent_for_attributes']['spent_for_key'].blank?
-										spentFor = getSpentFor(entry['spent_for_attributes']['spent_for_key'])
-										if spentFor[1].to_i > 0
-											teEntry.spent_for.spent_for_type = spentFor[0]
-											teEntry.spent_for.spent_for_id = spentFor[1].to_i
-										end
-									end
-									teEntry.spent_for.spent_on_time = getDateTime(teEntry.spent_on, entry['spent_for_attributes']['spent_date_hr'], entry['spent_for_attributes']['spent_date_min'], 0)
-								end
-								# save GeoLocation
-								if isChecked('te_save_geo_location') && params[:latitude].present? && params[:longitude].present?
-									if teEntry.spent_for.s_latitude.blank? && teEntry.spent_for.s_longitude.blank?
-										teEntry.spent_for.s_latitude = params[:latitude]
-										teEntry.spent_for.s_longitude = params[:longitude]
-									end
-									if teEntry.spent_for.e_latitude.blank? && teEntry.spent_for.e_longitude.blank?
-										teEntry.spent_for.e_latitude = params[:latitude]
-										teEntry.spent_for.e_longitude = params[:longitude]
-									end
-								end
+								setSpentFor(entry, teEntry, spentForIds, k)
 
 								#for one comment, it will be automatically loaded into the object
 								# for different comments, load it separately
@@ -1586,6 +1619,7 @@ private
 					setValueForSpField(teEntry,(entry[:"#{spField}"].to_s),decimal_separator,entry)			
 					@hrPerDay[entry[:spent_on]] = "#{@hrPerDay[entry[:spent_on]]}".to_f + (entry[:"#{spField}"].to_s).gsub(decimal_separator, '.').to_f
 					@total = @total + (entry[:"#{spField}"].to_s).gsub(decimal_separator, '.').to_f
+					setSpentFor(entry, teEntry, [entry[:spent_for_id]], 0)
 					@entries << teEntry
 				end
 			end
@@ -1740,7 +1774,7 @@ private
 					entry.activity_id = -1
 				end
 			else
-				errorMsg = "For project: " + entry.project.name + (entry.issue_id.present? ? " , issue #" + entry.issue_id.to_s + ": " +
+				errorMsg = "For project: " + (entry.project ? entry.project.name : "") + (entry.issue_id.present? ? " , issue #" + entry.issue_id.to_s + ": " +
 				entry.issue.subject : " ")
 			end
 		end
@@ -2414,5 +2448,26 @@ private
 	def setSpentForID(entry, spentForIds, k)
 		entry[:spent_for_attributes] = {} if entry[:spent_for_attributes].blank?
 		entry[:spent_for_attributes][:id] = spentForIds.present? && spentForIds[k].present? ? spentForIds[k] : nil
+	end
+
+	def setSpentFor(entry, teEntry, spentForIds, k)
+		spent_for = {}
+		spent_for[:id] = spentForIds.present? && spentForIds[k].present? ? spentForIds[k] : nil		
+		
+		unless entry['spent_for_attributes'].blank? 
+			unless entry['spent_for_attributes']['spent_for_key'].blank?
+				spentFor = getSpentFor(entry['spent_for_attributes']['spent_for_key'])
+				if spentFor[1].to_i > 0
+					spent_for['spent_for_type'] = spentFor[0]
+					spent_for['spent_for_id'] = spentFor[1].to_i
+				end
+			end
+			spent_for['spent_on_time'] = getDateTime(teEntry.spent_on, entry['spent_for_attributes']['spent_date_hr'], entry['spent_for_attributes']['spent_date_min'], 0)
+		end
+		spent_for['spent_on_time'] = getDateTime(teEntry.spent_on, 0, 0, 0) if entry['spent_for_attributes'].blank?
+		# save GeoLocation
+    saveGeoLocation(spent_for, params[:latitude], params[:longitude])
+    
+		teEntry.spent_for_attributes = spent_for
 	end
 end

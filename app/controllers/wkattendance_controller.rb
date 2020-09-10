@@ -28,7 +28,7 @@ class WkattendanceController < WkbaseController
 	before_action :check_index_perm, :only => [:index]
 	require 'csv'
 	
-	accept_api_auth :clockindex, :clockedit, :saveClockInOut
+	accept_api_auth :clockindex, :clockedit, :saveClockInOut, :getClockHours
 
 	def index
 		sort_init 'id', 'asc'
@@ -432,20 +432,15 @@ class WkattendanceController < WkbaseController
 	def saveClockInOut
 		endtime = nil
 		if api_request?
-			params['params'].each do |cEntries|
-				starttime = params[:startdate].to_date.to_s + " " +  cEntries['clock_in'] + ":00"
-				entry_start_time = DateTime.strptime(starttime, "%Y-%m-%d %T") rescue starttime
-				endtime = params[:startdate].to_date.to_s + " " +  cEntries['clock_out'] + ":00" if !cEntries['clock_out'].blank?
-				entry_end_time = DateTime.strptime(endtime, "%Y-%m-%d %T") rescue endtime
-				if cEntries['clock_in'] == '0:00' && cEntries['clock_out'] == '0:00' 
-					wkattendance =  WkAttendance.find(cEntries['id']) if !cEntries['id'].blank?
-					wkattendance.destroy()
+			params['clock_entries'].each do |cEntries|
+				# starttime = params[:startdate].to_date.to_s + " " +  cEntries['clock_in'] + ":00"
+				# entry_start_time = DateTime.strptime(cEntries['clock_in'], "%Y-%m-%d %T") rescue starttime
+				# endtime = params[:startdate].to_date.to_s + " " +  cEntries['clock_out'] + ":00" if !cEntries['clock_out'].blank?
+				# entry_end_time = DateTime.strptime(cEntries['clock_out'], "%Y-%m-%d %T") rescue endtime
+				if !cEntries['id'].blank?
+					updateClockInOutEntry(cEntries['id'], cEntries['clock_in'], cEntries['clock_out'])
 				else
-					if !cEntries['id'].blank?
-						updateClockInOutEntry(cEntries['id'], getFormatedTimeEntry(entry_start_time), getFormatedTimeEntry(entry_end_time))
-					else
-						addNewAttendance(getFormatedTimeEntry(entry_start_time),getFormatedTimeEntry(entry_end_time), params[:user_id].to_i)
-					end
+					addNewAttendance(cEntries['clock_in'], cEntries['clock_out'], params[:user_id].to_i)
 				end
 			end
 		else
@@ -457,14 +452,14 @@ class WkattendanceController < WkbaseController
 				entry_start_time = DateTime.strptime(starttime, "%Y-%m-%d %T") rescue starttime
 				endtime = params[:startdate].to_date.to_s + " " +  params["attnendtime#{i}"] + ":00" if !params["attnendtime#{i}"].blank?
 				entry_end_time = DateTime.strptime(endtime, "%Y-%m-%d %T") rescue endtime
-				if params["attnstarttime#{i}"] == '0:00' && params["attnendtime#{i}"] == '0:00' 
+				if params["attnstarttime#{i}"] == '00:00' && params["attnendtime#{i}"] == '00:00' 
 					wkattendance =  WkAttendance.find(params["attnEntriesId#{i}"].to_i)	if !params["attnEntriesId#{i}"].blank?
 					wkattendance.destroy()
 					sucessMsg = l(:notice_successful_delete)
 				else
 					if !params["attnEntriesId#{i}"].blank?
 						updateClockInOutEntry(params["attnEntriesId#{i}"], getFormatedTimeEntry(entry_start_time), getFormatedTimeEntry(entry_end_time))
-						sucessMsg = l(:notice_successful_update) 				
+						sucessMsg = l(:notice_successful_update)
 					else
 						addNewAttendance(getFormatedTimeEntry(entry_start_time),getFormatedTimeEntry(entry_end_time), params[:user_id].to_i)
 						sucessMsg = l(:notice_successful_update)
@@ -550,5 +545,18 @@ class WkattendanceController < WkbaseController
 		wkattendance.hours = computeWorkedHours(wkattendance.start_time, wkattendance.end_time, true) if wkattendance.end_time.present?
 		wkattendance.save()
 		wkattendance
+	end
+
+	def getClockHours
+		entries = findLastAttnEntry(true).first
+		showClock = isChecked("wktime_enable_clock_in_out") && isChecked("wktime_enable_attendance_module")
+		clock = {total_hours: 0, showClock: showClock, geoLocation: isChecked('att_save_geo_location')}
+		totalHour = totalhours * 3600
+		remaininghr = computeWorkedHours(entries.start_time, Time.now.localtime, false)
+		clock['start_time'] = entries.start_time ? entries.start_time : nil
+		clock['end_time'] = entries.end_time ? entries.end_time : nil
+		clock['total_hours'] = !entries.end_time && (entries.start_time > 24.hour.ago) ?
+			( !remaininghr.blank? ? remaininghr.round(0)+totalHour : totalHour) : totalHour
+		render json: clock
 	end
 end

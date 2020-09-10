@@ -575,13 +575,13 @@ function setProductLogAttribute(data, qtyDD, cpDD, spDD)
 		spVal = pctData[4] == "" ? "" : parseFloat(pctData[4]).toFixed(2);
 		document.getElementById(spDD).value = spVal;
 		document.getElementById('inventory_item_id').value = pctData[0];
-		document.getElementById('total').innerHTML = pctData[3] + (parseFloat(pctData[4] * 1).toFixed(2));		
-		if(pctData[5] != "")
+		document.getElementById('total').innerHTML = pctData[3] + (parseFloat(pctData[4] * 1).toFixed(2));
+		if(pctData[5] && pctData[5] != "")
 		{
-			document.getElementById('unittext').innerHTML = pctData[5]  ;
+			document.getElementById('unittext').innerHTML = pctData[5];
 		}
 		else{
-			document.getElementById('unittext').innerHTML = ""  ;
+			document.getElementById('unittext').innerHTML = "";
 		}
 		
 	}
@@ -638,12 +638,12 @@ function hideLogDetails(uid)
 		if(document.getElementById("spent_for_tbl")){
 			document.getElementById("spent_for_tbl").style.display = 'block';
 		}
-		if(document.getElementById("issuelogtable")){
-			document.getElementById("issuelogtable").style.display = 'block';
-		}
 		//$('label[for="time_entry_hours"]').html('Hours<span style="color:red;">*</span>');
 		document.getElementById("materialtable").style.display = 'none';
 		document.getElementById("expensetable").style.display = 'none';
+		$('#issuelogtable').show();
+		$('#geolocation').show();
+		$('.start_on, .end_on').prop('onchange', 'calculateHours()');
 	}
 	else if(logType == 'E') {
 		document.getElementById('time_entry_hours').style.display = 'none';
@@ -653,26 +653,33 @@ function hideLogDetails(uid)
 		if(document.getElementById("spent_for_tbl")){
 			document.getElementById("spent_for_tbl").style.display = 'none';
 		}
-		if(document.getElementById("issuelogtable")){
-			document.getElementById("issuelogtable").style.display = 'none';
-		}
 		document.getElementById("expensetable").style.display = 'block';
+		$('#issuelogtable').hide();
+		$('#geolocation').show();
+		$('.start_on, .end_on').val('');
+		$('.start_on, .end_on').prop('onchange', null);
 	}
 	else 
-	{		
+	{
 		document.getElementById('time_entry_hours').style.display = 'none';
 		$('label[for="time_entry_hours"]').css('display', 'none');
 		document.getElementById("expensetable").style.display = 'none';
 		if(document.getElementById("spent_for_tbl")){
 			document.getElementById("spent_for_tbl").style.display = 'block';
 		}
-		if(document.getElementById("issuelogtable")){
-			document.getElementById("issuelogtable").style.display = 'none';
-		}
 		document.getElementById("materialtable").style.display = 'block';
 		if(uid != null) {
 			productCategoryChanged('product', uid, logType);
 		}
+		if(logType == 'A') $('#issuelogtable').show();
+		if(logType == 'M') $('#issuelogtable').hide();
+		if(logType == 'M' || logType == 'A'){
+			$('#geolocation').show();
+		} else {
+			$('#geolocation').hide();
+		}
+		$('.start_on, .end_on').val('');
+		$('.start_on, .end_on').prop('onchange', null);
 	}
 	
 }

@@ -25,7 +25,7 @@ class WkorderentityController < WkbillingController
 	include WkgltransactionHelper
 
 	def index
-		sort_init 'id', 'asc'
+		sort_init 'invoice_date', 'desc'
 
 		sort_update 'invoice_number' => "invoice_number",
 					'invoice_date' => "invoice_date",
@@ -263,8 +263,6 @@ class WkorderentityController < WkbillingController
 	
 	def update
 		if api_request?
-			(params[:params] || []).each{|param| params[param.first] = param.last }
-			params.delete("params")
 			row_index =0
 			params['invoiceItems'].each do |index, data|
 				if data['hd_item_type'] != 't' && data['hd_item_type'] != 'r'
@@ -275,8 +273,6 @@ class WkorderentityController < WkbillingController
 				end
 			end
 			params['totalrow'] = row_index
-			params.delete("invoiceItemEntries")
-			params.delete("invoiceItems")
 		end
 		errorMsg = nil
 		invoiceItem = nil

@@ -21,12 +21,13 @@ class WkaccountController < WkcrmController
     before_action :require_login
 
 	def index
-		sort_init 'id', 'asc'
+		sort_init 'updated_at', 'desc'
 
 		sort_update 'acc_name' => "#{WkAccount.table_name}.name",
 					'country' => "A.country",
 					'city' => "A.city",
-					'location_name' => "L.name"
+					'location_name' => "L.name",
+					'updated_at' => "#{WkAccount.table_name}.updated_at"
 					
 		set_filter_session
 		locationId = session[controller_name].try(:[], :location_id)
@@ -96,13 +97,6 @@ class WkaccountController < WkcrmController
     end	
 	
 	def update
-		if api_request?
-			(params[:params] || []).each{|param| params[param.first] = param.last }
-			params.delete("params")
-			(params[:address] || []).each{|addr| params[addr.first] = addr.last }
-			params.delete("address")
-		end
-
 		errorMsg = nil
 		if params[:account_id].blank? || params[:account_id].to_i == 0
 			wkaccount = WkAccount.new

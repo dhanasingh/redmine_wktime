@@ -3,6 +3,7 @@ require_dependency 'custom_fields_helper'
 require_dependency '../lib/redmine/menu_manager'
 require 'fileutils'
 require 'timelogcontroller_patch'
+require 'contextMenusController_patch'
 require 'time_report_patch'
 require_dependency 'queries_helper_patch'
 require 'userscontroller_patch'
@@ -261,6 +262,7 @@ CustomFieldsHelper.send(:include, WktimeHelperPatch)
 ProjectsController.send(:include, ProjectsControllerPatch)
 IssuesController.send(:include, IssuesControllerPatch)
 TimelogController.send(:include, TimelogControllerPatch)
+ContextMenusController.send(:include, ContextMenusControllerPatch)
 UsersController.send(:include, UsersControllerPatch)
 
 # Patches for Supervisor
@@ -327,7 +329,11 @@ module FttePatch
 						
 						# ======= ERPmine_patch Redmine 4.1.1 ==========
 						if ((valid_ERP_perm || isSupervisor) && action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
-						return true
+							return true
+						end
+						# User Log API
+						if( action.is_a?(Hash) && action[:controller] == "wklogmaterial" && action[:action] == "index")
+							return true
 						end
 						# =============================
 						# authorize if user has at least one role that has this permission
@@ -603,7 +609,7 @@ Redmine::Plugin.register :redmine_wktime do
   name 'ERPmine'
   author 'Adhi Software Pvt Ltd'
   description 'ERPmine is an ERP for Service Industries. It has the following modules: Time & Expense, Attendance, Payroll, CRM, Billing, Accounting, Purchasing, Inventory, Asset , Reports, Dashboards and Survey'
-  version '4.0.3'
+  version '4.0.4'
   url 'http://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
   
