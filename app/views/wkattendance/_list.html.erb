@@ -9,9 +9,6 @@ runperiodUrl="<%= "#{url_for(:controller => controller_name, :action => 'runPeri
 	<% if (wktime_helper.validateERPPermission('A_ATTEND')) %>
 		<%= link_to l(:"button_populate_leave"), "javascript:runperiodDatePicker()" %>&nbsp;
 	<% end %>
-	<%= actions_dropdown do %>
-		<%= link_to l(:label_leave_request), url_for(controller: "wkleaverequest", action: "index") %>
-	<% end %>
 </div>
 <% if (wktime_helper.validateERPPermission('A_ATTEND')) %>
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get) do %>

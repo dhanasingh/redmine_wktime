@@ -2,7 +2,8 @@
 <%= javascript_include_tag 'wkpayroll', :plugin => "redmine_wktime" %>
 <%= title l(:label_payroll) %>
 <script type="text/javascript"> 
-    wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "leave")%>';     
+    wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "leave")%>';
+   wkleavereqUrl = '<%=url_for(:controller => "wkleaverequest", :action => "index", :tab => "wkleaverequest")%>';
     clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>';
 	payrollUrl = '<%=url_for(:controller => "wkpayroll", :action => "index", :tab => "payroll")%>';
 	wkSchedulingUrl = '<%=url_for(:controller => "wkscheduling", :action => "index", :tab => "wkscheduling")%>';

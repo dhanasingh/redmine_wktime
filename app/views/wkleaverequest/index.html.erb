@@ -1,15 +1,25 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<script type="text/javascript">
+   wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "leave")%>';
+   wkleavereqUrl = '<%=url_for(:controller => "wkleaverequest", :action => "index", :tab => "wkleaverequest")%>';
+   clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>'; 
+   payrollUrl = '<%=url_for(:controller => "wkpayroll", :action => "index", :tab => "payroll")%>';
+	wkSchedulingUrl = '<%=url_for(:controller => "wkscheduling", :action => "index", :tab => "wkscheduling")%>'; 
+	wkPublicHolidayUrl = '<%=url_for(:controller => "wkpublicholiday", :action => "index", :tab => "wkpublicholiday")%>';
+	wkSurveyUrl = '<%=url_for(:controller => "wksurvey", :action => "user_survey", :tab => "wksurvey", :surveyForType => 'User')%>';
+	grpUrl="<%= "#{url_for(:controller => "wkpayroll", :action => 'getMembersbyGroup')}" %>";
+</script>
+
 <div class="contextual">
   	<%= link_to l(:label_new_leave_request), url_for(controller: controller_name, action: 'edit'), :class => 'icon icon-add' %>
 </div>
 <%= title l(:label_leave_request) %>
-
+<%= render_tabs time_expense_tabs %>
 <% 	group_id =session[controller_name].try(:[], :group_id)
 	userID =session[controller_name].try(:[], :user_id)
 	statusList = {'' => ''}.merge(getLeaveStatus)
 %>
-<script type="text/javascript"> 
-	grpUrl="<%= "#{url_for(:controller => "wkpayroll", :action => 'getMembersbyGroup')}" %>";
-</script>
 <fieldset>
 	<legend><%= l(:label_filter_plural) %></legend>
 	<%= form_tag({controller: controller_name, action: 'index'}, method: :get) do %>

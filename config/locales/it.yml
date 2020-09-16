@@ -1082,3 +1082,4 @@ it:
   label_api_key_info: If you are not have a api key get it from here
   error_issue_logger: "Can't Update until stop the issue logger"
   error_item_not_available: Requested no of items not available in the stock
+  label_reviewer_cmt: Reviewer Comment

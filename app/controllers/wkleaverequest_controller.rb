@@ -56,8 +56,7 @@ class WkleaverequestController < WkbaseController
     end
     isCurrentUser = @leaveReqEntry.blank? || @leaveReqEntry.user_id == User.current.id
     @leaveReqStatus = @leaveReqEntry.present? ? @leaveReqEntry.try(:status) : ''
-    @readonly = ['C', 'R', 'A'].include?(@leaveReqStatus) || (@leaveReqStatus == 'S' && isCurrentUser) || 
-      (!isCurrentUser && ['N'].include?(@leaveReqStatus))
+    @readonly = ['C', 'R', 'A', 'S'].include?(@leaveReqStatus) || (!isCurrentUser && ['N'].include?(@leaveReqStatus))
   end
 
   def save
@@ -69,6 +68,7 @@ class WkleaverequestController < WkbaseController
     leaveReq.start_date = params[:start_date] if params[:start_date].present?
     leaveReq.end_date = params[:end_date] if params[:end_date].present?
     leaveReq.leave_reasons = params[:leave_reasons] if params[:leave_reasons].present?
+    leaveReq.reviewer_comment = params[:reviewer_comment] if params[:reviewer_comment].present?
 
     lveReqStatus = 'S'
     params.each do |param, val|
@@ -87,7 +87,7 @@ class WkleaverequestController < WkbaseController
         email_id = leaveReq.user.mail
         status = "UnApproved" if leaveReq.status == 'S'
       end
-      ccMailId = leaveReq.admingroupMail - [email_id]
+      ccMailId = leaveReq.admingroupMail('leaveNotifyUser') - [email_id]
       if email_id.present?
         emailNotes = l(:label_leave_email_note).to_s + " #{status} #{l(:label_by)} " + user.name
         emailNotes += "\n\n" + "#{l(:field_user)}: " + leaveReq.user_name
