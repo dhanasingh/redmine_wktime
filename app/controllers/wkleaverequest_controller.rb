@@ -56,7 +56,7 @@ class WkleaverequestController < WkbaseController
     end
     isCurrentUser = @leaveReqEntry.blank? || @leaveReqEntry.user_id == User.current.id
     @leaveReqStatus = @leaveReqEntry.present? ? @leaveReqEntry.try(:status) : ''
-    @readonly = ['C', 'R', 'A', 'S'].include?(@leaveReqStatus) || (!isCurrentUser && ['N'].include?(@leaveReqStatus))
+    @readonly = ['C', 'A', 'S'].include?(@leaveReqStatus) || (!isCurrentUser && ['N', 'R'].include?(@leaveReqStatus))
   end
 
   def save
