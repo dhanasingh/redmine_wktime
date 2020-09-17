@@ -24,10 +24,14 @@
       locations = startLocations + endLocations
     when "address"
       locations = entries.map{|entry| [ entry.address.try(:longitude) || "", entry.address.try(:latitude) || "" ]}
+    when "assets"
+      locations = entries.map{|entry|
+      (!entry.inventory_item_id) ? ["",""] :
+      [ entry.try(:longitude) || "", entry.try(:latitude) || "", l(:label_product)+":"+entry.try(:product_name)+"\n"+l(:field_name)+": "+entry.try(:asset_name)+"\n"+l(:field_rate)+": "+(entry.rate ? entry.try(:rate).to_s : "")+"\n"+ l(:label_location)+": "+(entry.location_name ? entry.try(:location_name) : "")]
+      }
     end
     locations = [["", ""]] if locations.length == 0
 %>
-
 <div id="mapheader" style="width: <%=width%>; height: <%=height%>;float: left;padding-left: 5px;min-height: 600px;">
   <div style="text-align: right;padding-top:5px;">
     <%= link_to_function l(:button_close), '$("#show_on_map").prop("checked", false);$("#query_form").submit()', :class => 'icon fa-close' %>

@@ -78,6 +78,10 @@
 		<%=  select_tag('settings[wktime_depreciation_frequency]',
 				options_for_select(ratePerHash.invert, :selected => @settings['wktime_depreciation_frequency'].blank? ? "" : @settings['wktime_depreciation_frequency']))%>
 	</p>
+	<p>
+		<%= check_box_tag('settings[asset_save_geo_location]', 1, @settings['asset_save_geo_location'].to_i == 1) %>
+		<label for="settings_asset_save_geo_location"><%= l(:label_save_geo_location) %></label>
+	</p>
 
 
 </fieldset>
