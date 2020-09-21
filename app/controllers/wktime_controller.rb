@@ -34,127 +34,134 @@ helper :custom_fields
 helper :queries
 include QueriesHelper
 include ActionView::Helpers::TagHelper
- 
-  def index
-	sort_init 'id', 'asc'
-	sort_update 'start_date' => "spent_on",
-				'user_name' => "CONCAT(un.firstname,' ' ,un.lastname)",
-				'hours' => "hours",
-				'status' => "status",
-				'modified_by' => "status_updater",
-				'amount' => "amount"
 
-	user_custom_fields = CustomField.where(['is_filter = ? AND type = ?', true, "UserCustomField"])
-	@query = nil
-	unless user_custom_fields.blank?
-		@query = WkTimeEntryQuery.build_from_params(params, :project => nil, :name => '_')
-	end
-	set_filter_session
-    retrieve_date_range	
-	@from = getStartDay(@from)
-	@to = getEndDay(@to)
-	user_id = session[controller_name].try(:[], :user_id)
-	group_id = session[controller_name].try(:[], :group_id)
-	status = session[controller_name].try(:[], :status)
-	userfilter = getValidUserCF(session[controller_name].try(:[], :filters), user_custom_fields)
-	
-	unless userfilter.blank? || @query.blank?
-		@query.filters = userfilter
-	end
-	set_user_projects
-	if (!@manage_view_spenttime_projects.blank? && @manage_view_spenttime_projects.size > 0)
-		@selected_project = getSelectedProject(@manage_view_spenttime_projects, false)		 
-	end
-	setMembers
-	ids = nil
-	if user_id.blank?
-		user_id = (@currentUser_loggable_projects.blank? && @view_spenttime_projects.blank?) ? '-1' : User.current.id.to_s
-		#user_id = @currentUser_loggable_projects.blank? ? '-1' : User.current.id.to_s
-	end
-	#if user_id.blank?
-		#ids = is_member_of_any_project() ? User.current.id.to_s : '0'
-	#	ids = User.current.id.to_s
-	#elsif user_id.to_i == 0
-	if user_id.to_i == 0
-		unless @members.blank?
-			@members.each_with_index do |users,i|
-				if i == 0
-					ids =  users[1].to_s
-				else
-					ids +=',' + users[1].to_s
-				end				
-			end			
-		end		
-		ids = '0' if ids.nil?
-		setUserIdsInSession(ids) #set user ids in session if "All User" is chosen
-	else
-		ids = user_id 
-	end
-	if @from.blank? && @to.blank?
-		getAllTimeRange(ids, true)
-	end
-	teQuery = getTEQuery(@from, @to, ids)
-	queries = getQuery(teQuery, ids, @from, @to, status)
-	orderStr =  + " ORDER BY " + (sort_clause.present? ? sort_clause.first : "tmp3.spent_on desc, tmp3.user_id")
-	findBySql(queries[0], queries[1], orderStr)
-    respond_to do |format|
-      format.html {        
-        render :layout => !request.xhr?
-      }
-	  format.api
-    end
-  end
+	def index
+		sort_init 'id', 'asc'
+		sort_update 'start_date' => "spent_on",
+					'user_name' => "CONCAT(un.firstname,' ' ,un.lastname)",
+					'hours' => "hours",
+					'status' => "status",
+					'modified_by' => "status_updater",
+					'amount' => "amount"
 
-  def edit
-	@prev_template = false
-	@new_custom_field_values = getNewCustomField
-	setup
-	findWkTE(@startday)
-	@editable = @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r'
-	# hookPerm = call_hook(:controller_check_editable, {:editable => @editable, :user => @user})
-	# @editable = hookPerm.blank? ? @editable : hookPerm[0]
-	@editable = canSupervisorEdit if isSupervisorApproval && @editable && isSupervisor
-	#below two lines are hook code for lock TE
-	# hookPerm = call_hook(:controller_check_locked, {:startdate => @startday})
-	# @locked = hookPerm.blank? ? false : hookPerm[0]
-	@locked  = isLocked(@startday)
-	@editable = false if @locked
-	set_edit_time_logs
-	@entries = findEntries()
-	if !$tempEntries.blank?
-		newEntries = $tempEntries - @entries
-		if !newEntries.blank?
-			$tempEntries = $tempEntries - newEntries
-			newEntries.each do |entry|
-				entry.id = ""
-				$tempEntries << entry
-			end
+		user_custom_fields = CustomField.where(['is_filter = ? AND type = ?', true, "UserCustomField"])
+		@query = nil
+		unless user_custom_fields.blank?
+			@query = WkTimeEntryQuery.build_from_params(params, :project => nil, :name => '_')
 		end
-	end
-	isError = params[:isError].blank? ? false : to_boolean(params[:isError])
-	if (!$tempEntries.blank? && isError)
-		@entries.each do |entry|	
-			if !entry.editable_by?(User.current) && !validateERPPermission('A_TE_PRVLG') && !isBilledTimeEntry(entry)
-				$tempEntries << entry
-			end
+		set_filter_session
+			retrieve_date_range	
+		@from = getStartDay(@from)
+		@to = getEndDay(@to)
+		user_id = session[controller_name].try(:[], :user_id)
+		group_id = session[controller_name].try(:[], :group_id)
+		status = session[controller_name].try(:[], :status)
+		userfilter = getValidUserCF(session[controller_name].try(:[], :filters), user_custom_fields)
+		
+		unless userfilter.blank? || @query.blank?
+			@query.filters = userfilter
 		end
-		@entries = $tempEntries
-	end
-	set_project_issues(@entries)
-	if @entries.blank? && !params[:prev_template].blank?
-		@prev_entries = prevTemplate(@user.id)
-		if !@prev_entries.blank?
-			set_project_issues(@prev_entries)
-			@prev_template = true
+		set_user_projects
+		if (!@manage_view_spenttime_projects.blank? && @manage_view_spenttime_projects.size > 0)
+			@selected_project = getSelectedProject(@manage_view_spenttime_projects, false)		 
 		end
-	end
-	respond_to do |format|
-		format.html {
-			render :layout => !request.xhr?
-		} 
+		setMembers
+		ids = nil
+		if user_id.blank?
+			user_id = (@currentUser_loggable_projects.blank? && @view_spenttime_projects.blank?) ? '-1' : User.current.id.to_s
+			#user_id = @currentUser_loggable_projects.blank? ? '-1' : User.current.id.to_s
+		end
+		#if user_id.blank?
+			#ids = is_member_of_any_project() ? User.current.id.to_s : '0'
+		#	ids = User.current.id.to_s
+		#elsif user_id.to_i == 0
+		if user_id.to_i == 0
+			unless @members.blank?
+				@members.each_with_index do |users,i|
+					if i == 0
+						ids =  users[1].to_s
+					else
+						ids +=',' + users[1].to_s
+					end				
+				end			
+			end		
+			ids = '0' if ids.nil?
+			setUserIdsInSession(ids) #set user ids in session if "All User" is chosen
+		else
+			ids = user_id 
+		end
+		if @from.blank? && @to.blank?
+			getAllTimeRange(ids, true)
+		end
+		teQuery = getTEQuery(@from, @to, ids)
+		queries = getQuery(teQuery, ids, @from, @to, status)
+		orderStr =  + " ORDER BY " + (sort_clause.present? ? sort_clause.first : "tmp3.spent_on desc, tmp3.user_id")
+		findBySql(queries[0], queries[1], orderStr)
+		respond_to do |format|
+			format.html {        
+				render :layout => !request.xhr?
+			}
 		format.api
+		end
 	end
-  end
+
+	def edit
+		@prev_template = false
+		@new_custom_field_values = getNewCustomField
+		setup
+		findWkTE(@startday)
+
+		# Getting allowed Project members
+		@users = []
+		members = []
+		projects = @manage_projects.pluck(:id)
+		projects.concat(@manage_others_log.pluck(:id))
+		projects.each do |projID|
+			project = Project.find(projID)
+			members = project.members.collect{|member| [member.user.name, member.user.id] }
+		end
+		members.each {|userID| @users << userID if userID && !@users.include?(userID) }
+
+		@editable = @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r'
+		@editable = canSupervisorEdit if isSupervisorApproval && @editable && isSupervisor
+		@locked  = isLocked(@startday)
+		@editable = false if @locked
+		set_edit_time_logs
+		@entries = findEntries()
+		if !$tempEntries.blank?
+			newEntries = $tempEntries - @entries
+			if !newEntries.blank?
+				$tempEntries = $tempEntries - newEntries
+				newEntries.each do |entry|
+					entry.id = ""
+					$tempEntries << entry
+				end
+			end
+		end
+		isError = params[:isError].blank? ? false : to_boolean(params[:isError])
+		if (!$tempEntries.blank? && isError)
+			@entries.each do |entry|	
+				if !entry.editable_by?(User.current) && !validateERPPermission('A_TE_PRVLG') && !isBilledTimeEntry(entry)
+					$tempEntries << entry
+				end
+			end
+			@entries = $tempEntries
+		end
+		set_project_issues(@entries)
+		if @entries.blank? && !params[:prev_template].blank?
+			@prev_entries = prevTemplate(@user.id)
+			if !@prev_entries.blank?
+				set_project_issues(@prev_entries)
+				@prev_template = true
+			end
+		end
+		respond_to do |format|
+			format.html {
+				render :layout => !request.xhr?
+			} 
+			format.api
+		end
+	end
 
   # called when save is clicked on the page
 	def update
@@ -757,9 +764,9 @@ include ActionView::Helpers::TagHelper
     end
   end 
   
-  def getLabelforSpField
-	l(:field_hours)
-  end
+	def getLabelforSpField
+		l(:field_hours)
+	end
   
   def getCFInRowHeaderHTML
     "wktime_cf_in_row_header"
@@ -824,6 +831,7 @@ include ActionView::Helpers::TagHelper
 		Setting.plugin_redmine_wktime['wktime_restr_max_hour'].to_i == 1 ?  
 		(Setting.plugin_redmine_wktime['wktime_max_hour_day'].blank? ? 8 : Setting.plugin_redmine_wktime['wktime_max_hour_day']) : 0
 	end
+
 	def minHour
 		Setting.plugin_redmine_wktime['wktime_restr_min_hour'].to_i == 1 ?  
 		(Setting.plugin_redmine_wktime['wktime_min_hour_day'].blank? ? 0 : Setting.plugin_redmine_wktime['wktime_min_hour_day']) : 0
@@ -877,12 +885,6 @@ include ActionView::Helpers::TagHelper
 		return userList
 	end
 
-	def findTEProjects()		
-		entityNames = getEntityNames	
-		Project.find_by_sql("SELECT DISTINCT p.* FROM projects p INNER JOIN " + entityNames[1] + " t ON p.id=t.project_id  where t.spent_on BETWEEN '" + @startday.to_s +
-				"' AND '" +  (@startday+6).to_s + "' AND t.user_id = " + @user.id.to_s)		
-	end
-	
 	def check_approvable_status		
 		te_projects=[]
 		ret = false
@@ -910,7 +912,7 @@ include ActionView::Helpers::TagHelper
 	end
 	
 	def textfield_size
-	    4
+		4
 	end
 	
 	def getTracker
@@ -1299,7 +1301,7 @@ include ActionView::Helpers::TagHelper
 	end
 
 private
-	
+
 	def getManager(user, approver)
 		hookMgr = call_hook(:controller_get_manager, {:user => user, :approver => approver})
 		mngrArr = [] #nil
@@ -1362,15 +1364,13 @@ private
 			#for approver
 			ret = true
 		else
-			if !@manage_projects.blank? && @manage_projects.size > 0
+			if !@manage_projects.blank? && @manage_projects.size > 0 || @manage_others_log.present? && @manage_others_log.size > 0
 				#for manager
-				if !@logtime_projects.blank? && @logtime_projects.size > 0
-					manage_log_projects = @manage_projects & @logtime_projects
+					manage_log_projects = @manage_projects | @manage_others_log
 					ret = (!manage_log_projects.blank? && manage_log_projects.size > 0)
-				end
 			else
 				#for individuals
-				ret = (@user.id == User.current.id && @logtime_projects.size > 0)
+				ret = (@user.id == User.current.id && (@logtime_projects.size > 0 || @edit_own_logs.size > 0))
 			end
 		end
 		# editPermission = call_hook(:controller_check_permission, {:params => params})
@@ -1658,38 +1658,36 @@ private
     end
   end
   
-  def user_allowed_to?(privilege, entity)
-	setup
-	# hookPerm = call_hook(:controller_check_permission, {:params => params})
-	allow = false
-	if isSupervisorApproval && (@user != User.current) # !hookPerm.blank? 
-		allow = isSupervisorForUser((params[:user_id]).to_i) #hookPerm[0]
-	else
-		allow = User.current.allowed_to?(privilege, entity)
+	def user_allowed_to?(privilege, entity)
+		setup
+		# hookPerm = call_hook(:controller_check_permission, {:params => params})
+		allow = false
+		if isSupervisorApproval && (@user != User.current) # !hookPerm.blank? 
+			allow = isSupervisorForUser((params[:user_id]).to_i) #hookPerm[0]
+		else
+			allow = User.current.allowed_to?(privilege, entity)
+		end
+		#return @user.allowed_to?(privilege, entity)
+		return allow
 	end
-	#return @user.allowed_to?(privilege, entity)
-	return allow
-  end
   
   def can_log_time?(project_id)
-	ret = false
-	set_loggable_projects
-	loggable_projects = @logtime_projects
-	if !@manage_projects.blank? && @user != User.current
-		loggable_projects = @manage_projects & @logtime_projects
-	end
-	loggable_projects.each do |lp|
-		if lp.id == project_id
-			ret = true
-			break
+		ret = false
+		set_loggable_projects
+		loggable_projects = @logtime_projects
+		if !@manage_projects.blank? && @user != User.current
+			loggable_projects = @manage_projects & @logtime_projects
 		end
-	end
-	return ret
+		loggable_projects.each do |lp|
+			if lp.id == project_id
+				ret = true
+				break
+			end
+		end
+		return ret
   end
-  
-  
-  
-    def check_editperm_redirect
+
+	def check_editperm_redirect
 		# hookPerm = call_hook(:controller_edit_timelog_permission, {:params => params})
 		if isSupervisorApproval #!hookPerm.blank?
 			allow = (canSupervisorEdit && isSupervisorForUser((params[:user_id]).to_i)) || (check_editPermission && @user.id == User.current.id) || validateERPPermission('A_TE_PRVLG')
@@ -1702,7 +1700,7 @@ private
 		end
 	end
   
-    def check_editPermission
+  def check_editPermission
 		allowed = true
 		hasBilledEntry = false
 		if api_request?
@@ -1824,16 +1822,16 @@ private
   def retrieve_date_range
     @free_period = false
     @from, @to = nil, nil
-	if params[:control] =='reportdetail' || params[:control] =='report'
-		period_type =  params[:period_type]
-		period = params[:period]
-		fromdate = todate= nil
-	else
-		period_type = session[controller_name].try(:[], :period_type)
-		period = session[controller_name].try(:[], :period)
-		fromdate = session[controller_name].try(:[], :from)
-		todate = session[controller_name].try(:[], :to)
-	end
+		if params[:control] =='reportdetail' || params[:control] =='report'
+			period_type =  params[:period_type]
+			period = params[:period]
+			fromdate = todate= nil
+		else
+			period_type = session[controller_name].try(:[], :period_type)
+			period = session[controller_name].try(:[], :period)
+			fromdate = session[controller_name].try(:[], :from)
+			todate = session[controller_name].try(:[], :to)
+		end
 
     if (period_type == '1' || (period_type.nil? && !period.nil?)) 
       case period.to_s
@@ -1863,20 +1861,19 @@ private
         @from = Date.civil(Date.today.year, 1, 1)
         @to = Date.civil(Date.today.year, 12, 31)
       end
-    #elsif params[:period_type] == '2' || (params[:period_type].nil? && (!params[:from].nil? || !params[:to].nil?))
-	elsif period_type == '2' || (period_type.nil? && (!fromdate.nil? || !todate.nil?))
+    	#elsif params[:period_type] == '2' || (params[:period_type].nil? && (!params[:from].nil? || !params[:to].nil?))
+		elsif period_type == '2' || (period_type.nil? && (!fromdate.nil? || !todate.nil?))
       begin; @from = fromdate.to_s.to_date unless fromdate.blank?; rescue; end
       begin; @to = todate.to_s.to_date unless todate.blank?; rescue; end
       @free_period = true
     else
       # default
-	  # 'current_month'		
+	  	# 'current_month'		
         @from = Date.civil(Date.today.year, Date.today.month, 1)
         @to = (@from >> 1) - 1
     end    
-    
-    @from, @to = @to, @from if @from && @to && @from > @to
 
+    @from, @to = @to, @from if @from && @to && @from > @to
   end  
 
 	# set project/group members
@@ -1921,7 +1918,7 @@ private
 		@members = @members.uniq
 	end
 	
-  	def setup
+  def setup
 		teName = getTEName()
 		if api_request? && params[:startday].blank?
 			startday = params[:"wk_#{teName}"].try(:[], :startday).to_s.to_date
@@ -1931,7 +1928,7 @@ private
 		if api_request? && params[:user_id].blank?
 			user_id = params[:"wk_#{teName}"].try([:user], :id)
 		else
-			user_id = params[:user_id]			
+			user_id = params[:user_id]
 		end
 		if api_request? && params[:project_id].blank?
 			@projectId = params[:"wk_#{teName}"].try(:[], :project_id)
@@ -1970,47 +1967,38 @@ private
   
 	def set_user_projects
 		set_loggable_projects
-		set_managed_projects				
+		set_managed_projects
 		set_approvable_projects
 	end
 	
 	def set_managed_projects
 		# from version 1.7, the project member with 'edit time logs' permission is considered as managers
-		# mng_projects = call_hook(:controller_set_manage_projects)
-		# if !mng_projects.blank?
-			# @manage_projects = mng_projects[0].blank? ? nil : mng_projects[0]
-		# else
-			if validateERPPermission('A_TE_PRVLG')
-				@manage_projects = getAccountUserProjects
-			elsif isSupervisorApproval
-				@manage_projects = getUsersProjects(User.current.id, true)
-			else
-				@manage_projects ||= Project.where(Project.allowed_to_condition(User.current, :edit_time_entries)).order('name')
-			end
-		# end		
+		@manage_others_log = Project.where(Project.allowed_to_condition(User.current, :log_time))
+			.where(Project.allowed_to_condition(User.current, :log_time_for_other_users))
+			.order('name')
+		if validateERPPermission('A_TE_PRVLG')
+			@manage_projects = getAccountUserProjects
+		elsif isSupervisorApproval
+			@manage_projects = getUsersProjects(User.current.id, true)
+		else
+			@manage_projects ||= Project.where(Project.allowed_to_condition(User.current, :edit_time_entries)).order('name')
+		end
 		@manage_projects =	setTEProjects(@manage_projects)	
 		
 		# @manage_view_spenttime_projects contains project list of current user with edit_time_entries and view_time_entries permission
 		# @manage_view_spenttime_projects is used to fill up the dropdown in list page for managers
-		# view_projects = call_hook(:controller_set_view_projects)
-		# if !view_projects.blank?
-			# @manage_view_spenttime_projects = view_projects[0].blank? ? nil : view_projects[0]
-		# else
 			if validateERPPermission('A_TE_PRVLG') || isSupervisorApproval
-				@manage_view_spenttime_projects = @manage_projects #getAccountUserProjects
-			# elsif isSupervisorApproval
-				# @manage_view_spenttime_projects = getUsersProjects(User.current.id, true)
+				@manage_view_spenttime_projects = @manage_projects
 			else
 				@view_spenttime_projects ||= Project.where(Project.allowed_to_condition(User.current, :view_time_entries)).order('name')
-				@manage_view_spenttime_projects = @manage_projects & @view_spenttime_projects
+				@manage_view_spenttime_projects = @manage_projects & @view_spenttime_projects | @manage_others_log & @view_spenttime_projects
 				@manage_view_spenttime_projects = setTEProjects(@manage_view_spenttime_projects)
 			end
-		# end
 
 		# @currentUser_loggable_projects contains project list of current user with log_time permission
 		# @currentUser_loggable_projects is used to show/hide new time & expense sheet link	
-		@currentUser_loggable_projects ||= Project.where(Project.allowed_to_condition(User.current, :log_time)).order('name')
-		@currentUser_loggable_projects = setTEProjects(@currentUser_loggable_projects)	
+		@currentUser_loggable_projects ||= Project.where(Project.allowed_to_condition(User.current, :log_time), Project.allowed_to_condition(User.current, :log_time_for_other_users)).order('name')
+		@currentUser_loggable_projects = setTEProjects(@currentUser_loggable_projects)
 	end
 
 	def set_loggable_projects
@@ -2023,21 +2011,20 @@ private
 		if !u_id.blank?	&& u_id.to_i != 0
 			@user ||= User.find(u_id)
 			if User.current == @user
-				@logtime_projects ||= Project.where(Project.allowed_to_condition(@user, :log_time)).order('name')
+				@logtime_projects ||= Project.where(Project.allowed_to_condition(User.current, :log_time)).order('name')
+				@edit_own_logs = Project.where(Project.allowed_to_condition(User.current, :edit_own_time_entries)).order('name')
 			else
-				hookProjs = call_hook(:controller_get_permissible_projs, {:user => @user})
+				hookProjs = call_hook(:controller_get_permissible_projs, {:user => User.current})
 				if !hookProjs.blank?	
 					@logtime_projects = hookProjs[0].blank? ? [] : hookProjs[0]
 				else
-					user_projects ||= Project
-					.joins("INNER JOIN #{EnabledModule.table_name} ON projects.id = enabled_modules.project_id and enabled_modules.name='time_tracking'")
-					.joins("INNER JOIN #{Member.table_name} ON projects.id = members.project_id")				
-					.where("#{Member.table_name}.user_id = #{@user.id} AND #{Project.table_name}.status = #{Project::STATUS_ACTIVE}")
-					logtime_projects ||= Project.where(Project.allowed_to_condition(@user, :log_time)).order('name')
-					@logtime_projects = logtime_projects | user_projects
+					@logtime_projects = Project.where(Project.allowed_to_condition(User.current, :log_time))
+					.where(Project.allowed_to_condition(User.current, :log_time_for_other_users) +
+						' OR ' + Project.allowed_to_condition(User.current, :edit_time_entries))
+					.where(Project.allowed_to_condition(@user, :log_time))
+					.order('name')
 				end
 			end
-			#@logtime_projects = @logtime_projects & @manage_projects if !@manage_projects.blank?
 			@logtime_projects = setTEProjects(@logtime_projects)
 		end
 	end
@@ -2058,21 +2045,21 @@ private
 	end
 
 	def set_visible_issues(entry)
-        project = entry.nil? ? (@logtime_projects.blank? ? nil : @logtime_projects[0]) : entry.project
-        project_id = project.nil? ? 0 : project.id
+		project = entry.nil? ? (@logtime_projects.blank? ? nil : @logtime_projects[0]) : entry.project
+		project_id = project.nil? ? 0 : project.id
 		issueAssignToUsrCond = getIssueAssignToUsrCond
-        if @projectIssues[project_id].blank?
-            allIssues = Array.new
+		if @projectIssues[project_id].blank?
+			allIssues = Array.new
 			trackerids=nil
 			if(!params[:tracker_ids].blank? && params[:tracker_ids] != "0")
 				trackerids = " AND #{Issue.table_name}.tracker_id in(#{params[:tracker_ids]})"
 			end
-            if Setting.plugin_redmine_wktime['wktime_closed_issue_ind'].to_i == 1                
-                if !Setting.plugin_redmine_wktime[getTFSettingName()].blank? &&  Setting.plugin_redmine_wktime[getTFSettingName()] != ["0"] && params[:tracker_ids].blank?
+			if Setting.plugin_redmine_wktime['wktime_closed_issue_ind'].to_i == 1                
+				if !Setting.plugin_redmine_wktime[getTFSettingName()].blank? &&  Setting.plugin_redmine_wktime[getTFSettingName()] != ["0"] && params[:tracker_ids].blank?
 					cond=["(#{Issue.table_name}.tracker_id in ( ?) #{issueAssignToUsrCond} ) and #{Issue.table_name}.project_id in ( #{project_id} )",Setting.plugin_redmine_wktime[getTFSettingName()]]
-                    #allIssues = Issue.find_all_by_project_id(project_id , :conditions =>  ["#{Issue.table_name}.tracker_id in ( ?) ",Setting.plugin_redmine_wktime[getTFSettingName()]])					
+          #allIssues = Issue.find_all_by_project_id(project_id , :conditions =>  ["#{Issue.table_name}.tracker_id in ( ?) ",Setting.plugin_redmine_wktime[getTFSettingName()]])					
 					allIssues = Issue.where(cond)
-                else
+        else
 					if (!params[:issue_assign_user].blank? && params[:issue_assign_user].to_i == 1) 						
 						#allIssues = Issue.find_all_by_project_id(project_id,:conditions =>["(#{Issue.table_name}.assigned_to_id= ? OR #{Issue.table_name}.author_id= ?) #{trackerids}", params[:user_id],params[:user_id]]) 
 						allIssues = Issue.where(["((#{Issue.table_name}.assigned_to_id= ? OR #{Issue.table_name}.author_id= ?) #{trackerids}) and #{Issue.table_name}.project_id in ( #{project_id})", params[:user_id],params[:user_id]])
@@ -2080,26 +2067,26 @@ private
 						#allIssues = Issue.find_all_by_project_id(project_id)
 						allIssues = Issue.where(:project_id => project_id)						
 					end
-                end
-          	else
-                if !Setting.plugin_redmine_wktime[getTFSettingName()].blank? &&  Setting.plugin_redmine_wktime[getTFSettingName()] != ["0"] && params[:tracker_ids].blank?
-                     cond = ["((#{IssueStatus.table_name}.is_closed = ? OR #{Issue.table_name}.closed_on >= ?) AND  #{Issue.table_name}.tracker_id in ( ?) #{issueAssignToUsrCond}) and #{Issue.table_name}.project_id in ( #{project_id} )",false, @startday,Setting.plugin_redmine_wktime[getTFSettingName()]]
-                else
-                    cond =["((#{IssueStatus.table_name}.is_closed = ? OR #{Issue.table_name}.closed_on >= ?) #{issueAssignToUsrCond} #{trackerids}) and #{Issue.table_name}.project_id in ( #{project_id})",false, @startday]
-                end
-                #allIssues = Issue.find_all_by_project_id(project_id, :conditions => cond, :include => :status)				
-				allIssues = Issue.includes(:status).references(:status).where(cond)
-            end
-            # find the issues which are visible to the user
-			@projectIssues[project_id] = allIssues.select {|i| i.visible?(@user) }
         end
-        if @projActivities[project_id].blank?
-            @projActivities[project_id] = project.activities unless project.nil?
-        end 
-		if @projClients[project_id].blank?
-            @projClients[project_id] = project.account_projects.includes(:parent) unless project.nil?
-        end 
+			else
+				if !Setting.plugin_redmine_wktime[getTFSettingName()].blank? &&  Setting.plugin_redmine_wktime[getTFSettingName()] != ["0"] && params[:tracker_ids].blank?
+							cond = ["((#{IssueStatus.table_name}.is_closed = ? OR #{Issue.table_name}.closed_on >= ?) AND  #{Issue.table_name}.tracker_id in ( ?) #{issueAssignToUsrCond}) and #{Issue.table_name}.project_id in ( #{project_id} )",false, @startday,Setting.plugin_redmine_wktime[getTFSettingName()]]
+				else
+						cond =["((#{IssueStatus.table_name}.is_closed = ? OR #{Issue.table_name}.closed_on >= ?) #{issueAssignToUsrCond} #{trackerids}) and #{Issue.table_name}.project_id in ( #{project_id})",false, @startday]
+				end
+				#allIssues = Issue.find_all_by_project_id(project_id, :conditions => cond, :include => :status)				
+				allIssues = Issue.includes(:status).references(:status).where(cond)
+			end
+      # find the issues which are visible to the user
+			@projectIssues[project_id] = allIssues.select {|i| i.visible?(@user) }
     end
+		if @projActivities[project_id].blank?
+			@projActivities[project_id] = project.activities unless project.nil?
+		end 
+		if @projClients[project_id].blank?
+      @projClients[project_id] = project.account_projects.includes(:parent) unless project.nil?
+    end 
+  end
 	
 	def getSpecificField		
 		"hours"
@@ -2202,9 +2189,7 @@ private
 		sqlStr += " #{user_cf_sql} " if !user_cf_sql.blank?
 		sqlStr += (!user_cf_sql.blank? ? " AND " : " WHERE ") + " v.selected_date between '#{from}' and '#{to}' "
 	end
-	
-	
-	
+
 	def findWkTEByCond(cond)
 		#@wktimes = Wktime.find(:all, :conditions => cond)
 		@wktimes = Wktime.where(cond)
@@ -2220,24 +2205,6 @@ private
 		givenValues = {:user_id => @user.id, :project_id => @projectId, :selected_date => @selectedDate, :spent_for_type => @spentForType, :spent_for_id => @spentForId, :issue_id => @issueId }
 	end
 	
-	# def findIssueVwEntries
-		# issueUsersCFId = getSettingCfId('wktime_additional_assignee') #22#getSettingCfId(settingId)
-		# sqlStr = "select i.id as issue_id, i.subject as issue_name, i.project_id, i.assigned_to_id, 
-			# p.name as project_name, ap.id as account_project_id, ap.parent_id, ap.parent_type,
-			# te.id as time_entry_id, te.id, COALESCE(te.spent_on,'#{@selectedDate}') as spent_on , COALESCE(te.hours,0) as hours, te.activity_id, te.comments, te.spent_on_time, 
-			# te.spent_for_id, te.spent_for_type, te.spent_id, te.spent_type from issues i 
-			# inner join projects p on (p.id = i.project_id and project_id in (#{@projectId}))
-			# inner join custom_values cv on (i.id = cv.customized_id and cv.customized_type = 'Issue' and cv.custom_field_id = #{issueUsersCFId} and cv.value = '#{@user.id}') OR i.assigned_to_id = #{@user.id}
-			# left outer join wk_account_projects ap on (ap.project_id = p.id)
-			# left outer join (select t.*, sf.spent_on_time, sf.spent_for_id, sf.spent_for_type, sf.spent_id, sf.spent_type  from time_entries t 
-			# inner join wk_spent_fors sf on (t.id = sf.spent_id and sf.spent_type = 'TimeEntry' and t.spent_on = '#{@selectedDate}')) te on te.issue_id = i.id and te.user_id = #{@user.id}
-			# and te.spent_for_type = ap.parent_type and te.spent_for_id = ap.parent_id" 
-			# #time_entries te on te.spent_on = '#{@selectedDate}' and te.issue_id = i.id and te.user_id = #{@user.id} 
-			# #left outer join wk_spent_fors sf on sf.spent_type = 'TimeEntry' and sf.spent_for_type = ap.parent_type and sf.spent_for_id = ap.parent_id
-		# #sqlStr = sqlStr + " Where "
-		# TimeEntry.find_by_sql(sqlStr)
-	# end
-	
 	def setValueForSpField(teEntry,spValue,decimal_separator,entry)
 		teEntry.hours = spValue.blank? ? nil : spValue.to_hours
 		#if (!spValue.blank? && is_number(spValue.gsub(decimal_separator, '.')))
@@ -2247,8 +2214,7 @@ private
 		#end		
 	end
 	
-
-	 def sendRejectionEmail
+	def sendRejectionEmail
 		raise_delivery_errors_old = ActionMailer::Base.raise_delivery_errors
 		ActionMailer::Base.raise_delivery_errors = true
 		begin

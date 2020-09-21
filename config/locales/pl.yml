@@ -165,7 +165,6 @@ pl:
   label_difference: Różnice
   label_total_hours:  Przepracowany czas
   label_wk_attn_join_date:  Data dołączenia
-  label_wk_attn_termination_date:  Data zakończenia
   label_wk_attn_user_dob:  Data urodzin
   label_wk_designation:  Przeznaczenie
   label_employee_id:  Id Pracownika
@@ -264,7 +263,6 @@ pl:
   label_company_name: Nazwa firmy
   label_address: Adres
   label_enable_payroll_module: Włącz moduł listy płac
-  label_gender: Płeć
   label_ytd_description: Od początku roku do od %{start} do %{end}
   label_component: Komponent
   label_factor: Mnożnik
@@ -1100,3 +1098,4 @@ pl:
   error_issue_logger: "Can't Update until stop the issue logger"
   error_item_not_available: Requested no of items not available in the stock
   label_reviewer_cmt: Reviewer Comment
+  warning_leaving_message: Are you sure you want to leave the page

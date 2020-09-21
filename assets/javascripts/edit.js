@@ -70,7 +70,6 @@ $(document).ready(function() {
 		}
 	});	
 	}
-	 
 
 	$( "#comment-dlg" ).dialog({
 		autoOpen: false,
@@ -117,7 +116,7 @@ $(document).ready(function() {
 			}
 		}
 	});	
-	
+
 	$( "#notes-dlg" ).dialog({
 		autoOpen: false,
 		resizable: false,
@@ -134,7 +133,7 @@ $(document).ready(function() {
 			}
 		}
 	});	
-	
+
 	if(showWorkHeader) {
 		//when initially load the page hidden the clock in Clock out button
 		var clkStart, clkEnd, colNum, attnId;
@@ -169,7 +168,14 @@ $(document).ready(function() {
 			updateRemainingHr(i, "");
 		}
 	}
-	
+	const tableLen = $('#issueTable tr').length;
+	for(let i=1; i <= (tableLen -2); i++) checkLogPermissions(i);
+
+	$(document).on('focusin', '.load', function(){
+    $(this).data('val', $(this).val());
+	}).on('change','.load', function(){
+		loadEdit(this, $(this).data('val'));
+	});
 });
 
 $(window).load(function(){
@@ -401,22 +407,8 @@ function projectChanged(projDropdown, row){
 			});
 		}		
 		updateClientDropdown(clientUrl, id, null, uid, fmt, row, clientDropdown);
-/* 		if (clientDropdown.length > 0){ // To check for dropdown if element there it will give 1
-			$.ajax({
-				url: clientUrl,
-				type: 'get',
-				data: {project_id: id, user_id: uid, format:fmt},
-				success: function(data){
-					//var actId = getDefaultActId(data);
-					//var items = data.split('\n');
-					//var needBlankOption = !(items.length-1 == 1 || actId != null);
-					updateDropdown(data, row, clientDropdown, false, true, true, null);
-				},
-				beforeSend: function(){ $this.addClass('ajax-loading'); },
-				complete: function(){ $this.removeClass('ajax-loading'); }
-			});
-		} */
 	}
+	checkLogPermissions(row);
 }
 
 function updateClientDropdown(clientUrl, projectId, issueId, uid, fmt, row, clientDropdown){
@@ -438,44 +430,6 @@ function updateClientDropdown(clientUrl, projectId, issueId, uid, fmt, row, clie
 	}	
 }
 
-function trackerFilterChanged(trackerList){
-	if(trackerList!=null){	
-		var projDropdown = document.getElementsByName('time_entry[][project_id]');		
-		var fmt = 'text';		
-		var issUrl = document.getElementById("getissues_url").value;	
-		var uid = document.getElementById("user_id").value;
-		var $this = $(this);
-		issue_assign_user=issueAssignUser();
-		var startday=document.getElementById("startday").value;
-		//get selected tracter id from listbox and form array			
-		var trackerListArr = getSelectedTracker(trackerList);
-		var projIds = new Array();	
-		var i,b = {},projectids = [];
-		//if selectd project list
-		for(i=0; i < projDropdown.length;i++)
-		{	
-			projIds[i] = projDropdown[i].value;			
-		}		
-		//remove duplicate value from array
-		for (i = 0; i < projIds.length; i++) {
-			b[projIds[i]] = projIds[i];
-		}		
-		
-		for (var key in b) {
-			projectids.push(key);
-		}
-	
-		$.ajax({
-			url: issUrl,
-			type: 'get',
-			data: {project_ids:projectids,user_id: uid, tracker_id: trackerListArr, format:fmt,startday:startday, issue_assign_user: issue_assign_user},			
-			success: function(data){updateIssDropdowns(data,projDropdown,projectids); },
-			beforeSend: function(){ $this.addClass('ajax-loading'); },
-			complete: function(){ $this.removeClass('ajax-loading'); }
-		});
-	}	
-}
-
 function getSelectedTracker(trackerList){
 	var trackerListArr;
 	if(trackerList != null)
@@ -493,7 +447,6 @@ function getSelectedTracker(trackerList){
 	}
 	return trackerListArr;
 }
-
 
 function issueChanged(issueText, row){
 	var id = myTrim(issueText.value);
@@ -679,41 +632,31 @@ function performAction(url)
 	document.wktime_edit.submit();
 }
 
-/* allows user to enter issue as id and issue assigned to me */
-function enterIssueIdorAssignUser(){
-	var uid = document.getElementById("user_id").value;
-	var startday = document.getElementById("startday").value;
-	var enterIsueIdChk = document.getElementById("enter_issue_id");
-	var IsueassignUserChk = document.getElementById("issue_assign_user");
-	var trackerList = document.getElementById('select_issues_tracker');	
-	var issueID="";
-	var issueAssignUser="";
-	if(enterIsueIdChk && enterIsueIdChk.checked){
-		issueID = "&enter_issue_id=" + enterIsueIdChk.value;
+	// To load other users and Start date Time/Expense detail page
+function loadEdit(ele, preVal){
+	let url = new URL(window.location.href);
+	url.searchParams.set('user_id', $('#user_id').val());
+	url.searchParams.set('startday', $('#startday').val());
+    $('textarea').removeData('changed');
+    $('input').removeData('changed');
+    $('select').removeData('changed');
+	if(confirm(leavingMsg)){
+		location.href = url;
 	}
-	if(IsueassignUserChk && IsueassignUserChk.checked){		
-		issueAssignUser = "&issue_assign_user=" + IsueassignUserChk.value;
+	else{
+		$(ele).val(preVal);
 	}
-	if (trackerList && IsueassignUserChk){
-		var trackerListArr = getSelectedTracker(trackerList);
-		if(trackerListArr){
-			issueAssignUser += "&tracker_ids=" +trackerListArr;
-		}
-	}
-		location.href = editUrl +issueID + issueAssignUser;
-	
-
 }
 
 function addRow(){
-	var issueTable = document.getElementById("issueTable");	
+	var issueTable = document.getElementById("issueTable");
 	var saveButton = document.getElementById("wktime_save");
 	var submitButton = document.getElementById("wktime_submit");
 	var	issueTemplate = document.getElementById("issueTemplate");
-	var rowCount = issueTable.rows.length;	
+	var rowCount = issueTable.rows.length;
 	//there is a header row and a total row present, so the empty count is 2
 	var row = issueTable.insertRow(rowCount - footerRows);
-	
+
 	var cellCount = issueTemplate.rows[0].cells.length;
 	var i, cell;
 	for(i=0; i < cellCount; i++){
@@ -1611,8 +1554,6 @@ function convertTimeToSec(timeval)
  return seconds;
 }
 
-
-
 function convertSecToTime(seconds)
 {
  var d = Number(seconds);
@@ -1622,10 +1563,23 @@ function convertSecToTime(seconds)
  return timeVal;
 }
 
-/* function isDropdown(idName) {
-    var element = document.getElementById(idName);
-	if(element != null){
-		if(element.tagName === 'SELECT') {return true;}
-	}
-    return false;
-} */
+function checkLogPermissions(row){
+	//If desn't have log for other users then disable hours
+	const manage_others_log = $('#manage_others_log').val() || [];
+	const manage_edit_projects = $('#manage_edit_projects').val() || [];
+	const logtime_projects = $('#logtime_projects').val() || [];
+	const edit_own_logs = $('#edit_own_logs').val() || [];
+	const current_user = $('#current_user').val() == 'true';
+	$("input[name='hours"+row+"[]'], [name='custfield_img"+row+"[]']").each(function(){
+    const projID = $(this).closest('tr').children('td:first').find('select').val();
+		const hours = ($(this).closest('div').children().first()).val();
+		if(!current_user && (hours == '' && !manage_others_log.includes(projID) || hours != '' && !manage_edit_projects.includes(projID)) ||
+			(current_user && !edit_own_logs.includes(projID) && hours != '') || !logtime_projects.includes(projID))
+		{
+			this.type ? $(this).prop('disabled', true) : $(this).parent('a').bind('click', false);
+		}
+		else if(!hours && manage_others_log.includes(projID)){
+			this.type ? $(this).prop('disabled', false) : $(this).parent('a').unbind('click', false);
+		}
+	});
+}

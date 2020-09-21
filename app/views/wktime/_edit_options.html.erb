@@ -4,8 +4,7 @@
           <tr>
             <th align="right"><%= "#{l(:label_wk_enter_issue_id)}/#{l(:field_subject)}" %></th>
             <td>
-              <%= check_box_tag('enter_issue_id', 1, (!params[:enter_issue_id].blank? && params[:enter_issue_id].to_i == 1),
-                                :onclick => "enterIssueIdorAssignUser();") %>
+              <%= check_box_tag('enter_issue_id', 1, (!params[:enter_issue_id].blank? && params[:enter_issue_id].to_i == 1), :onclick => "loadEdit();") %>
             </td>
           </tr>
       <% end %>
@@ -15,7 +14,7 @@
           <tr>
             <th align="right"><%= l(:label_issues_visibility_own) %></th>
             <td>
-              <%= check_box_tag('issue_assign_user', 1, (!params[:issue_assign_user].blank? && params[:issue_assign_user].to_i == 1),:onclick => "enterIssueIdorAssignUser();") %>
+              <%= check_box_tag('issue_assign_user', 1, (!params[:issue_assign_user].blank? && params[:issue_assign_user].to_i == 1),:onclick => "loadEdit();") %>
             </td>
           </tr>
       <% end %>
@@ -49,4 +48,12 @@
         </td>
       </tr>
   <% end %>
+  <tr>
+    <th><%= label_tag(:sheet_view, l(:label_sheet_view)) %></th>
+    <td><%= check_box_tag("sheet_view", "I", (params[:sheet_view].present? && params[:sheet_view] == "I"), :onclick => "loadEdit();") %></td>
+  </tr>
+  <tr>
+    <th><%= label_tag(:prev_template, l(:chkbox_prev_tmpl)) %></th>
+    <td><%= check_box_tag("prev_template", 1, (params[:prev_template].present? && params[:prev_template] == "1"), :onclick => "loadEdit();") %></td>
+  </tr>
 </table>

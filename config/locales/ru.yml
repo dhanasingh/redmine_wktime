@@ -164,7 +164,6 @@ ru:
   label_difference: Differences
   label_total_hours:  Total Hours
   label_wk_attn_join_date:  Joining date
-  label_wk_attn_termination_date:  Termination date
   label_wk_attn_user_dob:  Date of birth
   label_wk_designation:  Designation
   label_employee_id:  Employee ID
@@ -263,7 +262,6 @@ ru:
   label_company_name: Company Name
   label_address: Address
   label_enable_payroll_module: Enable Payroll module
-  label_gender: Gender  
   label_ytd_description: YTD - Year to Date from %{start} to %{end}
   label_component: Component
   label_factor: Factor
@@ -1085,3 +1083,4 @@ ru:
   error_issue_logger: "Can't Update until stop the issue logger"
   error_item_not_available: Requested no of items not available in the stock
   label_reviewer_cmt: Reviewer Comment
+  warning_leaving_message: Are you sure you want to leave the page

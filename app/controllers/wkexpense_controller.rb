@@ -18,7 +18,7 @@
 class WkexpenseController < WktimeController	
   unloadable  
   
-  menu_item :issues
+  menu_item :wktime
   before_action :find_optional_project, :only => [:reportdetail, :report]
   
   accept_api_auth :reportdetail, :index, :edit, :update, :destroy , :deleteEntries, :getCurrency

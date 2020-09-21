@@ -92,11 +92,8 @@ function invoiceAddRow(tableId, rowCount)
 
 function addAmount(fldId)
 {
-	console.log(fldId);
 	var cloumnId = parseInt(fldId.replace(/[^0-9\.]/g, ''));
-	console.log(cloumnId);
 	var rate = document.getElementById('rate'+  cloumnId);
-	console.log(rate);
 	var quantity = document.getElementById('quantity'+  cloumnId);
 	var exchangerate_amount = document.getElementById('exchangerate_amount'+ cloumnId)
 	if(rate.value != null && quantity.value != null)

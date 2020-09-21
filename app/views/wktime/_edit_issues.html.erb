@@ -30,18 +30,11 @@ currencySym = ""
 <% unless entries.blank?
 	col_values = []
 	matrix_values = []
-	#isWeeklyVw = true
-	#if @sheetView == 'I'
-	#	isWeeklyVw = false
-	#end
-	weeklyHash = getWeeklyView(entries, controller.getUnitLabel, false, @renderer.getStartOfSheet(@selectedDate), @renderer.getDaysPerSheet)
-	weeklyHash.each do |key, matrix|
-		matrix.each do |rows|
-			issueWritten = false
-			rows.each.with_index do |entry, i|
-%>
-
-				
+	weeklyHash = getWeeklyView(entries, controller.getUnitLabel, false, @renderer.getStartOfSheet(@selectedDate), @renderer.getDaysPerSheet) %>
+	<% weeklyHash.each do |key, matrix| %>
+		<% matrix.each do |rows| %>
+			<% issueWritten = false %>
+			<% rows.each.with_index do |entry, i| %>
 				<% if !entry.blank? %>				
 					<% if !issueWritten %>
 						<% # this is a new Row %>
@@ -53,10 +46,8 @@ currencySym = ""
 						<% issueWritten = true %>
 					<% end %>
 					<% # fill the days till the current day %>
-					<%= render :partial => 'edit_hours', :locals => {:entry => nil, :isTemplate => false, 
-							:padAt => 'begin', :padTill => i+1}%>
-					<%= render :partial => 'edit_hours', :locals => {:entry => entry, :isTemplate => false, 
-					:padAt => 'begin', :padTill => i+2}%>	
+					<%= render :partial => 'edit_hours', :locals => {:entry => nil, :isTemplate => false, :padAt => 'begin', :padTill => i+1}%>
+					<%= render :partial => 'edit_hours', :locals => {:entry => entry, :isTemplate => false, :padAt => 'begin', :padTill => i+2}%>	
 					<% thours[i] += entry.hours unless @prev_template || entry.hours.blank?%>
 					<% @total_hours += entry.hours unless @prev_template || entry.hours.blank? %>
 					<% currencySym = controller.getUnit(entry) %>
