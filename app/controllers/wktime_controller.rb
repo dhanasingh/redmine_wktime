@@ -114,8 +114,8 @@ include ActionView::Helpers::TagHelper
 		# Getting allowed Project members
 		@users = []
 		members = []
-		projects = @manage_projects.pluck(:id)
-		projects.concat(@manage_others_log.pluck(:id))
+		projects = (@manage_projects || []).pluck(:id)
+		projects.concat((@manage_others_log || []).pluck(:id))
 		projects.each do |projID|
 			project = Project.find(projID)
 			members = project.members.collect{|member| [member.user.name, member.user.id] }
@@ -298,21 +298,19 @@ include ActionView::Helpers::TagHelper
 			if errorMsg.nil?
 				flash[:notice] = respMsg
 				$tempEntries = nil
-				#redirect_back_or_default :action => 'index'
-				#redirect_to :action => 'index' , :tab => params[:tab]
-								if params[:wktime_save_continue] 
-							redirect_to :action => 'edit' , :startday => !@entries.present? ? @startday  : @startday+ @renderer.getDaysPerSheet, :user_id => @user.id, :project_id => params[:project_id], :sheet_view => @renderer.getSheetType   
+				if params[:wktime_save_continue]
+					startday = !@entries.present? ? @startday  : @startday+ @renderer.getDaysPerSheet
+					redirect_to action: 'edit' , startday: startday, user_id: @user.id, project_id: params[:project_id], sheet_view: getSheetView
 				else                                                                                                
-							redirect_to :action => 'index' , :tab => params[:tab]                   
+					redirect_to :action => 'index' , :tab => params[:tab]                   
 				end 
 			else
 				flash[:error] = respMsg
 				$tempEntries = @entries
 				if !params[:enter_issue_id].blank? && params[:enter_issue_id].to_i == 1					
-				redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday, :isError => true,
-				:enter_issue_id => 1	
+					redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday, :isError => true, :enter_issue_id => 1	
 				else
-					redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday,:sheet_view => @renderer.getSheetType, :project_id => @projectId, :isError => true
+					redirect_to action: 'edit', user_id: params[:user_id], startday: @startday,sheet_view: getSheetView, project_id: @projectId, isError: true
 				end
 			end
 		}
@@ -409,14 +407,6 @@ include ActionView::Helpers::TagHelper
 				}
 			end
 		end
-	end
-	
-	def new
-		set_user_projects
-		@selected_project = getSelectedProject(@manage_projects, true)
-		# get the startday for current week
-		@startday = getStartDay(Date.today)
-		render :action => 'new'
 	end
 		
 	def getIssueAssignToUsrCond
@@ -1366,7 +1356,7 @@ private
 		else
 			if !@manage_projects.blank? && @manage_projects.size > 0 || @manage_others_log.present? && @manage_others_log.size > 0
 				#for manager
-					manage_log_projects = @manage_projects | @manage_others_log
+					manage_log_projects = @manage_projects || @manage_others_log
 					ret = (!manage_log_projects.blank? && manage_log_projects.size > 0)
 			else
 				#for individuals
@@ -1955,13 +1945,14 @@ private
 			@issueId = params[:issue_id]			
 		end
 		# if user has changed the startday
+		startday ||= Date.today 
 		@selectedDate = startday
 		if api_request? && params[:sheet_view].blank?
 			@selectedDate = params[:"wk_#{teName}"].try(:[], :selected_date).to_s.to_date
 		end
 		@startday ||= getStartDay(startday)
-		@user ||= User.find(user_id)
-		sheetView = params[:sheet_view].blank? ? 'W' : params[:sheet_view]
+		@user ||= user_id.present? ? User.find(user_id) : User.current
+		sheetView = getSheetView()
 		@renderer = SheetViewRenderer.getInstance(sheetView)
 	end
   

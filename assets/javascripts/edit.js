@@ -1570,11 +1570,13 @@ function checkLogPermissions(row){
 	const logtime_projects = $('#logtime_projects').val() || [];
 	const edit_own_logs = $('#edit_own_logs').val() || [];
 	const current_user = $('#current_user').val() == 'true';
+	let url = new URL(window.location.href);
+	const sheetView = url.searchParams.get('sheet_view');
 	$("input[name='hours"+row+"[]'], [name='custfield_img"+row+"[]']").each(function(){
     const projID = $(this).closest('tr').children('td:first').find('select').val();
 		const hours = ($(this).closest('div').children().first()).val();
-		if(!current_user && (hours == '' && !manage_others_log.includes(projID) || hours != '' && !manage_edit_projects.includes(projID)) ||
-			(current_user && !edit_own_logs.includes(projID) && hours != '') || !logtime_projects.includes(projID))
+		if(sheetView != 'I' && (!current_user && (hours == '' && !manage_others_log.includes(projID) || hours != '' && !manage_edit_projects.includes(projID)) ||
+			(current_user && !edit_own_logs.includes(projID) && hours != '') || !logtime_projects.includes(projID)))
 		{
 			this.type ? $(this).prop('disabled', true) : $(this).parent('a').bind('click', false);
 		}

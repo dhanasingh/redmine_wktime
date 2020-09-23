@@ -1,21 +1,10 @@
 # English strings go here for Rails i18n
 en:
-  my_label: "My label"
   label_wktime: Time
-  label_wk_project_dd_width: Project Dropdown Width
-  label_wk_issue_dd_width: Issue Dropdown Width
-  label_wk_actv_dd_width: Activity Dropdown Width
   label_wk_restr_max_hour: Enforce Max hour per day
   label_wk_max_hour_day: Max hour per day
   label_wk_restr_min_hour: Enforce Min hour per day
   label_wk_min_hour_day: Min hour per day
-  label_wk_page_width: Page Width
-  label_wk_page_height: Page Height
-  label_wk_margin_top: Top Margin
-  label_wk_margin_bottom: Bottom Margin
-  label_wk_margin_left: Left Margin
-  label_wk_margin_right: Right Margin
-  label_wk_line_space: Line Space
   label_wk_header_logo: Header Logo
   label_wk_purchase_order: Purchase Order
   label_wk_signature: Signature
