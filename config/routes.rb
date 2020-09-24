@@ -22,8 +22,6 @@
   
   match 'wktime/edit', :to => 'wktime#edit', :via => [:get, :post]
 
-  get 'wktime/new', :to => 'wktime#new'
-			  
   post 'wktime/update', :to => 'wktime#update'
 			  
   delete 'wktime/destroy', :to => 'wktime#destroy'

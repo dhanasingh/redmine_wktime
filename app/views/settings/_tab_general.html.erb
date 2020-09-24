@@ -30,9 +30,6 @@
 			<%=h select_tag('settings[wktime_currency]',options_for_select(wkexpense_helper.options_for_currency,:selected => @settings['wktime_currency'])) %>
 		</p>
 		<p style="padding-left:220px;">
-		  <label><%= l(:label_wk_header_logo) %></label><%= text_field_tag 'settings[wktime_header_logo]', @settings['wktime_header_logo']%>
-		</p>
-		<p style="padding-left:220px;">
 			<%= check_box_tag('settings[label_no_additional_details_for_issue]', 1, @settings['label_no_additional_details_for_issue'].to_i == 1)%> <label><%= l(:label_no_additional_details_for_issue) %> </label>
 		</p>
 		<p style="padding-left:220px;">

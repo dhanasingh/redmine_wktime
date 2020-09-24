@@ -147,7 +147,7 @@ module WktimeHelper
 	top_margin = Setting.plugin_redmine_wktime['wktime_margin_top'].to_i
 	col_id_width  = 10
 	row_height    = Setting.plugin_redmine_wktime['wktime_line_space'].to_i
-	logo    = Setting.plugin_redmine_wktime['wktime_header_logo']
+	logo = WkLocation.getLogo()
 
 	if page_height == 0
 		page_height = 297

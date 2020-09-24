@@ -627,7 +627,6 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_margin_left' => '10',
 			 'wktime_margin_right' => '10',
 			 'wktime_line_space' => '4',
-			 'wktime_header_logo' => 'logo.jpg',
 			 'wktime_work_time_header' => '0',
 			 'wktime_allow_blank_issue' => '0',
 			 'wktime_enter_comment_in_row' => '1',

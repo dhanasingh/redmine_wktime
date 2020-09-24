@@ -25,7 +25,9 @@ class WkLocation < ActiveRecord::Base
   before_save :check_default, :check_main
   
   validates_presence_of :name
-  
+
+  scope :getLogo, ->{ getMainLocation() }
+
   def check_default
     if is_default? && is_default_changed?
       WkLocation.update_all({:is_default => false})
@@ -36,5 +38,10 @@ class WkLocation < ActiveRecord::Base
     if is_main? && is_main_changed?
       WkLocation.update_all({:is_main => false})
     end
+  end
+
+  def self.getMainLocation
+    main = WkLocation.where(is_main: true)
+    return main.present? ? main.first.logo : ""
   end
 end
