@@ -147,7 +147,7 @@ module WktimeHelper
 	top_margin = Setting.plugin_redmine_wktime['wktime_margin_top'].to_i
 	col_id_width  = 10
 	row_height    = Setting.plugin_redmine_wktime['wktime_line_space'].to_i
-	logo = WkLocation.getLogo()
+	logo    = Setting.plugin_redmine_wktime['wktime_header_logo']
 
 	if page_height == 0
 		page_height = 297
@@ -222,11 +222,11 @@ module WktimeHelper
 	pdf.footer_date = format_date(Date.today)
 	pdf.SetAutoPageBreak(false)
 	pdf.AddPage(orientation)
-	
+
 	if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo))
 		pdf.Image(Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo, page_width-50, 10,40,25)
 	end
-	
+
 	render_header(pdf, entries, user, startday, row_height,title)
 
 	pdf.Ln

@@ -19,6 +19,9 @@ class WklocationController < WkbaseController
   unloadable
   menu_item :wkcrmenumeration
   include WktimeHelper
+  include WkdocumentHelper
+  helper :wkdocument
+  helper :attachments
   before_action :require_login
   before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
 	accept_api_auth :getlocations
@@ -66,16 +69,18 @@ class WklocationController < WkbaseController
 		locationObj.location_type_id = params[:location_type]
 		locationObj.is_default = params[:defaultValue]
 		locationObj.is_main = params[:defaultMain]
-		locationObj.logo = params[:logo]
+		locationObj.attachment_id = params[:attachment_id] if params[:attachment_id].present?
 		unless locationObj.valid?
 			errorMsg = errorMsg.blank? ? locationObj.errors.full_messages.join("<br>") : locationObj.errors.full_messages.join("<br>") + "<br/>" + errorMsg
 		end
-		if errorMsg.nil?
+		if errorMsg.blank?
 			addrId = updateAddress
-			unless addrId.blank?
-				locationObj.address_id = addrId
-			end
+			locationObj.address_id = addrId if addrId.present?
 			locationObj.save
+			params[:container_id] = locationObj.id
+			errorMsg = save_attachments() if params[:attachments].present?
+		end
+		if errorMsg.blank?
 		    redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
 		    flash[:notice] = l(:notice_successful_update)
 		else
