@@ -146,6 +146,7 @@
 				<% end %>
 			</table>
 		</td>
+		<td><%= render :partial => 'wktime/edit_options' %></td>
 		<td width="100%">
 			<% if isChecked('te_save_geo_location') %>
 			<% 	startLocations = @entries.map{ |entry|

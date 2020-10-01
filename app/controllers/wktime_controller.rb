@@ -411,7 +411,7 @@ include ActionView::Helpers::TagHelper
 		
 	def getIssueAssignToUsrCond
 		issueAssignToUsrCond=nil
-		if (!params[:issue_assign_user].blank? && params[:issue_assign_user].to_i == 1) 
+		if (!Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].blank? && Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].to_i == 1)
 			issueAssignToUsrCond ="and (#{Issue.table_name}.assigned_to_id=#{params[:user_id]} OR #{Issue.table_name}.author_id=#{params[:user_id]})" 
 		end
 		issueAssignToUsrCond
@@ -430,7 +430,7 @@ include ActionView::Helpers::TagHelper
 		trackerIDCond=nil
 		trackerid=nil
 		#If click add row or project changed, tracker list does not show, get tracker value from settings page  
-		if  !filterTrackerVisible() && (params[:tracker_id].blank? || !params[:term].blank?)
+		if (params[:tracker_id].blank? || !params[:term].blank?)
 			params[:tracker_id] = Setting.plugin_redmine_wktime[getTFSettingName()]
 			trackerIDCond= "AND #{Issue.table_name}.tracker_id in(#{(Setting.plugin_redmine_wktime[getTFSettingName()]).join(',')})" if !params[:tracker_id].blank? && params[:tracker_id] != ["0"]
 		end	
@@ -451,7 +451,7 @@ include ActionView::Helpers::TagHelper
 						issues = Issue.where(cond).order('project_id')
 					end  
 			else
-				if (!params[:issue_assign_user].blank? && params[:issue_assign_user].to_i == 1)
+				if (!Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].blank? && Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].to_i == 1)
 					projIds = "#{(params[:project_id] || (!params[:project_ids].blank? ? params[:project_ids].join(",") : '') || projectids)}"
 					projCond = !projIds.blank? ? "AND #{Issue.table_name}.project_id in (#{projIds})" : ""
 
@@ -713,6 +713,7 @@ include ActionView::Helpers::TagHelper
 
 	def getusers
 		projmembers = getProjMembers()
+		userStr = ""
 		if !projmembers.nil?
 			projmembers.each do |m|
 				userStr << m.user_id.to_s() + ',' + m.name + "\n"
@@ -765,14 +766,9 @@ include ActionView::Helpers::TagHelper
   def getCFInRowHTML
     "wktime_cf_in_row"
   end
-  
     
 	def getTFSettingName
 		"wktime_issues_filter_tracker"
-	end
-	
-	def filterTrackerVisible
-		!Setting.plugin_redmine_wktime['wktime_allow_user_filter_tracker'].blank?  && Setting.plugin_redmine_wktime['wktime_allow_user_filter_tracker'].to_i == 1
 	end
 
 	def showSpentFor
@@ -817,14 +813,12 @@ include ActionView::Helpers::TagHelper
 		end
 	end
 		
-	def maxHour
-		Setting.plugin_redmine_wktime['wktime_restr_max_hour'].to_i == 1 ?  
-		(Setting.plugin_redmine_wktime['wktime_max_hour_day'].blank? ? 8 : Setting.plugin_redmine_wktime['wktime_max_hour_day']) : 0
+	def maxHour 
+		Setting.plugin_redmine_wktime['wktime_max_hour_day'].blank? ? 0 : Setting.plugin_redmine_wktime['wktime_max_hour_day']
 	end
 
 	def minHour
-		Setting.plugin_redmine_wktime['wktime_restr_min_hour'].to_i == 1 ?  
-		(Setting.plugin_redmine_wktime['wktime_min_hour_day'].blank? ? 0 : Setting.plugin_redmine_wktime['wktime_min_hour_day']) : 0
+		Setting.plugin_redmine_wktime['wktime_min_hour_day'].blank? ? 0 : Setting.plugin_redmine_wktime['wktime_min_hour_day']
 	end
 	
 	def total_all(total)
@@ -909,17 +903,12 @@ include ActionView::Helpers::TagHelper
 		ret = false;
 		tracker = getTrackerbyIssue(params[:issue_id])
 		settingstracker = Setting.plugin_redmine_wktime[getTFSettingName()]
-		allowtracker = Setting.plugin_redmine_wktime['wktime_allow_user_filter_tracker'].to_i
 		if settingstracker != ["0"]
 			if ((settingstracker.include?("#{tracker}")) || (tracker == '0'))
 				ret = true
 			end			
 		else
 			ret = true
-		end	
-		
-		if allowtracker == 1
-		ret = true
 		end
 		
 		respond_to do |format|
@@ -1158,13 +1147,11 @@ include ActionView::Helpers::TagHelper
 	end
 	
 	def maxHourPerWeek
-		Setting.plugin_redmine_wktime['wktime_restr_max_hour_week'].to_i == 1 ?  
-		(Setting.plugin_redmine_wktime['wktime_max_hour_week'].blank? ? 0 : Setting.plugin_redmine_wktime['wktime_max_hour_week']) : 0
+		Setting.plugin_redmine_wktime['wktime_max_hour_week'].blank? ? 0 : Setting.plugin_redmine_wktime['wktime_max_hour_week']
 	end
 	
-	def minHourPerWeek
-		Setting.plugin_redmine_wktime['wktime_restr_min_hour_week'].to_i == 1 ?  
-		(Setting.plugin_redmine_wktime['wktime_min_hour_week'].blank? ? 0 : Setting.plugin_redmine_wktime['wktime_min_hour_week']) : 0
+	def minHourPerWeek 
+		Setting.plugin_redmine_wktime['wktime_min_hour_week'].blank? ? 0 : Setting.plugin_redmine_wktime['wktime_min_hour_week']
 	end
 	
 	def lockte
@@ -2051,7 +2038,7 @@ private
           #allIssues = Issue.find_all_by_project_id(project_id , :conditions =>  ["#{Issue.table_name}.tracker_id in ( ?) ",Setting.plugin_redmine_wktime[getTFSettingName()]])					
 					allIssues = Issue.where(cond)
         else
-					if (!params[:issue_assign_user].blank? && params[:issue_assign_user].to_i == 1) 						
+					if (!Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].blank? && Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].to_i == 1) 						
 						#allIssues = Issue.find_all_by_project_id(project_id,:conditions =>["(#{Issue.table_name}.assigned_to_id= ? OR #{Issue.table_name}.author_id= ?) #{trackerids}", params[:user_id],params[:user_id]]) 
 						allIssues = Issue.where(["((#{Issue.table_name}.assigned_to_id= ? OR #{Issue.table_name}.author_id= ?) #{trackerids}) and #{Issue.table_name}.project_id in ( #{project_id})", params[:user_id],params[:user_id]])
 					else

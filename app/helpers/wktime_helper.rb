@@ -1943,4 +1943,11 @@ end
 		projArr
 	end
 
+	def supervisorReporters
+		{
+			l(:label_me).capitalize => '3',
+			l(:label_my_direct_reports) => '4',
+			l(:label_my_reports) => '5'
+		}
+	end
 end

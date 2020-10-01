@@ -573,14 +573,10 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 	function ValidateMinMaxHours(id, msg)
 	{
 		var maxhrfield = document.getElementById("settings_wktime_max_hour_day").value;
-		var minhrfield = document.getElementById("settings_wktime_min_hour_day").value;		
-		var maxhrdayrdb = document.getElementById("settings_wktime_restr_max_hour").checked ;
-		var minhrdayrdb = document.getElementById("settings_wktime_restr_min_hour").checked ;
-		var maxhrweekrdb = document.getElementById("settings_wktime_restr_max_hour_week").checked ;
-		var minhrweekrdb = document.getElementById("settings_wktime_restr_min_hour_week").checked ;
+		var minhrfield = document.getElementById("settings_wktime_min_hour_day").value;
 		var maxhrweekfield = document.getElementById("settings_wktime_max_hour_week").value;
 		var minhrweekfield = document.getElementById("settings_wktime_min_hour_week").value;
-		if((Number(maxhrfield) < Number(minhrfield) && maxhrdayrdb && minhrdayrdb && Number(maxhrfield) > 0) || (Number(maxhrweekfield) < Number(minhrweekfield) && maxhrweekrdb && minhrweekrdb && Number(maxhrweekfield) > 0) )
+		if((Number(maxhrfield) < Number(minhrfield) && Number(maxhrfield) > 0) || (Number(maxhrweekfield) < Number(minhrweekfield) && Number(maxhrweekfield) > 0) )
 		{
 			document.getElementById(id).value = "";
 			alert(msg);

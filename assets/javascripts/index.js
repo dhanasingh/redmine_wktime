@@ -831,6 +831,28 @@ function myReportUser(optionID,userID){
 	});
 }
 
+function reportersChanged(ele){
+	switch(ele.value){
+		case '3':
+			$("#group_id").attr("disabled", true);
+			$("#project_id").attr("disabled", true);
+			$("#user_id").attr("disabled", true);
+		break;
+		case '4':
+			myReportUser(ele,"#{User.current.id}");
+			$("#group_id").attr("disabled", true);
+			$("#project_id").attr("disabled", true);
+			$("#user_id").removeAttr("disabled");
+		break;
+		case '5':
+			myReportUser(ele,"#{User.current.id}");
+			$("#group_id").attr("disabled", true);
+			$("#project_id").attr("disabled", true);
+			$("#user_id").removeAttr("disabled");
+		break;
+	}
+}
+
 function getprojects(ele, isAccProj, isSIProj){
 	switch(ele.value){
 		case '2': ddeleID = 'contact_id'

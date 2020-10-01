@@ -4,6 +4,7 @@
 		me = false
 		my_direct_report = false
 		my_report = false 
+		check = false
 		if validateERPPermission('A_TE_PRVLG') && !isSupervisor
 			opt_proj = true
 		else
@@ -18,11 +19,14 @@
 				opt_proj = true	
 		elsif filter_type == '2'
 			opt_grp = true
-		elsif filter_type == '3' || filter_type.blank?
+		elsif filter_type.blank? ||  filter_type == '3'
+			check = true
 			me = true	
 		elsif filter_type == '4'
+			check = true	
 			my_direct_report = true	
 		elsif filter_type == '5'
+			check = true	
 			my_report = true	
 		end
 		
@@ -30,43 +34,22 @@
 
 	<% if isSupervisor() || validateERPPermission('A_TE_PRVLG') %>
 		<% if isSupervisor() %>
-			<tr>
-				<td>
-				<%= radio_button_tag 'filter_type', '3', me, 
-				:onclick => '$("#group_id").attr("disabled", true);$("#project_id").attr("disabled", true);$("#user_id").attr("disabled", true);' %>
-				<span style="font-weight:bold">
-				<%=l(:label_me).capitalize %>
-				</span>
-				</td>
-
-			</tr>
-
-			<tr>
-				<td>
-				<%= radio_button_tag 'filter_type', '4', my_direct_report, 
-				:onclick => 'myReportUser(this,"#{User.current.id}");$("#group_id").attr("disabled", true);$("#project_id").attr("disabled", true);$("#user_id").removeAttr("disabled");' %>
-				<span style="font-weight:bold">
-				<%=l(:label_my_direct_reports)%>
-				</span>
-				</td>
-			</tr>
-
-			<tr>
-				<td>
-				<%= radio_button_tag 'filter_type', '5', my_report, 
-				:onclick => 'myReportUser(this,"#{User.current.id}");$("#group_id").attr("disabled", true);$("#project_id").attr("disabled", true);$("#user_id").removeAttr("disabled");' %>
-				<span style="font-weight:bold">
-				<%=l(:label_my_reports)%>
-				</span>
-				</td>
-			</tr>
+		<tr>
+			<th><%= radio_button_tag 'filter_type', '6', check, 
+			:onclick => '$("#group_id").attr("disabled", true);$("#project_id").attr("disabled", true);$("#user_id").attr("disabled", true);
+		$(".reportersDD").attr("disabled", false);' %>
+			<%=l(:label_reporters)%></th>
+			<td>
+				<%= select_tag('filter_type', options_for_select(supervisorReporters, :selected => filter_type), :onchange => "reportersChanged(this)", class: "reportersDD" ) %>
+			</td>
+		</tr>
 		<% end %>
  </table>
 <table>
 	<% if !@manage_view_spenttime_projects.blank? %>
 		<tr>
 			<th><%= radio_button_tag 'filter_type', '1', opt_proj,
-			 :onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#user_id").removeAttr("disabled");$("#group_id").attr("disabled", true);$("#project_id").removeAttr("disabled");' %>
+			 :onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#user_id").removeAttr("disabled");$("#group_id").attr("disabled", true);$("#project_id").removeAttr("disabled");$(".reportersDD").attr("disabled", true);' %>
 			<%=l(:field_project)%></th>
 			<td class="project" align="left"><%=h select_tag('project_id', 
 				options_for_select(options_for_wktime_project(@manage_view_spenttime_projects),
@@ -77,7 +60,7 @@
 	<% if !@groups.blank? %>
 		<tr>
 			<th><%= radio_button_tag 'filter_type', '2', opt_grp, 
-			:onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#user_id").removeAttr("disabled");$("#group_id").removeAttr("disabled");$("#project_id").attr("disabled", true);' %>
+			:onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#user_id").removeAttr("disabled");$("#group_id").removeAttr("disabled");$("#project_id").attr("disabled", true);$(".reportersDD").attr("disabled", true);' %>
 			<%=l(:label_group_plural)%></th>
 			<td>
 				<%=h select_tag('group_id',
@@ -112,9 +95,11 @@ $(document).ready(function()
 		$("#group_id").attr("disabled", true);
 		$("#project_id").removeAttr("disabled");
 		$("#user_id").attr("disabled", false);
+		$(".reportersDD").attr("disabled", true);
 	<% end %>
 	<% if opt_grp %>
 		$("#project_id").attr("disabled", true);
+		$(".reportersDD").attr("disabled", true);
 		$("#group_id").removeAttr("disabled");
 	<% end %>
 });

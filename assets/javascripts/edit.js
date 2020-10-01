@@ -176,6 +176,8 @@ $(document).ready(function() {
 	}).on('change','.load', function(){
 		loadEdit(this, $(this).data('val'));
 	});
+	// for searchable dopdown
+	$(".issueDD").select2();
 });
 
 $(window).load(function(){
@@ -376,7 +378,7 @@ function projectChanged(projDropdown, row){
 		var uid = document.getElementById("user_id").value;
 		var $this = $(this);    
 		issue_assign_user=issueAssignUser();
-		var	trackerListArr = getSelectedTracker(document.getElementById('select_issues_tracker'));	
+		var	trackerListArr = $("#select_issues_tracker").val() == 0 ? '' : $("#select_issues_tracker").val();
 		var startday=document.getElementById("startday").value;
 		$.ajax({
 			url: issUrl,
@@ -386,6 +388,7 @@ function projectChanged(projDropdown, row){
 				var items = data.split('\n');
 				var needBlankOption = items.length-1 > 1 || allowBlankIssue ;
 				updateDropdown(data, row, issDropdown, true, needBlankOption, true, null); 
+				$(".issueDD").select2();
 			},
 			beforeSend: function(){ $this.addClass('ajax-loading'); },
 			complete: function(){ $this.removeClass('ajax-loading'); }
@@ -428,24 +431,6 @@ function updateClientDropdown(clientUrl, projectId, issueId, uid, fmt, row, clie
 				complete: function(){ $this.removeClass('ajax-loading'); }
 			});
 	}	
-}
-
-function getSelectedTracker(trackerList){
-	var trackerListArr;
-	if(trackerList != null)
-	{
-		trackerListArr = new Array();
-		var j=0;
-		for(var i=0; i < trackerList.options.length; i++)
-		{ 	
-			if(trackerList.options[i].selected == true && trackerList.options[i].value != "") 
-			{ 
-				trackerListArr[j] = trackerList.options[i].value;
-				j++;				
-			}
-		}
-	}
-	return trackerListArr;
 }
 
 function issueChanged(issueText, row){
@@ -671,6 +656,9 @@ function addRow(){
 	{
 		submitButton.disabled = false;
 	}
+	issuetr = $('#issueTable').children('tbody').first().children('tr').get((rowCount -1 )-(headerRows + footerRows - 1))
+	issuetd = $(issuetr).children('td').get(1);
+	$(issuetd).children('select').first().select2();
 }
 
 function deleteRow(row, deleteMsg){
@@ -1360,12 +1348,8 @@ function validateMinhour(maxHour, minHour,nonWorkingDay, minHoursPerWeek, maxHou
 
 function issueAssignUser()
 {
-	var issueAssignUser = document.getElementById('issue_assign_user');
-	var issue_assign_user=0;
-	if(issueAssignUser && issueAssignUser.checked)
-	{
-		issue_assign_user=1;
-	}
+	var issueAssignUser = $('#issue_assign_user').val();
+	var issue_assign_user= issueAssignUser ? issueAssignUser : 0;
 	return issue_assign_user
 }
 

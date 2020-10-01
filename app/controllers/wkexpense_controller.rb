@@ -44,10 +44,6 @@ class WkexpenseController < WktimeController
 	"wkexpense_issues_filter_tracker"
   end
   
-  def filterTrackerVisible
-	false
-  end
-  
   def showSpentFor
 	false
   end
