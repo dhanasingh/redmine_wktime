@@ -1,15 +1,20 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<% show_on_map = session[controller_name].try(:[], :show_on_map) %>
 <div class="autoscroll">
-	<table class="list time-entries">
+	<table class="list time-entries" style="width:<%= !show_on_map ? "100%" : "35%" %>; float:left;">
 		<thead>
 		  <% if action_name == 'index' %>
 			<tr>
-				<%= sort_header_tag('activity_type', :caption => l(:label_activity_type), class: "lbl-txt-align") %>
+				<% if !show_on_map %>
+					<%= sort_header_tag('activity_type', :caption => l(:label_activity_type), class: "lbl-txt-align") %>
+				<% end %>	
 				<%= sort_header_tag('subject_name', :caption => l(:field_subject), class: "lbl-txt-align") %>
 				<%= sort_header_tag('status', :caption => l(:field_status), class: "lbl-txt-align") %>
-				<%= sort_header_tag('parent_type', :caption => l(:label_related_to), class: "lbl-txt-align") %>
-				<%= sort_header_tag('start_date', :caption => l(:label_start_date_time), class: "lbl-txt-align") %>
-				<%= sort_header_tag('end_date', :caption => l(:label_end_date_time), class: "lbl-txt-align") %>
+				<% if !show_on_map %>
+					<%= sort_header_tag('parent_type', :caption => l(:label_related_to), class: "lbl-txt-align") %>
+					<%= sort_header_tag('start_date', :caption => l(:label_start_date_time), class: "lbl-txt-align") %>
+					<%= sort_header_tag('end_date', :caption => l(:label_end_date_time), class: "lbl-txt-align") %>
+				<% end %>
 				<%= sort_header_tag('assigned_user_id', :caption => l(:field_assigned_to), class: "lbl-txt-align") %>
 				<%= sort_header_tag('updated_at', :caption => l(:field_updated_on), class: "lbl-txt-align") %>
 				<th></th>
@@ -32,14 +37,18 @@
 			<% unless activities.blank? %>
 				<% activities.each do |entry| %>
 					<tr>
-						<td class="lbl-txt-align"><%=h acttypeHash[entry.activity_type] %></td>
+					<% if !show_on_map %>
+							<td class="lbl-txt-align"><%=h acttypeHash[entry.activity_type] %></td>
+						<% end %>	
 						<td class="lbl-txt-align"><%=h entry.name %></td>
 						<td class="lbl-txt-align"><%=h (entry.activity_type == 'M' || entry.activity_type == 'C' ? meetCallStatusHash[entry.status] : taskStatusHash[entry.status])  %></td>
-						<td class="lbl-txt-align"><%=h relatedHash[entry.parent_type] %></td>
-						<td class="lbl-txt-align"><%=h entry.start_date.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>
-						<td class="lbl-txt-align"><%=h entry.end_date.localtime.strftime("%Y-%m-%d %H:%M:%S") unless entry.end_date.blank? %></td>
-						<td class="lbl-txt-align"><%=h entry.assigned_user.name(:firstname_lastname) unless entry.assigned_user.blank? %></td>
-						<td class="lbl-txt-align"><%=h entry.updated_at.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>									
+						<% if !show_on_map %>
+							<td class="lbl-txt-align"><%=h relatedHash[entry.parent_type] %></td>
+							<td class="lbl-txt-align"><%=h entry.start_date.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>
+							<td class="lbl-txt-align"><%=h entry.end_date.localtime.strftime("%Y-%m-%d %H:%M:%S") unless entry.end_date.blank? %></td>
+						<% end %>
+						<td class="lbl-txt-align"><%=h entry.assigned_user.name unless entry.assigned_user.blank? %></td>
+						<td class="lbl-txt-align"><%=h entry.updated_at.localtime.strftime("%Y-%m-%d %H:%M:%S") %></td>
 						<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => 'wkcrmactivity', :action => 'edit', :activity_id => entry.id, :tab => 'wkcrmactivity', :controller_from => controller_name, :action_from => action_name }, :title => l(:button_edit) %>
 							<%= link_to image_tag('delete.png'), {:controller => "wkcrmactivity", :action => 'destroy', :activity_id => entry.id, :tab => "wkcrmactivity", :controller_from => controller_name, :action_from => action_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %></td>
 					</tr>
@@ -47,4 +56,8 @@
 			<% end %>
 		</tbody>
 	</table>
+
+	<% if show_on_map %>
+		<%= render partial: "wkgeolocation/show_on_map", locals: { entries: activities, model: "activity", height: '94%', width: '64%' } %>
+	<% end %>
 </div>

@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2016  Adhi software pvt ltd
+# Copyright (C) 2011-2020 Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -110,6 +110,10 @@ class WkcrmactivityController < WkcrmController
 		crmActivity.assigned_user_id = params[:assigned_user_id]
 		crmActivity.parent_id = params[:related_parent]
 		crmActivity.parent_type = params[:related_to].to_s
+		if isChecked('crm_save_geo_location')
+			crmActivity.latitude = params[:latitude]
+			crmActivity.longitude = params[:longitude]
+		end
 		unless crmActivity.valid?
 		@tempCrmActivity << crmActivity
 			$tempActivity = @tempCrmActivity
@@ -164,7 +168,7 @@ class WkcrmactivityController < WkcrmController
 	def set_filter_session
 		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
 		if params[:searchlist] == controller_name || api_request?
-			filters = [:period_type, :period, :from, :to, :activity_type, :related_to]
+			filters = [:period_type, :period, :from, :to, :activity_type, :related_to, :show_on_map]
 			filters.each do |param|
 				if params[param].blank? && session[controller_name].try(:[], param).present?
 					session[controller_name].delete(param)
