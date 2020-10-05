@@ -194,9 +194,8 @@ include ActionView::Helpers::TagHelper
 		cvParams = wktimeParams[:custom_field_values] unless wktimeParams.blank?	
 		useApprovalSystem = (!Setting.plugin_redmine_wktime['wktime_use_approval_system'].blank? &&
 							Setting.plugin_redmine_wktime['wktime_use_approval_system'].to_i == 1)
-							
 		@wktime.transaction do
-			begin				
+			begin
 				if errorMsg.blank? && (!params[:wktime_save].blank? || !params[:wktime_save_continue].blank? ||
 					(!params[:wktime_submit].blank? && @wkvalidEntry && useApprovalSystem))		
 					if !@wktime.nil? && ( @wktime.status == 'n' || @wktime.status == 'r')			
@@ -278,7 +277,7 @@ include ActionView::Helpers::TagHelper
 			rescue Exception => e			
 				errorMsg = e.message
 			end
-			if errorMsg.nil?			
+			if errorMsg.nil?
 				#when the are entries or it is not a save action
 				if !@entries.blank? || !params[:wktime_approve].blank? || 
 					(!params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank?) ||
@@ -1483,7 +1482,10 @@ private
 								#to allow for internationalization on decimal separator
 								setValueForSpField(teEntry,hours[j],decimal_separator,entry)
 								#teEntry.hours = hours[j].blank? ? nil : hours[j]#.to_f
-								
+
+								# Save Attachments
+								saveAttachments(teEntry, i+1, k+1)
+
 								unless custom_fields.blank?
 									teEntry.custom_field_values.each do |custom_value|
 										custom_field = custom_value.custom_field
@@ -1766,6 +1768,29 @@ private
 			errorMsg = @wktime.errors.full_messages.join('\n')
 		end
 		return errorMsg
+	end
+
+	def saveAttachments(teEntry, row, col)
+		attachments = []
+		if params["attachments_"+row.to_s+"_"+col.to_s].present?
+			params["attachments_"+row.to_s+"_"+col.to_s].each do |atch_param|
+				attachment = Attachment.find_by_token(atch_param[1][:token])
+				next if attachment.blank?
+				attachment.container_type = "TimeEntry"
+				attachment.filename = attachment.filename
+				attachment.description = atch_param[1][:description]
+				if teEntry.present? && teEntry.id.present?
+					attachment.container_id = teEntry.id
+					attachment.save
+				else
+					attach = attachment.as_json
+					attach[:id] = nil
+					attachments << attach
+					attachment.destroy
+				end
+			end
+		end
+		teEntry.attachments_attributes = attachments
 	end
 
 	# update timesheet status

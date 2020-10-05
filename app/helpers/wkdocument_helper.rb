@@ -86,7 +86,6 @@ module WkdocumentHelper
   end
 
   def attachments_links(container, options = {})
-    options.assert_valid_keys(:author, :thumbnails)
     attachments =
       if container.attachments.loaded?
         container.attachments
@@ -114,6 +113,6 @@ module WkdocumentHelper
     text = options.delete(:text) || attachment.filename
     html_options = options.slice!(:only_path, :filename)
     url = url_for(controller: "wkdocument", action: "download", id: attachment.id)
-    link_to text, url, html_options
+    (html_options[:editable] || html_options[:download]) ? link_to( text, url, html_options) : text
   end
 end

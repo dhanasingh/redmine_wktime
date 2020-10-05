@@ -54,8 +54,8 @@
 		<fieldset>
 		<% if Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? ||
 			Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 0 %>
-			<p> <label><%= l(:field_comments) %></label>
-			<textarea name="_edit_comments_" id="_edit_comments_" value="" cols="25" rows="2"> </textarea> </p>
+			<p style="display: flex;align-items: center;"><label style="padding-right: 5px"><%= l(:field_comments) %></label></b>
+			<textarea name="_edit_comments_" id="_edit_comments_" value="" cols="25" rows="2"></textarea></p>
 		<% end %>
 
 		
@@ -173,3 +173,16 @@
 <%= render :partial => 'edit_footer' %>
 
 <% end %>
+
+<!-- Display Attachments Files -->
+<% editable = !@locked && (@wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r') %>
+<div>
+	<fieldset id="<%= 'attachment_' + @row.to_s() + '_' + @wday_index.to_s %>" class="attachment">
+		<legend><%=l(:label_attachment)%></legend>
+		<% @entries.each do |entry| %>
+			<% if entry.present? && entry.attachments.any? %>
+				<%= attachments_links entry, { editable: editable, deletable: editable, hideImage: true, author: false } %>
+			<% end %>
+		<% end %>
+	</fieldset>
+</div>

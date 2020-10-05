@@ -92,3 +92,16 @@
 <%= render :partial => 'wktime/edit_footer' %>
 
 <% end %>
+
+<!-- Display Attachments Files -->
+<% editable = !@locked && (@wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r') %>
+<div>
+	<fieldset id="<%= 'attachment_' + @row.to_s() + '_' + @wday_index.to_s %>" class="attachment">
+		<legend><%=l(:label_attachment)%></legend>
+		<% @entries.each do |entry| %>
+			<% if entry.present? && entry.attachments.any? %>
+				<%= attachments_links entry, { editable: editable, deletable: editable, hideImage: true, author: false } %>
+			<% end %>
+		<% end %>
+	</fieldset>
+</div>

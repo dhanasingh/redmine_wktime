@@ -42,8 +42,11 @@ end
 TimeEntry.class_eval do
   has_one :spent_for, as: :spent, class_name: 'WkSpentFor', :dependent => :destroy
   has_one :invoice_item, through: :spent_for
+  acts_as_attachable :view_permission => :view_files,
+                    :edit_permission => :manage_files,
+                    :delete_permission => :manage_files
   
-  accepts_nested_attributes_for :spent_for
+  accepts_nested_attributes_for :spent_for, :attachments
 end
 
 # redmine only differs between project_menu and application_menu! but we want to display the

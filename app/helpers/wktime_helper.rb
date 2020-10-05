@@ -20,6 +20,8 @@ module WktimeHelper
   include Redmine::Export::PDF
   include Redmine::Export::PDF::IssuesPdfHelper
   include Redmine::Utils::DateCalculation
+	include AttachmentsHelper
+	include WkdocumentHelper
   
 
 	def options_for_period_select(value)

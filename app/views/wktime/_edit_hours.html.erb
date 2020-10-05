@@ -32,11 +32,24 @@
 				<%=h text_field_tag('hours' + @row.to_s() +'[]', entry.nil? || @prev_template || entry.hours.blank? ? '' : ("%.2f" % entry.hours) ,:size => "#{controller.textfield_size}",
 				:disabled => disable,
 				:onchange => "validateTotal(this, #{@wday_index},'#{controller.maxHour}');") %>
-				
 				<%=h hidden_field_tag('ids' + @row.to_s() +'[]', entry.nil? || @prev_template ? '' : entry.id) %>
 				<%=h hidden_field_tag('disabled' + @row.to_s() +'[]', disable ) %>
 				<%= hidden_field_tag('spentForId' + @row.to_s() +'[]', spentForId ) %>
-				
+
+				<!-- Attachments -->
+				<span id="<%= 'attachdiv_' + @row.to_s() + '_' + @wday_index.to_s %>"  style="display: none"  class="allAttach">
+					<fieldset id="<%= 'attachment_' + @row.to_s() + '_' + @wday_index.to_s %>" class="attachment">
+						<legend><%=l(:label_attachment)%></legend>
+						<% if entry.present? && entry.attachments.any? %>
+							<%= link_to_attachments entry %>
+						<% end %>
+						<fieldset>
+							<legend><%=l(:label_attachment_plural)%></legend>
+							<%= render partial: 'attachments/form', locals: { attachment_param: "attachments_"+ @row.to_s() + '_' + @wday_index.to_s } %>
+						</fieldset>
+					</fieldset>
+				</span>
+
 				<% cvs = [] %>
 				<% show_custfield_img = false %>
 				<% if Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? ||

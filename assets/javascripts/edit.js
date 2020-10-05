@@ -29,6 +29,9 @@ var nscount = 0;
 var clkdialogid = 0;
 var minHourperWeekAlertMsg="";
 var maxHourperWeekAlertMsg="";
+var attachmentDiv = "";
+var attachmentField = "";
+
 $(document).ready(function() {
 	var e_comments = $( "#_edit_comments_" );
 	var e_notes = $( "#_edit_notes_" );	
@@ -105,13 +108,15 @@ $(document).ready(function() {
 					else
 					{					
 						$(x[comment_col-1]).attr({src: "../plugin_assets/redmine_wktime/images/withoutcommant.png"});
-					}					
+					}
+					$(attachmentField).appendTo(attachmentDiv);
 					$( this ).dialog( "close" );				
 					//unregister this event since this is showing a 'don't leave' message
 					//loosk like this is not supported in Opera
 					//window.onbeforeunload = null;
 			},
 			Cancel: function() {
+				$(attachmentField).appendTo(attachmentDiv);
 				$( this ).dialog( "close" );
 			}
 		}
@@ -219,10 +224,8 @@ function isChanged(elType) {
 
 function showComment(row, col, title) {
 	var images = $( 'img[name="custfield_img'+row+'[]"]' );
-	var width = 300;
-	var height = 350;
-	var posX = 0;
-	var posY = 0;
+	var width = 600;
+	var height = 450;
 	var i = row - 1;
 	var currImage = images[col-1];
 	var projDropdowns = $('select[name="time_entry[][project_id]"]');
@@ -249,12 +252,19 @@ function showComment(row, col, title) {
 	$( "#_edit_comm_act_" ).html(actDropdowns[i].selectedIndex >= 0 ?
 		(actDropdowns[i].options[actDropdowns[i].selectedIndex].value == -1 ? '' : actDropdowns[i].options[actDropdowns[i].selectedIndex].text) : '');
 	
-	showCustomField();		
-	
-	posX = $(currImage).offset().left - $(document).scrollLeft() - width + $(currImage).outerWidth();
-	posY = $(currImage).offset().top - $(document).scrollTop() + $(currImage).outerHeight();
-	$("#comment-dlg").dialog({width:width, height:height ,position:[posX, posY]});
-	$( "#comment-dlg" ).dialog('option', 'title', title).dialog( "open" );
+	showCustomField();
+
+	//For Attachments
+	if(!$(attachmentField).prev().is('span')){
+		$(attachmentField).appendTo(attachmentDiv);
+	}
+	attachmentDiv = '#attachdiv_'+row+'_'+col;
+	attachmentField = '#attachment_'+row+'_'+col;
+	const destination = $('#_edit_comments_').closest('fieldset');
+	$(attachmentField).appendTo(destination);
+	$(attachmentField).show();
+	const position = $(currImage).position();
+	$("#comment-dlg").dialog({ title: title, width: width, height: height }).dialog( "open" );;
 }
 
 function showNotes(title) {
@@ -770,6 +780,7 @@ function renameCellIDs(cell, index, newIndex){
 	renameProperty(cell, 'input', 'disabled', index, newIndex);
 	renameProperty(cell, 'input', 'comments', index, newIndex);
 	renameProperty(cell, 'img', 'custfield_img', index, newIndex);
+	renameProperty(cell, 'span', 'attachment_', index, newIndex);
 	
 	if(cf_ids != ''){
 		var cust_fids = cf_ids.split(',');
@@ -799,11 +810,12 @@ function renameProperty(cell, tag, prefix, str, newStr){
 			if(children[j].id == 'time_entry__issue_id'){
 				renameOnChange(children[j], str, newStr);
 			}
-						
 		}else if(tag == 'a'){
 			renameHref(children[j], prefix+str, prefix+newStr);
 		}else if(tag == 'select'){
 			renameOnChange(children[j], prefix+str, prefix+newStr);
+		} else if(tag == 'span' && children[j].className == "allAttach"){
+			renameAttachment(children[j], newStr);
 		}
 	}
 }
@@ -1568,4 +1580,11 @@ function checkLogPermissions(row){
 			this.type ? $(this).prop('disabled', false) : $(this).parent('a').unbind('click', false);
 		}
 	});
+}
+
+function renameAttachment(ele, row){
+	const col = (ele.id.split('_')).pop();
+	let eleStr = $(ele).prop('outerHTML');
+	eleStr = eleStr.replaceAll( '0', row);
+	$(ele).replaceWith(eleStr)
 }
