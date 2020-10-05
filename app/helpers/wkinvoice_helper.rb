@@ -24,12 +24,17 @@ include WkbillingHelper
 include WkpayrollHelper
 
 
-    def options_for_wktime_account(blankOption, accountType)
+	def options_for_wktime_account(blankOption, accountType, isAccountType)
 		accArr = Array.new
 		if blankOption
 		  accArr << [ "", ""]
 		end
-		accname = WkAccount.where(:account_type => accountType).order(:name)
+		hookType = call_hook(:additional_type)
+		if hookType.blank? || !isAccountType
+			accname = WkAccount.where(:account_type => accountType).order(:name)
+		else
+			accname = WkAccount.where("account_type = ? or account_type = ?", accountType, hookType).order(:name)
+		end
 		if !accname.blank?
 			accname.each do | entry|
 				accArr << [ entry.name, entry.id ]
@@ -86,7 +91,7 @@ include WkpayrollHelper
 		unless @invoice.save
 			errorMsg = @invoice.errors.full_messages.join("<br>")
 		else
-			call_hook(:controller_after_save_invoice, {:attributes => @invoice.attributes}) if @invoice.parent_type != "WkAccount"
+			call_hook(:controller_after_save_invoice, {:attributes => @invoice.attributes})
 		end
 		errorMsg
 	end
@@ -591,7 +596,7 @@ include WkpayrollHelper
 	def isAccountBilling(accountProject)
 		ret = false
 		if accountProject.parent_type == 'WkAccount'
-			ret = accountProject.parent.account_billing
+			ret = accountProject.parent.account_billing unless accountProject.parent.nil?
 		end
 		ret
 	end

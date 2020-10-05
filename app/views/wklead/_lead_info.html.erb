@@ -1,13 +1,13 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
-	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds', :additionalContactType => controller.additionalContactType)}" %>";
+	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds', :additionalContactType => controller.additionalContactType, :additionalAccountType => controller.additionalAccountType)}" %>";
 </script>
 <fieldset class="box tabular">
 	<legend><%=l(:label_content_information, isAccount ? controller.getAccountLbl : l(:label_lead))%></legend>
 	<%	
 		contactType = controller.getContactType
 		accountType = controller.getAccountType
-		accArr = options_for_wktime_account(true, accountType)
+		accArr = options_for_wktime_account(true, accountType, controller.additionalAccountType)
 		parentId = nil
 		relateTo = "WkAccount" 
 		type = accountType
@@ -18,11 +18,11 @@
 				relateTo = "WkCrmContact"
 				type = contactType
 			end
-			accArr = relatedValues(relateTo, parentId, type, true, controller.additionalContactType)	
+			accArr = relatedValues(relateTo, parentId, type, true, controller.additionalContactType, controller.additionalAccountType)	
 		else
 			if !params[:parentType].blank?
 				type = params[:parentType] == "WkAccount" ? accountType : contactType
-				accArr = relatedValues(params[:parentType], params[:parentId], type, true, controller.additionalContactType)		
+				accArr = relatedValues(params[:parentType], params[:parentId], type, true, controller.additionalContactType, controller.additionalAccountType)		
 			end
 		end
 		relHash = relatedHash
@@ -98,10 +98,12 @@
 				<th align="left"><%= l(:label_account_category) %></th>
 			<td align="left" style="padding-left:40px;"><%=h select_tag('account_category', options_for_select(options_for_enum_select('AC', selectedAcId, true))) %></td>
 			</tr>
-			<tr>
-				<th align="left"><%= l(:label_account_billing) %></th>
-				<td align="left" style="padding-left:40px;"><%= check_box_tag("account_billing", 1, (accountObj.blank? ? false : accountObj.account_billing)) %></td>
-			</tr>
+			<% if ['A', 'S'].include? controller.getAccountType %>
+				<tr>
+					<th align="left"><%= l(:label_account_billing) %></th>
+					<td align="left" style="padding-left:40px;"><%= check_box_tag("account_billing", 1, (accountObj.blank? ? false : accountObj.account_billing)) %></td>
+				</tr>
+			<% end %>
 		<% else %>
 			<tr>
 				<th align="left"><%= l(:label_department) %></th>

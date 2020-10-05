@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2016  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -95,6 +95,10 @@ before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destr
 	end
 	
 	def additionalContactType
+		true
+	end
+	
+	def additionalAccountType
 		true
 	end
 end

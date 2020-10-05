@@ -2,19 +2,19 @@
 	<% 
 		activeProjects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') 
 		projArr = options_for_wktime_project(activeProjects,true) 	
-		accArr = options_for_wktime_account(needBlankAcc, controller.getOrderAccountType)
+		accArr = options_for_wktime_account(needBlankAcc, controller.getOrderAccountType, controller.additionalAccountType)
 		type = controller.getOrderAccountType
 		if parentType == "WkCrmContact" || params[:related_to] == "WkCrmContact"
 			type = controller.getOrderContactType
 		end
 		if !parentId.blank? && !parentType.blank?
-			accArr = relatedValues(parentType, parentId, type, false, controller.additionalContactType)	
+			accArr = relatedValues(parentType, parentId, type, false, controller.additionalContactType, controller.additionalAccountType)	
 		elsif !params[:related_parent].blank? && params[:related_to]
-			accArr = relatedValues(params[:related_to], params[:related_parent], type, false, controller.additionalContactType)		
+			accArr = relatedValues(params[:related_to], params[:related_parent], type, false, controller.additionalContactType, controller.additionalAccountType)		
 		end
 	%>
 	<script type="text/javascript"> 
-		actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds', :additionalContactType => controller.additionalContactType)}" %>";
+		actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds', :additionalContactType => controller.additionalContactType, :additionalAccountType => controller.additionalAccountType)}" %>";
 		paymentUrl="<%= "#{url_for(:controller => "wkpaymententity", :action => 'getBillableProjIds')}" %>";
 	</script>
 			<th align="left"><label><%= l(:label_type) %></label></th>

@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2016  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -187,5 +187,9 @@ include WkaccountprojectHelper
 	end
 
 	def getAdditionalDD
+	end	
+	
+	def additionalAccountType
+		true
 	end	
 end

@@ -1,3 +1,20 @@
+# ERPmine - ERP for service industry
+# Copyright (C) 2011-2020  Adhi software pvt ltd
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 module WkcrmHelper
 include WkinvoiceHelper
 include WkcrmenumerationHelper
@@ -162,7 +179,7 @@ include WkdocumentHelper
 		salType
 	end
 	
-	def relatedValues(relatedType, parentId, type, needBlank, isContactType)
+	def relatedValues(relatedType, parentId, type, needBlank, isContactType, isAccountType)
 		relatedArr = Array.new
 		relatedId = nil
 		if relatedType == "WkOpportunity"
@@ -170,14 +187,19 @@ include WkdocumentHelper
 		elsif relatedType == "WkLead"
 			relatedId = WkLead.includes(:contact).where("wk_leads.status != ? OR wk_leads.id = ?",'C', parentId).order("wk_crm_contacts.first_name, wk_crm_contacts.last_name")
 		elsif relatedType == "WkCrmContact"
-			hookType = call_hook(:additional_contact_type)
+			hookType = call_hook(:additional_type)
 			if hookType.blank? || !isContactType
 				relatedId = WkCrmContact.includes(:lead).where(:account_id => nil, :contact_id => nil).where(wk_leads: { status: ['C', nil] }).where(:contact_type => type).order(:first_name, :last_name)
 			else
 				relatedId = WkCrmContact.includes(:lead).where(:account_id => nil, :contact_id => nil).where(wk_leads: { status: ['C', nil] }).where("wk_crm_contacts.contact_type = '#{type}' or wk_crm_contacts.contact_type = '#{hookType}'").order(:first_name, :last_name)
 			end
 		else
-			relatedId = WkAccount.where(:account_type => type).order(:name)
+			hookType = call_hook(:additional_type)
+			if hookType.blank? || !isAccountType
+				relatedId = WkAccount.where(:account_type => type).order(:name)
+			else
+				relatedId = WkAccount.where("wk_accounts.account_type = '#{type}' or wk_accounts.account_type = '#{hookType}'").order(:name)
+			end
 		end
 		if !relatedId.blank?
 			relatedId.each do | entry|				
@@ -200,12 +222,16 @@ include WkdocumentHelper
 		when 'WkAccount'
 			accSections = ['wkcrmactivity', 'wkcrmcontact', 'wkaccountproject', 'wksurvey', 'wkdocument']
 			accSections << 'wkopportunity' unless curObj.account_type == 'S'
+			hookSection = call_hook(:view_accordion_section, {:entity => entity, :curObj => curObj})
+			hookSection = hookSection.split(' ')
+			sectionsToRemove = call_hook(:remove_existing_accordion_section, {:entity => entity, :curObj => curObj})
+			sectionsToRemove = sectionsToRemove.split(' ')
 		when 'WkCrmContact'
 			accSections = ['wkcrmactivity', 'wkcrmcontact', 'wkaccountproject', 'wksurvey', 'wkdocument']
 			accSections << 'wkopportunity' unless curObj.contact_type == 'SC'
 			hookSection = call_hook(:view_accordion_section, {:entity => entity, :curObj => curObj})
 			hookSection = hookSection.split(' ')
-			sectionsToRemove = call_hook(:remove_existing_accordion_section, {:curObj => curObj})
+			sectionsToRemove = call_hook(:remove_existing_accordion_section, {:entity => entity, :curObj => curObj})
 			sectionsToRemove = sectionsToRemove.split(' ')
 		when 'WkInventoryItem'
 			accSections = ['wkproductitem']

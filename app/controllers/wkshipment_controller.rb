@@ -388,4 +388,8 @@ include WkinventoryHelper
 		false
 	end
 	
+	def additionalAccountType
+		false
+	end
+	
 end
