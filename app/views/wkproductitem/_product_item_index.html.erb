@@ -17,6 +17,7 @@
 			availabilityId =session[controller_name].try(:[], :availability)
 			projectId =session[controller_name].try(:[], :project_id)
 			isDisposed =session[controller_name].try(:[], :is_dispose)
+			showOnMap =session[controller_name].try(:[], :show_on_map)
 		%>
 		<%	projArr = getProjects %>
 		<%	projArr[0] = [l(:label_all_projects),'AP'] %>
@@ -46,7 +47,7 @@
 			<%= link_to l(:button_clear), {:controller => controller_name, :action => action_name, :tab => 'clock'}, :class => 'icon icon-reload' %>
 			<% if wktime_helper.isChecked('asset_save_geo_location') && params[:controller] == 'wkasset' %>
 			<label style="padding-left:5px">
-				<%= check_box_tag('show_on_map', true, params[:show_on_map] || false, onclick: '$("#query_form").submit(); return false;') %>
+				<%= check_box_tag('show_on_map', true, showOnMap, onclick: '$("#query_form").submit(); return false;') %>
 				<%= l(:label_show_on_map) %>
 			</label>
 		<% end %>

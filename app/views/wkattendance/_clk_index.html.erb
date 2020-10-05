@@ -7,6 +7,7 @@
 	wktime_helper = Object.new.extend(WktimeHelper)
 	groupid =session[controller_name].try(:[], :group_id)
 	userid =session[controller_name].try(:[], :user_id)
+	showOnMap =session[controller_name].try(:[], :show_on_map)
 %>
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 
@@ -40,7 +41,7 @@
 		<%= link_to l(:button_clear), {:controller => controller_name, :action => action_name, :tab => 'clock'}, :class => 'icon icon-reload' %>
 		<% if wktime_helper.isChecked('te_save_geo_location') %>
 			<label style="padding-left:5px">
-				<%= check_box_tag('show_on_map', true, params[:show_on_map] || false, onclick: '$("#query_form").submit(); return false;') %>
+				<%= check_box_tag('show_on_map', true, showOnMap, onclick: '$("#query_form").submit(); return false;') %>
 				<%= l(:label_show_on_map) %>
 			</label>
 		<% end %>

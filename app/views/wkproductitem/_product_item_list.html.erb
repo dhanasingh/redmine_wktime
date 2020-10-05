@@ -1,6 +1,6 @@
 <%= stylesheet_link_tag 'application' , :media => "all" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-<% show_on_map = params[:show_on_map].present? && params[:show_on_map] %>
+<% show_on_map = session[controller_name].try(:[], :show_on_map) %>
 <div class="autoscroll" >
 	<% headerHash = controller.getIventoryListHeader  %>
 	<% ratePerHash = getRatePerHash(false) %>

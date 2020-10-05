@@ -102,7 +102,7 @@ class WklocationController < WkbaseController
   def set_filter_session
 		if params[:searchlist] == controller_name
 			session[controller_name] = Hash.new if session[controller_name].nil?
-			filters = [:location_name, :location_type]
+			filters = [:location_name, :location_type, :show_on_map]
 			filters.each do |param|
 				if params[param].blank? && session[controller_name].try(:[], param).present?
 					session[controller_name].delete(param)
