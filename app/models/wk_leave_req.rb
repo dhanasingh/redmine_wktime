@@ -77,9 +77,9 @@ class WkLeaveReq < ActiveRecord::Base
           INNER JOIN wk_group_permissions AS GP ON GP.group_id = GU2.group_id 
           INNER JOIN wk_permissions AS P2 ON P1.id = GP.permission_id "
     if userRole == 'supervisor'
-      user_mail =  user_mail + "where(P1.short_name = 'A_ATTEND' AND E.notify = true)"
+      user_mail =  user_mail + "where(P1.short_name = 'A_ATTEND' AND E.notify = #{ActiveRecord::Base.connection.adapter_name == 'SQLServer' ? 1 : true})"
     else
-      user_mail = user_mail + "where(P1.short_name = 'R_LEAVE' AND E.notify = true)"
+      user_mail = user_mail + "where(P1.short_name = 'R_LEAVE' AND E.notify = #{ActiveRecord::Base.connection.adapter_name == 'SQLServer' ? 1 : true})"
     end
     user_mail = user_mail + " Group BY address"
     user_mail = WkGroupPermission.find_by_sql(user_mail)

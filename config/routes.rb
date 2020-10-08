@@ -686,3 +686,7 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	post 'wklogmaterial/create', to: 'wklogmaterial#create'
 
 	post 'wklogmaterial/update', to: 'wklogmaterial#update'
+    
+	get 'wknotification/index', :to => 'wknotification#index'
+	
+	post 'wknotification/update', :to => 'wknotification#update'

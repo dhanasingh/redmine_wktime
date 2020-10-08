@@ -1084,3 +1084,24 @@ it:
   warning_leaving_message: Are you sure you want to leave the page
   note_choose_attachment: Choose one from attachments
   label_reporters: Reporters
+  
+  label_notification: Notification
+  label_non_submission: Non Submission
+  label_time_rejected: Time Rejected
+  label_leave_requested: Leave Requested
+  label_leave_approved: Leave Approved
+  label_lead_converted: Lead Converted
+  label_lead_generated: Lead Generated
+  label_opportunity_status_changed: Opportunity Status Changed
+  label_sales_activity_completed: Sales Activity Completed
+  label_invoice_generated: Invoice Generated
+  label_payment_received: Payment Received
+  label_contract_signed: Contract Signed
+  label_rfq_created: RFQ Created
+  label_quote_received: Quote Received
+  label_po_generated: PO Generated
+  label_supplier_invoice_received: Supplier Invoice Received
+  label_supplier_payment_sent: Supplier Payment Sent
+  label_receive_goods: Receive Goods
+  label_dispose_asset: Dispose Asset
+  label_survey_closed: Survey Closed

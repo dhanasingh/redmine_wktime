@@ -15,18 +15,17 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkPoQuote < ActiveRecord::Base
-  unloadable
-  belongs_to :purchase_order , :class_name => 'WkInvoice'
-  belongs_to :quote , :class_name => 'WkInvoice'
-  after_create_commit :send_notification
+class WkNotification < ActiveRecord::Base
 
-  def send_notification
-    if WkNotification.notify('purchaseOrderGenerated')
-      emailNotes = "Purchase Order: #" + self.purchase_order.invoice_number+ " has been generated " + "\n\n" +  "by" + "\n" +  l(:label_redmine_administrator)
-      userId = (WkPermission.permissionUser('B_PUR_PRVLG') + WkPermission.permissionUser('A_PUR_PRVLG')).uniq
-      subject = l(:label_purchase_order) + " " + l(:label_notification)
-      WkNotification.notification(userId, emailNotes, subject)
+  def self.notify(name)
+    notification = WkNotification.all.pluck(:name)
+    notification.include? name.to_s
+  end
+
+  def self.notification(userId, emailNotes, subject)
+    userId.each do |id|
+      user = User.find(id)
+      WkMailer.email_user(subject, User.current.language, user.mail, emailNotes, nil).deliver_later
     end
   end
 end

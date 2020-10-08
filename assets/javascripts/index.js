@@ -2,7 +2,7 @@ var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, pay
 	blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl,
 	blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupAccUrl, purSupContactUrl, purSupPayUrl,
 	wklocationUrl,  wkproductUrl, wkproductitemUrl, wkshipmentUrl, wkassetUrl, wkassetdepreciationUrl, wkgrpPermissionUrl, wkSchedulingUrl,
-	wkPublicHolidayUrl, userCurrentUrl, wkSurveyUrl, wkleavereqUrl;
+	wkPublicHolidayUrl, userCurrentUrl, wkSurveyUrl, wkleavereqUrl, wknotificationUrl;
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -114,6 +114,7 @@ $(document).ready(function() {
 	changeProp('tab-wkpublicholiday',wkPublicHolidayUrl);
 	changeProp('tab-wksurvey',wkSurveyUrl);
 	changeProp('tab-wkleaverequest',wkleavereqUrl);
+	changeProp('tab-wknotification',wknotificationUrl);
 	
 });
 

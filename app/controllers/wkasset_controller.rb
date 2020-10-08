@@ -130,6 +130,7 @@ class WkassetController < WkproductitemController
 				productDepAmtHash = { assetLedgerId => depreciation.depreciation_amount}
 				postDepreciationToAccouning([depreciation.id], [depreciation.gl_transaction_id], depreciation.depreciation_date, productDepAmtHash, depreciation.depreciation_amount, sysCurrency)
 			end
+			WkAssetProperty.dispose_asset_notification(assetProperty) if WkNotification.notify('disposeAsset')
 			redirect_to controller: controller_name, action:"index", tab: controller_name
 			flash[:notice] = l(:notice_successful_update)
 		else

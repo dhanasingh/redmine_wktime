@@ -78,9 +78,20 @@ class WkleaverequestController < WkbaseController
     leaveReq.wkstatus_attributes = wkstatus if leaveReq.wkstatus.blank? || leaveReq.wkstatus.last.status != status
 
     if leaveReq.save
-      leaveReq = WkLeaveReq.getEntry(leaveReq.id)
-      isUser = user.id == leaveReq.user_id
-      status = getLeaveStatus[leaveReq.status]
+      leaveReqMail(leaveReq)
+    else
+      flash[:error] = leaveReq.errors.full_messages.join('<br>')
+			redirect_to action: 'edit', id: params[:id]
+    end
+  end
+
+  def leaveReqMail(leaveReq)
+    user = User.current
+    leaveReq = WkLeaveReq.getEntry(leaveReq.id)
+    isUser = user.id == leaveReq.user_id
+    status = getLeaveStatus[leaveReq.status]
+    if WkNotification.notify('leaveRequested') && leaveReq.status == 'S' || WkNotification.notify('leaveApproved') &&
+      ['A','R'].include?(leaveReq.status)
       if (leaveReq.status == 'S' && isUser) 
         email_id = leaveReq.supervisor_mail
       elsif (['A','R', 'S'].include?(leaveReq.status) && !isUser)
@@ -97,13 +108,10 @@ class WkleaverequestController < WkbaseController
         emailNotes += "\n" + l(:label_reason).to_s + ": " + leaveReq.leave_reasons if leaveReq.leave_reasons.present?
         err_msg = sent_emails(l(:label_leave_request_notification), user.language, email_id, emailNotes, ccMailId)
       end
-			redirect_to action: 'index'
-			flash[:notice] = l(:notice_successful_update)
-      flash[:error] = err_msg if err_msg.present?
-    else
-      flash[:error] = leaveReq.errors.full_messages.join('<br>')
-			redirect_to action: 'edit', id: params[:id]
     end
+    redirect_to action: 'index'
+    flash[:notice] = l(:notice_successful_update)
+    flash[:error] = err_msg if err_msg.present?
   end
 	
 	def set_filter_session

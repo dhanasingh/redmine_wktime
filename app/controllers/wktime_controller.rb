@@ -254,7 +254,7 @@ include ActionView::Helpers::TagHelper
 								@wktime.notes = params[:wktime_notes] unless params[:wktime_notes].blank?
 							end
 							errorMsg = updateStatus(:r)
-							if email_delivery_enabled? 
+							if email_delivery_enabled? && WkNotification.notify('timeRejected')
 								sendRejectionEmail
 							end
 						elsif !params[:wktime_unsubmit].blank?
