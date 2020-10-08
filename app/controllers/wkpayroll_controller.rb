@@ -57,7 +57,7 @@ class WkpayrollController < WkbaseController
 	end
 
 	def payrollEntries
-		sort_init 'salary_date', 'desc'
+		sort_init [['salary_date', 'desc'], ['join_date', 'asc']]
 		sort_update 'user' => "CONCAT(U.firstname, U.lastname)",
 					'salary_date' => "S.salary_date",
 					'basic_pay' => "basic_pay",
@@ -113,7 +113,7 @@ class WkpayrollController < WkbaseController
 			sql_contd += " AND " if sql_contd != " WHERE "
 			sql_contd += " S.user_id IN (#{userId}) "
 		end
-		orderSQL = (action_name == 'edit' || sort_clause.blank?)  ? "" : " ORDER BY "+ sort_clause.first
+		orderSQL = (action_name == 'edit' || sort_clause.blank?)  ? "" : " ORDER BY "+ sort_clause.join(', ')
 		payroll_salaries = WkSalary.find_by_sql("SELECT S.*, concat(U.firstname, U.lastname) AS username, (SAL.basic_pay + SAL.allowances) AS gross,
 			((SAL.basic_pay + SAL.allowances) - SAL.deduction_total) AS net, WU.join_date
 			FROM wk_salaries AS S

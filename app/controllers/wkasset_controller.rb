@@ -33,7 +33,7 @@ class WkassetController < WkproductitemController
 		assetArr = ""
 		assetItems = WkInventoryItem.joins(:product_item, :asset_property).where("product_type = 'A'").select("wk_inventory_items.id, wk_asset_properties.name")
 		assetItems = assetItems.where(" wk_product_items.product_id = ?", params[:id].to_i) unless params[:id].blank?
-		assetItems = assetItems.where(" is_disposed is NOT TRUE") if params[:newDepr] == "true"
+		assetItems = assetItems.where(" is_disposed != ? OR is_disposed is NULL", true) if params[:newDepr] == "true"
 		
 		assetItems.each do | entry |
 			assetArr << entry.id.to_s() + ',' +  entry.name.to_s()  + "\n" 
