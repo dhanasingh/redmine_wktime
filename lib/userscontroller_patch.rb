@@ -9,7 +9,7 @@ module UsersControllerPatch
 				@user.pref.safe_attributes = params[:pref]
 				
 				if @user.save
-					Mailer.deliver_account_information(@user, @user.password).deliver if params[:send_information]
+					Mailer.deliver_account_information(@user, @user.password) if params[:send_information]
 		
 	# ============= ERPmine_patch Redmine 4.1.1  =====================	
 					#Below code for save wk users
