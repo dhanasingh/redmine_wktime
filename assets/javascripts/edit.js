@@ -1311,6 +1311,11 @@ function validateMinhour(maxHour, minHour,nonWorkingDay, minHoursPerWeek, maxHou
 	var minHrCond = minHour!=0 && !isNaN(minHour);
 	var maxHrCond = maxHour!=0 && !isNaN(maxHour);
 	totalhr = Number(totalhr);
+	let disabledCount = 0;
+	$('#issueTable input[name^="disabled1"').each(function(){
+		if($(this).val() == 'true') disabledCount++;
+	});
+	totalhr += (disabledCount * (maxHour || 8));
 	 minHour=minHour.replace(decSeparator, '\.');
 	 if(isNaN(minHour)){
 		minHour=minHour.replace(',', '\.');
@@ -1320,8 +1325,9 @@ function validateMinhour(maxHour, minHour,nonWorkingDay, minHoursPerWeek, maxHou
 		 for (i=1;i<=7;i++){
 			var dayTotal= document.getElementById('day_total_'+i).innerHTML;
 			dayTotal = Number(dayTotal.replace(decSeparator, '\.'));
+			const disabled = $($('#issueTable input[name^="disabled1"')[i-1]).val();
+			if(disabled == 'true') dayTotal += parseInt(maxHour || 8);
 			if(nonWorkingDay.indexOf(i.toString())== -1 || dayTotal > 0){				
-				
 				if (dayTotal < Number(minHour) && minHrCond){ 
 					msg = minHourAlertMsg;
 					valid=false;
@@ -1571,12 +1577,13 @@ function checkLogPermissions(row){
 	$("input[name='hours"+row+"[]'], [name='custfield_img"+row+"[]']").each(function(){
     const projID = $(this).closest('tr').children('td:first').find('select').val();
 		const hours = ($(this).closest('div').children().first()).val();
+		const disabled = $(this).closest('div').find('input[name="disabled'+row+'[]"]').val()
 		if(sheetView != 'I' && (!current_user && (hours == '' && !manage_others_log.includes(projID) || hours != '' && !manage_edit_projects.includes(projID)) ||
 			(current_user && !edit_own_logs.includes(projID) && hours != '') || !logtime_projects.includes(projID)))
 		{
 			this.type ? $(this).prop('disabled', true) : $(this).parent('a').bind('click', false);
 		}
-		else if(!hours && manage_others_log.includes(projID)){
+		else if(!hours && manage_others_log.includes(projID) && !disabled ){
 			this.type ? $(this).prop('disabled', false) : $(this).parent('a').unbind('click', false);
 		}
 	});

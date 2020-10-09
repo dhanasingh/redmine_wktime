@@ -25,6 +25,8 @@
 				disable = true if !@prev_template && isBilledTimeEntry(entry)
 			end
 			spentForId = entry.present? && entry.spent_for.present? && !@prev_template ? entry.spent_for.id : nil
+			holidays = WkPublicHoliday.getHolidays(params[:user_id], (@startday + @wday_index) - 1)
+			disable = true if holidays.length > 0
 			%>
 			<%#if this is from a previous template, don't print the hours%>
 			<td class="hours">

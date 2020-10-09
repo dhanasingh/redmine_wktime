@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2018  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -14,48 +14,49 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-class WkpublicholidayController < ApplicationController
+class WkpublicholidayController < WkbaseController
   unloadable
   menu_item :wkattendance
-  
+
 	def index
+		set_filter_session([:location_id, :month, :year])
 		@year ||= User.current.today.year
 		@month ||= User.current.today.month
-		if params[:year] and params[:year].to_i > 1900
-			@year = params[:year].to_i
-			if params.key?("month")
-				@month = params[:month].to_i
+		if getSession(:year) and getSession(:year).to_i > 1900
+			@year = getSession(:year).to_i
+			if getSession(:month)
+				@month = getSession(:month).to_i
 			end
 		end
-		
 		location = WkLocation.where(:is_default => 'true').first
-		locationId = !params[:location_id].blank? ?  params[:location_id] : (location.blank? ? nil : location.id)
-		
+		locationId = getSession(:location_id).present? ?  getSession(:location_id) : (location.blank? ? nil : location.id)
+
 		entries = WkPublicHoliday.all
 		if locationId == "0"
 			entries = WkPublicHoliday.where(location_id: nil)
+		elsif locationId == "All"
+			entries = WkPublicHoliday.where("location_id IS NOT NULL")
 		elsif !locationId.blank? && !(["0", "All"].include? locationId)
 			entries = WkPublicHoliday.where(:location_id => locationId)
 		end
 		@locationId = locationId.blank? ? "All" :  locationId
-		if !params[:month].blank? || @month > 0
+		if getSession(:month).present?
 			calendar = Redmine::Helpers::Calendar.new(Date.civil(@year, @month, 1), current_language, :month)
 			entries = entries.where(:holiday_date => calendar.startdt..calendar.enddt)
-		else			
-			unless params[:year].blank?
-				@year_from = params[:year].to_i	
+		else
+			unless getSession(:year).blank?
+				@year_from = getSession(:year).to_i	
 			else				
 				@year_from ||= User.current.today.year 
 			end
 			startMonth = Date.civil(@year_from, 1, 1)
-			endMonth = Date.civil(@year_from, 12, 1)
-			entries = entries.where(:holiday_date => startMonth..(endMonth+30))
+			endMonth = Date.civil(@year_from, 12, 31)
+			entries = entries.where(:holiday_date => startMonth..(endMonth))
 		end
 		entries = entries.order(:holiday_date)
 		formPagination(entries)
 	end
-	
-	
+
 	def update
 		count = 0		
 		errorMsg = ""
