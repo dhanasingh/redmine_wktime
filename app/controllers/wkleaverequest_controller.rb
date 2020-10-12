@@ -95,7 +95,7 @@ class WkleaverequestController < WkbaseController
       if (leaveReq.status == 'S' && isUser) 
         email_id = leaveReq.supervisor_mail
       elsif (['A','R', 'S'].include?(leaveReq.status) && !isUser)
-        email_id = leaveReq.user.mail
+        email_id = leaveReq.user.mails
         status = "UnApproved" if leaveReq.status == 'S'
       end
       ccMailId = leaveReq.admingroupMail('leaveNotifyUser') - [email_id]

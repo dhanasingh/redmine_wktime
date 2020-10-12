@@ -90,7 +90,7 @@ class WkLeaveReq < ActiveRecord::Base
     if self.user.parent_id.blank?
       userID = admingroupMail('supervisor').first
     else
-      User.find(self.user.parent_id).mail
+      User.find(self.user.parent_id).mails
     end
   end
 

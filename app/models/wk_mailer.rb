@@ -36,7 +36,7 @@ include Redmine::I18n
 		body +="\n #{l(:label_wk_submittedon)} : #{wktime.submitted_on} \n #{l(:label_wk_rejectedby)} : #{loginuser.firstname} #{loginuser.lastname}"
 		body +="\n #{l(:label_wk_rejectedon)} : #{wktime.statusupdate_on} \n #{l(:label_wk_reject_reason)} : #{wktime.notes}"
 		body +="\n"
-		mail :from => loginuser.mail,:to => user.mail, :subject => subject,:body => body
+		mail :from => loginuser.mail,:to => user.mails, :subject => subject,:body => body
 	end
 	  
 	def nonSubmissionNotification(user,startDate)
@@ -49,7 +49,7 @@ include Redmine::I18n
 		body += "\n #{l(:field_name)} : #{user.firstname} #{user.lastname} "
 		body += "\n #{ l(:label_week) }" + " : " + startDate.to_s + " - " + (startDate+6).to_s
 		
-		mail :from => Setting.mail_from, :to => user.mail, :subject => subject, :body => body
+		mail :from => Setting.mail_from, :to => user.mails, :subject => subject, :body => body
 	end
 	
 	def submissionReminder(user, mngrArr, weeks, emailNotes, label_te)
@@ -59,8 +59,8 @@ include Redmine::I18n
 		body = l(:wk_sub_reminder_text, label_te) + "\n" + weeks.join("\n")
 		body += "\n" + emailNotes if !emailNotes.blank?
 		body += "\n"
-		
-		mail :from => User.current.mail, :to => user.mail, :reply_to => User.current.mail, 
+
+		mail :from => User.current.mail, :to => user.mails, :reply_to => User.current.mail, 
 		:cc => (mngrArr.blank? ? nil : (mngrArr[0].blank? ? nil : mngrArr[0].mail)), :subject => subject, :body => body
 	end
 	
@@ -73,7 +73,7 @@ include Redmine::I18n
 		body += "\n" + emailNotes if !emailNotes.blank?
 		body += "\n"
 		
-		mail :from => User.current.mail, :to => mgr.mail, :reply_to => User.current.mail, :subject => subject, :body => body
+		mail :from => User.current.mail, :to => mgr.mails, :reply_to => User.current.mail, :subject => subject, :body => body
 	end
 	
 	def sendConfirmationMail(userList, isSub, label_te)
@@ -82,7 +82,7 @@ include Redmine::I18n
 		subject = isSub ? l(:wk_submission_reminder, label_te) : l(:wk_approval_reminder, label_te)
 		body = (isSub ? "#{l(:wk_sub_confirmation_text, label_te)}" : "#{l(:wk_appr_confirmation_text, label_te)}" ) + "\n" + userList
 		
-		mail :from => User.current.mail, :to => User.current.mail, :subject => subject, :body => body
+		mail :from => User.current.mail, :to => User.current.mails, :subject => subject, :body => body
 	end
 
 	def email_user(subject, language, email_id, emailNotes, ccMailId)
