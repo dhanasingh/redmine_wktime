@@ -1305,59 +1305,71 @@ function issueAutocomplete(txtissue,row){
         });
 }
 
-function validateMinhour(maxHour, minHour,nonWorkingDay, minHoursPerWeek, maxHoursPerWeek){
+function validateMinhour(maxHour, minHour, nonWorkingDay, minHoursPerWeek, maxHoursPerWeek, defaultHours){
 	var valid=true;
 	var totalhr = document.getElementById("total_hours").innerHTML;
 	var minHrCond = minHour!=0 && !isNaN(minHour);
 	var maxHrCond = maxHour!=0 && !isNaN(maxHour);
 	totalhr = Number(totalhr);
-	let disabledCount = 0;
-	$('#issueTable input[name^="disabled1"').each(function(){
-		if($(this).val() == 'true') disabledCount++;
+
+	// Holidays Included into validation
+	defaultHours = Number(defaultHours);
+	$('#issueTable input[name^="holiday_1"').each(function(){
+		if($(this).val() == 'true'){
+			const col = ((this.name).split('_')).pop();
+			let totalDayHrs = 0;
+			$('#issueTable .hrs_col_'+col).map((i, el) => { totalDayHrs+= el.value ? Number(el.value) : 0; });
+			let hourDiff = Number(defaultHours) - totalDayHrs;
+			if(hourDiff > 0) totalhr+= hourDiff;
+		}
 	});
-	totalhr += (disabledCount * (maxHour || 8));
-	 minHour=minHour.replace(decSeparator, '\.');
-	 if(isNaN(minHour)){
-		minHour=minHour.replace(',', '\.');
-	 }
-	 var msg ="";
-	 if (minHrCond || maxHrCond) { 	
-		 for (i=1;i<=7;i++){
-			var dayTotal= document.getElementById('day_total_'+i).innerHTML;
-			dayTotal = Number(dayTotal.replace(decSeparator, '\.'));
-			const disabled = $($('#issueTable input[name^="disabled1"')[i-1]).val();
-			if(disabled == 'true') dayTotal += parseInt(maxHour || 8);
-			if(nonWorkingDay.indexOf(i.toString())== -1 || dayTotal > 0){				
-				if (dayTotal < Number(minHour) && minHrCond){ 
-					msg = minHourAlertMsg;
-					valid=false;
-					break;
-				}
+	minHour=minHour.replace(decSeparator, '\.');
+	if(isNaN(minHour)){
+	minHour=minHour.replace(',', '\.');
+	}
+	var msg ="";
+	if (minHrCond || maxHrCond) { 	
+		for (i=1;i<=7;i++){
+		var dayTotal= document.getElementById('day_total_'+i).innerHTML;
+		dayTotal = Number(dayTotal.replace(decSeparator, '\.'));
 
-				if (dayTotal > Number(maxHour) && maxHrCond){ 
-					msg = maxHourAlertMsg;
-					valid=false;
-					break;
-				}
+		// Holidays Included into validation
+		const holiday = $($('#issueTable input[name^="holiday_1"')[i-1]).val();
+		if(holiday == 'true' && dayTotal < Number(minHour)){
+			dayTotal += (Number(maxHour) || defaultHours) - dayTotal;
+		}
+
+		if(nonWorkingDay.indexOf(i.toString())== -1 || dayTotal > 0){				
+			if (dayTotal < Number(minHour) && minHrCond){ 
+				msg = minHourAlertMsg;
+				valid=false;
+				break;
 			}
-		 }
-	 }
 
-	 if(minHoursPerWeek != 0 && !isNaN(minHoursPerWeek) && totalhr < minHoursPerWeek)
-	 {
-		msg += "\n" + minHourperWeekAlertMsg;
-		valid=false; 
-	 }
-	 if(maxHoursPerWeek != 0 && !isNaN(maxHoursPerWeek) && totalhr > maxHoursPerWeek)   
+			if (dayTotal > Number(maxHour) && maxHrCond){ 
+				msg = maxHourAlertMsg;
+				valid=false;
+				break;
+			}
+		}
+		}
+	}
+
+	if(minHoursPerWeek != 0 && !isNaN(minHoursPerWeek) && totalhr < minHoursPerWeek)
+	{
+	msg += "\n" + minHourperWeekAlertMsg;
+	valid=false; 
+	}
+	if(maxHoursPerWeek != 0 && !isNaN(maxHoursPerWeek) && totalhr > maxHoursPerWeek)   
 	{
 		msg += "\n" + maxHourperWeekAlertMsg;
 		valid=false;
 	}
 	 
-	 if(!valid)
-	 {
-		 alert(msg);
-	 }
+	if(!valid)
+	{
+		alert(msg);
+	}
 	if(valid  && submissionack!=''){		
 		valid= confirm(submissionack);
 	}
