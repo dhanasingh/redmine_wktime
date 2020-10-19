@@ -48,15 +48,13 @@
 		<%= render :partial => 'wkpayroll/date_range' %>
 	<% end %>
 
-	<% unless @payrollEntries.blank? %>
+	<% if @payrollEntries.present? %>
 		<div class="total-hours">
 			<p><%= l(:label_total) %>: <%= @payrollEntries.values[0][:currency] %>&nbsp;<%= @total_gross %></p>
 		</div>
-	<% end %>
-<%= render :partial => 'wkpayroll/payroll_list'%>
 
+	<%= render :partial => 'wkpayroll/payroll_list'%>
 
-<% other_formats_links do |f| %>
 	<% url = "?format=csv"
 		params.each do |name, val|
 			if !['controller', 'action', 'utf8'].include?(name)
@@ -64,5 +62,10 @@
 			end
 		end
 	%>
-	<%= link_to 'CSV', url_for(:controller => controller_name, :action => 'export') + url %>	
+	<% other_formats_links do |f| %>
+		<%= link_to 'CSV', url_for(:controller => controller_name, :action => 'export') + url %> | 
+		<%= f.link_to_with_query_parameters 'PDF' %>
+	<% end %>
+<% else %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
 <% end %>

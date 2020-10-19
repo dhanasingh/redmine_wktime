@@ -101,7 +101,10 @@ include ActionView::Helpers::TagHelper
 			format.html {        
 				render :layout => !request.xhr?
 			}
-		format.api
+			format.api
+			format.pdf {
+				send_data(list_to_pdf(@entries, setEntityLabel), :type => 'application/pdf', :filename => "#{setEntityLabel}.pdf")
+			}
 		end
 	end
 
@@ -1378,7 +1381,6 @@ private
 		ids
 	end
 
-
 	def check_permission
 		ret = false
 		setup
@@ -1474,7 +1476,6 @@ private
 		prev_entries
 	end
 
-	
 	def gatherEntries
  		entryHash = params[:time_entry]
 		@entries ||= Array.new
@@ -2080,8 +2081,7 @@ private
 			@logtime_projects = setTEProjects(@logtime_projects)
 		end
 	end
-	
-	
+		
 	def set_project_issues(entries)
 		@projectIssues ||= Hash.new
 		@projActivities ||= Hash.new
@@ -2487,5 +2487,33 @@ private
     saveGeoLocation(spent_for, params[:latitude], params[:longitude])
     
 		teEntry.spent_for_attributes = spent_for
+	end
+
+	def getPDFHeaders()
+		headers = [
+			[ l(:field_start_date), 40 ],
+			[ l(:field_user), 60 ],
+			[ l(:field_status), 40 ],
+			[ getLabelforSpField, 40 ]
+		]
+	end
+
+	def getPDFcells(entry)
+		list = [
+			[ entry.spent_on.to_s, 40 ],
+			[ entry.user.name.to_s, 60 ],
+			[ statusString(entry.status), 40 ]
+		]
+		list = getLastPDFCell(list, entry)
+	end
+
+	def getPDFFooter(pdf, row_Height)
+		pdf.RDMCell( 140, row_Height, l(:label_total), 1, 0, 'R', 1)
+		pdf.RDMCell( 40, row_Height, (@total_hours || 0).to_s, 1, 0, '', 1)
+	end
+
+	def getLastPDFCell(list, entry)
+		list << [ entry.hours.to_s , 40 ]
+		list
 	end
 end

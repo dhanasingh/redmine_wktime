@@ -243,4 +243,34 @@ class WkbaseController < ApplicationController
 	def getSession(key)
 		return session[controller_name].present? ? session[controller_name][key] : nil
 	end
+
+	def list_to_pdf(listEntries, title)
+		pdf = ITCPDF.new(current_language)
+		pdf.SetTitle(title)
+		pdf.add_page
+
+		page_width    = pdf.get_page_width
+		left_margin   = pdf.get_original_margins['left']
+		right_margin  = pdf.get_original_margins['right']
+		table_width = page_width - right_margin - left_margin
+		row_Height = 8
+		pdf.SetFontStyle('B', 12)
+		pdf.RDMMultiCell(table_width, row_Height, title, 0, 'C', 0, 1)
+
+		pdf.SetFontStyle('B', 9)
+		pdf.set_fill_color(230, 230, 230)
+		headers = getPDFHeaders()
+		headers.each{ |h| pdf.RDMCell(h.last, row_Height, h.first, 1, 0, '', 1) }
+		pdf.ln
+
+		pdf.SetFontStyle('', 8)
+		listEntries.each do |entry|
+			list = getPDFcells(entry)
+			list.each{ |h| pdf.RDMCell(h.last, row_Height, h.first, 1, 0, '', 0) }
+			pdf.ln
+		end
+		pdf.SetFontStyle('B', 9)
+		getPDFFooter(pdf, row_Height)
+		pdf.Output
+	end
 end

@@ -330,4 +330,14 @@ private
   def getUserIdsFromSession
 	session[:wkexpense][:all_user_ids]
   end
+
+	def getLastPDFCell(list, entry)
+		list << [ entry.currency.to_s + " " + entry.amount.to_s , 40 ]
+		list
+  end
+
+	def getPDFFooter(pdf, row_Height)
+		pdf.RDMCell( 140, row_Height, l(:label_total), 1, 0, 'R', 1)
+		pdf.RDMCell( 40, row_Height, (@total_hours || 0).to_s, 1, 0, '', 1)
+	end
 end
