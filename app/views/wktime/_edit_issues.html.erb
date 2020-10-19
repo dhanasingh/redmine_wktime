@@ -35,7 +35,7 @@ currencySym = ""
 		<% matrix.each do |rows| %>
 			<% issueWritten = false %>
 			<% rows.each.with_index do |entry, i| %>
-				<% if !entry.blank? %>				
+				<% if !entry.blank? && (controller.check_approvable_status && @approvable_projects.pluck(:id).include?(entry.project_id) || !controller.check_approvable_status) %>
 					<% if !issueWritten %>
 						<% # this is a new Row %>
 						<% # close the previously opened row first %>
@@ -121,8 +121,10 @@ currencySym = ""
 			<% end %>
 		<% end %>
 		<% if controller.hasApprovalSystem && !@renderer.showSpentOnInRow  %>
-			<% if !@wktime.nil? && @wktime.status == 's' %>
-				<%= submit_tag l(:button_wk_unsubmit), :name => 'wktime_unsubmit', :disabled => !(@row > 0)%>
+			<% if (!@wktime.nil? && @wktime.status == 's') || (!@wktime.nil? && @wktime.status == 'a') && @entriesByapprover.pluck(:id) != @statusesEntries.pluck(:status_for_id) %>
+				<% if @approvedStatus.length == 0 %>
+					<%= submit_tag l(:button_wk_unsubmit), :name => 'wktime_unsubmit', :disabled => !(@row > 0)%>
+				<% end %>
 				<% if controller.check_approvable_status()%>		
 					<%= submit_tag l(:button_wk_approve), :name => 'wktime_approve', :disabled => !(@row > 0)%>
 					<%=h hidden_field_tag('wktime_notes', "") %>
@@ -131,8 +133,8 @@ currencySym = ""
 					<%= submit_tag l(:button_wk_reject), :name => 'wktime_reject', :disabled => !(@row > 0),
 						:onclick => "return showNotes('#{l(:button_wk_reject)}');" %>
 				<% end %>
-			<% elsif  !@wktime.nil? && @wktime.status == 'a' %>
-				<% if controller.check_approvable_status() %>		
+			<% elsif  !@wktime.nil? && @wktime.status == 'a' && @userEntries.pluck(:id) == @userwkStatuses.pluck(:status_for_id)%>
+				<% if controller.check_approvable_status() %>
 					<%= submit_tag l(:button_wk_unapprove), :id => 'wktime_unapprove', :name => 'wktime_unapprove'%>
 				<% end %>
 			<% end %>

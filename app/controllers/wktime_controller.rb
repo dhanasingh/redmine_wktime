@@ -105,7 +105,27 @@ include ActionView::Helpers::TagHelper
 		end
 	end
 
+	def getUserwkStatuses
+		cond = getCondition('spent_on', @user.id, @startday, @startday+6)
+		@userEntries = findEntriesByCond(cond)
+		@approvedStatus = @userEntries.joins("INNER JOIN wk_statuses ON time_entries.id = wk_statuses.status_for_id").where("wk_statuses.status = 'a'")
+		@userwkStatuses = @userEntries.joins("INNER JOIN wk_statuses ON time_entries.id = wk_statuses.status_for_id").where("status_for_type='TimeEntry'")
+	end
+
+	def getApproverPermProj
+		@entriesByapprover = []
+		@statusesEntries = []
+		approvableProj = @approvable_projects.pluck(:id).join(',')
+		if approvableProj.present?
+			cond = "spent_on BETWEEN '#{@startday}' AND '#{@startday+6}' AND user_id = #{@user.id} AND time_entries.project_id IN (#{approvableProj})"
+			@entriesByapprover = findEntriesByCond(cond)
+			@statusesEntries = @entriesByapprover.joins("INNER JOIN wk_statuses ON time_entries.id = wk_statuses.status_for_id").where("status_for_type='TimeEntry'")
+		end
+	end
+
 	def edit
+		getUserwkStatuses
+		getApproverPermProj
 		@prev_template = false
 		@new_custom_field_values = getNewCustomField
 		setup
@@ -241,7 +261,7 @@ include ActionView::Helpers::TagHelper
 				end
 
 				if errorMsg.blank? && useApprovalSystem
-					if !@wktime.nil? && @wktime.status == 's'					
+					if !@wktime.nil? && @wktime.status == 's' || !params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank?
 						if !params[:wktime_approve].blank? && allowApprove					 
 							errorMsg = updateStatus(:a)
 						elsif (!params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank?) && allowApprove
@@ -272,6 +292,35 @@ include ActionView::Helpers::TagHelper
 						else
 							errorMsg = updateStatus(:s)
 						end
+					end
+				end
+
+				cond = getCondition('spent_on', @user.id, @startday, @startday+6)
+				userApproveProj = findEntriesByCond(cond)
+				if  (!params[:wktime_approve].blank? && useApprovalSystem)
+					userApproveProj.each do | entry |
+						next if !@approvable_projects.pluck(:id).include?(entry.project_id)
+							wkStatuses = WkStatus.find_by(status_for_id: entry.id)
+							wkStatuses.destroy() unless wkStatuses.blank?
+					end
+				elsif !params[:wktime_save].blank? || !params[:wktime_save_continue].blank? || !params[:wktime_submit].blank? || !params[:wktime_unapprove].blank? 
+					userApproveProj.each do | entry |
+							wkStatuses = WkStatus.find_by(status_for_id: entry.id)
+							wkStatuses.destroy() unless wkStatuses.blank?
+					end
+				end
+
+				if !params[:wktime_approve].blank? || !params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank? || !Setting.plugin_redmine_wktime['wktime_uuto_approve'].blank? &&
+					Setting.plugin_redmine_wktime['wktime_uuto_approve'].to_i == 1
+					userApproveProj.each do | entry |
+						next if !@approvable_projects.pluck(:id).include?(entry.project_id)
+							wkStatuses = WkStatus.new
+							wkStatuses.status_for_type = controller_name == 'wktime' ? 'TimeEntry' : 'WkExpenseEntry'
+							wkStatuses.status_for_id = entry.id
+							wkStatuses.status = !params[:wktime_approve].blank? || !params[:wktime_submit].blank? ? 'a' : 'r'
+							wkStatuses.status_date = Time.now
+							wkStatuses.status_by_id = User.current.id
+							wkStatuses.save
 					end
 				end
 			rescue Exception => e			
