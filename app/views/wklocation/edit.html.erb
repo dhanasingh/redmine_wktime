@@ -30,7 +30,7 @@
 						<tr>
 							<th align="left"><%= l(:label_wk_header_logo) %></th>
 							<td align="left" style="padding-left:40px;">
-								<%=h select_tag('attachment_id', options_for_select(logoDD, @locEntry.attachment_id)) %>
+								<%=h select_tag('attachment_id', options_for_select(logoDD, @locEntry && @locEntry.attachment_id)) %>
 								<div>[ <%= l(:note_choose_attachment) %> ]</div>
 							</td>
 						</tr>
