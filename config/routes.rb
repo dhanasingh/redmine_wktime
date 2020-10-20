@@ -690,3 +690,11 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wknotification/index', :to => 'wknotification#index'
 	
 	post 'wknotification/update', :to => 'wknotification#update'
+
+	get 'wkinvoice/export', :to => 'wkinvoice#export'
+
+	get 'wkquote/export', :to => 'wkquote#export'
+
+	get 'wkpurchaseorder/export', :to => 'wkpurchaseorder#export'
+
+	get 'wksupplierinvoice/export', :to => 'wksupplierinvoice#export'

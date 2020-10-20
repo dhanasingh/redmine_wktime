@@ -553,5 +553,143 @@ class WkorderentityController < WkbillingController
 		invProj = @projectsDD.map { |name, id| { value: id, label:  name }} if @projectsDD.present?
 		render json: invProj
 	end
+
+	def export
+		unless params[:invoice_id].blank?
+			@projectsDD = Array.new
+			editOrderEntity
+		end
+		respond_to do |format|
+			format.pdf {
+				send_data(invoice_to_pdf(@invoice), type: 'application/pdf', filename: "#{getHeaderLabel}.pdf")
+			}
+		end
+	end
+
+	def invoice_to_pdf(invoice)
+		title = getHeaderLabel
+		pdf = ITCPDF.new(current_language)
+		pdf.SetTitle(title)
+		pdf.add_page
+		page_width    = pdf.get_page_width
+		left_margin   = pdf.get_original_margins['left']
+		right_margin  = pdf.get_original_margins['right']
+		table_width = page_width - right_margin - left_margin
+		pdf.SetFontStyle('B',13)
+		pdf.RDMMultiCell(table_width, 5, title, 0, 'C')
+		
+		logo = WkLocation.getMainLogo()
+		if logo.present?
+			pdf.Image(logo.diskfile.to_s, page_width-50, 15, 30, 25)
+		end
+		pdf.ln(25)	
+
+		invoiceDetails = [l(:label_name_address_of,l(:label_supplier)), l(:label_name_address_of,l(:label_customer)),
+			l(:label_invoice_number), l(:label_invoice_date) ]
+		width = table_width/invoiceDetails.size 
+		invoiceDetails.each do |detail|
+			pdf.SetFontStyle('',10)
+			pdf.set_fill_color(230, 230, 230)
+			pdf.RDMMultiCell(width, 15, detail, 1, 'C', 1, 0)
+		end
+		pdf.ln(15)
+		pdf.set_fill_color(255, 255, 255)
+		pdf.RDMMultiCell(width, 25, getSupplierAddress(invoice), 1, 'L', 0, 0)
+		pdf.RDMMultiCell(width, 25, getCustomerAddress(invoice), 1, 'L', 0, 0)
+		pdf.RDMMultiCell(width, 25, invoice.invoice_number, 1, 'L', 0, 0)
+		pdf.RDMMultiCell(width, 25, format_date(invoice.invoice_date), 1, 'L', 0, 0)
+		pdf.ln(25)
+
+		contractDetails = []
+		contractDetails << [l(:label_cntrt_purchase_work_order), getOrderContract(invoice)]
+		contractDetails << [l(:label_period), format_date(invoice.start_date) + ' to ' + format_date(invoice.end_date)]
+		
+		contractDetails.each do |contract|
+			pdf.ln
+			pdf.SetFontStyle('B',10)
+			pdf.RDMCell(pdf.get_string_width(contract.first) + 2, 5, contract.first.to_s + ":")
+			pdf.SetFontStyle('',10)
+			pdf.RDMCell(100, 5, contract.last)
+		end
+		pdf.ln
+		pdf.SetFontStyle('B',13)
+		pdf.RDMCell(50, 15, getItemLabel)
+		pdf.ln
+		pdf.SetFontStyle('',10)
+		pdf.set_fill_color(230, 230, 230)
+		pdf.RDMCell(80, 10, l(:label_invoice_name), 1, 0, 'C', 1)
+		headerList = [l(:label_billing_type), l(:label_rate), l(:label_quantity), l(:label_wk_currency), l(:field_amount)]
+		columnWidth = (table_width - 80)/headerList.size
+		headerList.each do |header|
+			pdf.RDMCell(columnWidth, 10, header, 1, 0, 'C', 1)
+		end
+		pdf.set_fill_color(255, 255, 255)
+		invoice.invoice_items.where.not(:item_type => 'r').each do |entry|
+			listItem(pdf, entry, columnWidth)
+		end
+		listTotal(pdf, columnWidth, invoice.invoice_items.where.not(:item_type => 'r'))
+		roundoffItem = invoice.invoice_items.where(:item_type => 'r')
+		unless roundoffItem.blank?
+			roundoffItem.each do |entry|
+				listItem(pdf, entry, columnWidth)
+			end
+			listTotal(pdf, columnWidth, invoice.invoice_items)
+		end
+		pdf.ln(5)
+		pdf.SetFontStyle('B',10)
+		pdf.RDMCell(40, 5, l(:label_amount_in_words) + "  :  ", 1)
+		pdf.SetFontStyle('',10)
+		pdf.RDMCell(table_width - 40, 5, numberInWords(invoice.invoice_items.sum(:original_amount)) + " " + l(:label_only), 1)
+		pdf.ln(15)
+		pdf.SetFontStyle('B',10)
+		pdf.RDMCell(30, 5, l(:label_place) + "  :  ", 0)
+		pdf.ln
+		pdf.RDMCell(30, 5, l(:label_date) + "  :  ", 0)
+		pdf.RDMCell(table_width-30, 5, l(:label_authorized_signatory), 0, 0, 'R')
+		pdf.Output
+	end
+
+	def listItem(pdf, entry, columnWidth)
+		height = pdf.get_string_height(80, entry.name)
+		pdf.SetFontStyle('',10)
+		pdf.ln
+		pdf.RDMMultiCell(80, height, entry.name, 1, 'L', 0, 0)
+		pdf.RDMCell(columnWidth, height, getInvoiceItemType(entry.item_type), 1, 0, 'L')
+		pdf.RDMCell(columnWidth, height, entry.item_type == 't' ? entry.rate.to_s + "%" : entry.rate.to_s, 1, 0, 'R')
+		pdf.RDMCell(columnWidth, height, entry.quantity.to_s, 1, 0, 'R')
+		pdf.RDMCell(columnWidth, height, entry.original_currency.to_s, 1, 0, 'R')
+		pdf.RDMCell(columnWidth, height, entry.original_amount.to_s, 1, 0, 'R')
+	end
+
+	def listTotal(pdf, columnWidth, invoice)
+		pdf.ln
+		pdf.SetFontStyle('B',10)
+		pdf.RDMCell(80, 5, '', 0, 0, 'L')
+		pdf.RDMCell(columnWidth, 5, '', 0, 0, 'L')
+		pdf.set_fill_color(230, 230, 230)
+		pdf.RDMCell(columnWidth, 5, l(:label_total), 'L', 0, 'C',1)
+		pdf.RDMCell(columnWidth, 5, invoice.sum(:quantity).to_s, 0, 0, 'R',1)
+		pdf.RDMCell(columnWidth, 5, invoice.first.original_currency.to_s, 0, 0, 'R',1)
+		pdf.RDMCell(columnWidth, 5, invoice.sum(:original_amount).to_s, 0, 0, 'R',1)
+		pdf.set_fill_color(255, 255, 255)
+	end
+
+	def getInvoiceItemType(type)
+		itemtype  = ''
+		case(type)
+		when 'i'
+			itemtype = l(:label_invoice)
+		when 'c'
+			itemtype = l(:label_credit)
+		when 'm'
+			itemtype = l(:label_material)
+		when 't'
+			itemtype = l(:label_tax)
+		when 'a'
+			itemtype = l(:label_rental)
+		else
+			itemtype = '';
+		end
+	end
 	
 end

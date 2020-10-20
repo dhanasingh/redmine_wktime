@@ -149,7 +149,6 @@ module WktimeHelper
 	top_margin = Setting.plugin_redmine_wktime['wktime_margin_top'].to_i
 	col_id_width  = 10
 	row_height    = Setting.plugin_redmine_wktime['wktime_line_space'].to_i
-	logo    = Setting.plugin_redmine_wktime['wktime_header_logo']
 
 	if page_height == 0
 		page_height = 297
@@ -225,8 +224,9 @@ module WktimeHelper
 	pdf.SetAutoPageBreak(false)
 	pdf.AddPage(orientation)
 
-	if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo))
-		pdf.Image(Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo, page_width-50, 10,40,25)
+	logo = WkLocation.getMainLogo()
+	if logo.present?
+		pdf.Image(logo.diskfile.to_s, page_width-50, 15, 30, 20)
 	end
 
 	render_header(pdf, entries, user, startday, row_height,title)
@@ -308,8 +308,8 @@ module WktimeHelper
 	#new page logo
 	def render_newpage(pdf,orientation,logo,page_width)
 		pdf.AddPage(orientation)
-		if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo))
-			pdf.Image(Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo, page_width-50, 10,40,25)
+		if logo.present?
+			pdf.Image(logo.diskfile.to_s, page_width-50, 15, 30, 25)
 			pdf.Ln
 			pdf.SetY(pdf.GetY+25)
 		end
