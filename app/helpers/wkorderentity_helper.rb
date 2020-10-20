@@ -40,7 +40,7 @@ include WkcrmHelper
 	def getInvoiceIds(rfqId, invoiceType, requireWonQuote)
 		sqlStr = getRfqOrderSqlStr + " where rfq.id = #{rfqId}"
 		if requireWonQuote
-			sqlStr = sqlStr + " and rq.is_won = #{true} "
+			sqlStr = sqlStr + " and rq.is_won = #{booleanFormat(true)} "
 		end
 		case invoiceType
 			when 'Q'

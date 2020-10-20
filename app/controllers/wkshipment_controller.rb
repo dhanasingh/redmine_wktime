@@ -187,45 +187,45 @@ include WkinventoryHelper
 		assetTotal = 0
 		while savedRows < totalRow
 			i = savedRows + deletedRows + 1
-			if params["item_id#{i}"].blank? && params["product_id#{i}"].blank?
+			if params["item_id_#{i}"].blank? && params["product_id_#{i}"].blank?
 				deletedRows = deletedRows + 1
 				next
 			end
-			unless params["item_id#{i}"].blank?			
-				arrId.delete(params["item_id#{i}"].to_i)
-				shipmentItem = WkInventoryItem.find(params["item_id#{i}"].to_i)
+			unless params["item_id_#{i}"].blank?			
+				arrId.delete(params["item_id_#{i}"].to_i)
+				shipmentItem = WkInventoryItem.find(params["item_id_#{i}"].to_i)
 			else				
 				shipmentItem = @shipment.inventory_items.new
 			end
 			unless isUsedInventoryItem(shipmentItem)
-				shipmentItem.product_item_id = params["product_item_id#{i}"].to_i
-				shipmentItem.product_attribute_id = params["product_attribute_id#{i}"]
-				if sysCurrency != params["currency#{i}"]
-					shipmentItem.org_currency = params["currency#{i}"]
-					shipmentItem.org_cost_price = params["cost_price#{i}"]
-					shipmentItem.org_over_head_price = params["over_head_price#{i}"]
-					shipmentItem.org_selling_price = params["selling_price#{i}"]
+				shipmentItem.product_item_id = params["product_item_id_#{i}"].to_i
+				shipmentItem.product_attribute_id = params["product_attribute_id_#{i}"]
+				if sysCurrency != params["currency_#{i}"]
+					shipmentItem.org_currency = params["currency_#{i}"]
+					shipmentItem.org_cost_price = params["cost_price_#{i}"]
+					shipmentItem.org_over_head_price = params["over_head_price_#{i}"]
+					shipmentItem.org_selling_price = params["selling_price_#{i}"]
 				end
 				shipmentItem.currency = sysCurrency
-				shipmentItem.cost_price = getExchangedAmount(params["currency#{i}"], params["cost_price#{i}"]) 
-				shipmentItem.over_head_price = getExchangedAmount(params["currency#{i}"], params["over_head_price#{i}"])
-				shipmentItem.selling_price = getExchangedAmount(params["currency#{i}"], params["selling_price#{i}"]) 
-				shipmentItem.serial_number = params["serial_number#{i}"]
-				shipmentItem.product_type = params["product_type#{i}"]
-				shipmentItem.notes = params["notes#{i}"]
-				shipmentItem.available_quantity = params["total_quantity#{i}"] if shipmentItem.new_record? || shipmentItem.available_quantity == shipmentItem.total_quantity
-				shipmentItem.total_quantity = params["total_quantity#{i}"]
+				shipmentItem.cost_price = getExchangedAmount(params["currency_#{i}"], params["cost_price_#{i}"]) 
+				shipmentItem.over_head_price = getExchangedAmount(params["currency_#{i}"], params["over_head_price_#{i}"])
+				shipmentItem.selling_price = getExchangedAmount(params["currency_#{i}"], params["selling_price_#{i}"]) 
+				shipmentItem.serial_number = params["serial_number_#{i}"]
+				shipmentItem.product_type = params["product_type_#{i}"]
+				shipmentItem.notes = params["notes_#{i}"]
+				shipmentItem.available_quantity = params["total_quantity_#{i}"] if shipmentItem.new_record? || shipmentItem.available_quantity == shipmentItem.total_quantity
+				shipmentItem.total_quantity = params["total_quantity_#{i}"]
 				shipmentItem.status = 'o'
-				shipmentItem.uom_id = params["uom_id#{i}"].to_i unless params["uom_id#{i}"].blank?
-				shipmentItem.location_id = params["location_id#{i}"].to_i if !params["location_id#{i}"].blank? && params["location_id#{i}"] != "0"
-				shipmentItem.project_id = params["project_id#{i}"].to_i if !params["project_id#{i}"].blank? && params["project_id#{i}"] != "0"
-				if params["product_type#{i}"] == 'A' || params["product_type#{i}"] == 'RA'
+				shipmentItem.uom_id = params["uom_id_#{i}"].to_i unless params["uom_id_#{i}"].blank?
+				shipmentItem.location_id = params["location_id_#{i}"].to_i if !params["location_id_#{i}"].blank? && params["location_id_#{i}"] != "0"
+				shipmentItem.project_id = params["project_id_#{i}"].to_i if !params["project_id_#{i}"].blank? && params["project_id_#{i}"] != "0"
+				if params["product_type_#{i}"] == 'A' || params["product_type_#{i}"] == 'RA'
 					assetValue = (shipmentItem.total_quantity*(shipmentItem.cost_price+shipmentItem.over_head_price))
 					assetTotal = assetTotal + assetValue
 					accountingLedger = WkProductItem.find(shipmentItem.product_item_id).product.ledger_id
 					ledgerId = ((!accountingLedger.blank? && accountingLedger > 0) ? accountingLedger : getSettingCfId("inventory_db_ledger"))
 					assetAccountingHash[ledgerId] = assetAccountingHash[ledgerId].blank? ? assetValue : assetAccountingHash[ledgerId] + assetValue
-					quantity = params["total_quantity#{i}"].to_i
+					quantity = params["total_quantity_#{i}"].to_i
 					shipmentItem.available_quantity = 1
 					shipmentItem.total_quantity = 1
 					for i in 1 .. quantity - 1
@@ -258,9 +258,7 @@ include WkinventoryHelper
 			redirect_to :action => 'edit', :shipment_id => @shipment.id
 	   end
 	end
-	
-	
-	
+
 	def destroy
 		begin
 			shipment = WkShipment.find(params[:shipment_id].to_i)
