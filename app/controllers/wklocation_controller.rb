@@ -69,7 +69,7 @@ class WklocationController < WkbaseController
 		locationObj.location_type_id = params[:location_type]
 		locationObj.is_default = params[:defaultValue]
 		locationObj.is_main = params[:defaultMain]
-		locationObj.attachment_id = params[:attachment_id] if params[:attachment_id].present?
+		locationObj.attachment_id = params[:attachment_id].present? ? params[:attachment_id] : nil
 		unless locationObj.valid?
 			errorMsg = errorMsg.blank? ? locationObj.errors.full_messages.join("<br>") : locationObj.errors.full_messages.join("<br>") + "<br/>" + errorMsg
 		end

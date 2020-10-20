@@ -46,10 +46,8 @@ class WkLocation < ActiveRecord::Base
 
   def self.getMainLocation
     entry = WkLocation.where(is_main: true)
-    if entry.present?
-      attachment_id = entry.first.attachment_id
-      entry = Attachment.find(attachment_id) if attachment_id.present?
-    end
-    entry
+    attachment_id = entry.first.attachment_id
+    entry = Attachment.where(id: attachment_id).first
+    (entry || {})
   end
 end
