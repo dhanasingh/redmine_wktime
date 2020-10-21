@@ -208,7 +208,8 @@ function deleteRow(tableId, totalrow)
 				{
 					var input = document.getElementById(tableId).rows[i].cells[j].getElementsByTagName("*")[0];
 					input.id = table.rows[i].cells[j].headers + '_' + i;
-					input.name = table.rows[i].cells[j].headers + '_' + i;					
+					input.name = table.rows[i].cells[j].headers + '_' + i;
+					$('#item_index_'+i).html(i)
 				}
 			}
 	}
