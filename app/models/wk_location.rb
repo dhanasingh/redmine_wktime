@@ -46,7 +46,7 @@ class WkLocation < ActiveRecord::Base
 
   def self.getMainLocation
     entry = WkLocation.where(is_main: true)
-    attachment_id = entry.first.attachment_id
+    attachment_id = entry.first && entry.first.attachment_id
     entry = Attachment.where(id: attachment_id).first
     (entry || {})
   end

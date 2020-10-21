@@ -45,7 +45,7 @@
 				<%= hidden_field_tag("container_type", "WkLocation") %>
 				<h3><%= l(:label_attachment) %></h3>
 				<% if !@locEntry.blank? && @locEntry.attachments.any? %>
-					<%= attachments_links @locEntry, :thumbnails => true %>
+					<%= attachments_links @locEntry, deletable: true %>
 				<% end %>
 				<fieldset>
 					<legend><%=l(:label_attachment_plural)%></legend>
