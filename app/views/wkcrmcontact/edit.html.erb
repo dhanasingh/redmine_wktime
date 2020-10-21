@@ -15,6 +15,7 @@
 <div style="clear:both;"></div>
 <div>
 	<%= submit_tag l(:button_save) ,:id => 'wkcontact_save'%>
+	<%= call_hook(:view_additional_lead_info, { moveInObj: @conEditEntry }) unless @conEditEntry.blank? %> 
 	
 </div>
 

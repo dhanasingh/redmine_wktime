@@ -128,6 +128,8 @@ class WkcrmController < WkbaseController
 		wkaccount.description = params[:description]
 		wkaccount.account_billing = params[:account_billing].blank? ? 0 : params[:account_billing]
 		wkaccount.location_id = params[:location_id] if params[:location_id] != "0"
+		wkaccount.created_by_user_id = User.current.id if wkaccount.new_record?
+		wkaccount.updated_by_user_id = User.current.id
 
 		if wkaccount.valid?
 			addrId = updateAddress
@@ -192,7 +194,7 @@ class WkcrmController < WkbaseController
 		unless @account.blank?
 			controllerName = hookType.blank? ? 'wkcrmaccount' : hookType[0][1]
 			flash[:notice] = l(:notice_successful_convert)
-			redirect_to controller: controllerName, action: 'edit', account_id: @account.id
+			redirect_to controller: controllerName, action: 'edit', account_id: @account.id, rm_resident_id: hookType[0][2]
 		else
 			controllerName = hookType.blank? ? 'wkcrmcontact' : hookType[0][1]
 			if @lead.valid?
@@ -202,7 +204,7 @@ class WkcrmController < WkbaseController
 				controllerName = 'wklead'
 			end
 			
-		    redirect_to controller: controllerName, action: 'edit', contact_id: @contact.id, lead_id: @lead.id
+		    redirect_to controller: controllerName, action: 'edit', contact_id: @contact.id, lead_id: @lead.id, rm_resident_id: hookType[0][2]
 		end
 	end
 	

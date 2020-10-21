@@ -16,6 +16,7 @@
 	<div style="clear:both;"></div>
 	<div>
 		<%= submit_tag l(:button_save) ,:id => 'wkaccount_save'%>
+		<%= call_hook(:view_additional_lead_info, { moveInObj: @accountEntry }) unless @accountEntry.blank? || controller.getAccountType != 'A' %> 
 	</div>
 <% end %>
 <% unless @accountEntry.blank? || @accountEntry.new_record? %>
