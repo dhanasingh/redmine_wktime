@@ -100,7 +100,7 @@ $(document).ready(function() {
 					}
 					//show detail popup dialog ok button to change image 					
 					var x = document.getElementsByName("custfield_img"+comment_row+"[]");
-					if( (e_comments.val() != "" || custFldToolTip)  && (!commentInRow  || custFldToolTip )   ) 
+					if( ((e_comments.val() != "" || custFldToolTip)  && (!commentInRow  || custFldToolTip )) || $("#attachment_" + comment_row + "_" + comment_col + " .attachments_fields").children().length > 0) 
 					{						
 						$(x[comment_col-1]).attr({src: "../plugin_assets/redmine_wktime/images/withcommant.png"});
 						

@@ -90,7 +90,7 @@
 				
 					<% if show_custfield_img %>
 					  	<% imgname ="" %>
-						<% if !cvs.blank?  || !comment.blank? %>
+						<% if !cvs.blank?  || !comment.blank? || entry.present? && entry.attachments.any? %>
 							<% imgname = "withcommant.png" %>
 						<% else %>
 							<% imgname = "withoutcommant.png" %>
