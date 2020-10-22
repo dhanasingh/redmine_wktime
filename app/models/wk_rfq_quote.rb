@@ -23,7 +23,7 @@ class WkRfqQuote < ActiveRecord::Base
 
   def send_notification
     if WkNotification.notify('quoteReceived')
-      emailNotes = "RFQ Quote: #" + self.quote.invoice_number+ " has been Received " + "\n\n" +  "by" + "\n" +  l(:label_redmine_administrator)
+      emailNotes = "RFQ Quote: #" + self.quote.invoice_number+ " has been Received " + "\n\n" + l(:label_redmine_administrator)
       userId = (WkPermission.permissionUser('B_PUR_PRVLG') + WkPermission.permissionUser('A_PUR_PRVLG')).uniq
       subject = l(:label_quotes) + " " + l(:label_notification)
       WkNotification.notification(userId, emailNotes, subject)

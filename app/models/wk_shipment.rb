@@ -28,8 +28,8 @@ class WkShipment < ActiveRecord::Base
   after_create_commit :send_notification
 
   def send_notification
-    if WkNotification.notify('receiveGoods')
-      emailNotes = "Shipment has been generated" + "\n\n" +  "by" + "\n" +  l(:label_redmine_administrator)
+    if WkNotification.notify('receiveGoods') && self.shipment_type == 'I'
+      emailNotes = "Shipment has been generated" + "\n\n" + l(:label_redmine_administrator)
       userId = (WkPermission.permissionUser('V_INV') + WkPermission.permissionUser('D_INV')).uniq
       subject = l(:label_shipment) + " " + l(:label_notification)
       WkNotification.notification(userId, emailNotes, subject)

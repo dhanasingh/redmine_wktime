@@ -48,7 +48,7 @@ class WkCrmActivity < ActiveRecord::Base
   
 	def activity_notification
     if status? && status == "C" && WkNotification.notify('salesActivityCompleted')
-      emailNotes = "Sales Activity :" + self.name + " has been completed " + "\n\n" +  "by" + "\n" +  l(:label_redmine_administrator)
+      emailNotes = "Sales Activity : " + self.name + " has been completed " + "\n\n" + l(:label_redmine_administrator)
       subject = l(:label_activity) + " " + l(:label_notification)
       userId = (WkPermission.permissionUser('B_CRM_PRVLG') + WkPermission.permissionUser('A_CRM_PRVLG')).uniq
       WkNotification.notification(userId, emailNotes, subject)

@@ -33,7 +33,7 @@ class WkPayment < ActiveRecord::Base
 
   def send_notification
     if WkNotification.notify('paymentReceived')
-      emailNotes = " Payment: #" + self.id.to_s + " has been Received " + "\n\n" +  "by" + "\n" +  l(:label_redmine_administrator)
+      emailNotes = " Payment: #" + self.id.to_s + " has been Received " + "\n\n" + l(:label_redmine_administrator)
       userId = WkPermission.permissionUser('M_BILL').uniq
       subject = l(:label_payments) + " " + l(:label_notification)
       WkNotification.notification(userId, emailNotes, subject)

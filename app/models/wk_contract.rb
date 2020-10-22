@@ -36,7 +36,7 @@ class WkContract < ActiveRecord::Base
 
   def send_notification
     if WkNotification.notify('contractSigned')
-      emailNotes = "Contract has been generated " + "\n\n" +  "by" + "\n" +  l(:label_redmine_administrator)
+      emailNotes = "Contract: #" + self.id.to_s + " has been generated " + "\n\n" + l(:label_redmine_administrator)
       subject = l(:label_contracts) + " " + l(:label_notification)
       userId = WkPermission.permissionUser('M_BILL').uniq
       WkNotification.notification(userId, emailNotes, subject)

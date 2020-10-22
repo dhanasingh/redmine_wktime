@@ -26,7 +26,7 @@ class WkOpportunity < ActiveRecord::Base
   def self.opportunity_notification(oppEntry)
     opportunityHelper = Object.new.extend(WkopportunityHelper)
     salestagehash = opportunityHelper.getSaleStageHash
-    emailNotes = "Opportunity :" + oppEntry.name + " status has been changed to " + salestagehash[oppEntry.sales_stage_id] + "\n\n" +  "by" + "\n" +  l(:label_redmine_administrator)
+    emailNotes = "Opportunity : " + oppEntry.name + " status has been changed to " + salestagehash[oppEntry.sales_stage_id] + "\n\n" + l(:label_redmine_administrator)
 		subject = l(:label_opportunity) + " " + l(:label_notification)
     userId = (WkPermission.permissionUser('B_CRM_PRVLG') + WkPermission.permissionUser('A_CRM_PRVLG')).uniq
     WkNotification.notification(userId, emailNotes, subject)
