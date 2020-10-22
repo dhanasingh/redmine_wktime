@@ -121,7 +121,7 @@ include ActionView::Helpers::TagHelper
 		projects.concat((@manage_others_log || []).pluck(:id))
 		projects.each do |projID|
 			project = Project.find(projID)
-			members = project.members.collect{|member| [member.user.name, member.user.id] }
+			project.members.each{|member| members << [member.user.name, member.user.id] }
 		end
 		members.each {|userID| @users << userID if userID && !@users.include?(userID) }
 
