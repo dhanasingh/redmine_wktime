@@ -2,7 +2,7 @@
 	<h2><b><%= l(:label_location_detail) %></b></h2>
 	<div id="account_form">
 		<% addressObj = @locEntry.blank? ? nil : @locEntry.address %>
-		<% logoDD = WkLocation.getLogoDD.collect {|l| [ l.filename, l.id ] } %>
+		<% logoDD = WkLocation.getLogoDD(params[:location_id]).collect {|l| [ l.filename, l.id ] } %>
 		<% logoDD.unshift(["",""]) %>
 		<%=h hidden_field_tag('location_id', @locEntry.blank? ? "" : @locEntry.id) %>
 		<%=h hidden_field_tag('address_id', @locEntry.blank? ? "" : @locEntry.address_id) %>

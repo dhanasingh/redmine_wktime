@@ -30,7 +30,7 @@ class WkLocation < ActiveRecord::Base
   validates_presence_of :name
 
   scope :getMainLogo, -> { getMainLocation() }
-  scope :getLogoDD, -> { joins(:attachments).where("attachments.content_type IN ('image/jpeg', 'image/png')").select('attachments.id, attachments.filename') }
+  scope :getLogoDD, ->(locationID) { joins(:attachments).where("attachments.content_type IN ('image/jpeg', 'image/png') AND wk_locations.id = ?", locationID).select('attachments.id, attachments.filename') }
 
   def check_default
     if is_default? && is_default_changed?
