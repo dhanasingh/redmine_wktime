@@ -133,7 +133,8 @@ currencySym = ""
 					<%= submit_tag l(:button_wk_reject), :name => 'wktime_reject', :disabled => !(@row > 0),
 						:onclick => "return showNotes('#{l(:button_wk_reject)}');" %>
 				<% end %>
-			<% elsif  !@wktime.nil? && @wktime.status == 'a' && @userEntries.pluck(:id) == @userwkStatuses.pluck(:status_for_id)%>
+			<% elsif  !@wktime.nil? && @wktime.status == 'a' && @userEntries.pluck(:id) == @userwkStatuses.pluck(:status_for_id) && 
+			@userEntries.pluck(:project_id).all?{|i| @approvable_projects.pluck(:id).include?(i)} %>
 				<% if controller.check_approvable_status() %>
 					<%= submit_tag l(:button_wk_unapprove), :id => 'wktime_unapprove', :name => 'wktime_unapprove'%>
 				<% end %>

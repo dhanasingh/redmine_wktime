@@ -108,27 +108,7 @@ include ActionView::Helpers::TagHelper
 		end
 	end
 
-	def getUserwkStatuses
-		cond = getCondition('spent_on', @user.id, @startday, @startday+6)
-		@userEntries = findEntriesByCond(cond)
-		@approvedStatus = @userEntries.joins("INNER JOIN wk_statuses ON time_entries.id = wk_statuses.status_for_id").where("wk_statuses.status = 'a'")
-		@userwkStatuses = @userEntries.joins("INNER JOIN wk_statuses ON time_entries.id = wk_statuses.status_for_id").where("status_for_type='TimeEntry'")
-	end
-
-	def getApproverPermProj
-		@entriesByapprover = []
-		@statusesEntries = []
-		approvableProj = @approvable_projects.pluck(:id).join(',')
-		if approvableProj.present?
-			cond = "spent_on BETWEEN '#{@startday}' AND '#{@startday+6}' AND user_id = #{@user.id} AND time_entries.project_id IN (#{approvableProj})"
-			@entriesByapprover = findEntriesByCond(cond)
-			@statusesEntries = @entriesByapprover.joins("INNER JOIN wk_statuses ON time_entries.id = wk_statuses.status_for_id").where("status_for_type='TimeEntry'")
-		end
-	end
-
 	def edit
-		getUserwkStatuses
-		getApproverPermProj
 		@prev_template = false
 		@new_custom_field_values = getNewCustomField
 		setup
@@ -144,6 +124,11 @@ include ActionView::Helpers::TagHelper
 			members = project.members.collect{|member| [member.user.name, member.user.id] }
 		end
 		members.each {|userID| @users << userID if userID && !@users.include?(userID) }
+
+		if ['wktime', 'wkexpense'].include?(controller_name)
+			getUserwkStatuses
+			getApproverPermProj
+		end
 
 		@editable = @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r'
 		@editable = canSupervisorEdit if isSupervisorApproval && @editable && isSupervisor
@@ -1188,6 +1173,24 @@ include ActionView::Helpers::TagHelper
 	
 	def getTELabel
 		l(:label_wk_timesheet)
+	end
+
+	def getUserwkStatuses
+		cond = getCondition('spent_on', @user.id, @startday, @startday+6)
+		@userEntries = findEntriesByCond(cond)
+		@approvedStatus = @userEntries.joins("INNER JOIN wk_statuses ON time_entries.id = wk_statuses.status_for_id").where("wk_statuses.status = 'a'")
+		@userwkStatuses = @userEntries.joins("INNER JOIN wk_statuses ON time_entries.id = wk_statuses.status_for_id").where("status_for_type='TimeEntry'")
+	end
+
+	def getApproverPermProj
+		@entriesByapprover = []
+		@statusesEntries = []
+		approvableProj = @approvable_projects.pluck(:id).join(',')
+		if approvableProj.present?
+			cond = "spent_on BETWEEN '#{@startday}' AND '#{@startday+6}' AND user_id = #{@user.id} AND time_entries.project_id IN (#{approvableProj})"
+			@entriesByapprover = findEntriesByCond(cond)
+			@statusesEntries = @entriesByapprover.joins("INNER JOIN wk_statuses ON time_entries.id = wk_statuses.status_for_id").where("status_for_type='TimeEntry'")
+		end
 	end
 	
 	############ Moved from private ##############
