@@ -50,7 +50,7 @@
 	<!-- modified class .ui-widget-header to change the header color -->
 		<span id="_edit_comm_proj_">project</span>, 
 		<span id="_edit_comm_iss_">issue</span>,
-		<span id="_edit_comm_act_">activity)</span>
+		<span id="_edit_comm_act_">activity</span>
 		<fieldset>
 		<% if Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? ||
 			Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 0 %>
@@ -175,14 +175,16 @@
 <% end %>
 
 <!-- Display Attachments Files -->
-<% editable = !@locked && (@wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r') %>
-<div>
-	<fieldset id="<%= 'attachment_' + @row.to_s() + '_' + @wday_index.to_s %>" class="attachment">
-		<legend><%=l(:label_attachment)%></legend>
-		<% @entries.each do |entry| %>
-			<% if entry.present? && entry.attachments.any? && (controller.check_approvable_status && @approvable_projects.pluck(:id).include?(entry.project_id) || !controller.check_approvable_status) %>
-				<%= attachments_links entry, { editable: editable, deletable: editable, hideImage: true, author: false } %>
+<% if controller.showAttachments %>
+	<% editable = !@locked && (@wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r') %>
+	<div>
+		<fieldset id="<%= 'attachment_' + @row.to_s() + '_' + @wday_index.to_s %>" class="attachment">
+			<legend><%=l(:label_attachment)%></legend>
+			<% @entries.each do |entry| %>
+				<% if entry.present? && entry.attachments.any? && (controller.check_approvable_status && @approvable_projects.pluck(:id).include?(entry.project_id) || !controller.check_approvable_status) %>
+					<%= attachments_links entry, { editable: editable, deletable: editable, hideImage: true, author: false } %>
+				<% end %>
 			<% end %>
-		<% end %>
-	</fieldset>
-</div>
+		</fieldset>
+	</div>
+<% end %>

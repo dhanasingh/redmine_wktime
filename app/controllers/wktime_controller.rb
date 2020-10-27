@@ -1330,6 +1330,10 @@ include ActionView::Helpers::TagHelper
 			format.json  { render(json: reUsers) }
 		end
 	end
+  
+  def showAttachments
+    true
+  end
 
 private
 

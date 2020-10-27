@@ -244,13 +244,17 @@ function showComment(row, col, title) {
 		//issue will be a text box
 		$( "#_edit_comm_iss_" ).html(issueIds[i].value);
 	}else{
-		$( "#_edit_comm_proj_" ).html(projDropdowns[i].selectedIndex >= 0 ? 
-			projDropdowns[i].options[projDropdowns[i].selectedIndex].text : '');			
+		if(projDropdowns[i]){
+			$( "#_edit_comm_proj_" ).html(projDropdowns[i].selectedIndex >= 0 ? 
+				projDropdowns[i].options[projDropdowns[i].selectedIndex].text : '');
+		}
 		$( "#_edit_comm_iss_" ).html(issDropdowns[i].selectedIndex >= 0 ?
 			(issDropdowns[i].options[issDropdowns[i].selectedIndex].value == -1 ? '' : issDropdowns[i].options[issDropdowns[i].selectedIndex].text) : '');
 	}
+	if(actDropdowns[i]){
 	$( "#_edit_comm_act_" ).html(actDropdowns[i].selectedIndex >= 0 ?
 		(actDropdowns[i].options[actDropdowns[i].selectedIndex].value == -1 ? '' : actDropdowns[i].options[actDropdowns[i].selectedIndex].text) : '');
+	}
 	
 	showCustomField();
 

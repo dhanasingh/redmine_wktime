@@ -39,6 +39,7 @@
 				<%= hidden_field_tag('spentForId' + @row.to_s() +'[]', spentForId ) %>
 				<%= hidden_field_tag('holiday_' + @row.to_s() +"_"+ @wday_index.to_s(), holiday, class: "holidays" ) %>
 
+				<% if controller.showAttachments %>
 				<!-- Attachments -->
 				<span id="<%= 'attachdiv_' + @row.to_s() + '_' + @wday_index.to_s %>"  style="display: none"  class="allAttach">
 					<fieldset id="<%= 'attachment_' + @row.to_s() + '_' + @wday_index.to_s %>" class="attachment">
@@ -52,6 +53,7 @@
 						</fieldset>
 					</fieldset>
 				</span>
+				<% end %>
 
 				<% cvs = [] %>
 				<% show_custfield_img = false %>
