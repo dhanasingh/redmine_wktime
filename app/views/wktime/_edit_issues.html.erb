@@ -121,7 +121,7 @@ currencySym = ""
 			<% end %>
 		<% end %>
 		<% if controller.hasApprovalSystem && !@renderer.showSpentOnInRow  %>
-			<% if (!@wktime.nil? && @wktime.status == 's') || (!@wktime.nil? && @wktime.status == 'a') && @entriesByapprover.pluck(:id) != @statusesEntries.pluck(:status_for_id) %>
+			<% if ((!@wktime.nil? && @wktime.status == 's') || (!@wktime.nil? && @wktime.status == 'a')) && @entriesByapprover.pluck(:id) != @statusesEntries.pluck(:status_for_id) %>
 				<% if @approvedStatus.length == 0 %>
 					<%= submit_tag l(:button_wk_unsubmit), :name => 'wktime_unsubmit', :disabled => !(@row > 0)%>
 				<% end %>

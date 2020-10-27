@@ -1179,7 +1179,7 @@ include ActionView::Helpers::TagHelper
 		cond = getCondition('spent_on', @user.id, @startday, @startday+6)
 		@userEntries = findEntriesByCond(cond)
 		@approvedStatus = @userEntries.joins("INNER JOIN wk_statuses ON time_entries.id = wk_statuses.status_for_id").where("wk_statuses.status = 'a'")
-		@userwkStatuses = @userEntries.joins("INNER JOIN wk_statuses ON time_entries.id = wk_statuses.status_for_id").where("status_for_type='TimeEntry'")
+		@userwkStatuses = @userEntries.joins("INNER JOIN wk_statuses ON time_entries.id = wk_statuses.status_for_id").where("status_for_type='TimeEntry' and wk_statuses.status = 'a'")
 	end
 
 	def getApproverPermProj
@@ -1330,10 +1330,6 @@ include ActionView::Helpers::TagHelper
 			format.json  { render(json: reUsers) }
 		end
 	end
-  
-  def showAttachments
-    true
-  end
 
 private
 
@@ -1497,6 +1493,7 @@ private
 		unless entryHash.nil?
 			entryHash.each_with_index do |entry, i|
 				if !entry['project_id'].blank?
+					Rails.logger.info("========params=#{params.inspect}=========")
 					hours = params['hours' + (i+1).to_s()]					
 					ids = params['ids' + (i+1).to_s()]
 					comments = params['comments' + (i+1).to_s()]
