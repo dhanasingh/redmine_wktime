@@ -1331,6 +1331,10 @@ include ActionView::Helpers::TagHelper
 		end
 	end
 
+  def showAttachments
+    true
+  end
+
 private
 
 	def getManager(user, approver)
@@ -1493,7 +1497,6 @@ private
 		unless entryHash.nil?
 			entryHash.each_with_index do |entry, i|
 				if !entry['project_id'].blank?
-					Rails.logger.info("========params=#{params.inspect}=========")
 					hours = params['hours' + (i+1).to_s()]					
 					ids = params['ids' + (i+1).to_s()]
 					comments = params['comments' + (i+1).to_s()]
