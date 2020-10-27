@@ -1958,7 +1958,7 @@ private
 				@members << [users.name,users.id.to_s()]
 			end		
 		else			
-			if isSupervisorApproval # !hookMem.blank?
+			if isSupervisorApproval && isSupervisor
 				userList = Array.new
 				if filter_type == '4'			
 					userList = getDirectReportUsers (User.current.id)			
