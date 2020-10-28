@@ -2,7 +2,7 @@
 		<% # close the previously opened tr %>
 		<% while @wday_index < padTill %>
 			<% 
-			disable = !@editable			
+			disable = !@editable || ((entry && entry.wkstatus && entry.wkstatus.status) == 'a')
 			if @editable
 				#hookCellEditPerm = call_hook(:view_cell_edit, :entry => entry)
 				if @edittimelogs.blank?

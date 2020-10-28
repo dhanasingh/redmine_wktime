@@ -34,18 +34,17 @@ Project.class_eval do
 	#has_many :parents, through: :account_projects
 	has_one :wk_project, :dependent => :destroy, :class_name => 'WkProject'
 	def erpmineproject
-			self.wk_project ||= WkProject.new(:project => self)
+		self.wk_project ||= WkProject.new(:project => self)
 	end	
 end
-
 
 TimeEntry.class_eval do
   has_one :spent_for, as: :spent, class_name: 'WkSpentFor', :dependent => :destroy
   has_one :invoice_item, through: :spent_for
-  acts_as_attachable :view_permission => :view_files,
-                    :edit_permission => :manage_files,
-                    :delete_permission => :manage_files
-  
+  acts_as_attachable	:view_permission => :view_files,
+											:edit_permission => :manage_files,
+											:delete_permission => :manage_files
+	has_one :wkstatus, as: :status_for, class_name: "WkStatus", dependent: :destroy
   accepts_nested_attributes_for :spent_for, :attachments
 end
 
