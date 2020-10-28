@@ -95,7 +95,23 @@ class WkLeaveReq < ActiveRecord::Base
   end
 
   scope :dateFilter, ->(from, to){
-    where(" wk_leave_reqs.start_date between ? and ? ", from, to )
+    where(" wk_leave_reqs.start_date between ? and ? ", getFromDateTime(from), getToDateTime(to) )
   }
+	
+	def self.date_for_user_time_zone(y, m, d)
+		if tz = User.current.time_zone
+		  tz.local y, m, d
+		else
+		  Time.local y, m, d
+		end
+	end
+	
+	def self.getFromDateTime(dateVal)
+		date_for_user_time_zone(dateVal.year, dateVal.month, dateVal.day).yesterday.end_of_day
+	end
+	
+	def self.getToDateTime(dateVal)
+		date_for_user_time_zone(dateVal.year, dateVal.month, dateVal.day).end_of_day
+	end
 
 end

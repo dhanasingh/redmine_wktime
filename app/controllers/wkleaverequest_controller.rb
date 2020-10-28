@@ -109,7 +109,7 @@ class WkleaverequestController < WkbaseController
         err_msg = sent_emails(l(:label_leave_request_notification), user.language, email_id, emailNotes, ccMailId)
       end
     end
-    redirect_to action: 'index'
+    redirect_to action: 'index' , tab: 'wkleaverequest'
     flash[:notice] = l(:notice_successful_update)
     flash[:error] = err_msg if err_msg.present?
   end

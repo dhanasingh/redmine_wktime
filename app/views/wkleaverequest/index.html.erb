@@ -24,6 +24,7 @@
 	<legend><%= l(:label_filter_plural) %></legend>
 	<%= form_tag({controller: controller_name, action: 'index'}, method: :get) do %>
 		<%= hidden_field_tag("searchlist", controller_name) %>
+		<%= hidden_field_tag('tab', controller_name) %>
 		<% period = session[:wkleaverequest].try(:[], :period) %>
 		<% if isLeaveReqAdmin %>
 			<label><%=l(:label_group_plural)%></label>&nbsp;
