@@ -1064,7 +1064,7 @@ en:
   label_asset_receipt_ledger: Asset Sale Receipt Ledger
   label_asset_value: Asset Value
   text_are_you_sure_want_dispose_asset: "Are you sure want to dispose asset?"
-  label_auto_round_gl: Auto round invoices
+  label_auto_round_gl: Round Off Amounts
   label_trend_chart: Trending Chart
 
   label_mapbox_apikey: Mapbox API key

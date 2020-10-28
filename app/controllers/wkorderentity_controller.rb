@@ -395,7 +395,7 @@ class WkorderentityController < WkbillingController
 			moduleAmtHash = {'inventory' => [nil, totalAmount.round - invoiceAmount.round], getAutoPostModule => [totalAmount.round, invoiceAmount.round]}
 			inverseModuleArr = ['inventory']
 			transAmountArr = getTransAmountArr(moduleAmtHash, inverseModuleArr)
-			if (totalAmount.round - totalAmount) != 0
+			if isChecked("invoice_auto_round_gl") && (totalAmount.round - totalAmount) != 0
 				addRoundInvItem(totalAmount)
 			end
 			if totalAmount > 0 && autoPostGL(getAutoPostModule) && postableInvoice
@@ -594,24 +594,22 @@ class WkorderentityController < WkbillingController
 		end
 		pdf.ln(15)
 		pdf.set_fill_color(255, 255, 255)
-		pdf.RDMMultiCell(width, 25, getSupplierAddress(invoice), 1, 'L', 0, 0)
-		pdf.RDMMultiCell(width, 25, getCustomerAddress(invoice), 1, 'L', 0, 0)
-		pdf.RDMMultiCell(width, 25, invoice.invoice_number, 1, 'L', 0, 0)
-		pdf.RDMMultiCell(width, 25, format_date(invoice.invoice_date), 1, 'L', 0, 0)
-		pdf.ln(25)
+		pdf.RDMMultiCell(width, 30, getSupplierAddress(invoice), 1, 'L', 0, 0)
+		pdf.RDMMultiCell(width, 30, getCustomerAddress(invoice), 1, 'L', 0, 0)
+		pdf.RDMMultiCell(width, 30, invoice.invoice_number, 1, 'L', 0, 0)
+		pdf.RDMMultiCell(width, 30, format_date(invoice.invoice_date), 1, 'L', 0, 0)
+		pdf.ln(30)
 
-		contractDetails = []
-		contractDetails << [l(:label_cntrt_purchase_work_order), getOrderContract(invoice)]
-		contractDetails << [l(:label_period), format_date(invoice.start_date) + ' to ' + format_date(invoice.end_date)]
-		
-		contractDetails.each do |contract|
-			pdf.ln
-			pdf.SetFontStyle('B',10)
-			pdf.RDMCell(pdf.get_string_width(contract.first) + 2, 5, contract.first.to_s + ":")
-			pdf.SetFontStyle('',10)
-			pdf.RDMCell(100, 5, contract.last)
-		end
+		pdf.SetFontStyle('B',10)
 		pdf.ln
+		pdf.RDMCell(130, 5, l(:label_cntrt_purchase_work_order), 1, 0, '', 1)
+		pdf.RDMCell(table_width - 130, 5, l(:label_period), 1, 0, '', 1)
+		pdf.ln
+		pdf.SetFontStyle('',10)
+		pdf.RDMMultiCell(130, 10, getOrderContract(invoice), 1, 'L', 0, 0)
+		pdf.RDMMultiCell(table_width - 130, 10, format_date(invoice.start_date) + ' to ' + format_date(invoice.end_date), 1, 'L', 0, 0)
+		
+		pdf.ln(10)
 		pdf.SetFontStyle('B',13)
 		pdf.RDMCell(50, 15, getItemLabel)
 		pdf.ln
