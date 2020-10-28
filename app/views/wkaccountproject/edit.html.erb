@@ -96,22 +96,22 @@
 	<% else %>
 		<tr onclick="  row_id  = this.rowIndex ">
 			<td class="lbl-txt-align" headers="milestone_id">
-				<%=h hidden_field_tag("milestone_id#{row_index}",   "" )  %>
+				<%=h hidden_field_tag("milestone_id_#{row_index}",   "" )  %>
 			</td>
 			<td class="lbl-txt-align" headers="item_index">
-				<label id="item_index<%= row_index.to_s %>"><%= row_index  %></label>
+				<label id="item_index_<%= row_index.to_s %>"><%= row_index  %></label>
 			</td>
 			<td class="lbl-txt-align" headers="milestone" >
-				<%= text_field_tag "milestone#{row_index}",  "" , :required => false,  :style => "width:350px;" %>
+				<%= text_field_tag "milestone_#{row_index}",  "" , :required => false,  :style => "width:350px;" %>
 			</td>
 			<td class="lbl-txt-align" headers="currency" >
-				<%=h select_tag("currency#{row_index}",options_for_select(wkexpense_helper.options_for_currency)) %>
+				<%=h select_tag("currency_#{row_index}",options_for_select(wkexpense_helper.options_for_currency)) %>
 			</td>
 			<td class="lbl-txt-align" headers="amount">
-				<%= text_field_tag "amount#{row_index}",  "" , :required => false, :maxlength => 14, :style => "width:150px;"  %>
+				<%= text_field_tag "amount_#{row_index}",  "" , :required => false, :maxlength => 14, :style => "width:150px;"  %>
 			</td>
 			<td class="lbl-txt-align" headers="billdate">
-				<%= text_field_tag "billdate#{row_index}",  ""  , :required => false, :class => "date",  :style => "width:150px;" %>
+				<%= text_field_tag "billdate_#{row_index}",  ""  , :required => false, :class => "date",  :style => "width:150px;" %>
 			</td>
 			<td>
 				<%= link_to image_tag('delete.png'), "javascript:deleteRow('milestoneTable', 'mtotalrow');", :id => row_index,
