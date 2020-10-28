@@ -1,6 +1,6 @@
  Assets: 
   chart_type: line
-  code_str: "from = (@to - 12.months + 1.days); dateArr = []; 12.times {|m| dateArr << [from = (from.next_month).beginning_of_month, from.end_of_month] }; fields = [] ;12.times {|m| fields << month_name(((@to.month - 1 - m) % 12) + 1).first(3)};@assestTotValues = []; dateArr.each {|c| totalValue = WkAssetDepreciation.find_by_sql(%Q{
+  code_str: "dateArr = []; 12.times {|m| dateArr << [@to.beginning_of_month, @to.end_of_month]; @to = @to - 1.month}; fields = [] ;12.times {|m| fields << month_name(((@to.month - 1 - m) % 12) + 1).first(3)};@assestTotValues = []; dateArr.reverse.each {|c| totalValue = WkAssetDepreciation.find_by_sql(%Q{
     select sum(CASE WHEN dp.id IS NULL THEN 
       CASE WHEN ap.current_value IS NULL THEN (ii.cost_price + ii.over_head_price) ELSE ap.current_value END
     ELSE 

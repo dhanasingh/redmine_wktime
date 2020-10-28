@@ -37,6 +37,7 @@ class WkdashboardController < WkbaseController
 		elsif @to.blank? && !@from.blank?
 			@to = @from + 12.months - 1.days
 		end
+		@to = User.current.today if @to > User.current.today
 
 		yml_data = YAML.load(ERB.new(File.read("#{Rails.root}/#{path}")).result).first   
 		field_names = eval(yml_data[1]['code_str'])
