@@ -196,19 +196,18 @@ private
 
   def getUserwkStatuses
     cond = getCondition('spent_on', @user.id, @startday, @startday+6)
-    @userEntries = findEntriesByCond(cond)		
-    @approvedStatus = @userEntries.joins("INNER JOIN wk_statuses ON wk_expense_entries.id = wk_statuses.status_for_id").where("wk_statuses.status = 'a'")
-		@userwkStatuses = @userEntries.joins("INNER JOIN wk_statuses ON wk_expense_entries.id = wk_statuses.status_for_id").where("status_for_type='WkExpenseEntry'")
-  end
+    @userEntries = findEntriesByCond(cond)
+		@approvedwkStatuses = @userEntries.joins("LEFT JOIN wk_statuses ON wk_expense_entries.id = wk_statuses.status_for_id").where("status_for_type='WkExpenseEntry' and wk_statuses.status = 'a'").select("wk_expense_entries.*")
+	end
 
   def getApproverPermProj
-    @entriesByapprover = []
-    @statusesEntries = []
+    @approverEntries = []
+    @approverwkStatuses = []
     approvableProj = @approvable_projects.pluck(:id).join(',')
     if approvableProj.present?
       cond = "spent_on BETWEEN '#{@startday}' AND '#{@startday+6}' AND user_id = #{@user.id} AND wk_expense_entries.project_id IN (#{approvableProj})"
-      @entriesByapprover = findEntriesByCond(cond)
-      @statusesEntries = @entriesByapprover.joins("INNER JOIN wk_statuses ON wk_expense_entries.id = wk_statuses.status_for_id").where("status_for_type='WkExpenseEntry'")
+      @approverEntries = findEntriesByCond(cond)
+      @approverwkStatuses = @approverEntries.joins("LEFT JOIN wk_statuses ON wk_expense_entries.id = wk_statuses.status_for_id").where("status_for_type='WkExpenseEntry' and wk_statuses.status = 'a' ")
     end
   end
   

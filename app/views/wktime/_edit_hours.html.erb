@@ -2,7 +2,7 @@
 		<% # close the previously opened tr %>
 		<% while @wday_index < padTill %>
 			<% 
-			disable = !@editable || ((entry && entry.wkstatus && entry.wkstatus.status) == 'a')
+			disable = !@editable
 			if @editable
 				#hookCellEditPerm = call_hook(:view_cell_edit, :entry => entry)
 				if @edittimelogs.blank?
@@ -24,6 +24,7 @@
 				disable = false if validateERPPermission('A_TE_PRVLG')
 				disable = true if !@prev_template && isBilledTimeEntry(entry)
 			end
+			disable = ((entry && entry.wkstatus && entry.wkstatus.status) == 'a')
 			spentForId = entry.present? && entry.spent_for.present? && !@prev_template ? entry.spent_for.id : nil
 			holiday = WkPublicHoliday.getHolidays(params[:user_id], (@startday + @wday_index) - 1)
 			holiday = holiday.length > 0
