@@ -21,7 +21,7 @@
 		<p style="text-align: center;">
 			<caption style="text-align:center"><b>
 				<%= getMainLocation %></br><%= l(:report_asset) %></b></br>
-				<%= from.to_formatted_s(:long) + " " + l(:label_date_to) + " " + to.to_formatted_s(:long)%>
+				<%= l(:label_as_at) + " " + @to.to_formatted_s(:long) %>
 			</caption>
 		</p>
 	</div>
