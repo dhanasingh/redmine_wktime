@@ -156,7 +156,7 @@ include ActionView::Helpers::TagHelper
 			@entries = $tempEntries
 		end
 		set_project_issues(@entries)
-		if @entries.blank? && !params[:prev_template].blank?
+		if @entries.blank? && params[:prev_template].present? && (Setting.plugin_redmine_wktime['wktime_previous_template_week']).to_i > 0
 			@prev_entries = prevTemplate(@user.id)
 			if !@prev_entries.blank?
 				set_project_issues(@prev_entries)
