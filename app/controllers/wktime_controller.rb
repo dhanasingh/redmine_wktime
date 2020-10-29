@@ -254,11 +254,11 @@ include ActionView::Helpers::TagHelper
 
 				if !params[:wktime_save].blank? || !params[:wktime_save_continue].blank? || !params[:wktime_submit].blank?
 					wkStatuses = WkStatus.where(status: 'r')
-					wkStatuses = wkStatuses.where(status_for_id: @userEntries.pluck(:id))
+					wkStatuses = wkStatuses.where(status_for_id: (@userEntries || []).pluck(:id))
 					wkStatuses.destroy_all() unless wkStatuses.blank?
 				elsif useApprovalSystem && !params[:wktime_unapprove].blank?
 					wkStatuses = WkStatus.where(status: 'a')
-					wkStatuses = wkStatuses.where(status_for_id: @approverEntries.pluck(:id))
+					wkStatuses = wkStatuses.where(status_for_id: (@approverEntries || []).pluck(:id))
 					wkStatuses.destroy_all() unless wkStatuses.blank?
 				end
 
