@@ -41,7 +41,7 @@
 <%# end %> 
 <tr>
 	<th align="left"><%= l(:label_wk_currency) %></th>
-	<td style="padding-left:40px;"> <%=h select_tag("inv_currency",options_for_select(wkexpense_helper.options_for_currency)) %></td>
+	<td style="padding-left:40px;"> <%=h select_tag("inv_currency",options_for_select(wkexpense_helper.options_for_currency, :selected => Setting.plugin_redmine_wktime['wktime_currency'])) %></td>
 </tr>
 <tr>
 	<th align="left"><%= l(:label_start_date) %></th>

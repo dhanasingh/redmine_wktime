@@ -51,7 +51,7 @@
 	</td>
 	<td class="lbl-txt-align" headers="currency">
 		<% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
-		<%=h select_tag("currency_#{row_index}",options_for_select(wkexpense_helper.options_for_currency, :selected => entry.currency), :disabled => isDisable, :style => "width: 100%;") %>
+		<%=h select_tag("currency_#{row_index}",options_for_select(wkexpense_helper.options_for_currency, :selected => entry.blank? ? Setting.plugin_redmine_wktime['wktime_currency'] : entry.currency), :disabled => isDisable, :style => "width: 100%;") %>
 
 	</td>
 	<td class="lbl-txt-align" headers="cost_price"><%= text_field_tag "cost_price_#{row_index}",   ("%.2f" % entry.cost_price unless entry.cost_price.blank?) ,:maxlength => 14, :size => "#{controller.textfield_size}",  :disabled => isDisable %>
