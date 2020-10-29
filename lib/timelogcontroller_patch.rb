@@ -446,6 +446,7 @@ module TimelogControllerPatch
 			else
 				session[:timelog] = {} if session[:timelog].blank?
 				session[:timelog][:spent_type] = params[:log_type].blank? ? params[:spent_type] : params[:log_type]
+				session[:timelog][:show_on_map] = params[:show_on_map]
 			end
 		end
 	# =======================================

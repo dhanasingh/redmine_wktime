@@ -54,9 +54,9 @@ $(document).ready(function(){
 			}
 		}			
 	}
-	else {
-		sessionStorage.clear();
-	}
+	// else {
+	// 	sessionStorage.clear();
+	// }
 	
 	if (timeWarnMsg != null && issueWarnMsg != null) {
 		warnMsg = [timeWarnMsg.value, issueWarnMsg.value];
@@ -96,9 +96,9 @@ $(document).ready(function(){
 			}, 500);		
 		});	
 	}
-	$(".time-entries.selected,.icon.icon-reload").click(function(){
-		sessionStorage.clear();
-	});
+	// $(".time-entries.selected,.icon.icon-reload").click(function(){
+	// 	sessionStorage.clear();
+	// });
 	
 	//Time Tracking
 		$("#project-jump").after($("#issueLog"));
@@ -125,15 +125,16 @@ $(document).ready(function(){
 
 function spentTypeValue(elespent)
 {
-	 spentTypeVal = elespent.options[elespent.selectedIndex].value;
-	 sessionStorage.setItem("spent_type", spentTypeVal);
+	//  spentTypeVal = elespent.options[elespent.selectedIndex].value;
+	//  sessionStorage.setItem("spent_type", spentTypeVal);
 	 document.getElementById("query_form").submit();
 }
 
 function spentTypeSelection()
 {
-	const spent_type = (new URL(window.location.href)).searchParams.get("spent_type");
-	var spcheck = sessionStorage.getItem("spent_type") == null ? (spent_type ? spent_type : "T") : sessionStorage.getItem("spent_type");
+	// const spent_type = (new URL(window.location.href)).searchParams.get("spent_type");
+	// var spcheck = sessionStorage.getItem("spent_type") == null ? (spent_type ? spent_type : "T") : sessionStorage.getItem("spent_type");
+	var spcheck = $('#spentTypeSession').val();
 	$("#spent_typeHF").val(spcheck);
 	if(document.getElementById('spent_type') != null) {
 		var ddl = document.getElementById('spent_type');
