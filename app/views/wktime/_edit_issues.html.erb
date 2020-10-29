@@ -35,7 +35,7 @@ currencySym = ""
 		<% matrix.each do |rows| %>
 			<% issueWritten = false %>
 			<% rows.each.with_index do |entry, i| %>
-				<% if !entry.blank? && ( @wktime.status == 'n' || approvalProjects.length == 0 || approvalProjects.include?(entry.project_id)) %>
+				<% if !entry.blank? && ((@wktime.present? && @wktime.status == 'n') || approvalProjects.length == 0 || approvalProjects.include?(entry.project_id)) %>
 					<% if !issueWritten %>
 						<% # this is a new Row %>
 						<% # close the previously opened row first %>

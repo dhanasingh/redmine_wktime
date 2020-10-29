@@ -252,14 +252,17 @@ include ActionView::Helpers::TagHelper
 					errorMsg = 	updateWktime if (errorMsg.blank? && ((!@entries.blank? && entrycount!=entrynilcount) || @teEntrydisabled))	
 				end
 
-				if !params[:wktime_save].blank? || !params[:wktime_save_continue].blank? || !params[:wktime_submit].blank?
-					wkStatuses = WkStatus.where(status: 'r')
-					wkStatuses = wkStatuses.where(status_for_id: (@userEntries || []).pluck(:id))
-					wkStatuses.destroy_all() unless wkStatuses.blank?
-				elsif useApprovalSystem && !params[:wktime_unapprove].blank?
-					wkStatuses = WkStatus.where(status: 'a')
-					wkStatuses = wkStatuses.where(status_for_id: (@approverEntries || []).pluck(:id))
-					wkStatuses.destroy_all() unless wkStatuses.blank?
+				modelName = controller_name == 'wktime' ? 'TimeEntry' : 'WkExpenseEntry'
+				if ['wktime', 'wkexpense'].include?(controller_name)
+					if !params[:wktime_save].blank? || !params[:wktime_save_continue].blank? || !params[:wktime_submit].blank?
+						wkStatuses = WkStatus.where(status_for_type: modelName, status: 'r')
+						wkStatuses = wkStatuses.where(status_for_id: (@userEntries || []).pluck(:id))
+						wkStatuses.destroy_all() unless wkStatuses.blank?
+					elsif useApprovalSystem && !params[:wktime_unapprove].blank?
+						wkStatuses = WkStatus.where(status_for_type: modelName, status: 'a')
+						wkStatuses = wkStatuses.where(status_for_id: (@approverEntries || []).pluck(:id))
+						wkStatuses.destroy_all() unless wkStatuses.blank?
+					end
 				end
 
 				if !params[:wktime_approve].blank? || !params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank? || (!Setting.plugin_redmine_wktime['wktime_uuto_approve'].blank? &&
@@ -267,7 +270,7 @@ include ActionView::Helpers::TagHelper
 					@approverEntries.each do | entry |
 						next if entry.wkstatus.present?
 							wkStatuses = WkStatus.new
-							wkStatuses.status_for_type = controller_name == 'wktime' ? 'TimeEntry' : 'WkExpenseEntry'
+							wkStatuses.status_for_type = modelName
 							wkStatuses.status_for_id = entry.id
 							wkStatuses.status = !params[:wktime_approve].blank? || !params[:wktime_submit].blank? ? 'a' : 'r'
 							wkStatuses.status_date = Time.now
