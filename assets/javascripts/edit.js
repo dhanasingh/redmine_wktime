@@ -1593,14 +1593,29 @@ function checkLogPermissions(row){
 	$("input[name='hours"+row+"[]'], [name='custfield_img"+row+"[]']").each(function(){
     const projID = $(this).closest('tr').children('td:first').find('select').val();
 		const hours = ($(this).closest('div').children().first()).val();
-		const disabled = $(this).closest('div').find('input[name="disabled'+row+'[]"]').val()
+		const disabled = $(this).closest('div').find('input[name="disabled'+row+'[]"]').val();
+		const deleteTd = $(this).closest('tr').children('td:last');
 		if(sheetView != 'I' && (!current_user && (hours == '' && !manage_others_log.includes(projID) || hours != '' && !manage_edit_projects.includes(projID)) ||
 			(current_user && !edit_own_logs.includes(projID) && hours != '') || !logtime_projects.includes(projID)))
 		{
-			this.type ? $(this).prop('disabled', true) : $(this).parent('a').bind('click', false);
+			if(this.type){
+				$(this).prop('disabled', true);
+				($(this).siblings('#disabled'+row+'_').first()).val(true);
+				($(deleteTd).children('a').first()).bind('click', false);
+			}
+			else{
+				$(this).parent('a').bind('click', false);
+			}
 		}
 		else if(!hours && manage_others_log.includes(projID) && !disabled ){
-			this.type ? $(this).prop('disabled', false) : $(this).parent('a').unbind('click', false);
+			if(this.type){
+				$(this).prop('disabled', false);
+				($(this).siblings('#disabled'+row+'_').first()).val(false);
+				($(deleteTd).children('a').first()).unbind('click', false);
+			}
+			else{
+				$(this).parent('a').unbind('click', false);
+			}
 		}
 	});
 }
