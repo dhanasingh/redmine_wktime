@@ -182,7 +182,7 @@ $(document).ready(function() {
 		loadEdit(this, $(this).data('val'));
 	});
 	// for searchable dopdown
-	$(".issueDD").select2();
+	$("#issueTable .issueDD").select2();
 });
 
 $(window).load(function(){
@@ -402,7 +402,7 @@ function projectChanged(projDropdown, row){
 				var items = data.split('\n');
 				var needBlankOption = items.length-1 > 1 || allowBlankIssue ;
 				updateDropdown(data, row, issDropdown, true, needBlankOption, true, null); 
-				$(".issueDD").select2();
+				$("#issueTable .issueDD").select2();
 			},
 			beforeSend: function(){ $this.addClass('ajax-loading'); },
 			complete: function(){ $this.removeClass('ajax-loading'); }
