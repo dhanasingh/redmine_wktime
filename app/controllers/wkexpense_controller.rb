@@ -147,6 +147,10 @@ class WkexpenseController < WktimeController
     
     teEntry.wkspentfor_attributes = spent_for
   end
+				
+  def getModelName
+    'WkExpenseEntry'
+  end
 
 private
   def getSpecificField

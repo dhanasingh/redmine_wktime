@@ -124,8 +124,7 @@ include ActionView::Helpers::TagHelper
 			project.members.each{|member| members << [member.user.name, member.user.id] }
 		end
 		members.each {|userID| @users << userID if userID && !@users.include?(userID) }
-
-		if ['wktime', 'wkexpense'].include?(controller_name)
+		if getSheetView == 'W'
 			getUserwkStatuses
 			getApproverPermProj
 		end
@@ -187,7 +186,7 @@ include ActionView::Helpers::TagHelper
 		findWkTE(@startday)	
 		@wktime = getWkEntity if @wktime.nil?
 		allowApprove = false
-		if ['wktime', 'wkexpense'].include?(controller_name)
+		if getSheetView == 'W'
 			getUserwkStatuses
 			getApproverPermProj
 		end
@@ -252,17 +251,14 @@ include ActionView::Helpers::TagHelper
 					errorMsg = 	updateWktime if (errorMsg.blank? && ((!@entries.blank? && entrycount!=entrynilcount) || @teEntrydisabled))	
 				end
 
-				modelName = controller_name == 'wktime' ? 'TimeEntry' : 'WkExpenseEntry'
-				if ['wktime', 'wkexpense'].include?(controller_name)
-					if !params[:wktime_save].blank? || !params[:wktime_save_continue].blank? || !params[:wktime_submit].blank?
-						wkStatuses = WkStatus.where(status_for_type: modelName, status: 'r')
-						wkStatuses = wkStatuses.where(status_for_id: (@userEntries || []).pluck(:id))
-						wkStatuses.destroy_all() unless wkStatuses.blank?
-					elsif useApprovalSystem && !params[:wktime_unapprove].blank?
-						wkStatuses = WkStatus.where(status_for_type: modelName, status: 'a')
-						wkStatuses = wkStatuses.where(status_for_id: (@approverEntries || []).pluck(:id))
-						wkStatuses.destroy_all() unless wkStatuses.blank?
-					end
+				if getSheetView == 'W' && (!params[:wktime_save].blank? || !params[:wktime_save_continue].blank? || !params[:wktime_submit].blank?)
+					wkStatuses = WkStatus.where(status_for_type: getModelName, status: 'r')
+					wkStatuses = wkStatuses.where(status_for_id: (@userEntries || []).pluck(:id))
+					wkStatuses.destroy_all() unless wkStatuses.blank?
+				elsif useApprovalSystem && !params[:wktime_unapprove].blank?
+					wkStatuses = WkStatus.where(status_for_type: getModelName, status: 'a')
+					wkStatuses = wkStatuses.where(status_for_id: (@approverEntries || []).pluck(:id))
+					wkStatuses.destroy_all() unless wkStatuses.blank?
 				end
 
 				if !params[:wktime_approve].blank? || !params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank? || (!Setting.plugin_redmine_wktime['wktime_uuto_approve'].blank? &&
@@ -270,7 +266,7 @@ include ActionView::Helpers::TagHelper
 					@approverEntries.each do | entry |
 						next if entry.wkstatus.present?
 							wkStatuses = WkStatus.new
-							wkStatuses.status_for_type = modelName
+							wkStatuses.status_for_type = getModelName
 							wkStatuses.status_for_id = entry.id
 							wkStatuses.status = !params[:wktime_approve].blank? || !params[:wktime_submit].blank? ? 'a' : 'r'
 							wkStatuses.status_date = Time.now
@@ -1336,6 +1332,10 @@ include ActionView::Helpers::TagHelper
   def showAttachments
     true
   end
+
+	def getModelName
+		'TimeEntry'
+	end
 
 private
 
