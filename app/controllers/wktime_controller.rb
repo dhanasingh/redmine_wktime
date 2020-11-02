@@ -1835,7 +1835,7 @@ private
 			params["attachments_"+row.to_s+"_"+col.to_s].each do |atch_param|
 				attachment = Attachment.find_by_token(atch_param[1][:token])
 				next if attachment.blank?
-				attachment.container_type = "TimeEntry"
+				attachment.container_type = getModelName
 				attachment.filename = attachment.filename
 				attachment.description = atch_param[1][:description]
 				if teEntry.present? && teEntry.id.present?
