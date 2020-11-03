@@ -66,7 +66,7 @@ class WkattendanceController < WkbaseController
 		orderStr = " ORDER BY " + (sort_clause.present? ? sort_clause.first : "u.firstname")
 		findBySql(selectStr, sqlStr, orderStr, WkUserLeave)
 	end
-	
+
 	def clockindex
 		sort_init 'id', 'asc'
 		sort_update 'name' =>  "vw.firstname",
@@ -108,11 +108,11 @@ class WkattendanceController < WkbaseController
 		sqlQuery = " from (
 				select u.id, u.firstname, u.lastname, u.created_on, v.selected_date from" + 
 				"(select " + getAddDateStr(@from, noOfDays) + " selected_date from " +
-				"(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t0,
-				(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t1,
-				(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t2,
-				(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t3,
-				(select 0 i union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9)t4)v,
+				"(select 0 i union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) t0,
+				(select 0 i union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) t1,
+				(select 0 i union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) t2,
+				(select 0 i union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) t3,
+				(select 0 i union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9)t4)v,
 				(select u.id, u.firstname, u.lastname, u.created_on from users u where u.type = 'User'
 			) u
 			WHERE  v.selected_date between '#{@from}' and '#{@to}' AND u.id in (#{ids})) vw 
@@ -130,8 +130,7 @@ class WkattendanceController < WkbaseController
 				format.api
 			end
 	end
-	
-	
+
 	def clockedit
 		sqlQuery = "select a.id,a.user_id, a.start_time, a.end_time, a.hours, u.firstname, u.lastname, s_longitude, s_latitude, e_longitude, e_latitude
 			FROM users u
@@ -187,7 +186,7 @@ class WkattendanceController < WkbaseController
 			end
 		end
 	end
-	
+
 	# Retrieves the date range based on predefined ranges or specific from/to param dates
 	def retrieve_date_range
 		@free_period = false
@@ -365,12 +364,12 @@ class WkattendanceController < WkbaseController
 		issueList
 	end
 	
-    def check_perm_and_redirect
+  def check_perm_and_redirect
 	  unless check_permission
 	    render_403
 	    return false
 	  end
-    end
+  end
 
 	def check_permission
 		ret = false
