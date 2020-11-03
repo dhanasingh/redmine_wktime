@@ -606,7 +606,7 @@ class WkorderentityController < WkbillingController
 		pdf.RDMCell(table_width - 130, 5, l(:label_period), 1, 0, '', 1)
 		pdf.ln
 		pdf.SetFontStyle('',10)
-		pdf.RDMMultiCell(130, 10, getOrderContract(invoice), 1, 'L', 0, 0)
+		pdf.RDMMultiCell(130, 10, getOrderContract(invoice) || '', 1, 'L', 0, 0)
 		pdf.RDMMultiCell(table_width - 130, 10, format_date(invoice.start_date) + ' to ' + format_date(invoice.end_date), 1, 'L', 0, 0)
 		
 		pdf.ln(10)
