@@ -77,13 +77,31 @@ If an apache passenger module is used then make sure the following settings are 
   b) RailsAppSpawnerIdleTime 0
   c) PassengerPreStart https://rails-app-url/	
 
-Release Notes for v4.0.4
+Release Notes for v4.1
+
   Feature:
-    - Add issue logger for Asset on spent time
+    - Add attachments in time and expense
+    - Individual approvers per project for timesheets
+    - Add logo to locations
+    - Add PDF for time, expense and payroll list pages
+    - Add PDF for time and invoice detail pages
+    - Notifications for additional emails
+    - Add map for activity and assets
+    - Add separate tab for leave request
+    - Add reviewer comment for leave request detail page
+    - Change supervisor filters into dropdown
+    - Add email notifications
+    - Add default currency for inventory and purchase modules
 
    Bug Fixes:
-    - Cannot edit non time entries on spent time
-    - Show on map doesn't work for non time entries on spent time
+    - Remove unnecessary settings configuration in time and expense
+    - Asset Chart starts with zero
+    - Survey response page not aligned
+    - Show on map filter is not saved in session
+    - Error in receive leave notification Permission
+    - Asset report should not visible for non privileged users
+    - Add date range label in asset report
+    - Remove intermediate page for new time and expense modules
 
 Customization:
 
