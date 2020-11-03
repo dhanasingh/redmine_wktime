@@ -29,6 +29,9 @@ var nscount = 0;
 var clkdialogid = 0;
 var minHourperWeekAlertMsg="";
 var maxHourperWeekAlertMsg="";
+var attachmentDiv = "";
+var attachmentField = "";
+
 $(document).ready(function() {
 	var e_comments = $( "#_edit_comments_" );
 	var e_notes = $( "#_edit_notes_" );	
@@ -70,7 +73,6 @@ $(document).ready(function() {
 		}
 	});	
 	}
-	 
 
 	$( "#comment-dlg" ).dialog({
 		autoOpen: false,
@@ -98,7 +100,7 @@ $(document).ready(function() {
 					}
 					//show detail popup dialog ok button to change image 					
 					var x = document.getElementsByName("custfield_img"+comment_row+"[]");
-					if( (e_comments.val() != "" || custFldToolTip)  && (!commentInRow  || custFldToolTip )   ) 
+					if( ((e_comments.val() != "" || custFldToolTip)  && (!commentInRow  || custFldToolTip )) || $("#attachment_" + comment_row + "_" + comment_col + " .attachments_fields").children().length > 0) 
 					{						
 						$(x[comment_col-1]).attr({src: "../plugin_assets/redmine_wktime/images/withcommant.png"});
 						
@@ -106,18 +108,20 @@ $(document).ready(function() {
 					else
 					{					
 						$(x[comment_col-1]).attr({src: "../plugin_assets/redmine_wktime/images/withoutcommant.png"});
-					}					
+					}
+					$(attachmentField).appendTo(attachmentDiv);
 					$( this ).dialog( "close" );				
 					//unregister this event since this is showing a 'don't leave' message
 					//loosk like this is not supported in Opera
 					//window.onbeforeunload = null;
 			},
 			Cancel: function() {
+				$(attachmentField).appendTo(attachmentDiv);
 				$( this ).dialog( "close" );
 			}
 		}
 	});	
-	
+
 	$( "#notes-dlg" ).dialog({
 		autoOpen: false,
 		resizable: false,
@@ -134,7 +138,7 @@ $(document).ready(function() {
 			}
 		}
 	});	
-	
+
 	if(showWorkHeader) {
 		//when initially load the page hidden the clock in Clock out button
 		var clkStart, clkEnd, colNum, attnId;
@@ -169,7 +173,16 @@ $(document).ready(function() {
 			updateRemainingHr(i, "");
 		}
 	}
-	
+	const tableLen = $('#issueTable tr').length;
+	for(let i=1; i <= (tableLen -2); i++) checkLogPermissions(i);
+
+	$(document).on('focusin', '.load', function(){
+    $(this).data('val', $(this).val());
+	}).on('change','.load', function(){
+		loadEdit(this, $(this).data('val'));
+	});
+	// for searchable dopdown
+	$("#issueTable .issueDD").select2();
 });
 
 $(window).load(function(){
@@ -211,10 +224,8 @@ function isChanged(elType) {
 
 function showComment(row, col, title) {
 	var images = $( 'img[name="custfield_img'+row+'[]"]' );
-	var width = 300;
-	var height = 350;
-	var posX = 0;
-	var posY = 0;
+	var width = 600;
+	var height = 450;
 	var i = row - 1;
 	var currImage = images[col-1];
 	var projDropdowns = $('select[name="time_entry[][project_id]"]');
@@ -233,20 +244,31 @@ function showComment(row, col, title) {
 		//issue will be a text box
 		$( "#_edit_comm_iss_" ).html(issueIds[i].value);
 	}else{
-		$( "#_edit_comm_proj_" ).html(projDropdowns[i].selectedIndex >= 0 ? 
-			projDropdowns[i].options[projDropdowns[i].selectedIndex].text : '');			
+		if(projDropdowns[i]){
+			$( "#_edit_comm_proj_" ).html(projDropdowns[i].selectedIndex >= 0 ? 
+				projDropdowns[i].options[projDropdowns[i].selectedIndex].text : '');
+		}
 		$( "#_edit_comm_iss_" ).html(issDropdowns[i].selectedIndex >= 0 ?
 			(issDropdowns[i].options[issDropdowns[i].selectedIndex].value == -1 ? '' : issDropdowns[i].options[issDropdowns[i].selectedIndex].text) : '');
 	}
+	if(actDropdowns[i]){
 	$( "#_edit_comm_act_" ).html(actDropdowns[i].selectedIndex >= 0 ?
 		(actDropdowns[i].options[actDropdowns[i].selectedIndex].value == -1 ? '' : actDropdowns[i].options[actDropdowns[i].selectedIndex].text) : '');
+	}
 	
-	showCustomField();		
-	
-	posX = $(currImage).offset().left - $(document).scrollLeft() - width + $(currImage).outerWidth();
-	posY = $(currImage).offset().top - $(document).scrollTop() + $(currImage).outerHeight();
-	$("#comment-dlg").dialog({width:width, height:height ,position:[posX, posY]});
-	$( "#comment-dlg" ).dialog('option', 'title', title).dialog( "open" );
+	showCustomField();
+
+	//For Attachments
+	if(!$(attachmentField).prev().is('span')){
+		$(attachmentField).appendTo(attachmentDiv);
+	}
+	attachmentDiv = '#attachdiv_'+row+'_'+col;
+	attachmentField = '#attachment_'+row+'_'+col;
+	const destination = $('#_edit_comments_').closest('fieldset');
+	$(attachmentField).appendTo(destination);
+	$(attachmentField).show();
+	const position = $(currImage).position();
+	$("#comment-dlg").dialog({ title: title, width: width, height: height }).dialog( "open" );;
 }
 
 function showNotes(title) {
@@ -370,7 +392,7 @@ function projectChanged(projDropdown, row){
 		var uid = document.getElementById("user_id").value;
 		var $this = $(this);    
 		issue_assign_user=issueAssignUser();
-		var	trackerListArr = getSelectedTracker(document.getElementById('select_issues_tracker'));	
+		var	trackerListArr = $("#select_issues_tracker").val() == 0 ? '' : $("#select_issues_tracker").val();
 		var startday=document.getElementById("startday").value;
 		$.ajax({
 			url: issUrl,
@@ -380,6 +402,7 @@ function projectChanged(projDropdown, row){
 				var items = data.split('\n');
 				var needBlankOption = items.length-1 > 1 || allowBlankIssue ;
 				updateDropdown(data, row, issDropdown, true, needBlankOption, true, null); 
+				$("#issueTable .issueDD").select2();
 			},
 			beforeSend: function(){ $this.addClass('ajax-loading'); },
 			complete: function(){ $this.removeClass('ajax-loading'); }
@@ -401,22 +424,8 @@ function projectChanged(projDropdown, row){
 			});
 		}		
 		updateClientDropdown(clientUrl, id, null, uid, fmt, row, clientDropdown);
-/* 		if (clientDropdown.length > 0){ // To check for dropdown if element there it will give 1
-			$.ajax({
-				url: clientUrl,
-				type: 'get',
-				data: {project_id: id, user_id: uid, format:fmt},
-				success: function(data){
-					//var actId = getDefaultActId(data);
-					//var items = data.split('\n');
-					//var needBlankOption = !(items.length-1 == 1 || actId != null);
-					updateDropdown(data, row, clientDropdown, false, true, true, null);
-				},
-				beforeSend: function(){ $this.addClass('ajax-loading'); },
-				complete: function(){ $this.removeClass('ajax-loading'); }
-			});
-		} */
 	}
+	checkLogPermissions(row);
 }
 
 function updateClientDropdown(clientUrl, projectId, issueId, uid, fmt, row, clientDropdown){
@@ -437,63 +446,6 @@ function updateClientDropdown(clientUrl, projectId, issueId, uid, fmt, row, clie
 			});
 	}	
 }
-
-function trackerFilterChanged(trackerList){
-	if(trackerList!=null){	
-		var projDropdown = document.getElementsByName('time_entry[][project_id]');		
-		var fmt = 'text';		
-		var issUrl = document.getElementById("getissues_url").value;	
-		var uid = document.getElementById("user_id").value;
-		var $this = $(this);
-		issue_assign_user=issueAssignUser();
-		var startday=document.getElementById("startday").value;
-		//get selected tracter id from listbox and form array			
-		var trackerListArr = getSelectedTracker(trackerList);
-		var projIds = new Array();	
-		var i,b = {},projectids = [];
-		//if selectd project list
-		for(i=0; i < projDropdown.length;i++)
-		{	
-			projIds[i] = projDropdown[i].value;			
-		}		
-		//remove duplicate value from array
-		for (i = 0; i < projIds.length; i++) {
-			b[projIds[i]] = projIds[i];
-		}		
-		
-		for (var key in b) {
-			projectids.push(key);
-		}
-	
-		$.ajax({
-			url: issUrl,
-			type: 'get',
-			data: {project_ids:projectids,user_id: uid, tracker_id: trackerListArr, format:fmt,startday:startday, issue_assign_user: issue_assign_user},			
-			success: function(data){updateIssDropdowns(data,projDropdown,projectids); },
-			beforeSend: function(){ $this.addClass('ajax-loading'); },
-			complete: function(){ $this.removeClass('ajax-loading'); }
-		});
-	}	
-}
-
-function getSelectedTracker(trackerList){
-	var trackerListArr;
-	if(trackerList != null)
-	{
-		trackerListArr = new Array();
-		var j=0;
-		for(var i=0; i < trackerList.options.length; i++)
-		{ 	
-			if(trackerList.options[i].selected == true && trackerList.options[i].value != "") 
-			{ 
-				trackerListArr[j] = trackerList.options[i].value;
-				j++;				
-			}
-		}
-	}
-	return trackerListArr;
-}
-
 
 function issueChanged(issueText, row){
 	var id = myTrim(issueText.value);
@@ -679,41 +631,31 @@ function performAction(url)
 	document.wktime_edit.submit();
 }
 
-/* allows user to enter issue as id and issue assigned to me */
-function enterIssueIdorAssignUser(){
-	var uid = document.getElementById("user_id").value;
-	var startday = document.getElementById("startday").value;
-	var enterIsueIdChk = document.getElementById("enter_issue_id");
-	var IsueassignUserChk = document.getElementById("issue_assign_user");
-	var trackerList = document.getElementById('select_issues_tracker');	
-	var issueID="";
-	var issueAssignUser="";
-	if(enterIsueIdChk && enterIsueIdChk.checked){
-		issueID = "&enter_issue_id=" + enterIsueIdChk.value;
+	// To load other users and Start date Time/Expense detail page
+function loadEdit(ele, preVal){
+	let url = new URL(window.location.href);
+	url.searchParams.set('user_id', $('#user_id').val());
+	url.searchParams.set('startday', $('#startday').val());
+    $('textarea').removeData('changed');
+    $('input').removeData('changed');
+    $('select').removeData('changed');
+	if(confirm(leavingMsg)){
+		location.href = url;
 	}
-	if(IsueassignUserChk && IsueassignUserChk.checked){		
-		issueAssignUser = "&issue_assign_user=" + IsueassignUserChk.value;
+	else{
+		$(ele).val(preVal);
 	}
-	if (trackerList && IsueassignUserChk){
-		var trackerListArr = getSelectedTracker(trackerList);
-		if(trackerListArr){
-			issueAssignUser += "&tracker_ids=" +trackerListArr;
-		}
-	}
-		location.href = editUrl +issueID + issueAssignUser;
-	
-
 }
 
 function addRow(){
-	var issueTable = document.getElementById("issueTable");	
+	var issueTable = document.getElementById("issueTable");
 	var saveButton = document.getElementById("wktime_save");
 	var submitButton = document.getElementById("wktime_submit");
 	var	issueTemplate = document.getElementById("issueTemplate");
-	var rowCount = issueTable.rows.length;	
+	var rowCount = issueTable.rows.length;
 	//there is a header row and a total row present, so the empty count is 2
 	var row = issueTable.insertRow(rowCount - footerRows);
-	
+
 	var cellCount = issueTemplate.rows[0].cells.length;
 	var i, cell;
 	for(i=0; i < cellCount; i++){
@@ -728,6 +670,9 @@ function addRow(){
 	{
 		submitButton.disabled = false;
 	}
+	issuetr = $('#issueTable').children('tbody').first().children('tr').get((rowCount -1 )-(headerRows + footerRows - 1))
+	issuetd = $(issuetr).children('td').get(1);
+	$(issuetd).children('select').first().select2();
 }
 
 function deleteRow(row, deleteMsg){
@@ -839,6 +784,7 @@ function renameCellIDs(cell, index, newIndex){
 	renameProperty(cell, 'input', 'disabled', index, newIndex);
 	renameProperty(cell, 'input', 'comments', index, newIndex);
 	renameProperty(cell, 'img', 'custfield_img', index, newIndex);
+	renameProperty(cell, 'span', 'attachment_', index, newIndex);
 	
 	if(cf_ids != ''){
 		var cust_fids = cf_ids.split(',');
@@ -868,11 +814,12 @@ function renameProperty(cell, tag, prefix, str, newStr){
 			if(children[j].id == 'time_entry__issue_id'){
 				renameOnChange(children[j], str, newStr);
 			}
-						
 		}else if(tag == 'a'){
 			renameHref(children[j], prefix+str, prefix+newStr);
 		}else if(tag == 'select'){
 			renameOnChange(children[j], prefix+str, prefix+newStr);
+		} else if(tag == 'span' && children[j].className == "allAttach"){
+			renameAttachment(children[j], newStr);
 		}
 	}
 }
@@ -1362,53 +1309,71 @@ function issueAutocomplete(txtissue,row){
         });
 }
 
-function validateMinhour(maxHour, minHour,nonWorkingDay, minHoursPerWeek, maxHoursPerWeek){
+function validateMinhour(maxHour, minHour, nonWorkingDay, minHoursPerWeek, maxHoursPerWeek, defaultHours){
 	var valid=true;
 	var totalhr = document.getElementById("total_hours").innerHTML;
 	var minHrCond = minHour!=0 && !isNaN(minHour);
 	var maxHrCond = maxHour!=0 && !isNaN(maxHour);
 	totalhr = Number(totalhr);
-	 minHour=minHour.replace(decSeparator, '\.');
-	 if(isNaN(minHour)){
-		minHour=minHour.replace(',', '\.');
-	 }
-	 var msg ="";
-	 if (minHrCond || maxHrCond) { 	
-		 for (i=1;i<=7;i++){
-			var dayTotal= document.getElementById('day_total_'+i).innerHTML;
-			dayTotal = Number(dayTotal.replace(decSeparator, '\.'));
-			if(nonWorkingDay.indexOf(i.toString())== -1 || dayTotal > 0){				
-				
-				if (dayTotal < Number(minHour) && minHrCond){ 
-					msg = minHourAlertMsg;
-					valid=false;
-					break;
-				}
 
-				if (dayTotal > Number(maxHour) && maxHrCond){ 
-					msg = maxHourAlertMsg;
-					valid=false;
-					break;
-				}
+	// Holidays Included into validation
+	defaultHours = Number(defaultHours);
+	$('#issueTable input[name^="holiday_1"').each(function(){
+		if($(this).val() == 'true'){
+			const col = ((this.name).split('_')).pop();
+			let totalDayHrs = 0;
+			$('#issueTable .hrs_col_'+col).map((i, el) => { totalDayHrs+= el.value ? Number(el.value) : 0; });
+			let hourDiff = Number(defaultHours) - totalDayHrs;
+			if(hourDiff > 0) totalhr+= hourDiff;
+		}
+	});
+	minHour=minHour.replace(decSeparator, '\.');
+	if(isNaN(minHour)){
+	minHour=minHour.replace(',', '\.');
+	}
+	var msg ="";
+	if (minHrCond || maxHrCond) { 	
+		for (i=1;i<=7;i++){
+		var dayTotal= document.getElementById('day_total_'+i).innerHTML;
+		dayTotal = Number(dayTotal.replace(decSeparator, '\.'));
+
+		// Holidays Included into validation
+		const holiday = $($('#issueTable input[name^="holiday_1"')[i-1]).val();
+		if(holiday == 'true' && dayTotal < Number(minHour)){
+			dayTotal += (Number(maxHour) || defaultHours) - dayTotal;
+		}
+
+		if(nonWorkingDay.indexOf(i.toString())== -1 || dayTotal > 0){				
+			if (dayTotal < Number(minHour) && minHrCond){ 
+				msg = minHourAlertMsg;
+				valid=false;
+				break;
 			}
-		 }
-	 }
 
-	 if(minHoursPerWeek != 0 && !isNaN(minHoursPerWeek) && totalhr < minHoursPerWeek)
-	 {
-		msg += "\n" + minHourperWeekAlertMsg;
-		valid=false; 
-	 }
-	 if(maxHoursPerWeek != 0 && !isNaN(maxHoursPerWeek) && totalhr > maxHoursPerWeek)   
+			if (dayTotal > Number(maxHour) && maxHrCond){ 
+				msg = maxHourAlertMsg;
+				valid=false;
+				break;
+			}
+		}
+		}
+	}
+
+	if(minHoursPerWeek != 0 && !isNaN(minHoursPerWeek) && totalhr < minHoursPerWeek)
+	{
+	msg += "\n" + minHourperWeekAlertMsg;
+	valid=false; 
+	}
+	if(maxHoursPerWeek != 0 && !isNaN(maxHoursPerWeek) && totalhr > maxHoursPerWeek)   
 	{
 		msg += "\n" + maxHourperWeekAlertMsg;
 		valid=false;
 	}
 	 
-	 if(!valid)
-	 {
-		 alert(msg);
-	 }
+	if(!valid)
+	{
+		alert(msg);
+	}
 	if(valid  && submissionack!=''){		
 		valid= confirm(submissionack);
 	}
@@ -1417,12 +1382,8 @@ function validateMinhour(maxHour, minHour,nonWorkingDay, minHoursPerWeek, maxHou
 
 function issueAssignUser()
 {
-	var issueAssignUser = document.getElementById('issue_assign_user');
-	var issue_assign_user=0;
-	if(issueAssignUser && issueAssignUser.checked)
-	{
-		issue_assign_user=1;
-	}
+	var issueAssignUser = $('#issue_assign_user').val();
+	var issue_assign_user= issueAssignUser ? issueAssignUser : 0;
 	return issue_assign_user
 }
 
@@ -1611,8 +1572,6 @@ function convertTimeToSec(timeval)
  return seconds;
 }
 
-
-
 function convertSecToTime(seconds)
 {
  var d = Number(seconds);
@@ -1622,10 +1581,48 @@ function convertSecToTime(seconds)
  return timeVal;
 }
 
-/* function isDropdown(idName) {
-    var element = document.getElementById(idName);
-	if(element != null){
-		if(element.tagName === 'SELECT') {return true;}
-	}
-    return false;
-} */
+function checkLogPermissions(row){
+	//If desn't have log for other users then disable hours
+	const manage_others_log = $('#manage_others_log').val() || [];
+	const manage_edit_projects = $('#manage_edit_projects').val() || [];
+	const logtime_projects = $('#logtime_projects').val() || [];
+	const edit_own_logs = $('#edit_own_logs').val() || [];
+	const current_user = $('#current_user').val() == 'true';
+	let url = new URL(window.location.href);
+	const sheetView = url.searchParams.get('sheet_view');
+	$("input[name='hours"+row+"[]'], [name='custfield_img"+row+"[]']").each(function(){
+    const projID = $(this).closest('tr').children('td:first').find('select').val();
+		const hours = ($(this).closest('div').children().first()).val();
+		const disabled = $(this).closest('div').find('input[name="disabled'+row+'[]"]').val();
+		const deleteTd = $(this).closest('tr').children('td:last');
+		if(sheetView != 'I' && (!current_user && (hours == '' && !manage_others_log.includes(projID) || hours != '' && !manage_edit_projects.includes(projID)) ||
+			(current_user && !edit_own_logs.includes(projID) && hours != '') || !logtime_projects.includes(projID)))
+		{
+			if(this.type){
+				$(this).prop('disabled', true);
+				($(this).siblings('#disabled'+row+'_').first()).val(true);
+				($(deleteTd).children('a').first()).bind('click', false);
+			}
+			else{
+				$(this).parent('a').bind('click', false);
+			}
+		}
+		else if(!hours && manage_others_log.includes(projID) && !disabled ){
+			if(this.type){
+				$(this).prop('disabled', false);
+				($(this).siblings('#disabled'+row+'_').first()).val(false);
+				($(deleteTd).children('a').first()).unbind('click', false);
+			}
+			else{
+				$(this).parent('a').unbind('click', false);
+			}
+		}
+	});
+}
+
+function renameAttachment(ele, row){
+	const col = (ele.id.split('_')).pop();
+	let eleStr = $(ele).prop('outerHTML');
+	eleStr = eleStr.replaceAll( '0', row);
+	$(ele).replaceWith(eleStr)
+}

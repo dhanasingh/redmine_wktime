@@ -152,21 +152,21 @@ class WkgltransactionController < WkaccountingController
 			end
 			if errorMsg.blank?
 				for i in 1..params[:txntotalrow].to_i			
-					if params["txn_id#{i}"].blank?
+					if params["txn_id_#{i}"].blank?
 						wktxnDetail = WkGlTransactionDetail.new
 					else
-						wktxnDetail = WkGlTransactionDetail.find(params["txn_id#{i}"].to_i)
+						wktxnDetail = WkGlTransactionDetail.find(params["txn_id_#{i}"].to_i)
 						
 					end
-					wktxnDetail.ledger_id = params["txn_particular#{i}"]
-					if (params["txn_debit#{i}"].blank? || params["txn_debit#{i}"].to_i == 0) && (params["txn_credit#{i}"].blank? || params["txn_credit#{i}"].to_i == 0)
+					wktxnDetail.ledger_id = params["txn_particular_#{i}"]
+					if (params["txn_debit_#{i}"].blank? || params["txn_debit_#{i}"].to_i == 0) && (params["txn_credit_#{i}"].blank? || params["txn_credit_#{i}"].to_i == 0)
 						next
-					elsif params["txn_debit#{i}"].blank? || params["txn_debit#{i}"].to_i == 0
+					elsif params["txn_debit_#{i}"].blank? || params["txn_debit_#{i}"].to_i == 0
 						wktxnDetail.detail_type = 'c'
-						wktxnDetail.amount = params["txn_credit#{i}"]
+						wktxnDetail.amount = params["txn_credit_#{i}"]
 					else
 						wktxnDetail.detail_type = 'd'
-						wktxnDetail.amount = params["txn_debit#{i}"]
+						wktxnDetail.amount = params["txn_debit_#{i}"]
 					end
 					wktxnDetail.currency = Setting.plugin_redmine_wktime['wktime_currency']
 					unless wktxnDetail.valid? 		
@@ -229,7 +229,7 @@ class WkgltransactionController < WkaccountingController
 		case params[:txn_type]
 		when 'C' 
 			for i in 1..params[:txntotalrow].to_i
-				ledgerId = params["txn_particular#{i}"]
+				ledgerId = params["txn_particular_#{i}"]
 				ret = ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA' ? true : false
 				break if !ret			
 			end
@@ -237,11 +237,11 @@ class WkgltransactionController < WkaccountingController
 		when 'P', 'R'
 			isledger = false
 			for i in 1..params[:txntotalrow].to_i
-				ledgerId = params["txn_particular#{i}"]
+				ledgerId = params["txn_particular_#{i}"]
 				if ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA'
 					isledger = true
-					ret =  params["txn_debit#{i}"].blank? ? true : false if params[:txn_type] == 'P' 
-					ret =  !params["txn_debit#{i}"].blank? ? true : false if params[:txn_type] == 'R' 
+					ret =  params["txn_debit_#{i}"].blank? ? true : false if params[:txn_type] == 'P' 
+					ret =  !params["txn_debit_#{i}"].blank? ? true : false if params[:txn_type] == 'R' 
 				end
 				break if !ret			
 			end	
@@ -249,40 +249,40 @@ class WkgltransactionController < WkaccountingController
 		
 		when 'PR'
 			for i in 1..params[:txntotalrow].to_i
-				ledgerId = params["txn_particular#{i}"]
-				ret = ledgerHash[ledgerId.to_i] == 'PA' ? true : false  if !params["txn_debit#{i}"].blank?
-				ret = ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA' || ledgerHash[ledgerId.to_i] == 'SC' || ledgerHash[ledgerId.to_i] == 'SD'  ? true : false  if params["txn_debit#{i}"].blank?				
+				ledgerId = params["txn_particular_#{i}"]
+				ret = ledgerHash[ledgerId.to_i] == 'PA' ? true : false  if !params["txn_debit_#{i}"].blank?
+				ret = ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA' || ledgerHash[ledgerId.to_i] == 'SC' || ledgerHash[ledgerId.to_i] == 'SD'  ? true : false  if params["txn_debit_#{i}"].blank?				
 				break if !ret			
 			end			
 		
 		when 'S'
 			for i in 1..params[:txntotalrow].to_i
-				ledgerId = params["txn_particular#{i}"]
-				ret = ledgerHash[ledgerId.to_i] == 'SA' ? true : false  if params["txn_debit#{i}"].blank?
-				ret = ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA' || ledgerHash[ledgerId.to_i] == 'SC' || ledgerHash[ledgerId.to_i] == 'SD'  ? true : false  if !params["txn_debit#{i}"].blank?
+				ledgerId = params["txn_particular_#{i}"]
+				ret = ledgerHash[ledgerId.to_i] == 'SA' ? true : false  if params["txn_debit_#{i}"].blank?
+				ret = ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA' || ledgerHash[ledgerId.to_i] == 'SC' || ledgerHash[ledgerId.to_i] == 'SD'  ? true : false  if !params["txn_debit_#{i}"].blank?
 				break if !ret			
 			end
 		
 		when 'CN'
 			for i in 1..params[:txntotalrow].to_i
-				ledgerId = params["txn_particular#{i}"]
-				ret = ledgerHash[ledgerId.to_i] != 'CS' || ledgerHash[ledgerId.to_i] != 'BA' ? true : false  if !params["txn_debit#{i}"].blank?
-				ret = ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA' || ledgerHash[ledgerId.to_i] == 'SC' || ledgerHash[ledgerId.to_i] == 'SD'  ? true : false  if params["txn_debit#{i}"].blank?
+				ledgerId = params["txn_particular_#{i}"]
+				ret = ledgerHash[ledgerId.to_i] != 'CS' || ledgerHash[ledgerId.to_i] != 'BA' ? true : false  if !params["txn_debit_#{i}"].blank?
+				ret = ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA' || ledgerHash[ledgerId.to_i] == 'SC' || ledgerHash[ledgerId.to_i] == 'SD'  ? true : false  if params["txn_debit_#{i}"].blank?
 				break if !ret			
 			end
 		
 		when 'DN'
 			for i in 1..params[:txntotalrow].to_i
-				ledgerId = params["txn_particular#{i}"]				 
-				ret = ledgerHash[ledgerId.to_i] != 'CS' || ledgerHash[ledgerId.to_i] != 'BA' ? true : false  if params["txn_debit#{i}"].blank?
-				ret = ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA' || ledgerHash[ledgerId.to_i] == 'SC' || ledgerHash[ledgerId.to_i] == 'SD'  ? true : false  if !params["txn_debit#{i}"].blank?				
+				ledgerId = params["txn_particular_#{i}"]				 
+				ret = ledgerHash[ledgerId.to_i] != 'CS' || ledgerHash[ledgerId.to_i] != 'BA' ? true : false  if params["txn_debit_#{i}"].blank?
+				ret = ledgerHash[ledgerId.to_i] == 'CS' || ledgerHash[ledgerId.to_i] == 'BA' || ledgerHash[ledgerId.to_i] == 'SC' || ledgerHash[ledgerId.to_i] == 'SD'  ? true : false  if !params["txn_debit_#{i}"].blank?				
 				break if !ret			
 			end
 		end
 		
 		for i in 1..params[:txntotalrow].to_i
-			txnDebitTotal = txnDebitTotal + params["txn_debit#{i}"].to_i if !params["txn_debit#{i}"].blank?
-			txnCreditTotal = txnCreditTotal + params["txn_debit#{i}"].to_i if !params["txn_debit#{i}"].blank?
+			txnDebitTotal = txnDebitTotal + params["txn_debit_#{i}"].to_i if !params["txn_debit_#{i}"].blank?
+			txnCreditTotal = txnCreditTotal + params["txn_debit_#{i}"].to_i if !params["txn_debit_#{i}"].blank?
 		end
 		
 		if ret
@@ -300,19 +300,19 @@ class WkgltransactionController < WkaccountingController
 			wkgltransaction.trans_date = params[:date]
 			wkgltransaction.comment = params[:txn_cmt]
 			for i in 1..params[:txntotalrow].to_i			
-				if params["txn_id#{i}"].blank?
+				if params["txn_id_#{i}"].blank?
 					wktxnDetail = WkGlTransactionDetail.new
 				else
-					wktxnDetail = WkGlTransactionDetail.find(params["txn_id#{i}"].to_i)
+					wktxnDetail = WkGlTransactionDetail.find(params["txn_id_#{i}"].to_i)
 					
 				end
-				wktxnDetail.ledger_id = params["txn_particular#{i}"]
-				if params["txn_debit#{i}"].blank?
+				wktxnDetail.ledger_id = params["txn_particular_#{i}"]
+				if params["txn_debit_#{i}"].blank?
 					wktxnDetail.detail_type = 'c'
-					wktxnDetail.amount = params["txn_credit#{i}"]
+					wktxnDetail.amount = params["txn_credit_#{i}"]
 				else
 					wktxnDetail.detail_type = 'd'
-					wktxnDetail.amount = params["txn_debit#{i}"]
+					wktxnDetail.amount = params["txn_debit_#{i}"]
 				end
 				wktxnDetail.currency = Setting.plugin_redmine_wktime['wktime_currency']
 				@tempwktxnDetail << wktxnDetail

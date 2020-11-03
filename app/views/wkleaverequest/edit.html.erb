@@ -3,6 +3,16 @@
 <%= form_tag({:action => 'save'}, :method => :post) do %>
 	<%= hidden_field_tag('lveReqID', @leaveReqEntry.try(:id)) %>
 	<%= hidden_field_tag('user_id', @leaveReqEntry.blank? ? User.current.id : @leaveReqEntry.user_id) %>
+	<% isUser = @leaveReqEntry.try(:user_id) == User.current.id %>
+	<% 
+		if @leaveReqStatus == 'S' && isLeaveReqAdmin && !isUser
+			show = true
+			disable = false
+		else
+			show = @leaveReqEntry.present? ? @leaveReqEntry.reviewer_comment ? true : false : false
+			disable = true
+		end
+	%>
 	<fieldset class="box tabular">
 		<table>
 			<tr>
@@ -35,6 +45,14 @@
 					<%= text_area_tag("leave_reasons", @leaveReqEntry.try(:leave_reasons), rows: 5, cols: 60, disabled: @readonly) %>
 				</td>
 			</tr>
+			<% if show %>
+				<tr>
+					<th align="left"><%= l(:label_reviewer_cmt) %></th>
+					<td align="left">
+						<%= text_area_tag("reviewer_comment", @leaveReqEntry.try(:reviewer_comment), rows: 5, cols: 60, disabled: disable ) %>
+					</td>
+				</tr>
+			<% end %>
 		</table>
 	</fieldset>
 	<div>

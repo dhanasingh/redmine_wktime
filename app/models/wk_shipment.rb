@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2017  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -24,6 +24,16 @@ class WkShipment < ActiveRecord::Base
   belongs_to :gl_transaction , :class_name => 'WkGlTransaction', :dependent => :destroy
   belongs_to :supplier_invoice, foreign_key: "supplier_invoice_id", class_name: "WkInvoice"
   #belongs_to :purchase_order, foreign_key: "purchase_order_id", class_name: "WkInvoice"
-  belongs_to :product, foreign_key: "product_id", class_name: "WkProduct"
+  belongs_to :product, foreign_key: "product_id", class_name: "WkProduct" 
+  after_create_commit :send_notification
+
+  def send_notification
+    if WkNotification.notify('receiveGoods') && self.shipment_type == 'I'
+      emailNotes = "Shipment has been generated" + "\n\n" + l(:label_redmine_administrator)
+      userId = (WkPermission.permissionUser('V_INV') + WkPermission.permissionUser('D_INV')).uniq
+      subject = l(:label_shipment) + " " + l(:label_notification)
+      WkNotification.notification(userId, emailNotes, subject)
+    end
+  end
   
 end

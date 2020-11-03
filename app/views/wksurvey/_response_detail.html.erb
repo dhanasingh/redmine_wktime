@@ -71,16 +71,16 @@
             <% end %>
             <% if @isReview && !isReviewerOnly %>
                 <tr>
-                    <th align="left"><%= l(:label_review_comment) %></th>
-                    <td align="left" style="padding-left:40px;">
+                    <th style="float:left;"><%= l(:label_review_comment) %></th>
+                    <td style="float:left;padding-left: 13px;">
                         <%= isPrint ? comment_text : text_area_tag("survey_review_"+ (entry.question_id).to_s, comment_text, rows: 5, cols: 60, :disabled => @isReviewed, 
                             :required => false) %>
                     </td>
                 </tr>
                 <% if reviewerName.present? %>
                     <tr>
-                        <th align="left"><%= l(:label_reviewed_by) %></th>
-                        <td style="padding-left:40px;"><%= reviewerName %></td>
+                        <th style="float:left;"><%= l(:label_reviewed_by) %></th>
+                        <td style="float:left;padding-left: 45px;"><%= reviewerName %></td>
                     </tr>
                 <% end %>
             <% end %>

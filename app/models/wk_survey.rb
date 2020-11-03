@@ -1,3 +1,20 @@
+# ERPmine - ERP for service industry
+# Copyright (C) 2011-2020  Adhi software pvt ltd
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 class WkSurvey < ActiveRecord::Base
     
 	belongs_to :group , :class_name => 'Group'
@@ -10,6 +27,7 @@ class WkSurvey < ActiveRecord::Base
   accepts_nested_attributes_for :wk_survey_questions, allow_destroy: true
 
   validates_presence_of :name
+  after_save :survey_notification
 
   scope :surveyTextQuestion, ->(survey_id){
       joins(:wk_survey_questions)
@@ -56,4 +74,13 @@ class WkSurvey < ActiveRecord::Base
     .select("wk_survey_choices.name")
     .group("wk_survey_choices.name")
   }
+  
+  def survey_notification
+    if status? && status == "C" && WkNotification.notify('surveyClosed')
+      emailNotes = "Survey : " + (self.name) + " has been closed " + "\n\n" + l(:label_redmine_administrator)
+      userId = WkPermission.permissionUser('E_SUR').uniq
+      subject = l(:label_survey) + " " + l(:label_notification)
+      WkNotification.notification(userId, emailNotes, subject)
+    end
+  end
 end

@@ -1,6 +1,6 @@
 <div class="wk-contextual">
 	<%  parentAccountId = 0
-		parentArr = options_for_wktime_account(false, controller.getOrderAccountType) 
+		parentArr = options_for_wktime_account(false, controller.getOrderAccountType, controller.additionalAccountType) 
 		parentAccountId = parentArr[0][1].to_i if !parentArr.blank?
 	%>
 	

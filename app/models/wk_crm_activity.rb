@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2017  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -22,6 +22,7 @@ class WkCrmActivity < ActiveRecord::Base
   belongs_to :assigned_user, :class_name => 'User'
   validate :validate_crm_activity
   before_save :update_status_update_on 
+  after_save :activity_notification
   
   def validate_crm_activity
 	errors.add(:base, (l(:label_subject)  + " " + l('activerecord.errors.messages.blank'))) if name.blank?
@@ -43,6 +44,15 @@ class WkCrmActivity < ActiveRecord::Base
   
   def update_status_update_on
 	self.status_update_on = DateTime.now if status_changed?
+  end
+  
+	def activity_notification
+    if status? && status == "C" && WkNotification.notify('salesActivityCompleted')
+      emailNotes = "Sales Activity : " + self.name + " has been completed " + "\n\n" + l(:label_redmine_administrator)
+      subject = l(:label_activity) + " " + l(:label_notification)
+      userId = (WkPermission.permissionUser('B_CRM_PRVLG') + WkPermission.permissionUser('A_CRM_PRVLG')).uniq
+      WkNotification.notification(userId, emailNotes, subject)
+    end
   end
   
 end

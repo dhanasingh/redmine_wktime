@@ -1,3 +1,5 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/js/select2.min.js"></script>
+<link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/css/select2.min.css" rel="stylesheet" />
 <tr class="time-entry <%= cycle("odd", "even") %>">
 <% @trOpen = true %>
 <% @row += 1 unless isTemplate %>
@@ -77,22 +79,12 @@ if params[:enter_issue_id].blank?
 	<td class="issue" align="left" width="250px">
 		<% if @editable %>
 			<%=h select_tag(isTemplate ? '__template__time_entry[][issue_id]' : 'time_entry[][issue_id]', 
-			options_for_select(issues, :selected =>  entry.nil? ? 0 : entry.issue_id, :required => true),
-			:style=> "width:250px" ) %>
+			options_for_select(issues, :selected =>  entry.nil? ? 0 : entry.issue_id, :required => true), class: 'issueDD',
+			:style=> "width:250px;" ) %>
 		<% else %>
 			<%=  entry.issue.tracker.to_s() +  " #" + entry.issue.id.to_s() + ": " + entry.issue.subject if !entry.nil? && !entry.issue.nil? %>
 		<% end %>
 	</td>
-<% else %>
-	<td class="project" align="left" >
-		<%=h hidden_field_tag(isTemplate ? '__template__time_entry[][project_id]' : 'time_entry[][project_id]', 
-		(entry.nil? ? '' : entry.project_id.to_s)  ) %>
-	</td>
-<td class="issue" colspan="-1" align="left" width="250px">
-		<%=h text_field_tag(isTemplate ? '__template__time_entry[][issue_id]' : 'time_entry[][issue_id]', 
-		entry.nil? ? '' : entry.issue_id, :onkeypress => "issueAutocomplete(this,#{@row.to_s()});", 
-		:style => "width:250px" ) %>
-</td>
 <% end %>
 
 <%
@@ -148,7 +140,7 @@ if params[:enter_issue_id].blank?
 		end
 		usrLocationId = @user.wk_user.blank? ? nil : @user.wk_user.location_id
 		spent_for_key = parentType.to_s + '_' + parentId.to_s
-		locationBillProject = projBillList.select {|bp| bp.parent.location_id == usrLocationId}
+		locationBillProject = projBillList.select {|bp| bp.parent.location_id == usrLocationId unless bp.parent.nil?}
 		locationBillProject = locationBillProject.sort_by{|parent_type| parent_type}
 		billableProject = locationBillProject.detect {|billProj| billProj.parent_type == parentType && billProj.parent_id == parentId} unless entry.nil?
 		billableProjects = locationBillProject.collect {|billProj| [billProj.parent.name, billProj.parent_type.to_s + '_' + billProj.parent_id.to_s]}

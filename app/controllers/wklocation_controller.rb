@@ -19,40 +19,43 @@ class WklocationController < WkbaseController
   unloadable
   menu_item :wkcrmenumeration
   include WktimeHelper
+  include WkdocumentHelper
+  helper :wkdocument
+  helper :attachments
   before_action :require_login
   before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
 	accept_api_auth :getlocations
 
   def index
-	sort_init 'name', 'asc'
-	sort_update 'name' => "name",
-				'type' => "#{WkCrmEnumeration.table_name}.name",
-				'city' => "#{WkAddress.table_name}.city",
-				'state' => "#{WkAddress.table_name}.state"
+		sort_init 'name', 'asc'
+		sort_update 'name' => "name",
+					'type' => "#{WkCrmEnumeration.table_name}.name",
+					'city' => "#{WkAddress.table_name}.city",
+					'state' => "#{WkAddress.table_name}.state"
 
-	set_filter_session
-	locationName = session[controller_name].try(:[], :location_name)
-	locationType =  session[controller_name].try(:[], :location_type)
-	wklocation = WkLocation.all
-	
-	if locationType.present? && locationType.to_i != 0
-		wklocation = wklocation.where(:location_type_id => locationType.to_i)
-	end
+		set_filter_session
+		locationName = session[controller_name].try(:[], :location_name)
+		locationType =  session[controller_name].try(:[], :location_type)
+		wklocation = WkLocation.all
 
-	if locationName.present?
-		wklocation = wklocation.where("LOWER(wk_locations.name) like LOWER(?) ", "%#{locationName}%")
-	end
+		if locationType.present? && locationType.to_i != 0
+			wklocation = wklocation.where(:location_type_id => locationType.to_i)
+		end
 
-	wklocation = wklocation.joins("LEFT JOIN wk_addresses ON wk_locations.address_id = wk_addresses.id")
-		.joins("LEFT JOIN wk_crm_enumerations ON wk_locations.location_type_id = wk_crm_enumerations.id")
-	formPagination(wklocation.reorder(sort_clause))
+		if locationName.present?
+			wklocation = wklocation.where("LOWER(wk_locations.name) like LOWER(?) ", "%#{locationName}%")
+		end
+
+		wklocation = wklocation.joins("LEFT JOIN wk_addresses ON wk_locations.address_id = wk_addresses.id")
+			.joins("LEFT JOIN wk_crm_enumerations ON wk_locations.location_type_id = wk_crm_enumerations.id")
+		formPagination(wklocation.reorder(sort_clause))
   end
   
   def edit
-	@locEntry = nil
-	unless params[:location_id].blank?
-		@locEntry = WkLocation.find(params[:location_id])
-	end
+		@locEntry = nil
+		unless params[:location_id].blank?
+			@locEntry = WkLocation.find(params[:location_id])
+		end
   end
   
   def update
@@ -60,21 +63,24 @@ class WklocationController < WkbaseController
 		if params[:location_id].blank? || params[:location_id].to_i == 0
 			locationObj = WkLocation.new
 		else
-		    locationObj = WkLocation.find(params[:location_id].to_i)
+		  locationObj = WkLocation.find(params[:location_id].to_i)
 		end
 		locationObj.name = params[:location_name]
 		locationObj.location_type_id = params[:location_type]
 		locationObj.is_default = params[:defaultValue]
 		locationObj.is_main = params[:defaultMain]
-		unless locationObj.valid? 		
+		locationObj.attachment_id = params[:attachment_id].present? ? params[:attachment_id] : nil
+		unless locationObj.valid?
 			errorMsg = errorMsg.blank? ? locationObj.errors.full_messages.join("<br>") : locationObj.errors.full_messages.join("<br>") + "<br/>" + errorMsg
 		end
-		if errorMsg.nil?
+		if errorMsg.blank?
 			addrId = updateAddress
-			unless addrId.blank?
-				locationObj.address_id = addrId
-			end			
+			locationObj.address_id = addrId if addrId.present?
 			locationObj.save
+			params[:container_id] = locationObj.id
+			errorMsg = save_attachments() if params[:attachments].present?
+		end
+		if errorMsg.blank?
 		    redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
 		    flash[:notice] = l(:notice_successful_update)
 		else
@@ -94,18 +100,18 @@ class WklocationController < WkbaseController
   end
 
   def set_filter_session
-	if params[:searchlist] == controller_name
-		session[controller_name] = Hash.new if session[controller_name].nil?
-		filters = [:location_name, :location_type]
-		filters.each do |param|
-			if params[param].blank? && session[controller_name].try(:[], param).present?
-				session[controller_name].delete(param)
-			elsif params[param].present?
-				session[controller_name][param] = params[param]
+		if params[:searchlist] == controller_name
+			session[controller_name] = Hash.new if session[controller_name].nil?
+			filters = [:location_name, :location_type, :show_on_map]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
 			end
 		end
 	end
-    end
 	
 	def check_perm_and_redirect
 		unless User.current.admin? || hasSettingPerm

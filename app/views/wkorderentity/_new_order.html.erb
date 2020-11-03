@@ -1,11 +1,11 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'invoice', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
-	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds', :additionalContactType => controller.additionalContactType)}" %>";
+	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds', :additionalContactType => controller.additionalContactType, :additionalAccountType => controller.additionalAccountType)}" %>";
 	accountUrl="<%= "#{url_for(:controller => "wkinvoice", :action => 'getAccountProjIds')}" %>";
 </script>
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
-<%  parentArr = options_for_wktime_account(false, 'A')
+<%  parentArr = options_for_wktime_account(false, 'A', controller.additionalAccountType)
 	projectArr = nil
 	if !parentArr.blank?
 		account = WkAccount.find(parentArr[0][1].to_i)
@@ -41,7 +41,7 @@
 <%# end %> 
 <tr>
 	<th align="left"><%= l(:label_wk_currency) %></th>
-	<td style="padding-left:40px;"> <%=h select_tag("inv_currency",options_for_select(wkexpense_helper.options_for_currency)) %></td>
+	<td style="padding-left:40px;"> <%=h select_tag("inv_currency",options_for_select(wkexpense_helper.options_for_currency, :selected => Setting.plugin_redmine_wktime['wktime_currency'])) %></td>
 </tr>
 <tr>
 	<th align="left"><%= l(:label_start_date) %></th>

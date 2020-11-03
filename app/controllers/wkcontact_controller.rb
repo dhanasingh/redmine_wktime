@@ -76,7 +76,7 @@ class WkcontactController < WkcrmController
 		unless params[:contact_id].blank?
 			set_filter_session
 			@accountproject = formPagination(accountProjctList)
-			@conEditEntry = WkCrmContact.where(:id => params[:contact_id].to_i)
+			@conEditEntry = WkCrmContact.find(params[:contact_id])
 		end
 
 		respond_to do |format|
@@ -88,38 +88,8 @@ class WkcontactController < WkcrmController
 	end
 	
 	def update
-		errorMsg = nil
-		if params[:contact_id].blank?
-		    wkContact = WkCrmContact.new 
-	    else
-		    wkContact = WkCrmContact.find(params[:contact_id].to_i)
-	    end
-		# For Contact table
-		wkContact.assigned_user_id = params[:assigned_user_id]
-		wkContact.first_name = params[:first_name]
-		wkContact.last_name = params[:last_name]
-		wkContact.address_id = params[:address_id]
-		wkContact.title = params[:contact_title]
-		wkContact.description = params[:description]
-		wkContact.department = params[:department]
-		wkContact.salutation = params[:salutation]
-		wkContact.account_id = nil #params[:account_id]
-		wkContact.contact_id = nil
-		wkContact.account_id = params[:related_parent] if params[:related_to] == "WkAccount"
-		wkContact.contact_id = params[:related_parent] if params[:related_to] == "WkCrmContact"
-		wkContact.relationship_id = params[:relationship_id]
-		wkContact.location_id = params[:location_id] if params[:location_id] != "0"
-		wkContact.contact_type = getContactType
-		wkContact.created_by_user_id = User.current.id if wkContact.new_record?
-		wkContact.updated_by_user_id = User.current.id
-		if wkContact.valid?
-			addrId = updateAddress
-			wkContact.address_id = addrId unless addrId.blank?
-			wkContact.save
-		else
-			errorMsg = wkContact.errors.full_messages.join("<br>")
-		end
-
+		wkContact = contactSave
+		errorMsg = wkContact.errors.full_messages.join("<br>")
 		respond_to do |format|
 			format.html {
 				if errorMsg.blank?

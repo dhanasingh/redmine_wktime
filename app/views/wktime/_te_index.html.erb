@@ -7,12 +7,12 @@
 	rSubEmailUrl="<%= "#{url_for(:controller => controller_name, :action => 'sendSubReminderEmail')}" %>";
 	rAppEmailUrl="<%= "#{url_for(:controller => controller_name, :action => 'sendApprReminderEmail')}" %>";
 </script>
-<% if (!@currentUser_loggable_projects.blank? || !@manage_projects.blank?) %>
+<% if @currentUser_loggable_projects.present? %>
 	<div class="contextual">
 	<% if (validateERPPermission('A_TE_PRVLG')) %>
 		<%= link_to l(:"button_new_lock"), url_for(:controller => controller_name, :action => 'lockte'), :class => 'icon icon-time-add' %>
 	<% end %>
-	<%= link_to l(:"button_new_#{controller_name}"), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
+	<%= link_to l(:"button_new_#{controller_name}"), url_for(action: 'edit', user_id: User.current.id, startday: Date.today, prev_template: true), :class => 'icon icon-time-add' %>
 	</div>
 <% end %>
 <% if !@manage_projects.blank? %>
@@ -120,18 +120,15 @@ $(document).ready(function()
 
 <% end %>
 
-<div class="total-hours">
-<p><%= l(:label_total) %>: <%= "#{@unit}" %>&nbsp;<%= controller.total_all(@total_hours) %></p>
-</div>
-
-<% unless @entries.empty? %>
-<%= render :partial => 'wktime/list', :locals => { :entries => @entries }%>
-<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
-
-<% end %>
-
-<% html_title l(:label_spent_time), l(:label_details) %>
-
-<% content_for :header_tags do %>
-    <%= auto_discovery_link_tag(:atom, {:issue_id => @issue, :format => 'atom', :key => User.current.rss_key}, :title => l(:label_spent_time)) %>
+<% if @entries.present? %>
+	<div class="total-hours">
+		<p><%= l(:label_total) %>: <%= "#{@unit}" %>&nbsp;<%= controller.total_all(@total_hours) %></p>
+	</div>
+	<%= render :partial => 'wktime/list', :locals => { :entries => @entries }%>
+	<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
+	<% other_formats_links do |f| %>
+		<%= f.link_to_with_query_parameters 'PDF' %>
+	<% end %>
+<% else %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
 <% end %>

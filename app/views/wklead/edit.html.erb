@@ -18,8 +18,8 @@
 		<div style="clear:left;"></div>
 		<div>
 			<%= submit_tag l(:button_save) ,:id => 'wklead_save'%>
-			<%= call_hook(:view_additional_lead_info, { leadObj: @lead }) %>
-			<% unless @lead.blank? %>		
+			<% unless @lead.blank? %>	
+				<%= call_hook(:view_additional_lead_info, { moveInObj: @lead }) %>	
 				<%= submit_tag l(:button_convert_lead), :id => 'wklead_save_convert', :name => 'wklead_save_convert' , :disabled => @lead.blank?, :data => {:confirm => l(:text_are_you_sure_want_to, l(:button_convert_lead))} %>
 				<div style="clear:both;"></div>
 				</br>

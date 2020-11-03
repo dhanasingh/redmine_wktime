@@ -1,0 +1,37 @@
+<div class="attachments">
+<div class="contextual">
+  <%= link_to(l(:label_edit_attachments),
+              container_attachments_edit_path(container),
+              :title => l(:label_edit_attachments),
+              :class => 'icon-only icon-edit'
+             ) if options[:editable] %>
+</div>
+<table>
+  <% for attachment in attachments %>
+    <tr>
+      <td>
+        <%= location_attachment( attachment, { class: 'icon icon-attachment', editable: options[:editable] }) %>
+        <span class="size">(<%= number_to_human_size attachment.filesize %>)</span>
+        <%= location_attachment( attachment,{ class: 'icon-only icon-download', title: l(:button_download), download: true }) if options[:editable] %>
+      </td>
+      <td><%= attachment.description unless attachment.description.blank? %></td>
+      <td>
+        <% if options[:author] %>
+          <span class="author"><%= attachment.author %>, <%= format_time(attachment.created_on) %></span>
+        <% end %>
+      </td>
+      <td>
+        <%= link_to l(:button_delete), url_for(controller: "wkdocument", action: "destroy", id: attachment.id),
+                      :data => {:confirm => l(:text_are_you_sure)},
+                      :class => 'delete icon-only icon-del',
+                      :title => l(:button_delete) if options[:deletable] %>
+      </td>
+    </tr>
+    <tr><td colspan="4">
+    <% if !options[:hideImage] && attachment.is_image? %>
+      <%= image_tag(download_location_attachment_path(attachment, attachment.filename), alt: attachment.filename, class: 'filecontent image', size: 250) %>
+    <% end %>
+    </td></tr>
+  <% end %>
+</table>
+</div>

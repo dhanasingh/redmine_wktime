@@ -4,7 +4,7 @@
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
 	<%	
 		accountType = controller.getContactType == 'SC' ? 'S' : 'A'
-		accArr = options_for_wktime_account(false, accountType)
+		accArr = options_for_wktime_account(false, accountType, false)
 	%>
 
 	<%	accArr.unshift([l(:label_all_accounts),'AA'])  %>

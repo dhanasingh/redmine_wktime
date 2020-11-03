@@ -3,7 +3,7 @@
 	enter_clk_in_errormsg = "<%=l(:error_enter_clk_in) %>";
 	greater_then_errormsg = "<%=l(:error_greater_then) %>";
 </script>
-<% show_on_map = params[:show_on_map].present? && params[:show_on_map] %>
+<% show_on_map = session[controller_name].try(:[], :show_on_map) %>
 
 <%= form_tag({}, id: "clockList") do -%>
 	<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>

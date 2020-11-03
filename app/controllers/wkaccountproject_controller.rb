@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2016  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -82,17 +82,17 @@ include WkaccountprojectHelper
 			if wkaccountproject.billing_type == 'FC'
 				milestonelength = params[:mtotalrow].to_i
 				for i in 1..milestonelength
-					if params["milestone_id#{i}"].blank? 
+					if params["milestone_id_#{i}"].blank? 
 						wkbillingschedule = WkBillingSchedule.new
 						wkbillingschedule.invoice_id = ""
 					else 
-						wkbillingschedule = WkBillingSchedule.find(params["milestone_id#{i}"].to_i)
-						arrId << params["milestone_id#{i}"].to_i
+						wkbillingschedule = WkBillingSchedule.find(params["milestone_id_#{i}"].to_i)
+						arrId << params["milestone_id_#{i}"].to_i
 					end
-					wkbillingschedule.milestone = params["milestone#{i}"]
-					wkbillingschedule.bill_date = params["billdate#{i}"]#.strftime('%F')
-					wkbillingschedule.amount = params["amount#{i}"]
-					wkbillingschedule.currency = params["currency#{i}"]
+					wkbillingschedule.milestone = params["milestone_#{i}"]
+					wkbillingschedule.bill_date = params["billdate_#{i}"]#.strftime('%F')
+					wkbillingschedule.amount = params["amount_#{i}"]
+					wkbillingschedule.currency = params["currency_#{i}"]
 					wkbillingschedule.account_project_id = wkaccountproject.id
 					if wkbillingschedule.save()	
 						arrId << wkbillingschedule.id
@@ -187,5 +187,9 @@ include WkaccountprojectHelper
 	end
 
 	def getAdditionalDD
+	end	
+	
+	def additionalAccountType
+		true
 	end	
 end

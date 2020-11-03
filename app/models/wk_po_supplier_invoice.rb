@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2017  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -18,5 +18,15 @@
 class WkPoSupplierInvoice < ActiveRecord::Base
   unloadable
   belongs_to :purchase_order , :class_name => 'WkInvoice'
-  belongs_to :supplier_invoice , foreign_key: "supplier_inv_id", :class_name => 'WkInvoice'
+  belongs_to :supplier_invoice , foreign_key: "supplier_inv_id", :class_name => 'WkInvoice' 
+  after_create_commit :send_notification
+
+  def send_notification
+    if WkNotification.notify('supplierInvoiceReceived')
+      emailNotes = "Supplier Invoice: #" + self.supplier_invoice.invoice_number+ " has been Received " + "\n\n" + l(:label_redmine_administrator)
+      userId = (WkPermission.permissionUser('B_PUR_PRVLG') + WkPermission.permissionUser('A_PUR_PRVLG')).uniq
+      subject = l(:label_supplier_invoice) + " " + l(:label_notification)
+      WkNotification.notification(userId, emailNotes, subject)
+    end
+  end
 end

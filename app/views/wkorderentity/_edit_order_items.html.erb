@@ -77,42 +77,42 @@
 				exchangeRate = exchangeRate.blank? ? 1 : exchangeRate
 			 %>
 				<td class="lbl-txt-align" headers="item_id">
-					<%=h hidden_field_tag("item_id#{row_index}",   entry.id )  %>
+					<%=h hidden_field_tag("item_id_#{row_index}",   entry.id )  %>
 				</td>
 				<td class="lbl-txt-align" headers="item_index">
-					<label id="item_index<%= row_index.to_s %>"><%= row_index  %></label>
+					<label id="item_index_<%= row_index.to_s %>"><%= row_index  %></label>
 				</td>
 				<% if !@projectsDD.blank? %>
 					<td class="lbl-txt-align" headers="project_id">
-						<%=h select_tag("project_id#{row_index.to_s}", options_for_select(@projectsDD, :selected => entry.project_id), :disabled => isDisable) %>
-						<%=h hidden_field_tag("product_id#{row_index.to_s}",  entry.product_id )  %>
-						<%=h hidden_field_tag("material_id#{row_index.to_s}",  "" )  %>
+						<%=h select_tag("project_id_#{row_index.to_s}", options_for_select(@projectsDD, :selected => entry.project_id), :disabled => isDisable) %>
+						<%=h hidden_field_tag("product_id_#{row_index.to_s}",  entry.product_id )  %>
+						<%=h hidden_field_tag("material_id_#{row_index.to_s}",  "" )  %>
 					</td>
 				<% end %>
 				<td class="lbl-txt-align" headers="name">
-					<%= text_field_tag "name#{row_index}",  entry.name, :required => true,  :style => "width:320px; ", :disabled => isDisable %>
+					<%= text_field_tag "name_#{row_index}",  entry.name, :required => true,  :style => "width:320px; ", :disabled => isDisable %>
 				</td>
 				<td class="lbl-txt-align" headers="item_type">
-					<%=h select_tag("item_type#{row_index.to_s}", options_for_select(itemHash.invert, :selected => entry.item_type), :disabled => true) %>
-					<%=h hidden_field_tag("hd_item_type#{row_index.to_s}", entry.item_type )  %>
+					<%=h select_tag("item_type_#{row_index.to_s}", options_for_select(itemHash.invert, :selected => entry.item_type), :disabled => true) %>
+					<%=h hidden_field_tag("hd_item_type_#{row_index.to_s}", entry.item_type )  %>
 				</td>
 				<td class="lbl-txt-align" headers="original_currency">
-					<%=h hidden_field_tag("original_currency#{row_index}", entry.original_currency )  %>
+					<%=h hidden_field_tag("original_currency_#{row_index}", entry.original_currency )  %>
 				</td>
 				<td class="lbl-txt-align" headers="rate">
-					<%= entry.original_currency %><%= text_field_tag "rate#{row_index}", ("%.2f" % entry.rate) ,:maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)", :disabled => isDisable %>
+					<%= entry.original_currency %><%= text_field_tag "rate_#{row_index}", ("%.2f" % entry.rate) ,:maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)", :disabled => isDisable %>
 				</td>
 				<td class="lbl-txt-align" headers="quantity">
-					<%= text_field_tag "quantity#{row_index}", ("%.4f" % entry.quantity unless entry.quantity.blank?), :maxlength => 14, :style => "width:150px;", :onchange => "addAmount(this.id)", :disabled => isDisable %>
+					<%= text_field_tag "quantity_#{row_index}", ("%.4f" % entry.quantity unless entry.quantity.blank?), :maxlength => 14, :style => "width:150px;", :onchange => "addAmount(this.id)", :disabled => isDisable %>
 				</td>
 				<td class="lbl-txt-align" headers="original_amount">
-					<%= entry.original_currency %><label id="original_amount<%= row_index.to_s %>" ><%= html_hours("%.2f" % entry.original_amount)  unless entry.original_amount.blank? %></label>
+					<%= entry.original_currency %><label id="original_amount_<%= row_index.to_s %>" ><%= html_hours("%.2f" % entry.original_amount)  unless entry.original_amount.blank? %></label>
 				</td>
 				<td class="lbl-txt-align" headers="exchangerate_amount">
-					<%=h hidden_field_tag("exchangerate_amount#{row_index}", exchangeRate )  %>
+					<%=h hidden_field_tag("exchangerate_amount_#{row_index}", exchangeRate )  %>
 				</td>
 				<td class="lbl-txt-align" headers="amount">
-					<%= entry.currency %><label id="amount<%= row_index.to_s %>" ><%= html_hours("%.2f" % entry.amount)  unless entry.amount.blank? %></label>
+					<%= entry.currency %><label id="amount_<%= row_index.to_s %>" ><%= html_hours("%.2f" % entry.amount)  unless entry.amount.blank? %></label>
 				</td>
 				<% org_total = org_total + entry.original_amount unless entry.original_amount.blank? %>
 				<% total = total + entry.amount %>
@@ -135,43 +135,43 @@
 				amount = (value['item_amount'] * exchangeRate)
 			%>
 			<tr onclick="  row_id  = this.rowIndex ">
-				<%=h hidden_field_tag("entry_id#{row_index}",   value['milestone_id'] )  %>
-				<%=h hidden_field_tag("creditfrominvoice#{row_index}",  value['creditfromInvoice'] )  %>
+				<%=h hidden_field_tag("entry_id_#{row_index}",   value['milestone_id'] )  %>
+				<%=h hidden_field_tag("creditfrominvoice_#{row_index}",  value['creditfromInvoice'] )  %>
 				<td class="lbl-txt-align" headers="item_id">
-					<%=h hidden_field_tag("item_id#{row_index}",   "" )  %>
+					<%=h hidden_field_tag("item_id_#{row_index}",   "" )  %>
 				</td>
 				<td class="lbl-txt-align" headers="item_index">
-					<label id="item_index<%= row_index.to_s %>"><%= row_index  %></label>
+					<label id="item_index_<%= row_index.to_s %>"><%= row_index  %></label>
 				</td>
 				<td class="lbl-txt-align" headers="project_id">
-					<%=h select_tag("project_id#{row_index.to_s}", options_for_select(@projectsDD, :selected=> value['project_id'] ), :disabled => @preBilling ) %>
-					<%=h hidden_field_tag("product_id#{row_index.to_s}",  value['product_id'] )  %>
-					<%=h hidden_field_tag("material_id#{row_index.to_s}",  value['material_id'].blank? ? "" : value['material_id'] )  %>
+					<%=h select_tag("project_id_#{row_index.to_s}", options_for_select(@projectsDD, :selected=> value['project_id'] ), :disabled => @preBilling ) %>
+					<%=h hidden_field_tag("product_id_#{row_index.to_s}",  value['product_id'] )  %>
+					<%=h hidden_field_tag("material_id_#{row_index.to_s}",  value['material_id'].blank? ? "" : value['material_id'] )  %>
 				</td>
 				<td class="lbl-txt-align" headers="name">
-					<%= text_field_tag "name#{row_index}", value['item_desc'], :required => true,  :style => "width:320px; ", :disabled => @preBilling %>
+					<%= text_field_tag "name_#{row_index}", value['item_desc'], :required => true,  :style => "width:320px; ", :disabled => @preBilling %>
 				</td>
 				<td class="lbl-txt-align" headers="item_type">
-					<%=h select_tag("item_type#{row_index.to_s}", options_for_select(itemHash.invert, :selected => value['item_type'] .blank? ? itemHash.invert  : value['item_type'] ), :disabled => @preBilling) %>
-					<%=h hidden_field_tag("hd_item_type#{row_index.to_s}", value['item_type'] )  %>
+					<%=h select_tag("item_type_#{row_index.to_s}", options_for_select(itemHash.invert, :selected => value['item_type'] .blank? ? itemHash.invert  : value['item_type'] ), :disabled => @preBilling) %>
+					<%=h hidden_field_tag("hd_item_type_#{row_index.to_s}", value['item_type'] )  %>
 				</td>
 				<td class="lbl-txt-align" headers="original_currency">
-					<%=h hidden_field_tag("original_currency#{row_index}",   @currency )  %>
+					<%=h hidden_field_tag("original_currency_#{row_index}",   @currency )  %>
 				</td>
 				<td class="lbl-txt-align" headers="rate">
-					<%=  @currency %><%= text_field_tag "rate#{row_index}",   value['rate'] ,:maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)", :disabled => @preBilling %>
+					<%=  @currency %><%= text_field_tag "rate_#{row_index}",   value['rate'] ,:maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)", :disabled => @preBilling %>
 				</td>
 				<td class="lbl-txt-align" headers="quantity">
-					<%= text_field_tag "quantity#{row_index}", value['item_quantity'], :maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)", :disabled => @preBilling %>
+					<%= text_field_tag "quantity_#{row_index}", value['item_quantity'], :maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)", :disabled => @preBilling %>
 				</td>
 				<td class="lbl-txt-align" headers="original_amount">
-					<%= @currency %><label id="original_amount<%= row_index.to_s %>" ><%= html_hours("%.2f"% value['item_amount']) %></label>
+					<%= @currency %><label id="original_amount_<%= row_index.to_s %>" ><%= html_hours("%.2f"% value['item_amount']) %></label>
 				</td>
 				<td class="lbl-txt-align" headers="exchangerate_amount">
-					<%=h hidden_field_tag("exchangerate_amount#{row_index}", exchangeRate )  %>
+					<%=h hidden_field_tag("exchangerate_amount_#{row_index}", exchangeRate )  %>
 				</td>
 				<td class="lbl-txt-align" headers="amount">
-					<%= toCurrency %><label id="amount<%= row_index.to_s %>" ><%= html_hours("%.2f"% amount) %></label>
+					<%= toCurrency %><label id="amount_<%= row_index.to_s %>" ><%= html_hours("%.2f"% amount) %></label>
 				</td>
 				<% org_total = org_total + value['item_amount'] %>
 				<% total = total + amount %>
@@ -193,39 +193,39 @@
 				exchange_amount = exchangeRate
 			%>
 			<td class="lbl-txt-align" headers="item_id">
-				<%=h hidden_field_tag("item_id#{row_index}",   "" )  %>
+				<%=h hidden_field_tag("item_id_#{row_index}",   "" )  %>
 			</td>
 			<td class="lbl-txt-align" headers="item_index">
-				<label id="item_index<%= row_index.to_s %>"><%= row_index  %></label>
+				<label id="item_index_<%= row_index.to_s %>"><%= row_index  %></label>
 			</td>
 			<% if !@projectsDD.blank? %>
 				<td class="lbl-txt-align" headers="project_id">
-					<%=h select_tag("project_id#{row_index.to_s}", options_for_select(@projectsDD)) %>				
+					<%=h select_tag("project_id_#{row_index.to_s}", options_for_select(@projectsDD)) %>				
 				</td>
 			<% end %>
 			<td class="lbl-txt-align" headers="name">
-				<%= text_field_tag "name#{row_index}",  "", :required => true,  :style => "width:320px; " %>
+				<%= text_field_tag "name_#{row_index}",  "", :required => true,  :style => "width:320px; " %>
 			</td>
 			<td class="lbl-txt-align" headers="item_type">
-				<%=h select_tag("item_type#{row_index.to_s}", options_for_select(itemHash.invert)) %>
+				<%=h select_tag("item_type_#{row_index.to_s}", options_for_select(itemHash.invert)) %>
 			</td>
 			<td class="lbl-txt-align" headers="original_currency">
-				<%=h hidden_field_tag("original_currency#{row_index}",   @currency )  %>
+				<%=h hidden_field_tag("original_currency_#{row_index}",   @currency )  %>
 			</td>
 			<td class="lbl-txt-align" headers="rate">
-				<%=  @currency %><%= text_field_tag "rate#{row_index}",   "" ,:maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)" %>
+				<%=  @currency %><%= text_field_tag "rate_#{row_index}",   "" ,:maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)" %>
 			</td>
 			<td class="lbl-txt-align" headers="quantity">
-				<%= text_field_tag "quantity#{row_index}", "", :maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)" %>
+				<%= text_field_tag "quantity_#{row_index}", "", :maxlength => 14,  :style => "width:150px;", :onchange => "addAmount(this.id)" %>
 			</td>
 			<td class="lbl-txt-align" headers="original_amount">
-				<%= @currency %><label id="original_amount<%= row_index.to_s %>" ><%= 0.00  %></label>
+				<%= @currency %><label id="original_amount_<%= row_index.to_s %>" ><%= 0.00  %></label>
 			</td>
 			<td class="lbl-txt-align" headers="exchangerate_amount">
-				<%=h hidden_field_tag("exchangerate_amount#{row_index}", exchange_amount )  %>
+				<%=h hidden_field_tag("exchangerate_amount_#{row_index}", exchange_amount )  %>
 			</td>
 			<td class="lbl-txt-align" headers="amount">
-				<%= toCurrency %><label id="amount<%= row_index.to_s %>" ><%= 0.00  %></label>
+				<%= toCurrency %><label id="amount_<%= row_index.to_s %>" ><%= 0.00  %></label>
 			</td>
 			<% org_total = 0 #org_total + entry.amount %>
 			<% total = 0 %>
@@ -395,6 +395,9 @@
 	<div style="float:right;">
 		<%= link_to l(:label_export_invoice), "javascript: openInvReportPopup();" %> 
 	</div>
+	<% other_formats_links do |f| %>
+		<%= f.link_to 'PDF', url: {controller: controller_name, action: 'export', invoice_id: @invoice.id} %>
+	<% end %>
 <% end %>
 <% if !@invoice.id.blank? && controller.isInvPaymentLink  %>
 <br/>

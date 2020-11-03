@@ -22,8 +22,6 @@
   
   match 'wktime/edit', :to => 'wktime#edit', :via => [:get, :post]
 
-  get 'wktime/new', :to => 'wktime#new'
-			  
   post 'wktime/update', :to => 'wktime#update'
 			  
   delete 'wktime/destroy', :to => 'wktime#destroy'
@@ -655,6 +653,10 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 
 	get 'wkdocument/destroy', :to => 'wkdocument#destroy'
 
+	get 'wkdocument/view', :to => 'wkdocument#view'
+
+  get 'wkdocument/download/:id/:filename', :to => 'wkdocument#download', :id => /\d+/, :filename => /.*/, :as => 'download_location_attachment'
+
 	post 'wksurvey/close_current_response', :to => 'wksurvey#close_current_response'
 
 	get 'wksurvey/print_survey_result', :to => 'wksurvey#print_survey_result'
@@ -684,3 +686,15 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	post 'wklogmaterial/create', to: 'wklogmaterial#create'
 
 	post 'wklogmaterial/update', to: 'wklogmaterial#update'
+    
+	get 'wknotification/index', :to => 'wknotification#index'
+	
+	post 'wknotification/update', :to => 'wknotification#update'
+
+	get 'wkinvoice/export', :to => 'wkinvoice#export'
+
+	get 'wkquote/export', :to => 'wkquote#export'
+
+	get 'wkpurchaseorder/export', :to => 'wkpurchaseorder#export'
+
+	get 'wksupplierinvoice/export', :to => 'wksupplierinvoice#export'

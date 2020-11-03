@@ -43,6 +43,11 @@ module WkleaverequestHelper
 				if isUser
 					buttonLabel['S'] = 'button_submit'
 					buttonLabel['C'] = 'button_cancel_leave'
+				end	
+			when 'R'
+				if isUser
+					buttonLabel['S'] = 'button_submit'
+					buttonLabel['C'] = 'button_cancel_leave'
 				end
 			when ''
 				buttonLabel['S'] = 'button_submit'

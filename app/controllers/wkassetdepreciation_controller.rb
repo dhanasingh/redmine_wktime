@@ -225,7 +225,7 @@ class WkassetdepreciationController < WkassetController
 	def getInventoryAssetItems(productId, productType, needBlank, newDepr = false)	
 		assetItems = WkInventoryItem.joins(:product_item, :asset_property).where("product_type = ?", productType)
 		assetItems = assetItems.where(" wk_product_items.product_id = ?", productId) unless productId.blank?
-		assetItems = assetItems.where(" is_disposed is NOT TRUE") if newDepr
+		assetItems = assetItems.where(" is_disposed != ? OR is_disposed is NULL", true) if newDepr
 		assetItems = assetItems.pluck("wk_asset_properties.name, wk_inventory_items.id")
 		assetItems.unshift(["",""]) if needBlank
 		assetItems

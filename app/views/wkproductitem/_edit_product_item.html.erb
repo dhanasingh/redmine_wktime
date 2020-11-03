@@ -11,17 +11,18 @@
 	end
 	brandSql = 'id in (select brand_id from wk_brand_products where product_id = ' + productId.to_s + ')'
 %>
-<div class="splitcontentleft">
-			<fieldset class="box tabular">
-				<legend><%=l(:label_product_item)%></legend>
-				<table>
-					<tr>
-						<th align="left"><%= l(:label_product) %></th>
-						<td align="left" style="padding-left:40px;">
-							<%=h select_tag("product_id", generic_options_for_select(WkProduct, productSqlCond, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_id, false), :onchange => "if(#{ controller.showProductItem }) { productChanged(this.id, 'brand_id', #{User.current.id}, true, true, null, null);productChanged(this.id, 'product_attribute_id', #{User.current.id}, false, false, null, null); }") %>
-						</td>
-					</tr> 
-					<% if controller.showProductItem %>
+<div class="splitcontent">
+	<fieldset class="box tabular">
+		<legend><%=l(:label_product_item)%></legend>
+		<div class="splitcontentleft">
+			<table>
+				<tr>
+					<th align="left"><%= l(:label_product) %></th>
+					<td align="left" style="padding-left:40px;">
+						<%=h select_tag("product_id", generic_options_for_select(WkProduct, productSqlCond, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_id, false), :onchange => "if(#{ controller.showProductItem }) { productChanged(this.id, 'brand_id', #{User.current.id}, true, true, null, null);productChanged(this.id, 'product_attribute_id', #{User.current.id}, false, false, null, null); }") %>
+					</td>
+				</tr> 
+				<% if controller.showProductItem %>
 					<tr>
 						<th align="left"><%= l(:label_brand) %></th>
 						<td align="left" style="padding-left:40px;">
@@ -33,24 +34,26 @@
 						<td align="left" style="padding-left:40px;">
 							<%=h select_tag("product_model_id", generic_options_for_select(WkProductModel, 'product_id = ' + productId.to_s + ' and brand_id = ' + brandId.to_s, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_model_id, true)) %>
 						</td>
-					</tr> 
-					<!--<tr>
-						<th align="left"><%#= l(:label_attribute) %></th>
-						<td align="left" style="padding-left:40px;">
-							<%#=h select_tag("product_attribute_id", generic_options_for_select(WkProductAttribute, nil, 'name', 'name', 'id', @productItem.blank? ? '' : @productItem.product_attribute_id, true)) %>
-						</td>
-					</tr> -->
+					</tr>
 					<tr>
 						<th align="left"><%= l(:label_part_number) %></th>
 						<td align="left" style="padding-left:40px;"><%= text_field_tag "part_number",  @productItem.blank? ? '' : @productItem.part_number %></td>
 					</tr>
-					<% end  %>
-					<!-- <tr>
-						<th align="left"><%#= l(:label_additional_info) %></th>
-						<td align="left" style="padding-left:40px;">
-							<%#= check_box_tag('addinventory', 1, false, :onchange => "showorHide((this.checked ? true : false), 'inventoryDiv', 'assetDiv');") %>
-						</td>
-					<tr>-->
-			    </table>
-			</fieldset>
+				<% end  %>
+			</table>
 		</div>
+	</fieldset>
+	
+	<% if isChecked('asset_save_geo_location') && params[:controller] == 'wkasset'%>
+			<% 	locations = [!invntItem ? ["", ""] : [ invntItem.asset_property.try(:longitude) || '', invntItem.asset_property.try(:latitude) || '', l(:field_name)+": "+invntItem.asset_property.name+"\n"+l(:field_rate)+": "+invntItem.asset_property.rate.to_s+" "+invntItem.asset_property.rate_per+"\n"+l(:label_location)+": "+(invntItem.location_id ? invntItem.location_id.to_s : "")]]
+					locations = [["", ""]] if locations.length == 0
+			%>
+		<div >
+			<div id='mapContainer' style="width:350px;height:220px; padding-left: 100px"></div>
+			<%= render partial: "wkgeolocation/location_map", locals: { locations: locations } %>
+			<p style="font-weight: bold; padding-left: 100px">
+				<label><%= check_box_tag("save_current_location", 1) %>  <%= l(:label_save_c_geolocation) %></label>
+			</p>
+		</div>
+	<% end %>
+</div>

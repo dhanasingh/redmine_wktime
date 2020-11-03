@@ -55,7 +55,7 @@ class WkproductitemController < WkinventoryController
 		isDisposed =session[controller_name].try(:[], :is_dispose)
 		location = WkLocation.where(:is_default => 'true').first
 		sqlwhere = ""
-		selectStr = "select iit.id as inventory_item_id, pit.id as product_item_id, iit.product_item_id as inv_product_item_id, piit.product_item_id as parent_product_item_id, iit.status, p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as product_attribute_name, iit.serial_number, iit.currency, iit.selling_price, iit.total_quantity, iit.available_quantity, uom.short_desc as uom_short_desc, l.name as location_name, projects.name as project_name, (case when iit.product_type is null then p.product_type else iit.product_type end) as product_type, iit.is_loggable, ap.name as asset_name, piit.id as parent_id, pap.name as parent_name, ap.owner_type, ap.currency as asset_currency, ap.rate, ap.rate_per, ap.current_value, pcr.child_count, ap.is_disposed"
+		selectStr = "select iit.id as inventory_item_id, pit.id as product_item_id, iit.product_item_id as inv_product_item_id, piit.product_item_id as parent_product_item_id, iit.status, p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as product_attribute_name, iit.serial_number, iit.currency, iit.selling_price, iit.total_quantity, iit.available_quantity, uom.short_desc as uom_short_desc, l.name as location_name, projects.name as project_name, (case when iit.product_type is null then p.product_type else iit.product_type end) as product_type, iit.is_loggable, ap.name as asset_name, piit.id as parent_id, pap.name as parent_name, ap.owner_type, ap.currency as asset_currency, ap.rate, ap.rate_per, ap.current_value, pcr.child_count, ap.is_disposed,ap.latitude as latitude, ap.longitude as longitude"
 		unless productId.blank?
 			sqlwhere = " AND pit.product_id = #{productId}"
 		end
@@ -129,7 +129,7 @@ class WkproductitemController < WkinventoryController
 		unless params[:inventory_item_id].blank?
 		   @transferItem = WkInventoryItem.find(params[:inventory_item_id])
 		end 
-	end	
+	end
 	
 	def update
 		barndId = params[:brand_id].blank? ? nil : params[:brand_id]
@@ -274,6 +274,10 @@ class WkproductitemController < WkinventoryController
 		assetProperty.rate_per = params[:rate_per]
 		assetProperty.current_value = params[:current_value]
 		assetProperty.owner_type = params[:owner_type]
+		if isChecked('asset_save_geo_location') && params[:save_current_location].to_i  == 1
+			assetProperty.latitude = params[:latitude]
+			assetProperty.longitude = params[:longitude]
+		end
 		assetProperty.save()
 		assetProperty
 	end
@@ -317,7 +321,7 @@ class WkproductitemController < WkinventoryController
 	def set_filter_session
 		if params[:searchlist] == controller_name
 			session[controller_name] = Hash.new if session[controller_name].nil?
-			filters = [:product_id, :brand_id, :location_id, :availability, :project_id, :is_dispose]
+			filters = [:product_id, :brand_id, :location_id, :availability, :project_id, :is_dispose, :show_on_map]
 			filters.each do |param|
 				if params[param].blank? && session[controller_name].try(:[], param).present?
 					session[controller_name].delete(param)

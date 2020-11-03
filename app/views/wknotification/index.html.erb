@@ -1,0 +1,114 @@
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'index', plugin: "redmine_wktime" %>
+<script type="text/javascript">
+	blgtaxUrl = '<%=url_for(controller: "wktax", action: "index", tab: "wktax")%>';
+	blgexcrateUrl = '<%=url_for(controller: "wkexchangerate", action: "index", tab: "wkexchangerate")%>';
+	crmenumUrl = '<%=url_for(controller: "wkcrmenumeration", action: "index", tab: "wkcrmenumeration")%>';
+	wklocationUrl =  '<%=url_for(controller: "wklocation", action: "index", tab: "wklocation")%>';
+	wkgrpPermissionUrl =  '<%=url_for(controller: "wkgrouppermission", action: "index", tab: "wkgrouppermission")%>';
+	wknotificationUrl =  '<%=url_for(controller: "wknotification", action: "index", tab: "wknotification")%>';
+</script>
+<%= title l(:field_mail_notification) %>
+<%= render_tabs time_expense_tabs %>
+<style>
+  label{
+  width: auto !important;}
+</style>
+
+<%= form_tag({controller: controller_name, action: 'update'}, method: :post, id: 'query_form') do %>
+  <fieldset class="box tabular">
+    <div class="icon-gravatar">
+      <fieldset>
+        <legend><%= l(:label_wktime) %></legend>
+        <p><label style="text-align: left; float:left;">
+          <%= check_box_tag "Time_nonSubmission", 1, (@notification.include? "nonSubmission") %> <%= l(:label_non_submission) %></label>
+        </p>
+        <p><label style="text-align: left; float:left;">
+          <%= check_box_tag "Time_timeRejected", 1, (@notification.include? "timeRejected") %> <%= l(:label_time_rejected) %></label>
+        </p>
+      </fieldset>
+    </div>
+    <div class="icon-gravatar">
+      <fieldset>
+        <legend><%= l(:label_hr) %></legend>
+        <p><label style="text-align: left; float:left;">
+          <%= check_box_tag "HR_leaveRequested", 1, (@notification.include? "leaveRequested") %> <%= l(:label_leave_requested) %></label>
+        </p>
+        <p><label style="text-align: left; float:left;">
+          <%= check_box_tag "HR_leaveApproved", 1, (@notification.include? "leaveApproved") %> <%= l(:label_leave_approved) %></label>
+        </p>
+      </fieldset>
+    </div>
+    <div class="icon-gravatar">
+      <fieldset>
+        <legend><%= l(:label_crm) %></legend>
+        <p><label style="text-align: left; float:left;">
+          <%= check_box_tag "CRM_leadGenerated", 1, (@notification.include? "leadGenerated") %> <%= l(:label_lead_generated) %></label>
+        </p>
+        <p><label style="text-align: left; float:left;">
+          <%= check_box_tag "CRM_leadConverted", 1, (@notification.include? "leadConverted") %> <%= l(:label_lead_converted) %></label>
+        </p>
+        <p><label style="text-align: left; float:left;">
+          <%= check_box_tag "CRM_opportunityStatusChanged", 1, (@notification.include? "opportunityStatusChanged") %> <%= l(:label_opportunity_status_changed) %></label>
+        </p>
+        <p><label style="text-align: left; float:left;">
+          <%= check_box_tag "CRM_salesActivityCompleted", 1, (@notification.include? "salesActivityCompleted") %> <%= l(:label_sales_activity_completed) %></label>
+        </p>
+      </fieldset>
+    </div>
+    <div class="icon-gravatar">
+      <fieldset>
+        <legend><%= l(:label_wk_billing) %></legend>
+        <p><label style="text-align: left; float:left;">
+          <%= check_box_tag "Billing_invoiceGenerated", 1, (@notification.include? "invoiceGenerated") %> <%= l(:label_invoice_generated) %></label>
+        </p>
+        <p><label style="text-align: left; float:left;">
+          <%= check_box_tag "Billing_paymentReceived", 1, (@notification.include? "paymentReceived") %> <%= l(:label_payment_received) %></label>
+        </p>
+        <p><label style="text-align: left; float:left;">
+          <%= check_box_tag "Billing_contractSigned", 1, (@notification.include? "contractSigned") %> <%= l(:label_contract_signed) %></label>
+        </p>
+      </fieldset>
+    </div>
+    <div class="icon-gravatar">
+      <fieldset>
+        <legend><%= l(:label_purchasing) %></legend>
+        <p><label style="text-align: left; float:left;">
+          <%= check_box_tag "Purchasing_rfqCreated", 1, (@notification.include? "rfqCreated") %> <%= l(:label_rfq_created) %></label>
+        </p>
+        <p><label style="text-align: left; float:left;">
+          <%= check_box_tag "Purchasing_quoteReceived", 1, (@notification.include? "quoteReceived") %> <%= l(:label_quote_received) %></label>
+        </p>
+        <p><label style="text-align: left; float:left;">
+          <%= check_box_tag "Purchasing_purchaseOrderGenerated", 1, (@notification.include? "purchaseOrderGenerated") %> <%= l(:label_po_generated) %></label>
+        </p>
+        <p><label style="text-align: left; float:left;">
+          <%= check_box_tag "Purchasing_supplierInvoiceReceived", 1, (@notification.include? "supplierInvoiceReceived") %> <%= l(:label_supplier_invoice_received) %></label>
+        </p>
+        <p><label style="text-align: left; float:left;">
+          <%= check_box_tag "Purchasing_supplierPaymentSent", 1, (@notification.include? "supplierPaymentSent") %> <%= l(:label_supplier_payment_sent) %></label>
+        </p>
+      </fieldset>
+    </div>
+    <div class="icon-gravatar">
+      <fieldset>
+        <legend><%= l(:label_inventory) %></legend>
+        <p><label style="text-align: left; float:left;">
+          <%= check_box_tag "Inventory_receiveGoods", 1, (@notification.include? "receiveGoods") %> <%= l(:label_receive_goods) %></label>
+        </p>
+        <p><label style="text-align: left; float:left;">
+          <%= check_box_tag "Inventory_disposeAsset", 1, (@notification.include? "disposeAsset") %> <%= l(:label_dispose_asset) %></label>
+        </p>
+      </fieldset>
+    </div>
+    <div class="icon-gravatar">
+      <fieldset>
+        <legend><%= l(:label_survey) %></legend>
+        <p><label style="text-align: left; float:left;">
+          <%= check_box_tag "Survey_surveyClosed", 1, (@notification.include? "surveyClosed") %> <%= l(:label_survey_closed) %></label>
+        </p>
+      </fieldset>
+    </div>
+  </fieldset>
+ <%= submit_tag l(:button_save), :class => "small", :name => nil %>
+<% end %>

@@ -24,10 +24,17 @@
       locations = startLocations + endLocations
     when "address"
       locations = entries.map{|entry| [ entry.address.try(:longitude) || "", entry.address.try(:latitude) || "" ]}
+    when "assets"
+      locations = entries.map{|entry|
+      (!entry.inventory_item_id) ? ["",""] :
+      [ entry.try(:longitude) || "", entry.try(:latitude) || "", l(:label_product)+":"+entry.try(:product_name)+"\n"+l(:field_name)+": "+entry.try(:asset_name)+"\n"+l(:field_rate)+": "+(entry.rate ? entry.try(:rate).to_s : "")+"\n"+ l(:label_location)+": "+(entry.location_name ? entry.try(:location_name) : "")]
+      }
+    when "activity"
+      locations = entries.map{|entry|
+      (!entry.id) ? ["",""] : [ entry.try(:longitude) || "", entry.try(:latitude) || "", (entry.assigned_user ? entry.assigned_user.name : "")+"\n"+l(:label_start_date_time)+": "+(entry.start_date ? entry.start_date.localtime.strftime("%Y-%m-%d %H:%M:%S") : "")+"\n"+l(:label_end_date_time)+": "+(entry.end_date ? entry.end_date.localtime.strftime("%Y-%m-%d %H:%M:%S") : "")]}
     end
     locations = [["", ""]] if locations.length == 0
 %>
-
 <div id="mapheader" style="width: <%=width%>; height: <%=height%>;float: left;padding-left: 5px;min-height: 600px;">
   <div style="text-align: right;padding-top:5px;">
     <%= link_to_function l(:button_close), '$("#show_on_map").prop("checked", false);$("#query_form").submit()', :class => 'icon fa-close' %>

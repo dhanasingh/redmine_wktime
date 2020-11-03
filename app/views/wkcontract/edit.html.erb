@@ -4,7 +4,7 @@
            <%=h hidden_field_tag('contract_id', @contractEntry.blank? ? "" :@contractEntry.id) %>
 		   <%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	
 		   <%	projArr = options_for_wktime_project(projects,false) %>
-		   <%	accArr = options_for_wktime_account(false, 'A') %>
+		   <%	accArr = options_for_wktime_account(false, 'A', controller.additionalAccountType) %>
 		   <%   relHash = relatedHash
 				relHash.delete("WkOpportunity")
 				relHash.delete("WkLead") 

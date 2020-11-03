@@ -9,17 +9,17 @@ module UsersControllerPatch
 				@user.pref.safe_attributes = params[:pref]
 				
 				if @user.save
-					Mailer.deliver_account_information(@user, @user.password).deliver if params[:send_information]
+					Mailer.deliver_account_information(@user, @user.password) if params[:send_information]
 		
-	# ============= ERPmine_patch Redmine 4.1.1  =====================	
-					#Below code for save wk users
-					erpmineUserSave
-	# =======================================				
+					# ============= ERPmine_patch Redmine 4.1.1  =====================	
+									#Below code for save wk users
+									erpmineUserSave
+					# =======================================				
 					respond_to do |format|
 						format.html {
 							flash[:notice] = l(:notice_user_successful_create, :id => view_context.link_to(@user.login, user_path(@user)))
 							if params[:continue]
-								attrs = {:generate_password => @user.generate_password}
+								attrs = {:generate_password => @user.generate_password }
 								redirect_to new_user_path(:user => attrs)
 							else
 								redirect_to edit_user_path(@user)
@@ -40,7 +40,7 @@ module UsersControllerPatch
 			end
 			
 			def update
-				if params[:user][:password].present? && (@user.auth_source_id.nil? || 	params[:user][:auth_source_id].blank?)
+				if params[:user][:password].present? && (@user.auth_source_id.nil? || params[:user][:auth_source_id].blank?)
 					@user.password, @user.password_confirmation = params[:user][:password], params[:user][:password_confirmation]
 				end
 				@user.safe_attributes = params[:user]
@@ -52,10 +52,10 @@ module UsersControllerPatch
 				if @user.save
 					@user.pref.save
 					
-	# ============= ERPmine_patch Redmine 4.1.1  =====================
-					#Below code for save wk users
-					erpmineUserSave
-	# ==============================				
+				# ============= ERPmine_patch Redmine 4.1.1  =====================
+								#Below code for save wk users
+								erpmineUserSave
+				# ==============================				
 					if was_activated
 						Mailer.deliver_account_activated(@user)
 					elsif @user.active? && params[:send_information] && @user != User.current

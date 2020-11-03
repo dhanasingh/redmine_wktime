@@ -46,9 +46,9 @@
 			<table>
 				<tr>
 					<td>
-						<% logo = Setting.plugin_redmine_wktime['wktime_header_logo'] %>					
-						<% if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo)) %>						
-							<%= image_tag("#{logo}", :plugin => "redmine_wktime") %>
+						<% attachment = WkLocation.getMainLogo() %>
+						<% if attachment.present? %>
+							<%= image_tag(download_location_attachment_path(attachment, attachment.filename), class: 'filecontent image') %>
 						<% end %>
 					</td>
 				</tr>

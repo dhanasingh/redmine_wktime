@@ -30,9 +30,6 @@
 			<%=h select_tag('settings[wktime_currency]',options_for_select(wkexpense_helper.options_for_currency,:selected => @settings['wktime_currency'])) %>
 		</p>
 		<p style="padding-left:220px;">
-		  <label><%= l(:label_wk_header_logo) %></label><%= text_field_tag 'settings[wktime_header_logo]', @settings['wktime_header_logo']%>
-		</p>
-		<p style="padding-left:220px;">
 			<%= check_box_tag('settings[label_no_additional_details_for_issue]', 1, @settings['label_no_additional_details_for_issue'].to_i == 1)%> <label><%= l(:label_no_additional_details_for_issue) %> </label>
 		</p>
 		<p style="padding-left:220px;">
@@ -45,4 +42,7 @@
 		  <label><%= l(:label_mapbox_apikey) %></label><%= text_field_tag 'settings[label_mapbox_apikey]', @settings['label_mapbox_apikey']%>
 		</p>
 		<p style="padding-left:220px;"> <%= l(:label_api_key_info) %>&nbsp;<%= link_to "Mapbox", 'https://account.mapbox.com' %></p>
+		<p style="padding-left:220px;">
+			<%= check_box_tag('settings[invoice_auto_round_gl]', 1, @settings['invoice_auto_round_gl'].to_i == 1) %> <label><%= l(:label_auto_round_gl) %></label>
+		</p>
 	</fieldset>

@@ -12,7 +12,8 @@
 		minHourperWeekAlertMsg = "<%= l(:text_wk_warning_min_hour_week, :value => "#{controller.minHourPerWeek}").html_safe %>";
 		maxHourperWeekAlertMsg = "<%= l(:text_wk_warning_max_hour_week, :value => "#{controller.maxHourPerWeek}").html_safe %>";
 		editUrl = '<%= raw(url_for(:controller => controller.controller_name, :action => "edit", :startday => @startday, :user_id => params[:user_id], :sheet_view => params[:sheet_view], :project_id => params[:project_id]))%>';
-		breakvalue = '<%= Setting.plugin_redmine_wktime['wktime_break_time'] %>'
+		breakvalue = '<%= Setting.plugin_redmine_wktime['wktime_break_time'] %>';
+		leavingMsg = '<%= l(:warning_leaving_message) %>';
 		<% if @renderer.showWorkTimeHeader && controller.showWorktimeHeader %>		
 				showWorkHeader = true;
 				footerRows = 2;
@@ -49,12 +50,12 @@
 	<!-- modified class .ui-widget-header to change the header color -->
 		<span id="_edit_comm_proj_">project</span>, 
 		<span id="_edit_comm_iss_">issue</span>,
-		<span id="_edit_comm_act_">activity)</span>
+		<span id="_edit_comm_act_">activity</span>
 		<fieldset>
 		<% if Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? ||
 			Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 0 %>
-			<p> <label><%= l(:field_comments) %></label>
-			<textarea name="_edit_comments_" id="_edit_comments_" value="" cols="25" rows="2"> </textarea> </p>
+			<p style="display: flex;align-items: center;"><label style="padding-right: 5px"><%= l(:field_comments) %></label></b>
+			<textarea name="_edit_comments_" id="_edit_comments_" value="" cols="25" rows="2"></textarea></p>
 		<% end %>
 
 		
@@ -145,7 +146,7 @@
 				<% end %>
 			</table>
 		</td>
-		<td><%= render :partial => 'edit_options' %></td>
+		<td><%= render :partial => 'wktime/edit_options' %></td>
 		<td width="100%">
 			<% if isChecked('te_save_geo_location') %>
 			<% 	startLocations = @entries.map{ |entry|
@@ -171,4 +172,19 @@
 
 <%= render :partial => 'edit_footer' %>
 
+<% end %>
+
+<!-- Display Attachments Files -->
+<% if controller.showAttachments %>
+	<% editable = !@locked && (@wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r') %>
+	<div>
+		<fieldset id="<%= 'attachment_' + @row.to_s() + '_' + @wday_index.to_s %>" class="attachment">
+			<legend><%=l(:label_attachment)%></legend>
+			<% @entries.each do |entry| %>
+				<% if entry.present? && entry.attachments.any? && (controller.check_approvable_status && @approvable_projects.pluck(:id).include?(entry.project_id) || !controller.check_approvable_status) %>
+					<%= attachments_links entry, { editable: editable, deletable: editable, hideImage: true, author: false } %>
+				<% end %>
+			<% end %>
+		</fieldset>
+	</div>
 <% end %>

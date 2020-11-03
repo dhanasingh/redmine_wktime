@@ -25,6 +25,7 @@ class WkExpenseEntry < TimeEntry
   belongs_to :user
   belongs_to :activity, :class_name => 'TimeEntryActivity'
   has_one :wkspentfor, -> { where(spent_type: "WkExpenseEntry") }, foreign_key: "spent_id", class_name: "WkSpentFor", :dependent => :destroy
+  has_many :attachments, -> {where(container_type: "WkExpenseEntry")}, class_name: "Attachment", foreign_key: "container_id", :dependent => :destroy
   accepts_nested_attributes_for :wkspentfor, allow_destroy: true
    
    

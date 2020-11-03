@@ -1,3 +1,20 @@
+# ERPmine - ERP for service industry
+# Copyright (C) 2011-2020  Adhi software pvt ltd
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 class WkcrmController < WkbaseController
   unloadable
   before_action :require_login
@@ -20,14 +37,19 @@ class WkcrmController < WkbaseController
 			relatedId = WkLead.includes(:contact).where.not(:status => 'C').order("wk_crm_contacts.first_name, wk_crm_contacts.last_name")
 		elsif params[:related_type] == "WkCrmContact"
 			#relatedId = WkCrmContact.includes(:lead).where(wk_leads: { status: ['C', nil] }).where(:contact_type => params[:contact_type]).order(:first_name, :last_name)
-			hookType = call_hook(:additional_contact_type)
+			hookType = call_hook(:additional_type)
 			if hookType[0].blank? || params[:additionalContactType] == "false"
 				relatedId = WkCrmContact.includes(:lead).where(:account_id => nil, :contact_id => nil).where(wk_leads: { status: ['C', nil] }).where(:contact_type => params[:contact_type]).order(:first_name, :last_name)
 			else
 				relatedId = WkCrmContact.includes(:lead).where(:account_id => nil, :contact_id => nil).where(wk_leads: { status: ['C', nil] }).where("wk_crm_contacts.contact_type = '#{params[:contact_type]}' or wk_crm_contacts.contact_type = '#{hookType[0]}'").order(:first_name, :last_name)
 			end
 		elsif params[:related_type] != "0"
-			relatedId = WkAccount.where(:account_type => params[:account_type]).order(:name)
+			hookType = call_hook(:additional_type)
+			if hookType[0].blank? || params[:additionalAccountType] == "false"
+				relatedId = WkAccount.where(:account_type => params[:account_type]).order(:name)
+			else
+				relatedId = WkAccount.where("wk_accounts.account_type = '#{params[:account_type]}' or wk_accounts.account_type = '#{hookType[0]}'").order(:name)
+			end
 		end
 		
 		respond_to do |format|
@@ -87,6 +109,130 @@ class WkcrmController < WkbaseController
 		grpUser = []
 		grpUser = users.map { |usr| { value: usr[1], label: usr[0] }}
 		render json: grpUser
+	end
+	
+	def additionalAccountType
+		true
+	end
+
+	def accountSave
+		errorMsg = nil
+		if params[:account_id].blank? || params[:account_id].to_i == 0
+			wkaccount = WkAccount.new
+		else
+		  wkaccount = WkAccount.find(params[:account_id].to_i)
+		end
+		wkaccount.name = params[:account_name]
+		wkaccount.account_type = getAccountType
+		wkaccount.account_category = params[:account_category]
+		wkaccount.description = params[:description]
+		wkaccount.account_billing = params[:account_billing].blank? ? 0 : params[:account_billing]
+		wkaccount.location_id = params[:location_id] if params[:location_id] != "0"
+		wkaccount.created_by_user_id = User.current.id if wkaccount.new_record?
+		wkaccount.updated_by_user_id = User.current.id
+
+		if wkaccount.valid?
+			addrId = updateAddress
+			wkaccount.address_id = addrId if addrId.present?
+			wkaccount.save
+		end
+		wkaccount
+	end
+
+	def contactSave
+		errorMsg = nil
+		if params[:contact_id].blank?
+			wkContact = WkCrmContact.new 
+		else
+			wkContact = WkCrmContact.find(params[:contact_id].to_i)
+		end
+		# For Contact table
+		wkContact.assigned_user_id = params[:assigned_user_id]
+		wkContact.first_name = params[:first_name]
+		wkContact.last_name = params[:last_name]
+		wkContact.address_id = params[:address_id]
+		wkContact.title = params[:contact_title]
+		wkContact.description = params[:description]
+		wkContact.department = params[:department]
+		wkContact.salutation = params[:salutation]
+		wkContact.account_id = nil #params[:account_id]
+		wkContact.contact_id = nil
+		wkContact.account_id = params[:related_parent] if params[:related_to] == "WkAccount"
+		wkContact.contact_id = params[:related_parent] if params[:related_to] == "WkCrmContact"
+		wkContact.relationship_id = params[:relationship_id]
+		wkContact.location_id = params[:location_id] if params[:location_id] != "0"
+		wkContact.contact_type = getContactType
+		wkContact.created_by_user_id = User.current.id if wkContact.new_record?
+		wkContact.updated_by_user_id = User.current.id
+		if wkContact.valid?
+			addrId = updateAddress
+			wkContact.address_id = addrId unless addrId.blank?
+			wkContact.save
+		end
+		wkContact
+	end
+	
+	def convert
+		@lead = nil
+		errorMsg = nil
+		@lead = WkLead.find(params[:lead_id]) unless params[:lead_id].blank?
+		@lead.status = 'C'
+		@lead.updated_by_user_id = User.current.id
+		#@lead.save
+		@contact = @lead.contact
+		@account = @lead.account
+		hookType = call_hook(:controller_convert_contact, {params: params, leadObj: @lead, contactObj: @contact, accountObj: @account})
+		unless @account.blank?
+			@account.account_type = hookType.blank? ? getAccountType : hookType[0][0]
+		else
+			@contact.contact_type = hookType.blank? ? getContactType : hookType[0][0]
+		end
+		@lead.save
+		convertToAccount unless @account.blank?
+		convertToContact		
+		
+		unless @account.blank?
+			controllerName = hookType.blank? ? 'wkcrmaccount' : hookType[0][1]
+			flash[:notice] = l(:notice_successful_convert)
+			redirect_to controller: controllerName, action: 'edit', account_id: @account.id, rm_resident_id: hookType[0][2]
+		else
+			controllerName = hookType.blank? ? 'wkcrmcontact' : hookType[0][1]
+			if @lead.valid?
+				flash[:notice] = l(:notice_successful_convert)
+			else
+				flash[:error] = @lead.errors.full_messages.join("<br>")
+				controllerName = 'wklead'
+			end
+			
+		    redirect_to controller: controllerName, action: 'edit', contact_id: @contact.id, lead_id: @lead.id, rm_resident_id: hookType[0][2]
+		end
+	end
+	
+	def convertToAccount
+		# @account.account_type = 'A'
+		@account.updated_by_user_id = User.current.id
+		address = nil
+		unless @contact.address.blank?
+			address = copyAddress(@contact.address) 
+			@account.address_id = address.id
+		end
+		@account.save
+	end
+	
+	def convertToContact #(contactType)
+		@contact.updated_by_user_id = User.current.id		
+		#@contact.contact_type = contactType
+		unless @account.blank?
+			@contact.account_id = @account.id
+		end
+		@contact.save
+	end
+	
+	def copyAddress(source)
+		target = WkAddress.new
+		target = source.dup
+		target.save
+		target
 	end
 
 end

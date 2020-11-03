@@ -17,7 +17,7 @@
 				<tr>
 					  <td class="lbl-txt-align"><%=h entry.contract_number %></td>
 					  <td class="lbl-txt-align"><%=h entry.parent_type == 'WkAccount' ? 'Account' : 'Contact' %></td>
-					  <td class="lbl-txt-align"><%=h entry.parent.name %></td>
+					  <td class="lbl-txt-align"><%=h entry.parent && entry.parent.name %></td>
 					  <td class="lbl-txt-align"><%=h entry.project.blank? ? "" : entry.project.name %></td>					  
 					  <td class="lbl-txt-align"><%=h entry.start_date %></td>
 					  <td class="lbl-txt-align"><%=h entry.end_date %></td>

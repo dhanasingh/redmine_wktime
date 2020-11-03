@@ -107,12 +107,15 @@
 	<div style="clear: both;"></div>
 <% end %>
 
+<% if controller_name == "timelog" && action_name == "index" %>
+	<input type="hidden" name="spentTypeSession" id="spentTypeSession" value="<%= session[:timelog] && session[:timelog][:spent_type] %>">
+<% end %>
 <!-- Spent time show on map -->
 <% if controller_name == "timelog" && action_name == "index" && wktime_helper.isChecked('te_save_geo_location') %>
-	<% show_on_map = params[:show_on_map].present? && params[:show_on_map] %>
+	<% show_on_map = session[:timelog] && session[:timelog][:show_on_map] %>
 	<div id="show_map_filter" >
 		<label style="padding-left:5px">
-			<%= check_box_tag('show_on_map', true, params[:show_on_map] || false, onclick: '$("#query_form").submit(); return false;') %><%= l(:label_show_on_map) %>
+			<%= check_box_tag('show_on_map', true, show_on_map, onclick: '$("#query_form").submit(); return false;') %><%= l(:label_show_on_map) %>
 		</label>
 	</div>
 	<script>

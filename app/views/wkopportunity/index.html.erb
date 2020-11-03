@@ -20,7 +20,7 @@
 	<%= hidden_field_tag "searchlist", "wkopportunity" %>
 	<%	accname = session[:wkopportunity].try(:[], :oppname) %>
 	<%	accId = session[:wkopportunity].try(:[], :account_id) %>
-	<%	accArr = options_for_wktime_account(true, 'A') %>
+	<%	accArr = options_for_wktime_account(true, 'A', controller.additionalAccountType) %>
 	<fieldset>
 		<table>
 			<tr>

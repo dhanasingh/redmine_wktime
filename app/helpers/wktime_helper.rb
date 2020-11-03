@@ -20,6 +20,8 @@ module WktimeHelper
   include Redmine::Export::PDF
   include Redmine::Export::PDF::IssuesPdfHelper
   include Redmine::Utils::DateCalculation
+	include AttachmentsHelper
+	include WkdocumentHelper
   
 
 	def options_for_period_select(value)
@@ -147,7 +149,6 @@ module WktimeHelper
 	top_margin = Setting.plugin_redmine_wktime['wktime_margin_top'].to_i
 	col_id_width  = 10
 	row_height    = Setting.plugin_redmine_wktime['wktime_line_space'].to_i
-	logo    = Setting.plugin_redmine_wktime['wktime_header_logo']
 
 	if page_height == 0
 		page_height = 297
@@ -222,11 +223,12 @@ module WktimeHelper
 	pdf.footer_date = format_date(Date.today)
 	pdf.SetAutoPageBreak(false)
 	pdf.AddPage(orientation)
-	
-	if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo))
-		pdf.Image(Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo, page_width-50, 10,40,25)
+
+	logo = WkLocation.getMainLogo()
+	if logo.present?
+		pdf.Image(logo.diskfile.to_s, page_width-50, 15, 30, 20)
 	end
-	
+
 	render_header(pdf, entries, user, startday, row_height,title)
 
 	pdf.Ln
@@ -306,8 +308,8 @@ module WktimeHelper
 	#new page logo
 	def render_newpage(pdf,orientation,logo,page_width)
 		pdf.AddPage(orientation)
-		if !logo.blank? && (File.exist? (Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo))
-			pdf.Image(Redmine::Plugin.public_directory + "/redmine_wktime/images/" + logo, page_width-50, 10,40,25)
+		if logo.present?
+			pdf.Image(logo.diskfile.to_s, page_width-50, 15, 30, 25)
 			pdf.Ln
 			pdf.SetY(pdf.GetY+25)
 		end
@@ -618,10 +620,11 @@ end
 				{:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime},
 				{:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense}
 			   ]
-		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" || params[:controller] == "wkscheduling"  || params[:controller] == "wkschedulepreference" || params[:controller] == "wkshift" || params[:controller] == "wkpublicholiday" || params[:controller] == "wksurvey"
+		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" || params[:controller] == "wkscheduling"  || params[:controller] == "wkschedulepreference" || params[:controller] == "wkshift" || params[:controller] == "wkpublicholiday" || params[:controller] == "wksurvey" || params[:controller] == "wkleaverequest"
 				tabs = []
 				if showAttendance
 					tabs << {:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave}
+					tabs <<	{:name => 'wkleaverequest', :partial => 'wktime/tab_content', :label => :label_leave_request}
 					tabs <<	{:name => 'clock', :partial => 'wktime/tab_content', :label => :label_clock}
 					tabs <<	{:name => 'wkpublicholiday', :partial => 'wktime/tab_content', :label => :label_public_holiday}
 					
@@ -669,14 +672,14 @@ end
 				{:name => 'wksupplieraccount', :partial => 'wktime/tab_content', :label => :label_supplier_account},
 				{:name => 'wksuppliercontact', :partial => 'wktime/tab_content', :label => :label_supplier_contact}
 			   ]
-		elsif params[:controller] == "wkcrmenumeration" || params[:controller] == "wktax" || params[:controller] == "wkexchangerate" || params[:controller] == "wklocation" || params[:controller] == "wkgrouppermission"
+		elsif params[:controller] == "wkcrmenumeration" || params[:controller] == "wktax" || params[:controller] == "wkexchangerate" || params[:controller] == "wklocation" || params[:controller] == "wkgrouppermission" || params[:controller] == "wknotification"
 			tabs = [
 				{:name => 'wkcrmenumeration', :partial => 'wktime/tab_content', :label => :label_enumerations},
 				{:name => 'wklocation', :partial => 'wktime/tab_content', :label => :label_location},
 				{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax},
 				{:name => 'wkexchangerate', :partial => 'wktime/tab_content', :label => :label_exchange_rate},
-				{:name => 'wkgrouppermission', :partial => 'wktime/tab_content', :label => :label_permissions}
-				
+				{:name => 'wkgrouppermission', :partial => 'wktime/tab_content', :label => :label_permissions},
+				{:name => 'wknotification', :partial => 'wktime/tab_content', :label => :field_mail_notification},				
 			   ]
 		else
 			tabs = [
@@ -1942,4 +1945,11 @@ end
 		projArr
 	end
 
+	def supervisorReporters
+		{
+			l(:label_me).capitalize => '3',
+			l(:label_my_direct_reports) => '4',
+			l(:label_my_reports) => '5'
+		}
+	end
 end

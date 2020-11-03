@@ -5,21 +5,30 @@
 <%=h hidden_field_tag('getactivities_url', "#{url_for(:controller => controller.controller_name, :action => 'getactivities')}") %>
 <%=h hidden_field_tag('getclients_url', "#{url_for(:controller => controller.controller_name, :action => 'getclients', :user_id => @user.id)}") %>
 <%=h hidden_field_tag('deleterow_url', "#{url_for(:controller => controller.controller_name, :action => 'deleterow')}") %>
-
+<% manage_others_log = User.current.id == params[:user_id].to_i ? ((@logtime_projects || []).pluck(:id)).to_s : ((@manage_others_log || []).pluck(:id)).to_s %>
 <tr>
 	<th align="right"><%=l(:field_user)%></th>
-	<td><%=h @user.name %>
-		<%=h hidden_field_tag('user_id', @user.id) %>
-		<%=h hidden_field_tag('sheet_view', @renderer.getSheetType) %>
-		<%=h hidden_field_tag('project_id', @projectId) %>
-		<%=h hidden_field_tag('selected_date', @selectedDate) %>
+	<td>
+		<% if @manage_projects.present? && @manage_projects.size > 0 || @manage_others_log.present? && @manage_others_log.size > 0 %>
+			<%= select_tag('user_id', options_for_select(@users, selected: @user.id), style: "width:150px;", class: "load") %>
+			<%= hidden_field_tag(:manage_others_log, manage_others_log) %>
+			<%= hidden_field_tag(:manage_edit_projects, (@manage_projects || []).pluck(:id)) %>
+		<% else %>
+			<%= @user.name %>
+			<%= hidden_field_tag('user_id', @user.id) %>
+		<% end %>
 	</td>
 </tr>
+<%= hidden_field_tag('project_id', @projectId) %>
+<%= hidden_field_tag('selected_date', @selectedDate) %>
+<%= hidden_field_tag(:logtime_projects, (@logtime_projects && (@logtime_projects || []).pluck(:id)).to_s) %>
+<%= hidden_field_tag(:edit_own_logs, (@edit_own_logs && (@edit_own_logs || []).pluck(:id)).to_s) %>
+<%= hidden_field_tag(:current_user, User.current.id == params[:user_id].to_i) %>
 <% @startday = @selectedDate if @renderer.useSelectedDtAsStart %>
 <tr>
 	<th align="right"><%=l(:field_start_date)%></th>
-	<td><%=h format_date(@startday) %>
-		<%=h hidden_field_tag('startday',@startday) %>
+	<td>
+		<%= date_field_tag('startday', @startday, required: true, class: "load") %>
 	</td>
 </tr>
 <% # Martin Dube Contribution: show previous and next time entry %>

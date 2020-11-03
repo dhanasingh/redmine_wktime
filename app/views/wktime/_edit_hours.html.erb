@@ -2,7 +2,7 @@
 		<% # close the previously opened tr %>
 		<% while @wday_index < padTill %>
 			<% 
-			disable = !@editable			
+			disable = !@editable
 			if @editable
 				#hookCellEditPerm = call_hook(:view_cell_edit, :entry => entry)
 				if @edittimelogs.blank?
@@ -24,30 +24,47 @@
 				disable = false if validateERPPermission('A_TE_PRVLG')
 				disable = true if !@prev_template && isBilledTimeEntry(entry)
 			end
+			disable = (!@prev_template && (entry && entry.wkstatus && entry.wkstatus.status) == 'a')
 			spentForId = entry.present? && entry.spent_for.present? && !@prev_template ? entry.spent_for.id : nil
+			holiday = WkPublicHoliday.getHolidays(params[:user_id], (@startday + @wday_index) - 1)
+			holiday = holiday.length > 0
 			%>
 			<%#if this is from a previous template, don't print the hours%>
 			<td class="hours">
 				<div style="float: left; ">
 				<%=h text_field_tag('hours' + @row.to_s() +'[]', entry.nil? || @prev_template || entry.hours.blank? ? '' : ("%.2f" % entry.hours) ,:size => "#{controller.textfield_size}",
-				:disabled => disable,
+				:disabled => disable, class: "hrs_col_" + @wday_index.to_s(),
 				:onchange => "validateTotal(this, #{@wday_index},'#{controller.maxHour}');") %>
-				
 				<%=h hidden_field_tag('ids' + @row.to_s() +'[]', entry.nil? || @prev_template ? '' : entry.id) %>
 				<%=h hidden_field_tag('disabled' + @row.to_s() +'[]', disable ) %>
 				<%= hidden_field_tag('spentForId' + @row.to_s() +'[]', spentForId ) %>
-				
+				<%= hidden_field_tag('holiday_' + @row.to_s() +"_"+ @wday_index.to_s(), holiday, class: "holidays" ) %>
+
+				<% if controller.showAttachments %>
+				<!-- Attachments -->
+				<span id="<%= 'attachdiv_' + @row.to_s() + '_' + @wday_index.to_s %>"  style="display: none"  class="allAttach">
+					<fieldset id="<%= 'attachment_' + @row.to_s() + '_' + @wday_index.to_s %>" class="attachment">
+						<legend><%=l(:label_attachment)%></legend>
+						<% if !@prev_template && entry.present? && entry.attachments.any? %>
+							<%= link_to_attachments entry %>
+						<% end %>
+						<fieldset>
+							<legend><%=l(:label_attachment_plural)%></legend>
+							<%= render partial: 'attachments/form', locals: { attachment_param: "attachments_"+ @row.to_s() + '_' + @wday_index.to_s } %>
+						</fieldset>
+					</fieldset>
+				</span>
+				<% end %>
+
 				<% cvs = [] %>
 				<% show_custfield_img = false %>
 				<% if Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? ||
 					Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 0 %>
-					
 					<% show_custfield_img = true %>
 					<%=h hidden_field_tag('comments' + @row.to_s() +'[]', entry.nil? || @prev_template ? '' : entry.comments) %>
 					<% comment = nil %>
 					<% comment = entry.nil? || @prev_template ? '' : entry.comments %>
 					<% cvs << comment unless comment.blank? %>
-					
 				<% end %>
 				
 				<% if !Setting.plugin_redmine_wktime['wktime_use_detail_popup'].blank? &&
@@ -74,7 +91,7 @@
 				
 					<% if show_custfield_img %>
 					  	<% imgname ="" %>
-						<% if !cvs.blank?  || !comment.blank? %>
+						<% if !cvs.blank?  || !comment.blank? || !@prev_template && entry.present? && entry.attachments.any? %>
 							<% imgname = "withcommant.png" %>
 						<% else %>
 							<% imgname = "withoutcommant.png" %>

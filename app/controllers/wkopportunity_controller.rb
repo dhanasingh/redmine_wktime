@@ -5,7 +5,7 @@ class WkopportunityController < WkcrmController
   accept_api_auth :index
 
     def index
-		sort_init 'id', 'asc'
+		sort_init 'updated_at', 'desc'
 
 		sort_update 'opportunity_name' => "#{WkOpportunity.table_name}.name",
 					'parent_type' => "#{WkOpportunity.table_name}.parent_type",
@@ -88,6 +88,7 @@ class WkopportunityController < WkcrmController
 		oppEntry.description = params[:opp_description]
 		oppEntry.parent_id = params[:related_parent]
 		oppEntry.parent_type = params[:related_to].to_s
+		notify = params[:opp_id].present? && oppEntry.sales_stage_id_changed? 
 		unless oppEntry.valid?
 			@tempoppEntry << oppEntry
 			$tempOpportunity = @tempoppEntry
@@ -95,6 +96,10 @@ class WkopportunityController < WkcrmController
 		else			
 			oppEntry.save()
 			$tempOpportunity = nil 
+		end
+		
+		if errorMsg.blank? && notify && WkNotification.notify('opportunityStatusChanged')
+			WkOpportunity.opportunity_notification(oppEntry)
 		end
 		
 		if errorMsg.blank?
@@ -131,7 +136,7 @@ class WkopportunityController < WkcrmController
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
-		@opportunity = entries.order(updated_at: :desc).limit(@limit).offset(@offset)
+		@opportunity = entries.limit(@limit).offset(@offset)
 	end
 	
 	def setLimitAndOffset		

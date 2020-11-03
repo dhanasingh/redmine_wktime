@@ -164,7 +164,6 @@ fr:
   label_Difference: Différences
   label_total_hours:  Heures totales
   label_wk_attn_join_date:  Date d'entrée
-  label_wk_attn_termination_date:  Date de fin
   label_wk_attn_user_dob:  Date de naissance
   label_wk_designation:  Désignation
   label_employee_id:  Identifiant d'employé
@@ -264,7 +263,6 @@ fr:
   label_company_name: Company Name
   label_address: Address
   label_enable_payroll_module: Enable Payroll module 
-  label_gender: Gender
   label_ytd_description: YTD - Year to Date from %{start} to %{end}
   label_component: Component
   label_factor: Factor
@@ -1079,10 +1077,35 @@ fr:
   label_asset_receipt_ledger: Asset Sale Receipt Ledger
   label_asset_value: Asset Value
   text_are_you_sure_want_dispose_asset: "Are you sure want to dispose asset?"
-  label_auto_round_gl: Auto round invoices
+  label_auto_round_gl: Round Off Amounts
   label_trend_chart: Trending Chart
 
   label_mapbox_apikey: Mapbox API key
   label_api_key_info: If you are not have a api key get it from here
   error_issue_logger: "Can't Update until stop the issue logger"
   error_item_not_available: Requested no of items not available in the stock
+  label_reviewer_cmt: Reviewer Comment
+  warning_leaving_message: Are you sure you want to leave the page
+  note_choose_attachment: Choose one from attachments
+  label_reporters: Reporters
+  
+  label_notification: Notification
+  label_non_submission: Non Submission
+  label_time_rejected: Time Rejected
+  label_leave_requested: Leave Requested
+  label_leave_approved: Leave Approved
+  label_lead_converted: Lead Converted
+  label_lead_generated: Lead Generated
+  label_opportunity_status_changed: Opportunity Status Changed
+  label_sales_activity_completed: Sales Activity Completed
+  label_invoice_generated: Invoice Generated
+  label_payment_received: Payment Received
+  label_contract_signed: Contract Signed
+  label_rfq_created: RFQ Created
+  label_quote_received: Quote Received
+  label_po_generated: PO Generated
+  label_supplier_invoice_received: Supplier Invoice Received
+  label_supplier_payment_sent: Supplier Payment Sent
+  label_receive_goods: Receive Goods
+  label_dispose_asset: Dispose Asset
+  label_survey_closed: Survey Closed

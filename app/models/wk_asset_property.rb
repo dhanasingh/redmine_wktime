@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2017  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -42,5 +42,12 @@ class WkAssetProperty < ActiveRecord::Base
            ELSE it.cost_price + it.over_head_price 
       END AS previous_value")
   }
+
+  def self.dispose_asset_notification(assetProperty)
+    emailNotes = "Asset : " + (assetProperty.name) + " has been disposed" + "\n\n" + l(:label_redmine_administrator)
+    subject = l(:label_asset) + " " + l(:label_notification)
+    userId = (WkPermission.permissionUser('V_INV') + WkPermission.permissionUser('D_INV')).uniq
+    WkNotification.notification(userId, emailNotes, subject)
+  end
   
 end

@@ -1,15 +1,19 @@
+<%= stylesheet_link_tag 'application' , :media => "all" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-<div class="autoscroll">
+<% show_on_map = session[controller_name].try(:[], :show_on_map) %>
+<div class="autoscroll" >
 	<% headerHash = controller.getIventoryListHeader  %>
 	<% ratePerHash = getRatePerHash(false) %>
 	<% assetTypeHash = getAssetTypeHash(false) %>
-	<table class="list time-entries">
+	<table class="list time-entries" style="width:<%= !show_on_map ? "100%" : "35%" %>; float:left;">
 		<thead>
 			<tr>
 				<%headerHash.each do |key, header|%>
-					<% if action_name == 'index' && !(["is_loggable", "currency"].include? key) %>
+					<% if action_name == 'index' && ( show_on_map && (["owner_type", "is_loggable", "project_name", "asset_name"].include? key) )%>
 						<%= sort_header_tag(key, :caption => header, class: "lbl-txt-align") %>
-					<%else%>
+					<% elsif action_name == 'index' && !show_on_map %>
+						<%= sort_header_tag(key, :caption => header, class: "lbl-txt-align") %>
+					<% elsif action_name != 'index'  %>
 						<th class="lbl-txt-align"><%= header %></th>
 					<%end%>
 				<%end%>
@@ -23,28 +27,28 @@
 
 				<tr>
 					<% headerHash.keys.each do |colName|%>
-						<% if colName == "rate" || colName == "current_value" %>
+						<% if ((colName == "rate" || colName == "current_value") && !show_on_map) %>
 							<% ratePer = entry.id.blank? ? ratePerHash[entry['rate_per']] : ratePerHash[entry.asset_property['rate_per']] %>
 							<td class="lbl-txt-align"><%=h (entry.id.blank? ? entry.asset_currency : entry.asset_property.currency).to_s + " "  %><%=h entry.id.blank? ? entry[colName] : entry.asset_property[colName] %><%=h " " + ratePer.to_s %></td>
 						<% elsif colName == "owner_type" %>
 							<td class="lbl-txt-align"><%=h entry.id.blank? ? assetTypeHash[entry[colName]] : assetTypeHash[entry.asset_property[colName]]  %></td>
 						<% elsif colName == "is_loggable" %>
 							<td class="lbl-txt-align"><%=h checked_image entry.is_loggable?  %></td>
-						<% elsif colName == "product_name" %>
+						<% elsif (colName == "product_name" && !show_on_map) %>
 							<td class="lbl-txt-align"><%=h entry.id.blank? ? entry[colName] : entry.product_item.product.name  %></td>
-						<% elsif colName == "parent_name" %>
+						<% elsif (colName == "parent_name" && !show_on_map) %>
 							<% appartmentName = entry["parent_name"].blank? ? entry["asset_name"] : entry[colName] %>
 							<td class="lbl-txt-align"><%=h entry.id.blank? ? appartmentName : (entry.parent.blank? ? "" : entry.parent.assetName) %></td>
 						<% elsif colName == "asset_name" %>
 							<% bedName = entry["parent_name"].blank? ? '' : entry[colName] %>
 							<td class="lbl-txt-align"><%=h entry.id.blank? ? bedName : entry.assetName  %></td>
-						<% elsif colName == "product_attribute_name" %>
+						<% elsif (colName == "product_attribute_name" && !show_on_map) %>
 							<td class="lbl-txt-align"><%=h entry.id.blank? ? entry[colName] : (entry.product_attribute.blank? ? "" : entry.product_attribute.name)  %></td>
-						<% elsif colName == "location_name" %>
+						<% elsif (colName == "location_name" && !show_on_map) %>
 							<td class="lbl-txt-align"><%=h entry.id.blank? ? entry[colName] : (entry.location.blank? ? "" : entry.location.name)  %></td>
 						<% elsif colName == "project_name" %>
 							<td class="lbl-txt-align"><%=h entry.id.blank? ? entry[colName] : (entry.project.blank? ? "" : entry.project.name)  %></td>
-						<% else %>
+						<% elsif !show_on_map %>
 							<td class="lbl-txt-align"><%=h entry[colName] %></td>
 						<% end %>
 					<%end%>
@@ -58,5 +62,9 @@
 			<% end %>
 		</tbody>
 	</table>
+
+	<% if show_on_map && params[:controller] == 'wkasset' %>
+		<%= render partial: "wkgeolocation/show_on_map", locals: { entries: @productInventory, model: "assets", height: '94%', width: '64%'} %>
+	<% end %>
 </div>
 

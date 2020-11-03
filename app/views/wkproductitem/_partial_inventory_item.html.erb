@@ -2,7 +2,7 @@
 	<th align="left"><%= l(:field_currency) %></th>
 	<td align="left" style="padding-left:40px;">
 		<% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
-		<%=h select_tag("currency",options_for_select(wkexpense_helper.options_for_currency, :selected => invntItem.blank? ? '' : invntItem.currency), :disabled => isDisable || isTransfer) %>
+		<%=h select_tag("currency",options_for_select(wkexpense_helper.options_for_currency, :selected => invntItem.blank? ? Setting.plugin_redmine_wktime['wktime_currency'] : invntItem.currency), :disabled => isDisable || isTransfer) %>
 	</td>
 </tr> 
 <tr>

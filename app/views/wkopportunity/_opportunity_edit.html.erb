@@ -1,13 +1,13 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
-	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds', :additionalContactType => controller.additionalContactType)}" %>";
+	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds', :additionalContactType => controller.additionalContactType, :additionalAccountType => controller.additionalAccountType)}" %>";
 </script>
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
-<%	accArr = options_for_wktime_account(false, 'A')
+<%	accArr = options_for_wktime_account(false, 'A', controller.additionalAccountType)
 	if !@oppEditEntry.blank?
-		accArr = relatedValues(@oppEditEntry[0].parent_type, @oppEditEntry[0].parent_id, 'A', false, controller.additionalContactType)	
+		accArr = relatedValues(@oppEditEntry[0].parent_type, @oppEditEntry[0].parent_id, 'A', false, controller.additionalContactType, controller.additionalAccountType)	
     elsif !params[:parentType].blank?
-		accArr = relatedValues(params[:parentType], params[:parentId], 'A', false, controller.additionalContactType)		
+		accArr = relatedValues(params[:parentType], params[:parentId], 'A', false, controller.additionalContactType, controller.additionalAccountType)		
 	end
 	relHash = relatedHash
 	relHash.delete("WkOpportunity")

@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2016  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -97,34 +97,15 @@ class WkaccountController < WkcrmController
     end	
 	
 	def update
-		errorMsg = nil
-		if params[:account_id].blank? || params[:account_id].to_i == 0
-			wkaccount = WkAccount.new
-		else
-		    wkaccount = WkAccount.find(params[:account_id].to_i)
-		end
-		wkaccount.name = params[:account_name]
-		wkaccount.account_type = getAccountType
-		wkaccount.account_category = params[:account_category]
-		wkaccount.description = params[:description]
-		wkaccount.account_billing = params[:account_billing].blank? ? 0 : params[:account_billing]
-		wkaccount.location_id = params[:location_id] if params[:location_id] != "0"
-
-		if wkaccount.valid?
-			addrId = updateAddress
-			wkaccount.address_id = addrId if addrId.present?
-			wkaccount.save
-		else
-			errorMsg = errorMsg.blank? ? wkaccount.errors.full_messages.join("<br>") : wkaccount.errors.full_messages.join("<br>") + "<br/>" + errorMsg
-		end
-
+		wkaccount = accountSave
+		errorMsg = wkaccount.errors.full_messages.join("<br>")
 		respond_to do |format|
 			format.html {
-				if errorMsg.nil?
+				if errorMsg.blank?
 					redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name 
 					flash[:notice] = l(:notice_successful_update)
 				else
-					flash[:error] = errorMsg #wkaccount.errors.full_messages.join("<br>")
+					flash[:error] = errorMsg
 					redirect_to :controller => controller_name, :action => 'edit', :account_id => wkaccount.id
 				end
 			}

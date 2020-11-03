@@ -1,6 +1,8 @@
-<% other_formats_links do |f| %>
-  <%= link_to 'CSV', url_for(:controller => controller.controller_name, :action => 'export', :startday => @startday, :user_id => params[:user_id]) + '&format=csv' %>  
-  <% #= link_to 'PDF', url_for(:controller => controller.controller_name, :action => 'export', :startday => @startday, :user_id => params[:user_id]) + '&format=pdf' %>
+<% if controller.showAttachments %>
+  <% other_formats_links do |f| %>
+    <%= f.link_to('PDF', :url => {controller: controller.controller_name, action: 'export', startday: @startday, user_id: params[:user_id], format: 'pdf'}) %>
+    <%= f.link_to('CSV', :url => {controller: controller.controller_name, action: 'export', startday: @startday, user_id: params[:user_id], format: 'csv'}) %>
+  <% end %>
 <% end %>
 
 <% html_title l(:label_spent_time), l(:label_details) %>

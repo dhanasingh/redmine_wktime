@@ -5,6 +5,7 @@
 <%= title l(:label_survey) %>
 <script type="text/javascript">
     wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "leave")%>';
+    wkleavereqUrl = '<%=url_for(:controller => "wkleaverequest", :action => "index", :tab => "wkleaverequest")%>';
     clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>';
     payrollUrl = '<%=url_for(:controller => "wkpayroll", :action => "index", :tab => "payroll")%>';
     userssettingsUrl = '<%=url_for(:controller => "wkpayroll", :action => "usrsettingsindex", :tab => "usersettings")%>';

@@ -18,7 +18,7 @@
 class WkexpenseController < WktimeController	
   unloadable  
   
-  menu_item :issues
+  menu_item :wktime
   before_action :find_optional_project, :only => [:reportdetail, :report]
   
   accept_api_auth :reportdetail, :index, :edit, :update, :destroy , :deleteEntries, :getCurrency
@@ -42,10 +42,6 @@ class WkexpenseController < WktimeController
   
   def getTFSettingName
 	"wkexpense_issues_filter_tracker"
-  end
-  
-  def filterTrackerVisible
-	false
   end
   
   def showSpentFor
@@ -151,6 +147,10 @@ class WkexpenseController < WktimeController
     
     teEntry.wkspentfor_attributes = spent_for
   end
+				
+  def getModelName
+    'WkExpenseEntry'
+  end
 
 private
   def getSpecificField
@@ -196,6 +196,23 @@ private
   
   def findWkTEByCond(cond)
 	@wktimes = Wkexpense.where(cond)
+  end	
+
+  def getUserwkStatuses
+    cond = getCondition('spent_on', @user.id, @startday, @startday+6)
+    @userEntries = findEntriesByCond(cond)
+		@approvedwkStatuses = @userEntries.joins("LEFT JOIN wk_statuses ON wk_expense_entries.id = wk_statuses.status_for_id").where("status_for_type='WkExpenseEntry' and wk_statuses.status = 'a'").select("wk_expense_entries.*")
+	end
+
+  def getApproverPermProj
+    @approverEntries = []
+    @approverwkStatuses = []
+    approvableProj = @approvable_projects.pluck(:id).join(',')
+    if approvableProj.present?
+      cond = "spent_on BETWEEN '#{@startday}' AND '#{@startday+6}' AND user_id = #{@user.id} AND wk_expense_entries.project_id IN (#{approvableProj})"
+      @approverEntries = findEntriesByCond(cond)
+      @approverwkStatuses = @approverEntries.joins("LEFT JOIN wk_statuses ON wk_expense_entries.id = wk_statuses.status_for_id").where("status_for_type='WkExpenseEntry' and wk_statuses.status = 'a' ")
+    end
   end
   
   def findEntriesByCond(cond)
@@ -316,4 +333,14 @@ private
   def getUserIdsFromSession
 	session[:wkexpense][:all_user_ids]
   end
+
+	def getLastPDFCell(list, entry)
+		list << [ entry.currency.to_s + " " + entry.amount.to_s , 40 ]
+		list
+  end
+
+	def getPDFFooter(pdf, row_Height)
+		pdf.RDMCell( 140, row_Height, l(:label_total), 1, 0, 'R', 1)
+		pdf.RDMCell( 40, row_Height, (@total_hours || 0).to_s, 1, 0, '', 1)
+	end
 end

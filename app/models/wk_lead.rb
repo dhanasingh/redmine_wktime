@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2017  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -23,6 +23,8 @@ class WkLead < ActiveRecord::Base
   belongs_to :address, :class_name => 'WkAddress'
   belongs_to :contact, :class_name => 'WkCrmContact', :dependent => :destroy
   before_save :update_status_update_on 
+  after_create_commit :send_notification
+  after_save :lead_notification
   
   def update_status_update_on
 	self.status_update_on = DateTime.now if status_changed?
@@ -30,6 +32,24 @@ class WkLead < ActiveRecord::Base
   
   def name
 	contact.name unless contact.blank?
+  end
+  
+  def lead_notification
+    if status? && status == "C" && WkNotification.notify('leadConverted')
+      emailNotes = "Lead : " + (self.account ? self.account.name : self.contact.name) + " has been converted " + "\n\n" + l(:label_redmine_administrator)
+      subject = l(:label_lead) + " " + l(:label_notification)
+      userId = (WkPermission.permissionUser('B_CRM_PRVLG') + WkPermission.permissionUser('A_CRM_PRVLG')).uniq
+      WkNotification.notification(userId, emailNotes, subject)
+    end
+  end
+
+  def send_notification
+    if WkNotification.notify('leadGenerated')
+      emailNotes = "Lead : " + (self.account ? self.account.name : self.contact.name) + " has been generated " + "\n\n" + l(:label_redmine_administrator)
+      subject = l(:label_lead) + " " + l(:label_notification)
+      userId = (WkPermission.permissionUser('B_CRM_PRVLG') + WkPermission.permissionUser('A_CRM_PRVLG')).uniq
+      WkNotification.notification(userId, emailNotes, subject)
+    end
   end
 
 end

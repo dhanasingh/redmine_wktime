@@ -52,12 +52,15 @@ class WkpayrollController < WkbaseController
         render :layout => !request.xhr?
       }
       format.api
+			format.pdf {
+				send_data(list_to_pdf(@payrollEntries, l(:label_payroll)), :type => 'application/pdf', :filename => "#{l(:label_payroll)}.pdf")
+			}
 		end
 
 	end
 
 	def payrollEntries
-		sort_init 'salary_date', 'desc'
+		sort_init [['salary_date', 'desc'], ['join_date', 'asc']]
 		sort_update 'user' => "CONCAT(U.firstname, U.lastname)",
 					'salary_date' => "S.salary_date",
 					'basic_pay' => "basic_pay",
@@ -113,7 +116,7 @@ class WkpayrollController < WkbaseController
 			sql_contd += " AND " if sql_contd != " WHERE "
 			sql_contd += " S.user_id IN (#{userId}) "
 		end
-		orderSQL = (action_name == 'edit' || sort_clause.blank?)  ? "" : " ORDER BY "+ sort_clause.first
+		orderSQL = (action_name == 'edit' || sort_clause.blank?)  ? "" : " ORDER BY "+ sort_clause.join(', ')
 		payroll_salaries = WkSalary.find_by_sql("SELECT S.*, concat(U.firstname, U.lastname) AS username, (SAL.basic_pay + SAL.allowances) AS gross,
 			((SAL.basic_pay + SAL.allowances) - SAL.deduction_total) AS net, WU.join_date
 			FROM wk_salaries AS S
@@ -622,4 +625,45 @@ class WkpayrollController < WkbaseController
 		render(plain: getSalCompsByCompType(params[:component_type]))
 	end
 
+	def getPDFHeaders()
+		headers = [
+			[ l(:field_user), 30 ],
+			[ l(:field_join_date), 20 ],
+			[ l(:label_salarydate), 20 ],
+			[ l(:label_basic), 22 ],
+			[ l(:label_allowances), 22 ],
+			[ l(:label_deduction), 26 ],
+			[ l(:label_gross), 25 ],
+			[ l(:label_net), 25 ]
+		]
+	end
+
+	def getPDFcells(entry)
+		entry = entry.last
+		@basic_total ||= 0
+		@allowance_total ||= 0
+		@deduction_total ||= 0
+		@basic_total += entry[:BT] unless entry[:BT].blank?
+		@allowance_total += entry[:AT] unless entry[:AT].blank?
+		@deduction_total += entry[:DT] unless entry[:DT].blank?
+		list = [
+			[ (entry[:firstname] || "") + " " + (entry[:lastname] || ""), 30 ],
+			[ entry[:joinDate].to_s, 20 ],
+			[ entry[:salDate].to_s, 20 ],
+			[ entry[:currency].to_s + " " + ("%.2f" % entry[:BT]).to_s, 22 ],
+			[ entry[:currency].to_s + " " + ("%.2f" % entry[:AT]).to_s, 22 ],
+			[ entry[:currency].to_s + " " + ("%.2f" % entry[:DT]).to_s, 26 ],
+			[ entry[:currency].to_s + " " + ("%.2f" % ((entry[:BT].blank? ? 0 : entry[:BT]) + (entry[:AT].blank? ? 0 : entry[:AT]))).to_s, 25 ],
+			[ entry[:currency].to_s + " " + ("%.2f" % (((entry[:BT].blank? ? 0 : entry[:BT]) + (entry[:AT].blank? ? 0 : entry[:AT])) -(entry[:DT].blank? ? 0 : entry[:DT]))).to_s, 25 ]
+		]
+	end
+
+	def getPDFFooter(pdf, row_Height)
+		pdf.RDMCell( 70, row_Height, "Total", 1, 0, '', 1)
+		pdf.RDMCell( 22, row_Height, @payrollEntries.values[0][:currency] + " " + (@basic_total || 0).to_s, 1, 0, '', 1)
+		pdf.RDMCell( 22, row_Height, @payrollEntries.values[0][:currency] + " " + (@allowance_total || 0).to_s, 1, 0, '', 1)
+		pdf.RDMCell( 26, row_Height, @payrollEntries.values[0][:currency] + " " + (@deduction_total || 0).to_s, 1, 0, '', 1)
+		pdf.RDMCell( 25, row_Height, @payrollEntries.values[0][:currency] + " " + (@total_gross || 0).to_s, 1, 0, '', 1)
+		pdf.RDMCell( 25, row_Height, @payrollEntries.values[0][:currency] + " " + (@total_net || 0).to_s, 1, 0, '', 1)
+	end
 end

@@ -14,12 +14,12 @@
 		<% @leaveReqEntires.each do |entry| %>
 		<% status = getLeaveStatus[entry.try(:status)] %>
 			<tr>
-				<td><%= entry.user_name %></td>
-				<td><%= entry.leave_type.subject %></td>
-				<td><%= entry.startDate %></td>
-				<td><%= entry.endDate %></td>
-				<td><%= (entry.created_at).to_date %></td>
-				<td><%= status %></td>
+				<td class="lbl-txt-align"><%= entry.user_name %></td>
+				<td class="lbl-txt-align"><%= entry.leave_type.subject %></td>
+				<td class="lbl-txt-align"><%= entry.startDate %></td>
+				<td class="lbl-txt-align"><%= entry.endDate %></td>
+				<td class="lbl-txt-align"><%= (entry.created_at).to_date %></td>
+				<td class="lbl-txt-align"><%= status %></td>
 				<td align="center">
 					<%= link_to image_tag('edit.png'), {:controller => controller_name, :action => 'edit', :id => entry.id, 
 						:tab => controller_name}, :title => l(:button_edit) %>

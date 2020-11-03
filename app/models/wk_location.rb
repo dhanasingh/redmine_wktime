@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2017  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -23,9 +23,15 @@ class WkLocation < ActiveRecord::Base
   has_many :contacts, foreign_key: "location_id", class_name: "WkCrmContact", :dependent => :restrict_with_error
   has_many :acounts, foreign_key: "location_id", class_name: "WkAccount", :dependent => :restrict_with_error
   before_save :check_default, :check_main
-  
+  acts_as_attachable :view_permission => :view_files,
+                    :edit_permission => :manage_files,
+                    :delete_permission => :manage_files
+
   validates_presence_of :name
-  
+
+  scope :getMainLogo, -> { getMainLocation() }
+  scope :getLogoDD, ->(locationID) { joins(:attachments).where("attachments.content_type LIKE 'image/%' AND wk_locations.id = ?", locationID).select('attachments.id, attachments.filename') }
+
   def check_default
     if is_default? && is_default_changed?
       WkLocation.update_all({:is_default => false})
@@ -36,5 +42,12 @@ class WkLocation < ActiveRecord::Base
     if is_main? && is_main_changed?
       WkLocation.update_all({:is_main => false})
     end
+  end
+
+  def self.getMainLocation
+    entry = WkLocation.where(is_main: true)
+    attachment_id = entry.first && entry.first.attachment_id
+    entry = Attachment.where(id: attachment_id).first
+    (entry || {})
   end
 end

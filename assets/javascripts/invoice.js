@@ -43,22 +43,23 @@ function invoiceAddRow(tableId, rowCount)
 		var el = $(this).find(':first-child');
 		var id = el.attr('id') || null;
 		if(id) {
-			var i = id.substr(id.length-1);
-			var prefix = id.substr(0, (id.length-1));
-			el.attr('id', prefix+(+i+1));
-			el.attr('name', prefix+(+i+1));
-			if(prefix == "item_type")
+			var index = parseInt(id.split('_').pop());
+			id = id.split('_');
+			id.splice(-1,1);
+			var prefix = id.join('_') + '_';
+			el.attr('id', prefix+(index + 1));
+			el.attr('name', prefix+(index + 1));
+			if(prefix == "item_type_")
 			{
 				el.attr('disabled', false);
 			}
-			//el.attr('value', prefix+(+i+1));
 		}
 	});/* working fine */
   
     if(tableId == "milestoneTable")
     {
 	    var datePickerClone = $('.date', $rowClone);
-		var datePickerCloneId = 'billdate' + rowlength;
+		var datePickerCloneId = 'billdate_' + rowlength;
 		
 		datePickerClone.data( "datepicker", 
 			$.extend( true, {}, lastDatePicker.data("datepicker") ) 
@@ -75,34 +76,31 @@ function invoiceAddRow(tableId, rowCount)
       datePickerClone.datepicker();
     }
 	document.getElementById(rowCount).value = rowlength;
-	clearId = tableId == "milestoneTable" ? "milestone_id"+rowlength : (tableId == "txnTable" ? "txn_id"+rowlength : "item_id"+rowlength ) ;
+	clearId = tableId == "milestoneTable" ? "milestone_id_"+rowlength : (tableId == "txnTable" ? "txn_id_"+rowlength : "item_id_"+rowlength ) ;
 	document.getElementById(clearId).value = "";
-	if(document.getElementById('item_index' + rowlength) != null)
+	if(document.getElementById('item_index_' + rowlength) != null)
 	{
-		document.getElementById('item_index' + rowlength).innerHTML = rowlength; 
+		document.getElementById('item_index_' + rowlength).innerHTML = rowlength; 
 	}
 	
 	if(tableId == "invoiceTable")
 	{
-		document.getElementById("product_id"+rowlength).value = "";
-		document.getElementById("material_id"+rowlength).value = "";
+		document.getElementById("product_id_"+rowlength).value = "";
+		document.getElementById("material_id_"+rowlength).value = "";
 	}
 	
 }
 
 function addAmount(fldId)
 {
-	console.log(fldId);
-	var cloumnId = parseInt(fldId.replace(/[^0-9\.]/g, ''));
-	console.log(cloumnId);
-	var rate = document.getElementById('rate'+  cloumnId);
-	console.log(rate);
-	var quantity = document.getElementById('quantity'+  cloumnId);
-	var exchangerate_amount = document.getElementById('exchangerate_amount'+ cloumnId)
+	var cloumnId = parseInt(fldId.split('_').pop());
+	var rate = document.getElementById('rate_'+  cloumnId);
+	var quantity = document.getElementById('quantity_'+  cloumnId);
+	var exchangerate_amount = document.getElementById('exchangerate_amount_'+ cloumnId)
 	if(rate.value != null && quantity.value != null)
 	{
-		document.getElementById("amount"+  cloumnId).innerHTML = (rate.value * quantity.value * exchangerate_amount.value).toFixed(2);
-		document.getElementById("original_amount"+  cloumnId).innerHTML = (rate.value * quantity.value).toFixed(2);
+		document.getElementById("amount_"+  cloumnId).innerHTML = (rate.value * quantity.value * exchangerate_amount.value).toFixed(2);
+		document.getElementById("original_amount_"+  cloumnId).innerHTML = (rate.value * quantity.value).toFixed(2);
 	}	
 	var table = document.getElementById('invoiceTable');
 	var len = table.rows.length;
@@ -112,17 +110,17 @@ function addAmount(fldId)
 	var productTothash = new Object();
 	for(var i = 1 ; i <= (len-1) ; i++)
 	{
-		if(document.getElementById("project_id"+i) != null && document.getElementById("product_id"+i).value == "" ) {
-			var dropdown = document.getElementById("project_id"+i);
+		if(document.getElementById("project_id_"+i) != null && document.getElementById("product_id_"+i).value == "" ) {
+			var dropdown = document.getElementById("project_id_"+i);
 			var ddvalue = dropdown.options[dropdown.selectedIndex].value;			
-			tothash[ddvalue] = (tothash[ddvalue] == null ? 0 : tothash[ddvalue]) + parseInt($("#amount"+i).text());
+			tothash[ddvalue] = (tothash[ddvalue] == null ? 0 : tothash[ddvalue]) + parseInt($("#amount_"+i).text());
 		}
-		if(document.getElementById("product_id"+i).value != "")
+		if(document.getElementById("product_id_"+i).value != "")
 		{
-			productId = document.getElementById("product_id"+i).value;
-			productTothash[productId] = (productTothash[productId] == null ? 0 : productTothash[productId]) + parseInt($("#amount"+i).text() );			
+			productId = document.getElementById("product_id_"+i).value;
+			productTothash[productId] = (productTothash[productId] == null ? 0 : productTothash[productId]) + parseInt($("#amount_"+i).text() );			
 		}
-		total = total + parseInt($("#amount"+i).text());
+		total = total + parseInt($("#amount_"+i).text());
 		 
 	}
 	
@@ -188,8 +186,8 @@ function deleteRow(tableId, totalrow)
 				for(var j=0; j<colCount; j++) 
 				{
 					var input = document.getElementById(tableId).rows[i].cells[j].getElementsByTagName("*")[0];	
-					input.id = table.rows[i].cells[j].headers + i;
-					input.name = table.rows[i].cells[j].headers + i;
+					input.id = table.rows[i].cells[j].headers + '_' + i;
+					input.name = table.rows[i].cells[j].headers + '_' + i;
 				}
 			}			
 		}
@@ -208,9 +206,10 @@ function deleteRow(tableId, totalrow)
 				var colCount = table.rows[i].cells.length;			
 				for(var j=0; j<colCount; j++) 
 				{
-					var input = document.getElementById(tableId).rows[i].cells[j].getElementsByTagName("*")[0];	
-					input.id = table.rows[i].cells[j].headers + i;
-					input.name = table.rows[i].cells[j].headers + i;					
+					var input = document.getElementById(tableId).rows[i].cells[j].getElementsByTagName("*")[0];
+					input.id = table.rows[i].cells[j].headers + '_' + i;
+					input.name = table.rows[i].cells[j].headers + '_' + i;
+					$('#item_index_'+i).html(i)
 				}
 			}
 	}
@@ -230,8 +229,7 @@ function tallyAmount(fldId)
 		alert(fldval + " " + transValidMsg);
 	}
 	else{
-		var addclm = parseInt(fldId.replace(/[^0-9\.]/g, '')) +1;	
-		//var addclm = parseInt(fldId.slice(-1)) + 1 ;	
+		var addclm = parseInt(fldId.split('_').pop()) +1;
 		var oldtable = document.getElementById("txnTable");
 		var oldrowlength = oldtable.rows.length;
 		if(addclm > 2 && addclm == oldrowlength )
@@ -255,8 +253,8 @@ function updateAmount()
 	var rowlength = table.rows.length;
 	for(var i = 1; i < rowlength; i++)
 	{
-		var txn_debit = document.getElementById('txn_debit'+i);
-		var txn_credit = document.getElementById('txn_credit'+i);
+		var txn_debit = document.getElementById('txn_debit_'+i);
+		var txn_credit = document.getElementById('txn_credit_'+i);
 		debval = txn_debit.value == "" ? 0 : parseFloat(txn_debit.value);
 		crdtval = txn_credit.value == "" ? 0 : parseFloat(txn_credit.value);	
 		
@@ -269,12 +267,12 @@ function updateAmount()
 		{
 			isDebit = true;
 		}
-		var fieldId = (isDebit ? 'txn_credit' :  'txn_debit') + i;//(rowlength-1);
+		var fieldId = (isDebit ? 'txn_credit_' :  'txn_debit_') + i;//(rowlength-1);
 		if(i == (rowlength-1))
 		{
 			totalamount = isDebit ? debitAmount - creditAmount : creditAmount - debitAmount;
 			totalamount = Math.abs(totalamount);
-			var fieldId = ((isDebit && debitAmount > creditAmount) ? 'txn_credit' :  ((!isDebit && debitAmount > creditAmount) ? 'txn_credit' : 'txn_debit')) + i;
+			var fieldId = ((isDebit && debitAmount > creditAmount) ? 'txn_credit_' :  ((!isDebit && debitAmount > creditAmount) ? 'txn_credit_' : 'txn_debit_')) + i;
 			document.getElementById(fieldId).value = totalamount;			
 		}
 		totDebit += txn_debit.value == "" ? 0 : parseFloat(txn_debit.value);
@@ -291,8 +289,8 @@ function txnAddrowValidation(tableId)
 	var isAddrow = false;
 	for(var i = 1; i < 3; i++)
 	{
-		var txn_debit = document.getElementById('txn_debit'+i);
-		var txn_credit = document.getElementById('txn_credit'+i);
+		var txn_debit = document.getElementById('txn_debit_'+i);
+		var txn_credit = document.getElementById('txn_credit_'+i);
 		if(txn_debit.value != "")
 		{
 			isAddrow = true;

@@ -2,7 +2,7 @@ var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, pay
 	blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl,
 	blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupAccUrl, purSupContactUrl, purSupPayUrl,
 	wklocationUrl,  wkproductUrl, wkproductitemUrl, wkshipmentUrl, wkassetUrl, wkassetdepreciationUrl, wkgrpPermissionUrl, wkSchedulingUrl,
-	wkPublicHolidayUrl, userCurrentUrl, wkSurveyUrl;
+	wkPublicHolidayUrl, userCurrentUrl, wkSurveyUrl, wkleavereqUrl, wknotificationUrl;
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -113,6 +113,9 @@ $(document).ready(function() {
 	changeProp('tab-wkscheduling',wkSchedulingUrl);
 	changeProp('tab-wkpublicholiday',wkPublicHolidayUrl);
 	changeProp('tab-wksurvey',wkSurveyUrl);
+	changeProp('tab-wkleaverequest',wkleavereqUrl);
+	changeProp('tab-wknotification',wknotificationUrl);
+	
 });
 
 function openReportPopup(){
@@ -827,6 +830,28 @@ function myReportUser(optionID,userID){
 		beforeSend: function(){ $this.addClass('ajax-loading'); },
 		complete: function(){ $this.removeClass('ajax-loading'); }
 	});
+}
+
+function reportersChanged(ele){
+	switch(ele.value){
+		case '3':
+			$("#group_id").attr("disabled", true);
+			$("#project_id").attr("disabled", true);
+			$("#user_id").attr("disabled", true);
+		break;
+		case '4':
+			myReportUser(ele,"#{User.current.id}");
+			$("#group_id").attr("disabled", true);
+			$("#project_id").attr("disabled", true);
+			$("#user_id").removeAttr("disabled");
+		break;
+		case '5':
+			myReportUser(ele,"#{User.current.id}");
+			$("#group_id").attr("disabled", true);
+			$("#project_id").attr("disabled", true);
+			$("#user_id").removeAttr("disabled");
+		break;
+	}
 }
 
 function getprojects(ele, isAccProj, isSIProj){
