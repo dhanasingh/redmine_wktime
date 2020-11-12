@@ -252,26 +252,21 @@ include ActionView::Helpers::TagHelper
 				end
 
 				if getSheetView == 'W' && (!params[:wktime_save].blank? || !params[:wktime_save_continue].blank? || !params[:wktime_submit].blank?)
-					wkStatuses = WkStatus.where(status_for_type: getModelName, status: 'r')
-					wkStatuses = wkStatuses.where(status_for_id: (@userEntries || []).pluck(:id))
-					wkStatuses.destroy_all() unless wkStatuses.blank?
+					destroyWKstatuses(status='r', @userEntries)
 				elsif useApprovalSystem && !params[:wktime_unapprove].blank?
-					wkStatuses = WkStatus.where(status_for_type: getModelName, status: 'a')
-					wkStatuses = wkStatuses.where(status_for_id: (@approverEntries || []).pluck(:id))
-					wkStatuses.destroy_all() unless wkStatuses.blank?
+					destroyWKstatuses(status='a', @approverEntries)
 				end
 
-				if !params[:wktime_approve].blank? || !params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank? || (!Setting.plugin_redmine_wktime['wktime_uuto_approve'].blank? &&
-					Setting.plugin_redmine_wktime['wktime_uuto_approve'].to_i == 1 && !params[:wktime_submit].blank?)
+				if !params[:wktime_approve].blank? || !params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank?
 					@approverEntries.each do | entry |
 						next if entry.wkstatus.present?
-							wkStatuses = WkStatus.new
-							wkStatuses.status_for_type = getModelName
-							wkStatuses.status_for_id = entry.id
-							wkStatuses.status = !params[:wktime_approve].blank? || !params[:wktime_submit].blank? ? 'a' : 'r'
-							wkStatuses.status_date = Time.now
-							wkStatuses.status_by_id = User.current.id
-							wkStatuses.save
+						saveWKstatuses(entry)
+					end
+				elsif (!Setting.plugin_redmine_wktime['wktime_uuto_approve'].blank? && 
+								Setting.plugin_redmine_wktime['wktime_uuto_approve'].to_i == 1 && !params[:wktime_submit].blank?)
+					@userEntries.each do | entry |
+						next if entry.wkstatus.present?
+						saveWKstatuses(entry)
 					end
 				end
 
@@ -1335,6 +1330,22 @@ include ActionView::Helpers::TagHelper
 
 	def getModelName
 		'TimeEntry'
+	end
+
+	def saveWKstatuses(entry)
+		wkStatuses = WkStatus.new
+		wkStatuses.status_for_type = getModelName
+		wkStatuses.status_for_id = entry.id
+		wkStatuses.status = !params[:wktime_approve].blank? || !params[:wktime_submit].blank? ? 'a' : 'r'
+		wkStatuses.status_date = Time.now
+		wkStatuses.status_by_id = User.current.id
+		wkStatuses.save
+	end
+
+	def destroyWKstatuses(status, entries)
+		wkStatuses = WkStatus.where(status_for_type: getModelName, status: status)
+		wkStatuses = wkStatuses.where(status_for_id: (entries || []).pluck(:id))
+		wkStatuses.destroy_all() unless wkStatuses.blank?
 	end
 
 private
