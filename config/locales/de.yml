@@ -1104,3 +1104,44 @@ de:
   label_receive_goods: Receive Goods
   label_dispose_asset: Dispose Asset
   label_survey_closed: Survey Closed
+
+  # for mobile
+  error_empty: can't be empty
+  error_account_contact: Account or Contact
+  error_project: project
+  button_ok: OK
+  label_te_hr: TE and HR
+  label_groups: Groups
+  label_select_group: Select Group
+  label_select_user: Select User
+  label_build_by: Built by
+  label_aboutus: About us
+  label_erpmine_version: Web Version
+  label_erpmine_link: www.erpmine.org
+  alert_enter_details: Please enter the details
+  # label_Server: Server...
+  # label_api: APIKey...
+  label_language: Language
+  warning_details: Wrong Details!
+  success_delete: Successfully Deleted
+  success_save: Successfully Saved
+  label_payment_amount: Payment Amount
+  label_contact_info: Contact Information
+  label_select_location: Select a location
+  label_select_category: Select Category
+  label_select_status: Select a status
+  label_actvity_info: Activity Information
+  label_select_assignee: Select Assignee
+  label_select_account: Select a Account
+  label_general_info: General Information
+  label_lead_info: Lead Information
+  label_more_info: More Information
+  label_select_leadsource: Select Lead Source
+  label_clock: Clock
+  label_select_spent_for: Select Spent For
+  label_select_project: Select a project
+  label_select_issue: Select a issue
+  label_select_activity: Select a activity
+  label_spent_on: Spent on
+  label_s_uom: UOM
+  label_adhi_link: www.adhisoftware.co.in
