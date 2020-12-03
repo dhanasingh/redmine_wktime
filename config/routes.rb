@@ -698,3 +698,5 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wkpurchaseorder/export', :to => 'wkpurchaseorder#export'
 
 	get 'wksupplierinvoice/export', :to => 'wksupplierinvoice#export'
+
+	get 'wkleaverequest/getLeaveType', :to => 'wkleaverequest#getLeaveType'

@@ -28,7 +28,7 @@ class WkattendanceController < WkbaseController
 	before_action :check_index_perm, :only => [:index]
 	require 'csv'
 	
-	accept_api_auth :clockindex, :clockedit, :saveClockInOut, :getClockHours
+	accept_api_auth :clockindex, :clockedit, :saveClockInOut, :getClockHours, :index, :edit, :update
 
 	def index
 		sort_init 'id', 'asc'
@@ -65,6 +65,12 @@ class WkattendanceController < WkbaseController
 		end
 		orderStr = " ORDER BY " + (sort_clause.present? ? sort_clause.first : "u.firstname")
 		findBySql(selectStr, sqlStr, orderStr, WkUserLeave)
+		respond_to do |format|
+			format.html {        
+				render :layout => !request.xhr?
+			}
+			format.api
+		end
 	end
 
 	def clockindex
@@ -248,7 +254,12 @@ class WkattendanceController < WkbaseController
 			end
 		end
 		@leave_details = WkUserLeave.find_by_sql(sqlStr)
-		render :action => 'edit'
+		respond_to do |format|
+			format.html {        
+				render :layout => !request.xhr?
+			}
+			format.api
+		end
 	end
 	
 	def runPeriodEndProcess
@@ -296,14 +307,26 @@ class WkattendanceController < WkbaseController
 				errorMsg = wkuserleave.errors.full_messages.join('\n')
 			end
 		end
-		
-		if errorMsg.nil?
-			redirect_to :controller => 'wkattendance',:action => 'index' , :tab => 'wkattendance'
-			flash[:notice] = l(:notice_successful_update)
-		else
-			flash[:error] = errorMsg
-			redirect_to :action => 'edit'
-		end		
+    
+    respond_to do |format|
+      format.html {
+        if errorMsg.nil?
+          redirect_to :controller => 'wkattendance',:action => 'index' , :tab => 'wkattendance'
+          flash[:notice] = l(:notice_successful_update)
+        else
+          flash[:error] = errorMsg
+          redirect_to action: 'edit'
+        end
+      }
+      format.api{
+        if errorMsg.blank?
+          render :plain => errorMsg, :layout => nil
+        else		
+          @error_messages = errorMsg.split('\n')	
+          render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+        end
+      }
+    end
 	end
 	
 	def getQueryStr

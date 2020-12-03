@@ -1115,7 +1115,7 @@ fr:
   error_account_contact: Account or Contact
   error_project: project
   button_ok: OK
-  label_te_hr: TE and HR
+  label_te_hr: TE
   label_groups: Groups
   label_select_group: Select Group
   label_select_user: Select User
@@ -1150,3 +1150,6 @@ fr:
   label_spent_on: Spent on
   label_s_uom: UOM
   label_adhi_link: www.adhisoftware.co.in
+  label_select_leavetype: Select Leave Type
+  label_request: Request
+  label_warning_future_date: Cannot select the future Date

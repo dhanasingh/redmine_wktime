@@ -1,0 +1,13 @@
+api.array :leave_entries do
+    @leave_details.each do |entry|
+        api.entry do
+          api.id entry.id
+          api.user_id entry.user_id
+          api.issue_id entry.issue_id
+          api.leave entry.issue.subject
+          api.balance entry.balance
+          api.accrual entry.accrual
+          api.used entry.used
+        end
+    end
+end
