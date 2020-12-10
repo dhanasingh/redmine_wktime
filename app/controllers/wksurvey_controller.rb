@@ -18,9 +18,10 @@
 class WksurveyController < WkbaseController
 
   unloadable 
-  menu_item :wksurvey
-  menu_item :wkattendance, :only => :user_survey
   before_action :require_login, :survey_url_validation, :check_perm_and_redirect
+  accept_api_auth :index, :save_survey, :find_survey_for
+  menu_item :wksurvey
+  menu_item :wkattendance, :only => :save_survey
   
   include WksurveyHelper
 
@@ -31,7 +32,17 @@ class WksurveyController < WkbaseController
                 'status' => "#{WkSurvey.table_name}.status"
 
     surveys = surveyList(params)
-    formPagination(surveys.reorder(sort_clause))
+		respond_to do |format|
+			format.html {        
+        formPagination(surveys.reorder(sort_clause))
+				render :layout => !request.xhr?
+			}
+			format.api{
+        @entry_count = surveys.count
+        setLimitAndOffset()
+        @surveys = surveys
+      }
+		end
   end
 
   def edit
@@ -53,10 +64,12 @@ class WksurveyController < WkbaseController
   end
 
   def save_survey
-    errmsg = ""
+    errMsg = ""
     surveyQuestions = Array.new
     questions = Hash.new
     questionChoices = Hash.new
+    ActionController::Parameters.permit_all_parameters = true
+    params[:survey_id] = params["wksurvey"]["id"] if api_request? && params["wksurvey"].present?
 
     if params[:survey_id].blank?
       survey = WkSurvey.new
@@ -65,93 +78,124 @@ class WksurveyController < WkbaseController
     end
 
     if survey.status.blank? || survey.status == 'N'
-
-      survey.name = params[:survey_name]
-      survey.status = params[:survey_status]
-      survey.group_id = params[:group_id]
-      survey.recur = params[:recur].blank? ? false : params[:recur]
-      survey.recur_every =  params[:recur].blank? ? nil : params[:recur_every]
-      survey.survey_for_type = params[:survey_for].blank? ? nil : params[:survey_for]
-      survey.is_review = params[:review].blank? ? false : params[:review]
-
-      if params[:survey_for_id].blank?
-        survey.survey_for_id = nil
-      elsif params[:IsSurveyForValid] == "true"
-        survey.survey_for_id = params[:survey_for_id]
-      else
-        errmsg = l(:notice_surveyfor_unsuccessful) + "<br>"
-      end
-
-      params.each do |ele_nameVal|
-        #Question Array
-        if ((ele_nameVal.first).include? "questionName_") && (!(ele_nameVal.last).blank?)
-          question_ele = (ele_nameVal.first).split('_')
-          questionID = (question_ele[1]).blank? ? nil : question_ele[1]
-          qIndex = question_ele.last
-          qType = params["question_type_"+qIndex]
-          reviewerOnly = params["reviewerOnly_"+qIndex]
-          mandatory = params["mandatory_"+qIndex]
-          notInRpt = params["notInRpt_"+qIndex]
-          questions[qIndex] = [questionID, qType, ele_nameVal.last, reviewerOnly.present?, mandatory.present?,
-            notInRpt.present?]
+      if api_request? && params["wksurvey"].present?
+        surveyParams = (params["wksurvey"]).to_h
+        surveyParams["questions"].each do |question|
+          question["wk_survey_choices_attributes"] = question["choices"]
+          question.delete("choices")
         end
+        surveyParams["wk_survey_questions_attributes"] = surveyParams["questions"]
+        surveyParams.delete("status_label")
+        surveyParams.delete("questions")
+        survey.assign_attributes(surveyParams)
+      else
+        survey.name = params[:survey_name]
+        survey.status = params[:survey_status]
+        survey.group_id = params[:group_id]
+        survey.recur = params[:recur].blank? ? false : params[:recur]
+        survey.recur_every =  params[:recur].blank? ? nil : params[:recur_every]
+        survey.survey_for_type = params[:survey_for].blank? ? nil : params[:survey_for]
+        survey.is_review = params[:review].blank? ? false : params[:review]
+        survey.survey_for_id = params[:survey_for_id].blank? ? nil : params[:survey_for_id]
 
-        if (((ele_nameVal.first).include? "questionChoices_") || ((ele_nameVal.first).include? "qpoints_") || ((ele_nameVal.first).include? "deleteChoiceIds_")) && (!(ele_nameVal.last).blank?)
-          choice_ele = (ele_nameVal.first).split("_")
-          # Deleted Choices Array
-          if ((ele_nameVal.first).include? "deleteChoiceIds_")
-            qIndex = choice_ele[1]
-            deleteChoiceIds = ele_nameVal.last.split(",")
-            questionChoices[qIndex] = [] if questionChoices[qIndex].blank?
-            deleteChoiceIds.each do |deleteChoiceID|
-              questionChoices[qIndex] << { id: deleteChoiceID, _destroy: '1'}
+        params.each do |ele_nameVal|
+          #Question Array
+          if ((ele_nameVal.first).include? "questionName_") && (!(ele_nameVal.last).blank?)
+            question_ele = (ele_nameVal.first).split('_')
+            questionID = (question_ele[1]).blank? ? nil : question_ele[1]
+            qIndex = question_ele.last
+            qType = params["question_type_"+qIndex]
+            reviewerOnly = params["reviewerOnly_"+qIndex]
+            mandatory = params["mandatory_"+qIndex]
+            notInRpt = params["notInRpt_"+qIndex]
+            questions[qIndex] = [questionID, qType, ele_nameVal.last, reviewerOnly.present?, mandatory.present?,
+              notInRpt.present?]
+          end
+
+          if (((ele_nameVal.first).include? "questionChoices_") || ((ele_nameVal.first).include? "qpoints_") || ((ele_nameVal.first).include? "deleteChoiceIds_")) && (!(ele_nameVal.last).blank?)
+            choice_ele = (ele_nameVal.first).split("_")
+            # Deleted Choices Array
+            if ((ele_nameVal.first).include? "deleteChoiceIds_")
+              qIndex = choice_ele[1]
+              deleteChoiceIds = ele_nameVal.last.split(",")
+              questionChoices[qIndex] = [] if questionChoices[qIndex].blank?
+              deleteChoiceIds.each do |deleteChoiceID|
+                questionChoices[qIndex] << { id: deleteChoiceID, _destroy: '1'}
+              end
+              # Text box Questions Points Array
+            elsif ((ele_nameVal.first).include? "qpoints_" )
+              qIndex = choice_ele[1]
+              questionChoices[qIndex] = [] if questionChoices[qIndex].blank?
+              questionChoices[qIndex] << {id: nil, name: params[:survey_name], points: ele_nameVal.last } if params["allowPoints_" + qIndex] == "true"
+              # Choices Array
+            elsif ((ele_nameVal.first).include? "questionChoices_")
+              questionChoiceID = (choice_ele[3]).blank? ? "" : choice_ele[3]
+              qIndex = choice_ele[2]
+              choice_points = params["points_"+ choice_ele[1] + "_" + qIndex + "_" + questionChoiceID + "_" + choice_ele[4]]
+              choice_name = params["questionChoices_"+ choice_ele[1] + "_" + qIndex + "_" + questionChoiceID + "_" + choice_ele[4]]
+              questionChoices[qIndex] = [] if questionChoices[qIndex].blank?
+              questionChoices[qIndex] << {id: questionChoiceID, name: choice_name, points: choice_points }
             end
-            # Text box Questions Points Array
-          elsif ((ele_nameVal.first).include? "qpoints_" )
-            qIndex = choice_ele[1]
-            questionChoices[qIndex] = [] if questionChoices[qIndex].blank?
-            questionChoices[qIndex] << {id: nil, name: params[:survey_name], points: ele_nameVal.last } if params["allowPoints_" + qIndex] == "true"
-            # Choices Array
-          elsif ((ele_nameVal.first).include? "questionChoices_")
-            questionChoiceID = (choice_ele[3]).blank? ? "" : choice_ele[3]
-            qIndex = choice_ele[2]
-            choice_points = params["points_"+ choice_ele[1] + "_" + qIndex + "_" + questionChoiceID + "_" + choice_ele[4]]
-            choice_name = params["questionChoices_"+ choice_ele[1] + "_" + qIndex + "_" + questionChoiceID + "_" + choice_ele[4]]
-            questionChoices[qIndex] = [] if questionChoices[qIndex].blank?
-            questionChoices[qIndex] << {id: questionChoiceID, name: choice_name, points: choice_points }
           end
         end
-      end
 
-      questions.each do |question|
-        questionChoice = question.first
-        questionChoiceArr = questionChoices[questionChoice].blank? ? Array.new : questionChoices[questionChoice]
-        surveyQuestions << {id: (question.last).first, name: (question.last)[2], question_type: ((question.last)[1].blank? ? "RB" : (question.last)[1]), is_reviewer_only: (question.last)[3], is_mandatory: (question.last)[4], not_in_report: (question.last)[5], wk_survey_choices_attributes: questionChoiceArr}
-      end
-
-      unless params[:delete_question_ids].blank?
-        delete_question_ids = params[:delete_question_ids].split(",")
-        delete_question_ids.each do |deleteQuestionID|
-          surveyQuestions << { id: deleteQuestionID, _destroy: '1'}
+        questions.each do |question|
+          questionChoice = question.first
+          questionChoiceArr = questionChoices[questionChoice].blank? ? Array.new : questionChoices[questionChoice]
+          surveyQuestions << {id: (question.last).first, name: (question.last)[2], question_type: ((question.last)[1].blank? ? "RB" : (question.last)[1]), is_reviewer_only: (question.last)[3], is_mandatory: (question.last)[4], not_in_report: (question.last)[5], wk_survey_choices_attributes: questionChoiceArr}
         end
+
+        unless params[:delete_question_ids].blank?
+          delete_question_ids = params[:delete_question_ids].split(",")
+          delete_question_ids.each do |deleteQuestionID|
+            surveyQuestions << { id: deleteQuestionID, _destroy: '1'}
+          end
+        end
+        
+        survey.wk_survey_questions_attributes = surveyQuestions
       end
-      
-      survey.wk_survey_questions_attributes = surveyQuestions
     else
       survey.status = params[:survey_status]
     end
 
-    if survey.valid? && errmsg.blank?	
+    #Validate Survey For before Save
+    survey_for_id = survey.survey_for_id
+    survey_for = survey.survey_for_type
+    if survey_for_id.present? && survey_for.present? && !(survey_for.singularize.classify.constantize.where(id: survey_for_id).exists?)
+      errMsg = l(:notice_surveyfor_unsuccessful) + "<br>"
+    end
+    Rails.logger.info("---------------survey=#{survey.inspect}--------------------")
+
+    if survey.valid? && errMsg.blank?	
       survey.save
-      urlHash = {:surveyForType => survey.survey_for_type, :surveyForID => survey.survey_for_id }
-      urlHash = get_survey_redirect_url(urlHash, params)
-      redirect_to urlHash
-      flash[:notice] = l(:notice_successful_update)
+      resMsg = l(:notice_successful_update)
     else
-      errmsg  = errmsg + survey.errors.full_messages.join("<br>")
-      flash[:error] = errmsg
-      urlHash = { :project_id => params[:project_id], :controller => "wksurvey", :action => 'edit', :survey_id => params[:survey_id], :surveyForType => survey.survey_for_type, :surveyForID => params[:survey_for_id] }
-      redirect_to urlHash
+      errMsg  = errMsg + survey.errors.full_messages.join("<br>")
+      resMsg = errMsg
+    end
+  
+    respond_to do |format|
+      format.html {
+        if errMsg.blank?
+          urlHash = {:surveyForType => survey.survey_for_type, :surveyForID => survey.survey_for_id }
+          urlHash = get_survey_redirect_url(urlHash, params)
+          redirect_to urlHash
+          flash[:notice] = resMsg
+        else
+          flash[:error] = errMsg
+          urlHash = { :project_id => params[:project_id], :controller => "wksurvey", :action => 'edit', :survey_id => params[:survey_id], :surveyForType => survey.survey_for_type, :surveyForID => params[:survey_for_id] }
+          redirect_to urlHash
+        end
+      }
+      format.api {
+        if errMsg.blank?
+          render :plain => resMsg, :layout => nil
+        else
+          @error_messages = resMsg.split("<br>")
+          Rails.logger.info("=================@error_messages=#{@error_messages}======================")
+          render :template => "common/error_messages.api", :status => :unprocessable_entity, :layout => nil
+        end
+      }
     end
   end
 
@@ -481,7 +525,7 @@ class WksurveyController < WkbaseController
       end
         
     when "WkAccount"
-      result = WkAccount.where("account_type = 'A' AND id = ? OR LOWER(name) LIKE LOWER(?)", surveyForID, surveyFor)
+      result = WkAccount.where("account_type = 'A' AND (id = ? OR LOWER(name) LIKE LOWER(?))", surveyForID, surveyFor)
       result.each do  |r|
           data << {id: r.id, label: "Account #" + r.id.to_s + ": " + r.name, value: r.id}
       end
