@@ -700,3 +700,5 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wksupplierinvoice/export', :to => 'wksupplierinvoice#export'
 
 	get 'wkleaverequest/getLeaveType', :to => 'wkleaverequest#getLeaveType'
+
+	post 'wkgltransaction/update', to: 'wkgltransaction#update'

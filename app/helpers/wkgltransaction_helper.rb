@@ -303,4 +303,90 @@ include WkaccountingHelper
 		end
 		export
 	end
+
+	def getAmount(entry)
+		crTotal = 0 
+		dbTotal =0 
+		openingBalance = 0
+		openingBalHash = nil
+		asOnDate =  nil
+		asOnDate = (@from.to_date) -1 unless @from.blank?
+		asOnDate = @transEntries.minimum(:trans_date) - 1 unless @transEntries.minimum(:trans_date).blank?
+		openingBalHash = getEachLedgerBSAmt(asOnDate, [@selectedLedger.ledger_type]) unless @ledgerId.blank? || asOnDate.blank?
+		entry_details = entry.transaction_details.includes(:ledger).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type') 
+			transTotal = entry_details.inject(0){|sum,x| sum + x[1] }/2
+			unless @ledgerId.blank?
+				#openingBalance = openingBalHash[@selectedLedger.name] unless openingBalHash.blank? || openingBalHash[@selectedLedger.name].blank?
+				@selectedLedgerEntries = entry.transaction_details.includes(:ledger).where(:wk_gl_transaction_details => { :ledger_id => @ledgerId }).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type')
+				otherDetailTypeEntries = entry.transaction_details.includes(:ledger).where.not(:wk_gl_transaction_details => { :detail_type=> @selectedLedgerEntries[0][2]}).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type') #:ledger_id => @ledgerId, 
+				@partLedgerName = otherDetailTypeEntries[0][3]
+				#trAmount = selectedLedgerEntries[0][1]
+			else
+				detailType = 'c'
+				case entry.trans_type
+				when 'C'
+					detailType = 'c'
+				when 'P'
+					detailType = 'd'
+				when 'R'
+					detailType = 'c'
+				when 'J'
+					detailType = 'd'
+				end
+				@selectedLedgerEntries = entry.transaction_details.includes(:ledger).where(:wk_gl_transaction_details => { :detail_type => detailType }).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type')
+				otherDetailTypeEntries = entry.transaction_details.includes(:ledger).where.not(:wk_gl_transaction_details => { :detail_type => detailType }).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type')
+				@partLedgerName = @selectedLedgerEntries.length > 0 ? @selectedLedgerEntries[0][3] : nil
+				#trAmount = selectedLedgerEntries[0][1]
+			end
+			@dbAmount = nil
+			@crAmount = nil
+			@selectedLedgerEntries.each do |trans|
+				 unless trans[1].blank? 
+					if trans[2] == 'c' #selectedLedgerEntries[0][2]
+						@crAmount = @crAmount.blank? ? trans[1] : @crAmount + trans[1]
+						# @crTotal = crTotal + trans[1]
+					else
+						@dbAmount = @dbAmount.blank? ? trans[1] : @dbAmount + trans[1]
+						# @dbTotal = dbTotal + trans[1]
+					end
+			end
+		end
+		unless @selectedLedger.blank? || (incomeLedgerTypes.include? @selectedLedger.ledger_type) || (expenseLedgerTypes.include? @selectedLedger.ledger_type)
+				@openingBalance = openingBalHash[@selectedLedger.name] unless openingBalHash.blank? || openingBalHash[@selectedLedger.name].blank?
+				@isSubCr = isSubtractCr(@selectedLedger.ledger_type)
+		end
+	end
+
+	def getTransEntries
+		if !@transEntry.blank? 
+			@transEntry = @transEntry[0] unless @transEntry[0].blank?
+			@txn_type = @transEntry.trans_type
+			@trans_date = @transEntry.trans_date
+		elsif !session[controller_name].blank?
+			@txn_type = session[controller_name][:txn_type]
+			@trans_date = session[controller_name][:start_date]
+		else
+			@txn_type =""
+			@trans_date = Date.today
+		end
+	end
+
+	def getSummeryamount(key, value)
+		openingBalHash = getEachLedgerBSAmt(@transDate, [@selectedLedger.ledger_type]) unless @ledgerId.blank? || @transDate.blank?
+		unless @selectedLedger.blank? || (incomeLedgerTypes.include? @selectedLedger.ledger_type) || (expenseLedgerTypes.include? @selectedLedger.ledger_type)
+			openingBalance = openingBalHash[@selectedLedger.name] unless openingBalHash.blank? || openingBalHash[@selectedLedger.name].blank?
+		isSubCr = isSubtractCr(@selectedLedger.ledger_type)
+		end
+		@debitTotal ||= 0
+		@creditTotal ||= 0
+		@closeBal ||= 0 
+		@debitTotal += value[:DT].to_f
+		@creditTotal += value[:CT].to_f
+		diff = isSubCr ? (value[:DT].to_f - value[:CT].to_f) : (value[:CT].to_f - value[:DT].to_f)
+		if key == @summaryHash.keys.first
+			@closeBal = diff + openingBalance.to_f
+		else 
+			@closeBal = diff + @closeBal
+		end
+	end
 end
