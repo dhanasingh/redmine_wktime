@@ -8,7 +8,7 @@
 	wkgrpPermissionUrl =  '<%=url_for(controller: "wkgrouppermission", action: "index", tab: "wkgrouppermission")%>';
 	wknotificationUrl =  '<%=url_for(controller: "wknotification", action: "index", tab: "wknotification")%>';
 </script>
-<%= title l(:field_mail_notification) %>
+<%= title l(:label_notification_plural) %>
 <%= render_tabs time_expense_tabs %>
 <style>
   label{
@@ -17,6 +17,9 @@
 
 <%= form_tag({controller: controller_name, action: 'update'}, method: :post, id: 'query_form') do %>
   <fieldset class="box tabular">
+  <p><label style="text-align: left; padding-left: 10px;">
+    <%= l(:label_email) %><%= check_box_tag "email", 1 %></label>
+  </p>
     <div class="icon-gravatar">
       <fieldset>
         <legend><%= l(:label_wktime) %></legend>
@@ -106,6 +109,9 @@
         <legend><%= l(:label_survey) %></legend>
         <p><label style="text-align: left; float:left;">
           <%= check_box_tag "Survey_surveyClosed", 1, (@notification.include? "surveyClosed") %> <%= l(:label_survey_closed) %></label>
+        </p>
+        <p><label style="text-align: left; float:left;">
+          <%= check_box_tag "Survey_fillSurvey", 1, (@notification.include? "fillSurvey") %> <%= l(:label_fill_survey) %></label>
         </p>
       </fieldset>
     </div>

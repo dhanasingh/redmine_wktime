@@ -1122,6 +1122,8 @@ pl:
   label_receive_goods: Receive Goods
   label_dispose_asset: Dispose Asset
   label_survey_closed: Survey Closed
+  label_fill_survey: Fill Survey
+  label_notification_plural: Notifications
 
   # for mobile
   error_empty: can't be empty

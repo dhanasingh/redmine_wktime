@@ -1,4 +1,5 @@
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
+<% user_notification_helper = Object.new.extend(WkusernotificationHelper) %>
 <% if wktime_helper.isChecked('te_save_geo_location') ||
 		wktime_helper.isChecked('att_save_geo_location') ||
 		wktime_helper.isChecked('crm_save_geo_location') %>
@@ -12,7 +13,7 @@
 %>
 <%= javascript_include_tag 'timer', :plugin => "redmine_wktime" %>
 <style>
-	#clockINOUT, #issueLog {
+	#clockINOUT, #issueLog ,#notification{
 		float: right;
 		display: flex;
 		flex-direction: row-reverse;
@@ -27,10 +28,11 @@
 	#startdiv, #enddiv{
 		float: right;
 	}
-	#issueLog .drdn-items > * {
+	#issueLog .drdn-items > *, #notification .drdn-items > * {
 		color: #555 !important;
 	}
 	#issueLog .drdn-content {width:280px;}
+	#notification .drdn-content {height:300px; width:300px;}
 </style>
 <% if wktime_helper.isChecked("wktime_enable_clock_in_out") && wktime_helper.isChecked("wktime_enable_attendance_module") && User.current.logged? && wktime_helper.checkViewPermission %>	
 	<% if !@lastAttnEntry.blank?
@@ -88,6 +90,20 @@
 	</div>
 	<div style="clear: both;"></div>
 <% end %>
+
+<!-- Notification-->
+<% notifyContent =''
+notifyTrigger ='' %>
+<% if User.current.logged?
+		unRead = WkUserNotification.unreadNotification
+		imgName = unRead.present? ? "notification_unread" : "notification"
+		notifyBell = image_tag(imgName + ".png", :plugin => "redmine_wktime", style: "height: 25px")
+		notifications = user_notification_helper.getNotifications
+		notifyTrigger = content_tag('span', notifyBell, :class => 'drdn-trigger')
+		notifyContent = content_tag('div', content_tag('span', notifications, :class => 'drdn-items'), :class => 'drdn-content')
+end %>
+
+	<%= content_tag('div', notifyTrigger + notifyContent, id: "notification", class: "drdn") %>
 
 <!-- Issue Time Tracker-->
 <% if wktime_helper.isChecked("label_enable_issue_logger") && User.current.logged? && wktime_helper.checkViewPermission

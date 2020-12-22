@@ -120,7 +120,11 @@ $(document).ready(function(){
 
 	$(document).on('click', '.drdn-items.issues .issue_select', function(){
 		saveIssueTimeLog(this);
-  });
+	});
+	
+	//Notification	
+	$("#project-jump").after($("#notification"));
+	$("#notification").attr('title','notification');
 });
 
 function spentTypeValue(elespent)
