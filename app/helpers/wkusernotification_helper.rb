@@ -40,7 +40,7 @@ module WkusernotificationHelper
 
 	def getNotifications
 		notifications = WkUserNotification.joins("INNER JOIN wk_notifications N ON N.id = wk_user_notifications.notify_id")
-			.where('user_id =? and seen = ?', User.current.id, 1)
+		.where({user_id: User.current.id ,seen: true })
 			.select("wk_user_notifications.*, N.name")
 		notifyRlt = (+"").html_safe
 		notifications.each do |notification|

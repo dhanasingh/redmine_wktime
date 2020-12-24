@@ -33,6 +33,6 @@ class WkUserNotification < ActiveRecord::Base
   end
 
   def self.unreadNotification
-    WkUserNotification.where('user_id =? and seen = ?', User.current.id, 1)
+    WkUserNotification.where({user_id: User.current.id ,seen: true })
   end
 end
