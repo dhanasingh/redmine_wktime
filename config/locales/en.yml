@@ -1142,4 +1142,5 @@ en:
   label_select_leavetype: Select Leave Type
   label_request: Request
   label_warning_future_date: Cannot select the future Date
+  label_time_approved: Time Approved
   

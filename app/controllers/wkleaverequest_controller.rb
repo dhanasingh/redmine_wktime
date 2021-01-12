@@ -124,14 +124,17 @@ class WkleaverequestController < WkbaseController
     status = getLeaveStatus[leaveReq.status]
     if WkNotification.notify('leaveRequested') && leaveReq.status == 'S' || WkNotification.notify('leaveApproved') &&
       ['A','R'].include?(leaveReq.status)
-      if (leaveReq.status == 'S' && isUser) 
+      if (leaveReq.status == 'S' && isUser)
+        userID = user.parent_id? ? user.parent_id : leaveReq.admingroupMail('supervisor').pluck(:user_id).first
+        WkUserNotification.userNotification(userID, leaveReq, 'leaveRequested')
         email_id = leaveReq.supervisor_mail
       elsif (['A','R', 'S'].include?(leaveReq.status) && !isUser)
+        WkUserNotification.userNotification(leaveReq.user.id, leaveReq, 'leaveApproved') if leaveReq.status == 'A'
         email_id = leaveReq.user.mails
         status = "UnApproved" if leaveReq.status == 'S'
       end
-      ccMailId = leaveReq.admingroupMail('leaveNotifyUser') - [email_id]
-      if email_id.present?
+      ccMailId = leaveReq.admingroupMail('supervisor').pluck(:address) - [email_id]
+      if email_id.present? && WkNotification.first.email
         emailNotes = l(:label_leave_email_note).to_s + " #{status} #{l(:label_by)} " + user.name
         emailNotes += "\n\n" + "#{l(:field_user)}: " + leaveReq.user_name
         emailNotes += "\n" + l(:label_leave_type).to_s + ": " + leaveReq.leave_type.subject

@@ -37,24 +37,32 @@ class WknotificationController < ApplicationController
 
   def index
     @notification = WkNotification.all.pluck(:name)
+    @checkEmail = WkNotification.first.email
   end
 
   def update
-		notifyID = WkNotification.all.pluck(:id)
-    params.each do |name, value|
-      if value.to_i == 1
-        notifiedName = name.split('_')
-        notification = WkNotification.where(modules: notifiedName.first, name: notifiedName.last).first_or_initialize(modules: notifiedName.first, name: notifiedName.last)
-				if notification.save
-					notifyID.delete(notification.id)
-				end
-      end
+    errorMsg = nil
+    actionName = []
+    params['notify'].each{ |key, value| actionName << key.split('_').last }
+    removeName = WkNotification.where.not(name: actionName)
+    removeName.destroy_all
+    params['notify'].each do |name, value|
+      notifiedName = name.split('_')
+      notification = WkNotification.where(modules: notifiedName.first, name: notifiedName.last).first_or_initialize(modules: notifiedName.first, name: notifiedName.last)
+      notification.email = params['email'] || false
+      if !notification.save()
+				errorMsg += notification.errors.full_messages.join('\n')
+			end
+    end    
+    respond_to do |format|
+      format.html {
+        if errorMsg.nil?
+          flash[:notice] = l(:notice_successful_update)
+        else
+          flash[:error] = errorMsg
+        end
+        redirect_to controller: 'wknotification', action: 'index' , tab: 'wknotification'
+      }
     end
-		
-		unless notifyID.blank?
-			WkNotification.where(:id => notifyID).delete_all()
-		end
-    flash[:notice] = l(:notice_successful_update)
-    redirect_to controller: 'wknotification', action: 'index' , tab: 'wknotification'
   end
 end

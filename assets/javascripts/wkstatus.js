@@ -121,6 +121,10 @@ $(document).ready(function(){
 	$(document).on('click', '.drdn-items.issues .issue_select', function(){
 		saveIssueTimeLog(this);
 	});
+
+	$(document).on('click', '.drdn-items', function(){
+		// saveIssueTimeLog(this);
+	});
 	
 	//Notification	
 	$("#project-jump").after($("#notification"));

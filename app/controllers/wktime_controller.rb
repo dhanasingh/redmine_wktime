@@ -980,6 +980,12 @@ include ActionView::Helpers::TagHelper
 			userHash.each_key do |key|
 				user = userHash[key]
 				errMsg = ""
+				if WkNotification.notify('nonSubmission')
+					weekHash[key].each do |date|
+						model = Wktime.where('begin_date = ? AND user_id = ?', date, user.id).first
+						WkUserNotification.userNotification(user.id, model, 'nonSubmission') if model.present?
+					end
+				end
 				begin
 					WkMailer.submissionReminder(user, mngrHash[key], weekHash[key], params[:email_notes], label_te).deliver
 				rescue Exception => e
@@ -1010,14 +1016,13 @@ include ActionView::Helpers::TagHelper
 			setUserCFQuery
 			label_te = getTELabel
 			user_cf_sql = @query.user_cf_statement('u') if !@query.blank?
-			queryStr = "select distinct u.* from users u " +
+			queryStr = "select distinct u.*, w.id AS wktime_id from users u " +
 						"left outer join #{entityNames[0]} w on u.id = w.user_id " +
 						"and (w.begin_date between '#{params[:from]}' and '#{params[:to]}') " #+
 						#"where u.id in (#{ids}) and w.status = 's'"
 			queryStr += " #{user_cf_sql} " if !user_cf_sql.blank?
 			queryStr += (!user_cf_sql.blank? ? " AND " : " WHERE ") + " u.id in (#{ids}) and w.status = 's' "
-						
-			users = User.find_by_sql(queryStr)			
+			users = User.find_by_sql(queryStr)
 			users.each do |user|
 				mngrArr = getManager(user, true)			
 				if !mngrArr.blank?
@@ -1042,6 +1047,11 @@ include ActionView::Helpers::TagHelper
 					end
 					errMsg = ""
 					begin
+						if WkNotification.notify('timeApproved')
+							users.pluck(:wktime_id).each do |id|
+								WkUserNotification.userNotification(mgrHash[key].id, Wktime.where(id: id).first, 'timeApproved')
+							end
+						end 
 						WkMailer.approvalReminder(mgrHash[key], userList.uniq.join("\n"), params[:email_notes], label_te).deliver
 					rescue Exception => e
 						errMsg = e.message
@@ -2292,7 +2302,8 @@ private
 		begin
 		unitLabel = getUnitLabel
 		unit = params[:unit].to_s
-		 @test = WkMailer.sendRejectionEmail(User.current,@user,@wktime,unitLabel,unit).deliver
+		WkUserNotification.userNotification(@user.id, @wktime, 'timeRejected')
+		 @test = WkMailer.sendRejectionEmail(User.current,@user,@wktime,unitLabel,unit).deliver if WkNotification.first.email
 		rescue Exception => e
 		 # flash[:error] = l(:notice_email_error, e.message)
 		end

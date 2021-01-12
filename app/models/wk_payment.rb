@@ -29,14 +29,19 @@ class WkPayment < ActiveRecord::Base
   
   #validates_presence_of :account_id
   validates_presence_of :parent_id, :parent_type
-  after_create_commit :send_notification
+  # after_create_commit :send_notification
 
-  def send_notification
+  scope :getPaymentItems, ->(payment){
+    payment.payment_items.where({is_deleted: false})
+    .sum(:amount)
+  }
+
+  def self.send_notification(payment)
     if WkNotification.notify('paymentReceived')
-      emailNotes = " Payment: #" + self.id.to_s + " has been Received " + "\n\n" + l(:label_redmine_administrator)
+      emailNotes = " Receieved Payment: #" + WkPayment.getPaymentItems(payment).to_s + " from " + payment.parent.name.to_s + " for " + payment.payment_date.to_s + "\n\n" + l(:label_redmine_administrator)
       userId = WkPermission.permissionUser('M_BILL').uniq
       subject = l(:label_payments) + " " + l(:label_notification)
-      WkNotification.notification(userId, emailNotes, subject)
+      WkNotification.notification(userId, emailNotes, subject, payment, 'paymentReceived')
     end
   end
   

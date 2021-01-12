@@ -28,11 +28,21 @@
 	#startdiv, #enddiv{
 		float: right;
 	}
-	#issueLog .drdn-items > *, #notification .drdn-items > * {
+	#issueLog .drdn-items > * {
 		color: #555 !important;
 	}
+	#notification .drdn-items > * {
+		color: #555 !important;
+		padding-top: 10px;
+		padding-bottom: 10px;
+	}
 	#issueLog .drdn-content {width:280px;}
-	#notification .drdn-content {height:300px; width:300px;}
+	#notification .drdn-content {max-height:400px; width:345px;
+  overflow: auto;}
+	#notification .padding {padding-left: 10px}
+	#notification .drdn-items a:hover {
+		background-color: #759FCF;
+	}
 </style>
 <% if wktime_helper.isChecked("wktime_enable_clock_in_out") && wktime_helper.isChecked("wktime_enable_attendance_module") && User.current.logged? && wktime_helper.checkViewPermission %>	
 	<% if !@lastAttnEntry.blank?
@@ -92,16 +102,26 @@
 <% end %>
 
 <!-- Notification-->
-<% notifyContent =''
-notifyTrigger ='' %>
-<% if User.current.logged?
+<% 
+notifyContent =''
+notifyTrigger =''
+	if User.current.logged?
 		unRead = WkUserNotification.unreadNotification
 		imgName = unRead.present? ? "notification_unread" : "notification"
 		notifyBell = image_tag(imgName + ".png", :plugin => "redmine_wktime", style: "height: 25px")
-		notifications = user_notification_helper.getNotifications
+		notifications = WkUserNotification.where(user_id: User.current.id)
+		notifyRlt = (+"").html_safe
+		notifications.each do |notification|
+			notifyVal = user_notification_helper.formNotificationText(notification)
+			text = link_to(notifyVal['text'], notifyVal['url'], class: "btn")
+			notifyRlt << text
+		end
+		notifyRlt = content_tag("span", l(:label_no_data)) if notifyRlt.blank?
+		notifications = notifyRlt.html_safe
 		notifyTrigger = content_tag('span', notifyBell, :class => 'drdn-trigger')
-		notifyContent = content_tag('div', content_tag('span', notifications, :class => 'drdn-items'), :class => 'drdn-content')
-end %>
+		notifyContent = content_tag('div', content_tag(:h2, "Notifications", class: 'padding') + content_tag('span', notifications, :class => 'drdn-items'), :class => 'drdn-content')
+	end 
+%>
 
 	<%= content_tag('div', notifyTrigger + notifyContent, id: "notification", class: "drdn") %>
 

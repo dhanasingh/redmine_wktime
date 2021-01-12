@@ -237,8 +237,11 @@ class WkpaymententityController < WkbillingController
 				end	
 			end	
 		end
-		
+
 		unless @payment.id.blank?
+			#for mail notification
+			WkPayment.send_notification(@payment)
+
 			totalAmount = @payment.payment_items.current_items.sum(:original_amount)
 			moduleAmtHash = {getAutoPostModule => [totalAmount.round, totalAmount.round]}
 			

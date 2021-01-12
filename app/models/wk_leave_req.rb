@@ -69,7 +69,7 @@ class WkLeaveReq < ActiveRecord::Base
   end
 
   def admingroupMail(userRole)
-    user_mail = " SELECT address FROM wk_group_permissions
+    user_mail = " SELECT address, E.user_id FROM wk_group_permissions
           INNER JOIN wk_permissions AS P1 ON P1.id = wk_group_permissions.permission_id 
           INNER JOIN groups_users AS GU ON wk_group_permissions.group_id = GU.group_id 
           INNER JOIN users AS U ON U.id = GU.user_id AND U.type IN ('User', 'AnonymousUser') 
@@ -81,14 +81,16 @@ class WkLeaveReq < ActiveRecord::Base
     else
       user_mail = user_mail + "where(P1.short_name = 'R_LEAVE' AND E.notify = #{ActiveRecord::Base.connection.adapter_name == 'SQLServer' ? 1 : true})"
     end
-    user_mail = user_mail + " Group BY address"
+    user_mail = user_mail + " Group BY address, E.user_id"
     user_mail = WkGroupPermission.find_by_sql(user_mail)
-    user_mail.pluck(:address)
+    # user_mail.pluck(:address)
+    user_mail
   end
 
   def supervisor_mail
     if self.user.parent_id.blank?
-      userID = admingroupMail('supervisor').first
+      user_mail = admingroupMail('supervisor').pluck(:address)
+      userID = user_mail.first
     else
       User.find(self.user.parent_id).mails
     end

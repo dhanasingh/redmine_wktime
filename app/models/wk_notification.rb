@@ -16,16 +16,18 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkNotification < ActiveRecord::Base
+  has_many :wk_user_notifications, foreign_key: "notify_id", class_name: "WkUserNotification", :dependent => :destroy
 
   def self.notify(name)
     notification = WkNotification.all.pluck(:name)
     notification.include? name.to_s
   end
 
-  def self.notification(userId, emailNotes, subject)
+  def self.notification(userId, emailNotes, subject, model=nil, label=nil)
     userId.each do |id|
       user = User.find(id)
-      WkMailer.email_user(subject, User.current.language, user.mail, emailNotes, nil).deliver_later
+      WkMailer.email_user(subject, User.current.language, user.mail, emailNotes, nil).deliver_later if WkNotification.first.email
+      WkUserNotification.userNotification(id, model, label) if model.present?
     end
   end
 end

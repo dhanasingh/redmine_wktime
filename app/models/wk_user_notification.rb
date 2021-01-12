@@ -25,7 +25,7 @@ class WkUserNotification < ActiveRecord::Base
     userNotify = WkUserNotification.new
     userNotify.user_id = userId
     userNotify.notify_id = notifyID
-    userNotify.seen = true
+    userNotify.seen = false
     userNotify.seen_on = Time.now
     userNotify.source_type = model.class.name
     userNotify.source_id = model.id
@@ -35,4 +35,10 @@ class WkUserNotification < ActiveRecord::Base
   def self.unreadNotification
     WkUserNotification.where({user_id: User.current.id ,seen: true })
   end
+
+  scope :getnotificationAction, ->(usrNotification){
+    joins(:notification)
+    .where("wk_notifications.id = #{usrNotification.notify_id}")
+    .select("wk_notifications.name")
+  }
 end

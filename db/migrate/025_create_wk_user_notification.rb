@@ -4,12 +4,12 @@ class CreateWkUserNotification < ActiveRecord::Migration[5.2]
     create_table :wk_user_notifications do |t|
       t.references :user, null: false, index: true
       t.references :notify, class: "WkNotification", null: false
-      t.boolean :seen
-      t.datetime :seen_on, :null => false
+      t.boolean :seen, default: false, null: false
+      t.datetime :seen_on
       t.references :source, polymorphic: true, index: true
       t.timestamps null: false
     end
     
-    add_column :wk_notifications, :email, :boolean
+    add_column :wk_notifications, :email, :boolean, default: false, null: false
   end
 end

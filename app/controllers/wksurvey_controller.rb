@@ -572,7 +572,7 @@ class WksurveyController < WkbaseController
         users = User.joins('INNER JOIN groups_users ON users.id = user_id')
         users = users.where("groups_users.group_id = #{params[:user_group]}") unless params[:user_group].blank?
         users.distinct.each do |user|
-          WkUserNotification.userNotification(user.id, @survey, 'fillSurvey')
+          WkUserNotification.userNotification(user.id, @survey, 'fillSurvey') if WkNotification.notify('fillSurvey')
           errMsg += sent_emails(l(:label_survey_reminder) + "_" + @survey.name, user.language, user.mails, email_notes).to_s
         end
     end
