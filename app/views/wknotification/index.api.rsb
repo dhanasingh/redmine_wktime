@@ -1,0 +1,16 @@
+api.array :wk_usernotification, api_meta(:total_count => @entry_count, unseen_count: @unseen_count) do
+  @userNotification.each do |entry|
+  detail = formNotificationText(entry)
+    api.entry do
+      api.id entry.id
+      api.user_id entry.user_id
+      api.source_type entry.source_type
+      api.source_id entry.source_id
+      api.seen entry.seen
+      api.seen_on entry.seen_on
+      api.notify_text detail['text']
+      api.actionName WkUserNotification.getnotificationAction(entry).first.name
+      api.startdate entry.source.begin_date if WkUserNotification.getnotificationAction(entry).first.name == 'timeRejected'
+    end
+  end
+end

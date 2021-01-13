@@ -1,4 +1,4 @@
-api.array :wk_clkinout, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+api.array :wk_clkinout, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit, unseen_count: @unseen_count) do
     @clk_entries.each do |clk_entry|
       api.clk_entry do
         api.id clk_entry.user.id unless clk_entry.user.nil?

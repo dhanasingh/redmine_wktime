@@ -1,4 +1,4 @@
-api.array :wk_leave, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit)  do
+api.array :wk_leave, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit, unseen_count: @unseen_count)  do
   @leave_entries.each do |entry|
     api.entry do
       api.name entry.user.name

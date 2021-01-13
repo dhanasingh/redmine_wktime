@@ -1,5 +1,5 @@
 api.wk_accounts do
-  api.array :accountEntries, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+  api.array :accountEntries, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit, unseen_count: @unseen_count) do
     if @summaryTransaction == 'days'
       @transEntries.each do |entry|
         getAmount(entry)

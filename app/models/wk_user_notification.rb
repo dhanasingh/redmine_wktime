@@ -33,7 +33,7 @@ class WkUserNotification < ActiveRecord::Base
   end
 
   scope :unreadNotification, -> {
-    where("wk_user_notifications.user_id = #{User.current.id} AND seen = #{false}")
+    where({user_id: User.current.id ,seen: false })
   }
 
   scope :getnotificationAction, ->(usrNotification){

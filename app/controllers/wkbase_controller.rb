@@ -18,7 +18,7 @@
 class WkbaseController < ApplicationController
 	unloadable
 	before_action :require_login
-	before_action :clear_sort_session
+	before_action :clear_sort_session, :unseen
 	accept_api_auth :getUserPermissions, :updateClockInOut
 	helper :sort
 	include SortHelper
@@ -285,5 +285,9 @@ class WkbaseController < ApplicationController
 		pdf.SetFontStyle('B', 9)
 		getPDFFooter(pdf, row_Height)
 		pdf.Output
+	end
+
+	def unseen
+		@unseen_count = WkUserNotification.unreadNotification.count
 	end
 end

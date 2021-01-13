@@ -1,4 +1,4 @@
-api.array :wk_payroll do
+api.array :wk_payroll, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit, unseen_count: @unseen_count) do
   @payrollEntries.each do |key, entry|
     api.entry do
       api.id entry[:uID]

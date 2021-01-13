@@ -15,29 +15,20 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-# ERPmine - ERP for service industry
-# Copyright (C) 2011-2020  Adhi software pvt ltd
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-class WknotificationController < ApplicationController
+class WknotificationController < WkbaseController
   menu_item :wkcrmenumeration
+  accept_api_auth :index, :updateUserNotification
 
   def index
     @notification = WkNotification.all.pluck(:name)
     @checkEmail = WkNotification.first.email
+    @userNotification = WkUserNotification.where('user_id = ?', User.current.id).order(id: :desc)
+		respond_to do |format|
+			format.html {        
+			  render :layout => !request.xhr?
+			}
+			format.api
+		end
   end
 
   def update
@@ -64,5 +55,20 @@ class WknotificationController < ApplicationController
         redirect_to controller: 'wknotification', action: 'index' , tab: 'wknotification'
       }
     end
+  end
+
+  def updateUserNotification
+		errorMsg = nil
+    usrNotification = WkUserNotification.find(params[:id])
+    if usrNotification.user_id == User.current.id
+      usrNotification.seen = true
+      usrNotification.seen_on = Time.now
+      if usrNotification.valid?
+        usrNotification.save()
+      else
+        errorMsg = usrNotification.errors.full_messages.join("<br>")
+      end
+    end
+		render json: errorMsg
   end
 end

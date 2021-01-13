@@ -1,4 +1,4 @@
-api.array :wk_leave_req, api_meta(:total_count => @leave_count, :offset => @leave_pages.offset, :limit => @leave_pages.per_page) do
+api.array :wk_leave_req, api_meta(:total_count => @leave_count, :offset => @leave_pages.offset, :limit => @leave_pages.per_page, unseen_count: @unseen_count) do
   @leaveReqEntires.each do |entry|
     api.entry do
       api.id entry.id
