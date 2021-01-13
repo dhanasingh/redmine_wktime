@@ -122,8 +122,15 @@ $(document).ready(function(){
 		saveIssueTimeLog(this);
 	});
 
-	$(document).on('click', '.drdn-items', function(){
-		// saveIssueTimeLog(this);
+	$( '.drdn-items .unseen').click(function(){
+		const id = $(this).data('id')
+		$.ajax({
+			url: '/wknotification/updateUserNotification?id='+id,
+			type: 'get',
+			success: function(){
+				alert('success');
+			}
+		});
 	});
 	
 	//Notification	

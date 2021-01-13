@@ -702,3 +702,5 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wkleaverequest/getLeaveType', :to => 'wkleaverequest#getLeaveType'
 
 	post 'wkgltransaction/update', to: 'wkgltransaction#update'
+
+	get 'wknotification/updateUserNotification', to: 'wknotification#updateUserNotification'

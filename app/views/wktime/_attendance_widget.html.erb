@@ -1,5 +1,5 @@
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
-<% user_notification_helper = Object.new.extend(WkusernotificationHelper) %>
+<% notification_helper = Object.new.extend(WknotificationHelper) %>
 <% if wktime_helper.isChecked('te_save_geo_location') ||
 		wktime_helper.isChecked('att_save_geo_location') ||
 		wktime_helper.isChecked('crm_save_geo_location') %>
@@ -33,15 +33,30 @@
 	}
 	#notification .drdn-items > * {
 		color: #555 !important;
-		padding-top: 10px;
-		padding-bottom: 10px;
+		padding: 10px;
+		border: none;
 	}
 	#issueLog .drdn-content {width:280px;}
-	#notification .drdn-content {max-height:400px; width:345px;
-  overflow: auto;}
-	#notification .padding {padding-left: 10px}
-	#notification .drdn-items a:hover {
-		background-color: #759FCF;
+	#notification .drdn-content {
+		max-height:400px;
+		width:345px;
+  	overflow: auto;
+		-moz-box-shadow: 0 0 8px #888888;
+		-webkit-box-shadow: 0 0 8px #888888;
+		box-shadow: 0 0 8px #888888;
+	}
+	#notification .padding {
+		padding: 10px;
+    border-bottom: 1px solid #ccc;
+	}
+	#notification .drdn-content .drdn-items .unseen {
+		background-color: #e9e9e9;
+	}
+	#notification .drdn-content .drdn-items .seen {
+		font-weight: lighter;
+	}
+	#notification .drdn-content .drdn-items a:hover {
+	background-color: #dbdbdb;
 	}
 </style>
 <% if wktime_helper.isChecked("wktime_enable_clock_in_out") && wktime_helper.isChecked("wktime_enable_attendance_module") && User.current.logged? && wktime_helper.checkViewPermission %>	
@@ -108,18 +123,19 @@ notifyTrigger =''
 	if User.current.logged?
 		unRead = WkUserNotification.unreadNotification
 		imgName = unRead.present? ? "notification_unread" : "notification"
-		notifyBell = image_tag(imgName + ".png", :plugin => "redmine_wktime", style: "height: 25px")
+		notifyBell = image_tag(imgName + ".png", plugin: "redmine_wktime", style: "height: 25px")
 		notifications = WkUserNotification.where(user_id: User.current.id)
-		notifyRlt = (+"").html_safe
+		notifyRslt = (+"").html_safe
 		notifications.each do |notification|
-			notifyVal = user_notification_helper.formNotificationText(notification)
-			text = link_to(notifyVal['text'], notifyVal['url'], class: "btn")
-			notifyRlt << text
+			seenClass = notification.seen ? "seen" : "unseen"
+			notifyVal = notification_helper.formNotificationText(notification)
+			text = link_to(notifyVal['text'], notifyVal['url'], class: seenClass, 'data-id': notification.id)
+			notifyRslt << text
 		end
-		notifyRlt = content_tag("span", l(:label_no_data)) if notifyRlt.blank?
-		notifications = notifyRlt.html_safe
-		notifyTrigger = content_tag('span', notifyBell, :class => 'drdn-trigger')
-		notifyContent = content_tag('div', content_tag(:h2, "Notifications", class: 'padding') + content_tag('span', notifications, :class => 'drdn-items'), :class => 'drdn-content')
+		notifyRslt = content_tag("span", l(:label_no_data)) if notifyRslt.blank?
+		notifications = notifyRslt.html_safe
+		notifyTrigger = content_tag('span', notifyBell, class: 'drdn-trigger')
+		notifyContent = content_tag('div', content_tag(:h2, "Notifications", class: 'padding') + content_tag('span', notifications, class: 'drdn-items'), class: 'drdn-content')
 	end 
 %>
 
