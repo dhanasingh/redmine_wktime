@@ -12,12 +12,9 @@
 	<%=h hidden_field_tag('survey_id', params[:survey_id]) %>
 	<%=h hidden_field_tag('surveyForID', params[:surveyForID]) %>
   <%=h hidden_field_tag('surveyForType', params[:surveyForType]) %>
-	<% 	response_grp = (validateERPPermission("E_SUR")) ? getResponseGroup.reverse.insert(0, [""]) : getResponseGroup.reverse
-			response_grp << [l(:label_trend_chart), "trendChart"]
-	%>
 	<% if @survey.recur %>
 		<b><%= l(:label_clos_responses) %></b>&nbsp;
-		<%= select_tag('groupName', options_for_select(response_grp, selected: params[:groupName]), onchange: '$("#result_form").submit()') %>
+		<%= select_tag('groupName', options_for_select(get_response_group_items, selected: params[:groupName]), onchange: '$("#result_form").submit()') %>
 		<%= link_to_function l(:button_apply), '$("#result_form").submit()', :class => 'icon icon-checked' %>
 	<% end %>
 <% end %>

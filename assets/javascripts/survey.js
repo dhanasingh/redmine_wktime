@@ -1,5 +1,6 @@
 $(function()
 {
+	$('input[type=text]').blur();
 	$( "#accordion" ).accordion({
 		collapsible: true,
 		heightStyle: "content"

@@ -1,99 +1,98 @@
-<% response_id = !params[:response_id].blank? ? params[:response_id] : 
-    (!@response.blank? && @responseStatus == "O" && !@newResponse ? @response.id : nil) %>
-<%= form_tag({:controller => 'wksurvey', :action => 'update_survey'}, :method => :post, :id => 'survey_form') do %>
-    <%= hidden_field_tag('surveyForID', params[:surveyForID]) %>
-    <%= hidden_field_tag('surveyForType', params[:surveyForType]) %>
-    <%= hidden_field_tag("survey_id", @survey.id) %>
-    <%= hidden_field_tag("isReview", @isReview) %>
-    <%= hidden_field_tag("survey_response_id", response_id) %>
-    <% @question_Entries.each do |entry| %>
-        <% isReviewerOnly = ActiveModel::Type::Boolean.new.cast(entry.is_reviewer_only) %>
-        <% isMandatory = ActiveModel::Type::Boolean.new.cast(entry.is_mandatory) && !(["CB"].include? entry.question_type) %>
-        <% if !isReviewerOnly || (@isReview && isReviewerOnly)
-            disableReviewerOnly = isReviewerOnly && !@isReviewed
-            @enabled = @enabled && !isPrint
-            if @reviewerOnlyQuestions.blank? && isReviewerOnly
-                @reviewerOnlyQuestions = entry.question_id.to_s
-            elsif isReviewerOnly
-                @reviewerOnlyQuestions += "," + entry.question_id.to_s
-            end
-            isMandatory = isMandatory && entry.question_type != "CB"
-            survey_ans = @survey_response.present? ? @survey_response.where("SA.survey_question_id = #{entry.question_id}").first : nil
-            choice_text = survey_ans.try(:choice_text)
-            comment_text = survey_ans.try(:comment_text)
-            reviewerName = survey_ans.user_name(survey_ans.try(:reviewer)) if survey_ans.try(:reviewer).present?
-        %>
-        <%= hidden_field_tag("question_type_"+ (entry.question_id).to_s, entry.question_type) %>
-        <%= hidden_field_tag("isReviewerOnly_"+ (entry.question_id).to_s, isReviewerOnly) %>
-        <fieldset class="box tabular">
-        <table>
+<%= form_tag({ action: 'update_survey'}, method: :post, id: 'survey_form') do %>
+  <%= hidden_field_tag('surveyForID', params[:surveyForID]) %>
+  <%= hidden_field_tag('surveyForType', params[:surveyForType]) %>
+  <%= hidden_field_tag("survey_id", @survey.id) %>
+  <%= hidden_field_tag("isReview", @isReview) %>
+  <%= hidden_field_tag("survey_response_id", @response.try(:id)) %>
+  <% questions = @survey.wk_survey_questions.order("is_reviewer_only, wk_survey_questions.id") %>
+  <% questions.each do |entry| %>
+    <%
+      isReviewerOnly = ActiveModel::Type::Boolean.new.cast(entry.is_reviewer_only)
+      isMandatory = ActiveModel::Type::Boolean.new.cast(entry.is_mandatory) && !(["CB"].include? entry.question_type)
+      reviewerOnlyQIDs = nil
+    %>
+    <% if !isReviewerOnly || @isReviewed || (isReviewerOnly && @isReview)
+        disableAnswer = @survey.status != "O" || !isReviewerOnly && (["C", "R"].include?(@response.try(:status)) || isPrint) || isReviewerOnly && @isReviewed
+        reviewerOnlyQIDs = reviewerOnlyQIDs.blank? ? entry.id.to_s : (reviewerOnlyQIDs + "," + entry.id.to_s) if isReviewerOnly
+        isMandatory = isMandatory && entry.question_type != "CB"
+        review = @response.present? ? @response.wk_survey_reviews.where("survey_question_id=#{entry.id}") : []
+        comment_text = review.first.try(:comment_text)
+        reviewerName = review.first.try(:user).try(:name)
+    %>
+      <%= hidden_field_tag("question_type_"+ (entry.id).to_s, entry.question_type) %>
+      <%= hidden_field_tag("isReviewerOnly_"+ (entry.id).to_s, isReviewerOnly) %>
+      <fieldset class="box tabular"><table>
+        <tr>
+          <th align="left" style="padding-left:10px;"><%= entry.name %><%= isMandatory ? content_tag(:span, "*", class: "required") : nil %></th>
+        </tr>
+        <% if ["RB","CB"].include? entry.question_type %>
+          <% entry.wk_survey_choices.each do |choice_entry| %>
+            <% survey_ans = @response.wk_survey_answers.where("survey_choice_id = #{choice_entry.id}
+                AND survey_question_id = #{entry.id}").first if @response.present?
+              isChecked = survey_ans.present?
+            %>
             <tr>
-                <td align="left" style="padding-left:10px;"><%= entry.question_name %><% if isMandatory %><%= content_tag(:span, "*", :class => "required") %><% end %></td>
+              <td align="left" style="padding-left:30px;">
+                <% case entry.question_type %>
+                <% when 'CB' %>
+                    <%= check_box_tag(("survey_sel_choice_"+ (entry.id).to_s + "_" + (choice_entry.id).to_s  ),
+                        choice_entry.id, isChecked, disabled: disableAnswer,
+                        required: isMandatory) %>
+                    <%= choice_entry.name %>
+                <% when 'RB' %>
+                    <%= radio_button_tag("survey_sel_choice_"+ (entry.id).to_s + "_", choice_entry.id, isChecked,
+                        disabled: disableAnswer, required: isMandatory) %>
+                    <%= choice_entry.name %>
+                <% end %>
+              </td>
             </tr>
-            <% if ["RB","CB"].include? entry.question_type %>
-                <% @question_Choice_Entries.each do |choice_entry| %>
-                    <% if choice_entry.survey_question_id == entry.question_id %>
-                    <%  survey_ans = @survey_response.blank? ? nil : @survey_response.where("SA.survey_choice_id = #{choice_entry.id} 
-                        AND SA.survey_question_id = #{entry.question_id}").first
-                        isChecked = !@survey_response.blank? && !survey_ans.blank? 
-                    %>
-                    <tr>
-                        <td align="left" style="padding-left:30px;">
-                            <% case entry.question_type %>
-                            <% when 'CB' %>
-                                <%= check_box_tag(("survey_sel_choice_"+ (entry.question_id).to_s + "_" + (choice_entry.id).to_s  ), 
-                                    choice_entry.id, isChecked, :disabled => disableReviewerOnly ? @isReviewed : !@enabled, 
-                                    :required => isMandatory) %>
-                                <%= choice_entry.name %>
-                            <% when 'RB' %>
-                                <%= radio_button_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", choice_entry.id, isChecked, 
-                                    :disabled => disableReviewerOnly ? @isReviewed : !@enabled, :required => isMandatory) %>
-                                <%= choice_entry.name %>
-                            <% end %>
-                        </td>
-                    </tr>
-                    <% end %>
-                <% end %>
+          <% end %>
 
-            <% elsif ["TB","MTB"].include? entry.question_type %>
-                <tr>
-                    <td align="left" style="padding-left:30px;">
-                        <% case entry.question_type %>
-                        <% when 'TB' %>
-                            <%= isPrint ? choice_text : text_field_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", choice_text, size: 60, 
-                                :disabled => disableReviewerOnly ? @isReviewed : !@enabled, :required => isMandatory, :autofocus => false) %>
-                        <% when 'MTB' %>
-                            <%= isPrint ? choice_text : text_area_tag("survey_sel_choice_"+ (entry.question_id).to_s + "_", choice_text, rows: 5, cols: 60, 
-                                :disabled => disableReviewerOnly ? @isReviewed : !@enabled, :required => isMandatory, :autofocus => false)%>
-                        <% end %>
-                    </td>
-                </tr>
-            <% end %>
-            <% if @isReview && !isReviewerOnly %>
-                <tr>
-                    <th style="float:left;"><%= l(:label_review_comment) %></th>
-                    <td style="float:left;padding-left: 13px;">
-                        <%= isPrint ? comment_text : text_area_tag("survey_review_"+ (entry.question_id).to_s, comment_text, rows: 5, cols: 60, :disabled => @isReviewed, 
-                            :required => false) %>
-                    </td>
-                </tr>
-                <% if reviewerName.present? %>
-                    <tr>
-                        <th style="float:left;"><%= l(:label_reviewed_by) %></th>
-                        <td style="float:left;padding-left: 45px;"><%= reviewerName %></td>
-                    </tr>
-                <% end %>
-            <% end %>
-        </table>
-        </fieldset>
+        <% elsif ["TB","MTB"].include? entry.question_type %>
+          <% choice_text = @response.present? ? @response.wk_survey_answers.where("survey_question_id = #{entry.id}").first.try(:choice_text) : nil %>
+          <tr>
+            <td align="left" style="padding-left:30px;">
+              <% case entry.question_type %>
+              <% when 'TB' %>
+                  <%= isPrint ? choice_text : text_field_tag("survey_sel_choice_"+ (entry.id).to_s + "_", choice_text, size: 60,
+                      disabled: disableAnswer, required: isMandatory, style: "outline: none;") %>
+              <% when 'MTB' %>
+                  <%= isPrint ? choice_text : text_area_tag("survey_sel_choice_"+ (entry.id).to_s + "_", choice_text, rows: 5, cols: 60,
+                      disabled: disableAnswer, required: isMandatory)%>
+              <% end %>
+            </td>
+          </tr>
         <% end %>
+
+        <% if (@isReview || @isReviewed) && !isReviewerOnly %>
+          <tr>
+            <th style="float:left;"><%= l(:label_review_comment) %></th>
+          </tr>
+          <tr>
+            <td style="padding-left:30px;">
+                <%= isPrint ? comment_text :
+                  text_area_tag("survey_review_"+ (entry.id).to_s, comment_text, rows: 5, cols: 60, disabled: @isReviewed, required: false)
+                %>
+            </td>
+          </tr>
+          <% if reviewerName.present? %>
+            <tr>
+              <th style="float:left;"><%= l(:label_reviewed_by) %></th>
+              <td style="float:left;padding-left: 10px;"><%= reviewerName %></td>
+            </tr>
+          <% end %>
+        <% end %>
+
+      </table></fieldset>
     <% end %>
-    <%= hidden_field_tag("reviewerOnlyQuestions", @reviewerOnlyQuestions) %>
-    <% if (@enabled || @isReview) && !@isReviewed %>
-        <div>
-        <%= button_tag(l(:button_save), type: 'button', onclick: 'survey_submit();') %>
-        <%= button_tag(l(:button_submit), type: 'button', onclick: 'validation();') %>
-        <%= hidden_field_tag("commit", "") %>
-        </div>
-    <% end %>
+    <%= hidden_field_tag("reviewerOnlyQuestions", reviewerOnlyQIDs) %>
+  <% end %>
+
+  <% if @survey.status == "O" && !@isReviewed && (!isPrint && (@response.blank? || @response.status == "O" || @isReview)) %>
+    <div>
+    <%= button_tag(l(:button_save), type: 'button', onclick: 'survey_submit();') if @survey.save_allowed %>
+    <%= button_tag(l(:button_submit), type: 'button', onclick: 'validation();') %>
+    <%= hidden_field_tag("commit", "") %>
+    </div>
+  <% end %>
 <% end %>

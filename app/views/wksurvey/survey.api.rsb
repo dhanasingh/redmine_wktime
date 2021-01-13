@@ -1,0 +1,85 @@
+api.wk_survey do
+  api.id @survey.id
+  api.name @survey.name
+  api.status @survey.status
+  api.is_review @survey.is_review
+
+  api.array :questions do
+    @survey.wk_survey_questions.each do |q|
+      api.questions do
+        if q.wk_survey_choices.present? || ["TB","MTB"].include?(q.question_type)
+          api.id q.id
+          api.name q.name
+          api.question_type q.question_type
+          api.is_mandatory q.is_mandatory
+          api.is_reviewer_only q.is_reviewer_only
+          api.array :choices do
+            q.wk_survey_choices.each do |c|
+              api.choices do
+                api.id c.id
+                api.name c.name
+                api.points c.points
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  api.response do
+    api.survey_id @survey.id
+    api.user_id User.current.id
+    if @response.present?
+      api.id @response.id
+      api.user_id @response.user_id
+      api.survey_for_type @response.survey_for_type
+      api.survey_for_id @response.survey_for_id
+
+      if @response.wk_survey_answers.present?
+        api.array :answers do
+          @response.wk_survey_answers.each do |a|
+            api.answers do
+              api.id a.id
+              api.survey_question_id a.survey_question_id
+              api.survey_choice_id a.survey_choice_id
+              api.choice_text a.choice_text
+            end
+          end
+        end
+      end
+
+      if @response.wk_survey_reviews.present?
+        api.array :reviews do
+          @response.wk_survey_reviews.each do |r|
+            api.reviews do
+              api.id r.id
+              api.user_id r.user_id
+              api.survey_question_id r.survey_question_id
+              api.comment_text r.comment_text
+            end
+          end
+        end
+      end
+
+    elsif @survey.survey_for_type == "User"
+      api.survey_for_type "User"
+      api.survey_for_id User.current.id
+    end
+  end
+
+  api.headers do
+    api.responseStatus_items getResponseStatus
+    if @response.present? && @response.current_status.present?
+      s = @response.current_status
+      api.response_status do
+        api.id s.id
+        api.status_for_type s.status_for_type
+        api.status_for_id s.status_for_id
+        api.status s.status
+        api.status_date s.status_date.strftime("%Y-%m-%d")
+        api.responsed_by @response.user.name
+      end
+    end
+  end
+end

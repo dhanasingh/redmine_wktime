@@ -39,9 +39,9 @@ en:
   label_start: Start
   label_end: End
   label_remaining_hours: Remaining Hours
-  label_warning_wktime_time_entry: "The timesheet for this period is locked, you cannot log time."  
+  label_warning_wktime_time_entry: "The timesheet for this period is locked, you cannot log time."
   label_warning_wktime_issue_tracker: "The tracker of this issue is not allowed for time logging."
-  
+
   label_wk_first_day_of_week: First day of week
   label_wk_prev_week_tip: Previous Week
   label_wk_next_week_tip: Next Week
@@ -52,8 +52,8 @@ en:
   label_wk_filter_issue_tracker: Filter Issue by Tracker
   label_wk_currency: Currency
   label_wk_time: Weekly Time
-  label_total_expense: Total Expense 
- 
+  label_total_expense: Total Expense
+
   label_wkexpense_reports: Expense Report
   label_spent_expense: Spent Expense
   label_wk_submission_deadline: Submission Deadline
@@ -61,19 +61,19 @@ en:
   label_wk_nonsub_mail_notification: Send email for non submission
   label_wk_nonsub_mail_message: Non submission email message
   label_redmine_restart_warning: "Note: Any change to the below scheduler settings require redmine restart"
-  label_wk_minutes: Minutes  
+  label_wk_minutes: Minutes
   label_wkexpense_entry_projects: Restrict Expense Entry to these projects
-  
+
   label_wk_public_holiday: Public Holidays
-  label_wk_description: Description 
+  label_wk_description: Description
   label_wk_date_exists: This date already exists
   label_wk_select_holiday: Please select a holiday
 
   button_new_wktime: New Timesheet
   button_continue: Continue
   button_add_row: Add Row
-  button_new_wkexpense: New Expensesheet  
-  
+  button_new_wkexpense: New Expensesheet
+
   button_wk_unsubmit: Unsubmit
   button_save_continue: Save and continue
   button_wk_approve: Approve
@@ -81,36 +81,36 @@ en:
   button_wk_unapprove: Unapprove
   chkbox_prev_tmpl: Previous Week's Template
   chkbox_closed_issues: Include Previous Weeks' Closed Issues
-  
+
   error_te_save_failed: "Could not save %{label}: %{error}"
   error_wktime_save_nothing: Nothing to Save
   error_not_permitted_save: Not permitted to Save
-  
+
   wk_status_new: New
   wk_status_empty: Empty
   wk_status_submitted: Submitted
   wk_status_approved: Approved
   wk_status_rejected: Rejected
-  
+
   text_start_of_week_confirmation: "Are you Sure? Status will be lost on the previously submitted %{value}"
   text_wk_warning_min_hour: "You have not entered the Minimum hours (%{value}) required per day"
   text_wk_warning_max_hour: "You have entered hours above Maximum hours (%{value}) allowed per day"
   field_amount: Amount
   field_status_modified_by: "Modified by"
-  
+
 
   label_wk_allow_filter_issue: Allow User filtering to My Issues
   label_wk_no_user_current_project: no users in selected project
- 
+
   permission_approve_time_entries: Approve time logs
   field_currency: Currency
   error_project_issue_associate: Cannot be deleted because time/expense entries associated
   error_time_entry_delete: "Cannot be deleted. The timesheet with this entry is locked"
-  
+
   label_user_filters: User filters
   label_submitted_by: Submitted by
   label_approved_by:  Approved by
-  
+
   label_wk_reminder: Send Reminder
   label_wk_reminder_notes: Reminder Notes
   label_wk_sub_reminder: Send submission email reminder
@@ -124,8 +124,8 @@ en:
   label_wk_timesheet: Timesheet
   label_wk_expensesheet: Expensesheet
   text_wk_no_reminder: No reminders to send
-  
-  
+
+
   report_attendance: Attendance
   report_spent_time: Spent time
   label_wk_break_time: Break Time
@@ -174,18 +174,18 @@ en:
   label_hours_note: "Note: Please enter time in 24 hours format(HH:MM)."
   label_no_leaves_configured : No leaves configured
   label_max_min_hours_day_msg : Min hours is greater than Max hours.
-  
+
   label_wk_restr_max_hour_week: Enforce Max hour per week
   label_wk_max_hour_week: Max hour per week
   label_wk_restr_min_hour_week: Enforce Min hour per week
   label_wk_min_hour_week: Min hour per week
   text_wk_warning_min_hour_week: "You have not entered the Minimum hours (%{value}) required per week"
   text_wk_warning_max_hour_week: "You have entered hours above Maximum hours (%{value}) allowed per week"
-  label_enable_expense_module: Enable Expense module 
+  label_enable_expense_module: Enable Expense module
   label_enable_attendance_module: Enable Attendance module
   label_enable_report_module: Enable Reports
   label_group_non_submission_email: Target group of non submission email
-  
+
   error_expense_entry_delete: "Cannot be deleted. The expensesheet with this entry is locked"
   button_populate_leave: "Run Period End Process"
   text_are_you_sure_want_to_run: "Are you sure you want to run this process ?"
@@ -203,13 +203,13 @@ en:
   label_import_file_headers: File Headers
   error_no_record_to_import: No Record to Import
   warning_fields_in_file_not_configured: Fields in file not configured in plugin attendance settings
-  
+
   label_payroll: Payroll
   label_basic: Basic Pay
   label_deduction: Deductions
   label_gross: Gross
   label_net: Net
-  label_salarydate: Salary Date  
+  label_salarydate: Salary Date
   label_allowances: Allowances
   label_frequency: Frequency
   label_pay_period: Pay Period
@@ -261,7 +261,7 @@ en:
   label_salary_component: Salary Component
   label_override_common_setting: Override common setting
   label_actual: Actual
-  
+
   label_wk_billing: Billing
   label_enable_billing_module: Enable Billing module
   label_accounts: Accounts
@@ -269,7 +269,7 @@ en:
   label_acc_projects: Account Projects
   label_invoice: Invoice
   label_invoice_adjusted: Invoice
-  label_tax: Tax  
+  label_tax: Tax
   label_project_name: Project Name
   label_account_name: Account Name
   label_invoice_date: Invoice Date
@@ -306,11 +306,11 @@ en:
   label_work_phone: Work Phone
   label_email: Email
   label_country: Country
-  label_city : City 
+  label_city : City
   label_account_detail: Account Detail
   label_account_information: Account Information
   label_address_information: Address Information
-  label_state : State 
+  label_state : State
   label_fax : Fax
   label_mobile : Mobile
   label_home_phone: Home Phone
@@ -331,7 +331,7 @@ en:
   label_file_name: File Name
   label_attachment: Attachments
   label_edit_contract: Edit Contract
-  label_project: Project 
+  label_project: Project
   label_account: Account
   label_account_adjusted: Account
   label_contract_number: Contract Number
@@ -395,7 +395,7 @@ en:
   label_sub_total: Sub total
   label_round_off: Round Off
   label_grand_total: Grand Total
-  
+
   label_accounting: Accounting
   label_accounting_group: Accounting User Group
   label_enable_accounting_module: Enable Accounting Module
@@ -471,7 +471,7 @@ en:
   label_salary: Salary
   error_contra_msg: Contra should contain bank and cash ledgers only.
   error_payment_msg: Payment should have bank or cash as Credit.
-  error_receipt_msg: Receipt should have bank or cash as Debit.   
+  error_receipt_msg: Receipt should have bank or cash as Debit.
   error_purchase_msg: Purchase should have sundry creditors/debitors, cash and bank as credit and purchase group as debit.
   error_sales_msg: Sales should have sundry creditors/debitors, cash and bank as debit and sales group as credit.
   error_cn_msg: Credit note should have sundry creditors/debitors, cash and bank as credit and should not have cash and bank as debit.
@@ -479,7 +479,7 @@ en:
   label_less_transferred: "Less: Transferred"
   label_trans_row_validmsg: Transaction contain minimum two rows.
   label_trans_total_validmsg: Transaction debit and credit does not match.
-  
+
   label_crm: CRM
   label_lead_plural: Leads
   label_opportunity_plural: Opportunities
@@ -538,7 +538,7 @@ en:
   label_prospecting: Prospecting
   label_analysis: Analysis
   label_qualification: Qualification
-  label_needs_analysis: Needs 
+  label_needs_analysis: Needs
   label_value_proposition: Value Proposition
   label_decision_makers: Id.Decision Makers
   label_perception: Perception
@@ -580,9 +580,9 @@ en:
   report_civilian_attendance: Civilian Attendance
   minimum_working_days_for_accrual: Minimum working days for leave accrual
   label_accrual_multiplier: Accrual Multiplier
-  
+
   label_enable_time_module: Enable Time Module
-  
+
   label_payments: Payments
   label_payment_date: Payment Date
   label_payment_type: Payment Type
@@ -604,7 +604,7 @@ en:
   label_minus: Minus
   label_credit_from_prv_inv: "Credit From Previous Invoice #%{invId}"
   label_credit_from_prv_inv_pay: "Credit From Previous Invoice #%{invId} Payment #%{payId}"
-  
+
   label_rfq: RFQ
   label_quotes: Quotes
   label_purchase_order: Purchase Order
@@ -646,7 +646,7 @@ en:
   label_lock: Lock T&E
   label_last_lock_by: "Last Locked by: %{name}"
   label_quote_components: Quote Components
-  label_po_components: Purchase Order Components  
+  label_po_components: Purchase Order Components
   label_si_components: Supplier Invoice Components
   label_all_accounts: All Accounts
   label_opening_balance: Opening Balance
@@ -655,7 +655,7 @@ en:
   error_please_select_rfq: Please select RFQ
   error_please_select_winning_quote: Please select Winning Quote
   error_please_select_po: Please select Purchase Order
-  
+
   label_inventory: Inventory
   label_inventory_admin_group: Inventory Admin Group
   label_inventory_user_group: Inventory User Group
@@ -793,7 +793,7 @@ en:
   field_custom_date2: Custom date2
   field_billing_rate: Billing rate
   field_billing_currency: Billing currency
-  field_location: Location 
+  field_location: Location
   field_department: Department
   label_public_holiday: Public Holiday
   label_schedule_on_weekend: Schedule on Weekend / Holiday
@@ -828,8 +828,8 @@ en:
   label_account_category: Account Category
 
   VIEW INVENTORY: View inventory
-  DELETE INVENTORY: Delete inventory 
-  SCHEDULES SHIFT: Schedules shift 
+  DELETE INVENTORY: Delete inventory
+  SCHEDULES SHIFT: Schedules shift
   EDIT SHIFT SCHEDULES: Edit shift schedules
   EDIT SURVEY: Edit survey
   BASIC CRM PRIVILEGE: Basic CRM privilege
@@ -875,7 +875,7 @@ en:
   field_rate_per: Per
   label_invoice_generation_month: Invoice generation month
   label_edit_component: Edit Component
-  # Supervisor lables  
+  # Supervisor lables
   label_ftte_supervisor: "Supervisor"
   label_my_direct_reports: "My direct reports"
   label_my_reports: "My reports"
@@ -884,7 +884,7 @@ en:
   label_ftte_supervisor_based_approval: "Use supervisor based approval system "
   label_ftte_view_only_own_spent_time: "View only own spent time"
   label_additional_details: Additional Details
-  
+
   #Dashboards
   label_dashboards: Dashboards
   label_clock_in_users_over_time: Clock in users over time
@@ -898,7 +898,7 @@ en:
   label_total_invoice: Invoice
   label_total_payment: Payment
   label_assets_per_month: Assets per month
-  label_total_assets_per_month: Assets  
+  label_total_assets_per_month: Assets
   label_profit_loss_per_month: Profit and loss per month
   label_total_income: Income
   label_total_expense: Expense
@@ -928,7 +928,7 @@ en:
   label_radio_button: Radio Button
   label_text_box: Text Box
   label_text_area: Text Area
-  label_user_group: User Group				
+  label_user_group: User Group
   label_survey_for: Survey for
   notice_surveyfor_unsuccessful: Survey For is invalid
   button_email_user: Email User
@@ -968,9 +968,9 @@ en:
 
   label_main_location: Main location
   label_all_locations: All Locations
-  
+
   report_payroll_bank: Payroll Bank Report
-  
+
   label_billable: Billable
   report_user_utilization: User Utilization
   label_no_additional_details_for_user: No Additional Details for User
@@ -979,7 +979,7 @@ en:
   field_original_amount: Original Amount
   T&E ADMIN PRIVILEGE : T&E Admin privilege
 
-  label_summary_by: Summary by  
+  label_summary_by: Summary by
   report_trial_balance: Trial Balance Report
   label_all_projects: All Projects
 
@@ -1001,7 +1001,7 @@ en:
   label_greater_than: '>'
   label_if: If
   label_condition_errormsg: Condition can not be blank
-  
+
   label_clos_curr_resp: Close current responses
   label_clos_responses: Closed responses
   label_not_rpt: Do not show in report
@@ -1011,7 +1011,7 @@ en:
   error_enter_clk_in: Please enter Clock In
   error_greater_then: The Clock In time cannot be greater than Clock Out time
   error_invalid_document: Document is invalid
-  
+
   label_grp_name: Group Name
   label_alert: Alert
   notice_successful_close: Successful closed current responses.
@@ -1020,7 +1020,7 @@ en:
   report_tax: Tax Report
   label_tds: TDS
   label_cess: Cess
-  
+
   label_submitted_date: Submitted Date
   label_equal_operator: "="
   label_multiplier: "*"
@@ -1075,7 +1075,7 @@ en:
   warning_leaving_message: Are you sure you want to leave the page
   note_choose_attachment: Choose one from attachments
   label_reporters: Reporters
-  
+
   label_notification: Notification
   label_non_submission: Non Submission
   label_time_rejected: Time Rejected
@@ -1143,4 +1143,4 @@ en:
   label_request: Request
   label_warning_future_date: Cannot select the future Date
   label_time_approved: Time Approved
-  
+  label_save_allowed: Save Allowed

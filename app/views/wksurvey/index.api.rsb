@@ -11,6 +11,7 @@ api.array :wk_survey, api_meta(:total_count => @entry_count, :offset => @offset,
       api.recur entry.recur
       api.recur_every entry.recur_every
       api.is_review entry.is_review
+      api.show_result (entry.status == "O" && validateERPPermission("E_SUR")) || entry.status == "C" || getResponseGroup(entry.id).present?
 
       api.array :questions do
         entry.wk_survey_questions.each do |question|
