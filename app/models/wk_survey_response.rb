@@ -63,10 +63,17 @@ class WkSurveyResponse < ActiveRecord::Base
         (surveyForID.blank? ? " IS NULL " : " = #{surveyForID} ")
     end
 
-    if "SQLServer" == ActiveRecord::Base.connection.adapter_name
-      dateDiff = "(DATEDIFF(y, '#{Time.now()}', ST.status_date))"
+    addDate = case ActiveRecord::Base.connection.adapter_name
+    when "SQLServer"
+      " DATEADD(d, recur_every, ST.status_date) "
+    when "PostgreSQL"
+      " (ST.status_date + interval '1' day * recur_every) "
+    when "Mysql2"
+      " DATE_ADD(ST.status_date, INTERVAL recur_every DAY) "
+    # when "SQLite"
+    #   " datetime(ST.status_date, '+'||recur_every||' days') "
     else
-      dateDiff = "(CAST('#{Time.now()}' AS DATE) - CAST(ST.status_date AS DATE))"
+      " datetime(ST.status_date, '+'||recur_every||' days') "
     end
 
     WkSurveyResponse.joins("INNER JOIN wk_surveys ON wk_survey_responses.survey_id = wk_surveys.id")
@@ -77,8 +84,9 @@ class WkSurveyResponse < ActiveRecord::Base
         WHERE status_for_type = 'WkSurveyResponse'
         GROUP BY status_for_id
       ) AS CR ON CR.id = wk_survey_responses.id AND CR.status_date = ST.status_date")
-    .where("wk_surveys.id = #{survey_id} AND (wk_surveys.status = 'O' AND recur = ? AND (recur_every > " + dateDiff + ") OR wk_surveys.status != 'O' OR recur != ?) " + condStr, true, true)
+    .where("wk_surveys.id = #{survey_id} AND (wk_surveys.status = 'O' AND recur = ? AND (" + addDate + " > ?) OR wk_surveys.status != 'O' OR recur != ?) " + condStr, true, Time.now(), true)
     .select("ST.status, ST.status_date, wk_survey_responses.*")
+    .order("ST.status_date desc")
     .first
   end
 end
