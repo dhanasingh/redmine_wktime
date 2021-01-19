@@ -1,5 +1,6 @@
-api.array :wk_survey, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+api.array :wk_survey, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit, unseen_count: @unseen_count) do
   @surveys.each do |entry|
+  surveyLink = get_survey_with_userGroup(entry.id, false)
     api.entry do
       api.id entry.id
       api.name entry.name
@@ -12,6 +13,7 @@ api.array :wk_survey, api_meta(:total_count => @entry_count, :offset => @offset,
       api.recur_every entry.recur_every
       api.is_review entry.is_review
       api.show_result (entry.status == "O" && validateERPPermission("E_SUR")) || entry.status == "C" || getResponseGroup(entry.id).present?
+      api.surveyLink surveyLink.present?
 
       api.array :questions do
         entry.wk_survey_questions.each do |question|

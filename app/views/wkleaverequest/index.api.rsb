@@ -12,3 +12,7 @@ api.array :wk_leave_req, api_meta(:total_count => @leave_count, :offset => @leav
     end
   end
 end
+
+api.headers do
+  api.supervisor isSupervisor
+end

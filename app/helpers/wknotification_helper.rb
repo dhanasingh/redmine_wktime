@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 module WknotificationHelper
-  include WktimeHelper
+  include WkleaverequestHelper
 
 	def formNotificationText(notification)
 		notifyHash = {}
