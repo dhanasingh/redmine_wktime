@@ -61,6 +61,14 @@ class WkSurvey < ActiveRecord::Base
     .group("wk_survey_choices.name")
   }
 
+  def self.getMailUsers(user_group)
+    users =  User.where("status = #{true}")
+    if user_group.present?
+      users = users.joins('INNER JOIN groups_users ON users.id = user_id').where("groups_users.group_id = #{user_group}")
+    end
+    users
+  end
+
   def self.surveyAvgQuestion(survey_id, question_id)
     castFormat = case ActiveRecord::Base.connection.adapter_name
     when "PostgreSQL"
@@ -91,9 +99,9 @@ class WkSurvey < ActiveRecord::Base
   def survey_notification
     if status? && status == "C" && WkNotification.notify('surveyClosed')
       emailNotes = "Survey : " + (self.name) + " has been closed " + "\n\n" + l(:label_redmine_administrator)
-      userId = WkPermission.permissionUser('E_SUR').uniq
+      userId = WkSurvey.getMailUsers(group_id).pluck(:id)
       subject = l(:label_survey) + " " + l(:label_notification)
-      WkNotification.notification(userId, emailNotes, subject)
+      WkNotification.notification(userId, emailNotes, subject, self, 'surveyClosed')
     end
   end
 

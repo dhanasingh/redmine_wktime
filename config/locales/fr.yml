@@ -1157,3 +1157,16 @@ fr:
   label_warning_future_date: Cannot select the future Date
   label_time_approved: Time Approved
   label_save_allowed: Save Allowed
+  label_complete_survey: Complete Survey
+  label_approve_leave: Approve Leave for
+  label_your_leave: Your leave for
+  label_is_approved: is approved
+  label_has_generated: has been generated
+  label_for: for
+  label_received_payment: Received payment
+  label_timesheet_on: timesheet on
+  label_rejected_timesheet: Rejected timesheet
+  label_contract: Contract
+  label_no_notification: No new notifications
+  label_has_closed: has been closed
+  label_rejected: is Rejected

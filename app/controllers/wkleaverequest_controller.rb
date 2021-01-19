@@ -125,11 +125,15 @@ class WkleaverequestController < WkbaseController
     if WkNotification.notify('leaveRequested') && leaveReq.status == 'S' || WkNotification.notify('leaveApproved') &&
       ['A','R'].include?(leaveReq.status)
       if (leaveReq.status == 'S' && isUser)
-        userID = user.parent_id? ? user.parent_id : leaveReq.admingroupMail('supervisor').pluck(:user_id).first
-        WkUserNotification.userNotification(userID, leaveReq, 'leaveRequested')
+        notifyusrIDs = ''
+        notifyusrIDs = leaveReq.admingroupMail('supervisor').pluck(:user_id)
+        notifyusrIDs << user.parent_id if user.parent_id?
+        notifyusrIDs.uniq.each do | userID |
+          WkUserNotification.userNotification(userID, leaveReq, 'leaveRequested')
+        end
         email_id = leaveReq.supervisor_mail
       elsif (['A','R', 'S'].include?(leaveReq.status) && !isUser)
-        WkUserNotification.userNotification(leaveReq.user.id, leaveReq, 'leaveApproved') if leaveReq.status == 'A'
+        WkUserNotification.userNotification(leaveReq.user.id, leaveReq, 'leaveApproved') if ['A', 'R'].include?(leaveReq.status)
         email_id = leaveReq.user.mails
         status = "UnApproved" if leaveReq.status == 'S'
       end

@@ -22,32 +22,35 @@ module WknotificationHelper
 		notifyHash = {}
 		case WkUserNotification.getnotificationAction(notification).first.name
 		when "fillSurvey"
-			notifyHash['text'] =  "Complete Survey: " + notification.source.name.to_s
+			notifyHash['text'] = l(:label_complete_survey)+" "+notification.source.name.to_s
 			notifyHash['url'] = {controller:'wksurvey', action:'survey', survey_id: notification.source_id, only_path: true}
 		when "leaveRequested"
-			notifyHash['text'] = "Approve Leave for: " + notification.source.user.name.to_s + " " + notification.source.start_date.to_date.to_s
+			notifyHash['text'] = l(:label_approve_leave)+" "+notification.source.user.name.to_s+" "+notification.source.start_date.to_date.to_s
 			notifyHash['url'] = {controller:'wkleaverequest', action:'edit', id: notification.source_id, only_path: true}
 		when "leaveApproved"
-			notifyHash['text'] = "Your leave for: " + notification.source.start_date.to_date.to_s + " is approved"
+			notifyHash['text'] = WkLeaveReq.getEntry(notification.source.id).status == 'A' ? l(:label_your_leave)+" "+notification.source.start_date.to_date.to_s+" "+l(:label_is_approved) : l(:label_your_leave)+" "+notification.source.start_date.to_date.to_s+" "+l(:label_rejected) 
 			notifyHash['url'] = {controller:'wkleaverequest', action:'edit', id: notification.source_id, only_path: true}
 		when 'invoiceGenerated'
-			notifyHash['text'] = "Invoice " + notification.source.invoice_items.first.original_amount.to_s + " has been generated for " + notification.source.parent.name.to_s
+			notifyHash['text'] = l(:label_invoice)+" "+notification.source.invoice_items.first.original_currency.to_s+notification.source.invoice_items.first.original_amount.to_s+" "+ l(:label_has_generated)+ " " + notification.source.parent.name.to_s
 			notifyHash['url'] = {controller:'wkinvoice', action:'edit', invoice_id: notification.source.id, new_invoice: false,preview_billing: false, only_path: true}
 		when "paymentReceived"
-			notifyHash['text'] = "Receieved Payment "+ WkPayment.getPaymentItems(notification.source).to_s + " from " + notification.source.parent.name.to_s
+			notifyHash['text'] = l(:label_received_payment)+" "+WkPayment.getPaymentItems(notification.source).to_s+" "+l(:label_date_from)+notification.source.parent.name.to_s
 			notifyHash['url'] = {controller:'wkpayment', action:'edit', payment_id: notification.source_id, only_path: true}
 		when 'contractSigned'
-			notifyHash['text'] = "Contract " + notification.source.id.to_s + " for " + notification.source.parent.name.to_s + " has been generated"
+			notifyHash['text'] = l(:label_contract)+" "+notification.source.id.to_s+" "+ l(:label_for)+" "+notification.source.parent.name.to_s+ " " +l(:label_has_generated)
 			notifyHash['url'] = {controller:'wkcontract', action:'edit', contract_id: notification.source.id, only_path: true}
 		when "nonSubmission"	
-			notifyHash['text'] = "submit timesheet on "+ notification.source.begin_date.to_s
+			notifyHash['text'] = l(:button_submit)+" "+ l(:label_timesheet_on)+" "+notification.source.begin_date.to_s
 			notifyHash['url'] = {controller:'wktime', action:'edit', startday: notification.source.begin_date, user_id: notification.source.user_id, only_path: true}
 		when 'timeApproved'
-			notifyHash['text'] = "Approve timesheet on " +  notification.source.begin_date.to_s + " for " + notification.source.user.name.to_s
+			notifyHash['text'] =  l(:button_wk_approve)+" "+l(:label_timesheet_on)+" "+notification.source.begin_date.to_s+" "+l(:label_for)+" "+notification.source.user.name.to_s
 			notifyHash['url'] = {controller:'wktime', action:'edit', startday: notification.source.begin_date, user_id: notification.source.user_id, only_path: true}
 		when 'timeRejected' 
-			notifyHash['text'] = "Rejected timesheet " + notification.source.submitted_on.to_s
+			notifyHash['text'] = l(:label_rejected_timesheet)+" "+notification.source.submitted_on.to_s
 			notifyHash['url'] = {controller:'wktime', action:'edit', startday: notification.source.begin_date, user_id: notification.source.user_id, only_path: true}
+		when 'surveyClosed'
+			notifyHash['text'] = l(:label_survey)+" "+notification.source.name.to_s+" "+l(:label_has_closed)
+			notifyHash['url'] = {controller:'wksurvey', action:'survey',survey_id: notification.source.id, only_path: true}
 		end
 		notifyHash
 	end

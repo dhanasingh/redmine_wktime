@@ -128,7 +128,6 @@ $(document).ready(function(){
 			url: '/wknotification/updateUserNotification?id='+id,
 			type: 'get',
 			success: function(){
-				alert('success');
 			}
 		});
 	});

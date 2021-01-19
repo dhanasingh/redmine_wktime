@@ -124,7 +124,7 @@ notifyTrigger =''
 		unRead = WkUserNotification.unreadNotification
 		imgName = unRead.present? ? "notification_unread" : "notification"
 		notifyBell = image_tag(imgName + ".png", plugin: "redmine_wktime", style: "height: 25px")
-		notifications = WkUserNotification.where(user_id: User.current.id)
+		notifications = WkUserNotification.where(user_id: User.current.id).order(id: 'desc')
 		notifyRslt = (+"").html_safe
 		notifications.each do |notification|
 			seenClass = notification.seen ? "seen" : "unseen"
@@ -132,7 +132,7 @@ notifyTrigger =''
 			text = link_to(notifyVal['text'], notifyVal['url'], class: seenClass, 'data-id': notification.id)
 			notifyRslt << text
 		end
-		notifyRslt = content_tag("span", l(:label_no_data)) if notifyRslt.blank?
+		notifyRslt = content_tag("span", l(:label_no_notification)) if notifyRslt.blank?
 		notifications = notifyRslt.html_safe
 		notifyTrigger = content_tag('span', notifyBell, class: 'drdn-trigger')
 		notifyContent = content_tag('div', content_tag(:h2, "Notifications", class: 'padding') + content_tag('span', notifications, class: 'drdn-items'), class: 'drdn-content')
