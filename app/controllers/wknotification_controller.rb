@@ -21,10 +21,10 @@ class WknotificationController < WkbaseController
 
   def index
     @notification = WkNotification.all.pluck(:name)
-    @checkEmail = WkNotification.first.email
+    @checkEmail = WkNotification.first.try(:email)
     @userNotification = WkUserNotification.where('user_id = ?', User.current.id).order(id: :desc)
 		respond_to do |format|
-			format.html {        
+			format.html {
 			  render :layout => !request.xhr?
 			}
 			format.api
@@ -44,7 +44,7 @@ class WknotificationController < WkbaseController
       if !notification.save()
 				errorMsg += notification.errors.full_messages.join('\n')
 			end
-    end    
+    end
     respond_to do |format|
       format.html {
         if errorMsg.nil?
