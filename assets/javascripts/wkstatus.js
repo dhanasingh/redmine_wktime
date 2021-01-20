@@ -124,10 +124,14 @@ $(document).ready(function(){
 
 	$( '.drdn-items .unseen').click(function(){
 		const id = $(this).data('id')
+		var element = this;
 		$.ajax({
 			url: '/wknotification/updateUserNotification?id='+id,
 			type: 'get',
 			success: function(){
+				if ($(element).hasClass('unseen')) {
+					$(element).removeClass('unseen').addClass('seen');
+				}
 			}
 		});
 	});
