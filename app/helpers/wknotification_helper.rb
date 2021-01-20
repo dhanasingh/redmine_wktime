@@ -54,4 +54,25 @@ module WknotificationHelper
 		end
 		notifyHash
 	end
+
+	def getnotifyDate(date)
+		noOfdays = (DateTime.now - date.to_datetime).to_i
+		case noOfdays
+		when 0
+			hours = ((DateTime.now.to_time - date.to_time) / 1.hour).to_i
+			dateText = hours == 0 ? 'Just now' : hours.to_s + ' hours ago'
+		when 1..6
+			dateText = noOfdays.round().to_s + ' days ago'
+		when 7..31
+			weeks = (noOfdays/7).to_i
+			dateText = weeks.to_s + ' weeks ago'
+		when 32..365
+			months = (noOfdays/31).to_i
+			dateText = months.to_s + ' months ago'
+		else
+			years = (noOfdays/365).to_i
+			dateText = years.to_s + ' years ago'
+		end
+		dateText
+	end
 end
