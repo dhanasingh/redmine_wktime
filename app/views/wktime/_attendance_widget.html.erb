@@ -138,7 +138,7 @@ notifyContent =''
 notifyTrigger =''
 	if User.current.logged?
 		unRead = WkUserNotification.unreadNotification
-		notifyHeader  = l(:label_notifications) + (unRead.present?  ? " (" + unRead.count.to_s + ")" : '')
+		notifyHeader  = l(:label_notification_plural) + (unRead.present?  ? " (" + unRead.count.to_s + ")" : '')
 		imgName = unRead.present? ? "notification_unread" : "notification"
 		notifyBell = image_tag(imgName + ".png", plugin: "redmine_wktime", style: "height: 25px")
 		notifications = WkUserNotification.where(user_id: User.current.id).order(id: 'desc')

@@ -31,10 +31,10 @@ module WknotificationHelper
 			notifyHash['text'] = WkLeaveReq.getEntry(notification.source.id).status == 'A' ? l(:label_your_leave)+" "+notification.source.start_date.to_date.to_s+" "+l(:label_is_approved) : l(:label_your_leave)+" "+notification.source.start_date.to_date.to_s+" "+l(:label_rejected) 
 			notifyHash['url'] = {controller:'wkleaverequest', action:'edit', id: notification.source_id}
 		when 'invoiceGenerated'
-			notifyHash['text'] = l(:label_invoice)+" "+notification.source.invoice_items.first.original_currency.to_s+notification.source.invoice_items.first.original_amount.to_s+" "+ l(:label_has_generated)+ " " + notification.source.parent.name.to_s
+			notifyHash['text'] = l(:label_invoice)+" "+notification.source.invoice_items.first.original_currency.to_s+notification.source.invoice_items.first.original_amount.to_s+" "+ l(:label_has_generated)+" "+ l(:label_for)+" "+notification.source.parent.name.to_s
 			notifyHash['url'] = {controller:'wkinvoice', action:'edit', invoice_id: notification.source.id, new_invoice: false,preview_billing: false}
 		when "paymentReceived"
-			notifyHash['text'] = l(:label_received_payment)+" "+WkPayment.getPaymentItems(notification.source).to_s+" "+l(:label_date_from)+notification.source.parent.name.to_s
+			notifyHash['text'] = l(:label_received_payment)+" "+notification.source.payment_items.first.original_currency.to_s+WkPayment.getPaymentItems(notification.source).to_s+" "+l(:label_from)+notification.source.parent.name.to_s
 			notifyHash['url'] = {controller:'wkpayment', action:'edit', payment_id: notification.source_id}
 		when 'contractSigned'
 			notifyHash['text'] = l(:label_contract)+" "+notification.source.id.to_s+" "+ l(:label_for)+" "+notification.source.parent.name.to_s+ " " +l(:label_has_generated)

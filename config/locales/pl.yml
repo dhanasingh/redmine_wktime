@@ -1183,4 +1183,4 @@ pl:
   label_no_notification: No new notifications
   label_has_closed: has been closed
   label_rejected: is Rejected
-  label_notifications: Notifications
+  label_from: from
