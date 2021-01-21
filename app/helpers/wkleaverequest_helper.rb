@@ -55,11 +55,11 @@ module WkleaverequestHelper
 		buttonLabel
 	end
 
-	def getLeaveHours
+	def getLeaveHours(userId)
 		available_hours = 0
 		leave_available = []
 		get_leave_type.each do |subject, issue_id|
-			userHours = WkUserLeave.leaveAvailableHours(issue_id, User.current.id).first
+			userHours = WkUserLeave.leaveAvailableHours(issue_id, userId).first
 			available_hours = userHours.balance + userHours.accrual - userHours.used  if userHours.present?
 			leave_available << { issue_id => available_hours}
 		end

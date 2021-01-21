@@ -1,6 +1,7 @@
 api.leave_req_entries do
+  userId = @leaveReqEntry ? @leaveReqEntry.user_id : User.current.id
   api.leave_type get_leave_type
-  api.leave_hour getLeaveHours
+  api.leave_hour getLeaveHours(userId)
   api.supervisor isSupervisor
   api.buttons getButtonLabels
   if @leaveReqEntry
