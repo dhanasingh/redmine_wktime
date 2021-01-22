@@ -15,6 +15,8 @@ api.array :wk_usernotification, api_meta(:total_count => @entry_count, unseen_co
       if WkUserNotification.getnotificationAction(entry).first.name == 'fillSurvey'
         api.name entry.source.name
         api.status entry.source.status
+        api.survey_for_type entry.source.survey_for_type
+        api.survey_for_id entry.source.survey_for_id
       end
       if ['leaveRequested', 'leaveApproved'].include? WkUserNotification.getnotificationAction(entry).first.name
         api.name entry.source.user_name

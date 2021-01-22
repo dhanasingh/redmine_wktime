@@ -268,7 +268,7 @@ class WkorderentityController < WkbillingController
 				if data['hd_item_type'] != 't' && data['hd_item_type'] != 'r'
 					row_index = row_index+1
 					data.each do | item |
-						params[item.first + (row_index).to_s] = item.last					
+						params[item.first + '_' +(row_index).to_s] = item.last					
 					end
 				end
 			end
