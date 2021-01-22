@@ -1,0 +1,11 @@
+api.array :wk_leave, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit, unseen_count: @unseen_count)  do
+  @leave_entries.each do |entry|
+    api.entry do
+      api.name entry.user.name
+      api.user_id entry.user_id
+      api.header getUserLeave.map { |leave | leave[0] }
+      api.leave_hours getUserLeave.each_with_index.map { |leave, index| entry['total'+index.to_s] }
+      api.accrual_on Date.civil(Date.today.year, Date.today.month, 1) -1
+    end
+  end
+end

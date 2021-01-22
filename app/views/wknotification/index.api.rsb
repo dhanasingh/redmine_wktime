@@ -1,0 +1,27 @@
+api.array :wk_usernotification, api_meta(:total_count => @entry_count, unseen_count: @unseen_count) do
+  @userNotification.each do |entry|
+  detail = formNotificationText(entry)
+    api.entry do
+      api.id entry.id
+      api.user_id entry.user_id
+      api.source_type entry.source_type
+      api.source_id entry.source_id
+      api.seen entry.seen
+      api.seen_on entry.seen_on
+      api.notify_text detail['text']
+      api.notify_date getnotifyDate(entry.created_at)
+      api.actionName WkUserNotification.getnotificationAction(entry).first.name
+      api.startdate entry.source.begin_date if WkUserNotification.getnotificationAction(entry).first.name == 'timeRejected'
+      if WkUserNotification.getnotificationAction(entry).first.name == 'fillSurvey'
+        api.name entry.source.name
+        api.status entry.source.status
+        api.survey_for_type entry.source.survey_for_type
+        api.survey_for_id entry.source.survey_for_id
+      end
+      if ['leaveRequested', 'leaveApproved'].include? WkUserNotification.getnotificationAction(entry).first.name
+        api.name entry.source.user_name
+        api.status getLeaveStatus[WkLeaveReq.getEntry(entry.source.id).try(:status)]
+      end
+    end
+  end
+end

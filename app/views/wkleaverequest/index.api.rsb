@@ -1,0 +1,18 @@
+api.array :wk_leave_req, api_meta(:total_count => @leave_count, :offset => @leave_pages.offset, :limit => @leave_pages.per_page, unseen_count: @unseen_count) do
+  @leaveReqEntires.each do |entry|
+    api.entry do
+      api.id entry.id
+      api.user_id entry.user_id
+      api.leave_type entry.leave_type.subject unless entry.leave_type_id.nil?
+      api.name entry.user_name unless entry.user.nil?
+      api.start_date entry.startDate unless entry.start_date.nil?
+      api.end_date entry.endDate unless entry.end_date.nil?
+      api.submitted_date entry.created_at.to_date
+      api.status getLeaveStatus[entry.try(:status)]
+    end
+  end
+end
+
+api.headers do
+  api.supervisor isSupervisor
+end

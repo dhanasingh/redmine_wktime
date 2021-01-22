@@ -1,4 +1,4 @@
-<% if @response.present? && !@newResponse%>
+<% if @response.present? %>
 	<fieldset class="box tabular">
 		<table width="40%" style="text-align: justify;">
 			<tr>
@@ -8,24 +8,23 @@
 			</tr>
 			<tr>
 				<td><%= getResponseStatus.invert[@response.status] %></td>
-				<td><%= @response.firstname %> <%= @response.lastname %></td>
+				<td><%= @response.user.name %></td>
 				<td><%= @response.status_date.strftime("%Y-%m-%d") %></td>
 			</tr>
 		</table>
 	</fieldset>
 <% end %>
-<% if @reviewer && @survey.status == "O" %>
+
+<% if @isReview && @survey.status == "O" %>
 	<fieldset class="box tabular">
-		<% response_id = !params[:response_id].blank? ? params[:response_id] : 
-			(!@response.blank? && @responseStatus == "O" && !@newResponse ? @response.id : nil) %>
 		<%= form_tag({:controller => 'wksurvey', :action => 'update_status'}, :method => :post) do %>
-			<%=h hidden_field_tag("survey_response_id", response_id) %>
+			<%=h hidden_field_tag("survey_response_id", params[:response_id]) %>
 			<%=h hidden_field_tag("survey_id", @survey.id) %>
 			<table>
 				<tr>
 					<th align="left"><%= l(:label_response_status) %></th>
 					<th align="left" style="padding-left:10px;">
-						<%= select_tag('response_status', options_for_select(getResponseStatus, :selected => @responseStatus)) %>
+						<%= select_tag('response_status', options_for_select(getResponseStatus, :selected => @response.status)) %>
 					</th>
 					<th style="padding-left:10px;"><%= button_tag l(:button_submit) %></th>
 				</tr>
@@ -33,7 +32,8 @@
 		<% end %>
 	</fieldset>
 <% end %>
-<% isPrint = isPrint.blank? ? false : true %>
-<% unless @survey_result_Entries.blank? && @question_Entries.blank? %>
-	<%= render :partial => "response_detail", :locals => { :isPrint => isPrint }  %>
+
+<% isPrint ||= false %>
+<% if @survey.wk_survey_questions.present? %>
+	<%= render partial: "response_detail", locals: { isPrint: isPrint } %>
 <% end %>

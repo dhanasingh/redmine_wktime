@@ -112,7 +112,7 @@ menu_item :wkinvoice
 		 end
     end
 
-    def update
+		def update
 		errorMsg = nil
 	    if params[:contract_id].blank? || params[:contract_id].to_i == 0
 		    wkContract = WkContract.new 
@@ -131,6 +131,8 @@ menu_item :wkinvoice
 		if errorMsg.blank?
 			wkContract.contract_number = getPluginSetting('wktime_contract_no_prefix') + wkContract.id.to_s
 			wkContract.save
+			#for mail notification
+			WkContract.send_notification(wkContract)
 			params[:attachments].each do |attachment_param|
 				attachment = Attachment.where('filename = ?', attachment_param[1][:filename]).first
 				unless attachment.nil?

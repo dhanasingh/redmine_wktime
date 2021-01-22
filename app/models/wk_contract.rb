@@ -24,7 +24,7 @@ class WkContract < ActiveRecord::Base
   #belongs_to :account, :class_name => 'WkAccount'
   belongs_to :parent, :polymorphic => true
   validate :end_date_is_after_start_date
-  after_create_commit :send_notification
+  # after_create_commit :send_notification
   
   def end_date_is_after_start_date
 		if !end_date.blank?
@@ -34,12 +34,12 @@ class WkContract < ActiveRecord::Base
 		end
 	end
 
-  def send_notification
+  def self.send_notification(contract)
     if WkNotification.notify('contractSigned')
-      emailNotes = "Contract: #" + self.id.to_s + " has been generated " + "\n\n" + l(:label_redmine_administrator)
+      emailNotes = "Contract: #" + contract.id.to_s + " has been generated " + "\n\n" + l(:label_redmine_administrator)
       subject = l(:label_contracts) + " " + l(:label_notification)
       userId = WkPermission.permissionUser('M_BILL').uniq
-      WkNotification.notification(userId, emailNotes, subject)
+      WkNotification.notification(userId, emailNotes, subject, contract, 'contractSigned')
     end
   end
 end

@@ -1,0 +1,22 @@
+api.wk_accounts do
+  getTransEntries
+  api.gl_transaction_id @transEntry.blank? ? '' :  (@transEntry[0].blank? ? @transEntry.id : @transEntry[0].id)
+  api.txn_type @txn_type
+  api.date @trans_date
+  api.txn_cmt @transEntry.blank? ? '' : (@transEntry[0].blank? ? @transEntry.comment : @transEntry[0].comment)
+  api.array :wk_accounts_detail do
+    @transDetails.each do |entry|
+      api.entry do
+        api.txn_id entry.id
+        api.txn_particular entry.ledger_id
+        api.gl_transaction_id entry.gl_transaction_id
+        api.detail_type entry.detail_type
+        api.original_currency entry.original_currency
+        api.original_amount entry.original_amount
+        api.currency entry.currency
+        api.txn_debit entry.detail_type == 'd' ? entry.amount : ''
+        api.txn_credit entry.detail_type == 'c' ? entry.amount : ''
+      end
+    end
+  end
+end

@@ -59,9 +59,9 @@ class WkpaymententityController < WkbillingController
 		end
 		
 		if filter_type == '3' && !account_id.blank?			
-			sqlwhere = sqlwhere + " and p.parent_id = '#{account_id}'  and p.parent_type = 'WkAccount' and (#{getPersonTypeSql}) = '#{getOrderAccountType}' " + (sqlHook.blank? ? " )" : sqlHook[0] + ")" )
+			sqlwhere = sqlwhere + " and p.parent_id = '#{account_id}'  and p.parent_type = 'WkAccount' and ((#{getPersonTypeSql}) = '#{getOrderAccountType}' " + (sqlHook.blank? ? " )" : sqlHook[0] + ")" )
 		elsif filter_type == '3' && account_id.blank?			
-			sqlwhere = sqlwhere + " and p.parent_type = 'WkAccount' and (#{getPersonTypeSql}) = '#{getOrderAccountType}' " + (sqlHook.blank? ? " )" : sqlHook[0] + ")" )
+			sqlwhere = sqlwhere + " and p.parent_type = 'WkAccount' and ((#{getPersonTypeSql}) = '#{getOrderAccountType}' " + (sqlHook.blank? ? " )" : sqlHook[0] + ")" )
 		end
 		
 		if !@from.blank? && !@to.blank?				
@@ -237,8 +237,11 @@ class WkpaymententityController < WkbillingController
 				end	
 			end	
 		end
-		
+
 		unless @payment.id.blank?
+			#for mail notification
+			WkPayment.send_notification(@payment)
+
 			totalAmount = @payment.payment_items.current_items.sum(:original_amount)
 			moduleAmtHash = {getAutoPostModule => [totalAmount.round, totalAmount.round]}
 			

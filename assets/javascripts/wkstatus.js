@@ -120,7 +120,25 @@ $(document).ready(function(){
 
 	$(document).on('click', '.drdn-items.issues .issue_select', function(){
 		saveIssueTimeLog(this);
-  });
+	});
+
+	$( '.drdn-items .unseen').click(function(){
+		const id = $(this).data('id')
+		var element = this;
+		$.ajax({
+			url: '/wknotification/updateUserNotification?id='+id,
+			type: 'get',
+			success: function(){
+				if ($(element).hasClass('unseen')) {
+					$(element).removeClass('unseen').addClass('seen');
+				}
+			}
+		});
+	});
+	
+	//Notification	
+	$("#project-jump").after($("#notification"));
+	$("#notification").attr('title','notification');
 });
 
 function spentTypeValue(elespent)

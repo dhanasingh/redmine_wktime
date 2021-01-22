@@ -1,0 +1,37 @@
+api.array :wk_survey do
+  @survey.result_questions.where(question_type: ['CB','RB']).each do |question|
+    graph_data = get_Graph_data(question.id)
+    if params[:groupName] != "trendChart" || graph_data.length > 0
+      api.question do
+        api.id question.id
+        api.name question.name
+        api.question_type question.question_type
+        api.graph_data graph_data
+      end
+    end
+  end
+
+  if params[:groupName] != "trendChart"
+    @survey.result_questions.where(question_type: ['TB','MTB']).each do |question|
+      api.question do
+        api.id question.id
+        api.name question.name
+        api.question_type question.question_type
+        api.array :answers do
+          question.response_texts(params[:groupName]).each do |ans|
+            api.answers do
+              api.id ans.id
+              api.choice_text ans.choice_text
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+api.headers do
+  api.survey_id @survey.id
+  api.name @survey.name
+  api.response_group_items get_response_group_items
+end

@@ -1,4 +1,4 @@
-api.array :wk_times, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit) do
+api.array :wk_times, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit, unseen_count: @unseen_count) do
   @entries.each do |wk_time|
     api.wk_time do
 			api.id wk_time.user.id unless wk_time.user.nil?

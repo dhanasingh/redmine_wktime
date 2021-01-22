@@ -20,6 +20,7 @@ class WkleaverequestController < WkbaseController
   include WkleaverequestHelper
 	include WkpayrollHelper
   include WksurveyHelper
+  accept_api_auth :index, :edit, :save, :getLeaveType
 
   def index
     sort_init 'start_date', 'desc'
@@ -46,6 +47,12 @@ class WkleaverequestController < WkbaseController
     @leave_count = lveReqEntires.length
     @leave_pages = Paginator.new @leave_count, per_page_option, params['page']
     @leaveReqEntires = lveReqEntires.limit(@leave_pages.per_page).offset(@leave_pages.offset).to_a
+		respond_to do |format|
+			format.html {        
+			  render :layout => !request.xhr?
+			}
+			format.api
+		end
   end
 
   def edit
@@ -57,9 +64,16 @@ class WkleaverequestController < WkbaseController
     isCurrentUser = @leaveReqEntry.blank? || @leaveReqEntry.user_id == User.current.id
     @leaveReqStatus = @leaveReqEntry.present? ? @leaveReqEntry.try(:status) : ''
     @readonly = ['C', 'A', 'S'].include?(@leaveReqStatus) || (!isCurrentUser && ['N', 'R'].include?(@leaveReqStatus))
+    respond_to do |format|
+			format.html {        
+			  render :layout => !request.xhr?
+			}
+			format.api
+		end
   end
 
   def save
+    errorMsg = nil
     user = User.current
     newEntry = params[:lveReqID].blank?
     leaveReq = newEntry ? WkLeaveReq.new : WkLeaveReq.find(params[:lveReqID])
@@ -77,11 +91,29 @@ class WkleaverequestController < WkbaseController
     wkstatus = [{status_for_type: "WkLeaveReq", status: lveReqStatus, status_date: Time.now, status_by_id: user.id}]
     leaveReq.wkstatus_attributes = wkstatus if leaveReq.wkstatus.blank? || leaveReq.wkstatus.last.status != status
 
-    if leaveReq.save
-      leaveReqMail(leaveReq)
-    else
-      flash[:error] = leaveReq.errors.full_messages.join('<br>')
-			redirect_to action: 'edit', id: params[:id]
+    if leaveReq.valid?
+			leaveReq.save
+		else
+			errorMsg = leaveReq.errors.full_messages.join("<br>")
+		end
+    
+    respond_to do |format|
+			format.html {
+        if errorMsg.nil?
+          leaveReqMail(leaveReq)
+        else
+          flash[:error] = errorMsg
+          redirect_to action: 'edit', id: params[:id]
+        end
+      }
+      format.api{
+        if errorMsg.blank?
+          leaveReqMail(leaveReq)
+        else		
+          @error_messages = errorMsg.split('\n')	
+          render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+        end
+      }
     end
   end
 
@@ -92,31 +124,51 @@ class WkleaverequestController < WkbaseController
     status = getLeaveStatus[leaveReq.status]
     if WkNotification.notify('leaveRequested') && leaveReq.status == 'S' || WkNotification.notify('leaveApproved') &&
       ['A','R'].include?(leaveReq.status)
-      if (leaveReq.status == 'S' && isUser) 
+      if (leaveReq.status == 'S' && isUser)
+        notifyusrIDs = ''
+        notifyusrIDs = leaveReq.admingroupMail('supervisor').pluck(:user_id)
+        notifyusrIDs << user.parent_id if user.parent_id?
+        notifyusrIDs.uniq.each do | userID |
+          WkUserNotification.userNotification(userID, leaveReq, 'leaveRequested')
+        end
         email_id = leaveReq.supervisor_mail
       elsif (['A','R', 'S'].include?(leaveReq.status) && !isUser)
+        WkUserNotification.userNotification(leaveReq.user.id, leaveReq, 'leaveApproved') if ['A', 'R'].include?(leaveReq.status)
         email_id = leaveReq.user.mails
         status = "UnApproved" if leaveReq.status == 'S'
       end
-      ccMailId = leaveReq.admingroupMail('leaveNotifyUser') - [email_id]
-      if email_id.present?
+      ccMailId = leaveReq.admingroupMail('supervisor').pluck(:address) - [email_id]
+      if email_id.present? && WkNotification.first.email
         emailNotes = l(:label_leave_email_note).to_s + " #{status} #{l(:label_by)} " + user.name
         emailNotes += "\n\n" + "#{l(:field_user)}: " + leaveReq.user_name
         emailNotes += "\n" + l(:label_leave_type).to_s + ": " + leaveReq.leave_type.subject
         emailNotes += "\n" + l(:label_start_date).to_s + ": " + leaveReq.startDate.to_s + " " + l(:label_end_date) + ": " + leaveReq.endDate.to_s
         emailNotes += "\n" + l(:label_status).to_s + ": " + status
         emailNotes += "\n" + l(:label_reason).to_s + ": " + leaveReq.leave_reasons if leaveReq.leave_reasons.present?
+        emailNotes += "\n" + l(:label_reviewer_cmt).to_s + ": " + leaveReq.reviewer_comment if leaveReq.reviewer_comment.present?
         err_msg = sent_emails(l(:label_leave_request_notification), user.language, email_id, emailNotes, ccMailId)
       end
     end
-    redirect_to action: 'index' , tab: 'wkleaverequest'
-    flash[:notice] = l(:notice_successful_update)
-    flash[:error] = err_msg if err_msg.present?
+    respond_to do |format|
+			format.html {
+        redirect_to action: 'index' , tab: 'wkleaverequest'
+        flash[:notice] = l(:notice_successful_update)
+        flash[:error] = err_msg if err_msg.present?
+      }
+      format.api{
+        if err_msg.blank?
+          render :plain => err_msg, :layout => nil
+        else		
+          @error_messages = err_msg.split('\n')	
+          render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+        end
+      }
+    end
   end
 	
 	def set_filter_session
 		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
-    if params[:searchlist] == controller_name
+    if params[:searchlist] == controller_name || api_request?
 			session[controller_name] = Hash.new if session[controller_name].nil?
 			filters = [:group_id, :user_id, :leave_type, :lveStatus, :period, :from, :to]
 			filters.each do |param|
@@ -187,6 +239,13 @@ class WkleaverequestController < WkbaseController
     available_hours = userHours.balance + userHours.accrual - userHours.used  if userHours.present?
     data << { label: "Available" , hours: available_hours.to_s + " hours"}
     render :json => data
+  end
+
+  def getLeaveType
+		leaves = get_leave_type
+		leaveType = []
+		leaveType = leaves.map { |leave| { value: leave[1], label: leave[0] }}
+		render json: leaveType
   end
 
 end

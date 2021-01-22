@@ -18,7 +18,7 @@
 class WkbaseController < ApplicationController
 	unloadable
 	before_action :require_login
-	before_action :clear_sort_session
+	before_action :clear_sort_session, :unseen
 	accept_api_auth :getUserPermissions, :updateClockInOut
 	helper :sort
 	include SortHelper
@@ -143,15 +143,28 @@ class WkbaseController < ApplicationController
 	def getUserPermissions
 		wkpermissons = WkPermission.getPermissions
 		settings = {}
+
+		languageSet = {}
+		filePaths = I18n.load_path
+		userlanguage = "en" unless ["de", "en", "fr", "it", "pl", "ru"].include?(I18n.locale)
+		filePaths.each do |path|
+			next if path.exclude?(userlanguage+".yml")
+			File.open(path).each do |line|
+				key, value = line.chomp.split(":")
+				languageSet[key.strip] = value.strip if value.present?
+			end
+		end
+		
+		permissons = (wkpermissons || []).map{ |perm| perm.short_name }
+		Setting.plugin_redmine_wktime.each.each{ |key, val| settings[key] = val if val != "" }
+		configs = { 
+			permissions: permissons, mapAPIkey: Setting.plugin_redmine_wktime['label_mapbox_apikey'],
+			logEditPermission: getEditLogPermission,
+			settings: settings, languageSet: languageSet
+		}
+
 		respond_to do |format|
 			format.json {
-				permissons = (wkpermissons || []).map{ |perm| perm.short_name }
-				Setting.plugin_redmine_wktime.each.each{ |key, val| settings[key] = val if val != "" }
-				configs = { 
-					permissions: permissons, mapAPIkey: Setting.plugin_redmine_wktime['label_mapbox_apikey'],
-					logEditPermission: getEditLogPermission,
-					settings: settings
-				}
 				render json: configs
 			}
 		end
@@ -272,5 +285,9 @@ class WkbaseController < ApplicationController
 		pdf.SetFontStyle('B', 9)
 		getPDFFooter(pdf, row_Height)
 		pdf.Output
+	end
+
+	def unseen
+		@unseen_count = WkUserNotification.unreadNotification.count
 	end
 end

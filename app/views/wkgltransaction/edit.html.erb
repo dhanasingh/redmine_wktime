@@ -10,27 +10,28 @@ transrowMsg =  "<%= l(:label_trans_row_validmsg)  %>";
 </script>
 <%	
    trans_particular1 =session[controller_name].try(:[], :ledger_id1)
-   trans_particular2 =session[controller_name].try(:[], :ledger_id2)
-   if !@transEntry.blank? 
-     @transEntry = @transEntry[0] unless @transEntry[0].blank?
-     txn_type = @transEntry.trans_type
-     trans_date = @transEntry.trans_date
-   elsif !session[controller_name].blank?
-     txn_type = session[controller_name][:txn_type]
-     trans_date = session[controller_name][:start_date]
-   else
-     txn_type =""
-     trans_date = Date.today
-   end
+	 trans_particular2 =session[controller_name].try(:[], :ledger_id2)
+	 getTransEntries()
+  #  if !@transEntry.blank? 
+  #    @transEntry = @transEntry[0] unless @transEntry[0].blank?
+  #    txn_type = @transEntry.trans_type
+  #    trans_date = @transEntry.trans_date
+  #  elsif !session[controller_name].blank?
+  #    txn_type = session[controller_name][:txn_type]
+  #    trans_date = session[controller_name][:start_date]
+  #  else
+  #    txn_type =""
+  #    trans_date = Date.today
+  #  end
 %>
 <%= form_tag({:controller => controller_name, :action => 'update'}, :method => :get, :id => 'query_form', :onsubmit =>"return txnformValidation();" ) do %>
 	<table>
 	<% transId =  @transEntry.blank? ? '' :  (@transEntry[0].blank? ? @transEntry.id : @transEntry[0].id)  %>
 	<tr><td><b><label><%= l(:label_transaction) +" "+ l(:label_number_shortcut) %></label></td><td><label><%= transId %></label></b></td></tr>
 	<%=h hidden_field_tag("gl_transaction_id",   transId  )  %>
-	<tr><td><b><label><%= l(:label_transaction_type)%></label></b></td><td><%=h select_tag('txn_type', options_for_select(transTypeHash.invert,  :selected => txn_type ), :required => true, :style => "width:150px;") %></td></tr>
+	<tr><td><b><label><%= l(:label_transaction_type)%></label></b></td><td><%=h select_tag('txn_type', options_for_select(transTypeHash.invert,  :selected => @txn_type ), :required => true, :style => "width:150px;") %></td></tr>
 	<tr><td><b><label><%= l(:label_transaction_date)  %></label></b></td><td>
-	<%= date_field_tag('date', trans_date, {:id => 'start_date', :size => 12, :style => "width:150px; "}) + calendar_for('start_date') %>
+	<%= date_field_tag('date', @trans_date, {:id => 'start_date', :size => 12, :style => "width:150px; "}) + calendar_for('start_date') %>
 	</td>	
 	</tr>
 	</table>

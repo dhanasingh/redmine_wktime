@@ -61,6 +61,9 @@ include WkpayrollHelper
 		end
 		
 		unless @invoice.id.blank?
+			#for mail notification
+			WkInvoice.send_notification(@invoice)
+
 			totalAmount = @invoice.invoice_items.sum(:original_amount)
 			invoiceAmount = @invoice.invoice_items.where.not(:item_type => 'm').sum(:original_amount)
 			# moduleAmtHash key - module name , value - [crAmount, dbAmount]

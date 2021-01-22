@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2020  Adhi software pvt ltd
+# Copyright (C) 2011-2021  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -17,21 +17,33 @@
 
 class WksurveyController < WkbaseController
 
-  unloadable 
-  menu_item :wksurvey
-  menu_item :wkattendance, :only => :user_survey
+  unloadable
   before_action :require_login, :survey_url_validation, :check_perm_and_redirect
-  
+  accept_api_auth :index, :save_survey, :find_survey_for, :survey, :update_survey, :survey_result
+  menu_item :wksurvey
+  menu_item :wkattendance, :only => :save_survey
   include WksurveyHelper
 
   def index
-    sort_init 'id', 'asc'
-    
-    sort_update 'survey' => "#{WkSurvey.table_name}.name",
-                'status' => "#{WkSurvey.table_name}.status"
+    sort_init [["status", "desc"], ["updated_at", "desc"]]
+
+    sort_update "survey" => "#{WkSurvey.table_name}.name",
+                "status" => "#{WkSurvey.table_name}.status",
+                "updated_at" => "#{WkSurvey.table_name}.updated_at"
 
     surveys = surveyList(params)
-    formPagination(surveys.reorder(sort_clause))
+    surveys = surveys.reorder(sort_clause)
+		respond_to do |format|
+			format.html {
+        formPagination(surveys)
+				render :layout => !request.xhr?
+			}
+			format.api{
+        @entry_count = surveys.count
+        setLimitAndOffset()
+        @surveys = surveys
+      }
+		end
   end
 
   def edit
@@ -41,9 +53,9 @@ class WksurveyController < WkbaseController
     getSurveyForType(params)
     unless params[:survey_id].blank?
       @edit_Question_Entries = WkSurvey.joins("LEFT JOIN wk_survey_questions ON wk_survey_questions.survey_id = wk_surveys.id")
-      .where(:id => params[:survey_id].to_i).select("wk_survey_questions.id AS question_id, wk_survey_questions.name AS question_name, 
+      .where(:id => params[:survey_id].to_i).select("wk_survey_questions.id AS question_id, wk_survey_questions.name AS question_name,
         wk_survey_questions.question_type, is_reviewer_only, is_mandatory, not_in_report").order("question_id")
-        
+
       @edit_Choice_Entries = WkSurvey.joins("LEFT JOIN wk_survey_questions ON wk_survey_questions.survey_id = wk_surveys.id")
         .joins("LEFT JOIN wk_survey_choices ON wk_survey_questions.id = wk_survey_choices.survey_question_id")
         .where(:id => params[:survey_id].to_i)
@@ -53,10 +65,12 @@ class WksurveyController < WkbaseController
   end
 
   def save_survey
-    errmsg = ""
+    errMsg = ""
     surveyQuestions = Array.new
     questions = Hash.new
     questionChoices = Hash.new
+    ActionController::Parameters.permit_all_parameters = true
+    params[:survey_id] = params["wksurvey"]["id"] if api_request? && params["wksurvey"].present?
 
     if params[:survey_id].blank?
       survey = WkSurvey.new
@@ -64,152 +78,149 @@ class WksurveyController < WkbaseController
       survey = WkSurvey	.find(params[:survey_id].to_i)
     end
 
-    if survey.status.blank? || survey.status == 'N'
-
-      survey.name = params[:survey_name]
-      survey.status = params[:survey_status]
-      survey.group_id = params[:group_id]
-      survey.recur = params[:recur].blank? ? false : params[:recur]
-      survey.recur_every =  params[:recur].blank? ? nil : params[:recur_every]
-      survey.survey_for_type = params[:survey_for].blank? ? nil : params[:survey_for]
-      survey.is_review = params[:review].blank? ? false : params[:review]
-
-      if params[:survey_for_id].blank?
-        survey.survey_for_id = nil
-      elsif params[:IsSurveyForValid] == "true"
-        survey.survey_for_id = params[:survey_for_id]
-      else
-        errmsg = l(:notice_surveyfor_unsuccessful) + "<br>"
-      end
-
-      params.each do |ele_nameVal|
-        #Question Array
-        if ((ele_nameVal.first).include? "questionName_") && (!(ele_nameVal.last).blank?)
-          question_ele = (ele_nameVal.first).split('_')
-          questionID = (question_ele[1]).blank? ? nil : question_ele[1]
-          qIndex = question_ele.last
-          qType = params["question_type_"+qIndex]
-          reviewerOnly = params["reviewerOnly_"+qIndex]
-          mandatory = params["mandatory_"+qIndex]
-          notInRpt = params["notInRpt_"+qIndex]
-          questions[qIndex] = [questionID, qType, ele_nameVal.last, reviewerOnly.present?, mandatory.present?,
-            notInRpt.present?]
+    if survey.status.blank? || survey.status == "N"
+      if api_request? && params["wksurvey"].present?
+        surveyParams = (params["wksurvey"]).to_h
+        surveyParams["questions"].each do |question|
+          question["wk_survey_choices_attributes"] = question["choices"]
+          question.delete("choices")
         end
+        surveyParams["wk_survey_questions_attributes"] = surveyParams["questions"]
+        surveyParams.delete("status_label")
+        surveyParams.delete("questions")
+        survey.assign_attributes(surveyParams)
+      else
+        survey.name = params[:survey_name]
+        survey.status = params[:survey_status]
+        survey.group_id = params[:group_id]
+        survey.recur = params[:recur].blank? ? false : params[:recur]
+        survey.recur_every =  params[:recur].blank? ? nil : params[:recur_every]
+        survey.survey_for_type = params[:survey_for].blank? ? nil : params[:survey_for]
+        survey.is_review = params[:review].blank? ? false : params[:review]
+        survey.survey_for_id = params[:survey_for_id].blank? ? nil : params[:survey_for_id]
+        survey.save_allowed = params[:save_allowed] || false
 
-        if (((ele_nameVal.first).include? "questionChoices_") || ((ele_nameVal.first).include? "qpoints_") || ((ele_nameVal.first).include? "deleteChoiceIds_")) && (!(ele_nameVal.last).blank?)
-          choice_ele = (ele_nameVal.first).split("_")
-          # Deleted Choices Array
-          if ((ele_nameVal.first).include? "deleteChoiceIds_")
-            qIndex = choice_ele[1]
-            deleteChoiceIds = ele_nameVal.last.split(",")
-            questionChoices[qIndex] = [] if questionChoices[qIndex].blank?
-            deleteChoiceIds.each do |deleteChoiceID|
-              questionChoices[qIndex] << { id: deleteChoiceID, _destroy: '1'}
+        params.each do |ele_nameVal|
+          #Question Array
+          if ((ele_nameVal.first).include? "questionName_") && (!(ele_nameVal.last).blank?)
+            question_ele = (ele_nameVal.first).split("_")
+            questionID = (question_ele[1]).blank? ? nil : question_ele[1]
+            qIndex = question_ele.last
+            qType = params["question_type_"+qIndex]
+            reviewerOnly = params["reviewerOnly_"+qIndex]
+            mandatory = params["mandatory_"+qIndex]
+            notInRpt = params["notInRpt_"+qIndex]
+            questions[qIndex] = [questionID, qType, ele_nameVal.last, reviewerOnly.present?, mandatory.present?,
+              notInRpt.present?]
+          end
+
+          if (((ele_nameVal.first).include? "questionChoices_") || ((ele_nameVal.first).include? "qpoints_") || ((ele_nameVal.first).include? "deleteChoiceIds_")) && (!(ele_nameVal.last).blank?)
+            choice_ele = (ele_nameVal.first).split("_")
+            # Deleted Choices Array
+            if ((ele_nameVal.first).include? "deleteChoiceIds_")
+              qIndex = choice_ele[1]
+              deleteChoiceIds = ele_nameVal.last.split(",")
+              questionChoices[qIndex] = [] if questionChoices[qIndex].blank?
+              deleteChoiceIds.each do |deleteChoiceID|
+                questionChoices[qIndex] << { id: deleteChoiceID, _destroy: "1"}
+              end
+              # Text box Questions Points Array
+            elsif ((ele_nameVal.first).include? "qpoints_" )
+              qIndex = choice_ele[1]
+              questionChoices[qIndex] = [] if questionChoices[qIndex].blank?
+              questionChoices[qIndex] << {id: nil, name: params[:survey_name], points: ele_nameVal.last } if params["allowPoints_" + qIndex] == "true"
+              # Choices Array
+            elsif ((ele_nameVal.first).include? "questionChoices_")
+              questionChoiceID = (choice_ele[3]).blank? ? "" : choice_ele[3]
+              qIndex = choice_ele[2]
+              choice_points = params["points_"+ choice_ele[1] + "_" + qIndex + "_" + questionChoiceID + "_" + choice_ele[4]]
+              choice_name = params["questionChoices_"+ choice_ele[1] + "_" + qIndex + "_" + questionChoiceID + "_" + choice_ele[4]]
+              questionChoices[qIndex] = [] if questionChoices[qIndex].blank?
+              questionChoices[qIndex] << {id: questionChoiceID, name: choice_name, points: choice_points }
             end
-            # Text box Questions Points Array
-          elsif ((ele_nameVal.first).include? "qpoints_" )
-            qIndex = choice_ele[1]
-            questionChoices[qIndex] = [] if questionChoices[qIndex].blank?
-            questionChoices[qIndex] << {id: nil, name: params[:survey_name], points: ele_nameVal.last } if params["allowPoints_" + qIndex] == "true"
-            # Choices Array
-          elsif ((ele_nameVal.first).include? "questionChoices_")
-            questionChoiceID = (choice_ele[3]).blank? ? "" : choice_ele[3]
-            qIndex = choice_ele[2]
-            choice_points = params["points_"+ choice_ele[1] + "_" + qIndex + "_" + questionChoiceID + "_" + choice_ele[4]]
-            choice_name = params["questionChoices_"+ choice_ele[1] + "_" + qIndex + "_" + questionChoiceID + "_" + choice_ele[4]]
-            questionChoices[qIndex] = [] if questionChoices[qIndex].blank?
-            questionChoices[qIndex] << {id: questionChoiceID, name: choice_name, points: choice_points }
           end
         end
-      end
 
-      questions.each do |question|
-        questionChoice = question.first
-        questionChoiceArr = questionChoices[questionChoice].blank? ? Array.new : questionChoices[questionChoice]
-        surveyQuestions << {id: (question.last).first, name: (question.last)[2], question_type: ((question.last)[1].blank? ? "RB" : (question.last)[1]), is_reviewer_only: (question.last)[3], is_mandatory: (question.last)[4], not_in_report: (question.last)[5], wk_survey_choices_attributes: questionChoiceArr}
-      end
-
-      unless params[:delete_question_ids].blank?
-        delete_question_ids = params[:delete_question_ids].split(",")
-        delete_question_ids.each do |deleteQuestionID|
-          surveyQuestions << { id: deleteQuestionID, _destroy: '1'}
+        questions.each do |question|
+          questionChoice = question.first
+          questionChoiceArr = questionChoices[questionChoice].blank? ? Array.new : questionChoices[questionChoice]
+          surveyQuestions << {id: (question.last).first, name: (question.last)[2], question_type: ((question.last)[1].blank? ? "RB" : (question.last)[1]), is_reviewer_only: (question.last)[3], is_mandatory: (question.last)[4], not_in_report: (question.last)[5], wk_survey_choices_attributes: questionChoiceArr}
         end
+
+        unless params[:delete_question_ids].blank?
+          delete_question_ids = params[:delete_question_ids].split(",")
+          delete_question_ids.each do |deleteQuestionID|
+            surveyQuestions << { id: deleteQuestionID, _destroy: "1"}
+          end
+        end
+
+        survey.wk_survey_questions_attributes = surveyQuestions
       end
-      
-      survey.wk_survey_questions_attributes = surveyQuestions
     else
       survey.status = params[:survey_status]
     end
 
-    if survey.valid? && errmsg.blank?	
+    #Validate Survey For before Save
+    survey_for_id = survey.survey_for_id
+    survey_for = survey.survey_for_type
+    if survey_for_id.present? && survey_for.present? && !(survey_for.singularize.classify.constantize.where(id: survey_for_id).exists?)
+      errMsg = l(:notice_surveyfor_unsuccessful) + "<br>"
+    end
+
+    if survey.valid? && errMsg.blank?
       survey.save
-      urlHash = {:surveyForType => survey.survey_for_type, :surveyForID => survey.survey_for_id }
-      urlHash = get_survey_redirect_url(urlHash, params)
-      redirect_to urlHash
-      flash[:notice] = l(:notice_successful_update)
+      resMsg = l(:notice_successful_update)
     else
-      errmsg  = errmsg + survey.errors.full_messages.join("<br>")
-      flash[:error] = errmsg
-      urlHash = { :project_id => params[:project_id], :controller => "wksurvey", :action => 'edit', :survey_id => params[:survey_id], :surveyForType => survey.survey_for_type, :surveyForID => params[:survey_for_id] }
-      redirect_to urlHash
+      errMsg  = errMsg + survey.errors.full_messages.join("<br>")
+      resMsg = errMsg
+    end
+
+    respond_to do |format|
+      format.html {
+        if errMsg.blank?
+          urlHash = {:surveyForType => survey.survey_for_type, :surveyForID => survey.survey_for_id }
+          urlHash = get_survey_redirect_url(urlHash, params)
+          redirect_to urlHash
+          flash[:notice] = resMsg
+        else
+          flash[:error] = errMsg
+          urlHash = { :project_id => params[:project_id], :controller => "wksurvey", :action => "edit", :survey_id => params[:survey_id], :surveyForType => survey.survey_for_type, :surveyForID => params[:survey_for_id] }
+          redirect_to urlHash
+        end
+      }
+      format.api {
+        if errMsg.blank?
+          render :plain => resMsg, :layout => nil
+        else
+          @error_messages = resMsg.split("<br>")
+          render :template => "common/error_messages.api", :status => :unprocessable_entity, :layout => nil
+        end
+      }
     end
   end
 
   def survey
     getSurveyForType(params)
-    @question_Entries = WkSurvey.joins("INNER JOIN wk_survey_questions AS SQ ON wk_surveys.id = SQ.survey_id
-      LEFT JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id")
-      .where("wk_surveys.id = #{params[:survey_id]}  AND ((SQ.question_type IN ('RB', 'CB') AND SC.id IS NOT NULL) OR
-       SQ.question_type NOT IN ('RB', 'CB'))") 
-      .group("SQ.id, wk_surveys.id, wk_surveys.name, SQ.name, SQ.question_type, SQ.is_mandatory, SQ.is_reviewer_only")
-      .select("wk_surveys.id, wk_surveys.name, SQ.id AS question_id, SQ.name AS question_name, SQ.question_type AS question_type,
-        SQ.is_mandatory, SQ.is_reviewer_only")
-      .order("SQ.is_reviewer_only, SQ.id")
-
-    @question_Choice_Entries = WkSurvey.joins("INNER JOIN wk_survey_questions AS SQ ON wk_surveys.id = SQ.survey_id
-      LEFT JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id")
-      .where("wk_surveys.id = #{params[:survey_id]}")
-      .select("SC.id, SC.name, SQ.id AS survey_question_id").order("SC.id")
-
-    surveyFor_cnd = " AND wk_survey_responses.survey_for_type" + (@surveyForID.blank? ? " IS NULL " : " = '#{@surveyForType}' ") +
-      " AND wk_survey_responses.survey_for_id" + (@surveyForID.blank? ? " IS NULL " : " = #{@surveyForID} ")
-
     get_response_status(params[:survey_id], params[:response_id])
-    @responseStatus = @response.blank? ? nil : @response.status
-    allowRecur = @survey.recur && @response.present? && (@response.status_date + @survey.recur_every.days <= Time.now)
-    @newResponse = @survey.status == "O" && (@response.blank? || allowRecur) && params[:response_id].blank?
-    editResponse = @survey.status == "O" && (@survey.getGroupName.blank? && @responseStatus == "O")
-    @enabled = (@newResponse || editResponse) && (@response.blank? || @response.user_id == User.current.id)
-    responseID = params[:response_id].blank? && !@response.blank? ? @response.id : params[:response_id]
-
-    if @newResponse
-      @survey_response = nil
-    else
-      @survey_response = WkSurveyResponse.joins("
-        INNER JOIN wk_survey_questions AS SQ ON SQ.survey_id = wk_survey_responses.survey_id
-        INNER JOIN wk_survey_answers AS SA ON SA.survey_response_id = wk_survey_responses.id AND SQ.id = SA.survey_question_id
-        INNER JOIN wk_statuses AS ST ON ST.status_for_id = wk_survey_responses.id AND ST.status_for_type = 'WkSurveyResponse'
-        LEFT JOIN wk_survey_reviews AS SR ON SR.survey_response_id = wk_survey_responses.id AND SR.survey_question_id = SQ.id")
-        .where(" wk_survey_responses.survey_id = #{params[:survey_id]}" + (responseID.blank? ? surveyFor_cnd + 
-          " AND wk_survey_responses.user_id = #{User.current.id} " : " AND wk_survey_responses.id = #{responseID} "))
-        .group(" wk_survey_responses.survey_id, SQ.id, SQ.name, SA.survey_choice_id, SA.choice_text, 
-          SQ.question_type, wk_survey_responses.id, SR.comment_text, SR.user_id, wk_survey_responses.user_id")
-        .select(" wk_survey_responses.survey_id, SQ.id AS question_id, SQ.name AS question_name, wk_survey_responses.user_id,
-          SR.user_id AS reviewer, SA.survey_choice_id, SA.choice_text, SQ.question_type, MAX(ST.status_date) AS status_date,
-          wk_survey_responses.id, SR.comment_text")
-    end
     reviewUsers = getReportUsers(User.current.id).pluck(:id)
-    @reviewer = @survey.is_review && params[:response_id].present? && reviewUsers.include?(@response.try(:user_id))
-    @isReviewed = "R" == @responseStatus && !@newResponse
-    @isReview = @reviewer && "O" != @responseStatus || @isReviewed
+    @isReview = @survey.is_review && ["C", "R"].include?(@response.try(:status)) && reviewUsers.include?(@response.try(:user_id))
+    @isReviewed = @response.try(:status) == "R"
+
+		respond_to do |format|
+			format.html {
+				render layout: action_name != "print_survey"
+			}
+			format.api{
+      }
+		end
   end
 
   def survey_response
-    sort_init 'id', 'asc'
+    sort_init "id", "asc"
 
-    sort_update 'Response_By' => "CONCAT(U.firstname, U.lastname)",
-                'Response_status' => "ST.status",
-                'Response_date' => "status_date"
+    sort_update "Response_By" => "CONCAT(U.firstname, U.lastname)",
+                "Response_status" => "ST.status",
+                "Response_date" => "status_date"
 
     users = convertUsersIntoString()
     getSurveyForType(params)
@@ -218,13 +229,13 @@ class WksurveyController < WkbaseController
     if params[:groupName].blank?
       condStr += " AND group_name IS NULL"
     else
-      condStr += params[:groupName] == "ALL" ? " " : " AND group_name = '#{params[:groupName]}' " 
+      condStr += params[:groupName] == "ALL" ? " " : " AND group_name = '#{params[:groupName]}' "
     end
-    @surveyResponseList = WkSurveyResponse.joins("INNER JOIN wk_statuses AS ST ON ST.status_for_id = wk_survey_responses.id 
+    @surveyResponseList = WkSurveyResponse.joins("INNER JOIN wk_statuses AS ST ON ST.status_for_id = wk_survey_responses.id
       AND ST.status_for_type = 'WkSurveyResponse'
       INNER JOIN wk_surveys AS S ON S.id = wk_survey_responses.survey_id
       INNER JOIN users AS U ON U.id = user_id AND U.type = 'User'")
-      .where("survey_id = #{params[:survey_id]} " + " AND wk_survey_responses.survey_for_type " + (@surveyForType.blank? ? 
+      .where("survey_id = #{params[:survey_id]} " + " AND wk_survey_responses.survey_for_type " + (@surveyForType.blank? ?
         " IS NULL " : " = '#{@surveyForType}'") + condStr)
       .group("survey_id, wk_survey_responses.id, S.name, S.survey_for_type, S.survey_for_id, ST.status, U.firstname, U.lastname, U.parent_id, wk_survey_responses.group_name, wk_survey_responses.user_id, wk_survey_responses.survey_for_id")
       .select("MAX(ST.status_date) AS status_date, ST.status, survey_id, wk_survey_responses.group_name, wk_survey_responses.id, user_id, S.name,
@@ -234,21 +245,21 @@ class WksurveyController < WkbaseController
     responseEntries = Hash.new
     @surveyResponseList.each do |response|
         responseID = response.id
-        if responseEntries[responseID].blank? || (!responseEntries[responseID].blank? && 
+        if responseEntries[responseID].blank? || (!responseEntries[responseID].blank? &&
           response.status_date > responseEntries[responseID][:status_date].to_datetime)
             responseEntries.delete(responseID)
-            responseEntries[responseID] = { id: response.id, survey_id: response.survey_id, status_date: response.status_date, 
-              status: response.status, user_id: response.user_id, name: response.name, survey_for_type: response.survey_for_type, 
-              survey_for_id: response.survey_for_id, firstname: response.firstname, lastname: response.lastname, 
+            responseEntries[responseID] = { id: response.id, survey_id: response.survey_id, status_date: response.status_date,
+              status: response.status, user_id: response.user_id, name: response.name, survey_for_type: response.survey_for_type,
+              survey_for_id: response.survey_for_id, firstname: response.firstname, lastname: response.lastname,
               reviewers: getReportingUsers, group_name: response.group_name}
         end
     end
-    
+
     @response_entries = Hash.new
     @entry_count = responseEntries.length
     responseEntries = responseEntries.to_a
     setLimitAndOffset()
-    page_no = (params['page'].blank? ? 1 : params['page']).to_i
+    page_no = (params["page"].blank? ? 1 : params["page"]).to_i
     from = @offset
     to = (@limit * page_no)
     responseEntries.each_with_index do |entry, index|
@@ -261,87 +272,117 @@ class WksurveyController < WkbaseController
 
   def update_survey
     errMsg = ""
-    surveyAnswers = Array.new
-    surveyReviews = Array.new
     responseStatus = Array.new
+    ActionController::Parameters.permit_all_parameters = true
+    if api_request? && params["wksurvey"].present?
+      params[:survey_response_id] = params["wksurvey"]["id"]
+      params[:survey_id] = params["wksurvey"]["survey_id"]
+    end
     get_response_status(params[:survey_id], params[:survey_response_id])
-    if @response.try(:id).blank? || (@response.try(:id).to_i == params[:survey_response_id].to_i) || (@survey.recur && @response.present? && (@response.status_date + @survey.recur_every.days <= Time.now))
-      if params[:isReview] == "true"
-        survey_response = WkSurveyResponse.find(params[:survey_response_id])
-        params.each do |param|
-          if ((param.first).include? "survey_review_") && !(param.last).blank?
-            questionID = (param.first).split("_")[2]
-            surveyReviews << {user_id: User.current.id, survey_question_id: questionID, survey_response_id: params[:survey_response_id], comment_text: param.last}
+    if @response.blank? || @response.status == "O" || params[:isReview] == "true"
+
+      if api_request? && params["wksurvey"].present?
+        responseParams = (params["wksurvey"]).to_h
+        responseParams["wk_survey_answers_attributes"] = responseParams["answers"]
+        ["answers"].each {|key| responseParams.delete(key)}
+        survey_response = @response.blank? ? WkSurveyResponse.new : WkSurveyResponse.find(@response.id)
+        survey_response.assign_attributes(responseParams)
+        survey_response.ip_address = request.remote_ip
+        del_answers = WkSurveyAnswer.where(id: params["deletedAnswers"]) if params["deletedAnswers"].present?
+      else
+        if params[:isReview] == "true"
+          survey_response = WkSurveyResponse.find(params[:survey_response_id])
+          params.each do |param|
+            if ((param.first).include? "survey_review_") && !(param.last).blank?
+              questionID = (param.first).split("_")[2]
+              surveyReviews << {user_id: User.current.id, survey_question_id: questionID, survey_response_id: params[:survey_response_id], comment_text: param.last}
+            end
+          end
+          del_answers = WkSurveyAnswer.where(survey_question_id: params[:reviewerOnlyQuestions].split(","), survey_response_id: params[:survey_response_id].to_s)
+          del_reviews = WkSurveyReview.where(survey_response_id: params[:survey_response_id].to_s)
+        else
+          surveyAnswers = Array.new
+          surveyReviews = Array.new
+          if @response.blank?
+            survey_response = WkSurveyResponse.new
+            survey_response.user_id = User.current.id
+            survey_response.survey_id = params[:survey_id]
+            survey_response.survey_for_id = params[:surveyForID] unless params[:surveyForID].blank?
+            survey_response.survey_for_type = params[:surveyForType] unless params[:surveyForType].blank?
+          else
+            survey_response = WkSurveyResponse.find(@response.id)
+            del_answers = WkSurveyAnswer.where(survey_response_id: @response.id.to_s)
+          end
+          survey_response.ip_address = request.remote_ip
+        end
+        params.each do |choice_nameVal|
+          if ((choice_nameVal.first).include? "survey_sel_choice") && !(choice_nameVal.last).blank?
+            sel_ids = (choice_nameVal.first).split("_")
+            questionID = sel_ids[3]
+            questionTypeName = "question_type_" + questionID
+            questionType = params[questionTypeName]
+            survey_choice_id = (["RB","CB"].include? questionType) ? choice_nameVal.last : nil
+            choice_text = (["TB","MTB"].include? questionType) ? choice_nameVal.last : nil
+            surveyAnswers << {survey_question_id: questionID, survey_choice_id: survey_choice_id, choice_text: choice_text} if params["isReviewerOnly_"+ questionID] == "true" || params[:isReview] == "false"
           end
         end
-        del_answers = WkSurveyAnswer.where(survey_question_id: params[:reviewerOnlyQuestions].split(","), survey_response_id: params[:survey_response_id].to_s)
-        del_reviews = WkSurveyReview.where(survey_response_id: params[:survey_response_id].to_s)
-      else
-        if params[:survey_response_id].blank?
-          survey_response = WkSurveyResponse.new
-          survey_response.user_id = User.current.id
-          survey_response.survey_id = params[:survey_id]
-          survey_response.survey_for_id = params[:surveyForID] unless params[:surveyForID].blank?
-          survey_response.survey_for_type = params[:surveyForType] unless params[:surveyForType].blank?
-        else
-          survey_response = WkSurveyResponse.find(params[:survey_response_id])
-          del_answers = WkSurveyAnswer.where(survey_response_id: params[:survey_response_id].to_s)
-        end
-        survey_response.ip_address = request.remote_ip
-      end
-      params.each do |choice_nameVal|
-        if ((choice_nameVal.first).include? "survey_sel_choice") && !(choice_nameVal.last).blank?
-          sel_ids = (choice_nameVal.first).split("_")
-          questionID = sel_ids[3]
-          questionTypeName = "question_type_" + questionID
-          questionType = params[questionTypeName]
-          survey_choice_id = (['RB','CB'].include? questionType) ? choice_nameVal.last : nil
-          choice_text = (['TB','MTB'].include? questionType) ? choice_nameVal.last : nil
-          surveyAnswers << {survey_question_id: questionID, survey_choice_id: survey_choice_id, choice_text: choice_text} if params["isReviewerOnly_"+ questionID] == "true" || params[:isReview] == "false"
-        end
+        survey_response.wk_survey_answers_attributes = surveyAnswers
+        survey_response.wk_survey_reviews_attributes = surveyReviews
       end
 
-      case params[:commit]
-      when "Submit"
+      #Response status
+      if params[:commit] == "Submit"
         status = params[:isReview] == "true" ? "R" : "C"
       else
         status = params[:isReview] == "true" ? "C" : "O"
       end
-      if (@response.try(:status) != status && @response.try(:id) == params[:survey_response_id]) || 
-          @response.try(:id) != params[:survey_response_id]
-        responseStatus << {status: status, status_date: Time.now, status_for_type: 'WkSurveyResponse'}
-      end
-
-      survey_response.wk_survey_answers_attributes = surveyAnswers
-      survey_response.wk_survey_reviews_attributes = surveyReviews
+      responseStatus << {status: status, status_date: Time.now, status_for_type: 'WkSurveyResponse'} if @response.try(:status) != status
       survey_response.wk_statuses_attributes = responseStatus
 
-      if survey_response.valid? && (!surveyAnswers.blank? || !surveyReviews.blank?)
+      if survey_response.valid? && (!surveyAnswers.blank? || !surveyReviews.blank? || api_request?)
         del_answers.destroy_all if !del_answers.blank?
         del_reviews.destroy_all if !del_reviews.blank?
         survey_response.save
-        flash[:notice] = l(:notice_successful_update)
-      else
-        flash[:error] = survey_response.errors.full_messages.join("<br>")
-        flash[:error] += l(:notice_unsuccessful_save) if surveyAnswers.blank?
       end
+    end
 
-      urlHash = {:surveyForType => survey_response.survey_for_type, :surveyForID => survey_response.survey_for_id}
-      urlHash = get_survey_redirect_url(urlHash, params)
-      redirect_to urlHash
-    else
-      render_404
-      return false
+    respond_to do |format|
+      format.html {
+        if @response.blank? || @response.status == "O" || params[:isReview] == "true"
+          if survey_response.valid? && (!surveyAnswers.blank? || !surveyReviews.blank?)
+            flash[:notice] = l(:notice_successful_update)
+          else
+            flash[:error] = survey_response.errors.full_messages.join("<br>")
+            flash[:error] += l(:notice_unsuccessful_save) if surveyAnswers.blank?
+          end
+          urlHash = {:surveyForType => survey_response.survey_for_type, :surveyForID => survey_response.survey_for_id}
+          urlHash = get_survey_redirect_url(urlHash, params)
+          redirect_to urlHash
+        else
+          render_404
+          return false
+        end
+      }
+      format.api {
+        if survey_response.valid?
+          render :plain => l(:notice_successful_update), :layout => nil
+        else
+          resMsg = survey_response.errors.full_messages.join("<br>")
+          resMsg += l(:notice_unsuccessful_save) if surveyAnswers.blank?
+          @error_messages = resMsg.split("<br>")
+          render :template => "common/error_messages.api", :status => :unprocessable_entity, :layout => nil
+        end
+      }
     end
   end
 
   def update_status
-    
+
     responseStatus = Array.new
     survey_response = WkSurveyResponse.find(params[:survey_response_id])
     get_response_status(params[:survey_id], params[:survey_response_id])
     if @response.blank? || (!@response.blank? && @response.status != params[:response_status])
-      responseStatus << {status: params[:response_status], status_date: Time.now, status_for_type: 'WkSurveyResponse'}
+      responseStatus << {status: params[:response_status], status_date: Time.now, status_for_type: "WkSurveyResponse"}
     end
     survey_response.wk_statuses_attributes = responseStatus
 
@@ -353,113 +394,36 @@ class WksurveyController < WkbaseController
       flash[:error] += l(:notice_unsuccessful_save) if responseStatus.blank?
     end
 
-    urlHash = {:controller => controller_name, :action => 'index', :surveyForType => survey_response.survey_for_type}
+    urlHash = {:controller => controller_name, :action => "index", :surveyForType => survey_response.survey_for_type}
     urlHash = get_survey_redirect_url(urlHash, params)
     redirect_to urlHash
   end
 
   def survey_result
     @survey_result_Entries = WkSurvey.find_by_sql("
-      SELECT count(*) AS count, S.id, S.name, SQ.id AS question_id, SQ.name AS question_name 
+      SELECT count(*) AS count, S.id, S.name, SQ.id AS question_id, SQ.name AS question_name
       FROM wk_surveys AS S
-      INNER JOIN wk_survey_questions AS SQ ON SQ.survey_id = S.id 
-      INNER JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id 
+      INNER JOIN wk_survey_questions AS SQ ON SQ.survey_id = S.id
+      INNER JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id
       WHERE (S.id = #{params[:survey_id]} AND SQ.question_type NOT IN ('TB', 'MTB') AND SQ.not_in_report = #{booleanFormat(false)})
-      GROUP BY S.id, S.name, SQ.id, SQ.name 
+      GROUP BY S.id, S.name, SQ.id, SQ.name
       ORDER BY S.id, SQ.id")
 
-      @survey_txt_questions = WkSurvey.surveyTextQuestion(params[:survey_id])
-      txt_answers= WkSurvey.getTextAnswer(params[:survey_id], params[:surveyForType])
-      isAdmin = (validateERPPermission("E_SUR"))
-      if @survey.recur?
-        txt_answers = txt_answers.currentRespTxtAnswer if params[:groupName].blank? && isAdmin
-        txt_answers = txt_answers.responsedTextAnswer(params[:groupName]) if params[:groupName].present? && isAdmin
+    @survey_txt_questions = WkSurvey.surveyTextQuestion(params[:survey_id])
+    txt_answers= WkSurvey.getTextAnswer(params[:survey_id], params[:surveyForType])
+    isAdmin = (validateERPPermission("E_SUR"))
+    if @survey.recur?
+      txt_answers = txt_answers.currentRespTxtAnswer if params[:groupName].blank? && isAdmin
+      txt_answers = txt_answers.responsedTextAnswer(params[:groupName]) if params[:groupName].present? && isAdmin
 
-        groupName = params[:groupName].present? ? params[:groupName] : getResponseGroup.last
-        txt_answers = txt_answers.responsedTextAnswer(groupName) if !isAdmin
-      end
-      @survey_txt_answers = txt_answers
+      groupName = params[:groupName].present? ? params[:groupName] : getResponseGroup.last
+      txt_answers = txt_answers.responsedTextAnswer(groupName) if !isAdmin
+    end
+    @survey_txt_answers = txt_answers
   end
 
   def graph
-    if params[:groupName] == 'trendChart'
-      questionAvg = []
-      questionLabels = []
-      wkquestionAvg = WkSurvey.surveyAvgQuestion(params[:survey_id], params[:question_id], castFormat)
-      wkquestionAvg.each{ |entry| questionAvg << entry.questionavg; questionLabels << entry.grpname;}
-
-      data = {
-        :labels => questionLabels,
-        :average => questionAvg,
-        :graphtype => "line"
-      }
-    else
-      question_id = params[:question_id]
-
-      if params[:surveyForID].blank? && params[:surveyForType].blank?
-        surveyForQry = " AND SR.survey_for_type IS NULL AND SR.survey_for_id IS NULL "
-      elsif params[:surveyForType].present? && params[:surveyForID].blank? || params[:surveyForType] == 'User'
-        surveyForQry = " AND SR.survey_for_type = '#{params[:surveyForType]}' "
-      else
-        surveyForQry = " AND SR.survey_for_type = '#{params[:surveyForType]}' AND SR.survey_for_id = #{params[:surveyForID]} "
-      end
-
-      groupNameCond = ""
-      if @survey.recur?
-        if params[:groupName].present?
-          groupNameCond = " AND group_name = '#{params[:groupName]}' "
-        elsif params[:groupName].blank? && (validateERPPermission("E_SUR"))
-          groupNameCond = " AND group_name IS NULL "
-        else
-          groupNameCond = " AND group_name = '#{getResponseGroup.last}' "
-        end
-      end
-
-      surveyed_employees_per_choice = WkSurvey.find_by_sql("SELECT COUNT(SR.user_id) AS emp_count, SC.id 
-        FROM wk_surveys AS S
-        INNER JOIN wk_survey_questions AS SQ ON S.id = SQ.survey_id
-        INNER JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id
-        INNER JOIN wk_survey_answers AS SCC ON SC.id = SCC.survey_choice_id
-        INNER JOIN wk_survey_responses AS SR ON SR.survey_id = S.id	AND SR.id = SCC.survey_response_id " +
-        " WHERE SQ.id = #{question_id} "+ surveyForQry + groupNameCond +
-        "GROUP BY S.id, SQ.id, SC.id
-        ORDER BY SC.id")
-
-      question_choices = WkSurvey.find_by_sql("SELECT SC.name, SC.id
-        FROM wk_surveys AS S
-        INNER JOIN wk_survey_questions AS SQ ON S.id = SQ.survey_id
-        INNER JOIN wk_survey_choices AS SC ON SC.survey_question_id = SQ.id
-        WHERE SQ.id = #{question_id}
-        ORDER BY SC.id")
-
-      fields = Array.new
-      question_choices.each {|choice| fields << choice.name}
-
-      sel_choices = Hash.new
-      surveyed_employees_per_choice.each do |choice| 
-        sel_choices[choice.id] = choice.emp_count
-      end
-
-      employees_per_choice = Array.new
-      totalScore = 0
-      question_choices.each do |choice|
-        employees_per_choice << (sel_choices[choice.id].blank? ? 0 : sel_choices[choice.id])
-        totalScore += choice.name.to_i * sel_choices[choice.id].to_i if validateTrendingChart()
-      end
-
-      avgScore = 0
-      if validateTrendingChart()
-        avgScore = totalScore / employees_per_choice.inject(0, :+).to_f
-      end
-
-      data = {
-        :labels => fields,
-        :emp_count_per_choices => employees_per_choice,
-        :avg_score => avgScore.round(2),
-        :showAvg => validateTrendingChart()
-      }
-    end
-
+    data = get_Graph_data
     if data
       render :json => data
     else
@@ -468,7 +432,7 @@ class WksurveyController < WkbaseController
   end
 
   def find_survey_for
-    
+
     surveyForID = params[:surveyForID].to_i
     surveyFor = params[:method] == "search" ? "%" + params[:surveyForID] + "%" : nil
     data = Hash.new
@@ -479,9 +443,9 @@ class WksurveyController < WkbaseController
       result.each do  |r|
           data << {id: r.id, label: "Project #" + r.id.to_s + ": " + r.name, value: r.id}
       end
-        
+
     when "WkAccount"
-      result = WkAccount.where("account_type = 'A' AND id = ? OR LOWER(name) LIKE LOWER(?)", surveyForID, surveyFor)
+      result = WkAccount.where("account_type = 'A' AND (id = ? OR LOWER(name) LIKE LOWER(?))", surveyForID, surveyFor)
       result.each do  |r|
           data << {id: r.id, label: "Account #" + r.id.to_s + ": " + r.name, value: r.id}
       end
@@ -503,7 +467,7 @@ class WksurveyController < WkbaseController
       surveyForIDSql = " (id = #{surveyForID})"
       surveyForSql = " (id = #{surveyForID} OR LOWER(firstname) LIKE LOWER('#{surveyFor}') OR LOWER(lastname) LIKE LOWER('#{surveyFor}'))" unless surveyFor.blank?
       result = result.where(params[:method] == "search" ? surveyForSql : surveyForIDSql)
-      
+
       result.each do  |r|
           data << {id: r.id, label: "User #" + r.id.to_s + ": " + r.firstname + " " + r.lastname, value: r.id}
       end
@@ -517,26 +481,26 @@ class WksurveyController < WkbaseController
 
   def email_user
 
-    errMsg = ''
+    errMsg = ""
     survey_id = params[:survey_id]
     @survey = WkSurvey.find(survey_id)
-    url = url_for(:controller => 'wksurvey', :action => 'survey', :survey_id => survey_id, :tab => 'wksurvey')
+    url = url_for(:controller => "wksurvey", :action => "survey", :survey_id => survey_id, :tab => "wksurvey")
     defaultNotes = l(:label_survey_email_notes)
     email_notes = params[:email_notes] + "\n\n" + defaultNotes + "\n" + url  + "\n\n" + l(:label_redmine_administrator)
 
     if params[:includeUserGroup] == "true"
-        users = User.joins('INNER JOIN groups_users ON users.id = user_id')
-        users = users.where("groups_users.group_id = #{params[:user_group]}") unless params[:user_group].blank?
-        users.each do |user|
+      users = @survey.survey_for_type == 'User' && @survey.survey_for_id.present? ? User.where(id: @survey.survey_for_id) : WkSurvey.getMailUsers(params[:user_group])
+      users.distinct.each do |user|
+        WkUserNotification.userNotification(user.id, @survey, "fillSurvey") if WkNotification.notify("fillSurvey")
         errMsg += sent_emails(l(:label_survey_reminder) + "_" + @survey.name, user.language, user.mails, email_notes).to_s
-        end
+      end
     end
     if params[:additional_emails].present?
         params[:additional_emails].each do |email|
             errMsg += sent_emails(l(:label_survey_reminder), nil, email, email_notes).to_s
         end
     end
-    errMsg = 'ok' if errMsg.blank?
+    errMsg = "ok" if errMsg.blank?
     render :plain => errMsg
   end
 
@@ -551,15 +515,15 @@ class WksurveyController < WkbaseController
     urlHash = get_survey_redirect_url(urlHash, params)
     redirect_to urlHash
   end
-  
+
   def formPagination(entries)
     @entry_count = entries.count
     setLimitAndOffset()
-    @all_surveys = entries.order(:id).limit(@limit).offset(@offset)
+    @all_surveys = entries.limit(@limit).offset(@offset)
     @all_surveys
   end
 
-  def setLimitAndOffset		
+  def setLimitAndOffset
     if api_request?
       @offset, @limit = api_offset_and_limit
       if !params[:limit].blank?
@@ -569,7 +533,7 @@ class WksurveyController < WkbaseController
         @offset = params[:offset]
       end
     else
-      @entry_pages = Paginator.new @entry_count, per_page_option, params['page']
+      @entry_pages = Paginator.new @entry_count, per_page_option, params["page"]
       @limit = @entry_pages.per_page
       @offset = @entry_pages.offset
       @offset
@@ -577,7 +541,7 @@ class WksurveyController < WkbaseController
   end
 
   def check_perm_and_redirect
-    get_survey(params[:survey_id], (["edit","survey_response","survey_result", "print_survey_result"].include?(action_name)) &&
+    get_survey(params[:survey_id], (["edit","survey_response","survey_result", "print_survey_result, update_survey"].include?(action_name)) &&
       validateERPPermission("E_SUR") || action_name == "graph") unless params[:survey_id].blank?
     survey = get_survey_with_userGroup(params[:survey_id]) unless params[:survey_id].blank? && action_name == "survey_response"
     closed_response = getResponseGroup(params[:survey_id]) unless params[:survey_id].blank?
@@ -598,7 +562,7 @@ class WksurveyController < WkbaseController
   end
 
   def survey_url_validation
-    
+
     is_survey_not_permitted = false
     #project tab
     if !params[:project_id].blank? && !get_project_id(params[:project_id]).blank?
@@ -640,32 +604,18 @@ class WksurveyController < WkbaseController
     survey = survey.where(id: survey_id) unless survey_id.blank?
     @survey = survey.first
   end
-  
+
   def get_response_status(survey_id, response_id)
     getSurveyForType(params)
-    if !response_id.blank?
-      condStr = " AND wk_survey_responses.id = #{response_id.to_i}"
-    else
-      condStr = " AND (wk_survey_responses.user_id = #{User.current.id}) 
-        AND wk_survey_responses.survey_for_type" + (@surveyForID.blank? ? 
-        " IS NULL " : " = '#{@surveyForType}' ") + " AND wk_survey_responses.survey_for_id" + (@surveyForID.blank? ? 
-        " IS NULL " : " = #{@surveyForID} ")
-    end
-    @response = WkSurveyResponse.joins("INNER JOIN wk_statuses AS ST ON ST.status_for_id = wk_survey_responses.id 
-      AND ST.status_for_type = 'WkSurveyResponse'
-      INNER JOIN users AS U ON wk_survey_responses.user_id = U.id
-      INNER JOIN wk_surveys AS S ON S.id = wk_survey_responses.survey_id")
-    .where(" S.id = #{survey_id}"  + condStr)
-    .order("status_date DESC")
-    .select("wk_survey_responses.id, ST.status, ST.status_date, U.firstname, U.lastname, U.parent_id, wk_survey_responses.user_id").first
+    @response = WkSurveyResponse.getCurrentResponse(@survey.id, response_id, @surveyForID, @surveyForType)
   end
 
   def close_current_response
     group_date = Time.now
     grp_name = params[:grp_name].present? ? params[:grp_name] : group_date.strftime("%Y-%m-%d %H:%M:%S").to_s
     updatedCount = WkSurveyResponse.updateRespGrp(params[:survey_id], group_date, grp_name)
-    redirect_to controller: controller_name, action: 'index'
-    
+    redirect_to controller: controller_name, action: "index"
+
     if updatedCount > 0
       flash[:notice] = l(:notice_successful_close)
     else
@@ -675,24 +625,10 @@ class WksurveyController < WkbaseController
 
   def print_survey_result
     survey_result
-    render :action => 'print_survey_result', :layout => false
+    render :action => "print_survey_result", :layout => false
   end
 
   def print_survey
     survey
-    render :action => 'print_survey', :layout => false
-  end
-
-  def castFormat
-    case ActiveRecord::Base.connection.adapter_name
-    when "PostgreSQL"
-      return "INT"
-    when "Mysql2"
-      return "SIGNED"
-    when "SQLServer"
-      return "INT"
-    else
-      return "INTEGER"
-    end
   end
 end

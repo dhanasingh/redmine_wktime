@@ -679,7 +679,7 @@ end
 				{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax},
 				{:name => 'wkexchangerate', :partial => 'wktime/tab_content', :label => :label_exchange_rate},
 				{:name => 'wkgrouppermission', :partial => 'wktime/tab_content', :label => :label_permissions},
-				{:name => 'wknotification', :partial => 'wktime/tab_content', :label => :field_mail_notification},				
+				{:name => 'wknotification', :partial => 'wktime/tab_content', :label => :label_notification_plural},				
 			   ]
 		else
 			tabs = [

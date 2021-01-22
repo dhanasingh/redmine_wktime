@@ -208,5 +208,14 @@ module WkattendanceHelper
 		end
 		queryStr
 	end
+	
+	def getUserLeave
+		userLeave = Array.new
+			if Setting.plugin_redmine_wktime['wktime_leave'].present?
+				userLeaveIDs = Setting.plugin_redmine_wktime['wktime_leave'].map{ |entry| entry.split('|').first }
+				userLeave = Issue.select(:id, :subject).where(id: userLeaveIDs).collect{ |issue| [issue.subject]}
+			end
+		userLeave
+	end
 
 end

@@ -1,0 +1,17 @@
+api.leave_req_entries do
+  userId = @leaveReqEntry ? @leaveReqEntry.user_id : User.current.id
+  api.leave_type get_leave_type
+  api.leave_hour getLeaveHours(userId)
+  api.supervisor isSupervisor
+  api.buttons getButtonLabels
+  if @leaveReqEntry
+    api.lveReqID @leaveReqEntry.id
+    api.user_id @leaveReqEntry.user_id
+    api.leave_type_id @leaveReqEntry.leave_type_id
+    api.start_date @leaveReqEntry.startDate
+    api.end_date @leaveReqEntry.endDate
+    api.status @leaveReqEntry.status
+    api.leave_reasons @leaveReqEntry.leave_reasons
+    api.reviewer_comment @leaveReqEntry.reviewer_comment
+  end
+end

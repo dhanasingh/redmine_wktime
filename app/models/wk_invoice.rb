@@ -43,7 +43,7 @@ class WkInvoice < ActiveRecord::Base
   validates_presence_of :parent_id, :parent_type
   
   before_save :increase_inv_key
-  after_create_commit :send_notification
+  # after_create_commit :send_notification
   
   def total_invoice_amount
 	self.invoice_items.sum(:original_amount)
@@ -59,12 +59,12 @@ class WkInvoice < ActiveRecord::Base
 	self.invoice_number = self.invoice_number.blank? ? self.invoice_num_key.to_s : self.invoice_number.to_s + self.invoice_num_key.to_s if self.new_record?
   end
 
-  def send_notification
-    if WkNotification.notify('invoiceGenerated') && self.invoice_type == 'I'
-      emailNotes = "Invoice: #" + self.invoice_number+ " has been generated " + "\n\n" + l(:label_redmine_administrator)
+  def self.send_notification(invoice)
+    if WkNotification.notify('invoiceGenerated') && invoice.invoice_type == 'I'
+      emailNotes = "Invoice #"+invoice.invoice_number.to_s+":"+" "+invoice.invoice_items.first.original_currency.to_s+ invoice.invoice_items.sum(:original_amount).to_s + " has been generated for" + invoice.parent.name.to_s + "\n\n" + l(:label_redmine_administrator)
       subject = l(:label_invoice) + " " + l(:label_notification)
       userId = WkPermission.permissionUser('M_BILL').uniq
-      WkNotification.notification(userId, emailNotes, subject)
+      WkNotification.notification(userId, emailNotes, subject, invoice, 'invoiceGenerated')
     end
   end
   

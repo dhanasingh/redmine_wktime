@@ -18,6 +18,7 @@
 class WkgltransactionController < WkaccountingController
   unloadable
   include WkgltransactionHelper
+	accept_api_auth :index, :edit, :update
   
 	 def index
 		sort_init 'trans_date', 'desc'
@@ -131,7 +132,7 @@ class WkgltransactionController < WkaccountingController
 		end
     end
    
-    def update
+	def update
 		set_transaction_session
 		errorMsg = nil
 		wkgltransaction = nil
@@ -187,7 +188,6 @@ class WkgltransactionController < WkaccountingController
 				end
 			end
 		else
-			
 			case params[:txn_type]
 			when 'C'
 				errorMsg = l(:error_contra_msg)
@@ -206,17 +206,29 @@ class WkgltransactionController < WkaccountingController
 			end
 			#errorMsg = l(:label_transaction) + " " + l('activerecord.errors.messages.invalid')
 		end
-		if errorMsg.blank?
-			action_name = params[:gltransaction_save_continue].blank? ? "index" : "edit"
-		    redirect_to :controller => 'wkgltransaction', :action => action_name, :tab => 'wkgltransaction'			
-			$temptxnDetail = nil
-			$tempTransaction = nil
-		    flash[:notice] = l(:notice_successful_update)
-		else
-			flash[:error] = errorMsg #wkaccount.errors.full_messages.join("<br>")
-		    redirect_to :controller => 'wkgltransaction',:action => 'edit', :isError => true
+		respond_to do |format|
+			format.html {
+				if errorMsg.blank?
+					action_name = params[:gltransaction_save_continue].blank? ? "index" : "edit"
+						redirect_to :controller => 'wkgltransaction', :action => action_name, :tab => 'wkgltransaction'			
+					$temptxnDetail = nil
+					$tempTransaction = nil
+						flash[:notice] = l(:notice_successful_update)
+				else
+					flash[:error] = errorMsg
+						redirect_to :controller => 'wkgltransaction',:action => 'edit', :isError => true
+				end
+			}
+			format.api{
+				if errorMsg.blank?
+					render :plain => errorMsg, :layout => nil
+				else		
+					@error_messages = errorMsg.split('\n')	
+					render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+				end
+			}
 		end
-    end
+  end
 	
 	def validateTransaction
 		ret = true
@@ -333,7 +345,7 @@ class WkgltransactionController < WkaccountingController
   
 	def set_filter_session
 		session[controller_name] = {:summary_trans => "days"} if session[controller_name].nil?
-		if params[:searchlist] == controller_name
+		if params[:searchlist] == controller_name || api_request?
 			filters = [:period_type, :period, :txn_ledger, :from, :to, :trans_type, :summary_trans]
 			filters.each do |param|
 				if params[param].blank? && session[controller_name].try(:[], param).present?
