@@ -39,6 +39,7 @@
 	}
 	#issueLog .drdn-content {width:280px;}
 	#notification .drdn-content {
+		min-height: 84px;
 		max-height:400px;
 		width:345px;
   	overflow: auto;
@@ -73,6 +74,18 @@
     top: -2px;
     left: 18px;
     border-radius: 25px;
+	}
+	#notification .new-items {
+		padding: 10px;
+		font-weight: bold;
+	}
+	#notification .earlier-items {
+		padding-top: 20px;
+		padding-left: 10px;
+		font-weight: bold;
+	}
+	#notification .no-items {
+		padding-left: 10px;
 	}
 </style>
 <% if wktime_helper.isChecked("wktime_enable_clock_in_out") && wktime_helper.isChecked("wktime_enable_attendance_module") && User.current.logged? && wktime_helper.checkViewPermission %>	
@@ -142,19 +155,30 @@ notifyTrigger =''
 		imgName = unRead.present? ? "notification_unread" : "notification"
 		notifyBell = image_tag(imgName + ".png", plugin: "redmine_wktime", style: "height: 25px")
 		notifications = WkUserNotification.where(user_id: User.current.id).order(id: 'desc')
-		notifyRslt = (+"").html_safe
+		newNotify = (+"").html_safe
+		earlierNotify = (+"").html_safe
 		notifications.each do |notification|
 			notifyTime = notification_helper.getnotifyDate(notification.created_at)
 			seenClass = notification.seen ? "seen" : "unseen"
 			notifyVal = notification_helper.formNotificationText(notification)
 			isURLreturn = notifyVal['url'].present? ? "return true;" : "return false;"
-			text = link_to(notifyVal['text']+"\r\n"+notifyTime, notifyVal['url'], class: seenClass, onclick: isURLreturn, 'data-id': notification.id)
-			notifyRslt << text
+			if notifyTime.include?('hours ago') || notifyTime.include?('days ago') ||  notifyTime.include?('Just now')
+				newText = link_to(notifyVal['text']+"\r\n"+notifyTime, notifyVal['url'], class: seenClass, onclick: isURLreturn, 'data-id': notification.id)
+			else
+				earlerText = link_to(notifyVal['text']+"\r\n"+notifyTime, notifyVal['url'], class: seenClass, onclick: isURLreturn, 'data-id': notification.id)
+			end
+			newNotify << newText
+			earlierNotify << earlerText
 		end
-		notifyRslt = content_tag("span", l(:label_no_notification)) if notifyRslt.blank?
-		notifications = notifyRslt.html_safe
 		notifyTrigger = content_tag('div', content_tag('span', notifyBell, class: 'drdn-trigger') + content_tag('div', WkUserNotification.unreadNotification.count, class: 'count'), class: 'notify-img')
-		notifyContent = content_tag('div', content_tag(:h2, notifyHeader.to_s, class: 'padding') + content_tag('span', notifications, class: 'drdn-items'), class: 'drdn-content')
+		newGrp = content_tag('span', l(:wk_status_new), class: 'new-items') + content_tag('span', newNotify, class: 'drdn-items') if newNotify.present?
+		earlierGrp = content_tag('span', l(:label_earlier), class: 'earlier-items') + content_tag('span', earlierNotify, class: 'drdn-items') if earlierNotify.present?
+		if newGrp.blank? && earlierGrp.blank?
+			notifyRslt = content_tag("span", l(:label_no_notification), class: 'no-items')
+		else
+			notifyRslt = newGrp.to_s + earlierGrp.to_s
+		end
+		notifyContent = content_tag('div', content_tag(:h2, notifyHeader.to_s, class: 'padding') + notifyRslt.html_safe, class: 'drdn-content')
 	end 
 %>
 

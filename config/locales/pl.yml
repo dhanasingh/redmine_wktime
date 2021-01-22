@@ -1184,5 +1184,12 @@ pl:
   label_has_closed: has been closed
   label_rejected: is Rejected
   label_from: from
-
   text_no_notification: No Notifications
+  label_on: 'on'
+  label_just_now: Just now
+  label_hours_ago: hours ago
+  label_days_ago: days ago
+  label_weeks_ago: weeks ago
+  label_months_ago: months ago
+  label_years_ago: years ago
+  label_earlier: Earlier

@@ -25,7 +25,7 @@ module WknotificationHelper
 			notifyHash['text'] = l(:label_complete_survey)+" "+notification.source.name.to_s
 			notifyHash['url'] = {controller:'wksurvey', action:'survey', surveyForID: notification.source.survey_for_id, surveyForType: notification.source.survey_for_type, survey_id: notification.source_id} if notification.source.survey_for_id.present?
 		when "leaveRequested"
-			notifyHash['text'] = l(:label_approve_leave)+" "+notification.source.user.name.to_s+" "+notification.source.start_date.to_date.to_s
+			notifyHash['text'] = l(:label_approve_leave)+" "+notification.source.user.name.to_s+" "+l(:label_on)+" "+notification.source.start_date.to_date.to_s
 			notifyHash['url'] = {controller:'wkleaverequest', action:'edit', id: notification.source_id}
 		when "leaveApproved"
 			notifyHash['text'] = WkLeaveReq.getEntry(notification.source.id).status == 'A' ? l(:label_your_leave)+" "+notification.source.start_date.to_date.to_s+" "+l(:label_is_approved) : l(:label_your_leave)+" "+notification.source.start_date.to_date.to_s+" "+l(:label_rejected) 
@@ -34,7 +34,7 @@ module WknotificationHelper
 			notifyHash['text'] = l(:label_invoice)+" "+notification.source.invoice_items.first.original_currency.to_s+notification.source.invoice_items.first.original_amount.to_s+" "+ l(:label_has_generated)+" "+ l(:label_for)+" "+notification.source.parent.name.to_s
 			notifyHash['url'] = {controller:'wkinvoice', action:'edit', invoice_id: notification.source.id, new_invoice: false,preview_billing: false}
 		when "paymentReceived"
-			notifyHash['text'] = l(:label_received_payment)+" "+notification.source.payment_items.first.original_currency.to_s+WkPayment.getPaymentItems(notification.source).to_s+" "+l(:label_from)+notification.source.parent.name.to_s
+			notifyHash['text'] = l(:label_received_payment)+" "+notification.source.payment_items.first.original_currency.to_s+WkPayment.getPaymentItems(notification.source).to_s+" "+l(:label_from)+" "+notification.source.parent.name.to_s
 			notifyHash['url'] = {controller:'wkpayment', action:'edit', payment_id: notification.source_id}
 		when 'contractSigned'
 			notifyHash['text'] = l(:label_contract)+" "+notification.source.id.to_s+" "+ l(:label_for)+" "+notification.source.parent.name.to_s+ " " +l(:label_has_generated)
@@ -60,18 +60,18 @@ module WknotificationHelper
 		case noOfdays
 		when 0
 			hours = ((DateTime.now.to_time - date.to_time) / 1.hour).to_i
-			dateText = hours == 0 ? 'Just now' : hours.to_s + ' hours ago'
+			dateText = hours == 0 ? l(:label_just_now) : hours.to_s+" "+l(:label_hours_ago)
 		when 1..6
-			dateText = noOfdays.round().to_s + ' days ago'
+			dateText = noOfdays.round().to_s+" "+l(:label_days_ago)
 		when 7..31
 			weeks = (noOfdays/7).to_i
-			dateText = weeks.to_s + ' weeks ago'
+			dateText = weeks.to_s+" "+l(:label_weeks_ago)
 		when 32..365
 			months = (noOfdays/31).to_i
-			dateText = months.to_s + ' months ago'
+			dateText = months.to_s+" "+l(:label_months_ago)
 		else
 			years = (noOfdays/365).to_i
-			dateText = years.to_s + ' years ago'
+			dateText = years.to_s+" "+l(:label_years_ago)
 		end
 		dateText
 	end
