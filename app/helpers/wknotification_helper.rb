@@ -23,7 +23,7 @@ module WknotificationHelper
 		case WkUserNotification.getnotificationAction(notification).first.name
 		when "fillSurvey"
 			notifyHash['text'] = l(:label_complete_survey)+" "+notification.source.name.to_s
-			notifyHash['url'] = {controller:'wksurvey', action:'survey', surveyForID: notification.source.survey_for_id, surveyForType: notification.source.survey_for_type, survey_id: notification.source_id} if notification.source.survey_for_id.present?
+			notifyHash['url'] = {controller:'wksurvey', action:'survey', surveyForID: notification.source.survey_for_id, surveyForType: notification.source.survey_for_type, survey_id: notification.source_id} if notification.source.survey_for_type.blank? || notification.source.survey_for_type.blank? && notification.source.survey_for_id.present?
 		when "leaveRequested"
 			notifyHash['text'] = l(:label_approve_leave)+" "+notification.source.user.name.to_s+" "+l(:label_on)+" "+notification.source.start_date.to_date.to_s
 			notifyHash['url'] = {controller:'wkleaverequest', action:'edit', id: notification.source_id}
@@ -46,7 +46,7 @@ module WknotificationHelper
 			notifyHash['text'] =  l(:button_wk_approve)+" "+l(:label_timesheet_on)+" "+notification.source.begin_date.to_s+" "+l(:label_for)+" "+notification.source.user.name.to_s
 			notifyHash['url'] = {controller:'wktime', action:'edit', startday: notification.source.begin_date, user_id: notification.source.user_id}
 		when 'timeRejected' 
-			notifyHash['text'] = l(:label_rejected_timesheet)+" "+notification.source.submitted_on.to_s
+			notifyHash['text'] = l(:label_timesheet_rejected)+" "+l(:label_on)+" "+notification.source.submitted_on.to_s
 			notifyHash['url'] = {controller:'wktime', action:'edit', startday: notification.source.begin_date, user_id: notification.source.user_id}
 		when 'surveyClosed'
 			notifyHash['text'] = l(:label_survey)+" "+notification.source.name.to_s+" "+l(:label_has_closed)

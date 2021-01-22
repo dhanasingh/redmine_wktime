@@ -489,7 +489,7 @@ class WksurveyController < WkbaseController
     email_notes = params[:email_notes] + "\n\n" + defaultNotes + "\n" + url  + "\n\n" + l(:label_redmine_administrator)
 
     if params[:includeUserGroup] == "true"
-      users = WkSurvey.getMailUsers(params[:user_group])
+      users = @survey.survey_for_type == 'User' && @survey.survey_for_id.present? ? User.where(id: @survey.survey_for_id) : WkSurvey.getMailUsers(params[:user_group])
       users.distinct.each do |user|
         WkUserNotification.userNotification(user.id, @survey, "fillSurvey") if WkNotification.notify("fillSurvey")
         errMsg += sent_emails(l(:label_survey_reminder) + "_" + @survey.name, user.language, user.mails, email_notes).to_s

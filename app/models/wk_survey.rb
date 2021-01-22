@@ -99,7 +99,7 @@ class WkSurvey < ActiveRecord::Base
   def survey_notification
     if status? && status == "C" && WkNotification.notify('surveyClosed')
       emailNotes = "Survey : " + (self.name) + " has been closed " + "\n\n" + l(:label_redmine_administrator)
-      userId = WkSurvey.getMailUsers(group_id).pluck(:id)
+      userId = survey_for_type == 'User' && survey_for_id.present? ? User.where(id: survey_for_id).pluck(:id) : WkSurvey.getMailUsers(group_id).pluck(:id)
       subject = l(:label_survey) + " " + l(:label_notification)
       WkNotification.notification(userId, emailNotes, subject, self, 'surveyClosed')
     end

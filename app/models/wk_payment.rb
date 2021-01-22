@@ -38,7 +38,7 @@ class WkPayment < ActiveRecord::Base
 
   def self.send_notification(payment)
     if WkNotification.notify('paymentReceived')
-      emailNotes = " Receieved Payment: #" + WkPayment.getPaymentItems(payment).to_s + " from " + payment.parent.name.to_s + " for " + payment.payment_date.to_s + "\n\n" + l(:label_redmine_administrator)
+      emailNotes = " Receieved Payment #"+payment.id.to_s+": "+payment.payment_items.first.original_currency+ WkPayment.getPaymentItems(payment).to_s + " from " + payment.parent.name.to_s + " for " + payment.payment_date.to_s + "\n\n" + l(:label_redmine_administrator)
       userId = WkPermission.permissionUser('M_BILL').uniq
       subject = l(:label_payments) + " " + l(:label_notification)
       WkNotification.notification(userId, emailNotes, subject, payment, 'paymentReceived')
