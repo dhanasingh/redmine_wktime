@@ -174,7 +174,7 @@ notifyTrigger =''
 		newGrp = content_tag('span', l(:wk_status_new), class: 'new-items') + content_tag('span', newNotify, class: 'drdn-items') if newNotify.present?
 		earlierGrp = content_tag('span', l(:label_earlier), class: 'earlier-items') + content_tag('span', earlierNotify, class: 'drdn-items') if earlierNotify.present?
 		if newGrp.blank? && earlierGrp.blank?
-			notifyRslt = content_tag("span", l(:label_no_notification), class: 'no-items')
+			notifyRslt = content_tag("span", l(:text_no_notification), class: 'no-items')
 		else
 			notifyRslt = newGrp.to_s + earlierGrp.to_s
 		end
