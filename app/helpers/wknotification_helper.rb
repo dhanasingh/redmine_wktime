@@ -24,33 +24,42 @@ module WknotificationHelper
 		when "fillSurvey"
 			notifyHash['text'] = l(:label_complete_survey)+" "+notification.source.name.to_s
 			notifyHash['url'] = {controller:'wksurvey', action:'survey', surveyForID: notification.source.survey_for_id, surveyForType: notification.source.survey_for_type, survey_id: notification.source_id} if notification.source.survey_for_type.blank? || notification.source.survey_for_type.blank? && notification.source.survey_for_id.present?
+			notifyHash['icon'] = "fa fa-file-text-o"
 		when "leaveRequested"
 			notifyHash['text'] = l(:label_approve_leave)+" "+notification.source.user.name.to_s+" "+l(:label_on)+" "+notification.source.start_date.to_date.to_s
 			notifyHash['url'] = {controller:'wkleaverequest', action:'edit', id: notification.source_id}
+			notifyHash['icon']= "fa fa-user-circle"
 		when "leaveApproved"
 			notifyHash['text'] = WkLeaveReq.getEntry(notification.source.id).status == 'A' ? l(:label_your_leave)+" "+notification.source.start_date.to_date.to_s+" "+l(:label_is_approved) : l(:label_your_leave)+" "+notification.source.start_date.to_date.to_s+" "+l(:label_rejected) 
 			notifyHash['url'] = {controller:'wkleaverequest', action:'edit', id: notification.source_id}
 		when 'invoiceGenerated'
 			notifyHash['text'] = l(:label_invoice)+" "+notification.source.invoice_items.first.original_currency.to_s+notification.source.invoice_items.first.original_amount.to_s+" "+ l(:label_has_generated)+" "+ l(:label_for)+" "+notification.source.parent.name.to_s
 			notifyHash['url'] = {controller:'wkinvoice', action:'edit', invoice_id: notification.source.id, new_invoice: false,preview_billing: false}
+			notifyHash['icon']= "fa fa-usd"
 		when "paymentReceived"
 			notifyHash['text'] = l(:label_received_payment)+" "+notification.source.payment_items.first.original_currency.to_s+WkPayment.getPaymentItems(notification.source).to_s+" "+l(:label_from)+" "+notification.source.parent.name.to_s
 			notifyHash['url'] = {controller:'wkpayment', action:'edit', payment_id: notification.source_id}
+			notifyHash['icon'] = "fa fa-usd"
 		when 'contractSigned'
 			notifyHash['text'] = l(:label_contract)+" "+notification.source.id.to_s+" "+ l(:label_for)+" "+notification.source.parent.name.to_s+ " " +l(:label_has_generated)
 			notifyHash['url'] = {controller:'wkcontract', action:'edit', contract_id: notification.source.id}
+			notifyHash['icon'] = "fa fa-file-text-o"
 		when "nonSubmission"	
 			notifyHash['text'] = l(:button_submit)+" "+ l(:label_timesheet_on)+" "+notification.source.begin_date.to_s
 			notifyHash['url'] = {controller:'wktime', action:'edit', startday: notification.source.begin_date, user_id: notification.source.user_id}
+			notifyHash['icon'] = "fa fa-clock-o"
 		when 'timeApproved'
 			notifyHash['text'] =  l(:button_wk_approve)+" "+l(:label_timesheet_on)+" "+notification.source.begin_date.to_s+" "+l(:label_for)+" "+notification.source.user.name.to_s
 			notifyHash['url'] = {controller:'wktime', action:'edit', startday: notification.source.begin_date, user_id: notification.source.user_id}
+			notifyHash['icon'] = "fa fa-clock-o"
 		when 'timeRejected' 
 			notifyHash['text'] = l(:label_timesheet_rejected)+" "+l(:label_on)+" "+notification.source.submitted_on.to_s
 			notifyHash['url'] = {controller:'wktime', action:'edit', startday: notification.source.begin_date, user_id: notification.source.user_id}
+			notifyHash['icon'] = "fa fa-clock-o"
 		when 'surveyClosed'
 			notifyHash['text'] = l(:label_survey)+" "+notification.source.name.to_s+" "+l(:label_has_closed)
 			notifyHash['url'] = {controller:'wksurvey', action:'survey',survey_id: notification.source.id}
+			notifyHash['icon'] = "fa fa-file-text-o"
 		end
 		notifyHash
 	end
