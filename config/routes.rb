@@ -704,3 +704,11 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	post 'wkgltransaction/update', to: 'wkgltransaction#update'
 
 	get 'wknotification/updateUserNotification', to: 'wknotification#updateUserNotification'
+
+	get 'wkskill/index', :to => 'wkskill#index'
+
+	get 'wkskill/edit', :to => 'wkskill#edit'
+
+	delete 'wkskill/delete', :to => 'wkskill#delete'
+
+	post 'wkskill/save', :to => 'wkskill#save'
