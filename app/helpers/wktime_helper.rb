@@ -616,10 +616,9 @@ end
 
 	def time_expense_tabs
 		if params[:controller] == "wktime" || params[:controller] == "wkexpense" 
-			tabs = [
-				{:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime},
-				{:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense}
-			   ]
+			tabs = []
+			tabs << {:name => 'wktime', :partial => 'wktime/tab_content', :label => :label_wktime} if showTime
+			tabs << {:name => 'wkexpense', :partial => 'wktime/tab_content', :label => :label_wkexpense} if showExpense
 		 elsif params[:controller] == "wkattendance" || params[:controller] == "wkpayroll" || params[:controller] == "wkscheduling"  || params[:controller] == "wkschedulepreference" || params[:controller] == "wkshift" || params[:controller] == "wkpublicholiday" || params[:controller] == "wksurvey" || params[:controller] == "wkleaverequest" || params[:controller] == "wkskill"
 				tabs = []
 				if showAttendance

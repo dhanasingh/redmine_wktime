@@ -27,6 +27,7 @@ before_action :check_perm_and_redirect, :only => [:edit, :update, :destroy] # us
 before_action :check_editperm_redirect, :only => [:destroy]
 before_action :check_view_redirect, :only => [:index]
 before_action :check_log_time_redirect, :only => [:new]
+before_action :check_module_permission, :only => [:index]
 
 accept_api_auth :index, :edit, :update, :destroy, :deleteEntries, :getProjects, :getissues, :getactivities, :getAPIUsers, :getclients
 
@@ -1356,6 +1357,13 @@ include ActionView::Helpers::TagHelper
 		wkStatuses = WkStatus.where(status_for_type: getModelName, status: status)
 		wkStatuses = wkStatuses.where(status_for_id: (entries || []).pluck(:id))
 		wkStatuses.destroy_all() unless wkStatuses.blank?
+	end
+
+	def check_module_permission		
+		unless showTime
+			render_403
+			return false
+		end
 	end
 
 private
