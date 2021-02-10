@@ -21,6 +21,7 @@ class WkSkill < ActiveRecord::Base
   belongs_to :skill_set, class_name: "WkCrmEnumeration"
 
   validates_presence_of :skill_set
+  validates_numericality_of  :rating, :experience
   
   scope :get_all, ->{
     joins(:user, :skill_set).select("wk_skills.*")

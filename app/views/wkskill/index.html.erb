@@ -11,12 +11,11 @@
 	wkskillUrl = '<%=url_for(:controller => "wkskill", :action => "index", :tab => "wkskill")%>';
 	grpUrl="<%= "#{url_for(:controller => "wkpayroll", :action => 'getMembersbyGroup')}" %>";
 </script>
-
-<%= title l(:label_wk_skill) %>
+	<%= title l(:label_wk_skill) %>
+<%= render_tabs time_expense_tabs %>
 <div class="contextual">
 	<%= link_to l(:label_new_skill), url_for(controller: controller_name, action: 'edit'), :class => 'icon icon-add' %>
 </div>
-<%= render_tabs time_expense_tabs %>
 <% 	groupId =session[controller_name].try(:[], :group_id)
 	userID = session[controller_name].try(:[], :user_id)
 	skillSet = session[controller_name].try(:[], :skill_set)

@@ -17,7 +17,10 @@
 
 class WkskillController < WkbaseController
   menu_item :wkattendance
-	include WkpayrollHelper
+  include WkpayrollHelper
+  include WktimeHelper
+
+  before_action :check_module_permission, :only => [:index, :edit, :save, :delete]
   
   def index
     sort_init 'updated_at', 'desc'
@@ -29,27 +32,41 @@ class WkskillController < WkbaseController
     set_filter_session
     getUsersAndGroups
     skillEntries = WkSkill.get_all
-    skillEntries = skillEntries.skillUser if !validateERPPermission("A_ATTEND")
-
+    skillEntries = skillEntries.skillUser if !validateERPPermission("A_SKILL")
     skillSet =  session[controller_name].try(:[], :skill_set)
     skillEntries = skillEntries.skillSet(skillSet) if skillSet.present? && skillSet.to_i != 0
     skillEntries = skillEntries.userGroup(session[controller_name][:group_id]) if session[controller_name].try(:[], :group_id).present? && session[controller_name].try(:[], :group_id) != "0"
     skillEntries = skillEntries.groupUser(session[controller_name][:user_id]) if session[controller_name].try(:[], :user_id).present? && session[controller_name].try(:[], :user_id) != "0"
+    skillEntries = skillEntries.reorder(sort_clause)
     @skill_count = skillEntries.length
     @skill_pages = Paginator.new @skill_count, per_page_option, params['page']
-    @skillEntries = skillEntries.limit(@skill_pages.per_page).offset(@skill_pages.offset).to_a
+    @skillEntries = skillEntries.order("id DESC").limit(@skill_pages.per_page).offset(@skill_pages.offset).to_a
   end
 
-  def edit    
+  def edit
     @skills = WkSkill.new
+    getUsersAndGroups
     if params[:id].present?
       @skills = WkSkill.where("id =?", params[:id]).first
     end
   end
 
   def save
+    skill = params[:wk_skill][:id].present? ? WkSkill.find(params[:wk_skill][:id]) :  WkSkill.new
+    skill.assign_attributes(skill_params(params[:wk_skill]))
+    if skill.save
+      flash[:notice] = l(:notice_successful_update)
+      redirect_to action: "index", tab: "wkskill"
+    else
+      flash[:error] = skill.errors.full_messages.join("<br>")
+      redirect_to action: "edit", tab: "wkskill"
+    end
   end
   
+  def skill_params(sParams)
+    sParams[:user_id] = User.current.admin && sParams[:id].blank? ? sParams[:user_id] : User.current.id
+    sParams.permit(:id, :user_id, :skill_set_id, :rating, :last_used, :experience)
+  end
   
   def delete
     WkSkill.find(params[:id].to_i).destroy
@@ -70,4 +87,11 @@ class WkskillController < WkbaseController
       end
     end
   end
+
+	def check_module_permission		
+		unless showSkill
+			render_403
+			return false
+		end
+	end
 end

@@ -626,7 +626,6 @@ end
 					tabs <<	{:name => 'wkleaverequest', :partial => 'wktime/tab_content', :label => :label_leave_request}
 					tabs <<	{:name => 'clock', :partial => 'wktime/tab_content', :label => :label_clock}
 					tabs <<	{:name => 'wkpublicholiday', :partial => 'wktime/tab_content', :label => :label_public_holiday}
-					
 				end	
 				
 				if showPayroll
@@ -641,7 +640,10 @@ end
 				if showSurvey
 					tabs << {:name => 'wksurvey', :partial => 'wktime/tab_content', :label => :label_survey}
 				end
-				tabs <<	{name: 'wkskill', partial: 'wktime/tab_content', :label => :label_wk_skill}
+
+				if showSkill
+					tabs <<	{name: 'wkskill', partial: 'wktime/tab_content', :label => :label_wk_skill}
+				end
 		elsif params[:controller] == "wklead" || params[:controller] == "wkcrmaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact"
 			tabs = [
 				{:name => 'wklead', :partial => 'wktime/tab_content', :label => :label_lead_plural},
@@ -1359,7 +1361,8 @@ end
 						  l(:label_txn_purchase) => 'Purchase',
 						  l(:label_inventory) => 'Inventory',
 						  l(:label_survey) => 'Survey',
-						  l(:label_report) => 'Report'
+						  l(:label_report) => 'Report',
+						  l(:label_skill_set) => 'Skills'
 					 }
 		erpmineModules
 	end
@@ -1951,5 +1954,10 @@ end
 			l(:label_my_direct_reports) => '4',
 			l(:label_my_reports) => '5'
 		}
+	end
+	
+	def showSkill
+		!Setting.plugin_redmine_wktime['wktime_enable_skills_module'].blank? &&
+			Setting.plugin_redmine_wktime['wktime_enable_skills_module'].to_i == 1 
 	end
 end

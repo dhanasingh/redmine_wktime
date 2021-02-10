@@ -1177,4 +1177,12 @@ de:
   label_earlier: Earlier
   label_timesheet_rejected: Your timesheet is rejected
   label_mobile_version: Mobile Version
-  
+
+  label_wk_skill: Skills
+  label_skill_set: Skill Set
+  label_new_skill: New Skill
+  label_edit_skill: Edit Skill  
+  label_rating: Rating
+  label_last_used: Last Used
+  label_years_of_exp: Years of Experience
+  ADMIN SKILL SET: Admin Skill Set Privilege

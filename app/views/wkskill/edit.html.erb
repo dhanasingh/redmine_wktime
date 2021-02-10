@@ -1,12 +1,17 @@
 <h2><%= @skills.blank? ? l(:label_new_skill) : l(:label_edit_skill) %></h2>
-<%= form_with model: @skills, url: {action: "save"} do |f| %>
+<%= form_with model: @skills, method: "post", url: {action: "save"} do |f| %>
+	<%= f.hidden_field :id  %>
 	<%= f.hidden_field :user_id  %>
 	<fieldset class="box tabular">
 		<table>
 			<tr>
 				<th align="left"><%= l(:label_user_name) %></th>
 				<td align="left">
-					<%= @skills.blank? ? User.current.name : @skills.user.name %>
+					<% if User.current.admin? || validateERPPermission("A_SKILL") && !@skills.id.present? %>
+						<%= f.select :user_id, options_for_select(@members, :selected => User.current.id )%>
+					<% else %>
+						<%= @skills.present? ? User.current.name : @skills.user.name %>
+					<% end %>
 				</td>
 			<tr>
 			<tr>
@@ -22,13 +27,13 @@
 				</td>
 			</tr>
 			<tr>
-				<th align="left"><%= l(:label_years_of_exp) %></th>
+				<th align="left"><%= l(:label_last_used) %></th>
 				<td align="left">
-					<%= select_year(@skills.try(:last_used) || Date.current.year, end_year: Date.current.year , prefix: "wk_skill[last_used]", discard_type: true) %>
+					<%= f.select :last_used, (1970..Time.now.year).to_a.reverse %>
 				</td>
 			</tr>
 			<tr>
-				<th align="left"><%= l(:label_last_used) %></th>
+				<th align="left"><%= l(:label_years_of_exp) %></th>
 				<td align="left">
 					<%= f.text_field :experience %>
 				</td>
