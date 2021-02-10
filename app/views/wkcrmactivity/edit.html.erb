@@ -1,7 +1,7 @@
 <h2><%=@activityEntry.blank? ? l(:label_new_item_adjusted, l(:field_activity)) : l(:text_edit_activity) %></h2>
 <%= render :partial => 'wkcrmactivity/activity_edit'%>
 <% unless @activityEntry.blank? %>
-	</br>
+	<br/>
 	<div>
 		<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @activityEntry[0] } %>
 	</div>

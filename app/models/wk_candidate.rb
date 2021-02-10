@@ -15,20 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkcrmcontactController < WkcontactController
+class WkCandidate < ActiveRecord::Base
   unloadable
-  menu_item :wklead
-  accept_api_auth :index, :edit, :update
-
-	def getContactType
-		'C'
-	end
-
-	def lblNewContact
-		l(:label_new_item, l(:label_contact))
-	end
-
-  def edit_label
-    l(:label_lead)
-  end
+	belongs_to :contact, class_name: 'WkCrmContact'
 end

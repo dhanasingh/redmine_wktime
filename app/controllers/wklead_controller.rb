@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2020  Adhi software pvt ltd
+# Copyright (C) 2011-2021  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -23,7 +23,7 @@ class WkleadController < WkcrmController
 
 	def index
 		sort_init 'updated_at', 'desc'
-		
+
 		sort_update 'lead_name' => "CONCAT(C.first_name, C.last_name)",
 			'status' => "#{WkLead.table_name}.status",
 			'location_name' => "L.name",
@@ -36,11 +36,11 @@ class WkleadController < WkcrmController
 		status = session[controller_name].try(:[], :status)
 		locationId = session[controller_name].try(:[], :location_id)
 		location = WkLocation.where(:is_default => 'true').first
-		
+
 		entries = WkLead.joins("LEFT JOIN users AS U ON wk_leads.created_by_user_id = U.id
 			LEFT JOIN wk_accounts AS A on wk_leads.account_id = A.id
 			LEFT JOIN wk_crm_contacts AS C on wk_leads.contact_id = C.id
-			LEFT JOIN wk_locations AS L on C.location_id = L.id")
+			LEFT JOIN wk_locations AS L on C.location_id = L.id").where.not("wk_crm_contacts.contact_type": "RF")
 
 		if !leadName.blank? && !status.blank?
 		    entries = entries.where(:status => status).joins(:contact).where("LOWER(C.first_name) like LOWER(?) OR LOWER(C.last_name) like LOWER(?)", "%#{leadName}%", "%#{leadName}%")
@@ -58,66 +58,66 @@ class WkleadController < WkcrmController
 		end
 		formPagination(entries.reorder(sort_clause))
 		respond_to do |format|
-			format.html {        
+			format.html {
 			  render :layout => !request.xhr?
 			}
 			format.api
 		end
 	end
-	  
+
 	def show
 		@lead = nil
 		@lead = WkLead.find(params[:lead_id]) unless params[:lead_id].blank?
 		@lead
 	end
-	  
+
 	def edit
 		@lead = nil
 		@lead = WkLead.find(params[:lead_id]) unless params[:lead_id].blank?
 		@lead
 	end
-	  
+
 	def update
 		wkLead = update_without_redirect
 		respond_to do |format|
 			format.html {
-		if @wkContact.valid?
-			if params[:wklead_save_convert] || @isConvert
-				redirect_to :action => 'convert', :lead_id => wkLead.id
-			else
-				redirect_to :controller => 'wklead',:action => 'index' , :tab => 'wklead'
-				flash[:notice] = l(:notice_successful_update)
-			end
-		else
-			flash[:error] = @wkContact.errors.full_messages.join("<br>")
-		    redirect_to :controller => 'wklead',:action => 'edit', :lead_id => wkLead.id
-		end 
-	}
-	format.api{
-		errorMsg = @wkContact.errors.full_messages.join("<br>")
-		if errorMsg.blank?
-			render :plain => errorMsg, :layout => nil
-		else		
-			@error_messages = errorMsg.split('\n')	
-			render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+				if @wkContact.valid?
+					if params[:wklead_save_convert] || @isConvert
+						redirect_to :action => 'convert', :lead_id => wkLead.id
+					else
+						redirect_to :action => 'index' , :tab => controller_name
+						flash[:notice] = l(:notice_successful_update)
+					end
+				else
+					flash[:error] = @wkContact.errors.full_messages.join("<br>")
+						redirect_to :action => 'edit', :lead_id => wkLead.id
+				end
+			}
+			format.api{
+				errorMsg = @wkContact.errors.full_messages.join("<br>")
+				if errorMsg.blank?
+					render :plain => errorMsg, :layout => nil
+				else
+					@error_messages = errorMsg.split('\n')
+					render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+				end
+			}
 		end
-	}
-end
 	end
-  
-    def destroy
+
+  def destroy
 		WkLead.find(params[:lead_id].to_i).destroy
 		flash[:notice] = l(:notice_successful_delete)
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
-    end
-	
+  end
+
 	def formPagination(entries)
 		@entry_count = entries.count
 		setLimitAndOffset()
 		@leadEntries = entries.limit(@limit).offset(@offset)
 	end
-  
-    def setLimitAndOffset		
+
+  def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -130,13 +130,13 @@ end
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
-   end
-   
+		end
+  end
+
 	def getContactType
 		'C'
 	end
-	
+
 	def getAccountLbl
 		l(:label_account)
 	end
@@ -162,4 +162,7 @@ end
 		render json: grpUser
 	end
 
+  def edit_label
+    l(:label_lead)
+  end
 end

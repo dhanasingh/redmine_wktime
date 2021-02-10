@@ -1184,8 +1184,23 @@ ru:
   label_wk_skill: Skills
   label_skill_set: Skill Set
   label_new_skill: New Skill
-  label_edit_skill: Edit Skill  
+  label_edit_skill: Edit Skill
   label_rating: Rating
   label_last_used: Last Used
   label_years_of_exp: Years of Experience
   ADMIN SKILL SET: Admin Skill Set Privilege
+  label_hide_response: Annonymous Response
+  label_referrals: Referrals
+  label_referral: Referral
+  label_college: College
+  label_degree: Degree
+  label_pass_out: Year Passed
+  label_interview_date: Interview date
+  label_interviewer: Interviewer
+  label_name: Name
+  label_new_referral: New Referral
+  label_referral_information: Referral Information
+  label_expected_amount: Expected Amount
+  label_hire: Hire
+  label_not_hire: Not Hire
+  label_none: None

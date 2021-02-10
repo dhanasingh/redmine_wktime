@@ -2,7 +2,7 @@ var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, pay
 	blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl,
 	blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupAccUrl, purSupContactUrl, purSupPayUrl,
 	wklocationUrl,  wkproductUrl, wkproductitemUrl, wkshipmentUrl, wkassetUrl, wkassetdepreciationUrl, wkgrpPermissionUrl, wkSchedulingUrl,
-	wkPublicHolidayUrl, userCurrentUrl, wkSurveyUrl, wkleavereqUrl, wknotificationUrl, wkskillUrl;
+	wkPublicHolidayUrl, userCurrentUrl, wkSurveyUrl, wkleavereqUrl, wknotificationUrl, wkskillUrl, wkreferralsUrl;
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -21,7 +21,7 @@ $(document).ready(function() {
 			{
 				text: 'Ok',
 				id: 'btnOk',
-				click: function() {				
+				click: function() {
 					var email_notes = document.getElementById('email_notes').value;
 					var commandEl = document.getElementsByName('reminder');
 					var reminder_command = 0;
@@ -33,12 +33,12 @@ $(document).ready(function() {
 					var rUrl = "";
 					if(reminder_command == 1) {
 						rUrl = rSubEmailUrl;
-					} 
+					}
 					else if(reminder_command == 2) {
 						rUrl = rAppEmailUrl;
 					}
 					var from = document.getElementById('from').value;
-					var to = document.getElementById('to').value;					
+					var to = document.getElementById('to').value;
 					if(rUrl != "") {
 						$.ajax({
 							url: rUrl,
@@ -48,7 +48,7 @@ $(document).ready(function() {
 								resetReminderEmailDlg();
 								if(data != "OK") {
 									alert(data);
-								}							
+								}
 							},
 							error: function(xhr,status,error) {
 								resetReminderEmailDlg();
@@ -116,7 +116,7 @@ $(document).ready(function() {
 	changeProp('tab-wkleaverequest',wkleavereqUrl);
 	changeProp('tab-wknotification',wknotificationUrl);
 	changeProp('tab-wkskill',wkskillUrl);
-	
+	changeProp('tab-wkreferrals',wkreferralsUrl);
 });
 
 function openReportPopup(){
@@ -130,11 +130,11 @@ function openReportPopup(){
 	if(document.getElementById('action_type')) {
 	   actionType = document.getElementById('action_type').value;
 	}
-	
+
 	if(document.getElementById('project_id')) {
-		projectId = document.getElementById('project_id').value;	
+		projectId = document.getElementById('project_id').value;
 	}
-	
+
 	var period = document.getElementById('period').value;
 	var searchlist = document.getElementById('searchlist').value;
 	var periodTypes = document.getElementsByName('period_type');
@@ -146,18 +146,18 @@ function openReportPopup(){
 			break;
 		}
 	}
-	
+
 	popupUrl = wkattnReportUrl + '&report_type=' + reportType + '&group_id=' + groupId + '&action_type=' + actionType + '&user_id=' + userId + '&period_type=' + periodType + '&searchlist=' + searchlist + '&project_id=' + projectId;
 	if(periodType>1){
-		popupUrl = popupUrl + '&from=' + fromVal + '&to=' + toVal		
+		popupUrl = popupUrl + '&from=' + fromVal + '&to=' + toVal
 	}else{
-		popupUrl = popupUrl + '&period=' + period 
+		popupUrl = popupUrl + '&period=' + period
 	}
-	window.open(popupUrl, '_blank', 'location=yes,scrollbars=yes,status=yes, resizable=yes'); 
+	window.open(popupUrl, '_blank', 'location=yes,scrollbars=yes,status=yes, resizable=yes');
 }
 
 function showReminderEmailDlg(title) {
-	var teStatusOpt = document.getElementById('status').options;	
+	var teStatusOpt = document.getElementById('status').options;
 	var isSubm = false;
 	var isAppr = false;
 	for(var i = 0; i < teStatusOpt.length; i++) {
@@ -212,7 +212,7 @@ function projChanged(projDropdown, userid, needBlankOption){
 	var fmt = 'text';
 	var userDropdown = document.getElementById("user_id");
 	var $this = $(this);
-	
+
 	$.ajax({
 		url: userUrl,
 		type: 'get',
@@ -220,16 +220,16 @@ function projChanged(projDropdown, userid, needBlankOption){
 		success: function(data){ updateUserDD(data, userDropdown, userid, needBlankOption, false,"All Users"); },
 		beforeSend: function(){ $this.addClass('ajax-loading'); },
 		complete: function(){ $this.removeClass('ajax-loading'); }
-	});	
+	});
 }
 function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, blankText)
-{	
+{
 	var items = itemStr.split('\n');
 	var i, index, val, text, start;
 	if(dropdown != null && dropdown.options != null){
 		dropdown.options.length = 0;
 		if(needBlankOption){
-			dropdown.options[0] = new Option(blankText, "0", false, false) 
+			dropdown.options[0] = new Option(blankText, "0", false, false)
 		}
 		for(i=0; i < items.length-1; i++){
 			index = items[i].indexOf(',');
@@ -244,7 +244,7 @@ function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, bla
 			if(index != -1){
 				val = items[i].substring(start, index);
 				text = items[i].substring(index+1);
-				dropdown.options[needBlankOption ? i+1 : i] = new Option( 
+				dropdown.options[needBlankOption ? i+1 : i] = new Option(
 					text, val, false, val == userid);
 			}
 		}
@@ -263,7 +263,7 @@ function changeProp(tab,indexUrl)
 			if(prevTab != (this.id).toString())
 			{
 				load = true;
-			}			
+			}
 			prevTab = this.id;
 			return load;
 		};
@@ -288,13 +288,13 @@ function reportChanged(reportDD, userid){
 }
 
 function grpChanged(grpDropdown, userid, needBlankOption){
-	
+
 	var id = grpDropdown.options[grpDropdown.selectedIndex].value;
 	var fmt = 'text';
 	var userDropdown = document.getElementById("user_id");
 	var $this = $(this);
 	$.ajax({
-		
+
 		url: grpUrl,
 		type: 'get',
 		data: {user_id: userid, format:fmt,group_id:id},
@@ -330,7 +330,7 @@ function accProjChanged(uid, fldId, isparent, blankOptions)
 		parentType = fldId == 'contact_id' && parentId != "" ? 'WkCrmContact' : ( fldId == 'account_id' && parentId != "" ? 'WkAccount' : '');
 	}
 	var needBlankOption = blankOptions;
-	var projDropdown = document.getElementById("project_id");	
+	var projDropdown = document.getElementById("project_id");
 	userid = uid;
 	$.ajax({
 	url: accountUrl,
@@ -338,14 +338,14 @@ function accProjChanged(uid, fldId, isparent, blankOptions)
 	data: {parent_id: parentId, parent_type: parentType},
 	success: function(data){ updateUserDD(data, projDropdown, userid, needBlankOption, false, "");},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
-	complete: function(){ $this.removeClass('ajax-loading'); }	
+	complete: function(){ $this.removeClass('ajax-loading'); }
 	});
 }
 
 function actRelatedDd(uid, loadProjects, needBlankOption, actType, contactType, loadPayment)
 {
 	var relatedTo = document.getElementById("related_to");
-	var relatedType = relatedTo.options[relatedTo.selectedIndex].value;	
+	var relatedType = relatedTo.options[relatedTo.selectedIndex].value;
 	var relatedparentdd = document.getElementById("related_parent");
 	userid = uid;
 	var $this = $(this);
@@ -355,7 +355,7 @@ function actRelatedDd(uid, loadProjects, needBlankOption, actType, contactType, 
 	data: {related_type: relatedType, account_type: actType, contact_type: contactType},
 	success: function(data){ updateUserDD(data, relatedparentdd, userid, needBlankOption, false, "");},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
-	complete: function(){ if(loadProjects) { accProjChanged(uid, 'related_parent', true, true) }if(loadPayment){submitFiletrForm();} $this.removeClass('ajax-loading'); }	   
+	complete: function(){ if(loadProjects) { accProjChanged(uid, 'related_parent', true, true) }if(loadPayment){submitFiletrForm();} $this.removeClass('ajax-loading'); }
 	});
 }
 
@@ -372,7 +372,7 @@ function parentChanged(uid)
 	url: paymentUrl,
 	type: 'get',
 	data: {related_to: parentTypeVal, related_parent: parentId},
-	success: function(data){ updateUserDD(data, projDropdown, userid, needBlankOption, false, "");},   
+	success: function(data){ updateUserDD(data, projDropdown, userid, needBlankOption, false, "");},
 	});
 }
 
@@ -397,7 +397,7 @@ function rfqTOQuoteChanged(uid, loadDdId)
 		var actDD = document.getElementById("account_id");
 		parentId = actDD.options[actDD.selectedIndex].value;
 	}
-	var loadDropdown = document.getElementById(loadDdId);	
+	var loadDropdown = document.getElementById(loadDdId);
 	var needBlankOption = false;
 	userid = uid;
 	var $this = $(this);
@@ -407,12 +407,12 @@ function rfqTOQuoteChanged(uid, loadDdId)
 	data: {rfq_id: rfqId, parent_id: parentId, parent_type: ParentType},
 	success: function(data){ updateUserDD(data, loadDropdown, userid, needBlankOption, false, "");},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
-	complete: function(){ $this.removeClass('ajax-loading'); }	   
+	complete: function(){ $this.removeClass('ajax-loading'); }
 	});
 }
 
 function dateRangeValidation(fromId, toId)
-{	
+{
 	var fromElement = document.getElementById(fromId);
 	var toElement = document.getElementById(toId);
 	var fromdate = new Date(fromElement.value);
@@ -426,7 +426,7 @@ function dateRangeValidation(fromId, toId)
 		toElement.value = d.getFullYear() + "-" + d.getMonth() + "-" + d.getDate();
 		alert(" End date should be greater then start date ");
 	}
-	
+
 }
 
 function productCategoryChanged(changeDDId, uid, logType)
@@ -442,12 +442,12 @@ function productCategoryChanged(changeDDId, uid, logType)
 	data: {ptype: changeDDId, log_type: logType, product_id: changeDD.value },
 	success: function(data){ updateUserDD(data, changeDD, userid, needBlankOption, false, "");},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
-	complete: function(){ productChanged('product', 'product_item', uid, true, false, 'log_type'); $this.removeClass('ajax-loading'); }	      
+	complete: function(){ productChanged('product', 'product_item', uid, true, false, 'log_type'); $this.removeClass('ajax-loading'); }
 	});
 }
 
 function productChanged(curDDId, changeDDId, uid, changeAdditionalDD, needBlank, logTypeId, locationId)
-{	
+{
 	var currDD = document.getElementById(curDDId);
 	var needBlankOption = needBlank;
 	var changeDD = document.getElementById(changeDDId);
@@ -459,7 +459,7 @@ function productChanged(curDDId, changeDDId, uid, changeAdditionalDD, needBlank,
 		var productDD = document.getElementById('product_id');
 		productId = productDD.value;
 	}
-	if(curDDId.includes("product_id")){	
+	if(curDDId.includes("product_id")){
 		rowNum = curDDId.replace("product_id","")
 		if(changeDDId.includes("product_attribute_id")){
 			updateDD = "product_attribute_id"
@@ -472,7 +472,7 @@ function productChanged(curDDId, changeDDId, uid, changeAdditionalDD, needBlank,
 		if(changeDDId.includes("product_type")){
 			updateDD = "product_type"
 			changeDD = document.getElementById("product_type"+rowNum);
-		}			
+		}
 		var productDD = document.getElementById(curDDId);
 		productId = productDD.value;
 	}
@@ -493,7 +493,7 @@ function productChanged(curDDId, changeDDId, uid, changeAdditionalDD, needBlank,
 	data: {id: currDD.value, ptype: changeDDId, product_id: productId, update_DD: updateDD, log_type: logType, location_id: locId },
 	success: function(data){ updateUserDD(data, changeDD, userid, needBlankOption, false, "");},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
-	complete: function(){ if(changeAdditionalDD && changeDDId == 'brand_id'){productChanged('brand_id','product_model_id', uid, false, true, null);productChanged('product_id','product_attribute_id', uid, false, true, null);} else if(changeAdditionalDD && logTypeId != null ){productItemChanged('product_item', 'product_quantity', 'product_cost_price', 'product_sell_price', uid, 'log_type'); }  $this.removeClass('ajax-loading'); }	      
+	complete: function(){ if(changeAdditionalDD && changeDDId == 'brand_id'){productChanged('brand_id','product_model_id', uid, false, true, null);productChanged('product_id','product_attribute_id', uid, false, true, null);} else if(changeAdditionalDD && logTypeId != null ){productItemChanged('product_item', 'product_quantity', 'product_cost_price', 'product_sell_price', uid, 'log_type'); }  $this.removeClass('ajax-loading'); }
 	});
 }
 
@@ -501,7 +501,7 @@ function productAssetChanged(curDDId, changeDDId, uid, needBlank)
 {
 	var currDD = document.getElementById(curDDId);
 	var needBlankOption = needBlank;
-	var changeDD = document.getElementById(changeDDId);	
+	var changeDD = document.getElementById(changeDDId);
 	userid = uid;
 	var $this = $(this);
 	$.ajax({
@@ -510,7 +510,7 @@ function productAssetChanged(curDDId, changeDDId, uid, needBlank)
 	data: {id: currDD.value },
 	success: function(data){ updateUserDD(data, changeDD, userid, needBlankOption, false, "");},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
-	complete: function(){  $this.removeClass('ajax-loading'); }	      
+	complete: function(){  $this.removeClass('ajax-loading'); }
 	});
 }
 
@@ -528,7 +528,7 @@ function productUOMChanged(curDDId, changeDDId, uid)
 	data: {id: currDD.value, ptype: changeDDId, product_id: productDD.value },
 	success: function(data){ updateUserDD(data, changeDD, userid, needBlankOption, false, "");},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
-	complete: function(){  $this.removeClass('ajax-loading'); }	      
+	complete: function(){  $this.removeClass('ajax-loading'); }
 	});
 }
 
@@ -549,16 +549,16 @@ function productItemChanged(curDDId, qtyDD, cpDD, spDD, uid, logTypeId)
 		}
 		else {
 			logType = logTypeVal
-		}		
+		}
 	}
-	
+
 	$.ajax({
 	url: productModifyUrl,
 	type: 'get',
 	data: {id: currDD.value, ptype: 'inventory_item', product_id: productDD.value, log_type: logType },
 	success: function(data){ setProductLogAttribute(data, qtyDD, cpDD, spDD);},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
-	complete: function(){ productUOMChanged(curDDId, 'uom_id', uid); $this.removeClass('ajax-loading'); }	      
+	complete: function(){ productUOMChanged(curDDId, 'uom_id', uid); $this.removeClass('ajax-loading'); }
 	});
 }
 
@@ -573,8 +573,8 @@ function setProductLogAttribute(data, qtyDD, cpDD, spDD)
 		{
 			document.getElementById(cpDD).value = parseFloat(pctData[2]).toFixed(2);
 			document.getElementById('cpcurrency').innerHTML = pctData[3];
-		}		
-		
+		}
+
 		document.getElementById('spcurrency').innerHTML = pctData[3];
 		spVal = pctData[4] == "" ? "" : parseFloat(pctData[4]).toFixed(2);
 		document.getElementById(spDD).value = spVal;
@@ -587,7 +587,7 @@ function setProductLogAttribute(data, qtyDD, cpDD, spDD)
 		else{
 			document.getElementById('unittext').innerHTML = "";
 		}
-		
+
 	}
 	else
 	{
@@ -595,13 +595,13 @@ function setProductLogAttribute(data, qtyDD, cpDD, spDD)
 		if(document.getElementById(cpDD) != null)
 		{
 			document.getElementById(cpDD).value = "";
-		}	
+		}
 		document.getElementById(spDD).value = "";
 		document.getElementById('inventory_item_id').value = "";
 		document.getElementById('total').innerHTML = "";
 		document.getElementById('unittext').innerHTML = "";
 	}
-	
+
 }
 
 function getSupplierInvoice(uid, loadDdId)
@@ -618,7 +618,7 @@ function getSupplierInvoice(uid, loadDdId)
 		var actDD = document.getElementById("account_id");
 		parentId = actDD.options[actDD.selectedIndex].value;
 	}
-	var loadDropdown = document.getElementById(loadDdId);	
+	var loadDropdown = document.getElementById(loadDdId);
 	var needBlankOption = true;
 	userid = uid;
 	var $this = $(this);
@@ -628,7 +628,7 @@ function getSupplierInvoice(uid, loadDdId)
 	data: {parent_id: parentId, parent_type: ParentType},
 	success: function(data){ updateUserDD(data, loadDropdown, userid, needBlankOption, false, "");},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
-	complete: function(){ $this.removeClass('ajax-loading'); }	   
+	complete: function(){ $this.removeClass('ajax-loading'); }
 	});
 }
 
@@ -663,7 +663,7 @@ function hideLogDetails(uid)
 		$('.start_on, .end_on').val('');
 		$('.start_on, .end_on').prop('onchange', null);
 	}
-	else 
+	else
 	{
 		document.getElementById('time_entry_hours').style.display = 'none';
 		$('label[for="time_entry_hours"]').css('display', 'none');
@@ -685,11 +685,11 @@ function hideLogDetails(uid)
 		$('.start_on, .end_on').val('');
 		$('.start_on, .end_on').prop('onchange', null);
 	}
-	
+
 }
 
 function depreciatonFormSubmission()
-{ 
+{
 	var dateval = new Date(document.getElementById("to").value);
 	var fromdateval = new Date(document.getElementById("from").value);
 	//dateval.setDate(dateval.getDate() + 1);
@@ -701,23 +701,23 @@ function depreciatonFormSubmission()
 	else {
 		var isFormSubmission = confirm(apply_warn + " " + fromDateStr + " to " + toDateStr);
 		if (isFormSubmission == true) {
-			document.getElementById("generate").value = true; 
+			document.getElementById("generate").value = true;
 			document.getElementById("query_form").submit();
-		} 
+		}
 	}
-	
+
 }
 
 function scheduleFormSubmission()
-{ 
+{
 	var isFormSubmission = confirm(apply_warn);
 	if (isFormSubmission == true) {
-		document.getElementById("generate").value = true; 
+		document.getElementById("generate").value = true;
 		$('#ajax-indicator').show();
 		$("#schedule_form").submit();
-		document.getElementById("generate").value = false;			
-	} 
-	
+		document.getElementById("generate").value = false;
+	}
+
 }
 
 
@@ -737,7 +737,7 @@ function showorHide(isshow, divId)
 {
 	if(!isshow)
 	{
-		document.getElementById(divId).style.disabled = true;		
+		document.getElementById(divId).style.disabled = true;
 	}
 	else {
 		document.getElementById(divId).style.disabled = false;
@@ -750,42 +750,42 @@ function sheetViewChange(field)
 	{
 		if(field.value == "I")
 		{
-			showorHide(true, 'spentForLbl', 'spent_for_key'); 
+			showorHide(true, 'spentForLbl', 'spent_for_key');
 			showorHide(true, 'issueLbl', 'issue_id');
 		}
 		else {
-			showorHide(false, 'spentForLbl', 'spent_for_key'); 
+			showorHide(false, 'spentForLbl', 'spent_for_key');
 			showorHide(false, 'issueLbl', 'issue_id');
 		}
 	}
 }
 
 function userChanged(userDropdown, needBlank){
-	
+
 	var userDD = document.getElementById('user_id');
 	var sheetViewDD = document.getElementById('sheet_view');
-	
+
 	if(userDD != null && sheetViewDD != null && sheetViewDD.value == "I")
-	{	
-		
+	{
+
 		var issDropdown = document.getElementById("issue_id");
 		var clientDropdown = document.getElementById("spent_for_key");
 		var issUrl = document.getElementById("getuser_issues_url").value;
 		var clientUrl = document.getElementById("getuser_clients_url").value;
-		var fmt = 'text';	 
+		var fmt = 'text';
 		var uid = document.getElementById("user_id").value;
 		var $this = $(this);
 		$.ajax({
 			url: issUrl,
 			type: 'get',
 			data: {user_id: userDD.value, format:fmt},
-			success: function(data){			
+			success: function(data){
 				updateUserDD(data, issDropdown, userDD.value, needBlank, false,"");
 			},
 			beforeSend: function(){ $this.addClass('ajax-loading'); },
 			complete: function(){ $this.removeClass('ajax-loading'); }
-		});	
-		
+		});
+
 		$.ajax({
 			url: clientUrl,
 			type: 'get',
@@ -818,7 +818,7 @@ function loadSpentFors(id, Dropdown, needBlank, uid)
 	});
 }
 
-function myReportUser(optionID,userID){	
+function myReportUser(optionID,userID){
 	var userDropdown = document.getElementById("user_id");
 	var fmt = 'text';
 	var $this = $(this);
@@ -891,5 +891,5 @@ function profitLossAmount(disposeAmnt)
 		profitLossAmnt = disposeAmnt - currentVal;
 	}
 	profit_loss = currency + " " + profitLossAmnt.toFixed(2);
-	$("#profit_loss").html(profit_loss);	
+	$("#profit_loss").html(profit_loss);
 }

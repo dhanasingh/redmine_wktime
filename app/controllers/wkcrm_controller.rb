@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2020  Adhi software pvt ltd
+# Copyright (C) 2011-2021  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -23,14 +23,14 @@ class WkcrmController < WkbaseController
   include WkcrmHelper
   include WktimeHelper
   accept_api_auth :getActRelatedIds, :getCrmUsers
-  
+
 	def index
-	end 
-	
+	end
+
 	def getActRelatedIds
-		relatedArr = params[:format] == "json" ? [] : ""	
+		relatedArr = params[:format] == "json" ? [] : ""
 		relatedId = nil
-		
+
 		if params[:related_type] == "WkOpportunity"
 			relatedId = WkOpportunity.all.order(:name)
 		elsif params[:related_type] == "WkLead"
@@ -51,7 +51,7 @@ class WkcrmController < WkbaseController
 				relatedId = WkAccount.where("wk_accounts.account_type = '#{params[:account_type]}' or wk_accounts.account_type = '#{hookType[0]}'").order(:name)
 			end
 		end
-		
+
 		respond_to do |format|
 			format.text  {
 				(relatedId || []).each{ |entry| relatedArr << entry.id.to_s() + ',' + (params[:related_type] == "WkLead" ? entry.contact.name : entry.name) + "\n" }
@@ -63,16 +63,16 @@ class WkcrmController < WkbaseController
 			}
 		end
 	end
-	
+
 	def check_perm_and_redirect
 		unless check_permission
 			render_403
 			return false
 		end
 	end
-	
+
 	def check_crm_admin_and_redirect
-	  unless validateERPPermission("A_CRM_PRVLG") 
+	  unless validateERPPermission("A_CRM_PRVLG")
 	    render_403
 	    return false
 	  end
@@ -80,25 +80,25 @@ class WkcrmController < WkbaseController
 
 	def check_permission
 		ret = false
-		return validateERPPermission("B_CRM_PRVLG") || validateERPPermission("A_CRM_PRVLG") 
+		return validateERPPermission("B_CRM_PRVLG") || validateERPPermission("A_CRM_PRVLG")
 	end
-	
+
 	def getContactController
 		'wkcrmcontact'
 	end
-	
+
 	def getAccountType
 		'A'
 	end
-	
+
 	def getContactType
 		'C'
 	end
-	
+
 	def deletePermission
 		validateERPPermission("A_CRM_PRVLG")
 	end
-	
+
 	def additionalContactType
 		true
 	end
@@ -110,7 +110,7 @@ class WkcrmController < WkbaseController
 		grpUser = users.map { |usr| { value: usr[1], label: usr[0] }}
 		render json: grpUser
 	end
-	
+
 	def additionalAccountType
 		true
 	end
@@ -142,7 +142,7 @@ class WkcrmController < WkbaseController
 	def contactSave
 		errorMsg = nil
 		if params[:contact_id].blank?
-			wkContact = WkCrmContact.new 
+			wkContact = WkCrmContact.new
 		else
 			wkContact = WkCrmContact.find(params[:contact_id].to_i)
 		end
@@ -171,7 +171,7 @@ class WkcrmController < WkbaseController
 		end
 		wkContact
 	end
-	
+
 	def convert
 		@lead = nil
 		errorMsg = nil
@@ -189,8 +189,8 @@ class WkcrmController < WkbaseController
 		end
 		@lead.save
 		convertToAccount unless @account.blank?
-		convertToContact		
-		
+		convertToContact
+
 		unless @account.blank?
 			controllerName = hookType.blank? ? 'wkcrmaccount' : hookType[0][1]
 			flash[:notice] = l(:notice_successful_convert)
@@ -203,31 +203,31 @@ class WkcrmController < WkbaseController
 				flash[:error] = @lead.errors.full_messages.join("<br>")
 				controllerName = 'wklead'
 			end
-			
+
 		    redirect_to controller: controllerName, action: 'edit', contact_id: @contact.id, lead_id: @lead.id, rm_resident_id: hookType[0][2]
 		end
 	end
-	
+
 	def convertToAccount
 		# @account.account_type = 'A'
 		@account.updated_by_user_id = User.current.id
 		address = nil
 		unless @contact.address.blank?
-			address = copyAddress(@contact.address) 
+			address = copyAddress(@contact.address)
 			@account.address_id = address.id
 		end
 		@account.save
 	end
-	
+
 	def convertToContact #(contactType)
-		@contact.updated_by_user_id = User.current.id		
+		@contact.updated_by_user_id = User.current.id
 		#@contact.contact_type = contactType
 		unless @account.blank?
 			@contact.account_id = @account.id
 		end
 		@contact.save
 	end
-	
+
 	def copyAddress(source)
 		target = WkAddress.new
 		target = source.dup
@@ -235,4 +235,7 @@ class WkcrmController < WkbaseController
 		target
 	end
 
+	def is_referral
+		false
+	end
 end

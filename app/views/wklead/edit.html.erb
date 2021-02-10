@@ -1,6 +1,6 @@
-<%= form_tag({:controller => 'wklead', :action => 'update'}, :method => :post, :id => 'query_form') do %>
-	<h2><b><%=@lead.blank? ? l(:label_new_item, l(:label_lead)) : l(:label_edit_item, l(:label_lead)) %></b></h2>
-	
+<%= form_tag({:action => 'update'}, :method => :post, :id => 'query_form') do %>
+	<h2><b><%=@lead.blank? ? l(:label_new_item, controller.edit_label) : l(:label_edit_item, controller.edit_label) %></b></h2>
+
 	<div id="account_form">
 			<% addrObj = @lead.blank? ? nil : @lead.contact.address %>
 			<%=h hidden_field_tag('lead_id', @lead.blank? ? "" :@lead.id) %>
@@ -8,8 +8,9 @@
 			<%=h hidden_field_tag('address_id', addrObj.blank? ? "" :addrObj.id) %>
 			<div class="splitcontent">
 				<div class="splitcontentleft">
-					<%= render partial: "lead_info", locals: {  contactObj:  @lead.blank? ? nil : @lead.contact, leadObj: @lead, accountObj: @lead.blank? ? nil : @lead.account, addressObj: addrObj, isAccount: false, isContact: false }%>
-					<%= render partial: "other_info"%>
+					<%= render partial: "lead_info", locals: {  contactObj:  @lead.blank? ? nil : @lead.contact, leadObj: @lead,
+						accountObj: @lead.blank? ? nil : @lead.account, addressObj: addrObj, isAccount: false, isContact: false }%>
+					<%= render partial: "other_info" %>
 				</div>
 				<div class="splitcontentright">
 					<%= render partial: "contact_info", locals: { address: addrObj, :disable => false, showMap: true }%>
@@ -18,14 +19,14 @@
 		<div style="clear:left;"></div>
 		<div>
 			<%= submit_tag l(:button_save) ,:id => 'wklead_save'%>
-			<% unless @lead.blank? %>	
-				<%= call_hook(:view_additional_lead_info, { moveInObj: @lead }) %>	
-				<%= submit_tag l(:button_convert_lead), :id => 'wklead_save_convert', :name => 'wklead_save_convert' , :disabled => @lead.blank?, :data => {:confirm => l(:text_are_you_sure_want_to, l(:button_convert_lead))} %>
-				<div style="clear:both;"></div>
-				</br>
-				<div>
-					<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @lead }%>
-				</div>
+			<% unless @lead.blank? %>
+				<% if !controller.is_referral %>
+					<%= call_hook(:view_additional_lead_info, { moveInObj: @lead }) %>
+					<%= submit_tag l(:button_convert_lead), :id => 'wklead_save_convert', :name => 'wklead_save_convert' ,
+						:disabled => @lead.blank?, :data => {:confirm => l(:text_are_you_sure_want_to, l(:button_convert_lead))} %>
+					<div style="clear:both;"></div><br/>
+				<% end %>
+				<div><%= render partial: "wkcrm/accordion_section", locals: { currentObj: @lead }%></div>
 			<% end %>
 		</div>
 	</div>

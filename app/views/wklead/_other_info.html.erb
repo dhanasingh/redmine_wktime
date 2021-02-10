@@ -1,26 +1,41 @@
 <fieldset class="box tabular">
 	<legend><%=l(:label_content_information, l(:label_more))%></legend>
-	<table>
+	<table style="text-align: left">
 		<tr>
-			 <th align="left"><%= l(:field_status) %></th>
-			 <td align="left" style="padding-left:75px;"><%=h select_tag('status', options_for_select(getLeadStatusArr, :selected => @lead.blank? ? "" : @lead.status),:required => true) %></td>
+			<th align="left"><%= l(:field_status) %></th>
+			<td align="left" style="padding-left:75px;"><%=h select_tag('status', options_for_select(getLeadStatusArr, :selected => @lead.blank? ? "" : @lead.status),:required => true) %></td>
 		</tr>
-		<%  selectedLsId = @lead.blank? ? nil : @lead.lead_source_id %>
+		<% is_referral = controller.is_referral %>
+		<% if !is_referral %>
+			<% selectedLsId = @lead.blank? ? nil : @lead.lead_source_id %>
+			<tr>
+				<th align="left"><%= l(:label_lead_source) %></th>
+				<td align="left" style="padding-left:75px;"><%=h select_tag('lead_source_id', options_for_select(options_for_enum_select('LS', selectedLsId, true)),:required => true) %></td>
+			</tr>
+		<% end %>
 		<tr>
-			 <th align="left"><%= l(:label_lead_source) %></th>
-			 <td align="left" style="padding-left:75px;"><%=h select_tag('lead_source_id', options_for_select(options_for_enum_select('LS', selectedLsId, true)),:required => true) %></td>
+			<th align="left"><%= l(is_referral ? "label_expected_amount" : "label_opportunity_amount") %></th>
+			<td align="left" style="padding-left:75px;"><%=h text_field_tag("opportunity_amount",@lead.blank?  ? "" : @lead.opportunity_amount,:size =>40) %> </td>
 		</tr>
 		<tr>
-			 <th align="left"><%= l(:label_opportunity_amount) %></th>
-			 <td align="left" style="padding-left:75px;"><%=h text_field_tag("opportunity_amount",@lead.blank?  ? "" : @lead.opportunity_amount,:size =>40) %> </td>
+			<th align="left"><%= l(:label_referred_by) %></th>
+			<% if !is_referral %>
+			 	<td align="left" style="padding-left:75px;"><%=h text_field_tag("referred_by",@lead.blank?  ? "" : @lead.referred_by,:size =>40) %> </td>
+			<% else %>
+			 	<td align="left" style="padding-left:75px;">
+					<%= select_tag('referred_by', options_for_select(get_all_users, selected: @lead&.referred_by)) %></td>
+			<% end %>
 		</tr>
 		<tr>
-			 <th align="left"><%= l(:label_referred_by) %></th>
-			 <td align="left" style="padding-left:75px;"><%=h text_field_tag("referred_by",@lead.blank?  ? "" : @lead.referred_by,:size =>40) %> </td>
+			<th align="left"><%= l(:field_assigned_to) %></th>
+			<td align="left" style="padding-left:75px;">
+				<%=h select_tag('assigned_user_id',
+					options_for_select(groupOfUsers, :selected => @lead.blank? || @lead.contact.blank? ? "" : @lead.contact.assigned_user_id),
+					:required => true) %>
+			</td>
 		</tr>
-		<tr>
-			 <th align="left"><%= l(:field_assigned_to) %></th>
-			 <td align="left" style="padding-left:75px;"><%=h select_tag('assigned_user_id', options_for_select(groupOfUsers, :selected => @lead.blank? || @lead.contact.blank? ? "" : @lead.contact.assigned_user_id),:required => true) %></td>
-		</tr>
+		<% if controller.is_referral %>
+			<%= render partial: "referral_info", locals: {candidate: @lead&.candidate} %>
+		<% end %>
 	</table>
 </fieldset>

@@ -1,0 +1,13 @@
+<%= title l(:label_referrals) %>
+<%= render partial: "wkattendance/render_hr_tabs" %>
+
+<div class="contextual">
+  <%= link_to l(:label_new_referral), url_for(action: "edit"), class: "icon icon-add" %>
+</div>
+<div style="clear: both;" ></div>
+
+<% if @entries.present? %>
+  <%= render partial: "wklead/lead_list", locals: { entries: @entries } %>
+<% else %>
+	<p style="clear:both" class="nodata">No data to display</p>
+<% end %>

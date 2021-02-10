@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2020 Adhi software pvt ltd
+# Copyright (C) 2011-2021 Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -41,31 +41,31 @@ class WkcrmactivityController < WkcrmController
 
 		actType = session[controller_name].try(:[], :activity_type)
 		relatedTo = session[controller_name].try(:[], :related_to)
-	   		
+
 		if !@from.blank? && !@to.blank?
 			crmactivity = crmactivity.where(:start_date => getFromDateTime(@from) .. getToDateTime(@to))
 		end
-		
+
 		if (!actType.blank?) && (relatedTo.blank?)
 			crmactivity = crmactivity.where(:activity_type => actType)
 		end
-		
+
 		if (actType.blank?) && (!relatedTo.blank?)
 			crmactivity = crmactivity.where(:parent_type => relatedTo)
 		end
-		
+
 		if (!actType.blank?) && (!relatedTo.blank?)
 			crmactivity = crmactivity.where(:activity_type => actType, :parent_type => relatedTo)
 		end
 		formPagination(crmactivity.reorder(sort_clause))
 		respond_to do |format|
-			format.html {        
+			format.html {
 				render :layout => !request.xhr?
 			}
 			format.api
 		end
 	end
-  
+
   def edit
 		@activityEntry = nil
 		unless params[:activity_id].blank?
@@ -75,14 +75,14 @@ class WkcrmactivityController < WkcrmController
 		if !$tempActivity.blank?  && isError
 			@activityEntry = $tempActivity
 			respond_to do |format|
-				format.html {        
+				format.html {
 					render :layout => !request.xhr?
 				}
 				format.api
 			end
 		end
   end
-  
+
   def update
 		errorMsg = nil
 		crmActivity = nil
@@ -95,17 +95,17 @@ class WkcrmactivityController < WkcrmController
 			crmActivity.created_by_user_id = User.current.id
 		end
 		crmActivity.name = params[:activity_subject]
-		crmActivity.status =  params[:activity_type] == 'C' || params[:activity_type] == 'M' ? params[:activity_status] : params[:task_status]
+		crmActivity.status =  ["C", "M", "I"].include?(params[:activity_type]) ? params[:activity_status] : params[:task_status]
 		crmActivity.description = params[:activity_description]
 		crmActivity.start_date = Time.parse("#{params[:activity_start_date].to_s} #{ params[:start_hour].to_s}:#{params[:start_min]}:00 ").localtime.to_s
-		crmActivity.end_date = Time.parse("#{params[:activity_end_date].to_s} #{ params[:end_hour].to_s}:#{params[:end_min]}:00 ").localtime.to_s if params[:activity_type] != 'C'
-		
+		crmActivity.end_date = Time.parse("#{params[:activity_end_date].to_s} #{ params[:end_hour].to_s}:#{params[:end_min]}:00 ").localtime.to_s if !["C", "I"].include?(params[:activity_type])
+
 		crmActivity.activity_type = params[:activity_type]
 		crmActivity.direction = params[:activity_direction] if params[:activity_type] == 'C'
 		durhr = params[:activity_duration].blank? ? "00" : params[:activity_duration]
 		durmin = params[:activity_duration_min] == 0 ? "00" : params[:activity_duration_min]
 		duration = "#{durhr}:#{durmin}:00".split(':').map { |a| a.to_i }.inject(0) { |a, b| a * 60 + b}
-		crmActivity.duration = duration 
+		crmActivity.duration = duration
 		crmActivity.location = params[:location]  if params[:activity_type] == 'M'
 		crmActivity.assigned_user_id = params[:assigned_user_id]
 		crmActivity.parent_id = params[:related_parent]
@@ -118,9 +118,9 @@ class WkcrmactivityController < WkcrmController
 		@tempCrmActivity << crmActivity
 			$tempActivity = @tempCrmActivity
 			errorMsg = crmActivity.errors.full_messages.join("<br>")
-		else			
+		else
 			crmActivity.save()
-			$tempActivity = nil 
+			$tempActivity = nil
 		end
 
 		respond_to do |format|
@@ -133,24 +133,24 @@ class WkcrmactivityController < WkcrmController
 					else
 						redirect_to :controller => 'wkcrmactivity',:action => 'index' , :tab => 'wkcrmactivity'
 					end
-					$tempActivity = nil			
+					$tempActivity = nil
 					flash[:notice] = l(:notice_successful_update)
 				else
-					flash[:error] = errorMsg 
+					flash[:error] = errorMsg
 					redirect_to :controller => 'wkcrmactivity',:action => 'edit', :isError => true
 				end
 			}
 			format.api{
 				if errorMsg.blank?
 					render :plain => errorMsg, :layout => nil
-				else			
-					@error_messages = errorMsg.split('\n')	
+				else
+					@error_messages = errorMsg.split('\n')
 					render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
 				end
 			}
-		end	
+		end
   end
-  
+
   def destroy
 		parentId = WkCrmActivity.find(params[:activity_id].to_i).parent_id
 		trans = WkCrmActivity.find(params[:activity_id].to_i).destroy
@@ -164,7 +164,7 @@ class WkcrmactivityController < WkcrmController
 			redirect_back_or_default :action => 'index', :tab => params[:tab]
 		end
   end
-	
+
 	def set_filter_session
 		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
 		if params[:searchlist] == controller_name || api_request?
@@ -178,14 +178,14 @@ class WkcrmactivityController < WkcrmController
 			end
 		end
     end
-   
+
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
 		@activity = entries.limit(@limit).offset(@offset)
 	end
-	
-	def setLimitAndOffset		
+
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -198,6 +198,6 @@ class WkcrmactivityController < WkcrmController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
+		end
 	end
 end

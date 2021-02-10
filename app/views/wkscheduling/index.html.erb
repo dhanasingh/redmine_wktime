@@ -1,19 +1,6 @@
 <%= title l(:label_scheduling) %>
-<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-<script type="text/javascript">
-   wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "leave")%>';
-   wkleavereqUrl = '<%=url_for(:controller => "wkleaverequest", :action => "index", :tab => "wkleaverequest")%>';
-   clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>';
-   payrollUrl = '<%=url_for(:controller => "wkpayroll", :action => "index", :tab => "payroll")%>';
-   wkSchedulingUrl = '<%=url_for(:controller => "wkscheduling", :action => "index", :tab => "wkscheduling")%>';
-   wkPublicHolidayUrl = '<%=url_for(:controller => "wkpublicholiday", :action => "index", :tab => "wkpublicholiday")%>';
-   wkSurveyUrl = '<%=url_for(:controller => "wksurvey", :action => "user_survey", :tab => "wksurvey", :surveyForType => 'User')%>';
-   wkskillUrl = '<%=url_for(:controller => "wkskill", :action => "index", :tab => "wkskill")%>';
-   apply_warn = '<%=l(:warning_schedule_shifts) %>';
-</script>
+<%= render partial: "wkattendance/render_hr_tabs" %>
 
-<%= render_tabs time_expense_tabs %>
 <%=h hidden_field_tag('tab', "#{controller_name}") %>
 
 <div class="wk-contextual">

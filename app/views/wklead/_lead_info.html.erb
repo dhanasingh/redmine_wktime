@@ -1,15 +1,16 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<script type="text/javascript"> 
+<script type="text/javascript">
 	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds', :additionalContactType => controller.additionalContactType, :additionalAccountType => controller.additionalAccountType)}" %>";
 </script>
 <fieldset class="box tabular">
-	<legend><%=l(:label_content_information, isAccount ? controller.getAccountLbl : l(:label_lead))%></legend>
-	<%	
+	<legend><%=l(:label_content_information, isAccount ? controller.getAccountLbl : controller.edit_label)%></legend>
+	<%
+		is_referral = controller.is_referral
 		contactType = controller.getContactType
 		accountType = controller.getAccountType
 		accArr = options_for_wktime_account(true, accountType, controller.additionalAccountType)
 		parentId = nil
-		relateTo = "WkAccount" 
+		relateTo = "WkAccount"
 		type = accountType
 		unless contactObj.blank?
 			parentId = contactObj.account_id
@@ -18,11 +19,11 @@
 				relateTo = "WkCrmContact"
 				type = contactType
 			end
-			accArr = relatedValues(relateTo, parentId, type, true, controller.additionalContactType, controller.additionalAccountType)	
+			accArr = relatedValues(relateTo, parentId, type, true, controller.additionalContactType, controller.additionalAccountType)
 		else
 			if !params[:parentType].blank?
 				type = params[:parentType] == "WkAccount" ? accountType : contactType
-				accArr = relatedValues(params[:parentType], params[:parentId], type, true, controller.additionalContactType, controller.additionalAccountType)		
+				accArr = relatedValues(params[:parentType], params[:parentId], type, true, controller.additionalContactType, controller.additionalAccountType)
 			end
 		end
 		relHash = relatedHash
@@ -32,7 +33,7 @@
 	<table width="100%">
 		<% accountName = "" %>
 		<% unless isAccount %>
-			<tr>				
+			<tr>
 				<th align="left"><%= l(:field_firstname) %></th>
 				<td align="left" style="padding-left:40px;"><%=h select_tag('salutation', options_for_select(salutationHash.invert, :selected => contactObj.blank? ? "" : contactObj.salutation), :style=> "float: left;") %>&nbsp;
 				<%=h text_field_tag("first_name",contactObj.blank? ? "" : contactObj.first_name,:size => 20) %> </td>
@@ -57,42 +58,42 @@
 		<tr>
 			<% if isAccount %>
 				<th align="left"><%= controller.getAccountLbl %><span style="color:red;">*</span></th>
-			<% elsif !isContact %>
+			<% elsif !isContact && !is_referral %>
 				<th align="left"><%= controller.getAccountLbl %></th>
 			<% end %>
-						
-			<% if isContact %>	
+
+			<% if isContact %>
 				<tr>
 					<th align="left" ><%= l(:label_related_to) %></th>
 					<td align="left" style="padding-left:40px;"><%=h select_tag("related_to", options_for_select(relHash.invert, :selected => (!contactObj.blank? ? relateTo : (params[:parentType].blank? ? "" : params[:parentType]))), :onchange => "actRelatedDd(#{User.current.id}, false, true, '#{accountType}', '#{contactType}', false)", :style => "width:20%;") %>
-					
+
 					<%=h select_tag("related_parent", options_for_select(accArr, :selected => (!contactObj.blank? ? parentId : (params[:parentId].blank? ? "" : params[:parentId]))), :style => "width:30%;") %>
 					<b><%= l(:label_as) %></b>
 					<%=h select_tag('relationship_id', options_for_select(options_for_enum_select('CR', (!contactObj.blank? ? contactObj.relationship_id : nil), true)), :style => "width:30%;") %>
-					</td> 
-					
+					</td>
+
 				</tr>
-			<% else %>	
-				<td align="left" style="padding-left:40px;"><%=h text_field_tag("account_name", accountName,:size => 20) %> </td>
-			<% end %>			
+			<% elsif !is_referral %>
+				<td align="left" style="padding-left:40px;"><%=h text_field_tag("account_name", accountName,:size => 20) %></td>
+			<% end %>
 		</tr>
 		<tr>
 			<th align="left"><%= l(:label_location) %></th>
 			<td align="left" style="padding-left:40px;">
 				<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, false)) %>
 			</td>
-		</tr> 
+		</tr>
 		<% if isContact %>
 			<tr>
 				<th align="left"><%= l(:field_title) %></th>
-				<td align="left" style="padding-left:40px;"><%=h text_field_tag("contact_title", contactObj.blank? ? "" : contactObj.title,:size => 20) %> 
+				<td align="left" style="padding-left:40px;"><%=h text_field_tag("contact_title", contactObj.blank? ? "" : contactObj.title,:size => 20) %>
 			</tr>
 			<tr>
 				<th align="left" ><%= l(:field_assigned_to) %></th>
 				<td align="left" style="padding-left:40px;"><%=h select_tag('assigned_user_id', 						options_for_select(groupOfUsers, :selected => contactObj.blank? ? "" : contactObj.assigned_user_id),:required => true) %></td>
 			</tr>
 		<% end %>
-		<% if isAccount %>	
+		<% if isAccount %>
 			<%  selectedAcId = accountObj.blank? ? nil : accountObj.account_category %>
 			<tr>
 				<th align="left"><%= l(:label_account_category) %></th>

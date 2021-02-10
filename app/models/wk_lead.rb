@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2020  Adhi software pvt ltd
+# Copyright (C) 2011-2021  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -22,18 +22,26 @@ class WkLead < ActiveRecord::Base
   belongs_to :created_by_user, :class_name => 'User'
   belongs_to :address, :class_name => 'WkAddress'
   belongs_to :contact, :class_name => 'WkCrmContact', :dependent => :destroy
-  before_save :update_status_update_on 
+  before_save :update_status_update_on
   after_create_commit :send_notification
   after_save :lead_notification
-  
+  has_one :candidate, class_name: "WkCandidate", foreign_key: "lead_id", dependent: :destroy
+  accepts_nested_attributes_for :candidate, allow_destroy: true
+
+  def self.referrals
+    WkLead.joins("RIGHT JOIN wk_crm_contacts ON wk_crm_contacts.id = wk_leads.contact_id").
+    where("wk_crm_contacts.contact_type": "RF").
+    order("wk_crm_contacts.updated_at desc")
+  end
+
   def update_status_update_on
-	self.status_update_on = DateTime.now if status_changed?
+	  self.status_update_on = DateTime.now if status_changed?
   end
-  
+
   def name
-	contact.name unless contact.blank?
+	  contact.name unless contact.blank?
   end
-  
+
   def lead_notification
     if status? && status == "C" && WkNotification.notify('leadConverted')
       emailNotes = "Lead : " + (self.account ? self.account.name : self.contact.name) + " has been converted " + "\n\n" + l(:label_redmine_administrator)
