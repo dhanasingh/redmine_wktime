@@ -19,6 +19,7 @@ class WksurveyController < WkbaseController
 
   unloadable
   before_action :require_login, :survey_url_validation, :check_perm_and_redirect
+  before_action :check_permission , only: "survey_response"
   accept_api_auth :index, :save_survey, :find_survey_for, :survey, :update_survey, :survey_result
   menu_item :wksurvey
   menu_item :wkattendance, :only => :save_survey
@@ -99,6 +100,7 @@ class WksurveyController < WkbaseController
         survey.is_review = params[:review].blank? ? false : params[:review]
         survey.survey_for_id = params[:survey_for_id].blank? ? nil : params[:survey_for_id]
         survey.save_allowed = params[:save_allowed] || false
+        survey.hide_response = params[:hide_response] || false
 
         params.each do |ele_nameVal|
           #Question Array
@@ -630,5 +632,9 @@ class WksurveyController < WkbaseController
 
   def print_survey
     survey
+  end
+
+  def check_permission
+    render_404 if @survey.blank? || @survey.hide_response
   end
 end
