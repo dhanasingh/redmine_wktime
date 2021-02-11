@@ -42,15 +42,8 @@
 			</div>
 			<div style="clear:both;"></div>
 			<div class="box" style="width:100%">
-				<%= hidden_field_tag("container_type", "WkLocation") %>
-				<h3><%= l(:label_attachment) %></h3>
-				<% if !@locEntry.blank? && @locEntry.attachments.any? %>
-					<%= attachments_links @locEntry, deletable: true %>
-				<% end %>
-				<fieldset>
-					<legend><%=l(:label_attachment_plural)%></legend>
-					<%= render :partial => 'attachments/form' %>
-				</fieldset>
+  			<%= hidden_field_tag("container_type", "WkLocation") %>
+				<%= render partial: "wkdocument/attachment_form", locals: { attachment: @locEntry } %>
 			</div>
 		</div>
 	</div>

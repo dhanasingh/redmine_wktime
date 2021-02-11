@@ -174,7 +174,9 @@ class WkgltransactionController < WkaccountingController
 						errorMsg = errorMsg.blank? ? wktxnDetail.errors.full_messages.join("<br>") : wktxnDetail.errors.full_messages.join("<br>") + "<br/>" + errorMsg
 					else
 						if i == 1 
-							wkgltransaction.save() 
+							wkgltransaction.save()
+							#for attachment save
+							errorMsg = save_attachments(wkgltransaction.id) if params[:attachments].present?
 						end
 						wktxnDetail.gl_transaction_id = wkgltransaction.id
 						wktxnDetail.save() unless wktxnDetail.amount.blank?

@@ -77,8 +77,8 @@ class WklocationController < WkbaseController
 			addrId = updateAddress
 			locationObj.address_id = addrId if addrId.present?
 			locationObj.save
-			params[:container_id] = locationObj.id
-			errorMsg = save_attachments() if params[:attachments].present?
+			#for attachment save
+			errorMsg = save_attachments(locationObj.id) if params[:attachments].present?
 		end
 		if errorMsg.blank?
 		    redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name

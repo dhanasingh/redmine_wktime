@@ -131,16 +131,10 @@ menu_item :wkinvoice
 		if errorMsg.blank?
 			wkContract.contract_number = getPluginSetting('wktime_contract_no_prefix') + wkContract.id.to_s
 			wkContract.save
+			#for attachment save
+			errorMsg = save_attachments(wkContract.id) if params[:attachments].present?
 			#for mail notification
 			WkContract.send_notification(wkContract)
-			params[:attachments].each do |attachment_param|
-				attachment = Attachment.where('filename = ?', attachment_param[1][:filename]).first
-				unless attachment.nil?
-				  attachment.container_type = WkContract.name
-				  attachment.container_id = wkContract.id
-				  attachment.save
-				end
-			end
 			redirect_to :controller => 'wkcontract',:action => 'index' , :tab => 'wkcontract'
 		    flash[:notice] = l(:notice_successful_update)
 		else

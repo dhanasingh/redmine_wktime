@@ -22,7 +22,10 @@ class WkGlTransaction < ActiveRecord::Base
   has_many :gl_salaries, foreign_key: "gl_transaction_id", class_name: "WkGlSalary", :dependent => :destroy
   has_many :depreciations, foreign_key: "gl_transaction_id", class_name: "WkAssetDepreciation", :dependent => :nullify
   validates_presence_of :trans_date
-  
+  acts_as_attachable :view_permission => :view_files,
+                    :edit_permission => :manage_files,
+                    :delete_permission => :manage_files
+                    
   def trans_date=(date)
     super
     self.tyear = trans_date ? trans_date.cwyear : nil

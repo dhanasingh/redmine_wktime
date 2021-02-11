@@ -74,13 +74,13 @@ module WkdocumentHelper
     end
   end
 
-  def save_attachments
+  def save_attachments(container_id=params[:container_id])
     errMsg = ""
     params[:attachments].each do |atch_param|
     attachment = Attachment.find_by_token(atch_param[1][:token])
     next if attachment.blank?
       attachment.container_type = params[:container_type]
-      attachment.container_id = params[:container_id]
+      attachment.container_id = container_id
       attachment.filename = attachment.filename
       attachment.description = atch_param[1][:description]
       attachment.save

@@ -163,6 +163,10 @@ transrowMsg =  "<%= l(:label_trans_row_validmsg)  %>";
 		<td style="width:8%;"></td>
 	</tr>
 	</table>
+	<div class="box" style="width:100%">
+		<%= hidden_field_tag("container_type", "WkGlTransaction") %>
+		<%= render partial: "wkdocument/attachment_form", locals: { attachment: @transEntry } %>
+	</div>
 	<%=h hidden_field_tag("txntotalrow",  row_index-1 )  %>
 	<%= submit_tag l(:button_save), :class => "small", :name => nil %>
     <%= submit_tag l(:button_save_continue), :id => 'gltransaction_save_continue', :name => 'gltransaction_save_continue' %>

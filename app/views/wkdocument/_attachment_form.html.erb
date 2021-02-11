@@ -1,0 +1,8 @@
+  <h3><%= l(:label_attachment) %></h3>
+  <% if !attachment.blank? && attachment.attachments.any? %>
+    <%= attachments_links attachment, editable: true, deletable: true %>
+  <% end %>
+  <fieldset>
+    <legend><%=l(:label_attachment_plural)%></legend>
+    <%= render :partial => 'attachments/form' %>
+  </fieldset>
