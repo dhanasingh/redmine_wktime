@@ -1,20 +1,26 @@
+require_dependency '../app/helpers/wkdocument_helper'
 module UsersControllerPatch
 	def self.included(base)
 		base.class_eval do
-		
+			helper :attachments
+			helper WkdocumentHelper
+			include WkdocumentHelper
+
 			def create
 				@user = User.new(:language => Setting.default_language, :mail_notification => Setting.default_notification_option, :admin => false)
 				@user.safe_attributes = params[:user]
 				@user.password, @user.password_confirmation = params[:user][:password], params[:user][:password_confirmation] unless @user.auth_source_id
 				@user.pref.safe_attributes = params[:pref]
-				
+
 				if @user.save
 					Mailer.deliver_account_information(@user, @user.password) if params[:send_information]
-		
-					# ============= ERPmine_patch Redmine 4.1.1  =====================	
-									#Below code for save wk users
-									erpmineUserSave
-					# =======================================				
+
+					# ============= ERPmine_patch Redmine 4.1.1  =====================
+						#Below code for save wk users
+						erpmineUserSave
+						#for attachment save
+						errorMsg = save_attachments(@user.id, params[:attachments], params[:container_type]) if params[:attachments].present?
+					# =======================================
 					respond_to do |format|
 						format.html {
 							flash[:notice] = l(:notice_user_successful_create, :id => view_context.link_to(@user.login, user_path(@user)))
@@ -38,7 +44,7 @@ module UsersControllerPatch
 					end
 				end
 			end
-			
+
 			def update
 				if params[:user][:password].present? && (@user.auth_source_id.nil? || params[:user][:auth_source_id].blank?)
 					@user.password, @user.password_confirmation = params[:user][:password], params[:user][:password_confirmation]
@@ -48,14 +54,16 @@ module UsersControllerPatch
 				was_activated = (@user.status_change == [User::STATUS_REGISTERED, User::STATUS_ACTIVE])
 				# TODO: Similar to My#account
 				@user.pref.safe_attributes = params[:pref]
-				
+
 				if @user.save
 					@user.pref.save
-					
+
 				# ============= ERPmine_patch Redmine 4.1.1  =====================
-								#Below code for save wk users
-								erpmineUserSave
-				# ==============================				
+					#Below code for save wk users
+					erpmineUserSave
+					#for attachment save
+						errorMsg = save_attachments(@user.id, params[:attachments], params[:container_type]) if params[:attachments].present?
+				# ==============================
 					if was_activated
 						Mailer.deliver_account_activated(@user)
 					elsif @user.active? && params[:send_information] && @user != User.current
@@ -79,9 +87,9 @@ module UsersControllerPatch
 						format.html { render :action => :edit }
 						format.api  { render_validation_errors(@user) }
 					end
-				end				
+				end
 			end
-	
+
 	# ============= ERPmine_patch Redmine 4.1.1  =====================
 			def erpmineUserSave
 				@user.erpmineuser.safe_attributes = params[:erpmineuser]
@@ -92,12 +100,12 @@ module UsersControllerPatch
 				@user.erpmineuser.updated_by_user_id = User.current.id
 				@user.erpmineuser.save
 			end
-			
+
 			def updateAddress
 				wkAddress = nil
 				addressId = nil
 				if params[:address_id].blank? || params[:address_id].to_i == 0
-					wkAddress = WkAddress.new 
+					wkAddress = WkAddress.new
 				else
 					wkAddress = WkAddress.find(params[:address_id].to_i)
 				end
@@ -117,10 +125,10 @@ module UsersControllerPatch
 				if wkAddress.valid?
 					wkAddress.save
 					addressId = wkAddress.id
-				end		
+				end
 				addressId
 			end
-	# ===============================================		
+	# ===============================================
 		end
 	end
 end

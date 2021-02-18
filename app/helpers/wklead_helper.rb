@@ -23,14 +23,14 @@ include WkinvoiceHelper
 include WkcrmenumerationHelper
 
 	def getLeadStatusArr
-		[
-			[l(:label_new),'N'],
-			[l(:label_assigned),'A'],
-			[l(:label_in_process),'IP'],
-			[l(:label_converted),'C'],
-			[l(:label_recycled),'RC'],
-			[l(:label_dead),'D']
-		]
+		{
+			"N" => l(:label_new),
+			"A" => l(:label_assigned),
+			"IP" => l(:label_in_process),
+			"C" => l(:label_converted),
+			"RC" => l(:label_recycled),
+			"D" => l(:label_dead)
+		}
 	end
 
 	def getFormComponent(fieldName, fieldValue, compSize, isShow)
@@ -56,14 +56,14 @@ include WkcrmenumerationHelper
 			wkLead = WkLead.new
 			wkContact = WkCrmContact.new
 		else
-		    wkLead = WkLead.find(params[:lead_id].to_i)
+		  wkLead = WkLead.find(params[:lead_id].to_i)
 			wkContact = wkLead.contact
 		end
 		# For Lead table
 		wkLead.status = params[:status].blank? ? 'N' : params[:status]
 		wkLead.opportunity_amount = params[:opportunity_amount]
 		wkLead.lead_source_id = params[:lead_source_id]
-		wkLead.referred_by = params[:referred_by]
+		wkLead.referred_by = (!is_referral || validateERPPermission("A_REFERRAL")) ? params[:referred_by] : User.current.id
 		wkLead.created_by_user_id = User.current.id if wkLead.new_record?
 		wkLead.updated_by_user_id = User.current.id
 		wkLead.candidate_attributes = candidate_params(params[:candidate_attributes]) if is_referral
@@ -79,7 +79,7 @@ include WkcrmenumerationHelper
 		wkContact.location_id = params[:location_id] if params[:location_id] != "0"
 		wkContact.created_by_user_id = User.current.id if wkContact.new_record?
 		wkContact.updated_by_user_id = User.current.id
-		wkContact.contact_type = "RF" if is_referral
+		wkContact.contact_type = "IC" if is_referral
 		if wkContact.valid?
 			addrId = updateAddress
 			unless addrId.blank?

@@ -1190,7 +1190,7 @@ fr:
   label_rating: Rating
   label_last_used: Last Used
   label_years_of_exp: Years of Experience
-  ADMIN SKILL SET: Admin Skill Set Privilege
+  ADMIN SKILL SET PRIVILEGE: Admin Skill Set Privilege
   label_hide_response: Annonymous Response
   label_referrals: Referrals
   label_referral: Referral
@@ -1206,3 +1206,6 @@ fr:
   label_hire: Hire
   label_not_hire: Not Hire
   label_none: None
+  ADMIN REFERRAL PRIVILEGE: Admin Referral Privilege
+  label_general: General
+  label_hiring_employees: Hiring Employees

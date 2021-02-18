@@ -40,7 +40,7 @@ class WkleadController < WkcrmController
 		entries = WkLead.joins("LEFT JOIN users AS U ON wk_leads.created_by_user_id = U.id
 			LEFT JOIN wk_accounts AS A on wk_leads.account_id = A.id
 			LEFT JOIN wk_crm_contacts AS C on wk_leads.contact_id = C.id
-			LEFT JOIN wk_locations AS L on C.location_id = L.id").where.not("wk_crm_contacts.contact_type": "RF")
+			LEFT JOIN wk_locations AS L on C.location_id = L.id").where.not("wk_crm_contacts.contact_type": "IC")
 
 		if !leadName.blank? && !status.blank?
 		    entries = entries.where(:status => status).joins(:contact).where("LOWER(C.first_name) like LOWER(?) OR LOWER(C.last_name) like LOWER(?)", "%#{leadName}%", "%#{leadName}%")
@@ -161,8 +161,4 @@ class WkleadController < WkcrmController
 		grpUser = users.map { |usr| { value: usr[1], label: usr[0] }}
 		render json: grpUser
 	end
-
-  def edit_label
-    l(:label_lead)
-  end
 end

@@ -717,6 +717,10 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 
 	get 'wkreferrals/edit', to: 'wkreferrals#edit'
 
-	post 'wkreferrals/save', to: 'wkreferrals#save'
+	post 'wkreferrals/update', to: 'wkreferrals#update'
 
 	delete 'wkreferrals/destroy', to: 'wkreferrals#destroy'
+
+	get 'wkreferrals/convert', to: 'wkreferrals#convert'
+
+	get 'wkreferrals/getEmpDetails', to: 'wkreferrals#getEmpDetails'

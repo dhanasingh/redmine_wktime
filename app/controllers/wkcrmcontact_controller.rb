@@ -27,8 +27,4 @@ class WkcrmcontactController < WkcontactController
 	def lblNewContact
 		l(:label_new_item, l(:label_contact))
 	end
-
-  def edit_label
-    l(:label_lead)
-  end
 end

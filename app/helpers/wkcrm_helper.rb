@@ -69,7 +69,7 @@ include WkdocumentHelper
 		}
 	end
 
-    def directionHash
+  def directionHash
 		directionStatus = {
 			"I" => l(:label_inbound),
 			"O" => l(:label_outbound)
@@ -179,13 +179,16 @@ include WkdocumentHelper
 		salType
 	end
 
-	def relatedValues(relatedType, parentId, type, needBlank, isContactType, isAccountType)
+	def relatedValues(relatedType, parentId, type, needBlank, isContactType, isAccountType, activity_type=nil)
 		relatedArr = Array.new
 		relatedId = nil
 		if relatedType == "WkOpportunity"
 			relatedId = WkOpportunity.all.order(:name)
 		elsif relatedType == "WkLead"
-			relatedId = WkLead.includes(:contact).where("wk_leads.status != ? OR wk_leads.id = ?","C", parentId).order("wk_crm_contacts.first_name, wk_crm_contacts.last_name")
+			condStr = activity_type == "I" ? "=" : "!="
+			relatedId = WkLead.includes(:contact)
+			.where("(wk_leads.status != ? OR wk_leads.id = ?) AND wk_crm_contacts.contact_type" +condStr+ "'IC'","C", parentId)
+			.order("wk_crm_contacts.first_name, wk_crm_contacts.last_name")
 		elsif relatedType == "WkCrmContact"
 			hookType = call_hook(:additional_type)
 			if hookType.blank? || !isContactType
@@ -241,8 +244,11 @@ include WkdocumentHelper
 			accSections = ["wkdocument"]
 		when "WkOpportunity"
 			accSections = ["wkcrmactivity", "wkdocument"]
+		when "WkLead"
+			accSections = ["wkcrmactivity"]
+			accSections << "wkdocument" if validateERPPermission("A_REFERRAL")
 		else
-			accSections = ["wkcrmactivity", "wkdocument"]
+			accSections = ["wkcrmactivity"]
 		end
 
 		accSections -= sectionsToRemove unless sectionsToRemove.blank?
@@ -297,5 +303,9 @@ include WkdocumentHelper
 			"NH" => l(:label_not_hire),
 			"N" => l(:label_none)
 		}
+	end
+
+	def hiring_employees
+		WkLead.hiring_employees.map{|l| [l.name, l.id]}
 	end
 end

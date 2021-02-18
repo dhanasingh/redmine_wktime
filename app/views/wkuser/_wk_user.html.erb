@@ -1,11 +1,13 @@
-<% roleObj = Role.order(:name) 
+<% if(Setting.plugin_redmine_wktime['label_no_additional_details_for_user'].blank? && Setting.plugin_redmine_wktime['label_no_additional_details_for_user'].to_i == 0) %>
+<%= javascript_include_tag 'wkuser', :plugin => "redmine_wktime" %>
+<%
+	roleObj = Role.order(:name)
 	roleArr = nil
 	roleArr = roleObj.pluck(:name, :id)
-%>
-<% genderHash = {'M' => "#{l(:gender_hash_male)}", 'F' => "#{l(:gender_hash_female)}", 'O' => "#{l(:gender_hash_others)}"} %>
-<% wkexpense_helper = Object.new.extend(WkexpenseHelper) 
+	genderHash = {'M' => "#{l(:gender_hash_male)}", 'F' => "#{l(:gender_hash_female)}", 'O' => "#{l(:gender_hash_others)}"}
+	wkexpense_helper = Object.new.extend(WkexpenseHelper)
 	currArr = wkexpense_helper.options_for_currency
-	wkenum_helper = Object.new.extend(WkcrmenumerationHelper) 
+	wkenum_helper = Object.new.extend(WkcrmenumerationHelper)
 	locationArr = nil
 	locationobj = WkLocation.order(:name)
 	locationArr = locationobj.pluck(:name, :id)
@@ -14,22 +16,28 @@
 	shiftObj = WkShift.where(:in_active => true, :is_schedulable => true).order(:name)
 	shiftArr = shiftObj.pluck(:name, :id)
 	shiftArr.unshift(["",''])
+	disable = @user == User.current ? true : false
+	wkcrm_helper = Object.new.extend(WkcrmHelper)
 %>
 </fieldset>
-<% if(Setting.plugin_redmine_wktime['label_no_additional_details_for_user'].blank? && Setting.plugin_redmine_wktime['label_no_additional_details_for_user'].to_i == 0) %>
 <div >
 	<fieldset class="box tabular">
-		<legend><%=l(:label_details)%></legend>				
+		<legend><%=l(:label_details)%></legend>
 		<%= labelled_fields_for :erpmineuser, @user.erpmineuser do |user_fields| %>
-			<% disable = @user == User.current ? true : false %>
+			<% if !@user&.id&.present? %>
+				<p>
+					<label><%= l(:label_hiring_employees) %></label>
+					<%= select_tag :hiring_employee, options_for_select(wkcrm_helper.hiring_employees), include_blank: true, onchange: "getEmpDetails()" %>
+				</p>
+			<% end %>
 			<p><%= user_fields.date_field :join_date, :disabled => disable %></p>
 			<%= calendar_for('erpmine_join_date') %>
 			<p><%= user_fields.date_field :termination_date, :disabled => disable %></p>
 			<%= calendar_for('erpmine_termination_date') %>
 			<p><%= user_fields.date_field :birth_date, :disabled => disable %></p>
-			<%= calendar_for('erpmine_birth_date') %>	
+			<%= calendar_for('erpmine_birth_date') %>
 			<% unless myaccount %>
-				<p><%= user_fields.text_field :billing_rate, :disabled => disable %></p>			
+				<p><%= user_fields.text_field :billing_rate, :disabled => disable %></p>
 				<p><%= user_fields.select :billing_currency, currArr, {}, :disabled => disable %></p>
 			<% end %>
 			<p><%= user_fields.select :role_id, roleArr, {}, :disabled => disable %></p>
@@ -40,7 +48,7 @@
 			<p><%= user_fields.select :shift_id, shiftArr, {}, :disabled => disable %></p>
 			<p><%= user_fields.text_field :bank_name, :disabled => disable %></p>
 			<p><%= user_fields.text_field :account_number,  :disabled => disable %></p>
-			<p><%= user_fields.text_field :bank_code, :disabled => disable %></p>			
+			<p><%= user_fields.text_field :bank_code, :disabled => disable %></p>
 			<p><%= user_fields.text_field :tax_id, :disabled => disable %></p>
 			<p><%= user_fields.text_field :ss_id, :disabled => disable %></p>
 			<p><%= user_fields.text_field :id1, :disabled => disable %></p>
@@ -50,28 +58,9 @@
 			<p><%= user_fields.text_field :custom_number2, :disabled => disable %></p>
 			<p><%= user_fields.date_field :custom_date1, :disabled => disable %></p>
 			<%= calendar_for('erpmine_custom_date1') %>
-			<p><%= user_fields.date_field :custom_date2, :disabled => disable %></p>	
-			<%= calendar_for('erpmine_custom_date2') %>	
-			
-			
-			
-		<% end %>		
+			<p><%= user_fields.date_field :custom_date2, :disabled => disable %></p>
+			<%= calendar_for('erpmine_custom_date2') %>
+		<% end %>
 	</fieldset>
 </div>
-<% end %>
-<% if myaccount %>
-<script type="text/javascript">
-$(document).ready(function() {
-	
-	var accNo = document.getElementById('erpmineuser_account_number');
-	var ssId = document.getElementById('erpmineuser_ss_id');
-
-	if (accNo && accNo.value.length > 4) {
-      accNo.value = new Array(accNo.value.length-3).join('x') + accNo.value.substr(accNo.value.length-4, 4);
-	}
-	if (ssId && ssId.value.length > 4) {
-	  ssId.value = new Array(ssId.value.length-3).join('x') + ssId.value.substr(ssId.value.length-4, 4);
-	}
-});
-</script>
 <% end %>

@@ -53,7 +53,7 @@ module WkdocumentHelper
       case(container_type)
       when "WkLead"
         contact_type = WkLead.find(container_id).contact.contact_type
-        url = {controller: contact_type == "RF" ? "wkreferrals" : "wklead", action: "edit", lead_id: container_id}
+        url = {controller: contact_type == "IC" ? "wkreferrals" : "wklead", action: "edit", lead_id: container_id}
       when "WkAccount"
           url = {controller: "wkcrmaccount", action: "edit", account_id: container_id}
       when "WkOpportunity"
@@ -74,12 +74,12 @@ module WkdocumentHelper
     end
   end
 
-  def save_attachments(container_id=params[:container_id])
+  def save_attachments(container_id=params[:container_id], attachments=params[:attachments], container_type=params[:container_type])
     errMsg = ""
-    params[:attachments].each do |atch_param|
+    attachments.each do |atch_param|
     attachment = Attachment.find_by_token(atch_param[1][:token])
     next if attachment.blank?
-      attachment.container_type = params[:container_type]
+      attachment.container_type = container_type
       attachment.container_id = container_id
       attachment.filename = attachment.filename
       attachment.description = atch_param[1][:description]
@@ -105,6 +105,7 @@ module WkdocumentHelper
         :deletable => false,
         :author => true
       }.merge(options)
+
       render :partial => 'wkdocument/links',
         :locals => {
           :container => container,

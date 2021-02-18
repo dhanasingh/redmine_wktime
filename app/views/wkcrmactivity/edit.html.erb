@@ -1,8 +1,10 @@
 <h2><%=@activityEntry.blank? ? l(:label_new_item_adjusted, l(:field_activity)) : l(:text_edit_activity) %></h2>
-<%= render :partial => 'wkcrmactivity/activity_edit'%>
-<% unless @activityEntry.blank? %>
-	<br/>
+
+<%= form_tag({:controller => 'wkcrmactivity', :action => 'update'}, :method => :post, :id => 'query_form') do %>
+	<%= render :partial => 'wkcrmactivity/activity_edit'%>
+
 	<div>
-		<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @activityEntry[0] } %>
+		<%= submit_tag l(:button_save) ,:id => 'wkactivity_save'%>
 	</div>
+
 <% end %>

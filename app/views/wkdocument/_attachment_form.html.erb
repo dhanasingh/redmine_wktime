@@ -1,8 +1,11 @@
+<div class="box">
   <h3><%= l(:label_attachment) %></h3>
-  <% if !attachment.blank? && attachment.attachments.any? %>
-    <%= attachments_links attachment, editable: true, deletable: true %>
+  <% if !container.blank? && container.attachments.any? %>
+    <%= attachments_links container, editable: true, deletable: true %>
   <% end %>
   <fieldset>
     <legend><%=l(:label_attachment_plural)%></legend>
+    <%= hidden_field_tag("container_type", container_type) %>
     <%= render :partial => 'attachments/form' %>
   </fieldset>
+</div>

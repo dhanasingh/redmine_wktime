@@ -20,6 +20,7 @@ class WkcrmactivityController < WkcrmController
   unloadable
   menu_item :wklead
   include WktimeHelper
+  include WkdocumentHelper
 	accept_api_auth :index, :edit, :update
 
 	def index
@@ -37,7 +38,7 @@ class WkcrmactivityController < WkcrmController
 	    set_filter_session
 		retrieve_date_range
 
-		crmactivity = WkCrmActivity.joins("LEFT JOIN users AS U ON wk_crm_activities.assigned_user_id = U.id")
+		crmactivity = WkCrmActivity.joins("LEFT JOIN users AS U ON wk_crm_activities.assigned_user_id = U.id").where.not(activity_type: "I")
 
 		actType = session[controller_name].try(:[], :activity_type)
 		relatedTo = session[controller_name].try(:[], :related_to)
@@ -107,7 +108,7 @@ class WkcrmactivityController < WkcrmController
 		duration = "#{durhr}:#{durmin}:00".split(':').map { |a| a.to_i }.inject(0) { |a, b| a * 60 + b}
 		crmActivity.duration = duration
 		crmActivity.location = params[:location]  if params[:activity_type] == 'M'
-		crmActivity.assigned_user_id = params[:assigned_user_id]
+		crmActivity.assigned_user_id = (params[:activity_type] != "I" || validateERPPermission("A_REFERRAL")) ? params[:assigned_user_id] : User.current.id
 		crmActivity.parent_id = params[:related_parent]
 		crmActivity.parent_type = params[:related_to].to_s
 		if isChecked('crm_save_geo_location')
@@ -120,6 +121,8 @@ class WkcrmactivityController < WkcrmController
 			errorMsg = crmActivity.errors.full_messages.join("<br>")
 		else
 			crmActivity.save()
+			#for attachment save
+			errorMsg = save_attachments(crmActivity.id) if params[:attachments].present?
 			$tempActivity = nil
 		end
 
@@ -130,6 +133,8 @@ class WkcrmactivityController < WkcrmController
 						redirect_to :controller => params[:controller_from],:action => params[:action_from] , :account_id => crmActivity.parent_id
 					elsif params[:controller_from] == 'wksuppliercontact'
 						redirect_to :controller => params[:controller_from],:action => params[:action_from] , :contact_id => crmActivity.parent_id
+					elsif params[:controller_from] == 'wkreferrals'
+						redirect_back_or_default :controller => params[:controller_from], :action => 'edit', lead_id: crmActivity.parent_id
 					else
 						redirect_to :controller => 'wkcrmactivity',:action => 'index' , :tab => 'wkcrmactivity'
 					end
@@ -160,6 +165,8 @@ class WkcrmactivityController < WkcrmController
 			redirect_to :controller => params[:controller_from],:action => params[:action_from] , :account_id => parentId
 		elsif params[:controller_from] == 'wksuppliercontact'
 			redirect_to :controller => params[:controller_from],:action => params[:action_from] , :contact_id => parentId
+		elsif params[:controller_from] == 'wkreferrals'
+			redirect_back_or_default :controller => params[:controller_from], :action => 'edit', lead_id: parentId
 		else
 			redirect_back_or_default :action => 'index', :tab => params[:tab]
 		end
@@ -177,7 +184,7 @@ class WkcrmactivityController < WkcrmController
 				end
 			end
 		end
-    end
+  end
 
 	def formPagination(entries)
 		@entry_count = entries.count
@@ -198,6 +205,16 @@ class WkcrmactivityController < WkcrmController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
+		end
+	end
+
+	private
+
+	def check_perm_and_redirect
+		activity = WkCrmActivity.find(params[:activity_id]) if params[:activity_id].present?
+		if !check_permission && params[:controller_from] != "wkreferrals"
+			render_403
+			return false
 		end
 	end
 end

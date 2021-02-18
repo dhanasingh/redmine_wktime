@@ -17,22 +17,26 @@
 
 class WkreferralsController < WkleadController
 	unloadable
-  before_action :require_login
+  before_action :require_login, :check_module_permission
   before_action :check_perm_and_redirect, only: [:update, :destroy]
+  before_action :check_permission, only: :getEmpDetails
 	menu_item :wkattendance
-  include WkleadHelper
 
   def index
     sort_init "updated_at", "desc"
-		sort_update 'lead_name' => "CONCAT(C.first_name, C.last_name)",
-			'status' => "#{WkLead.table_name}.status",
-			'location_name' => "L.name",
-			'acc_name' => "A.name",
-			'updated_at' => "#{WkLead.table_name}.updated_at",
-      "pass_out" => "wk_candidates.pass_out"
+		sort_update "lead_name" => "CONCAT(C.first_name, C.last_name)",
+			"status" => "#{WkLead.table_name}.status",
+			"location_name" => "L.name",
+			"updated_at" => "#{WkLead.table_name}.updated_at",
+      "pass_out" => "wk_candidates.pass_out",
+      "referred_by" => "referred_by"
 
-    entries = WkLead.referrals.reorder(sort_clause)
-    @entries = formPagination(entries)
+    set_filter_session
+    entries = WkLead.referrals(deletePermission)
+    entries = entries.filter_name(get_filter(:lead_name)) if get_filter(:lead_name)
+    entries = entries.filter_status(get_filter(:status)) if get_filter(:status)
+    entries = entries.filter_location(get_filter(:location_id)) if get_filter(:location_id) && get_filter(:location_id) != "0"
+    @entries = formPagination(entries.reorder(sort_clause))
   end
 
   def destroy
@@ -44,8 +48,13 @@ class WkreferralsController < WkleadController
     redirect_to action: "index", tab: "wkreferrals"
   end
 
+	def getEmpDetails
+    referral = WkLead.referrals(true, params[:id]).first
+    render json: {contact: referral&.contact, address: referral&.contact&.address}
+	end
+
   def deletePermission
-    true
+    validateERPPermission("A_REFERRAL")
   end
 
   def edit_label
@@ -59,7 +68,7 @@ class WkreferralsController < WkleadController
   private
 
   def check_perm_and_redirect
-    @referral = WkLead.joins(:contact).where(id: params[:lead_id], "wk_crm_contacts.contact_type": "RF").first if params[:lead_id].present?
+    @referral = WkLead.joins(:contact).where(id: params[:lead_id], "wk_crm_contacts.contact_type": "IC").first if params[:lead_id].present?
     render_404 if @referral&.id.blank? && params[:lead_id].present?
   end
 
@@ -69,19 +78,29 @@ class WkreferralsController < WkleadController
 		entries.limit(@limit).offset(@offset)
 	end
 
-  def setLimitAndOffset
-		if api_request?
-			@offset, @limit = api_offset_and_limit
-			if !params[:limit].blank?
-				@limit = params[:limit]
+  def check_module_permission
+    render_404 unless isChecked("wktime_enable_referrals_module")
+  end
+
+  def check_permission
+    render_404 if params[:id].blank?
+  end
+
+	def set_filter_session
+    session[controller_name] = {location_id: WkLocation.default_id, status: "N" } if session[controller_name].nil? || params[:clear]
+		if params[:searchlist] == controller_name
+			filters = [:lead_name, :status, :location_id]
+			filters.each do |param|
+				if params[param].blank? && session[controller_name].try(:[], param).present?
+					session[controller_name].delete(param)
+				elsif params[param].present?
+					session[controller_name][param] = params[param]
+				end
 			end
-			if !params[:offset].blank?
-				@offset = params[:offset]
-			end
-		else
-			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
-			@limit = @entry_pages.per_page
-			@offset = @entry_pages.offset
 		end
+	end
+
+  def get_filter(key)
+    return session[controller_name] && session[controller_name][key]
   end
 end

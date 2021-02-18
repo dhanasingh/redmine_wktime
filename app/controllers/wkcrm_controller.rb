@@ -79,7 +79,6 @@ class WkcrmController < WkbaseController
     end
 
 	def check_permission
-		ret = false
 		return validateERPPermission("B_CRM_PRVLG") || validateERPPermission("A_CRM_PRVLG")
 	end
 
@@ -178,23 +177,28 @@ class WkcrmController < WkbaseController
 		@lead = WkLead.find(params[:lead_id]) unless params[:lead_id].blank?
 		@lead.status = 'C'
 		@lead.updated_by_user_id = User.current.id
-		#@lead.save
 		@contact = @lead.contact
-		@account = @lead.account
-		hookType = call_hook(:controller_convert_contact, {params: params, leadObj: @lead, contactObj: @contact, accountObj: @account})
-		unless @account.blank?
-			@account.account_type = hookType.blank? ? getAccountType : hookType[0][0]
+		if @contact.contact_type == "IC"
+			@lead.save
+			convertToContact
 		else
-			@contact.contact_type = hookType.blank? ? getContactType : hookType[0][0]
+			@account = @lead.account
+			hookType = call_hook(:controller_convert_contact, {params: params, leadObj: @lead, contactObj: @contact, accountObj: @account})
+			unless @account.blank?
+				@account.account_type = hookType.blank? ? getAccountType : hookType[0][0]
+			else
+				@contact.contact_type = hookType.blank? ? getContactType : hookType[0][0]
+			end
+			@lead.save
+			convertToAccount unless @account.blank?
+			convertToContact
 		end
-		@lead.save
-		convertToAccount unless @account.blank?
-		convertToContact
 
+		rm_resident_id = hookType.blank? ? nil : hookType[0][2]
 		unless @account.blank?
 			controllerName = hookType.blank? ? 'wkcrmaccount' : hookType[0][1]
 			flash[:notice] = l(:notice_successful_convert)
-			redirect_to controller: controllerName, action: 'edit', account_id: @account.id, rm_resident_id: hookType[0][2]
+			redirect_to controller: controllerName, action: 'edit', account_id: @account.id, rm_resident_id: rm_resident_id
 		else
 			controllerName = hookType.blank? ? 'wkcrmcontact' : hookType[0][1]
 			if @lead.valid?
@@ -203,8 +207,8 @@ class WkcrmController < WkbaseController
 				flash[:error] = @lead.errors.full_messages.join("<br>")
 				controllerName = 'wklead'
 			end
-
-		    redirect_to controller: controllerName, action: 'edit', contact_id: @contact.id, lead_id: @lead.id, rm_resident_id: hookType[0][2]
+			controllerName = "wkreferrals" if @contact.contact_type == "IC"
+		  redirect_to controller: controllerName, action: 'edit', contact_id: @contact.id, lead_id: @lead.id, rm_resident_id: rm_resident_id
 		end
 	end
 
@@ -238,4 +242,8 @@ class WkcrmController < WkbaseController
 	def is_referral
 		false
 	end
+
+  def edit_label
+    l(:label_lead)
+  end
 end

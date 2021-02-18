@@ -1,9 +1,10 @@
+<% status_items = controller.deletePermission ? getLeadStatusArr : getLeadStatusArr.except!("C") %>
 <fieldset class="box tabular">
 	<legend><%=l(:label_content_information, l(:label_more))%></legend>
 	<table style="text-align: left">
 		<tr>
 			<th align="left"><%= l(:field_status) %></th>
-			<td align="left" style="padding-left:75px;"><%=h select_tag('status', options_for_select(getLeadStatusArr, :selected => @lead.blank? ? "" : @lead.status),:required => true) %></td>
+			<td align="left" style="padding-left:75px;"><%=h select_tag('status', options_for_select(status_items.invert, :selected => @lead.blank? ? "" : @lead.status),:required => true) %></td>
 		</tr>
 		<% is_referral = controller.is_referral %>
 		<% if !is_referral %>
@@ -23,7 +24,8 @@
 			 	<td align="left" style="padding-left:75px;"><%=h text_field_tag("referred_by",@lead.blank?  ? "" : @lead.referred_by,:size =>40) %> </td>
 			<% else %>
 			 	<td align="left" style="padding-left:75px;">
-					<%= select_tag('referred_by', options_for_select(get_all_users, selected: @lead&.referred_by)) %></td>
+					<%= select_tag('referred_by', options_for_select(get_all_users, selected: @lead&.referred_by || User.current.id), disabled: !controller.deletePermission) %></td>
+					<%= hidden_field_tag('referred_by', User.current.id) unless controller.deletePermission %>
 			<% end %>
 		</tr>
 		<tr>

@@ -1,6 +1,6 @@
 require 'redmine'
 require_dependency 'custom_fields_helper'
-require_dependency '../lib/redmine/menu_manager'
+require_dependency '/redmine/menu_manager'
 require 'fileutils'
 require 'timelogcontroller_patch'
 require 'contextMenusController_patch'
@@ -13,6 +13,11 @@ require 'wkapplication_helper_patch'
 User.class_eval do
 	has_one :wk_user, :dependent => :destroy, :class_name => 'WkUser'
 	has_many :shift_schdules, :dependent => :destroy, :class_name => 'WkShiftSchedule'
+
+  acts_as_attachable :view_permission => :view_files,
+                    :edit_permission => :manage_files,
+                    :delete_permission => :manage_files
+
 	def erpmineuser
 		self.wk_user ||= WkUser.new(:user => self)
 	end
@@ -270,7 +275,6 @@ module IssuesControllerPatch
   end
  end
 end
-
 
 CustomFieldsHelper.send(:include, WktimeHelperPatch)
 ProjectsController.send(:include, ProjectsControllerPatch)

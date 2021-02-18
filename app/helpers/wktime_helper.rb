@@ -632,7 +632,7 @@ end
 				tabs <<  {:name => 'wkscheduling', :partial => 'wktime/tab_content', :label => :label_scheduling} if showShiftScheduling
 				tabs << {:name => 'wksurvey', :partial => 'wktime/tab_content', :label => :label_survey} if showSurvey
 				tabs <<	{name: 'wkskill', partial: 'wktime/tab_content', :label => :label_wk_skill} if showSkill
-				tabs << {:name => 'wkreferrals', :partial => 'wktime/tab_content', :label => :label_referrals}
+				tabs << {:name => 'wkreferrals', :partial => 'wktime/tab_content', :label => :label_referrals} if isChecked("wktime_enable_referrals_module")
 
 		elsif params[:controller] == "wklead" || params[:controller] == "wkcrmaccount" || params[:controller] == "wkopportunity" || params[:controller] == "wkcrmactivity" || params[:controller] == "wkcrmcontact"
 			tabs = [
@@ -1339,22 +1339,23 @@ end
 	end
 
 	def erpModules
-		erpmineModules = {l(:label_dashboards) => 'Dashboards',
-						  l(:label_wktime) => 'Time',
-						  l(:label_wkexpense) => 'Expense',
-						  l(:report_attendance) => 'Attendance',
-						  l(:label_payroll) => 'Payroll',
-						  l(:label_shift_scheduling) => 'Shift Scheduling',
-						  l(:label_wk_billing) => 'Billing',
-						  l(:label_accounting) => 'Accounting',
-						  l(:label_crm) => 'CRM',
-						  l(:label_txn_purchase) => 'Purchase',
-						  l(:label_inventory) => 'Inventory',
-						  l(:label_survey) => 'Survey',
-						  l(:label_report) => 'Report',
-						  l(:label_skill_set) => 'Skills'
-					 }
-		erpmineModules
+		{
+			l(:label_dashboards) => 'Dashboards',
+			l(:label_wktime) => 'Time',
+			l(:label_wkexpense) => 'Expense',
+			l(:label_wk_billing) => 'Billing',
+			l(:label_accounting) => 'Accounting',
+			l(:label_crm) => 'CRM',
+			l(:label_txn_purchase) => 'Purchase',
+			l(:label_inventory) => 'Inventory',
+			l(:label_survey) => 'Survey',
+			l(:label_report) => 'Report',
+			l(:report_attendance) => 'Attendance',
+			l(:label_payroll) => 'Payroll',
+			l(:label_shift_scheduling) => 'Shift Scheduling',
+			l(:label_skill_set) => 'Skills',
+			l(:label_referrals) => 'Referrals'
+		}
 	end
 
 	def validateERPPermission(permission)

@@ -8,11 +8,11 @@ rowValidationMsg =  "<%= l(:label_row_valid_msg)  %>";
 dbcrvalidMsg =  "<%= l(:label_trans_total_validmsg)  %>";
 transrowMsg =  "<%= l(:label_trans_row_validmsg)  %>";
 </script>
-<%	
+<%
    trans_particular1 =session[controller_name].try(:[], :ledger_id1)
 	 trans_particular2 =session[controller_name].try(:[], :ledger_id2)
 	 getTransEntries()
-  #  if !@transEntry.blank? 
+  #  if !@transEntry.blank?
   #    @transEntry = @transEntry[0] unless @transEntry[0].blank?
   #    txn_type = @transEntry.trans_type
   #    trans_date = @transEntry.trans_date
@@ -32,23 +32,23 @@ transrowMsg =  "<%= l(:label_trans_row_validmsg)  %>";
 	<tr><td><b><label><%= l(:label_transaction_type)%></label></b></td><td><%=h select_tag('txn_type', options_for_select(transTypeHash.invert,  :selected => @txn_type ), :required => true, :style => "width:150px;") %></td></tr>
 	<tr><td><b><label><%= l(:label_transaction_date)  %></label></b></td><td>
 	<%= date_field_tag('date', @trans_date, {:id => 'start_date', :size => 12, :style => "width:150px; "}) + calendar_for('start_date') %>
-	</td>	
+	</td>
 	</tr>
 	</table>
-	<% row_index = 1 %>	
-	<% totaldebit = 0 %>	
-	<% totalCredit = 0 %>	
-	<div class="wk-contextual">	
+	<% row_index = 1 %>
+	<% totaldebit = 0 %>
+	<% totalCredit = 0 %>
+	<div class="wk-contextual">
 	<%= link_to l(:button_add_row), "#", { :onclick => "javascript:txnAddrowValidation('txnTable');",  :class => 'icon icon-add' }%>
 	</div>
 	<div style="clear:both"></div>
 	<table id="txnTable" class="list time-entries">
 	<thead>
 		<tr>
-			<th></th>			
-			<th class="lbl-txt-align" style="width:40%;"><%= l(:label_particulars) %></th>	
+			<th></th>
+			<th class="lbl-txt-align" style="width:40%;"><%= l(:label_particulars) %></th>
 			<th class="lbl-txt-align" style="width:13.75%;"><%= l(:label_original) + " " + l(:label_wk_currency) %></th>
-			<th class="lbl-txt-align" style="width:13.75%;"><%= l(:label_original) + " " + l(:field_amount) %></th>			
+			<th class="lbl-txt-align" style="width:13.75%;"><%= l(:label_original) + " " + l(:field_amount) %></th>
 			<th class="lbl-txt-align" style="width:13.75%;"><%= l(:label_debit) %></th>
 			<th class="lbl-txt-align" style="width:13.75%;"><%= l(:label_credit) %></th>
 			<th style="width:5%;"></th>
@@ -60,7 +60,7 @@ transrowMsg =  "<%= l(:label_trans_row_validmsg)  %>";
 			<tr onclick="  row_id  = this.rowIndex ">
 				<td class="lbl-txt-align" headers="txn_id">
 					<%=h hidden_field_tag("txn_id_#{row_index}",   entry.id )  %>
-				</td>			
+				</td>
 				<td class="lbl-txt-align" headers="txn_particular" >
 					<%=h select_tag("txn_particular_#{row_index}", options_for_select(@ledgers, :selected => entry.ledger_id), :style => "width:200px;") %>
 				</td>
@@ -80,17 +80,17 @@ transrowMsg =  "<%= l(:label_trans_row_validmsg)  %>";
 					<%= link_to image_tag('delete.png'), "javascript:deleteRow('txnTable', 'txntotalrow');", :id => row_index,
 							:data => {:confirm => l(:text_are_you_sure)},
 							:title => l(:button_delete) %>
-				</td>	
+				</td>
 			</tr>
-			<% totaldebit += entry.detail_type == 'd' && !entry.amount.blank? ? entry.amount : 0 %>	
-			<% totalCredit += entry.detail_type == 'c' && !entry.amount.blank? ? entry.amount : 0 %>	
+			<% totaldebit += entry.detail_type == 'd' && !entry.amount.blank? ? entry.amount : 0 %>
+			<% totalCredit += entry.detail_type == 'c' && !entry.amount.blank? ? entry.amount : 0 %>
 			<% row_index = row_index + 1 %>
 		<% end %>
 	<% else %>
 		<tr onclick="  row_id  = this.rowIndex ">
 			<td class="lbl-txt-align" headers="txn_id">
 				<%=h hidden_field_tag("txn_id_#{row_index}",   "" )  %>
-			</td>			
+			</td>
 			<td class="lbl-txt-align" headers="txn_particular" >
 				<%=h select_tag("txn_particular_#{row_index}", options_for_select(@ledgers, :selected => trans_particular1), :style => "width:200px;") %>
 			</td>
@@ -110,7 +110,7 @@ transrowMsg =  "<%= l(:label_trans_row_validmsg)  %>";
 				<%= link_to image_tag('delete.png'), "javascript:deleteRow('txnTable', 'txntotalrow');", :id => row_index,
 						:data => {:confirm => l(:text_are_you_sure)},
 						:title => l(:button_delete) %>
-			</td>	
+			</td>
 		</tr>
 			<% row_index = row_index + 1 %>
 			<tr onclick="  row_id  = this.rowIndex ">
@@ -119,7 +119,7 @@ transrowMsg =  "<%= l(:label_trans_row_validmsg)  %>";
 				</td>
 				<td class="lbl-txt-align" headers="txn_particular" >
 					<%=h select_tag("txn_particular_#{row_index}", options_for_select(@ledgers, :selected => trans_particular2), :style => "width:200px;") %>
-				</td>				
+				</td>
 				<td class="lbl-txt-align" headers="original_currency">
 					<label id="original_currency_#{row_index}"><%= ""   %></label>
 				</td>
@@ -136,11 +136,11 @@ transrowMsg =  "<%= l(:label_trans_row_validmsg)  %>";
 					<%= link_to image_tag('delete.png'), "javascript:deleteRow('txnTable', 'txntotalrow');", :id => row_index,
 							:data => {:confirm => l(:text_are_you_sure)},
 							:title => l(:button_delete) %>
-				</td>	
+				</td>
 			</tr>
 			<% row_index = row_index + 1 %>
 	<% end %>
-		
+
 	</tbody>
 	</table>
 	<table >
@@ -163,10 +163,7 @@ transrowMsg =  "<%= l(:label_trans_row_validmsg)  %>";
 		<td style="width:8%;"></td>
 	</tr>
 	</table>
-	<div class="box" style="width:100%">
-		<%= hidden_field_tag("container_type", "WkGlTransaction") %>
-		<%= render partial: "wkdocument/attachment_form", locals: { attachment: @transEntry } %>
-	</div>
+	<%= render partial: "wkdocument/attachment_form", locals: { container: @contractEntry, container_type: "WkContract" } %>
 	<%=h hidden_field_tag("txntotalrow",  row_index-1 )  %>
 	<%= submit_tag l(:button_save), :class => "small", :name => nil %>
     <%= submit_tag l(:button_save_continue), :id => 'gltransaction_save_continue', :name => 'gltransaction_save_continue' %>

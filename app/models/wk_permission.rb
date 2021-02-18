@@ -17,8 +17,8 @@
 
 class WkPermission < ActiveRecord::Base
   unloadable
-  
-  has_many :grpPermission, foreign_key: "permission_id", :class_name => 'WkGroupPermission'
+
+  has_many :grpPermission, foreign_key: "permission_id", :class_name => 'WkGroupPermission', :dependent => :destroy
   has_many :group , :through => :grpPermission
   has_many :users, :through => :group
 

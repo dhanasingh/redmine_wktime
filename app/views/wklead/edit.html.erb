@@ -22,7 +22,9 @@
 			<% unless @lead.blank? %>
 				<% if !controller.is_referral %>
 					<%= call_hook(:view_additional_lead_info, { moveInObj: @lead }) %>
-					<%= submit_tag l(:button_convert_lead), :id => 'wklead_save_convert', :name => 'wklead_save_convert' ,
+				<% end %>
+				<% if @lead.status != "C" && controller.deletePermission %>
+					<%= submit_tag l(controller.is_referral ? "label_hire" : "button_convert_lead"), :id => 'wklead_save_convert', :name => 'wklead_save_convert' ,
 						:disabled => @lead.blank?, :data => {:confirm => l(:text_are_you_sure_want_to, l(:button_convert_lead))} %>
 					<div style="clear:both;"></div><br/>
 				<% end %>

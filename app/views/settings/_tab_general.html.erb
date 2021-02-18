@@ -1,5 +1,8 @@
-	<% wktime_helper = Object.new.extend(WktimeHelper) %>
-	<% moduleArr = wktime_helper.erpModules %>
+<%
+	wktime_helper = Object.new.extend(WktimeHelper)
+	erpModules = wktime_helper.erpModules.invert
+	keys = erpModules.keys
+%>
 	<fieldset style="display: inline-block; vertical-align: top; height:100%; ">
 		<legend><%= l(:label_module_plural) %></legend>
 		<p id="pcheckall">
@@ -11,13 +14,28 @@
 			<%= check_box_tag("ckbCheckAll", 1, false, class: "checkall")%><%= l(:button_uncheck_all) %></label>
 		</p>
 		<p></p>
-		<% moduleArr.each do |translated, m| %>
-			<%  m = m.downcase %>
-			<p><label style="text-align: left; float:left;">
-				<%= check_box_tag "settings[wktime_enable_#{m}_module]", 1, @settings["wktime_enable_#{m}_module"].to_i == 1, :class => 'modules' -%>
-				<%= l_or_humanize(translated, :prefix => "erpmine_module_") %></label>
-			</p>
-		<% end %>
+
+		<div class="splitcontent">
+			<div class="splitcontentleft">
+				<% (0..(erpModules.length-1)).each do |index| %>
+					<% if index == 10 %>
+						</div>
+						<div class="splitcontentright">
+						<fieldset>
+						<legend><%= l(:label_hr) %></legend>
+					<% end %>
+					<%
+						translated = erpModules[keys[index]]
+						m = (keys[index]).downcase
+					%>
+					<p><label style="text-align: left; float:left;">
+						<%= check_box_tag "settings[wktime_enable_#{m}_module]", 1, @settings["wktime_enable_#{m}_module"].to_i == 1, :class => 'modules' -%>
+						<%= l_or_humanize(translated, :prefix => "erpmine_module_") %></label>
+					</p>
+				<% end %>
+				</fieldset>
+			</div>
+		</div>
 	</fieldset>
 	<fieldset style="display: inline-block; vertical-align: top; min-width: 100px; height:320px; width:600px;">
 		<legend><%= l(:label_general) %></legend>

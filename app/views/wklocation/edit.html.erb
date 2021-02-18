@@ -40,13 +40,9 @@
 			<div class="splitcontentright">
 				<%= render partial: "wklead/contact_info", locals: { address: addressObj, :disable => false, showDefault: true }%>
 			</div>
-			<div style="clear:both;"></div>
-			<div class="box" style="width:100%">
-  			<%= hidden_field_tag("container_type", "WkLocation") %>
-				<%= render partial: "wkdocument/attachment_form", locals: { attachment: @locEntry } %>
-			</div>
 		</div>
 	</div>
+	<%= render partial: "wkdocument/attachment_form", locals: { container: @contractEntry, container_type: "WkContract" } %>
 	<div>
 		<%= submit_tag l(:button_save) ,:id => 'wkaccount_save'%>
 	</div>

@@ -22,16 +22,38 @@ class WkLead < ActiveRecord::Base
   belongs_to :created_by_user, :class_name => 'User'
   belongs_to :address, :class_name => 'WkAddress'
   belongs_to :contact, :class_name => 'WkCrmContact', :dependent => :destroy
-  before_save :update_status_update_on
-  after_create_commit :send_notification
-  after_save :lead_notification
+  belongs_to :referred, foreign_key: "referred_by", primary_key: "id", class_name: "User"
   has_one :candidate, class_name: "WkCandidate", foreign_key: "lead_id", dependent: :destroy
   accepts_nested_attributes_for :candidate, allow_destroy: true
 
-  def self.referrals
-    WkLead.joins("RIGHT JOIN wk_crm_contacts ON wk_crm_contacts.id = wk_leads.contact_id").
-    where("wk_crm_contacts.contact_type": "RF").
+  before_save :update_status_update_on
+  after_create_commit :send_notification
+  after_save :lead_notification
+
+  scope :filter_name, ->(name){
+    where("LOWER(wk_crm_contacts.first_name) LIKE '%#{name.downcase}%' OR LOWER(wk_crm_contacts.last_name) LIKE '%#{name.downcase}%'")
+  }
+
+  scope :filter_status, ->(status){
+    where(status: status)
+  }
+
+  scope :filter_location, ->(location_id){
+    where("wk_crm_contacts.location_id" => location_id)
+  }
+
+  scope :hiring_employees, ->{
+    joins(:contact).where("wk_crm_contacts.contact_type" => "IC", status: "C")
+  }
+
+  def self.referrals(privilege, id=nil)
+    referrals = WkLead.joins("RIGHT JOIN wk_crm_contacts ON wk_crm_contacts.id = wk_leads.contact_id").
+    joins("LEFT JOIN wk_candidates ON wk_leads.id = lead_id").
+    where("wk_crm_contacts.contact_type": "IC").
     order("wk_crm_contacts.updated_at desc")
+    referrals = referrals.where(referred_by: User.current.id) unless privilege
+    referrals = referrals.where(id: id) if id.present?
+    referrals
   end
 
   def update_status_update_on
