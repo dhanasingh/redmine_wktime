@@ -7,7 +7,7 @@
         startDate = ('01-' + financialStartMonth + '-' + start_year.to_s).to_date
         endDate = (startDate + 1.year) - 1.day
         user = WkUser.where("user_id = ?", userId).first
-        unless user.join_date.blank?
+        unless user&.join_date.blank?
             userDate = (user.join_date.to_date + 1.month).at_beginning_of_month
             if startDate < userDate
                 startDate = userDate
@@ -167,7 +167,7 @@
                     end
                 end
             else
-                userSalaryHash = getUserSalaryHash(userId, start_date)
+                userSalaryHash = getUserSalaryHash(userId, start_date, 'userSetting')
                 taxComp.each do |name, id|
                         totals[name] ||= 0
                         totals[name] += userSalaryHash[userId.to_i][id.to_i].to_f if ["annual_gross"].include?(name) &&

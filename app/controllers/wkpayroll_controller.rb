@@ -244,7 +244,7 @@ class WkpayrollController < WkbaseController
 		sqlStr = getUserSalaryQueryStr
 		sqlStr = sqlStr + "Where u.id = #{userId} and u.type = 'User'" +
 		"order by u.id, sc.component_type"
-		@userSalHash = getUserSalaryHash(userId, Date.today.at_end_of_month + 1)
+		@userSalHash = getUserSalaryHash(userId, Date.today.at_end_of_month + 1, 'userSetting')
 		@userSalaryEntries = WkUserSalaryComponents.find_by_sql(sqlStr)
 		getTaxSettingVal
 	end
@@ -441,7 +441,7 @@ class WkpayrollController < WkbaseController
 			alluserIds = getUsersAndGroups
 			userIds = alluserIds.join(',')
 		end
-		getUserSalaryHash(userIds, Date.today.at_end_of_month + 1)
+		getUserSalaryHash(userIds, Date.today.at_end_of_month + 1, 'userSetting')
 		@user_salary_components = WkUserSalaryComponents.all
 	end
 	

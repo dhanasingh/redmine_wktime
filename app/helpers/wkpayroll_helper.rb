@@ -184,10 +184,11 @@ module WkpayrollHelper
 		totals[salary_type]
 	end
 
-	def getUserSalaryHash(userIds, salaryDate)
+	def getUserSalaryHash(userIds, salaryDate, userSetting=nil)
 		userSalaryHash = Hash.new()
 		@payPeriod = getPayPeriod(salaryDate)
-		queryStr = getUserSalaryQueryStr + " Where (wu.termination_date is null or wu.termination_date >= '#{@payPeriod[0]}') and sc.id is not null " 
+		terminateCond = "(wu.termination_date is null or wu.termination_date >= '#{@payPeriod[0]}') and " if userSetting.blank?
+		queryStr = getUserSalaryQueryStr + " Where "+terminateCond.to_s+"sc.id is not null" 
 		unless userIds.blank?
 			@queryStr = queryStr + " and u.id in (#{userIds}) "
 		else
