@@ -3,12 +3,13 @@ include ApplicationHelper
 include WktimeHelper
 include WkassetHelper
 	def getLogHash
-		spentTypeHash = {
-			'T' => l(:label_wktime),
-			'E' => l(:label_wkexpense),
-			'M' => l(:label_material),
-			'A' => l(:label_asset)
-		}
+		spentTypeHash = {}
+		spentTypeHash.store('T', l(:label_wktime)) if isChecked('wktime_enable_time_module')
+		spentTypeHash.store('E', l(:label_wkexpense)) if isChecked('wktime_enable_expense_module')
+		if isChecked('wktime_enable_inventory_module')
+			spentTypeHash.store('M', l(:label_material))
+			spentTypeHash.store('A', l(:label_asset))
+		end
 		additionalProducts = call_hook :additional_spent_type
 		unless additionalProducts.blank?
 			if additionalProducts.is_a?(Array) 
