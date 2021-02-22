@@ -28,10 +28,11 @@ module WknotificationHelper
 		when "leaveRequested"
 			notifyHash['text'] = l(:label_approve_leave)+" "+notification.source.user.name.to_s+" "+l(:label_on)+" "+notification.source.start_date.to_date.to_s
 			notifyHash['url'] = {controller:'wkleaverequest', action:'edit', id: notification.source_id}
-			notifyHash['icon']= "fa fa-user-circle"
+			notifyHash['icon'] = "fa fa-user-circle"
 		when "leaveApproved"
 			notifyHash['text'] = WkLeaveReq.getEntry(notification.source.id).status == 'A' ? l(:label_your_leave)+" "+notification.source.start_date.to_date.to_s+" "+l(:label_is_approved) : l(:label_your_leave)+" "+notification.source.start_date.to_date.to_s+" "+l(:label_rejected) 
 			notifyHash['url'] = {controller:'wkleaverequest', action:'edit', id: notification.source_id}
+			notifyHash['icon'] = "fa fa-user-circle"
 		when 'invoiceGenerated'
 			notifyHash['text'] = l(:label_invoice)+" "+notification.source.invoice_items.first.original_currency.to_s+notification.source.invoice_items.first.original_amount.to_s+" "+ l(:label_has_generated)+" "+ l(:label_for)+" "+notification.source.parent.name.to_s
 			notifyHash['url'] = {controller:'wkinvoice', action:'edit', invoice_id: notification.source.id, new_invoice: false,preview_billing: false}

@@ -33,7 +33,7 @@ class WkPayment < ActiveRecord::Base
 
   scope :getPaymentItems, ->(payment){
     payment.payment_items.where({is_deleted: false})
-    .sum(:amount)
+    .sum(:original_amount)
   }
 
   def self.send_notification(payment)
