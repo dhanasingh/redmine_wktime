@@ -208,7 +208,7 @@
 	<div style="clear: both;"></div>
 <% end %>
 
-<% if controller_name == "timelog" && action_name == "index" %>
+<% if controller_name == "timelog" && action_name == "index" || action_name == "report"%>
 	<input type="hidden" name="spentTypeSession" id="spentTypeSession" value="<%= session[:timelog] && session[:timelog][:spent_type] %>">
 <% end %>
 <!-- Spent time show on map -->
