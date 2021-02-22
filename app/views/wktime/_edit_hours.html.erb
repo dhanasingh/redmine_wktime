@@ -24,7 +24,7 @@
 				disable = false if validateERPPermission('A_TE_PRVLG')
 				disable = true if !@prev_template && isBilledTimeEntry(entry)
 			end
-			disable = (!@prev_template && (entry && entry.wkstatus && entry.wkstatus.status) == 'a')
+			disable = (!@prev_template && entry&.wkstatus&.status == 'a') if entry&.wkstatus&.status == 'a'
 			spentForId = entry.present? && entry.spent_for.present? && !@prev_template ? entry.spent_for.id : nil
 			holiday = WkPublicHoliday.getHolidays(params[:user_id], (@startday + @wday_index) - 1)
 			holiday = holiday.length > 0
