@@ -64,7 +64,7 @@ class WkskillController < WkbaseController
   end
   
   def skill_params(sParams)
-    sParams[:user_id] = User.current.admin && sParams[:id].blank? ? sParams[:user_id] : User.current.id
+    sParams[:user_id] = User.current.admin? || validateERPPermission("A_SKILL") && sParams[:id].present? ? sParams[:user_id] : User.current.id
     sParams.permit(:id, :user_id, :skill_set_id, :rating, :last_used, :experience)
   end
   
