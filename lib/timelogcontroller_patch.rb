@@ -52,10 +52,10 @@ module TimelogControllerPatch
 		end
 		
 		def report
+			set_filter_session
 			retrieve_time_entry_query
 			scope = time_entry_scope
 			# ============= ERPmine_patch Redmine 4.1.1  =====================	
-				set_filter_session
 				if session[:timelog][:spent_type] === "A" || session[:timelog][:spent_type] === "M"
 					productType = session[:timelog][:spent_type] === "M" ? 'I' : 'A'
 					scope = scope.where("wk_inventory_items.product_type = '#{productType}' ")
