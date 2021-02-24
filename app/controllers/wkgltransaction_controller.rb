@@ -348,7 +348,7 @@ class WkgltransactionController < WkaccountingController
 	def set_filter_session
 		session[controller_name] = {:summary_trans => "days"} if session[controller_name].nil?
 		if params[:searchlist] == controller_name || api_request?
-			filters = [:period_type, :period, :txn_ledger, :from, :to, :trans_type, :summary_trans]
+			filters = [:period_type, :period, :txn_ledger, :from, :to, :trans_type, :summary_trans, :show_chart]
 			filters.each do |param|
 				if params[param].blank? && session[controller_name].try(:[], param).present?
 					session[controller_name].delete(param)
@@ -448,4 +448,14 @@ class WkgltransactionController < WkaccountingController
 			}
 		end
 	end
+
+  def graph
+    data = get_Ledger_Graph_data
+    if data
+      render :json => data
+    else
+      render_404
+    end
+  end
+
 end

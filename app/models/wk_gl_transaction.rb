@@ -32,4 +32,12 @@ class WkGlTransaction < ActiveRecord::Base
     self.tmonth = trans_date ? trans_date.month : nil
     self.tweek = trans_date ? Date.civil(trans_date.year, trans_date.month, trans_date.day).cweek : nil
   end
+
+  scope :getChartData, ->(from, to, ledger_id) {
+    joins(:transaction_details)
+    .select("tmonth, tyear, detail_type, sum(amount) as amount")
+    .where("trans_date between ? and ? and ledger_id = ?", from, to, ledger_id )
+    .group("tyear, tmonth, detail_type")
+    .order("tyear, tmonth")
+  }
 end

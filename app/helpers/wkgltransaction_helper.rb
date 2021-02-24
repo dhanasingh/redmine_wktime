@@ -389,4 +389,31 @@ include WkaccountingHelper
 			@closeBal = diff + @closeBal
 		end
 	end
+
+	def get_Ledger_Graph_data
+		from =  params[:from] ? params[:from].to_date : Date.today.beginning_of_month
+		to =  params[:to] ? params[:to].to_date : Date.today.end_of_month
+		to = Date.today if to > Date.today
+		noOfMonth = (to.year * 12 + to.month) - (from.year * 12 + from.month) + 1
+		transaction = WkGlTransaction.getChartData(from, to, params[:ledger_id])
+		data = Hash.new
+		fields = Array.new
+		ledgerType = WkLedger.find(params[:ledger_id]).ledger_type
+		noOfMonth.times {|m| fields << month_name(((to.month - 1 - m) % 12) + 1).first(3)}
+		ledgerArr = [0]*noOfMonth
+		ledgerArr.each_with_index do |entry, index|
+			debit = transaction.where("wk_gl_transaction_details.detail_type": "d", tmonth: from.month, tyear: from.year)&.first&.amount || 0
+			credit = transaction.where('wk_gl_transaction_details.detail_type': "c", tmonth: from.month, tyear: from.year)&.first&.amount || 0
+			sum = (['II', 'DI'].include? ledgerType) ? (credit - debit) : (debit - credit)
+			from = from.next_month
+			ledgerArr[index] = sum
+		end
+		data = {
+			month_name: fields.reverse,
+			ledger_val: ledgerArr,
+			x_title: l(:label_months),
+			y_title: l(:label_amount)
+		}
+		data
+	end
 end
