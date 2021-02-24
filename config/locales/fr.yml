@@ -977,7 +977,7 @@ fr:
   label_basic_allowance_total: Basic and Allowance Total
   label_basic_total: Basic Total
   label_allowance_total: Allowance Total
-  label_deduction: Deduction Total
+  label_deduction_total: Deduction Total
 
   label_main_location: Main location
   label_all_locations: All Locations
@@ -1209,3 +1209,6 @@ fr:
   ADMIN REFERRAL PRIVILEGE: Admin Referral Privilege
   label_general: General
   label_hiring_employees: Hiring Employees
+  label_show_on_chart: Show on chart
+  label_reimbursement_projects: Reimbursement Projects
+  label_reimbursements: Reimbursements

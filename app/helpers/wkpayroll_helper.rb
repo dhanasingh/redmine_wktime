@@ -111,19 +111,15 @@ module WkpayrollHelper
 		financialMonthStr
 	end
 	
-	def generateSalaries(userIds, salaryDate, isGeneratePayroll)
-		@payrollList = Array.new		
+	def generateSalaries(userIds, salaryDate)
+		@payrollList = Array.new
+		deleteWkSalaries(userIds, salaryDate)
 		userSalaryHash = getUserSalaryHash(userIds,salaryDate)
-		payperiod = Setting.plugin_redmine_wktime['wktime_pay_period']
 		currency = Setting.plugin_redmine_wktime['wktime_currency']
 		errorMsg = nil
 		unless userSalaryHash.blank?
-			userSalaryHash.each do |userId, salary|
-				salary.each do |componentId, amount|
-					@payrollList << {:user_id => userId, :salary_component_id => componentId, :amount => amount.round, :currency => currency, :salary_date => salaryDate}
-				end
-		 	end
-			 errorMsg = SavePayroll(@payrollList,userIds,salaryDate) if isGeneratePayroll == "true"
+			getPayrollData(userSalaryHash, salaryDate)
+			 errorMsg = SavePayroll(@payrollList,userIds,salaryDate)
 		else	
 			errorMsg = l(:error_wktime_save_nothing)
 		end		
@@ -136,6 +132,16 @@ module WkpayrollHelper
 		errorMsg
 	end
 
+	def getPayrollData(userSalaryHash, salaryDate)
+		currency = Setting.plugin_redmine_wktime['wktime_currency']
+		userSalaryHash.each do |userId, salary|
+			salary.each do |componentId, amount|
+				@payrollList << {:user_id => userId, :salary_component_id => componentId, :amount => amount.round, :currency => currency, :salary_date => salaryDate}
+			end
+		 end
+		 @payrollList
+	end
+	
 	def getCalculatedFieldValue(user_id, salary_type, salaryDate)
 		totals = Hash.new()
 		if ["BT", "BAT", "AT", "ABA", "SBA"].include?(salary_type)
@@ -188,6 +194,9 @@ module WkpayrollHelper
 		userSalaryHash = Hash.new()
 		@payPeriod = getPayPeriod(salaryDate)
 		terminateCond = "(wu.termination_date is null or wu.termination_date >= '#{@payPeriod[0]}') and " if userSetting.blank?
+		@reimbursProjectIds =  Setting.plugin_redmine_wktime['reimburse_projects']
+		@reimburseID = WkSalaryComponents.getReimburseID
+		@reimburse = WkExpenseEntry.getReimburse(@reimbursProjectIds.join(',')) if(!@reimbursProjectIds.blank? && @reimbursProjectIds != [""])
 		queryStr = getUserSalaryQueryStr + " Where "+terminateCond.to_s+"sc.id is not null" 
 		unless userIds.blank?
 			@queryStr = queryStr + " and u.id in (#{userIds}) "
@@ -217,6 +226,12 @@ module WkpayrollHelper
 				returnVal = getSalCompDep(salComp.id, salComp.user_id)
 				salComp.dependent_id = returnVal[0]
 				salComp.factor = returnVal[1]
+				@userSalCompHash[salComp.sc_id.to_s + '_' + salComp.user_id.to_s] = salComp
+			end
+					
+			if salComp.sc_component_type == "r"
+				amount = @reimburse.where({user_id: salComp.user_id})&.sum(:amount) || 0 if @reimburse.present?
+				salComp.factor = amount
 				@userSalCompHash[salComp.sc_id.to_s + '_' + salComp.user_id.to_s] = salComp
 			end
 		end
@@ -376,8 +391,14 @@ module WkpayrollHelper
 	end
 	
 	def deleteWkSalaries(userId, salaryDate)
+		wkSalaries = WkSalary.where("user_id in (#{userId}) ").where(salary_date: salaryDate)
+		reimburseID = WkSalaryComponents.getReimburseID
+		if reimburseID
+			salaryId = wkSalaries.where(salary_component_id: reimburseID).pluck(:id)
+			WkExpenseEntry.where({payroll_id: salaryId}).each {|s| s.update_attribute(:payroll_id, nil)} if salaryId
+		end
 		if !(userId.blank? || salaryDate.blank?)
-			WkSalary.where("user_id in (#{userId}) ").where(salary_date: salaryDate).delete_all
+			wkSalaries.delete_all
 		elsif !salaryDate.blank?
 			WkSalary.where(salary_date: salaryDate).delete_all
 		elsif !userId.blank?
@@ -417,6 +438,10 @@ module WkpayrollHelper
 							wksalaryComps.ledger_id = comps[5]
 							wksalaryComps.salary_comp_deps_attributes = [{id: checkEmpty(comps[3]), dependent_id: nil, 
 								factor: comps[4], factor_op: "EQ"}]
+						elsif key.to_s == 'reimburse'
+							wksalaryComps.name = comps[1]
+							wksalaryComps.ledger_id = comps[2]
+							wksalaryComps.component_type = 'r'
 						elsif key.to_s != 'Calculated_Fields'
 							wksalaryComps.name = comps[1]
 							wksalaryComps.frequency = comps[2]
@@ -551,14 +576,13 @@ module WkpayrollHelper
 			l(:label_basic_allowance_total) => 'BAT',
 			l(:label_allowance_total) => 'AT',
 			l(:label_basic_total) => 'BT',
-			l(:label_deduction) => "DT",
+			l(:label_deduction_total) => "DT",
 			l(:label_semi_ba_total) => "SBA",
 			l(:label_annual_ba_total) => "ABA"
 		}
 	end
 
 	def SavePayroll(payrollList,userIds,salaryDate)
-		deleteWkSalaries(userIds, salaryDate)
 		errorMsg = nil
 		payrollList.each do |list|
 			userSalary = WkSalary.new
@@ -569,6 +593,8 @@ module WkpayrollHelper
 			userSalary.salary_date = list[:salary_date]
 				if !userSalary.save()
 					errorMsg += userSalary.errors.full_messages.join('\n')
+				else
+    				@reimburse&.where({user_id: list[:user_id]})&.each {|r| r.update_attribute(:payroll_id, userSalary.id)} if @reimburseID && (@reimburseID.to_i == list[:salary_component_id])
 				end
 		end
 		errorMsg
@@ -581,6 +607,7 @@ module WkpayrollHelper
 		grandDeductionTotal = ""
 		grandGrossTotal = ""
 		grandNetTotal = ""
+		reimbursementTotal = ""
 		currency = ""
 		export = Redmine::Export::CSV.generate do |csv|
 		  # csv header fields
@@ -590,6 +617,7 @@ module WkpayrollHelper
 					 l(:label_basic),
 					 l(:label_allowances),
 					 l(:label_deduction),
+					 l(:label_reimbursements),
 					 l(:label_gross),
 					 l(:label_net),
 					 ]
@@ -597,20 +625,22 @@ module WkpayrollHelper
 			payrollentries.each do |key, payroll_data|
 				currency =  payroll_data[:currency]
 				gross = payroll_data[:BT].to_i+ payroll_data[:AT].to_i
-				net = gross  - payroll_data[:DT].to_i unless gross.blank?
+				reimbursement =  payroll_data[:RT].to_i
+				net = gross  - payroll_data[:DT].to_i + reimbursement unless gross.blank?
 				grandBasicTotal = grandBasicTotal.to_i + payroll_data[:BT].to_i
 				grandAllowanceTotal = grandAllowanceTotal.to_i + payroll_data[:AT].to_i
 				grandDeductionTotal = grandDeductionTotal.to_i + payroll_data[:DT].to_i
 				grandGrossTotal = grandGrossTotal.to_i + gross.to_i
 				grandNetTotal = grandNetTotal.to_i + net.to_i
+				reimbursementTotal = reimbursementTotal.to_i + reimbursement.to_i
 				
 				dataArr = [payroll_data[:firstname].to_s + " " + payroll_data[:lastname].to_s, payroll_data[:joinDate], payroll_data[:salDate], currency +
-				 payroll_data[:BT].to_s, currency + payroll_data[:AT].to_s, currency + payroll_data[:DT].to_s, currency + gross.to_s , currency + net.to_s]
+				 payroll_data[:BT].to_s, currency + payroll_data[:AT].to_s, currency + payroll_data[:DT].to_s, currency + reimbursement.to_s, currency + gross.to_s , currency + net.to_s]
 				
 				csv << dataArr.collect {|c| Redmine::CodesetUtil.from_utf8(c.to_s, l(:general_csv_encoding))}
 			end
 				totalArr = ["","", "Total", currency + grandBasicTotal.to_s, currency + grandAllowanceTotal.to_s, currency + grandDeductionTotal.to_s,
-					currency + grandGrossTotal.to_s, currency + grandNetTotal.to_s ]
+					currency + reimbursementTotal.to_s, currency + grandGrossTotal.to_s, currency + grandNetTotal.to_s ]
 			  csv << totalArr.collect {|t| Redmine::CodesetUtil.from_utf8(t.to_s, l(:general_csv_encoding))}
 		end
 		export
@@ -780,4 +810,5 @@ module WkpayrollHelper
 			salaryComponents.delete_if {|c| filterSalComps.include?(c.last)}
 		end
 	end
+	
 end

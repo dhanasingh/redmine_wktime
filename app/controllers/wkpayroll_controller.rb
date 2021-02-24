@@ -91,7 +91,7 @@ class WkpayrollController < WkbaseController
 		end
 
 		unless isGeneratePayroll.blank?
-			payrollAmount = generatePayroll(ids, @to +1, isGeneratePayroll)
+			payrollAmount = handlePayroll(ids, @to +1, isGeneratePayroll)
 		end
 		
 		unless isGeneratePayroll == "false"
@@ -147,7 +147,7 @@ class WkpayrollController < WkbaseController
 		payrollAmount.each do |payroll|
 			key = payroll[:user_id].to_s + "_" + payroll[:salary_date].to_s
 			if @payrollEntries[key].blank?
-				@payrollEntries[key] = { :uID => payroll[:user_id], :firstname => nil, :lastname => nil, :joinDate => nil, :salDate => payroll[:salary_date], :BT => 0, :AT => 0, :DT => 0, :currency => nil, :details => {:b => [], :a => [], :d => []}}
+				@payrollEntries[key] = { :uID => payroll[:user_id], :firstname => nil, :lastname => nil, :joinDate => nil, :salDate => payroll[:salary_date], :BT => 0, :AT => 0, :DT => 0, RT: 0, :currency => nil, :details => {:b => [], :a => [], :d => [], r: []}}
 			end
 
 			usersDetails.each do |user|
@@ -171,6 +171,9 @@ class WkpayrollController < WkbaseController
 					when "d"
 						@payrollEntries[key][:DT] = @payrollEntries[key][:DT] + payroll[:amount].to_i
 						@payrollEntries[key][:details][:d] << [s_cmpt.name, payroll[:amount].to_i, payroll[:currency]]
+					when "r"
+						@payrollEntries[key][:RT] = @payrollEntries[key][:RT] + payroll[:amount].to_i
+						@payrollEntries[key][:details][:r] << [s_cmpt.name, payroll[:amount].to_i, payroll[:currency]]
 					end
 				end
 			end
@@ -182,7 +185,7 @@ class WkpayrollController < WkbaseController
 		salarydate = params[:salary_date]
 		key = userid.to_s + "_" + salarydate.to_s
 		if to_boolean(params[:isPreview])
-			payrollAmount = generatePayroll(userid, salarydate.to_date, "false")
+			payrollAmount = handlePayroll(userid, salarydate.to_date, "false")
 		else
 			payrollAmount = get_wksalaries_in_hash_format(userid, salarydate)
 		end	
@@ -222,9 +225,9 @@ class WkpayrollController < WkbaseController
 			end
 	end
 	
-	def generatePayroll(userIds, salaryDate, isGeneratePayroll)
-		errorMsg = generateSalaries(userIds,salaryDate, isGeneratePayroll)
+	def handlePayroll(userIds, salaryDate, isGeneratePayroll)
 		if to_boolean(isGeneratePayroll)
+			errorMsg = generateSalaries(userIds,salaryDate)
 			if errorMsg.nil?
 				#redirect_to action: 'index' , tab: 'payroll'
 				flash[:notice] = l(:notice_successful_update)		
@@ -235,6 +238,11 @@ class WkpayrollController < WkbaseController
 				end
 				#redirect_to :action => 'index'
 			end
+		else
+			@payrollList = Array.new		
+			userSalaryHash = getUserSalaryHash(userIds,salaryDate)
+			errorMsg = nil
+			getPayrollData(userSalaryHash, salaryDate) if userSalaryHash.present?
 		end
 		payroll_list = @payrollList
 	end
@@ -242,7 +250,7 @@ class WkpayrollController < WkbaseController
 	def user_salary_settings
 		userId = params[:user_id]
 		sqlStr = getUserSalaryQueryStr
-		sqlStr = sqlStr + "Where u.id = #{userId} and u.type = 'User'" +
+		sqlStr = sqlStr + "Where u.id = #{userId} and u.type = 'User' and sc.component_type NOT IN ('r')" +
 		"order by u.id, sc.component_type"
 		@userSalHash = getUserSalaryHash(userId, Date.today.at_end_of_month + 1, 'userSetting')
 		@userSalaryEntries = WkUserSalaryComponents.find_by_sql(sqlStr)
@@ -473,6 +481,7 @@ class WkpayrollController < WkbaseController
 			payrollValues[:comp_del_ids] = settinghash["comp_del_ids"]
 			payrollValues[:dep_del_ids] = settinghash["dep_del_ids"]
 			payrollValues[:cond_del_ids] = settinghash["cond_del_ids"]
+			payrollValues[:reimburse] = settinghash["reimburse"]
 		end
 		payrollValues
 	end
@@ -491,6 +500,7 @@ class WkpayrollController < WkbaseController
 		hashval["allowances"] = []
 		hashval["deduction"] = []
 		hashval["calculated_fields"] = []
+		hashval["reimburse"] = []
 
 		salary_comps.each do |list|
 			allowCompDeps = []
@@ -539,6 +549,9 @@ class WkpayrollController < WkbaseController
 
 			hashval["calculated_fields"] << [list.name + '|' + calculatedFieldTypes[list.salary_type.to_s].to_s,
 				list.id.to_s + '|' + list.name + '|' + list.salary_type] if list.component_type == 'c'
+
+			hashval["reimburse"] << [list.name+ '|' + ledgers[list.ledger_id.to_s].to_s,
+				list.id.to_s + '|' + list.name + '|' + list.ledger_id.to_s] if list.component_type == 'r'
 		end
 		@payrollsettings = hashval
 	end
@@ -547,14 +560,14 @@ class WkpayrollController < WkbaseController
 		salary_cmpts = get_salary_components
 		u_salary_cmpts = Array.new
 		params.each do |key, valueSet|
-				salary_cmpts.each do |component|
-					keys = key.split('_')
-						if keys.first.to_i == component.id && (!(valueSet.first).blank?)
-								user_id = keys.last.blank? ? nil : keys.last
-								u_salary_cmpts << {:user_id => user_id, :component_id => keys.first,
-									:dependent_id => valueSet.last, :factor => valueSet.first, :is_override => 1 }
-						end
+			salary_cmpts.each do |component|
+				keys = key.split('_')
+				if keys.first.to_i == component.id && (!(valueSet.first).blank?)
+					user_id = keys.last.blank? ? nil : keys.last
+					u_salary_cmpts << {:user_id => user_id, :component_id => keys.first,
+						:dependent_id => valueSet.last, :factor => valueSet.first, :is_override => 1 }
 				end
+			end
 		end
 		errmsg = saveUserSalary(u_salary_cmpts, true)
 		errmsg = "ok" if errmsg.blank?
@@ -562,7 +575,7 @@ class WkpayrollController < WkbaseController
 	end
 
 	def get_salary_components
-		WkSalaryComponents.where("component_type != 'c'")
+		WkSalaryComponents.where("component_type NOT IN ('c', 'r') ")
 	end
 
 	def saveUserSalary(u_salary_cmpts, is_bulkEdit)
@@ -570,37 +583,49 @@ class WkpayrollController < WkbaseController
 		salaryComponents = getSalaryComponentsArr
 		errorMsg = nil
 		u_salary_cmpts.each do |entry|
-				userId = entry["user_id".to_sym]
-				componentId = (entry["component_id".to_sym]).to_i
-				userSalarycomp = WkUserSalaryComponents.where("user_id = #{userId} and salary_component_id = #{componentId}")
-				wkUserSalComp = userSalarycomp[0]
-				old_dependent_id = wkUserSalComp.blank? ? 0 : wkUserSalComp.dependent_id
-				dependentId = (is_bulkEdit && old_dependent_id.to_i  > 0) ? old_dependent_id.to_i : (entry["dependent_id".to_sym]).to_i
-				userSettingHash = getUserSettingHistoryHash(wkUserSalComp) unless wkUserSalComp.blank?
-				if (entry["is_override".to_sym]).blank?
-						unless wkUserSalComp.blank?
+			userId = entry["user_id".to_sym]
+			componentId = (entry["component_id".to_sym]).to_i
+			userSalarycomp = WkUserSalaryComponents.where("user_id = #{userId} and salary_component_id = #{componentId}")
+			wkUserSalComp = userSalarycomp[0]
+			old_dependent_id = wkUserSalComp.blank? ? 0 : wkUserSalComp.dependent_id
+			dependentId = (is_bulkEdit && old_dependent_id.to_i  > 0) ? old_dependent_id.to_i : (entry["dependent_id".to_sym]).to_i
+			userSettingHash = getUserSettingHistoryHash(wkUserSalComp) unless wkUserSalComp.blank?
+			if (entry["is_override".to_sym]).blank?
+				unless wkUserSalComp.blank?
+					saveUsrSalCompHistory(userSettingHash) 
 								saveUsrSalCompHistory(userSettingHash) 
-								wkUserSalComp.destroy()
-						end			
-				else
-						factor = entry["factor".to_sym]
-						if wkUserSalComp.blank?
-								wkUserSalComp = WkUserSalaryComponents.new
-								wkUserSalComp.user_id = userId
-								wkUserSalComp.salary_component_id = componentId
-								wkUserSalComp.dependent_id = dependentId if dependentId > 0
-								wkUserSalComp.factor = factor 
-						else
-								wkUserSalComp.dependent_id = dependentId > 0 ? dependentId : nil 
-								wkUserSalComp.factor = factor 
-						end
-						if (wkUserSalComp.changed? && !wkUserSalComp.new_record?) || wkUserSalComp.destroyed?
-								saveUsrSalCompHistory(userSettingHash) 
-						end
-						if !wkUserSalComp.save()
-								errorMsg = wkUserSalComp.errors.full_messages.join('\n')
-						end
+					saveUsrSalCompHistory(userSettingHash) 
+					wkUserSalComp.destroy()
 				end
+						end			
+				end
+			else
+				factor = entry["factor".to_sym]
+				if wkUserSalComp.blank?
+						wkUserSalComp = WkUserSalaryComponents.new
+						wkUserSalComp.user_id = userId
+						wkUserSalComp.salary_component_id = componentId
+						wkUserSalComp.dependent_id = dependentId if dependentId > 0
+						wkUserSalComp.factor = factor 
+								wkUserSalComp.factor = factor 
+						wkUserSalComp.factor = factor 
+				else
+						wkUserSalComp.dependent_id = dependentId > 0 ? dependentId : nil 
+								wkUserSalComp.dependent_id = dependentId > 0 ? dependentId : nil 
+						wkUserSalComp.dependent_id = dependentId > 0 ? dependentId : nil 
+						wkUserSalComp.factor = factor 
+								wkUserSalComp.factor = factor 
+						wkUserSalComp.factor = factor 
+				end
+				if (wkUserSalComp.changed? && !wkUserSalComp.new_record?) || wkUserSalComp.destroyed?
+						saveUsrSalCompHistory(userSettingHash) 
+								saveUsrSalCompHistory(userSettingHash) 
+						saveUsrSalCompHistory(userSettingHash) 
+				end
+				if !wkUserSalComp.save()
+						errorMsg = wkUserSalComp.errors.full_messages.join('\n')
+				end
+			end
 		end
 		errorMsg
 	end
@@ -628,13 +653,14 @@ class WkpayrollController < WkbaseController
 	def getPDFHeaders()
 		headers = [
 			[ l(:field_user), 30 ],
-			[ l(:field_join_date), 20 ],
-			[ l(:label_salarydate), 20 ],
-			[ l(:label_basic), 22 ],
-			[ l(:label_allowances), 22 ],
-			[ l(:label_deduction), 26 ],
-			[ l(:label_gross), 25 ],
-			[ l(:label_net), 25 ]
+			[ l(:field_join_date), 18 ],
+			[ l(:label_salarydate), 18 ],
+			[ l(:label_basic), 20 ],
+			[ l(:label_allowances), 21 ],
+			[ l(:label_deduction), 21 ],
+			[ l(:label_reimbursements), 24 ],
+			[ l(:label_gross), 24 ],
+			[ l(:label_net), 24 ]
 		]
 	end
 
@@ -643,27 +669,31 @@ class WkpayrollController < WkbaseController
 		@basic_total ||= 0
 		@allowance_total ||= 0
 		@deduction_total ||= 0
+		@reimbursement_total ||= 0
 		@basic_total += entry[:BT] unless entry[:BT].blank?
 		@allowance_total += entry[:AT] unless entry[:AT].blank?
 		@deduction_total += entry[:DT] unless entry[:DT].blank?
+		@reimbursement_total += entry[:RT] unless entry[:DT].blank?
 		list = [
 			[ (entry[:firstname] || "") + " " + (entry[:lastname] || ""), 30 ],
-			[ entry[:joinDate].to_s, 20 ],
-			[ entry[:salDate].to_s, 20 ],
-			[ entry[:currency].to_s + " " + ("%.2f" % entry[:BT]).to_s, 22 ],
-			[ entry[:currency].to_s + " " + ("%.2f" % entry[:AT]).to_s, 22 ],
-			[ entry[:currency].to_s + " " + ("%.2f" % entry[:DT]).to_s, 26 ],
-			[ entry[:currency].to_s + " " + ("%.2f" % ((entry[:BT].blank? ? 0 : entry[:BT]) + (entry[:AT].blank? ? 0 : entry[:AT]))).to_s, 25 ],
-			[ entry[:currency].to_s + " " + ("%.2f" % (((entry[:BT].blank? ? 0 : entry[:BT]) + (entry[:AT].blank? ? 0 : entry[:AT])) -(entry[:DT].blank? ? 0 : entry[:DT]))).to_s, 25 ]
+			[ entry[:joinDate].to_s, 18 ],
+			[ entry[:salDate].to_s, 18 ],
+			[ entry[:currency].to_s + " " + ("%.2f" % entry[:BT]).to_s, 20 ],
+			[ entry[:currency].to_s + " " + ("%.2f" % entry[:AT]).to_s, 21 ],
+			[ entry[:currency].to_s + " " + ("%.2f" % entry[:DT]).to_s, 21],
+			[ entry[:currency].to_s + " " + ("%.2f" % entry[:RT]).to_s, 24 ],
+			[ entry[:currency].to_s + " " + ("%.2f" % ((entry[:BT].blank? ? 0 : entry[:BT]) + (entry[:AT].blank? ? 0 : entry[:AT]))).to_s, 24 ],
+			[ entry[:currency].to_s + " " + ("%.2f" % (((entry[:BT].blank? ? 0 : entry[:BT]) + (entry[:AT].blank? ? 0 : entry[:AT])) -(entry[:DT].blank? ? 0 : entry[:DT])+ (entry[:RT].blank? ? 0 : entry[:RT]))).to_s, 24 ]
 		]
 	end
 
 	def getPDFFooter(pdf, row_Height)
-		pdf.RDMCell( 70, row_Height, "Total", 1, 0, '', 1)
-		pdf.RDMCell( 22, row_Height, @payrollEntries.values[0][:currency] + " " + (@basic_total || 0).to_s, 1, 0, '', 1)
-		pdf.RDMCell( 22, row_Height, @payrollEntries.values[0][:currency] + " " + (@allowance_total || 0).to_s, 1, 0, '', 1)
-		pdf.RDMCell( 26, row_Height, @payrollEntries.values[0][:currency] + " " + (@deduction_total || 0).to_s, 1, 0, '', 1)
-		pdf.RDMCell( 25, row_Height, @payrollEntries.values[0][:currency] + " " + (@total_gross || 0).to_s, 1, 0, '', 1)
-		pdf.RDMCell( 25, row_Height, @payrollEntries.values[0][:currency] + " " + (@total_net || 0).to_s, 1, 0, '', 1)
+		pdf.RDMCell( 66, row_Height, "Total", 1, 0, '', 1)
+		pdf.RDMCell( 20, row_Height, @payrollEntries.values[0][:currency] + " " + (@basic_total || 0).to_s, 1, 0, '', 1)
+		pdf.RDMCell( 21, row_Height, @payrollEntries.values[0][:currency] + " " + (@allowance_total || 0).to_s, 1, 0, '', 1)
+		pdf.RDMCell( 21, row_Height, @payrollEntries.values[0][:currency] + " " + (@deduction_total || 0).to_s, 1, 0, '', 1)
+		pdf.RDMCell( 24, row_Height, @payrollEntries.values[0][:currency] + " " + (@reimbursement_total || 0).to_s, 1, 0, '', 1)
+		pdf.RDMCell( 24, row_Height, @payrollEntries.values[0][:currency] + " " + (@total_gross || 0).to_s, 1, 0, '', 1)
+		pdf.RDMCell( 24, row_Height, @payrollEntries.values[0][:currency] + " " + (@total_net || 0).to_s, 1, 0, '', 1)
 	end
 end

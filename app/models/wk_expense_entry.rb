@@ -99,4 +99,8 @@ class WkExpenseEntry < TimeEntry
 			option.call(self)
 		end
 	end
+
+  scope :getReimburse, ->(project_id) {
+    where("project_id in (?) and payroll_id is NULL", project_id)
+  }
 end

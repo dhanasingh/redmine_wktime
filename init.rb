@@ -849,7 +849,7 @@ Rails.configuration.to_prepare do
 					if runJob
 						Rails.logger.info "==========Payroll job - Started=========="
 						wkpayroll_helper = Object.new.extend(WkpayrollHelper)
-						errorMsg = wkpayroll_helper.generateSalaries(nil,currentMonthStart,"true")
+						errorMsg = wkpayroll_helper.generateSalaries(nil,currentMonthStart)
 						Rails.logger.info "===== Payroll generated Successfully ====="
 					end
 				rescue Exception => e

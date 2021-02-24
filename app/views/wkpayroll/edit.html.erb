@@ -75,6 +75,15 @@
 	</table>
  </fieldset><br>
 	<div style="padding-right:50px;">
+		<table width="15%" align="left" style="border-collapse: collapse;border: 0px solid black;">
+			<% componentHash[:r].each do |entry| %>
+				<tr>
+					<td><b><%=h entry[0]  %></b></td>
+					<td><%=h entry[2]%><%=h "%.2f" % entry[1] %></td>
+				</tr>
+				<% net = net + entry[1] %>
+			<%end%>
+		</table>
 		<table width="15%" align="right" style="border-collapse: collapse;border: 0px solid black;">
 			<tr>
 				<td style="float:left; "><b><%=l(:label_gross) %></b></td>

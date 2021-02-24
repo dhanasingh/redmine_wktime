@@ -20,4 +20,9 @@ class WkSalaryComponents < ActiveRecord::Base
   has_many :salaries, foreign_key: "salary_component_id", class_name: "WkSalary"
   has_many :salary_comp_deps, foreign_key: "salary_component_id", class_name: "WkSalCompDependent", dependent: :destroy
   accepts_nested_attributes_for :salary_comp_deps, allow_destroy: true
+  
+
+  scope :getReimburseID, ->() {
+    where({component_type: 'r'}).pluck(:id).first
+  }
 end

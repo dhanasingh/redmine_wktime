@@ -11,6 +11,8 @@ class CreateWkSkill < ActiveRecord::Migration[5.2]
 
     reversible do |dir|
       dir.up do
+        add_reference :wk_expense_entries, :payroll, :class => "wk_salaries", :null => true
+        WkExpenseEntry.update_all('payroll_id = 0')
         WkPermission.where(short_name: "A_PAYRL").first&.update_attributes!(modules: "HR")
         WkPermission.create([
           {id: 19, name: "ADMIN SKILL SET PRIVILEGE", short_name: "A_SKILL", modules: "HR", created_at: 'current_timestamp', updated_at: 'current_timestamp'},
@@ -19,6 +21,7 @@ class CreateWkSkill < ActiveRecord::Migration[5.2]
        end
 
        dir.down do
+        remove_column :wk_expense_entries, :payroll_id
         WkPermission.where(short_name: "A_PAYRL").first&.update_attributes!(modules: "PAYROLL")
         ["A_SKILL", "A_REFERRAL"].each{|p| WkPermission.where(short_name: p).destroy_all}
       end

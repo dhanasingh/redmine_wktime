@@ -10,6 +10,7 @@
 				<%= sort_header_tag('basic_pay', :caption => l(:label_basic), class: "lbl-txt-align") %>
 				<%= sort_header_tag('allowances', :caption => l(:label_allowances), class: "lbl-txt-align") %>
 				<%= sort_header_tag('deduction_total', :caption => l(:label_deduction), class: "lbl-txt-align") %>
+				<th class="lbl-txt-align"><%= l(:label_reimbursements) %></th>
 				<%= sort_header_tag('gross', :caption => l(:label_gross), class: "lbl-txt-align") %>
 				<%= sort_header_tag('net', :caption => l(:label_net), class: "lbl-txt-align") %>
 			<% else %>
@@ -19,6 +20,7 @@
 				<th class="lbl-txt-align"><%= l(:label_basic) %></th>
 				<th class="lbl-txt-align"><%= l(:label_allowances) %></th>
 				<th class="lbl-txt-align"><%= l(:label_deduction) %></th>
+				<th class="lbl-txt-align"><%= l(:label_reimbursements) %></th>
 				<th class="lbl-txt-align"><%= l(:label_gross) %></th>
 				<th class="lbl-txt-align"><%= l(:label_net) %></th>
 			<% end %>
@@ -26,14 +28,16 @@
 		</tr>
   </thead>
    <tbody>
-   <% basic_total = 0 %>
-   <% allowance_total = 0 %>
-   <% deduction_total = 0 %>
+   <% basic_total = 0
+   	allowance_total = 0
+   	deduction_total = 0
+   	reimbursement = 0 %>
 	 <% @payrollEntries.each do |key, entry| %>
 		
 		<%  basic_total += entry[:BT] unless entry[:BT].blank? %>
 		<%  allowance_total += entry[:AT] unless entry[:AT].blank? %>
 		<%  deduction_total += entry[:DT] unless entry[:DT].blank? %>
+		<%  reimbursement += entry[:RT] unless entry[:RT].blank? %>
 		<% userName = (entry[:firstname].blank? ? '' : entry[:firstname]) + ' ' + (entry[:lastname].blank? ? '' : entry[:lastname]) %>
 		 <tr>
 				<td class="lbl-txt-align"><%=h userName %></td>
@@ -42,8 +46,9 @@
 				<td class="lbl-txt-align"><%=h entry[:currency] %>&nbsp;<%=h html_hours("%.2f" % entry[:BT]) %></td>
 				<td class="lbl-txt-align"><%=h entry[:currency] %>&nbsp;<%=h html_hours("%.2f" % entry[:AT]) %></td>
 				<td class="lbl-txt-align"><%=h entry[:currency] %>&nbsp;<%=h html_hours("%.2f" % entry[:DT]) %></td>
+				<td class="lbl-txt-align"><%=h entry[:currency] %>&nbsp;<%=h html_hours("%.2f" % entry[:RT]) %></td>
 				<td class="lbl-txt-align"><%=h entry[:currency] %> &nbsp;<%=h html_hours("%.2f" % ((entry[:BT].blank? ? 0 : entry[:BT]) + (entry[:AT].blank? ? 0 : entry[:AT]))) %></td>
-				<td class="lbl-txt-align"><%=h entry[:currency] %>&nbsp;<%=h html_hours("%.2f" % (((entry[:BT].blank? ? 0 : entry[:BT]) + (entry[:AT].blank? ? 0 : entry[:AT])) -(entry[:DT].blank? ? 0 : entry[:DT]))) %></td>
+				<td class="lbl-txt-align"><%=h entry[:currency] %>&nbsp;<%=h html_hours("%.2f" % (((entry[:BT].blank? ? 0 : entry[:BT]) + (entry[:AT].blank? ? 0 : entry[:AT])) -(entry[:DT].blank? ? 0 : entry[:DT]) + (entry[:RT].blank? ? 0 : entry[:RT]))) %></td>
 				<td align="center">
                 <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :user_id => entry[:uID], :salary_date =>entry[:salDate], :tab => controller.controller_name, :isPreview => @isPreview}, :title => l(:button_edit) %>
 		</tr>
@@ -57,8 +62,9 @@
 				<th class="lbl-txt-align"><%=h @payrollEntries.values[0][:currency]%>&nbsp;<%= "%.2f" % basic_total %></th>
 				<th class="lbl-txt-align"><%=h @payrollEntries.values[0][:currency]%>&nbsp;<%= "%.2f" % allowance_total %></th>
 				<th class="lbl-txt-align"><%=h @payrollEntries.values[0][:currency]%>&nbsp;<%= "%.2f" % deduction_total %></th>
+				<th class="lbl-txt-align"><%=h @payrollEntries.values[0][:currency]%>&nbsp;<%=  "%.2f" % reimbursement %></th>
 				<th class="lbl-txt-align"><%=h @payrollEntries.values[0][:currency]%>&nbsp;<%= "%.2f" % @total_gross %></th>
-				<th class="lbl-txt-align"><%=h @payrollEntries.values[0][:currency]%>&nbsp;<%= "%.2f" % @total_net %></th>
+				<th class="lbl-txt-align"><%=h @payrollEntries.values[0][:currency]%>&nbsp;<%= "%.2f" % (@total_net + reimbursement) %></th>
 				<th></th>
 		</tr>
 	<% end %>

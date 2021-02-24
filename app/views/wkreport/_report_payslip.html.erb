@@ -95,12 +95,14 @@
 			totalDeductions = 0
 			totalYTDEarnings = 0
 			totalYTDDeductions = 0
+			totalReimburse = 0
+			totalYTDReimburse = 0
 		%>
 					
 					
 		<%for i in 0..componentlength-1 %>
 			<tr>
-				<% if componentHash['e'].length > i%>
+				<% if componentHash['e'] && componentHash['e'].length > i%>
 					<td class="txt-align"><b><%=h componentHash['e'][i][0]  %></b></td>
 					<td align="right"><%=h componentHash['e'][i][2]%> <%=h "%.2f" % componentHash['e'][i][1] %></td>
 					<td align="right"><%=h componentHash['e'][i][2]%> <%=h "%.2f" % componentHash['e'][i][3] %></td>
@@ -111,7 +113,7 @@
 					%>
 				<%end%>	
 				
-				<% if componentHash['d'].length > i%>
+				<% if componentHash['d'] && componentHash['d'].length > i%>
 					<td class="txt-align"><b><%=h componentHash['d'][i][0]  %></b></td>
 					<td align="right"><%=h componentHash['d'][i][2]%> <%=h "%.2f" % componentHash['d'][i][1] %></td>
 					<td align="right"><%=h componentHash['d'][i][2]%> <%=h "%.2f" % componentHash['d'][i][3] %></td>
@@ -135,11 +137,22 @@
 			<td align="right"><%=h deductionCurrency %> <%=h "%.2f" % totalDeductions %></td>
 			<td align="right"><%=h deductionCurrency %> <%=h "%.2f" % totalYTDDeductions %></td>
 		</tr>
+		<tr>
+			<% if componentHash['r'] %>
+				<td class="txt-align"><b><%=h componentHash['r'][0][0]  %></b></td>
+				<td align="right"><%=h componentHash['r'][0][2]%> <%=h "%.2f" % componentHash['r'][0][1] %></td>
+				<td align="right"><%=h componentHash['r'][0][2]%> <%=h "%.2f" % componentHash['r'][0][3] %></td>
+				<% 
+					totalReimburse = totalReimburse + componentHash['r'][0][1] 
+					totalYTDReimburse = totalYTDReimburse + componentHash['r'][0][3]
+				%>
+			<%end%>
+		</tr>
 		
 		<tr> 
 			<td class="txt-align"><b><%=l(:label_net_earning)%></b></td>
-			<td align="right"><%=h earnCurrency %><%=h "%.2f" % (totalEarnings - totalDeductions) %></td>
-			<td align="right"><%=h earnCurrency %><%=h "%.2f" % (totalYTDEarnings - totalYTDDeductions) %></td>
+			<td align="right"><%=h earnCurrency %><%=h "%.2f" % (totalEarnings - totalDeductions + totalReimburse) %></td>
+			<td align="right"><%=h earnCurrency %><%=h "%.2f" % (totalYTDEarnings - totalYTDDeductions + totalYTDReimburse) %></td>
 		</tr>	
 	</tbody>		
 	</table>

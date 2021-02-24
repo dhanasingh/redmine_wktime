@@ -1,5 +1,6 @@
 <%= title l(:label_payroll) %>
 <%= render partial: "wkattendance/render_hr_tabs" %>
+<%= javascript_include_tag 'wkpayroll', :plugin => "redmine_wktime" %>
 <div class="wk-contextual">
 	<%= render :partial => 'sidebar' %>
 </div>
