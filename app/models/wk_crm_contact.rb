@@ -94,10 +94,14 @@ class WkCrmContact < ActiveRecord::Base
 
   # Returns contact's contracts for the given project
   # or nil if the contact do not have contract
-  def contract(project)
-		contract = contracts.where(:project_id => project.id).first
-		contract = contracts[0] if contract.blank?
-		contract
+  def contract(project, invEndDate)
+    contract = nil
+    unless project.blank?
+      wkcontracts = contracts.where(:project_id => project.id).order(start_date: "desc")
+      contract = wkcontracts.where("start_date < ? AND (end_date IS NULL OR end_date > ?)", invEndDate, invEndDate).first
+      contract = wkcontracts.first if contract.blank?
+    end
+    contract
   end
 
   def self.name_formatter(formatter = nil)

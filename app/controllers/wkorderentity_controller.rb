@@ -57,52 +57,52 @@ class WkorderentityController < WkbillingController
 		elsif filter_type == '2' && contact_id.blank?
 			parentType = 'WkCrmContact'
 		end
-		
+
 		if filter_type == '3' && !account_id.blank?
 			parentType =  'WkAccount'
 			parentId = 	account_id
 		elsif filter_type == '3' && account_id.blank?
 			parentType =  'WkAccount'
 		end
-		
+
 		accountProjects = getProjArrays(parentId, parentType)
 		@projects = accountProjects.collect{|m| [ m.project_name, m.project_id ] } if !accountProjects.blank?
-		
-		unless parentId.blank? 
+
+		unless parentId.blank?
 			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
 			sqlwhere = sqlwhere + " parent_id = '#{parentId}' "
 		end
-		
+
 		unless parentType.blank?
 			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
 			sqlwhere = sqlwhere + " parent_type = '#{parentType}'  "
 		end
-		
+
 		if (!params[:preview_billing].blank? && params[:preview_billing] == "true") ||
 		   (!params[:generate].blank? && params[:generate] == "true")
 			if !projectId.blank? && projectId.to_i != 0
 				sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
 				sqlwhere = sqlwhere + " project_id = '#{projectId}' "
 			end
-			if filter_type == '2'  || filter_type == '3' 
+			if filter_type == '2'  || filter_type == '3'
 				accProjects = WkAccountProject.where(sqlwhere).order(:parent_type, :parent_id)
 				# previewBilling(accProjects)
 				# accProjects.find_each do |accProj|
 				   # errorMsg = generateInvoices(accProj, projectId, @to + 1, [@from, @to]) unless params[:generate].blank? || !to_boolean(params[:generate])#accProj.parent_id,accProj.parent_type
-				   
+
 				# end
-			end			
-			
-			if filter_type == '1'  
+			end
+
+			if filter_type == '1'
 				if  projectId.blank?
-					accProjects = WkAccountProject.all.order(:parent_type, :parent_id)					
+					accProjects = WkAccountProject.all.order(:parent_type, :parent_id)
 				else
 					accProjects = WkAccountProject.where(project_id: projectId).order(:parent_type, :parent_id)
-				end	
+				end
 				# previewBilling(accProjects)
 				# accProjects.each do |accProj|
 				   # errorMsg = generateInvoices(accProj, projectId, @to + 1, [@from, @to]) unless params[:generate].blank? || !to_boolean(params[:generate])
-				   
+
 				# end
 			end
 			invoiceFreq = getInvFreqAndFreqStart
@@ -112,11 +112,11 @@ class WkorderentityController < WkbillingController
 			invIntervals.each do |interval|
 				accProjects.find_each do |accProj|
 				   errorMsg = generateInvoices(accProj, projectId, interval[1] + 1, interval) unless params[:generate].blank? || !to_boolean(params[:generate])#accProj.parent_id,accProj.parent_type
-				   
+
 				end
 			end
 			unless params[:generate].blank? || !to_boolean(params[:generate])
-				if errorMsg.blank?	
+				if errorMsg.blank?
 					redirect_to :action => 'index' , :tab => controller_name
 					flash[:notice] = l(:notice_successful_update)
 				else
@@ -127,22 +127,22 @@ class WkorderentityController < WkbillingController
 						flash[:error] = errorMsg
 					end
 					redirect_to :action => 'index'
-				end	
+				end
 			end
-		else	
+		else
 			sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
-			sqlwhere = sqlwhere + " invoice_type = '#{getInvoiceType}'"	
-			if !@from.blank? && !@to.blank?			
+			sqlwhere = sqlwhere + " invoice_type = '#{getInvoiceType}'"
+			if !@from.blank? && !@to.blank?
 				sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
 				sqlwhere = sqlwhere + " invoice_date between '#{@from}' and '#{@to}'  "
 			end
 
 			invEntries = WkInvoice.where(sqlwhere)
-	
+
 			if !projectId.blank? && projectId.to_i != 0
 				invEntries = invEntries.where( :wk_invoice_items => { :project_id => projectId })
-			end	
-			
+			end
+
 			if !rfqId.blank? && rfqId.to_i != 0
 				invIds = getInvoiceIds(rfqId, getInvoiceType, false)
 				invEntries = invEntries.where( :id => invIds)
@@ -161,19 +161,19 @@ class WkorderentityController < WkbillingController
 				@totalInvAmt = amounts.compact.inject(0, :+)
 			end
 			respond_to do |format|
-				format.html {        
+				format.html {
 				  render :layout => !request.xhr?
 				}
 				format.api
 			end
-		end		
-	end	
-	
+		end
+	end
+
 	def edit
 		@invoice = nil
 		@invoiceItem = nil
 		@projectsDD = Array.new
-        @currency = nil	
+        @currency = nil
 		@preBilling = false
 		@rfgQuoteEntry = nil
 		@rfqObj = nil
@@ -181,7 +181,7 @@ class WkorderentityController < WkbillingController
 		@siObj = nil
 		@preBilling = to_boolean(params[:preview_billing]) unless params[:preview_billing].blank?
 		@listKey = 0
-		@invList = Hash.new{|hsh,key| hsh[key] = {} }	
+		@invList = Hash.new{|hsh,key| hsh[key] = {} }
 		parentType = ""
 		parentId = ""
 		filter_type = params[:polymorphic_filter]
@@ -193,74 +193,74 @@ class WkorderentityController < WkbillingController
 		elsif filter_type == '2' && contact_id.blank?
 			parentType = 'WkCrmContact'
 		end
-		
+
 		if filter_type == '3' && !account_id.blank?
 			parentType =  'WkAccount'
 			parentId = 	params[:account_id]
 		elsif filter_type == '3' && account_id.blank?
 			parentType =  'WkAccount'
 		end
-		
+
 		if parentId.blank? && parentType.blank?
 			parentType = params[:related_to]
 			parentId = params[:related_parent]
 		end
-		
-		if !params[:new_invoice].blank? && params[:new_invoice] == "true"			
+
+		if !params[:new_invoice].blank? && params[:new_invoice] == "true"
 			if parentId.blank?
 				flash[:error] = "Account and Contacts can't be empty."
 				return redirect_to :action => 'new'
 			end
 			newOrderEntity(parentId, parentType)
-		end		
+		end
 		editOrderEntity
 		unless params[:is_report].blank? || !to_boolean(params[:is_report])
 			@invoiceItem = @invoiceItem.order(:project_id, :item_type)
 			render :action => 'invreport', :layout => false
 		end
-		
+
 	end
-	
+
 	def invreport
 		@invoice = WkInvoice.find(params[:invoice_id].to_i)
-		@invoiceItem = @invoice.invoice_items 
+		@invoiceItem = @invoice.invoice_items
 		render :action => 'invreport', :layout => false
 	end
-	
-	def newOrderEntity(parentId, parentType)	
-	end	
-	
-	def editOrderEntity			
+
+	def newOrderEntity(parentId, parentType)
+	end
+
+	def editOrderEntity
 		unless params[:invoice_id].blank?
 			@invoice = WkInvoice.find(params[:invoice_id].to_i)
-			@invoiceItem = @invoice.invoice_items 
-			@invPaymentItems = @invoice.payment_items.current_items				
+			@invoiceItem = @invoice.invoice_items
+			@invPaymentItems = @invoice.payment_items.current_items
 			pjtList = @invoiceItem.select(:project_id).distinct
-			pjtList.each do |entry| 
-				@projectsDD << [ entry.project.name, entry.project_id ] if !entry.project_id.blank? && entry.project_id != 0  
-			end			
-		end		
+			pjtList.each do |entry|
+				@projectsDD << [ entry.project.name, entry.project_id ] if !entry.project_id.blank? && entry.project_id != 0
+			end
+		end
 	end
-	
+
 	def setTempEntity(startDate, endDate, relatedParent, relatedTo, populatedItems, projectId)
 		@itemCount = 0
-		@invItems = Hash.new{|hsh,key| hsh[key] = {} }		
+		@invItems = Hash.new{|hsh,key| hsh[key] = {} }
 		@invoice = WkInvoice.new
 		@invoice.invoice_date = Date.today
 		@invoice.id = ""
 		@invoice.invoice_number = ""
-		@invoice.start_date = startDate 
-		@invoice.end_date = endDate 
+		@invoice.start_date = startDate
+		@invoice.end_date = endDate
 		@invoice.status = 'o'
 		@invoice.modifier_id = User.current.id
-		@invoice.parent_id = relatedParent 
-		@invoice.parent_type = relatedTo 		
+		@invoice.parent_id = relatedParent
+		@invoice.parent_type = relatedTo
 	end
-	
+
 	def new
-	
+
 	end
-	
+
 	def update
 		if api_request?
 			row_index =0
@@ -268,7 +268,7 @@ class WkorderentityController < WkbillingController
 				if data['hd_item_type'] != 't' && data['hd_item_type'] != 'r'
 					row_index = row_index+1
 					data.each do | item |
-						params[item.first + '_' +(row_index).to_s] = item.last					
+						params[item.first + '_' +(row_index).to_s] = item.last
 					end
 				end
 			end
@@ -284,14 +284,14 @@ class WkorderentityController < WkbillingController
 			@invoice = WkInvoice.new
 			invoicePeriod = getInvoicePeriod(params[:inv_start_date], params[:inv_end_date])#[params[:inv_start_date], params[:inv_end_date]]
 			saveOrderInvoice(params[:parent_id], params[:parent_type],  params[:project_id_1],params[:inv_date],  invoicePeriod, false, getInvoiceType)
-			
+
 		end
 		@invoice.status = params[:field_status] unless params[:field_status].blank?
 		unless params[:inv_number].blank?
 			@invoice.invoice_number = params[:inv_number]
 		end
 		if @invoice.status_changed?
-			@invoice.closed_on = Time.now			
+			@invoice.closed_on = Time.now
 		end
 		@invoice.save()
 		totalAmount = 0
@@ -318,12 +318,12 @@ class WkorderentityController < WkbillingController
 			end
 			pjtId = params["project_id_#{i}"] if !params["project_id_#{i}"].blank?
 			itemType = params["item_type_#{i}"].blank? ? params["hd_item_type_#{i}"]  : params["item_type_#{i}"]
-			unless params["item_id_#{i}"].blank?			
+			unless params["item_id_#{i}"].blank?
 				arrId.delete(params["item_id_#{i}"].to_i)
 				invoiceItem = WkInvoiceItem.find(params["item_id_#{i}"].to_i)
 				org_amount = params["rate_#{i}"].to_f * params["quantity_#{i}"].to_f
 				updatedItem = updateInvoiceItem(invoiceItem, pjtId,  params["name_#{i}"], params["rate_#{i}"].to_f, params["quantity_#{i}"].to_f, invoiceItem.original_currency, itemType, org_amount, crInvoiceId, crPaymentId, params["product_id_#{i}"])
-			else				
+			else
 				invoiceItem = @invoice.invoice_items.new
 				org_amount = params["rate_#{i}"].to_f * params["quantity_#{i}"].to_f
 				updatedItem = updateInvoiceItem(invoiceItem, pjtId, params["name_#{i}"], params["rate_#{i}"].to_f, params["quantity_#{i}"].to_f, params["original_currency_#{i}"], itemType, org_amount, crInvoiceId, crPaymentId, params["product_id_#{i}"])
@@ -341,7 +341,7 @@ class WkorderentityController < WkbillingController
 					scheduledEntry.invoice_id = @invoice.id
 					scheduledEntry.save()
 				end
-				
+
 			end
 			unless params["material_id_#{i}"].blank?
 				matterialEntry = WkMaterialEntry.find(params["material_id_#{i}"].to_i)
@@ -351,7 +351,7 @@ class WkorderentityController < WkbillingController
 			end
 			savedRows = savedRows + 1
 			tothash[updatedItem.project_id] = [(tothash[updatedItem.project_id].blank? ? 0 : tothash[updatedItem.project_id][0]) + updatedItem.original_amount, updatedItem.original_currency] if updatedItem.item_type != 'm'
-			
+
 			unless params["product_id_#{i}"].blank?
 				productId = params["product_id_#{i}"]
 				productEntry = WkProduct.find(productId)
@@ -359,7 +359,7 @@ class WkorderentityController < WkbillingController
 				productName = productEntry.name
 				amount = params["rate_#{i}"].to_f * params["quantity_#{i}"].to_f
 				curr = params["currency_#{i}"]
-				productArr << productId 
+				productArr << productId
 				if @matterialVal.has_key?("#{productId}")
 					oldAmount = @matterialVal["#{productId}"]["amount"].to_i
 					totAmount = oldAmount + amount
@@ -371,14 +371,14 @@ class WkorderentityController < WkbillingController
 					@matterialVal["#{productId}"].store "projectId", "#{projEntry.id}"
 					@matterialVal["#{productId}"].store "projectName", "#{projEntry.name}"
 				end
-			end	
+			end
 		end
-		
+
 		if !arrId.blank?
 			deleteBilledEntries(arrId)
 			WkInvoiceItem.where(:id => arrId).delete_all
 		end
-		
+
 		parentId = @invoice.parent_id
 		parentType = @invoice.parent_type
 		tothash.each do|key, val|
@@ -386,12 +386,12 @@ class WkorderentityController < WkbillingController
 			addTaxes(accountProject[0], val[1], val[0])
 		end
 		addProductTaxes(productArr, true)
-		
+
 		unless @invoice.id.blank?
 			saveOrderRelations
 			totalAmount = @invoice.invoice_items.sum(:original_amount)
 			invoiceAmount = @invoice.invoice_items.where.not(:item_type => 'm').sum(:original_amount)
-			
+
 			moduleAmtHash = {'inventory' => [nil, totalAmount.round - invoiceAmount.round], getAutoPostModule => [totalAmount.round, invoiceAmount.round]}
 			inverseModuleArr = ['inventory']
 			transAmountArr = getTransAmountArr(moduleAmtHash, inverseModuleArr)
@@ -404,13 +404,13 @@ class WkorderentityController < WkbillingController
 				unless glTransaction.blank?
 					@invoice.gl_transaction_id = glTransaction.id
 					@invoice.save
-				end				
+				end
 			end
 		end
-		
+
 		respond_to do |format|
 			format.html {
-				if errorMsg.nil? 
+				if errorMsg.nil?
 					redirect_to :action => 'index' , :tab => controller_name
 					flash[:notice] = l(:notice_successful_update)
 				else
@@ -421,40 +421,40 @@ class WkorderentityController < WkbillingController
 			format.api{
 				if errorMsg.blank?
 					render :plain => errorMsg, :layout => nil
-				else		
-					@error_messages = errorMsg.split('\n')	
+				else
+					@error_messages = errorMsg.split('\n')
 					render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
 				end
 			}
 		end
 	end
-	
+
 	def getHeaderLabel
 		l(:label_invoice)
 	end
-	
+
 	def saveOrderInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)
 	end
-	
-	def saveOrderRelations		
+
+	def saveOrderRelations
 	end
-	
+
 	def deleteBilledEntries(invItemIdsArr)
 	end
-	
+
 	def getInvoicePeriod(startDate, endDate)
 		[startDate, endDate]
 	end
-	
+
 	def getOrderContract(invoice)
 		contractStr = nil
-		accContract = invoice.parent.contract(@invoiceItem[0].project)
+		accContract = invoice.parent.contract(@invoiceItem[0].project, invoice.end_date)
 		unless accContract.blank?
 			contractStr = accContract.contract_number + " - " + accContract.start_date.to_formatted_s(:long)
 		end
 		contractStr
 	end
-	
+
 	def destroy
 		invoice = WkInvoice.find(params[:invoice_id].to_i)#.destroy
 		deleteBilledEntries(invoice.invoice_items.pluck(:id))
@@ -464,8 +464,8 @@ class WkorderentityController < WkbillingController
 			flash[:error] = invoice.errors.full_messages.join("<br>")
 		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
-	end    
-	
+	end
+
   	def set_filter_session
 			session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
 		if params[:searchlist] == controller_name || api_request?
@@ -479,15 +479,15 @@ class WkorderentityController < WkbillingController
 			end
 		end
     end
-   
-	
+
+
 	def formPagination(entries)
 		@entry_count = entries.length
         setLimitAndOffset()
 		@invoiceEntries = entries.order(:id).limit(@limit).offset(@offset)
 	end
-	
-	def setLimitAndOffset		
+
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -500,44 +500,44 @@ class WkorderentityController < WkbillingController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
-	end	
-	
+		end
+	end
+
 	def getOrderComponetsId
 		'wktime_invoice_components'
 	end
-	
+
 	def getSupplierAddress(invoice)
 		getMainLocation + "\n" +  getAddress
 	end
-	
+
 	def getCustomerAddress(invoice)
 		invoice.parent.name + "\n" + (invoice.parent.address.blank? ? "" : invoice.parent.address.fullAddress)
 	end
-	
-	def getAutoPostModule	
+
+	def getAutoPostModule
 	end
-	
+
 	def postableInvoice
 		false
 	end
-	
+
 	def deletePermission
 		false
 	end
-	
+
 	def addMaterialType
 		false
 	end
-	
+
 	def addAssetType
 		false
 	end
-	
+
 	def getAccountLbl
 		l(:label_account)
 	end
-	
+
 	def showProjectDD
 		false
 	end
@@ -549,7 +549,7 @@ class WkorderentityController < WkbillingController
 			newOrderEntity(params[:parent_id], params[:parent_type])
 		end
 		editOrderEntity
-		invProj = []	
+		invProj = []
 		invProj = @projectsDD.map { |name, id| { value: id, label:  name }} if @projectsDD.present?
 		render json: invProj
 	end
@@ -577,16 +577,16 @@ class WkorderentityController < WkbillingController
 		table_width = page_width - right_margin - left_margin
 		pdf.SetFontStyle('B',13)
 		pdf.RDMMultiCell(table_width, 5, title, 0, 'C')
-		
+
 		logo = WkLocation.getMainLogo()
 		if logo.present?
 			pdf.Image(logo.diskfile.to_s, page_width-50, 15, 30, 25)
 		end
-		pdf.ln(25)	
+		pdf.ln(25)
 
 		invoiceDetails = [l(:label_name_address_of,l(:label_supplier)), l(:label_name_address_of,l(:label_customer)),
 			l(:label_invoice_number), l(:label_invoice_date) ]
-		width = table_width/invoiceDetails.size 
+		width = table_width/invoiceDetails.size
 		invoiceDetails.each do |detail|
 			pdf.SetFontStyle('',10)
 			pdf.set_fill_color(230, 230, 230)
@@ -608,7 +608,7 @@ class WkorderentityController < WkbillingController
 		pdf.SetFontStyle('',10)
 		pdf.RDMMultiCell(130, 10, getOrderContract(invoice) || '', 1, 'L', 0, 0)
 		pdf.RDMMultiCell(table_width - 130, 10, format_date(invoice.start_date) + ' to ' + format_date(invoice.end_date), 1, 'L', 0, 0)
-		
+
 		pdf.ln(10)
 		pdf.SetFontStyle('B',13)
 		pdf.RDMCell(50, 15, getItemLabel)
@@ -689,5 +689,5 @@ class WkorderentityController < WkbillingController
 			itemtype = '';
 		end
 	end
-	
+
 end

@@ -31,20 +31,20 @@ class WkAccount < ActiveRecord::Base
   has_many :spent_fors, as: :spent_for, class_name: 'WkSpentFor', :dependent => :restrict_with_error
   validates_presence_of :name
   validate :hasAnyValues
-  
+
   def hasAnyValues
 	name.blank? && address_id.blank? && activity_id.blank? && industry.blank? && annual_revenue.blank? && assigned_user_id.blank? && id.blank?
   end
-  
+
   # Returns account's contracts for the given project
   # or nil if the account do not have contract
-  def contract(project)
-	contract = nil
-	unless project.blank?
-		contract = contracts.where(:project_id => project.id).first
-		contract = contracts[0] if contract.blank?
-	end
-	contract
+  def contract(project, invEndDate)
+    contract = nil
+    unless project.blank?
+      wkcontracts = contracts.where(:project_id => project.id).order(start_date: "desc")
+      contract = wkcontracts.where("start_date < ? AND (end_date IS NULL OR end_date > ?)", invEndDate, invEndDate).first
+      contract = wkcontracts.first if contract.blank?
+    end
+    contract
   end
-  
 end

@@ -12,7 +12,7 @@
 					<%= sort_header_tag('start_date', :caption => l(:field_start_date), class: "lbl-txt-align") %>
 					<%= sort_header_tag('end_date', :caption => l(:label_end_date), class: "lbl-txt-align") %>
 					<%= sort_header_tag('quantity', :caption => l(:label_quantity), class: "lbl-txt-align") %>
-					<%= sort_header_tag('original_amount', :caption => l(:field_original_amount), class: "lbl-txt-align") %>		
+					<%= sort_header_tag('original_amount', :caption => l(:field_original_amount), class: "lbl-txt-align") %>
 					<%= sort_header_tag('amount', :caption => l(:field_amount), class: "lbl-txt-align") %>
 					<%= sort_header_tag('modified', :caption => l(:field_status_modified_by), class: "lbl-txt-align") %>
 					<% if controller.isInvPaymentLink %>
@@ -24,12 +24,12 @@
 					<!-- <th class="lbl-txt-align"><%# = l(:label_type) %></th> -->
 					<th class="lbl-txt-align"><%= l(:field_name) %></th>
 					<th class="lbl-txt-align"><%= l(:label_project) %></th>
-					<th class="lbl-txt-align"><%= l(:field_status) %></th>		
+					<th class="lbl-txt-align"><%= l(:field_status) %></th>
 					<th class="lbl-txt-align"><%= controller.getDateLbl %></th>
 					<th class="lbl-txt-align"><%= l(:field_start_date) %></th>
 					<th class="lbl-txt-align"><%= l(:label_end_date) %></th>
 					<th class="lbl-txt-align"><%= l(:label_quantity) %></th>
-					<th class="lbl-txt-align"><%= l(:field_original_amount) %></th>				
+					<th class="lbl-txt-align"><%= l(:field_original_amount) %></th>
 					<th class="lbl-txt-align"><%= l(:field_amount) %></th>
 					<th class="lbl-txt-align"><%= l(:field_status_modified_by) %></th>
 					<% if controller.isInvPaymentLink %>
@@ -42,7 +42,7 @@
 		<tbody>
 				<% if !@previewBilling %>
 					<% @invoiceEntries.each do |entry| %>
-						<% 
+						<%
 						count = entry.invoice_items.uniq().count(:project_id)
 						projectName = ((count > 1 || entry.invoice_items[0].blank? || entry.invoice_items[0].project.blank?) ? "" : entry.invoice_items[0].project.name)
 						invoice_org_Amount = entry.invoice_items.sum(:original_amount)
@@ -55,15 +55,15 @@
 							<!-- <td class="lbl-txt-align"><%# =h entry.parent_type == 'WkAccount' ? 'Account' : 'Contact'  %></td> -->
 							<td class="lbl-txt-align"><%=h entry.parent.name  %></td>
 							<td class="lbl-txt-align"><%=h projectName %></td>
-							
+
 							<td class="lbl-txt-align"><%=h (entry.status == 'o' ? 'open' : 'closed')  %></td>
-							<td class="lbl-txt-align"><%=h entry.invoice_date  %></td>			
+							<td class="lbl-txt-align"><%=h entry.invoice_date  %></td>
 							<td class="lbl-txt-align"><%=h entry.start_date  %></td>
 							<td class="lbl-txt-align"><%=h entry.end_date  %></td>
 							<td class="lbl-txt-align"><%=h html_hours("%.2f" % entry.invoice_items.sum(:quantity))   %></td>
 							<td class="lbl-txt-align"><%= orgCurrency %><%=h html_hours("%.2f" % invoice_org_Amount) %></td>
 							<td class="lbl-txt-align"><%= currency %> <%=h html_hours("%.2f" % invoiceAmount) %></td>
-							<td class="lbl-txt-align"><%=h entry.modifier.name  %></td>
+							<td class="lbl-txt-align"><%=h entry&.modifier&.name  %></td>
 							<% if controller.isInvPaymentLink %>
 								<td class="lbl-txt-align">
 									<% if entry.total_invoice_amount - entry.total_paid_amount > 0 %>
@@ -82,9 +82,9 @@
 					<% end %>
 				<% else %>
 					<% list = @invList.first(@limit*@entry_pages.page).last(@limit)  %>
-					<% list.each do |key, value| %>	
+					<% list.each do |key, value| %>
 						<% unless value.empty?  %>
-							<% 
+							<%
 								toCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 								amount = getExchangedAmount(@currency, value['amount'])
 							%>
@@ -92,9 +92,9 @@
 								<td class="lbl-txt-align"><%=h l(:label_unbilled)  %></td>
 								<!-- <td class="lbl-txt-align"><%#=h value['parent_type'] == 'WkAccount' ? 'Account' : 'Contact'  %></td> -->
 								<td class="lbl-txt-align"><%=h value['name']  %></td>
-								<td class="lbl-txt-align"><%=h value['project'] %></td>			
+								<td class="lbl-txt-align"><%=h value['project'] %></td>
 								<td class="lbl-txt-align"><%=h (value['status'] == 'o' ? 'open' : 'closed')  %></td>
-								<td class="lbl-txt-align"><%=h Date.today  %></td>			
+								<td class="lbl-txt-align"><%=h Date.today  %></td>
 								<td class="lbl-txt-align"><%=h value['start_date']  %></td>
 								<td class="lbl-txt-align"><%=h value['end_date']  %></td>
 								<td class="lbl-txt-align"><%=h value['quantity']  %></td>
@@ -106,8 +106,8 @@
 								</td>
 							</tr>
 						<% end %>
-					<% end %>	
-			<% end %>	
+					<% end %>
+			<% end %>
 		</tbody>
 	</table>
 </div>
