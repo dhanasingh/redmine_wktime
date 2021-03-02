@@ -12,7 +12,6 @@
 					<%= sort_header_tag("start_date", :caption => l(:label_start_date_time), class: "lbl-txt-align") %>
 					<%= sort_header_tag("end_date", :caption => l(:label_end_date_time), class: "lbl-txt-align") if !controller.is_referral && !show_on_map %>
 					<%= sort_header_tag("assigned_user_id", :caption => l(:field_assigned_to), class: "lbl-txt-align") %>
-					<%= sort_header_tag("", :caption => l(:field_assigned_to), class: "lbl-txt-align") %>
 					<%= sort_header_tag("updated_at", :caption => l(:field_updated_on), class: "lbl-txt-align") if !show_on_map %>
 					<th></th>
 				</tr>
