@@ -125,12 +125,13 @@
 		<p id="basic_factor">
 			<label><%= l(:label_factor) %></label><%= text_field_tag 'basic_field_factor', "", :maxlength => 7 %>
 		</p>
+		<% if showAccounting %>
+			<p id="payrollDBLedger">
+				<label id="ledgersLabel"><%= l(:label_debit_with_ledger) %></label>
 
-		<p id="payrollDBLedger">
-			<label id="ledgersLabel"><%= l(:label_debit_with_ledger) %></label>
-
-			<%= select_tag 'db_ledger', options_for_select(getLedgerNames.invert) %>
-		</p>
+				<%= select_tag 'db_ledger', options_for_select(getLedgerNames.invert) %>
+			</p>
+		<% end %>
 
 		<p id="calculatedFieldsType" style="display:none">
 			<label id="TypeLabel"><%= l(:label_type)  %></label>
