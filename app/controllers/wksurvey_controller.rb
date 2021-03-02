@@ -292,6 +292,8 @@ class WksurveyController < WkbaseController
         survey_response.ip_address = request.remote_ip
         del_answers = WkSurveyAnswer.where(id: params["deletedAnswers"]) if params["deletedAnswers"].present?
       else
+        surveyAnswers = Array.new
+        surveyReviews = Array.new
         if params[:isReview] == "true"
           survey_response = WkSurveyResponse.find(params[:survey_response_id])
           params.each do |param|
@@ -303,8 +305,6 @@ class WksurveyController < WkbaseController
           del_answers = WkSurveyAnswer.where(survey_question_id: params[:reviewerOnlyQuestions].split(","), survey_response_id: params[:survey_response_id].to_s)
           del_reviews = WkSurveyReview.where(survey_response_id: params[:survey_response_id].to_s)
         else
-          surveyAnswers = Array.new
-          surveyReviews = Array.new
           if @response.blank?
             survey_response = WkSurveyResponse.new
             survey_response.user_id = User.current.id

@@ -54,7 +54,7 @@ class WkSurveyResponse < ActiveRecord::Base
 
   def self.getCurrentResponse(survey_id, response_id=nil, surveyForID=nil, surveyForType=nil)
     condStr = ""
-    if !response_id.blank?
+    if response_id.present?
       condStr += " AND wk_survey_responses.id = #{response_id.to_i}"
     else
       condStr += " AND (wk_survey_responses.user_id = #{User.current.id}) " if surveyForID.blank?
@@ -76,7 +76,7 @@ class WkSurveyResponse < ActiveRecord::Base
       " datetime(ST.status_date, '+'||recur_every||' days') "
     end
 
-    WkSurveyResponse.joins("INNER JOIN wk_surveys ON wk_survey_responses.survey_id = wk_surveys.id")
+    surveyResponse = WkSurveyResponse.joins("INNER JOIN wk_surveys ON wk_survey_responses.survey_id = wk_surveys.id")
     .joins("INNER JOIN wk_statuses AS ST ON status_for_type = 'WkSurveyResponse' AND status_for_id = wk_survey_responses.id")
     .joins("INNER JOIN (
         SELECT status_for_id AS id, max(status_date) AS status_date
@@ -84,9 +84,10 @@ class WkSurveyResponse < ActiveRecord::Base
         WHERE status_for_type = 'WkSurveyResponse'
         GROUP BY status_for_id
       ) AS CR ON CR.id = wk_survey_responses.id AND CR.status_date = ST.status_date")
-    .where("wk_surveys.id = #{survey_id} AND (wk_surveys.status = 'O' AND recur = ? AND (" + addDate + " > ?) OR wk_surveys.status != 'O' OR recur != ?) " + condStr, true, Time.now(), true)
+    .where("wk_surveys.id = #{survey_id}"+ condStr)
     .select("ST.status, ST.status_date, wk_survey_responses.*")
     .order("ST.status_date desc")
-    .first
+    surveyResponse = surveyResponse.where("(wk_surveys.status = 'O' AND recur = ? AND (" + addDate + " > ?) OR wk_surveys.status != 'O' OR recur != ?) ", true, Time.now(), true) if response_id.blank?
+    surveyResponse.first
   end
 end
