@@ -5,10 +5,12 @@
 		sqlCond = ""
 		attributeSql = ""
 		productType = ""
+		uomID = ""
 		unless productItem.blank?
 			sqlCond = " product_id = " + productItem.product_id.to_s
 			attributeSql = " group_id = " + productItem.product.attribute_group_id.to_s
 			productType = productItem.product.product_type
+			uomID = productItem.product.uom_id
 		else
 			firstProduct = WkProduct.order(:name).first
 			productId = firstProduct.blank? ? 0 : firstProduct.id
@@ -16,6 +18,7 @@
 			unless firstProduct.blank?		
 				attributeSql = " group_id = " + firstProduct.attribute_group_id.to_s 
 				productType = firstProduct.product_type
+				uomID = firstProduct.uom_id
 			end
 		end
 		unless productType.blank?
@@ -32,10 +35,10 @@
 		<label id="item_index_<%= row_index.to_s %>"><%= row_index  %></label>
 	</td>
 	<td class="lbl-txt-align" headers="product_id">
-		<%=h select_tag("product_id_#{row_index.to_s}", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', productItem.blank? ? nil :productItem.product_id, false), :onchange => "productChanged(this.id, 'product_item_id_#{row_index.to_s}', #{User.current.id}, false, false, null, null);productChanged(this.id, 'product_attribute_id_#{row_index.to_s}', #{User.current.id}, false, false, null, null);productChanged(this.id, 'product_type_#{row_index.to_s}', #{User.current.id}, false, false, null, null);", :disabled => isDisable, :style => "width: 100px;") %>
+		<%=h select_tag("product_id_#{row_index.to_s}", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', productItem.blank? ? nil :productItem.product_id, false), :onchange => "productChanged(this.id, 'product_item_id_#{row_index.to_s}', #{User.current.id}, false, false, null, null);productChanged(this.id, 'product_attribute_id_#{row_index.to_s}', #{User.current.id}, false, false, null, null);productChanged(this.id, 'product_type_#{row_index.to_s}', #{User.current.id}, false, false, null, null);setUOMValue(this.id)", :disabled => isDisable, :style => "width: 100px;") %>
 	</td>
 	<td class="lbl-txt-align" headers="product_type">
-		<%=h select_tag("product_type_#{row_index.to_s}",options_for_select(productTypeArr, :selected => entry.blank? ? productTypeArr : entry.product_type ), :disabled => isDisable, :required => true, :style => "width: 100px;", :required => true) %>
+		<%=h select_tag("product_type_#{row_index.to_s}",options_for_select(productTypeArr, :selected => entry.blank? ? productTypeArr : entry.product_type ), :disabled => isDisable, :required => true, :style => "width: 100px;") %>
 	</td>
 	<td class="lbl-txt-align" headers="product_item_id">
 		<%=h select_tag("product_item_id_#{row_index.to_s}", product_item_select(sqlCond, false, productItem.blank? ? nil :productItem.id), :disabled => isDisable, :required => true, :style => "width: 100px;", :required => true) %>
@@ -64,7 +67,7 @@
 		<%= text_field_tag "total_quantity_#{row_index}", ("%.2f" % entry.total_quantity unless entry.total_quantity.blank?), :maxlength => 14, :size => "3", :disabled => isDisable, :required => true %>
 	</td>
 	<td class="lbl-txt-align" headers="uom_id">
-		<%=h select_tag("uom_id_#{row_index.to_s}", generic_options_for_select(WkMesureUnit, nil, 'short_desc', 'short_desc', 'id', entry.uom_id, false), :disabled => isDisable, :style => "width: 80px;") %>
+		<%=h select_tag("uom_id_#{row_index.to_s}", generic_options_for_select(WkMesureUnit, nil, 'short_desc', 'short_desc', 'id', uomID, false), :disabled => isDisable, :style => "width: 80px;") %>
 	</td>	
 	<td class="lbl-txt-align" headers="location_id">
 		<%=h select_tag("location_id_#{row_index.to_s}", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', entry.location_id, false), :disabled => isDisable, :style => "width: 80px;", :required => true) %>

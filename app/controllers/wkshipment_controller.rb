@@ -149,7 +149,7 @@ include WkinventoryHelper
 			end
 		else
 			@shipmentItem = Array.new
-			@shipmentItem << @shipment.inventory_items.new
+			@shipmentItem << @shipment.inventory_items.new(currency: Setting.plugin_redmine_wktime['wktime_currency'])
 		end
 		
 	end
@@ -388,6 +388,13 @@ include WkinventoryHelper
 	
 	def additionalAccountType
 		false
+	end
+
+	def getProductUOMID
+		uomID = ''
+		product = WkProduct.find(params[:product_id].to_i)
+		uomId = product.uom_id if product.present?
+		render :json => uomId		
 	end
 	
 end

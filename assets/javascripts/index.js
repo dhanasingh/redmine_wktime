@@ -893,3 +893,17 @@ function profitLossAmount(disposeAmnt)
 	profit_loss = currency + " " + profitLossAmnt.toFixed(2);
 	$("#profit_loss").html(profit_loss);
 }
+
+function setUOMValue(product_id)
+{
+	var productId = document.getElementById(product_id).value;
+	rowNum = product_id.replace("product_id","")
+	var url = "/wkshipment/getProductUOMID?product_id="+ productId;
+	$.ajax({
+		url: url,
+		type: 'get',
+		success: function(data){ $('#uom_id'+rowNum).val(data); },
+		beforeSend: function(){ $(this).parent().addClass('ajax-loading'); },
+		complete: function(){ $(this).parent().removeClass('ajax-loading'); }
+	});
+}
