@@ -59,6 +59,63 @@ TimeEntry.class_eval do
   end
 end
 
+Import.class_eval do
+	def run(options={})
+		max_items = options[:max_items]
+		max_time = options[:max_time]
+		current = 0
+		imported = 0
+		resume_after = items.maximum(:position) || 0
+		interrupted = false
+		started_on = Time.now
+	
+		read_items do |row, position|
+		if (max_items && imported >= max_items) || (max_time && Time.now >= started_on + max_time)
+			interrupted = true
+			break
+		end
+		if position > resume_after
+			item = items.build
+			item.position = position
+			item.unique_id = row_value(row, 'unique_id') if use_unique_id?
+	
+			if object = build_object(row, item)
+				# ======= ERPmine_patch Redmine 4.1.1 ==========
+				wktime_helper = Object.new.extend(WktimeHelper)
+				errorMsg = wktime_helper.statusValidation(object)
+				if errorMsg.blank?
+					if object.save
+						spentForModel = wktime_helper.saveSpentFor(nil, nil, nil, object.id, object.class.name, (object.spent_on).to_date, '00', '00', nil)
+						item.obj_id = object.id
+					else
+						item.message = object.errors.full_messages.join("\n")
+					end
+				else
+					item.message = errorMsg
+				end
+				# =============================
+			end
+	
+			item.save!
+			imported += 1
+	
+			do_callbacks(use_unique_id? ? item.unique_id : item.position, object)
+		end
+		current = position
+		end
+	
+		if imported == 0 || interrupted == false
+		if total_items.nil?
+			update_attribute :total_items, current
+		end
+		update_attribute :finished, true
+		remove_file
+		end
+	
+		current
+	end
+end
+
 # redmine only differs between project_menu and application_menu! but we want to display the
 # time_tracker submenu only if the plugin specific controllers are called
 module Redmine::MenuManager::MenuHelper

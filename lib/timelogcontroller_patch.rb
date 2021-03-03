@@ -137,12 +137,13 @@ module TimelogControllerPatch
 				errorMsg = ""
 				timeErrorMsg = ""
 				errorMsg += l(:label_issue_error) if params[:clock_action] == "S" && params[:time_entry][:issue_id].blank?
+				wktime_helper = Object.new.extend(WktimeHelper)
 				if params[:log_type].blank? || params[:log_type] == 'T'
 			#=====================
 				call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
 
 			# ============= ERPmine_patch Redmine 4.1.1  =====================
-				errorMsg += statusValidation(@time_entry)
+				errorMsg += wktime_helper.statusValidation(@time_entry)
 				unless errorMsg.blank? && @time_entry.save
 					timeErrorMsg = @time_entry.errors.full_messages.join("<br>")
 				end
@@ -296,6 +297,7 @@ module TimelogControllerPatch
 				errorMsg = ""
 				timeErrorMsg = ""
 				@spentType = params[:log_type].blank? ? "T" : params[:log_type]
+				wktime_helper = Object.new.extend(WktimeHelper)
 				if params[:log_type].blank? || params[:log_type] == 'T'
 			# =========================
 					call_hook(:controller_timelog_edit_before_save, { :params => params, :time_entry => @time_entry })
@@ -304,7 +306,7 @@ module TimelogControllerPatch
 						end_on = Time.now - (Time.now.utc_offset.seconds + (params[:offSet].to_i).minutes)
 						@time_entry.hours = ((end_on - @time_entry.spent_for.spent_on_time)/3600).round(2)
 					end
-					errorMsg += statusValidation(@time_entry)
+					errorMsg += wktime_helper.statusValidation(@time_entry)
 					errorMsg += l(:error_issue_logger) if params[:clock_action] == "S" && @time_entry.spent_for.end_on.blank?
 					unless errorMsg.blank? && @time_entry.save
 						timeErrorMsg = @time_entry.errors.full_messages.join("<br>")
@@ -563,7 +565,8 @@ module TimelogControllerPatch
 				call_hook(:controller_time_entries_bulk_edit_before_save, { :params => params, :time_entry => time_entry })
 				
 				# ============= ERPmine_patch Redmine 4.1.1  =====================
-				errorMsg = statusValidation(time_entry)
+				wktime_helper = Object.new.extend(WktimeHelper)
+				errorMsg = wktime_helper.statusValidation(time_entry)
 				if errorMsg.blank? && time_entry.save
 				# =============================
 					saved_time_entries << time_entry
@@ -683,15 +686,6 @@ module TimelogControllerPatch
 				}
 			end
 		end
-
-		# ============= ERPmine_patch Redmine 4.1.1  =====================
-		def statusValidation(time_entry)
-			wktime_helper = Object.new.extend(WktimeHelper)
-			status = wktime_helper.getTimeEntryStatus(time_entry.spent_on, time_entry.user_id)
-			valid = time_entry.activity_id.blank? || time_entry.hours.blank? || status.blank? || ('a' != status && 's' != status && 'l' != status)
-			return valid ? "" : l(:label_warning_wktime_time_entry)
-		end
-		# =============================
 	end
 	end
 end

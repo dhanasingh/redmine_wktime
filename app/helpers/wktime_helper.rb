@@ -1951,4 +1951,10 @@ end
 		!Setting.plugin_redmine_wktime['wktime_enable_skills_module'].blank? &&
 			Setting.plugin_redmine_wktime['wktime_enable_skills_module'].to_i == 1
 	end
+
+	def statusValidation(time_entry)
+		status = getTimeEntryStatus(time_entry.spent_on, time_entry.user_id)
+		valid = time_entry.activity_id.blank? || time_entry.hours.blank? || status.blank? || ('a' != status && 's' != status && 'l' != status)
+		return valid ? "" : l(:label_warning_wktime_time_entry)
+	end
 end
