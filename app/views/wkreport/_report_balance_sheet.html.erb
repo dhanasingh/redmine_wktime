@@ -5,16 +5,15 @@
 %>
 <%= stylesheet_link_tag 'application' , :media => "all" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-<style type="text/css">		
-		.tbl-report{
-			width : 100%;
-			table-layout: fixed; !important;
-			word-wrap: break-word; !important;
-			text-align: center; 
-			margin-top:5px; margin-bottom:10px; padding-left: 25px; color:#333333;
-			font-family:Verdana, sans-serif; font-size:12px; 
-		}
- </style>
+<style>
+	body
+	{
+		margin-right: 30%;
+		color:#000;
+		font-family:Verdana, sans-serif;
+		font-size:12px;
+	}
+</style>
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
 	<table style="width:100%; border-collapse: collapse;">
 		 <caption style="text-align:center"><b><%= getMainLocation %><br><%= l(:report_balance_sheet) %></b></br>
@@ -25,8 +24,8 @@
 				<th colspan="2" align="right" width=35%></th>
 			</tr>
 		</thead>
-		<body>
-			<% 
+		<tbody>
+			<%
 				@mainEnriesHash = Hash.new
 				@subEntriesHash = Hash.new
 				@mainTotalHash = Hash.new
@@ -52,9 +51,8 @@
 				end
 			%>
 			<%= render partial: "rpt_sections", locals: { from: 0, to:4, title: l(:label_of_funds,l(:label_copy_source)) + " : " }%>
-			
+
 			<%= render partial: "rpt_sections", locals: { from: 5, to:6, title: l(:label_of_funds,l(:label_application)) + " : " }%>
-			
-		</body>
+		</tbody>
 	</table>
 </div>
