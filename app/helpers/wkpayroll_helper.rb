@@ -773,11 +773,7 @@ module WkpayrollHelper
 	def getTaxSettingVal
 		@taxSettingVal = {}
 		taxEntries = WkSetting.all
-		if taxEntries.present?
-				taxEntries.each do |entry|
-						@taxSettingVal[entry.name] = entry.value
-				end
-		end
+		taxEntries.each{|entry| @taxSettingVal[entry.name] = entry.value}
 		@taxSettingVal
 	end
 
@@ -809,6 +805,112 @@ module WkpayrollHelper
 		else
 			salaryComponents.delete_if {|c| filterSalComps.include?(c.last)}
 		end
+	end
+
+	def getTaxStartEndDt
+		financialStartMonth = getFinancialStart
+		start_year = Date.today.month < 4 ? (Date.today.year)-1 : Date.today.year
+		@startDate = ('01-' + financialStartMonth + '-' + start_year.to_s).to_date
+		@endDate = (@startDate + 1.year) - 1.day
+	end
+
+	def getUserSalaryVal(userIds)
+		getTaxStartEndDt
+		@salaries = WkSalary.getUserSalaries(@startDate, @endDate)
+		@userSalaryHash = getUserSalaryHash(userIds, @endDate, 'userSetting')
+	end
+
+	def getIncomeTaxSlab
+		# Income tax slab for FY 2020-21
+		@taxSlab= {
+			0..250000 => 0,
+			250001..500000 => 0.05,
+			500001..750000 => 0.1, 
+			750001..1000000 => 0.15, 
+			1000001..1250000 => 0.2,             
+			1250001..1500000 => 0.25,
+			1500001...Float::INFINITY => 0.3
+		}
+	end
+
+	def getCompAnnualValue(userId)
+		financialPeriod = Array.new
+		user = WkUser.where("user_id = ?", userId).first
+		unless user&.join_date.blank?
+			userDate = (user.join_date.to_date + 1.month).at_beginning_of_month
+			if @startDate < userDate
+				@startDate = userDate
+			end
+		end
+		lastDate = @startDate
+		until lastDate > @endDate
+			financialPeriod << [lastDate, (lastDate + 1.months) -1.days]
+			lastDate = lastDate + 1.months
+		end
+
+		@totals = Hash.new
+    	taxComp =  @taxSettingVal['tax_settings'].blank? ? {} : JSON.parse(@taxSettingVal['tax_settings'])
+		financialPeriod.each do |start_date, end_date|
+			monthSalary = @salaries.where("user_id = ? and salary_date between ? and ?", userId, start_date, end_date)
+			if monthSalary.present?
+				taxComp.each do |name, id|
+					@totals[name] ||= 0
+					if name == "annual_gross"
+						@totals[name] += monthSalary.first.amount if id.present?
+					end
+				end
+			else
+				taxComp.each do |name, id|
+					@totals[name] ||= 0
+					@totals[name] += @userSalaryHash[userId.to_i][id.to_i].to_f if ["annual_gross"].include?(name) &&
+							id.present? && @userSalaryHash.present? && @userSalaryHash[userId.to_i][id.to_i].present?
+				end
+			end
+		end
+	end
+	
+	def calTaxValue(userId)
+		getIncomeTaxSlab
+		getCompAnnualValue(userId)
+		getTaxSettingVal
+		# Income tax slab for Fy 2020-21
+		monthCount =((12 * (@endDate.year - @startDate.year) + @endDate.month - @startDate.month).abs) + 1 if @startDate && @endDate
+		taxIncome = @totals['annual_gross'].to_f
+		taxAmount = 0
+		@taxSlab.each do |range, rate|
+			taxAmount += rate * (range.last - (range.first-1)) if taxIncome > range.last
+			taxAmount += rate * (taxIncome - (range.first-1)) if range === taxIncome && taxIncome > 500000
+		end
+			
+		taxAmount += (0.04 * taxAmount)
+		tdsID = @taxSettingVal['income_tax'].to_i
+		tdsValue = WkSalary.where("user_id = ? and salary_component_id = ? and salary_date between ? and ? ", userId, tdsID, @startDate, @endDate )
+		if tdsValue.present?
+			tdsAmt = tdsValue.sum(:amount)
+			taxAmount = (taxAmount >= tdsAmt) ? taxAmount- tdsAmt : 0
+			monthCount -= tdsValue.count
+		end
+		monthTax = (taxAmount / monthCount).to_f
+		monthTax = (monthTax.blank? ||  monthTax.nan?) ? 0.0 : "%.2f" % monthTax
+		monthTax
+	end
+	
+	def saveTaxComponent(userId)
+		taxVal = calTaxValue(userId)
+		tdsID = @taxSettingVal['income_tax'].to_i
+		userSalComp = WkUserSalaryComponents.where("user_id=? and salary_component_id=?", userId, tdsID).first
+		userSalComp = WkUserSalaryComponents.new if userSalComp.blank?
+		userSalComp.user_id = userId
+		userSalComp.salary_component_id = tdsID
+		userSalComp.factor = taxVal
+		userSalComp.save
+	end
+
+	def isCalculateTax
+		isTaxCal = false
+		getTaxSettingVal
+		isTaxCal = @taxSettingVal['income_tax'].present? && @taxSettingVal['tax_rule'].present?
+		isTaxCal
 	end
 	
 end

@@ -204,25 +204,25 @@ class WkpayrollController < WkbaseController
 		salary_comps = get_salary_components
 		u_salary_comps = Array.new
 		salary_comps.each do |component|
-				componentId = component.id
-				is_override = params['is_override' + componentId.to_s()]
-				dependent_id = params['dependent_id' + componentId.to_s()].to_i
-				factor = params['factor' + componentId.to_s()]
-				u_salary_comps << {:user_id => userId, :component_id => componentId, :dependent_id => dependent_id, :factor => factor, :is_override => is_override}
-			end
-			errorMsg = saveUserSalary(u_salary_comps, false)	
-			if errorMsg.nil?
-				if params[:taxsettings].present?
-						redirect_to :action => 'income_tax', action_type: 'userSettings', user_id: userId, method: 'saveTaxVal',
-												 taxsettings: params[:taxsettings].permit!.to_h
-				else
-					redirect_to :action => 'usrsettingsindex'
-					flash[:notice] = l(:notice_successful_update)
-				end
+			componentId = component.id
+			is_override = params['is_override' + componentId.to_s()]
+			dependent_id = params['dependent_id' + componentId.to_s()].to_i
+			factor = params['factor' + componentId.to_s()]
+			u_salary_comps << {:user_id => userId, :component_id => componentId, :dependent_id => dependent_id, :factor => factor, :is_override => is_override}
+		end
+		errorMsg = saveUserSalary(u_salary_comps, false)	
+		if errorMsg.blank?
+			if params[:taxsettings].present?
+					redirect_to :action => 'income_tax', action_type: 'userSettings', user_id: userId, method: 'saveTaxVal',
+												taxsettings: params[:taxsettings].permit!.to_h
 			else
-				flash[:error] = errorMsg
-				redirect_to :action => 'user_salary_settings'
+				redirect_to :action => 'usrsettingsindex'
+				flash[:notice] = l(:notice_successful_update)
 			end
+		else
+			flash[:error] = errorMsg
+			redirect_to :action => 'user_salary_settings'
+		end
 	end
 	
 	def handlePayroll(userIds, salaryDate, isGeneratePayroll)
@@ -277,7 +277,7 @@ class WkpayrollController < WkbaseController
 		hUserSettingHash
 	end
 	
-		def findBySql(selectStr, query, orderStr)
+	def findBySql(selectStr, query, orderStr)
 	    @entry_count = findCountBySql(query, WkSalary)
 	    setLimitAndOffset()		
 	    rangeStr = formPaginationCondition()	
@@ -464,6 +464,12 @@ class WkpayrollController < WkbaseController
 				taxSettings.value = value
 				taxSettings.save()
 			end
+			#Calculate Tax Amount
+			if isCalculateTax
+				userIds = User.active.pluck(:id)
+				getUserSalaryVal(userIds.join(','))
+				userIds.each{ |id| saveTaxComponent(id) }
+			end
 			flash[:notice] = l(:notice_successful_update)
 			redirect_to action: 'payrollsettings', tab: "payroll"
 		else
@@ -581,7 +587,7 @@ class WkpayrollController < WkbaseController
 	def saveUserSalary(u_salary_cmpts, is_bulkEdit)
 		return_val = false
 		salaryComponents = getSalaryComponentsArr
-		errorMsg = nil
+		errorMsg = ""
 		u_salary_cmpts.each do |entry|
 			userId = entry["user_id".to_sym]
 			componentId = (entry["component_id".to_sym]).to_i
@@ -591,41 +597,37 @@ class WkpayrollController < WkbaseController
 			dependentId = (is_bulkEdit && old_dependent_id.to_i  > 0) ? old_dependent_id.to_i : (entry["dependent_id".to_sym]).to_i
 			userSettingHash = getUserSettingHistoryHash(wkUserSalComp) unless wkUserSalComp.blank?
 			if (entry["is_override".to_sym]).blank?
-				unless wkUserSalComp.blank?
-					saveUsrSalCompHistory(userSettingHash) 
-								saveUsrSalCompHistory(userSettingHash) 
+				unless wkUserSalComp.blank? 
 					saveUsrSalCompHistory(userSettingHash) 
 					wkUserSalComp.destroy()
-				end
-						end			
 				end
 			else
 				factor = entry["factor".to_sym]
 				if wkUserSalComp.blank?
-						wkUserSalComp = WkUserSalaryComponents.new
-						wkUserSalComp.user_id = userId
-						wkUserSalComp.salary_component_id = componentId
-						wkUserSalComp.dependent_id = dependentId if dependentId > 0
-						wkUserSalComp.factor = factor 
-								wkUserSalComp.factor = factor 
-						wkUserSalComp.factor = factor 
+					wkUserSalComp = WkUserSalaryComponents.new
+					wkUserSalComp.user_id = userId
+					wkUserSalComp.salary_component_id = componentId
+					wkUserSalComp.dependent_id = dependentId if dependentId > 0
+					wkUserSalComp.factor = factor 
 				else
-						wkUserSalComp.dependent_id = dependentId > 0 ? dependentId : nil 
-								wkUserSalComp.dependent_id = dependentId > 0 ? dependentId : nil 
-						wkUserSalComp.dependent_id = dependentId > 0 ? dependentId : nil 
-						wkUserSalComp.factor = factor 
-								wkUserSalComp.factor = factor 
-						wkUserSalComp.factor = factor 
+					wkUserSalComp.dependent_id = dependentId > 0 ? dependentId : nil 
+					wkUserSalComp.factor = factor 
 				end
 				if (wkUserSalComp.changed? && !wkUserSalComp.new_record?) || wkUserSalComp.destroyed?
-						saveUsrSalCompHistory(userSettingHash) 
-								saveUsrSalCompHistory(userSettingHash) 
-						saveUsrSalCompHistory(userSettingHash) 
+					saveUsrSalCompHistory(userSettingHash) 
 				end
 				if !wkUserSalComp.save()
-						errorMsg = wkUserSalComp.errors.full_messages.join('\n')
+					errorMsg += wkUserSalComp.errors.full_messages.join('\n')
 				end
 			end
+		end
+		#Calculate Tax Amount
+		if errorMsg.blank? && isCalculateTax
+			userIds = []
+			u_salary_cmpts.each{ |entry| userIds << entry["user_id".to_sym] }
+			userIds = userIds.uniq
+			getUserSalaryVal(userIds.join(','))
+			userIds.each{ |id| saveTaxComponent(id) }
 		end
 		errorMsg
 	end
