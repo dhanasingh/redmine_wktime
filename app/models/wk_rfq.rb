@@ -24,10 +24,10 @@ class WkRfq < ActiveRecord::Base
 
   def send_notification
     if WkNotification.notify('rfqCreated')
-      emailNotes = "RFQ : " + (self.name) + "  has been generated " + "\n\n" + l(:label_redmine_administrator)
+      emailNotes = l(:label_rfq)+": " + (self.name) +" "+l(:label_has_created)+ "\n\n" + l(:label_redmine_administrator)
       userId = (WkPermission.permissionUser('B_PUR_PRVLG') + WkPermission.permissionUser('A_PUR_PRVLG')).uniq
       subject = l(:label_rfq) + " " + l(:label_notification)
-      WkNotification.notification(userId, emailNotes, subject)
+      WkNotification.notification(userId, emailNotes, subject, self, 'rfqCreated')
     end
   end
 end

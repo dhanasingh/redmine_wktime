@@ -30,4 +30,11 @@ class WkNotification < ActiveRecord::Base
       WkUserNotification.userNotification(id, model, label) if model.present?
     end
   end
+  
+  scope :getActiveNotification, -> { where(active: true) }
+  scope :getNonActiveNotification, ->(actionName){ where.not(name: actionName) }
+
+  def self.updateActivefalse(notifications)
+    notifications.update_all(active: false)
+  end
 end

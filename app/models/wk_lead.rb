@@ -66,19 +66,26 @@ class WkLead < ActiveRecord::Base
 
   def lead_notification
     if status? && status == "C" && WkNotification.notify('leadConverted')
-      emailNotes = "Lead : " + (self.account ? self.account.name : self.contact.name) + " has been converted " + "\n\n" + l(:label_redmine_administrator)
+      emailNotes = l(:label_lead)+ ": " + (self.account ? self.account.name : self.contact.name)+" "+l(:label_has_converted)+" "+ "\n\n" + l(:label_redmine_administrator)
       subject = l(:label_lead) + " " + l(:label_notification)
       userId = (WkPermission.permissionUser('B_CRM_PRVLG') + WkPermission.permissionUser('A_CRM_PRVLG')).uniq
-      WkNotification.notification(userId, emailNotes, subject)
+      WkNotification.notification(userId, emailNotes, subject, self, 'leadConverted')
     end
   end
 
   def send_notification
     if WkNotification.notify('leadGenerated')
-      emailNotes = "Lead : " + (self.account ? self.account.name : self.contact.name) + " has been generated " + "\n\n" + l(:label_redmine_administrator)
-      subject = l(:label_lead) + " " + l(:label_notification)
+      label = self.contact.contact_type == 'C'? l(:label_lead) : l(:label_referral)
+      emailNotes = label+ ": " + (self.account ? self.account.name : self.contact.name) +" "+l(:label_has_created)+" "+ "\n\n" + l(:label_redmine_administrator)
+      subject = label + " " + l(:label_notification)
       userId = (WkPermission.permissionUser('B_CRM_PRVLG') + WkPermission.permissionUser('A_CRM_PRVLG')).uniq
-      WkNotification.notification(userId, emailNotes, subject)
+      WkNotification.notification(userId, emailNotes, subject, self, 'leadGenerated')
+      if self.contact.contact_type == 'IC'
+        emailNotes = l(:label_candidate_mail) + "\n\n" +l(:label_referred_by)+" "+ self.referred.name
+        subject = l(:label_referral) + " " + l(:label_notification)
+        candidateMail = self.contact.address.email
+        WkMailer.email_user(subject, User.current.language, candidateMail, emailNotes, nil).deliver_later
+      end
     end
   end
 

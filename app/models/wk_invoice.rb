@@ -61,10 +61,15 @@ class WkInvoice < ActiveRecord::Base
 
   def self.send_notification(invoice)
     if WkNotification.notify('invoiceGenerated') && invoice.invoice_type == 'I'
-      emailNotes = "Invoice #"+invoice.invoice_number.to_s+":"+" "+invoice.invoice_items.first.original_currency.to_s+ invoice.invoice_items.sum(:original_amount).to_s + " has been generated for" + invoice.parent.name.to_s + "\n\n" + l(:label_redmine_administrator)
+      emailNotes = l(:label_invoice)+": #"+invoice.invoice_number.to_s+" "+invoice.invoice_items.first.original_currency.to_s+ invoice.invoice_items.sum(:original_amount).to_s+" "+l(:label_has_generated)+" "+l(:label_for)+invoice.parent.name.to_s + "\n\n" + l(:label_redmine_administrator)
       subject = l(:label_invoice) + " " + l(:label_notification)
       userId = WkPermission.permissionUser('M_BILL').uniq
       WkNotification.notification(userId, emailNotes, subject, invoice, 'invoiceGenerated')
+    elsif WkNotification.notify('supplierInvoiceReceived') && invoice.invoice_type == 'SI'
+      emailNotes = l(:label_supplier_invoice)+": #"+invoice.invoice_number.to_s+" "+invoice.invoice_items.first.original_currency.to_s+ invoice.invoice_items.sum(:original_amount).to_s+" "+l(:label_has_generated)+" "+l(:label_for)+invoice.parent.name.to_s + "\n\n" + l(:label_redmine_administrator)
+      userId = (WkPermission.permissionUser('B_PUR_PRVLG') + WkPermission.permissionUser('A_PUR_PRVLG')).uniq
+      subject = l(:label_supplier_invoice) + " " + l(:label_notification)
+      WkNotification.notification(userId, emailNotes, subject, invoice, 'supplierInvoiceReceived')
     end
   end
   

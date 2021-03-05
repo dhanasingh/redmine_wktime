@@ -20,7 +20,7 @@ class WknotificationController < WkbaseController
   accept_api_auth :index, :updateUserNotification
 
   def index
-    @notification = WkNotification.all.pluck(:name)
+    @notification = WkNotification.getActiveNotification.pluck(:name)
     @checkEmail = WkNotification.first.try(:email)
     @userNotification = WkUserNotification.where('user_id = ?', User.current.id).order(id: :desc)
 		respond_to do |format|
@@ -34,16 +34,24 @@ class WknotificationController < WkbaseController
   def update
     errorMsg = nil
     actionName = []
-    params['notify'].each{ |key, value| actionName << key.split('_').last }
-    removeName = WkNotification.where.not(name: actionName)
-    removeName.destroy_all
-    params['notify'].each do |name, value|
-      notifiedName = name.split('_')
-      notification = WkNotification.where(modules: notifiedName.first, name: notifiedName.last).first_or_initialize(modules: notifiedName.first, name: notifiedName.last)
-      notification.email = params['email'] || false
-      if !notification.save()
-				errorMsg += notification.errors.full_messages.join('\n')
-			end
+    if params['notify'].present?
+      params['notify'].each{ |key, value| actionName << key.split('_').last }
+      updateActive = WkNotification.getNonActiveNotification(actionName)
+    else
+      updateActive = WkNotification.all
+    end
+    WkNotification.updateActivefalse(updateActive)
+
+    if params['notify'].present?
+      params['notify'].each do |name, value|
+        notifiedName = name.split('_')
+        notification = WkNotification.where(modules: notifiedName.first, name: notifiedName.last).first_or_initialize(modules: notifiedName.first, name: notifiedName.last)
+        notification.email = params['email'] || false
+        notification.active = true
+        if !notification.save()
+          errorMsg += notification.errors.full_messages.join('\n')
+        end
+      end
     end
     respond_to do |format|
       format.html {

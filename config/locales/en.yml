@@ -1199,4 +1199,13 @@ en:
   label_show_on_chart: Show on chart
   label_reimbursement_projects: Reimbursement Projects
   label_reimbursements: Reimbursements
+  label_has_changed: has been changed
+  label_has_completed: has been completed
+  label_has_disposed: has been disposed
+  label_quote: quote
+  label_has_received: has been Received
+  label_received_sup_payment: Received supplier payment
+  label_has_converted: has been converted
+  label_candidate_mail: You are added as a interview candidate
+  label_has_created: has been created
   

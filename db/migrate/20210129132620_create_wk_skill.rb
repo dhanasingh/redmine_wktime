@@ -1,5 +1,6 @@
 class CreateWkSkill < ActiveRecord::Migration[5.2]
   def change
+    add_column :wk_notifications, :active, :boolean
     create_table :wk_skills do |t|
       t.references :user, null: false, index: true
       t.references :skill_set, class: "WkCrmEnumeration", null: false, index: true

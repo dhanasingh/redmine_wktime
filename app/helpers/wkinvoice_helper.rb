@@ -62,7 +62,7 @@ include WkpayrollHelper
 		
 		unless @invoice.id.blank?
 			#for mail notification
-			WkInvoice.send_notification(@invoice)
+			WkInvoice.send_notification(@invoice) if @invoice.invoice_type == 'I'
 
 			totalAmount = @invoice.invoice_items.sum(:original_amount)
 			invoiceAmount = @invoice.invoice_items.where.not(:item_type => 'm').sum(:original_amount)
@@ -365,7 +365,7 @@ include WkpayrollHelper
 				pjtIdVal << entry.id
 				
     			if isCreate && (oldIssueId == 0 || (oldIssueId != entry.issue_id && accountProject.itemized_bill)) # need to add accountProject.itemized_billcheck to avoid duplicate entries on preview billing
-					itemAmount = rateHash['rate'] * pjtQuantity							
+					itemAmount = rateHash['rate'] * pjtQuantity			
 					@invItems[@itemCount].store 'project_id', accountProject.project_id
 					@invItems[@itemCount].store 'item_desc', pjtDescription
 					@invItems[@itemCount].store 'item_type', 'i'

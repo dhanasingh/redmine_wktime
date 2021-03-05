@@ -29,6 +29,6 @@ class WkOpportunity < ActiveRecord::Base
     emailNotes = "Opportunity : " + oppEntry.name + " status has been changed to " + salestagehash[oppEntry.sales_stage_id] + "\n\n" + l(:label_redmine_administrator)
 		subject = l(:label_opportunity) + " " + l(:label_notification)
     userId = (WkPermission.permissionUser('B_CRM_PRVLG') + WkPermission.permissionUser('A_CRM_PRVLG')).uniq
-    WkNotification.notification(userId, emailNotes, subject)
+    WkNotification.notification(userId, emailNotes, subject, oppEntry, 'opportunityStatusChanged')
   end
 end
