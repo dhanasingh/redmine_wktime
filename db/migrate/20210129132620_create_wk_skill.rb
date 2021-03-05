@@ -9,10 +9,10 @@ class CreateWkSkill < ActiveRecord::Migration[5.2]
       t.decimal :experience, precision: 5, scale: 2
       t.timestamps null: false
     end
+    add_reference :wk_expense_entries, :payroll, :class => "wk_salaries", :null => true
 
     reversible do |dir|
       dir.up do
-        add_reference :wk_expense_entries, :payroll, :class => "wk_salaries", :null => true
         WkExpenseEntry.update_all('payroll_id = 0')
         WkPermission.where(short_name: "A_PAYRL").first&.update_attributes!(modules: "HR")
         WkPermission.create([
@@ -22,7 +22,6 @@ class CreateWkSkill < ActiveRecord::Migration[5.2]
        end
 
        dir.down do
-        remove_column :wk_expense_entries, :payroll_id
         WkPermission.where(short_name: "A_PAYRL").first&.update_attributes!(modules: "PAYROLL")
         ["A_SKILL", "A_REFERRAL"].each{|p| WkPermission.where(short_name: p).destroy_all}
       end
