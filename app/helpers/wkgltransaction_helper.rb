@@ -308,11 +308,7 @@ include WkaccountingHelper
 		crTotal = 0 
 		dbTotal =0 
 		openingBalance = 0
-		openingBalHash = nil
-		asOnDate =  nil
-		asOnDate = (@from.to_date) -1 unless @from.blank?
-		asOnDate = @transEntries.minimum(:trans_date) - 1 unless @transEntries.minimum(:trans_date).blank?
-		openingBalHash = getEachLedgerBSAmt(asOnDate, [@selectedLedger.ledger_type]) unless @ledgerId.blank? || asOnDate.blank?
+		openingBalHash = getOpeningBalHash
 		entry_details = entry.transaction_details.includes(:ledger).order(:detail_type).pluck('wk_ledgers.id, wk_gl_transaction_details.amount, wk_gl_transaction_details.detail_type, wk_ledgers.name, wk_ledgers.ledger_type') 
 			transTotal = entry_details.inject(0){|sum,x| sum + x[1] }/2
 			unless @ledgerId.blank?
@@ -415,5 +411,14 @@ include WkaccountingHelper
 			y_title: l(:label_amount)
 		}
 		data
+	end
+
+	def getOpeningBalHash
+		openingBalHash = nil
+		asOnDate =  nil
+		asOnDate = (@from.to_date) -1 unless @from.blank?
+		asOnDate = @transEntries.minimum(:trans_date) - 1 unless @transEntries.minimum(:trans_date).blank? #@from.blank? ?  Date.today : @from
+		openingBalHash = getEachLedgerBSAmt(asOnDate, [@selectedLedger.ledger_type]) unless @ledgerId.blank? || asOnDate.blank?
+		openingBalHash
 	end
 end

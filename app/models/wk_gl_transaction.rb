@@ -28,7 +28,7 @@ class WkGlTransaction < ActiveRecord::Base
                     
   def trans_date=(date)
     super
-    self.tyear = trans_date ? trans_date.cwyear : nil
+    self.tyear = trans_date ? trans_date.year : nil
     self.tmonth = trans_date ? trans_date.month : nil
     self.tweek = trans_date ? Date.civil(trans_date.year, trans_date.month, trans_date.day).cweek : nil
   end

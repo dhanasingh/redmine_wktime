@@ -436,8 +436,8 @@ class WkgltransactionController < WkaccountingController
 	def set_transaction_session
 		session[controller_name][:start_date] = params[:date]
 		session[controller_name][:txn_type] = params[:txn_type]
-		session[controller_name][:ledger_id1] = params[:txn_particular1]
-		session[controller_name][:ledger_id2] = params[:txn_particular2]
+		session[controller_name][:ledger_id1] = params[:txn_particular_1]
+		session[controller_name][:ledger_id2] = params[:txn_particular_2]
 	end
 
 	def export
