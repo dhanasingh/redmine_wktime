@@ -696,8 +696,7 @@ class WkorderentityController < WkbillingController
 	end
 
 	def setUnbilledParams
-		sqlString = "wk_invoice_items.item_type = 'i' or wk_invoice_items.item_type = 'c' or wk_invoice_items.item_type = 'm' or wk_invoice_items.item_type = 'a' "
-		sqlString = sqlString + " or wk_invoice_items.item_type = 't'" if addAdditionalTax
+		accPjt = WkAccountProject.getAccProj(@invoice.parent_id, @invoice.parent_type)
 		params[:new_invoice] = true
 		params[:populate_items] = '1'
 		params[:preview_billing] = true
@@ -705,8 +704,6 @@ class WkorderentityController < WkbillingController
 		params[:related_parent] = @invoice.parent_id
 		params[:start_date] = @invoice.start_date
 		params[:end_date] = @invoice.end_date
-		@invoiceItem.where(sqlString).each do |entry|
-			params[:project_id] = entry.project_id
-		end
+		params[:project_id] = accPjt.present? && isAccountBilling(accPjt[0]) ? '0' : @invoiceItem.first.project_id
 	end
 end

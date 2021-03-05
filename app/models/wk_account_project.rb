@@ -25,4 +25,6 @@ class WkAccountProject < ActiveRecord::Base
   has_many :taxes, through: :wk_acc_project_taxes
   #validates_uniqueness_of :project_id, :scope => :account_id
   validates_uniqueness_of :project_id,  :scope => [:parent_id, :parent_type] 
+  
+  scope :getAccProj, ->(parent_id, parent_type){ where(parent_id: parent_id, parent_type: parent_type) }
 end
