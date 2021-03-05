@@ -100,4 +100,8 @@ class WksupplierorderentityController < WkorderentityController
 	def additionalAccountType
 		false
 	end
+
+	def addUnbilledItems
+		false
+	end
 end

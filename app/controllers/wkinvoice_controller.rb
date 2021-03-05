@@ -317,4 +317,8 @@ class WkinvoiceController < WkorderentityController
 		true
 	end
 
+	def addUnbilledItems
+		true
+	end
+
 end

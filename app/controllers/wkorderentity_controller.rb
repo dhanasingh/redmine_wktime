@@ -214,6 +214,10 @@ class WkorderentityController < WkbillingController
 			newOrderEntity(parentId, parentType)
 		end
 		editOrderEntity
+		if params[:loadUnBilled]
+			setUnbilledParams
+			newOrderEntity(params[:related_parent], params[:related_to])
+		end
 		unless params[:is_report].blank? || !to_boolean(params[:is_report])
 			@invoiceItem = @invoiceItem.order(:project_id, :item_type)
 			render :action => 'invreport', :layout => false
@@ -389,6 +393,7 @@ class WkorderentityController < WkbillingController
 
 		unless @invoice.id.blank?
 			saveOrderRelations
+			WkInvoice.send_notification(@invoice)
 			totalAmount = @invoice.invoice_items.sum(:original_amount)
 			invoiceAmount = @invoice.invoice_items.where.not(:item_type => 'm').sum(:original_amount)
 
@@ -690,4 +695,18 @@ class WkorderentityController < WkbillingController
 		end
 	end
 
+	def setUnbilledParams
+		sqlString = "wk_invoice_items.item_type = 'i' or wk_invoice_items.item_type = 'c' or wk_invoice_items.item_type = 'm' or wk_invoice_items.item_type = 'a' "
+		sqlString = sqlString + " or wk_invoice_items.item_type = 't'" if addAdditionalTax
+		params[:new_invoice] = true
+		params[:populate_items] = '1'
+		params[:preview_billing] = true
+		params[:related_to] = @invoice.parent_type
+		params[:related_parent] = @invoice.parent_id
+		params[:start_date] = @invoice.start_date
+		params[:end_date] = @invoice.end_date
+		@invoiceItem.where(sqlString).each do |entry|
+			params[:project_id] = entry.project_id
+		end
+	end
 end
