@@ -7,10 +7,10 @@
 			<tr>
 				<th align="left"><%= l(:label_user_name) %></th>
 				<td align="left">
-					<% if User.current.admin? || validateERPPermission("A_SKILL") && !@skills.id.present? %>
+					<% if validateERPPermission("A_SKILL") && !@skills.id.present? %>
 						<%= f.select :user_id, options_for_select(@members, :selected => User.current.id )%>
 					<% else %>
-						<%= @skills.present? ? User.current.name : @skills.user.name %>
+						<%= @skills.present? ? @skills.user.name : User.current.name %>
 					<% end %>
 				</td>
 			<tr>

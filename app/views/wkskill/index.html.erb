@@ -14,7 +14,7 @@
 	<%= form_tag({controller: controller_name, action: 'index'}, method: :get) do %>
 		<%= hidden_field_tag("searchlist", controller_name) %>
 		<%= hidden_field_tag('tab', controller_name) %>
-		<% if validateERPPermission("A_ATTEND") %>
+		<% if validateERPPermission("A_SKILL") %>
 			<label><%=l(:label_group_plural)%></label>&nbsp;
 			<%= select_tag('group_id', options_for_select( [["", 0]] + (@groups.collect {|p| [p.name, p.id ]}),
 						selected: groupId), onchange: "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %>&nbsp;
