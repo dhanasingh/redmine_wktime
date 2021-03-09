@@ -194,9 +194,9 @@ module WkpayrollHelper
 		userSalaryHash = Hash.new()
 		@payPeriod = getPayPeriod(salaryDate)
 		terminateCond = "(wu.termination_date is null or wu.termination_date >= '#{@payPeriod[0]}') and " if userSetting.blank?
-		@reimbursProjectIds =  Setting.plugin_redmine_wktime['reimburse_projects']
+		reimbursProjectIds =  getReimburseProjects
 		@reimburseID = WkSalaryComponents.getReimburseID
-		@reimburse = WkExpenseEntry.getReimburse(@reimbursProjectIds.join(',')) if(!@reimbursProjectIds.blank? && @reimbursProjectIds != [""])
+		@reimburse = WkExpenseEntry.getReimburse(reimbursProjectIds) if reimbursProjectIds.length > 0
 		queryStr = getUserSalaryQueryStr + " Where "+terminateCond.to_s+"sc.id is not null" 
 		unless userIds.blank?
 			@queryStr = queryStr + " and u.id in (#{userIds}) "
@@ -911,6 +911,12 @@ module WkpayrollHelper
 		getTaxSettingVal
 		isTaxCal = @taxSettingVal['income_tax'].present? && @taxSettingVal['tax_rule'].present?
 		isTaxCal
+	end
+
+	def getReimburseProjects
+		projectIds =  Setting.plugin_redmine_wktime['reimburse_projects']
+		projectIds.reject! {|id| id.to_s == "" }
+		projectIds
 	end
 	
 end

@@ -24,6 +24,9 @@
 <% unless @wksalaryEntries.blank? %>
  <% 
 	componentHash = Hash.new()
+	componentHash['b'] = Array.new
+	componentHash['a'] = Array.new
+	componentHash['d'] = Array.new
 	userName = @wksalaryEntries[0].firstname + ' ' + @wksalaryEntries[0].lastname if !@wksalaryEntries[0].blank?
 	@wksalaryEntries.each do |entry|
 		componentHash[entry.component_type] = componentHash[entry.component_type].blank? ? [[entry.component_name,entry.amount,entry.currency,@userYTDAmountHash[entry.sc_component_id]]] :  componentHash[entry.component_type] << [entry.component_name,entry.amount,entry.currency,@userYTDAmountHash[entry.sc_component_id]]

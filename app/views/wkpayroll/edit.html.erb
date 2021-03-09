@@ -50,7 +50,7 @@
 		<%gross=gross+total%>
 		<tr>
 			<td style="border: 1px solid black;border-collapse: collapse;border-style: outset;background-color:white;"><b><%=l(:label_total) %></b></td>
-			<td style="border: 1px solid black;border-collapse: collapse;border-style: inset;text-align:right;background-color:white;"><%=h componentHash[:b][0][2]%> <%=h "%.2f" % total %></td>
+			<td style="border: 1px solid black;border-collapse: collapse;border-style: inset;text-align:right;background-color:white;"><%=h  componentHash[:b][0][2] if componentHash[:b].present? %> <%=h "%.2f" % total %></td>
 		</tr>
 	</table>
 </fieldset>
@@ -70,7 +70,7 @@
 		<%net=gross-total%>
 			<tr>
 				<td style="border: 1px solid black;border-collapse: collapse;border-style: outset;background-color:white;"><b><%=l(:label_total) %></b></td>
-				<td style="border: 1px solid black;border-collapse: collapse;border-style: inset;text-align:right;background-color:white;"><%=h componentHash[:b][0][2]%> <%=h "%.2f" % total %></td>
+				<td style="border: 1px solid black;border-collapse: collapse;border-style: inset;text-align:right;background-color:white;"><%= componentHash[:b][0][2] if componentHash[:b].present? %> <%=h "%.2f" % total %></td>
 			</tr>
 	</table>
  </fieldset><br>
@@ -87,11 +87,11 @@
 		<table width="15%" align="right" style="border-collapse: collapse;border: 0px solid black;">
 			<tr>
 				<td style="float:left; "><b><%=l(:label_gross) %></b></td>
-				<td style="text-align:right; border-left: solid 0px black;"><%=h componentHash[:b][0][2]%> <%=h "%.2f" % gross%> </td>
+				<td style="text-align:right; border-left: solid 0px black;"><%=h  componentHash[:b][0][2] if componentHash[:b].present? %> <%=h "%.2f" % gross%> </td>
 			</tr>
 			<tr>
 				<td style="float:left;"><b><%=l(:label_net)%></b>
-				<td style="text-align:right; border-left: solid 0px black;"><%=h componentHash[:b][0][2]%> <%=h "%.2f" % net%></td>
+				<td style="text-align:right; border-left: solid 0px black;"><%=h  componentHash[:b][0][2] if componentHash[:b].present? %> <%=h "%.2f" % net%></td>
 			</tr>
 		</table>
 	</div>
