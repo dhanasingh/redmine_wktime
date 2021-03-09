@@ -1,5 +1,6 @@
 <%= form_tag({:action => 'update'}, :method => :post, :id => 'query_form') do %>
 	<h2><b><%=@lead.blank? ? l(:label_new_item, controller.edit_label) : l(:label_edit_item, controller.edit_label) %></b></h2>
+	<% label = controller.is_referral ? l(:label_hire) : l(:button_convert_lead)%>
 
 	<div id="account_form">
 			<% addrObj = @lead.blank? ? nil : @lead.contact.address %>
@@ -24,8 +25,8 @@
 					<%= call_hook(:view_additional_lead_info, { moveInObj: @lead }) %>
 				<% end %>
 				<% if @lead.status != "C" && controller.deletePermission %>
-					<%= submit_tag l(controller.is_referral ? "label_hire" : "button_convert_lead"), :id => 'wklead_save_convert', :name => 'wklead_save_convert' ,
-						:disabled => @lead.blank?, :data => {:confirm => l(:text_are_you_sure_want_to, l(:button_convert_lead))} %>
+					<%= submit_tag label, :id => 'wklead_save_convert', :name => 'wklead_save_convert' ,
+						:disabled => @lead.blank?, :data => {:confirm => l(:text_are_you_sure_want_to, label)} %>
 					<div style="clear:both;"></div><br/>
 				<% end %>
 				<div><%= render partial: "wkcrm/accordion_section", locals: { currentObj: @lead }%></div>
