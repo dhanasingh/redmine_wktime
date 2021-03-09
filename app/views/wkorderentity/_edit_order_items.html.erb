@@ -391,7 +391,7 @@
 <% end %>
 <%=h hidden_field_tag("deletedids",  "" )  %>
 <%= submit_tag l(:button_save),  :hidden => false, :id => 'items_save', :disabled => (@preBilling || isDisable) if !@preBilling %>
-<% if !@preBilling && controller.addUnbilledItems && @invPaymentItems.blank?   %>
+<% if !@preBilling && controller.addUnbilledItems && @invPaymentItems.blank? && @invoice&.id.present? %>
 	<%= submit_tag l(:button_update), onclick: "window.location.search+='&loadUnBilled=true';return false;" %>
 <% end %>
 <% if controller.isInvPaymentLink && !@invoiceItem.blank? && !@invoice.id.blank?%>
