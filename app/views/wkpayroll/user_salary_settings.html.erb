@@ -16,7 +16,7 @@
 			dependent_id = @userSalCompHash[key].present? ? (@userSalCompHash[key]).dependent_id : 0
 		end
 		actualSalValHash[entry.sc_component_type].store entry.sc_id, @userSalHash[entry.user_id][entry.sc_id] unless @userSalHash[entry.user_id].blank?
-		salEntryByTypeHash[entry.sc_component_type] << [entry, isOverride, dependent_id, factor] unless entry.sc_component_type.blank?
+		salEntryByTypeHash[entry.sc_component_type] << [entry, isOverride, dependent_id, factor] unless entry.sc_component_type.blank? || entry.sc_component_type == 'r'
 	end
 	grossVal = "%.2f" % (actualSalValHash['a'].values.sum + actualSalValHash['b'].values.sum)
 %>

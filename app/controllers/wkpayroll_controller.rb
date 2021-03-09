@@ -250,7 +250,7 @@ class WkpayrollController < WkbaseController
 	def user_salary_settings
 		userId = params[:user_id]
 		sqlStr = getUserSalaryQueryStr
-		sqlStr = sqlStr + "Where u.id = #{userId} and u.type = 'User' and sc.component_type NOT IN ('r')" +
+		sqlStr = sqlStr + "Where u.id = #{userId} and u.type = 'User'" +
 		"order by u.id, sc.component_type"
 		@userSalHash = getUserSalaryHash(userId, Date.today.at_end_of_month + 1, 'userSetting')
 		@userSalaryEntries = WkUserSalaryComponents.find_by_sql(sqlStr)
