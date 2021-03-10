@@ -65,7 +65,7 @@
 				<th align="left" style="padding-left:150px;"><label id="lblStatus"><%= l(:field_status) %></label></th>
 				<td align="left" style="padding-left:40px;">
 					<% if is_referral %>
-						<%= select_tag("activity_status", options_for_select(rf_status.invert, selected: @activityEntry&.first&.activity_type), style: "width:190px;") %>
+						<%= select_tag("activity_status", options_for_select(rf_status.invert, selected: @activityEntry&.first&.status), style: "width:190px;") %>
 					<% else %>
 						<%=h select_tag("activity_direction", options_for_select(directionHash.invert, :selected => (!@activityEntry.blank? ? @activityEntry[0].direction : 'I') ), :style => "float:left;margin-right: 3px;") %>
 						<%=h select_tag("activity_status", options_for_select(meetCallStatusHash.invert, :selected =>(!@activityEntry.blank? ? @activityEntry[0].status : 'P') ), :style=>"float:right;") %>

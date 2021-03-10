@@ -299,9 +299,9 @@ include WkdocumentHelper
 
 	def rf_status
 		{
-			"H" => l(:label_hire),
-			"NH" => l(:label_not_hire),
-			"N" => l(:label_none)
+			"IH" => l(:label_hire),
+			"INH" => l(:label_not_hire),
+			"IN" => l(:label_none)
 		}
 	end
 

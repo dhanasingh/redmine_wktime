@@ -12,7 +12,7 @@
 		<%= hidden_field_tag("tab", controller_name) %>
     <table>
       <tr>
-        <th><label><%= l(:label_lead) %></label></th>
+        <th><label><%= l(:label_referral) %></label></th>
         <td><%= text_field_tag "lead_name", session[controller_name].try(:[], :lead_name), size: 30 %></td>
         <th><label style="padding-left: 10px;"><%= l(:field_status) %></label></th>
         <td><%= select_tag "status", options_for_select(getLeadStatusArr.invert, selected: session[controller_name].try(:[], :status)) %></td>
