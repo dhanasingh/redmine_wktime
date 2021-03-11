@@ -30,6 +30,10 @@ class WkLead < ActiveRecord::Base
   after_create_commit :send_notification
   after_save :lead_notification
 
+  acts_as_attachable :view_permission => :view_files,
+                    :edit_permission => :manage_files,
+                    :delete_permission => :manage_files
+
   scope :filter_name, ->(name){
     where("LOWER(wk_crm_contacts.first_name) LIKE '%#{name.downcase}%' OR LOWER(wk_crm_contacts.last_name) LIKE '%#{name.downcase}%'")
   }

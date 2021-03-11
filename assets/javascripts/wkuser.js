@@ -45,11 +45,16 @@ function setDetails(referral){
     {id: 'city', type: 'address', key: 'city'},
     {id: 'state', type: 'address', key: 'state'},
     {id: 'country', type: 'address', key: 'country'},
-    {id: 'pin', type: 'address', key: 'pin'}
+    {id: 'pin', type: 'address', key: 'pin'},
+    {id: 'attachment_ids', type: 'attachment_ids', key: 'attachment_ids'},
+    {id: 'erpmineuser_source_type', type: 'source_type', key: 'source_type'},
+    {id: 'erpmineuser_source_id', type: 'source_id', key: 'source_id'}
   ];
+
   elements.map((ele)=>{
-    if(referral && referral[ele.type] && referral[ele.type][ele.key]){
-      $('#'+ele.id).val(referral[ele.type][ele.key]);
+    if(referral && referral[ele.type] && (referral[ele.type][ele.key] || ele.type == ele.key)){
+      let value = ele.type == ele.key ? referral[ele.type] : referral[ele.type][ele.key];
+      $('#'+ele.id).val(value);
     }
     else{
       $('#'+ele.id).val(null);

@@ -79,6 +79,7 @@ class WkleadController < WkcrmController
 
 	def update
 		wkLead = update_without_redirect
+		errorMsg = save_attachments(wkLead.id) if params[:attachments].present?
 		respond_to do |format|
 			format.html {
 				if @wkContact.valid?
@@ -94,7 +95,7 @@ class WkleadController < WkcrmController
 				end
 			}
 			format.api{
-				errorMsg = @wkContact.errors.full_messages.join("<br>")
+				errorMsg = @wkContact.errors.full_messages.join("<br>") + (errorMsg || "")
 				if errorMsg.blank?
 					render :plain => errorMsg, :layout => nil
 				else

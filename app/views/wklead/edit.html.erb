@@ -3,20 +3,23 @@
 	<% label = controller.is_referral ? l(:label_hire) : l(:button_convert_lead)%>
 
 	<div id="account_form">
-			<% addrObj = @lead.blank? ? nil : @lead.contact.address %>
-			<%=h hidden_field_tag('lead_id', @lead.blank? ? "" :@lead.id) %>
-			<%=h hidden_field_tag('account_id', @lead.blank? || @lead.account.blank? ? "" :@lead.account.id) %>
-			<%=h hidden_field_tag('address_id', addrObj.blank? ? "" :addrObj.id) %>
-			<div class="splitcontent">
-				<div class="splitcontentleft">
-					<%= render partial: "lead_info", locals: {  contactObj:  @lead.blank? ? nil : @lead.contact, leadObj: @lead,
-						accountObj: @lead.blank? ? nil : @lead.account, addressObj: addrObj, isAccount: false, isContact: false }%>
-					<%= render partial: "other_info" %>
-				</div>
-				<div class="splitcontentright">
-					<%= render partial: "contact_info", locals: { address: addrObj, :disable => false, showMap: true }%>
-				</div>
+		<% addrObj = @lead.blank? ? nil : @lead.contact.address %>
+		<%=h hidden_field_tag('lead_id', @lead.blank? ? "" :@lead.id) %>
+		<%=h hidden_field_tag('account_id', @lead.blank? || @lead.account.blank? ? "" :@lead.account.id) %>
+		<%=h hidden_field_tag('address_id', addrObj.blank? ? "" :addrObj.id) %>
+		<div class="splitcontent">
+			<div class="splitcontentleft">
+				<%= render partial: "lead_info", locals: {  contactObj:  @lead.blank? ? nil : @lead.contact, leadObj: @lead,
+					accountObj: @lead.blank? ? nil : @lead.account, addressObj: addrObj, isAccount: false, isContact: false }%>
+				<%= render partial: "other_info" %>
 			</div>
+			<div class="splitcontentright">
+				<%= render partial: "contact_info", locals: { address: addrObj, :disable => false, showMap: true }%>
+			</div>
+		</div>
+		<% if @lead.blank? %>
+			<%= render partial: "wkdocument/attachment_form", locals: { container: @lead, container_type: "WkLead" } %>
+		<% end %>
 		<div style="clear:left;"></div>
 		<div>
 			<%= submit_tag l(:button_save) ,:id => 'wklead_save'%>

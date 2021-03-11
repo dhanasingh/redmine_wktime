@@ -246,4 +246,12 @@ class WkcrmController < WkbaseController
   def edit_label
     l(:label_lead)
   end
+
+	def get_plural_activity_label
+		l(:label_activity_plural)
+	end
+
+	def get_activity_label
+		l(:field_activity)
+	end
 end

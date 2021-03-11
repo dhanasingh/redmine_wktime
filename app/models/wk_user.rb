@@ -17,21 +17,16 @@
 
 class WkUser < ActiveRecord::Base
   include Redmine::SafeAttributes
+  serialize :others
+
+  safe_attributes 'role_id', 'id1','id2', 'id3', 'join_date', 'birth_date', 'termination_date',  'gender', 'bank_name','account_number',
+  'bank_code', 'loan_acc_number', 'tax_id', 'ss_id', 'custom_number1', 'custom_number2','custom_date1', 'custom_date2', 'is_schedulable',
+  'billing_rate', 'billing_currency', 'location_id', 'department_id', 'address_id', 'shift_id', 'created_by_user_id', 'updated_by_user_id',
+  'source_id', 'source_type'
+
   belongs_to :user
   belongs_to :role
-  serialize :others
-  
-  # attr_protected :others, :user_id
-  
-  
-  safe_attributes 	'role_id', 'id1','id2', 'id3',
-					'join_date', 'birth_date', 'termination_date',  'gender',
-					'bank_name','account_number', 'bank_code', 'loan_acc_number', 'tax_id', 'ss_id', 'custom_number1', 'custom_number2','custom_date1', 'custom_date2', 'is_schedulable', 'billing_rate', 'billing_currency', 'location_id', 'department_id', 'address_id', 'shift_id', 'created_by_user_id', 'updated_by_user_id'
-
- 
   belongs_to :location, :class_name => 'WkLocation'
   belongs_to :department, :class_name => 'WkCrmEnumeration'
-  
   belongs_to :address, :foreign_key => 'address_id', :dependent => :destroy, :class_name => 'WkAddress'
-  
 end

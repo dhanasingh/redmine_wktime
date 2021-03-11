@@ -50,7 +50,12 @@ class WkreferralsController < WkleadController
 
 	def getEmpDetails
     referral = WkLead.referrals(true, params[:id]).first
-    render json: {contact: referral&.contact, address: referral&.contact&.address}
+    attachment_ids = referral.attachments.pluck(:id) if referral.attachments.any?
+    data = {
+      contact: referral&.contact, address: referral&.contact&.address, attachment_ids: (attachment_ids || []),
+      source_id: referral&.contact&.id, source_type: referral&.contact&.class&.name
+    }
+    render json: data
 	end
 
   def deletePermission
@@ -64,6 +69,14 @@ class WkreferralsController < WkleadController
   def is_referral
     true
   end
+
+	def get_plural_activity_label
+		l(:label_interviews)
+	end
+
+	def get_activity_label
+		l(:label_interview)
+	end
 
   private
 

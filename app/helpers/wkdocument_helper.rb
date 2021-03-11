@@ -83,7 +83,6 @@ module WkdocumentHelper
       attachment.container_id = container_id
       attachment.filename = attachment.filename
       attachment.description = atch_param[1][:description]
-      attachment.save
       unless attachment.save
         errMsg += attachment.errors.full_messages.to_s
       end

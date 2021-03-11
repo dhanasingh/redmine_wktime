@@ -18,8 +18,19 @@ module UsersControllerPatch
 					# ============= ERPmine_patch Redmine 4.1.1  =====================
 						#Below code for save wk users
 						erpmineUserSave
-						#for attachment save
-						errorMsg = save_attachments(@user.id, params[:attachments], params[:container_type]) if params[:attachments].present?
+						# To transfer attachments from Referral
+						errorMsg = ""
+						if params[:attachment_ids].present?
+							attachments = Attachment.where(id: params[:attachment_ids].split(","))
+							attachments.each do |a|
+								a = a.attributes
+								a.merge!({id: nil, container_id: @user.id, container_type: "Principal"})
+								attach = Attachment.new(a)
+								errorMsg += attach.errors.full_messages.to_s unless attach.save
+							end
+						end
+						# for attachment save
+						errorMsg += save_attachments(@user.id, params[:attachments], params[:container_type]) if params[:attachments].present?
 					# =======================================
 					respond_to do |format|
 						format.html {

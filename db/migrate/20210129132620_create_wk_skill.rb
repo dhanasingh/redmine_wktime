@@ -1,6 +1,9 @@
 class CreateWkSkill < ActiveRecord::Migration[5.2]
   def change
     add_column :wk_notifications, :active, :boolean
+    add_reference :wk_expense_entries, :payroll, :class => "wk_salaries", :null => true
+    add_reference :wk_users, :source, polymorphic: true
+
     create_table :wk_skills do |t|
       t.references :user, null: false, index: true
       t.references :skill_set, class: "WkCrmEnumeration", null: false, index: true
@@ -9,7 +12,6 @@ class CreateWkSkill < ActiveRecord::Migration[5.2]
       t.decimal :experience, precision: 5, scale: 2
       t.timestamps null: false
     end
-    add_reference :wk_expense_entries, :payroll, :class => "wk_salaries", :null => true
 
     reversible do |dir|
       dir.up do
