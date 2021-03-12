@@ -21,6 +21,7 @@ class WkRfq < ActiveRecord::Base
   has_many :quotes, through: :rfq_quotes, :dependent => :restrict_with_error
   has_many :purchase_orders, through: :quotes
   after_create_commit :send_notification
+  has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
 
   def send_notification
     if WkNotification.notify('rfqCreated')

@@ -20,6 +20,7 @@ class WkRfqQuote < ActiveRecord::Base
   belongs_to :quote , :class_name => 'WkInvoice'
   belongs_to :rfq , :class_name => 'WkRfq'
   after_create_commit :send_notification
+  has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
 
   def send_notification
     if WkNotification.notify('quoteReceived')

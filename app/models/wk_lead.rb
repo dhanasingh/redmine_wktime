@@ -25,6 +25,7 @@ class WkLead < ActiveRecord::Base
   belongs_to :referred, foreign_key: "referred_by", primary_key: "id", class_name: "User"
   has_one :candidate, class_name: "WkCandidate", foreign_key: "lead_id", dependent: :destroy
   accepts_nested_attributes_for :candidate, allow_destroy: true
+  has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
 
   before_save :update_status_update_on
   after_create_commit :send_notification
@@ -87,7 +88,7 @@ class WkLead < ActiveRecord::Base
       if self.contact.contact_type == 'IC'
         emailNotes = l(:label_candidate_mail) + "\n\n" +l(:label_referred_by)+" "+ self.referred.name
         subject = l(:label_referral) + " " + l(:label_notification)
-        candidateMail = self.contact.address.email
+        candidateMail = self.contact&.address&.email
         WkMailer.email_user(subject, User.current.language, candidateMail, emailNotes, nil).deliver_later
       end
     end

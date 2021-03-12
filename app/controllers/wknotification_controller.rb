@@ -21,7 +21,7 @@ class WknotificationController < WkbaseController
 
   def index
     @notification = WkNotification.getActiveNotification.pluck(:name)
-    @checkEmail = WkNotification.first.try(:email)
+    @checkEmail = WkNotification.getActiveNotification.first.try(:email)
     @userNotification = WkUserNotification.where('user_id = ?', User.current.id).order(id: :desc)
 		respond_to do |format|
 			format.html {
@@ -33,19 +33,17 @@ class WknotificationController < WkbaseController
 
   def update
     errorMsg = nil
-    actionName = []
+    notifications = WkNotification.all
     if params['notify'].present?
-      params['notify'].each{ |key, value| actionName << key.split('_').last }
-      updateActive = WkNotification.getNonActiveNotification(actionName)
-    else
-      updateActive = WkNotification.all
+      actionName = params['notify'].keys.map{|key| key.split('_').last}
+      notifications = notifications.getUnseletedActions(actionName)
     end
-    WkNotification.updateActivefalse(updateActive)
+    WkNotification.updateActivefalse(notifications)
 
     if params['notify'].present?
-      params['notify'].each do |name, value|
-        notifiedName = name.split('_')
-        notification = WkNotification.where(modules: notifiedName.first, name: notifiedName.last).first_or_initialize(modules: notifiedName.first, name: notifiedName.last)
+      params['notify'].each do |key, value|
+        keys = key.split('_')
+        notification = WkNotification.where(modules: keys.first, name: keys.last).first_or_initialize(modules: keys.first, name: keys.last)
         notification.email = params['email'] || false
         notification.active = true
         if !notification.save()

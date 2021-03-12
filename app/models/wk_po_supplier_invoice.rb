@@ -18,6 +18,6 @@
 class WkPoSupplierInvoice < ActiveRecord::Base
   unloadable
   belongs_to :purchase_order , :class_name => 'WkInvoice'
-  belongs_to :supplier_invoice , foreign_key: "supplier_inv_id", :class_name => 'WkInvoice' 
-  # after_create_commit :send_notification
+  belongs_to :supplier_invoice , foreign_key: "supplier_inv_id", :class_name => 'WkInvoice'
+  has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
 end

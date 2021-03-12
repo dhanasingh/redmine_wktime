@@ -21,6 +21,7 @@ class WkAssetProperty < ActiveRecord::Base
   belongs_to :inventory_item, :class_name => 'WkInventoryItem'
   belongs_to :material_entry, foreign_key: "matterial_entry_id", class_name: "WkMaterialEntry"
   scope :available_assets,  -> { where(:matterial_entry_id => nil) }
+  has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
 
   scope :disposeAsset, ->(inventory_item_id){
     joins("LEFT JOIN wk_asset_depreciations AS ad ON ad.inventory_item_id = wk_asset_properties.inventory_item_id")

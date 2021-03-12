@@ -20,6 +20,7 @@ class WkPoQuote < ActiveRecord::Base
   belongs_to :purchase_order , :class_name => 'WkInvoice'
   belongs_to :quote , :class_name => 'WkInvoice'
   after_create_commit :send_notification
+  has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
 
   def send_notification
     if WkNotification.notify('purchaseOrderGenerated')

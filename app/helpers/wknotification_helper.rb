@@ -21,7 +21,7 @@ module WknotificationHelper
 
 	def formNotificationText(notification)
 		notifyHash = {}
-		case WkUserNotification.getnotificationAction(notification).first.name
+		case WkUserNotification.getnotificationAction(notification)&.first&.name
 		when "fillSurvey"
 			notifyHash['text'] = l(:label_complete_survey)+" "+notification.source.name.to_s
 			notifyHash['url'] = {controller:'wksurvey', action:'survey', surveyForID: notification.source.survey_for_id, surveyForType: notification.source.survey_for_type, survey_id: notification.source_id} if notification.source.survey_for_type.blank? || notification.source.survey_for_type.blank? && notification.source.survey_for_id.present?
@@ -63,13 +63,14 @@ module WknotificationHelper
 			notifyHash['url'] = {controller:'wksurvey', action:'survey',survey_id: notification.source.id}
 			notifyHash['icon'] = "fa fa-file-text-o"
 		when 'leadGenerated'
-      label = notification.source.contact.contact_type == 'C'? l(:label_lead) : l(:label_referral)
-			notifyHash['text'] = label+" "+notification.source.name.to_s+" "+l(:label_has_created)
-			notifyHash['url'] = {controller:'wklead', action:'edit',lead_id: notification.source.id}
+			leadNotifyLabel(notification)
+			notifyHash['text'] = @label+" "+notification.source.name.to_s+" "+l(:label_has_created)
+			notifyHash['url'] = {controller: @controller, action:'edit',lead_id: notification.source.id}
 			notifyHash['icon'] = "fa fa-user-circle"
 		when 'leadConverted'
-			notifyHash['text'] = l(:label_lead)+" "+notification.source.name.to_s+" "+l(:label_converted)
-			notifyHash['url'] = {controller:'wklead', action:'edit',lead_id: notification.source.id}
+			leadNotifyLabel(notification)
+			notifyHash['text'] = @label+" "+notification.source.name.to_s+" "+ @text
+			notifyHash['url'] = {controller: @controller, action:'edit',lead_id: notification.source.id}
 			notifyHash['icon'] = "fa fa-user-circle"
 		when 'opportunityStatusChanged'
 			notifyHash['text'] = l(:label_opportunity)+" "+notification.source.name.to_s+" "+l(:label_has_changed)+" "+getSaleStageHash[notification.source.sales_stage_id]
@@ -92,16 +93,16 @@ module WknotificationHelper
 			notifyHash['url'] = {controller:'wkrfq', action:'edit',rfq_id: notification.source.id}
 			notifyHash['icon'] = "fa fa-file-text-o"
 		when 'quoteReceived'
-			notifyHash['text'] = l(:label_rfq)+" "+l(:label_quote)+" #"+notification.source.quote_id.to_s+" "+l(:label_has_received)
+			notifyHash['text'] = l(:label_rfq)+" "+l(:label_quote)+" #"+notification.source&.quote&.invoice_number.to_s+" "+l(:label_has_received)
 			notifyHash['url'] = {controller:'wkquote', action:'edit',invoice_id: notification.source.quote_id, new_invoice: false, preview_billing:false}
 			notifyHash['icon'] = "fa fa-file-text-o"
 		when 'purchaseOrderGenerated'
-			notifyHash['text'] = l(:label_wk_purchase_order)+" #"+notification.source.purchase_order.invoice_number.to_s+" "+l(:label_has_created)
+			notifyHash['text'] = l(:label_wk_purchase_order)+" #"+notification.source&.purchase_order&.invoice_number.to_s+" "+l(:label_has_created)
 			notifyHash['url'] = {controller:'wkpurchaseorder', action:'edit',invoice_id: notification.source.purchase_order_id, new_invoice: false, preview_billing:false}
 			notifyHash['icon'] = "fa fa-file-text-o"
 		when 'supplierInvoiceReceived'
-			notifyHash['text'] = l(:label_supplier_invoice)+" "+notification.source.invoice_items.first.original_currency.to_s+notification.source.invoice_items.first.original_amount.to_s+" "+ l(:label_has_generated)+" "+ l(:label_for)+" "+notification.source.parent.name.to_s
-			notifyHash['url'] = {controller:'wksupplierinvoice', action:'edit', invoice_id: notification.source.id, new_invoice: false, preview_billing: false, tab: 'wksupplierinvoice'}
+			notifyHash['text'] = l(:label_supplier_invoice)+" "+notification.source&.invoice_items&.first&.original_currency.to_s+notification.source&.invoice_items&.first&.original_amount.to_s+" "+ l(:label_has_generated)+" "+ l(:label_for)+" "+notification.source&.parent&.name.to_s
+			notifyHash['url'] = {controller:'wksupplierinvoice', action:'edit', invoice_id: notification.source&.id, new_invoice: false, preview_billing: false, tab: 'wksupplierinvoice'}
 			notifyHash['icon'] = "fa fa-usd"
 		when 'supplierPaymentSent'
 			notifyHash['text'] = l(:label_received_sup_payment)+" "+notification.source.payment_items.first.original_currency.to_s+WkPayment.getPaymentItems(notification.source).to_s+" "+l(:label_from)+" "+notification.source.parent.name.to_s
@@ -130,5 +131,16 @@ module WknotificationHelper
 			dateText = years.to_s+" "+l(:label_years_ago)
 		end
 		dateText
+	end
+
+	def leadNotifyLabel(notification)
+		@label = l(:label_lead) 
+		@controller = 'wklead'
+		@text = l(:label_has_converted)
+		if notification&.source&.contact&.contact_type == 'IC'
+			@label = l(:label_referral)
+			@controller = 'wkreferrals'
+			@text = l(:label_convert_employeee)
+		end
 	end
 end

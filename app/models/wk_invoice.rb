@@ -24,11 +24,14 @@ class WkInvoice < ActiveRecord::Base
   has_many :invoice_items, foreign_key: "invoice_id", class_name: "WkInvoiceItem", :dependent => :destroy
   has_many :projects, through: :invoice_items
   has_many :payment_items, foreign_key: "invoice_id", class_name: "WkPaymentItem", :dependent => :restrict_with_error
-  has_one :rfq_quote, foreign_key: "quote_id", class_name: "WkRfqQuote"
-  has_one :po_quote, foreign_key: "purchase_order_id", class_name: "WkPoQuote"
+  has_one :rfq_quote, foreign_key: "quote_id", class_name: "WkRfqQuote", :dependent => :destroy
+  has_one :po_quote, foreign_key: "purchase_order_id", class_name: "WkPoQuote", :dependent => :destroy
   has_one :quote_po, foreign_key: "quote_id", class_name: "WkPoQuote"
-  has_one :sup_inv_po, foreign_key: "supplier_inv_id", class_name: "WkPoSupplierInvoice"
+  has_one :sup_inv_po, foreign_key: "supplier_inv_id", class_name: "WkPoSupplierInvoice", :dependent => :destroy
   has_one :po_sup_inv, foreign_key: "purchase_order_id", class_name: "WkPoSupplierInvoice"
+  has_many :notifications, through: "rfq_quote", :dependent => :destroy
+  has_many :notifications, through: "po_quote", :dependent => :destroy
+  has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
   
   # scope :invoices, lambda {where :invoice_type => 'I'}
   # scope :quotes, lambda {where :invoice_type => 'Q'}

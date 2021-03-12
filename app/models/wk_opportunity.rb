@@ -22,6 +22,7 @@ class WkOpportunity < ActiveRecord::Base
   belongs_to :assigned_user, :class_name => 'User'
   has_many :activities, as: :parent, class_name: 'WkCrmActivity', :dependent => :destroy
   validates_presence_of :name, :amount
+  has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
   
   def self.opportunity_notification(oppEntry)
     opportunityHelper = Object.new.extend(WkopportunityHelper)

@@ -26,6 +26,7 @@ class WkShipment < ActiveRecord::Base
   #belongs_to :purchase_order, foreign_key: "purchase_order_id", class_name: "WkInvoice"
   belongs_to :product, foreign_key: "product_id", class_name: "WkProduct" 
   after_create_commit :send_notification
+  has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
 
   def send_notification
     if WkNotification.notify('receiveGoods') && self.shipment_type == 'I'
