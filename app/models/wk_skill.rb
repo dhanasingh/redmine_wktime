@@ -42,4 +42,12 @@ class WkSkill < ActiveRecord::Base
 
   scope :skillUser, ->{where(user_id: User.current.id)}
 
+  scope :rating, ->(ratings){
+    where("wk_skills.rating IN (?) ", ratings)
+  }
+
+  scope :lastUsed, ->(last_used){
+    where("last_used >= ?", last_used)
+  }
+
 end

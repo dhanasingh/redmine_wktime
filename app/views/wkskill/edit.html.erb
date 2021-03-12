@@ -23,7 +23,7 @@
 			<tr>
 				<th align="left"><%= l(:label_rating) %></th>
 				<td align="left">
-					<%= f.text_field :rating %>
+					<%= f.select :rating, (1..5).to_a %>
 				</td>
 			</tr>
 			<tr>

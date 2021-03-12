@@ -33,10 +33,11 @@ class WkskillController < WkbaseController
     getUsersAndGroups
     skillEntries = WkSkill.get_all
     skillEntries = skillEntries.skillUser if !validateERPPermission("A_SKILL")
-    skillSet =  session[controller_name].try(:[], :skill_set)
-    skillEntries = skillEntries.skillSet(skillSet) if skillSet.present? && skillSet.to_i != 0
-    skillEntries = skillEntries.userGroup(session[controller_name][:group_id]) if session[controller_name].try(:[], :group_id).present? && session[controller_name].try(:[], :group_id) != "0"
-    skillEntries = skillEntries.groupUser(session[controller_name][:user_id]) if session[controller_name].try(:[], :user_id).present? && session[controller_name].try(:[], :user_id) != "0"
+    skillEntries = skillEntries.skillSet(get_filter(:skill_set)) if get_filter(:skill_set).present? && get_filter(:skill_set) != "0"
+    skillEntries = skillEntries.userGroup(get_filter(:group_id)) if get_filter(:group_id).present? && get_filter(:group_id) != "0"
+    skillEntries = skillEntries.groupUser(get_filter(:user_id)) if get_filter(:user_id).present? && get_filter(:user_id) != "0"
+    skillEntries = skillEntries.rating(get_filter(:rating)) if get_filter(:rating).present? && get_filter(:rating) != [""]
+    skillEntries = skillEntries.lastUsed(get_filter(:last_used)) if get_filter(:last_used).present? && get_filter(:last_used) != "0"
     skillEntries = skillEntries.reorder(sort_clause)
     @skill_count = skillEntries.length
     @skill_pages = Paginator.new @skill_count, per_page_option, params['page']
@@ -90,8 +91,12 @@ class WkskillController < WkbaseController
 
 	def check_module_permission		
 		unless showSkill
-			render_403
+			render_404
 			return false
 		end
-	end
+  end
+
+  def get_filter(key)
+    return session[controller_name] && session[controller_name][key]
+  end
 end
