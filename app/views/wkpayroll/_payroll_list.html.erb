@@ -48,7 +48,7 @@
 				<td class="lbl-txt-align"><%=h entry[:currency] %>&nbsp;<%=h html_hours("%.2f" % entry[:DT]) %></td>
 				<td class="lbl-txt-align"><%=h entry[:currency] %>&nbsp;<%=h html_hours("%.2f" % entry[:RT]) %></td>
 				<td class="lbl-txt-align"><%=h entry[:currency] %> &nbsp;<%=h html_hours("%.2f" % ((entry[:BT].blank? ? 0 : entry[:BT]) + (entry[:AT].blank? ? 0 : entry[:AT]))) %></td>
-				<td class="lbl-txt-align"><%=h entry[:currency] %>&nbsp;<%=h html_hours("%.2f" % (((entry[:BT].blank? ? 0 : entry[:BT]) + (entry[:AT].blank? ? 0 : entry[:AT])) -(entry[:DT].blank? ? 0 : entry[:DT]) + (entry[:RT].blank? ? 0 : entry[:RT]))) %></td>
+				<td class="lbl-txt-align"><%=h entry[:currency] %>&nbsp;<%=h html_hours("%.2f" % (((entry[:BT].blank? ? 0 : entry[:BT]) + (entry[:AT].blank? ? 0 : entry[:AT])) -(entry[:DT].blank? ? 0 : entry[:DT]))) %></td>
 				<td align="center">
                 <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :user_id => entry[:uID], :salary_date =>entry[:salDate], :tab => controller.controller_name, :isPreview => @isPreview}, :title => l(:button_edit) %>
 		</tr>
@@ -64,7 +64,7 @@
 				<th class="lbl-txt-align"><%=h @payrollEntries.values[0][:currency]%>&nbsp;<%= "%.2f" % deduction_total %></th>
 				<th class="lbl-txt-align"><%=h @payrollEntries.values[0][:currency]%>&nbsp;<%=  "%.2f" % reimbursement %></th>
 				<th class="lbl-txt-align"><%=h @payrollEntries.values[0][:currency]%>&nbsp;<%= "%.2f" % @total_gross %></th>
-				<th class="lbl-txt-align"><%=h @payrollEntries.values[0][:currency]%>&nbsp;<%= "%.2f" % (@total_net + reimbursement) %></th>
+				<th class="lbl-txt-align"><%=h @payrollEntries.values[0][:currency]%>&nbsp;<%= "%.2f" % @total_net %></th>
 				<th></th>
 		</tr>
 	<% end %>

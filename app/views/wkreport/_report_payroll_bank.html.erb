@@ -67,7 +67,7 @@
 		@totalhash["#{entry.user_id}"].store "deduction", "#{totdeduction}"
 		@totalhash["#{entry.user_id}"].store "reimbursement", "#{reimbursement}"
 	end
-	compTotalHash['Net'] = (compTotalHash['Gross'].blank? ? 0 : compTotalHash['Gross'])  - (compTotalHash['Deduction'].blank? ? 0 : compTotalHash['Deduction']) + (compTotalHash['Reimbursement'].blank? ? 0 : compTotalHash['Reimbursements'])
+	compTotalHash['Net'] = (compTotalHash['Gross'].blank? ? 0 : compTotalHash['Gross'])  - (compTotalHash['Deduction'].blank? ? 0 : compTotalHash['Deduction']) + (compTotalHash['Reimbursements'].blank? ? 0 : compTotalHash['Reimbursements'])
 	@rowval = Hash.new{|hsh,key| hsh[key] = {} }
 	@userdetails = Hash.new{|hsh,key| hsh[key] = {} }
 	count = 1

@@ -494,7 +494,7 @@ module WkpayrollHelper
 		transTypeHash = Hash[*transTypeArr.flatten]
 		
 		glTransaction = WkGlTransaction.new
-		glTransaction.trans_type = transTypeHash[Setting.plugin_redmine_wktime['wktime_cr_ledger'].to_i] == "BA" || transTypeHash[Setting.								plugin_redmine_wktime['wktime_cr_ledger'].to_i] == "CS" ? "P" : "J" 
+		glTransaction.trans_type = transTypeHash[Setting.plugin_redmine_wktime['wktime_cr_ledger'].to_i] == "BA" || transTypeHash[Setting.plugin_redmine_wktime['wktime_cr_ledger'].to_i] == "CS" ? "P" : "J" 
 		glTransaction.trans_date = salaryDate
 		unless glTransaction.valid?
 			errorMsg = glTransaction.errors.full_messages.join("<br>")
@@ -509,7 +509,7 @@ module WkpayrollHelper
 			wktxnDetail.detail_type = ledgersIdHash[key.to_i] == 'd' ? 'c' : 'd'
 			wktxnDetail.amount = value
 			wktxnDetail.currency = Setting.plugin_redmine_wktime['wktime_currency']
-			totalDebit = totalDebit + value.to_i if ledgersIdHash[key.to_i] == 'b' || ledgersIdHash[key.to_i] == 'a'
+			totalDebit = totalDebit + value.to_i if ['b', 'a', 'r'].include?(ledgersIdHash[key.to_i])
 			totalCredit = totalCredit + value.to_i if ledgersIdHash[key.to_i] == 'd'
 			unless wktxnDetail.valid?
 				errorMsg = wktxnDetail.errors.full_messages.join("<br>")
@@ -626,7 +626,7 @@ module WkpayrollHelper
 				currency =  payroll_data[:currency]
 				gross = payroll_data[:BT].to_i+ payroll_data[:AT].to_i
 				reimbursement =  payroll_data[:RT].to_i
-				net = gross  - payroll_data[:DT].to_i + reimbursement unless gross.blank?
+				net = gross  - payroll_data[:DT].to_i unless gross.blank?
 				grandBasicTotal = grandBasicTotal.to_i + payroll_data[:BT].to_i
 				grandAllowanceTotal = grandAllowanceTotal.to_i + payroll_data[:AT].to_i
 				grandDeductionTotal = grandDeductionTotal.to_i + payroll_data[:DT].to_i

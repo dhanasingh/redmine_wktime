@@ -685,7 +685,7 @@ class WkpayrollController < WkbaseController
 			[ entry[:currency].to_s + " " + ("%.2f" % entry[:DT]).to_s, 21],
 			[ entry[:currency].to_s + " " + ("%.2f" % entry[:RT]).to_s, 24 ],
 			[ entry[:currency].to_s + " " + ("%.2f" % ((entry[:BT].blank? ? 0 : entry[:BT]) + (entry[:AT].blank? ? 0 : entry[:AT]))).to_s, 24 ],
-			[ entry[:currency].to_s + " " + ("%.2f" % (((entry[:BT].blank? ? 0 : entry[:BT]) + (entry[:AT].blank? ? 0 : entry[:AT])) -(entry[:DT].blank? ? 0 : entry[:DT])+ (entry[:RT].blank? ? 0 : entry[:RT]))).to_s, 24 ]
+			[ entry[:currency].to_s + " " + ("%.2f" % (((entry[:BT].blank? ? 0 : entry[:BT]) + (entry[:AT].blank? ? 0 : entry[:AT])) -(entry[:DT].blank? ? 0 : entry[:DT]))).to_s, 24 ]
 		]
 	end
 
