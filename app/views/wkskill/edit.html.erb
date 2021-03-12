@@ -33,9 +33,9 @@
 				</td>
 			</tr>
 			<tr>
-				<th align="left"><%= l(:label_years_of_exp) %></th>
+				<th align="left"><%= l(:label_years_of_exp) %><span style="color:red;">*</span></th>
 				<td align="left">
-					<%= f.text_field :experience %>
+					<%= f.text_field :experience, required: true %>
 				</td>
 			</tr>
 		</table>
