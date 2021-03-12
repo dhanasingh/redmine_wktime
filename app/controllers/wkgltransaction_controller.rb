@@ -82,6 +82,7 @@ class WkgltransactionController < WkaccountingController
 							beginning_date= Date.civil(entry.tyear, entry.tmonth, 1)
 							end_date = beginning_date.end_of_month
 						elsif @summaryTransaction == 'week'
+							entry.tyear = Date.valid_commercial?(entry.tyear, entry.tweek, 1) ? entry.tyear : entry.tyear - 1 if entry.tweek == 53
 							summary = (entry.tweek).to_s + "_week_"
 							beginning_date = Date.commercial(entry.tyear, entry.tweek, 1)
 							end_date = Date.commercial(entry.tyear, entry.tweek, 7)
@@ -92,8 +93,8 @@ class WkgltransactionController < WkaccountingController
 						end
 						key = (summary).to_s + (entry.tyear).to_s
 						@summaryHash[key] = Hash.new if @summaryHash[key].blank?
-						@summaryHash[key][:DT] = entry.amount if entry.detail_type == 'd'
-						@summaryHash[key][:CT] = entry.amount if entry.detail_type == 'c'
+						@summaryHash[key][:DT] = entry.amount + (@summaryHash[key][:DT] || 0) if entry.detail_type == 'd'
+						@summaryHash[key][:CT] = entry.amount + (@summaryHash[key][:CT] || 0) if entry.detail_type == 'c'
 						@summaryHash[key][:beginning_date] = beginning_date
 						@summaryHash[key][:end_date] = end_date
 						@summaryHash[key][:ledger_id] = entry.ledger_id
