@@ -24,7 +24,8 @@ class WkattendanceController < WkbaseController
 	include WkimportattendanceHelper
 
 	before_action :require_login
-	before_action :check_perm_and_redirect, :only => [:edit, :update, :clockedit]
+	before_action :check_perm_and_redirect, :only => [:edit, :clockedit]
+	before_action :check_update_permission, only: "update"
 	before_action :check_index_perm, :only => [:index]
 	require 'csv'
 	
@@ -398,6 +399,13 @@ class WkattendanceController < WkbaseController
 		ret = false
 		ret = params[:user_id].to_i == User.current.id
 		return (ret || validateERPPermission('A_ATTEND'))
+	end
+
+	def check_update_permission
+		unless validateERPPermission('A_ATTEND') && params[:user_id].to_i != User.current.id
+			render_403
+			return false
+		end
 	end
 	
 	def getProjectByIssue
