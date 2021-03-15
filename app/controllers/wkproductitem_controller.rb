@@ -318,9 +318,9 @@ class WkproductitemController < WkinventoryController
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end	  
 
-	def set_filter_session
-		filters = [:product_id, :brand_id, :location_id, :availability, :project_id, :is_dispose, :show_on_map]
-		super(filters)
+	def set_filter_session(filters=nil, filterParams={})
+		filters = [:product_id, :brand_id, :location_id, :availability, :project_id, :is_dispose, :show_on_map] if filters.blank?
+		super(filters, filterParams)
 	end
 
 	def setLimitAndOffset		
