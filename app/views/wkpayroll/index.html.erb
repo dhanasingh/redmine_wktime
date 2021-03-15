@@ -7,7 +7,7 @@
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
 <%= form_tag({:controller => controller_name, :action => 'index', :tap => 'payroll'}, :method => :get, :id => 'query_form') do %>
-	<%= hidden_field_tag "searchlist", "#{controller_name}" %>
+	<%= hidden_field_tag "searchlist", controller_name %>
 	<%=h hidden_field_tag('tab', 'payroll') %>
 	<%	groupid =session[:wkpayroll].try(:[], :group_id)
 		userid =session[:wkpayroll].try(:[], :user_id) %>

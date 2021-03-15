@@ -2458,7 +2458,7 @@ private
 	end
 
 	def set_filter_session
-		session[controller_name] = {:filters => @query.blank? ? nil : @query.filters} if session[controller_name].nil?
+		session[controller_name] = {:filters => @query.blank? ? nil : @query.filters} if session[controller_name].nil? || params[:clear]
 		if params[:searchlist] == controller_name || api_request?
 			session[controller_name][:filters] = @query.blank? ? nil : @query.filters
 			filters = [:period_type, :period, :from, :to, :project_id, :filter_type, :user_id, :status, :group_id]

@@ -19,9 +19,9 @@ class WkpublicholidayController < WkbaseController
   menu_item :wkattendance
 
 	def index
-		set_filter_session([:location_id, :month, :year])
 		@year ||= User.current.today.year
 		@month ||= User.current.today.month
+		set_filter_session
 		if getSession(:year) and getSession(:year).to_i > 1900
 			@year = getSession(:year).to_i
 			if getSession(:month)
@@ -118,5 +118,10 @@ class WkpublicholidayController < WkbaseController
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
 		end	
+	end
+	
+	def set_filter_session
+		filters = [:location_id, :month, :year]
+		super(filters, {:year => @year, :month => @month})
 	end
 end

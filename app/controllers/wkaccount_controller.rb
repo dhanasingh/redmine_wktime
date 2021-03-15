@@ -136,8 +136,8 @@ class WkaccountController < WkcrmController
 	end
 
 	def set_filter_session
+		session[controller_name] = Hash.new if session[controller_name].nil? || params[:clear]
 		if params[:searchlist] == controller_name || api_request?
-			session[controller_name] = Hash.new if session[controller_name].nil?
 			filters = [:location_id, :accountname]
 			filters.each do |param|
 				if params[param].blank? && session[controller_name].try(:[], param).present?

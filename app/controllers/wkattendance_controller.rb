@@ -181,17 +181,8 @@ class WkattendanceController < WkbaseController
 	end
 	
 	def set_filter_session
-		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
-		if params[:searchlist] == controller_name || api_request?
-			filters = [:period_type, :period, :group_id, :user_id, :from, :to, :show_on_map]
-			filters.each do |param|
-				if params[param].blank? && session[controller_name].try(:[], param).present?
-					session[controller_name].delete(param)
-				elsif params[param].present?
-					session[controller_name][param] = params[param]
-				end
-			end
-		end
+		filters = [:period_type, :period, :group_id, :user_id, :from, :to, :show_on_map]
+		super(filters, {:from => @from, :to => @to})
 	end
 
 	# Retrieves the date range based on predefined ranges or specific from/to param dates

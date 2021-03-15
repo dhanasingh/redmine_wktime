@@ -67,7 +67,7 @@ class WkcrmactivityController < WkcrmController
 		end
 	end
 
-  def edit
+	def edit
 		@activityEntry = nil
 		unless params[:activity_id].blank?
 			@activityEntry = WkCrmActivity.where(:id => params[:activity_id].to_i)
@@ -82,9 +82,9 @@ class WkcrmactivityController < WkcrmController
 				format.api
 			end
 		end
-  end
+	end
 
-  def update
+  	def update
 		errorMsg = nil
 		crmActivity = nil
 		@tempCrmActivity ||= Array.new
@@ -154,9 +154,9 @@ class WkcrmactivityController < WkcrmController
 				end
 			}
 		end
-  end
+  	end
 
-  def destroy
+  	def destroy
 		parentId = WkCrmActivity.find(params[:activity_id].to_i).parent_id
 		trans = WkCrmActivity.find(params[:activity_id].to_i).destroy
 		flash[:notice] = l(:notice_successful_delete)
@@ -170,21 +170,12 @@ class WkcrmactivityController < WkcrmController
 		else
 			redirect_back_or_default :action => 'index', :tab => params[:tab]
 		end
-  end
+  	end
 
 	def set_filter_session
-		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
-		if params[:searchlist] == controller_name || api_request?
-			filters = [:period_type, :period, :from, :to, :activity_type, :related_to, :show_on_map]
-			filters.each do |param|
-				if params[param].blank? && session[controller_name].try(:[], param).present?
-					session[controller_name].delete(param)
-				elsif params[param].present?
-					session[controller_name][param] = params[param]
-				end
-			end
-		end
-  end
+		filters = [:period_type, :period, :from, :to, :activity_type, :related_to, :show_on_map]
+		super(filters, {:from => @from, :to => @to})
+  	end
 
 	def formPagination(entries)
 		@entry_count = entries.count

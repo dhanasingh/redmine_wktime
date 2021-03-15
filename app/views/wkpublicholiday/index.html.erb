@@ -15,7 +15,7 @@
 		<%= label_tag('year', l(:label_year)) %>&nbsp;
 		<%= select_year(controller.getSession(:year).to_i, :prefix => "year", :discard_type => true ) %>&nbsp;
 		<%= link_to_function l(:button_apply), '$("#query_form").submit()', :class => 'icon icon-checked' %>&nbsp;
-		<%= link_to l(:button_clear), { :project_id => @project, :set_filter => 1 }, :class => 'icon icon-reload' %>
+		<%= link_to l(:button_clear), { project_id: @project, set_filter: 1, clear: true }, class: 'icon icon-reload' %>
 	</fieldset>
 <% if @month > 0 %>
 	<div class="wk-contextual">

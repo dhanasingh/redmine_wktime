@@ -23,13 +23,13 @@
 		<%= hidden_field_tag('tab', controller_name) %>
     <table>
       <tr>
-				<% if validateERPPermission("A_SKILL") %>
-					<th><label><%= l(:label_group_plural) %></label></th>
-					<td><%= select_tag('group_id', options_for_select( [["", 0]] + (@groups.collect {|p| [p.name, p.id ]}), selected: groupId), onchange: "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %></td>
-					<th><label style="padding-left: 10px;"><%= l(:label_member) %></label></th>
-					<td><%= select_tag('user_id', options_for_select( [[l(:all_users_for_select), 0]] + @members, selected: userID),
-							:style=> "width:200px;") %></td>
-				<% end %>
+		<% if validateERPPermission("A_SKILL") %>
+			<th><label><%= l(:label_group_plural) %></label></th>
+			<td><%= select_tag('group_id', options_for_select( [["", 0]] + (@groups.collect {|p| [p.name, p.id ]}), selected: groupId), onchange: "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %></td>
+			<th><label style="padding-left: 10px;"><%= l(:label_member) %></label></th>
+			<td><%= select_tag('user_id', options_for_select( [[l(:all_users_for_select), 0]] + @members, selected: userID),
+					:style=> "width:200px;") %></td>
+		<% end %>
         <th><label style="padding-left: 10px;"><%= l(:label_skill_set) %></label></th>
         <td><%= select_tag('skill_set', options_for_select(options_for_enum_select('SK', skillSet || 0, true))) %></td>
         <th><label style="padding-left: 10px;"><%= l(:label_rating) %></label></th>
