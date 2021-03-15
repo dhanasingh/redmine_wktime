@@ -471,18 +471,9 @@ class WkorderentityController < WkbillingController
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end
 
-  	def set_filter_session
-			session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
-		if params[:searchlist] == controller_name || api_request?
+		def set_filter_session
 			filters = [:period_type, :period, :from, :to, :contact_id, :account_id, :project_id, :polymorphic_filter, :rfq_id]
-			filters.each do |param|
-				if params[param].blank? && session[controller_name].try(:[], param).present?
-					session[controller_name].delete(param)
-				elsif params[param].present?
-					session[controller_name][param] = params[param]
-				end
-			end
-		end
+			super(filters, {:from => @from, :to => @to})
     end
 
 

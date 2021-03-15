@@ -139,7 +139,7 @@ class WkassetdepreciationController < WkassetController
 	end
 
 	def set_filter_session
-		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
+		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil? || params[:clear]
 		if params[:searchlist] == controller_name
 			filters = [:product_id, :inventory_item_id, :period_type, :period, :from, :to]
 			filters.each do |param|

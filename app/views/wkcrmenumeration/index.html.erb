@@ -28,7 +28,7 @@
 				<th><label style="float:left; padding-left: 10px;"><%= l(:label_type) %></label></th>
 					<td><%=h select_tag('enumType', options_for_select(enumType.invert,  :selected => enumerationType.nil? ? "" : enumerationType ), :style=> "float: left;") %></td>
 				<td><%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %></td>
-				<td><%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload', :style=>"float:left;" %></td>
+				<td><%= link_to l(:button_clear), {:tab => controller_name, clear: true}, :class => 'icon icon-reload', :style=>"float:left;" %></td>
 			</tr>
 		</table>
 	</fieldset>

@@ -274,17 +274,8 @@ include WkinventoryHelper
 	end
 
 	def set_filter_session
-		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
-		if params[:searchlist] == controller_name
-			filters = [:period_type, :period, :contact_id, :account_id, :project_id, :polymorphic_filter, :rfq_id, :from, :to]
-			filters.each do |param|
-				if params[param].blank? && session[controller_name].try(:[], param).present?
-					session[controller_name].delete(param)
-				elsif params[param].present?
-					session[controller_name][param] = params[param]
-				end
-			end
-		end
+		filters = [:period_type, :period, :contact_id, :account_id, :project_id, :polymorphic_filter, :rfq_id, :from, :to]
+		super(filters, {:from => @from, :to => @to})
 	end
 	
 	def formPagination(entries)

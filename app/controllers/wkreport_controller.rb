@@ -52,18 +52,8 @@ before_action :check_perm_and_redirect
 	end
 	
 	def set_filter_session
-		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
-		if params[:searchlist] == controller_name
-			params[:to] ||= Date.today
-			filters = [:report_type, :period_type, :period, :from, :to, :group_id, :project_id, :user_id]
-			filters.each do |param|
-				if params[param].blank? && session[controller_name].try(:[], param).present?
-					session[controller_name].delete(param)
-				elsif params[param].present?
-					session[controller_name][param] = params[param]
-				end
-			end
-		end
+		filters = [:report_type, :period_type, :period, :from, :to, :group_id, :project_id, :user_id]
+		super(filters, {:from => @from, :to => @to})
 	end
 	
 	def getMembersbyGroup

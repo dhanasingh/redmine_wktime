@@ -82,7 +82,7 @@ $(document).ready(function()
 <% if isapply %>
 	
 		<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %>
-		<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %></td><td></td>
+		<%= link_to l(:button_clear), {:tab => controller_name, clear: true}, :class => 'icon icon-reload' %></td><td></td>
 	
 <% end  %>
 

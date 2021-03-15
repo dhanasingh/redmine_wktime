@@ -47,5 +47,5 @@
 <td style="padding-left:20px;"><%=h select_tag('project_id', options_for_select(projArr, :selected => projectId.nil? ? projArr : projectId)) %></td>
 </table>
 <%= render :partial => 'wkreport/date_range' %>
-<%= hidden_field_tag "searchlist", "wkreport" %>
+<%= hidden_field_tag "searchlist",  controller_name%>
 <% end %>

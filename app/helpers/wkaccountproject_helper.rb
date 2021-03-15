@@ -75,7 +75,7 @@ include WkcrmHelper
 	end
 	
     def set_filter_session
-		session[controller_name] = {:project_id => params[:project_id]} if session[controller_name].nil?
+		session[controller_name] = {:project_id => params[:project_id]} if session[controller_name].nil? || params[:clear]
 		if params[:searchlist] == controller_name
 			filters = [:contact_id, :account_id, :polymorphic_filter]
 			filters.each do |param|
