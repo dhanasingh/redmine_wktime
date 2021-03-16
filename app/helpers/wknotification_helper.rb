@@ -23,6 +23,7 @@ module WknotificationHelper
 		notifyHash = {}
 		case WkUserNotification.getnotificationAction(notification)&.first&.name
 		when "fillSurvey"
+			notification.source.survey_for_id ||= User.current.id if notification.source.survey_for_type == 'User'
 			notifyHash['text'] = l(:label_complete_survey)+" "+notification.source.name.to_s
 			notifyHash['url'] = {controller:'wksurvey', action:'survey', surveyForID: notification.source.survey_for_id, surveyForType: notification.source.survey_for_type, survey_id: notification.source_id} if notification.source.survey_for_type.blank? || notification.source.survey_for_type.present? && notification.source.survey_for_id.present?
 			notifyHash['icon'] = "fa fa-file-text-o"

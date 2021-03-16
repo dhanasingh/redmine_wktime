@@ -393,7 +393,7 @@ class WkorderentityController < WkbillingController
 
 		unless @invoice.id.blank?
 			saveOrderRelations
-			WkInvoice.send_notification(@invoice)
+			WkInvoice.send_notification(@invoice) if params[:invoice_id].blank?
 			totalAmount = @invoice.invoice_items.sum(:original_amount)
 			invoiceAmount = @invoice.invoice_items.where.not(:item_type => 'm').sum(:original_amount)
 
