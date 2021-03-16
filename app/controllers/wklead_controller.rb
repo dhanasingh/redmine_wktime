@@ -142,9 +142,9 @@ class WkleadController < WkcrmController
 		l(:label_account)
 	end
 
-	def set_filter_session
-		filters = [:lead_name, :status, :location_id]
-		super(filters)
+	def set_filter_session(filters=nil, filterParams={})
+		filters = [:lead_name, :status, :location_id] if filters.blank?
+		super(filters, filterParams)
 	end
 
 	def getuserGrp

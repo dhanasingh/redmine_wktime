@@ -23,17 +23,17 @@ before_action :check_account_proj_module_permission
 
 include WkaccountprojectHelper
 
-		def index
-			sort_init 'id', 'asc'
-			sort_update 'type' => "parent_type",
-									'name' => "CASE WHEN wk_account_projects.parent_type = 'WkAccount' THEN a.name ELSE CONCAT(c.first_name, c.last_name) END",
-									'project' => "projects.name",
-									'billing_type' => "billing_type"
-			set_filter_session
-			entries = accountProjctList
-			entries = entries.joins("LEFT JOIN wk_accounts a on (wk_account_projects.parent_type = 'WkAccount' and wk_account_projects.parent_id = a.id)
-				LEFT JOIN wk_crm_contacts c on (wk_account_projects.parent_type = 'WkCrmContact' and wk_account_projects.parent_id = c.id)")
-			formPagination(entries.reorder(sort_clause))
+	def index
+		sort_init 'id', 'asc'
+		sort_update 'type' => "parent_type",
+								'name' => "CASE WHEN wk_account_projects.parent_type = 'WkAccount' THEN a.name ELSE CONCAT(c.first_name, c.last_name) END",
+								'project' => "projects.name",
+								'billing_type' => "billing_type"
+		set_filter_session
+		entries = accountProjctList
+		entries = entries.joins("LEFT JOIN wk_accounts a on (wk_account_projects.parent_type = 'WkAccount' and wk_account_projects.parent_id = a.id)
+			LEFT JOIN wk_crm_contacts c on (wk_account_projects.parent_type = 'WkCrmContact' and wk_account_projects.parent_id = c.id)")
+		formPagination(entries.reorder(sort_clause))
     end
 	
 	def edit
@@ -191,5 +191,10 @@ include WkaccountprojectHelper
 	
 	def additionalAccountType
 		true
-	end	
+	end
+	
+    def set_filter_session
+		filters = [:contact_id, :account_id, :polymorphic_filter]
+		super(filters, {:project_id => params[:project_id]})
+   end	
 end

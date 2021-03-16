@@ -100,17 +100,8 @@ class WkreferralsController < WkleadController
   end
 
 	def set_filter_session
-    session[controller_name] = {location_id: WkLocation.default_id, status: "N" } if session[controller_name].nil? || params[:clear]
-		if params[:searchlist] == controller_name
-			filters = [:lead_name, :status, :location_id]
-			filters.each do |param|
-				if params[param].blank? && session[controller_name].try(:[], param).present?
-					session[controller_name].delete(param)
-				elsif params[param].present?
-					session[controller_name][param] = params[param]
-				end
-			end
-		end
+		filters = [:lead_name, :status, :location_id]
+		super(filters, {location_id: WkLocation.default_id, status: "N" })
 	end
 
   def get_filter(key)
