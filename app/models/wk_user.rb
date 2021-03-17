@@ -29,4 +29,5 @@ class WkUser < ActiveRecord::Base
   belongs_to :location, :class_name => 'WkLocation'
   belongs_to :department, :class_name => 'WkCrmEnumeration'
   belongs_to :address, :foreign_key => 'address_id', :dependent => :destroy, :class_name => 'WkAddress'
+  belongs_to :source, polymorphic: true
 end

@@ -43,7 +43,7 @@ class WkreferralsController < WkleadController
     if @referral.destroy
       flash[:notice] = l(:notice_successful_delete)
     else
-      flash[:error] = @referral.errors.full_messages.join("<br>")
+      flash[:error] = @referral.errors.full_messages.join("<br>") + @referral.contact.errors.full_messages.join("<br>")
     end
     redirect_to action: "index", tab: "wkreferrals"
   end

@@ -24,8 +24,8 @@ class WkLead < ActiveRecord::Base
   belongs_to :contact, :class_name => 'WkCrmContact', :dependent => :destroy
   belongs_to :referred, foreign_key: "referred_by", primary_key: "id", class_name: "User"
   has_one :candidate, class_name: "WkCandidate", foreign_key: "lead_id", dependent: :destroy
-  accepts_nested_attributes_for :candidate, allow_destroy: true
   has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
+  accepts_nested_attributes_for :candidate, allow_destroy: true
 
   before_save :update_status_update_on
   after_create_commit :send_notification

@@ -31,6 +31,7 @@ class WkCrmContact < ActiveRecord::Base
   has_many :contacts, foreign_key: "contact_id", class_name: "WkCrmContact"
   has_many :spent_fors, as: :spent_for, class_name: 'WkSpentFor', dependent: :restrict_with_error
   belongs_to :location, class_name: 'WkLocation'
+  has_one :wkuser, as: :source, class_name: "WkUser", dependent: :restrict_with_error
 
   validates_presence_of :last_name
    # Different ways of displaying/sorting users
