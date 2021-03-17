@@ -3,7 +3,7 @@
 	<table>
 		<tr>
 			 <th align="left"><%= l(:field_status) %></th>
-			 <td align="left" style="padding-left:75px;"><%=h select_tag('status', options_for_select(getLeadStatusArr, :selected => @lead.blank? ? "" : @lead.status),:required => true, :disabled => true) %></td>
+			 <td align="left" style="padding-left:75px;"><%=h select_tag('status', options_for_select(getLeadStatusArr.invert, :selected => @lead.blank? ? "" : @lead.status),:required => true, :disabled => true) %></td>
 		</tr>
 		<%  selectedLsId = @lead.blank? ? nil : @lead.lead_source_id %>
 		<tr>

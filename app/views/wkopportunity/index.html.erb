@@ -17,7 +17,7 @@
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 <%= form_tag({:controller => "wkopportunity", :action => 'index', :tab => "wkopportunity"}, :method => :post, :id => 'query_form') do %>
 	<%=h hidden_field_tag('tab', "wkopportunity") %>
-	<%= hidden_field_tag "searchlist", "wkopportunity" %>
+	<%= hidden_field_tag "searchlist", controller_name %>
 	<%	accname = session[:wkopportunity].try(:[], :oppname) %>
 	<%	accId = session[:wkopportunity].try(:[], :account_id) %>
 	<%	accArr = options_for_wktime_account(true, 'A', controller.additionalAccountType) %>

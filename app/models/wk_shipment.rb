@@ -26,13 +26,14 @@ class WkShipment < ActiveRecord::Base
   #belongs_to :purchase_order, foreign_key: "purchase_order_id", class_name: "WkInvoice"
   belongs_to :product, foreign_key: "product_id", class_name: "WkProduct" 
   after_create_commit :send_notification
+  has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
 
   def send_notification
     if WkNotification.notify('receiveGoods') && self.shipment_type == 'I'
-      emailNotes = "Shipment has been generated" + "\n\n" + l(:label_redmine_administrator)
+      emailNotes = l(:label_shipment)+" "+l(:label_has_created)+ "\n\n" + l(:label_redmine_administrator)
       userId = (WkPermission.permissionUser('V_INV') + WkPermission.permissionUser('D_INV')).uniq
       subject = l(:label_shipment) + " " + l(:label_notification)
-      WkNotification.notification(userId, emailNotes, subject)
+      WkNotification.notification(userId, emailNotes, subject, self, "receiveGoods")
     end
   end
   

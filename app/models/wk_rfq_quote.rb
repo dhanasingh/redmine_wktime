@@ -20,13 +20,14 @@ class WkRfqQuote < ActiveRecord::Base
   belongs_to :quote , :class_name => 'WkInvoice'
   belongs_to :rfq , :class_name => 'WkRfq'
   after_create_commit :send_notification
+  has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
 
   def send_notification
     if WkNotification.notify('quoteReceived')
-      emailNotes = "RFQ Quote: #" + self.quote.invoice_number+ " has been Received " + "\n\n" + l(:label_redmine_administrator)
+      emailNotes = l(:label_rfq)+" "+l(:label_quote)+" #" + self.quote.invoice_number+" "+l(:label_has_received) + "\n\n" + l(:label_redmine_administrator)
       userId = (WkPermission.permissionUser('B_PUR_PRVLG') + WkPermission.permissionUser('A_PUR_PRVLG')).uniq
       subject = l(:label_quotes) + " " + l(:label_notification)
-      WkNotification.notification(userId, emailNotes, subject)
+      WkNotification.notification(userId, emailNotes, subject, self,'quoteReceived')
     end
   end
 end

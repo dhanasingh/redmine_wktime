@@ -19,6 +19,7 @@ class WksurveyController < WkbaseController
 
   unloadable
   before_action :require_login, :survey_url_validation, :check_perm_and_redirect
+  before_action :check_permission , only: "survey_response"
   accept_api_auth :index, :save_survey, :find_survey_for, :survey, :update_survey, :survey_result
   menu_item :wksurvey
   menu_item :wkattendance, :only => :save_survey
@@ -99,6 +100,7 @@ class WksurveyController < WkbaseController
         survey.is_review = params[:review].blank? ? false : params[:review]
         survey.survey_for_id = params[:survey_for_id].blank? ? nil : params[:survey_for_id]
         survey.save_allowed = params[:save_allowed] || false
+        survey.hide_response = params[:hide_response] || false
 
         params.each do |ele_nameVal|
           #Question Array
@@ -290,6 +292,8 @@ class WksurveyController < WkbaseController
         survey_response.ip_address = request.remote_ip
         del_answers = WkSurveyAnswer.where(id: params["deletedAnswers"]) if params["deletedAnswers"].present?
       else
+        surveyAnswers = Array.new
+        surveyReviews = Array.new
         if params[:isReview] == "true"
           survey_response = WkSurveyResponse.find(params[:survey_response_id])
           params.each do |param|
@@ -301,8 +305,6 @@ class WksurveyController < WkbaseController
           del_answers = WkSurveyAnswer.where(survey_question_id: params[:reviewerOnlyQuestions].split(","), survey_response_id: params[:survey_response_id].to_s)
           del_reviews = WkSurveyReview.where(survey_response_id: params[:survey_response_id].to_s)
         else
-          surveyAnswers = Array.new
-          surveyReviews = Array.new
           if @response.blank?
             survey_response = WkSurveyResponse.new
             survey_response.user_id = User.current.id
@@ -630,5 +632,9 @@ class WksurveyController < WkbaseController
 
   def print_survey
     survey
+  end
+
+  def check_permission
+    render_404 if @survey.blank? || @survey.hide_response
   end
 end

@@ -18,15 +18,6 @@
 class WkPoSupplierInvoice < ActiveRecord::Base
   unloadable
   belongs_to :purchase_order , :class_name => 'WkInvoice'
-  belongs_to :supplier_invoice , foreign_key: "supplier_inv_id", :class_name => 'WkInvoice' 
-  after_create_commit :send_notification
-
-  def send_notification
-    if WkNotification.notify('supplierInvoiceReceived')
-      emailNotes = "Supplier Invoice: #" + self.supplier_invoice.invoice_number+ " has been Received " + "\n\n" + l(:label_redmine_administrator)
-      userId = (WkPermission.permissionUser('B_PUR_PRVLG') + WkPermission.permissionUser('A_PUR_PRVLG')).uniq
-      subject = l(:label_supplier_invoice) + " " + l(:label_notification)
-      WkNotification.notification(userId, emailNotes, subject)
-    end
-  end
+  belongs_to :supplier_invoice , foreign_key: "supplier_inv_id", :class_name => 'WkInvoice'
+  has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
 end

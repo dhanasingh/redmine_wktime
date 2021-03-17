@@ -118,11 +118,11 @@ class WklogmaterialController < TimelogController
 			format.json  {
 				spentTypes = []
 				spentTypeHash.delete("RA")  # if resident management Plugin present
-				spentTypeHash.delete("E") if !wklogtime_helper.isChecked('wktime_enable_expense_module')
-				if !wklogtime_helper.isChecked('wktime_enable_inventory_module')
-					spentTypeHash.delete("M")
-					spentTypeHash.delete("A")
-				end
+				# spentTypeHash.delete("E") if !wklogtime_helper.isChecked('wktime_enable_expense_module')
+				# if !wklogtime_helper.isChecked('wktime_enable_inventory_module')
+				# 	spentTypeHash.delete("M")
+				# 	spentTypeHash.delete("A")
+				# end
 				spentTypeHash.each{|key, label| spentTypes << { value: key, label: label }}
 				render(json: spentTypes)
 			}

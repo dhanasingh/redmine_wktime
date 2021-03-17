@@ -24,7 +24,7 @@
 				<th><label for='location' style="float:left;padding-left: 10px;"><%= l(:label_location) %></label></th>
 					<td><%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locId, true), :style=> "float: left;") %></td>
 				<td><%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %></td>
-				<td><%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload', :style=>"float:left; " %></td>
+				<td><%= link_to l(:button_clear), {tab: controller_name, clear: true}, class: 'icon icon-reload', :style=>"float:left; " %></td>
 			</tr>
 		</table>
 	</fieldset>

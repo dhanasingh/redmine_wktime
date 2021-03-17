@@ -1,3 +1,4 @@
+<%= stylesheet_link_tag 'font-awesome.min', :plugin => "redmine_wktime" %>
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
 <% notification_helper = Object.new.extend(WknotificationHelper) %>
 <% if wktime_helper.isChecked('te_save_geo_location') ||
@@ -35,21 +36,21 @@
 		color: #555 !important;
 		padding: 10px;
 		border: none;
-		white-space: break-spaces;
+		white-space: inherit;
 	}
 	#issueLog .drdn-content {width:280px;}
 	#notification .drdn-content {
 		min-height: 84px;
 		max-height:400px;
 		width:345px;
-  	overflow: auto;
+  		overflow: auto;
 		-moz-box-shadow: 0 0 8px #888888;
 		-webkit-box-shadow: 0 0 8px #888888;
 		box-shadow: 0 0 8px #888888;
 	}
 	#notification .padding {
 		padding: 10px;
-    border-bottom: 1px solid #ccc;
+    	border-bottom: 1px solid #ccc;
 	}
 	#notification .drdn-content h2 {
 		margin: 0px;
@@ -72,20 +73,18 @@
     position: absolute;
     padding: 2px;
     top: -2px;
-    left: 18px;
+    left: 11px;
     border-radius: 25px;
-	}
-	#notification .new-items {
-		padding: 10px;
-		font-weight: bold;
-	}
-	#notification .earlier-items {
-		padding-top: 20px;
-		padding-left: 10px;
-		font-weight: bold;
 	}
 	#notification .no-items {
 		padding-left: 10px;
+	}
+	#notification .drdn-content .drdn-items .fa:before {
+    	font-size: 30px;
+		color: steelblue;
+	}
+	#notification .drdn-trigger .fa:before {
+    font-size: 20px;
 	}
 </style>
 <% if wktime_helper.isChecked("wktime_enable_clock_in_out") && wktime_helper.isChecked("wktime_enable_attendance_module") && User.current.logged? && wktime_helper.checkViewPermission %>	
@@ -146,43 +145,51 @@
 <% end %>
 
 <!-- Notification-->
-<% 
-notifyContent =''
-notifyTrigger =''
-	if User.current.logged?
-		unRead = WkUserNotification.unreadNotification
-		notifyHeader  = l(:label_notification_plural) + (unRead.present?  ? " (" + unRead.count.to_s + ")" : '')
-		imgName = unRead.present? ? "notification_unread" : "notification"
-		notifyBell = image_tag(imgName + ".png", plugin: "redmine_wktime", style: "height: 25px")
-		notifications = WkUserNotification.where(user_id: User.current.id).order(id: 'desc')
-		newNotify = (+"").html_safe
-		earlierNotify = (+"").html_safe
-		notifications.each do |notification|
-			notifyTime = notification_helper.getnotifyDate(notification.created_at)
-			seenClass = notification.seen ? "seen" : "unseen"
-			notifyVal = notification_helper.formNotificationText(notification)
-			isURLreturn = notifyVal['url'].present? ? "return true;" : "return false;"
-			if notifyTime.include?('hours ago') || notifyTime.include?('days ago') ||  notifyTime.include?('Just now')
-				newText = link_to(notifyVal['text']+"\r\n"+notifyTime, notifyVal['url'], class: seenClass, onclick: isURLreturn, 'data-id': notification.id)
-			else
-				earlerText = link_to(notifyVal['text']+"\r\n"+notifyTime, notifyVal['url'], class: seenClass, onclick: isURLreturn, 'data-id': notification.id)
-			end
-			newNotify << newText
-			earlierNotify << earlerText
-		end
-		notifyTrigger = content_tag('div', content_tag('span', notifyBell, class: 'drdn-trigger') + content_tag('div', WkUserNotification.unreadNotification.count, class: 'count'), class: 'notify-img')
-		newGrp = content_tag('span', l(:wk_status_new), class: 'new-items') + content_tag('span', newNotify, class: 'drdn-items') if newNotify.present?
-		earlierGrp = content_tag('span', l(:label_earlier), class: 'earlier-items') + content_tag('span', earlierNotify, class: 'drdn-items') if earlierNotify.present?
-		if newGrp.blank? && earlierGrp.blank?
-			notifyRslt = content_tag("span", l(:text_no_notification), class: 'no-items')
-		else
-			notifyRslt = newGrp.to_s + earlierGrp.to_s
-		end
-		notifyContent = content_tag('div', content_tag(:h2, notifyHeader.to_s, class: 'padding') + notifyRslt.html_safe, class: 'drdn-content')
-	end 
+<% if User.current.logged?
+	unRead = WkUserNotification.unreadNotification
+	notifications = WkUserNotification.where(user_id: User.current.id).order(id: 'desc')
+	newNotify = (+"").html_safe
+	earlierNotify = (+"").html_safe
 %>
-
-	<%= content_tag('div', notifyTrigger + notifyContent, id: "notification", class: "drdn") %>
+	<div id="notification" class="drdn" title="notification">
+		<div class="notify-img">
+			<span class="drdn-trigger">
+				<% if unRead.count > 0 %>
+					<i class="fa fa-bell" style="padding-left: 0px;color:yellow;"></i>
+					<div class="count"><%=unRead.count %></div>
+				<% else %>
+					<i class="fa fa-bell" style="padding-left: 0px;color:darkgray;"></i>
+				<% end %>
+			</span>
+		</div>
+		<div class="drdn-content">
+			<h2 class="padding"><%= l(:label_notification_plural) + (unRead.present?  ? " (" + unRead.count.to_s + ")" : '')%></h2>
+			<% if notifications.present? %>
+				<% notifications.each do |notification| %>
+					<% notifyTime = notification_helper.getnotifyDate(notification.created_at)
+						seenClass = notification.seen ? "seen" : "unseen"
+						notifyVal = notification_helper.formNotificationText(notification)
+						isURLreturn = notifyVal['url'].present? ? "return true;" : "return false;"
+					%>
+					<div class="drdn-items">
+						<a class='<%=seenClass%>' onclick='<%=isURLreturn%>' data-id='<%=notification.id%>' href=<%= url_for(notifyVal['url']) %> style="text-decoration: none;">
+						<div>
+							<div style="width: 20%; float:left; padding-top: 7px;">
+									<i class='<%=notifyVal['icon'] %>'></i>
+							</div>
+							<div style="width: 80%; float:right">
+								<%= notifyVal['text'] %><br><%= notifyTime %>
+							</div>
+						</div>
+						</a>
+					</div>
+				<%end%>
+			<% else %>
+				<span class="no-items"><%= l(:text_no_notification) %></span>
+			<% end %>
+		</div>
+	</div>
+<% end %>
 
 <!-- Issue Time Tracker-->
 <% if wktime_helper.isChecked("label_enable_issue_logger") && User.current.logged? && wktime_helper.checkViewPermission
@@ -202,7 +209,7 @@ notifyTrigger =''
 	<div style="clear: both;"></div>
 <% end %>
 
-<% if controller_name == "timelog" && action_name == "index" %>
+<% if controller_name == "timelog" && action_name == "index" || action_name == "report"%>
 	<input type="hidden" name="spentTypeSession" id="spentTypeSession" value="<%= session[:timelog] && session[:timelog][:spent_type] %>">
 <% end %>
 <!-- Spent time show on map -->

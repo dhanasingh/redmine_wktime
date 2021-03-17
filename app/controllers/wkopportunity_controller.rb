@@ -120,17 +120,8 @@ class WkopportunityController < WkcrmController
   
   
     def set_filter_session
-		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
-		if params[:searchlist] == controller_name || api_request?
-			filters = [:period_type, :oppname, :account_id, :period, :from, :to]
-			filters.each do |param|
-				if params[param].blank? && session[controller_name].try(:[], param).present?
-					session[controller_name].delete(param)
-				elsif params[param].present?
-					session[controller_name][param] = params[param]
-				end
-			end
-		end
+		filters = [:period_type, :oppname, :account_id, :period, :from, :to]
+		super(filters, {:from => @from, :to => @to})
     end
    	
 	def formPagination(entries)

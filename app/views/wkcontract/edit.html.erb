@@ -2,12 +2,12 @@
 	<h2><b><%=@contractEntry.blank? ? l(:label_new_contract) : l(:label_edit_contract) %></b></h2>
 	<div id="contract_form">
            <%=h hidden_field_tag('contract_id', @contractEntry.blank? ? "" :@contractEntry.id) %>
-		   <%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	
+		   <%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>
 		   <%	projArr = options_for_wktime_project(projects,false) %>
 		   <%	accArr = options_for_wktime_account(false, 'A', controller.additionalAccountType) %>
 		   <%   relHash = relatedHash
 				relHash.delete("WkOpportunity")
-				relHash.delete("WkLead") 
+				relHash.delete("WkLead")
 			%>
 		<div class="splitcontentleft">
 			<fieldset class="box tabular">
@@ -19,11 +19,11 @@
 							<td align="left" style="padding-left:40px;"><%=h @contractEntry.contract_number %> </td>
 						</tr>
 					<% end %>
-					<%= render partial: "wkcrm/view_polymorphic", locals: { parentObject: @contractEntry.blank? ? nil : @contractEntry, :parentType => "", :parentId => "", :index => false, :needParentProject => false, :padding => nil, :needblankType => false } %> 
+					<%= render partial: "wkcrm/view_polymorphic", locals: { parentObject: @contractEntry.blank? ? nil : @contractEntry, :parentType => "", :parentId => "", :index => false, :needParentProject => false, :padding => nil, :needblankType => false } %>
 					<tr>
 						<th align="left"><%= l(:label_project) %></th>
 						<td align="left" style="padding-left:40px;"><%=h select_tag('project_id', options_for_select(projArr, :selected => @contractEntry.blank? ? "" : @contractEntry.project_id)) %></td>
-					</tr> 
+					</tr>
 					<tr>
 						<th align="left"><%= l(:label_start_date) %></th>
 						<td align="left" style="padding-left:40px;"><%=h date_field_tag('start_date',@contractEntry.blank? ? "" : @contractEntry.start_date, :size => 10, :required => true) %> <%= calendar_for('start_date') %></td>
@@ -33,14 +33,8 @@
 						<td align="left" style="padding-left:40px;"><%=h date_field_tag('end_date',@contractEntry.blank? ? "" : @contractEntry.end_date, :size => 10) %> <%= calendar_for('end_date') %></td>
 					</tr>
 			    </table>
-				<fieldset>
-					<legend><%= l(:label_attachment) %></legend>
-					<p><%= render :partial => 'attachments/form', :locals => {:container => @contractEntry} %></p>
-					<% if !@contractEntry.blank? && @contractEntry.attachments.any? -%>
-						<%= link_to_attachments @contractEntry, :thumbnails => true %>
-					<% end -%>
-				</fieldset>
 			</fieldset>
+			<%= render partial: "wkdocument/attachment_form", locals: { container: @contractEntry, container_type: "WkContract" } %>
 		</div>
 	</div>
 	<div style="clear:left;"></div>

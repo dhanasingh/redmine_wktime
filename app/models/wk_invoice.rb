@@ -24,11 +24,14 @@ class WkInvoice < ActiveRecord::Base
   has_many :invoice_items, foreign_key: "invoice_id", class_name: "WkInvoiceItem", :dependent => :destroy
   has_many :projects, through: :invoice_items
   has_many :payment_items, foreign_key: "invoice_id", class_name: "WkPaymentItem", :dependent => :restrict_with_error
-  has_one :rfq_quote, foreign_key: "quote_id", class_name: "WkRfqQuote"
-  has_one :po_quote, foreign_key: "purchase_order_id", class_name: "WkPoQuote"
+  has_one :rfq_quote, foreign_key: "quote_id", class_name: "WkRfqQuote", :dependent => :destroy
+  has_one :po_quote, foreign_key: "purchase_order_id", class_name: "WkPoQuote", :dependent => :destroy
   has_one :quote_po, foreign_key: "quote_id", class_name: "WkPoQuote"
-  has_one :sup_inv_po, foreign_key: "supplier_inv_id", class_name: "WkPoSupplierInvoice"
+  has_one :sup_inv_po, foreign_key: "supplier_inv_id", class_name: "WkPoSupplierInvoice", :dependent => :destroy
   has_one :po_sup_inv, foreign_key: "purchase_order_id", class_name: "WkPoSupplierInvoice"
+  has_many :notifications, through: "rfq_quote", :dependent => :destroy
+  has_many :notifications, through: "po_quote", :dependent => :destroy
+  has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
   
   # scope :invoices, lambda {where :invoice_type => 'I'}
   # scope :quotes, lambda {where :invoice_type => 'Q'}
@@ -61,10 +64,15 @@ class WkInvoice < ActiveRecord::Base
 
   def self.send_notification(invoice)
     if WkNotification.notify('invoiceGenerated') && invoice.invoice_type == 'I'
-      emailNotes = "Invoice #"+invoice.invoice_number.to_s+":"+" "+invoice.invoice_items.first.original_currency.to_s+ invoice.invoice_items.sum(:original_amount).to_s + " has been generated for" + invoice.parent.name.to_s + "\n\n" + l(:label_redmine_administrator)
+      emailNotes = l(:label_invoice)+": #"+invoice.invoice_number.to_s+" "+invoice.invoice_items.first.original_currency.to_s+ invoice.invoice_items.sum(:original_amount).to_s+" "+l(:label_has_generated)+" "+l(:label_for)+invoice.parent.name.to_s + "\n\n" + l(:label_redmine_administrator)
       subject = l(:label_invoice) + " " + l(:label_notification)
       userId = WkPermission.permissionUser('M_BILL').uniq
       WkNotification.notification(userId, emailNotes, subject, invoice, 'invoiceGenerated')
+    elsif WkNotification.notify('supplierInvoiceReceived') && invoice.invoice_type == 'SI'
+      emailNotes = l(:label_supplier_invoice)+": #"+invoice.invoice_number.to_s+" "+invoice.invoice_items.first.original_currency.to_s+ invoice.invoice_items.sum(:original_amount).to_s+" "+l(:label_has_generated)+" "+l(:label_for)+invoice.parent.name.to_s + "\n\n" + l(:label_redmine_administrator)
+      userId = (WkPermission.permissionUser('B_PUR_PRVLG') + WkPermission.permissionUser('A_PUR_PRVLG')).uniq
+      subject = l(:label_supplier_invoice) + " " + l(:label_notification)
+      WkNotification.notification(userId, emailNotes, subject, invoice, 'supplierInvoiceReceived')
     end
   end
   

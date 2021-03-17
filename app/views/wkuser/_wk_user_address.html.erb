@@ -1,9 +1,16 @@
-</fieldset>
 <% if(Setting.plugin_redmine_wktime['label_no_additional_details_for_user'].blank? && Setting.plugin_redmine_wktime['label_no_additional_details_for_user'].to_i == 0) %>
-<div >			
-	<% addressObj = @user.erpmineuser.address %>
-	<%=h hidden_field_tag('address_id', (@user.erpmineuser.blank? ? "" : @user.erpmineuser.address_id) ) %>
-	<%= render partial: "wklead/contact_info", locals: { address: addressObj, :disable => (@user == User.current ? true : false) }%>
-	
-</div>
+</fieldset>
+	<div >
+		<% addressObj = @user.erpmineuser.address %>
+		<%=h hidden_field_tag('address_id', (@user.erpmineuser.blank? ? "" : @user.erpmineuser.address_id) ) %>
+		<%= render partial: "wklead/contact_info", locals: { address: addressObj, :disable => (@user == User.current ? true : false) }%>
+	</div>
+	<div>
+		<%= hidden_field_tag "attachment_ids", "" %>
+		<%= labelled_fields_for :erpmineuser, @user&.erpmineuser do |f| %>
+			<%= f.hidden_field "source_type" %>
+			<%= f.hidden_field "source_id" %>
+		<% end %>
+		<%= render partial: "wkdocument/attachment_form", locals: { container: @user, container_type: "Principal" } %>
+	</div>
 <% end %>

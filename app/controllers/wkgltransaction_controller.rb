@@ -82,6 +82,7 @@ class WkgltransactionController < WkaccountingController
 							beginning_date= Date.civil(entry.tyear, entry.tmonth, 1)
 							end_date = beginning_date.end_of_month
 						elsif @summaryTransaction == 'week'
+							entry.tyear = Date.valid_commercial?(entry.tyear, entry.tweek, 1) ? entry.tyear : entry.tyear - 1 if entry.tweek == 53
 							summary = (entry.tweek).to_s + "_week_"
 							beginning_date = Date.commercial(entry.tyear, entry.tweek, 1)
 							end_date = Date.commercial(entry.tyear, entry.tweek, 7)
@@ -92,8 +93,8 @@ class WkgltransactionController < WkaccountingController
 						end
 						key = (summary).to_s + (entry.tyear).to_s
 						@summaryHash[key] = Hash.new if @summaryHash[key].blank?
-						@summaryHash[key][:DT] = entry.amount if entry.detail_type == 'd'
-						@summaryHash[key][:CT] = entry.amount if entry.detail_type == 'c'
+						@summaryHash[key][:DT] = entry.amount + (@summaryHash[key][:DT] || 0) if entry.detail_type == 'd'
+						@summaryHash[key][:CT] = entry.amount + (@summaryHash[key][:CT] || 0) if entry.detail_type == 'c'
 						@summaryHash[key][:beginning_date] = beginning_date
 						@summaryHash[key][:end_date] = end_date
 						@summaryHash[key][:ledger_id] = entry.ledger_id
@@ -174,7 +175,9 @@ class WkgltransactionController < WkaccountingController
 						errorMsg = errorMsg.blank? ? wktxnDetail.errors.full_messages.join("<br>") : wktxnDetail.errors.full_messages.join("<br>") + "<br/>" + errorMsg
 					else
 						if i == 1 
-							wkgltransaction.save() 
+							wkgltransaction.save()
+							#for attachment save
+							errorMsg = save_attachments(wkgltransaction.id) if params[:attachments].present?
 						end
 						wktxnDetail.gl_transaction_id = wkgltransaction.id
 						wktxnDetail.save() unless wktxnDetail.amount.blank?
@@ -344,17 +347,8 @@ class WkgltransactionController < WkaccountingController
 	end
   
 	def set_filter_session
-		session[controller_name] = {:summary_trans => "days"} if session[controller_name].nil?
-		if params[:searchlist] == controller_name || api_request?
-			filters = [:period_type, :period, :txn_ledger, :from, :to, :trans_type, :summary_trans]
-			filters.each do |param|
-				if params[param].blank? && session[controller_name].try(:[], param).present?
-					session[controller_name].delete(param)
-				elsif params[param].present?
-					session[controller_name][param] = params[param]
-				end
-			end
-		end
+		filters = [:period_type, :period, :txn_ledger, :from, :to, :trans_type, :summary_trans, :show_chart]
+		super(filters, {:summary_trans => "days"})
 	end
    
    # Retrieves the date range based on predefined ranges or specific from/to param dates
@@ -434,8 +428,8 @@ class WkgltransactionController < WkaccountingController
 	def set_transaction_session
 		session[controller_name][:start_date] = params[:date]
 		session[controller_name][:txn_type] = params[:txn_type]
-		session[controller_name][:ledger_id1] = params[:txn_particular1]
-		session[controller_name][:ledger_id2] = params[:txn_particular2]
+		session[controller_name][:ledger_id1] = params[:txn_particular_1]
+		session[controller_name][:ledger_id2] = params[:txn_particular_2]
 	end
 
 	def export
@@ -446,4 +440,14 @@ class WkgltransactionController < WkaccountingController
 			}
 		end
 	end
+
+  def graph
+    data = get_Ledger_Graph_data
+    if data
+      render :json => data
+    else
+      render_404
+    end
+  end
+
 end

@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2020  Adhi software pvt ltd
+# Copyright (C) 2011-2021  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -19,13 +19,12 @@ class WkcrmcontactController < WkcontactController
   unloadable
   menu_item :wklead
   accept_api_auth :index, :edit, :update
-	
+
 	def getContactType
 		'C'
 	end
-	
+
 	def lblNewContact
 		l(:label_new_item, l(:label_contact))
 	end
-
 end

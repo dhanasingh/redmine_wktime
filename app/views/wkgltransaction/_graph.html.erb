@@ -1,0 +1,67 @@
+<div style="padding-right: 20px;width:55%;float: right">
+	<canvas id="ledger_graph" height="250"></canvas>
+</div>
+
+<% content_for :header_tags do %>
+  <%= javascript_include_tag "Chart.bundle.min" %>
+<% end %>
+
+<%= javascript_tag do %>
+	$(document).ready(function(){
+		var url = <%= raw url_for(controller: 'wkgltransaction', action: 'graph', graph: "graph", ledger_id: ledger_id, from: from, to: to).to_json %>;
+		$.getJSON(url, function(data){
+				var chartData = {
+					labels: data['month_name'],
+					datasets: [{
+						backgroundColor: 'rgba(255, 99, 132, 1)',
+						borderColor: 'rgba(255, 99, 132, 1)',
+						borderWidth: 3,
+						data: data['ledger_val']
+					}]
+				};
+				
+				new Chart(document.getElementById("ledger_graph").getContext("2d"), {
+					type: 'bar',
+					data: chartData,
+					options: {
+						responsive: true,
+						maintainAspectRatio: false,
+						legend: {
+							display: false
+						},
+						scales: {
+							xAxes: [{
+								barThickness : 10,
+								gridLines : {
+									drawBorder: true,
+									display : true
+								},
+								ticks: {
+									beginAtZero: true
+								},
+								scaleLabel: {
+									display : true,
+									labelString: data['x_title'],
+									fontColor: '#ff0000'
+								}
+							}],
+							yAxes: [{
+								gridLines : {
+									drawBorder: true,
+									display : true
+								},
+								ticks: {
+									beginAtZero: true
+								},
+								scaleLabel: {
+									display : true,
+									labelString: data['y_title'],
+									fontColor: '#ff0000'
+								}
+							}]	
+						}
+					}
+				});
+		});
+	});
+<% end %>

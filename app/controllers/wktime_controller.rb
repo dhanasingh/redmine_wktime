@@ -27,6 +27,7 @@ before_action :check_perm_and_redirect, :only => [:edit, :update, :destroy] # us
 before_action :check_editperm_redirect, :only => [:destroy]
 before_action :check_view_redirect, :only => [:index]
 before_action :check_log_time_redirect, :only => [:new]
+before_action :check_module_permission, :only => [:index]
 
 accept_api_auth :index, :edit, :update, :destroy, :deleteEntries, :getProjects, :getissues, :getactivities, :getAPIUsers, :getclients
 
@@ -1358,6 +1359,13 @@ include ActionView::Helpers::TagHelper
 		wkStatuses.destroy_all() unless wkStatuses.blank?
 	end
 
+	def check_module_permission		
+		unless showTime
+			render_403
+			return false
+		end
+	end
+
 private
 
 	def getManager(user, approver)
@@ -2450,7 +2458,7 @@ private
 	end
 
 	def set_filter_session
-		session[controller_name] = {:filters => @query.blank? ? nil : @query.filters} if session[controller_name].nil?
+		session[controller_name] = {:filters => @query.blank? ? nil : @query.filters} if session[controller_name].nil? || params[:clear]
 		if params[:searchlist] == controller_name || api_request?
 			session[controller_name][:filters] = @query.blank? ? nil : @query.filters
 			filters = [:period_type, :period, :from, :to, :project_id, :filter_type, :user_id, :status, :group_id]

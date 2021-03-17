@@ -96,12 +96,12 @@
 <!-- Display Attachments Files -->
 <% editable = !@locked && (@wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r') %>
 <div>
-	<fieldset id="<%= 'attachment_' + @row.to_s() + '_' + @wday_index.to_s %>" class="attachment">
-		<legend><%=l(:label_attachment)%></legend>
-		<% @entries.each do |entry| %>
-			<% if entry.present? && entry.attachments.any? && (controller.check_approvable_status && @approvable_projects.pluck(:id).include?(entry.project_id) || !controller.check_approvable_status) %>
+	<% @entries.each do |entry| %>
+		<% if entry.present? && entry.attachments.any? && (controller.check_approvable_status && @approvable_projects.pluck(:id).include?(entry.project_id) || !controller.check_approvable_status) %>
+			<fieldset id="<%= 'attachment_' + @row.to_s() + '_' + @wday_index.to_s %>" class="attachment">
+				<legend><%=l(:label_attachment)%></legend>
 				<%= attachments_links entry, { editable: editable, deletable: editable, hideImage: true, author: false } %>
-			<% end %>
+			</fieldset>
 		<% end %>
-	</fieldset>
+	<% end %>
 </div>

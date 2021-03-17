@@ -44,7 +44,7 @@
 				<label><%= check_box_tag('is_dispose', 1, isDisposed) %> <%= l(:label_disposed) %></label>&nbsp;
 			<% end %>
 			<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>&nbsp;
-			<%= link_to l(:button_clear), {:controller => controller_name, :action => action_name, :tab => 'clock'}, :class => 'icon icon-reload' %>
+			<%= link_to l(:button_clear), {:tab => controller_name, clear: true}, :class => 'icon icon-reload' %>
 			<% if wktime_helper.isChecked('asset_save_geo_location') && params[:controller] == 'wkasset' %>
 			<label style="padding-left:5px">
 				<%= check_box_tag('show_on_map', true, showOnMap, onclick: '$("#query_form").submit(); return false;') %>

@@ -21,6 +21,7 @@ class WkAssetProperty < ActiveRecord::Base
   belongs_to :inventory_item, :class_name => 'WkInventoryItem'
   belongs_to :material_entry, foreign_key: "matterial_entry_id", class_name: "WkMaterialEntry"
   scope :available_assets,  -> { where(:matterial_entry_id => nil) }
+  has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
 
   scope :disposeAsset, ->(inventory_item_id){
     joins("LEFT JOIN wk_asset_depreciations AS ad ON ad.inventory_item_id = wk_asset_properties.inventory_item_id")
@@ -44,10 +45,10 @@ class WkAssetProperty < ActiveRecord::Base
   }
 
   def self.dispose_asset_notification(assetProperty)
-    emailNotes = "Asset : " + (assetProperty.name) + " has been disposed" + "\n\n" + l(:label_redmine_administrator)
+    emailNotes = l(:label_asset)+": " + (assetProperty.name) +" "+l(:label_has_disposed) + "\n\n" + l(:label_redmine_administrator)
     subject = l(:label_asset) + " " + l(:label_notification)
     userId = (WkPermission.permissionUser('V_INV') + WkPermission.permissionUser('D_INV')).uniq
-    WkNotification.notification(userId, emailNotes, subject)
+    WkNotification.notification(userId, emailNotes, subject, assetProperty, "disposeAsset")
   end
   
 end

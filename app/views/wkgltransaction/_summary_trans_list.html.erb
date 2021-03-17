@@ -1,6 +1,5 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-<div class="autoscroll">
-<table class="list time-entries">
+<table class="list time-entries" style="width: <%= width %>; float:left;">
 <%	openingBalHash = getEachLedgerBSAmt(@transDate, [@selectedLedger.ledger_type]) unless @ledgerId.blank? || @transDate.blank?
 	unless @selectedLedger.blank? || (incomeLedgerTypes.include? @selectedLedger.ledger_type) || (expenseLedgerTypes.include? @selectedLedger.ledger_type)
 		openingBalance = openingBalHash[@selectedLedger.name] unless openingBalHash.blank? || openingBalHash[@selectedLedger.name].blank?
@@ -46,4 +45,3 @@
 	<% end %>
 <% end %>
 </table>
-</div>

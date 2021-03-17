@@ -17,10 +17,13 @@
 
 class WkNotification < ActiveRecord::Base
   has_many :wk_user_notifications, foreign_key: "notify_id", class_name: "WkUserNotification", :dependent => :destroy
+  
+  scope :getActiveNotification, -> { where(active: true) }
+  scope :getUnseletedActions, ->(actionName){ where.not(name: actionName, active: false) }
 
   def self.notify(name)
-    notification = WkNotification.all.pluck(:name)
-    notification.include? name.to_s
+    notification = WkNotification.where(name: name).first
+    notification&.has_attribute?('active') && notification&.active || false
   end
 
   def self.notification(userId, emailNotes, subject, model=nil, label=nil)
@@ -29,5 +32,9 @@ class WkNotification < ActiveRecord::Base
       WkMailer.email_user(subject, User.current.language, user.mail, emailNotes, nil).deliver_later if WkNotification.first.email
       WkUserNotification.userNotification(id, model, label) if model.present?
     end
+  end
+
+  def self.updateActivefalse(notifications)
+    notifications.update_all(active: false)
   end
 end

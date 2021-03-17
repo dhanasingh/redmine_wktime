@@ -27,7 +27,7 @@
 		<div>
 			<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
 			<%#= link_to l(:button_apply), {:controller => controller_name, :action => action_name}, :class => 'icon icon-checked' %>
-			<%= link_to l(:button_clear), {:controller => controller_name, :action => action_name, :tab => 'clock'}, :class => 'icon icon-reload' %>
+			<%= link_to l(:button_clear), {:tab => 'wkshipment', clear: true}, :class => 'icon icon-reload' %>
 		</div>
 	</fieldset>	
 <% end %>

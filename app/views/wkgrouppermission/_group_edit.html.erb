@@ -1,8 +1,10 @@
-<%#= title l(:label_group) + " " +  l(:label_permissions) %> 
+<%#= title l(:label_group) + " " +  l(:label_permissions) %>
 <%  lastmName = ""
-	firstApperence = 0 
+	firstApperence = 0
 	count = 1
-	moduleHash = {"Inventory" => l(:label_inventory), "Shift Scheduling" => l(:label_scheduling), "Survey" => l(:label_survey), "CRM" => l(:label_crm), "Billing" => l(:label_wk_billing), "Accounting" => l(:label_accounting), "Purchase" => l(:label_purchasing), "Report" => l(:label_report), "ATTENDANCE" => l(:report_attendance), "PAYROLL" => l(:label_payroll)}	
+	moduleHash = {"Inventory" => l(:label_inventory), "Shift Scheduling" => l(:label_scheduling), "Survey" => l(:label_survey), "CRM" => l(:label_crm),
+		"Billing" => l(:label_wk_billing), "Accounting" => l(:label_accounting), "Purchase" => l(:label_purchasing), "Report" => l(:label_report),
+		"ATTENDANCE" => l(:report_attendance), "PAYROLL" => l(:label_payroll), "HR" => l(:label_hr), "" => l(:label_general)}
 	permissionArr = Array.new
 	permissionArr = @groupPermission.pluck(:permission_id) unless @groupPermission.blank?
 
@@ -17,7 +19,7 @@ width: auto !important;}
 	<table>
 		<th><%=l(:label_group) %></th>
 		<td><%= select_tag 'group_id', content_tag('option') + options_from_collection_for_select(@groups, :id, :name, params[:group_id].to_i), :onchange => "this.form.submit(); return false;"  %></td>
-		
+
 	</table>
 </fieldset>
 <% end %>
@@ -26,16 +28,16 @@ width: auto !important;}
 <fieldset class="box tabular">
 	<legend><%= l(:label_permissions) %></legend>
 	<% @permission.each do |m| %>
-		<%	moduleName = m.modules 
-			mName = m.modules			
+		<%	moduleName = m.modules
+			mName = m.modules
 		%>
 		<% if firstApperence == 0 || mName != lastmName %>
 			<div class="icon-gravatar">
 			 <fieldset>
-			 <legend><%= moduleHash[m.modules]  %></legend>
+			 <legend><%= moduleHash[m.modules || ""]  %></legend>
 				<% @permission.each do | mn | %>
 					<%	name = mn.name.split('_')
-						modName = mn.modules #name[0]			
+						modName = mn.modules #name[0]
 					%>
 					<% if modName == mName %>
 						<% isPermission = permissionArr.include? mn.id %>
@@ -47,13 +49,13 @@ width: auto !important;}
 						<%=h hidden_field_tag("count", count) %>
 						<% count += 1 %>
 					<% end %>
-					
+
 				<% end %>
 			 </fieldset>
 			</div>
 			<% lastmName = m.modules
 				firstApperence += 1
-			%>		
+			%>
 		<% end %>
 	<% end %>
 </fieldset>

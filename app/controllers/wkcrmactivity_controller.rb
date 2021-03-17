@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2020 Adhi software pvt ltd
+# Copyright (C) 2011-2021 Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -20,6 +20,7 @@ class WkcrmactivityController < WkcrmController
   unloadable
   menu_item :wklead
   include WktimeHelper
+  include WkdocumentHelper
 	accept_api_auth :index, :edit, :update
 
 	def index
@@ -37,36 +38,36 @@ class WkcrmactivityController < WkcrmController
 	    set_filter_session
 		retrieve_date_range
 
-		crmactivity = WkCrmActivity.joins("LEFT JOIN users AS U ON wk_crm_activities.assigned_user_id = U.id")
+		crmactivity = WkCrmActivity.joins("LEFT JOIN users AS U ON wk_crm_activities.assigned_user_id = U.id").where.not(activity_type: "I")
 
 		actType = session[controller_name].try(:[], :activity_type)
 		relatedTo = session[controller_name].try(:[], :related_to)
-	   		
+
 		if !@from.blank? && !@to.blank?
 			crmactivity = crmactivity.where(:start_date => getFromDateTime(@from) .. getToDateTime(@to))
 		end
-		
+
 		if (!actType.blank?) && (relatedTo.blank?)
 			crmactivity = crmactivity.where(:activity_type => actType)
 		end
-		
+
 		if (actType.blank?) && (!relatedTo.blank?)
 			crmactivity = crmactivity.where(:parent_type => relatedTo)
 		end
-		
+
 		if (!actType.blank?) && (!relatedTo.blank?)
 			crmactivity = crmactivity.where(:activity_type => actType, :parent_type => relatedTo)
 		end
 		formPagination(crmactivity.reorder(sort_clause))
 		respond_to do |format|
-			format.html {        
+			format.html {
 				render :layout => !request.xhr?
 			}
 			format.api
 		end
 	end
-  
-  def edit
+
+	def edit
 		@activityEntry = nil
 		unless params[:activity_id].blank?
 			@activityEntry = WkCrmActivity.where(:id => params[:activity_id].to_i)
@@ -75,15 +76,15 @@ class WkcrmactivityController < WkcrmController
 		if !$tempActivity.blank?  && isError
 			@activityEntry = $tempActivity
 			respond_to do |format|
-				format.html {        
+				format.html {
 					render :layout => !request.xhr?
 				}
 				format.api
 			end
 		end
-  end
-  
-  def update
+	end
+
+  	def update
 		errorMsg = nil
 		crmActivity = nil
 		@tempCrmActivity ||= Array.new
@@ -95,19 +96,19 @@ class WkcrmactivityController < WkcrmController
 			crmActivity.created_by_user_id = User.current.id
 		end
 		crmActivity.name = params[:activity_subject]
-		crmActivity.status =  params[:activity_type] == 'C' || params[:activity_type] == 'M' ? params[:activity_status] : params[:task_status]
+		crmActivity.status =  ["C", "M", "I"].include?(params[:activity_type]) ? params[:activity_status] : params[:task_status]
 		crmActivity.description = params[:activity_description]
 		crmActivity.start_date = Time.parse("#{params[:activity_start_date].to_s} #{ params[:start_hour].to_s}:#{params[:start_min]}:00 ").localtime.to_s
-		crmActivity.end_date = Time.parse("#{params[:activity_end_date].to_s} #{ params[:end_hour].to_s}:#{params[:end_min]}:00 ").localtime.to_s if params[:activity_type] != 'C'
-		
+		crmActivity.end_date = Time.parse("#{params[:activity_end_date].to_s} #{ params[:end_hour].to_s}:#{params[:end_min]}:00 ").localtime.to_s if !["C", "I"].include?(params[:activity_type])
+
 		crmActivity.activity_type = params[:activity_type]
 		crmActivity.direction = params[:activity_direction] if params[:activity_type] == 'C'
 		durhr = params[:activity_duration].blank? ? "00" : params[:activity_duration]
 		durmin = params[:activity_duration_min] == 0 ? "00" : params[:activity_duration_min]
 		duration = "#{durhr}:#{durmin}:00".split(':').map { |a| a.to_i }.inject(0) { |a, b| a * 60 + b}
-		crmActivity.duration = duration 
+		crmActivity.duration = duration
 		crmActivity.location = params[:location]  if params[:activity_type] == 'M'
-		crmActivity.assigned_user_id = params[:assigned_user_id]
+		crmActivity.assigned_user_id = (params[:activity_type] != "I" || validateERPPermission("A_REFERRAL")) ? params[:assigned_user_id] : User.current.id
 		crmActivity.parent_id = params[:related_parent]
 		crmActivity.parent_type = params[:related_to].to_s
 		if isChecked('crm_save_geo_location')
@@ -118,9 +119,11 @@ class WkcrmactivityController < WkcrmController
 		@tempCrmActivity << crmActivity
 			$tempActivity = @tempCrmActivity
 			errorMsg = crmActivity.errors.full_messages.join("<br>")
-		else			
+		else
 			crmActivity.save()
-			$tempActivity = nil 
+			#for attachment save
+			errorMsg = save_attachments(crmActivity.id) if params[:attachments].present?
+			$tempActivity = nil
 		end
 
 		respond_to do |format|
@@ -130,28 +133,30 @@ class WkcrmactivityController < WkcrmController
 						redirect_to :controller => params[:controller_from],:action => params[:action_from] , :account_id => crmActivity.parent_id
 					elsif params[:controller_from] == 'wksuppliercontact'
 						redirect_to :controller => params[:controller_from],:action => params[:action_from] , :contact_id => crmActivity.parent_id
+					elsif params[:controller_from] == 'wkreferrals'
+						redirect_back_or_default :controller => params[:controller_from], :action => 'edit', lead_id: crmActivity.parent_id
 					else
 						redirect_to :controller => 'wkcrmactivity',:action => 'index' , :tab => 'wkcrmactivity'
 					end
-					$tempActivity = nil			
+					$tempActivity = nil
 					flash[:notice] = l(:notice_successful_update)
 				else
-					flash[:error] = errorMsg 
+					flash[:error] = errorMsg
 					redirect_to :controller => 'wkcrmactivity',:action => 'edit', :isError => true
 				end
 			}
 			format.api{
 				if errorMsg.blank?
 					render :plain => errorMsg, :layout => nil
-				else			
-					@error_messages = errorMsg.split('\n')	
+				else
+					@error_messages = errorMsg.split('\n')
 					render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
 				end
 			}
-		end	
-  end
-  
-  def destroy
+		end
+  	end
+
+  	def destroy
 		parentId = WkCrmActivity.find(params[:activity_id].to_i).parent_id
 		trans = WkCrmActivity.find(params[:activity_id].to_i).destroy
 		flash[:notice] = l(:notice_successful_delete)
@@ -160,32 +165,25 @@ class WkcrmactivityController < WkcrmController
 			redirect_to :controller => params[:controller_from],:action => params[:action_from] , :account_id => parentId
 		elsif params[:controller_from] == 'wksuppliercontact'
 			redirect_to :controller => params[:controller_from],:action => params[:action_from] , :contact_id => parentId
+		elsif params[:controller_from] == 'wkreferrals'
+			redirect_back_or_default :controller => params[:controller_from], :action => 'edit', lead_id: parentId
 		else
 			redirect_back_or_default :action => 'index', :tab => params[:tab]
 		end
-  end
-	
+  	end
+
 	def set_filter_session
-		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
-		if params[:searchlist] == controller_name || api_request?
-			filters = [:period_type, :period, :from, :to, :activity_type, :related_to, :show_on_map]
-			filters.each do |param|
-				if params[param].blank? && session[controller_name].try(:[], param).present?
-					session[controller_name].delete(param)
-				elsif params[param].present?
-					session[controller_name][param] = params[param]
-				end
-			end
-		end
-    end
-   
+		filters = [:period_type, :period, :from, :to, :activity_type, :related_to, :show_on_map]
+		super(filters, {:from => @from, :to => @to})
+  	end
+
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
 		@activity = entries.limit(@limit).offset(@offset)
 	end
-	
-	def setLimitAndOffset		
+
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -198,6 +196,16 @@ class WkcrmactivityController < WkcrmController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
+		end
+	end
+
+	private
+
+	def check_perm_and_redirect
+		activity = WkCrmActivity.find(params[:activity_id]) if params[:activity_id].present?
+		if !check_permission && params[:controller_from] != "wkreferrals"
+			render_403
+			return false
+		end
 	end
 end

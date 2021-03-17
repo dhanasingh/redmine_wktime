@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2017  Adhi software pvt ltd
+# Copyright (C) 2011-2021  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -17,37 +17,38 @@
 
 class WkCrmContact < ActiveRecord::Base
   unloadable
-  belongs_to :account, :class_name => 'WkAccount'
-  has_many :billable_projects, as: :parent, class_name: "WkAccountProject", :dependent => :destroy
-  belongs_to :address, :class_name => 'WkAddress', :dependent => :destroy
-  belongs_to :assigned_user, :class_name => 'User'
-  has_one :lead, foreign_key: 'contact_id', class_name: 'WkLead', :dependent => :destroy
-  has_many :activities, as: :parent, class_name: 'WkCrmActivity', :dependent => :destroy
-  has_many :opportunities, as: :parent, class_name: 'WkOpportunity', :dependent => :destroy
+  belongs_to :account, class_name: 'WkAccount'
+  has_many :billable_projects, as: :parent, class_name: "WkAccountProject", dependent: :destroy
+  belongs_to :address, class_name: 'WkAddress', dependent: :destroy
+  belongs_to :assigned_user, class_name: 'User'
+  has_one :lead, foreign_key: 'contact_id', class_name: 'WkLead', dependent: :destroy
+  has_many :activities, as: :parent, class_name: 'WkCrmActivity', dependent: :destroy
+  has_many :opportunities, as: :parent, class_name: 'WkOpportunity', dependent: :destroy
   has_many :projects, through: :billable_projects
-  has_many :contracts, as: :parent, class_name: "WkContract", :dependent => :destroy
-  has_many :invoices, as: :parent, class_name: "WkInvoice", :dependent => :restrict_with_error
+  has_many :contracts, as: :parent, class_name: "WkContract", dependent: :destroy
+  has_many :invoices, as: :parent, class_name: "WkInvoice", dependent: :restrict_with_error
   has_many :invoice_items, through: :invoices
   has_many :contacts, foreign_key: "contact_id", class_name: "WkCrmContact"
-  has_many :spent_fors, as: :spent_for, class_name: 'WkSpentFor', :dependent => :restrict_with_error
-  belongs_to :location, :class_name => 'WkLocation'
-   
+  has_many :spent_fors, as: :spent_for, class_name: 'WkSpentFor', dependent: :restrict_with_error
+  belongs_to :location, class_name: 'WkLocation'
+  has_one :wkuser, as: :source, class_name: "WkUser", dependent: :restrict_with_error
+
   validates_presence_of :last_name
    # Different ways of displaying/sorting users
   NAME_FORMATS = {
-    :firstname_lastname => {
-        :string => '#{first_name} #{last_name}',
-        :order => %w(first_name last_name id),
-        :setting_order => 1
+    firstname_lastname: {
+        string: '#{first_name} #{last_name}',
+        order: %w(first_name last_name id),
+        setting_order: 1
       },
-    :firstname_lastinitial => {
-        :string => '#{first_name} #{last_name.to_s.chars.first}.',
-        :order => %w(first_name last_name id),
-        :setting_order => 2
+    firstname_lastinitial: {
+        string: '#{first_name} #{last_name.to_s.chars.first}.',
+        order: %w(first_name last_name id),
+        setting_order: 2
       },
-    :firstinitial_lastname => {
-        :string => '#{first_name.to_s.gsub(/(([[:alpha:]])[[:alpha:]]*\.?)/, \'\2.\')} #{last_name}',
-        :order => %w(first_name last_name id),
+    firstinitial_lastname: {
+        string: '#{first_name.to_s.gsub(/(([[:alpha:]])[[:alpha:]]*\.?)/, \'\2.\')} #{last_name}',
+        order: %w(first_name last_name id),
         :setting_order => 2
       },
     :first_name => {
@@ -81,7 +82,7 @@ class WkCrmContact < ActiveRecord::Base
         :setting_order => 8
       },
   }
-  
+
   # Return user's full name for display
   def name(formatter = nil)
     f = self.class.name_formatter(formatter)
@@ -91,13 +92,17 @@ class WkCrmContact < ActiveRecord::Base
       @name ||= eval('"' + f[:string] + '"')
     end
   end
-  
+
   # Returns contact's contracts for the given project
   # or nil if the contact do not have contract
-  def contract(project)
-		contract = contracts.where(:project_id => project.id).first
-		contract = contracts[0] if contract.blank?
-		contract
+  def contract(project, invEndDate)
+    contract = nil
+    unless project.blank?
+      wkcontracts = contracts.where(:project_id => project.id).order(start_date: "desc")
+      contract = wkcontracts.where("start_date < ? AND (end_date IS NULL OR end_date > ?)", invEndDate, invEndDate).first
+      contract = wkcontracts.first if contract.blank?
+    end
+    contract
   end
 
   def self.name_formatter(formatter = nil)

@@ -31,8 +31,8 @@
 <% end %>
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
 
-<%=h hidden_field_tag('tab', "#{controller_name}") %>
-<%= hidden_field_tag "searchlist", "#{controller_name}" %>
+<%=h hidden_field_tag('tab', controller_name) %>
+<%= hidden_field_tag "searchlist", controller_name %>
 
 <%
 	projectid = session[controller_name].try(:[], :project_id)

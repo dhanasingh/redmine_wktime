@@ -20,6 +20,7 @@ class WkexpenseController < WktimeController
   
   menu_item :wktime
   before_action :find_optional_project, :only => [:reportdetail, :report]
+  before_action :check_module_permission, :only => [:index]
   
   accept_api_auth :reportdetail, :index, :edit, :update, :destroy , :deleteEntries, :getCurrency
   
@@ -150,6 +151,13 @@ class WkexpenseController < WktimeController
 				
   def getModelName
     'WkExpenseEntry'
+  end
+
+	def check_module_permission		
+		unless showExpense
+			render_403
+		  return false
+    end
   end
 
 private

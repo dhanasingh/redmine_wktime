@@ -32,12 +32,16 @@ class WkLocation < ActiveRecord::Base
   scope :getMainLogo, -> { getMainLocation() }
   scope :getLogoDD, ->(locationID) { joins(:attachments).where("attachments.content_type LIKE 'image/%' AND wk_locations.id = ?", locationID).select('attachments.id, attachments.filename') }
 
+  def self.default_id
+    WkLocation.where(:is_default => 'true').first&.id
+  end
+
   def check_default
     if is_default? && is_default_changed?
       WkLocation.update_all({:is_default => false})
     end
-  end 
-  
+  end
+
   def check_main
     if is_main? && is_main_changed?
       WkLocation.update_all({:is_main => false})

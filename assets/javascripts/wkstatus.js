@@ -26,8 +26,8 @@ $(document).ready(function(){
             +'</select></td></tr></table>';
 		var spentTypeHF = '<input type="hidden" name="spent_type" id="spent_typeHF" value="">'
 	}
-			
-	if(document.querySelector("h2") && document.querySelector("h2").innerHTML == "Spent time")	
+
+	if ($('.time-entries.selected').length > 0)
 	{
 		if(document.getElementById('spent_type') == null)
 		{	

@@ -36,7 +36,7 @@ $(document).ready(function(){
 					if (name != ""){
 						desc = ( (payrollId != 0 && basicAction == 'Edit') ?  payrollId + "|" : "|" )  + name
 						opttext = name											
-						if(dlgname != 'settings_basic' && dlgname != 'settings_calculated_fields')
+						if(dlgname != 'settings_basic' && dlgname != 'settings_calculated_fields'&& dlgname != 'settings_reimburse')
 						{
 							var compNames = getSalaryComps();
 							compDepsVal = "";
@@ -89,13 +89,17 @@ $(document).ready(function(){
 							desc = compDepsVal;
 							opttext = compDepsText;
 						}
-						else if (dlgname != 'settings_calculated_fields'){
+						else if (dlgname == 'settings_basic'){
 							desc = desc + "|"  + salary_type;
 							opttext += (salary_type != "") ? ":" + $("#salary_type :selected").text() : "";
 							opttext += ":" + (basic_field_factor == null ? 0 : basic_field_factor);
 							opttext += (ledgerId != "") ? ":" + $("#db_ledger :selected").text() : "";
 							desc += "|" + $("#basicCompDepID").val()  + "|"  + (basic_field_factor == null ? 0 : basic_field_factor)+
 								"|" + ledgerId;
+						}
+						else if (dlgname == 'settings_reimburse'){
+							opttext += (ledgerId != "") ? ":" + $("#db_ledger :selected").text() : "";
+							desc += "|" + ledgerId;
 						}
 						else{
 							desc = desc ;
@@ -123,7 +127,7 @@ $(document).ready(function(){
 	});	
 
 	$("form").submit(function(){
-		var compsTypeIDs = [ "settings_basic", "settings_allowances", "settings_deduction", "settings_calculated_fields"];
+		var compsTypeIDs = [ "settings_basic", "settings_allowances", "settings_deduction", "settings_calculated_fields", "settings_reimburse"];
 		selectAllComponents(compsTypeIDs);
 	});
 
@@ -145,6 +149,10 @@ $(document).ready(function(){
 			});
 		}
 	});
+
+	if ($('#settings_reimburse').children().length != 0) {
+		$("#reimburse_add").hide();
+	}
 
 });
 
@@ -242,6 +250,32 @@ function payrollDialogAction(dlg, action)
 			alert(selectListAlertMsg);				
 		}
 	}
+	else if('settings_reimburse' == dlg){
+		$("#basic_salary_type").hide();
+		$("#table_payroll_dependent").hide();
+		$("#payrollDBLedger").show();
+		$("#payroll_frequency").hide();
+		$("#payroll_start_date").hide();
+		$('#basic_factor').hide();
+		$('#calculatedFieldsType').hide();
+		$("#addDeps").hide();
+		if('Add' == action){
+			editedname = "" ;
+			$('#name').val('');
+			$("#payroll-dlg").dialog("open");
+		}
+		else if('Edit' == action && listbox != null && listbox.options.selectedIndex >=0){
+			var listboxArr = listbox.options[listbox.selectedIndex].value.split('|');
+			payrollId = listboxArr[0];
+			editedname = listboxArr[1];
+			$('#name').val(listboxArr[1]);
+			$('#db_ledger').val(listboxArr[2]);
+			$("#payroll-dlg").dialog("open");
+		}
+		else if(listbox != null && listbox.options.length >0){
+			alert(selectListAlertMsg);				
+		}
+	}
 }
 
 function selectAllComponents(compsTypeIDs){
@@ -331,6 +365,8 @@ function getTitle(title){
 			return label_deduction;
 		case "settings_calculated_fields":
 			return label_calculated_fields;
+		case "settings_reimburse":
+			return label_reimburse;
 	}
 }
 
@@ -358,7 +394,7 @@ function removeSelectedValue(elementID)
 			{					
 				if(listbox.options[i].selected)	
 				{
-					if(elementID == 'settings_allowances' || elementID == 'settings_deduction' || elementID == 'settings_calculated_fields')
+					if(elementID == 'settings_allowances' || elementID == 'settings_deduction' || elementID == 'settings_calculated_fields'|| elementID == 'settings_reimburse')
 					{
 						var listboxArr = listbox.options[i].value.split('|');
 						var payroll_ids = $('#settings_comp_del_ids').val();

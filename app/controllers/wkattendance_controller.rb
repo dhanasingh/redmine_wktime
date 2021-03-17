@@ -24,7 +24,8 @@ class WkattendanceController < WkbaseController
 	include WkimportattendanceHelper
 
 	before_action :require_login
-	before_action :check_perm_and_redirect, :only => [:edit, :update, :clockedit]
+	before_action :check_perm_and_redirect, :only => [:edit, :clockedit]
+	before_action :check_update_permission, only: "update"
 	before_action :check_index_perm, :only => [:index]
 	require 'csv'
 	
@@ -180,17 +181,8 @@ class WkattendanceController < WkbaseController
 	end
 	
 	def set_filter_session
-		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
-		if params[:searchlist] == controller_name || api_request?
-			filters = [:period_type, :period, :group_id, :user_id, :from, :to, :show_on_map]
-			filters.each do |param|
-				if params[param].blank? && session[controller_name].try(:[], param).present?
-					session[controller_name].delete(param)
-				elsif params[param].present?
-					session[controller_name][param] = params[param]
-				end
-			end
-		end
+		filters = [:period_type, :period, :group_id, :user_id, :from, :to, :show_on_map]
+		super(filters, {:from => @from, :to => @to})
 	end
 
 	# Retrieves the date range based on predefined ranges or specific from/to param dates
@@ -398,6 +390,13 @@ class WkattendanceController < WkbaseController
 		ret = false
 		ret = params[:user_id].to_i == User.current.id
 		return (ret || validateERPPermission('A_ATTEND'))
+	end
+
+	def check_update_permission
+		unless validateERPPermission('A_ATTEND') && params[:user_id].to_i != User.current.id
+			render_403
+			return false
+		end
 	end
 	
 	def getProjectByIssue

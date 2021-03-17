@@ -1,0 +1,32 @@
+<%= title l(:label_referrals) %>
+<%= render partial: "wkattendance/render_hr_tabs" %>
+
+<div class="contextual">
+  <%= link_to l(:label_new_referral), url_for(action: "edit"), class: "icon icon-add" %>
+</div>
+<div style="clear: both;" ></div>
+
+<fieldset>
+  <%= form_tag({}, method: "get", id:"query_form") do %>
+		<%= hidden_field_tag("searchlist", controller_name) %>
+		<%= hidden_field_tag("tab", controller_name) %>
+    <table>
+      <tr>
+        <th><label><%= l(:label_referral) %></label></th>
+        <td><%= text_field_tag "lead_name", session[controller_name].try(:[], :lead_name), size: 30 %></td>
+        <th><label style="padding-left: 10px;"><%= l(:field_status) %></label></th>
+        <td><%= select_tag "status", options_for_select(getLeadStatusArr.invert, selected: session[controller_name].try(:[], :status)) %></td>
+        <th><label style="padding-left: 10px;"><%= l(:label_location) %></label></th>
+        <td><%= select_tag "location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', session[controller_name].try(:[], :location_id), true) %></td>
+        <td><%= submit_tag l(:button_apply), class: "small", name: nil %></td>
+        <td><%= link_to l(:button_clear), {tab: controller_name, clear: true}, class: "icon icon-reload" %></td>
+      </tr>
+    </table>
+  <% end %>
+</fieldset>
+
+<% if @entries.present? %>
+  <%= render partial: "wklead/lead_list", locals: { entries: @entries } %>
+<% else %>
+	<p style="clear:both" class="nodata">No data to display</p>
+<% end %>

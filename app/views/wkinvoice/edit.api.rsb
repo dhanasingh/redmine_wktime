@@ -8,7 +8,7 @@ api.invoice do
     api.inv_end_date @invoice.end_date
     api.field_status @invoice.status
     api.modifier_id @invoice.modifier_id
-    api.modifier_name @invoice.modifier.name
+    api.modifier_name @invoice&.modifier&.name
     api.parent_name @invoice.parent.name
     api.gl_transaction_id @invoice.gl_transaction_id
     api.parent_type @invoice.parent_type

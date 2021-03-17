@@ -5,15 +5,15 @@
 			<table>
 				<tr>
 					<th align="left"><%= l(:label_work_phone) %></th>
-					<td align="left" style="padding-left:10px;"><%=h text_field_tag("work_phone", address.blank?  ? "" : address.work_phone, :size => 25, :disabled => disable, maxlength: 15) %> </td>			   
+					<td align="left" style="padding-left:10px;"><%=h text_field_tag("work_phone", address.blank?  ? "" : address.work_phone, :size => 25, :disabled => disable, maxlength: 15) %> </td>
 				</tr>
 				<tr>
 					<th align="left"><%= l(:label_mobile) %></th>
-					<td align="left" style="padding-left:10px;"><%=h text_field_tag("mobile", address.blank?  ? "" : address.mobile, :size => 25, :disabled => disable, maxlength: 15) %> </td>			   
+					<td align="left" style="padding-left:10px;"><%=h text_field_tag("mobile", address.blank?  ? "" : address.mobile, :size => 25, :disabled => disable, maxlength: 15) %> </td>
 				</tr>
 				<tr>
 					<th align="left"><%= l(:label_email) %></th>
-					<td align="left" style="padding-left:10px;"><%=h text_field_tag("email", address.blank?  ? "" : address.email, :size => 25, :disabled => disable, maxlength: 40) %> </td>			   
+					<td align="left" style="padding-left:10px;"><%=h text_field_tag("email", address.blank?  ? "" : address.email, :size => 25, :disabled => disable, maxlength: 40) %> </td>
 				</tr>
 				<tr>
 					<th align="left"><%= l(:label_fax) %></th>
@@ -22,7 +22,7 @@
 				<tr>
 					<th align="left"><%= l(:label_website) %></th>
 					<td align="left" style="padding-left:10px;"><%=h text_field_tag("website", address.blank? ? "" : address.website, :size => 25, :disabled => disable, maxlength: 40) %> </td>
-				</tr> 
+				</tr>
 				<tr>
 					<th align="left"><%= l(:label_account_address1) %></th>
 					<td align="left" style="padding-left:10px;"><%=h text_field_tag("address1",address.blank?  ? "" : address.address1,:size =>25, :disabled => disable, maxlength: 200) %> </td>
@@ -51,13 +51,13 @@
 		</div>
 
 		<!-- For  CRM Geolocation -->
-		<% 
-			showMap = false if showMap.blank?
-			showDefault = false if showDefault.blank? 
+		<%
+			showMap ||= false
+			showDefault ||= false
 		%>
-		<% if (showMap && isChecked('crm_save_geo_location')  || showDefault) %>
+		<% if showMap && isChecked("crm_save_geo_location") || showDefault %>
 			<div class="splitcontentright">
-				<div id='mapContainer' style="width:300px;height:300px;"></div>
+				<div id="mapContainer" style="width:300px;height:300px;"></div>
 				<%= render partial: "wkgeolocation/location_map", locals: { locations: [[address.try(:longitude) || "", address.try(:latitude) || ""]] } %>
 				<p style="font-weight: bold; padding-left: 1px">
 					<label><%= check_box_tag("save_current_location", 1) %>  <%= l(:label_save_c_geolocation) %></label>

@@ -24,6 +24,9 @@
 <% unless @wksalaryEntries.blank? %>
  <% 
 	componentHash = Hash.new()
+	componentHash['b'] = Array.new
+	componentHash['a'] = Array.new
+	componentHash['d'] = Array.new
 	userName = @wksalaryEntries[0].firstname + ' ' + @wksalaryEntries[0].lastname if !@wksalaryEntries[0].blank?
 	@wksalaryEntries.each do |entry|
 		componentHash[entry.component_type] = componentHash[entry.component_type].blank? ? [[entry.component_name,entry.amount,entry.currency,@userYTDAmountHash[entry.sc_component_id]]] :  componentHash[entry.component_type] << [entry.component_name,entry.amount,entry.currency,@userYTDAmountHash[entry.sc_component_id]]
@@ -95,12 +98,14 @@
 			totalDeductions = 0
 			totalYTDEarnings = 0
 			totalYTDDeductions = 0
+			totalReimburse = 0
+			totalYTDReimburse = 0
 		%>
 					
 					
 		<%for i in 0..componentlength-1 %>
 			<tr>
-				<% if componentHash['e'].length > i%>
+				<% if componentHash['e'] && componentHash['e'].length > i%>
 					<td class="txt-align"><b><%=h componentHash['e'][i][0]  %></b></td>
 					<td align="right"><%=h componentHash['e'][i][2]%> <%=h "%.2f" % componentHash['e'][i][1] %></td>
 					<td align="right"><%=h componentHash['e'][i][2]%> <%=h "%.2f" % componentHash['e'][i][3] %></td>
@@ -111,7 +116,7 @@
 					%>
 				<%end%>	
 				
-				<% if componentHash['d'].length > i%>
+				<% if componentHash['d'] && componentHash['d'].length > i%>
 					<td class="txt-align"><b><%=h componentHash['d'][i][0]  %></b></td>
 					<td align="right"><%=h componentHash['d'][i][2]%> <%=h "%.2f" % componentHash['d'][i][1] %></td>
 					<td align="right"><%=h componentHash['d'][i][2]%> <%=h "%.2f" % componentHash['d'][i][3] %></td>
@@ -138,11 +143,41 @@
 		
 		<tr> 
 			<td class="txt-align"><b><%=l(:label_net_earning)%></b></td>
-			<td align="right"><%=h earnCurrency %><%=h "%.2f" % (totalEarnings - totalDeductions) %></td>
-			<td align="right"><%=h earnCurrency %><%=h "%.2f" % (totalYTDEarnings - totalYTDDeductions) %></td>
+			<td align="right"><%=h earnCurrency %><%=h "%.2f" % (totalEarnings - totalDeductions ) %></td>
+			<td align="right"><%=h earnCurrency %><%=h "%.2f" % (totalYTDEarnings - totalYTDDeductions ) %></td>
 		</tr>	
 	</tbody>		
 	</table>
+
+	<% if componentHash['r'] %>
+		<table border="1" style="border-collapse:collapse;" cellspacing="0", frame="box"  >	
+			<thead bgcolor="#e6e6e6">
+				<tr  class="time-entry <%= cycle("odd", "even") %>">
+					<th colspan="3"  width="500px"><%= l(:label_reimbursements)%></th>
+				</tr>
+				<tr>
+					<td> </td>
+					<td><%= l(:label_monthly) %></td>
+					<td><%= l(:label_ytd) %></td>
+				</tr>		
+			</thead>
+			<tr>
+				<td class="txt-align"><b><%=h componentHash['r'][0][0]  %></b></td>
+				<td align="right"><%=h componentHash['r'][0][2]%> <%=h "%.2f" % componentHash['r'][0][1] %></td>
+				<td align="right"><%=h componentHash['r'][0][2]%> <%=h "%.2f" % componentHash['r'][0][3] %></td>
+				<% 
+					totalReimburse = totalReimburse + componentHash['r'][0][1] 
+					totalYTDReimburse = totalYTDReimburse + componentHash['r'][0][3]
+					currency = componentHash['r'][0][2]
+				%>
+			</tr>
+			<tr>
+				<td class="txt-align"><b><%=l(:label_net_earning) + ' + '+ l(:label_reimbursements) %></b></td>
+				<td align="right"><%=h currency %><%=h "%.2f" % (totalEarnings - totalDeductions + totalReimburse) %></td>
+				<td align="right"><%=h currency %><%=h "%.2f" % (totalYTDEarnings - totalYTDDeductions + totalYTDReimburse) %></td>
+			</tr>
+		</table>
+	<%end%>
 	<label><%= l(:label_ytd_description, :start => @financialPeriod[0].strftime("%B %d, %Y"), :end =>@financialPeriod[1].strftime("%B %d, %Y") )%></label>
 <% else %>
 	<label><b><%= l(:label_no_data) %></b></label>

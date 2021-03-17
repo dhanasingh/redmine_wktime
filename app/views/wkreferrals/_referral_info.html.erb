@@ -1,0 +1,15 @@
+<%= fields_for "candidate_attributes", candidate do |f| %>
+  <%= f.hidden_field :id %>
+  <tr>
+    <th><%= l(:label_college) %></th>
+    <td style="padding-left:75px;"><%= f.text_field :college %></td>
+  </tr>
+  <tr>
+    <th><%= l(:label_degree) %></th>
+    <td style="padding-left:75px;"><%= f.text_field :degree %></td>
+  </tr>
+  <tr>
+    <th><%= l(:label_pass_out) %></th>
+    <td style="padding-left:75px;"><%= f.select :pass_out, (1970..Time.now.year).to_a.reverse %></td>
+  </tr>
+<% end %>

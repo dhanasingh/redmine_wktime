@@ -25,6 +25,7 @@ class WkContract < ActiveRecord::Base
   belongs_to :parent, :polymorphic => true
   validate :end_date_is_after_start_date
   # after_create_commit :send_notification
+  has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
   
   def end_date_is_after_start_date
 		if !end_date.blank?

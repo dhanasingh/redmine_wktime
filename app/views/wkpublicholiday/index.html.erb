@@ -1,17 +1,6 @@
-<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<script type="text/javascript">
-   wkattnIndexUrl = '<%=url_for(:controller => "wkattendance", :action => "index", :tab => "leave")%>';
-   wkleavereqUrl = '<%=url_for(:controller => "wkleaverequest", :action => "index", :tab => "wkleaverequest")%>'; 
-   clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>'; 
-   payrollUrl = '<%=url_for(:controller => "wkpayroll", :action => "index", :tab => "payroll")%>';
-	wkSchedulingUrl = '<%=url_for(:controller => "wkscheduling", :action => "index", :tab => "wkscheduling")%>';
-	wkPublicHolidayUrl = '<%=url_for(:controller => "wkpublicholiday", :action => "index", :tab => "wkpublicholiday")%>';
-	wkSurveyUrl = '<%=url_for(:controller => "wksurvey", :action => "user_survey", :tab => "wksurvey", :surveyForType => 'User')%>';
-</script>
-
 <%= title l(:label_public_holiday) %>
-<%= render_tabs time_expense_tabs %>
+<%= render partial: "wkattendance/render_hr_tabs" %>
+
 <%= form_tag({:controller => controller_name, :action => 'index'},  :method => :get, :id => 'query_form') do %>
 	<%=h hidden_field_tag('tab', "#{controller_name}") %>
 	<%= hidden_field_tag "searchlist", "#{controller_name}" %>
@@ -26,7 +15,7 @@
 		<%= label_tag('year', l(:label_year)) %>&nbsp;
 		<%= select_year(controller.getSession(:year).to_i, :prefix => "year", :discard_type => true ) %>&nbsp;
 		<%= link_to_function l(:button_apply), '$("#query_form").submit()', :class => 'icon icon-checked' %>&nbsp;
-		<%= link_to l(:button_clear), { :project_id => @project, :set_filter => 1 }, :class => 'icon icon-reload' %>
+		<%= link_to l(:button_clear), { project_id: @project, set_filter: 1, clear: true }, class: 'icon icon-reload' %>
 	</fieldset>
 <% if @month > 0 %>
 	<div class="wk-contextual">

@@ -73,20 +73,6 @@ include WkcrmHelper
 		entries = entries.where(sqlwhere) unless sqlwhere.blank?
 		entries
 	end
-	
-    def set_filter_session
-		session[controller_name] = {:project_id => params[:project_id]} if session[controller_name].nil?
-		if params[:searchlist] == controller_name
-			filters = [:contact_id, :account_id, :polymorphic_filter]
-			filters.each do |param|
-				if params[param].blank? && session[controller_name].try(:[], param).present?
-					session[controller_name].delete(param)
-				elsif params[param].present?
-					session[controller_name][param] = params[param]
-				end
-			end
-		end
-   end
 
    def get_project_id(project_id=params[:project_id])
     projectEntry = Project.where(:identifier => project_id)	

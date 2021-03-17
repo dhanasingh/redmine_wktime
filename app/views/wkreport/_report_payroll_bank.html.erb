@@ -34,6 +34,7 @@
 	last_id = 0
 	totgross = 0 
 	totdeduction = 0
+	reimbursement = 0
 	last_salary_date = 	nil
 	syscurrency = Setting.plugin_redmine_wktime['wktime_currency']
 	@salary_data.each do |entry|	
@@ -41,6 +42,7 @@
 		if entry.user_id != last_id || entry.salary_date.to_date != last_salary_date
 			totgross = 0
 			totdeduction = 0
+			reimbursement = 0
 			last_id = entry.user_id
 			last_salary_date = entry.salary_date.to_date
 		end	
@@ -57,10 +59,15 @@
 			totdeduction = totdeduction + entry.amount
 			compTotalHash['Deduction'] = entry.amount + (compTotalHash['Deduction'].blank? ? 0 : compTotalHash['Deduction'])
 		end
+		if entry.component_type == 'r'
+			reimbursement = reimbursement + entry.amount
+			compTotalHash['Reimbursements'] = entry.amount + (compTotalHash['Reimbursements'].blank? ? 0 : compTotalHash['Reimbursements'])
+		end
 		@totalhash["#{entry.user_id}"].store "gross", "#{totgross}" 
 		@totalhash["#{entry.user_id}"].store "deduction", "#{totdeduction}"
+		@totalhash["#{entry.user_id}"].store "reimbursement", "#{reimbursement}"
 	end
-	compTotalHash['Net'] = (compTotalHash['Gross'].blank? ? 0 : compTotalHash['Gross'])  - (compTotalHash['Deduction'].blank? ? 0 : compTotalHash['Deduction'])
+	compTotalHash['Net'] = (compTotalHash['Gross'].blank? ? 0 : compTotalHash['Gross'])  - (compTotalHash['Deduction'].blank? ? 0 : compTotalHash['Deduction']) + (compTotalHash['Reimbursements'].blank? ? 0 : compTotalHash['Reimbursements'])
 	@rowval = Hash.new{|hsh,key| hsh[key] = {} }
 	@userdetails = Hash.new{|hsh,key| hsh[key] = {} }
 	count = 1
@@ -78,7 +85,7 @@
 		@rowval["#{user.id}"]["Name"] = @userdetails["#{user.id}"]["Name"]
 		@rowval["#{user.id}"]["Routing Number"] = @userdetails["#{user.id}"]["Routing Number"]
 		@rowval["#{user.id}"]["Account Number"] = @userdetails["#{user.id}"]["Account Number"]
-		@rowval["#{user.id}"]["Net"] = syscurrency.to_s + ((@totalhash["#{user.id}"]["gross"]).to_f - (@totalhash["#{user.id}"]["deduction"]).to_f).to_s
+		@rowval["#{user.id}"]["Net"] = syscurrency.to_s + ((@totalhash["#{user.id}"]["gross"]).to_f - (@totalhash["#{user.id}"]["deduction"]).to_f + (@totalhash["#{user.id}"]["reimbursement"]).to_f).to_s
 		count = count + 1
 	end
 %>

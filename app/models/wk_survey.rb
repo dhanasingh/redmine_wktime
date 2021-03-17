@@ -23,6 +23,7 @@ class WkSurvey < ActiveRecord::Base
   has_many :wk_survey_choices, through: :wk_survey_questions
   has_many :wk_survey_responses, foreign_key: "survey_id", :dependent => :destroy
   has_many :wk_survey_answers, through: :wk_survey_responses
+  has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
 
   accepts_nested_attributes_for :wk_survey_questions, allow_destroy: true
 

@@ -27,16 +27,16 @@ class WkbaseController < ApplicationController
 
 	def index
 	end
-	
+
 	def edit
 	end
-	
+
 	def update
 	end
-	
+
 	def destroy
 	end
-  
+
 	def updateClockInOut
 		lastAttnEntries = findLastAttnEntry(true)
 		if !lastAttnEntries.blank?
@@ -51,12 +51,12 @@ class WkbaseController < ApplicationController
 			format.api{ render :plain => ret }
 		end
 	end
-	
+
 	def updateAddress
 		wkAddress = nil
 		addressId = nil
 	    if params[:address_id].blank? || params[:address_id].to_i == 0
-		    wkAddress = WkAddress.new 
+		    wkAddress = WkAddress.new
 	    else
 		    wkAddress = WkAddress.find(params[:address_id].to_i)
 	    end
@@ -80,10 +80,10 @@ class WkbaseController < ApplicationController
 		if wkAddress.valid?
 			wkAddress.save
 			addressId = wkAddress.id
-		end		
+		end
 		addressId
 	end
-	
+
 	# Retrieves the date range based on predefined ranges or specific from/to param dates
 	def retrieve_date_range
 		@free_period = false
@@ -92,8 +92,8 @@ class WkbaseController < ApplicationController
 		period = session[controller_name].try( :[], :period)
 		fromdate = session[controller_name].try( :[], :from)
 		todate = session[controller_name].try( :[], :to)
-		
-		if (period_type == '1' || (period_type.nil? && !period.nil?)) 
+
+		if (period_type == '1' || (period_type.nil? && !period.nil?))
 		    case period.to_s
 			  when 'today'
 				@from = @to = Date.today
@@ -125,11 +125,11 @@ class WkbaseController < ApplicationController
 		    begin; @from = fromdate.to_s.to_date unless fromdate.blank?; rescue; end
 		    begin; @to = todate.to_s.to_date unless todate.blank?; rescue; end
 		    @free_period = true
-		else		
+		else
 			@from = Date.civil(Date.today.year, Date.today.month, 1)
 			@to = (@from >> 1) - 1
-	    end    
-		
+	    end
+
 		@from, @to = @to, @from if @from && @to && @from > @to
 
 	end
@@ -154,10 +154,10 @@ class WkbaseController < ApplicationController
 				languageSet[key.strip] = value.strip if value.present?
 			end
 		end
-		
+
 		permissons = (wkpermissons || []).map{ |perm| perm.short_name }
 		Setting.plugin_redmine_wktime.each.each{ |key, val| settings[key] = val if val != "" }
-		configs = { 
+		configs = {
 			permissions: permissons, mapAPIkey: Setting.plugin_redmine_wktime['label_mapbox_apikey'],
 			logEditPermission: getEditLogPermission,
 			settings: settings, languageSet: languageSet
@@ -168,7 +168,7 @@ class WkbaseController < ApplicationController
 				render json: configs
 			}
 		end
-	end	
+	end
 
 	def saveIssueTimeLog
 		entryTime = get_current_DateTime
@@ -240,9 +240,9 @@ class WkbaseController < ApplicationController
 		return result.blank? ? 0 : result[0].total
 	end
 
-	def set_filter_session(filters)
-		if params[:searchlist] == controller_name
-			session[controller_name] = Hash.new if session[controller_name].nil?
+	def set_filter_session(filters, filterParams={})
+		session[controller_name] = filterParams if session[controller_name].nil? || params[:clear]
+		if params[:searchlist] == controller_name || api_request?
 			filters.each do |param|
 				if params[param].blank? && session[controller_name].try(:[], param).present?
 					session[controller_name].delete(param)

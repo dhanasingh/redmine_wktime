@@ -977,7 +977,7 @@ fr:
   label_basic_allowance_total: Basic and Allowance Total
   label_basic_total: Basic Total
   label_allowance_total: Allowance Total
-  label_deduction: Deduction Total
+  label_deduction_total: Deduction Total
 
   label_main_location: Main location
   label_all_locations: All Locations
@@ -1182,3 +1182,46 @@ fr:
   label_earlier: Earlier
   label_timesheet_rejected: Your timesheet is rejected
   label_mobile_version: Mobile Version
+
+  label_wk_skill: Skills
+  label_skill_set: Skill Set
+  label_new_skill: New Skill
+  label_edit_skill: Edit Skill
+  label_rating: Rating
+  label_last_used: Last Used
+  label_years_of_exp: Years of Experience
+  ADMIN SKILL SET PRIVILEGE: Admin Skill Set Privilege
+  label_hide_response: Annonymous Response
+  label_referrals: Referrals
+  label_referral: Referral
+  label_college: College
+  label_degree: Degree
+  label_pass_out: Year Passed
+  label_interview_date: Interview date
+  label_interviewer: Interviewer
+  label_name: Name
+  label_new_referral: New Referral
+  label_referral_information: Referral Information
+  label_expected_amount: Expected Amount
+  label_hire: Hire
+  label_not_hire: Not Hire
+  label_none: None
+  ADMIN REFERRAL PRIVILEGE: Admin Referral Privilege
+  label_general: General
+  label_hiring_employees: Hiring Employees
+  label_show_on_chart: Show on chart
+  label_reimbursement_projects: Reimbursement Projects
+  label_reimbursements: Reimbursements
+  label_has_changed: has been changed
+  label_has_completed: has been completed
+  label_has_disposed: has been disposed
+  label_quote: quote
+  label_has_received: has been Received
+  label_received_sup_payment: Received supplier payment
+  label_has_converted: has been converted
+  label_candidate_mail: You are added as a interview candidate
+  label_has_created: has been created
+  label_interviews: Interviews
+  label_interview: Interview
+  label_add_unbilled: Add Unbilled Items
+  label_convert_employeee: has been converted to Employee

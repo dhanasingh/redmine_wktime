@@ -20,13 +20,14 @@ class WkPoQuote < ActiveRecord::Base
   belongs_to :purchase_order , :class_name => 'WkInvoice'
   belongs_to :quote , :class_name => 'WkInvoice'
   after_create_commit :send_notification
+  has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
 
   def send_notification
     if WkNotification.notify('purchaseOrderGenerated')
-      emailNotes = "Purchase Order: #" + self.purchase_order.invoice_number+ " has been generated " + "\n\n" + l(:label_redmine_administrator)
+      emailNotes = l(:label_wk_purchase_order)+":"+" #"+ self.purchase_order.invoice_number+" "+ l(:label_has_created) + "\n\n" + l(:label_redmine_administrator)
       userId = (WkPermission.permissionUser('B_PUR_PRVLG') + WkPermission.permissionUser('A_PUR_PRVLG')).uniq
       subject = l(:label_purchase_order) + " " + l(:label_notification)
-      WkNotification.notification(userId, emailNotes, subject)
+      WkNotification.notification(userId, emailNotes, subject, self, 'purchaseOrderGenerated')
     end
   end
 end

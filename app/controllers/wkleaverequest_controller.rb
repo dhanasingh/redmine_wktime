@@ -167,18 +167,8 @@ class WkleaverequestController < WkbaseController
   end
 	
 	def set_filter_session
-		session[controller_name] = {:from => @from, :to => @to} if session[controller_name].nil?
-    if params[:searchlist] == controller_name || api_request?
-			session[controller_name] = Hash.new if session[controller_name].nil?
-			filters = [:group_id, :user_id, :leave_type, :lveStatus, :period, :from, :to]
-			filters.each do |param|
-				if params[param].blank? && session[controller_name].try(:[], param).present?
-					session[controller_name].delete(param)
-				elsif params[param].present?
-					session[controller_name][param] = params[param]
-				end
-			end
-		end
+    filters = [:group_id, :user_id, :leave_type, :lveStatus, :period, :from, :to]
+		super(filters, {:from => @from, :to => @to})
   end
 
   def retrieve_date_range

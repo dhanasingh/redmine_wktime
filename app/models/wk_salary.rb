@@ -28,4 +28,11 @@ class WkSalary < ActiveRecord::Base
     .select("sum(amount) AS gross_amount, wk_salaries.user_id")
     .group("wk_salaries.user_id")
   }
+  
+  scope :getUserSalaries, ->(startDate, endDate){
+    joins("LEFT JOIN wk_salary_components SC ON wk_salaries.salary_component_id = SC.id")
+    .where("SC.component_type IN ('a', 'b') and salary_date between ? and ?", startDate, endDate)
+    .group("user_id, salary_date")
+    .select("user_id, salary_date, sum(amount) As amount")
+  }
 end

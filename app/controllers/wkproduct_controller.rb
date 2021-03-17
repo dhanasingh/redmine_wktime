@@ -139,17 +139,8 @@ class WkproductController < WkinventoryController
 	end  
 
 	def set_filter_session
-		if params[:searchlist] == controller_name
-			session[controller_name] = Hash.new if session[controller_name].nil?
-			filters = [:category_id, :name]
-			filters.each do |param|
-				if params[param].blank? && session[controller_name].try(:[], param).present?
-					session[controller_name].delete(param)
-				elsif params[param].present?
-					session[controller_name][param] = params[param]
-				end
-			end
-		end
+		filters = [:category_id, :name]
+		super(filters)
 	end
   
 	def setLimitAndOffset		

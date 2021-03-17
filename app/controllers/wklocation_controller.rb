@@ -77,8 +77,8 @@ class WklocationController < WkbaseController
 			addrId = updateAddress
 			locationObj.address_id = addrId if addrId.present?
 			locationObj.save
-			params[:container_id] = locationObj.id
-			errorMsg = save_attachments() if params[:attachments].present?
+			#for attachment save
+			errorMsg = save_attachments(locationObj.id) if params[:attachments].present?
 		end
 		if errorMsg.blank?
 		    redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
@@ -99,18 +99,9 @@ class WklocationController < WkbaseController
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
   end
 
-  def set_filter_session
-		if params[:searchlist] == controller_name
-			session[controller_name] = Hash.new if session[controller_name].nil?
-			filters = [:location_name, :location_type, :show_on_map]
-			filters.each do |param|
-				if params[param].blank? && session[controller_name].try(:[], param).present?
-					session[controller_name].delete(param)
-				elsif params[param].present?
-					session[controller_name][param] = params[param]
-				end
-			end
-		end
+	def set_filter_session
+		filters = [:location_name, :location_type, :show_on_map]
+		super(filters)
 	end
 	
 	def check_perm_and_redirect

@@ -77,6 +77,12 @@
 				<%= check_box_tag 'save_allowed', true, @survey.try(:save_allowed), :disabled => isDisable  %>
 			</td>
 		</tr>
+		<tr>
+			<th align="left"><%= l(:label_hide_response) %></th>
+			<td>
+				<%= check_box_tag 'hide_response', true, @survey.try(:hide_response), :disabled => isDisable  %>
+			</td>
+		</tr>
 	</table>
 	</fieldset>
 

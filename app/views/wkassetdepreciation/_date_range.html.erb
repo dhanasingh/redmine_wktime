@@ -29,7 +29,7 @@
 
 <div>
 	<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
-	<%= link_to l(:button_clear), {:controller => controller_name, :action => action_name, :tab => 'clock'}, :class => 'icon icon-reload' %>
+	<%= link_to l(:button_clear), {:tab => 'wkassetdepreciation', clear: true}, :class => 'icon icon-reload' %>
   <% if validateERPPermission("V_INV") || validateERPPermission("D_INV") %>
 	<%= link_to l(:label_apply_depreciation), 'javascript:depreciatonFormSubmission();', :name => 'generate', :class => 'icon icon-report' %>
   <% end %>
