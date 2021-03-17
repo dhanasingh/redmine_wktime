@@ -116,20 +116,24 @@ module WkpayrollHelper
 		deleteWkSalaries(userIds, salaryDate)
 		userSalaryHash = getUserSalaryHash(userIds,salaryDate)
 		currency = Setting.plugin_redmine_wktime['wktime_currency']
-		errorMsg = nil
+		resMsg = Hash.new
 		unless userSalaryHash.blank?
 			getPayrollData(userSalaryHash, salaryDate)
-			 errorMsg = SavePayroll(@payrollList,userIds,salaryDate)
-		else	
-			errorMsg = l(:error_wktime_save_nothing)
-		end		
-		basicledger = WkSalaryComponents.where("component_type = 'b' and ledger_id is not null ").count
-		if errorMsg.blank? && isChecked('salary_auto_post_gl') && !Setting.plugin_redmine_wktime['wktime_cr_ledger'].blank? && 	basicledger.to_i != 0	
-			errorMsg = generateGlTransaction(salaryDate)
+			resMsg[:e] = SavePayroll(@payrollList,userIds,salaryDate)
+			resMsg[:n] = l(:notice_successful_update) if resMsg[:e].blank?
 		else
-			errorMsg = 1
+			resMsg[:e] = l(:error_wktime_save_nothing)
 		end
-		errorMsg
+
+		if resMsg[:e].blank? && isChecked('salary_auto_post_gl')
+			basicledger = WkSalaryComponents.where("component_type = 'b' and ledger_id is not null ").count
+			if Setting.plugin_redmine_wktime['wktime_cr_ledger'].present? && basicledger.to_i != 0
+				resMsg[:e] = generateGlTransaction(salaryDate)
+			else
+				resMsg[:e] =  l(:error_trans_msg)
+			end
+		end
+		resMsg
 	end
 
 	def getPayrollData(userSalaryHash, salaryDate)
@@ -914,8 +918,8 @@ module WkpayrollHelper
 	end
 
 	def getReimburseProjects
-		projectIds =  Setting.plugin_redmine_wktime['reimburse_projects']
-		projectIds.reject! {|id| id.to_s == "" }
+		projectIds =  Setting.plugin_redmine_wktime['reimburse_projects'] || []
+		projectIds.reject! {|id| id.to_s == "" } if projectIds.present?
 		projectIds
 	end
 	
