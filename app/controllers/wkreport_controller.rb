@@ -15,6 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+require_relative '../views/wkreport/report_payslip'
 class WkreportController < WkbaseController	
 unloadable 
 
@@ -24,9 +25,12 @@ include WkattendanceHelper
 include WkpayrollHelper
 include WkaccountingHelper
 include WkcrmHelper
+include PayslipReport
 
 before_action :require_login
 before_action :check_perm_and_redirect
+
+accept_api_auth :get_report_type, :get_projects, :getReportEntries
 	
 	def index
 		@groups = Group.sorted.all
@@ -86,6 +90,27 @@ before_action :check_perm_and_redirect
 		userList
 	end
 	
+	def get_report_type
+		reportType = getReportType(true)
+		render json: reportType
+	end
+	
+	def get_projects
+		projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name')
+		projArr = projects.map { |proj| { value: proj.id, label: proj.name }}
+		render json: projArr
+	end
+	
+	def getReportEntries
+		user_id = params[:user_id] || User.current.id
+		group_id = params[:group_id] || '0'
+		case(params[:report_type])
+		when 'report_payslip'
+			reportEntries = getPayslip(user_id, params[:from], params[:to])
+		end
+		render json: reportEntries
+	end
+
 	private	
 	
 	# Retrieves the date range based on predefined ranges or specific from/to param dates

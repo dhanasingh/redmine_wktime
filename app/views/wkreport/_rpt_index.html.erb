@@ -19,7 +19,7 @@
 <table>
 <tr>
 <th align="left"><%= l(:label_report_type) %> </th>
-<td style="padding-left:20px;"><%= select_tag 'report_type', options_for_report_select(rpttype), :style=> "width:200px;" %></td>
+<td style="padding-left:20px;"><%= select_tag 'report_type', options_for_select(getReportType, rpttype), :style=> "width:200px;" %></td>
 </tr>
 <% filterhook = call_hook :add_report_filters %>
 <% if filterhook.blank?  %>

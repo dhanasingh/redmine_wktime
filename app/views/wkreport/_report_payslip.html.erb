@@ -1,14 +1,11 @@
 <%
+	require_relative './report_payslip'
 	userId = (session[controller_name].try(:[], :user_id).blank? || (session[controller_name].try(:[], :user_id)).to_i < 1) ? User.current.id : session[controller_name].try(:[], :user_id)
 	from = session[controller_name].try(:[], :from)
 	to = session[controller_name].try(:[], :to)
-	minSalaryDate = WkSalary.where("salary_date between '#{from}' and '#{to}'").minimum(:salary_date)
-	if minSalaryDate.blank?
-		@wksalaryEntries = nil
-	else
-		getSalaryDetail(userId,minSalaryDate.to_date)
-		@userYTDAmountHash = getYTDDetail(userId,minSalaryDate.to_date)
-	end
+	payslip_report = Object.new.extend(PayslipReport) 
+	payslip = payslip_report.getPayslip(userId, from, to)
+	userName = payslip[:entry][0].firstname + ' ' + payslip[:entry][0].lastname if payslip[:entry]&.first.present?
 %>
 <style type="text/css">
 	table { 
@@ -21,17 +18,7 @@
 		text-align: left; !important;
 	}
 </style>
-<% unless @wksalaryEntries.blank? %>
- <% 
-	componentHash = Hash.new()
-	componentHash['b'] = Array.new
-	componentHash['a'] = Array.new
-	componentHash['d'] = Array.new
-	userName = @wksalaryEntries[0].firstname + ' ' + @wksalaryEntries[0].lastname if !@wksalaryEntries[0].blank?
-	@wksalaryEntries.each do |entry|
-		componentHash[entry.component_type] = componentHash[entry.component_type].blank? ? [[entry.component_name,entry.amount,entry.currency,@userYTDAmountHash[entry.sc_component_id]]] :  componentHash[entry.component_type] << [entry.component_name,entry.amount,entry.currency,@userYTDAmountHash[entry.sc_component_id]]
-	end 
- %>
+<% unless payslip[:entry].blank? %>
 <div id="time-rpt-dlg" style="overflow-x:auto;">
 	<center><b>Payslip</b></center>
 		<div>
@@ -63,15 +50,15 @@
 			<tr>
 			
 			<td bgcolor="#e6e6e6" class="txt-align" width="52px"><b><%= l(:label_salarydate) %></b></td>
-			<td class="txt-align" width="50px"> <%= @wksalaryEntries[0].salary_date %></td>
+			<td class="txt-align" width="50px"> <%= payslip[:entry][0].salary_date %></td>
 			<td bgcolor="#e6e6e6" class="txt-align" width="150px"><b><%= l(:label_emp_name) %></b></td>
 			<td class="txt-align" width="360px">  <%= userName %></td>
 			<td bgcolor="#e6e6e6" class="txt-align" width="100px"><b><%= l(:label_employee_id) %></b></td>
-			<td class="txt-align" width="180px"> <%=h @wksalaryEntries[0].id1 %></td>
+			<td class="txt-align" width="180px"> <%=h payslip[:entry][0].id1 %></td>
 			</tr>
 			<tr>
 				<td bgcolor="#e6e6e6" class="txt-align" width="100px"><b>Join Date</b></td>
-				<td class="txt-align" width="100px"><%=h @wksalaryEntries[0].join_date %></td>
+				<td class="txt-align" width="100px"><%=h payslip[:entry][0].join_date %></td>
 			</tr>		
 		</table>	
 	
@@ -92,8 +79,8 @@
 	</thead>
 	<tbody>
 		<% 
-			componentHash['e'] = componentHash['b'].concat(componentHash['a'])
-			componentlength=componentHash['e'].length>componentHash['d'].length ? componentHash['e'].length : componentHash['d'].length
+			payslip[:data]['e'] = payslip[:data]['b'].concat(payslip[:data]['a'])
+			componentlength=payslip[:data]['e'].length>payslip[:data]['d'].length ? payslip[:data]['e'].length : payslip[:data]['d'].length
 			totalEarnings = 0
 			totalDeductions = 0
 			totalYTDEarnings = 0
@@ -105,25 +92,25 @@
 					
 		<%for i in 0..componentlength-1 %>
 			<tr>
-				<% if componentHash['e'] && componentHash['e'].length > i%>
-					<td class="txt-align"><b><%=h componentHash['e'][i][0]  %></b></td>
-					<td align="right"><%=h componentHash['e'][i][2]%> <%=h "%.2f" % componentHash['e'][i][1] %></td>
-					<td align="right"><%=h componentHash['e'][i][2]%> <%=h "%.2f" % componentHash['e'][i][3] %></td>
+				<% if payslip[:data]['e'] && payslip[:data]['e'].length > i%>
+					<td class="txt-align"><b><%=h payslip[:data]['e'][i][0]  %></b></td>
+					<td align="right"><%=h payslip[:data]['e'][i][2]%> <%=h "%.2f" % payslip[:data]['e'][i][1] %></td>
+					<td align="right"><%=h payslip[:data]['e'][i][2]%> <%=h "%.2f" % payslip[:data]['e'][i][3] %></td>
 					<% 
-						totalEarnings = totalEarnings + componentHash['e'][i][1] 
-						totalYTDEarnings = totalYTDEarnings + componentHash['e'][i][3]
-						earnCurrency = componentHash['e'][i][2]
+						totalEarnings = totalEarnings + payslip[:data]['e'][i][1] 
+						totalYTDEarnings = totalYTDEarnings + payslip[:data]['e'][i][3]
+						earnCurrency = payslip[:data]['e'][i][2]
 					%>
 				<%end%>	
 				
-				<% if componentHash['d'] && componentHash['d'].length > i%>
-					<td class="txt-align"><b><%=h componentHash['d'][i][0]  %></b></td>
-					<td align="right"><%=h componentHash['d'][i][2]%> <%=h "%.2f" % componentHash['d'][i][1] %></td>
-					<td align="right"><%=h componentHash['d'][i][2]%> <%=h "%.2f" % componentHash['d'][i][3] %></td>
+				<% if payslip[:data]['d'] && payslip[:data]['d'].length > i%>
+					<td class="txt-align"><b><%=h payslip[:data]['d'][i][0]  %></b></td>
+					<td align="right"><%=h payslip[:data]['d'][i][2]%> <%=h "%.2f" % payslip[:data]['d'][i][1] %></td>
+					<td align="right"><%=h payslip[:data]['d'][i][2]%> <%=h "%.2f" % payslip[:data]['d'][i][3] %></td>
 					<% 
-						totalDeductions = totalDeductions + componentHash['d'][i][1]
-						totalYTDDeductions = totalYTDDeductions + componentHash['d'][i][3]
-						deductionCurrency = componentHash['d'][i][2]
+						totalDeductions = totalDeductions + payslip[:data]['d'][i][1]
+						totalYTDDeductions = totalYTDDeductions + payslip[:data]['d'][i][3]
+						deductionCurrency = payslip[:data]['d'][i][2]
 					%>
 				<%else%>
 					<td></td>
@@ -149,7 +136,7 @@
 	</tbody>		
 	</table>
 
-	<% if componentHash['r'] %>
+	<% if payslip[:data]['r'] %>
 		<table border="1" style="border-collapse:collapse;" cellspacing="0", frame="box"  >	
 			<thead bgcolor="#e6e6e6">
 				<tr  class="time-entry <%= cycle("odd", "even") %>">
@@ -162,13 +149,13 @@
 				</tr>		
 			</thead>
 			<tr>
-				<td class="txt-align"><b><%=h componentHash['r'][0][0]  %></b></td>
-				<td align="right"><%=h componentHash['r'][0][2]%> <%=h "%.2f" % componentHash['r'][0][1] %></td>
-				<td align="right"><%=h componentHash['r'][0][2]%> <%=h "%.2f" % componentHash['r'][0][3] %></td>
+				<td class="txt-align"><b><%=h payslip[:data]['r'][0][0]  %></b></td>
+				<td align="right"><%=h payslip[:data]['r'][0][2]%> <%=h "%.2f" % payslip[:data]['r'][0][1] %></td>
+				<td align="right"><%=h payslip[:data]['r'][0][2]%> <%=h "%.2f" % payslip[:data]['r'][0][3] %></td>
 				<% 
-					totalReimburse = totalReimburse + componentHash['r'][0][1] 
-					totalYTDReimburse = totalYTDReimburse + componentHash['r'][0][3]
-					currency = componentHash['r'][0][2]
+					totalReimburse = totalReimburse + payslip[:data]['r'][0][1] 
+					totalYTDReimburse = totalYTDReimburse + payslip[:data]['r'][0][3]
+					currency = payslip[:data]['r'][0][2]
 				%>
 			</tr>
 			<tr>
@@ -178,7 +165,7 @@
 			</tr>
 		</table>
 	<%end%>
-	<label><%= l(:label_ytd_description, :start => @financialPeriod[0].strftime("%B %d, %Y"), :end =>@financialPeriod[1].strftime("%B %d, %Y") )%></label>
+	<label><%= l(:label_ytd_description, :start => payslip[:period][0].strftime("%B %d, %Y"), :end =>payslip[:period][1].strftime("%B %d, %Y") )%></label>
 <% else %>
 	<label><b><%= l(:label_no_data) %></b></label>
 <% end %>
