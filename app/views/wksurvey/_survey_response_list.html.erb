@@ -1,15 +1,16 @@
 
 <% survey_helper = Object.new.extend(WksurveyHelper) %>
+<% reviewers = survey_helper.getReportingUsers %>
 <% if @survey.recur %>
     <% response_grp = survey_helper.getResponseGroup(params[:survey_id]).insert(0, [""], ["ALL"]) %>
     <div>
-    <%= form_tag({:controller => "wksurvey", :action => 'survey_response'}, :method => :get, :id => 'response_form') do %> 
-        <%=h hidden_field_tag('survey_id', params[:survey_id]) %>
-        <%=h hidden_field_tag('surveyForID', params[:surveyForID]) %>
-        <%=h hidden_field_tag('surveyForType', params[:surveyForType]) %>
+    <%= form_tag({:controller => "wksurvey", :action => 'survey_response'}, :method => :get, :id => 'response_form') do %>
+        <%= hidden_field_tag('survey_id', params[:survey_id]) %>
+        <%= hidden_field_tag('surveyForID', params[:surveyForID]) %>
+        <%= hidden_field_tag('surveyForType', params[:surveyForType]) %>
         <p>
             <b><%= l(:label_clos_responses) %></b>&nbsp;
-            <%=h select_tag('groupName', options_for_select(response_grp,
+            <%= select_tag('groupName', options_for_select(response_grp,
                 selected: params[:groupName].present? ? params[:groupName] : response_grp[0]), onchange: '$("#response_form").submit()') %>
             <%= link_to_function l(:button_apply), '$("#response_form").submit()', :class => 'icon icon-checked' %>
         </p>
@@ -27,26 +28,25 @@
         <%= sort_header_tag('Cls_Resp_date', :caption => l(:label_clos_responses)) %>
     </tr>
     <% @response_entries.each_with_index do |entry, index| %>
-        <% entry = entry.last %>
-            <% if User.current.id == entry[:user_id] || ((entry[:reviewers]).include? entry[:user_id]) || validateERPPermission("E_SUR") %>
-            <% urlhash = { :survey_id => entry[:survey_id], :surveyForType => entry[:survey_for_type], :surveyForID => entry[:survey_for_id], response_id: entry[:id] } %>
-            <tr>
-                <td class="lbl-txt-align"><%=h index+1 %></td>
-                <td class="lbl-txt-align">
-                    <% if (@survey.is_review && (entry[:reviewers].include? entry[:user_id]) && entry[:status] != 'O') || User.current.id == entry[:user_id] %>
-                        <%= link_to entry[:name], url_for(survey_helper.get_survey_url(urlhash, params, "survey")) %>
-                <% else %>
-                    <%= entry[:name] %>
-                <% end %>
-                </td>
-                <td class="lbl-txt-align"><%=h survey_helper.getResponseStatus.invert[entry[:status]] %></td>
-                <td class="lbl-txt-align"><%=h entry[:firstname] + " " + entry[:lastname] %></td>
-                <td class="lbl-txt-align"><%=h entry[:status_date].strftime("%Y-%m-%d") %></</td>
-                <td class="lbl-txt-align">
-                        <%= entry[:group_name] if entry[:group_name].present? %>
-                </td>
-            </tr>
-        <% end %>
+      <% if User.current.id == entry.user_id || (reviewers.include? entry.user_id) || validateERPPermission("E_SUR") %>
+        <% urlhash = { :survey_id => entry.survey_id, :surveyForType => entry.survey_for_type, :surveyForID => entry.survey_for_id, response_id: entry.id } %>
+        <tr>
+            <td class="lbl-txt-align"><%= index+1 %></td>
+            <td class="lbl-txt-align">
+              <% if (@survey.is_review && (reviewers.include? entry.user_id) && entry.status != 'O') || User.current.id == entry.user_id %>
+                <%= link_to entry.name, url_for(survey_helper.get_survey_url(urlhash, params, "survey")) %>
+              <% else %>
+                <%= entry.name %>
+              <% end %>
+            </td>
+            <td class="lbl-txt-align"><%= survey_helper.getResponseStatus.invert[entry.status] %></td>
+            <td class="lbl-txt-align"><%= entry.firstname + " " + entry.lastname %></td>
+            <td class="lbl-txt-align"><%= entry.status_date.strftime("%Y-%m-%d") %></</td>
+            <td class="lbl-txt-align">
+                    <%= entry.group_name if entry.group_name.present? %>
+            </td>
+        </tr>
+      <% end %>
     <% end %>
 </table>
 </div>

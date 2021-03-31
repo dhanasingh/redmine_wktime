@@ -12,31 +12,9 @@ api.array :wk_survey, api_meta(:total_count => @entry_count, :offset => @offset,
       api.recur entry.recur
       api.recur_every entry.recur_every
       api.is_review entry.is_review
+      api.hide_response entry.hide_response
       api.show_result (entry.status == "O" && validateERPPermission("E_SUR")) || entry.status == "C" || getResponseGroup(entry.id).present?
       api.surveyLink surveyLink.present?
-
-      api.array :questions do
-        entry.wk_survey_questions.each do |question|
-          api.question do
-            api.id question.id
-            api.name question.name
-            api.question_type question.question_type
-            api.is_reviewer_only question.is_reviewer_only
-            api.is_mandatory question.is_mandatory
-            api.not_in_report question.not_in_report
-
-            api.array :choices do
-              question.wk_survey_choices.each do |choice|
-                api.choice do
-                  api.id choice.id
-                  api.name choice.name
-                  api.points choice.points
-                end
-              end
-            end
-          end
-        end
-      end
     end
   end
 end
@@ -46,4 +24,5 @@ api.headers do
   api.status_items getSurveyStatus.drop(1)
   api.userGroup_items getUserGroup
   api.questionType_items getQuestionType
+  api.responseStatus_items getResponseStatus
 end

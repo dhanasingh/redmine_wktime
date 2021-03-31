@@ -290,4 +290,8 @@ class WkbaseController < ApplicationController
 	def unseen
 		@unseen_count = WkUserNotification.unreadNotification.count
 	end
+
+	def to_boolean(value)
+		ActiveModel::Type::Boolean.new.cast(value)
+	end
 end

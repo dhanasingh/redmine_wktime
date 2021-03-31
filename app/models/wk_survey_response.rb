@@ -90,4 +90,29 @@ class WkSurveyResponse < ActiveRecord::Base
     surveyResponse = surveyResponse.where("(wk_surveys.status = 'O' AND recur = ? AND (" + addDate + " > ?) OR wk_surveys.status != 'O' OR recur != ?) ", true, Time.now(), true) if response_id.blank?
     surveyResponse.first
   end
+
+  def self.response_list(survey, groupName, survey_privilege, users, surveyForType)
+    condStr = survey_privilege ? "" : (survey.is_review ? " AND (U.id IN (#{users}) OR U.parent_id = #{User.current.id}) " : " AND  U.id = #{User.current.id} ")
+    if groupName.blank?
+      condStr += " AND group_name IS NULL"
+    else
+      condStr += groupName == "ALL" ? " " : " AND group_name = '#{groupName}' "
+    end
+    surveyForType = surveyForType.blank? ? " IS NULL " : " = '#{surveyForType}'"
+
+    self.joins("INNER JOIN wk_statuses AS ST ON ST.status_for_id = wk_survey_responses.id
+      AND ST.status_for_type = 'WkSurveyResponse'")
+    .joins("INNER JOIN (
+      SELECT status_for_id AS id, max(status_date) AS status_date
+      FROM wk_statuses
+      WHERE status_for_type = 'WkSurveyResponse'
+      GROUP BY status_for_id
+    ) AS CR ON CR.id = wk_survey_responses.id AND CR.status_date = ST.status_date")
+    .joins("INNER JOIN wk_surveys AS S ON S.id = wk_survey_responses.survey_id
+      INNER JOIN users AS U ON U.id = user_id AND U.type = 'User'")
+      .where("survey_id = #{survey.id} " + " AND wk_survey_responses.survey_for_type " + surveyForType + condStr)
+      .group("survey_id, wk_survey_responses.id, S.name, S.survey_for_type, S.survey_for_id, ST.status, U.firstname, U.lastname, U.parent_id, wk_survey_responses.group_name, wk_survey_responses.user_id, wk_survey_responses.survey_for_id")
+      .select("MAX(ST.status_date) AS status_date, ST.status, survey_id, wk_survey_responses.group_name, wk_survey_responses.id, user_id, S.name,
+      S.survey_for_type, wk_survey_responses.survey_for_id, U.firstname, U.lastname, U.parent_id").order("user_id ASC")
+  end
 end

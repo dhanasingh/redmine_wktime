@@ -69,7 +69,6 @@ api.wk_survey do
   end
 
   api.headers do
-    api.responseStatus_items getResponseStatus
     if @response.present? && @response.current_status.present?
       s = @response.current_status
       api.response_status do
@@ -81,5 +80,7 @@ api.wk_survey do
         api.responsed_by @response.user.name
       end
     end
+    api.isReview @isReview
+    api.isReviewed @isReviewed
   end
 end
