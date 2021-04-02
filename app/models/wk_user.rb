@@ -30,4 +30,5 @@ class WkUser < ActiveRecord::Base
   belongs_to :department, :class_name => 'WkCrmEnumeration'
   belongs_to :address, :foreign_key => 'address_id', :dependent => :destroy, :class_name => 'WkAddress'
   belongs_to :source, polymorphic: true
+  belongs_to :shift, class_name: "WkShift"
 end

@@ -734,3 +734,5 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wkreport/get_projects', :to => 'wkreport#get_projects'
 
 	get 'wkreport/getReportEntries', :to => 'wkreport#getReportEntries'
+
+	get 'wkbase/my_account', to: 'wkbase#my_account'
