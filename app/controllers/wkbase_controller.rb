@@ -304,4 +304,13 @@ class WkbaseController < ApplicationController
 			format.api
 		end
 	end
+	
+	def getBase64Image(attachment)
+		base64Image = ""
+		if attachment.present?
+			image = File.read(attachment.diskfile, :mode => "rb")
+			base64Image = Base64.strict_encode64(image)
+		end
+		base64Image
+	end
 end

@@ -15,7 +15,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-require_relative '../views/wkreport/report_payslip'
 class WkreportController < WkbaseController	
 unloadable 
 
@@ -25,12 +24,11 @@ include WkattendanceHelper
 include WkpayrollHelper
 include WkaccountingHelper
 include WkcrmHelper
-include PayslipReport
 
 before_action :require_login
 before_action :check_perm_and_redirect
 
-accept_api_auth :get_report_type, :get_projects, :getReportEntries
+accept_api_auth :get_reports, :getReportData
 	
 	def index
 		@groups = Group.sorted.all
@@ -90,25 +88,31 @@ accept_api_auth :get_report_type, :get_projects, :getReportEntries
 		userList
 	end
 	
-	def get_report_type
+	def get_reports
+		headers = {}
 		reportType = getReportType(true)
-		render json: reportType
-	end
-	
-	def get_projects
 		projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name')
-		projArr = projects.map { |proj| { value: proj.id, label: proj.name }}
-		render json: projArr
+		groups = Group.sorted.givable
+		headers[:projects] = projects.map{ |p| [p.name, p.id]}
+		headers[:groups] = groups.map{ |g| [g.name, g.id]}
+		render json: {wk_reports: reportType, headers: headers}
 	end
 	
-	def getReportEntries
+	def getReportData
 		user_id = params[:user_id] || User.current.id
-		group_id = params[:group_id] || '0'
-		case(params[:report_type])
-		when 'report_payslip'
-			reportEntries = getPayslip(user_id, params[:from], params[:to])
+		group_id = params[:group_id] || "0"
+		projId = params[:project_id] || "0"
+		from = params[:from] || Date.today.beginning_of_month
+		to = params[:to] || Date.today.end_of_month
+		attachment = WkLocation.getMainLogo
+		base64Image = getBase64Image(attachment)
+		if(params[:report_type].present?)
+			require_relative "../views/wkreport/#{params[:report_type]}"
+			report = Object.new.extend(params[:report_type].camelize.constantize)
+			reportData = report.calcReportData(user_id, group_id, projId, from, to)
 		end
-		render json: reportEntries
+		reportDetails = { reportData: reportData, location: getMainLocation, address: getAddress, logo: base64Image }
+		render json: reportDetails
 	end
 
 	private	

@@ -3,9 +3,12 @@
 	userId = (session[controller_name].try(:[], :user_id).blank? || (session[controller_name].try(:[], :user_id)).to_i < 1) ? User.current.id : session[controller_name].try(:[], :user_id)
 	from = session[controller_name].try(:[], :from)
 	to = session[controller_name].try(:[], :to)
-	payslip_report = Object.new.extend(PayslipReport) 
-	payslip = payslip_report.getPayslip(userId, from, to)
-	userName = payslip[:entry][0].firstname + ' ' + payslip[:entry][0].lastname if payslip[:entry]&.first.present?
+	groupId = session[controller_name].try(:[], :group_id)
+	projId = session[controller_name].try(:[], :project_id)
+	payslip_report = Object.new.extend(ReportPayslip) 
+	payslip = payslip_report.calcReportData(userId, groupId, projId, from, to)
+	userName = payslip[:userDetail].firstname + ' ' + payslip[:userDetail].lastname if payslip[:userDetail].present?
+	componentlength = payslip[:salData]['e']&.length || 0 > payslip[:salData]['d']&.length || 0 ? payslip[:salData]['e']&.length || 0 : payslip[:salData]['d']&.length || 0
 %>
 <style type="text/css">
 	table { 
@@ -18,7 +21,7 @@
 		text-align: left; !important;
 	}
 </style>
-<% unless payslip[:entry].blank? %>
+<% unless payslip[:userDetail].blank? %>
 <div id="time-rpt-dlg" style="overflow-x:auto;">
 	<center><b>Payslip</b></center>
 		<div>
@@ -50,15 +53,15 @@
 			<tr>
 			
 			<td bgcolor="#e6e6e6" class="txt-align" width="52px"><b><%= l(:label_salarydate) %></b></td>
-			<td class="txt-align" width="50px"> <%= payslip[:entry][0].salary_date %></td>
+			<td class="txt-align" width="50px"> <%= payslip[:userDetail].salary_date %></td>
 			<td bgcolor="#e6e6e6" class="txt-align" width="150px"><b><%= l(:label_emp_name) %></b></td>
 			<td class="txt-align" width="360px">  <%= userName %></td>
 			<td bgcolor="#e6e6e6" class="txt-align" width="100px"><b><%= l(:label_employee_id) %></b></td>
-			<td class="txt-align" width="180px"> <%=h payslip[:entry][0].id1 %></td>
+			<td class="txt-align" width="180px"> <%= payslip[:userDetail].id1 %></td>
 			</tr>
 			<tr>
 				<td bgcolor="#e6e6e6" class="txt-align" width="100px"><b>Join Date</b></td>
-				<td class="txt-align" width="100px"><%=h payslip[:entry][0].join_date %></td>
+				<td class="txt-align" width="100px"><%= payslip[:userDetail].join_date %></td>
 			</tr>		
 		</table>	
 	
@@ -78,40 +81,18 @@
 		</tr>	
 	</thead>
 	<tbody>
-		<% 
-			payslip[:data]['e'] = payslip[:data]['b'].concat(payslip[:data]['a'])
-			componentlength=payslip[:data]['e'].length>payslip[:data]['d'].length ? payslip[:data]['e'].length : payslip[:data]['d'].length
-			totalEarnings = 0
-			totalDeductions = 0
-			totalYTDEarnings = 0
-			totalYTDDeductions = 0
-			totalReimburse = 0
-			totalYTDReimburse = 0
-		%>
-					
-					
 		<%for i in 0..componentlength-1 %>
 			<tr>
-				<% if payslip[:data]['e'] && payslip[:data]['e'].length > i%>
-					<td class="txt-align"><b><%=h payslip[:data]['e'][i][0]  %></b></td>
-					<td align="right"><%=h payslip[:data]['e'][i][2]%> <%=h "%.2f" % payslip[:data]['e'][i][1] %></td>
-					<td align="right"><%=h payslip[:data]['e'][i][2]%> <%=h "%.2f" % payslip[:data]['e'][i][3] %></td>
-					<% 
-						totalEarnings = totalEarnings + payslip[:data]['e'][i][1] 
-						totalYTDEarnings = totalYTDEarnings + payslip[:data]['e'][i][3]
-						earnCurrency = payslip[:data]['e'][i][2]
-					%>
+				<% if payslip[:salData]['e'] && payslip[:salData]['e'].length > i%>
+					<td class="txt-align"><b><%= payslip[:salData]['e'][i][0]  %></b></td>
+					<td align="right"><%= payslip[:salData]['e'][i][2]%> <%= "%.2f" % payslip[:salData]['e'][i][1] %></td>
+					<td align="right"><%= payslip[:salData]['e'][i][2]%> <%= "%.2f" % payslip[:salData]['e'][i][3] %></td>
 				<%end%>	
 				
-				<% if payslip[:data]['d'] && payslip[:data]['d'].length > i%>
-					<td class="txt-align"><b><%=h payslip[:data]['d'][i][0]  %></b></td>
-					<td align="right"><%=h payslip[:data]['d'][i][2]%> <%=h "%.2f" % payslip[:data]['d'][i][1] %></td>
-					<td align="right"><%=h payslip[:data]['d'][i][2]%> <%=h "%.2f" % payslip[:data]['d'][i][3] %></td>
-					<% 
-						totalDeductions = totalDeductions + payslip[:data]['d'][i][1]
-						totalYTDDeductions = totalYTDDeductions + payslip[:data]['d'][i][3]
-						deductionCurrency = payslip[:data]['d'][i][2]
-					%>
+				<% if payslip[:salData]['d'] && payslip[:salData]['d'].length > i%>
+					<td class="txt-align"><b><%= payslip[:salData]['d'][i][0]  %></b></td>
+					<td align="right"><%= payslip[:salData]['d'][i][2]%> <%= "%.2f" % payslip[:salData]['d'][i][1] %></td>
+					<td align="right"><%= payslip[:salData]['d'][i][2]%> <%= "%.2f" % payslip[:salData]['d'][i][3] %></td>
 				<%else%>
 					<td></td>
 					<td></td>
@@ -121,22 +102,22 @@
 		<%end%>
 		<tr> 
 			<td class="txt-align"><b><%=l(:label_total_earning)%></b></td>
-			<td align="right"><%=h earnCurrency %> <%=h "%.2f" % totalEarnings %></td>
-			<td align="right"><%=h earnCurrency %> <%=h "%.2f" % totalYTDEarnings %></td>
+			<td align="right"><%= payslip[:total][:cur] %> <%= "%.2f" % payslip[:total][:e] %></td>
+			<td align="right"><%= payslip[:total][:cur] %> <%= "%.2f" % payslip[:total][:ye] %></td>
 			<td class="txt-align"><b><%=l(:label_total_deduction)%></b></td>
-			<td align="right"><%=h deductionCurrency %> <%=h "%.2f" % totalDeductions %></td>
-			<td align="right"><%=h deductionCurrency %> <%=h "%.2f" % totalYTDDeductions %></td>
+			<td align="right"><%= payslip[:total][:cur] %> <%= "%.2f" % payslip[:total][:d] %></td>
+			<td align="right"><%= payslip[:total][:cur] %> <%= "%.2f" % payslip[:total][:yd] %></td>
 		</tr>
 		
 		<tr> 
 			<td class="txt-align"><b><%=l(:label_net_earning)%></b></td>
-			<td align="right"><%=h earnCurrency %><%=h "%.2f" % (totalEarnings - totalDeductions ) %></td>
-			<td align="right"><%=h earnCurrency %><%=h "%.2f" % (totalYTDEarnings - totalYTDDeductions ) %></td>
+			<td align="right"><%= payslip[:total][:cur] %><%= "%.2f" % payslip[:total][:net] %></td>
+			<td align="right"><%= payslip[:total][:cur] %><%= "%.2f" % payslip[:total][:netYTD] %></td>
 		</tr>	
 	</tbody>		
 	</table>
 
-	<% if payslip[:data]['r'] %>
+	<% if payslip[:salData]['r'] %>
 		<table border="1" style="border-collapse:collapse;" cellspacing="0", frame="box"  >	
 			<thead bgcolor="#e6e6e6">
 				<tr  class="time-entry <%= cycle("odd", "even") %>">
@@ -149,23 +130,18 @@
 				</tr>		
 			</thead>
 			<tr>
-				<td class="txt-align"><b><%=h payslip[:data]['r'][0][0]  %></b></td>
-				<td align="right"><%=h payslip[:data]['r'][0][2]%> <%=h "%.2f" % payslip[:data]['r'][0][1] %></td>
-				<td align="right"><%=h payslip[:data]['r'][0][2]%> <%=h "%.2f" % payslip[:data]['r'][0][3] %></td>
-				<% 
-					totalReimburse = totalReimburse + payslip[:data]['r'][0][1] 
-					totalYTDReimburse = totalYTDReimburse + payslip[:data]['r'][0][3]
-					currency = payslip[:data]['r'][0][2]
-				%>
+				<td class="txt-align"><b><%= payslip[:salData]['r'][0][0]  %></b></td>
+				<td align="right"><%= payslip[:salData]['r'][0][2]%> <%= "%.2f" % payslip[:salData]['r'][0][1] %></td>
+				<td align="right"><%= payslip[:salData]['r'][0][2]%> <%= "%.2f" % payslip[:salData]['r'][0][3] %></td>
 			</tr>
 			<tr>
 				<td class="txt-align"><b><%=l(:label_net_earning) + ' + '+ l(:label_reimbursements) %></b></td>
-				<td align="right"><%=h currency %><%=h "%.2f" % (totalEarnings - totalDeductions + totalReimburse) %></td>
-				<td align="right"><%=h currency %><%=h "%.2f" % (totalYTDEarnings - totalYTDDeductions + totalYTDReimburse) %></td>
+				<td align="right"><%= payslip[:total][:cur] %><%= "%.2f" % payslip[:total][:reimburse] %></td>
+				<td align="right"><%= payslip[:total][:cur] %><%= "%.2f" % payslip[:total][:reimburseYTD] %></td>
 			</tr>
 		</table>
 	<%end%>
-	<label><%= l(:label_ytd_description, :start => payslip[:period][0].strftime("%B %d, %Y"), :end =>payslip[:period][1].strftime("%B %d, %Y") )%></label>
+	<label><%= l(:label_ytd_description, start:  payslip[:start], end: payslip[:end] )%></label>
 <% else %>
 	<label><b><%= l(:label_no_data) %></b></label>
 <% end %>
