@@ -442,8 +442,9 @@ include ActionView::Helpers::TagHelper
 
 	def getIssueAssignToUsrCond
 		issueAssignToUsrCond=nil
+		user_id = params[:user_id] || User.current.id
 		if (!Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].blank? && Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].to_i == 1)
-			issueAssignToUsrCond ="and (#{Issue.table_name}.assigned_to_id=#{params[:user_id]} OR #{Issue.table_name}.author_id=#{params[:user_id]})"
+			issueAssignToUsrCond ="and (#{Issue.table_name}.assigned_to_id=#{user_id} OR #{Issue.table_name}.author_id=#{user_id})"
 		end
 		issueAssignToUsrCond
 	end
