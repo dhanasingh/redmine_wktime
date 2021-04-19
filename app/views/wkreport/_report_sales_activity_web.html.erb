@@ -1,0 +1,69 @@
+<%
+	require_relative './report_sales_activity'
+	to = session[controller_name].try(:[], :to)
+	from = session[controller_name].try(:[], :from)
+	projId = session[controller_name].try(:[], :project_id)
+	groupId = session[controller_name].try(:[], :group_id)
+	userId = session[controller_name].try(:[], :user_id)
+	if userId.blank?			
+		userId = validateERPPermission("B_CRM_PRVLG") ? User.current.id : 0
+	end
+	sales_report = Object.new.extend(ReportSalesActivity) 
+	sales_activity = sales_report.calcReportData(userId, groupId, projId, from, to)
+%>
+<%= stylesheet_link_tag 'application' , :media => "all" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div style="float:right">
+	<table>
+		<tr>
+			<td>
+				<% attachment = WkLocation.getMainLogo() %>
+				<% if attachment.present? %>
+					<%= image_tag(download_location_attachment_path(attachment, attachment.filename), class: 'filecontent image') %>
+				<% end %>
+			</td>
+		</tr>
+	</table>
+</div>
+<div style="clear:both;"></div>
+<div id="attn-rpt-dlg", style="overflow-x:auto;">
+	<table style="width:100%; border-collapse: collapse;">
+		 <caption style="text-align:center"><b><%= getMainLocation %><br><%= l(:report_sales_activity) + " " + l(:label_report) %></b></br>
+		 <%= sales_activity[:from] + " " + l(:label_date_to) + " " + sales_activity[:to] %>
+		
+		<thead style="background-color: #e6e6e6">
+			<tr>
+				<th class="lbl-txt-align"><%= l(:label_activity_type) %></th>
+				<th class="lbl-txt-align"><%= l(:field_subject) %></th>
+				<th style="text-align: left"><%= l(:field_status) %></th>
+				<th class="lbl-txt-align"><%= l(:label_related_to) %></th>
+				<th class="lbl-txt-align"><%= l(:field_name) %></th>
+				<th class="lbl-txt-align"><%= l(:label_start_date_time) %></th>
+				<th class="lbl-txt-align"><%= l(:label_completed_date_time) %></th>
+				<th class="lbl-txt-align"><%= l(:field_assigned_to) %></th>
+				<th style="text-align: center"><%= l(:label_duration) %><br><%= l(:label_days) %></th>
+			</tr>
+		</thead>
+		<tbody>
+			<% sales_activity[:activities].each do |id, activity| %>
+				<tr class="<%= cycle("odd", "even") %>">
+					<td><%= activity['type'] %></td>
+					<td><%= activity['name'] %></td>
+					<td><%= activity['status'] %></td>
+					<td><%= activity['parent_type'] %></td>
+					<td><%= activity['parent_name'] %></td>
+					<td><%= activity['start_date'] %></td>
+					<td><%= activity['complete_date'] %></td>
+					<td><%= activity['assigned_user'] %></td>
+					<td style="text-align: center"><%= activity['duration'] %></td>
+				</tr>
+			<% end %>
+			<% if sales_activity[:activities].length > 0 %>
+				<tr style="background-color: #e6e6e6">
+					<td colspan="8" style="text-align: right"><b><%= l(:label_average) + " " + l(:label_duration)%>:</b></td>
+					<td style="text-align: left"><b><%= sales_activity[:totDuration] %></b></td>
+				</tr>
+			<% end %>
+		</tbody>
+	</table>
+</div>

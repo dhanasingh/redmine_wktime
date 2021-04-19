@@ -1,0 +1,65 @@
+<%
+	require_relative './report_tax'
+	groupId = session[controller_name].try(:[], :group_id).blank? ? 0 : session[controller_name].try(:[], :group_id)
+	userId = session[controller_name].try(:[], :user_id).blank? ? 0 : session[controller_name].try(:[], :user_id)
+	from = session[controller_name].try(:[], :from)
+	to = session[controller_name].try(:[], :to)
+	projId = session[controller_name].try(:[], :project_id)
+	tax_report = Object.new.extend(ReportTax) 
+	taxReport = tax_report.calcReportData(userId, groupId, projId, from, to)
+%>
+<%= stylesheet_link_tag 'application' , :media => "all" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div style="float:right">
+	<table>
+		<tr>
+			<td>
+				<% attachment = WkLocation.getMainLogo() %>
+				<% if attachment.present? %>
+					<%= image_tag(download_location_attachment_path(attachment, attachment.filename), class: 'filecontent image') %>
+				<% end %>
+			</td>
+		</tr>
+	</table>
+</div>
+<div style="clear:both;"></div>
+<div id="attn-rpt-dlg", style="overflow-x:auto;">
+	<div style="text-align: center; font-size: 15px;">
+    	<caption><b><%= getMainLocation %><br><%= l(:report_tax) %></b></br>
+        <%= taxReport[:from] + " " + l(:label_date_to) + " " + taxReport[:to] %>
+	</div>
+	<% taxReport[:taxData].each do |mnth, data|%>
+		<b style="font-size: 15px;"><%= data['month_name'] %></b>
+		<table style="width:100%; border-collapse: collapse;"border="1";>
+			<tr style="background-color: #e6e6e6">
+				<th style="text-align: center" width="10%"><%= l(:label_employee_id) %></th>
+				<th style="text-align: center" width="10%"><%= l(:field_tax) %></th>
+				<th style="text-align: center" width="10%"><%= l(:label_user_name) %></th>
+				<th style="text-align: center" width="10%"><%= l(:label_gross) %></th>
+				<th style="text-align: center" width="10%"><%= l(:label_tds) %></th>
+				<th style="text-align: center" width="10%"><%= l(:label_cess) %></th>
+				<th style="text-align: center" width="10%"><%= l(:label_total) %></th>
+			</tr>
+			<% data['users'].each do |entry|%>
+				<tr>
+					<td style="text-align: center"><%= entry[:employee_id] %></td>
+					<td style="text-align: center"><%= entry[:tax_id] %></td>
+					<td style="text-align: center"><%= entry[:name] %></td>
+					<td style="text-align: center"><%= entry[:gross] %></td>
+					<td style="text-align: center"><%= entry[:tds] %></td>
+					<td style="text-align: center"><%= entry[:cess] %></td>
+					<td style="text-align: center"><%= entry[:taxTotal] %></td>
+				</tr>
+			<% end %>
+			<tr>
+				<th style="text-align: center" colspan="3"><%= l(:label_total) %></th>
+				<td style="text-align: center"><%= data['grossTot'] if data['grossTot'] > 0 %></td>
+				<td style="text-align: center"><%= data['tdsTot'] if data['tdsTot'] > 0 %></td>
+				<td style="text-align: center"><%= data['cessTot'] if data['cessTot'] > 0 %></td>
+				<td style="text-align: center"><%= data['total'] if data['total'] > 0 %></td>
+			</tr>
+		</table>
+		<br>
+		<br>
+	<% end %>
+</div>

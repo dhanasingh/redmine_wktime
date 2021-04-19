@@ -22,7 +22,7 @@
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
 	<table style="width:100%; border-collapse: collapse;">
 		 <caption style="text-align:center"><b><%= getMainLocation %><br><%= l(:report_balance_sheet) %></b></br>
-		 <%= l(:label_as_at) + " " + to.to_formatted_s(:long) %>
+		 <%= l(:label_as_at) + " " + balSheet[:to] %>
 		<thead bgcolor="#e6e6e6">
 			<tr style="border-bottom: solid thin;border-top: solid thin;">
 				<th align="left" width=65% style="padding-left: 25px;"></th>

@@ -1,0 +1,78 @@
+<%
+	require_relative './report_trial_balance'
+	from = session[controller_name].try(:[], :from)
+	to = session[controller_name].try(:[], :to)
+	userId = session[controller_name].try(:[], :user_id)
+	groupId = session[controller_name].try(:[], :group_id)
+	projId = session[controller_name].try(:[], :project_id)
+	trial_bal_report = Object.new.extend(ReportTrialBalance)
+	trial_bal = trial_bal_report.calcReportData(userId, groupId, projId, from, to)
+%>
+<%= stylesheet_link_tag 'application' , :media => "all" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<style>
+	body
+	{
+		margin-right: 30%;
+		color:#000;
+		font-family:Verdana, sans-serif;
+		font-size:12px;
+	}
+</style>
+<div id="attn-rpt-dlg", style="overflow-x:auto;">
+	<table style="width:100%; border-collapse: collapse;">
+		 <caption style="text-align:center"><b><%= getMainLocation %><br><%= l(:report_trial_balance) %></b></br>
+		 <%= l(:label_as_at) + " " + trial_bal[:to] %>
+		<thead bgcolor="#e6e6e6">
+			<tr style="border-bottom: solid thin;border-top: solid thin;">
+				<th align="left" width=65% style="padding-left: 25px;"></th>
+				<th colspan="2" align="right" width=35%></th>
+			</tr>
+		</thead>
+		<tbody>
+			<% creditTotal = 0
+				debitTotal = 0
+			%>
+			<tr style="width:100%;">
+				<td><b><%= l(:label_particulars) %></b></td>
+				<td><b><%= l(:label_debit) %></b></td>
+				<td><b><%= l(:label_credit) %></b></td>
+			</tr>
+			<% trial_bal[:ledgerArr].each do |ledger|  %>
+				<% debitTotal += trial_bal[:creditDebitTotalHash][ledger]['debit'] unless trial_bal[:creditDebitTotalHash][ledger]['debit'].blank? %>
+				<% creditTotal += trial_bal[:creditDebitTotalHash][ledger]['credit'] unless trial_bal[:creditDebitTotalHash][ledger]['credit'].blank? %>
+				<% unless (trial_bal[:creditDebitTotalHash][ledger]['debit'] == 0) && (trial_bal[:creditDebitTotalHash][ledger]['credit'] == 0) %>
+					<tr style="width:100%;">
+						<td align="left"><b><u><%= getSectionHeader(ledger)%></u></b></td>
+						<td style="border-bottom: solid thin;"><b><%= "%.2f" % trial_bal[:creditDebitTotalHash][ledger]['debit']%></b></td>
+						<td style="border-bottom: solid thin;"><b><%= "%.2f" % trial_bal[:creditDebitTotalHash][ledger]['credit']%></b></td>
+					</tr>
+					<% unless trial_bal[:subEntriesHash][ledger].blank?
+						trial_bal[:subEntriesHash][ledger].each do |subledger, subEntry| %>
+							<% unless subEntry.blank? || subEntry.nil? %>
+								<tr style="width:100%;">
+									<td align="left" style="padding-left: 25px;"><b><%= getSectionHeader(subledger) %></b></td>
+									<td></td>
+									<td></td>
+								</tr>
+								<%= render partial: "rpt_trial_bal_rows", locals: { entries: subEntry, padding:50  }%>
+							<% end %>
+						<% end %>
+					<% end %>
+					<%= render partial: "rpt_trial_bal_rows", locals: { entries: trial_bal[:mainEntriesHash][ledger], padding:25  }%>
+				<% end %>
+			<% end %>
+			<% creditTotal += trial_bal[:profitLossHash] unless trial_bal[:profitLossHash].blank? %>
+			<tr style="width:100%;">
+				<td align="left"><b><%= l(:report_profit_loss) %></b></td>
+				<td style="border-bottom: solid thin;"><b><%=  %></b></td>
+				<td style="border-bottom: solid thin;"><b><%= "%.2f" %  trial_bal[:profitLossHash] %></b></td>
+			</tr>
+			<tr style="width:100%;">
+				<td align="left" style="padding-left: 25px;border-top: solid thin;border-bottom: solid thin;" style=""><b><%= l(:label_total) + " : "%></b></td>
+				<td style="border-top: solid thin;border-bottom: solid thin;"><b><%= "%.2f" % debitTotal %></b></td>
+				<td style="border-top: solid thin;border-bottom: solid thin;"><b><%= "%.2f" % creditTotal %></b></td>
+			</tr>
+		</tbody>
+	</table>
+</div>

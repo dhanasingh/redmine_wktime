@@ -39,7 +39,8 @@ module WkreportHelper
 		Dir["#{reportLoc}/_report*"].each do |path|
 		  fileName = File.basename(path, ".html.erb")
 		  fileName.slice!(0)
-		  reportTypeArr << [l(:"#{fileName}"), fileName] if hasViewPermission(fileName) && (!apiRequest || File.exist?("#{reportLoc}/#{fileName}.rb"))
+		  label = fileName.remove("_web")
+		  reportTypeArr << [l(:"#{label}"), fileName] if hasViewPermission(label) && (!apiRequest || !(fileName.end_with?("_web")))
 		end
 		reportTypeArr.sort!
 	end
