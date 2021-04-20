@@ -9,13 +9,16 @@ module UsersControllerPatch
 			def create
 				@user = User.new(:language => Setting.default_language, :mail_notification => Setting.default_notification_option, :admin => false)
 				@user.safe_attributes = params[:user]
-				@user.password, @user.password_confirmation = params[:user][:password], params[:user][:password_confirmation] unless @user.auth_source_id
+				unless @user.auth_source_id
+					@user.password              = params[:user][:password]
+					@user.password_confirmation = params[:user][:password_confirmation]
+				  end
 				@user.pref.safe_attributes = params[:pref]
 
 				if @user.save
 					Mailer.deliver_account_information(@user, @user.password) if params[:send_information]
 
-					# ============= ERPmine_patch Redmine 4.1.1  =====================
+					# ============= ERPmine_patch Redmine 4.2  =====================
 						#Below code for save wk users
 						erpmineUserSave
 						# To transfer attachments from Referral
@@ -33,7 +36,7 @@ module UsersControllerPatch
 						errorMsg += save_attachments(@user.id, params[:attachments], params[:container_type]) if params[:attachments].present?
 					# =======================================
 					respond_to do |format|
-						format.html {
+						format.html do
 							flash[:notice] = l(:notice_user_successful_create, :id => view_context.link_to(@user.login, user_path(@user)))
 							if params[:continue]
 								attrs = {:generate_password => @user.generate_password }
@@ -41,7 +44,7 @@ module UsersControllerPatch
 							else
 								redirect_to edit_user_path(@user)
 							end
-						}
+						end
 						format.api  { render :action => 'show', :status => :created, :location => user_url(@user) }
 					end
 				else
@@ -69,7 +72,7 @@ module UsersControllerPatch
 				if @user.save
 					@user.pref.save
 
-				# ============= ERPmine_patch Redmine 4.1.1  =====================
+				# ============= ERPmine_patch Redmine 4.2  =====================
 					#Below code for save wk users
 					erpmineUserSave
 					#for attachment save
@@ -82,10 +85,10 @@ module UsersControllerPatch
 					end
 
 					respond_to do |format|
-						format.html {
+						format.html do
 							flash[:notice] = l(:notice_successful_update)
 							redirect_to_referer_or edit_user_path(@user)
-						}
+						end
 						format.api  { render_api_ok }
 					end
 				else
@@ -101,7 +104,7 @@ module UsersControllerPatch
 				end
 			end
 
-	# ============= ERPmine_patch Redmine 4.1.1  =====================
+	# ============= ERPmine_patch Redmine 4.2  =====================
 			def erpmineUserSave
 				@user.erpmineuser.safe_attributes = params[:erpmineuser]
 				@user.erpmineuser.address_id = updateAddress

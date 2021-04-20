@@ -80,7 +80,7 @@ Import.class_eval do
 			item.unique_id = row_value(row, 'unique_id') if use_unique_id?
 	
 			if object = build_object(row, item)
-				# ======= ERPmine_patch Redmine 4.1.1 ==========
+				# ======= ERPmine_patch Redmine 4.2 ==========
 				wktime_helper = Object.new.extend(WktimeHelper)
 				errorMsg = wktime_helper.statusValidation(object)
 				if errorMsg.blank?
@@ -172,7 +172,7 @@ module ProjectsControllerPatch
 				@project.safe_attributes = params[:project]
 
 				if @project.save
-					# ============= ERPmine_patch Redmine 4.1.1 =====================
+					# ============= ERPmine_patch Redmine 4.2 =====================
 					 @project.erpmineproject.safe_attributes = params[:erpmineproject]
 					 @project.erpmineproject.save
 					# =============================
@@ -202,32 +202,36 @@ module ProjectsControllerPatch
 			def update
 				@project.safe_attributes = params[:project]
 				if @project.save
-					# ============= ERPmine_patch Redmine 4.1.1 =====================
+					# ============= ERPmine_patch Redmine 4.2 =====================
 					 @project.erpmineproject.safe_attributes = params[:erpmineproject]
 					 @project.erpmineproject.save
 					# =============================
 					respond_to do |format|
-						format.html {
+						format.html do
 							flash[:notice] = l(:notice_successful_update)
 							redirect_to settings_project_path(@project, params[:tab])
-						}
+						end
 						format.api  { render_api_ok }
 					end
 				else
 					respond_to do |format|
-						format.html {
+						format.html do
 							settings
 							render :action => 'settings'
-						}
+						end
 						format.api  { render_validation_errors(@project) }
 					end
 				end
 			end
 
 		  def destroy
+			unless @project.deletable?
+			  deny_access
+			  return
+			end
 			 @project_to_destroy = @project
 				if api_request? || params[:confirm]
-				# ============= ERPmine_patch Redmine 4.1.1 =====================
+				# ============= ERPmine_patch Redmine 4.2 =====================
 					wktime_helper = Object.new.extend(WktimeHelper)
 					ret = wktime_helper.getStatus_Project_Issue(nil,@project_to_destroy.id)
 					if ret
@@ -240,7 +244,11 @@ module ProjectsControllerPatch
 				# =============================
 						@project_to_destroy.destroy
 						respond_to do |format|
-						format.html { redirect_to admin_projects_path }
+						format.html  do
+							redirect_to(
+							  User.current.admin? ? admin_projects_path : projects_path
+							)
+						  end
 						format.api  { render_api_ok }
 						end
 					end
@@ -263,14 +271,14 @@ module IssuesControllerPatch
 		time_entries = TimeEntry.where(:issue_id => issues_and_descendants_ids)
 		@hours = time_entries.sum(:hours).to_f
 
-		# ============= ERPmine_patch Redmine 4.1.1 =====================
+		# ============= ERPmine_patch Redmine 4.2 =====================
 		expense_entries = WkExpenseEntry.where(:issue_id => issues_and_descendants_ids)
 		@amount = expense_entries.sum(:amount).to_f
 		# =============================================================
 
 		if @hours > 0 || @amount > 0 # added check for expense entry
 
-		  # ============= ERPmine_patch Redmine 4.1.1 =====================
+		  # ============= ERPmine_patch Redmine 4.2 =====================
 		  # Check for the submitted or approve time and expense entries
 		  # show error message when there is a submitted time or expense entry
 		  # if part wrote by us and else part has expense destroy wrote by us
@@ -282,6 +290,7 @@ module IssuesControllerPatch
 			  flash.now[:error] = l(:error_project_issue_associate)
 			  return
 		  else
+			# =============================================================
 			  case params[:todo]
 			  when 'destroy'
 				# nothing to do
@@ -292,7 +301,7 @@ module IssuesControllerPatch
 				else
 					time_entries.update_all(:issue_id => nil)
 
-					# ============= ERPmine_patch Redmine 4.1.1 ===========
+					# ============= ERPmine_patch Redmine 4.2 ===========
 					expense_entries.update_all(:issue_id => nil)
 					# ==============================================
 				end
@@ -307,7 +316,7 @@ module IssuesControllerPatch
 				else
 				  time_entries.update_all(:issue_id => reassign_to.id, :project_id => reassign_to.project_id)
 
-				  # ============= ERPmine_patch Redmine 4.1.1 ===========
+				  # ============= ERPmine_patch Redmine 4.2 ===========
 					expense_entries.update_all(:issue_id => reassign_to.id, :project_id => reassign_to.project_id)
 				  # ==============================================
 				end
@@ -325,7 +334,10 @@ module IssuesControllerPatch
 		  end
 		end
 		respond_to do |format|
-		  format.html { redirect_back_or_default _project_issues_path(@project) }
+			format.html do
+				flash[:notice] = l(:notice_successful_delete)
+				redirect_back_or_default _project_issues_path(@project)
+			end
 		  format.api  { render_api_ok }
 	    end
 	end
@@ -361,72 +373,72 @@ module FttePatch
       #base.send(:include)
 
       base.class_eval do
-				def allowed_to?(action, context, options={}, &block)
-					# ======= ERPmine_patch Redmine 4.1.1 ==========
-					wktime_helper = Object.new.extend(WktimeHelper)
-					valid_ERP_perm = wktime_helper.validateERPPermission('A_TE_PRVLG')
-					isSupervisor = wktime_helper.isSupervisor
-					# =============================
-					if context && context.is_a?(Project)
-						# ======= ERPmine_patch Redmine 4.1.1 for allow supervisor and TEadmin to view time_entry ==========
-						if ((valid_ERP_perm || isSupervisor) && action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
-						return true
-						end
-
-						if (action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
-						(context.allows_to?(:log_time) || context.allows_to?(:edit_time_entries) || context.allows_to?(:edit_own_time_entries))
-						end
-						# =============================
-
-						return false unless context.allows_to?(action)
-						# Admin users are authorized for anything else
-						return true if admin?
-
-						roles = roles_for_project(context)
-						return false unless roles
-						roles.any? {|role|
-						(context.is_public? || role.member?) &&
-						role.allowed_to?(action) &&
-						(block_given? ? yield(role, self) : true)
-						}
-					elsif context && context.is_a?(Array)
-						if context.empty?
-						false
-						else
-						# Authorize if user is authorized on every element of the array
-						context.map {|project| allowed_to?(action, project, options, &block)}.reduce(:&)
-						end
-					elsif context
-						raise ArgumentError.new("#allowed_to? context argument must be a Project, an Array of projects or nil")
-					elsif options[:global]
-						# Admin users are always authorized
-						return true if admin?
-
-						# ======= ERPmine_patch Redmine 4.1.1 ==========
-						if ((valid_ERP_perm || isSupervisor) && action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
-							return true
-						end
-						# User Log API
-						if( action.is_a?(Hash) && action[:controller] == "wklogmaterial" && action[:action] == "index")
-							return true
-						end
-						# =============================
-						# authorize if user has at least one role that has this permission
-						roles = self.roles.to_a | [builtin_role]
-						roles.any? {|role|
-						# ======= ERPmine_patch Redmine 4.1.1 ==========
-						if (action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
-							(role.allowed_to?(:log_time) || role.allowed_to?(:edit_time_entries) || role.allowed_to?(:edit_own_time_entries))
-						else
-						# =============================
-							role.allowed_to?(action) &&
-							(block_given? ? yield(role, self) : true)
-						end
-						}
-					else
-						false
-					end
+		def allowed_to?(action, context, options={}, &block)
+			# ======= ERPmine_patch Redmine 4.2 ==========
+			wktime_helper = Object.new.extend(WktimeHelper)
+			valid_ERP_perm = wktime_helper.validateERPPermission('A_TE_PRVLG')
+			isSupervisor = wktime_helper.isSupervisor
+			# =============================
+			if context && context.is_a?(Project)
+				# ======= ERPmine_patch Redmine 4.2 for allow supervisor and TEadmin to view time_entry ==========
+				if ((valid_ERP_perm || isSupervisor) && action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
+				return true
 				end
+
+				if (action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
+				(context.allows_to?(:log_time) || context.allows_to?(:edit_time_entries) || context.allows_to?(:edit_own_time_entries))
+				end
+				# =============================
+
+				return false unless context.allows_to?(action)
+				# Admin users are authorized for anything else
+				return true if admin?
+
+				roles = roles_for_project(context)
+				return false unless roles
+				roles.any? {|role|
+				(context.is_public? || role.member?) &&
+				role.allowed_to?(action) &&
+				(block_given? ? yield(role, self) : true)
+				}
+			elsif context && context.is_a?(Array)
+				if context.empty?
+				false
+				else
+				# Authorize if user is authorized on every element of the array
+				context.map {|project| allowed_to?(action, project, options, &block)}.reduce(:&)
+				end
+			elsif context
+				raise ArgumentError.new("#allowed_to? context argument must be a Project, an Array of projects or nil")
+			elsif options[:global]
+				# Admin users are always authorized
+				return true if admin?
+
+				# ======= ERPmine_patch Redmine 4.2 ==========
+				if ((valid_ERP_perm || isSupervisor) && action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
+					return true
+				end
+				# User Log API
+				if( action.is_a?(Hash) && action[:controller] == "wklogmaterial" && action[:action] == "index")
+					return true
+				end
+				# =============================
+				# authorize if user has at least one role that has this permission
+				roles = self.roles.to_a | [builtin_role]
+				roles.any? {|role|
+				# ======= ERPmine_patch Redmine 4.2 ==========
+				if (action.to_s == 'view_time_entries') && wktime_helper.overrideSpentTime
+					(role.allowed_to?(:log_time) || role.allowed_to?(:edit_time_entries) || role.allowed_to?(:edit_own_time_entries))
+				else
+				# =============================
+					role.allowed_to?(action) &&
+					(block_given? ? yield(role, self) : true)
+				end
+				}
+			else
+				false
+			end
+		end
       end
     end
   end
@@ -437,7 +449,7 @@ module FttePatch
 
 		base.class_eval do
 			def editable_by?(usr)
-				# === ERPmine_patch Redmine 4.1.1 for supervisor edit =====
+				# === ERPmine_patch Redmine 4.2 for supervisor edit =====
 				wktime_helper = Object.new.extend(WktimeHelper)
 				if ((!user.blank? && wktime_helper.isSupervisorForUser(user.id)) && wktime_helper.canSupervisorEdit)
 					true
@@ -462,14 +474,14 @@ module FttePatch
 				if allowed
 					true
 				else
-				# ============= ERPmine_patch Redmine 4.1.1 =====================
+				# ============= ERPmine_patch Redmine 4.2 =====================
 							wktime_helper = Object.new.extend(WktimeHelper)
 							# isSupervisor = wktime_helper.isSupervisor
 				# =============================
 					if @project && @project.archived?
 						@archived_project = @project
 						render_403 :message => :notice_not_authorized_archived_project
-				# ============= ERPmine_patch Redmine 4.1.1 =====================
+				# ============= ERPmine_patch Redmine 4.2 =====================
 					elsif ((action == 'edit' || action == 'update' || action == 'destroy') && ctrl == 'timelog' && (wktime_helper.isSupervisor && wktime_helper.canSupervisorEdit)) && wktime_helper.overrideSpentTime
 						true
 					elsif ((action == 'index' || action == 'report')  && ctrl == 'timelog') && wktime_helper.overrideSpentTime
@@ -580,7 +592,7 @@ module FttePatch
 					where(getSupervisorCondStr)
 			end
 
-			#========= ERPmine_patch Redmine 4.1.1 for get supervision condition string ======
+			#========= ERPmine_patch Redmine 4.2 for get supervision condition string ======
 			def getSupervisorCondStr
 				orgCondStatement = statement
 				condStatement = orgCondStatement
