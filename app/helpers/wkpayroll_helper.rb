@@ -918,8 +918,10 @@ module WkpayrollHelper
 	end
 
 	def getReimburseProjects
+		projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})")
 		projectIds =  Setting.plugin_redmine_wktime['reimburse_projects'] || []
 		projectIds.reject! {|id| id.to_s == "" } if projectIds.present?
+		projectIds =  projects.pluck(:id) if projects.present? && projectIds.length == 0
 		projectIds
 	end
 	
