@@ -345,12 +345,22 @@ module IssuesControllerPatch
  end
 end
 
+# Shown users attachment in myaccount page
+module MyControllerPatch
+	def self.included(base)
+		base.class_eval do
+			helper WkdocumentHelper
+	  	end
+	end
+end
+
 CustomFieldsHelper.send(:include, WktimeHelperPatch)
 ProjectsController.send(:include, ProjectsControllerPatch)
 IssuesController.send(:include, IssuesControllerPatch)
 TimelogController.send(:include, TimelogControllerPatch)
 ContextMenusController.send(:include, ContextMenusControllerPatch)
 UsersController.send(:include, UsersControllerPatch)
+MyController.send(:include, MyControllerPatch)
 
 # Patches for Supervisor
 

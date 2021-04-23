@@ -1,4 +1,5 @@
 <% if(Setting.plugin_redmine_wktime['label_no_additional_details_for_user'].blank? && Setting.plugin_redmine_wktime['label_no_additional_details_for_user'].to_i == 0) %>
+<% editable =  controller_name == 'users' %>
 </fieldset>
 	<div >
 		<% addressObj = @user.erpmineuser.address %>
@@ -11,6 +12,6 @@
 			<%= f.hidden_field "source_type" %>
 			<%= f.hidden_field "source_id" %>
 		<% end %>
-		<%= render partial: "wkdocument/attachment_form", locals: { container: @user, container_type: "Principal" } %>
+		<%= render partial: "wkdocument/attachment_form", locals: { container: @user, container_type: "Principal", editable: editable, deletable: editable, hideImage: true } %>
 	</div>
 <% end %>

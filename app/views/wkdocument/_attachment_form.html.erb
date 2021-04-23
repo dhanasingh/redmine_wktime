@@ -1,11 +1,17 @@
+<% editable = true  if editable.nil? %>
+<% deletable = true  if deletable.nil? %>
+<% hideImage = false  if hideImage.nil? %>
 <div class="box">
   <h3><%= l(:label_attachment) %></h3>
   <% if !container.blank? && container.attachments.any? %>
-    <%= attachments_links container, editable: true, deletable: true %>
+    <%= attachments_links container, editable: editable, deletable: deletable, hideImage: hideImage %>
   <% end %>
-  <fieldset>
-    <legend><%=l(:label_attachment_plural)%></legend>
-    <%= hidden_field_tag("container_type", container_type) %>
-    <%= render :partial => 'attachments/form' %>
-  </fieldset>
+
+  <% if editable %>
+    <fieldset>
+      <legend><%=l(:label_attachment_plural)%></legend>
+      <%= hidden_field_tag("container_type", container_type) %>
+      <%= render :partial => 'attachments/form' %>
+    </fieldset>
+  <% end %>
 </div>
