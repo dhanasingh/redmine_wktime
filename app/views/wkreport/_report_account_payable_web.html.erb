@@ -1,20 +1,20 @@
 <%
-	require_relative './report_order_to_cash'
+	require_relative './report_account_payable'
 	from = session[controller_name].try(:[], :from)
 	to = session[controller_name].try(:[], :to)
 	projId = session[controller_name].try(:[], :project_id)
 	user_id = session[controller_name].try(:[], :user_id)
 	group_id = session[controller_name].try(:[], :group_id)
-	helperObj = Object.new.extend(ReportOrderToCash)
-	order_cash = helperObj.calcReportData(user_id, group_id, projId, from, to)
-	inBtwMonths = order_cash[:periods]
+	helperObj = Object.new.extend(ReportAccountPayable)
+	acc_payable = helperObj.calcReportData(user_id, group_id, projId, from, to)
+	inBtwMonths = acc_payable[:periods]
 %>
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
 	<div style="float:left; width:90%;">
 		<p style="text-align: center;">
 			<caption style="text-align:center"><b>
-				<%= getMainLocation %><br><%= l(:report_order_to_cash) %></b></br>
-				<%= order_cash[:from] + " " + l(:label_date_to) + " " + order_cash[:to] %>
+				<%= getMainLocation %><br><%= l(:report_account_payable) %></b></br>
+				<%= acc_payable[:from] + " " + l(:label_date_to) + " " + acc_payable[:to]%>
 			</caption>
 		</p>
 	</div>
@@ -43,7 +43,7 @@
 			</tr>
 		</thead>
 		<body>
-			<% data = order_cash[:data].first
+			<% data = acc_payable[:data].first
 				data.each do |key, val|
 			%>
 				<tr style="width:100%;">
@@ -72,7 +72,7 @@
 					<% val[:range].each do |key, entry| %>
 						<td style="text-align:right;"><%= entry[:inv_currency] %>&nbsp;<%= entry[:balance] %></td>
 					<% end %>
-						<td style="text-align:right;"><%= %>&nbsp;<%= val[:current_balance] %></td>
+						<td style="text-align:right;"><%= Setting.plugin_redmine_wktime['wktime_currency'] %>&nbsp;<%= val[:current_balance] %></td>
 				</tr>
 			<% end %>
 			<tr style="width:100%;">
@@ -82,7 +82,7 @@
 			<tr style="width:100%;">
 				<td></td>
 				<td style="text-align:right;", colspan = <%= inBtwMonths.length+1%>><b><%= "Total:" %></b></td>
-				<td style="text-align:right;"><%=  Setting.plugin_redmine_wktime['wktime_currency'] %>&nbsp;<%= order_cash[:data].last%></td>
+				<td style="text-align:right;"><%=  Setting.plugin_redmine_wktime['wktime_currency'] %>&nbsp;<%= acc_payable[:data].last%></td>
 			</tr>
 			<tr style="width:100%;">
 				<td></td>

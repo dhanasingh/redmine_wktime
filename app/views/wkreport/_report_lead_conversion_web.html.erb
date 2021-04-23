@@ -1,0 +1,63 @@
+<%
+  require_relative './report_lead_conversion'
+	@from = session[controller_name].try(:[], :from)
+	@to = session[controller_name].try(:[], :to)
+	group_id = session[controller_name].try(:[], :group_id)
+	user_id = session[controller_name].try(:[], :user_id)
+	projId = session[controller_name].try(:[], :project_id)
+	helperObj = Object.new.extend(ReportLeadConversion)
+	data = helperObj.calcReportData(user_id, group_id, projId, @from, @to)
+%>
+<%= stylesheet_link_tag 'application' , :media => "all" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div style="float:right">
+	<table>
+		<tr>
+			<td>
+				<% attachment = WkLocation.getMainLogo() %>
+				<% if attachment.present? %>
+					<%= image_tag(download_location_attachment_path(attachment, attachment.filename), class: 'filecontent image') %>
+				<% end %>
+			</td>
+		</tr>
+	</table>
+</div>
+<div style="clear:both;"></div>
+<div id="attn-rpt-dlg", style="overflow-x:auto;">
+	<table style="width:100%; border-collapse: collapse;">
+		 <caption style="text-align:center"><b><%= getMainLocation %><br><%= l(:report_lead_conversion) + " " + l(:label_report) %></b></br>
+		 <%= data[:from] + " " + l(:label_date_to) + " " + data[:to] %>
+		<thead style="background-color:#e6e6e6;">
+			<tr>
+				<th style="text-align:left;"><%= l(:label_lead)%></th>
+				<th style="text-align:left;"><%= l(:field_status) %></th>
+				<th style="text-align:left;"><%= l(:field_created_on)%></th>
+				<th style="text-align:left;"><%= l(:label_converted)%></th>
+				<th style="text-align:center;"><%= l(:label_sales_cycle)%><br><%= l(:label_days) %></th>
+				<th style="text-align:left;"><%= l(:field_assigned_to)%></th>
+			</tr>
+		</thead>
+		<tbody>
+			<% data[:leads].each do |key, lead| %>
+				<tr class="<%= cycle("odd", "even") %>">
+						<td><%= lead['name'] %></td>
+						<td><%= lead['status'] %></td>
+						<td><%= lead['Created'] %></td>
+						<td><%= lead['Converted'] %></td>
+						<td style="text-align:center;"><%= lead['days'] %></td>
+						<td><%= lead['Assignee'] %></td>
+				</tr>
+			<% end %>
+			<% unless data[:convRate].blank?  %>
+				<tr style="background-color:#e6e6e6;">
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td style="text-align:right;"><b><%= l(:label_conversion_rate)%>:</b></td>
+					<td style="text-align:left;"><b><%= data[:convRate] %>%</b></td>
+				</tr>
+			<% end %>
+		</tbody>
+	</table>
+</div>

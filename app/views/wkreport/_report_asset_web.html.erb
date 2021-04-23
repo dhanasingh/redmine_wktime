@@ -1,0 +1,78 @@
+<%
+
+	require_relative './report_asset'
+	projId = session[controller_name].try(:[], :project_id).blank? ? 0 : session[controller_name].try(:[], :project_id)
+	to = session[controller_name].try(:[], :to)
+	from = session[controller_name].try(:[], :from)
+	user_id = session[controller_name].try(:[], :user_id)
+	group_id = session[controller_name].try(:[], :group_id)
+	helperObj = Object.new.extend(ReportAsset)
+	data = helperObj.calcReportData(user_id, group_id, projId, from, to)
+%>
+
+<div id="attn-rpt-dlg", style="overflow-x:auto;">
+	<div style="float:left; width:90%;">
+		<p style="text-align: center;">
+			<caption style="text-align:center"><b>
+				<%= getMainLocation %></br><%= l(:report_asset) %></b></br>
+				<%= l(:label_as_at) + " " + data[:to] %>
+			</caption>
+		</p>
+	</div>
+	<div style="float:right">
+		<table>
+			<tr>
+				<td>
+					<% attachment = WkLocation.getMainLogo() %>
+					<% if attachment.present? %>
+						<%= image_tag(download_location_attachment_path(attachment, attachment.filename), class: 'filecontent image') %>
+					<% end %>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div style="clear:both;"></div>
+	<div id="attn-rpt-dlg", style="overflow-x:auto;">
+		<table style="width:100%; border-collapse: collapse;">
+			<thead style="background-color:#e6e6e6;">
+				<tr>
+					<th class="lbl-txt-align"><%= "#" %></th>
+					<th class="lbl-txt-align"><%= l(:label_project) %></th>
+					<th class="lbl-txt-align"><%= l(:label_asset) + " " + l(:field_name) %></th>
+					<th class="lbl-txt-align"><%= l(:label_product) %></th>
+					<th class="lbl-txt-align"><%= l(:label_purchase_date) %></th>
+					<th class="lbl-txt-align"><%= l(:label_purchase_value) %></th>
+					<th class="lbl-txt-align"><%= l(:label_depreciation) %></th>
+					<th class="lbl-txt-align"><%= l(:label_current_value) %></th>
+					<th class="lbl-txt-align"><%= l(:label_last_depreciation_on) %></th>
+				</tr>
+			</thead>
+			<tbody>
+				<% data[:asset].each do |key, entry| %>
+					<tr class="<%= cycle("odd", "even") %>">
+							<td style="text-align:left;"><%= entry['s_no'] %></td>
+							<td style="text-align:left;"><%= entry['project_name'] %></td>
+							<td style="text-align:center;"><%= entry['asset_name'] %></td>
+							<td style="text-align:center;"><%= entry['product_name'] %></td>
+							<td style="text-align:center;"><%= entry['shipment_date'] %></td>
+							<td style="text-align:right;"><%= entry['currency'] %><%= entry['purchase_value']  %></td>
+							<td style="text-align:right;"><%= entry['currency'] %><%= entry['depreciation']  %></td>
+							<td style="text-align:right;"><%= entry['currency'] %><%= entry['current_value'] %></td>
+							<td style="text-align:center;"><%= entry['last_depreciation'] %></td>
+					</tr>
+				<% end %>
+				<tr style="background-color:#e6e6e6;">
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td style="text-align:right;"><b><%=data[:currency]%><%= data[:purchase_total]  %></b></td>
+					<td style="text-align:right;"><b><%=data[:currency]%><%= data[:depreciation_total]  %></b></td>
+					<td style="text-align:right;"><b><%=data[:currency]%><%= data[:current_total]  %></b></td>
+					<td></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
