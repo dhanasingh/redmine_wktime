@@ -97,7 +97,7 @@
 <% editable = !@locked && (@wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r') %>
 <div>
 	<% @entries.each do |entry| %>
-		<% if entry.present? && entry.attachments.any? && (controller.check_approvable_status && @approvable_projects.pluck(:id).include?(entry.project_id) || !controller.check_approvable_status) %>
+		<% if entry.present? && entry.attachments.any? && (controller.check_approvable_status && @approvable_projects.pluck(:id).include?(entry.project_id) || (@wktime.nil? || ['n'].include?(@wktime.status)) || (['s', 'a'].include?(@wktime.status) && !controller.check_approvable_status && entry.user_id == params[:user_id].to_i)) %>
 			<fieldset id="<%= 'attachment_' + @row.to_s() + '_' + @wday_index.to_s %>" class="attachment">
 				<legend><%=l(:label_attachment)%></legend>
 				<%= attachments_links entry, { editable: editable, deletable: editable, hideImage: true, author: false } %>

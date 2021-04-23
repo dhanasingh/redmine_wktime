@@ -46,7 +46,7 @@
 					<fieldset id="<%= 'attachment_' + @row.to_s() + '_' + @wday_index.to_s %>" class="attachment">
 						<legend><%=l(:label_attachment)%></legend>
 						<% if !@prev_template && entry.present? && entry.attachments.any? %>
-							<%= link_to_attachments entry %>
+							<%= attachments_links entry, { editable: true, deletable: true, hideImage: true, author: false} %>
 						<% end %>
 						<fieldset>
 							<legend><%=l(:label_attachment_plural)%></legend>
