@@ -91,7 +91,7 @@ accept_api_auth :get_reports, :getReportData
 	def get_reports
 		headers = {}
 		reportType = getReportType(true)
-		projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name')
+		projects = Project.active.order('name')
 		groups = Group.sorted.givable
 		headers[:projects] = projects.map{ |p| [p.name, p.id]}
 		headers[:groups] = groups.map{ |g| [g.name, g.id]}
@@ -102,8 +102,8 @@ accept_api_auth :get_reports, :getReportData
 		user_id = params[:user_id] || User.current.id
 		group_id = params[:group_id] || "0"
 		projId = params[:project_id] || "0"
-		from = params[:from] || Date.today.beginning_of_month
-		to = params[:to] || Date.today.end_of_month
+		from = params[:from].to_date || Date.today.beginning_of_month
+		to = params[:to].to_date || Date.today.end_of_month
 		attachment = WkLocation.getMainLogo
 		base64Image = getBase64Image(attachment)
 		if(params[:report_type].present?)
