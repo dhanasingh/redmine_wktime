@@ -64,7 +64,7 @@ lbldebitLedger = "<%= l(:label_debit_with_ledger) %>";
 	    <%= select_tag 'settings[wktime_cr_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['wktime_cr_ledger']) %></p>
 
 	<%
-		projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name')
+		projects = Project.active.order('name')
 		wktime_helper = Object.new.extend(WktimeHelper)
 		projArr = wktime_helper.options_for_wktime_project(projects,true)	
 	%>
