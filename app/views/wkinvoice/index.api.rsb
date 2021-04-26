@@ -12,8 +12,9 @@ api.array :wk_invoice, api_meta(:total_count => @entry_count, :offset => @offset
       api.quantity ("%.4f" % entry.invoice_items.sum(:quantity))
       api.amount ("%.2f" % entry.invoice_items.sum(:amount))
       api.org_amount ("%.2f" % entry.invoice_items.sum(:original_amount))
-			api.org_currency entry.invoice_items[0].original_currency unless entry.invoice_items[0].blank?
-			api.currency entry.invoice_items[0].currency unless entry.invoice_items[0].blank?
+      api.org_currency entry.invoice_items[0].original_currency unless entry.invoice_items[0].blank?
+      api.currency entry.invoice_items[0].currency unless entry.invoice_items[0].blank?
+      api.payment_link entry.total_invoice_amount - entry.total_paid_amount > 0
     end
   end
 end
