@@ -2,4 +2,5 @@ api.wk_payroll do
     api.basic @payrollDetails[:b]
     api.allowance @payrollDetails[:a]
     api.deduction @payrollDetails[:d]
+    api.reimbursements @payrollDetails[:r] if @payrollDetails[:r].present?
 end
