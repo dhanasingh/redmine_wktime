@@ -72,7 +72,7 @@
 					<% val[:range].each do |key, entry| %>
 						<td style="text-align:right;"><%= entry[:inv_currency] %>&nbsp;<%= entry[:balance] %></td>
 					<% end %>
-						<td style="text-align:right;"><%= %>&nbsp;<%= val[:current_balance] %></td>
+						<td style="text-align:right;"><%= Setting.plugin_redmine_wktime['wktime_currency'] %>&nbsp;<%= val[:current_balance] %></td>
 				</tr>
 			<% end %>
 			<tr style="width:100%;">

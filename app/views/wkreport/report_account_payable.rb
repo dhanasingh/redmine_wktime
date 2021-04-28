@@ -76,14 +76,25 @@ module ReportAccountPayable
       prv_payment = entry.prv_payment_amount||0
       prev_balance = prv_invoice -  prv_payment
       balance = inv_amount - pay_amount
-      current_balance += prev_balance + balance
-      total += prev_balance + balance
       inv_currency = entry.inv_currency.present? ? entry.inv_currency : syscurrency
       pay_currency = entry.pay_currency.present? ? entry.pay_currency : syscurrency
-      data[key] = {name: entry.name, prevBalance: '%.2f' % prev_balance, current_balance: '%.2f' % current_balance, syscurrency: syscurrency} if data[key].blank?
+      data[key] = {name: entry.name, prevBalance: '%.2f' % prev_balance, syscurrency: syscurrency, parent_id: entry.parent_id, parent_type: entry.parent_type} if data[key].blank?
       data[key][:range] = {} if data[key][:range].blank?
       data[key][:range][date_key] = {inv_amount: '%.2f' % inv_amount, pay_amount: '%.2f' % pay_amount, inv_currency: inv_currency, pay_currency: pay_currency, balance: '%.2f' % balance}
     end
+
+    data.each do |key, val|
+      key = val[:parent_id].to_s+"_"+val[:parent_type].to_s
+      prev_balance = val[:prevBalance]
+      balance = 0
+      val[:range].each do |key, entry|
+        balance += entry[:balance].to_f
+      end
+      current_balance = balance+prev_balance.to_f
+      data[key].store(:current_balance, '%.2f' % current_balance)
+      total += current_balance.to_f
+    end
+
     [data].push('%.2f' % total)
   end
 end
