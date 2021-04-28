@@ -95,13 +95,17 @@
 
 <!-- Display Attachments Files -->
 <% editable = !@locked && (@wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r') %>
-<div>
-	<% @entries.each do |entry| %>
-		<% if entry.present? && entry.attachments.any? && (controller.check_approvable_status && @approvable_projects.pluck(:id).include?(entry.project_id) || (@wktime.nil? || ['n'].include?(@wktime.status)) || (['s', 'a'].include?(@wktime.status) && !controller.check_approvable_status && entry.user_id == params[:user_id].to_i)) %>
-			<fieldset id="<%= 'attachment_' + @row.to_s() + '_' + @wday_index.to_s %>" class="attachment">
-				<legend><%=l(:label_attachment)%></legend>
-				<%= attachments_links entry, { editable: editable, deletable: editable, hideImage: true, author: false } %>
-			</fieldset>
-		<% end %>
-	<% end %>
-</div>
+<% count = 0 %>
+<% @entries.each{|e| count += 1 if e.present? && e.attachments.any?} %>
+<% if count > 0 %>
+	<div>
+		<fieldset id="<%= 'attachment_' + @row.to_s() + '_' + @wday_index.to_s %>" class="attachment">
+			<legend><%=l(:label_attachment)%></legend>
+			<% @entries.each do |entry| %>
+				<% if entry.present? && entry.attachments.any? && (controller.check_approvable_status && @approvable_projects.pluck(:id).include?(entry.project_id) || (@wktime.nil? || ['n'].include?(@wktime.status)) || (['s', 'a'].include?(@wktime.status) && !controller.check_approvable_status && entry.user_id == params[:user_id].to_i)) %>
+						<%= attachments_links entry, { editable: editable, deletable: editable, hideImage: true, author: false } %>
+				<% end %>
+			<% end %>
+		</fieldset>
+	</div>
+<% end %>

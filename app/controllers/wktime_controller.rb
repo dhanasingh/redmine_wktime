@@ -1867,15 +1867,10 @@ private
 				attachment.container_type = getModelName
 				attachment.filename = attachment.filename
 				attachment.description = atch_param[1][:description]
-				if teEntry.present? && teEntry.id.present?
-					attachment.container_id = teEntry.id
-					attachment.save
-				else
-					attach = attachment.as_json
-					attach[:id] = nil
-					attachments << attach
-					attachment.destroy
-				end
+				attach = attachment.as_json
+				attach[:id] = nil
+				attachments << attach
+				attachment.delete
 			end
 		end
 		teEntry.attachments_attributes = attachments
