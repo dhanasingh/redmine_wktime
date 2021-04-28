@@ -253,7 +253,7 @@ class WksurveyController < WkbaseController
       if api_request? && params["wksurvey"].present?
         params.permit!
         resParams = (params["wksurvey"]).to_h
-        {answers: "wk_survey_answers", reviews: "wk_survey_reviews"}.each{|key, attr| resParams[attr + "_attributes"] = resParams[key]; resParams.delete(key)}
+        {answers: "wk_survey_answers", reviews: "wk_survey_reviews"}.each{|key, attr| resParams[attr + "_attributes"] = resParams[key] || []; resParams.delete(key)}
         survey_response = @response.blank? ? WkSurveyResponse.new : WkSurveyResponse.find(@response.id)
         survey_response.assign_attributes(resParams)
         survey_response.ip_address = request.remote_ip
