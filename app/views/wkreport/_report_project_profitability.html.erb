@@ -9,7 +9,7 @@
 	helperObj = Object.new.extend(ReportProjectProfitability)
 	projectProf = helperObj.calcReportData(userId, groupId, projectId, from, to)
   columnCount = projectProf[:periods].length
-	
+  entry = projectProf[:totlProfitAvg]
 %>
 
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
@@ -61,35 +61,21 @@
 						</ul>
 					</td>
 					<% projectProf[:periods].each do |monthVal| %>
-						<%  key = monthVal.last.to_i.to_s + "_" + (monthVal.first).to_s + "_" + project.project_id.to_s  %>
-							<td><ul style="list-style-type:none;">
-								<%
-									if projectProf[:data][key].blank?
-										projectProf[:data][key] = {:revenue => 0, :expense => 0, :profit => 0, :profit_percentage => 0}
-									end
-								%>
-								<br>
-								<li style="text-align:center;"><%= projectProf[:currency] %>&nbsp;<%=h html_hours("%.2f" % projectProf[:data][key][:revenue]) %></li>
-
-								<li style="text-align:center;"><%= projectProf[:currency] %>&nbsp;<%=h html_hours("%.2f" % projectProf[:data][key][:expense]) %></li>
-
-								<li style="text-align:center;"><%= projectProf[:currency] %>&nbsp;<%=h html_hours("%.2f" % projectProf[:data][key][:profit] ) %>&nbsp;<%= "(" + projectProf[:data][key][:profit_percentage].to_s + "%)" %></li>
-							</ul></td>
+						<%  key = monthVal.last.to_i.to_s + "_" + (monthVal.first).to_s + "_" + project.project_id.to_s  
+								data = entry[:detail_entries][key]
+						%>
+						<td><ul style="list-style-type:none;">
+							<br>
+							<li style="text-align:center;"><%= projectProf[:currency] %>&nbsp;<%= data[:revenue] %></li>
+							<li style="text-align:center;"><%= projectProf[:currency] %>&nbsp;<%= data[:expense] %></li>
+							<li style="text-align:center;"><%= projectProf[:currency] %>&nbsp;<%= data[:profit] %>&nbsp;<%= "(" + data[:profit_percentage].to_s + "%)" %></li>
+						</ul></td>
 					<% end %>
 					<td><ul style="list-style-type:none;">
-						<%
-							if projectProf[:rowTotal][row_key].blank?
-								projectProf[:rowTotal][row_key] = {:income => 0, :expense => 0 }
-							end
-						%>
 						<br>
-						<li style="text-align:center;"><b><%= projectProf[:currency] %>&nbsp;<%=h html_hours("%.2f" % projectProf[:rowTotal][row_key][:income]) %></li>
-						<li style="text-align:center;"><b><%= projectProf[:currency] %>&nbsp;<%=h html_hours("%.2f" % projectProf[:rowTotal][row_key][:expense]) %></li>
-						<% profit = (projectProf[:rowTotal][row_key][:income] - projectProf[:rowTotal][row_key][:expense]) %>
-						<% percentage = ((profit/projectProf[:rowTotal][row_key][:income])*100).round(2) unless projectProf[:rowTotal][row_key][:income] == 0 %>
-						<% percentage = percentage.blank? ? 0 : percentage %>
-						<% percentage = percentage > 0 ? percentage : 0 %>
-						<li style="text-align:center;"><b><%= projectProf[:currency] %>&nbsp;<%=h html_hours("%.2f" % profit) %>&nbsp;<%= "(" + percentage.to_s + "%)" %></li>
+						<li style="text-align:center;"><b><%= projectProf[:currency] %>&nbsp;<%= projectProf[:rowTotal][row_key][:income] %></li>
+						<li style="text-align:center;"><b><%= projectProf[:currency] %>&nbsp;<%= projectProf[:rowTotal][row_key][:expense] %></li>
+						<li style="text-align:center;"><b><%= projectProf[:currency] %>&nbsp;<%= entry[:ProjProfit][row_key] %>&nbsp;<%= "(" + entry[:ProjPercentage][row_key].to_s + "%)" %></li>
 					</ul></td>
 				</tr>
 			<% end %>
@@ -107,31 +93,13 @@
 				<% projectProf[:periods].each do |monthVal| %>
 					<%  col_key = monthVal.last.to_i.to_s + "_" + (monthVal.first).to_s %>
 					<td><ul style="list-style-type:none;">
-						<%
-							if projectProf[:colTotal][col_key].blank?
-								projectProf[:colTotal][col_key] = {:income => 0, :expense => 0 }
-							end
-						%>
 						<br>
-						<% profit = (projectProf[:colTotal][col_key][:income] - projectProf[:colTotal][col_key][:expense]) %>
-						<% percentage = ((profit/projectProf[:colTotal][col_key][:income])*100).round(2) unless projectProf[:colTotal][col_key][:income] == 0 %>
-						<% percentage = percentage.blank? ? 0 : percentage %>
-						<% percentage = percentage > 0 ? percentage : 0 %>
-						<li style="text-align:center;"><b><%= projectProf[:currency] %>&nbsp;<%=h html_hours("%.2f" % profit ) %>&nbsp;<%= "(" + percentage.to_s + "%)" %></b></li>
+						<li style="text-align:center;"><b><%= projectProf[:currency] %>&nbsp;<%= entry[:mnthProfit][col_key] %>&nbsp;<%= "(" + entry[:mnthPercentage][col_key].to_s + "%)" %></b></li>
 					</ul></td>
 				<% end %>
 				<td><ul style="list-style-type:none;">
-					<%
-						if projectProf[:grandTotal].blank?
-							projectProf[:grandTotal] = {:income => 0, :expense => 0 }
-						end
-					%>
 					<br>
-					<% profit = (projectProf[:grandTotal][:income] - projectProf[:grandTotal][:expense]) %>
-					<% percentage = ((profit/projectProf[:grandTotal][:income])*100).round(2) unless projectProf[:grandTotal][:income] == 0 %>
-					<% percentage = percentage.blank? ? 0 : percentage %>
-					<% percentage = percentage > 0 ? percentage : 0 %>
-					<li style="text-align:center;"><b><%= projectProf[:currency] %>&nbsp;<%=h html_hours("%.2f" % profit ) %>&nbsp;<%= "(" + percentage.to_s + "%)" %></b></li>
+					<li style="text-align:center;"><b><%= projectProf[:currency] %>&nbsp;<%=entry[:ovrAllProf] %>&nbsp;<%= "(" + entry[:ovrAllAvg].to_s + "%)" %></b></li>
 				</ul></td>
         	</tr>
 		</tbody>

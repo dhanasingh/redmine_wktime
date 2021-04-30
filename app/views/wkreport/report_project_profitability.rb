@@ -78,7 +78,7 @@ module ReportProjectProfitability
       profit = revenue - org_expense
       profit_percentage = ((profit/revenue)*100).round(2)
       profit_percentage = profit_percentage > 0 ? profit_percentage : 0
-      detail_entries[key] = {:revenue => revenue, :expense => org_expense, :profit => profit, :profit_percentage => profit_percentage }
+      detail_entries[key] = {:revenue => revenue.round(2), :expense => org_expense.round(2), :profit => profit.round(2), :profit_percentage => profit_percentage }
       col_total[col_key][:income] = col_total[col_key][:income] + revenue
       col_total[col_key][:expense] = col_total[col_key][:expense] + org_expense
       row_total[row_key][:income] = row_total[row_key][:income] + revenue
