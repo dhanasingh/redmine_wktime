@@ -15,6 +15,7 @@ api.array :wk_survey_responses, api_meta(total_count: @entry_count, offset: @off
       api.responsed_by entry&.user&.name
       api.parent_id entry.parent_id
       api.surveyLink (@survey.is_review && getReportingUsers.include?(entry.user_id) && entry.status != 'O') || User.current.id == entry.user_id
+      api.save_allowed @survey.save_allowed
     end
   end
 end
