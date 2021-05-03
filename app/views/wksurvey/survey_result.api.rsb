@@ -1,7 +1,7 @@
 api.array :wk_survey do
   @survey.result_questions.where(question_type: ['CB','RB']).each do |question|
-    graph_data = get_Graph_data(question.id)
-    if params[:groupName] != "trendChart" || graph_data.length > 0
+    graph_data = get_Graph_data(question.id) if validateTrendingChart(params[:survey_id], question.id) || params[:groupName] != "trendChart"
+    if params[:groupName] != "trendChart" || (graph_data || []).length > 0
       api.question do
         api.id question.id
         api.name question.name
