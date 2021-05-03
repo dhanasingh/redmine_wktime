@@ -19,7 +19,7 @@ class WkbaseController < ApplicationController
 	unloadable
 	before_action :require_login
 	before_action :clear_sort_session, :unseen
-	accept_api_auth :getUserPermissions, :updateClockInOut, :my_account
+	accept_api_auth :getUserPermissions, :updateClockInOut, :my_account, :get_groups
 	helper :sort
   helper :custom_fields
   helper :users
@@ -312,5 +312,10 @@ class WkbaseController < ApplicationController
 			base64Image = Base64.strict_encode64(image)
 		end
 		base64Image
+	end
+
+	def get_groups
+		groups = Group.sorted.givable.map{ |g| [g.name, g.id]}
+		render json: {groups: groups}
 	end
 end
