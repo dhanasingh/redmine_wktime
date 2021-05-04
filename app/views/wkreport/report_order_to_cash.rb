@@ -76,9 +76,11 @@ module ReportOrderToCash
       balance = inv_amount - pay_amount
       inv_currency = entry.inv_currency.present? ? entry.inv_currency : syscurrency
       pay_currency = entry.pay_currency.present? ? entry.pay_currency : syscurrency
-      data[key] = {name: entry.name, prevBalance: '%.2f' % prev_balance, syscurrency: syscurrency, parent_id: entry.parent_id, parent_type: entry.parent_type} if data[key].blank?
-      data[key][:range] = {} if data[key][:range].blank?
-      data[key][:range][date_key] = {inv_amount: '%.2f' % inv_amount, pay_amount: '%.2f' % pay_amount, inv_currency: inv_currency, pay_currency: pay_currency, balance: '%.2f' % balance}
+      if prev_balance != 0 || inv_amount != 0 || pay_amount != 0
+        data[key] = {name: entry.name, prevBalance: '%.2f' % prev_balance, syscurrency: syscurrency, parent_id: entry.parent_id, parent_type: entry.parent_type} if data[key].blank?
+        data[key][:range] = {} if data[key][:range].blank?
+        data[key][:range][date_key] = {inv_amount: '%.2f' % inv_amount, pay_amount: '%.2f' % pay_amount, inv_currency: inv_currency, pay_currency: pay_currency, balance: '%.2f' % balance}
+      end
     end
 
     data.each do |key, val|
@@ -92,7 +94,6 @@ module ReportOrderToCash
       data[key].store(:current_balance, '%.2f' % current_balance)
       total += current_balance.to_f
     end
-
     [data].push('%.2f' % total)
   end
 end
