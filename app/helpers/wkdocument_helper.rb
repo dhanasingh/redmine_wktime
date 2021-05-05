@@ -102,7 +102,8 @@ module WkdocumentHelper
         view: false,
         :editable => false,
         :deletable => false,
-        :author => true
+        :author => true,
+        :download => true
       }.merge(options)
 
       render :partial => 'wkdocument/links',

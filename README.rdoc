@@ -81,37 +81,19 @@ If an apache passenger module is used then make sure the following settings are 
   b) RailsAppSpawnerIdleTime 0
   c) PassengerPreStart https://rails-app-url/	
 
-Release Notes for v4.2
+Release Notes for v4.2.1
 
   Features:
-    - Interview process
-    - Reimbursements
-    - Skill set for users
-    - Need validation while importing spent time
-    - Annonymous survey response
-    - Attachments for user and transaction
-    - Show narration on mouse over for transaction list
-    - Bar chart for transaction ledger
-    - Calculate tax automatically when somebody gets a increment
-    - Add unbilled items for generated invoice
+    - Redmine 4.2 compatible
+    - Approve expense entries on reimbursement
 
   Bug fixes:
-    - Page error in reviewer survey update
-    - Getting old contract number in invoice
-    - Showing wrong currency symbol in notifications
-    - Need join date validation in user payroll settings
-    - Hide debit ledger in payroll settings
-    - Page error in user payroll settings due to termination date
-    - Make the cells read only in timesheet once hours was billed
-    - Separate the total and remove the unwanted space in reports
-    - Account filter not working on payments
-    - Map alignment issue in activities
-    - Set default unit of measure in shipment
-    - Page error in asset and material reports on spent time
-    - Need to Round off the decimal values in invoice
-    - Spent time dropdown is not visible in German language
-    - Currency is always showing '$'
-    - No Pagination in Shipment module
+    - Issue logger dropdown not loaded
+    - Change Mapbox label
+    - Showing old contract number in invoice
+    - Reimbursement not showing for all project expense
+    - Attachment download failed in time and expense
+    - Show on Map option not visibile in HR
 
 Customization:
 

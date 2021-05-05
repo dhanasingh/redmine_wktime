@@ -48,7 +48,7 @@ $(function()
 							isNotValid = true;
 					});
 				}
-				
+
 				if(isNotValid || (additional_emails == '' && !includeUserGroup)){
 					alert('Validation failed');
 					return false;
@@ -83,7 +83,7 @@ $(function()
 			}
 		}]
 	});
-	
+
 	showHideRecurEvery();
 	$('#recur').change(function(){
 		showHideRecurEvery();
@@ -137,10 +137,10 @@ function addrows(qINDEX, qID)
 
 function deleterow(qINDEX, qID, cINDEX, cID)
 {
-	
+
 	cID = cID == '-1' ? '' : cID;
 	qID = qID == '-1' ? '' : qID;
-	
+
 	if(cID != '' && qID != ''){
 		$('#deleteChoiceIds_'+qINDEX).val(function(){
 			if(this.value == ''){
@@ -184,7 +184,7 @@ function deletequestion(qINDEX, qID)
 }
 
 function reOrderIndex(){
-	
+
 	$('.indexNo').each(function(index){
 		$(this).html('<b>'+(index+1)+'.</b>');
 	});
@@ -240,7 +240,7 @@ function question_type_changed(qIndex){
 					var choice_IDs = (this.value).split(',');
 					var return_value = '';
 					$.each(choice_IDs, function(index, choiceID){
-						
+
 						if(choice_id != choiceID)
 							return_value = (return_value == '') ? choiceID : (return_value + ',' + choiceID);
 					});
@@ -252,7 +252,7 @@ function question_type_changed(qIndex){
 }
 
 function validateSurveyFor(){
-	
+
 	var surveyFor = $('#survey_for').val();
 	var surveyForID = $('#survey_for_id').val();
 	if(surveyForID != '' && surveyFor != ''){
@@ -288,7 +288,7 @@ observeAutocompleteField('survey_for_id',	function(request, callback) {
 		};
 
 		data['scope'] = 'all';
-			
+
 		$.get(url, data, null, 'json')
 			.done(function(data){
 				callback(data);
@@ -340,36 +340,54 @@ function survey_submit(){
 }
 
 function validation(){
-	isUnAnswered = false;
-	$("[name^='survey_sel_choice_']").each(function(){
-		if($(this).prop('required')){
-			switch(this.type) {
-				case "text":
-					if($(this).val() == ""){
+	var isUnAnswered = false;
+	var checkBoxClass = null;
+	$("[name^='survey_sel_choice_']:required").each(function(){
+		switch(this.type) {
+			// case "text":
+			// 	if($(this).val() == ""){
+			// 		isUnAnswered = true;
+			// 		return false;
+			// 	}
+			// break;
+			case "radio":
+				if(!$.isNumeric($("input[name='"+this.name+"']:checked").val())){
+					isUnAnswered = true;
+					return false;
+				}
+			break;
+			// case "textarea":
+			// 	if($(this).val() == ""){
+			// 		isUnAnswered = true;
+			// 		return false;
+			// 	}
+			// break;
+			case "checkbox":
+				let answered = false;
+				if(checkBoxClass != this.className){
+					checkBoxClass = this.className;
+					$("."+this.className).each(function(){
+						answered = answered || this.checked;
+					});
+					if(!answered){
 						isUnAnswered = true;
 						return false;
 					}
-				break;
-				case "radio":
-					if(!$.isNumeric($("input[name='"+this.name+"']:checked").val())){
-						isUnAnswered = true;
-						return false;
-					}
-				break;
-				case "textarea":
-					if($(this).val() == ""){
-						isUnAnswered = true;
-						return false;
-					}
-				break;
-			}
+				}
+			break;
+			default:
+				if($(this).val() == ""){
+					isUnAnswered = true;
+					return false;
+				}
 		}
 	});
-	if(!isUnAnswered && confirm("Are you sure you want to submit the survey? Once you submit, You won't able to edit again")){
+
+	if(!isUnAnswered && confirm(warn_survey_submit)){
 		$("#commit").val("Submit");
 		$("#survey_form").submit();
 	}
 	else if(isUnAnswered){
-		alert("Please must answer the mandatory questions");
+		alert(warn_survey_mandatory);
 	}
 }

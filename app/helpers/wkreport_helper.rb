@@ -31,18 +31,18 @@ module WkreportHelper
 							value.blank? ? 'current_week' : value)
 	end	
 
-	def options_for_report_select(selectedRpt)
-		reportTypeArr = [ 
-			[l(:label_wk_timesheet), 'report_time'], 			
-			[l(:label_wk_expensesheet), 'report_expense']]
-			
-		Dir["plugins/redmine_wktime/app/views/wkreport/_report*"].each do |f|
-		  fileName = File.basename(f, ".html.erb")
+	def getReportType(apiRequest = false)
+		reportTypeArr =[]
+		reportTypeArr = [ [l(:label_wk_timesheet), 'report_time'], [l(:label_wk_expensesheet), 'report_expense']] if !apiRequest
+
+		reportLoc = "plugins/redmine_wktime/app/views/wkreport"
+		Dir["#{reportLoc}/_report*"].each do |path|
+		  fileName = File.basename(path, ".html.erb")
 		  fileName.slice!(0)
-		  reportTypeArr << [l(:"#{fileName}"), fileName] if hasViewPermission(fileName)
+		  label = fileName.remove("_web")
+		  reportTypeArr << [l(:"#{label}"), fileName] if hasViewPermission(label) && (!apiRequest || !(fileName.end_with?("_web")))
 		end
 		reportTypeArr.sort!
-		options_for_select(reportTypeArr, selectedRpt)
 	end
 	
 	def hasViewPermission(reportName)

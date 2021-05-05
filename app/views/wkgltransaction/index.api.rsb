@@ -1,37 +1,37 @@
-api.wk_accounts do
-  api.array :accountEntries, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit, unseen_count: @unseen_count) do
-    if @summaryTransaction == 'days'
-      @transEntries.each do |entry|
-        getAmount(entry)
-        api.entry do
-          api.id entry.id
-          api.type transTypeHash[entry.trans_type]
-          api.date entry.trans_date
-          api.partLedgerName @partLedgerName
-          api.dbAmount @dbAmount || 0
-          api.crAmount @crAmount || 0
-        end
+api.array :wk_accounts, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit, unseen_count: @unseen_count) do
+  if @summaryTransaction == 'days'
+    @transEntries.each do |entry|
+      getAmount(entry)
+      api.entry do
+        api.id entry.id
+        api.type entry.trans_type
+        api.type_label transTypeHash[entry.trans_type]
+        api.date entry.trans_date
+        api.partLedgerName @partLedgerName
+        api.dbAmount @dbAmount || 0
+        api.crAmount @crAmount || 0
       end
-    else
-      @summaryHash.each do |key, value|
-        api.entry do
-          getSummeryamount(key, value)
-          api.dateRange key
-          api.debit value[:DT].to_f
-          api.credit value[:CT].to_f
-          api.closeBal @closeBal
-        end
+    end
+  else
+    @summaryHash.each do |key, value|
+      api.entry do
+        getSummeryamount(key, value)
+        api.type params[:trans_type]
+        api.dateRange key
+        api.debit value[:DT].to_f
+        api.credit value[:CT].to_f
+        api.closeBal @closeBal
       end
     end
   end
-  if @summaryTransaction == 'days'
-    api.cond @isSubCr
-    api.openingBalance @openingBalance || 0
-  else
-    api.closeBal @closeBal
-    api.debitTotal @debitTotal
-    api.creditTotal @creditTotal
-  end
+end
+if @summaryTransaction == 'days'
+  api.cond @isSubCr
+  api.openingBalance @openingBalance || 0
+else
+  api.closeBal @closeBal
+  api.debitTotal @debitTotal
+  api.creditTotal @creditTotal
 end
 
 api.headers do

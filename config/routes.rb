@@ -725,6 +725,14 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 
 	get 'wkreferrals/getEmpDetails', to: 'wkreferrals#getEmpDetails'
 
-	get 'wkgltransaction/graph', :to => 'wkgltransaction#graph'
+	get 'wkgltransaction/graph', to: 'wkgltransaction#graph'
 
-	get 'wkshipment/getProductUOMID', :to => 'wkshipment#getProductUOMID'
+	get 'wkshipment/getProductUOMID', to: 'wkshipment#getProductUOMID'
+
+	get 'wkreport/get_reports', to: 'wkreport#get_reports'
+
+	get 'wkreport/getReportData', to: 'wkreport#getReportData'
+
+	get 'wkbase/my_account', to: 'wkbase#my_account'
+
+	get 'wkbase/get_groups', to: 'wkbase#get_groups'

@@ -8,7 +8,7 @@ module Redmine::Helpers
         @project = project
         @issue = issue
 
-		@scope = time_entry_scope
+		    @scope = time_entry_scope
         @criteria = criteria || []
         @criteria = @criteria.select{|criteria| available_criteria.has_key? criteria}
         @criteria.uniq!
@@ -30,50 +30,50 @@ module Redmine::Helpers
         unless @criteria.empty?
           time_columns = %w(tyear tmonth tweek spent_on)
           @hours = []
-	# ============= ERPmine_patch Redmine 4.1.1  ===================== 	  
-		  scopeArr = @scope.attribute_names
+	        # ============= ERPmine_patch Redmine 4.2  ===================== 	  
+		      scopeArr = @scope.attribute_names
 		  
-		  if scopeArr.include? "selling_price"
-	# ======================================	  
-			  @scope.includes(:activity).
-				  reorder(nil).
-				  group(@criteria.collect{|criteria| @available_criteria[criteria][:sql]} + time_columns).
-				  joins(@criteria.collect{|criteria| @available_criteria[criteria][:joins]}.compact).
-	# ============= ERPmine_patch Redmine 4.1.1  ===================== 	  			  
-				  sum("wk_material_entries.selling_price * wk_material_entries.quantity").each do |hash, selling_price|
-				  h = {'hours' => selling_price}
-				(@criteria + time_columns).each_with_index do |name, i|
-				  h[name] = hash[i]
-				end
-				@hours << h
-			  end
-		 elsif scopeArr.include? "amount"
-			@scope.includes(:activity).
-				  reorder(nil).
-				  group(@criteria.collect{|criteria| @available_criteria[criteria][:sql]} + time_columns).
-				  joins(@criteria.collect{|criteria| @available_criteria[criteria][:joins]}.compact).
-				  sum(:amount).each do |hash, amount|
-				  h = {'hours' => amount}
-				(@criteria + time_columns).each_with_index do |name, i|
-				  h[name] = hash[i]
-				end
-				@hours << h
-			  end
-		 else		
-			@scope.includes(:activity).
-				  reorder(nil).
-				  group(@criteria.collect{|criteria| @available_criteria[criteria][:sql]} + time_columns).
-				  joins(@criteria.collect{|criteria| @available_criteria[criteria][:joins]}.compact).
-	# ==============================			  
-				  sum(:hours).each do |hash, hours|
-				  
-				h = {'hours' => hours}
-				(@criteria + time_columns).each_with_index do |name, i|
-				  h[name] = hash[i]
-				end
-				@hours << h
-			  end		 
-		 end
+		      if scopeArr.include? "selling_price"
+            # ======================================	  
+            @scope.includes(:activity).
+              reorder(nil).
+              group(@criteria.collect{|criteria| @available_criteria[criteria][:sql]} + time_columns).
+              joins(@criteria.collect{|criteria| @available_criteria[criteria][:joins]}.compact).
+           # ============= ERPmine_patch Redmine 4.2  ===================== 	  			  
+            sum("wk_material_entries.selling_price * wk_material_entries.quantity").each do |hash, selling_price|
+              h = {'hours' => selling_price}
+              (@criteria + time_columns).each_with_index do |name, i|
+                h[name] = hash[i]
+              end
+              @hours << h
+            end
+          elsif scopeArr.include? "amount"
+            @scope.includes(:activity).
+              reorder(nil).
+              group(@criteria.collect{|criteria| @available_criteria[criteria][:sql]} + time_columns).
+              joins(@criteria.collect{|criteria| @available_criteria[criteria][:joins]}.compact).
+              sum(:amount).each do |hash, amount|
+                h = {'hours' => amount}
+                (@criteria + time_columns).each_with_index do |name, i|
+                  h[name] = hash[i]
+                end
+                @hours << h
+              end
+          else		
+            @scope.includes(:activity).
+              reorder(nil).
+              group(@criteria.collect{|criteria| @available_criteria[criteria][:sql]} + time_columns).
+              joins(@criteria.collect{|criteria| @available_criteria[criteria][:joins]}.compact).
+            # ==============================			  
+              sum(:hours).each do |hash, hours|
+                
+                h = {'hours' => hours}
+                (@criteria + time_columns).each_with_index do |name, i|
+                  h[name] = hash[i]
+                end
+                @hours << h
+              end		 
+          end
           
           @hours.each do |row|
             case @columns
@@ -120,17 +120,16 @@ module Redmine::Helpers
       end
 
       def load_available_criteria
-  # ============= ERPmine_patch Redmine 4.1.1  =====================	    
-		scopeArr = @scope.attribute_names
-		if scopeArr.include? "selling_price"
-			model =  WkMaterialEntry
-		elsif scopeArr.include? "amount"
-			model = WkExpenseEntry
-		else
-			model =  TimeEntry
-		end
-# =============================		
-        @available_criteria = { 'project' => {:sql => "#{model.table_name}.project_id",
+        # ============= ERPmine_patch Redmine 4.2  =====================	    
+          scopeArr = @scope.attribute_names
+          if scopeArr.include? "selling_price"
+            model =  WkMaterialEntry
+          elsif scopeArr.include? "amount"
+            model = WkExpenseEntry
+          else
+            model =  TimeEntry
+          end	
+          @available_criteria = { 'project' => {:sql => "#{model.table_name}.project_id",
                                               :klass => Project,
                                               :label => :label_project},
                                  'status' => {:sql => "#{Issue.table_name}.status_id",
@@ -155,17 +154,16 @@ module Redmine::Helpers
                                              :klass => Issue,
                                              :label => :label_issue}
                                }
-							   
-	# ============= ERPmine_patch Redmine 4.1.1  =====================	  
-		if scopeArr.include? "selling_price"
-			hashval = {
-						'Product Item' => {:sql => "#{WkMaterialEntry.table_name}.inventory_item_id",
-                        :klass => WkInventoryItem,
-                        :label => :label_product_items}
-					  }
-			@available_criteria.merge!(hashval)
-		end
-   # ==================================
+
+          if scopeArr.include? "selling_price"
+            hashval = {
+                  'Product Item' => {:sql => "#{WkMaterialEntry.table_name}.inventory_item_id",
+                              :klass => WkInventoryItem,
+                              :label => :label_product_items}
+                  }
+            @available_criteria.merge!(hashval)
+          end
+        # ==================================
         # Add time entry custom fields
         custom_fields = TimeEntryCustomField.visible
         # Add project custom fields

@@ -69,7 +69,7 @@ include WkassetHelper
 		sqlQuery = sqlQuery  + " and it.product_type = '#{logType}' " unless logType.blank?
 		sqlQuery = sqlQuery + " and (wap.matterial_entry_id is null or wme.user_id = #{User.current.id}) "
 		sqlQuery = sqlQuery + " and it.location_id = #{locationId} " unless locationId.blank?
-		sqlQuery = sqlQuery + " and it.is_loggable = #{true} " if logType == 'A' 
+		sqlQuery = sqlQuery + " and it.is_loggable = #{booleanFormat(true)} " if logType == 'A' 
 		pctObj = WkInventoryItem.find_by_sql(sqlQuery)
 		pctObj
 	end

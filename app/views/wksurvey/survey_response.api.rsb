@@ -1,0 +1,26 @@
+
+api.array :wk_survey_responses, api_meta(total_count: @entry_count, offset: @offset, limit: @limit, unseen_count: @unseen_count) do
+  @response_entries.each do |entry|
+    api.entry do
+      api.id entry.survey_id
+      api.status @survey.status
+      api.response_id entry.id
+      api.user_id entry.user_id
+      api.survey_for_type entry.survey_for_type
+      api.survey_for_id entry.survey_for_id
+      api.group_name entry.group_name
+      api.status_date entry.status_date.to_date
+      api.res_status entry.status
+      api.name entry.name
+      api.responsed_by entry&.user&.name
+      api.parent_id entry.parent_id
+      api.surveyLink (@survey.is_review && getReportingUsers.include?(entry.user_id) && entry.status != 'O') || User.current.id == entry.user_id
+      api.save_allowed @survey.save_allowed
+    end
+  end
+end
+
+api.headers do
+  api.closed_responses getResponseGroup(params[:survey_id]).insert(0, [""], ["ALL"])
+  api.reporting_users getReportingUsers
+end

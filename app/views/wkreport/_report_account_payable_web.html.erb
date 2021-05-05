@@ -1,0 +1,93 @@
+<%
+	require_relative './report_account_payable'
+	from = session[controller_name].try(:[], :from)
+	to = session[controller_name].try(:[], :to)
+	projId = session[controller_name].try(:[], :project_id)
+	user_id = session[controller_name].try(:[], :user_id)
+	group_id = session[controller_name].try(:[], :group_id)
+	helperObj = Object.new.extend(ReportAccountPayable)
+	acc_payable = helperObj.calcReportData(user_id, group_id, projId, from, to)
+	inBtwMonths = acc_payable[:periods]
+%>
+<div id="attn-rpt-dlg", style="overflow-x:auto;">
+	<div style="float:left; width:90%;">
+		<p style="text-align: center;">
+			<caption style="text-align:center"><b>
+				<%= getMainLocation %><br><%= l(:report_account_payable) %></b></br>
+				<%= acc_payable[:from] + " " + l(:label_date_to) + " " + acc_payable[:to]%>
+			</caption>
+		</p>
+	</div>
+	<div style="float:right">
+		<table>
+			<tr>
+				<td>
+					<% attachment = WkLocation.getMainLogo() %>
+					<% if attachment.present? %>
+						<%= image_tag(download_location_attachment_path(attachment, attachment.filename), class: 'filecontent image') %>
+					<% end %>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div style="clear:both;"></div>
+	<table style="width:100%;">
+		<thead style="background-color:#e6e6e6;">
+			<tr style="border-bottom: solid thin;border-top: solid thin;">
+				<th style="text-align:center;" ><%= l(:label_account) %></th>
+				<th style="text-align:center;" ><%= l(:label_previous) %><br/><%=  l(:wk_field_balance) %></th>
+				<% inBtwMonths.each do |monthVal| %>
+					<th style="text-align:center;"><%= monthVal[0]%><br/><%= I18n.t("date.abbr_month_names")[monthVal[1]]%></th>
+				<% end %>
+				<th style="text-align:center;"><%= l(:label_current) %><br/><%= l(:wk_field_balance)%></th>
+			</tr>
+		</thead>
+		<body>
+			<% data = acc_payable[:data].first
+				data.each do |key, val|
+			%>
+				<tr style="width:100%;">
+					<td style="text-align:left;"><b><%= val[:name] %></b></td>
+					<td colspan = <%=inBtwMonths.length+2%>, style="border-bottom: solid thin;"></td>
+				</tr>
+				<tr style="width:100%;">
+					<td style="text-align:right;"><%= l(:label_invoice) %></td>
+						<td style="text-align:right;"></td>
+					<% val[:range].each do |key, entry| %>
+							<td style="text-align:right;"><%= entry[:inv_currency] %>&nbsp;<%= entry[:inv_amount] %></td>
+					<% end %>
+						<td></td>
+				</tr>
+				<tr style="width:100%;">
+					<td style="text-align:right;"><%= l(:label_txn_payment) %></td>
+						<td style="text-align:right;"></td>
+					<% val[:range].each do |key, entry| %>
+							<td style="text-align:right; border-bottom: solid thin;"><%= entry[:pay_currency] %>&nbsp;<%= entry[:pay_amount] %></td>
+					<% end %>
+						<td></td>
+				</tr>
+				<tr style="width:100%;">
+					<td style="text-align:right;"><%= l(:wk_field_balance) %></td>
+						<td style="text-align:right;"><%= val[:prevBalance] %></td>
+					<% val[:range].each do |key, entry| %>
+						<td style="text-align:right;"><%= entry[:inv_currency] %>&nbsp;<%= entry[:balance] %></td>
+					<% end %>
+						<td style="text-align:right;"><%= Setting.plugin_redmine_wktime['wktime_currency'] %>&nbsp;<%= val[:current_balance] %></td>
+				</tr>
+			<% end %>
+			<tr style="width:100%;">
+				<td></td>
+				<td colspan = <%= inBtwMonths.length+2%>, style="border-bottom: solid medium;"></td>
+			</tr>
+			<tr style="width:100%;">
+				<td></td>
+				<td style="text-align:right;", colspan = <%= inBtwMonths.length+1%>><b><%= "Total:" %></b></td>
+				<td style="text-align:right;"><%=  Setting.plugin_redmine_wktime['wktime_currency'] %>&nbsp;<%= acc_payable[:data].last%></td>
+			</tr>
+			<tr style="width:100%;">
+				<td></td>
+				<td colspan = <%= inBtwMonths.length+2%>, style="border-bottom: solid medium;"></td>
+			</tr>	
+		</body>
+	</table>
+</div>

@@ -1,0 +1,69 @@
+<%
+	require_relative './report_stock'
+	userId = (session[controller_name].try(:[], :user_id).blank? || (session[controller_name].try(:[], :user_id)).to_i < 1) ? User.current.id : session[controller_name].try(:[], :user_id)
+	from = session[controller_name].try(:[], :from)
+	to = session[controller_name].try(:[], :to)
+	groupId = session[controller_name].try(:[], :group_id)
+	projId = session[controller_name].try(:[], :project_id) ||  0
+	stock_report = Object.new.extend(ReportStock) 
+	stock = stock_report.calcReportData(userId, groupId, projId, from, to)
+%>
+<div id="attn-rpt-dlg", style="overflow-x:auto;">
+	<div style="float:left; width:90%;">
+		<p style="text-align: center;">
+			<caption style="text-align:center"><b>
+				<%= getMainLocation %></br><%= l(:report_stock) %></b></br>
+			</caption>
+		</p>
+	</div>
+	<div style="float:right">
+		<table>
+			<tr>
+				<td>
+					<% attachment = WkLocation.getMainLogo() %>
+					<% if attachment.present? %>
+						<%= image_tag(download_location_attachment_path(attachment, attachment.filename), class: 'filecontent image') %>
+					<% end %>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div style="clear:both;"></div>
+	<div id="attn-rpt-dlg", style="overflow-x:auto;">
+		<table style="width:100%; border-collapse: collapse;">			
+			<thead style="background-color: #e6e6e6">
+				<tr>
+					<th class="lbl-txt-align"><%= l(:label_project) %></th>
+					<th class="lbl-txt-align"><%= l(:label_product) %></th>
+					<th class="lbl-txt-align"><%= l(:label_brand) %></th>
+					<th class="lbl-txt-align"><%= l(:label_model) %></th>
+					<th class="lbl-txt-align"><%= l(:label_attribute) %></th>
+					<th class="lbl-txt-align"><%= l(:label_quantity) %></th>
+					<th class="lbl-txt-align"><%= l(:label_uom) %></th>
+					<th class="lbl-txt-align"><%= l(:field_currency) %></th>
+					<th class="lbl-txt-align"><%= l(:label_stock_value) %></th>
+				</tr>
+			</thead>
+			<tbody>
+				<% stock[:stockEntries].each do |entry| %>
+					<tr class="<%= cycle("odd", "even") %>">
+						<td style="text-align: left"><%= entry.project_name %></td>
+						<td style="text-align: left"><%= entry.product_name %></td>
+						<td style="text-align: left"><%= entry.brand_name %></td>
+						<td style="text-align: left"><%= entry.product_model_name %></td>
+						<td style="text-align: left"><%= entry.attribute_name %></td>
+						<td style="text-align: right"><%= entry.stock_quantity %></td>
+						<td style="text-align: right"><%= entry.short_desc %></td>
+						<td style="text-align: right"><%= entry.currency %></td>
+						<td style="text-align: right"><%= entry.stock_value %></td>
+					</tr>
+				<% end %>
+				<% if stock[:stockEntries].length > 0 %>
+					<tr style="background-color: #e6e6e6">
+						<td colspan="9" style="text-align: right"><b><%= stock[:totalStockVal] %></b></td>
+					</tr>
+				<% end %>
+			</tbody>
+		</table>
+	</div>
+</div>

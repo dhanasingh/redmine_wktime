@@ -57,20 +57,24 @@ lbldebitLedger = "<%= l(:label_debit_with_ledger) %>";
 	 <%= select_tag 'settings[wktime_loss_of_pay]', options_for_select(leaveIssueslist, :selected =>  @settings['wktime_loss_of_pay']) %></p>
 	
 	<p>
-			<%= check_box_tag('settings[salary_auto_post_gl]', 1, @settings['salary_auto_post_gl'].to_i == 1) %> <label><%= l(:label_auto_post_gl) %></label>
+		<%= check_box_tag('settings[salary_auto_post_gl]', 1, @settings['salary_auto_post_gl'].to_i == 1) %> <label><%= l(:label_auto_post_gl) %></label>
 	</p>
 	
 	<p><label><%= l(:label_credit_with_ledger)  %></label>
 	    <%= select_tag 'settings[wktime_cr_ledger]', options_for_select(ledgerhash.invert, :selected => @settings['wktime_cr_ledger']) %></p>
 
 	<%
-		projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name')
+		projects = Project.active.order('name')
 		wktime_helper = Object.new.extend(WktimeHelper)
 		projArr = wktime_helper.options_for_wktime_project(projects,true)	
 	%>
 	<p>
 		<label><%=l(:label_reimbursement_projects)%></label>
 		<%= select_tag('settings[reimburse_projects]', options_for_select(projArr, :selected => @settings['reimburse_projects'].blank? ? "" : @settings['reimburse_projects']), :multiple => true) %>
+	</p>
+
+	<p>
+		<%= check_box_tag('settings[approve_reimbursement]', 1, @settings['approve_reimbursement'].to_i == 1) %> <label><%= l(:label_approve_reimbursement) %></label>
 	</p>
 
 </fieldset>

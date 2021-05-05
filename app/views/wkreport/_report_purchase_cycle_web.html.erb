@@ -1,0 +1,64 @@
+<%
+	require_relative './report_purchase_cycle'
+	to = session[controller_name].try(:[], :to)
+	from = session[controller_name].try(:[], :from)
+	projId = session[controller_name].try(:[], :project_id)
+	groupId = session[controller_name].try(:[], :group_id)
+	userId = session[controller_name].try(:[], :user_id)
+	purchase_report = Object.new.extend(ReportPurchaseCycle) 
+	purchase_cycle = purchase_report.calcReportData(userId, groupId, projId, from, to)
+%>
+<%= stylesheet_link_tag 'application' , :media => "all" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div style="float:right">
+	<table>
+		<tr>
+			<td>
+				<% attachment = WkLocation.getMainLogo() %>
+				<% if attachment.present? %>
+					<%= image_tag(download_location_attachment_path(attachment, attachment.filename), class: 'filecontent image') %>
+				<% end %>
+			</td>
+		</tr>
+	</table>
+</div>
+<div style="clear:both;"></div>
+<div id="attn-rpt-dlg", style="overflow-x:auto;">
+	<table style="width:100%; border-collapse: collapse;"border="1";>
+		 <caption style="text-align:center"><b><%= getMainLocation %><br><%= l(:report_purchase_cycle) + " " + l(:label_report) %></b></br>
+		 <%= purchase_cycle[:from] + " " + l(:label_date_to) + " " + purchase_cycle[:to] %>
+		
+		<thead style="background-color: #e6e6e6">
+			<tr>
+				<th style="text-align: center", rowspan=2><%= l(:label_rfq) %></th>
+				<th style="text-align: center" colspan=4><%= l(:report_purchase_cycle) %><br><%= l(:label_in_days) %></th>
+			</tr>
+			<tr>
+				<th style="text-align: center"><%= l(:label_winning_quote) %></th>
+				<th style="text-align: center"><%= l(:label_purchase_order) %></th>
+				<th style="text-align: center"><%= l(:label_supplier_invoice) %></th>
+				<th style="text-align: center"><%= l(:label_supplier_payment) %></th>
+			</tr>
+		</thead>
+		<tbody>
+			<% purchase_cycle[:purchaseData].each do |index, entry| %>
+				<tr class="<%= cycle("odd", "even") %>">
+					<td style="text-align: left"><%= entry['name'] %></td>
+					<td style="text-align: right"><%= entry['wqCycle'] %></td>
+					<td style="text-align: right"><%= entry['poCycle']%></td>
+					<td style="text-align: right"><%= entry['siCycle']%></td>
+					<td style="text-align: right"><%= entry['payCycle'] %></td>
+				</tr>
+			<% end %>
+			<% if purchase_cycle[:purchaseData].length > 0 %> 
+				<tr class="<%= cycle("odd", "even") %>">
+					<td style="text-align: right"><b><%= l(:label_average) %>:</b></td>
+					<td style="text-align: right"><%= purchase_cycle[:wqTotal] %></td>
+					<td style="text-align: right"><%= purchase_cycle[:poTotal] %></td>
+					<td style="text-align: right"><%= purchase_cycle[:siTotal] %></td>
+					<td style="text-align: right"><%= purchase_cycle[:payTotal] %></td>
+				</tr>
+			<% end %>
+		</tbody>
+	</table>
+</div>

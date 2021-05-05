@@ -171,34 +171,29 @@ module WksurveyHelper
     surveyFor = Hash.new
     call_hook(:getSurveyForType, surveyFor: surveyFor, params: params)
 
-    if !surveyFor.blank?
-        @surveyForType = surveyFor[:surveyForType]
-        @surveyForID = surveyFor[:surveyForID]
-    elsif (!params[:issue_id].blank? && params[:isIssue].blank?) || params[:surveyForType] == "Issue"
-        @surveyForType = "Issue"
-        @surveyForID = params[:issue_id].blank? ? params[:surveyForID] : params[:issue_id]
-    elsif !params[:project_id].blank? || params[:surveyForType] == "Project"
-        @surveyForType = "Project"
-        @surveyForID = params[:project_id].blank? ? params[:surveyForID] : get_project_id(params[:project_id])
-    elsif !params[:contact_id].blank? || params[:surveyForType] == "WkCrmContact"
-        @surveyForType = "WkCrmContact"
-        @surveyForID = params[:contact_id].blank? ? params[:surveyForID] : params[:contact_id]
-    elsif !params[:account_id].blank? || params[:surveyForType] == "WkAccount"
-        @surveyForType = "WkAccount"
-        @surveyForID = params[:account_id].blank? ? params[:surveyForID] : params[:account_id]
-    elsif params[:surveyForType] == "User" || @survey && @survey.survey_for_type == "User"
-        @surveyForType = "User"
-        @surveyForID = User.current.id
+    if surveyFor.present?
+      @surveyForType = surveyFor[:surveyForType]
+      @surveyForID = surveyFor[:surveyForID]
+    elsif (params[:issue_id].present? && params[:isIssue].blank?) || params[:surveyForType] == "Issue"
+      @surveyForType = "Issue"
+      @surveyForID = params[:issue_id] || params[:surveyForID]
+    elsif params[:project_id].present? || params[:surveyForType] == "Project"
+      @surveyForType = "Project"
+      @surveyForID = get_project_id(params[:project_id]) || params[:surveyForID]
+    elsif params[:contact_id].present? || params[:surveyForType] == "WkCrmContact" || @survey&.survey_for_type == "WkCrmContact"
+      @surveyForType = "WkCrmContact"
+      @surveyForID = params[:contact_id] || params[:surveyForID]
+    elsif params[:account_id].present? || params[:surveyForType] == "WkAccount" || @survey&.survey_for_type == "WkAccount"
+      @surveyForType = "WkAccount"
+      @surveyForID = params[:account_id] || params[:surveyForID]
+    elsif params[:surveyForType] == "User" || @survey&.survey_for_type == "User"
+      @surveyForType = "User"
+      @surveyForID = User.current.id
     else
-        survey_for = params[:surveyForType].blank? ? params[:survey_for] : params[:surveyForType]
-        @surveyForType = survey_for.blank? ? nil : survey_for
-        @surveyForID = nil
+      @surveyForType = params[:surveyForType] || params[:survey_for] || nil
+      @surveyForID = nil
     end
-    if surveyFor.blank?
-        surveyFor[:surveyForType] = @surveyForType
-        surveyFor[:surveyForID] = @surveyForID
-    end
-    surveyFor
+    {surveyForType: @surveyForType, surveyForID: @surveyForID}
   end
 
   def getResponseStatus

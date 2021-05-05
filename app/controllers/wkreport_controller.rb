@@ -27,6 +27,8 @@ include WkcrmHelper
 
 before_action :require_login
 before_action :check_perm_and_redirect
+
+accept_api_auth :get_reports, :getReportData
 	
 	def index
 		@groups = Group.sorted.all
@@ -86,6 +88,33 @@ before_action :check_perm_and_redirect
 		userList
 	end
 	
+	def get_reports
+		headers = {}
+		reportType = getReportType(true)
+		projects = Project.active.order('name')
+		groups = Group.sorted.givable
+		headers[:projects] = projects.map{ |p| [p.name, p.id]}
+		headers[:groups] = groups.map{ |g| [g.name, g.id]}
+		render json: {wk_reports: reportType, headers: headers}
+	end
+	
+	def getReportData
+		user_id = params[:user_id] || User.current.id
+		group_id = params[:group_id] || "0"
+		projId = params[:project_id] || "0"
+		from = params[:from].to_date || Date.today.beginning_of_month
+		to = params[:to].to_date || Date.today.end_of_month
+		attachment = WkLocation.getMainLogo
+		base64Image = getBase64Image(attachment)
+		if(params[:report_type].present?)
+			require_relative "../views/wkreport/#{params[:report_type]}"
+			report = Object.new.extend(params[:report_type].camelize.constantize)
+			reportData = report.calcReportData(user_id, group_id, projId, from, to)
+		end
+		reportDetails = { reportData: reportData, location: getMainLocation, address: getAddress, logo: base64Image }
+		render json: reportDetails
+	end
+
 	private	
 	
 	# Retrieves the date range based on predefined ranges or specific from/to param dates

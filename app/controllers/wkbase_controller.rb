@@ -19,8 +19,10 @@ class WkbaseController < ApplicationController
 	unloadable
 	before_action :require_login
 	before_action :clear_sort_session, :unseen
-	accept_api_auth :getUserPermissions, :updateClockInOut
+	accept_api_auth :getUserPermissions, :updateClockInOut, :my_account, :get_groups
 	helper :sort
+  helper :custom_fields
+  helper :users
 	include SortHelper
 	include WkattendanceHelper
 	include WktimeHelper
@@ -289,5 +291,31 @@ class WkbaseController < ApplicationController
 
 	def unseen
 		@unseen_count = WkUserNotification.unreadNotification.count
+	end
+
+	def to_boolean(value)
+		ActiveModel::Type::Boolean.new.cast(value)
+	end
+
+	def my_account
+		@user = User.current
+		respond_to do |format|
+			format.html
+			format.api
+		end
+	end
+	
+	def getBase64Image(attachment)
+		base64Image = ""
+		if attachment.present?
+			image = File.read(attachment.diskfile, :mode => "rb")
+			base64Image = Base64.strict_encode64(image)
+		end
+		base64Image
+	end
+
+	def get_groups
+		groups = Group.sorted.givable.map{ |g| [g.name, g.id]}
+		render json: {groups: groups}
 	end
 end

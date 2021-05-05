@@ -8,13 +8,12 @@
   <% questions.each do |entry| %>
     <%
       isReviewerOnly = ActiveModel::Type::Boolean.new.cast(entry.is_reviewer_only)
-      isMandatory = ActiveModel::Type::Boolean.new.cast(entry.is_mandatory) && !(["CB"].include? entry.question_type)
+      isMandatory = ActiveModel::Type::Boolean.new.cast(entry.is_mandatory)
       reviewerOnlyQIDs = nil
     %>
     <% if !isReviewerOnly || @isReviewed || (isReviewerOnly && @isReview)
         disableAnswer = @survey.status != "O" || !isReviewerOnly && (["C", "R"].include?(@response.try(:status)) || isPrint) || isReviewerOnly && @isReviewed
         reviewerOnlyQIDs = reviewerOnlyQIDs.blank? ? entry.id.to_s : (reviewerOnlyQIDs + "," + entry.id.to_s) if isReviewerOnly
-        isMandatory = isMandatory && entry.question_type != "CB"
         review = @response.present? ? @response.wk_survey_reviews.where("survey_question_id=#{entry.id}") : []
         comment_text = review.first.try(:comment_text)
         reviewerName = review.first.try(:user).try(:name)
@@ -37,7 +36,8 @@
                 <% when 'CB' %>
                     <%= check_box_tag(("survey_sel_choice_"+ (entry.id).to_s + "_" + (choice_entry.id).to_s  ),
                         choice_entry.id, isChecked, disabled: disableAnswer,
-                        required: isMandatory) %>
+                        required: isMandatory,
+                        class: "survey_sel_choice_"+ (entry.id).to_s) %>
                     <%= choice_entry.name %>
                 <% when 'RB' %>
                     <%= radio_button_tag("survey_sel_choice_"+ (entry.id).to_s + "_", choice_entry.id, isChecked,

@@ -1076,7 +1076,7 @@ de:
   label_trend_chart: Trending Chart
 
   label_mapbox_apikey: Mapbox API key
-  label_api_key_info: If you are not have a api key get it from here
+  label_api_key_info: If you do not have a api key get it from here
   error_issue_logger: "Can't Update until stop the issue logger"
   error_item_not_available: Requested no of items not available in the stock
   label_reviewer_cmt: Reviewer Comment
@@ -1220,3 +1220,7 @@ de:
   label_interview: Interview
   label_add_unbilled: Add Unbilled Items
   label_convert_employeee: has been converted to Employee
+  label_apply_filters: Apply Filters
+  label_approve_reimbursement: Include only approve Reimbursement
+  warn_survey_mandatory: Please must answer the mandatory questions
+  warn_survey_submit: "Are you sure you want to submit the survey? Once you submit, You will not able to edit again"

@@ -74,17 +74,18 @@
 			</tr>
 	</table>
  </fieldset><br>
-
-<fieldset class="box tabular" style="display: inline-block; vertical-align: top; width:45%; "><legend><b><%=l(:label_reimbursements)%></b></legend>
-	<table style="width:100%;border-collapse: collapse;">
-		<% componentHash[:r].each do |entry| %>
-			<tr>
-				<td style="border: 1px solid black;border-collapse: collapse;border-style: outset;background-color:white;"><b><%=h entry[0]  %></b></td>
-				<td style="border: 1px solid black;border-collapse: collapse;border-style: inset;text-align:right;background-color:white;"><%=h entry[2]%> <%=h "%.2f" % entry[1] %></td>
-			</tr>
-		<%end%>
-	</table>
-</fieldset><br>
+<% if componentHash[:r].present? %>
+	<fieldset class="box tabular" style="display: inline-block; vertical-align: top; width:45%; "><legend><b><%=l(:label_reimbursements)%></b></legend>
+		<table style="width:100%;border-collapse: collapse;">
+			<% componentHash[:r].each do |entry| %>
+				<tr>
+					<td style="border: 1px solid black;border-collapse: collapse;border-style: outset;background-color:white;"><b><%=h entry[0]  %></b></td>
+					<td style="border: 1px solid black;border-collapse: collapse;border-style: inset;text-align:right;background-color:white;"><%=h entry[2]%> <%=h "%.2f" % entry[1] %></td>
+				</tr>
+			<%end%>
+		</table>
+	</fieldset>
+<% end %> <br>
 	<div style="padding-right:50px;">
 		<table width="15%" align="right" style="border-collapse: collapse;border: 0px solid black;">
 			<tr>

@@ -1,7 +1,12 @@
 <%
-	@from = session[controller_name].try(:[], :from)
-	@to = session[controller_name].try(:[], :to)
-	#@profitLossEntries = getTransDetails(@from,@to)
+	require_relative './report_profit_loss'
+	from = session[controller_name].try(:[], :from)
+	to = session[controller_name].try(:[], :to)
+	userId = session[controller_name].try(:[], :user_id)
+	groupId = session[controller_name].try(:[], :group_id)
+	projId = session[controller_name].try(:[], :project_id)
+	pl_report = Object.new.extend(ReportProfitLoss)
+	profitLoss = pl_report.calcReportData(userId, groupId, projId, from, to)
 %>
 <%= stylesheet_link_tag 'application' , :media => "all" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
@@ -17,11 +22,11 @@
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
 	<table style="width:100%; border-collapse: collapse;">
 		 <caption style="text-align:center"><b><%= getMainLocation %><br><%= l(:report_profit_loss) %></b></br>
-		 <%= @from.to_formatted_s(:long) + " " + l(:label_date_to) + " " + @to.to_formatted_s(:long)%>
+		 <%= from.to_formatted_s(:long) + " " + l(:label_date_to) + " " + to.to_formatted_s(:long)%>
 		<thead bgcolor="#e6e6e6">
 			<tr style="border-bottom: solid thin;border-top: solid thin;">
 				<th align="left" width=50% style="padding-left: 10px;"><%= l(:label_particulars) %></th>
-				<th colspan="2" align="right" width=50%><%= @from.to_formatted_s(:long) + " " + l(:label_date_to) + " " + @to.to_formatted_s(:long)%></th>
+				<th colspan="2" align="right" width=50%><%= profitLoss[:from] + " " + l(:label_date_to) + " " + profitLoss[:to] %></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -30,45 +35,36 @@
 				<td></td>
 				<td></td>
 			</tr>
-			<%
-				@mainEnriesHash = Hash.new
-				@mainTotalHash = Hash.new
-				plLedgerTypes = incomeLedgerTypes + expenseLedgerTypes
-				plLedgerTypes.each do |type|
-					@mainEnriesHash[type] = getEachLedgerSumAmt(@from, @to, [type])
-					@mainTotalHash[type] = @mainEnriesHash[type].blank? ? 0 : @mainEnriesHash[type].values.inject(:+)
-				end
-			%>
 			<% for i in 0..1 %>
 				<tr style="width:100%;">
-					<td align="left"><b><%= getLedgerTypeHash[incomeLedgerTypes[i]] %></b></td>
+					<td align="left"><b><%= profitLoss[:ledgerType][profitLoss[:incomeLedger][i]] %></b></td>
 					<td></td>
-					<td align="right"><b><%= "%.2f" % @mainTotalHash[incomeLedgerTypes[i]] if @mainTotalHash[incomeLedgerTypes[i]] != 0 %></b></td>
+					<td align="right"><b><%= "%.2f" % profitLoss[:totalHash][profitLoss[:incomeLedger][i]] if profitLoss[:totalHash][profitLoss[:incomeLedger][i]] != 0 %></b></td>
 				</tr>
-				<% if @mainTotalHash[incomeLedgerTypes[i]] != 0 %>
-					<%= render partial: "rpt_rows", locals: { entries: @mainEnriesHash[incomeLedgerTypes[i]] }%>
+				<% if profitLoss[:totalHash][profitLoss[:incomeLedger][i]] != 0 %>
+					<%= render partial: "rpt_rows", locals: { entries: profitLoss[:entriesHash][profitLoss[:incomeLedger][i]] }%>
 				<% end %>
 			<% end %>
 			<tr style="width:100%;">
 				<td align="left"><b><%= l(:label_cost_of_sales)%></b></td>
 				<td></td>
-				<td align="right"><b><%= "%.2f" % (@mainTotalHash['DE']  + @mainTotalHash['PA']) %></b></td>
+				<td align="right"><b><%= "%.2f" % (profitLoss[:costOfSale]) %></b></td>
 			</tr>
 			<% for i in 0..1 %>
 				<tr style="width:100%;">
-					<td align="left" style="padding-left: 25px;"><b><%= getLedgerTypeHash[expenseLedgerTypes[i]] %></b></td>
-					<td align="right"><%=  "%.2f" % @mainTotalHash[expenseLedgerTypes[i]]  if  @mainTotalHash[expenseLedgerTypes[i]] != 0 %></td>
+					<td align="left" style="padding-left: 25px;"><b><%= profitLoss[:ledgerType][profitLoss[:expenseLedger][i]] %></b></td>
+					<td align="right"><%=  "%.2f" % profitLoss[:totalHash][profitLoss[:expenseLedger][i]]  if  profitLoss[:totalHash][profitLoss[:expenseLedger][i]] != 0 %></td>
 					<td></td>
 				</tr>
-				<% if @mainTotalHash[expenseLedgerTypes[i]] != 0 %>
-					<%= render partial: "rpt_rows", locals: { entries: @mainEnriesHash[expenseLedgerTypes[i]], padding: 50 }%>
+				<% if profitLoss[:totalHash][profitLoss[:expenseLedger][i]] != 0 %>
+					<%= render partial: "rpt_rows", locals: { entries: profitLoss[:entriesHash][profitLoss[:expenseLedger][i]], padding: 50 }%>
 
 				<% end %>
 			<% end %>
 			<tr style="width:100%;">
 				<td align="left" style="padding-left: 25px;"><b><%= l(:label_gross) + " " + l(:label_profit) + " : " %></b></td>
 				<td style="border-top: solid thin;"></td>
-				<td align="right" style="border-top: solid thin;"><b><%= "%.2f" % (@mainTotalHash['DI'] + @mainTotalHash['SA'] - @mainTotalHash['DE']  - @mainTotalHash['PA']) %></b></td>
+				<td align="right" style="border-top: solid thin;"><b><%= "%.2f" % (profitLoss[:grossProfit]) %></b></td>
 			</tr>
 			<tr style="width:100%;">
 				<td><b><u><%= l(:label_income) + " " + l(:label_statement) + " : " %></u></b></td>
@@ -77,25 +73,25 @@
 			</tr>
 			<% ['II', 'IE'].each do |type| %>
 				<tr style="width:100%;">
-					<td align="left"><b><%= getLedgerTypeHash[type] %></b></td>
+					<td align="left"><b><%= profitLoss[:ledgerType][type] %></b></td>
 					<td></td>
-					<td align="right"><b><%= "%.2f" % @mainTotalHash[type] if  @mainTotalHash[type] != 0 %></b></td>
+					<td align="right"><b><%= "%.2f" % profitLoss[:totalHash][type] if  profitLoss[:totalHash][type] != 0 %></b></td>
 				</tr>
-				<% if @mainTotalHash[type] != 0 %>
-					<%= render partial: "rpt_rows", locals: { entries: @mainEnriesHash[type] }%>
+				<% if profitLoss[:totalHash][type] != 0 %>
+					<%= render partial: "rpt_rows", locals: { entries: profitLoss[:entriesHash][type] }%>
 				<% end %>
 				<% if type == 'II' %>
 					<tr style="width:100%;">
 						<td></td>
 						<td style="border-top: solid thin;"></td>
-						<td align="right" style="border-top: solid thin;"><b><%= "%.2f" % (@mainTotalHash['DI'] + @mainTotalHash['II'] + @mainTotalHash['SA'] - @mainTotalHash['DE']- @mainTotalHash['PA']) %></b></td>
+						<td align="right" style="border-top: solid thin;"><b><%= "%.2f" % (profitLoss[:income]) %></b></td>
 					</tr>
 				<% end %>
 			<% end %>
 			<tr style="width:100%;">
 				<td align="left" style="padding-left: 25px;"><b><%= l(:label_net) + " " + l(:label_profit) + " : "%></b></td>
 				<td style="border-top: solid thin;border-bottom: solid thin;"></td>
-				<td align="right" style="border-top: solid thin;border-bottom: solid thin;"><b><%= "%.2f" % (@mainTotalHash['DI'] + @mainTotalHash['II'] + @mainTotalHash['SA'] - @mainTotalHash['DE']- @mainTotalHash['IE']    - @mainTotalHash['PA']) %></b></td>
+				<td align="right" style="border-top: solid thin;border-bottom: solid thin;"><b><%= "%.2f" % (profitLoss[:netProfit]) %></b></td>
 			</tr>
 		</tbody>
 	</table>

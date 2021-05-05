@@ -20,7 +20,7 @@ module QueriesHelper
 		  content_tag('span',
 			value.to_s(item) {|other| link_to_issue(other, :subject => false, :tracker => false)}.html_safe,
 			:class => value.css_classes_for(item))
-		when :hours, :estimated_hours
+		when :hours, :estimated_hours, :total_estimated_hours
 		  format_hours(value)
 		when :spent_hours
 		  link_to_if(value > 0, format_hours(value), project_time_entries_path(item.project, :issue_id => "#{item.id}"))
@@ -28,7 +28,7 @@ module QueriesHelper
 		  link_to_if(value > 0, format_hours(value), project_time_entries_path(item.project, :issue_id => "~#{item.id}"))
 		when :attachments
 		  value.to_a.map {|a| format_object(a)}.join(" ").html_safe
-	# ============= ERPmine_patch Redmine 4.1.1  =====================	  
+	# ============= ERPmine_patch Redmine 4.2  =====================	  
 		when :inventory_item_id
 			val = item.inventory_item.product_item.product.name
 			assetObj = item.inventory_item.asset_property
