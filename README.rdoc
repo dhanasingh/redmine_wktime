@@ -1,8 +1,19 @@
 = ERPmine
-= An upcoming Webinar on ERPmine Time & Expense on April 28 2021, 3PM IST (+5:30 GMT)
+= Webinar on ERPmine – Attendance , May 25, 6:00 PM IST (GMT+5:30)
 
-Please click here to register if interested 
-https://us02web.zoom.us/meeting/register/tZcrcOCvqTouGNALBqMGF1GuxyKYjqAcesyM
+Please click here to register if interested,
+https://us02web.zoom.us/meeting/register/tZAkcOyrrjgvEtV4xM9LzcVzar-N7q4FdnEe
+
+*Topics* :
+
+* Clock In/Clock Out
+* Review Leave Status
+* Leave Request
+* Integrate with Attendance Devices
+* Attendance Report
+* Attendance on Map
+* Mobile App
+
 
 This Plugin has the following modules:
 
