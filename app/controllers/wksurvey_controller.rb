@@ -22,7 +22,7 @@ class WksurveyController < WkbaseController
   before_action :check_permission , only: "survey_response"
   accept_api_auth :index, :save_survey, :find_survey_for, :survey, :update_survey, :survey_result, :survey_response
   menu_item :wksurvey
-  menu_item :wkattendance, :only => :save_survey
+  menu_item :wkattendance, :only => :user_survey
   include WksurveyHelper
 
   def index

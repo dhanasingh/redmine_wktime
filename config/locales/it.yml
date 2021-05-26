@@ -1225,3 +1225,6 @@ it:
   label_approve_reimbursement: Include only approve Reimbursement
   warn_survey_mandatory: Please must answer the mandatory questions
   warn_survey_submit: "Are you sure you want to submit the survey? Once you submit, You will not able to edit again"
+  label_interest_level: Interest Level
+  label_min_exp_req: Experience Required
+  label_min_rating_req: Rating Required

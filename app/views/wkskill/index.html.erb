@@ -1,49 +1,15 @@
 <%= title l(:label_wk_skill) %>
-<%= render partial: "wkattendance/render_hr_tabs" %>
+<%= render partial: "wkattendance/render_hr_tabs" if params[:project_id].blank? %>
 
 <div class="contextual">
-	<%= link_to l(:label_new_skill), url_for(controller: controller_name, action: 'edit'), :class => 'icon icon-add' %>
+	<%= link_to l(:label_new_skill), url_for(controller: controller_name, action: 'edit', project_id: params[:project_id]), :class => 'icon icon-add' %>
 </div>
 <div style="clear: both;" ></div>
-<% 	groupId =session[controller_name].try(:[], :group_id)
-	userID = session[controller_name].try(:[], :user_id)
-	skillSet = session[controller_name].try(:[], :skill_set)
-	rating = session[controller_name].try(:[], :rating)
-	lastUsed = session[controller_name].try(:[], :last_used)
-%>
-<fieldset>
-	<%
-		last_used = (1970..Time.now.year).to_a
-		last_used << ""
-		ratings = ["", "1", "2", "3", "4", "5"]
-	%>
-	<legend><%= l(:label_filter_plural) %></legend>
-	<%= form_tag({}, method: "get", id:"query_form") do %>
-		<%= hidden_field_tag("searchlist", controller_name) %>
-		<%= hidden_field_tag('tab', controller_name) %>
-    <table>
-      <tr>
-		<% if validateERPPermission("A_SKILL") %>
-			<th><label><%= l(:label_group_plural) %></label></th>
-			<td><%= select_tag('group_id', options_for_select( [["", 0]] + (@groups.collect {|p| [p.name, p.id ]}), selected: groupId), onchange: "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %></td>
-			<th><label style="padding-left: 10px;"><%= l(:label_member) %></label></th>
-			<td><%= select_tag('user_id', options_for_select( [[l(:all_users_for_select), 0]] + @members, selected: userID),
-					:style=> "width:200px;") %></td>
-		<% end %>
-        <th><label style="padding-left: 10px;"><%= l(:label_skill_set) %></label></th>
-        <td><%= select_tag('skill_set', options_for_select(options_for_enum_select('SK', skillSet || 0, true))) %></td>
-        <th><label style="padding-left: 10px;"><%= l(:label_rating) %></label></th>
-        <td><%= select_tag "rating", options_for_select(ratings, selected: rating),{multiple: true, size: 3, style: "width:60px"} %></td>
-        <th><label style="padding-left: 10px;"><%= l(:label_last_used) %></label></th>
-        <td><%= select_tag "last_used", options_for_select(last_used.reverse, selected: lastUsed)%></td>
-      </tr>
-      <tr>
-        <td><%= submit_tag l(:button_apply), class: "small", name: nil %></td>
-        <td><%= link_to l(:button_clear), {tab: controller_name, clear: true}, class: "icon icon-reload" %></td>
-      </tr>
-    </table>
-	<% end %>
-</fieldset>
+<% if params[:project_id].blank? %>
+	<%= render partial: "filters" %>
+<% else %>
+	<%= render partial: "proj_filters" %>
+<% end %>
 
 <% if @skillEntries.present? %>
 	<%= render :partial => 'skill_list'%>

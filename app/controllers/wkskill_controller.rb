@@ -16,32 +16,45 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkskillController < WkbaseController
+  before_action :check_module_permission, only: [:index, :edit, :save, :delete]
   menu_item :wkattendance
   include WkpayrollHelper
   include WktimeHelper
+  include WksurveyHelper
 
-  before_action :check_module_permission, :only => [:index, :edit, :save, :delete]
-  
   def index
-    sort_init 'updated_at', 'desc'
-    sort_update 'user_name' => "CONCAT(users.firstname, users.lastname)",
-                'skill_set' => "wk_crm_enumerations.name",
-                'rating' => "rating",
-                'last_used' => "last_used",
-                'experience' => "experience"
+    sort_init "updated_at", "desc"
+    sort_update "user_name" => "CONCAT(users.firstname, users.lastname)",
+                "skill_set" => "wk_crm_enumerations.name",
+                "rating" => "rating",
+                "last_used" => "last_used",
+                "experience" => "experience",
+                "interest_level" => "interest_level"
     set_filter_session
     getUsersAndGroups
-    skillEntries = WkSkill.get_all
-    skillEntries = skillEntries.skillUser if !validateERPPermission("A_SKILL")
-    skillEntries = skillEntries.skillSet(get_filter(:skill_set)) if get_filter(:skill_set).present? && get_filter(:skill_set) != "0"
-    skillEntries = skillEntries.userGroup(get_filter(:group_id)) if get_filter(:group_id).present? && get_filter(:group_id) != "0"
-    skillEntries = skillEntries.groupUser(get_filter(:user_id)) if get_filter(:user_id).present? && get_filter(:user_id) != "0"
-    skillEntries = skillEntries.rating(get_filter(:rating)) if get_filter(:rating).present? && get_filter(:rating) != [""]
-    skillEntries = skillEntries.lastUsed(get_filter(:last_used)) if get_filter(:last_used).present? && get_filter(:last_used) != "0"
+    skillEntries = WkSkill.get_entries(params[:project_id].present? ? "Project" : "User")
+    skillEntries = WkSkill.filterByID(params[:project_id].present? ? get_project_id : User.current.id) if !validateERPPermission("A_SKILL") || params[:project_id].present?
+    filters = {}
+    @filters.each{|f| filters[f] = ["0", ""].include?(get_filter(f)) ? nil : get_filter(f)}
+    skillEntries = skillEntries.skillSet(filters[:skill_set]) if filters[:skill_set]
+    skillEntries = skillEntries.userGroup(filters[:group_id]) if filters[:group_id]
+    skillEntries = skillEntries.groupUser(filters[:user_id]) if filters[:user_id]
+    if filters[:rating] && (!filters[:rating].is_a?(Array) || filters[:rating].reject(&:blank?).present?)
+      skillEntries = filters[:rating].is_a?(Array) ? skillEntries.rating(filters[:rating]) : skillEntries.ratings(filters[:rating])
+    end
+    skillEntries = skillEntries.lastUsed(filters[:last_used]) if filters[:last_used]
+    skillEntries = skillEntries.experience(filters[:experience]) if filters[:experience]
     skillEntries = skillEntries.reorder(sort_clause)
-    @skill_count = skillEntries.length
-    @skill_pages = Paginator.new @skill_count, per_page_option, params['page']
-    @skillEntries = skillEntries.order("id DESC").limit(@skill_pages.per_page).offset(@skill_pages.offset).to_a
+		respond_to do |format|
+			format.html {
+        @skill_count = skillEntries.length
+        @skill_pages = Paginator.new @skill_count, per_page_option, params["page"]
+        @skillEntries = skillEntries.order("id DESC").limit(@skill_pages.per_page).offset(@skill_pages.offset).to_a
+				render :layout => !request.xhr?
+			}
+			format.api{
+      }
+		end
   end
 
   def edit
@@ -53,7 +66,7 @@ class WkskillController < WkbaseController
   end
 
   def save
-    skill = params[:wk_skill][:id].present? ? WkSkill.find(params[:wk_skill][:id]) :  WkSkill.new
+    skill = params[:wk_skill] && params[:wk_skill][:id].present? ? WkSkill.find(params[:wk_skill][:id]) : WkSkill.new
     skill.assign_attributes(skill_params(params[:wk_skill]))
     if skill.save
       flash[:notice] = l(:notice_successful_update)
@@ -63,25 +76,31 @@ class WkskillController < WkbaseController
       redirect_to action: "edit", tab: "wkskill"
     end
   end
-  
+
   def skill_params(sParams)
     sParams[:user_id] = validateERPPermission("A_SKILL") ? sParams[:user_id] : User.current.id
-    sParams.permit(:id, :user_id, :skill_set_id, :rating, :last_used, :experience)
+    sParams.permit(:id, :user_id, :skill_set_id, :rating, :last_used, :experience, :source_id, :source_type, :interest_level)
   end
-  
+
   def delete
     WkSkill.find(params[:id].to_i).destroy
     flash[:notice] = l(:notice_successful_delete)
-    redirect_back_or_default :action => 'index', :tab => params[:tab]
-  end
-	
-	def set_filter_session
-		filters = [:group_id, :user_id, :skill_set, :rating, :experience, :last_used]
-		super(filters)
+    redirect_back_or_default :action => "index", :tab => params[:tab]
   end
 
-	def check_module_permission		
-		unless showSkill
+	def set_filter_session
+		@filters = [:group_id, :user_id, :skill_set, :rating, :experience, :last_used]
+		super(@filters)
+  end
+
+	def check_module_permission
+    if params[:project_id].present?
+      menu_item = menu_items
+      menu_item[controller_name.to_sym][:default] = :wkskill
+      find_project_by_project_id
+      view_skill = User.current.allowed_to?(:view_skill, @project)
+    end
+		if !showSkill || params[:project_id].present? && !view_skill
 			render_404
 			return false
 		end

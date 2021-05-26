@@ -736,3 +736,10 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wkbase/my_account', to: 'wkbase#my_account'
 
 	get 'wkbase/get_groups', to: 'wkbase#get_groups'
+
+	resources :projects do
+		resource :wkskill, :only => [:index, :edit, :save], :controller => :wkskill do
+			get :index, :edit
+			post :save
+		end
+	end

@@ -1,14 +1,15 @@
 require 'redmine'
-require_dependency 'custom_fields_helper'
-require_dependency '/redmine/menu_manager'
 require 'fileutils'
 require 'timelogcontroller_patch'
 require 'contextMenusController_patch'
 require 'time_report_patch'
-require_dependency 'queries_helper_patch'
 require 'userscontroller_patch'
-require_dependency 'ftte/ftte_hook'
 require 'wkapplication_helper_patch'
+require_dependency 'custom_fields_helper'
+require_dependency '/redmine/menu_manager'
+require_dependency 'time_entry'
+require_dependency 'ftte/ftte_hook'
+require_dependency 'queries_helper_patch'
 
 User.class_eval do
 	has_one :wk_user, :dependent => :destroy, :class_name => 'WkUser'
@@ -68,7 +69,7 @@ Import.class_eval do
 		resume_after = items.maximum(:position) || 0
 		interrupted = false
 		started_on = Time.now
-	
+
 		read_items do |row, position|
 		if (max_items && imported >= max_items) || (max_time && Time.now >= started_on + max_time)
 			interrupted = true
@@ -78,7 +79,7 @@ Import.class_eval do
 			item = items.build
 			item.position = position
 			item.unique_id = row_value(row, 'unique_id') if use_unique_id?
-	
+
 			if object = build_object(row, item)
 				# ======= ERPmine_patch Redmine 4.2 ==========
 				wktime_helper = Object.new.extend(WktimeHelper)
@@ -95,15 +96,15 @@ Import.class_eval do
 				end
 				# =============================
 			end
-	
+
 			item.save!
 			imported += 1
-	
+
 			do_callbacks(use_unique_id? ? item.unique_id : item.position, object)
 		end
 		current = position
 		end
-	
+
 		if imported == 0 || interrupted == false
 		if total_items.nil?
 			update_attribute :total_items, current
@@ -111,7 +112,7 @@ Import.class_eval do
 		update_attribute :finished, true
 		remove_file
 		end
-	
+
 		current
 	end
 end
@@ -816,6 +817,12 @@ Redmine::Plugin.register :redmine_wktime do
 	end
 
 	menu :project_menu, :wksurvey, { :controller => 'wksurvey', :action => 'index' }, :caption => :label_survey, param: :project_id, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showSurvey }
+
+	project_module :Skill do
+		permission :view_skill, {:wkskill => [:index]}, :public => true
+	end
+
+	menu :project_menu, :wkskill, {:controller => 'wkskill', :action => 'index' }, :caption => :label_wk_skill, :param => :project_id, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showSkill }
 
   Redmine::MenuManager.map :wktime_menu do |menu|
 	  menu.push :wkdashboard, { :controller => 'wkdashboard', :action => 'index' }, :caption => :label_dashboards, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WkdashboardHelper).showDashboard && Object.new.extend(WktimeHelper).hasSettingPerm}
