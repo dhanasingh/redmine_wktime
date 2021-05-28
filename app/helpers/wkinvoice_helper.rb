@@ -180,7 +180,8 @@ include WkpayrollHelper
 		genInvFrom = getUnbillEntryStart(@invoice.start_date) #genInvFrom.blank? ? @invoice.start_date : genInvFrom.to_date
 		# timeEntries = TimeEntry.joins("left outer join custom_values on time_entries.id = custom_values.customized_id and custom_values.customized_type = 'TimeEntry' and custom_values.custom_field_id = #{getSettingCfId('wktime_billing_id_cf')}").where(project_id: accountProject.project_id, spent_on: genInvFrom .. @invoice.end_date).where("custom_values.value is null OR #{getSqlLengthQry("custom_values.value")} = 0 ")
 		
-		timeEntries = TimeEntry.includes(:spent_for).where(project_id: accountProject.project_id, spent_on: genInvFrom .. @invoice.end_date, wk_spent_fors: { spent_for_type: [accountProject.parent_type, nil], spent_for_id: [accountProject.parent_id, nil], invoice_item_id: nil })
+		# timeEntries = TimeEntry.includes(:spent_for).where(project_id: accountProject.project_id, spent_on: genInvFrom .. @invoice.end_date, wk_spent_fors: { spent_for_type: [accountProject.parent_type, nil], spent_for_id: [accountProject.parent_id, nil], invoice_item_id: nil })
+		timeEntries = WkInvoiceItem.getUnbilledTimeEntries(accountProject.project_id, genInvFrom, @invoice.end_date, accountProject.parent_id, accountProject.parent_type)
 		errorMsg = nil
 		totalAmount = 0
 		lastUserId = 0
@@ -311,6 +312,7 @@ include WkpayrollHelper
 					@invItems[@itemCount].store 'currency', rateHash['currency']
 					@invItems[@itemCount].store 'item_quantity', quantity.round(4)
 					@invItems[@itemCount].store 'item_amount', itemAmount.round(2)
+					@invItems[@itemCount].store 'issue_id', entry.issue_id
 					@itemCount = @itemCount + 1
 					oldIssueId = entry.issue_id
 					totalAmount = (totalAmount + itemAmount).round(2)
@@ -363,7 +365,6 @@ include WkpayrollHelper
 					pjtIdVal= []
 				end
 				pjtIdVal << entry.id
-				
     			if isCreate && (oldIssueId == 0 || (oldIssueId != entry.issue_id && accountProject.itemized_bill)) # need to add accountProject.itemized_billcheck to avoid duplicate entries on preview billing
 					itemAmount = rateHash['rate'] * pjtQuantity			
 					@invItems[@itemCount].store 'project_id', accountProject.project_id
@@ -373,6 +374,7 @@ include WkpayrollHelper
 					@invItems[@itemCount].store 'currency', rateHash['currency']
 					@invItems[@itemCount].store 'item_quantity', pjtQuantity.round(4)
 					@invItems[@itemCount].store 'item_amount', itemAmount.round(2)
+					@invItems[@itemCount].store 'issue_id', accountProject.itemized_bill ? entry.issue_id : 0  
 					@itemCount = @itemCount + 1
 					oldIssueId = entry.issue_id
 					totalAmount = (totalAmount + itemAmount).round(4)
@@ -700,7 +702,7 @@ include WkpayrollHelper
 		partialMatAmount = 0.00
 		genInvFrom = getUnbillEntryStart(@invoice.start_date)
 		@matterialVal = Hash.new{|hsh,key| hsh[key] = {} }
-		matterialEntry = WkMaterialEntry.includes(:spent_for).where(:project_id => accountProject.project_id, :spent_on => genInvFrom .. @invoice.end_date, wk_spent_fors: { spent_for_type: accountProject.parent_type, spent_for_id: accountProject.parent_id, invoice_item_id: nil }) 
+		matterialEntry = WkMaterialEntry.includes(:spent_for).where(:project_id => accountProject.project_id, :spent_on => genInvFrom .. @invoice.end_date, wk_spent_fors: { spent_for_type: [accountProject.parent_type, nil], spent_for_id: [accountProject.parent_id, nil], invoice_item_id: nil }) 
 		matterialEntry.each do | mEntry |		
 			productId = mEntry.inventory_item.product_item.product.id
 			productName = mEntry.inventory_item.product_item.product.name.to_s
@@ -834,5 +836,4 @@ include WkpayrollHelper
 		inv_desc = "AccName:" + accName.name + " InvNo:#" + invObj.invoice_number.to_s + " InvoiceAmt:" + invObj.invoice_items[0].original_currency.to_s + invAmount.to_s
 		inv_desc
 	end
-	
 end

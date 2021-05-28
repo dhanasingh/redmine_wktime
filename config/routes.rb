@@ -737,6 +737,10 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 
 	get 'wkbase/get_groups', to: 'wkbase#get_groups'
 
+	get 'wkinvoice/getQuantityDetails', to: 'wkinvoice#getQuantityDetails'
+
+	get 'wkinvoice/getUnbilledQtyDetails', to: 'wkinvoice#getUnbilledQtyDetails'
+
 	resources :projects do
 		resource :wkskill, :only => [:index, :edit, :save], :controller => :wkskill do
 			get :index, :edit
