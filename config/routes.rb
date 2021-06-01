@@ -747,3 +747,5 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 			post :save
 		end
 	end
+
+	get 'wkproductitem/get_material_entries', to: 'wkproductitem#get_material_entries'
