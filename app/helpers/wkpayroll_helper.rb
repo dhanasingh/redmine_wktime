@@ -24,13 +24,13 @@ module WkpayrollHelper
 		allComponents = WkSalaryComponents.all #find_by_sql("SELECT id, name from wk_salary_components")
 		salaryComponents << [ "", '-1' ] if allComponents.count > 1
 		unless allComponents.blank?
-			allComponents.each do |i|		
-				salaryComponents << [ i.name , i.id ] 
+			allComponents.each do |i|
+				salaryComponents << [ i.name , i.id ]
 			end
 		end
 		salaryComponents
 	end
-	
+
 	def getIntervals(startDate, endDate, periodType, periodStart, inclusiveOfStart, inclusiveOfEnd)
 		intervals = Array.new
 		unless periodType.blank?
@@ -47,7 +47,7 @@ module WkpayrollHelper
 		end
 		intervals
 	end
-	
+
 	def getFinancialPeriodArray(startDate, endDate, periodType, monthStart)
 		finPeriodArr = Array.new
 		frequencyMonth = getFrequencyHash[periodType.downcase]
@@ -69,14 +69,14 @@ module WkpayrollHelper
 		end
 		finPeriodArr
 	end
-	
+
 	# Return the intervals of week as array
-	# startDay the day of calendar week (0-6, Sunday is 0)	
-	# inclusiveOfStart - if true then includes the startDate's week  
-	# inclusiveOfEnd - if true then includes the endDate's week  
+	# startDay the day of calendar week (0-6, Sunday is 0)
+	# inclusiveOfStart - if true then includes the startDate's week
+	# inclusiveOfEnd - if true then includes the endDate's week
 	def getIntervalInWeeks(startDate, endDate, startDay, inclusiveOfStart, inclusiveOfEnd)
 		intervalArr = Array.new
-		periodStart = getWeekStartDt(startDate, startDay)	
+		periodStart = getWeekStartDt(startDate, startDay)
 		periodEnd = getWeekStartDt(endDate, startDay) + 6.days
 		startIntervalDate = periodStart
 		unless periodStart + 6.days == periodEnd
@@ -97,12 +97,12 @@ module WkpayrollHelper
 		end
 		intervalArr
 	end
-	
+
 	def getDateModValue(dateVal, stratMonth, monthFreq)
 		modVal = (stratMonth + 12 - dateVal.month)%monthFreq
 		modVal
 	end
-	
+
 	def getFinancialStart
 		financialMonthStr = Setting.plugin_redmine_wktime['wktime_financial_year_start']
 		if financialMonthStr.blank? || financialMonthStr.to_i == 0
@@ -110,7 +110,7 @@ module WkpayrollHelper
 		end
 		financialMonthStr
 	end
-	
+
 	def generateSalaries(userIds, salaryDate)
 		@payrollList = Array.new
 		deleteWkSalaries(userIds, salaryDate)
@@ -145,7 +145,7 @@ module WkpayrollHelper
 		 end
 		 @payrollList
 	end
-	
+
 	def getCalculatedFieldValue(user_id, salary_type, salaryDate)
 		totals = Hash.new()
 		if ["BT", "BAT", "AT", "ABA", "SBA"].include?(salary_type)
@@ -201,7 +201,7 @@ module WkpayrollHelper
 		reimbursProjectIds =  getReimburseProjects
 		@reimburseID = WkSalaryComponents.getReimburseID
 		@reimburse = WkExpenseEntry.getReimburse(reimbursProjectIds) if reimbursProjectIds.length > 0
-		queryStr = getUserSalaryQueryStr + " Where "+terminateCond.to_s+"sc.id is not null" 
+		queryStr = getUserSalaryQueryStr + " Where "+terminateCond.to_s+"sc.id is not null"
 		unless userIds.blank?
 			@queryStr = queryStr + " and u.id in (#{userIds}) "
 		else
@@ -210,7 +210,7 @@ module WkpayrollHelper
 		queryStr = @queryStr  + " order by u.id, sc_component_type, sc_salary_type"
 		@userSalaries = WkSalaryComponents.find_by_sql(queryStr)
 		@userSalCompHash = Hash.new()
-		
+
 		#Obtain dependent id and factor of b, a and c components
 		@userSalaries.each do |salComp|
 			if ["b", "a"].include?(salComp.sc_component_type)
@@ -219,20 +219,20 @@ module WkpayrollHelper
 				salComp.factor = returnVal[1]
 				@userSalCompHash[salComp.sc_id.to_s + '_' + salComp.user_id.to_s] = salComp
 			end
-			
+
 			if salComp.sc_component_type == "c" && salComp.sc_salary_type != "DT"
 				total = getCalculatedFieldValue(salComp.user_id, salComp.sc_salary_type, salaryDate)
 				salComp.factor = total
 				@userSalCompHash[salComp.sc_id.to_s + '_' + salComp.user_id.to_s] = salComp
 			end
-			
+
 			if salComp.sc_component_type == "d"
 				returnVal = getSalCompDep(salComp.id, salComp.user_id)
 				salComp.dependent_id = returnVal[0]
 				salComp.factor = returnVal[1]
 				@userSalCompHash[salComp.sc_id.to_s + '_' + salComp.user_id.to_s] = salComp
 			end
-					
+
 			if salComp.sc_component_type == "r"
 				amount = @reimburse.where({user_id: salComp.user_id})&.sum(:amount) || 0 if @reimburse.present?
 				salComp.factor = amount
@@ -275,7 +275,7 @@ module WkpayrollHelper
 					end
 				end
 			else
-				if userSalaryHash[entry.user_id].blank? 
+				if userSalaryHash[entry.user_id].blank?
 					userSalaryHash[entry.user_id] = { entry.sc_id => 0 }
 				else
 					userSalaryHash[entry.user_id][entry.sc_id] = 0
@@ -284,10 +284,10 @@ module WkpayrollHelper
 		end
 		userSalaryHash
 	end
-	
+
 	def getUserSalaryQueryStr
-		sqlStr = "SELECT sc.id, sc.id as sc_id, sc.name as sc_name, sc.component_type as sc_component_type, 
-				sc.frequency as sc_frequency, sc.start_date as sc_start_date, sc.salary_type as sc_salary_type, wu.termination_date, 
+		sqlStr = "SELECT sc.id, sc.id as sc_id, sc.name as sc_name, sc.component_type as sc_component_type,
+				sc.frequency as sc_frequency, sc.start_date as sc_start_date, sc.salary_type as sc_salary_type, wu.termination_date,
 				usc.factor as usc_factor, usc.dependent_id as usc_dependent_id, usc.salary_component_id as salary_component_id,
 				usc.id as user_salary_component_id, u.id as user_id, u.firstname, u.lastname, usc.factor, usc.dependent_id
 			FROM users u
@@ -296,7 +296,7 @@ module WkpayrollHelper
 			left join wk_users wu on u.id = wu.user_id "
 		sqlStr
 	end
-	
+
 	def isAddCompToSal(entryObj, payPeriod)
 		isAddComp = true
 		unless entryObj.sc_start_date.blank?
@@ -312,7 +312,7 @@ module WkpayrollHelper
 		end
 		isAddComp
 	end
-	
+
 	def getMultiplier(entry, payPeriod)
 		if entry.sc_salary_type == 'h'
 			multiplier = getWorkedHours(entry.user_id, payPeriod[0], payPeriod[1])
@@ -330,7 +330,7 @@ module WkpayrollHelper
 	def getFrequencyHash
 		frequency = { "m" => 1, "q" => 3, "sa" => 6, "a" =>12 }
 	end
-	
+
 	def getPayPeriod(salaryDate)
 		payPeriod = Setting.plugin_redmine_wktime['wktime_pay_period']
 		payDay = Setting.plugin_redmine_wktime['wktime_pay_day']
@@ -342,16 +342,16 @@ module WkpayrollHelper
 		end
 		payPeriodArr
 	end
-	
+
 	#calculate Prorate multiplier for an user for the particular payPeriod
 	def computeProrate(payPeriod, terminationDate,userId)
 		# Last worked day by the user on the particular payPeriod
 		lastWorkDateByUser = terminationDate.blank? ? payPeriod[1] : terminationDate
-		
+
 		multiplier = (getWorkingDaysCount(payPeriod[0],lastWorkDateByUser) - getLossOfPayDays(payPeriod,userId)) / getWorkingDaysCount(payPeriod[0],payPeriod[1])
 		multiplier
 	end
-	
+
 	def getWorkingDaysCount(from,to)
 		ndays = Setting.non_working_week_days
 		totalDays = (to - from +1).to_i
@@ -369,18 +369,18 @@ module WkpayrollHelper
 		workingDays = totalDays - nonWorkingDays
 		workingDays
 	end
-	
+
 	def getLossOfPayDays(payPeriod, userId)
 		lossOfPayId = 0
 		unless Setting.plugin_redmine_wktime['wktime_loss_of_pay'].blank?
 			lossOfPayId  = Setting.plugin_redmine_wktime['wktime_loss_of_pay'].to_i
-		end		
+		end
 		lossOfPayHours = TimeEntry.where("user_id = #{userId} and spent_on between '#{payPeriod[0]}' and '#{payPeriod[1]}' and issue_id = #{lossOfPayId}").sum(:hours)
 		defaultWorkTime = !Setting.plugin_redmine_wktime['wktime_default_work_time'].blank? ? Setting.plugin_redmine_wktime['wktime_default_work_time'].to_i : 8
 		lossOfPayDays = (lossOfPayHours.to_f/defaultWorkTime.to_f)
 		lossOfPayDays
 	end
-	
+
 	def computeFactor(userId, dependentId, factor, multiplier, isSalCompCond = false)
 		salEntry = @userSalCompHash[dependentId.to_s + '_' + userId.to_s]
 		if isSalCompCond
@@ -393,7 +393,7 @@ module WkpayrollHelper
 		end
 		factor
 	end
-	
+
 	def deleteWkSalaries(userId, salaryDate)
 		wkSalaries = WkSalary.where("user_id in (#{userId}) ").where(salary_date: salaryDate)
 		reimburseID = WkSalaryComponents.getReimburseID
@@ -411,11 +411,11 @@ module WkpayrollHelper
 			WkSalary.delete_all
 		end
 	end
-	
+
 	def savePayrollSettings(settingsValue)
 		dval = 	Array.new
 		settingsValue.select {|key,value|
-			if !value.blank? 
+			if !value.blank?
 				if key.to_s == 'dep_del_ids'
 					dval = value.split('|')
 					WkSalCompDependent.where(:id => dval.map(&:to_i)).destroy_all
@@ -440,7 +440,7 @@ module WkpayrollHelper
 							wksalaryComps.component_type = 'b'
 							wksalaryComps.salary_type = comps[2]
 							wksalaryComps.ledger_id = comps[5]
-							wksalaryComps.salary_comp_deps_attributes = [{id: checkEmpty(comps[3]), dependent_id: nil, 
+							wksalaryComps.salary_comp_deps_attributes = [{id: checkEmpty(comps[3]), dependent_id: nil,
 								factor: comps[4], factor_op: "EQ"}]
 						elsif key.to_s == 'reimburse'
 							wksalaryComps.name = comps[1]
@@ -459,10 +459,10 @@ module WkpayrollHelper
 									wkcompCond = Hash.new
 									if depCond[4] != "::::"
 										compCond = depCond[4].split(":")
-										wkcompCond = {id: checkEmpty(compCond[0]), lhs: compCond[1], operators: compCond[2], rhs: compCond[3], 
+										wkcompCond = {id: checkEmpty(compCond[0]), lhs: compCond[1], operators: compCond[2], rhs: compCond[3],
 											rhs2: compCond[4].present? ? compCond[4] : 0}
 									end
-									compDepSets = {id: checkEmpty(depCond[0]), dependent_id: depCond[1], factor: depCond[3], 
+									compDepSets = {id: checkEmpty(depCond[0]), dependent_id: depCond[1], factor: depCond[3],
 										factor_op: depCond[2]}
 									compDepSets[:salary_comp_cond_attributes] = wkcompCond if wkcompCond.present?
 									wkcompDep << compDepSets
@@ -477,35 +477,35 @@ module WkpayrollHelper
 							wksalaryComps.save()
 					end
 				end
-			end		
+			end
 		}
     end
-	
+
 	def generateGlTransaction(salaryDate)
 		errorMsg = nil
 		totalDebit = 0
 		totalCredit = 0
 		salaries = WkSalary.includes(:salary_component).where("wk_salaries.salary_date = ?  and wk_salary_components.ledger_id is not null ", salaryDate).references(:salary_component).group("wk_salary_components.ledger_id").sum("wk_salaries.amount")
-		
+
 		allowanceAmt = WkSalary.includes(:salary_component).where("wk_salaries.salary_date = ? and wk_salary_components.component_type='a' and wk_salary_components.ledger_id is null ", salaryDate).references(:salary_component).sum("wk_salaries.amount")
-		
+
 		ledgerIds = WkSalaryComponents.pluck(:ledger_id, :component_type)
 		ledgersIdHash = Hash[*ledgerIds.flatten]
-		basicLedgerId = WkSalaryComponents.where("component_type = 'b' ").first.ledger_id 		
+		basicLedgerId = WkSalaryComponents.where("component_type = 'b' ").first.ledger_id
 		salaries[basicLedgerId] = salaries[basicLedgerId].to_i + allowanceAmt.to_i
 		crLedgerId = Setting.plugin_redmine_wktime['wktime_cr_ledger'].to_i
 		transTypeArr = WkLedger.where(:id => crLedgerId).pluck(:id, :ledger_type)
 		transTypeHash = Hash[*transTypeArr.flatten]
-		
+
 		glTransaction = WkGlTransaction.new
-		glTransaction.trans_type = transTypeHash[Setting.plugin_redmine_wktime['wktime_cr_ledger'].to_i] == "BA" || transTypeHash[Setting.plugin_redmine_wktime['wktime_cr_ledger'].to_i] == "CS" ? "P" : "J" 
+		glTransaction.trans_type = transTypeHash[Setting.plugin_redmine_wktime['wktime_cr_ledger'].to_i] == "BA" || transTypeHash[Setting.plugin_redmine_wktime['wktime_cr_ledger'].to_i] == "CS" ? "P" : "J"
 		glTransaction.trans_date = salaryDate
 		unless glTransaction.valid?
 			errorMsg = glTransaction.errors.full_messages.join("<br>")
-		else 
+		else
 			glTransaction.save()
 		end
-		
+
 		salaries.each{|key,value|
 			wktxnDetail = WkGlTransactionDetail.new
 			wktxnDetail.ledger_id = key.to_i
@@ -517,7 +517,7 @@ module WkpayrollHelper
 			totalCredit = totalCredit + value.to_i if ledgersIdHash[key.to_i] == 'd'
 			unless wktxnDetail.valid?
 				errorMsg = wktxnDetail.errors.full_messages.join("<br>")
-			else 
+			else
 				wktxnDetail.save() if wktxnDetail.amount != 0
 			end
 		}
@@ -529,7 +529,7 @@ module WkpayrollHelper
 		wktxnDetail.currency = Setting.plugin_redmine_wktime['wktime_currency']
 		unless wktxnDetail.valid?
 			errorMsg = wktxnDetail.errors.full_messages.join("<br>")
-		else 
+		else
 			wktxnDetail.save()
 		end
 		deleteGlSalary(salaryDate)
@@ -538,35 +538,35 @@ module WkpayrollHelper
 		glSalary.gl_transaction_id = glTransaction.id
 		unless glSalary.valid?
 			errorMsg = glSalary.errors.full_messages.join("<br>")
-		else 
+		else
 			glSalary.save()
 		end
 		errorMsg
 	end
-	
+
 	def deleteGlSalary(salaryDate)
 		WkGlSalary.where(:salary_date =>salaryDate).destroy_all
 	end
-	
+
 	def getSalaryDetail(userid,salarydate)
 		sqlStr = getQueryStr + " where s.user_id = #{userid} and s.salary_date='#{salarydate}'"
 		@wksalaryEntries = WkUserSalaryComponents.find_by_sql(sqlStr)
 	end
-	
+
 	def getQueryStr
 		#joinDateCFId = !Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].blank? ? Setting.plugin_redmine_wktime['wktime_attn_join_date_cf'].to_i : 0
-		queryStr = "select u.id as user_id, u.firstname as firstname, u.lastname as lastname, sc.name as component_name, sc.id as sc_component_id, wu.join_date," + 
+		queryStr = "select u.id as user_id, u.firstname as firstname, u.lastname as lastname, sc.name as component_name, sc.id as sc_component_id, wu.join_date," +
 		" wu.id1, wu.gender,"+
-		"  s.salary_date as salary_date, s.amount as amount, s.currency as currency," + 
-		" sc.component_type as component_type from wk_salaries s "+ 
-		" inner join wk_salary_components sc on s.salary_component_id=sc.id"+  
-		" inner join users u on s.user_id=u.id" + 
+		"  s.salary_date as salary_date, s.amount as amount, s.currency as currency," +
+		" sc.component_type as component_type from wk_salaries s "+
+		" inner join wk_salary_components sc on s.salary_component_id=sc.id"+
+		" inner join users u on s.user_id=u.id" +
 		" left join wk_users wu on u.id = wu.user_id "
 	end
-	
+
 	def getYTDDetail(userId,salaryDate)
 		financialPeriodArr = getFinancialPeriodArray(salaryDate, salaryDate, 'a', 1)
-		@financialPeriod = financialPeriodArr[0] 
+		@financialPeriod = financialPeriodArr[0]
 		ytdDetails = WkSalary.select("sum(amount) as amount, user_id, salary_component_id").where("user_id = #{userId} and salary_date between '#{@financialPeriod[0]}' and '#{salaryDate}'").group("user_id, salary_component_id")
 		ytdAmountHash = Hash.new()
 		ytdDetails.each do |entry|
@@ -637,10 +637,10 @@ module WkpayrollHelper
 				grandGrossTotal = grandGrossTotal.to_i + gross.to_i
 				grandNetTotal = grandNetTotal.to_i + net.to_i
 				reimbursementTotal = reimbursementTotal.to_i + reimbursement.to_i
-				
+
 				dataArr = [payroll_data[:firstname].to_s + " " + payroll_data[:lastname].to_s, payroll_data[:joinDate], payroll_data[:salDate], currency +
 				 payroll_data[:BT].to_s, currency + payroll_data[:AT].to_s, currency + payroll_data[:DT].to_s, currency + reimbursement.to_s, currency + gross.to_s , currency + net.to_s]
-				
+
 				csv << dataArr.collect {|c| Redmine::CodesetUtil.from_utf8(c.to_s, l(:general_csv_encoding))}
 			end
 				totalArr = ["","", "Total", currency + grandBasicTotal.to_s, currency + grandAllowanceTotal.to_s, currency + grandDeductionTotal.to_s,
@@ -658,20 +658,20 @@ module WkpayrollHelper
 		else
 			group_id = session[controller_name].try(:[], :group_id)
 		end
-		
+
 		if !group_id.blank? && group_id.to_i > 0
 			userList = User.in_group(group_id)
 		else
-			userList = User.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
+			userList = User.where(type: "User").order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
 		end
 		userList = userList.where("(LOWER(firstname) like LOWER('%#{params[:name]}%') or LOWER(lastname) like LOWER('%#{params[:name]}%'))") if params[:name].present?
 		userList = userList.where("status = ?", params[:status]) if params[:status].present?
 		userList
 	end
-	
+
 	def getUsersAndGroups
 		userList = getGroupMembers
-		@groups = Group.sorted.all
+		@groups = Group.where(type: "Group").sorted.all
 		@members = Array.new
 		userIds = Array.new
 		userList.each do |users|
@@ -684,7 +684,7 @@ module WkpayrollHelper
 	def getLogicalCond
 		{
 			"" => '',
-			l(:label_equal) => "EQ",   
+			l(:label_equal) => "EQ",
 			l(:label_less_than) => "LT",
 			l(:label_greater_than) => "GT",
 			l(:label_less_or_equal) => "LTE",
@@ -773,7 +773,7 @@ module WkpayrollHelper
 		end
 		[dependentID, factor]
 	end
-	
+
 	def getTaxSettingVal
 		@taxSettingVal = {}
 		taxEntries = WkSetting.all
@@ -829,9 +829,9 @@ module WkpayrollHelper
 		@taxSlab= {
 			0..250000 => 0,
 			250001..500000 => 0.05,
-			500001..750000 => 0.1, 
-			750001..1000000 => 0.15, 
-			1000001..1250000 => 0.2,             
+			500001..750000 => 0.1,
+			750001..1000000 => 0.15,
+			1000001..1250000 => 0.2,
 			1250001..1500000 => 0.25,
 			1500001...Float::INFINITY => 0.3
 		}
@@ -872,7 +872,7 @@ module WkpayrollHelper
 			end
 		end
 	end
-	
+
 	def calTaxValue(userId)
 		getIncomeTaxSlab
 		getCompAnnualValue(userId)
@@ -885,7 +885,7 @@ module WkpayrollHelper
 			taxAmount += rate * (range.last - (range.first-1)) if taxIncome > range.last
 			taxAmount += rate * (taxIncome - (range.first-1)) if range === taxIncome && taxIncome > 500000
 		end
-			
+
 		taxAmount += (0.04 * taxAmount)
 		tdsID = @taxSettingVal['income_tax'].to_i
 		tdsValue = WkSalary.where("user_id = ? and salary_component_id = ? and salary_date between ? and ? ", userId, tdsID, @startDate, @endDate )
@@ -898,7 +898,7 @@ module WkpayrollHelper
 		monthTax = (monthTax.blank? ||  monthTax.nan?) ? 0.0 : "%.2f" % monthTax
 		monthTax
 	end
-	
+
 	def saveTaxComponent(userId)
 		taxVal = calTaxValue(userId)
 		tdsID = @taxSettingVal['income_tax'].to_i
@@ -924,5 +924,5 @@ module WkpayrollHelper
 		projectIds =  projects.pluck(:id) if projects.present? && projectIds.length == 0
 		projectIds
 	end
-	
+
 end

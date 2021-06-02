@@ -1,8 +1,10 @@
-<% 	groupId =session[controller_name].try(:[], :group_id)
+<%
+	groupId =session[controller_name].try(:[], :group_id)
 	userID = session[controller_name].try(:[], :user_id)
 	skillSet = session[controller_name].try(:[], :skill_set)
 	rating = session[controller_name].try(:[], :rating)
 	lastUsed = session[controller_name].try(:[], :last_used)
+	interest_level = session[controller_name].try(:[], :interest_level)
 %>
 <fieldset>
 	<%
@@ -26,9 +28,11 @@
         <th><label style="padding-left: 10px;"><%= l(:label_skill_set) %></label></th>
         <td><%= select_tag('skill_set', options_for_select(options_for_enum_select('SK', skillSet || 0, true))) %></td>
         <th><label style="padding-left: 10px;"><%= l(:label_rating) %></label></th>
-        <td><%= select_tag "rating", options_for_select(ratings, selected: rating),{multiple: true, size: 3, style: "width:60px"} %></td>
+        <td><%= select_tag("rating", options_for_select(ratings, selected: rating), style: "width:60px") %></td>
         <th><label style="padding-left: 10px;"><%= l(:label_last_used) %></label></th>
         <td><%= select_tag "last_used", options_for_select(last_used.reverse, selected: lastUsed)%></td>
+        <th><label style="padding-left: 10px;"><%= l(:label_interest_level) %></label></th>
+        <td><%= select_tag("interest_level", options_for_select(ratings, selected: interest_level), style: "width:60px") %></td>
       </tr>
       <tr>
         <td><%= submit_tag l(:button_apply), class: "small", name: nil %></td>

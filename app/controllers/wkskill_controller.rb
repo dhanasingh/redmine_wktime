@@ -32,24 +32,24 @@ class WkskillController < WkbaseController
                 "interest_level" => "interest_level"
     set_filter_session
     getUsersAndGroups
-    skillEntries = WkSkill.get_entries(params[:project_id].present? ? "Project" : "User")
-    skillEntries = WkSkill.filterByID(params[:project_id].present? ? get_project_id : User.current.id) if !validateERPPermission("A_SKILL") || params[:project_id].present?
+    entries = WkSkill.get_entries(params[:project_id].present? ? "Project" : "User")
+    entries = WkSkill.filterByID(params[:project_id].present? ? get_project_id : User.current.id) if !validateERPPermission("A_SKILL") || params[:project_id].present?
     filters = {}
     @filters.each{|f| filters[f] = ["0", ""].include?(get_filter(f)) ? nil : get_filter(f)}
-    skillEntries = skillEntries.skillSet(filters[:skill_set]) if filters[:skill_set]
-    skillEntries = skillEntries.userGroup(filters[:group_id]) if filters[:group_id]
-    skillEntries = skillEntries.groupUser(filters[:user_id]) if filters[:user_id]
-    if filters[:rating] && (!filters[:rating].is_a?(Array) || filters[:rating].reject(&:blank?).present?)
-      skillEntries = filters[:rating].is_a?(Array) ? skillEntries.rating(filters[:rating]) : skillEntries.ratings(filters[:rating])
-    end
-    skillEntries = skillEntries.lastUsed(filters[:last_used]) if filters[:last_used]
-    skillEntries = skillEntries.experience(filters[:experience]) if filters[:experience]
-    skillEntries = skillEntries.reorder(sort_clause)
+    entries = entries.skillSet(filters[:skill_set]) if filters[:skill_set]
+    entries = entries.userGroup(filters[:group_id]) if filters[:group_id]
+    entries = entries.groupUser(filters[:user_id]) if filters[:user_id]
+    entries = entries.rating(filters[:rating])  if filters[:rating]
+    entries = entries.lastUsed(filters[:last_used]) if filters[:last_used]
+    entries = entries.experience(filters[:experience]) if filters[:experience]
+    entries = entries.interest_level(filters[:interest_level]) if filters[:interest_level]
+    entries = entries.reorder(sort_clause)
+
 		respond_to do |format|
 			format.html {
-        @skill_count = skillEntries.length
+        @skill_count = entries.length
         @skill_pages = Paginator.new @skill_count, per_page_option, params["page"]
-        @skillEntries = skillEntries.order("id DESC").limit(@skill_pages.per_page).offset(@skill_pages.offset).to_a
+        @skillEntries = entries.order("id DESC").limit(@skill_pages.per_page).offset(@skill_pages.offset).to_a
 				render :layout => !request.xhr?
 			}
 			format.api{
@@ -89,7 +89,7 @@ class WkskillController < WkbaseController
   end
 
 	def set_filter_session
-		@filters = [:group_id, :user_id, :skill_set, :rating, :experience, :last_used]
+		@filters = [:group_id, :user_id, :skill_set, :rating, :experience, :last_used, :interest_level]
 		super(@filters)
   end
 
