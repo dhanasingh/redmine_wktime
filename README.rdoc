@@ -1,18 +1,18 @@
 = ERPmine
-= Webinar on ERPmine – Attendance , May 25, 6:00 PM IST (GMT+5:30)
+= Webinar on ERPmine – Inventory, June 29, 3:00 PM IST (GMT+5:30)
 
 Please click here to register if interested,
-https://us02web.zoom.us/meeting/register/tZAkcOyrrjgvEtV4xM9LzcVzar-N7q4FdnEe
+https://us02web.zoom.us/meeting/register/tZIkcuCoqjgjHtGaleP9gjIQE7UVy-cxJb_R
 
 *Topics* :
 
-* Clock In/Clock Out
-* Review Leave Status
-* Leave Request
-* Integrate with Attendance Devices
-* Attendance Report
-* Attendance on Map
-* Mobile App
+* Receive Goods (Shipments)
+* Product and items
+* Material Log
+* Invoice
+* Asset and depreciation
+* Disposed Asset
+* Asset and stock Report
 
 
 This Plugin has the following modules:
