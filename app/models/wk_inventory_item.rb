@@ -36,15 +36,15 @@ class WkInventoryItem < ActiveRecord::Base
    scope :shipment_item, lambda { where(:parent_id => nil) }
    scope :transferred_item, lambda { where.not(:from_id => nil) }
 
-  
+
   before_destroy :add_quantity_to_parent
   validates_presence_of :product_item, :total_quantity, :available_quantity
 
-  
+
   def incrementAvaQty(incVal)
 	self.available_quantity += incVal
   end
-  
+
   def add_quantity_to_parent
 	unless self.parent_id.blank? || self.material_entries.count>0 || self.transferred_items.count>0
 		parentObj = self.parent
@@ -52,13 +52,8 @@ class WkInventoryItem < ActiveRecord::Base
 		parentObj.save
 	end
   end
-  
+
   def assetName
-	name = ""
-	unless self.asset_property.blank?
-		name = self.asset_property.name	
-	end
-	name
+    self.asset_property.blank? ? "" : self.asset_property.name
   end
-  
 end

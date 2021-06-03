@@ -16,38 +16,23 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkSkill < ActiveRecord::Base
-
   belongs_to :user
   belongs_to :skill_set, class_name: "WkCrmEnumeration"
+  has_many :users_groups, through: :user
 
   validates_presence_of :skill_set
-  validates_numericality_of  :rating, :experience
-  
-  scope :get_all, ->{
-    joins(:user, :skill_set).select("wk_skills.*")
-  }
+  validates_numericality_of :rating, :experience
 
-  scope :skillSet, ->(skill_set){
-    where("wk_skills.skill_set_id =  ? ", skill_set.to_i )
-  }
-
+  scope :get_entries, ->(type){ where({source_type: type}) }
+  scope :filterByID, ->(id){ where(source_id: id) }
+  scope :skillSet, ->(skill_set){ where(skill_set_id: skill_set)}
+  scope :groupUser, ->(id){ joins(:user).where("users.id = ? ", id)}
+  scope :rating, ->(rating){ where("rating >= ?", rating)}
+  scope :lastUsed, ->(last_used){ where("last_used >= ?", last_used)}
+  scope :experience, ->(experience){ where("experience >= ?", experience)}
+  scope :interest_level, ->(interest_level){ where("interest_level >= ?", interest_level)}
   scope :userGroup, ->(id){
-    joins("INNER JOIN groups_users ON groups_users.user_id = wk_skills.user_id")
-    .where("groups_users.group_id =  ? ", id )
+    joins(:users_groups)
+    .where("groups_users.group_id =  ? ", id)
   }
-
-  scope :groupUser, ->(id){
-    joins(:user).where("users.id =  ? ", id )
-  }
-
-  scope :skillUser, ->{where(user_id: User.current.id)}
-
-  scope :rating, ->(ratings){
-    where("wk_skills.rating IN (?) ", ratings)
-  }
-
-  scope :lastUsed, ->(last_used){
-    where("last_used >= ?", last_used)
-  }
-
 end

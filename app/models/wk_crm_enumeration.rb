@@ -16,16 +16,14 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkCrmEnumeration < ActiveRecord::Base
-  unloadable
-  
-  before_save    :check_default
-  
+  before_save :check_default
   validates_presence_of :name
-  
+  has_many :skillsets, class_name: :WkSkill, foreign_key: :skill_set_id, dependent: :destroy
+
   def check_default
     if is_default? && is_default_changed?
       WkCrmEnumeration.where({:enum_type => enum_type}).update_all({:is_default => false})
     end
-  end 
-  
+  end
+
 end

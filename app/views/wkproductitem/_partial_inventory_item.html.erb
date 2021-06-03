@@ -1,30 +1,60 @@
+
+<style>
+th{
+  text-align: left;
+}
+.leftAlign{
+  text-align: left !important;
+}
+</style>
+<% 	wkexpense_helper = Object.new.extend(WkexpenseHelper)
+		itemType = controller.getItemType
+%>
 <tr>
-	<th align="left"><%= l(:field_currency) %></th>
-	<td align="left" style="padding-left:40px;">
-		<% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
+	<th><%= l(:field_currency) %></th>
+	<td style="padding-left:40px;">
 		<%=h select_tag("currency",options_for_select(wkexpense_helper.options_for_currency, :selected => invntItem.blank? ? Setting.plugin_redmine_wktime['wktime_currency'] : invntItem.currency), :disabled => isDisable || isTransfer) %>
 	</td>
-</tr> 
+</tr>
 <tr>
-	<th align="left"><%= l(:label_cost_price) %></th>
-	<td align="left" style="padding-left:40px;"><%= text_field_tag "cost_price",  invntItem.blank? ? '' : invntItem.cost_price, :disabled => isDisable || isTransfer %></td>
-</tr>  
+	<th><%= l(:label_cost_price) %></th>
+	<td style="padding-left:40px;"><%= text_field_tag "cost_price",  invntItem.blank? ? '' : invntItem.cost_price, :disabled => isDisable || isTransfer %></td>
+</tr>
 <tr>
-	<th align="left"><%= l(:label_over_head_price) %></th>
-	<td align="left" style="padding-left:40px;"><%= text_field_tag "over_head_price",  invntItem.blank? ? '' : invntItem.over_head_price, :disabled => isDisable || isTransfer %></td>
-</tr> 
+	<th><%= l(:label_over_head_price) %></th>
+	<td style="padding-left:40px;"><%= text_field_tag "over_head_price",  invntItem.blank? ? '' : invntItem.over_head_price, :disabled => isDisable || isTransfer %></td>
+</tr>
 <tr>
-	<th align="left"><%= l(:label_selling_price) %></th>
-	<td align="left" style="padding-left:40px;"><%= text_field_tag "selling_price",  invntItem.blank? ? '' : invntItem.selling_price, :disabled => false %></td>
-</tr>  
- 
+	<th><%= l(:label_selling_price) %></th>
+	<td style="padding-left:40px;"><%= text_field_tag "selling_price",  invntItem.blank? ? '' : invntItem.selling_price, :disabled => false %></td>
+</tr>
+
+<% if invntItem&.total_quantity.present? && itemType == "I" %>
+	<tr>
+		<th><%= l(:label_total_quantity) %></th>
+		<td  style="padding-left:40px;">
+			<%= invntItem&.total_quantity %>
+		</td>
+	</tr>
+<% end %>
+
 <tr>
-	<th align="left"><%= l(:label_quantity) %></th>
-	<td align="left" style="padding-left:40px;"><%= text_field_tag "available_quantity", ("%.2f" % invntItem.available_quantity unless invntItem.blank?), :disabled => isDisable && !isTransfer, :maxlength => 14 %></td>
-</tr> 
+	<th><%= l(itemType == "I" ? :label_available_quantity : :label_quantity) %></th>
+	<td  style="padding-left:40px;">
+		<%= text_field_tag "available_quantity", ("%.2f" % invntItem.available_quantity unless invntItem.blank?), :disabled => isDisable && !isTransfer, :maxlength => 14 %>
+    <%= image_tag("withoutcommant.png", plugin: "redmine_wktime", title: l(:label_consumed_items),
+			style: "cursor: pointer;", onclick: "showQuantityDetails();") if invntItem.present? && itemType == "I" %>
+	</td>
+</tr>
+
 <tr>
-	<th align="left"><%= l(:label_uom) %></th>
-	<td align="left" style="padding-left:40px;">
+	<th><%= l(:label_uom) %></th>
+	<td style="padding-left:40px;">
 		<%=h select_tag("uom_id", generic_options_for_select(WkMesureUnit, nil, 'short_desc', 'short_desc', 'id', invntItem.blank? ? '' : invntItem.uom_id, false), :disabled => isDisable && !isTransfer) %>
 	</td>
-</tr> 
+</tr>
+
+<script>
+var title = "<%= l(:label_consumed_items) %>";
+</script>
+<div id="dialog"></div>

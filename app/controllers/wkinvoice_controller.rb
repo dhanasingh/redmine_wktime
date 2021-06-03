@@ -321,4 +321,17 @@ class WkinvoiceController < WkorderentityController
 		true
 	end
 
+  def getQuantityDetails
+		dataTimeEntries = WkInvoiceItem.getSpentForEntries(params[:inv_item_id])
+    render json: dataTimeEntries
+  end
+
+	def getUnbilledQtyDetails
+		data = []
+		dataUnbilledEntries = WkInvoiceItem.getUnbilledTimeEntries(params[:project_id], params[:start_date], params[:end_date], params[:parent_id], params[:parent_type])
+		dataUnbilledEntries = dataUnbilledEntries.where(:issue_id => params[:issue_id]) if (params[:issue_id].to_i > 0)
+		dataUnbilledEntries.each{ |entry| data << {projID: entry.project_id, proj_name: entry.project.name, subject: entry.issue.subject, firstname: entry.user.firstname, lastname: entry.user.lastname, spent_on: entry.spent_on, hours: entry.hours}}
+    render json: data
+	end
+
 end

@@ -1,5 +1,3 @@
-# German strings go here for Rails i18n
-# Luna Lenardi contribution
 de:
   my_label: "Individueller Titel"
   label_wktime: Zeit
@@ -613,8 +611,6 @@ de:
   label_minus: Minus
   label_credit_from_prv_inv: "Guthaben aus vorheriger Rechnung #%{invId}"
   label_credit_from_prv_inv_pay: "Guthaben von vorheriger Rechnung #%{invId}, Zahlung #%{payId}"
-
-
   label_rfq: Preisanfragen
   label_quotes: Angebote
   label_purchase_order: Bestellung
@@ -1045,10 +1041,8 @@ de:
   indian_tax_rule: Indische Steuerregel
   label_all_time: jederzeit
   label_edit_leave_request: Urlaubsanfrage bearbeiten
-
   label_survey_email_notes: Bitte klicken Sie auf den folgenden Link, um an einer Umfrage teilzunehmen
   label_redmine_administrator: Von Redmine Administrator
-  
   label_save_geo_location: Save Geolocation
   label_show_on_map: Show on Map
   label_save_c_geolocation: Save current Geolocation
@@ -1177,7 +1171,6 @@ de:
   label_earlier: Früher
   label_timesheet_rejected: Ihre Arbeitszeittabelle wird abgelehnt
   label_mobile_version: Mobile Version
-  
   label_wk_skill: Kompetenzen
   label_skill_set: Kompetenzen setzen
   label_new_skill: Neue Kompetenz
@@ -1224,3 +1217,7 @@ de:
   label_approve_reimbursement: Nur die genehmigte Erstattung einbeziehen
   warn_survey_mandatory: Sie müssen die obligatorischen Fragen beantworten
   warn_survey_submit: "Sind Sie sicher, dass Sie die Umfrage einreichen möchten? Sobald Sie sie eingereicht haben, können Sie sie nicht mehr bearbeiten."
+  label_interest_level: Zinsniveau
+  label_min_exp_req: Erfahrung erforderlich
+  label_min_rating_req: Bewertung erforderlich
+  label_consumed_items: Verbrauchte Gegenstände

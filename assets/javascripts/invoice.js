@@ -467,3 +467,40 @@ function setDescription(isonload){
 		});
 	}
 }
+
+function showQuantityDetails(invItemId) {
+	var url = "/wkinvoice/getQuantityDetails";
+	var data = {inv_item_id: invItemId}
+	getTimeDetails(url, data)
+}
+
+function showUnbillQtyDetails(project_id, issue_id, start_date, end_date, parent_id, parent_type) {
+	var url = "/wkinvoice/getUnbilledQtyDetails";
+	var data = {project_id: project_id, start_date: start_date, end_date: end_date, parent_id: parent_id, parent_type: parent_type, issue_id: issue_id}
+	getTimeDetails(url, data)
+}
+
+function getTimeDetails(url, data){
+	var oldProjID = ''
+	var tableEntries = ''
+	$.ajax({
+		url: url,
+		data: data,
+	 	success: function(result){
+			$.each( result, function( i, l ){
+				tableEntries += formQauntityTable(i, l, oldProjID);
+				oldProjID = l.projID
+			});
+		$(" #qunatityTable").html(tableEntries);
+		$("#quantity-dlg").dialog({ title: 'Quantity', width: 800, height: 200});
+	}});
+}
+
+function formQauntityTable(i, l, oldProjID) {
+	var projName = ''
+	var styleTD = 'class=lbl-txt-align style=width:330px;'
+	 var tableHeaders = (i > 0) ? '' :  "<tr class=quantityHeaters><th "+styleTD+"> Project </th><th "+styleTD+"> Issue </th><th "+styleTD+"> User </th><th "+styleTD+"> Date </th><th "+styleTD+"> Hours </th></tr>"
+	if(l.projID != oldProjID){ projName = l.proj_name }
+	var tableDetails = tableHeaders + "<tr class=quantityDetails><td "+styleTD+">"+ projName +"</td></tr><tr class=quantityDetails><td></td><td "+styleTD+">" + l.subject + "</td><td "+styleTD+">" + l.firstname+' '+l.lastname + "</td><td "+styleTD+">" + l.spent_on + "</td><td "+styleTD+">" + l.hours + "</td></tr>";
+	return tableDetails
+}

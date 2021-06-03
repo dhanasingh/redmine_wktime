@@ -18,4 +18,5 @@
 module WkskillHelper
 	include WktimeHelper
 	include WkcrmenumerationHelper
+  include WksurveyHelper
 end
