@@ -1,21 +1,18 @@
 <% 
-    require 'json'
-    taxComp =  @taxSettingVal['tax_settings'].blank? ? {} : JSON.parse(@taxSettingVal['tax_settings'])
+    load("plugins/redmine_wktime/app/views/wkrule/incometax/#{getTaxSettings('tax_rule')}.rb")
+	taxRule = Object.new.extend(PayrollTax)
+    taxComp =  getTaxSettings('tax_settings').blank? ? {} : JSON.parse(getTaxSettings('tax_settings'))
     if action_type != "taxSettings"
-        getUserSalaryVal(userId)
+        taxRule.getUserSalaries(userId)
     end
 %>
 <% if(action_type == "taxSettings") %>
     <div class="contextual">
 	    <%= render :partial => 'sidebar' %>
     </div>
-    <h2><%= l(:label_income_tax_settings) %> (<%= l("#{@taxSettingVal['tax_rule']}") %>)</h2>
+    <h2><%= l(:label_income_tax_settings) %> (<%= l("#{getTaxSettings('tax_rule')}") %>)</h2>
     <% if request.post?
-        taxSettings = WkSetting.where("name = 'tax_settings'" ).first
-        taxSettings = WkSetting.new if taxSettings.blank?
-        taxSettings.name = 'tax_settings'
-        taxSettings.value = params[:taxsettings].to_json
-        taxSettings.save()
+        taxRule.saveTaxComponent(params[:taxsettings])
         flash[:notice] = l(:notice_successful_update)
         controller.redirect_to action: 'income_tax', tab: "payroll", action_type: 'taxSettings'
        end %>
@@ -66,21 +63,21 @@
             return isEdited;
         }
     <% end %>
-    <% getCompAnnualValue(userId) %>
+    <% component = taxRule.getAnnualComponent(userId) %>
     <% taxComp.each do |name, id| %>
-        <%= hidden_field_tag(name, @totals[name]) if name != "annual_prof_tax" && name != "annual_std_deduction"  %>
+        <%= hidden_field_tag(name, component[name]) if name != "annual_prof_tax" && name != "annual_std_deduction"  %>
     <% end %>
     <div class="box tabular">
         <table>
             <tr>
-                <td><%= "Annual Gross" %></td><td><%= @totals["annual_gross"].blank? ? 0 : "%.2f" % @totals["annual_gross"] %></td>
+                <td><%= "Annual Gross" %></td><td><%= component["annual_gross"].blank? ? 0 : "%.2f" % component["annual_gross"] %></td>
             </tr>
         </table>
     <div style="clear:both;"></div>
 <%
 # For Apply Tax 
 else
-    monthTax = calTaxValue(userId)
+    monthTax = taxRule.calculate_tax(userId)
     data = {monthTax: monthTax}
     controller.redirect_to action: "income_tax", data: data, action_type: "calculatetax"
  end

@@ -749,3 +749,5 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 			post :save
 		end
 	end
+
+	delete 'wkpayroll/destroy', to: 'wkpayroll#destroy'

@@ -250,7 +250,6 @@ class WkpayrollController < WkbaseController
 		"order by u.id, sc.component_type"
 		@userSalHash = getUserSalaryHash(userId, Date.today.at_end_of_month + 1, 'userSetting')
 		@userSalaryEntries = WkUserSalaryComponents.find_by_sql(sqlStr)
-		getTaxSettingVal
 	end
 
 	def saveUsrSalCompHistory(userSalCompHash)
@@ -452,11 +451,8 @@ class WkpayrollController < WkbaseController
 				taxSettings.save()
 			end
 			#Calculate Tax Amount
-			if isCalculateTax
-				userIds = User.active.pluck(:id)
-				getUserSalaryVal(userIds.join(','))
-				userIds.each{ |id| saveTaxComponent(id) }
-			end
+			userIds = User.active.pluck(:id)
+			saveTaxComponent(userIds)
 			flash[:notice] = l(:notice_successful_update)
 			redirect_to action: 'payrollsettings', tab: "payroll"
 		else
@@ -609,12 +605,11 @@ class WkpayrollController < WkbaseController
 			end
 		end
 		#Calculate Tax Amount
-		if errorMsg.blank? && isCalculateTax
+		if params[:user_sal_save_with_tax] && errorMsg.blank?
 			userIds = []
 			u_salary_cmpts.each{ |entry| userIds << entry["user_id".to_sym] }
 			userIds = userIds.uniq
-			getUserSalaryVal(userIds.join(','))
-			userIds.each{ |id| saveTaxComponent(id) }
+			saveTaxComponent(userIds)
 		end
 		errorMsg
 	end
@@ -632,7 +627,6 @@ class WkpayrollController < WkbaseController
 		if params[:action_type] == "calculatetax"
 			render json: params[:data]
 		end
-		getTaxSettingVal
 	end
 
 	def getRecursiveComp

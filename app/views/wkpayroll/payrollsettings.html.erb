@@ -87,11 +87,11 @@
 			</tr>
 			<tr>
 				<td><label><%= l(:label_tax_rule) %></label></td>
-				<td><%= select_tag 'taxsettings[tax_rule]', options_for_select(get_tax_rule.unshift(['','']), @taxSettingVal['tax_rule']) %></td>
+				<td><%= select_tag 'taxsettings[tax_rule]', options_for_select(get_tax_rule.unshift(['','']), getTaxSettings('tax_rule')) %></td>
 			</tr>
 			<tr>
 				<td><label><%= l(:label_income_tax) %></label></td>
-				<td><%= select_tag 'taxsettings[income_tax]', options_for_select(getSalaryCompNames.invert, @taxSettingVal['income_tax']) %></td>
+				<td><%= select_tag 'taxsettings[income_tax]', options_for_select(getSalaryCompNames.invert, getTaxSettings('income_tax')) %></td>
 			</tr>
 			</table>
 	</fieldset>
