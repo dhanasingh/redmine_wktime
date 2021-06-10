@@ -182,6 +182,10 @@ include WkpayrollHelper
 		
 		# timeEntries = TimeEntry.includes(:spent_for).where(project_id: accountProject.project_id, spent_on: genInvFrom .. @invoice.end_date, wk_spent_fors: { spent_for_type: [accountProject.parent_type, nil], spent_for_id: [accountProject.parent_id, nil], invoice_item_id: nil })
 		timeEntries = WkInvoiceItem.getUnbilledTimeEntries(accountProject.project_id, genInvFrom, @invoice.end_date, accountProject.parent_id, accountProject.parent_type)
+		if params[:preview_billing] == 'false'
+			timeEntryIDs = params[:timeEntryIDs].split(",")
+			timeEntries = timeEntries.where(:id=>timeEntryIDs)
+		end
 		errorMsg = nil
 		totalAmount = 0
 		lastUserId = 0
@@ -702,7 +706,11 @@ include WkpayrollHelper
 		partialMatAmount = 0.00
 		genInvFrom = getUnbillEntryStart(@invoice.start_date)
 		@matterialVal = Hash.new{|hsh,key| hsh[key] = {} }
-		matterialEntry = WkMaterialEntry.includes(:spent_for).where(:project_id => accountProject.project_id, :spent_on => genInvFrom .. @invoice.end_date, wk_spent_fors: { spent_for_type: [accountProject.parent_type, nil], spent_for_id: [accountProject.parent_id, nil], invoice_item_id: nil }) 
+		matterialEntry = WkMaterialEntry.includes(:spent_for).where(:project_id => accountProject.project_id, :spent_on => genInvFrom .. @invoice.end_date, wk_spent_fors: { spent_for_type: [accountProject.parent_type, nil], spent_for_id: [accountProject.parent_id, nil], invoice_item_id: nil })
+		if params[:preview_billing] == 'false'
+			materialEntryIDs = params[:materialEntryIDs].split(",")
+			matterialEntry = matterialEntry.where(:id=>materialEntryIDs)
+		end
 		matterialEntry.each do | mEntry |		
 			productId = mEntry.inventory_item.product_item.product.id
 			productName = mEntry.inventory_item.product_item.product.name.to_s

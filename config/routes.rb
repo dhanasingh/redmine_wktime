@@ -741,11 +741,11 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 
 	get 'wkinvoice/getUnbilledQtyDetails', to: 'wkinvoice#getUnbilledQtyDetails'
 
+	get 'wkinvoice/generateTimeEntries', to: 'wkinvoice#generateTimeEntries'
+
 	resources :projects do
 		resource :wkskill, :only => [:index, :edit, :save], :controller => :wkskill do
 			get :index, :edit
 			post :save
 		end
 	end
-
-	get 'wkproductitem/get_material_entries', to: 'wkproductitem#get_material_entries'

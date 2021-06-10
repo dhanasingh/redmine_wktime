@@ -9,6 +9,8 @@
 		<%= hidden_field_tag "searchlist", controller_name %>
 		<%=h hidden_field_tag('tab', controller_name) %>
 		<%= hidden_field_tag "preview_billing", false %>
+		<%= hidden_field_tag "timeEntryIDs" %>
+		<%= hidden_field_tag "materialEntryIDs" %>
 		<script type="text/javascript"> 
 			accountUrl="<%= "#{url_for(:controller => "wkinvoice", :action => 'getAccountProjIds')}" %>";
 		</script>		
@@ -27,7 +29,7 @@
 			<%#= link_to l(:button_apply), {:controller => controller_name, :action => action_name}, :class => 'icon icon-checked' %>
 			<%= link_to l(:button_clear), {:tab => controller_name, clear: true}, :class => 'icon icon-reload' %>
 			<% if controller.isInvGenUnbilledLink %>
-				<%= link_to l(:label_generate) + ' ' + l(:label_invoice_adjusted), 'javascript:invoiceFormSubmission(false);', :name => 'generate', :class => 'icon icon-report' %>
+				<%= link_to l(:label_generate) + ' ' + l(:label_invoice_adjusted), 'javascript:selectEntryPopup(false);', :name => 'generate', :class => 'icon icon-report' %>
 				<%= link_to_function l(:label_preview_invoice), "javascript:invoiceFormSubmission(true); ", :class => 'icon icon-report' %>
 			<% end %>
 		 
@@ -39,4 +41,6 @@
 		<%= Setting.plugin_redmine_wktime['wktime_currency']%>
 		<%= html_hours("%.2f" % @totalInvAmt) %></p>
 	</div>
-	<%= render :partial => 'wkorderentity/order_list'%>	
+	<%= render :partial => 'wkorderentity/order_list'%>
+<div id="billGenerate-dlg">
+<div>

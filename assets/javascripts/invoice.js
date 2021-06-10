@@ -8,7 +8,15 @@ hideProductType()
 });
 
 function invoiceFormSubmission(isPreview)
-{ 
+{
+	var timeentryIDs = $('input[name=check_time]:checked').map(function(){
+ 		return $(this).val();
+  }).get();
+	var materialentryIDs = $('input[name=check_material]:checked').map(function(){
+ 		return $(this).val();
+  }).get();
+	$("input#timeEntryIDs").val(timeentryIDs)
+	$("input#materialEntryIDs").val(materialentryIDs)
 	var dateval = new Date(document.getElementById("to").value);
 	var fromdateval = new Date(document.getElementById("from").value);
 	dateval.setDate(dateval.getDate() + 1);
@@ -488,19 +496,108 @@ function getTimeDetails(url, data){
 		data: data,
 	 	success: function(result){
 			$.each( result, function( i, l ){
-				tableEntries += formQauntityTable(i, l, oldProjID);
+				tableEntries += formQuantityTable(i, l, oldProjID);
 				oldProjID = l.projID
 			});
 		$(" #qunatityTable").html(tableEntries);
-		$("#quantity-dlg").dialog({ title: 'Quantity', width: 800, height: 200});
+		$("#quantity-dlg").dialog({ title: 'Quantity', width: '80%'});
 	}});
 }
 
-function formQauntityTable(i, l, oldProjID) {
+function formQuantityTable(i, l, oldProjID) {
 	var projName = ''
 	var styleTD = 'class=lbl-txt-align style=width:330px;'
 	 var tableHeaders = (i > 0) ? '' :  "<tr class=quantityHeaters><th "+styleTD+"> Project </th><th "+styleTD+"> Issue </th><th "+styleTD+"> User </th><th "+styleTD+"> Date </th><th "+styleTD+"> Hours </th></tr>"
 	if(l.projID != oldProjID){ projName = l.proj_name }
-	var tableDetails = tableHeaders + "<tr class=quantityDetails><td "+styleTD+">"+ projName +"</td></tr><tr class=quantityDetails><td></td><td "+styleTD+">" + l.subject + "</td><td "+styleTD+">" + l.firstname+' '+l.lastname + "</td><td "+styleTD+">" + l.spent_on + "</td><td "+styleTD+">" + l.hours + "</td></tr>";
+	var tableDetails = tableHeaders + "<tr class=quantityDetails><td "+styleTD+">"+ projName +"</td></tr><tr class=quantityDetails><td></td><td "+styleTD+">" + l.subject + "</td><td "+styleTD+">" + l.usr_name + "</td><td "+styleTD+">" + l.spent_on + "</td><td "+styleTD+">" + l.hours + "</td></tr>";
 	return tableDetails
+}
+
+function selectEntryPopup() {
+	var url = "/wkinvoice/generateTimeEntries";
+	var dateval = new Date(document.getElementById("to").value);
+	var fromdateval = new Date(document.getElementById("from").value);
+	 dateval = dateval.getFullYear() + '-' + (("0" + (dateval.getMonth() + 1)).slice(-2)) + '-' + (("0" + dateval.getDate()).slice(-2));
+	 fromdateval = fromdateval.getFullYear() + '-' + (("0" + (fromdateval.getMonth() + 1)).slice(-2)) + '-' + (("0" + fromdateval.getDate()).slice(-2));
+	var accID = $('#account_id').val()
+	var contactID = $('#contact_id').val()
+	var filter = $('input[name="polymorphic_filter"]:checked').val();
+	var projectID = $('#project_id').val()
+	var data = {dateval: dateval, fromdateval: fromdateval, accID: accID, contactID: contactID, projectID: projectID, filter_type: filter}
+	getSelectEntry(url, data)
+}
+
+function getSelectEntry(url, data){
+	$("#billGenerate-dlg").html("");
+	$.ajax({
+		url: url,
+		data: data,
+	 	success: function(resData){
+			const {listHeader1={}, data1=[], listHeader2={}, data2=[]} = resData || {};
+			if(data1.length > 0){
+				renderPopup(listHeader1, data1, 'time');
+			}
+			if(data2.length > 0){
+				renderPopup(listHeader2, data2, 'material');
+			}
+			if (data1.length == 0 && data2.length == 0){
+				$("#billGenerate-dlg").html("No data to display");
+			}
+			$("#billGenerate-dlg").dialog({
+				 title: 'Select Time Entries', 
+				 width: '80%',
+				 buttons: {
+						'Generate': function() {
+							invoiceFormSubmission(false)
+						},
+						'cancel': function() {
+							$(this).dialog("close");
+						}
+					}
+			});
+		},
+		beforeSend: function(){ $(this).addClass("ajax-loading"); },
+		complete: function(){ $(this).removeClass("ajax-loading"); }
+	});
+}
+
+function renderPopup(listHeader, data, tableName){
+	var content = "<table class='list time-entries' style='width:100%; float:left;'>";
+	//Headers
+	content += "<tr><th><input type='checkbox' onclick='handlecheckall(\""+ tableName + "\");' name='checkall_"+tableName+"' id='checkall_"+tableName+"' checked='checked'></th>";
+	$.each(listHeader, function(key, label){
+		content += "<th class='leftAlign'>" +label+ "</th>";
+	});
+	content += "</tr>";
+
+	//List
+	$.each(data, function(inx, el){
+		content += "<tr><td><input type='checkbox' onclick='handlecheck(\""+ tableName + "\");' name='check_"+tableName+"' id='check_"+tableName+"' value='"+el.id+"' checked='checked'></td>";
+		$.each((el || {}), function(key, label){
+			if (key != 'id'){
+				content += "<td class='leftAlign'>" +label+ "</td>";}
+			});
+		content += "</tr>";
+	});
+	content += "</table>";
+	
+	$("#billGenerate-dlg").append(content);
+}
+
+function handlecheckall(tableName){
+	if ($('input[name=checkall_'+ tableName +']').prop('checked') == true){
+		$('input[name=check_'+ tableName +']').prop('checked', true);
+	}
+	else {
+		$('input[name=check_'+ tableName +']').prop('checked', false);
+	}
+}
+
+function handlecheck(tableName){
+	if ($('input[name=check_'+ tableName +']:checked').length == $('input[name=check_'+ tableName +']').length){
+		$('input[name=checkall_'+ tableName +']').prop('checked', true);
+	}
+	else {
+		$('input[name=checkall_'+ tableName +']').prop('checked', false);
+	}
 }

@@ -322,16 +322,47 @@ class WkinvoiceController < WkorderentityController
 	end
 
   def getQuantityDetails
+		data = []
 		dataTimeEntries = WkInvoiceItem.getSpentForEntries(params[:inv_item_id])
-    render json: dataTimeEntries
+		dataTimeEntries.each{ |entry| data << {projID: entry.project_id, proj_name: entry.project.name, subject: entry.subject.to_s, usr_name: entry.firstname+''+entry.lastname, spent_on: entry.spent_on, hours: entry.hours}}
+    render json: data
   end
 
 	def getUnbilledQtyDetails
 		data = []
 		dataUnbilledEntries = WkInvoiceItem.getUnbilledTimeEntries(params[:project_id], params[:start_date], params[:end_date], params[:parent_id], params[:parent_type])
 		dataUnbilledEntries = dataUnbilledEntries.where(:issue_id => params[:issue_id]) if (params[:issue_id].to_i > 0)
-		dataUnbilledEntries.each{ |entry| data << {projID: entry.project_id, proj_name: entry.project.name, subject: entry.issue.subject, firstname: entry.user.firstname, lastname: entry.user.lastname, spent_on: entry.spent_on, hours: entry.hours}}
+		dataUnbilledEntries.each{ |entry| data << {projID: entry.project_id, proj_name: entry.project.name, subject: entry.issue.to_s, usr_name: entry.user.name, spent_on: entry.spent_on, hours: entry.hours}}
     render json: data
+	end
+
+	def generateTimeEntries
+		data1 = []
+		data2 = []
+		parent_type = ''
+		parent_id = ''
+		if params[:filter_type] == '2' && !params[:contactID].blank?
+			parent_type = 'WkCrmContact'
+			parent_id = 	params[:contactID]
+		elsif params[:filter_type] == '2' && params[:contactID].blank?
+			parent_type = 'WkCrmContact'
+		end
+
+		if params[:filter_type] == '3' && !params[:accID].blank?
+			parent_type =  'WkAccount'
+			parent_id = 	params[:accID]
+		elsif params[:filter_type] == '3' && params[:accID].blank?
+			parent_type =  'WkAccount'
+		end
+
+		timeEntries = WkInvoiceItem.getGenerateEntries(params[:dateval], params[:fromdateval], parent_id, parent_type, params[:projectID], TimeEntry, 'time_entries')
+		timeEntries.each{ |e| data1 << {id: e.id, acc_name: (e&.name || ''), proj_name: e&.project&.name, subject: e.issue.to_s, usr_name: e.user.name, spent_on: e.spent_on, hours: e.hours}}
+		listHeader1 = { acc_cont_name: l(:label_account), project_name: l(:label_project), issue: l(:label_issue), user: l(:label_user), date: l(:label_date), hour: l(:label_hours) }
+
+		materialEntries = WkInvoiceItem.getGenerateEntries(params[:dateval], params[:fromdateval], parent_id, parent_type, params[:projectID], WkMaterialEntry, 'wk_material_entries')
+		materialEntries.each{ |e| data2 << {id: e.id, acc_name: (e&.name || ''), project: e&.project&.name, issue: e.issue.to_s, spent_on: e.spent_on, product: e.inventory_item&.product_item&.product&.name, selling_price: e.currency.to_s+' '+e.selling_price.to_s, quantity: e.quantity }}
+		listHeader2 = { acc_cont_name: l(:label_account), project_name: l(:label_project), issue: l(:label_issue), date: l(:label_date), product_name: l(:label_product), selling_price: l(:label_selling_price), quantity: l(:label_quantity)}
+		render json: {data1: data1, listHeader1: listHeader1, data2: data2, listHeader2: listHeader2}
 	end
 
 end
