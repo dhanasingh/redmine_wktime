@@ -685,4 +685,15 @@ class WkpayrollController < WkbaseController
 		pdf.RDMCell( 24, row_Height, @payrollEntries.values[0][:currency] + " " + (@total_gross || 0).to_s, 1, 0, '', 1)
 		pdf.RDMCell( 24, row_Height, @payrollEntries.values[0][:currency] + " " + (@total_net || 0).to_s, 1, 0, '', 1)
 	end
+  
+	def destroy
+		userId = params[:user_id].to_i
+		salaryDate = params[:salary_date]
+		wkSalaries = WkSalary.getSalaries(userId, salaryDate)
+		salaryId = wkSalaries.pluck(:id)
+		WkExpenseEntry.where({payroll_id: salaryId}).each {|s| s.update_attribute(:payroll_id, nil)} if salaryId.present?
+		wkSalaries.destroy_all
+		flash[:notice] = l(:notice_successful_delete)
+		redirect_back_or_default action: 'index', tab: params[:tab]
+	end
 end
