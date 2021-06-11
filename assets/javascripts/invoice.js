@@ -1,10 +1,64 @@
 var row_id = 0;
+var compId = 0;
 
 $(document).ready(function() {
-$('.date').each(function() {
-        $(this).datepicker({ dateFormat: 'yy-mm-dd' });
-});
-hideProductType()
+	$('.date').each(function() {
+			$(this).datepicker({ dateFormat: 'yy-mm-dd' });
+	});
+	hideProductType()
+			
+		
+	$("form").submit(function() {
+		var invComplistbox=document.getElementById("invoice_components");
+		if(invComplistbox != null){
+			for(i = 0; i < invComplistbox.options.length; i++){
+				invComplistbox.options[i].selected = true;
+			}						
+		}
+		
+	});
+
+	$( "#invcomp-dlg" ).dialog({
+		autoOpen: false,
+		resizable: true,
+		width: 380,
+		modal: false,		
+		buttons: {
+			"Ok": function() {
+				var opt,desc="",opttext="";
+				var listBox = document.getElementById(listboxId);
+				var invCompName = document.getElementById("inv_copm_name");
+				var invCompVal = document.getElementById("inv_copm_value");
+				if(invCompName.value != ""){  
+					if('Add'== leaveAction){	
+						opt = document.createElement("option");
+						listBox.options.add(opt);
+					}
+					else if('Edit' == leaveAction){
+						opt = listBox.options[listBox.selectedIndex];
+					}			
+					if (invCompName.value != ""){
+						desc = invCompName.value
+						opttext = desc + ":"  + invCompVal.value;
+						desc = ( (compId != 0 && leaveAction == 'Edit') ?  compId + "|" : "|" ) + desc + "|"  + invCompVal.value;
+					}	
+					opt.text =  opttext;
+					opt.value = desc;
+					$( this ).dialog( "close" );
+				}
+				else{
+					var alertMsg = "";					
+					if(invCompName.value == ""){
+						alertMsg = lblInvCompName + " "+ lblInvalid + "\n";
+					}
+					alert(alertMsg);
+				}
+			},
+			Cancel: function() {
+				$( this ).dialog( "close" );
+			}
+		}
+	});
 });
 
 function invoiceFormSubmission(isPreview)
@@ -599,5 +653,34 @@ function handlecheck(tableName){
 	}
 	else {
 		$('input[name=checkall_'+ tableName +']').prop('checked', false);
+	}
+}
+
+function InvCompDialog(action, listId)
+{
+	$( "#invcomp-dlg" ).dialog({ title: lblInvComp});
+	listboxId = listId;
+	var listbox = document.getElementById(listboxId);
+	var invCompName = document.getElementById("inv_copm_name");
+	var invCompVal = document.getElementById("inv_copm_value");
+	if('Add' == action)
+	{	
+		leaveAction = action;
+		invCompName.value = "";
+		invCompVal.value = "";
+		$( "#invcomp-dlg" ).dialog( "open" )	
+	}
+	else if('Edit' == action && listbox != null && listbox.options.selectedIndex >=0)
+	{				
+		var listboxArr = listbox.options[listbox.selectedIndex].value.split('|');
+		invCompName.value = !listboxArr[1] ? "" : listboxArr[1];
+		invCompVal.value = !listboxArr[2] ? "" : listboxArr[2];
+		leaveAction = action;
+		compId = listboxArr[0];
+		$( "#invcomp-dlg" ).dialog( "open" )	
+	}
+	else if(listbox != null && listbox.options.length >0)
+	{		
+		alert(selectListAlertMsg);				
 	}
 }

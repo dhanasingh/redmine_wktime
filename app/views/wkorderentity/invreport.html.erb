@@ -1,5 +1,6 @@
 <% if !@invoiceItem.blank? %>
-
+	<% projectID =  @invoiceItem.collect{|i| i.project_id}.uniq %>
+	<% invoiceComp = getInvoiceComponents(@invoice.parent_id, @invoice.parent_type, projectID ) %>
 	<div id="time-rpt-dlg" style="overflow-x:auto;">
 		<center><b><%= (controller.getHeaderLabel).upcase %></b></center>
 		<div style="float:right">
@@ -127,15 +128,14 @@
 					<td align="left" colspan="1" width="20%"><b><%= l(:label_amount_in_words) %></b></td>
 					<td align="left" colspan="5" width="35%"><%=h numberInWords(@invoiceItem.sum(:original_amount)) + " " + l(:label_only) + "." %></td>
 				</tr>
-				<% unless Setting.plugin_redmine_wktime[controller.getOrderComponetsId].blank? 
-				Setting.plugin_redmine_wktime[controller.getOrderComponetsId].each do |element| 
-					listboxArr = element.split('|') %>
+				<% if invoiceComp.present?
+						invoiceComp.each do |comp| %>
 							<tr style="width:100%;">
-								<td align="left" colspan="2" width="250px"><b><%= listboxArr[0] %></b></td>
-								<td align="left" colspan="4" width="500px"><%=h listboxArr[1] %></td>
+								<td align="left" colspan="2" width="250px"><b><%= comp[:name] %></b></td>
+								<td align="left" colspan="4" width="500px"><%= comp[:value] %></td>
 							</tr>
+						<% end %>
 				<% end %>
-			<% end %>
 		</table>
 	</div>
 	<br/>

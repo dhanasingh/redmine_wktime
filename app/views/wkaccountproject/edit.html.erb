@@ -125,6 +125,32 @@
 	</table>
 	</div>
 	<div style="clear:both"></div>
+	<% if @invoiceComp.present? %>
+	<div style="padding-top: 10px">
+	<h2><%= l(:label_invoice_components) %></h2>
+	<fieldset>	
+		<table>
+			<thead>
+				<tr>
+					<th class="lbl-txt-align" >#</th>
+					<th class="lbl-txt-align" style="width: 150px"><%= l(:field_name) %></th>
+					<th class="lbl-txt-align"><%= l(:field_value) %></th>
+				</tr>
+			</thead>
+			<tbody>
+				<% @invoiceComp.each do |comp| %>
+					<%= hidden_field_tag("acc_inv_comp_id_#{comp.ic_id}",  comp.id )  %>
+					<tr>
+						<td><%= check_box_tag("invoice_components[][invoice_component_id]", comp.ic_id, comp.id.present?, {id: "invoice_components_id_#{comp.ic_id}", onchange: "overrideComponents(this);"} ) %>
+						<td style="width: 150px"><%= comp.name %>
+						<td><%= text_field_tag("invoice_components[][value]", comp.value.present? ? comp.value : comp.ic_value,  {disabled: comp.id.blank?, id: "invoice_components_value_#{comp.ic_id}"}) %>
+					</tr>
+				<% end %>
+			</tbody>
+		</table>
+	</fieldset>
+	</div>
+	<% end %>
 	<%=h hidden_field_tag("mtotalrow",  row_index-1 )  %>
 	<%=h hidden_field_tag("tax_updated_id",  "" )  %>
 	<%= submit_tag l(:button_save), :class => "small", :name => nil %>

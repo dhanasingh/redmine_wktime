@@ -1,7 +1,8 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 <div class="wk-contextual">
-	<%= link_to controller.getLabelNewInv, url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-add' %>
+	<%= link_to controller.getLabelNewInv, url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-add' %>&nbsp;
+	<%= render :partial => 'sidebar' if  controller_name == 'wkinvoice'%> 
 </div>
 
 	<%= form_tag({:controller => controller_name, :action => 'index', :tab => controller_name}, :method => :get, :id => 'query_form') do %>

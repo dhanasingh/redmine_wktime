@@ -844,4 +844,26 @@ include WkpayrollHelper
 		inv_desc = "AccName:" + accName.name + " InvNo:#" + invObj.invoice_number.to_s + " InvoiceAmt:" + invObj.invoice_items[0].original_currency.to_s + invAmount.to_s
 		inv_desc
 	end
+	
+	def getInvoiceComponents(parentId, parentType, projectID)
+		invoiceComponents = []
+		if controller.getOrderComponetsId == 'wktime_invoice_components'
+			accProjs =  WkAccountProject.where(parent_id: parentId,parent_type: parentType, project_id: projectID)
+			accProjectID =  accProjs.first.id
+			invoiceComp = WkInvoiceComponents.getAccInvComp(accProjectID)
+			if invoiceComp.present?
+				invoiceComp.each do |comp|
+					invoiceComponents << {name: comp.name, value: comp.value.present? ? comp.value : comp.ic_value}
+				end
+			end
+		else
+			unless Setting.plugin_redmine_wktime[controller.getOrderComponetsId].blank? 
+				Setting.plugin_redmine_wktime[controller.getOrderComponetsId].each do |element| 
+					comp = element.split('|')
+					invoiceComponents << {name: comp[0], value: comp[1]}
+				end
+			end
+		end
+		invoiceComponents
+	end
 end

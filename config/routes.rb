@@ -751,3 +751,7 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	end
 
 	delete 'wkpayroll/destroy', to: 'wkpayroll#destroy'
+
+	get 'wkinvoice/invoice_components', to: 'wkinvoice#invoice_components'
+
+	post 'wkinvoice/saveInvoiceComponents', to: 'wkinvoice#saveInvoiceComponents'

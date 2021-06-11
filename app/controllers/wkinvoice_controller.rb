@@ -321,19 +321,19 @@ class WkinvoiceController < WkorderentityController
 		true
 	end
 
-  def getQuantityDetails
+	def getQuantityDetails
 		data = []
 		dataTimeEntries = WkInvoiceItem.getSpentForEntries(params[:inv_item_id])
-		dataTimeEntries.each{ |entry| data << {projID: entry.project_id, proj_name: entry.project.name, subject: entry.subject.to_s, usr_name: entry.firstname+''+entry.lastname, spent_on: entry.spent_on, hours: entry.hours}}
-    render json: data
-  end
+		dataTimeEntries.each{ |entry| data << {projID: entry.project_id, proj_name: entry.project.name, subject: entry.subject.to_s, usr_name: entry.firstname+''+entry.lastname, 				spent_on: entry.spent_on, hours: entry.hours}}
+		render json: data
+	end
 
 	def getUnbilledQtyDetails
 		data = []
 		dataUnbilledEntries = WkInvoiceItem.getUnbilledTimeEntries(params[:project_id], params[:start_date], params[:end_date], params[:parent_id], params[:parent_type])
 		dataUnbilledEntries = dataUnbilledEntries.where(:issue_id => params[:issue_id]) if (params[:issue_id].to_i > 0)
-		dataUnbilledEntries.each{ |entry| data << {projID: entry.project_id, proj_name: entry.project.name, subject: entry.issue.to_s, usr_name: entry.user.name, spent_on: entry.spent_on, hours: entry.hours}}
-    render json: data
+		dataUnbilledEntries.each{ |entry| data << {projID: entry.project_id, proj_name: entry.project.name, subject: entry.issue.to_s, usr_name: entry.user.name, spent_on: entry.				spent_on, hours: entry.hours}}
+    	render json: data
 	end
 
 	def generateTimeEntries
@@ -363,6 +363,39 @@ class WkinvoiceController < WkorderentityController
 		materialEntries.each{ |e| data2 << {id: e.id, acc_name: (e&.name || ''), project: e&.project&.name, issue: e.issue.to_s, spent_on: e.spent_on, product: e.inventory_item&.product_item&.product&.name, selling_price: e.currency.to_s+' '+e.selling_price.to_s, quantity: e.quantity }}
 		listHeader2 = { acc_cont_name: l(:label_account), project_name: l(:label_project), issue: l(:label_issue), date: l(:label_date), product_name: l(:label_product), selling_price: l(:label_selling_price), quantity: l(:label_quantity)}
 		render json: {data1: data1, listHeader1: listHeader1, data2: data2, listHeader2: listHeader2}
+	end
+	
+	def invoice_components
+		invoiceComp = WkInvoiceComponents.getInvComp
+		@invComps = []
+		@invComps = invoiceComp.map{|comp| [comp.name + '|' + comp.value.to_s, comp.id.to_s + '|' + comp.name + '|' + comp.value.to_s] } if invoiceComp.present?
+	end
+
+	def saveInvoiceComponents
+		errorMsg = ""
+		if params[:invoice]['comp_del_ids'].present?
+			ids = params[:invoice]['comp_del_ids'].split('|')
+			WkInvoiceComponents.where(id: ids.map(&:to_i)).destroy_all
+		end
+		invComps = params[:invoice_components] || []
+		invComps.each do |component|
+			if component.present?
+				comp = component.split('|')
+				wkInvoiceComps =  comp[0].present? ? WkInvoiceComponents.find(comp[0]) : WkInvoiceComponents.new
+				wkInvoiceComps.comp_type = 'IC'
+				wkInvoiceComps.name = comp[1]
+				wkInvoiceComps.value = comp[2]
+				if !wkInvoiceComps.save
+					errorMsg += wkInvoiceComps.errors.full_messages.join("<br>")
+				end
+			end
+		end
+		if errorMsg.blank?
+			flash[:notice] = l(:notice_successful_update)
+	    else
+			flash[:error] = errorMsg
+	    end
+			redirect_to action: 'invoice_components'
 	end
 
 end

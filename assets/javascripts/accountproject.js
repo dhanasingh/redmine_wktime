@@ -86,3 +86,11 @@ function renderData(resData){
 
 	$("#dialog").html(content);
 }
+
+function overrideComponents(chkboxelement){
+	var chkboxid = chkboxelement.id;
+	var isOverride = chkboxelement.checked;
+	var id = chkboxid.replace("invoice_components_id_", "");
+	var compValue = document.getElementById('invoice_components_value_'+id);
+	compValue.disabled = !isOverride;
+}
