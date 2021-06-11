@@ -22,6 +22,7 @@ class WkcrmenumerationController < WkbaseController
   before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
     
   accept_api_auth :getCrmEnumerations
+  include WkcrmenumerationHelper
 
     def index
 		sort_init 'type', 'asc'
@@ -43,14 +44,15 @@ class WkcrmenumerationController < WkbaseController
 			wkcrmenum = WkCrmEnumeration.all
 		end	
 		formPagination(wkcrmenum.reorder(sort_clause))
+		wkcrmenum
     end
   
     def edit
-	@enumEntry = nil
-	unless params[:enum_id].blank?
-		@enumEntry = WkCrmEnumeration.find(params[:enum_id].to_i)
+		@enumEntry = nil
+		unless params[:enum_id].blank?
+			@enumEntry = WkCrmEnumeration.find(params[:enum_id].to_i)
+		end
 	end
-  end
   
   def update
 	wkcrmenumeration = nil 
@@ -124,6 +126,16 @@ class WkcrmenumerationController < WkbaseController
 			render json: enums
 		else
 			render_403
+		end
+	end
+	
+	def export
+		headers = {type: l(:label_type), name: l(:field_name), position: l(:label_position), active: l(:field_active), default: l(:field_is_default) }
+		data = index.map{|entry| {type: enumType[entry.enum_type], name: entry.name, position: entry.position,  active: entry.active, default: entry.is_default} }
+		respond_to do |format|
+			format.csv {
+				send_data(csv_export({headers: headers, data: data}), type: 'text/csv; header=present', filename: 'enumeration.csv')
+			}
 		end
 	end
 end

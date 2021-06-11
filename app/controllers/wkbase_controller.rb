@@ -318,4 +318,15 @@ class WkbaseController < ApplicationController
 		groups = Group.sorted.givable.map{ |g| [g.name, g.id]}
 		render json: {groups: groups}
 	end
+
+	def csv_export(data)
+		decimal_separator = l(:general_csv_decimal_separator)
+		export = Redmine::Export::CSV.generate do |csv|
+			csv << data[:headers].collect {|key, value| Redmine::CodesetUtil.from_utf8(value.to_s, l(:general_csv_encoding))}
+			data[:data].each do |entry|
+				csv << entry.collect {|key, value| Redmine::CodesetUtil.from_utf8(value.to_s, l(:general_csv_encoding))} if entry.present?
+			end
+		end
+		export
+	end
 end
