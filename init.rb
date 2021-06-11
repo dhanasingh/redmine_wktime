@@ -10,6 +10,7 @@ require_dependency '/redmine/menu_manager'
 require_dependency 'time_entry'
 require_dependency 'ftte/ftte_hook'
 require_dependency 'queries_helper_patch'
+require_dependency 'timelog_helper_patch'
 
 User.class_eval do
 	has_one :wk_user, :dependent => :destroy, :class_name => 'WkUser'
@@ -594,13 +595,54 @@ module FttePatch
 
     base.class_eval do
         unloadable
-			def base_scope
-				TimeEntry.visible.
+		# ============= ERPmine_patch Redmine 4.2  =====================
+			def base_scope(options={})
+				if options[:nonSpentTime].present?
+					TimeEntry.
+					joins("RIGHT JOIN issues ON time_entries.issue_id = issues.id").
+					joins("INNER JOIN projects ON projects.id = time_entries.project_id OR projects.id = issues.project_id").
+					joins("LEFT JOIN users ON users.id = time_entries.user_id AND users.type IN ('User', 'AnonymousUser')").
+					joins("LEFT JOIN enumerations ON enumerations.id = time_entries.activity_id AND enumerations.type IN ('TimeEntryActivity')").
+					where(custom_condition).
+					where(TimeEntry.visible_condition(User.current))
+				else
+		# ======================================
+					TimeEntry.visible.
 					joins(:project, :user).
 					includes(:activity).
 					references(:activity).
 					left_join_issue.
 					where(getSupervisorCondStr)
+				end
+			end
+
+			def custom_condition
+				if (getSupervisorCondStr || "").include?("time_entries")
+					condstr = " projects.id = issues.project_id AND time_entries.id IS NULL"
+					projFilter = filters && filters["project_id"]
+					if filters.present? && projFilter.present?
+						projFilter[:values] = User.current.memberships.map(&:project_id).map(&:to_s) if projFilter[:values] && projFilter[:values].first == 'mine'
+						condstr += " AND " + sql_for_field("project_id", projFilter[:operator], projFilter[:values], "issues", "project_id")
+					end
+					condstr += " AND issues.project_id = #{project.id} " if project.present?
+					getSupervisorCondStr.insert(getSupervisorCondStr.index("time_entries"), condstr + " ) OR ( ")
+				else
+					getSupervisorCondStr
+				end
+			end
+
+			def results_scope(options={})
+				order_option = [group_by_sort_order, (options[:order] || sort_clause)].flatten.reject(&:blank?)
+		
+				# ============= ERPmine_patch Redmine 4.2  =====================
+				if options[:nonSpentTime].present?
+					base_scope(options)
+				else					
+				# ======================================
+					base_scope.
+						order(order_option).
+						joins(joins_for_order_statement(order_option.join(',')))
+				end
 			end
 
 			#========= ERPmine_patch Redmine 4.2 for get supervision condition string ======

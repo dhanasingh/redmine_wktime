@@ -25,7 +25,12 @@
                                                           :style => 'width: 200px',
                                                           :disabled => (@report.criteria.length >= 3),
                                                           :id => "criterias") %>
-     <%= link_to l(:button_clear), {:params => request.query_parameters.merge(:criteria => nil)}, :class => 'icon icon-reload' %></p>
+
+    <% if params[:spent_type].blank? || params[:spent_type] == "T" %>
+      <label><%= check_box_tag('non_spent_time', true, params[:non_spent_time], onclick: 'this.form.submit();') %><%= "Include Non Spent time Issues" %>
+    <% end %>
+
+     <%= link_to l(:button_clear), {:params => request.query_parameters.merge(:criteria => nil, :non_spent_time => nil)}, :class => 'icon icon-reload' %></p>
 
 <% end %>
 
@@ -39,6 +44,7 @@
 <table class="list" id="time-report">
 <thead>
 <tr>
+<% @showEstimate = params[:spent_type] == "T" ? true : false%>
 <% @report.criteria.each do |criteria| %>
   <th><%= l_or_humanize(@report.available_criteria[criteria][:label]) %></th>
 <% end %>
@@ -48,6 +54,9 @@
 <% end %>
 	<% expense = (@query.type == "WkExpenseEntryQuery" ? l(:label_total_expense) : l(:label_total_time)) %>
   <th class="total" style="width:<%= columns_width %>%;"><%= expense %></th>
+  <% if @showEstimate %>
+    <th class="total" style="width:<%= columns_width %>%;"><%= l(:field_total_estimated_hours) %></th>
+  <% end %>
 </tr>
 </thead>
 <tbody>
@@ -62,6 +71,9 @@
     <td class="hours"><%= currency %><%= html_hours(format_hours(sum)) if sum > 0 %></td>
   <% end -%>
   <td class="hours"><%= currency %><%= html_hours(format_hours(total)) if total > 0 %></td>
+  <% if @showEstimate %>
+    <td class="hours"><%= html_hours(format_hours(@estimatedTotal))  %></td>
+  <% end %>
   </tr>
 </tbody>
 </table>
