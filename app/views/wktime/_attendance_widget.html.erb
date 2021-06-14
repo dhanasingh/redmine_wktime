@@ -6,9 +6,9 @@
 		wktime_helper.isChecked('crm_save_geo_location') %>
 			<%= javascript_include_tag 'geo_location', :plugin => "redmine_wktime" %>
 <% end %>
-<% 
+<%
    lastAttnEntries = wktime_helper.findLastAttnEntry(true)
-   if !lastAttnEntries.blank? 
+   if !lastAttnEntries.blank?
   	  @lastAttnEntry = lastAttnEntries[0]
    end
 %>
@@ -87,7 +87,7 @@
     font-size: 20px;
 	}
 </style>
-<% if wktime_helper.isChecked("wktime_enable_clock_in_out") && wktime_helper.isChecked("wktime_enable_attendance_module") && User.current.logged? && wktime_helper.checkViewPermission %>	
+<% if wktime_helper.isChecked("wktime_enable_clock_in_out") && wktime_helper.isChecked("wktime_enable_attendance_module") && User.current.logged? && wktime_helper.checkViewPermission %>
 	<% if !@lastAttnEntry.blank?
 			if(@lastAttnEntry.end_time.blank? && @lastAttnEntry.start_time > 24.hour.ago)
 				hideStart = true
@@ -103,7 +103,7 @@
 			hideStart = false
 			hideEnd = true
 		end
-		 
+
 		imgname = "#{imglabel}" == "start" ? "clockin1.jpg" : "clockout1.jpg"
 		totalhours = (wktime_helper.totalhours)*3600
 		totalhours = (hideStart ? ( !remaininghr.blank? ? remaininghr.round(0)+totalhours : totalhours) : totalhours )
@@ -135,10 +135,10 @@
 	<div id="clockINOUT">
 		<span id="appendlabel"><%= totalhours1 %></span>
 		<div id="startdiv">
-			<%= image_tag("widgetclockin.png", :id => 'clockin' , :plugin => "redmine_wktime", :style => hideStart ? "display:none;" : "display:block;" ) %>		
+			<%= image_tag("widgetclockin.png", :id => 'clockin' , :plugin => "redmine_wktime", :style => hideStart ? "display:none;" : "display:block;" ) %>
 		</div>
 		<div id="enddiv">
-			<%= image_tag("widgetclockout.png", :id => 'clockout', :plugin => "redmine_wktime", :style => hideEnd ? "display:none;" : "display:block;") %>		
+			<%= image_tag("widgetclockout.png", :id => 'clockout', :plugin => "redmine_wktime", :style => hideEnd ? "display:none;" : "display:block;") %>
 		</div>
 	</div>
 	<div style="clear: both;"></div>
@@ -233,7 +233,6 @@
 				$('#map-wrapper').append('<div id="list-wrapper" style="width: 49%; float: left; overflow-x: scroll; padding-right: 5px"></div>');
 				$('.list.odd-even.time-entries').appendTo('#list-wrapper');
 				$('#mapheader').appendTo('#map-wrapper');
-				$('.list.odd-even.time-entries').css({ width:'50%'});
 			});
 		</script>
 		<%= render partial: "wkgeolocation/show_on_map", locals: { entries: @entries, height: '96%', width: '49%', model: 'spent_for' } %>
