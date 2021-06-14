@@ -907,3 +907,35 @@ function setUOMValue(product_id)
 		complete: function(){ $(this).parent().removeClass('ajax-loading'); }
 	});
 }
+
+function renderData(resData){
+	let content = "";
+	const {header={}, data} = resData || {};
+	if(data && data.length > 0){
+		content += "<table class='list time-entries' style='width:100%; float:left;'>";
+		//Headers
+		content += "<tr>";
+		$.each(header, function(key, label){
+			content += "<th class='th'>" +label+ "</th>";
+		});
+		content += "</tr>";
+
+		//List
+		$.each((data), function(inx, el){
+			content += "<tr>";
+			$.each((el || {}), function(key, label){
+				content += "<td class='td'>" +label+ "</td>";
+			});
+			content += "</tr>";
+		});
+		content += "</table>";
+	}
+	else{
+		content += '<p style="clear:both" class="nodata">No data to display</p>';
+	}
+
+	if(!$("#dialog").length){
+		$("body").append("<div id='dialog'></div>")
+	}
+	$("#dialog").html(content);
+}

@@ -1229,5 +1229,11 @@ it:
   label_min_exp_req: Experience Required
   label_min_rating_req: Rating Required
   label_consumed_items: Consumed Items
-  
   button_save_with_tax: Save With Tax
+  label_clockin_users: Clock in users
+  label_expense_for_issues: Expense for issues
+  label_lead_generation: Lead generation vs conversion
+  label_invoice_payment: Invoice vs Payment
+  label_profit_loss: Profit and loss
+  label_added: Added
+  label_deleted: Deleted

@@ -755,3 +755,7 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wkinvoice/invoice_components', to: 'wkinvoice#invoice_components'
 
 	post 'wkinvoice/saveInvoiceComponents', to: 'wkinvoice#saveInvoiceComponents'
+
+	get 'wkproductitem/get_material_entries', to: 'wkproductitem#get_material_entries'
+
+	get 'wkdashboard/getDataSet', to: 'wkdashboard#getDataSet'

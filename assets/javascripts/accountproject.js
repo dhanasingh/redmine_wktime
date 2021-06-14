@@ -64,29 +64,6 @@ function showQuantityDetails(){
 	});
 }
 
-function renderData(resData){
-	const {listHeader={}, data=[]} = resData || {};
-	let content = "<table class='list time-entries' style='width:100%; float:left;'>";
-	//Headers
-	content += "<tr>";
-	$.each(listHeader, function(key, label){
-		content += "<th class='leftAlign'>" +label+ "</th>";
-	});
-	content += "</tr>";
-
-	//List
-	$.each(data, function(inx, el){
-		content += "<tr>";
-		$.each((el || {}), function(key, label){
-			content += "<td class='leftAlign'>" +label+ "</td>";
-		});
-		content += "</tr>";
-	});
-	content += "</table>";
-
-	$("#dialog").html(content);
-}
-
 function overrideComponents(chkboxelement){
 	var chkboxid = chkboxelement.id;
 	var isOverride = chkboxelement.checked;

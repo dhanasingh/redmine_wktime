@@ -328,7 +328,7 @@ class WkproductitemController < WkinventoryController
 		listHeader = {
 			project_name: l(:label_project), issue: l(:label_issue), product_name: l(:label_product), brand_name: l(:label_brand), product_model_name: l(:label_model),
 			currency: l(:field_currency), selling_price: l(:label_selling_price), quantity: l(:label_quantity)}
-		render json: {data: data, listHeader: listHeader}
+		render json: {data: data, header: listHeader}
 	end
 
 	def set_filter_session(filters=nil, filterParams={})
