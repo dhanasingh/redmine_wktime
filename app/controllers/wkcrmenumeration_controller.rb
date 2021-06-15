@@ -32,19 +32,28 @@ class WkcrmenumerationController < WkbaseController
 
 		set_filter_session
 		enumName = session[controller_name].try(:[], :enumname)
-		enumType =  session[controller_name].try(:[], :enumType)
-		wkcrmenum = nil
-		if !enumName.blank? &&  !enumType.blank?
-			wkcrmenum = WkCrmEnumeration.where(:enum_type => enumType).where("LOWER(name) like LOWER(?)", "%#{enumName}%")
-		elsif enumName.blank? &&  !enumType.blank? 
-			wkcrmenum = WkCrmEnumeration.where(:enum_type => enumType)
-		elsif !enumName.blank? &&  enumType.blank?
-			wkcrmenum = WkCrmEnumeration.where("LOWER(name) like LOWER(?)", "%#{enumName}%")
+		enumerationType =  session[controller_name].try(:[], :enumType)
+		entries = nil
+		if !enumName.blank? &&  !enumerationType.blank?
+			entries = WkCrmEnumeration.where(:enum_type => enumerationType).where("LOWER(name) like LOWER(?)", "%#{enumName}%")
+		elsif enumName.blank? &&  !enumerationType.blank? 
+			entries = WkCrmEnumeration.where(:enum_type => enumerationType)
+		elsif !enumName.blank? &&  enumerationType.blank?
+			entries = WkCrmEnumeration.where("LOWER(name) like LOWER(?)", "%#{enumName}%")
 		else
-			wkcrmenum = WkCrmEnumeration.all
-		end	
-		formPagination(wkcrmenum.reorder(sort_clause))
-		wkcrmenum
+			entries = WkCrmEnumeration.all
+		end
+		entries = entries.reorder(sort_clause)		
+		respond_to do |format|
+			format.html {
+				formPagination(entries)
+			}
+			format.csv{
+				headers = {type: l(:label_type), name: l(:field_name), position: l(:label_position), active: l(:field_active), default: l(:field_is_default) }
+				data = entries.map{|entry| {type: enumType[entry&.enum_type], name: entry.name, position: entry.position,  active: entry.active, default: entry.is_default} }
+				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "enumeration.csv")
+			}
+		end
     end
   
     def edit
@@ -54,27 +63,27 @@ class WkcrmenumerationController < WkbaseController
 		end
 	end
   
-  def update
-	wkcrmenumeration = nil 
-	unless params[:enum_id].blank?
-		wkcrmenumeration = WkCrmEnumeration.find(params[:enum_id].to_i)
-	else
-		wkcrmenumeration = WkCrmEnumeration.new
+	def update
+		wkcrmenumeration = nil 
+		unless params[:enum_id].blank?
+			wkcrmenumeration = WkCrmEnumeration.find(params[:enum_id].to_i)
+		else
+			wkcrmenumeration = WkCrmEnumeration.new
+		end
+		wkcrmenumeration.name = params[:enumname]
+		wkcrmenumeration.position = params[:enumPosition]
+		wkcrmenumeration.active = params[:enumActive]
+		wkcrmenumeration.enum_type = params[:enumType]
+		wkcrmenumeration.is_default = params[:enumDefaultValue]
+		if wkcrmenumeration.valid?	
+			wkcrmenumeration.save
+			redirect_to :controller => 'wkcrmenumeration',:action => 'index' , :tab => 'wkcrmenumeration'
+			flash[:notice] = l(:notice_successful_update)
+		else
+			flash[:error] = wkcrmenumeration.errors.full_messages.join("<br>")
+			redirect_to :controller => 'wkcrmenumeration',:action => 'edit'
+		end
 	end
-	wkcrmenumeration.name = params[:enumname]
-	wkcrmenumeration.position = params[:enumPosition]
-	wkcrmenumeration.active = params[:enumActive]
-	wkcrmenumeration.enum_type = params[:enumType]
-	wkcrmenumeration.is_default = params[:enumDefaultValue]
-	if wkcrmenumeration.valid?	
-		wkcrmenumeration.save
-		redirect_to :controller => 'wkcrmenumeration',:action => 'index' , :tab => 'wkcrmenumeration'
-		flash[:notice] = l(:notice_successful_update)
-	else
-		flash[:error] = wkcrmenumeration.errors.full_messages.join("<br>")
-		redirect_to :controller => 'wkcrmenumeration',:action => 'edit'
-	end
-  end
   
 	def set_filter_session
 		filters = [:enumname, :enumType]
@@ -126,16 +135,6 @@ class WkcrmenumerationController < WkbaseController
 			render json: enums
 		else
 			render_403
-		end
-	end
-	
-	def export
-		headers = {type: l(:label_type), name: l(:field_name), position: l(:label_position), active: l(:field_active), default: l(:field_is_default) }
-		data = index.map{|entry| {type: enumType[entry.enum_type], name: entry.name, position: entry.position,  active: entry.active, default: entry.is_default} }
-		respond_to do |format|
-			format.csv {
-				send_data(csv_export({headers: headers, data: data}), type: 'text/csv; header=present', filename: 'enumeration.csv')
-			}
 		end
 	end
 end

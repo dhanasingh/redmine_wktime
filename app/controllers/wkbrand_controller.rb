@@ -27,17 +27,30 @@ class WkbrandController < WkinventoryController
 		sort_init 'name', 'asc'
 		sort_update 'name' => "name",
 					'description' => "description"
+
+		set_filter_session
+		name = getSession(:name)
 		@brandEntries = nil
 		sqlStr = ""
-		unless params[:name].blank?
-			sqlStr = "LOWER(name) like LOWER('%#{params[:name]}%')"
+		unless name.blank?
+			sqlStr = "LOWER(name) like LOWER('%#{name}%')"
 		end
 		unless sqlStr.blank?
 			entries = WkBrand.where(sqlStr)
 		else
 			entries = WkBrand.all
 		end
-		@brandEntries = formPagination(entries.reorder(sort_clause))
+		entries = entries.reorder(sort_clause)
+		respond_to do |format|
+			format.html {
+				@brandEntries = formPagination(entries)
+			}
+			format.csv{
+				headers = {name: l(:field_name), description: l(:field_description)}
+				data = entries.collect{|entry| {name: entry.name, type: entry.description} }
+				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "brand.csv")
+			}
+		end
     end
 	
 	def formPagination(entries,orderColumn = nil)
@@ -153,6 +166,11 @@ class WkbrandController < WkinventoryController
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
 		end	
+	end
+
+	def set_filter_session
+		filters = [:name]
+		super(filters)
 	end
 
 end

@@ -1,20 +1,4 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
- <div class="wk-contextual">
-	<%= link_to l(:label_new_tax), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
- </div>
- <%= form_tag({:controller => 'wktax', :action => 'index'}, :method => :post, :id => 'query_form') do %>
-	<fieldset>
-		<table>
-			<tr>
-				<%=h hidden_field_tag('tab', "wktax") %>
-				<th><label for='name'><%= l(:label_taxname) %></label></th>
-					<td><%= text_field_tag 'taxname', params[:taxname], :size => 30 %></td>
-				<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %></td>
-				<td><%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %></td>
-			</tr>
-		</table>
-	</fieldset>
- <% end %>
 <div class="autoscroll">
 <table class="list time-entries">
   <thead>
@@ -37,5 +21,4 @@
   </tbody>
 </table>
 </div>
-<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
 

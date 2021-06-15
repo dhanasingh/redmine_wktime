@@ -1,5 +1,6 @@
 <%= title l(:label_depreciation) %>
-<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'index', plugin: "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
 <script type="text/javascript">
 	wkproductUrl = '<%=url_for(:controller => "wkproduct", :action => "index", :tab => "wkproduct")%>';
 	wkproductitemUrl = '<%=url_for(:controller => "wkproductitem", :action => "index", :tab => "wkproductitem")%>';
@@ -10,4 +11,12 @@
 </script>
 <%= render_tabs time_expense_tabs %>
 <%= render :partial => 'wkassetdepreciation/depreciation_index'%>
-<%= render :partial => 'wkassetdepreciation/list'%>
+
+<% if @depreciation_entries.present? %>
+	<%= render :partial => 'wkassetdepreciation/list'%>
+	<% other_formats_links do |f| %>
+		<%= f.link_to_with_query_parameters 'CSV', {} %>
+	<% end %>
+<% else %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>

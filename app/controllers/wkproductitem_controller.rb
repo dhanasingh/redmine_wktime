@@ -87,7 +87,17 @@ class WkproductitemController < WkinventoryController
 
 		sqlStr = getProductInventorySql + sqlwhere
 		orderStr = " ORDER BY " + (sort_clause.present? ? sort_clause.first : " iit.id desc")
-		findBySql(selectStr, sqlStr, orderStr)
+		respond_to do |format|
+			format.html {
+				findBySql(selectStr, sqlStr, orderStr)
+			}
+			format.csv{
+				entries = WkProductItem.find_by_sql(selectStr + sqlStr + orderStr)
+				headers = getIventoryListHeader
+				data = getCsvData(entries)
+				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: getItemType == "A" ? 'asset.csv' : 'productitem.csv')
+			}
+		end
 	end
 
 	def getProductInventorySql
@@ -411,5 +421,10 @@ class WkproductitemController < WkinventoryController
 
 	def newcomponentLbl
 		l(:label_new_component)
+	end
+
+	def getCsvData(entries)
+		data = entries.map{|entry| {project_name: entry['project_name'] || '', product_name: entry['product_name'] || '', brand_name: entry['brand_name'] || '', product_model_name: entry['product_model_name'] || '', product_attribute_name: entry['product_attribute_name'] || '', serial_number: entry['serial_number'] || '', currency: entry['currency'] || '', selling_price: entry['selling_price'] || '', total_quantity: entry['total_quantity'] || '', available_quantity: entry['available_quantity'] || '', uom_short_desc: entry['uom_short_desc'] || '', location_name: entry['location_name'] || ''} 
+		}
 	end
 end

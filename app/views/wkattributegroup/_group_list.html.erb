@@ -1,12 +1,3 @@
-<%= form_tag({:controller => 'wkattributegroup', :action => 'index'}, :method => :post, :id => 'query_form') do %>
-	  <fieldset>
-		 <%=h hidden_field_tag('tab', "wkattributegroup") %>
-		 <label for='name'><%= l(:field_name) %>:</label>
-		 <%= text_field_tag 'name', params[:name], :size => 30 %>
-		 <%= submit_tag l(:button_apply), :class => "small", :name => nil %>
-		 <%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
-	  </fieldset>
-<% end %>
 <div class="autoscroll">
 <table class="list time-entries">
   <thead>

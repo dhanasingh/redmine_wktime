@@ -1,5 +1,6 @@
 <%= title l(:label_rfq) %>
-<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'index', plugin: "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
 <script type="text/javascript"> 
     purRfqUrl = '<%=url_for(:controller => "wkrfq", :action => "index", :tab => "wkrfq")%>';
     purQuoteUrl = '<%=url_for(:controller => "wkquote", :action => "index", :tab => "wkquote")%>';
@@ -13,5 +14,35 @@
 <%= render_tabs time_expense_tabs %>
 
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
+<div class="wk-contextual">
+	<%= link_to l(:label_new_rfq), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+</div>
+<%
+    rfq_name =session[controller_name].try(:[], :rfq_name)
+    rfq_date =session[controller_name].try(:[], :rfq_date)
+%>
+ <%= form_tag({:controller => 'wkrfq', :action => 'index'}, :method => :post, :id => 'query_form') do %>
+	<fieldset>
+		<%= hidden_field_tag 'tab', "wkrfq" %>
+		<%= hidden_field_tag 'searchlist', "wkrfq" %>
+		<table>
+			<tr>
+				<th><label for='name'><%= l(:field_name) %></label></th>
+				<td><%= text_field_tag 'rfq_name', rfq_name, :size => 30 %></td>
+				<th><label style="padding-left: 10px;"><%= l(:label_date) %></label></th>
+				<td><%= date_field_tag('rfq_date', rfq_date, :size => 10) %> <%= calendar_for('rfq_date') %></td>
+				<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %></td>
+				<td><%= link_to l(:button_clear), {tab: controller_name, clear: true}, :class => 'icon icon-reload' %></td>
+			</tr>
+		</table>
+	</fieldset>
+ <% end %>
 
-<%= render :partial => 'wkrfq/rfq_list'%>
+<% if @rfqEntries.present? %>
+	<%= render :partial => 'wkrfq/rfq_list'%>
+	<% other_formats_links do |f| %>
+		<%= f.link_to_with_query_parameters 'CSV', {} %>
+	<% end %>
+<% else %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>

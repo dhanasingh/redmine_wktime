@@ -26,7 +26,7 @@ class WklocationController < WkbaseController
   before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
 	accept_api_auth :getlocations
 
-  def index
+  	def index
 		sort_init 'name', 'asc'
 		sort_update 'name' => "name",
 					'type' => "#{WkCrmEnumeration.table_name}.name",
@@ -36,29 +36,39 @@ class WklocationController < WkbaseController
 		set_filter_session
 		locationName = session[controller_name].try(:[], :location_name)
 		locationType =  session[controller_name].try(:[], :location_type)
-		wklocation = WkLocation.all
+		entries = WkLocation.all
 
 		if locationType.present? && locationType.to_i != 0
-			wklocation = wklocation.where(:location_type_id => locationType.to_i)
+			entries = entries.where(:location_type_id => locationType.to_i)
 		end
 
 		if locationName.present?
-			wklocation = wklocation.where("LOWER(wk_locations.name) like LOWER(?) ", "%#{locationName}%")
+			entries = entries.where("LOWER(wk_locations.name) like LOWER(?) ", "%#{locationName}%")
 		end
 
-		wklocation = wklocation.joins("LEFT JOIN wk_addresses ON wk_locations.address_id = wk_addresses.id")
+		entries = entries.joins("LEFT JOIN wk_addresses ON wk_locations.address_id = wk_addresses.id")
 			.joins("LEFT JOIN wk_crm_enumerations ON wk_locations.location_type_id = wk_crm_enumerations.id")
-		formPagination(wklocation.reorder(sort_clause))
-  end
+		entries = entries.reorder(sort_clause)
+		respond_to do |format|
+			format.html {
+				formPagination(entries)
+			}
+			format.csv{
+				headers = {name: l(:field_name), type: l(:label_type), address: l(:label_account_address1), city: l(:label_city), state: l(:label_state), default: l(:field_is_default), main: l(:label_main_location)}
+				data = entries.collect{|entry| {name: entry.name, type: entry&.location_type&.name, address: entry&.address&.address1, city: entry&.address&.city, state: entry&.address&.state, default: entry.is_default, main: entry.is_main} }
+				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "location.csv")
+			}
+		end
+  	end
   
-  def edit
+  	def edit
 		@locEntry = nil
 		unless params[:location_id].blank?
 			@locEntry = WkLocation.find(params[:location_id])
 		end
-  end
+  	end
   
-  def update
+  	def update
 		errorMsg = nil
 		if params[:location_id].blank? || params[:location_id].to_i == 0
 			locationObj = WkLocation.new
@@ -87,9 +97,9 @@ class WklocationController < WkbaseController
 			flash[:error] = errorMsg 
 		    redirect_to :controller => controller_name,:action => 'edit', :location_id => locationObj.id
 		end
-  end
+  	end
   
-  def destroy
+  	def destroy
 		location = WkLocation.find(params[:location_id].to_i)
 		if location.destroy
 			flash[:notice] = l(:notice_successful_delete)
@@ -97,7 +107,7 @@ class WklocationController < WkbaseController
 			flash[:error] = location.errors.full_messages.join("<br>")
 		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
-  end
+  	end
 
 	def set_filter_session
 		filters = [:location_name, :location_type, :show_on_map]
