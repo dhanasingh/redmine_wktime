@@ -18,19 +18,18 @@ th{
 	<fieldset class="box tabular">
 		<table>
 			<tr>
-					<% if !isProjSkill %>
+				<% if !isProjSkill %>
 					<th><%= l(:label_user_name) %></th>
 					<td>
 						<% if validateERPPermission("A_SKILL") %>
 							<%= f.select(:user_id, options_from_collection_for_select(users, "id", "name", selected: user_id), {}, onchange: "$('#source_id').val(this.value)") %>
 						<% else %>
-							<%= userName %>
-							<%= f.hidden_field :user_id, value: user_id %>
+							<%= userName %><%= f.hidden_field :user_id, value: user_id %>
 						<% end %>
 					</td>
 				<% else %>
-					<th><%= l(:label_project_name) %></th>
-					<th><%= params[:project_id] %></th>
+					<th><%= l(:label_project_name) %></th><th><%= params[:project_id] %></th>
+					<%= f.hidden_field :user_id, value: user_id %>
 				<% end %>
 			<tr>
 			<tr>
@@ -69,8 +68,8 @@ th{
 						<%= l(:label_min_exp_req) %>
 					<% else %>
 						<%= l(:label_years_of_exp) %>
-						<span style="color:red;">*</span>
 					<% end %>
+					<span style="color:red;">*</span>
 				</th>
 				<td>
 					<%= f.text_field :experience, required: true %>

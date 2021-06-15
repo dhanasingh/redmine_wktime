@@ -54,6 +54,9 @@
 <% if @leaveReqEntires.present? %>
 	<%= render :partial => 'leaverequest_list'%>
 	<span class="pagination"><%= pagination_links_full @leave_pages, @leave_count %></span>
+	<% other_formats_links do |f| %>
+		<%= f.link_to_with_query_parameters 'CSV', {} %>
+	<% end %>
 <% else %>
-	<p style="clear:both" class="nodata">No data to display</p>
+	<p class="nodata"><%= l(:label_no_data) %></p>
 <% end %>

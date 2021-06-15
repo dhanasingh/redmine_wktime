@@ -37,7 +37,7 @@ include QueriesHelper
 include ActionView::Helpers::TagHelper
 
 	def index
-		sort_init 'id', 'asc'
+		sort_init  [["start_date", "desc"], ["user_name", "asc"]]
 		sort_update 'start_date' => "spent_on",
 					'user_name' => "CONCAT(un.firstname,' ' ,un.lastname)",
 					'hours' => "hours",
@@ -96,16 +96,32 @@ include ActionView::Helpers::TagHelper
 		end
 		teQuery = getTEQuery(@from, @to, ids)
 		queries = getQuery(teQuery, ids, @from, @to, status)
-		orderStr =  + " ORDER BY " + (sort_clause.present? ? sort_clause.first : "tmp3.spent_on desc, tmp3.user_id")
-		findBySql(queries[0], queries[1], orderStr)
+		orderStr =  + " ORDER BY " + sort_clause.join(",")
+
 		respond_to do |format|
-			format.html {
+			format.html do
+				findBySql(queries[0], queries[1], orderStr)
 				render :layout => !request.xhr?
-			}
-			format.api
-			format.pdf {
+			end
+			format.api do
+				get_TE_entries(queries[0] + queries[1] + orderStr)
+			end
+			format.pdf do
+				get_TE_entries(queries[0] + queries[1] + orderStr)
 				send_data(list_to_pdf(@entries, setEntityLabel), :type => 'application/pdf', :filename => "#{setEntityLabel}.pdf")
-			}
+			end
+      format.csv do
+				get_TE_entries(queries[0] + queries[1] + orderStr)
+        headers = {date: l(:field_start_date), user: l(:field_user), type: getLabelforSpField, status: l(:field_status), modifiedby: l(:field_status_modified_by) }
+				headers[:supervisor] = l(:label_ftte_supervisor) if isSupervisorApproval
+        data = @entries.map do |e|
+					status = e.status.present? ? statusString(e.status) : nil
+					rowData = {date: format_date(e.spent_on), user: e.user&.name, type: getUnit(e).to_s + (e.hours || e.amount || 0).round(2).to_s, status: status, modifiedby: e.status_updater}
+					rowData[:supervisor] = e.user&.supervisor&.name if isSupervisorApproval
+					rowData
+				end
+        send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "#{setEntityLabel}.csv")
+      end
 		end
 	end
 
@@ -1360,7 +1376,7 @@ include ActionView::Helpers::TagHelper
 		wkStatuses.destroy_all() unless wkStatuses.blank?
 	end
 
-	def check_module_permission		
+	def check_module_permission
 		unless showTime
 			render_403
 			return false
@@ -2238,7 +2254,7 @@ private
 		@entry_count = findCountBySql(query, TimeEntry)
     setLimitAndOffset()
 		rangeStr = formPaginationCondition()
-		@entries = TimeEntry.find_by_sql(selectStr + query + orderStr + rangeStr)
+		get_TE_entries(selectStr + query + orderStr + rangeStr)
 		@unit = nil
 		@total_hours = findSumBySql(query, spField, TimeEntry)
 	end
@@ -2549,5 +2565,9 @@ private
 	def getLastPDFCell(list, entry)
 		list << [ entry.hours.to_s , 40 ]
 		list
+	end
+
+	def get_TE_entries(query)
+		@entries = TimeEntry.find_by_sql(query)
 	end
 end

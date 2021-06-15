@@ -15,8 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkattendanceController < WkbaseController	
-	unloadable 
+class WkattendanceController < WkbaseController
+	unloadable
 
 	menu_item :wkattendance
 	include WktimeHelper
@@ -28,22 +28,21 @@ class WkattendanceController < WkbaseController
 	before_action :check_update_permission, only: "update"
 	before_action :check_index_perm, :only => [:index]
 	require 'csv'
-	
+
 	accept_api_auth :clockindex, :clockedit, :saveClockInOut, :getClockHours, :index, :edit, :update
 
 	def index
 		sort_init 'id', 'asc'
 		sort_update 'name' =>  "CONCAT(u.firstname, u.lastname)"
-		@status = params[:status] || 1
-		@groups = Group.all.sort
+		set_filter_session([:status, :group_id, :name])
+		@status = getSession(:status) || 1
+		@groups = Group.where(type: "Group").all.sort
 		sqlStr = ""
 		lastMonthStartDt = Date.civil(Date.today.year, Date.today.month, 1) << 1
 		if(Setting.plugin_redmine_wktime['wktime_leave'].blank?)
 			selectStr = " select u.id as user_id, u.firstname, u.lastname, u.status, -1 as issue_id "
 			sqlStr = " from users u"
-			if !params[:group_id].blank?
-				sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id"
-			end
+			sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id" if getSession(:group_id).present?
 			sqlStr = sqlStr + " where u.type = 'User' "
 		else
 			listboxArr = Setting.plugin_redmine_wktime['wktime_leave'][0].split('|')
@@ -53,24 +52,44 @@ class WkattendanceController < WkbaseController
 			sqlStr = queries[1] + " where u.type = 'User' and (wu.termination_date is null or wu.termination_date >= '#{lastMonthStartDt}')"
 		end
 		if !validateERPPermission('A_ATTEND')
-			sqlStr = sqlStr + " and u.id = #{User.current.id} " 
+			sqlStr = sqlStr + " and u.id = #{User.current.id} "
 		end
-		if !@status.blank?
+		if @status.present? && @status != "0"
 			sqlStr = sqlStr + " and u.status = #{@status}"
 		end
-		if !params[:group_id].blank?
-			sqlStr = sqlStr + " and gu.group_id = #{params[:group_id]}"
+		if !getSession(:group_id).blank?
+			sqlStr = sqlStr + " and gu.group_id = #{getSession(:group_id)}"
 		end
-		if !params[:name].blank?
-			sqlStr = sqlStr + " and (LOWER(u.firstname) like LOWER('%#{params[:name]}%') or LOWER(u.lastname) like LOWER('%#{params[:name]}%'))"
+		if !getSession(:name).blank?
+			sqlStr = sqlStr + " and (LOWER(u.firstname) like LOWER('%#{getSession(:name)}%') or LOWER(u.lastname) like LOWER('%#{getSession(:name)}%'))"
 		end
 		orderStr = " ORDER BY " + (sort_clause.present? ? sort_clause.first : "u.firstname")
-		findBySql(selectStr, sqlStr, orderStr, WkUserLeave)
+
 		respond_to do |format|
-			format.html {        
+			format.html do
+				findBySql(selectStr, sqlStr, orderStr, WkUserLeave)
 				render :layout => !request.xhr?
-			}
-			format.api
+			end
+			format.api do
+				@leave_entries = WkUserLeave.find_by_sql(selectStr + sqlStr +orderStr)
+			end
+      format.csv do
+				headers = {user: l(:field_user)}
+				entries = WkUserLeave.find_by_sql(selectStr + sqlStr +orderStr)
+				data = []
+				entries.each_with_index do |e, index|
+					dataCol = {user: e.user&.name}
+					(Setting.plugin_redmine_wktime['wktime_leave'] || []).first(5).each_with_index do |l, colIndx|
+						if index == 0
+							leave = Issue.where(id: l.split("|").first).first&.subject
+							headers[leave] = leave if leave.present?
+						end
+						dataCol['total'+index.to_s+colIndx.to_s] = (e['total'+colIndx.to_s] || 0).round(2)
+					end
+					data << dataCol
+				end
+        send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "userleave.csv")
+      end
 		end
 	end
 
@@ -82,8 +101,8 @@ class WkattendanceController < WkbaseController
 								'clock_out'=> "cast(evw.end_time as time)",
 								'hours'=> "evw.hours"
 		@clk_entries = nil
-		@groups = Group.sorted.all
-		set_filter_session
+		@groups = Group.where(type: "Group").sorted.all
+		set_filter_session([:period_type, :period, :group_id, :user_id, :from, :to, :show_on_map], {:from => @from, :to => @to})
 		retrieve_date_range
 		@members = Array.new
 		userIds = Array.new
@@ -96,7 +115,7 @@ class WkattendanceController < WkbaseController
 		user_id = session[controller_name].try(:[], :user_id)
 		group_id = session[controller_name].try(:[], :group_id)
 		status = session[controller_name].try(:[], :status)
-		
+
 		if user_id.blank? || !validateERPPermission('A_ATTEND')
 		   ids = User.current.id
 		elsif user_id.to_i != 0 && group_id.to_i == 0
@@ -113,29 +132,41 @@ class WkattendanceController < WkbaseController
 		selectStr = "select evw.id, vw.id as user_id, vw.firstname, vw.lastname, vw.created_on, vw.selected_date as entry_date, evw.start_time, evw.end_time, evw.hours,
 				s_longitude, s_latitude, e_longitude, e_latitude "
 		sqlQuery = " from (
-				select u.id, u.firstname, u.lastname, u.created_on, v.selected_date from" + 
-				"(select " + getAddDateStr(@from, noOfDays) + " selected_date from " +
-				"(select 0 i union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) t0,
-				(select 0 i union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) t1,
-				(select 0 i union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) t2,
-				(select 0 i union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) t3,
-				(select 0 i union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9)t4)v,
-				(select u.id, u.firstname, u.lastname, u.created_on from users u where u.type = 'User'
+			select u.id, u.firstname, u.lastname, u.created_on, v.selected_date from" +
+			"(select " + getAddDateStr(@from, noOfDays) + " selected_date from " +
+			"(select 0 i union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) t0,
+			(select 0 i union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) t1,
+			(select 0 i union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) t2,
+			(select 0 i union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9) t3,
+			(select 0 i union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 union all select 7 union all select 8 union all select 9)t4)v,
+			(select u.id, u.firstname, u.lastname, u.created_on from users u where u.type = 'User'
 			) u
-			WHERE  v.selected_date between '#{@from}' and '#{@to}' AND u.id in (#{ids})) vw 
+			WHERE  v.selected_date between '#{@from}' and '#{@to}' AND u.id in (#{ids})) vw
 			left join(
 				 select id, start_time, end_time, " + getConvertDateStr('start_time') + " entry_date, hours, user_id, s_longitude, s_latitude, e_longitude, e_latitude
 				 from wk_attendances
 				 WHERE " + getConvertDateStr('start_time') +" between '#{@from}' and '#{@to}' AND user_id in (#{ids})
 			) evw on (vw.selected_date = evw.entry_date and vw.id = evw.user_id) where vw.id in (#{ids}) "
-			 orderStr = " ORDER BY " + (sort_clause.present? ? sort_clause.first : "vw.selected_date desc, vw.firstname")
-			findBySql(selectStr, sqlQuery, orderStr, WkAttendance)
-			respond_to do |format|
-				format.html {        
-				  render :layout => !request.xhr?
-				}
-				format.api
+		orderStr = " ORDER BY " + (sort_clause.present? ? sort_clause.first : "vw.selected_date desc, vw.firstname")
+
+		respond_to do |format|
+			format.html do
+				findBySql(selectStr, sqlQuery, orderStr, WkAttendance)
+				render :layout => !request.xhr?
 			end
+			format.api do
+				@clk_entries = WkAttendance.find_by_sql(selectStr + sqlQuery +orderStr)
+			end
+			format.csv do
+				entries = WkAttendance.find_by_sql(selectStr + sqlQuery +orderStr)
+				headers = {user: l(:field_user), date: l(:field_start_date), clockin: l(:label_clock_in), clockout: l(:label_clock_in), hours: l(:label_hours) }
+				data = entries.map{|e|
+					{user: e&.user&.name, date: e&.entry_date&.to_date, startDate: e&.start_time&.localtime&.strftime('%R'),
+					endDate: e&.end_time&.localtime&.strftime('%R'), hours: e&.hours ? (e&.hours).round(2) : ""}
+				}
+				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "clock.csv")
+			end
+		end
 	end
 
 	def clockedit
@@ -146,11 +177,11 @@ class WkattendanceController < WkbaseController
 		respond_to do |format|
 			format.html {
 				render :layout => !request.xhr?
-			} 
+			}
 			format.api
 		end
-	end	
-	
+	end
+
 	def getMembersbyGroup
 		group_by_users=""
 		userList=[]
@@ -161,8 +192,8 @@ class WkattendanceController < WkbaseController
 		respond_to do |format|
 			format.text  { render :plain => group_by_users }
 		end
-	end	
-	
+	end
+
 	def getGroupMembers
 		userList = nil
 		group_id = nil
@@ -171,18 +202,17 @@ class WkattendanceController < WkbaseController
 		else
 			group_id = session[controller_name].try(:[], :group_id)
 		end
-		
+
 		if !group_id.blank? && group_id.to_i > 0
-			userList = User.in_group(group_id) 
+			userList = User.in_group(group_id)
 		else
-			userList = User.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
+			userList = User.where(type: "User").order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
 		end
 		userList
 	end
-	
-	def set_filter_session
-		filters = [:period_type, :period, :group_id, :user_id, :from, :to, :show_on_map]
-		super(filters, {:from => @from, :to => @to})
+
+	def set_filter_session(filters, param={})
+		super(filters, param)
 	end
 
 	# Retrieves the date range based on predefined ranges or specific from/to param dates
@@ -193,7 +223,7 @@ class WkattendanceController < WkbaseController
 		period = session[controller_name].try(:[], :period)
 		fromdate = session[controller_name].try(:[], :from)
 		todate = session[controller_name].try(:[], :to)
-		if (period_type == '1' || (period_type.nil? && !period.nil?)) 
+		if (period_type == '1' || (period_type.nil? && !period.nil?))
 		  case period.to_s
 		  when 'today'
 			@from = @to = Date.today
@@ -219,23 +249,23 @@ class WkattendanceController < WkbaseController
 			@to = Date.today
 		  when 'current_year'
 			@from = Date.civil(Date.today.year, 1, 1)
-			@to = Date.today 
+			@to = Date.today
 		  end
-		
+
 		elsif period_type == '2' || (period_type.nil? && (!fromdate.nil? || !todate.nil?))
 		  begin; @from = fromdate.to_s.to_date unless fromdate.blank?; rescue; end
 		  begin; @to = todate.to_s.to_date unless todate.blank?; rescue; end
 		  @free_period = true
-		else				
+		else
 			@from = Date.civil(Date.today.year, Date.today.month, 1)
 			@to = Date.today #(@from >> 1) - 1
-		end    
+		end
 
 		@from, @to = @to, @from if @from && @to && @from > @to
 
 	end
-	
-	def edit		
+
+	def edit
 		sqlStr = getQueryStr + " where i.id in (#{getLeaveIssueIds}) and u.type = 'User' and u.id = #{params[:user_id]} order by i.subject"
 		leavesInfo = Setting.plugin_redmine_wktime['wktime_leave']
 		@accrualMultiplier = Hash.new
@@ -247,24 +277,24 @@ class WkattendanceController < WkbaseController
 		end
 		@leave_details = WkUserLeave.find_by_sql(sqlStr)
 		respond_to do |format|
-			format.html {        
+			format.html {
 				render :layout => !request.xhr?
 			}
 			format.api
 		end
 	end
-	
+
 	def runPeriodEndProcess
 		populateWkUserLeaves(params[:fromdate].to_s.to_date)
 		respond_to do |format|
-			format.html {				
+			format.html {
 				flash[:notice] = l(:notice_successful_update)
 				redirect_back_or_default :action => 'index', :tab => params[:tab]
-			} 
+			}
 		end
 	end
-	
-	def update	
+
+	def update
 		errorMsg =nil
 		wkuserleave = nil
 		ids = params[:ids]
@@ -284,7 +314,7 @@ class WkattendanceController < WkbaseController
 				errorMsg = wkuserleave.errors.full_messages.join('\n')
 			end
 		end
-		
+
 		newIssueArr.each do |issueId|
 			errorMsg =nil
 			wkuserleave = nil
@@ -299,7 +329,7 @@ class WkattendanceController < WkbaseController
 				errorMsg = wkuserleave.errors.full_messages.join('\n')
 			end
 		end
-    
+
     respond_to do |format|
       format.html {
         if errorMsg.nil?
@@ -313,14 +343,14 @@ class WkattendanceController < WkbaseController
       format.api{
         if errorMsg.blank?
           render :plain => errorMsg, :layout => nil
-        else		
-          @error_messages = errorMsg.split('\n')	
+        else
+          @error_messages = errorMsg.split('\n')
           render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
         end
       }
     end
 	end
-	
+
 	def getQueryStr
 		queryStr = ''
 		accrualOn = params[:accrual_on].blank? ? Date.civil(Date.today.year, Date.today.month, 1) -1 : params[:accrual_on].to_s.to_date
@@ -330,7 +360,7 @@ class WkattendanceController < WkbaseController
 			and w.accrual_on = '#{accrualOn}' "
 		queryStr
 	end
-	
+
 	def getListQueryStr
 		accrualOn = params[:accrual_on].blank? ? Date.civil(Date.today.year, Date.today.month, 1) -1 : params[:accrual_on].to_s.to_date
 		selectColStr = "select u.id as user_id, u.firstname, u.lastname, u.status"
@@ -343,17 +373,17 @@ class WkattendanceController < WkbaseController
 				selectColStr = selectColStr + ", (#{tAlias}.balance + #{tAlias}.accrual - #{tAlias}.used) as total#{index.to_s}"
 			end
 		end
-		queryStr = " from users u left join wk_users wu on u.id = wu.user_id " + joinTableStr 
-		
-		if !params[:group_id].blank?
+		queryStr = " from users u left join wk_users wu on u.id = wu.user_id " + joinTableStr
+
+		if getSession(:group_id).present?
 			queryStr = queryStr + " left join groups_users gu on u.id = gu.user_id"
 		end
 		return [selectColStr, queryStr]
 	end
-	
+
 	def getIssuesByProject
 		issue_by_project=""
-		issueList=[]				
+		issueList=[]
 		issueList = getPrjIssues
 		issueList.each do |issue|
 			issue_by_project << issue.id.to_s() + ',' + issue.subject + "\n"
@@ -361,12 +391,12 @@ class WkattendanceController < WkbaseController
 		respond_to do |format|
 			format.text  { render :plain => issue_by_project }
 		end
-	end	
-	
+	end
+
 	def getPrjIssues
 		issueList = []
 		project_id = 0
-		project = nil		
+		project = nil
 		if !params[:project_id].blank?
 			project_id = params[:project_id]
 			project = Project.find(project_id)
@@ -378,7 +408,7 @@ class WkattendanceController < WkbaseController
 		end
 		issueList
 	end
-	
+
   def check_perm_and_redirect
 	  unless check_permission
 	    render_403
@@ -398,7 +428,7 @@ class WkattendanceController < WkbaseController
 			return false
 		end
 	end
-	
+
 	def getProjectByIssue
 		project_id=""
 		project_by_issue=""
@@ -406,14 +436,14 @@ class WkattendanceController < WkbaseController
 			issue_id = params[:issue_id]
 			issues = Issue.where(:id => issue_id.to_i)
 			project_id = issues[0].project_id
-			project_by_issue = issues[0].project_id.to_s + '|' + issues[0].project.name 
+			project_by_issue = issues[0].project_id.to_s + '|' + issues[0].project.name
 		end
 		respond_to do |format|
 			format.text  { render :plain => project_by_issue }
 		end
 	end
 
-	def setLimitAndOffset		
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -426,30 +456,30 @@ class WkattendanceController < WkbaseController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
+		end
 	end
-	
+
 	def findBySql(selectStr, query, orderStr, model)
 		@entry_count = findCountBySql(query, model)
-    setLimitAndOffset()		
-		rangeStr = formPaginationCondition()		
+    setLimitAndOffset()
+		rangeStr = formPaginationCondition()
 		if model == WkUserLeave
 			@leave_entries = model.find_by_sql(selectStr + query +orderStr + rangeStr)
 		else
 			@clk_entries = model.find_by_sql(selectStr + query +orderStr + rangeStr)
 		end
 	end
-	
+
 	def formPaginationCondition
 		rangeStr = ""
-		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'				
+		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'
 			rangeStr = " OFFSET " + @offset.to_s + " ROWS FETCH NEXT " + @limit.to_s + " ROWS ONLY "
-		else		
+		else
 			rangeStr = " LIMIT " + @limit.to_s +	" OFFSET " + @offset.to_s
 		end
 		rangeStr
 	end
-	
+
 	def saveClockInOut
 		endtime = nil
 		if api_request?
@@ -473,7 +503,7 @@ class WkattendanceController < WkbaseController
 				entry_start_time = DateTime.strptime(starttime, "%Y-%m-%d %T") rescue starttime
 				endtime = params[:startdate].to_date.to_s + " " +  params["attnendtime#{i}"] + ":00" if !params["attnendtime#{i}"].blank?
 				entry_end_time = DateTime.strptime(endtime, "%Y-%m-%d %T") rescue endtime
-				if params["attnstarttime#{i}"] == '00:00' && params["attnendtime#{i}"] == '00:00' 
+				if params["attnstarttime#{i}"] == '00:00' && params["attnendtime#{i}"] == '00:00'
 					wkattendance =  WkAttendance.find(params["attnEntriesId#{i}"].to_i)	if !params["attnEntriesId#{i}"].blank?
 					wkattendance.destroy()
 					sucessMsg = l(:notice_successful_delete)
@@ -484,16 +514,16 @@ class WkattendanceController < WkbaseController
 					else
 						addNewAttendance(getFormatedTimeEntry(entry_start_time),getFormatedTimeEntry(entry_end_time), params[:user_id].to_i)
 						sucessMsg = l(:notice_successful_update)
-					end			
+					end
 				end
 			end
 		end
-		
+
 		respond_to do |format|
 			format.html {
-			if errorMsg.nil?	
+			if errorMsg.nil?
 				redirect_to :controller => 'wkattendance',:action => 'clockindex' , :tab => 'clock'
-				flash[:notice] = sucessMsg 
+				flash[:notice] = sucessMsg
 			else
 				flash[:error] = errorMsg
 				redirect_to :action => 'edit'
@@ -502,12 +532,12 @@ class WkattendanceController < WkbaseController
 		format.api{
 		if errorMsg.blank?
 			render :plain => errorMsg, :layout => nil
-		else		
-			@error_messages = errorMsg.split('\n')	
+		else
+			@error_messages = errorMsg.split('\n')
 			render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
 		end
 		}
-		end	
+		end
 	end
 
 	def check_index_perm

@@ -22,12 +22,12 @@
 		<tbody>
 			<% entries.each do |entry| %>
 				<tr>
-					<td class="lbl-txt-align"><%=h entry.contact.name %></td>
+					<td class="lbl-txt-align"><%=h entry.contact&.name %></td>
 					<td class="lbl-txt-align"><%=h getLeadStatusHash[entry.status] %></td>
 					<% if !controller.is_referral %><td class="lbl-txt-align"><%=h entry.account.blank? ? "" : entry.account.name %></td><% end %>
-					<td class="lbl-txt-align"><%=h entry.contact.location_id.blank? ? "" : entry.contact.location.name %></td>
-					<td class="lbl-txt-align"><%=h entry.contact.address.blank? ? "" : entry.contact.address.work_phone %></td>
-					<td class="lbl-txt-align"><%=h entry.contact.address.blank? ? "" : entry.contact.address.email %></td>
+					<td class="lbl-txt-align"><%=h entry.contact.location_id.blank? ? "" : entry.contact&.location&.name %></td>
+					<td class="lbl-txt-align"><%=h entry.contact.address.blank? ? "" : entry.contact&.address&.work_phone %></td>
+					<td class="lbl-txt-align"><%=h entry.contact.address.blank? ? "" : entry.contact&.address&.email %></td>
 					<% if controller.is_referral %>
 						<td class="lbl-txt-align"><%= entry&.candidate&.degree %></td>
 						<td class="lbl-txt-align"><%= entry&.candidate&.pass_out %></td>

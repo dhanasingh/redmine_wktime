@@ -1,6 +1,6 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-<script type="text/javascript"> 
+<script type="text/javascript">
 	prevTab = 'tab-<%= "#{controller_name}" %>';
 	grpUrl="<%= "#{url_for(:controller => controller_name, :action => 'getMembersbyGroup')}" %>";
 	userUrl="<%= "#{url_for(:controller => controller_name, :action => 'getusers')}" %>";
@@ -42,43 +42,43 @@
 	filter_type = session[controller_name].try(:[], :filter_type)
 	projGrp =false
 	if filter_type == '1' || filter_type.blank?
-		projGrp = true	
+		projGrp = true
 	end
 %>
 
 <% #filters = call_hook(:view_te_filter) %>
-<% if isSupervisorApproval %>	 
+<% if isSupervisorApproval %>
 	<%#=	filters %>
 	<%= render :partial => 'wktime/supervisor_index' %>
 <% else %>
 <% if !@manage_view_spenttime_projects.blank? %>
 <div class="div-left">
 <table>
-<script type="text/javascript"> 
+<script type="text/javascript">
 $(document).ready(function()
 {
-	<% if projGrp %> 
+	<% if projGrp %>
 		$("#group_id").attr("disabled", true);
 		$("#project_id").removeAttr("disabled");
 	<% else %>
 		$("#project_id").attr("disabled", true);
 		$("#group_id").removeAttr("disabled");
-	<% end %>  
-  
+	<% end %>
+
 });
  </script>
 <tr>
 <th><%= radio_button_tag 'filter_type', '1', projGrp,
  :onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#user_id").removeAttr("disabled");$("#group_id").attr("disabled", true);$("#project_id").removeAttr("disabled");' %>
 <%=l(:field_project)%></th>
-<td class="project" align="left"><%=h select_tag('project_id', 
+<td class="project" align="left"><%=h select_tag('project_id',
 	options_for_select(options_for_wktime_project(@manage_view_spenttime_projects),
 	:selected => !projectid.nil? ? projectid.to_i: @selected_project.id),:disabled => @use_group,
 	:onchange => "projChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %></td>
 </tr>
 <% if !@groups.blank? %>
 <tr>
-<th><%= radio_button_tag 'filter_type', '2', !projGrp, 
+<th><%= radio_button_tag 'filter_type', '2', !projGrp,
 :onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#user_id").removeAttr("disabled");$("#group_id").removeAttr("disabled");$("#project_id").attr("disabled", true);' %>
 <%=l(:label_group_plural)%></th>
 <td>
@@ -108,7 +108,7 @@ $(document).ready(function()
 <table>
 <tr>
 <th valign="top"><%=l(:field_status)%></th>
-<td class="status" align="left"><%=h select_tag('status', 
+<td class="status" align="left"><%=h select_tag('status',
 	options_for_select(options_wk_status_select(status),
 	:selected => status.nil? ? 0 : status.to_s ),
 	:multiple=> true) %></td>
@@ -127,6 +127,7 @@ $(document).ready(function()
 	<%= render :partial => 'wktime/list', :locals => { :entries => @entries }%>
 	<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
 	<% other_formats_links do |f| %>
+		<%= f.link_to_with_query_parameters 'CSV' %>
 		<%= f.link_to_with_query_parameters 'PDF' %>
 	<% end %>
 <% else %>
