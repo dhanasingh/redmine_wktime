@@ -22,15 +22,15 @@ class WkpaymententityController < WkbillingController
     include WktimeHelper
 	include WkpaymententityHelper
 	
-    def index
-			sort_init 'id', 'desc'
-			sort_update 'id' => "p.id",
-			'payment_date' => "p.payment_date",
-			'type' => "p.parent_type",
-			'name' => "CASE WHEN p.parent_type = 'WkAccount' THEN a.name ELSE CONCAT(c.first_name, c.last_name) END",
-			'payment_type' => "p.payment_type_id",
-			'original_amount' => "payment_original_amount",
-			'amount' => "payment_amount"
+  def index
+		sort_init 'id', 'desc'
+		sort_update 'id' => "p.id",
+		'payment_date' => "p.payment_date",
+		'type' => "p.parent_type",
+		'name' => "CASE WHEN p.parent_type = 'WkAccount' THEN a.name ELSE CONCAT(c.first_name, c.last_name) END",
+		'payment_type' => "p.payment_type_id",
+		'original_amount' => "payment_original_amount",
+		'amount' => "payment_amount"
 
 		@payment_entries = nil
 		sqlwhere = ""
@@ -74,14 +74,29 @@ class WkpaymententityController < WkbillingController
 		
 		sqlStr = sqlStr + sqlwhere unless sqlwhere.blank?
 		orderStr = " ORDER BY " + (sort_clause.present? ? sort_clause.first : " p.id desc")
-		findBySql(selectStr, sqlStr, orderStr)
 		respond_to do |format|
-			format.html {        
+			format.html do
+				findBySql(selectStr, sqlStr, orderStr)
 			  render :layout => !request.xhr?
-			}
-			format.api
+			end
+			format.api do
+				@payment_entries = WkPayment.find_by_sql(selectStr + query + orderStr)
+			end
+			format.csv do
+				entries = WkPayment.find_by_sql(selectStr + sqlStr + orderStr)
+				headers = { payment: l(:label_txn_payment), type: l(:label_type), name: l(:field_name), payment_date: l(:label_payment_date), payment_type: l(:label_payment_type), original_amount: l(:field_original_amount), amount: l(:field_amount) }
+				data = entries.map do |e|
+					payment_items = e&.payment_items&.first
+					{ payment: e.id, type: personTypeLabelHash[e.entity_type], name: e.name,  payment_date: e.payment_date.strftime("%Y-%m-%d"), payment_type: getPayTypeHash[e.payment_type_id], original_amount: (payment_items&.original_currency || '')+" "+e.payment_original_amount.round(2).to_s, amount: (payment_items&.currency || '')+" "+e.payment_amount.round(2).to_s }
+				end
+				respond_to do |format|
+					format.csv {
+						send_data(csv_export({headers: headers, data: data}), type: 'text/csv; header=present', filename: 'payment.csv')
+					}
+				end
+			end
 		end				
-    end
+  end
 	
 	def edit
 		@payment = nil

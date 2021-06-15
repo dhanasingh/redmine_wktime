@@ -20,4 +20,12 @@
 		</table>
 	</fieldset>
 <% end %>
-<%= render :partial => 'lead_list', locals: { entries: @leadEntries } %>
+
+<% if @leadEntries.present? %>
+	<%= render :partial => 'lead_list', locals: { entries: @leadEntries } %>
+	<% other_formats_links do |f| %>
+  	<%= f.link_to 'CSV', url: {format: 'csv'} %>
+	<% end %>
+<% else %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>

@@ -48,8 +48,9 @@ class WkInvoiceItem < ActiveRecord::Base
     entries = model.joins(:spent_for)
     .joins("INNER JOIN wk_projects ON wk_projects.project_id = #{table}.project_id")
     .joins("INNER JOIN wk_account_projects ON wk_account_projects.project_id = wk_projects.project_id")
-    .where(spent_on: fromVal .. toVal, wk_spent_fors: { invoice_item_id: nil }, wk_account_projects: { billing_type: 'TM'}, wk_projects: { is_billable: true }) 
+    .where(wk_spent_fors: { invoice_item_id: nil }, wk_account_projects: { billing_type: 'TM'}, wk_projects: { is_billable: true }) 
     .select("#{table}.*, wk_account_projects.parent_id, wk_account_projects.parent_type")
+    entries = entries.where("#{table}.spent_on <= ?", toVal)
     entries = entries.where(wk_account_projects: { parent_type: parent_type}) if parent_type.present?
     entries = entries.where(wk_account_projects: { parent_id: parent_id}) if parent_id.present?
 

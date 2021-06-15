@@ -18,4 +18,12 @@
 		</table>
 	</fieldset>
 <% end %>
-<%= render :partial => 'wkaccount/account_list'%>
+
+<% if @account_entries.present? %>
+	<%= render :partial => 'wkaccount/account_list'%>
+	<% other_formats_links do |f| %>
+  <%= f.link_to 'CSV', url: {format: 'csv'} %>
+	<% end %>
+<% else %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>

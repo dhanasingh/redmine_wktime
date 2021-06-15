@@ -62,12 +62,25 @@ class WkcontactController < WkcrmController
 			location_id = !locationId.blank? ? locationId.to_i : location.id.to_i
 			wkcontact = wkcontact.where("wk_crm_contacts.location_id = ? ", location_id)
 		end
-		formPagination(wkcontact.reorder(sort_clause))
 		respond_to do |format|
-			format.html {        
+			format.html do
+				formPagination(wkcontact.reorder(sort_clause))
 			  render :layout => !request.xhr?
-			}
-			format.api
+			end
+			format.api do
+				@accountproject = wkcontact
+			end
+			format.csv do
+				headers = { name: l(:field_name), acc_name: l(:label_account_name), location: l(:label_location), title: l(:field_title), email: l(:label_email), phone: l(:label_work_phone), assignee: l(:field_assigned_to), modified: l(:label_modified) }
+  			data = wkcontact.map do |e| 
+					{name: e.name, acc_name: (e&.account&.name || ''), location: (e&.location&.name || ''), title: (e&.title || ''), email: (e&.address&.email || ''),  phone: (e&.address&.work_phone || ''), assignee: (e&.assigned_user&.name(:firstname_lastname) || ''), modified: e.updated_at.localtime.strftime("%Y-%m-%d") } 
+				end
+				respond_to do |format|
+					format.csv {
+						send_data(csv_export({headers: headers, data: data}), type: 'text/csv; header=present', filename: 'contact.csv')
+					}
+				end
+			end
 		end
 	end
 

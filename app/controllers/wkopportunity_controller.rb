@@ -2,9 +2,10 @@ class WkopportunityController < WkcrmController
   unloadable
   menu_item :wklead
   include WktimeHelper
+	include WkopportunityHelper
   accept_api_auth :index
 
-    def index
+  def index
 		sort_init 'updated_at', 'desc'
 
 		sort_update 'opportunity_name' => "#{WkOpportunity.table_name}.name",
@@ -44,14 +45,28 @@ class WkopportunityController < WkcrmController
 			oppDetails = oppDetails.where(filterSql, filterHash)
 		end
 		
-		formPagination(oppDetails.reorder(sort_clause))
 		respond_to do |format|
-			format.html {        
+			format.html do
+				formPagination(oppDetails.reorder(sort_clause))
 			  render :layout => !request.xhr?
-			}
-			format.api
+			end
+			format.api do
+				@opportunity = oppDetails
+			end
+			format.csv do
+				headers = { name: l(:field_name), related: l(:label_related_to), sales_stage: l(:label_txn_sales_stage), amount: l(:label_amount), closeDate: l(:label_expected_date_to_close_project), assignee: l(:field_assigned_to), modified: l(:label_modified) }
+				data = oppDetails.map do |e|
+					sales_stage = e.sales_stage_id.blank? ? "" : getSaleStageHash[e.sales_stage_id]
+					{ name: e.name, related: relatedHash[e.parent_type], sales_stage: sales_stage, amount: ((e&.currency || '')+" "+e.amount.round(2).to_s), closeDate: e.close_date.localtime.strftime("%Y-%m-%d"), assignee: (e&.assigned_user&.name(:firstname_lastname) || ''), modified: e.updated_at.localtime.strftime("%Y-%m-%d") }
+				end
+				respond_to do |format|
+					format.csv {
+						send_data(csv_export({headers: headers, data: data}), type: 'text/csv; header=present', filename: 'opportunity.csv')
+					}
+				end
+			end
 		end
-    end
+  end
   
     def edit
 		@oppEditEntry = nil

@@ -40,4 +40,12 @@
 <div class="total-hours">
 	<p><%= l(:label_total) %>: &nbsp;<%= @ledgers[0].currency unless @ledgers[0].blank? || @ledgers[0].blank?%> <%= html_hours("%.2f" % @totalAmt) %></p>
 </div>
-<%= render :partial => 'wkledger/ledger_list'%>	
+
+<% if @ledgers.present? %>
+	<%= render :partial => 'wkledger/ledger_list'%>
+	<% other_formats_links do |f| %>
+  	<%= f.link_to 'CSV', url: {format: 'csv'} %>
+	<% end %>
+<% else %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>

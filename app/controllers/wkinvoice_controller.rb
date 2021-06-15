@@ -302,7 +302,7 @@ class WkinvoiceController < WkorderentityController
 	end
 	
 	def deletePermission
-		false
+		true
 	end
 	
 	def addMaterialType

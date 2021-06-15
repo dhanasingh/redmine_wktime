@@ -23,7 +23,7 @@ class WkledgerController < WkaccountingController
   include WkaccountingHelper
 
 
-    def index
+  def index
 		sort_init 'id', 'asc'
 		sort_update 'name' => "name",
 								'type' => "CASE WHEN wk_ledgers.ledger_type = 'SY' THEN '' ELSE ledger_type END"
@@ -42,10 +42,20 @@ class WkledgerController < WkaccountingController
 		if ledgerType.blank? && name.blank?
 			ledger = WkLedger.all
 		end
-		formPagination(ledger.reorder(sort_clause))
-		@ledgerdd = @ledgers.pluck(:name, :id)
-		@totalAmt = @ledgers.sum(&:opening_balance)
-    end
+		respond_to do |format|
+			format.html do
+				formPagination(ledger.reorder(sort_clause))
+				@ledgerdd = @ledgers.pluck(:name, :id)
+				@totalAmt = @ledgers.sum(&:opening_balance)
+			  render :layout => !request.xhr?
+      end
+      format.csv do
+        headers = {name: l(:field_name), type: l(:label_type) }
+        data = ledger.collect{|e| {name: e.name, type: getLedgerTypeHash[e.ledger_type] }}
+        send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "ledger.csv")
+      end
+		end
+  end
 	
 	def edit
 		@ledgersDetail = WkLedger.where(:id => params[:ledger_id].to_i)

@@ -43,5 +43,9 @@
 		<%= html_hours("%.2f" % @totalInvAmt) %></p>
 	</div>
 	<%= render :partial => 'wkorderentity/order_list'%>
-<div id="billGenerate-dlg">
-<div>
+
+	<% other_formats_links do |f| %>
+		<%= f.link_to 'CSV', url: {format: 'csv'} %>
+	<% end %>
+	<div id="billGenerate-dlg">
+	<div>
