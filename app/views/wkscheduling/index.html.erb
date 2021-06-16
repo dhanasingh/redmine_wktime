@@ -1,7 +1,8 @@
 <%= title l(:label_scheduling) %>
 <%= render partial: "wkattendance/render_hr_tabs" %>
-
-<%=h hidden_field_tag('tab', "#{controller_name}") %>
+<script>
+  var apply_warn = '<%=l(:warning_schedule_shifts) %>';
+</script>
 
 <div class="wk-contextual">
   <%= link_to_previous_month(@year, @month, :accesskey => accesskey(:previous)) %> | <%= link_to_next_month(@year, @month, :accesskey => accesskey(:next)) %>&nbsp;
@@ -12,6 +13,7 @@
   <% end %>
 </div>
 <%= form_tag({:controller => controller_name, :action => 'index', :project_id => @project},  :method => :get, :id => 'schedule_form') do %>
+  <%=h hidden_field_tag('tab', "#{controller_name}") %>
   <%= hidden_field_tag 'set_filter', '1' %>
   <%=h hidden_field_tag('tab', "#{controller_name}") %>
   <%=h hidden_field_tag('generate', false) %>

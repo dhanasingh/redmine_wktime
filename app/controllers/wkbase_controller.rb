@@ -243,7 +243,7 @@ class WkbaseController < ApplicationController
 	end
 
 	def set_filter_session(filters, filterParams={})
-		session[controller_name] = filterParams if session[controller_name].nil? || params[:clear]
+		session[controller_name] = filterParams if session[controller_name].blank? || params[:clear]
 		if params[:searchlist] == controller_name || api_request?
 			filters.each do |param|
 				if params[param].blank? && session[controller_name].try(:[], param).present?
@@ -304,7 +304,7 @@ class WkbaseController < ApplicationController
 			format.api
 		end
 	end
-	
+
 	def getBase64Image(attachment)
 		base64Image = ""
 		if attachment.present?

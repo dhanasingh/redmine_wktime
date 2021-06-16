@@ -19,35 +19,27 @@ class WkshiftController < WkbaseController
 	menu_item :wkattendance
 	before_action :require_login
 
-
-
 	def index
-		entries = WkShift.all	
+		entries = WkShift.all
 		formPagination(entries)
 	end
-	
+
 	def edit
 		entries = nil
 		set_filter_session
-		departmentId =  session[controller_name].try(:[], :department_id)
-		locationId =  session[controller_name].try(:[], :location_id)
-		unless params[:shift_id].blank?
-			@shiftObj = WkShift.find(params[:shift_id].to_i)			
-			if (!departmentId.blank? && departmentId.to_i != 0 ) && !locationId.blank?
-				entries = @shiftObj.shift_roles.where(:department_id => departmentId.to_i, :location_id => locationId.to_i)
-			elsif (!departmentId.blank? && departmentId.to_i != 0 ) && locationId.blank?
-				entries = @shiftObj.shift_roles.where(:department_id => departmentId.to_i, :location_id => nil)
-			elsif (departmentId.blank? || departmentId.to_i == 0 ) && !locationId.blank?
-				entries = @shiftObj.shift_roles.where(:location_id => locationId.to_i, :department_id => nil)
-			else
-				entries = @shiftObj.shift_roles.where(:location_id => nil, :department_id => nil)
-			end
+		departmentID =  session[controller_name].try(:[], :department_id)
+		locationID =  session[controller_name].try(:[], :location_id)
+		if params[:shift_id].present?
+			entries = WkShift.find(params[:shift_id])
+			entries = entries.shift_roles
+			entries = entries.where(location_id: locationID) if locationID.present? && locationID != "0"
+			entries = entries.where(department_id: departmentID) if departmentID.present? && departmentID != "0"
 			formPagination(entries)
 		end
 	end
 
 	def update
-		count = 0		
+		count = 0
 		errorMsg = ""
 		arrId = WkShift.all.pluck(:id)
 		for i in 0..params[:shift_id].length-1
@@ -83,20 +75,20 @@ class WkshiftController < WkbaseController
 			end
 		end
 		unless errorMsg.blank?
-			flash[:error] = errorMsg 
+			flash[:error] = errorMsg
 		else
 			flash[:notice] = l(:notice_successful_update)
 		end
 		redirect_to :controller => 'wkshift',:action => 'index' , :tab => 'wkshift'
-		
-		
+
+
 	end
-	
+
 	def shiftRoleUpdate
-		count = 0		
+		count = 0
 		errorMsg = ""
 		unless params[:actual_ids].blank?
-			arrId = params[:actual_ids].split(",").map { |s| s.to_i } 
+			arrId = params[:actual_ids].split(",").map { |s| s.to_i }
 		end
 		for i in 0..params[:shift_role_id].length-1
 			if params[:shift_role_id][i].blank?
@@ -109,7 +101,7 @@ class WkshiftController < WkbaseController
 			shiftRoleEntries.shift_id = params[:shift_id].to_i
 			shiftRoleEntries.staff_count = params[:staff_count][i].to_i
 			shiftRoleEntries.location_id = params[:location_id] if params[:location_id] != "0"
-			shiftRoleEntries.department_id = params[:department_id].to_i == 0 ? nil : params[:department_id].to_i 
+			shiftRoleEntries.department_id = params[:department_id].to_i == 0 ? nil : params[:department_id].to_i
 			if shiftRoleEntries.new_record?
 				shiftRoleEntries.created_by_user_id = User.current.id
 			end
@@ -119,22 +111,22 @@ class WkshiftController < WkbaseController
 			end
 		end
 		WkShiftRole.where(:id => arrId).delete_all()
-				
+
 		unless errorMsg.blank?
-			flash[:error] = errorMsg 
+			flash[:error] = errorMsg
 		else
 			flash[:notice] = l(:notice_successful_update)
 		end
-		redirect_to :controller => 'wkshift',:action => 'index' , :tab => 'wkshift'		
+		redirect_to :controller => 'wkshift',:action => 'index' , :tab => 'wkshift'
 	end
-	
+
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
 		@shiftentry = entries.limit(@limit).offset(@offset)
 	end
-	
-	def setLimitAndOffset		
+
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -147,12 +139,12 @@ class WkshiftController < WkbaseController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
+		end
 	end
-	
+
 	def set_filter_session
 		filters = [:location_id, :department_id]
-		super(filters)
+		super(filters, {location_id: WkLocation.default_id})
 	end
 
 end
