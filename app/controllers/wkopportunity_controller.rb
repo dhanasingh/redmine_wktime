@@ -44,10 +44,10 @@ class WkopportunityController < WkcrmController
 		unless filterHash.blank? || filterSql.blank?
 			oppDetails = oppDetails.where(filterSql, filterHash)
 		end
-		
+		oppDetails = oppDetails.reorder(sort_clause)
 		respond_to do |format|
 			format.html do
-				formPagination(oppDetails.reorder(sort_clause))
+				formPagination(oppDetails)
 			  render :layout => !request.xhr?
 			end
 			format.api do

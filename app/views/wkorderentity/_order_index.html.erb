@@ -45,7 +45,7 @@
 	<%= render :partial => 'wkorderentity/order_list'%>
 
 	<% other_formats_links do |f| %>
-		<%= f.link_to 'CSV', url: {format: 'csv'} %>
+		<%= f.link_to_with_query_parameters 'CSV', {} %>
 	<% end %>
 	<div id="billGenerate-dlg">
 	<div>

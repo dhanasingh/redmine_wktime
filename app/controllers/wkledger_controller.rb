@@ -42,9 +42,10 @@ class WkledgerController < WkaccountingController
 		if ledgerType.blank? && name.blank?
 			ledger = WkLedger.all
 		end
+		ledger = ledger.reorder(sort_clause)
 		respond_to do |format|
 			format.html do
-				formPagination(ledger.reorder(sort_clause))
+				formPagination(ledger)
 				@ledgerdd = @ledgers.pluck(:name, :id)
 				@totalAmt = @ledgers.sum(&:opening_balance)
 			  render :layout => !request.xhr?

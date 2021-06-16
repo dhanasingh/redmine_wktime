@@ -63,9 +63,10 @@ menu_item :wkinvoice
 		unless filter_type == '1' && projectId.blank? 
 			entries = entries.where(sqlwhere)
 		end
+		entries = entries.reorder(sort_clause)
 		respond_to do |format|
 			format.html do
-				formPagination(entries.reorder(sort_clause))
+				formPagination(entries)
 				render :layout => !request.xhr?
 			end
 			format.csv do

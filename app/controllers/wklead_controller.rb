@@ -56,12 +56,14 @@ class WkleadController < WkcrmController
 			location_id = !locationId.blank? ? locationId.to_i : location.id.to_i
 			entries = entries.where("C.location_id = ? ", location_id)
 		end
+		entries = entries.reorder(sort_clause)
 		respond_to do |format|
 			format.html do
-				formPagination(entries.reorder(sort_clause))
+				formPagination(entries)
 			  render :layout => !request.xhr?
 			end
 			format.api do
+				@leadEntries = entries
 			end
 			format.csv do
 				headers = { name: l(:field_name), status: l(:field_status), acc_name: l(:label_account_name), location: l(:label_location), phone: l(:label_work_phone), email: l(:label_email), modified: l(:field_status_modified_by), Updated: l(:field_updated_on) }

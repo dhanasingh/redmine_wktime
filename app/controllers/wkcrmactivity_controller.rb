@@ -58,10 +58,10 @@ class WkcrmactivityController < WkcrmController
 		if (!actType.blank?) && (!relatedTo.blank?)
 			crmactivity = crmactivity.where(:activity_type => actType, :parent_type => relatedTo)
 		end
-
+		crmactivity = crmactivity.reorder(sort_clause)
 		respond_to do |format|
 			format.html do
-				formPagination(crmactivity.reorder(sort_clause))
+				formPagination(crmactivity)
 				render :layout => !request.xhr?
 			end
 			format.api do

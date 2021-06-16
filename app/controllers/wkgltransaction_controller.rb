@@ -115,23 +115,7 @@ class WkgltransactionController < WkaccountingController
 		else
 			formPagination(transaction.reorder(sort_clause))
 		end
-		respond_to do |format|
-			format.html do
-				transaction
-			  render :layout => !request.xhr?
-      end
-      format.api do
-				@transEntries = transaction
-			end
-      format.csv do
-        headers = {type: l(:label_type), date: l(:label_date), particulars: l(:label_particulars), debit: l(:label_debit), credit: l(:label_credit) }
-        data = transaction.map do |e|
-					getAmount(e)
-					{ type: transTypeHash[e.trans_type], date: e.trans_date, particulars: (@partLedgerName || ''), debit: (@dbAmount || ''), credit: (@crAmount || '') }
-				end
-        send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "gltransaction.csv")
-      end
-		end
+		transaction
   end
    
     def edit
@@ -448,14 +432,14 @@ class WkgltransactionController < WkaccountingController
 		session[controller_name][:ledger_id2] = params[:txn_particular_2]
 	end
 
-	# def export
-	# 	respond_to do |format|
-	# 		transactionEntries = index
-	# 		format.csv {
-	# 			send_data(csv_format_conversion(transactionEntries), :type => 'text/csv; header=present', :filename => 'gltransaction.csv')
-	# 		}
-	# 	end
-	# end
+	def export
+		respond_to do |format|
+			transactionEntries = index
+			format.csv {
+				send_data(csv_format_conversion(transactionEntries), :type => 'text/csv; header=present', :filename => 'gltransaction.csv')
+			}
+		end
+	end
 
   def graph
     data = get_Ledger_Graph_data

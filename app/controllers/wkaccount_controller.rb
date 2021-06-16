@@ -47,10 +47,10 @@ class WkaccountController < WkcrmController
 			location_id = !locationId.blank? ? locationId.to_i : location.id.to_i
 			entries = entries.where(:location_id => location_id)
 		end
-		entries = entries.order(:name)
+		entries = entries.reorder(sort_clause)
 		respond_to do |format|
 			format.html do
-				formPagination(entries.reorder(sort_clause))
+				formPagination(entries)
 			  render :layout => !request.xhr?
 			end
 			format.api do

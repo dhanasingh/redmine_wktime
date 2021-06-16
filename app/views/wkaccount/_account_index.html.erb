@@ -22,7 +22,7 @@
 <% if @account_entries.present? %>
 	<%= render :partial => 'wkaccount/account_list'%>
 	<% other_formats_links do |f| %>
-  <%= f.link_to 'CSV', url: {format: 'csv'} %>
+  <%= f.link_to_with_query_parameters 'CSV', {} %>
 	<% end %>
 <% else %>
 	<p class="nodata"><%= l(:label_no_data) %></p>

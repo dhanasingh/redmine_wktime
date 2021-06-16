@@ -155,9 +155,10 @@ class WkorderentityController < WkbillingController
 				CONCAT(users.firstname, users.lastname), wk_invoices.status, wk_invoices.invoice_number, wk_invoices.start_date, wk_invoices.end_date, wk_invoices.invoice_date, wk_invoices.closed_on, wk_invoices.modifier_id, wk_invoices.gl_transaction_id, wk_invoices.parent_id, wk_invoices.invoice_type, wk_invoices.invoice_num_key, wk_invoices.created_at, wk_invoices.updated_at,wk_invoices.parent_type ")
 				.select("wk_invoices.*, SUM(wk_invoice_items.quantity) AS quantity, SUM(wk_invoice_items.amount) AS amount, SUM(wk_invoice_items.original_amount)
 				 AS original_amt")
+			invEntries =  invEntries.reorder(sort_clause)
 			respond_to do |format|
 				format.html do
-					formPagination(invEntries.reorder(sort_clause))
+					formPagination(invEntries)
 					unless @previewBilling
 						amounts = @invoiceEntries.reorder(["wk_invoices.id ASC"]).pluck("SUM(wk_invoice_items.amount)")
 						@totalInvAmt = amounts.compact.inject(0, :+)

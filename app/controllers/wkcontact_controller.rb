@@ -62,9 +62,10 @@ class WkcontactController < WkcrmController
 			location_id = !locationId.blank? ? locationId.to_i : location.id.to_i
 			wkcontact = wkcontact.where("wk_crm_contacts.location_id = ? ", location_id)
 		end
+		wkcontact = wkcontact.reorder(sort_clause)
 		respond_to do |format|
 			format.html do
-				formPagination(wkcontact.reorder(sort_clause))
+				formPagination(wkcontact)
 			  render :layout => !request.xhr?
 			end
 			format.api do

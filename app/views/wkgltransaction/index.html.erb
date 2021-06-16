@@ -59,5 +59,12 @@
 <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count if @summaryTransaction == 'days'%></span>
 
 <% other_formats_links do |f| %>
-  <%= f.link_to 'CSV', url: {format: 'csv'} %>
+	<% url = "?format=csv"
+		params.each do |name, val|
+			if !['controller', 'action', 'utf8'].include?(name)
+				url = url + "&" + (name + "=" + val)
+			end
+		end
+	%>
+	<%= link_to 'CSV', url_for(:controller => controller_name, :action => 'export') + url %>	
 <% end %>
