@@ -190,7 +190,7 @@ module WksurveyHelper
       @surveyForType = "User"
       @surveyForID = User.current.id
     else
-      @surveyForType = params[:surveyForType] || params[:survey_for] || nil
+      @surveyForType = params[:surveyForType] || (params[:survey_for].present? ?  params[:survey_for] : nil)
       @surveyForID = nil
     end
     {surveyForType: @surveyForType, surveyForID: @surveyForID}
