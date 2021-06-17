@@ -11,13 +11,14 @@ module WkDashboard
     dateArr = (Array.new(12){|m| [(to - m.month).beginning_of_month, (to - m.month).end_of_month]}).reverse
     data[:data1] = []
     dateArr.each do |c|
-      countEntry = getAssets(c.last.to_date).reorder("")
-        .where("(ap.is_disposed != #{booleanFormat(true)} OR ap.is_disposed is NUll)")
+      countEntry = getAssets(c.last.to_date)
+      countEntry = countEntry.where("(ap.is_disposed != #{booleanFormat(true)} OR ap.is_disposed is NUll)")
         .select("sum(
           CASE WHEN dp.id IS NULL
           THEN CASE WHEN ap.current_value IS NULL THEN (wk_inventory_items.cost_price + wk_inventory_items.over_head_price) ELSE ap.current_value END
           ELSE (dp.actual_amount-dp.depreciation_amount) END
           ) AS actual_value")
+        .order("actual_value")
 
       data[:data1] << countEntry.first.actual_value.to_i
     end
