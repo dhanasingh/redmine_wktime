@@ -61,4 +61,9 @@
 <% end %>
 <% end %> 
 <%=h hidden_field_tag("deletedids",  "" )  %>
+<% if params[:shipment_id].present? %>
+	<div class="contextual total-hours">
+		<%= l(:label_total) %>: &nbsp;<%= "%.2f" % @shipmentItem&.shipment_item&.sum('(total_quantity*cost_price)+over_head_price')%>
+	</div>
+<%end%>
 <%= submit_tag l(:button_save),  :hidden => false, :id => 'items_save', :disabled => false %>
