@@ -2,7 +2,7 @@ module WkDashboard
 
   def chart_data(param={})
     data = {
-      graphName: l(:label_expense_for_issues), chart_type: "pie", xTitle: l(:label_hours), yTitle: l(:label_days),
+      graphName: l(:label_expense_for_issues), chart_type: "pie", xTitle: l(:field_hours), yTitle: l(:label_day_plural),
       legentTitle1: l(:label_total_expense_of_issues), url: {controller: "wkexpense", action: "time_rpt"}
     }
     entries = getExpenses(param)
@@ -16,7 +16,7 @@ module WkDashboard
 
   def dataset(param={})
     entries = getExpenses(param)
-    header = {issue: l(:field_issue), user: l(:field_user), date: l(:label_spent_on), amount: l(:field_amount)}
+    header = {issue: l(:field_issue), user: l(:field_user), date: l(:label_spent_on), amount: l(:label_amount)}
     data = entries.map{|e| { issue: e&.issue&.to_s, user: e&.user&.name, spent_on: e&.spent_on.to_date, amount: e.currency&.to_s + e.amount.to_s }}
     return {header: header, data: data}
   end

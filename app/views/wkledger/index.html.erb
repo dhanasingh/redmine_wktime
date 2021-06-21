@@ -28,7 +28,7 @@
 			<tr>
 				<th><label><%= l(:field_name) %></label></th>
 				<td><%= text_field_tag 'name', ledgername, :size => 30 %></td>
-				<th><label style="padding-left: 10px;"><%= l(:label_type) %></label></th>
+				<th><label style="padding-left: 10px;"><%= l(:field_type) %></label></th>
 				<td><%=h select_tag("ledger_type", options_for_select(ledgerType.invert, :selected => ledger_type ), :style => "width:160px; ") %></td>
 				<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %></td>
 				<td><%= link_to l(:button_clear), {:tab => controller_name, clear: true}, :class => 'icon icon-reload' %></td>

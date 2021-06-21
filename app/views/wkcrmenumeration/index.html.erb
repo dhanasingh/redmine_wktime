@@ -13,7 +13,7 @@
 <%= render_tabs time_expense_tabs %>
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 <div class="wk-contextual">
-	<%= link_to l(:label_new_item_third_case, l(:label_enumerations)), url_for(:controller => controller_name, :action => 'edit', :enum_id => ""), :class => 'icon icon-add' %>
+	<%= link_to l(:label_new_item, l(:label_enumerations)), url_for(:controller => controller_name, :action => 'edit', :enum_id => ""), :class => 'icon icon-add' %>
 </div>
 <%= form_tag({:controller => "wkcrmenumeration", :action => 'index'}, :method => :get, :id => 'query_form') do %>
 	<%= hidden_field_tag "searchlist", controller_name %>
@@ -25,7 +25,7 @@
 			<tr>
 				<th><label for='name' style="float:left;"><%= l(:field_name)   %></label></th>
 					<td><%= text_field_tag 'enumname', enumerationName, :size => 30, :style=> "float: left;" %></td>
-				<th><label style="float:left; padding-left: 10px;"><%= l(:label_type) %></label></th>
+				<th><label style="float:left; padding-left: 10px;"><%= l(:field_type) %></label></th>
 					<td><%=h select_tag('enumType', options_for_select(enumType.invert,  :selected => enumerationType.nil? ? "" : enumerationType ), :style=> "float: left;") %></td>
 				<td><%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %></td>
 				<td><%= link_to l(:button_clear), {:tab => controller_name, clear: true}, :class => 'icon icon-reload', :style=>"float:left;" %></td>

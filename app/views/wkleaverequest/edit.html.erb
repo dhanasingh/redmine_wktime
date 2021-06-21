@@ -20,7 +20,7 @@
 				<td align="left"><%=  @leaveReqEntry.blank? ? User.current.name : @leaveReqEntry.try(:user_name) %></td>
 			<tr>
 			<tr>
-				<th align="left"><%= l(:label_status) %></th>
+				<th align="left"><%= l(:field_status) %></th>
 				<td align="left"><%= getLeaveStatus[@leaveReqStatus] %></td>
 			<tr>
 			<tr>
@@ -40,7 +40,7 @@
 				%>
 			</tr>
 			<tr>
-				<th align="left"><%= l(:label_reason) %></th>
+				<th align="left"><%= l(:label_comment) %></th>
 				<td align="left">
 					<%= text_area_tag("leave_reasons", @leaveReqEntry.try(:leave_reasons), rows: 5, cols: 60, disabled: @readonly) %>
 				</td>

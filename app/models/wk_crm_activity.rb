@@ -30,7 +30,7 @@ class WkCrmActivity < ActiveRecord::Base
                     :delete_permission => :manage_files
 
   def validate_crm_activity
-	errors.add(:base, (l(:label_subject)  + " " + l('activerecord.errors.messages.blank'))) if name.blank?
+	errors.add(:base, (l(:field_subject)  + " " + l('activerecord.errors.messages.blank'))) if name.blank?
 	# if activity_type == 'T'
 		# errors.add :start_date, :blank if name.blank?
 		# errors.add :end_date, :blank if name.blank?

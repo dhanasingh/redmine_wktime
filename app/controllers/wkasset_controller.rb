@@ -45,7 +45,7 @@ class WkassetController < WkproductitemController
 	end
 	
 	def newItemLabel
-		l(:label_new_asset_item)
+		l(:label_new_asset)
 	end
 	
 	def newAsset

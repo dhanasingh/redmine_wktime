@@ -72,7 +72,7 @@ class WkcontactController < WkcrmController
 				@accountproject = wkcontact
 			end
 			format.csv do
-				headers = { name: l(:field_name), acc_name: l(:label_account_name), location: l(:label_location), title: l(:field_title), email: l(:label_email), phone: l(:label_work_phone), assignee: l(:field_assigned_to), modified: l(:label_modified) }
+				headers = { name: l(:field_name), acc_name: l(:label_account_name), location: l(:label_location), title: l(:field_title), email: l(:field_mail), phone: l(:label_work_phone), assignee: l(:field_assigned_to), modified: l(:label_modified) }
   			data = wkcontact.map do |e| 
 					{name: e.name, acc_name: (e&.account&.name || ''), location: (e&.location&.name || ''), title: (e&.title || ''), email: (e&.address&.email || ''),  phone: (e&.address&.work_phone || ''), assignee: (e&.assigned_user&.name(:firstname_lastname) || ''), modified: e.updated_at.localtime.strftime("%Y-%m-%d") } 
 				end
@@ -164,7 +164,7 @@ class WkcontactController < WkcrmController
 	end
 	
 	def getAccountLbl
-		l(:label_account)
+		l(:field_account)
 	end
 	
 	def contactLbl

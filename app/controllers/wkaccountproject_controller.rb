@@ -203,7 +203,7 @@ include WkaccountprojectHelper
 	end
 
 	def getAccountDDLbl
-		l(:label_account)
+		l(:field_account)
 	end
 
 	def getAdditionalDD

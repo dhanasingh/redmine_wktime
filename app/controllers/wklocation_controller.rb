@@ -54,7 +54,7 @@ class WklocationController < WkbaseController
 				formPagination(entries)
 			}
 			format.csv{
-				headers = {name: l(:field_name), type: l(:label_type), address: l(:label_account_address1), city: l(:label_city), state: l(:label_state), default: l(:field_is_default), main: l(:label_main_location)}
+				headers = {name: l(:field_name), type: l(:field_type), address: l(:label_account_address1), city: l(:label_city), state: l(:label_state), default: l(:field_is_default), main: l(:label_main_location)}
 				data = entries.collect{|entry| {name: entry.name, type: entry&.location_type&.name, address: entry&.address&.address1, city: entry&.address&.city, state: entry&.address&.state, default: entry.is_default, main: entry.is_main} }
 				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "location.csv")
 			}

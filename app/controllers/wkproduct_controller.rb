@@ -50,7 +50,7 @@ class WkproductController < WkinventoryController
 				formPagination(entries)
 			}
 			format.csv{
-				headers = {name: l(:field_name), category: l(:label_category), uom: l(:label_uom)}
+				headers = {name: l(:field_name), category: l(:field_category), uom: l(:label_uom)}
 				data = entries.map{|entry| {name: entry.name, category: entry&.category&.name || '', uom: entry&.uom&.short_desc || ''} }
 				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "product.csv")
 			}

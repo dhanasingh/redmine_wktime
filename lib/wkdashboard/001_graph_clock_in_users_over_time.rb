@@ -3,7 +3,7 @@ module WkDashboard
 
   def chart_data(param={})
     data = {
-      graphName: l(:label_clockin_users), chart_type: "bar", xTitle: l(:label_hours), yTitle: l(:label_no_of_employees),
+      graphName: l(:label_clockin_users), chart_type: "bar", xTitle: l(:field_hours), yTitle: l(:label_no_of_employees),
       legentTitle1: l(:label_no_of_employees)
     }
     entries = getEntries(param[:from])

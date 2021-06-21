@@ -84,7 +84,7 @@ class WkpaymententityController < WkbillingController
 			end
 			format.csv do
 				entries = WkPayment.find_by_sql(selectStr + sqlStr + orderStr)
-				headers = { payment: l(:label_txn_payment), type: l(:label_type), name: l(:field_name), payment_date: l(:label_payment_date), payment_type: l(:label_payment_type), original_amount: l(:field_original_amount), amount: l(:field_amount) }
+				headers = { payment: l(:label_txn_payment), type: l(:field_type), name: l(:field_name), payment_date: l(:label_payment_date), payment_type: l(:label_payment_type), original_amount: l(:field_original_amount), amount: l(:label_amount) }
 				data = entries.map do |e|
 					payment_items = e&.payment_items&.first
 					{ payment: e.id, type: personTypeLabelHash[e.entity_type], name: e.name,  payment_date: e.payment_date.strftime("%Y-%m-%d"), payment_type: getPayTypeHash[e.payment_type_id], original_amount: (payment_items&.original_currency || '')+" "+e.payment_original_amount.round(2).to_s, amount: (payment_items&.currency || '')+" "+e.payment_amount.round(2).to_s }

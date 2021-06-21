@@ -52,7 +52,7 @@
 <% @report.periods.each do |period| %>
   <th class="period" style="width:<%= columns_width %>%;"><%= period %></th>
 <% end %>
-	<% expense = (@query.type == "WkExpenseEntryQuery" ? l(:label_total_expense) : l(:label_total_time)) %>
+	<% expense = (@query.type == "WkExpenseEntryQuery" ? l(:label_wkexpense) : l(:label_total_time)) %>
   <th class="total" style="width:<%= columns_width %>%;"><%= expense %></th>
   <% if @showEstimate %>
     <th class="total" style="width:<%= columns_width %>%;"><%= l(:field_total_estimated_hours) %></th>

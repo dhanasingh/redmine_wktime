@@ -30,7 +30,7 @@ class WkexpenseController < WktimeController
 
 
   def getLabelforSpField
-	l(:field_amount)
+	l(:label_amount)
   end
   
   def getCFInRowHeaderHTML

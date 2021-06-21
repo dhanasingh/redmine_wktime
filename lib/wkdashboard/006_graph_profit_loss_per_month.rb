@@ -5,7 +5,7 @@ module WkDashboard
 
   def chart_data(param={})
     data = { graphName: l(:label_profit_loss), chart_type: "line", xTitle: l(:label_months), yTitle: l(:label_amount),
-      legentTitle1: l(:label_total_income), legentTitle2: l(:label_total_expense), report_type: "report_attendance_web" }
+      legentTitle1: l(:label_income), legentTitle2: l(:label_total_expense), report_type: "report_attendance_web" }
 
     profit = getProfits(param[:to])
     profits = [0]*12

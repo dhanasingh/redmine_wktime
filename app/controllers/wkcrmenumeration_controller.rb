@@ -49,7 +49,7 @@ class WkcrmenumerationController < WkbaseController
 				formPagination(entries)
 			}
 			format.csv{
-				headers = {type: l(:label_type), name: l(:field_name), position: l(:label_position), active: l(:field_active), default: l(:field_is_default) }
+				headers = {type: l(:field_type), name: l(:field_name), position: l(:label_position), active: l(:field_active), default: l(:field_is_default) }
 				data = entries.map{|entry| {type: enumType[entry&.enum_type], name: entry.name, position: entry.position,  active: entry.active, default: entry.is_default} }
 				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "enumeration.csv")
 			}

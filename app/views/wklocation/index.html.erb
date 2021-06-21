@@ -27,7 +27,7 @@
 	<table>
 			<th><label for='name' style="float:left;"><%= l(:field_name)%></label></th>
 				<td><%= text_field_tag 'location_name', locName, :size => 30, :style=> "float: left;" %></td>
-			<th><label style="float:left;padding-left: 10px;"><%= l(:label_type) %></label></th>
+			<th><label style="float:left;padding-left: 10px;"><%= l(:field_type) %></label></th>
 				<td><%=h select_tag('location_type', options_for_select(options_for_enum_select('LT', locType, true)), :style=> "float: left;") %></td>
 			<td><%= submit_tag l(:button_apply), :class => "small", :style=>"float:left;", :name => nil %></td>
 			<td><%= link_to l(:button_clear), {:tab => controller_name, clear: true}, :class => 'icon icon-reload', :style=>"float:left; " %></td>

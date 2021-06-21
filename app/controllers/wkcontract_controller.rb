@@ -70,7 +70,7 @@ menu_item :wkinvoice
 				render :layout => !request.xhr?
 			end
 			format.csv do
-				headers = {contract_number: l(:label_contract_number), type: l(:label_type), name: l(:field_name), project: l(:label_project), start_date: l(:label_start_date), end_date: l(:label_end_date) }
+				headers = {contract_number: l(:label_contract_number), type: l(:field_type), name: l(:field_name), project: l(:label_project), start_date: l(:label_start_date), end_date: l(:label_end_date) }
 				data = entries.map do |e|
 					type = e.parent_type == 'WkAccount' ? 'Account' : 'Contact'
 					{ contract_number: e.contract_number, type:  type, name: (e&.parent&.name || ''), project: (e&.project&.name || ""), start_date: e.start_date, end_date: e.end_date }

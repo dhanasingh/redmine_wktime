@@ -45,7 +45,7 @@
 				<% end %>
 			<% end %>
 			<tr>
-				<th align="left"><%= l(:label_owner) + " " + l(:label_type) %></th>
+				<th align="left"><%= l(:label_owner) + " " + l(:field_type) %></th>
 				<td align="left" style="padding-left:40px;"><%=h select_tag("owner_type", options_for_select(getAssetTypeHash(false).invert, :selected => assetProperty.blank? ? getAssetTypeHash(false).invert : assetProperty.owner_type )) %></td>
 			</tr>
 			

@@ -55,7 +55,7 @@ class WkleaverequestController < WkbaseController
         @leaveReqEntires = entries
       end
       format.csv do
-        headers = {user: l(:field_user), type: l(:label_leave_type), startDate: l(:label_start_date), endDate: l(:label_end_date), date: l(:label_submitted_date), status: l(:label_status) }
+        headers = {user: l(:field_user), type: l(:label_leave_type), startDate: l(:label_start_date), endDate: l(:label_end_date), date: l(:label_submitted_date), status: l(:field_status) }
         data = entries.map{|e| {user: e.user_name, type: e.leave_type&.subject, startDate: e.startDate, endDate: e.endDate, date: e.created_at&.to_date, status: getLeaveStatus[e&.status]}}
         send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "leaverequest.csv")
       end
@@ -150,8 +150,8 @@ class WkleaverequestController < WkbaseController
         emailNotes += "\n\n" + "#{l(:field_user)}: " + leaveReq.user_name
         emailNotes += "\n" + l(:label_leave_type).to_s + ": " + leaveReq.leave_type.subject
         emailNotes += "\n" + l(:label_start_date).to_s + ": " + leaveReq.startDate.to_s + " " + l(:label_end_date) + ": " + leaveReq.endDate.to_s
-        emailNotes += "\n" + l(:label_status).to_s + ": " + status
-        emailNotes += "\n" + l(:label_reason).to_s + ": " + leaveReq.leave_reasons if leaveReq.leave_reasons.present?
+        emailNotes += "\n" + l(:field_status).to_s + ": " + status
+        emailNotes += "\n" + l(:label_comment).to_s + ": " + leaveReq.leave_reasons if leaveReq.leave_reasons.present?
         emailNotes += "\n" + l(:label_reviewer_cmt).to_s + ": " + leaveReq.reviewer_comment if leaveReq.reviewer_comment.present?
         err_msg = sent_emails(l(:label_leave_request_notification), user.language, email_id, emailNotes, ccMailId)
       end

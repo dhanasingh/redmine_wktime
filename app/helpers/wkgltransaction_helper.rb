@@ -169,7 +169,7 @@ include WkaccountingHelper
 	
 	def detailsTransaction
 		{
-			l(:label_days) => 'days',
+			l(:label_day_plural) => 'days',
 			l(:label_week) => 'week',
 			l(:label_month) => 'month',
 			l(:label_year) => 'year'
@@ -183,7 +183,7 @@ include WkaccountingHelper
 			# csv header fields
 			if @summaryTransaction == 'days'
 				headers = [
-					l(:label_type),
+					l(:field_type),
 					l(:label_date),
 					l(:label_particulars),
 					l(:label_debit),

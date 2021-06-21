@@ -24,7 +24,7 @@
 		<% end %>
 		<label><%= l(:label_leave_type) %></label>&nbsp;
 		<%= select_tag('leave_type', options_for_select(get_leave_type.unshift(['','']), session[controller_name].try(:[], :leave_type))) %>&nbsp;
-		<label><%= l(:label_status) %></label>&nbsp;
+		<label><%= l(:field_status) %></label>&nbsp;
 		<%= select_tag('lveStatus', options_for_select(statusList.invert, session[controller_name].try(:[], :lveStatus))) %>&nbsp;
 		<fieldset id="date-range" class="collapsible">
 			<legend onclick="toggleFieldset(this);" class="icon icon-expended"><%= l(:label_date_range) %></legend>

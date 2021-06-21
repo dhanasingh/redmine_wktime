@@ -486,7 +486,7 @@ include ActionView::Helpers::TagHelper
 			if !params[:tracker_id].blank? && params[:tracker_id] != ["0"] && params[:term].blank?
 				projIds = "#{(params[:project_id] || (!params[:project_ids].blank? ? params[:project_ids].join(",") : ''))}"
 				projCond = !projIds.blank? ? "AND #{Issue.table_name}.project_id in (#{projIds})" : ""
-				issues = Issue.where(["(#{Issue.table_name}.tracker_id in ( ?) #{issueAssignToUsrCond}) #{projCond}", params[:tracker_id]]).order('project_id')
+				issues = Issue.where(["(#{Issue.table_name}.tracker_id in ( ?) #{issueAssignToUsrCond}) #{projCond}", params[:tracker_id].split(' ')]).order('project_id')
 			elsif !params[:term].blank?
 					projIds = "#{(params[:project_id] || (!params[:project_ids].blank? ? params[:project_ids].join(",") : '') || projectids)}"
 					projCond = !projIds.blank? ? "AND #{Issue.table_name}.project_id in (#{projIds})" : ""
@@ -514,7 +514,7 @@ include ActionView::Helpers::TagHelper
 			projIds = "#{(params[:project_id] || (!params[:project_ids].blank? ? params[:project_ids].join(",") : '') || projectids)}"
 			projCond = !projIds.blank? ? "AND #{Issue.table_name}.project_id in (#{projIds})" : ""
 			if !params[:tracker_id].blank? && params[:tracker_id] != ["0"]	&& params[:term].blank?
-				cond = ["((#{IssueStatus.table_name}.is_closed = ? OR #{Issue.table_name}.closed_on >= ?) AND  #{Issue.table_name}.tracker_id in ( ?) #{issueAssignToUsrCond}) #{projCond}", false, @startday,params[:tracker_id]]
+				cond = ["((#{IssueStatus.table_name}.is_closed = ? OR #{Issue.table_name}.closed_on >= ?) AND  #{Issue.table_name}.tracker_id in ( ?) #{issueAssignToUsrCond}) #{projCond}", false, @startday,params[:tracker_id].split(' ')]
 			elsif !params[:term].blank?
 				if subjectPart.present?
 					if subjectPart.match(/^\d+$/)

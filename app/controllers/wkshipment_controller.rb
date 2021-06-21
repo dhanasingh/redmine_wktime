@@ -80,7 +80,7 @@ include WkinventoryHelper
 				@totalShipAmt = @shipmentEntries.where("wk_inventory_items.parent_id is null").sum("(wk_inventory_items.total_quantity*wk_inventory_items.cost_price)+wk_inventory_items.over_head_price")
 			}
 			format.csv{
-				headers = {serial_number: l(:label_serial_number), name: l(:field_name), shipment_date: l(:label_shipment_date), amount: l(:field_amount)}
+				headers = {serial_number: l(:label_serial_number), name: l(:field_name), shipment_date: l(:label_shipment_date), amount: l(:label_amount)}
 				data = shipEntries.map{|entry| {serial_number: entry.serial_number, name: entry&.parent&.name || '', shipment_date: entry.shipment_date, amount: ((entry&.inventory_items&.shipment_item[0]&.currency.to_s || '') + ' ' + (entry&.inventory_items&.shipment_item&.sum('(total_quantity*cost_price)+over_head_price').round(2).to_s || ''))} }
 				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "shipment.csv")
 			}

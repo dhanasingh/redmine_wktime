@@ -11,7 +11,7 @@ th{
 		itemType = controller.getItemType
 %>
 <tr>
-	<th><%= l(:field_currency) %></th>
+	<th><%= l(:label_wk_currency) %></th>
 	<td style="padding-left:40px;">
 		<%=h select_tag("currency",options_for_select(wkexpense_helper.options_for_currency, :selected => invntItem.blank? ? Setting.plugin_redmine_wktime['wktime_currency'] : invntItem.currency), :disabled => isDisable || isTransfer) %>
 	</td>

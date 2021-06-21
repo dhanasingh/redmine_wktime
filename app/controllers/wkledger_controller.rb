@@ -51,7 +51,7 @@ class WkledgerController < WkaccountingController
 			  render :layout => !request.xhr?
       end
       format.csv do
-        headers = {name: l(:field_name), type: l(:label_type) }
+        headers = {name: l(:field_name), type: l(:field_type) }
         data = ledger.collect{|e| {name: e.name, type: getLedgerTypeHash[e.ledger_type] }}
         send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "ledger.csv")
       end

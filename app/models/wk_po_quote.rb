@@ -24,7 +24,7 @@ class WkPoQuote < ActiveRecord::Base
 
   def send_notification
     if WkNotification.notify('purchaseOrderGenerated')
-      emailNotes = l(:label_wk_purchase_order)+":"+" #"+ self.purchase_order.invoice_number+" "+ l(:label_has_created) + "\n\n" + l(:label_redmine_administrator)
+      emailNotes = l(:label_purchase_order)+":"+" #"+ self.purchase_order.invoice_number+" "+ l(:label_has_created) + "\n\n" + l(:label_redmine_administrator)
       userId = (WkPermission.permissionUser('B_PUR_PRVLG') + WkPermission.permissionUser('A_PUR_PRVLG')).uniq
       subject = l(:label_purchase_order) + " " + l(:label_notification)
       WkNotification.notification(userId, emailNotes, subject, self, 'purchaseOrderGenerated')

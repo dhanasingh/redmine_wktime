@@ -16,10 +16,10 @@ end
         <th>#</th>
         <% if ["index", "user_survey"].include? action_name %>
             <%= sort_header_tag('survey', :caption => l(:label_survey), class: "lbl-txt-align") %>
-            <%= sort_header_tag('status', :caption => l(:label_status)) %>
+            <%= sort_header_tag('status', :caption => l(:field_status)) %>
         <% else %>
             <th class="lbl-txt-align"><%= l(:label_survey) %></th>
-            <th><%= l(:label_status) %></th>
+            <th><%= l(:field_status) %></th>
         <% end %>
         <th></th>
     </tr>

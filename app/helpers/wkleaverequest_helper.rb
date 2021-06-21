@@ -13,11 +13,11 @@ module WkleaverequestHelper
 	
 	def getLeaveStatus
 		{
-			'N' => l(:wk_status_new),
+			'N' => l(:label_new),
 			'S' => l(:wk_status_submitted),
 			'A' => l(:wk_status_approved),
 			'C' => l(:wk_status_cancelled),
-			'R' => l(:wk_status_rejected)
+			'R' => l(:default_issue_status_rejected)
 		}
 	end
 

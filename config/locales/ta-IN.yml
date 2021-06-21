@@ -6,7 +6,7 @@ ta-IN:
   label_wk_restr_min_hour: ஒரு நாளைக்கான குறைந்தபட்ச நேரத்தை செயல்படுத்தவும்
   label_wk_min_hour_day: ஒரு நாளைக்கான குறைந்தபட்ச மணி
   label_wk_header_logo: தலைப்பு சின்னம்
-  label_wk_purchase_order: கொள்முதல் ஆணை
+  # label_wk_purchase_order: கொள்முதல் ஆணை
   label_wk_signature: கையொப்பம்
   label_wk_submitted_by: சமர்ப்பித்தவர்
   label_wk_approved_by: அங்கீகரித்தவர்
@@ -37,7 +37,7 @@ ta-IN:
 
   label_wk_first_day_of_week: வாரத்தின் முதல் நாள்
   label_wk_prev_week_tip: முந்தைய வாரம்
-  label_wk_next_week_tip: அடுத்த வாரம்
+  # label_wk_next_week_tip: அடுத்த வாரம்
   label_wkexpense: செலவு
   label_te: நேரம் & செலவு
   label_ta: நேரம் & வருகை
@@ -73,22 +73,22 @@ ta-IN:
   error_wktime_save_nothing: சேமிக்க எதுவும் இல்லை
   error_not_permitted_save: சேமிக்க அனுமதிக்கப்படவில்லை
 
-  wk_status_new: புதியது
+  # wk_status_new: புதியது
   wk_status_empty: வெற்று
   wk_status_submitted: சமர்ப்பிக்கப்பட்டது
   wk_status_approved: அங்கீகரிக்கப்பட்டது
-  wk_status_rejected: நிராகரிக்கப்பட்டது
+  # wk_status_rejected: நிராகரிக்கப்பட்டது
 
   text_wk_warning_min_hour: "நீங்கள் ஒரு நாளைக்கான குறைந்தபட்ச மணிநேரத்தை (%{value}) உள்ளிடவில்லை"
   text_wk_warning_max_hour: "அதிகபட்ச மணிநேரங்களுக்கு மேல் குறைந்தபட்ச மணிநேரத்தை (%{value}) உள்ளிடவில்லை"
-  field_amount: தொகை
+  # field_amount: தொகை
   field_status_modified_by: "திருத்தியவர்"
 
 
   label_wk_allow_filter_issue: எனது சிக்கல்களுக்கு பயனர் வடிகட்டலை அனுமதிக்கவும்
   label_wk_no_user_current_project: தேர்ந்தெடுக்கப்பட்ட திட்டத்தில் பயனர்கள் இல்லை
 
-  field_currency: நாணயம்
+  # field_currency: நாணயம்
   error_project_issue_associate: நேரம் / செலவு உள்ளீடுகள் தொடர்புடையதால் நீக்க முடியாது
   error_time_entry_delete: "நீக்க முடியாது. இந்த இடுகையுடன் நேர தாள் பூட்டப்பட்டுள்ளது"
 
@@ -163,9 +163,9 @@ ta-IN:
   label_group_non_submission_email: சமர்ப்பிக்காத மின்னஞ்சலின் இலக்கு குழு
 
   error_expense_entry_delete: "நீக்க முடியாது. இந்த செலவுத் தாள் பூட்டப்பட்டுள்ளது"
-  button_populate_leave: "காலம் முடிவு செயல்முறையை இயக்கவும்"
+  # button_populate_leave: "காலம் முடிவு செயல்முறையை இயக்கவும்"
   label_clock: மணி உள்ளே / வெளியே
-  label_hours: மணி
+  # label_hours: மணி
   label_import_attendance: வருகை ஏற்றம்
   label_path: கோப்பு ஏற்ற பாதை
   label_auto_import: தானாக ஏற்று
@@ -208,7 +208,7 @@ ta-IN:
   label_salary_detail: சம்பள விவரங்கள்
   label_loss_of_pay: ஊதிய இழப்பு
   label_financial_year_start: நிதி ஆண்டு தொடக்கம்
-  label_salary_detail: சம்பள விவரங்கள்
+  # label_salary_detail: சம்பள விவரங்கள்
   report_payslip: சம்பள சீட்டு
   label_period: காலம்
   label_emp_name: பணியாளர் பெயர்
@@ -241,7 +241,7 @@ ta-IN:
   label_contracts: ஒப்பந்தங்கள்
   label_acc_projects: கணக்கு திட்டங்கள்
   label_invoice: விலைப்பட்டியல்
-  label_invoice_adjusted: விலைப்பட்டியல்
+  # label_invoice_adjusted: விலைப்பட்டியல்
   label_tax: வரி
   label_project_name: திட்டத்தின் பெயர்
   label_account_name: கணக்கின் பெயர்
@@ -255,7 +255,7 @@ ta-IN:
   label_invoice_no_prefix: விலைப்பட்டியல் எண் முன்னொட்டு
   label_taxname: வரி பெயர்
   label_rate: வீதம்
-  label_exchange_rate: வீதம்
+  # label_exchange_rate: வீதம்
   label_tax_detail: வரி விவரம்
   label_new_tax: புதிய வரி
   label_invoice_name: பொருள் விளக்கம்
@@ -266,13 +266,13 @@ ta-IN:
   label_billing_type: கட்டண வகை
   label_apply_tax: வரியை அமல்படுத்து
   label_itemized_bill: வகைப்படுத்தப்பட்ட கட்டணம்
-  label_new_tax: புதிய வரி
+  # label_new_tax: புதிய வரி
   label_new_account: புதிய கணக்கு
-  label_account_address: முகவரி
+  # label_account_address: முகவரி
   label_account_address1: முகவரி 1
   label_account_address2: முகவரி 2
   label_work_phone: அலுவலக தொலைபேசி
-  label_email: மின்னஞ்சல்
+  # label_email: மின்னஞ்சல்
   label_country: நாடு
   label_city : நகரம்
   label_state : மாநிலம்
@@ -285,16 +285,16 @@ ta-IN:
   label_time_material: நேரம் மற்றும் பொருள்
   label_fixed_cost: நிலையான செலவு
   label_milestone: மைல்கல்
-  label_date: தேதி
+  # label_date: தேதி
   label_applicable_taxes: பொருந்தக்கூடிய வரி
   label_billing_schedules: பட்டியலிடல் அட்டவணைகள்
   label_new_billing_project: புதிய கணக்கு திட்டம்
   label_start_date: தொடக்க தேதி
-  label_end_date: இறுதி தேதி
+  # label_end_date: இறுதி தேதி
   label_attachment: இணைப்புகள்
   label_edit_contract: ஒப்பந்தத்தைத் திருத்து
-  label_project: திட்டம்
-  label_account: கணக்கு
+  # label_project: திட்டம்
+  # label_account: கணக்கு
   label_contract_number: ஒப்பந்த எண்
   label_contract_no_prefix: ஒப்பந்த எண் முன்னொட்டு
   label_new_contract: புதிய ஒப்பந்தம்
@@ -403,11 +403,11 @@ ta-IN:
   label_txn_credit_note: கடன் குறிப்பு
   label_txn_purchase: கொள்முதல்
   label_txn_debit_note: பற்று குறிப்பு
-  label_type: வகை
-  label_particulars: விவரங்கள்
+  # label_type: வகை
+  # label_particulars: விவரங்கள்
   label_debit: பற்று
   label_credit: கடன்
-  label_date: தேதி
+  # label_date: தேதி
   report_balance_sheet: இருப்பு தாள்
   label_as_at: இருக்கிறதுபோல
   label_of_funds: "%{value} நிதி"
@@ -439,8 +439,8 @@ ta-IN:
   label_activity_type: செயல்பாட்டு வகை
   label_contact_plural: தொடர்புகள்
   label_new_item: "புதிய %{value}"
-  label_new_item_adjusted: "புதிய %{value}"
-  label_new_item_third_case: "புதிய %{value}"
+  # label_new_item_adjusted: "புதிய %{value}"
+  # label_new_item_third_case: "புதிய %{value}"
   label_edit_item: "திருத்து %{value}"
   label_lead: இழுது
   label_content_information: "%{value} தகவல்"
@@ -455,16 +455,16 @@ ta-IN:
   label_opportunity_amount: வாய்ப்பு தொகை
   label_referred_by: வழங்கியவர்
   label_more: அதிகமான
-  label_subject: பொருள்
+  # label_subject: பொருள்
   label_inbound: உள்வரும்
   label_outbound: வெளிச்செல்லும்
   label_planned: திட்டமிடப்பட்டுள்ளது
   label_held: நடைபெற்றது
   label_not_held: நடைபெறவில்லை
   label_start_date_time: "தொடக்க தேதி & நேரம்"
-  label_related_to: தொடர்புடையது
+  # label_related_to: தொடர்புடையது
   label_contact: தொடர்பு
-  label_contact_adjusted: தொடர்பு
+  # label_contact_adjusted: தொடர்பு
   label_task: பணி
   label_opportunity: வாய்ப்பு
   label_opportunity_information: வாய்ப்பு தகவல்
@@ -472,7 +472,7 @@ ta-IN:
   label_opportunity_type: வாய்ப்பு வகை
   label_duration: காலம்
   label_end_date_time: "இறுதி தேதி & நேரம்"
-  label_priority: முன்னுரிமை
+  # label_priority: முன்னுரிமை
   label_medium: நடுத்தரம்
   label_call: அழைப்பு
   label_meeting: கூட்டம்
@@ -521,7 +521,7 @@ ta-IN:
   label_sales_cycle: விற்பனை சுழற்சி
   label_conversion_rate: மாற்று விகிதம்
   label_completed_date_time: "நிறைவு செய்யப்பட்ட தேதி & நேரம்"
-  label_days: நாட்கள்
+  # label_days: நாட்கள்
   label_average: சராசரி
   report_civilian_attendance: பொதுமக்கள் வருகை
   minimum_working_days_for_accrual: விடுப்பு சம்பளத்திற்கான குறைந்தபட்ச வேலை நாட்கள்
@@ -562,7 +562,7 @@ ta-IN:
   label_po_number: அஞ்சல் எண்
   label_quote_date: மேற்கோள் தேதி
   label_po_date: கொள்முதல் ஆணை தேதி
-  label_won: வென்றது
+  # label_won: வென்றது
   label_won_note: குறிப்பு வெல்லும்
   label_quote_items: மேற்கோள் பொருட்கள்
   label_po_items: கொள்முதல் ஆணை பொருட்கள்
@@ -581,7 +581,7 @@ ta-IN:
   label_po_number_prefix: PO எண் முன்னொட்டு
   label_si_number_prefix: எஸ்ஐ எண் முன்னொட்டு
   label_in_days: நாட்களில்
-  button_new_lock: பூட்டப்பட்ட  T&E
+  # button_new_lock: பூட்டப்பட்ட  T&E
   field_lock_date: நேரம் / செலவுத் தாள்களைப் பூட்டு
   label_lock: பூட்டப்பட்ட  T&E
   label_last_lock_by: "கடைசியாக பூட்டப்பட்டது: %{name}"
@@ -600,10 +600,10 @@ ta-IN:
   label_inventory_admin_group: இருப்பு நிர்வாகி குழு
   label_inventory_user_group: இருப்பு பயனர் குழு
   label_hr: மனிதவளம்
-  label_location: இருப்பிடம்
+  # label_location: இருப்பிடம்
   label_product: தயாரிப்பு
   label_shipment: சரக்கு
-  label_category: வகை
+  # label_category: வகை
   label_uom: அளவு குறியீடு
   label_item: பொருள்
   label_new_shipment: புதிய சரக்கு
@@ -623,7 +623,7 @@ ta-IN:
   label_model: மாதிரி
   label_attribute_group: பண்புக்கூறு குழு
   label_product_items: தயாரிப்பு பொருட்கள்
-  label_category: வகை
+  # label_category: வகை
   label_populate_items: விரிவு படுத்துதல் பொருட்கள்
   label_new_product_item: புதிய பொருள்
   label_edit_product_item: பொருள் திருத்த
@@ -641,7 +641,7 @@ ta-IN:
   label_new_product_attribute: புதிய பண்புக்கூறுகள்
   label_new_attribute_group: புதிய பண்புக்கூறு குழு
   label_models: மாதிரிகள்
-  label_attributes: பண்புக்கூறுகள்
+  # label_attributes: பண்புக்கூறுகள்
   label_transfer: மாற்றம்
   label_quantity_error: அளவு காலியாக இருக்கக்கூடாது
   label_project_error: திட்ட காலி முடியாது
@@ -664,7 +664,7 @@ ta-IN:
   label_rental: வாடகை
   label_lease: குத்தகை
   label_daily: தினசரி
-  label_depreciation_type: தேய்மான வகை
+  # label_depreciation_type: தேய்மான வகை
   label_accounting_ledger: கணக்கு பேரேடு
   label_wdv: எழுதப்பட்ட மதிப்பு
   label_stright_line: நேர் கோடு
@@ -694,7 +694,7 @@ ta-IN:
   label_role_adjusted: பாத்திரங்கள்
   label_required_staff: தேவையான பணியாளர்கள்
   label_count: எண்ணிக்கை
-  label_department: துறை
+  # label_department: துறை
   label_day_off: நாள் விடுமுறை
   label_schedule_details: அட்டவணை விவரங்கள்
   label_shift_scheduling: மாற்று அட்டவணை
@@ -717,7 +717,7 @@ ta-IN:
   label_auto_scheduling: தானாக இயங்குதல் மாற்றம் திட்டமிடல்
 
 
-  label_shift_and_scheduling: மாற்றம் திட்டமிடல்
+  # label_shift_and_scheduling: மாற்றம் திட்டமிடல்
   label_auto_approve_with_te: தானாக இயங்குதல் ஒப்புதல் நேரம் & செலவு
   label_credit_with_ledger: கடன் பேரேடு
   label_debit_with_ledger: பற்று பேரேடு
@@ -765,7 +765,7 @@ ta-IN:
   label_report_type: அறிக்கை வகை
 
   label_new_asset: புதிய சொத்து
-  label_new_asset_item: புதிய சொத்து
+  # label_new_asset_item: புதிய சொத்து
   label_edit_asset_item: சொத்தை திருத்து
   label_additional_info: கூடுதல் தகவல்
   label_as: என
@@ -780,7 +780,7 @@ ta-IN:
   label_relationship: தொடர்பு உறவு
   warning_select_project: ஒரு திட்டத்தைத் தேர்ந்தெடுத்து கொள்ளவும்
   warn_billable_project_not_configured: பில் செய்யக்கூடிய திட்டங்கள் கட்டமைக்கப்படவில்லை %{name}
-  field_rate: மதிப்பீடு
+  # field_rate: மதிப்பீடு
   field_rate_per: ஒன்றுக்கு
   label_invoice_generation_month: விலைப்பட்டியல் உருவாக்கு மாதம்
   label_edit_component: உபகரணத்தைத் திருத்து
@@ -798,11 +798,11 @@ ta-IN:
   label_total_expense_of_issues: சிக்கல்களின் மொத்த செலவு
   label_created_lead: உருவாக்கப்பட்ட இழுது
   label_converted_lead: மாற்றப்பட்ட இழுது
-  label_total_invoice: விலைப்பட்டியல்
-  label_total_payment: கட்டணம்
+  # label_total_invoice: விலைப்பட்டியல்
+  # label_total_payment: கட்டணம்
   label_total_assets_per_month: சொத்துக்கள்
-  label_total_income: வருமானம்
-  label_total_expense: செலவு
+  # label_total_income: வருமானம்
+  # label_total_expense: செலவு
   label_months: மாதங்கள்
   label_amount : தொகை
   label_no_of_leads: தடங்களின் எண்ணிக்கை
@@ -810,13 +810,13 @@ ta-IN:
 
   #Survey
   label_survey: கணக்கெடுப்பு
-  label_status: நிலை
+  # label_status: நிலை
   label_new_survey: புதிய கணக்கெடுப்பு
   label_edit_survey: கணக்கெடுப்பைத் திருத்து
   label_question_choices: கேள்வி தேர்வுகள்
   label_open: திறந்த
-  label_closed: மூடப்பட்ட
-  label_new: புதிய
+  # label_closed: மூடப்பட்ட
+  # label_new: புதிய
   label_archived: காப்பகப்படுத்தப்பட்டது
   label_survey_name: கணக்கெடுப்பு பெயர்
   label_question_name: கேள்வி
@@ -836,7 +836,7 @@ ta-IN:
   label_email_users: மின்னஞ்சல் பயனர்கள்
   label_survey_reminder: கணக்கெடுப்பு நினைவூட்டல்
   label_additional_emails: கூடுதல் மின்னஞ்சல்கள்
-  label_notes: குறிப்புக்கள்
+  # label_notes: குறிப்புக்கள்
   label_include_user_group: மின்னஞ்சல்களை அனுப்புகிறது
   label_recur: மீண்டும்
   label_recur_every: ஒவ்வொரு
@@ -845,7 +845,7 @@ ta-IN:
   label_review: மதிப்பாய்வு தேவைப்படுகிறது
   label_reviewer_only: விமர்சகரான மட்டுமே
   label_mandatory: கட்டாயமாகும்
-  button_submit: சமர்ப்பி
+  # button_submit: சமர்ப்பி
   label_user_name: பயனர் பெயர்
   label_response_date: பதில் தேதி
   label_survey_response: கணக்கெடுப்பு பதில்
@@ -886,14 +886,14 @@ ta-IN:
   label_leave_request: விடுப்பு வேண்டுகோள்
   label_new_leave_request: புதிய விடுப்பு வேண்டுகோள்
   label_leave_type: விடுப்பு வகை
-  label_reason: கருத்து
+  # label_reason: கருத்து
   label_date_start_end: தொடக்க தேதி %{start} கடைசி தேதி %{end}
   wk_status_cancelled: ரத்து செய்யப்பட்டது
   button_cancel_leave: விடுப்பை ரத்துசெய்
   label_leave_request_notification: விடுப்பு வேண்டுகோள் அறிவித்தல்
   label_by: மூலம்
   label_leave_email_note: விடுப்பு கோரிக்கை உள்ளது
-  label_documents: ஆவணங்கள்
+  # label_documents: ஆவணங்கள்
 
   #ESI Calculate on Payroll #ESI ஊதியத்தில் கணக்கிடுங்கள்
   label_equal: '=='
@@ -933,7 +933,7 @@ ta-IN:
   label_income_tax_settings: வருமான வரி அமைப்புகள்
   label_tax_rule: வருமான வரி விதி
   label_income_tax: வருமான வரி
-  label_apply_tax: வரி விண்ணப்பிக்கவும்
+  # label_apply_tax: வரி விண்ணப்பிக்கவும்
   indian_tax_rule: இந்திய வரி விதி
   label_all_time: எல்லா நேரமும்
   label_edit_leave_request: விடுப்பு கோரிக்கையைத் திருத்து
@@ -994,7 +994,7 @@ ta-IN:
   label_supplier_invoice_received: வழங்குபவர் விலைப்பட்டியல் பெறப்பட்டது
   label_supplier_payment_sent: வழங்குபவர கட்டணம் அனுப்பப்பட்டது
   label_receive_goods: பொருட்களைப் பெறுங்கள்
-  label_dispose_asset: சொத்தை அப்புறப்படுத்துங்கள்
+  # label_dispose_asset: சொத்தை அப்புறப்படுத்துங்கள்
   label_survey_closed: கணக்கெடுப்பு மூடப்பட்டது
   label_fill_survey: கணக்கெடுப்பை நிரப்புக
   label_notification_plural: அறிவிப்புகள்

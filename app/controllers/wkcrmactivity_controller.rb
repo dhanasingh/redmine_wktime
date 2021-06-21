@@ -68,7 +68,7 @@ class WkcrmactivityController < WkcrmController
 				@activity = crmactivity
 			end
 			format.csv do
-				headers = { act_type: l(:label_activity_type), subject: l(:field_subject), status: l(:field_status), related: l(:label_related_to), start_date: l(:label_start_date_time), end_date: l(:label_end_date_time), assignee: l(:field_assigned_to), updated: l(:field_updated_on) }
+				headers = { act_type: l(:label_activity_type), subject: l(:field_subject), status: l(:field_status), related: l(:label_relates_to), start_date: l(:label_start_date_time), end_date: l(:label_end_date_time), assignee: l(:field_assigned_to), updated: l(:field_updated_on) }
 				data = crmactivity.map do |e|
 					status = (["M", "C"].include?(e.activity_type) ? meetCallStatusHash[e.status] : taskStatusHash[e.status])
 					{ act_type: acttypeHash[e.activity_type], subject: e.name, status: status, related: relatedHash[e.parent_type], start_date: e&.start_date&.localtime&.strftime("%Y-%m-%d %H:%M:%S"), end_date: e&.end_date&.localtime&.strftime("%Y-%m-%d %H:%M:%S"), assignee: (e&.assigned_user&.name || ''), updated: e&.updated_at&.localtime&.strftime("%Y-%m-%d %H:%M:%S")}

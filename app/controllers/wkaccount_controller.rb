@@ -57,7 +57,7 @@ class WkaccountController < WkcrmController
 				@account_entries = entries
 			end
 			format.csv do
-				headers = { name: l(:field_name), location: l(:label_location), address: l(:label_account_address), phone: l(:label_work_phone), country: l(:label_country), city: l(:label_city) }
+				headers = { name: l(:field_name), location: l(:label_location), address: l(:label_address), phone: l(:label_work_phone), country: l(:label_country), city: l(:label_city) }
   			data = entries.map do |e| 
 					{ name: e.name, location: (e&.location&.name || ''), address: (e&.address&.address1 || ''),  phone: (e&.address&.work_phone || ''), country: (e&.address&.country || ''), city: (e&.address&.city || '')} 
 				end
@@ -145,7 +145,7 @@ class WkaccountController < WkcrmController
 	end
 	
 	def getAccountLbl
-		l(:label_account)
+		l(:field_account)
 	end
 
 	def set_filter_session

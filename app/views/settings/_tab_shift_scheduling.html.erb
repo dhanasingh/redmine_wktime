@@ -1,6 +1,6 @@
 <% frequency_hash = { 'm'  => l(:label_monthly), 'w' =>  l(:label_weekly) } %>
 <fieldset>
-	<legend><%= l(:label_shift_and_scheduling) %></legend>
+	<legend><%= l(:label_shift_scheduling) %></legend>
 	<p>
 		<%= check_box_tag('settings[wk_schedule_on_weekend]', 1, @settings['wk_schedule_on_weekend'].to_i == 1) %> <label><%= l(:label_schedule_on_weekend) %></label>
 	</p>

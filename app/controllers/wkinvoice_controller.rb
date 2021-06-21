@@ -357,11 +357,11 @@ class WkinvoiceController < WkorderentityController
 
 		timeEntries = WkInvoiceItem.getGenerateEntries(params[:dateval], params[:fromdateval], parent_id, parent_type, params[:projectID], TimeEntry, 'time_entries')
 		timeEntries.each{ |e| data1 << {id: e.id, acc_name: (e&.name || ''), proj_name: e&.project&.name, subject: e.issue.to_s, usr_name: e.user.name, spent_on: e.spent_on, hours: e.hours}}
-		listHeader1 = { acc_cont_name: l(:label_account), project_name: l(:label_project), issue: l(:label_issue), user: l(:label_user), date: l(:label_date), hour: l(:label_hours) }
+		listHeader1 = { acc_cont_name: l(:field_account), project_name: l(:label_project), issue: l(:label_issue), user: l(:label_user), date: l(:label_date), hour: l(:field_hours) }
 
 		materialEntries = WkInvoiceItem.getGenerateEntries(params[:dateval], params[:fromdateval], parent_id, parent_type, params[:projectID], WkMaterialEntry, 'wk_material_entries')
 		materialEntries.each{ |e| data2 << {id: e.id, acc_name: (e&.name || ''), project: e&.project&.name, issue: e.issue.to_s, spent_on: e.spent_on, product: e.inventory_item&.product_item&.product&.name, selling_price: e.currency.to_s+' '+e.selling_price.to_s, quantity: e.quantity }}
-		listHeader2 = { acc_cont_name: l(:label_account), project_name: l(:label_project), issue: l(:label_issue), date: l(:label_date), product_name: l(:label_product), selling_price: l(:label_selling_price), quantity: l(:label_quantity)}
+		listHeader2 = { acc_cont_name: l(:field_account), project_name: l(:label_project), issue: l(:label_issue), date: l(:label_date), product_name: l(:label_product), selling_price: l(:label_selling_price), quantity: l(:label_quantity)}
 		render json: {data1: data1, listHeader1: listHeader1, data2: data2, listHeader2: listHeader2}
 	end
 	

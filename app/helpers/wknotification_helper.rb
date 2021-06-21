@@ -98,7 +98,7 @@ module WknotificationHelper
 			notifyHash['url'] = {controller:'wkquote', action:'edit',invoice_id: notification.source.quote_id, new_invoice: false, preview_billing:false}
 			notifyHash['icon'] = "fa fa-file-text-o"
 		when 'purchaseOrderGenerated'
-			notifyHash['text'] = l(:label_wk_purchase_order)+" #"+notification.source&.purchase_order&.invoice_number.to_s+" "+l(:label_has_created)
+			notifyHash['text'] = l(:label_purchase_order)+" #"+notification.source&.purchase_order&.invoice_number.to_s+" "+l(:label_has_created)
 			notifyHash['url'] = {controller:'wkpurchaseorder', action:'edit',invoice_id: notification.source.purchase_order_id, new_invoice: false, preview_billing:false}
 			notifyHash['icon'] = "fa fa-file-text-o"
 		when 'supplierInvoiceReceived'

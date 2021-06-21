@@ -62,7 +62,7 @@ module WkbillingHelper
 	
 	def accountPolymormphicHash
 		typeHash = {
-			'WkAccount' => l(:label_account),
+			'WkAccount' => l(:field_account),
 			'WkCrmContact' => l(:label_contact) 
 		}
 		typeHash
@@ -80,7 +80,7 @@ module WkbillingHelper
 	
 	def personTypeLabelHash
 		typeHash = {
-			'A' => l(:label_account),
+			'A' => l(:field_account),
 			'C' => l(:label_contact),
 			'S' => l(:label_supplier),
 			'SC' => l(:label_supplier_contact) 			

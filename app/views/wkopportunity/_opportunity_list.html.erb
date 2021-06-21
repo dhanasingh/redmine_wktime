@@ -7,7 +7,7 @@
       <% if action_name == 'index' %>
          <tr>
 				<%= sort_header_tag('opportunity_name', :caption => l(:field_name), class: "lbl-txt-align") %>
-				<%= sort_header_tag('parent_type', :caption => l(:label_related_to), class: "lbl-txt-align") %>
+				<%= sort_header_tag('parent_type', :caption => l(:label_relates_to), class: "lbl-txt-align") %>
 				<%= sort_header_tag('sales_stage', :caption => l(:label_txn_sales_stage), class: "lbl-txt-align") %>
 				<%= sort_header_tag('amount', :caption => l(:label_amount), class: "lbl-txt-align") %>
 				<%= sort_header_tag('close_date', :caption => l(:label_expected_date_to_close_project), class: "lbl-txt-align") %>
@@ -18,9 +18,9 @@
       <% else %>
          <tr>
 				<th class="lbl-txt-align"><%= l(:field_name) %></th>
-				<th class="lbl-txt-align"><%= l(:label_related_to) %></th>
+				<th class="lbl-txt-align"><%= l(:label_relates_to) %></th>
 				<th class="lbl-txt-align"><%=  l(:label_txn_sales_stage) %></th>
-				<th class="lbl-txt-align"><%=  l(:field_amount) %></th>
+				<th class="lbl-txt-align"><%=  l(:label_amount) %></th>
 				<th class="lbl-txt-align"><%=  l(:label_expected_date_to_close_project) %></th>
 				<th class="lbl-txt-align"><%=  l(:field_assigned_to) %></th>
 				<th class="lbl-txt-align"><%= l(:label_modified).capitalize %></th>

@@ -47,7 +47,7 @@ class WkreferralsController < WkleadController
         @entries = entries
       end
       format.csv do
-        headers = {name: l(:field_name), status: l(:field_status), location: l(:label_location), workphone: l(:label_work_phone), email: l(:label_email),
+        headers = {name: l(:field_name), status: l(:field_status), location: l(:label_location), workphone: l(:label_work_phone), email: l(:field_mail),
           degree: l(:label_degree), passout: l(:label_pass_out), referredby: l(:label_referred_by), modifiedby: l(:field_status_modified_by)
         }
         data = entries.map do |e|

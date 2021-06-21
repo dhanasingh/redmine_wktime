@@ -1,4 +1,4 @@
-<h2><%=@activityEntry.blank? ? l(:label_new_item_adjusted, l(:field_activity)) : l(:text_edit_activity) %></h2>
+<h2><%=@activityEntry.blank? ? l(:label_new_item, l(:field_activity)) : l(:text_edit_activity) %></h2>
 
 <%= form_tag({:controller => 'wkcrmactivity', :action => 'update'}, :method => :post, :id => 'query_form') do %>
 	<%= render :partial => 'wkcrmactivity/activity_edit'%>

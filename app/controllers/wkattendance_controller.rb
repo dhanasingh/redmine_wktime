@@ -159,7 +159,7 @@ class WkattendanceController < WkbaseController
 			end
 			format.csv do
 				entries = WkAttendance.find_by_sql(selectStr + sqlQuery +orderStr)
-				headers = {user: l(:field_user), date: l(:field_start_date), clockin: l(:label_clock_in), clockout: l(:label_clock_in), hours: l(:label_hours) }
+				headers = {user: l(:field_user), date: l(:field_start_date), clockin: l(:label_clock_in), clockout: l(:label_clock_in), hours: l(:field_hours) }
 				data = entries.map{|e|
 					{user: e&.user&.name, date: e&.entry_date&.to_date, startDate: e&.start_time&.localtime&.strftime('%R'),
 					endDate: e&.end_time&.localtime&.strftime('%R'), hours: e&.hours ? (e&.hours).round(2) : ""}

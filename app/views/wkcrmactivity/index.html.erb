@@ -22,7 +22,7 @@
 <%  relatedArrhash = Hash[*relatedArr.flatten].invert %>
 
 <div class="wk-contextual">
-	<%= link_to l(:label_new_item_adjusted, l(:field_activity)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+	<%= link_to l(:label_new_item, l(:field_activity)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
 </div>
 <fieldset>
 <%= form_tag({:controller => "wkcrmactivity", :action => 'index', :tab => "wkcrmactivity"}, :method => :get, :id => 'query_form') do %>
@@ -34,7 +34,7 @@
 		<table>
 			<th align="left" ><%= l(:label_activity_type) %>:</th>
 			<td  align="left"><%=h select_tag("activity_type", options_for_select(actTypehash, :selected => !actType.blank? ? actType : ""), :style => "width:190px;") %></td>
-			<th align="left" style="padding-left:10px;"><%= l(:label_related_to) %>:</th>
+			<th align="left" style="padding-left:10px;"><%= l(:label_relates_to) %>:</th>
 			<td align="left"><%=h select_tag("related_to", options_for_select(relatedArrhash, :selected => (!actRelated.blank? ? actRelated : "")), :style => "width:200px;") %></td>
 		</table>
 	<%= render :partial => 'wkcrmactivity/date_range' %>
