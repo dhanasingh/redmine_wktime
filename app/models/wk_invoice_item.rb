@@ -45,7 +45,7 @@ class WkInvoiceItem < ActiveRecord::Base
   end
 
   def self.getGenerateEntries(toVal, fromVal, parent_id, parent_type, projectID, model, table)
-    entries = model.joins(:spent_for)
+    entries = model.joins(:spent_for, :project)
     .joins("INNER JOIN wk_projects ON wk_projects.project_id = #{table}.project_id")
     .joins("INNER JOIN wk_account_projects ON wk_account_projects.project_id = wk_projects.project_id")
     .where(wk_spent_fors: { invoice_item_id: nil }, wk_account_projects: { billing_type: 'TM'}, wk_projects: { is_billable: true }) 
