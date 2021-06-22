@@ -10,7 +10,7 @@ $(document).ready(function(){
 	var txtissuetracker;
 	var timeWarnMsg = document.getElementById('label_time_warn');
 	var issueWarnMsg = document.getElementById('label_issue_warn');
-	
+
 	$('#project-jump').after($('#clockINOUT'));
 	$('#clockINOUT').click(function(){
 		var name = $('#clockin').is(':visible') ? 'start' : 'end';
@@ -18,11 +18,11 @@ $(document).ready(function(){
 	});
 	clockTitle = $('#clockin').is(':visible') ? 'Clock in' : 'Clock out';
 	$("#clockINOUT").attr('title',clockTitle);
-	
+
 	if(document.getElementById('spent_type') == null)
 	{
 		var spentTypeDD = '<table><tr><td><label for="select" style="text-transform:   none;">Spent Type</label></td>'
-            +'<td><select name="spent_type" id="spent_type" onchange="spentTypeValue(this);">'           
+            +'<td><select name="spent_type" id="spent_type" onchange="spentTypeValue(this);">'
             +'</select></td></tr></table>';
 		var spentTypeHF = '<input type="hidden" name="spent_type" id="spent_typeHF" value="">'
 	}
@@ -30,17 +30,17 @@ $(document).ready(function(){
 	if ($('.time-entries.selected').length > 0)
 	{
 		if(document.getElementById('spent_type') == null)
-		{	
+		{
 			$("#query_form_content").append(spentTypeDD);
 			$("#csv-export-form").append(spentTypeHF);
 		}
 		var spentDD = document.getElementById('spent_type');
 		var userid = document.getElementById('spent_time_user_id').value;
-		var spentDDUrl = document.getElementById('getspenttype_url').value;	
+		var spentDDUrl = document.getElementById('getspenttype_url').value;
 		var $this = $(this);
 		if(document.getElementById('spent_type') != null)
 		{
-			var ddloption =  document.getElementById('spent_type').options;			
+			var ddloption =  document.getElementById('spent_type').options;
 			if(ddloption.length == 0)
 			{
 				$.ajax({
@@ -49,35 +49,35 @@ $(document).ready(function(){
 				data: {type: 'spentType'},
 				success: function(data){ updateUserDD(data, spentDD, userid, false, false, "");},
 				beforeSend: function(){ $this.addClass('ajax-loading'); },
-				complete: function(){ spentTypeSelection(); $this.removeClass('ajax-loading'); }	      
+				complete: function(){ spentTypeSelection(); $this.removeClass('ajax-loading'); }
 				});
 			}
-		}			
+		}
 	}
 	// else {
 	// 	sessionStorage.clear();
 	// }
-	
+
 	if (timeWarnMsg != null && issueWarnMsg != null) {
 		warnMsg = [timeWarnMsg.value, issueWarnMsg.value];
 	}
 	if(document.getElementById('divError') != null){
 		if(document.getElementById('time_entry_issue_id')!=null){
-			txtissuetracker = document.getElementById('time_entry_issue_id');		
+			txtissuetracker = document.getElementById('time_entry_issue_id');
 		}
 		if(document.getElementById('time_entry_spent_on')!=null){
-			txtEntryDate = document.getElementById('time_entry_spent_on');	
+			txtEntryDate = document.getElementById('time_entry_spent_on');
 		}
 		else{
 			//get current date
-			var today = new Date();	
+			var today = new Date();
 			today = today.getFullYear() + '-' + (today.getMonth()+1) + '-' + today.getDate();
 			showEntryWarning(today);
-		}		
-	}	
-	if(txtEntryDate!=null){		
+		}
+	}
+	if(txtEntryDate!=null){
 		showEntryWarning(txtEntryDate.value);
-		txtEntryDate.onchange=function(){showEntryWarning(this.value)};	
+		txtEntryDate.onchange=function(){showEntryWarning(this.value)};
 	}
 	if( txtissuetracker != null)
 	{
@@ -85,21 +85,21 @@ $(document).ready(function(){
 		//txtissuetracker.onblur=function(){showIssueWarning(this.value)};
 		$("#time_entry_issue_id").change(function(event){
 			var tb = this;
-			event.preventDefault();						
+			event.preventDefault();
 			setTimeout(function() {
 				var issId = document.getElementById('time_entry_issue_id').value;
 				if(issId >= 0)
 				{
 					showIssueWarning(issId);
-					return;					
+					return;
 				}
-			}, 500);		
-		});	
+			}, 500);
+		});
 	}
 	// $(".time-entries.selected,.icon.icon-reload").click(function(){
 	// 	sessionStorage.clear();
 	// });
-	
+
 	//Time Tracking
 		$("#project-jump").after($("#issueLog"));
 	observeSearchfield('issues-quick-search', null, $('#issues-quick-search').data('automcomplete-url'));
@@ -135,8 +135,8 @@ $(document).ready(function(){
 			}
 		});
 	});
-	
-	//Notification	
+
+	//Notification
 	$("#project-jump").after($("#notification"));
 	$("#notification").attr('title','notification');
 });
@@ -167,9 +167,9 @@ function spentTypeSelection()
 }
 
 function showEntryWarning(entrydate){
-	var $this = $(this);				
-	var divID = document.getElementById('divError');	
-	var statusUrl = document.getElementById('getstatus_url').value;		
+	var $this = $(this);
+	var divID = document.getElementById('divError');
+	var statusUrl = document.getElementById('getstatus_url').value;
 	divID.style.display ='none';
 	$.ajax({
 		url: statusUrl,
@@ -177,7 +177,7 @@ function showEntryWarning(entrydate){
 		data: {startDate: entrydate},
 		success: function(data){ showMessage(data,divID); },
 		complete: function(){ $this.removeClass('ajax-loading'); }
-	});		
+	});
 }
 
 function showMessage(data,divID){
@@ -199,7 +199,7 @@ function showMessage(data,divID){
 		hasEntryError = false;
 	}
 
-	if (errMsg != "") {	
+	if (errMsg != "") {
 		if(document.getElementById('time_entry_hours') != null)
 		{
 			document.getElementById('time_entry_hours').disabled = true;
@@ -215,7 +215,7 @@ function showMessage(data,divID){
 		{
 			document.getElementById('time_entry_hours').disabled = false;
 		}
-		
+
 		if(log_time_page == "true") {
 			$('input[type="submit"]').prop('disabled', false);
 		}
@@ -226,37 +226,37 @@ function showMessage(data,divID){
 function showIssueWarning(issue_id){
 	var $this = $(this);
 	var divID = document.getElementById('divError');
-	var trackerUrl = document.getElementById('getissuetracker_url').value;		
+	var trackerUrl = document.getElementById('getissuetracker_url').value;
 	divID.style.display ='none';
 	$.ajax({
 		data: 'issue_id=' + issue_id,
 		url: trackerUrl,
-		type: 'get',		
+		type: 'get',
 		success: function(data){ showIssueMessage(data, divID); },
 		complete: function(){ $this.removeClass('ajax-loading'); }
-	});	
+	});
 }
 
 function showIssueMessage(data,divID) {
 	var log_time_page = document.getElementById('log_time_page').value;
 	var errMsg = "";
-	if (data == "false") {		
+	if (data == "false") {
 		if (hasEntryError) {
 			errMsg = warnMsg[0] + "<br>" + warnMsg[1];
 		}
 		else {
 			errMsg = warnMsg[1];
-		}		
-		hasTrackerError = true;		
+		}
+		hasTrackerError = true;
 	}
 	else {
 		if (hasEntryError) {
 			errMsg = warnMsg[0];
 		}
-		hasTrackerError = false;		
-	}	
-	
-	if (errMsg != "") {	
+		hasTrackerError = false;
+	}
+
+	if (errMsg != "") {
 		if(document.getElementById('time_entry_hours') != null)
 		{
 			document.getElementById('time_entry_hours').disabled = true;
@@ -318,11 +318,8 @@ function saveIssueTimeLog(ele){
 	let date = new Date();
 	const offSet = date.getTimezoneOffset();
 	const clock_action = $('#g_clock_action').val();
-	let data = { offSet : offSet };
-	if(clock_action != 'S')
-		data['issue_id'] = ele.id
-	else
-		data['id'] = ele.id
+	let key = clock_action != 'S' ? 'issue_id' : 'id'
+	let data = {offSet: offSet, [key]: ele.id};
 
 	if(myLatitude && myLongitude){
 		data['latitude'] = myLatitude;
@@ -332,17 +329,21 @@ function saveIssueTimeLog(ele){
 		url: '/wkbase/saveIssueTimeLog',
 		type: 'get',
 		data: data,
-		success: function(reponse){
-			if(reponse == 'finish'){
+		success: function(resMsg){
+			if(resMsg == 'finish'){
 				$('#issueImg img').prop('src','/plugin_assets/redmine_wktime/images/finish.png');
 				$('#g_clock_action').val('S');
 			}
-			else{
+			else if(resMsg == 'start'){
 				$('#issueImg img').prop('src','/plugin_assets/redmine_wktime/images/start.png');
 				$('#issue-content .quick-search').show();
 				$('#g_clock_action').val('');
 			}
-		}
+			else{
+				alert(resMsg)
+			}
+		},
+		complete: function(){ $('.drdn.expanded').removeClass('expanded'); }
 	});
-	$('.drdn.expanded').removeClass('expanded');
+
 }

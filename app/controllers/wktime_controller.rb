@@ -217,6 +217,12 @@ include ActionView::Helpers::TagHelper
 			gatherEntries
 			allowApprove = true
 		end
+		#IssueLogs validation
+		if errorMsg.blank?
+			issueLogs = get_issue_loggers(true)
+			errorMsg = l(:warn_issuelog_exist) if issueLogs.length > 0
+		end
+
 		errorMsg = gatherWkCustomFields(@wktime) if @wkvalidEntry && errorMsg.blank?
 		wktimeParams = params[:wktime]
 		cvParams = wktimeParams[:custom_field_values] unless wktimeParams.blank?
@@ -566,23 +572,33 @@ include ActionView::Helpers::TagHelper
 		end
 	end
 
-	def get_issue_loggers
-		if params[:type] == "finish"
+	def get_issue_loggers(valid=false)
+		if params[:type] == "finish" || valid
 			issueLogs = WkSpentFor.getIssueLog
-			container = ""
-			timer = ""
-			issueLogs.each do |log|
-				dateTime = get_current_DateTime
-				hours = time_diff(dateTime, log.spent_on_time)
-				timespan = content_tag("span", hours.to_s, id: ("timer_" + log.id.to_s))
-				issuespan = content_tag("span", "#{log.project_name} - #{log.tracker_name} - #{log.issue_id}##{log.subject} " )
-				button = content_tag("span", "Stop", class: "issue_select", id: log.id,
-					style: "color: white; font-weight: bold; border-radius: 20px; background: red; padding-left: 10px; padding-top: 3px; padding-bottom: 3px; padding-right: 10px; margin-left: 5px; cursor: pointer;" )
-				container << content_tag("span", (issuespan + timespan + button))
-				timer << "$('##{("timer_" + log.id.to_s)}').timer({ action: 'start', seconds: #{(dateTime - log.spent_on_time).to_i} });"
+			if valid
+				startday = params[:startday].to_date
+				issueLogs = issueLogs.where("TE.spent_on between ? AND ?", startday, startday +6.days)
+				return issueLogs
+			else
+				respond_to do |format|
+					format.text do
+						container = ""
+						timer = ""
+						issueLogs.each do |log|
+							dateTime = get_current_DateTime
+							hours = time_diff(dateTime, log.spent_on_time)
+							timespan = content_tag("span", hours.to_s, id: ("timer_" + log.id.to_s))
+							issuespan = content_tag("span", "#{log.project_name} - #{log.tracker_name} - #{log.issue_id}##{log.subject} " )
+							button = content_tag("span", "Stop", class: "issue_select", id: log.id,
+								style: "color: white; font-weight: bold; border-radius: 20px; background: red; padding-left: 10px; padding-top: 3px; padding-bottom: 3px; padding-right: 10px; margin-left: 5px; cursor: pointer;" )
+							container << content_tag("span", (issuespan + timespan + button))
+							timer << "$('##{("timer_" + log.id.to_s)}').timer({ action: 'start', seconds: #{(dateTime - log.spent_on_time).to_i} });"
+						end
+						container = "$('#issueLog .drdn-items.issues').html('" + container + "').css('cursor', 'default');" + timer
+						render(js: container)
+					end
+				end
 			end
-			container = "$('#issueLog .drdn-items.issues').html('" + container + "').css('cursor', 'default');" + timer
-			render(js: container)
 		else
 			getissues
 		end

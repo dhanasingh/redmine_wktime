@@ -1232,3 +1232,4 @@ de:
   label_profit_loss: Profit and loss
   label_added: Added
   label_deleted: Deleted
+  warn_issuelog_exist: "You have to stop all issue Logs in the week"

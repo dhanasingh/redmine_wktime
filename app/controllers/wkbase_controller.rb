@@ -174,6 +174,7 @@ class WkbaseController < ApplicationController
 
 	def saveIssueTimeLog
 		entryTime = get_current_DateTime
+		errorMsg = ""
 		if params[:issue_id].present?
 			project = Issue.find(params[:issue_id]).project
 			activityID = project.activities.first.id
@@ -187,7 +188,10 @@ class WkbaseController < ApplicationController
 				timeEntryAttr[:spent_for_attributes][:s_latitude] = params[:latitude]
 			end
 			timeEntry = TimeEntry.new(timeEntryAttr)
-			timeEntry.save
+			errorMsg += statusValidation(timeEntry)
+			unless errorMsg.blank? && timeEntry.save
+				errorMsg += timeEntry.errors.full_messages.join("<br>")
+			end
 		else
 			wkSpentFor = WkSpentFor.find(params[:id])
 			if(wkSpentFor.spent_type == "TimeEntry")
@@ -202,7 +206,10 @@ class WkbaseController < ApplicationController
 					timeEntry.spent_for.e_longitude = params[:longitude]
 					timeEntry.spent_for.e_latitude = params[:latitude]
 				end
-				timeEntry.save
+				errorMsg = statusValidation(timeEntry)
+				unless errorMsg.blank? && timeEntry.save
+					errorMsg = timeEntry.errors.full_messages.join("<br>")
+				end
 			else
 				materialEntry = WkMaterialEntry.find(wkSpentFor.spent_id)
 				quantity = getAssetQuantity(materialEntry.spent_for.spent_on_time, entryTime, materialEntry.inventory_item_id)
@@ -226,10 +233,8 @@ class WkbaseController < ApplicationController
 			end
 		end
 		lastIssueLog = WkSpentFor.getIssueLog.first
-		renderMsg = lastIssueLog.blank? ? "start" : "finish" if renderMsg.blank?
-		respond_to do |format|
-			format.text  { render(js: renderMsg) }
-		end
+		renderMsg = lastIssueLog.blank? ? "start" : "finish" if errorMsg.blank?
+		render plain: renderMsg || errorMsg
 	end
 
 	def findCountBySql(query, model)
