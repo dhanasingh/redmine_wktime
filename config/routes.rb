@@ -759,3 +759,5 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wkproductitem/get_material_entries', to: 'wkproductitem#get_material_entries'
 
 	get 'wkdashboard/getDataSet', to: 'wkdashboard#getDataSet'
+
+	delete 'wkpayment/destroy', to: 'wkpayment#destroy'
