@@ -4,7 +4,7 @@
 	var log_type = document.getElementById("log_type").value;
 	if(log_type == 'E') entry = 'wk_expense_entry';
 	if(log_type == 'M' || log_type == 'A') entry = 'wk_material_entry';
-	if(document.getElementById('#'+entry+'_project_id') != null)
+	if((document.getElementById(entry+'_project_id')) != null)
 	{
 		$('#'+entry+'_project_id').change(function(){
 			var project=$(this);			
@@ -12,7 +12,7 @@
 				loadSpentFors(project.val(), 'spent_for', false, uid)
 				
 			const allowedProjs = $('#allowedProjects').val();
-			allowedProjs.includes(this.value) ? $('#issuelogtable').show() : $('#issuelogtable').hide();
+			if(allowedProjs) allowedProjs.includes(this.value) ? $('#issuelogtable').show() : $('#issuelogtable').hide();
 		});
 	}
 

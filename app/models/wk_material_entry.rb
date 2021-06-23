@@ -96,9 +96,6 @@ class WkMaterialEntry < TimeEntry
     WkSpentFor.where(:spent_type => 'WkMaterialEntry', :spent_id => self.id)&.first
   end
 
-  def set_author_if_nil
-  end
-
   def validate_time_entry
     errors.add :project_id, :invalid if project.nil?
     errors.add :issue_id, :invalid if (issue_id && !issue) || (issue && project!=issue.project)

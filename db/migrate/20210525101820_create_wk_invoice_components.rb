@@ -14,6 +14,15 @@ class CreateWkInvoiceComponents < ActiveRecord::Migration[5.2]
       t.string :value
       t.timestamps null: false
     end
+
+    add_column :wk_material_entries, :author_id, :integer, default: nil
+
+    reversible do |dir|
+      dir.up do
+        # Copy existing user_id to author_id
+        WkMaterialEntry.update_all('author_id = user_id')
+      end
+    end
     
   end
 end

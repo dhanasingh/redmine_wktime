@@ -406,12 +406,11 @@ module TimelogControllerPatch
 					@modelEntry.inventory_item_id = inventoryId.to_i
 					@modelEntry.quantity = quantity
 					@modelEntry.currency = currency
-					# unless @modelEntry.valid?	
-					# 	errorMsg = @modelEntry.errors.full_messages.join("<br>")
-					# else 
-					# 	@modelEntry.save
-					# end
-					@modelEntry.save(validate: false)
+					unless @modelEntry.valid?	
+						errorMsg = @modelEntry.errors.full_messages.join("<br>")
+					else 
+						@modelEntry.save
+					end
 					if params[:log_type] == 'A' || params[:log_type] == @logType
 						inventoryObj = WkInventoryItem.find(inventoryId.to_i)
 						@assetObj = inventoryObj.asset_property

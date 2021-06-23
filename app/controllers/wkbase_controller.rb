@@ -221,12 +221,11 @@ class WkbaseController < ApplicationController
 					materialEntry.spent_for.e_longitude = params[:longitude]
 					materialEntry.spent_for.e_latitude = params[:latitude]
 				end
-				# unless materialEntry.valid?
-				# 	renderMsg = materialEntry.errors.full_messages.join("<br>")
-				# else
-				# 	materialEntry.save
-				# end
-				materialEntry.save(validate: false)
+				unless materialEntry.valid?
+					renderMsg = materialEntry.errors.full_messages.join("<br>")
+				else
+					materialEntry.save
+				end
 				inventoryObj = WkInventoryItem.find(materialEntry.inventory_item_id)
 				assetObj = inventoryObj.asset_property
 				assetObj.matterial_entry_id = nil
