@@ -36,11 +36,11 @@ module WknotificationHelper
 			notifyHash['url'] = {controller:'wkleaverequest', action:'edit', id: notification.source_id}
 			notifyHash['icon'] = "fa fa-user-circle"
 		when 'invoiceGenerated'
-			notifyHash['text'] = l(:label_invoice)+" "+notification.source.invoice_items.first.original_currency.to_s+notification.source.invoice_items.sum(:original_amount).to_s+" "+ l(:label_has_generated)+" "+ l(:label_for)+" "+notification.source.parent.name.to_s
+			notifyHash['text'] = l(:label_invoice)+" "+notification&.source&.invoice_items&.first&.original_currency.to_s+notification&.source&.invoice_items&.sum(:original_amount).to_s+" "+ l(:label_has_generated)+" "+ l(:label_for)+" "+notification&.source&.parent&.name&.to_s
 			notifyHash['url'] = {controller:'wkinvoice', action:'edit', invoice_id: notification.source.id, new_invoice: false, preview_billing: false, tab: 'wkinvoice'}
 			notifyHash['icon']= "fa fa-usd"
 		when "paymentReceived"
-			notifyHash['text'] = l(:label_received_payment)+" "+notification.source.payment_items.first.original_currency.to_s+WkPayment.getPaymentItems(notification.source).to_s+" "+l(:label_from)+" "+notification.source.parent.name.to_s
+			notifyHash['text'] = l(:label_received_payment)+" "+notification&.source&.payment_items&.first&.original_currency.to_s+WkPayment.getPaymentItems(notification.source).to_s+" "+l(:label_from)+" "+notification&.source&.parent&.name.to_s
 			notifyHash['url'] = {controller:'wkpayment', action:'edit', payment_id: notification.source_id}
 			notifyHash['icon'] = "fa fa-usd"
 		when 'contractSigned'

@@ -268,9 +268,21 @@ function deleteRow(tableId, totalrow)
 				var colCount = table.rows[i].cells.length;			
 				for(var j=0; j<colCount; j++) 
 				{
-					var input = document.getElementById(tableId).rows[i].cells[j].getElementsByTagName("*")[0];
-					input.id = table.rows[i].cells[j].headers + '_' + i;
-					input.name = table.rows[i].cells[j].headers + '_' + i;
+					var elements = document.getElementById(tableId).rows[i].cells[j].querySelectorAll("select, input, label");
+					Array.from(elements).map(el => {
+						if (el.type == 'hidden') {
+							elID = el.id.split("_");
+							elID[elID.length - 1] = i;
+							elName = el.name.split("_");
+							elName[elName.length - 1] = i;
+							el.id = elID.join('_');
+							el.name = elName.join('_');
+						}
+						else {
+							el.id = table.rows[i].cells[j].headers + '_' + i;
+							el.name = table.rows[i].cells[j].headers + '_' + i;
+						}
+					});
 					$('#item_index_'+i).html(i)
 				}
 			}
@@ -571,14 +583,19 @@ function selectEntryPopup() {
 	var url = "/wkinvoice/generateTimeEntries";
 	var dateval = new Date(document.getElementById("to").value);
 	var fromdateval = new Date(document.getElementById("from").value);
-	 dateval = dateval.getFullYear() + '-' + (("0" + (dateval.getMonth() + 1)).slice(-2)) + '-' + (("0" + dateval.getDate()).slice(-2));
-	 fromdateval = fromdateval.getFullYear() + '-' + (("0" + (fromdateval.getMonth() + 1)).slice(-2)) + '-' + (("0" + fromdateval.getDate()).slice(-2));
+	 toDate = dateval.getFullYear() + '-' + (("0" + (dateval.getMonth() + 1)).slice(-2)) + '-' + (("0" + dateval.getDate()).slice(-2));
+	//  fromdateval = fromdateval.getFullYear() + '-' + (("0" + (fromdateval.getMonth() + 1)).slice(-2)) + '-' + (("0" + fromdateval.getDate()).slice(-2));
 	var accID = $('#account_id').val()
 	var contactID = $('#contact_id').val()
 	var filter = $('input[name="polymorphic_filter"]:checked').val();
 	var projectID = $('#project_id').val()
-	var data = {dateval: dateval, fromdateval: fromdateval, accID: accID, contactID: contactID, projectID: projectID, filter_type: filter}
-	getSelectEntry(url, data)
+	var data = {dateval: toDate, accID: accID, contactID: contactID, projectID: projectID, filter_type: filter}
+	if(isNaN(dateval.getFullYear()) || isNaN(fromdateval.getFullYear())){
+		alert("Please select valid date range");
+	}
+	else{
+		getSelectEntry(url, data)
+	}
 }
 
 function getSelectEntry(url, data){
