@@ -102,7 +102,6 @@
 </div>
 <% if !to_boolean(params[:isPreview]) %>
 	<div style="padding-top: 10px">
-		<%= button_to l(:button_delete) + ' ' + l(:label_payroll), { controller: "wkpayroll", action: "destroy", user_id: params[:user_id], salary_date: params[:salary_date] }, method: :delete,
-		data: { confirm: l(:text_are_you_sure) }%>
+		<%= button_to l(:button_delete) + ' ' + l(:label_payroll), { controller: "wkpayroll", action: "destroy", user_id: params[:user_id], salary_date: params[:salary_date] , tab: "payroll"}, method: :delete, data: { confirm: l(:text_are_you_sure) }%>
 	</div>
 <% end %>
