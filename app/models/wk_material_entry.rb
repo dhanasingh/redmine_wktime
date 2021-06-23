@@ -15,8 +15,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkMaterialEntry < ActiveRecord::Base
+class WkMaterialEntry < TimeEntry
   unloadable
+
+  self.table_name = "wk_material_entries"
+  
   validates_presence_of :project_id, :user_id, :issue_id, :quantity, :activity_id, :spent_on
   validates :spent_on, :date => true
 
@@ -87,5 +90,34 @@ class WkMaterialEntry < ActiveRecord::Base
 
   def self.get_material_entries(inventory_item_id)
     WkMaterialEntry.where(inventory_item_id: inventory_item_id)
+  end  
+  
+  def spent_for
+    WkSpentFor.where(:spent_type => 'WkMaterialEntry', :spent_id => self.id)&.first
+  end
+
+  def set_author_if_nil
+  end
+
+  def validate_time_entry
+    errors.add :project_id, :invalid if project.nil?
+    errors.add :issue_id, :invalid if (issue_id && !issue) || (issue && project!=issue.project)
+    errors.add :activity_id, :inclusion if activity_id_changed? && project && !project.activities.include?(activity)
+    if spent_on_changed? && user
+      errors.add :base, I18n.t(:error_spent_on_future_date) if !Setting.timelog_accept_future_dates? && (spent_on > user.today)
+    end
+  end
+
+  def hours=(h)
+    write_attribute :quantity, (h.is_a?(String) ? (h.to_hours || h) : h)
+  end
+
+  def hours
+    h = read_attribute(:quantity)
+    if h.is_a?(Float)
+      h.round(2)
+    else
+      h
+    end
   end
 end

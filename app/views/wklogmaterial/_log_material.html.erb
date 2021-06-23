@@ -68,6 +68,7 @@
 <% expenseAmount = @expenseEntry.blank? ? "" : @expenseEntry.amount  %>
 <%  assetObj = @materialEntry.blank? ? nil : @materialEntry.inventory_item.asset_property %>
 <% disable = @materialEntry.blank? || @materialEntry.spent_for.blank? || @materialEntry.spent_for.invoice_item_id.blank? ? false : true  %>
+<%= hidden_field_tag 'old_log_type', @spentType == 'E' ? 'wk_expense_entry' : (@spentType == 'M' || @spentType == 'A' ? 'wk_material_entry' : 'time_entry') %>
 <%#=h hidden_field_tag('getclients_url', "#{url_for(:controller => 'wktime', :action => 'getclients', :user_id => User.current.id, :separator => ',')}") %>
 <%= hidden_field_tag 'userId', User.current.id %>
 <%

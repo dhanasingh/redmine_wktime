@@ -635,6 +635,18 @@ function getSupplierInvoice(uid, loadDdId)
 function hideLogDetails(uid)
 {
 	var logType = document.getElementById("log_type").value;
+	var oldLogType = document.getElementById("old_log_type").value;
+    var entry = 'time_entry'
+    if(logType == 'E') entry = 'wk_expense_entry';
+    if(logType == 'M' || logType == 'A') entry = 'wk_material_entry';
+	$('input[name*="'+oldLogType+'"], select[name^="'+oldLogType+'"]').each(function(){
+		let name = (this.name).replace(oldLogType, entry);
+		let id = (this.id).replace(oldLogType, entry);
+		this.name = name;
+		this.id = id;
+	})
+	var hours_label = oldLogType + '_hours'
+	$('label[for="'+hours_label+'"]').attr('for',entry+'_hours');
 	if(logType == 'T')
 	{
 		document.getElementById('time_entry_hours').style.display = 'block';
@@ -650,8 +662,8 @@ function hideLogDetails(uid)
 		$('.start_on, .end_on').prop('onchange', 'calculateHours()');
 	}
 	else if(logType == 'E') {
-		document.getElementById('time_entry_hours').style.display = 'none';
-		$('label[for="time_entry_hours"]').css('display', 'none');
+		document.getElementById('wk_expense_entry_hours').style.display = 'none';
+		$('label[for="wk_expense_entry_hours"]').css('display', 'none');
 		//$('label[for="time_entry_hours"]').html('Amount<span style="color:red;">*</span>');
 		document.getElementById("materialtable").style.display = 'none';
 		if(document.getElementById("spent_for_tbl")){
@@ -665,8 +677,8 @@ function hideLogDetails(uid)
 	}
 	else
 	{
-		document.getElementById('time_entry_hours').style.display = 'none';
-		$('label[for="time_entry_hours"]').css('display', 'none');
+		document.getElementById('wk_material_entry_hours').style.display = 'none';
+		$('label[for="wk_material_entry_hours"]').css('display', 'none');
 		document.getElementById("expensetable").style.display = 'none';
 		if(document.getElementById("spent_for_tbl")){
 			document.getElementById("spent_for_tbl").style.display = 'block';
@@ -685,6 +697,7 @@ function hideLogDetails(uid)
 		$('.start_on, .end_on').val('');
 		$('.start_on, .end_on').prop('onchange', null);
 	}
+	$('#old_log_type').val(entry);
 
 }
 
