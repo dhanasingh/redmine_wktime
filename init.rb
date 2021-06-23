@@ -860,7 +860,7 @@ Redmine::Plugin.register :redmine_wktime do
 
 	menu :project_menu, :wksurvey, { :controller => 'wksurvey', :action => 'index' }, :caption => :label_survey, param: :project_id, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showSurvey }
 
-	project_module :Skill do
+	project_module :Skills do
 		permission :view_skill, {:wkskill => [:index]}, :public => true
 	end
 
