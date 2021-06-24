@@ -105,7 +105,7 @@
 						</td>
 						<td class="lbl-txt-align" headers="quantity">
 							<%= text_field_tag "quantity_#{row_index}", ("%.2f" % entry.quantity unless entry.quantity.blank?), :maxlength => 14, :style => "width:120px;", :onchange => "addAmount(this.id)", :disabled => isDisable %>
-							<% if ['i'].include?(entry.item_type) %>
+							<% if ['i'].include?(entry.item_type) && controller_name == 'wkinvoice'%>
 								<%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript:showQuantityDetails(#{entry.id});" %>
 							<% end %>
 						</td>
