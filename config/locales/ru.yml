@@ -61,7 +61,7 @@ ru:
   label_ta: Time & Attendance
   label_wk_allow_user_filter_tracker: Allow User Filtering by Tracker
   label_wk_filter_issue_tracker: Filter Issue by Tracker
-  label_wk_currency: Currency
+  # label_wk_currency: Currency
   label_wk_time: Weekly Time
   label_total_expense: Total Expense
 
@@ -106,7 +106,7 @@ ru:
   text_start_of_week_confirmation: "Are you Sure? Status will be lost on the previously submitted %{value}"
   text_wk_warning_min_hour: "You have not entered the Minimum hours (%{value}) required per day"
   text_wk_warning_max_hour: "You have entered hours above Maximum hours (%{value}) allowed per day"
-  # field_amount: Amount
+  field_amount: Amount
   field_status_modified_by: "Modified by"
 
 
@@ -114,7 +114,7 @@ ru:
   label_wk_no_user_current_project: no users in selected project
 
   permission_approve_time_entries: Approve time logs
-  # field_currency: Currency
+  field_currency: Currency
   error_project_issue_associate: Cannot be deleted because time/expense entries associated
   error_time_entry_delete: "Cannot be deleted. The timesheet with this entry is locked"
 
@@ -300,7 +300,7 @@ ru:
   label_new_tax: New Tax
   label_invoice_name: Item Description
   label_item_type: Item Type
-  label_quantity: Quantity
+  # label_quantity: Quantity
   label_invoice_number: Invoice Number
   label_invoice_items: Invoice Items
   label_billing_type: Billing Type
@@ -673,7 +673,7 @@ ru:
   label_enable_inventory_module: Enable Inventory Module
   label_hr: HR
   # label_location: Location
-  label_product: Product
+  # label_product: Product
   label_shipment: Shipment
   # label_category: Category
   label_uom: Unit Of Measure
@@ -707,7 +707,7 @@ ru:
   label_part_number: Part Number
   label_inventory_information: Inventory Information
   button_transfer: Transfer to
-  # field_quantity: Quantity
+  field_quantity: Quantity
   field_selling_price: Price
   report_stock: Stock Report
   label_stock_value: Stock value
@@ -741,7 +741,7 @@ ru:
   label_depreciation_ledger: Depreciation Ledger
   label_depreciation_type: Depreciation Type
   label_depreciation_frequency: Depreciation Frequency
-  # field_inventory_item_id: Product
+  field_inventory_item_id: Product
   label_current_asset_value: Current Asset Value
   label_asset_type: Asset Type
   label_rate_per: Rate Per
@@ -914,7 +914,7 @@ ru:
   # label_total_income: Income
   # label_total_expense: Expense
   label_months: Months
-  label_amount : Amount
+  # label_amount : Amount
   label_no_of_leads: No of leads
   label_no_of_employees: No of Employees
 

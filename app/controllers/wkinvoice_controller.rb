@@ -361,7 +361,7 @@ class WkinvoiceController < WkorderentityController
 
 		materialEntries = WkInvoiceItem.getGenerateEntries(params[:dateval], parent_id, parent_type, params[:projectID], WkMaterialEntry, 'wk_material_entries')
 		materialEntries.each{ |e| data2 << {id: e.id, acc_name: (e&.name || e&.c_name), project: e&.project&.name, issue: e.issue.to_s, spent_on: e.spent_on, product: e.inventory_item&.product_item&.product&.name, selling_price: e.currency.to_s+' '+e.selling_price.to_s, quantity: e.quantity }}
-		listHeader2 = { acc_cont_name: l(:field_account), project_name: l(:label_project), issue: l(:label_issue), date: l(:label_date), product_name: l(:label_product), selling_price: l(:label_selling_price), quantity: l(:label_quantity)}
+		listHeader2 = { acc_cont_name: l(:field_account), project_name: l(:label_project), issue: l(:label_issue), date: l(:label_date), product_name: l(:field_inventory_item_id), selling_price: l(:label_selling_price), quantity: l(:field_quantity)}
 		render json: {data1: data1, listHeader1: listHeader1, data2: data2, listHeader2: listHeader2}
 	end
 	

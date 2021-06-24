@@ -408,7 +408,7 @@ include WkaccountingHelper
 			month_name: fields.reverse,
 			ledger_val: ledgerArr,
 			x_title: l(:label_months),
-			y_title: l(:label_amount)
+			y_title: l(:field_amount)
 		}
 		data
 	end

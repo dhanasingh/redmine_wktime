@@ -72,7 +72,7 @@ class WkassetdepreciationController < WkassetController
 				}
 				format.csv{
 					entries = WkAssetDepreciation.find_by_sql(selectStr + sqlStr + orderStr)
-					headers = {asset_name: l(:label_asset), product_name: l(:label_product), purchase_date: l(:label_purchase_date), purchase_value: l(:label_purchase_value), previous_value: l(:label_previous_value), depreciation_date: l(:label_depreciation_date), depreciation: l(:label_depreciation), current_value: l(:label_current_value
+					headers = {asset_name: l(:label_asset), product_name: l(:field_inventory_item_id), purchase_date: l(:label_purchase_date), purchase_value: l(:label_purchase_value), previous_value: l(:label_previous_value), depreciation_date: l(:label_depreciation_date), depreciation: l(:label_depreciation), current_value: l(:label_current_value
 						) }
 					data = entries.map{|entry| {asset_name: entry.asset_name, product_name: entry.product_name, purchase_date: entry.purchase_date, purchase_value: (entry.cost_price.to_f + entry.over_head_price.to_f).round(2), previous_value: entry.actual_amount.round(2), depreciation_date: entry.depreciation_date, depreciation: entry.depreciation_amount.to_f.round(2) || '', current_value: (entry.actual_amount.to_f - entry.depreciation_amount.to_f).round(2) } 
 							}

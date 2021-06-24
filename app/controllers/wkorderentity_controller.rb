@@ -169,7 +169,7 @@ class WkorderentityController < WkbillingController
 					@invoiceEntries = invEntries
 				end
 				format.csv do
-					headers = { invoice_number: getLabelInvNum, name: l(:field_name), project: l(:label_project), status: l(:field_status), inv_date: getDateLbl, start_date: l(:field_start_date), end_date: l(:label_end_date), quantity: l(:label_quantity), original_amount: l(:field_original_amount), amount: l(:label_amount), modified: l(:field_status_modified_by) }
+					headers = { invoice_number: getLabelInvNum, name: l(:field_name), project: l(:label_project), status: l(:field_status), inv_date: getDateLbl, start_date: l(:field_start_date), end_date: l(:label_end_date), quantity: l(:field_quantity), original_amount: l(:field_original_amount), amount: l(:field_amount), modified: l(:field_status_modified_by) }
 					data = invEntries.map do |e|
 						status = e.status == 'o' ? 'open' : 'closed'
 						inv_items = e.invoice_items
@@ -628,7 +628,7 @@ class WkorderentityController < WkbillingController
 		pdf.SetFontStyle('',10)
 		pdf.set_fill_color(230, 230, 230)
 		pdf.RDMCell(80, 10, l(:label_invoice_name), 1, 0, 'C', 1)
-		headerList = [l(:label_billing_type), l(:label_rate), l(:label_quantity), l(:label_wk_currency), l(:label_amount)]
+		headerList = [l(:label_billing_type), l(:label_rate), l(:field_quantity), l(:field_currency), l(:field_amount)]
 		columnWidth = (table_width - 80)/headerList.size
 		headerList.each do |header|
 			pdf.RDMCell(columnWidth, 10, header, 1, 0, 'C', 1)
@@ -715,7 +715,7 @@ class WkorderentityController < WkbillingController
 	end
 
 	def exportXml
-		headers = { invoice_number: l(:label_invoice_number), name: l(:field_name), project: l(:label_project), status: l(:field_status), inv_date: l(:label_invoice_date), start_date: l(:field_start_date), end_date: l(:label_end_date), quantity: l(:label_quantity), original_amount: l(:field_original_amount), amount: l(:label_amount), modified: l(:field_status_modified_by) }
+		headers = { invoice_number: l(:label_invoice_number), name: l(:field_name), project: l(:label_project), status: l(:field_status), inv_date: l(:label_invoice_date), start_date: l(:field_start_date), end_date: l(:label_end_date), quantity: l(:field_quantity), original_amount: l(:field_original_amount), amount: l(:field_amount), modified: l(:field_status_modified_by) }
 		data = getIndexData.map{|entry| {invoice_number: entry&.invoice_number, name: entry.parent.name, project: (entry&.invoice_items[0]&.project&.name || ''), status: (entry.status == 'o' ? 'open' : 'closed'), inv_date: entry.invoice_date,  start_date: entry.start_date, end_date: entry.end_date, quantity: entry.invoice_items.sum(:quantity), original_amount: entry.invoice_items.sum(:original_amount), amount: entry.invoice_items.sum(:amount), modified: entry&.modifier&.name } }
 		respond_to do |format|
 			format.csv {

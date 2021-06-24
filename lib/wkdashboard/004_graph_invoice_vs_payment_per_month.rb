@@ -4,7 +4,7 @@ module WkDashboard
 
   def chart_data(param={})
     data = {
-      graphName: l(:label_invoice_payment), chart_type: "line", xTitle: l(:label_months), yTitle: l(:label_amount),
+      graphName: l(:label_invoice_payment), chart_type: "line", xTitle: l(:label_months), yTitle: l(:field_amount),
       legentTitle1: l(:label_invoice), legentTitle2: l(:label_txn_payment),
       url: {controller: "wkreport", action: "index", report_type: "report_lead_conversion_web"}
     }
@@ -47,7 +47,7 @@ module WkDashboard
     getFinancialDates(param)
     invoiceEntries = getInvoiceEntries
     paymentEntries = getPaymentEntries
-    header = {name: l(:field_name), date: l(:label_date), type: l(:field_type), amount: l(:label_amount)}
+    header = {name: l(:field_name), date: l(:label_date), type: l(:field_type), amount: l(:field_amount)}
     data1 = invoiceEntries.map do |e|
       items = e&.invoice_items
       { name: e&.parent&.name, date: e.invoice_date.to_date, type: l(:label_invoice), amount: items&.first&.currency.to_s + items&.sum(:amount).to_s }

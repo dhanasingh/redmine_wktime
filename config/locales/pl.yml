@@ -62,7 +62,7 @@ pl:
   label_ta: Czas i Frekwencja
   label_wk_allow_user_filter_tracker: Filtruj użytkowników przez śledzenie
   label_wk_filter_issue_tracker: Filtruj Zagadnienie przez śledzenie
-  label_wk_currency: Waluta
+  # label_wk_currency: Waluta
   label_wk_time: Tygodniowy czas
   label_total_expense: Total Expense
 
@@ -107,7 +107,7 @@ pl:
   text_start_of_week_confirmation: "Czy jesteś pewien? Status zostanie utracony na wcześniej wysłanym %{value}"
   text_wk_warning_min_hour: "Nie podałeś minimalnej ilości godzin (%{value}) wymaganych na dzień"
   text_wk_warning_max_hour: "Podana ilość godzin jest powyżej maksymalnej ilości godzin (%{value}) dozwolonej na dzień"
-  # field_amount: Wartość
+  field_amount: Wartość
   field_status_modified_by: "Zmodyfikowany przez"
 
 
@@ -115,7 +115,7 @@ pl:
   label_wk_no_user_current_project: Brak użytkowników w wybranym projekcie
 
   permission_approve_time_entries: Zatwierdź zapisany czas
-  # field_currency: Waluta
+  field_currency: Waluta
   error_project_issue_associate: Nie można usunąć ponieważ czas/wydatki jest powiązany
   error_time_entry_delete: "Nie można usunąć. Lista obecności z tym wejściem jest zamknięta"
 
@@ -301,7 +301,7 @@ pl:
   label_new_tax: Nowy podatek
   label_invoice_name: Opis pozycji
   label_item_type: Rodzaj pozycji
-  label_quantity: Ilość
+  # label_quantity: Ilość
   label_invoice_number: Numer faktury
   label_invoice_items: Elementy faktury
   label_billing_type: Typ płatności
@@ -674,7 +674,7 @@ pl:
   label_enable_inventory_module: Włącz moduł magazynu
   label_hr: HR
   # label_location: Lokalizacja
-  label_product: Produkt
+  # label_product: Produkt
   label_shipment: Wysyłka
   # label_category: Kategoria
   label_uom: Jednostka miary
@@ -708,7 +708,7 @@ pl:
   label_part_number: Numer częsci
   label_inventory_information: Informacja o magazynie
   button_transfer: Przenieść do
-  # field_quantity: Ilość
+  field_quantity: Ilość
   field_selling_price: Cena
   report_stock: Raport zapasów
   label_stock_value: Wartość zapasów
@@ -742,7 +742,7 @@ pl:
   label_depreciation_ledger: Obniżenie wartości rejestru
   label_depreciation_type: Obniżenie wartości typu
   label_depreciation_frequency: Częstotliwość obniżenia wartości
-  # field_inventory_item_id: Produkt
+  field_inventory_item_id: Produkt
   # label_rate_per: Produkt
   label_current_asset_value: Aktualna wartość kapitału
   label_asset_type: Typ kapitału
@@ -928,7 +928,7 @@ pl:
   # label_total_income: Income
   # label_total_expense: Expense
   label_months: Months
-  label_amount : Amount
+  # label_amount : Amount
   label_no_of_leads: No of leads
   label_no_of_employees: No of Employees
 

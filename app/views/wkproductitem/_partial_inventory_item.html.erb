@@ -11,7 +11,7 @@ th{
 		itemType = controller.getItemType
 %>
 <tr>
-	<th><%= l(:label_wk_currency) %></th>
+	<th><%= l(:field_currency) %></th>
 	<td style="padding-left:40px;">
 		<%=h select_tag("currency",options_for_select(wkexpense_helper.options_for_currency, :selected => invntItem.blank? ? Setting.plugin_redmine_wktime['wktime_currency'] : invntItem.currency), :disabled => isDisable || isTransfer) %>
 	</td>
@@ -39,7 +39,7 @@ th{
 <% end %>
 
 <tr>
-	<th><%= l(itemType == "I" ? :label_available_quantity : :label_quantity) %></th>
+	<th><%= l(itemType == "I" ? :label_available_quantity : :field_quantity) %></th>
 	<td  style="padding-left:40px;">
 		<%= text_field_tag "available_quantity", ("%.2f" % invntItem.available_quantity unless invntItem.blank?), :disabled => isDisable && !isTransfer, :maxlength => 14 %>
     <%= image_tag("withoutcommant.png", plugin: "redmine_wktime", title: l(:label_consumed_items),

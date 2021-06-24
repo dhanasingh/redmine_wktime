@@ -336,8 +336,8 @@ class WkproductitemController < WkinventoryController
 			}
 		}
 		listHeader = {
-			project_name: l(:label_project), issue: l(:label_issue), product_name: l(:label_product), brand_name: l(:label_brand), product_model_name: l(:label_model),
-			currency: l(:label_wk_currency), selling_price: l(:label_selling_price), quantity: l(:label_quantity)}
+			project_name: l(:label_project), issue: l(:label_issue), product_name: l(:field_inventory_item_id), brand_name: l(:label_brand), product_model_name: l(:label_model),
+			currency: l(:field_currency), selling_price: l(:label_selling_price), quantity: l(:field_quantity)}
 		render json: {data: data, header: listHeader}
 	end
 
@@ -400,7 +400,7 @@ class WkproductitemController < WkinventoryController
 	end
 
 	def getIventoryListHeader
-		headerHash = { 'project_name' => l(:label_project), 'product_name' => l(:label_product), 'brand_name' => l(:label_brand), 'product_model_name' => l(:label_model), 'product_attribute_name' => l(:label_attribute), 'serial_number' => l(:label_serial_number), 'currency' => l(:label_wk_currency), 'selling_price' => l(:label_selling_price), 'total_quantity' => l(:label_total_quantity), 'available_quantity' => l(:label_available_quantity), 'uom_short_desc' => l(:label_uom), 'location_name' => l(:label_location) }
+		headerHash = { 'project_name' => l(:label_project), 'product_name' => l(:field_inventory_item_id), 'brand_name' => l(:label_brand), 'product_model_name' => l(:label_model), 'product_attribute_name' => l(:label_attribute), 'serial_number' => l(:label_serial_number), 'currency' => l(:field_currency), 'selling_price' => l(:label_selling_price), 'total_quantity' => l(:label_total_quantity), 'available_quantity' => l(:label_available_quantity), 'uom_short_desc' => l(:label_uom), 'location_name' => l(:label_location) }
 	end
 
 	def showProductItem

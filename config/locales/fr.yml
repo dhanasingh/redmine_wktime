@@ -63,7 +63,7 @@ fr:
   label_ta: Temps & Présence
   label_wk_allow_user_filter_tracker: Permettre à l'utilisateur de filtrer par Tracker
   label_wk_filter_issue_tracker: Filtrer les demandes par Tracker
-  label_wk_currency: Devise
+  # label_wk_currency: Devise
   label_wk_time: Temps hebdomadaire
   label_total_expense: Total Expense
 
@@ -108,14 +108,14 @@ fr:
   text_start_of_week_confirmation: "Etes-vous certain? Le statut de la %{value} précédemment soumise sera perdu."
   text_wk_warning_min_hour: "Vous n'avez pas saisi le minimum d'heures (%{value}) requis par jour"
   text_wk_warning_max_hour: "Vous avez saisi un nombre d'heure au-dessus du nombre d'heure maximum (%{value}) autorisé par jour"
-  # field_amount: Montant
+  field_amount: Montant
   field_status_modified_by: Modifié par
 
   label_wk_allow_filter_issue: Autoriser l'utilisateur à enlever le filtre sur ses demandes
   label_wk_no_user_current_project: Aucun utilisateur dans le projet sélectionné
 
   permission_approve_time_entries: Valider les temps passés
-  # field_currency: Devise
+  field_currency: Devise
   error_project_issue_associate: Ne peut pas être effacé car des entrées de temps/dépenses y sont associés
   error_time_entry_delete: "Ne peut pas être effacé. La feuille de temps liée est verrouillée"
 
@@ -301,7 +301,7 @@ fr:
   label_new_tax: New Tax
   label_invoice_name: Item Description
   label_item_type: Item Type
-  label_quantity: Quantity
+  # label_quantity: Quantity
   label_invoice_number: Invoice Number
   label_invoice_items: Invoice Items
   label_billing_type: Billing Type
@@ -674,7 +674,7 @@ fr:
   label_enable_inventory_module: Enable Inventory Module
   label_hr: HR
   # label_location: Location
-  label_product: Product
+  # label_product: Product
   label_shipment: Shipment
   # label_category: Category
   label_uom: Unit Of Measure
@@ -707,7 +707,7 @@ fr:
   label_product_item: Product Item
   label_part_number: Part Number
   label_inventory_information: Inventory Information
-  # field_quantity: Quantity
+  field_quantity: Quantity
   field_selling_price: Price
   button_transfer: Transfer to
   report_stock: Stock Report
@@ -742,7 +742,7 @@ fr:
   label_depreciation_ledger: Depreciation Ledger
   label_depreciation_type: Depreciation Type
   label_depreciation_frequency: Depreciation Frequency
-  # field_inventory_item_id: Product
+  field_inventory_item_id: Product
   label_current_asset_value: Current Asset Value
   label_asset_type: Asset Type
   label_rate_per: Rate Per
@@ -915,7 +915,7 @@ fr:
   # label_total_income: Income
   # label_total_expense: Expense
   label_months: Months
-  label_amount : Amount
+  # label_amount : Amount
   label_no_of_leads: No of leads
   label_no_of_employees: No of Employees
 

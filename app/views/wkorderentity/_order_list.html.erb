@@ -11,9 +11,9 @@
 					<%= sort_header_tag('invoice_date', :caption => controller.getDateLbl, class: "lbl-txt-align") %>
 					<%= sort_header_tag('start_date', :caption => l(:field_start_date), class: "lbl-txt-align") %>
 					<%= sort_header_tag('end_date', :caption => l(:label_end_date), class: "lbl-txt-align") %>
-					<%= sort_header_tag('quantity', :caption => l(:label_quantity), class: "lbl-txt-align") %>
+					<%= sort_header_tag('quantity', :caption => l(:field_quantity), class: "lbl-txt-align") %>
 					<%= sort_header_tag('original_amount', :caption => l(:field_original_amount), class: "lbl-txt-align") %>
-					<%= sort_header_tag('amount', :caption => l(:label_amount), class: "lbl-txt-align") %>
+					<%= sort_header_tag('amount', :caption => l(:field_amount), class: "lbl-txt-align") %>
 					<%= sort_header_tag('modified', :caption => l(:field_status_modified_by), class: "lbl-txt-align") %>
 					<% if controller.isInvPaymentLink %>
 						<th></th>
@@ -28,9 +28,9 @@
 					<th class="lbl-txt-align"><%= controller.getDateLbl %></th>
 					<th class="lbl-txt-align"><%= l(:field_start_date) %></th>
 					<th class="lbl-txt-align"><%= l(:label_end_date) %></th>
-					<th class="lbl-txt-align"><%= l(:label_quantity) %></th>
+					<th class="lbl-txt-align"><%= l(:field_quantity) %></th>
 					<th class="lbl-txt-align"><%= l(:field_original_amount) %></th>
-					<th class="lbl-txt-align"><%= l(:label_amount) %></th>
+					<th class="lbl-txt-align"><%= l(:field_amount) %></th>
 					<th class="lbl-txt-align"><%= l(:field_status_modified_by) %></th>
 					<% if controller.isInvPaymentLink %>
 						<th></th>

@@ -54,7 +54,7 @@ class WkopportunityController < WkcrmController
 				@opportunity = oppDetails
 			end
 			format.csv do
-				headers = { name: l(:field_name), related: l(:label_relates_to), sales_stage: l(:label_txn_sales_stage), amount: l(:label_amount), closeDate: l(:label_expected_date_to_close_project), assignee: l(:field_assigned_to), modified: l(:label_modified) }
+				headers = { name: l(:field_name), related: l(:label_relates_to), sales_stage: l(:label_txn_sales_stage), amount: l(:field_amount), closeDate: l(:label_expected_date_to_close_project), assignee: l(:field_assigned_to), modified: l(:label_modified) }
 				data = oppDetails.map do |e|
 					sales_stage = e.sales_stage_id.blank? ? "" : getSaleStageHash[e.sales_stage_id]
 					{ name: e.name, related: relatedHash[e.parent_type], sales_stage: sales_stage, amount: ((e&.currency || '')+" "+e.amount.round(2).to_s), closeDate: e.close_date.localtime.strftime("%Y-%m-%d"), assignee: (e&.assigned_user&.name(:firstname_lastname) || ''), modified: e.updated_at.localtime.strftime("%Y-%m-%d") }

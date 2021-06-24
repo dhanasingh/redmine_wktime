@@ -4,7 +4,7 @@ module WkDashboard
   include WkcrmHelper
 
   def chart_data(param={})
-    data = { graphName: l(:label_profit_loss), chart_type: "line", xTitle: l(:label_months), yTitle: l(:label_amount),
+    data = { graphName: l(:label_profit_loss), chart_type: "line", xTitle: l(:label_months), yTitle: l(:field_amount),
       legentTitle1: l(:label_income), legentTitle2: l(:label_total_expense), report_type: "report_attendance_web" }
 
     profit = getProfits(param[:to])

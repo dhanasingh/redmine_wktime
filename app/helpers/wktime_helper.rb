@@ -97,7 +97,7 @@ module WktimeHelper
                  l(:field_activity)
                  ]
 		if !unitLabel.blank?
-			headers << l(:label_wk_currency)
+			headers << l(:field_currency)
 		end
 		unit=nil
 
@@ -188,7 +188,7 @@ module WktimeHelper
 		col_width[3] = (table_width - (8*10))*0.2
 		title=l(:label_wktime)
 		if !unitLabel.blank?
-			columns << l(:label_wk_currency)
+			columns << l(:field_currency)
 			col_id_width  = 14
 			col_width[0]=col_id_width
 			col_width[1] = (table_width - (8*14))*0.20
@@ -675,7 +675,7 @@ end
 			   ]
 		else
 			tabs = [
-				{:name => 'wkproduct', :partial => 'wktime/tab_content', :label => :label_product},
+				{:name => 'wkproduct', :partial => 'wktime/tab_content', :label => :field_inventory_item_id},
 				{:name => 'wkproductitem', :partial => 'wktime/tab_content', :label => :label_item},
 				{:name => 'wkshipment', :partial => 'wktime/tab_content', :label => :label_shipment},
 				{:name => 'wkasset', :partial => 'wktime/tab_content', :label => :label_asset},

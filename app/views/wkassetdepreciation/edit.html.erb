@@ -12,7 +12,7 @@
 			<td align="left" style="padding-left:50px;"><%=h @asset.asset_property.blank? ? "" : @asset.asset_property.name %> </td></tr>
 		</tr> 
 		<tr>
-			<th align="left"><%= l(:label_product) %></th>
+			<th align="left"><%= l(:field_inventory_item_id) %></th>
 			<td align="left" style="padding-left:50px;">
 				<%=h @asset.product_item.blank? ? "" : @asset.product_item.product.name %>
 			</td>

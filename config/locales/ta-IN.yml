@@ -43,7 +43,7 @@ ta-IN:
   label_ta: நேரம் & வருகை
   label_wk_allow_user_filter_tracker: தடத்தை பயனர் வடிகட்டலுக்கு அனுமதிக்கவும்
   label_wk_filter_issue_tracker: சிக்கலை தடம் வைத்து வடிகட்டி
-  label_wk_currency: நாணயம்
+  # label_wk_currency: நாணயம்
   label_wk_time: வார நேரம்
   label_total_expense: மொத்த செலவு
 
@@ -81,14 +81,14 @@ ta-IN:
 
   text_wk_warning_min_hour: "நீங்கள் ஒரு நாளைக்கான குறைந்தபட்ச மணிநேரத்தை (%{value}) உள்ளிடவில்லை"
   text_wk_warning_max_hour: "அதிகபட்ச மணிநேரங்களுக்கு மேல் குறைந்தபட்ச மணிநேரத்தை (%{value}) உள்ளிடவில்லை"
-  # field_amount: தொகை
+  field_amount: தொகை
   field_status_modified_by: "திருத்தியவர்"
 
 
   label_wk_allow_filter_issue: எனது சிக்கல்களுக்கு பயனர் வடிகட்டலை அனுமதிக்கவும்
   label_wk_no_user_current_project: தேர்ந்தெடுக்கப்பட்ட திட்டத்தில் பயனர்கள் இல்லை
 
-  # field_currency: நாணயம்
+  field_currency: நாணயம்
   error_project_issue_associate: நேரம் / செலவு உள்ளீடுகள் தொடர்புடையதால் நீக்க முடியாது
   error_time_entry_delete: "நீக்க முடியாது. இந்த இடுகையுடன் நேர தாள் பூட்டப்பட்டுள்ளது"
 
@@ -260,7 +260,7 @@ ta-IN:
   label_new_tax: புதிய வரி
   label_invoice_name: பொருள் விளக்கம்
   label_item_type: பொருள் வகை
-  label_quantity: அளவு
+  # label_quantity: அளவு
   label_invoice_number: விலைப்பட்டியல் எண்
   label_invoice_items: விலைப்பட்டியல் பொருட்கள்
   label_billing_type: கட்டண வகை
@@ -601,7 +601,7 @@ ta-IN:
   label_inventory_user_group: இருப்பு பயனர் குழு
   label_hr: மனிதவளம்
   # label_location: இருப்பிடம்
-  label_product: தயாரிப்பு
+  # label_product: தயாரிப்பு
   label_shipment: சரக்கு
   # label_category: வகை
   label_uom: அளவு குறியீடு
@@ -804,7 +804,7 @@ ta-IN:
   # label_total_income: வருமானம்
   # label_total_expense: செலவு
   label_months: மாதங்கள்
-  label_amount : தொகை
+  # label_amount : தொகை
   label_no_of_leads: தடங்களின் எண்ணிக்கை
   label_no_of_employees: ஊழியர்களின் எண்ணிக்கை
 
@@ -1116,6 +1116,8 @@ ta-IN:
   label_approve_reimbursement: திருப்பிச் செலுத்துவதற்கு ஒப்புதல் மட்டுமே சேர்க்கவும்
   warn_survey_mandatory: கட்டாய கேள்விகளுக்கு பதிலளிக்க வேண்டும்
   warn_survey_submit: "கணக்கெடுப்பை சமர்ப்பிக்க விரும்புகிறீர்களா?நீங்கள் சமர்ப்பித்ததும், நீங்கள் மீண்டும் திருத்த முடியாது"
+  field_inventory_item_id: Product
+  field_quantity: அளவு
   label_interest_level: Interest Level
   label_min_exp_req: Experience Required
   label_min_rating_req: Rating Required

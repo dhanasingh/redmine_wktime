@@ -63,7 +63,7 @@ module WkexpenseHelper
 					 l(:field_issue),
 					 l(:field_tracker),
 					 l(:field_subject),
-					 l(:label_amount),
+					 l(:field_amount),
 					 l(:field_comments)
 					 ]     
 

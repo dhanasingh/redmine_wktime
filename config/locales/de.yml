@@ -60,7 +60,7 @@ de:
   label_ta: Zeiterfassung
   label_wk_allow_user_filter_tracker: Benutzerfilterung nach Tracker zulassen
   label_wk_filter_issue_tracker: Ticket nach Tracker filtern
-  label_wk_currency: Währung
+  # label_wk_currency: Währung
   label_wk_time: Wochenzeit
   label_total_expense: Gesamtausgaben
 
@@ -105,14 +105,14 @@ de:
   text_start_of_week_confirmation: "Sicher? Der zuvor eingereichte Status %{value} wird dabei gelöscht"
   text_wk_warning_min_hour: "Sie haben nicht die pro Tag erforderlichen Mindeststunden (%{value}) eingegeben"
   text_wk_warning_max_hour: "Sie haben Stunden über den maximal zulässigen Stunden (% {Wert}) pro Tag eingegeben"
-  # field_amount: Menge
+  field_amount: Menge
   field_status_modified_by: "geändert von"
 
   label_wk_allow_filter_issue: Benutzerfilterung nach "Meine Tickets" zulassen
   label_wk_no_user_current_project: Keine Benutzer im ausgewählten Projekt
 
   permission_approve_time_entries: Zeitprotokolle genehmigen
-  # field_currency: Währung
+  field_currency: Währung
   error_project_issue_associate: Kann nicht gelöscht werden, da Zeit- / Kosteneinträge zugeordnet sind
   error_time_entry_delete: "Kann nicht gelöscht werden. Die Arbeitszeittabelle mit diesem Eintrag ist gesperrt"
 
@@ -298,7 +298,7 @@ de:
   label_new_tax: Neue Steuer
   label_invoice_name: Artikelbeschreibung
   label_item_type: Artikelart
-  label_quantity: Menge
+  # label_quantity: Menge
   label_invoice_number: Rechnungsnummer
   label_invoice_items: Rechnungspositionen
   label_billing_type: Abrechnungsart
@@ -669,7 +669,7 @@ de:
   label_enable_inventory_module: Inventar Modul aktivieren
   label_hr: HR
   # label_location: Standorte
-  label_product: Produkt
+  # label_product: Produkt
   label_shipment: Lieferung
   # label_category: Kategorie
   label_uom: Maßeinheit
@@ -702,7 +702,7 @@ de:
   label_product_item: Produktartikel
   label_part_number: Artikelnummer
   label_inventory_information: Inventarinformationen
-  # field_quantity: Menge
+  field_quantity: Menge
   field_selling_price: Preis
   button_transfer: Transferiere zu
   report_stock: Lager Bericht
@@ -737,7 +737,7 @@ de:
   label_depreciation_ledger: Abschreibungskonto
   label_depreciation_type: Abschreibungsart
   label_depreciation_frequency: Abschreibungsintervall
-  # field_inventory_item_id: Produkt
+  field_inventory_item_id: Produkt
   label_current_asset_value: Wert des Umlaufvermögens
   label_asset_type: Anlageart
   label_rate_per: Rate Per
@@ -908,7 +908,7 @@ de:
   # label_total_income: Einnahmen
   # label_total_expense: Ausgaben
   label_months: Monate
-  label_amount : Menge
+  # label_amount : Menge
   label_no_of_leads: Anzahl der Leads
   label_no_of_employees: Mitarbeiteranzahl
 
