@@ -151,6 +151,7 @@ function datasetPopup(path, graphName){
       modal: true,
       title: graphName,
       width: "40%",
+      height: $(window).height(),
     });
   });
 }

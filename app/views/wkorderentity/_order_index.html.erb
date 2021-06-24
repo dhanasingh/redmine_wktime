@@ -37,15 +37,22 @@
 		</p>
 	</fieldset>	
 	<% end %>
+	<% if @invoiceEntries.present? || @invList.present?%>
 	<div class="total-hours">
 		<p><%= l(:label_total) %>: &nbsp;
 		<%= Setting.plugin_redmine_wktime['wktime_currency']%>
 		<%= html_hours("%.2f" % @totalInvAmt) %></p>
 	</div>
-	<%= render :partial => 'wkorderentity/order_list'%>
-
-	<% other_formats_links do |f| %>
-		<%= f.link_to_with_query_parameters 'CSV', {} %>
+		<%= render :partial => 'wkorderentity/order_list'%>
+		<% if !@previewBilling %>
+			<% other_formats_links do |f| %>
+				<%= f.link_to_with_query_parameters 'CSV', {} %>
+			<% end %>
+		<% end %>
+	<% else %>
+		<p class="nodata"><%= l(:label_no_data) %></p>
 	<% end %>
-	<div id="billGenerate-dlg">
-	<div>
+	<script>
+		var title = "<%= l(:label_select_time) %>";
+	</script>
+	<div id="billGenerate-dlg"><div>

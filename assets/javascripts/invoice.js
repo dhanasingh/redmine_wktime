@@ -615,8 +615,9 @@ function getSelectEntry(url, data){
 				$("#billGenerate-dlg").html("No data to display");
 			}
 			$("#billGenerate-dlg").dialog({
-				 title: 'Select Time Entries', 
+				 title: title,
 				 width: '80%',
+				 height: $(window).height(),
 				 buttons: {
 						'Generate': function() {
 							invoiceFormSubmission(false)
