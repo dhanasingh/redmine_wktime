@@ -29,7 +29,7 @@ module WkassetdepreciationHelper
 		depreciationArr = Array.new 
 		finacialPeriodArr = getFinancialPeriodArray(startDate, endDate, depreciationFreq, 1)
 		assetEntries = WkInventoryItem.asset.joins(:asset_property, :product_item).where("wk_asset_properties.owner_type = ? and wk_inventory_items.available_quantity > ? and  (is_disposed = #{booleanFormat(false)} OR is_disposed IS NULL) ", 'O', 0).order("wk_product_items.product_id")
-		assetEntries = assetEntries.where("wk_inventory_items.id=?",assetId) unless assetId.blank?
+		assetEntries = assetEntries.where("wk_inventory_items.id IN (?)",assetId) unless assetId.blank?
 		errorMsg = ""
 		localCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 		invCrLedger = getSettingCfId("inventory_cr_ledger")
