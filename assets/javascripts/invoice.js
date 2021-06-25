@@ -566,7 +566,7 @@ function getTimeDetails(url, data){
 				oldProjID = l.projID
 			});
 		$(" #qunatityTable").html(tableEntries);
-		$("#quantity-dlg").dialog({ title: 'Quantity', width: '80%'});
+		$("#quantity-dlg").dialog({ title: 'Quantity', width: '80%', height: $(window).height(),});
 	}});
 }
 
@@ -583,13 +583,13 @@ function selectEntryPopup() {
 	var url = "/wkinvoice/generateTimeEntries";
 	var dateval = new Date(document.getElementById("to").value);
 	var fromdateval = new Date(document.getElementById("from").value);
-	 toDate = dateval.getFullYear() + '-' + (("0" + (dateval.getMonth() + 1)).slice(-2)) + '-' + (("0" + dateval.getDate()).slice(-2));
-	//  fromdateval = fromdateval.getFullYear() + '-' + (("0" + (fromdateval.getMonth() + 1)).slice(-2)) + '-' + (("0" + fromdateval.getDate()).slice(-2));
+	toDate = dateval.getFullYear() + '-' + (("0" + (dateval.getMonth() + 1)).slice(-2)) + '-' + (("0" + dateval.getDate()).slice(-2));
+	fromDate = fromdateval.getFullYear() + '-' + (("0" + (fromdateval.getMonth() + 1)).slice(-2)) + '-' + (("0" + fromdateval.getDate()).slice(-2));
 	var accID = $('#account_id').val()
 	var contactID = $('#contact_id').val()
 	var filter = $('input[name="polymorphic_filter"]:checked').val();
 	var projectID = $('#project_id').val()
-	var data = {dateval: toDate, accID: accID, contactID: contactID, projectID: projectID, filter_type: filter}
+	var data = {dateval: toDate, fromDate: fromDate, accID: accID, contactID: contactID, projectID: projectID, filter_type: filter}
 	if(isNaN(dateval.getFullYear()) || isNaN(fromdateval.getFullYear())){
 		alert("Please select valid date range");
 	}
@@ -620,7 +620,12 @@ function getSelectEntry(url, data){
 				 height: $(window).height(),
 				 buttons: {
 						'Generate': function() {
-							invoiceFormSubmission(false)
+							if($('input[name=check_time]:checked').length > 0 || $('input[name=check_material]:checked').length > 0 ){
+								invoiceFormSubmission(false)
+							}
+							else{
+								confirm("Please select atleast one row");
+							}
 						},
 						'cancel': function() {
 							$(this).dialog("close");

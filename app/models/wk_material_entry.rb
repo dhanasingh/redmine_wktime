@@ -28,7 +28,7 @@ class WkMaterialEntry < TimeEntry
   belongs_to :user
   belongs_to :activity, :class_name => 'TimeEntryActivity'
   belongs_to :inventory_item, :class_name => 'WkInventoryItem'
-  has_one :spent_for, as: :spent, class_name: 'WkSpentFor', :dependent => :destroy
+  has_one :spent_for, ->{where(spent_type: "WkMaterialEntry")} , class_name: "WkSpentFor", foreign_key: "spent_id", :dependent => :destroy
   accepts_nested_attributes_for :spent_for
 
   scope :visible, lambda {|*args|
@@ -43,58 +43,9 @@ class WkMaterialEntry < TimeEntry
     where("#{Issue.table_name}.root_id = #{issue.root_id} AND #{Issue.table_name}.lft >= #{issue.lft} AND #{Issue.table_name}.rgt <= #{issue.rgt}")
   }
 
-  # Returns a SQL conditions string used to find all time entries visible by the specified user
-  def self.visible_condition(user, options={})
-    Project.allowed_to_condition(user, :view_time_entries, options) do |role, user|
-      if role.time_entries_visibility == 'all'
-        nil
-      elsif role.time_entries_visibility == 'own' && user.id && user.logged?
-        "#{table_name}.user_id = #{user.id}"
-      else
-        '1=0'
-      end
-    end
-  end
-
-  # Returns true if user or current user is allowed to view the time entry
-  def visible?(user=nil)
-    (user || User.current).allowed_to?(:view_time_entries, self.project) do |role, user|
-      if role.time_entries_visibility == 'all'
-        true
-      elsif role.time_entries_visibility == 'own'
-        self.user == user
-      else
-        false
-      end
-    end
-  end
-
-  # Returns true if the time entry can be edited by usr, otherwise false
-  def editable_by?(usr)
-    visible?(usr) && (
-      (usr == user && usr.allowed_to?(:edit_own_time_entries, project)) || usr.allowed_to?(:edit_time_entries, project)
-    )
-  end
-
-  # Returns the custom_field_values that can be edited by the given user
-  def editable_custom_field_values(user=nil)
-    visible_custom_field_values
-  end
-
-  def spent_on=(date)
-    super
-    self.tyear = spent_on ? spent_on.year : nil
-    self.tmonth = spent_on ? spent_on.month : nil
-    self.tweek = spent_on ? Date.civil(spent_on.year, spent_on.month, spent_on.day).cweek : nil
-  end
-
   def self.get_material_entries(inventory_item_id)
     WkMaterialEntry.where(inventory_item_id: inventory_item_id)
   end  
-  
-  def spent_for
-    WkSpentFor.where(:spent_type => 'WkMaterialEntry', :spent_id => self.id)&.first
-  end
 
   def validate_time_entry
     errors.add :project_id, :invalid if project.nil?

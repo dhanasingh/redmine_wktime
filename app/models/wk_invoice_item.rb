@@ -45,12 +45,11 @@ class WkInvoiceItem < ActiveRecord::Base
     TimeEntry.includes(:spent_for).where(project_id: project_id, spent_on: start_date .. end_date, wk_spent_fors: { spent_for_type: [parent_type, nil], spent_for_id: [parent_id, nil], invoice_item_id: nil })
   end
 
-  def self.getGenerateEntries(toVal, parent_id, parent_type, projectID, model, table)
+  def self.getGenerateEntries(toVal, fromVal, parent_id, parent_type, projectID, model, table)
     entries = model.joins(:spent_for, :project)
     .joins("INNER JOIN wk_account_projects ON wk_account_projects.project_id = #{table}.project_id")
-    .where(wk_spent_fors: { invoice_item_id: nil }, wk_account_projects: { billing_type: 'TM'}) 
+    .where(spent_on: fromVal .. toVal, wk_spent_fors: { invoice_item_id: nil }, wk_account_projects: { billing_type: 'TM'}) 
     .select("#{table}.*, wk_account_projects.parent_id, wk_account_projects.parent_type")
-    entries = entries.where("#{table}.spent_on <= ?", toVal)
     entries = entries.where(wk_account_projects: { parent_type: parent_type}) if parent_type.present?
     entries = entries.where(wk_account_projects: { parent_id: parent_id}) if parent_id.present?
 
