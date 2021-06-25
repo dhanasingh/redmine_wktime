@@ -19,4 +19,8 @@ module WkskillHelper
 	include WktimeHelper
 	include WkcrmenumerationHelper
   include WksurveyHelper
+
+	def get_proj_skill_permission
+		Project.where(Project.allowed_to_condition(User.current, :role_permissions_edit_project )).first
+	end
 end

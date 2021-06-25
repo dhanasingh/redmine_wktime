@@ -21,6 +21,7 @@ class WkskillController < WkbaseController
   include WkpayrollHelper
   include WktimeHelper
   include WksurveyHelper
+  include WkskillHelper
 
   def index
     sort_init "updated_at", "desc"
@@ -111,7 +112,9 @@ class WkskillController < WkbaseController
       find_project_by_project_id
       view_skill = User.current.allowed_to?(:view_skill, @project)
     end
-		if !showSkill || params[:project_id].present? && !view_skill
+    #Only 'edit project' permission users allowed to save Project skill
+    save_skill = !params[:project_id].present? || get_proj_skill_permission.present?
+		if !showSkill || params[:project_id].present? && !view_skill || !save_skill && action_name == "save"
 			render_404
 			return false
 		end
