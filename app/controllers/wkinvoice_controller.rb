@@ -200,6 +200,7 @@ class WkinvoiceController < WkorderentityController
 			@invItems[@itemCount].store 'currency', entry.currency
 			@invItems[@itemCount].store 'item_quantity', 1
 			@invItems[@itemCount].store 'item_amount', entry.amount.round(2)
+			@invItems[@itemCount].store 'billing_type', entry.account_project.billing_type
 			@itemCount = @itemCount + 1
 			@currency = entry.currency
 			totalAmt = (totalAmt + entry.amount).round(2)
@@ -337,7 +338,7 @@ class WkinvoiceController < WkorderentityController
 		dataUnbilledEntries = WkInvoiceItem.getUnbilledTimeEntries(params[:project_id], fromDate.to_date, todate.to_date, params[:parent_id], params[:parent_type])
 		dataUnbilledEntries = dataUnbilledEntries.order("time_entries.spent_on desc")
 		dataUnbilledEntries = dataUnbilledEntries.where(:issue_id => params[:issue_id]) if (params[:issue_id].to_i > 0)
-		dataUnbilledEntries.each{ |entry| data << {projID: entry.project_id, proj_name: entry.project.name, subject: entry.issue.to_s, usr_name: entry.user.name, spent_on: entry.spent_on, hours: entry.hours}}
+		dataUnbilledEntries.each{ |entry| data << {projID: entry.project_id, proj_name: entry.project.name, subject: entry.issue.to_s, usr_name: entry.user.name, spent_on: entry.spent_on, hours: entry.hours} if entry.hours > 0}
     	render json: data
 	end
 

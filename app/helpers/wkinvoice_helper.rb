@@ -317,6 +317,7 @@ include WkpayrollHelper
 					@invItems[@itemCount].store 'item_quantity', quantity.round(4)
 					@invItems[@itemCount].store 'item_amount', itemAmount.round(2)
 					@invItems[@itemCount].store 'issue_id', entry.issue_id
+					@invItems[@itemCount].store 'billing_type', accountProject.billing_type
 					@itemCount = @itemCount + 1
 					oldIssueId = entry.issue_id
 					totalAmount = (totalAmount + itemAmount).round(2)
@@ -378,7 +379,8 @@ include WkpayrollHelper
 					@invItems[@itemCount].store 'currency', rateHash['currency']
 					@invItems[@itemCount].store 'item_quantity', pjtQuantity.round(4)
 					@invItems[@itemCount].store 'item_amount', itemAmount.round(2)
-					@invItems[@itemCount].store 'issue_id', accountProject.itemized_bill ? entry.issue_id : 0  
+					@invItems[@itemCount].store 'issue_id', accountProject.itemized_bill ? entry.issue_id : 0
+					@invItems[@itemCount].store 'billing_type', accountProject.billing_type
 					@itemCount = @itemCount + 1
 					oldIssueId = entry.issue_id
 					totalAmount = (totalAmount + itemAmount).round(4)
