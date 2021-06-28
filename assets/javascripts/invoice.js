@@ -604,33 +604,32 @@ function getSelectEntry(url, data){
 		url: url,
 		data: data,
 	 	success: function(resData){
-			const {listHeader1={}, data1=[], listHeader2={}, data2=[]} = resData || {};
+			const {listHeader1={}, data1=[], listHeader2={}, data2=[], listHeader3={}, data3=[]} = resData || {};
 			if(data1.length > 0){
 				renderPopup(listHeader1, data1, 'time');
 			}
 			if(data2.length > 0){
 				renderPopup(listHeader2, data2, 'material');
 			}
-			if (data1.length == 0 && data2.length == 0){
+			if(data3.length > 0){
+				renderData({header: listHeader3, data: data3}, "#billGenerate-dlg", false);
+			}
+			if (data1.length == 0 && data2.length == 0 && data3.length == 0){
 				$("#billGenerate-dlg").html("No data to display");
 			}
 			$("#billGenerate-dlg").dialog({
-				 title: title,
-				 width: '80%',
-				 height: $(window).height(),
-				 buttons: {
-						'Generate': function() {
-							if($('input[name=check_time]:checked').length > 0 || $('input[name=check_material]:checked').length > 0 ){
-								invoiceFormSubmission(false)
-							}
-							else{
-								confirm("Please select atleast one row");
-							}
-						},
-						'cancel': function() {
-							$(this).dialog("close");
-						}
+				modal: true,
+				title: title,
+				width: '80%',
+				height: $(window).height(),
+				buttons: {
+					'Generate': function() {
+						invoiceFormSubmission(false)
+					},
+					'cancel': function() {
+						$(this).dialog("close");
 					}
+				}
 			});
 		},
 		beforeSend: function(){ $(this).addClass("ajax-loading"); },

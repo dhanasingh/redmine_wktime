@@ -921,7 +921,8 @@ function setUOMValue(product_id)
 	});
 }
 
-function renderData(resData){
+function renderData(resData, id="#dialog", clear=true){
+
 	let content = "";
 	const {header={}, data} = resData || {};
 	if(data && data.length > 0){
@@ -946,9 +947,11 @@ function renderData(resData){
 	else{
 		content += '<p style="clear:both" class="nodata">No data to display</p>';
 	}
-
-	if(!$("#dialog").length){
+	if(!$(id).length){
 		$("body").append("<div id='dialog'></div>")
 	}
-	$("#dialog").html(content);
+	else if(clear){
+		$("id").html("");
+	}
+	$(id).append(content);
 }
