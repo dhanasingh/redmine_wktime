@@ -21,6 +21,7 @@ module WkskillHelper
   include WksurveyHelper
 
 	def get_proj_skill_permission
-		Project.where(Project.allowed_to_condition(User.current, :role_permissions_edit_project )).first
+		proj = Project.where(Project.allowed_to_condition(User.current, :role_permissions_edit_project) + " AND id=?", @project&.id).first
+		proj&.id == @project&.id
 	end
 end

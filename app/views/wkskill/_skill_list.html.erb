@@ -26,7 +26,7 @@
 					<%= link_to "", {:action => 'edit', :id => entry.id, :tab => controller_name}, :title => l(:button_edit), class: "icon icon-edit" %>
 					<%= link_to "", {:action => 'delete', :id => entry.id, :tab => controller_name},
 						:data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete),
-						class: "icon icon-del" if get_proj_skill_permission.present? %>
+						class: "icon icon-del" if get_proj_skill_permission %>
 				</td>
 			</tr>
 		<% end %>

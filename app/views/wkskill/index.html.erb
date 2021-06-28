@@ -3,7 +3,7 @@
 
 <div class="contextual">
 	<%= link_to l(:label_new_skill), url_for(action: 'edit', project_id: params[:project_id]),
-		:class => 'icon icon-add' if params[:project_id].blank? || get_proj_skill_permission.present? %>
+		:class => 'icon icon-add' if params[:project_id].blank? || get_proj_skill_permission %>
 </div>
 <div style="clear: both;" ></div>
 <% if params[:project_id].blank? %>

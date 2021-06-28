@@ -4,7 +4,7 @@
 	users = User.where(type: "User", status: 1) unless isProjSkill
 	userName = @skills&.user.present? ? @skills&.user&.name : User.current.name
 	user_id = @skills&.user_id || User.current.id
-	disable = isProjSkill ? get_proj_skill_permission.blank? : false
+	disable = isProjSkill && !get_proj_skill_permission
 %>
 <style>
 th{

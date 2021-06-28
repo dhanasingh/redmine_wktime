@@ -113,7 +113,7 @@ class WkskillController < WkbaseController
       view_skill = User.current.allowed_to?(:view_skill, @project)
     end
     #Only 'edit project' permission users allowed to save Project skill
-    save_skill = !params[:project_id].present? || get_proj_skill_permission.present?
+    save_skill = !params[:project_id].present? || get_proj_skill_permission
 		if !showSkill || params[:project_id].present? && !view_skill || !save_skill && action_name == "save"
 			render_404
 			return false
