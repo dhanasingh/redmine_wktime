@@ -18,7 +18,7 @@
 			</div>
 		</div>
 		<% if @lead.blank? %>
-			<%= render partial: "wkdocument/attachment_form", locals: { container: @lead, container_type: "WkLead" } %>
+			<%= render partial: "wkdocument/attachment_form", locals: { container: @lead, container_type: "WkLead", deletable: validateERPPermission("A_CRM_PRVLG") } %>
 		<% end %>
 		<div style="clear:left;"></div>
 		<div>

@@ -163,7 +163,7 @@ transrowMsg =  "<%= l(:label_trans_row_validmsg)  %>";
 		<td style="width:8%;"></td>
 	</tr>
 	</table>
-	<%= render partial: "wkdocument/attachment_form", locals: { container: @transEntry, container_type: "WkGlTransaction" } %>
+	<%= render partial: "wkdocument/attachment_form", locals: { container: @transEntry, container_type: "WkGlTransaction", deletable: validateERPPermission("A_ACC_PRVLG") } %>
 	<%=h hidden_field_tag("txntotalrow",  row_index-1 )  %>
 	<%= submit_tag l(:button_save), :class => "small", :name => nil %>
     <%= submit_tag l(:button_save_continue), :id => 'gltransaction_save_continue', :name => 'gltransaction_save_continue' %>

@@ -175,7 +175,7 @@
 	</fieldset>
 </div>
 
-<%= render partial: "wkdocument/attachment_form", locals: { container: @activityEntry&.first, container_type: "WkCrmActivity" } %>
+<%= render partial: "wkdocument/attachment_form", locals: { container: @activityEntry&.first, container_type: "WkCrmActivity", deletable: validateERPPermission("A_CRM_PRVLG") } %>
 <!-- For  CRM Geolocation -->
 <% if isChecked("crm_save_geo_location") %>
 	<% locations = [[ @activityEntry&.first&.longitude || "", @activityEntry&.first&.latitude || ""]] %>
