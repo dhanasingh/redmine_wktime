@@ -486,13 +486,16 @@ include ActionView::Helpers::TagHelper
 		#If click add row or project changed, tracker list does not show, get tracker value from settings page
 		if (params[:tracker_id].blank? || !params[:term].blank?)
 			params[:tracker_id] = Setting.plugin_redmine_wktime[getTFSettingName()]
+			params[:tracker_id].reject! {|id| id.to_s == "0" } if params[:tracker_id].present?
 			trackerIDCond= "AND #{Issue.table_name}.tracker_id in(#{(Setting.plugin_redmine_wktime[getTFSettingName()]).join(',')})" if !params[:tracker_id].blank? && params[:tracker_id] != ["0"]
+		else
+			params[:tracker_id] = params[:tracker_id].split(' ') if params[:tracker_id].present?
 		end
 		if Setting.plugin_redmine_wktime['wktime_closed_issue_ind'].to_i == 1
 			if !params[:tracker_id].blank? && params[:tracker_id] != ["0"] && params[:term].blank?
 				projIds = "#{(params[:project_id] || (!params[:project_ids].blank? ? params[:project_ids].join(",") : ''))}"
 				projCond = !projIds.blank? ? "AND #{Issue.table_name}.project_id in (#{projIds})" : ""
-				issues = Issue.where(["(#{Issue.table_name}.tracker_id in ( ?) #{issueAssignToUsrCond}) #{projCond}", params[:tracker_id].split(' ')]).order('project_id')
+				issues = Issue.where(["(#{Issue.table_name}.tracker_id in ( ?) #{issueAssignToUsrCond}) #{projCond}", params[:tracker_id]]).order('project_id')
 			elsif !params[:term].blank?
 					projIds = "#{(params[:project_id] || (!params[:project_ids].blank? ? params[:project_ids].join(",") : '') || projectids)}"
 					projCond = !projIds.blank? ? "AND #{Issue.table_name}.project_id in (#{projIds})" : ""
@@ -520,7 +523,7 @@ include ActionView::Helpers::TagHelper
 			projIds = "#{(params[:project_id] || (!params[:project_ids].blank? ? params[:project_ids].join(",") : '') || projectids)}"
 			projCond = !projIds.blank? ? "AND #{Issue.table_name}.project_id in (#{projIds})" : ""
 			if !params[:tracker_id].blank? && params[:tracker_id] != ["0"]	&& params[:term].blank?
-				cond = ["((#{IssueStatus.table_name}.is_closed = ? OR #{Issue.table_name}.closed_on >= ?) AND  #{Issue.table_name}.tracker_id in ( ?) #{issueAssignToUsrCond}) #{projCond}", false, @startday,params[:tracker_id].split(' ')]
+				cond = ["((#{IssueStatus.table_name}.is_closed = ? OR #{Issue.table_name}.closed_on >= ?) AND  #{Issue.table_name}.tracker_id in ( ?) #{issueAssignToUsrCond}) #{projCond}", false, @startday,params[:tracker_id]]
 			elsif !params[:term].blank?
 				if subjectPart.present?
 					if subjectPart.match(/^\d+$/)
