@@ -240,6 +240,8 @@ class WkproductitemController < WkinventoryController
 			inventoryItem.supplier_invoice_id = nil
 			inventoryItem.lock_version = 0
 			inventoryItem.shipment_id = transferItem.shipment_id
+			inventoryItem.org_over_head_price = ((inventoryItem.org_over_head_price / inventoryItem.total_quantity) * params[:available_quantity].to_i ).round(2) if inventoryItem.org_over_head_price.present?
+			inventoryItem.over_head_price = params[:over_head_price]
 		else
 			inventoryItem.product_item_id = productItemId
 			inventoryItem.serial_number = params[:serial_number]

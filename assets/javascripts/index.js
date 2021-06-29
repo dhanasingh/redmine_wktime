@@ -77,6 +77,14 @@ $(document).ready(function() {
 	});
 	hideSummaryDD($("#txn_ledger").val());
 
+	//Set Overheadcost in transfer item
+	if($('#transfer_item_id').length > 0){
+		setOverHeadCost();
+		$('#available_quantity').change(function(){
+			setOverHeadCost();
+		  });
+	}
+
 	changeProp('tab-wktime',wktimeIndexUrl);
 	changeProp('tab-wkexpense',wkexpIndexUrl);
 	changeProp('tab-leave',wkattnIndexUrl);
@@ -954,4 +962,12 @@ function renderData(resData, id="#dialog", clear=true){
 		$(id).html("");
 	}
 	$(id).append(content);
+}
+
+function setOverHeadCost(aval_quantity){
+	var aval_quantity = $('#available_quantity').val();
+	var over_head = $('#per_over_head').val();
+	var data = over_head *  aval_quantity;
+	$('#over_head_price').val(data.toFixed(2));
+	$('#transfer_over_head').val(data.toFixed(2));
 }
