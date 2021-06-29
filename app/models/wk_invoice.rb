@@ -32,7 +32,7 @@ class WkInvoice < ActiveRecord::Base
   has_many :notifications, through: "rfq_quote", :dependent => :destroy
   has_many :notifications, through: "po_quote", :dependent => :destroy
   has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
-  has_one :billing_schedule, foreign_key: "invoice_id", class_name: "WkBillingSchedule"
+  has_many :billing_schedules, foreign_key: "invoice_id", class_name: "WkBillingSchedule"
   
   # scope :invoices, lambda {where :invoice_type => 'I'}
   # scope :quotes, lambda {where :invoice_type => 'Q'}
@@ -79,7 +79,7 @@ class WkInvoice < ActiveRecord::Base
   end
 
   def update_billing_schedule
-		self.billing_schedule.update(:invoice_id => nil) if self.billing_schedule.present?
+		self.billing_schedules.update(:invoice_id => nil) if self.billing_schedule.present?
   end
   
 end
