@@ -1,6 +1,6 @@
 <% if !@invoiceItem.blank? %>
 	<% projectID =  @invoiceItem.collect{|i| i.project_id}.uniq %>
-	<% invoiceComp = getInvoiceComponents(@invoice.parent_id, @invoice.parent_type, projectID ) %>
+	<% invoiceComp = getInvoiceComponents(@invoice.parent_id, @invoice.parent_type, projectID, controller.getOrderComponetsId ) %>
 	<div id="time-rpt-dlg" style="overflow-x:auto;">
 		<center><b><%= (controller.getHeaderLabel).upcase %></b></center>
 		<div style="float:right">

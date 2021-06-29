@@ -580,6 +580,8 @@ class WkorderentityController < WkbillingController
 
 	def invoice_to_pdf(invoice)
 		title = getHeaderLabel
+		projectID =  invoice.invoice_items.collect{|i| i.project_id}.uniq
+		invoiceComp = getInvoiceComponents(invoice.parent_id, invoice.parent_type, projectID, getOrderComponetsId )
 		pdf = ITCPDF.new(current_language)
 		pdf.SetTitle(title)
 		pdf.add_page
@@ -650,6 +652,14 @@ class WkorderentityController < WkbillingController
 		pdf.RDMCell(40, 5, l(:label_amount_in_words) + "  :  ", 1)
 		pdf.SetFontStyle('',10)
 		pdf.RDMCell(table_width - 40, 5, numberInWords(invoice.invoice_items.sum(:original_amount)) + " " + l(:label_only), 1)
+		pdf.ln
+		if invoiceComp.present?		
+			invoiceComp.each do |comp|
+				pdf.RDMCell(100, 5, comp[:name], 1, 0, '', 1)
+				pdf.RDMCell(table_width - 100, 5, comp[:value], 1, 0, '', 1)
+				pdf.ln
+			end
+		end
 		pdf.ln(15)
 		pdf.SetFontStyle('B',10)
 		pdf.RDMCell(30, 5, l(:label_place) + "  :  ", 0)

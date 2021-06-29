@@ -847,9 +847,9 @@ include WkpayrollHelper
 		inv_desc
 	end
 	
-	def getInvoiceComponents(parentId, parentType, projectID)
+	def getInvoiceComponents(parentId, parentType, projectID, componetsId)
 		invoiceComponents = []
-		if controller.getOrderComponetsId == 'wktime_invoice_components'
+		if componetsId == 'wktime_invoice_components'
 			accProjs =  WkAccountProject.where(parent_id: parentId,parent_type: parentType, project_id: projectID)
 			accProjectID =  accProjs.first.id
 			invoiceComp = WkInvoiceComponents.getAccInvComp(accProjectID)
@@ -859,8 +859,8 @@ include WkpayrollHelper
 				end
 			end
 		else
-			unless Setting.plugin_redmine_wktime[controller.getOrderComponetsId].blank? 
-				Setting.plugin_redmine_wktime[controller.getOrderComponetsId].each do |element| 
+			unless Setting.plugin_redmine_wktime[componetsId].blank? 
+				Setting.plugin_redmine_wktime[componetsId].each do |element| 
 					comp = element.split('|')
 					invoiceComponents << {name: comp[0], value: comp[1]}
 				end
