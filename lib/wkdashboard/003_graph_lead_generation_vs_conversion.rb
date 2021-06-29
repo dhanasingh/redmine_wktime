@@ -20,7 +20,7 @@ module WkDashboard
     data[:data1] = leadsData
 
     convLeads = WkLead.joins(:contact)
-      .where(:status_update_on => getFromDateTime(to - 12.months + 1.days) .. getToDateTime(to), :status => "C")
+      .where(:status_update_on => getFromDateTime(to - 12.months + 1.days) .. getToDateTime(to), :status => "C", "wk_crm_contacts.contact_type"=> ["C", "SC"])
       .group(getDatePart("wk_leads.status_update_on","month"))
       .select(getDatePart("wk_leads.status_update_on","month","month_val"), +"count("+getDatePart("wk_leads.status_update_on","month")+") as convert_count")
     convleadsData = [0]*12
@@ -41,6 +41,6 @@ module WkDashboard
   private
 
   def getLeads(to)
-    WkLead.joins(:contact).where(:created_at => getFromDateTime(to - 12.months + 1.days) .. getToDateTime(to))
+    WkLead.joins(:contact).where(:created_at => getFromDateTime(to - 12.months + 1.days) .. getToDateTime(to), "wk_crm_contacts.contact_type"=> ["C", "SC"])
   end
 end
