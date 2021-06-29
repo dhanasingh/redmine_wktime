@@ -79,7 +79,7 @@ class WkInvoice < ActiveRecord::Base
   end
 
   def update_billing_schedule
-		self.billing_schedules.update(:invoice_id => nil) if self.billing_schedule.present?
+		self.billing_schedules.update(:invoice_id => nil) if self.billing_schedules.present?
   end
   
 end
