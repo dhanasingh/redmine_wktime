@@ -75,4 +75,11 @@ class WkInvoiceItem < ActiveRecord::Base
     entries = entries.joins("INNER JOIN wk_crm_contacts ON wk_crm_contacts.id = wk_account_projects.parent_id AND parent_type = 'WkCrmContact'").select("CONCAT(wk_crm_contacts.first_name,' ',wk_crm_contacts.last_name) AS name") if parent_type == 'WkCrmContact'
     entries
   end
+
+  def self.filterByIssues(entries, issue_id)
+    entries = entries.where(:issue_id => issue_id) if (issue_id > 0)
+    entries = entries.where(:issue_id => nil) if (issue_id == 0)
+    entries = entries.order("time_entries.spent_on desc")
+    entries
+  end
 end

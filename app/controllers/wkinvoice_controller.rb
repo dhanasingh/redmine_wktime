@@ -335,10 +335,9 @@ class WkinvoiceController < WkorderentityController
 		invIntervals = getIntervals(params[:start_date].to_date, params[:end_date].to_date, invoiceFreq["frequency"], invoiceFreq["start"], true, false)
 		fromDate = getUnbillEntryStart(invIntervals[0][0])
 		todate = invIntervals[0][1]
-		dataUnbilledEntries = WkInvoiceItem.getUnbilledTimeEntries(params[:project_id], fromDate.to_date, todate.to_date, params[:parent_id], params[:parent_type])
-		dataUnbilledEntries = dataUnbilledEntries.order("time_entries.spent_on desc")
-		dataUnbilledEntries = dataUnbilledEntries.where(:issue_id => params[:issue_id]) if (params[:issue_id].to_i > 0)
-		dataUnbilledEntries.each{ |entry| data << {projID: entry.project_id, proj_name: entry.project.name, subject: entry.issue.to_s, usr_name: entry.user.name, spent_on: entry.spent_on, hours: entry.hours} if entry.hours > 0}
+		unbilledEntries = WkInvoiceItem.getUnbilledTimeEntries(params[:project_id], fromDate.to_date, todate.to_date, params[:parent_id], params[:parent_type])
+		unbilledEntries = WkInvoiceItem.filterByIssues(unbilledEntries, params[:issue_id].to_i)
+		unbilledEntries.each{ |entry| data << {projID: entry.project_id, proj_name: entry.project.name, subject: entry.issue.to_s, usr_name: entry.user.name, spent_on: entry.spent_on, hours: entry.hours} if entry.hours > 0}
     	render json: data
 	end
 
