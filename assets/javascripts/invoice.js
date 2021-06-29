@@ -565,7 +565,12 @@ function getTimeDetails(url, data){
 				tableEntries += formQuantityTable(i, l, oldProjID);
 				oldProjID = l.projID
 			});
-		$(" #qunatityTable").html(tableEntries);
+			if (tableEntries && tableEntries.length > 0){
+				$(" #qunatityTable").html(tableEntries);
+			}
+			else{
+				$(" #qunatityTable").html('<p style="clear:both" class="nodata">No data to display</p>');
+			}
 		$("#quantity-dlg").dialog({ title: 'Quantity', width: '80%', height: $(window).height(),});
 	}});
 }
