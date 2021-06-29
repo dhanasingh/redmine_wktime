@@ -951,7 +951,7 @@ function renderData(resData, id="#dialog", clear=true){
 		$("body").append("<div id='dialog'></div>")
 	}
 	else if(clear){
-		$("id").html("");
+		$(id).html("");
 	}
 	$(id).append(content);
 }
