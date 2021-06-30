@@ -1118,17 +1118,17 @@ ta-IN:
   warn_survey_submit: "கணக்கெடுப்பை சமர்ப்பிக்க விரும்புகிறீர்களா?நீங்கள் சமர்ப்பித்ததும், நீங்கள் மீண்டும் திருத்த முடியாது"
   field_inventory_item_id: தயாரிப்பு
   field_quantity: அளவு
-  label_interest_level: Interest Level
-  label_min_exp_req: Experience Required
-  label_min_rating_req: Rating Required
-  label_consumed_items: Consumed Items
-  button_save_with_tax: Save With Tax
-  label_clockin_users: Clock in users
-  label_expense_for_issues: Expense for issues
-  label_lead_generation: Lead generation vs conversion
-  label_invoice_payment: Invoice vs Payment
-  label_profit_loss: Profit and loss
-  label_added: Added
-  label_deleted: Deleted
-  warn_issuelog_exist: "You have to stop all issue Logs in the week"
-  label_select_time: Select Time Entries
+  label_interest_level: ஆர்வ நிலை
+  label_min_exp_req: தேவையான அனுபவம் 
+  label_min_rating_req: தேவையான மதிப்பீடு 
+  label_consumed_items: உபயோகப்படுத்தப்பட்ட பொருள்
+  button_save_with_tax: வரியுடன் சேமிக்கவும்
+  label_clockin_users: பயனர்களின் மணி
+  label_expense_for_issues: செலவுகள்
+  label_lead_generation: இழுது உருவாக்குதலும் மாற்றமும்
+  label_invoice_payment: விலைப்பட்டியலும் கட்டணமும்
+  label_profit_loss: லாபம் மற்றும் நட்டம்
+  label_added: சேர்ப்பு
+  label_deleted: நீக்கம்
+  warn_issuelog_exist: "நீங்கள் இந்த வாரத்தின் அனைத்து பிரச்சினை பதிவுகளை நிறுத்த வேண்டும்"
+  label_select_time: நேர உள்ளீடுகளைத் தேர்ந்தெடுக்கவும்
