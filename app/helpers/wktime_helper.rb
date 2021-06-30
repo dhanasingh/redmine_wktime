@@ -36,8 +36,8 @@ module WktimeHelper
 
 	def options_wk_status_select(value)
 		options_for_select([[l(:wk_status_empty), 'e'],
-							[l(:wk_status_new), 'n'],
-							[l(:wk_status_rejected), 'r'],
+							[l(:label_new), 'n'],
+							[l(:default_issue_status_rejected), 'r'],
 							[l(:wk_status_submitted), 's'],
 							[l(:wk_status_approved), 'a']],
 							value.blank? ? ['e','n','r','s','a'] : value)
@@ -50,18 +50,18 @@ module WktimeHelper
 	end
 
 	def statusString(status)
-		statusStr = l(:wk_status_new)
+		statusStr = l(:label_new)
 		case status
 		when 'a'
 			statusStr = l(:wk_status_approved)
 		when 'r'
-			statusStr = l(:wk_status_rejected)
+			statusStr = l(:default_issue_status_rejected)
 		when 's'
 			statusStr = l(:wk_status_submitted)
 		when 'e'
 			statusStr = l(:wk_status_empty)
 		else
-			statusStr = l(:wk_status_new)
+			statusStr = l(:label_new)
 		end
 		return statusStr
 	end
@@ -97,7 +97,7 @@ module WktimeHelper
                  l(:field_activity)
                  ]
 		if !unitLabel.blank?
-			headers << l(:label_wk_currency)
+			headers << l(:field_currency)
 		end
 		unit=nil
 
@@ -188,7 +188,7 @@ module WktimeHelper
 		col_width[3] = (table_width - (8*10))*0.2
 		title=l(:label_wktime)
 		if !unitLabel.blank?
-			columns << l(:label_wk_currency)
+			columns << l(:field_currency)
 			col_id_width  = 14
 			col_width[0]=col_id_width
 			col_width[1] = (table_width - (8*14))*0.20
@@ -669,13 +669,13 @@ end
 				{:name => 'wkcrmenumeration', :partial => 'wktime/tab_content', :label => :label_enumerations},
 				{:name => 'wklocation', :partial => 'wktime/tab_content', :label => :label_location},
 				{:name => 'wktax', :partial => 'wktime/tab_content', :label => :label_tax},
-				{:name => 'wkexchangerate', :partial => 'wktime/tab_content', :label => :label_exchange_rate},
+				{:name => 'wkexchangerate', :partial => 'wktime/tab_content', :label => :label_rate},
 				{:name => 'wkgrouppermission', :partial => 'wktime/tab_content', :label => :label_permissions},
 				{:name => 'wknotification', :partial => 'wktime/tab_content', :label => :label_notification_plural},
 			   ]
 		else
 			tabs = [
-				{:name => 'wkproduct', :partial => 'wktime/tab_content', :label => :label_product},
+				{:name => 'wkproduct', :partial => 'wktime/tab_content', :label => :field_inventory_item_id},
 				{:name => 'wkproductitem', :partial => 'wktime/tab_content', :label => :label_item},
 				{:name => 'wkshipment', :partial => 'wktime/tab_content', :label => :label_shipment},
 				{:name => 'wkasset', :partial => 'wktime/tab_content', :label => :label_asset},

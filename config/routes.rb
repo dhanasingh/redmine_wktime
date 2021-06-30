@@ -736,3 +736,30 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wkbase/my_account', to: 'wkbase#my_account'
 
 	get 'wkbase/get_groups', to: 'wkbase#get_groups'
+
+	get 'wkinvoice/getQuantityDetails', to: 'wkinvoice#getQuantityDetails'
+
+	get 'wkinvoice/getUnbilledQtyDetails', to: 'wkinvoice#getUnbilledQtyDetails'
+
+	get 'wkinvoice/generateTimeEntries', to: 'wkinvoice#generateTimeEntries'
+
+	resources :projects do
+		resource :wkskill, :only => [:index, :edit, :save], :controller => :wkskill do
+			get :index, :edit
+			post :save
+		end
+	end
+
+	delete 'wkpayroll/destroy', to: 'wkpayroll#destroy'
+
+	get 'wkinvoice/invoice_components', to: 'wkinvoice#invoice_components'
+
+	post 'wkinvoice/saveInvoiceComponents', to: 'wkinvoice#saveInvoiceComponents'
+
+	get 'wkproductitem/get_material_entries', to: 'wkproductitem#get_material_entries'
+
+	get 'wkdashboard/getDataSet', to: 'wkdashboard#getDataSet'
+
+	delete 'wkpayment/destroy', to: 'wkpayment#destroy'
+
+	delete 'wksupplierpayment/destroy', :to => 'wksupplierpayment#destroy'

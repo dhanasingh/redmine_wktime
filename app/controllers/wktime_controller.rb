@@ -37,7 +37,7 @@ include QueriesHelper
 include ActionView::Helpers::TagHelper
 
 	def index
-		sort_init 'id', 'asc'
+		sort_init  [["start_date", "desc"], ["user_name", "asc"]]
 		sort_update 'start_date' => "spent_on",
 					'user_name' => "CONCAT(un.firstname,' ' ,un.lastname)",
 					'hours' => "hours",
@@ -96,16 +96,32 @@ include ActionView::Helpers::TagHelper
 		end
 		teQuery = getTEQuery(@from, @to, ids)
 		queries = getQuery(teQuery, ids, @from, @to, status)
-		orderStr =  + " ORDER BY " + (sort_clause.present? ? sort_clause.first : "tmp3.spent_on desc, tmp3.user_id")
-		findBySql(queries[0], queries[1], orderStr)
+		orderStr =  + " ORDER BY " + sort_clause.join(",")
+
 		respond_to do |format|
-			format.html {
+			format.html do
+				findBySql(queries[0], queries[1], orderStr)
 				render :layout => !request.xhr?
-			}
-			format.api
-			format.pdf {
+			end
+			format.api do
+				get_TE_entries(queries[0] + queries[1] + orderStr)
+			end
+			format.pdf do
+				get_TE_entries(queries[0] + queries[1] + orderStr)
 				send_data(list_to_pdf(@entries, setEntityLabel), :type => 'application/pdf', :filename => "#{setEntityLabel}.pdf")
-			}
+			end
+      format.csv do
+				get_TE_entries(queries[0] + queries[1] + orderStr)
+        headers = {date: l(:field_start_date), user: l(:field_user), type: getLabelforSpField, status: l(:field_status), modifiedby: l(:field_status_modified_by) }
+				headers[:supervisor] = l(:label_ftte_supervisor) if isSupervisorApproval
+        data = @entries.map do |e|
+					status = e.status.present? ? statusString(e.status) : nil
+					rowData = {date: format_date(e.spent_on), user: e.user&.name, type: getUnit(e).to_s + (e.hours || e.amount || 0).round(2).to_s, status: status, modifiedby: e.status_updater}
+					rowData[:supervisor] = e.user&.supervisor&.name if isSupervisorApproval
+					rowData
+				end
+        send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "#{setEntityLabel}.csv")
+      end
 		end
 	end
 
@@ -201,6 +217,12 @@ include ActionView::Helpers::TagHelper
 			gatherEntries
 			allowApprove = true
 		end
+		#IssueLogs validation
+		if errorMsg.blank?
+			issueLogs = get_issue_loggers(true)
+			errorMsg = l(:warn_issuelog_exist) if issueLogs.length > 0
+		end
+
 		errorMsg = gatherWkCustomFields(@wktime) if @wkvalidEntry && errorMsg.blank?
 		wktimeParams = params[:wktime]
 		cvParams = wktimeParams[:custom_field_values] unless wktimeParams.blank?
@@ -464,7 +486,10 @@ include ActionView::Helpers::TagHelper
 		#If click add row or project changed, tracker list does not show, get tracker value from settings page
 		if (params[:tracker_id].blank? || !params[:term].blank?)
 			params[:tracker_id] = Setting.plugin_redmine_wktime[getTFSettingName()]
+			params[:tracker_id].reject! {|id| id.to_s == "0" } if params[:tracker_id].present?
 			trackerIDCond= "AND #{Issue.table_name}.tracker_id in(#{(Setting.plugin_redmine_wktime[getTFSettingName()]).join(',')})" if !params[:tracker_id].blank? && params[:tracker_id] != ["0"]
+		else
+			params[:tracker_id] = params[:tracker_id].split(' ') if params[:tracker_id].present?
 		end
 		if Setting.plugin_redmine_wktime['wktime_closed_issue_ind'].to_i == 1
 			if !params[:tracker_id].blank? && params[:tracker_id] != ["0"] && params[:term].blank?
@@ -550,23 +575,33 @@ include ActionView::Helpers::TagHelper
 		end
 	end
 
-	def get_issue_loggers
-		if params[:type] == "finish"
+	def get_issue_loggers(valid=false)
+		if params[:type] == "finish" || valid
 			issueLogs = WkSpentFor.getIssueLog
-			container = ""
-			timer = ""
-			issueLogs.each do |log|
-				dateTime = get_current_DateTime
-				hours = time_diff(dateTime, log.spent_on_time)
-				timespan = content_tag("span", hours.to_s, id: ("timer_" + log.id.to_s))
-				issuespan = content_tag("span", "#{log.project_name} - #{log.tracker_name} - #{log.issue_id}##{log.subject} " )
-				button = content_tag("span", "Stop", class: "issue_select", id: log.id,
-					style: "color: white; font-weight: bold; border-radius: 20px; background: red; padding-left: 10px; padding-top: 3px; padding-bottom: 3px; padding-right: 10px; margin-left: 5px; cursor: pointer;" )
-				container << content_tag("span", (issuespan + timespan + button))
-				timer << "$('##{("timer_" + log.id.to_s)}').timer({ action: 'start', seconds: #{(dateTime - log.spent_on_time).to_i} });"
+			if valid
+				startday = params[:startday].to_date
+				issueLogs = issueLogs.where("TE.spent_on between ? AND ?", startday, startday +6.days)
+				return issueLogs
+			else
+				respond_to do |format|
+					format.text do
+						container = ""
+						timer = ""
+						issueLogs.each do |log|
+							dateTime = get_current_DateTime
+							hours = time_diff(dateTime, log.spent_on_time)
+							timespan = content_tag("span", hours.to_s, id: ("timer_" + log.id.to_s))
+							issuespan = content_tag("span", "#{log.project_name} - #{log.tracker_name} - #{log.issue_id}##{log.subject} " )
+							button = content_tag("span", "Stop", class: "issue_select", id: log.id,
+								style: "color: white; font-weight: bold; border-radius: 20px; background: red; padding-left: 10px; padding-top: 3px; padding-bottom: 3px; padding-right: 10px; margin-left: 5px; cursor: pointer;" )
+							container << content_tag("span", (issuespan + timespan + button))
+							timer << "$('##{("timer_" + log.id.to_s)}').timer({ action: 'start', seconds: #{(dateTime - log.spent_on_time).to_i} });"
+						end
+						container = "$('#issueLog .drdn-items.issues').html('" + container + "').css('cursor', 'default');" + timer
+						render(js: container)
+					end
+				end
 			end
-			container = "$('#issueLog .drdn-items.issues').html('" + container + "').css('cursor', 'default');" + timer
-			render(js: container)
 		else
 			getissues
 		end
@@ -1360,7 +1395,7 @@ include ActionView::Helpers::TagHelper
 		wkStatuses.destroy_all() unless wkStatuses.blank?
 	end
 
-	def check_module_permission		
+	def check_module_permission
 		unless showTime
 			render_403
 			return false
@@ -2238,7 +2273,7 @@ private
 		@entry_count = findCountBySql(query, TimeEntry)
     setLimitAndOffset()
 		rangeStr = formPaginationCondition()
-		@entries = TimeEntry.find_by_sql(selectStr + query + orderStr + rangeStr)
+		get_TE_entries(selectStr + query + orderStr + rangeStr)
 		@unit = nil
 		@total_hours = findSumBySql(query, spField, TimeEntry)
 	end
@@ -2549,5 +2584,9 @@ private
 	def getLastPDFCell(list, entry)
 		list << [ entry.hours.to_s , 40 ]
 		list
+	end
+
+	def get_TE_entries(query)
+		@entries = TimeEntry.find_by_sql(query)
 	end
 end

@@ -46,7 +46,7 @@ include WkaccountprojectHelper
 		end		
 		taxentry = WkTax.all
 		@taxentry = taxentry.collect{|m| [ m.name, m.id ] }
-		
+		@invoiceComp = WkInvoiceComponents.getAccInvComp(params[:acc_project_id].to_i)		
 	end
 	
 	def update
@@ -55,6 +55,7 @@ include WkaccountprojectHelper
 		wkbillingschedule = nil
 		wkaccprojecttax = nil
 		arrId = []
+		compId = []
 		wkaccountproject = saveBillableProjects(params[:accountProjectId], params[:project_id], params[:related_parent], params[:related_to], params[:applytax], params[:itemized_bill], params[:billing_type])
 		
 		unless wkaccountproject.id.blank?
@@ -102,6 +103,25 @@ include WkaccountprojectHelper
 				end
 			end
 			WkBillingSchedule.where(:account_project_id => wkaccountproject.id).where.not(:id => arrId).delete_all()
+
+			#saveAccountInvoiceComponents
+			if params[:invoice_components].present?
+				params[:invoice_components].each do |param|
+					param.permit!
+					accInvCompId = params["acc_inv_comp_id_#{param[:invoice_component_id]}"]
+					param[:account_project_id] = wkaccountproject.id
+					wkAccInvComp = accInvCompId.present? ? WkAccInvoiceComponents.find(accInvCompId) :  WkAccInvoiceComponents.new
+					wkAccInvComp.assign_attributes(param)
+					if wkAccInvComp.save()	
+						compId << wkAccInvComp.id
+					else
+						errorMsg +=  wkAccInvComp.errors.full_messages.join("<br>")
+					end
+				end
+				unless compId.blank?
+					WkAccInvoiceComponents.where(account_project_id: wkaccountproject.id).where.not(id: compId).delete_all()
+				end
+			end
 		end
 		projectEntry = Project.find(params[:project_id])
 		if errorMsg.nil? 
@@ -183,7 +203,7 @@ include WkaccountprojectHelper
 	end
 
 	def getAccountDDLbl
-		l(:label_account)
+		l(:field_account)
 	end
 
 	def getAdditionalDD

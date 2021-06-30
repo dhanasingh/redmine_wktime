@@ -8,7 +8,7 @@
 					<%= sort_header_tag("activity_type", :caption => l(:label_activity_type), class: "lbl-txt-align") if !controller.is_referral && !show_on_map %>
 					<%= sort_header_tag("subject_name", :caption => l(:field_subject), class: "lbl-txt-align") %>
 					<%= sort_header_tag("status", :caption => l(:field_status), class: "lbl-txt-align") %>
-					<%= sort_header_tag("parent_type", :caption => l(:label_related_to), class: "lbl-txt-align") if !show_on_map %>
+					<%= sort_header_tag("parent_type", :caption => l(:label_relates_to), class: "lbl-txt-align") if !show_on_map %>
 					<%= sort_header_tag("start_date", :caption => l(:label_start_date_time), class: "lbl-txt-align") %>
 					<%= sort_header_tag("end_date", :caption => l(:label_end_date_time), class: "lbl-txt-align") if !controller.is_referral && !show_on_map %>
 					<%= sort_header_tag("assigned_user_id", :caption => l(:field_assigned_to), class: "lbl-txt-align") %>
@@ -20,7 +20,7 @@
 					<% unless controller.is_referral %><th class="lbl-txt-align"><%= l(:label_activity_type) %></th><% end %>
 					<th class="lbl-txt-align"><%= l(:field_subject) %></th>
 					<th class="lbl-txt-align"><%= l(:field_status) %></th>
-					<th class="lbl-txt-align"><%= l(:label_related_to) %></th>
+					<th class="lbl-txt-align"><%= l(:label_relates_to) %></th>
 					<th class="lbl-txt-align"><%= l(:label_start_date_time) %></th>
 					<% unless controller.is_referral %><th class="lbl-txt-align"><%= l(:label_end_date_time) %></th><% end %>
 					<th class="lbl-txt-align"><%=  controller.is_referral ? l(:label_interviewer) : l(:field_assigned_to) %></th>

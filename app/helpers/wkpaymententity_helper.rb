@@ -7,7 +7,7 @@ include WkbillingHelper
 
 
 	def options_for_parent_select(value)
-		options_for_select([[l(:label_account), 'WkAccount'],
+		options_for_select([[l(:field_account), 'WkAccount'],
 							[l(:label_contact), 'WkCrmContact']],
 							value.blank? ? 'WkAccount' : value)
 	end

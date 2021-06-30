@@ -88,7 +88,7 @@ before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destr
 	end
 	
 	def getAccountDDLbl
-		l(:label_account)
+		l(:field_account)
 	end
 	
 	def getNewHeaderLbl

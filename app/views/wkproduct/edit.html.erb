@@ -1,6 +1,6 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'invoice', :plugin => "redmine_wktime" %>
-<h2><%= l(:label_product) %></h2>
+<h2><%= l(:field_inventory_item_id) %></h2>
 <%
 	ledgers = Array.new
 	ledgers << [ "", ""]
@@ -17,14 +17,14 @@
 			<td></td>
 		</tr> 
 		<tr>
-			<th align="left"><%= l(:label_category) %></th>
+			<th align="left"><%= l(:field_category) %></th>
 			<td align="left" style="padding-left:40px;">
 				<%=h select_tag("category_id", generic_options_for_select(WkProductCategory, nil, 'name', 'name', 'id', @productEntry.blank? ? nil : @productEntry.category_id, false)) %>
 			</td>
 			<td></td>
 		</tr> 
 		<tr>
-			<th align="left"><%= l(:label_type) %></th>
+			<th align="left"><%= l(:field_type) %></th>
 			<td align="left" style="padding-left:40px;">
 				<%=h select_tag("product_type", options_for_select(getProductTypeHash(true).invert, :selected => @productEntry.blank? ? getProductTypeHash(true).invert : @productEntry.product_type ), :onchange => "hideProductType()") %>
 			</td>

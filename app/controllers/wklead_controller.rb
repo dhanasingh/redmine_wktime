@@ -56,12 +56,26 @@ class WkleadController < WkcrmController
 			location_id = !locationId.blank? ? locationId.to_i : location.id.to_i
 			entries = entries.where("C.location_id = ? ", location_id)
 		end
-		formPagination(entries.reorder(sort_clause))
+		entries = entries.reorder(sort_clause)
 		respond_to do |format|
-			format.html {
+			format.html do
+				formPagination(entries)
 			  render :layout => !request.xhr?
-			}
-			format.api
+			end
+			format.api do
+				@leadEntries = entries
+			end
+			format.csv do
+				headers = { name: l(:field_name), status: l(:field_status), acc_name: l(:label_account_name), location: l(:label_location), phone: l(:label_work_phone), email: l(:field_mail), modified: l(:field_status_modified_by), Updated: l(:field_updated_on) }
+				data = entries.map do |e| 
+					{ name: e&.contact&.name, status: getLeadStatusHash[e.status], acc_name: (e&.account&.name || ''),  location: (e&.contact&.location&.name || ''), phone: (e&.contact&.address&.work_phone || ''), email: (e&.contact&.address&.email || ''), modified: e.created_by_user.name(:firstname_lastname), Updated: e.updated_at.localtime.strftime("%Y-%m-%d %H:%M:%S")}
+				end
+				respond_to do |format|
+					format.csv {
+						send_data(csv_export({headers: headers, data: data}), type: 'text/csv; header=present', filename: 'lead.csv')
+					}
+				end
+			end
 		end
 	end
 
@@ -139,7 +153,7 @@ class WkleadController < WkcrmController
 	end
 
 	def getAccountLbl
-		l(:label_account)
+		l(:field_account)
 	end
 
 	def set_filter_session(filters=nil, filterParams={})

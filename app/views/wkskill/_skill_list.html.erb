@@ -1,27 +1,32 @@
+<% isProjSkill = params[:project_id].present? %>
 <table class="list time-entries">
 	<thead>
 		<tr>
-			<%= sort_header_tag('user_name', :caption => l(:field_user), class: "lbl-txt-align") %>
+			<%= sort_header_tag('user_name', :caption => l(:field_user), class: "lbl-txt-align") if !isProjSkill %>
 			<%= sort_header_tag('skill_set', :caption => l(:label_skill_set), class: "lbl-txt-align") %>
-			<%= sort_header_tag('rating', :caption => l(:label_rating), class: "lbl-txt-align") %>
-			<%= sort_header_tag('last_used', :caption => l(:label_last_used), class: "lbl-txt-align") %>
-			<%= sort_header_tag('experience', :caption => l(:label_years_of_exp), class: "lbl-txt-align") %>
+			<%= sort_header_tag('rating', :caption => l(isProjSkill ? :label_min_rating_req : :label_rating), class: "lbl-txt-align") %>
+			<%= sort_header_tag('interest_level', :caption => l(:label_interest_level), class: "lbl-txt-align") if !isProjSkill %>
+			<%= sort_header_tag('last_used', :caption => l(:label_last_used), class: "lbl-txt-align") if !isProjSkill  %>
+			<%= sort_header_tag('experience', :caption => l(isProjSkill ? :label_min_exp_req : :label_years_of_exp), class: "lbl-txt-align") %>
+			<%= sort_header_tag('user_name', :caption => l(:field_status_modified_by), class: "lbl-txt-align") if isProjSkill %>
 			<th></th>
 		</tr>
 	</thead>
 	<tbody>
 		<% @skillEntries.each do |entry| %>
 			<tr>
-				<td class="lbl-txt-align"><%= entry.user.name %></td>
+				<% if !isProjSkill %><td class="lbl-txt-align"><%= entry.user&.name %></td><% end %>
 				<td class="lbl-txt-align"><%= entry.skill_set.name %></td>
 				<td class="lbl-txt-align"><%= entry.rating %></td>
-				<td class="lbl-txt-align"><%= entry.last_used %></td>
+				<% if !isProjSkill %><td class="lbl-txt-align"><%= entry.interest_level %></td><% end %>
+				<% if !isProjSkill %><td class="lbl-txt-align"><%= entry.last_used %></td><% end %>
 				<td class="lbl-txt-align"><%= entry.experience %></td>
+				<% if isProjSkill %><td class="lbl-txt-align"><%= entry.user&.name %></td><% end %>
 				<td align="center">
-					<%= link_to image_tag('edit.png'), {:controller => controller_name, :action => 'edit', :id => entry.id, 
-						:tab => controller_name}, :title => l(:button_edit) %>
-					<%= link_to image_tag('delete.png'), {:controller => controller_name, :action => 'delete', :id => entry.id, 
-							:tab => controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+					<%= link_to "", {:action => 'edit', :id => entry.id, :tab => controller_name}, :title => l(:button_edit), class: "icon icon-edit" %>
+					<%= link_to "", {:action => 'delete', :id => entry.id, :tab => controller_name},
+						:data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete),
+						class: "icon icon-del" if get_proj_skill_permission %>
 				</td>
 			</tr>
 		<% end %>

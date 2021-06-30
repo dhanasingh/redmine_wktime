@@ -8,7 +8,7 @@
 				<%= sort_header_tag('acc_name', :caption => l(:label_account_name), class: "lbl-txt-align") if !controller.is_referral %>
 				<%= sort_header_tag('location_name', :caption => l(:label_location), class: "lbl-txt-align") %>
 				<th class="lbl-txt-align"><%= l(:label_work_phone) %></th>
-				<th class="lbl-txt-align"><%= l(:label_email) %></th>
+				<th class="lbl-txt-align"><%= l(:field_mail) %></th>
 				<% if controller.is_referral %>
 					<th class="lbl-txt-align"><%= l(:label_degree) %></th>
 					<%= sort_header_tag('pass_out', :caption => l(:label_pass_out), class: "lbl-txt-align") %>
@@ -22,12 +22,12 @@
 		<tbody>
 			<% entries.each do |entry| %>
 				<tr>
-					<td class="lbl-txt-align"><%=h entry.contact.name %></td>
+					<td class="lbl-txt-align"><%=h entry.contact&.name %></td>
 					<td class="lbl-txt-align"><%=h getLeadStatusHash[entry.status] %></td>
 					<% if !controller.is_referral %><td class="lbl-txt-align"><%=h entry.account.blank? ? "" : entry.account.name %></td><% end %>
-					<td class="lbl-txt-align"><%=h entry.contact.location_id.blank? ? "" : entry.contact.location.name %></td>
-					<td class="lbl-txt-align"><%=h entry.contact.address.blank? ? "" : entry.contact.address.work_phone %></td>
-					<td class="lbl-txt-align"><%=h entry.contact.address.blank? ? "" : entry.contact.address.email %></td>
+					<td class="lbl-txt-align"><%=h entry.contact.location_id.blank? ? "" : entry.contact&.location&.name %></td>
+					<td class="lbl-txt-align"><%=h entry.contact.address.blank? ? "" : entry.contact&.address&.work_phone %></td>
+					<td class="lbl-txt-align"><%=h entry.contact.address.blank? ? "" : entry.contact&.address&.email %></td>
 					<% if controller.is_referral %>
 						<td class="lbl-txt-align"><%= entry&.candidate&.degree %></td>
 						<td class="lbl-txt-align"><%= entry&.candidate&.pass_out %></td>

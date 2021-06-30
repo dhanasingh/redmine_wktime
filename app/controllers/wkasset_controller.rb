@@ -19,6 +19,7 @@ class WkassetController < WkproductitemController
 	menu_item :wkproduct
 	include WktimeHelper
 	include WkassetdepreciationHelper
+	include WkassetHelper
 
 
 	def getItemType
@@ -44,7 +45,7 @@ class WkassetController < WkproductitemController
 	end
 	
 	def newItemLabel
-		l(:label_new_asset_item)
+		l(:label_new_asset)
 	end
 	
 	def newAsset
@@ -56,7 +57,7 @@ class WkassetController < WkproductitemController
 	end
 	
 	def getIventoryListHeader
-		headerHash = { 'project_name' => l(:label_project), 'product_name' => l(:label_product), 'parent_name' => l(:field_name), 'asset_name' => l(:label_components),  'product_attribute_name' => l(:label_attribute), 'serial_number' => l(:label_serial_number), 'owner_type' => l(:label_owner), 'rate' => l(:label_rate),  "is_loggable" => l(:label_loggable_asset),  'location_name' => l(:label_location) }
+		headerHash = { 'project_name' => l(:label_project), 'product_name' => l(:field_inventory_item_id), 'parent_name' => l(:field_name), 'asset_name' => l(:label_components),  'product_attribute_name' => l(:label_attribute), 'serial_number' => l(:label_serial_number), 'owner_type' => l(:label_owner), 'rate' => l(:label_rate),  "is_loggable" => l(:label_loggable_asset),  'location_name' => l(:label_location) }
 	end
 	
 	def showProductItem
@@ -137,6 +138,13 @@ class WkassetController < WkproductitemController
 			redirect_to controller: controller_name, action: "dispose_asset", inventory_item_id: params[:inventory_item_id], tab: controller_name
 			flash[:error] = assetProperty.errors.full_messages.join("<br>")
 		end
+	end
+
+	def getCsvData(entries)
+		rate = getRatePerHash(false)
+		asset_type = getAssetTypeHash(false)
+		data = entries.map{|entry| {project_name: entry['project_name'] || '', product_name: entry['product_name'] || '', parent_name: entry['parent_name'], asset_name: entry['asset_name'],  product_attribute_name: entry['product_attribute_name'], serial_number: entry['serial_number'], owner_type: asset_type[entry['owner_type']], rate: rate[entry['rate_per']], is_loggable: entry.is_loggable?, location_name: entry['location_name'] || ''} 
+		}
 	end
 
 end

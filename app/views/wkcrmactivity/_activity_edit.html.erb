@@ -59,7 +59,7 @@
 			<% end %>
 
 			<tr>
-				<th align="left"><%= l(:label_subject) %><span style="color:red;">*</span></th>
+				<th align="left"><%= l(:field_subject) %><span style="color:red;">*</span></th>
 				<td align="left" style="padding-left:40px;"><%=h text_field_tag("activity_subject",(!@activityEntry.blank? ? @activityEntry[0].name : ""),:size => 20, :style => "width:180px;") %> </td>
 				<td></td>
 				<th align="left" style="padding-left:150px;"><label id="lblStatus"><%= l(:field_status) %></label></th>
@@ -130,7 +130,7 @@
 			</tr>
 
 			<tr>
-				<th align="left" ><%= l(:label_related_to) %></th>
+				<th align="left" ><%= l(:label_relates_to) %></th>
 				<% if is_referral %>
 					<%= hidden_field_tag('related_to', "WkLead" ) %>
 				<% else %>
@@ -175,7 +175,7 @@
 	</fieldset>
 </div>
 
-<%= render partial: "wkdocument/attachment_form", locals: { container: @activityEntry&.first, container_type: "WkCrmActivity" } %>
+<%= render partial: "wkdocument/attachment_form", locals: { container: @activityEntry&.first, container_type: "WkCrmActivity", deletable: validateERPPermission("A_CRM_PRVLG") } %>
 <!-- For  CRM Geolocation -->
 <% if isChecked("crm_save_geo_location") %>
 	<% locations = [[ @activityEntry&.first&.longitude || "", @activityEntry&.first&.latitude || ""]] %>

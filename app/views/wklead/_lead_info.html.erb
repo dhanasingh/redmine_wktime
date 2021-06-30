@@ -64,7 +64,7 @@
 
 			<% if isContact %>
 				<tr>
-					<th align="left" ><%= l(:label_related_to) %></th>
+					<th align="left" ><%= l(:label_relates_to) %></th>
 					<td align="left" style="padding-left:40px;"><%=h select_tag("related_to", options_for_select(relHash.invert, :selected => (!contactObj.blank? ? relateTo : (params[:parentType].blank? ? "" : params[:parentType]))), :onchange => "actRelatedDd(#{User.current.id}, false, true, '#{accountType}', '#{contactType}', false)", :style => "width:20%;") %>
 
 					<%=h select_tag("related_parent", options_for_select(accArr, :selected => (!contactObj.blank? ? parentId : (params[:parentId].blank? ? "" : params[:parentId]))), :style => "width:30%;") %>

@@ -18,19 +18,19 @@
 class WkpaymententityController < WkbillingController
   unloadable
 	include WkpaymentHelper
-    include WkbillingHelper
-    include WktimeHelper
+	include WkbillingHelper
+	include WktimeHelper
 	include WkpaymententityHelper
-	
-    def index
-			sort_init 'id', 'desc'
-			sort_update 'id' => "p.id",
-			'payment_date' => "p.payment_date",
-			'type' => "p.parent_type",
-			'name' => "CASE WHEN p.parent_type = 'WkAccount' THEN a.name ELSE CONCAT(c.first_name, c.last_name) END",
-			'payment_type' => "p.payment_type_id",
-			'original_amount' => "payment_original_amount",
-			'amount' => "payment_amount"
+
+  def index
+		sort_init 'id', 'desc'
+		sort_update 'id' => "p.id",
+		'payment_date' => "p.payment_date",
+		'type' => "p.parent_type",
+		'name' => "CASE WHEN p.parent_type = 'WkAccount' THEN a.name ELSE CONCAT(c.first_name, c.last_name) END",
+		'payment_type' => "p.payment_type_id",
+		'original_amount' => "payment_original_amount",
+		'amount' => "payment_amount"
 
 		@payment_entries = nil
 		sqlwhere = ""
@@ -39,7 +39,7 @@ class WkpaymententityController < WkbillingController
 		filter_type = session[controller_name].try(:[], :polymorphic_filter)
 		contact_id = session[controller_name].try(:[], :contact_id)
 		account_id = session[controller_name].try(:[], :account_id)
-		
+
 		selectStr = "select p.*, pmi.payment_amount, pmi.payment_original_amount, CASE WHEN p.parent_type = 'WkAccount' THEN a.name" +
 		" ELSE #{concatColumnsSql(['c.first_name', 'c.last_name'], nil, ' ')} END as name," +
 		" (#{getPersonTypeSql}) as entity_type"
@@ -50,39 +50,54 @@ class WkpaymententityController < WkbillingController
 			" on(pmi.payment_id = p.id)" +
 			" left join wk_accounts a on (p.parent_type = 'WkAccount' and p.parent_id = a.id)" +
 			" left join wk_crm_contacts c on (p.parent_type = 'WkCrmContact' and p.parent_id = c.id)" +
-			" where pmi.payment_amount > 0 and pmi.payment_original_amount > 0"  
+			" where pmi.payment_amount > 0 and pmi.payment_original_amount > 0"
 		sqlHook = call_hook :payment_additional_where_query if getInvoiceType == 'I'
-		if filter_type == '2' && !contact_id.blank?			
+		if filter_type == '2' && !contact_id.blank?
 			sqlwhere = sqlwhere + " and p.parent_id = '#{contact_id}'  and p.parent_type = 'WkCrmContact' and ((#{getPersonTypeSql}) = '#{getOrderContactType}' " + (sqlHook.blank? ? " )" : sqlHook[0] + ")" )
-		elsif filter_type == '2' && contact_id.blank?			
+		elsif filter_type == '2' && contact_id.blank?
 			sqlwhere = sqlwhere + " and p.parent_type = 'WkCrmContact' and ((#{getPersonTypeSql}) = '#{getOrderContactType}'  " + (sqlHook.blank? ? " )" : sqlHook[0] + ")" )
 		end
-		
-		if filter_type == '3' && !account_id.blank?			
+
+		if filter_type == '3' && !account_id.blank?
 			sqlwhere = sqlwhere + " and p.parent_id = '#{account_id}'  and p.parent_type = 'WkAccount' and ((#{getPersonTypeSql}) = '#{getOrderAccountType}' " + (sqlHook.blank? ? " )" : sqlHook[0] + ")" )
-		elsif filter_type == '3' && account_id.blank?			
+		elsif filter_type == '3' && account_id.blank?
 			sqlwhere = sqlwhere + " and p.parent_type = 'WkAccount' and ((#{getPersonTypeSql}) = '#{getOrderAccountType}' " + (sqlHook.blank? ? " )" : sqlHook[0] + ")" )
 		end
-		
-		if !@from.blank? && !@to.blank?				
+
+		if !@from.blank? && !@to.blank?
 			sqlwhere = sqlwhere + " and p.payment_date between '#{@from}' and '#{@to}'  "
-		end		
-		
-		if filter_type == '1' || filter_type.blank?			
+		end
+
+		if filter_type == '1' || filter_type.blank?
 			sqlwhere = sqlwhere + " and ((#{getPersonTypeSql}) = '#{getOrderAccountType}' OR  (#{getPersonTypeSql}) = '#{getOrderContactType}' " + (sqlHook.blank? ? " )" : sqlHook[0] + ")" )
-		end	
-		
+		end
+
 		sqlStr = sqlStr + sqlwhere unless sqlwhere.blank?
 		orderStr = " ORDER BY " + (sort_clause.present? ? sort_clause.first : " p.id desc")
-		findBySql(selectStr, sqlStr, orderStr)
 		respond_to do |format|
-			format.html {        
+			format.html do
+				findBySql(selectStr, sqlStr, orderStr)
 			  render :layout => !request.xhr?
-			}
-			format.api
-		end				
-    end
-	
+			end
+			format.api do
+				@payment_entries = WkPayment.find_by_sql(selectStr + query + orderStr)
+			end
+			format.csv do
+				entries = WkPayment.find_by_sql(selectStr + sqlStr + orderStr)
+				headers = { payment: l(:label_txn_payment), type: l(:field_type), name: l(:field_name), payment_date: l(:label_payment_date), payment_type: l(:label_payment_type), original_amount: l(:field_original_amount), amount: l(:field_amount) }
+				data = entries.map do |e|
+					payment_items = e&.payment_items&.first
+					{ payment: e.id, type: personTypeLabelHash[e.entity_type], name: e.name,  payment_date: e.payment_date.strftime("%Y-%m-%d"), payment_type: getPayTypeHash[e.payment_type_id], original_amount: (payment_items&.original_currency || '')+" "+e.payment_original_amount.round(2).to_s, amount: (payment_items&.currency || '')+" "+e.payment_amount.round(2).to_s }
+				end
+				respond_to do |format|
+					format.csv {
+						send_data(csv_export({headers: headers, data: data}), type: 'text/csv; header=present', filename: 'payment.csv')
+					}
+				end
+			end
+		end
+  end
+
 	def edit
 		@payment = nil
 		@accInvoices = nil
@@ -92,24 +107,24 @@ class WkpaymententityController < WkbillingController
 			projectId = params[:project_id]
 			if !parentType.blank? && !parentId.blank?
 				@accInvoices = WkInvoice.where(:parent_type=> parentType, :parent_id=>parentId, :invoice_type => getInvoiceType)
-			end	
-		else	
+			end
+		else
 			unless params[:payment_id].blank?
 				@payment = WkPayment.find(params[:payment_id].to_i)
-				@paymentItem = @payment.payment_items.current_items 
+				@paymentItem = @payment.payment_items.current_items
 				unless params[:is_report].blank? || !to_boolean(params[:is_report])
-					@paymentItem = @paymentItem.order(:project_id, :item_type)			
+					@paymentItem = @paymentItem.order(:project_id, :item_type)
 				end
 			end
 		end
 		respond_to do |format|
-				format.html {        
+				format.html {
 					render :layout => !request.xhr?
 				}
 				format.api
 		end
 	end
-	
+
 	def showInvoices
 		parentType = params[:related_to]
 		parentId = params[:related_parent]
@@ -117,23 +132,30 @@ class WkpaymententityController < WkbillingController
 		@accInvoices = nil
 		if !parentType.blank? && !parentId.blank? && !projectId.blank?
 			@accInvoices = WkInvoice.where(:parent_type=> parentType, :parent_id=>parent_id)
-		end		
+		end
+	end
+
+	def destroy
+		payment = WkPayment.find(params[:id])
+		payment.destroy
+		flash[:notice] = l(:notice_successful_delete)
+		redirect_back_or_default action: 'index', tab: params[:tab]
 	end
 
 	def set_filter_session
 		filters = [:period_type, :period, :from, :to, :contact_id, :account_id, :polymorphic_filter]
 		super(filters, {:from => @from, :to => @to})
   end
-	
+
   def findBySql(selectStr, query, orderStr)
 		@entry_count = findCountBySql(query, WkPayment)
-		setLimitAndOffset()		
+		setLimitAndOffset()
 		rangeStr = formPaginationCondition()
 		@payment_entries = WkPayment.find_by_sql(selectStr + query + orderStr + rangeStr)
-	@totalPayAmt = findSumBySql(query, 'payment_amount', WkPayment)
+		@totalPayAmt = findSumBySql(query, 'payment_amount', WkPayment)
 	end
 
-	def setLimitAndOffset		
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -146,38 +168,38 @@ class WkpaymententityController < WkbillingController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
+		end
 	end
-	
+
 	def formPaginationCondition
 		rangeStr = ""
-		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'				
+		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'
 			rangeStr = " OFFSET " + @offset.to_s + " ROWS FETCH NEXT " + @limit.to_s + " ROWS ONLY "
-		else		
+		else
 			rangeStr = " LIMIT " + @limit.to_s +	" OFFSET " + @offset.to_s
 		end
 		rangeStr
-	end	
-	
+	end
+
 	def getBillableProjIds
-		projArr = ""	
+		projArr = ""
 		billProjId = getProjArrays(params[:related_to], params[:related_parent])
 		if !billProjId.blank?
 			billProjId.each do | entry|
-				projArr <<  entry.project_id.to_s() + ',' + entry.project_name.to_s()  + "\n" 
+				projArr <<  entry.project_id.to_s() + ',' + entry.project_name.to_s()  + "\n"
 			end
 		end
 		respond_to do |format|
 			format.text  { render :plain => projArr }
 		end
-		
+
 	end
-	
+
 	def update
 		if api_request?
 			params['payment_entries'].each_with_index do |entry, index|
 				entry.each do | item |
-					params[item.first + (index+1).to_s] = item.last				
+					params[item.first + (index+1).to_s] = item.last
 				end
 			end
 			params['totalrow'] = params['payment_entries'].length
@@ -209,7 +231,7 @@ class WkpaymententityController < WkbillingController
 				payAmount = params["amount#{i}"].to_f
 			end
 			paymentItem = nil
-			if !params["payment_item_id#{i}"].blank?	
+			if !params["payment_item_id#{i}"].blank?
 				oldpaymentItem = WkPaymentItem.find(params["payment_item_id#{i}"].to_i)
 				oldpaymentItem.is_deleted = true
 				oldpaymentItem.save()
@@ -223,10 +245,10 @@ class WkpaymententityController < WkbillingController
 					paymentItem = @payment.payment_items.new
 			end
 			unless paymentItem.blank?
-				unless @payment.id.blank?									
+				unless @payment.id.blank?
 					updatedItem = updatePaymentItem(paymentItem, @payment.id, params["invoice_id#{i}"], payAmount, params["invoice_org_currency#{i}"])
-				end	
-			end	
+				end
+			end
 		end
 
 		unless @payment.id.blank?
@@ -235,7 +257,7 @@ class WkpaymententityController < WkbillingController
 
 			totalAmount = @payment.payment_items.current_items.sum(:original_amount)
 			moduleAmtHash = {getAutoPostModule => [totalAmount.round, totalAmount.round]}
-			
+
 			transAmountArr = getTransAmountArr(moduleAmtHash, nil)
 			if totalAmount > 0 && isChecked(getAuotPostId)
 				transId = @payment.gl_transaction.blank? ? nil : @payment.gl_transaction.id
@@ -243,13 +265,13 @@ class WkpaymententityController < WkbillingController
 				unless glTransaction.blank?
 					@payment.gl_transaction_id = glTransaction.id
 					@payment.save
-				end				
+				end
 			end
 		end
-		
+
 		respond_to do |format|
 			format.html {
-					if errorMsg.nil? 
+					if errorMsg.nil?
 							redirect_to :action => 'index' , :tab => controller_name
 							flash[:notice] = l(:notice_successful_update)
 					else
@@ -260,8 +282,8 @@ class WkpaymententityController < WkbillingController
 			format.api{
 					if errorMsg.nil?
 							render :plain => errorMsg, :layout => nil
-					else			
-							@error_messages = errorMsg.split('\n')	
+					else
+							@error_messages = errorMsg.split('\n')
 							render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
 					end
 			}
@@ -271,21 +293,21 @@ class WkpaymententityController < WkbillingController
 	def getItemLabel
 		l(:label_invoice_items)
 	end
-	
+
 	def getEditHeaderLabel
 		l(:label_txn_payment)
 	end
-	
+
 	def getPersonTypeSql
 		 "CASE WHEN p.parent_type = 'WkAccount'  THEN a.account_type ELSE c.contact_type END"
-	end	
-	
+	end
+
 	def getAuotPostId
 		'invoice_auto_post_gl'
 	end
-	
+
 	def getAutoPostModule
 		'payment'
 	end
-	
+
 end

@@ -1,5 +1,6 @@
 <%= title l(:label_supplier_contact) %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
     purRfqUrl = '<%=url_for(:controller => "wkrfq", :action => "index", :tab => "wkrfq")%>';
     purQuoteUrl = '<%=url_for(:controller => "wkquote", :action => "index", :tab => "wkquote")%>';

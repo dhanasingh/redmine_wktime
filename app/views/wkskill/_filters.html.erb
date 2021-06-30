@@ -1,0 +1,49 @@
+<%
+	groupId =session[controller_name].try(:[], :group_id)
+	userID = session[controller_name].try(:[], :user_id)
+	skillSet = session[controller_name].try(:[], :skill_set)
+	rating = session[controller_name].try(:[], :rating)
+	lastUsed = session[controller_name].try(:[], :last_used)
+	interest_level = session[controller_name].try(:[], :interest_level)
+	experience = session[controller_name].try(:[], :experience)
+%>
+<fieldset>
+	<%
+		last_used = (1970..Time.now.year).to_a
+		last_used << ""
+		ratings = ["", "1", "2", "3", "4", "5"]
+	%>
+	<legend><%= l(:label_filter_plural) %></legend>
+	<%= form_tag({}, method: "get", id:"query_form") do %>
+		<%= hidden_field_tag("searchlist", controller_name) %>
+		<%= hidden_field_tag('tab', controller_name) %>
+    <table>
+			<% if validateERPPermission("A_SKILL") %>
+				<tr><td>
+					<b><label><%= l(:label_group_plural) %></label></b>
+					<%= select_tag('group_id', options_for_select( [["", 0]] + (@groups.collect {|p| [p.name, p.id ]}), selected: groupId),
+						onchange: "grpChanged(this, #{User.current.id}, true);", style: "width:200px;") %>
+					<b><label style="padding-left: 10px;"><%= l(:label_member) %></label></b>
+					<%= select_tag('user_id', options_for_select( [[l(:all_users_for_select), 0]] + @members, selected: userID),
+							:style=> "width:200px;") %>
+				</td></tr>
+			<% end %>
+			<tr><td>
+        <b><label><%= l(:label_skill_set) %></label></b>
+        <%= select_tag('skill_set', options_for_select(options_for_enum_select('SK', skillSet || 0, true))) %>
+        <b><label style="padding-left: 10px;"><%= l(:label_rating) %></label></b>
+        <%= select_tag("rating", options_for_select(ratings, selected: rating), style: "width:60px") %>
+        <b><label style="padding-left: 10px;"><%= l(:label_last_used) %></label></b>
+        <%= select_tag "last_used", options_for_select(last_used.reverse, selected: lastUsed)%>
+        <b><label style="padding-left: 10px;"><%= l(:label_interest_level) %></label></b>
+        <%= select_tag("interest_level", options_for_select(ratings, selected: interest_level), style: "width:60px") %>
+        <b><label style="padding-left: 10px;"><%= l(:label_years_of_exp) %></label></b>
+        <%= text_field_tag "experience", experience, size: 3 %>
+      </td></tr>
+      <tr><td>
+				<%= submit_tag l(:button_apply), class: "small", name: nil %>
+        <%= link_to l(:button_clear), {tab: controller_name, clear: true}, class: "icon icon-reload" %>
+			</td></tr>
+    </table>
+	<% end %>
+</fieldset>

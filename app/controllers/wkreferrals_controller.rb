@@ -36,7 +36,29 @@ class WkreferralsController < WkleadController
     entries = entries.filter_name(get_filter(:lead_name)) if get_filter(:lead_name)
     entries = entries.filter_status(get_filter(:status)) if get_filter(:status)
     entries = entries.filter_location(get_filter(:location_id)) if get_filter(:location_id) && get_filter(:location_id) != "0"
-    @entries = formPagination(entries.reorder(sort_clause))
+    entries = entries.reorder(sort_clause)
+
+		respond_to do |format|
+			format.html do
+        @entries = formPagination(entries)
+			  render :layout => !request.xhr?
+      end
+			format.api do
+        @entries = entries
+      end
+      format.csv do
+        headers = {name: l(:field_name), status: l(:field_status), location: l(:label_location), workphone: l(:label_work_phone), email: l(:field_mail),
+          degree: l(:label_degree), passout: l(:label_pass_out), referredby: l(:label_referred_by), modifiedby: l(:field_status_modified_by)
+        }
+        data = entries.map do |e|
+          { name: e.contact&.name, status: getLeadStatusHash[e.status], location: e.contact&.location&.name, workphone: e.contact&.address&.work_phone,
+            email: e.contact&.address&.email, degree: e.candidate&.degree, passout: e.candidate&.pass_out, referredby: e.referred&.name,
+            modifiedby: e.created_by_user&.name
+          }
+        end
+        send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "referrals.csv")
+      end
+		end
   end
 
   def destroy

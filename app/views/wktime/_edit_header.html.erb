@@ -39,7 +39,7 @@
 								:title => l(:label_wk_prev_week_tip)) %>
 		|
 		<%= link_to(l(:label_next) + " \xc2\xbb", {:controller => controller.controller_name, :action => 'edit', :startday => @startday + @renderer.getDaysPerSheet, :user_id => @user.id, :project_id => params[:project_id], :sheet_view => @renderer.getSheetType},
-								:title => l(:label_wk_next_week_tip)) %>
+								:title => l(:label_next_week)) %>
 	</td>
 </tr>
 <% if @renderer.showTEStatus %>

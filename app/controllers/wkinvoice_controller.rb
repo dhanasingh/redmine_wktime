@@ -200,6 +200,7 @@ class WkinvoiceController < WkorderentityController
 			@invItems[@itemCount].store 'currency', entry.currency
 			@invItems[@itemCount].store 'item_quantity', 1
 			@invItems[@itemCount].store 'item_amount', entry.amount.round(2)
+			@invItems[@itemCount].store 'billing_type', entry.account_project.billing_type
 			@itemCount = @itemCount + 1
 			@currency = entry.currency
 			totalAmt = (totalAmt + entry.amount).round(2)
@@ -302,7 +303,7 @@ class WkinvoiceController < WkorderentityController
 	end
 	
 	def deletePermission
-		false
+		true
 	end
 	
 	def addMaterialType
@@ -321,4 +322,93 @@ class WkinvoiceController < WkorderentityController
 		true
 	end
 
+	def getQuantityDetails
+		data = []
+		dataTimeEntries = WkInvoiceItem.getSpentForEntries(params[:inv_item_id])
+		dataTimeEntries.each{ |entry| data << {projID: entry.project_id, proj_name: entry.project.name, subject: entry.subject.to_s, usr_name: entry.firstname+''+entry.lastname, 				spent_on: entry.spent_on, hours: entry.hours}}
+		render json: data
+	end
+
+	def getUnbilledQtyDetails
+		data = []
+		invoiceFreq = getInvFreqAndFreqStart
+		invIntervals = getIntervals(params[:start_date].to_date, params[:end_date].to_date, invoiceFreq["frequency"], invoiceFreq["start"], true, false)
+		fromDate = getUnbillEntryStart(invIntervals[0][0])
+		todate = invIntervals[0][1]
+		unbilledEntries = WkInvoiceItem.getUnbilledTimeEntries(params[:project_id], fromDate.to_date, todate.to_date, params[:parent_id], params[:parent_type])
+		unbilledEntries = WkInvoiceItem.filterByIssues(unbilledEntries, params[:issue_id].to_i)
+		unbilledEntries.each{ |entry| data << {projID: entry.project_id, proj_name: entry.project.name, subject: entry.issue.to_s, usr_name: entry.user.name, spent_on: entry.spent_on, hours: entry.hours} if entry.hours > 0}
+    	render json: data
+	end
+
+	def generateTimeEntries
+		data1 = []
+		data2 = []
+		data3 = []
+		parent_type = ''
+		parent_id = ''
+		if params[:filter_type] == '2' && !params[:contactID].blank?
+			parent_type = 'WkCrmContact'
+			parent_id = 	params[:contactID]
+		elsif params[:filter_type] == '2' && params[:contactID].blank?
+			parent_type = 'WkCrmContact'
+		end
+
+		if params[:filter_type] == '3' && !params[:accID].blank?
+			parent_type =  'WkAccount'
+			parent_id = 	params[:accID]
+		elsif params[:filter_type] == '3' && params[:accID].blank?
+			parent_type =  'WkAccount'
+		end
+
+		invoiceFreq = getInvFreqAndFreqStart
+		invIntervals = getIntervals(params[:fromDate].to_date, params[:dateval].to_date, invoiceFreq["frequency"], invoiceFreq["start"], true, false)
+		fromDate = getUnbillEntryStart(invIntervals[0][0])
+		todate = invIntervals[0][1]
+		timeEntries = WkInvoiceItem.getGenerateEntries(todate.to_date, fromDate.to_date, parent_id, parent_type, params[:projectID], TimeEntry, 'time_entries')
+		timeEntries.each{ |e| data1 << {id: e.id, acc_name: (e&.name || e&.c_name), proj_name: e&.project&.name, subject: e.issue.to_s, usr_name: e.user.name, spent_on: e.spent_on, hours: e.hours}}
+		listHeader1 = { acc_cont_name: l(:field_account), project_name: l(:label_project), issue: l(:label_invoice_name), user: l(:label_user), date: l(:label_date), hour: l(:field_hours) }
+
+		materialEntries = WkInvoiceItem.getGenerateEntries(todate.to_date, fromDate.to_date, parent_id, parent_type, params[:projectID], WkMaterialEntry, 'wk_material_entries')
+		materialEntries.each{ |e| data2 << {id: e.id, acc_name: (e&.name || e&.c_name), project: e&.project&.name, issue: e.issue.to_s, spent_on: e.spent_on, product: e.inventory_item&.product_item&.product&.name, selling_price: e.currency.to_s+' '+e.selling_price.to_s, quantity: e.quantity }}
+		listHeader2 = { acc_cont_name: l(:field_account), project_name: l(:label_project), issue: l(:label_invoice_name), date: l(:label_date), product_name: l(:field_inventory_item_id), selling_price: l(:label_selling_price), quantity: l(:field_quantity)}
+
+		schudleEntries = WkInvoiceItem.getFcItems(invIntervals[0][0].to_date, todate.to_date, params[:projectID], parent_id, parent_type)
+		schudleEntries.each{ |e| data3 << { acc_name: (e&.name || e&.c_name), project: e&.project&.name, issue: e&.milestone.to_s, spent_on: e.bill_date, amount: e&.currency+' '+e&.amount.to_s}}
+		listHeader3 = { acc_cont_name: l(:field_account), project_name: l(:label_project), issue: l(:label_invoice_name), date: l(:label_date), amount: l(:field_amount)}
+		render json: {data1: data1, listHeader1: listHeader1, data2: data2, listHeader2: listHeader2, data3: data3, listHeader3: listHeader3}
+	end
+	
+	def invoice_components
+		invoiceComp = WkInvoiceComponents.getInvComp
+		@invComps = []
+		@invComps = invoiceComp.map{|comp| [comp.name + '|' + comp.value.to_s, comp.id.to_s + '|' + comp.name + '|' + comp.value.to_s] } if invoiceComp.present?
+	end
+
+	def saveInvoiceComponents
+		errorMsg = ""
+		if params[:invoice]['comp_del_ids'].present?
+			ids = params[:invoice]['comp_del_ids'].split('|')
+			WkInvoiceComponents.where(id: ids.map(&:to_i)).destroy_all
+		end
+		invComps = params[:invoice_components] || []
+		invComps.each do |component|
+			if component.present?
+				comp = component.split('|')
+				wkInvoiceComps =  comp[0].present? ? WkInvoiceComponents.find(comp[0]) : WkInvoiceComponents.new
+				wkInvoiceComps.comp_type = 'IC'
+				wkInvoiceComps.name = comp[1]
+				wkInvoiceComps.value = comp[2]
+				if !wkInvoiceComps.save
+					errorMsg += wkInvoiceComps.errors.full_messages.join("<br>")
+				end
+			end
+		end
+		if errorMsg.blank?
+			flash[:notice] = l(:notice_successful_update)
+	    else
+			flash[:error] = errorMsg
+	    end
+			redirect_to action: 'invoice_components'
+	end
 end

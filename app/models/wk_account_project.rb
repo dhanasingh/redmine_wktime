@@ -23,6 +23,7 @@ class WkAccountProject < ActiveRecord::Base
   has_many :wk_billing_schedules, foreign_key: "account_project_id", class_name: "WkBillingSchedule", :dependent => :destroy
   has_many :wk_acc_project_taxes, foreign_key: "account_project_id", class_name: "WkAccProjectTax", :dependent => :destroy
   has_many :taxes, through: :wk_acc_project_taxes
+  has_many :acc_invoice_comps, foreign_key: "account_project_id", class_name: "WkAccInvoiceComponents", dependent: :destroy
   #validates_uniqueness_of :project_id, :scope => :account_id
   validates_uniqueness_of :project_id,  :scope => [:parent_id, :parent_type] 
   

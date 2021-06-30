@@ -1,9 +1,0 @@
-Expense for issues:  
- chart_type: pie
- code_str: "expense_for_issues = WkExpenseEntry.where('issue_id IS NOT NULL AND spent_on BETWEEN ? AND ?', @from, @to).select('issue_id, sum(amount) as total_amount').group(:issue_id); unless @project_id.blank?; expense_for_issues = expense_for_issues.where('project_id IN (?)', @project_id); end; issue_expense_hash = expense_for_issues.map {|c| [c.issue.subject,c.total_amount] }.to_h; fields = issue_expense_hash.keys.sort; @issue_expense_arr = Array.new; fields.each {|c| @issue_expense_arr << issue_expense_hash[c]};{ 'fields' => fields };" 
- x_title: "label_hours"
- y_title: "label_days"
- names_of_data:
-  - data: "@issue_expense_arr[0..(field_names['fields'].length - 1)]"
-    title: "label_total_expense_of_issues"
-    

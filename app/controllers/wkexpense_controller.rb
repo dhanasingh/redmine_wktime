@@ -58,7 +58,7 @@ class WkexpenseController < WktimeController
   end
   
   def getUnitLabel
-	l(:label_wk_currency)
+	l(:field_currency)
   end
   
   def showWorktimeHeader

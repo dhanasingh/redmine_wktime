@@ -68,6 +68,7 @@
 <% expenseAmount = @expenseEntry.blank? ? "" : @expenseEntry.amount  %>
 <%  assetObj = @materialEntry.blank? ? nil : @materialEntry.inventory_item.asset_property %>
 <% disable = @materialEntry.blank? || @materialEntry.spent_for.blank? || @materialEntry.spent_for.invoice_item_id.blank? ? false : true  %>
+<%= hidden_field_tag 'old_log_type', @spentType == 'E' ? 'wk_expense_entry' : (@spentType == 'M' || @spentType == 'A' ? 'wk_material_entry' : 'time_entry') %>
 <%#=h hidden_field_tag('getclients_url', "#{url_for(:controller => 'wktime', :action => 'getclients', :user_id => User.current.id, :separator => ',')}") %>
 <%= hidden_field_tag 'userId', User.current.id %>
 <%
@@ -129,12 +130,12 @@
 		<td align="left" ><label id="available_quantity" style="padding-left: 125px; text-align:right;"><%=h html_hours("%.2f" % availableQuantity ) unless availableQuantity.blank? %></label></td>
 	</tr>
 	<tr>
-		<th align="right" ><%= l(:label_product) %><span style="color:red;">*</span></th>
+		<th align="right" ><%= l(:field_inventory_item_id) %><span style="color:red;">*</span></th>
 		<td align="left">
 			<%=h select_tag('product', options_for_select(productArr, :selected => (productId.blank? ? productArr : productId) ), :style => "width:155px;", :onchange => "productChanged(this.id, 'product_item', #{User.current.id}, true, false, 'log_type', 'location_id'); ", :disabled => disable) %>
 		</td>
 		<% totQuantity = @materialEntry.blank? ? 1 : @materialEntry.quantity  %>
-		<th align="right"><%= l(:label_quantity) %><span style="color:red;">*</span></th>
+		<th align="right"><%= l(:field_quantity) %><span style="color:red;">*</span></th>
 		<td align="left" style="padding-left: 40px;">
 			<%=h text_field_tag("product_quantity", ("%.2f" % totQuantity  ),:size => 10, :style => "width:80px;text-align:right;", :onchange => "updateTotal(this.id, 'product_sell_price', 'total', 'spcurrency');", :disabled => disable) %> 
 			<%=h select_tag("uom_id", options_for_select(uomArr, :selected => uomId.blank? ? uomArr  : uomId), :disabled => disable) %>
@@ -187,7 +188,7 @@
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
 <table id="expensetable" style="padding-left:110px; display:none;">
 	<tr>
-		<th align="right"><%= l(:label_wk_currency) %></th>
+		<th align="right"><%= l(:field_currency) %></th>
 		<td align="left" ><%=h select_tag('wktime_currency',options_for_select(wkexpense_helper.options_for_currency), :style => "width:55px;") %>
 		<%=h text_field_tag("expense_amount", expenseAmount.blank? ? nil : ("%.2f" % expenseAmount),:size => 20, :style => "width:90px; text-align:right;") %> 
 		</td>

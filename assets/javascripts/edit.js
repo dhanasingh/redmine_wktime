@@ -34,7 +34,7 @@ var attachmentField = "";
 
 $(document).ready(function() {
 	var e_comments = $( "#_edit_comments_" );
-	var e_notes = $( "#_edit_notes_" );	
+	var e_notes = $( "#_edit_notes_" );
 	for(i = 0 ; i< 8 ; i++)
 	{
 		$( "#clockInOut-dlg"+i ).dialog({
@@ -44,7 +44,7 @@ $(document).ready(function() {
 		height: '300',
         overflow: 'auto', /* Or scroll, depending on your needs*/
 		buttons: {
-			"Ok": function() {							
+			"Ok": function() {
 				var attnEntriesId, attnStartTime, attnEndTime, attnhours;
 				var attnDayEntriesCnt = new Array();
 				var paramval = "";
@@ -53,15 +53,15 @@ $(document).ready(function() {
 				attnDayEntriesCnt = document.getElementById('attnDayEntriesCnt_'+clkdialogid) != null ? document.getElementById('attnDayEntriesCnt_'+clkdialogid).value : -1;
 				for(j = 0; j < attnDayEntriesCnt ; j++)
 				{
-					
+
 					attnEntriesId = document.getElementById('attnEntriesId'+ clkdialogid +'_'+ j);
 					attnStartTime = document.getElementById('attnstarttime'+ clkdialogid +'_'+ j);
 					attnEndTime = document.getElementById('attnendtime'+ clkdialogid +'_'+ j);
 					attnhours = document.getElementById('hoursdiff'+ clkdialogid +'_'+ j);
-					if (attnStartTime.defaultValue !=  attnStartTime.value  || attnEndTime.defaultValue !=  attnEndTime.value ) {						
+					if (attnStartTime.defaultValue !=  attnStartTime.value  || attnEndTime.defaultValue !=  attnEndTime.value ) {
 						paramval += ( !attnEntriesId.value ? (( "|" + clkdialogid ) + "|") : (attnEntriesId.value + "|") ) +  attnStartTime.value + "|" + attnEndTime.value + "|" + attnhours.value + ",";
 					}
-					
+
 				}
 				updateAtt(paramval,true, "", -1);
 				$( this ).dialog( "close" );
@@ -71,7 +71,7 @@ $(document).ready(function() {
 				$( this ).dialog( "close" );
 			}
 		}
-	});	
+	});
 	}
 
 	$( "#comment-dlg" ).dialog({
@@ -84,33 +84,33 @@ $(document).ready(function() {
 					var comments = $('input[name="comments'+comment_row+'[]"]');
 					var custFldToolTip;
 					if(!commentInRow){
-						comments[comment_col-1].value = e_comments.val();	
-					}					
-					updateCustomField();					
+						comments[comment_col-1].value = e_comments.val();
+					}
+					updateCustomField();
 					custFldToolTip = getCustFldToolTip();
 					if(	!commentInRow && e_comments.val() != "")
 					{
 						edits[comment_col-1].title = e_comments.val() + "," +custFldToolTip;
-						
+
 					}
 					else
 					{
 						edits[comment_col-1].title = custFldToolTip;
-						
+
 					}
-					//show detail popup dialog ok button to change image 					
+					//show detail popup dialog ok button to change image
 					var x = document.getElementsByName("custfield_img"+comment_row+"[]");
-					if( ((e_comments.val() != "" || custFldToolTip)  && (!commentInRow  || custFldToolTip )) || $("#attachment_" + comment_row + "_" + comment_col + " .attachments_fields").children().length > 0) 
-					{						
+					if( ((e_comments.val() != "" || custFldToolTip)  && (!commentInRow  || custFldToolTip )) || $("#attachment_" + comment_row + "_" + comment_col + " .attachments_fields").children().length > 0)
+					{
 						$(x[comment_col-1]).attr({src: "../plugin_assets/redmine_wktime/images/withcommant.png"});
-						
+
 					}
 					else
-					{					
+					{
 						$(x[comment_col-1]).attr({src: "../plugin_assets/redmine_wktime/images/withoutcommant.png"});
 					}
 					$(attachmentField).appendTo(attachmentDiv);
-					$( this ).dialog( "close" );				
+					$( this ).dialog( "close" );
 					//unregister this event since this is showing a 'don't leave' message
 					//loosk like this is not supported in Opera
 					//window.onbeforeunload = null;
@@ -120,7 +120,7 @@ $(document).ready(function() {
 				$( this ).dialog( "close" );
 			}
 		}
-	});	
+	});
 
 	$( "#notes-dlg" ).dialog({
 		autoOpen: false,
@@ -137,7 +137,7 @@ $(document).ready(function() {
 				$( this ).dialog( "close" );
 			}
 		}
-	});	
+	});
 
 	if(showWorkHeader) {
 		//when initially load the page hidden the clock in Clock out button
@@ -164,11 +164,11 @@ $(document).ready(function() {
 			{
 				document.getElementById('end').style="display:none; !important";
 			}
-		}	
-		
+		}
+
 		// when initially load the page update total and remaininghours
 		for(i = 1; i <= 7; i++)
-		{		
+		{
 			updateTotalHr(i, "");
 			updateRemainingHr(i, "");
 		}
@@ -181,12 +181,15 @@ $(document).ready(function() {
 	}).on('change','.load', function(){
 		loadEdit(this, $(this).data('val'));
 	});
+
 	// for searchable dopdown
-	$("#issueTable .issueDD").select2();
+	if($("#issueTable .issueDD").length > 0){
+		$("#issueTable .issueDD").select2();
+	}
 });
 
 $(window).load(function(){
-	warnLeavingUnsavedTE(lblWarnUnsavedTE); 
+	warnLeavingUnsavedTE(lblWarnUnsavedTE);
 });
 
 var warnLeavingUnsavedTEMsg;
@@ -245,7 +248,7 @@ function showComment(row, col, title) {
 		$( "#_edit_comm_iss_" ).html(issueIds[i].value);
 	}else{
 		if(projDropdowns[i]){
-			$( "#_edit_comm_proj_" ).html(projDropdowns[i].selectedIndex >= 0 ? 
+			$( "#_edit_comm_proj_" ).html(projDropdowns[i].selectedIndex >= 0 ?
 				projDropdowns[i].options[projDropdowns[i].selectedIndex].text : '');
 		}
 		$( "#_edit_comm_iss_" ).html(issDropdowns[i].selectedIndex >= 0 ?
@@ -255,7 +258,7 @@ function showComment(row, col, title) {
 	$( "#_edit_comm_act_" ).html(actDropdowns[i].selectedIndex >= 0 ?
 		(actDropdowns[i].options[actDropdowns[i].selectedIndex].value == -1 ? '' : actDropdowns[i].options[actDropdowns[i].selectedIndex].text) : '');
 	}
-	
+
 	showCustomField();
 
 	//For Attachments
@@ -292,7 +295,7 @@ function showCustomField() {
 		for(i=0; i < cust_fids.length; i++){
 			cust_field = $( "#" + cust_fids[i]);
 			custom_fields = $('input[name="'+cust_fids[i]+'_'+comment_row+'[]"]');
-			
+
 			if(cust_field.is("select")){
 				//if the value is not set, it could be an array
 				cust_vals = custom_fields[comment_col-1].value.split(',');
@@ -315,9 +318,9 @@ function updateCustomField() {
 	if(cf_ids != ''){
 		var cust_fids = cf_ids.split(',');
 		var i, j,cust_field, ck_cust_field, custom_fields;
-		
+
 		for(i=0; i < cust_fids.length; i++)
-		{		
+		{
 			cust_field = $( "#" + cust_fids[i]);
 			custom_fields = $('input[name="'+cust_fids[i]+'_'+comment_row+'[]"]');
 			if(cust_field.attr('type') == "hidden"){
@@ -333,9 +336,9 @@ function updateCustomField() {
 			}else{
 				custom_fields[comment_col-1].value = cust_field.val();
 			}
-		}		
+		}
 	}
-	
+
 }
 
 //forming custom fields for tooltip
@@ -343,10 +346,10 @@ function getCustFldToolTip()
 {
 	var cusfield = "",str;
 	if(cf_ids != '')
-	{	
-		var cust_fids = cf_ids.split(',');		
+	{
+		var cust_fids = cf_ids.split(',');
 		for(i=0; i < cust_fids.length; i++)
-		{		
+		{
 			cust_field = $( "#" + cust_fids[i]);
 			if (cusfield == "")
 			{
@@ -367,19 +370,19 @@ function getCustFldToolTip()
 }
 
 function projectChanged(projDropdown, row){
-	
+
 	var issuId = document.getElementById('enter_issue_id');
-	
+
 	if((issuId==null)||(issuId != null && !issuId.checked))
-	{	
+	{
 		var id;
-		if(row != 0){	
+		if(row != 0){
 			id = projDropdown.options[projDropdown.selectedIndex].value;
 		}
 		else{
 			//click addrow, changed issues for particular project tracker
-			row = projDropdown.length;	
-			var id =projDropdown[row-1].value;			
+			row = projDropdown.length;
+			var id =projDropdown[row-1].value;
 		}
 		var fmt = 'text';
 		var issDropdown = document.getElementsByName("time_entry[][issue_id]");
@@ -388,9 +391,9 @@ function projectChanged(projDropdown, row){
 		var issUrl = document.getElementById("getissues_url").value;
 		var actUrl = document.getElementById("getactivities_url").value;
 		var clientUrl = document.getElementById("getclients_url").value;
-	 
+
 		var uid = document.getElementById("user_id").value;
-		var $this = $(this);    
+		var $this = $(this);
 		issue_assign_user=issueAssignUser();
 		var	trackerListArr = $("#select_issues_tracker").val() == 0 ? '' : $("#select_issues_tracker").val();
 		var startday=document.getElementById("startday").value;
@@ -401,15 +404,15 @@ function projectChanged(projDropdown, row){
 			success: function(data){
 				var items = data.split('\n');
 				var needBlankOption = items.length-1 > 1 || allowBlankIssue ;
-				updateDropdown(data, row, issDropdown, true, needBlankOption, true, null); 
+				updateDropdown(data, row, issDropdown, true, needBlankOption, true, null);
 				$("#issueTable .issueDD").select2();
 			},
 			beforeSend: function(){ $this.addClass('ajax-loading'); },
 			complete: function(){ $this.removeClass('ajax-loading'); }
 		});
-		
+
 		if (actDropdown.length > 0 && actDropdown[0].type == 'select-one'){   //("time_entry[][activity_id]")){
-			$.ajax({ 
+			$.ajax({
 				url: actUrl,
 				type: 'get',
 				data: {project_id: id, user_id: uid, format:fmt},
@@ -422,7 +425,7 @@ function projectChanged(projDropdown, row){
 				beforeSend: function(){ $this.addClass('ajax-loading'); },
 				complete: function(){ $this.removeClass('ajax-loading'); }
 			});
-		}		
+		}
 		updateClientDropdown(clientUrl, id, null, uid, fmt, row, clientDropdown);
 	}
 	checkLogPermissions(row);
@@ -444,23 +447,23 @@ function updateClientDropdown(clientUrl, projectId, issueId, uid, fmt, row, clie
 				beforeSend: function(){ $this.addClass('ajax-loading'); },
 				complete: function(){ $this.removeClass('ajax-loading'); }
 			});
-	}	
+	}
 }
 
 function issueChanged(issueText, row){
 	var id = myTrim(issueText.value);
 	issueIdChanged(id, row);
 }
-	
+
 function issueIdChanged(id, row){
-	var actDropdown = document.getElementsByName("time_entry[][activity_id]");	
+	var actDropdown = document.getElementsByName("time_entry[][activity_id]");
 	var clientDropdown = document.getElementsByName("time_entry[][spent_for_attributes][spent_for_key]");
-	var uid = document.getElementById("user_id").value;	       
+	var uid = document.getElementById("user_id").value;
 	var fmt = 'text';
-	if(id != ''){  
+	if(id != ''){
 		if(actDropdown.length > 0){               //&& isDropdown("time_entry[][activity_id]"))
 			var actUrl = document.getElementById("getactivities_url").value;
-			
+
 			var $this = $(this);
 			$.ajax({
 				url: actUrl,
@@ -478,43 +481,43 @@ function issueIdChanged(id, row){
 			var clientUrl = document.getElementById("getclients_url").value;
 			updateClientDropdown(clientUrl, null, id, uid, fmt, row, clientDropdown);
 		}
-	}	
+	}
 }
 
 function updateIssDropdowns(itemStr, projDropdowns,projIds)
-{	
+{
 	var items = itemStr.split('\n');
 	var i, index, itemStr2='', val, text;
 	var prev_project_id=0, project_id=0;
-	var j, id;	
-	var issDropdowns = document.getElementsByName("time_entry[][issue_id]");	
-	
-	for(i=0; i < items.length-1; i++){	
-		index = items[i].indexOf('|');		
+	var j, id;
+	var issDropdowns = document.getElementsByName("time_entry[][issue_id]");
+
+	for(i=0; i < items.length-1; i++){
+		index = items[i].indexOf('|');
 		if(index != -1){
 			project_id = items[i].substring(0, index);
-			
+
 			//if project_id exists in projIds array, remove project_id from array
-			for(j=0; j<= projIds.length; j++){			
-				if(project_id == projIds[j]){				
+			for(j=0; j<= projIds.length; j++){
+				if(project_id == projIds[j]){
 					projIds.splice(j,1);
-				}				
+				}
 			}
-			if(prev_project_id != project_id && itemStr2 != ''){		
+			if(prev_project_id != project_id && itemStr2 != ''){
 				updateIssueDD(itemStr2, prev_project_id, projDropdowns, issDropdowns);
 				itemStr2='';
 			}
-			itemStr2 += items[i] + '\n';		
+			itemStr2 += items[i] + '\n';
 			prev_project_id = project_id;
 		}
 	}
 	//the last project needs to be updated outside the loop
-	updateIssueDD(itemStr2, prev_project_id, projDropdowns, issDropdowns);	
-	
+	updateIssueDD(itemStr2, prev_project_id, projDropdowns, issDropdowns);
+
 	//tracker is empty for project ,set option value empty
 	if(projIds.length >0)
 	{
-		for(k=0; k < projIds.length; k++){		
+		for(k=0; k < projIds.length; k++){
 			updateIssueDD("", projIds[k], projDropdowns, issDropdowns);
 		}
 	}
@@ -525,14 +528,14 @@ function updateIssueDD(itemStr, project_id, projDropdowns, issDropdowns)
 	var proj_id, issue_id=null;
 	var items = itemStr.split('\n');
 	var needBlankOption = items.length-1 > 1 || allowBlankIssue ;
-	if(projDropdowns){	
-		for (j=0; j < projDropdowns.length; j++){		
+	if(projDropdowns){
+		for (j=0; j < projDropdowns.length; j++){
 			proj_id = projDropdowns[j].options[projDropdowns[j].selectedIndex].value;
-			if(proj_id != '' && project_id == proj_id){			
+			if(proj_id != '' && project_id == proj_id){
 				if(issDropdowns[j]){
-					if(issDropdowns[j].value != ""){						
+					if(issDropdowns[j].value != ""){
 						issue_id = issDropdowns[j].options[issDropdowns[j].selectedIndex].value;
-					}	
+					}
 					else {
 						issue_id = null;
 					}
@@ -543,7 +546,7 @@ function updateIssueDD(itemStr, project_id, projDropdowns, issDropdowns)
 	}
 }
 function updateActDropdown(data, row, actDropdown){
-	
+
 	var enterIsueIdChk = document.getElementById("enter_issue_id");
 	var items = data.split('\n');
 	if(enterIsueIdChk && enterIsueIdChk.checked){
@@ -599,21 +602,21 @@ function updateDropdown(itemStr, row, dropdown, showId, needBlankOption, skipFir
 			//{
 				text = text.split('|');
 			//}
-			dropdown[row-1].options[needBlankOption ? i+1 : i] = new Option( 
-				showId ? text[0] + ' #' + val + ': ' + text[1] : text[1], val, false, val == selectedVal);			
+			dropdown[row-1].options[needBlankOption ? i+1 : i] = new Option(
+				showId ? text[0] + ' #' + val + ': ' + text[1] : text[1], val, false, val == selectedVal);
 			if(val == selectedVal){
 				selectedValSet = true;
 			}
 		}
 	}
-	
+
 	var addExistingOption = true;
 	if(showId) { //for issue dropdown
 		var hoursFld = document.getElementsByName("hours" + row + "[]");
 		addExistingOption = false;
 		for(var j = 0; j < hoursFld.length; j++) {
 			if(hoursFld[j].value) {
-				addExistingOption = true;			
+				addExistingOption = true;
 				break;
 			}
 		}
@@ -676,15 +679,15 @@ function addRow(){
 }
 
 function deleteRow(row, deleteMsg){
-	
+
 	//IE7 doesn't pull up the new elements by getElementsByName
 	//var ids = document.getElementsByName("ids" + row + "[]");
-	//var hours = document.getElementsByName("hours" + row + "[]");		
-	
+	//var hours = document.getElementsByName("hours" + row + "[]");
+
 	var issueTable = document.getElementById("issueTable");
 	//since there is already a header row
 	var hours = myGetElementsByName(issueTable.rows[row+headerRows-1], "input","hours" + row + "[]");
-	var ids = myGetElementsByName(issueTable.rows[row+headerRows-1], "input","ids" + row + "[]");			
+	var ids = myGetElementsByName(issueTable.rows[row+headerRows-1], "input","ids" + row + "[]");
 	var rowTotal = 0.0;
 	var uid = document.getElementById("user_id");
 	var vals = new Array();
@@ -692,14 +695,14 @@ function deleteRow(row, deleteMsg){
 	var i = 0, j = 0;
 	var fmt = 'text', val;
 	var url = document.getElementById("deleterow_url").value;
-	
+
 	for(i=0; i< ids.length; i++){
 		if (ids[i].value != ''){
 			vals[j] = ids[i].value;
 			j++;
 		}
 	}
-	
+
 	j = 0;
 	for(i=0; i< hours.length; i++){
 		val = myTrim(hours[i].value);
@@ -720,7 +723,7 @@ function deleteRow(row, deleteMsg){
 			beforeSend: function(){ $this.addClass('ajax-loading'); },
 			complete: function(){ $this.removeClass('ajax-loading'); }
 		});
-	
+
 	}
 	else
 	{
@@ -735,17 +738,17 @@ function postDeleteRow(result, row, days, deleteMsg){
 	var submitButton = document.getElementById("wktime_submit");
 	var rowCount = issueTable.rows.length;
 	var i, dayTotal = 0.0;
-	
+
 	//there is a header and a total row always present, so the empty count is 2
 	if(result == "OK"){
 		//replaee the rows following the deleted row
 		for(i=row+headerRows; i < rowCount-footerRows; i++){
 			//replace inner html is not working properly for delete so modify
 			// the existing DOM objects
-			
+
 			renameElemProperties(issueTable.rows[i], i-(headerRows-1), i-headerRows);
 		}
-		
+
 		issueTable.deleteRow(row+headerRows-1);
 		if(rowCount - (headerRows + footerRows - 1) <= 2){
 			saveButton.disabled = true;
@@ -754,7 +757,7 @@ function postDeleteRow(result, row, days, deleteMsg){
 				submitButton.disabled = true;
 			}
 		}
-		for(i=0; i < days.length; i++){	
+		for(i=0; i < days.length; i++){
 			dayTotal = calculateTotal(days[i]);
 			updateDayTotal(days[i], dayTotal);
 			if(showWorkHeader){
@@ -778,14 +781,14 @@ function renameElemProperties(row, index, newIndex){
 }
 
 function renameCellIDs(cell, index, newIndex){
-	
+
 	renameProperty(cell, 'input', 'hours', index, newIndex);
 	renameProperty(cell, 'input', 'ids', index, newIndex);
 	renameProperty(cell, 'input', 'disabled', index, newIndex);
 	renameProperty(cell, 'input', 'comments', index, newIndex);
 	renameProperty(cell, 'img', 'custfield_img', index, newIndex);
 	renameProperty(cell, 'span', 'attachment_', index, newIndex);
-	
+
 	if(cf_ids != ''){
 		var cust_fids = cf_ids.split(',');
 		var i, j, cust_field, custom_fields;
@@ -825,10 +828,10 @@ function renameProperty(cell, tag, prefix, str, newStr){
 }
 
 function renameIDName(child, str, newStr){
-	var id = child.id;	
-	var rExp = new RegExp(str);	
+	var id = child.id;
+	var rExp = new RegExp(str);
 	if(id.match(rExp)){
-		
+
 		child.id = id.replace( rExp, newStr);
 		var name = child.name;
 		child.name = name.replace( rExp, newStr);
@@ -856,7 +859,7 @@ function renameOnChange(child, index, newIndex){
 			func = function(){issueAutocomplete(this, row);};
 		}
 	}
-		
+
 	if(func){
 		//bind the row variable in the function
 		//func.bind(this, row);
@@ -869,7 +872,7 @@ function renameOnChange(child, index, newIndex){
 		{
 			child.onchange = func;
 		}
-		
+
 	}
 }
 
@@ -909,13 +912,13 @@ function calculateTotal(day){
 	var rowCount = issueTable.rows.length;
 	var dayTotal = 0.0;
 	var hours, i, j, k, val, children;
-	
+
 	//since it has a header,start,end,totalhr and total row use <  rowCount-2 and i=4
 	for(i=headerRows; i < rowCount-footerRows; i++){
 		//There is a bug in IE7, the getElementsByName doesn't get the new elements
-		//hours = document.getElementsByName("hours" + i + "[]");			
+		//hours = document.getElementsByName("hours" + i + "[]");
 		hours = myGetElementsByName(issueTable.rows[i], "input","hours" + (i - (headerRows - 1)) + "[]");
-			
+
 		val = myTrim(hours[day-1].value);
 		//replace any . with . for internationalization
 		if (tab.value =="wkexpense")
@@ -925,10 +928,10 @@ function calculateTotal(day){
 			{
 				hours[day-1].value = "";
 			}
-			
+
 			if( val != '' && !isNaN(val)){
 				dayTotal += Number(val);
-			} 
+			}
 		}else{
 		dayTotal += validateHours(val,hours[day-1])
 		}
@@ -938,17 +941,17 @@ function calculateTotal(day){
 
 function validateHours(hoursValue,hoursDay){
 	var valid =false
-	hoursValue = myTrim(hoursValue);			
-	var indexStr='',indexNextStr='',contcatStr='';					
+	hoursValue = myTrim(hoursValue);
+	var indexStr='',indexNextStr='',contcatStr='';
 	var hours ='',mins='',timeValue='',concatvalue ='';
 	var total=0;
 	if (!isNaN(hoursValue))	{
-		hours = hoursValue;		
+		hours = hoursValue;
 	}else if (hoursValue.indexOf('.') > -1){
-		valid = checkStr(hoursValue,'.')				
+		valid = checkStr(hoursValue,'.')
 	}else if (hoursValue.indexOf(",") > -1){
 		valid = checkStr(hoursValue,",")
-		if(!valid){				
+		if(!valid){
 			hours = hoursValue.replace(",", ".");
 		}
 	}else if (hoursValue.indexOf(":") > -1){
@@ -959,10 +962,10 @@ function validateHours(hoursValue,hoursDay){
 			mins = val[1];
 		}
 	}else{
-		for (i = 0; i < hoursValue.length-1; i++){ 
+		for (i = 0; i < hoursValue.length-1; i++){
 			indexStr = hoursValue[i];
-			indexNextStr = hoursValue[i+1]									
-			if (!myTrim(indexNextStr) && indexStr && !contcatStr){									
+			indexNextStr = hoursValue[i+1]
+			if (!myTrim(indexNextStr) && indexStr && !contcatStr){
 				if (isNaN(indexStr)){
 					valid = true
 					break;
@@ -973,8 +976,8 @@ function validateHours(hoursValue,hoursDay){
 				if (!isNaN(indexStr)){
 					timeValue += indexStr;
 				}if (isNaN(indexNextStr)){
-					contcatStr += indexNextStr;							
-				}else if (indexNextStr){							
+					contcatStr += indexNextStr;
+				}else if (indexNextStr){
 					if (contcatStr =="h" || contcatStr =="hour" || contcatStr =="hours" ){
 						contcatStr ='';
 						hours = timeValue
@@ -988,7 +991,7 @@ function validateHours(hoursValue,hoursDay){
 					}
 					 concatvalue +=indexNextStr;
 				}
-			}					
+			}
 		}
 	}
 	if (contcatStr =="h" || contcatStr =="hour" || contcatStr =="hours" ){
@@ -1001,10 +1004,10 @@ function validateHours(hoursValue,hoursDay){
 		timeValue=''
 		concatvalue=''
 	}else if (contcatStr){
-		valid = true				
+		valid = true
 	}
 	if (!myTrim(mins)){
-		mins = concatvalue				
+		mins = concatvalue
 	}
 	if (hours && mins){
 		if(parseInt(mins) >60){
@@ -1014,42 +1017,42 @@ function validateHours(hoursValue,hoursDay){
 	if (valid){
 		hoursDay.value='';
 	}else{
-		 total = totalHours(hours,mins)				
+		 total = totalHours(hours,mins)
 	}
 	return total;
 }
 function checkStr(hoursValue,type){
-	var valid =true;			
+	var valid =true;
 	hoursValue = hoursValue.replace(type, ".");
 	if (!isNaN(hoursValue))	{
 		valid = false
 	}
 	return valid
 }
-function totalHours(hours,mins){		
+function totalHours(hours,mins){
 	var minhour =0,total=0;
 	if (!isNaN(hours) && myTrim(hours))
-	{			
+	{
 		total = parseFloat(hours)
 	}
 	if (!isNaN(mins) && myTrim(mins))
 	{
 		minhour = parseFloat(mins)/60;
 		total +=parseFloat(minhour)
-	}			
+	}
 	return total
 }
 
 //There is a bug in IE7, the getElementsByName doesn't get the new elements
 //Workaround for the getElementsByName bug found in IE7
 function myGetElementsByName(parent, tag, name){
-	
-	var children = parent.getElementsByTagName(tag);	
+
+	var children = parent.getElementsByTagName(tag);
 	var mChildren = new Array();
 	var j, k=0;
 	for(j=0; j < children.length; j++){
 		if(children[j].name == name){
-			
+
 			mChildren[k++] = children[j];
 		}
 	}
@@ -1064,7 +1067,7 @@ function myTrim(val){
 function updateDayTotal(day, dayTotal){
 	var day_total = document.getElementById('day_total_'+day);
 	var currDayTotal = Number(day_total.innerHTML);
-	day_total.innerHTML = dayTotal.toFixed(2);	
+	day_total.innerHTML = dayTotal.toFixed(2);
 	updateTotal(dayTotal - currDayTotal);
 }
 
@@ -1079,21 +1082,21 @@ function updateTotal(increment){
 
 function updateRemainingHr(day, element)
 {
-	
+
 	var issueTable = document.getElementById("issueTable");
 	var rowCount = issueTable.rows.length;
 	var totalRow = issueTable.rows[rowCount-2];
 	var rmTimeRow = issueTable.rows[rowCount-1];
 	var totTime,cell,rmTimeCell,dayTt,remainingTm = 0;
 	totTime = getTotalTime(day, element);
-	
-	var day_total = document.getElementById('day_total_'+day);	
-	dayTt = Number(day_total.innerHTML);	
+
+	var day_total = document.getElementById('day_total_'+day);
+	dayTt = Number(day_total.innerHTML);
 	rmTimeCell = rmTimeRow.cells[hStartIndex + day];
 	if(totTime >  0)
 	{
 		remainingTm = totTime - dayTt;
-	}		
+	}
 	rmTimeCell.innerHTML = remainingTm.toFixed(2);
 }
 
@@ -1108,11 +1111,11 @@ function getTotalTime(day, element)
 	}
 	totTime = timeFormat(minDiff);
 	totTime = calculatebreakTimeNew(totTime, day, element);
-	if(element[0] == "start_"+day) 
-	{		
+	if(element[0] == "start_"+day)
+	{
 		totTime = document.getElementById(element[2]).value;
 	}
-	
+
 	totTime = timeStringToFloat(totTime);
 	return totTime;
 }
@@ -1125,7 +1128,7 @@ function getMinDiff(day,element)
 	var start, end;
 	st_min = getMinutes(day, element ? element[0] : 'start_');
 	end_min = getMinutes(day, element ? element[1] : 'end_');
-	
+
 	if(st_min > end_min)
 	{
 		if(st_min <= 720)
@@ -1137,18 +1140,18 @@ function getMinDiff(day,element)
 			end_min += 1440;
 		}
 	}
-	minDiff = end_min - st_min;	
+	minDiff = end_min - st_min;
 	return minDiff;
 }
 
-//convert the hour to minutes 
+//convert the hour to minutes
 function getMinutes(day,str)
-{	
-	var fldVal,fldVal_min;	
+{
+	var fldVal,fldVal_min;
     var attnDayEntriesCnt1 =  document.getElementById('attnDayEntriesCnt_'+day) != null ? document.getElementById('attnDayEntriesCnt_'+day).value : -1;
     if(str == "start_" || str == "end_")
 	{
-		fldVal =   document.getElementById(str+(day)).value ;		
+		fldVal =   document.getElementById(str+(day)).value ;
 	}
 	else{
 		if(day != -1)
@@ -1158,46 +1161,46 @@ function getMinutes(day,str)
 		else{
 			fldVal = str;
 		}
-		
-	}		
-	fldVal = !fldVal ? '00:00' : fldVal;	
+
+	}
+	fldVal = !fldVal ? '00:00' : fldVal;
 	fldVal = fldVal.split(":");
-	fldVal_min = (fldVal[0] * 60) + parseInt(fldVal[1]);	
+	fldVal_min = (fldVal[0] * 60) + parseInt(fldVal[1]);
 	return fldVal_min;
 }
 
 //Calculates and fills the total hr
 function updateTotalHr(day, element)
-{		
-	var issueTable = document.getElementById("issueTable");	
-	var tot_Hr = 0,tot_min = 0,totTime="";	
+{
+	var issueTable = document.getElementById("issueTable");
+	var tot_Hr = 0,tot_min = 0,totTime="";
 	var minDiff = 0 ;
 	var attnDayEntriesCnt1 =  document.getElementById('attnDayEntriesCnt_'+day) != null ? document.getElementById('attnDayEntriesCnt_'+day).value : (document.getElementById('attnDayEntriesCnt') != null ? document.getElementById('attnDayEntriesCnt').value : -1);
 	if(!element)
 	 {
 		 for(j = 0 ; j < attnDayEntriesCnt1 ; j++ )
 		 {
-			var sval =  document.getElementById('attnstarttime'+day+'_' + j).value; 
+			var sval =  document.getElementById('attnstarttime'+day+'_' + j).value;
 			var  eval1 = document.getElementById('attnendtime'+day+'_' + j).value ;
 			 minDiff  +=  sval && eval1 ? getMinDiff(day, ['attnstarttime'+day+'_' + j,'attnendtime'+day+'_' + j, 'hoursdiff'+day+'_' + j]) : 0 ;
 		 }
-		 
+
 	 }
 	 else{
 		  minDiff = getMinDiff(day, element);
 	 }
-	 
+
 	totTime = timeFormat(minDiff);
 	totTime = calculatebreakTimeNew(totTime, day, element);
-	if(element[0] == "start_"+day) 
+	if(element[0] == "start_"+day)
 	{
-		var addtotal = document.getElementById(element[2]).value;			
+		var addtotal = document.getElementById(element[2]).value;
 		var isnightshift = document.getElementById('nightshift') != null ?  document.getElementById('nightshift').value : false;
 		if(!isnightshift && clktot == 1)
 		{
 			addtotal = addtotal ? addtotal : "00:00:00";
 			totTime = MinutesDifferent(addtotal, totTime+":00", 1 );
-		}			
+		}
 		document.getElementById(element[2]).value = totTime ;
 		clktot = 1;
 	}
@@ -1211,14 +1214,14 @@ function updateTotalHr(day, element)
 		}
 		totTime = timeFormat(minDiff);
 		totTime = calculatebreakTimeNew(totTime, day, element);
-	}	
+	}
 	if(document.getElementById("grandTotal_"+day) != null)
 	{
 		var thours = 0.0;
 		for(k = 0 ; k < attnDayEntriesCnt1 ; k++ )
 		{
-			var addhours =  document.getElementById('hoursdiff'+day+'_' + k).value; 
-			thours	= Number((thours + (addhours  ? parseFloat(addhours) : 0.0)).toFixed(2)) ;		
+			var addhours =  document.getElementById('hoursdiff'+day+'_' + k).value;
+			thours	= Number((thours + (addhours  ? parseFloat(addhours) : 0.0)).toFixed(2)) ;
 		}
 		document.getElementById("grandTotal_"+day).value = thours; //timeStringToFloat(totTime) ;
 		totTime = convertHoursToMin(thours);
@@ -1236,8 +1239,8 @@ function updateTotalHr(day, element)
 		var totTimeRow = issueTable.rows[3];
 		totHrCell = totTimeRow.cells[hStartIndex + day];
 		totHrCell.innerHTML = totTime + "     <a href='javascript:showclkDialog("+day+");'><img id='imgid' src='../plugin_assets/redmine_wktime/images/clockdetail.png' border=0 title=''/></a>";
-	}	
-	
+	}
+
 }
 
 function convertHoursToMin(thours)
@@ -1250,11 +1253,11 @@ function convertHoursToMin(thours)
 
 //Validates the start and end time
 function validateHr(hrFld,day, element)
-{		
+{
 	var hrFldID = hrFld.id;
 	if(document.getElementById(hrFldID) != null)
 	{
-		var hrVal = document.getElementById(hrFldID).value;	
+		var hrVal = document.getElementById(hrFldID).value;
 	}
 	else
 	{
@@ -1273,13 +1276,13 @@ function validateHr(hrFld,day, element)
 		alert("Not a valid time format");
 	}
 	else if((clkinTime > clkoutTime) || ( isNaN(clkinTime) && !isNaN(clkoutTime) ) )
-	{		 
+	{
 		var msg = ( isNaN(clkinTime) && !isNaN(clkoutTime) ) ? "Please enter Clock in." : "The Clock in time can't be greater then clock out.";
 		hrFld.value = hrFld.defaultValue;
 		alert(msg);
 	}
 	else if( !isNaN(clkinTime) && !isNaN(clkoutTime) )
-	{	
+	{
 		if(element[3] != null && element[3] )
 		{
 			updateTotalHr((day+1), element);
@@ -1288,19 +1291,19 @@ function validateHr(hrFld,day, element)
 		else
 		{
 			updateTotalHr((day+1), element);
-			updateRemainingHr((day+1), element);			
+			updateRemainingHr((day+1), element);
 		}
-		
+
 	}
 }
 
-function issueAutocomplete(txtissue,row){    
+function issueAutocomplete(txtissue,row){
         var uid = document.getElementById("user_id").value;
 		var startday = document.getElementById("startday").value;
 		var issUrl = document.getElementById("getissues_url").value;
 		issue_assign_user=issueAssignUser();
        	issUrl= issUrl + "?user_id=" + uid + "&issue_assign_user=" + issue_assign_user + "&startday=" + startday;
-        $(txtissue).autocomplete({                    
+        $(txtissue).autocomplete({
 			source: issUrl ,
 			minLength:2,
 			select: function(event,ui){
@@ -1332,7 +1335,7 @@ function validateMinhour(maxHour, minHour, nonWorkingDay, minHoursPerWeek, maxHo
 	minHour=minHour.replace(',', '\.');
 	}
 	var msg ="";
-	if (minHrCond || maxHrCond) { 	
+	if (minHrCond || maxHrCond) {
 		for (i=1;i<=7;i++){
 		var dayTotal= document.getElementById('day_total_'+i).innerHTML;
 		dayTotal = Number(dayTotal.replace(decSeparator, '\.'));
@@ -1343,14 +1346,14 @@ function validateMinhour(maxHour, minHour, nonWorkingDay, minHoursPerWeek, maxHo
 			dayTotal += (Number(maxHour) || defaultHours) - dayTotal;
 		}
 
-		if(nonWorkingDay.indexOf(i.toString())== -1 || dayTotal > 0){				
-			if (dayTotal < Number(minHour) && minHrCond){ 
+		if(nonWorkingDay.indexOf(i.toString())== -1 || dayTotal > 0){
+			if (dayTotal < Number(minHour) && minHrCond){
 				msg = minHourAlertMsg;
 				valid=false;
 				break;
 			}
 
-			if (dayTotal > Number(maxHour) && maxHrCond){ 
+			if (dayTotal > Number(maxHour) && maxHrCond){
 				msg = maxHourAlertMsg;
 				valid=false;
 				break;
@@ -1362,19 +1365,19 @@ function validateMinhour(maxHour, minHour, nonWorkingDay, minHoursPerWeek, maxHo
 	if(minHoursPerWeek != 0 && !isNaN(minHoursPerWeek) && totalhr < minHoursPerWeek)
 	{
 	msg += "\n" + minHourperWeekAlertMsg;
-	valid=false; 
+	valid=false;
 	}
-	if(maxHoursPerWeek != 0 && !isNaN(maxHoursPerWeek) && totalhr > maxHoursPerWeek)   
+	if(maxHoursPerWeek != 0 && !isNaN(maxHoursPerWeek) && totalhr > maxHoursPerWeek)
 	{
 		msg += "\n" + maxHourperWeekAlertMsg;
 		valid=false;
 	}
-	 
+
 	if(!valid)
 	{
 		alert(msg);
 	}
-	if(valid  && submissionack!=''){		
+	if(valid  && submissionack!=''){
 		valid= confirm(submissionack);
 	}
 	return valid;
@@ -1409,7 +1412,7 @@ function showclkDialog(day)
 		{
 			$( "#clockInOut-dlg"+i ).dialog( "open" );
 			clkdialogid = i;
-		}		
+		}
 	}
 }
 
@@ -1419,7 +1422,7 @@ function timeFormat(minutes)
 	tot_Hr1 = parseInt(minutes/60) ;
 	tot_min1 = minutes%60;
 	if (tot_min1 > 0)
-	{ 
+	{
 		totTime1 = tot_Hr1 + ":" + tot_min1;
 	}
 	else
@@ -1432,20 +1435,20 @@ function timeFormat(minutes)
 function MinutesDifferent(totTime, stdiff, variation)
 {
 	var minutessdiff;   // minusdiff
-	var seconds,seconds1;	
+	var seconds,seconds1;
 	var arr,arr1;
-	arr = totTime.split(':');	
+	arr = totTime.split(':');
 	arr1 = stdiff.split(':');
 	seconds = arr[0]*3600+arr[1]*60;
 	seconds1 = arr1[0]*3600+arr1[1]*60;
-	
+
 	if(variation == 1)
 	{
 		minutessdiff = seconds + seconds1;
 	}
 	else{
 		minutessdiff = seconds - seconds1;
-	}	 
+	}
 	var d;
 	d = Number(minutessdiff);
 	var h = Math.floor(d / 3600);
@@ -1459,7 +1462,7 @@ function timeStringToFloat(time) {
   var hours = parseInt(hoursMinutes[0], 10);
   var minutes = hoursMinutes[1] ? parseInt(hoursMinutes[1], 10) : 0;
   var originalval = hours + minutes / 60;
-  var result = Math.round(originalval*100)/100 
+  var result = Math.round(originalval*100)/100
   return result;
 }
 
@@ -1471,13 +1474,13 @@ function updateAtt(param, diff,str,id)
 	var date = false;
 	if(document.getElementById('nightshift') != null && !diff )
 	{
-		 nightshift = document.getElementById('nightshift').value;	
-	}	
+		 nightshift = document.getElementById('nightshift').value;
+	}
 	$.ajax({
 	url: '/updateAttendance',
 	type: 'get',
 	data: {editvalue : param, startdate : datevalue, user_id : userid, nightshift : nightshift, isdate : date},
-	success: function(data){ if(diff){ newClockInOut(data); } },   
+	success: function(data){ if(diff){ newClockInOut(data); } },
 	});
 }
 
@@ -1491,8 +1494,8 @@ function newClockInOut(data)
 		  {
 			  columndata = savedata[i].split(',');
 		  }
-		
-	}	
+
+	}
 	var attnDayEntriesCnt =  document.getElementById('attnDayEntriesCnt_'+clkdialogid) != null ? document.getElementById('attnDayEntriesCnt_'+clkdialogid).value : -1;
 	if(columndata[1] == "00:00" && columndata[2] == "00:00")
 	{
@@ -1503,21 +1506,21 @@ function newClockInOut(data)
 			{
 				document.getElementById('attnEntriesId'+clkdialogid+"_"+i ).value = "";
 			}
-	    }		 
+	    }
 	}
 	else{
 		if(document.getElementById('attnEntriesId'+clkdialogid+"_"+(attnDayEntriesCnt-1) ) != null)
 		{
 			document.getElementById('attnEntriesId'+clkdialogid+"_"+(attnDayEntriesCnt-1) ).value =  columndata[1];
 		}
-		 		
+
 	 }
 	if(document.getElementById('attnstarttime'+clkdialogid+"_"+(attnDayEntriesCnt-1) ) != null)
 		{
 			document.getElementById('start_' + clkdialogid).value = document.getElementById('attnstarttime'+clkdialogid+"_"+(attnDayEntriesCnt-1) ).value;
-			document.getElementById('end_' +clkdialogid).value = document.getElementById('attnendtime'+clkdialogid+"_"+(attnDayEntriesCnt-1) ).value;	
+			document.getElementById('end_' +clkdialogid).value = document.getElementById('attnendtime'+clkdialogid+"_"+(attnDayEntriesCnt-1) ).value;
 		}
-	 
+
 }
 
 function calculatebreakTimeNew(totTime, day, element){
@@ -1527,18 +1530,18 @@ function calculatebreakTimeNew(totTime, day, element){
  startval = document.getElementById(element ? element[0] : 'start_'+day).value;
  endval = document.getElementById(element ? element[1] : 'end_'+day).value;
  workedHours = convertTimeToSec(totTime);
- 
+
  if(startval && endval)
  {
   startTime = convertTimeToSec(startval);
   endTime = convertTimeToSec(endval);
   breakTime = document.getElementById('break_time').value;
-  breakTime = breakTime.split(" "); 
+  breakTime = breakTime.split(" ");
   var startBTime = new Array() ,endBTime = new Array();
   if(breakTime !='')
   {
    for(var i= 0; i < breakTime.length ; i++)
-   {    
+   {
     breakValue =  breakTime[i].split('|');
     if(breakValue[0]&&breakValue[1]&&breakValue[2]&&breakValue[3])
     {
@@ -1557,8 +1560,8 @@ function calculatebreakTimeNew(totTime, day, element){
        else
         workedHours = 0;
       }
-     }     
-    }        
+     }
+    }
    }
   }
  }

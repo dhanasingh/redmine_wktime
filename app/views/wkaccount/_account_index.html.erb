@@ -1,4 +1,5 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <div class="wk-contextual">
 	<%= link_to l(:label_new_account), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
 </div>
@@ -18,4 +19,12 @@
 		</table>
 	</fieldset>
 <% end %>
-<%= render :partial => 'wkaccount/account_list'%>
+
+<% if @account_entries.present? %>
+	<%= render :partial => 'wkaccount/account_list'%>
+	<% other_formats_links do |f| %>
+  <%= f.link_to_with_query_parameters 'CSV', {} %>
+	<% end %>
+<% else %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>

@@ -5,8 +5,6 @@ lblInvCompVal = "<%=l(:field_value) %>";
 <% @ledgers = ["", ""] %> 
 <% @ledgers << WkLedger.order(:name).pluck(:name, :id) %> 
 <%  ledgerhash = Hash[*@ledgers.flatten].invert %>
-<div class="splitcontent">
-<div class="splitcontentleft">
 <fieldset>
 	<%
 		wktime_helper = Object.new.extend(WktimeHelper)
@@ -121,52 +119,3 @@ lblInvCompVal = "<%=l(:field_value) %>";
 	</p>
 	-->
 </fieldset>
-</div>
-
-<div class="splitcontentright">
-<fieldset>
-    <legend><%= l(:label_invoice_components) %></legend>
-	<p>
-	<%
-		invComps = []
-		if(@settings['wktime_invoice_components'].blank?)
-			invComps = ''
-		else
-			@settings['wktime_invoice_components'].each do |element|
-			  listboxArr = element.split('|')
-			  invCompName = listboxArr[0].blank? ? "" : listboxArr[0]
-			  invCompVal = listboxArr[1].blank? ? "" : listboxArr[1]
-			  optionText = invCompName + ' : ' + invCompVal
-			  invComps << [optionText,element]
-			end
-		end
-	%>
-		<label><%= l(:label_invoice_components) %></label>
-			<%=  select_tag('settings[wktime_invoice_components]',
-				options_for_select(invComps, :selected => 'settings[wktime_invoice_components]'), :multiple=> true, :style => "min-width:160px; height:100px;")%>	
-
-		</p>			
-		<p>
-			<%= link_to l(:button_add), "javascript:showInvCompDialog('Add', 'settings_wktime_invoice_components');", :class => "button"%>  |
-			<%= link_to l(:button_edit), "javascript:showInvCompDialog('Edit', 'settings_wktime_invoice_components');", :class => "button"%>  |
-			<%= link_to l(:button_delete), "javascript:removeSelectedValue('settings_wktime_invoice_components');", :class => "button" %>
-		</p>
-	
-	<div id="invcomp-dlg" title="<%= l(:button_add) + " " + l(:label_invoice) + " " + l(:label_component) %>">
-		<table>
-			<tr>
-				<th align="left"><label><%= l(:field_name) %></label></th>
-				<td><%= text_area_tag 'inv_copm_name','', :size => "23*10", :width => "150px" %> 
-			</tr>
-			<tr>
-				<th align="left"><label><%= l(:field_value) %></label></th>
-				<td><%= text_area_tag 'inv_copm_value','', :size => "23*10", :width => "150px" %> 
-			</tr>
-			<tr>
-				<%= hidden_field_tag :hdnAction, "" %>
-			</tr>
-		</table>
-	</div>
-</fieldset>
-</div>
-</div>

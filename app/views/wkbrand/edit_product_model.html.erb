@@ -11,7 +11,7 @@
 			<td align="left" style="padding-left:40px;"><%=h text_field_tag("name",@modelEntry.blank? ? nil : @modelEntry.name, :required => true,:size => 85) %> </td></tr>
 		</tr> 
 		<tr>
-			<th align="left"><%= l(:label_product) %></th>
+			<th align="left"><%= l(:field_inventory_item_id) %></th>
 			<td align="left" style="padding-left:40px;">
 				<%=h select_tag("product_id", generic_options_for_select(WkProduct, " id in (select product_id from wk_brand_products where brand_id = #{@brand.id})", 'name', 'name', 'id', @modelEntry.blank? ? nil : @modelEntry.product_id, false)) %>
 			</td>

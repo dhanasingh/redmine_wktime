@@ -41,19 +41,14 @@ class WkdocumentController < WkbaseController
   end
 
   def download
-    if !(validateERPPermission("B_CRM_PRVLG") || validateERPPermission("A_CRM_PRVLG") || User.current.admin? || hasSettingPerm)
-      render_403
-    else
-      @attachment.increment_download
-      send_file @attachment.diskfile, :filename => filename_for_content_disposition(@attachment.filename),
+    @attachment.increment_download
+    send_file @attachment.diskfile, :filename => filename_for_content_disposition(@attachment.filename),
                                       :type => detect_content_type(@attachment),
                                       :disposition => disposition(@attachment) if stale?(:etag => @attachment.digest)
-    end
   end
 
   def destroy
-    if validateERPPermission("A_CRM_PRVLG") || User.current.admin? || hasSettingPerm
-      container_id = @attachment.container_id
+    container_id = @attachment.container_id
       container_type = @attachment.container_type
       if @attachment.destroy
         flash[:notice] = l(:notice_successful_delete)
@@ -61,9 +56,6 @@ class WkdocumentController < WkbaseController
         flash[:error] = account.errors.full_messages.join("<br>")
       end
       redirect_to :back
-    else
-      render_403
-    end
   end
 
   def find_attachment

@@ -1,14 +1,16 @@
 require 'redmine'
-require_dependency 'custom_fields_helper'
-require_dependency '/redmine/menu_manager'
 require 'fileutils'
 require 'timelogcontroller_patch'
 require 'contextMenusController_patch'
 require 'time_report_patch'
-require_dependency 'queries_helper_patch'
 require 'userscontroller_patch'
-require_dependency 'ftte/ftte_hook'
 require 'wkapplication_helper_patch'
+require_dependency 'custom_fields_helper'
+require_dependency '/redmine/menu_manager'
+require_dependency 'time_entry'
+require_dependency 'ftte/ftte_hook'
+require_dependency 'queries_helper_patch'
+require_dependency 'timelog_helper_patch'
 
 User.class_eval do
 	has_one :wk_user, :dependent => :destroy, :class_name => 'WkUser'
@@ -68,7 +70,7 @@ Import.class_eval do
 		resume_after = items.maximum(:position) || 0
 		interrupted = false
 		started_on = Time.now
-	
+
 		read_items do |row, position|
 		if (max_items && imported >= max_items) || (max_time && Time.now >= started_on + max_time)
 			interrupted = true
@@ -78,7 +80,7 @@ Import.class_eval do
 			item = items.build
 			item.position = position
 			item.unique_id = row_value(row, 'unique_id') if use_unique_id?
-	
+
 			if object = build_object(row, item)
 				# ======= ERPmine_patch Redmine 4.2 ==========
 				wktime_helper = Object.new.extend(WktimeHelper)
@@ -95,15 +97,15 @@ Import.class_eval do
 				end
 				# =============================
 			end
-	
+
 			item.save!
 			imported += 1
-	
+
 			do_callbacks(use_unique_id? ? item.unique_id : item.position, object)
 		end
 		current = position
 		end
-	
+
 		if imported == 0 || interrupted == false
 		if total_items.nil?
 			update_attribute :total_items, current
@@ -111,7 +113,7 @@ Import.class_eval do
 		update_attribute :finished, true
 		remove_file
 		end
-	
+
 		current
 	end
 end
@@ -593,13 +595,54 @@ module FttePatch
 
     base.class_eval do
         unloadable
-			def base_scope
-				TimeEntry.visible.
+		# ============= ERPmine_patch Redmine 4.2  =====================
+			def base_scope(options={})
+				if options[:nonSpentTime].present?
+					TimeEntry.
+					joins("RIGHT JOIN issues ON time_entries.issue_id = issues.id").
+					joins("INNER JOIN projects ON projects.id = time_entries.project_id OR projects.id = issues.project_id").
+					joins("LEFT JOIN users ON users.id = time_entries.user_id AND users.type IN ('User', 'AnonymousUser')").
+					joins("LEFT JOIN enumerations ON enumerations.id = time_entries.activity_id AND enumerations.type IN ('TimeEntryActivity')").
+					where(custom_condition).
+					where(TimeEntry.visible_condition(User.current))
+				else
+		# ======================================
+					TimeEntry.visible.
 					joins(:project, :user).
 					includes(:activity).
 					references(:activity).
 					left_join_issue.
 					where(getSupervisorCondStr)
+				end
+			end
+
+			def custom_condition
+				if (getSupervisorCondStr || "").include?("time_entries")
+					condstr = " projects.id = issues.project_id AND time_entries.id IS NULL"
+					projFilter = filters && filters["project_id"]
+					if filters.present? && projFilter.present?
+						projFilter[:values] = User.current.memberships.map(&:project_id).map(&:to_s) if projFilter[:values] && projFilter[:values].first == 'mine'
+						condstr += " AND " + sql_for_field("project_id", projFilter[:operator], projFilter[:values], "issues", "project_id")
+					end
+					condstr += " AND issues.project_id = #{project.id} " if project.present?
+					getSupervisorCondStr.insert(getSupervisorCondStr.index("time_entries"), condstr + " ) OR ( ")
+				else
+					getSupervisorCondStr
+				end
+			end
+
+			def results_scope(options={})
+				order_option = [group_by_sort_order, (options[:order] || sort_clause)].flatten.reject(&:blank?)
+		
+				# ============= ERPmine_patch Redmine 4.2  =====================
+				if options[:nonSpentTime].present?
+					base_scope(options)
+				else					
+				# ======================================
+					base_scope.
+						order(order_option).
+						joins(joins_for_order_statement(order_option.join(',')))
+				end
 			end
 
 			#========= ERPmine_patch Redmine 4.2 for get supervision condition string ======
@@ -706,8 +749,8 @@ Redmine::Plugin.register :redmine_wktime do
   name 'ERPmine'
   author 'Adhi Software Pvt Ltd'
   description 'ERPmine is an ERP for Service Industries. It has the following modules: Time & Expense, Attendance, Payroll, CRM, Billing, Accounting, Purchasing, Inventory, Asset , Reports, Dashboards and Survey'
-  version '4.2.1'
-  url 'http://www.redmine.org/plugins/wk-time'
+  version '4.3'
+  url 'https://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
 
   settings(:partial => 'settings',
@@ -816,6 +859,12 @@ Redmine::Plugin.register :redmine_wktime do
 	end
 
 	menu :project_menu, :wksurvey, { :controller => 'wksurvey', :action => 'index' }, :caption => :label_survey, param: :project_id, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showSurvey }
+
+	project_module :Skills do
+		permission :view_skill, {:wkskill => [:index]}, :public => true
+	end
+
+	menu :project_menu, :wkskill, {:controller => 'wkskill', :action => 'index' }, :caption => :label_wk_skill, :param => :project_id, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showSkill }
 
   Redmine::MenuManager.map :wktime_menu do |menu|
 	  menu.push :wkdashboard, { :controller => 'wkdashboard', :action => 'index' }, :caption => :label_dashboards, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WkdashboardHelper).showDashboard && Object.new.extend(WktimeHelper).hasSettingPerm}

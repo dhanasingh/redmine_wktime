@@ -1,0 +1,53 @@
+<%= javascript_include_tag 'invoice', plugin: "redmine_wktime" %>
+<%= javascript_include_tag 'payrollsettings', plugin: "redmine_wktime" %>
+<script type="text/javascript"> 
+	attendanceAlertMsg = "<%= l(:text_are_you_sure) %>";
+	selectListAlertMsg = "<%=l(:actionview_instancetag_blank_option) %>";
+	lblInvCompName = "<%=l(:field_name) %>";
+	lblInvComp = "<%=l(:button_add) + " " + l(:label_invoice_components) %>";
+	lblInvalid= " <%= (CGI.unescapeHTML l('activerecord.errors.messages.invalid')).html_safe %>";
+</script>
+<%= title l(:label_invoice_components) %>
+<div class="wk-contextual" style="float:right;">
+	<%= render partial: 'sidebar' %>
+</div>
+<div style="clear:both"></div>
+<%= form_tag({controller: 'wkinvoice', action: 'saveInvoiceComponents'}, method: :post) do %>
+	<%= hidden_field_tag 'invoice[comp_del_ids]', "" %>
+    <fieldset>
+		<legend><%= l(:label_invoice_components) %></legend>
+		<table>
+			<tr>
+				<th><label><%= l(:label_invoice_components) %></label></th>
+				<td><%=  select_tag('invoice_components',
+					options_for_select(@invComps, selected: 'invoice_components'), multiple: true, style: "min-width:160px; height:100px;")%></td>
+
+			</tr>
+			<tr>
+				<td></td>
+				<td>
+					<%= link_to l(:button_add), "javascript:InvCompDialog('Add', 'invoice_components');", class: "button"%>  |
+					<%= link_to l(:button_edit), "javascript:InvCompDialog('Edit', 'invoice_components');", class: "button"%>  |
+					<%= link_to l(:button_delete), "javascript:removeSelectedValue('invoice_components');", class: "button" %>
+				</td>
+			</tr>
+		</table>
+	</fieldset>
+	<div style="padding-top: 10px"><%= submit_tag l(:button_save), :class => 'button-small', :name => 'submit' %></div>
+<% end %>
+
+<div id="invcomp-dlg">
+	<table>
+		<tr>
+			<th style="text-align:left;"><label><%= l(:field_name) %></label></th>
+			<td><%= text_area_tag 'inv_copm_name','', size: "23*10", width: "150px" %> 
+		</tr>
+		<tr>
+			<th style="text-align:left;"><label><%= l(:field_value) %></label></th>
+			<td><%= text_area_tag 'inv_copm_value','', size: "23*10", width: "150px" %>
+		</tr>
+		<tr>
+			<%= hidden_field_tag :hdnAction, "" %>
+		</tr>
+	</table>
+</div>

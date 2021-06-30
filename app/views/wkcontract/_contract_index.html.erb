@@ -24,4 +24,12 @@
 
 		</fieldset>
 	<% end %>
- <%= render :partial => 'wkcontract/contract_list'%>
+ 
+<% if  @contract_entries.present? %>
+ 	<%= render :partial => 'wkcontract/contract_list'%>
+	<% other_formats_links do |f| %>
+  	<%= f.link_to_with_query_parameters 'CSV', {} %>
+	<% end %>
+<% else %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>

@@ -1,0 +1,26 @@
+<%
+  groupId =session[controller_name].try(:[], :group_id)
+  skillSet = session[controller_name].try(:[], :skill_set)
+  rating = session[controller_name].try(:[], :rating)
+  experience = session[controller_name].try(:[], :experience)
+  ratings = (1..5).to_a.unshift("")
+%>
+<fieldset>
+	<legend><%= l(:label_filter_plural) %></legend>
+	<%= form_tag({}, method: "get", id:"query_form") do %>
+		<%= hidden_field_tag("searchlist", controller_name) %>
+		<%= hidden_field_tag('tab', controller_name) %>
+    <table>
+      <tr>
+        <th><label style="padding-left: 10px;"><%= l(:label_skill_set) %></label></th>
+        <td><%= select_tag('skill_set', options_for_select(options_for_enum_select('SK', skillSet || 0, true))) %></td>
+        <th><label style="padding-left: 10px;"><%= l(:label_min_rating_req) %></label></th>
+        <td><%= select_tag("rating", options_for_select(ratings, selected: rating), style: "width:60px") %></td>
+        <th><label style="padding-left: 10px;"><%= l(:label_min_exp_req) %></label></th>
+        <td><%= text_field_tag "experience", experience %></td>
+        <td><%= submit_tag l(:button_apply), class: "small", name: nil %></td>
+        <td><%= link_to l(:button_clear), {tab: controller_name, clear: true}, class: "icon icon-reload" %></td>
+      </tr>
+    </table>
+	<% end %>
+</fieldset>

@@ -13,7 +13,7 @@
 			</tr>
 			<% if @ledgersDetail[0].blank? || @ledgersDetail[0].ledger_type != 'SY' %>
 				<tr>
-					<th align="left"><%= l(:label_type) %></th>
+					<th align="left"><%= l(:field_type) %></th>
 					<td align="left" style="padding-left:40px;">
 						<%=h select_tag("ledger_type", options_for_select(ledgerType.invert,:selected => (@ledgersDetail[0].blank? ? "" : @ledgersDetail[0].ledger_type) ), :style => "width:160px; float:left;") %>
 					</td>			   

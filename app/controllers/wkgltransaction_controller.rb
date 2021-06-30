@@ -20,7 +20,7 @@ class WkgltransactionController < WkaccountingController
   include WkgltransactionHelper
 	accept_api_auth :index, :edit, :update
   
-	 def index
+	def index
 		sort_init 'trans_date', 'desc'
 		sort_update 'trans_date' => "trans_date",
 								'trans_type' => "trans_type"
@@ -116,7 +116,7 @@ class WkgltransactionController < WkaccountingController
 			formPagination(transaction.reorder(sort_clause))
 		end
 		transaction
-   end
+  end
    
     def edit
 	    @transEntry = nil

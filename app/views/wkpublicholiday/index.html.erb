@@ -24,4 +24,9 @@
 	</div>
 <% end %>
 <% end %>
+
 <%= render :partial => 'wkpublicholiday/ph_index'%>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
+<% other_formats_links do |f| %>
+	<%= f.link_to_with_query_parameters 'CSV', {} %>
+<% end %>

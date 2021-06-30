@@ -21,7 +21,7 @@
 		</table>
 		<p style="padding-left:15px;">
 			<%= link_to_function l(:button_apply), '$("#filter_form").submit()', :class => 'icon icon-checked' %>
-			<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
+			<%= link_to l(:button_clear), {tab: controller_name, clear: true}, :class => 'icon icon-reload' %>
 		</p>
 	</fieldset>
 <% end %>

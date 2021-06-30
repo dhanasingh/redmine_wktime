@@ -250,7 +250,6 @@ class WkpayrollController < WkbaseController
 		"order by u.id, sc.component_type"
 		@userSalHash = getUserSalaryHash(userId, Date.today.at_end_of_month + 1, 'userSetting')
 		@userSalaryEntries = WkUserSalaryComponents.find_by_sql(sqlStr)
-		getTaxSettingVal
 	end
 
 	def saveUsrSalCompHistory(userSalCompHash)
@@ -452,11 +451,8 @@ class WkpayrollController < WkbaseController
 				taxSettings.save()
 			end
 			#Calculate Tax Amount
-			if isCalculateTax
-				userIds = User.active.pluck(:id)
-				getUserSalaryVal(userIds.join(','))
-				userIds.each{ |id| saveTaxComponent(id) }
-			end
+			userIds = User.active.pluck(:id)
+			saveTaxComponent(userIds)
 			flash[:notice] = l(:notice_successful_update)
 			redirect_to action: 'payrollsettings', tab: "payroll"
 		else
@@ -609,12 +605,11 @@ class WkpayrollController < WkbaseController
 			end
 		end
 		#Calculate Tax Amount
-		if errorMsg.blank? && isCalculateTax
+		if params[:user_sal_save_with_tax] && errorMsg.blank?
 			userIds = []
 			u_salary_cmpts.each{ |entry| userIds << entry["user_id".to_sym] }
 			userIds = userIds.uniq
-			getUserSalaryVal(userIds.join(','))
-			userIds.each{ |id| saveTaxComponent(id) }
+			saveTaxComponent(userIds)
 		end
 		errorMsg
 	end
@@ -632,7 +627,6 @@ class WkpayrollController < WkbaseController
 		if params[:action_type] == "calculatetax"
 			render json: params[:data]
 		end
-		getTaxSettingVal
 	end
 
 	def getRecursiveComp
@@ -684,5 +678,16 @@ class WkpayrollController < WkbaseController
 		pdf.RDMCell( 24, row_Height, @payrollEntries.values[0][:currency] + " " + (@reimbursement_total || 0).to_s, 1, 0, '', 1)
 		pdf.RDMCell( 24, row_Height, @payrollEntries.values[0][:currency] + " " + (@total_gross || 0).to_s, 1, 0, '', 1)
 		pdf.RDMCell( 24, row_Height, @payrollEntries.values[0][:currency] + " " + (@total_net || 0).to_s, 1, 0, '', 1)
+	end
+  
+	def destroy
+		userId = params[:user_id].to_i
+		salaryDate = params[:salary_date]
+		wkSalaries = WkSalary.getSalaries(userId, salaryDate)
+		salaryId = wkSalaries.pluck(:id)
+		WkExpenseEntry.where({payroll_id: salaryId}).each {|s| s.update_attribute(:payroll_id, nil)} if salaryId.present?
+		wkSalaries.destroy_all
+		flash[:notice] = l(:notice_successful_delete)
+		redirect_back_or_default action: 'index', tab: params[:tab]
 	end
 end

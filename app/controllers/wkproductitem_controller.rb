@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WkproductitemController < WkinventoryController
-  unloadable 
+  unloadable
   menu_item :wkproduct
   before_action :require_login
   before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy, :transfer, :updateTransfer]
@@ -26,7 +26,7 @@ class WkproductitemController < WkinventoryController
   include WkpayrollHelper
   include WkassetHelper
   include WkshipmentHelper
-  
+
 	def index
 
 		sort_init 'id', 'asc'
@@ -59,24 +59,24 @@ class WkproductitemController < WkinventoryController
 		unless productId.blank?
 			sqlwhere = " AND pit.product_id = #{productId}"
 		end
-		
+
 		unless brandId.blank?
 			sqlwhere = sqlwhere + " AND pit.brand_id = #{brandId}"
 		end
-		
+
 		if (!locationId.blank? || !location.blank?) && locationId != "0"
 			location_id = !locationId.blank? ? locationId.to_i : location.id.to_i
 			sqlwhere = sqlwhere + " AND iit.location_id = #{location_id}"
 		end
-		
+
 		unless availabilityId.blank?
 			if availabilityId == 'A'
 				sqlwhere = sqlwhere + " AND ap.matterial_entry_id IS NULL"
 			else
 				sqlwhere = sqlwhere + " AND ap.matterial_entry_id IS NOT NULL"
-			end		
+			end
 		end
-		
+
 		if projectId.blank?
 			sqlwhere = sqlwhere + " AND iit.project_id IS NULL"
 		elsif projectId != 'AP'
@@ -87,13 +87,23 @@ class WkproductitemController < WkinventoryController
 
 		sqlStr = getProductInventorySql + sqlwhere
 		orderStr = " ORDER BY " + (sort_clause.present? ? sort_clause.first : " iit.id desc")
-		findBySql(selectStr, sqlStr, orderStr)
+		respond_to do |format|
+			format.html {
+				findBySql(selectStr, sqlStr, orderStr)
+			}
+			format.csv{
+				entries = WkProductItem.find_by_sql(selectStr + sqlStr + orderStr)
+				headers = getIventoryListHeader
+				data = getCsvData(entries)
+				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: getItemType == "A" ? 'asset.csv' : 'productitem.csv')
+			}
+		end
 	end
-	
+
 	def getProductInventorySql
-		sqlStr = " from wk_product_items pit 
-		left outer join wk_inventory_items iit on iit.product_item_id = pit.id 
-		left outer join wk_inventory_items piit on iit.parent_id = piit.id 
+		sqlStr = " from wk_product_items pit
+		left outer join wk_inventory_items iit on iit.product_item_id = pit.id
+		left outer join wk_inventory_items piit on iit.parent_id = piit.id
 		left outer join (select count(parent_id) child_count, parent_id from wk_inventory_items group by parent_id) pcr on pcr.parent_id = iit.id
 		left outer join wk_products p on pit.product_id = p.id
 		left outer join wk_brands b on pit.brand_id = b.id
@@ -107,7 +117,7 @@ class WkproductitemController < WkinventoryController
 		where ((case when iit.product_type is null then p.product_type else iit.product_type end) = '#{getItemType}' OR (case when iit.product_type is null then p.product_type else iit.product_type end) IS NULL) AND pcr.child_count IS NULL "
 		sqlStr
 	end
-	
+
 	def edit
 	    @productItem = nil
 		@inventoryItem = nil
@@ -115,26 +125,26 @@ class WkproductitemController < WkinventoryController
 		@newItem = to_boolean(params[:newItem])
 	    unless params[:product_item_id].blank?
 		   @productItem = WkProductItem.find(params[:product_item_id])
-		end 
+		end
 		unless params[:inventory_item_id].blank?
 		   @inventoryItem = WkInventoryItem.find(params[:inventory_item_id])
 			 @lastDepr = WkAssetDepreciation.lastDepr(params[:inventory_item_id]).first
-		end 
+		end
 		unless params[:parentId].blank?
 			@parentEntry = WkInventoryItem.find(params[:parentId])
 		end
-	end	
-	
+	end
+
 	def transfer
 		unless params[:inventory_item_id].blank?
 		   @transferItem = WkInventoryItem.find(params[:inventory_item_id])
-		end 
+		end
 	end
-	
+
 	def update
 		barndId = params[:brand_id].blank? ? nil : params[:brand_id]
 		modelId = params[:product_model_id].blank? ? nil : params[:product_model_id]
-		existingItem = WkProductItem.where(:product_id => params[:product_id], :brand_id => barndId, :product_model_id => modelId)	
+		existingItem = WkProductItem.where(:product_id => params[:product_id], :brand_id => barndId, :product_model_id => modelId)
 		if params[:product_item_id].blank?
 			productItem = WkProductItem.new
 			productItem = existingItem[0] unless existingItem[0].blank?
@@ -156,7 +166,7 @@ class WkproductitemController < WkinventoryController
 					locationId = invItem.location_id
 					projId = invItem.project_id
 				end
-				inventoryItem = updateInventoryItem(productItem.id, locationId,projId) 
+				inventoryItem = updateInventoryItem(productItem.id, locationId,projId)
 			elsif !params[:inventory_item_id].blank?
 				inventoryItem = WkInventoryItem.find(params[:inventory_item_id].to_i)
 				inventoryItem.selling_price = params[:selling_price]
@@ -183,7 +193,7 @@ class WkproductitemController < WkinventoryController
 		    flash[:error] = productItem.errors.full_messages.join("<br>")
 		end
   end
-    
+
 	def updateTransfer
 		sourceItem = WkInventoryItem.find(params[:transfer_item_id].to_i)
 		transferQty = (params[:total_quantity].blank? ? params[:available_quantity].to_i : params[:total_quantity].to_i)
@@ -213,7 +223,7 @@ class WkproductitemController < WkinventoryController
 			flash[:error] = errorMsg
 		end
 	end
-	
+
 	def updateInventoryItem(productItemId, locationId, projId)
 		sysCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 		if params[:inventory_item_id].blank?
@@ -222,7 +232,7 @@ class WkproductitemController < WkinventoryController
 		else
 			inventoryItem = WkInventoryItem.find(params[:inventory_item_id].to_i)
 		end
-		
+
 		unless params[:transfer_item_id].blank?
 			transferItem = WkInventoryItem.find(params[:transfer_item_id].to_i)
 			inventoryItem = transferItem.dup
@@ -230,6 +240,8 @@ class WkproductitemController < WkinventoryController
 			inventoryItem.supplier_invoice_id = nil
 			inventoryItem.lock_version = 0
 			inventoryItem.shipment_id = transferItem.shipment_id
+			inventoryItem.org_over_head_price = ((inventoryItem.org_over_head_price / inventoryItem.total_quantity) * params[:available_quantity].to_i ).round(2) if inventoryItem.org_over_head_price.present?
+			inventoryItem.over_head_price = params[:over_head_price]
 		else
 			inventoryItem.product_item_id = productItemId
 			inventoryItem.serial_number = params[:serial_number]
@@ -241,8 +253,8 @@ class WkproductitemController < WkinventoryController
 				inventoryItem.org_selling_price = params[:selling_price]
 			end
 			inventoryItem.currency = sysCurrency
-			inventoryItem.cost_price = getExchangedAmount(params[:currency], params[:cost_price]) 
-			inventoryItem.over_head_price = getExchangedAmount(params[:currency], params[:over_head_price]) 
+			inventoryItem.cost_price = getExchangedAmount(params[:currency], params[:cost_price])
+			inventoryItem.over_head_price = getExchangedAmount(params[:currency], params[:over_head_price])
 			inventoryItem.is_loggable = params[:is_loggable]
 		end
 		inventoryItem.parent_id = params[:parent_id] unless params[:parent_id].blank?
@@ -259,7 +271,7 @@ class WkproductitemController < WkinventoryController
 		updateShipment(inventoryItem) if inventoryItem.product_type == 'I'
 		inventoryItem
 	end
-	
+
 	def updateAssetProperty(inventoryItem)
 		sysCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 		if params[:asset_property_id].blank?
@@ -281,17 +293,17 @@ class WkproductitemController < WkinventoryController
 		assetProperty.save()
 		assetProperty
 	end
-	
+
 	def updateShipment(inventoryItem)
 		wkShipmentObj = WkShipment.new
 		wkShipmentObj.shipment_type = 'N'
-		wkShipmentObj.shipment_date = Date.today		
+		wkShipmentObj.shipment_date = Date.today
 		wkShipmentObj.serial_number = params[:serial_number]
 		wkShipmentObj.save()
 		inventoryItem.shipment_id = wkShipmentObj.id
 		inventoryItem.save()
 	end
-	
+
 	def destroy
 		inventoryItem = nil
 		productItem = WkProductItem.find(params[:product_item_id].to_i)
@@ -316,14 +328,27 @@ class WkproductitemController < WkinventoryController
 			end
 		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
-	end	  
+	end
+
+	def get_material_entries
+		entries = WkMaterialEntry.get_material_entries(params[:inventory_item_id])
+		data = entries.map{|e| {project: e&.project&.name, issue: e.issue.to_s, product: e.inventory_item&.product_item&.product&.name,
+				brand: (e.inventory_item&.product_item&.brand&.name || ""), model: (e.inventory_item&.product_item&.product_model&.name || ""),
+				currency: e.currency, selling_price: e.selling_price, quantity: e.quantity
+			}
+		}
+		listHeader = {
+			project_name: l(:label_project), issue: l(:label_issue), product_name: l(:field_inventory_item_id), brand_name: l(:label_brand), product_model_name: l(:label_model),
+			currency: l(:field_currency), selling_price: l(:label_selling_price), quantity: l(:field_quantity)}
+		render json: {data: data, header: listHeader}
+	end
 
 	def set_filter_session(filters=nil, filterParams={})
 		filters = [:product_id, :brand_id, :location_id, :availability, :project_id, :is_dispose, :show_on_map] if filters.blank?
 		super(filters, filterParams)
 	end
 
-	def setLimitAndOffset		
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -336,67 +361,72 @@ class WkproductitemController < WkinventoryController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
+		end
 	end
-	
+
 	def findBySql(selectStr, query, orderStr)
 		@entry_count = findCountBySql(query, WkProductItem)
-		setLimitAndOffset()		
+		setLimitAndOffset()
 		rangeStr = formPaginationCondition()
 		@productInventory = WkProductItem.find_by_sql(selectStr + query + orderStr + rangeStr)
 	end
-	
+
 	def formPaginationCondition
 		rangeStr = ""
-		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'				
+		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'
 			rangeStr = " OFFSET " + @offset.to_s + " ROWS FETCH NEXT " + @limit.to_s + " ROWS ONLY "
-		else		
+		else
 			rangeStr = " LIMIT " + @limit.to_s +	" OFFSET " + @offset.to_s
 		end
 		rangeStr
-	end	
+	end
 
 	def getItemType
 		'I'
 	end
-	
+
 	def showAssetProperties
 		false
 	end
-	
+
 	def newItemLabel
 		l(:label_new_product_item)
 	end
-	
+
 	def newAsset
 		false
 	end
-	
+
 	def editItemLabel
 		l(:label_edit_product_item)
 	end
-	
+
 	def getIventoryListHeader
-		headerHash = { 'project_name' => l(:label_project), 'product_name' => l(:label_product), 'brand_name' => l(:label_brand), 'product_model_name' => l(:label_model), 'product_attribute_name' => l(:label_attribute), 'serial_number' => l(:label_serial_number), 'currency' => l(:field_currency), 'selling_price' => l(:label_selling_price), 'total_quantity' => l(:label_total_quantity), 'available_quantity' => l(:label_available_quantity), 'uom_short_desc' => l(:label_uom), 'location_name' => l(:label_location) }
+		headerHash = { 'project_name' => l(:label_project), 'product_name' => l(:field_inventory_item_id), 'brand_name' => l(:label_brand), 'product_model_name' => l(:label_model), 'product_attribute_name' => l(:label_attribute), 'serial_number' => l(:label_serial_number), 'currency' => l(:field_currency), 'selling_price' => l(:label_selling_price), 'total_quantity' => l(:label_total_quantity), 'available_quantity' => l(:label_available_quantity), 'uom_short_desc' => l(:label_uom), 'location_name' => l(:label_location) }
 	end
-	
+
 	def showProductItem
 		true
 	end
-	
+
 	def showAdditionalInfo
 		true
 	end
-	
+
 	def showInventoryFields
 		true
 	end
-	
+
 	def lblInventory
 		l(:label_inventory)
 	end
-	
+
 	def newcomponentLbl
 		l(:label_new_component)
+	end
+
+	def getCsvData(entries)
+		data = entries.map{|entry| {project_name: entry['project_name'] || '', product_name: entry['product_name'] || '', brand_name: entry['brand_name'] || '', product_model_name: entry['product_model_name'] || '', product_attribute_name: entry['product_attribute_name'] || '', serial_number: entry['serial_number'] || '', currency: entry['currency'] || '', selling_price: entry['selling_price'] || '', total_quantity: entry['total_quantity'] || '', available_quantity: entry['available_quantity'] || '', uom_short_desc: entry['uom_short_desc'] || '', location_name: entry['location_name'] || ''} 
+		}
 	end
 end

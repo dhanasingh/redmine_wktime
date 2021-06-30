@@ -155,16 +155,32 @@ class WkorderentityController < WkbillingController
 				CONCAT(users.firstname, users.lastname), wk_invoices.status, wk_invoices.invoice_number, wk_invoices.start_date, wk_invoices.end_date, wk_invoices.invoice_date, wk_invoices.closed_on, wk_invoices.modifier_id, wk_invoices.gl_transaction_id, wk_invoices.parent_id, wk_invoices.invoice_type, wk_invoices.invoice_num_key, wk_invoices.created_at, wk_invoices.updated_at,wk_invoices.parent_type ")
 				.select("wk_invoices.*, SUM(wk_invoice_items.quantity) AS quantity, SUM(wk_invoice_items.amount) AS amount, SUM(wk_invoice_items.original_amount)
 				 AS original_amt")
-			formPagination(invEntries.reorder(sort_clause))
-			unless @previewBilling
-				amounts = @invoiceEntries.reorder(["wk_invoices.id ASC"]).pluck("SUM(wk_invoice_items.amount)")
-				@totalInvAmt = amounts.compact.inject(0, :+)
-			end
+			invEntries =  invEntries.reorder(sort_clause)
 			respond_to do |format|
-				format.html {
+				format.html do
+					formPagination(invEntries)
+					unless @previewBilling
+						amounts = @invoiceEntries.reorder(["wk_invoices.id ASC"]).pluck("SUM(wk_invoice_items.amount)")
+						@totalInvAmt = amounts.compact.inject(0, :+)
+					end
 				  render :layout => !request.xhr?
-				}
-				format.api
+				end
+				format.api do
+					@invoiceEntries = invEntries
+				end
+				format.csv do
+					headers = { invoice_number: getLabelInvNum, name: l(:field_name), project: l(:label_project), status: l(:field_status), inv_date: getDateLbl, start_date: l(:field_start_date), end_date: l(:label_end_date), quantity: l(:field_quantity), original_amount: l(:field_original_amount), amount: l(:field_amount), modified: l(:field_status_modified_by) }
+					data = invEntries.map do |e|
+						status = e.status == 'o' ? 'open' : 'closed'
+						inv_items = e.invoice_items
+						{ invoice_number: e&.invoice_number, name: e.parent.name, project: (inv_items&.first&.project&.name || ''), status: status, inv_date: e.invoice_date,  start_date: e.start_date, end_date: e.end_date, quantity: inv_items.sum(:quantity), original_amount: (inv_items&.first&.original_currency || '')+" "+inv_items.sum(:original_amount).round(2).to_s, amount: (inv_items&.first&.currency || '')+" "+inv_items.sum(:amount).round(2).to_s, modified: e&.modifier&.name }
+					end
+					respond_to do |format|
+						format.csv {
+							send_data(csv_export({headers: headers, data: data}), type: 'text/csv; header=present', filename: 'invoice.csv')
+						}
+					end
+				end
 			end
 		end
 	end
@@ -531,7 +547,7 @@ class WkorderentityController < WkbillingController
 	end
 
 	def getAccountLbl
-		l(:label_account)
+		l(:field_account)
 	end
 
 	def showProjectDD
@@ -564,6 +580,8 @@ class WkorderentityController < WkbillingController
 
 	def invoice_to_pdf(invoice)
 		title = getHeaderLabel
+		projectID =  invoice.invoice_items.collect{|i| i.project_id}.uniq
+		invoiceComp = getInvoiceComponents(invoice.parent_id, invoice.parent_type, projectID, getOrderComponetsId )
 		pdf = ITCPDF.new(current_language)
 		pdf.SetTitle(title)
 		pdf.add_page
@@ -612,7 +630,7 @@ class WkorderentityController < WkbillingController
 		pdf.SetFontStyle('',10)
 		pdf.set_fill_color(230, 230, 230)
 		pdf.RDMCell(80, 10, l(:label_invoice_name), 1, 0, 'C', 1)
-		headerList = [l(:label_billing_type), l(:label_rate), l(:label_quantity), l(:label_wk_currency), l(:field_amount)]
+		headerList = [l(:label_billing_type), l(:label_rate), l(:field_quantity), l(:field_currency), l(:field_amount)]
 		columnWidth = (table_width - 80)/headerList.size
 		headerList.each do |header|
 			pdf.RDMCell(columnWidth, 10, header, 1, 0, 'C', 1)
@@ -634,6 +652,14 @@ class WkorderentityController < WkbillingController
 		pdf.RDMCell(40, 5, l(:label_amount_in_words) + "  :  ", 1)
 		pdf.SetFontStyle('',10)
 		pdf.RDMCell(table_width - 40, 5, numberInWords(invoice.invoice_items.sum(:original_amount)) + " " + l(:label_only), 1)
+		pdf.ln
+		if invoiceComp.present?		
+			invoiceComp.each do |comp|
+				pdf.RDMCell(100, 5, comp[:name], 1, 0, '', 1)
+				pdf.RDMCell(table_width - 100, 5, comp[:value], 1, 0, '', 1)
+				pdf.ln
+			end
+		end
 		pdf.ln(15)
 		pdf.SetFontStyle('B',10)
 		pdf.RDMCell(30, 5, l(:label_place) + "  :  ", 0)
@@ -696,5 +722,15 @@ class WkorderentityController < WkbillingController
 		params[:start_date] = @invoice.start_date
 		params[:end_date] = @invoice.end_date
 		params[:project_id] = accPjt.present? && isAccountBilling(accPjt[0]) ? '0' : @invoiceItem.first.project_id
+	end
+
+	def exportXml
+		headers = { invoice_number: l(:label_invoice_number), name: l(:field_name), project: l(:label_project), status: l(:field_status), inv_date: l(:label_invoice_date), start_date: l(:field_start_date), end_date: l(:label_end_date), quantity: l(:field_quantity), original_amount: l(:field_original_amount), amount: l(:field_amount), modified: l(:field_status_modified_by) }
+		data = getIndexData.map{|entry| {invoice_number: entry&.invoice_number, name: entry.parent.name, project: (entry&.invoice_items[0]&.project&.name || ''), status: (entry.status == 'o' ? 'open' : 'closed'), inv_date: entry.invoice_date,  start_date: entry.start_date, end_date: entry.end_date, quantity: entry.invoice_items.sum(:quantity), original_amount: entry.invoice_items.sum(:original_amount), amount: entry.invoice_items.sum(:amount), modified: entry&.modifier&.name } }
+		respond_to do |format|
+			format.csv {
+				send_data(csv_export({headers: headers, data: data}), type: 'text/csv; header=present', filename: 'contact.csv')
+			}
+		end
 	end
 end

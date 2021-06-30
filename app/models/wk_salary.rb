@@ -35,4 +35,8 @@ class WkSalary < ActiveRecord::Base
     .group("user_id, salary_date")
     .select("user_id, salary_date, sum(amount) As amount")
   }
+
+  scope :getSalaries, ->(userId, salaryDate){
+    where({user_id: userId ,salary_date: salaryDate })
+  }
 end

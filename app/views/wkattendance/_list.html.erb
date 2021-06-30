@@ -1,89 +1,56 @@
-<%= javascript_include_tag 'wkpayroll', :plugin => "redmine_wktime" %>
-<script>
-runperiodUrl="<%= "#{url_for(:controller => controller_name, :action => 'runPeriodEndProcess', :tab => controller.controller_name)}" %>";
-</script>
-<%= form_tag({}) do -%>	
-<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
-<% wktime_helper = Object.new.extend(WktimeHelper) %>
-<div class="wk-contextual">
-	<% if (wktime_helper.validateERPPermission('A_ATTEND')) %>
-		<%= link_to l(:"button_populate_leave"), "javascript:runperiodDatePicker()" %>&nbsp;
-	<% end %>
-</div>
-<% if (wktime_helper.validateERPPermission('A_ATTEND')) %>
-<%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get) do %>
-	<fieldset>
-		<legend><%= l(:label_filter_plural) %></legend>
-		<label for='status'><%= l(:field_status) %></label>
-		<%= select_tag 'status', users_status_options_for_select(@status), :class => "small", :onchange => "this.form.submit(); return false;"  %>
-		<label for='group_id'><%= l(:label_group) %></label>
-		<% if @groups.present? %>
-			<%= select_tag 'group_id', content_tag('option') + options_from_collection_for_select(@groups, :id, :name, params[:group_id].to_i), 
-						:onchange => "this.form.submit(); return false;"  %>
-		<% end %>
-		<label for='name'><%= l(:label_user) %></label>
-		<%= text_field_tag 'name', params[:name], :size => 30 %>
-		<%= submit_tag l(:button_apply), :class => "small", :name => nil %>
-		<%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, 
-			:class => 'icon icon-reload' %>
-	</fieldset>
-	<%=h hidden_field_tag('tab', "#{controller_name}") %>
-	<% end %>
-	&nbsp;
-<% end %>
-
 <div class="autoscroll">
-<table class="list time-entries">
-<thead>
-<tr>
-<%= sort_header_tag('name', :caption => l(:field_user), class: "lbl-txt-align") %>
-<%
-	isAvailable = false
-	lastAccrualOn = Date.civil(Date.today.year, Date.today.month, 1) -1
-	isAvailable = true if(!Setting.plugin_redmine_wktime['wktime_leave'].blank?)
-%>
-<% if isAvailable 
-	Setting.plugin_redmine_wktime['wktime_leave'].each_with_index do |element,index|
-		if index < 5
-		  listboxArr = element.split('|') %>
-		  <th class="lbl-num-align"><%= Issue.find(listboxArr[0]).subject %></th>
-		  <%
-		end
-	end
-end %>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<% @leave_entries.each do |entry| -%>
-<tr class="time-entry <%= cycle("odd", "even") %> <%= entry.status == 3 ? "user locked" : "" %>" >
-<td class="lbl-txt-align"><%=h entry.user.name %></td>
-<% if isAvailable 
-	Setting.plugin_redmine_wktime['wktime_leave'].each_with_index do |element,index|
-		if index < 5
-		  listboxArr = element.split('|') 
-%>
-		<td class="lbl-num-align"><%=h entry['total'+index.to_s].round(2) unless entry['total'+index.to_s].blank? %></td> 
-<%
-		end
-	end
-end %>
-<td align="center">
-	<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :user_id => entry.user_id, 
-		:accrual_on => lastAccrualOn, :tab => controller.controller_name},
-                                       :title => l(:button_edit) %>
-</td>
-</tr>
-<% end -%>
-</tbody>
-</table>
+	<table class="list time-entries">
+		<thead>
+			<tr>
+			<%= sort_header_tag('name', :caption => l(:field_user), class: "lbl-txt-align") %>
+			<%
+				header = ""
+				wktime_leave = Setting.plugin_redmine_wktime['wktime_leave']
+				isAvailable = wktime_leave.present?
+				lastAccrualOn = Date.civil(Date.today.year, Date.today.month, 1) -1
+				if isAvailable
+					wktime_leave.each_with_index do |element,index|
+						if index < 5
+							listboxArr = element.split('|')
+							header += "<th class='lbl-num-align'>#{Issue.where(id: listboxArr[0]).first&.subject}</th>"
+						end
+					end
+				end
+			%>
+			<%= header.html_safe %>
+			<th></th>
+			</tr>
+		</thead>
+		<tbody>
+		<% @leave_entries.each do |entry| -%>
+			<tr class="time-entry <%= cycle("odd", "even") %> <%= entry.status == 3 ? "user locked" : "" %>" >
+				<td class="lbl-txt-align"><%=h entry.user.name %></td>
+				<% if isAvailable
+					wktime_leave.each_with_index do |element,index|
+						if index < 5
+							listboxArr = element.split('|')
+				%>
+						<td class="lbl-num-align"><%=h entry['total'+index.to_s].round(2) unless entry['total'+index.to_s].blank? %></td>
+				<%
+						end
+					end
+				end %>
+				<td align="center">
+					<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :user_id => entry.user_id,
+						:accrual_on => lastAccrualOn, :tab => controller.controller_name},
+																							:title => l(:button_edit) %>
+				</td>
+			</tr>
+		<% end -%>
+		</tbody>
+	</table>
 </div>
-<% end -%>
+
 <div id="myDialog" title="<%= l(:label_title_end_process) %>">
 	<%= content_tag(:p, l(:label_period_end_confirmation)) %>
 	<%= content_tag(:p, l(:label_chose_process_date)) do %>
 		<%= date_field_tag('start_date', "", {:id => 'start_date', :size => 12, :style => "width:130px; "}) + calendar_for('start_date') %>
-			
+
 		<% end %>
 	<%= content_tag(:p, l(:label_period_end_note)) %>
 </div>

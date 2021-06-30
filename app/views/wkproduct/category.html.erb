@@ -2,7 +2,7 @@
 <div class="wk-contextual" style="float: right;">
 	<%= render :partial => 'sidebar' %>
 </div>
-<%= title l(:label_category) %>
+<%= title l(:field_category) %>
 <%= form_tag({:controller => "wkproduct", :action => 'updateCategory', :tab => 'wkproduct'}, :method => :get, :id => 'query_form') do %>
 <table class="list" id="commit-keywords">
   <thead>

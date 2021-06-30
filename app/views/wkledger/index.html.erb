@@ -28,7 +28,7 @@
 			<tr>
 				<th><label><%= l(:field_name) %></label></th>
 				<td><%= text_field_tag 'name', ledgername, :size => 30 %></td>
-				<th><label style="padding-left: 10px;"><%= l(:label_type) %></label></th>
+				<th><label style="padding-left: 10px;"><%= l(:field_type) %></label></th>
 				<td><%=h select_tag("ledger_type", options_for_select(ledgerType.invert, :selected => ledger_type ), :style => "width:160px; ") %></td>
 				<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %></td>
 				<td><%= link_to l(:button_clear), {:tab => controller_name, clear: true}, :class => 'icon icon-reload' %></td>
@@ -40,4 +40,12 @@
 <div class="total-hours">
 	<p><%= l(:label_total) %>: &nbsp;<%= @ledgers[0].currency unless @ledgers[0].blank? || @ledgers[0].blank?%> <%= html_hours("%.2f" % @totalAmt) %></p>
 </div>
-<%= render :partial => 'wkledger/ledger_list'%>	
+
+<% if @ledgers.present? %>
+	<%= render :partial => 'wkledger/ledger_list'%>
+	<% other_formats_links do |f| %>
+  	<%= f.link_to_with_query_parameters 'CSV', {} %>
+	<% end %>
+<% else %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>

@@ -2,31 +2,46 @@ class WkrfqController < WkbaseController
   unloadable
   include WktimeHelper
   include WkorderentityHelper
+  include WkrfqHelper
   before_action :require_login
   before_action :check_perm_and_redirect, :only => [:index, :edit, :update]
   before_action :check_pur_admin_and_redirect, :only => [:destroy]
 
     def index
-			sort_init 'id', 'asc'
-			sort_update 'name' => "name",
-						'status' => "status",
-						'start_date' => "start_date",
-						'end_date' => "end_date"
+		sort_init 'id', 'asc'
+		sort_update 'name' => "name",
+					'status' => "status",
+					'start_date' => "start_date",
+					'end_date' => "end_date"
+
+		set_filter_session
+		rfq_name = session[controller_name].try(:[], :rfq_name)
+		rfq_date = session[controller_name].try(:[], :rfq_date)
 		@rfqEntries = nil
 		sqlStr = ""
-		unless params[:rfqname].blank?
-			sqlStr = "LOWER(name) like LOWER('%#{params[:rfqname]}%')"
+		unless rfq_name.blank?
+			sqlStr = "LOWER(name) like LOWER('%#{rfq_name}%')"
 		end
-		unless params[:rfq_date].blank?
+		unless rfq_date.blank?
 			sqlStr = sqlStr + " AND" unless sqlStr.blank?
-			sqlStr = sqlStr + " '#{params[:rfq_date]}' between start_date and end_date"
+			sqlStr = sqlStr + " '#{rfq_date}' between start_date and end_date"
 		end
 		unless sqlStr.blank?
 			entries = WkRfq.where(sqlStr)
 		else
 			entries = WkRfq.all
 		end
-		formPagination(entries.reorder(sort_clause), "list")
+		entries = entries.reorder(sort_clause)
+		respond_to do |format|
+			format.html {
+				formPagination(entries, "list")
+			}
+			format.csv{
+				headers = {name: l(:field_name), status: l(:field_status), start_date: l(:label_start_date), end_date: l(:label_end_date)}
+				data = entries.map{|entry| {name: entry.name, status: getRfqStatusHash[entry.status], start_date: entry.start_date, end_date: entry.end_date} }
+				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "rfq.csv")
+			}
+		end
     end
 	
 	def formPagination(entries, sectiontype)
@@ -79,7 +94,7 @@ class WkrfqController < WkbaseController
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end	
   
-   def setLimitAndOffset		
+   	def setLimitAndOffset		
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -142,5 +157,10 @@ class WkrfqController < WkbaseController
 	
 	def isInvPaymentLink
 		false
+	end  
+
+	def set_filter_session
+		filters = [:rfq_name, :rfq_date]
+		super(filters)
 	end
 end

@@ -27,17 +27,30 @@ class WkattributegroupController < WkinventoryController
 		sort_init 'name', 'asc'
 		sort_update 'name' => "name",
 					'description' => "description"
+
+		set_filter_session
+		name = getSession(:name)
 		@groupEntries = nil
 		sqlStr = ""
-		unless params[:name].blank?
-			sqlStr = "LOWER(name) like LOWER('%#{params[:name]}%')"
+		unless name.blank?
+			sqlStr = "LOWER(name) like LOWER('%#{name}%')"
 		end
 		unless sqlStr.blank?
 			entries = WkAttributeGroup.where(sqlStr)
 		else
 			entries = WkAttributeGroup.all
 		end
-		@groupEntries = formPagination(entries.reorder(sort_clause))
+		entries = entries.reorder(sort_clause)
+		respond_to do |format|
+			format.html {        
+				@groupEntries = formPagination(entries)
+			}
+			format.csv{
+				headers = {name: l(:field_name), description: l(:field_description)}
+				data = entries.collect{|entry| {name: entry.name, type: entry.description} }
+				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "attributegroup.csv")
+			}
+		end
     end
 	
 	def formPagination(entries)
@@ -133,6 +146,11 @@ class WkattributegroupController < WkinventoryController
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
 		end	
+	end
+
+	def set_filter_session
+		filters = [:name]
+		super(filters)
 	end
 
 end

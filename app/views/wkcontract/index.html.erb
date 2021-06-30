@@ -1,5 +1,6 @@
 <%= title l(:label_contracts) %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
     blgcontractsUrl = '<%=url_for(:controller => "wkcontract", :action => "index", :tab => "wkcontract")%>'; 
     blginvoiceUrl = '<%=url_for(:controller => "wkinvoice", :action => "index", :tab => "wkinvoice")%>';

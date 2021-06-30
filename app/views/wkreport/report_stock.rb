@@ -20,7 +20,7 @@ module ReportStock
 	def calcReportData(userId, groupId, projId, from, to)
 		sqlStr = " select p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as attribute_name, inv.stock_value, inv.stock_quantity, um.short_desc, projects.name as project_name, inv.currency 
 					from wk_product_items pitm
-					inner join (select product_item_id, product_attribute_id, uom_id, project_id, currency, sum((cost_price + over_head_price) * available_quantity) as stock_value, sum(available_quantity) as stock_quantity 
+					inner join (select product_item_id, product_attribute_id, uom_id, project_id, currency, sum((cost_price * available_quantity) + over_head_price) as stock_value, sum(available_quantity) as stock_quantity 
 					from wk_inventory_items where product_type='I' group by product_item_id, product_attribute_id, uom_id, project_id, currency) inv on (inv.product_item_id = pitm.id) 
 					left join wk_products p on (p.id = pitm.product_id)
 					left join wk_product_models m on (m.id = pitm.product_model_id)

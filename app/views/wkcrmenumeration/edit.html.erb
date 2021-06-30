@@ -9,7 +9,7 @@
 				<legend><%= l(:label_enumerations) + " " + l(:label_details) %></legend>
 					<table>
 						<tr>
-							<th align="left"><%= l(:label_type) %></th>
+							<th align="left"><%= l(:field_type) %></th>
 							<td><%=h select_tag('enumType', options_for_select(typeHash.invert, :selected => @enumEntry.blank? ? "LeadSource" : @enumEntry.enum_type), :style=> "float: left;") %></td>
 						</tr>
 					
