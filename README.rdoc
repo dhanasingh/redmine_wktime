@@ -1,18 +1,17 @@
 = ERPmine
-= Webinar on ERPmine – Inventory, June 29, 3:00 PM IST (GMT+5:30)
+= Webinar on ERPmine – Payroll, July 27, 5:00 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
-https://us02web.zoom.us/meeting/register/tZIkcuCoqjgjHtGaleP9gjIQE7UVy-cxJb_R
+https://us02web.zoom.us/meeting/register/tZEldumqpjwjEtxwaZvPnRZvNsMn8sIkoKsQ
 
 *Topics* :
 
-* Receive Goods (Shipments)
-* Product and items
-* Material Log
-* Invoice
-* Asset and depreciation
-* Disposed Asset
-* Asset and stock Report
+* Generate payroll
+* Reimbursement
+* Apply tax
+* Payroll Report
+* Payslip report
+* Mobile app
 
 
 This Plugin has the following modules:
