@@ -158,12 +158,14 @@ class WkbaseController < ApplicationController
 		end
 
 		permissons = (wkpermissons || []).map{ |perm| perm.short_name }
-		Setting.plugin_redmine_wktime.each.each{ |key, val| settings[key] = val if val != "" }
+		Setting.plugin_redmine_wktime.each{ |key, val| settings[key] = val if val != "" }
 		configs = {
 			permissions: permissons, mapAPIkey: Setting.plugin_redmine_wktime['label_mapbox_apikey'],
 			logEditPermission: getEditLogPermission,
 			settings: settings, languageSet: languageSet
 		}
+		#Resident Management settings
+		call_hook(:get_resident_settings, configs: configs)
 
 		respond_to do |format|
 			format.json {
