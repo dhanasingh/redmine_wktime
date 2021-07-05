@@ -20,9 +20,6 @@
 			isDisposed =session[controller_name].try(:[], :is_dispose)
 			showOnMap =session[controller_name].try(:[], :show_on_map)
 		%>
-		<%	projArr = getProjects %>
-		<%	projArr[0] = [l(:label_all_projects),'AP'] %>
-		<%	projArr.unshift(["",''])  %>
 		<fieldset style="font-wight: bold;">
 			<%= l(:label_location) %>&nbsp;
 			<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, true)) %>&nbsp;
@@ -40,7 +37,7 @@
 				</td>&nbsp;
 			<% end %>
 			<%= l(:label_project) %>&nbsp;
-			<%=h select_tag("project_id", options_for_select(projArr, :selected=> projectId)) %>&nbsp;
+			<%=h select_tag("project_id", options_for_select(getProjectArr, :selected=> projectId)) %>&nbsp;
 			<% if controller.getItemType == "A" %>
 				<label><%= check_box_tag('is_dispose', 1, isDisposed) %> <%= l(:label_disposed) %></label>&nbsp;
 			<% end %>

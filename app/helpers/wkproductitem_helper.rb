@@ -61,4 +61,11 @@ include WkassetHelper
 		
 	end
 
+	def getProjectArr
+		projArr = getProjects
+		projArr[0] = [l(:label_all_projects),'AP']
+		projArr.unshift(["",''])
+		projArr
+	end
+
 end

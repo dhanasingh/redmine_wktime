@@ -91,6 +91,9 @@ class WkproductitemController < WkinventoryController
 			format.html {
 				findBySql(selectStr, sqlStr, orderStr)
 			}
+			format.api do
+				@productInventory = WkProductItem.find_by_sql(selectStr + sqlStr + orderStr)
+			end
 			format.csv{
 				entries = WkProductItem.find_by_sql(selectStr + sqlStr + orderStr)
 				headers = getIventoryListHeader

@@ -144,9 +144,6 @@ class WklocationController < WkbaseController
 	end
 
 	def getlocations
-		wklocations = WkLocation.order(name: :asc)
-		locations = []
-		locations = wklocations.map { |loc| { value: loc.id, label: loc.name }}
-		render json: locations
+		render json: getAllLocations
 	end
 end

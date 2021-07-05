@@ -1957,4 +1957,10 @@ end
 		valid = time_entry.activity_id.blank? || time_entry.hours.blank? || status.blank? || ('a' != status && 's' != status && 'l' != status)
 		return valid ? "" : l(:label_warning_wktime_time_entry)
 	end
+
+	def getAllLocations
+		wklocations = WkLocation.order(name: :asc)
+		locations = []
+		locations = wklocations.map { |loc| { value: loc.id, label: loc.name }}
+	end
 end
