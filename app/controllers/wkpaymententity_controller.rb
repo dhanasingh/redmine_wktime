@@ -80,7 +80,7 @@ class WkpaymententityController < WkbillingController
 			  render :layout => !request.xhr?
 			end
 			format.api do
-				@payment_entries = WkPayment.find_by_sql(selectStr + query + orderStr)
+				@payment_entries = WkPayment.find_by_sql(selectStr + sqlStr + orderStr)
 			end
 			format.csv do
 				entries = WkPayment.find_by_sql(selectStr + sqlStr + orderStr)

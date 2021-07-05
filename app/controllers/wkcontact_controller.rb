@@ -69,7 +69,7 @@ class WkcontactController < WkcrmController
 			  render :layout => !request.xhr?
 			end
 			format.api do
-				@accountproject = wkcontact
+				@contact = wkcontact
 			end
 			format.csv do
 				headers = { name: l(:field_name), acc_name: l(:label_account_name), location: l(:label_location), title: l(:field_title), email: l(:field_mail), phone: l(:label_work_phone), assignee: l(:field_assigned_to), modified: l(:label_modified) }
