@@ -270,9 +270,9 @@ module TimelogControllerPatch
 		
 		def validateMatterial(paramEntry)
 			errorMsg = ""
-			if paramEntry[:project_id].blank? 
-				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_project_error) if params[:project_id].blank?
-			end
+			# if paramEntry[:project_id].blank? 
+			# 	errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_project_error) if params[:project_id].blank?
+			# end
 			if paramEntry[:issue_id].blank?
 				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_issue_error)
 			end
