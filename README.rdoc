@@ -1,4 +1,5 @@
 = ERPmine
+
 = Webinar on ERPmine – Payroll, July 27, 5:00 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
@@ -12,7 +13,6 @@ https://us02web.zoom.us/meeting/register/tZEldumqpjwjEtxwaZvPnRZvNsMn8sIkoKsQ
 * Payroll Report
 * Payslip report
 * Mobile app
-
 
 This Plugin has the following modules:
 
