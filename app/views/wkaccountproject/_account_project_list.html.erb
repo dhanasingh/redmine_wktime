@@ -4,7 +4,7 @@
   <thead>
          <tr>
 				<% if action_name == 'index' %>
-					<%= sort_header_tag('type', :caption => l(:label_type), class: "lbl-txt-align") %>
+					<%= sort_header_tag('type', :caption => l(:field_type), class: "lbl-txt-align") %>
 					<%= sort_header_tag('name', :caption => l(:field_name), class: "lbl-txt-align") %>
 					<%= sort_header_tag('project', :caption => l(:label_project), class: "lbl-txt-align") %>
 					<%= sort_header_tag('billing_type', :caption => l(:label_billing_type), class: "lbl-txt-align") %>							
@@ -12,7 +12,7 @@
 					<th class="lbl-txt-align"><%= l(:label_itemized_bill) %></th>
 					<th></th>
 				<% else %>			
-					<th class="lbl-txt-align"><%= l(:label_type) %></th>
+					<th class="lbl-txt-align"><%= l(:field_type) %></th>
 					<th class="lbl-txt-align"><%= l(:field_name) %></th>
 					<th class="lbl-txt-align"><%= l(:label_project) %></th>	
 					<th class="lbl-txt-align"><%= l(:label_billing_type) %></th>								

@@ -14,9 +14,9 @@
       <tr>
         <th><label style="padding-left: 10px;"><%= l(:label_skill_set) %></label></th>
         <td><%= select_tag('skill_set', options_for_select(options_for_enum_select('SK', skillSet || 0, true))) %></td>
-        <th><label style="padding-left: 10px;"><%= l(:label_rating) %></label></th>
+        <th><label style="padding-left: 10px;"><%= l(:label_min_rating_req) %></label></th>
         <td><%= select_tag("rating", options_for_select(ratings, selected: rating), style: "width:60px") %></td>
-        <th><label style="padding-left: 10px;"><%= l(:label_years_of_exp) %></label></th>
+        <th><label style="padding-left: 10px;"><%= l(:label_min_exp_req) %></label></th>
         <td><%= text_field_tag "experience", experience %></td>
         <td><%= submit_tag l(:button_apply), class: "small", name: nil %></td>
         <td><%= link_to l(:button_clear), {tab: controller_name, clear: true}, class: "icon icon-reload" %></td>

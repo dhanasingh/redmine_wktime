@@ -27,6 +27,9 @@
 
 <% if @entries.present? %>
   <%= render partial: "wklead/lead_list", locals: { entries: @entries } %>
+	<% other_formats_links do |f| %>
+		<%= f.link_to_with_query_parameters 'CSV', {} %>
+	<% end %>
 <% else %>
-	<p style="clear:both" class="nodata">No data to display</p>
+	<p class="nodata"><%= l(:label_no_data) %></p>
 <% end %>

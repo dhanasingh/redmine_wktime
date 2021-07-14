@@ -32,6 +32,7 @@ class WkInvoice < ActiveRecord::Base
   has_many :notifications, through: "rfq_quote", :dependent => :destroy
   has_many :notifications, through: "po_quote", :dependent => :destroy
   has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
+  has_many :billing_schedules, foreign_key: "invoice_id", class_name: "WkBillingSchedule"
   
   # scope :invoices, lambda {where :invoice_type => 'I'}
   # scope :quotes, lambda {where :invoice_type => 'Q'}
@@ -47,7 +48,8 @@ class WkInvoice < ActiveRecord::Base
   
   before_save :increase_inv_key
   # after_create_commit :send_notification
-  
+  before_destroy :update_billing_schedule
+
   def total_invoice_amount
 	self.invoice_items.sum(:original_amount)
   end
@@ -74,6 +76,10 @@ class WkInvoice < ActiveRecord::Base
       subject = l(:label_supplier_invoice) + " " + l(:label_notification)
       WkNotification.notification(userId, emailNotes, subject, invoice, 'supplierInvoiceReceived')
     end
+  end
+
+  def update_billing_schedule
+		self.billing_schedules.update(:invoice_id => nil) if self.billing_schedules.present?
   end
   
 end

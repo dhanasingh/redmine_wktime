@@ -1,19 +1,18 @@
 = ERPmine
-= Webinar on ERPmine – Attendance , May 25, 6:00 PM IST (GMT+5:30)
+
+= Webinar on ERPmine – Payroll, July 27, 5:00 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
-https://us02web.zoom.us/meeting/register/tZAkcOyrrjgvEtV4xM9LzcVzar-N7q4FdnEe
+https://us02web.zoom.us/meeting/register/tZEldumqpjwjEtxwaZvPnRZvNsMn8sIkoKsQ
 
 *Topics* :
 
-* Clock In/Clock Out
-* Review Leave Status
-* Leave Request
-* Integrate with Attendance Devices
-* Attendance Report
-* Attendance on Map
-* Mobile App
-
+* Generate payroll
+* Reimbursement
+* Apply tax
+* Payroll Report
+* Payslip report
+* Mobile app
 
 This Plugin has the following modules:
 
@@ -92,19 +91,31 @@ If an apache passenger module is used then make sure the following settings are 
   b) RailsAppSpawnerIdleTime 0
   c) PassengerPreStart https://rails-app-url/	
 
-Release Notes for v4.2.1
+Release Notes for v4.3
 
   Features:
-    - Redmine 4.2 compatible
-    - Approve expense entries on reimbursement
+    - Generate invoice for selected hours
+    - Show billed hours in invoice
+    - Project skills
+    - Add surcharge tax to Indian rule
+    - The lead conversion graph should show cumulative numbers
+    - Detail report for dashboard
+    - Payment terms in account project
+    - CSV for list pages
+    - Show inventory items consumption
+    - Delete option in payroll, invoice and payment
+    - German translation
+    - Add total estimation hours to spent time report
 
   Bug fixes:
-    - Issue logger dropdown not loaded
-    - Change Mapbox label
-    - Showing old contract number in invoice
-    - Reimbursement not showing for all project expense
-    - Attachment download failed in time and expense
-    - Show on Map option not visibile in HR
+    - Issue dropdown doesn't populate issues in timesheet
+    - Issue logger doesn't consider approved timesheet
+    - Product item report in spent time not loaded correctly
+    - Remove apply tax automatically in user setting page
+    - Scheduling shift link is not working
+    - Attendance entries are wrongly posted on report
+    - Over Head cost error in shipping module
+    - Cannot use material and expense spent types without time entry
 
 Customization:
 

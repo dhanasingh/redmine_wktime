@@ -1,5 +1,5 @@
-<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<%= javascript_include_tag 'index', plugin: "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
 
 <div class="wk-contextual">
 	<%= link_to l(:label_new_shipment), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-add' %>
@@ -36,4 +36,12 @@
 		<%= @shipmentEntries[0].inventory_items[0].currency unless @shipmentEntries[0].blank? || @shipmentEntries[0].inventory_items[0].blank?%>
 	<%= html_hours("%.2f" % @totalShipAmt) %></p>
 </div>
-<%= render :partial => 'wkshipment/shipment_list'%>	
+
+<% if @shipmentEntries.present? %>
+	<%= render :partial => 'wkshipment/shipment_list'%>
+	<% other_formats_links do |f| %>
+		<%= f.link_to_with_query_parameters 'CSV', {} %>
+	<% end %>
+<% else %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>

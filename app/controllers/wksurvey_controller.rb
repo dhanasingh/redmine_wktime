@@ -44,6 +44,11 @@ class WksurveyController < WkbaseController
         setLimitAndOffset()
         @surveys = surveys
       }
+			format.csv{
+				headers = {name: l(:field_name), status: l(:field_status)}
+				data = surveys.collect{|entry| {name: entry.name, status: getSurveyStatus.invert[entry.status]} }
+				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "survey.csv")
+			}
 		end
   end
 

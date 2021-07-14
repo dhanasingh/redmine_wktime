@@ -191,7 +191,7 @@ lblYear = "<%=l(:label_year) %>";
 		custom_fields = UserCustomField.order('name')
 		allFields = Hash.new()
 		fldInFiles = Hash.new()		
-		allFields = {"user_id" => "#{l(:label_user_id)}", "start_time" => "#{l(:label_start_time)}", "end_time" => "#{l(:label_end_time)}", "hours" => "#{l(:label_hours)}", "id1" => "#{l(:field_id1)}", "id2" => "#{l(:field_id2)}", "id3" => "#{l(:field_id3)}" }
+		allFields = {"user_id" => "#{l(:label_user_id)}", "start_time" => "#{l(:label_start_time)}", "end_time" => "#{l(:label_end_time)}", "hours" => "#{l(:field_hours)}", "id1" => "#{l(:field_id1)}", "id2" => "#{l(:field_id2)}", "id3" => "#{l(:field_id3)}" }
 		unless custom_fields.blank?		
 			cfdate = custom_fields.select {|cf| cf.field_format == 'date'}
 			cfids = custom_fields.select {|cf| cf.field_format == 'string' || cf.field_format == 'int' }			

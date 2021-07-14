@@ -1,10 +1,9 @@
-<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <div class="autoscroll">
 	<table class="list time-entries">
 		<thead>
 			<tr>
 				<%= sort_header_tag('contract_number', :caption => l(:label_contract_number), class: "lbl-txt-align") %>
-				<%= sort_header_tag('type', :caption => l(:label_type), class: "lbl-txt-align") %>
+				<%= sort_header_tag('type', :caption => l(:field_type), class: "lbl-txt-align") %>
 				<%= sort_header_tag('name', :caption => l(:field_name), class: "lbl-txt-align") %>
 				<%= sort_header_tag('project', :caption => l(:label_project), class: "lbl-txt-align") %>
 				<%= sort_header_tag('start_date', :caption => l(:label_start_date), class: "lbl-txt-align") %>			

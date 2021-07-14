@@ -174,6 +174,7 @@ class WkbaseController < ApplicationController
 
 	def saveIssueTimeLog
 		entryTime = get_current_DateTime
+		errorMsg = ""
 		if params[:issue_id].present?
 			project = Issue.find(params[:issue_id]).project
 			activityID = project.activities.first.id
@@ -187,7 +188,10 @@ class WkbaseController < ApplicationController
 				timeEntryAttr[:spent_for_attributes][:s_latitude] = params[:latitude]
 			end
 			timeEntry = TimeEntry.new(timeEntryAttr)
-			timeEntry.save
+			errorMsg += statusValidation(timeEntry)
+			unless errorMsg.blank? && timeEntry.save
+				errorMsg += timeEntry.errors.full_messages.join("<br>")
+			end
 		else
 			wkSpentFor = WkSpentFor.find(params[:id])
 			if(wkSpentFor.spent_type == "TimeEntry")
@@ -202,7 +206,10 @@ class WkbaseController < ApplicationController
 					timeEntry.spent_for.e_longitude = params[:longitude]
 					timeEntry.spent_for.e_latitude = params[:latitude]
 				end
-				timeEntry.save
+				errorMsg = statusValidation(timeEntry)
+				unless errorMsg.blank? && timeEntry.save
+					errorMsg = timeEntry.errors.full_messages.join("<br>")
+				end
 			else
 				materialEntry = WkMaterialEntry.find(wkSpentFor.spent_id)
 				quantity = getAssetQuantity(materialEntry.spent_for.spent_on_time, entryTime, materialEntry.inventory_item_id)
@@ -226,10 +233,8 @@ class WkbaseController < ApplicationController
 			end
 		end
 		lastIssueLog = WkSpentFor.getIssueLog.first
-		renderMsg = lastIssueLog.blank? ? "start" : "finish" if renderMsg.blank?
-		respond_to do |format|
-			format.text  { render(js: renderMsg) }
-		end
+		renderMsg = lastIssueLog.blank? ? "start" : "finish" if errorMsg.blank?
+		render plain: renderMsg || errorMsg
 	end
 
 	def findCountBySql(query, model)
@@ -243,7 +248,7 @@ class WkbaseController < ApplicationController
 	end
 
 	def set_filter_session(filters, filterParams={})
-		session[controller_name] = filterParams if session[controller_name].nil? || params[:clear]
+		session[controller_name] = filterParams if session[controller_name].blank? || params[:clear]
 		if params[:searchlist] == controller_name || api_request?
 			filters.each do |param|
 				if params[param].blank? && session[controller_name].try(:[], param).present?
@@ -304,7 +309,7 @@ class WkbaseController < ApplicationController
 			format.api
 		end
 	end
-	
+
 	def getBase64Image(attachment)
 		base64Image = ""
 		if attachment.present?
@@ -317,5 +322,16 @@ class WkbaseController < ApplicationController
 	def get_groups
 		groups = Group.sorted.givable.map{ |g| [g.name, g.id]}
 		render json: {groups: groups}
+	end
+
+	def csv_export(data)
+		decimal_separator = l(:general_csv_decimal_separator)
+		export = Redmine::Export::CSV.generate do |csv|
+			csv << data[:headers].collect {|key, value| Redmine::CodesetUtil.from_utf8(value.to_s, l(:general_csv_encoding))}
+			data[:data].each do |entry|
+				csv << entry.collect {|key, value| Redmine::CodesetUtil.from_utf8(value.to_s, l(:general_csv_encoding))} if entry.present?
+			end
+		end
+		export
 	end
 end

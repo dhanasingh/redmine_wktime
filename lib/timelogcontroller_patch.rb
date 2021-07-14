@@ -54,8 +54,9 @@ module TimelogControllerPatch
 		def report
 			set_filter_session
 			retrieve_time_entry_query
-			scope = time_entry_scope
-			# ============= ERPmine_patch Redmine 4.2  =====================	
+			# ============= ERPmine_patch Redmine 4.2  =====================
+			options = session[:timelog][:spent_type] == "T" ? {nonSpentTime: params[:non_spent_time]} : {}
+			scope = time_entry_scope(options)	
 				if session[:timelog][:spent_type] === "A" || session[:timelog][:spent_type] === "M"
 					productType = session[:timelog][:spent_type] === "M" ? 'I' : 'A'
 					scope = scope.where("wk_inventory_items.product_type = '#{productType}' ")
@@ -64,8 +65,8 @@ module TimelogControllerPatch
 				unless hookQuery[0].blank?
 					scope = scope.where(hookQuery[0])
 				end
-			# ================================	
-			@report = Redmine::Helpers::TimeReport.new(@project, @issue, params[:criteria], params[:columns], scope)
+			@report = Redmine::Helpers::TimeReport.new(@project, @issue, params[:criteria], params[:columns], scope, options)
+			# ================================
 
 			respond_to do |format|
 			  format.html {render :layout => !request.xhr?}
@@ -129,7 +130,8 @@ module TimelogControllerPatch
 
 		def create
 			@time_entry ||= TimeEntry.new(:project => @project, :issue => @issue, :author => User.current, :user => User.current, :spent_on => User.current.today)
-			@time_entry.safe_attributes = params[:time_entry]
+			paramEntry = getParams(params[:log_type], params)
+			@time_entry.safe_attributes = paramEntry
 			if @time_entry.project && !User.current.allowed_to?(:log_time, @time_entry.project)
 				render_403
 				return
@@ -139,7 +141,7 @@ module TimelogControllerPatch
 				model = nil
 				errorMsg = ""
 				timeErrorMsg = ""
-				errorMsg += l(:label_issue_error) if params[:clock_action] == "S" && params[:time_entry][:issue_id].blank?
+				errorMsg += l(:label_issue_error) if params[:clock_action] == "S" && paramEntry[:issue_id].blank?
 				wktime_helper = Object.new.extend(WktimeHelper)
 				if params[:log_type].blank? || params[:log_type] == 'T'
 			#=====================
@@ -158,7 +160,7 @@ module TimelogControllerPatch
 					unless hookType[0].blank?
 						@logType = hookType[0]
 					end
-					errorMsg += validateMatterial				
+					errorMsg += validateMatterial(paramEntry)				
 					if errorMsg.blank?
 						errorMsg += saveMatterial if params[:log_type] == 'M' || params[:log_type] == 'A' || params[:log_type] == @logType
 						errorMsg += saveExpense if params[:log_type] == 'E'
@@ -179,7 +181,7 @@ module TimelogControllerPatch
 							if params[:continue]
 								options = {
 									:time_entry => {
-										:project_id => params[:time_entry][:project_id],
+										:project_id => paramEntry[:project_id],
 										:issue_id => @time_entry.issue_id,
 										:spent_on => @time_entry.spent_on,
 										:activity_id => @time_entry.activity_id
@@ -266,19 +268,18 @@ module TimelogControllerPatch
 			model = wktime_helper.saveSpentFor(params[:spentForId], spentForId, spentFortype, model.id, model.class.name, model.spent_on, '00', '00', nil, start_time, end_time, params[:latitude], params[:longitude], params[:clock_action])
 		end
 		
-		def validateMatterial
+		def validateMatterial(paramEntry)
 			errorMsg = ""
-			
-			# if params[:time_entry][:project_id].blank? 
-				# errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_project_error) if params[:project_id].blank?
-			# end
-			if params[:time_entry][:issue_id].blank?
+			if paramEntry[:project_id].blank? 
+				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_project_error) if params[:project_id].blank?
+			end
+			if paramEntry[:issue_id].blank?
 				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_issue_error)
 			end
 			if params[:expense_amount].blank? && params[:log_type] == 'E'
 				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:error_expense_amount)
 			end			
-			if params[:time_entry][:activity_id].blank?
+			if paramEntry[:activity_id].blank?
 				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_activity_error)
 			end
 			
@@ -290,10 +291,18 @@ module TimelogControllerPatch
 			end
 			errorMsg
 		end
+
+		def getParams(logtype, params)
+			param = params[:time_entry]
+			param = params[:wk_expense_entry] if logtype == 'E'
+			param = params[:wk_material_entry] if logtype == 'M' || logtype == 'A'
+			param
+		end
 	# ========================
 	
 		def update
-			@time_entry.safe_attributes = params[:time_entry]
+			paramEntry = getParams(params[:log_type], params)
+			@time_entry.safe_attributes = paramEntry
 			# ============= ERPmine_patch Redmine 4.2  =====================
 				set_filter_session
 				model = nil
@@ -321,7 +330,7 @@ module TimelogControllerPatch
 					unless hookType[0].blank?
 						@logType = hookType[0]
 					end
-					errorMsg = validateMatterial
+					errorMsg = validateMatterial(paramEntry)
 					if errorMsg.blank?
 						errorMsg += saveMatterial if params[:log_type] == 'M' || params[:log_type] == 'A' || params[:log_type] == @logType
 						errorMsg += saveExpense if params[:log_type] == 'E'
@@ -367,7 +376,7 @@ module TimelogControllerPatch
 		def saveMatterial
 			wklog_helper = Object.new.extend(WklogmaterialHelper)
 			wktime_helper = Object.new.extend(WktimeHelper)
-			setEntries(WkMaterialEntry, params[:matterial_entry_id])
+			setEntries(WkMaterialEntry, params[:matterial_entry_id], params[:wk_material_entry])
 			selPrice = params[:product_sell_price].to_f
 			@modelEntry.selling_price = selPrice.blank? ? 0.00 :  ("%.2f" % selPrice)
 			@modelEntry.uom_id = params[:uom_id]
@@ -417,24 +426,24 @@ module TimelogControllerPatch
 			return errorMsg
 		end
 
-		def setEntries(model, id)
+		def setEntries(model, id, params={})
 			if id.blank?
 				@modelEntry = model.new
 			else
 				@modelEntry = model.find(id.to_i)
 			end
-			projectId = Issue.find(params[:time_entry][:issue_id].to_i).project_id
+			projectId = Issue.find(params[:issue_id].to_i).project_id
 			@modelEntry.project_id = projectId
-			@modelEntry.user_id = params[:time_entry][:user_id].blank? ? User.current.id : params[:time_entry][:user_id].to_i
-			@modelEntry.issue_id =  params[:time_entry][:issue_id].to_i
-			@modelEntry.comments =  params[:time_entry][:comments]
-			@modelEntry.activity_id =  params[:time_entry][:activity_id].to_i
-			@modelEntry.spent_on = params[:time_entry][:spent_on]
+			@modelEntry.user_id = params[:user_id].blank? ? User.current.id : params[:user_id].to_i
+			@modelEntry.issue_id =  params[:issue_id].to_i
+			@modelEntry.comments =  params[:comments]
+			@modelEntry.activity_id =  params[:activity_id].to_i
+			@modelEntry.spent_on = params[:spent_on]
 		end
 		
 		def saveExpense
 			errorMsg = ""
-			setEntries(WkExpenseEntry, params[:expense_entry_id])
+			setEntries(WkExpenseEntry, params[:expense_entry_id], params[:wk_expense_entry])
 			@modelEntry.amount = params[:expense_amount]
 			@modelEntry.currency = params[:wktime_currency]
 			unless @modelEntry.valid?	
@@ -488,12 +497,12 @@ module TimelogControllerPatch
 				@project = @time_entry.project
 			# ============= ERPmine_patch Redmine 4.2  =====================		
 				elsif session[:timelog][:spent_type] === "E"
-					@time_entry = TimeEntry.first
+					@time_entry = WkExpenseEntry.find(params[:id])
 					expenseEntry = WkExpenseEntry.find(params[:id])
 					@time_entry.id = expenseEntry.id
 					@project = expenseEntry.project
 				else
-					@time_entry = TimeEntry.first
+					@time_entry = WkMaterialEntry.find(params[:id])
 					materialEntry = WkMaterialEntry.find(params[:id])
 					@time_entry.id = materialEntry.id
 					@project = materialEntry.project

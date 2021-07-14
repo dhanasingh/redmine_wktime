@@ -6,7 +6,7 @@
 		<thead>
 			<tr>
 				<%= sort_header_tag('name', :caption => l(:field_name), class: "lbl-txt-align", style:(show_on_map ? "width:30%" : "")) %>
-				<%= sort_header_tag('type', :caption => l(:label_type), class: "lbl-txt-align", style:(show_on_map ? "width:30%" : "")) %>
+				<%= sort_header_tag('type', :caption => l(:field_type), class: "lbl-txt-align", style:(show_on_map ? "width:30%" : "")) %>
 				<% if !show_on_map %>
 					<th class="lbl-txt-align"><%= l(:label_account_address1)   %></th>
 				<% end %>

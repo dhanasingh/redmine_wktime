@@ -31,7 +31,7 @@
 			<th align="left"><%= l(:label_txn_sales_stage) %></th>
 			<td align="left" style="padding-left:40px;"><%=h select_tag('sales_stage', options_for_select(options_for_enum_select('SS', selectedSSId, true))) %></td>
 			
-			<th align="left" style="padding-left:240px;"><%= l(:label_type) %></th>
+			<th align="left" style="padding-left:240px;"><%= l(:field_type) %></th>
 			<td align="left" style="padding-left:40px;"><%=h select_tag('opp_type', options_for_select(options_for_enum_select('OT', selectedOTId, true))) %></td>
 		</tr>
 		
@@ -54,7 +54,7 @@
 		</tr>
 		
 		<tr>
-			<th align="left" ><%= l(:label_related_to) %></th>
+			<th align="left" ><%= l(:label_relates_to) %></th>
 			<td align="left" style="padding-left:40px;"><%=h select_tag("related_to", options_for_select(relHash.invert, :selected => (!@oppEditEntry.blank? ? @oppEditEntry[0].parent_type : (params[:parentType].blank? ? "" : params[:parentType]))), :onchange => "actRelatedDd(#{User.current.id}, false, false, 'A', 'C', false)", :style => "width:200px;") %>
 			
 			<%=h select_tag("related_parent", options_for_select(accArr, :selected => (!@oppEditEntry.blank? ? @oppEditEntry[0].parent_id : (params[:parentId].blank? ? "" : params[:parentId]))), :style => "width:200px;") %></td> 

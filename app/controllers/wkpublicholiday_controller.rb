@@ -45,24 +45,35 @@ class WkpublicholidayController < WkbaseController
 			entries = entries.where(:holiday_date => calendar.startdt..calendar.enddt)
 		else
 			unless getSession(:year).blank?
-				@year_from = getSession(:year).to_i	
-			else				
-				@year_from ||= User.current.today.year 
+				@year_from = getSession(:year).to_i
+			else
+				@year_from ||= User.current.today.year
 			end
 			startMonth = Date.civil(@year_from, 1, 1)
 			endMonth = Date.civil(@year_from, 12, 31)
 			entries = entries.where(:holiday_date => startMonth..(endMonth))
 		end
 		entries = entries.order(:holiday_date)
-		formPagination(entries)
+
+		respond_to do |format|
+			format.html do
+				formPagination(entries)
+				render :layout => !request.xhr?
+			end
+			format.csv do
+				headers = {date: l(:label_date), location: l(:label_location), description: l(:label_wk_description)}
+				data = entries.map{|e| {date: e.holiday_date, location: e&.location&.name, description: e.description}}
+				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "hoildays.csv")
+			end
+		end
 	end
 
 	def update
-		count = 0		
+		count = 0
 		errorMsg = ""
 		arrId = Array.new
 		unless params[:actual_ids].blank?
-			arrId = params[:actual_ids].split(",").map { |s| s.to_i } 
+			arrId = params[:actual_ids].split(",").map { |s| s.to_i }
 		end
 		for i in 0..params[:ph_id].length-1
 			if params[:ph_id][i].blank?
@@ -78,33 +89,33 @@ class WkpublicholidayController < WkbaseController
 				publicHoliday.created_by_user_id = User.current.id
 			end
 			publicHoliday.updated_by_user_id = User.current.id
-			publicHoliday.save()			
+			publicHoliday.save()
 		end
-		
-		if !arrId.blank?			
+
+		if !arrId.blank?
 			arrId.each do |id|
 				des = WkPublicHoliday.find(id)
 				if des.destroy
-					count = count + 1	
+					count = count + 1
 				else
 					errorMsg = errorMsg + des.errors.full_messages.join("<br>")
 				end
 			end
-			
+
 		end
-		
+
 		redirect_to :controller => 'wkpublicholiday',:action => 'index' , :tab => 'wkpublicholiday'
 		flash[:notice] = l(:notice_successful_update)
 		flash[:error] = errorMsg unless errorMsg.blank?
 	end
-	
+
 	def formPagination(entries)
 		@entry_count = entries.count
-        setLimitAndOffset()		
+        setLimitAndOffset()
 		@phEntry = entries.limit(@limit).offset(@offset)
 	end
-	
-	def setLimitAndOffset		
+
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -117,9 +128,9 @@ class WkpublicholidayController < WkbaseController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
+		end
 	end
-	
+
 	def set_filter_session
 		filters = [:location_id, :month, :year]
 		super(filters, {:year => @year, :month => @month})

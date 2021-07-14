@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2018  Adhi software pvt ltd
+# Copyright (C) 2011-2021  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -17,6 +17,7 @@
 
 class WkPublicHoliday < ActiveRecord::Base
 
+  belongs_to :location, class_name: 'WkLocation'
   scope :getHolidays, ->(userID, holiday){
     joins("INNER JOIN wk_users ON wk_users.location_id = wk_public_holidays.location_id")
     .where("wk_users.user_id = #{userID} AND holiday_date = '#{holiday}'")

@@ -117,7 +117,7 @@ include WkdocumentHelper
 
 	def relatedHash
 		relatedType = {
-			"WkAccount"  => l(:label_account),
+			"WkAccount"  => l(:field_account),
 			"WkCrmContact" =>  l(:label_contact),
 			"WkLead"  => l(:label_lead),
 			"WkOpportunity" =>  l(:label_opportunity)

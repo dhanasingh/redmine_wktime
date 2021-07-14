@@ -1,13 +1,4 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
- <%= form_tag({:controller => 'wkbrand', :action => 'index'}, :method => :post, :id => 'query_form') do %>
-	  <fieldset>
-		 <%=h hidden_field_tag('tab', "wkbrand") %>
-		 <label for='name'><%= l(:field_name) %>:</label>
-		 <%= text_field_tag 'name', params[:name], :size => 30 %>
-		 <%= submit_tag l(:button_apply), :class => "small", :name => nil %>
-		 <%= link_to l(:button_clear), {:controller => controller_name, :action => 'index', :tab => controller_name}, :class => 'icon icon-reload' %>
-	  </fieldset>
- <% end %>
 <div class="autoscroll">
 <table class="list time-entries">
   <thead>

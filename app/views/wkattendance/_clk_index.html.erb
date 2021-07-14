@@ -1,6 +1,6 @@
-<script type="text/javascript"> 
+<script type="text/javascript">
 	prevTab = 'tab-<%= "clcok" %>';
-	clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>'; 
+	clockInOutUrl = '<%=url_for(:controller => "wkattendance", :action => "clockindex", :tab => "clock")%>';
 	grpUrl="<%= "#{url_for(:controller => "wkattendance", :action => 'getMembersbyGroup')}" %>";
 </script>
 <%
@@ -9,7 +9,6 @@
 	userid =session[controller_name].try(:[], :user_id)
 	showOnMap =session[controller_name].try(:[], :show_on_map)
 %>
-<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 
 <% if validateERPPermission('A_ATTEND') %>
 	<div class="wk-contextual">
@@ -18,6 +17,7 @@
 <% end %>
 
 <%= form_tag({:controller => controller_name, :action => 'clockindex'}, :method => :get, :id => 'query_form') do %>
+	<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 	<%=h hidden_field_tag('tab', "clock") %>
 	<%= hidden_field_tag "searchlist", controller_name %>
 	<fieldset>
@@ -50,4 +50,6 @@
 
 <%= render :partial => 'wkattendance/clk_list'%>
 <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
-<%=h hidden_field_tag('tab', controller_name) %>
+<% other_formats_links do |f| %>
+	<%= f.link_to_with_query_parameters "CSV", {} %>
+<% end %>

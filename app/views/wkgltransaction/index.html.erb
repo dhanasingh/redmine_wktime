@@ -10,7 +10,7 @@
 
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 <div class="wk-contextual">
-	<%= link_to l(:label_new_item_adjusted, l(:label_transaction)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+	<%= link_to l(:label_new_item, l(:label_transaction)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
 </div>	
 <%	ledgerid =session[controller_name].try(:[], :txn_ledger)
 	showChart =session[controller_name].try(:[], :show_chart)
@@ -24,7 +24,7 @@
 	<div class="wk-contextual">
 		<b><label style="float:left;padding-top: 5px;"><%= l(:label_ledger) %>:</label></b>
 	     <%=h select_tag("txn_ledger", options_for_select([['','']]+@ledgers, :selected => ledgerid.nil? ? @ledgers : ledgerid ), :style => "width:200px; float:left;", onchange: '$("#query_form").submit()') %>
-		<b><label style="float:left; padding-left: 10px;padding-top: 5px;"><%= l(:label_type) %>:</label></b>
+		<b><label style="float:left; padding-left: 10px;padding-top: 5px;"><%= l(:field_type) %>:</label></b>
 		 <%=h select_tag("trans_type", options_for_select(transactionType.invert, :selected => trans_type ), :style => "width:150px;float:left;") %>
 		<span id="trans_summary">
 		 <b><label  style="float:left; padding-left: 10px;padding-top: 5px;"><%= l(:label_summary_by) %>:</label></b>

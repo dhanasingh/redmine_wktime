@@ -171,7 +171,7 @@ module ReportProjectProfitability
         if row_total[row_key].blank?
           row_total[row_key] = {:income => 0, :expense => 0 }
         end
-        profit[row_key] = (row_total[row_key][:income] - row_total[row_key][:expense])
+        profit[row_key] = (row_total[row_key][:income] - row_total[row_key][:expense]).round(2)
         percentage[row_key] = ((profit[row_key]/row_total[row_key][:income])*100).round(2) unless row_total[row_key][:income] == 0
         percentage[row_key] = percentage[row_key].blank? ? 0 : percentage[row_key]
 				percentage[row_key] = percentage[row_key] > 0 ? percentage[row_key] : 0
@@ -183,7 +183,7 @@ module ReportProjectProfitability
       if col_total[col_key].blank?
         col_total[col_key] = {:income => 0, :expense => 0 }
       end
-      mnthProfit[col_key] = (col_total[col_key][:income] - col_total[col_key][:expense])
+      mnthProfit[col_key] = (col_total[col_key][:income] - col_total[col_key][:expense]).round(2)
       mnthPercentage[col_key] = ((mnthProfit[col_key]/col_total[col_key][:income])*100).round(2) unless col_total[col_key][:income] == 0
       mnthPercentage[col_key] = mnthPercentage[col_key].blank? ? 0 : mnthPercentage[col_key]
       mnthPercentage[col_key] = mnthPercentage[col_key] > 0 ? mnthPercentage[col_key] : 0
@@ -191,7 +191,7 @@ module ReportProjectProfitability
     if grand_total.blank?
       grand_total = {:income => 0, :expense => 0 }
     end
-    ovrAllProf = (grand_total[:income] - grand_total[:expense])
+    ovrAllProf = (grand_total[:income] - grand_total[:expense]).round(2)
 		ovrAllAvg = ((ovrAllProf/grand_total[:income])*100).round(2) unless grand_total[:income] == 0
 		ovrAllAvg = ovrAllAvg.blank? ? 0 : ovrAllAvg
 		ovrAllAvg = ovrAllAvg > 0 ? ovrAllAvg : 0

@@ -24,7 +24,7 @@
 			<%if hasNext%>
 			  |
 			  <%= link_to(l(:label_next) + " \xc2\xbb", {:controller => controller.controller_name, :action => 'edit', :user_id => params[:user_id], :accrual_on => ((accrual_on + 1) >> 1) -1, :tab => controller.controller_name},
-						  :title => l(:label_wk_next_week_tip)) %> 
+						  :title => l(:label_next_week)) %> 
 			<%end%>
 			</td>
 		</tr>

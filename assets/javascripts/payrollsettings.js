@@ -401,6 +401,13 @@ function removeSelectedValue(elementID)
 						ids = payroll_ids == "" ? listboxArr[0] : (payroll_ids + "|" + listboxArr[0]);
 						$('#settings_comp_del_ids').val(ids);
 					}
+					else if(elementID == 'invoice_components')
+					{
+						var listboxArr = listbox.options[i].value.split('|');
+						var comp_ids = $('#invoice_comp_del_ids').val();
+						ids = comp_ids == "" ? listboxArr[0] : (comp_ids + "|" + listboxArr[0]);
+						$('#invoice_comp_del_ids').val(ids);
+					}
 					listbox.remove(i);
 				}
 			}

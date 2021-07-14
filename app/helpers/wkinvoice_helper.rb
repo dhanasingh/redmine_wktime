@@ -182,6 +182,10 @@ include WkpayrollHelper
 		
 		# timeEntries = TimeEntry.includes(:spent_for).where(project_id: accountProject.project_id, spent_on: genInvFrom .. @invoice.end_date, wk_spent_fors: { spent_for_type: [accountProject.parent_type, nil], spent_for_id: [accountProject.parent_id, nil], invoice_item_id: nil })
 		timeEntries = WkInvoiceItem.getUnbilledTimeEntries(accountProject.project_id, genInvFrom, @invoice.end_date, accountProject.parent_id, accountProject.parent_type)
+		if params[:preview_billing] == 'false'
+			timeEntryIDs = params[:timeEntryIDs].split(",")
+			timeEntries = timeEntries.where(:id=>timeEntryIDs)
+		end
 		errorMsg = nil
 		totalAmount = 0
 		lastUserId = 0
@@ -313,6 +317,7 @@ include WkpayrollHelper
 					@invItems[@itemCount].store 'item_quantity', quantity.round(4)
 					@invItems[@itemCount].store 'item_amount', itemAmount.round(2)
 					@invItems[@itemCount].store 'issue_id', entry.issue_id
+					@invItems[@itemCount].store 'billing_type', accountProject.billing_type
 					@itemCount = @itemCount + 1
 					oldIssueId = entry.issue_id
 					totalAmount = (totalAmount + itemAmount).round(2)
@@ -374,7 +379,8 @@ include WkpayrollHelper
 					@invItems[@itemCount].store 'currency', rateHash['currency']
 					@invItems[@itemCount].store 'item_quantity', pjtQuantity.round(4)
 					@invItems[@itemCount].store 'item_amount', itemAmount.round(2)
-					@invItems[@itemCount].store 'issue_id', accountProject.itemized_bill ? entry.issue_id : 0  
+					@invItems[@itemCount].store 'issue_id', accountProject.itemized_bill ? entry.issue_id : 0
+					@invItems[@itemCount].store 'billing_type', accountProject.billing_type
 					@itemCount = @itemCount + 1
 					oldIssueId = entry.issue_id
 					totalAmount = (totalAmount + itemAmount).round(4)
@@ -702,7 +708,11 @@ include WkpayrollHelper
 		partialMatAmount = 0.00
 		genInvFrom = getUnbillEntryStart(@invoice.start_date)
 		@matterialVal = Hash.new{|hsh,key| hsh[key] = {} }
-		matterialEntry = WkMaterialEntry.includes(:spent_for).where(:project_id => accountProject.project_id, :spent_on => genInvFrom .. @invoice.end_date, wk_spent_fors: { spent_for_type: [accountProject.parent_type, nil], spent_for_id: [accountProject.parent_id, nil], invoice_item_id: nil }) 
+		matterialEntry = WkMaterialEntry.includes(:spent_for).where(:project_id => accountProject.project_id, :spent_on => genInvFrom .. @invoice.end_date, wk_spent_fors: { spent_for_type: [accountProject.parent_type, nil], spent_for_id: [accountProject.parent_id, nil], invoice_item_id: nil })
+		if params[:preview_billing] == 'false'
+			materialEntryIDs = params[:materialEntryIDs].split(",")
+			matterialEntry = matterialEntry.where(:id=>materialEntryIDs)
+		end
 		matterialEntry.each do | mEntry |		
 			productId = mEntry.inventory_item.product_item.product.id
 			productName = mEntry.inventory_item.product_item.product.name.to_s
@@ -835,5 +845,27 @@ include WkpayrollHelper
 		end
 		inv_desc = "AccName:" + accName.name + " InvNo:#" + invObj.invoice_number.to_s + " InvoiceAmt:" + invObj.invoice_items[0].original_currency.to_s + invAmount.to_s
 		inv_desc
+	end
+	
+	def getInvoiceComponents(parentId, parentType, projectID, componetsId)
+		invoiceComponents = []
+		if componetsId == 'wktime_invoice_components'
+			accProjs =  WkAccountProject.where(parent_id: parentId,parent_type: parentType, project_id: projectID)
+			accProjectID =  accProjs.first.id
+			invoiceComp = WkInvoiceComponents.getAccInvComp(accProjectID)
+			if invoiceComp.present?
+				invoiceComp.each do |comp|
+					invoiceComponents << {name: comp.name, value: comp.value.present? ? comp.value : comp.ic_value}
+				end
+			end
+		else
+			unless Setting.plugin_redmine_wktime[componetsId].blank? 
+				Setting.plugin_redmine_wktime[componetsId].each do |element| 
+					comp = element.split('|')
+					invoiceComponents << {name: comp[0], value: comp[1]}
+				end
+			end
+		end
+		invoiceComponents
 	end
 end

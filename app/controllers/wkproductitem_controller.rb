@@ -87,7 +87,17 @@ class WkproductitemController < WkinventoryController
 
 		sqlStr = getProductInventorySql + sqlwhere
 		orderStr = " ORDER BY " + (sort_clause.present? ? sort_clause.first : " iit.id desc")
-		findBySql(selectStr, sqlStr, orderStr)
+		respond_to do |format|
+			format.html {
+				findBySql(selectStr, sqlStr, orderStr)
+			}
+			format.csv{
+				entries = WkProductItem.find_by_sql(selectStr + sqlStr + orderStr)
+				headers = getIventoryListHeader
+				data = getCsvData(entries)
+				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: getItemType == "A" ? 'asset.csv' : 'productitem.csv')
+			}
+		end
 	end
 
 	def getProductInventorySql
@@ -230,6 +240,8 @@ class WkproductitemController < WkinventoryController
 			inventoryItem.supplier_invoice_id = nil
 			inventoryItem.lock_version = 0
 			inventoryItem.shipment_id = transferItem.shipment_id
+			inventoryItem.org_over_head_price = ((inventoryItem.org_over_head_price / inventoryItem.total_quantity) * params[:available_quantity].to_i ).round(2) if inventoryItem.org_over_head_price.present?
+			inventoryItem.over_head_price = params[:over_head_price]
 		else
 			inventoryItem.product_item_id = productItemId
 			inventoryItem.serial_number = params[:serial_number]
@@ -326,9 +338,9 @@ class WkproductitemController < WkinventoryController
 			}
 		}
 		listHeader = {
-			project_name: l(:label_project), issue: l(:label_issue), product_name: l(:label_product), brand_name: l(:label_brand), product_model_name: l(:label_model),
-			currency: l(:field_currency), selling_price: l(:label_selling_price), quantity: l(:label_quantity)}
-		render json: {data: data, listHeader: listHeader}
+			project_name: l(:label_project), issue: l(:label_issue), product_name: l(:field_inventory_item_id), brand_name: l(:label_brand), product_model_name: l(:label_model),
+			currency: l(:field_currency), selling_price: l(:label_selling_price), quantity: l(:field_quantity)}
+		render json: {data: data, header: listHeader}
 	end
 
 	def set_filter_session(filters=nil, filterParams={})
@@ -390,7 +402,7 @@ class WkproductitemController < WkinventoryController
 	end
 
 	def getIventoryListHeader
-		headerHash = { 'project_name' => l(:label_project), 'product_name' => l(:label_product), 'brand_name' => l(:label_brand), 'product_model_name' => l(:label_model), 'product_attribute_name' => l(:label_attribute), 'serial_number' => l(:label_serial_number), 'currency' => l(:field_currency), 'selling_price' => l(:label_selling_price), 'total_quantity' => l(:label_total_quantity), 'available_quantity' => l(:label_available_quantity), 'uom_short_desc' => l(:label_uom), 'location_name' => l(:label_location) }
+		headerHash = { 'project_name' => l(:label_project), 'product_name' => l(:field_inventory_item_id), 'brand_name' => l(:label_brand), 'product_model_name' => l(:label_model), 'product_attribute_name' => l(:label_attribute), 'serial_number' => l(:label_serial_number), 'currency' => l(:field_currency), 'selling_price' => l(:label_selling_price), 'total_quantity' => l(:label_total_quantity), 'available_quantity' => l(:label_available_quantity), 'uom_short_desc' => l(:label_uom), 'location_name' => l(:label_location) }
 	end
 
 	def showProductItem
@@ -411,5 +423,10 @@ class WkproductitemController < WkinventoryController
 
 	def newcomponentLbl
 		l(:label_new_component)
+	end
+
+	def getCsvData(entries)
+		data = entries.map{|entry| {project_name: entry['project_name'] || '', product_name: entry['product_name'] || '', brand_name: entry['brand_name'] || '', product_model_name: entry['product_model_name'] || '', product_attribute_name: entry['product_attribute_name'] || '', serial_number: entry['serial_number'] || '', currency: entry['currency'] || '', selling_price: entry['selling_price'] || '', total_quantity: entry['total_quantity'] || '', available_quantity: entry['available_quantity'] || '', uom_short_desc: entry['uom_short_desc'] || '', location_name: entry['location_name'] || ''} 
+		}
 	end
 end

@@ -1,8 +1,0 @@
- Clock in users:
-  chart_type: bar
-  code_str: "clock_in_of_user = WkAttendance.joins('LEFT JOIN groups_users ON groups_users.user_id = wk_attendances.user_id').select('wk_attendances.user_id, min(start_time) as clock_in').group(:user_id).where('start_time BETWEEN ? AND ?', (getToDateTime(@from)).beginning_of_day().utc, (getToDateTime(@from)).end_of_day().utc); if !@group_id.blank?; clock_in_of_user = clock_in_of_user.where('group_id IN (?)', @group_id); end; @clock_in_per_time = [0] * 24; clock_in_of_user.each {|c| @clock_in_per_time[c.clock_in.at_end_of_hour.hour] += 1 }; fields = []; 24.times {|m| fields << m};{ 'fields' => fields };"
-  x_title: "label_hours"
-  y_title: "label_no_of_employees"
-  names_of_data:
-   - data: "@clock_in_per_time[0..23]"
-     title: "label_no_of_employees" 

@@ -4,7 +4,7 @@
   <thead>
          <tr>
 				<%= sort_header_tag('id', :caption => l(:label_txn_payment), class: "lbl-txt-align") %>
-				<%= sort_header_tag('type', :caption => l(:label_type), class: "lbl-txt-align") %>
+				<%= sort_header_tag('type', :caption => l(:field_type), class: "lbl-txt-align") %>
 				<%= sort_header_tag('name', :caption => l(:field_name), class: "lbl-txt-align") %>
 				<%= sort_header_tag('payment_date', :caption => l(:label_payment_date), class: "lbl-txt-align") %>
 				<%= sort_header_tag('payment_type', :caption => l(:label_payment_type), class: "lbl-txt-align") %>
@@ -21,9 +21,14 @@
 			<td class="lbl-txt-align"><%=h entry.name %></td>
 			<td class="lbl-txt-align"><%=h entry.payment_date.strftime("%Y-%m-%d") %></td>
 			<td class="lbl-txt-align"><%=h getPayTypeHash[entry.payment_type_id] %></td>
-			<td class="lbl-txt-align"><%= entry.payment_items[0].original_currency unless entry.payment_items[0].blank?%> <%=h html_hours("%.2f" % entry.payment_original_amount) unless entry.payment_original_amount.blank?   %></td>	
+			<td class="lbl-txt-align"><%= entry.payment_items[0].original_currency unless entry.payment_items[0].blank?%> <%=h html_hours("%.2f" % entry.payment_original_amount) unless entry.payment_original_amount.blank?   %></td>
 			<td class="lbl-txt-align"><%= entry.payment_items[0].currency unless entry.payment_items[0].blank?%> <%=h html_hours("%.2f" % entry.payment_amount) unless entry.payment_amount.blank?   %></td>
-			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller_name, :action => 'edit', :payment_id => entry.id, :tab => controller_name}, :title => l(:button_edit) %></td>
+			<td class="lbl-txt-align">
+				<%= link_to image_tag('edit.png'), {:controller => controller_name, :action => 'edit', :payment_id => entry.id, :tab => controller_name}, :title => l(:button_edit) %>
+				 |
+				<%= link_to image_tag('delete.png'), {action: "destroy", id: entry.id, tab: controller_name}, data: {confirm: l(:text_are_you_sure)},
+						method: :delete, title: l(:button_delete) %>
+			</td>
 		</tr>
 	<% end %>
    <tbody>

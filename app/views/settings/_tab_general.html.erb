@@ -44,7 +44,7 @@
 	    </p>
 		<% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
 		<p style="padding-left:220px;">
-			<label><%= l(:label_wk_currency) %></label>
+			<label><%= l(:field_currency) %></label>
 			<%=h select_tag('settings[wktime_currency]',options_for_select(wkexpense_helper.options_for_currency,:selected => @settings['wktime_currency'])) %>
 		</p>
 		<p style="padding-left:220px;">

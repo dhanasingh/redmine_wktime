@@ -24,7 +24,7 @@ module WksurveyHelper
         "" => '',
         l(:label_new) => 'N',
         l(:label_open) => 'O',
-        l(:label_closed) => 'C',
+        l(:field_closed_on) => 'C',
         l(:label_archived) => 'A'
     }
   end
@@ -190,7 +190,7 @@ module WksurveyHelper
       @surveyForType = "User"
       @surveyForID = User.current.id
     else
-      @surveyForType = params[:surveyForType] || params[:survey_for] || nil
+      @surveyForType = params[:surveyForType] || (params[:survey_for].present? ?  params[:survey_for] : nil)
       @surveyForID = nil
     end
     {surveyForType: @surveyForType, surveyForID: @surveyForID}
@@ -199,7 +199,7 @@ module WksurveyHelper
   def getResponseStatus
     {
         l(:label_open) => 'O',
-        l(:label_closed) => 'C',
+        l(:field_closed_on) => 'C',
         l(:label_reviewed) => 'R'
     }
   end

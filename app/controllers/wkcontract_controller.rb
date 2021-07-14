@@ -21,9 +21,9 @@ before_action :require_login
 menu_item :wkinvoice
 
 
- def index
-	sort_init 'id', 'asc'
-	sort_update 'contract_number' => "contract_number",
+	def index
+		sort_init 'id', 'asc'
+		sort_update 'contract_number' => "contract_number",
 				'start_date' => "start_date",
 				'end_date' => "end_date",
 				'project' => "projects.name",
@@ -63,13 +63,27 @@ menu_item :wkinvoice
 		unless filter_type == '1' && projectId.blank? 
 			entries = entries.where(sqlwhere)
 		end
-		formPagination(entries.reorder(sort_clause))
-    end
+		entries = entries.reorder(sort_clause)
+		respond_to do |format|
+			format.html do
+				formPagination(entries)
+				render :layout => !request.xhr?
+			end
+			format.csv do
+				headers = {contract_number: l(:label_contract_number), type: l(:field_type), name: l(:field_name), project: l(:label_project), start_date: l(:label_start_date), end_date: l(:label_end_date) }
+				data = entries.map do |e|
+					type = e.parent_type == 'WkAccount' ? 'Account' : 'Contact'
+					{ contract_number: e.contract_number, type:  type, name: (e&.parent&.name || ''), project: (e&.project&.name || ""), start_date: e.start_date, end_date: e.end_date }
+				end
+				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "contract.csv")
+			end
+		end
+	end
 
-    def set_filter_session
-			filters = [:contact_id, :project_id, :account_id, :polymorphic_filter]
-			super(filters)
-   end
+	def set_filter_session
+		filters = [:contact_id, :project_id, :account_id, :polymorphic_filter]
+		super(filters)
+	end
    
    def setLimitAndOffset		
 		if api_request?

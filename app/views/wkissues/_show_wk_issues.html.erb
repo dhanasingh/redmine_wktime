@@ -35,7 +35,7 @@
 	<table>
 		<% if wktime_helper.showBilling %>	
 			<tr>			
-				<th align="left"><%= l(:field_rate) %></th>
+				<th align="left"><%= l(:label_rate) %></th>
 				<td style="padding-left:40px;"><%= @issue.erpmineissues.currency %> <%= @issue.erpmineissues.rate%> <%= rateHash[@issue.erpmineissues.rate_per] %></td>
 				
 			</tr>

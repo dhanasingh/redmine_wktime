@@ -23,10 +23,10 @@ class WkSkill < ActiveRecord::Base
   validates_presence_of :skill_set
   validates_numericality_of :rating, :experience
 
-  scope :get_entries, ->(type){ where({source_type: type}) }
+  scope :get_entries, ->(type){ joins(:skill_set).joins(:user).where({source_type: type}) }
   scope :filterByID, ->(id){ where(source_id: id) }
   scope :skillSet, ->(skill_set){ where(skill_set_id: skill_set)}
-  scope :groupUser, ->(id){ joins(:user).where("users.id = ? ", id)}
+  scope :groupUser, ->(id){ where("users.id = ? ", id)}
   scope :rating, ->(rating){ where("rating >= ?", rating)}
   scope :lastUsed, ->(last_used){ where("last_used >= ?", last_used)}
   scope :experience, ->(experience){ where("experience >= ?", experience)}

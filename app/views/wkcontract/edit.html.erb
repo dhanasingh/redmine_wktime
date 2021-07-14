@@ -34,7 +34,7 @@
 					</tr>
 			    </table>
 			</fieldset>
-			<%= render partial: "wkdocument/attachment_form", locals: { container: @contractEntry, container_type: "WkContract" } %>
+			<%= render partial: "wkdocument/attachment_form", locals: { container: @contractEntry, container_type: "WkContract", deletable: validateERPPermission("M_BILL") } %>
 		</div>
 	</div>
 	<div style="clear:left;"></div>

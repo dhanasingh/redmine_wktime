@@ -1,5 +1,5 @@
 <fieldset class="box">
-	<legend><%=l(:label_content_information, l(:label_contact_adjusted))%></legend>
+	<legend><%=l(:label_content_information, l(:label_contact))%></legend>
 	<div class="splitcontent">
 		<div class="splitcontentleft">
 			<table>
@@ -12,7 +12,7 @@
 					<td align="left" style="padding-left:10px;"><%=h text_field_tag("mobile", address.blank?  ? "" : address.mobile, :size => 25, :disabled => disable, maxlength: 15) %> </td>
 				</tr>
 				<tr>
-					<th align="left"><%= l(:label_email) %></th>
+					<th align="left"><%= l(:field_mail) %></th>
 					<td align="left" style="padding-left:10px;"><%=h text_field_tag("email", address.blank?  ? "" : address.email, :size => 25, :disabled => disable, maxlength: 40) %> </td>
 				</tr>
 				<tr>

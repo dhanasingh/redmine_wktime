@@ -41,7 +41,7 @@
 		</td>
 				</tr>
 				<tr>
-						<th align="left"><%= l(:label_status) %></th>
+						<th align="left"><%= l(:field_status) %></th>
 						<td align="left">
 							<%=h select_tag("survey_status", options_for_select(getSurveyStatus.drop(1), status)) %>
 						</td>
@@ -101,7 +101,7 @@
 <% userGroupName = group_id.blank? ? l(:all_users_for_select) : getUserGroup.invert[group_id] + " Group" %>
 <div id="reminder-email-dlg" title="<%=l(:label_email_users) %>">
 	<fieldset>
-		<p> <label><%= l(:label_notes) %></label>
+		<p> <label><%= l(:field_notes) %></label>
 			<textarea name="email_notes" id="email_notes" value="" style="width: 300px;min-height: 35px;"> </textarea>
 		</p>
 		<p>

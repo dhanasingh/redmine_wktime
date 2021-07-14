@@ -1,3 +1,4 @@
+<%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 <script type="text/javascript"> 
 	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
@@ -26,7 +27,7 @@
 			<%= l(:label_location) %>&nbsp;
 			<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, true)) %>&nbsp;
 			<% if controller.getItemType == "I" || controller.getItemType == "A" %>
-				<%= l(:label_product) %>&nbsp;
+				<%= l(:field_inventory_item_id) %>&nbsp;
 				<%=h select_tag("product_id", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', productId, true)) %>&nbsp;
 			<% end %>
 			<% if controller.getItemType == "I" %>
@@ -54,5 +55,13 @@
 		</fieldset>
 		<br>
 	<% end %>
- <%= render :partial => 'wkproductitem/product_item_list'%>
- <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
+
+<% if @productInventory.present? %>
+	<%= render :partial => 'wkproductitem/product_item_list'%>
+ 	<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>
+	<% other_formats_links do |f| %>
+		<%= f.link_to_with_query_parameters 'CSV', {} %>
+	<% end %>
+<% else %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>

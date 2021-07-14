@@ -4,6 +4,7 @@
 	users = User.where(type: "User", status: 1) unless isProjSkill
 	userName = @skills&.user.present? ? @skills&.user&.name : User.current.name
 	user_id = @skills&.user_id || User.current.id
+	disable = isProjSkill && !get_proj_skill_permission
 %>
 <style>
 th{
@@ -18,31 +19,30 @@ th{
 	<fieldset class="box tabular">
 		<table>
 			<tr>
-					<% if !isProjSkill %>
+				<% if !isProjSkill %>
 					<th><%= l(:label_user_name) %></th>
 					<td>
 						<% if validateERPPermission("A_SKILL") %>
-							<%= f.select(:user_id, options_from_collection_for_select(users, "id", "name", selected: user_id), {}, onchange: "$('#source_id').val(this.value)") %>
+							<%= f.select(:user_id, options_from_collection_for_select(users, "id", "name", selected: user_id), {}, onchange: "$('#source_id').val(this.value)", disabled: disable) %>
 						<% else %>
-							<%= userName %>
-							<%= f.hidden_field :user_id, value: user_id %>
+							<%= userName %><%= f.hidden_field :user_id, value: user_id %>
 						<% end %>
 					</td>
 				<% else %>
-					<th><%= l(:label_project_name) %></th>
-					<th><%= params[:project_id] %></th>
+					<th><%= l(:label_project_name) %></th><th><%= params[:project_id] %></th>
+					<%= f.hidden_field :user_id, value: user_id %>
 				<% end %>
 			<tr>
 			<tr>
 				<th><%= l(:label_skill_set) %></th>
 				<td>
-					<%= f.select :skill_set_id, options_for_select(options_for_enum_select('SK', @skills.try(:skill_set_id), false)) %>
+					<%= f.select :skill_set_id, options_for_select(options_for_enum_select('SK', @skills.try(:skill_set_id), false)), {}, disabled: disable %>
 				</td>
 			<tr>
 			<tr>
 				<th><%= l(isProjSkill ? :label_min_rating_req : :label_rating) %></th>
 				<td>
-					<%= f.select :rating, (1..5).to_a %>
+					<%= f.select :rating, (1..5).to_a, {}, disabled: disable %>
 				</td>
 			</tr>
 
@@ -50,7 +50,7 @@ th{
 				<tr>
 					<th><%= l(:label_interest_level) %></th>
 					<td>
-						<%= f.select :interest_level, (1..5).to_a %>
+						<%= f.select :interest_level, (1..5).to_a, {}, disabled: disable %>
 					</td>
 				</tr>
 			<% end %>
@@ -59,7 +59,7 @@ th{
 				<tr>
 					<th><%= l(:label_last_used) %></th>
 					<td>
-						<%= f.select :last_used, (1970..Time.now.year).to_a.reverse %>
+						<%= f.select :last_used, (1970..Time.now.year).to_a.reverse, {}, disabled: disable %>
 					</td>
 				</tr>
 			<% end %>
@@ -69,14 +69,12 @@ th{
 						<%= l(:label_min_exp_req) %>
 					<% else %>
 						<%= l(:label_years_of_exp) %>
-						<span style="color:red;">*</span>
 					<% end %>
+					<span style="color:red;">*</span>
 				</th>
-				<td>
-					<%= f.text_field :experience, required: true %>
-				</td>
+				<td><%= f.text_field :experience, required: true, disabled: disable %></td>
 			</tr>
 		</table>
   </fieldset>
-  <%= f.submit "Save" %>
+  <%= f.submit "Save" if !disable %>
 <% end %>

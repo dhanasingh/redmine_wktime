@@ -47,13 +47,26 @@ class WkaccountController < WkcrmController
 			location_id = !locationId.blank? ? locationId.to_i : location.id.to_i
 			entries = entries.where(:location_id => location_id)
 		end
-		entries = entries.order(:name)
-		formPagination(entries.reorder(sort_clause))
+		entries = entries.reorder(sort_clause)
 		respond_to do |format|
-			format.html {        
+			format.html do
+				formPagination(entries)
 			  render :layout => !request.xhr?
-			}
-			format.api
+			end
+			format.api do
+				@account_entries = entries
+			end
+			format.csv do
+				headers = { name: l(:field_name), location: l(:label_location), address: l(:label_address), phone: l(:label_work_phone), country: l(:label_country), city: l(:label_city) }
+  			data = entries.map do |e| 
+					{ name: e.name, location: (e&.location&.name || ''), address: (e&.address&.address1 || ''),  phone: (e&.address&.work_phone || ''), country: (e&.address&.country || ''), city: (e&.address&.city || '')} 
+				end
+				respond_to do |format|
+					format.csv {
+						send_data(csv_export({headers: headers, data: data}), type: 'text/csv; header=present', filename: 'account.csv')
+					}
+				end
+			end
 		end
 	end
 	
@@ -132,7 +145,7 @@ class WkaccountController < WkcrmController
 	end
 	
 	def getAccountLbl
-		l(:label_account)
+		l(:field_account)
 	end
 
 	def set_filter_session

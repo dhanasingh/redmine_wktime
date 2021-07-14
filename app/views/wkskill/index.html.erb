@@ -2,7 +2,8 @@
 <%= render partial: "wkattendance/render_hr_tabs" if params[:project_id].blank? %>
 
 <div class="contextual">
-	<%= link_to l(:label_new_skill), url_for(controller: controller_name, action: 'edit', project_id: params[:project_id]), :class => 'icon icon-add' %>
+	<%= link_to l(:label_new_skill), url_for(action: 'edit', project_id: params[:project_id]),
+		:class => 'icon icon-add' if params[:project_id].blank? || get_proj_skill_permission %>
 </div>
 <div style="clear: both;" ></div>
 <% if params[:project_id].blank? %>
@@ -14,6 +15,9 @@
 <% if @skillEntries.present? %>
 	<%= render :partial => 'skill_list'%>
 	<span class="pagination"><%= pagination_links_full @skill_pages, @skill_count %></span>
+	<% other_formats_links do |f| %>
+		<%= f.link_to_with_query_parameters 'CSV', {} %>
+	<% end %>
 <% else %>
-	<p style="clear:both" class="nodata">No data to display</p>
+	<p class="nodata"><%= l(:label_no_data) %></p>
 <% end %>

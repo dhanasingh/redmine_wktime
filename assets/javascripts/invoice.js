@@ -1,14 +1,76 @@
 var row_id = 0;
+var compId = 0;
 
 $(document).ready(function() {
-$('.date').each(function() {
-        $(this).datepicker({ dateFormat: 'yy-mm-dd' });
-});
-hideProductType()
+	$('.date').each(function() {
+			$(this).datepicker({ dateFormat: 'yy-mm-dd' });
+	});
+	hideProductType()
+			
+		
+	$("form").submit(function() {
+		var invComplistbox=document.getElementById("invoice_components");
+		if(invComplistbox != null){
+			for(i = 0; i < invComplistbox.options.length; i++){
+				invComplistbox.options[i].selected = true;
+			}						
+		}
+		
+	});
+
+	$( "#invcomp-dlg" ).dialog({
+		autoOpen: false,
+		resizable: true,
+		width: 380,
+		modal: false,		
+		buttons: {
+			"Ok": function() {
+				var opt,desc="",opttext="";
+				var listBox = document.getElementById(listboxId);
+				var invCompName = document.getElementById("inv_copm_name");
+				var invCompVal = document.getElementById("inv_copm_value");
+				if(invCompName.value != ""){  
+					if('Add'== leaveAction){	
+						opt = document.createElement("option");
+						listBox.options.add(opt);
+					}
+					else if('Edit' == leaveAction){
+						opt = listBox.options[listBox.selectedIndex];
+					}			
+					if (invCompName.value != ""){
+						desc = invCompName.value
+						opttext = desc + ":"  + invCompVal.value;
+						desc = ( (compId != 0 && leaveAction == 'Edit') ?  compId + "|" : "|" ) + desc + "|"  + invCompVal.value;
+					}	
+					opt.text =  opttext;
+					opt.value = desc;
+					$( this ).dialog( "close" );
+				}
+				else{
+					var alertMsg = "";					
+					if(invCompName.value == ""){
+						alertMsg = lblInvCompName + " "+ lblInvalid + "\n";
+					}
+					alert(alertMsg);
+				}
+			},
+			Cancel: function() {
+				$( this ).dialog( "close" );
+			}
+		}
+	});
 });
 
 function invoiceFormSubmission(isPreview)
-{ 
+{
+	var timeentryIDs = $('input[name=check_time]:checked').map(function(){
+ 		return $(this).val();
+  }).get();
+	var materialentryIDs = $('input[name=check_material]:checked').map(function(){
+ 		return $(this).val();
+  }).get();
+	$("input#timeEntryIDs").val(timeentryIDs)
+	$("input#materialEntryIDs").val(materialentryIDs)
 	var dateval = new Date(document.getElementById("to").value);
 	var fromdateval = new Date(document.getElementById("from").value);
 	dateval.setDate(dateval.getDate() + 1);
@@ -206,9 +268,21 @@ function deleteRow(tableId, totalrow)
 				var colCount = table.rows[i].cells.length;			
 				for(var j=0; j<colCount; j++) 
 				{
-					var input = document.getElementById(tableId).rows[i].cells[j].getElementsByTagName("*")[0];
-					input.id = table.rows[i].cells[j].headers + '_' + i;
-					input.name = table.rows[i].cells[j].headers + '_' + i;
+					var elements = document.getElementById(tableId).rows[i].cells[j].querySelectorAll("select, input, label");
+					Array.from(elements).map(el => {
+						if (el.type == 'hidden') {
+							elID = el.id.split("_");
+							elID[elID.length - 1] = i;
+							elName = el.name.split("_");
+							elName[elName.length - 1] = i;
+							el.id = elID.join('_');
+							el.name = elName.join('_');
+						}
+						else {
+							el.id = table.rows[i].cells[j].headers + '_' + i;
+							el.name = table.rows[i].cells[j].headers + '_' + i;
+						}
+					});
 					$('#item_index_'+i).html(i)
 				}
 			}
@@ -488,19 +562,152 @@ function getTimeDetails(url, data){
 		data: data,
 	 	success: function(result){
 			$.each( result, function( i, l ){
-				tableEntries += formQauntityTable(i, l, oldProjID);
+				tableEntries += formQuantityTable(i, l, oldProjID);
 				oldProjID = l.projID
 			});
-		$(" #qunatityTable").html(tableEntries);
-		$("#quantity-dlg").dialog({ title: 'Quantity', width: 800, height: 200});
+			if (tableEntries && tableEntries.length > 0){
+				$(" #qunatityTable").html(tableEntries);
+			}
+			else{
+				$(" #qunatityTable").html('<p style="clear:both" class="nodata">No data to display</p>');
+			}
+		$("#quantity-dlg").dialog({ title: 'Quantity', width: '80%', height: $(window).height(),});
 	}});
 }
 
-function formQauntityTable(i, l, oldProjID) {
+function formQuantityTable(i, l, oldProjID) {
 	var projName = ''
 	var styleTD = 'class=lbl-txt-align style=width:330px;'
 	 var tableHeaders = (i > 0) ? '' :  "<tr class=quantityHeaters><th "+styleTD+"> Project </th><th "+styleTD+"> Issue </th><th "+styleTD+"> User </th><th "+styleTD+"> Date </th><th "+styleTD+"> Hours </th></tr>"
 	if(l.projID != oldProjID){ projName = l.proj_name }
-	var tableDetails = tableHeaders + "<tr class=quantityDetails><td "+styleTD+">"+ projName +"</td></tr><tr class=quantityDetails><td></td><td "+styleTD+">" + l.subject + "</td><td "+styleTD+">" + l.firstname+' '+l.lastname + "</td><td "+styleTD+">" + l.spent_on + "</td><td "+styleTD+">" + l.hours + "</td></tr>";
+	var tableDetails = tableHeaders + "<tr class=quantityDetails><td "+styleTD+">"+ projName +"</td></tr><tr class=quantityDetails><td></td><td "+styleTD+">" + l.subject + "</td><td "+styleTD+">" + l.usr_name + "</td><td "+styleTD+">" + l.spent_on + "</td><td "+styleTD+">" + l.hours + "</td></tr>";
 	return tableDetails
+}
+
+function selectEntryPopup() {
+	var url = "/wkinvoice/generateTimeEntries";
+	var dateval = new Date(document.getElementById("to").value);
+	var fromdateval = new Date(document.getElementById("from").value);
+	toDate = dateval.getFullYear() + '-' + (("0" + (dateval.getMonth() + 1)).slice(-2)) + '-' + (("0" + dateval.getDate()).slice(-2));
+	fromDate = fromdateval.getFullYear() + '-' + (("0" + (fromdateval.getMonth() + 1)).slice(-2)) + '-' + (("0" + fromdateval.getDate()).slice(-2));
+	var accID = $('#account_id').val()
+	var contactID = $('#contact_id').val()
+	var filter = $('input[name="polymorphic_filter"]:checked').val();
+	var projectID = $('#project_id').val()
+	var data = {dateval: toDate, fromDate: fromDate, accID: accID, contactID: contactID, projectID: projectID, filter_type: filter}
+	if(isNaN(dateval.getFullYear()) || isNaN(fromdateval.getFullYear())){
+		alert("Please select valid date range");
+	}
+	else{
+		getSelectEntry(url, data)
+	}
+}
+
+function getSelectEntry(url, data){
+	$("#billGenerate-dlg").html("");
+	$.ajax({
+		url: url,
+		data: data,
+	 	success: function(resData){
+			const {listHeader1={}, data1=[], listHeader2={}, data2=[], listHeader3={}, data3=[]} = resData || {};
+			if(data1.length > 0){
+				renderPopup(listHeader1, data1, 'time');
+			}
+			if(data2.length > 0){
+				renderPopup(listHeader2, data2, 'material');
+			}
+			if(data3.length > 0){
+				renderData({header: listHeader3, data: data3}, "#billGenerate-dlg", false);
+			}
+			if (data1.length == 0 && data2.length == 0 && data3.length == 0){
+				$("#billGenerate-dlg").html("No data to display");
+			}
+			$("#billGenerate-dlg").dialog({
+				modal: true,
+				title: title,
+				width: '80%',
+				height: $(window).height(),
+				buttons: {
+					'Generate': function() {
+						invoiceFormSubmission(false)
+					},
+					'cancel': function() {
+						$(this).dialog("close");
+					}
+				}
+			});
+		},
+		beforeSend: function(){ $(this).addClass("ajax-loading"); },
+		complete: function(){ $(this).removeClass("ajax-loading"); }
+	});
+}
+
+function renderPopup(listHeader, data, tableName){
+	var content = "<table class='list time-entries' style='width:100%; float:left;'>";
+	//Headers
+	content += "<tr><th><input type='checkbox' onclick='handlecheckall(\""+ tableName + "\");' name='checkall_"+tableName+"' id='checkall_"+tableName+"' checked='checked'></th>";
+	$.each(listHeader, function(key, label){
+		content += "<th class='leftAlign'>" +label+ "</th>";
+	});
+	content += "</tr>";
+
+	//List
+	$.each(data, function(inx, el){
+		content += "<tr><td><input type='checkbox' onclick='handlecheck(\""+ tableName + "\");' name='check_"+tableName+"' id='check_"+tableName+"' value='"+el.id+"' checked='checked'></td>";
+		$.each((el || {}), function(key, label){
+			if (key != 'id'){
+				content += "<td class='leftAlign'>" +label+ "</td>";}
+			});
+		content += "</tr>";
+	});
+	content += "</table>";
+	
+	$("#billGenerate-dlg").append(content);
+}
+
+function handlecheckall(tableName){
+	if ($('input[name=checkall_'+ tableName +']').prop('checked') == true){
+		$('input[name=check_'+ tableName +']').prop('checked', true);
+	}
+	else {
+		$('input[name=check_'+ tableName +']').prop('checked', false);
+	}
+}
+
+function handlecheck(tableName){
+	if ($('input[name=check_'+ tableName +']:checked').length == $('input[name=check_'+ tableName +']').length){
+		$('input[name=checkall_'+ tableName +']').prop('checked', true);
+	}
+	else {
+		$('input[name=checkall_'+ tableName +']').prop('checked', false);
+	}
+}
+
+function InvCompDialog(action, listId)
+{
+	$( "#invcomp-dlg" ).dialog({ title: lblInvComp});
+	listboxId = listId;
+	var listbox = document.getElementById(listboxId);
+	var invCompName = document.getElementById("inv_copm_name");
+	var invCompVal = document.getElementById("inv_copm_value");
+	if('Add' == action)
+	{	
+		leaveAction = action;
+		invCompName.value = "";
+		invCompVal.value = "";
+		$( "#invcomp-dlg" ).dialog( "open" )	
+	}
+	else if('Edit' == action && listbox != null && listbox.options.selectedIndex >=0)
+	{				
+		var listboxArr = listbox.options[listbox.selectedIndex].value.split('|');
+		invCompName.value = !listboxArr[1] ? "" : listboxArr[1];
+		invCompVal.value = !listboxArr[2] ? "" : listboxArr[2];
+		leaveAction = action;
+		compId = listboxArr[0];
+		$( "#invcomp-dlg" ).dialog( "open" )	
+	}
+	else if(listbox != null && listbox.options.length >0)
+	{		
+		alert(selectListAlertMsg);				
+	}
 }

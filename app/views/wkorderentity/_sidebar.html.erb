@@ -1,0 +1,4 @@
+<%= actions_dropdown do %>
+    <%= link_to l(:label_invoice), url_for(:controller => controller_name, :action => "index", :tab => controller_name) %>
+    <%= link_to l(:label_invoice_components), url_for(:controller => controller_name, :action => "invoice_components", :tab => controller_name) %>
+<% end %>

@@ -44,7 +44,17 @@ class WkproductController < WkinventoryController
 		else
 			entries = WkProduct.all
 		end
-		formPagination(entries.reorder(sort_clause))
+		entries = entries.reorder(sort_clause)
+		respond_to do |format|
+			format.html {
+				formPagination(entries)
+			}
+			format.csv{
+				headers = {name: l(:field_name), category: l(:field_category), uom: l(:label_uom)}
+				data = entries.map{|entry| {name: entry.name, category: entry&.category&.name || '', uom: entry&.uom&.short_desc || ''} }
+				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "product.csv")
+			}
+		end
     end
 	
 	def formPagination(entries)
