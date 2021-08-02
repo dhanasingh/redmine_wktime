@@ -5,7 +5,8 @@ api.user do
   api.firstname  @user.firstname
   api.lastname   @user.lastname
   api.mail       @user.mail
-  api.language   @user.language
+  api.language   @user.language || "en"
+  api.default_language Setting.default_language
   api.created_on @user.created_on
   api.last_login_on @user.last_login_on
   api.api_key    @user.api_key
@@ -44,6 +45,7 @@ end
 
 genderItems = {M: l(:gender_hash_male), F: l(:gender_hash_female), O: l(:gender_hash_others)}
 api.headers do
-  api.language_items languages_options.to_h.invert
+  api.language_items languages_options
   api.gender_items genderItems
+  api.force_default_language Setting.force_default_language_for_loggedin?
 end

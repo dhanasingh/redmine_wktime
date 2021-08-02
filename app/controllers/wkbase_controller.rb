@@ -145,10 +145,15 @@ class WkbaseController < ApplicationController
 	def getUserPermissions
 		wkpermissons = WkPermission.getPermissions
 		settings = {}
+		languageFiles = []
+		Dir["plugins/redmine_wktime/config/locales/*"].each do |path|
+			languageFiles << File.basename(path, ".yml")
+		end
 
 		languageSet = {}
 		filePaths = I18n.load_path
-		userlanguage = "en" unless ["de", "en", "fr", "it", "pl", "ru"].include?(I18n.locale)
+		userlanguage = User.current.language
+		userlanguage = "en" if userlanguage.blank? || !languageFiles.include?(userlanguage)
 		filePaths.each do |path|
 			next if path.exclude?(userlanguage+".yml")
 			File.open(path).each do |line|
