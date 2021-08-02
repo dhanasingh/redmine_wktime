@@ -14,3 +14,7 @@ api.wk_account do
 		) if @accountEntry.address.present?
 	end
 end
+api.headers do
+  api.categories getEnumerations('AC')
+  api.locations getAllLocations
+end

@@ -308,4 +308,10 @@ include WkdocumentHelper
 	def hiring_employees
 		WkLead.hiring_employees.map{|l| [l.name, l.id]}
 	end
+
+	def get_crm_Users
+		users = groupOfUsers
+		users.shift()
+		users
+	end
 end

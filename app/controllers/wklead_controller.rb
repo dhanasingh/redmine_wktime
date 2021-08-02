@@ -19,7 +19,7 @@ class WkleadController < WkcrmController
   unloadable
   include WktimeHelper
   include WkleadHelper
-  accept_api_auth :index, :edit, :getuserGrp, :update
+  accept_api_auth :index, :edit, :update
 
 	def index
 		sort_init 'updated_at', 'desc'
@@ -159,12 +159,5 @@ class WkleadController < WkcrmController
 	def set_filter_session(filters=nil, filterParams={})
 		filters = [:lead_name, :status, :location_id] if filters.blank?
 		super(filters, filterParams)
-	end
-
-	def getuserGrp
-		users = groupOfUsers
-		grpUser = []
-		grpUser = users.map { |usr| { value: usr[1], label: usr[0] }}
-		render json: grpUser
 	end
 end

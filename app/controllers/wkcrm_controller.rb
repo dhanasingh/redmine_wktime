@@ -103,11 +103,7 @@ class WkcrmController < WkbaseController
 	end
 
 	def getCrmUsers
-		users = groupOfUsers
-		users.shift()
-		grpUser = []
-		grpUser = users.map { |usr| { value: usr[1], label: usr[0] }}
-		render json: grpUser
+		render json: get_crm_Users
 	end
 
 	def additionalAccountType
@@ -172,35 +168,14 @@ class WkcrmController < WkbaseController
 	end
 
 	def convert
-		@lead = nil
-		errorMsg = nil
-		@lead = WkLead.find(params[:lead_id]) unless params[:lead_id].blank?
-		@lead.status = 'C'
-		@lead.updated_by_user_id = User.current.id
-		@contact = @lead.contact
-		if @contact.contact_type == "IC"
-			@lead.save
-			convertToContact
-		else
-			@account = @lead.account
-			hookType = call_hook(:controller_convert_contact, {params: params, leadObj: @lead, contactObj: @contact, accountObj: @account})
-			unless @account.blank?
-				@account.account_type = hookType.blank? ? getAccountType : hookType[0][0]
-			else
-				@contact.contact_type = hookType.blank? ? getContactType : hookType[0][0]
-			end
-			@lead.save
-			convertToAccount unless @account.blank?
-			convertToContact
-		end
-
-		rm_resident_id = hookType.blank? ? nil : hookType[0][2]
+		leadConvert(params)
+		rm_resident_id = @hookType.blank? ? nil : @hookType[0][2]
 		unless @account.blank?
-			controllerName = hookType.blank? ? 'wkcrmaccount' : hookType[0][1]
+			controllerName = @hookType.blank? ? 'wkcrmaccount' : @hookType[0][1]
 			flash[:notice] = l(:notice_successful_convert)
 			redirect_to controller: controllerName, action: 'edit', account_id: @account.id, rm_resident_id: rm_resident_id
 		else
-			controllerName = hookType.blank? ? 'wkcrmcontact' : hookType[0][1]
+			controllerName = @hookType.blank? ? 'wkcrmcontact' : @hookType[0][1]
 			if @lead.valid?
 				flash[:notice] = l(:notice_successful_convert)
 			else
@@ -212,6 +187,30 @@ class WkcrmController < WkbaseController
 		end
 	end
 
+	def leadConvert(params)
+		@lead = nil
+		errorMsg = nil
+		@lead = WkLead.find(params[:lead_id]) unless params[:lead_id].blank?
+		@lead.status = 'C'
+		@lead.updated_by_user_id = User.current.id
+		@contact = @lead.contact
+		if @contact.contact_type == "IC"
+			@lead.save
+			convertToContact
+		else
+			@account = @lead.account
+			@hookType = call_hook(:controller_convert_contact, {params: params, leadObj: @lead, contactObj: @contact, accountObj: @account})
+			unless @account.blank?
+				@account.account_type = @hookType.blank? ? getAccountType : @hookType[0][0]
+			else
+				@contact.contact_type = @hookType.blank? ? getContactType : @hookType[0][0]
+			end
+			@lead.save
+			convertToAccount unless @account.blank?
+			convertToContact
+		end
+	end
+	
 	def convertToAccount
 		# @account.account_type = 'A'
 		@account.updated_by_user_id = User.current.id
