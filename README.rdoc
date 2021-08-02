@@ -1,18 +1,19 @@
 = ERPmine
-
-= Webinar on ERPmine – Payroll, July 27, 5:00 PM India (11:30 AM GMT)
+= Webinar on ERPmine – Billing, August 31,2021,  5:00 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
-https://us02web.zoom.us/meeting/register/tZEldumqpjwjEtxwaZvPnRZvNsMn8sIkoKsQ
+https://us02web.zoom.us/meeting/register/tZclcOyspj8pHtajzb-e7mYb6GfKKxYVOLTV
 
 *Topics* :
 
-* Generate payroll
-* Reimbursement
-* Apply tax
-* Payroll Report
-* Payslip report
-* Mobile app
+* Account Projects
+* Invoice Component
+* Unbilled Invoice
+* Generate Invoice 
+* Accept Payment 
+* Contracts
+* Reports
+* Mobile App 
 
 This Plugin has the following modules:
 
