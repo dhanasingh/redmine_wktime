@@ -1243,3 +1243,5 @@ fr:
   label_deleted: Deleted
   warn_issuelog_exist: "You have to stop all issue Logs in the week"
   label_select_time: Select Time Entries
+  label_account_number: Account Number
+  label_closed_date: Closed date

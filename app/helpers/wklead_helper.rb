@@ -50,6 +50,7 @@ include WkcrmenumerationHelper
 		end
 		# For Account table
 		wkaccount.name = params[:account_name]
+		wkaccount.account_number = params[:account_number]
 		wkaccount.description = params[:description]
 		wkaccount.location_id = params[:location_id] if params[:location_id] != "0"
 		if params[:lead_id].blank? || params[:lead_id].to_i == 0

@@ -5,8 +5,7 @@ module WkDashboard
   def chart_data(param={})
     data = {
       graphName: l(:label_invoice_payment), chart_type: "line", xTitle: l(:label_months), yTitle: l(:field_amount),
-      legentTitle1: l(:label_invoice), legentTitle2: l(:label_txn_payment),
-      url: {controller: "wkreport", action: "index", report_type: "report_lead_conversion_web"}
+      legentTitle1: l(:label_invoice), legentTitle2: l(:label_txn_payment)
     }
     getFinancialDates(param)
     data[:fields] = (Array.new(12){|indx| month_name(((@endDate.month - 1 - indx) % 12) + 1).first(3)}).reverse

@@ -18,7 +18,7 @@
 class WkdashboardController < WkbaseController
 
 	before_action :require_login
-	accept_api_auth :getGraphs
+	accept_api_auth :getGraphs, :getDetailReport
 	include WkdashboardHelper
 	include WkcrmHelper
 	include WktimeHelper
@@ -34,9 +34,9 @@ class WkdashboardController < WkbaseController
 		end
 	end
 
-	def graph(path="")
-		path = params[:gPath] if params[:gPath].present?
-		data = nil
+	def graph(path=params[:gPath])
+		# path = params[:gPath] if params[:gPath].present?
+		data = {}
 		group_id = session[controller_name].try(:[], :group_id)
 		project_id = session[controller_name].try(:[], :project_id)
 		setDateRange
@@ -51,25 +51,32 @@ class WkdashboardController < WkbaseController
 		end
 
 		if params[:gPath].blank?
-			return(data || {})
+			data[:gPath] = path
+			return(data)
 		else
-			render(json: (data || {}))
+			render(json: data)
 		end
 	end
 
-	def getDataSet
-		path = params[:gPath] if params[:gPath].present?
-		data = nil
-		group_id = session[controller_name].try(:[], :group_id)
-		project_id = session[controller_name].try(:[], :project_id)
-		setDateRange
+	def getDetailReport
+		if params[:dashboard_type] != "Emp"
+			path = params[:gPath] if params[:gPath].present?
+			data = nil
+			group_id = session[controller_name].try(:[], :group_id)
+			project_id = session[controller_name].try(:[], :project_id)
+			setDateRange
 
-		begin
-			load(path)
-			obj = Object.new.extend(WkDashboard)
-			data = obj.dataset({from: @from, to: @to, group_id: group_id, project_id: project_id})
-		rescue
-			data = {error: "404"}
+			begin
+				load(path)
+				obj = Object.new.extend(WkDashboard)
+				data = obj.dataset({from: @from, to: @to, group_id: group_id, project_id: project_id})
+			rescue
+				data = {error: "404"}
+			end
+		else
+			data = {graphName: "Salary"}
+			data[:header] = {date: "date", net: "Net"}
+			data[:data] = (WkSalary.lastYearSalaries || []).map{|s| {salary_date: s.salary_date, net: s.currency+ " " +s.net.to_s}}
 		end
 
 		render(json: (data || {}))
@@ -101,9 +108,18 @@ class WkdashboardController < WkbaseController
 	end
 
 	def getGraphs
-		graphs = get_graphs_yaml_path().sort
-		graphDetails = []
-		graphs.each{ |path| graphDetails << graph(path) }
+		graphDetails = params[:dashboard_type] == "Emp" ? getEmpDashboard() : (get_graphs_yaml_path.sort).map{|path| graph(path)}
 		render json: {graphs: graphDetails, unseen_count: @unseen_count}
+	end
+
+	def getEmpDashboard
+		salary = WkSalary.getLastSalary
+		net = salary.present? ? (salary.currency + " " + salary.net.to_s) : 0;
+		lastIncSalary = WkSalary.lastIncrementSalary
+		lastIncSalary[:name] = "Last Increment"
+		data = []
+		data << {title: "Leave", data: WkUserLeave.leaveCounts.map{|l| {name: l.subject, value: l.leave_count}}}
+		data << {title: "Salary", data: [{name: "Last Salary", value: net, date: salary.salary_date}, lastIncSalary]}
+		return data
 	end
 end

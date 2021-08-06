@@ -82,14 +82,15 @@ class WkleaverequestController < WkbaseController
   def save
     errorMsg = nil
     user = User.current
-    newEntry = params[:lveReqID].blank?
-    leaveReq = newEntry ? WkLeaveReq.new : WkLeaveReq.find(params[:lveReqID])
-    leaveReq.user_id = user.id if newEntry
-    leaveReq.leave_type_id = params[:leave_type_id] if newEntry
-    leaveReq.start_date = params[:start_date] if params[:start_date].present?
-    leaveReq.end_date = params[:end_date] if params[:end_date].present?
-    leaveReq.leave_reasons = params[:leave_reasons] if params[:leave_reasons].present?
-    leaveReq.reviewer_comment = params[:reviewer_comment] if params[:reviewer_comment].present?
+    leaveReq = params[:lveReqID].blank? ? WkLeaveReq.new : WkLeaveReq.find(params[:lveReqID])
+    leaveReq.user_id = user.id if params[:lveReqID].blank?
+    if leaveReq.wkstatus.blank? || ["N", "R"].include?(leaveReq&.wkstatus&.last&.status)
+      leaveReq.leave_type_id = params[:leave_type_id]
+      leaveReq.start_date = params[:start_date]
+      leaveReq.end_date = params[:end_date]
+      leaveReq.leave_reasons = params[:leave_reasons]
+    end
+    leaveReq.reviewer_comment = params[:reviewer_comment] if leaveReq.wkstatus.present? && leaveReq&.wkstatus&.last&.status == "S"
 
     lveReqStatus = "S"
     params.each do |param, val|

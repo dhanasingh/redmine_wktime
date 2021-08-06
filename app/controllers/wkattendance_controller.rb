@@ -565,7 +565,7 @@ class WkattendanceController < WkbaseController
 				startTime = getFormatedTimeEntry(start_time)
 				endTime = getFormatedTimeEntry(end_time)
 				begin
-					if params["clockin_" + key] == '0:00' && params["clockout_" + key] == '0:00' && attnd_id.present?
+					if params["clockin_" + key] == '00:00' && params["clockout_" + key] == '00:00' && attnd_id.present?
 						wkattendance =  WkAttendance.find(attnd_id.to_i)
 						wkattendance.destroy()
 					elsif attnd_id.present?

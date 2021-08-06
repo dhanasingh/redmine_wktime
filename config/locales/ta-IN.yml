@@ -1119,8 +1119,8 @@ ta-IN:
   field_inventory_item_id: தயாரிப்பு
   field_quantity: அளவு
   label_interest_level: ஆர்வ நிலை
-  label_min_exp_req: தேவையான அனுபவம் 
-  label_min_rating_req: தேவையான மதிப்பீடு 
+  label_min_exp_req: தேவையான அனுபவம்
+  label_min_rating_req: தேவையான மதிப்பீடு
   label_consumed_items: உபயோகப்படுத்தப்பட்ட பொருள்
   button_save_with_tax: வரியுடன் சேமிக்கவும்
   label_clockin_users: பயனர்களின் மணி
@@ -1132,3 +1132,5 @@ ta-IN:
   label_deleted: நீக்கம்
   warn_issuelog_exist: "நீங்கள் இந்த வாரத்தின் அனைத்து பிரச்சினை பதிவுகளை நிறுத்த வேண்டும்"
   label_select_time: நேர உள்ளீடுகளைத் தேர்ந்தெடுக்கவும்
+  label_account_number: Account Number
+  label_closed_date: Closed date

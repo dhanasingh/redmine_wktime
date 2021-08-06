@@ -5,11 +5,11 @@ module WkDashboard
   def chart_data(param={})
     to = param[:to]
     data = { graphName: l(:label_total_assets_per_month), chart_type: "line", xTitle: l(:label_months), yTitle: l(:field_amount),
-      legentTitle1: l(:label_total_assets_per_month), report_type: "report_attendance_web" }
+      legentTitle1: l(:label_total_assets_per_month), data1: []
+    }
     data[:fields] = (Array.new(12){|indx| month_name(((to.month - 1 - indx) % 12) + 1).first(3)}).reverse
 
     dateArr = (Array.new(12){|m| [(to - m.month).beginning_of_month, (to - m.month).end_of_month]}).reverse
-    data[:data1] = []
     dateArr.each do |c|
       countEntry = getAssets(c.last.to_date)
       countEntry = countEntry.where("(ap.is_disposed != #{booleanFormat(true)} OR ap.is_disposed is NUll)")

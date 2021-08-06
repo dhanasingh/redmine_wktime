@@ -2,7 +2,8 @@
 	<table class="list time-entries">
 		<thead>
 			<tr>
-			    <%= sort_header_tag('acc_name', :caption => l(:field_name), :class => "lbl-txt-align") %>
+			  <%= sort_header_tag('acc_number', :caption => l(:label_account_number), :class => "lbl-txt-align") %>
+			  <%= sort_header_tag('acc_name', :caption => l(:field_name), :class => "lbl-txt-align") %>
 				<%= sort_header_tag('location_name', :caption => l(:label_location), :class => "lbl-txt-align") %>
 				<th class="lbl-txt-align"><%= l(:label_address) %></th>
 				<th class="lbl-txt-align"><%= l(:label_work_phone) %></th>
@@ -14,6 +15,7 @@
 		<tbody>
 			<% @account_entries.each do |entry| %>
 				<tr>
+					  <td class="lbl-txt-align"><%=h entry.account_number %></td>
 					  <td class="lbl-txt-align"><%=h entry.name %></td>
 					  <td class="lbl-txt-align"><%=h entry.location_id.blank? ? "" : entry.location.name %></td>
 					  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.address1 %></td>
@@ -22,7 +24,7 @@
 					  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.country %></td>
 					  <td class="lbl-txt-align"><%=h entry.address.blank? ? "" : entry.address.city %></td>
 					  <td align="center">
-						  <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :account_id => entry.id,:address_id => entry.address.blank? ? "" : entry.address.id}, :title => l(:button_edit) %> 
+						  <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :account_id => entry.id,:address_id => entry.address.blank? ? "" : entry.address.id}, :title => l(:button_edit) %>
 						  <% if controller.deletePermission %>
 							<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
 						   <% end %>

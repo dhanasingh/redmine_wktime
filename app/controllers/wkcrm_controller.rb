@@ -119,6 +119,7 @@ class WkcrmController < WkbaseController
 		end
 		wkaccount.name = params[:account_name]
 		wkaccount.account_type = getAccountType
+		wkaccount.account_number = params[:account_number]
 		wkaccount.account_category = params[:account_category]
 		wkaccount.description = params[:description]
 		wkaccount.account_billing = params[:account_billing].blank? ? 0 : params[:account_billing]

@@ -19,7 +19,7 @@ class WkbaseController < ApplicationController
 	unloadable
 	before_action :require_login
 	before_action :clear_sort_session, :unseen
-	accept_api_auth :getUserPermissions, :updateClockInOut, :my_account, :get_groups
+	accept_api_auth :getUserPermissions, :updateClockInOut, :my_account, :get_groups, :saveIssueTimeLog
 	helper :sort
   helper :custom_fields
   helper :users
@@ -41,16 +41,17 @@ class WkbaseController < ApplicationController
 
 	def updateClockInOut
 		lastAttnEntries = findLastAttnEntry(true)
-		if !lastAttnEntries.blank?
-			@lastAttnEntry = lastAttnEntries[0]
-		end
+		@lastAttnEntry = lastAttnEntries[0] if !lastAttnEntries.blank?
 		entryTime  =  Time.now
 		entryTime = entryTime - (entryTime.utc_offset.seconds + (params[:offSet].to_i).minutes)
 		@lastAttnEntry = saveAttendance(@lastAttnEntry, entryTime, nil, User.current.id, false)
-		ret = 'done'
 		respond_to do |format|
-			format.text  { render :plain => ret }
-			format.api{ render :plain => ret }
+			format.text do
+				render :plain => 'done'
+			end
+			format.api do
+				render :json => @lastAttnEntry
+			end
 		end
 	end
 
@@ -241,7 +242,14 @@ class WkbaseController < ApplicationController
 		end
 		lastIssueLog = WkSpentFor.getIssueLog.first
 		renderMsg = lastIssueLog.blank? ? "start" : "finish" if errorMsg.blank?
-		render plain: renderMsg || errorMsg
+		respond_to do |format|
+			format.html do
+				render plain: renderMsg || errorMsg
+			end
+			format.json do
+				render json: {data: lastIssueLog, error: errorMsg}
+			end
+		end
 	end
 
 	def findCountBySql(query, model)

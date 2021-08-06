@@ -394,6 +394,7 @@ class WksurveyController < WkbaseController
       txt_answers = txt_answers.responsedTextAnswer(params[:groupName]) if params[:groupName].present? && isAdmin
 
       groupName = params[:groupName].present? ? params[:groupName] : getResponseGroup.last
+      @groupClosedDate = WkSurveyResponse.getClosedDate(groupName)
       txt_answers = txt_answers.responsedTextAnswer(groupName) if !isAdmin
     end
     @survey_txt_answers = txt_answers

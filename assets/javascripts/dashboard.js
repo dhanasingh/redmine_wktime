@@ -9,7 +9,7 @@ function renderChart(url, path){
   $.getJSON(url, function(data){
     createChart(data, name);
     $("#"+name).click(function(){
-      datasetPopup(path, data.graphName);
+      renderDetailReport(path, data.graphName);
     });
   });
 }
@@ -135,8 +135,8 @@ function getAxes(autoSkip, label, isNonPiechart, data){
   )
 }
 
-function datasetPopup(path, graphName){
-  let url = new URL("wkdashboard/getDataSet", window.location.origin);
+function renderDetailReport(path, graphName){
+  let url = new URL("wkdashboard/getDetailReport", window.location.origin);
   url.searchParams.append("gPath", path);
   const dashURL = new URL(window.location);
   dashURL.searchParams.forEach(function(value, key){

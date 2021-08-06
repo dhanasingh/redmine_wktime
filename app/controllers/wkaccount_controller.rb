@@ -21,14 +21,15 @@ class WkaccountController < WkcrmController
     before_action :require_login
 
 	def index
-		sort_init 'updated_at', 'desc'
+		sort_init "updated_at", "desc"
 
-		sort_update 'acc_name' => "#{WkAccount.table_name}.name",
-					'country' => "A.country",
-					'city' => "A.city",
-					'location_name' => "L.name",
-					'updated_at' => "#{WkAccount.table_name}.updated_at"
-					
+		sort_update "acc_name" => "#{WkAccount.table_name}.name",
+					"country" => "A.country",
+					"city" => "A.city",
+					"location_name" => "L.name",
+					"updated_at" => "#{WkAccount.table_name}.updated_at",
+					"acc_number" => "#{WkAccount.table_name}.account_number"
+
 		set_filter_session
 		locationId = session[controller_name].try(:[], :location_id)
 		accName = session[controller_name].try(:[], :accountname)
@@ -58,8 +59,8 @@ class WkaccountController < WkcrmController
 			end
 			format.csv do
 				headers = { name: l(:field_name), location: l(:label_location), address: l(:label_address), phone: l(:label_work_phone), country: l(:label_country), city: l(:label_city) }
-  			data = entries.map do |e| 
-					{ name: e.name, location: (e&.location&.name || ''), address: (e&.address&.address1 || ''),  phone: (e&.address&.work_phone || ''), country: (e&.address&.country || ''), city: (e&.address&.city || '')} 
+  			data = entries.map do |e|
+					{ name: e.name, location: (e&.location&.name || ''), address: (e&.address&.address1 || ''),  phone: (e&.address&.work_phone || ''), country: (e&.address&.country || ''), city: (e&.address&.city || '')}
 				end
 				respond_to do |format|
 					format.csv {
@@ -69,14 +70,14 @@ class WkaccountController < WkcrmController
 			end
 		end
 	end
-	
+
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
 		@account_entries = entries.limit(@limit).offset(@offset)
 	end
-  
-    def setLimitAndOffset		
+
+  def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -89,33 +90,31 @@ class WkaccountController < WkcrmController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
-   	end
-   
+		end
+  end
+
 	def edit
-		
-	     @accountEntry = nil
-		 unless params[:account_id].blank?
+	  @accountEntry = nil
+		unless params[:account_id].blank?
 			set_filter_session
 			@accountproject = formPagination(accountProjctList)
-	
-		  @accountEntry = WkAccount.find(params[:account_id])
+			@accountEntry = WkAccount.find(params[:account_id])
 		end
 		respond_to do |format|
-			format.html {        
+			format.html do
 			  render :layout => !request.xhr?
-			}
+			end
 			format.api
 		end
-    end	
-	
+  end
+
 	def update
 		wkaccount = accountSave
 		errorMsg = wkaccount.errors.full_messages.join("<br>")
 		respond_to do |format|
 			format.html {
 				if errorMsg.blank?
-					redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name 
+					redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
 					flash[:notice] = l(:notice_successful_update)
 				else
 					flash[:error] = errorMsg
@@ -126,13 +125,13 @@ class WkaccountController < WkcrmController
 				if errorMsg.blank?
 					render :plain => errorMsg, :layout => nil
 				else
-					@error_messages = errorMsg.split('\n')	
+					@error_messages = errorMsg.split('\n')
 					render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
 				end
 			}
 		end
 	end
-	
+
 	def destroy
 		account = WkAccount.find(params[:id].to_i)
 		if account.destroy
@@ -143,7 +142,7 @@ class WkaccountController < WkcrmController
 		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end
-	
+
 	def getAccountLbl
 		l(:field_account)
 	end
@@ -151,6 +150,6 @@ class WkaccountController < WkcrmController
 	def set_filter_session
 		filters = [:location_id, :accountname]
 		super(filters)
-	end	
+	end
 
 end

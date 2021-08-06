@@ -5,8 +5,7 @@ module WkDashboard
     to = param[:to].end_of_month
     data = {
       graphName: l(:label_lead_generation), chart_type: "line", xTitle: l(:label_months), yTitle: l(:label_no_of_leads),
-      legentTitle1: l(:label_created_lead), legentTitle2: l(:label_converted_lead),
-      url: {controller: "wkreport", action: "index", report_type: "report_lead_conversion_web"}
+      legentTitle1: l(:label_created_lead), legentTitle2: l(:label_converted_lead)
     }
     data[:fields] = (Array.new(12){|indx| month_name(((to.month - 1 - indx) % 12) + 1).first(3)}).reverse
 

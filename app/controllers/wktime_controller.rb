@@ -29,7 +29,7 @@ before_action :check_view_redirect, :only => [:index]
 before_action :check_log_time_redirect, :only => [:new]
 before_action :check_module_permission, :only => [:index]
 
-accept_api_auth :index, :edit, :update, :destroy, :deleteEntries, :getProjects, :getissues, :getactivities, :getAPIUsers, :getclients
+accept_api_auth :index, :edit, :update, :destroy, :deleteEntries, :getProjects, :getissues, :getactivities, :getAPIUsers, :getclients, :get_issue_loggers
 
 helper :custom_fields
 helper :queries
@@ -541,38 +541,45 @@ include ActionView::Helpers::TagHelper
 		#issues.compact!
 		user = params[:user_id].present? ? User.find(params[:user_id]) : User.current
 
-		if !params[:autocomplete]
-			issues = issues.select(&:present?)
-			if  !params[:format].blank?
-				respond_to do |format|
-					format.text  {
-						issStr =""
-						issues.each do |issue|
-						issStr << issue.project_id.to_s() + '|' + issue.id.to_s() + '|' + issue.tracker.to_s() +  '|' +
-								issue.subject  + "\n" if issue.visible?(user)
-						end
+		respond_to do |format|
+			if !params[:autocomplete]
+				issues = issues.select(&:present?)
+				format.any(:html, :text) do
+					issStr =""
+					issues.each do |issue|
+					issStr << issue.project_id.to_s() + '|' + issue.id.to_s() + '|' + issue.tracker.to_s() +  '|' +
+						issue.subject  + "\n" if issue.visible?(user)
+					end
 					render :plain => issStr
-					}
+				end
+				format.json do
+					render :json => formatIssue(issues, user)
 				end
 			else
-				issStr=[]
-				issues.each do |issue|
-					issStr << {:value => issue.id.to_s(), :label => issue.tracker.to_s() +  " #" + issue.id.to_s() + ": " + issue.subject }  if issue.visible?(user)
+				format.any(:html, :text) do
+					subject = params[:q].present? ? "%"+(params[:q]).downcase+"%" : ""
+					issues = issues.where("subject like ? OR issues.id = ?", subject, params[:q].to_i) if params[:q].present?
+					issueRlt = (+"").html_safe
+					issues.each do |issue|
+						issueRlt << content_tag("span", "#"+issue.id.to_s+": "+issue.subject, class: "issue_select", id: issue.id ) if issue.visible?(user) && showIssueLogger(issue.project)
+					end
+					issueRlt = content_tag("span", l(:label_no_data)) if issueRlt.blank?
+					issueRlt = "$('#issueLog .drdn-items.issues').html('" + issueRlt + "');"
+					render js: issueRlt
 				end
-
-				render :json => issStr
+				format.json do
+					render :json => formatIssue(issues, user)
+				end
 			end
-		else
-			subject = params[:q].present? ? "%"+(params[:q]).downcase+"%" : ""
-			issues = issues.where("subject like ? OR issues.id = ?", subject, params[:q].to_i) if params[:q].present?
-			issueRlt = (+"").html_safe
-			issues.each do |issue|
-				issueRlt << content_tag("span", "#"+issue.id.to_s+": "+issue.subject, class: "issue_select", id: issue.id ) if issue.visible?(user) && showIssueLogger(issue.project)
-			end
-			issueRlt = content_tag("span", l(:label_no_data)) if issueRlt.blank?
-			issueRlt = "$('#issueLog .drdn-items.issues').html('" + issueRlt + "');"
-			render js: issueRlt
 		end
+	end
+
+	def formatIssue(issues, user)
+		issStr=[]
+		issues.each do |issue|
+			issStr << {:value => issue.id.to_s(), :label => issue.tracker.to_s() +  " #" + issue.id.to_s() + ": " + issue.subject }  if issue.visible?(user)
+		end
+		issStr
 	end
 
 	def get_issue_loggers(valid=false)
@@ -584,7 +591,7 @@ include ActionView::Helpers::TagHelper
 				return issueLogs
 			else
 				respond_to do |format|
-					format.text do
+					format.any(:html, :text) do
 						container = ""
 						timer = ""
 						issueLogs.each do |log|
@@ -599,6 +606,10 @@ include ActionView::Helpers::TagHelper
 						end
 						container = "$('#issueLog .drdn-items.issues').html('" + container + "').css('cursor', 'default');" + timer
 						render(js: container)
+					end
+					format.json do
+						# issues = issueLogs.map{|i| i.to_h}
+						render json: issueLogs
 					end
 				end
 			end
