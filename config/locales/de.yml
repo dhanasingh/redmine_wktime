@@ -1239,3 +1239,10 @@ de:
   label_select_service: Select Service
   label_select_service_for: Select Service For
   label_text_search: Text Search
+  label_assigned_serial_numbers: Assigned serial numbers
+  label_fixed: Fixed
+  label_running: Running
+  label_serial_number_note: "Note: Use Comma for multiple serial numbers."
+  error_sn_range: Serial Number is not in product Serial Number Range
+  error_sn_blank: Serial Number and Quantity cannot be blank
+  error_sn_text: Serial Number and Quantity cannot be text value

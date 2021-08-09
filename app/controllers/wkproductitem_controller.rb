@@ -268,7 +268,7 @@ class WkproductitemController < WkinventoryController
 			inventoryItem.over_head_price = params[:over_head_price]
 		else
 			inventoryItem.product_item_id = productItemId
-			inventoryItem.serial_number = params[:serial_number]
+			# inventoryItem.serial_number = params[:serial_number]
 			inventoryItem.product_attribute_id = params[:product_attribute_id]
 			if sysCurrency != params[:currency]
 				inventoryItem.org_currency = params[:currency]
@@ -291,6 +291,8 @@ class WkproductitemController < WkinventoryController
 		inventoryItem.uom_id = params[:uom_id].to_i
 		inventoryItem.location_id = locationId if params[:location_id] != "0"
 		inventoryItem.project_id = projId
+		inventoryItem.serial_number = params[:serial_number]
+		inventoryItem.running_sn = params[:running_sn]
 		inventoryItem.save()
 		updateShipment(inventoryItem) if inventoryItem.product_type == 'I'
 		inventoryItem
@@ -356,13 +358,15 @@ class WkproductitemController < WkinventoryController
 
 	def get_material_entries
 		entries = WkMaterialEntry.get_material_entries(params[:inventory_item_id])
-		data = entries.map{|e| {project: e&.project&.name, issue: e.issue.to_s, product: e.inventory_item&.product_item&.product&.name,
-				brand: (e.inventory_item&.product_item&.brand&.name || ""), model: (e.inventory_item&.product_item&.product_model&.name || ""),
+		data = entries.map do |e|
+			serial_number = e&.serial_number.map{|sn| sn.serial_number.to_s }
+			{project: e&.project&.name, issue: e.issue.to_s, product: e.inventory_item&.product_item&.product&.name,
+				brand: (e.inventory_item&.product_item&.brand&.name || ""), model: (e.inventory_item&.product_item&.product_model&.name || ""), serial_no: serial_number&.join(',').truncate_words(2, separator: ',') || '',
 				currency: e.currency, selling_price: e.selling_price, quantity: e.quantity
 			}
-		}
+		end
 		listHeader = {
-			project_name: l(:label_project), issue: l(:label_issue), product_name: l(:field_inventory_item_id), brand_name: l(:label_brand), product_model_name: l(:label_model),
+			project_name: l(:label_project), issue: l(:label_issue), product_name: l(:field_inventory_item_id), brand_name: l(:label_brand), product_model_name: l(:label_model), serial_no: l(:label_serial_number),
 			currency: l(:field_currency), selling_price: l(:label_selling_price), quantity: l(:field_quantity)}
 		render json: {data: data, header: listHeader}
 	end

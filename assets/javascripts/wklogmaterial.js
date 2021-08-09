@@ -3,7 +3,7 @@
 	var entry = 'time_entry'
 	var log_type = document.getElementById("log_type").value;
 	if(log_type == 'E') entry = 'wk_expense_entry';
-	if(log_type == 'M' || log_type == 'A') entry = 'wk_material_entry';
+	if(['M', 'A', 'RA'].includes(log_type)) entry = 'wk_material_entry';
 	if((document.getElementById(entry+'_project_id')) != null)
 	{
 		$('#'+entry+'_project_id').change(function(){
@@ -24,7 +24,7 @@
 		const logType = $('#log_type').val();
 		var entry = 'time_entry'
 		if(logType == 'E') entry = 'wk_expense_entry';
-		if(logType == 'M' || logType == 'A') entry = 'wk_material_entry';
+		if(['M', 'A', 'RA'].includes(logType)) entry = 'wk_material_entry';
 		const clockAction = $('#clock_action').val();
 		if((parseInt(spent_id) > 0 && clockAction == '') || (!(parseInt(spent_id) > 0) && clockAction == '') &&
 			(($('#'+entry+'_user_id').length > 0 && $('#'+entry+'_user_id').val() != $('#current_user').val()) || ( logType == 'T' && $('#'+entry+'_hours').val() != '')) || (!(parseInt(spent_id) > 0) && $('#'+entry+'_spent_on').val() != new Date().toJSON().slice(0,10).replace(/-/g,'-')))
@@ -79,6 +79,36 @@
 
 	$('.edit_'+entry+' .new_'+entry+'').submit(function(){
 		sessionStorage.setItem("spent_type", $('#log_type').val());
+	});
+
+	$('#material_sn').change(function(){
+		let sn =[];
+		let product_serial_numbers = $('#product_serial_numbers').val();
+		if($(this).val() != '' && product_serial_numbers.length > 0){
+			let material_sn = $(this).val().split(',');
+			material_sn.map(function(number){
+				if(!(JSON.parse(product_serial_numbers)).includes(number.trim())) sn.push(number) ;
+			});
+			if(sn.length > 0){
+				$("#warn_serial_number").html(sn_range_error);
+			}
+			else{
+				$("#warn_serial_number").html("");
+			}
+			let hidden_sn = $('#hidden_sns').val();
+			let hidden_sn_arr = JSON.parse(hidden_sn);
+			let sns =[];
+			hidden_sn_arr.map(function (ele, i) { if(!ele['is_delete']) sns.push(ele['serial_number']) });
+			let removed_sns = sns.filter(x => !material_sn.includes(x));
+			if(removed_sns.length > 0){
+				hidden_sn_arr.map(function (ele, i) { if(removed_sns.includes(ele['serial_number'])) ele['is_delete'] = true; });
+			}
+			let added_sns = material_sn.filter(x => !sns.includes(x));
+			if(added_sns.length > 0){
+				added_sns.map(function (number) { hidden_sn_arr.push({id: '', serial_number: number})});
+			}
+			$('#hidden_sns').val(JSON.stringify(hidden_sn_arr));
+		}
 	});
 });
 

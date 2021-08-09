@@ -295,7 +295,7 @@ module TimelogControllerPatch
 		def getParams(logtype, params)
 			param = params[:time_entry]
 			param = params[:wk_expense_entry] if logtype == 'E'
-			param = params[:wk_material_entry] if logtype == 'M' || logtype == 'A'
+			param = params[:wk_material_entry] if logtype == 'M' || logtype == 'A' || params[:log_type] == @logType
 			param
 		end
 	# ========================
@@ -420,6 +420,18 @@ module TimelogControllerPatch
 							@assetObj.matterial_entry_id = nil
 						end
 						@assetObj.save
+					end
+					# save serial number
+					if errorMsg.blank? && params[:hidden_sns].present?
+						JSON.parse(params[:hidden_sns]).each do |sn|
+							WkMaterialEntrySn.where(id: sn["id"]).delete_all() if sn["is_delete"].present? && sn["id"].present?
+							if sn["id"].blank? && !sn["is_delete"]
+								materialSN = WkMaterialEntrySn.new
+								materialSN.material_entry_id = @modelEntry.id
+								materialSN.serial_number = sn["serial_number"]
+								materialSN.save
+							end
+						end
 					end
 				end
 			end

@@ -64,7 +64,7 @@ include WkassetHelper
 	end
 	
 	def mergePItemInvItemQuery(productId, logType, locationId)
-		sqlQuery = "select it.id, pi.product_id, pi.brand_id, wap.name as asset_name, wap.rate, wap.rate_per, wb.name as brand_name, it.product_attribute_id, pi.product_model_id, wpm.name as product_model_name, pi.part_number, it.cost_price, it.selling_price, it.currency, it.available_quantity, it.uom_id from wk_inventory_items it left outer join wk_product_items pi on pi.id = it.product_item_id left outer join wk_brands wb on wb.id = pi.brand_id left outer join wk_product_models wpm on wpm.id = pi.product_model_id left outer join wk_asset_properties wap on wap.inventory_item_id = it.id left outer join wk_material_entries wme on wme.id = wap.matterial_entry_id where  it.available_quantity > 0 "			
+		sqlQuery = "select it.id, pi.product_id, pi.brand_id, wap.name as asset_name, wap.rate, wap.rate_per, wb.name as brand_name, it.product_attribute_id, pi.product_model_id, wpm.name as product_model_name, pi.part_number, it.cost_price, it.selling_price, it.currency, it.available_quantity, it.uom_id, it.serial_number, it.running_sn from wk_inventory_items it left outer join wk_product_items pi on pi.id = it.product_item_id left outer join wk_brands wb on wb.id = pi.brand_id left outer join wk_product_models wpm on wpm.id = pi.product_model_id left outer join wk_asset_properties wap on wap.inventory_item_id = it.id left outer join wk_material_entries wme on wme.id = wap.matterial_entry_id where  it.available_quantity > 0 "			
 		sqlQuery = sqlQuery  + " and pi.product_id = #{productId} " unless productId.blank?
 		sqlQuery = sqlQuery  + " and it.product_type = '#{logType}' " unless logType.blank?
 		sqlQuery = sqlQuery + " and (wap.matterial_entry_id is null or wme.user_id = #{User.current.id}) "
@@ -84,7 +84,7 @@ include WkassetHelper
 			
 				pctArr << [(entry.asset_name.to_s() + ' - ' + entry.rate.to_s() + ' - ' + rateperhash[entry.rate_per].to_s()), entry.id.to_s() ]  
 			else
-				pctArr <<  [(entry.brand_name.to_s() +' - '+ entry.product_model_name.to_s() +' - '+ attributeName + ' - '+ entry.part_number.to_s() +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s()) ),  entry.id.to_s()]
+				pctArr <<  [(entry.brand_name.to_s() +' - '+ entry.product_model_name.to_s() +' - '+ attributeName + ' - '+ entry.part_number.to_s() +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s()) +' - '+ (entry.serial_number.to_s() + entry.running_sn.to_s()) ),  entry.id.to_s()]
 			end
 		end
 		pctArr.unshift(["",'']) if needBlank
@@ -137,6 +137,23 @@ include WkassetHelper
 		matterialObj.uom_id = uomId
 		matterialObj.save
 		matterialObj
+	end
+
+	def getProductSNs(id)
+		serialNos = []
+		inventory_item = WkInventoryItem.find(id)
+		if inventory_item.present? && inventory_item.running_sn.present?
+			serial_number = inventory_item&.serial_number
+			running_sn = inventory_item&.running_sn
+			total_quantity = inventory_item&.total_quantity
+			org_sn_length = running_sn&.length;
+			for i in 1..total_quantity
+				serialNos << serial_number.to_s + running_sn.to_s
+				running_sn = running_sn.to_i + 1
+				running_sn = running_sn.to_s.rjust(org_sn_length, '0') if running_sn.to_s.length < org_sn_length
+			end 
+		end
+		serialNos
 	end
 	
 end
