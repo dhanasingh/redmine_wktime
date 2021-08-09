@@ -76,8 +76,8 @@ include Redmine::SafeAttributes
     grp_id.pluck(:group_id)
   end
 
-  def self.getAssigneeIssues(user_id, grp_ids, project_id)
-    issues = Issue.joins("INNER JOIN wk_issue_assignees ia on (ia.issue_id = issues.id and (ia.user_id = #{user_id} or ia.user_id in (#{grp_ids})))")
+  def self.getAssignedIssues(user_id, groupIDs, project_id)
+    issues = Issue.joins("INNER JOIN wk_issue_assignees ia on (ia.issue_id = issues.id and (ia.user_id = #{user_id} or ia.user_id in (#{groupIDs})))")
     issues = issues.where("ia.project_id=#{project_id}") if project_id.present?
     issues
   end

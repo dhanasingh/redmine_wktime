@@ -42,7 +42,7 @@ class WkUserLeave < ActiveRecord::Base
       inner join users AS U ON U.id = UL.user_id AND U.type = 'User' AND U.status = 1
       where UL.user_id=#{User.current.id}
       group by user_id, issue_id
-      ) AS leave on leave.accrual_on = wk_user_leaves.accrual_on AND leave.user_id = wk_user_leaves.user_id AND leave.issue_id = wk_user_leaves.issue_id")
+      ) AS l on l.accrual_on = wk_user_leaves.accrual_on AND l.user_id = wk_user_leaves.user_id AND l.issue_id = wk_user_leaves.issue_id")
       .where("wk_user_leaves.user_id=#{User.current.id} AND wk_user_leaves.issue_id IN (?)", accrualLeaves)
       .select("(wk_user_leaves.balance + wk_user_leaves.accrual - wk_user_leaves.used) AS leave_count, wk_user_leaves.user_id, wk_user_leaves.issue_id, issues.subject")
   end
