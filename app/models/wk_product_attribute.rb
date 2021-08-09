@@ -19,4 +19,8 @@ class WkProductAttribute < ActiveRecord::Base
   unloadable
   belongs_to :attribute_group, foreign_key: "group_id", class_name: "WkAttributeGroup"
   has_many :inventory_items, foreign_key: "product_attribute_id", class_name: "WkInventoryItem", :dependent => :restrict_with_error
+
+  scope :getGrpAttribute, ->(grpID){
+    where(group_id: grpID).order(:name)
+  }
 end

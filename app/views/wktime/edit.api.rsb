@@ -20,7 +20,7 @@ api.wk_time do
 		  api.comments time_entry.comments
 		  api.spent_on time_entry.spent_on
       if time_entry.spent_for.present?
-        api.spentFor(id: time_entry.spent_for.id, s_longitude: time_entry.spent_for.s_longitude, s_latitude: time_entry.spent_for.s_latitude, e_longitude: time_entry.spent_for.e_longitude, e_latitude: time_entry.spent_for.e_latitude)
+        api.spentFor(id: time_entry.spent_for.id, s_longitude: time_entry.spent_for.s_longitude, s_latitude: time_entry.spent_for.s_latitude, e_longitude: time_entry.spent_for.e_longitude, e_latitude: time_entry.spent_for.e_latitude, spent_on_time: time_entry.spent_for.spent_on_time)
       end
 		  
 		  #render_api_custom_values defined in app/helpers/custom_fields_helper.rb
@@ -28,4 +28,7 @@ api.wk_time do
 		end
 	  end
   end
+	if controller.getSheetView == 'I'
+	 api.issues	getResIssues
+	end
 end

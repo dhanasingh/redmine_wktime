@@ -19,17 +19,21 @@
 			projectId =session[controller_name].try(:[], :project_id)
 			isDisposed =session[controller_name].try(:[], :is_dispose)
 			showOnMap =session[controller_name].try(:[], :show_on_map)
+			brandSql = nil
+			if productId.present?
+				brandSql = 'id in (select brand_id from wk_brand_products where product_id = ' + productId.to_s + ')'
+			end
 		%>
 		<fieldset style="font-wight: bold;">
 			<%= l(:label_location) %>&nbsp;
 			<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, true)) %>&nbsp;
 			<% if controller.getItemType == "I" || controller.getItemType == "A" %>
 				<%= l(:field_inventory_item_id) %>&nbsp;
-				<%=h select_tag("product_id", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', productId, true)) %>&nbsp;
+				<%=h select_tag("product_id", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', productId, true), :onchange => "if(#{ controller.getItemType == "I"  }) { productChanged(this.id, 'brand_id', #{User.current.id}, false, true, null, null);}") %>&nbsp;
 			<% end %>
 			<% if controller.getItemType == "I" %>
 				<%= l(:label_brand) %>&nbsp;
-				<%=h select_tag("brand_id", generic_options_for_select(WkBrand, nil, 'name', 'name', 'id', brandId, true)) %>&nbsp;
+				<%=h select_tag("brand_id", generic_options_for_select(WkBrand, brandSql, 'name', 'name', 'id', brandId, true)) %>&nbsp;
 				</td>
 			<% else %>
 				<%= l(:label_availability) %>&nbsp;
@@ -40,6 +44,10 @@
 			<%=h select_tag("project_id", options_for_select(getProjectArr, :selected=> projectId)) %>&nbsp;
 			<% if controller.getItemType == "A" %>
 				<label><%= check_box_tag('is_dispose', 1, isDisposed) %> <%= l(:label_disposed) %></label>&nbsp;
+			<% end %>
+			<% if controller.getItemType == "I" %>
+				<label for='name'><%= l(:label_text_search) %></label>
+					<%= text_field_tag 'name', controller.getSession(:name), :size => 15 %>
 			<% end %>
 			<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>&nbsp;
 			<%= link_to l(:button_clear), {:tab => controller_name, clear: true}, :class => 'icon icon-reload' %>

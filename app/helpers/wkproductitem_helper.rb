@@ -68,4 +68,19 @@ include WkassetHelper
 		projArr
 	end
 
+	def getProductArr(type)
+		products = WkProduct.getProducts(type)
+		productArr = []
+		products.each { |p| productArr << { value: p.id, label: p.name }}
+		productArr
+	end
+
+	def getAttributeArr(type)
+		products = WkProduct.getProducts(type)
+		attributeArr = []
+		attributes = WkProductAttribute.getGrpAttribute(products.first.attribute_group_id)
+		attributes.each { |p| attributeArr << { value: p.id, label: p.name }}
+		attributeArr
+	end
+
 end

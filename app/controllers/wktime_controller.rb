@@ -465,8 +465,9 @@ include ActionView::Helpers::TagHelper
 	def getIssueAssignToUsrCond
 		issueAssignToUsrCond=nil
 		user_id = params[:user_id] || User.current.id
+		grp_ids = Wktime.getUserGrp(user_id).join(',')
 		if (!Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].blank? && Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].to_i == 1)
-			issueAssignToUsrCond ="and (#{Issue.table_name}.assigned_to_id=#{user_id} OR #{Issue.table_name}.author_id=#{user_id})"
+			issueAssignToUsrCond ="and (#{Issue.table_name}.assigned_to_id=#{user_id} OR #{Issue.table_name}.assigned_to_id in (#{grp_ids}) OR #{Issue.table_name}.author_id=#{user_id})"
 		end
 		issueAssignToUsrCond
 	end
@@ -509,10 +510,11 @@ include ActionView::Helpers::TagHelper
 					end
 			else
 				if (!Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].blank? && Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].to_i == 1)
+					user_id = params[:user_id] || User.current.id
+					grp_ids = Wktime.getUserGrp(user_id).join(',')
 					projIds = "#{(params[:project_id] || (!params[:project_ids].blank? ? params[:project_ids].join(",") : '') || projectids)}"
 					projCond = !projIds.blank? ? "AND #{Issue.table_name}.project_id in (#{projIds})" : ""
-
-					issues = Issue.where(["((#{Issue.table_name}.assigned_to_id= ? OR #{Issue.table_name}.author_id= ?) #{trackerIDCond}) #{projCond}", params[:user_id], params[:user_id]]).order('project_id')
+					issues = Issue.where(["((#{Issue.table_name}.assigned_to_id= ? OR #{Issue.table_name}.assigned_to_id in (#{grp_ids}) OR #{Issue.table_name}.author_id= ?) #{trackerIDCond}) #{projCond}", params[:user_id], params[:user_id]]).order('project_id')
 				else
 					issues = Issue.order('project_id')
 					issues = issues.where(:project_id => params[:project_id] || params[:project_ids]) if params[:project_id].present? ||  params[:project_ids].present?
@@ -540,6 +542,12 @@ include ActionView::Helpers::TagHelper
 		end
 		#issues.compact!
 		user = params[:user_id].present? ? User.find(params[:user_id]) : User.current
+
+		# adding additional assignee
+		user_id = params[:user_id] || User.current.id
+		grp_ids = Wktime.getUserGrp(user_id).join(',')
+		userIssues = Wktime.getAssigneeIssues(user_id, grp_ids, params[:project_id])
+		issues = issues + userIssues
 
 		respond_to do |format|
 			if !params[:autocomplete]
@@ -2193,7 +2201,9 @@ private
         else
 					if (!Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].blank? && Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].to_i == 1)
 						#allIssues = Issue.find_all_by_project_id(project_id,:conditions =>["(#{Issue.table_name}.assigned_to_id= ? OR #{Issue.table_name}.author_id= ?) #{trackerids}", params[:user_id],params[:user_id]])
-						allIssues = Issue.where(["((#{Issue.table_name}.assigned_to_id= ? OR #{Issue.table_name}.author_id= ?) #{trackerids}) and #{Issue.table_name}.project_id in ( #{project_id})", params[:user_id],params[:user_id]])
+						user_id = params[:user_id] || User.current.id
+						grp_ids = Wktime.getUserGrp(user_id).join(',')
+						allIssues = Issue.where(["((#{Issue.table_name}.assigned_to_id= ? OR #{Issue.table_name}.assigned_to_id in (#{grp_ids}) OR #{Issue.table_name}.author_id= ?) #{trackerids}) and #{Issue.table_name}.project_id in ( #{project_id})", params[:user_id],params[:user_id]])
 					else
 						#allIssues = Issue.find_all_by_project_id(project_id)
 						allIssues = Issue.where(:project_id => project_id)
@@ -2208,6 +2218,12 @@ private
 				#allIssues = Issue.find_all_by_project_id(project_id, :conditions => cond, :include => :status)
 				allIssues = Issue.includes(:status).references(:status).where(cond)
 			end
+			# adding additional assignee
+			grp_ids = Wktime.getUserGrp(params[:user_id]).join(',')
+			user_id = params[:user_id] || User.current.id
+			userIssues = Wktime.getAssigneeIssues(user_id, grp_ids, project_id)
+			allIssues = allIssues + userIssues
+
       # find the issues which are visible to the user
 			@projectIssues[project_id] = allIssues.select {|i| i.visible?(@user) }
     end

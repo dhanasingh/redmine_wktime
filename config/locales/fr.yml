@@ -1226,14 +1226,14 @@ fr:
   label_add_unbilled: Add Unbilled Items
   label_convert_employeee: has been converted to Employee
   label_apply_filters: Apply Filters
-  label_approve_reimbursement: Include only approve Reimbursement
+  label_approve_reimbursement: Include only approved Reimbursement
   warn_survey_mandatory: Please must answer the mandatory questions
   warn_survey_submit: "Are you sure you want to submit the survey? Once you submit, You will not able to edit again"
   label_interest_level: Interest Level
   label_min_exp_req: Experience Required
   label_min_rating_req: Rating Required
   label_consumed_items: Consumed Items
-  button_save_with_tax: Save With Tax
+  button_save_with_tax: Apply Tax and Save
   label_clockin_users: Clock in users
   # label_expense_for_issues: Expense for issues
   label_lead_generation: Lead generation vs conversion
@@ -1245,3 +1245,6 @@ fr:
   label_select_time: Select Time Entries
   label_account_number: Account Number
   label_closed_date: Closed date
+  label_select_service: Select Service
+  label_select_service_for: Select Service For
+  label_text_search: Text Search

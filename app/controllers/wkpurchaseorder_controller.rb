@@ -22,7 +22,7 @@ class WkpurchaseorderController < WksupplierorderentityController
 
 	def newSupOrderEntity(parentId, parentType)
 		super
-		if params[:quote_id].blank? || params[:rfq_id].blank?
+		if params[:rfq_id].present? && params[:quote_id].blank?
 			errorMsg = ""
 			errorMsg = l(:error_please_select_rfq) + " <br/>" if params[:rfq_id].blank?
 			errorMsg = errorMsg + l(:error_please_select_winning_quote) + " <br/>" if params[:quote_id].blank?

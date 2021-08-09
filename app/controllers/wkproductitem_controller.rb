@@ -47,6 +47,7 @@ class WkproductitemController < WkinventoryController
 					'project_name' => "project_name"
 
 		set_filter_session
+		name = getSession(:name)
 		productId = session[controller_name].try(:[], :product_id)
 		brandId = session[controller_name].try(:[], :brand_id)
 		locationId =session[controller_name].try(:[], :location_id)
@@ -56,12 +57,13 @@ class WkproductitemController < WkinventoryController
 		location = WkLocation.where(:is_default => 'true').first
 		sqlwhere = ""
 		selectStr = "select iit.id as inventory_item_id, pit.id as product_item_id, iit.product_item_id as inv_product_item_id, piit.product_item_id as parent_product_item_id, iit.status, p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as product_attribute_name, iit.serial_number, iit.currency, iit.selling_price, iit.total_quantity, iit.available_quantity, uom.short_desc as uom_short_desc, l.name as location_name, projects.name as project_name, (case when iit.product_type is null then p.product_type else iit.product_type end) as product_type, iit.is_loggable, ap.name as asset_name, piit.id as parent_id, pap.name as parent_name, ap.owner_type, ap.currency as asset_currency, ap.rate, ap.rate_per, ap.current_value, pcr.child_count, ap.is_disposed,ap.latitude as latitude, ap.longitude as longitude"
-		unless productId.blank?
-			sqlwhere = " AND pit.product_id = #{productId}"
-		end
-
-		unless brandId.blank?
-			sqlwhere = sqlwhere + " AND pit.brand_id = #{brandId}"
+		if name.blank?
+			unless productId.blank?
+				sqlwhere = " AND pit.product_id = #{productId}"
+			end
+			unless brandId.blank? || brandId == 0
+				sqlwhere = sqlwhere + " AND pit.brand_id = #{brandId}"
+			end
 		end
 
 		if (!locationId.blank? || !location.blank?) && locationId != "0"
@@ -81,6 +83,10 @@ class WkproductitemController < WkinventoryController
 			sqlwhere = sqlwhere + " AND iit.project_id IS NULL"
 		elsif projectId != 'AP'
 			sqlwhere = sqlwhere + " AND iit.project_id = #{projectId}"
+		end
+
+		unless name.blank?
+			sqlwhere = sqlwhere + " AND (LOWER(p.name) like LOWER('%#{name}%') OR LOWER(b.name) like LOWER('%#{name}%') OR LOWER(m.name) like LOWER('%#{name}%'))"
 		end
 		disposedCond = isDisposed.present? && isDisposed == "1"
 		sqlwhere = sqlwhere + " AND (ap.is_disposed = #{booleanFormat(disposedCond)} #{!disposedCond ? 'OR ap.is_disposed IS NULL' : ''})" if getItemType == "A"
@@ -189,11 +195,26 @@ class WkproductitemController < WkinventoryController
 				end
 				postShipmentAccounting(inventoryItem.shipment, assetAccountingHash, assetValue)
 			end
-		    redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
-		    flash[:notice] = l(:notice_successful_update)
-		else
-		    redirect_to :controller => controller_name,:action => 'edit' , :product_item_id => params[:product_item_id], :inventory_item_id => params[:inventory_item_id], :tab => controller_name
-		    flash[:error] = productItem.errors.full_messages.join("<br>")
+		end
+		errorMsg = productItem.errors.full_messages.join("<br>")
+		respond_to do |format|
+			format.html {
+				if errorMsg.blank?
+					redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
+					flash[:notice] = l(:notice_successful_update)
+				else
+					redirect_to :controller => controller_name,:action => 'edit' , :product_item_id => params[:product_item_id], :inventory_item_id => params[:inventory_item_id], :tab => controller_name
+					flash[:error] = errorMsg
+				end
+			}
+			format.api{
+				if errorMsg.blank?
+					render :plain => errorMsg, :layout => nil
+				else
+					@error_messages = errorMsg.split('\n')	
+					render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
+				end
+			}
 		end
   end
 
@@ -347,7 +368,7 @@ class WkproductitemController < WkinventoryController
 	end
 
 	def set_filter_session(filters=nil, filterParams={})
-		filters = [:product_id, :brand_id, :location_id, :availability, :project_id, :is_dispose, :show_on_map] if filters.blank?
+		filters = [:product_id, :brand_id, :location_id, :availability, :project_id, :is_dispose, :show_on_map, :name] if filters.blank?
 		super(filters, filterParams)
 	end
 

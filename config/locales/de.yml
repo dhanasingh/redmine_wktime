@@ -1218,7 +1218,7 @@ de:
   label_add_unbilled: Fügen Sie nicht in Rechnung gestellte Artikel hinzu
   label_convert_employeee: wurde als Mitarbeiter eingestellt
   label_apply_filters: Filter anwenden
-  label_approve_reimbursement: Nur die genehmigte Erstattung einbeziehen
+  label_approve_reimbursement: Include only approved Reimbursement
   warn_survey_mandatory: Sie müssen die obligatorischen Fragen beantworten
   warn_survey_submit: "Sind Sie sicher, dass Sie die Umfrage einreichen möchten? Sobald Sie sie eingereicht haben, können Sie sie nicht mehr bearbeiten."
   label_interest_level: Interest Level
@@ -1236,3 +1236,6 @@ de:
   label_select_time: Select Time Entries
   label_account_number: Account Number
   label_closed_date: Closed date
+  label_select_service: Select Service
+  label_select_service_for: Select Service For
+  label_text_search: Text Search

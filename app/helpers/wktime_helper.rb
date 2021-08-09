@@ -1559,13 +1559,13 @@ end
 	def getSpentFors(userId, projectId)
 		billableProjects = Array.new
 		unless projectId.blank? || userId.blank?
-			user = User.find(userId)
+			# user = User.find(userId)
 			project = Project.find(projectId)
 			projBillList = project.account_projects.includes(:parent) unless project.blank?
-			usrLocationId = user.wk_user.blank? ? nil : user.wk_user.location_id
+			# usrLocationId = user.wk_user.blank? ? nil : user.wk_user.location_id
 			# spent_for_key = parentType.to_s + '_' + parentId.to_s
-			locationBillProject = projBillList.select {|bp| bp.parent.location_id == usrLocationId}
-			locationBillProject = locationBillProject.sort_by{|parent_type| parent_type}
+			# locationBillProject = projBillList.select {|bp| bp.parent.location_id == usrLocationId}
+			locationBillProject = projBillList.sort_by{|parent_type| parent_type}
 			#billableProject = locationBillProject.detect {|billProj| billProj.parent_type == parentType && billProj.parent_id == parentId} unless entry.nil?
 			billableProjects = locationBillProject.collect {|billProj| [billProj.parent.name, billProj.project_id.to_s + '|' + billProj.parent_type.to_s + '_' + billProj.parent_id.to_s]}
 		end
