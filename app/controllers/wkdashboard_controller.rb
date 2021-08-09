@@ -114,12 +114,13 @@ class WkdashboardController < WkbaseController
 
 	def getEmpDashboard
 		salary = WkSalary.getLastSalary
-		net = salary.present? ? (salary.currency + " " + salary.net.to_s) : 0;
-		lastIncSalary = WkSalary.lastIncrementSalary
+		net = salary.present? ? (salary.currency + " " + salary.net.to_s) : nil;
+		lastIncSalary = WkSalary.lastIncrementSalary || {}
 		lastIncSalary[:name] = "Last Increment"
+		leaves = WkUserLeave.leaveCounts.map{|l| {name: l.subject, value: l.leave_count}}
 		data = []
-		data << {title: "Leave", data: WkUserLeave.leaveCounts.map{|l| {name: l.subject, value: l.leave_count}}}
-		data << {title: "Salary", data: [{name: "Last Salary", value: net, date: salary.salary_date}, lastIncSalary]}
+		data << {title: "Leave", data: leaves} if leaves.present?
+		data << {title: "Salary", data: [{name: "Last Salary", value: net, date: salary&.salary_date}, lastIncSalary]}
 		return data
 	end
 end
