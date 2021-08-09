@@ -83,17 +83,21 @@ Import.class_eval do
 
 			if object = build_object(row, item)
 				# ======= ERPmine_patch Redmine 4.2 ==========
-				wktime_helper = Object.new.extend(WktimeHelper)
-				errorMsg = wktime_helper.statusValidation(object)
-				if errorMsg.blank?
-					if object.save
+				if type == 'TimeEntryImport'
+					wktime_helper = Object.new.extend(WktimeHelper)
+					errorMsg = wktime_helper.statusValidation(object)
+					if errorMsg.blank? && object.save
 						spentForModel = wktime_helper.saveSpentFor(nil, nil, nil, object.id, object.class.name, (object.spent_on).to_date, '00', '00', nil)
 						item.obj_id = object.id
 					else
-						item.message = object.errors.full_messages.join("\n")
+						item.message = errorMsg + object.errors.full_messages.join("\n")
 					end
 				else
-					item.message = errorMsg
+					if object.save
+						item.obj_id = object.id
+			  		else
+						item.message = object.errors.full_messages.join("\n")
+			  		end
 				end
 				# =============================
 			end
