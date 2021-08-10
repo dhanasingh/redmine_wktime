@@ -637,11 +637,11 @@ module FttePatch
 
 			def results_scope(options={})
 				order_option = [group_by_sort_order, (options[:order] || sort_clause)].flatten.reject(&:blank?)
-		
+
 				# ============= ERPmine_patch Redmine 4.2  =====================
 				if options[:nonSpentTime].present?
 					base_scope(options)
-				else					
+				else
 				# ======================================
 					base_scope.
 						order(order_option).
@@ -753,7 +753,7 @@ Redmine::Plugin.register :redmine_wktime do
   name 'ERPmine'
   author 'Adhi Software Pvt Ltd'
   description 'ERPmine is an ERP for Service Industries. It has the following modules: Time & Expense, Attendance, Payroll, CRM, Billing, Accounting, Purchasing, Inventory, Asset , Reports, Dashboards and Survey'
-  version '4.3'
+  version '4.3.1'
   url 'https://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
 
