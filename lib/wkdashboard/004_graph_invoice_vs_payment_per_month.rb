@@ -42,18 +42,20 @@ module WkDashboard
     end
   end
 
-  def dataset(param={})
+  def getDetailReport(param={})
     getFinancialDates(param)
     invoiceEntries = getInvoiceEntries
     paymentEntries = getPaymentEntries
     header = {name: l(:field_name), date: l(:label_date), type: l(:field_type), amount: l(:field_amount)}
     data1 = invoiceEntries.map do |e|
       items = e&.invoice_items
-      { name: e&.parent&.name, date: e.invoice_date.to_date, type: l(:label_invoice), amount: items&.first&.currency.to_s + items&.sum(:amount).to_s }
+      { name: e&.parent&.name, date: e.invoice_date.to_date, type: l(:label_invoice), amount: items&.first&.currency.to_s+ " " +items&.sum(:amount).to_s }
     end
-    data2 = paymentEntries.map do |e|
-      items = e&.payment_items&.where(is_deleted: false)
-      { name: e&.parent&.name, date: e.payment_date.to_date, type: l(:label_txn_payment), amount: items&.first&.currency.to_s + items&.sum(:amount).to_s }
+    data2 = []
+    paymentEntries.each do |e|
+      items = e&.payment_items.joins(:invoice).where(is_deleted: false, "wk_invoices.invoice_type" => "I")
+      data2 << { name: e&.parent&.name, date: e.payment_date.to_date, type: l(:label_txn_payment),
+        amount: items&.first&.currency.to_s+ " " +items&.sum(:amount).to_s } if items.present?
     end
     return {header: header, data: data1+data2}
   end
@@ -61,7 +63,7 @@ module WkDashboard
   private
 
   def getInvoiceEntries
-    WkInvoice.where(:invoice_date => getFromDateTime(@startDate) .. getToDateTime(@endDate))
+    WkInvoice.where(:invoice_date => getFromDateTime(@startDate) .. getToDateTime(@endDate), invoice_type: "I")
   end
 
   def getPaymentEntries

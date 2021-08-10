@@ -25,7 +25,7 @@ module WkDashboard
     return data
   end
 
-  def dataset(param={})
+  def getDetailReport(param={})
     to = param[:to]
     entries = getAssets(param[:to])
       .group("wk_inventory_items.id")

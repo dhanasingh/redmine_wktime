@@ -58,7 +58,7 @@ module WkDashboard
     return data
   end
 
-  def dataset(param={})
+  def getDetailReport(param={})
     profits = getProfits(param[:to])
     data = []
     profits.each do |yearMon, amount|

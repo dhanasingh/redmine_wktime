@@ -12,6 +12,7 @@
 <h2><%= @isScheduled ? l(:label_schedule_details) : l(:label_schedule_preference) %></h2>
 <%= form_tag({:controller => controller_name, :action => 'edit'},  :method => :get, :id => 'query_form') do %>
 <%= hidden_field_tag 'set_filter', '1' %>
+<%= hidden_field_tag('searchlist', controller_name) %>
 <% if @schedulesShift || @editShiftSchedules %>
 	<fieldset>
 		<legend><%= l(:label_filter_plural) %></legend>
@@ -22,7 +23,7 @@
 <%
 	#scheduled = false
 	#if @isScheduled #&& @editShiftSchedules
-	#	scheduled = true	
+	#	scheduled = true
 	#end
 %>
 

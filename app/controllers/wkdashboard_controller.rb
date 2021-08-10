@@ -35,7 +35,6 @@ class WkdashboardController < WkbaseController
 	end
 
 	def graph(path=params[:gPath])
-		# path = params[:gPath] if params[:gPath].present?
 		data = {}
 		group_id = session[controller_name].try(:[], :group_id)
 		project_id = session[controller_name].try(:[], :project_id)
@@ -69,7 +68,7 @@ class WkdashboardController < WkbaseController
 			begin
 				load(path)
 				obj = Object.new.extend(WkDashboard)
-				data = obj.dataset({from: @from, to: @to, group_id: group_id, project_id: project_id})
+				data = obj.getDetailReport({from: @from, to: @to, group_id: group_id, project_id: project_id})
 			rescue
 				data = {error: "404"}
 			end

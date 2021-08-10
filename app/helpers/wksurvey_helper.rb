@@ -241,10 +241,9 @@ module WksurveyHelper
   def get_Graph_data(question_id=nil)
     question_id ||= params[:question_id]
     if params[:groupName] == 'trendChart'
-      questionAvg = []
-      questionLabels = []
       wkquestionAvg = WkSurvey.surveyAvgQuestion(params[:survey_id], question_id)
-      wkquestionAvg.each{ |entry| questionAvg << entry.questionavg; questionLabels << entry.grpname;}
+      questionAvg = wkquestionAvg.map{|e| (e.questionavg || 0).to_f}
+      questionLabels = wkquestionAvg.map{|e| e.grpname}
 
       data = {
         :labels => questionLabels,

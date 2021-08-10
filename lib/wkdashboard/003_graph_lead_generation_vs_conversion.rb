@@ -30,7 +30,7 @@ module WkDashboard
     return data
   end
 
-  def dataset(param={})
+  def getDetailReport(param={})
     entries = getLeads(param[:to].end_of_month)
     header = {name: l(:field_name), date: l(:label_generated) +" "+ l(:label_date), status: l(:field_status)}
     data = entries.map{|e| { name: e&.contact&.name, date: e.created_at.to_date, status: getLeadStatusHash[e.status] }}

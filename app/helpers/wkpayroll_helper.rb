@@ -154,6 +154,7 @@ module WkpayrollHelper
 			allowance_total = 0
 			basic_total = 0
 			@userSalCompHash.each do |key, userComp|
+				userComp.factor ||= 0
 				multiplier = getMultiplier(userComp, @payPeriod)
 				basic_total += userComp.factor*multiplier if userComp.sc_component_type == 'b' &&
 					userComp.user_id == user_id && userComp.factor.present?
@@ -163,6 +164,7 @@ module WkpayrollHelper
 			# For allowance total
 			@userSalCompHash.each do |key, userComp|
 				next unless userComp.sc_component_type == 'a' && userComp.user_id == user_id
+				userComp.factor ||= 0
 				multiplier = getMultiplier(userComp, @payPeriod)
 				factor = userComp.dependent_id.present? ? computeFactor(userComp.user_id, userComp.dependent_id, userComp.factor, multiplier) : userComp.factor*multiplier
 				allowance_total = allowance_total + factor.to_f
@@ -189,6 +191,7 @@ module WkpayrollHelper
 			deduction_total = 0
 			@userSalCompHash.each do |key, userComp|
 				next unless userComp.sc_component_type == 'd' && userComp.user_id == user_id
+				userComp.factor ||= 0
 				multiplier = getMultiplier(userComp, @payPeriod)
 				factor = userComp.dependent_id.present? ? computeFactor(userComp.user_id, userComp.dependent_id, userComp.factor, multiplier) : userComp.factor*multiplier
 				deduction_total += factor if factor.present?

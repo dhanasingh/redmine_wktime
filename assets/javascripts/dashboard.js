@@ -1,7 +1,7 @@
 function renderChart(url, path){
   let name = (path.split(".")).shift();
   name = (name.split("/")).pop();
-	var div = '<div class="icon-gravatar" style="margin-left: 40px;" id="'+path+'"><canvas id="'+name+'" width="330" height="240" ></canvas></div>';
+	var div = '<div class="icon-gravatar" style="margin-left: 40px; cursor: pointer;" id="'+path+'"><canvas id="'+name+'" width="330" height="240" ></canvas></div>';
 	$("#graph").append(div);
   let params = (new URLSearchParams(window.location.search)).toString();
   url += "&"+params;
@@ -151,7 +151,7 @@ function renderDetailReport(path, graphName){
       modal: true,
       title: graphName,
       width: "40%",
-      height: $(window).height(),
+      height: $(window).height() - 150,
     });
   });
 }
