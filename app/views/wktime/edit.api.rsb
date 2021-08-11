@@ -1,7 +1,7 @@
 api.wk_time do
   api.id @user.id
   api.name @user.name
-  api.startday @startday
+  api.startday controller.getSheetView == 'I' ? @selectedDate : @startday
   api.status statusString(@wktime.status) unless @wktime.nil?
   api.total @wktime.hours unless @wktime.nil?
   if !@wktime.nil? && !@wktime.notes.blank? && @wktime.status == 'r'
@@ -30,5 +30,7 @@ api.wk_time do
   end
 	if controller.getSheetView == 'I'
 	 api.issues	getResIssues
+	 api.users @users
+	 api.spentFors getSpentFors(User.current.id, controller.getDefultProject.to_i)
 	end
 end

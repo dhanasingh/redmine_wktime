@@ -511,16 +511,12 @@ include ActionView::Helpers::TagHelper
 					end
 			else
 				if (!Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].blank? && Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].to_i == 1)
-					userIssues = []
 					user_id = params[:user_id] || User.current.id
 					groupIDs = Wktime.getUserGrp(user_id).join(',')
 					projIds = "#{(params[:project_id] || (!params[:project_ids].blank? ? params[:project_ids].join(",") : '') || projectids)}"
 					projCond = !projIds.blank? ? "AND #{Issue.table_name}.project_id in (#{projIds})" : ""
 					assignedCnd = groupIDs.present? ? "OR #{Issue.table_name}.assigned_to_id in (#{groupIDs})" : ''
 					issues = Issue.where(["((#{Issue.table_name}.assigned_to_id= ? #{assignedCnd} OR #{Issue.table_name}.author_id= ?) #{trackerIDCond}) #{projCond}", params[:user_id], params[:user_id]]).order('project_id')
-							# adding additional assignee
-					userIssues = Wktime.getAssignedIssues(user_id, groupIDs, params[:project_id]) if groupIDs.present?
-					issues = issues + userIssues
 				else
 					issues = Issue.order('project_id')
 					issues = issues.where(:project_id => params[:project_id] || params[:project_ids]) if params[:project_id].present? ||  params[:project_ids].present?
@@ -548,6 +544,15 @@ include ActionView::Helpers::TagHelper
 		end
 		#issues.compact!
 		user = params[:user_id].present? ? User.find(params[:user_id]) : User.current
+		if (!Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].blank? && Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].to_i == 1)
+			# adding additional assignee
+			userIssues = []
+			user_id = params[:user_id] || User.current.id
+			groupIDs = Wktime.getUserGrp(user_id).join(',')
+			userIssues = Wktime.getAssignedIssues(user_id, groupIDs, params[:project_id]) if groupIDs.present?
+			issues = (issues + userIssues).uniq
+			issues
+		end
 
 		respond_to do |format|
 			if !params[:autocomplete]
@@ -693,7 +698,7 @@ include ActionView::Helpers::TagHelper
 				clientStr =""
 				unless project.blank?
 					project.each do |ap|
-						clientStr << project_id.to_s() + '|' + ap.parent_type + '_' + ap.parent_id.to_s() + '|' + "" + (params[:separator].blank? ? '|' : params[:separator] ) + ap.parent.name + "\n" if ap.parent.location_id == usrLocationId
+						clientStr << project_id.to_s() + '|' + ap.parent_type + '_' + ap.parent_id.to_s() + '|' + "" + (params[:separator].blank? ? '|' : params[:separator] ) + ap.parent.name + "\n"  #if ap.parent.location_id == usrLocationId
 					end
 				end
 				render plain: clientStr
@@ -704,7 +709,7 @@ include ActionView::Helpers::TagHelper
 					spentFors << {
 						value: project_id.to_s() + '|' + client.parent_type + '_' + client.parent_id.to_s() + '|',
 						label: client.parent.name
-					} if client.parent.location_id == usrLocationId
+					} #if client.parent.location_id == usrLocationId
 				} if project.present?
 				render(json: spentFors)
 			}
@@ -740,15 +745,15 @@ include ActionView::Helpers::TagHelper
 		projectids = Array.new
 		user = User.find(userId)
 		billableClients = Array.new
-		usrLocationId = user.wk_user.blank? ? nil : user.wk_user.location_id
+		# usrLocationId = user.wk_user.blank? ? nil : user.wk_user.location_id
 		unless userProjects.blank?
 			userProjects.each do |project|
 				projectids << project.id
 			end
 		end
 		usrBillableProjects = WkAccountProject.includes(:parent).where(:project_id => projectids)
-		locationBillProject = usrBillableProjects.select {|bp| bp.parent.location_id == usrLocationId}
-		locationBillProject = locationBillProject.sort_by{|parent_type| parent_type}
+		# locationBillProject = usrBillableProjects.select {|bp| bp.parent.location_id == usrLocationId}
+		locationBillProject = usrBillableProjects.sort_by{|parent_type| parent_type}
 		billableClients = locationBillProject.collect {|billProj| [billProj.parent.name, billProj.parent_type.to_s + '_' + billProj.parent_id.to_s]}
 		billableClients.unshift(["", ""]) if needBlank
 		billableClients = billableClients.uniq
@@ -2201,14 +2206,10 @@ private
         else
 					if (!Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].blank? && Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].to_i == 1)
 						#allIssues = Issue.find_all_by_project_id(project_id,:conditions =>["(#{Issue.table_name}.assigned_to_id= ? OR #{Issue.table_name}.author_id= ?) #{trackerids}", params[:user_id],params[:user_id]])
-						userIssues = []
 						user_id = params[:user_id] || User.current.id
 						groupIDs = Wktime.getUserGrp(user_id).join(',')
 						assignedCnd = groupIDs.present? ? "OR #{Issue.table_name}.assigned_to_id in (#{groupIDs})" : ''
 						allIssues = Issue.where(["((#{Issue.table_name}.assigned_to_id= ? #{assignedCnd} OR #{Issue.table_name}.author_id= ?) #{trackerids}) and #{Issue.table_name}.project_id in ( #{project_id})", params[:user_id],params[:user_id]])
-						# adding additional assignee
-						userIssues = Wktime.getAssignedIssues(user_id, groupIDs, project_id) if groupIDs.present?
-						allIssues = allIssues + userIssues
 					else
 						#allIssues = Issue.find_all_by_project_id(project_id)
 						allIssues = Issue.where(:project_id => project_id)
@@ -2223,7 +2224,15 @@ private
 				#allIssues = Issue.find_all_by_project_id(project_id, :conditions => cond, :include => :status)
 				allIssues = Issue.includes(:status).references(:status).where(cond)
 			end
-
+			if (!Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].blank? && Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].to_i == 1)
+				# adding additional assignee
+				userIssues = []
+				user_id = params[:user_id] || User.current.id
+				groupIDs = Wktime.getUserGrp(user_id).join(',')
+				userIssues = Wktime.getAssignedIssues(user_id, groupIDs, params[:project_id]) if groupIDs.present?
+				issues = (allIssues + userIssues).uniq
+				issues
+			end
       # find the issues which are visible to the user
 			@projectIssues[project_id] = allIssues.select {|i| i.visible?(@user) }
     end

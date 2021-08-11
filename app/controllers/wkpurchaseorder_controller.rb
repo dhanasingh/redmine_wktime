@@ -22,13 +22,13 @@ class WkpurchaseorderController < WksupplierorderentityController
 
 	def newSupOrderEntity(parentId, parentType)
 		super
-		if params[:rfq_id].present? && params[:quote_id].blank?
+		if params[:rfq_id].present? && params[:quote_id].blank? || params[:quote_id].present? && params[:rfq_id].blank?
 			errorMsg = ""
 			errorMsg = l(:error_please_select_rfq) + " <br/>" if params[:rfq_id].blank?
 			errorMsg = errorMsg + l(:error_please_select_winning_quote) + " <br/>" if params[:quote_id].blank?
 			flash[:error] = errorMsg
 			redirect_to :action => 'new'
-		else
+		elsif params[:rfq_id].present? && params[:quote_id].present?
 			rfqQuotEntry = WkRfqQuote.where(:quote_id => params[:quote_id].to_i)
 			@rfqQuotObj = rfqQuotEntry.blank? || rfqQuotEntry[0].blank? ? nil : rfqQuotEntry[0]
 			if !params[:populate_items].blank? && params[:populate_items] == '1'
