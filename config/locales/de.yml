@@ -1235,14 +1235,14 @@ de:
   warn_issuelog_exist: "Sie müssen alle Ticketprotokolle in der Woche stoppen"
   label_select_time: Wählen Sie Zeiteinträge
   label_account_number: Account Number
-  label_closed_date: Closed date
-  label_select_service: Select Service
-  label_select_service_for: Select Service For
-  label_text_search: Text Search
-  label_assigned_serial_numbers: Assigned serial numbers
-  label_fixed: Fixed
-  label_running: Running
-  label_serial_number_note: "Note: Use Comma for multiple serial numbers."
-  error_sn_range: Serial Number is not in product Serial Number Range
-  error_sn_blank: Serial Number and Quantity cannot be blank
-  error_sn_text: Serial Number and Quantity cannot be text value
+  label_closed_date: Ruhetag
+  label_select_service: Service auswählen
+  label_select_service_for: Service auswählen für
+  label_text_search: Textsuche
+  label_assigned_serial_numbers: Zugewiesene Seriennummern
+  label_fixed: Fest
+  label_running: Betrieb
+  label_serial_number_note: "Hinweis: Verwenden Sie Komma für mehrere Seriennummern."
+  error_sn_range: Seriennummer befindet sich nicht im Seriennummernbereich des Produkts
+  error_sn_blank: Seriennummer und Menge dürfen nicht leer sein
+  error_sn_text: Seriennummer und Menge können keine Textwerte sein
