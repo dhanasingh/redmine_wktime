@@ -92,6 +92,10 @@ class WkleadController < WkcrmController
 	end
 
 	def update
+		if api_request?
+			(params[:address] || []).each{|addr| params[addr.first] = addr.last }
+			params.delete("address")
+		end
 		wkLead = update_without_redirect
 		errorMsg = save_attachments(wkLead.id) if params[:attachments].present?
 		respond_to do |format|
@@ -111,6 +115,9 @@ class WkleadController < WkcrmController
 			format.api{
 				errorMsg = @wkContact.errors.full_messages.join("<br>") + (errorMsg || "")
 				if errorMsg.blank?
+					if params[:wklead_save_convert].present?
+						leadConvert(params)
+					end
 					render :plain => errorMsg, :layout => nil
 				else
 					@error_messages = errorMsg.split('\n')

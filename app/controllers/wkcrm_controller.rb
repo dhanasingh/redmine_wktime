@@ -112,6 +112,10 @@ class WkcrmController < WkbaseController
 
 	def accountSave
 		errorMsg = nil
+		if api_request?
+			(params[:address] || []).each{|addr| params[addr.first] = addr.last }
+			params.delete("address")
+		end
 		if params[:account_id].blank? || params[:account_id].to_i == 0
 			wkaccount = WkAccount.new
 		else
@@ -137,6 +141,10 @@ class WkcrmController < WkbaseController
 
 	def contactSave
 		errorMsg = nil
+		if api_request?
+			(params[:address] || []).each{|addr| params[addr.first] = addr.last }
+			params.delete("address")
+		end
 		if params[:contact_id].blank?
 			wkContact = WkCrmContact.new
 		else

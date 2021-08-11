@@ -48,6 +48,8 @@
 							<td class="lbl-txt-align"><%=h entry.id.blank? ? entry[colName] : (entry.location.blank? ? "" : entry.location.name)  %></td>
 						<% elsif colName == "project_name" %>
 							<td class="lbl-txt-align"><%=h entry.id.blank? ? entry[colName] : (entry.project.blank? ? "" : entry.project.name)  %></td>
+						<% elsif colName == "serial_number" && controller.getItemType == 'I' %>
+							<td class="lbl-txt-align"><%= (entry['serial_number'] || '').to_s +  (entry['running_sn'] || '').to_s %></td>
 						<% elsif !show_on_map %>
 							<td class="lbl-txt-align"><%=h entry[colName] %></td>
 						<% end %>
