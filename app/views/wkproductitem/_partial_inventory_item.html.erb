@@ -44,7 +44,7 @@ th{
 <tr>
 	<th><%= l(itemType == "I" && invntItem.present? ? :label_available_quantity : :field_quantity) %></th>
 	<td  style="padding-left:40px;" id="product_item">
-		<%= text_field_tag "available_quantity", ("%.2f" % invntItem.available_quantity unless invntItem.blank?), :disabled => isDisable && !isTransfer, :maxlength => 14 %>
+		<%= text_field_tag "available_quantity", ("%.2f" % invntItem.available_quantity unless invntItem.blank?), :disabled => isDisable && !isTransfer, :maxlength => 14 %>&nbsp;&nbsp;
     <%= link_to l(:label_consumed_items), "javascript:showQuantityDetails();" if invntItem.present? && itemType == "I" && !isTransfer %>
 	</td>
 </tr>
