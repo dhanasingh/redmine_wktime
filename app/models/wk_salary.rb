@@ -56,9 +56,10 @@ class WkSalary < ActiveRecord::Base
     .order(:net).first
   end
 
-  def self.lastIncrementSalary
+  def self.lastIncrementSalary(all=false)
     salaries = {}
-    salary= {}
+    data = {}
+    dataSet = []
     oldBasic = nil
     oldSalaryDate = nil
     currency = ""
@@ -66,23 +67,29 @@ class WkSalary < ActiveRecord::Base
     wkSalaries = WkSalary.joins(:salary_component).where(user_id: User.current.id).order("salary_date DESC")
     wkSalaries.map{|s| salaries[s.salary_date.to_s] ||= wkSalaries.where(salary_date: s.salary_date)}
     salaries.each do |salaryDate, filtered|
+      data = {}
       basic = nil
       filtered.map{|s| basic = s.amount if s.salary_component.component_type == "b"}
-      oldBasic = basic if oldBasic.blank?
-      if oldBasic != basic
-        salary[:date] = salaryDate
+      if (oldBasic.present? || salaries.length == 1) && oldBasic != basic
+        data[:date] = oldSalaryDate
         net = 0
         (salaries[oldSalaryDate] || []).map do |s|
           net += s.amount if ["b", "a"].include? s.salary_component.component_type
           net -= s.amount if s.salary_component.component_type == "d"
           currency = s.currency
         end
-        salary[:value] = currency.to_s+ " " +net.to_s
-        break
+        data[:value] = currency.to_s+ " " +net.to_s
+        if !all
+          break
+        else
+          dataSet << data
+          break if dataSet.length >= 12
+        end
       end
       oldSalaryDate = salaryDate
+      oldBasic = basic
     end
-    salary
+    return(all ? dataSet : data)
   end
 
   def self.lastYearSalaries

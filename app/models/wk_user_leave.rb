@@ -46,4 +46,14 @@ class WkUserLeave < ActiveRecord::Base
       .where("wk_user_leaves.user_id=#{User.current.id} AND wk_user_leaves.issue_id IN (?)", accrualLeaves)
       .select("(wk_user_leaves.balance + wk_user_leaves.accrual - wk_user_leaves.used) AS leave_count, wk_user_leaves.user_id, wk_user_leaves.issue_id, issues.subject")
   end
+
+  def self.detailReport(issueID)
+    WkUserLeave.joins(:issue).joins(:user)
+    .where(user_id: User.current.id, issue_id: issueID)
+    .order(accrual_on: "DESC")
+  end
+
+  def self.getLeaveName(issueID)
+    Issue.where(id: issueID).first&.subject
+  end
 end

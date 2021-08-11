@@ -73,9 +73,7 @@ class WkdashboardController < WkbaseController
 				data = {error: "404"}
 			end
 		else
-			data = {graphName: "Salary"}
-			data[:header] = {date: "date", net: "Net"}
-			data[:data] = (WkSalary.lastYearSalaries || []).map{|s| {salary_date: s.salary_date, net: s.currency+ " " +s.net.to_s}}
+			data = getEmpDetailReport()
 		end
 
 		render(json: (data || {}))
@@ -115,11 +113,30 @@ class WkdashboardController < WkbaseController
 		salary = WkSalary.getLastSalary
 		net = salary.present? ? (salary.currency + " " + salary.net.to_s) : nil;
 		lastIncSalary = WkSalary.lastIncrementSalary || {}
-		lastIncSalary[:name] = "Last Increment"
-		leaves = WkUserLeave.leaveCounts.map{|l| {name: l.subject, value: l.leave_count}}
+		lastIncSalary.merge!({name: l(:label_last_increment), type: "incrementSalary"})
+		leaves = WkUserLeave.leaveCounts.map{|l| {name: l.subject, value: l.leave_count, issue_id: l.issue_id, type: "leave"}}
 		data = []
-		data << {title: "Leave", data: leaves} if leaves.present?
-		data << {title: "Salary", data: [{name: "Last Salary", value: net, date: salary&.salary_date}, lastIncSalary]}
+		data << {title: l(:label_wk_leave), data: leaves} if leaves.present?
+		data << {title: l(:label_salary), data: [{name: l(:label_last_salary), type: "salary", value: net, date: salary&.salary_date}, lastIncSalary]}
 		return data
+	end
+
+	def getEmpDetailReport()
+		case params[:type]
+		when "salary"
+			data = {graphName: l(:label_salary)}
+			data[:header] = {date: l(:label_salarydate), net: l(:label_net)}
+			data[:data] = (WkSalary.lastYearSalaries || []).map{|s| {date: s.salary_date, net: s.currency+ " " +s.net.to_s}}
+		when "incrementSalary"
+			data = {graphName: l(:label_last_increment)}
+			data[:header] = {date: l(:label_salarydate), net: l(:label_net)}
+			data[:data] = (WkSalary.lastIncrementSalary(true) || [])
+		when "leave"
+			data = {graphName: WkUserLeave.getLeaveName(params[:issue_id]) || l(:label_wk_leave)}
+			data[:header] = {date: l(:label_date), available: l(:label_availability), used: l(:wk_field_used), closing: l(:wk_label_closing)}
+			leaves = WkUserLeave.detailReport(params[:issue_id])
+			data[:data] = leaves.map{|l| {date: l.accrual_on, available: l.balance.to_i + l.accrual, used: l.used.to_i, closing: (l.balance.to_i + l.accrual.to_i - l.used.to_i)}}
+		end
+		data
 	end
 end
