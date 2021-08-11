@@ -506,19 +506,13 @@ module TimelogControllerPatch
 				if session[:timelog][:spent_type] === "T"
 			# ========================
 				@time_entry = TimeEntry.find(params[:id])
-				@project = @time_entry.project
 			# ============= ERPmine_patch Redmine 4.2  =====================		
 				elsif session[:timelog][:spent_type] === "E"
 					@time_entry = WkExpenseEntry.find(params[:id])
-					expenseEntry = WkExpenseEntry.find(params[:id])
-					@time_entry.id = expenseEntry.id
-					@project = expenseEntry.project
 				else
 					@time_entry = WkMaterialEntry.find(params[:id])
-					materialEntry = WkMaterialEntry.find(params[:id])
-					@time_entry.id = materialEntry.id
-					@project = materialEntry.project
 				end
+				@project = @time_entry.project
     	# ==============================================
 		  rescue ActiveRecord::RecordNotFound
 			render_404

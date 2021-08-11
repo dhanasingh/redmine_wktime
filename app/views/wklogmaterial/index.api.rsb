@@ -21,3 +21,6 @@ api.array :time_entries, api_meta(:total_count => @entry_count, :offset => @offs
     end
   end
 end
+api.headers do
+  api.log_type_name getLogTypeName
+end

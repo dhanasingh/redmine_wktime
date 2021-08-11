@@ -155,5 +155,8 @@ include WkassetHelper
 		end
 		serialNos
 	end
-	
+
+	def getLogTypeName
+		{'T' => 'time_entry', 'E' => 'wk_expense_entry', 'M' => 'wk_material_entry', 'A' => 'wk_material_entry', 'RA' => 'wk_material_entry'}
+	end	
 end
