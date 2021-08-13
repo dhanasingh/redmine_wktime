@@ -110,14 +110,18 @@ class WkdashboardController < WkbaseController
 	end
 
 	def getEmpDashboard
-		salary = WkSalary.getLastSalary
-		net = salary.present? ? (salary.currency + " " + salary.net.to_s) : nil;
-		lastIncSalary = WkSalary.lastIncrementSalary || {}
-		lastIncSalary.merge!({name: l(:label_last_increment), type: "incrementSalary"})
-		leaves = WkUserLeave.leaveCounts.map{|l| {name: l.subject, value: l.leave_count, issue_id: l.issue_id, type: "leave"}}
 		data = []
-		data << {title: l(:label_wk_leave), data: leaves} if leaves.present?
-		data << {title: l(:label_salary), data: [{name: l(:label_last_salary), type: "salary", value: net, date: salary&.salary_date}, lastIncSalary]}
+		if showAttendance
+			leaves = WkUserLeave.leaveCounts.map{|l| {name: l.subject, value: l.leave_count, issue_id: l.issue_id, type: "leave"}}
+			data << {title: l(:label_wk_leave), data: leaves} if leaves.present?
+		end
+		if showPayroll
+			salary = WkSalary.getLastSalary
+			net = salary.present? ? (salary.currency + " " + salary.net.to_s) : nil;
+			lastIncSalary = WkSalary.lastIncrementSalary || {}
+			lastIncSalary.merge!({name: l(:label_last_increment), type: "incrementSalary"})
+			data << {title: l(:label_salary), data: [{name: l(:label_last_salary), type: "salary", value: net, date: salary&.salary_date}, lastIncSalary]}
+		end
 		return data
 	end
 
