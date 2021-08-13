@@ -33,5 +33,7 @@ api.wk_time do
 	 api.issues	getResIssues
 	 api.users @users
 	 api.spentFors controller.getClientsByUser(User.current.id, false)
+	 api.defaultProj controller.getDefultProject
+	 api.defaultActivity controller.getDefultActivity
 	end
 end
