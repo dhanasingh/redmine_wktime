@@ -995,6 +995,8 @@ function getAssignedSNs(){
 	let running_sn = $('#running_sn').val();
 	let total_quantity = $('#total_quantity').val();
 	if(!total_quantity) total_quantity = $('#product_item #available_quantity').val();
+	let org_total_quantity = total_quantity;
+	let org_sn_length = running_sn.length;
 	if(total_quantity > 50) total_quantity = 50;
 
 	if(isNaN(total_quantity) || isNaN(running_sn)){
@@ -1009,7 +1011,11 @@ function getAssignedSNs(){
 		serialNumbers.map(function(number){
 				content += "<tr><td style='width:100%;'>" + number + "</td></tr>";
 			});
-		// if(total_quantity > 50) content += "<tr><td style='width:100%;'> .... </td></tr><tr><td style='width:100%;'> .... </td></tr>";
+		if(org_total_quantity > 50){
+			content += "<tr><td style='width:100%;'> .... </td></tr><tr><td style='width:100%;'> .... </td></tr>";
+			running_sn = Number(running_sn) + Number(org_total_quantity) - 1;
+			content += "<tr><td style='width:100%;'>" + serial_number + String(running_sn).padStart(org_sn_length, '0') + "</td></tr>";
+		}
 		content += "</table>";
 	}
 
