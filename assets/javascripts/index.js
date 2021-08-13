@@ -576,7 +576,7 @@ function productItemChanged(curDDId, qtyDD, cpDD, spDD, uid, logTypeId)
 			if( pctData[6] && !isNaN(pctData[6])) product_serial_numbers = getSerialNumbersRange(pctData[5], pctData[6], pctData[7]);
 			$('#product_serial_numbers').val(JSON.stringify(product_serial_numbers));
 			$('#material_sn').val('');
-			$('#warn_serial_number').val('');
+			$('#warn_serial_number').html("");
 		}
 		setProductLogAttribute(data, qtyDD, cpDD, spDD, logType);
 	},
@@ -712,6 +712,8 @@ function hideLogDetails(uid)
 		}
 		if(logType == 'A') $('#issuelogtable').show();
 		if(logType == 'M') $('#issuelogtable').hide();
+		if(logType == 'M') $('#material_serial_no').show();
+		if(logType != 'M') $('#material_serial_no').hide();
 		if(logType == 'M' || logType == 'A'){
 			$('#geolocation').show();
 		} else {

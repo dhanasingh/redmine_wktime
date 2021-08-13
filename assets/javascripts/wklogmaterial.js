@@ -84,7 +84,7 @@
 	$('#material_sn').change(function(){
 		let sn =[];
 		let product_serial_numbers = $('#product_serial_numbers').val();
-		if($(this).val() != '' && product_serial_numbers.length > 0){
+		if($(this).val() != '' && (JSON.parse(product_serial_numbers).length) > 0){
 			let material_sn = $(this).val().split(',');
 			material_sn.map(function(number){
 				if(!(JSON.parse(product_serial_numbers)).includes(number.trim())) sn.push(number) ;

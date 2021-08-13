@@ -218,10 +218,7 @@ include ActionView::Helpers::TagHelper
 			allowApprove = true
 		end
 		#IssueLogs validation
-		if errorMsg.blank?
-			issueLogs = get_issue_loggers(true)
-			errorMsg = l(:warn_issuelog_exist) if issueLogs.length > 0
-		end
+		errorMsg = issueLogValidation if errorMsg.blank?
 
 		errorMsg = gatherWkCustomFields(@wktime) if @wkvalidEntry && errorMsg.blank?
 		wktimeParams = params[:wktime]
@@ -2624,5 +2621,12 @@ private
 
 	def get_TE_entries(query)
 		@entries = TimeEntry.find_by_sql(query)
+	end
+
+	def issueLogValidation
+		errorMsg = ''
+		issueLogs = get_issue_loggers(true)
+		errorMsg = l(:warn_issuelog_exist) if issueLogs.length > 0
+		errorMsg
 	end
 end

@@ -160,6 +160,9 @@ class WkexpenseController < WktimeController
     end
   end
 
+  def issueLogValidation
+  end
+
 private
   def getSpecificField
 	"amount"
