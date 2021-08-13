@@ -165,7 +165,7 @@
 			<%=h assetObj.blank? ? "" : assetlabel %></label>
 		</td>		
 	</tr>
-		<tr>
+		<tr id="material_serial_no">
 				<th align="right"><%= l(:label_serial_number) %></th>
 				<td> <%= text_area_tag("material_sn", serialNumbers.join(','), rows:4) %>
 				<div><%= l(:label_serial_number_note) %></div>

@@ -43,11 +43,11 @@ class WkSalary < ActiveRecord::Base
   def self.getLastSalary
     WkSalary.joins("INNER JOIN wk_salary_components AS SC ON SC.id = wk_salaries.salary_component_id")
     .joins("INNER JOIN (
-      SELECT MAX(salary_date) AS salary_date, user_id, salary_component_id
+      SELECT MAX(salary_date) AS salary_date, user_id
       FROM wk_salaries
       WHERE user_id=#{User.current.id}
-      GROUP BY user_id, salary_component_id
-    ) AS T ON T.salary_date = wk_salaries.salary_date AND T.user_id = wk_salaries.user_id AND T.salary_component_id = wk_salaries.salary_component_id")
+      GROUP BY user_id
+    ) AS T ON T.salary_date = wk_salaries.salary_date AND T.user_id = wk_salaries.user_id")
     .where("wk_salaries.user_id" => User.current.id)
     .group("currency, T.salary_date")
     .select("SUM(CASE WHEN SC.component_type = 'a' THEN amount
