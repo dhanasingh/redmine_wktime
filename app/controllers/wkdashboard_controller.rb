@@ -117,7 +117,7 @@ class WkdashboardController < WkbaseController
 		end
 		if showPayroll
 			salary = WkSalary.getLastSalary
-			net = salary.present? ? (salary.currency + " " + salary.net.to_s) : nil;
+			net = salary.present? ? (salary.currency + " " + sprintf('%.2f', salary.net)) : nil;
 			lastIncSalary = WkSalary.lastIncrementSalary || {}
 			lastIncSalary.merge!({name: l(:label_last_increment), type: "incrementSalary"})
 			data << {title: l(:label_salary), data: [{name: l(:label_last_salary), type: "salary", value: net, date: salary&.salary_date}, lastIncSalary]}
@@ -130,7 +130,7 @@ class WkdashboardController < WkbaseController
 		when "salary"
 			data = {graphName: l(:label_salary)}
 			data[:header] = {date: l(:label_salarydate), net: l(:label_net)}
-			data[:data] = (WkSalary.lastYearSalaries || []).map{|s| {date: s.salary_date, net: s.currency+ " " +s.net.to_s}}
+			data[:data] = (WkSalary.lastYearSalaries || []).map{|s| {date: s.salary_date, net: s.currency+ " " +sprintf('%.2f', s.net)}}
 		when "incrementSalary"
 			data = {graphName: l(:label_last_increment)}
 			data[:header] = {date: l(:label_salarydate), net: l(:label_net)}

@@ -78,7 +78,7 @@ class WkSalary < ActiveRecord::Base
           net -= s.amount if s.salary_component.component_type == "d"
           currency = s.currency
         end
-        data[:value] = currency.to_s+ " " +net.to_s
+        data[:value] = currency.to_s+ " " +sprintf('%.2f', net)
         if !all
           break
         else
