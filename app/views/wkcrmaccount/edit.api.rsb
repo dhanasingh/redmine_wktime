@@ -17,4 +17,5 @@ end
 api.headers do
   api.categories getEnumerations('AC')
   api.locations getAllLocations
+  api.defaultLocation WkLocation.default_id
 end
