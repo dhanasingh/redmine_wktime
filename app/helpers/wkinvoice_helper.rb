@@ -833,7 +833,7 @@ include WkpayrollHelper
 	def getPeriodStart(periodType)
 		invDay = getInvWeekStartDay #Setting.plugin_redmine_wktime['wktime_generate_invoice_day']
 		invMonthDay = getMonthStartDay #should get from settings
-		periodStart = periodType.upcase == 'W' ? invDay : invMonthDay
+		periodStart = periodType&.upcase == 'W' ? invDay : invMonthDay
 		periodStart
 	end
 	
