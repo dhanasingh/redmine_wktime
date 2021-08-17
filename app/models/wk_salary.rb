@@ -93,10 +93,8 @@ class WkSalary < ActiveRecord::Base
   end
 
   def self.lastYearSalaries
-    endDate = DateTime.now
-    startDate = (endDate - 11.month).beginning_of_month
     WkSalary.joins("INNER JOIN wk_salary_components AS SC ON SC.id = wk_salaries.salary_component_id")
-      .where(user_id: User.current.id, salary_date: startDate..endDate)
+      .where(user_id: User.current.id)
       .group("currency, salary_date")
       .select("SUM(CASE WHEN SC.component_type = 'a' THEN amount
         WHEN SC.component_type = 'b' THEN amount
