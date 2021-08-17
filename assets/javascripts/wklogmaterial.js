@@ -90,10 +90,10 @@
 				if(!(JSON.parse(product_serial_numbers)).includes(number.trim())) sn.push(number) ;
 			});
 			if(sn.length > 0){
-				$("#warn_serial_number").html(sn_range_error);
+				$("#warn_serial_number").show();
 			}
 			else{
-				$("#warn_serial_number").html("");
+				$("#warn_serial_number").hide();
 			}
 			let hidden_sn = $('#hidden_sns').val();
 			let hidden_sn_arr = JSON.parse(hidden_sn);

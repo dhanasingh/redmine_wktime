@@ -576,7 +576,7 @@ function productItemChanged(curDDId, qtyDD, cpDD, spDD, uid, logTypeId)
 			if( pctData[6] && !isNaN(pctData[6])) product_serial_numbers = getSerialNumbersRange(pctData[5], pctData[6], pctData[7]);
 			$('#product_serial_numbers').val(JSON.stringify(product_serial_numbers));
 			$('#material_sn').val('');
-			$('#warn_serial_number').html("");
+			$('#warn_serial_number').hide();
 		}
 		setProductLogAttribute(data, qtyDD, cpDD, spDD, logType);
 	},

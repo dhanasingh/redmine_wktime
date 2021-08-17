@@ -361,7 +361,7 @@ class WkproductitemController < WkinventoryController
 		data = entries.map do |e|
 			serial_number = e&.serial_number.map{|sn| sn.serial_number.to_s }
 			{project: e&.project&.name, issue: e.issue.to_s, product: e.inventory_item&.product_item&.product&.name,
-				brand: (e.inventory_item&.product_item&.brand&.name || ""), model: (e.inventory_item&.product_item&.product_model&.name || ""), serial_no: serial_number&.join(',').truncate_words(2, separator: ',') || '',
+				brand: (e.inventory_item&.product_item&.brand&.name || ""), model: (e.inventory_item&.product_item&.product_model&.name || ""), serial_no: serial_number&.join(',').truncate_words(5, separator: ',') || '',
 				currency: e.currency, selling_price: e.selling_price, quantity: e.quantity
 			}
 		end

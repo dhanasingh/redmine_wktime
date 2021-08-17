@@ -1265,8 +1265,8 @@ pl:
   label_fixed: Fixed
   label_running: Running
   label_serial_number_note: "Note: Use Comma for multiple serial numbers."
-  error_sn_range: Serial Number is not in product Serial Number Range
-  error_sn_blank: Serial Number and Quantity cannot be blank
-  error_sn_text: Serial Number and Quantity cannot be text value
+  warn_sn_range: Serial Number is not in Range
+  warn_sn_blank: Serial Number and Quantity cannot be blank
+  warn_sn_text: Serial Number and Quantity cannot be text value
   label_last_increment: Last Increment
   label_last_salary: Last Salary

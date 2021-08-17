@@ -100,7 +100,6 @@
 <script type="text/javascript"> 
 	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
    getClientsUrl = 	"<%= "#{url_for(:controller => "wktime", :action => 'getclients', :user_id => User.current.id, :separator => ',')}" %>";
-	var sn_range_error = "<%=l(:error_sn_range) %>";
 </script>
 <% productSNs = logmaterial_helper.getProductSNs(itemId) if itemId.present? %>
 <% serialNumbers = WkMaterialEntrySn.get_material_sn(@materialEntry.id).map{|e| e.serial_number} if @materialEntry.present? %>
@@ -169,7 +168,7 @@
 				<th align="right"><%= l(:label_serial_number) %></th>
 				<td> <%= text_area_tag("material_sn", serialNumbers.join(','), rows:4) %>
 				<div><%= l(:label_serial_number_note) %></div>
-				<span style="color:red;" id="warn_serial_number"></span></td>
+				<span class="icon icon-warning warning" id="warn_serial_number" style="background-color: unset; border: 0;display:none;"><%= l(:warn_sn_range) %></span></td>
 		</tr>
 	<tr>	
 		<% if wktime_helper.isModuleAdmin('wktime_inventory_admin') && @spentType == 'M'  %>
