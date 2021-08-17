@@ -17,7 +17,7 @@ module WkDashboard
   def getDetailReport(param={})
     entries = getExpenses(param)
     header = {issue: l(:field_issue), user: l(:field_user), date: l(:label_spent_on), amount: l(:field_amount)}
-    data = entries.map{|e| { issue: e&.issue&.to_s, user: e&.user&.name, spent_on: e&.spent_on.to_date, amount: e.currency&.to_s + e.amount.to_s }}
+    data = entries.map{|e| { issue: e&.issue&.to_s, user: e&.user&.name, spent_on: e&.spent_on.to_date, amount: (e.currency || "").to_s+ " " +(e.amount || "").to_s }}
     return {header: header, data: data}
   end
 
