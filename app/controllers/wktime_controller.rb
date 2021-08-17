@@ -328,7 +328,7 @@ include ActionView::Helpers::TagHelper
 			rescue Exception => e
 				errorMsg = e.message
 			end
-			if errorMsg.nil?
+			if errorMsg.blank?
 				#when the are entries or it is not a save action
 				if !@entries.blank? || !params[:wktime_approve].blank? ||
 					(!params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank?) ||
@@ -345,7 +345,7 @@ include ActionView::Helpers::TagHelper
 		end
 		respond_to do |format|
 		format.html {
-			if errorMsg.nil?
+			if errorMsg.blank?
 				flash[:notice] = respMsg
 				$tempEntries = nil
 				if params[:wktime_save_continue]
