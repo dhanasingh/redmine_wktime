@@ -83,8 +83,9 @@ module WkbillingHelper
 			'A' => l(:field_account),
 			'C' => l(:label_contact),
 			'S' => l(:label_supplier),
-			'SC' => l(:label_supplier_contact) 			
+			'SC' => l(:label_supplier_contact)
 		}
+		call_hook(:additional_type_label, typeHash: typeHash)
 		typeHash
 	end
 end
