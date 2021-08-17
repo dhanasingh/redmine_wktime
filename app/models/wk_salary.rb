@@ -70,7 +70,7 @@ class WkSalary < ActiveRecord::Base
       data = {}
       basic = nil
       filtered.map{|s| basic = s.amount if s.salary_component.component_type == "b"}
-      if (oldBasic.present? || salaries.length == 1) && oldBasic != basic
+      if oldBasic.present? && oldBasic != basic
         data[:date] = oldSalaryDate
         net = 0
         (salaries[oldSalaryDate] || []).map do |s|
