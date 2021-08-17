@@ -18,7 +18,6 @@ it:
   label_wk_margin_right: Margine da destra
   label_wk_line_space: Linea di spaziatura
   label_wk_header_logo: Logo header
-  # label_wk_purchase_order: Ordine d\'acquisto
   label_wk_signature: Firma
   label_wk_submitted_by: Inserito da
   label_wk_approved_by: Approvato da
@@ -57,13 +56,11 @@ it:
 
   label_wk_first_day_of_week: First day of week
   label_wk_prev_week_tip: Previous Week
-  # label_wk_next_week_tip: Next Week
   label_wkexpense: Expense
   label_te: Time & Expense
   label_ta: Time & Attendance
   label_wk_allow_user_filter_tracker: Allow User Filtering by Tracker
   label_wk_filter_issue_tracker: Filter Issue by Tracker
-  # label_wk_currency: Currency
   label_wk_time: Weekly Time
   label_total_expense: Total Expense
 
@@ -99,10 +96,8 @@ it:
   error_wktime_save_nothing: Niente da salvare
   error_not_permitted_save: Not permitted to Save
 
-  # wk_status_new: New
   wk_status_submitted: Submitted
   wk_status_approved: Approved
-  # wk_status_rejected: Rejected
   text_start_of_week_confirmation: "Are you Sure? Status will be lost on the previously submitted %{value}"
   text_wk_warning_min_hour: "You have not entered the Minimum hours (%{value}) required per day"
   text_wk_warning_max_hour: "You have entered hours above Maximum hours (%{value}) allowed per day"
@@ -144,7 +139,6 @@ it:
   label_wk_select_break_time: Please select a break time
   label_hours_per_month: hour(s)/month
   label_wk_sick_leave: Sick Leave
-  # label_wk_holiday: Holiday
   label_wk_paid_leave: Paid Leave
   label_wk_leave: Leave
   label_wk_leave_issue: Leave issue
@@ -195,10 +189,8 @@ it:
   label_group_non_submission_email: Target group of non submission email
 
   error_expense_entry_delete: "Cannot be deleted. The expensesheet with this entry is locked"
-  # button_populate_leave: "Run Period End Process"
   text_are_you_sure_want_to_run: "Are you sure you want to run this process ?"
   label_clock: clock in/out
-  # label_hours: Hours
   label_import_attendance: Import Attendance
   label_path: Import file path
   label_auto_import: Auto Import
@@ -242,7 +234,6 @@ it:
   label_salary_detail: Salary Details
   label_loss_of_pay: Loss Of Pay
   label_financial_year_start: Financial Year Start
-  # label_salary_detail: Salary Details
   report_payslip: Pay Slip
   label_period: Period
   label_emp_name: Employee Name
@@ -277,7 +268,6 @@ it:
   label_contracts: Contracts
   label_acc_projects: Account Projects
   label_invoice: Invoice
-  # label_invoice_adjusted: Invoice
   label_tax: Tax
   label_project_name: Project Name
   label_account_name: Account Name
@@ -293,27 +283,21 @@ it:
   label_invoice_no_prefix: Invoice number prefix
   label_taxname: Tax Name
   label_rate: Rate
-  # label_exchange_rate: Rate
   label_tax_detail: Tax Detail
   label_new_tax: New Tax
   label_invoice_name: Item Description
   label_item_type: Item Type
-  # label_quantity: Quantity
   label_invoice_number: Invoice Number
   label_invoice_items: Invoice Items
   label_billing_type: Billing Type
   label_apply_tax: Apply Tax
   label_itemized_bill: Itemized Bill
-  # label_invoice_items: Invoice Items
-  # label_new_tax: New Tax
   label_new_account: New Account
   label_edit_account: Edit Account
   label_account_type: Account Type
-  # label_account_address: Address
   label_account_address1: Address1
   label_account_address2: Address2
   label_work_phone: Work Phone
-  # label_email: Email
   label_country: Country
   label_city : City
   label_account_detail: Account Detail
@@ -329,20 +313,15 @@ it:
   label_time_material: Time and Material
   label_fixed_cost: Fixed Cost
   label_milestone: Milestone
-  # label_date: Date
   label_applicable_taxes: Applicable Taxes
   label_billing_schedules: Billing Schedules
   label_new_billing_project: New Account Project
   label_billing_groups: Billing Admin Groups
   label_start_date: Start Date
-  # label_end_date: End Date
   label_contract_name: Contract Name
   label_file_name: File Name
   label_attachment: Attachments
   label_edit_contract: Edit Contract
-  # label_project: Project
-  # label_account: Account
-  # label_account_adjusted: Account
   label_contract_number: Contract Number
   label_contract_no_prefix: Contract number prefix
   label_new_contract: New Contract
@@ -460,11 +439,8 @@ it:
   label_txn_credit_note: Credit Note
   label_txn_purchase: Purchase
   label_txn_debit_note: Debit Note
-  # label_type: Type
-  # label_particulars: Particulars
   label_debit: Debit
   label_credit: Credit
-  # label_date: Date
   report_balance_sheet: Balance Sheet
   label_as_at: As at
   label_of_funds: "%{value} of Funds"
@@ -496,11 +472,8 @@ it:
   label_activity_type: Attività Type
   label_contact_plural: Contacts
   label_new_item: "New %{value}"
-  # label_new_item_adjusted: "New %{value}"
-  # label_new_item_third_case: "New %{value}"
   label_edit_item: "Edit %{value}"
   label_lead: Lead
-  # label_lead_adjusted: Lead
   label_content_information: "%{value} Information"
   label_website: Website
   label_department: Department
@@ -513,16 +486,13 @@ it:
   label_opportunity_amount: Opportunity Amount
   label_referred_by: Referred By
   label_more: More
-  # label_subject: Subject
   label_inbound: Inbound
   label_outbound: Outbound
   label_planned: Planned
   label_held: Held
   label_not_held: Not held
   label_start_date_time: "Start Date & Time"
-  # label_related_to: Related to
   label_contact: Contact
-  # label_contact_adjusted: Contact
   label_task: Task
   label_opportunity: Opportunity
   label_opportunity_information: Opportunity Informazione
@@ -530,7 +500,6 @@ it:
   label_opportunity_type: Opportunity Type
   label_duration: Duration
   label_end_date_time: "End Date & Time"
-  # label_priority: Priority
   label_medium: Medium
   label_call: Call
   label_meeting: Meeting
@@ -584,7 +553,6 @@ it:
   label_conversion_rate: Conversion Rate
   label_completed_date_time: "Completed Date & Time"
   label_completion_time: Completion Time
-  # label_days: Days
   label_average: Average
   report_civilian_attendance: Civilian Attendance
   minimum_working_days_for_accrual: Minimum working days for leave accrual
@@ -600,7 +568,6 @@ it:
   label_from_currency: From Currency
   label_to_currency: To Currency
   report_order_to_cash: AR Aging
-  # label_to_currency: To Currency
   label_new_invoice: New Invoice
   label_populate_unbilled_items: Populate Unbilled Items
   label_issue_billing_currency: Issue Billing Currency
@@ -628,7 +595,6 @@ it:
   label_po_number: PO Number
   label_quote_date: Quote Date
   label_po_date: Purchase Order Date
-  # label_won: Won
   label_won_note: Wining Note
   label_quote_items: Quote Items
   label_po_items: Purchase Order Items
@@ -650,7 +616,6 @@ it:
   label_po_number_prefix: PO Number Prefix
   label_si_number_prefix: SI Number Prefix
   label_in_days: In Days
-  # button_new_lock: Lock T&E
   field_lock_date: Lock Time/Expense sheets up to
   label_lock: Lock T&E
   label_last_lock_by: "Last Locked by: %{name}"
@@ -670,10 +635,7 @@ it:
   label_inventory_user_group: Inventory User Group
   label_enable_inventory_module: Enable Inventory Module
   label_hr: HR
-  # label_location: Location
-  # label_product: Product
   label_shipment: Shipment
-  # label_category: Category
   label_uom: Unit Of Measure
   label_item: Item
   label_new_shipment: New Shipment
@@ -685,7 +647,6 @@ it:
   label_sell_price: Sell Price
   label_brand: Brand
   label_log_type: Log Type
-  # label_cost_price: Cost Price
   label_selling_price: Selling Price
   label_over_head_price: Over Head Cost
   label_org_cost_price: Original Cost Price
@@ -697,7 +658,6 @@ it:
   label_attribute_group: Attribute Group
   label_product_catagory: Product Catagory
   label_product_items: Product Items
-  # label_category: Category
   label_populate_items: Populate Items
   label_new_product_item: New Item
   label_edit_product_item: Edit Item
@@ -716,13 +676,11 @@ it:
   label_location_type: Location Type
   label_new_location: New Location
   label_location_detail: Location Detail
-  # label_new_model: New Model
   label_product_model: Product Model
   label_product_attribute: Product Attribute
   label_new_product_attribute: New Attributes
   label_new_attribute_group: New Attribute Group
   label_models: Models
-  # label_attributes: Attributes
   label_transfer: Transfer
   label_selling_price_error: Selling price cannot be empty
   label_quantity_error: Quantity cannot be empty
@@ -747,7 +705,6 @@ it:
   label_rental: Rental
   label_lease: Lease
   label_daily: Daily
-  # label_depreciation_type: Depreciation Type
   label_accounting_ledger: Accounting Ledger
   label_wdv: Written Down Value
   label_stright_line: Stright Line
@@ -778,7 +735,6 @@ it:
   label_new_shift: New Shift
   label_required_staff: Required Staff
   label_count: Count
-  # label_department: Department
   label_day_off: Day Off
   label_schedule_details: Schedule Details
   label_shift_scheduling: Shift Scheduling
@@ -802,8 +758,6 @@ it:
   field_custom_date2: Custom date2
   field_billing_rate: Billing rate
   field_billing_currency: Billing currency
-  # field_location: Location
-  # field_department: Department
   label_public_holiday: Public Holiday
   label_schedule_on_weekend: Schedule on Weekend / Holiday
   label_holiday: Holiday
@@ -812,11 +766,9 @@ it:
   warning_apply_depreciation: Are you sure want to apply depreciation for the period
   warning_schedule_shifts: Are you sure want to schedule shifts for the period
   label_work: Work
-  # field_shift: Shift
   label_setting_preference: Allow user schedule preference
   label_auto_scheduling: Auto Shift Scheduling
 
-  # label_shift_and_scheduling: Shift Scheduling
   label_auto_approve_with_te: Auto approve Time & Expense
   label_credit_with_ledger: Credit Ledger
   label_debit_with_ledger: Debit Ledger
@@ -864,7 +816,6 @@ it:
   label_report_type: Report Tipo
 
   label_new_asset: New Asset
-  # label_new_asset_item: New Asset
   label_edit_asset_item: Edit Asset
   label_additional_info: Additional Information
   label_as: As
@@ -879,7 +830,6 @@ it:
   label_relationship: Contact Relationship
   warning_select_project: Please select a project
   warn_billable_project_not_configured: Billable projects not configured for %{name}
-  # field_rate: Rate
   field_rate_per: Per
   label_invoice_generation_month: Invoice generation month
   label_edit_component: Edit Component
@@ -899,31 +849,22 @@ it:
   label_no_of_users: No of users
   label_expense_for_issues: Expense for issues
   label_total_expense_of_issues: Total expense of the issues
-  # label_lead_generation_vs_conversion: Lead generation vs conversion
   label_created_lead: Created lead
   label_converted_lead: Converted lead
   label_invoice_vs_payment_per_month: Invoice total vs Payment total
-  # label_total_invoice: Invoice
-  # label_total_payment: Payment
   label_assets_per_month: Assets per month
   label_total_assets_per_month: Assets
   label_profit_loss_per_month: Profit and loss per month
-  # label_total_income: Income
-  # label_total_expense: Expense
   label_months: Months
-  # label_amount : Amount
   label_no_of_leads: No of leads
   label_no_of_employees: No of Employees
 
   #Survey
   label_survey: Survey
-  # label_status: Status
   label_new_survey: New Survey
   label_edit_survey: Edit Survey
   label_question_choices: Question Choices
   label_open: Open
-  # label_closed: Closed
-  # label_new: New
   label_archived: Archived
   label_survey_name: Survey Name
   label_question_name: Question Name
@@ -944,7 +885,6 @@ it:
   label_email_users: Email Users
   label_survey_reminder: Survey Reminder
   label_additional_emails: Additional Emails
-  # label_notes: Notes
   label_include_user_group: Sending Emails to
   label_recur: Recur
   label_recur_every: Every
@@ -954,7 +894,6 @@ it:
   label_reviewer_only: For Reviewer Only
   label_mandatory: Mandatory
   button_close: Close
-  # button_submit: Submit
   label_user_name: User Name
   label_response_date: Response Date
   label_survey_response: Survey Response
@@ -995,14 +934,12 @@ it:
   label_leave_request: Leave Request
   label_new_leave_request: New Leave Request
   label_leave_type: Leave Type
-  # label_reason: Comment
   label_date_start_end: Start Date %{start} End Date %{end}
   wk_status_cancelled: Cancelled
   button_cancel_leave: Cancel Leave
   label_leave_request_notification: Leave Request Notification
   label_by: By
   label_leave_email_note: Leave request has been
-  # label_documents: Documents
 
   #ESI Calculate on Payroll
   label_equal: '=='
@@ -1042,7 +979,6 @@ it:
   label_income_tax_settings: Income Tax Settings
   label_tax_rule: Income Tax Rule
   label_income_tax: Income Tax
-  # label_apply_tax: Apply Tax
   indian_tax_rule: Indian Tax Rule
   label_all_time: all time
   label_edit_leave_request: Edit Leave Request
@@ -1103,7 +1039,6 @@ it:
   label_supplier_invoice_received: Supplier Invoice Received
   label_supplier_payment_sent: Supplier Payment Sent
   label_receive_goods: Receive Goods
-  # label_dispose_asset: Dispose Asset
   label_survey_closed: Survey Closed
   label_fill_survey: Fill Survey
   label_notification_plural: Notifications
@@ -1122,8 +1057,6 @@ it:
   label_erpmine_version: Web Version
   label_erpmine_link: www.erpmine.org
   alert_enter_details: Please enter the details
-  # label_Server: Server...
-  # label_api: APIKey...
   label_language: Language
   warning_details: Wrong Details!
   success_delete: Successfully Deleted
@@ -1231,7 +1164,6 @@ it:
   label_consumed_items: Consumed Items
   button_save_with_tax: Apply Tax and Save
   label_clockin_users: Clock in users
-  # label_expense_for_issues: Expense for issues
   label_lead_generation: Lead generation vs conversion
   label_invoice_payment: Invoice vs Payment
   label_profit_loss: Profit and loss

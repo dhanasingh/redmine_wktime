@@ -16,7 +16,6 @@ de:
   label_wk_margin_right: Rand rechts
   label_wk_line_space: Zeilenabstand
   label_wk_header_logo: Logo Kopfzeile
-  # label_wk_purchase_order: Bestellung
   label_wk_signature: Unterschrift
   label_wk_submitted_by: Erstellt von
   label_wk_approved_by: Genehmigt von
@@ -54,13 +53,11 @@ de:
 
   label_wk_first_day_of_week: Erster Wochentag
   label_wk_prev_week_tip: Vorherige Woche
-  # label_wk_next_week_tip: Nächste Woche
   label_wkexpense: Ausgaben
   label_te: Zeit & Ausgaben
   label_ta: Zeiterfassung
   label_wk_allow_user_filter_tracker: Benutzerfilterung nach Tracker zulassen
   label_wk_filter_issue_tracker: Ticket nach Tracker filtern
-  # label_wk_currency: Währung
   label_wk_time: Wochenzeit
   label_total_expense: Gesamtausgaben
 
@@ -96,11 +93,9 @@ de:
   error_wktime_save_nothing: Nichts zu speichern
   error_not_permitted_save: Speichern nicht erlaubt
 
-  # wk_status_new: Neu
   wk_status_empty: Leer
   wk_status_submitted: Versendet
   wk_status_approved: Genehmigt
-  # wk_status_rejected: Abgelehnt
 
   text_start_of_week_confirmation: "Sicher? Der zuvor eingereichte Status %{value} wird dabei gelöscht"
   text_wk_warning_min_hour: "Sie haben nicht die pro Tag erforderlichen Mindeststunden (%{value}) eingegeben"
@@ -144,7 +139,6 @@ de:
   label_wk_select_break_time: Bitte Pausenzeit wählen
   label_hours_per_month: Stunden/Monat
   label_wk_sick_leave: Krankenstand
-  # label_wk_holiday: Urlaub
   label_wk_paid_leave: Bezahlter Urlaub
   label_wk_leave: Abwesend
   label_wk_leave_issue: Abwesenheitsgrund
@@ -195,10 +189,8 @@ de:
   label_group_non_submission_email: Zielgruppe der nicht eingereichten E-Mails
 
   error_expense_entry_delete: "Kann nicht gelöscht werden. Die Spesenabrechnung mit diesem Eintrag ist gesperrt "
-  # button_populate_leave: "Periodenende ausführen"
   text_are_you_sure_want_to_run: "Sind Sie sicher, dass Sie diesen Prozess ausführen möchten?"
   label_clock: Ein/Ausstempeln
-  # label_hours: Stunden
   label_import_attendance: Anwesenheit importieren
   label_path: Dateipfad importieren
   label_auto_import: Auto Import
@@ -242,7 +234,6 @@ de:
   label_salary_detail: Gehaltsangaben
   label_loss_of_pay: Lohnverlust
   label_financial_year_start: Beginn des Geschäftsjahres
-  # label_salary_detail: Gehaltsdetails
   report_payslip: Lohnzettel
   label_period: Periode
   label_emp_name: Mitarbeitername
@@ -277,7 +268,6 @@ de:
   label_contracts: Verträge
   label_acc_projects: Kontoprojekte
   label_invoice: Rechnung
-  # label_invoice_adjusted: Rechnung
   label_tax: Steuer
   label_project_name: Projektname
   label_account_name: Kontobezeichnung
@@ -293,27 +283,22 @@ de:
   label_invoice_no_prefix: Rechnungsnummernpräfix
   label_taxname: Steuerbezeichnung
   label_rate: Rate
-  # label_exchange_rate: Rate
   label_tax_detail: Steuerdetails
   label_new_tax: Neue Steuer
   label_invoice_name: Artikelbeschreibung
   label_item_type: Artikelart
-  # label_quantity: Menge
   label_invoice_number: Rechnungsnummer
   label_invoice_items: Rechnungspositionen
   label_billing_type: Abrechnungsart
   label_apply_tax: Steuern anwenden
   label_itemized_bill: Einzelteilrechnung
   label_invoice_items: Rechnungspositionen
-  # label_new_tax: Neue Steuer
   label_new_account: Neues Konto
   label_edit_account: Konto bearbeiten
   label_account_type: Konto Typ
-  # label_account_address: Addresse
   label_account_address1: Addresse 1
   label_account_address2: Addresse 2
   label_work_phone: Telefon geschäftlich
-  # label_email: E-mail
   label_country: Land
   label_city : Ort
   label_account_detail: Kontodetails
@@ -329,20 +314,15 @@ de:
   label_time_material: Zeit und Material
   label_fixed_cost: Fixe Kosten
   label_milestone: Meilenstein
-  # label_date: Datum
   label_applicable_taxes: Anwendbare Steuern
   label_billing_schedules: Abrechnungspläne
   label_new_billing_project: Neues Konto-Projekt
   label_billing_groups: Abrechnungsadministratorgruppen
   label_start_date: Startdatum
-  # label_end_date: Enddatum
   label_contract_name: Vertragsname
   label_file_name: Dateiname
   label_attachment: Anhänge
   label_edit_contract: Vertrag bearbeiten
-  # label_project: Projekt
-  # label_account: Konto
-  # label_account_adjusted: Konto
   label_contract_number: Vertragsnummer
   label_contract_no_prefix: Präfix der Vertragsnummer
   label_new_contract: Neuer Vertrag
@@ -459,11 +439,8 @@ de:
   label_txn_credit_note: Gutschrift
   label_txn_purchase: Einkauf
   label_txn_debit_note: Lastschrift
-  # label_type: Typ
-  # label_particulars: Einzelheiten
   label_debit: Debit
   label_credit: Credit
-  # label_date: Datum
   report_balance_sheet: Bilanz
   label_as_at: Wie bei
   label_of_funds: "%{value} von Fonds"
@@ -495,11 +472,8 @@ de:
   label_activity_type: Aktivitätenart
   label_contact_plural: Kontakte
   label_new_item: "Neu: %{value}"
-  # label_new_item_adjusted: "Neu: %{value}"
-  # label_new_item_third_case: "Neu: %{value}"
   label_edit_item: "Bearbeiten: %{value}"
   label_lead: Interessent
-  # label_lead_adjusted: Interessent
   label_content_information: "%{value} Information"
   label_website: Webseite
   label_department: Abteilung
@@ -512,16 +486,13 @@ de:
   label_opportunity_amount: Chancenwert
   label_referred_by: Empfohlen von
   label_more: Mehr
-  # label_subject: Gegenstand
   label_inbound: Eingehend
   label_outbound: Ausgehend
   label_planned: Geplant
   label_held: Gehalten
   label_not_held: Nicht gehalten
   label_start_date_time: "Startdatum und -zeit"
-  # label_related_to: Bezüglich
   label_contact: Kontakt
-  # label_contact_adjusted: Kontakt
   label_task: Aufgabe
   label_opportunity: Chance
   label_opportunity_information: Chanceninformation
@@ -529,7 +500,6 @@ de:
   label_opportunity_type: Chancentyp
   label_duration: Dauer
   label_end_date_time: "Enddatum und -zeit"
-  # label_priority: Priorität
   label_medium: Mittel
   label_call: Anruf
   label_meeting: Treffen
@@ -583,7 +553,6 @@ de:
   label_conversion_rate: Umwandlungsrate
   label_completed_date_time: "Abschlussdatum und -zeit"
   label_completion_time: Abschlusszeit
-  # label_days: Tage
   label_average: Durchschnitt
   report_civilian_attendance: Zivile Anwesenheit
   minimum_working_days_for_accrual: Mindestarbeitstage für die Urlaubsabgrenzung
@@ -626,7 +595,6 @@ de:
   label_po_number: Bestellnummer
   label_quote_date: Angebotsdatum
   label_po_date: Bestelldatum
-  # label_won: Angeommen
   label_won_note: Bemerkung
   label_quote_items: Angebotsartikel
   label_po_items: Bestellpositionen
@@ -648,7 +616,6 @@ de:
   label_po_number_prefix: Bestellnummer Präfix
   label_si_number_prefix: SI-Nummernpräfix
   label_in_days: In Tagen
-  # button_new_lock: Zeit & Ausgaben sperren
   field_lock_date: Sperrzeit- / Ausgabenabrechnungen bis zu
   label_lock: Zeit & Ausgaben sperren
   label_last_lock_by: "Zuletzt gesperrt von: %{name}"
@@ -668,10 +635,7 @@ de:
   label_inventory_user_group: Inventar-Benutzergruppe
   label_enable_inventory_module: Inventar Modul aktivieren
   label_hr: HR
-  # label_location: Standorte
-  # label_product: Produkt
   label_shipment: Lieferung
-  # label_category: Kategorie
   label_uom: Maßeinheit
   label_item: Artikel
   label_new_shipment: Neue Lieferung
@@ -683,7 +647,6 @@ de:
   label_sell_price: Verkaufspreis
   label_brand: Marke
   label_log_type: Protokolltyp
-  # label_cost_price: Einkaufspreis
   label_selling_price: Verkaufspreis
   label_over_head_price: Gemeinkosten
   label_org_cost_price: Ursprünglicher Selbstkostenpreis
@@ -695,7 +658,6 @@ de:
   label_attribute_group: Attributgruppe
   label_product_catagory: Produktgruppe
   label_product_items: Produktartikel
-  # label_category: Kategorie
   label_populate_items: Artikel auffüllen
   label_new_product_item: Neuer Artikel
   label_edit_product_item: Artikel ändern
@@ -714,13 +676,11 @@ de:
   label_location_type: Standorttyp
   label_new_location: Neuer Standort
   label_location_detail: Standortdetails
-  # label_new_model: Neues Modell
   label_product_model: Produktmodell
   label_product_attribute: Produkt Attribut
   label_new_product_attribute: Neues Attribut
   label_new_attribute_group: Neue Attributen Gruppe
   label_models: Modelle
-  # label_attributes: Attribute
   label_transfer: Transfer
   label_selling_price_error: Verkaufspreis kann nicht leer sein
   label_quantity_error: Menge kann nicht leer sein
@@ -745,7 +705,6 @@ de:
   label_rental: Vermietung
   label_lease: Miete
   label_daily: Täglich
-  # label_depreciation_type: Abschreibungsart
   label_accounting_ledger: Buchhaltungskonto
   label_wdv: Degressiv
   label_stright_line: Linear
@@ -776,7 +735,6 @@ de:
   label_new_shift: Neue Schicht
   label_required_staff: Erforderliches Personal
   label_count: Anzahl
-  # label_department: Abteilung
   label_day_off: Freier Tag
   label_schedule_details: Zeitplan Details
   label_shift_scheduling: Schichtplanung
@@ -799,8 +757,6 @@ de:
   field_custom_date2: Benutzerdatum 2
   field_billing_rate: Abrechnungszyklus
   field_billing_currency: Zahlungswährungswährung
-  # field_location: Standort
-  # field_department: Abteilung
   label_public_holiday: Gesetzlicher Feiertag
   label_schedule_on_weekend: Zeitplan am Wochenende / Feiertag
   label_holiday: Urlaub
@@ -809,11 +765,9 @@ de:
   warning_apply_depreciation: Möchten Sie wirklich eine Abschreibung für den Zeitraum anwenden?
   warning_schedule_shifts: Möchten Sie wirklich Schichten für den Zeitraum planen?
   label_work: Arbeit
-  # field_shift: Schicht
   label_setting_preference: Zeitplanung durch Benutzer zulassen
   label_auto_scheduling: Automatische Schichtplanung
 
-  # label_shift_and_scheduling: Schichtplanung
   label_auto_approve_with_te: Zeit & Kosten automatisch genehmigen
   label_credit_with_ledger: Kreditor
   label_debit_with_ledger: Debitor
@@ -861,7 +815,6 @@ de:
   label_report_type: Bericht Typ
 
   label_new_asset: Neue Anlage
-  # label_new_asset_item: Neuer Anlagenwert
   label_edit_asset_item: Anlagenwert ändern
   label_additional_info: Zusätzliche Information
   label_as: Als
@@ -876,11 +829,9 @@ de:
   label_relationship: Kontaktbeziehung
   warning_select_project: Bitte wählen Sie ein Projekt aus
   warn_billable_project_not_configured: Abrechnungsfähige Projekte nicht konfiguriert für %{name}
-  # field_rate: Rate
   field_rate_per: Per
   label_invoice_generation_month: Rechnungserstellung am Monatstag
   label_edit_component: Komponente bearbeiten
-  # Supervisor lables
   label_ftte_supervisor: "Supervisor"
   label_my_direct_reports: "Meine direkten Berichte"
   label_my_reports: "Meine Berichte"
@@ -896,31 +847,22 @@ de:
   label_no_of_users: Anzahl der Benutzer
   label_expense_for_issues: Ausgaben für Tickets
   label_total_expense_of_issues: Gesamtkosten der Ausgaben
-  # label_lead_generation_vs_conversion: Lead-Generierung vs. Konvertierung
   label_created_lead: Lead erstellt
   label_converted_lead: Konvertierter Lead
   label_invoice_vs_payment_per_month: Rechnungssumme vs. Zahlungssumme
-  # label_total_invoice: Rechnung
-  # label_total_payment: Zahlung
   label_assets_per_month: Vermögenswerte pro Monat
   label_total_assets_per_month: Vermögenswerte
   label_profit_loss_per_month: Gewinn und Verlust pro Monat
-  # label_total_income: Einnahmen
-  # label_total_expense: Ausgaben
   label_months: Monate
-  # label_amount : Menge
   label_no_of_leads: Anzahl der Leads
   label_no_of_employees: Mitarbeiteranzahl
 
   #Survey
   label_survey: Umfrage
-  # label_status: Status
   label_new_survey: Neue Umfrage
   label_edit_survey: Umfrage bearbeiten
   label_question_choices: Fragenauswahl
   label_open: Aktiv
-  # label_closed: Geschlossen
-  # label_new: Neu
   label_archived: Archiviert
   label_survey_name: Umfragentitel
   label_question_name: Fragetitel
@@ -941,7 +883,6 @@ de:
   label_email_users: E-Mail-Benutzer
   label_survey_reminder: Umfrageerinnerung
   label_additional_emails: Zusätzliche E-Mails
-  # label_notes: Anmerkungen
   label_include_user_group: Sende E-Mails an
   label_recur: Wiederholend
   label_recur_every: Alle
@@ -950,7 +891,6 @@ de:
   label_review: Überprüfung erforderlich
   label_reviewer_only: Nur für Prüfer
   label_mandatory: Verpflichtend
-  # button_submit: Übermitteln
   label_user_name: Benutzername
   label_response_date: Antwortdatum
   label_survey_response: Umfrageantwort
@@ -991,14 +931,12 @@ de:
   label_leave_request: Urlaubsantrag
   label_new_leave_request: Neuer Urlaubsantrag
   label_leave_type: Abwesenheitsart
-  # label_reason: Kommentar
   label_date_start_end: Startdatum %{start} Enddatum %{end}
   wk_status_cancelled: Abgebrochen
   button_cancel_leave: Urlaub abbrechen
   label_leave_request_notification: Abwesenheitsbenachrichtigung
   label_by: Durch
   label_leave_email_note: Urlaubsantrag wurde gestellt
-  # label_documents: Dokumente
 
   #ESI Calculate on Payroll
   label_equal: '=='
@@ -1038,7 +976,6 @@ de:
   label_income_tax_settings: Einkommensteuereinstellungen
   label_tax_rule: Einkommensteuerregel
   label_income_tax: Einkommenssteuer
-  # label_apply_tax: Steuern anwenden
   indian_tax_rule: Indische Steuerregel
   label_all_time: jederzeit
   label_edit_leave_request: Urlaubsanfrage bearbeiten
@@ -1099,7 +1036,6 @@ de:
   label_supplier_invoice_received: Lieferantenrechnung erhalten
   label_supplier_payment_sent: Lieferantenzahlung gesendet
   label_receive_goods: Waren erhalten
-  # label_dispose_asset: Anlagegut entsorgen
   label_survey_closed: Umfrage geschlossen
   label_fill_survey: Umfrage ausfüllen
   label_notification_plural: Benachrichtigungen
@@ -1118,8 +1054,6 @@ de:
   label_erpmine_version: Web Version
   label_erpmine_link: www.erpmine.org
   alert_enter_details: Bitte geben Sie die Details ein
-  # label_Server: Server...
-  # label_api: APIKey...
   label_language: Sprache
   warning_details: Falsche Details!
   success_delete: Erfolgreich gelöscht
@@ -1226,7 +1160,6 @@ de:
   label_min_rating_req: Bewertung erforderlich
   label_consumed_items: Verbrauchte Artikel
   label_clockin_users: Benutzer einstempeln
-  # label_expense_for_issues: Ausgaben für Tickets
   label_lead_generation: Lead-Generierung vs. Konversion
   label_invoice_payment: Rechnung vs Zahlung
   label_profit_loss: Gewinn und Verlust
@@ -1235,14 +1168,14 @@ de:
   warn_issuelog_exist: "Sie müssen alle Ticketprotokolle in der Woche stoppen"
   label_select_time: Wählen Sie Zeiteinträge
   label_account_number: Account Number
-  label_closed_date: Closed date
-  label_select_service: Select Service
-  label_select_service_for: Select Service For
-  label_text_search: Text Search
-  label_assigned_serial_numbers: Assigned serial numbers
-  label_fixed: Fixed
-  label_running: Running
-  label_serial_number_note: "Note: Use Comma for multiple serial numbers."
+  label_closed_date: Ruhetag
+  label_select_service: Service auswählen
+  label_select_service_for: Service auswählen für
+  label_text_search: Textsuche
+  label_assigned_serial_numbers: Zugewiesene Seriennummern
+  label_fixed: Fest
+  label_running: Betrieb
+  label_serial_number_note: "Hinweis: Verwenden Sie Komma für mehrere Seriennummern."
   warn_sn_range: Serial Number is not in Range
   warn_sn_blank: Serial Number and Quantity cannot be blank
   warn_sn_text: Serial Number and Quantity cannot be text value
