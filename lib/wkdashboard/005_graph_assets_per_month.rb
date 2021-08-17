@@ -28,8 +28,9 @@ module WkDashboard
   def getDetailReport(param={})
     to = param[:to]
     entries = getAssets(param[:to])
-      .group("wk_inventory_items.id")
+      .group("wk_inventory_items.id, ap.created_at")
       .where("ap.is_disposed IS NULL OR ap.is_disposed = ? OR (ap.is_disposed = ? AND dp.depreciation_date BETWEEN ? AND ?)", false, true, getFromDateTime(to - 12.months + 1.days), getToDateTime(to))
+      .order("ap.created_at DESC")
     data = entries.map{|e| {name: e&.asset_property&.name, date: e&.asset_property&.created_at&.to_date, type: e&.asset_property&.is_disposed ? l(:label_deleted) : l(:label_added)}}
     header = {name: l(:field_name), date: l(:label_date), add_delete: l(:label_added)+"/"+l(:label_deleted)}
     return {header: header, data: data}

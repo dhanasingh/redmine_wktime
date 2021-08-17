@@ -44,8 +44,8 @@ module WkDashboard
 
   def getDetailReport(param={})
     getFinancialDates(param)
-    invoiceEntries = getInvoiceEntries
-    paymentEntries = getPaymentEntries
+    invoiceEntries = getInvoiceEntries.order("invoice_date DESC")
+    paymentEntries = getPaymentEntries.order("payment_date DESC")
     header = {name: l(:field_name), date: l(:label_date), type: l(:field_type), amount: l(:field_amount)}
     data1 = invoiceEntries.map do |e|
       items = e&.invoice_items
