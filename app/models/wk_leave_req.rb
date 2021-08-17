@@ -23,7 +23,7 @@ class WkLeaveReq < ActiveRecord::Base
   accepts_nested_attributes_for :wkstatus, allow_destroy: true
 
   validates_presence_of :leave_type, :start_date, :end_date
-  
+
   scope :get_all, ->{
     joins(:wkstatus, :user, :leave_type).select("wk_leave_reqs.*, wk_statuses.status")
     .where("status_date = (SELECT MAX(S.status_date) FROM wk_statuses AS S WHERE S.status_for_id = wk_leave_reqs.id GROUP BY S.status_for_id)")
@@ -70,11 +70,11 @@ class WkLeaveReq < ActiveRecord::Base
 
   def admingroupMail(userRole)
     user_mail = " SELECT address, E.user_id FROM wk_group_permissions
-          INNER JOIN wk_permissions AS P1 ON P1.id = wk_group_permissions.permission_id 
-          INNER JOIN groups_users AS GU ON wk_group_permissions.group_id = GU.group_id 
-          INNER JOIN users AS U ON U.id = GU.user_id AND U.type IN ('User', 'AnonymousUser') 
-          INNER JOIN email_addresses AS E ON E.user_id = U.id INNER JOIN groups_users AS GU2 ON GU.user_id = GU2.user_id 
-          INNER JOIN wk_group_permissions AS GP ON GP.group_id = GU2.group_id 
+          INNER JOIN wk_permissions AS P1 ON P1.id = wk_group_permissions.permission_id
+          INNER JOIN groups_users AS GU ON wk_group_permissions.group_id = GU.group_id
+          INNER JOIN users AS U ON U.id = GU.user_id AND U.type IN ('User', 'AnonymousUser')
+          INNER JOIN email_addresses AS E ON E.user_id = U.id INNER JOIN groups_users AS GU2 ON GU.user_id = GU2.user_id
+          INNER JOIN wk_group_permissions AS GP ON GP.group_id = GU2.group_id
           INNER JOIN wk_permissions AS P2 ON P1.id = GP.permission_id "
     if userRole == 'supervisor'
       user_mail =  user_mail + "where(P1.short_name = 'A_ATTEND' AND E.notify = #{ActiveRecord::Base.connection.adapter_name == 'SQLServer' ? 1 : true})"
@@ -99,7 +99,7 @@ class WkLeaveReq < ActiveRecord::Base
   scope :dateFilter, ->(from, to){
     where(" wk_leave_reqs.start_date between ? and ? ", getFromDateTime(from), getToDateTime(to) )
   }
-	
+
 	def self.date_for_user_time_zone(y, m, d)
 		if tz = User.current.time_zone
 		  tz.local y, m, d
@@ -107,13 +107,16 @@ class WkLeaveReq < ActiveRecord::Base
 		  Time.local y, m, d
 		end
 	end
-	
+
 	def self.getFromDateTime(dateVal)
 		date_for_user_time_zone(dateVal.year, dateVal.month, dateVal.day).yesterday.end_of_day
 	end
-	
+
 	def self.getToDateTime(dateVal)
 		date_for_user_time_zone(dateVal.year, dateVal.month, dateVal.day).end_of_day
 	end
 
+  def status
+    self.wkstatus.order(status_date: :desc).first&.status
+  end
 end
