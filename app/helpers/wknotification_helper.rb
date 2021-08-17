@@ -32,7 +32,7 @@ module WknotificationHelper
 			notifyHash['url'] = {controller:'wkleaverequest', action:'edit', id: notification.source_id}
 			notifyHash['icon'] = "fa fa-user-circle"
 		when "leaveApproved"
-			notifyHash['text'] = WkLeaveReq.getEntry(notification.source.id).status == 'A' ? l(:label_your_leave)+" "+notification.source.start_date.to_date.to_s+" "+l(:label_is_approved) : l(:label_your_leave)+" "+notification.source.start_date.to_date.to_s+" "+l(:label_rejected) 
+			notifyHash['text'] = notification.source&.status == 'A' ? l(:label_your_leave)+" "+notification.source.start_date.to_date.to_s+" "+l(:label_is_approved) : l(:label_your_leave)+" "+notification.source.start_date.to_date.to_s+" "+l(:label_rejected)
 			notifyHash['url'] = {controller:'wkleaverequest', action:'edit', id: notification.source_id}
 			notifyHash['icon'] = "fa fa-user-circle"
 		when 'invoiceGenerated'
@@ -47,7 +47,7 @@ module WknotificationHelper
 			notifyHash['text'] = l(:label_contract)+" "+notification.source.id.to_s+" "+ l(:label_for)+" "+notification.source.parent.name.to_s+ " " +l(:label_has_created)
 			notifyHash['url'] = {controller:'wkcontract', action:'edit', contract_id: notification.source.id}
 			notifyHash['icon'] = "fa fa-file-text-o"
-		when "nonSubmission"	
+		when "nonSubmission"
 			notifyHash['text'] = l(:button_submit)+" "+ l(:label_timesheet_on)+" "+notification.source.begin_date.to_s
 			notifyHash['url'] = {controller:'wktime', action:'edit', startday: notification.source.begin_date, user_id: notification.source.user_id}
 			notifyHash['icon'] = "fa fa-clock-o"
@@ -55,7 +55,7 @@ module WknotificationHelper
 			notifyHash['text'] =  l(:button_wk_approve)+" "+l(:label_timesheet_on)+" "+notification.source.begin_date.to_s+" "+l(:label_for)+" "+notification.source.user.name.to_s
 			notifyHash['url'] = {controller:'wktime', action:'edit', startday: notification.source.begin_date, user_id: notification.source.user_id}
 			notifyHash['icon'] = "fa fa-clock-o"
-		when 'timeRejected' 
+		when 'timeRejected'
 			notifyHash['text'] = l(:label_timesheet_rejected)+" "+l(:label_on)+" "+notification.source.submitted_on.to_s
 			notifyHash['url'] = {controller:'wktime', action:'edit', startday: notification.source.begin_date, user_id: notification.source.user_id}
 			notifyHash['icon'] = "fa fa-clock-o"
@@ -135,7 +135,7 @@ module WknotificationHelper
 	end
 
 	def leadNotifyLabel(notification)
-		@label = l(:label_lead) 
+		@label = l(:label_lead)
 		@controller = 'wklead'
 		@text = l(:label_has_converted)
 		if notification&.source&.contact&.contact_type == 'IC'
