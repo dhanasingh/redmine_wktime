@@ -47,6 +47,9 @@
 	locationId = ""
 	locId = nil
 	itemObj = nil
+	productSNs = []
+	serialNumbers = []
+	hidden_sns = []
 %>
 <% productArr = logmaterial_helper.getProductArray(WkProduct, '', '', false)  %>
 <% locationArr = WkLocation.order(:name).pluck(:name, :id) %>
@@ -98,6 +101,11 @@
 	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
    getClientsUrl = 	"<%= "#{url_for(:controller => "wktime", :action => 'getclients', :user_id => User.current.id, :separator => ',')}" %>";
 </script>
+<% productSNs = logmaterial_helper.getProductSNs(itemId) if itemId.present? %>
+<% serialNumbers = WkMaterialEntrySn.get_material_sn(@materialEntry.id).map{|e| e.serial_number} if @materialEntry.present? %>
+<% hidden_sns = WkMaterialEntrySn.get_material_sn(@materialEntry.id).map{|e| {id: e.id, serial_number: e.serial_number}} if @materialEntry.present? %>
+<%= hidden_field_tag 'product_serial_numbers', productSNs.to_json || [] %>
+<%= hidden_field_tag 'hidden_sns', hidden_sns.to_json || [] %>
 
 <table style="padding-left:100px;">
 	<tr>
@@ -144,9 +152,7 @@
 	<tr>		
 		<th align="right" ><%= l(:label_product_items) %><span style="color:red;">*</span></th>
 		<td align="left" >
-			<%=h select_tag('product_item', options_for_select(itemArr, :selected => itemId.blank? ? itemArr  : itemId), :style => "width:155px;", :onchange => "productItemChanged(this.id, 'product_quantity', 'product_cost_price', 'product_sell_price', #{User.current.id}, 'log_type' ); productUOMChanged(this.id, 'uom_id', #{User.current.id})", :disabled => disable) %>
-			
-			
+			<%= select_tag('product_item', options_for_select(itemArr, :selected => itemId.blank? ? itemArr  : itemId), :style => "width:155px;", :onchange => "productItemChanged(this.id, 'product_quantity', 'product_cost_price', 'product_sell_price', #{User.current.id}, 'log_type' ); productUOMChanged(this.id, 'uom_id', #{User.current.id})", :disabled => disable) %>			
 		</td>
 		<th align="right"><%= l(:label_sell_price) %><span style="color:red;">*</span></th>
 		<td align="left" colspan="3" >
@@ -156,9 +162,14 @@
 			<label id="unittext" style="float:right;padding-left: 120px; " >
 			<% assetlabel = (assetObj.rate_per.blank? ? "" : "/ " + rateperHash[assetObj.rate_per]) unless assetObj.blank? %>
 			<%=h assetObj.blank? ? "" : assetlabel %></label>
-		</td>
-		
+		</td>		
 	</tr>
+		<tr id="material_serial_no">
+				<th align="right"><%= l(:label_serial_number) %></th>
+				<td> <%= text_area_tag("material_sn", serialNumbers.join(','), rows:4) %>
+				<div><%= l(:label_serial_number_note) %></div>
+				<span class="icon icon-warning warning" id="warn_serial_number" style="background-color: unset; border: 0;display:none;"><%= l(:warn_sn_range) %></span></td>
+		</tr>
 	<tr>	
 		<% if wktime_helper.isModuleAdmin('wktime_inventory_admin') && @spentType == 'M'  %>
 			<th align="right"><%= l(:label_cost_price) %><span style="color:red;">*</span></th>

@@ -64,7 +64,7 @@ class WklogmaterialController < TimelogController
 					product = {value: entry.id, label: entry.asset_name.to_s() + ' - ' + entry.rate.to_s() + ' - ' + rateper[entry.rate_per].to_s()}
 				else
 					attributeName = entry.product_attribute.blank? ? "" : entry.product_attribute.name					
-					product = {value: entry.id, label: entry.brand_name.to_s() +' - '+ entry.product_model_name.to_s() +' - '+ entry.part_number.to_s() +' - '+ attributeName  +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s())}
+					product = {value: entry.id, label: entry.brand_name.to_s() +' - '+ entry.product_model_name.to_s() +' - '+ entry.part_number.to_s() +' - '+ attributeName  +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s() +' - '+ (entry.serial_number.to_s() + entry.running_sn.to_s()))}
 				end
 				productDetail << product				
 			end
@@ -80,7 +80,7 @@ class WklogmaterialController < TimelogController
 				end				
 			else
 				productDetail << {id: pctObj.id, available_quantity: pctObj.available_quantity, cost_price: pctObj.cost_price,
-					currency: pctObj.currency, selling_price: pctObj.selling_price}	unless pctObj.blank?
+					currency: pctObj.currency, selling_price: pctObj.selling_price, serial_number: pctObj.serial_number, running_sn: pctObj.running_sn, total_quantity: pctObj.total_quantity}	unless pctObj.blank?
 			end
 		elsif params[:ptype] == "product_attribute"
 			productDetail << {id: pctObj.id, available_quantity: pctObj.available_quantity, cost_price: pctObj.cost_price,

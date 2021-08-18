@@ -1,26 +1,26 @@
 <div id ="inventoryDiv" class="<%= controller.showAssetProperties ? 'splitcontentright' : 'splitcontentleft' %> ">
-	<% 
-	#isDisable = isTransfer 
+	<%
+	#isDisable = isTransfer
 	isDisable = isUsedInventoryItem(invntItem)
 	%>
 	<%	locationId = nil
 		currentParent = invntItem.blank? ? nil : invntItem.id
 		parentArr = parentArray(controller.getItemType, true, false, locationId, currentParent)
 	%>
-	<%  productItem = @productItem 
+	<%  productItem = @productItem
 		attributeSql = ""
 		unless productItem.blank?
 			sqlCond = " product_id = " + productItem.product_id.to_s
 		else
 			firstProduct = WkProduct.where(:product_type => controller.getItemType).order(:name).first
-			unless firstProduct.blank?		
-				attributeSql = " group_id = " + firstProduct.attribute_group_id.to_s 		
+			unless firstProduct.blank?
+				attributeSql = " group_id = " + firstProduct.attribute_group_id.to_s
 			end
-		end	
+		end
 	%>
 	<fieldset class="box tabular">
 		<legend><%= isTransfer ? l(:button_transfer) : controller.lblInventory %></legend>
-		<table width='100%'>  
+		<table width='100%'>
 			<% if controller.showAssetProperties   %>
 			<tr>
 				<th align="left"><%= "Parent" %></th>
@@ -29,7 +29,11 @@
 			<% end %>
 			<tr>
 				<th align="left"><%= l(:label_serial_number) %></th>
-				<td align="left" style="padding-left:40px;"><%= text_field_tag "serial_number",  invntItem.blank? ? '' : invntItem.serial_number, :disabled => isDisable || isTransfer %></td>
+				<td align="left" style="padding-left:40px;">
+					<% if controller.getItemType == 'I' %><div><b><%= l(:label_fixed) %>&emsp;<span style="padding-left:140px;"><%= l(:label_running) %></span></b></div><%end%>
+					<%= text_field_tag "serial_number",  invntItem.blank? ? '' : invntItem.serial_number, disabled: isDisable && !isTransfer %>&nbsp;
+					<%= text_field_tag "running_sn",  invntItem.blank? ? '' : invntItem.running_sn, disabled: isDisable && !isTransfer if controller.getItemType == 'I'%>&nbsp;&nbsp;
+					<span style="white-space: nowrap;" id='assigned_serial_no'><%= link_to l(:label_assigned_serial_numbers), "javascript:getAssignedSNs();" if controller.getItemType == 'I' %></span></td>
 			</tr>
 			<% inventoryHook = call_hook(:view_asset_inventory, :inventoryItem => invntItem) %>
 			<% if controller.showInventoryFields %>
@@ -63,7 +67,12 @@
 			<tr>
 				<th align="left"><%= l(:field_notes) %></th>
 				<td align="left" style="padding-left:40px;"><%= text_area_tag "notes",  invntItem.blank? ? '' : invntItem.notes, :disabled => isDisable && !isTransfer %></td>
-			</tr>  		
+			</tr>
 		</table>
 	</fieldset>
 </div>
+
+<script>
+	var sn_blank_error = "<%=l(:warn_sn_blank) %>";
+	var sn_text_error = "<%=l(:warn_sn_text) %>";
+</script>

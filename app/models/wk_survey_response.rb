@@ -48,6 +48,10 @@ class WkSurveyResponse < ActiveRecord::Base
     .update_all(group_date: group_date.to_datetime, group_name: grp_name)
   }
 
+  def self.getClosedDate(groupName)
+    where(group_name: groupName).first&.group_date
+  end
+
   def user_name(id)
     User.find(id).name
   end

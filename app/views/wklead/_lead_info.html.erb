@@ -55,6 +55,12 @@
 				locationId = contactObj.location_id
 			end
 		%>
+		<% if !isContact && !is_referral %>
+			<tr>
+				<th align="left" ><%= l(:label_account_number) %></th>
+				<td align="left" style="padding-left:40px;"><%= text_field_tag("account_number", accountObj&.account_number, size: 20, maxlength: 15) %></td>
+			</tr>
+		<% end %>
 		<tr>
 			<% if isAccount %>
 				<th align="left"><%= controller.getAccountLbl %><span style="color:red;">*</span></th>

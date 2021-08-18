@@ -85,6 +85,11 @@ $(document).ready(function() {
 		  });
 	}
 
+	$('#product_item #available_quantity').change(function(){
+		$("#item_total_quantity").html(this.value);
+		$('#total_quantity').val(this.value);
+	});
+
 	changeProp('tab-wktime',wktimeIndexUrl);
 	changeProp('tab-wkexpense',wkexpIndexUrl);
 	changeProp('tab-leave',wkattnIndexUrl);
@@ -564,13 +569,23 @@ function productItemChanged(curDDId, qtyDD, cpDD, spDD, uid, logTypeId)
 	url: productModifyUrl,
 	type: 'get',
 	data: {id: currDD.value, ptype: 'inventory_item', product_id: productDD.value, log_type: logType },
-	success: function(data){ setProductLogAttribute(data, qtyDD, cpDD, spDD);},
+	success: function(data){
+		if(logType == 'I' && data != ""){
+			var pctData = data.split(',');
+			var product_serial_numbers = [];
+			if( pctData[6] && !isNaN(pctData[6])) product_serial_numbers = getSerialNumbersRange(pctData[5], pctData[6], pctData[7]);
+			$('#product_serial_numbers').val(JSON.stringify(product_serial_numbers));
+			$('#material_sn').val('');
+			$('#warn_serial_number').hide();
+		}
+		setProductLogAttribute(data, qtyDD, cpDD, spDD, logType);
+	},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
 	complete: function(){ productUOMChanged(curDDId, 'uom_id', uid); $this.removeClass('ajax-loading'); }
 	});
 }
 
-function setProductLogAttribute(data, qtyDD, cpDD, spDD)
+function setProductLogAttribute(data, qtyDD, cpDD, spDD, logType)
 {
 	if(data != "")
 	{
@@ -588,7 +603,7 @@ function setProductLogAttribute(data, qtyDD, cpDD, spDD)
 		document.getElementById(spDD).value = spVal;
 		document.getElementById('inventory_item_id').value = pctData[0];
 		document.getElementById('total').innerHTML = pctData[3] + (parseFloat(pctData[4] * 1).toFixed(2));
-		if(pctData[5] && pctData[5] != "")
+		if(logType != 'I')
 		{
 			document.getElementById('unittext').innerHTML = pctData[5];
 		}
@@ -646,7 +661,7 @@ function hideLogDetails(uid)
 	var oldLogType = document.getElementById("old_log_type").value;
     var entry = 'time_entry'
     if(logType == 'E') entry = 'wk_expense_entry';
-    if(logType == 'M' || logType == 'A') entry = 'wk_material_entry';
+    if(['M', 'A', 'RA'].includes(logType)) entry = 'wk_material_entry';
 	$('input[name*="'+oldLogType+'"], select[name^="'+oldLogType+'"]').each(function(){
 		let name = (this.name).replace(oldLogType, entry);
 		let id = (this.id).replace(oldLogType, entry);
@@ -697,6 +712,8 @@ function hideLogDetails(uid)
 		}
 		if(logType == 'A') $('#issuelogtable').show();
 		if(logType == 'M') $('#issuelogtable').hide();
+		if(logType == 'M') $('#material_serial_no').show();
+		if(logType != 'M') $('#material_serial_no').hide();
 		if(logType == 'M' || logType == 'A'){
 			$('#geolocation').show();
 		} else {
@@ -970,4 +987,62 @@ function setOverHeadCost(aval_quantity){
 	var data = over_head *  aval_quantity;
 	$('#over_head_price').val(data.toFixed(2));
 	$('#transfer_over_head').val(data.toFixed(2));
+}
+
+function getAssignedSNs(){
+	let content = "";
+	let serial_number = $('#serial_number').val();
+	let running_sn = $('#running_sn').val();
+	let total_quantity = $('#total_quantity').val();
+	if(!total_quantity) total_quantity = $('#product_item #available_quantity').val();
+	let org_total_quantity = total_quantity;
+	let org_sn_length = running_sn.length;
+	if(total_quantity > 50) total_quantity = 50;
+
+	if(isNaN(total_quantity) || isNaN(running_sn)){
+		content += '<p style="clear:both" class="nodata">'+ sn_text_error +'</p>';
+	}
+	else if(running_sn == '' || total_quantity == ''){
+		content += '<p style="clear:both" class="nodata">'+ sn_blank_error +'</p>';
+	}
+	else{
+		let serialNumbers = getSerialNumbersRange(serial_number, running_sn, total_quantity);
+		content = "<table>";
+		serialNumbers.map(function(number){
+				content += "<tr><td style='width:100%;'>" + number + "</td></tr>";
+			});
+		if(org_total_quantity > 50){
+			content += "<tr><td style='width:100%;'> .... </td></tr><tr><td style='width:100%;'> .... </td></tr>";
+			running_sn = Number(running_sn) + Number(org_total_quantity) - 1;
+			content += "<tr><td style='width:100%;'>" + serial_number + String(running_sn).padStart(org_sn_length, '0') + "</td></tr>";
+		}
+		content += "</table>";
+	}
+
+	if(!$("#dialog").length){
+		$("body").append("<div id='dialog'></div>")
+	}
+	else{
+		$("#dialog").html("");
+	}
+	$("#dialog").append(content);
+
+	$("#dialog" ).dialog({
+		modal: true,
+		title: 'Assigned serial numbers',
+		width: "20%",
+		height: 500,
+	});
+}
+
+function getSerialNumbersRange(serial_number, running_sn, total_quantity){
+	let serialNumbers = [];
+	let org_sn_length = running_sn.length;
+	for(i = 0; i < total_quantity; i++){
+		serialNumbers.push(serial_number + running_sn);
+		running_sn = Number(running_sn) + 1;
+		if(String(running_sn).length < org_sn_length) running_sn = String(running_sn).padStart(org_sn_length, '0');
+	}
+	return serialNumbers;
+
 }

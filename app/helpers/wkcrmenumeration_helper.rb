@@ -54,5 +54,13 @@ include WktimeHelper
 		end
 		options_for_select(ennumArray, value.blank? ? defaultValue : value)
 	end
+
+	def getEnumerations(enum_type)
+		wkcrmenums = WkCrmEnumeration.where(enum_type: enum_type, active: true)
+			.order(enum_type: :asc, position: :asc, name: :asc)
+		enums = []
+		enums = wkcrmenums.map{ |enum| { value: enum.id, label: enum.name }}
+		enums
+	end
 	
 end

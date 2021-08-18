@@ -1,7 +1,7 @@
 function renderChart(url, path){
   let name = (path.split(".")).shift();
   name = (name.split("/")).pop();
-	var div = '<div class="icon-gravatar" style="margin-left: 40px;" id="'+path+'"><canvas id="'+name+'" width="330" height="240" ></canvas></div>';
+	var div = '<div class="icon-gravatar" style="margin-left: 40px; cursor: pointer;" id="'+path+'"><canvas id="'+name+'" width="330" height="240" ></canvas></div>';
 	$("#graph").append(div);
   let params = (new URLSearchParams(window.location.search)).toString();
   url += "&"+params;
@@ -9,7 +9,7 @@ function renderChart(url, path){
   $.getJSON(url, function(data){
     createChart(data, name);
     $("#"+name).click(function(){
-      datasetPopup(path, data.graphName);
+      renderDetailReport(path, data.graphName);
     });
   });
 }
@@ -135,8 +135,8 @@ function getAxes(autoSkip, label, isNonPiechart, data){
   )
 }
 
-function datasetPopup(path, graphName){
-  let url = new URL("wkdashboard/getDataSet", window.location.origin);
+function renderDetailReport(path, graphName){
+  let url = new URL("wkdashboard/getDetailReport", window.location.origin);
   url.searchParams.append("gPath", path);
   const dashURL = new URL(window.location);
   dashURL.searchParams.forEach(function(value, key){
@@ -151,7 +151,7 @@ function datasetPopup(path, graphName){
       modal: true,
       title: graphName,
       width: "40%",
-      height: $(window).height(),
+      height: $(window).height() - 150,
     });
   });
 }

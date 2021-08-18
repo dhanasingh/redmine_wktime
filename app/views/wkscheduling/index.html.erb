@@ -15,7 +15,7 @@
 <%= form_tag({:controller => controller_name, :action => 'index', :project_id => @project},  :method => :get, :id => 'schedule_form') do %>
   <%=h hidden_field_tag('tab', "#{controller_name}") %>
   <%= hidden_field_tag 'set_filter', '1' %>
-  <%=h hidden_field_tag('tab', "#{controller_name}") %>
+  <%= hidden_field_tag('searchlist', controller_name) %>
   <%=h hidden_field_tag('generate', false) %>
   <fieldset class="box">
     <legend><%= l(:label_filter_plural) %></legend>

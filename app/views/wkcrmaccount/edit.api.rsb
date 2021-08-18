@@ -2,6 +2,7 @@ api.wk_account do
 	if @accountEntry.present?
 		api.account_id @accountEntry.id
 		api.account_name @accountEntry.name
+		api.account_number @accountEntry.account_number
 		api.account_billing @accountEntry.account_billing
 		api.account_category @accountEntry.account_category
 		api.location_id @accountEntry.location_id
@@ -13,4 +14,9 @@ api.wk_account do
 			state: @accountEntry.address.state, pin: @accountEntry.address.pin, website: @accountEntry.address.website
 		) if @accountEntry.address.present?
 	end
+end
+api.headers do
+  api.categories getEnumerations('AC')
+  api.locations getAllLocations
+  api.defaultLocation WkLocation.default_id
 end

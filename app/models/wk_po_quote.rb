@@ -30,4 +30,11 @@ class WkPoQuote < ActiveRecord::Base
       WkNotification.notification(userId, emailNotes, subject, self, 'purchaseOrderGenerated')
     end
   end
+  scope :leaveReqSupervisor, -> {
+    joins(:user).where("users.id = ? OR (users.parent_id = ?)", User.current.id, User.current.id)
+  }
+
+  scope :getPurchaseOrder, -> { 
+    where(:quote_id => nil)
+   }
 end

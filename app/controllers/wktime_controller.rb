@@ -29,7 +29,7 @@ before_action :check_view_redirect, :only => [:index]
 before_action :check_log_time_redirect, :only => [:new]
 before_action :check_module_permission, :only => [:index]
 
-accept_api_auth :index, :edit, :update, :destroy, :deleteEntries, :getProjects, :getissues, :getactivities, :getAPIUsers, :getclients
+accept_api_auth :index, :edit, :update, :destroy, :deleteEntries, :getProjects, :getissues, :getactivities, :getAPIUsers, :getclients, :get_issue_loggers
 
 helper :custom_fields
 helper :queries
@@ -218,10 +218,7 @@ include ActionView::Helpers::TagHelper
 			allowApprove = true
 		end
 		#IssueLogs validation
-		if errorMsg.blank?
-			issueLogs = get_issue_loggers(true)
-			errorMsg = l(:warn_issuelog_exist) if issueLogs.length > 0
-		end
+		errorMsg = issueLogValidation if errorMsg.blank?
 
 		errorMsg = gatherWkCustomFields(@wktime) if @wkvalidEntry && errorMsg.blank?
 		wktimeParams = params[:wktime]
@@ -331,7 +328,7 @@ include ActionView::Helpers::TagHelper
 			rescue Exception => e
 				errorMsg = e.message
 			end
-			if errorMsg.nil?
+			if errorMsg.blank?
 				#when the are entries or it is not a save action
 				if !@entries.blank? || !params[:wktime_approve].blank? ||
 					(!params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank?) ||
@@ -348,7 +345,7 @@ include ActionView::Helpers::TagHelper
 		end
 		respond_to do |format|
 		format.html {
-			if errorMsg.nil?
+			if errorMsg.blank?
 				flash[:notice] = respMsg
 				$tempEntries = nil
 				if params[:wktime_save_continue]
@@ -465,8 +462,10 @@ include ActionView::Helpers::TagHelper
 	def getIssueAssignToUsrCond
 		issueAssignToUsrCond=nil
 		user_id = params[:user_id] || User.current.id
+		groupIDs = Wktime.getUserGrp(user_id).join(',')
 		if (!Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].blank? && Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].to_i == 1)
-			issueAssignToUsrCond ="and (#{Issue.table_name}.assigned_to_id=#{user_id} OR #{Issue.table_name}.author_id=#{user_id})"
+			assignedCnd = groupIDs.present? ? "OR #{Issue.table_name}.assigned_to_id in (#{groupIDs})" : ''
+			issueAssignToUsrCond ="and (#{Issue.table_name}.assigned_to_id=#{user_id} #{assignedCnd} OR #{Issue.table_name}.author_id=#{user_id})"
 		end
 		issueAssignToUsrCond
 	end
@@ -509,10 +508,12 @@ include ActionView::Helpers::TagHelper
 					end
 			else
 				if (!Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].blank? && Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].to_i == 1)
+					user_id = params[:user_id] || User.current.id
+					groupIDs = Wktime.getUserGrp(user_id).join(',')
 					projIds = "#{(params[:project_id] || (!params[:project_ids].blank? ? params[:project_ids].join(",") : '') || projectids)}"
 					projCond = !projIds.blank? ? "AND #{Issue.table_name}.project_id in (#{projIds})" : ""
-
-					issues = Issue.where(["((#{Issue.table_name}.assigned_to_id= ? OR #{Issue.table_name}.author_id= ?) #{trackerIDCond}) #{projCond}", params[:user_id], params[:user_id]]).order('project_id')
+					assignedCnd = groupIDs.present? ? "OR #{Issue.table_name}.assigned_to_id in (#{groupIDs})" : ''
+					issues = Issue.where(["((#{Issue.table_name}.assigned_to_id= ? #{assignedCnd} OR #{Issue.table_name}.author_id= ?) #{trackerIDCond}) #{projCond}", params[:user_id], params[:user_id]]).order('project_id')
 				else
 					issues = Issue.order('project_id')
 					issues = issues.where(:project_id => params[:project_id] || params[:project_ids]) if params[:project_id].present? ||  params[:project_ids].present?
@@ -540,39 +541,55 @@ include ActionView::Helpers::TagHelper
 		end
 		#issues.compact!
 		user = params[:user_id].present? ? User.find(params[:user_id]) : User.current
+		if (!Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].blank? && Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].to_i == 1)
+			# adding additional assignee
+			userIssues = []
+			user_id = params[:user_id] || User.current.id
+			groupIDs = Wktime.getUserGrp(user_id).join(',')
+			userIssues = Wktime.getAssignedIssues(user_id, groupIDs, params[:project_id]) if groupIDs.present?
+			issues = (issues + userIssues).uniq
+			issues
+		end
 
-		if !params[:autocomplete]
-			issues = issues.select(&:present?)
-			if  !params[:format].blank?
-				respond_to do |format|
-					format.text  {
-						issStr =""
-						issues.each do |issue|
-						issStr << issue.project_id.to_s() + '|' + issue.id.to_s() + '|' + issue.tracker.to_s() +  '|' +
-								issue.subject  + "\n" if issue.visible?(user)
-						end
+		respond_to do |format|
+			if !params[:autocomplete]
+				issues = issues.select(&:present?)
+				format.any(:html, :text) do
+					issStr =""
+					issues.each do |issue|
+					issStr << issue.project_id.to_s() + '|' + issue.id.to_s() + '|' + issue.tracker.to_s() +  '|' +
+						issue.subject  + "\n" if issue.visible?(user)
+					end
 					render :plain => issStr
-					}
+				end
+				format.json do
+					render :json => formatIssue(issues, user)
 				end
 			else
-				issStr=[]
-				issues.each do |issue|
-					issStr << {:value => issue.id.to_s(), :label => issue.tracker.to_s() +  " #" + issue.id.to_s() + ": " + issue.subject }  if issue.visible?(user)
+				format.any(:html, :text) do
+					subject = params[:q].present? ? "%"+(params[:q]).downcase+"%" : ""
+					issues = issues.where("subject like ? OR issues.id = ?", subject, params[:q].to_i) if params[:q].present?
+					issueRlt = (+"").html_safe
+					issues.each do |issue|
+						issueRlt << content_tag("span", "#"+issue.id.to_s+": "+issue.subject, class: "issue_select", id: issue.id ) if issue.visible?(user) && showIssueLogger(issue.project)
+					end
+					issueRlt = content_tag("span", l(:label_no_data)) if issueRlt.blank?
+					issueRlt = "$('#issueLog .drdn-items.issues').html('" + issueRlt + "');"
+					render js: issueRlt
 				end
-
-				render :json => issStr
+				format.json do
+					render :json => formatIssue(issues, user)
+				end
 			end
-		else
-			subject = params[:q].present? ? "%"+(params[:q]).downcase+"%" : ""
-			issues = issues.where("subject like ? OR issues.id = ?", subject, params[:q].to_i) if params[:q].present?
-			issueRlt = (+"").html_safe
-			issues.each do |issue|
-				issueRlt << content_tag("span", "#"+issue.id.to_s+": "+issue.subject, class: "issue_select", id: issue.id ) if issue.visible?(user) && showIssueLogger(issue.project)
-			end
-			issueRlt = content_tag("span", l(:label_no_data)) if issueRlt.blank?
-			issueRlt = "$('#issueLog .drdn-items.issues').html('" + issueRlt + "');"
-			render js: issueRlt
 		end
+	end
+
+	def formatIssue(issues, user)
+		issStr=[]
+		issues.each do |issue|
+			issStr << {:value => issue.id.to_s(), :label => issue.tracker.to_s() +  " #" + issue.id.to_s() + ": " + issue.subject }  if issue.visible?(user)
+		end
+		issStr
 	end
 
 	def get_issue_loggers(valid=false)
@@ -584,7 +601,7 @@ include ActionView::Helpers::TagHelper
 				return issueLogs
 			else
 				respond_to do |format|
-					format.text do
+					format.any(:html, :text) do
 						container = ""
 						timer = ""
 						issueLogs.each do |log|
@@ -599,6 +616,10 @@ include ActionView::Helpers::TagHelper
 						end
 						container = "$('#issueLog .drdn-items.issues').html('" + container + "').css('cursor', 'default');" + timer
 						render(js: container)
+					end
+					format.json do
+						# issues = issueLogs.map{|i| i.to_h}
+						render json: issueLogs
 					end
 				end
 			end
@@ -674,7 +695,7 @@ include ActionView::Helpers::TagHelper
 				clientStr =""
 				unless project.blank?
 					project.each do |ap|
-						clientStr << project_id.to_s() + '|' + ap.parent_type + '_' + ap.parent_id.to_s() + '|' + "" + (params[:separator].blank? ? '|' : params[:separator] ) + ap.parent.name + "\n" if ap.parent.location_id == usrLocationId
+						clientStr << project_id.to_s() + '|' + ap.parent_type + '_' + ap.parent_id.to_s() + '|' + "" + (params[:separator].blank? ? '|' : params[:separator] ) + ap.parent.name + "\n"  #if ap.parent.location_id == usrLocationId
 					end
 				end
 				render plain: clientStr
@@ -685,7 +706,7 @@ include ActionView::Helpers::TagHelper
 					spentFors << {
 						value: project_id.to_s() + '|' + client.parent_type + '_' + client.parent_id.to_s() + '|',
 						label: client.parent.name
-					} if client.parent.location_id == usrLocationId
+					} #if client.parent.location_id == usrLocationId
 				} if project.present?
 				render(json: spentFors)
 			}
@@ -721,15 +742,15 @@ include ActionView::Helpers::TagHelper
 		projectids = Array.new
 		user = User.find(userId)
 		billableClients = Array.new
-		usrLocationId = user.wk_user.blank? ? nil : user.wk_user.location_id
+		# usrLocationId = user.wk_user.blank? ? nil : user.wk_user.location_id
 		unless userProjects.blank?
 			userProjects.each do |project|
 				projectids << project.id
 			end
 		end
 		usrBillableProjects = WkAccountProject.includes(:parent).where(:project_id => projectids)
-		locationBillProject = usrBillableProjects.select {|bp| bp.parent.location_id == usrLocationId}
-		locationBillProject = locationBillProject.sort_by{|parent_type| parent_type}
+		# locationBillProject = usrBillableProjects.select {|bp| bp.parent.location_id == usrLocationId}
+		locationBillProject = usrBillableProjects.sort_by{|parent_type| parent_type}
 		billableClients = locationBillProject.collect {|billProj| [billProj.parent.name, billProj.parent_type.to_s + '_' + billProj.parent_id.to_s]}
 		billableClients.unshift(["", ""]) if needBlank
 		billableClients = billableClients.uniq
@@ -2182,7 +2203,10 @@ private
         else
 					if (!Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].blank? && Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].to_i == 1)
 						#allIssues = Issue.find_all_by_project_id(project_id,:conditions =>["(#{Issue.table_name}.assigned_to_id= ? OR #{Issue.table_name}.author_id= ?) #{trackerids}", params[:user_id],params[:user_id]])
-						allIssues = Issue.where(["((#{Issue.table_name}.assigned_to_id= ? OR #{Issue.table_name}.author_id= ?) #{trackerids}) and #{Issue.table_name}.project_id in ( #{project_id})", params[:user_id],params[:user_id]])
+						user_id = params[:user_id] || User.current.id
+						groupIDs = Wktime.getUserGrp(user_id).join(',')
+						assignedCnd = groupIDs.present? ? "OR #{Issue.table_name}.assigned_to_id in (#{groupIDs})" : ''
+						allIssues = Issue.where(["((#{Issue.table_name}.assigned_to_id= ? #{assignedCnd} OR #{Issue.table_name}.author_id= ?) #{trackerids}) and #{Issue.table_name}.project_id in ( #{project_id})", params[:user_id],params[:user_id]])
 					else
 						#allIssues = Issue.find_all_by_project_id(project_id)
 						allIssues = Issue.where(:project_id => project_id)
@@ -2196,6 +2220,15 @@ private
 				end
 				#allIssues = Issue.find_all_by_project_id(project_id, :conditions => cond, :include => :status)
 				allIssues = Issue.includes(:status).references(:status).where(cond)
+			end
+			if (!Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].blank? && Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].to_i == 1)
+				# adding additional assignee
+				userIssues = []
+				user_id = params[:user_id] || User.current.id
+				groupIDs = Wktime.getUserGrp(user_id).join(',')
+				userIssues = Wktime.getAssignedIssues(user_id, groupIDs, params[:project_id]) if groupIDs.present?
+				issues = (allIssues + userIssues).uniq
+				issues
 			end
       # find the issues which are visible to the user
 			@projectIssues[project_id] = allIssues.select {|i| i.visible?(@user) }
@@ -2588,5 +2621,12 @@ private
 
 	def get_TE_entries(query)
 		@entries = TimeEntry.find_by_sql(query)
+	end
+
+	def issueLogValidation
+		errorMsg = ''
+		issueLogs = get_issue_loggers(true)
+		errorMsg = l(:warn_issuelog_exist) if issueLogs.length > 0
+		errorMsg
 	end
 end

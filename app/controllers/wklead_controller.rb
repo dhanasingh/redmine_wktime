@@ -19,7 +19,7 @@ class WkleadController < WkcrmController
   unloadable
   include WktimeHelper
   include WkleadHelper
-  accept_api_auth :index, :edit, :getuserGrp, :update
+  accept_api_auth :index, :edit, :update
 
 	def index
 		sort_init 'updated_at', 'desc'
@@ -92,6 +92,10 @@ class WkleadController < WkcrmController
 	end
 
 	def update
+		if api_request?
+			(params[:address] || []).each{|addr| params[addr.first] = addr.last }
+			params.delete("address")
+		end
 		wkLead = update_without_redirect
 		errorMsg = save_attachments(wkLead.id) if params[:attachments].present?
 		respond_to do |format|
@@ -111,6 +115,9 @@ class WkleadController < WkcrmController
 			format.api{
 				errorMsg = @wkContact.errors.full_messages.join("<br>") + (errorMsg || "")
 				if errorMsg.blank?
+					if params[:wklead_save_convert].present?
+						leadConvert(params)
+					end
 					render :plain => errorMsg, :layout => nil
 				else
 					@error_messages = errorMsg.split('\n')
@@ -159,12 +166,5 @@ class WkleadController < WkcrmController
 	def set_filter_session(filters=nil, filterParams={})
 		filters = [:lead_name, :status, :location_id] if filters.blank?
 		super(filters, filterParams)
-	end
-
-	def getuserGrp
-		users = groupOfUsers
-		grpUser = []
-		grpUser = users.map { |usr| { value: usr[1], label: usr[0] }}
-		render json: grpUser
 	end
 end

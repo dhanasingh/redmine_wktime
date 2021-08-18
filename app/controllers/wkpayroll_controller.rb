@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2020  Adhi software pvt ltd
+# Copyright (C) 2011-2021  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -48,7 +48,7 @@ class WkpayrollController < WkbaseController
 		@total_gross = @payrollEntries.sum { |k, p| p[:BT] + p[:AT] }
 		@total_net = @payrollEntries.sum { |k, p| p[:BT] + p[:AT] - p[:DT] }
 		respond_to do |format|
-      format.html {        
+      format.html {
         render :layout => !request.xhr?
       }
       format.api
@@ -79,7 +79,7 @@ class WkpayrollController < WkbaseController
 		ids = nil
 		user_id = session[controller_name].try(:[], :user_id)
 		group_id = session[controller_name].try(:[], :group_id)
-		
+
 		if user_id.blank? || !validateERPPermission('A_PAYRL')
 		   ids = User.current.id
 		elsif user_id.to_i != 0 && group_id.to_i == 0
@@ -93,7 +93,7 @@ class WkpayrollController < WkbaseController
 		unless isGeneratePayroll.blank?
 			payrollAmount = handlePayroll(ids, @to +1, isGeneratePayroll)
 		end
-		
+
 		unless isGeneratePayroll == "false"
 			payrollAmount = get_wksalaries_in_hash_format(ids, nil)
 		end
@@ -129,9 +129,9 @@ class WkpayrollController < WkbaseController
 				"GROUP BY S.user_id, S.salary_date
 			) AS SAL ON S.user_id = SAL.user_id AND S.salary_date = SAL.salary_date
 			LEFT JOIN users AS U ON U.id = S.user_id LEFT JOIN wk_users WU ON WU.user_id = U.id" + sql_contd + orderSQL)
-		
+
 		payroll_salaries.each do |entry|
-			payrollAmount << {:user_id => entry.user_id, :component_id => entry.salary_component_id, :amount => (entry.amount).round, 
+			payrollAmount << {:user_id => entry.user_id, :component_id => entry.salary_component_id, :amount => (entry.amount).round,
 								:currency => entry.currency, :salary_date => entry.salary_date}
 		end
 	end
@@ -188,13 +188,13 @@ class WkpayrollController < WkbaseController
 			payrollAmount = handlePayroll(userid, salarydate.to_date, "false")
 		else
 			payrollAmount = get_wksalaries_in_hash_format(userid, salarydate)
-		end	
+		end
 		form_payroll_entries(payrollAmount, userid)
 		@payrollDetails = @payrollEntries[key][:details]
 		respond_to do |format|
 			format.html {
 				render :layout => !request.xhr?
-			} 
+			}
 			format.api
 		end
 	end
@@ -210,7 +210,7 @@ class WkpayrollController < WkbaseController
 			factor = params['factor' + componentId.to_s()]
 			u_salary_comps << {:user_id => userId, :component_id => componentId, :dependent_id => dependent_id, :factor => factor, :is_override => is_override}
 		end
-		errorMsg = saveUserSalary(u_salary_comps, false)	
+		errorMsg = saveUserSalary(u_salary_comps, false)
 		if errorMsg.blank?
 			if params[:taxsettings].present?
 					redirect_to :action => 'income_tax', action_type: 'userSettings', user_id: userId, method: 'saveTaxVal',
@@ -224,18 +224,18 @@ class WkpayrollController < WkbaseController
 			redirect_to :action => 'user_salary_settings'
 		end
 	end
-	
+
 	def handlePayroll(userIds, salaryDate, isGeneratePayroll)
 		if to_boolean(isGeneratePayroll)
 			errorMsg = generateSalaries(userIds,salaryDate)
 			if errorMsg[:e].blank?
 				flash[:notice] = errorMsg[:n]
-			else		
+			else
 				flash[:notice] =  errorMsg[:n] if errorMsg[:n].present?
 				flash[:error] = errorMsg[:e]
 			end
 		else
-			@payrollList = Array.new		
+			@payrollList = Array.new
 			userSalaryHash = getUserSalaryHash(userIds,salaryDate)
 			errorMsg = nil
 			getPayrollData(userSalaryHash, salaryDate) if userSalaryHash.present?
@@ -268,18 +268,18 @@ class WkpayrollController < WkbaseController
 		hUserSettingHash['dependent_id'] = userSettingObj.dependent_id
 		hUserSettingHash['factor'] = userSettingObj.factor
 		hUserSettingHash['created_at'] = userSettingObj.created_at
-		hUserSettingHash['updated_at'] = userSettingObj.updated_at 
+		hUserSettingHash['updated_at'] = userSettingObj.updated_at
 		hUserSettingHash
 	end
-	
+
 	def findBySql(selectStr, query, orderStr)
 	    @entry_count = findCountBySql(query, WkSalary)
-	    setLimitAndOffset()		
-	    rangeStr = formPaginationCondition()	
+	    setLimitAndOffset()
+	    rangeStr = formPaginationCondition()
 	    @payroll_entries = WkSalary.find_by_sql(selectStr + query + orderStr + rangeStr)
 	end
 
-	def setLimitAndOffset		
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -292,14 +292,14 @@ class WkpayrollController < WkbaseController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
+		end
 	end
-	
+
 	def formPaginationCondition
 		rangeStr = ""
-		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'				
+		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'
 			rangeStr = " OFFSET " + @offset.to_s + " ROWS FETCH NEXT " + @limit.to_s + " ROWS ONLY "
-		else		
+		else
 			rangeStr = " LIMIT " + @limit.to_s +	" OFFSET " + @offset.to_s
 		end
 		rangeStr
@@ -309,7 +309,7 @@ class WkpayrollController < WkbaseController
 		filters = [:period_type, :period, :group_id, :user_id, :from, :to, :status, :name]
 		super(filters, {:from => @from, :to => @to})
    	end
-   
+
    	def getMembersbyGroup
 		group_by_users=""
 		userList=[]
@@ -320,8 +320,8 @@ class WkpayrollController < WkbaseController
 		respond_to do |format|
 			format.text  { render :plain => group_by_users }
 		end
-	end	
-	
+	end
+
    # Retrieves the date range based on predefined ranges or specific from/to param dates
 	def retrieve_date_range
 		@free_period = false
@@ -330,8 +330,8 @@ class WkpayrollController < WkbaseController
 		period = session[controller_name].try(:[], :period)
 		fromdate = session[controller_name].try(:[], :from)
 		todate = session[controller_name].try(:[], :to)
-		
-		if (period_type == '1' || (period_type.nil? && !period.nil?)) 
+
+		if (period_type == '1' || (period_type.nil? && !period.nil?))
 		    case period.to_s
 			  when 'today'
 				@from = @to = Date.today
@@ -365,35 +365,35 @@ class WkpayrollController < WkbaseController
 		    @free_period = true
 		else
 		  # default
-		  # 'current_month'		
+		  # 'current_month'
 			@from = Date.civil(Date.today.year, Date.today.month, 1)
 			@to = (@from >> 1) - 1
-	    end    
-		
+	    end
+
 		@from, @to = @to, @from if @from && @to && @from > @to
 
 	end
-	
+
   	def check_perm_and_redirect
 	  unless check_permission
 	    render_403
 	    return false
 	  end
 	end
-	
+
 	def check_permission
 		ret = false
 		ret = params[:user_id].to_i == User.current.id
 		return (ret || validateERPPermission('A_PAYRL'))
 	end
-	
+
 	def check_admin_perm_and_redirect
 		if !params[:generate].blank? && !validateERPPermission('A_PAYRL')
 			render_403
 			return false
 		end
 	end
-	
+
 	def check_setting_admin_perm_and_redirect
 		unless validateERPPermission('A_PAYRL')
 			render_403
@@ -413,7 +413,7 @@ class WkpayrollController < WkbaseController
 		end
 		sqlStr = sqlStr + " where u.type = 'User' "
 		if !validateERPPermission('A_PAYRL')
-			sqlStr = sqlStr + " and u.id = #{User.current.id} " 
+			sqlStr = sqlStr + " and u.id = #{User.current.id} "
 		end
 		if !@status.blank?
 			sqlStr = sqlStr + " and u.status = #{@status}"
@@ -438,7 +438,7 @@ class WkpayrollController < WkbaseController
 		getUserSalaryHash(userIds, Date.today.at_end_of_month + 1, 'userSetting')
 		@user_salary_components = WkUserSalaryComponents.all
 	end
-	
+
 	def payrollsettings
 		if request.post?
 			payrollValues = salaryComponentsHashVal(params[:settings])
@@ -462,7 +462,7 @@ class WkpayrollController < WkbaseController
 
 	def salaryComponentsHashVal settinghash
 		payrollValues = Hash.new()
-		if !settinghash.blank? 
+		if !settinghash.blank?
 			payrollValues[:basic] = settinghash["basic"]
 			payrollValues[:allowances] = settinghash["allowances"]
 			payrollValues[:deduction] = settinghash["deduction"]
@@ -502,7 +502,7 @@ class WkpayrollController < WkbaseController
 			list.salary_comp_deps.each do |dependent|
 				comp_cond = dependent.salary_comp_cond
 				salaryCompDeps = dependent.id.to_s + '_' + dependent.dependent_id.to_s + '_' + dependent.factor_op.to_s + '_' +
-					dependent.factor.to_s + '_' + comp_cond.try(:id).to_s + ':' + comp_cond.try(:lhs).to_s + ':' + 
+					dependent.factor.to_s + '_' + comp_cond.try(:id).to_s + ':' + comp_cond.try(:lhs).to_s + ':' +
 					comp_cond.try(:operators).to_s + ':' + comp_cond.try(:rhs).to_s + ':' + comp_cond.try(:rhs2).to_s
 				salaryCompDepText = salaryCompNames[dependent.dependent_id.to_s].to_s + ':' + factorOps[dependent.factor_op.to_s].to_s + ':' +
 					dependent.factor.to_s + ':' + salaryCompNames[comp_cond.try(:lhs).to_s].to_s + ':' +
@@ -520,7 +520,7 @@ class WkpayrollController < WkbaseController
 				basicCompDep = list.salary_comp_deps.first.try(:id).to_s + '|' + list.salary_comp_deps.first.try(:factor).to_s
 				basicCompDepText = list.salary_comp_deps.first.try(:factor)
 				hashval["basic"] << [list.name + '|' + salaryTypes[list.salary_type.to_s].to_s + '|' + basicCompDepText.to_s + '|' +
-					ledgers[list.ledger_id.to_s].to_s , list.id.to_s + '|' + list.name + '|' + list.salary_type + '|' + basicCompDep + '|' + 
+					ledgers[list.ledger_id.to_s].to_s , list.id.to_s + '|' + list.name + '|' + list.salary_type + '|' + basicCompDep + '|' +
 					list.ledger_id.to_s]
 			end
 
@@ -532,7 +532,7 @@ class WkpayrollController < WkbaseController
 
 			hashval["deduction"] << [list.name + ':' + salaryFrequecy[list.frequency.to_s].to_s + ':' +
 				(list.start_date).to_s + ':' + ledgers[list.ledger_id.to_s].to_s + ':' +
-				deductCompDepsText.join(":"), 
+				deductCompDepsText.join(":"),
 				list.id.to_s + '|' + list.name + '|' + list.frequency.to_s + '|' +
 				(list.start_date).to_s + '|' + list.ledger_id.to_s + '|' + deductCompDeps.join("-")] if list.component_type == 'd'
 
@@ -544,7 +544,7 @@ class WkpayrollController < WkbaseController
 		end
 		@payrollsettings = hashval
 	end
-	    
+
 	def save_bulk_edit
 		salary_cmpts = get_salary_components
 		u_salary_cmpts = Array.new
@@ -580,8 +580,8 @@ class WkpayrollController < WkbaseController
 			dependentId = (is_bulkEdit && old_dependent_id.to_i  > 0) ? old_dependent_id.to_i : (entry["dependent_id".to_sym]).to_i
 			userSettingHash = getUserSettingHistoryHash(wkUserSalComp) unless wkUserSalComp.blank?
 			if (entry["is_override".to_sym]).blank?
-				unless wkUserSalComp.blank? 
-					saveUsrSalCompHistory(userSettingHash) 
+				unless wkUserSalComp.blank?
+					saveUsrSalCompHistory(userSettingHash)
 					wkUserSalComp.destroy()
 				end
 			else
@@ -591,13 +591,13 @@ class WkpayrollController < WkbaseController
 					wkUserSalComp.user_id = userId
 					wkUserSalComp.salary_component_id = componentId
 					wkUserSalComp.dependent_id = dependentId if dependentId > 0
-					wkUserSalComp.factor = factor 
+					wkUserSalComp.factor = factor
 				else
-					wkUserSalComp.dependent_id = dependentId > 0 ? dependentId : nil 
-					wkUserSalComp.factor = factor 
+					wkUserSalComp.dependent_id = dependentId > 0 ? dependentId : nil
+					wkUserSalComp.factor = factor
 				end
 				if (wkUserSalComp.changed? && !wkUserSalComp.new_record?) || wkUserSalComp.destroyed?
-					saveUsrSalCompHistory(userSettingHash) 
+					saveUsrSalCompHistory(userSettingHash)
 				end
 				if !wkUserSalComp.save()
 					errorMsg += wkUserSalComp.errors.full_messages.join('\n')
@@ -679,7 +679,7 @@ class WkpayrollController < WkbaseController
 		pdf.RDMCell( 24, row_Height, @payrollEntries.values[0][:currency] + " " + (@total_gross || 0).to_s, 1, 0, '', 1)
 		pdf.RDMCell( 24, row_Height, @payrollEntries.values[0][:currency] + " " + (@total_net || 0).to_s, 1, 0, '', 1)
 	end
-  
+
 	def destroy
 		userId = params[:user_id].to_i
 		salaryDate = params[:salary_date]

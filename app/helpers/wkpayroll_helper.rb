@@ -154,7 +154,9 @@ module WkpayrollHelper
 			allowance_total = 0
 			basic_total = 0
 			@userSalCompHash.each do |key, userComp|
-				basic_total += userComp.factor if userComp.sc_component_type == 'b' &&
+				userComp.factor ||= 0
+				multiplier = getMultiplier(userComp, @payPeriod)
+				basic_total += userComp.factor*multiplier if userComp.sc_component_type == 'b' &&
 					userComp.user_id == user_id && userComp.factor.present?
 			end
 			totals['BT'] = basic_total
@@ -162,7 +164,9 @@ module WkpayrollHelper
 			# For allowance total
 			@userSalCompHash.each do |key, userComp|
 				next unless userComp.sc_component_type == 'a' && userComp.user_id == user_id
-				factor = userComp.dependent_id.present? ? computeFactor(userComp.user_id, userComp.dependent_id, userComp.factor, 1) : userComp.factor
+				userComp.factor ||= 0
+				multiplier = getMultiplier(userComp, @payPeriod)
+				factor = userComp.dependent_id.present? ? computeFactor(userComp.user_id, userComp.dependent_id, userComp.factor, multiplier) : userComp.factor*multiplier
 				allowance_total = allowance_total + factor.to_f
 				totals['AT'] = allowance_total
 			end
@@ -187,7 +191,9 @@ module WkpayrollHelper
 			deduction_total = 0
 			@userSalCompHash.each do |key, userComp|
 				next unless userComp.sc_component_type == 'd' && userComp.user_id == user_id
-				factor = userComp.dependent_id.present? ? computeFactor(userComp.user_id, userComp.dependent_id, userComp.factor, 1) : userComp.factor
+				userComp.factor ||= 0
+				multiplier = getMultiplier(userComp, @payPeriod)
+				factor = userComp.dependent_id.present? ? computeFactor(userComp.user_id, userComp.dependent_id, userComp.factor, multiplier) : userComp.factor*multiplier
 				deduction_total += factor if factor.present?
 			end
 			totals['DT'] = deduction_total
@@ -250,15 +256,15 @@ module WkpayrollHelper
 			end
 		end
 
-		lastUserId = -1
-		multiplier = 1.0
+		# lastUserId = -1
+		# multiplier = 1.0
 		@userSalaries.each do |entry|
 			isAddSalComp = isAddCompToSal(entry,@payPeriod)
 			if isAddSalComp && entry.factor.present?
-				if lastUserId != entry.user_id
+				# if lastUserId != entry.user_id
 					multiplier = getMultiplier(entry, @payPeriod)
-					lastUserId = entry.user_id
-				end
+				# 	lastUserId = entry.user_id
+				# end
 				userSalaryHash[entry.user_id][entry.sc_id] = 0 if userSalaryHash[entry.user_id].present?
 				if userSalaryHash[entry.user_id].blank?
 					salDetailHash = Hash.new()
@@ -323,7 +329,7 @@ module WkpayrollHelper
 			if !entry.termination_date.blank? && entry.termination_date.to_date.between?(payPeriod[0],payPeriod[1])
 				terminationDate = entry.termination_date.to_date
 			end
-			multiplier = computeProrate(payPeriod,terminationDate,entry.user_id)
+			multiplier = computeProrate(payPeriod,terminationDate,entry.user_id, entry.sc_component_type)
 		end
 		multiplier
 	end
@@ -345,11 +351,11 @@ module WkpayrollHelper
 	end
 
 	#calculate Prorate multiplier for an user for the particular payPeriod
-	def computeProrate(payPeriod, terminationDate,userId)
+	def computeProrate(payPeriod, terminationDate,userId, component_type)
 		# Last worked day by the user on the particular payPeriod
 		lastWorkDateByUser = terminationDate.blank? ? payPeriod[1] : terminationDate
-
-		multiplier = (getWorkingDaysCount(payPeriod[0],lastWorkDateByUser) - getLossOfPayDays(payPeriod,userId)) / getWorkingDaysCount(payPeriod[0],payPeriod[1])
+		lopDays = ["b", "a"].include?(component_type) ? getLossOfPayDays(payPeriod,userId) : 0
+		multiplier = (getWorkingDaysCount(payPeriod[0],lastWorkDateByUser) - lopDays) / getWorkingDaysCount(payPeriod[0],payPeriod[1])
 		multiplier
 	end
 
@@ -387,7 +393,7 @@ module WkpayrollHelper
 		if isSalCompCond
 			factor = salEntry.present? ? salEntry.factor : 0
 		else
-			factor = factor*(salEntry.factor.blank? ? 0 : salEntry.factor)*multiplier
+			factor = factor*(salEntry.factor.blank? ? 0 : salEntry.factor)*getMultiplier(salEntry, @payPeriod)
 		end
 		if salEntry&.dependent_id.present?
 			factor = computeFactor(userId, salEntry.dependent_id, factor, multiplier)
@@ -774,7 +780,7 @@ module WkpayrollHelper
 		end
 		[dependentID, factor]
 	end
-	
+
 	def getTaxSettings(value)
 		taxEntries = WkSetting.where({name: value}).all
 		if value.is_a?(Array)
@@ -815,7 +821,7 @@ module WkpayrollHelper
 			salaryComponents.delete_if {|c| filterSalComps.include?(c.last)}
 		end
 	end
-	
+
 	def saveTaxComponent(userIds)
 		if isCalculateTax
 			load("plugins/redmine_wktime/app/views/wkrule/incometax/#{getTaxSettings('tax_rule')}.rb")

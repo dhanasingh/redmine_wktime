@@ -26,3 +26,6 @@ api.wk_expense do
 	  end
   end
 end
+api.headers do
+  api.currency options_for_currency
+end

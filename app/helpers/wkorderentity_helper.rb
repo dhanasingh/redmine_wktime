@@ -46,7 +46,7 @@ include WkcrmHelper
 			when 'Q'
 			  invIdArr = WkRfq.find_by_sql(sqlStr).map {|i| i.quote_id }
 			when 'PO'
-			  invIdArr = WkRfq.find_by_sql(sqlStr).map {|i| i.purchase_order_id }
+				invIdArr = rfqId != 0 ? WkRfq.find_by_sql(sqlStr).map {|i| i.purchase_order_id } : WkPoQuote.getPurchaseOrder.pluck(:purchase_order_id)
 			else
 			  invIdArr = WkRfq.find_by_sql(sqlStr).map {|i| i.supplier_inv_id }
 		end

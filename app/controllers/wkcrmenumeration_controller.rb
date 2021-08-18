@@ -128,10 +128,7 @@ class WkcrmenumerationController < WkbaseController
 
 	def getCrmEnumerations
 		if params[:enum_type]
-			wkcrmenums = WkCrmEnumeration.where(enum_type: params[:enum_type], active: true)
-				.order(enum_type: :asc, position: :asc, name: :asc)
-			enums = []
-			enums = wkcrmenums.map{ |enum| { value: enum.id, label: enum.name }}
+			enums= getEnumerations(params[:enum_type])
 			render json: enums
 		else
 			render_403

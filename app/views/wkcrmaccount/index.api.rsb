@@ -8,6 +8,7 @@ api.array :wk_accounts, api_meta(:total_count => @entry_count, :offset => @offse
       api.work_phone entry.address.work_phone unless entry.address.nil?
       api.country entry.address.country unless entry.address.nil?
       api.city entry.address.city unless entry.address.nil?
+      api.account_number entry&.account_number
     end
   end    
 end

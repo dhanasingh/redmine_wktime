@@ -31,3 +31,8 @@ api.lead do
         ) unless @lead.contact.address.nil?
     end
 end
+api.headers do
+  api.locations getAllLocations
+  api.lead_source getEnumerations('LS')
+  api.assignees get_crm_Users
+end

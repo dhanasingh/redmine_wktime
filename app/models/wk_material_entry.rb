@@ -30,6 +30,7 @@ class WkMaterialEntry < TimeEntry
   belongs_to :inventory_item, :class_name => 'WkInventoryItem'
   has_one :spent_for, ->{where(spent_type: "WkMaterialEntry")} , class_name: "WkSpentFor", foreign_key: "spent_id", :dependent => :destroy
   accepts_nested_attributes_for :spent_for
+  has_many :serial_number, class_name: "WkMaterialEntrySn", foreign_key: "material_entry_id", :dependent => :destroy
 
   scope :visible, lambda {|*args|
     joins(:project).

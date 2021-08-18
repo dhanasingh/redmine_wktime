@@ -673,8 +673,6 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 
 	get 'wkcrmenumeration/getCrmEnumerations', :to => 'wkcrmenumeration#getCrmEnumerations'
 
-	get 'wklead/getuserGrp', :to => 'wklead#getuserGrp'
-
 	get 'wkinvoice/getInvProj', :to => 'wkinvoice#getInvProj'
 
 	get 'wkbase/getUserPermissions', :to => 'wkbase#getUserPermissions'
@@ -758,7 +756,7 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 
 	get 'wkproductitem/get_material_entries', to: 'wkproductitem#get_material_entries'
 
-	get 'wkdashboard/getDataSet', to: 'wkdashboard#getDataSet'
+	get 'wkdashboard/getDetailReport', to: 'wkdashboard#getDetailReport'
 
 	delete 'wkpayment/destroy', to: 'wkpayment#destroy'
 

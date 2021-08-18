@@ -34,4 +34,5 @@ api.headers do
   api.survey_id @survey.id
   api.name @survey.name
   api.response_group_items get_response_group_items
+  api.groupClosedDate @groupClosedDate.to_date if @groupClosedDate.present?
 end

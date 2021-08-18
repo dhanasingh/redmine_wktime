@@ -83,17 +83,21 @@ Import.class_eval do
 
 			if object = build_object(row, item)
 				# ======= ERPmine_patch Redmine 4.2 ==========
-				wktime_helper = Object.new.extend(WktimeHelper)
-				errorMsg = wktime_helper.statusValidation(object)
-				if errorMsg.blank?
-					if object.save
+				if type == 'TimeEntryImport'
+					wktime_helper = Object.new.extend(WktimeHelper)
+					errorMsg = wktime_helper.statusValidation(object)
+					if errorMsg.blank? && object.save
 						spentForModel = wktime_helper.saveSpentFor(nil, nil, nil, object.id, object.class.name, (object.spent_on).to_date, '00', '00', nil)
 						item.obj_id = object.id
 					else
-						item.message = object.errors.full_messages.join("\n")
+						item.message = errorMsg + object.errors.full_messages.join("\n")
 					end
 				else
-					item.message = errorMsg
+					if object.save
+						item.obj_id = object.id
+			  		else
+						item.message = object.errors.full_messages.join("\n")
+			  		end
 				end
 				# =============================
 			end
@@ -633,11 +637,11 @@ module FttePatch
 
 			def results_scope(options={})
 				order_option = [group_by_sort_order, (options[:order] || sort_clause)].flatten.reject(&:blank?)
-		
+
 				# ============= ERPmine_patch Redmine 4.2  =====================
 				if options[:nonSpentTime].present?
 					base_scope(options)
-				else					
+				else
 				# ======================================
 					base_scope.
 						order(order_option).
@@ -749,7 +753,7 @@ Redmine::Plugin.register :redmine_wktime do
   name 'ERPmine'
   author 'Adhi Software Pvt Ltd'
   description 'ERPmine is an ERP for Service Industries. It has the following modules: Time & Expense, Attendance, Payroll, CRM, Billing, Accounting, Purchasing, Inventory, Asset , Reports, Dashboards and Survey'
-  version '4.3'
+  version '4.3.1'
   url 'https://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
 

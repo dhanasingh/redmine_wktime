@@ -2,7 +2,7 @@ api.array :wk_payment, api_meta(:total_count => @entry_count, :offset => @offset
   @payment_entries.each do |entry|
     api.entry do
       api.id entry.id
-      api.name entry.name
+      api.name entry&.parent&.name
       api.type personTypeLabelHash[entry.entity_type] unless entry.entity_type.nil?
       api.payment_date entry.payment_date.strftime("%Y-%m-%d")
       api.payment_type getPayTypeHash[entry.payment_type_id] unless entry.payment_type_id.nil?

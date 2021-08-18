@@ -1,7 +1,7 @@
 api.wk_time do
   api.id @user.id
   api.name @user.name
-  api.startday @startday
+  api.startday controller.getSheetView == 'I' ? @selectedDate : @startday
   api.status statusString(@wktime.status) unless @wktime.nil?
   api.total @wktime.hours unless @wktime.nil?
   if !@wktime.nil? && !@wktime.notes.blank? && @wktime.status == 'r'
@@ -17,10 +17,11 @@ api.wk_time do
 		  api.user(:id => time_entry.user_id, :name => time_entry.user.name) unless time_entry.user.nil?
 		  api.activity(:id => time_entry.activity_id, :name => time_entry.activity.name) unless time_entry.activity.nil?
 		  api.hours time_entry.hours
+			api.spent_for_id time_entry.spent_for.id if time_entry.spent_for.present?
 		  api.comments time_entry.comments
 		  api.spent_on time_entry.spent_on
       if time_entry.spent_for.present?
-        api.spentFor(id: time_entry.spent_for.id, s_longitude: time_entry.spent_for.s_longitude, s_latitude: time_entry.spent_for.s_latitude, e_longitude: time_entry.spent_for.e_longitude, e_latitude: time_entry.spent_for.e_latitude)
+        api.spentFor(id: time_entry.spent_for.id, s_longitude: time_entry.spent_for.s_longitude, s_latitude: time_entry.spent_for.s_latitude, e_longitude: time_entry.spent_for.e_longitude, e_latitude: time_entry.spent_for.e_latitude, spent_on_time: time_entry.spent_for.spent_on_time, spent_for_type: time_entry.spent_for.spent_for_type, spent_for_id: time_entry.spent_for.spent_for_id)
       end
 		  
 		  #render_api_custom_values defined in app/helpers/custom_fields_helper.rb
@@ -28,4 +29,11 @@ api.wk_time do
 		end
 	  end
   end
+	if controller.getSheetView == 'I'
+	 api.issues	getResIssues
+	 api.users @users
+	 api.spentFors controller.getClientsByUser(User.current.id, false)
+	 api.defaultProj controller.getDefultProject
+	 api.defaultActivity controller.getDefultActivity
+	end
 end

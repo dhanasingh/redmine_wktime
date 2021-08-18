@@ -31,4 +31,8 @@ class WkProduct < ActiveRecord::Base
   has_many :taxes, through: :product_taxes
   
   validates_presence_of :category
+
+  scope :getProducts, ->(type){
+    where(product_type: type).order(:name)
+  }
 end

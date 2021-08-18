@@ -6,7 +6,7 @@ class WksupplierinvoiceController < WksupplierorderentityController
 
 	def newSupOrderEntity(parentId, parentType)
 		super
-		if params[:rfq_id].blank? || ((Setting.plugin_redmine_wktime['label_create_supplier_invoice_without_purchase_order'].blank? || Setting.plugin_redmine_wktime['label_create_supplier_invoice_without_purchase_order'] == 0) && params[:po_id].blank?)
+		if params[:rfq_id].present? && ((Setting.plugin_redmine_wktime['label_create_supplier_invoice_without_purchase_order'].blank? || Setting.plugin_redmine_wktime['label_create_supplier_invoice_without_purchase_order'] == 0) && params[:po_id].blank?)
 			errorMsg = ""
 			errorMsg = l(:error_please_select_rfq) + " <br/>" if params[:rfq_id].blank?
 			#errorMsg = errorMsg + "Please select the Quote \n" if params[:quote_id].blank?

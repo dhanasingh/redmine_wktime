@@ -1,5 +1,5 @@
 # ERPmine - ERP for service industry
-# Copyright (C) 2011-2017  Adhi software pvt ltd
+# Copyright (C) 2011-2020  Adhi software pvt ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -15,12 +15,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkProductAttribute < ActiveRecord::Base
-  unloadable
-  belongs_to :attribute_group, foreign_key: "group_id", class_name: "WkAttributeGroup"
-  has_many :inventory_items, foreign_key: "product_attribute_id", class_name: "WkInventoryItem", :dependent => :restrict_with_error
+class WkMaterialEntrySn < ActiveRecord::Base
 
-  scope :getGrpAttribute, ->(grpID){
-    where(group_id: grpID).order(:name)
-  }
+  belongs_to :material_entry, :class_name => 'WkMaterialEntry'
+
+  def self.get_material_sn(id)
+    WkMaterialEntrySn.where(material_entry_id: id)
+  end 
 end

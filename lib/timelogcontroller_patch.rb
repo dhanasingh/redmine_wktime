@@ -270,9 +270,9 @@ module TimelogControllerPatch
 		
 		def validateMatterial(paramEntry)
 			errorMsg = ""
-			if paramEntry[:project_id].blank? 
-				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_project_error) if params[:project_id].blank?
-			end
+			# if paramEntry[:project_id].blank? 
+			# 	errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_project_error) if params[:project_id].blank?
+			# end
 			if paramEntry[:issue_id].blank?
 				errorMsg = errorMsg + (errorMsg.blank? ? "" :  "<br/>") + l(:label_issue_error)
 			end
@@ -295,7 +295,7 @@ module TimelogControllerPatch
 		def getParams(logtype, params)
 			param = params[:time_entry]
 			param = params[:wk_expense_entry] if logtype == 'E'
-			param = params[:wk_material_entry] if logtype == 'M' || logtype == 'A'
+			param = params[:wk_material_entry] if logtype == 'M' || logtype == 'A' || params[:log_type] == @logType
 			param
 		end
 	# ========================
@@ -421,6 +421,18 @@ module TimelogControllerPatch
 						end
 						@assetObj.save
 					end
+					# save serial number
+					if errorMsg.blank? && params[:hidden_sns].present?
+						JSON.parse(params[:hidden_sns]).each do |sn|
+							WkMaterialEntrySn.where(id: sn["id"]).delete_all() if sn["is_delete"].present? && sn["id"].present?
+							if sn["id"].blank? && !sn["is_delete"]
+								materialSN = WkMaterialEntrySn.new
+								materialSN.material_entry_id = @modelEntry.id
+								materialSN.serial_number = sn["serial_number"]
+								materialSN.save
+							end
+						end
+					end
 				end
 			end
 			return errorMsg
@@ -494,19 +506,13 @@ module TimelogControllerPatch
 				if session[:timelog][:spent_type] === "T"
 			# ========================
 				@time_entry = TimeEntry.find(params[:id])
-				@project = @time_entry.project
 			# ============= ERPmine_patch Redmine 4.2  =====================		
 				elsif session[:timelog][:spent_type] === "E"
 					@time_entry = WkExpenseEntry.find(params[:id])
-					expenseEntry = WkExpenseEntry.find(params[:id])
-					@time_entry.id = expenseEntry.id
-					@project = expenseEntry.project
 				else
 					@time_entry = WkMaterialEntry.find(params[:id])
-					materialEntry = WkMaterialEntry.find(params[:id])
-					@time_entry.id = materialEntry.id
-					@project = materialEntry.project
 				end
+				@project = @time_entry.project
     	# ==============================================
 		  rescue ActiveRecord::RecordNotFound
 			render_404
