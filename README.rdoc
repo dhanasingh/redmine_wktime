@@ -1,8 +1,21 @@
-= ERPmine
-= An upcoming Webinar on ERPmine Time & Expense on April 28 2021, 3PM IST (+5:30 GMT)
+= Webinar on ERPmine – Billing, August 31,2021,  5:00 PM India (11:30 AM GMT)
 
-Please click here to register if interested
-https://us02web.zoom.us/meeting/register/tZcrcOCvqTouGNALBqMGF1GuxyKYjqAcesyM
+Please click here to register if interested,
+https://us02web.zoom.us/meeting/register/tZclcOyspj8pHtajzb-e7mYb6GfKKxYVOLTV
+
+*Topics* :
+
+* Account Projects
+* Invoice Component
+* Unbilled Invoice
+* Generate Invoice 
+* Accept Payment 
+* Contracts
+* Reports
+* Mobile App
+===============================================================================
+
+= ERPmine
 
 This Plugin has the following modules:
 
