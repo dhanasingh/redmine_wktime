@@ -129,7 +129,7 @@ de:
   label_wk_expensesheet: Spesenabrechnung
   text_wk_no_reminder: Keine Erinnerungen zu senden
 
-  report_attendance: Teilnahme
+  report_attendance: Anwesenheit
   report_spent_time: Benötigte Zeit
   label_wk_break_time: Pausenzeiten
   label_wk_enable_clock_in_out: Zeiterfassung aktivieren
@@ -144,7 +144,7 @@ de:
   label_wk_leave_issue: Abwesenheitsgrund
   label_wk_leave_accrual: Rückstellung
   label_wk_leave_accrual_on: Rückstellung auf
-  label_wk_attendance_start_date: Startdatum der Teilnahme
+  label_wk_attendance_start_date: Startdatum der Anwesenheit
   label_clock_in: Einstempeln
   label_clock_out: Ausstempeln
   label_wk_leave_exists: Dieser Abwesenheit besteht bereits
@@ -1120,8 +1120,8 @@ de:
   label_hide_response: Anonyme Antwort
   label_referrals: Empfehlungen
   label_referral: Empfehlung
-  label_college: Hochschule
-  label_degree: Grad
+  label_college: Schule
+  label_degree: Abschlussgrad
   label_pass_out: Abschlussjahr
   label_interview_date: Interview Datum
   label_interviewer: Interviewer
@@ -1133,7 +1133,7 @@ de:
   label_not_hire: Nicht einstellen
   label_none: Keine
   ADMIN REFERRAL PRIVILEGE: Administrator Empfehlungsbearbeitung
-  label_general: Generell
+  label_general: Allgemein
   label_hiring_employees: Mitarbeiter einstellen
   label_show_on_chart: Auf Diagramm anzeigen
   label_reimbursement_projects: Erstattungsprojekte
@@ -1167,17 +1167,17 @@ de:
   label_deleted: Gelöscht
   warn_issuelog_exist: "Sie müssen alle Ticketprotokolle in der Woche stoppen"
   label_select_time: Wählen Sie Zeiteinträge
-  label_account_number: Account Number
+  label_account_number: Kontonnummer
   label_closed_date: Ruhetag
   label_select_service: Service auswählen
   label_select_service_for: Service auswählen für
   label_text_search: Textsuche
   label_assigned_serial_numbers: Zugewiesene Seriennummern
-  label_fixed: Fest
-  label_running: Betrieb
+  label_fixed: Präfix (Statisch)
+  label_running: Fortlaufend
   label_serial_number_note: "Hinweis: Verwenden Sie Komma für mehrere Seriennummern."
-  warn_sn_range: Serial Number is not in Range
-  warn_sn_blank: Serial Number and Quantity cannot be blank
-  warn_sn_text: Serial Number and Quantity cannot be text value
-  label_last_increment: Last Increment
-  label_last_salary: Last Salary
+  warn_sn_range: Seriennummer befindet sich nicht im Bereich
+  warn_sn_blank: Seriennummer und Menge dürfen nicht leer sein
+  warn_sn_text: Seriennummer und Menge können keine Textwerte sein
+  label_last_increment: Letzte Erhöhung
+  label_last_salary: Letzter Lohn
