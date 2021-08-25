@@ -144,7 +144,15 @@ function renderDetailReport(path, graphName){
       url.searchParams.append(key, value);
     }
   });
+  renderpopup(url, graphName)
+}
 
+function empDetailReport(type, issue_id, graphName){
+  var url =  "/wkdashboard/getDetailReport?dashboard_type=Emp&type="+type+"&issue_id="+issue_id;
+  renderpopup(url, graphName)
+}
+
+function renderpopup(url, graphName){
   $.getJSON(url, function(data){
     renderData(data);
     $("#dialog" ).dialog({

@@ -761,3 +761,5 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	delete 'wkpayment/destroy', to: 'wkpayment#destroy'
 
 	delete 'wksupplierpayment/destroy', :to => 'wksupplierpayment#destroy'
+
+	get 'wkdashboard/employee_dashboard', :to => 'wkdashboard#employee_dashboard'

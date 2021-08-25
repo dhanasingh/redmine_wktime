@@ -871,7 +871,7 @@ Redmine::Plugin.register :redmine_wktime do
 	menu :project_menu, :wkskill, {:controller => 'wkskill', :action => 'index' }, :caption => :label_wk_skill, :param => :project_id, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showSkill }
 
   Redmine::MenuManager.map :wktime_menu do |menu|
-	  menu.push :wkdashboard, { :controller => 'wkdashboard', :action => 'index' }, :caption => :label_dashboards, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WkdashboardHelper).showDashboard && Object.new.extend(WktimeHelper).hasSettingPerm}
+	  menu.push :wkdashboard, { :controller => 'wkdashboard', :action => 'index' }, :caption => :label_dashboards, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WkdashboardHelper).showDashboard }
 	  menu.push :wktime, { :controller => 'wktime', :action => 'index' }, :caption => :label_te, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && (Object.new.extend(WktimeHelper).showTime || Object.new.extend(WktimeHelper).showExpense)}
 	  menu.push :wkattendance, { :controller => 'wkattendance', :action => 'index' }, :caption => :label_hr, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && (Object.new.extend(WktimeHelper).showAttendance || Object.new.extend(WktimeHelper).showPayroll || Object.new.extend(WktimeHelper).showShiftScheduling || Object.new.extend(WktimeHelper).showSurvey)}
 	  menu.push :wklead, { :controller => 'wklead', :action => 'index' }, :caption => :label_crm, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showCRMModule }
