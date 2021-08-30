@@ -25,12 +25,12 @@ class WkdashboardController < WkbaseController
 	include WkpayrollHelper
 
 	def index
-		if !showDashboard || !hasSettingPerm
-			redirect_to set_module
-		else
+		if showDashboard && hasSettingPerm
 			set_filter_session
 			setMembers
 			retrieve_date_range
+		else
+			redirect_to set_module
 		end
 	end
 
@@ -142,5 +142,12 @@ class WkdashboardController < WkbaseController
 			data[:data] = leaves.map{|l| {date: l.accrual_on, available: l.balance.to_i + l.accrual, used: l.used.to_i, closing: (l.balance.to_i + l.accrual.to_i - l.used.to_i)}}
 		end
 		data
+	end
+
+	def employee_dashboard
+		set_filter_session
+		setMembers
+		retrieve_date_range
+		@empDash = getEmpDashboard
 	end
 end

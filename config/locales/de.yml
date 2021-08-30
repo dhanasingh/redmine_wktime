@@ -1181,3 +1181,4 @@ de:
   warn_sn_text: Seriennummer und Menge können keine Textwerte sein
   label_last_increment: Letzte Erhöhung
   label_last_salary: Letzter Lohn
+  label_employee_dashboard: Mitarbeiter-Dashboards

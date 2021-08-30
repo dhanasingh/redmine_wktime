@@ -1801,6 +1801,12 @@ end
 						redirect[:controller] = 'wkreport'
 						return redirect
 					end
+				when "Dashboards"
+					if showDashboard
+						redirect[:controller] = 'wkdashboard'
+						redirect = { :action => 'employee_dashboard'}
+						return redirect
+					end
 			end
 		end
 	end

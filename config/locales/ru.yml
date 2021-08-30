@@ -1185,3 +1185,4 @@ ru:
   warn_sn_text: Serial Number and Quantity cannot be text value
   label_last_increment: Last Increment
   label_last_salary: Last Salary
+  label_employee_dashboard: Employee Dashboards

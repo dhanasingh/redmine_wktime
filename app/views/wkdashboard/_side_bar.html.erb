@@ -1,0 +1,6 @@
+<div style="float:right">
+	<%= actions_dropdown do %>
+		<%= link_to l(:label_dashboards), url_for(:controller => "wkdashboard", :action => "index")%>
+		<%= link_to l(:label_employee_dashboard), url_for(:controller => "wkdashboard", :action => "employee_dashboard")%>
+	<% end %>
+</div>
