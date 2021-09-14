@@ -5,7 +5,7 @@
 	grpUrl="<%= "#{url_for(:controller => "wkreport", :action => 'getMembersbyGroup')}" %>";
 	//getMembersbyGroup
 </script>
-<% itemHash = { 'i' => l(:label_invoice), 'c' =>  l(:label_credit)  } %>
+<% itemHash = { 'i' => l(:label_invoice), 'c' =>  l(:label_credit), 'e' => l(:label_wkexpense) } %>
 <% if  controller.addAdditionalTax
 		tax_hash = {'t' => l(:label_tax)}
 		itemHash.merge!(tax_hash)
@@ -68,7 +68,7 @@
 		<% if !@invoiceItem.blank? || @unbilled && !@invItems.blank? || params[:loadUnBilled] %>
 			<% if !@invoiceItem.blank? || params[:loadUnBilled] %>
 				<%
-					sqlString = "wk_invoice_items.item_type = 'i' or wk_invoice_items.item_type = 'c' or wk_invoice_items.item_type = 'm' or wk_invoice_items.item_type = 'a' "
+					sqlString = "wk_invoice_items.item_type = 'i' or wk_invoice_items.item_type = 'c' or wk_invoice_items.item_type = 'm' or wk_invoice_items.item_type = 'a' or wk_invoice_items.item_type = 'e' "
 					sqlString = sqlString + " or wk_invoice_items.item_type = 't'" if controller.addAdditionalTax
 				%>
 					<% @invoiceItem.where(sqlString).each do |entry| %>
@@ -135,6 +135,7 @@
 				<%=h hidden_field_tag("populate_unbilled",   @unbilled )  %>
 				<% @invItems.each do |key, value| %>
 					<%
+						value['item_amount'] ||= 0
 						exchangeRate = getExchangeRate(@currency, toCurrency)
 						exchangeRate = exchangeRate.blank? ? 1 : exchangeRate
 						amount = (value['item_amount'] * exchangeRate)
@@ -152,6 +153,7 @@
 							<%=h select_tag("project_id_#{row_index.to_s}", options_for_select(@projectsDD, :selected=> value['project_id'] ), :disabled => @preBilling ) %>
 							<%=h hidden_field_tag("product_id_#{row_index.to_s}",  value['product_id'] )  %>
 							<%=h hidden_field_tag("material_id_#{row_index.to_s}",  value['material_id'].blank? ? "" : value['material_id'] )  %>
+							<%= hidden_field_tag("expense_id_#{row_index.to_s}", value['expense_id'] ) %>
 						</td>
 						<td class="lbl-txt-align" headers="name">
 							<%= text_field_tag "name_#{row_index}", value['item_desc'], :required => true,  :style => "width:320px; ", :disabled => @preBilling %>

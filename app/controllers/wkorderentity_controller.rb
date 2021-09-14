@@ -369,6 +369,12 @@ class WkorderentityController < WkbillingController
 				# matterialEntry.invoice_item_id = updatedItem.id
 				# matterialEntry.save
 			end
+
+			#Updating spent fors record with Expense invoice Item ID
+			if params["expense_id_#{i}"].present?
+				ids = params["expense_id_#{i}"].split(' ')
+				ids.each{|id| updateBilledEntry(WkExpenseEntry.find(id), updatedItem.id)}
+			end
 			savedRows = savedRows + 1
 			tothash[updatedItem.project_id] = [(tothash[updatedItem.project_id].blank? ? 0 : tothash[updatedItem.project_id][0]) + updatedItem.original_amount, updatedItem.original_currency] if updatedItem.item_type != 'm'
 
@@ -653,7 +659,7 @@ class WkorderentityController < WkbillingController
 		pdf.SetFontStyle('',10)
 		pdf.RDMCell(table_width - 40, 5, numberInWords(invoice.invoice_items.sum(:original_amount)) + " " + l(:label_only), 1)
 		pdf.ln
-		if invoiceComp.present?		
+		if invoiceComp.present?
 			invoiceComp.each do |comp|
 				pdf.RDMCell(100, 5, comp[:name], 1, 0, '', 1)
 				pdf.RDMCell(table_width - 100, 5, comp[:value], 1, 0, '', 1)

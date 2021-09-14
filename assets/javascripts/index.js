@@ -365,7 +365,7 @@ function actRelatedDd(uid, loadProjects, needBlankOption, actType, contactType, 
 	url: actRelatedUrl,
 	type: 'get',
 	data: {related_type: relatedType, account_type: actType, contact_type: contactType},
-	success: function(data){ updateUserDD(data, relatedparentdd, userid, needBlankOption, false, "");},
+	success: function(data){ updateUserDD(data, relatedparentdd, userid, needBlankOption, false, "")},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
 	complete: function(){ if(loadProjects) { accProjChanged(uid, 'related_parent', true, true) }if(loadPayment){submitFiletrForm();} $this.removeClass('ajax-loading'); }
 	});
@@ -945,14 +945,16 @@ function setUOMValue(product_id)
 	});
 }
 
-function renderData(resData, id="#dialog", clear=true){
-
+function renderData(resData, options={}){
+	let {id="#dialog", clear=true, type, preHeader, preList} = options;
 	let content = "";
-	const {header={}, data} = resData || {};
-	if(data && data.length > 0){
+	const {header={}, data=[]} = resData || {};
+	if(data.length > 0){
 		content += "<table class='list time-entries' style='width:100%; float:left;'>";
 		//Headers
 		content += "<tr>";
+		if(preHeader) content += preHeader(type);
+
 		$.each(header, function(key, label){
 			content += "<th class='th'>" +label+ "</th>";
 		});
@@ -961,20 +963,20 @@ function renderData(resData, id="#dialog", clear=true){
 		//List
 		$.each((data), function(inx, el){
 			content += "<tr>";
-			$.each((el || {}), function(key, label){
-				content += "<td class='td'>" +label+ "</td>";
+			if(preList) content += preList(type, el);
+
+			$.each((el || {}), function(key, value){
+				content += "<td class='td'>" +value+ "</td>";
 			});
 			content += "</tr>";
 		});
 		content += "</table>";
-	}
-	else{
-		content += '<p style="clear:both" class="nodata">No data to display</p>';
+	} else{
+		content += '<p style="clear:both" class="nodata">'+label_no_data+'</p>';
 	}
 	if(!$(id).length){
 		$("body").append("<div id='dialog'></div>")
-	}
-	else if(clear){
+	} else if(clear){
 		$(id).html("");
 	}
 	$(id).append(content);
