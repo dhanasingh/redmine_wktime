@@ -625,7 +625,6 @@ end
 					tabs << {:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave}
 					tabs <<	{:name => 'wkleaverequest', :partial => 'wktime/tab_content', :label => :label_leave_request}
 					tabs <<	{:name => 'clock', :partial => 'wktime/tab_content', :label => :label_clock}
-					tabs <<	{:name => 'wkpublicholiday', :partial => 'wktime/tab_content', :label => :label_public_holiday}
 				end
 
 				tabs << {:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll} if showPayroll
@@ -1968,5 +1967,14 @@ end
 		wklocations = WkLocation.order(name: :asc)
 		locations = []
 		locations = wklocations.map { |loc| { value: loc.id, label: loc.name }}
+	end
+
+	def getLeaveSettings
+		leaveSettings = WkUserLeave.getLeaves
+	end
+
+	def getProjByIssue(issue_id)
+		issues = Issue.where(:id => issue_id.to_i)
+		project_id = issues[0].project_id
 	end
 end

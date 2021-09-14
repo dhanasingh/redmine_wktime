@@ -32,7 +32,7 @@ class WkUserLeave < ActiveRecord::Base
 
   def self.leaveCounts
     accrualLeaves = []
-    (Setting.plugin_redmine_wktime['wktime_leave'] || []).map do |el|
+    (getLeaves || []).map do |el|
       el = el.split("|")
       accrualLeaves << el.first.to_i if el[1].present? && (el[1].to_i) > 0
     end
@@ -52,6 +52,12 @@ class WkUserLeave < ActiveRecord::Base
     .where(user_id: User.current.id, issue_id: issueID)
     .order(accrual_on: "DESC")
   end
+
+  def self.getLeaves
+		leaveSettings = WkSetting.where("name = ?", 'leave_settings' ).pluck(:value).first
+		leaveSettings = JSON.parse(leaveSettings) if leaveSettings.present?
+    leaveSettings
+	end
 
   def self.getLeaveName(issueID)
     Issue.where(id: issueID).first&.subject

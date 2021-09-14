@@ -8,6 +8,7 @@
 <div class="wk-contextual">
 	<% if (wktime_helper.validateERPPermission('A_ATTEND')) %>
 		<%= link_to l(:"label_title_end_process"), "javascript:runperiodDatePicker()" %>&nbsp;
+    <%= render :partial => "wkattendance/sidebar" %>
 	<% end %>
 </div>
 

@@ -763,3 +763,7 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	delete 'wksupplierpayment/destroy', :to => 'wksupplierpayment#destroy'
 
 	get 'wkdashboard/employee_dashboard', :to => 'wkdashboard#employee_dashboard'
+
+	get 'wkattendance/leavesettings', :to => 'wkattendance#leavesettings'
+
+	post 'wkattendance/leavesettings', :to => 'wkattendance#leavesettings'

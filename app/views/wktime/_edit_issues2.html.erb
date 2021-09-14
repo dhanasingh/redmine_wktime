@@ -9,7 +9,8 @@
 <% @trOpen = true %>
 <% @row += 1 unless isTemplate %>
 <%
-project_id = entry.nil? ? (@logtime_projects.blank? ? 0 : @logtime_projects[0].id) : entry.project_id
+holidayProj = getProjByIssue(Setting.plugin_redmine_wktime['wktime_holiday']) if @holidayEntries.present?
+project_id = entry.nil? ? (holidayProj.present? ? holidayProj : @logtime_projects.present? ? @logtime_projects[0].id : 0) : entry.project_id
 if params[:enter_issue_id].blank?
 
 	projects = options_for_wktime_project(@logtime_projects)
@@ -78,13 +79,11 @@ if params[:enter_issue_id].blank?
 			end
 		end
 	end
-
 	%>
-
 	<td class="issue" align="left" width="250px">
 		<% if @editable %>
 			<%=h select_tag(isTemplate ? '__template__time_entry[][issue_id]' : 'time_entry[][issue_id]',
-			options_for_select(issues, :selected =>  entry.nil? ? 0 : entry.issue_id, :required => true), class: 'issueDD',
+			options_for_select(issues, :selected =>  entry.nil? ? (Setting.plugin_redmine_wktime['wktime_holiday'].present? ? Setting.plugin_redmine_wktime['wktime_holiday'] : 0 ) : entry.issue_id, :required => true), class: 'issueDD',
 			:style=> "width:250px;" ) %>
 		<% else %>
 			<%=  entry.issue.tracker.to_s() +  " #" + entry.issue.id.to_s() + ": " + entry.issue.subject if !entry.nil? && !entry.issue.nil? %>
