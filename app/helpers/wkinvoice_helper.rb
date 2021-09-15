@@ -780,50 +780,61 @@ include WkpayrollHelper
 	end
 
 	def addExpenseItems(accProject, isCreate)
-		totalAmount = 0
+		totalExpense = 0
 		issueIDs = []
 		genInvFrom = getUnbillEntryStart(@invoice.start_date)
 		entries = WkInvoiceItem.getUnbilledTimeEntries(accProject.project_id, genInvFrom, @invoice.end_date, accProject.parent_id, accProject.parent_type, WkExpenseEntry)
 		entries = entries.where(id: params[:expenseEntryIDs].split(",")) if params[:preview_billing] == "false"
-		if isCreate && @invoice.id.blank? && entries.present?
-			saveInvoice
-			invoiceItem = nil
-		end
-		entries.each_with_index do |entry, index|
-			items = {}
-			description = ""
-			if (issueIDs.length == 0 || !issueIDs.include?(entry.issue_id)) && (accProject.itemized_bill || index == 0) && entry.amount > 0
-				description = accProject.itemized_bill ? entry.issue&.subject || accProject.project&.name : accProject.project&.name
-				items.store "expense_id", [entry.id]
-				items.store "project_id", accProject.project_id
-				items.store "item_desc", description
-				items.store "item_type", "e"
-				items.store "currency", entry.currency
-				items.store "item_quantity", 1
-				items.store "rate", entry.amount.round(2)
-				items.store "item_amount", entry.amount.round(2)
-				items.store "issue_id", entry.issue_id
-				items.store "billing_type", accProject.billing_type
-				@invItems.store @itemCount, items
-				@itemCount = @itemCount + 1
-				issueIDs << entry.issue_id
-
-				#Saving Invoice Items
-				if isCreate
-					invoiceItem = @invoice.invoice_items.new()
-					invoiceItem = updateInvoiceItem(invoiceItem, accProject.project_id, description, entry.amount.round(2), 1, entry.currency, 'e', entry.amount.round(2), nil, nil, nil)
-					updateBilledEntry(entry, invoiceItem.id)
+		if !isCreate && entries.present?
+			entries.each_with_index do |entry, index|
+				items = {}
+				if (issueIDs.length == 0 || !issueIDs.include?(entry.issue_id)) && (accProject.itemized_bill || index == 0) && entry.amount > 0
+					description = accProject.itemized_bill ? entry.issue&.subject || accProject.project&.name : accProject.project&.name
+					items.store "expense_id", [entry.id]
+					items.store "project_id", accProject.project_id
+					items.store "item_desc", description
+					items.store "item_type", "e"
+					items.store "currency", entry.currency
+					items.store "item_quantity", 1
+					items.store "rate", entry.amount.round(2)
+					items.store "item_amount", entry.amount.round(2)
+					items.store "issue_id", entry.issue_id
+					items.store "billing_type", accProject.billing_type
+					@currency = entry.currency
+					@invItems.store @itemCount, items
+					@itemCount = @itemCount + 1
+					issueIDs << entry.issue_id
+				elsif (issueIDs.include?(entry.issue_id) || !accProject.itemized_bill) && entry.amount > 0
+					currentItem = @invItems.find do |key, hash|
+						(hash["issue_id"] == entry.issue_id || !accProject.itemized_bill && hash["project_id"] == accProject.project_id) && hash["item_type"] == "e"
+					end
+					currentItem = currentItem.last
+					currentItem.store "rate", currentItem["rate"] + entry.amount.round(2)
+					currentItem.store "item_amount", currentItem["item_amount"] + entry.amount.round(2)
+					currentItem.store "expense_id", currentItem["expense_id"] << entry.id
 				end
-			elsif (issueIDs.include?(entry.issue_id) || !accProject.itemized_bill) && entry.amount > 0
-				invItem = @invItems.find{|key, hash| hash["issue_id"] == entry.issue_id || !accProject.itemized_bill && hash["project_id"] == accProject.project_id } || []
-				(invItem.last).store "rate", (invItem.last).fetch("rate") + entry.amount.round(2)
-				(invItem.last).store "item_amount", (invItem.last).fetch("item_amount") + entry.amount.round(2)
-				(invItem.last).store "expense_id", (invItem.last).fetch("expense_id") << entry.id
-				updateBilledEntry(entry, invoiceItem.id) if isCreate
+				totalExpense += entry.amount.round(2)
 			end
-			totalAmount += entry.amount.round(2)
+
+		# Saving Invoice and Invoice Items
+		elsif isCreate
+			totalExpense = entries.sum(:amount)
+			@invItems.each do |key, item|
+				if item["item_type"] == "e"
+					saveInvoice if @invoice&.id.blank?
+					invoiceItem = @invoice.invoice_items.new()
+					invoiceItem = updateInvoiceItem(invoiceItem, item["project_id"], item["item_desc"], item["rate"], 1, item["currency"], 'e', item["item_amount"], nil, nil, nil)
+					(item["expense_id"] || []).each{|id| updateBilledEntry(WkExpenseEntry.find(id), invoiceItem.id)}
+				end
+			end
+			# Saving Tax
+			(accProject.taxes || []).each do |tax|
+				taxAmt = (tax.rate_pct/100) * (totalExpense || 0)
+				taxinvItem = @invoice.invoice_items.new()
+				updateInvoiceItem(taxinvItem, accProject.project_id, tax.name, tax.rate_pct, nil, @currency, 'e', taxAmt.round(2), nil, nil, nil)
+			end
 		end
-		totalAmount
+		totalExpense
 	end
 
 	def addProductTaxes(productArr, isCreate)

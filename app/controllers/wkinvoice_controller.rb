@@ -150,9 +150,9 @@ class WkinvoiceController < WkorderentityController
 					@unbilled = true
 					matterialAmt = 0
 					if apEntry.billing_type == 'TM'
-						totAmount = saveTAMInvoiceItem(apEntry, true)
+						totAmount = saveTAMInvoiceItem(apEntry, true) || 0
 						matterialAmt = addMaterialItem(apEntry, false)
-						expenseAmt = addExpenseItems(apEntry, false)
+						totAmount += addExpenseItems(apEntry, false) || 0
 					else
 						totAmount = getFcItems(apEntry, startDate, endDate)
 					end
@@ -161,7 +161,7 @@ class WkinvoiceController < WkorderentityController
 					@currency = params[:inv_currency]
 				end
 
-				grandTotal =  grandTotal + (totAmount.blank? ? 0.00 : totAmount) + (expenseAmt || 0)
+				grandTotal =  grandTotal + (totAmount.blank? ? 0.00 : totAmount)
 				materialtotal = 100
 				aptaxes = apEntry.taxes
 				aptaxes.each do | taxEntry|
