@@ -1060,28 +1060,9 @@ function getSerialNumbersRange(serial_number, running_sn, total_quantity){
 
 }
 
-function exportReport(format)
-{
-	var reportType = $("#report_type").val();
-	var groupId = "", userId = "", projectId = "";
-	if($("#group_id")) {
-		groupId = $("#group_id").val();
-		userId = $("#user_id").val();
-	}
-	if($("#project_id")) {
-		projectId = $("#project_id").val();
-	}
-	var fromVal = $("#from").val();
-	var toVal = $("#to").val();
-	var url = "/wkreport/export";
-	$.ajax({
-		url: url,
-		type: 'get',
-		data: {group_id: groupId, user_id: userId, project_id: projectId, from: fromVal, to: toVal, report_type: reportType, format:format},
-		success: function(){ },
-		beforeSend: function(){ $(this).parent().addClass('ajax-loading'); },
-		complete: function(){ $(this).parent().removeClass('ajax-loading'); }
-	});
+function exportReport(format){
+	$('#query_form').append('<input type="hidden" name="export_type" value='+format+' /> ');
+	$('#query_form').attr('action', 'export').submit();
 }
 
 function locationChanged(locationId, uid){

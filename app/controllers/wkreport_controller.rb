@@ -124,16 +124,12 @@ accept_api_auth :get_reports, :getReportData, :export
 		if(params[:report_type].present?)
 			require_relative "../views/wkreport/#{params[:report_type]}"
 			report = Object.new.extend(params[:report_type].camelize.constantize)
-			reportData = report.getCSVData(user_id, group_id, projId, from, to)
+			reportData = report.getExportData(user_id, group_id, projId, from, to)
 		end
-		respond_to do |format|
-		format.csv {
-			send_data(csv_export(reportData), :type => 'text/csv', :filename => "#{params[:report_type]}.csv")
-		}
-		format.pdf {
-			send_data(csv_export(reportData), :type => 'application/pdf', :filename => "#{params[:report_type]}.pdf")
-		}
-		end
+
+		send_data(csv_export({data: [], headers: {}}), :type => 'text/csv', :filename => "#{params[:report_type]}.csv") if params[:export_type] == 'csv'
+
+		send_data(csv_export({data: [], headers: {}}), :type => 'application/pdf', :filename => "#{params[:report_type]}.pdf") if params[:export_type] == 'pdf'
 	end
 
 	private	
