@@ -411,6 +411,7 @@
 	</div>
 	<% other_formats_links do |f| %>
 		<%= f.link_to 'PDF', url: {controller: controller_name, action: 'export', invoice_id: @invoice.id} %>
+		<%= f.link_to 'CSV', url: {controller: controller_name, action: 'export', invoice_id: @invoice.id} %>
 	<% end %>
 <% end %>
 <% if !@invoice.id.blank? && controller.isInvPaymentLink  %>

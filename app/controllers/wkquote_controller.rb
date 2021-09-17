@@ -112,4 +112,15 @@ class WkquoteController < WksupplierorderentityController
 	def getOrderComponetsId
 		'wktime_quote_components'
 	end
+
+	def getInvoiceHeaders
+		headers = [getLabelInvNum, getDateLbl, l(:field_status), getAccountLbl, l(:label_rfq_name)]
+		headers
+	end
+
+	def getInvoices(invoice)
+		status = invoice.status == 'o' ? l(:label_open_issues) : l(:label_closed_issues)
+		invoiceArr = [invoice.invoice_number, invoice.invoice_date, status, invoice&.parent&.name, invoice&.rfq_quote&.rfq&.name]
+		invoiceArr
+	end
 end
