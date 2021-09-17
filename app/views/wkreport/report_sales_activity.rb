@@ -46,7 +46,8 @@ module ReportSalesActivity
 				activities[activity.id]['duration'] = completionTime
 			end
 		end
-		stock = {activities: activities, totDuration: (totalTime/activityList.length).round(2).to_s + " " + l(:label_day_plural), from: from.to_formatted_s(:long), to: to.to_formatted_s(:long)}
+		duration = activityList.length > 0 ? (totalTime/activityList.length).round(2).to_s + " " + l(:label_day_plural) : ''
+		stock = {activities: activities, totDuration: duration, from: from.to_formatted_s(:long), to: to.to_formatted_s(:long)}
 		stock
 	end
 end

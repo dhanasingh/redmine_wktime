@@ -1204,3 +1204,23 @@ pl:
   label_last_salary: Last Salary
   label_employee_dashboard: Employee Dashboards
   label_leave_setting: Leave Settings
+
+  report_pf: PF Report
+  label_uan: UAN
+  label_wages: Wages
+  label_contributor: Contributor
+  label_eps_wages: EPS
+  label_epf_wages: EPF
+  label_edli_wages: EDLI
+  label_ee_remitted: EE
+  label_er_remitted: ER
+  label_contribution_remitted: Contribution Remitted
+
+  #delivery
+  label_delivery: Delivery
+  label_delivery_date: Delivery Date
+  label_new_delivery: New Delivery
+  label_delivered: Delivered
+  label_intransit: In Transit
+  label_load: Loading
+  label_delivery_slip: Delivery slip
