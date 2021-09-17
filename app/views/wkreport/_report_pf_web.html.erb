@@ -5,7 +5,7 @@
 	projId = session[controller_name].try(:[], :project_id)
 	from = session[controller_name].try(:[], :from)
 	to = session[controller_name].try(:[], :to)
-	pf_report = Object.new.extend(ReportPF) 
+	pf_report = Object.new.extend(ReportPf) 
 	data = pf_report.calcReportData(userId, groupId, projId, from, to)
 	total = data[:total]
 %>

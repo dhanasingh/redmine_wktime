@@ -211,4 +211,8 @@ module WkreportHelper
 			end
 		end
 	end
+
+	def getExportData(user_id, group_id, projId, from, to)
+		return {data: [], headers: {}}
+	end
 end

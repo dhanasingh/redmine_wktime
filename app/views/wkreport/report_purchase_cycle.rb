@@ -17,6 +17,7 @@
 
 module ReportPurchaseCycle
 	include WktimeHelper
+  include WkreportHelper
 
 	def calcReportData(userId, groupId, projId, from, to)
 		sqlStr =  "select rfq.id as rfq_id, rfq.name as rfq_name, rfq.start_date as rfq_start, rq.quote_id," + 

@@ -119,17 +119,19 @@ accept_api_auth :get_reports, :getReportData, :export
 		user_id = params[:user_id] || User.current.id
 		group_id = params[:group_id] || "0"
 		projId = params[:project_id] || "0"
-		from = params[:from].to_date || Date.today.beginning_of_month
-		to = params[:to].to_date || Date.today.end_of_month
-		if(params[:report_type].present?)
-			require_relative "../views/wkreport/#{params[:report_type]}"
-			report = Object.new.extend(params[:report_type].camelize.constantize)
+		from = params[:from]&.to_date || Date.today.beginning_of_month
+		to = params[:to]&.to_date || Date.today.end_of_month
+		report_type = params[:report_type]
+		if report_type.present?
+			report_type.slice!("_web") if report_type.include? "_web"
+			require_relative "../views/wkreport/#{report_type}"
+			report = Object.new.extend(report_type.camelize.constantize)
 			reportData = report.getExportData(user_id, group_id, projId, from, to)
 		end
 
-		send_data(csv_export({data: [], headers: {}}), :type => 'text/csv', :filename => "#{params[:report_type]}.csv") if params[:export_type] == 'csv'
+		send_data(csv_export({data: reportData[:data], headers: reportData[:headers]}), :type => 'text/csv', :filename => "#{report_type}.csv") if params[:export_type] == 'csv'
 
-		send_data(csv_export({data: [], headers: {}}), :type => 'application/pdf', :filename => "#{params[:report_type]}.pdf") if params[:export_type] == 'pdf'
+		send_data(csv_export({data: reportData[:data], headers: reportData[:headers]}), :type => 'application/pdf', :filename => "#{report_type}.pdf") if params[:export_type] == 'pdf'
 	end
 
 	private	

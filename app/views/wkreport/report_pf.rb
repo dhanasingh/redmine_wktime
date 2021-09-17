@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-module ReportPF
+module ReportPf
 	include WkreportHelper
 
 	def calcReportData(userId, groupId, projId, from, to)
