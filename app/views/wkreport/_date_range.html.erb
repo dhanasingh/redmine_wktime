@@ -25,8 +25,9 @@
 	<%= link_to l(:button_apply), "javascript: openReportPopup();", :class => 'icon icon-checked' %>
 	<%#= link_to l(:button_apply), {:controller => controller_name, :action => action_name}, :class => 'icon icon-checked' %>
   <%= link_to l(:button_clear), {:tab => "wkreport", clear: true}, :class => 'icon icon-reload' %>
+  <span style="padding-left:5px">
+    <%= link_to l(:button_csv), "javascript: exportReport('csv');"%> | 
+    <%= link_to l(:button_pdf), "javascript: exportReport('pdf');"%>
+  </span>
+
 </p>
-<% other_formats_links do |f| %>
- <%= f.link_to_with_query_parameters 'CSV', {}, onclick: "exportReport('csv'); return false;"%>
- <%= f.link_to_with_query_parameters 'PDF', {}, onclick: "exportReport('pdf'); return false;"%>
-<% end %>

@@ -1224,3 +1224,5 @@ pl:
   label_intransit: In Transit
   label_load: Loading
   label_delivery_slip: Delivery slip
+  button_csv: CSV
+  button_pdf: PDF
