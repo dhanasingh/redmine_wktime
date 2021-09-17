@@ -28,7 +28,7 @@ include WkcrmHelper
 before_action :require_login
 before_action :check_perm_and_redirect
 
-accept_api_auth :get_reports, :getReportData
+accept_api_auth :get_reports, :getReportData, :export
 	
 	def index
 		@groups = Group.sorted.all
@@ -113,6 +113,27 @@ accept_api_auth :get_reports, :getReportData
 		end
 		reportDetails = { reportData: reportData, location: getMainLocation, address: getAddress, logo: base64Image }
 		render json: reportDetails
+	end
+
+	def export
+		user_id = params[:user_id] || User.current.id
+		group_id = params[:group_id] || "0"
+		projId = params[:project_id] || "0"
+		from = params[:from].to_date || Date.today.beginning_of_month
+		to = params[:to].to_date || Date.today.end_of_month
+		if(params[:report_type].present?)
+			require_relative "../views/wkreport/#{params[:report_type]}"
+			report = Object.new.extend(params[:report_type].camelize.constantize)
+			reportData = report.getCSVData(user_id, group_id, projId, from, to)
+		end
+		respond_to do |format|
+		format.csv {
+			send_data(csv_export(reportData), :type => 'text/csv', :filename => "#{params[:report_type]}.csv")
+		}
+		format.pdf {
+			send_data(csv_export(reportData), :type => 'application/pdf', :filename => "#{params[:report_type]}.pdf")
+		}
+		end
 	end
 
 	private	

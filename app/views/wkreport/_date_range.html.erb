@@ -26,4 +26,7 @@
 	<%#= link_to l(:button_apply), {:controller => controller_name, :action => action_name}, :class => 'icon icon-checked' %>
   <%= link_to l(:button_clear), {:tab => "wkreport", clear: true}, :class => 'icon icon-reload' %>
 </p>
-
+<% other_formats_links do |f| %>
+ <%= f.link_to_with_query_parameters 'CSV', {}, onclick: "exportReport('csv'); return false;"%>
+ <%= f.link_to_with_query_parameters 'PDF', {}, onclick: "exportReport('pdf'); return false;"%>
+<% end %>
