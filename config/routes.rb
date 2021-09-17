@@ -769,3 +769,15 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	post 'wkattendance/leavesettings', to: 'wkattendance#leavesettings'
 
   get 'wkreport/export', to: 'wkreport#export'
+
+	get 'wkdelivery/index', to: 'wkdelivery#index'
+
+	get 'wkdelivery/edit', to: 'wkdelivery#edit'
+
+	post 'wkdelivery/update', to: 'wkdelivery#update'
+
+	delete 'wkdelivery/destroy', to: 'wkdelivery#destroy'
+
+	get 'wkdelivery/populateProductItemDD', to: 'wkdelivery#populateProductItemDD'
+
+	get 'wkdelivery/delivery_slip', to: 'wkdelivery#delivery_slip'

@@ -1,0 +1,51 @@
+<%= title l(:label_delivery) %>
+<%= javascript_include_tag 'index', plugin: "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
+
+<%= render partial: "wkproduct/render_inventory_tabs" %>
+
+<div class="wk-contextual">
+	<%= link_to l(:label_new_delivery), url_for(controller: controller_name, action: 'edit'), class: 'icon icon-add' %>
+</div>
+<%= hidden_field_tag 'back_url', url_for(controller: params[:controller], action: params[:action]) %>
+
+<%= form_tag({controller: controller_name, action: 'index', tab: controller_name}, method: :get, id: 'query_form') do %>
+	<fieldset>
+		<legend><%= l(:label_filter_plural) %></legend>
+		<%= hidden_field_tag "searchlist", controller_name %>
+		<%= hidden_field_tag('tab', controller_name) %>
+		<script type="text/javascript"> 
+			accountUrl="<%= "#{url_for(controller: "wkinvoice", action: 'getAccountProjIds')}" %>";
+		</script>		
+		
+		<%	contactId =session[controller_name].try(:[], :contact_id)
+			accountId =session[controller_name].try(:[], :account_id)
+			filterSession =session[controller_name].try(:[], :polymorphic_filter)
+			projid =session[controller_name].try(:[], :project_id) %>
+		
+			<%= render partial: "wkbilling/index_filters", locals: { contact_id: contactId, account_id: accountId, filter_session: filterSession, project_id: projid, pjtChanged: false, isapply: false, isproject: controller.showProjectDD, isAll: true, blankOptionForPjt: false, blankForActDD: true, blankForContactDD: true, needQuotePoDD: false, isFilter: true, loadSIDD: false, rfq_id: nil} %>
+		
+			<p style="float:left;"><%= render partial: 'wkshipment/date_range' %></p>
+		<div>
+			<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', class: 'icon icon-checked' %>
+			<%= link_to l(:button_clear), {tab: controller_name, clear: true}, class: 'icon icon-reload' %>
+		</div>
+	</fieldset>	
+<% end %>
+<div class="total-hours">
+	<p><%= l(:label_total) %>: &nbsp;
+		<%= @deliveryEntries[0].delivery_items[0].currency unless @deliveryEntries[0].blank? || @deliveryEntries[0].delivery_items[0].blank?%>
+	<%= html_hours("%.2f" % @totaldeliveryAmt) %></p>
+</div>
+
+<% if @deliveryEntries.present? %>
+	<%= render partial: 'wkdelivery/delivery_list'%>
+	<% other_formats_links do |f| %>
+		<%= f.link_to_with_query_parameters 'CSV', {} %>
+	<% end %>
+<% else %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>
+
+
+<%= hidden_field_tag 'back_url', url_for(controller: params[:controller], action: params[:action]) %>

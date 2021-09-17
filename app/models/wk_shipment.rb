@@ -27,6 +27,9 @@ class WkShipment < ActiveRecord::Base
   belongs_to :product, foreign_key: "product_id", class_name: "WkProduct" 
   after_create_commit :send_notification
   has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
+  has_many :delivery_items, foreign_key: "shipment_id", class_name: "WkDeliveryItem", :dependent => :destroy
+  has_many :wkstatus, -> { where(status_for_type: 'WkShipment')}, foreign_key: "status_for_id", class_name: "WkStatus", :dependent => :destroy
+  accepts_nested_attributes_for :wkstatus, allow_destroy: true
 
   def send_notification
     if WkNotification.notify('receiveGoods') && self.shipment_type == 'I'
@@ -35,6 +38,10 @@ class WkShipment < ActiveRecord::Base
       subject = l(:label_shipment) + " " + l(:label_notification)
       WkNotification.notification(userId, emailNotes, subject, self, "receiveGoods")
     end
+  end
+
+  def current_status
+    self ? self&.wkstatus&.last&.status : ''
   end
   
 end

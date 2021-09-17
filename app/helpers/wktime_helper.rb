@@ -674,11 +674,12 @@ end
 			   ]
 		else
 			tabs = [
-				{:name => 'wkproduct', :partial => 'wktime/tab_content', :label => :field_inventory_item_id},
-				{:name => 'wkproductitem', :partial => 'wktime/tab_content', :label => :label_item},
-				{:name => 'wkshipment', :partial => 'wktime/tab_content', :label => :label_shipment},
-				{:name => 'wkasset', :partial => 'wktime/tab_content', :label => :label_asset},
-				{:name => 'wkassetdepreciation', :partial => 'wktime/tab_content', :label => :label_depreciation}
+				{name: 'wkproduct', partial: 'wktime/tab_content', label: :field_inventory_item_id},
+				{name: 'wkproductitem', partial: 'wktime/tab_content', label: :label_item},
+				{name: 'wkshipment', partial: 'wktime/tab_content', label: :label_shipment},
+				{name: 'wkdelivery', partial: 'wktime/tab_content', label: :label_delivery},
+				{name: 'wkasset', partial: 'wktime/tab_content', label: :label_asset},
+				{name: 'wkassetdepreciation', partial: 'wktime/tab_content', label: :label_depreciation}
 			   ]
 		end
 		tabs

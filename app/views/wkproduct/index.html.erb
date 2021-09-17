@@ -1,15 +1,5 @@
 <%= title l(:field_inventory_item_id) %>
-<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<script type="text/javascript">
-	wkproductUrl = '<%=url_for(:controller => "wkproduct", :action => "index", :tab => "wkproduct")%>';
-	wkproductitemUrl = '<%=url_for(:controller => "wkproductitem", :action => "index", :tab => "wkproductitem")%>';
-	wkshipmentUrl = '<%=url_for(:controller => "wkshipment", :action => "index", :tab => "wkshipment")%>';
-	wkassetUrl = '<%=url_for(:controller => "wkasset", :action => "index", :tab => "wkasset")%>';
-	wkassetdepreciationUrl = '<%=url_for(:controller => "wkassetdepreciation", :action => "index", :tab => "wkassetdepreciation")%>';
-    prevTab = 'tab-<%= "#{controller_name}" %>';
-</script>
-<%= render_tabs time_expense_tabs %>
+<%= render partial: "wkproduct/render_inventory_tabs" %>
 <div class="wk-contextual">
 	<%= link_to l(:label_new_product), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>&nbsp;
 	<%= render :partial => 'sidebar' %>

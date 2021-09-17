@@ -1,0 +1,62 @@
+<h2><%= l(:label_delivery) %></h2>
+
+<%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
+<%= javascript_include_tag 'invoice', plugin: "redmine_wktime" %>
+<%= javascript_include_tag 'index', plugin: "redmine_wktime" %>
+<script type="text/javascript"> 
+	actRelatedUrl="<%= "#{url_for(controller: "wkcrm", action: 'getActRelatedIds', additionalContactType: controller.additionalContactType, additionalAccountType: controller.additionalAccountType)}" %>";
+</script>
+	<%	accArr = options_for_wktime_account(false, controller.getOrderAccountType, controller.additionalAccountType)
+		parentId = @shipment.parent_id
+		parentType = @shipment.parent_type
+		type = controller.getOrderAccountType
+		if parentType == "WkCrmContact"
+			type = controller.getOrderContactType
+		end
+		if !parentId.blank? && !parentType.blank?
+			accArr = relatedValues(parentType, parentId, type, false, controller.additionalContactType, controller.additionalAccountType)	
+		elsif !params[:related_parent].blank? && params[:related_to]
+			accArr = relatedValues(params[:related_to], params[:related_parent], type, false, controller.additionalContactType, controller.additionalAccountType)		
+		end
+	%>
+<%= form_tag({controller: controller_name, action: 'update'}, method: :post, id: 'query_form') do %>
+	<table>
+		<tr>
+			<th align="left"><label><%= l(:field_type) %></label></th>
+			<td align="left">
+				<%= ": "%><%= select_tag('related_to', options_for_select([[l(:field_account), 'WkAccount'], [l(:label_contact), 'WkCrmContact']], selected: @shipment.blank? ? "" : @shipment.parent_type), onchange: "actRelatedDd(#{User.current.id}, false, false, 'A', 'C', false)") %>
+			</td>
+			<th align="left"><label><%= l(:field_name) %></label></th>
+			<td align="left">
+				<%= ": "%><%= select_tag('related_parent', options_for_select(accArr, selected: @shipment.blank? ? "" : @shipment.parent_id)) %>
+			</td>
+		</tr>
+		<tr>
+			<th align="left"><%= l(:label_serial_number) %></th> 
+			<td style="width: 200px;"> 
+				<%= ": " %> <%= text_field_tag "serial_number", @shipment.blank? ? "" : @shipment.serial_number, style: "width:150px;" %>
+			</td>
+			<th align="left"><%= l(:label_delivery_date) %></th>
+				<td style="width: 200px;"><%= ": "%> <%= date_field_tag('delivery_date', (@shipment.blank? ? Date.today.to_s : @shipment.shipment_date.to_s), size: 10, required: true, disabled: @preBilling) %> <%= calendar_for('shipment_date') %></td>
+
+			<th align="left"><%= l(:field_status) %><%= ": "%></th> 
+				<td><%= select_tag('status', options_for_select(getDeliveryStatus.invert, selected: @shipment.current_status), required: true) %></td>
+			
+		</tr>
+		
+	</table>
+	
+	<% if !@deliveryItem.blank? %>
+		<% if !@deliveryItem[0].blank? %>
+			<%= render partial: 'edit_delivery_items' %>
+		<% end %>
+	<% else %>
+		<% if !@deliveryItem.blank?  %>
+			<%= render partial: 'edit_delivery_items' %>
+		<% else  %>		
+			<br/>
+			<h2 ><%= l(:label_shipment_items) %></h2> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<label><b><%= l(:label_no_data) %></b></label>
+		<% end %>
+	<% end %>
+<% end %>
