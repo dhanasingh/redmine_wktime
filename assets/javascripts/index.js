@@ -506,14 +506,14 @@ function productChanged(curDDId, changeDDId, uid, changeAdditionalDD, needBlank,
 	data: {id: currDD.value, ptype: changeDDId, product_id: productId, update_DD: updateDD, log_type: logType, location_id: locId },
 	success: function(data){ updateUserDD(data, changeDD, userid, needBlankOption, false, "");},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
-	complete: function(){ 
+	complete: function(){
 		if(changeAdditionalDD && changeDDId == 'brand_id'){
 			productChanged('brand_id','product_model_id', uid, false, true, null);
 			productChanged('product_id','product_attribute_id', uid, false, true, null);
-		} 
+		}
 		else if(changeAdditionalDD && logTypeId != null ){
-			productItemChanged('product_item', 'product_quantity', 'product_cost_price', 'product_sell_price', uid, 'log_type'); 
-		} 
+			productItemChanged('product_item', 'product_quantity', 'product_cost_price', 'product_sell_price', uid, 'log_type');
+		}
 		else if(changeAdditionalDD && (changeDDId.includes("product_item_id")) ){
 			deliveryitemChanged('product_item_id'+rowNum, 'total_quantity'+rowNum, 'cost_price'+rowNum, 'selling_price'+rowNum, 'over_head_price'+rowNum, 'currency'+rowNum, 'serial_number'+rowNum, 'running_sn'+rowNum, 'uom_id'+rowNum);
 		}
@@ -1057,11 +1057,10 @@ function getSerialNumbersRange(serial_number, running_sn, total_quantity){
 		if(String(running_sn).length < org_sn_length) running_sn = String(running_sn).padStart(org_sn_length, '0');
 	}
 	return serialNumbers;
-
 }
 
 function exportReport(format){
-	$('#query_form').append('<input type="hidden" name="export_type" value='+format+' /> ');
+	$('#query_form').append('<input type="hidden" name="format" value='+format+' /> ');
 	$('#query_form').attr('action', 'export').submit();
 }
 
@@ -1080,7 +1079,7 @@ function deliveryitemChanged(curDDId, qtyDD, cpDD, spDD, ohDD, curDD, serDD, run
 	url: productModifyUrl,
 	type: 'get',
 	data: {id: currDD.value, update_DD: updateDD },
-	success: function(data){		
+	success: function(data){
 		if(data != "")
 		{
 			var pctData = data.split(',');

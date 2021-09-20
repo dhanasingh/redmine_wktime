@@ -15,8 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkreportController < WkbaseController	
-unloadable 
+class WkreportController < WkbaseController
+unloadable
 
 include WktimeHelper
 include WkreportHelper
@@ -29,7 +29,7 @@ before_action :require_login
 before_action :check_perm_and_redirect
 
 accept_api_auth :get_reports, :getReportData, :export
-	
+
 	def index
 		@groups = Group.sorted.all
 		set_filter_session
@@ -38,30 +38,30 @@ accept_api_auth :get_reports, :getReportData, :export
 		userList = getGroupMembers
 		userList.each do |users|
 			@members << [users.name,users.id.to_s()]
-		end	
+		end
 		showReport
 	end
-	
+
 	def showReport
 		if params[:report_type] == 'report_time'
 			redirect_to action: 'time_rpt', controller: 'wktime'
 		elsif params[:report_type] == 'report_expense'
 			redirect_to :action => 'time_rpt', :controller => 'wkexpense'
-		elsif !params[:report_type].blank? 
+		elsif !params[:report_type].blank?
 			@reportType = params[:report_type]
 			render :action => 'report', :layout => false
 		end
 	end
-	
+
 	def set_filter_session
 		filters = [:report_type, :period_type, :period, :from, :to, :group_id, :project_id, :user_id]
 		super(filters, {:from => @from, :to => @to})
 	end
-	
+
 	def getMembersbyGroup
 		group_by_users=""
 		userList=[]
-		#set_managed_projects				
+		#set_managed_projects
 		userList = getGroupMembers
 		userList.each do |users|
 			group_by_users << users.id.to_s() + ',' + users.name + "\n"
@@ -69,8 +69,8 @@ accept_api_auth :get_reports, :getReportData, :export
 		respond_to do |format|
 			format.text  { render :plain => group_by_users }
 		end
-	end	
-	
+	end
+
 	def getGroupMembers
 		userList = nil
 		group_id = nil
@@ -79,15 +79,15 @@ accept_api_auth :get_reports, :getReportData, :export
 		else
 			group_id = session[controller_name].try(:[], :group_id)
 		end
-		
+
 		if !group_id.blank? && group_id.to_i > 0
-			userList = User.in_group(group_id) 
+			userList = User.in_group(group_id)
 		else
 			userList = User.order("#{User.table_name}.firstname ASC,#{User.table_name}.lastname ASC")
 		end
 		userList
 	end
-	
+
 	def get_reports
 		headers = {}
 		reportType = getReportType(true)
@@ -97,7 +97,7 @@ accept_api_auth :get_reports, :getReportData, :export
 		headers[:groups] = groups.map{ |g| [g.name, g.id]}
 		render json: {wk_reports: reportType, headers: headers}
 	end
-	
+
 	def getReportData
 		user_id = params[:user_id] || User.current.id
 		group_id = params[:group_id] || "0"
@@ -129,13 +129,18 @@ accept_api_auth :get_reports, :getReportData, :export
 			reportData = report.getExportData(user_id, group_id, projId, from, to)
 		end
 
-		send_data(csv_export({data: reportData[:data], headers: reportData[:headers]}), :type => 'text/csv', :filename => "#{report_type}.csv") if params[:export_type] == 'csv'
-
-		send_data(csv_export({data: reportData[:data], headers: reportData[:headers]}), :type => 'application/pdf', :filename => "#{report_type}.pdf") if params[:export_type] == 'pdf'
+		respond_to do |format|
+			format.csv do
+				send_data(csv_export({data: reportData[:data], headers: reportData[:headers]}), :type => 'text/csv', :filename => "#{report_type}.csv")
+			end
+			format.pdf do
+				send_data(csv_export({data: reportData[:data], headers: reportData[:headers]}), :type => 'application/pdf', :filename => "#{report_type}.pdf")
+			end
+		end
 	end
 
-	private	
-	
+	private
+
 	# Retrieves the date range based on predefined ranges or specific from/to param dates
 	  def retrieve_date_range
 		@free_period = false
@@ -145,7 +150,7 @@ accept_api_auth :get_reports, :getReportData, :export
 		fromdate = session[controller_name].try(:[], :from)
 		todate = session[controller_name].try(:[], :to)
 
-		if (period_type == '1' || (period_type.nil? && !period.nil?)) 
+		if (period_type == '1' || (period_type.nil? && !period.nil?))
 		  case period.to_s
 		  when 'current_month'
 			@from = Date.civil(Date.today.year, Date.today.month, 1)
@@ -161,23 +166,23 @@ accept_api_auth :get_reports, :getReportData, :export
 			@to = @from + 6
 		  end
 		elsif period_type == '2' || (period_type.nil? && (!fromdate.nil? || !todate.nil?))
-		  begin; @from = fromdate.to_s.to_date unless fromdate.blank?; rescue; end 
+		  begin; @from = fromdate.to_s.to_date unless fromdate.blank?; rescue; end
 		  begin; @to = todate.to_s.to_date unless todate.blank?; rescue; end
 		  if @from.blank?
 			@from = Date.civil(Date.today.year, Date.today.month, 1)
 			@to = (@from >> 1) - 1
 		  end
 		  @free_period = true
-		else		
+		else
 			@from = Date.civil(Date.today.year, Date.today.month, 1)
 			@to = (@from >> 1) - 1
-		end    
+		end
 		session[controller_name][:from] = @from
 		session[controller_name][:to] = @to
 		@from, @to = @to, @from if @from && @to && @from > @to
 
 	  end
-	  
+
 	  def check_perm_and_redirect
 		unless validateERPPermission("V_REPORT")
 			render_403
