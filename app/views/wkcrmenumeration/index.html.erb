@@ -1,26 +1,27 @@
 <%= title l(:label_enumerations) %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-<script type="text/javascript"> 
+<script type="text/javascript">
 	blgtaxUrl = '<%=url_for(:controller => "wktax", :action => "index", :tab => "wktax")%>';
 	blgexcrateUrl = '<%=url_for(:controller => "wkexchangerate", :action => "index", :tab => "wkexchangerate")%>';
     crmenumUrl = '<%=url_for(:controller => "wkcrmenumeration", :action => "index", :tab => "wkcrmenumeration")%>';
 	wklocationUrl =  '<%=url_for(:controller => "wklocation", :action => "index", :tab => "wklocation")%>';
 	wkgrpPermissionUrl =  '<%=url_for(:controller => "wkgrouppermission", :action => "index", :tab => "wkgrouppermission")%>';
 	wknotificationUrl =  '<%=url_for(:controller => "wknotification", :action => "index", :tab => "wknotification")%>';
-    prevTab = 'tab-<%= "#{controller_name}" %>';   
+    prevTab = 'tab-<%= "#{controller_name}" %>';
 </script>
 <%= render_tabs time_expense_tabs %>
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
-<div class="wk-contextual">
-	<%= link_to l(:label_new_item, l(:label_enumerations)), url_for(:controller => controller_name, :action => 'edit', :enum_id => ""), :class => 'icon icon-add' %>
-</div>
+
 <%= form_tag({:controller => "wkcrmenumeration", :action => 'index'}, :method => :get, :id => 'query_form') do %>
 	<%= hidden_field_tag "searchlist", controller_name %>
 	<%= hidden_field_tag('tab', "wkcrmenumeration") %>
 	<%	enumerationName = session[controller_name].try(:[], :enumname) %>
 	<%	enumerationType = session[controller_name].try(:[], :enumType) %>
 	<fieldset>
+		<div style="float:right">
+			<%= link_to l(:label_new_item, l(:label_enumerations)), url_for(:controller => controller_name, :action => 'edit', :enum_id => ""), :class => 'icon icon-add' %>
+		</div>
 		<table>
 			<tr>
 				<th><label for='name' style="float:left;"><%= l(:field_name)   %></label></th>

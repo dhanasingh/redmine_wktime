@@ -23,6 +23,17 @@ $(document).ready(function(){
 		}
 		checked_modules();
 	});
+
+
+	$("form").submit(function() {
+		var leavelistbox=document.getElementById("settings_leave_settings");
+		if(leavelistbox != null){
+			for(i = 0; i < leavelistbox.options.length; i++){
+				leavelistbox.options[i].selected = true;
+			}						
+		}
+		
+	});
 });
 
 function dialogAction()
@@ -122,7 +133,7 @@ function dialogAction()
 		buttons: {
 			"Ok": function() {
 				var opt,desc="",opttext="";
-				var listBox = document.getElementById("settings_wktime_leave");
+				var listBox = document.getElementById("settings_leave_settings");
 				var leaveIssue = document.getElementById("leave_issue");
 				var leaveAccrual = document.getElementById("leave_accrual");
 				var accrualAfter = document.getElementById("leave_accrual_after");
@@ -315,7 +326,7 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 
 	function showLeaveDialog(action)
 	{
-		var listbox = document.getElementById("settings_wktime_leave");
+		var listbox = document.getElementById("settings_leave_settings");
 		var leaveIssue = document.getElementById("leave_issue");
 		var leaveProject = document.getElementById("leave_project");
 		var leaveAccrual = document.getElementById("leave_accrual");
@@ -410,7 +421,7 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 				btlistbox.options[i].selected = true;
 			}						
 		}
-		var lvlistbox=document.getElementById("settings_wktime_leave");
+		var lvlistbox=document.getElementById("settings_leave_settings");
 		if(lvlistbox != null)
          { 
 			for(i = 0; i < lvlistbox.options.length; i++)

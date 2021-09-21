@@ -1,5 +1,7 @@
+<div class="contextual">
+	<%= render :partial => 'wkattendance/sidebar' %>
+</div>
 <%= title l(:label_public_holiday) %>
-<%= render partial: "wkattendance/render_hr_tabs" %>
 
 <%= form_tag({:controller => controller_name, :action => 'index'},  :method => :get, :id => 'query_form') do %>
 	<%=h hidden_field_tag('tab', "#{controller_name}") %>

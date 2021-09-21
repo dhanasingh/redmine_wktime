@@ -1,22 +1,20 @@
 <%= title l(:label_location) %>
 <%= javascript_include_tag 'index', plugin: "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
-<script type="text/javascript">     
+<script type="text/javascript">
 	blgtaxUrl = '<%=url_for(:controller => "wktax", :action => "index", :tab => "wktax")%>';
 	blgexcrateUrl = '<%=url_for(:controller => "wkexchangerate", :action => "index", :tab => "wkexchangerate")%>';
 	crmenumUrl = '<%=url_for(:controller => "wkcrmenumeration", :action => "index", :tab => "wkcrmenumeration")%>';
 	wklocationUrl =  '<%=url_for(:controller => "wklocation", :action => "index", :tab => "wklocation")%>';
 	wkgrpPermissionUrl =  '<%=url_for(:controller => "wkgrouppermission", :action => "index", :tab => "wkgrouppermission")%>';
 	wknotificationUrl =  '<%=url_for(:controller => "wknotification", :action => "index", :tab => "wknotification")%>';
-    prevTab = 'tab-<%= "#{controller_name}" %>';   
+    prevTab = 'tab-<%= "#{controller_name}" %>';
 //	grpUrl="<%= "#{url_for(:controller => "wkpayroll", :action => 'getMembersbyGroup')}" %>";
 		//getMembersbyGroup
 </script>
 <%= render_tabs time_expense_tabs %>
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
-<div class="wk-contextual">
-	<%= link_to l(:label_new_location), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
-</div>
+
 <%= form_tag({:controller => "wklocation", :action => 'index'}, :method => :get, :id => 'query_form') do %>
 <%= hidden_field_tag "searchlist", controller_name %>
 <%=h hidden_field_tag('tab', "wklocation") %>
@@ -24,6 +22,9 @@
 <%	locType = session[controller_name].try(:[], :location_type) %>
 <%	showOnMap = session[controller_name].try(:[], :show_on_map) %>
 <fieldset>
+	<div style="float:right">
+		<%= link_to l(:label_new_location), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+	</div>
 	<table>
 			<th><label for='name' style="float:left;"><%= l(:field_name)%></label></th>
 				<td><%= text_field_tag 'location_name', locName, :size => 30, :style=> "float: left;" %></td>

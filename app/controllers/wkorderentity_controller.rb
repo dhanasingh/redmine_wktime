@@ -177,7 +177,7 @@ class WkorderentityController < WkbillingController
 					end
 					respond_to do |format|
 						format.csv {
-							send_data(csv_export({headers: headers, data: data}), type: 'text/csv; header=present', filename: 'invoice.csv')
+							send_data(csv_export({headers: headers, data: data}), type: 'text/csv; header=present', filename: "#{getHeaderLabel}.csv")
 						}
 					end
 				end
@@ -368,6 +368,12 @@ class WkorderentityController < WkbillingController
 				updateBilledEntry(matterialEntry, updatedItem.id)
 				# matterialEntry.invoice_item_id = updatedItem.id
 				# matterialEntry.save
+			end
+
+			#Updating spent fors record with Expense invoice Item ID
+			if params["expense_id_#{i}"].present?
+				ids = params["expense_id_#{i}"].split(' ')
+				ids.each{|id| updateBilledEntry(WkExpenseEntry.find(id), updatedItem.id)}
 			end
 			savedRows = savedRows + 1
 			tothash[updatedItem.project_id] = [(tothash[updatedItem.project_id].blank? ? 0 : tothash[updatedItem.project_id][0]) + updatedItem.original_amount, updatedItem.original_currency] if updatedItem.item_type != 'm'
@@ -575,6 +581,9 @@ class WkorderentityController < WkbillingController
 			format.pdf {
 				send_data(invoice_to_pdf(@invoice), type: 'application/pdf', filename: "#{getHeaderLabel}.pdf")
 			}
+			format.csv {
+				send_data(invoice_to_csv(@invoice), type: 'text/csv; header=present', filename: "#{getHeaderLabel}.csv")
+			}
 		end
 	end
 
@@ -636,7 +645,7 @@ class WkorderentityController < WkbillingController
 			pdf.RDMCell(columnWidth, 10, header, 1, 0, 'C', 1)
 		end
 		pdf.set_fill_color(255, 255, 255)
-		invoice.invoice_items.where.not(:item_type => 'r').each do |entry|
+		invoice.invoice_items.where.not(:item_type => 'r').order(:item_type).each do |entry|
 			listItem(pdf, entry, columnWidth)
 		end
 		listTotal(pdf, columnWidth, invoice.invoice_items.where.not(:item_type => 'r'))
@@ -653,7 +662,7 @@ class WkorderentityController < WkbillingController
 		pdf.SetFontStyle('',10)
 		pdf.RDMCell(table_width - 40, 5, numberInWords(invoice.invoice_items.sum(:original_amount)) + " " + l(:label_only), 1)
 		pdf.ln
-		if invoiceComp.present?		
+		if invoiceComp.present?
 			invoiceComp.each do |comp|
 				pdf.RDMCell(100, 5, comp[:name], 1, 0, '', 1)
 				pdf.RDMCell(table_width - 100, 5, comp[:value], 1, 0, '', 1)
@@ -732,5 +741,48 @@ class WkorderentityController < WkbillingController
 				send_data(csv_export({headers: headers, data: data}), type: 'text/csv; header=present', filename: 'contact.csv')
 			}
 		end
+	end
+
+	def invoice_to_csv(invoice)
+		decimal_separator = l(:general_csv_decimal_separator)
+		export = Redmine::Export::CSV.generate do |csv|
+			csv << (getInvoiceHeaders.concat(getInvoiceItemHeaders)).collect {|c| Redmine::CodesetUtil.from_utf8(c.to_s, l(:general_csv_encoding))}
+			itemDetails = invoice.invoice_items.where.not(item_type: 'r').order(:item_type)
+			itemDetails.each do |entry|
+				invoices = getInvoices(invoice)
+				invoiceItems = getInvoiceItems(entry)
+				csv << invoices.concat(invoiceItems)
+			end
+			csv << ["","","","","","","",l(:label_sub_total),itemDetails.sum(:quantity).to_s, itemDetails.first.original_currency.to_s + itemDetails.sum(:original_amount).to_s, itemDetails.first.currency.to_s + itemDetails.sum(:amount).to_s]
+			itemDetails = invoice.invoice_items.where(item_type: 'r').order(:item_type)
+			itemDetails.each do |entry|
+				invoices = getInvoices(invoice)
+				invoiceItems = getInvoiceItems(entry)
+				csv << invoices.concat(invoiceItems)
+			end
+			csv << ["","","","","","","",l(:label_total),invoice.invoice_items.sum(:quantity).to_s, invoice.invoice_items.first.original_currency.to_s + invoice.invoice_items.sum(:original_amount).to_s, invoice.invoice_items.first.currency.to_s + invoice.invoice_items.sum(:amount).to_s]
+		end
+		export
+  end
+
+	def getInvoiceHeaders
+		headers = [getLabelInvNum, getDateLbl, l(:field_status), getAccountLbl]
+		headers
+	end
+
+	def getInvoiceItemHeaders
+		headers = [l(:label_invoice_name), l(:label_billing_type), l(:label_rate), l(:field_quantity), l(:field_original_amount), l(:field_amount)]
+		headers
+	end
+
+	def getInvoices(invoice)
+		status = invoice.status == 'o' ? l(:label_open_issues) : l(:label_closed_issues)
+		invoices = [invoice.invoice_number, invoice.invoice_date, status, invoice&.parent&.name]
+		invoices
+	end
+
+	def getInvoiceItems(item)
+		invoiceItems = [ item.name, getInvoiceItemType(item.item_type), item.item_type == 't' ? (item.rate.to_s + "%") : item.rate.to_s, item.quantity, item.original_currency.to_s + item.original_amount.round(2).to_s, item.currency.to_s + item.amount.round(2).to_s]
+		invoiceItems
 	end
 end

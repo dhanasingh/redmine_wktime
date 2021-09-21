@@ -29,10 +29,10 @@ module WkattendanceHelper
 
 	def getLeaveIssueIds
 		issueIds = ''
-		if(Setting.plugin_redmine_wktime['wktime_leave'].blank?)
+		if(getLeaveSettings.blank?)
 			issueIds = '-1'
 		else
-			Setting.plugin_redmine_wktime['wktime_leave'].each do |element|
+			getLeaveSettings.each do |element|
 				if issueIds!=''
 					issueIds = issueIds +','
 				end
@@ -44,7 +44,7 @@ module WkattendanceHelper
 	end
 
 	def populateWkUserLeaves(processDt)
-		leavesInfo = Setting.plugin_redmine_wktime['wktime_leave']
+		leavesInfo = getLeaveSettings
 		leaveAccrual = Hash.new
 		accrualMultiplier = Hash.new
 		leaveAccAfter = Hash.new
@@ -211,8 +211,8 @@ module WkattendanceHelper
 
 	def getUserLeave
 		userLeave = Array.new
-			if Setting.plugin_redmine_wktime['wktime_leave'].present?
-				userLeaveIDs = Setting.plugin_redmine_wktime['wktime_leave'].map{ |entry| entry.split('|').first }
+			if getLeaveSettings.present?
+				userLeaveIDs = getLeaveSettings.map{ |entry| entry.split('|').first }
 				userLeave = Issue.select(:id, :subject).where(id: userLeaveIDs).collect{ |issue| [issue.subject]}
 			end
 		userLeave

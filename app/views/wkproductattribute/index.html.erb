@@ -1,11 +1,1 @@
 <h2><%= l(:label_attribute) %></h2>
-<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<script type="text/javascript"> 
-	wkproductUrl = '<%=url_for(:controller => "wkproduct", :action => "index", :tab => "wkproduct")%>';
-	wkproductitemUrl = '<%=url_for(:controller => "wkproductitem", :action => "index", :tab => "wkproductitem")%>';
-	wkshipmentUrl = '<%=url_for(:controller => "wkshipment", :action => "index", :tab => "wkshipment")%>';
-	wkassetUrl = '<%=url_for(:controller => "wkasset", :action => "index", :tab => "wkasset")%>';
-	wkassetdepreciationUrl = '<%=url_for(:controller => "wkassetdepreciation", :action => "index", :tab => "wkassetdepreciation")%>';
-    prevTab = 'tab-<%= "#{controller_name}" %>'; 
-</script>
-<%= render_tabs time_expense_tabs %>

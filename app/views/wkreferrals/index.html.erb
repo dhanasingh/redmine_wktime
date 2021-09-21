@@ -1,15 +1,14 @@
 <%= title l(:label_referrals) %>
 <%= render partial: "wkattendance/render_hr_tabs" %>
 
-<div class="contextual">
-  <%= link_to l(:label_new_referral), url_for(action: "edit"), class: "icon icon-add" %>
-</div>
-<div style="clear: both;" ></div>
 
 <fieldset>
   <%= form_tag({}, method: "get", id:"query_form") do %>
 		<%= hidden_field_tag("searchlist", controller_name) %>
 		<%= hidden_field_tag("tab", controller_name) %>
+    <div style="float:right">
+      <%= link_to l(:label_new_referral), url_for(action: "edit"), class: "icon icon-add" %>
+    </div>
     <table>
       <tr>
         <th><label><%= l(:label_referral) %></label></th>

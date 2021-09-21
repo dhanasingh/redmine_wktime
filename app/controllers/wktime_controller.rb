@@ -126,6 +126,9 @@ include ActionView::Helpers::TagHelper
 	end
 
 	def edit
+		to = getEndDay(@startday)
+		@holidayEntries = WkPublicHoliday.publicHolidayDetails(@startday, to, params[:user_id])
+		@holidayDate = @holidayEntries.pluck(:holiday_date)
 		@prev_template = false
 		@new_custom_field_values = getNewCustomField
 		setup
@@ -2186,7 +2189,9 @@ private
 	end
 
 	def set_visible_issues(entry)
-		project = entry.nil? ? (@logtime_projects.blank? ? nil : @logtime_projects[0]) : entry.project
+		holidayProj = getProjByIssue(Setting.plugin_redmine_wktime['wktime_holiday']) if @holidayEntries.present?
+		hProj = Project.where(:id => holidayProj.to_i)
+		project = entry.nil? ? (holidayProj.present? ? hProj[0] : @logtime_projects.present? ? @logtime_projects[0] : 0) : entry.project
 		project_id = project.nil? ? 0 : project.id
 		issueAssignToUsrCond = getIssueAssignToUsrCond
 		if @projectIssues[project_id].blank?

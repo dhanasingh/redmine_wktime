@@ -13,6 +13,12 @@
    end
 %>
 <%= javascript_include_tag 'timer', :plugin => "redmine_wktime" %>
+
+<!-- For label -->
+<script>
+var label_no_data = "<%= l(:label_no_data) %>";
+</script>
+
 <style>
 	#clockINOUT, #issueLog ,#notification{
 		float: right;

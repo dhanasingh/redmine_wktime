@@ -760,6 +760,24 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 
 	delete 'wkpayment/destroy', to: 'wkpayment#destroy'
 
-	delete 'wksupplierpayment/destroy', :to => 'wksupplierpayment#destroy'
+	delete 'wksupplierpayment/destroy', to: 'wksupplierpayment#destroy'
 
-	get 'wkdashboard/employee_dashboard', :to => 'wkdashboard#employee_dashboard'
+	get 'wkdashboard/employee_dashboard', to: 'wkdashboard#employee_dashboard'
+
+	get 'wkattendance/leavesettings', to: 'wkattendance#leavesettings'
+
+	post 'wkattendance/leavesettings', to: 'wkattendance#leavesettings'
+
+  get 'wkreport/export', to: 'wkreport#export'
+
+	get 'wkdelivery/index', to: 'wkdelivery#index'
+
+	get 'wkdelivery/edit', to: 'wkdelivery#edit'
+
+	post 'wkdelivery/update', to: 'wkdelivery#update'
+
+	delete 'wkdelivery/destroy', to: 'wkdelivery#destroy'
+
+	get 'wkdelivery/populateProductItemDD', to: 'wkdelivery#populateProductItemDD'
+
+	get 'wkdelivery/delivery_slip', to: 'wkdelivery#delivery_slip'

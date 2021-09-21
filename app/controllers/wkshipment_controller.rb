@@ -35,7 +35,7 @@ include WkinventoryHelper
 
 		set_filter_session
 		retrieve_date_range
-		sqlwhere = " wk_shipments.shipment_type != 'N' "
+		sqlwhere = " wk_shipments.shipment_type = '#{getShipmentType}' "
 		filter_type = session[controller_name].try(:[], :polymorphic_filter)
 		contact_id = session[controller_name].try(:[], :contact_id)
 		account_id = session[controller_name].try(:[], :account_id)
@@ -179,7 +179,7 @@ include WkinventoryHelper
 			arrId = @shipment.inventory_items.shipment_item.pluck(:id)
 		else
 			@shipment = WkShipment.new
-			@shipment.shipment_type = 'I'
+			@shipment.shipment_type = getShipmentType
 			@shipment.parent_id = params[:parent_id]
 			@shipment.parent_type = params[:parent_type]
 		end
@@ -400,5 +400,8 @@ include WkinventoryHelper
 		uomId = product.uom_id if product.present?
 		render :json => uomId		
 	end
-	
+
+	def getShipmentType
+		'I'
+	end
 end

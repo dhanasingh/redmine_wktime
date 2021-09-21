@@ -23,9 +23,9 @@ class WkInvoiceItem < ActiveRecord::Base
   belongs_to :project
   # has_many :material_entries, foreign_key: "invoice_item_id", class_name: "WkMaterialEntry", :dependent => :nullify
   has_many :spent_fors, foreign_key: "invoice_item_id", class_name: "WkSpentFor", :dependent => :nullify
-  
+
   # attr_protected :modifier_id
-  
+
   validates_presence_of :invoice_id
   validates_numericality_of :amount, :allow_nil => true, :message => :invalid
   validates_numericality_of :quantity, :allow_nil => true, :message => :invalid
@@ -41,14 +41,14 @@ class WkInvoiceItem < ActiveRecord::Base
     .order("U.firstname asc, TE.spent_on desc")
   }
 
-  def self.getUnbilledTimeEntries(project_id, start_date, end_date, parent_id, parent_type)
-    TimeEntry.includes(:spent_for).where(project_id: project_id, spent_on: start_date .. end_date, wk_spent_fors: { spent_for_type: [parent_type, nil], spent_for_id: [parent_id, nil], invoice_item_id: nil })
+  def self.getUnbilledTimeEntries(project_id, start_date, end_date, parent_id, parent_type, model=TimeEntry)
+    model.includes(:spent_for).where(project_id: project_id, spent_on: start_date .. end_date, wk_spent_fors: { spent_for_type: [parent_type, nil], spent_for_id: [parent_id, nil], invoice_item_id: nil })
   end
 
   def self.getGenerateEntries(toVal, fromVal, parent_id, parent_type, projectID, model, table)
     entries = model.joins(:spent_for, :project)
     .joins("INNER JOIN wk_account_projects ON wk_account_projects.project_id = #{table}.project_id")
-    .where(spent_on: fromVal .. toVal, wk_spent_fors: { spent_for_type: [parent_type, nil], spent_for_id: [parent_id, nil], invoice_item_id: nil }, wk_account_projects: { billing_type: 'TM'}) 
+    .where(spent_on: fromVal .. toVal, wk_spent_fors: { spent_for_type: [parent_type, nil], spent_for_id: [parent_id.to_i, nil], invoice_item_id: nil }, wk_account_projects: { billing_type: 'TM'})
     .select("#{table}.*, wk_account_projects.parent_id, wk_account_projects.parent_type")
     entries = entries.where(wk_account_projects: { parent_type: parent_type}) if parent_type.present?
     entries = entries.where(wk_account_projects: { parent_id: parent_id}) if parent_id.present?

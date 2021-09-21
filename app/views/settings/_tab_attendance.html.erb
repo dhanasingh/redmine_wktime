@@ -96,7 +96,6 @@ lblYear = "<%=l(:label_year) %>";
 			<p><%= l(:label_hours_note) %></p>		
 	</div>
 	
-	<p>
 		<%
 		leave = []
 		issue_list = Issue.order('subject')
@@ -110,67 +109,25 @@ lblYear = "<%=l(:label_year) %>";
 		projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name')
 		wktime_helper = Object.new.extend(WktimeHelper)
 		projArr = wktime_helper.options_for_wktime_project(projects,false)
-		
-		if(@settings['wktime_leave'].blank?)
-			leave = ''
-		else
-			@settings['wktime_leave'].each do |element|
-			  listboxArr = element.split('|')
-			  issueId = listboxArr[0]
-			  issueName = issuehash[issueId.to_i].blank? ? issueId : issuehash[issueId.to_i]
-			  leaveAccrual = listboxArr[1].blank? ? "" : listboxArr[1]
-			  accrualAfter = listboxArr[2].blank? ? "" : listboxArr[2]
-			  optionText = leaveAccrual.blank? ? issueName : issueName + " : "  + leaveAccrual + " " + l(:label_hours_per_month) + " " + l(:label_wk_leave_accrual_after) + " " + accrualAfter + " " + l(:label_year)
-			  leave << [optionText,element]
-			end
-		end
-		%>
-		<label><%= l(:label_wk_leave) %></label>
-			<%=  select_tag('settings[wktime_leave]',
-				options_for_select(leave, :selected => 'settings[wktime_leave]'), :multiple=> true, :style => "min-width:200px; height:100px;")%>	
 
-		</p>			
-		<p>
-			<%= link_to l(:button_add), "javascript:showLeaveDialog('Add');", :class => "button"%>  |
-			<%= link_to l(:button_edit), "javascript:showLeaveDialog('Edit');", :class => "button"%>  |
-			<%= link_to l(:button_delete), "javascript:removeSelectedValue('settings_wktime_leave');", :class => "button" %>
-		</p>
+		issueIdArr =Array.new
+	    if(wktime_helper.getLeaveSettings.blank?)
+			leaveIssueslist = []
+		else
+			wktime_helper.getLeaveSettings.each do |element|
+			   listboxArr = element.split('|')
+			   issueIdArr << listboxArr[0]
+			end
+			issueIds = issueIdArr.join(',')
+		    leaveIssues = Issue.select(:id, :subject).where("id in (#{issueIds})")
+			leaveIssueslist = leaveIssues.collect {|issue| [issue.subject, issue.id]}
+		end
+		leaveIssueslist.unshift(["",0]) 
+	%>
 	
-	<div id="leave-dlg" title="<%= l(:label_wk_leave) %>">
-		<table>
-			<tr>
-				<th align="left"><label><%= l(:label_project) %></label></th>
-				<td class="project" align="left"><%=h select_tag('leave_project', options_for_select(projArr),:onchange => "projectChanged(this,-1);") %></td>
-			</tr>
-			<tr>
-				<th align="left"><label><%= l(:label_wk_leave_issue) %></label><span style="margin-left:0.8em;"></span></th>
-				<td class="issue" align="left"><%=h select_tag('leave_issue', options_for_select(issueslist)) %></td>
-			</tr>
-			<tr>
-				<th align="left"><label><%= l(:label_wk_leave_short_name) %></label></th>
-				<td><%= text_field_tag 'wk_leave_short_name','', :size => 4, :maxlength => 4 %></td>
-			</tr>
-			<tr>
-				<th align="left"><label><%= l(:label_wk_leave_accrual) %></label></th>
-				<td><%= text_field_tag('leave_accrual','', :size => 2.5, :maxlength => 6) %>&nbsp<%= l(:label_hours_per_month) %></td>		
-			</tr>
-			<tr>
-				<th align="left"><label><%= l(:label_accrual_multiplier) %></label></th>
-				<td><%= text_field_tag 'leave_accrual_multiplier','1', :size => 2.5, :maxlength => 6 %></td>
-			</tr>
-			<tr>
-				<th align="left"><label><%= l(:label_wk_leave_accrual_after) %></label></th>
-				<td><%= text_field_tag 'leave_accrual_after','', :size => 2.5, :maxlength => 6 %>&nbsp<%= l(:label_year) %></td>
-			</tr>
-			<tr>
-				<th align="left"><label><%= l(:button_reset) %> <%= l(:label_month) %></label></th>
-				<td><%=h select_tag('wk_attn_leave_reset_month', options_for_select(l('date.month_names').collect.with_index.to_a)) %></td>								   	
-			</tr>
-			<tr>
-				<%= hidden_field_tag :hdnAction, "" %>
-			</tr>
-		</table>
-	</div>
+	<p><label><%= l(:label_public_holiday) %></label>
+	 <%= select_tag 'settings[wktime_holiday]', options_for_select(leaveIssueslist, :selected =>  @settings['wktime_holiday']) %></p>
+	
 	<%
 		noOfDays = []
 		for i in 0..31

@@ -1,12 +1,9 @@
 <%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
-<script type="text/javascript"> 
+<script type="text/javascript">
 	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
 </script>
-<div class="wk-contextual">
-	<%= link_to controller.newItemLabel, url_for(:controller => controller_name, :action => 'edit', :newItem => true), :class => 'icon icon-add' %>
-</div>
-	<%= form_tag({:controller => controller_name, :action => 'index', :tab => controller_name}, :method => :get, :id => 
+	<%= form_tag({:controller => controller_name, :action => 'index', :tab => controller_name}, :method => :get, :id =>
      'query_form') do %>
 		<%= hidden_field_tag "searchlist", controller_name %>
 		<%=h hidden_field_tag('tab', controller_name) %>
@@ -25,6 +22,9 @@
 			end
 		%>
 		<fieldset style="font-wight: bold;">
+			<div style="float:right">
+				<%= link_to controller.newItemLabel, url_for(:controller => controller_name, :action => 'edit', :newItem => true), :class => 'icon icon-add' %>
+			</div>
 			<%= l(:label_location) %>&nbsp;
 			<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', locationId, true)) %>&nbsp;
 			<% if controller.getItemType == "I" || controller.getItemType == "A" %>

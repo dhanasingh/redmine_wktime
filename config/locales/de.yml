@@ -1182,3 +1182,26 @@ de:
   label_last_increment: Letzte Erhöhung
   label_last_salary: Letzter Lohn
   label_employee_dashboard: Mitarbeiter-Dashboards
+  label_leave_setting: Abwesenheitseinstellungen
+  
+  report_pf: PF Report
+  label_uan: UAN
+  label_wages: Wages
+  label_contributor: Mitwirkende
+  label_eps_wages: EPS
+  label_epf_wages: EPF
+  label_edli_wages: EDLI
+  label_ee_remitted: EE
+  label_er_remitted: ER
+  label_contribution_remitted: Beitrag überwiesen
+
+  #delivery
+  label_delivery: Lieferung
+  label_delivery_date: Lieferdatum
+  label_new_delivery: Neue Lieferung
+  label_delivered: Geliefert
+  label_intransit: Unterwegs
+  label_load: Beladung
+  label_delivery_slip: Lieferschein
+  button_csv: CSV
+  button_pdf: PDF

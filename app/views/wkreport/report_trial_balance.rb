@@ -17,6 +17,7 @@
 
 module ReportTrialBalance
 	include WkaccountingHelper
+  include WkreportHelper
 
 	def calcReportData(userId, groupId, projId, from, to)
 		from = from.to_date

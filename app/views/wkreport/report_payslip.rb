@@ -17,6 +17,7 @@
 
 module ReportPayslip
 	include WkpayrollHelper
+  include WkreportHelper
 
 	def calcReportData(userId, groupId, projId, from, to)
 		minSalaryDate = WkSalary.where("salary_date between '#{from}' and '#{to}'").minimum(:salary_date)

@@ -66,8 +66,8 @@ module ReportAttendance
 			issueslist = issue_list.collect {|issue| [issue.subject, issue.id] }
 			issuehash = Hash[issue_list.map { |u| [u.id, u.subject] }]
 		end
-		if !Setting.plugin_redmine_wktime['wktime_leave'].blank?
-			Setting.plugin_redmine_wktime['wktime_leave'].each_with_index do |element,index|
+		if !wktime_helper.getLeaveSettings.blank?
+			wktime_helper.getLeaveSettings.each_with_index do |element,index|
 			listboxArr = element.split('|')
 			if index < 3
 				headIssueId[index] = listboxArr[0]

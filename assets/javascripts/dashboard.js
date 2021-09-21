@@ -1,7 +1,7 @@
 function renderChart(url, path){
   let name = (path.split(".")).shift();
   name = (name.split("/")).pop();
-	var div = '<div class="icon-gravatar" style="margin-left: 40px; cursor: pointer;" id="'+path+'"><canvas id="'+name+'" width="330" height="240" ></canvas></div>';
+	var div = '<div class="icon-gravatar" style="margin-left: 40px; padding-top:5px; cursor: pointer; id="'+path+'"><canvas id="'+name+'" width="330" height="238"  style="background: #ffffff; box-shadow:0 1px 5.3px rgba(0, 0, 0, 0.028),0 3.4px 17.9px rgba(0, 0, 0, 0.042),0 15px 80px rgba(0, 0, 0, 0.07);" ></canvas></div>';
 	$("#graph").append(div);
   let params = (new URLSearchParams(window.location.search)).toString();
   url += "&"+params;
@@ -66,8 +66,8 @@ function registerChart(){
 function createChart(data, name){
   var isNonPiechart = (data["chart_type"] != "pie") ? true : false;
   var isPieChart = (data["chart_type"] == "pie") ? true : false;
-  var bgcolor = isNonPiechart ? "rgba(255, 99, 132, 1)" : [ "#FF6384", "#84FF63","#8463FF","#6384FF","#F7464A", "#46BFBD", "#FDB45C", "#FEDCBA","#ABCDEF", "#DDDDDD", "#ABCABC", "#949FB1", "#4D5360"];
-  var bordercolor = isNonPiechart ? "rgba(255, 99, 132, 1)" : "rgba(255, 99, 132, 0.3)";
+  var bgcolor = isNonPiechart ? "rgba(0, 138, 230)" : [ "#50b432","#6384FF","#F7464A", "#46BFBD", "#FDB45C", "#FEDCBA","#ABCDEF", "#DDDDDD", "#ABCABC", "#949FB1", "#4D5360", "#bbbc49", "#d2b33f", "#e29f38", "#e77e31", "#e35129", "#d92120"];
+  var bordercolor = isNonPiechart ? "rgba(0, 138, 230)" : "rgba(255, 99, 132, 0.3)";
 
   var dataArr = [{
     label: data["legentTitle1"],
@@ -82,8 +82,8 @@ function createChart(data, name){
     dataArr.push({
       label: data["legentTitle2"],
       fill: false,
-      backgroundColor: "rgba(54, 162, 235, 0.7)",
-      borderColor: "rgb(54, 162, 235)",
+      backgroundColor: "#E55C45",
+      borderColor: "#E55C45",
       data: data["data2"]
     });
   }
@@ -100,7 +100,7 @@ function createChart(data, name){
         bodyFontSize: 12
       },
       showAllTooltips: isPieChart,
-      chartArea: {backgroundColor: "rgba(240, 240, 240, 1)"},
+      chartArea: {backgroundColor: "rgba(255, 255, 255, 0)"},
       scales: {
         yAxes: getAxes(false, "yTitle", isNonPiechart, data),
         xAxes: getAxes(true, "xTitle", isNonPiechart, data),
@@ -117,20 +117,25 @@ function getAxes(autoSkip, label, isNonPiechart, data){
   return (
     [{
       gridLines : {
-        drawBorder: isNonPiechart,
-        display : isNonPiechart
+        drawBorder: isNonPiechart ? autoSkip : false,
+        display : isNonPiechart ? !autoSkip : false,
+        borderDash: [8, 4],
+        color: '#e0e0e0'
       },
       ticks: {
         display: isNonPiechart,
         autoSkip: autoSkip,
         maxRotation: 0,
-        minRotation: 0
+        minRotation: 0,
+        maxTicksLimit: 8 ,
+        suggestedMax: label == "yTitle" ? data.data1.at(-1)*1.25 : 0
       },
       scaleLabel: {
         display: isNonPiechart,
         labelString: data[label],
-        fontColor: "#ff0000"
-      }
+        fontColor: "#515151"
+      },
+      barThickness: 10
     }]
   )
 }
