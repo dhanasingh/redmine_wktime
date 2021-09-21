@@ -1,28 +1,29 @@
 <%= title l(:label_rfq) %>
 <%= javascript_include_tag 'index', plugin: "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
-<script type="text/javascript"> 
+<script type="text/javascript">
     purRfqUrl = '<%=url_for(:controller => "wkrfq", :action => "index", :tab => "wkrfq")%>';
     purQuoteUrl = '<%=url_for(:controller => "wkquote", :action => "index", :tab => "wkquote")%>';
-    purPurOrderUrl = '<%=url_for(:controller => "wkpurchaseorder", :action => "index", :tab => "wkpurchaseorder")%>';     
+    purPurOrderUrl = '<%=url_for(:controller => "wkpurchaseorder", :action => "index", :tab => "wkpurchaseorder")%>';
     purSupInvUrl = '<%=url_for(:controller => "wksupplierinvoice", :action => "index", :tab => "wksupplierinvoice")%>';
 	purSupPayUrl = '<%=url_for(:controller => "wksupplierpayment", :action => "index", :tab => "wksupplierpayment")%>';
 	purSupAccUrl = '<%=url_for(:controller => "wksupplieraccount", :action => "index", :tab => "wksupplieraccount")%>';
 	purSupContactUrl = '<%=url_for(:controller => "wksuppliercontact", :action => "index", :tab => "wksuppliercontact")%>';
-    prevTab = 'tab-<%= "#{controller_name}" %>';   
+    prevTab = 'tab-<%= "#{controller_name}" %>';
 </script>
 <%= render_tabs time_expense_tabs %>
 
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
-<div class="wk-contextual">
-	<%= link_to l(:label_new_rfq), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
-</div>
+
 <%
     rfq_name =session[controller_name].try(:[], :rfq_name)
     rfq_date =session[controller_name].try(:[], :rfq_date)
 %>
  <%= form_tag({:controller => 'wkrfq', :action => 'index'}, :method => :post, :id => 'query_form') do %>
 	<fieldset>
+		<div style="float:right">
+			<%= link_to l(:label_new_rfq), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+		</div>
 		<%= hidden_field_tag 'tab', "wkrfq" %>
 		<%= hidden_field_tag 'searchlist', "wkrfq" %>
 		<table>

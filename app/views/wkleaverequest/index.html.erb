@@ -1,15 +1,15 @@
 <%= title l(:label_leave_request) %>
 <%= render partial: "wkattendance/render_hr_tabs" %>
 
-<div class="contextual">
-  	<%= link_to l(:label_new_leave_request), url_for(controller: controller_name, action: 'edit'), :class => 'icon icon-add' %>
-</div>
 <% 	group_id =session[controller_name].try(:[], :group_id)
 	userID =session[controller_name].try(:[], :user_id)
 	statusList = {'' => ''}.merge(getLeaveStatus)
 %>
 <fieldset>
 	<legend><%= l(:label_filter_plural) %></legend>
+	<div style="float:right">
+		<%= link_to l(:label_new_leave_request), url_for(controller: controller_name, action: 'edit'), :class => 'icon icon-add' %>
+	</div>
 	<%= form_tag({controller: controller_name, action: 'index'}, method: :get) do %>
 		<%= hidden_field_tag("searchlist", controller_name) %>
 		<%= hidden_field_tag('tab', controller_name) %>

@@ -10,12 +10,6 @@
 	showOnMap =session[controller_name].try(:[], :show_on_map)
 %>
 
-<% if validateERPPermission('A_ATTEND') %>
-	<div class="wk-contextual">
-		<%= link_to l(:"label_import_attendance"), url_for(:controller => "wkimportattendance", :action => 'new', :tab => controller.controller_name)%>
-	</div>
-<% end %>
-
 <%= form_tag({:controller => controller_name, :action => 'clockindex'}, :method => :get, :id => 'query_form') do %>
 	<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 	<%=h hidden_field_tag('tab', "clock") %>
@@ -23,6 +17,9 @@
 	<fieldset>
 		<legend><%= l(:label_filter_plural) %></legend>
 		<% if validateERPPermission('A_ATTEND') %>
+			<div style="float:right">
+				<%= link_to l(:"label_import_attendance"), url_for(:controller => "wkimportattendance", :action => 'new', :tab => controller.controller_name)%>
+			</div>
 			<label><%= l(:label_group_plural) %></label>&nbsp;
 			<% if !@groups.blank? %>
 				<%=h select_tag('group_id',
