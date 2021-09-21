@@ -1,9 +1,7 @@
 <%= title l(:label_payroll) %>
 <%= render partial: "wkattendance/render_hr_tabs" %>
 <%= javascript_include_tag 'wkpayroll', :plugin => "redmine_wktime" %>
-<div class="wk-contextual">
-	<%= render :partial => 'sidebar' %>
-</div>
+
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
 <%= form_tag({:controller => controller_name, :action => 'index', :tap => 'payroll'}, :method => :get, :id => 'query_form') do %>
@@ -11,35 +9,40 @@
 	<%=h hidden_field_tag('tab', 'payroll') %>
 	<%	groupid =session[:wkpayroll].try(:[], :group_id)
 		userid =session[:wkpayroll].try(:[], :user_id) %>
-		<table>
-
-			<% if wktime_helper.validateERPPermission('A_PAYRL') %>
-			<tr>
-			<th><%=l(:label_group_plural)%> </th>
-			<% if !@groups.blank? %>
-				<td>
-					<%=h select_tag('group_id',
-					options_for_select( [["",0]] + (@groups.collect {|p| [p.name, p.id ]}),
-					:selected => !groupid.nil? ? groupid.to_i: 0), :onchange => "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %>
-				</td>
-			<% end %>
-			<th style="padding-left: 10px;"><%=l(:label_member)%></th>
-			<td>
-			<%# show the blank value if more than one user is in the list %>
-			<%=h select_tag('user_id',
-				options_for_select( [[l(:all_users_for_select),"0"]] + @members,
-				:selected => userid.nil? ? (@user.nil? ? User.current.id : @user.id) : userid),
-				:style=> "width:200px;") %></td>
-			</tr>
-			<% end %>
-		</table>
-		<%= render :partial => 'wkpayroll/date_range' %>
-	<% end %>
-
-	<% if @payrollEntries.present? %>
-		<div class="total-hours">
-			<p><%= l(:label_total) %>: <%= @payrollEntries.values[0][:currency] %>&nbsp;<%= @total_gross %></p>
-		</div>
+		<fieldset>
+			<legend><%= l(:label_filter_plural) %></legend>
+			<div style="float:right">
+				<%= render :partial => 'sidebar' %>
+			</div>
+			<table>
+				<% if wktime_helper.validateERPPermission('A_PAYRL') %>
+					<tr>
+						<th><%=l(:label_group_plural)%> </th>
+						<% if !@groups.blank? %>
+							<td>
+								<%=h select_tag('group_id',
+								options_for_select( [["",0]] + (@groups.collect {|p| [p.name, p.id ]}),
+								:selected => !groupid.nil? ? groupid.to_i: 0), :onchange => "grpChanged(this, #{User.current.id}, true);", :style=> "width:300px;") %>
+							</td>
+						<% end %>
+						<th style="padding-left: 10px;"><%=l(:label_member)%></th>
+						<td>
+							<%# show the blank value if more than one user is in the list %>
+							<%=h select_tag('user_id',
+								options_for_select( [[l(:all_users_for_select),"0"]] + @members,
+								:selected => userid.nil? ? (@user.nil? ? User.current.id : @user.id) : userid),
+								:style=> "width:200px;") %>
+						</td>
+					</tr>
+				<% end %>
+			</table>
+			<%= render :partial => 'wkpayroll/date_range' %>
+		</fieldset>
+<% end %>
+<% if @payrollEntries.present? %>
+	<div class="total-hours">
+		<p><%= l(:label_total) %>: <%= @payrollEntries.values[0][:currency] %>&nbsp;<%= @total_gross %></p>
+	</div>
 
 	<%= render :partial => 'wkpayroll/payroll_list'%>
 

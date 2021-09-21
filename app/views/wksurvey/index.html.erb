@@ -1,8 +1,4 @@
-<% if checkEditSurveyPermission %>
-    <div class="contextual">
-        <%= link_to l(:label_new_survey), url_for(:project_id => params[:project_id], :controller => "wksurvey", :action => "edit"), :class => 'icon icon-add' %>
-    </div>
-<% end %><%= title l(:label_survey) %>
+<%= title l(:label_survey) %>
 <%= javascript_include_tag 'index', plugin: "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
 <%= render :partial => 'index_filter' %>

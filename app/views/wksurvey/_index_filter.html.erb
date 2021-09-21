@@ -1,6 +1,11 @@
 <%= form_tag({:controller => "wksurvey", :action => 'index'}, :method => :get, :id => 'filter_form') do %>
 	<%=h hidden_field_tag('tab', "wksurvey") %>
 	<fieldset>
+		<% if checkEditSurveyPermission %>
+			<div style="float:right">
+					<%= link_to l(:label_new_survey), url_for(:project_id => params[:project_id], :controller => "wksurvey", :action => "edit"), :class => 'icon icon-add' %>
+			</div>
+		<% end %>
 		<table>
 			<tr>
 				<th>

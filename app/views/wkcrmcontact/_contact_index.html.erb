@@ -1,8 +1,6 @@
-<div class="wk-contextual">
-	<%= link_to controller.lblNewContact, url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
-</div>
+
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
-	<%	
+	<%
 		accountType = controller.getContactType == 'SC' ? 'S' : 'A'
 		accArr = options_for_wktime_account(false, accountType, false)
 	%>
@@ -15,6 +13,9 @@
 	<%	accId = session[controller_name].try(:[], :account_id) %>
 	<%	locId = session[controller_name].try(:[], :location_id) %>
 	<fieldset>
+		<div style="float:right">
+			<%= link_to controller.lblNewContact, url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+		</div>
 		<table>
 			<tr>
 				<th><label for='name' style="float:left;"><%= l(:field_name)  %></label></th>
