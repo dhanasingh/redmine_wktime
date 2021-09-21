@@ -28,7 +28,7 @@ class WkleadController < WkcrmController
 			'status' => "#{WkLead.table_name}.status",
 			'location_name' => "L.name",
 			'acc_name' => "A.name",
-			'created_by_user_id' => "CONCAT(U.firstname, U.lastname)",
+			'updated_by_user_id' => "CONCAT(U.firstname, U.lastname)",
 			'updated_at' => "#{WkLead.table_name}.updated_at"
 
 		set_filter_session
@@ -67,7 +67,7 @@ class WkleadController < WkcrmController
 			end
 			format.csv do
 				headers = { name: l(:field_name), status: l(:field_status), acc_name: l(:label_account_name), location: l(:label_location), phone: l(:label_work_phone), email: l(:field_mail), modified: l(:field_status_modified_by), Updated: l(:field_updated_on) }
-				data = entries.map do |e| 
+				data = entries.map do |e|
 					{ name: e&.contact&.name, status: getLeadStatusHash[e.status], acc_name: (e&.account&.name || ''),  location: (e&.contact&.location&.name || ''), phone: (e&.contact&.address&.work_phone || ''), email: (e&.contact&.address&.email || ''), modified: e.created_by_user.name(:firstname_lastname), Updated: e.updated_at.localtime.strftime("%Y-%m-%d %H:%M:%S")}
 				end
 				respond_to do |format|

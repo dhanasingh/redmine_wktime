@@ -107,6 +107,11 @@
 							:style => "width:50px;")%>
 						<div style="clear: both;"></div>
 					</td>
+				<% else %>
+					<th style="text-align: end;"><%= l(:label_rating) %></th>
+					<td style="padding-left:40px;">
+						<%= text_field_tag "rating", @activityEntry && @activityEntry[0] && @activityEntry[0].rating, size: 20, style: "width: 180px" %>
+					</td>
 				<% end %>
 			</tr>
 
@@ -130,7 +135,7 @@
 			</tr>
 
 			<tr>
-				<th align="left" ><%= l(:label_relates_to) %></th>
+				<th align="left" ><%= l(is_referral ? :label_referral : :label_relates_to) %></th>
 				<% if is_referral %>
 					<%= hidden_field_tag('related_to', "WkLead" ) %>
 				<% else %>
@@ -168,7 +173,7 @@
 
 			<tr>
 				<th align="left" ><%= l(:field_description) %></th>
-				<td colspan="4" align="left" style="padding-left:40px;"><%= text_area_tag 'activity_description', (!@activityEntry.blank? ? @activityEntry[0].description : ""), :maxlength => 230, :style => "width:605px" %></td>
+				<td colspan="4" align="left" style="padding-left:40px;"><%= text_area_tag 'activity_description', (!@activityEntry.blank? ? @activityEntry[0].description : ""), :style => "min-width:700px; min-height: 150px" %></td>
 			</tr>
 
 		</table>

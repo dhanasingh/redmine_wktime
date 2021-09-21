@@ -99,7 +99,7 @@ class WkcrmactivityController < WkcrmController
 		end
 	end
 
-  	def update
+	def update
 		errorMsg = nil
 		crmActivity = nil
 		@tempCrmActivity ||= Array.new
@@ -115,6 +115,7 @@ class WkcrmactivityController < WkcrmController
 		crmActivity.description = params[:activity_description]
 		crmActivity.start_date = Time.parse("#{params[:activity_start_date].to_s} #{ params[:start_hour].to_s}:#{params[:start_min]}:00 ").localtime.to_s
 		crmActivity.end_date = Time.parse("#{params[:activity_end_date].to_s} #{ params[:end_hour].to_s}:#{params[:end_min]}:00 ").localtime.to_s if !["C", "I"].include?(params[:activity_type])
+		crmActivity.rating = params[:rating] || nil
 
 		crmActivity.activity_type = params[:activity_type]
 		crmActivity.direction = params[:activity_direction] if params[:activity_type] == 'C'
@@ -169,9 +170,9 @@ class WkcrmactivityController < WkcrmController
 				end
 			}
 		end
-  	end
+	end
 
-  	def destroy
+	def destroy
 		parentId = WkCrmActivity.find(params[:activity_id].to_i).parent_id
 		trans = WkCrmActivity.find(params[:activity_id].to_i).destroy
 		flash[:notice] = l(:notice_successful_delete)
@@ -185,12 +186,12 @@ class WkcrmactivityController < WkcrmController
 		else
 			redirect_back_or_default :action => 'index', :tab => params[:tab]
 		end
-  	end
+	end
 
 	def set_filter_session
 		filters = [:period_type, :period, :from, :to, :activity_type, :related_to, :show_on_map]
 		super(filters, {:from => @from, :to => @to})
-  	end
+	end
 
 	def formPagination(entries)
 		@entry_count = entries.count
