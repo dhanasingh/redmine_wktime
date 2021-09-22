@@ -1198,3 +1198,5 @@ en:
   label_delivery_slip: Delivery slip
   button_csv: CSV
   button_pdf: PDF
+
+  label_send_email_notifications: Send Email Notifications

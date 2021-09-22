@@ -49,6 +49,21 @@ module QueriesHelper
 		else
 		  format_object(value)
 		end
-	  end
+	end		
+
+	def render_query_totals(query)
+		return unless query.totalable_columns.present?
+
+		totals = query.totalable_columns.map do |column|
+			# ============= ERPmine_patch Redmine 4.2  =====================
+			if [:quantity, :selling_price].include? column.name
+				product_type = params[:spent_type] == "M" ? 'I' : params[:spent_type]
+				query[:filters]['product_type'] = {"operator":"=","values" => product_type}
+			end
+			# =============================
+		total_tag(column, query.total_for(column))
+		end
+		content_tag('p', totals.join(" ").html_safe, :class => "query-totals")
+	end
 
 end

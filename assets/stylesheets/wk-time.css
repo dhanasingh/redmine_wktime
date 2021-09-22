@@ -12,6 +12,12 @@
    background: #3E5B76;
    color: #ffffff;
 }
+.ui-icon{
+	padding-left: 2px;
+}
+.ui-corner-all .ui-icon{
+	filter:	invert(85%) sepia(63%) saturate(5149%) hue-rotate(360deg) brightness(104%) contrast(103%);
+}
 
 table#wktimeHeader, table#wktimeHeader td {
     border-collapse: collapse;

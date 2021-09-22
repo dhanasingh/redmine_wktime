@@ -130,6 +130,10 @@ $(document).ready(function() {
 	changeProp('tab-wkskill',wkskillUrl);
 	changeProp('tab-wkreferrals',wkreferralsUrl);
 	changeProp('tab-wkdelivery',wkdeliveryUrl);
+
+	$('#accordion').accordion({
+		icons: { "header": "ui-icon-circle-triangle-e", "activeHeader": "ui-icon-circle-triangle-s" }
+	});
 });
 
 function openReportPopup(){
