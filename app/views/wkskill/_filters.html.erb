@@ -8,6 +8,10 @@
 	experience = session[controller_name].try(:[], :experience)
 %>
 <fieldset>
+	<div style="float:right">
+		<%= link_to l(:label_new_skill), url_for(action: 'edit', project_id: params[:project_id]),
+			:class => 'icon icon-add' if params[:project_id].blank? || get_proj_skill_permission %>
+	</div>
 	<%
 		last_used = (1970..Time.now.year).to_a
 		last_used << ""
