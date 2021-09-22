@@ -337,7 +337,7 @@ class WkinvoiceController < WkorderentityController
 		fromDate = getUnbillEntryStart(invIntervals[0][0])
 		todate = invIntervals[0][1]
 		unbilledEntries = WkInvoiceItem.getUnbilledTimeEntries(params[:project_id], fromDate.to_date, todate.to_date, params[:parent_id], params[:parent_type])
-		unbilledEntries = WkInvoiceItem.filterByIssues(unbilledEntries, params[:issue_id].to_i)
+		unbilledEntries = WkInvoiceItem.filterByIssues(unbilledEntries, params[:issue_id].to_i, params[:project_id], params[:parent_id] , params[:parent_type])
 		unbilledEntries.each{ |entry| data << {projID: entry.project_id, proj_name: entry.project.name, subject: entry.issue.to_s, usr_name: entry.user.name, spent_on: entry.spent_on, hours: entry.hours} if entry.hours > 0}
     	render json: data
 	end
