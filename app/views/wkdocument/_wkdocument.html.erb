@@ -8,6 +8,7 @@
     <table class="list files">
         <thead><tr>
         <th><%= l(:field_filename) %></th>
+        <th><%= l(:field_description) %></th>
         <th><%= l(:label_date) %></th>
         <th><%= l(:field_filesize) %></th>
         <th><%= l(:label_downloads_abbr) %></th>
@@ -20,6 +21,7 @@
                     <%= link_to file.filename, url_for(controller: "wkdocument", action: "download", id: file.id),
                         class: 'icon-only icon-download', title: file.description %>
                 </td>
+                <td class="description"><%= file.description %></td>
                 <td class="created_on"><%= format_time(file.created_on) %></td>
                 <td class="filesize"><%= number_to_human_size(file.filesize) %></td>
                 <td class="downloads"><%= file.downloads %></td>
