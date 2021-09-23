@@ -128,7 +128,7 @@ include WkpayrollHelper
 			# Add invoice items for Time and Materiel cost
 			errorMsg = saveTAMInvoiceItem(accountProject, false)
 			addMaterialItem(accountProject, true) if errorMsg.blank?
-			addExpenseItems(accountProject, true) if errorMsg.blank?
+			addExpenseItems(accountProject, true) if errorMsg.blank? && accountProject.include_expense
 		else
 			# Add invoice item for fixed cost from the scheduled entries
 			errorMsg = nil

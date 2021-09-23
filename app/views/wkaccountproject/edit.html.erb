@@ -4,22 +4,22 @@
 <h2><%= l(:label_acc_projects) %></h2>
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
 <%= form_tag({:controller => "wkaccountproject", :action => 'update'}, :method => :post, :id => 'query_form') do %>
-	<%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	
-	<%	projArr = options_for_wktime_project(projects,false) %>	
+	<%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>
+	<%	projArr = options_for_wktime_project(projects,false) %>
 	<%  billing_type = { 'TM'  => l(:label_time_material), 'FC' =>  l(:label_fixed_cost) } %>
 	<%= hidden_field_tag "accountProjectId", @accProjEntry.blank? ? "" : @accProjEntry.id %>
-	<% 
+	<%
 	if !params[:account_id].blank? || !params[:contact_id].blank?
 		parentId = params[:account_id].blank? ? params[:contact_id] : params[:account_id]
 		parentType = params[:account_id].blank? ? "WkCrmContact" : "WkAccount"
 	else
 		parentId = ""
 		parentType = ""
-		
+
 	end
-	%>	
+	%>
 	<div class="div-left">
-	
+
 	<table>
 		<%= render partial: "wkcrm/view_polymorphic", locals: { parentObject: @accProjEntry.blank? ? nil : @accProjEntry, :parentType => parentType, :parentId => parentId, :index => false, :needParentProject => false, :padding => nil, :needblankType => false } %>
 		<tr>
@@ -31,14 +31,18 @@
 			<td style="padding-left:40px;"><%= check_box_tag('itemized_bill', 1, (@accProjEntry.blank? ? false : @accProjEntry.itemized_bill)) %></td>
 		</tr>
 		<tr>
+			<th align="left"><label><%= l(:label_include_expense) %></label></th>
+			<td style="padding-left:40px;"><%= check_box_tag('include_expense', 1, (@accProjEntry.present? && @accProjEntry&.include_expense)) %></td>
+		</tr>
+		<tr>
 			<th align="left"><label><%= l(:label_billing_type) %></label></th>
 			<td style="padding-left:40px;"><%=h select_tag('billing_type', options_for_select(billing_type.invert, :selected => (@accProjEntry.blank? ? 'TM' : @accProjEntry.billing_type) ), :onchange => "showorHide((this.value == 'FC' ? true : false), 'billingschdules', null);") %></td>
 		</tr>
 	</table>
 	</div>
 	<div id="rightMenu" class="div-right">
-	<table>	
-	<tr><td><label><%= l(:label_apply_tax) %></label></td><td><%= check_box_tag('applytax', 1, (@accProjEntry.blank?  ? false : @accProjEntry.apply_tax  ), 
+	<table>
+	<tr><td><label><%= l(:label_apply_tax) %></label></td><td><%= check_box_tag('applytax', 1, (@accProjEntry.blank?  ? false : @accProjEntry.apply_tax  ),
 	:onchange => "showorHide((this.checked ? true : false), 'applicable_taxes', null);") %> </td></tr>
 	<tr id="applicable_taxes"><td><label><%= l(:label_applicable_taxes) %></label></td><td><%=h select_tag('tax_id', options_for_select((@taxentry.blank? ? [] : @taxentry),  :selected => @selectedtax), :size => 5, :multiple=> true) %></td></tr>
 		</table>
@@ -50,7 +54,7 @@
 		<%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('milestoneTable', 'mtotalrow');",  :class => 'icon icon-add' }%>
 	</div>
 	<div style="clear:both"></div>
-	<% row_index = 1 %>	
+	<% row_index = 1 %>
 	<table id="milestoneTable" class="list time-entries">
 	<thead>
 		<tr>
@@ -89,7 +93,7 @@
 					<%= link_to image_tag('delete.png'), "javascript:deleteRow('milestoneTable', 'mtotalrow');", :id => row_index,
 							:data => {:confirm => l(:text_are_you_sure)},
 							:title => l(:button_delete) %>
-				</td>	
+				</td>
 			</tr>
 			<% row_index = row_index + 1 %>
 		<% end %>
@@ -117,7 +121,7 @@
 				<%= link_to image_tag('delete.png'), "javascript:deleteRow('milestoneTable', 'mtotalrow');", :id => row_index,
 						:data => {:confirm => l(:text_are_you_sure)},
 						:title => l(:button_delete) %>
-			</td>	
+			</td>
 		</tr>
 		<% row_index = row_index + 1 %>
 	<% end %>
@@ -128,7 +132,7 @@
 	<% if @invoiceComp.present? %>
 	<div style="padding-top: 10px">
 	<h2><%= l(:label_invoice_components) %></h2>
-	<fieldset>	
+	<fieldset>
 		<table>
 			<thead>
 				<tr>

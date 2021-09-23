@@ -18,5 +18,6 @@ class CreateWkDeliveryItems < ActiveRecord::Migration[5.2]
     add_column :wk_statuses, :longitude, :decimal, precision: 30, scale: 20
     add_column :wk_statuses, :latitude, :decimal, precision: 30, scale: 20
     add_column :wk_crm_activities, :rating, :string
+    add_column :wk_account_projects, :include_expense, :boolean, default: false
   end
 end

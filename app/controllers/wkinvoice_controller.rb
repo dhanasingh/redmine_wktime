@@ -152,7 +152,7 @@ class WkinvoiceController < WkorderentityController
 					if apEntry.billing_type == 'TM'
 						totAmount = saveTAMInvoiceItem(apEntry, true) || 0
 						matterialAmt = addMaterialItem(apEntry, false)
-						totAmount += addExpenseItems(apEntry, false) || 0
+						totAmount += addExpenseItems(apEntry, false) || 0 if apEntry.include_expense
 					else
 						totAmount = getFcItems(apEntry, startDate, endDate)
 					end
@@ -374,10 +374,10 @@ class WkinvoiceController < WkorderentityController
 		data4 = expenseEntries.map{|e| {id: e.id, acc_name: (e&.name || e&.c_name), proj_name: e&.project&.name, subject: e.issue.to_s, usr_name: e.user&.name, spent_on: e.spent_on, amount: e&.currency+" "+e&.amount.to_s}}
 
 		data = []
-		data << {data: data1, header: listHeader1, type: "time_entries"} if data1.length > 0
-		data << {data: data2, header: listHeader2, type: "wk_material_entries"} if data2.length > 0
-		data << {data: data3, header: listHeader3, type: "wk_billing_schedules"} if data3.length > 0
-		data << {data: data4, header: listHeader4, type: "wk_expense_entries"} if data4.length > 0
+		data << {data: data1, header: listHeader1, type: "time_entries", title: l(:label_select_time_entries)} if data1.length > 0
+		data << {data: data2, header: listHeader2, type: "wk_material_entries", title: l(:label_select_material_entries)} if data2.length > 0
+		data << {data: data3, header: listHeader3, type: "wk_billing_schedules", title: l(:label_fixed_cost_entries)} if data3.length > 0
+		data << {data: data4, header: listHeader4, type: "wk_expense_entries", title: l(:label_select_expense_entries)} if data4.length > 0
 
 		render json: data
 	end

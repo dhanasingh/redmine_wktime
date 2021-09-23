@@ -1166,7 +1166,7 @@ de:
   label_added: Hinzugefügt
   label_deleted: Gelöscht
   warn_issuelog_exist: "Sie müssen alle Ticketprotokolle in der Woche stoppen"
-  label_select_time: Wählen Sie Zeiteinträge
+  label_select_time_entries: Wählen Sie Zeiteinträge
   label_account_number: Account Number
   label_closed_date: Ruhetag
   label_select_service: Service auswählen
@@ -1183,7 +1183,7 @@ de:
   label_last_salary: Last Salary
   label_employee_dashboard: Employee Dashboards
   label_leave_setting: Leave Settings
-  
+
   report_pf: PF Report
   label_uan: UAN
   label_wages: Wages
@@ -1207,3 +1207,8 @@ de:
   button_pdf: PDF
 
   label_send_email_notifications: Send Email Notifications
+  label_include_expense: Include Expense
+  label_select_entries: Select the Entries
+  label_select_material_entries: Select Material Entries
+  label_select_expense_entries: Select Expense Entries
+  label_fixed_cost_entries: Fixed Cost Entries

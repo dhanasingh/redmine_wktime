@@ -1159,7 +1159,7 @@ en:
   label_added: Added
   label_deleted: Deleted
   warn_issuelog_exist: "You have to stop all issue Logs in the week"
-  label_select_time: Select Time Entries
+  label_select_time_entries: Select Time Entries
   label_account_number: Account Number
   label_closed_date: Closed date
   label_select_service: Select Service
@@ -1168,7 +1168,7 @@ en:
   label_assigned_serial_numbers: Assigned serial numbers
   label_fixed: Fixed
   label_running: Running
-  label_serial_number_note: "Note: Use Comma for multiple serial numbers." 
+  label_serial_number_note: "Note: Use Comma for multiple serial numbers."
   warn_sn_range: Serial Number is not in Range
   warn_sn_blank: Serial Number and Quantity cannot be blank
   warn_sn_text: Serial Number and Quantity cannot be text value
@@ -1200,3 +1200,8 @@ en:
   button_pdf: PDF
 
   label_send_email_notifications: Send Email Notifications
+  label_include_expense: Include Expense
+  label_select_entries: Select the Entries
+  label_select_material_entries: Select Material Entries
+  label_select_expense_entries: Select Expense Entries
+  label_fixed_cost_entries: Fixed Cost Entries
