@@ -22,7 +22,7 @@ class WkUser < ActiveRecord::Base
   safe_attributes 'role_id', 'id1','id2', 'id3', 'join_date', 'birth_date', 'termination_date',  'gender', 'bank_name','account_number',
   'bank_code', 'loan_acc_number', 'tax_id', 'ss_id', 'custom_number1', 'custom_number2','custom_date1', 'custom_date2', 'is_schedulable',
   'billing_rate', 'billing_currency', 'location_id', 'department_id', 'address_id', 'shift_id', 'created_by_user_id', 'updated_by_user_id',
-  'source_id', 'source_type'
+  'source_id', 'source_type', 'retirement_account'
 
   belongs_to :user
   belongs_to :role

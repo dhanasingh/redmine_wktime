@@ -181,6 +181,10 @@ lblYear = "<%=l(:label_year) %>";
 			available_fields = allFields.select {|key,value|  !selectedfld.include? key.to_s}
 		end
 	%>
+	<p>
+		<%= check_box_tag('settings[wktime_period_end_process]', 1, @settings['wktime_period_end_process'].to_i == 1) %>
+		<label><%= l(:label_period_end_process) %></label>
+	</p>
 </fieldset>
 </div>
 

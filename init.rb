@@ -911,7 +911,7 @@ Rails.configuration.to_prepare do
 			end
 		end
 
-		if (!Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].blank? && Setting.plugin_redmine_wktime['wktime_enable_clock_in_out'].to_i == 1)
+		if (!Setting.plugin_redmine_wktime['wktime_period_end_process'].blank? && Setting.plugin_redmine_wktime['wktime_period_end_process'].to_i == 1)
 			require 'rufus/scheduler'
 			scheduler2 = Rufus::Scheduler.new
 			#Scheduler will run at 12:01 AM on 1st of every month
