@@ -52,7 +52,9 @@ class WkInvoiceItem < ActiveRecord::Base
     .select("#{table}.*, wk_account_projects.parent_id, wk_account_projects.parent_type")
     entries = entries.where(wk_account_projects: { parent_type: parent_type}) if parent_type.present?
     entries = entries.where(wk_account_projects: { parent_id: parent_id}) if parent_id.present?
-    entries = entries.where("time_entries.hours > 0") if table == 'time_entries'
+    #Added Expense config
+    entries = entries.where(wk_account_projects: {include_expense: true}) if table == "wk_expense_entries"
+    entries = getNonZeroEntries(entries, table)
     entries = getFilteredEntries(entries, projectID, parent_type)
     entries.order("#{table}.spent_on desc")
   end
@@ -76,10 +78,22 @@ class WkInvoiceItem < ActiveRecord::Base
     entries
   end
 
-  def self.filterByIssues(entries, issue_id)
+  def self.filterByIssues(entries, issue_id, project_id, parent_id, parent_type)
+    accProj = WkAccountProject.where(project_id: project_id, project_id: project_id, parent_type: parent_type)
     entries = entries.where(:issue_id => issue_id) if (issue_id > 0)
-    entries = entries.where(:issue_id => nil) if (issue_id == 0)
+    entries = entries.where(:issue_id => nil) if (issue_id == 0) if accProj && accProj[0]&.itemized_bill
     entries = entries.order("time_entries.spent_on desc")
+    entries
+  end
+
+  def self.getNonZeroEntries(entries, table)
+    if table == "time_entries"
+      entries = entries.where("time_entries.hours > 0")
+    elsif table == "wk_material_entries"
+      entries = entries.where("wk_material_entries.amount > 0")
+    elsif table == "wk_expense_entries"
+      entries = entries.where("wk_expense_entries.amount > 0")
+    end
     entries
   end
 end

@@ -623,7 +623,7 @@ function getSelectEntry(url, data){
 				}
 				resData.map((data, i) =>{
 					const fixedCast = data.type != "wk_billing_schedules";
-					renderData(data, {clear: (i == 0), type: data.type, preHeader:  fixedCast && preHeader, preList: fixedCast && preList});
+					renderData(data, {clear: (i == 0), type: data.type, preHeader:  fixedCast && preHeader, preList: fixedCast && preList, title: data.title});
 				});
 			}else{
 				renderData([]);

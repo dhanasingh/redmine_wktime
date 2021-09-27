@@ -130,6 +130,10 @@ $(document).ready(function() {
 	changeProp('tab-wkskill',wkskillUrl);
 	changeProp('tab-wkreferrals',wkreferralsUrl);
 	changeProp('tab-wkdelivery',wkdeliveryUrl);
+
+	$('#accordion').accordion({
+		icons: { "header": "ui-icon-circle-triangle-e", "activeHeader": "ui-icon-circle-triangle-s" }
+	});
 });
 
 function openReportPopup(){
@@ -958,8 +962,8 @@ function setUOMValue(product_id)
 }
 
 function renderData(resData, options={}){
-	let {id="#dialog", clear=true, type, preHeader, preList} = options;
-	let content = "";
+	let {id="#dialog", clear=true, type, preHeader, preList, title} = options;
+	let content = title && "<h2>"+title+"</h2>" || "";
 	const {header={}, data=[]} = resData || {};
 	if(data.length > 0){
 		content += "<table class='list time-entries' style='width:100%; float:left;'>";

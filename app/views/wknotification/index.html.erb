@@ -18,7 +18,7 @@
 <%= form_tag({controller: controller_name, action: 'update'}, method: :post, id: 'query_form') do %>
   <fieldset class="box tabular">
   <p><label style="text-align: left; padding-left: 10px;">
-    <%= l(:field_mail) %><%= check_box_tag "email", 1, @checkEmail %></label>
+    <%= l(:label_send_email_notifications) %><%= check_box_tag "email", 1, @checkEmail %></label>
   </p>
     <div class="icon-gravatar">
       <fieldset>

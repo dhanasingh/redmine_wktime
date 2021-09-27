@@ -22,7 +22,7 @@ module ReportPf
 		from = from.to_date
     to = (from >> 1) - 1
 
-		queryStr = " select U.id ,U.firstname, U.lastname , S.amount, WKU.id2, S.salary_date from users U
+		queryStr = " select U.id ,U.firstname, U.lastname , S.amount, WKU.retirement_account, S.salary_date from users U
 									LEFT JOIN wk_users WKU ON WKU.user_id = U.id
 									LEFT JOIN wk_salaries S ON S.user_id = U.id and  S.salary_date between '#{from}' and '#{to}'
 									LEFT JOIN wk_salary_components SC ON SC.id = S.salary_component_id"
@@ -67,7 +67,7 @@ module ReportPf
 			total[:eeTot] += emp_share
 			total[:erTot] += emr_share
 			total[:epsTot] += eps_share
-			pf_data[key][:uan] = entry.id2
+			pf_data[key][:uan] = entry.retirement_account
 			pf_data[key][:name] = entry.firstname.to_s + " "+entry.lastname.to_s
 			pf_data[key][:basic] = basic.round()
 			pf_data[key][:eps] = wages.round()

@@ -12,7 +12,6 @@ lblAccrualMultiplier = "<%=l(:label_accrual_multiplier) %>";
 lblLeaveIssue = "<%=l(:label_wk_leave_issue) %>";
 lblYear = "<%=l(:label_year) %>";
 </script>
-<%= render :partial => 'settings/ftte_settings' %>
 <div class="splitcontent">
 <div class="box tabular settings">
 <fieldset>
@@ -182,6 +181,10 @@ lblYear = "<%=l(:label_year) %>";
 			available_fields = allFields.select {|key,value|  !selectedfld.include? key.to_s}
 		end
 	%>
+	<p>
+		<%= check_box_tag('settings[wktime_period_end_process]', 1, @settings['wktime_period_end_process'].to_i == 1) %>
+		<label><%= l(:label_period_end_process) %></label>
+	</p>
 </fieldset>
 </div>
 

@@ -20,7 +20,7 @@
 					<% unless controller.is_referral %><th class="lbl-txt-align"><%= l(:label_activity_type) %></th><% end %>
 					<th class="lbl-txt-align"><%= l(:field_subject) %></th>
 					<th class="lbl-txt-align"><%= l(:field_status) %></th>
-					<th class="lbl-txt-align"><%= l(:label_relates_to) %></th>
+					<th class="lbl-txt-align"><%= l(controller.is_referral ? :label_rating : :label_relates_to) %></th>
 					<th class="lbl-txt-align"><%= l(:label_start_date_time) %></th>
 					<% unless controller.is_referral %><th class="lbl-txt-align"><%= l(:label_end_date_time) %></th><% end %>
 					<th class="lbl-txt-align"><%=  controller.is_referral ? l(:label_interviewer) : l(:field_assigned_to) %></th>
@@ -41,7 +41,7 @@
 							<%= controller.is_referral ? rf_status[entry.status] : (["M", "C"].include?(entry.activity_type) ? meetCallStatusHash[entry.status] : taskStatusHash[entry.status]) %>
 						</td>
 						<% if !show_on_map %>
-							<td class="lbl-txt-align"><%=h relatedHash[entry.parent_type] %></td>
+							<td class="lbl-txt-align"><%=h controller.is_referral ? entry.rating : relatedHash[entry.parent_type] %></td>
 						<% end %>
 							<td class="lbl-txt-align"><%=h entry&.start_date&.localtime&.strftime("%Y-%m-%d %H:%M:%S") %></td>
 						<% if !controller.is_referral && !show_on_map %>

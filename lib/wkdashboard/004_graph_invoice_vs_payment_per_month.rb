@@ -34,10 +34,10 @@ module WkDashboard
   def getFinancialDates(param={})
     to = param[:to]
     if to.month < getFinancialStart.to_i
-      @startDate = ("01/"+getFinancialStart.to_s+"/"+(to.year - 1).to_s).to_datetime - 1.second
+      @startDate = ("01/"+getFinancialStart.to_s+"/"+(to.year - 1).to_s).to_date
       @endDate = ("01/"+getFinancialStart.to_s+"/"+(to.year).to_s).to_date - 1.second
     else
-      @startDate = ("01/"+getFinancialStart.to_s+"/"+to.year.to_s).to_datetime - 1.second
+      @startDate = ("01/"+getFinancialStart.to_s+"/"+to.year.to_s).to_date
       @endDate = ("01/"+getFinancialStart.to_s+"/"+(to.year + 1).to_s).to_date - 1.second
     end
   end
@@ -63,10 +63,10 @@ module WkDashboard
   private
 
   def getInvoiceEntries
-    WkInvoice.where(:invoice_date => getFromDateTime(@startDate) .. getToDateTime(@endDate), invoice_type: "I")
+    WkInvoice.where(:invoice_date => getToDateTime(@startDate) .. getToDateTime(@endDate), invoice_type: "I")
   end
 
   def getPaymentEntries
-    WkPayment.where("wk_payments.payment_date BETWEEN ? AND ?", getFromDateTime(@startDate), getToDateTime(@endDate))
+    WkPayment.where("wk_payments.payment_date BETWEEN ? AND ?", getToDateTime(@startDate), getToDateTime(@endDate))
   end
 end

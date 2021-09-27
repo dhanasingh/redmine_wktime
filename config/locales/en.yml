@@ -626,12 +626,12 @@ en:
   label_inventory_user_group: Inventory User Group
   label_enable_inventory_module: Enable Inventory Module
   label_hr: HR
-  label_shipment: Shipment
+  label_shipment: Receipt
   label_uom: Unit Of Measure
   label_item: Item
-  label_new_shipment: New Shipment
-  label_shipment_items: Shipment Items
-  label_shipment_date: Shipment Date
+  label_new_shipment: New Receipt
+  label_shipment_items: Receipt Items
+  label_shipment_date: Receipt Date
   label_serial_number: Serial Number
   label_material: Material
   label_cost_price: Cost Price
@@ -678,7 +678,7 @@ en:
   label_project_error: Project cannot be empty
   label_issue_error: Issue cannot be empty
   label_activity_error: Activity cannot be empty
-  error_shipment_items_used: Could not delete the shipment. Some items in the shipment were used
+  error_shipment_items_used: Could not delete the Receipt. Some items in the Receipt were used
   error_material_delete: Unable delete the material entries
   error_material_delete_billed: Could not delete the invoiced material entries
   error_expense_amount: Amount cannot be empty
@@ -1159,7 +1159,7 @@ en:
   label_added: Added
   label_deleted: Deleted
   warn_issuelog_exist: "You have to stop all issue Logs in the week"
-  label_select_time: Select Time Entries
+  label_select_time_entries: Select Time Entries
   label_account_number: Account Number
   label_closed_date: Closed date
   label_select_service: Select Service
@@ -1168,7 +1168,7 @@ en:
   label_assigned_serial_numbers: Assigned serial numbers
   label_fixed: Fixed
   label_running: Running
-  label_serial_number_note: "Note: Use Comma for multiple serial numbers." 
+  label_serial_number_note: "Note: Use Comma for multiple serial numbers."
   warn_sn_range: Serial Number is not in Range
   warn_sn_blank: Serial Number and Quantity cannot be blank
   warn_sn_text: Serial Number and Quantity cannot be text value
@@ -1198,3 +1198,13 @@ en:
   label_delivery_slip: Delivery slip
   button_csv: CSV
   button_pdf: PDF
+
+  label_send_email_notifications: Send Email Notifications
+  label_include_expense: Include Expense
+  label_select_entries: Select the Entries
+  label_select_material_entries: Select Material Entries
+  label_select_expense_entries: Select Expense Entries
+  label_fixed_cost_entries: Fixed Cost Entries
+  label_period_end_process: Auto Run Period End Process
+  label_delivery_items: Delivery Items
+  field_retirement_account: Retirement Account

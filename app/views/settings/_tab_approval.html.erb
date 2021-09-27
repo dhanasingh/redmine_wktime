@@ -1,7 +1,9 @@
 <div class="splitcontent">
 	<fieldset class="box tabular">
 		<legend><%= l(:label_wk_approval_system) %></legend>
-
+		<p>	
+			<%= check_box_tag('settings[ftte_supervisor_based_approval]', 1, @settings['ftte_supervisor_based_approval'].to_i == 1) %> <label><%= l(:label_ftte_supervisor_based_approval) %></label>
+		</p>
 		<p>
 		<%= check_box_tag('settings[wktime_use_approval_system]', 1, @settings['wktime_use_approval_system'].to_i == 1) %> <label><%= l(:label_wk_use_approval_system) %></label>
 		</p>

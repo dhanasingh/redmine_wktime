@@ -60,4 +60,10 @@ class WkCrmActivity < ActiveRecord::Base
     end
   end
 
+  def self.getActivitiesEntries(from, to, userIdArr)
+    entries = self.includes(:parent).where(start_date: from .. to).where("wk_crm_activities.activity_type != 'I'").order(updated_at: :desc)
+    entries = entries.where(assigned_user_id: userIdArr) if userIdArr.present?
+    entries
+  end
+
 end

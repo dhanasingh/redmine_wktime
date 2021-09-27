@@ -635,12 +635,12 @@ de:
   label_inventory_user_group: Inventar-Benutzergruppe
   label_enable_inventory_module: Inventar Modul aktivieren
   label_hr: HR
-  label_shipment: Lieferung
+  label_shipment: Receipt
   label_uom: Maßeinheit
   label_item: Artikel
-  label_new_shipment: Neue Lieferung
-  label_shipment_items: Lieferartikel
-  label_shipment_date: Lieferdatum
+  label_new_shipment: New Receipt
+  label_shipment_items: Receipt Items
+  label_shipment_date: Receipt Date
   label_serial_number: Seriennummer
   label_material: Material
   label_cost_price: Einkaufspreis
@@ -687,7 +687,7 @@ de:
   label_project_error: Projekt kann nicht leer sein
   label_issue_error: Ticket kann nicht leer sein
   label_activity_error: Aktivität kann nicht leer sein
-  error_shipment_items_used: Kann Lieferung nicht löschen. Mindestens ein Artikel aus der Lieferung wird benutzt.
+  error_shipment_items_used: Could not delete the Receipt. Some items in the Receipt were used
   error_material_delete: Materialeinträge können nicht gelöscht werden
   error_material_delete_billed: Die in Rechnung gestellten Materialeinträge konnten nicht gelöscht werden
   error_expense_amount: Der Betrag darf nicht leer sein
@@ -1167,7 +1167,7 @@ de:
   label_deleted: Gelöscht
   warn_issuelog_exist: "Sie müssen alle Ticketprotokolle in der Woche stoppen"
   label_select_time: Wählen Sie Zeiteinträge
-  label_account_number: Kontonnummer
+  label_account_number: Kundennummer
   label_closed_date: Ruhetag
   label_select_service: Service auswählen
   label_select_service_for: Service auswählen für
@@ -1183,7 +1183,6 @@ de:
   label_last_salary: Letzter Lohn
   label_employee_dashboard: Mitarbeiter-Dashboards
   label_leave_setting: Abwesenheitseinstellungen
-  
   report_pf: PF Report
   label_uan: UAN
   label_wages: Wages
@@ -1205,3 +1204,13 @@ de:
   label_delivery_slip: Lieferschein
   button_csv: CSV
   button_pdf: PDF
+
+  label_send_email_notifications: Send Email Notifications
+  label_include_expense: Include Expense
+  label_select_entries: Select the Entries
+  label_select_material_entries: Select Material Entries
+  label_select_expense_entries: Select Expense Entries
+  label_fixed_cost_entries: Fixed Cost Entries
+  label_period_end_process: Auto Run Period End Process
+  label_delivery_items: Delivery Items
+  field_retirement_account: Retirement Account

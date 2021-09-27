@@ -21,28 +21,29 @@ include WktimeHelper
 include WkinvoiceHelper
 include WkcrmHelper
 
-	def saveBillableProjects(id, projectId, parentId, parentType, applyTax, itemizedBill, billingType)
+	def saveBillableProjects(id, projectId, parentId, parentType, applyTax, itemizedBill, billingType, include_expense)
 		if !id.blank?
 			wkaccountproject = WkAccountProject.find(id.to_i)
 		else
 			wkaccountproject = WkAccountProject.new
 		end
-		
+
 		wkaccountproject.project_id = projectId.to_i
 		wkaccountproject.parent_id = parentId.to_i
 		wkaccountproject.parent_type = parentType
 		wkaccountproject.apply_tax = applyTax
 		wkaccountproject.itemized_bill = itemizedBill
 		wkaccountproject.billing_type = billingType
-		
-		if !wkaccountproject.save			
+		wkaccountproject.include_expense = include_expense
+
+		if !wkaccountproject.save
 			errorMsg = wkaccountproject.errors.full_messages.join("<br>")
 		end
 		wkaccountproject
 	end
 
 	def accountProjctList
-		
+
 		sqlwhere = ""
 		if controller_name == "wkaccountproject"
 			filter_type = session[controller_name].try(:[], :polymorphic_filter)
@@ -63,7 +64,7 @@ include WkcrmHelper
 			sqlwhere += " wk_account_projects.parent_type = 'WkCrmContact' "
 			sqlwhere += " and wk_account_projects.parent_id = '#{contact_id}' " unless contact_id.blank?
 		end
-		
+
 		if filter_type == '3' || (filter_type.blank? && !account_id.blank?)
 			sqlwhere += " and "  unless sqlwhere.blank?
 			sqlwhere += " wk_account_projects.parent_type = 'WkAccount' "
@@ -75,7 +76,7 @@ include WkcrmHelper
 	end
 
    def get_project_id(project_id=params[:project_id])
-    projectEntry = Project.where(:identifier => project_id)	
+    projectEntry = Project.where(:identifier => project_id)
 	projectEntry = projectEntry.first unless projectEntry.blank?
 	projectId  = projectEntry.id
    end

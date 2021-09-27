@@ -18,6 +18,8 @@ module WkDashboard
 
   def getDetailReport(param={})
     entries = getEntries(param[:from]).order("start_time asc")
+    entries = entries.group(:user_id, :start_time, :end_time).select("wk_attendances.user_id, start_time, end_time")
+    entries = entries.where("group_id IN (?)", param[:group_id]) if param[:group_id].present?
     header = {user: l(:field_user), date: l(:field_start_date), clockin: l(:label_clock_in), clockout: l(:label_clock_out)}
     data = entries.map{|e| { user_id: e.user.name, date: e&.start_time&.localtime&.to_date, clockin: e&.start_time&.localtime&.to_s(:time), clockout: e&.end_time&.localtime&.to_s(:time) }}
     return {header: header, data: data}
