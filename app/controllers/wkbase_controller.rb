@@ -349,4 +349,10 @@ class WkbaseController < ApplicationController
 		end
 		export
 	end
+
+	def pdf_export(data)
+		pdf = ITCPDF.new(current_language)
+		pdf.add_page
+		pdf
+	end
 end

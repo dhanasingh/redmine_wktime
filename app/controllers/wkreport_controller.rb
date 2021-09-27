@@ -134,7 +134,7 @@ accept_api_auth :get_reports, :getReportData, :export
 				send_data(csv_export({data: reportData[:data], headers: reportData[:headers]}), :type => 'text/csv', :filename => "#{report_type}.csv")
 			end
 			format.pdf do
-				send_data(csv_export({data: reportData[:data], headers: reportData[:headers]}), :type => 'application/pdf', :filename => "#{report_type}.pdf")
+				send_data(pdf_export({data: reportData[:data], headers: reportData[:headers]}), :type => 'application/pdf', :filename => "#{report_type}.pdf")
 			end
 		end
 	end
@@ -142,7 +142,7 @@ accept_api_auth :get_reports, :getReportData, :export
 	private
 
 	# Retrieves the date range based on predefined ranges or specific from/to param dates
-	  def retrieve_date_range
+	def retrieve_date_range
 		@free_period = false
 		@from, @to = nil, nil
 		period_type = session[controller_name].try(:[], :period_type)
@@ -181,12 +181,35 @@ accept_api_auth :get_reports, :getReportData, :export
 		session[controller_name][:to] = @to
 		@from, @to = @to, @from if @from && @to && @from > @to
 
-	  end
+	end
 
-	  def check_perm_and_redirect
+	def check_perm_and_redirect
 		unless validateERPPermission("V_REPORT")
 			render_403
 			return false
 		end
-	  end
+	end
+
+	def pdf_export(data)
+		pdf = super
+		row_Height = 8
+		page_width    = pdf.get_page_width
+		left_margin   = pdf.get_original_margins['left']
+		right_margin  = pdf.get_original_margins['right']
+		table_width = page_width - right_margin - left_margin
+		width = table_width/data[:headers].length
+		pdf.ln
+		pdf.SetFontStyle('B', 9)
+		pdf.set_fill_color(230, 230, 230)
+		data[:headers].each{ |key, value| pdf.RDMCell(width, row_Height, value.to_s, 1, 0, '', 1) }
+		pdf.ln
+		pdf.set_fill_color(255, 255, 255)
+
+		pdf.SetFontStyle('', 8)
+		data[:data].each do |entry|
+			entry.each{ |key, value| pdf.RDMCell(width, row_Height, value.to_s, 1, 0, '', 0) }
+		pdf.ln
+		end
+		pdf.Output
+	end
 end
