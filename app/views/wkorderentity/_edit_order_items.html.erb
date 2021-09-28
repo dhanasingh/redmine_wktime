@@ -394,7 +394,6 @@
 <%=h hidden_field_tag("invoice_id",  params[:loadUnBilled].present? ? params[:invoice_id] : @invoice.id )  %>
 <% unless @invoiceItem.blank?  %>
 <% unless @invoiceItem.blank? && @invoiceItem[0].blank? %>
-<%#=h hidden_field_tag("invoice_id",  @invoice.id )  %>
 <% end %>
 <% end %>
 <%=h hidden_field_tag("deletedids",  "" )  %>
@@ -406,10 +405,8 @@
 	<%= link_to l(:label_pay_invoice), url_for(:controller => controller.getPaymentController, :action => 'edit', :load_payment => true, :related_to => @invoice.parent_type, :related_parent => @invoice.parent_id, :project_id => 0 ),  :class => 'icon icon-report' %>
 <% end %>
 <% unless @invoiceItem.blank? || @invoice.id.blank? %>
-	<div style="float:right;">
-		<%= link_to l(:label_export_invoice), "javascript: openInvReportPopup();" %>
-	</div>
 	<% other_formats_links do |f| %>
+		<%= link_to l(:label_export_invoice), "javascript: openInvReportPopup();" %> |
 		<%= f.link_to 'PDF', url: {controller: controller_name, action: 'export', invoice_id: @invoice.id} %>
 		<%= f.link_to 'CSV', url: {controller: controller_name, action: 'export', invoice_id: @invoice.id} %>
 	<% end %>

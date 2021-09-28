@@ -71,4 +71,14 @@ module ReportPayslip
 		total[:reimburseYTD] = total[:ye] - total[:yd] + total[:yr]
 		total
 	end
+
+	def getExportData(user_id, group_id, projID, from, to)
+		p "------getExportData=#{user_id}, #{group_id}, #{projID}, #{from}, #{to}"
+		resultData = calcReportData(user_id, group_id, projID, from, to)
+		p "------resultData=#{resultData.inspect}"
+		header = {}
+		data = []
+
+		return {data: data, header: header}
+	end
 end

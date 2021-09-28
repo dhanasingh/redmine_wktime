@@ -707,7 +707,7 @@ class WkorderentityController < WkbillingController
 		itemtype  = ''
 		case(type)
 		when 'i'
-			itemtype = l(:label_invoice)
+			itemtype = l(:field_hours)
 		when 'c'
 			itemtype = l(:label_credit)
 		when 'm'
@@ -716,6 +716,8 @@ class WkorderentityController < WkbillingController
 			itemtype = l(:label_tax)
 		when 'a'
 			itemtype = l(:label_rental)
+		when 'e'
+			itemtype = l(:label_expenses)
 		else
 			itemtype = '';
 		end

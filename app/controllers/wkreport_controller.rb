@@ -55,7 +55,7 @@ accept_api_auth :get_reports, :getReportData, :export
 
 	def set_filter_session
 		filters = [:report_type, :period_type, :period, :from, :to, :group_id, :project_id, :user_id]
-		super(filters, {:from => @from, :to => @to})
+		super(filters, {:from => @from, :to => @to, user_id: User.current.id})
 	end
 
 	def getMembersbyGroup
@@ -116,17 +116,14 @@ accept_api_auth :get_reports, :getReportData, :export
 	end
 
 	def export
-		user_id = params[:user_id] || User.current.id
-		group_id = params[:group_id] || "0"
-		projId = params[:project_id] || "0"
-		from = params[:from]&.to_date || Date.today.beginning_of_month
-		to = params[:to]&.to_date || Date.today.end_of_month
+		set_filter_session
+		retrieve_date_range
 		report_type = params[:report_type]
 		if report_type.present?
 			report_type.slice!("_web") if report_type.include? "_web"
 			require_relative "../views/wkreport/#{report_type}"
 			report = Object.new.extend(report_type.camelize.constantize)
-			reportData = report.getExportData(user_id, group_id, projId, from, to)
+			reportData = report.getExportData(getSession(:user_id), getSession(:group_id), getSession(:project_id), @from, @to)
 		end
 
 		respond_to do |format|

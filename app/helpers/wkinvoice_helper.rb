@@ -820,18 +820,21 @@ include WkpayrollHelper
 		elsif isCreate
 			totalExpense = entries.sum(:amount)
 			@invItems.each do |key, item|
-				if item["item_type"] == "e"
+				if item["item_type"] == "e" && item["id"].blank?
 					saveInvoice if @invoice&.id.blank?
 					invoiceItem = @invoice.invoice_items.new()
 					invoiceItem = updateInvoiceItem(invoiceItem, item["project_id"], item["item_desc"], item["rate"], 1, item["currency"], 'e', item["item_amount"], nil, nil, nil)
+					item["id"] = invoiceItem.id
 					(item["expense_id"] || []).each{|id| updateBilledEntry(WkExpenseEntry.find(id), invoiceItem.id)}
 				end
 			end
 			# Saving Tax
-			(accProject.taxes || []).each do |tax|
-				taxAmt = (tax.rate_pct/100) * (totalExpense || 0)
-				taxinvItem = @invoice.invoice_items.new()
-				updateInvoiceItem(taxinvItem, accProject.project_id, tax.name, tax.rate_pct, nil, @currency, 'e', taxAmt.round(2), nil, nil, nil)
+			if totalExpense > 0
+				(accProject.taxes || []).each do |tax|
+					taxAmt = (tax.rate_pct/100) * (totalExpense || 0)
+					taxinvItem = @invoice.invoice_items.new()
+					updateInvoiceItem(taxinvItem, accProject.project_id, tax.name, tax.rate_pct, nil, @currency, 't', taxAmt.round(2), nil, nil, nil)
+				end
 			end
 		end
 		totalExpense
@@ -910,8 +913,8 @@ include WkpayrollHelper
 		invoiceComponents = []
 		if componetsId == 'wktime_invoice_components'
 			accProjs =  WkAccountProject.where(parent_id: parentId,parent_type: parentType, project_id: projectID)
-			accProjectID =  accProjs.first.id
-			invoiceComp = WkInvoiceComponents.getAccInvComp(accProjectID)
+			accProjectID =  accProjs&.first&.id
+			invoiceComp = WkInvoiceComponents.getAccInvComp(accProjectID.to_i)
 			if invoiceComp.present?
 				invoiceComp.each do |comp|
 					invoiceComponents << {name: comp.name, value: comp.value.present? ? comp.value : comp.ic_value}
