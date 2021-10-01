@@ -2,7 +2,7 @@ module WkDashboard
 
   def chart_data(param={})
     data = {
-      graphName: l(:label_expense_for_issues), chart_type: "pie", xTitle: l(:field_hours), yTitle: l(:label_day_plural),
+      graphName: l(:label_expense_for_issues), chart_type: "doughnut", xTitle: l(:field_hours), yTitle: l(:label_day_plural),
       legentTitle1: l(:label_total_expense_of_issues)
     }
     entries = getExpenses(param)
