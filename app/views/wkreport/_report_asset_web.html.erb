@@ -55,9 +55,9 @@
 							<td style="text-align:center;"><%= entry['asset_name'] %></td>
 							<td style="text-align:center;"><%= entry['product_name'] %></td>
 							<td style="text-align:center;"><%= entry['shipment_date'] %></td>
-							<td style="text-align:right;"><%= entry['currency'] %><%= entry['purchase_value']  %></td>
-							<td style="text-align:right;"><%= entry['currency'] %><%= entry['depreciation']  %></td>
-							<td style="text-align:right;"><%= entry['currency'] %><%= entry['current_value'] %></td>
+							<td style="text-align:right;"><%= entry['purchase_value']  %></td>
+							<td style="text-align:right;"><%= entry['depreciation']  %></td>
+							<td style="text-align:right;"><%= entry['current_value'] %></td>
 							<td style="text-align:center;"><%= entry['last_depreciation'] %></td>
 					</tr>
 				<% end %>
@@ -67,9 +67,9 @@
 					<td></td>
 					<td></td>
 					<td></td>
-					<td style="text-align:right;"><b><%=data[:currency]%><%= data[:purchase_total]  %></b></td>
-					<td style="text-align:right;"><b><%=data[:currency]%><%= data[:depreciation_total]  %></b></td>
-					<td style="text-align:right;"><b><%=data[:currency]%><%= data[:current_total]  %></b></td>
+					<td style="text-align:right;"><b><%= data[:purchase_total]  %></b></td>
+					<td style="text-align:right;"><b><%= data[:depreciation_total]  %></b></td>
+					<td style="text-align:right;"><b><%= data[:current_total]  %></b></td>
 					<td></td>
 				</tr>
 			</tbody>

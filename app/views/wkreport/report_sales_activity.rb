@@ -34,7 +34,7 @@ module ReportSalesActivity
 				isSupplier = true unless activity.parent.contact_type == 'C'
 			end
 			unless isSupplier
-				completionTime = (activity.status == 'C' || activity.status == 'H') ? convertSecToDays(activity.status_update_on - activity.start_date) : nil 
+				completionTime = (activity.status == 'C' || activity.status == 'H') ? convertSecToDays(activity.status_update_on - activity.start_date) : nil
 				totalTime = totalTime + (completionTime || 0)
 				activities[activity.id]['type'] = acttypeHash[activity.activity_type]
 				activities[activity.id]['name'] = activity.name
@@ -51,4 +51,18 @@ module ReportSalesActivity
 		stock = {activities: activities, totDuration: duration, from: from.to_formatted_s(:long), to: to.to_formatted_s(:long)}
 		stock
 	end
+
+  def getExportData(user_id, group_id, projId, from, to)
+    data = {headers: {}, data: []}
+    reportData = calcReportData(user_id, group_id, projId, from, to)
+    data[:headers] = {activity_type: l(:label_activity_type), subject: l(:field_subject), status: l(:field_status), relates_to: l(:label_relates_to), name: l(:field_name), start_date_time: l(:label_start_date_time), complete_date: l(:label_completed_date_time), assignee: l(:field_assigned_to), duration: l(:label_duration)+' '+l(:label_day_plural)}
+    reportData[:activities].each do |key, activity|
+      data[:data] << activity
+    end
+    if reportData[:activities].length > 0
+      duration =  {activity_type: '', subject: '', status: '', relates_to: '', name: '', start_date_time: '', complete_date: '', assignee: l(:label_average) + " " + l(:label_duration), duration: reportData[:totDuration]}
+      data[:data] << duration
+    end
+    data
+  end
 end

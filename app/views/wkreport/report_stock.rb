@@ -19,10 +19,10 @@ module ReportStock
   include WkreportHelper
 
 	def calcReportData(userId, groupId, projId, from, to)
-		sqlStr = " select p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as attribute_name, inv.stock_value, inv.stock_quantity, um.short_desc, projects.name as project_name, inv.currency 
+		sqlStr = " select p.name as product_name, b.name as brand_name, m.name as product_model_name, a.name as attribute_name, inv.stock_value, inv.stock_quantity, um.short_desc, projects.name as project_name, inv.currency
 					from wk_product_items pitm
-					inner join (select product_item_id, product_attribute_id, uom_id, project_id, currency, sum((cost_price * available_quantity) + over_head_price) as stock_value, sum(available_quantity) as stock_quantity 
-					from wk_inventory_items where product_type='I' group by product_item_id, product_attribute_id, uom_id, project_id, currency) inv on (inv.product_item_id = pitm.id) 
+					inner join (select product_item_id, product_attribute_id, uom_id, project_id, currency, sum((cost_price * available_quantity) + over_head_price) as stock_value, sum(available_quantity) as stock_quantity
+					from wk_inventory_items where product_type='I' group by product_item_id, product_attribute_id, uom_id, project_id, currency) inv on (inv.product_item_id = pitm.id)
 					left join wk_products p on (p.id = pitm.product_id)
 					left join wk_product_models m on (m.id = pitm.product_model_id)
 					left join wk_brands b on (b.id = pitm.brand_id)
@@ -39,4 +39,15 @@ module ReportStock
 		stock = {stockEntries: entries, totalStockVal: totalStockVal}
 		stock
 	end
+
+	def getExportData(user_id, group_id, projId, from, to)
+    data = {headers: {}, data: []}
+    reportData = calcReportData(user_id, group_id, projId, from, to)
+    data[:headers] = {project: l(:label_project), inventory_item_id: l(:field_inventory_item_id), brand: l(:label_brand), model: l(:label_model), attribute: l(:label_attribute), quantity: l(:field_quantity), uom: l(:label_uom), currency: l(:field_currency), stock_value: l(:label_stock_value)}
+    reportData[:stockEntries].each do |entry|
+      data[:data] << {project: entry.project_name, inventory_item_id: entry.product_name, brand: entry.brand_name, model: entry.product_model_name, attribute: entry.attribute_name, quantity: entry.stock_quantity, uom: entry.short_desc, currency: entry.currency, stock_value: entry.stock_value}
+    end
+    data[:data] << {project: '', inventory_item_id: '', brand: '', model: '', attribute: '',  quantity: '', uom: '', currency: '', stock_value: reportData[:totalStockVal]}
+    data
+  end
 end

@@ -616,13 +616,18 @@ class WkattendanceController < WkbaseController
 	def leavesettings
 		if request.post?
       setting = params[:settings] ? params[:settings].permit!.to_h : {}
-			 params[:settings].each do |key, value|
-				leaveSettings = WkSetting.where("name = ?", key ).first
-			 	leaveSettings = WkSetting.new if leaveSettings.blank?
-			 	leaveSettings.name = key
-			 	leaveSettings.value = value
-			 	leaveSettings.save()
-			 end
+			if setting.present?
+				setting.each do |key, value|
+					leaveSettings = WkSetting.where("name = ?", key ).first
+					leaveSettings = WkSetting.new if leaveSettings.blank?
+					leaveSettings.name = key
+					leaveSettings.value = value
+					leaveSettings.save()
+				end
+			else
+				leaveSettings = WkSetting.where("name = 'leave_settings'")
+				leaveSettings.destroy
+			end
 			flash[:notice] = l(:notice_successful_update)
 		end
 		@leaveSettings = getLeaveSettings

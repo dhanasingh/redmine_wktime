@@ -3,7 +3,7 @@ module ReportAccountPayable
 
   def calcReportData(user_id, group_id, projId, from, to)
     from = Date.civil(from.year,from.month, 1)
-    to = Date.civil((to + 1.month).year,(to + 1.month).month, 1) - 1 
+    to = Date.civil((to + 1.month).year,(to + 1.month).month, 1) - 1
     inBtwMonths = getInBtwMonthsArr(from, to)
     sqlStr = "select ac.*, idt.inv_amount, pdt.pay_amount, idt.inv_currency, pdt.pay_currency, oi.prv_invoice_amount, op.prv_payment_amount,
     coalesce(a.name, CONCAT(cc.first_name,' ',cc.last_name)) as name from (select p.parent_id, p.parent_type, #{getDatePart('v.selected_date','year','year_val')}, #{getDatePart('v.selected_date','month','month_val')} from
@@ -37,7 +37,7 @@ module ReportAccountPayable
     on (op.parent_type = ac.parent_type and op.parent_id = ac.parent_id)
     left join wk_crm_contacts cc on (cc.id = ac.parent_id and ac.parent_type = 'WkCrmContact')
     left join wk_accounts a on (a.id = ac.parent_id and ac.parent_type = 'WkAccount') "
-    
+
     parentIdHash = getProjectBillers(projId)
     if !projId.blank? && projId != '0'
       sqlCond = ""
@@ -54,7 +54,7 @@ module ReportAccountPayable
         sqlStr = sqlStr + " where ac.parent_id = 0"
       end
     end
-    
+
     sqlStr = sqlStr + " order by parent_type, parent_id, year_val, month_val"
     entries = WkInvoice.find_by_sql(sqlStr)
 
@@ -98,6 +98,44 @@ module ReportAccountPayable
     end
     data = data.except!(*accName)
     [data].push('%.2f' % total)
+  end
+
+  def getExportData(user_id, group_id, projId, from, to)
+    data = {headers: {}, data: []}
+    reportData = calcReportData(user_id, group_id, projId, from, to)
+    data[:headers] = {account:  l(:field_account), prev_bal: l(:label_previous)+' '+l(:wk_field_balance)}
+    reportData[:periods].each do |monthVal|
+      data[:headers].store(monthVal, monthVal[0].to_s+' '+I18n.t("date.abbr_month_names")[monthVal[1]].to_s)
+    end
+    data[:headers].store('cur_bal',  l(:label_current)+' '+l(:wk_field_balance))
+    reportData[:data].first.each do |key, val|
+      details = {name: val[:name], prev_bal: '', curr_bal: ''}
+      reportData[:periods].each do |monthVal|
+        details.store(monthVal, '')
+      end
+      data[:data] << details
+      invDetails = {invoice: l(:label_invoice), inv_prev_balance: ''}
+      payDetails = {payment: l(:label_txn_payment), pay_prev_balance: ''}
+      balDetails = {balance: l(:wk_field_balance), bal_prev_balance: val[:prevBalance]}
+      val[:range].each do |key, entry|
+        invDetails.store(key, entry[:inv_currency]+' '+entry[:inv_amount])
+        payDetails.store(key, entry[:pay_currency]+' '+entry[:pay_amount])
+        balDetails.store(key, entry[:inv_currency]+' '+entry[:balance])
+      end
+      invDetails.store('cur_bal', '')
+      payDetails.store('cur_bal', '')
+      balDetails.store('cur_bal', val[:current_balance])
+      data[:data] << invDetails
+      data[:data] << payDetails
+      data[:data] << balDetails
+    end
+    total ={}
+    reportData[:periods].each do |monthVal|
+      total.store(monthVal, '')
+    end
+    total.merge!({acc: '', total: 'total', allTotal: reportData[:data].last})
+    data[:data] << total
+    data
   end
 end
 
