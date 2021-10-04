@@ -2,5 +2,5 @@
 	status =session[controller_name].try(:[], :delivery_status)
 	statusList = {'' => ''}.merge(getDeliveryStatus) %>
 
-<th align="left"><%= l(:field_status) %><%= ": "%></th> 
+<th style="text-align: left"><%= l(:field_status) %><%= ": "%></th> 
 <td><%= select_tag('delivery_status', options_for_select(statusList.invert, selected: status), required: true) %></td>

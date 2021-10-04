@@ -95,7 +95,35 @@ class WkdeliveryController < WkinventoryController
 	def edit
 		@shipment = WkShipment.new
 		@deliveryItem = Array.new
-		@deliveryItem << @shipment.delivery_items.new(currency: Setting.plugin_redmine_wktime['wktime_currency'])
+		@deliveryItem << @shipment.delivery_items.new(currency: Setting.plugin_redmine_wktime['wktime_currency']) if !params[:populate_items]
+		if params[:populate_items]
+			@shipment.parent_id = params[:related_parent].to_i
+			@shipment.parent_type = params[:related_to]
+			@shipment.invoice_id = params[:delivery_invoice_id].to_i
+			invoices = []
+			material_entries = WkMaterialEntry.joins(:spent_for)
+				.joins("INNER JOIN wk_invoice_items ON wk_invoice_items.id = wk_spent_fors.invoice_item_id")
+				.joins("INNER JOIN wk_inventory_items ON wk_inventory_items.id = wk_material_entries.inventory_item_id") 
+				.where("wk_invoice_items.invoice_id" => params[:delivery_invoice_id], "wk_invoice_items.item_type" => 'm')
+				.select("wk_material_entries.*, wk_inventory_items.location_id, wk_inventory_items.cost_price, wk_inventory_items.over_head_price, wk_inventory_items.serial_number as serial_no, wk_inventory_items.running_sn, wk_inventory_items.notes")
+			if material_entries.present?
+				material_entries.each do |item|
+					delivery = @shipment.delivery_items.new
+					delivery.inventory_item_id = item.inventory_item_id
+					delivery.location_id = item.location_id
+					delivery.selling_price = item.selling_price
+					delivery.currency = item.currency
+					delivery.total_quantity = item.quantity
+					delivery.serial_number = item.serial_no
+					delivery.running_sn = item.running_sn
+					delivery.notes = item.notes
+					delivery.project_id = item.project_id
+					@deliveryItem << delivery
+				end
+			else
+				@deliveryItem << @shipment.delivery_items.new(currency: Setting.plugin_redmine_wktime['wktime_currency'])
+			end
+		end
 		unless params[:delivery_id].blank?
 			@shipment = WkShipment.find(params[:delivery_id].to_i)
 			@deliveryItem = @shipment.delivery_items
@@ -115,6 +143,7 @@ class WkdeliveryController < WkinventoryController
 		end
 		@shipment.serial_number = params[:serial_number]
 		@shipment.shipment_date = params[:delivery_date]
+		@shipment.invoice_id = params[:delivery_invoice_id]
 		if @shipment&.wkstatus&.last&.status != 'D'
 			saveStatus = false
 			if params[:status] == 'L'
@@ -268,5 +297,14 @@ class WkdeliveryController < WkinventoryController
 	def getCustomerAddress(invoice)
 		invoice.parent.name + "\n" + (invoice.parent.address.blank? ? "" : invoice.parent.address.fullAddress)
 	end
-	
+
+	def getInvoiceNos
+		invoiceArr = ""
+		invoices = WkInvoice.get_invoice_numbers(params[:related_to], params[:related_parent])
+		invoiceArr << "" + ',' +  "" + "\n"
+		invoices.each{|item| invoiceArr << item.id.to_s() + ',' +  item.invoice_number.to_s() + "\n" } if invoices.present?
+		respond_to do |format|
+			format.text  { render :plain => invoiceArr }
+		end
+	end	
 end

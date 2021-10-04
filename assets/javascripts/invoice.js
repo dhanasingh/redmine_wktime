@@ -66,7 +66,7 @@ function invoiceFormSubmission(isPreview)
 	var timeentryIDs = $('input[name=check_time_entries]:checked').map(function(){
  		return $(this).val();
   }).get();
-	var materialentryIDs = $('input[name=check_material_entries]:checked').map(function(){
+	var materialentryIDs = $('input[name=check_wk_material_entries]:checked').map(function(){
  		return $(this).val();
   }).get();
 	let expenseEntryIDs = $('input[name=check_wk_expense_entries]:checked').map(function(){

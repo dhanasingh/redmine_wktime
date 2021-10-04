@@ -9,8 +9,9 @@
 	productModifyUrl="<%= "#{url_for(controller: "wkdelivery", action: 'populateProductItemDD')}" %>";
 </script>	
 <div class="wk-contextual">
-<h2 style="float:left;"><%= l(:label_item) %></h2>
-<%= link_to l(:button_add_row), "#", { onclick: "javascript:invoiceAddRow('deliveryTable', 'totalrow');",  class: 'icon icon-add' } %>
+	<h2 style="float:left;"><%= l(:label_item) %> </h2>
+	 <span id="populate_items"><%= link_to l(:label_populate_items), "#", { onclick: "javascript:populateInvoice()", class: 'icon icon-report'} if params[:delivery_id].blank? %></span>
+	<%= link_to l(:button_add_row), "#", { onclick: "javascript:invoiceAddRow('deliveryTable', 'totalrow');",  class: 'icon icon-add' } if params[:delivery_id].blank? %>
 </div>
 <div style="clear:both"></div>
 <div class="autoscroll">
@@ -20,10 +21,9 @@
 			<th width="1%"></th>
 			<th width="1%" >#</th>
 			<th width="7%" ><%= l(:label_location) %></th>
-			<th width="10%" ><%= l(:field_inventory_item_id) %></th>
+			<th width="7%" ><%= l(:field_inventory_item_id) %></th>
 			<th width="20%" ><%= l(:label_item) %></th>
-			<th width="7%" ><%= l(:label_serial_number) %></th>
-			<th width="7%" ><%= l(:label_running) %></th>
+			<th width="13%" colspan="2"><%= l(:label_serial_number) %></th>
 			<th width="10%" ><%= l(:field_notes) %></th>
 			<th width="7%" ><%= l(:field_currency) %></th>
 			<th width="7%" ><%= l(:label_cost_price) %></th>
@@ -81,7 +81,7 @@
 		end
 		locations = [["", ""]] if locations.length == 0
 	%>
-	<div style="padding-left: 10px;padding-bottom: 20px">
+	<div style="padding: 10px">
 		<div id="mapContainer" style="width:40%;height:400px;"></div>
 		<%= render partial: "wkgeolocation/location_map", locals: { locations: locations } %>
 	</div>
