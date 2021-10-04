@@ -87,4 +87,18 @@ module ReportPayrollBank
     end
     data = {headerarr: @headerarr, rowval: @rowval, usercol: usercol, syscurrency: syscurrency, salary_data: @salary_data, compTotalHash: compTotalHash}
   end
+
+  def getExportData(user_id, group_id, projId, from, to)
+    rptData = calcReportData(user_id, group_id, projId, from, to)
+    headers = {}
+    data = []
+    total = {}
+    rptData[:headerarr].each{|ele| headers[ele] = ele}
+    rptData[:rowval].each do |key, value|
+      data << value.to_h
+    end
+    rptData[:headerarr].each_with_index{|ele, index| total[ele] = index == 3 ? l(:label_total) : (rptData[:compTotalHash][ele] && (rptData[:syscurrency].to_s +  rptData[:compTotalHash][ele].to_s)) }
+    data << total
+    return {data: data, headers: headers}
+  end
 end
