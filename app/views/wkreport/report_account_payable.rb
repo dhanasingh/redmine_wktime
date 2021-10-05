@@ -103,20 +103,20 @@ module ReportAccountPayable
   def getExportData(user_id, group_id, projId, from, to)
     data = {headers: {}, data: []}
     reportData = calcReportData(user_id, group_id, projId, from, to)
-    data[:headers] = {account:  l(:field_account), prev_bal: l(:label_previous)+' '+l(:wk_field_balance)}
+    data[:headers] = {account:  l(:field_account), labels: '', prev_bal: l(:label_previous)+' '+l(:wk_field_balance)}
     reportData[:periods].each do |monthVal|
       data[:headers].store(monthVal, monthVal[0].to_s+' '+I18n.t("date.abbr_month_names")[monthVal[1]].to_s)
     end
     data[:headers].store('cur_bal',  l(:label_current)+' '+l(:wk_field_balance))
     reportData[:data].first.each do |key, val|
-      details = {name: val[:name], prev_bal: '', curr_bal: ''}
+      details = {name: val[:name], label: '', prev_bal: '', curr_bal: ''}
       reportData[:periods].each do |monthVal|
         details.store(monthVal, '')
       end
       data[:data] << details
-      invDetails = {invoice: l(:label_invoice), inv_prev_balance: ''}
-      payDetails = {payment: l(:label_txn_payment), pay_prev_balance: ''}
-      balDetails = {balance: l(:wk_field_balance), bal_prev_balance: val[:prevBalance]}
+      invDetails = {label: '', invoice: l(:label_invoice), inv_prev_balance: ''}
+      payDetails = {label: '', payment: l(:label_txn_payment), pay_prev_balance: ''}
+      balDetails = {label: '', balance: l(:wk_field_balance), bal_prev_balance: val[:prevBalance]}
       val[:range].each do |key, entry|
         invDetails.store(key, entry[:inv_currency]+' '+entry[:inv_amount])
         payDetails.store(key, entry[:pay_currency]+' '+entry[:pay_amount])
@@ -133,7 +133,7 @@ module ReportAccountPayable
     reportData[:periods].each do |monthVal|
       total.store(monthVal, '')
     end
-    total.merge!({acc: '', total: 'total', allTotal: reportData[:data].last})
+    total.merge!({acc: '',label: '', total: 'total', allTotal: reportData[:data].last})
     data[:data] << total
     data
   end
