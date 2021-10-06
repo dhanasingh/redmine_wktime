@@ -145,8 +145,7 @@ class WkexpenseController < WktimeController
     spent_for['spent_on_time'] = getDateTime(teEntry.spent_on, 0, 0, 0)
 		# save GeoLocation
     saveGeoLocation(spent_for, params[:latitude], params[:longitude])
-
-    teEntry.spent_for_attributes = spent_for
+    teEntry.wkspentfor_attributes = spent_for
   end
 
   def getModelName
