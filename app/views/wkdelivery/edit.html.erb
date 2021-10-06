@@ -16,7 +16,7 @@
 			accArr = relatedValues(params[:related_to], params[:related_parent], type, false, controller.additionalContactType, controller.additionalAccountType)		
 		end
 		invoiceArr = []
-		invoiceArr = WkInvoice.get_invoice_numbers(@shipment&.parent_type || 'WkAccount', @shipment&.parent_id || accArr[0][1]).collect {|i| [i.invoice_number, i.id]  }
+		invoiceArr = WkInvoice.get_invoice_numbers(@shipment&.parent_type || 'WkAccount', @shipment&.parent_id || (accArr.present? ? accArr[0][1] : '')).collect {|i| [i.invoice_number, i.id]  }
 		invoiceArr.unshift(["",''])
 	%>
 <%= form_tag({controller: controller_name, action: 'update'}, method: :post, id: 'query_form') do %>
