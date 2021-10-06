@@ -3,7 +3,8 @@
 <% notification_helper = Object.new.extend(WknotificationHelper) %>
 <% if wktime_helper.isChecked('te_save_geo_location') ||
 		wktime_helper.isChecked('att_save_geo_location') ||
-		wktime_helper.isChecked('crm_save_geo_location') %>
+		wktime_helper.isChecked('crm_save_geo_location') ||
+		wktime_helper.isChecked('asset_save_geo_location') %>
 			<%= javascript_include_tag 'geo_location', :plugin => "redmine_wktime" %>
 <% end %>
 <%

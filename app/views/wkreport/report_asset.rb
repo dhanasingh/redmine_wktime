@@ -34,7 +34,7 @@ module ReportAsset
         asset[index]['product_name'] = entry.product_name
         asset[index]['shipment_date'] = entry.shipment_date
         asset[index]['purchase_value'] = entry.currency+' '+purchaseCost.to_s
-        asset[index]['depreciation'] = entry.currency+' '+(purchaseCost - currentValue).to_s
+        asset[index]['depreciation'] = entry.currency+' '+(purchaseCost - currentValue).round(2).to_s
         asset[index]['current_value'] = entry.currency+' '+currentValue.to_s
         asset[index]['last_depreciation'] = entry.depreciation_date
         # asset[index]['currency'] = entry.currency
@@ -50,7 +50,7 @@ module ReportAsset
     depreciation_total = depreciation_total
     current_total = current_total
     currency = currency
-    data = {asset: asset, purchase_total: currency+' '+purchase_total.to_s, depreciation_total: currency+' '+depreciation_total.to_s, current_total: currency+' '+current_total.to_s, currency: currency, to: to.to_formatted_s(:long)}
+    data = {asset: asset, purchase_total: currency+' '+purchase_total.to_s, depreciation_total: currency+' '+depreciation_total.round(2).to_s, current_total: currency+' '+current_total.to_s, currency: currency, to: to.to_formatted_s(:long)}
   end
 
   def getExportData(user_id, group_id, projId, from, to)

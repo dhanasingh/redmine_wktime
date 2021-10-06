@@ -6,9 +6,9 @@
 		productItemArr = []
 		itemObj = nil
 		locationArr =  WkLocation.order(:name).pluck(:name, :id)
-		locationId = entry.location_id.present? ? entry.location_id : (locationArr[0][1] || '')
+		locationId = entry.location_id.present? ? entry.location_id : (locationArr.present? ? locationArr[0][1] : '')
 		productArr = WkInventoryItem.getProduct.collect {|t| [t.name , t.id] }
-		productId = productItem.present? ? productItem&.product_id : productArr[0][1]
+		productId = productItem.present? ? productItem&.product_id : (productArr.present? ? productArr[0][1] : '')
 		WkInventoryItem.getProductItem(productId, locationId).each do |item|
 			name = item.product_item.brand.name + '-' + item.product_item.product_model.name + '-' + (item.currency.to_s() + ' ' +  item.selling_price.to_s()) +' - '+ (item.serial_number.to_s() + item.running_sn.to_s())
 			productItemArr << [name , item.id]

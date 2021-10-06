@@ -62,7 +62,7 @@ class WkInventoryItem < ActiveRecord::Base
     .joins("INNER JOIN wk_products ON wk_products.id = wk_product_items.product_id")
     .joins("INNER JOIN wk_brands ON wk_brands.id = wk_product_items.brand_id")
     .joins("INNER JOIN wk_product_models ON wk_product_models.id = wk_product_items.product_model_id")
-    .where("available_quantity > 0 AND (wk_products.product_type= 'I' OR wk_products.product_type is NULL)")
+    .where("available_quantity > 0 AND (wk_inventory_items.product_type= 'I')")
   }
 
   scope :getProduct, ->{

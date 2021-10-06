@@ -73,6 +73,7 @@
 <% end %>
 <%= submit_tag l(:button_save),  hidden: false, id: 'items_save', disabled: false %>
 <!-- For Geolocation -->
+<% if isChecked('asset_save_geo_location') %>
 	<% 	
 		locations = []
 		@shipment.wkstatus.map do |entry|
@@ -85,3 +86,4 @@
 		<div id="mapContainer" style="width:40%;height:400px;"></div>
 		<%= render partial: "wkgeolocation/location_map", locals: { locations: locations } %>
 	</div>
+<% end %>
