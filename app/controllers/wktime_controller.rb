@@ -108,6 +108,7 @@ include ActionView::Helpers::TagHelper
 			end
 			format.pdf do
 				get_TE_entries(queries[0] + queries[1] + orderStr)
+				findBySql(queries[0], queries[1], orderStr)
 				send_data(list_to_pdf(@entries, setEntityLabel), :type => 'application/pdf', :filename => "#{setEntityLabel}.pdf")
 			end
       format.csv do
