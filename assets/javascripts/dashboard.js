@@ -1,7 +1,7 @@
 function renderChart(url, path){
   let name = (path.split(".")).shift();
   name = (name.split("/")).pop();
-  var width = screen.availWidth/3.4
+  var width = screen.availWidth/3.25
   var height = screen.availHeight/3.1
 	var div = '<div class="icon-gravatar" style="margin-right: 0px;padding-top: 10px; background:white; cursor: pointer; id="'+path+'"><canvas id="'+name+'" width='+width+' height='+height+'></canvas></div>';
 	$("#graph").append(div);
