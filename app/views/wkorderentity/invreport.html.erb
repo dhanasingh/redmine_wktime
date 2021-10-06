@@ -82,7 +82,7 @@
 												entry.item_type == 'a' && l(:label_rental) || entry.item_type == 'e' && l(:label_expenses) ||  ""
 											%>
 											<td style="width:16%;" ><%= item_type %></td>
-											<td style="width:16%;" align="right" ><%=h ("%.2f" % entry.rate).to_s + (entry.item_type == 'i' || entry.item_type == 'c' || entry.item_type == 'm' || entry.item_type == 'a' ? '' : ( controller.addAdditionalTax ? '' : "%"))  unless entry.rate.blank? %></td>
+											<td style="width:16%;" align="right" ><%=h ("%.2f" % entry.rate).to_s + (entry.item_type == 'i' || entry.item_type == 'c' || entry.item_type == 'm' || entry.item_type == 'a' || entry.item_type == 'e' ? '' : ( controller.addAdditionalTax ? '' : "%"))  unless entry.rate.blank? %></td>
 											<td style="width:16%;" align="right" ><%=h "%.2f" % entry.quantity unless entry.quantity.blank? %></td>
 											<td style="width:16%;" align="center" ><%=h entry.original_currency %></td>
 											<td style="width:16%;" align="right" ><%=h "%.2f" % entry.original_amount unless entry.original_amount.blank?%></td>
