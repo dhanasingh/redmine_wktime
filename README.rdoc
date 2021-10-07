@@ -1,17 +1,14 @@
-= Webinar on ERPmine – CRM, Sept 28, 2021, 5 PM India (11:30 AM GMT)
+= Webinar on ERPmine – Accounting, October 26, 2021, 5 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
-https://us02web.zoom.us/meeting/register/tZYtde-hqD4pHdSSJH_uv0kdjjFOVQGvOjp7
+https://us02web.zoom.us/meeting/register/tZAkcuGqqj8rHNO308lmS6_Ij93PZ2aq_mqI
 
 *Topics* :
 
-* Leads
-* Accounts
-* Contacts
-* Opportunities
-* Activities
-* Reports
-* Mobile App
+* Accounting transactions
+* General Ledger
+* Financial Reports
+* Mobile app
 ===============================================================================
 
 = ERPmine
