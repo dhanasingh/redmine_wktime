@@ -9,7 +9,7 @@
 <% @trOpen = true %>
 <% @row += 1 unless isTemplate %>
 <%
-holidayProj = getProjByIssue(Setting.plugin_redmine_wktime['wktime_holiday']) if @holidayEntries.present?
+holidayProj = getProjByIssue(Setting.plugin_redmine_wktime['wktime_holiday']) if Setting.plugin_redmine_wktime['wktime_holiday'].to_i > 0 && @holidayEntries.present? && controller.getTELabel == 'Timesheet'
 project_id = entry.nil? ? (holidayProj.present? ? holidayProj : @logtime_projects.present? ? @logtime_projects[0].id : 0) : entry.project_id
 if params[:enter_issue_id].blank?
 
@@ -111,12 +111,16 @@ if params[:enter_issue_id].blank?
 			activities.unshift([ "--- #{l(:actionview_instancetag_blank_option)} ---", '-1' ])
 		end
 	end
+	defActivity = 0
+	if Setting.plugin_redmine_wktime['wktime_holiday'].to_i > 0 && @holidayEntries.present? && controller.getTELabel == 'Timesheet'
+		defActivity = activities.blank? ? nil : activities.length > 1 ?  activities[1] : activities[0]
+	end
 %>
 <% if controller.showActivityDD %>
 	<td class="issue" align="left" width="75px">
 	<% if @editable %>
 		<%=h select_tag(isTemplate ? '__template__time_entry[][activity_id]' : 'time_entry[][activity_id]',
-		activities.blank? ? nil : options_for_select(activities, :selected => entry.nil? ? 0 : entry.activity_id),
+		activities.blank? ? nil : options_for_select(activities, :selected => entry.nil? ? defActivity : entry.activity_id),
 		:style=> "width:75px" ) %>
 	<% else %>
 		<%= activity.blank? ? entry.activity_id : activity.name unless entry.nil?%>

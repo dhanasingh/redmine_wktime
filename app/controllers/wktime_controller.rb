@@ -108,6 +108,7 @@ include ActionView::Helpers::TagHelper
 			end
 			format.pdf do
 				get_TE_entries(queries[0] + queries[1] + orderStr)
+				findBySql(queries[0], queries[1], orderStr)
 				send_data(list_to_pdf(@entries, setEntityLabel), :type => 'application/pdf', :filename => "#{setEntityLabel}.pdf")
 			end
       format.csv do
@@ -2189,7 +2190,7 @@ private
 	end
 
 	def set_visible_issues(entry)
-		holidayProj = getProjByIssue(Setting.plugin_redmine_wktime['wktime_holiday']) if @holidayEntries.present?
+		holidayProj = getProjByIssue(Setting.plugin_redmine_wktime['wktime_holiday']) if Setting.plugin_redmine_wktime['wktime_holiday'].to_i > 0 && @holidayEntries.present? && getTELabel == 'Timesheet'
 		hProj = Project.where(:id => holidayProj.to_i)
 		project = entry.nil? ? (holidayProj.present? ? hProj[0] : @logtime_projects.present? ? @logtime_projects[0] : 0) : entry.project
 		project_id = project.nil? ? 0 : project.id
@@ -2238,6 +2239,7 @@ private
       # find the issues which are visible to the user
 			@projectIssues[project_id] = allIssues.select {|i| i.visible?(@user) }
     end
+
 		if @projActivities[project_id].blank?
 			@projActivities[project_id] = project.activities unless project.nil?
 		end

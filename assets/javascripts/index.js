@@ -90,6 +90,17 @@ $(document).ready(function() {
 		$('#total_quantity').val(this.value);
 	});
 
+	//populate invoice items for delivery
+	if($('#delivery_invoice_id').val() == '') $('#populate_items').hide();
+	$('#delivery_invoice_id').change(function(){
+		if(this.value != ""){
+			$("#populate_items").show();
+		}
+		else{
+			$("#populate_items").hide();
+		}
+	});
+
 	changeProp('tab-wktime',wktimeIndexUrl);
 	changeProp('tab-wkexpense',wkexpIndexUrl);
 	changeProp('tab-leave',wkattnIndexUrl);
@@ -359,7 +370,7 @@ function accProjChanged(uid, fldId, isparent, blankOptions)
 	});
 }
 
-function actRelatedDd(uid, loadProjects, needBlankOption, actType, contactType, loadPayment)
+function actRelatedDd(uid, loadProjects, needBlankOption, actType, contactType, loadPayment, loadInvoiceNo = false)
 {
 	var relatedTo = document.getElementById("related_to");
 	var relatedType = relatedTo.options[relatedTo.selectedIndex].value;
@@ -370,7 +381,7 @@ function actRelatedDd(uid, loadProjects, needBlankOption, actType, contactType, 
 	url: actRelatedUrl,
 	type: 'get',
 	data: {related_type: relatedType, account_type: actType, contact_type: contactType},
-	success: function(data){ updateUserDD(data, relatedparentdd, userid, needBlankOption, false, "")},
+	success: function(data){ updateUserDD(data, relatedparentdd, userid, needBlankOption, false, "");if(loadInvoiceNo){getInvoiceNos(uid, 'delivery_invoice_id');}},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
 	complete: function(){ if(loadProjects) { accProjChanged(uid, 'related_parent', true, true) }if(loadPayment){submitFiletrForm();} $this.removeClass('ajax-loading'); }
 	});
@@ -519,7 +530,7 @@ function productChanged(curDDId, changeDDId, uid, changeAdditionalDD, needBlank,
 			productItemChanged('product_item', 'product_quantity', 'product_cost_price', 'product_sell_price', uid, 'log_type');
 		}
 		else if(changeAdditionalDD && (changeDDId.includes("product_item_id")) ){
-			deliveryitemChanged('product_item_id'+rowNum, 'total_quantity'+rowNum, 'cost_price'+rowNum, 'selling_price'+rowNum, 'over_head_price'+rowNum, 'currency'+rowNum, 'serial_number'+rowNum, 'running_sn'+rowNum, 'uom_id'+rowNum);
+			deliveryitemChanged('product_item_id'+rowNum);
 		}
 		  $this.removeClass('ajax-loading'); }
 	});
@@ -1073,9 +1084,10 @@ function locationChanged(locationId, uid){
 	productChanged('product_id'+rowNum, 'product_item_id'+rowNum, uid, true, false, null, locationId);
 }
 
-function deliveryitemChanged(curDDId, qtyDD, cpDD, spDD, ohDD, curDD, serDD, runningDD, uomDD)
+function deliveryitemChanged(curDDId)
 {
 	var currDD = document.getElementById(curDDId);
+	rowNum = curDDId.replace("product_item_id","");
 	var $this = $(this);
 	var updateDD = "inventory_item";
 
@@ -1087,28 +1099,53 @@ function deliveryitemChanged(curDDId, qtyDD, cpDD, spDD, ohDD, curDD, serDD, run
 		if(data != "")
 		{
 			var pctData = data.split(',');
-			document.getElementById(qtyDD).value  = pctData[1];
-			document.getElementById(spDD).value = parseFloat(pctData[3]).toFixed(2);
-			document.getElementById(curDD).value = pctData[5];
-			document.getElementById(serDD).value = pctData[6];
-			document.getElementById(runningDD).value = pctData[7];
-			document.getElementById(uomDD).value = pctData[8];
-			document.getElementById(cpDD).innerHTML = parseFloat(pctData[2]).toFixed(2);
-			document.getElementById(ohDD).innerHTML = parseFloat(pctData[4]).toFixed(2);
+			$('#total_quantity'+rowNum).val(pctData[1]);
+			$('#selling_price'+rowNum).val(parseFloat(pctData[3]).toFixed(2));
+			$('#currency'+rowNum).val(pctData[5]);
+			$('#serial_number'+rowNum).val(pctData[6]);
+			$('#running_sn'+rowNum).val(pctData[7]);
+			$('#uom_id'+rowNum).val(pctData[8]);
+			$('#cost_price'+rowNum).html(parseFloat(pctData[2]).toFixed(2));
+			$('#over_head_price'+rowNum).html(parseFloat(pctData[4]).toFixed(2));
 		}
 		else
 		{
-			document.getElementById(qtyDD).value = "";
-			document.getElementById(spDD).value = "";
-			document.getElementById(curDD).value = "";
-			document.getElementById(serDD).value = "";
-			document.getElementById(runningDD).value = "";
-			document.getElementById(uomDD).value = "";
-			document.getElementById(cpDD).innerHTML = "";
-			document.getElementById(ohDD).innerHTML = "";
+			$('#total_quantity'+rowNum).val("");
+			$('#selling_price'+rowNum).val("");
+			$('#currency'+rowNum).val("");
+			$('#serial_number'+rowNum).val("");
+			$('#running_sn'+rowNum).val("");
+			$('#uom_id'+rowNum).val("");
+			$('#cost_price'+rowNum).html("");
+			$('#over_head_price'+rowNum).html("");
 		}
 	},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
 	complete: function(){ $this.removeClass('ajax-loading'); }
 	});
+}
+
+function getInvoiceNos(uid, loadDdId){
+	var related_to = $('#related_to').val();
+	var related_parent = $('#related_parent').val();
+	var needBlankOption = false;
+	var loadDropdown = document.getElementById(loadDdId);
+	var url = "/wkdelivery/getInvoiceNos?related_to="+ related_to+"&related_parent="+related_parent;
+	$.ajax({
+		url: url,
+		type: 'get',
+		success: function(data){updateUserDD(data, loadDropdown, uid, needBlankOption, false, "");$('#populate_items').hide();},
+		beforeSend: function(){ $(this).addClass('ajax-loading'); },
+		complete: function(){ $(this).removeClass('ajax-loading'); }
+	});
+}
+
+function populateInvoice()
+{
+	let url = new URL(window.location.href);
+	url.searchParams.set('related_to', $('#related_to').val());
+	url.searchParams.set('related_parent', $('#related_parent').val());
+	url.searchParams.set('delivery_invoice_id', $('#delivery_invoice_id').val());
+	url.searchParams.set('populate_items', 'true');
+	location.href = url;
 }

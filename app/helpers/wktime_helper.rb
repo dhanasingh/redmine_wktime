@@ -1978,4 +1978,17 @@ end
 		issues = Issue.where(:id => issue_id.to_i)
 		project_id = issues[0].project_id
 	end
+
+	def getAccuralHours
+		accural_hrs  = ''
+		leaveSettings = WkSetting.where("name = 'leave_settings'").first
+		if leaveSettings.present?
+			holiday_issue = Setting.plugin_redmine_wktime['wktime_holiday']
+			JSON.parse(leaveSettings.value).each do |val|
+				valArr = val.split('|')
+				accural_hrs = valArr[1] if valArr[0] == holiday_issue
+			end
+		end
+		accural_hrs
+	end
 end

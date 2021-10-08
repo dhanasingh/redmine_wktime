@@ -55,7 +55,7 @@ accept_api_auth :get_reports, :getReportData, :export
 
 	def set_filter_session
 		filters = [:report_type, :period_type, :period, :from, :to, :group_id, :project_id, :user_id]
-		super(filters, {:from => @from, :to => @to})
+		super(filters, {:from => @from, :to => @to, user_id: User.current.id})
 	end
 
 	def getMembersbyGroup
@@ -116,17 +116,14 @@ accept_api_auth :get_reports, :getReportData, :export
 	end
 
 	def export
-		user_id = params[:user_id] || User.current.id
-		group_id = params[:group_id] || "0"
-		projId = params[:project_id] || "0"
-		from = params[:from]&.to_date || Date.today.beginning_of_month
-		to = params[:to]&.to_date || Date.today.end_of_month
+		set_filter_session
+		retrieve_date_range
 		report_type = params[:report_type]
 		if report_type.present?
 			report_type.slice!("_web") if report_type.include? "_web"
 			require_relative "../views/wkreport/#{report_type}"
 			report = Object.new.extend(report_type.camelize.constantize)
-			reportData = report.getExportData(user_id, group_id, projId, from, to)
+			reportData = report.getExportData(getSession(:user_id), getSession(:group_id), getSession(:project_id), @from, @to)
 		end
 
 		respond_to do |format|
@@ -134,7 +131,7 @@ accept_api_auth :get_reports, :getReportData, :export
 				send_data(csv_export({data: reportData[:data], headers: reportData[:headers]}), :type => 'text/csv', :filename => "#{report_type}.csv")
 			end
 			format.pdf do
-				send_data(csv_export({data: reportData[:data], headers: reportData[:headers]}), :type => 'application/pdf', :filename => "#{report_type}.pdf")
+				send_data(pdf_export({data: reportData[:data], headers: reportData[:headers]}), :type => 'application/pdf', :filename => "#{report_type}.pdf")
 			end
 		end
 	end
@@ -142,7 +139,7 @@ accept_api_auth :get_reports, :getReportData, :export
 	private
 
 	# Retrieves the date range based on predefined ranges or specific from/to param dates
-	  def retrieve_date_range
+	def retrieve_date_range
 		@free_period = false
 		@from, @to = nil, nil
 		period_type = session[controller_name].try(:[], :period_type)
@@ -181,12 +178,35 @@ accept_api_auth :get_reports, :getReportData, :export
 		session[controller_name][:to] = @to
 		@from, @to = @to, @from if @from && @to && @from > @to
 
-	  end
+	end
 
-	  def check_perm_and_redirect
+	def check_perm_and_redirect
 		unless validateERPPermission("V_REPORT")
 			render_403
 			return false
 		end
-	  end
+	end
+
+	def pdf_export(data)
+		pdf = super
+		row_Height = 8
+		page_width    = pdf.get_page_width
+		left_margin   = pdf.get_original_margins['left']
+		right_margin  = pdf.get_original_margins['right']
+		table_width = page_width - right_margin - left_margin
+		width = table_width/data[:headers].length
+		pdf.ln
+		pdf.SetFontStyle('B', 9)
+		pdf.set_fill_color(230, 230, 230)
+		data[:headers].each{ |key, value| pdf.RDMCell(width, row_Height, value.to_s, 1, 0, '', 1) }
+		pdf.ln
+		pdf.set_fill_color(255, 255, 255)
+
+		pdf.SetFontStyle('', 8)
+		data[:data].each do |entry|
+			entry.each{ |key, value| pdf.RDMCell(width, row_Height, value.to_s, 1, 0, '', 0) }
+		pdf.ln
+		end
+		pdf.Output
+	end
 end

@@ -39,7 +39,7 @@ module ReportUserUtilization
     end
 
     def getTimeEntriesQuery(group_id, user_id, from, to)
-        timeEntriesSqlStr = "SELECT TE.user_id, SUM(hours) AS total, CASE WHEN is_billable IS NULL THEN #{booleanFormat(false)} ELSE is_billable END AS is_billable, tyear, tmonth 
+        timeEntriesSqlStr = "SELECT TE.user_id, SUM(hours) AS total, CASE WHEN is_billable IS NULL THEN #{booleanFormat(false)} ELSE is_billable END AS is_billable, tyear, tmonth
             FROM time_entries AS TE
             LEFT JOIN wk_projects AS WP ON WP.project_id = TE.project_id
         LEFT JOIN groups_users AS GU ON (GU.user_id = TE.user_id AND GU.group_id =  #{group_id})
@@ -55,8 +55,8 @@ module ReportUserUtilization
         timeEntriesSqlStr = timeEntriesSqlStr + " AND TE.user_id = #{User.current.id} "
         end
 
-        timeEntriesSqlStr = timeEntriesSqlStr + " GROUP BY TE.user_id, CASE WHEN is_billable IS NULL THEN #{booleanFormat(false)} ELSE is_billable END, tyear, tmonth 
-            ORDER BY user_id, tyear, tmonth"           
+        timeEntriesSqlStr = timeEntriesSqlStr + " GROUP BY TE.user_id, CASE WHEN is_billable IS NULL THEN #{booleanFormat(false)} ELSE is_billable END, tyear, tmonth
+            ORDER BY user_id, tyear, tmonth"
         TimeEntry.find_by_sql(timeEntriesSqlStr)
     end
 
@@ -80,8 +80,50 @@ module ReportUserUtilization
             month_year = (monthVal.first).to_s + ","  + (monthVal.last).to_s
             avg = (user_count > 0) ? (total_percentage[month_year].to_f/user_count.to_f).round(2) : 0
             overall_avg += avg.to_f
-        end 
+        end
         total_avg = inBtwMonths.length.blank? ? 0 : (overall_avg/inBtwMonths.length.to_f).round(2)
         average = {total_percentage: total_percentage,  total_avg: total_avg}
+    end
+
+    def getExportData(user_id, group_id, projectId, fromDate, toDate)
+        data = {headers: {}, data: []}
+        details = calcReportData(user_id, group_id, projectId, fromDate, toDate)
+        data[:headers].store('name',  l(:field_user))
+        details[:periods].each do |monthVal|
+            data[:headers].store(monthVal, monthVal[0].to_s+' '+I18n.t("date.abbr_month_names")[monthVal[1]].to_s)
+        end
+        data[:headers].store('avg',  l(:label_average))
+        total_percentage = Hash.new
+        details[:users].each do |user|
+            key = user.id.to_s
+            val = {}
+            val.store(user.id, user.firstname)
+            details[:data][key].each do |keys, u_detail|
+                total_hours = u_detail[:bill_hrs].to_f + u_detail[:non_bill_hrs].to_f
+                percentage = (total_hours > 0) ? ((u_detail[:bill_hrs].to_f/total_hours)*100).round(2) : 0.to_f
+                month_val = keys.to_s
+                total_percentage[month_val] = (total_percentage[month_val].to_f + percentage)
+                total_percentage[key] = (total_percentage[key].to_f + percentage)
+                val.store(month_val, percentage.to_s + "%")
+            end
+            @month_count = details[:periods].length
+            mnth_avg = (total_percentage[key]/@month_count).round(2).to_s
+            val.store('mnth_avg', mnth_avg.to_s + "%")
+            data[:data] << val
+        end
+        avg = {}
+        overall_avg = 0
+        avg.store('avg', l(:label_average))
+        details[:periods].each do |monthVal|
+            user_count = details[:users].length
+            month_year = (monthVal.first).to_s + ","  + (monthVal.last).to_s
+            usrAvg = ((user_count > 0) ? (total_percentage[month_year].to_f/user_count.to_f).round(2) : 0).to_s + "%"
+            avg.store(month_year, usrAvg)
+            overall_avg += usrAvg.to_f
+        end
+        total_avg = (@month_count.blank? ? 0 : (overall_avg/@month_count.to_f).round(2)).to_s + "%"
+        avg.store('total_avg', total_avg)
+        data[:data] << avg
+        data
     end
 end

@@ -18,19 +18,16 @@
 class WkExpenseEntry < TimeEntry
   unloadable
   self.table_name = "wk_expense_entries"
-  name = "WkExpenseEntry"
-  def self.name
-    "WkExpenseEntry"
-  end
 
   belongs_to :project
   belongs_to :issue
   belongs_to :user
   belongs_to :activity, :class_name => 'TimeEntryActivity'
   has_one :spent_for, -> { where(spent_type: "WkExpenseEntry") }, foreign_key: "spent_id", class_name: "WkSpentFor", :dependent => :destroy
+  has_one :wkspentfor, -> { where(spent_type: "WkExpenseEntry") }, foreign_key: "spent_id", class_name: "WkSpentFor", :dependent => :destroy
   has_many :attachments, -> {where(container_type: "WkExpenseEntry")}, class_name: "Attachment", foreign_key: "container_id", :dependent => :destroy
   has_one :wkstatus, -> { where(status_for_type: "WkExpenseEntry") }, foreign_key: "status_for_id", class_name: "WkStatus"
-  accepts_nested_attributes_for :spent_for, allow_destroy: true
+  accepts_nested_attributes_for :wkspentfor, allow_destroy: true
 
 
   # attr_protected :user_id, :tyear, :tmonth, :tweek

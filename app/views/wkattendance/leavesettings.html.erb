@@ -1,6 +1,6 @@
 <%= javascript_include_tag 'settings', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'payrollsettings', :plugin => "redmine_wktime" %>
-<script type="text/javascript"> 
+<script type="text/javascript">
 attendanceAlertMsg = "<%= l(:text_are_you_sure) %>";
 selectListAlertMsg = "<%=l(:actionview_instancetag_blank_option) %>";
 issueExistsAlertMsg = "<%=l(:label_wk_leave_exists) %>";
@@ -27,12 +27,12 @@ lblYear = "<%=l(:label_year) %>";
 		else
 			issueslist = Array.new
 			issueslist << [ "", 0]
-		end		
+		end
 		projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name')
 		wktime_helper = Object.new.extend(WktimeHelper)
 		projArr = wktime_helper.options_for_wktime_project(projects,false)
-		
-		if(@leaveSettings.blank?)
+
+		if @leaveSettings.blank?
 			leave = ''
 		else
 			@leaveSettings.each do |element|
@@ -51,9 +51,9 @@ lblYear = "<%=l(:label_year) %>";
   <p>
 		<label><%= l(:label_wk_leave) %></label>
 			<%=  select_tag('settings[leave_settings]',
-				options_for_select(leave, :selected => 'settings[leave_settings]'), :multiple=> true, :style => "min-width:200px; height:100px;")%>	
+				options_for_select(leave, :selected => 'settings[leave_settings]'), :multiple=> true, :style => "min-width:200px; height:100px;")%>
 
-		</p>			
+		</p>
 		<p>
 			<%= link_to l(:button_add), "javascript:showLeaveDialog('Add');", :class => "button"%>  |
 			<%= link_to l(:button_edit), "javascript:showLeaveDialog('Edit');", :class => "button"%>  |
@@ -77,7 +77,7 @@ lblYear = "<%=l(:label_year) %>";
 			</tr>
 			<tr>
 				<th align="left"><label><%= l(:label_wk_leave_accrual) %></label></th>
-				<td><%= text_field_tag('leave_accrual','', :size => 2.5, :maxlength => 6) %>&nbsp<%= l(:label_hours_per_month) %></td>		
+				<td><%= text_field_tag('leave_accrual','', :size => 2.5, :maxlength => 6) %>&nbsp<%= l(:label_hours_per_month) %></td>
 			</tr>
 			<tr>
 				<th align="left"><label><%= l(:label_accrual_multiplier) %></label></th>
@@ -89,7 +89,7 @@ lblYear = "<%=l(:label_year) %>";
 			</tr>
 			<tr>
 				<th align="left"><label><%= l(:button_reset) %> <%= l(:label_month) %></label></th>
-				<td><%=h select_tag('wk_attn_leave_reset_month', options_for_select(l('date.month_names').collect.with_index.to_a)) %></td>								   	
+				<td><%=h select_tag('wk_attn_leave_reset_month', options_for_select(l('date.month_names').collect.with_index.to_a)) %></td>
 			</tr>
 			<tr>
 				<%= hidden_field_tag :hdnAction, "" %>

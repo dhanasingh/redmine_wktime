@@ -5,7 +5,7 @@
 	to = session[controller_name].try(:[], :to)
 	groupId = session[controller_name].try(:[], :group_id)
 	projId = session[controller_name].try(:[], :project_id) ||  0
-	stock_report = Object.new.extend(ReportStock) 
+	stock_report = Object.new.extend(ReportStock)
 	stock = stock_report.calcReportData(userId, groupId, projId, from, to)
 %>
 <div id="attn-rpt-dlg", style="overflow-x:auto;">
@@ -30,7 +30,7 @@
 	</div>
 	<div style="clear:both;"></div>
 	<div id="attn-rpt-dlg", style="overflow-x:auto;">
-		<table style="width:100%; border-collapse: collapse;">			
+		<table style="width:100%; border-collapse: collapse;">
 			<thead style="background-color: #e6e6e6">
 				<tr>
 					<th class="lbl-txt-align"><%= l(:label_project) %></th>

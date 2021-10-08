@@ -9,43 +9,47 @@
 	<%	accArr = options_for_wktime_account(false, controller.getOrderAccountType, controller.additionalAccountType)
 		parentId = @shipment.parent_id
 		parentType = @shipment.parent_type
-		type = controller.getOrderAccountType
-		if parentType == "WkCrmContact"
-			type = controller.getOrderContactType
-		end
+		type = parentType == "WkCrmContact" ? controller.getOrderContactType : controller.getOrderAccountType
 		if !parentId.blank? && !parentType.blank?
 			accArr = relatedValues(parentType, parentId, type, false, controller.additionalContactType, controller.additionalAccountType)	
 		elsif !params[:related_parent].blank? && params[:related_to]
 			accArr = relatedValues(params[:related_to], params[:related_parent], type, false, controller.additionalContactType, controller.additionalAccountType)		
 		end
+		invoiceArr = []
+		invoiceArr = WkInvoice.get_invoice_numbers(@shipment&.parent_type || 'WkAccount', @shipment&.parent_id || (accArr.present? ? accArr[0][1] : '')).collect {|i| [i.invoice_number, i.id]  }
+		invoiceArr.unshift(["",''])
 	%>
 <%= form_tag({controller: controller_name, action: 'update'}, method: :post, id: 'query_form') do %>
+	<%= hidden_field_tag("invoice_id", @shipment&.invoice_id )  %>
 	<table>
 		<tr>
-			<th align="left"><label><%= l(:field_type) %></label></th>
-			<td align="left">
-				<%= ": "%><%= select_tag('related_to', options_for_select([[l(:field_account), 'WkAccount'], [l(:label_contact), 'WkCrmContact']], selected: @shipment.blank? ? "" : @shipment.parent_type), onchange: "actRelatedDd(#{User.current.id}, false, false, 'A', 'C', false)") %>
+			<th style="text-align: left"><label><%= l(:field_type) %></label></th>
+			<td style="text-align: left">
+				<%= ": "%><%= select_tag('related_to', options_for_select([[l(:field_account), 'WkAccount'], [l(:label_contact), 'WkCrmContact']], selected: @shipment.blank? ? "" : @shipment.parent_type), onchange: "actRelatedDd(#{User.current.id}, false, false, 'A', 'C', false, true);", style: "width: 150px") %>
 			</td>
-			<th align="left"><label><%= l(:field_name) %></label></th>
-			<td align="left">
-				<%= ": "%><%= select_tag('related_parent', options_for_select(accArr, selected: @shipment.blank? ? "" : @shipment.parent_id)) %>
+			<th style="text-align: left"><label><%= l(:field_name) %></label></th>
+			<td style="text-align: left">
+				<%= ": "%><%= select_tag('related_parent', options_for_select(accArr, selected: @shipment.blank? ? "" : @shipment.parent_id), onchange: "getInvoiceNos(#{User.current.id}, 'delivery_invoice_id');", style: "width: 150px") %>
+			</td>
+			<th style="text-align: left"><label><%= l(:label_invoice) %></label></th>
+			<td style="text-align: left">
+				<%= ": "%><%= params[:delivery_id].present? ? @shipment&.invoice&.invoice_number || '' : select_tag('delivery_invoice_id', options_for_select(invoiceArr, selected: @shipment&.invoice_id), style: "width: 150px") %>
 			</td>
 		</tr>
 		<tr>
-			<th align="left"><%= l(:label_serial_number) %></th> 
+			<th style="text-align: left"><%= l(:label_serial_number) %></th> 
 			<td style="width: 200px;"> 
 				<%= ": " %> <%= text_field_tag "serial_number", @shipment.blank? ? "" : @shipment.serial_number, style: "width:150px;" %>
 			</td>
-			<th align="left"><%= l(:label_delivery_date) %></th>
-				<td style="width: 200px;"><%= ": "%> <%= date_field_tag('delivery_date', (@shipment.blank? ? Date.today.to_s : @shipment.shipment_date.to_s), size: 10, required: true, disabled: @preBilling) %> <%= calendar_for('shipment_date') %></td>
+			<th style="text-align: left"><%= l(:label_delivery_date) %></th>
+				<td style="width: 200px;"><%= ": "%> <%= date_field_tag('delivery_date', (@shipment.blank? ? Date.today.to_s : @shipment.shipment_date.to_s), size: 10, required: true, style: "width: 150px") %> <%= calendar_for('shipment_date') %></td>
 
-			<th align="left"><%= l(:field_status) %><%= ": "%></th> 
-				<td><%= select_tag('status', options_for_select(getDeliveryStatus.invert, selected: @shipment.current_status), required: true) %></td>
+			<th style="text-align: left"><%= l(:field_status) %></th> 
+				<td style="width: 200px;"><%= ": "%><%= select_tag('status', options_for_select(getDeliveryStatus.invert, selected: @shipment.current_status), required: true, style: "width: 150px") %></td>
 			
 		</tr>
 		
 	</table>
-	
 	<% if !@deliveryItem.blank? %>
 		<% if !@deliveryItem[0].blank? %>
 			<%= render partial: 'edit_delivery_items' %>
@@ -55,7 +59,7 @@
 			<%= render partial: 'edit_delivery_items' %>
 		<% else  %>		
 			<br/>
-			<h2 ><%= l(:label_shipment_items) %></h2> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<h2 ><%= l(:label_delivery_items) %></h2>&emsp;
 			<label><b><%= l(:label_no_data) %></b></label>
 		<% end %>
 	<% end %>

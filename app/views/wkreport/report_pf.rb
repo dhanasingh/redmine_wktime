@@ -33,7 +33,7 @@ module ReportPf
 			sqlwhere = sqlwhere + " and GU.group_id =#{groupId} and U.id =#{userId}" if userId.to_i > 0
 		elsif userId.to_i > 0
 			sqlwhere = sqlwhere + " and U.id =#{userId}"
-		end		
+		end
 
     if !(validateERPPermission('A_TE_PRVLG') || User.current.admin?)
       sqlwhere = sqlwhere + " and U.id =#{User.current.id}"
@@ -77,4 +77,22 @@ module ReportPf
 		end
 		return {data: pf_data, total: total}
 	end
+
+	def getExportData(user_id, group_id, projId, from, to)
+    data = {headers: {}, data: []}
+    reportData = calcReportData(user_id, group_id, projId, from, to)
+    data[:headers] = {s_no: l(:label_attn_sl_no), uan: l(:label_uan), name: l(:field_name), wages1: l(:label_wages), wages2: l(:label_wages), wages3: l(:label_wages), wages4: l(:label_wages), contribution_remitted1: l(:label_contribution_remitted), contribution_remitted2: l(:label_contribution_remitted), contribution_remitted3: l(:label_contribution_remitted)}
+		details = {s_no: '', uan: '', name: '', basic: l(:label_basic), eps: l(:label_eps_wages), epf: l(:label_epf_wages), edli: l(:label_edli_wages), ee: l(:label_ee_remitted), eps1: l(:label_eps_wages), er: l(:label_er_remitted)}
+		data[:data] << details
+		total = reportData[:total]
+		i = 1
+    reportData[:data].each do |key, entry|
+			index = {s_no: i}
+      index.merge!({uan: entry[:uan], name: entry[:name], wages1: entry[:basic], wages2: entry[:eps], wages3: entry[:eps], wages4: entry[:eps], contribution_remitted1: entry[:ee], contribution_remitted2: entry[:eps_remitted], contribution_remitted3: entry[:er]})
+			i+=1
+			data[:data] << index
+    end
+    data[:data] << {s_no: '', uan: '', name: l(:label_total), wages1: total[:basicTot], wages2: total[:wagesTot], wages3: total[:wagesTot], wages4: total[:wagesTot], contribution_remitted1: total[:eeTot], contribution_remitted2: total[:epsTot], contribution_remitted3: total[:erTot]}
+    data
+  end
 end

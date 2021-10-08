@@ -1187,7 +1187,7 @@ fr:
   warn_sn_text: Serial Number and Quantity cannot be text value
   label_last_increment: Last Increment
   label_last_salary: Last Salary
-  label_employee_dashboard: Employee Dashboards
+  label_my_dashboard: My Dashboards
   label_leave_setting: Leave Settings
 
   report_pf: PF Report
@@ -1221,3 +1221,5 @@ fr:
   label_period_end_process: Auto Run Period End Process
   label_delivery_items: Delivery Items
   field_retirement_account: Retirement Account
+  label_expenses: Expenses
+  label_admin_dashboards: Admin Dashboards

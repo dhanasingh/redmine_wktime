@@ -20,5 +20,16 @@ class CreateWkDeliveryItems < ActiveRecord::Migration[5.2]
     add_column :wk_crm_activities, :rating, :string
     add_column :wk_account_projects, :include_expense, :boolean, default: false
     add_column :wk_users, :retirement_account, :string
+    add_reference :wk_shipments, :invoice, class: "wk_invoices", null: true
+
+		reversible do |dir|
+      dir.up do
+				wksetting = WkSetting.new name: "leave_settings", value: Setting.plugin_redmine_wktime['wktime_leave']
+				wksetting.save
+      end
+      dir.down do
+        WkSetting.where(name: "leave_settings").destroy_all
+      end
+    end
   end
 end

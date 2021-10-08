@@ -90,7 +90,7 @@ class WkInvoiceItem < ActiveRecord::Base
     if table == "time_entries"
       entries = entries.where("time_entries.hours > 0")
     elsif table == "wk_material_entries"
-      entries = entries.where("wk_material_entries.amount > 0")
+      entries = entries.where("wk_material_entries.selling_price > 0")
     elsif table == "wk_expense_entries"
       entries = entries.where("wk_expense_entries.amount > 0")
     end

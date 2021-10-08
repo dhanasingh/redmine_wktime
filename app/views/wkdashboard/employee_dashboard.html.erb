@@ -1,7 +1,7 @@
 <%= javascript_include_tag "dashboard", plugin: "redmine_wktime" %>
 <%= javascript_include_tag 'palette', :plugin => "redmine_wktime" %>
 <div>
-  <div style="float:left"><%= title l(:label_employee_dashboard)%></div>
+  <div style="float:left"><%= title l(:label_my_dashboard)%></div>
   <% if showDashboard && hasSettingPerm%>
     <%= render :partial => "wkdashboard/side_bar" %>
   <% end %>

@@ -15,17 +15,17 @@ module ReportAsset
   end
 
   def getAssetEntries(entries, to)
-    count = 1 
-    purchase_total = 0 
-    depreciation_total = 0 
-    current_total = 0 
+    count = 1
+    purchase_total = 0
+    depreciation_total = 0
+    current_total = 0
     currency = ""
     asset = {}
     entries.each_with_index do |entry, index|
       asset[index] = {}
       purchaseCost = (entry.over_head_price.to_f + entry.cost_price.to_f).round(2)
-      initialValue = entry.current_value.blank? ? purchaseCost : entry.current_value.to_f
-      depreciatedValue = entry.actual_amount.to_f - entry.depreciation_amount.to_f
+      initialValue = (entry.current_value.blank? ? purchaseCost : entry.current_value.to_f).round(2)
+      depreciatedValue = (entry.actual_amount.to_f - entry.depreciation_amount.to_f).round(2)
       currentValue = (entry.depreciation_id.blank? ? initialValue : depreciatedValue).round(2)
       unless currentValue == 0
         asset[index]['s_no'] = count
@@ -33,11 +33,11 @@ module ReportAsset
         asset[index]['asset_name'] = entry.asset_name
         asset[index]['product_name'] = entry.product_name
         asset[index]['shipment_date'] = entry.shipment_date
-        asset[index]['purchase_value'] = purchaseCost
-        asset[index]['depreciation'] = purchaseCost - currentValue
-        asset[index]['current_value'] = currentValue
+        asset[index]['purchase_value'] = entry.currency+' '+purchaseCost.to_s
+        asset[index]['depreciation'] = entry.currency+' '+(purchaseCost - currentValue).round(2).to_s
+        asset[index]['current_value'] = entry.currency+' '+currentValue.to_s
         asset[index]['last_depreciation'] = entry.depreciation_date
-        asset[index]['currency'] = entry.currency
+        # asset[index]['currency'] = entry.currency
 
         purchase_total += purchaseCost
         depreciation_total += (purchaseCost - currentValue).round(2)
@@ -50,7 +50,18 @@ module ReportAsset
     depreciation_total = depreciation_total
     current_total = current_total
     currency = currency
-    data = {asset: asset, purchase_total: purchase_total, depreciation_total: depreciation_total, current_total: current_total, currency: currency, to: to.to_formatted_s(:long)}
+    data = {asset: asset, purchase_total: currency+' '+purchase_total.to_s, depreciation_total: currency+' '+depreciation_total.round(2).to_s, current_total: currency+' '+current_total.to_s, currency: currency, to: to.to_formatted_s(:long)}
+  end
+
+  def getExportData(user_id, group_id, projId, from, to)
+    data = {headers: {}, data: []}
+    reportData = calcReportData(user_id, group_id, projId, from, to)
+    data[:headers] = {s_no: '#', project_name: l(:label_project), asset_name: l(:label_asset) + " " + l(:field_name), product_name: l(:field_inventory_item_id), shipment_date: l(:label_purchase_date), purchase_value: l(:label_purchase_value), depreciation: l(:label_depreciation), current_value: l(:label_current_value), last_depreciation: l(:label_last_depreciation_on)}
+    reportData[:asset].each do |key, val|
+      data[:data] << val
+    end
+    data[:data] << {s_no: '', project_name: '', asset_name: '', product_name: '', shipment_date: '',  purchase_total: reportData[:currency]+' '+reportData[:purchase_total].to_s, depreciation_total: reportData[:currency]+' '+reportData[:depreciation_total].to_s, current_total: reportData[:currency]+' '+reportData[:current_total].to_s, last_depreciation: ''}
+    data
   end
 end
 

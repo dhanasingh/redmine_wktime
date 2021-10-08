@@ -707,7 +707,7 @@ class WkorderentityController < WkbillingController
 		itemtype  = ''
 		case(type)
 		when 'i'
-			itemtype = l(:label_invoice)
+			itemtype = l(:field_hours)
 		when 'c'
 			itemtype = l(:label_credit)
 		when 'm'
@@ -716,6 +716,8 @@ class WkorderentityController < WkbillingController
 			itemtype = l(:label_tax)
 		when 'a'
 			itemtype = l(:label_rental)
+		when 'e'
+			itemtype = l(:label_expenses)
 		else
 			itemtype = '';
 		end
@@ -753,14 +755,14 @@ class WkorderentityController < WkbillingController
 				invoiceItems = getInvoiceItems(entry)
 				csv << invoices.concat(invoiceItems)
 			end
-			csv << ["","","","","","","",l(:label_sub_total),itemDetails.sum(:quantity).to_s, itemDetails.first.original_currency.to_s + itemDetails.sum(:original_amount).to_s, itemDetails.first.currency.to_s + itemDetails.sum(:amount).to_s]
+			csv << getInvoiceTotal(itemDetails, l(:label_sub_total)) 
 			itemDetails = invoice.invoice_items.where(item_type: 'r').order(:item_type)
 			itemDetails.each do |entry|
 				invoices = getInvoices(invoice)
 				invoiceItems = getInvoiceItems(entry)
 				csv << invoices.concat(invoiceItems)
 			end
-			csv << ["","","","","","","",l(:label_total),invoice.invoice_items.sum(:quantity).to_s, invoice.invoice_items.first.original_currency.to_s + invoice.invoice_items.sum(:original_amount).to_s, invoice.invoice_items.first.currency.to_s + invoice.invoice_items.sum(:amount).to_s]
+			csv << getInvoiceTotal(invoice.invoice_items, l(:label_total))
 		end
 		export
   end
@@ -784,5 +786,13 @@ class WkorderentityController < WkbillingController
 	def getInvoiceItems(item)
 		invoiceItems = [ item.name, getInvoiceItemType(item.item_type), item.item_type == 't' ? (item.rate.to_s + "%") : item.rate.to_s, item.quantity, item.original_currency.to_s + item.original_amount.round(2).to_s, item.currency.to_s + item.amount.round(2).to_s]
 		invoiceItems
+	end
+
+	def getInvoiceTotal(invoice, label)
+		if controller_name == 'wkquote'
+			["","","","","","","",label,invoice.sum(:quantity).to_s, invoice.first.original_currency.to_s + invoice.sum(:original_amount).to_s, invoice.first.currency.to_s + invoice.sum(:amount).to_s]
+		else
+			["","","","","","",label,invoice.sum(:quantity).to_s, invoice.first.original_currency.to_s + invoice.sum(:original_amount).to_s, invoice.first.currency.to_s + invoice.sum(:amount).to_s]
+		end
 	end
 end

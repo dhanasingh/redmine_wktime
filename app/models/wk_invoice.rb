@@ -82,4 +82,8 @@ class WkInvoice < ActiveRecord::Base
 		self.billing_schedules.update(:invoice_id => nil) if self.billing_schedules.present?
   end
 
+  scope :get_invoice_numbers, ->(type, id){
+    self.where(invoice_type: 'I', parent_type: type,  parent_id: id)
+  }
+
 end

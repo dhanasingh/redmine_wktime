@@ -29,6 +29,7 @@ class WkShipment < ActiveRecord::Base
   has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
   has_many :delivery_items, foreign_key: "shipment_id", class_name: "WkDeliveryItem", :dependent => :destroy
   has_many :wkstatus, -> { where(status_for_type: 'WkShipment')}, foreign_key: "status_for_id", class_name: "WkStatus", :dependent => :destroy
+  belongs_to :invoice, foreign_key: "invoice_id", class_name: "WkInvoice"
   accepts_nested_attributes_for :wkstatus, allow_destroy: true
 
   def send_notification

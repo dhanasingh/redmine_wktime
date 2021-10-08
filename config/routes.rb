@@ -781,3 +781,6 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wkdelivery/populateProductItemDD', to: 'wkdelivery#populateProductItemDD'
 
 	get 'wkdelivery/delivery_slip', to: 'wkdelivery#delivery_slip'
+
+	get 'wkdelivery/getInvoiceNos', to: 'wkdelivery#getInvoiceNos'
+

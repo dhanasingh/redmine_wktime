@@ -21,6 +21,7 @@ class WkreferralsController < WkleadController
   before_action :check_perm_and_redirect, only: [:update, :destroy]
   before_action :check_permission, only: :getEmpDetails
 	menu_item :wkattendance
+  include WkreferralsHelper
 
   def index
     sort_init "updated_at", "desc"
@@ -47,14 +48,23 @@ class WkreferralsController < WkleadController
         @entries = entries
       end
       format.csv do
+        data = []
+        activityHeaders = getReferralHeaders(entries) || []
         headers = {name: l(:field_name), status: l(:field_status), location: l(:label_location), workphone: l(:label_work_phone), email: l(:field_mail),
-          degree: l(:label_degree), passout: l(:label_pass_out), referredby: l(:label_referred_by), modifiedby: l(:field_status_modified_by)
+          degree: l(:label_degree), passout: l(:label_pass_out), referredby: l(:label_referred_by)
         }
-        data = entries.map do |e|
-          { name: e.contact&.name, status: getLeadStatusHash[e.status], location: e.contact&.location&.name, workphone: e.contact&.address&.work_phone,
-            email: e.contact&.address&.email, degree: e.candidate&.degree, passout: e.candidate&.pass_out, referredby: e.referred&.name,
-            modifiedby: e.created_by_user&.name
+        activityHeaders.map do |col|
+          headers.store(col, col)
+        end
+        entries.each do |e|
+          details = { name: e.contact&.name, status: getLeadStatusHash[e.status], location: e.contact&.location&.name, workphone: e.contact&.address&.work_phone,
+            email: e.contact&.address&.email, degree: e.candidate&.degree, passout: e.candidate&.pass_out, referredby: e.referred&.name
           }
+          activityHeaders.map do |col|
+            val = ((e.activities || []).map{|act| act.name.titleize == col ? act.rating : ""})&.reject(&:blank?)&.first
+            details.store(col, val)
+          end
+          data << details
         end
         send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "referrals.csv")
       end

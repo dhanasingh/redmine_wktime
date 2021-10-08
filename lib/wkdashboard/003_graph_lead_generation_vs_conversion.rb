@@ -4,7 +4,7 @@ module WkDashboard
   def chart_data(param={})
     to = param[:to].end_of_month
     data = {
-      graphName: l(:label_lead_generation), chart_type: "line", xTitle: l(:label_months), yTitle: l(:label_no_of_leads),
+      graphName: l(:label_lead_generation), chart_type: "bar", xTitle: l(:label_months), yTitle: l(:label_no_of_leads),
       legentTitle1: l(:label_created_lead), legentTitle2: l(:label_converted_lead)
     }
     data[:fields] = (Array.new(12){|indx| month_name(((to.month - 1 - indx) % 12) + 1).first(3)}).reverse
@@ -15,7 +15,7 @@ module WkDashboard
     leadsData = [0]*12
     leads.map{|l| leadsData[to.month - l.month_val] = l.created_count }
     leadsData.reverse!
-    leadsData.each_with_index {|count, index| leadsData[index] = count + leadsData[index-1] if index != 0}
+    # leadsData.each_with_index {|count, index| leadsData[index] = count + leadsData[index-1] if index != 0}
     data[:data1] = leadsData
 
     convLeads = WkLead.joins(:contact)
@@ -25,7 +25,7 @@ module WkDashboard
     convleadsData = [0]*12
     convLeads.map{|l| convleadsData[to.month - l.month_val] = l.convert_count }
     convleadsData.reverse!
-    convleadsData.each_with_index {|count, index| convleadsData[index] = count + convleadsData[index-1] if index != 0}
+    # convleadsData.each_with_index {|count, index| convleadsData[index] = count + convleadsData[index-1] if index != 0}
     data[:data2] = convleadsData
     return data
   end
