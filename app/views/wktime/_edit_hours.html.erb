@@ -29,10 +29,10 @@
 			holiday = WkPublicHoliday.getHolidays(params[:user_id], (@startday + @wday_index) - 1)
 			holiday = holiday.length > 0
 			hrs = ''
-			defWorkTime = !Setting.plugin_redmine_wktime['wktime_default_work_time'].blank? ? Setting.plugin_redmine_wktime['wktime_default_work_time'].to_i : 8
 			if  Setting.plugin_redmine_wktime['wktime_holiday'].to_i > 0 && controller.getTELabel == 'Timesheet'
+				defWorkTime = getAccuralHours
 				@holidayDate.each do |date|
-					hrs = (((@startday + @wday_index) - 1) == date) ? defWorkTime : '' if ((@startday + @wday_index) - 1) == date if @wktime.blank?
+					hrs = (((@startday + @wday_index) - 1) == date) ? defWorkTime : '' if ((@startday + @wday_index) - 1) == date
 				end
 			end
 			%>

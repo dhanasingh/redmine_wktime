@@ -625,8 +625,8 @@ class WkattendanceController < WkbaseController
 					leaveSettings.save()
 				end
 			else
-				leaveSettings = WkSetting.where("name = 'leave_settings'")
-				leaveSettings.destroy
+				leaveSettings = WkSetting.where("name = 'leave_settings'").first
+				leaveSettings.destroy if leaveSettings.present?
 			end
 			flash[:notice] = l(:notice_successful_update)
 		end
