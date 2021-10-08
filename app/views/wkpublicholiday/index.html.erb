@@ -18,13 +18,13 @@
 		<%= select_year(controller.getSession(:year).to_i, :prefix => "year", :discard_type => true ) %>&nbsp;
 		<%= link_to_function l(:button_apply), '$("#query_form").submit()', :class => 'icon icon-checked' %>&nbsp;
 		<%= link_to l(:button_clear), { project_id: @project, set_filter: 1, clear: true }, class: 'icon icon-reload' %>
+		<% if @month > 0 %>
+			<div style="float:right">
+				<%= link_to_previous_month(@year, @month, :accesskey => accesskey(:previous)) %> | <%= link_to_next_month(@year, @month,
+					:accesskey => accesskey(:next)) %>
+			</div>
+		<% end %>
 	</fieldset>
-<% if @month > 0 %>
-	<div class="wk-contextual">
-		<%= link_to_previous_month(@year, @month, :accesskey => accesskey(:previous)) %> | <%= link_to_next_month(@year, @month,
-			:accesskey => accesskey(:next)) %>
-	</div>
-<% end %>
 <% end %>
 
 <%= render :partial => 'wkpublicholiday/ph_index'%>
