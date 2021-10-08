@@ -6,6 +6,8 @@
   <%= form_tag({}, method: "get", id:"query_form") do %>
 		<%= hidden_field_tag("searchlist", controller_name) %>
 		<%= hidden_field_tag("tab", controller_name) %>
+    <% year = (1970..Time.now.year).to_a.reverse %>
+    <% year.unshift(["",""]) %>
     <div style="float:right">
       <%= link_to l(:label_new_referral), url_for(action: "edit"), class: "icon icon-add" %>
     </div>
@@ -17,6 +19,8 @@
         <td><%= select_tag "status", options_for_select({"": ""}.merge!(getLeadStatusArr).invert, selected: session[controller_name].try(:[], :status)) %></td>
         <th><label style="padding-left: 10px;"><%= l(:label_location) %></label></th>
         <td><%= select_tag "location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', session[controller_name].try(:[], :location_id), true) %></td>
+        <th><label style="padding-left: 10px;"><%= l(:label_pass_out) %></label></th>
+        <td><%= select_tag "pass_out", options_for_select(year, selected: session[controller_name].try(:[], :pass_out)) %></td>
         <td><%= submit_tag l(:button_apply), class: "small", name: nil %></td>
         <td><%= link_to l(:button_clear), {tab: controller_name, clear: true}, class: "icon icon-reload" %></td>
       </tr>

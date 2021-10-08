@@ -61,7 +61,7 @@ class WkproductitemController < WkinventoryController
 			unless productId.blank?
 				sqlwhere = " AND pit.product_id = #{productId}"
 			end
-			unless brandId.blank? || brandId != 0
+			unless brandId.blank? || brandId.to_i == 0
 				sqlwhere = sqlwhere + " AND pit.brand_id = #{brandId}"
 			end
 		end

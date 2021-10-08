@@ -100,4 +100,5 @@ class WkLead < ActiveRecord::Base
     entries
   end
 
+  scope :filter_pass_out, ->(pass_out){ where("wk_candidates.pass_out" => pass_out) }
 end

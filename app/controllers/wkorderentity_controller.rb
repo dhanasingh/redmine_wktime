@@ -648,14 +648,14 @@ class WkorderentityController < WkbillingController
 		invoice.invoice_items.where.not(:item_type => 'r').order(:item_type).each do |entry|
 			listItem(pdf, entry, columnWidth)
 		end
-		listTotal(pdf, columnWidth, invoice.invoice_items.where.not(:item_type => 'r'))
+		listTotal(pdf, columnWidth, invoice.invoice_items.where.not(:item_type => 'r'), l(:label_total))
 		roundoffItem = invoice.invoice_items.where(:item_type => 'r')
 		unless roundoffItem.blank?
 			roundoffItem.each do |entry|
 				listItem(pdf, entry, columnWidth)
 			end
-			listTotal(pdf, columnWidth, invoice.invoice_items)
 		end
+		listTotal(pdf, columnWidth, invoice.invoice_items, l(:label_grand_total))
 		pdf.ln(5)
 		pdf.SetFontStyle('B',10)
 		pdf.RDMCell(40, 5, l(:label_amount_in_words) + "  :  ", 1)
@@ -690,16 +690,16 @@ class WkorderentityController < WkbillingController
 		pdf.RDMCell(columnWidth, height, entry.original_amount.to_s, 1, 0, 'R')
 	end
 
-	def listTotal(pdf, columnWidth, invoice)
+	def listTotal(pdf, columnWidth, invoice, label)
 		pdf.ln
 		pdf.SetFontStyle('B',10)
 		pdf.RDMCell(80, 5, '', 0, 0, 'L')
 		pdf.RDMCell(columnWidth, 5, '', 0, 0, 'L')
 		pdf.set_fill_color(230, 230, 230)
-		pdf.RDMCell(columnWidth, 5, l(:label_total), 'L', 0, 'C',1)
-		pdf.RDMCell(columnWidth, 5, invoice.sum(:quantity).to_s, 0, 0, 'R',1)
-		pdf.RDMCell(columnWidth, 5, invoice.first.original_currency.to_s, 0, 0, 'R',1)
-		pdf.RDMCell(columnWidth, 5, invoice.sum(:original_amount).to_s, 0, 0, 'R',1)
+		pdf.RDMCell(columnWidth, 5, label, 1, 0, 'C',1)
+		pdf.RDMCell(columnWidth, 5, invoice.sum(:quantity).to_s, 1, 0, 'R',1)
+		pdf.RDMCell(columnWidth, 5, invoice.first.original_currency.to_s, 1, 0, 'R',1)
+		pdf.RDMCell(columnWidth, 5, invoice.sum(:original_amount).to_s, 1, 0, 'R',1)
 		pdf.set_fill_color(255, 255, 255)
 	end
 
@@ -755,14 +755,14 @@ class WkorderentityController < WkbillingController
 				invoiceItems = getInvoiceItems(entry)
 				csv << invoices.concat(invoiceItems)
 			end
-			csv << getInvoiceTotal(itemDetails, l(:label_sub_total)) 
+			csv << getInvoiceTotal(itemDetails, l(:label_total)) 
 			itemDetails = invoice.invoice_items.where(item_type: 'r').order(:item_type)
 			itemDetails.each do |entry|
 				invoices = getInvoices(invoice)
 				invoiceItems = getInvoiceItems(entry)
 				csv << invoices.concat(invoiceItems)
 			end
-			csv << getInvoiceTotal(invoice.invoice_items, l(:label_total))
+			csv << getInvoiceTotal(invoice.invoice_items, l(:label_grand_total))
 		end
 		export
   end

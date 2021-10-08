@@ -99,15 +99,13 @@ class WkdeliveryController < WkinventoryController
 		if params[:populate_items]
 			@shipment.parent_id = params[:related_parent].to_i
 			@shipment.parent_type = params[:related_to]
-			@shipment.invoice_id = params[:delivery_invoice_id].to_i
 			invoices = []
-			material_entries = WkMaterialEntry.joins(:spent_for)
-				.joins("INNER JOIN wk_invoice_items ON wk_invoice_items.id = wk_spent_fors.invoice_item_id")
-				.joins("INNER JOIN wk_inventory_items ON wk_inventory_items.id = wk_material_entries.inventory_item_id") 
-				.where("wk_invoice_items.invoice_id" => params[:delivery_invoice_id], "wk_invoice_items.item_type" => 'm')
-				.select("wk_material_entries.*, wk_inventory_items.location_id, wk_inventory_items.cost_price, wk_inventory_items.over_head_price, wk_inventory_items.serial_number as serial_no, wk_inventory_items.running_sn, wk_inventory_items.notes")
+			material_entries = WkMaterialEntry.getMaterialInvoice(params[:delivery_invoice_id])
 			if material_entries.present?
+				@materialID = []
+				@shipment.invoice_id = params[:delivery_invoice_id].to_i
 				material_entries.each do |item|
+					@materialID << item.id
 					delivery = @shipment.delivery_items.new
 					delivery.inventory_item_id = item.inventory_item_id
 					delivery.location_id = item.location_id
@@ -178,7 +176,7 @@ class WkdeliveryController < WkinventoryController
 				deliveryItem.project_id = params["project_id_#{i}"]
 				deliveryItem.save()
 				errorMsg += deliveryItem.errors.full_messages.join("<br>")
-				if errorMsg.blank?
+				if errorMsg.blank? && params["material_id"].blank?
 					inventoryItem = WkInventoryItem.find(deliveryItem.inventory_item_id.to_i)
 					availQuantity = inventoryItem.available_quantity - params["total_quantity_#{i}"].to_i
 					inventoryItem.available_quantity = availQuantity

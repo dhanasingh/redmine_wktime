@@ -2,6 +2,7 @@ $(function()
 {
 	$('input[type=text]').blur();
 	$( "#accordion" ).accordion({
+		icons: { "header": "ui-icon-circle-triangle-e", "activeHeader": "ui-icon-circle-triangle-s" },
 		collapsible: true,
 		heightStyle: "content"
 	});

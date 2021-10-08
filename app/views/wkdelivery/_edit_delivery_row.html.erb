@@ -2,7 +2,7 @@
 	<% 
 		inventoryTtem = entry.inventory_item
 		productItem = inventoryTtem&.product_item || ''
-		isDisable = entry.id.present? || params[:delivery_invoice_id]
+		isDisable = entry.id.present? || @materialID.present?
 		productItemArr = []
 		itemObj = nil
 		locationArr =  WkLocation.order(:name).pluck(:name, :id)

@@ -21,6 +21,7 @@
 	%>
 <%= form_tag({controller: controller_name, action: 'update'}, method: :post, id: 'query_form') do %>
 	<%= hidden_field_tag("invoice_id", @shipment&.invoice_id )  %>
+	<%= hidden_field_tag("material_id", @materialID )  %>
 	<table>
 		<tr>
 			<th style="text-align: left"><label><%= l(:field_type) %></label></th>

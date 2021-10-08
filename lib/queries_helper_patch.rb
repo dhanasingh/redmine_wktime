@@ -57,7 +57,7 @@ module QueriesHelper
 		totals = query.totalable_columns.map do |column|
 			# ============= ERPmine_patch Redmine 4.2  =====================
 			if [:quantity, :selling_price].include? column.name
-				product_type = params[:spent_type] == "M" ? 'I' : params[:spent_type]
+				product_type = session[:timelog][:spent_type] == "M" ? 'I' : session[:timelog][:spent_type]
 				query[:filters]['product_type'] = {"operator":"=","values" => product_type}
 			end
 			# =============================

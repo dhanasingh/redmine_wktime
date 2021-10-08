@@ -37,6 +37,7 @@ class WkreferralsController < WkleadController
     entries = entries.filter_name(get_filter(:lead_name)) if get_filter(:lead_name)
     entries = entries.filter_status(get_filter(:status)) if get_filter(:status)
     entries = entries.filter_location(get_filter(:location_id)) if get_filter(:location_id) && get_filter(:location_id) != "0"
+    entries = entries.filter_pass_out(get_filter(:pass_out)) if get_filter(:pass_out)
     entries = entries.reorder(sort_clause)
 
 		respond_to do |format|
@@ -132,7 +133,7 @@ class WkreferralsController < WkleadController
   end
 
 	def set_filter_session
-		filters = [:lead_name, :status, :location_id]
+		filters = [:lead_name, :status, :location_id, :pass_out]
 		super(filters, {location_id: WkLocation.default_id, status: "N" })
 	end
 
