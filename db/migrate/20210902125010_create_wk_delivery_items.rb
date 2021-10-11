@@ -26,9 +26,15 @@ class CreateWkDeliveryItems < ActiveRecord::Migration[5.2]
       dir.up do
 				wksetting = WkSetting.new name: "leave_settings", value: Setting.plugin_redmine_wktime['wktime_leave']
 				wksetting.save
+        change_table :wk_crm_activities do |t|
+          t.change :description, :text
+        end
       end
       dir.down do
         WkSetting.where(name: "leave_settings").destroy_all
+        change_table :wk_crm_activities do |t|
+          t.change :description, :text
+        end
       end
     end
   end
