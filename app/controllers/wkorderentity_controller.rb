@@ -173,7 +173,7 @@ class WkorderentityController < WkbillingController
 					data = invEntries.map do |e|
 						status = e.status == 'o' ? 'open' : 'closed'
 						inv_items = e.invoice_items
-						{ invoice_number: e&.invoice_number, name: e.parent.name, project: (inv_items&.first&.project&.name || ''), status: status, inv_date: e.invoice_date,  start_date: e.start_date, end_date: e.end_date, quantity: inv_items.sum(:quantity), original_amount: (inv_items&.first&.original_currency || '')+" "+inv_items.sum(:original_amount).round(2).to_s, amount: (inv_items&.first&.currency || '')+" "+inv_items.sum(:amount).round(2).to_s, modified: e&.modifier&.name }
+						{ invoice_number: e&.invoice_number, name: e.parent.name, project: (inv_items&.first&.project&.name || ''), status: status, inv_date: e.invoice_date,  start_date: e.start_date, end_date: e.end_date, quantity: inv_items.sum(:quantity).round(2), original_amount: (inv_items&.first&.original_currency || '')+" "+inv_items.sum(:original_amount).round(2).to_s, amount: (inv_items&.first&.currency || '')+" "+inv_items.sum(:amount).round(2).to_s, modified: e&.modifier&.name }
 					end
 					respond_to do |format|
 						format.csv {
@@ -755,7 +755,7 @@ class WkorderentityController < WkbillingController
 				invoiceItems = getInvoiceItems(entry)
 				csv << invoices.concat(invoiceItems)
 			end
-			csv << getInvoiceTotal(itemDetails, l(:label_total)) 
+			csv << getInvoiceTotal(itemDetails, l(:label_total))
 			itemDetails = invoice.invoice_items.where(item_type: 'r').order(:item_type)
 			itemDetails.each do |entry|
 				invoices = getInvoices(invoice)
