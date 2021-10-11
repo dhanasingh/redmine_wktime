@@ -1,1 +1,30 @@
-<%= render :partial => 'rpt_attn' %>
+<%
+  require_relative './report_attendance'
+	if params[:user_id].blank? || (params[:user_id].to_i == User.current.id && params[:user_id].to_i > 0) || validateERPPermission('A_TE_PRVLG') || User.current.admin?
+		if !params[:group_id].blank?
+			group_id = params[:group_id]
+		else
+			group_id = session[controller_name].try(:[], :group_id)
+		end
+		
+		if group_id.blank?
+			group_id = 0
+		end	
+		
+		if !params[:user_id].blank?
+			user_id = params[:user_id]
+		else
+			user_id = session[controller_name].try(:[], :user_id)
+		end
+		
+		if user_id.blank?
+			user_id = 0
+		end	
+
+		projId = session[controller_name].try(:[], :project_id)
+
+		helperObj = Object.new.extend(ReportAttendance)
+    data = helperObj.calcReportData(user_id, group_id, projId, @from, @to)
+	end
+%>
+<%= render partial: 'rpt_attn', locals: { data: data || {}} %>

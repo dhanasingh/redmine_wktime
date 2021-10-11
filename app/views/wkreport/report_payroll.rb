@@ -140,9 +140,9 @@ module ReportPayroll
 		pdf.set_fill_color(230, 230, 230)
 		data[:headers].each do |key, value|
       width = key == "Id" ? 10  : org_width
-      pdf.RDMCell(width, row_Height, value.to_s, 1, 0, '', 1)
+      pdf.RDMMultiCell(width, 10, value.to_s, 1, 'C', 0, 0)
     end
-		pdf.ln
+		pdf.ln(10)
 		pdf.set_fill_color(255, 255, 255)
 
 		pdf.SetFontStyle('', 8)
@@ -152,7 +152,7 @@ module ReportPayroll
       end
 			entry.each do |key, value|
 				width = key == "Id" ? 10  : org_width
-        pdf.RDMCell(width, row_Height, value.to_s, 1, 0, '', 0)
+        pdf.RDMCell(width, row_Height, value.to_s, 1, 0, 'C', 0)
       end
 		  pdf.ln
 		end

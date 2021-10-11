@@ -124,7 +124,7 @@ module ReportPayrollBank
 		pdf.ln(10)
 		pdf.SetFontStyle('B', 9)
 		pdf.set_fill_color(230, 230, 230)
-		data[:headers].each{ |key, value| pdf.RDMCell(width, row_Height, value.to_s, 1, 0, '', 1) }
+		data[:headers].each{ |key, value| pdf.RDMCell(width, row_Height, value.to_s, 1, 0, 'C', 1) }
 		pdf.ln
 		pdf.set_fill_color(255, 255, 255)
 
@@ -133,7 +133,7 @@ module ReportPayrollBank
       if((data[:data]).last == entry)
         pdf.SetFontStyle('B',9)
       end
-			entry.each{ |key, value| pdf.RDMCell(width, row_Height, value.to_s, 1, 0, '', 0) }
+			entry.each{ |key, value| pdf.RDMCell(width, row_Height, value.to_s, 1, 0, 'C', 0) }
 		  pdf.ln
 		end
 		pdf.Output
