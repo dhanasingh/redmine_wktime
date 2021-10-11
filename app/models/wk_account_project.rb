@@ -25,7 +25,9 @@ class WkAccountProject < ActiveRecord::Base
   has_many :taxes, through: :wk_acc_project_taxes
   has_many :acc_invoice_comps, foreign_key: "account_project_id", class_name: "WkAccInvoiceComponents", dependent: :destroy
   #validates_uniqueness_of :project_id, :scope => :account_id
-  validates_uniqueness_of :project_id,  :scope => [:parent_id, :parent_type] 
-  
+  validates_uniqueness_of :project_id,  :scope => [:parent_id, :parent_type]
+
   scope :getAccProj, ->(parent_id, parent_type){ where(parent_id: parent_id, parent_type: parent_type) }
+
+  scope :getAccByProjID, ->(project_id){ where(project_id: project_id) }
 end
