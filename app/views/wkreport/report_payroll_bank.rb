@@ -85,7 +85,8 @@ module ReportPayrollBank
       @rowval["#{user.id}"]["Net"] = syscurrency.to_s + ((@totalhash["#{user.id}"]["gross"]).to_f - (@totalhash["#{user.id}"]["deduction"]).to_f + (@totalhash["#{user.id}"]["reimbursement"]).to_f).to_s
       count = count + 1
     end
-    data = {headerarr: @headerarr, rowval: @rowval, usercol: usercol, syscurrency: syscurrency, salary_data: @salary_data, compTotalHash: compTotalHash}
+    period = @salary_data&.first.blank? ? from :  @salary_data&.first&.salary_date
+    data = {headerarr: @headerarr, rowval: @rowval, usercol: usercol, syscurrency: syscurrency, salary_data: @salary_data, compTotalHash: compTotalHash, period: period}
   end
 
   def getExportData(user_id, group_id, projId, from, to)
@@ -99,6 +100,42 @@ module ReportPayrollBank
     end
     rptData[:headerarr].each_with_index{|ele, index| total[ele] = index == 3 ? l(:label_total) : (rptData[:compTotalHash][ele] && (rptData[:syscurrency].to_s +  rptData[:compTotalHash][ele].to_s)) }
     data << total
-    return {data: data, headers: headers}
+    return {data: data, headers: headers, period: rptData[:period]}
   end
+
+  def pdf_export(data)
+		pdf = ITCPDF.new(current_language)
+		pdf.add_page
+		row_Height = 8
+		page_width    = pdf.get_page_width
+		left_margin   = pdf.get_original_margins['left']
+		right_margin  = pdf.get_original_margins['right']
+		table_width = page_width - right_margin - left_margin
+		width = table_width/data[:headers].length
+		pdf.ln
+		pdf.SetFontStyle('B', 10)
+		pdf.RDMMultiCell(table_width, row_Height, getMainLocation, 0, 'C')
+		pdf.RDMMultiCell(table_width, row_Height, l(:report_payroll_bank), 0, 'C')
+		pdf.RDMMultiCell(table_width, row_Height, l(:label_wages_period) + ':'+ data[:period].to_s, 0, 'C')
+    logo =data[:logo]
+		if logo.present?
+			pdf.Image(logo.diskfile.to_s, page_width-50, 15, 30, 25)
+		end
+		pdf.ln(10)
+		pdf.SetFontStyle('B', 9)
+		pdf.set_fill_color(230, 230, 230)
+		data[:headers].each{ |key, value| pdf.RDMCell(width, row_Height, value.to_s, 1, 0, '', 1) }
+		pdf.ln
+		pdf.set_fill_color(255, 255, 255)
+
+		pdf.SetFontStyle('', 8)
+		data[:data].each do |entry|
+      if((data[:data]).last == entry)
+        pdf.SetFontStyle('B',9)
+      end
+			entry.each{ |key, value| pdf.RDMCell(width, row_Height, value.to_s, 1, 0, '', 0) }
+		  pdf.ln
+		end
+		pdf.Output
+	end
 end

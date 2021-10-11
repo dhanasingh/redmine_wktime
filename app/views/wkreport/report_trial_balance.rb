@@ -64,7 +64,7 @@ module ReportTrialBalance
 		end
 		creditTotal += rptData[:profitLossHash].round(2) unless rptData[:profitLossHash].blank?
 		data << {ledger_group: l(:report_profit_loss), ledger_type: '', ledger: '', debit: '', credit: rptData[:profitLossHash]}
-		data << {ledger_group: '', ledger_type: '', ledger: l(:label_total), debit: debitTotal, credit: creditTotal}
+		data << {ledger_group: l(:label_total), ledger_type: '', ledger: '', debit: debitTotal, credit: creditTotal}
 		return {data: data, headers: headers}
 	end
 
@@ -76,5 +76,36 @@ module ReportTrialBalance
 			end
 		end
 		data
+	end
+
+  def pdf_export(data)
+		pdf = ITCPDF.new(current_language, "L")
+		pdf.add_page
+		row_Height = 8
+		page_width    = pdf.get_page_width
+		left_margin   = pdf.get_original_margins['left']
+		right_margin  = pdf.get_original_margins['right']
+		table_width = page_width - right_margin - left_margin
+		width = table_width/data[:headers].length
+		pdf.ln
+		pdf.SetFontStyle('B', 10)
+		pdf.RDMMultiCell(table_width, row_Height, getMainLocation, 0, 'C')
+		pdf.RDMMultiCell(table_width, row_Height, l(:report_trial_balance), 0, 'C')
+		pdf.RDMMultiCell(table_width, row_Height, l(:label_as_at) + " " + data[:to].to_formatted_s(:long), 0, 'C')
+		pdf.SetFontStyle('B', 9)
+		pdf.set_fill_color(230, 230, 230)
+		data[:headers].each{ |key, value| pdf.RDMCell(width, row_Height, value.to_s, 0, 0, '', 1) }
+		pdf.ln
+		pdf.set_fill_color(255, 255, 255)
+
+		pdf.SetFontStyle('', 8)
+		data[:data].each do |entry|
+			entry.each do |key, value|
+				[:ledger_group, :ledger_type].include?(key) ? pdf.SetFontStyle('B',9)  : pdf.SetFontStyle('',8) 
+        pdf.RDMCell(width, row_Height, value.to_s, 0, 0, '', 0)
+      end
+			pdf.ln
+		end
+		pdf.Output
 	end
 end

@@ -28,7 +28,7 @@
  <caption style="text-align:left"><b><%= l(:label_wk_form_r) %><br/><%= l(:label_register_wages) %><br/><%= l(:label_wages_rule) %></b></br>
  <b><%= l(:label_wk_name_address) %>:</b> <%= getMainLocation %>
  <%= getAddress %>
- <b><%= l(:label_wages_period) %>:</b> <%= data[:salary_data][0].blank? ? session[controller_name].try(:[], :from) :  data[:salary_data][0].salary_date %>
+ <b><%= l(:label_wages_period) %>:</b> <%= data[:period] %>
   </caption> 
   </div>
 		<div style="float:right">

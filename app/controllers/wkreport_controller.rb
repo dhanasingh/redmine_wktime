@@ -124,7 +124,7 @@ accept_api_auth :get_reports, :getReportData, :export
 			require_relative "../views/wkreport/#{report_type}"
 			report = Object.new.extend(report_type.camelize.constantize)
 			reportData = report.getExportData(getSession(:user_id), getSession(:group_id), getSession(:project_id), @from, @to)
-			pdfData = report.pdf_export({data: reportData[:data], headers: reportData[:headers], location: getMainLocation, from: @from, to: @to, logo: WkLocation.getMainLogo})
+			pdfData = report.pdf_export({data: reportData[:data], headers: reportData[:headers], location: getMainLocation, from: @from, to: @to, logo: WkLocation.getMainLogo, period: reportData[:period]})
 		end
 
 		respond_to do |format|
