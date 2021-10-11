@@ -95,4 +95,41 @@ module ReportPf
     data[:data] << {s_no: '', uan: '', name: l(:label_total), wages1: total[:basicTot], wages2: total[:wagesTot], wages3: total[:wagesTot], wages4: total[:wagesTot], contribution_remitted1: total[:eeTot], contribution_remitted2: total[:epsTot], contribution_remitted3: total[:erTot]}
     data
   end
+
+	def pdf_export(data)
+    pdf = ITCPDF.new(current_language,'L')
+    pdf.add_page
+    row_Height = 8
+    page_width    = pdf.get_page_width
+    left_margin   = pdf.get_original_margins['left']
+    right_margin  = pdf.get_original_margins['right']
+    table_width = page_width - right_margin - left_margin
+    width = table_width/data[:headers].length
+
+    pdf.SetFontStyle('B', 13)
+    pdf.RDMMultiCell(table_width, 5, data[:location], 0, 'C')
+    pdf.RDMMultiCell(table_width, 5, l(:report_pf), 0, 'C')
+    pdf.RDMMultiCell(table_width, 5, l(:label_wages_period)+": "+ data[:from].to_s, 0, 'C')
+
+		logo =data[:logo]
+		if logo.present?
+			pdf.Image(logo.diskfile.to_s, page_width-50, 15, 30, 25)
+		end
+		pdf.ln(10)
+    pdf.SetFontStyle('B', 8)
+    pdf.set_fill_color(230, 230, 230)
+    data[:headers].each{ |key, value| pdf.RDMCell(width, row_Height, value.to_s, 1, 0, 'C', 1) }
+    pdf.ln
+    pdf.set_fill_color(255, 255, 255)
+
+    pdf.SetFontStyle('', 8)
+    data[:data].each do |entry|
+			entry.each{ |key, value|
+				pdf.SetFontStyle('B', 8) if entry == data[:data].last
+				pdf.RDMCell(width, row_Height, value.to_s, 0, 0, 'C', 1)
+			}
+    	pdf.ln
+    end
+    pdf.Output
+  end
 end

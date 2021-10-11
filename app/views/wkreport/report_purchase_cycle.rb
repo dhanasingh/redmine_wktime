@@ -78,15 +78,55 @@ module ReportPurchaseCycle
 	end
 
 	def getExportData(user_id, group_id, projId, from, to)
-	data = {headers: {}, data: []}
-	reportData = calcReportData(user_id, group_id, projId, from, to)
-	data[:headers] = {rfq: l(:label_rfq), purchase_cycle: l(:report_purchase_cycle)+''+ l(:label_in_days)}
-	details = {rfq: '', winning_quote: l(:label_winning_quote), purchase_order: l(:label_purchase_order), supplier_invoice: l(:label_supplier_invoice), supplier_payment: l(:label_supplier_payment)}
-		data[:data] << details
-	reportData[:purchaseData].each do |index, entry|
-		data[:data] << {name: entry['name'],wqCycle: entry['wqCycle'],poCycle: entry['poCycle'],siCycle: entry['siCycle'],payCycle: entry['payCycle']}
+		data = {headers: {}, data: []}
+		reportData = calcReportData(user_id, group_id, projId, from, to)
+		data[:headers] = {rfq: l(:label_rfq), purchase_cycle: l(:report_purchase_cycle)+''+ l(:label_in_days), poCycle: '', siCycle: '', payCycle:''}
+		data[:data] << {rfq: '', winning_quote: l(:label_winning_quote), purchase_order: l(:label_purchase_order), supplier_invoice: l(:label_supplier_invoice), supplier_payment: l(:label_supplier_payment)}
+		reportData[:purchaseData].each do |index, entry|
+			data[:data] << {name: entry['name'],wqCycle: entry['wqCycle'],poCycle: entry['poCycle'],siCycle: entry['siCycle'],payCycle: entry['payCycle']}
+		end
+		data[:data] << {average: l(:label_average),wqCycle: reportData[:wqTotal],poCycle: reportData[:poTotal],siCycle: reportData[:siTotal],payCycle: reportData[:payTotal]}
+		data
 	end
-	data[:data] << {average: l(:label_average),wqCycle: reportData[:wqTotal],poCycle: reportData[:poTotal],siCycle: reportData[:siTotal],payCycle: reportData[:payTotal]}
-	data
-end
+
+
+	def pdf_export(data)
+    pdf = ITCPDF.new(current_language,'L')
+    pdf.add_page
+    row_Height = 8
+    page_width    = pdf.get_page_width
+    left_margin   = pdf.get_original_margins['left']
+    right_margin  = pdf.get_original_margins['right']
+    table_width = page_width - right_margin - left_margin
+    width = table_width/data[:headers].length
+
+    pdf.SetFontStyle('B', 13)
+    pdf.RDMMultiCell(table_width, 5, data[:location], 0, 'C')
+    pdf.RDMMultiCell(table_width, 5, l(:report_purchase_cycle) + " " + l(:label_report), 0, 'C')
+    pdf.RDMMultiCell(table_width, 5, data[:from].to_s+" "+ l(:label_date_to) +" "+data[:to].to_s, 0, 'C')
+
+		logo =data[:logo]
+		if logo.present?
+			pdf.Image(logo.diskfile.to_s, page_width-50, 15, 30, 25)
+		end
+		pdf.ln(10)
+    pdf.SetFontStyle('B', 8)
+    pdf.set_fill_color(230, 230, 230)
+    data[:headers].each{ |key, value|
+			pdf.RDMCell(width, row_Height, value.to_s, 1, 0, 'C', 1)
+		}
+    pdf.ln
+    pdf.set_fill_color(255, 255, 255)
+
+    pdf.SetFontStyle('', 8)
+    data[:data].each do |entry|
+			entry.each{ |key, value|
+				border = 0
+				pdf.SetFontStyle('B', 8) if entry == data[:data].last
+				pdf.RDMCell(width, row_Height, value.to_s, 1, 0, 'C', 1)
+			}
+    	pdf.ln
+    end
+    pdf.Output
+  end
 end

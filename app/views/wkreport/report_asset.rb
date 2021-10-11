@@ -50,7 +50,7 @@ module ReportAsset
     depreciation_total = depreciation_total
     current_total = current_total
     currency = currency
-    data = {asset: asset, purchase_total: currency+' '+purchase_total.to_s, depreciation_total: currency+' '+depreciation_total.round(2).to_s, current_total: currency+' '+current_total.to_s, currency: currency, to: to.to_formatted_s(:long)}
+    data = {asset: asset, purchase_total: currency+' '+purchase_total.round(2).to_s, depreciation_total: currency+' '+depreciation_total.round(2).to_s, current_total: currency+' '+current_total.round(2).to_s, currency: currency, to: to.to_formatted_s(:long)}
   end
 
   def getExportData(user_id, group_id, projId, from, to)
@@ -60,8 +60,44 @@ module ReportAsset
     reportData[:asset].each do |key, val|
       data[:data] << val
     end
-    data[:data] << {s_no: '', project_name: '', asset_name: '', product_name: '', shipment_date: '',  purchase_total: reportData[:currency]+' '+reportData[:purchase_total].to_s, depreciation_total: reportData[:currency]+' '+reportData[:depreciation_total].to_s, current_total: reportData[:currency]+' '+reportData[:current_total].to_s, last_depreciation: ''}
+    data[:data] << {s_no: '', project_name: '', asset_name: '', product_name: '', shipment_date: '',  purchase_total: reportData[:purchase_total].to_s, depreciation_total: reportData[:depreciation_total].to_s, current_total: reportData[:current_total].to_s, last_depreciation: ''}
     data
+  end
+
+  def pdf_export(data)
+    pdf = ITCPDF.new(current_language,'L')
+    pdf.add_page
+    row_Height = 8
+    page_width    = pdf.get_page_width
+    left_margin   = pdf.get_original_margins['left']
+    right_margin  = pdf.get_original_margins['right']
+    table_width = page_width - right_margin - left_margin
+    width = table_width/data[:headers].length
+
+    pdf.SetFontStyle('B', 13)
+    pdf.RDMMultiCell(table_width, 5, data[:location], 0, 'C')
+    pdf.RDMMultiCell(table_width, 5, l(:report_asset), 0, 'C')
+    pdf.RDMMultiCell(table_width, 5, l(:label_as_at)+ " " +data[:to].to_s, 0, 'C')
+		logo =data[:logo]
+		if logo.present?
+			pdf.Image(logo.diskfile.to_s, page_width-50, 15, 30, 25)
+		end
+		pdf.ln(10)
+    pdf.SetFontStyle('B', 8)
+    pdf.set_fill_color(230, 230, 230)
+    data[:headers].each{ |key, value| pdf.RDMCell(width, row_Height, value.to_s, 1, 0, 'C', 1) }
+    pdf.ln
+    pdf.set_fill_color(255, 255, 255)
+
+    pdf.SetFontStyle('', 8)
+    data[:data].each do |entry|
+      entry.each{ |key, value|
+        pdf.SetFontStyle('B', 8) if entry == data[:data].last
+        pdf.RDMCell(width, row_Height, value.to_s, 0, 0, 'C', 0)
+      }
+      pdf.ln
+    end
+    pdf.Output
   end
 end
 
