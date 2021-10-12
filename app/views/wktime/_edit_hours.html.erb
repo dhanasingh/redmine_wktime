@@ -29,17 +29,19 @@
 			holiday = WkPublicHoliday.getHolidays(params[:user_id], (@startday + @wday_index) - 1)
 			holiday = holiday.length > 0
 			hrs = ''
-			if  Setting.plugin_redmine_wktime['wktime_holiday'].to_i > 0 && controller.getTELabel == 'Timesheet'
-				defWorkTime = getAccuralHours
+			if Setting.plugin_redmine_wktime['wktime_holiday'].to_i > 0 && controller.getTELabel == 'Timesheet' && @wktime&.status.blank?
 				@holidayDate.each do |date|
-					hrs = (((@startday + @wday_index) - 1) == date) ? defWorkTime : '' if ((@startday + @wday_index) - 1) == date
+					hrs = !isTemplate && !@prev_template && (((@startday + @wday_index) - 1) == date) ? getAccuralHours : '' if (((@startday + @wday_index) - 1) == date)
 				end
+			end
+			if entry.present? && entry&.hours.present? && !@prev_template
+				hrs = "%.2f" % entry.hours
 			end
 			%>
 			<%#if this is from a previous template, don't print the hours%>
 			<td class="hours">
 				<div style="float: left; ">
-				<%=h text_field_tag('hours' + @row.to_s() +'[]', entry.nil? || @prev_template || entry.hours.blank? ? hrs : ("%.2f" % entry.hours) ,:size => "#{controller.textfield_size}",
+				<%=h text_field_tag('hours' + @row.to_s() +'[]', hrs ,:size => "#{controller.textfield_size}",
 				:disabled => disable, class: "hrs_col_" + @wday_index.to_s(),
 				:onchange => "validateTotal(this, #{@wday_index},'#{controller.maxHour}');") %>
 				<%=h hidden_field_tag('ids' + @row.to_s() +'[]', entry.nil? || @prev_template ? '' : entry.id) %>

@@ -1982,7 +1982,7 @@ end
 	def getAccuralHours
 		accural_hrs  = ''
 		leaveSettings = WkSetting.where("name = 'leave_settings'").first
-		if leaveSettings.present?
+		if leaveSettings.present? && leaveSettings&.value.present?
 			holiday_issue = Setting.plugin_redmine_wktime['wktime_holiday']
 			JSON.parse(leaveSettings.value).each do |val|
 				valArr = val.split('|')
