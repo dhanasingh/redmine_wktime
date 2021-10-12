@@ -55,7 +55,7 @@ module ReportSalesActivity
   def getExportData(user_id, group_id, projId, from, to)
     data = {headers: {}, data: []}
     reportData = calcReportData(user_id, group_id, projId, from, to)
-    data[:headers] = {activity_type: l(:label_activity_type), subject: l(:field_subject), status: l(:field_status), relates_to: l(:label_relates_to), name: l(:field_name), start_date_time: l(:label_start_date_time), complete_date: l(:label_completed_date_time), assignee: l(:field_assigned_to), duration: l(:label_duration)+' '+l(:label_day_plural)}
+    data[:headers] = {activity_type: l(:label_activity_type), subject: l(:field_subject), status: l(:field_status), relates_to: l(:label_relates_to), name: l(:field_name), start_date_time: l(:label_start_date_time), complete_date: 'Completed Date', assignee: l(:field_assigned_to), duration: l(:label_duration)+' '+l(:label_day_plural)}
     reportData[:activities].each do |key, activity|
       data[:data] << activity
     end
@@ -96,7 +96,7 @@ module ReportSalesActivity
     data[:data].each do |entry|
 			entry.each{ |key, value|
 				pdf.SetFontStyle('B', 8) if entry == data[:data].last
-				pdf.RDMCell(width, row_Height, value.to_s, 0, 0, 'C', 1)
+				pdf.RDMCell(width, row_Height, value.to_s, 1, 0, 'C', 1)
 			}
     	pdf.ln
     end

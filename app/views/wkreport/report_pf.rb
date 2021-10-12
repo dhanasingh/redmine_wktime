@@ -81,9 +81,7 @@ module ReportPf
 	def getExportData(user_id, group_id, projId, from, to)
     data = {headers: {}, data: []}
     reportData = calcReportData(user_id, group_id, projId, from, to)
-    data[:headers] = {s_no: l(:label_attn_sl_no), uan: l(:label_uan), name: l(:field_name), wages1: l(:label_wages), wages2: l(:label_wages), wages3: l(:label_wages), wages4: l(:label_wages), contribution_remitted1: l(:label_contribution_remitted), contribution_remitted2: l(:label_contribution_remitted), contribution_remitted3: l(:label_contribution_remitted)}
-		details = {s_no: '', uan: '', name: '', basic: l(:label_basic), eps: l(:label_eps_wages), epf: l(:label_epf_wages), edli: l(:label_edli_wages), ee: l(:label_ee_remitted), eps1: l(:label_eps_wages), er: l(:label_er_remitted)}
-		data[:data] << details
+    data[:headers] = {s_no: l(:label_attn_sl_no), uan: l(:label_uan), name: l(:field_name), wages1: l(:label_wages)+'-'+l(:label_basic), wages2: l(:label_wages)+'-'+l(:label_eps_wages), wages3: l(:label_wages)+'-'+l(:label_epf_wages), wages4: l(:label_wages)+'-'+l(:label_edli_wages), contribution_remitted1: 'CR-'+l(:label_ee_remitted), contribution_remitted2: 'CR-'+l(:label_eps_wages), contribution_remitted3: 'CR-'+l(:label_er_remitted)}
 		total = reportData[:total]
 		i = 1
     reportData[:data].each do |key, entry|
@@ -126,7 +124,7 @@ module ReportPf
     data[:data].each do |entry|
 			entry.each{ |key, value|
 				pdf.SetFontStyle('B', 8) if entry == data[:data].last
-				pdf.RDMCell(width, row_Height, value.to_s, 0, 0, 'C', 1)
+				pdf.RDMCell(width, row_Height, value.to_s, 1, 0, 'C', 1)
 			}
     	pdf.ln
     end

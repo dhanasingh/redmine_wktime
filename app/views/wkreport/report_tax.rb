@@ -105,11 +105,11 @@ module ReportTax
     reportData = calcReportData(user_id, group_id, projId, from, to)
 		reportData[:taxData].each do |mnth, val|
 			data[:headers] = {mnth: '', employee_id: l(:label_employee_id), tax: l(:field_tax), user_name: l(:label_user_name), gross: l(:label_gross), tds: l(:label_tds), cess: l(:label_cess), total: l(:label_total)}
-			data[:data] << {mnth: val['month_name'], employee_id: 	'', tax: '', total: '', gross: '', tds: '', cess: '', alltotal: ''}
+			data[:data] << {mnth: val['month_name'], employee_id: '', tax: '', total: '', gross: '', tds: '', cess: '', alltotal: ''}
 			val['users'].each do |entry|
-				data[:data] << entry
+				data[:data] <<  {mnth: '', employee_id: entry[:employee_id], tax: entry[:tax_id], user_name: entry[:name], gross: entry[:gross], tds: entry[:tds], cess: entry[:cess], total: entry[:taxTotal]}
 			end
-			data[:data] << {mnth: '', employee_id: 	'', tax: '', total: l(:label_total), gross: val['grossTot'], tds: val['tdsTot'], cess: val['cessTot'], alltotal: val['total']}
+			data[:data] << {mnth: '', employee_id: '', tax: '', total: l(:label_total), gross: val['grossTot'], tds: val['tdsTot'], cess: val['cessTot'], alltotal: val['total']}
 		end
     data
   end
@@ -143,7 +143,7 @@ module ReportTax
     pdf.SetFontStyle('', 8)
     data[:data].each do |entry|
 			entry.each{ |key, value|
-				pdf.RDMCell(width, row_Height, value.to_s, 0, 0, 'C', 1)
+				pdf.RDMCell(width, row_Height, value.to_s, 1, 0, 'C', 1)
 			}
     	pdf.ln
     end

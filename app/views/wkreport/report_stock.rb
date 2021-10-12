@@ -79,7 +79,7 @@ module ReportStock
     data[:data].each do |entry|
       entry.each{ |key, value|
         pdf.SetFontStyle('B', 8) if entry == data[:data].last
-        pdf.RDMCell(width, row_Height, value.to_s, 0, 0, 'C', 1)
+        pdf.RDMCell(width, row_Height, value.to_s, 1, 0, 'C', 1)
       }
       pdf.ln
     end

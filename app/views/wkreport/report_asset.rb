@@ -92,8 +92,11 @@ module ReportAsset
     pdf.SetFontStyle('', 8)
     data[:data].each do |entry|
       entry.each{ |key, value|
-        pdf.SetFontStyle('B', 8) if entry == data[:data].last
-        pdf.RDMCell(width, row_Height, value.to_s, 0, 0, 'C', 0)
+        if entry == data[:data].last
+          pdf.SetFontStyle('B', 8)
+          border = 1
+        end
+        pdf.RDMCell(width, row_Height, value.to_s,border, 0, 'C', 0)
       }
       pdf.ln
     end

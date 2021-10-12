@@ -272,7 +272,8 @@ module ReportProjectProfitability
       entry.each{ |key, value|
         pdf.SetFontStyle('', 8)
         pdf.SetFontStyle('B', 8) if entry == data[:data].last || key.to_s == 'name'
-        pdf.RDMCell(width, row_Height, value.to_s, 0, 0, 'C', 0)
+        border = 1 if entry == data[:data].last
+        pdf.RDMCell(width, row_Height, value.to_s, border, 0, 'C', 1)
       }
       pdf.ln
     end
