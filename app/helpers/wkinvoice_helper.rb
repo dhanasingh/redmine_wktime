@@ -798,7 +798,7 @@ include WkpayrollHelper
 					items.store "item_quantity", 1
 					items.store "rate", entry.amount.round(2)
 					items.store "item_amount", entry.amount.round(2)
-					items.store "issue_id", entry.issue_id
+					items.store "issue_id", entry.issue_id if accProject.itemized_bill
 					items.store "billing_type", accProject.billing_type
 					@currency = entry.currency
 					@invItems.store @itemCount, items

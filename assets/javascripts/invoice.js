@@ -572,47 +572,34 @@ function setDescription(isonload){
 	}
 }
 
-function showQuantityDetails(invItemId) {
+function showQuantityDetails(invItemId, itemType) {
 	var url = "/wkinvoice/getQuantityDetails";
-	var data = {inv_item_id: invItemId}
-	getTimeDetails(url, data)
+	var data = {inv_item_id: invItemId, itemType}
+	getSpentDetails(url, data)
 }
 
-function showUnbillQtyDetails(project_id, issue_id, start_date, end_date, parent_id, parent_type) {
+function showUnbillQtyDetails(project_id, issue_id, start_date, end_date, parent_id, parent_type, itemType) {
 	var url = "/wkinvoice/getUnbilledQtyDetails";
-	var data = {project_id: project_id, start_date: start_date, end_date: end_date, parent_id: parent_id, parent_type: parent_type, issue_id: issue_id}
-	getTimeDetails(url, data)
+	var data = {project_id, start_date, end_date, parent_id, parent_type, issue_id, itemType}
+	getSpentDetails(url, data)
 }
 
-function getTimeDetails(url, data){
-	var oldProjID = ''
-	var tableEntries = ''
+function getSpentDetails(url, data){
 	$.ajax({
 		url: url,
 		data: data,
-	 	success: function(result){
-			$.each( result, function( i, l ){
-				tableEntries += formQuantityTable(i, l, oldProjID);
-				oldProjID = l.projID
+	 	success: function(resData){
+			renderData(resData);
+			$("#dialog" ).dialog({
+				modal: true,
+				title: resData.title,
+				width: "80%",
+				height: window.innerHeight - 100
 			});
-			if (tableEntries && tableEntries.length > 0){
-				$(" #qunatityTable").html(tableEntries);
-			}
-			else{
-				$(" #qunatityTable").html('<p style="clear:both" class="nodata">'+label_no_data+'</p>');
-			}
-		$("#quantity-dlg").dialog({ title: 'Quantity', width: '80%', height: $(window).height(),});
-	}});
+		}
+	});
 }
 
-function formQuantityTable(i, l, oldProjID) {
-	var projName = ''
-	var styleTD = 'class=lbl-txt-align style=width:330px;'
-	 var tableHeaders = (i > 0) ? '' :  "<tr class=quantityHeaters><th "+styleTD+"> Project </th><th "+styleTD+"> Issue </th><th "+styleTD+"> User </th><th "+styleTD+"> Date </th><th "+styleTD+"> Hours </th></tr>"
-	if(l.projID != oldProjID){ projName = l.proj_name }
-	var tableDetails = tableHeaders + "<tr class=quantityDetails><td "+styleTD+">"+ projName +"</td></tr><tr class=quantityDetails><td></td><td "+styleTD+">" + l.subject + "</td><td "+styleTD+">" + l.usr_name + "</td><td "+styleTD+">" + l.spent_on + "</td><td "+styleTD+">" + l.hours + "</td></tr>";
-	return tableDetails
-}
 
 function selectEntryPopup() {
 	var url = "/wkinvoice/generateTimeEntries";

@@ -323,11 +323,29 @@ class WkinvoiceController < WkorderentityController
 		true
 	end
 
+	def getSpentDetailHeaders
+		header = { project_name: l(:label_project), issue: l(:label_invoice_name), user: l(:label_user), date: l(:label_date)}
+		if params[:itemType] == 'i'
+			header[:hour] = l(:field_hours)
+		elsif params[:itemType] == 'e'
+			header[:amount] = l(:field_amount)
+		end
+		header
+	end
+
 	def getQuantityDetails
-		data = []
-		dataTimeEntries = WkInvoiceItem.getSpentForEntries(params[:inv_item_id])
-		dataTimeEntries.each{ |entry| data << {projID: entry.project_id, proj_name: entry.project.name, subject: entry.subject.to_s, usr_name: entry.firstname+''+entry.lastname, 				spent_on: entry.spent_on, hours: entry.hours}}
-		render json: data
+		spentEntries = WkSpentFor.getSpentDetails(params[:inv_item_id])
+		data = spentEntries.map do |entry|
+			spent = entry.spent
+			items = {project_name: spent.project.name, issue: spent&.issue&.subject.to_s, user: spent.user&.name, date: spent.spent_on}
+			if params[:itemType] == 'i'
+				items[:hour] = spent.try(:hours)
+			elsif params[:itemType] == 'e'
+				items[:field_amount] = spent.try(:currency)+spent.try(:amount).to_s
+			end
+			items
+		end
+		render json: {data: data, header: getSpentDetailHeaders, title: l(:field_quantity)}
 	end
 
 	def getUnbilledQtyDetails
@@ -336,10 +354,18 @@ class WkinvoiceController < WkorderentityController
 		invIntervals = getIntervals(params[:start_date].to_date, params[:end_date].to_date, invoiceFreq["frequency"], invoiceFreq["start"], true, false)
 		fromDate = getUnbillEntryStart(invIntervals[0][0])
 		todate = invIntervals[0][1]
-		unbilledEntries = WkInvoiceItem.getUnbilledTimeEntries(params[:project_id], fromDate.to_date, todate.to_date, params[:parent_id], params[:parent_type])
+		unbilledEntries = WkInvoiceItem.getUnbilledTimeEntries(params[:project_id], fromDate.to_date, todate.to_date, params[:parent_id], params[:parent_type], params[:itemType] == 'e' ? WkExpenseEntry : TimeEntry)
 		unbilledEntries = WkInvoiceItem.filterByIssues(unbilledEntries, params[:issue_id].to_i, params[:project_id], params[:parent_id] , params[:parent_type])
-		unbilledEntries.each{ |entry| data << {projID: entry.project_id, proj_name: entry.project.name, subject: entry.issue.to_s, usr_name: entry.user.name, spent_on: entry.spent_on, hours: entry.hours} if entry.hours > 0}
-    	render json: data
+		unbilledEntries.map do |entry|
+			items = {project_name: entry.project.name, issue: entry.issue.to_s, user: entry.user.name, date: entry.spent_on}
+			if params[:itemType] == 'i'
+				items[:hour] = entry.try(:hours)
+			elsif params[:itemType] == 'e'
+				items[:amount] = entry.try(:currency)+entry.try(:amount).to_s
+			end
+			data << items if entry.try(:hours).to_i > 0 || entry.try(:amount).to_i > 0
+		end
+		render json: {data: data, header: getSpentDetailHeaders, title: l(:field_quantity)}
 	end
 
 	def generateTimeEntries
