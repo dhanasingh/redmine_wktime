@@ -149,10 +149,10 @@ class WkinvoiceController < WkorderentityController
 				if !populatedItems.blank? && populatedItems == '1'
 					@unbilled = true
 					matterialAmt = 0
+					totAmount += addExpenseItems(apEntry, false) || 0 if apEntry.include_expense
 					if apEntry.billing_type == 'TM'
 						totAmount = saveTAMInvoiceItem(apEntry, true) || 0
 						matterialAmt = addMaterialItem(apEntry, false)
-						totAmount += addExpenseItems(apEntry, false) || 0 if apEntry.include_expense
 					else
 						totAmount = getFcItems(apEntry, startDate, endDate)
 					end

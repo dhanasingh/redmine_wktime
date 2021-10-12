@@ -106,7 +106,7 @@
 						</td>
 						<td class="lbl-txt-align" headers="quantity">
 							<%= text_field_tag "quantity_#{row_index}", ("%.2f" % entry.quantity unless entry.quantity.blank?), :maxlength => 14, :style => "width:120px;", :onchange => "addAmount(this.id)", :disabled => isDisable %>
-							<% if ["i", "e"].include?(entry.item_type) && controller_name == 'wkinvoice' && accProject[0].billing_type == 'TM'%>
+							<% if controller_name == 'wkinvoice' && (["i"].include?(entry.item_type) && accProject[0].billing_type == 'TM' || entry.item_type == "e") %>
 								<%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript:showQuantityDetails(#{entry.id},'#{entry.item_type}');" %>
 							<% end %>
 						</td>
@@ -171,7 +171,7 @@
 						</td>
 						<td class="lbl-txt-align" headers="quantity">
 							<%= text_field_tag "quantity_#{row_index}", value['item_quantity'], :maxlength => 14,  :style => "width:130px;", :onchange => "addAmount(this.id)", :disabled => @preBilling %>
-							<% if ['i', 'e'].include?(value['item_type']) && value['billing_type'] == 'TM'%>
+							<% if ['i'].include?(value['item_type']) && value['billing_type'] == 'TM' || value['item_type'] == "e" %>
 								<%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript: showUnbillQtyDetails(#{value['project_id']}, #{value['issue_id'].to_i}, '#{@invoice.start_date}', '#{@invoice.end_date}', #{@invoice.parent_id}, '#{@invoice.parent_type}', '#{value['item_type']}');" %>
 							<% end %>
 						</td>
