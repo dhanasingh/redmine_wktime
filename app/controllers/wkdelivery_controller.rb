@@ -138,10 +138,10 @@ class WkdeliveryController < WkinventoryController
 			@shipment.shipment_type = getShipmentType
 			@shipment.parent_id = params[:related_parent].to_i
 			@shipment.parent_type = params[:related_to]
+			@shipment.invoice_id = params[:delivery_invoice_id]
 		end
 		@shipment.serial_number = params[:serial_number]
 		@shipment.shipment_date = params[:delivery_date]
-		@shipment.invoice_id = params[:delivery_invoice_id]
 		if @shipment&.wkstatus&.last&.status != 'D'
 			saveStatus = false
 			if params[:status] == 'L'

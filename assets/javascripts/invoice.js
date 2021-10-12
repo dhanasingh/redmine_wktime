@@ -1,5 +1,10 @@
 var row_id = 0;
 var compId = 0;
+var table = null;
+var rowlength = null;
+var lastRow = null;
+var lastDatePicker = null;
+var $rowClone = null;
 
 $(document).ready(function() {
 	$('.date').each(function() {
@@ -59,6 +64,26 @@ $(document).ready(function() {
 			}
 		}
 	});
+
+	//Load New Row
+	table = document.getElementById('deliveryTable');
+	if(table != null){
+		rowlength = table.rows.length - 1 ;
+		lastRow = table.rows[rowlength];
+		$rowClone = $(lastRow).clone(true);
+		$rowClone.find('td').each(function(){
+			var el = $(this).find(':first-child');
+			var id = el.attr('id') || null;
+			if(id) {
+				var index = parseInt(id.split('_').pop());
+				id = id.split('_');
+				id.splice(-1,1);
+				var prefix = id.join('_') + '_';
+				el.attr('id', prefix+(index));
+				el.attr('name', prefix+(index));
+			}
+		});
+	}
 });
 
 function invoiceFormSubmission(isPreview)
@@ -98,29 +123,30 @@ function invoiceFormSubmission(isPreview)
 
 function invoiceAddRow(tableId, rowCount)
 {
-	var table = document.getElementById(tableId);
-	var rowlength = table.rows.length;
-	var lastRow = table.rows[rowlength - 1];
-	var lastDatePicker = $('.date', lastRow);
-	var $rowClone = $(lastRow).clone(true);
-	$rowClone.find('input:text').val('');
-	var g=1;
-	$rowClone.find('td').each(function(){
-		var el = $(this).find(':first-child');
-		var id = el.attr('id') || null;
-		if(id) {
-			var index = parseInt(id.split('_').pop());
-			id = id.split('_');
-			id.splice(-1,1);
-			var prefix = id.join('_') + '_';
-			el.attr('id', prefix+(index + 1));
-			el.attr('name', prefix+(index + 1));
-			if(prefix == "item_type_")
-			{
-				el.attr('disabled', false);
+	if(!$('#deliveryTable').length || ($('#'+rowCount).val() >= 1)){
+		table = document.getElementById(tableId);
+		rowlength = table.rows.length;
+		lastRow = table.rows[rowlength - 1];
+		lastDatePicker = $('.date', lastRow);
+		$rowClone = $(lastRow).clone(true);
+		$rowClone.find('input:text').val('');
+		$rowClone.find('td').each(function(){
+			var el = $(this).find(':first-child');
+			var id = el.attr('id') || null;
+			if(id) {
+				var index = parseInt(id.split('_').pop());
+				id = id.split('_');
+				id.splice(-1,1);
+				var prefix = id.join('_') + '_';
+				el.attr('id', prefix+(index + 1));
+				el.attr('name', prefix+(index + 1));
+				if(prefix == "item_type_")
+				{
+					el.attr('disabled', false);
+				}
 			}
-		}
-	});/* working fine */
+		});
+	}
 
     if(tableId == "milestoneTable")
     {

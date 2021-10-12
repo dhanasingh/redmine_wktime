@@ -37,10 +37,10 @@
 							<% @deliveryItem.each do | entry | %>
 								<% inventory_item = entry.inventory_item %>
 								<tr style="width:100%; border-top: solid thin; border-bottom: solid thin;">
-									<td style="width:60%;"><b><%= inventory_item&.product_item&.product.name + "-" + inventory_item&.product_item&.brand.name + "-" + inventory_item&.product_item&.product_model&.name %></b></td>
+									<td style="width:60%;"><b><%= (inventory_item&.product_item&.product&.name || '') + "-" + (inventory_item&.product_item&.brand&.name || '') + "-" + (inventory_item&.product_item&.product_model&.name || '') %></b></td>
 									<td style="width:15%;" align="right"><%= entry.currency %> <%= entry.selling_price %></td>
 									<td style="width:10%;" align="right" ><%= entry.total_quantity %></td>
-									<td style="width:15%;" align="right" ><%= entry.currency %> <%= (entry.total_quantity * entry.selling_price).to_f.round(2) %></td>
+									<td style="width:15%;" align="right" ><%= entry.currency %> <%= (entry.total_quantity.to_f * entry.selling_price.to_f).to_f.round(2) %></td>
 								</tr>
 							<% end %>
 							<tr style="width:100%;">
@@ -61,9 +61,11 @@
 				<tr style="width:100%;">
 					<td align="left" colspan="3" ><b><%= l(:field_notes) %></b></td>
 				</tr>
+				<% if notes.present? %>
 				<tr style="width:100%;">
 					<td align="left" colspan="3" style="white-space: pre-line;padding-left: 10px;"><%= notes%></td>
 				</tr>
+				<% end%>
 		</table>
 	</div>
 	<br/>
