@@ -140,7 +140,7 @@ module ReportPayslip
 					totalRow2Col1 += row2[:value1].to_f
 					totalRow2Col2 += row2[:value2].to_f
 					curRow2 = row1[:currency]
-					csv << [row1[:label], row1[:currency]+ " " +row1[:value1].to_s, row1[:currency]+ " " +row1[:value2].to_s, row2[:label], row2[:currency]+ " " +row2[:value1].to_s, row2[:currency]+ " " +row2[:value2].to_s]
+					csv << [row1[:label].to_s, row1[:currency].to_s+ " " +row1[:value1].to_s, row1[:currency].to_s+ " " +row1[:value2].to_s, row2[:label].to_s, row2[:currency].to_s+ " " +row2[:value1].to_s, row2[:currency].to_s+ " " +row2[:value2].to_s]
 				end
 				csv << [l(:label_total_earning), curRow1+ " " +totalRow1Col1.to_s, curRow1+ " " +totalRow1Col2.to_s, l(:label_total_deduction), curRow2+ " " +totalRow2Col1.to_s, curRow2+ " " +totalRow2Col2.to_s]
 				csv << [l(:label_net_earning), curRow1+ " " +(totalRow1Col1 - totalRow2Col1).to_s, curRow2+ " " +(totalRow1Col2 - totalRow2Col2).to_s]
@@ -179,9 +179,9 @@ module ReportPayslip
 		pdf.RDMMultiCell(tWidth, rHeight, l(:report_payslip), 0, 'C')
 		pdf.ln(rHeight)
 
-		pdf.RDMMultiCell(tWidth, rHeight, getMainLocation, 0, 'L')
+		pdf.RDMMultiCell(tWidth, rHeight, getMainLocation || " ", 0, 'L')
 		pdf.SetFontStyle('', 9)
-		pdf.RDMMultiCell(tWidth, rHeight, getAddress, 0, 'L')
+		pdf.RDMMultiCell(tWidth, rHeight, getAddress || " ", 0, 'L')
 		#logo
 		pdf.Image(data[:logo].diskfile.to_s, pWidth-50, 15, 30, 25) if data[:logo].present?
 		pdf.set_image_scale(1.6)
@@ -209,15 +209,15 @@ module ReportPayslip
 			pdf.ln(4)
 
 			setHeader(pdf)
-			pdf.RDMMultiCell(tWidth/2, rHeight, data[:data2][:title1].first, 1, "C", 1, 0)
-			pdf.RDMMultiCell(tWidth/2, rHeight, data[:data2][:title1].last, 1, "C", 1, 0)
+			pdf.RDMMultiCell(tWidth/2, rHeight, data[:data2][:title1].first || " ", 1, "C", 1, 0)
+			pdf.RDMMultiCell(tWidth/2, rHeight, data[:data2][:title1].last || " ", 1, "C", 1, 0)
 			pdf.ln(rHeight)
 			pdf.RDMMultiCell(tWidth/6, rHeight, "", 1, "C", 1, 0)
-			pdf.RDMMultiCell(tWidth/6, rHeight, data[:data2][:title2].first, 1, "C", 1, 0)
-			pdf.RDMMultiCell(tWidth/6, rHeight, data[:data2][:title2].last, 1, "C", 1, 0)
+			pdf.RDMMultiCell(tWidth/6, rHeight, data[:data2][:title2].first || " ", 1, "C", 1, 0)
+			pdf.RDMMultiCell(tWidth/6, rHeight, data[:data2][:title2].last || " ", 1, "C", 1, 0)
 			pdf.RDMMultiCell(tWidth/6, rHeight, "", 1, "C", 1, 0)
-			pdf.RDMMultiCell(tWidth/6, rHeight, data[:data2][:title2].first, 1, "C", 1, 0)
-			pdf.RDMMultiCell(tWidth/6, rHeight, data[:data2][:title2].last, 1, "C", 1, 0)
+			pdf.RDMMultiCell(tWidth/6, rHeight, data[:data2][:title2].first || " ", 1, "C", 1, 0)
+			pdf.RDMMultiCell(tWidth/6, rHeight, data[:data2][:title2].last || " ", 1, "C", 1, 0)
 			pdf.ln(rHeight)
 			setRow(pdf)
 
@@ -232,42 +232,42 @@ module ReportPayslip
 				totalRow2Col2 += row2[:value2].to_f
 				curRow2 = row2[:currency]
 				pdf.SetFontStyle('B', 9)
-				pdf.RDMMultiCell(tWidth/6, rHeight, row1[:label], 1, "L", 1, 0)
+				pdf.RDMMultiCell(tWidth/6, rHeight, row1[:label] || " ", 1, "L", 1, 0)
 				pdf.SetFontStyle('', 9)
-				pdf.RDMMultiCell(tWidth/6, rHeight, row1[:currency]+ " " +row1[:value1].to_s, 1, "R", 1, 0)
-				pdf.RDMMultiCell(tWidth/6, rHeight, row1[:currency]+ " " +row1[:value2].to_s, 1, "R", 1, 0)
+				pdf.RDMMultiCell(tWidth/6, rHeight, row1[:currency].to_s+ " " +row1[:value1].to_s, 1, "R", 1, 0)
+				pdf.RDMMultiCell(tWidth/6, rHeight, row1[:currency].to_s+ " " +row1[:value2].to_s, 1, "R", 1, 0)
 				pdf.SetFontStyle('B', 9)
-				pdf.RDMMultiCell(tWidth/6, rHeight, row2[:label], 1, "L", 1, 0)
+				pdf.RDMMultiCell(tWidth/6, rHeight, row2[:label] || " ", 1, "L", 1, 0)
 				pdf.SetFontStyle('', 9)
-				pdf.RDMMultiCell(tWidth/6, rHeight, row2[:currency]+ " " +row2[:value1].to_s, 1, "R", 1, 0)
-				pdf.RDMMultiCell(tWidth/6, rHeight, row2[:currency]+ " " +row2[:value2].to_s, 1, "R", 1, 0)
+				pdf.RDMMultiCell(tWidth/6, rHeight, row2[:currency].to_s+ " " +row2[:value1].to_s, 1, "R", 1, 0)
+				pdf.RDMMultiCell(tWidth/6, rHeight, row2[:currency].to_s+ " " +row2[:value2].to_s, 1, "R", 1, 0)
 				pdf.ln(rHeight)
 			end
 			setHeader(pdf)
 			pdf.RDMMultiCell(tWidth/6, rHeight, l(:label_total_earning), 1, "L", 1, 0)
 			setRow(pdf)
-			pdf.RDMMultiCell(tWidth/6, rHeight, curRow1+ " " +totalRow1Col1.to_s, 1, "R", 1, 0)
-			pdf.RDMMultiCell(tWidth/6, rHeight, curRow1+ " " +totalRow1Col2.to_s, 1, "R", 1, 0)
+			pdf.RDMMultiCell(tWidth/6, rHeight, curRow1.to_s+ " " +totalRow1Col1.to_s, 1, "R", 1, 0)
+			pdf.RDMMultiCell(tWidth/6, rHeight, curRow1.to_s+ " " +totalRow1Col2.to_s, 1, "R", 1, 0)
 			setHeader(pdf)
 			pdf.RDMMultiCell(tWidth/6, rHeight, l(:label_total_deduction), 1, "L", 1, 0)
 			setRow(pdf)
-			pdf.RDMMultiCell(tWidth/6, rHeight, curRow2+ " " +totalRow2Col1.to_s, 1, "R", 1, 0)
-			pdf.RDMMultiCell(tWidth/6, rHeight, curRow2+ " " +totalRow2Col2.to_s, 1, "R", 1, 0)
+			pdf.RDMMultiCell(tWidth/6, rHeight, curRow2.to_s+ " " +totalRow2Col1.to_s, 1, "R", 1, 0)
+			pdf.RDMMultiCell(tWidth/6, rHeight, curRow2.to_s+ " " +totalRow2Col2.to_s, 1, "R", 1, 0)
 			pdf.ln(rHeight)
 			setHeader(pdf)
 			pdf.RDMMultiCell(tWidth/6, rHeight, l(:label_net_earning), 1, "L", 1, 0)
 			setRow(pdf)
-			pdf.RDMMultiCell(tWidth/6, rHeight, curRow1+ " " +(totalRow1Col1 - totalRow2Col1).to_s, 1, "R", 1, 0)
-			pdf.RDMMultiCell(tWidth/6, rHeight, curRow1+ " " +(totalRow1Col2 - totalRow2Col2).to_s, 1, "R", 1, 0)
+			pdf.RDMMultiCell(tWidth/6, rHeight, curRow1.to_s+ " " +(totalRow1Col1 - totalRow2Col1).to_s, 1, "R", 1, 0)
+			pdf.RDMMultiCell(tWidth/6, rHeight, curRow1.to_s+ " " +(totalRow1Col2 - totalRow2Col2).to_s, 1, "R", 1, 0)
 			pdf.ln(rHeight)
 			pdf.ln(4)
 
 			setHeader(pdf)
-			pdf.RDMMultiCell((tWidth/4)*3, rHeight, data[:data3][:title1].first, 1, "C", 1, 0)
+			pdf.RDMMultiCell((tWidth/4)*3, rHeight, data[:data3][:title1].first || " ", 1, "C", 1, 0)
 			pdf.ln(rHeight)
 			pdf.RDMMultiCell(tWidth/4, rHeight, "", 1, "C", 1, 0)
-			pdf.RDMMultiCell(tWidth/4, rHeight, data[:data3][:title2].first, 1, "C", 1, 0)
-			pdf.RDMMultiCell(tWidth/4, rHeight, data[:data3][:title2].last, 1, "C", 1, 0)
+			pdf.RDMMultiCell(tWidth/4, rHeight, data[:data3][:title2].first || " ", 1, "C", 1, 0)
+			pdf.RDMMultiCell(tWidth/4, rHeight, data[:data3][:title2].last || " ", 1, "C", 1, 0)
 			pdf.ln(rHeight)
 			setRow(pdf)
 			len = (data[:data3]["row"] || []).length - 1
@@ -277,17 +277,17 @@ module ReportPayslip
 				totalCol2 += row[:value2].to_f
 				curCol = row[:currency]
 				pdf.SetFontStyle('B', 9)
-				pdf.RDMMultiCell(tWidth/4, rHeight, row[:label], 1, "L", 1, 0)
+				pdf.RDMMultiCell(tWidth/4, rHeight, row[:label] || " ", 1, "L", 1, 0)
 				pdf.SetFontStyle('', 9)
-				pdf.RDMMultiCell(tWidth/4, rHeight, row[:currency]+ " " +row[:value1].to_s, 1, "R", 1, 0)
-				pdf.RDMMultiCell(tWidth/4, rHeight, row[:currency]+ " " +row[:value2].to_s, 1, "R", 1, 0)
+				pdf.RDMMultiCell(tWidth/4, rHeight, row[:currency].to_s+ " " +row[:value1].to_s, 1, "R", 1, 0)
+				pdf.RDMMultiCell(tWidth/4, rHeight, row[:currency].to_s+ " " +row[:value2].to_s, 1, "R", 1, 0)
 				pdf.ln(rHeight)
 			end
 			setHeader(pdf)
 			pdf.RDMMultiCell(tWidth/4, rHeight, l(:label_net_earning) + ' + '+ l(:label_reimbursements), 1, "L", 1, 0)
 			setRow(pdf)
-			pdf.RDMMultiCell(tWidth/4, rHeight, curCol+" "+((totalRow1Col1 - totalRow2Col1) + totalCol1).to_s, 1, "R", 1, 0)
-			pdf.RDMMultiCell(tWidth/4, rHeight, curCol+" "+((totalRow1Col2 - totalRow2Col2) + totalCol2).to_s, 1, "R", 1, 1)
+			pdf.RDMMultiCell(tWidth/4, rHeight, curCol.to_s+" "+((totalRow1Col1 - totalRow2Col1) + totalCol1).to_s, 1, "R", 1, 0)
+			pdf.RDMMultiCell(tWidth/4, rHeight, curCol.to_s+" "+((totalRow1Col2 - totalRow2Col2) + totalCol2).to_s, 1, "R", 1, 1)
 			pdf.ln(rHeight)
 			pdf.RDMMultiCell(tWidth, rHeight, l(:label_ytd_description, start:  data[:options][:start], end: data[:options][:end]), 0, "L", 1, 0)
 		else
