@@ -26,7 +26,12 @@ class WkLeaveReq < ActiveRecord::Base
 
   scope :get_all, ->{
     joins(:wkstatus, :user, :leave_type).select("wk_leave_reqs.*, wk_statuses.status")
-    .where("status_date = (SELECT MAX(S.status_date) FROM wk_statuses AS S WHERE S.status_for_id = wk_leave_reqs.id GROUP BY S.status_for_id)")
+    .where("status_date = (
+      SELECT MAX(S.status_date)
+      FROM wk_statuses AS S
+      WHERE S.status_for_id = wk_leave_reqs.id AND S.status_for_type = 'WkLeaveReq'
+      GROUP BY S.status_for_id)"
+    )
   }
 
   scope :leaveReqSupervisor, -> {
