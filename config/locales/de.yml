@@ -129,7 +129,7 @@ de:
   label_wk_expensesheet: Spesenabrechnung
   text_wk_no_reminder: Keine Erinnerungen zu senden
 
-  report_attendance: Teilnahme
+  report_attendance: Anwesenheit
   report_spent_time: Benötigte Zeit
   label_wk_break_time: Pausenzeiten
   label_wk_enable_clock_in_out: Zeiterfassung aktivieren
@@ -144,7 +144,7 @@ de:
   label_wk_leave_issue: Abwesenheitsgrund
   label_wk_leave_accrual: Rückstellung
   label_wk_leave_accrual_on: Rückstellung auf
-  label_wk_attendance_start_date: Startdatum der Teilnahme
+  label_wk_attendance_start_date: Startdatum der Anwesenheit
   label_clock_in: Einstempeln
   label_clock_out: Ausstempeln
   label_wk_leave_exists: Dieser Abwesenheit besteht bereits
@@ -1120,8 +1120,8 @@ de:
   label_hide_response: Anonyme Antwort
   label_referrals: Empfehlungen
   label_referral: Empfehlung
-  label_college: Hochschule
-  label_degree: Grad
+  label_college: Schule
+  label_degree: Abschlussgrad
   label_pass_out: Abschlussjahr
   label_interview_date: Interview Datum
   label_interviewer: Interviewer
@@ -1133,7 +1133,7 @@ de:
   label_not_hire: Nicht einstellen
   label_none: Keine
   ADMIN REFERRAL PRIVILEGE: Administrator Empfehlungsbearbeitung
-  label_general: Generell
+  label_general: Allgemein
   label_hiring_employees: Mitarbeiter einstellen
   label_show_on_chart: Auf Diagramm anzeigen
   label_reimbursement_projects: Erstattungsprojekte
@@ -1166,54 +1166,54 @@ de:
   label_added: Hinzugefügt
   label_deleted: Gelöscht
   warn_issuelog_exist: "Sie müssen alle Ticketprotokolle in der Woche stoppen"
-  label_select_time_entries: Wählen Sie Zeiteinträge
-  label_account_number: Account Number
+  label_select_time: Wählen Sie Zeiteinträge
+  label_account_number: Kundennummer
   label_closed_date: Ruhetag
   label_select_service: Service auswählen
   label_select_service_for: Service auswählen für
   label_text_search: Textsuche
   label_assigned_serial_numbers: Zugewiesene Seriennummern
-  label_fixed: Fest
-  label_running: Betrieb
+  label_fixed: Präfix (Statisch)
+  label_running: Fortlaufend
   label_serial_number_note: "Hinweis: Verwenden Sie Komma für mehrere Seriennummern."
-  warn_sn_range: Serial Number is not in Range
-  warn_sn_blank: Serial Number and Quantity cannot be blank
-  warn_sn_text: Serial Number and Quantity cannot be text value
-  label_last_increment: Last Increment
-  label_last_salary: Last Salary
-  label_my_dashboard: My Dashboards
-  label_leave_setting: Leave Settings
+  warn_sn_range: Seriennummer befindet sich nicht im Bereich
+  warn_sn_blank: Seriennummer und Menge dürfen nicht leer sein
+  warn_sn_text: Seriennummer und Menge können keine Textwerte sein
+  label_last_increment: Letzte Erhöhung
+  label_last_salary: Letzter Lohn
+  label_employee_dashboard: Mitarbeiter-Dashboards
+  label_leave_setting: Abwesenheitseinstellungen
 
   report_pf: PF Report
   label_uan: UAN
-  label_wages: Wages
-  label_contributor: Contributor
+  label_wages: Löhne
+  label_contributor: Mitwirkende
   label_eps_wages: EPS
   label_epf_wages: EPF
   label_edli_wages: EDLI
   label_ee_remitted: EE
   label_er_remitted: ER
-  label_contribution_remitted: Contribution Remitted
+  label_contribution_remitted: Beitrag überwiesen
 
   #delivery
-  label_delivery: Delivery
-  label_delivery_date: Delivery Date
-  label_new_delivery: New Delivery
-  label_delivered: Delivered
-  label_intransit: In Transit
-  label_load: Loading
-  label_delivery_slip: Delivery slip
+  label_delivery: Lieferung
+  label_delivery_date: Lieferdatum
+  label_new_delivery: Neue Lieferung
+  label_delivered: Geliefert
+  label_intransit: Unterwegs
+  label_load: Beladung
+  label_delivery_slip: Lieferschein
   button_csv: CSV
   button_pdf: PDF
 
-  label_send_email_notifications: Send Email Notifications
-  label_include_expense: Include Expense
-  label_select_entries: Select the Entries
-  label_select_material_entries: Select Material Entries
-  label_select_expense_entries: Select Expense Entries
-  label_fixed_cost_entries: Fixed Cost Entries
-  label_period_end_process: Auto Run Period End Process
-  label_delivery_items: Delivery Items
-  field_retirement_account: Retirement Account
-  label_expenses: Expenses
+  label_send_email_notifications: E-Mail-Benachrichtigungen senden
+  label_include_expense: Kosten einschließen
+  label_select_entries: Einträge auswählen
+  label_select_material_entries: Materialeinträge auswählen
+  label_select_expense_entries: Kostenbuchungen auswählen
+  label_fixed_cost_entries: Fixkostenbuchungen
+  label_period_end_process: Prozess zum Ende des automatischen Ausführungszeitraums
+  label_delivery_items: Liefergegenstände
+  field_retirement_account: Rentenkonto
+  label_expenses: Kosten
   label_admin_dashboards: Admin Dashboards
