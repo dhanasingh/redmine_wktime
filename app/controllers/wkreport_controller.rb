@@ -121,7 +121,12 @@ accept_api_auth :get_reports, :getReportData, :export
 		report_type = params[:report_type]
 		if report_type.present?
 			report_type.slice!("_web") if report_type.include? "_web"
-			require_relative "../views/wkreport/#{report_type}"
+			begin
+				require_relative "../views/wkreport/#{report_type}"
+			rescue LoadError
+				puts "#{report_type} file was not found"
+				return nil
+			end
 			report = Object.new.extend(report_type.camelize.constantize)
 			reportData = report.getExportData(getSession(:user_id), getSession(:group_id), getSession(:project_id), @from, @to)
 			pdf = report.pdf_export(**reportData, location: getMainLocation, from: @from, to: @to, logo: WkLocation.getMainLogo)

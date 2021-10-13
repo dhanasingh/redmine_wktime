@@ -200,9 +200,9 @@ module ReportPayslip
 			(data[:data1] || {}).each do |key, value|
 				if value.present?
 					setHeader(pdf)
-					pdf.RDMMultiCell(tWidth/8, rHeight*1.5, value&.first&.to_s, 1, "L", 1, 0)
+					pdf.RDMMultiCell(tWidth/8, rHeight*1.5, value&.first&.to_s || " ", 1, "L", 1, 0)
 					setRow(pdf)
-					pdf.RDMMultiCell(tWidth/8, rHeight*1.5, value&.last&.to_s, 1, "L", 1, 0)
+					pdf.RDMMultiCell(tWidth/8, rHeight*1.5, value&.last&.to_s || " ", 1, "L", 1, 0)
 				end
 			end
 			pdf.ln(rHeight*1.5)

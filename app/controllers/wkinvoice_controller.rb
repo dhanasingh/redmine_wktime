@@ -363,7 +363,7 @@ class WkinvoiceController < WkorderentityController
 			elsif params[:itemType] == 'e'
 				items[:amount] = entry.try(:currency)+entry.try(:amount).to_s
 			end
-			data << items if entry.try(:hours).to_i > 0 || entry.try(:amount).to_i > 0
+			data << items if entry.try(:hours).to_f > 0 || entry.try(:amount).to_f > 0
 		end
 		render json: {data: data, header: getSpentDetailHeaders, title: l(:field_quantity)}
 	end
