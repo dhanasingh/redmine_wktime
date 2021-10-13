@@ -95,7 +95,7 @@ class WkLead < ActiveRecord::Base
   end
 
   def self.getLeadEntries(from, to, userIdArr)
-    entries = self.includes(:contact).where(:created_at => from .. to, wk_crm_contacts: { contact_type: 'c' })
+    entries = self.includes(:contact).where(:created_at => from .. to, wk_crm_contacts: { contact_type: 'C' })
     entries = entries.where(wk_crm_contacts: {assigned_user_id: userIdArr }) if userIdArr.present?
     entries
   end
