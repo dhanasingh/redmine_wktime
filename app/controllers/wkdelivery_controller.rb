@@ -86,7 +86,7 @@ class WkdeliveryController < WkinventoryController
 			}
 			format.csv{
 				headers = {serial_number: l(:label_serial_number), name: l(:field_name), shipment_date: l(:label_delivery_date), status: l(:field_status), amount: l(:field_amount)}
-				data = delivery.map{|entry| {serial_number: entry.serial_number, name: entry&.parent&.name || '', shipment_date: entry.shipment_date, status: getDeliveryStatus[entry.current_status], amount: ((entry.delivery_items[0].currency.to_s || '') + ' ' + (entry&.delivery_items&.sum('wk_delivery_items.total_quantity*wk_delivery_items.selling_price').round(2).to_s || ''))} }
+				data = delivery.map{|entry| {serial_number: entry.serial_number, name: entry&.parent&.name || '', shipment_date: entry.shipment_date, status: getDeliveryStatus[entry.current_status], amount: ((entry.delivery_items[0]&.currency.to_s || '') + ' ' + (entry&.delivery_items&.sum('wk_delivery_items.total_quantity*wk_delivery_items.selling_price').round(2).to_s || ''))} }
 				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "delivery.csv")
 			}
 		end

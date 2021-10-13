@@ -128,7 +128,7 @@ accept_api_auth :get_reports, :getReportData, :export
 				return nil
 			end
 			report = Object.new.extend(report_type.camelize.constantize)
-			reportData = report.getExportData(getSession(:user_id), getSession(:group_id), getSession(:project_id), @from, @to)
+			reportData = report.getExportData(getSession(:user_id), getSession(:group_id).to_i, getSession(:project_id), @from, @to)
 			pdf = report.pdf_export(**reportData, location: getMainLocation, from: @from, to: @to, logo: WkLocation.getMainLogo)
 			csv = reportData[:customize].blank? ? csv_export(reportData) : report.csv_export(reportData)
 		end
