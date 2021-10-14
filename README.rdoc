@@ -8,12 +8,12 @@ https://us02web.zoom.us/meeting/register/tZclcOyspj8pHtajzb-e7mYb6GfKKxYVOLTV
 * Account Projects
 * Invoice Component
 * Unbilled Invoice
-* Generate Invoice 
-* Accept Payment 
+* Generate Invoice
+* Accept Payment
 * Contracts
 * Reports
 * Mobile App
-===============================================================================
+-------------------------------------------------------------------------------
 
 = ERPmine
 
@@ -94,20 +94,30 @@ If an apache passenger module is used then make sure the following settings are 
   b) RailsAppSpawnerIdleTime 0
   c) PassengerPreStart https://rails-app-url/
 
-Release Notes for v4.3.1
+Release Notes for v4.4
 
   Features:
-    - Purchase Order without RFQ/Quotes
-    - Inventory Search
-    - Add preview for serial numbers
-    - Add Account number
+    - Delivery feature
+    - Expense invoice feature
+    - Employee dashboard
+    - Enrich dashboard
+    - CSV and PDF export for All Reports
+    - Delivery slip
+    - PF Report
+    - Leaves and Holiday
+    - CSV for detail page
+    - Inventory item Transfer
 
   Bug fixes:
-    - Remove location check in material entry
-    - Add Closed Response date in survey result page
-    - Exclude LOP from Reimbursement charges
-    - Assigned group issues do not populate in timesheet
-    - Can not change leave type in leave Request
+    - Duplicate Clockin count in dashboard chart
+    - Hide quantity detail popup for Fixed cost
+    - Remove Material and assest cumulative total in spent time
+    - Rename email label to Email Notifications
+    - Accordion section icon not visible
+    - Move supervisor config to time & expense tab
+    - Remove space left over in the filter on list pages
+    - Need to correct Invoice vs payment chart in the dashboard
+    - Add rating field and Increase character size for Description field
 
 Customization:
 
