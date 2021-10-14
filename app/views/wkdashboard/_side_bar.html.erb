@@ -1,0 +1,6 @@
+<div style="float:right">
+	<%= actions_dropdown do %>
+		<%= link_to l(:label_admin_dashboards), url_for(:controller => "wkdashboard", :action => "index") if params['controller'] == 'wkdashboard' && params['action'] == 'employee_dashboard'%>
+		<%= link_to l(:label_my_dashboard), url_for(:controller => "wkdashboard", :action => "employee_dashboard") if params['controller'] == 'wkdashboard' && params['action'] == 'index'%>
+	<% end %>
+</div>

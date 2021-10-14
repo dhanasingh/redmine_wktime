@@ -570,12 +570,12 @@ ta-IN:
   label_inventory_admin_group: இருப்பு நிர்வாகி குழு
   label_inventory_user_group: இருப்பு பயனர் குழு
   label_hr: மனிதவளம்
-  label_shipment: சரக்கு
+  label_shipment: Receipt
   label_uom: அளவு குறியீடு
   label_item: பொருள்
-  label_new_shipment: புதிய சரக்கு
-  label_shipment_items: சரக்கு பொருட்கள்
-  label_shipment_date: சரக்கு நாள்
+  label_new_shipment: New Receipt
+  label_shipment_items: Receipt Items
+  label_shipment_date: Receipt Date
   label_serial_number: வரிசை எண்
   label_material: பொருள்
   label_cost_price: அசல்
@@ -612,7 +612,7 @@ ta-IN:
   label_project_error: திட்ட காலி முடியாது
   label_issue_error: வெளியீடு காலியாக இருக்கக்கூடாது
   label_activity_error: நடவடிக்கை காலியாக இருக்கக்கூடாது
-  error_shipment_items_used: நீக்க முடியவில்லை. சரக்கில் சில பொருட்கள் பயன்படுத்தப்பட்டுள்ளது
+  error_shipment_items_used: Could not delete the Receipt. Some items in the Receipt were used
   error_material_delete: பொருள் உள்ளீடுகளை நீக்க முடியவில்லை
   error_material_delete_billed: விலை விவரம் பொருள் உள்ளீடுகளை நீக்க முடியவில்லை
   error_expense_amount: தொகை காலியாக இருக்கக்கூடாது
@@ -1073,7 +1073,7 @@ ta-IN:
   label_added: சேர்ப்பு
   label_deleted: நீக்கம்
   warn_issuelog_exist: "நீங்கள் இந்த வாரத்தின் அனைத்து பிரச்சினை பதிவுகளை நிறுத்த வேண்டும்"
-  label_select_time: நேர உள்ளீடுகளைத் தேர்ந்தெடுக்கவும்
+  label_select_time_entries: நேர உள்ளீடுகளைத் தேர்ந்தெடுக்கவும்
   label_account_number: Account Number
   label_closed_date: Closed date
   label_select_service: Select Service
@@ -1088,3 +1088,39 @@ ta-IN:
   warn_sn_text: Serial Number and Quantity cannot be text value
   label_last_increment: Last Increment
   label_last_salary: Last Salary
+  label_my_dashboard: My Dashboards
+  label_leave_setting: Leave Settings
+
+  report_pf: PF Report
+  label_uan: UAN
+  label_wages: Wages
+  label_contributor: Contributor
+  label_eps_wages: EPS
+  label_epf_wages: EPF
+  label_edli_wages: EDLI
+  label_ee_remitted: EE
+  label_er_remitted: ER
+  label_contribution_remitted: Contribution Remitted
+
+  #delivery
+  label_delivery: Delivery
+  label_delivery_date: Delivery Date
+  label_new_delivery: New Delivery
+  label_delivered: Delivered
+  label_intransit: In Transit
+  label_load: Loading
+  label_delivery_slip: Delivery slip
+  button_csv: CSV
+  button_pdf: PDF
+
+  label_send_email_notifications: Send Email Notifications
+  label_include_expense: Include Expense
+  label_select_entries: Select the Entries
+  label_select_material_entries: Select Material Entries
+  label_select_expense_entries: Select Expense Entries
+  label_fixed_cost_entries: Fixed Cost Entries
+  label_period_end_process: Auto Run Period End Process
+  label_delivery_items: Delivery Items
+  field_retirement_account: Retirement Account
+  label_expenses: Expenses
+  label_admin_dashboards: Admin Dashboards

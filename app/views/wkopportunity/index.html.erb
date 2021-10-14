@@ -1,19 +1,17 @@
 <%= title l(:label_opportunity_plural) %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-<script type="text/javascript"> 
+<script type="text/javascript">
 	blgaccUrl = '<%=url_for(:controller => "wkcrmaccount", :action => "index", :tab => "wkcrmaccount")%>';
 	crmleadsUrl = '<%=url_for(:controller => "wklead", :action => "index", :tab => "wklead")%>';
     crmopportunityUrl = '<%=url_for(:controller => "wkopportunity", :action => "index", :tab => "wkopportunity")%>';
 	crmactivityUrl = '<%=url_for(:controller => "wkcrmactivity", :action => "index", :tab => "wkcrmactivity")%>';
-	crmcontactUrl = '<%=url_for(:controller => "wkcrmcontact", :action => "index", :tab => "wkcrmcontact")%>';	
-    prevTab = 'tab-<%= "#{controller_name}" %>';   
+	crmcontactUrl = '<%=url_for(:controller => "wkcrmcontact", :action => "index", :tab => "wkcrmcontact")%>';
+    prevTab = 'tab-<%= "#{controller_name}" %>';
 </script>
 <%= render_tabs time_expense_tabs %>
 
-<div class="wk-contextual">
-		<%= link_to l(:label_new_item, l(:label_opportunity)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
-</div>
+
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 <%= form_tag({:controller => "wkopportunity", :action => 'index', :tab => "wkopportunity"}, :method => :post, :id => 'query_form') do %>
 	<%=h hidden_field_tag('tab', "wkopportunity") %>
@@ -22,6 +20,9 @@
 	<%	accId = session[:wkopportunity].try(:[], :account_id) %>
 	<%	accArr = options_for_wktime_account(true, 'A', controller.additionalAccountType) %>
 	<fieldset>
+		<div style="float:right">
+			<%= link_to l(:label_new_item, l(:label_opportunity)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+		</div>
 		<table>
 			<tr>
 				<th><label for='name' style="float:left;"><%= l(:label_opportunity) + " " + l(:field_name) %></label></th>

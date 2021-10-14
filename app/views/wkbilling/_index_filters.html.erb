@@ -46,7 +46,7 @@ $(document).ready(function()
 		end
 	end
 
-	if controller_name == 'wkshipment'
+	if ['wkshipment', 'wkdelivery'].include? controller_name
 		projArr[0] = [l(:label_all_projects),'AP']
 		projArr.unshift(["",''])
 	end

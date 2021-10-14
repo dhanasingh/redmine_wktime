@@ -1,19 +1,5 @@
 <%= title l(:field_inventory_item_id) %>
-<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<script type="text/javascript">
-	wkproductUrl = '<%=url_for(:controller => "wkproduct", :action => "index", :tab => "wkproduct")%>';
-	wkproductitemUrl = '<%=url_for(:controller => "wkproductitem", :action => "index", :tab => "wkproductitem")%>';
-	wkshipmentUrl = '<%=url_for(:controller => "wkshipment", :action => "index", :tab => "wkshipment")%>';
-	wkassetUrl = '<%=url_for(:controller => "wkasset", :action => "index", :tab => "wkasset")%>';
-	wkassetdepreciationUrl = '<%=url_for(:controller => "wkassetdepreciation", :action => "index", :tab => "wkassetdepreciation")%>';
-    prevTab = 'tab-<%= "#{controller_name}" %>';
-</script>
-<%= render_tabs time_expense_tabs %>
-<div class="wk-contextual">
-	<%= link_to l(:label_new_product), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>&nbsp;
-	<%= render :partial => 'sidebar' %>
-</div>
+<%= render partial: "wkproduct/render_inventory_tabs" %>
 <%= form_tag({:controller => 'wkproduct', :action => 'index'}, :method => :post, :id => 'query_form') do %>
 	<%= hidden_field_tag "searchlist", controller_name %>
 	<%=h hidden_field_tag('tab', controller_name) %>
@@ -22,17 +8,21 @@
 		name =session[controller_name].try(:[], :name)
 	%>
 	<fieldset>
-	<table>
-		<tr>
-			<%=h hidden_field_tag('tab', "wkproduct") %>
-			<th><label ><%= l(:field_category) %></label></th>
-			<td><%=h select_tag("category_id", generic_options_for_select(WkProductCategory, nil, 'name', 'name', 'id', categoryId, true), :disabled => false) %></td>
-			<th><label for='name' style="padding-left: 10px;"><%= l(:field_name) %></label><th>
-			<td><%= text_field_tag 'name', name, :size => 30 %></td>
-			<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %></td>
-			<td><%= link_to l(:button_clear), {:tab => controller_name, clear: true}, :class => 'icon icon-reload' %></td>
-		</tr>
-	</table>	  
+		<div style="float:right">
+			<%= link_to l(:label_new_product), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>&nbsp;
+			<%= render :partial => 'sidebar' %>
+		</div>
+		<table>
+			<tr>
+				<%=h hidden_field_tag('tab', "wkproduct") %>
+				<th><label ><%= l(:field_category) %></label></th>
+				<td><%=h select_tag("category_id", generic_options_for_select(WkProductCategory, nil, 'name', 'name', 'id', categoryId, true), :disabled => false) %></td>
+				<th><label for='name' style="padding-left: 10px;"><%= l(:field_name) %></label><th>
+				<td><%= text_field_tag 'name', name, :size => 30 %></td>
+				<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %></td>
+				<td><%= link_to l(:button_clear), {:tab => controller_name, clear: true}, :class => 'icon icon-reload' %></td>
+			</tr>
+		</table>
 	</fieldset>
 <% end %>
 

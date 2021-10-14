@@ -5,7 +5,7 @@
 	grpUrl="<%= "#{url_for(:controller => "wkreport", :action => 'getMembersbyGroup')}" %>";
 	//getMembersbyGroup
 </script>
-<% itemHash = { 'i' => l(:label_invoice), 'c' =>  l(:label_credit)  } %>
+<% itemHash = { 'i' => l(:label_invoice), 'c' =>  l(:label_credit), 'e' => l(:label_wkexpense) } %>
 <% if  controller.addAdditionalTax
 		tax_hash = {'t' => l(:label_tax)}
 		itemHash.merge!(tax_hash)
@@ -68,10 +68,11 @@
 		<% if !@invoiceItem.blank? || @unbilled && !@invItems.blank? || params[:loadUnBilled] %>
 			<% if !@invoiceItem.blank? || params[:loadUnBilled] %>
 				<%
-					sqlString = "wk_invoice_items.item_type = 'i' or wk_invoice_items.item_type = 'c' or wk_invoice_items.item_type = 'm' or wk_invoice_items.item_type = 'a' "
+					sqlString = "wk_invoice_items.item_type = 'i' or wk_invoice_items.item_type = 'c' or wk_invoice_items.item_type = 'm' or wk_invoice_items.item_type = 'a' or wk_invoice_items.item_type = 'e' "
 					sqlString = sqlString + " or wk_invoice_items.item_type = 't'" if controller.addAdditionalTax
 				%>
 					<% @invoiceItem.where(sqlString).each do |entry| %>
+					<% accProject = WkAccountProject.getAccByProjID(entry.project_id) %>
 					<tr onclick="  row_id  = this.rowIndex ">
 					<%
 						exchangeRate = getExchangeRate(entry.original_currency, entry.currency)
@@ -105,8 +106,8 @@
 						</td>
 						<td class="lbl-txt-align" headers="quantity">
 							<%= text_field_tag "quantity_#{row_index}", ("%.2f" % entry.quantity unless entry.quantity.blank?), :maxlength => 14, :style => "width:120px;", :onchange => "addAmount(this.id)", :disabled => isDisable %>
-							<% if ['i'].include?(entry.item_type) && controller_name == 'wkinvoice' %>
-								<%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript:showQuantityDetails(#{entry.id});" %>
+							<% if controller_name == 'wkinvoice' && (["i"].include?(entry.item_type) && accProject[0].billing_type == 'TM' || entry.item_type == "e") %>
+								<%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript:showQuantityDetails(#{entry.id},'#{entry.item_type}');" %>
 							<% end %>
 						</td>
 						<td class="lbl-txt-align" headers="original_amount">
@@ -135,6 +136,7 @@
 				<%=h hidden_field_tag("populate_unbilled",   @unbilled )  %>
 				<% @invItems.each do |key, value| %>
 					<%
+						value['item_amount'] ||= 0
 						exchangeRate = getExchangeRate(@currency, toCurrency)
 						exchangeRate = exchangeRate.blank? ? 1 : exchangeRate
 						amount = (value['item_amount'] * exchangeRate)
@@ -152,6 +154,7 @@
 							<%=h select_tag("project_id_#{row_index.to_s}", options_for_select(@projectsDD, :selected=> value['project_id'] ), :disabled => @preBilling ) %>
 							<%=h hidden_field_tag("product_id_#{row_index.to_s}",  value['product_id'] )  %>
 							<%=h hidden_field_tag("material_id_#{row_index.to_s}",  value['material_id'].blank? ? "" : value['material_id'] )  %>
+							<%= hidden_field_tag("expense_id_#{row_index.to_s}", value['expense_id'] ) %>
 						</td>
 						<td class="lbl-txt-align" headers="name">
 							<%= text_field_tag "name_#{row_index}", value['item_desc'], :required => true,  :style => "width:320px; ", :disabled => @preBilling %>
@@ -168,8 +171,8 @@
 						</td>
 						<td class="lbl-txt-align" headers="quantity">
 							<%= text_field_tag "quantity_#{row_index}", value['item_quantity'], :maxlength => 14,  :style => "width:130px;", :onchange => "addAmount(this.id)", :disabled => @preBilling %>
-							<% if ['i'].include?(value['item_type']) && value['billing_type'] == 'TM'%>
-								<%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript:showUnbillQtyDetails(#{value['project_id']}, #{value['issue_id'].present? ? value['issue_id'] : 0 }, '#{@invoice.start_date}', '#{@invoice.end_date}', #{@invoice.parent_id}, '#{@invoice.parent_type}');" %>
+							<% if ['i'].include?(value['item_type']) && value['billing_type'] == 'TM' || value['item_type'] == "e" %>
+								<%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript: showUnbillQtyDetails(#{value['project_id']}, #{value['issue_id'].to_i}, '#{@invoice.start_date}', '#{@invoice.end_date}', #{@invoice.parent_id}, '#{@invoice.parent_type}', '#{value['item_type']}');" %>
 							<% end %>
 						</td>
 						<td class="lbl-txt-align" headers="original_amount">
@@ -392,7 +395,6 @@
 <%=h hidden_field_tag("invoice_id",  params[:loadUnBilled].present? ? params[:invoice_id] : @invoice.id )  %>
 <% unless @invoiceItem.blank?  %>
 <% unless @invoiceItem.blank? && @invoiceItem[0].blank? %>
-<%#=h hidden_field_tag("invoice_id",  @invoice.id )  %>
 <% end %>
 <% end %>
 <%=h hidden_field_tag("deletedids",  "" )  %>
@@ -404,11 +406,10 @@
 	<%= link_to l(:label_pay_invoice), url_for(:controller => controller.getPaymentController, :action => 'edit', :load_payment => true, :related_to => @invoice.parent_type, :related_parent => @invoice.parent_id, :project_id => 0 ),  :class => 'icon icon-report' %>
 <% end %>
 <% unless @invoiceItem.blank? || @invoice.id.blank? %>
-	<div style="float:right;">
-		<%= link_to l(:label_export_invoice), "javascript: openInvReportPopup();" %>
-	</div>
 	<% other_formats_links do |f| %>
+		<%= link_to l(:label_export_invoice), "javascript: openInvReportPopup();" %> |
 		<%= f.link_to 'PDF', url: {controller: controller_name, action: 'export', invoice_id: @invoice.id} %>
+		<%= f.link_to 'CSV', url: {controller: controller_name, action: 'export', invoice_id: @invoice.id} %>
 	<% end %>
 <% end %>
 <% if !@invoice.id.blank? && controller.isInvPaymentLink  %>

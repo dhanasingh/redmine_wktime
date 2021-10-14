@@ -17,21 +17,21 @@
 
 class WkExpenseEntry < TimeEntry
   unloadable
-  
-  self.table_name = "wk_expense_entries" 
-  
+  self.table_name = "wk_expense_entries"
+
   belongs_to :project
   belongs_to :issue
   belongs_to :user
   belongs_to :activity, :class_name => 'TimeEntryActivity'
+  has_one :spent_for, -> { where(spent_type: "WkExpenseEntry") }, foreign_key: "spent_id", class_name: "WkSpentFor", :dependent => :destroy
   has_one :wkspentfor, -> { where(spent_type: "WkExpenseEntry") }, foreign_key: "spent_id", class_name: "WkSpentFor", :dependent => :destroy
   has_many :attachments, -> {where(container_type: "WkExpenseEntry")}, class_name: "Attachment", foreign_key: "container_id", :dependent => :destroy
   has_one :wkstatus, -> { where(status_for_type: "WkExpenseEntry") }, foreign_key: "status_for_id", class_name: "WkStatus"
   accepts_nested_attributes_for :wkspentfor, allow_destroy: true
-   
-   
+
+
   # attr_protected :user_id, :tyear, :tmonth, :tweek
-  
+
   scope :visible, lambda {|*args|
     joins(:project).
     where(WkExpenseEntry.visible_condition(args.shift || User.current, *args))
@@ -44,9 +44,9 @@ class WkExpenseEntry < TimeEntry
     where("#{Issue.table_name}.root_id = #{issue.root_id} AND #{Issue.table_name}.lft >= #{issue.lft} AND #{Issue.table_name}.rgt <= #{issue.rgt}")
   }
 
-  
-  validates_numericality_of :amount, :message => :invalid   
-  
+
+  validates_numericality_of :amount, :message => :invalid
+
   #execute query for date range in WkExpenseEntry
   scope :spent_between, lambda {|from, to|
     if from && to
@@ -59,19 +59,19 @@ class WkExpenseEntry < TimeEntry
      {}
     end
   }
-  
+
   #hours function of TimeEntry(base class) is overrided to use amount column of WkExpenseEntry
-  
+
   def validate_time_entry
     errors.add :amount, :invalid if amount && (amount < 0 || amount >= 1000000)
     errors.add :project_id, :invalid if project.nil?
     errors.add :issue_id, :invalid if (issue_id && !issue) || (issue && project!=issue.project)
   end
-  
+
   def spent_for
 	WkSpentFor.where(:spent_type => 'WkExpenseEntry', :spent_id => self.id).first_or_initialize
-  end  
-  
+  end
+
   def hours=(h)
     write_attribute :amount, (h.is_a?(String) ? (h.to_i || h) : h)
   end
@@ -83,19 +83,19 @@ class WkExpenseEntry < TimeEntry
     else
       h
     end
-  end 
-  
+  end
+
   #set atom event link path
-   def event_url(options = {})   
-	  option =  Proc.new {|o| {:controller => 'wkexpense', :action => 'reportdetail', :project_id => o.project, :issue_id => o.issue}} 	 
+   def event_url(options = {})
+	  option =  Proc.new {|o| {:controller => 'wkexpense', :action => 'reportdetail', :project_id => o.project, :issue_id => o.issue}}
 	  if option.is_a?(Proc)
 		option.call(self)
 	  end
 	end
-	
+
 	#set atom event title
-	def event_title()		
-		option = Proc.new {|o| "#{"%.2f" % o.hours} (#{(o.issue || o.project).event_title})"}		 
+	def event_title()
+		option = Proc.new {|o| "#{"%.2f" % o.hours} (#{(o.issue || o.project).event_title})"}
 		if option.is_a?(Proc)
 			option.call(self)
 		end

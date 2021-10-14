@@ -111,13 +111,19 @@ class WkMaterialEntryQuery < Query
   end
 
   def base_scope
-    WkMaterialEntry.visible.
+    product_type = nil
+    if filters.key?("product_type").present?
+      product_type = filters["product_type"]["values"]
+      filters.delete("product_type")
+    end
+    scope = WkMaterialEntry.visible.
       joins(:project, :user).
       includes(:activity).
-	  includes(:inventory_item).
+	    includes(:inventory_item).
       references(:activity).
-      left_join_issue.
-      where(statement)
+      left_join_issue
+    scope = scope.where("wk_inventory_items.product_type ='#{product_type}'") if product_type.present?
+    scope.where(statement)
   end
 
   def results_scope(options={})
@@ -135,7 +141,7 @@ class WkMaterialEntryQuery < Query
   
    # Returns sum of all the spent selling_price
   def total_for_selling_price(scope)
-    map_total(scope.sum(:selling_price)) {|t| t.to_f.round(2)}
+    map_total(scope.sum("wk_material_entries.selling_price * wk_material_entries.quantity")) {|t| t.to_f.round(2)}
   end
 
   def sql_for_issue_id_field(field, operator, value)

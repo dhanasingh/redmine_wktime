@@ -25,7 +25,7 @@
 		<p style="text-align: center;">
 			<caption style="text-align:center"><b>
 				<%= getMainLocation %></br><%= l(:report_payroll_bank) %></b></br>
-				<b><%= l(:label_wages_period) %>:</b> <%= data[:salary_data].blank? && data[:salary_data][0].blank? ? session[controller_name].try(:[], :from) :  data[:salary_data][0].salary_date %>
+				<b><%= l(:label_wages_period) %>:</b> <%= data[:period] %>
 			</caption>
 		</p>
 	</div>

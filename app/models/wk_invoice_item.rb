@@ -23,36 +23,29 @@ class WkInvoiceItem < ActiveRecord::Base
   belongs_to :project
   # has_many :material_entries, foreign_key: "invoice_item_id", class_name: "WkMaterialEntry", :dependent => :nullify
   has_many :spent_fors, foreign_key: "invoice_item_id", class_name: "WkSpentFor", :dependent => :nullify
-  
+
   # attr_protected :modifier_id
-  
+
   validates_presence_of :invoice_id
   validates_numericality_of :amount, :allow_nil => true, :message => :invalid
   validates_numericality_of :quantity, :allow_nil => true, :message => :invalid
   validates_numericality_of :rate, :allow_nil => true, :message => :invalid
 
-  scope :getSpentForEntries, ->(id){
-    joins(:spent_fors, :project)
-    .joins("INNER JOIN time_entries AS TE ON TE.id = wk_spent_fors.spent_id AND spent_type = 'TimeEntry'")
-    .joins("INNER JOIN users AS U ON U.id = TE.user_id AND U.type IN ('User', 'AnonymousUser')")
-    .joins("LEFT JOIN issues AS I ON I.id = TE.issue_id")
-    .select("TE.*, U.firstname, U.lastname, projects.name AS proj_name, I.subject")
-    .where("wk_spent_fors.invoice_item_id =  ? ", id )
-    .order("U.firstname asc, TE.spent_on desc")
-  }
-
-  def self.getUnbilledTimeEntries(project_id, start_date, end_date, parent_id, parent_type)
-    TimeEntry.includes(:spent_for).where(project_id: project_id, spent_on: start_date .. end_date, wk_spent_fors: { spent_for_type: [parent_type, nil], spent_for_id: [parent_id, nil], invoice_item_id: nil })
+  def self.getUnbilledTimeEntries(project_id, start_date, end_date, parent_id, parent_type, model=TimeEntry)
+    model.includes(:spent_for).where(project_id: project_id, spent_on: start_date .. end_date, wk_spent_fors: { spent_for_type: [parent_type, nil], spent_for_id: [parent_id, nil], invoice_item_id: nil })
   end
 
   def self.getGenerateEntries(toVal, fromVal, parent_id, parent_type, projectID, model, table)
     entries = model.joins(:spent_for, :project)
     .joins("INNER JOIN wk_account_projects ON wk_account_projects.project_id = #{table}.project_id")
-    .where(spent_on: fromVal .. toVal, wk_spent_fors: { spent_for_type: [parent_type, nil], spent_for_id: [parent_id, nil], invoice_item_id: nil }, wk_account_projects: { billing_type: 'TM'}) 
+    .where(spent_on: fromVal .. toVal, wk_spent_fors: { spent_for_type: [parent_type, nil], spent_for_id: [parent_id.to_i, nil], invoice_item_id: nil })
     .select("#{table}.*, wk_account_projects.parent_id, wk_account_projects.parent_type")
     entries = entries.where(wk_account_projects: { parent_type: parent_type}) if parent_type.present?
     entries = entries.where(wk_account_projects: { parent_id: parent_id}) if parent_id.present?
-    entries = entries.where("time_entries.hours > 0") if table == 'time_entries'
+    #Added Expense config
+    entries = entries.where(wk_account_projects: {include_expense: true}) if table == "wk_expense_entries"
+    entries = entries.where(wk_account_projects: { billing_type: 'TM'}) if table != "wk_expense_entries"
+    entries = getNonZeroEntries(entries, table)
     entries = getFilteredEntries(entries, projectID, parent_type)
     entries.order("#{table}.spent_on desc")
   end
@@ -76,10 +69,22 @@ class WkInvoiceItem < ActiveRecord::Base
     entries
   end
 
-  def self.filterByIssues(entries, issue_id)
-    entries = entries.where(:issue_id => issue_id) if (issue_id > 0)
-    entries = entries.where(:issue_id => nil) if (issue_id == 0)
-    entries = entries.order("time_entries.spent_on desc")
+  def self.filterByIssues(entries, issue_id, project_id, parent_id, parent_type)
+    accProj = WkAccountProject.where(project_id: project_id, project_id: project_id, parent_type: parent_type).first
+    entries = entries.where(:issue_id => issue_id) if issue_id > 0
+    entries = entries.where(:issue_id => nil) if issue_id == 0 && accProj && accProj&.itemized_bill
+    entries = entries.order("spent_on desc")
+    entries
+  end
+
+  def self.getNonZeroEntries(entries, table)
+    if table == "time_entries"
+      entries = entries.where("time_entries.hours > 0")
+    elsif table == "wk_material_entries"
+      entries = entries.where("wk_material_entries.selling_price > 0")
+    elsif table == "wk_expense_entries"
+      entries = entries.where("wk_expense_entries.amount > 0")
+    end
     entries
   end
 end

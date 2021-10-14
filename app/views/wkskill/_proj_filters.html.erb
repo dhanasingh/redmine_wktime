@@ -7,6 +7,10 @@
 %>
 <fieldset>
 	<legend><%= l(:label_filter_plural) %></legend>
+  <div style="float:right">
+    <%= link_to l(:label_new_skill), url_for(action: 'edit', project_id: params[:project_id]),
+      :class => 'icon icon-add' if params[:project_id].blank? || get_proj_skill_permission %>
+  </div>
 	<%= form_tag({}, method: "get", id:"query_form") do %>
 		<%= hidden_field_tag("searchlist", controller_name) %>
 		<%= hidden_field_tag('tab', controller_name) %>

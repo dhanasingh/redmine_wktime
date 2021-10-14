@@ -39,13 +39,13 @@ class WkattendanceController < WkbaseController
 		@groups = Group.where(type: "Group").all.sort
 		sqlStr = ""
 		lastMonthStartDt = Date.civil(Date.today.year, Date.today.month, 1) << 1
-		if(Setting.plugin_redmine_wktime['wktime_leave'].blank?)
+		if(getLeaveSettings.blank?)
 			selectStr = " select u.id as user_id, u.firstname, u.lastname, u.status, -1 as issue_id "
 			sqlStr = " from users u"
 			sqlStr = sqlStr + " left join groups_users gu on u.id = gu.user_id" if getSession(:group_id).present?
 			sqlStr = sqlStr + " where u.type = 'User' "
 		else
-			listboxArr = Setting.plugin_redmine_wktime['wktime_leave'][0].split('|')
+			listboxArr = getLeaveSettings[0].split('|')
 			issueId = listboxArr[0]
 			queries = getListQueryStr
 			selectStr = queries[0]
@@ -79,7 +79,7 @@ class WkattendanceController < WkbaseController
 				data = []
 				entries.each_with_index do |e, index|
 					dataCol = {user: e.user&.name}
-					(Setting.plugin_redmine_wktime['wktime_leave'] || []).first(5).each_with_index do |l, colIndx|
+					(getLeaveSettings || []).first(5).each_with_index do |l, colIndx|
 						if index == 0
 							leave = Issue.where(id: l.split("|").first).first&.subject
 							headers[leave] = leave if leave.present?
@@ -267,7 +267,7 @@ class WkattendanceController < WkbaseController
 
 	def edit
 		sqlStr = getQueryStr + " where i.id in (#{getLeaveIssueIds}) and u.type = 'User' and u.id = #{params[:user_id]} order by i.subject"
-		leavesInfo = Setting.plugin_redmine_wktime['wktime_leave']
+		leavesInfo = getLeaveSettings
 		@accrualMultiplier = Hash.new
 		if !leavesInfo.blank?
 			leavesInfo.each do |leave|
@@ -365,7 +365,7 @@ class WkattendanceController < WkbaseController
 		accrualOn = params[:accrual_on].blank? ? Date.civil(Date.today.year, Date.today.month, 1) -1 : params[:accrual_on].to_s.to_date
 		selectColStr = "select u.id as user_id, u.firstname, u.lastname, u.status"
 		joinTableStr = ""
-		Setting.plugin_redmine_wktime['wktime_leave'].each_with_index do |element,index|
+		getLeaveSettings.each_with_index do |element,index|
 			if index < 5
 				tAlias = "w#{index.to_s}"
 				listboxArr = element.split('|')
@@ -611,5 +611,25 @@ class WkattendanceController < WkbaseController
 				( !remaininghr.blank? ? remaininghr.round(0)+totalHour : totalHour) : totalHour
 		end
 		render json: clock
+	end
+
+	def leavesettings
+		if request.post?
+      setting = params[:settings] ? params[:settings].permit!.to_h : {}
+			if setting.present?
+				setting.each do |key, value|
+					leaveSettings = WkSetting.where("name = ?", key ).first
+					leaveSettings = WkSetting.new if leaveSettings.blank?
+					leaveSettings.name = key
+					leaveSettings.value = value
+					leaveSettings.save()
+				end
+			else
+				leaveSettings = WkSetting.where("name = 'leave_settings'").first
+				leaveSettings.destroy if leaveSettings.present?
+			end
+			flash[:notice] = l(:notice_successful_update)
+		end
+		@leaveSettings = getLeaveSettings
 	end
 end

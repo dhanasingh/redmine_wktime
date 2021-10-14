@@ -94,4 +94,11 @@ class WkLead < ActiveRecord::Base
     end
   end
 
+  def self.getLeadEntries(from, to, userIdArr)
+    entries = self.includes(:contact).where(:created_at => from .. to, wk_crm_contacts: { contact_type: 'C' })
+    entries = entries.where(wk_crm_contacts: {assigned_user_id: userIdArr }) if userIdArr.present?
+    entries
+  end
+
+  scope :filter_pass_out, ->(pass_out){ where("wk_candidates.pass_out" => pass_out) }
 end

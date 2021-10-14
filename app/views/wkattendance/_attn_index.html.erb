@@ -5,16 +5,16 @@
 </script>
 
 <% wktime_helper = Object.new.extend(WktimeHelper) %>
-<div class="wk-contextual">
-	<% if (wktime_helper.validateERPPermission('A_ATTEND')) %>
-		<%= link_to l(:"label_title_end_process"), "javascript:runperiodDatePicker()" %>&nbsp;
-	<% end %>
-</div>
+
 
 <% if (wktime_helper.validateERPPermission('A_ATTEND')) %>
 	<%= form_tag({}, :method => :get) do %>
 		<fieldset>
 			<legend><%= l(:label_filter_plural) %></legend>
+			<div style='float:right'>
+				<%= link_to l(:"label_title_end_process"), "javascript:runperiodDatePicker()" %>&nbsp;
+				<%= render :partial => "wkattendance/sidebar" %>
+			</div>
 			<label for='status'><%= l(:field_status) %></label>
 			<%= select_tag 'status', users_status_options_for_select(@status), :class => "small", :onchange => "this.form.submit(); return false;"  %>
 			<label for='group_id'><%= l(:label_group) %></label>

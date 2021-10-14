@@ -1,47 +1,48 @@
 <%= title l(:label_transaction) %>
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<script type="text/javascript"> 
+<script type="text/javascript">
     blgtxnUrl = '<%=url_for(:controller => "wkgltransaction", :action => "index", :tab => "wkgltransaction")%>';
     blgledgerUrl = '<%=url_for(:controller => "wkledger", :action => "index", :tab => "wkledger")%>';
-    prevTab = 'tab-<%= "#{controller_name}" %>';   
+    prevTab = 'tab-<%= "#{controller_name}" %>';
 </script>
 <% transactionType = transTypeHash %>
 <%= render_tabs time_expense_tabs %>
 
 <%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
-<div class="wk-contextual">
-	<%= link_to l(:label_new_item, l(:label_transaction)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
-</div>	
+
 <%	ledgerid =session[controller_name].try(:[], :txn_ledger)
 	showChart =session[controller_name].try(:[], :show_chart)
 	width = "35%" if showChart && ledgerid &&  @from && @to
 %>
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
-	<%= hidden_field_tag "searchlist", "#{controller_name}" %>	
+	<%= hidden_field_tag "searchlist", "#{controller_name}" %>
 	<%	trans_type =session[controller_name].try(:[], :trans_type) %>
 	<% summary_trans =  params[:summary_by].blank? ? session[controller_name].try(:[], :summary_trans) : params[:summary_by] %>
 	<fieldset>
-	<div class="wk-contextual">
-		<b><label style="float:left;padding-top: 5px;"><%= l(:label_ledger) %>:</label></b>
-	     <%=h select_tag("txn_ledger", options_for_select([['','']]+@ledgers, :selected => ledgerid.nil? ? @ledgers : ledgerid ), :style => "width:200px; float:left;", onchange: '$("#query_form").submit()') %>
-		<b><label style="float:left; padding-left: 10px;padding-top: 5px;"><%= l(:field_type) %>:</label></b>
-		 <%=h select_tag("trans_type", options_for_select(transactionType.invert, :selected => trans_type ), :style => "width:150px;float:left;") %>
-		<span id="trans_summary">
-		 <b><label  style="float:left; padding-left: 10px;padding-top: 5px;"><%= l(:label_summary_by) %>:</label></b>
-			<%=h select_tag("summary_trans", options_for_select(detailsTransaction, :selected => summary_trans), :style => "float:left;") %>
-		</span>&nbsp;
-    </div>
-	<p><%= render :partial => 'wkgltransaction/date_range' %></p>
-	<p class="buttons">
-		<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
-		<%= link_to l(:button_clear), {:tab => controller_name, clear: true}, :class => 'icon icon-reload' %>
-		<% if ledgerid && @from && @to %>
-			<label style="padding-left:5px">
-				<%= check_box_tag('show_chart', 1, showChart, onclick: '$("#query_form").submit(); return false;') %>
-				<%= l(:label_show_on_chart) %>
-			</label>
-		<% end %>
-	</p>
+		<div style="float:right">
+			<%= link_to l(:label_new_item, l(:label_transaction)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+		</div>
+		<div class="wk-contextual">
+			<b><label style="float:left;padding-top: 5px;"><%= l(:label_ledger) %>:</label></b>
+				<%=h select_tag("txn_ledger", options_for_select([['','']]+@ledgers, :selected => ledgerid.nil? ? @ledgers : ledgerid ), :style => "width:200px; float:left;", onchange: '$("#query_form").submit()') %>
+			<b><label style="float:left; padding-left: 10px;padding-top: 5px;"><%= l(:field_type) %>:</label></b>
+			<%=h select_tag("trans_type", options_for_select(transactionType.invert, :selected => trans_type ), :style => "width:150px;float:left;") %>
+			<span id="trans_summary">
+			<b><label  style="float:left; padding-left: 10px;padding-top: 5px;"><%= l(:label_summary_by) %>:</label></b>
+				<%=h select_tag("summary_trans", options_for_select(detailsTransaction, :selected => summary_trans), :style => "float:left;") %>
+			</span>&nbsp;
+		</div>
+		<p><%= render :partial => 'wkgltransaction/date_range' %></p>
+		<p class="buttons">
+			<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>
+			<%= link_to l(:button_clear), {:tab => controller_name, clear: true}, :class => 'icon icon-reload' %>
+			<% if ledgerid && @from && @to %>
+				<label style="padding-left:5px">
+					<%= check_box_tag('show_chart', 1, showChart, onclick: '$("#query_form").submit(); return false;') %>
+					<%= l(:label_show_on_chart) %>
+				</label>
+			<% end %>
+		</p>
 	</fieldset>
 <% end %>
 <div class="autoscroll">
@@ -53,8 +54,8 @@
 	<% else %>
 		<%= render :partial => 'wkgltransaction/summary_trans_list', locals: { width: width }%>
 	<% end %>
-	
-	<%= render partial: 'graph', locals: { ledger_id: ledgerid, from: @from, to: @to} if showChart && ledgerid && @from && @to %>		
+
+	<%= render partial: 'graph', locals: { ledger_id: ledgerid, from: @from, to: @to} if showChart && ledgerid && @from && @to %>
 </div>
 <span class="pagination"><%= pagination_links_full @entry_pages, @entry_count if @summaryTransaction == 'days'%></span>
 
@@ -66,5 +67,5 @@
 			end
 		end
 	%>
-	<%= link_to 'CSV', url_for(:controller => controller_name, :action => 'export') + url %>	
+	<%= link_to 'CSV', url_for(:controller => controller_name, :action => 'export') + url %>
 <% end %>

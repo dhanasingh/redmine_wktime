@@ -1,5 +1,6 @@
 module ReportAttendance
   include WkreportHelper
+	require 'rbpdf'
 
   def calcReportData(user_id, group_id, projId, from, to)
 		unless from.blank?
@@ -23,14 +24,14 @@ module ReportAttendance
 		end
 		if validateERPPermission('A_TE_PRVLG') || User.current.admin?
 			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{from}' and '#{to}'")
-			if @useSpentTime
+			if getType == 'spent_time'
 				sqlStr = "select user_id,spent_on,sum(hours) as hours from time_entries where issue_id not in (#{getLeaveIssueIds}) and spent_on between '#{from}' and '#{to}' group by user_id,spent_on"
 			else
 				sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where #{dateStr} between '#{from}' and '#{to}' group by user_id,#{dateStr}"
 			end
 		else
 			leave_entry = TimeEntry.where("issue_id in (#{getLeaveIssueIds}) and spent_on between '#{from}' and '#{to}' and user_id = #{User.current.id} " )
-			if @useSpentTime
+			if getType == 'spent_time'
 				sqlStr = "select user_id,spent_on,sum(hours) as hours from time_entries where issue_id not in (#{getLeaveIssueIds}) and spent_on between '#{from}' and '#{to}' and user_id = #{User.current.id} group by user_id,spent_on"
 			else
 				sqlStr = "select user_id,#{dateStr} as spent_on,sum(hours) as hours from wk_attendances where #{dateStr} between '#{from}' and '#{to}' and user_id = #{User.current.id} group by user_id,#{dateStr}"
@@ -66,8 +67,8 @@ module ReportAttendance
 			issueslist = issue_list.collect {|issue| [issue.subject, issue.id] }
 			issuehash = Hash[issue_list.map { |u| [u.id, u.subject] }]
 		end
-		if !Setting.plugin_redmine_wktime['wktime_leave'].blank?
-			Setting.plugin_redmine_wktime['wktime_leave'].each_with_index do |element,index|
+		if !wktime_helper.getLeaveSettings.blank?
+			wktime_helper.getLeaveSettings.each_with_index do |element,index|
 			listboxArr = element.split('|')
 			if index < 3
 				headIssueId[index] = listboxArr[0]
@@ -117,12 +118,100 @@ module ReportAttendance
 				totalhours = totalhours + (hour.blank? ? 0 : hour.to_f)
 			user_data[key]['date'] << attn_entry
 			end
-			user_data[key]['totalhours'] = totalhours
+			user_data[key]['totalhours'] = totalhours.round(2)
 		end
 		user_data
 	end
 
-	def reportType(spent_time)
-		@useSpentTime = spent_time
+	def getType
+		return 'attendance'
+	end
+
+	def getExportData(user_id, group_id, projId, from, to)
+    rptData = calcReportData(user_id, group_id, projId, from, to)
+    headers = {}
+    data = []
+		
+		headers ={sl_no: l(:label_attn_sl_no), user: l(:field_user), service_date: l(:label_date_of_entry_into_service), age: l(:label_age)+ " / " +l(:label_wk_attn_user_dob), designation: l(:label_wk_designation), balance1: l(:label_leave_beginning_of_mnth), balance2: '', balance3: '', used1: l(:label_leave_during_mnth), used2: '', used3: '', accrual1: l(:label_wk_leave)+" "+l(:wk_field_balance), accrual2: '', accrual3: ''}
+		for i in 1..31
+			headers.store('days_'+i.to_s, i == 1 ? l(:label_daily_workdone_inclede_ot) : '')
+		end
+		headers.store(:total_hrs_ot, l(:label_total_hours_ot))
+		headers.store(:total_hrs, l(:label_total_hours_during_mnth))
+		headers.store(:maternity_leave, l(:label_total_no_of_maternity_leave))
+		headers.store(:sl_nos, l(:label_attn_sl_no))
+
+		detailHeaders ={sl_no: '', user: '', service_date: '', age: '', designation: '', balance1: rptData[:shortName][rptData[:headIssueId][0].to_i], balance2: rptData[:shortName][rptData[:headIssueId][1].to_i], balance3: rptData[:shortName][rptData[:headIssueId][2].to_i], used1: rptData[:shortName][rptData[:headIssueId][0].to_i], used2: rptData[:shortName][rptData[:headIssueId][1].to_i], used3: rptData[:shortName][rptData[:headIssueId][2].to_i], accrual1: rptData[:shortName][rptData[:headIssueId][0].to_i], accrual2: rptData[:shortName][rptData[:headIssueId][1].to_i], accrual3: rptData[:shortName][rptData[:headIssueId][2].to_i]}
+		for i in 1..31
+			detailHeaders.store('days_'+i.to_s, i)
+		end
+		detailHeaders.store(:total_hrs_ot, '')
+		detailHeaders.store(:total_hrs, '')
+		detailHeaders.store(:maternity_leave, '')
+		detailHeaders.store(:sl_nos, '')		
+		data << detailHeaders
+
+		rptData[:user_data].each do |key, entry|
+			details =  {sl_no: entry['employee_id'], user: entry['name'], service_date: entry['join_date'], age: entry['birth_date'], designation: entry['designation'], balance1: entry['balance1'], balance2: entry['balance2'], balance3: entry['balance3'], used1: entry['used1'], used2: entry['used2'], used3: entry['used3'], accrual1: entry['accrual1'], accrual2: entry['accrual2'], accrual3: entry['accrual3']}
+			for i in 1..31
+				details.store('days_'+i.to_s, entry['date'][i])
+			end
+			details.store(:total_hrs_ot, '')
+			details.store(:total_hrs, entry['totalhours'])
+			details.store(:maternity_leave, '')
+			details.store(:sl_nos, entry['employee_id'])
+			data << details
+		end
+		return {data: data, headers: headers}
+	end  
+
+	def pdf_export(data)
+		pdf = ITCPDF.new(current_language)
+		pdf.AddPage("L", "A1")
+		row_Height = 8
+		page_width    = pdf.get_page_width
+		left_margin   = pdf.get_original_margins['left']
+		right_margin  = pdf.get_original_margins['right']
+		table_width = page_width - right_margin - left_margin
+		pdf.SetFontStyle('B', 10)
+		pdf.RDMMultiCell(table_width, row_Height, l(:label_wk_form_q), 0)
+		pdf.RDMMultiCell(table_width, row_Height, l(:label_wk_register_for_shops), 0)
+		pdf.RDMCell(pdf.get_string_width(l(:label_wk_name_address)) + 2, row_Height, l(:label_wk_name_address) + ':', 0)
+		pdf.SetFontStyle('', 10)
+		pdf.RDMCell(pdf.get_string_width(Setting.app_title) + 2, row_Height, Setting.app_title, 0)
+		pdf.SetFontStyle('B', 10)
+		pdf.RDMCell(pdf.get_string_width(l(:label_month)) + 5, row_Height, l(:label_month) + ':', 0)
+		pdf.SetFontStyle('', 10)
+		pdf.RDMCell(20, row_Height, data[:from].strftime("%B").to_s, 0)
+		pdf.SetFontStyle('B', 10)
+		pdf.RDMCell(pdf.get_string_width(l(:label_year)) + 3, row_Height, l(:label_year) + ':', 0)
+		pdf.SetFontStyle('', 10)
+		pdf.RDMCell(25, row_Height, data[:from].strftime("%Y").to_s, 0)
+    logo =data[:logo]
+		if logo.present?
+			pdf.Image(logo.diskfile.to_s, page_width-50, 15, 30, 25)
+		end
+		pdf.ln(20)
+		pdf.SetFontStyle('B', 10)
+		pdf.set_fill_color(230, 230, 230)
+		data[:headers].each do|key, value|
+			pdf.RDMMultiCell(get_col_wdith(key), 25, value.to_s, 1, 'C', 0, 0)
+		end
+		pdf.ln(25)
+		pdf.set_fill_color(255, 255, 255)
+
+		data[:data].each do |entry|
+			entry.each do |key, value|
+				pdf.RDMCell(get_col_wdith(key), row_Height, value.to_s, 1, 0, 'C', 0)
+			end
+			pdf.SetFontStyle('', 9)
+		  pdf.ln
+		end
+		pdf.Output
+	end
+
+	def get_col_wdith(key)
+		headers ={user: 55, service_date: 30, age: 30, designation: 35, balance1: 30, balance2: 15, balance3: 15, used1: 30, used2: 15, used3: 15, accrual1: 30, accrual2: 15, accrual3: 15, total_hrs_ot: 20, total_hrs: 30, maternity_leave: 20, 'days_1' => 25}
+		width = headers[key] || 10
 	end
 end

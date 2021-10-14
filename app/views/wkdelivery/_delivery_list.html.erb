@@ -1,0 +1,33 @@
+<div class="autoscroll">
+<table class="list time-entries">
+  <thead>
+         <tr>
+				<%= sort_header_tag('serial_number', :caption => l(:label_serial_number), class: "lbl-txt-align") %>
+				<%= sort_header_tag('shipment_name', :caption => l(:field_name), class: "lbl-txt-align") %>
+				<%= sort_header_tag('shipment_date', :caption => l(:label_delivery_date), class: "lbl-txt-align") %>
+				<th class="lbl-txt-align"><%= l(:field_status) %></th>
+				<th class="lbl-txt-align"><%= l(:field_amount) %></th>
+				<th></th>
+         </tr>
+  </thead>
+   <tbody>
+		<% @deliveryEntries.each do |entry| %>
+		 <tr class="<%= cycle("odd", "even") %>" >
+		    <td class="lbl-txt-align"><%= entry.serial_number  %></td>
+				<td class="lbl-txt-align"><%= entry.parent.name  %></td>
+				<td class="lbl-txt-align"><%= entry.shipment_date  %></td>
+				<td class="lbl-txt-align"><%= getDeliveryStatus[entry.current_status] %></td>
+				<td class="lbl-txt-align"><%= entry.delivery_items[0].currency unless entry.delivery_items[0].blank?%> <%= html_hours("%.2f" % entry.delivery_items.sum('total_quantity * selling_price'))  %></td>
+				<td class="lbl-txt-align">
+				<%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :delivery_id => entry.id, :tab => controller.controller_name},
+                                       :title => l(:button_edit) %>
+				<% if controller.hasDeletePermission %>
+					<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroy', :delivery_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
+					<% end %>
+			</td>
+		 </tr>
+	   <% end %>
+   </tbody>
+</table>
+</div>
+<span class="pagination"><%= pagination_links_full @entry_pages, @entry_count %></span>

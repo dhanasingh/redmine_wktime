@@ -69,4 +69,12 @@ class WkMaterialEntry < TimeEntry
       h
     end
   end
+
+  scope :getMaterialInvoice, ->(id){
+    joins(:spent_for)
+    .joins("INNER JOIN wk_invoice_items ON wk_invoice_items.id = wk_spent_fors.invoice_item_id")
+    .joins("INNER JOIN wk_inventory_items ON wk_inventory_items.id = wk_material_entries.inventory_item_id") 
+    .where("wk_invoice_items.invoice_id" => id, "wk_invoice_items.item_type" => 'm')
+    .select("wk_material_entries.*, wk_inventory_items.location_id, wk_inventory_items.cost_price, wk_inventory_items.over_head_price, wk_inventory_items.serial_number as serial_no, wk_inventory_items.running_sn, wk_inventory_items.notes")
+  }
 end

@@ -4,8 +4,9 @@
 			<tr>
 			<%= sort_header_tag('name', :caption => l(:field_user), class: "lbl-txt-align") %>
 			<%
+ 				wktime_helper = Object.new.extend(WktimeHelper)
 				header = ""
-				wktime_leave = Setting.plugin_redmine_wktime['wktime_leave']
+				wktime_leave = getLeaveSettings
 				isAvailable = wktime_leave.present?
 				lastAccrualOn = Date.civil(Date.today.year, Date.today.month, 1) -1
 				if isAvailable

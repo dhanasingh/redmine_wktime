@@ -27,11 +27,9 @@ include WkdocumentHelper
 		elsif !groupId.blank? && groupId.to_i > 0
 			userIdArr = getGroupUserIdsArr(groupId.to_i)
 		end
-		if userIdArr.blank?
-			leadList = WkLead.includes(:contact).where(:created_at => getFromDateTime(from) .. getToDateTime(to))
-		else
-			leadList = WkLead.includes(:contact).where(:created_at => getFromDateTime(from) .. getToDateTime(to), wk_crm_contacts: { assigned_user_id: userIdArr })
-		end
+		from = getFromDateTime(from)
+		to = getToDateTime(to)
+		leadList = WkLead.getLeadEntries(from, to, userIdArr)
 		leadList
 	end
 
@@ -50,11 +48,9 @@ include WkdocumentHelper
 		elsif !groupId.blank? && groupId.to_i > 0
 			userIdArr = getGroupUserIdsArr(groupId.to_i)
 		end
-		if userIdArr.blank?
-			activityList = WkCrmActivity.includes(:parent).where(:start_date => getFromDateTime(from) .. getToDateTime(to)).order(updated_at: :desc)
-		else
-			activityList = WkCrmActivity.includes(:parent).where(:start_date => getFromDateTime(from) .. getToDateTime(to), :assigned_user_id => userIdArr).order(updated_at: :desc)
-		end
+		from = getFromDateTime(from)
+		to = getToDateTime(to)
+		activityList = WkCrmActivity.getActivitiesEntries(from, to, userIdArr)
 		activityList
 	end
 

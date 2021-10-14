@@ -22,4 +22,10 @@ class WkPublicHoliday < ActiveRecord::Base
     joins("INNER JOIN wk_users ON wk_users.location_id = wk_public_holidays.location_id")
     .where("wk_users.user_id = #{userID} AND holiday_date = '#{holiday}'")
   }
+
+  scope :publicHolidayDetails, ->(from, to, userID){
+    joins("INNER JOIN wk_users ON wk_users.user_id = '#{userID}'")
+    .where("(wk_public_holidays.location_id = wk_users.location_id OR wk_public_holidays.location_id IS NULL) AND holiday_date BETWEEN ? AND ?", from, to)
+  }
+
 end

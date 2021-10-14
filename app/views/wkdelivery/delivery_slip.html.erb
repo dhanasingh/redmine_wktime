@@ -1,0 +1,80 @@
+<div id="time-rpt-dlg" style="overflow-x:auto;">
+		<center><b><%= (l(:label_delivery_slip)).upcase %></b></center>
+		<div style="float:right">
+			<table>
+				<tr>
+					<td>
+						<% attachment = WkLocation.getMainLogo() %>
+						<% if attachment.present? %>
+							<%= image_tag(download_location_attachment_path(attachment, attachment.filename), class: 'filecontent image') %>
+						<% end %>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div style="clear:both;"></div>
+		<table border="1" style="border-collapse:collapse;" cellspacing="0", align="center", frame="box">
+				<tr style="width:100%; background-color: #f2f2f2">
+					<th align="left"  width="43%"><%= l(:label_name_address_of,l(:label_supplier)) %></th>
+					<th align="left"  width="43%"><%= l(:label_name_address_of,l(:label_customer)) %></th>
+					<th align="left"  colspan ="2" width="25%"><%= l(:label_date) %></th>
+				</tr>
+				<tr style="width:100%;">
+					<td  width="43%" style="white-space:pre"><%= controller.getSupplierAddress(@shipment)  %></td>
+					<td  width="43%" style="white-space:pre"><%= controller.getCustomerAddress(@shipment) %> </td>
+					<td  colspan ="2" width="25%"><%= @shipment.shipment_date.to_formatted_s(:long) %></td>
+				</tr>
+
+				<tr style="width:100%;">
+					<td colspan="4">
+						<table height="100%" style="width:100%; border-collapse: collapse;">
+							<tr style="border-bottom:1pt solid black; width:100%; background-color: #f2f2f2">
+								<th align="left" style="width:60%; border-bottom:1pt solid black;" ><%= l(:label_item) %></th>
+								<th align="right" style="width:15%; border-bottom:1pt solid black;" ><%= l(:label_rate) %></th>
+								<th align="right" style="width:10%; border-bottom:1pt solid black;" ><%= l(:field_quantity) %></th>
+								<th align="right" style="width:15%; border-bottom:1pt solid black;" ><%= l(:field_amount) %></th>
+							</tr>
+							<% @deliveryItem.each do | entry | %>
+								<% inventory_item = entry.inventory_item %>
+								<tr style="width:100%; border-top: solid thin; border-bottom: solid thin;">
+									<td style="width:60%;"><b><%= (inventory_item&.product_item&.product&.name || '') + "-" + (inventory_item&.product_item&.brand&.name || '') + "-" + (inventory_item&.product_item&.product_model&.name || '') %></b></td>
+									<td style="width:15%;" align="right"><%= entry.currency %> <%= entry.selling_price %></td>
+									<td style="width:10%;" align="right" ><%= entry.total_quantity %></td>
+									<td style="width:15%;" align="right" ><%= entry.currency %> <%= (entry.total_quantity.to_f * entry.selling_price.to_f).to_f.round(2) %></td>
+								</tr>
+							<% end %>
+							<tr style="width:100%;">
+								<td style="width:60%;"></td>
+								<td style="width:15%;" align="right"><b><%= l(:label_grand_total) %></b></td>
+								<td style="width:10%;" align="right" ><b><%= "%.2f" % @deliveryItem.sum(:total_quantity) %></b></td>
+								<td style="width:15%;" align="right" ><b><%= @deliveryItem[0].currency %> <%=h "%.2f" % @deliveryItem.sum("selling_price * total_quantity") %></b></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr style="width:100%;">
+					<td align="left" colspan="1" width="20%"><b><%= l(:label_amount_in_words) %></b></td>
+					<td align="left" colspan="3" width="35%"><%= numberInWords(@deliveryItem.sum("selling_price * total_quantity")) + " " + l(:label_only) + "." %></td>
+				</tr>				
+				<% notes = "" %>
+				<% @deliveryItem.each{|item| notes += item.notes.present? ? (item.notes + "\n") : "" } %>
+				<tr style="width:100%;">
+					<td align="left" colspan="3" ><b><%= l(:field_notes) %></b></td>
+				</tr>
+				<% if notes.present? %>
+				<tr style="width:100%;">
+					<td align="left" colspan="3" style="white-space: pre-line;padding-left: 10px;"><%= notes%></td>
+				</tr>
+				<% end%>
+		</table>
+	</div>
+	<br/>
+	<br/>
+	<br/>
+	<table width="100%">
+		<tr width="100%">
+			<td class="txt-align" style="float:left;"><b><%= l(:label_place) %> :</b> </td>
+			<td class="txt-align"  style="float:right;"><b><%= l(:label_authorized_signatory) %></b></td>
+		</tr>
+		<tr><td class="txt-align" style="float:left;" ><b><%=  l(:label_date) %> :</b> </td></tr>
+	</table>

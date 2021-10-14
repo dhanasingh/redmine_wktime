@@ -33,19 +33,19 @@ class WkInvoice < ActiveRecord::Base
   has_many :notifications, through: "po_quote", :dependent => :destroy
   has_many :notifications, as: :source, class_name: "WkUserNotification", :dependent => :destroy
   has_many :billing_schedules, foreign_key: "invoice_id", class_name: "WkBillingSchedule"
-  
+
   # scope :invoices, lambda {where :invoice_type => 'I'}
   # scope :quotes, lambda {where :invoice_type => 'Q'}
   # scope :purchase_orders, lambda {where :invoice_type => 'PO'}
   # scope :supplier_invoices, lambda {where :invoice_type => 'SI'}
-  
+
   has_many :purchase_orders, through: :quote_po, :dependent => :restrict_with_error
   has_many :supplier_invoices, through: :po_sup_inv, :dependent => :restrict_with_error
   # attr_protected :modifier_id
-  
+
   #validates_presence_of :account_id
   validates_presence_of :parent_id, :parent_type
-  
+
   before_save :increase_inv_key
   # after_create_commit :send_notification
   before_destroy :update_billing_schedule
@@ -53,12 +53,12 @@ class WkInvoice < ActiveRecord::Base
   def total_invoice_amount
 	self.invoice_items.sum(:original_amount)
   end
-  
+
   def total_paid_amount
 	self.payment_items.current_items.sum(:original_amount)
   end
-  
-  def increase_inv_key  
+
+  def increase_inv_key
 	lastInvKey = WkInvoice.where(:invoice_type => invoice_type).maximum(:invoice_num_key)
 	self.invoice_num_key = lastInvKey.blank? ? 1 : (lastInvKey + 1) if self.new_record?
 	self.invoice_number = self.invoice_number.blank? ? self.invoice_num_key.to_s : self.invoice_number.to_s + self.invoice_num_key.to_s if self.new_record?
@@ -66,7 +66,7 @@ class WkInvoice < ActiveRecord::Base
 
   def self.send_notification(invoice)
     if WkNotification.notify('invoiceGenerated') && invoice.invoice_type == 'I'
-      emailNotes = l(:label_invoice)+": #"+invoice.invoice_number.to_s+" "+invoice.invoice_items.first.original_currency.to_s+ invoice.invoice_items.sum(:original_amount).to_s+" "+l(:label_has_generated)+" "+l(:label_for)+invoice.parent.name.to_s + "\n\n" + l(:label_redmine_administrator)
+      emailNotes = l(:label_invoice)+": #"+invoice.invoice_number.to_s+" "+invoice.invoice_items&.first&.original_currency.to_s+ invoice.invoice_items.sum(:original_amount).to_s+" "+l(:label_has_generated)+" "+l(:label_for)+invoice.parent&.name.to_s + "\n\n" + l(:label_redmine_administrator)
       subject = l(:label_invoice) + " " + l(:label_notification)
       userId = WkPermission.permissionUser('M_BILL').uniq
       WkNotification.notification(userId, emailNotes, subject, invoice, 'invoiceGenerated')
@@ -81,5 +81,9 @@ class WkInvoice < ActiveRecord::Base
   def update_billing_schedule
 		self.billing_schedules.update(:invoice_id => nil) if self.billing_schedules.present?
   end
-  
+
+  scope :get_invoice_numbers, ->(type, id){
+    self.where(invoice_type: 'I', parent_type: type,  parent_id: id)
+  }
+
 end

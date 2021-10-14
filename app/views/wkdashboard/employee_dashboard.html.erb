@@ -1,0 +1,35 @@
+<%= javascript_include_tag "dashboard", plugin: "redmine_wktime" %>
+<%= javascript_include_tag 'palette', :plugin => "redmine_wktime" %>
+<div>
+  <div style="float:left"><%= title l(:label_my_dashboard)%></div>
+  <% if showDashboard && hasSettingPerm%>
+    <%= render :partial => "wkdashboard/side_bar" %>
+  <% end %>
+</div>
+<div style="clear:both"></div>
+
+<% last_index = 0 %>
+<% @empDash.each do |empdata| %>
+  <div>
+    <div style="font-size:30px;font-weight:bold;padding-top:10px;flex-wrap:wrap;"><%= empdata[:title] %></div>
+    <div style="display:flex;flex-flow: row wrap;">
+      <% empdata[:data].each_with_index do |data, i| %>
+        <% i = last_index+1 if last_index != 0  %>
+        <div id="colors_<%=i%>" style="width:230px;height:165px;margin:10px;box-shadow:0 1px 5.3px rgba(0, 0, 0, 0.028),0 3.4px 17.9px rgba(0, 0, 0, 0.042),0 15px 80px rgba(0, 0, 0, 0.07);text-align:center;color:white;" onclick="empDetailReport('<%=data[:type]%>','<%=data[:issue_id]%>','<%=empdata[:title]%>')"}>
+          <p style="font-size:35px;font-weight:bold;margin:0;padding-top:40px"><%= data[:value] %></p>
+          <p style="font-size:15px;margin:0"><%= data[:name] %></p>
+          <p style="font-size:15px;margin:0"><%= data[:date] if data[:date].present? %></p>
+        </div>
+        <% last_index = i %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+<script type="text/javascript">
+  var colors = palette('sol-accent', $("div[id^='colors']").length).map(function(hex) {
+      return '#' + hex;
+    })
+  $("div[id^='colors']").each(function(index) {
+    $('#colors_'+index).css('background-color', colors[index]);
+  })
+</script>

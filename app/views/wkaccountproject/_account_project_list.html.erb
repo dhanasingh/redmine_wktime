@@ -10,6 +10,7 @@
 					<%= sort_header_tag('billing_type', :caption => l(:label_billing_type), class: "lbl-txt-align") %>							
 					<th class="lbl-txt-align"><%= l(:label_apply_tax) %></th>		
 					<th class="lbl-txt-align"><%= l(:label_itemized_bill) %></th>
+					<th class="lbl-txt-align"><%= l(:label_include_expense) %></th>
 					<th></th>
 				<% else %>			
 					<th class="lbl-txt-align"><%= l(:field_type) %></th>
@@ -18,6 +19,7 @@
 					<th class="lbl-txt-align"><%= l(:label_billing_type) %></th>								
 					<th class="lbl-txt-align"><%= l(:label_apply_tax) %></th>		
 					<th class="lbl-txt-align"><%= l(:label_itemized_bill) %></th>
+					<th class="lbl-txt-align"><%= l(:label_include_expense) %></th>
 					<th></th>
 				<% end %>	
          </tr>
@@ -31,6 +33,7 @@
 			<td class="lbl-txt-align"><%=h entry.billing_type == 'TM' ? l(:label_time_material) : l(:label_fixed_cost)  %></td>
 			<td class="lbl-txt-align"><%=h checked_image entry.apply_tax?  %></td>			
 			<td class="lbl-txt-align"><%=h checked_image entry.itemized_bill?  %></td>
+			<td class="lbl-txt-align"><%=h checked_image entry.include_expense?  %></td>
 
 			<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => 'wkaccountproject', :action => 'edit', :project_id => entry.project.identifier, :acc_project_id => entry.id},
                                        :title => l(:button_edit) %>

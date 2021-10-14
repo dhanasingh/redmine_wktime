@@ -21,11 +21,12 @@ class WkSpentFor < ActiveRecord::Base
   belongs_to :spent, :polymorphic => true
   belongs_to :invoice_item , :class_name => 'WkInvoiceItem'
   attr_accessor :spent_date_hr, :spent_date_min, :spent_for_key
-  
+
   safe_attributes 'spent_id', 'spent_type', 'spent_for_id', 'spent_for_type', 'end_on', 's_longitude', 's_latitude',
    'e_longitude', 'e_latitude', 'clock_action'
-  
+
   scope :time_entries,  -> { where(:spent_type => "TimeEntry") }
+  scope :expense_entries,  -> { where(:spent_type => "WkExpenseEntry") }
   scope :material_entries,  -> { where(:spent_type => "WkMaterialEntry") }
   scope :unbilled_entries,  -> { where(:invoice_item => nil) }
 
@@ -49,4 +50,8 @@ class WkSpentFor < ActiveRecord::Base
       return "WkMaterialEntry"
     end
   end
+
+  scope :getSpentDetails, ->(id){
+    where(invoice_item_id: id )
+  }
 end

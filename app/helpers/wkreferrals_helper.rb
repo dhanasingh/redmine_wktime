@@ -19,4 +19,10 @@ module WkreferralsHelper
   include WktimeHelper
   include WkcrmHelper
   include WkleadHelper
+
+  def getReferralHeaders(entries)
+    names = []
+    entries.map{|e| names = names + e.activities.map{|a| a.name&.titleize}}
+    names.uniq
+  end
 end

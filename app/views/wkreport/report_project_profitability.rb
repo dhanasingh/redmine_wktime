@@ -45,7 +45,7 @@ module ReportProjectProfitability
         inv_key = monthVal.last.to_i.to_s + "_" + (monthVal.first).to_s+ "_" + te_detail.project_id.to_s
         if mnth_year == (mnth.to_i.to_s + "_" + year.to_i.to_s) && !@payrollEntries[key].blank?
           user_salaries = @payrollEntries[key][:BT] + @payrollEntries[key][:AT]
-          proj_expense[inv_key] = te_detail.user_hours.blank? ? proj_expense[inv_key].to_i : 
+          proj_expense[inv_key] = te_detail.user_hours.blank? ? proj_expense[inv_key].to_i :
             proj_expense[inv_key].to_i + ((te_detail.proj_hours/te_detail.user_hours)*user_salaries).round(2)
         end
       end
@@ -72,19 +72,19 @@ module ReportProjectProfitability
         grand_total = {:income => 0, :expense => 0}
       end
       proj_expense[key] = proj_expense[key].blank? ? 0 : proj_expense[key]
-      revenue = invoice.invoice_amt
+      revenue = (invoice.invoice_amt).round(2)
       expense = ((proj_expense[key]*over_head)/100).round(2)
       org_expense = proj_expense[key] + expense
       profit = revenue - org_expense
       profit_percentage = ((profit/revenue)*100).round(2)
       profit_percentage = profit_percentage > 0 ? profit_percentage : 0
       detail_entries[key] = {:revenue => revenue.round(2), :expense => org_expense.round(2), :profit => profit.round(2), :profit_percentage => profit_percentage }
-      col_total[col_key][:income] = col_total[col_key][:income] + revenue
-      col_total[col_key][:expense] = col_total[col_key][:expense] + org_expense
-      row_total[row_key][:income] = row_total[row_key][:income] + revenue
-      row_total[row_key][:expense] = row_total[row_key][:expense] + org_expense
-      grand_total[:income] = grand_total[:income] + revenue
-      grand_total[:expense] = grand_total[:expense] + org_expense
+      col_total[col_key][:income] = (col_total[col_key][:income] + revenue).round(2)
+      col_total[col_key][:expense] = (col_total[col_key][:expense] + org_expense).round(2)
+      row_total[row_key][:income] = (row_total[row_key][:income] + revenue).round(2)
+      row_total[row_key][:expense] = (row_total[row_key][:expense] + org_expense).round(2)
+      grand_total[:income] = (grand_total[:income] + revenue).round(2)
+      grand_total[:expense] = (grand_total[:expense] + org_expense).round(2)
     end
     totlProfitAvg = getAvgandProfit(@billable_projects, inBtwMonths, detail_entries, row_total, col_total, grand_total)
     project_profitability = { colTotal: col_total, grandTotal: grand_total, rowTotal: row_total, billProj: @billable_projects, data: detail_entries, periods: inBtwMonths, from: from.to_formatted_s(:long), to: to.to_formatted_s(:long), mnths: I18n.t("date.abbr_month_names"), currency: Setting.plugin_redmine_wktime['wktime_currency'], totlProfitAvg: totlProfitAvg }
@@ -148,7 +148,7 @@ module ReportProjectProfitability
     WHERE I.invoice_type = 'I' AND I.invoice_date BETWEEN '#{from}' AND '#{to}' AND is_billable = #{booleanFormat(true)} "
 
     if projectId.to_i > 0
-    billable_projects = billable_projects + "AND WP.project_id = #{projectId} "	
+    billable_projects = billable_projects + "AND WP.project_id = #{projectId} "
     end
 
     billable_projects = billable_projects + " GROUP BY WP.project_id, P.name "
@@ -196,5 +196,87 @@ module ReportProjectProfitability
 		ovrAllAvg = ovrAllAvg.blank? ? 0 : ovrAllAvg
 		ovrAllAvg = ovrAllAvg > 0 ? ovrAllAvg : 0
     data = {detail_entries: detail_entries, row_total: row_total, ProjProfit: profit, ProjPercentage: percentage, mnthPercentage: mnthPercentage, mnthProfit: mnthProfit, ovrAllProf: ovrAllProf, ovrAllAvg: ovrAllAvg}
+  end
+
+  def getExportData(user_id, group_id, projId, from, to)
+    data = {headers: {}, data: []}
+    reportData = calcReportData(user_id, group_id, projId, from, to)
+    entry = reportData[:totlProfitAvg]
+    data[:headers] = {project:  l(:label_project)}
+    reportData[:periods].each do |monthVal|
+      data[:headers].store(monthVal, monthVal[0].to_s+' '+I18n.t("date.abbr_month_names")[monthVal[1]].to_s)
+    end
+    data[:headers].store('total',  l(:label_total))
+    reportData[:billProj].each do |val|
+      row_key = val.project_id.to_s
+      details = {name: val.name, total: ''}
+      reportData[:periods].each do |monthVal|
+        details.store(monthVal, '')
+      end
+      data[:data] << details
+      revDetails = {invoice: l(:label_revenue)}
+      expDetails = {payment: l(:label_wkexpense)}
+      profDetails = {balance: l(:label_profit)}
+      reportData[:periods].each do |monthVal|
+        key = monthVal.last.to_i.to_s + "_" + (monthVal.first).to_s + "_" + val.project_id.to_s
+				entryVal = entry[:detail_entries][key]
+        revDetails.store(key, reportData[:currency].to_s+' '+entryVal[:revenue].to_s)
+        expDetails.store(key, reportData[:currency].to_s+' '+entryVal[:expense].to_s)
+        profDetails.store(key, reportData[:currency].to_s+' '+entryVal[:profit].to_s + "(" + data[:profit_percentage].to_s + "%)")
+      end
+      revDetails.store('rev_total', reportData[:currency].to_s+' '+reportData[:rowTotal][row_key][:income].to_s )
+      expDetails.store('exp_total', reportData[:currency].to_s+' '+reportData[:rowTotal][row_key][:expense].to_s )
+      profDetails.store('prof_total', reportData[:currency].to_s+' '+entry[:ProjProfit][row_key].to_s + "(" + entry[:ProjPercentage][row_key].to_s + "%)")
+      data[:data] << revDetails
+      data[:data] << expDetails
+      data[:data] << profDetails
+    end
+    total ={total:  l(:label_total) }
+    reportData[:periods].each do |monthVal|
+      col_key = monthVal.last.to_i.to_s + "_" + (monthVal.first).to_s
+      total.store(monthVal, entry[:mnthProfit][col_key].to_s + "(" + entry[:mnthPercentage][col_key].to_s + "%)")
+    end
+    total.store('over_all', reportData[:currency].to_s+' '+entry[:ovrAllProf].to_s + "(" + entry[:ovrAllAvg].to_s + "%)")
+    data[:data] << total
+    data
+  end
+
+  def pdf_export(data)
+    pdf = ITCPDF.new(current_language,'L')
+    pdf.add_page
+    row_Height = 8
+    page_width    = pdf.get_page_width
+    left_margin   = pdf.get_original_margins['left']
+    right_margin  = pdf.get_original_margins['right']
+    table_width = page_width - right_margin - left_margin
+    width = table_width/data[:headers].length
+		logo =data[:logo]
+		if logo.present?
+			pdf.Image(logo.diskfile.to_s, page_width-50, 15, 30, 25)
+		end
+		pdf.ln(14)
+    pdf.SetFontStyle('B', 13)
+    pdf.RDMMultiCell(table_width, 5, data[:location], 0, 'C')
+    pdf.RDMMultiCell(table_width, 5, l(:report_project_profitability), 0, 'C')
+    pdf.RDMMultiCell(table_width, 5, data[:from].to_s+' '+l(:label_date_to)+' '+data[:to].to_s, 0, 'C')
+		pdf.ln(8)
+
+    pdf.SetFontStyle('B', 8)
+    pdf.set_fill_color(230, 230, 230)
+    data[:headers].each{ |key, value| pdf.RDMCell(width, row_Height, value.to_s, 1, 0, 'C', 1) }
+    pdf.ln
+    pdf.set_fill_color(255, 255, 255)
+
+    pdf.SetFontStyle('', 8)
+    data[:data].each do |entry|
+      entry.each{ |key, value|
+        pdf.SetFontStyle('', 8)
+        pdf.SetFontStyle('B', 8) if entry == data[:data].last || key.to_s == 'name'
+        border = 1 if entry == data[:data].last
+        pdf.RDMCell(width, row_Height, value.to_s, border, 0, 'C', 1)
+      }
+      pdf.ln
+    end
+    pdf.Output
   end
 end

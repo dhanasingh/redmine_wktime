@@ -38,11 +38,12 @@ lbldebitLedger = "<%= l(:label_debit_with_ledger) %>";
 										   [l('date.day_names')[6], 6]], :selected => @settings['wktime_pay_day']))%>
 	</p>    
 	 <%
+ 		wktime_helper = Object.new.extend(WktimeHelper)
 		issueIdArr =Array.new
-	    if(@settings['wktime_leave'].blank?)
+	    if(wktime_helper.getLeaveSettings.blank?)
 			leaveIssueslist = []
 		else
-			@settings['wktime_leave'].each do |element|
+			wktime_helper.getLeaveSettings.each do |element|
 			   listboxArr = element.split('|')
 			   issueIdArr << listboxArr[0]
 			end

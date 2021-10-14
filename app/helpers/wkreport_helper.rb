@@ -81,10 +81,10 @@ module WkreportHelper
 	
 	def getReportLeaveIssueIds
 		issueIds = ''
-		if(Setting.plugin_redmine_wktime['wktime_leave'].blank?)
+		if(getLeaveSettings.blank?)
 			issueIds = '-1'
 		else
-			Setting.plugin_redmine_wktime['wktime_leave'].each_with_index do |element,index|
+			getLeaveSettings.each_with_index do |element,index|
 				if index < 3
 					if issueIds!=''
 						issueIds = issueIds +','
@@ -210,5 +210,9 @@ module WkreportHelper
 				end
 			end
 		end
+	end
+
+	def getExportData(user_id, group_id, projId, from, to)
+		return {data: [], headers: {}}
 	end
 end

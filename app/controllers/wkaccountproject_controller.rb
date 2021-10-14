@@ -34,21 +34,21 @@ include WkaccountprojectHelper
 		entries = entries.joins("LEFT JOIN wk_accounts a on (wk_account_projects.parent_type = 'WkAccount' and wk_account_projects.parent_id = a.id)
 			LEFT JOIN wk_crm_contacts c on (wk_account_projects.parent_type = 'WkCrmContact' and wk_account_projects.parent_id = c.id)")
 		formPagination(entries.reorder(sort_clause))
-    end
-	
+	end
+
 	def edit
 		@accProjEntry = nil
 		unless params[:acc_project_id].blank?
-			@accProjEntry = WkAccountProject.find(params[:acc_project_id].to_i)			
+			@accProjEntry = WkAccountProject.find(params[:acc_project_id].to_i)
 			@wkbillingschedule = WkBillingSchedule.where("account_project_id = ? ", params[:acc_project_id].to_i)
 			stax = @accProjEntry.taxes
 			@selectedtax = stax.map { |r| r.id } #stax.collect{|m| [  m.id ] }
-		end		
+		end
 		taxentry = WkTax.all
 		@taxentry = taxentry.collect{|m| [ m.name, m.id ] }
-		@invoiceComp = WkInvoiceComponents.getAccInvComp(params[:acc_project_id].to_i)		
+		@invoiceComp = WkInvoiceComponents.getAccInvComp(params[:acc_project_id].to_i)
 	end
-	
+
 	def update
 		errorMsg = nil
 		wkaccountproject = nil
@@ -56,15 +56,15 @@ include WkaccountprojectHelper
 		wkaccprojecttax = nil
 		arrId = []
 		compId = []
-		wkaccountproject = saveBillableProjects(params[:accountProjectId], params[:project_id], params[:related_parent], params[:related_to], params[:applytax], params[:itemized_bill], params[:billing_type])
-		
+		wkaccountproject = saveBillableProjects(params[:accountProjectId], params[:project_id], params[:related_parent], params[:related_to], params[:applytax], params[:itemized_bill], params[:billing_type], params[:include_expense])
+
 		unless wkaccountproject.id.blank?
-			
-			if wkaccountproject.apply_tax 
-				taxId = params[:tax_id]	
+
+			if wkaccountproject.apply_tax
+				taxId = params[:tax_id]
 				WkAccProjectTax.where(:account_project_id => wkaccountproject.id).where.not(:tax_id => taxId).delete_all()
 				unless taxId.blank?
-					taxId.collect{ |id| 
+					taxId.collect{ |id|
 						istaxid = WkAccProjectTax.where("account_project_id = ? and tax_id = ? ", wkaccountproject.id, id).count
 						unless istaxid > 0
 							wkaccprojecttax = WkAccProjectTax.new
@@ -73,20 +73,20 @@ include WkaccountprojectHelper
 							if !wkaccprojecttax.save()
 								errorMsg = wkaccountproject.errors.full_messages.join("<br>")
 							end
-						end						
+						end
 					}
 				end
 			else
 				WkAccProjectTax.where(:account_project_id => wkaccountproject.id).delete_all()
 			end
-			
+
 			if wkaccountproject.billing_type == 'FC'
 				milestonelength = params[:mtotalrow].to_i
 				for i in 1..milestonelength
-					if params["milestone_id_#{i}"].blank? 
+					if params["milestone_id_#{i}"].blank?
 						wkbillingschedule = WkBillingSchedule.new
 						wkbillingschedule.invoice_id = ""
-					else 
+					else
 						wkbillingschedule = WkBillingSchedule.find(params["milestone_id_#{i}"].to_i)
 						arrId << params["milestone_id_#{i}"].to_i
 					end
@@ -95,7 +95,7 @@ include WkaccountprojectHelper
 					wkbillingschedule.amount = params["amount_#{i}"]
 					wkbillingschedule.currency = params["currency_#{i}"]
 					wkbillingschedule.account_project_id = wkaccountproject.id
-					if wkbillingschedule.save()	
+					if wkbillingschedule.save()
 						arrId << wkbillingschedule.id
 					else
 						errorMsg =  wkbillingschedule.errors.full_messages.join("<br>")
@@ -112,7 +112,7 @@ include WkaccountprojectHelper
 					param[:account_project_id] = wkaccountproject.id
 					wkAccInvComp = accInvCompId.present? ? WkAccInvoiceComponents.find(accInvCompId) :  WkAccInvoiceComponents.new
 					wkAccInvComp.assign_attributes(param)
-					if wkAccInvComp.save()	
+					if wkAccInvComp.save()
 						compId << wkAccInvComp.id
 					else
 						errorMsg +=  wkAccInvComp.errors.full_messages.join("<br>")
@@ -124,7 +124,7 @@ include WkaccountprojectHelper
 			end
 		end
 		projectEntry = Project.find(params[:project_id])
-		if errorMsg.nil? 
+		if errorMsg.nil?
 			redirect_to :project_id => projectEntry.identifier, :controller => controller_name, :action => 'index'
 			flash[:notice] = l(:notice_successful_update)
 	    else
@@ -132,17 +132,17 @@ include WkaccountprojectHelper
 			redirect_to :action => 'edit', :acc_project_id => wkaccountproject.id
 	    end
 	end
-	
+
 	def destroy
 		projectEntry = Project.find(params[:project_id])
 		WkAccountProject.find(params[:account_project_id].to_i).destroy
-		
+
 		flash[:notice] = l(:notice_successful_delete)
 		redirect_back_or_default :project_id => projectEntry.identifier, :action => 'index'
-	end	  
-    
-   
-    def setLimitAndOffset		
+	end
+
+
+    def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -155,9 +155,9 @@ include WkaccountprojectHelper
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
+		end
 	end
-	
+
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
@@ -173,7 +173,7 @@ include WkaccountprojectHelper
 		account_id = (account_id.first).id unless account_id.blank?
 
 		if !showCRMModule
-			render_403 
+			render_403
 			return false
 		elsif project_id.blank? && contact_id.blank? && account_id.blank?
 			render_404
@@ -189,7 +189,7 @@ include WkaccountprojectHelper
 			return false
 		end
 	end
-	   
+
 	def getOrderContactType
 		'C'
 	end
@@ -207,14 +207,14 @@ include WkaccountprojectHelper
 	end
 
 	def getAdditionalDD
-	end	
-	
+	end
+
 	def additionalAccountType
 		true
 	end
-	
+
     def set_filter_session
 		filters = [:contact_id, :account_id, :polymorphic_filter]
 		super(filters, {:project_id => params[:project_id]})
-   end	
+   end
 end

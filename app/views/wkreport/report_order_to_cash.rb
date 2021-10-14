@@ -3,7 +3,7 @@ module ReportOrderToCash
 
   def calcReportData(user_id, group_id, projId, from, to)
     from = Date.civil(from.year,from.month, 1)
-    to = Date.civil((to + 1.month).year,(to + 1.month).month, 1) - 1 
+    to = Date.civil((to + 1.month).year,(to + 1.month).month, 1) - 1
     inBtwMonths = getInBtwMonthsArr(from, to)
     sqlStr = "select ac.*, idt.inv_amount, pdt.pay_amount, idt.inv_currency, pdt.pay_currency, oi.prv_invoice_amount, op.prv_payment_amount,
     coalesce(a.name, CONCAT(cc.first_name,' ',cc.last_name)) as name from (select p.parent_id, p.parent_type, #{getDatePart('v.selected_date','year','year_val')}, #{getDatePart('v.selected_date','month','month_val')} from
@@ -36,7 +36,7 @@ module ReportOrderToCash
     on (op.parent_type = ac.parent_type and op.parent_id = ac.parent_id)
     left join wk_crm_contacts cc on (cc.id = ac.parent_id and ac.parent_type = 'WkCrmContact')
     left join wk_accounts a on (a.id = ac.parent_id and ac.parent_type = 'WkAccount') "
-	
+
     parentIdHash = getProjectBillers(projId)
     if !projId.blank? && projId != '0'
       sqlCond = ""
@@ -53,7 +53,7 @@ module ReportOrderToCash
         sqlStr = sqlStr + " where ac.parent_id = 0"
       end
     end
-    
+
     sqlStr = sqlStr + " order by parent_type, parent_id, year_val, month_val"
     entries = WkInvoice.find_by_sql(sqlStr)
     data = getRowData(entries)
@@ -97,6 +97,83 @@ module ReportOrderToCash
     end
     data = data.except!(*accName)
     [data].push('%.2f' % total)
+  end
+
+
+  def getExportData(user_id, group_id, projId, from, to)
+    data = {headers: {}, data: []}
+    reportData = calcReportData(user_id, group_id, projId, from, to)
+    data[:headers] = {account:  l(:field_account), labels: '', prev_bal: l(:label_previous)+' '+l(:wk_field_balance)}
+    reportData[:periods].each do |monthVal|
+      data[:headers].store(monthVal, monthVal[0].to_s+' '+I18n.t("date.abbr_month_names")[monthVal[1]].to_s)
+    end
+    data[:headers].store('cur_bal',  l(:label_current)+' '+l(:wk_field_balance))
+    reportData[:data].first.each do |key, val|
+      details = {name: val[:name], label: '', prev_bal: '', curr_bal: ''}
+      reportData[:periods].each do |monthVal|
+        details.store(monthVal, '')
+      end
+      data[:data] << details
+      invDetails = {label: '', invoice: l(:label_invoice), inv_prev_balance: ''}
+      payDetails = {label: '', payment: l(:label_txn_payment), pay_prev_balance: ''}
+      balDetails = {label: '', balance: l(:wk_field_balance), bal_prev_balance: val[:prevBalance]}
+      val[:range].each do |key, entry|
+        invDetails.store(key, entry[:inv_currency]+' '+entry[:inv_amount])
+        payDetails.store(key, entry[:pay_currency]+' '+entry[:pay_amount])
+        balDetails.store(key, entry[:inv_currency]+' '+entry[:balance])
+      end
+      invDetails.store('cur_bal', '')
+      payDetails.store('cur_bal', '')
+      balDetails.store('cur_bal', reportData[:currency]+' '+val[:current_balance])
+      data[:data] << invDetails
+      data[:data] << payDetails
+      data[:data] << balDetails
+    end
+    total ={}
+    reportData[:periods].each do |monthVal|
+      total.store(monthVal, '')
+    end
+    total.merge!({acc: '',label: '', total: 'Total', allTotal: reportData[:currency]+' '+reportData[:data].last})
+    data[:data] << total
+    data
+  end
+
+  def pdf_export(data)
+    pdf = ITCPDF.new(current_language,'L')
+    pdf.add_page
+    row_Height = 8
+    page_width    = pdf.get_page_width
+    left_margin   = pdf.get_original_margins['left']
+    right_margin  = pdf.get_original_margins['right']
+    table_width = page_width - right_margin - left_margin
+    width = table_width/data[:headers].length
+
+    pdf.SetFontStyle('B', 13)
+    pdf.RDMMultiCell(table_width, 5, data[:location], 0, 'C')
+    pdf.RDMMultiCell(table_width, 5, l(:report_order_to_cash), 0, 'C')
+    pdf.RDMMultiCell(table_width, 5, data[:from].to_s+' '+l(:label_date_to)+' '+data[:to].to_s, 0, 'C')
+		logo =data[:logo]
+		if logo.present?
+			pdf.Image(logo.diskfile.to_s, page_width-50, 15, 30, 25)
+		end
+		pdf.ln(10)
+    pdf.SetFontStyle('B', 8)
+    pdf.set_fill_color(230, 230, 230)
+    data[:headers].each{ |key, value| pdf.RDMCell(width, row_Height, value.to_s, 1, 0, 'C', 1) }
+    pdf.ln
+    pdf.set_fill_color(255, 255, 255)
+
+    pdf.SetFontStyle('', 8)
+    data[:data].each do |entry|
+      entry.each{ |key, value|
+        pdf.SetFontStyle('', 8)
+        pdf.SetFontStyle('B', 8) if entry == data[:data].last || key.to_s == 'name'
+        border = 1 if entry == data[:data].last
+        pdf.RDMCell(width, row_Height, value.to_s, border, 0, 'C', 0)
+      }
+      pdf.ln
+    end
+    pdf.Output
   end
 end
 

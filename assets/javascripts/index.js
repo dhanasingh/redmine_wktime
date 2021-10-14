@@ -2,7 +2,7 @@ var wktimeIndexUrl, wkexpIndexUrl, wkattnIndexUrl,wkReportUrl,clockInOutUrl, pay
 	blginvoiceUrl, blgtaxUrl, blgtxnUrl, blgledgerUrl, crmleadsUrl, crmopportunityUrl, crmactivityUrl, crmcontactUrl, crmenumUrl,
 	blgpaymentUrl, blgexcrateUrl, purRfqUrl, purQuoteUrl, purPurOrderUrl, purSupInvUrl, purSupAccUrl, purSupContactUrl, purSupPayUrl,
 	wklocationUrl,  wkproductUrl, wkproductitemUrl, wkshipmentUrl, wkassetUrl, wkassetdepreciationUrl, wkgrpPermissionUrl, wkSchedulingUrl,
-	wkPublicHolidayUrl, userCurrentUrl, wkSurveyUrl, wkleavereqUrl, wknotificationUrl, wkskillUrl, wkreferralsUrl;
+	userCurrentUrl, wkSurveyUrl, wkleavereqUrl, wknotificationUrl, wkskillUrl, wkreferralsUrl, wkdeliveryUrl;
 var no_user ="";
 var grpUrl="";
 var userUrl="";
@@ -90,6 +90,17 @@ $(document).ready(function() {
 		$('#total_quantity').val(this.value);
 	});
 
+	//populate invoice items for delivery
+	if($('#delivery_invoice_id').val() == '') $('#populate_items').hide();
+	$('#delivery_invoice_id').change(function(){
+		if(this.value != ""){
+			$("#populate_items").show();
+		}
+		else{
+			$("#populate_items").hide();
+		}
+	});
+
 	changeProp('tab-wktime',wktimeIndexUrl);
 	changeProp('tab-wkexpense',wkexpIndexUrl);
 	changeProp('tab-leave',wkattnIndexUrl);
@@ -124,12 +135,12 @@ $(document).ready(function() {
 	changeProp('tab-wkshipment',wkshipmentUrl);
 	changeProp('tab-wkgrouppermission',wkgrpPermissionUrl);
 	changeProp('tab-wkscheduling',wkSchedulingUrl);
-	changeProp('tab-wkpublicholiday',wkPublicHolidayUrl);
 	changeProp('tab-wksurvey',wkSurveyUrl);
 	changeProp('tab-wkleaverequest',wkleavereqUrl);
 	changeProp('tab-wknotification',wknotificationUrl);
 	changeProp('tab-wkskill',wkskillUrl);
 	changeProp('tab-wkreferrals',wkreferralsUrl);
+	changeProp('tab-wkdelivery',wkdeliveryUrl);
 });
 
 function openReportPopup(){
@@ -355,7 +366,7 @@ function accProjChanged(uid, fldId, isparent, blankOptions)
 	});
 }
 
-function actRelatedDd(uid, loadProjects, needBlankOption, actType, contactType, loadPayment)
+function actRelatedDd(uid, loadProjects, needBlankOption, actType, contactType, loadPayment, loadInvoiceNo = false)
 {
 	var relatedTo = document.getElementById("related_to");
 	var relatedType = relatedTo.options[relatedTo.selectedIndex].value;
@@ -366,7 +377,7 @@ function actRelatedDd(uid, loadProjects, needBlankOption, actType, contactType, 
 	url: actRelatedUrl,
 	type: 'get',
 	data: {related_type: relatedType, account_type: actType, contact_type: contactType},
-	success: function(data){ updateUserDD(data, relatedparentdd, userid, needBlankOption, false, "");},
+	success: function(data){ updateUserDD(data, relatedparentdd, userid, needBlankOption, false, "");if(loadInvoiceNo){getInvoiceNos(uid, 'delivery_invoice_id');}},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
 	complete: function(){ if(loadProjects) { accProjChanged(uid, 'related_parent', true, true) }if(loadPayment){submitFiletrForm();} $this.removeClass('ajax-loading'); }
 	});
@@ -506,7 +517,18 @@ function productChanged(curDDId, changeDDId, uid, changeAdditionalDD, needBlank,
 	data: {id: currDD.value, ptype: changeDDId, product_id: productId, update_DD: updateDD, log_type: logType, location_id: locId },
 	success: function(data){ updateUserDD(data, changeDD, userid, needBlankOption, false, "");},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
-	complete: function(){ if(changeAdditionalDD && changeDDId == 'brand_id'){productChanged('brand_id','product_model_id', uid, false, true, null);productChanged('product_id','product_attribute_id', uid, false, true, null);} else if(changeAdditionalDD && logTypeId != null ){productItemChanged('product_item', 'product_quantity', 'product_cost_price', 'product_sell_price', uid, 'log_type'); }  $this.removeClass('ajax-loading'); }
+	complete: function(){
+		if(changeAdditionalDD && changeDDId == 'brand_id'){
+			productChanged('brand_id','product_model_id', uid, false, true, null);
+			productChanged('product_id','product_attribute_id', uid, false, true, null);
+		}
+		else if(changeAdditionalDD && logTypeId != null ){
+			productItemChanged('product_item', 'product_quantity', 'product_cost_price', 'product_sell_price', uid, 'log_type');
+		}
+		else if(changeAdditionalDD && (changeDDId.includes("product_item_id")) ){
+			deliveryitemChanged('product_item_id'+rowNum);
+		}
+		  $this.removeClass('ajax-loading'); }
 	});
 }
 
@@ -946,14 +968,16 @@ function setUOMValue(product_id)
 	});
 }
 
-function renderData(resData, id="#dialog", clear=true){
-
-	let content = "";
-	const {header={}, data} = resData || {};
-	if(data && data.length > 0){
+function renderData(resData, options={}){
+	let {id="#dialog", clear=true, type, preHeader, preList, title} = options;
+	let content = title && "<h2>"+title+"</h2>" || "";
+	const {header={}, data=[]} = resData || {};
+	if(data.length > 0){
 		content += "<table class='list time-entries' style='width:100%; float:left;'>";
 		//Headers
 		content += "<tr>";
+		if(preHeader) content += preHeader(type);
+
 		$.each(header, function(key, label){
 			content += "<th class='th'>" +label+ "</th>";
 		});
@@ -962,20 +986,20 @@ function renderData(resData, id="#dialog", clear=true){
 		//List
 		$.each((data), function(inx, el){
 			content += "<tr>";
-			$.each((el || {}), function(key, label){
-				content += "<td class='td'>" +label+ "</td>";
+			if(preList) content += preList(type, el);
+
+			$.each((el || {}), function(key, value){
+				content += "<td class='td'>" +value+ "</td>";
 			});
 			content += "</tr>";
 		});
 		content += "</table>";
-	}
-	else{
-		content += '<p style="clear:both" class="nodata">No data to display</p>';
+	} else{
+		content += '<p style="clear:both" class="nodata">'+label_no_data+'</p>';
 	}
 	if(!$(id).length){
 		$("body").append("<div id='dialog'></div>")
-	}
-	else if(clear){
+	} else if(clear){
 		$(id).html("");
 	}
 	$(id).append(content);
@@ -993,8 +1017,8 @@ function getAssignedSNs(){
 	let content = "";
 	let serial_number = $('#serial_number').val();
 	let running_sn = $('#running_sn').val();
-	let total_quantity = $('#total_quantity').val();
-	if(!total_quantity) total_quantity = $('#product_item #available_quantity').val();
+	let total_quantity = $('#product_item #available_quantity').val();
+	if(!total_quantity) total_quantity = $('#total_quantity').val();
 	let org_total_quantity = total_quantity;
 	let org_sn_length = running_sn.length;
 	if(total_quantity > 50) total_quantity = 50;
@@ -1044,5 +1068,80 @@ function getSerialNumbersRange(serial_number, running_sn, total_quantity){
 		if(String(running_sn).length < org_sn_length) running_sn = String(running_sn).padStart(org_sn_length, '0');
 	}
 	return serialNumbers;
+}
 
+function exportReport(format){
+	$('#query_form').append('<input type="hidden" name="format" value='+format+' /> ');
+	$('#query_form').attr('action', 'export').submit();
+}
+
+function locationChanged(locationId, uid){
+	rowNum = locationId.replace("location_id","");
+	productChanged('product_id'+rowNum, 'product_item_id'+rowNum, uid, true, false, null, locationId);
+}
+
+function deliveryitemChanged(curDDId)
+{
+	var currDD = document.getElementById(curDDId);
+	rowNum = curDDId.replace("product_item_id","");
+	var $this = $(this);
+	var updateDD = "inventory_item";
+
+	$.ajax({
+	url: productModifyUrl,
+	type: 'get',
+	data: {id: currDD.value, update_DD: updateDD },
+	success: function(data){
+		if(data != "")
+		{
+			var pctData = data.split(',');
+			$('#total_quantity'+rowNum).val(pctData[1]);
+			$('#selling_price'+rowNum).val(parseFloat(pctData[3]).toFixed(2));
+			$('#currency'+rowNum).val(pctData[5]);
+			$('#serial_number'+rowNum).val(pctData[6]);
+			$('#running_sn'+rowNum).val(pctData[7]);
+			$('#uom_id'+rowNum).val(pctData[8]);
+			$('#cost_price'+rowNum).html(parseFloat(pctData[2]).toFixed(2));
+			$('#over_head_price'+rowNum).html(parseFloat(pctData[4]).toFixed(2));
+		}
+		else
+		{
+			$('#total_quantity'+rowNum).val("");
+			$('#selling_price'+rowNum).val("");
+			$('#currency'+rowNum).val("");
+			$('#serial_number'+rowNum).val("");
+			$('#running_sn'+rowNum).val("");
+			$('#uom_id'+rowNum).val("");
+			$('#cost_price'+rowNum).html("");
+			$('#over_head_price'+rowNum).html("");
+		}
+	},
+	beforeSend: function(){ $this.addClass('ajax-loading'); },
+	complete: function(){ $this.removeClass('ajax-loading'); }
+	});
+}
+
+function getInvoiceNos(uid, loadDdId){
+	var related_to = $('#related_to').val();
+	var related_parent = $('#related_parent').val();
+	var needBlankOption = false;
+	var loadDropdown = document.getElementById(loadDdId);
+	var url = "/wkdelivery/getInvoiceNos?related_to="+ related_to+"&related_parent="+related_parent;
+	$.ajax({
+		url: url,
+		type: 'get',
+		success: function(data){updateUserDD(data, loadDropdown, uid, needBlankOption, false, "");$('#populate_items').hide();},
+		beforeSend: function(){ $(this).addClass('ajax-loading'); },
+		complete: function(){ $(this).removeClass('ajax-loading'); }
+	});
+}
+
+function populateInvoice()
+{
+	let url = new URL(window.location.href);
+	url.searchParams.set('related_to', $('#related_to').val());
+	url.searchParams.set('related_parent', $('#related_parent').val());
+	url.searchParams.set('delivery_invoice_id', $('#delivery_invoice_id').val());
+	url.searchParams.set('populate_items', 'true');
+	location.href = url;
 }

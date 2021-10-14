@@ -3,7 +3,8 @@
 <% notification_helper = Object.new.extend(WknotificationHelper) %>
 <% if wktime_helper.isChecked('te_save_geo_location') ||
 		wktime_helper.isChecked('att_save_geo_location') ||
-		wktime_helper.isChecked('crm_save_geo_location') %>
+		wktime_helper.isChecked('crm_save_geo_location') ||
+		wktime_helper.isChecked('asset_save_geo_location') %>
 			<%= javascript_include_tag 'geo_location', :plugin => "redmine_wktime" %>
 <% end %>
 <%
@@ -13,6 +14,12 @@
    end
 %>
 <%= javascript_include_tag 'timer', :plugin => "redmine_wktime" %>
+
+<!-- For label -->
+<script>
+var label_no_data = "<%= l(:label_no_data) %>";
+</script>
+
 <style>
 	#clockINOUT, #issueLog ,#notification{
 		float: right;

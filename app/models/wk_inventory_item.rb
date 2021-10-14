@@ -42,18 +42,39 @@ class WkInventoryItem < ActiveRecord::Base
 
 
   def incrementAvaQty(incVal)
-	self.available_quantity += incVal
+	  self.available_quantity += incVal
   end
 
   def add_quantity_to_parent
-	unless self.parent_id.blank? || self.material_entries.count>0 || self.transferred_items.count>0
-		parentObj = self.parent
-		parentObj.available_quantity = self.total_quantity + parentObj.available_quantity
-		parentObj.save
-	end
+    unless self.parent_id.blank? || self.material_entries.count>0 || self.transferred_items.count>0
+      parentObj = self.parent
+      parentObj.available_quantity = self.total_quantity + parentObj.available_quantity
+      parentObj.save
+    end
   end
 
   def assetName
     self.asset_property.blank? ? "" : self.asset_property.name
   end
+
+  scope :get_delivery_entry, ->{
+    joins(:product_item, :product_attribute)
+    .joins("INNER JOIN wk_products ON wk_products.id = wk_product_items.product_id")
+    .joins("INNER JOIN wk_brands ON wk_brands.id = wk_product_items.brand_id")
+    .joins("INNER JOIN wk_product_models ON wk_product_models.id = wk_product_items.product_model_id")
+    .where("available_quantity > 0 AND (wk_inventory_items.product_type= 'I')")
+  }
+
+  scope :getProduct, ->{
+    get_delivery_entry.group("wk_products.id, wk_products.name").select("wk_products.id, wk_products.name")
+  }
+
+  scope :getProductItem, ->(id, location_id){
+    get_delivery_entry.where('wk_product_items.product_id': id, location_id: location_id).group("wk_inventory_items.id, wk_inventory_items.product_item_id, wk_inventory_items.currency, wk_inventory_items.selling_price, wk_inventory_items.serial_number, wk_inventory_items.running_sn").select("wk_inventory_items.id, wk_inventory_items.product_item_id, wk_inventory_items.currency, wk_inventory_items.selling_price, wk_inventory_items.serial_number, wk_inventory_items.running_sn")
+  }
+
+  scope :getProductDetails, ->(id){
+    get_delivery_entry.where('wk_inventory_items.id': id).select("wk_inventory_items.*")
+  }
+
 end

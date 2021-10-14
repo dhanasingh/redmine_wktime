@@ -625,7 +625,6 @@ end
 					tabs << {:name => 'leave', :partial => 'wktime/tab_content', :label => :label_wk_leave}
 					tabs <<	{:name => 'wkleaverequest', :partial => 'wktime/tab_content', :label => :label_leave_request}
 					tabs <<	{:name => 'clock', :partial => 'wktime/tab_content', :label => :label_clock}
-					tabs <<	{:name => 'wkpublicholiday', :partial => 'wktime/tab_content', :label => :label_public_holiday}
 				end
 
 				tabs << {:name => 'payroll', :partial => 'wktime/tab_content', :label => :label_payroll} if showPayroll
@@ -675,11 +674,12 @@ end
 			   ]
 		else
 			tabs = [
-				{:name => 'wkproduct', :partial => 'wktime/tab_content', :label => :field_inventory_item_id},
-				{:name => 'wkproductitem', :partial => 'wktime/tab_content', :label => :label_item},
-				{:name => 'wkshipment', :partial => 'wktime/tab_content', :label => :label_shipment},
-				{:name => 'wkasset', :partial => 'wktime/tab_content', :label => :label_asset},
-				{:name => 'wkassetdepreciation', :partial => 'wktime/tab_content', :label => :label_depreciation}
+				{name: 'wkproduct', partial: 'wktime/tab_content', label: :field_inventory_item_id},
+				{name: 'wkproductitem', partial: 'wktime/tab_content', label: :label_item},
+				{name: 'wkshipment', partial: 'wktime/tab_content', label: :label_shipment},
+				{name: 'wkdelivery', partial: 'wktime/tab_content', label: :label_delivery},
+				{name: 'wkasset', partial: 'wktime/tab_content', label: :label_asset},
+				{name: 'wkassetdepreciation', partial: 'wktime/tab_content', label: :label_depreciation}
 			   ]
 		end
 		tabs
@@ -1801,6 +1801,12 @@ end
 						redirect[:controller] = 'wkreport'
 						return redirect
 					end
+				when "Dashboards"
+					if showDashboard
+						redirect[:controller] = 'wkdashboard'
+						redirect = { :action => 'employee_dashboard'}
+						return redirect
+					end
 			end
 		end
 	end
@@ -1962,5 +1968,27 @@ end
 		wklocations = WkLocation.order(name: :asc)
 		locations = []
 		locations = wklocations.map { |loc| { value: loc.id, label: loc.name }}
+	end
+
+	def getLeaveSettings
+		leaveSettings = WkUserLeave.getLeaves
+	end
+
+	def getProjByIssue(issue_id)
+		issues = Issue.where(:id => issue_id.to_i)
+		project_id = issues[0].project_id
+	end
+
+	def getAccuralHours
+		accural_hrs  = ''
+		leaveSettings = WkSetting.where("name = 'leave_settings'").first
+		if leaveSettings.present? && leaveSettings&.value.present?
+			holiday_issue = Setting.plugin_redmine_wktime['wktime_holiday']
+			JSON.parse(leaveSettings.value).each do |val|
+				valArr = val.split('|')
+				accural_hrs = valArr[1] if valArr[0] == holiday_issue
+			end
+		end
+		accural_hrs
 	end
 end

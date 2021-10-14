@@ -35,7 +35,7 @@ include WkinventoryHelper
 
 		set_filter_session
 		retrieve_date_range
-		sqlwhere = " wk_shipments.shipment_type != 'N' "
+		sqlwhere = " wk_shipments.shipment_type = '#{getShipmentType}' "
 		filter_type = session[controller_name].try(:[], :polymorphic_filter)
 		contact_id = session[controller_name].try(:[], :contact_id)
 		account_id = session[controller_name].try(:[], :account_id)
@@ -82,7 +82,7 @@ include WkinventoryHelper
 			format.csv{
 				headers = {serial_number: l(:label_serial_number), name: l(:field_name), shipment_date: l(:label_shipment_date), amount: l(:field_amount)}
 				data = shipEntries.map{|entry| {serial_number: entry.serial_number, name: entry&.parent&.name || '', shipment_date: entry.shipment_date, amount: ((entry&.inventory_items&.shipment_item[0]&.currency.to_s || '') + ' ' + (entry&.inventory_items&.shipment_item&.sum('(total_quantity*cost_price)+over_head_price').round(2).to_s || ''))} }
-				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "shipment.csv")
+				send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "receipt.csv")
 			}
 		end
 	end
@@ -179,7 +179,7 @@ include WkinventoryHelper
 			arrId = @shipment.inventory_items.shipment_item.pluck(:id)
 		else
 			@shipment = WkShipment.new
-			@shipment.shipment_type = 'I'
+			@shipment.shipment_type = getShipmentType
 			@shipment.parent_id = params[:parent_id]
 			@shipment.parent_type = params[:parent_type]
 		end
@@ -228,6 +228,7 @@ include WkinventoryHelper
 				shipmentItem.uom_id = params["uom_id_#{i}"].to_i unless params["uom_id_#{i}"].blank?
 				shipmentItem.location_id = params["location_id_#{i}"].to_i if !params["location_id_#{i}"].blank? && params["location_id_#{i}"] != "0"
 				shipmentItem.project_id = params["project_id_#{i}"].to_i if !params["project_id_#{i}"].blank? && params["project_id_#{i}"] != "0"
+				shipmentItem.supplier_invoice_id = params["supplier_invoice_id"]
 				if params["product_type_#{i}"] == 'A' || params["product_type_#{i}"] == 'RA'
 					over_head = params["over_head_price_#{i}"].to_f/ params["total_quantity_#{i}"].to_f 
 					shipmentItem.over_head_price = getExchangedAmount(params["currency_#{i}"], over_head)
@@ -400,5 +401,8 @@ include WkinventoryHelper
 		uomId = product.uom_id if product.present?
 		render :json => uomId		
 	end
-	
+
+	def getShipmentType
+		'I'
+	end
 end

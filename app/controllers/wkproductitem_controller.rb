@@ -61,7 +61,7 @@ class WkproductitemController < WkinventoryController
 			unless productId.blank?
 				sqlwhere = " AND pit.product_id = #{productId}"
 			end
-			unless brandId.blank? || brandId == 0
+			unless brandId.blank? || brandId.to_i == 0
 				sqlwhere = sqlwhere + " AND pit.brand_id = #{brandId}"
 			end
 		end
@@ -223,9 +223,32 @@ class WkproductitemController < WkinventoryController
 		transferQty = (params[:total_quantity].blank? ? params[:available_quantity].to_i : params[:total_quantity].to_i)
 		availQuantity = sourceItem.available_quantity - transferQty
 		unless availQuantity < 0 || transferQty <= 0
-			sourceItem.available_quantity = availQuantity
+			if sourceItem.running_sn.present?
+				org_sn_length = sourceItem.running_sn.length
+				serial_number = (params[:running_sn].to_i + (transferQty -1).to_i).to_s.rjust(org_sn_length, '0')
+				org_end_sn_no = ((sourceItem.running_sn.to_i) + ((sourceItem.available_quantity.to_i)-1)).to_s.rjust(org_sn_length, '0')
+				if sourceItem.running_sn == params[:running_sn]
+					sourceItem.available_quantity = availQuantity
+					sourceItem.running_sn = (serial_number.to_i + 1).to_s.rjust(org_sn_length, '0')
+				elsif serial_number != org_end_sn_no
+					split_quantity = 0
+					source_quantity = 0
+					splitItem = sourceItem.dup
+					new_sn = ((serial_number.to_i) +1).to_s.rjust(org_sn_length, '0')
+					splitItem.running_sn = new_sn
+					(sourceItem.running_sn.to_i..((params[:running_sn].to_i - 1).to_s.rjust(org_sn_length, '0').to_i)).each{ source_quantity += 1;}
+					(new_sn.to_i..org_end_sn_no.to_i).each{ split_quantity += 1;}
+					sourceItem.available_quantity = source_quantity
+					splitItem.available_quantity = split_quantity
+					splitItem.save()
+				else
+					sourceItem.available_quantity = availQuantity
+				end
+			else
+				sourceItem.available_quantity = availQuantity
+			end
 			if sourceItem.save()
-				targetItem = updateInventoryItem(params[:product_item_id].to_i, params[:location_id].to_i, params[:project_id].to_i)
+				targetItem = updateInventoryItem(params[:product_item_id].to_i, params[:location_id].to_i, params[:project_id])
 				if sourceItem.product_type == 'A'
 					depreciationFreq = Setting.plugin_redmine_wktime['wktime_depreciation_frequency']
 					finacialPeriodArr = getFinancialPeriodArray(Date.today, Date.today, depreciationFreq, 1)

@@ -1,0 +1,79 @@
+<%
+	require_relative './report_pf'
+	groupId = session[controller_name].try(:[], :group_id).blank? ? 0 : session[controller_name].try(:[], :group_id)
+	userId = session[controller_name].try(:[], :user_id).blank? ? 0 : session[controller_name].try(:[], :user_id)
+	projId = session[controller_name].try(:[], :project_id)
+	from = session[controller_name].try(:[], :from)
+	to = session[controller_name].try(:[], :to)
+	pf_report = Object.new.extend(ReportPf) 
+	data = pf_report.calcReportData(userId, groupId, projId, from, to)
+	total = data[:total]
+%>
+<%= stylesheet_link_tag 'application' , :media => "all" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<div style="float:right">
+	<table>
+		<tr>
+			<td>
+				<% attachment = WkLocation.getMainLogo() %>
+				<% if attachment.present? %>
+					<%= image_tag(download_location_attachment_path(attachment, attachment.filename), class: 'filecontent image') %>
+				<% end %>
+			</td>
+		</tr>
+	</table>
+</div>
+<div style="clear:both;"></div>
+<div id="attn-rpt-dlg", style="overflow-x:auto;">
+	<table style="width:100%; border-collapse: collapse;"border="1">
+		 <caption style="text-align:center"><b><%= getMainLocation %><br><%= l(:report_pf)  %></b></br>
+				<b><%= l(:label_wages_period) %>:</b> <%= data[:from] %>
+		
+		<thead style="background-color: #e6e6e6">
+			<tr>
+				<th style="text-align: center" rowspan=2 width="25px"><%= l(:label_attn_sl_no) %></th>
+				<th style="text-align: center" rowspan=2><%= l(:label_uan) %></th>
+				<th style="text-align: center" rowspan=2 width="250px"><%= l(:field_name) %></th>
+				<th style="text-align: center" colspan=4><%= l(:label_wages) %></th>
+				<th style="text-align: center" colspan=3><%= l(:label_contribution_remitted) %></th>
+			</tr>
+			<tr>
+				<th style="text-align: center" width="120px"><%= l(:label_basic) %></th>
+				<th style="text-align: center"><%= l(:label_eps_wages) %></th>
+				<th style="text-align: center"><%= l(:label_epf_wages) %></th>
+				<th style="text-align: center"><%= l(:label_edli_wages) %></th>
+				<th style="text-align: center"><%= l(:label_ee_remitted) %></th>
+				<th style="text-align: center"><%= l(:label_eps_wages) %></th>
+				<th style="text-align: center"><%= l(:label_er_remitted) %></th>
+			</tr>
+		</thead>
+		<tbody>
+				<% i = 1%>
+			<% data[:data].each do |key, entry| %>
+				<tr class="<%= cycle("odd", "even") %>">
+					<td width="25px"><%= i %></td>
+					<td><%= entry[:uan] %></td>
+					<td width="250px"><%= entry[:name] %></td>
+					<td width="120px"><%= entry[:basic] %></td>
+					<td><%= entry[:eps] %></td>
+					<td><%= entry[:eps] %></td>
+					<td><%= entry[:eps] %></td>
+					<td><%= entry[:ee] %></td>
+					<td><%= entry[:eps_remitted] %></td>
+					<td><%= entry[:er] %></td>
+			</tr>
+			<% i += 1%>
+			<% end %>
+			<tr>
+					<th colspan=3><%= l(:label_total) %></th>
+					<td width="120px"><%= total[:basicTot] %></td>
+					<td><%= total[:wagesTot] %></td>
+					<td><%= total[:wagesTot] %></td>
+					<td><%= total[:wagesTot] %></td>
+					<td><%= total[:eeTot] %></td>
+					<td><%= total[:epsTot] %></td>
+					<td><%= total[:erTot] %></td>
+			</tr>
+		</tbody>
+	</table>
+</div>

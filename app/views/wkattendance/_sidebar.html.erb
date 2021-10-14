@@ -1,0 +1,5 @@
+<%= actions_dropdown do %>
+  <%= link_to l(:label_wk_leave), url_for(:controller => "wkattendance", :action => "index")%>
+  <%= link_to l(:label_leave_setting), url_for(:controller => "wkattendance", :action => "leavesettings")%>
+  <%= link_to l(:label_public_holiday), url_for(:controller => "wkpublicholiday", :action => "index")%>
+<% end %>

@@ -107,12 +107,10 @@ module PayrollTax
 		monthCount =((12 * (financialDate['end_date'].year - financialDate['start_date'].year) + financialDate['end_date'].month - financialDate['start_date'].month).abs) + 1
 		taxIncome = compVal['annual_gross'].to_f
 		taxAmount = 0
-		Rails.logger.info("--------------------taxIncome=#{taxIncome}-------------------------------------")
 		getIncomeTaxSlab.each do |range, rate|
 			taxAmount += rate * (range.last - (range.first-1)) if taxIncome > range.last
 			taxAmount += rate * (taxIncome - (range.first-1)) if range === taxIncome && taxIncome > getIncomeLimit
 		end
-		Rails.logger.info("--------------------taxAmount=#{taxAmount}-------------------------------------")
 
 		#SurchargTax Calculation
 		getSurchargeData.each do |data|
@@ -131,9 +129,7 @@ module PayrollTax
 				taxAmount = surchargeTax
 			end
 		end
-		Rails.logger.info("--------------------taxAmount=#{taxAmount}-------------------------------------")
 		taxAmount += (taxAmount * getCessRate) #Cess Amount
-		Rails.logger.info("--------------------taxAmount=#{taxAmount}-------------------------------------")
 		tdsID = getTaxSettings('income_tax').to_i
 		tdsValue = WkSalary.where("user_id = ? and salary_component_id = ? and salary_date between ? and ? ", userId, tdsID, financialDate['start_date'], financialDate['end_date'] )
 		if tdsValue.present?
@@ -142,7 +138,6 @@ module PayrollTax
 			monthCount -= tdsValue.count
 		end
 		monthTax = (taxAmount / monthCount).to_f
-		Rails.logger.info("--------------------monthTax=#{monthTax}-------------------------------------")
 		monthTax = (monthTax.blank? ||  monthTax.nan?) ? 0.0 : "%.2f" % monthTax
 		monthTax
 	end

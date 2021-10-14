@@ -108,6 +108,7 @@ include ActionView::Helpers::TagHelper
 			end
 			format.pdf do
 				get_TE_entries(queries[0] + queries[1] + orderStr)
+				findBySql(queries[0], queries[1], orderStr)
 				send_data(list_to_pdf(@entries, setEntityLabel), :type => 'application/pdf', :filename => "#{setEntityLabel}.pdf")
 			end
       format.csv do
@@ -126,6 +127,9 @@ include ActionView::Helpers::TagHelper
 	end
 
 	def edit
+		to = getEndDay(@startday)
+		@holidayEntries = WkPublicHoliday.publicHolidayDetails(@startday, to, params[:user_id])
+		@holidayDate = @holidayEntries.pluck(:holiday_date)
 		@prev_template = false
 		@new_custom_field_values = getNewCustomField
 		setup
@@ -2186,7 +2190,9 @@ private
 	end
 
 	def set_visible_issues(entry)
-		project = entry.nil? ? (@logtime_projects.blank? ? nil : @logtime_projects[0]) : entry.project
+		holidayProj = getProjByIssue(Setting.plugin_redmine_wktime['wktime_holiday']) if Setting.plugin_redmine_wktime['wktime_holiday'].to_i > 0 && @holidayEntries.present? && getTELabel == 'Timesheet'
+		hProj = Project.where(:id => holidayProj.to_i)
+		project = entry.nil? ? (holidayProj.present? ? hProj[0] : @logtime_projects.present? ? @logtime_projects[0] : 0) : entry.project
 		project_id = project.nil? ? 0 : project.id
 		issueAssignToUsrCond = getIssueAssignToUsrCond
 		if @projectIssues[project_id].blank?
@@ -2233,6 +2239,7 @@ private
       # find the issues which are visible to the user
 			@projectIssues[project_id] = allIssues.select {|i| i.visible?(@user) }
     end
+
 		if @projActivities[project_id].blank?
 			@projActivities[project_id] = project.activities unless project.nil?
 		end

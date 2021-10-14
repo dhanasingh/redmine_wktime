@@ -9,6 +9,8 @@
 		<%#=h hidden_field_tag("shipment_date",  @shipment.shipment_date )  %>
 		<%=h hidden_field_tag("shipment_serial_number",  @shipment.serial_number )  %>
 	<% end %>
+	<% inv_no = @shipmentItem&.first&.supplier_invoice&.invoice_number || '' %>
+	<%= hidden_field_tag("supplier_invoice_id",  @shipmentItem&.first&.supplier_invoice_id )  %>
 	<table>
 		<tr><th align="left"><%= l(:label_serial_number) %></th> 
 			<td style="width: 200px;"> 
@@ -24,6 +26,9 @@
 			
 			<th align="left"><%= l(:field_account) %></th> 
 			<td style="width: 200px;"> <%= ': ' + (@shipment.blank? ? '' : @shipment.parent.name) %> </td>
+			
+			<th align="left"><%= l(:label_sp_number) %></th> 
+			<td style="width: 200px;"> <%= ': ' + inv_no %> </td>
 			
 		</tr>
 		

@@ -92,6 +92,70 @@ module ReportPayroll
       @rowval["#{user.id}"]["Deduction"] = @totalhash["#{user.id}"]["deduction"]
       @rowval["#{user.id}"]["Net"] = (@totalhash["#{user.id}"]["gross"]).to_f - (@totalhash["#{user.id}"]["deduction"]).to_f
     end
-    data = {headerarr: @headerarr, rowval: @rowval, usercol: usercol, salary_data: @salary_data, compTotalHash: compTotalHash}
+    period = @salary_data&.first.blank? ? from :  @salary_data&.first&.salary_date
+    data = {headerarr: @headerarr, rowval: @rowval, usercol: usercol, salary_data: @salary_data, compTotalHash: compTotalHash, period: period}
   end
+
+	def getExportData(user_id, group_id, projId, from, to)
+    rptData = calcReportData(user_id, group_id, projId, from, to)
+    headers = {}
+    data = []
+    total = {}
+    rptData[:headerarr].each{|ele| headers[ele] = ele}
+    rptData[:rowval].each do |key, value|
+      data << value.to_h
+    end
+		rptData[:headerarr].each_with_index{|ele, index| total[ele] = index == 3 ? l(:label_total) : rptData[:compTotalHash][ele]}
+    data << total
+		return {data: data, headers: headers, period: rptData[:period]}
+	end  
+
+	def pdf_export(data)
+		pdf = ITCPDF.new(current_language, "L")
+		pdf.AddPage("L", "A1")
+		row_Height = 8
+		page_width    = pdf.get_page_width
+		left_margin   = pdf.get_original_margins['left']
+		right_margin  = pdf.get_original_margins['right']
+		table_width = page_width - right_margin - left_margin
+		org_width = table_width/data[:headers].length
+		pdf.SetFontStyle('B', 10)
+		pdf.RDMMultiCell(table_width, row_Height, l(:label_wk_form_r), 0)
+		pdf.RDMMultiCell(table_width, row_Height, l(:label_register_wages), 0)
+		pdf.RDMMultiCell(table_width, row_Height, l(:label_wages_rule), 0)
+		pdf.RDMMultiCell(table_width, row_Height, l(:label_wk_name_address) + ':', 0)
+		pdf.SetFontStyle('', 10)
+		pdf.RDMCell(pdf.get_string_width(getMainLocation) + 2, row_Height, getMainLocation, 0, 1)
+		pdf.RDMMultiCell(150, row_Height, getAddress, 0, 'L')
+		pdf.SetFontStyle('B', 10)
+		pdf.RDMMultiCell(pdf.get_string_width(l(:label_wages_period)) + 5, row_Height, l(:label_wages_period) + ':', 0, '', 0, 0)
+		pdf.SetFontStyle('', 10)
+		pdf.RDMMultiCell(25, row_Height, data[:period].to_s, 0)
+    logo =data[:logo]
+		if logo.present?
+			pdf.Image(logo.diskfile.to_s, page_width-50, 15, 30, 25)
+		end
+		pdf.ln(10)
+		pdf.SetFontStyle('B', 9)
+		pdf.set_fill_color(230, 230, 230)
+		data[:headers].each do |key, value|
+      width = key == "Id" ? 10  : org_width
+      pdf.RDMMultiCell(width, 10, value.to_s, 1, 'C', 0, 0)
+    end
+		pdf.ln(10)
+		pdf.set_fill_color(255, 255, 255)
+
+		pdf.SetFontStyle('', 8)
+		data[:data].each do |entry|
+      if((data[:data]).last == entry)
+        pdf.SetFontStyle('B',9)
+      end
+			entry.each do |key, value|
+				width = key == "Id" ? 10  : org_width
+        pdf.RDMCell(width, row_Height, value.to_s, 1, 0, 'C', 0)
+      end
+		  pdf.ln
+		end
+		pdf.Output
+	end
 end
