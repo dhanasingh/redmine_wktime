@@ -1,18 +1,14 @@
-= Webinar on ERPmine – Billing, August 31,2021,  5:00 PM India (11:30 AM GMT)
+= Webinar on ERPmine – Accounting, October 26, 2021, 5 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
-https://us02web.zoom.us/meeting/register/tZclcOyspj8pHtajzb-e7mYb6GfKKxYVOLTV
+https://us02web.zoom.us/meeting/register/tZAkcuGqqj8rHNO308lmS6_Ij93PZ2aq_mqI
 
 *Topics* :
 
-* Account Projects
-* Invoice Component
-* Unbilled Invoice
-* Generate Invoice
-* Accept Payment
-* Contracts
-* Reports
-* Mobile App
+* Accounting transactions
+* General Ledger
+* Financial Reports
+* Mobile app
 -------------------------------------------------------------------------------
 
 = ERPmine
