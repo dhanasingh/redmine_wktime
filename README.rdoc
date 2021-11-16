@@ -1,14 +1,21 @@
-= Webinar on ERPmine – Accounting, October 26, 2021, 5 PM India (11:30 AM GMT)
+= Webinar on ERPmine – Survey, November 30, 2021, 5 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
-https://us02web.zoom.us/meeting/register/tZAkcuGqqj8rHNO308lmS6_Ij93PZ2aq_mqI
+https://us02web.zoom.us/meeting/register/tZErcuyqqjkoH9PwnxUTDGk4O7s4abVb1mwG
 
 *Topics* :
 
-* Accounting transactions
-* General Ledger
-* Financial Reports
-* Mobile app
+* Project Survey
+* General Survey
+* User survey
+  - feedback survey
+  - Employee Performance Review
+  - Exit interview
+* Survey Reviewer
+* Recurring Survey
+* Survey Response Trending Chart
+* Notification
+* Mobile App
 -------------------------------------------------------------------------------
 
 = ERPmine
