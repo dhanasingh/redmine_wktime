@@ -25,69 +25,69 @@ class WkassetController < WkproductitemController
 	def getItemType
 		'A'
 	end
-	
+
 	def showAssetProperties
 		true
 	end
-	
+
 	def getProductAsset
 		assetArr = ""
 		assetItems = WkInventoryItem.joins(:product_item, :asset_property).where("product_type = 'A'").select("wk_inventory_items.id, wk_asset_properties.name")
 		assetItems = assetItems.where(" wk_product_items.product_id = ?", params[:id].to_i) unless params[:id].blank?
 		assetItems = assetItems.where(" is_disposed != ? OR is_disposed is NULL", true) if params[:newDepr] == "true"
-		
+
 		assetItems.each do | entry |
-			assetArr << entry.id.to_s() + ',' +  entry.name.to_s()  + "\n" 
+			assetArr << entry.id.to_s() + ',' +  entry.name.to_s()  + "\n"
 		end
 		respond_to do |format|
 			format.text  { render plain: assetArr }
 		end
 	end
-	
+
 	def newItemLabel
 		l(:label_new_asset)
 	end
-	
+
 	def newAsset
 		true
 	end
-	
+
 	def editItemLabel
 		l(:label_edit_asset_item)
 	end
-	
+
 	def getIventoryListHeader
-		headerHash = { 'project_name' => l(:label_project), 'product_name' => l(:field_inventory_item_id), 'parent_name' => l(:field_name), 'asset_name' => l(:label_components),  'product_attribute_name' => l(:label_attribute), 'serial_number' => l(:label_serial_number), 'owner_type' => l(:label_owner), 'rate' => l(:label_rate),  "is_loggable" => l(:label_loggable_asset),  'location_name' => l(:label_location) }
+		headerHash = { 'project_name' => l(:label_project), 'product_name' => l(:label_product), 'parent_name' => l(:field_name), 'asset_name' => l(:label_components),  'product_attribute_name' => l(:label_attribute), 'serial_number' => l(:label_serial_number), 'owner_type' => l(:label_owner), 'rate' => l(:label_rate),  "is_loggable" => l(:label_loggable_asset),  'location_name' => l(:label_location) }
 	end
-	
+
 	def showProductItem
 		true
 	end
-	
+
 	def showAdditionalInfo
 		false
 	end
-	
+
 	def showInventoryFields
 		true
 	end
-	
+
 	def sectionHeader
 		l(:label_components)
 	end
-	
+
 	def loggableAssetLbl
 		l(:label_loggable_asset)
 	end
-	
+
 	def loggableRateLbl
 		l(:label_log) + " " + l(:label_rate)
 	end
-	
+
 	def lblAsset
 		l(:label_asset)
 	end
-	
+
 	def editcomponentLbl
 		l(:label_edit_component)
 	end
@@ -110,7 +110,7 @@ class WkassetController < WkproductitemController
 		depreciation.inventory_item_id = params[:inventory_item_id]
 		depreciation.actual_amount = params[:asset_previous_value].to_f
 		depreciation.depreciation_amount = params[:depreciation_amount].to_f
-		
+
 		if assetProperty.is_disposed && assetProperty.save() && depreciation.save()
 			assetLedgerId = assetProperty.inventory_item.product_item.product.ledger_id
 			assetReceiptLedgerId = getSettingCfId("asset_receipt_ledger")
@@ -143,7 +143,7 @@ class WkassetController < WkproductitemController
 	def getCsvData(entries)
 		rate = getRatePerHash(false)
 		asset_type = getAssetTypeHash(false)
-		data = entries.map{|entry| {project_name: entry['project_name'] || '', product_name: entry['product_name'] || '', parent_name: entry['parent_name'], asset_name: entry['asset_name'],  product_attribute_name: entry['product_attribute_name'], serial_number: entry['serial_number'], owner_type: asset_type[entry['owner_type']], rate: rate[entry['rate_per']], is_loggable: entry.is_loggable?, location_name: entry['location_name'] || ''} 
+		data = entries.map{|entry| {project_name: entry['project_name'] || '', product_name: entry['product_name'] || '', parent_name: entry['parent_name'], asset_name: entry['asset_name'],  product_attribute_name: entry['product_attribute_name'], serial_number: entry['serial_number'], owner_type: asset_type[entry['owner_type']], rate: rate[entry['rate_per']], is_loggable: entry.is_loggable?, location_name: entry['location_name'] || ''}
 		}
 	end
 

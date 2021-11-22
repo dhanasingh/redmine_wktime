@@ -10,7 +10,7 @@
 			 <tr>
 					<th class="lbl-txt-align">#</th>
 					<th class="lbl-txt-align"><%= l(:field_name) %></th>
-					<th class="lbl-txt-align"><%= l(:field_inventory_item_id) %></th>
+					<th class="lbl-txt-align"><%= l(:label_product) %></th>
 					<th class="lbl-txt-align"><%= l(:field_description) %></th>
 					<th></th>
 			 </tr>
@@ -23,7 +23,7 @@
 				<td class="lbl-txt-align"><%=h entry.product.name  %></td>
 				<td class="lbl-txt-align"><%=h entry.description %></td>
 				<td align="center">
-				 <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit_product_model', :product_model_id => entry.id, :brand_id => entry.brand_id}, :title => l(:button_edit) %> 
+				 <%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit_product_model', :product_model_id => entry.id, :brand_id => entry.brand_id}, :title => l(:button_edit) %>
 				 <% if controller.hasDeletePermission %>
 					<%= link_to image_tag('delete.png'), {:controller => controller.controller_name, :action => 'destroyProductModel', :product_model_id => entry.id, :tab => controller.controller_name},  :data => {:confirm => l(:text_are_you_sure)}, :method => :delete, :title => l(:button_delete) %>
 				<% end %>

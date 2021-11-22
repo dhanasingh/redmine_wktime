@@ -12,7 +12,7 @@ include WkassetHelper
 		end
 		additionalProducts = call_hook :additional_spent_type
 		unless additionalProducts.blank?
-			if additionalProducts.is_a?(Array) 
+			if additionalProducts.is_a?(Array)
 				additionalProducts.each do | hsh |
 					spentTypeHash =  spentTypeHash.merge(hsh)
 				end
@@ -21,20 +21,20 @@ include WkassetHelper
 				spentTypeHash =  spentTypeHash.merge(mergeHash)
 			end
 		end
-		
+
 		spentTypeHash
 	end
-	
+
 	def getProductCatagoryArray(model, categoryId, needBlank)
 		if categoryId.blank?
 			pctCatArr = model.all.order(:name).pluck(:name, :id)
 		else
 			pctCatArr = model.all.order(:name).pluck(:name, :id) #where(:category_id => categoryId).order(:name).pluck(:name, :id)
-		end		
+		end
 		pctCatArr.unshift(["",'']) if needBlank
 		pctCatArr
 	end
-	
+
 	def getProductArray(model, productId, productType, needBlank)
 		if productId.blank? && productType.blank?
 			pdtArr = model.all.order(:name).pluck(:name, :id)
@@ -48,28 +48,29 @@ include WkassetHelper
 		pdtArr.unshift(["",'']) if needBlank
 		pdtArr
 	end
-	
+
 	def getProductBrandArray(productId, needBlank)
 		pctArr = WkProduct.find(productId)
 		pctBrandArr = pctArr.brands.order(:name).pluck(:name, :id)
 		pctBrandArr.unshift(["",'']) if needBlank
 		pctBrandArr
 	end
-	
+
 	def getProductItemArr(productId, needBlank)
 		pItemObj = WkProductItem.where(:product_id => productId)
 		pctItemArr = pItemObj.collect{|i| [ "#{i.part_number} - #{i.product_attribute.name} - #{i.currency}#{i.selling_price} ", i.id ] }
 		pctItemArr.unshift(["",'']) if needBlank
 		pctItemArr
 	end
-	
+
 	def mergePItemInvItemQuery(productId, logType, locationId)
-		sqlQuery = "select it.id, pi.product_id, pi.brand_id, wap.name as asset_name, wap.rate, wap.rate_per, wb.name as brand_name, it.product_attribute_id, pi.product_model_id, wpm.name as product_model_name, pi.part_number, it.cost_price, it.selling_price, it.currency, it.available_quantity, it.uom_id, it.serial_number, it.running_sn from wk_inventory_items it left outer join wk_product_items pi on pi.id = it.product_item_id left outer join wk_brands wb on wb.id = pi.brand_id left outer join wk_product_models wpm on wpm.id = pi.product_model_id left outer join wk_asset_properties wap on wap.inventory_item_id = it.id left outer join wk_material_entries wme on wme.id = wap.matterial_entry_id where  it.available_quantity > 0 "			
+		sqlQuery = "select it.id, pi.product_id, pi.brand_id, wap.name as asset_name, wap.rate, wap.rate_per, wb.name as brand_name, it.product_attribute_id, pi.product_model_id, wpm.name as product_model_name, pi.part_number, it.cost_price, it.selling_price, it.currency, it.available_quantity, it.uom_id, it.serial_number, it.running_sn from wk_inventory_items it left outer join wk_product_items pi on pi.id = it.product_item_id left outer join wk_brands wb on wb.id = pi.brand_id left outer join wk_product_models wpm on wpm.id = pi.product_model_id left outer join wk_asset_properties wap on wap.inventory_item_id = it.id left outer join wk_material_entries wme on wme.id = wap.matterial_entry_id where  it.available_quantity > 0 "
 		sqlQuery = sqlQuery  + " and pi.product_id = #{productId} " unless productId.blank?
 		sqlQuery = sqlQuery  + " and it.product_type = '#{logType}' " unless logType.blank?
 		sqlQuery = sqlQuery + " and (wap.matterial_entry_id is null or wme.user_id = #{User.current.id}) "
 		sqlQuery = sqlQuery + " and it.location_id = #{locationId} " unless locationId.blank?
-		sqlQuery = sqlQuery + " and it.is_loggable = #{booleanFormat(true)} " if logType == 'A' 
+		sqlQuery = sqlQuery + " and it.is_loggable = #{booleanFormat(true)} " if logType == 'A'
+		sqlQuery = sqlQuery + " order by wb.name, wpm.name, it.serial_number"
 		pctObj = WkInventoryItem.find_by_sql(sqlQuery)
 		pctObj
 	end
@@ -80,9 +81,9 @@ include WkassetHelper
 		rateperhash = getRatePerHash(false)
 		pctObj.each do | entry|
 			attributeName = entry.product_attribute.blank? ? "" : entry.product_attribute.name
-			if logType == 'A' 
-			
-				pctArr << [(entry.asset_name.to_s() + ' - ' + entry.rate.to_s() + ' - ' + rateperhash[entry.rate_per].to_s()), entry.id.to_s() ]  
+			if logType == 'A'
+
+				pctArr << [(entry.asset_name.to_s() + ' - ' + entry.rate.to_s() + ' - ' + rateperhash[entry.rate_per].to_s()), entry.id.to_s() ]
 			else
 				pctArr <<  [(entry.brand_name.to_s() +' - '+ entry.product_model_name.to_s() +' - '+ attributeName + ' - '+ entry.part_number.to_s() +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s()) +' - '+ (entry.serial_number.to_s() + entry.running_sn.to_s()) ),  entry.id.to_s()]
 			end
@@ -90,7 +91,7 @@ include WkassetHelper
 		pctArr.unshift(["",'']) if needBlank
 		pctArr
 	end
-	
+
 	def getUOMArray(uomId, needBlank)
 		uomArr = Array.new
 		if uomId.blank?
@@ -101,24 +102,24 @@ include WkassetHelper
 		uomArr.unshift(["",'']) if needBlank
 		uomArr
 	end
-	
+
 	def updateParentInventoryItem(inventoryItemId, productQuantity, materialQuantity)
 		inventoryItemObj = WkInventoryItem.find(inventoryItemId)
 		if materialQuantity.blank?
 			totalAvlQty = inventoryItemObj.available_quantity
 			materialQuantity = 0
-		else 
+		else
 			totalAvlQty = inventoryItemObj.available_quantity + materialQuantity
 		end
-		
-		if  totalAvlQty >= productQuantity 
+
+		if  totalAvlQty >= productQuantity
 			qtyVal = materialQuantity - productQuantity
 			inventoryItemObj.incrementAvaQty(qtyVal)
 			inventoryItemObj.save
 		end
 		inventoryItemObj
 	end
-	
+
 	def saveMatterialEntries(id, projectId, userId, issueId, quantity, sellingPrice, currency, activityId, spentOn, invItemId, uomId)
 		if id.blank?
 			matterialObj = WkMaterialEntry.new
@@ -151,12 +152,12 @@ include WkassetHelper
 				serialNos << serial_number.to_s + running_sn.to_s
 				running_sn = running_sn.to_i + 1
 				running_sn = running_sn.to_s.rjust(org_sn_length, '0') if running_sn.to_s.length < org_sn_length
-			end 
+			end
 		end
 		serialNos
 	end
 
 	def getLogTypeName
 		{'T' => 'time_entry', 'E' => 'wk_expense_entry', 'M' => 'wk_material_entry', 'A' => 'wk_material_entry', 'RA' => 'wk_material_entry'}
-	end	
+	end
 end
