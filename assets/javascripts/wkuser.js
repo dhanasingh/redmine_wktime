@@ -61,3 +61,59 @@ function setDetails(referral){
     }
   });
 }
+
+function showDetails(userID, columnName, title, disable){
+	var url = "/wkbase/getWkuserData";
+	var data = {userID: userID, columnName: columnName, title: title}
+  $.ajax({
+		url: url,
+		data: data,
+	 	success: function(resData){
+      $("#user-dlg").empty();
+      $("#user-dlg").append($('<input>', {type: 'text', name: 'userdata', val: resData.data, disabled: disable}));
+			$("#user-dlg").dialog({
+				modal: true,
+				title: resData.title,
+        buttons : [
+          {
+            class: 'dialgButton',
+            text: 'Save',
+            id: 'btnSave',
+            click: function() {
+              var url = '/wkbase/updateWkuserData';
+              $.ajax({
+                url: url,
+                type: 'get',
+                data: {userID: userID, columnName: columnName, value: $("input[name=userdata]").val()},
+                success: function(data){
+                  $("#user-dlg").dialog("close");
+                },
+                beforeSend: function(){
+                  $(this).parent().addClass('ajax-loading');
+                },
+                complete: function(){
+                  var url = "/wkbase/updateWkuserVal";
+                  var data = {userID: userID, columnName: columnName}
+                  $.ajax({
+                    url: url,
+                    data: data,
+                     success: function(resData){
+                      $('#erpmineuser_'+columnName).val(resData.data);
+                     },
+                    });
+                  $(this).parent().removeClass('ajax-loading');
+                }
+              });
+            }
+          },
+          {
+            text: 'Cancel',
+            id: 'btnCancel',
+            click: function() {
+              $(this).dialog("close");
+          }
+        }]
+			});
+		}
+	});
+}

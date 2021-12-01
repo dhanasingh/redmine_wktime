@@ -784,3 +784,8 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 
 	get 'wkdelivery/getInvoiceNos', to: 'wkdelivery#getInvoiceNos'
 
+	get 'wkbase/getWkuserData', to: 'wkbase#getWkuserData'
+
+	get 'wkbase/updateWkuserData', to: 'wkbase#updateWkuserData'
+
+	get 'wkbase/updateWkuserVal', to: 'wkbase#updateWkuserVal'

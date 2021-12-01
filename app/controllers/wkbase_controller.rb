@@ -355,4 +355,19 @@ class WkbaseController < ApplicationController
 		pdf.add_page
 		pdf
 	end
+
+	def getWkuserData()
+		data = WkUser.decrypt_user_credentials(params[:userID], params[:columnName])
+		render json: {data: data, title: params[:title]}
+	end
+
+	def updateWkuserData
+		data = WkUser.updateWkUser(params[:userID], params[:columnName], params[:value])
+		render json: {data: data}
+	end
+
+	def updateWkuserVal
+		data = WkUser.showEncryptdData(params[:userID], params[:columnName])
+		render json: {data: data}
+	end
 end

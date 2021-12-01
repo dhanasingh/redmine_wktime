@@ -18,6 +18,7 @@
 class WkUser < ActiveRecord::Base
   include Redmine::SafeAttributes
   serialize :others
+  require 'yaml'
 
   safe_attributes 'role_id', 'id1','id2', 'id3', 'join_date', 'birth_date', 'termination_date',  'gender', 'bank_name','account_number',
   'bank_code', 'loan_acc_number', 'tax_id', 'ss_id', 'custom_number1', 'custom_number2','custom_date1', 'custom_date2', 'is_schedulable',
@@ -31,4 +32,43 @@ class WkUser < ActiveRecord::Base
   belongs_to :address, :foreign_key => 'address_id', :dependent => :destroy, :class_name => 'WkAddress'
   belongs_to :source, polymorphic: true
   belongs_to :shift, class_name: "WkShift"
+
+ # before_update :encrypt_user_credentials
+
+  def encrypt_user_credentials
+    key = YAML::load_file(Rails.root+'plugins/redmine_wktime/config/config.yml')
+    crypt = ActiveSupport::MessageEncryptor.new(key['encryption_key'])
+    self.account_number = crypt.encrypt_and_sign(self.account_number) if self.account_number.present?
+    self.tax_id = crypt.encrypt_and_sign(self.tax_id) if self.tax_id.present?
+    self.ss_id = crypt.encrypt_and_sign(self.ss_id) if self.ss_id.present?
+    self.retirement_account = crypt.encrypt_and_sign(self.retirement_account) if self.retirement_account.present?
+    self
+  end
+
+  def self.decrypt_user_credentials(userID, columnName)
+    key = YAML::load_file(Rails.root+'plugins/redmine_wktime/config/config.yml')
+    crypt = ActiveSupport::MessageEncryptor.new(key['encryption_key'])
+    usrdata = self.where(user_id: userID).first
+    decryptVal = crypt.decrypt_and_verify(usrdata["#{columnName}"]) if usrdata["#{columnName}"].present?
+    decryptVal
+  end
+
+  def self.showEncryptdData(userID, columnName)
+    decryptVal = decrypt_user_credentials(userID, columnName)
+    if decryptVal.present?
+      randomTxtLength = decryptVal.length - 4
+      randomText = "x" * randomTxtLength
+      shownText = randomText+decryptVal.last(4)
+    end
+  end
+
+  def self.updateWkUser(userID, columnName, value)
+    decryptVal = ''
+    key = YAML::load_file(Rails.root+'plugins/redmine_wktime/config/config.yml')
+    crypt = ActiveSupport::MessageEncryptor.new(key['encryption_key'])
+    usrdata = self.where(user_id: userID).first
+    decryptVal = crypt.encrypt_and_sign(value) if value.present?
+    usrdata["#{columnName}"] = decryptVal
+    usrdata.save
+  end
 end
