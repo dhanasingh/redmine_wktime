@@ -82,7 +82,9 @@ module QueriesHelper
 	end
 
 	def formProductItem(item)
-		val = item.inventory_item.product_item.product.name+' - '+item.inventory_item.product_item.brand.name+' - '+item.inventory_item.product_item.product_model.name+' - '+item.inventory_item.serial_number.to_s + item.inventory_item.running_sn.to_s
+		brandName = item.inventory_item&.product_item&.brand.blank? ? "" : item.inventory_item&.product_item&.brand&.name
+		modelName = item.inventory_item&.product_item&.product_model.blank? ? "" : item.inventory_item&.product_item&.product_model&.name
+		val = "#{item.inventory_item.product_item.product.name} - #{brandName} - #{modelName} - #{item.inventory_item&.serial_number&.to_s + item.inventory_item&.running_sn&.to_s}"
 		assetObj = item.inventory_item.asset_property
 		value = assetObj.blank? ? val : val +' - '+ assetObj.name
 	end

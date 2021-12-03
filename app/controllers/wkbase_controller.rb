@@ -259,7 +259,7 @@ class WkbaseController < ApplicationController
 
 	def findSumBySql(query, sumfield, model)
 		result = model.find_by_sql("select sum("+sumfield+") as total " + query)
-		return result.blank? ? 0 : result[0].total
+		return result.blank? ? 0 : result[0].total&.round(2)
 	end
 
 	def set_filter_session(filters, filterParams={})
