@@ -36,7 +36,7 @@ class WkUser < ActiveRecord::Base
   before_update :encrypt_user_credentials
 
   def encrypt_user_credentials
-    if self.created_at == self.updated_at
+    if self.id_previously_changed?
       key = YAML::load_file(Rails.root+'plugins/redmine_wktime/config/config.yml')
       crypt = ActiveSupport::MessageEncryptor.new(key['encryption_key'])
       self.account_number = crypt.encrypt_and_sign(self.account_number) if self.account_number.present?
