@@ -17,6 +17,7 @@ class UpdateWkUser < ActiveRecord::Migration[5.2]
             u.save
           end
           change_column :wk_payments, :description, :text
+          change_column :wk_gl_transactions, :comment, :text
         end
         dir.down do
           WkUser.all.each do |u|
@@ -30,7 +31,7 @@ class UpdateWkUser < ActiveRecord::Migration[5.2]
           end
         end
       else
-        raise StandardError, "No file in config"
+        raise StandardError, "No such file or directory"
       end
     end
   end
