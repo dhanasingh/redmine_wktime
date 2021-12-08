@@ -16,6 +16,7 @@ class UpdateWkUser < ActiveRecord::Migration[5.2]
             end
             u.save
           end
+          change_column :wk_payments, :description, :text
         end
         dir.down do
           WkUser.all.each do |u|
