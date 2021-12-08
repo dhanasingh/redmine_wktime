@@ -76,6 +76,7 @@ module ReportPayslip
 	end
 
 	def getExportData(user_id, group_id, projID, from, to)
+		user_id = User.current.id if user_id.to_i < 1
 		resData = calcReportData(user_id, group_id, projID, from, to)
 		detail = resData[:userDetail] || {}
 		if resData[:userDetail].present?
