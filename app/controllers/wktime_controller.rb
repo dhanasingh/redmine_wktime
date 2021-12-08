@@ -2192,7 +2192,7 @@ private
 	def set_visible_issues(entry)
 		holidayProj = getProjByIssue(Setting.plugin_redmine_wktime['wktime_holiday']) if Setting.plugin_redmine_wktime['wktime_holiday'].to_i > 0 && @holidayEntries.present? && getTELabel == 'Timesheet'
 		hProj = Project.where(:id => holidayProj.to_i)
-		project = entry.nil? ? (holidayProj.present? ? hProj[0] : @logtime_projects.present? ? @logtime_projects[0] : 0) : entry.project
+		project = entry.nil? ? (holidayProj.present? ? hProj[0] : @logtime_projects.present? ? @logtime_projects[0] : nil) : entry.project
 		project_id = project.nil? ? 0 : project.id
 		issueAssignToUsrCond = getIssueAssignToUsrCond
 		if @projectIssues[project_id].blank?
