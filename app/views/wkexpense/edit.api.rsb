@@ -20,7 +20,7 @@ api.wk_expense do
 		  api.comments wk_expense_entry.comments
 		  api.spent_on wk_expense_entry.spent_on
       if wk_expense_entry.spent_for.present?
-        api.spentFor(id: wk_expense_entry.spent_for.id, s_longitude: wk_expense_entry.spent_for.s_longitude, s_latitude: wk_expense_entry.spent_for.s_latitude, e_longitude: wk_expense_entry.spent_for.e_longitude, e_latitude: wk_expense_entry.spent_for.e_latitude)
+        api.spentFor(id: wk_expense_entry.spent_for.id, s_longitude: wk_expense_entry.spent_for.s_longitude, s_latitude: wk_expense_entry.spent_for.s_latitude, e_longitude: wk_expense_entry.spent_for.e_longitude, e_latitude: wk_expense_entry.spent_for.e_latitude, spent_on_time: wk_expense_entry.spent_for.spent_on_time, spent_for_type: wk_expense_entry.spent_for.spent_for_type, spent_for_id: wk_expense_entry.spent_for.spent_for_id, invoice_item_id: wk_expense_entry.spent_for.invoice_item_id)
       end
 		end
 	  end
