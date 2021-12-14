@@ -382,14 +382,15 @@ class WkinvoiceController < WkorderentityController
 		invoiceFreq = getInvFreqAndFreqStart
 		invIntervals = getIntervals(params[:fromDate].to_date, params[:dateval].to_date, invoiceFreq["frequency"], invoiceFreq["start"], true, false)
 		fromDate = getUnbillEntryStart(invIntervals[0][0])
-		todate = invIntervals[0][1]
+		lastArray = invIntervals.length - 1
+		todate = invIntervals[lastArray][1]
 		timeEntries = WkInvoiceItem.getGenerateEntries(todate.to_date, fromDate.to_date, parent_id, parent_type, params[:projectID], TimeEntry, "time_entries")
 		data1 = timeEntries.map{|e| {id: e.id, acc_name: (e&.name || e&.c_name), proj_name: e&.project&.name, subject: e.issue.to_s, usr_name: e.user.name, spent_on: e.spent_on, hours: e.hours}}
 		listHeader1 = { acc_cont_name: l(:field_account), project_name: l(:label_project), issue: l(:label_invoice_name), user: l(:label_user), date: l(:label_date), hour: l(:field_hours) }
 
 		materialEntries = WkInvoiceItem.getGenerateEntries(todate.to_date, fromDate.to_date, parent_id, parent_type, params[:projectID], WkMaterialEntry, "wk_material_entries")
 		data2 = materialEntries.map{|e| {id: e.id, acc_name: (e&.name || e&.c_name), project: e&.project&.name, issue: e.issue.to_s, spent_on: e.spent_on, product: e.inventory_item&.product_item&.product&.name, selling_price: e.currency.to_s+" "+e.selling_price.to_s, quantity: e.quantity }}
-		listHeader2 = { acc_cont_name: l(:field_account), project_name: l(:label_project), issue: l(:label_invoice_name), date: l(:label_date), product_name: l(:field_inventory_item_id), selling_price: l(:label_selling_price), quantity: l(:field_quantity)}
+		listHeader2 = { acc_cont_name: l(:field_account), project_name: l(:label_project), issue: l(:label_invoice_name), date: l(:label_date), product_name: l(:label_product), selling_price: l(:label_selling_price), quantity: l(:field_quantity)}
 
 		schudleEntries = WkInvoiceItem.getFcItems(invIntervals[0][0].to_date, todate.to_date, params[:projectID], parent_id, parent_type)
 		data3 = schudleEntries.map{|e| { acc_name: (e&.name || e&.c_name), project: e&.project&.name, issue: e&.milestone.to_s, spent_on: e.bill_date, amount: e&.currency+" "+e&.amount.to_s}}

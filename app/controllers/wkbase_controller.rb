@@ -259,7 +259,7 @@ class WkbaseController < ApplicationController
 
 	def findSumBySql(query, sumfield, model)
 		result = model.find_by_sql("select sum("+sumfield+") as total " + query)
-		return result.blank? ? 0 : result[0].total
+		return result.blank? ? 0 : result[0].total&.round(2)
 	end
 
 	def set_filter_session(filters, filterParams={})
@@ -354,5 +354,20 @@ class WkbaseController < ApplicationController
 		pdf = ITCPDF.new(current_language)
 		pdf.add_page
 		pdf
+	end
+
+	def getWkuserData()
+		data = WkUser.decrypt_user_credentials(params[:userID], params[:columnName])
+		render json: {data: data, title: params[:title]}
+	end
+
+	def updateWkuserData
+		data = WkUser.updateWkUser(params[:userID], params[:columnName], params[:value])
+		render json: {data: data}
+	end
+
+	def updateWkuserVal
+		data = WkUser.showEncryptdData(params[:userID], params[:columnName])
+		render json: {data: data}
 	end
 end

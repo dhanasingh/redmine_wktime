@@ -28,7 +28,7 @@
 		<table>
 			<% if validateERPPermission("V_INV") || validateERPPermission("D_INV") %>
 				<tr>
-					<th align="right" ><%= l(:field_inventory_item_id) %></th>
+					<th align="right" ><%= l(:label_product) %></th>
 					<td align="left">
 						<%=h select_tag('product_id', options_for_select(productArr, :selected => (productId.blank? ? productArr : productId) ), :style => "width:155px;", :onchange => "productAssetChanged(this.id, 'inventory_item_id', #{User.current.id}, true); ") %>
 					</td>

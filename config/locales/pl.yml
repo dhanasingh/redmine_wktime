@@ -700,7 +700,7 @@ pl:
   label_depreciation_ledger: Obniżenie wartości rejestru
   label_depreciation_type: Obniżenie wartości typu
   label_depreciation_frequency: Częstotliwość obniżenia wartości
-  field_inventory_item_id: Produkt
+  field_inventory_item_id: Product Items
   label_current_asset_value: Aktualna wartość kapitału
   label_asset_type: Typ kapitału
   label_rate_per: Stawka za
@@ -1238,3 +1238,4 @@ pl:
   field_retirement_account: Retirement Account
   label_expenses: Expenses
   label_admin_dashboards: Admin Dashboards
+  label_product: Produkt

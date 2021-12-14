@@ -28,11 +28,9 @@ module QueriesHelper
 		  link_to_if(value > 0, format_hours(value), project_time_entries_path(item.project, :issue_id => "~#{item.id}"))
 		when :attachments
 		  value.to_a.map {|a| format_object(a)}.join(" ").html_safe
-	# ============= ERPmine_patch Redmine 4.2  =====================	  
+	# ============= ERPmine_patch Redmine 4.2  =====================
 		when :inventory_item_id
-			val = item.inventory_item.product_item.product.name
-			assetObj = item.inventory_item.asset_property
-			value = assetObj.blank? ? val : val + ' - ' + assetObj.name
+			formProductItem(item)
 		when :selling_price
 			val = item.selling_price * item.quantity
 			value = val.blank? ? 0.00 : ("%.2f" % val)
@@ -45,11 +43,11 @@ module QueriesHelper
 			value = item.apartment.blank? ? "" : item.apartment.asset_property.name
 		when :bed_id
 			value = item.bed.blank? ? "" : item.bed.asset_property.name
-   # =============================		
+   # =============================
 		else
 		  format_object(value)
 		end
-	end		
+	end
 
 	def render_query_totals(query)
 		return unless query.totalable_columns.present?
@@ -66,4 +64,31 @@ module QueriesHelper
 		content_tag('p', totals.join(" ").html_safe, :class => "query-totals")
 	end
 
+	def query_to_csv(items, query, options={})
+    columns = query.columns
+
+    Redmine::Export::CSV.generate(:encoding => params[:encoding]) do |csv|
+      # csv header fields
+      csv << columns.map {|c| c.caption.to_s}
+      # csv lines
+      items.each do |item|
+        csv << columns.map {|c| [:inventory_item_id].include?(c.name) ? wk_csv_content(item) : csv_content(c, item)}
+      end
+    end
+  end
+
+	def wk_csv_content(item)
+		formProductItem(item)
+	end
+
+	def formProductItem(item)
+		brandName = item.inventory_item&.product_item&.brand.blank? ? "" : item.inventory_item&.product_item&.brand&.name
+		modelName = item.inventory_item&.product_item&.product_model.blank? ? "" : item.inventory_item&.product_item&.product_model&.name
+		serialNo = item.inventory_item&.serial_number.blank? ? "" : item.inventory_item&.serial_number&.to_s
+		runSerialNo = item.inventory_item&.running_sn.blank? ? "" : item.inventory_item&.running_sn&.to_s
+		val = item.inventory_item.product_item.product.name
+		product_items = "#{brandName} - #{modelName} - #{serialNo + runSerialNo}"
+		assetObj = item.inventory_item.asset_property
+		value = assetObj.blank? ? val+' - '+product_items : val +' - '+ assetObj.name
+	end
 end

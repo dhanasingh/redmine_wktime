@@ -56,7 +56,7 @@ module ReportAsset
   def getExportData(user_id, group_id, projId, from, to)
     data = {headers: {}, data: []}
     reportData = calcReportData(user_id, group_id, projId, from, to)
-    data[:headers] = {s_no: '#', project_name: l(:label_project), asset_name: l(:label_asset) + " " + l(:field_name), product_name: l(:field_inventory_item_id), shipment_date: l(:label_purchase_date), purchase_value: l(:label_purchase_value), depreciation: l(:label_depreciation), current_value: l(:label_current_value), last_depreciation: l(:label_last_depreciation_on)}
+    data[:headers] = {s_no: '#', project_name: l(:label_project), asset_name: l(:label_asset) + " " + l(:field_name), product_name: l(:label_product), shipment_date: l(:label_purchase_date), purchase_value: l(:label_purchase_value), depreciation: l(:label_depreciation), current_value: l(:label_current_value), last_depreciation: l(:label_last_depreciation_on)}
     reportData[:asset].each do |key, val|
       data[:data] << val
     end

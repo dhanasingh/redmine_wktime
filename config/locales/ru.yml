@@ -33,59 +33,59 @@ ru:
   label_wk_reject_reason: Причина отказа
   label_wk_account_groups: Группа администраторов раздела Время & Расходы
 
-  label_wk_enter_issue_As: Enter Issue As
+  label_wk_enter_issue_As: Введите номер задачи
   label_wk_enter_issue_Description: Enter issue as Subject
   label_wk_own_approve: "Approver Can Approve their own %{value}"
   label_wk_reject_timesheet: Rejected Time Sheet
-  label_wk_reject_expense: Rejected expense
+  label_wk_reject_expense: Отменённые расходы
   label_wk_submittedon: Submitted on
-  label_wk_rejectedby: Rejected by
-  label_wk_rejectedon: Rejected on
+  label_wk_rejectedby: Отменил(а)
+  label_wk_rejectedon: Отменено
   label_wk_timesheet_reject: Your time sheet has been rejected
-  label_wk_expense_reject: Your expense has been rejected
-  label_wk_previous_template_week: Number of Weeks to consider for previous week template
-  label_wk_dropdown: Dropdown
+  label_wk_expense_reject: Ваши затраты были отклонены
+  label_wk_previous_template_week: Количество недель, которые следует учитывать для шаблона предыдущей недели
+  label_wk_dropdown: Выпадающий
   label_wk_issueid: Issue ID
-  label_start: Start
-  label_end: End
-  label_remaining_hours: Remaining Hours
+  label_start: Начало
+  label_end: Конец
+  label_remaining_hours: Оставшиеся часы
   label_warning_wktime_time_entry: "The timesheet for this period is locked, you cannot log time."
   label_warning_wktime_issue_tracker: "The tracker of this issue is not allowed for time logging."
 
-  label_wk_first_day_of_week: First day of week
-  label_wk_prev_week_tip: Previous Week
-  label_wkexpense: Expense
-  label_te: Time & Expense
-  label_ta: Time & Attendance
-  label_wk_allow_user_filter_tracker: Allow User Filtering by Tracker
-  label_wk_filter_issue_tracker: Filter Issue by Tracker
-  label_wk_time: Weekly Time
-  label_total_expense: Total Expense
+  label_wk_first_day_of_week: Первый день недели
+  label_wk_prev_week_tip: Предыдущая неделя
+  label_wkexpense: Затраты
+  label_te: Время и затраты
+  label_ta: Время и посещаемость
+  label_wk_allow_user_filter_tracker: Разрешить пользователю фильтровать задачи по трекеру
+  label_wk_filter_issue_tracker: Фильтровать задачи по трекеру
+  label_wk_time: Время за неделю
+  label_total_expense: Всего затрат
 
-  label_wkexpense_reports: Expense Report
+  label_wkexpense_reports: Отчёт по затратам
   label_spent_expense: Spent Expense
   label_wk_submission_deadline: Submission Deadline
   label_wk_nonsub_mail_subject: Non submission time notification
   label_wk_nonsub_mail_notification: Send email for non submission
   label_wk_nonsub_mail_message: Non submission email message
   label_redmine_restart_warning: "Note: Any change to the below scheduler settings require redmine restart"
-  label_wk_minutes: Minutes
+  label_wk_minutes: Минуты
   label_wkexpense_entry_projects: Restrict Expense Entry to these projects
 
-  label_wk_public_holiday: Public Holidays
-  label_wk_description: Description
-  label_wk_date_exists: This date already exists
-  label_wk_select_holiday: Please select a holiday
+  label_wk_public_holiday: Праздничные дни
+  label_wk_description: Описание
+  label_wk_date_exists: Эта дата уже существует
+  label_wk_select_holiday: Пожалуйста, укажите праздничный день
 
   button_new_wktime: New Timesheet
-  button_continue: Continue
-  button_add_row: Add Row
+  button_continue: Продолжить
+  button_add_row: Добавить строку
   button_new_wkexpense: New Expensesheet
 
   button_wk_unsubmit: Unsubmit
-  button_save_continue: Save and continue
-  button_wk_approve: Approve
-  button_wk_reject: Reject
+  button_save_continue: Сохранить и продолжить
+  button_wk_approve: Одобрить
+  button_wk_reject: Отменить
   button_wk_unapprove: Unapprove
   chkbox_prev_tmpl: Previous Week's Template
   chkbox_closed_issues: Include Previous Weeks' Closed Issues
@@ -94,9 +94,9 @@ ru:
   error_wktime_save_nothing: Nothing to Save
   error_not_permitted_save: Not permitted to Save
 
-  wk_status_empty: Empty
+  wk_status_empty: Пусто
   wk_status_submitted: Submitted
-  wk_status_approved: Approved
+  wk_status_approved: Одобрено
 
   text_start_of_week_confirmation: "Are you Sure? Status will be lost on the previously submitted %{value}"
   text_wk_warning_min_hour: "You have not entered the Minimum hours (%{value}) required per day"
@@ -699,7 +699,7 @@ ru:
   label_depreciation_ledger: Depreciation Ledger
   label_depreciation_type: Depreciation Type
   label_depreciation_frequency: Depreciation Frequency
-  field_inventory_item_id: Product
+  field_inventory_item_id: Product Items
   label_current_asset_value: Current Asset Value
   label_asset_type: Asset Type
   label_rate_per: Rate Per
@@ -725,7 +725,7 @@ ru:
   label_dep_auto_apply: Auto Apply Depreciation
   label_done: Done
   label_log: Log
-  label_owner: Owner
+  label_owner: Владелец
   error_transfer_qty_greater_than_zero: Transfer Quantity Should be greater than zero
   error_avail_qty_great_than_trans_qty: Transfer Quantity should be less than or equal to Available Quantity
   label_per: per
@@ -1167,8 +1167,8 @@ ru:
   label_lead_generation: Lead generation vs conversion
   label_invoice_payment: Invoice vs Payment
   label_profit_loss: Profit and loss
-  label_added: Added
-  label_deleted: Deleted
+  label_added: Добавлено
+  label_deleted: Удалено
   warn_issuelog_exist: "You have to stop all issue Logs in the week"
   label_select_time_entries: Select Time Entries
   label_account_number: Account Number
@@ -1210,7 +1210,7 @@ ru:
   button_csv: CSV
   button_pdf: PDF
 
-  label_send_email_notifications: Send Email Notifications
+  label_send_email_notifications: Отправлять уведомления на e-mail
   label_include_expense: Include Expense
   label_select_entries: Select the Entries
   label_select_material_entries: Select Material Entries
@@ -1219,5 +1219,6 @@ ru:
   label_period_end_process: Auto Run Period End Process
   label_delivery_items: Delivery Items
   field_retirement_account: Retirement Account
-  label_expenses: Expenses
+  label_expenses: Затраты
   label_admin_dashboards: Admin Dashboards
+  label_product: Product

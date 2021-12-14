@@ -674,7 +674,7 @@ end
 			   ]
 		else
 			tabs = [
-				{name: 'wkproduct', partial: 'wktime/tab_content', label: :field_inventory_item_id},
+				{name: 'wkproduct', partial: 'wktime/tab_content', label: :label_product},
 				{name: 'wkproductitem', partial: 'wktime/tab_content', label: :label_item},
 				{name: 'wkshipment', partial: 'wktime/tab_content', label: :label_shipment},
 				{name: 'wkdelivery', partial: 'wktime/tab_content', label: :label_delivery},

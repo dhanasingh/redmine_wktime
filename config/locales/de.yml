@@ -697,7 +697,7 @@ de:
   label_depreciation_ledger: Abschreibungskonto
   label_depreciation_type: Abschreibungsart
   label_depreciation_frequency: Abschreibungsintervall
-  field_inventory_item_id: Produkt
+  field_inventory_item_id: Product Items
   label_current_asset_value: Wert des Umlaufvermögens
   label_asset_type: Anlageart
   label_rate_per: Rate Per
@@ -1217,3 +1217,4 @@ de:
   field_retirement_account: Rentenkonto
   label_expenses: Kosten
   label_admin_dashboards: Admin Dashboards
+  label_product: Produkt

@@ -29,10 +29,15 @@ api.user do
     api.custom_date1 @user&.erpmineuser&.custom_date1
     api.custom_date2 @user&.erpmineuser&.custom_date2
     api.bank_name @user&.erpmineuser&.bank_name
-    api.account_number @user&.erpmineuser&.account_number
+    api.account_number WkUser.decrypt_user_credentials(@user&.id, 'account_number')
     api.bank_code @user&.erpmineuser&.bank_code
-    api.tax_id @user&.erpmineuser&.tax_id
-    api.ss_id @user&.erpmineuser&.ss_id
+    api.tax_id WkUser.decrypt_user_credentials(@user&.id, 'tax_id')
+    api.ss_id WkUser.decrypt_user_credentials(@user&.id, 'ss_id')
+    api.retirement_account WkUser.decrypt_user_credentials(@user&.id, 'retirement_account')
+    api.encrypt_tax_id WkUser.showEncryptdData(@user&.id, 'tax_id')
+    api.encrypt_ss_id WkUser.showEncryptdData(@user&.id, 'ss_id')
+    api.encrypt_retirement_account WkUser.showEncryptdData(@user&.id, 'retirement_account')
+    api.encrypt_account_number WkUser.showEncryptdData(@user&.id, 'account_number')
     api.id1 @user&.erpmineuser&.id1
     api.id2 @user&.erpmineuser&.id2
     api.id3 @user&.erpmineuser&.id3

@@ -133,7 +133,7 @@ function getAxes(autoSkip, label, isNonPiechart, data){
         maxRotation: 0,
         minRotation: 0,
         maxTicksLimit: label == "yTitle" ? 8 : 24,
-        suggestedMax: label == "yTitle" ? data.data1.at(-1)*1.10 : 0
+        suggestedMax: label == "yTitle" ? (data.data1.at ? data.data1.at(-1)*1.10 : 0) : 0
       },
       scaleLabel: {
         display: isNonPiechart,

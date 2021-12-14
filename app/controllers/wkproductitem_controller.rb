@@ -211,7 +211,7 @@ class WkproductitemController < WkinventoryController
 				if errorMsg.blank?
 					render :plain => errorMsg, :layout => nil
 				else
-					@error_messages = errorMsg.split('\n')	
+					@error_messages = errorMsg.split('\n')
 					render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
 				end
 			}
@@ -389,7 +389,7 @@ class WkproductitemController < WkinventoryController
 			}
 		end
 		listHeader = {
-			project_name: l(:label_project), issue: l(:label_issue), product_name: l(:field_inventory_item_id), brand_name: l(:label_brand), product_model_name: l(:label_model), serial_no: l(:label_serial_number),
+			project_name: l(:label_project), issue: l(:label_issue), product_name: l(:label_product), brand_name: l(:label_brand), product_model_name: l(:label_model), serial_no: l(:label_serial_number),
 			currency: l(:field_currency), selling_price: l(:label_selling_price), quantity: l(:field_quantity)}
 		render json: {data: data, header: listHeader}
 	end
@@ -453,7 +453,7 @@ class WkproductitemController < WkinventoryController
 	end
 
 	def getIventoryListHeader
-		headerHash = { 'project_name' => l(:label_project), 'product_name' => l(:field_inventory_item_id), 'brand_name' => l(:label_brand), 'product_model_name' => l(:label_model), 'product_attribute_name' => l(:label_attribute), 'serial_number' => l(:label_serial_number), 'currency' => l(:field_currency), 'selling_price' => l(:label_selling_price), 'total_quantity' => l(:label_total_quantity), 'available_quantity' => l(:label_available_quantity), 'uom_short_desc' => l(:label_uom), 'location_name' => l(:label_location) }
+		headerHash = { 'project_name' => l(:label_project), 'product_name' => l(:label_product), 'brand_name' => l(:label_brand), 'product_model_name' => l(:label_model), 'product_attribute_name' => l(:label_attribute), 'serial_number' => l(:label_serial_number), 'currency' => l(:field_currency), 'selling_price' => l(:label_selling_price), 'total_quantity' => l(:label_total_quantity), 'available_quantity' => l(:label_available_quantity), 'uom_short_desc' => l(:label_uom), 'location_name' => l(:label_location) }
 	end
 
 	def showProductItem
@@ -477,7 +477,7 @@ class WkproductitemController < WkinventoryController
 	end
 
 	def getCsvData(entries)
-		data = entries.map{|entry| {project_name: entry['project_name'] || '', product_name: entry['product_name'] || '', brand_name: entry['brand_name'] || '', product_model_name: entry['product_model_name'] || '', product_attribute_name: entry['product_attribute_name'] || '', serial_number: entry['serial_number'] || '', currency: entry['currency'] || '', selling_price: entry['selling_price'] || '', total_quantity: entry['total_quantity'] || '', available_quantity: entry['available_quantity'] || '', uom_short_desc: entry['uom_short_desc'] || '', location_name: entry['location_name'] || ''} 
+		data = entries.map{|entry| {project_name: entry['project_name'] || '', product_name: entry['product_name'] || '', brand_name: entry['brand_name'] || '', product_model_name: entry['product_model_name'] || '', product_attribute_name: entry['product_attribute_name'] || '', serial_number: entry['serial_number'] || '', currency: entry['currency'] || '', selling_price: entry['selling_price'] || '', total_quantity: entry['total_quantity'] || '', available_quantity: entry['available_quantity'] || '', uom_short_desc: entry['uom_short_desc'] || '', location_name: entry['location_name'] || ''}
 		}
 	end
 end

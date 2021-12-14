@@ -56,12 +56,12 @@ class WkassetdepreciationController < WkassetController
 					sqlwhere = sqlwhere + " dep.inventory_item_id = '#{assetId}'  "
 				end
 			end
-			
-			if !@from.blank? && !@to.blank?			
+
+			if !@from.blank? && !@to.blank?
 				sqlwhere = sqlwhere + " and "  unless sqlwhere.blank?
 				sqlwhere = sqlwhere + " dep.depreciation_date between '#{@from}' and '#{@to}'  "
 			end
-			
+
 			unless sqlwhere.blank?
 				sqlStr = sqlStr + " WHERE " + sqlwhere
 			end
@@ -72,16 +72,16 @@ class WkassetdepreciationController < WkassetController
 				}
 				format.csv{
 					entries = WkAssetDepreciation.find_by_sql(selectStr + sqlStr + orderStr)
-					headers = {asset_name: l(:label_asset), product_name: l(:field_inventory_item_id), purchase_date: l(:label_purchase_date), purchase_value: l(:label_purchase_value), previous_value: l(:label_previous_value), depreciation_date: l(:label_depreciation_date), depreciation: l(:label_depreciation), current_value: l(:label_current_value
+					headers = {asset_name: l(:label_asset), product_name: l(:label_product), purchase_date: l(:label_purchase_date), purchase_value: l(:label_purchase_value), previous_value: l(:label_previous_value), depreciation_date: l(:label_depreciation_date), depreciation: l(:label_depreciation), current_value: l(:label_current_value
 						) }
-					data = entries.map{|entry| {asset_name: entry.asset_name, product_name: entry.product_name, purchase_date: entry.purchase_date, purchase_value: (entry.cost_price.to_f + entry.over_head_price.to_f).round(2), previous_value: entry.actual_amount.round(2), depreciation_date: entry.depreciation_date, depreciation: entry.depreciation_amount.to_f.round(2) || '', current_value: (entry.actual_amount.to_f - entry.depreciation_amount.to_f).round(2) } 
+					data = entries.map{|entry| {asset_name: entry.asset_name, product_name: entry.product_name, purchase_date: entry.purchase_date, purchase_value: (entry.cost_price.to_f + entry.over_head_price.to_f).round(2), previous_value: entry.actual_amount.round(2), depreciation_date: entry.depreciation_date, depreciation: entry.depreciation_amount.to_f.round(2) || '', current_value: (entry.actual_amount.to_f - entry.depreciation_amount.to_f).round(2) }
 							}
 					send_data(csv_export(headers: headers, data: data), type: "text/csv; header=present", filename: "assetdepreciation.csv")
 				}
 			end
 		end
 	end
-	
+
 	def getDepreciationSql
 		sqlStr = " from wk_asset_depreciations dep LEFT OUTER JOIN wk_inventory_items iit ON iit.id = dep.inventory_item_id LEFT OUTER JOIN wk_shipments s ON s.id = iit.shipment_id LEFT OUTER JOIN wk_asset_properties ap ON ap.inventory_item_id = iit.id LEFT OUTER JOIN wk_product_items pit ON pit.id = iit.product_item_id LEFT OUTER JOIN wk_products p ON p.id = pit.product_id"
 		sqlStr
@@ -92,7 +92,7 @@ class WkassetdepreciationController < WkassetController
 	def edit
 		depreciationId = params[:depreciation_id]
 		unless depreciationId.blank?
-			@depreciation = WkAssetDepreciation.find(depreciationId) 
+			@depreciation = WkAssetDepreciation.find(depreciationId)
 			@asset = @depreciation.inventory_item
 		end
 		if to_boolean(params[:new_depreciation])
@@ -110,8 +110,8 @@ class WkassetdepreciationController < WkassetController
 		end
 		render :action => 'edit'
 	end
-	
-	def update	
+
+	def update
 		if params[:depreciation_id].blank?
 		  depreciation = WkAssetDepreciation.new
 		else
@@ -139,7 +139,7 @@ class WkassetdepreciationController < WkassetController
 		    flash[:error] = depreciation.errors.full_messages.join("<br>")
 		end
     end
-	
+
 	def destroy
 		depreciation = WkAssetDepreciation.find(params[:depreciation_id])
 		if depreciation.destroy
@@ -154,7 +154,7 @@ class WkassetdepreciationController < WkassetController
 		filters = [:product_id, :inventory_item_id, :period_type, :period, :from, :to]
 		super(filters, {:from => @from, :to => @to})
 	end
-   
+
     # Retrieves the date range based on predefined ranges or specific from/to param dates
 	def retrieve_date_range
 		@free_period = false
@@ -163,8 +163,8 @@ class WkassetdepreciationController < WkassetController
 		period = session[controller_name].try(:[], :period)
 		fromdate = session[controller_name].try(:[], :from)
 		todate = session[controller_name].try(:[], :to)
-		
-		if (period_type == '1' || (period_type.nil? && !period.nil?)) 
+
+		if (period_type == '1' || (period_type.nil? && !period.nil?))
 		    case period.to_s
 			  when 'today'
 				@from = @to = Date.today
@@ -198,15 +198,15 @@ class WkassetdepreciationController < WkassetController
 		    @free_period = true
 		else
 		  # default
-		  # 'current_month'		
+		  # 'current_month'
 			@from = Date.civil(Date.today.year, Date.today.month, 1)
 			@to = (@from >> 1) - 1
-	    end    
-		
+	    end
+
 		@from, @to = @to, @from if @from && @to && @from > @to
 
 	end
-	
+
 	def applyDepreciation(startDate, endDate, productId, assetId)
 		assetIdArr = nil
 		if assetId.blank? && !productId.blank?
@@ -216,16 +216,16 @@ class WkassetdepreciationController < WkassetController
 		end
 		depreciationArr = previewOrSaveDepreciation(startDate, endDate, assetIdArr, false)
 		errorMsg = depreciationArr[0]
-		if errorMsg.blank?	
+		if errorMsg.blank?
 			redirect_to :controller => 'wkassetdepreciation', :action => 'index' , :tab => 'wkassetdepreciation'
 			flash[:notice] = l(:notice_successful_update)
 		else
 			redirect_to :controller => 'wkassetdepreciation', :action => 'index', :tab => 'wkassetdepreciation'
 		    flash[:error] = errorMsg
-		end	
+		end
 	end
-	
-	def getInventoryAssetItems(productId, productType, needBlank, newDepr = false)	
+
+	def getInventoryAssetItems(productId, productType, needBlank, newDepr = false)
 		assetItems = WkInventoryItem.joins(:product_item, :asset_property).where("product_type = ?", productType)
 		assetItems = assetItems.where(" wk_product_items.product_id = ?", productId) unless productId.blank?
 		assetItems = assetItems.where(" is_disposed != ? OR is_disposed is NULL", true) if newDepr
@@ -234,7 +234,7 @@ class WkassetdepreciationController < WkassetController
 		assetItems
 	end
 
-	def setLimitAndOffset		
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -247,21 +247,21 @@ class WkassetdepreciationController < WkassetController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
+		end
 	end
-	
+
 	def findBySql(selectStr, query, orderStr)
 		@entry_count = findCountBySql(query, WkAssetDepreciation)
-		setLimitAndOffset()		
+		setLimitAndOffset()
 		rangeStr = formPaginationCondition()
 		@depreciation_entries = WkAssetDepreciation.find_by_sql(selectStr + query + orderStr + rangeStr)
 	end
-	
+
 	def formPaginationCondition
 		rangeStr = ""
-		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'				
+		if ActiveRecord::Base.connection.adapter_name == 'SQLServer'
 			rangeStr = " OFFSET " + @offset.to_s + " ROWS FETCH NEXT " + @limit.to_s + " ROWS ONLY "
-		else		
+		else
 			rangeStr = " LIMIT " + @limit.to_s +	" OFFSET " + @offset.to_s
 		end
 		rangeStr

@@ -700,7 +700,7 @@ fr:
   label_depreciation_ledger: Depreciation Ledger
   label_depreciation_type: Depreciation Type
   label_depreciation_frequency: Depreciation Frequency
-  field_inventory_item_id: Product
+  field_inventory_item_id: Product Items
   label_current_asset_value: Current Asset Value
   label_asset_type: Asset Type
   label_rate_per: Rate Per
@@ -1223,3 +1223,4 @@ fr:
   field_retirement_account: Retirement Account
   label_expenses: Expenses
   label_admin_dashboards: Admin Dashboards
+  label_product: Product

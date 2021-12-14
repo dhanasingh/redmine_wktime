@@ -503,7 +503,7 @@ class WkattendanceController < WkbaseController
 				entry_start_time = DateTime.strptime(starttime, "%Y-%m-%d %T") rescue starttime
 				endtime = params[:startdate].to_date.to_s + " " +  params["attnendtime#{i}"] + ":00" if !params["attnendtime#{i}"].blank?
 				entry_end_time = DateTime.strptime(endtime, "%Y-%m-%d %T") rescue endtime
-				if params["attnstarttime#{i}"] == '00:00' && params["attnendtime#{i}"] == '00:00'
+				if (params["attnstarttime#{i}"] == '00:00' || params["attnstarttime#{i}"] == '0:00') && (params["attnendtime#{i}"] == '00:00' || params["attnendtime#{i}"] == '0:00')
 					wkattendance =  WkAttendance.find(params["attnEntriesId#{i}"].to_i)	if !params["attnEntriesId#{i}"].blank?
 					wkattendance.destroy()
 					sucessMsg = l(:notice_successful_delete)
@@ -565,7 +565,7 @@ class WkattendanceController < WkbaseController
 				startTime = getFormatedTimeEntry(start_time)
 				endTime = getFormatedTimeEntry(end_time)
 				begin
-					if params["clockin_" + key] == '00:00' && params["clockout_" + key] == '00:00' && attnd_id.present?
+					if (params["clockin_" + key] == '0:00' || params["clockin_" + key] == '00:00') && (params["clockout_" + key] == '0:00' || params["clockout_" + key] == '00:00') && attnd_id.present?
 						wkattendance =  WkAttendance.find(attnd_id.to_i)
 						wkattendance.destroy()
 					elsif attnd_id.present?

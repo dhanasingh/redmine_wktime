@@ -1058,7 +1058,7 @@ ta-IN:
   label_approve_reimbursement: Include only approved Reimbursement
   warn_survey_mandatory: கட்டாய கேள்விகளுக்கு பதிலளிக்க வேண்டும்
   warn_survey_submit: "கணக்கெடுப்பை சமர்ப்பிக்க விரும்புகிறீர்களா?நீங்கள் சமர்ப்பித்ததும், நீங்கள் மீண்டும் திருத்த முடியாது"
-  field_inventory_item_id: தயாரிப்பு
+  field_inventory_item_id: Product Items
   field_quantity: அளவு
   label_interest_level: ஆர்வ நிலை
   label_min_exp_req: தேவையான அனுபவம்
@@ -1124,3 +1124,4 @@ ta-IN:
   field_retirement_account: Retirement Account
   label_expenses: Expenses
   label_admin_dashboards: Admin Dashboards
+  label_product: தயாரிப்பு

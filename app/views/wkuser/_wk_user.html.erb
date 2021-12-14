@@ -47,11 +47,39 @@
 			<p><%= user_fields.check_box :is_schedulable, :disabled => disable %></p>
 			<p><%= user_fields.select :shift_id, shiftArr, {}, :disabled => disable %></p>
 			<p><%= user_fields.text_field :bank_name, :disabled => disable %></p>
-			<p><%= user_fields.text_field :account_number,  :disabled => disable %></p>
+			<% if !@user&.id&.present? %>
+				<p><%= user_fields.text_field :account_number, :disabled => disable %></p>
+			<% else %>
+				<p>
+					<%= user_fields.text_field :account_number, :value => @user.erpmineuser&.account_number.present? ? WkUser.showEncryptdData(@user&.id, 'account_number') : '', :disabled => true %>
+					<%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript: showDetails('#{@user&.id}', '#{'account_number'}', '#{l(:label_account_number)}', #{disable});" %>
+				</p>
+			<% end %>
 			<p><%= user_fields.text_field :bank_code, :disabled => disable %></p>
-			<p><%= user_fields.text_field :tax_id, :disabled => disable %></p>
-			<p><%= user_fields.text_field :ss_id, :disabled => disable %></p>
-			<p><%= user_fields.text_field :retirement_account, :disabled => disable %></p>
+			<% if !@user&.id&.present? %>
+				<p><%= user_fields.text_field :tax_id, :disabled => disable %></p>
+			<% else %>
+				<p>
+					<%= user_fields.text_field :tax_id, :value => @user.erpmineuser&.tax_id.present? ? WkUser.showEncryptdData(@user&.id, 'tax_id') : '', :disabled => true %>
+					<%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript: showDetails('#{@user&.id}', '#{'tax_id'}', '#{l(:field_tax)}', #{disable});"%>
+				</p>
+			<% end %>
+			<% if !@user&.id&.present? %>
+				<p><%= user_fields.text_field :ss_id, :disabled => disable %></p>
+			<% else %>
+				<p>
+					<%= user_fields.text_field :ss_id, :value => @user.erpmineuser&.ss_id.present? ? WkUser.showEncryptdData(@user&.id, 'ss_id') : '', :disabled => true %>
+					<%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript: showDetails('#{@user&.id}', '#{'ss_id'}',  '#{l(:field_ss)}', #{disable});" %>
+				</p>
+			<% end %>
+			<% if !@user&.id&.present? %>
+				<p><%= user_fields.text_field :retirement_account, :disabled => disable %></p>
+			<% else %>
+				<p>
+					<%= user_fields.text_field :retirement_account, :value => @user.erpmineuser&.retirement_account.present? ? WkUser.showEncryptdData(@user&.id, 'retirement_account') : '', :disabled => true %>
+					<%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript: showDetails('#{@user&.id}', '#{'retirement_account'}', '#{l(:field_retirement_account)}', #{disable});" %>
+				</p>
+			<% end %>
 			<p><%= user_fields.text_field :id1, :disabled => disable %></p>
 			<p><%= user_fields.text_field :id2, :disabled => disable %></p>
 			<p><%= user_fields.text_field :id3, :disabled => disable %></p>
@@ -65,3 +93,5 @@
 	</fieldset>
 </div>
 <% end %>
+
+<div id="user-dlg"></div>

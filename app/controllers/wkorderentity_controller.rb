@@ -697,9 +697,9 @@ class WkorderentityController < WkbillingController
 		pdf.RDMCell(columnWidth, 5, '', 0, 0, 'L')
 		pdf.set_fill_color(230, 230, 230)
 		pdf.RDMCell(columnWidth, 5, label, 1, 0, 'C',1)
-		pdf.RDMCell(columnWidth, 5, invoice.sum(:quantity).to_s, 1, 0, 'R',1)
+		pdf.RDMCell(columnWidth, 5, invoice.sum(:quantity).round(2).to_s, 1, 0, 'R',1)
 		pdf.RDMCell(columnWidth, 5, invoice.first.original_currency.to_s, 1, 0, 'R',1)
-		pdf.RDMCell(columnWidth, 5, invoice.sum(:original_amount).to_s, 1, 0, 'R',1)
+		pdf.RDMCell(columnWidth, 5, invoice.sum(:original_amount).round(2).to_s, 1, 0, 'R',1)
 		pdf.set_fill_color(255, 255, 255)
 	end
 
