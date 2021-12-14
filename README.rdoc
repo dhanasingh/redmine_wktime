@@ -90,30 +90,14 @@ If an apache passenger module is used then make sure the following settings are 
   b) RailsAppSpawnerIdleTime 0
   c) PassengerPreStart https://rails-app-url/
 
-Release Notes for v4.4
+Release Notes for v4.4.1
 
   Features:
-    - Delivery feature
-    - Expense invoice feature
-    - Employee dashboard
-    - Enrich dashboard
-    - CSV and PDF export for All Reports
-    - Delivery slip
-    - PF Report
-    - Leaves and Holiday
-    - CSV for detail page
-    - Inventory item Transfer
+    - Encrypt user fields
 
   Bug fixes:
-    - Duplicate Clockin count in dashboard chart
-    - Hide quantity detail popup for Fixed cost
-    - Remove Material and assest cumulative total in spent time
-    - Rename email label to Email Notifications
-    - Accordion section icon not visible
-    - Move supervisor config to time & expense tab
-    - Remove space left over in the filter on list pages
-    - Need to correct Invoice vs payment chart in the dashboard
-    - Add rating field and Increase character size for Description field
+    - Sort product item on spent time
+    - Changed product to product items on spent time
 
 Customization:
 
