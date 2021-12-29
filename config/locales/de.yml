@@ -390,8 +390,8 @@ de:
   label_transaction: Transaktion
   label_transaction_type: Transaktionsart
   label_transaction_date: Transaktionsdatum
-  label_ledger: Hauptbuch
-  label_ledger_information: Hauptbuchinformationen
+  label_ledger: Buchungskonto
+  label_ledger_information: Konteninformationen
   label_accounting_admin: Buchhaltungsadministrationsgruppe
   label_bank_ac: Bankkonten
   label_bank_occ_ac: Bank OCC A/c
@@ -560,7 +560,7 @@ de:
 
   label_enable_time_module: Zeitmodul aktivieren
 
-  label_payments: Zahlungen
+  label_payments: Zahlung
   label_payment_date: Zahlungsdatum
   label_payment_type: Zahlungsart
   label_reference_number: Referenznummer
@@ -634,13 +634,13 @@ de:
   label_inventory_admin_group: Inventar-Verwaltungsgruppe
   label_inventory_user_group: Inventar-Benutzergruppe
   label_enable_inventory_module: Inventar Modul aktivieren
-  label_hr: HR
-  label_shipment: Receipt
+  label_hr: Personalwesen
+  label_shipment: Wareneingang
   label_uom: Maßeinheit
   label_item: Artikel
-  label_new_shipment: New Receipt
-  label_shipment_items: Receipt Items
-  label_shipment_date: Receipt Date
+  label_new_shipment: Neuer Wareneingang
+  label_shipment_items: Eingelieferte Waren
+  label_shipment_date: Eingangsdatum
   label_serial_number: Seriennummer
   label_material: Material
   label_cost_price: Einkaufspreis
@@ -1070,7 +1070,7 @@ de:
   label_lead_info: Lead Information
   label_more_info: Weitere Informationen
   label_select_leadsource: Hauptquelle wählen
-  label_clock: Uhr
+  label_clock: Zeitnachweise
   label_select_spent_for: Ausgabenziel wählen
   label_select_project: Projekt wählen
   label_select_issue: Ticket wählen
@@ -1196,13 +1196,13 @@ de:
   label_contribution_remitted: Beitrag überwiesen
 
   #delivery
-  label_delivery: Lieferung
-  label_delivery_date: Lieferdatum
-  label_new_delivery: Neue Lieferung
-  label_delivered: Geliefert
+  label_delivery: Auslieferung
+  label_delivery_date: Auslieferdatum
+  label_new_delivery: Neue Auslieferung
+  label_delivered: Ausgeliefert
   label_intransit: Unterwegs
   label_load: Beladung
-  label_delivery_slip: Lieferschein
+  label_delivery_slip: Auslieferschein
   button_csv: CSV
   button_pdf: PDF
 
