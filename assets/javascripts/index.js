@@ -141,6 +141,11 @@ $(document).ready(function() {
 	changeProp('tab-wkskill',wkskillUrl);
 	changeProp('tab-wkreferrals',wkreferralsUrl);
 	changeProp('tab-wkdelivery',wkdeliveryUrl);
+
+	showHidePartNumber();
+	$('#automatic_product_item').change(function(){
+		showHidePartNumber();
+	});
 });
 
 function openReportPopup(){
@@ -1145,3 +1150,13 @@ function populateInvoice()
 	url.searchParams.set('populate_items', 'true');
 	location.href = url;
 }
+
+function showHidePartNumber(){
+	if($("#automatic_product_item").prop("checked")){
+		$("#tr_part_number").show();
+	}
+	else{
+		$("#tr_part_number").hide();
+	}
+}
+

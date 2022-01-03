@@ -1222,3 +1222,4 @@ it:
   label_expenses: Expenses
   label_admin_dashboards: Admin Dashboards
   label_product: Product
+  label_automatic_product_item: Automatically Create Product Item
