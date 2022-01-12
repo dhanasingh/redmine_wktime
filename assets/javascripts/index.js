@@ -1019,11 +1019,15 @@ function setOverHeadCost(aval_quantity){
 }
 
 function getAssignedSNs(){
-	let content = "";
 	let serial_number = $('#serial_number').val();
 	let running_sn = $('#running_sn').val();
 	let total_quantity = $('#product_item #available_quantity').val();
 	if(!total_quantity) total_quantity = $('#total_quantity').val();
+	populateSerialNos(serial_number, running_sn, total_quantity);
+}
+
+function populateSerialNos(serial_number, running_sn, total_quantity){
+	let content = "";
 	let org_total_quantity = total_quantity;
 	let org_sn_length = running_sn.length;
 	if(total_quantity > 50) total_quantity = 50;
@@ -1160,3 +1164,10 @@ function showHidePartNumber(){
 	}
 }
 
+function getReceiptAssignedSNs(elementId){
+	var rowNum = elementId.replace("running_sn_","");
+	let serial_number = $('#serial_number_'+rowNum).val();
+	let running_sn = $('#running_sn_'+rowNum).val();
+	let total_quantity = $('#total_quantity_'+rowNum).val();
+	populateSerialNos(serial_number, running_sn, total_quantity);
+}

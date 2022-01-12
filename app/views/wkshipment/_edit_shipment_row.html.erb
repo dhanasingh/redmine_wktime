@@ -46,9 +46,15 @@
 	<td class="lbl-txt-align" headers="product_attribute_id">
 		<%=h select_tag("product_attribute_id_#{row_index.to_s}", generic_options_for_select(WkProductAttribute, attributeSql, 'name', 'name', 'id',  entry.blank? ? nil :entry.product_attribute_id, true), :disabled => isDisable, :style => "width: 100px;") %>
 	</td>
-	<td class="lbl-txt-align" headers="serial_number">
-		<%= text_field_tag "serial_number_#{row_index}",  entry.serial_number, :required => false, :disabled => isDisable, :style => "width: 150px;" %>
+	<td headers="fixed_serial_number">
+		<%= text_field_tag "serial_number_#{row_index}",  entry&.serial_number || '', disabled: isDisable, style: "width: 120px;margin-top: 18px;" %>
+		<p style="text-align: center;color: grey;"><%= l(:label_fixed) %></p>
 	</td>
+  <td headers="running_serial_number" style="display:inline-block;margin-top: 18px;">
+		<%= text_field_tag "running_sn_#{row_index}",  entry&.running_sn || '', disabled: isDisable, style: "width: 120px;" %>
+		<span><%= image_tag("withoutcommant.png", plugin: "redmine_wktime", title: l(:label_assigned_serial_numbers), id: "running_sn_#{row_index}", style: "cursor: pointer;", onclick: "getReceiptAssignedSNs(this.id);") %></span>
+		<p style="text-align: center;color: grey;"><%= l(:label_running) %></p>
+  </td>
 	<td class="lbl-txt-align" headers="notes">
 		<%= text_field_tag "notes_#{row_index}",  entry.notes, :required => false, :disabled => isDisable, :style => "width: 150px;" %>
 	</td>
@@ -87,3 +93,7 @@
 	<%=h hidden_field_tag("org_over_head_price_#{row_index}", entry.id ) %>
 	<%=h hidden_field_tag("org_selling_price_#{row_index}", entry.id ) %>
 </tr>
+<script>
+	var sn_blank_error = "<%=l(:warn_sn_blank) %>";
+	var sn_text_error = "<%=l(:warn_sn_text) %>";
+</script>

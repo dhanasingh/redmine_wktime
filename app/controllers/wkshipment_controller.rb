@@ -220,6 +220,7 @@ include WkinventoryHelper
 				shipmentItem.over_head_price = getExchangedAmount(params["currency_#{i}"], params["over_head_price_#{i}"])
 				shipmentItem.selling_price = getExchangedAmount(params["currency_#{i}"], params["selling_price_#{i}"]) 
 				shipmentItem.serial_number = params["serial_number_#{i}"]
+				shipmentItem.running_sn = params["running_sn_#{i}"]
 				shipmentItem.product_type = params["product_type_#{i}"]
 				shipmentItem.notes = params["notes_#{i}"]
 				shipmentItem.available_quantity = params["total_quantity_#{i}"] if shipmentItem.new_record? || shipmentItem.available_quantity == shipmentItem.total_quantity
@@ -240,15 +241,21 @@ include WkinventoryHelper
 					quantity = params["total_quantity_#{i}"].to_i
 					shipmentItem.available_quantity = 1
 					shipmentItem.total_quantity = 1
+					index = 1
 					for i in 1 .. quantity - 1
 						dupItem = shipmentItem.dup
-						# Below code for set parent id as shipment item id
-						# dupItem.available_quantity = 1
-						# dupItem.total_quantity = 1
-						# dupItem.parent_id = shipmentItem.id
+						#save Serial Numbers
+						if dupItem.running_sn.present?
+							sn_length = dupItem.running_sn.length
+							dupItem.serial_number = dupItem.serial_number.to_s + (dupItem.running_sn.to_i + index).to_s.rjust(sn_length, '0')
+							dupItem.running_sn = ''
+						end
+						index += 1
 						dupItem.save
 						postAssetProperties(dupItem)
 					end
+					shipmentItem.serial_number = shipmentItem.serial_number.to_s + shipmentItem.running_sn.to_s
+					shipmentItem.running_sn = ''
 				end
 				shipmentItem.save()
 				postAssetProperties(shipmentItem)
