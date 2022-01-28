@@ -16,6 +16,7 @@
 			projectId =session[controller_name].try(:[], :project_id)
 			isDisposed =session[controller_name].try(:[], :is_dispose)
 			showOnMap =session[controller_name].try(:[], :show_on_map)
+			availableItems =session[controller_name].try(:[], :available_items)
 			brandSql = nil
 			if productId.present?
 				brandSql = 'id in (select brand_id from wk_brand_products where product_id = ' + productId.to_s + ')'
@@ -47,7 +48,8 @@
 			<% end %>
 			<% if controller.getItemType == "I" %>
 				<label for='name'><%= l(:label_text_search) %></label>
-					<%= text_field_tag 'name', controller.getSession(:name), :size => 15 %>
+					<%= text_field_tag 'name', controller.getSession(:name), :size => 15 %>&nbsp;
+					<label><%= check_box_tag('available_items', 1, availableItems) %> <%= l(:label_show_available_items) %></label>
 			<% end %>
 			<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>&nbsp;
 			<%= link_to l(:button_clear), {:tab => controller_name, clear: true}, :class => 'icon icon-reload' %>

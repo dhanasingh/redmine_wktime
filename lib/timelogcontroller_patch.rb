@@ -79,7 +79,6 @@ module TimelogControllerPatch
 
 		def edit
 			# ============= ERPmine_patch Redmine 4.2  =====================
-				sessionValidation
 				@spentType = session[:timelog][:spent_type]
 				if @spentType === "T"
 			# =======================	
@@ -304,7 +303,6 @@ module TimelogControllerPatch
 			paramEntry = getParams(params[:log_type], params)
 			@time_entry.safe_attributes = paramEntry
 			# ============= ERPmine_patch Redmine 4.2  =====================
-				set_filter_session
 				model = nil
 				errorMsg = ""
 				timeErrorMsg = ""
@@ -479,7 +477,7 @@ module TimelogControllerPatch
 		
 		def find_time_entries
 			# ============= ERPmine_patch Redmine 4.2  =====================
-				sessionValidation
+			set_filter_session
 				if session[:timelog][:spent_type] === "T"
 			# ==========================================
 				@time_entries = TimeEntry.where(:id => params[:id] || params[:ids]).
@@ -502,7 +500,7 @@ module TimelogControllerPatch
 		
 		def find_time_entry
     	# ============= ERPmine_patch Redmine 4.2  =====================	
-				sessionValidation
+			set_filter_session
 				if session[:timelog][:spent_type] === "T"
 			# ========================
 				@time_entry = TimeEntry.find(params[:id])
@@ -521,7 +519,7 @@ module TimelogControllerPatch
 		def check_editability
 			# ============= ERPmine_patch Redmine 4.2  =====================
 				wktime_helper = Object.new.extend(WktimeHelper)
-				sessionValidation
+				set_filter_session
 				if session[:timelog][:spent_type] === "T"
 			# =============================
 					unless @time_entry.editable_by?(User.current)
@@ -536,14 +534,6 @@ module TimelogControllerPatch
 				end
 			# =============================
 		end
-
-	# ============= ERPmine_patch Redmine 4.2  =====================
-		def sessionValidation
-			if session[:timelog].blank?
-				set_filter_session
-			end
-		end
-	# =============================	
 
 		def bulk_edit
 			# ============= ERPmine_patch Redmine 4.2  =====================
@@ -612,7 +602,6 @@ module TimelogControllerPatch
 			# ============= ERPmine_patch Redmine 4.2  =====================
 				wktime_helper = Object.new.extend(WktimeHelper)
 				errMsg = ""
-				sessionValidation
 				if session[:timelog][:spent_type] === "T"
 				# ============================
 					destroyed = TimeEntry.transaction do

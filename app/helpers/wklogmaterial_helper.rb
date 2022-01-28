@@ -1,7 +1,8 @@
 module WklogmaterialHelper
-include ApplicationHelper
-include WktimeHelper
-include WkassetHelper
+	include ApplicationHelper
+	include WktimeHelper
+	include WkassetHelper
+
 	def getLogHash
 		spentTypeHash = {}
 		spentTypeHash.store('T', l(:label_wktime)) if isChecked('wktime_enable_time_module')
@@ -159,5 +160,11 @@ include WkassetHelper
 
 	def getLogTypeName
 		{'T' => 'time_entry', 'E' => 'wk_expense_entry', 'M' => 'wk_material_entry', 'A' => 'wk_material_entry', 'RA' => 'wk_material_entry'}
+	end
+
+	def get_item_details_url(itemId, spentType)
+		productItemId = WkInventoryItem.find(itemId)&.product_item_id
+		url = {controller: spentType == 'M' ? 'wkproductitem' : 'wkasset', action: 'edit', inventory_item_id: itemId, product_item_id: productItemId}
+		url
 	end
 end

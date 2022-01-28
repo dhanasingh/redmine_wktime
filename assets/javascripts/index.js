@@ -994,7 +994,12 @@ function renderData(resData, options={}){
 			if(preList) content += preList(type, el);
 
 			$.each((el || {}), function(key, value){
-				content += "<td class='td'>" +value+ "</td>";
+				if(key == 'icon'){
+					content += "<td class='td'><a class='icon icon-report' href='"+value+ "'>"+ details +"</a></td>";
+				}
+				else{
+					content += "<td class='td'>" +value+ "</td>";
+				}
 			});
 			content += "</tr>";
 		});
@@ -1032,10 +1037,10 @@ function populateSerialNos(serial_number, running_sn, total_quantity){
 	let org_sn_length = running_sn.length;
 	if(total_quantity > 50) total_quantity = 50;
 
-	if(isNaN(total_quantity) || isNaN(running_sn)){
+	if(running_sn && isNaN(running_sn)){
 		content += '<p style="clear:both" class="nodata">'+ sn_text_error +'</p>';
 	}
-	else if(running_sn == '' || total_quantity == ''){
+	else if(!running_sn && serial_number == ''){
 		content += '<p style="clear:both" class="nodata">'+ sn_blank_error +'</p>';
 	}
 	else{
@@ -1046,7 +1051,7 @@ function populateSerialNos(serial_number, running_sn, total_quantity){
 			});
 		if(org_total_quantity > 50){
 			content += "<tr><td style='width:100%;'> .... </td></tr><tr><td style='width:100%;'> .... </td></tr>";
-			running_sn = Number(running_sn) + Number(org_total_quantity) - 1;
+			if(running_sn) running_sn = Number(running_sn) + Number(org_total_quantity) - 1;
 			content += "<tr><td style='width:100%;'>" + serial_number + String(running_sn).padStart(org_sn_length, '0') + "</td></tr>";
 		}
 		content += "</table>";
@@ -1071,10 +1076,12 @@ function populateSerialNos(serial_number, running_sn, total_quantity){
 function getSerialNumbersRange(serial_number, running_sn, total_quantity){
 	let serialNumbers = [];
 	let org_sn_length = running_sn.length;
-	for(i = 0; i < total_quantity; i++){
+	for(i = 0; i < Number(total_quantity); i++){
 		serialNumbers.push(serial_number + running_sn);
-		running_sn = Number(running_sn) + 1;
-		if(String(running_sn).length < org_sn_length) running_sn = String(running_sn).padStart(org_sn_length, '0');
+		if(running_sn){
+			running_sn = Number(running_sn) + 1;
+			if(String(running_sn).length < org_sn_length) running_sn = String(running_sn).padStart(org_sn_length, '0');
+		}
 	}
 	return serialNumbers;
 }

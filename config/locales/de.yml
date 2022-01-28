@@ -1177,8 +1177,8 @@ de:
   label_running: Fortlaufend
   label_serial_number_note: "Hinweis: Verwenden Sie Komma für mehrere Seriennummern."
   warn_sn_range: Seriennummer befindet sich nicht im Bereich
-  warn_sn_blank: Seriennummer und Menge dürfen nicht leer sein
-  warn_sn_text: Seriennummer und Menge können keine Textwerte sein
+  warn_sn_blank: Fixed Serial Number cannot be blank
+  warn_sn_text: Please Enter Running serial numbers in integer
   label_last_increment: Letzte Erhöhung
   label_last_salary: Letzter Lohn
   label_employee_dashboard: Mitarbeiter-Dashboards
@@ -1219,3 +1219,11 @@ de:
   label_admin_dashboards: Admin Dashboards
   label_product: Produkt
   label_automatic_product_item: Automatically Create Product Item
+  label_show_available_items: Show only available items
+  label_used_items: Used Items
+  label_goods_receipt: Goods Receipt
+
+  report_cash_flow: Cash Flow Report
+  label_cash_inflow: Cash Inflow
+  label_cash_outflow: Cash Outflow
+  label_net_inflow: Net InFlow

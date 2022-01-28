@@ -789,3 +789,5 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wkbase/updateWkuserData', to: 'wkbase#updateWkuserData'
 
 	get 'wkbase/updateWkuserVal', to: 'wkbase#updateWkuserVal'
+
+	get 'wkasset/get_material_entries', to: 'wkasset#get_material_entries'

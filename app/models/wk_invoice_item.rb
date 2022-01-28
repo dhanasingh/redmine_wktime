@@ -70,7 +70,7 @@ class WkInvoiceItem < ActiveRecord::Base
   end
 
   def self.filterByIssues(entries, issue_id, project_id, parent_id, parent_type)
-    accProj = WkAccountProject.where(project_id: project_id, project_id: project_id, parent_type: parent_type).first
+    accProj = WkAccountProject.where(project_id: project_id, parent_id: parent_id, parent_type: parent_type).first
     entries = entries.where(:issue_id => issue_id) if issue_id > 0
     entries = entries.where(:issue_id => nil) if issue_id == 0 && accProj && accProj&.itemized_bill
     entries = entries.order("spent_on desc")
