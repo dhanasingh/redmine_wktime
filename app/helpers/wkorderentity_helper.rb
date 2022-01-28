@@ -16,8 +16,10 @@ include WkcrmHelper
 	
 	def getRfqPoArray(needBlank, id)
 		rfqPoArr = Array.new
-    rfqObj = WkInvoice.joins(:po_quote).where("wk_po_quotes.quote_id"=>id.blank? ? nil : id)
-    rfqPoArr = rfqObj.collect{|i|[i.invoice_number,i.id] }
+		unless id.blank? || id == 0
+			rfqObj = WkRfq.find(id) 
+			rfqPoArr = rfqObj.purchase_orders.collect {|i| [i.invoice_number, i.id]  }
+		end
 		rfqPoArr.unshift(["",'']) if needBlank
 		rfqPoArr
 	end
