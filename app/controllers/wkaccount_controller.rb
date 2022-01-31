@@ -42,7 +42,7 @@ class WkaccountController < WkcrmController
 		if accName.blank?
 			entries = entries.where(:account_type => getAccountType)
 		else
-			entries = entries.where(:account_type => getAccountType).where("wk_accounts.name like ?", "%#{accName}%")
+			entries = entries.where(:account_type => getAccountType).where("lower(wk_accounts.name) like ?", "%#{accName.downcase}%")
 		end
 		if (!locationId.blank? || !location.blank?) && locationId != "0"
 			location_id = !locationId.blank? ? locationId.to_i : location.id.to_i

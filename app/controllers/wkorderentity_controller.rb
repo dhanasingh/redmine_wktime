@@ -189,7 +189,8 @@ class WkorderentityController < WkbillingController
 		@invoice = nil
 		@invoiceItem = nil
 		@projectsDD = Array.new
-        @currency = nil
+		@productItemsDD = getproductItems
+    @currency = nil
 		@preBilling = false
 		@rfgQuoteEntry = nil
 		@rfqObj = nil
@@ -305,6 +306,7 @@ class WkorderentityController < WkbillingController
 		errorMsg = nil
 		invoiceItem = nil
 		if isEditable && status_changed
+			arrId = []
 			unless params["invoice_id"].blank?
 				@invoice = WkInvoice.find(params["invoice_id"].to_i)
 				@invoice.invoice_date = params[:inv_date]
@@ -324,17 +326,17 @@ class WkorderentityController < WkbillingController
 			end
 			@invoice.save()
 			totalAmount = 0
-			tothash = Hash.new
+			total_amounts = Hash.new
 			totalRow = params[:totalrow].to_i
 			savedRows = 0
 			deletedRows = 0
 			productArr = Array.new
 			@matterialVal = Hash.new{|hsh,key| hsh[key] = {} }
 			@totalMatterialAmount = 0.00
-			#for i in 1..totalRow
+
 			while savedRows < totalRow
 				i = savedRows + deletedRows + 1
-				if params["item_id_#{i}"].blank? && params["quantity_#{i}"].blank? #&& params["project_id#{i}"].blank?
+				if params["item_id_#{i}"].blank? && params["quantity_#{i}"].blank?
 					deletedRows = deletedRows + 1
 					next
 				end
@@ -347,15 +349,20 @@ class WkorderentityController < WkbillingController
 				end
 				pjtId = params["project_id_#{i}"] if !params["project_id_#{i}"].blank?
 				itemType = params["item_type_#{i}"].blank? ? params["hd_item_type_#{i}"]  : params["item_type_#{i}"]
+
+				invoice_item_id = (params["invoice_item_id_#{i}"]).split(",").last
+				invoice_item_id = invoice_item_id.present? ? invoice_item_id.to_i : nil
+				product_id = params["product_id_#{i}"].present? ? params["product_id_#{i}"] : (params["invoice_item_id_#{i}"]).split(",").first
+				product_id = product_id.present? ? product_id.to_i : nil
 				unless params["item_id_#{i}"].blank?
 					arrId.delete(params["item_id_#{i}"].to_i)
 					invoiceItem = WkInvoiceItem.find(params["item_id_#{i}"].to_i)
 					org_amount = params["rate_#{i}"].to_f * params["quantity_#{i}"].to_f
-					updatedItem = updateInvoiceItem(invoiceItem, pjtId,  params["name_#{i}"], params["rate_#{i}"].to_f, params["quantity_#{i}"].to_f, invoiceItem.original_currency, itemType, org_amount, crInvoiceId, crPaymentId, params["product_id_#{i}"])
+					updatedItem = updateInvoiceItem(invoiceItem, pjtId,  params["name_#{i}"], params["rate_#{i}"].to_f, params["quantity_#{i}"].to_f, invoiceItem.original_currency, itemType, org_amount, crInvoiceId, crPaymentId, product_id, params["invoice_item_type_#{i}"], invoice_item_id)
 				else
 					invoiceItem = @invoice.invoice_items.new
 					org_amount = params["rate_#{i}"].to_f * params["quantity_#{i}"].to_f
-					updatedItem = updateInvoiceItem(invoiceItem, pjtId, params["name_#{i}"], params["rate_#{i}"].to_f, params["quantity_#{i}"].to_f, params["original_currency_#{i}"], itemType, org_amount, crInvoiceId, crPaymentId, params["product_id_#{i}"])
+					updatedItem = updateInvoiceItem(invoiceItem, pjtId, params["name_#{i}"], params["rate_#{i}"].to_f, params["quantity_#{i}"].to_f, params["original_currency_#{i}"], itemType, org_amount, crInvoiceId, crPaymentId, product_id, params["invoice_item_type_#{i}"], invoice_item_id)
 				end
 				if !params[:populate_unbilled].blank? && params[:populate_unbilled] == "true" && params[:creditfrominvoice].blank? && !params["entry_id_#{i}"].blank?
 					accProject = WkAccountProject.where(:project_id => pjtId)
@@ -370,57 +377,34 @@ class WkorderentityController < WkbillingController
 						scheduledEntry.invoice_id = @invoice.id
 						scheduledEntry.save()
 					end
-
 				end
 				unless params["material_id_#{i}"].blank?
 					matterialEntry = WkMaterialEntry.find(params["material_id_#{i}"].to_i)
 					updateBilledEntry(matterialEntry, updatedItem.id)
-					# matterialEntry.invoice_item_id = updatedItem.id
-					# matterialEntry.save
 				end
 
-				#Updating spent fors record with Expense invoice Item ID
-				if params["expense_id_#{i}"].present?
-					ids = params["expense_id_#{i}"].split(' ')
-					ids.each{|id| updateBilledEntry(WkExpenseEntry.find(id), updatedItem.id)}
+				if updatedItem.product_id.present?
+					# set Product Totals
+					total_amounts["product"] = set_product_total(total_amounts["product"], updatedItem)
+				elsif updatedItem.project_id.present?
+					# set project Totals
+					total_amounts["project"] = set_project_total(total_amounts["project"], updatedItem)
 				end
 				savedRows = savedRows + 1
-				tothash[updatedItem.project_id] = [(tothash[updatedItem.project_id].blank? ? 0 : tothash[updatedItem.project_id][0]) + updatedItem.original_amount, updatedItem.original_currency] if updatedItem.item_type != 'm'
-
-				unless params["product_id_#{i}"].blank?
-					productId = params["product_id_#{i}"]
-					productEntry = WkProduct.find(productId)
-					projEntry = Project.find(pjtId)
-					productName = productEntry.name
-					amount = params["rate_#{i}"].to_f * params["quantity_#{i}"].to_f
-					curr = params["currency_#{i}"]
-					productArr << productId
-					if @matterialVal.has_key?("#{productId}")
-						oldAmount = @matterialVal["#{productId}"]["amount"].to_i
-						totAmount = oldAmount + amount
-						@matterialVal["#{productId}"].store "amount", "#{totAmount}"
-					else
-						@matterialVal["#{productId}"].store "amount", "#{amount}"
-						@matterialVal["#{productId}"].store "currency", "#{curr}"
-						@matterialVal["#{productId}"].store "pname", "#{productName}"
-						@matterialVal["#{productId}"].store "projectId", "#{projEntry.id}"
-						@matterialVal["#{productId}"].store "projectName", "#{projEntry.name}"
-					end
-				end
 			end
+
+			unless params["material_id_#{i}"].blank?
+				matterialEntry = WkMaterialEntry.find(params["material_id_#{i}"].to_i)
+				updateBilledEntry(matterialEntry, updatedItem.id)
+			end
+
+			# Calculate & Save Tax, Combine same project & product taxes
+			storeInvoiceItemTax(total_amounts)
 
 			if !arrId.blank?
 				deleteBilledEntries(arrId)
 				WkInvoiceItem.where(:id => arrId).delete_all
 			end
-
-			parentId = @invoice.parent_id
-			parentType = @invoice.parent_type
-			tothash.each do|key, val|
-				accountProject = WkAccountProject.where("project_id = ?  and parent_id = ? and parent_type = ? ", key, parentId, parentType) #'WkAccount')
-				addTaxes(accountProject[0], val[1], val[0])
-			end
-			addProductTaxes(productArr, true)
 
 			unless @invoice.id.blank?
 				saveOrderRelations
@@ -812,5 +796,41 @@ class WkorderentityController < WkbillingController
 		else
 			["","","","","","",label,invoice.sum(:quantity).to_s, invoice.first.original_currency.to_s + invoice.sum(:original_amount).to_s, invoice.first.currency.to_s + invoice.sum(:amount).to_s]
 		end
+	end
+
+	def getproductItems
+		WkProductItem.getproductItems || []
+	end
+
+	def set_product_total(total, item)
+		total ||= {}
+		total[item.product_id] ||= {}
+		total[item.product_id][:amount] = (total[item.product_id][:amount] || 0) + item.original_amount
+		total[item.product_id][:currency] = item.original_currency
+		total[item.product_id][:project_id] = item.project_id || nil
+		total
+	end
+
+	def set_project_total(total, item)
+		total ||= {}
+		total[item.project_id] ||= {}
+		total[item.project_id][:amount] = (total[item.project_id][:amount] || 0) + item.original_amount
+		total[item.project_id][:currency] = item.original_currency
+		total
+	end
+
+	def get_product_tax
+		data = WkProductItem.getProductTax(params[:product_item_id])
+		render json: data
+	end
+
+	def get_project_tax
+		acc_proj = WkAccountProject.getTax(params[:project_id], params[:parent_type], params[:parent_id])&.first
+		taxes = acc_proj.taxes if acc_proj.present?
+    data = (taxes || []).map{|t| {name: t.name, rate: t.rate_pct, project: acc_proj.project&.name, project_id: params[:project_id]}}
+		render json: data
+	end
+
+	def storeInvoiceItemTax(totals)
 	end
 end

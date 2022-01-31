@@ -441,4 +441,8 @@ class WkinvoiceController < WkorderentityController
 	    end
 			redirect_to action: 'invoice_components'
 	end
+
+	def storeInvoiceItemTax(totals)
+		saveInvoiceItemTax(totals)
+	end
 end

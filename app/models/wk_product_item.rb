@@ -22,5 +22,15 @@ class WkProductItem < ActiveRecord::Base
   belongs_to :product_model, :class_name => 'WkProductModel'
   has_many :inventory_items, foreign_key: "product_item_id", class_name: "WkInventoryItem", :dependent => :restrict_with_error
   validates_presence_of :product
-  
+
+  def self.getproductItems
+    self.all.map{|i| [i&.product&.name.to_s + " " + i&.brand&.name.to_s + " " + i&.product_model&.name.to_s, i&.product&.id.to_s+", "+i.id.to_s]}
+  end
+
+  def self.getProductTax(id)
+    prodItem = self.find(id)
+    prodTax = prodItem&.product&.product_taxes
+    prodName = (prodItem&.product&.name || "") +" "+ (prodItem&.brand&.name || "") +" "+ (prodItem&.product_model&.name || "")
+    prodTax.map{|t| {name: t&.tax&.name, rate: t&.tax&.rate_pct, product: prodName, product_id: prodItem&.product&.id}}
+  end
 end
