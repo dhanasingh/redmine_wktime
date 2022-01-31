@@ -146,6 +146,15 @@ $(document).ready(function() {
 	$('#automatic_product_item').change(function(){
 		showHidePartNumber();
 	});
+	if($('#si_id').val() == '') $('#populate_items').hide();
+	$('#si_id').change(function(){
+		if(this.value != ""){
+			$("#populate_items").show();
+		}
+		else{
+			$("#populate_items").hide();
+		}
+	});
 });
 
 function openReportPopup(){
@@ -371,7 +380,7 @@ function accProjChanged(uid, fldId, isparent, blankOptions)
 	});
 }
 
-function actRelatedDd(uid, loadProjects, needBlankOption, actType, contactType, loadPayment, loadInvoiceNo = false)
+function actRelatedDd(uid, loadProjects, needBlankOption, actType, contactType, loadPayment, loadInvoiceNo = false, loadSIDD = '')
 {
 	var relatedTo = document.getElementById("related_to");
 	var relatedType = relatedTo.options[relatedTo.selectedIndex].value;
@@ -382,7 +391,7 @@ function actRelatedDd(uid, loadProjects, needBlankOption, actType, contactType, 
 	url: actRelatedUrl,
 	type: 'get',
 	data: {related_type: relatedType, account_type: actType, contact_type: contactType},
-	success: function(data){ updateUserDD(data, relatedparentdd, userid, needBlankOption, false, "");if(loadInvoiceNo){getInvoiceNos(uid, 'delivery_invoice_id');}},
+	success: function(data){ updateUserDD(data, relatedparentdd, userid, needBlankOption, false, "");if(loadInvoiceNo){getInvoiceNos(uid, loadSIDD);}},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
 	complete: function(){ if(loadProjects) { accProjChanged(uid, 'related_parent', true, true) }if(loadPayment){submitFiletrForm();} $this.removeClass('ajax-loading'); }
 	});
@@ -1138,14 +1147,14 @@ function deliveryitemChanged(curDDId)
 }
 
 function getInvoiceNos(uid, loadDdId){
-	var related_to = $('#related_to').val();
-	var related_parent = $('#related_parent').val();
+	var parentType = $('#related_to').val();
+	var parentId = $('#related_parent').val();
 	var needBlankOption = false;
 	var loadDropdown = document.getElementById(loadDdId);
-	var url = "/wkdelivery/getInvoiceNos?related_to="+ related_to+"&related_parent="+related_parent;
 	$.ajax({
-		url: url,
+		url: invoiceUrl,
 		type: 'get',
+		data: {parent_id: parentId, parent_type: parentType},
 		success: function(data){updateUserDD(data, loadDropdown, uid, needBlankOption, false, "");$('#populate_items').hide();},
 		beforeSend: function(){ $(this).addClass('ajax-loading'); },
 		complete: function(){ $(this).removeClass('ajax-loading'); }
@@ -1177,4 +1186,16 @@ function getReceiptAssignedSNs(elementId){
 	let running_sn = $('#running_sn_'+rowNum).val();
 	let total_quantity = $('#total_quantity_'+rowNum).val();
 	populateSerialNos(serial_number, running_sn, total_quantity);
+}
+
+function populateSIInvoice()
+{
+  if (confirm("Are you sure change the invoice this will populate invoice item")) {
+		let url = new URL(window.location.href);
+		url.searchParams.set('related_to', $('#related_to').val());
+		url.searchParams.set('related_parent', $('#related_parent').val());
+		url.searchParams.set('si_id', $('#si_id').val());
+		url.searchParams.set('populate_items', '1');
+		location.href = url;
+  }
 }

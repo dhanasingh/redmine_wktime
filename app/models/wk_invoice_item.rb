@@ -87,4 +87,6 @@ class WkInvoiceItem < ActiveRecord::Base
     end
     entries
   end
+
+  scope :getInvItemsFromInvoice, ->(invoice_id){ self.where(invoice_id: invoice_id) }
 end

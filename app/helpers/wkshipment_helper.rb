@@ -17,16 +17,17 @@
 module WkshipmentHelper
   include WktimeHelper
   include WkcrmHelper
-	
+	include WkpaymententityHelper
+
 	def product_item_select(sqlCond, needBlank, selectedVal)
-		ddArray = getProductItemArr(sqlCond, needBlank)		
+		ddArray = getProductItemArr(sqlCond, needBlank)
 		options_for_select(ddArray, :selected => selectedVal)
 	end
-	
+
 	def getProductItemArr(sqlCond, needBlank)
 		ddArray = Array.new
 		if sqlCond.blank?
-			ddValues = WkProductItem.includes(:brand, :product_model).all 
+			ddValues = WkProductItem.includes(:brand, :product_model).all
 		else
 			ddValues = WkProductItem.where("#{sqlCond}")
 		end
@@ -36,7 +37,7 @@ module WkshipmentHelper
 		ddArray.unshift(["",""]) if needBlank
 		ddArray
 	end
-	
+
 	def isUsedInventoryItem(invenItem)
 		ret = false
 		unless invenItem.blank?
@@ -49,7 +50,7 @@ module WkshipmentHelper
 		end
 		ret
 	end
-	
+
 	def postShipmentAccounting(shipment, assetAccountingHash, assetTotal)
 		if !shipment.id.blank? && autoPostGL('inventory') && getSettingCfId("inventory_cr_ledger")>0 && getSettingCfId("inventory_db_ledger") > 0
 			totalAmount = shipment.inventory_items.shipment_item.sum('(total_quantity*cost_price)+over_head_price')
@@ -67,14 +68,20 @@ module WkshipmentHelper
 				unless glTransaction.blank?
 					shipment.gl_transaction_id = glTransaction.id
 					shipment.save
-				end				
+				end
 			end
 		end
 	end
 
 	def getProjects
-		projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') 	
+		projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name')
 		projArr = options_for_wktime_project(projects, true)
 		projArr
+	end
+
+	def getInvoiceItemsNotes(invoice_id)
+		notes = WkInvoiceItem.getInvItemsFromInvoice(invoice_id)
+		notesArray = notes.map { |notes| [notes.name, notes.id]}
+		notesArray
 	end
 end

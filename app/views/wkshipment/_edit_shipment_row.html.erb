@@ -1,6 +1,6 @@
 <tr onclick="  row_id  = this.rowIndex ">
-	<% 
-		productItem = entry.product_item 
+	<%
+		productItem = entry.product_item
 		isDisable = isUsedInventoryItem(entry)
 		sqlCond = ""
 		attributeSql = ""
@@ -14,9 +14,9 @@
 		else
 			firstProduct = WkProduct.order(:name).first
 			productId = firstProduct.blank? ? 0 : firstProduct.id
-			sqlCond = " product_id = " + productId.to_s	
-			unless firstProduct.blank?		
-				attributeSql = " group_id = " + firstProduct.attribute_group_id.to_s 
+			sqlCond = " product_id = " + productId.to_s
+			unless firstProduct.blank?
+				attributeSql = " group_id = " + firstProduct.attribute_group_id.to_s
 				productType = firstProduct.product_type
 				uomID = firstProduct.uom_id
 			end
@@ -26,6 +26,7 @@
 		else
 			productTypeArr = getProductTypeHash(false).invert
 		end
+		notesArr = getInvoiceItemsNotes(params[:si_id])
 	%>
 	<td class="lbl-txt-align" headers="item_id">
 		<%=h hidden_field_tag("item_id_#{row_index}",   entry.id )  %>
@@ -33,6 +34,9 @@
 	</td>
 	<td class="lbl-txt-align" headers="item_index">
 		<label id="item_index_<%= row_index.to_s %>"><%= row_index  %></label>
+	</td>	
+	<td class="lbl-txt-align" headers="invoice_item_id">
+		<%=h select_tag("invoice_item_id_#{row_index.to_s}", options_for_select(notesArr, :selected => entry.invoice_item_id), :disabled => isDisable, :style => "width: 100px;") %>
 	</td>
 	<td class="lbl-txt-align" headers="product_id">
 		<%=h select_tag("product_id_#{row_index.to_s}", generic_options_for_select(WkProduct, nil, 'name', 'name', 'id', productItem.blank? ? nil :productItem.product_id, false), :onchange => "productChanged(this.id, 'product_item_id_#{row_index.to_s}', #{User.current.id}, false, false, null, null);productChanged(this.id, 'product_attribute_id_#{row_index.to_s}', #{User.current.id}, false, false, null, null);productChanged(this.id, 'product_type_#{row_index.to_s}', #{User.current.id}, false, false, null, null);setUOMValue(this.id)", :disabled => isDisable, :style => "width: 100px;") %>
@@ -74,18 +78,23 @@
 	</td>
 	<td class="lbl-txt-align" headers="uom_id">
 		<%=h select_tag("uom_id_#{row_index.to_s}", generic_options_for_select(WkMesureUnit, nil, 'short_desc', 'short_desc', 'id', uomID, false), :disabled => isDisable, :style => "width: 80px;") %>
-	</td>	
+	</td>
 	<td class="lbl-txt-align" headers="location_id">
 		<%=h select_tag("location_id_#{row_index.to_s}", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', entry.location_id, false), :disabled => isDisable, :style => "width: 80px;", :required => true) %>
-	</td>	
+	</td>
 	<td class="lbl-txt-align" headers="project_id">
 		<%=h select_tag("project_id_#{row_index.to_s}", options_for_select(getProjects, :selected => entry.project_id), :disabled => isDisable, :style => "width: 80px;") %>
-	</td>			
+	</td>
 	<td>
 		<% unless isDisable || !controller.hasDeletePermission %>
 			<%= link_to image_tag('delete.png'), "javascript:deleteRow('shipmentTable', 'totalrow');", :id => row_index,
 				:data => {:confirm => l(:text_are_you_sure)},
 				:title => l(:button_delete) %>
+		<% end %>
+	</td>
+	<td class="lbl-txt-align">
+		<% if params[:shipment_id].present? %>
+			<%= link_to l(:label_details), {:controller => 'wkproductitem', :action => 'edit', :inventory_item_id => entry.id, :product_item_id => entry.product_item_id }, class: 'icon icon-report'  %>
 		<% end %>
 	</td>
 	<%=h hidden_field_tag("org_currency_#{row_index}", entry.id ) %>

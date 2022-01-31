@@ -48,23 +48,23 @@ include WkinventoryHelper
 		elsif filter_type == '2' && contact_id.blank?
 			parentType = 'WkCrmContact'
 		end
-		
+
 		if filter_type == '3' && !account_id.blank?
 			parentType =  'WkAccount'
 			parentId = 	account_id
 		elsif filter_type == '3' && account_id.blank?
 			parentType =  'WkAccount'
 		end
-		
-		unless parentId.blank? 
+
+		unless parentId.blank?
 			sqlwhere = sqlwhere + " and wk_shipments.parent_id = '#{parentId}' "
 		end
-		
+
 		unless parentType.blank?
 			sqlwhere = sqlwhere + " and wk_shipments.parent_type = '#{parentType}'  "
 		end
-		
-		if !@from.blank? && !@to.blank?	
+
+		if !@from.blank? && !@to.blank?
 			sqlwhere = sqlwhere + " and wk_shipments.shipment_date between '#{@from}' and '#{@to}'  "
 		end
 
@@ -91,47 +91,13 @@ include WkinventoryHelper
 	end
 
 	def edit
-		@shipment = nil
-		@shipmentItem = nil
-		parentType = ""
-		parentId = ""
-		filter_type = params[:polymorphic_filter]
-		contact_id = params[:polymorphic_filter]
-		account_id = params[:polymorphic_filter]
-		if filter_type == '2' && !contact_id.blank?
-			parentType = 'WkCrmContact'
-			parentId = 	params[:contact_id]
-		elsif filter_type == '2' && contact_id.blank?
-			parentType = 'WkCrmContact'
-		end
-		
-		if filter_type == '3' && !account_id.blank?
-			parentType =  'WkAccount'
-			parentId = 	params[:account_id]
-		elsif filter_type == '3' && account_id.blank?
-			parentType =  'WkAccount'
-		end
-		
-		if parentId.blank? && parentType.blank?
-			parentType = params[:related_to]
-			parentId = params[:related_parent]
-		end
-		
-		if !params[:new_shipment].blank? && params[:new_shipment] == "true"			
-			if parentId.blank?
-				flash[:error] = "Account and Contacts can't be empty."
-				return redirect_to :action => 'new'
-			end
-			newShipment(parentId, parentType)
-		end		
-		editShipment
-	end
-	
-	def newShipment(parentId, parentType)
-		@shipment = WkShipment.new(:parent_id => parentId, :parent_type => parentType)
-		@shipmentItem = nil
+		@shipment = WkShipment.new
 		@inventoryItem = nil
 		if !params[:populate_items].blank? && params[:populate_items] == '1' && !params[:si_id].blank?
+			@shipment.parent_type = params[:related_to]
+			@shipment.parent_id = params[:related_parent]
+			@shipment.shipment_date = params[:shipment_date]
+			@shipment.serial_number = params[:serial_number]
 			@shipmentItem = Array.new
 			ids = params[:si_id]
 			@populateItems =  WkInvoiceItem.where(" invoice_id in (#{ids}) and item_type = 'i'")
@@ -139,7 +105,8 @@ include WkinventoryHelper
 			itemCount = @populateItems.sum('quantity')
 			overHeadPrice = otherCharges.to_f/itemCount.to_f
 			@populateItems.each do|item|
-				inventory = @shipment.inventory_items.new
+				inventory = @shipment.inventory_items.new				
+				inventory.invoice_item_id = item.id
 				inventory.notes = item.name
 				inventory.total_quantity = item.quantity
 				inventory.available_quantity = item.quantity
@@ -160,16 +127,12 @@ include WkinventoryHelper
 			@shipmentItem = Array.new
 			@shipmentItem << @shipment.inventory_items.new(currency: Setting.plugin_redmine_wktime['wktime_currency'])
 		end
-		
-	end
-	
-	def editShipment			
 		unless params[:shipment_id].blank?
 			@shipment = WkShipment.find(params[:shipment_id].to_i)
-			@shipmentItem = @shipment.inventory_items.shipment_item 
-		end		
+			@shipmentItem = @shipment.inventory_items.shipment_item
+		end
 	end
-  
+
 	def update
 		errorMsg = nil
 		shipmentItem = nil
@@ -180,10 +143,10 @@ include WkinventoryHelper
 		else
 			@shipment = WkShipment.new
 			@shipment.shipment_type = getShipmentType
-			@shipment.parent_id = params[:parent_id]
-			@shipment.parent_type = params[:parent_type]
+			@shipment.parent_id = params[:related_parent].to_i
+			@shipment.parent_type = params[:related_to]
 		end
-		@shipment.shipment_date = params[:shipment_date]		
+		@shipment.shipment_date = params[:shipment_date]
 		@shipment.serial_number = params[:serial_number]
 		@shipment.save()
 		totalAmount = 0
@@ -200,10 +163,10 @@ include WkinventoryHelper
 				deletedRows = deletedRows + 1
 				next
 			end
-			unless params["item_id_#{i}"].blank?			
+			unless params["item_id_#{i}"].blank?
 				arrId.delete(params["item_id_#{i}"].to_i)
 				shipmentItem = WkInventoryItem.find(params["item_id_#{i}"].to_i)
-			else				
+			else
 				shipmentItem = @shipment.inventory_items.new
 			end
 			unless isUsedInventoryItem(shipmentItem)
@@ -216,9 +179,9 @@ include WkinventoryHelper
 					shipmentItem.org_selling_price = params["selling_price_#{i}"]
 				end
 				shipmentItem.currency = sysCurrency
-				shipmentItem.cost_price = getExchangedAmount(params["currency_#{i}"], params["cost_price_#{i}"]) 
+				shipmentItem.cost_price = getExchangedAmount(params["currency_#{i}"], params["cost_price_#{i}"])
 				shipmentItem.over_head_price = getExchangedAmount(params["currency_#{i}"], params["over_head_price_#{i}"])
-				shipmentItem.selling_price = getExchangedAmount(params["currency_#{i}"], params["selling_price_#{i}"]) 
+				shipmentItem.selling_price = getExchangedAmount(params["currency_#{i}"], params["selling_price_#{i}"])
 				shipmentItem.serial_number = params["serial_number_#{i}"]
 				shipmentItem.running_sn = params["running_sn_#{i}"]
 				shipmentItem.product_type = params["product_type_#{i}"]
@@ -229,9 +192,9 @@ include WkinventoryHelper
 				shipmentItem.uom_id = params["uom_id_#{i}"].to_i unless params["uom_id_#{i}"].blank?
 				shipmentItem.location_id = params["location_id_#{i}"].to_i if !params["location_id_#{i}"].blank? && params["location_id_#{i}"] != "0"
 				shipmentItem.project_id = params["project_id_#{i}"].to_i if !params["project_id_#{i}"].blank? && params["project_id_#{i}"] != "0"
-				shipmentItem.supplier_invoice_id = params["supplier_invoice_id"]
+				shipmentItem.supplier_invoice_id = params["si_id"]
 				if params["product_type_#{i}"] == 'A' || params["product_type_#{i}"] == 'RA'
-					over_head = params["over_head_price_#{i}"].to_f/ params["total_quantity_#{i}"].to_f 
+					over_head = params["over_head_price_#{i}"].to_f/ params["total_quantity_#{i}"].to_f
 					shipmentItem.over_head_price = getExchangedAmount(params["currency_#{i}"], over_head)
 					assetValue = (shipmentItem.total_quantity*(shipmentItem.cost_price+shipmentItem.over_head_price))
 					assetTotal = assetTotal + assetValue
@@ -257,19 +220,20 @@ include WkinventoryHelper
 					shipmentItem.serial_number = shipmentItem.serial_number.to_s + shipmentItem.running_sn.to_s
 					shipmentItem.running_sn = ''
 				end
+				shipmentItem.invoice_item_id = params["invoice_item_id_#{i}"]
 				shipmentItem.save()
 				postAssetProperties(shipmentItem)
 			end
 			savedRows = savedRows + 1
 		end
-		
+
 		if !arrId.blank?
 			WkInventoryItem.where(:id => arrId).delete_all
 		end
-		
-		postShipmentAccounting(@shipment, assetAccountingHash, assetTotal)
-		
-		if errorMsg.nil? 
+
+		postShipmentAccounting(@shipment, assetAccountingHash, assetTotal)		
+		WkInvoice.updateInvStatus(params["si_id"]) if params["si_id"].present?
+		if errorMsg.nil?
 			redirect_to :action => 'index' , :tab => controller_name
 			flash[:notice] = l(:notice_successful_update)
 	   else
@@ -296,14 +260,14 @@ include WkinventoryHelper
 		filters = [:period_type, :period, :contact_id, :account_id, :project_id, :polymorphic_filter, :rfq_id, :from, :to]
 		super(filters, {:from => @from, :to => @to})
 	end
-	
+
 	def formPagination(entries)
 		@entry_count = entries.count
         setLimitAndOffset()
 		@shipmentEntries = entries.limit(@limit).offset(@offset)
 	end
-	
-	def setLimitAndOffset		
+
+	def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -316,8 +280,8 @@ include WkinventoryHelper
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
-	end	
+		end
+	end
 
 	def getOrderAccountType
 		'S'
@@ -334,13 +298,13 @@ include WkinventoryHelper
 	def getAdditionalDD
 		"wkshipment/shipmentadditionaldd"
 	end
-	
+
 	def textfield_size
 		6
 	end
-	
+
 	def populateProductItemDD
-		itemArr = ""	
+		itemArr = ""
 		sqlCond = " product_id = #{params[:product_id].to_i}"
 		if params[:update_DD] == 'product_attribute_id' && !params[:product_id].blank?
 			product = WkProduct.find(params[:product_id].to_i)
@@ -373,31 +337,28 @@ include WkinventoryHelper
 			format.text  { render :plain => itemArr }
 		end
 	end
-	
+
 	def getSupplierInvoices
 		siArr = ""
-		siObj = WkInvoice.where(:parent_type=> params[:parent_type], :parent_id=>params[:parent_id], :invoice_type => 'SI')
-		unless siObj.blank?
-			siObj.each do |item|
-				siArr << item.id.to_s() + ',' +  item.invoice_number.to_s() + "\n"
-			end
-		end
+		supplier_invoices = WkInvoice.get_invoice_numbers(params[:parent_type], params[:parent_id], 'SI')
+		siArr << "" + ',' +  "" + "\n"
+		supplier_invoices.each{|item| siArr << item.id.to_s() + ',' +  item.invoice_number.to_s() + "\n" } if supplier_invoices.present?
 		respond_to do |format|
 			format.text  { render :plain => siArr }
 		end
 	end
-	
+
 	def postAssetProperties(inventoryItem)
 		assetObj = inventoryItem.asset_property
 		assetObj = WkAssetProperty.new if assetObj.blank?
 		assetObj.assign_attributes(inventory_item_id: inventoryItem.id, name: (inventoryItem.product_item.product.name.to_s + inventoryItem.id.to_s), current_value: (inventoryItem.cost_price.to_f + inventoryItem.over_head_price.to_f).round(2), owner_type: 'O', rate_per: 'h')
 		assetObj.save
 	end
-	
+
 	def additionalContactType
 		false
 	end
-	
+
 	def additionalAccountType
 		false
 	end
@@ -406,7 +367,7 @@ include WkinventoryHelper
 		uomID = ''
 		product = WkProduct.find(params[:product_id].to_i)
 		uomId = product.uom_id if product.present?
-		render :json => uomId		
+		render :json => uomId
 	end
 
 	def getShipmentType

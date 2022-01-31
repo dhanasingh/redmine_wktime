@@ -398,7 +398,7 @@
 <% end %>
 <% end %>
 <%=h hidden_field_tag("deletedids",  "" )  %>
-<%= submit_tag l(:button_save),  :hidden => false, :id => 'items_save', :disabled => (@preBilling || isDisable) if !@preBilling %>
+<%= submit_tag l(:button_save),  :hidden => false, :id => 'items_save', :disabled => (@preBilling) if !@preBilling %>
 <% if !@preBilling && controller.addUnbilledItems && @invPaymentItems.blank? && @invoice&.id.present? %>
 	<%= link_to l(:label_add_unbilled), request.params.merge(loadUnBilled: "true"),  :class => 'icon icon-report' %>
 <% end %>

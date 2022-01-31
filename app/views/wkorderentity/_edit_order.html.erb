@@ -1,7 +1,11 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'invoice', :plugin => "redmine_wktime" %>
-<% hash_status = { 'o'  => l(:label_open_issues), 'c' =>  l(:label_closed_issues) } %>
-<%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
+<% hash_status = { 'o'  => l(:label_open_issues), 'c' =>  l(:label_closed_issues) }
+	if params[:controller] == 'wksupplierinvoice'
+		hash_status.merge!({'f' => 'Fulfilled', 'd' => 'Delivered'})
+	end
+%>
+	<%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
 	<%=h hidden_field_tag("parent_id",  @invoice.parent_id )  %>
 	<%=h hidden_field_tag("parent_type",  @invoice.parent_type )  %>
 	<%=h hidden_field_tag("inv_end_date",  @invoice.end_date )  %>
@@ -13,6 +17,7 @@
 	<%=h hidden_field_tag("po_quote_id",  @rfqQuotObj.blank? ? (@poObj.blank? ? '' : @poObj.quote_id) : @rfqQuotObj.quote_id )  %>
 	<%=h hidden_field_tag("si_id", @siObj.blank? ? "" : @siObj.id )  %>
 	<%=h hidden_field_tag("si_inv_id",  @poId.blank? ? (@siObj.blank? ? "" : @siObj.purchase_order_id) : @poId )  %>
+	<%=h hidden_field_tag("saved_field_status",  @invoice.status )  %>
 	<table>
 		<tr><th align="left"><%= controller.getLabelInvNum %></th>
 			<td style="width: 200px;">
