@@ -7,5 +7,6 @@ class UpdateWkInvoiceItem < ActiveRecord::Migration[5.2]
         change_column :wk_inventory_items, :notes, :text
       end
     end
+    add_column :wk_inventory_items, :invoice_item_id, :integer, default: nil
   end
 end
