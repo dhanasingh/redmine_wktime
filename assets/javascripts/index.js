@@ -1199,3 +1199,28 @@ function populateSIInvoice()
 		location.href = url;
   }
 }
+
+function submitReceiptForm(){
+	var url = "/wkshipment/checkQuantityAndSave";
+	var si_id = $('#si_id').val();
+	var current_quantity = $('[id^=total_quantity]');
+	var quantity_sum = 0;
+	current_quantity.each(function() {
+		quantity_sum += parseInt($(this).val());
+	});
+	var ret = true;
+	$.ajax({
+		url: url,
+		type: 'get',
+		data: {si_id: si_id, quantity_sum: quantity_sum},
+		success: function(data){
+			if(data['total_qty'] < data['current_qty']){
+				alert('used acces qty');
+				ret = false;
+			}
+		},
+		beforeSend: function(){ $(this).addClass('ajax-loading'); },
+		complete: function(){ $(this).removeClass('ajax-loading'); }
+	});
+	return ret;
+}

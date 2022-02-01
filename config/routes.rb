@@ -791,3 +791,5 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wkorderentity/get_product_tax', to: 'wkorderentity#get_product_tax'
 
 	get 'wkorderentity/get_project_tax', to: 'wkorderentity#get_project_tax'
+
+	get 'wkshipment/checkQuantityAndSave', to: 'wkshipment#checkQuantityAndSave'

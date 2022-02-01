@@ -70,4 +70,4 @@
 		<%= l(:label_total) %>: &nbsp;<%= @shipmentItem&.shipment_item[0]&.currency %> <%= "%.2f" % @shipmentItem&.shipment_item&.sum('(total_quantity*cost_price)+over_head_price')%>
 	</div>
 <%end%>
-<%= submit_tag l(:button_save),  :hidden => false, :id => 'items_save', :disabled => false %>
+<%= submit_tag l(:button_save), :onclick => "return submitReceiptForm();",  :hidden => false, :id => 'items_save', :disabled => false %>

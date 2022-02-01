@@ -26,7 +26,7 @@
 		else
 			productTypeArr = getProductTypeHash(false).invert
 		end
-		notesArr = getInvoiceItemsNotes(params[:si_id])
+		notesArr = getInvoiceItemsNotes(entry.supplier_invoice_id)
 	%>
 	<td class="lbl-txt-align" headers="item_id">
 		<%=h hidden_field_tag("item_id_#{row_index}",   entry.id )  %>
@@ -34,7 +34,7 @@
 	</td>
 	<td class="lbl-txt-align" headers="item_index">
 		<label id="item_index_<%= row_index.to_s %>"><%= row_index  %></label>
-	</td>	
+	</td>
 	<td class="lbl-txt-align" headers="invoice_item_id">
 		<%=h select_tag("invoice_item_id_#{row_index.to_s}", options_for_select(notesArr, :selected => entry.invoice_item_id), :disabled => isDisable, :style => "width: 100px;") %>
 	</td>

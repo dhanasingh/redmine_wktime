@@ -105,7 +105,7 @@ include WkinventoryHelper
 			itemCount = @populateItems.sum('quantity')
 			overHeadPrice = otherCharges.to_f/itemCount.to_f
 			@populateItems.each do|item|
-				inventory = @shipment.inventory_items.new				
+				inventory = @shipment.inventory_items.new
 				inventory.invoice_item_id = item.id
 				inventory.notes = item.name
 				inventory.total_quantity = item.quantity
@@ -231,7 +231,7 @@ include WkinventoryHelper
 			WkInventoryItem.where(:id => arrId).delete_all
 		end
 
-		postShipmentAccounting(@shipment, assetAccountingHash, assetTotal)		
+		postShipmentAccounting(@shipment, assetAccountingHash, assetTotal)
 		WkInvoice.updateInvStatus(params["si_id"]) if params["si_id"].present?
 		if errorMsg.nil?
 			redirect_to :action => 'index' , :tab => controller_name
@@ -372,5 +372,17 @@ include WkinventoryHelper
 
 	def getShipmentType
 		'I'
+	end
+
+	def checkQuantityAndSave
+    invoice = WkInvoice.find(params[:si_id].to_i)
+		used_qty = 0
+    invoice.invoice_items.each do |ii|
+      inventory_items = WkInventoryItem.where(invoice_item_id: ii.id).first
+			used_qty += inventory_items.total_quantity if inventory_items.present?
+		end
+		total_qty = invoice.invoice_items.sum(:quantity)
+		current_qty = params[:quantity_sum].to_i + used_qty
+		render :json => { total_qty: total_qty, current_qty: current_qty }
 	end
 end
