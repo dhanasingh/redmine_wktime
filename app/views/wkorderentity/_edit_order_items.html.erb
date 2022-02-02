@@ -59,6 +59,9 @@
 				<th class="lbl-txt-align: center" style="width: 5%"><%= l(:label_item_type) %></th>
 				<th class="lbl-txt-align: center" style="width: 11%"><%= l(:label_rate) %></th>
 				<th class="lbl-txt-align: center" style="width: 11%"><%= l(:field_quantity) %></th>
+				<% if @invoice.id.present? && @invoice.invoice_type == 'SI'%>
+					<th class="lbl-txt-align: center" style="width: 8%"><%= l(:label_received_quantity) %></th>
+				<% end %>
 				<th class="lbl-txt-align: center" style="width: 8%"><%= l(:field_original_amount) %></th>
 				<th class="lbl-txt-align: center" style="width: 8%"><%= l(:field_amount) %></th>
 				<th style="width: 5%"></th>
@@ -120,6 +123,11 @@
 									&nbsp;<%= link_to image_tag('withoutcommant.png', plugin: "redmine_wktime"), "javascript:showQuantityDetails(#{entry.id},'#{entry.item_type}');" %>
 								<% end %>
 							</td>
+							<% if @invoice.id.present? && @invoice.invoice_type == 'SI'%>
+								<td style="text-align:right;" headers="received_quantity">
+									<label id="received_quantity_<%= row_index.to_s %>"><%= entry.inventory_items.sum(:total_quantity) %></label>
+								</td>
+							<% end %>
 							<td style="text-align:right;" headers="original_amount">
 								<%= entry.original_currency %> <label id="original_amount_<%= row_index.to_s %>"><%= html_hours("%.2f" % entry.original_amount)  unless entry.original_amount.blank? %></label>
 							</td>
@@ -274,6 +282,9 @@
 			<td style="width: 20%"></td>
 			<td style="width: 5%"></td>
 			<td style="width: 11%"></td>
+			<% if @invoice.id.present? && @invoice.invoice_type == 'SI'%>
+				<td style="width: 11%"></td>
+			<% end %>
 			<td style="text-align:right; width: 11%">
 				<b><label><%= l(:label_sub_total) %> :</label></b>
 			</td>
@@ -331,6 +342,9 @@
 				<td style="width: 20%"></td>
 				<td style="width: 5%"></td>
 				<td style="width: 11%"></td>
+				<% if @invoice.id.present? && @invoice.invoice_type == 'SI'%>
+					<td style="width: 11%"></td>
+				<% end %>
 				<td style="text-align:right; width: 11%">
 					<b><label><%= l(:label_total) %> :</label></b>
 				</td>
@@ -362,6 +376,9 @@
 						<td class="lbl-txt-align" style="width: 5%"><%=  entry.name %></td>
 						<td class="lbl-txt-align" style="width: 11%"></td>
 						<td style="text-align:right; width: 11%"></td>
+						<% if @invoice.id.present? && @invoice.invoice_type == 'SI'%>
+							<td style="width: 11%"></td>
+						<% end %>
 						<td style="text-align:right; width: 8%">
 							<%= entry.original_currency %> <label id="round_org_amount"><%= html_hours("%.2f" % entry.original_amount) %></label>
 						</td>
@@ -381,6 +398,9 @@
 					<td class="lbl-txt-align" style="<%= @projectsDD.present? ? "10%" : "0%" %>"><%=h hidden_field_tag("pjt_id#{round_index}", "" ) %></td>
 						<td style="width: <%= @productItemsDD.present? ? "20%" : "0%" %>"></td>
 					<td class="lbl-txt-align" style="width: 20%" ></td>
+					<% if @invoice.id.present? && @invoice.invoice_type == 'SI'%>
+						<td style="width: 11%"></td>
+					<% end %>
 					<td class="lbl-txt-align" style="width: 5%"><%=  l(:label_round_off) %></td>
 					<td class="lbl-txt-align" style="width: 11%"></td>
 					<td style="text-align:right; width: 11%"></td>
@@ -404,6 +424,9 @@
 					<td style="width: 20%"></td>
 					<td style="width: 5%"></td>
 					<td style="width: 11%"></td>
+					<% if @invoice.id.present? && @invoice.invoice_type == 'SI'%>
+						<td style="width: 11%"></td>
+					<% end %>
 					<td style="text-align:right; width: 11%">
 						<b><label><%= l(:label_grand_total) %> :</label></b>
 					</td>
