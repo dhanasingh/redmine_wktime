@@ -305,7 +305,7 @@ class WkorderentityController < WkbillingController
 		end
 		errorMsg = nil
 		invoiceItem = nil
-		if isEditable && status_changed
+		if isEditable
 			arrId = []
 			unless params["invoice_id"].blank?
 				@invoice = WkInvoice.find(params["invoice_id"].to_i)

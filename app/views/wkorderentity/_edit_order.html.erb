@@ -18,6 +18,7 @@
 	<%=h hidden_field_tag("si_id", @siObj.blank? ? "" : @siObj.id )  %>
 	<%=h hidden_field_tag("si_inv_id",  @poId.blank? ? (@siObj.blank? ? "" : @siObj.purchase_order_id) : @poId )  %>
 	<%=h hidden_field_tag("saved_field_status",  @invoice.status )  %>
+	<%=h hidden_field_tag("field_status",  @invoice.status )  %>
 	<table>
 		<tr><th align="left"><%= controller.getLabelInvNum %></th>
 			<td style="width: 200px;">
