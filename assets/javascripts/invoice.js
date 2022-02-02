@@ -177,15 +177,16 @@ function invoiceAddRow(tableId, rowCount){
 	if(!$("#deliveryTable").length || ($("#"+rowCount).val() >= 1)){
 		table = document.getElementById(tableId);
 		rowlength = table.rows.length;
-		lastRow = table.rows[rowlength - 2];
+		let skipRows = tableId == "invoiceTable" ? 2 : 1;
+		lastRow = table.rows[rowlength - skipRows];
 		lastDatePicker = $(".date", lastRow);
 		let removedSelect2 = false
-		if(tableId == "invoiceTable" && $("#invoice_item_id_"+(rowlength-2)).data("select2")){
+		if(tableId == "invoiceTable" && $("#invoice_item_id_"+(rowlength-skipRows)).data("select2")){
 			removedSelect2 = true
-			$("#invoice_item_id_"+(rowlength-2)).select2("destroy");
+			$("#invoice_item_id_"+(rowlength-skipRows)).select2("destroy");
 		}
 		$rowClone = $(lastRow).clone(true);
-		if(removedSelect2) $("#invoice_item_id_"+(rowlength-2)).select2();
+		if(removedSelect2) $("#invoice_item_id_"+(rowlength-skipRows)).select2();
 		$rowClone.find("input:text").val("");
 		$rowClone.find("td").each(function(){
 			$(this).children().each(function(){
@@ -222,30 +223,34 @@ function invoiceAddRow(tableId, rowCount){
 	if(tableId == "milestoneTable"){
 		datePickerClone.datepicker();
 	}
-	document.getElementById(rowCount).value = rowlength -1;
+	if(tableId == 'invoiceTable') rowlength -= 1
+	document.getElementById(rowCount).value = rowlength;
 
 	// Update Item Index label
 	updateIndexLabel(rowlength);
 
-	clearId = tableId == "milestoneTable" ? "milestone_id_"+(rowlength-1) : (tableId == "txnTable" ? "txn_id_"+(rowlength-1) : "item_id_"+(rowlength-1) ) ;
+	clearId = tableId == "milestoneTable" ? "milestone_id_"+(rowlength) : (tableId == "txnTable" ? "txn_id_"+(rowlength) : "item_id_"+(rowlength) ) ;
 	$("#"+clearId).val("");
 	if(tableId == "invoiceTable"){
 		if($("#invoice_type").val() == "I"){
-			$("#invoice_item_id_"+(rowlength-1)).hide();
-			applyTax(document.getElementById("project_id_"+(rowlength-1)), "project");
+			$("#invoice_item_id_"+(rowlength)).hide();
+			applyTax(document.getElementById("project_id_"+(rowlength)), "project");
 		}else{
-			$("#invoice_item_id_"+(rowlength-1)).val("").select2();
+			$("#invoice_item_id_"+(rowlength)).val("").select2();
 		}
-		$("#product_id_"+(rowlength-1)).val("");
-		$("#material_id_"+(rowlength-1)).val("");
-		$("#original_amount_"+(rowlength-1)).html("0.00");
-		$("#amount_"+(rowlength-1)).html("0.00");
+		$("#product_id_"+(rowlength)).val("");
+		$("#material_id_"+(rowlength)).val("");
+		$("#original_amount_"+(rowlength)).html("0.00");
+		$("#amount_"+(rowlength)).html("0.00");
+	}
+	if(tableId == "shipmentTable"){
+		$("#invoice_item_id_"+(rowlength)).val("");
 	}
 }
 
 function updateIndexLabel(rowlength){
-	if($("#item_index_" + (rowlength-1)).length > 0){
-		$("#item_index_" + (rowlength-1)).html(rowlength-1);
+	if($("#item_index_" + (rowlength)).length > 0){
+		$("#item_index_" + (rowlength)).html(rowlength);
 	}
 }
 
@@ -377,10 +382,12 @@ function deleteRow(tableId, totalrow){
 	}
 	else{
 		//Add row if table has only a row
-		if($("#"+tableId +" tr").length == 3) invoiceAddRow(tableId, totalrow);
+		if((tableId == "invoiceTable" && $("#"+tableId +" tr").length == 3) || $("#"+tableId +" tr").length == 2){
+			invoiceAddRow(tableId, totalrow);
+		}
 
 		var table = document.getElementById(tableId);
-		var rowlength = table.rows.length - 2;
+		var rowlength = tableId == "invoiceTable" ? table.rows.length - 2 : table.rows.length;
 		document.getElementById(tableId).deleteRow(row_id);
 		document.getElementById(totalrow).value = document.getElementById(totalrow).value - 1;
 

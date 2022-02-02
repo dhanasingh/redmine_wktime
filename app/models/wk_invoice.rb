@@ -85,15 +85,5 @@ class WkInvoice < ActiveRecord::Base
   scope :get_invoice_numbers, ->(type, id, invoice_type){
     self.where(invoice_type: invoice_type, parent_type: type,  parent_id: id).where.not(status: 'd')
   }
-  
-  def self.updateInvStatus(invoice_id)
-    invoice = self.find(invoice_id)
-    update_status = false
-    invoice.invoice_items.each do |ii|
-      inventory_items = WkInventoryItem.where(invoice_item_id: ii.id).first
-      update_status = inventory_items.present? && ii.quantity == inventory_items.total_quantity
-    end
-    invoice.update(:status => 'd') if update_status
-  end
 
 end

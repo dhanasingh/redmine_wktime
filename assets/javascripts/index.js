@@ -146,15 +146,6 @@ $(document).ready(function() {
 	$('#automatic_product_item').change(function(){
 		showHidePartNumber();
 	});
-	if($('#si_id').val() == '') $('#populate_items').hide();
-	$('#si_id').change(function(){
-		if(this.value != ""){
-			$("#populate_items").show();
-		}
-		else{
-			$("#populate_items").hide();
-		}
-	});
 });
 
 function openReportPopup(){
@@ -1155,7 +1146,9 @@ function getInvoiceNos(uid, loadDdId){
 		url: invoiceUrl,
 		type: 'get',
 		data: {parent_id: parentId, parent_type: parentType},
-		success: function(data){updateUserDD(data, loadDropdown, uid, needBlankOption, false, "");$('#populate_items').hide();},
+		success: function(data){updateUserDD(data, loadDropdown, uid, needBlankOption, false, "");
+		if(loadDdId == 'delivery_invoice_id') $('#populate_items').hide();
+		},
 		beforeSend: function(){ $(this).addClass('ajax-loading'); },
 		complete: function(){ $(this).removeClass('ajax-loading'); }
 	});
@@ -1201,6 +1194,7 @@ function populateSIInvoice()
 }
 
 function submitReceiptForm(){
+	var ret = true;
 	var url = "/wkshipment/checkQuantityAndSave";
 	var si_id = $('#si_id').val();
 	var current_quantity = $('[id^=total_quantity]');
@@ -1208,19 +1202,26 @@ function submitReceiptForm(){
 	current_quantity.each(function() {
 		quantity_sum += parseInt($(this).val());
 	});
-	var ret = true;
-	$.ajax({
-		url: url,
-		type: 'get',
-		data: {si_id: si_id, quantity_sum: quantity_sum},
-		success: function(data){
-			if(data['total_qty'] < data['current_qty']){
-				alert('used acces qty');
-				ret = false;
-			}
-		},
-		beforeSend: function(){ $(this).addClass('ajax-loading'); },
-		complete: function(){ $(this).removeClass('ajax-loading'); }
-	});
+	if(si_id > 0){
+		$.ajax({
+			url: url,
+			type: 'get',
+			data: {si_id: si_id, quantity_sum: quantity_sum},
+			async: false,
+			success: function(data){
+				if(data['invoice_qty'] < data['received_qty']){
+					var confirmMsg = confirm('Invoice quantity is higher than received quantity')
+					if(confirmMsg){
+						ret =  true;
+					}
+					else{
+						ret = false;
+					}
+				}
+			},
+			beforeSend: function(){ $(this).addClass('ajax-loading'); },
+			complete: function(){ $(this).removeClass('ajax-loading'); }
+		});
+	}
 	return ret;
 }

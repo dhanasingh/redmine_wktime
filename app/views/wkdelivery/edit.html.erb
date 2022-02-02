@@ -27,7 +27,7 @@
 		<tr>
 			<th style="text-align: left"><label><%= l(:field_type) %></label></th>
 			<td style="text-align: left">
-				<%= ": "%><%= params[:delivery_id].present? ? accountPolymormphicHash[@shipment&.parent_type] :  select_tag('related_to', options_for_select([[l(:field_account), 'WkAccount'], [l(:label_contact), 'WkCrmContact']], selected: @shipment.blank? ? "" : @shipment.parent_type), onchange: "actRelatedDd(#{User.current.id}, false, false, 'A', 'C', false, 'delivery_invoice_id');", style: "width: 150px") %>
+				<%= ": "%><%= params[:delivery_id].present? ? accountPolymormphicHash[@shipment&.parent_type] :  select_tag('related_to', options_for_select([[l(:field_account), 'WkAccount'], [l(:label_contact), 'WkCrmContact']], selected: @shipment.blank? ? "" : @shipment.parent_type), onchange: "actRelatedDd(#{User.current.id}, false, false, 'A', 'C', false, true, 'delivery_invoice_id');", style: "width: 150px") %>
 			</td>
 			<th style="text-align: left"><label><%= l(:field_name) %></label></th>
 			<td style="text-align: left">

@@ -24,7 +24,8 @@ class WkInvoiceItem < ActiveRecord::Base
   has_many :account_project, through: :project
   has_many :spent_fors, foreign_key: "invoice_item_id", class_name: "WkSpentFor", :dependent => :nullify
   belongs_to :invoice_item, :polymorphic => true
-  belongs_to :product, class_name: "WkProduct"
+  belongs_to :product, class_name: "WkProduct"  
+  has_many :inventory_items, class_name: "WkInventoryItem", foreign_key: "invoice_item_id"
 
   validates_presence_of :invoice_id
   validates_numericality_of :amount, :allow_nil => true, :message => :invalid

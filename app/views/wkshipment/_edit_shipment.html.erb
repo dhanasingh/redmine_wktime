@@ -25,22 +25,28 @@
 		siArr = []
 		siArr = WkInvoice.get_invoice_numbers(@shipment&.parent_type || 'WkAccount', @shipment&.parent_id || (accountArr.present? ? accountArr[0][1] : ''), 'SI').collect {|i| [i.invoice_number, i.id]  }
 		siArr.unshift(["",''])
+		invoiceID = @shipmentItem&.first&.supplier_invoice_id
 		invoice_no = @shipmentItem&.first&.supplier_invoice&.invoice_number
+		if params[:shipment_id].present? && invoiceID.present?
+			isAdd = false
+			siArr.map{|no, id| isAdd = true if id.to_i == invoiceID}
+			siArr.push([invoice_no, invoiceID]) if !isAdd
+		end
 		%>
-	<%= hidden_field_tag("supplier_invoice_id",  @shipmentItem&.first&.supplier_invoice_id )  %>
 	<table>
 		<tr>
 			<th style="text-align: left"><label><%= l(:field_type) %></label></th>
 			<td style="text-align: left">
-				<%= ": "%><%= params[:shipment_id].present? ? accountPolymormphicHash[@shipment&.parent_type] : select_tag('related_to', options_for_select([[l(:field_account), 'WkAccount'], [l(:label_contact), 'WkCrmContact']], selected: @shipment.blank? ? "" : @shipment.parent_type), onchange: "actRelatedDd(#{User.current.id}, false, false, 'S', 'SC', false, true, 'si_id');", style: "width: 150px") %>
+				<%= ": "%><%= select_tag('related_to', options_for_select([[l(:field_account), 'WkAccount'], [l(:label_contact), 'WkCrmContact']], selected: @shipment.blank? ? "" : @shipment.parent_type), onchange: "actRelatedDd(#{User.current.id}, false, false, 'S', 'SC', false, true, 'si_id');", style: "width: 150px") %>
 			</td>
 			<th style="text-align: left"><label><%= l(:field_name) %></label></th>
 			<td style="text-align: left">
-				<%= ": "%><%= params[:shipment_id].present? ? @shipment&.parent&.name : select_tag('related_parent', options_for_select(accountArr, selected: @shipment.blank? ? "" : @shipment.parent_id), onchange: "getInvoiceNos(#{User.current.id}, 'si_id');", style: "width: 150px") %>
+				<%= ": "%><%= select_tag('related_parent', options_for_select(accountArr, selected: @shipment.blank? ? "" : @shipment.parent_id), onchange: "getInvoiceNos(#{User.current.id}, 'si_id');", style: "width: 150px") %>
 			</td>
 			<th style="text-align: left"><label><%= l(:label_supplier_invoice) %></label></th>
 			<td style="text-align: left">
-				<%= ": "%><%= params[:shipment_id].present? ? (link_to invoice_no, controller: 'wksupplierinvoice', action: 'edit', invoice_id: @shipmentItem&.first&.supplier_invoice_id, new_invoice: false, preview_billing: false, tab: 'wksupplierinvoice' if invoice_no.present?) : select_tag('si_id', options_for_select(siArr, selected: @shipmentItem&.first&.supplier_invoice_id)) %>
+				<%= ": "%><%= select_tag('si_id', options_for_select(siArr, selected: invoiceID), onchange: "populateSIInvoice();") %>
+				<%= link_to(l(:label_invoice) + ' ' +l(:label_details), {controller: 'wksupplierinvoice', action: 'edit', invoice_id: invoiceID, new_invoice: false, preview_billing: false, tab: 'wksupplierinvoice'},{style:"padding-left: 5px"}) if params[:shipment_id].present? && invoice_no.present? %>
 			</td>
 		</tr>
 		<tr><th style="text-align: left"><%= l(:label_serial_number) %></th>

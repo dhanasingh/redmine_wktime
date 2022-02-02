@@ -11,7 +11,6 @@
 <%=h hidden_field_tag("project_id",  'null' )  %>
 <div class="wk-contextual">
 <h2 style="float:left;"><%= l(:label_item) %></h2>
-	 <span id="populate_items"><%= link_to l(:label_populate_items), "#", { onclick: "javascript:populateSIInvoice()", class: 'icon icon-report'}  %></span>
 <%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('shipmentTable', 'totalrow');",  :class => 'icon icon-add' } %>
 </div>
 <div style="clear:both"></div>
@@ -28,14 +27,14 @@
 			<!-- <th width="10%" ><%#= l(:label_brand) %></th>
 			<th width="10%" ><%#= l(:label_model) %></th> -->
 			<th width="7%" ><%= l(:label_attribute) %></th>
-			<th width="85%" colspan="2"><%= l(:label_serial_number) %></th>
+			<th width="25%" colspan="2"><%= l(:label_serial_number) %></th>
 			<th width="10%" ><%= l(:field_notes) %></th>
 			<th width="7%" ><%= l(:field_currency) %></th>
 			<th width="7%" ><%= l(:label_cost_price) %></th>
 			<th width="7%" ><%= l(:label_selling_price) %></th>
 			<th width="7%" ><%= l(:label_over_head_price) %></th>
 			<th width="3%" ><%= l(:field_quantity) %></th>
-			<th width="5%" ><%= "UOM" %></th>
+			<th width="5%" ><%= l(:label_s_uom) %></th>
 			<th width="7%" ><%= l(:label_location) %></th>
 			<th width="7%" ><%= l(:label_project) %></th>
 
@@ -67,7 +66,8 @@
 <%=h hidden_field_tag("deletedids",  "" )  %>
 <% if params[:shipment_id].present? %>
 	<div class="contextual total-hours">
-		<%= l(:label_total) %>: &nbsp;<%= @shipmentItem&.shipment_item[0]&.currency %> <%= "%.2f" % @shipmentItem&.shipment_item&.sum('(total_quantity*cost_price)+over_head_price')%>
+		<% @shipmentItem.each{|item| total += (item.total_quantity * item.cost_price) + item.over_head_price } %>
+		<%= l(:label_total) %>: &nbsp;<%= @shipmentItem&.first&.currency %> <%= "%.2f" % total%>
 	</div>
 <%end%>
 <%= submit_tag l(:button_save), :onclick => "return submitReceiptForm();",  :hidden => false, :id => 'items_save', :disabled => false %>

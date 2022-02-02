@@ -92,18 +92,25 @@ include WkinventoryHelper
 
 	def edit
 		@shipment = WkShipment.new
-		@inventoryItem = nil
+		@shipmentItem = Array.new
+		if params[:shipment_id].present?
+			@shipment = WkShipment.find(params[:shipment_id].to_i)
+			@shipmentItem = @shipment.inventory_items.shipment_item
+		else
+			@shipmentItem << @shipment.inventory_items.new(currency: Setting.plugin_redmine_wktime['wktime_currency'])
+		end
 		if !params[:populate_items].blank? && params[:populate_items] == '1' && !params[:si_id].blank?
 			@shipment.parent_type = params[:related_to]
 			@shipment.parent_id = params[:related_parent]
 			@shipment.shipment_date = params[:shipment_date]
 			@shipment.serial_number = params[:serial_number]
-			@shipmentItem = Array.new
 			ids = params[:si_id]
 			@populateItems =  WkInvoiceItem.where(" invoice_id in (#{ids}) and item_type = 'i'")
 			otherCharges =  WkInvoiceItem.where(" invoice_id in (#{ids}) and item_type <> 'i'").sum('amount')
 			itemCount = @populateItems.sum('quantity')
 			overHeadPrice = otherCharges.to_f/itemCount.to_f
+			shipment_item = Array.new
+			@shipmentItem.each{|item| shipment_item << item if item.invoice_item_id.blank? } if params[:shipment_id].present?
 			@populateItems.each do|item|
 				inventory = @shipment.inventory_items.new
 				inventory.invoice_item_id = item.id
@@ -121,15 +128,9 @@ include WkinventoryHelper
 				inventory.total_quantity = item.quantity
 				inventory.status = 'o'
 				inventory.supplier_invoice_id = item.invoice_id
-				@shipmentItem << inventory
+				shipment_item << inventory
 			end
-		else
-			@shipmentItem = Array.new
-			@shipmentItem << @shipment.inventory_items.new(currency: Setting.plugin_redmine_wktime['wktime_currency'])
-		end
-		unless params[:shipment_id].blank?
-			@shipment = WkShipment.find(params[:shipment_id].to_i)
-			@shipmentItem = @shipment.inventory_items.shipment_item
+			@shipmentItem = shipment_item
 		end
 	end
 
@@ -232,7 +233,7 @@ include WkinventoryHelper
 		end
 
 		postShipmentAccounting(@shipment, assetAccountingHash, assetTotal)
-		WkInvoice.updateInvStatus(params["si_id"]) if params["si_id"].present?
+		updateInvStatus(params["si_id"]) if params["si_id"].present?
 		if errorMsg.nil?
 			redirect_to :action => 'index' , :tab => controller_name
 			flash[:notice] = l(:notice_successful_update)
@@ -373,16 +374,27 @@ include WkinventoryHelper
 	def getShipmentType
 		'I'
 	end
+	
+	def getQuantities(invoice_id)
+		invoice = WkInvoice.find(invoice_id)
+		invoice_qty = 0
+		received_qty = 0
+		invoice.invoice_items.each do |item|
+			received_qty += item.inventory_items.sum(:total_quantity)
+		end
+		invoice_qty = invoice.invoice_items.sum(:quantity)
+		qty = { received_qty: received_qty, invoice_qty: invoice_qty }
+	end
+
+	def updateInvStatus(invoice_id)
+		invoice = WkInvoice.find(params[:si_id].to_i)
+		qty = getQuantities(params[:si_id].to_i)
+		invoice.update(:status => 'd') if qty[:invoice_qty] == qty[:received_qty] || qty[:invoice_qty] < qty[:received_qty]
+	end
 
 	def checkQuantityAndSave
-    invoice = WkInvoice.find(params[:si_id].to_i)
-		used_qty = 0
-    invoice.invoice_items.each do |ii|
-      inventory_items = WkInventoryItem.where(invoice_item_id: ii.id).first
-			used_qty += inventory_items.total_quantity if inventory_items.present?
-		end
-		total_qty = invoice.invoice_items.sum(:quantity)
-		current_qty = params[:quantity_sum].to_i + used_qty
-		render :json => { total_qty: total_qty, current_qty: current_qty }
+		qty = getQuantities(params[:si_id].to_i)
+		received_qty = params[:quantity_sum].to_i + qty[:received_qty]
+		render :json => { invoice_qty: qty[:invoice_qty], received_qty: received_qty }
 	end
 end

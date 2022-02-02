@@ -80,8 +80,9 @@ module WkshipmentHelper
 	end
 
 	def getInvoiceItemsNotes(invoice_id)
-		notes = WkInvoiceItem.getInvItemsFromInvoice(invoice_id)
-		notesArray = notes.map { |notes| [notes.name, notes.id]}
+		notes = WkInvoiceItem.getInvItemsFromInvoice(invoice_id)	
+		notesArray = notes.map { |notes| [notes.name+'-'+notes.quantity.to_s, notes.id]}
+		notesArray.unshift(["",""])	
 		notesArray
 	end
 end
