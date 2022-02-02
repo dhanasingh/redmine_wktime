@@ -9,7 +9,6 @@ class WksupplierinvoiceController < WksupplierorderentityController
 		if params[:rfq_id].present? && ((Setting.plugin_redmine_wktime['label_create_supplier_invoice_without_purchase_order'].blank? || Setting.plugin_redmine_wktime['label_create_supplier_invoice_without_purchase_order'] == 0) && params[:po_id].blank?)
 			errorMsg = ""
 			errorMsg = l(:error_please_select_rfq) + " <br/>" if params[:rfq_id].blank?
-			#errorMsg = errorMsg + "Please select the Quote \n" if params[:quote_id].blank?
 			errorMsg = errorMsg + l(:error_please_select_po) + " <br/>" if params[:po_id].blank?
 			flash[:error] = errorMsg
 			redirect_to :action => 'new'
@@ -20,7 +19,8 @@ class WksupplierinvoiceController < WksupplierorderentityController
 				@poId = ""
 			end
 			if !params[:populate_items].blank? && params[:populate_items] == '1'
-				@invoiceItem = WkInvoiceItem.where(:invoice_id => params[:po_id].to_i).select(:name, :rate, :amount, :quantity, :item_type, :currency, :project_id, :modifier_id,  :invoice_id, :original_amount, :original_currency )
+				@invoiceItem = WkInvoiceItem.where(:invoice_id => params[:po_id].to_i)
+					.select(:name, :rate, :amount, :quantity, :item_type, :currency, :project_id, :modifier_id,  :invoice_id, :original_amount, :original_currency, :product_id, :invoice_item_type, :invoice_item_id)
 			end
 		end
 	end

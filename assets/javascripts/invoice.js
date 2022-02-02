@@ -110,8 +110,28 @@ $(document).ready(function() {
 			$("#invoiceTable #name_"+row).val(text);
 		});
 
-		//Applying Product tax
+			//Apply tax rows
 		if(["SI", "I"].includes($('#invoice_type').val())){
+			let searchParams = new URLSearchParams(window.location.search);
+				if(!(searchParams.has("invoice_id") && searchParams.get("invoice_id") > 0)){
+				let productIDs = [];
+				$(".productItemsDD").each(function(){
+					let id = (this.value).split(",").shift();
+					if(!productIDs.includes(id)){
+						productIDs.push(id);
+						applyTax(this, "invoice_item");
+					}
+				});
+
+				let projectIDs = [];
+				$("[id^='project_id_']").each(function(){
+					if(!projectIDs.includes(this.value)){
+						projectIDs.push(this.value);
+						applyTax(this, "project");
+					}
+				});
+			}
+
 			$(".productItemsDD").change(function(){
 				let row = parseInt((this.name).split('_').pop());
 				let text = $("#invoice_item_id_"+row).val() != "" ? $("#invoice_item_id_"+row+ " option:selected").text() : "";
@@ -119,8 +139,6 @@ $(document).ready(function() {
 				applyTax(this, "invoice_item");
 			});
 
-			//Apply Project tax rows
-			applyTax(document.getElementById("project_id_1"), "project");
 			$("[id^='project_id_']").change(function(){
 				applyTax(this, "project");
 			});
@@ -132,7 +150,7 @@ $(document).ready(function() {
 					applyTax(document.getElementById("project_id_"+row), "project");
 					$("#invoice_item_id_"+row).val("");
 				}
-			// removeTaxRows();
+				removeTaxRows();
 			})
 		}
 	}
@@ -233,6 +251,7 @@ function invoiceAddRow(tableId, rowCount){
 	$("#"+clearId).val("");
 	if(tableId == "invoiceTable"){
 		if($("#invoice_type").val() == "I"){
+			$("#item_type_"+(rowlength)).val("i");
 			$("#invoice_item_id_"+(rowlength)).hide();
 			applyTax(document.getElementById("project_id_"+(rowlength)), "project");
 		}else{
@@ -799,11 +818,13 @@ function showHideProductItem(ele){
 
 function applyTax(ele, type){
 	let checkTaxRow = false;
-	let ids = ($(ele).val()).split(",");
+	let ids = ($(ele).val() || "").split(",");
 	let id = ids[0];
 	$("[id^='tax_"+type+"_id_']").each(function(){
-		if(this.value == id) checkTaxRow = true;
+		let row = parseInt((this.name).split('_').pop());
+		if(this.value == id && (type == "invoice_item" || !$("#tax_invoice_item_id_"+row).val())) checkTaxRow = true;
 	});
+
 	removeTaxRows();
 	if(id && !checkTaxRow){
 		let url = "/wkorderentity/";
@@ -839,27 +860,26 @@ function removeTaxRows(){
 		if(["i", "e"].includes($("#item_type_"+row).val()) && !projIDs.includes(this.value)) projIDs.push(this.value);
 	});
 
+	$("[id^='tax_project_id_']").each(function(){
+		let row = parseInt((this.name).split('_').pop());
+		if(this.value && !projIDs.includes(this.value) && !$("#tax_invoice_item_id_"+row).val()){
+			$(this).parents("tr").remove();
+	}
+	});
 	//Remving product tax rows
 	let prodIDs = [];
 	$(".productItemsDD").each(function(){
 		let id = (this.value).split(',').shift() || null;
 		let row = parseInt((this.name).split('_').pop());
 		let projectID = $("#project_id_"+row).val();
-		if(id && !prodIDs.includes(id)){
+		if(["m", "a"].includes($("#item_type_"+row).val()) && id && !prodIDs.includes(id)){
 			prodIDs.push(id);
-			projectID && projIDs.push(projectID);
 		}
 	});
-	removingRow("project", projIDs);
-	removingRow("invoice_item", prodIDs);
-	updateTotals();
-}
-
-function removingRow(type, ids){
-	$("[id^='tax_"+type+"_id_']").each(function(){
-		let id = (this.value).split(',').shift() || null;
-		if(id && !ids.includes(id)) $(this).parents("tr").remove();
+	$("[id^='tax_invoice_item_id_']").each(function(){
+		if(this.value && !prodIDs.includes(this.value)) $(this).parents("tr").remove();
 	});
+	updateTotals();
 }
 
 function renderTaxRows(data, ele){

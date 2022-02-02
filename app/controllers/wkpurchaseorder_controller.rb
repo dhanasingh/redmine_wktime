@@ -32,7 +32,8 @@ class WkpurchaseorderController < WksupplierorderentityController
 			rfqQuotEntry = WkRfqQuote.where(:quote_id => params[:quote_id].to_i)
 			@rfqQuotObj = rfqQuotEntry.blank? || rfqQuotEntry[0].blank? ? nil : rfqQuotEntry[0]
 			if !params[:populate_items].blank? && params[:populate_items] == '1'
-				@invoiceItem = WkInvoiceItem.where(:invoice_id => @rfqQuotObj.quote_id).select(:name, :rate, :amount, :quantity, :item_type, :currency, :project_id, :modifier_id,  :invoice_id, :original_amount, :original_currency, :invoice_item_id, :invoice_item_type)
+				@invoiceItem = WkInvoiceItem.where(:invoice_id => @rfqQuotObj.quote_id)
+					.select(:name, :rate, :amount, :quantity, :item_type, :currency, :project_id, :modifier_id,  :invoice_id, :original_amount, :original_currency, :invoice_item_id, :invoice_item_type, :product_id)
 			end
 		end
 	end
