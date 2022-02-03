@@ -176,8 +176,8 @@
 								<td class="lbl-txt-align: center" headers="product_item">
 									<%= hidden_field_tag("invoice_item_type_#{row_index.to_s}", value['invoice_item_type'] || "WkProductItem")  %>
 									<%= select_tag("invoice_item_id_#{row_index.to_s}",
-										options_for_select(@productItemsDD, selected: value['product_id'] && value['invoice_item_id'] ? (value['product_id']) + ", "+ value['invoice_item_id'] : nil),
-										disabled: isDisable, class: "productItemsDD", width: "100%")
+										options_for_select(@productItemsDD, selected: value['product_id'] && value['invoice_item_id'] ? value['product_id'].to_s + ", "+ value['invoice_item_id'].to_s : nil),
+										disabled: @preBilling, class: "productItemsDD", width: "100%")
 									%>
 								</td>
 							<% else %>
@@ -242,7 +242,7 @@
 					<% if @productItemsDD.present? %>
 						<td class="lbl-txt-align: center" headers="product_item">
 							<%= hidden_field_tag("invoice_item_type_#{row_index.to_s}", "WkProductItem")  %>
-							<%= select_tag("invoice_item_id_#{row_index.to_s}", options_for_select(@productItemsDD), disabled: isDisable, class: "productItemsDD") %>
+							<%= select_tag("invoice_item_id_#{row_index.to_s}", options_for_select(@productItemsDD), class: "productItemsDD") %>
 						</td>
 					<% end %>
 					<td class="lbl-txt-align: center" headers="name">

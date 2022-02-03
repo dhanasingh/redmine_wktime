@@ -445,7 +445,7 @@ include WkpayrollHelper
 
 	# Return RateHash which contains rate and currency for User
 	def getUserRateHash(wkUserObj)
-		rateHash = { "rate" => (wkUserObj.billing_rate.blank? ? nil : wkUserObj.billing_rate.round(2)), "currency" => wkUserObj.billing_currency, "designation" => wkUserObj.role_id }
+		rateHash = { "rate" => (wkUserObj&.billing_rate&.round(2) || nil), "currency" => wkUserObj&.billing_currency, "designation" => wkUserObj&.role_id }
 		# userCustVals.each do |custVal|
 			# case custVal.custom_field_id
 				# when getSettingCfId('wktime_user_billing_rate_cf')
@@ -764,6 +764,8 @@ include WkpayrollHelper
 			@invItems[@itemCount].store 'milestone_id', ''
 			@invItems[@itemCount].store 'project_id', mEntry.project_id
 			@invItems[@itemCount].store 'product_id', productId
+			@invItems[@itemCount].store 'invoice_item_id', mEntry&.inventory_item&.product_item&.id
+			@invItems[@itemCount].store 'invoice_item_type', "WkProductItem"
 			@invItems[@itemCount].store 'material_id', mEntry.id
 			@invItems[@itemCount].store 'item_desc', desc
 			@invItems[@itemCount].store 'item_type', productType
@@ -771,6 +773,7 @@ include WkpayrollHelper
 			@invItems[@itemCount].store 'currency', curr
 			@invItems[@itemCount].store 'item_quantity', qty.round(4)
 			@invItems[@itemCount].store 'item_amount', amount
+
 			@itemCount = @itemCount + 1
 			partialMatAmount = partialMatAmount + amount.round(2)
 			if isCreate
