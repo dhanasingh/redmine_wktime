@@ -1026,8 +1026,7 @@ function setOverHeadCost(aval_quantity){
 function getAssignedSNs(){
 	let serial_number = $('#serial_number').val();
 	let running_sn = $('#running_sn').val();
-	let total_quantity = $('#product_item #available_quantity').val();
-	if(!total_quantity) total_quantity = $('#total_quantity').val();
+	let total_quantity = $('#total_quantity').val();
 	populateSerialNos(serial_number, running_sn, total_quantity);
 }
 
