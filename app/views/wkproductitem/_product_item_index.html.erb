@@ -47,18 +47,21 @@
 				<label><%= check_box_tag('is_dispose', 1, isDisposed) %> <%= l(:label_disposed) %></label>&nbsp;
 			<% end %>
 			<% if controller.getItemType == "I" %>
-				<label for='name'><%= l(:label_text_search) %></label>
-					<%= text_field_tag 'name', controller.getSession(:name), :size => 15 %>&nbsp;
-					<label><%= check_box_tag('available_items', 1, availableItems) %> <%= l(:label_show_available_items) %></label>
+				<label> <%= l(:label_show_available_items) %> <%= check_box_tag('available_items', 1, availableItems) %></label>
 			<% end %>
-			<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>&nbsp;
-			<%= link_to l(:button_clear), {:tab => controller_name, clear: true}, :class => 'icon icon-reload' %>
-			<% if wktime_helper.isChecked('asset_save_geo_location') && params[:controller] == 'wkasset' %>
-			<label style="padding-left:5px">
-				<%= check_box_tag('show_on_map', true, showOnMap, onclick: '$("#query_form").submit(); return false;') %>
-				<%= l(:label_show_on_map) %>
-			</label>
-		<% end %>
+			<div style="padding-top:5px;">
+				<% if controller.getItemType == "I" %>
+					<%= l(:label_text_search) %> <%= text_field_tag 'name', controller.getSession(:name), :size => 15 %>
+				<% end %>
+				<%= link_to_function l(:button_apply), '$("#query_form").submit(); return false;', :class => 'icon icon-checked' %>&nbsp;
+				<%= link_to l(:button_clear), {:tab => controller_name, clear: true}, :class => 'icon icon-reload' %>
+				<% if wktime_helper.isChecked('asset_save_geo_location') && params[:controller] == 'wkasset' %>
+					<label style="padding-left:5px">
+						<%= check_box_tag('show_on_map', true, showOnMap, onclick: '$("#query_form").submit(); return false;') %>
+						<%= l(:label_show_on_map) %>
+					</label>
+				<% end %>
+			</div>
 		</fieldset>
 		<br>
 	<% end %>

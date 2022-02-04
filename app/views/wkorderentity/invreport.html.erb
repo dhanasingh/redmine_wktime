@@ -51,15 +51,15 @@
 								<th align="right" style="width:16%;  border-bottom:1pt solid black;" ><%= l(:field_amount) %></th>
 							</tr>
 							<%
-								projIDs = @invoiceItem.where(product_id: nil).pluck(:project_id).uniq()
-								prodIDs = @invoiceItem.where.not(product_id: nil).pluck(:product_id).uniq()
+								projIDs = @invoiceItem.where(product_id: nil).where.not(:item_type => 'r').pluck(:project_id).uniq()
+								prodIDs = @invoiceItem.where.not(product_id: nil).where.not(:item_type => 'r').pluck(:product_id).uniq()
 							%>
 							<% projIDs.each do |id| %>
-								<% invoiceItems = @invoiceItem.where(product_id: nil, project_id: id).order(:item_type) %>
+								<% invoiceItems = @invoiceItem.where(product_id: nil, project_id: id).where.not(:item_type => 'r').order(:item_type) %>
 								<%= render partial: "report_inv_items", locals:{invoiceItems: invoiceItems} %>
 							<% end %>
 							<% prodIDs.each do |id| %>
-								<% invoiceItems = @invoiceItem.where(product_id: id).order(:item_type) %>
+								<% invoiceItems = @invoiceItem.where(product_id: id).where.not(:item_type => 'r').order(:item_type) %>
 								<%= render partial: "report_inv_items", locals:{invoiceItems: invoiceItems} %>
 							<% end %>
 

@@ -1223,7 +1223,7 @@ it:
   label_admin_dashboards: Admin Dashboards
   label_product: Product
   label_automatic_product_item: Automatically Create Product Item
-  label_show_available_items: Show only available items
+  label_show_available_items: Show available items
   label_used_items: Used Items
   label_goods_receipt: Goods Receipt
 
