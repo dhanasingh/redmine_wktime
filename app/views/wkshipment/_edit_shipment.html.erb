@@ -33,6 +33,7 @@
 			siArr.push([invoice_no, invoiceID]) if !isAdd
 		end
 		%>
+		<%=h hidden_field_tag("prev_si_id", invoiceID )  %>
 	<table>
 		<tr>
 			<th style="text-align: left"><label><%= l(:field_type) %></label></th>

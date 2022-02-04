@@ -1190,6 +1190,9 @@ function populateSIInvoice()
 		url.searchParams.set('populate_items', '1');
 		location.href = url;
   }
+	else{
+		$('#si_id').val($('#prev_si_id').val())
+	}
 }
 
 function submitReceiptForm(){
@@ -1202,6 +1205,7 @@ function submitReceiptForm(){
 		quantity_sum += parseInt($(this).val());
 	});
 	if(si_id > 0){
+		$('[id^=invoice_item_id]').attr('required', '');
 		$.ajax({
 			url: url,
 			type: 'get',

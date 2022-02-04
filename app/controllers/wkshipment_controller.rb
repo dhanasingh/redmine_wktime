@@ -194,6 +194,7 @@ include WkinventoryHelper
 				shipmentItem.location_id = params["location_id_#{i}"].to_i if !params["location_id_#{i}"].blank? && params["location_id_#{i}"] != "0"
 				shipmentItem.project_id = params["project_id_#{i}"].to_i if !params["project_id_#{i}"].blank? && params["project_id_#{i}"] != "0"
 				shipmentItem.supplier_invoice_id = params["si_id"]
+				shipmentItem.invoice_item_id = params["invoice_item_id_#{i}"]
 				if params["product_type_#{i}"] == 'A' || params["product_type_#{i}"] == 'RA'
 					over_head = params["over_head_price_#{i}"].to_f/ params["total_quantity_#{i}"].to_f
 					shipmentItem.over_head_price = getExchangedAmount(params["currency_#{i}"], over_head)
@@ -221,7 +222,6 @@ include WkinventoryHelper
 					shipmentItem.serial_number = shipmentItem.serial_number.to_s + shipmentItem.running_sn.to_s
 					shipmentItem.running_sn = ''
 				end
-				shipmentItem.invoice_item_id = params["invoice_item_id_#{i}"]
 				shipmentItem.save()
 				postAssetProperties(shipmentItem)
 			end
@@ -374,22 +374,27 @@ include WkinventoryHelper
 	def getShipmentType
 		'I'
 	end
-	
+
+	def updateInvStatus(invoice_id)
+		invoice = WkInvoice.find(params[:si_id].to_i)
+		update_status = false
+		invoice.invoice_items.each do |item|
+			invoice_qty = item.quantity
+			received_qty = item.inventory_items.sum(:total_quantity)
+			update_status = invoice_qty == received_qty || invoice_qty < received_qty
+			break if !update_status
+		end
+		invoice.update(:status => 'd') if update_status
+	end
+
 	def getQuantities(invoice_id)
 		invoice = WkInvoice.find(invoice_id)
-		invoice_qty = 0
 		received_qty = 0
 		invoice.invoice_items.each do |item|
 			received_qty += item.inventory_items.sum(:total_quantity)
 		end
 		invoice_qty = invoice.invoice_items.sum(:quantity)
 		qty = { received_qty: received_qty, invoice_qty: invoice_qty }
-	end
-
-	def updateInvStatus(invoice_id)
-		invoice = WkInvoice.find(params[:si_id].to_i)
-		qty = getQuantities(params[:si_id].to_i)
-		invoice.update(:status => 'd') if qty[:invoice_qty] == qty[:received_qty] || qty[:invoice_qty] < qty[:received_qty]
 	end
 
 	def checkQuantityAndSave
