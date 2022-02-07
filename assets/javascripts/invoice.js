@@ -870,7 +870,6 @@ function removeTaxRows(){
 	$("[id^='tax_project_id_']").each(function(){
 		let row = parseInt((this.name).split('_').pop());
 		if(this.value && !projIDs.includes(this.value) && !$("#tax_invoice_item_id_"+row).val()){
-			console.log("----projIDs---", projIDs, "--this.value--",this.value);
 			$(this).parents("tr").remove();
 	}
 	});
@@ -886,7 +885,6 @@ function removeTaxRows(){
 	});
 	$("[id^='tax_invoice_item_id_']").each(function(){
 		if(this.value && !prodIDs.includes(this.value)){
-			console.log("----prodIDs---", projIDs, "--this.value--",this.value);
 			 $(this).parents("tr").remove();}
 	});
 	updateTotals();
