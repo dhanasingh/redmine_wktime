@@ -870,6 +870,7 @@ function removeTaxRows(){
 	$("[id^='tax_project_id_']").each(function(){
 		let row = parseInt((this.name).split('_').pop());
 		if(this.value && !projIDs.includes(this.value) && !$("#tax_invoice_item_id_"+row).val()){
+			console.log("----projIDs---", projIDs, "--this.value--",this.value);
 			$(this).parents("tr").remove();
 	}
 	});
@@ -879,12 +880,14 @@ function removeTaxRows(){
 		let id = (this.value).split(',').shift() || null;
 		let row = parseInt((this.name).split('_').pop());
 		let projectID = $("#project_id_"+row).val();
-		if(["m", "a"].includes($("#item_type_"+row).val()) && id && !prodIDs.includes(id)){
+		if($('#invoice_type').val() == "SI" || ["m", "a"].includes($("#item_type_"+row).val()) && id && !prodIDs.includes(id)){
 			prodIDs.push(id);
 		}
 	});
 	$("[id^='tax_invoice_item_id_']").each(function(){
-		if(this.value && !prodIDs.includes(this.value)) $(this).parents("tr").remove();
+		if(this.value && !prodIDs.includes(this.value)){
+			console.log("----prodIDs---", projIDs, "--this.value--",this.value);
+			 $(this).parents("tr").remove();}
 	});
 	updateTotals();
 }
