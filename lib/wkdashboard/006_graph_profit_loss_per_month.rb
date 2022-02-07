@@ -109,7 +109,7 @@ module WkDashboard
       type.each do |ledgerType, trxAmountHash|
         total = calculateBalance({ ledgerType => trxAmountHash['c'].to_f}, { ledgerType => trxAmountHash['d'].to_f}, ledgerType)
         profit[yearMon] ||= 0
-        profit[yearMon] += total[ledgerType].to_f
+        profit[yearMon] += (total[ledgerType].to_f).round(2)
       end
     end
     return profit
