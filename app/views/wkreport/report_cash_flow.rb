@@ -30,9 +30,20 @@ module ReportCashFlow
 		typeArr = ['c', 'd']
 		detailHash = Hash.new
 		typeArr.each do |type|
-			glTransaction = WkGlTransactionDetail.includes(:ledger, :wkgltransaction)
-				.where("wk_gl_transaction_details.detail_type = ? and wk_ledgers.ledger_type IN (?) and wk_gl_transactions.trans_type IN ('R','P') and wk_gl_transactions.trans_date between ? and ?", type, ledgerType, from, to)
-			detailHash[type] = glTransaction.references(:ledger,:wkgltransaction).group('wk_ledgers.id').sum('wk_gl_transaction_details.amount')
+			other_type = type == 'c' ? 'd' : 'c'
+			detailHash[type] = {}
+			glTransaction = WkGlTransactionDetail.find_by_sql("SELECT DISTINCT sum(DISTINCT GLD1.amount) as amount, GLD1.ledger_id
+				FROM wk_gl_transaction_details AS GLD1
+				INNER JOIN wk_ledgers AS L1 ON L1.id = GLD1.ledger_id
+				INNER JOIN wk_gl_transactions AS GLT1 ON GLT1.id = GLD1.gl_transaction_id
+				LEFT JOIN wk_gl_transaction_details AS GLD2 ON GLD2.gl_transaction_id = GLD1.gl_transaction_id AND GLD2.detail_type = '#{other_type}'
+				LEFT JOIN wk_ledgers AS L2 ON L2.id = GLD2.ledger_id
+				LEFT JOIN wk_gl_transactions AS GLT2 ON GLT2.id = GLD2.gl_transaction_id
+				WHERE GLD1.detail_type = '#{type}' and L1.ledger_type IN ('#{ledgerType}') and GLT1.trans_type IN ('R','P','PR','S')
+				AND ((L2.ledger_type IN ('BA', 'CS') and GLT2.trans_type IN  ('PR','S')) OR GLT2.trans_type IN  ('R','P'))
+				and GLT1.trans_date between '#{from}' and '#{to}'
+				GROUP BY GLD1.ledger_id")
+			glTransaction.each{|entry| detailHash[type][entry.ledger_id] = entry.amount}
 		end
 		cashFlow = Hash.new
 		ledgers = WkLedger.where(:ledger_type => ledgerType)
