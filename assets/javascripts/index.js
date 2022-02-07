@@ -1199,20 +1199,17 @@ function submitReceiptForm(){
 	var ret = true;
 	var url = "/wkshipment/checkQuantityAndSave";
 	var si_id = $('#si_id').val();
-	var current_quantity = $('[id^=total_quantity]');
-	var quantity_sum = 0;
-	current_quantity.each(function() {
-		quantity_sum += parseInt($(this).val());
-	});
+	var inv_item_id = $('#availabelInvIds').val()
 	if(si_id > 0){
 		$('[id^=invoice_item_id]').attr('required', '');
 		$.ajax({
 			url: url,
 			type: 'get',
-			data: {si_id: si_id, quantity_sum: quantity_sum},
+			data: {si_id: si_id, inv_item_id: inv_item_id},
 			async: false,
 			success: function(data){
-				if(data['invoice_qty'] < data['received_qty']){
+				var received_qty = receivedQuantitySum(data)
+				if(data.invoice_qty < received_qty){
 					var confirmMsg = confirm('Invoice quantity is higher than received quantity')
 					if(confirmMsg){
 						ret =  true;
@@ -1227,4 +1224,15 @@ function submitReceiptForm(){
 		});
 	}
 	return ret;
+}
+
+function receivedQuantitySum(data){
+	var current_quantity = $('[id^=total_quantity]');
+	var quantity_sum = 0;
+	current_quantity.each(function(e) {
+	if(!$('#item_id_'+(e+1)).val())
+		quantity_sum += parseInt($(this).val());
+	});
+	quantity_sum += data.received_qty
+	return quantity_sum
 }

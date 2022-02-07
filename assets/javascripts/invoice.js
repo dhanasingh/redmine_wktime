@@ -429,6 +429,13 @@ function deleteRow(tableId, totalrow){
 			// Update Item Index label
 			updateIndexLabel(index + 1);
 		});
+		if(tableId == 'shipmentTable'){
+			var availabel_inv_ids = $('[id^=item_id]').map(function(){
+				return $(this).val();
+			}).get();
+			$('#availabelInvIds').val(availabel_inv_ids)
+		}
+
 		removeTaxRows();
 	}
 }

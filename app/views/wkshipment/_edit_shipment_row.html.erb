@@ -28,6 +28,7 @@
 		end
 		notesArr = getInvoiceItemsNotes(entry.supplier_invoice_id)
 	%>
+	<%= hidden_field_tag "availabelInvIds" %>
 	<td class="lbl-txt-align" headers="item_id">
 		<%=h hidden_field_tag("item_id_#{row_index}",   entry.id )  %>
 		<%=h hidden_field_tag("is_editable_#{row_index}",   isDisable )  %>

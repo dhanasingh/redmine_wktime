@@ -387,19 +387,18 @@ include WkinventoryHelper
 		invoice.update(:status => 'd') if update_status
 	end
 
-	def getQuantities(invoice_id)
-		invoice = WkInvoice.find(invoice_id)
+	def checkQuantityAndSave
+		invoice = WkInvoice.find(params[:si_id].to_i)
 		received_qty = 0
 		invoice.invoice_items.each do |item|
-			received_qty += item.inventory_items.sum(:total_quantity)
+			inventory_item = item.inventory_items
+			if params[:inv_item_id].present?
+				inv_item_id = params[:inv_item_id].split(',')
+				inventory_item = inventory_item.where(:id=>inv_item_id)
+			end
+			received_qty += inventory_item.sum(:total_quantity)
 		end
 		invoice_qty = invoice.invoice_items.sum(:quantity)
-		qty = { received_qty: received_qty, invoice_qty: invoice_qty }
-	end
-
-	def checkQuantityAndSave
-		qty = getQuantities(params[:si_id].to_i)
-		received_qty = params[:quantity_sum].to_i + qty[:received_qty]
-		render :json => { invoice_qty: qty[:invoice_qty], received_qty: received_qty }
+		render :json => { invoice_qty: invoice_qty, received_qty: received_qty }
 	end
 end
