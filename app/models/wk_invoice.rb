@@ -86,4 +86,8 @@ class WkInvoice < ActiveRecord::Base
     self.where(invoice_type: invoice_type, parent_type: type,  parent_id: id).where.not(status: 'd')
   }
 
+  scope :filterInvItems, ->(invoice){
+    invoice.invoice_items.where("item_type NOT IN ('t','r')")
+   }
+
 end
