@@ -13,7 +13,7 @@
 			<%= params[:date].to_date  %>
 			</td>
 		</tr>
-		<tr>	
+		<tr>
 			<td colspan="2">
 				 <%= link_to("\xc2\xab " + l(:label_previous ), {:controller => controller.controller_name, :action => 'clockedit', :user_id => params[:user_id], :date => (Date.parse params[:date])-1, :tab => controller.controller_name},
 						  :title => l(:label_wk_prev_week_tip)) %>
@@ -21,7 +21,7 @@
 			<% if (Date.parse params[:date]).past? %>
 			  |
 			  <%= link_to(l(:label_next) + " \xc2\xbb", {:controller => controller.controller_name, :action => 'clockedit', :user_id => params[:user_id], :date => (Date.parse params[:date])+1, :tab => controller.controller_name},
-						  :title => l(:label_next_week)) %> 
+						  :title => l(:label_next_week)) %>
 			<%end%>
 			</td>
 		</tr>
@@ -49,25 +49,25 @@
 	<% end_time << (entry.end_time.blank? ? '' : entry.end_time.localtime.strftime('%R')) %>
 	<% hours <<  entry.hours %>
 	<% end %>
-	<%=h hidden_field_tag("break_time" , Setting.plugin_redmine_wktime['wktime_break_time'] )  %> 
+	<%=h hidden_field_tag("break_time" , Setting.plugin_redmine_wktime['wktime_break_time'] )  %>
 	<%=h hidden_field_tag('attnDayEntriesCnt', start_time.blank? ? 1 : start_time.length) %>
 	<%=h hidden_field_tag('startdate', params[:date] ) %>
 	<%=h hidden_field_tag('user_id', params[:user_id] ) %>
 	<% j = 0  %>
 	<% totalhours = 0  %>
-	<% loop do  %>	
+	<% loop do  %>
 	<tr class="time-entry <%= cycle("odd", "even") %>">
 		<%=h hidden_field_tag("attnEntriesId#{j}",  (entry_id.blank? ? "" : entry_id[j]) )  %>
 		<td><%=h text_field_tag("attnstarttime#{j}", start_time.blank? ? "" : start_time[j] ,:onchange => "#{} ", :size => 10, :disabled => validateERPPermission('A_ATTEND') ? false : true, :required => true,  :onchange => "validateHr(this,#{(j)}, ['attnstarttime#{j}', 'attnendtime#{j}', 'hoursdiff#{j}', #{true}]);") %>
 		</td>
 		<td><%=h text_field_tag("attnendtime#{j}", end_time.blank? ? "" : end_time[j],:size => 10, :disabled => validateERPPermission('A_ATTEND') ? false : true, :onchange => "validateHr(this,#{(j)}, ['attnstarttime#{j}', 'attnendtime#{j}', 'hoursdiff#{j}', #{true}]);") %>
-		</td>		
+		</td>
 		<td><%=h text_field_tag("hoursdiff#{j}", hours.blank? ? 0 : hours[j].to_f,:size => 10, :disabled => validateERPPermission('A_ATTEND') ? false : true, :required => true) %>
 		</td>
 		<% totalhours += hours.blank? ? 0 : hours[j].to_f  %>
 		<% break if j ==  start_time.length-1 || start_time.blank?  %>
-		<% j += 1  %>		
-	</tr>	 
+		<% j += 1  %>
+	</tr>
 	<% end %>
 	<tr class="time-entry <%= cycle("odd", "even") %>" >
 		<td></td><td style="font-weight: bold; "><label><%= l(:label_total_hours) %></label></td>
@@ -97,7 +97,7 @@
 					locations = startLocations + endLocations
 					locations = [["", ""]] if locations.length == 0
 			%>
-			<div  id="mapContainer" style="float: right;width: 300px;height: 200px"></div>
+			<div  id="mapContainer" style="float: right;width: 30%;height: 300px"></div>
 			<%= render partial: "wkgeolocation/location_map", locals: { locations: locations } %>
 		<% end %>
 	</div>
