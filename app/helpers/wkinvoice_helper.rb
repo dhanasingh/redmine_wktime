@@ -784,7 +784,8 @@ include WkpayrollHelper
 					end
 				end
 				invItem = @invoice.invoice_items.new()
-				invItem = updateInvoiceItem(invItem, mEntry.project_id, desc, rate, qty, curr, productType, amount, nil, nil, productId)
+				invoice_item_id = mEntry&.inventory_item&.product_item&.id || nil
+				invItem = updateInvoiceItem(invItem, mEntry.project_id, desc, rate, qty, curr, productType, amount, nil, nil, productId, "WkProductItem", invoice_item_id)
 				updateMatterial = WkMaterialEntry.find(mEntry.id)
 				updateBilledEntry(updateMatterial, invItem.id)
 				# updateMatterial.invoice_item_id = invItem.id
