@@ -246,7 +246,7 @@ include WkinventoryHelper
 	def destroy
 		begin
 			shipment = WkShipment.find(params[:shipment_id].to_i)
-			si_id = (shipment.inventory_items&.first&.supplier_invoice_id).to_i
+			si_id = shipment.inventory_items&.first&.supplier_invoice_id
 			if shipment.destroy
 				updateInvStatus(si_id) if si_id.present?
 				flash[:notice] = l(:notice_successful_delete)
