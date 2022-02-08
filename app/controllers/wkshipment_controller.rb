@@ -377,15 +377,18 @@ include WkinventoryHelper
 
 	def updateInvStatus(invoice_id)
 		invoice = WkInvoice.find(invoice_id)
+		received_qty_total = 0
 		update_status = false
 		invoice_items = WkInvoice.filterInvItems(invoice)
 		invoice_items.each do |item|
 			invoice_qty = item.quantity
 			received_qty = item.inventory_items.sum(:total_quantity)
+			received_qty_total += received_qty
 			update_status = invoice_qty == received_qty || invoice_qty < received_qty
 			break if !update_status
 		end
 		invoice.update(:status => 'd') if update_status
+		invoice.update(:status => 'o') if invoice_items.sum(:quantity) > received_qty_total
 	end
 
 	def checkQuantityAndSave
