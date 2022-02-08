@@ -49,7 +49,7 @@ module WkDashboard
       ledTypeHash.each do |ledgerType, trxAmountHash|
         total = calculateBalance({ledgerType=> trxAmountHash['c'].to_f}, {ledgerType=> trxAmountHash['d'].to_f}, ledgerType)
         eProfits[yearMon] ||= 0
-        eProfits[yearMon] += total[ledgerType].to_f
+        eProfits[yearMon] += (total[ledgerType].to_f).round(2)
       end
     end
     expenses = [0]*month_count
