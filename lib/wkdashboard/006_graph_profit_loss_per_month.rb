@@ -55,7 +55,7 @@ module WkDashboard
     expenses = [0]*month_count
     eProfits.each {|month, sum| expenses[@endDate.month - month.to_i] = sum }
     expenses.reverse!
-    expenses.each_with_index {|amt, index| expenses[index] = amt + expenses[index -1 ] if index != 0}
+    expenses.each_with_index {|amt, index| expenses[index] = (amt + expenses[index -1 ]).round(2) if index != 0}
     data[:data2] = expenses
     return data
   end
