@@ -136,8 +136,8 @@ Resources:
 
 	User guide:
 
-		http://www.erpmine.org/attachments/download/24/ERPmine-User-Guide.pdf
-
+                http://erpmine.org/attachments/download/115/ERPmine-User-Guide_v4.5.pdf
+		
 	Overview presentation in open office format:
 
 		http://www.erpmine.org/attachments/download/23/erpmine-overview.odp
