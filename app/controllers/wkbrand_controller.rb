@@ -52,14 +52,14 @@ class WkbrandController < WkinventoryController
 			}
 		end
     end
-	
+
 	def formPagination(entries,orderColumn = nil)
 		@entry_count = entries.count
 		setLimitAndOffset()
 		pageEntries = entries.order(orderColumn).limit(@limit).offset(@offset)
 		pageEntries
 	end
-	
+
 	def edit
 	    @brandEntry = nil
 	    unless params[:brand_id].blank?
@@ -67,10 +67,10 @@ class WkbrandController < WkinventoryController
 		   orderColumn = 'product_id, name'
 		   @productModelEntries = formPagination(@brandEntry.product_models, orderColumn)
 		   @brandProducts = @brandEntry.brand_products.map { |r| r.product_id }
-		end 
-	end	
-    
-	def update	
+		end
+	end
+
+	def update
 		if params[:brand_id].blank?
 		  brand = WkBrand.new
 		else
@@ -80,10 +80,10 @@ class WkbrandController < WkinventoryController
 		brand.description = params[:description]
 		if brand.save()
 			unless brand.id.blank?
-				productId = params[:product_id]	
+				productId = params[:product_id]
 				WkBrandProduct.where(:brand_id => brand.id).where.not(:product_id => productId).delete_all()
 				unless productId.blank?
-					productId.collect{ |id| 
+					productId.collect{ |id|
 						isproductid = WkBrandProduct.where("brand_id = ? and product_id = ? ", brand.id, id).count
 						unless isproductid > 0
 							brandProduct = WkBrandProduct.new
@@ -92,7 +92,7 @@ class WkbrandController < WkinventoryController
 							if !brandProduct.save()
 								errorMsg = brandProduct.errors.full_messages.join("<br>")
 							end
-						end						
+						end
 					}
 				end
 			end
@@ -103,7 +103,7 @@ class WkbrandController < WkinventoryController
 		    flash[:error] = brand.errors.full_messages.join("<br>")
 		end
     end
-	
+
 	def destroy
 		brand = WkBrand.find(params[:brand_id].to_i)
 		if brand.destroy
@@ -113,15 +113,15 @@ class WkbrandController < WkinventoryController
 		end
 		redirect_back_or_default :action => 'index', :tab => params[:tab]
 	end
-	
+
 	def edit_product_model
 		@modelEntry = nil
 		@brand = WkBrand.find(params[:brand_id].to_i)
 	    unless params[:product_model_id].blank?
 		   @modelEntry = WkProductModel.find(params[:product_model_id])
-		end 
+		end
 	end
-	
+
 	def updateProductModel
 		if params[:product_model_id].blank?
 		  productModel = WkProductModel.new
@@ -139,8 +139,16 @@ class WkbrandController < WkinventoryController
 		    redirect_to :controller => 'wkbrand',:action => 'edit_product_model' , :tab => 'wkbrand', :brand_id => productModel.brand_id
 		    flash[:error] = productModel.errors.full_messages.join("<br>")
 		end
+		if params[:automatic_product_item].present? && params[:product_model_id].blank?
+			productItem = WkProductItem.new
+			productItem.part_number = params[:mod_part_number]
+			productItem.product_id = params[:product_id]
+			productItem.brand_id = params[:brand_id]
+			productItem.product_model_id = productModel.id
+			productItem.save()
+		end
 	end
-	
+
 	def destroyProductModel
 		productModel = WkProductModel.find(params[:product_model_id].to_i)
 		brandId = productModel.brand_id
@@ -151,8 +159,8 @@ class WkbrandController < WkinventoryController
 		end
 		redirect_back_or_default :action => 'edit' , :tab => 'wkbrand', :brand_id => brandId
 	end
-  
-   def setLimitAndOffset		
+
+   def setLimitAndOffset
 		if api_request?
 			@offset, @limit = api_offset_and_limit
 			if !params[:limit].blank?
@@ -165,7 +173,7 @@ class WkbrandController < WkinventoryController
 			@entry_pages = Paginator.new @entry_count, per_page_option, params['page']
 			@limit = @entry_pages.per_page
 			@offset = @entry_pages.offset
-		end	
+		end
 	end
 
 	def set_filter_session

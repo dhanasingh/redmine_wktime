@@ -185,7 +185,7 @@
 <% if isChecked("crm_save_geo_location") %>
 	<% locations = [[ @activityEntry&.first&.longitude || "", @activityEntry&.first&.latitude || ""]] %>
 	<div style="padding-left: 10px;padding-bottom: 20px">
-		<div id="mapContainer" style="width:300px;height:300px;"></div>
+		<div id="mapContainer" style="width:30%;height:300px;"></div>
 		<%= render partial: "wkgeolocation/location_map", locals: { locations: locations } %>
 	</div>
 <% end %>

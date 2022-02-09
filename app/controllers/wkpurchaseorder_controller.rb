@@ -32,89 +32,90 @@ class WkpurchaseorderController < WksupplierorderentityController
 			rfqQuotEntry = WkRfqQuote.where(:quote_id => params[:quote_id].to_i)
 			@rfqQuotObj = rfqQuotEntry.blank? || rfqQuotEntry[0].blank? ? nil : rfqQuotEntry[0]
 			if !params[:populate_items].blank? && params[:populate_items] == '1'
-				@invoiceItem = WkInvoiceItem.where(:invoice_id => @rfqQuotObj.quote_id).select(:name, :rate, :amount, :quantity, :item_type, :currency, :project_id, :modifier_id,  :invoice_id, :original_amount, :original_currency)
-			end		
-		end			
+				@invoiceItem = WkInvoiceItem.where(:invoice_id => @rfqQuotObj.quote_id)
+					.select(:name, :rate, :amount, :quantity, :item_type, :currency, :project_id, :modifier_id,  :invoice_id, :original_amount, :original_currency, :invoice_item_id, :invoice_item_type, :product_id)
+			end
+		end
 	end
-	
+
 	def editOrderEntity
 		super
 		unless params[:invoice_id].blank?
 			@poObj = WkPoQuote.find(@invoice.po_quote.id) unless @invoice.blank?
 		end
 	end
-	
+
 	def saveOrderInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)
-		begin			
+		begin
 			@@pomutex.synchronize do
 				addInvoice(parentId, parentType,  projectId, invDate,  invoicePeriod, isgenerate, getInvoiceType)
-			end				
+			end
 		rescue => ex
 		  logger.error ex.message
 		end
 	end
-	
+
 	def saveOrderRelations
 		savePurchaseOrderQuotes(params[:po_id],  @invoice.id, params[:po_quote_id] )
 	end
-	
+
 	def getRfqQuoteIds
-		quoteIds = ""	
+		quoteIds = ""
 		rfqObj = ""
 		rfqObj = WkInvoice.where(:id => getInvoiceIds(params[:rfq_id].to_i, 'Q', true), :parent_id => params[:parent_id].to_i, :parent_type => params[:parent_type]).order(:id)
-		
+
 		rfqObj.each do | entry|
-			quoteIds <<  entry.id.to_s() + ',' + entry.invoice_number.to_s()  + "\n" 
+			quoteIds <<  entry.id.to_s() + ',' + entry.invoice_number.to_s()  + "\n"
 		end
 		respond_to do |format|
 			format.text  { render :plain => quoteIds }
 		end
 	end
-	
+
 	def getInvoiceType
 		'PO'
 	end
-	
+
 	def getLabelInvNum
 		l(:label_po_number)
 	end
-	
+
 	def getLabelNewInv
 		l(:label_new_pur_order)
 	end
-	
+
 	def getHeaderLabel
 		l(:label_purchase_order)
 	end
-	
+
 	def getPopulateChkBox
 		l(:label_populate_quote_items)
 	end
-	
+
 	def getItemLabel
 		l(:label_po_items)
 	end
-	
+
 	def getDateLbl
 		l(:label_po_date)
 	end
-	
+
 	def requireQuoteDD
 		true
 	end
-	
+
 	def getAdditionalDD
 		"wkpurchaseorder/poadditionaldd"
 	end
-	
+
 	def getOrderNumberPrefix
 		'wktime_po_no_prefix'
 	end
-	
+
 	def getNewHeaderLbl
 		l(:label_new_pur_order)
 	end
-	
+
 	def getOrderContract(invoice)
 		contractStr = nil
 		quote = invoice.po_quote.quote
@@ -123,9 +124,9 @@ class WkpurchaseorderController < WksupplierorderentityController
 		end
 		contractStr
 	end
-	
+
 	def getOrderComponetsId
 		'wktime_po_components'
 	end
-	
+
 end

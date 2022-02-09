@@ -14,6 +14,7 @@
 	<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 	<%=h hidden_field_tag('tab', "clock") %>
 	<%= hidden_field_tag "searchlist", controller_name %>
+	<%= hidden_field_tag :page, params[:page]%>
 	<fieldset>
 		<legend><%= l(:label_filter_plural) %></legend>
 		<% if validateERPPermission('A_ATTEND') %>

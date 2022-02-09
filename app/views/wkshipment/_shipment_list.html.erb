@@ -14,7 +14,7 @@
 		 <tr class="<%= cycle("odd", "even") %>" >
 		    <td class="lbl-txt-align"><%= entry.serial_number  %></td>
 			<!-- <td class="lbl-txt-align"><%# =h entry.parent_type == 'WkAccount' ? 'Account' : 'Contact'  %></td> -->
-			<td class="lbl-txt-align"><%= entry.parent.name  %></td>
+			<td class="lbl-txt-align"><%= entry&.parent&.name  %></td>
 			<td class="lbl-txt-align"><%= entry.shipment_date  %></td>
 			<td class="lbl-txt-align"><%= entry.inventory_items.shipment_item[0].currency unless entry.inventory_items.shipment_item[0].blank?%> <%= html_hours("%.2f" % entry.inventory_items.shipment_item.sum('(total_quantity*cost_price)+over_head_price'))  %></td>
 			<td class="lbl-txt-align">

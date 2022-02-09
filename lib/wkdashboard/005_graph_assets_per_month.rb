@@ -20,7 +20,7 @@ module WkDashboard
           ) AS actual_value")
         .order("actual_value")
 
-      data[:data1] << countEntry.first.actual_value.to_i
+      data[:data1] << countEntry&.first&.actual_value&.to_f&.round(2)
     end
     return data
   end

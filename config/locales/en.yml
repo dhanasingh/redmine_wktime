@@ -1170,8 +1170,8 @@ en:
   label_running: Running
   label_serial_number_note: "Note: Use Comma for multiple serial numbers."
   warn_sn_range: Serial Number is not in Range
-  warn_sn_blank: Serial Number and Quantity cannot be blank
-  warn_sn_text: Serial Number and Quantity cannot be text value
+  warn_sn_blank: Fixed Serial Number cannot be blank
+  warn_sn_text: Please Enter Running serial numbers in integer
   label_last_increment: Last Increment
   label_last_salary: Last Salary
   label_my_dashboard: My Dashboards
@@ -1211,3 +1211,14 @@ en:
   label_expenses: Expenses
   label_admin_dashboards: Admin Dashboards
   label_product: Product
+  label_automatic_product_item: Automatically Create Product Item
+  label_show_available_items: Show available items
+  label_used_items: Used Items
+  label_goods_receipt: Goods Receipt
+
+  report_cash_flow: Cash Flow Report
+  label_cash_inflow: Cash Inflow
+  label_cash_outflow: Cash Outflow
+  label_net_inflow: Net InFlow
+  label_select_product_item: Select a Product Item
+  label_received_quantity: Received Quantity

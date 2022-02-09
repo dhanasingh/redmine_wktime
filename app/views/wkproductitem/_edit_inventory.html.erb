@@ -18,6 +18,7 @@
 			end
 		end
 	%>
+	<% invoice_no = invntItem&.supplier_invoice&.invoice_number %>
 	<fieldset class="box tabular">
 		<legend><%= isTransfer ? l(:button_transfer) : controller.lblInventory %></legend>
 		<table width='100%'>
@@ -31,7 +32,13 @@
 				<tr>
 					<th style="text-align: left"><%= l(:label_sp_number) %></th>
 					<td style="text-align: left;padding-left:40px;">
-						<%= invntItem&.supplier_invoice&.invoice_number || '' %>
+						<%= link_to invoice_no, controller: 'wksupplierinvoice', action: 'edit', invoice_id: invntItem&.supplier_invoice&.id, new_invoice: false, preview_billing: false, tab: 'wksupplierinvoice' if invoice_no.present? %>
+					</td>
+				</tr>		
+				<tr>
+					<th style="text-align: left"></th>
+					<td style="text-align: left;padding-left:40px;">
+						<%= link_to l(:label_goods_receipt), controller: 'wkshipment', action: 'edit', shipment_id: invntItem&.shipment_id, tab: 'wkshipment' if invntItem&.shipment&.shipment_type == 'I' %>
 					</td>
 				</tr>
 			<% end %>

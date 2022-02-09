@@ -21,7 +21,7 @@ include WktimeHelper
 include WkinvoiceHelper
 include WkcrmHelper
 
-	def saveBillableProjects(id, projectId, parentId, parentType, applyTax, itemizedBill, billingType, include_expense)
+	def saveBillableProjects(id, projectId, parentId, parentType, applyTax, itemizedBill, billingType, include_expense = false)
 		if !id.blank?
 			wkaccountproject = WkAccountProject.find(id.to_i)
 		else

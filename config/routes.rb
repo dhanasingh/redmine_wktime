@@ -345,10 +345,6 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 
 	get 'wkinvoice/new', :to => 'wkinvoice#new'
 
-	# For Purchase
-
-	get 'wkpurchase/index', :to => 'wkpurchase#index'
-
 	get 'wkrfq/index', :to => 'wkrfq#index'
 
 	post 'wkrfq/index', :to => 'wkrfq#index'
@@ -789,3 +785,11 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wkbase/updateWkuserData', to: 'wkbase#updateWkuserData'
 
 	get 'wkbase/updateWkuserVal', to: 'wkbase#updateWkuserVal'
+
+	get 'wkasset/get_material_entries', to: 'wkasset#get_material_entries'
+
+	get 'wkorderentity/get_product_tax', to: 'wkorderentity#get_product_tax'
+
+	get 'wkorderentity/get_project_tax', to: 'wkorderentity#get_project_tax'
+
+	get 'wkshipment/checkQuantityAndSave', to: 'wkshipment#checkQuantityAndSave'
