@@ -97,14 +97,24 @@ If an apache passenger module is used then make sure the following settings are 
   b) RailsAppSpawnerIdleTime 0
   c) PassengerPreStart https://rails-app-url/
 
-Release Notes for v4.4.1
+Release Notes for v4.5
 
   Features:
-    - Encrypt user fields
+    - Cash flow report
+    - Option to create product item when creating new model
+    - Apply Tax rates for supplier invoice automatically
+    - Consecutive serial numbers for new receipt page
+    - Make more relationships of inventory
+    - Hide used items in inventory items list
 
   Bug fixes:
-    - Sort product item on spent time
-    - Changed product to product items on spent time
+    - Allow only one receipt per supplier invoice
+    - Error creating a new product item
+    - The purchase order does not load when creating a new supplier invoice
+    - Automatically calculate tax before saving invoice
+    - Consecutive serial number does not load for old data
+    - Product item name error in spend time
+    - Plot the graphs for the current month
 
 Customization:
 
