@@ -62,7 +62,7 @@ This Plugin has the following modules:
 
 For more information on features, please refer to the user guide
 
-	http://www.erpmine.org/attachments/download/24/ERPmine-User-Guide.pdf
+	http://erpmine.org/attachments/download/115/ERPmine-User-Guide_v4.5.pdf
 
 INSTALLATION:
 
@@ -138,11 +138,11 @@ Resources:
 
 	User guide:
 
-                http://erpmine.org/attachments/download/115/ERPmine-User-Guide_v4.5.pdf
-		
+		http://erpmine.org/attachments/download/115/ERPmine-User-Guide_v4.5.pdf
+
 	Overview presentation in open office format:
 
-		http://www.erpmine.org/attachments/download/23/erpmine-overview.odp
+		http://erpmine.org/attachments/download/23/erpmine-overview.odp
 
 	Training Videos:
 
@@ -154,4 +154,4 @@ Resources:
 
 	For more:
 
-		http://www.erpmine.org/projects/erpmine/wiki/Resources
+		http://erpmine.org/projects/erpmine/wiki/Resources
