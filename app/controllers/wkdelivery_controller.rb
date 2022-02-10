@@ -298,7 +298,7 @@ class WkdeliveryController < WkinventoryController
 
 	def getInvoiceNos
 		invoiceArr = ""
-		invoices = WkInvoice.get_invoice_numbers(params[:related_to], params[:related_parent])
+		invoices = WkInvoice.get_invoice_numbers(params[:parent_type], params[:parent_id], 'I')
 		invoiceArr << "" + ',' +  "" + "\n"
 		invoices.each{|item| invoiceArr << item.id.to_s() + ',' +  item.invoice_number.to_s() + "\n" } if invoices.present?
 		respond_to do |format|

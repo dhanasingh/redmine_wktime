@@ -88,7 +88,7 @@ module ReportTax
 					total += tdsHash[key][user_id]
 					cessTot += cess
 					tdsTot += tds
-					taxData[key]['users'] << {employee_id: user.employee_id, tax_id: user.tax_id, name: user.name, gross: grossHash[key][user_id], tds: tds, cess: cess, taxTotal: tdsHash[key][user_id],}
+					taxData[key]['users'] << {employee_id: user.employee_id, tax_id: decrypt_values(user.tax_id), name: user.name, gross: grossHash[key][user_id], tds: tds, cess: cess, taxTotal: tdsHash[key][user_id]}
 				end
 			end
 			taxData[key]['grossTot'] =  grossTot

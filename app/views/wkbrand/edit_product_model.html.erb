@@ -26,6 +26,20 @@
 			<th align="left"><%= l(:field_description) %></th>
 			<td colspan=4 align="left" style="padding-left:40px;"><%=h text_area_tag("description",@modelEntry.blank? ? '' : @modelEntry.description, :maxlength => 255, :style => "width:600px; height:90px;") %> </td>
 		</tr>
+		<% if @modelEntry.blank? %>
+			<tr>
+				<th align="left" style="width: 150px;"><%=  l(:label_automatic_product_item)  %></th>
+				<td colspan=4 align="left" style="padding-left:40px;">
+					<%= check_box_tag 'automatic_product_item' %>
+				</td>
+			</tr>
+			<tr id="tr_part_number">
+				<th align="left" style="width: 150px;"><%= l(:label_part_number) %></th>
+				<td colspan=4 align="left" style="padding-left:40px;">
+					<%= text_field_tag("mod_part_number") %>
+				</td>
+			</tr>
+		<% end %>
 	</table>
 </fieldset>
 	<%= submit_tag l(:button_save), :class => "small", :name => nil %>

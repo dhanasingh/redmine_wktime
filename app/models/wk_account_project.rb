@@ -30,4 +30,8 @@ class WkAccountProject < ActiveRecord::Base
   scope :getAccProj, ->(parent_id, parent_type){ where(parent_id: parent_id, parent_type: parent_type) }
 
   scope :getAccByProjID, ->(project_id){ where(project_id: project_id) }
+
+  scope :getTax, ->(id, parent_type, parent_id){
+    where("project_id = ?  and parent_id = ? and parent_type = ? ", id, parent_id, parent_type)
+  }
 end

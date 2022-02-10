@@ -65,6 +65,11 @@ $(document).ready(function() {
 		}
 	});
 
+	setDescription(false);
+	$("[id^=amount]").change(function(){
+		setDescription(true);
+	});
+
 	//Load New Row
 	table = document.getElementById('deliveryTable');
 	if(table != null){
@@ -83,6 +88,71 @@ $(document).ready(function() {
 				el.attr('name', prefix+(index));
 			}
 		});
+	}
+
+	// for searchable dopdown
+	if($("#invoiceTable .productItemsDD").length > 0){
+		$("#invoiceTable .productItemsDD").select2();
+
+		if($('#invoice_type').val() == 'I'){
+			//Show Product Items for material & Asset invoice only
+			$("#invoiceTable .productItemsDD").each(function(){
+				showHideProductItem(this);
+			});
+			$("#invoiceTable .item_types").change(function(){
+				showHideProductItem(this);
+			});
+		}
+
+		$(".productItemsDD").change(function(){
+			let row = parseInt((this.name).split('_').pop());
+			let text = $("#invoice_item_id_"+row).val() != "" ? $("#invoice_item_id_"+row+ " option:selected").text() : "";
+			$("#invoiceTable #name_"+row).val(text);
+		});
+
+			//Apply tax rows
+		if(["SI", "I"].includes($('#invoice_type').val())){
+			let searchParams = new URLSearchParams(window.location.search);
+				if(!(searchParams.has("invoice_id") && searchParams.get("invoice_id") > 0)){
+				let productIDs = [];
+				$(".productItemsDD").each(function(){
+					let id = (this.value).split(",").shift();
+					if(!productIDs.includes(id)){
+						productIDs.push(id);
+						applyTax(this, "invoice_item");
+					}
+				});
+
+				let projectIDs = [];
+				$("[id^='project_id_']").each(function(){
+					if(!projectIDs.includes(this.value)){
+						projectIDs.push(this.value);
+						applyTax(this, "project");
+					}
+				});
+			}
+
+			$(".productItemsDD").change(function(){
+				let row = parseInt((this.name).split('_').pop());
+				let text = $("#invoice_item_id_"+row).val() != "" ? $("#invoice_item_id_"+row+ " option:selected").text() : "";
+				$("#invoiceTable #name_"+row).val(text);
+				applyTax(this, "invoice_item");
+			});
+
+			$("[id^='project_id_']").change(function(){
+				applyTax(this, "project");
+			});
+
+			//Updating Tax rows
+			$(".item_types").change(function(){
+				if(["i", "e"].includes(this.value)){
+					let row = parseInt((this.name).split('_').pop());
+					applyTax(document.getElementById("project_id_"+row), "project");
+					$("#invoice_item_id_"+row).val("");
+				}
+				removeTaxRows();
+			})
+		}
 	}
 });
 
@@ -121,36 +191,42 @@ function invoiceFormSubmission(isPreview)
 	}
 }
 
-function invoiceAddRow(tableId, rowCount)
-{
-	if(!$('#deliveryTable').length || ($('#'+rowCount).val() >= 1)){
+function invoiceAddRow(tableId, rowCount){
+	if(!$("#deliveryTable").length || ($("#"+rowCount).val() >= 1)){
 		table = document.getElementById(tableId);
 		rowlength = table.rows.length;
-		lastRow = table.rows[rowlength - 1];
-		lastDatePicker = $('.date', lastRow);
+		let skipRows = tableId == "invoiceTable" ? 2 : 1;
+		lastRow = table.rows[rowlength - skipRows];
+		lastDatePicker = $(".date", lastRow);
+		let removedSelect2 = false
+		if(tableId == "invoiceTable" && $("#invoice_item_id_"+(rowlength-skipRows)).data("select2")){
+			removedSelect2 = true
+			$("#invoice_item_id_"+(rowlength-skipRows)).select2("destroy");
+		}
 		$rowClone = $(lastRow).clone(true);
-		$rowClone.find('input:text').val('');
-		$rowClone.find('td').each(function(){
-			var el = $(this).find(':first-child');
-			var id = el.attr('id') || null;
-			if(id) {
-				var index = parseInt(id.split('_').pop());
-				id = id.split('_');
-				id.splice(-1,1);
-				var prefix = id.join('_') + '_';
-				el.attr('id', prefix+(index + 1));
-				el.attr('name', prefix+(index + 1));
-				if(prefix == "item_type_")
-				{
-					el.attr('disabled', false);
+		if(removedSelect2) $("#invoice_item_id_"+(rowlength-skipRows)).select2();
+		$rowClone.find("input:text").val("");
+		$rowClone.find("td").each(function(){
+			$(this).children().each(function(){
+				var id = $(this).attr("id") || null;
+				if(id) {
+					var index = parseInt(id.split("_").pop());
+					id = id.split("_");
+					id.splice(-1,1);
+					var prefix = id.join("_") + "_";
+					$(this).attr("id", prefix+(index + 1));
+					$(this).attr("name", prefix+(index + 1));
+					if(prefix == "item_type_") {
+						$(this).attr("disabled", false);
+					}
 				}
-			}
+			});
 		});
 	}
 
-    if(tableId == "milestoneTable")
-    {
-	    var datePickerClone = $('.date', $rowClone);
+	if(tableId == "milestoneTable")
+	{
+		var datePickerClone = $('.date', $rowClone);
 		var datePickerCloneId = 'billdate_' + rowlength;
 
 		datePickerClone.data( "datepicker",
@@ -159,113 +235,148 @@ function invoiceAddRow(tableId, rowCount)
 
 		datePickerClone.data('datepicker').input = datePickerClone;
 		datePickerClone.data('datepicker').id = datePickerCloneId;
-    }
-
+	}
 
 	$(table).append($rowClone);
-    if(tableId == "milestoneTable")
-    {
-      datePickerClone.datepicker();
-    }
+	if(tableId == "milestoneTable"){
+		datePickerClone.datepicker();
+	}
+	if(tableId == 'invoiceTable') rowlength -= 1
 	document.getElementById(rowCount).value = rowlength;
-	clearId = tableId == "milestoneTable" ? "milestone_id_"+rowlength : (tableId == "txnTable" ? "txn_id_"+rowlength : "item_id_"+rowlength ) ;
-	document.getElementById(clearId).value = "";
-	if(document.getElementById('item_index_' + rowlength) != null)
-	{
-		document.getElementById('item_index_' + rowlength).innerHTML = rowlength;
-	}
 
-	if(tableId == "invoiceTable")
-	{
-		document.getElementById("product_id_"+rowlength).value = "";
-		document.getElementById("material_id_"+rowlength).value = "";
-	}
+	// Update Item Index label
+	updateIndexLabel(rowlength);
 
+	clearId = tableId == "milestoneTable" ? "milestone_id_"+(rowlength) : (tableId == "txnTable" ? "txn_id_"+(rowlength) : "item_id_"+(rowlength) ) ;
+	$("#"+clearId).val("");
+	if(tableId == "invoiceTable"){
+		if($("#invoice_type").val() == "I"){
+			$("#item_type_"+(rowlength)).val("i");
+			$("#invoice_item_id_"+(rowlength)).hide();
+			applyTax(document.getElementById("project_id_"+(rowlength)), "project");
+		}else{
+			$("#invoice_item_id_"+(rowlength)).val("").select2();
+		}
+		$("#product_id_"+(rowlength)).val("");
+		$("#material_id_"+(rowlength)).val("");
+		$("#original_amount_"+(rowlength)).html("0.00");
+		$("#amount_"+(rowlength)).html("0.00");
+	}
+	if(tableId == "shipmentTable"){
+		$("#invoice_item_id_"+(rowlength)).val("");
+	}
 }
 
-function addAmount(fldId)
-{
-	var cloumnId = parseInt(fldId.split('_').pop());
-	var rate = document.getElementById('rate_'+  cloumnId);
-	var quantity = document.getElementById('quantity_'+  cloumnId);
-	var exchangerate_amount = document.getElementById('exchangerate_amount_'+ cloumnId)
-	if(rate.value != null && quantity.value != null)
-	{
-		document.getElementById("amount_"+  cloumnId).innerHTML = (rate.value * quantity.value * exchangerate_amount.value).toFixed(2);
-		document.getElementById("original_amount_"+  cloumnId).innerHTML = (rate.value * quantity.value).toFixed(2);
+function updateIndexLabel(rowlength){
+	if($("#item_index_" + (rowlength)).length > 0){
+		$("#item_index_" + (rowlength)).html(rowlength);
 	}
-	var table = document.getElementById('invoiceTable');
-	var len = table.rows.length;
-	var total = 0;
-	var count = 0;
-	var tothash = new Object();
-	var productTothash = new Object();
-	for(var i = 1 ; i <= (len-1) ; i++)
-	{
-		if(document.getElementById("project_id_"+i) != null && document.getElementById("product_id_"+i).value == "" ) {
-			var dropdown = document.getElementById("project_id_"+i);
-			var ddvalue = dropdown.options[dropdown.selectedIndex].value;
-			tothash[ddvalue] = (tothash[ddvalue] == null ? 0 : tothash[ddvalue]) + parseInt($("#amount_"+i).text());
-		}
-		if(document.getElementById("product_id_"+i).value != "")
-		{
-			productId = document.getElementById("product_id_"+i).value;
-			productTothash[productId] = (productTothash[productId] == null ? 0 : productTothash[productId]) + parseInt($("#amount_"+i).text() );
-		}
-		total = total + parseInt($("#amount_"+i).text());
-
-	}
-
-	var taxtotal = 0;
-	if(document.getElementById('taxTable') != null) {
-		var taxTable = document.getElementById('taxTable');
-		var taxlen = taxTable.rows.length;
-		for(j=1 ;j < taxlen ; j++)
-		{
-			if(document.getElementById("tax_pjt_id"+j) != null) {
-				pjtId = document.getElementById('tax_pjt_id'+j).value;
-				var taxamount = 0;
-				if(tothash.hasOwnProperty(pjtId))
-				{
-					taxamount = tothash[pjtId] * (parseFloat($("#taxrate"+j).text()/100));
-				}
-				taxtotal = taxtotal + taxamount;
-				document.getElementById("taxamount"+ j).innerHTML = taxamount.toFixed(2);
-			}
-			if(document.getElementById("tax_product_id"+j) != null)
-			{
-
-				pId = document.getElementById("tax_product_id"+j).value;
-				var taxamount = 0;
-				if(productTothash.hasOwnProperty(pId))
-				{
-					taxamount = productTothash[pId] * (parseFloat($("#taxrate"+j).text()/100));
-				}
-				taxtotal = taxtotal + taxamount;
-				document.getElementById("taxamount"+ j).innerHTML = taxamount.toFixed(2);
-			}
-		}
-	}
-	document.getElementById('invsubtotal').innerHTML = "SubTotal : " + total.toFixed(2);
-	if(document.getElementById('invtotalamount') != null) {
-		document.getElementById('invtotalamount').innerHTML = "Total : " + (taxtotal + total).toFixed(2);
-	}
-	var roundtotal = Math.round(taxtotal + total);
-	if(document.getElementById('taxTable') != null) {
-		var roundlen = document.getElementById('taxTable').rows.length;
-		if(roundlen > 1)
-		{
-			document.getElementById('roundamount').innerHTML = (roundtotal - (taxtotal + total)).toFixed(2);
-		}
-	}
-	document.getElementById('roundtotalamount').innerHTML = roundtotal.toFixed(2);
 }
 
-function deleteRow(tableId, totalrow)
-{
+function addAmount(fldId){
+	//Update Orginal amount & Amount
+	let row = parseInt(fldId.split('_').pop());
+	let rate = parseFloat($("#rate_"+row).val() || 0);
+	let quantity = parseFloat($("#quantity_"+row).val() || 0);
+	let exRate = parseFloat($("#exchangerate_amount_"+row).val());
+	$("#original_amount_"+row).html((rate * quantity).toFixed(2));
+	$("#amount_"+row).html((rate * quantity * exRate).toFixed(2));
+	updateTotals();
+}
 
-	if(tableId == "txnTable")
-	{
+function updateTotals(){
+	updateTaxAmounts();
+	//Updating Sub total
+	let orgAmountSubTotal = 0;
+	let amountSubTotal = 0;
+	$("[id^='original_amount_']").each(function(){
+		orgAmountSubTotal += parseFloat($(this).text() || 0);
+	});
+	$("[id^='amount_']").each(function(){
+		amountSubTotal += parseFloat($(this).text() || 0);
+	});
+	$("#subtotal_org_amount").html(orgAmountSubTotal.toFixed(2));
+	$("#subtotal_amount").html(amountSubTotal.toFixed(2));
+
+	//Updating Tax Total
+	let orgTotalTax = orgAmountSubTotal || 0;
+	let totalTax = amountSubTotal || 0;
+	$("[id^='org_taxamount_']").each(function(){
+		orgTotalTax += parseFloat($(this).text() || 0);
+	});
+	$("[id^='taxamount_']").each(function(){
+		totalTax += parseFloat($(this).text() || 0);
+	});
+	orgTotalTax = orgTotalTax.toFixed(2);
+	totalTax = totalTax.toFixed(2);
+	$("#org_total_tax").html(orgTotalTax);
+	$("#total_tax").html(totalTax);
+	orgTotalTax = parseFloat(orgTotalTax);
+	totalTax = parseFloat(totalTax);
+
+	//Calculate & Updating Round off Amount
+	let totRoundOrgAmt = 0;
+	let totRoundAmt = 0;
+	$(".round_tr").each(function(){
+		let roundOrgAmt = (Math.round(orgTotalTax) - orgTotalTax).toFixed(2);
+		let roundAmt = (Math.round(totalTax) - totalTax).toFixed(2);
+		totRoundOrgAmt += parseFloat(roundOrgAmt);
+		totRoundAmt += parseFloat(roundAmt);
+		$("#round_org_amount").html(roundOrgAmt);
+		$("#round_amount").html(roundAmt);
+	});
+
+	//Updating grand total
+	let totalOrgAmount = orgTotalTax + totRoundOrgAmt;
+	let totalAmount = totalTax + totRoundAmt;
+	$("#inv_orginal_total").html(totalOrgAmount.toFixed(2));
+	$("#inv_total").html(totalAmount.toFixed(2));
+}
+
+function updateTaxAmounts(){
+	let totals = {};
+	["project", "invoice_item"].map((type)=>{
+		totals[type] = getTaxamounts(type);
+		setTaxAmounts(totals[type], type);
+	});
+}
+
+function getTaxamounts(type){
+	let items = {};
+	$("[id^='"+type+"_id_']").each(function(){
+		let row = parseInt((this.name).split('_').pop());
+		let id = (this.value).split(",").shift();
+		if(id && (type == "invoice_item" || ["i", "e"].includes($("#item_type_"+row).val()))){
+			$("[id^='tax_"+type+"_id_']").each(function(){
+				if(this.value && this.value == id){
+					let index = parseInt((this.name).split('_').pop());
+					items[this.value+"_"+index] = items[this.value+"_"+index] || {};
+					let exchangeRate = parseFloat($("#exchangerate_amount_"+row).val() || 0);
+					let rate = parseFloat($("#tax_rate_"+index).val() || 0);
+					let orginalAmount = (parseFloat($("#rate_"+row).val() || 0) * (parseFloat($("#quantity_"+row).val()) || 0) * (rate/100)).toFixed(2);
+					let amount = (parseFloat(orginalAmount) * exchangeRate).toFixed(2);
+					items[this.value+"_"+index]['orgAmount'] = (items[this.value+"_"+index]['orgAmount'] || 0) + parseFloat(orginalAmount);
+					items[this.value+"_"+index]['amount'] = (items[this.value+"_"+index]['amount'] || 0) + parseFloat(amount);
+				}
+			});
+		}
+	});
+	return items;
+}
+
+function setTaxAmounts(totals, type){
+	$("[id^='tax_"+type+"_id_']").each(function(){
+		if(this.value){
+			let index = parseInt((this.name).split('_').pop());
+			totals[this.value+"_"+index] = totals[this.value+"_"+index] || {};
+			$("#org_taxamount_"+index).html((totals[this.value+"_"+index]['orgAmount'] || 0).toFixed(2));
+			$("#taxamount_"+index).html((totals[this.value+"_"+index]['amount'] || 0).toFixed(2));
+		}
+	});
+}
+
+function deleteRow(tableId, totalrow){
+	if(tableId == "txnTable"){
 		var table = document.getElementById(tableId);
 		var rowlength = table.rows.length;
 		if(rowlength > 3)
@@ -289,33 +400,43 @@ function deleteRow(tableId, totalrow)
 		updateAmount();
 	}
 	else{
+		//Add row if table has only a row
+		if((tableId == "invoiceTable" && $("#"+tableId +" tr").length == 3) || $("#"+tableId +" tr").length == 2){
+			invoiceAddRow(tableId, totalrow);
+		}
+
 		var table = document.getElementById(tableId);
-		var rowlength = table.rows.length;
+		var rowlength = tableId == "invoiceTable" ? table.rows.length - 2 : table.rows.length;
 		document.getElementById(tableId).deleteRow(row_id);
 		document.getElementById(totalrow).value = document.getElementById(totalrow).value - 1;
-		for(i = 1; i < rowlength-1; i++)
-			{
-				var colCount = table.rows[i].cells.length;
-				for(var j=0; j<colCount; j++)
-				{
-					var elements = document.getElementById(tableId).rows[i].cells[j].querySelectorAll("select, input, label");
-					Array.from(elements).map(el => {
-						if (el.type == 'hidden') {
-							elID = el.id.split("_");
-							elID[elID.length - 1] = i;
-							elName = el.name.split("_");
-							elName[elName.length - 1] = i;
-							el.id = elID.join('_');
-							el.name = elName.join('_');
-						}
-						else {
-							el.id = table.rows[i].cells[j].headers + '_' + i;
-							el.name = table.rows[i].cells[j].headers + '_' + i;
+
+		$("#"+tableId +" > tbody > tr").each(function(index){
+			if((index+1) >= row_id && (index+1) < rowlength){
+				$(this).find('td').each(function(){
+					$(this).children().each(function(){
+						var id = $(this).attr('id') || null;
+						if(id) {
+							id = id.split('_');
+							id.splice(-1,1);
+							var prefix = id.join('_') + '_';
+							$(this).attr('id', prefix+(index + 1));
+							$(this).attr('name', prefix+(index + 1));
 						}
 					});
-					$('#item_index_'+i).html(i)
-				}
+				});
 			}
+
+			// Update Item Index label
+			updateIndexLabel(index + 1);
+		});
+		if(tableId == 'shipmentTable'){
+			var availabel_inv_ids = $('[id^=item_id]').map(function(){
+				return $(this).val();
+			}).get();
+			$('#availabelInvIds').val(availabel_inv_ids)
+		}
+
+		removeTaxRows();
 	}
 }
 
@@ -345,8 +466,7 @@ function tallyAmount(fldId)
 
 }
 
-function updateAmount()
-{
+function updateAmount(){
 	var isDebit = false;
 	var debitAmount = 0;
 	var creditAmount = 0;
@@ -355,8 +475,7 @@ function updateAmount()
 	var totCredit = 0;
 	var table = document.getElementById("txnTable");
 	var rowlength = table.rows.length;
-	for(var i = 1; i < rowlength; i++)
-	{
+	for(var i = 1; i < rowlength; i++){
 		var txn_debit = document.getElementById('txn_debit_'+i);
 		var txn_credit = document.getElementById('txn_credit_'+i);
 		debval = txn_debit.value == "" ? 0 : parseFloat(txn_debit.value);
@@ -408,7 +527,6 @@ function txnAddrowValidation(tableId)
 		alert(rowValidationMsg);
 	}
 }
-
 
 function txnformValidation()
 {
@@ -543,12 +661,7 @@ function showWinningNote()
 		document.getElementById("winning_note").style.display = 'none';
 	}
 }
-$().ready(function(){
-	setDescription(false);
-	$("[id^=amount]").change(function(){
-		setDescription(true);
-	});
-});
+
 function setDescription(isonload){
 	if(isonload){
 		$("#description").val("");
@@ -696,4 +809,126 @@ function InvCompDialog(action, listId)
 	{
 		alert(selectListAlertMsg);
 	}
+}
+
+function showHideProductItem(ele){
+	let row = parseInt((ele.name).split('_').pop());
+	if($("#invoice_item_id_"+row).data('select2')) $("#invoice_item_id_"+row).select2('destroy');
+	if(!['m', 'a'].includes($("#invoiceTable #item_type_"+row).val())){
+		$("#invoice_item_id_"+row).hide();
+		$("#invoice_item_id_"+row).val("");
+	}else{
+		$("#invoice_item_id_"+row).show();
+		$("#invoice_item_id_"+row).select2();
+	}
+}
+
+function applyTax(ele, type){
+	let checkTaxRow = false;
+	let ids = ($(ele).val() || "").split(",");
+	let id = ids[0];
+	$("[id^='tax_"+type+"_id_']").each(function(){
+		let row = parseInt((this.name).split('_').pop());
+		if(this.value == id && (type == "invoice_item" || !$("#tax_invoice_item_id_"+row).val())) checkTaxRow = true;
+	});
+
+	removeTaxRows();
+	if(id && !checkTaxRow){
+		let url = "/wkorderentity/";
+		let data = {}
+		if(type == "invoice_item"){
+			url += "get_product_tax";
+			data = {product_item_id: ids[1] }
+		}else{
+			url += "get_project_tax";
+			data = {project_id: id, parent_type: $("#parent_type").val(), parent_id: $("#parent_id").val()}
+		}
+
+		//Get Tax data
+		$.ajax({
+			url: url,
+			data: data,
+			success: function(resData){
+				if(resData.length > 0) renderTaxRows(resData, ele);
+			},
+			beforeSend: function(){ $(this).addClass("ajax-loading"); },
+			complete: function(){ $(this).removeClass("ajax-loading"); }
+		});
+	}else{
+		updateTotals();
+	}
+}
+
+function removeTaxRows(){
+	//Remving Proj tax rows
+	let projIDs = [];
+	$("[id^='project_id_']").each(function(){
+		let row = parseInt((this.name).split('_').pop());
+		if(["i", "e"].includes($("#item_type_"+row).val()) && !projIDs.includes(this.value)) projIDs.push(this.value);
+	});
+
+	$("[id^='tax_project_id_']").each(function(){
+		let row = parseInt((this.name).split('_').pop());
+		if(this.value && !projIDs.includes(this.value) && !$("#tax_invoice_item_id_"+row).val()){
+			$(this).parents("tr").remove();
+	}
+	});
+	//Remving product tax rows
+	let prodIDs = [];
+	$(".productItemsDD").each(function(){
+		let id = (this.value).split(',').shift() || null;
+		let row = parseInt((this.name).split('_').pop());
+		let projectID = $("#project_id_"+row).val();
+		if($('#invoice_type').val() == "SI" || ["m", "a"].includes($("#item_type_"+row).val()) && id && !prodIDs.includes(id)){
+			prodIDs.push(id);
+		}
+	});
+	$("[id^='tax_invoice_item_id_']").each(function(){
+		if(this.value && !prodIDs.includes(this.value)){
+			 $(this).parents("tr").remove();}
+	});
+	updateTotals();
+}
+
+function renderTaxRows(data, ele){
+	let row = parseInt((ele.name).split('_').pop());
+	let exchangeRate = parseFloat($("#exchangerate_amount_"+row).val() || 0);
+	let currency = $("#currency_"+row).val() || "";
+	let orginalCurrency = $("#original_currency_"+row).val() || "";
+	let orginalAmount = (($("#rate_"+row).val() || 0) * (parseFloat($("#quantity_"+row).val()) || 0)).toFixed(2);
+	orginalAmount = parseFloat(orginalAmount);
+	let amount = (orginalAmount * exchangeRate).toFixed(2);
+	amount = parseFloat(amount);
+	data.map((item=> {
+		item["org_amount"] =  ((item.rate/100) * orginalAmount).toFixed(2);
+		item["amount"] = ((item.rate/100) * amount).toFixed(2);
+		item["type"] = label_tax;
+		item["org_currency"] = orginalCurrency;
+		item["currency"] = currency;
+	}));
+	let rowIndex = $('#taxTable tr').length - 1;
+	let invoiceType = $('#invoice_type').val();
+	let tr = '';
+	data.map((item, index) =>{
+		index += rowIndex +1;
+		tr += '<tr>';
+		tr += '<td style="width: 5%"></td>';
+		//Project
+		tr += '<td style="width:'+(invoiceType == 'I' ? '10%' : '0%')+'">'+(item.project || "");
+		tr += '<input type="hidden" name="tax_project_id_'+index+'" id="tax_project_id_'+index+'" value="'+(item.project_id || "")+'"></td>';
+		//Product item
+		tr += '<td style="width: 20%; text-align: center;">'+(item.product || "");
+		tr += '<input type="hidden" name="tax_invoice_item_id_'+index+'" id="tax_invoice_item_id_'+index+'" value="'+(item.product_id || "")+'"></td>';
+
+		tr += '<td style="width: 20%; text-align: center;">'+item.name+'</td>';
+		tr += '<td style="width: 5%; text-align: center;">'+item.type+'</td>';
+		tr += '<td style="width:11%; text-align: center;">'+(item.rate).toFixed(2)+' % <input type="hidden" name="tax_rate_'+index+'" id="tax_rate_'+index+'" value="'+item.rate+'"></td>';
+		tr += '<td style="width: 11%"></td>';
+		tr += '<td style="width: 7%; text-align: right;">'+item.org_currency+' <label id="org_taxamount_'+index+'">'+(item.org_amount || "0.00")+'</label></td>';
+		tr += '<td style="width: 7%; text-align: right;">'+item.currency+' <label id="taxamount_'+index+'">'+(item.amount || "0.00")+'</label></td>';
+		tr += '<td style="width: 5%"></td>';
+		tr += '</tr>';
+	});
+	$("#taxTable").find("tr:last").before(tr);
+	updateTotals();
 }

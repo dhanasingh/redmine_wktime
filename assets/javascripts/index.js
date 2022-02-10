@@ -141,6 +141,11 @@ $(document).ready(function() {
 	changeProp('tab-wkskill',wkskillUrl);
 	changeProp('tab-wkreferrals',wkreferralsUrl);
 	changeProp('tab-wkdelivery',wkdeliveryUrl);
+
+	showHidePartNumber();
+	$('#automatic_product_item').change(function(){
+		showHidePartNumber();
+	});
 });
 
 function openReportPopup(){
@@ -366,7 +371,7 @@ function accProjChanged(uid, fldId, isparent, blankOptions)
 	});
 }
 
-function actRelatedDd(uid, loadProjects, needBlankOption, actType, contactType, loadPayment, loadInvoiceNo = false)
+function actRelatedDd(uid, loadProjects, needBlankOption, actType, contactType, loadPayment, loadInvoiceNo = false, loadSIDD = '')
 {
 	var relatedTo = document.getElementById("related_to");
 	var relatedType = relatedTo.options[relatedTo.selectedIndex].value;
@@ -377,7 +382,7 @@ function actRelatedDd(uid, loadProjects, needBlankOption, actType, contactType, 
 	url: actRelatedUrl,
 	type: 'get',
 	data: {related_type: relatedType, account_type: actType, contact_type: contactType},
-	success: function(data){ updateUserDD(data, relatedparentdd, userid, needBlankOption, false, "");if(loadInvoiceNo){getInvoiceNos(uid, 'delivery_invoice_id');}},
+	success: function(data){ updateUserDD(data, relatedparentdd, userid, needBlankOption, false, "");if(loadInvoiceNo){getInvoiceNos(uid, loadSIDD);}},
 	beforeSend: function(){ $this.addClass('ajax-loading'); },
 	complete: function(){ if(loadProjects) { accProjChanged(uid, 'related_parent', true, true) }if(loadPayment){submitFiletrForm();} $this.removeClass('ajax-loading'); }
 	});
@@ -989,7 +994,12 @@ function renderData(resData, options={}){
 			if(preList) content += preList(type, el);
 
 			$.each((el || {}), function(key, value){
-				content += "<td class='td'>" +value+ "</td>";
+				if(key == 'icon'){
+					content += "<td class='td'><a class='icon icon-report' href='"+value+ "'>"+ details +"</a></td>";
+				}
+				else{
+					content += "<td class='td'>" +value+ "</td>";
+				}
 			});
 			content += "</tr>";
 		});
@@ -1014,19 +1024,22 @@ function setOverHeadCost(aval_quantity){
 }
 
 function getAssignedSNs(){
-	let content = "";
 	let serial_number = $('#serial_number').val();
 	let running_sn = $('#running_sn').val();
-	let total_quantity = $('#product_item #available_quantity').val();
-	if(!total_quantity) total_quantity = $('#total_quantity').val();
+	let total_quantity = $('#total_quantity').val();
+	populateSerialNos(serial_number, running_sn, total_quantity);
+}
+
+function populateSerialNos(serial_number, running_sn, total_quantity){
+	let content = "";
 	let org_total_quantity = total_quantity;
 	let org_sn_length = running_sn.length;
 	if(total_quantity > 50) total_quantity = 50;
 
-	if(isNaN(total_quantity) || isNaN(running_sn)){
+	if(running_sn && isNaN(running_sn)){
 		content += '<p style="clear:both" class="nodata">'+ sn_text_error +'</p>';
 	}
-	else if(running_sn == '' || total_quantity == ''){
+	else if(!running_sn && serial_number == ''){
 		content += '<p style="clear:both" class="nodata">'+ sn_blank_error +'</p>';
 	}
 	else{
@@ -1037,7 +1050,7 @@ function getAssignedSNs(){
 			});
 		if(org_total_quantity > 50){
 			content += "<tr><td style='width:100%;'> .... </td></tr><tr><td style='width:100%;'> .... </td></tr>";
-			running_sn = Number(running_sn) + Number(org_total_quantity) - 1;
+			if(running_sn) running_sn = Number(running_sn) + Number(org_total_quantity) - 1;
 			content += "<tr><td style='width:100%;'>" + serial_number + String(running_sn).padStart(org_sn_length, '0') + "</td></tr>";
 		}
 		content += "</table>";
@@ -1062,10 +1075,12 @@ function getAssignedSNs(){
 function getSerialNumbersRange(serial_number, running_sn, total_quantity){
 	let serialNumbers = [];
 	let org_sn_length = running_sn.length;
-	for(i = 0; i < total_quantity; i++){
+	for(i = 0; i < Number(total_quantity); i++){
 		serialNumbers.push(serial_number + running_sn);
-		running_sn = Number(running_sn) + 1;
-		if(String(running_sn).length < org_sn_length) running_sn = String(running_sn).padStart(org_sn_length, '0');
+		if(running_sn){
+			running_sn = Number(running_sn) + 1;
+			if(String(running_sn).length < org_sn_length) running_sn = String(running_sn).padStart(org_sn_length, '0');
+		}
 	}
 	return serialNumbers;
 }
@@ -1122,15 +1137,17 @@ function deliveryitemChanged(curDDId)
 }
 
 function getInvoiceNos(uid, loadDdId){
-	var related_to = $('#related_to').val();
-	var related_parent = $('#related_parent').val();
+	var parentType = $('#related_to').val();
+	var parentId = $('#related_parent').val();
 	var needBlankOption = false;
 	var loadDropdown = document.getElementById(loadDdId);
-	var url = "/wkdelivery/getInvoiceNos?related_to="+ related_to+"&related_parent="+related_parent;
 	$.ajax({
-		url: url,
+		url: invoiceUrl,
 		type: 'get',
-		success: function(data){updateUserDD(data, loadDropdown, uid, needBlankOption, false, "");$('#populate_items').hide();},
+		data: {parent_id: parentId, parent_type: parentType},
+		success: function(data){updateUserDD(data, loadDropdown, uid, needBlankOption, false, "");
+		if(loadDdId == 'delivery_invoice_id') $('#populate_items').hide();
+		},
 		beforeSend: function(){ $(this).addClass('ajax-loading'); },
 		complete: function(){ $(this).removeClass('ajax-loading'); }
 	});
@@ -1144,4 +1161,78 @@ function populateInvoice()
 	url.searchParams.set('delivery_invoice_id', $('#delivery_invoice_id').val());
 	url.searchParams.set('populate_items', 'true');
 	location.href = url;
+}
+
+function showHidePartNumber(){
+	if($("#automatic_product_item").prop("checked")){
+		$("#tr_part_number").show();
+	}
+	else{
+		$("#tr_part_number").hide();
+	}
+}
+
+function getReceiptAssignedSNs(elementId){
+	var rowNum = elementId.replace("running_sn_","");
+	let serial_number = $('#serial_number_'+rowNum).val();
+	let running_sn = $('#running_sn_'+rowNum).val();
+	let total_quantity = $('#total_quantity_'+rowNum).val();
+	populateSerialNos(serial_number, running_sn, total_quantity);
+}
+
+function populateSIInvoice()
+{
+  if (confirm("Are you sure change the invoice this will populate invoice item")) {
+		let url = new URL(window.location.href);
+		url.searchParams.set('related_to', $('#related_to').val());
+		url.searchParams.set('related_parent', $('#related_parent').val());
+		url.searchParams.set('si_id', $('#si_id').val());
+		url.searchParams.set('populate_items', '1');
+		location.href = url;
+  }
+	else{
+		$('#si_id').val($('#prev_si_id').val())
+	}
+}
+
+function submitReceiptForm(){
+	var ret = true;
+	var url = "/wkshipment/checkQuantityAndSave";
+	var si_id = $('#si_id').val();
+	var inv_item_id = $('#availabelInvIds').val()
+	if(si_id > 0){
+		$('[id^=invoice_item_id]').attr('required', '');
+		$.ajax({
+			url: url,
+			type: 'get',
+			data: {si_id: si_id, inv_item_id: inv_item_id},
+			async: false,
+			success: function(data){
+				var received_qty = receivedQuantitySum(data)
+				if(data.invoice_qty < received_qty){
+					var confirmMsg = confirm('Invoice quantity is higher than received quantity')
+					if(confirmMsg){
+						ret =  true;
+					}
+					else{
+						ret = false;
+					}
+				}
+			},
+			beforeSend: function(){ $(this).addClass('ajax-loading'); },
+			complete: function(){ $(this).removeClass('ajax-loading'); }
+		});
+	}
+	return ret;
+}
+
+function receivedQuantitySum(data){
+	var current_quantity = $('[id^=total_quantity]');
+	var quantity_sum = 0;
+	current_quantity.each(function(e) {
+	if(!$('#item_id_'+(e+1)).val())
+		quantity_sum += parseInt($(this).val());
+	});
+	quantity_sum += data.received_qty
+	return quantity_sum
 }

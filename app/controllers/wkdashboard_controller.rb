@@ -112,7 +112,7 @@ class WkdashboardController < WkbaseController
 	def getEmpDashboard
 		data = []
 		if showAttendance
-			leaves = WkUserLeave.leaveCounts.map{|l| {name: l.subject, value: l.leave_count, issue_id: l.issue_id, type: "leave"}}
+			leaves = WkUserLeave.leaveCounts.map{|l| {name: l.subject, value: l.leave_count.round(1), issue_id: l.issue_id, type: "leave"}}
 			data << {title: l(:label_wk_leave), data: leaves} if leaves.present?
 		end
 		if showPayroll

@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-module WkreportHelper	
+module WkreportHelper
 	include WktimeHelper
 	include WkaccountingHelper
 	include WkcrmHelper
@@ -29,7 +29,7 @@ module WkreportHelper
 							[l(:label_this_month), 'current_month'],
 							[l(:label_last_month), 'last_month']],
 							value.blank? ? 'current_week' : value)
-	end	
+	end
 
 	def getReportType(apiRequest = false)
 		reportTypeArr =[]
@@ -44,21 +44,21 @@ module WkreportHelper
 		end
 		reportTypeArr.sort!
 	end
-	
+
 	def hasViewPermission(reportName)
 		ret = true
-		if reportName == 'report_profit_loss' || reportName == 'report_balance_sheet' || reportName == 'report_trial_balance'
+		if reportName == 'report_profit_loss' || reportName == 'report_balance_sheet' || reportName == 'report_trial_balance' || reportName == 'report_cash_flow'
 			ret = validateERPPermission("B_ACC_PRVLG") || validateERPPermission("A_ACC_PRVLG")
 		elsif reportName == 'report_lead_conversion' || reportName == 'report_sales_activity'
 			ret = (validateERPPermission("B_CRM_PRVLG") || validateERPPermission("A_CRM_PRVLG") ) && isChecked('wktime_enable_crm_module')
 		elsif reportName == 'report_order_to_cash' || reportName == 'report_project_profitability' || reportName == 'report_account_payable'
-			ret = validateERPPermission("M_BILL")		
+			ret = validateERPPermission("M_BILL")
 		elsif reportName == 'report_asset'
 			ret = validateERPPermission("V_INV")
 		end
 		ret
 	end
-	
+
 	def getUserQueryStr(group_id,user_id, from)
 		queryStr = "select u.id , gu.group_id, u.firstname, u.lastname,wu.termination_date, wu.join_date, " +
 			"wu.birth_date, wu.id1 as employee_id, rs.name as designation, wu.gender, wu.account_number, wu.tax_id, wu.bank_code from users u " +
@@ -71,14 +71,14 @@ module WkreportHelper
 		elsif user_id.to_i > 0
 			queryStr = queryStr + " and u.id = #{user_id}"
 		end
-		
+
 		if !(validateERPPermission('A_TE_PRVLG') || User.current.admin?)
 			queryStr = queryStr + " and u.id = #{User.current.id} "
 		end
 		#queryStr = queryStr + " order by u.created_on"
 		queryStr
 	end
-	
+
 	def getReportLeaveIssueIds
 		issueIds = ''
 		if(getLeaveSettings.blank?)
@@ -93,26 +93,26 @@ module WkreportHelper
 				  issueIds = issueIds + listboxArr[0]
 				end
 			end
-		end	
+		end
 		issueIds
 	end
-	
+
 	def getTotalAmtQuery(tableName, subQryAlias, innerSubQryAls, from, to)
-		queryStr = " (select #{innerSubQryAls}.parent_id, #{innerSubQryAls}.parent_type," + 
+		queryStr = " (select #{innerSubQryAls}.parent_id, #{innerSubQryAls}.parent_type," +
 			" #{innerSubQryAls}.#{innerSubQryAls}_month, #{innerSubQryAls}.#{innerSubQryAls}_year," +
 			" sum (#{innerSubQryAls}.amount) as #{innerSubQryAls}_amount from" +
-			" (select ii.amount, ii.#{tableName}_id, i.#{tableName}_date,i.parent_type," + 
-			" i.parent_id, date_part('month', #{tableName}_date) as #{innerSubQryAls}_month," + " date_part('year', #{tableName}_date) as #{innerSubQryAls}_year" + 
-			" from wk_#{tableName}_items ii left join wk_#{tableName}s i" + 
+			" (select ii.amount, ii.#{tableName}_id, i.#{tableName}_date,i.parent_type," +
+			" i.parent_id, date_part('month', #{tableName}_date) as #{innerSubQryAls}_month," + " date_part('year', #{tableName}_date) as #{innerSubQryAls}_year" +
+			" from wk_#{tableName}_items ii left join wk_#{tableName}s i" +
 			" on i.id = ii.#{tableName}_id" +
-			" where i.#{tableName}_date between '#{from}' and '#{to}') as #{innerSubQryAls}" + 
+			" where i.#{tableName}_date between '#{from}' and '#{to}') as #{innerSubQryAls}" +
 			" group by #{innerSubQryAls}.parent_type, #{innerSubQryAls}.parent_id, #{innerSubQryAls}.#{innerSubQryAls}_year, #{innerSubQryAls}.#{innerSubQryAls}_month) as #{subQryAlias} "
 		queryStr
 	end
-	
+
 	def getPrvBalQryStr(tableName, dateVal, subQryAlias)
-		queryStr = " (select sum(pii.amount) prv_#{tableName}_amount," + 
-			" pvi.parent_type,pvi.parent_id from wk_#{tableName}_items pii" + 
+		queryStr = " (select sum(pii.amount) prv_#{tableName}_amount," +
+			" pvi.parent_type,pvi.parent_id from wk_#{tableName}_items pii" +
 			" left join wk_#{tableName}s pvi on pvi.id = pii.#{tableName}_id" +
 			" where pvi.#{tableName}_date < '#{dateVal}'" +
 			" group by pvi.parent_type,pvi.parent_id) #{subQryAlias}" +
@@ -120,7 +120,7 @@ module WkreportHelper
 			" and #{subQryAlias}.parent_id = coalesce(idt.parent_id,pdt.parent_id)) "
 		queryStr
 	end
-	
+
 	def getInBtwMonthsArr(from,to)
 		inBtwMnthArr = Array.new
 		yearDiff = to.year - from.year
@@ -136,7 +136,7 @@ module WkreportHelper
 		end
 		inBtwMnthArr
 	end
-	
+
 	def getAccountContactSql(rptName=nil)
 		parentSql = ""
 		if ActiveRecord::Base.connection.adapter_name == 'Mysql2'
@@ -154,7 +154,7 @@ module WkreportHelper
 		sqlStr = "select 'WkAccount' #{parentSql} as parent_type, id as parent_id from wk_accounts where account_type = '#{accCond}' union select 'WkCrmContact' #{parentSql} as parent_type, id as parent_id from wk_crm_contacts where contact_type in (#{conCond})"
 		sqlStr
 	end
-	
+
 	def getMainLocation
 		allLocation = WkLocation.all
 		mainLocation = allLocation.where(:is_main => true)
@@ -162,8 +162,8 @@ module WkreportHelper
 		allLocation = allLocation.blank? ? "" : allLocation.first.name
 		allLocation
 	end
-	
-	def getAddress	
+
+	def getAddress
 		address_list = WkAddress.joins("RIGHT JOIN wk_locations ON wk_addresses.id = wk_locations.address_id")
 		mainAddress = address_list.where("wk_locations.is_main = #{booleanFormat(true)}")
 		address_list = mainAddress unless mainAddress.blank?
@@ -182,7 +182,7 @@ module WkreportHelper
 
 		payrollAmount.each do |payroll|
 			key = payroll[:user_id].to_s + "_" + payroll[:salary_date].strftime("%m").to_i.to_s + "_" + payroll[:salary_date].strftime("%Y").to_s + "_" + payroll[:project_id].to_s
-			
+
 			if @payrollEntries[key].blank?
 				@payrollEntries[key] = {:projId => payroll[:project_id], :uID => payroll[:user_id], :firstname => nil, :lastname => nil, :salDate => payroll[:salary_date], :BT => 0, :AT => 0, :DT => 0, :currency => nil, :details => {:b => [], :a => [], :d => []}}
 			end
@@ -215,4 +215,11 @@ module WkreportHelper
 	def getExportData(user_id, group_id, projId, from, to)
 		return {data: [], headers: {}}
 	end
+
+	def decrypt_values(value)
+    key = YAML::load_file(Rails.root+'plugins/redmine_wktime/config/config.yml')
+    crypt = ActiveSupport::MessageEncryptor.new(key['encryption_key'])
+    decryptVal = crypt.decrypt_and_verify(value) if value.present?
+    decryptVal
+  end
 end

@@ -402,7 +402,7 @@ include WkpayrollHelper
 	end
 
 	# Update invoice item by the given invoice item Object
-	def updateInvoiceItem(invItem, projectId, description, rate, quantity, org_currency, itemType, org_amount, creditInvoiceId, crPaymentItemId, productId)
+	def updateInvoiceItem(invItem, projectId, description, rate, quantity, org_currency, itemType, org_amount, creditInvoiceId, crPaymentItemId, productId, invoiceItemType=nil, invoiceItemID=nil)
 		toCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 		amount = getExchangedAmount(org_currency, org_amount)
 
@@ -419,6 +419,8 @@ include WkpayrollHelper
 		invItem.credit_payment_item_id = crPaymentItemId unless crPaymentItemId.blank?
 		invItem.amount = amount.round(2)
 		invItem.currency = toCurrency
+		invItem.invoice_item_type = invoiceItemID.present? ? invoiceItemType : nil
+		invItem.invoice_item_id = invoiceItemID
 		invItem.save()
 		invItem
 	end
@@ -443,7 +445,7 @@ include WkpayrollHelper
 
 	# Return RateHash which contains rate and currency for User
 	def getUserRateHash(wkUserObj)
-		rateHash = { "rate" => (wkUserObj.billing_rate.blank? ? nil : wkUserObj.billing_rate.round(2)), "currency" => wkUserObj.billing_currency, "designation" => wkUserObj.role_id }
+		rateHash = { "rate" => (wkUserObj&.billing_rate&.round(2) || nil), "currency" => wkUserObj&.billing_currency, "designation" => wkUserObj&.role_id }
 		# userCustVals.each do |custVal|
 			# case custVal.custom_field_id
 				# when getSettingCfId('wktime_user_billing_rate_cf')
@@ -481,13 +483,26 @@ include WkpayrollHelper
 
 	#Add Tax for the give accountProject
 	def addTaxes(accountProject, currency, totalAmount)
-		unless accountProject.blank?
+		if accountProject.present?
 			projectTaxes = accountProject.wk_acc_project_taxes
 			projectTaxes.each do |projtax|
 				invItem = @invoice.invoice_items.new()
 				rate = projtax.tax.rate_pct.blank? ? 0 : projtax.tax.rate_pct
 				amount = ((rate/100) * totalAmount).round(2)
 				updateInvoiceItem(invItem, accountProject.project_id, projtax.tax.name, rate, nil, currency, 't', amount, nil, nil, nil)
+			end
+		end
+	end
+
+	#Add Tax for the product
+	def add_product_taxes(product, item)
+		if product.present?
+			productTaxes = product&.taxes || []
+			productTaxes.each do |tax|
+				invItem = @invoice.invoice_items.new()
+				rate = (tax.rate_pct || 0).to_f
+				amount = ((rate/100) * item[:amount]).round(2)
+				updateInvoiceItem(invItem, item[:project_id], tax.name, rate, nil, item[:currency], 't', amount, nil, nil, product.id)
 			end
 		end
 	end
@@ -749,6 +764,8 @@ include WkpayrollHelper
 			@invItems[@itemCount].store 'milestone_id', ''
 			@invItems[@itemCount].store 'project_id', mEntry.project_id
 			@invItems[@itemCount].store 'product_id', productId
+			@invItems[@itemCount].store 'invoice_item_id', mEntry&.inventory_item&.product_item&.id
+			@invItems[@itemCount].store 'invoice_item_type', "WkProductItem"
 			@invItems[@itemCount].store 'material_id', mEntry.id
 			@invItems[@itemCount].store 'item_desc', desc
 			@invItems[@itemCount].store 'item_type', productType
@@ -756,6 +773,7 @@ include WkpayrollHelper
 			@invItems[@itemCount].store 'currency', curr
 			@invItems[@itemCount].store 'item_quantity', qty.round(4)
 			@invItems[@itemCount].store 'item_amount', amount
+
 			@itemCount = @itemCount + 1
 			partialMatAmount = partialMatAmount + amount.round(2)
 			if isCreate
@@ -766,7 +784,8 @@ include WkpayrollHelper
 					end
 				end
 				invItem = @invoice.invoice_items.new()
-				invItem = updateInvoiceItem(invItem, mEntry.project_id, desc, rate, qty, curr, productType, amount, nil, nil, productId)
+				invoice_item_id = mEntry&.inventory_item&.product_item&.id || nil
+				invItem = updateInvoiceItem(invItem, mEntry.project_id, desc, rate, qty, curr, productType, amount, nil, nil, productId, "WkProductItem", invoice_item_id)
 				updateMatterial = WkMaterialEntry.find(mEntry.id)
 				updateBilledEntry(updateMatterial, invItem.id)
 				# updateMatterial.invoice_item_id = invItem.id
@@ -843,11 +862,11 @@ include WkpayrollHelper
 	def addProductTaxes(productArr, isCreate)
 		pdtArr = productArr.uniq
 		pdtArr.each do | pid |
-			pdtTaxesId = WkProductTax.where(:product_id => pid) #.pluck(:id)
+			pdtTaxesId = WkProductTax.where(:product_id => pid)
 			pdtTaxesId.each do | tid |
 				taxinvItem = @invoice.invoice_items.new()
-				projectId = @matterialVal["#{pid}"]["projectId"]  #invItem.project_id
-				curr = @matterialVal["#{pid}"]["currency"] #invItem.currency
+				projectId = @matterialVal["#{pid}"]["projectId"]
+				curr = @matterialVal["#{pid}"]["currency"]
 				taxName = tid.tax.name.blank? ? " " : tid.tax.name
 				rate = tid.tax.rate_pct.blank? ? 0 : tid.tax.rate_pct
 				amount = (rate/100) * @matterialVal["#{pid}"]["amount"].to_i
@@ -929,5 +948,19 @@ include WkpayrollHelper
 			end
 		end
 		invoiceComponents
+	end
+
+	def saveInvoiceItemTax(totals)
+		totals.each do |type, totalItem|
+			totalItem.each do |id, item|
+				if type == "project"
+					acc_proj = WkAccountProject.getTax(id, @invoice.parent_type, @invoice.parent_id).first
+					addTaxes(acc_proj, item[:currency], item[:amount])
+				else
+					product = WkProduct.where(id: id).first
+					add_product_taxes(product, item)
+				end
+			end
+		end
 	end
 end

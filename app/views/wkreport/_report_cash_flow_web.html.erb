@@ -1,0 +1,86 @@
+<%
+	require_relative './report_cash_flow'
+	from = session[controller_name].try(:[], :from)
+	to = session[controller_name].try(:[], :to)
+	userId = session[controller_name].try(:[], :user_id)
+	groupId = session[controller_name].try(:[], :group_id)
+	projId = session[controller_name].try(:[], :project_id)
+	cashFlowReport = Object.new.extend(ReportCashFlow)
+	data = cashFlowReport.calcReportData(userId, groupId, projId, from, to)
+%>
+
+<%= stylesheet_link_tag 'application' , :media => "all" %>
+<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<style>
+	body
+	{
+		margin-right: 30%;
+		color:#000;
+		font-family:Verdana, sans-serif;
+		font-size:12px;
+	}
+</style>
+
+<div id="attn-rpt-dlg", style="overflow-x:auto;">
+	<table style="width:100%; border-collapse: collapse;">
+		 <caption style="text-align:center"><b><%= getMainLocation %><br><%= l(:report_cash_flow) %></b></br>
+		 <%= data[:from].to_formatted_s(:long) + " " + l(:label_date_to) + " " + data[:to].to_formatted_s(:long)%>
+		<thead style="background-color:#e6e6e6;">
+			<tr style="width:100%;">
+				<td><b><%= l(:label_particulars) %></b></td>
+				<td style="text-align: right;"><b><%= l(:label_cash_inflow) %></b></td>
+				<td style="text-align: right;"><b><%= l(:label_cash_outflow) %></b></td>
+			</tr>
+		</thead>
+		<tbody>
+			<%
+				totalInflow = 0
+				totalOutflow = 0
+			%>
+			<% data[:ledgers].each do |ledger| %>
+				<%
+					totalInflow += data[:totalHash][ledger]['inflow'] || 0
+					totalOutflow += data[:totalHash][ledger]['outflow'] || 0
+				%>
+				<% if data[:totalHash][ledger]['inflow'] != 0 || data[:totalHash][ledger]['outflow'] != 0%>
+					<tr style="width:100%;">
+						<td style="text-align: left;"><b><u><%= getSectionHeader(ledger)%></u></b></td>
+						<td style="border-bottom: solid thin;text-align: right;"><b><%= "%.2f" % data[:totalHash][ledger]['inflow'] %></b></td>
+						<td style="border-bottom: solid thin;text-align: right;"><b><%= "%.2f" % data[:totalHash][ledger]['outflow']%></b></td>
+					</tr>
+					<% (data[:ledgerHash][ledger] || {}).each do |ledgername, entry| %>
+						<tr style="width:100%;">
+							<td style="padding-left: 25px;"><%= ledgername %></td>							
+							<td style="text-align: right;"> <%= "%.2f" % entry["inflow"] if entry["inflow"].present? %></td>
+							<td style="text-align: right;"> <%= "%.2f" % entry["outflow"] if entry["outflow"].present? %></td>
+						</tr>
+					<% end %>
+					<% (data[:subLedgerHash][ledger] || {}).each do |subledger, subEntry| %>
+						<tr style="width:100%;">
+							<td style="padding-left: 25px;"><b><%= getSectionHeader(subledger) if subEntry.present? %></b></td>
+							<td></td>
+							<td></td>
+						</tr>
+						<% (subEntry || {}).each do |ledgername, entry| %>
+							<tr style="width:100%;">
+								<td style="padding-left: 50px;"><%= ledgername %></td>							
+								<td style="text-align: right;"> <%= "%.2f" % entry["inflow"] if entry["inflow"].present? %></td>
+								<td style="text-align: right;"> <%= "%.2f" % entry["outflow"] if entry["outflow"].present? %></td>
+							</tr>
+						<% end %>
+					<% end %>
+				<% end %>
+			<% end %>
+			<tr style="width:100%;">
+				<td style="border-top: solid thin;border-bottom: solid thin;"><b><%= l(:label_total) %>:</b></td>
+				<td style="border-top: solid thin;border-bottom: solid thin;text-align: right;"><b><%= totalInflow %></b></td>
+				<td style="border-top: solid thin;border-bottom: solid thin;text-align: right;"><b><%= totalOutflow %></b></td>
+			</tr>
+			<tr style="width:100%;">
+				<td style="border-top: solid thin;border-bottom: solid thin;"><b><%= l(:label_net_inflow) %>:</b></td>
+				<td style="border-top: solid thin;border-bottom: solid thin;"></td>
+				<td style="border-top: solid thin;border-bottom: solid thin;text-align: right;"><b><%= totalInflow - totalOutflow %></b></td>
+			</tr>
+		</tbody>
+	</table>
+</div>

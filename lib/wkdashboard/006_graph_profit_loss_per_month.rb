@@ -9,7 +9,9 @@ module WkDashboard
     }
 
     profit = getProfits(param[:to])
-    profits = [0]*12
+    month_diff = Date.today.strftime("%m").to_i - (@endDate.month).to_i
+    month_count = month_diff > 0 ? month_diff : 12+month_diff
+    profits = [0]*month_count
     profit.each do |yearMon, sum|
       month = yearMon.split("-").last
       profits[@endDate.month - month.to_i] = sum
@@ -47,13 +49,13 @@ module WkDashboard
       ledTypeHash.each do |ledgerType, trxAmountHash|
         total = calculateBalance({ledgerType=> trxAmountHash['c'].to_f}, {ledgerType=> trxAmountHash['d'].to_f}, ledgerType)
         eProfits[yearMon] ||= 0
-        eProfits[yearMon] += total[ledgerType].to_f
+        eProfits[yearMon] += (total[ledgerType].to_f).round(2)
       end
     end
-    expenses = [0]*12
+    expenses = [0]*month_count
     eProfits.each {|month, sum| expenses[@endDate.month - month.to_i] = sum }
     expenses.reverse!
-    expenses.each_with_index {|amt, index| expenses[index] = amt + expenses[index -1 ] if index != 0}
+    expenses.each_with_index {|amt, index| expenses[index] = (amt + expenses[index -1 ]).round(2) if index != 0}
     data[:data2] = expenses
     return data
   end
@@ -107,7 +109,7 @@ module WkDashboard
       type.each do |ledgerType, trxAmountHash|
         total = calculateBalance({ ledgerType => trxAmountHash['c'].to_f}, { ledgerType => trxAmountHash['d'].to_f}, ledgerType)
         profit[yearMon] ||= 0
-        profit[yearMon] += total[ledgerType].to_f
+        profit[yearMon] += (total[ledgerType].to_f).round(2)
       end
     end
     return profit

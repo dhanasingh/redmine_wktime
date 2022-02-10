@@ -147,4 +147,9 @@ class WkassetController < WkproductitemController
 		}
 	end
 
+	def get_material_entries
+		entries = getMaterialEntries(params[:inventory_item_id])
+		render json: {data: entries[:data], header: entries[:header]}
+	end
+
 end

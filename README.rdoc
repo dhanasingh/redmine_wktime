@@ -1,20 +1,16 @@
-= Webinar on ERPmine – Survey, November 30, 2021, 5 PM India (11:30 AM GMT)
+= Webinar on ERPmine – Time & Expense,  February 22, 2022, 5 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
-https://us02web.zoom.us/meeting/register/tZErcuyqqjkoH9PwnxUTDGk4O7s4abVb1mwG
+https://us02web.zoom.us/meeting/register/tZwvc--hqD4tGdNvBbTD8p-kH_pEfb6Eussm
 
 *Topics* :
 
-* Project Survey
-* General Survey
-* User survey
-  - feedback survey
-  - Employee Performance Review
-  - Exit interview
-* Survey Reviewer
-* Recurring Survey
-* Survey Response Trending Chart
-* Notification
+* Project based approvals
+* Minimum maximum validation on holidays
+* Issue logger on /off
+* Map on timesheet
+* Start / stop button on time entries
+* Timesheet Report
 * Mobile App
 -------------------------------------------------------------------------------
 
@@ -66,7 +62,7 @@ This Plugin has the following modules:
 
 For more information on features, please refer to the user guide
 
-	http://www.erpmine.org/attachments/download/24/ERPmine-User-Guide.pdf
+	http://erpmine.org/attachments/download/115/ERPmine-User-Guide_v4.5.pdf
 
 INSTALLATION:
 
@@ -97,14 +93,24 @@ If an apache passenger module is used then make sure the following settings are 
   b) RailsAppSpawnerIdleTime 0
   c) PassengerPreStart https://rails-app-url/
 
-Release Notes for v4.4.1
+Release Notes for v4.5
 
   Features:
-    - Encrypt user fields
+    - Cash flow report
+    - Option to create product item when creating new model
+    - Apply Tax rates for supplier invoice automatically
+    - Consecutive serial numbers for new receipt page
+    - Make more relationships of inventory
+    - Hide used items in inventory items list
 
   Bug fixes:
-    - Sort product item on spent time
-    - Changed product to product items on spent time
+    - Allow only one receipt per supplier invoice
+    - Error creating a new product item
+    - The purchase order does not load when creating a new supplier invoice
+    - Automatically calculate tax before saving invoice
+    - Consecutive serial number does not load for old data
+    - Product item name error in spend time
+    - Plot the graphs for the current month
 
 Customization:
 
@@ -132,11 +138,11 @@ Resources:
 
 	User guide:
 
-		http://www.erpmine.org/attachments/download/24/ERPmine-User-Guide.pdf
+		http://erpmine.org/attachments/download/115/ERPmine-User-Guide_v4.5.pdf
 
 	Overview presentation in open office format:
 
-		http://www.erpmine.org/attachments/download/23/erpmine-overview.odp
+		http://erpmine.org/attachments/download/23/erpmine-overview.odp
 
 	Training Videos:
 
@@ -148,4 +154,4 @@ Resources:
 
 	For more:
 
-		http://www.erpmine.org/projects/erpmine/wiki/Resources
+		http://erpmine.org/projects/erpmine/wiki/Resources

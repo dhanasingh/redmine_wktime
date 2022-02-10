@@ -189,7 +189,8 @@ class WkorderentityController < WkbillingController
 		@invoice = nil
 		@invoiceItem = nil
 		@projectsDD = Array.new
-        @currency = nil
+		@productItemsDD = getproductItems
+    @currency = nil
 		@preBilling = false
 		@rfgQuoteEntry = nil
 		@rfqObj = nil
@@ -282,6 +283,14 @@ class WkorderentityController < WkbillingController
 	end
 
 	def update
+		isEditable = true
+		status_changed = true
+		unless params["invoice_id"].blank?
+			issuedCrCount = WkInvoiceItem.where(:credit_invoice_id => params["invoice_id"].to_i).count
+			invoicePayCount = WkPaymentItem.where(:invoice_id => params["invoice_id"].to_i).count
+			isEditable = false if issuedCrCount>0 || invoicePayCount>0
+			status_changed = params[:field_status] == params[:saved_field_status]
+		end
 		if api_request?
 			row_index =0
 			params['invoiceItems'].each do |index, data|
@@ -296,143 +305,136 @@ class WkorderentityController < WkbillingController
 		end
 		errorMsg = nil
 		invoiceItem = nil
-		unless params["invoice_id"].blank?
-			@invoice = WkInvoice.find(params["invoice_id"].to_i)
-			@invoice.invoice_date = params[:inv_date]
-			arrId = @invoice.invoice_items.pluck(:id)
-		else
-			@invoice = WkInvoice.new
-			invoicePeriod = getInvoicePeriod(params[:inv_start_date], params[:inv_end_date])#[params[:inv_start_date], params[:inv_end_date]]
-			saveOrderInvoice(params[:parent_id], params[:parent_type],  params[:project_id_1],params[:inv_date],  invoicePeriod, false, getInvoiceType)
-
-		end
-		@invoice.status = params[:field_status] unless params[:field_status].blank?
-		unless params[:inv_number].blank?
-			@invoice.invoice_number = params[:inv_number]
-		end
-		if @invoice.status_changed?
-			@invoice.closed_on = Time.now
-		end
-		@invoice.save()
-		totalAmount = 0
-		tothash = Hash.new
-		totalRow = params[:totalrow].to_i
-		savedRows = 0
-		deletedRows = 0
-		productArr = Array.new
-		@matterialVal = Hash.new{|hsh,key| hsh[key] = {} }
-		@totalMatterialAmount = 0.00
-		#for i in 1..totalRow
-		while savedRows < totalRow
-			i = savedRows + deletedRows + 1
-			if params["item_id_#{i}"].blank? && params["quantity_#{i}"].blank? #&& params["project_id#{i}"].blank?
-				deletedRows = deletedRows + 1
-				next
-			end
-			crInvoiceId = nil
-			crPaymentId = nil
-			if params["creditfrominvoice_#{i}"] == "true"
-				crInvoiceId = params["entry_id_#{i}"].to_i
-			elsif params["creditfrominvoice_#{i}"] == "false"
-				crPaymentId = params["entry_id_#{i}"].to_i
-			end
-			pjtId = params["project_id_#{i}"] if !params["project_id_#{i}"].blank?
-			itemType = params["item_type_#{i}"].blank? ? params["hd_item_type_#{i}"]  : params["item_type_#{i}"]
-			unless params["item_id_#{i}"].blank?
-				arrId.delete(params["item_id_#{i}"].to_i)
-				invoiceItem = WkInvoiceItem.find(params["item_id_#{i}"].to_i)
-				org_amount = params["rate_#{i}"].to_f * params["quantity_#{i}"].to_f
-				updatedItem = updateInvoiceItem(invoiceItem, pjtId,  params["name_#{i}"], params["rate_#{i}"].to_f, params["quantity_#{i}"].to_f, invoiceItem.original_currency, itemType, org_amount, crInvoiceId, crPaymentId, params["product_id_#{i}"])
+		if isEditable
+			arrId = []
+			unless params["invoice_id"].blank?
+				@invoice = WkInvoice.find(params["invoice_id"].to_i)
+				@invoice.invoice_date = params[:inv_date]
+				arrId = @invoice.invoice_items.pluck(:id)
 			else
-				invoiceItem = @invoice.invoice_items.new
-				org_amount = params["rate_#{i}"].to_f * params["quantity_#{i}"].to_f
-				updatedItem = updateInvoiceItem(invoiceItem, pjtId, params["name_#{i}"], params["rate_#{i}"].to_f, params["quantity_#{i}"].to_f, params["original_currency_#{i}"], itemType, org_amount, crInvoiceId, crPaymentId, params["product_id_#{i}"])
+				@invoice = WkInvoice.new
+				invoicePeriod = getInvoicePeriod(params[:inv_start_date], params[:inv_end_date])#[params[:inv_start_date], params[:inv_end_date]]
+				saveOrderInvoice(params[:parent_id], params[:parent_type],  params[:project_id_1],params[:inv_date],  invoicePeriod, false, getInvoiceType)
+
 			end
-			if !params[:populate_unbilled].blank? && params[:populate_unbilled] == "true" && params[:creditfrominvoice].blank? && !params["entry_id_#{i}"].blank?
-				accProject = WkAccountProject.where(:project_id => pjtId)
-				if accProject[0].billing_type == 'TM'
-					idArr = params["entry_id_#{i}"].split(' ')
-					idArr.each do | id |
-						timeEntry = TimeEntry.find(id)
-						updateBilledEntry(timeEntry, updatedItem.id)
+			@invoice.status = params[:field_status] unless params[:field_status].blank?
+			unless params[:inv_number].blank?
+				@invoice.invoice_number = params[:inv_number]
+			end
+			if @invoice.status_changed?
+				@invoice.closed_on = Time.now
+			end
+			@invoice.save()
+			totalAmount = 0
+			total_amounts = Hash.new
+			totalRow = params[:totalrow].to_i
+			savedRows = 0
+			deletedRows = 0
+			productArr = Array.new
+			@matterialVal = Hash.new{|hsh,key| hsh[key] = {} }
+			@totalMatterialAmount = 0.00
+
+			while savedRows < totalRow
+				i = savedRows + deletedRows + 1
+				if params["item_id_#{i}"].blank? && params["quantity_#{i}"].blank?
+					deletedRows = deletedRows + 1
+					next
+				end
+				crInvoiceId = nil
+				crPaymentId = nil
+				if params["creditfrominvoice_#{i}"] == "true"
+					crInvoiceId = params["entry_id_#{i}"].to_i
+				elsif params["creditfrominvoice_#{i}"] == "false"
+					crPaymentId = params["entry_id_#{i}"].to_i
+				end
+				pjtId = params["project_id_#{i}"] if !params["project_id_#{i}"].blank?
+				itemType = params["item_type_#{i}"].blank? ? params["hd_item_type_#{i}"]  : params["item_type_#{i}"]
+
+				invoice_item_id = (params["invoice_item_id_#{i}"]).split(",").last
+				invoice_item_id = invoice_item_id.present? ? invoice_item_id.to_i : nil
+				product_id = params["product_id_#{i}"].present? ? params["product_id_#{i}"] : (params["invoice_item_id_#{i}"]).split(",").first
+				product_id = product_id.present? ? product_id.to_i : nil
+				unless params["item_id_#{i}"].blank?
+					arrId.delete(params["item_id_#{i}"].to_i)
+					invoiceItem = WkInvoiceItem.find(params["item_id_#{i}"].to_i)
+					org_amount = params["rate_#{i}"].to_f * params["quantity_#{i}"].to_f
+					updatedItem = updateInvoiceItem(invoiceItem, pjtId,  params["name_#{i}"], params["rate_#{i}"].to_f, params["quantity_#{i}"].to_f, invoiceItem.original_currency, itemType, org_amount, crInvoiceId, crPaymentId, product_id, params["invoice_item_type_#{i}"], invoice_item_id)
+				else
+					invoiceItem = @invoice.invoice_items.new
+					org_amount = params["rate_#{i}"].to_f * params["quantity_#{i}"].to_f
+					updatedItem = updateInvoiceItem(invoiceItem, pjtId, params["name_#{i}"], params["rate_#{i}"].to_f, params["quantity_#{i}"].to_f, params["original_currency_#{i}"], itemType, org_amount, crInvoiceId, crPaymentId, product_id, params["invoice_item_type_#{i}"], invoice_item_id)
+				end
+				if !params[:populate_unbilled].blank? && params[:populate_unbilled] == "true" && params[:creditfrominvoice].blank? && !params["entry_id_#{i}"].blank?
+					accProject = WkAccountProject.where(:project_id => pjtId)
+					if accProject[0].billing_type == 'TM'
+						idArr = params["entry_id_#{i}"].split(' ')
+						idArr.each do | id |
+							timeEntry = TimeEntry.find(id)
+							updateBilledEntry(timeEntry, updatedItem.id)
+						end
+					elsif !params["entry_id_#{i}"].blank?
+						scheduledEntry = WkBillingSchedule.find(params["entry_id_#{i}"].to_i)
+						scheduledEntry.invoice_id = @invoice.id
+						scheduledEntry.save()
 					end
-				elsif !params["entry_id_#{i}"].blank?
-					scheduledEntry = WkBillingSchedule.find(params["entry_id_#{i}"].to_i)
-					scheduledEntry.invoice_id = @invoice.id
-					scheduledEntry.save()
+				end
+				unless params["material_id_#{i}"].blank?
+					matterialEntry = WkMaterialEntry.find(params["material_id_#{i}"].to_i)
+					updateBilledEntry(matterialEntry, updatedItem.id)
 				end
 
+				if updatedItem.product_id.present?
+					# set Product Totals
+					total_amounts["product"] = set_product_total(total_amounts["product"], updatedItem)
+				elsif updatedItem.project_id.present?
+					# set project Totals
+					total_amounts["project"] = set_project_total(total_amounts["project"], updatedItem)
+				end
+				savedRows = savedRows + 1
 			end
+
 			unless params["material_id_#{i}"].blank?
 				matterialEntry = WkMaterialEntry.find(params["material_id_#{i}"].to_i)
 				updateBilledEntry(matterialEntry, updatedItem.id)
-				# matterialEntry.invoice_item_id = updatedItem.id
-				# matterialEntry.save
 			end
 
-			#Updating spent fors record with Expense invoice Item ID
-			if params["expense_id_#{i}"].present?
-				ids = params["expense_id_#{i}"].split(' ')
-				ids.each{|id| updateBilledEntry(WkExpenseEntry.find(id), updatedItem.id)}
-			end
-			savedRows = savedRows + 1
-			tothash[updatedItem.project_id] = [(tothash[updatedItem.project_id].blank? ? 0 : tothash[updatedItem.project_id][0]) + updatedItem.original_amount, updatedItem.original_currency] if updatedItem.item_type != 'm'
+			# Calculate & Save Tax, Combine same project & product taxes
+			storeInvoiceItemTax(total_amounts)
 
-			unless params["product_id_#{i}"].blank?
-				productId = params["product_id_#{i}"]
-				productEntry = WkProduct.find(productId)
-				projEntry = Project.find(pjtId)
-				productName = productEntry.name
-				amount = params["rate_#{i}"].to_f * params["quantity_#{i}"].to_f
-				curr = params["currency_#{i}"]
-				productArr << productId
-				if @matterialVal.has_key?("#{productId}")
-					oldAmount = @matterialVal["#{productId}"]["amount"].to_i
-					totAmount = oldAmount + amount
-					@matterialVal["#{productId}"].store "amount", "#{totAmount}"
-				else
-					@matterialVal["#{productId}"].store "amount", "#{amount}"
-					@matterialVal["#{productId}"].store "currency", "#{curr}"
-					@matterialVal["#{productId}"].store "pname", "#{productName}"
-					@matterialVal["#{productId}"].store "projectId", "#{projEntry.id}"
-					@matterialVal["#{productId}"].store "projectName", "#{projEntry.name}"
+			if !arrId.blank?
+				deleteBilledEntries(arrId)
+				WkInvoiceItem.where(:id => arrId).delete_all
+			end
+
+			unless @invoice.id.blank?
+				saveOrderRelations
+				WkInvoice.send_notification(@invoice) if params[:invoice_id].blank?
+				totalAmount = @invoice.invoice_items.sum(:original_amount)
+				invoiceAmount = @invoice.invoice_items.where.not(:item_type => 'm').sum(:original_amount)
+
+				moduleAmtHash = {'inventory' => [nil, totalAmount.round - invoiceAmount.round], getAutoPostModule => [totalAmount.round, invoiceAmount.round]}
+				inverseModuleArr = ['inventory']
+				transAmountArr = getTransAmountArr(moduleAmtHash, inverseModuleArr)
+				if isChecked("invoice_auto_round_gl") && (totalAmount.round - totalAmount) != 0
+					addRoundInvItem(totalAmount)
+				end
+				if totalAmount > 0 && autoPostGL(getAutoPostModule) && postableInvoice
+					transId = @invoice.gl_transaction.blank? ? nil : @invoice.gl_transaction.id
+					glTransaction = postToGlTransaction(getAutoPostModule, transId, @invoice.invoice_date, transAmountArr, @invoice.invoice_items[0].original_currency, invoiceDesc(@invoice,invoiceAmount), nil)
+					unless glTransaction.blank?
+						@invoice.gl_transaction_id = glTransaction.id
+						@invoice.save
+					end
 				end
 			end
-		end
-
-		if !arrId.blank?
-			deleteBilledEntries(arrId)
-			WkInvoiceItem.where(:id => arrId).delete_all
-		end
-
-		parentId = @invoice.parent_id
-		parentType = @invoice.parent_type
-		tothash.each do|key, val|
-			accountProject = WkAccountProject.where("project_id = ?  and parent_id = ? and parent_type = ? ", key, parentId, parentType) #'WkAccount')
-			addTaxes(accountProject[0], val[1], val[0])
-		end
-		addProductTaxes(productArr, true)
-
-		unless @invoice.id.blank?
-			saveOrderRelations
-			WkInvoice.send_notification(@invoice) if params[:invoice_id].blank?
-			totalAmount = @invoice.invoice_items.sum(:original_amount)
-			invoiceAmount = @invoice.invoice_items.where.not(:item_type => 'm').sum(:original_amount)
-
-			moduleAmtHash = {'inventory' => [nil, totalAmount.round - invoiceAmount.round], getAutoPostModule => [totalAmount.round, invoiceAmount.round]}
-			inverseModuleArr = ['inventory']
-			transAmountArr = getTransAmountArr(moduleAmtHash, inverseModuleArr)
-			if isChecked("invoice_auto_round_gl") && (totalAmount.round - totalAmount) != 0
-				addRoundInvItem(totalAmount)
+		elsif !isEditable && !status_changed && params["invoice_id"].present?
+			@invoice = WkInvoice.find(params["invoice_id"].to_i)
+			@invoice.invoice_date = params[:inv_date]
+			unless params[:inv_number].blank?
+				@invoice.invoice_number = params[:inv_number]
 			end
-			if totalAmount > 0 && autoPostGL(getAutoPostModule) && postableInvoice
-				transId = @invoice.gl_transaction.blank? ? nil : @invoice.gl_transaction.id
-				glTransaction = postToGlTransaction(getAutoPostModule, transId, @invoice.invoice_date, transAmountArr, @invoice.invoice_items[0].original_currency, invoiceDesc(@invoice,invoiceAmount), nil)
-				unless glTransaction.blank?
-					@invoice.gl_transaction_id = glTransaction.id
-					@invoice.save
-				end
-			end
+			@invoice.status = params[:field_status] unless params[:field_status].blank?
+			@invoice.save
 		end
 
 		respond_to do |format|
@@ -589,7 +591,10 @@ class WkorderentityController < WkbillingController
 
 	def invoice_to_pdf(invoice)
 		title = getHeaderLabel
-		projectID =  invoice.invoice_items.collect{|i| i.project_id}.uniq
+		@invoiceItem = invoice.invoice_items
+		projIDs = @invoiceItem.where(product_id: nil).where.not(:item_type => 'r').pluck(:project_id).uniq()
+		prodIDs = @invoiceItem.where.not(product_id: nil).where.not(:item_type => 'r').pluck(:product_id).uniq()
+		projectID =  @invoiceItem.collect{|i| i.project_id}.uniq
 		invoiceComp = getInvoiceComponents(invoice.parent_id, invoice.parent_type, projectID, getOrderComponetsId )
 		pdf = ITCPDF.new(current_language)
 		pdf.SetTitle(title)
@@ -608,7 +613,7 @@ class WkorderentityController < WkbillingController
 		pdf.ln(25)
 
 		invoiceDetails = [l(:label_name_address_of,l(:label_supplier)), l(:label_name_address_of,l(:label_customer)),
-			l(:label_invoice_number), l(:label_invoice_date) ]
+			getLabelInvNum, getDateLbl ]
 		width = table_width/invoiceDetails.size
 		invoiceDetails.each do |detail|
 			pdf.SetFontStyle('',10)
@@ -645,22 +650,26 @@ class WkorderentityController < WkbillingController
 			pdf.RDMCell(columnWidth, 10, header, 1, 0, 'C', 1)
 		end
 		pdf.set_fill_color(255, 255, 255)
-		invoice.invoice_items.where.not(:item_type => 'r').order(:item_type).each do |entry|
-			listItem(pdf, entry, columnWidth)
+		(projIDs || []).each do |id|
+			invoiceItems = @invoiceItem.where(product_id: nil, project_id: id).where.not(:item_type => 'r').order(:item_type)
+			invoiceItemDetail(pdf, invoice, invoiceItems, columnWidth)
 		end
-		listTotal(pdf, columnWidth, invoice.invoice_items.where.not(:item_type => 'r'), l(:label_total))
-		roundoffItem = invoice.invoice_items.where(:item_type => 'r')
+		(prodIDs || []).each do |id|
+			invoiceItems = @invoiceItem.where(product_id: id).where.not(:item_type => 'r').order(:item_type)
+			invoiceItemDetail(pdf, invoice, invoiceItems, columnWidth)
+		end
+		roundoffItem = @invoiceItem.where(:item_type => 'r')
 		unless roundoffItem.blank?
 			roundoffItem.each do |entry|
 				listItem(pdf, entry, columnWidth)
 			end
 		end
-		listTotal(pdf, columnWidth, invoice.invoice_items, l(:label_grand_total))
+		listTotal(pdf, columnWidth, @invoiceItem, l(:label_grand_total))
 		pdf.ln(5)
 		pdf.SetFontStyle('B',10)
 		pdf.RDMCell(40, 5, l(:label_amount_in_words) + "  :  ", 1)
 		pdf.SetFontStyle('',10)
-		pdf.RDMCell(table_width - 40, 5, numberInWords(invoice.invoice_items.sum(:original_amount)) + " " + l(:label_only), 1)
+		pdf.RDMCell(table_width - 40, 5, numberInWords(@invoiceItem.sum(:original_amount)) + " " + l(:label_only), 1)
 		pdf.ln
 		if invoiceComp.present?
 			invoiceComp.each do |comp|
@@ -676,6 +685,68 @@ class WkorderentityController < WkbillingController
 		pdf.RDMCell(30, 5, l(:label_date) + "  :  ", 0)
 		pdf.RDMCell(table_width-30, 5, l(:label_authorized_signatory), 0, 0, 'R')
 		pdf.Output
+	end
+
+	def invoiceItemDetail(pdf, invoice, invoice_items, columnWidth)
+		lastItemType = nil
+		lastProjectId = nil
+		invoice_items.each do | entry |
+			if entry.item_type != 'r'
+				height = pdf.get_string_height(80, entry.name)
+				pdf.SetFontStyle('',10)
+
+				if !lastItemType.blank? && entry.item_type != lastItemType && lastProjectId == entry.project_id && lastItemType == 'C'
+					pdf.SetFontStyle('B',10)
+					pdf.RDMMultiCell(80, height, '', 1, 'L', 0, 0)
+					pdf.RDMCell(columnWidth, height, '', 1, 0, 'L')
+					pdf.set_fill_color(230, 230, 230)
+					pdf.RDMCell(columnWidth, height, l(:label_sub_total), 1, 0, 'R')
+					pdf.RDMCell(columnWidth, height, invoice_items.where(:project_id => lastProjectId, :item_type => 'i').sum(:quantity).round(2).to_s, 1, 0, 'R')
+					pdf.RDMCell(columnWidth, height, entry.original_currency.to_s, 1, 0, 'R')
+					pdf.RDMCell(columnWidth, height, invoice_items.where(:project_id => lastProjectId, :item_type => 'i').sum(:original_amount).round(2).to_s, 1, 0, 'R')
+					pdf.set_fill_color(255, 255, 255)
+				end
+	
+				if !lastProjectId.blank? && lastProjectId != entry.project_id
+					pdf.SetFontStyle('B',10)
+					pdf.RDMMultiCell(80, height, '', 1, 'L', 0, 0)
+					pdf.RDMCell(columnWidth, height, '', 1, 0, 'L')
+					pdf.set_fill_color(230, 230, 230)
+					pdf.RDMCell(columnWidth, height, l(:label_total), 1, 0, 'R')
+					pdf.RDMCell(columnWidth, height, invoice_items.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:quantity).round(2).to_s, 1, 0, 'R')
+					pdf.RDMCell(columnWidth, height, entry.original_currency.to_s, 1, 0, 'R')
+					pdf.RDMCell(columnWidth, height, invoice_items.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:original_amount).round(2).to_s, 1, 0, 'R')
+					pdf.set_fill_color(255, 255, 255)
+				end
+
+				item_type = (entry.item_type == 'i' && invoice.invoice_type == 'I') && l(:field_hours) || entry.item_type == 'm' && l(:label_material) ||
+							entry.item_type == 'a' && l(:label_rental) || entry.item_type == 'e' && l(:label_expenses) ||  ""
+				rate = entry.rate.present? ? entry.rate.round(2).to_s + (entry.item_type == 'i' || entry.item_type == 'c' || entry.item_type == 'm' || entry.item_type == 'a' || entry.item_type == 'e' ? '' : ( addAdditionalTax ? '' : "%")) : ''
+
+				pdf.SetFontStyle('',10)
+				pdf.ln
+				pdf.RDMMultiCell(80, height, entry.name, 1, 'L', 0, 0)
+				pdf.RDMCell(columnWidth, height, item_type.to_s, 1, 0, 'L')
+				pdf.RDMCell(columnWidth, height, rate.to_s, 1, 0, 'R')
+				pdf.RDMCell(columnWidth, height, entry&.quantity.present? ? entry&.quantity.round(2).to_s : '', 1, 0, 'R')
+				pdf.RDMCell(columnWidth, height, entry&.original_currency.to_s, 1, 0, 'R')
+				pdf.RDMCell(columnWidth, height, entry&.original_amount.present? ? entry&.original_amount.round(2).to_s : '', 1, 0, 'R')	
+			end
+	
+			lastItemType = entry.item_type
+			lastProjectId = entry.project_id
+		end
+
+		pdf.ln
+		pdf.SetFontStyle('B',10)
+		pdf.RDMCell(80, 5, '', 0, 0, 'L')
+		pdf.RDMCell(columnWidth, 5, '', 0, 0, 'L')
+		pdf.set_fill_color(230, 230, 230)
+		pdf.RDMCell(columnWidth, 5, l(:label_total), 1, 0, 'C',1)
+		pdf.RDMCell(columnWidth, 5, invoice_items.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:quantity).round(2).to_s, 1, 0, 'R',1)
+		pdf.RDMCell(columnWidth, 5, invoice_items[0].original_currency.to_s, 1, 0, 'R',1)
+		pdf.RDMCell(columnWidth, 5, invoice_items.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:original_amount).round(2).to_s, 1, 0, 'R',1)
+		pdf.set_fill_color(255, 255, 255)	
 	end
 
 	def listItem(pdf, entry, columnWidth)
@@ -794,5 +865,41 @@ class WkorderentityController < WkbillingController
 		else
 			["","","","","","",label,invoice.sum(:quantity).to_s, invoice.first.original_currency.to_s + invoice.sum(:original_amount).to_s, invoice.first.currency.to_s + invoice.sum(:amount).to_s]
 		end
+	end
+
+	def getproductItems
+		WkProductItem.getproductItems || []
+	end
+
+	def set_product_total(total, item)
+		total ||= {}
+		total[item.product_id] ||= {}
+		total[item.product_id][:amount] = (total[item.product_id][:amount] || 0) + item.original_amount
+		total[item.product_id][:currency] = item.original_currency
+		total[item.product_id][:project_id] = item.project_id || nil
+		total
+	end
+
+	def set_project_total(total, item)
+		total ||= {}
+		total[item.project_id] ||= {}
+		total[item.project_id][:amount] = (total[item.project_id][:amount] || 0) + item.original_amount
+		total[item.project_id][:currency] = item.original_currency
+		total
+	end
+
+	def get_product_tax
+		data = WkProductItem.getProductTax(params[:product_item_id])
+		render json: data
+	end
+
+	def get_project_tax
+		acc_proj = WkAccountProject.getTax(params[:project_id], params[:parent_type], params[:parent_id])&.first
+		taxes = acc_proj.taxes if acc_proj.present?
+    data = (taxes || []).map{|t| {name: t.name, rate: t.rate_pct, project: acc_proj.project&.name, project_id: params[:project_id]}}
+		render json: data
+	end
+
+	def storeInvoiceItemTax(totals)
 	end
 end

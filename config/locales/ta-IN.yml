@@ -1058,13 +1058,13 @@ ta-IN:
   label_approve_reimbursement: Include only approved Reimbursement
   warn_survey_mandatory: கட்டாய கேள்விகளுக்கு பதிலளிக்க வேண்டும்
   warn_survey_submit: "கணக்கெடுப்பை சமர்ப்பிக்க விரும்புகிறீர்களா?நீங்கள் சமர்ப்பித்ததும், நீங்கள் மீண்டும் திருத்த முடியாது"
-  field_inventory_item_id: Product Items
+  field_inventory_item_id: தயாரிப்பு பொருட்கள்
   field_quantity: அளவு
   label_interest_level: ஆர்வ நிலை
   label_min_exp_req: தேவையான அனுபவம்
   label_min_rating_req: தேவையான மதிப்பீடு
   label_consumed_items: உபயோகப்படுத்தப்பட்ட பொருள்
-  button_save_with_tax: Apply Tax and Save
+  button_save_with_tax: வரி மற்றும் சேமி விண்ணப்பிக்கவும்
   label_clockin_users: பயனர்களின் மணி
   label_expense_for_issues: செலவுகள்
   label_lead_generation: இழுது உருவாக்குதலும் மாற்றமும்
@@ -1074,54 +1074,65 @@ ta-IN:
   label_deleted: நீக்கம்
   warn_issuelog_exist: "நீங்கள் இந்த வாரத்தின் அனைத்து பிரச்சினை பதிவுகளை நிறுத்த வேண்டும்"
   label_select_time_entries: நேர உள்ளீடுகளைத் தேர்ந்தெடுக்கவும்
-  label_account_number: Account Number
-  label_closed_date: Closed date
-  label_select_service: Select Service
-  label_select_service_for: Select Service For
-  label_text_search: Text Search
-  label_assigned_serial_numbers: Assigned serial numbers
-  label_fixed: Fixed
-  label_running: Running
-  label_serial_number_note: "Note: Use Comma for multiple serial numbers."
-  warn_sn_range: Serial Number is not in Range
-  warn_sn_blank: Serial Number and Quantity cannot be blank
-  warn_sn_text: Serial Number and Quantity cannot be text value
-  label_last_increment: Last Increment
-  label_last_salary: Last Salary
-  label_my_dashboard: My Dashboards
-  label_leave_setting: Leave Settings
+  label_account_number: கணக்கு எண்
+  label_closed_date: மூடப்பட்ட தேதி
+  label_select_service: சேவையைத் தேர்ந்தெடுக்கவும்
+  label_select_service_for: சேவையை தேர்வு செய்யவும்
+  label_text_search: உரைத் தேடல்
+  label_assigned_serial_numbers: ஒதுக்கப்பட்ட வரிசை எண்கள்
+  label_fixed: நிலையான
+  label_running: இயங்கும்
+  label_serial_number_note: "குறிப்பு: பல வரிசை எண்களுக்கு காற்புள்ளியைப் பயன்படுத்தவும்."
+  warn_sn_range: வரிசை எண் வரம்பில் இல்லை
+  warn_sn_blank: வரிசை எண் மற்றும் அளவு காலியாக இருக்க முடியாது
+  warn_sn_text: வரிசை எண் மற்றும் அளவு உரை மதிப்பாக இருக்க முடியாது
+  label_last_increment: கடைசி உயர்வு
+  label_last_salary: கடைசி ஊதியம்
+  label_employee_dashboard: ஊழியர் டாஷ்போர்டுகள்
+  label_leave_setting: அமைப்புகளை விடுங்கள்
 
-  report_pf: PF Report
+  report_pf: பிஎஃப் அறிக்கை
   label_uan: UAN
-  label_wages: Wages
-  label_contributor: Contributor
-  label_eps_wages: EPS
-  label_epf_wages: EPF
-  label_edli_wages: EDLI
-  label_ee_remitted: EE
-  label_er_remitted: ER
-  label_contribution_remitted: Contribution Remitted
+  label_wages: ஊதியங்கள்
+  label_contributor: பங்களிப்பாளர்
+  label_eps_wages: இபிஎஸ்
+  label_epf_wages: இபிஎஃப்
+  label_edli_wages: எடிஎல்ஐ
+  label_ee_remitted: ஈஈ
+  label_er_remitted: ஈ.ஆர்
+  label_contribution_remitted: பங்களிப்பு வழங்கப்பட்டது
 
   #delivery
-  label_delivery: Delivery
-  label_delivery_date: Delivery Date
-  label_new_delivery: New Delivery
-  label_delivered: Delivered
-  label_intransit: In Transit
-  label_load: Loading
-  label_delivery_slip: Delivery slip
-  button_csv: CSV
-  button_pdf: PDF
+  label_delivery: விநியோகம்
+  label_delivery_date: விநியோக தேதி
+  label_new_delivery: புதிய விநியோகம்
+  label_delivered: வழங்கப்பட்டது
+  label_intransit: நடு வழியில்
+  label_load: ஏற்றுகிறது
+  label_delivery_slip: விநியோக சீட்டு
+  button_csv: சி.எஸ்.வி
+  button_pdf: பிடிஎஃப்
 
-  label_send_email_notifications: Send Email Notifications
-  label_include_expense: Include Expense
-  label_select_entries: Select the Entries
-  label_select_material_entries: Select Material Entries
-  label_select_expense_entries: Select Expense Entries
-  label_fixed_cost_entries: Fixed Cost Entries
-  label_period_end_process: Auto Run Period End Process
-  label_delivery_items: Delivery Items
-  field_retirement_account: Retirement Account
-  label_expenses: Expenses
-  label_admin_dashboards: Admin Dashboards
-  label_product: தயாரிப்பு
+  label_send_email_notifications: மின்னஞ்சல் அறிவிப்புகளை அனுப்பவும்
+  label_include_expense: செலவைச் சேர்க்கவும்
+  label_select_entries: உள்ளீடுகளைத் தேர்ந்தெடுக்கவும்
+  label_select_material_entries: பொருள் உள்ளீடுகளைத் தேர்ந்தெடுக்கவும்
+  label_select_expense_entries: செலவு உள்ளீடுகளைத் தேர்ந்தெடுக்கவும்
+  label_fixed_cost_entries: நிலையான விலை பதிவுகள்
+  label_period_end_process: தானியங்கி காலம் முடிவடையும் செயல்முறையை இயக்கவும்
+  label_delivery_items: விநியோகப் பொருட்கள்
+  field_retirement_account: ஓய்வூதிய கணக்கு
+  label_expenses: செலவுகள்
+  label_admin_dashboards: நிர்வாக டாஷ்போர்டுகள்
+  label_product: பொருள்
+  label_automatic_product_item: தானாகவே பொருளை உருவாக்கு
+  label_show_available_items: பொருள் இருப்பை காட்டு
+  label_used_items: பயன்படுத்திய பொருட்கள்
+  label_goods_receipt: சரக்கு வரவு
+
+  report_cash_flow: பணப்புழக்க அறிக்கை
+  label_cash_inflow: பண வரவு
+  label_cash_outflow: பண வெளியேற்றம்
+  label_net_inflow: நிகர வரவு
+  label_select_product_item: ஒரு பொருளை தேர்ந்தெடு
+  label_received_quantity: பெறப்பட்ட எண்ணிக்கை

@@ -13,7 +13,9 @@ module WkDashboard
     invoices = getInvoiceEntries.joins(:invoice_items)
       .select(getDatePart("wk_invoices.invoice_date","month", "month_val"), +"sum(wk_invoice_items.amount) invoice_total")
       .group(getDatePart("wk_invoices.invoice_date", "month"))
-    invoiceData = [0]*12
+    month_diff = Date.today.strftime("%m").to_i - (@endDate.month).to_i
+    month_count = month_diff > 0 ? month_diff : 12+month_diff
+    invoiceData = [0]*month_count
     invoices.map{|l| invoiceData[@endDate.month - l.month_val] = l.invoice_total}
     invoiceData.reverse!
     invoiceData.each_with_index {|amt, index| invoiceData[index] = (amt + invoiceData[index-1]).round(2) if index != 0}
@@ -23,7 +25,7 @@ module WkDashboard
       .where("wk_payment_items.is_deleted = ?", false)
       .select(getDatePart("wk_payments.payment_date","month", "month_val"), +"sum(wk_payment_items.amount) payment_total")
       .group(getDatePart("wk_payments.payment_date", "month"))
-    paymentData = [0]*12
+    paymentData = [0]*month_count
     payments.map{|l| paymentData[@endDate.month - l.month_val] = l.payment_total}
     paymentData.reverse!
     paymentData.each_with_index {|amt, index| paymentData[index] = (amt + paymentData[index-1]).round(2) if index != 0}
@@ -49,13 +51,13 @@ module WkDashboard
     header = {name: l(:field_name), date: l(:label_date), type: l(:field_type), amount: l(:field_amount)}
     data1 = invoiceEntries.map do |e|
       items = e&.invoice_items
-      { name: e&.parent&.name, date: e.invoice_date.to_date, type: l(:label_invoice), amount: items&.first&.currency.to_s+ " " +items&.sum(:amount).to_f.round(2).to_s }
+      { name: e&.parent&.name, date: e.invoice_date.to_date, type: l(:label_invoice), amount: items&.first&.currency.to_s+ " " +items&.sum(:amount)&.to_f&.round(2).to_s }
     end
     data2 = []
     paymentEntries.each do |e|
       items = e&.payment_items.joins(:invoice).where(is_deleted: false, "wk_invoices.invoice_type" => "I")
       data2 << { name: e&.parent&.name, date: e.payment_date.to_date, type: l(:label_txn_payment),
-        amount: items&.first&.currency.to_s+ " " +items&.sum(:amount).to_f.round(2).to_s } if items.present?
+        amount: items&.first&.currency.to_s+ " " +items&.sum(:amount)&.to_f&.round(2).to_s } if items.present?
     end
     return {header: header, data: data1+data2}
   end
