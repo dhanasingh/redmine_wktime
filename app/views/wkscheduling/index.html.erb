@@ -15,7 +15,7 @@
       <%= link_to_previous_month(@year, @month, :accesskey => accesskey(:previous)) %> | <%= link_to_next_month(@year, @month, :accesskey => accesskey(:next)) %>&nbsp;
       <% if validateERPPermission("S_SHIFT") && validateERPPermission("E_SHIFT") %>
         <%= actions_dropdown do %>
-          <%= link_to l(:label_shift), url_for(:controller => "wkshift", :action => "index") %>
+          <%= link_to l(:label_shift), url_for(:controller => "wkshift", :action => "index", :tab => "wkscheduling") %>
         <% end %>
       <% end %>
     </div>

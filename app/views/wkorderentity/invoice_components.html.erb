@@ -1,6 +1,6 @@
 <%= javascript_include_tag 'invoice', plugin: "redmine_wktime" %>
 <%= javascript_include_tag 'payrollsettings', plugin: "redmine_wktime" %>
-<script type="text/javascript"> 
+<script type="text/javascript">
 	attendanceAlertMsg = "<%= l(:text_are_you_sure) %>";
 	selectListAlertMsg = "<%=l(:actionview_instancetag_blank_option) %>";
 	lblInvCompName = "<%=l(:field_name) %>";
@@ -11,7 +11,7 @@
 <div class="wk-contextual" style="float:right;">
 	<%= render partial: 'sidebar' %>
 </div>
-<div style="clear:both"></div>
+<%= render partial: "wkbilling/render_billing_tabs" %>
 <%= form_tag({controller: 'wkinvoice', action: 'saveInvoiceComponents'}, method: :post) do %>
 	<%= hidden_field_tag 'invoice[comp_del_ids]', "" %>
     <fieldset>
@@ -40,7 +40,7 @@
 	<table>
 		<tr>
 			<th style="text-align:left;"><label><%= l(:field_name) %></label></th>
-			<td><%= text_area_tag 'inv_copm_name','', size: "23*10", width: "150px" %> 
+			<td><%= text_area_tag 'inv_copm_name','', size: "23*10", width: "150px" %>
 		</tr>
 		<tr>
 			<th style="text-align:left;"><label><%= l(:field_value) %></label></th>
