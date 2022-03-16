@@ -1,7 +1,6 @@
 class WksupplierinvoiceController < WksupplierorderentityController
   unloadable
   menu_item :wkrfq
-
 	@@simutex = Mutex.new
 
 	def newSupOrderEntity(parentId, parentType)
@@ -136,5 +135,35 @@ class WksupplierinvoiceController < WksupplierorderentityController
 
 	def storeInvoiceItemTax(totals)
 		saveInvoiceItemTax(totals)
+	end
+
+	# When Saving SI, update Purchase Order status
+	def update_status
+		invoices = @invoice&.sup_inv_po&.purchase_order&.supplier_invoices
+		po = @invoice&.sup_inv_po&.purchase_order
+		inv_quantity = {po.id => 0}
+		po_quantity = 0
+		(invoices || {}).each do |invoice|
+			invoice.invoice_items.each do |inv_item|
+				if inv_item.invoice_item_id.blank? && ["i", "e"].include?(inv_item.item_type)
+					inv_quantity[po.id] += (inv_item.quantity || 0)
+				elsif ["i", "e"].include?(inv_item.item_type)
+					inv_quantity[inv_item.invoice_item_id] ||= 0
+					inv_quantity[inv_item.invoice_item_id] += inv_item.quantity
+				end
+			end
+		end
+		status = po.status
+		(po.invoice_items || {}).each do |po_item|
+			if inv_quantity[po_item.invoice_item_id].present? && ["i", "e"].include?(po_item.item_type)
+				status = inv_quantity[po_item.invoice_item_id] == po_item.quantity ? "c" : "o"
+				break if status == "o"
+			elsif ["i", "e"].include?(po_item.item_type)
+				po_quantity += po_item.quantity
+			end
+		end
+		status = po_quantity == inv_quantity[po.id] ? "c" : "o"
+		po.status = status
+		po.save()
 	end
 end

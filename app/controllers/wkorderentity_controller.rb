@@ -427,6 +427,10 @@ class WkorderentityController < WkbillingController
 					end
 				end
 			end
+
+			#Updating Status if the condition is met
+			update_status()
+
 		elsif !isEditable && !status_changed && params["invoice_id"].present?
 			@invoice = WkInvoice.find(params["invoice_id"].to_i)
 			@invoice.invoice_date = params[:inv_date]
@@ -706,7 +710,7 @@ class WkorderentityController < WkbillingController
 					pdf.RDMCell(columnWidth, height, invoice_items.where(:project_id => lastProjectId, :item_type => 'i').sum(:original_amount).round(2).to_s, 1, 0, 'R')
 					pdf.set_fill_color(255, 255, 255)
 				end
-	
+
 				if !lastProjectId.blank? && lastProjectId != entry.project_id
 					pdf.SetFontStyle('B',10)
 					pdf.RDMMultiCell(80, height, '', 1, 'L', 0, 0)
@@ -730,9 +734,9 @@ class WkorderentityController < WkbillingController
 				pdf.RDMCell(columnWidth, height, rate.to_s, 1, 0, 'R')
 				pdf.RDMCell(columnWidth, height, entry&.quantity.present? ? entry&.quantity.round(2).to_s : '', 1, 0, 'R')
 				pdf.RDMCell(columnWidth, height, entry&.original_currency.to_s, 1, 0, 'R')
-				pdf.RDMCell(columnWidth, height, entry&.original_amount.present? ? entry&.original_amount.round(2).to_s : '', 1, 0, 'R')	
+				pdf.RDMCell(columnWidth, height, entry&.original_amount.present? ? entry&.original_amount.round(2).to_s : '', 1, 0, 'R')
 			end
-	
+
 			lastItemType = entry.item_type
 			lastProjectId = entry.project_id
 		end
@@ -746,7 +750,7 @@ class WkorderentityController < WkbillingController
 		pdf.RDMCell(columnWidth, 5, invoice_items.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:quantity).round(2).to_s, 1, 0, 'R',1)
 		pdf.RDMCell(columnWidth, 5, invoice_items[0].original_currency.to_s, 1, 0, 'R',1)
 		pdf.RDMCell(columnWidth, 5, invoice_items.where(:project_id => lastProjectId).where.not(:item_type => 'r').sum(:original_amount).round(2).to_s, 1, 0, 'R',1)
-		pdf.set_fill_color(255, 255, 255)	
+		pdf.set_fill_color(255, 255, 255)
 	end
 
 	def listItem(pdf, entry, columnWidth)
@@ -901,5 +905,8 @@ class WkorderentityController < WkbillingController
 	end
 
 	def storeInvoiceItemTax(totals)
+	end
+
+	def update_status
 	end
 end
