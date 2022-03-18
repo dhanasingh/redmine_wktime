@@ -1,6 +1,6 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'invoice', :plugin => "redmine_wktime" %>
-<script type="text/javascript"> 
+<script type="text/javascript">
 	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds', :additionalContactType => controller.additionalContactType, :additionalAccountType => controller.additionalAccountType)}" %>";
 	accountUrl="<%= "#{url_for(:controller => "wkinvoice", :action => 'getAccountProjIds')}" %>";
 </script>
@@ -19,16 +19,16 @@
 		projectArr = ["", 0]
 	end
  %>
-<%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	
+<%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>
 <%	projArr = options_for_wktime_project(projects,true) %>
-<% rfq_arr = WkRfq.where(:status => 'o').pluck(:name, :id) %>	
+<% rfq_arr = WkRfq.where(:status => 'o').pluck(:name, :id) %>
 <%= form_tag({:controller => controller_name, :action => 'edit'}, :method => :get, :id => 'query_form') do %>
 <%=h hidden_field_tag("new_invoice",   true )  %>
 <%=h hidden_field_tag("isAccBilling",   isAccBilling )  %>
-<%= render partial: "wkbilling/index_filters", locals: { :contact_id => nil, :account_id => 1, :filter_session => 2, :project_id => nil, :pjtChanged => controller.needChangedProject, :isapply => false, :isproject => controller.showProjectDD, :isAll => false, :blankOptionForPjt => controller.needBlankProject, :blankForActDD => false, :blankForContactDD => false, :rfq_id => nil, :needQuotePoDD => true, :isFilter => false, :loadSIDD => false } %>
+<%= render partial: "wkbilling/index_filters", locals: { :contact_id => nil, :account_id => nil, :filter_session => 2, :project_id => nil, :pjtChanged => controller.needChangedProject, :isapply => false, :isproject => controller.showProjectDD, :isAll => false, :blankOptionForPjt => controller.needBlankProject, :blankForActDD => false, :blankForContactDD => false, :rfq_id => nil, :needQuotePoDD => true, :isFilter => false, :loadSIDD => false } %>
 <div style="clear:both;"></div>
 <table>
-<%#= render partial: "wkcrm/view_polymorphic", locals: { parentObject:  nil , :parentType => "", :parentId => "", :index => false, :needParentProject => true, :padding => nil, :needblankType => false } %> 
+<%#= render partial: "wkcrm/view_polymorphic", locals: { parentObject:  nil , :parentType => "", :parentId => "", :index => false, :needParentProject => true, :padding => nil, :needblankType => false } %>
 <!-- <tr>
 	<th align="left"><label><%#= l(:label_project) %></label></th>
 	<td style="padding-left:40px;"><%#=h select_tag('project_id', options_for_select(projectArr)) %></td>
@@ -38,7 +38,7 @@
 	<th align="left"><label><%= l(:label_rfq) %></label></th>
 	<td style="padding-left:40px;"><%=h select_tag('rfq_id', options_for_select(rfq_arr), :style=>"width:80px;" ) %></td>
 </tr> -->
-<%# end %> 
+<%# end %>
 <tr>
 	<th align="left"><%= l(:field_currency) %></th>
 	<td style="padding-left:40px;"> <%=h select_tag("inv_currency",options_for_select(wkexpense_helper.options_for_currency, :selected => Setting.plugin_redmine_wktime['wktime_currency'])) %></td>

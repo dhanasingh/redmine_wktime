@@ -1,16 +1,16 @@
-<% 
+<%
 	polymorphic_filter = filter_session
-	
+
 	allSelection = false
 	contactSelection = false
 	accountSelection = false
 	if polymorphic_filter == '1' || polymorphic_filter.blank?
-		allSelection = true	
+		allSelection = true
 	end
 %>
 <% parent_id = 0 %>
 <% parent_type = 'WkAccount' %>
-<script type="text/javascript"> 
+<script type="text/javascript">
 $(document).ready(function()
 {
 	<% if polymorphic_filter == '1' || polymorphic_filter.blank? %>
@@ -29,17 +29,17 @@ $(document).ready(function()
 		<% parent_type = 'WkAccount' %>
 		$("#contact_id").attr("disabled", true);
 		$("#account_id").removeAttr("disabled");
-	<% end %>  
-  
+	<% end %>
+
 });
  </script>
 <% contactArr = relatedValues('WkCrmContact', nil, controller.getOrderContactType, true, controller.additionalContactType, controller.additionalAccountType) %>
 <% accountArr = options_for_wktime_account(blankForActDD, controller.getOrderAccountType, controller.additionalAccountType) %>
-<%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>	
+<%	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name') %>
 <%	projArr = options_for_wktime_project(projects,true)
 	isPjtBlank = true
-	if pjtChanged  
-		accountProjects = getProjArrays(parent_id, parent_type)	
+	if pjtChanged
+		accountProjects = getProjArrays(parent_id, parent_type)
 		projArr = accountProjects.collect{|m| [ m.project_name, m.project_id ] } if !accountProjects.blank?
 		if !project_id.blank? && polymorphic_filter != '1'
 				projArr.unshift(["", '0'])
@@ -50,7 +50,7 @@ $(document).ready(function()
 		projArr[0] = [l(:label_all_projects),'AP']
 		projArr.unshift(["",''])
 	end
-%> 
+%>
 <table>
 <tr>
 	<% if isAll %>
@@ -59,31 +59,29 @@ $(document).ready(function()
 	<td><td>
 	<% end %>
 
-	<th align="left"><%= radio_button_tag 'polymorphic_filter', '2', contactSelection, :onclick => " $('#account_id').attr('disabled', true);$('#contact_id').removeAttr('disabled');", :onchange => " getprojects(this, #{pjtChanged}, #{loadSIDD})" %>
+	<th align="left"><%= radio_button_tag 'polymorphic_filter', '2', contactSelection, :onclick => " $('#account_id').attr('disabled', true);$('#contact_id').removeAttr('disabled');if(#{controller.loadPurchaseDD}) { rfqTOQuoteChanged(#{User.current.id}, 'po_id');}", :onchange => " getprojects(this, #{pjtChanged}, #{loadSIDD})" %>
 	<%= l(:label_contact) %></th>
 	<td><%=h select_tag('contact_id', options_for_select(contactArr, :selected => contact_id.blank? ? contactArr : contact_id  ),
-	:onchange => " if(#{pjtChanged}) { accProjChanged('', this.id, false, #{blankOptionForPjt}); } if(#{loadSIDD}) { getSupplierInvoice(#{User.current.id}, 'si_id'); }   ") %>
+	:onchange => " if(#{pjtChanged}) { accProjChanged('', this.id, false, #{blankOptionForPjt}); } if(#{loadSIDD}) { getSupplierInvoice(#{User.current.id}, 'si_id'); } if(#{controller.loadPurchaseDD}) { rfqTOQuoteChanged(#{User.current.id}, 'po_id');} ") %>
 	</td>
 
-	<th align="left"><%= radio_button_tag 'polymorphic_filter', '3', accountSelection, :onclick => " $('#account_id').removeAttr('disabled');$('#contact_id').attr('disabled', true);", :onchange => " getprojects(this, #{pjtChanged}, #{loadSIDD})" %><%= controller.getAccountDDLbl %></th>
+	<th align="left"><%= radio_button_tag 'polymorphic_filter', '3', accountSelection, :onclick => " $('#account_id').removeAttr('disabled');$('#contact_id').attr('disabled', true);if(#{controller.loadPurchaseDD}) { rfqTOQuoteChanged(#{User.current.id}, 'po_id');}", :onchange => " getprojects(this, #{pjtChanged}, #{loadSIDD})" %><%= controller.getAccountDDLbl %></th>
 	<td><%=h select_tag('account_id', options_for_select(accountArr, :selected => account_id.blank? ? accountArr : account_id ),
-	:onchange => " if(#{pjtChanged}) { accProjChanged('', this.id, false, #{blankOptionForPjt}); } if(#{loadSIDD}) { getSupplierInvoice(#{User.current.id}, 'si_id'); } ") %></td>
+	:onchange => " if(#{pjtChanged}) { accProjChanged('', this.id, false, #{blankOptionForPjt}); } if(#{loadSIDD}) { getSupplierInvoice(#{User.current.id}, 'si_id'); } if(#{controller.loadPurchaseDD}) { rfqTOQuoteChanged(#{User.current.id}, 'po_id');} ") %></td>
 
 	<% if isproject %>
 		<th align="left" style="padding-left: 10px;"><label><%= l(:label_project) %></label></th>
 		<td><%=h select_tag('project_id', options_for_select(projArr, :selected => project_id.nil? ? projArr : project_id)) %></td>
 	<% end  %>
-	
+
 	<% unless controller.getAdditionalDD.blank?  %>
 		<%= render partial: controller.getAdditionalDD, locals: { rfq_id: rfq_id, reqQuotePoDD: needQuotePoDD, onchngeMethodName: "", needRfqBlank: isFilter }%>
 	<% end %>
-	
-	
+
+
 <% if isapply %>
-	
 		<td><%= submit_tag l(:button_apply), :class => "small", :name => nil %>
 		<%= link_to l(:button_clear), {:tab => controller_name, clear: true}, :class => 'icon icon-reload' %></td><td></td>
-	
 <% end  %>
 
 <tr>

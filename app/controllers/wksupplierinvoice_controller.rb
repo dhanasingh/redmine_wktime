@@ -48,12 +48,12 @@ class WksupplierinvoiceController < WksupplierorderentityController
 	def getRfqPoIds
 		quoteIds = ""
 		rfqObj = ""
-		rfqObj = WkInvoice.where(:id => getInvoiceIds(params[:rfq_id].to_i, 'PO', false), :parent_id => params[:parent_id].to_i, :parent_type => params[:parent_type]).order(:id)
+		rfqObj = WkInvoice.where(id: getInvoiceIds(params[:rfq_id].to_i, 'PO', false), parent_id: params[:parent_id].to_i, parent_type: params[:parent_type], status: 'o').order(:id)
 		if !Setting.plugin_redmine_wktime['label_create_supplier_invoice_without_purchase_order'].blank? && Setting.plugin_redmine_wktime['label_create_supplier_invoice_without_purchase_order'].to_i == 1
 			quoteIds << "," + "\n"
 		end
 		rfqObj.each do | entry|
-			quoteIds <<  entry.id.to_s() + ',' + entry.invoice_number.to_s()  + "\n"
+			quoteIds <<  entry.id.to_s() + ',' + entry.invoice_number.to_s() + " - " + entry.confirm_num.to_s()  + "\n"
 		end
 		respond_to do |format|
 			format.text  { render :plain => quoteIds }
@@ -165,5 +165,9 @@ class WksupplierinvoiceController < WksupplierorderentityController
 		status = po_quantity == inv_quantity[po.id] ? "c" : "o"
 		po.status = status
 		po.save()
+	end
+
+	def loadPurchaseDD
+		true
 	end
 end

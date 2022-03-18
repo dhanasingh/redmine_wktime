@@ -7,18 +7,18 @@ include WktimeHelper
 before_action :check_perm_and_redirect, :only => [:index, :edit, :update, :destroy]
 before_action :check_admin_redirect, :only => [:destroy]
 
-	
+
 	def check_perm_and_redirect
 		unless check_permission
 			render_403
 			return false
 		end
 	end
-	
+
 	def check_permission
 		return validateERPPermission("V_INV")
 	end
-	
+
 	def check_admin_redirect
 		allow = false
 		allow = validateERPPermission("D_INV")
@@ -27,10 +27,12 @@ before_action :check_admin_redirect, :only => [:destroy]
 			return false
 		end
 	end
-	
+
 	def hasDeletePermission
 		validateERPPermission("D_INV")
 	end
 
-
+	def loadPurchaseDD
+		false
+	end
 end

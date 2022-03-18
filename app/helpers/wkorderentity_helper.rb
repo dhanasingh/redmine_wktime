@@ -14,10 +14,12 @@ include WkcrmHelper
 		rfqQuoteArr
 	end
 
-	def getRfqPoArray(needBlank, id)
+	def getRfqPoArray(needBlank, id, parent_type, parent_id)
 		rfqPoArr = Array.new
-		rfqObj = WkInvoice.joins(:po_quote).where("wk_po_quotes.quote_id"=> id.blank? ? nil : id)
-		rfqPoArr = rfqObj.collect{|i|[i.invoice_number,i.id] }
+		rfqObj = 	WkInvoice.joins("LEFT JOIN wk_po_quotes ON wk_po_quotes.purchase_order_id = wk_invoices.id ")
+		.joins("LEFT JOIN wk_rfq_quotes ON wk_rfq_quotes.quote_id=wk_po_quotes.quote_id")
+		.where("parent_id" => parent_id, "parent_type" => parent_type, "invoice_type" => 'PO', "wk_rfq_quotes.rfq_id" => id.present? ? id  : nil, "status" => 'o')
+		rfqPoArr = rfqObj.collect{|i| [i.invoice_number.to_s + " - " + i.confirm_num.to_s, i.id] }
 		rfqPoArr.unshift(["",'']) if needBlank
 		rfqPoArr
 	end
@@ -31,8 +33,8 @@ include WkcrmHelper
 		options_for_select(getRfqQuoteArray(needBlank, id))
 	end
 
-	def options_for_rfqPO_select(needBlank, id)
-		options_for_select(getRfqPoArray(needBlank, id))
+	def options_for_rfqPO_select(needBlank, id, parent_type, parent_id)
+		options_for_select(getRfqPoArray(needBlank, id, parent_type, parent_id))
 	end
 
 	def getInvoiceIds(rfqId, invoiceType, requireWonQuote)
