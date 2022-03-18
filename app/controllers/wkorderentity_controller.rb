@@ -152,7 +152,7 @@ class WkorderentityController < WkbillingController
 				LEFT JOIN wk_accounts a on (wk_invoices.parent_type = 'WkAccount' and wk_invoices.parent_id = a.id)
 				LEFT JOIN wk_crm_contacts c on (wk_invoices.parent_type = 'WkCrmContact' and wk_invoices.parent_id = c.id)
 				").group("wk_invoices.id, CASE WHEN wk_invoices.parent_type = 'WkAccount' THEN a.name ELSE CONCAT(c.first_name, c.last_name) END,
-				CONCAT(users.firstname, users.lastname), wk_invoices.status, wk_invoices.invoice_number, wk_invoices.start_date, wk_invoices.end_date, wk_invoices.invoice_date, wk_invoices.closed_on, wk_invoices.modifier_id, wk_invoices.gl_transaction_id, wk_invoices.parent_id, wk_invoices.invoice_type, wk_invoices.invoice_num_key, wk_invoices.created_at, wk_invoices.updated_at,wk_invoices.parent_type ")
+				CONCAT(users.firstname, users.lastname), wk_invoices.status, wk_invoices.invoice_number, wk_invoices.start_date, wk_invoices.end_date, wk_invoices.invoice_date, wk_invoices.closed_on, wk_invoices.modifier_id, wk_invoices.gl_transaction_id, wk_invoices.parent_id, wk_invoices.invoice_type, wk_invoices.invoice_num_key, wk_invoices.created_at, wk_invoices.updated_at,wk_invoices.parent_type, wk_invoices.confirm_num")
 				.select("wk_invoices.*, SUM(wk_invoice_items.quantity) AS quantity, SUM(wk_invoice_items.amount) AS amount, SUM(wk_invoice_items.original_amount)
 				 AS original_amt")
 			invEntries =  invEntries.reorder(sort_clause)
@@ -317,10 +317,9 @@ class WkorderentityController < WkbillingController
 				saveOrderInvoice(params[:parent_id], params[:parent_type],  params[:project_id_1],params[:inv_date],  invoicePeriod, false, getInvoiceType)
 
 			end
-			@invoice.status = params[:field_status] unless params[:field_status].blank?
-			unless params[:inv_number].blank?
-				@invoice.invoice_number = params[:inv_number]
-			end
+			@invoice.status = params[:field_status] if params[:field_status].present?
+			@invoice.invoice_number = params[:inv_number] if params[:inv_number].present?
+			@invoice.confirm_num = params[:confirm_num] if params[:confirm_num].present?
 			if @invoice.status_changed?
 				@invoice.closed_on = Time.now
 			end
@@ -350,9 +349,9 @@ class WkorderentityController < WkbillingController
 				pjtId = params["project_id_#{i}"] if !params["project_id_#{i}"].blank?
 				itemType = params["item_type_#{i}"].blank? ? params["hd_item_type_#{i}"]  : params["item_type_#{i}"]
 
-				invoice_item_id = (params["invoice_item_id_#{i}"]).split(",").last
+				invoice_item_id = ((params["invoice_item_id_#{i}"]) || "").split(",").last
 				invoice_item_id = invoice_item_id.present? ? invoice_item_id.to_i : nil
-				product_id = params["product_id_#{i}"].present? ? params["product_id_#{i}"] : (params["invoice_item_id_#{i}"]).split(",").first
+				product_id = params["product_id_#{i}"].present? ? params["product_id_#{i}"] : ((params["invoice_item_id_#{i}"]) || "").split(",").first
 				product_id = product_id.present? ? product_id.to_i : nil
 				unless params["item_id_#{i}"].blank?
 					arrId.delete(params["item_id_#{i}"].to_i)
@@ -434,10 +433,9 @@ class WkorderentityController < WkbillingController
 		elsif !isEditable && !status_changed && params["invoice_id"].present?
 			@invoice = WkInvoice.find(params["invoice_id"].to_i)
 			@invoice.invoice_date = params[:inv_date]
-			unless params[:inv_number].blank?
-				@invoice.invoice_number = params[:inv_number]
-			end
-			@invoice.status = params[:field_status] unless params[:field_status].blank?
+			@invoice.status = params[:field_status] if params[:field_status].present?
+			@invoice.invoice_number = params[:inv_number] if params[:inv_number].present?
+			@invoice.confirm_num = params[:confirm_num] if params[:confirm_num].present?
 			@invoice.save
 		end
 
@@ -723,8 +721,7 @@ class WkorderentityController < WkbillingController
 					pdf.set_fill_color(255, 255, 255)
 				end
 
-				item_type = (entry.item_type == 'i' && invoice.invoice_type == 'I') && l(:field_hours) || entry.item_type == 'm' && l(:label_material) ||
-							entry.item_type == 'a' && l(:label_rental) || entry.item_type == 'e' && l(:label_expenses) ||  ""
+				item_type = getInvoiceItemType(entry)
 				rate = entry.rate.present? ? entry.rate.round(2).to_s + (entry.item_type == 'i' || entry.item_type == 'c' || entry.item_type == 'm' || entry.item_type == 'a' || entry.item_type == 'e' ? '' : ( addAdditionalTax ? '' : "%")) : ''
 
 				pdf.SetFontStyle('',10)
@@ -758,7 +755,7 @@ class WkorderentityController < WkbillingController
 		pdf.SetFontStyle('',10)
 		pdf.ln
 		pdf.RDMMultiCell(80, height, entry.name, 1, 'L', 0, 0)
-		pdf.RDMCell(columnWidth, height, getInvoiceItemType(entry.item_type), 1, 0, 'L')
+		pdf.RDMCell(columnWidth, height, getInvoiceItemType(entry), 1, 0, 'L')
 		pdf.RDMCell(columnWidth, height, entry.item_type == 't' ? entry.rate.to_s + "%" : entry.rate.to_s, 1, 0, 'R')
 		pdf.RDMCell(columnWidth, height, entry.quantity.to_s, 1, 0, 'R')
 		pdf.RDMCell(columnWidth, height, entry.original_currency.to_s, 1, 0, 'R')
@@ -776,26 +773,6 @@ class WkorderentityController < WkbillingController
 		pdf.RDMCell(columnWidth, 5, invoice.first.original_currency.to_s, 1, 0, 'R',1)
 		pdf.RDMCell(columnWidth, 5, invoice.sum(:original_amount).round(2).to_s, 1, 0, 'R',1)
 		pdf.set_fill_color(255, 255, 255)
-	end
-
-	def getInvoiceItemType(type)
-		itemtype  = ''
-		case(type)
-		when 'i'
-			itemtype = l(:field_hours)
-		when 'c'
-			itemtype = l(:label_credit)
-		when 'm'
-			itemtype = l(:label_material)
-		when 't'
-			itemtype = l(:label_tax)
-		when 'a'
-			itemtype = l(:label_rental)
-		when 'e'
-			itemtype = l(:label_expenses)
-		else
-			itemtype = '';
-		end
 	end
 
 	def setUnbilledParams
@@ -859,7 +836,7 @@ class WkorderentityController < WkbillingController
 	end
 
 	def getInvoiceItems(item)
-		invoiceItems = [ item.name, getInvoiceItemType(item.item_type), item.item_type == 't' ? (item.rate.to_s + "%") : item.rate.to_s, item.quantity, item.original_currency.to_s + item.original_amount.round(2).to_s, item.currency.to_s + item.amount.round(2).to_s]
+		invoiceItems = [ item.name, getInvoiceItemType(item), item.item_type == 't' ? (item.rate.to_s + "%") : item.rate.to_s, item.quantity, item.original_currency.to_s + item.original_amount.round(2).to_s, item.currency.to_s + item.amount.round(2).to_s]
 		invoiceItems
 	end
 

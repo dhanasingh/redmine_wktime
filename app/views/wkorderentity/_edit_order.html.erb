@@ -54,6 +54,10 @@
 			<th align="left" style="width:80px;"><%= l(:field_status_modified_by) %></th>
 			<td> <%= ': ' + (@invoice.blank? ? User.current.to_s : @invoice&.modifier&.name.to_s) %> </td>
 
+			<% if controller.getInvoiceType == 'PO' %>
+				<th align="left" style="width:80px;"><%= l(:label_confirmation_number) %></th>
+				<td> <%= ": " %><%= text_field_tag "confirm_num", @invoice&.confirm_num || '', :style => "width:150px;" %> </td>
+			<% end %>
 		</tr>
 		<% if controller.addQuoteFields %>
 			<tr>
