@@ -48,7 +48,9 @@ class WkLead < ActiveRecord::Base
   }
 
   scope :hiring_employees, ->{
-    joins(:contact).where("wk_crm_contacts.contact_type" => "IC", status: "C")
+    joins(:contact)
+    .joins("LEFT JOIN Wk_users ON wk_users.source_id=wk_leads.contact_id")
+    .where("wk_crm_contacts.contact_type" => "IC", "wk_leads.status" => "C", "wk_users.source_id" => nil)
   }
 
   def self.referrals(privilege, id=nil)

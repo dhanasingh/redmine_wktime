@@ -25,14 +25,15 @@ module ReportCashFlow
 		end
 		subLedgerHash
   end
-	
+
 	def getCashFlowAmt(from, to, ledgerType)
 		typeArr = ['c', 'd']
 		detailHash = Hash.new
 		typeArr.each do |type|
 			other_type = type == 'c' ? 'd' : 'c'
 			detailHash[type] = {}
-			glTransaction = WkGlTransactionDetail.find_by_sql("SELECT DISTINCT sum(DISTINCT GLD1.amount) as amount, GLD1.ledger_id
+			glTransaction = WkGlTransactionDetail.find_by_sql("SELECT sum(SL.amount) AS amount, SL.ledger_id FROM (
+				SELECT DISTINCT GLD1.ledger_id, GLD1.id,GLD1.gl_transaction_id, GLD1.detail_type, GLD1.amount
 				FROM wk_gl_transaction_details AS GLD1
 				INNER JOIN wk_ledgers AS L1 ON L1.id = GLD1.ledger_id
 				INNER JOIN wk_gl_transactions AS GLT1 ON GLT1.id = GLD1.gl_transaction_id
@@ -42,7 +43,8 @@ module ReportCashFlow
 				WHERE GLD1.detail_type = '#{type}' and L1.ledger_type IN ('#{ledgerType}') and GLT1.trans_type IN ('R','P','PR','S')
 				AND ((L2.ledger_type IN ('BA', 'CS') and GLT2.trans_type IN  ('PR','S')) OR GLT2.trans_type IN  ('R','P'))
 				and GLT1.trans_date between '#{from}' and '#{to}'
-				GROUP BY GLD1.ledger_id")
+			) AS SL
+			GROUP BY SL.ledger_id")
 			glTransaction.each{|entry| detailHash[type][entry.ledger_id] = entry.amount}
 		end
 		cashFlow = Hash.new
@@ -55,7 +57,7 @@ module ReportCashFlow
 				cashFlow[key]['outflow'] = detailHash['d'][ledger.id]
 			end
 		end
-		cashFlow	
+		cashFlow
 	end
 
 	def getCashFlowTotal(mainHash, subHash)
@@ -87,7 +89,7 @@ module ReportCashFlow
     totalOutflow = 0
     reportData[:ledgers].each do |ledger|
       totalInflow += reportData[:totalHash][ledger]['inflow'] || 0
-      totalOutflow += reportData[:totalHash][ledger]['outflow'] || 0    
+      totalOutflow += reportData[:totalHash][ledger]['outflow'] || 0
       if reportData[:totalHash][ledger]['inflow'] != 0 || reportData[:totalHash][ledger]['outflow'] != 0
 		    data << {ledger_group: getSectionHeader(ledger), ledger: '', subledger: '', inflow:  reportData[:totalHash][ledger]['inflow'], outflow: reportData[:totalHash][ledger]['outflow']}
 				renderLedgerAmount(data, reportData[:ledgerHash][ledger], 'mainledger')
@@ -134,7 +136,7 @@ module ReportCashFlow
     pdf.SetFontStyle('', 8)
 		data[:data].each do |entry|
 			entry.each do |key, value|
-				[:ledger_group, :ledger].include?(key) ? pdf.SetFontStyle('B',9)  : pdf.SetFontStyle('',8) 
+				[:ledger_group, :ledger].include?(key) ? pdf.SetFontStyle('B',9)  : pdf.SetFontStyle('',8)
         pdf.RDMCell(width, row_Height, value.to_s, 0, 0, '', 0)
       end
 			pdf.ln
