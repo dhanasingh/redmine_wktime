@@ -370,4 +370,8 @@ class WkbaseController < ApplicationController
 		data = WkUser.showEncryptdData(params[:userID], params[:columnName])
 		render json: {data: data}
 	end
+
+	def loadPurchaseDD
+		false
+	end
 end

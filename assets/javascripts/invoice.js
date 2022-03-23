@@ -216,7 +216,7 @@ function invoiceAddRow(tableId, rowCount){
 					var prefix = id.join("_") + "_";
 					$(this).attr("id", prefix+(index + 1));
 					$(this).attr("name", prefix+(index + 1));
-					if(prefix == "item_type_") {
+					if(prefix == "item_type_" || tableId == "deliveryTable") {
 						$(this).attr("disabled", false);
 					}
 				}

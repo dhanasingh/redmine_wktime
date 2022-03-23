@@ -31,8 +31,4 @@ before_action :check_admin_redirect, :only => [:destroy]
 	def hasDeletePermission
 		validateERPPermission("D_INV")
 	end
-
-	def loadPurchaseDD
-		false
-	end
 end

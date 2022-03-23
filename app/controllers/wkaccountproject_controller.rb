@@ -217,8 +217,4 @@ include WkaccountprojectHelper
 		filters = [:contact_id, :account_id, :polymorphic_filter]
 		super(filters, {:project_id => params[:project_id]})
 	end
-
-	 def loadPurchaseDD
-		 false
-	 end
 end
