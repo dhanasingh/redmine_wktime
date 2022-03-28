@@ -10,3 +10,7 @@ api.array :wk_times, api_meta(:total_count => @entry_count, :offset => @offset, 
     end
   end
 end
+
+api.headers do
+  api.start_of_week getStartOfWeek
+end
