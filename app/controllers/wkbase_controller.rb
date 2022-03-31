@@ -42,7 +42,7 @@ class WkbaseController < ApplicationController
 	def updateClockInOut
 		lastAttnEntries = findLastAttnEntry(true)
 		@lastAttnEntry = lastAttnEntries[0] if !lastAttnEntries.blank?
-		entryTime  =  Time.now
+		entryTime  =  (params.has_key?("end_time".to_sym) && params[:end_time].present?) ?  params[:end_time].to_time : (params.has_key?("start_time".to_sym) && params[:start_time].present?) ? params[:start_time].to_time : Time.now
 		entryTime = entryTime - (entryTime.utc_offset.seconds + (params[:offSet].to_i).minutes)
 		@lastAttnEntry = saveAttendance(@lastAttnEntry, entryTime, nil, User.current.id, false)
 		respond_to do |format|
