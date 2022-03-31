@@ -250,8 +250,8 @@ module TimelogControllerPatch
 			wktime_helper = Object.new.extend(WktimeHelper)
 			if wktime_helper.isChecked("label_enable_issue_logger") && ["T", "A"].include?(params[:log_type])
 				dateTime = wktime_helper.get_current_DateTime(params[:offSet])
-				start_time = params[:clock_action] == "S" && model.spent_for.blank? ? dateTime : model.spent_for.spent_on_time if params[:clock_action].present?
-				end_time = params[:clock_action] == "E" && model.spent_for.end_on.blank? ? dateTime : model.spent_for.end_on if params[:clock_action].present? && model.spent_for.present?
+				start_time = params[:clock_action] == "S" && model.spent_for.blank? ? params[:start_on] && params[:start_on].to_time || dateTime : model.spent_for.spent_on_time if params[:clock_action].present?
+				end_time = params[:clock_action] == "E" && model.spent_for.end_on.blank? ? params[:end_on] && params[:end_on].to_time || dateTime : model.spent_for.end_on if params[:clock_action].present? && model.spent_for.present?
 			end
 			unless params[:spent_for].blank?
 				spentFors = params[:spent_for].split('|')
