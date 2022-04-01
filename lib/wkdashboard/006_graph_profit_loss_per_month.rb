@@ -9,8 +9,8 @@ module WkDashboard
     }
 
     profit = getProfits(param[:to])
-    month_diff = Date.today.strftime("%m").to_i - (@endDate.month).to_i
-    month_count = month_diff > 0 ? month_diff : 12+month_diff
+    month_count = @endDate >= Date.today ? Date.today.strftime("%m").to_i - (@endDate.month).to_i : 12
+    month_count = month_count == 0 ? 1 : 12+month_count if month_count < 1
     profits = [0]*month_count
     profit.each do |yearMon, sum|
       month = yearMon.split("-").last

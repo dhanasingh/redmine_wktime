@@ -18,7 +18,7 @@ module WkDashboard
     invoiceData = [0]*month_count
     invoices.map{|l| invoiceData[@endDate.month - l.month_val] = l.invoice_total}
     invoiceData.reverse!
-    invoiceData.each_with_index {|amt, index| invoiceData[index] = (amt + invoiceData[index-1]).round(2) if index != 0}
+    invoiceData.each_with_index {|amt, index| invoiceData[index] = ((amt || 0) + invoiceData[index-1]).round(2) if index != 0}
     data[:data1] = invoiceData
 
     payments = getPaymentEntries.joins(:payment_items)
@@ -28,7 +28,7 @@ module WkDashboard
     paymentData = [0]*month_count
     payments.map{|l| paymentData[@endDate.month - l.month_val] = l.payment_total}
     paymentData.reverse!
-    paymentData.each_with_index {|amt, index| paymentData[index] = (amt + paymentData[index-1]).round(2) if index != 0}
+    paymentData.each_with_index {|amt, index| paymentData[index] = ((amt || 0) + paymentData[index-1]).round(2) if index != 0}
     data[:data2] = paymentData
     return data
   end
