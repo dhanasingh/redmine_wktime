@@ -1,4 +1,5 @@
 <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<% helperObj = Object.new.extend(WkorderentityHelper) %>
 <div class="autoscroll">
 	<table class="list time-entries">
 		<thead>
@@ -56,7 +57,7 @@
 							<td class="lbl-txt-align"><%=h entry.parent.name  %></td>
 							<td class="lbl-txt-align"><%=h projectName %></td>
 
-							<td class="lbl-txt-align"><%=h getSIStatus.invert[entry.status]  %></td>
+							<td class="lbl-txt-align"><%=h helperObj.getSIStatus.invert[entry.status]  %></td>
 							<td class="lbl-txt-align"><%=h entry.invoice_date  %></td>
 							<td class="lbl-txt-align"><%=h entry.start_date  %></td>
 							<td class="lbl-txt-align"><%=h entry.end_date  %></td>
