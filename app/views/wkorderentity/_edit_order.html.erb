@@ -2,7 +2,7 @@
 <%= javascript_include_tag 'invoice', :plugin => "redmine_wktime" %>
 <% hash_status = { 'o'  => l(:label_open_issues), 'c' =>  l(:label_closed_issues) }
 	if params[:controller] == 'wksupplierinvoice'
-		hash_status.merge!({'f' => 'Fulfilled', 'd' => 'Delivered'})
+		hash_status.merge!({'f' => l(:label_fullfilled), 'd' => l(:label_delivered)})
 	end
 %>
 	<%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>

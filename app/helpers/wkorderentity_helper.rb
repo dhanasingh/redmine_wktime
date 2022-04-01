@@ -121,4 +121,12 @@ include WkcrmHelper
 		end
 	end
 
+	def getSIStatus
+    {
+			l(:label_open) => 'o',
+			l(:label_closed_issues) => 'c',
+			l(:label_fullfilled) => 'f',
+			l(:label_delivered) => 'd'
+    }
+  end
 end
