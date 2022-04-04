@@ -1,51 +1,53 @@
 <%= javascript_include_tag 'settings', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'payrollsettings', :plugin => "redmine_wktime" %>
-<script type="text/javascript">
-attendanceAlertMsg = "<%= l(:text_are_you_sure) %>";
-selectListAlertMsg = "<%=l(:actionview_instancetag_blank_option) %>";
-issueExistsAlertMsg = "<%=l(:label_wk_leave_exists) %>";
-issueUrl="<%= "#{url_for(:controller => 'wkattendance', :action => 'getIssuesByProject')}" %>";
-projectUrl="<%= "#{url_for(:controller => 'wkattendance', :action => 'getProjectByIssue')}" %>";
-lblInvalid= " <%= (CGI.unescapeHTML l('activerecord.errors.messages.invalid')).html_safe %>";
-lblDaysPerMonth = "<%=l(:label_hours_per_month) %>";
-lblAccrual = "<%=l(:label_wk_leave_accrual) %>";
-lblAccrualAfter = "<%=l(:label_wk_leave_accrual_after) %>";
-lblAccrualMultiplier = "<%=l(:label_accrual_multiplier) %>";
-lblLeaveIssue = "<%=l(:label_wk_leave_issue) %>";
-lblYear = "<%=l(:label_year) %>";
-</script>
+
+<%= title l(:label_leave_setting) %>
 <div class="contextual">
 	<%= render :partial => 'sidebar' %>
 </div>
-<%= title l(:label_leave_setting) %>
-		<%
-		leave = []
-		issue_list = Issue.order('subject')
-		unless issue_list.blank?
-			issueslist = issue_list.collect {|issue| [issue.subject, issue.id] }
-			issuehash = Hash[issue_list.map { |u| [u.id, u.subject] }]
-		else
-			issueslist = Array.new
-			issueslist << [ "", 0]
-		end
-		projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name')
-		wktime_helper = Object.new.extend(WktimeHelper)
-		projArr = wktime_helper.options_for_wktime_project(projects,false)
+<%= render partial: "wkattendance/render_hr_tabs" %>
+<script type="text/javascript">
+	attendanceAlertMsg = "<%= l(:text_are_you_sure) %>";
+	selectListAlertMsg = "<%=l(:actionview_instancetag_blank_option) %>";
+	issueExistsAlertMsg = "<%=l(:label_wk_leave_exists) %>";
+	issueUrl="<%= "#{url_for(:controller => 'wkattendance', :action => 'getIssuesByProject')}" %>";
+	projectUrl="<%= "#{url_for(:controller => 'wkattendance', :action => 'getProjectByIssue')}" %>";
+	lblInvalid= " <%= (CGI.unescapeHTML l('activerecord.errors.messages.invalid')).html_safe %>";
+	lblDaysPerMonth = "<%=l(:label_hours_per_month) %>";
+	lblAccrual = "<%=l(:label_wk_leave_accrual) %>";
+	lblAccrualAfter = "<%=l(:label_wk_leave_accrual_after) %>";
+	lblAccrualMultiplier = "<%=l(:label_accrual_multiplier) %>";
+	lblLeaveIssue = "<%=l(:label_wk_leave_issue) %>";
+	lblYear = "<%=l(:label_year) %>";
+</script>
+<%
+	leave = []
+	issue_list = Issue.order('subject')
+	unless issue_list.blank?
+		issueslist = issue_list.collect {|issue| [issue.subject, issue.id] }
+		issuehash = Hash[issue_list.map { |u| [u.id, u.subject] }]
+	else
+		issueslist = Array.new
+		issueslist << [ "", 0]
+	end
+	projects = Project.where("#{Project.table_name}.status not in(#{Project::STATUS_CLOSED},#{Project::STATUS_ARCHIVED})").order('name')
+	wktime_helper = Object.new.extend(WktimeHelper)
+	projArr = wktime_helper.options_for_wktime_project(projects,false)
 
-		if @leaveSettings.blank?
-			leave = ''
-		else
-			@leaveSettings.each do |element|
-			  listboxArr = element.split('|')
-			  issueId = listboxArr[0]
-			  issueName = issuehash[issueId.to_i].blank? ? issueId : issuehash[issueId.to_i]
-			  leaveAccrual = listboxArr[1].blank? ? "" : listboxArr[1]
-			  accrualAfter = listboxArr[2].blank? ? "" : listboxArr[2]
-			  optionText = leaveAccrual.blank? ? issueName : issueName + " : "  + leaveAccrual + " " + l(:label_hours_per_month) + " " + l(:label_wk_leave_accrual_after) + " " + accrualAfter + " " + l(:label_year)
-			  leave << [optionText,element]
-			end
+	if @leaveSettings.blank?
+		leave = ''
+	else
+		@leaveSettings.each do |element|
+			listboxArr = element.split('|')
+			issueId = listboxArr[0]
+			issueName = issuehash[issueId.to_i].blank? ? issueId : issuehash[issueId.to_i]
+			leaveAccrual = listboxArr[1].blank? ? "" : listboxArr[1]
+			accrualAfter = listboxArr[2].blank? ? "" : listboxArr[2]
+			optionText = leaveAccrual.blank? ? issueName : issueName + " : "  + leaveAccrual + " " + l(:label_hours_per_month) + " " + l(:label_wk_leave_accrual_after) + " " + accrualAfter + " " + l(:label_year)
+			leave << [optionText,element]
 		end
-		%>
+	end
+%>
 
 <%= form_tag({:controller => controller_name, :action => 'leavesettings'}, :method => :post) do %>
   <p>

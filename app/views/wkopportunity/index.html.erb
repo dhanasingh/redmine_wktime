@@ -1,18 +1,6 @@
 <%= title l(:label_opportunity_plural) %>
-<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
-<script type="text/javascript">
-	blgaccUrl = '<%=url_for(:controller => "wkcrmaccount", :action => "index", :tab => "wkcrmaccount")%>';
-	crmleadsUrl = '<%=url_for(:controller => "wklead", :action => "index", :tab => "wklead")%>';
-    crmopportunityUrl = '<%=url_for(:controller => "wkopportunity", :action => "index", :tab => "wkopportunity")%>';
-	crmactivityUrl = '<%=url_for(:controller => "wkcrmactivity", :action => "index", :tab => "wkcrmactivity")%>';
-	crmcontactUrl = '<%=url_for(:controller => "wkcrmcontact", :action => "index", :tab => "wkcrmcontact")%>';
-    prevTab = 'tab-<%= "#{controller_name}" %>';
-</script>
-<%= render_tabs time_expense_tabs %>
+<%= render partial: "wkcrm/render_crm_tabs" %>
 
-
-<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
 <%= form_tag({:controller => "wkopportunity", :action => 'index', :tab => "wkopportunity"}, :method => :post, :id => 'query_form') do %>
 	<%=h hidden_field_tag('tab', "wkopportunity") %>
 	<%= hidden_field_tag "searchlist", controller_name %>

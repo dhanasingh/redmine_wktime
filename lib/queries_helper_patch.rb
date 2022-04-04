@@ -89,6 +89,6 @@ module QueriesHelper
 		val = item.inventory_item.product_item.product.name
 		product_items = "#{brandName} - #{modelName} - #{serialNo + runSerialNo}"
 		assetObj = item.inventory_item.asset_property
-		value = assetObj.blank? ? val+' - '+product_items : val +' - '+ assetObj.name
+		value = item&.inventory_item&.product_type == 'I' ? val+' - '+product_items : val +' - '+ assetObj.name
 	end
 end

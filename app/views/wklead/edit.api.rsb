@@ -15,6 +15,7 @@ api.lead do
         api.description @lead.contact.description
         api.assigned_user_id @lead.contact.assigned_user_id
         api.account_name @lead.account.name if @lead.account.present?
+        api.account_number @lead.account.account_number if @lead.account.present?
         api.address(
             address_id: @lead.contact.address.id,
             address1: @lead.contact.address.address1,

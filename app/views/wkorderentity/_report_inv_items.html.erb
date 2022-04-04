@@ -26,11 +26,7 @@
       <% end %>
         <tr style="width:100%;" >
           <td style="width:42%;" ><%=h entry.name %></td>
-          <%
-          item_type = (entry.item_type == 'i' && @invoice.invoice_type == 'I') && l(:field_hours) || entry.item_type == 'm' && l(:label_material) ||
-            entry.item_type == 'a' && l(:label_rental) || entry.item_type == 'e' && l(:label_expenses) ||  ""
-          %>
-          <td style="width:16%;" ><%= item_type %></td>
+          <td style="width:16%;" ><%= getInvoiceItemType(entry) %></td>
           <td style="width:16%;" align="right" ><%=h ("%.2f" % entry.rate).to_s + (entry.item_type == 'i' || entry.item_type == 'c' || entry.item_type == 'm' || entry.item_type == 'a' || entry.item_type == 'e' ? '' : ( controller.addAdditionalTax ? '' : "%"))  unless entry.rate.blank? %></td>
           <td style="width:16%;" align="right" ><%=h "%.2f" % entry.quantity unless entry.quantity.blank? %></td>
           <td style="width:16%;" align="center" ><%=h entry.original_currency %></td>

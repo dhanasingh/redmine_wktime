@@ -1,7 +1,6 @@
-<%= javascript_include_tag 'index', plugin: "redmine_wktime" %>
-<%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
+<%=  title l(:label_brand) %>
+<%= render partial: "wkproduct/render_inventory_tabs" %>
 
- <%=  title l(:label_brand) %>
 <% name =session[controller_name].try(:[], :name) %>
  <%= form_tag({:controller => 'wkbrand', :action => 'index'}, :method => :post, :id => 'query_form') do %>
 		 <%= hidden_field_tag "searchlist", controller_name %>

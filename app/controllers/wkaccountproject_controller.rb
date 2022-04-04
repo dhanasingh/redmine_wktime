@@ -213,8 +213,8 @@ include WkaccountprojectHelper
 		true
 	end
 
-    def set_filter_session
+	def set_filter_session
 		filters = [:contact_id, :account_id, :polymorphic_filter]
 		super(filters, {:project_id => params[:project_id]})
-   end
+	end
 end

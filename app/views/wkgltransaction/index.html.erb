@@ -1,18 +1,10 @@
 <%= title l(:label_transaction) %>
-<%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<script type="text/javascript">
-    blgtxnUrl = '<%=url_for(:controller => "wkgltransaction", :action => "index", :tab => "wkgltransaction")%>';
-    blgledgerUrl = '<%=url_for(:controller => "wkledger", :action => "index", :tab => "wkledger")%>';
-    prevTab = 'tab-<%= "#{controller_name}" %>';
-</script>
-<% transactionType = transTypeHash %>
-<%= render_tabs time_expense_tabs %>
-
-<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
+<%= render partial: "wkgltransaction/render_accounting_tabs" %>
 
 <%	ledgerid =session[controller_name].try(:[], :txn_ledger)
 	showChart =session[controller_name].try(:[], :show_chart)
 	width = "35%" if showChart && ledgerid &&  @from && @to
+	transactionType = transTypeHash
 %>
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
 	<%= hidden_field_tag "searchlist", "#{controller_name}" %>

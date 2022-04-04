@@ -55,7 +55,7 @@
 						<td style="text-align: right"><%= entry.stock_quantity %></td>
 						<td style="text-align: right"><%= entry.short_desc %></td>
 						<td style="text-align: right"><%= entry.currency %></td>
-						<td style="text-align: right"><%= entry.stock_value %></td>
+						<td style="text-align: right"><%= entry.stock_value ? entry.stock_value.to_f.round(2) : 0 %></td>
 					</tr>
 				<% end %>
 				<% if stock[:stockEntries].length > 0 %>

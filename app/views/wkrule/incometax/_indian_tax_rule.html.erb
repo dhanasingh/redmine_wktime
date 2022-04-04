@@ -1,4 +1,4 @@
-<% 
+<%
     load("plugins/redmine_wktime/app/views/wkrule/incometax/#{getTaxSettings('tax_rule')}.rb")
 	taxRule = Object.new.extend(PayrollTax)
     taxComp =  getTaxSettings('tax_settings').blank? ? {} : JSON.parse(getTaxSettings('tax_settings'))
@@ -7,10 +7,11 @@
     end
 %>
 <% if(action_type == "taxSettings") %>
-    <div class="contextual">
-	    <%= render :partial => 'sidebar' %>
-    </div>
     <h2><%= l(:label_income_tax_settings) %> (<%= l("#{getTaxSettings('tax_rule')}") %>)</h2>
+    <div class="contextual">
+        <%= render :partial => 'sidebar' %>
+    </div>
+    <%= render partial: "wkattendance/render_hr_tabs" %>
     <% if request.post?
         taxRule.saveTaxComponent(params[:taxsettings])
         flash[:notice] = l(:notice_successful_update)
@@ -75,7 +76,7 @@
         </table>
     <div style="clear:both;"></div>
 <%
-# For Apply Tax 
+# For Apply Tax
 else
     monthTax = taxRule.calculate_tax(userId)
     data = {monthTax: monthTax}

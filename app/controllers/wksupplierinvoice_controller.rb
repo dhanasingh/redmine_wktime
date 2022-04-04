@@ -1,7 +1,6 @@
 class WksupplierinvoiceController < WksupplierorderentityController
   unloadable
   menu_item :wkrfq
-
 	@@simutex = Mutex.new
 
 	def newSupOrderEntity(parentId, parentType)
@@ -49,12 +48,12 @@ class WksupplierinvoiceController < WksupplierorderentityController
 	def getRfqPoIds
 		quoteIds = ""
 		rfqObj = ""
-		rfqObj = WkInvoice.where(:id => getInvoiceIds(params[:rfq_id].to_i, 'PO', false), :parent_id => params[:parent_id].to_i, :parent_type => params[:parent_type]).order(:id)
+		rfqObj = WkInvoice.where(id: getInvoiceIds(params[:rfq_id].to_i, 'PO', false), parent_id: params[:parent_id].to_i, parent_type: params[:parent_type], status: 'o').order(:id)
 		if !Setting.plugin_redmine_wktime['label_create_supplier_invoice_without_purchase_order'].blank? && Setting.plugin_redmine_wktime['label_create_supplier_invoice_without_purchase_order'].to_i == 1
 			quoteIds << "," + "\n"
 		end
 		rfqObj.each do | entry|
-			quoteIds <<  entry.id.to_s() + ',' + entry.invoice_number.to_s()  + "\n"
+			quoteIds <<  entry.id.to_s() + ',' + entry.invoice_number.to_s() + " - " + entry.confirm_num.to_s()  + "\n"
 		end
 		respond_to do |format|
 			format.text  { render :plain => quoteIds }
@@ -136,5 +135,41 @@ class WksupplierinvoiceController < WksupplierorderentityController
 
 	def storeInvoiceItemTax(totals)
 		saveInvoiceItemTax(totals)
+	end
+
+	# When Saving SI, update Purchase Order status
+	def update_status
+		invoices = @invoice&.sup_inv_po&.purchase_order&.supplier_invoices
+		po = @invoice&.sup_inv_po&.purchase_order
+		if po.present?
+			inv_quantity = {po.id => 0}
+			po_quantity = 0
+			(invoices || {}).each do |invoice|
+				invoice.invoice_items.each do |inv_item|
+					if inv_item.invoice_item_id.blank? && ["i", "e"].include?(inv_item.item_type)
+						inv_quantity[po.id] += (inv_item.quantity || 0)
+					elsif ["i", "e"].include?(inv_item.item_type)
+						inv_quantity[inv_item.invoice_item_id] ||= 0
+						inv_quantity[inv_item.invoice_item_id] += inv_item.quantity
+					end
+				end
+			end
+			status = po.status
+			(po.invoice_items || {}).each do |po_item|
+				if inv_quantity[po_item.invoice_item_id].present? && ["i", "e"].include?(po_item.item_type)
+					status = inv_quantity[po_item.invoice_item_id] == po_item.quantity ? "c" : "o"
+					break if status == "o"
+				elsif ["i", "e"].include?(po_item.item_type)
+					po_quantity += po_item.quantity
+				end
+			end
+			status = po_quantity == inv_quantity[po.id] ? "c" : "o"
+			po.status = status
+			po.save()
+		end
+	end
+
+	def loadPurchaseDD
+		true
 	end
 end

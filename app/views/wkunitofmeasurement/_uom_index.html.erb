@@ -14,16 +14,16 @@
 		<% @curentry.each do |entry| %>
 			<tr class="commit-keywords">
 				<td>
-					<%= hidden_field_tag "uom_id[]",  entry.id  %>					
+					<%= hidden_field_tag "uom_id[]",  entry.id  %>
 					<% actualIds = actualIds.blank? ? entry.id.to_s  : (actualIds + "," + entry.id.to_s) %>
 				</td>
-			    <td>			 
-					<%= text_field_tag "name[]",  entry.name  , :style => "width:150px;", :required => true  %> 
+			    <td>
+					<%= text_field_tag("name[]",  entry.name  , :style => "width:150px;", :maxlength => 255, :required => true)  %>
 			    </td>
 			    <td>
-					<%= text_field_tag "description[]",  entry.short_desc, :style => "width:150px;", :required => true  %>
-				</td>			        
-			 
+					<%= text_field_tag("description[]",  entry.short_desc, :style => "width:150px;", :maxlength => 255, :required => true) %>
+				</td>
+
 				<td class="buttons">
 					<% if controller.hasDeletePermission %>
 						<%= link_to(l(:button_delete), '#',
@@ -36,17 +36,15 @@
 	<% else %>
 		<tr class="commit-keywords">
 			<td>
-				<%= hidden_field_tag "uom_id[]",  ""  %>				
+				<%= hidden_field_tag "uom_id[]",  ""  %>
 			</td>
 			<td>
-				<%=  
-				text_field_tag "name[]",  ""  , :required => true,  :style => "width:150px;"  %> 
+				<%= text_field_tag("name[]",  "", :maxlength => 255, :required => true,  :style => "width:150px;") %>
 			</td>
 			<td>
-				<%=  
-				text_field_tag "description[]",  ""  , :required => true, :style => "width:150px;"  %>
+				<%= text_field_tag("description[]",  "", :maxlength => 255, :required => true, :style => "width:150px;") %>
 			</td>
-		 
+
 			<td class="buttons">
 				<%= link_to(l(:button_delete), '#',
 							:class => 'delete-commit-keywords icon-only icon-del',
@@ -57,7 +55,7 @@
     <tr>
       <td></td>
 	  <td></td>
-      <td></td>      
+      <td></td>
       <td class="buttons">
         <%= link_to(l(:button_add), '#',
                     :class => 'add-commit-keywords icon-only icon-add',
