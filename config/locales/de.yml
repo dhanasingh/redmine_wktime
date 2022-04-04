@@ -390,8 +390,8 @@ de:
   label_transaction: Transaktion
   label_transaction_type: Transaktionsart
   label_transaction_date: Transaktionsdatum
-  label_ledger: Hauptbuch
-  label_ledger_information: Hauptbuchinformationen
+  label_ledger: Buchungskonto
+  label_ledger_information: Konteninformationen
   label_accounting_admin: Buchhaltungsadministrationsgruppe
   label_bank_ac: Bankkonten
   label_bank_occ_ac: Bank OCC A/c
@@ -634,13 +634,13 @@ de:
   label_inventory_admin_group: Inventar-Verwaltungsgruppe
   label_inventory_user_group: Inventar-Benutzergruppe
   label_enable_inventory_module: Inventar Modul aktivieren
-  label_hr: HR
-  label_shipment: Receipt
+  label_hr: Personalwesen
+  label_shipment: Wareneingang
   label_uom: Maßeinheit
   label_item: Artikel
-  label_new_shipment: New Receipt
-  label_shipment_items: Receipt Items
-  label_shipment_date: Receipt Date
+  label_new_shipment: Neuer Wareneingang
+  label_shipment_items: Eingelieferte Waren
+  label_shipment_date: Eingangsdatum
   label_serial_number: Seriennummer
   label_material: Material
   label_cost_price: Einkaufspreis
@@ -650,8 +650,8 @@ de:
   label_selling_price: Verkaufspreis
   label_over_head_price: Gemeinkosten
   label_org_cost_price: Ursprünglicher Selbstkostenpreis
-  label_org_selling_price: Original Selling Price
-  label_org_over_head_price: Ursprünglicher Verkaufspreis
+  label_org_selling_price: Ursprünglicher Verkaufspreis
+  label_org_over_head_price: Ursprünglicher Gesamtpreis
   label_total_quantity: Gesamtmenge
   label_available_quantity: Verfügbar
   label_model: Modell
@@ -1070,7 +1070,7 @@ de:
   label_lead_info: Lead Information
   label_more_info: Weitere Informationen
   label_select_leadsource: Hauptquelle wählen
-  label_clock: Uhr
+  label_clock: Zeitnachweise
   label_select_spent_for: Ausgabenziel wählen
   label_select_project: Projekt wählen
   label_select_issue: Ticket wählen
@@ -1177,8 +1177,8 @@ de:
   label_running: Fortlaufend
   label_serial_number_note: "Hinweis: Verwenden Sie Komma für mehrere Seriennummern."
   warn_sn_range: Seriennummer befindet sich nicht im Bereich
-  warn_sn_blank: Fixed Serial Number cannot be blank
-  warn_sn_text: Please Enter Running serial numbers in integer
+  warn_sn_blank: Seriennummer und Menge dürfen nicht leer sein
+  warn_sn_text: Seriennummer und Menge können keine Textwerte sein
   label_last_increment: Letzte Erhöhung
   label_last_salary: Letzter Lohn
   label_employee_dashboard: Mitarbeiter-Dashboards
@@ -1196,13 +1196,13 @@ de:
   label_contribution_remitted: Beitrag überwiesen
 
   #delivery
-  label_delivery: Lieferung
-  label_delivery_date: Lieferdatum
-  label_new_delivery: Neue Lieferung
-  label_delivered: Geliefert
+  label_delivery: Auslieferung
+  label_delivery_date: Auslieferdatum
+  label_new_delivery: Neue Auslieferung
+  label_delivered: Ausgeliefert
   label_intransit: Unterwegs
   label_load: Beladung
-  label_delivery_slip: Lieferschein
+  label_delivery_slip: Auslieferschein
   button_csv: CSV
   button_pdf: PDF
 
@@ -1218,16 +1218,16 @@ de:
   label_expenses: Kosten
   label_admin_dashboards: Admin Dashboards
   label_product: Produkt
-  label_automatic_product_item: Automatically Create Product Item
-  label_show_available_items: Show available items
-  label_used_items: Used Items
-  label_goods_receipt: Goods Receipt
+  label_automatic_product_item: Produktartikel automatisch erstellen
+  label_show_available_items: Verfügbare Artikel anzeigen
+  label_used_items: Gebrauchte Artikel
+  label_goods_receipt: Waren eingegangen
 
-  report_cash_flow: Cash Flow Report
-  label_cash_inflow: Cash Inflow
-  label_cash_outflow: Cash Outflow
-  label_net_inflow: Net InFlow
-  label_select_product_item: Select a Product Item
-  label_received_quantity: Received Quantity
+  report_cash_flow: Cashflow-Bericht
+  label_cash_inflow: Barmittelzufluss
+  label_cash_outflow: Barbmittelausgang
+  label_net_inflow: Nettozufluss
+  label_select_product_item: Produktartikelauswahl
+  label_received_quantity: Erhaltene Menge
   label_confirmation_number: Supplier Confirmation Number
   label_fullfilled: Fulfilled
