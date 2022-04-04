@@ -1,11 +1,16 @@
 api.array :wk_times, api_meta(:total_count => @entry_count, :offset => @offset, :limit => @limit, unseen_count: @unseen_count) do
   @entries.each do |wk_time|
     api.wk_time do
-			api.id wk_time.user.id unless wk_time.user.nil?
-			api.name wk_time.user.name unless wk_time.user.nil?
+			api.id wk_time.id
+			api.user_id wk_time.user.id if wk_time.user.present?
+			api.name wk_time.user.name if wk_time.user.present?
 			api.hours wk_time.hours
 			api.startdate wk_time.spent_on
-			api.status statusString(wk_time.status) unless wk_time.nil?
+			api.status statusString(wk_time.status) if wk_time.present?
     end
   end
+end
+
+api.headers do
+  api.start_of_week getStartOfWeek
 end

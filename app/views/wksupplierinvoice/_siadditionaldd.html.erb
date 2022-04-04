@@ -1,6 +1,6 @@
-<script type="text/javascript">	
+<script type="text/javascript">
 	rfqQuoteUrl="<%= "#{url_for(:controller => controller_name, :action => 'getRfqPoIds')}" %>";
-</script>	
+</script>
 <%
 	onchgVal = ""
 	needRfqBlankdd = true
@@ -11,10 +11,12 @@
 %>
 <%= render partial: "wkquote/quoteadditionaldd", locals: { rfq_id: session[controller_name].try(:[], :rfq_id), onchngeMethodName: onchgVal, needRfqBlank: needRfqBlankdd }%>
 
-<% if reqQuotePoDD %>	
-	<% rfq_arr = getRfqArray(true) #WkRfq.where(:status => 'o').order(id: :desc).pluck(:name, :id) %>
-	<% rfqId = rfq_arr.blank? ? 0 : rfq_arr[0][1]  %>
+<% if reqQuotePoDD %>
+	<% rfq_arr = getRfqArray(true)
+		rfqId = rfq_arr.blank? ? 0 : rfq_arr[0][1]
+		accountArr = options_for_wktime_account(false, controller.getOrderAccountType, controller.additionalAccountType)
+		parent_id = accountArr.blank? ? 0 : accountArr[0][1]
+	%>
 	<th align="left"><label><%= l(:label_purchase_order) %></label></th>
-	<td><%=h select_tag('po_id', options_for_rfqPO_select(((!Setting.plugin_redmine_wktime['label_create_supplier_invoice_without_purchase_order'].blank? && Setting.plugin_redmine_wktime['label_create_supplier_invoice_without_purchase_order'].to_i == 1) ? true : false), rfqId )) %></td>
+	<td><%=h select_tag('po_id', options_for_rfqPO_select(((!Setting.plugin_redmine_wktime['label_create_supplier_invoice_without_purchase_order'].blank? && Setting.plugin_redmine_wktime['label_create_supplier_invoice_without_purchase_order'].to_i == 1) ? true : false), rfqId, 'WkAccount', parent_id )) %></td>
 <% end %>
-	

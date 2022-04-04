@@ -35,7 +35,7 @@ module ReportStock
 		end
 		totalStockVal = 0
 		entries = WkInventoryItem.find_by_sql(sqlStr)
-		entries.each{ |entry| totalStockVal += entry.stock_value }
+		entries.each{ |entry| totalStockVal += entry.stock_value ? entry.stock_value.to_f.round(2) : 0 }
 		stock = {stockEntries: entries, totalStockVal: totalStockVal}
 		stock
 	end
@@ -45,7 +45,7 @@ module ReportStock
     reportData = calcReportData(user_id, group_id, projId, from, to)
     data[:headers] = {project: l(:label_project), inventory_item_id: l(:label_product), brand: l(:label_brand), model: l(:label_model), attribute: l(:label_attribute), quantity: l(:field_quantity), uom: l(:label_uom), currency: l(:field_currency), stock_value: l(:label_stock_value)}
     reportData[:stockEntries].each do |entry|
-      data[:data] << {project: entry.project_name, inventory_item_id: entry.product_name, brand: entry.brand_name, model: entry.product_model_name, attribute: entry.attribute_name, quantity: entry.stock_quantity, uom: entry.short_desc, currency: entry.currency, stock_value: entry.stock_value}
+      data[:data] << {project: entry.project_name, inventory_item_id: entry.product_name, brand: entry.brand_name, model: entry.product_model_name, attribute: entry.attribute_name, quantity: entry.stock_quantity, uom: entry.short_desc, currency: entry.currency, stock_value: entry.stock_value ? entry.stock_value.to_f.round(2) : 0 }
     end
     data[:data] << {project: '', inventory_item_id: '', brand: '', model: '', attribute: '',  quantity: '', uom: '', currency: '', stock_value: reportData[:totalStockVal]}
     data

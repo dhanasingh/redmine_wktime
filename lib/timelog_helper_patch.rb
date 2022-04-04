@@ -1,7 +1,7 @@
 require_dependency "../app/helpers/timelog_helper"
 require "application_helper"
 module TimelogHelper
-	
+
 	def format_criteria_value(criteria_options, value, html=true)
 		if value.blank?
 			"[#{l(:label_none)}]"
@@ -19,7 +19,7 @@ module TimelogHelper
 				modelName = obj.product_item.product_model.blank? ? "" : obj.product_item.product_model.name
 				str = "#{obj.product_item.product.name} - #{brandName} - #{modelName}"
 				assetObj = obj.asset_property
-				str = str + " - " +assetObj.name unless assetObj.blank?
+				str = str + " - " +assetObj.name if obj&.product_type != 'I'
 				str
 			# ============= ERPmine_patch Redmine 4.2  =====================
 			else
@@ -124,7 +124,7 @@ module TimelogHelper
 			filters[criteriaLevel] = criteria[level].include?("cf_") ? [ criteria[level].split('_').last, value ] : value
 			# ============= ERPmine_patch Redmine 4.2  =====================
 			next if hours_for_value.empty?
-			
+
 			row = [''] * level
 			row << format_criteria_value(available_criteria[criteria[level]], value, false).to_s
 			row += [''] * (criteria.length - level - 1)

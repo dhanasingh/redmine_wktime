@@ -1,0 +1,12 @@
+<%= javascript_include_tag 'index', plugin: "redmine_wktime" %>
+<%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
+
+<script type="text/javascript">
+	blgcontractsUrl = '<%=url_for(controller: "wkcontract", action: "index", tab: "wkcontract")%>';
+	blginvoiceUrl = '<%=url_for(controller: "wkinvoice", action: "index", tab: "wkinvoice")%>';
+	blgpaymentUrl = '<%=url_for(controller: "wkpayment", action: "index", tab: "wkpayment")%>';
+	prevTab = 'tab-<%= "#{controller_name}" %>';
+</script>
+
+<%= render_tabs time_expense_tabs %>
+<%= hidden_field_tag 'back_url', url_for(controller: params[:controller], action: params[:action]) %>

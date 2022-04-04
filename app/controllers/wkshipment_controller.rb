@@ -128,6 +128,7 @@ include WkinventoryHelper
 				inventory.total_quantity = item.quantity
 				inventory.status = 'o'
 				inventory.supplier_invoice_id = item.invoice_id
+				inventory.product_item_id = item.invoice_item_id
 				shipment_item << inventory
 			end
 			@shipmentItem = shipment_item

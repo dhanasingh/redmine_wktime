@@ -1,8 +1,8 @@
-<%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
+<%= title l(:field_category) %>
 <div class="wk-contextual" style="float: right;">
 	<%= render :partial => 'sidebar' %>
 </div>
-<%= title l(:field_category) %>
+<%= render partial: "wkproduct/render_inventory_tabs" %>
 <%= form_tag({:controller => "wkproduct", :action => 'updateCategory', :tab => 'wkproduct'}, :method => :get, :id => 'query_form') do %>
 <table class="list" id="commit-keywords">
   <thead>
@@ -22,11 +22,11 @@
 				</td>
 			   <td>
 				<%= text_field_tag("name[]", entry.name, :id => nil, :style => "width:200px;", :required => true) %>
-			  </td> 
+			  </td>
 			   <td>
 				<%= text_field_tag("description[]", entry.description, :id => nil, :style => "width:500px;", :maxlength => 255, :required => false) %>
-			  </td>       
-			 
+			  </td>
+
 			  <td class="buttons">
 			    <% if controller.hasDeletePermission %>
 				<%= link_to(l(:button_delete), '#',
@@ -43,10 +43,10 @@
 		</td>
 			   <td>
 				<%= text_field_tag("name[]", '', :id => nil, :style => "width:200px;", :required => true) %>
-			  </td> 
+			  </td>
 			   <td>
 				<%= text_area_tag("description[]", '', :id => nil, :style => "width:200px;", :required => false) %>
-			  </td>      
+			  </td>
 		<td class="buttons">
 				<%= link_to(l(:button_delete), '#',
 							:class => 'delete-commit-keywords icon-only icon-del',

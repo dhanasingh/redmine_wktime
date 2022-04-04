@@ -48,6 +48,7 @@ class WkInvoiceItem < ActiveRecord::Base
     entries = entries.where(wk_account_projects: { billing_type: 'TM'}) if table != "wk_expense_entries"
     entries = getNonZeroEntries(entries, table)
     entries = getFilteredEntries(entries, projectID, parent_type)
+    entries = entries.where("(wk_spent_fors.spent_for_id= #{parent_id} AND wk_spent_fors.spent_for_type = '#{parent_type}') OR wk_spent_fors.spent_for_id is NULL") if parent_id.present?
     entries.order("#{table}.spent_on desc")
   end
 

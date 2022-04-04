@@ -1229,3 +1229,5 @@ de:
   label_net_inflow: Nettozufluss
   label_select_product_item: Produktartikelauswahl
   label_received_quantity: Erhaltene Menge
+  label_confirmation_number: Supplier Confirmation Number
+  label_fullfilled: Fulfilled

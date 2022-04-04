@@ -9,16 +9,16 @@ module WkDashboard
     }
 
     profit = getProfits(param[:to])
-    month_diff = Date.today.strftime("%m").to_i - (@endDate.month).to_i
-    month_count = month_diff > 0 ? month_diff : 12+month_diff
-    profits = [0]*month_count
+    month_count = @endDate >= Date.today ? Date.today.strftime("%m").to_i - (@endDate.month).to_i : 12
+    month_count = month_count == 0 ? 1 : 12+month_count if month_count < 1
+    profits = [0]*12
     profit.each do |yearMon, sum|
       month = yearMon.split("-").last
       profits[@endDate.month - month.to_i] = sum
     end
     profits.reverse!
     profits.each_with_index {|amt, index| profits[index] = amt + profits[index -1 ] if index != 0}
-    data[:data1] = profits
+    data[:data1] = profits.first(month_count)
     data[:fields] = (Array.new(12){|indx| month_name(((@endDate.month - 1 - indx) % 12) + 1).first(3)}).reverse
 
     expenseEntries = WkGlTransactionDetail.joins('LEFT OUTER JOIN wk_ledgers on wk_ledgers.id = wk_gl_transaction_details.ledger_id')
@@ -52,11 +52,11 @@ module WkDashboard
         eProfits[yearMon] += (total[ledgerType].to_f).round(2)
       end
     end
-    expenses = [0]*month_count
+    expenses = [0]*12
     eProfits.each {|month, sum| expenses[@endDate.month - month.to_i] = sum }
     expenses.reverse!
     expenses.each_with_index {|amt, index| expenses[index] = (amt + expenses[index -1 ]).round(2) if index != 0}
-    data[:data2] = expenses
+    data[:data2] = expenses.first(month_count)
     return data
   end
 
