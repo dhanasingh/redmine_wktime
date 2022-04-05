@@ -1,16 +1,16 @@
-= Webinar on ERPmine – Attendance,  March 29, 2022, 5 PM India (11:30 AM GMT)
+= Webinar on ERPmine – Inventory,  Arpil 26, 2022, 5 PM India (11:30 AM GMT)
 
 Please click here to register if interested,
-https://us02web.zoom.us/meeting/register/tZ0rcuGqrTguHN2-r1ygO_QRgxWKy0YWzIgb
+https://us02web.zoom.us/meeting/register/tZUocemrqDojGNDcxXaOjx767-y5ZCGv07DY
 
 *Topics* :
-* Clock In / Clock Out
-* Review Leave Status
-* Leave Request
-* Integrate with Attendance Devices
-* Attendance Report
-* Attendance on Map
-* Mobile App
+● Receive Goods (Shipments)
+● Product and items
+● Material Log
+● Invoice
+● Asset and depreciation
+● Disposed Asset
+● Asset and stock Report
 
 -------------------------------------------------------------------------------
 
