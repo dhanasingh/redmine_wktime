@@ -1,7 +1,4 @@
-require_dependency "../app/helpers/timelog_helper"
-require "application_helper"
 module TimelogHelper
-
 	def format_criteria_value(criteria_options, value, html=true)
 		if value.blank?
 			"[#{l(:label_none)}]"
@@ -13,7 +10,7 @@ module TimelogHelper
 				else
 				"##{obj.id}"
 				end
-			# ============= ERPmine_patch Redmine 4.2  =====================
+			# ============= ERPmine_patch Redmine 5.0  =====================
 			elsif obj.is_a?(WkInventoryItem)
 				brandName = obj.product_item.brand.blank? ? "" : obj.product_item.brand.name
 				modelName = obj.product_item.product_model.blank? ? "" : obj.product_item.product_model.name
@@ -21,7 +18,7 @@ module TimelogHelper
 				assetObj = obj.asset_property
 				str = str + " - " +assetObj.name if obj&.product_type != 'I'
 				str
-			# ============= ERPmine_patch Redmine 4.2  =====================
+      # ========================
 			else
 				format_object(obj, html)
 			end
@@ -32,6 +29,80 @@ module TimelogHelper
 		end
 	end
 
+	def report_to_csv(report)
+		Redmine::Export::CSV.generate(:encoding => params[:encoding]) do |csv|
+			# Column headers
+			# ============= ERPmine_patch Redmine 5.0  =====================
+			@showEstimate = session[:timelog][:spent_type] == "T" ? true : false
+	    # ========================
+			headers =
+				report.criteria.collect do |criteria|
+					l_or_humanize(report.available_criteria[criteria][:label])
+				end
+			headers += report.periods
+			headers << l(:label_total_time)
+			# ============= ERPmine_patch Redmine 5.0  =====================
+			headers << l(:field_total_estimated_hours) if @showEstimate
+	    # ========================
+			csv << headers
+			# Content
+			report_criteria_to_csv(csv, report.available_criteria, report.columns,
+									report.criteria, report.periods, report.hours)
+			# Total row
+			str_total = l(:label_total_time)
+      row = [str_total] + [''] * (report.criteria.size - 1)
+			total = 0
+			report.periods.each do |period|
+				sum = sum_hours(select_hours(report.hours, report.columns, period.to_s))
+				total += sum
+				row << (sum > 0 ? sum : '')
+			end
+			row << total
+			# ============= ERPmine_patch Redmine 5.0  =====================
+			row << @estimatedTotal if @showEstimate
+	    # ========================
+			csv << row
+		end
+	end
+
+	# ============= ERPmine_patch Redmine 5.0  =====================
+
+	def report_criteria_to_csv(csv, available_criteria, columns, criteria, periods, hours, level=0, filters = {})
+	# ==================================
+		hours.collect {|h| h[criteria[level]].to_s}.uniq.each do |value|
+			hours_for_value = select_hours(hours, criteria[level], value)
+			# ============= ERPmine_patch Redmine 5.0  =====================
+			filters.each{|key, value| filters.except!(value) if level < key.to_i}
+			criteriaLevel = criteria[level].include?("cf_") ? "cf" : criteria[level]
+			filters[level] = criteriaLevel
+			filters[criteriaLevel] = criteria[level].include?("cf_") ? [ criteria[level].split('_').last, value ] : value
+			# ==================================
+			next if hours_for_value.empty?
+
+			row = [''] * level
+			row << format_criteria_value(available_criteria[criteria[level]], value, false).to_s
+			row += [''] * (criteria.length - level - 1)
+			total = 0
+			periods.each do |period|
+				sum = sum_hours(select_hours(hours_for_value, columns, period.to_s))
+				total += sum
+				row << (sum > 0 ? sum : '')
+			end
+			row << total
+			# ============= ERPmine_patch Redmine 5.0  =====================
+			estimatedHours = estimated_hours(filters, criteria[level])
+			@estimatedTotal ||= 0
+			@estimatedTotal += estimatedHours if level == 0
+			row << estimatedHours if @showEstimate
+			# ==================================
+			csv << row
+			if criteria.length > level + 1
+				report_criteria_to_csv(csv, available_criteria, columns, criteria, periods, hours_for_value, level + 1, filters)
+			end
+		end
+	end
+
+	# ============= ERPmine_patch Redmine 5.0  =====================
 	def estimated_hours(filters, criteria)
 		cf_id = nil
 		filters.each{|k, v| cf_id = v.first if k == "cf" }
@@ -76,75 +147,6 @@ module TimelogHelper
 		condition = filter.present? ? ((filter.split(",")).include?("null") ? "#{column} IN (#{filter}) OR #{column} IS NULL" : "#{column} IN (#{filter})") : "#{column} IS NULL"
 		query = query.where(condition)
 	end
-
-	def report_to_csv(report)
-		Redmine::Export::CSV.generate(:encoding => params[:encoding]) do |csv|
-			# Column headers
-			# ============= ERPmine_patch Redmine 4.2  =====================
-			@showEstimate = session[:timelog][:spent_type] == "T" ? true : false
-			# ==================================
-			headers =
-				report.criteria.collect do |criteria|
-					l_or_humanize(report.available_criteria[criteria][:label])
-				end
-			headers += report.periods
-			headers << l(:label_total_time)
-			# ============= ERPmine_patch Redmine 4.2  =====================
-			headers << l(:field_total_estimated_hours) if @showEstimate
-			# ==================================
-			csv << headers
-			# Content
-			report_criteria_to_csv(csv, report.available_criteria, report.columns,
-									report.criteria, report.periods, report.hours)
-			# Total row
-			str_total = l(:label_total_time)
-			row = [ str_total ] + [''] * (report.criteria.size - 1)
-			total = 0
-			report.periods.each do |period|
-				sum = sum_hours(select_hours(report.hours, report.columns, period.to_s))
-				total += sum
-				row << (sum > 0 ? sum : '')
-			end
-			row << total
-			# ============= ERPmine_patch Redmine 4.2  =====================
-			row << @estimatedTotal if @showEstimate
-			# ==================================
-			csv << row
-		end
-	end
-	# ============= ERPmine_patch Redmine 4.2  =====================
-	def report_criteria_to_csv(csv, available_criteria, columns, criteria, periods, hours, level=0, filters = {})
 	# ==================================
-		hours.collect {|h| h[criteria[level]].to_s}.uniq.each do |value|
-			hours_for_value = select_hours(hours, criteria[level], value)
-			# ============= ERPmine_patch Redmine 4.2  =====================
-			filters.each{|key, value| filters.except!(value) if level < key.to_i}
-			criteriaLevel = criteria[level].include?("cf_") ? "cf" : criteria[level]
-			filters[level] = criteriaLevel
-			filters[criteriaLevel] = criteria[level].include?("cf_") ? [ criteria[level].split('_').last, value ] : value
-			# ============= ERPmine_patch Redmine 4.2  =====================
-			next if hours_for_value.empty?
 
-			row = [''] * level
-			row << format_criteria_value(available_criteria[criteria[level]], value, false).to_s
-			row += [''] * (criteria.length - level - 1)
-			total = 0
-			periods.each do |period|
-				sum = sum_hours(select_hours(hours_for_value, columns, period.to_s))
-				total += sum
-				row << (sum > 0 ? sum : '')
-			end
-			row << total
-			# ============= ERPmine_patch Redmine 4.2  =====================
-			estimatedHours = estimated_hours(filters, criteria[level])
-			@estimatedTotal ||= 0
-			@estimatedTotal += estimatedHours if level == 0
-			row << estimatedHours if @showEstimate
-			# ==================================
-			csv << row
-			if criteria.length > level + 1
-				report_criteria_to_csv(csv, available_criteria, columns, criteria, periods, hours_for_value, level + 1, filters)
-			end
-		end
-	end
 end

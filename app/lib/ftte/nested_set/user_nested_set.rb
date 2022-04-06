@@ -3,20 +3,18 @@ module FTTE
     module UserNestedSet
       def self.included(base)
         base.class_eval do
-          #belongs_to :parent, :class_name => self.name
 
           before_create :add_to_nested_set
           before_update :move_in_nested_set, :if => lambda {|user| user.parent_id_changed? || user.lastname_changed?}
           before_destroy :update_children #destroy_children
-		  #after_destroy :move_in_nested_set
         end
         base.extend ClassMethods
         base.send :include, Redmine::NestedSet::Traversing
       end
 
       private
-	  
-	  def update_children	
+
+	  def update_children
 		self.class.where(:parent_id => id).update_all(:parent_id => nil)
 		User.rebuild_tree!
 	  end
@@ -61,7 +59,7 @@ module FTTE
               "rgt = CASE WHEN rgt BETWEEN :a AND :b THEN rgt + (:d - :a) WHEN rgt BETWEEN :b + 1 AND :c - 1 THEN rgt - (:b - :a + 1) ELSE rgt END",
               {:a => a, :b => b, :c => c, :d => d}
             ])
-			
+
           elsif c < a
             # Moving to the left
             scope = self.class.where("lft BETWEEN :c AND :b OR rgt BETWEEN :c AND :b", {:a => a, :b => b, :c => c})
@@ -97,7 +95,7 @@ module FTTE
 
       def reload_nested_set_values
         self.lft, self.rgt = User.where(:id => id).pluck(:lft, :rgt).first
-		
+
       end
 
       def save_nested_set_values

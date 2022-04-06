@@ -17,7 +17,7 @@ class CreateWkSkill < ActiveRecord::Migration[5.2]
       dir.up do
         WkExpenseEntry.update_all('payroll_id = 0')
         WkNotification.update_all(active: true)
-        WkPermission.where(short_name: "A_PAYRL").first&.update_attributes!(modules: "HR")
+        WkPermission.where(short_name: "A_PAYRL").first&.update!(modules: "HR")
         WkPermission.create([
           {id: 19, name: "ADMIN SKILL SET PRIVILEGE", short_name: "A_SKILL", modules: "HR", created_at: 'current_timestamp', updated_at: 'current_timestamp'},
           {id: 20, name: "ADMIN REFERRAL PRIVILEGE", short_name: "A_REFERRAL", modules: "HR", created_at: 'current_timestamp', updated_at: 'current_timestamp'}
@@ -25,7 +25,7 @@ class CreateWkSkill < ActiveRecord::Migration[5.2]
        end
 
        dir.down do
-        WkPermission.where(short_name: "A_PAYRL").first&.update_attributes!(modules: "PAYROLL")
+        WkPermission.where(short_name: "A_PAYRL").first&.update!(modules: "PAYROLL")
         ["A_SKILL", "A_REFERRAL"].each{|p| WkPermission.where(short_name: p).destroy_all}
       end
     end
