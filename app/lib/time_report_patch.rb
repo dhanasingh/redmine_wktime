@@ -9,13 +9,15 @@ module Redmine::Helpers
       # ======================================
       @project = project
 
+      # ============= ERPmine_patch Redmine 5.0  =====================
+      @scope = time_entry_scope
+      # ======================================
       @criteria = criteria || []
       @criteria = @criteria.select{|criteria| available_criteria.has_key? criteria}
       @criteria.uniq!
       @criteria = @criteria[0,3]
 
       @columns = (columns && %w(year month week day).include?(columns)) ? columns : 'month'
-      @scope = time_entry_scope
 
       run
     end
