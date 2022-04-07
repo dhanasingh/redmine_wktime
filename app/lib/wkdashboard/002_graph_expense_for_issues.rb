@@ -1,4 +1,5 @@
-module WkDashboard
+module GraphExpenseForIssues
+  include WktimeHelper
 
   def chart_data(param={})
     data = {

@@ -7,7 +7,7 @@ module WkdashboardHelper
 
   def get_graphs_yaml_path
 		permittedfiles = []
-		ymlFiles = Dir["plugins/redmine_wktime/lib/wkdashboard/*.rb"].map{ |file| file }
+		ymlFiles = Dir["plugins/redmine_wktime/app/lib/wkdashboard/*.rb"].map{ |file| file }
 		ymlFiles.each do |file|
 			fileName = File.basename(file).split("_").first
 			nonPermChart = !['001', '002', '003', '004', '005', '006'].include?(fileName)
@@ -38,4 +38,11 @@ module WkdashboardHelper
 		!Setting.plugin_redmine_wktime['wktime_enable_dashboards_module'].blank? &&
 			Setting.plugin_redmine_wktime['wktime_enable_dashboards_module'].to_i == 1
   end
+
+	def getGraphModule(path)
+		moduleName = File.basename(path, ".rb").split('_')
+		moduleName.shift()
+		moduleName = moduleName.join('_').camelize.constantize
+		return Object.new.extend(moduleName)
+	end
 end

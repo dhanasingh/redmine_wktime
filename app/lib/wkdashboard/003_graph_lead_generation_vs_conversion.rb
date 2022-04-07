@@ -1,4 +1,4 @@
-module WkDashboard
+module GraphLeadGenerationVsConversion
   include WkcrmHelper
 
   def chart_data(param={})

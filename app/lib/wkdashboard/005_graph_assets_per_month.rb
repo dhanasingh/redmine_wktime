@@ -1,4 +1,4 @@
-module WkDashboard
+module GraphAssetsPerMonth
   include WktimeHelper
   include WkcrmHelper
 

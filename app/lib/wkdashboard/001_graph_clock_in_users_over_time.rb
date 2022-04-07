@@ -1,4 +1,4 @@
-module WkDashboard
+module GraphClockInUsersOverTime
   include WkcrmHelper
 
   def chart_data(param={})

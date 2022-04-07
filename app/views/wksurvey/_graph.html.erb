@@ -3,7 +3,7 @@
 </div>
 
 <% content_for :header_tags do %>
-  <%= javascript_include_tag "Chart.bundle.min" %>
+  <%= javascript_include_tag "chart.min" %>
 <% end %>
 
 <% getSurveyForType(params) %>
@@ -28,44 +28,46 @@
 					type: 'line',
 					data: chartData,
 					options: {
-					tooltips: {
-						mode: 'index',
-						intersect: false
-					},
-					hover: {
-						mode: 'index',
-						intersect: false
-					},
-						layout: {
-							padding: {
-							left: 0,
-							right: 20,
-							top: 0,
-							bottom: 0
-							}
-						},
-						responsive: true,
-						maintainAspectRatio: false,
-						legend: {
-							display: false,
-							position: 'right'
+						plugins: {
+							tooltips: {
+								mode: 'index',
+								intersect: false
+							},
+							hover: {
+								mode: 'index',
+								intersect: false
+							},
+							layout: {
+								padding: {
+								left: 0,
+								right: 20,
+								top: 0,
+								bottom: 0
+								}
+							},
+							responsive: true,
+							maintainAspectRatio: false,
+							legend: {
+								display: false,
+								position: 'right'
+							},
 						},
 						scales: {
-							xAxes: [{
-								gridLines : {
+							x: {
+								grid: {
 									drawBorder: true,
 									display : false
 								}
-							}],
-							yAxes: [{
+							},
+							y: {
 								afterFit: function(scaleInstance) {
 									scaleInstance.width = 250;
 								},
-								gridLines : {
+								grid: {
 									drawBorder: true,
 									display : false
 								}
-							}]	
+							}
 						}
 					},
 				});
@@ -82,74 +84,55 @@
 						backgroundColor: 'rgba(54, 162, 235, 0.3)',
 						borderColor: 'rgba(54, 162, 235, 0.3)',
 						borderWidth: 1,
+						barThickness : 20,
 						data: data['emp_count_per_choices']
 					}]
 				};
-				
+
 				new Chart(document.getElementById("survey_result_graph<%= entry.question_id %>").getContext("2d"), {
-					type: 'horizontalBar',
+					type: 'bar',
 					data: chartData,
 					options: {
-						layout: {
-							padding: {
-							left: 0,
-							right: 20,
-							top: 0,
-							bottom: 0
-							}
-						},
-						events: [],
-						responsive: true,
-						maintainAspectRatio: false,
-						legend: {
-							display: false,
-							position: 'right'
+        		indexAxis: 'y',
+						plugins: {
+							layout: {
+								padding: {
+								left: 0,
+								right: 20,
+								top: 0,
+								bottom: 0
+								}
+							},
+							events: [],
+							responsive: true,
+							maintainAspectRatio: false,
+							legend: {
+								display: false
+							},
 						},
 						scales: {
-							xAxes: [{ 
+							x: {
 								ticks: {
 									display: false,
 									beginAtZero: true
 								},
-								gridLines : {
+								grid: {
 									drawBorder: false,
 									display : false
 								}
-							}],
-							yAxes: [{
+							},
+							y: {
 								afterFit: function(scaleInstance) {
 									scaleInstance.width = 250;
 								},
-								barThickness : 20,
-								gridLines : {
-									drawBorder: true,
+								grid: {
+									drawBorder: false,
 									display : false
-								}
-							}]	
-						},
-						animation: {
-							duration: 1,
-							onComplete: function() {
-								var chartInstance = this.chart,
-								ctx = chartInstance.ctx;
-
-								ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
-								ctx.textAlign = 'top';
-								ctx.textBaseline = 'middle';
-
-								this.data.datasets.forEach(function(dataset, i) {
-									var meta = chartInstance.controller.getDatasetMeta(i);
-									meta.data.forEach(function(bar, index) {
-										if (dataset.data[index] > 0) {
-											var data = dataset.data[index];
-											ctx.fillText(data, bar._model.x + 3, bar._model.y);
-										}
-									});
-								});
+								},
 							}
 						}
 					},
-					plugins: [{
+					plugins: {
 						beforeInit: function (chart) {
 							chart.data.labels.forEach(function (value, index, array) {
 								var a = [];
@@ -162,7 +145,7 @@
 								array[index] = a;
 							})
 						}
-					}]
+					}
 				});
 			};
 		});
