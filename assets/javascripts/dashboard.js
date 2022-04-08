@@ -77,7 +77,7 @@ function createChart(data, name){
     backgroundColor: (data["chart_type"] == "line") ? 'rgb(135, 206, 235, 0.3)' : bgcolor,
     borderColor: bordercolor,
     borderWidth: 3,
-    barThickness: 20,
+    barThickness: 13,
     data: data["data1"]
     }];
 
@@ -88,7 +88,7 @@ function createChart(data, name){
       backgroundColor: (data["chart_type"] == "line") ? 'rgb(255,0,0,0.2)' : "#E55C45",
       borderColor: "#E55C45",
       borderWidth: 3,
-      barThickness: 20,
+      barThickness: 13,
       data: data["data2"]
     });
   }
