@@ -77,6 +77,7 @@ function createChart(data, name){
     backgroundColor: (data["chart_type"] == "line") ? 'rgb(135, 206, 235, 0.3)' : bgcolor,
     borderColor: bordercolor,
     borderWidth: 3,
+    barThickness: 13,
     data: data["data1"]
     }];
 
@@ -87,6 +88,7 @@ function createChart(data, name){
       backgroundColor: (data["chart_type"] == "line") ? 'rgb(255,0,0,0.2)' : "#E55C45",
       borderColor: "#E55C45",
       borderWidth: 3,
+      barThickness: 13,
       data: data["data2"]
     });
   }
@@ -97,8 +99,19 @@ function createChart(data, name){
     data: chartData,
     options: {
       plugins: {
-        legend: false,
-        },
+        responsive: true,
+        legend: { display: false },
+        title: {display: true, text: data["graphName"]},
+        tooltip: {
+          backgroundColor: "rgb(0,0,0,0)",
+          titleColor: 'rgb(0,0,0)',
+          callbacks: {
+              labelTextColor: function(context) {
+                  return 'rgb(0,0,0)';
+              }
+          }
+        }
+      },
       tooltips: {
         titleFontColor: "rgba(0, 0, 0, 1)",
         bodyFontColor: "rgba(0, 0, 0, 1)",
@@ -111,19 +124,16 @@ function createChart(data, name){
         yAxes: getAxes(false, "yTitle", isNonPiechart, data),
         xAxes: getAxes(true, "xTitle", isNonPiechart, data),
       },
-      barThickness: 40,
-      elements: {rectangle: {borderWidth: 5}},
-      responsive: true,
-      legend: {display: isNonPiechart, position: "bottom"},
-      title: {fontColor: "#000", display: true, text: data["graphName"]}
+      maintainAspectRatio: false,
+      elements: {rectangle: {borderWidth: 5}}
     }
   });
 }
 
 function getAxes(autoSkip, label, isNonPiechart, data){
   return (
-    [{
-      gridLines : {
+    {
+      grid : {
         drawBorder: false,
         display : false
       },
@@ -135,12 +145,12 @@ function getAxes(autoSkip, label, isNonPiechart, data){
         maxTicksLimit: label == "yTitle" ? 8 : 24,
         suggestedMax: label == "yTitle" ? (data.data1.at ? data.data1.at(-1)*1.10 : 0) : 0
       },
-      scaleLabel: {
+      title: {
         display: isNonPiechart,
         // labelString: data[label],
         fontColor: "#515151"
       }
-    }]
+    }
   )
 }
 

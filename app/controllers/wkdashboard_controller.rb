@@ -42,7 +42,7 @@ class WkdashboardController < WkbaseController
 
 		begin
 			load(path)
-			obj = Object.new.extend(WkDashboard)
+			obj = getGraphModule(path)
 			data = obj.chart_data({from: @from, to: @to, group_id: group_id, project_id: project_id})
 			data[:url] = url_for(data[:url]) if data[:url].present?
 		rescue
@@ -67,7 +67,7 @@ class WkdashboardController < WkbaseController
 
 			begin
 				load(path)
-				obj = Object.new.extend(WkDashboard)
+				obj = getGraphModule(path)
 				data = obj.getDetailReport({from: @from, to: @to, group_id: group_id, project_id: project_id})
 			rescue
 				data = {error: "404"}

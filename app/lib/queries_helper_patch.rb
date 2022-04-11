@@ -1,8 +1,7 @@
-require_dependency '../app/helpers/queries_helper'
-require 'application_helper'
-
 module QueriesHelper
+
 	def column_value(column, item, value)
+    content =
 		case column.name
 		when :id
 		  link_to value, issue_path(item)
@@ -17,7 +16,8 @@ module QueriesHelper
 		when :done_ratio
 		  progress_bar(value)
 		when :relations
-		  content_tag('span',
+      content_tag(
+        'span',
 			value.to_s(item) {|other| link_to_issue(other, :subject => false, :tracker => false)}.html_safe,
 			:class => value.css_classes_for(item))
 		when :hours, :estimated_hours, :total_estimated_hours
@@ -28,7 +28,7 @@ module QueriesHelper
 		  link_to_if(value > 0, format_hours(value), project_time_entries_path(item.project, :issue_id => "~#{item.id}"))
 		when :attachments
 		  value.to_a.map {|a| format_object(a)}.join(" ").html_safe
-	# ============= ERPmine_patch Redmine 4.2  =====================
+	# ============= ERPmine_patch Redmine 5.0  =====================
 		when :inventory_item_id
 			formProductItem(item)
 		when :selling_price
@@ -47,13 +47,17 @@ module QueriesHelper
 		else
 		  format_object(value)
 		end
+    call_hook(:helper_queries_column_value,
+              {:content => content, :column => column, :item => item, :value => value})
+
+    content
 	end
 
 	def render_query_totals(query)
 		return unless query.totalable_columns.present?
 
 		totals = query.totalable_columns.map do |column|
-			# ============= ERPmine_patch Redmine 4.2  =====================
+			# ============= ERPmine_patch Redmine 5.0  =====================
 			if [:quantity, :selling_price].include? column.name
 				product_type = session[:timelog][:spent_type] == "M" ? 'I' : session[:timelog][:spent_type]
 				query[:filters]['product_type'] = {"operator":"=","values" => product_type}
@@ -72,11 +76,14 @@ module QueriesHelper
       csv << columns.map {|c| c.caption.to_s}
       # csv lines
       items.each do |item|
+        # ============= ERPmine_patch Redmine 5.0  =====================
         csv << columns.map {|c| [:inventory_item_id].include?(c.name) ? wk_csv_content(item) : csv_content(c, item)}
+        # =============================
       end
     end
   end
 
+  # ============= ERPmine_patch Redmine 5.0  =====================
 	def wk_csv_content(item)
 		formProductItem(item)
 	end
@@ -91,4 +98,5 @@ module QueriesHelper
 		assetObj = item.inventory_item.asset_property
 		value = item&.inventory_item&.product_type == 'I' ? val+' - '+product_items : val +' - '+ assetObj.name
 	end
+	# =============================
 end

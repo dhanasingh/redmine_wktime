@@ -1,4 +1,4 @@
-module WkDashboard
+module GraphProfitLossPerMonth
   include WkaccountingHelper
   include WkpayrollHelper
   include WkcrmHelper

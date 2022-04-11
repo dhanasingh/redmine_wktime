@@ -1,7 +1,5 @@
-require_dependency '../app/helpers/application_helper'
-
 module WkApplicationHelperPatch
-   
+
   def format_object(object, html=true, &block)
     if block_given?
       object = yield object
@@ -18,8 +16,8 @@ module WkApplicationHelperPatch
       object.to_s
     when 'Float'
       sprintf "%.2f", object
-    when 'User'
-      html ? link_to_user(object) : object.to_s
+    when 'User', 'Group'
+      html ? link_to_principal(object) : object.to_s
     when 'Project'
       html ? link_to_project(object) : object.to_s
     when 'Version'
@@ -45,15 +43,15 @@ module WkApplicationHelperPatch
       else
         object.filename
       end
-	# ============= ERPmine_patch Redmine 4.2  =====================  
-	when 'WkInventoryItem'
-	  brandName = obj.product_item.brand.blank? ? "" : obj.product_item.brand.name
-	  modelName = obj.product_item.product_model.blank? ? "" : obj.product_item.product_model.name
-	  str = "#{obj.product_item.product.name} - #{brandName} - #{modelName}"
-	  assetObj = obj.asset_property
-	  str = str + ' - ' +assetObj.name unless assetObj.blank?
-	  str
-	# =============================  
+    # ============= ERPmine_patch Redmine 5.0  =====================
+    when 'WkInventoryItem'
+      brandName = obj.product_item.brand.blank? ? "" : obj.product_item.brand.name
+      modelName = obj.product_item.product_model.blank? ? "" : obj.product_item.product_model.name
+      str = "#{obj.product_item.product.name} - #{brandName} - #{modelName}"
+      assetObj = obj.asset_property
+      str = str + ' - ' +assetObj.name unless assetObj.blank?
+      str
+    # =============================
     when 'CustomValue', 'CustomFieldValue'
       if object.custom_field
         f = object.custom_field.format.formatted_custom_value(self, object, html)
@@ -69,4 +67,4 @@ module WkApplicationHelperPatch
       html ? h(object) : object.to_s
     end
   end
-end  
+end

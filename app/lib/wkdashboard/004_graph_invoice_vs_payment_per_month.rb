@@ -1,4 +1,4 @@
-module WkDashboard
+module GraphInvoiceVsPaymentPerMonth
   include WkpayrollHelper
   include WkcrmHelper
 

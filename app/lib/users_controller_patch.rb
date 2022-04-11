@@ -1,4 +1,3 @@
-require_dependency '../app/helpers/wkdocument_helper'
 module UsersControllerPatch
 	def self.included(base)
 		base.class_eval do
@@ -7,18 +6,20 @@ module UsersControllerPatch
 			include WkdocumentHelper
 
 			def create
-				@user = User.new(:language => Setting.default_language, :mail_notification => Setting.default_notification_option, :admin => false)
+				@user = User.new(:language => Setting.default_language,
+												 :mail_notification => Setting.default_notification_option,
+												 :admin => false)
 				@user.safe_attributes = params[:user]
 				unless @user.auth_source_id
 					@user.password              = params[:user][:password]
 					@user.password_confirmation = params[:user][:password_confirmation]
-				  end
+					end
 				@user.pref.safe_attributes = params[:pref]
 
 				if @user.save
 					Mailer.deliver_account_information(@user, @user.password) if params[:send_information]
 
-					# ============= ERPmine_patch Redmine 4.2  =====================
+					# ============= ERPmine_patch Redmine 5.0  =====================
 						#Below code for save wk users
 						erpmineUserSave
 						# To transfer attachments from Referral
@@ -37,15 +38,17 @@ module UsersControllerPatch
 					# =======================================
 					respond_to do |format|
 						format.html do
-							flash[:notice] = l(:notice_user_successful_create, :id => view_context.link_to(@user.login, user_path(@user)))
+							flash[:notice] =
+								l(:notice_user_successful_create,
+									:id => view_context.link_to(@user.login, user_path(@user)))
 							if params[:continue]
-								attrs = {:generate_password => @user.generate_password }
+								attrs = {:generate_password => @user.generate_password}
 								redirect_to new_user_path(:user => attrs)
 							else
 								redirect_to edit_user_path(@user)
 							end
 						end
-						format.api  { render :action => 'show', :status => :created, :location => user_url(@user) }
+						format.api {render :action => 'show', :status => :created, :location => user_url(@user)}
 					end
 				else
 					@auth_sources = AuthSource.all
@@ -53,14 +56,15 @@ module UsersControllerPatch
 					@user.password = @user.password_confirmation = nil
 
 					respond_to do |format|
-						format.html { render :action => 'new' }
-						format.api  { render_validation_errors(@user) }
+						format.html {render :action => 'new'}
+						format.api  {render_validation_errors(@user)}
 					end
 				end
 			end
 
 			def update
-				if params[:user][:password].present? && (@user.auth_source_id.nil? || params[:user][:auth_source_id].blank?)
+        is_updating_password = params[:user][:password].present? && (@user.auth_source_id.nil? || params[:user][:auth_source_id].blank?)
+        if is_updating_password
 					@user.password, @user.password_confirmation = params[:user][:password], params[:user][:password_confirmation]
 				end
 				@user.safe_attributes = params[:user]
@@ -72,7 +76,8 @@ module UsersControllerPatch
 				if @user.save
 					@user.pref.save
 
-				# ============= ERPmine_patch Redmine 4.2  =====================
+          Mailer.deliver_password_updated(@user, User.current) if is_updating_password
+				# ============= ERPmine_patch Redmine 5.0  =====================
 					#Below code for save wk users
 					erpmineUserSave
 					#for attachment save
@@ -89,7 +94,7 @@ module UsersControllerPatch
 							flash[:notice] = l(:notice_successful_update)
 							redirect_to_referer_or edit_user_path(@user)
 						end
-						format.api  { render_api_ok }
+            format.api  {render_api_ok}
 					end
 				else
 					@auth_sources = AuthSource.all
@@ -98,8 +103,8 @@ module UsersControllerPatch
 					@user.password = @user.password_confirmation = nil
 
 					respond_to do |format|
-						format.html { render :action => :edit }
-						format.api  { render_validation_errors(@user) }
+            format.html {render :action => :edit}
+            format.api  {render_validation_errors(@user)}
 					end
 				end
 			end

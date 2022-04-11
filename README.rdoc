@@ -64,7 +64,7 @@ For more information on features, please refer to the user guide
 
 	http://erpmine.org/attachments/download/115/ERPmine-User-Guide_v4.5.pdf
 
-INSTALLATION:
+=== INSTALLATION:
 
 Unpack the zip file to the plugins folder of Redmine.
 Starting from version 1.2, it requires db migration.
@@ -93,21 +93,11 @@ If an apache passenger module is used then make sure the following settings are 
   b) RailsAppSpawnerIdleTime 0
   c) PassengerPreStart https://rails-app-url/
 
-Release Notes for v4.5.1
+=== Release Notes for v4.5.2
 
-  Features:
-    - Deletion of all entries after a certain period of time
-    - Show sub tabs also for subcategories
-    - Automatically close the order when the invoice is created
+  - Redmine 5.0 compatibility
 
-  Bug fixes:
-    - Created user also listed in hiring drop down
-    - Show item instead of product in spent time
-    - No option to enter an order number
-    - Two problems with the order number when creating a supplier invoice
-    - Show Fixed cost in billing type invoice
-
-Customization:
+=== Customization:
 
   For any Customization/Support, please contact us, our consulting team will be happy to help you
 
@@ -129,7 +119,7 @@ Customization:
 
 	Please provide your rating at https://www.redmine.org/plugins/wk-time
 
-Resources:
+=== Resources:
 
 	User guide:
 
