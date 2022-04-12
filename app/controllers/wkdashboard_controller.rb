@@ -150,4 +150,10 @@ class WkdashboardController < WkbaseController
 		retrieve_date_range
 		@empDash = getEmpDashboard
 	end
+
+	private
+
+	def getGraphModule(path)
+		Object.new.extend(("Wkdashboard::"+(File.basename(path, ".rb")).camelize).constantize)
+	end
 end

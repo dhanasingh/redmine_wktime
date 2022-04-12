@@ -1,4 +1,4 @@
-module TimelogHelper
+module TimelogHelperPatch
 	def format_criteria_value(criteria_options, value, html=true)
 		if value.blank?
 			"[#{l(:label_none)}]"

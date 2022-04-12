@@ -1,4 +1,4 @@
-module QueriesHelper
+module QueriesHelperPatch
 
 	def column_value(column, item, value)
     content =
