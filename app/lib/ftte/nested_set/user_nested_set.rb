@@ -1,4 +1,4 @@
-module FTTE
+module Ftte
   module NestedSet
     module UserNestedSet
       def self.included(base)

@@ -1,5 +1,4 @@
-module WkApplicationHelperPatch
-
+module ApplicationHelper
   def format_object(object, html=true, &block)
     if block_given?
       object = yield object
@@ -45,11 +44,11 @@ module WkApplicationHelperPatch
       end
     # ============= ERPmine_patch Redmine 5.0  =====================
     when 'WkInventoryItem'
-      brandName = obj.product_item.brand.blank? ? "" : obj.product_item.brand.name
-      modelName = obj.product_item.product_model.blank? ? "" : obj.product_item.product_model.name
-      str = "#{obj.product_item.product.name} - #{brandName} - #{modelName}"
-      assetObj = obj.asset_property
-      str = str + ' - ' +assetObj.name unless assetObj.blank?
+      brandName = object.product_item.brand.blank? ? "" : object.product_item.brand.name
+      modelName = object.product_item.product_model.blank? ? "" : object.product_item.product_model.name
+      str = "#{object.product_item.product.name} - #{brandName} - #{modelName}"
+      assetObj = object.asset_property
+      str = str + ' - ' +assetObj.name if object&.product_type != 'I'
       str
     # =============================
     when 'CustomValue', 'CustomFieldValue'

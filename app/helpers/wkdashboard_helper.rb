@@ -3,25 +3,20 @@ module WkdashboardHelper
 	# key - graph name, value - graph type
 	include WkreportHelper
 	include WktimeHelper
-	include Redmine::I18n
 
   def get_graphs_yaml_path
 		permittedfiles = []
 		ymlFiles = Dir["plugins/redmine_wktime/app/lib/wkdashboard/*.rb"].map{ |file| file }
 		ymlFiles.each do |file|
 			fileName = File.basename(file).split("_").first
-			nonPermChart = !['001', '002', '003', '004', '005', '006'].include?(fileName)
-			if(nonPermChart || (fileName == '001' && showAttendance) || (fileName == '002' && showExpense) ||
-				(fileName == '003' && showCRMModule) || (fileName == '004' && showBilling && validateERPPermission("M_BILL")) ||
-				(fileName == '005' && showInventory) || (fileName == '006' && showAccounting))
+			nonPermChart = !['graph001', 'graph002', 'graph003', 'graph004', 'graph005', 'graph006'].include?(fileName)
+			if(nonPermChart || (fileName == 'graph001' && showAttendance) || (fileName == 'graph002' && showExpense) ||
+				(fileName == 'graph003' && showCRMModule) || (fileName == 'graph004' && showBilling && validateERPPermission("M_BILL")) ||
+				(fileName == 'graph005' && showInventory) || (fileName == 'graph006' && showAccounting))
 					permittedfiles << file
 			end
 		end
 		permittedfiles
-  end
-
-  def label_check(l_name)
-      I18n.t( l_name, default: l_name )
   end
 
   def options_for_period_select(value)
@@ -38,11 +33,4 @@ module WkdashboardHelper
 		!Setting.plugin_redmine_wktime['wktime_enable_dashboards_module'].blank? &&
 			Setting.plugin_redmine_wktime['wktime_enable_dashboards_module'].to_i == 1
   end
-
-	def getGraphModule(path)
-		moduleName = File.basename(path, ".rb").split('_')
-		moduleName.shift()
-		moduleName = moduleName.join('_').camelize.constantize
-		return Object.new.extend(moduleName)
-	end
 end
