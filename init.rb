@@ -1,5 +1,8 @@
+if Rails.configuration.respond_to?(:autoloader) && Rails.configuration.autoloader == :zeitwerk
+	Rails.autoloaders.each { |loader| loader.ignore(Dir[File.dirname(__FILE__) +'/app/lib/*_helper_patch.rb']) }
+end
 require_relative './app/lib/time_report_patch'
-require_relative './app/lib/wk_application_helper_patch'
+require_relative './app/lib/application_helper_patch'
 require_relative './app/lib/queries_helper_patch'
 require_relative './app/lib/timelog_helper_patch'
 require_relative './app/lib/ftte/ftte_hook'

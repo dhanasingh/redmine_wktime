@@ -1,5 +1,4 @@
-module QueriesHelperPatch
-
+module QueriesHelper
 	def column_value(column, item, value)
     content =
 		case column.name
