@@ -1199,10 +1199,10 @@ de:
   label_delivery: Auslieferung
   label_delivery_date: Auslieferdatum
   label_new_delivery: Neue Auslieferung
-  label_delivered: Ausgeliefert
+  label_delivered: Geliefert
   label_intransit: Unterwegs
   label_load: Beladung
-  label_delivery_slip: Auslieferschein
+  label_delivery_slip: Lieferschein
   button_csv: CSV
   button_pdf: PDF
 
@@ -1220,7 +1220,7 @@ de:
   label_product: Produkt
   label_automatic_product_item: Produktartikel automatisch erstellen
   label_show_available_items: Verfügbare Artikel anzeigen
-  label_used_items: Gebrauchte Artikel
+  label_used_items: Verwendete Artikel
   label_goods_receipt: Waren eingegangen
 
   report_cash_flow: Cashflow-Bericht
@@ -1229,5 +1229,5 @@ de:
   label_net_inflow: Nettozufluss
   label_select_product_item: Produktartikelauswahl
   label_received_quantity: Erhaltene Menge
-  label_confirmation_number: Supplier Confirmation Number
-  label_fullfilled: Fulfilled
+  label_confirmation_number: Auftragsbestätigung
+  label_fullfilled: Erfüllt
