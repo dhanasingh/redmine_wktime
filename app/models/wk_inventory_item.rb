@@ -77,4 +77,8 @@ class WkInventoryItem < ActiveRecord::Base
     get_delivery_entry.where('wk_inventory_items.id': id).select("wk_inventory_items.*")
   }
 
+  scope :get_assembled_component, ->(id){
+    where(parent_id: id)
+  }
+
 end

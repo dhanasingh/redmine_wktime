@@ -85,7 +85,7 @@ $(document).ready(function() {
 		  });
 	}
 
-	$('#product_item #available_quantity').change(function(){
+	$('#productItem #available_quantity').change(function(){
 		$("#item_total_quantity").html(this.value);
 		$('#total_quantity').val(this.value);
 	});
@@ -145,6 +145,49 @@ $(document).ready(function() {
 	showHidePartNumber();
 	$('#automatic_product_item').change(function(){
 		showHidePartNumber();
+	});
+
+	// $("#assembleItemTable #inventory_item_id").select2();
+	$("#assembleItem" ).dialog({
+		modal: true,
+		autoOpen: false,
+		title: 'Assemble New Item',
+		width: "50%",
+		height: 350,
+		buttons: {
+			"Ok": function() {
+				var rowlength = $('#assembleItemTable >tbody >tr').length;
+				var item_id = $('#product_item').val();
+				var quantity = $("#quantity").val();
+				let tr = '';
+				let sn = [];
+				let index_no = (rowlength+1);
+				if($('#serial_no').val()){
+					($('#serial_no').val().split(',')).map(function(number){ sn.push({id:'', serial_number: number})});
+				}
+				if(item_id){
+					let item = {};
+					item = {index_no: index_no, inventory_item_id: item_id, quantity: quantity, location_id: $('#location_id').val(), serial_no: sn}
+					tr += '<tr>';
+					tr += '<td class="lbl-txt-align">'+index_no+'</td>';
+					tr += '<input type="hidden" name="assemble[item_'+index_no+']" id="assemble_item_'+index_no+'" value='+(JSON.stringify(item))+'></td>';
+					tr += '<td class="lbl-txt-align">'+$('#product :selected').text()+'</td>';
+					tr += '<td class="lbl-txt-align">'+$('#product_item :selected').text()+'</td>';
+					tr += '<td class="lbl-txt-align">'+quantity+'</td>';
+					tr += '<td class="lbl-txt-align">'+$('#location_id :selected').text();+'</td>';
+					tr += '<td><a title="Delete" href="javascript:deleteItemRow('+ index_no +');"><img src="/images/delete.png"> </a> </td>';
+					tr += '</tr>';
+					$('#assembleItemTable > tbody:last-child').append(tr);
+					$(this).dialog("close");
+				}
+				else{
+					alert("Item cannot be blank");
+				}
+			},
+			"Cancel": function() {
+				$(this).dialog("close");
+			}
+		}
 	});
 });
 
@@ -1235,4 +1278,25 @@ function receivedQuantitySum(data){
 	});
 	quantity_sum += data.received_qty
 	return quantity_sum
+}
+
+function populateAsset()
+{
+	let url = new URL(window.location.href);
+	url.searchParams.set('inventory_item_id', $('#existing_id').val());
+	location.href = url;
+}
+
+function getAssembleItem(){
+	$("#quantity").val('');
+	$("#serial_no").val('');
+	$("#product_item").val('');
+	$("#assembleItem").dialog("open");
+}
+
+function deleteItemRow(index){
+	var isDelete = confirm("Are you sure want to delete");
+		if (isDelete == true) {
+			$("#assembleItemTable tr:eq("+index+")").remove();
+		}
 }

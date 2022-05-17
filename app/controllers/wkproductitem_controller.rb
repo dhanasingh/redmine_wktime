@@ -26,6 +26,7 @@ class WkproductitemController < WkinventoryController
   include WkpayrollHelper
   include WkassetHelper
   include WkshipmentHelper
+  include WkproductitemHelper
 
 	def index
 
@@ -95,6 +96,9 @@ class WkproductitemController < WkinventoryController
 		disposedCond = isDisposed.present? && isDisposed == "1"
 		sqlwhere = sqlwhere + " AND (ap.is_disposed = #{booleanFormat(disposedCond)} #{!disposedCond ? 'OR ap.is_disposed IS NULL' : ''})" if getItemType == "A"
 
+		sqlwhere = sqlwhere + " AND iit.parent_id IS NULL" if getItemType == "I"
+		sqlwhere = sqlwhere + " AND pcr.child_count IS NULL" if getItemType != "I"
+
 		sqlStr = getProductInventorySql + sqlwhere
 		orderStr = " ORDER BY " + (sort_clause.present? ? sort_clause.first : " iit.id desc")
 		respond_to do |format|
@@ -127,7 +131,7 @@ class WkproductitemController < WkinventoryController
 		left outer join wk_mesure_units uom on iit.uom_id = uom.id
 		left outer join wk_asset_properties ap on ap.inventory_item_id = iit.id
 		left outer join wk_asset_properties pap on pap.inventory_item_id = piit.id
-		where ((case when iit.product_type is null then p.product_type else iit.product_type end) = '#{getItemType}' OR (case when iit.product_type is null then p.product_type else iit.product_type end) IS NULL) AND pcr.child_count IS NULL "
+		where ((case when iit.product_type is null then p.product_type else iit.product_type end) = '#{getItemType}' OR (case when iit.product_type is null then p.product_type else iit.product_type end) IS NULL)  "
 		sqlStr
 	end
 
@@ -204,6 +208,7 @@ class WkproductitemController < WkinventoryController
 		respond_to do |format|
 			format.html {
 				if errorMsg.blank?
+					saveAssembledItem(params[:assemble], inventoryItem) if params[:assemble].present?
 					redirect_to :controller => controller_name,:action => 'index' , :tab => controller_name
 					flash[:notice] = l(:notice_successful_update)
 				else
@@ -473,5 +478,13 @@ class WkproductitemController < WkinventoryController
 	def getCsvData(entries)
 		data = entries.map{|entry| {project_name: entry['project_name'] || '', product_name: entry['product_name'] || '', brand_name: entry['brand_name'] || '', product_model_name: entry['product_model_name'] || '', product_attribute_name: entry['product_attribute_name'] || '', serial_number: entry['serial_number'] || '', currency: entry['currency'] || '', selling_price: entry['selling_price'] || '', total_quantity: entry['total_quantity'] || '', available_quantity: entry['available_quantity'] || '', uom_short_desc: entry['uom_short_desc'] || '', location_name: entry['location_name'] || ''}
 		}
+	end
+
+	def sectionHeader
+		l(:label_components)
+	end
+
+	def editcomponentLbl
+		l(:label_edit_component)
 	end
 end

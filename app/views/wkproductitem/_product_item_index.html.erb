@@ -24,6 +24,9 @@
 		%>
 		<fieldset style="font-wight: bold;">
 			<div style="float:right">
+				<% if controller.getItemType == "I" %>
+					<%= link_to l(:label_assemble_item), url_for(controller: controller_name, action: 'assemble_item', isAssemble: true), class: 'icon icon-add' %>
+				<% end %>
 				<%= link_to controller.newItemLabel, url_for(:controller => controller_name, :action => 'edit', :newItem => true), :class => 'icon icon-add' %>
 			</div>
 			<%= l(:label_location) %>&nbsp;

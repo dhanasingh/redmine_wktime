@@ -167,4 +167,17 @@ module WklogmaterialHelper
 		url = {controller: spentType == 'M' ? 'wkproductitem' : 'wkasset', action: 'edit', inventory_item_id: itemId, product_item_id: productItemId}
 		url
 	end
+
+	def saveConsumedSN(serial_nos, entry)
+		serial_nos.each do |sn|
+			WkConsumedItems.where(id: sn["id"]).delete_all() if sn["is_delete"].present? && sn["id"].present?
+			if sn["id"].blank? && !sn["is_delete"]
+				materialSN = WkConsumedItems.new
+				materialSN.consumer_id = entry.id
+				materialSN.consumer_type = entry.class.name
+				materialSN.serial_number = sn["serial_number"]
+				materialSN.save
+			end
+		end
+	end
 end

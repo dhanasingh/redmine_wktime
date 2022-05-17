@@ -1224,3 +1224,9 @@ en:
   label_received_quantity: Received Quantity
   label_confirmation_number: Supplier Confirmation Number
   label_fullfilled: Fulfilled
+
+  label_assemble_item: Assemble Item
+  label_tax_number: Tax Number
+  label_add_existing_asset: Add Existing Asset
+  label_interview_type: Interview Type
+  label_consumed_item_for_issue: Allow Consumed Items for Issue

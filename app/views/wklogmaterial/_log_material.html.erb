@@ -102,8 +102,8 @@
    getClientsUrl = 	"<%= "#{url_for(:controller => "wktime", :action => 'getclients', :user_id => User.current.id, :separator => ',')}" %>";
 </script>
 <% productSNs = logmaterial_helper.getProductSNs(itemId) if itemId.present? %>
-<% serialNumbers = WkMaterialEntrySn.get_material_sn(@materialEntry.id).map{|e| e.serial_number} if @materialEntry.present? %>
-<% hidden_sns = WkMaterialEntrySn.get_material_sn(@materialEntry.id).map{|e| {id: e.id, serial_number: e.serial_number}} if @materialEntry.present? %>
+<% serialNumbers = WkConsumedItems.get_serial_nos(@materialEntry.id, 'WkMaterialEntry').map{|e| e.serial_number} if @materialEntry.present? %>
+<% hidden_sns = WkConsumedItems.get_serial_nos(@materialEntry.id, 'WkMaterialEntry').map{|e| {id: e.id, serial_number: e.serial_number}} if @materialEntry.present? %>
 <%= hidden_field_tag 'product_serial_numbers', productSNs.to_json || [] %>
 <%= hidden_field_tag 'hidden_sns', hidden_sns.to_json || [] %>
 

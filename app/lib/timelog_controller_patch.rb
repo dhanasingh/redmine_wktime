@@ -432,17 +432,7 @@ module TimelogControllerPatch
 						@assetObj.save
 					end
 					# save serial number
-					if errorMsg.blank? && params[:hidden_sns].present?
-						JSON.parse(params[:hidden_sns]).each do |sn|
-							WkMaterialEntrySn.where(id: sn["id"]).delete_all() if sn["is_delete"].present? && sn["id"].present?
-							if sn["id"].blank? && !sn["is_delete"]
-								materialSN = WkMaterialEntrySn.new
-								materialSN.material_entry_id = @modelEntry.id
-								materialSN.serial_number = sn["serial_number"]
-								materialSN.save
-							end
-						end
-					end
+					wklog_helper.saveConsumedSN(JSON.parse(params[:hidden_sns]), @modelEntry) if errorMsg.blank? && params[:hidden_sns].present?
 				end
 			end
 			return errorMsg

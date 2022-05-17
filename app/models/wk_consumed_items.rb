@@ -15,11 +15,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-class WkMaterialEntrySn < ActiveRecord::Base
+class WkConsumedItems < ActiveRecord::Base
 
-  belongs_to :material_entry, :class_name => 'WkMaterialEntry'
+  belongs_to :consumer, polymorphic: true
 
-  def self.get_material_sn(id)
-    WkMaterialEntrySn.where(material_entry_id: id)
-  end 
+  scope :get_serial_nos, ->(id, type){ where(consumer_id: id, consumer_type: type)}
 end

@@ -1,11 +1,11 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <%= javascript_include_tag 'accountproject', :plugin => "redmine_wktime" %>
-<script type="text/javascript"> 
+<script type="text/javascript">
 	productModifyUrl="<%= "#{url_for(:controller => "wklogmaterial", :action => 'modifyProductDD')}" %>";
 </script>
 <%= form_tag({:controller => controller_name, :action => 'update'}, :method => :post, :id => 'query_form') do %>
-	<%	if @inventoryItem.blank?			
-			if @parentEntry.blank?		
+	<%	if @inventoryItem.blank?
+			if @parentEntry.blank?
 				newLbl = controller.newItemLabel
 				editLbl = controller.editItemLabel
 			else
@@ -14,7 +14,7 @@
 			end
 		else
 			newLbl = controller.newcomponentLbl
-			editLbl = @inventoryItem.parent_id.blank? ? controller.editItemLabel : controller.editcomponentLbl			
+			editLbl = @inventoryItem.parent_id.blank? ? controller.editItemLabel : controller.editcomponentLbl
 		end
 	%>
 	<h2><b><%= @productItem.blank? ?  newLbl : editLbl %></b></h2>
@@ -22,12 +22,12 @@
 	<div id="product_item_form">
 		<%=h hidden_field_tag('product_item_id', @productItem.blank? ? "" :@productItem.id) %>
 		<%=h hidden_field_tag('inventory_item_id', @inventoryItem.blank? ? "" :@inventoryItem.id) %>
-		<%=h hidden_field_tag('product_type', controller.getItemType) %>	
+		<%=h hidden_field_tag('product_type', controller.getItemType) %>
 		<%= call_hook(:view_product_item, :inventoryItem => @inventoryItem) %>
 			<%= render :partial => 'wkproductitem/edit_product_item', locals: {invntItem: @inventoryItem} %>
 		<div style="clear:both;"></div>
 		<fieldset id="date-range" class="collapsible">
-			<legend onclick="toggleFieldset(this);" class="icon icon-<%= @inventoryItem.blank? ? "collapsed" : "expended" %>"><%= l(:label_additional_info) %></legend>
+			<legend onclick="toggleFieldset(this);" class="icon icon-<%= @inventoryItem.blank? ? "collapsed" : "expanded" %>"><%= l(:label_additional_info) %></legend>
 			<div class="splitcontent" style="display:<%= @inventoryItem.blank? ? 'none' : 'flex' %>;">
 				<% if controller.showAssetProperties %>
 					<%= render :partial => 'wkasset/asset_property', locals: {invntItem: @inventoryItem, isTransfer: false}%>
@@ -45,9 +45,14 @@
 	</div>
 <% end %>
 
-<% if !@inventoryItem.blank? && controller.showAssetProperties   %>
+<% if @inventoryItem.present? %>
 	</br>
 	<div>
-		<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @inventoryItem }%>
-	</div>
+		<% if controller.showAssetProperties %>
+			<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @inventoryItem }%>
+		<%else%>
+			<% component = WkInventoryItem.get_assembled_component(@inventoryItem&.id) %>
+			<%= render partial: "child_component", locals: { component: component} if component.present? %>
+		<%end%>
+		</div>
 <% end %>

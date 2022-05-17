@@ -10,12 +10,19 @@
 		productId = firstProduct.id unless firstProduct.blank?
 	end
 	brandSql = 'id in (select brand_id from wk_brand_products where product_id = ' + productId.to_s + ')'
+	parentArr = parentArray(controller.getItemType, true, false, nil, @parentEntry&.id || nil)
 %>
 <div class="splitcontent">
 	<fieldset class="box tabular">
 		<legend><%=l(:label_product_item)%></legend>
 		<div class="splitcontentleft">
 			<table>
+				<% if params[:parentId].present? && controller.getItemType == 'A' %>
+					<tr>
+						<th style="text-align: left"><%= l(:label_add_existing_asset) %></th>
+						<td style="text-align: left;padding-left:40px;"><%= select_tag("existing_id", options_for_select(parentArr, selected: invntItem.blank? ? parentArr : invntItem.id), onchange: "populateAsset();")%></td>
+					</tr>
+				<% end %>
 				<tr>
 					<th align="left"><%= l(:label_product) %></th>
 					<td align="left" style="padding-left:40px;">
