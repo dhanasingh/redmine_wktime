@@ -46,8 +46,11 @@ function bulkEdit(){
             clockOutEl = $('#clockout_'+splitVal[1]+'_'+splitVal[2]);
             $('#editIcon').attr('action', 'Update').removeClass().addClass("icon icon-save");
             $(this).parent('tr').removeClass("user locked");
-            $(clockInEl).html(getTextBoxField('clockin', clockInEl, splitVal));
-            $(clockOutEl).html(getTextBoxField('clockout', clockOutEl, splitVal));
+            let userID = $('#userID_'+splitVal[1]+'_'+splitVal[2]).val();
+            if(userID != $('#current_user_id').val()){
+                $(clockInEl).html(getTextBoxField('clockin', clockInEl, splitVal));
+                $(clockOutEl).html(getTextBoxField('clockout', clockOutEl, splitVal));
+            }
         });
     }
     else if(button == 'Update'){
@@ -95,7 +98,7 @@ function calculate_hours(startEl, endEl){
     }
 
     // convert to fraction of 60
-    mins = mins / 60; 
+    mins = mins / 60;
 
     hours += mins;
     hours = hours.toFixed(2);

@@ -25,7 +25,7 @@ class WkattendanceController < WkbaseController
 
 	before_action :require_login
 	before_action :check_perm_and_redirect, :only => [:edit, :clockedit]
-	before_action :check_update_permission, only: "update"
+	before_action :check_update_permission, :only => [:update, :saveClockInOut]
 	before_action :check_index_perm, :only => [:index]
 	require 'csv'
 
