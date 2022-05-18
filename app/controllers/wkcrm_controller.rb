@@ -126,6 +126,7 @@ class WkcrmController < WkbaseController
 		wkaccount.account_number = params[:account_number]
 		wkaccount.account_category = params[:account_category]
 		wkaccount.description = params[:description]
+		wkaccount.tax_number = params[:tax_number]
 		wkaccount.account_billing = params[:account_billing].blank? ? 0 : params[:account_billing]
 		wkaccount.location_id = params[:location_id] if params[:location_id] != "0"
 		wkaccount.created_by_user_id = User.current.id if wkaccount.new_record?
@@ -219,7 +220,7 @@ class WkcrmController < WkbaseController
 			convertToContact
 		end
 	end
-	
+
 	def convertToAccount
 		# @account.account_type = 'A'
 		@account.updated_by_user_id = User.current.id
