@@ -41,7 +41,16 @@
 		<%=h hidden_field_tag('action_from', params[:action_from] ) %>
 		<%=h hidden_field_tag('crm_activity_id', (!@activityEntry.blank? ? @activityEntry[0].id : "") ) %>
 		<%=h hidden_field_tag('load_act_type', ( is_referral ? "I" : @activityEntry&.first&.activity_type || 'C') ) %>
+		<% interview_type = @activityEntry&.first&.interview_type_id || nil %>
 		<table >
+			<% if is_referral %>
+				<tr>
+					<th align="left" ><%= l(:label_interview_type) %></th>
+					<td align="left" style="padding-left:40px;">
+						<%= select_tag('interview_type', options_for_select(options_for_enum_select('IT', interview_type, true))) %>
+					</td>
+				</tr>
+			<% end %>
 			<% if is_referral %>
 				<%= hidden_field_tag('activity_type', "I" ) %>
 			<% else %>
@@ -110,7 +119,7 @@
 				<% else %>
 					<th style="text-align: end;"><%= l(:label_rating) %></th>
 					<td style="padding-left:40px;">
-						<%= text_field_tag "rating", @activityEntry && @activityEntry[0] && @activityEntry[0].rating, size: 20, style: "width: 180px" %>
+						<%= select_tag("rating", options_for_select((1..10).to_a.unshift(""), selected: @activityEntry&.first&.rating || ''), :style => "width: 50px;")%>
 					</td>
 				<% end %>
 			</tr>
@@ -158,7 +167,7 @@
 				<th align="left" ><%= is_referral ? l(:label_interviewer) : l(:field_assigned_to) %></th>
 				<td align="left" style="padding-left:40px;">
 					<% if is_referral %>
-						<%= select_tag('assigned_user_id', options_for_select(get_all_users, selected: @activityEntry&.first&.assigned_user_id || User.current.id), disabled: !controller.deletePermission) %></td>
+						<%= select_tag('assigned_user_id', options_for_select(get_active_users, selected: @activityEntry&.first&.assigned_user_id || User.current.id), disabled: !controller.deletePermission) %></td>
 						<%= hidden_field_tag('assigned_user_id', User.current.id) unless controller.deletePermission %>
 					<% else %>
 						<%=h select_tag('assigned_user_id',

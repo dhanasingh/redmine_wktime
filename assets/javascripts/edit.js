@@ -186,6 +186,8 @@ $(document).ready(function() {
 	if($("#issueTable .issueDD").length > 0){
 		$("#issueTable .issueDD").select2();
 	}
+
+	if($("#referred_by").length > 0) $("#referred_by").select2();
 });
 
 $(window).load(function(){

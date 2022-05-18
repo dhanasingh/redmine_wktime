@@ -288,8 +288,8 @@ include WkdocumentHelper
 		parentIdHash
 	end
 
-  def get_all_users
-    users = User.where(status: 1, type: "User").map{|u| [u.name, u.id]}
+  def get_active_users
+    users = User.active.map{|u| [u.name, u.id]}
     [["",""]] + users
   end
 

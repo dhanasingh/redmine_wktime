@@ -22,7 +22,12 @@ module WkreferralsHelper
 
   def getReferralHeaders(entries)
     names = []
-    entries.map{|e| names = names + e.activities.map{|a| a.name&.titleize}}
+    entries.map{|e| names = names + e.activities.map{ |a| a.interview_type&.name&.titleize || a.name&.titleize }}
     names.uniq
+  end
+
+  def get_all_users
+    users = User.where(status: [1,3]).map{|u| [u.name, u.id]}
+    [["",""]] + users
   end
 end

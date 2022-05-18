@@ -22,6 +22,7 @@ class WkcrmactivityController < WkcrmController
   include WktimeHelper
   include WkdocumentHelper
 	accept_api_auth :index, :edit, :update
+  before_action :change_menu_item, :only => :edit
 
 	def index
 		sort_init 'updated_at', 'desc'
@@ -127,6 +128,7 @@ class WkcrmactivityController < WkcrmController
 		crmActivity.assigned_user_id = (params[:activity_type] != "I" || validateERPPermission("A_REFERRAL")) ? params[:assigned_user_id] : User.current.id
 		crmActivity.parent_id = params[:related_parent]
 		crmActivity.parent_type = params[:related_to].to_s
+		crmActivity.interview_type_id = params[:interview_type] || nil
 		if isChecked('crm_save_geo_location')
 			crmActivity.latitude = params[:latitude]
 			crmActivity.longitude = params[:longitude]
@@ -223,5 +225,9 @@ class WkcrmactivityController < WkcrmController
 			render_403
 			return false
 		end
+	end
+
+	def change_menu_item
+		menu_items[controller_name.to_sym][:default] = params[:controller_from] == "wkreferrals" ? :wkattendance : :wklead
 	end
 end

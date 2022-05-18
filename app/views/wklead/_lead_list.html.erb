@@ -39,7 +39,7 @@
 						<td class="lbl-txt-align"><%= entry&.referred&.name %></td>
 						<% (activityHeaders).map do |col| %>
 							<td>
-								<%= ((entry.activities || []).map{|act| act.name.titleize == col ? act.rating : ""})&.reject(&:blank?)&.first %>
+								<%= ((entry.activities&.order(updated_at: :desc) || []).map{|act| (act.interview_type&.name&.titleize || act.name.titleize) == col ? act.rating : ""})&.reject(&:blank?)&.first %>
 							</td>
 						<% end %>
 					<% else %>
