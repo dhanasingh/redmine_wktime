@@ -6,7 +6,7 @@
 		accepts_nested_attributes_for :wk_issue
 		def erpmineissues
 			self.wk_issue ||= WkIssue.new(:issue => self, :project => self.project)
-		end	
+		end
 	end
 
 	Project.class_eval do
@@ -18,26 +18,28 @@
 	TimeEntry.class_eval do
 	  has_one :spent_for, as: :spent, class_name: 'WkSpentFor', :dependent => :destroy
 	  has_one :invoice_item, through: :spent_for
-	  
+
 	  accepts_nested_attributes_for :spent_for
 	end
 
 %>
-<%  wkexpense_helper = Object.new.extend(WkexpenseHelper) 
+<%  wkexpense_helper = Object.new.extend(WkexpenseHelper)
 	wkasset_helper = Object.new.extend(WkassetHelper)
 	wktime_helper = Object.new.extend(WktimeHelper)
  	rateHash = wkasset_helper.getRatePerHash(false)
+ 	project = WkProject.where(project_id: @issue.project_id)
+	material_entries = WkMaterialEntry.getMaterialConsumption(@issue.id)
 %>
 
 <% if(Setting.plugin_redmine_wktime['label_no_additional_details_for_issue'].blank? && Setting.plugin_redmine_wktime['label_no_additional_details_for_issue'].to_i == 0) %>
 	<fieldset>
 	<legend><b><%= l(:label_additional_details) %></b></legend>
 	<table>
-		<% if wktime_helper.showBilling %>	
-			<tr>			
+		<% if wktime_helper.showBilling %>
+			<tr>
 				<th align="left"><%= l(:label_rate) %></th>
 				<td style="padding-left:40px;"><%= @issue.erpmineissues.currency %> <%= @issue.erpmineissues.rate%> <%= rateHash[@issue.erpmineissues.rate_per] %></td>
-				
+
 			</tr>
 		<% end %>
 			<tr>
@@ -57,8 +59,7 @@
 <% end %>
 
 <% # Issue Survey list %>
-<% issueSurveyPermission = WkProject.where(:project_id => @issue.project_id) %>
-<% if wktime_helper.showSurvey && (@project.module_enabled?("Survey")) && !issueSurveyPermission.blank? && issueSurveyPermission.first.is_issueSurvey_allowed %>
+<% if wktime_helper.showSurvey && (@project.module_enabled?("Survey")) && !project.blank? && project&.first&.is_issueSurvey_allowed %>
 	<% params = Hash.new %>
 	<% params[:project_id] = Project.find(@issue.project_id).identifier %>
 	<% params[:isIssue] = true %>
@@ -66,5 +67,14 @@
 	<fieldset>
 		<legend><b><%= l(:label_survey) %></b></legend>
 		<%= render :partial => 'wksurvey/survey_list', locals:{ :params => params} %>
+	</fieldset>
+<% end %>
+<br>
+
+<% # Material Consumed_items %>
+<%if project&.first&.allow_consumed_items && material_entries.present? %>
+	<fieldset>
+		<legend><b><%= l(:label_consumed_items) %></b></legend>
+		<%= render partial: "wkissues/consumed_items", locals: { entries: material_entries} %>
 	</fieldset>
 <% end %>
