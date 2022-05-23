@@ -11,7 +11,7 @@
 	<fieldset class="box tabular" >
     <table >
       <tr>
-        <th align="left"><%= l(:label_asset) + " " + l(:field_name) %></th>
+        <th align="left"><%= l(:label_asset_name) %></th>
         <td align="left" style="padding-left:50px;"><%= @disposeAssetEntry.name %> </td></tr>
       </tr>
       <tr>
@@ -25,15 +25,15 @@
       <tr>
         <th align="left"><%= l(:label_current_asset_value) %></th>
         <td align="left" style="padding-left:50px;"><b><%= @disposeAssetEntry.currency %></b> <%= "%.2f" % current %></td>
-      </tr> 
+      </tr>
       <tr>
         <th align="left"><%= l(:label_dispose_amount) %></th>
         <td align="left" style="padding-left:50px;"><b><%= @disposeAssetEntry.currency %></b> <%= text_field_tag "dispose_amount", @disposeAssetEntry.disposed_rate, onkeyup: "profitLossAmount(this.value)" %></td>
-      </tr> 
+      </tr>
       <tr>
         <th align="left"><%= l(:label_profit_loss) %></th>
         <td id = "profit_loss" align="left" style="padding-left:50px;"></td>
-      </tr> 
+      </tr>
     </table>
   </fieldset>
 	<%= submit_tag l(:label_dispose_asset), data: {confirm: l(:text_are_you_sure_want_dispose_asset)}  %>

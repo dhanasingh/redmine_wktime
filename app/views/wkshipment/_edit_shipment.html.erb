@@ -47,7 +47,7 @@
 			<th style="text-align: left"><label><%= l(:label_supplier_invoice) %></label></th>
 			<td style="text-align: left">
 				<%= ": "%><%= select_tag('si_id', options_for_select(siArr, selected: invoiceID), onchange: "populateSIInvoice();") %>
-				<%= link_to(l(:label_invoice) + ' ' +l(:label_details), {controller: 'wksupplierinvoice', action: 'edit', invoice_id: invoiceID, new_invoice: false, preview_billing: false, tab: 'wksupplierinvoice'},{style:"padding-left: 5px"}) if params[:shipment_id].present? && invoice_no.present? %>
+				<%= link_to(l(:label_invoice_details), {controller: 'wksupplierinvoice', action: 'edit', invoice_id: invoiceID, new_invoice: false, preview_billing: false, tab: 'wksupplierinvoice'},{style:"padding-left: 5px"}) if params[:shipment_id].present? && invoice_no.present? %>
 			</td>
 		</tr>
 		<tr><th style="text-align: left"><%= l(:label_serial_number) %></th>

@@ -24,7 +24,7 @@
 		<table width='100%'>
 			<% if controller.showAssetProperties   %>
 			<tr>
-				<th style="text-align: left"><%= "Parent" %></th>
+				<th style="text-align: left"><%= l(:label_parent_revision) %></th>
 				<td style="text-align: left;padding-left:40px;"><%=h select_tag("parent_id", options_for_select(parentArr, :selected => (invntItem.blank? ? (@parentEntry.blank? ? parentArr : @parentEntry.id) : invntItem.parent_id)), :disabled => isDisable && !isTransfer) %></td>
 			</tr>
 			<% end %>

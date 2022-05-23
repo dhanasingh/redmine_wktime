@@ -27,7 +27,7 @@
 		<label><%= l(:field_status) %></label>&nbsp;
 		<%= select_tag('lveStatus', options_for_select(statusList.invert, session[controller_name].try(:[], :lveStatus))) %>&nbsp;
 		<fieldset id="date-range" class="collapsible">
-			<legend onclick="toggleFieldset(this);" class="icon icon-expended"><%= l(:label_date_range) %></legend>
+			<legend onclick="toggleFieldset(this);" class="icon icon-expanded"><%= l(:label_date_range) %></legend>
 			<div>
 				<%= radio_button_tag 'period_type', '1', !@free_period, :onclick => '$("#from,#to").attr("disabled", true); $("#period").removeAttr("disabled");' %>
 				<%= select_tag 'period', options_for_period_select(period),

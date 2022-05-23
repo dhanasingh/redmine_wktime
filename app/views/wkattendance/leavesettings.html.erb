@@ -90,7 +90,7 @@
 				<td><%= text_field_tag 'leave_accrual_after','', :size => 2.5, :maxlength => 6 %>&nbsp<%= l(:label_year) %></td>
 			</tr>
 			<tr>
-				<th align="left"><label><%= l(:button_reset) %> <%= l(:label_month) %></label></th>
+				<th align="left"><label><%= l(:label_reset_month) %></label></th>
 				<td><%=h select_tag('wk_attn_leave_reset_month', options_for_select(l('date.month_names').collect.with_index.to_a)) %></td>
 			</tr>
 			<tr>

@@ -13,7 +13,7 @@
 		</div>
 		<table>
 			<tr>
-				<th><label for='name' style="float:left;"><%= l(:label_opportunity) + " " + l(:field_name) %></label></th>
+				<th><label for='name' style="float:left;"><%= l(:label_opportunity_name) %></label></th>
 				<td><%= text_field_tag 'oppname', accname.blank? ? "" : accname, :size => 30, :style=> "float: left;" %></td>
 				<th><label style="float:left;padding-left: 10px;"><%= l(:label_account_name) %></label></th>
 				<td><%=h select_tag('account_id', options_for_select(accArr,  :selected => accId.nil? ? accArr : accId), :style=> "float: left;") %></td>

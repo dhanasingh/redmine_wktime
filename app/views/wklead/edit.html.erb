@@ -1,4 +1,3 @@
-<%= javascript_include_tag 'edit', :plugin => "redmine_wktime" %>
 <%= form_tag({:action => 'update'}, :method => :post, :id => 'query_form') do %>
 	<h2><b><%=@lead.blank? ? l(:label_new_item, controller.edit_label) : l(:label_edit_item, controller.edit_label) %></b></h2>
 	<% label = controller.is_referral ? l(:label_hire) : l(:button_convert_lead)%>

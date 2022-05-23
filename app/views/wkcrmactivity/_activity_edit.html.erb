@@ -36,7 +36,7 @@
 
 <div>
 	<fieldset class="box tabular">
-		<legend><%= l(:field_activity) + " " + l(:label_information) %></legend>
+		<legend><%= l(:label_activity_information) %></legend>
 		<%=h hidden_field_tag('controller_from', params[:controller_from] ) %>
 		<%=h hidden_field_tag('action_from', params[:action_from] ) %>
 		<%=h hidden_field_tag('crm_activity_id', (!@activityEntry.blank? ? @activityEntry[0].id : "") ) %>

@@ -2,7 +2,7 @@
 <%= form_tag({:controller => 'wkattendance', :action => 'saveClockInOut'}, :method => :post, :id => 'save_ClockInOut') do %>
 	<%= hidden_field_tag :page, params[:page]%>
 	<% isDisable = !(params[:user_id].to_i != User.current.id &&  validateERPPermission('A_ATTEND')) %>
-	<h2><%= l(:label_clock) + " " + l(:field_summary) %></h2>
+	<h2><%= l(:label_clock_summary) %></h2>
 	<table>
 		<tr>
 			<th align="left"><%=l(:field_user)%></th>

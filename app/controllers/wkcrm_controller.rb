@@ -261,6 +261,6 @@ class WkcrmController < WkbaseController
 	end
 
 	def get_activity_label
-		l(:field_activity)
+		l(:label_new_activity)
 	end
 end

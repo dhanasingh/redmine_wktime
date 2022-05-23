@@ -1,13 +1,13 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
-<script type="text/javascript"> 
+<script type="text/javascript">
 	actRelatedUrl="<%= "#{url_for(:controller => "wkcrm", :action => 'getActRelatedIds', :additionalContactType => controller.additionalContactType, :additionalAccountType => controller.additionalAccountType)}" %>";
 </script>
 <% wkexpense_helper = Object.new.extend(WkexpenseHelper) %>
 <%	accArr = options_for_wktime_account(false, 'A', controller.additionalAccountType)
 	if !@oppEditEntry.blank?
-		accArr = relatedValues(@oppEditEntry[0].parent_type, @oppEditEntry[0].parent_id, 'A', false, controller.additionalContactType, controller.additionalAccountType)	
+		accArr = relatedValues(@oppEditEntry[0].parent_type, @oppEditEntry[0].parent_id, 'A', false, controller.additionalContactType, controller.additionalAccountType)
     elsif !params[:parentType].blank?
-		accArr = relatedValues(params[:parentType], params[:parentId], 'A', false, controller.additionalContactType, controller.additionalAccountType)		
+		accArr = relatedValues(params[:parentType], params[:parentId], 'A', false, controller.additionalContactType, controller.additionalAccountType)
 	end
 	relHash = relatedHash
 	relHash.delete("WkOpportunity")
@@ -20,8 +20,8 @@
 	<table >
 		<tr>
 			<th align="left"><%= l(:label_opportunity_name)  %><span style="color:red;">*</span></th>
-			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_name", (!@oppEditEntry.blank? ? @oppEditEntry[0].name : ""), :style => "width:190px;") %></td>			
-			
+			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_name", (!@oppEditEntry.blank? ? @oppEditEntry[0].name : ""), :style => "width:190px;") %></td>
+
 			<th align="left" style="padding-left:240px;"><%= l(:label_expected_date_to_close_project) %></th>
 			<td align="left" style="padding-left:40px;"><%= date_field_tag('expected_close_date',   Date.today, {:id => 'expected_close_date', :size => 12, :style => "width:160px;"}) + calendar_for('expected_close_date') %></td>
 		</tr>
@@ -30,54 +30,54 @@
 		<tr>
 			<th align="left"><%= l(:label_txn_sales_stage) %></th>
 			<td align="left" style="padding-left:40px;"><%=h select_tag('sales_stage', options_for_select(options_for_enum_select('SS', selectedSSId, true))) %></td>
-			
+
 			<th align="left" style="padding-left:240px;"><%= l(:field_type) %></th>
 			<td align="left" style="padding-left:40px;"><%=h select_tag('opp_type', options_for_select(options_for_enum_select('OT', selectedOTId, true))) %></td>
 		</tr>
-		
+
 		<tr>
 			<th align="left"><%= l(:label_opportunity_amount) %></th>
 			<td align="left" style="padding-left:40px;">
 			<%=h select_tag("currency",options_for_select(wkexpense_helper.options_for_currency, :selected => (!@oppEditEntry.blank? ? @oppEditEntry[0].currency : "") )) %>
 			<%=h text_field_tag("opp_amount", (!@oppEditEntry.blank? && !@oppEditEntry[0].amount.blank? ? @oppEditEntry[0].amount : ""), :style => "width:190px;") %></td>
-			
+
 			<th align="left" style="padding-left:240px;"><%= l(:label_probability) + " (%)" %> </th>
 			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_probability", (!@oppEditEntry.blank? && !@oppEditEntry[0].probability.blank? ? @oppEditEntry[0].probability : ""), :style => "width:190px;") %></td>
 		</tr>
-		
+
 		<tr>
-			<th align="left"><%= l(:label_next) + " " + l(:label_step) %></th>
+			<th align="left"><%= l(:label_next_step) %></th>
 			<td align="left" style="padding-left:40px;"><%=h text_field_tag("opp_next_step", (!@oppEditEntry.blank? && !@oppEditEntry[0].next_step.blank? ? @oppEditEntry[0].next_step : ""), :style => "width:190px;") %></td>
-			
+
 			<th align="left" style="padding-left:240px;"><%= l(:field_assigned_to) %></th>
 			<td align="left" style="padding-left:40px;"><%=h select_tag('assigned_user_id', options_for_select(groupOfUsers, :selected => (!@oppEditEntry.blank? && !@oppEditEntry[0].assigned_user_id.blank? ? @oppEditEntry[0].assigned_user_id : "")),:required => true) %></td>
 		</tr>
-		
+
 		<tr>
 			<th align="left" ><%= l(:label_relates_to) %></th>
 			<td align="left" style="padding-left:40px;"><%=h select_tag("related_to", options_for_select(relHash.invert, :selected => (!@oppEditEntry.blank? ? @oppEditEntry[0].parent_type : (params[:parentType].blank? ? "" : params[:parentType]))), :onchange => "actRelatedDd(#{User.current.id}, false, false, 'A', 'C', false)", :style => "width:200px;") %>
-			
-			<%=h select_tag("related_parent", options_for_select(accArr, :selected => (!@oppEditEntry.blank? ? @oppEditEntry[0].parent_id : (params[:parentId].blank? ? "" : params[:parentId]))), :style => "width:200px;") %></td> 
+
+			<%=h select_tag("related_parent", options_for_select(accArr, :selected => (!@oppEditEntry.blank? ? @oppEditEntry[0].parent_id : (params[:parentId].blank? ? "" : params[:parentId]))), :style => "width:200px;") %></td>
 			<%  selectedLsId = (!@oppEditEntry.blank? && !@oppEditEntry[0].lead_source_id.blank? ? @oppEditEntry[0].lead_source_id : nil) %>
 			<th align="left" style="padding-left:240px;"><%= l(:label_lead_source) %></th>
 			<td align="left" style="padding-left:40px;"><%=h select_tag('lead_source_id', options_for_select(options_for_enum_select('LS', selectedLsId, true)),:required => true) %></td>
-			
+
 		</tr>
-		
+
 		<tr>
 		<th align="left" ><%= l(:field_description) %></th>
-		<td colspan="4" align="left" style="padding-left:40px;"><%= text_area_tag 'opp_description', (!@oppEditEntry.blank? && !@oppEditEntry[0].description.blank? ? @oppEditEntry[0].description : ""), :maxlength => 255, :style => "width:605px" %></td>		
-		
+		<td colspan="4" align="left" style="padding-left:40px;"><%= text_area_tag 'opp_description', (!@oppEditEntry.blank? && !@oppEditEntry[0].description.blank? ? @oppEditEntry[0].description : ""), :maxlength => 255, :style => "width:605px" %></td>
+
 		</tr>
-		
-		
+
+
 	</table>
 </fieldset>
 
 <div>
 	<%= submit_tag l(:button_save) ,:id => 'wkopportunity_save'%>
 </div>
-	
+
 <% end %>
 <% unless @oppEditEntry.blank? %>
 	</br>

@@ -2,12 +2,12 @@
 	not_valid_errormsg = "<%=l(:error_not_valid) %>";
 	enter_clk_in_errormsg = "<%=l(:error_enter_clk_in) %>";
 	greater_then_errormsg = "<%=l(:error_greater_then) %>";
+	const current_user_id = "<%= User.current.id %>";
 </script>
 <% show_on_map = session[controller_name].try(:[], :show_on_map) %>
 
 <%= form_tag({}, id: "clockList") do -%>
 	<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
-	<%= hidden_field_tag 'current_user_id', User.current.id %>
 	<div class="autoscroll">
 
 		<table class="list time-entries" style="width:<%= !show_on_map ? "100%" : "35%" %>; float:left;">
