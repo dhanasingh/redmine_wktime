@@ -925,7 +925,11 @@ class WkorderentityController < WkbillingController
 	end
 
 	def checkQty()
-		invItems = WkInventoryItem.where(:id => params[:inventory_itemID].to_i).pluck(:available_quantity) if params[:inventory_itemID].present?
-		render json: invItems || []
+		invItems = WkInventoryItem.where(:id => params[:inventory_itemID]) if params[:inventory_itemID].present?
+		invHash = {}
+		invItems.each do |item|
+			invHash[item.id] = {item: item, name: item.product_item.product.name}
+		end
+		render json: invHash
 	end
 end

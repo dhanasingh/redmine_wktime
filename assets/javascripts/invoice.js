@@ -1022,36 +1022,41 @@ function fillInvFields(row){
 }
 
 function saveEntity(){
-	var ret = true;
+	var ret = false;
 	var invoice_item_id = '';
 	var qty = {};
 	$("#invoiceTable [id^='quantity_']").each(function(){
 		let row = parseInt((this.name).split('_').pop());
 		if(['m'].includes($("#invoiceTable #item_type_"+row).val())){
 			invoice_item_id = $("#invoice_item_id_"+row).val();
-			var inv_id = invoice_item_id && invoice_item_id.split(',').pop()
+			var inv_id = invoice_item_id && invoice_item_id.split(',').pop().trim()
 			qty[inv_id] = qty[inv_id] || 0
 			qty[inv_id] += parseFloat($("#quantity_"+row).val()) || 0;
 		}
 	});
-	$.each(qty, function(key, val){
-		url = "/wkorderentity/checkQty";
-		data = {inventory_itemID: key }
-		$.ajax({
-			url: url,
-			data: data,
-			async: false,
-			success: function(resData){
-				if(resData[0] < val){
-					var confirmMsg = confirm('Quantity is higher than avilable quantity')
-					if(confirmMsg){ret = true;}
-					else{ret = false;}
+	keys = Object.keys(qty)
+	url = "/wkorderentity/checkQty";
+	data = {inventory_itemID: keys }
+	$.ajax({
+		url: url,
+		data: data,
+		async: false,
+		success: function(resData){
+			var errMsg = [];
+			$.each(qty, function(key, val){
+				if(resData[parseInt(key)]['item']['available_quantity'] < val){
+					errMsg.push(resData[parseInt(key)]['name']);
 				}
-			},
-			beforeSend: function(){ $(this).addClass("ajax-loading"); },
-			complete: function(){ $(this).removeClass("ajax-loading"); }
-		});
-	})
+			});
+			if(errMsg.length > 0){
+				var confirmMsg = confirm(errMsg+' Quantity is higher than avilable quantity')
+				if(confirmMsg){ret = true;}
+				else{ret = false;}
+			}
+		},
+		beforeSend: function(){ $(this).addClass("ajax-loading"); },
+		complete: function(){ $(this).removeClass("ajax-loading"); }
+	});
 	return ret;
 }
 

@@ -1252,3 +1252,5 @@ de:
   label_next_step: Next Step
   label_delete_payroll: Delete Payroll
   label_invoice_details: Invoice Details
+  label_items: Item
+  label_hide_amount_in_words: Hide amount in words

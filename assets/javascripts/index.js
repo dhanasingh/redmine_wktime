@@ -1171,7 +1171,6 @@ function populateSerialNos(serial_number, running_sn, total_quantity){
 }
 
 function getSerialNumbersRange(serial_number, running_sn, total_quantity){
-	console.log("innnnnnnnnnn")
 	let serialNumbers = [];
 	let org_sn_length = running_sn.length;
 	for(i = 0; i < Number(total_quantity); i++){
