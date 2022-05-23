@@ -140,16 +140,18 @@ class WkproductitemController < WkinventoryController
 		@inventoryItem = nil
 		@parentEntry = nil
 		@newItem = to_boolean(params[:newItem])
-	    unless params[:product_item_id].blank?
+	  if params[:product_item_id].present?
 		   @productItem = WkProductItem.find(params[:product_item_id])
 		end
-		unless params[:inventory_item_id].blank?
+		if params[:inventory_item_id].present?
 		   @inventoryItem = WkInventoryItem.find(params[:inventory_item_id])
+		   @productItem = WkProductItem.find(@inventoryItem.product_item_id) if params[:product_item_id].blank?
 			 @lastDepr = WkAssetDepreciation.lastDepr(params[:inventory_item_id]).first
 		end
 		unless params[:parentId].blank?
 			@parentEntry = WkInventoryItem.find(params[:parentId])
 		end
+		@assembledComponent = WkInventoryItem.get_assembled_component(@inventoryItem&.id) if @inventoryItem.present?
 	end
 
 	def transfer
@@ -486,5 +488,10 @@ class WkproductitemController < WkinventoryController
 
 	def editcomponentLbl
 		l(:label_edit_component)
+	end
+
+	def getItemDetails
+		item = WkInventoryItem.find(params[:id])
+		render json: {item: item}
 	end
 end

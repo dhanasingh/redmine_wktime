@@ -1,7 +1,5 @@
 <%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
 <%= javascript_include_tag 'index', plugin: "redmine_wktime" %>
-<%= javascript_include_tag 'select2.min', plugin: "redmine_wktime" %>
-<%= stylesheet_link_tag 'select2.min', plugin: "redmine_wktime" %>
 
 <div id="accordion">
   <label><%= l(:label_components) %></label>
@@ -40,10 +38,3 @@
     </table>
   </div>
 </div>
-<script>
-  $( "#accordion" ).accordion({
-    icons: { "header": "ui-icon-circle-triangle-e", "activeHeader": "ui-icon-circle-triangle-s" },
-		collapsible: true,
-		heightStyle: "content"
-  });
-</script>

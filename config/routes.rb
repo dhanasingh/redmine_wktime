@@ -795,3 +795,5 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wkshipment/checkQuantityAndSave', to: 'wkshipment#checkQuantityAndSave'
 
 	get 'wkproductitem/assemble_item', :to => 'wkproductitem#assemble_item'
+
+	get 'wkproductitem/getItemDetails', :to => 'wkproductitem#getItemDetails'

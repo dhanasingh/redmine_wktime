@@ -147,21 +147,28 @@ $(document).ready(function() {
 		showHidePartNumber();
 	});
 
-	// $("#assembleItemTable #inventory_item_id").select2();
+	//accordion section
+	$( "#accordion" ).accordion({
+		icons: { "header": "ui-icon-circle-triangle-e", "activeHeader": "ui-icon-circle-triangle-s" },
+		collapsible: true,
+		heightStyle: "content"
+	});
+
+	// for searchable dopdown
+	if($("#referred_by").length > 0) $("#referred_by").select2();
+
 	$("#assembleItem" ).dialog({
 		modal: true,
 		autoOpen: false,
 		title: 'Assemble New Item',
 		width: "50%",
-		height: 350,
+		height: 370,
 		buttons: {
 			"Ok": function() {
-				var rowlength = $('#assembleItemTable >tbody >tr').length;
-				var item_id = $('#product_item').val();
-				var quantity = $("#quantity").val();
-				let tr = '';
-				let sn = [];
-				let index_no = (rowlength+1);
+				let rowlength = $('#assembleItemTable >tbody >tr').length;
+				let item_id = $('#product_item').val();
+				let quantity = $("#quantity").val();
+				let tr = '', sn = [], index_no = (rowlength+1);
 				if($('#serial_no').val()){
 					($('#serial_no').val().split(',')).map(function(number){ sn.push({id:'', serial_number: number})});
 				}
@@ -189,7 +196,48 @@ $(document).ready(function() {
 			}
 		}
 	});
+
+	$('#material_sn').change(function(){
+		let sn =[];
+		let product_serial_numbers = $('#product_serial_numbers').val();
+		if($(this).val() != '' && (JSON.parse(product_serial_numbers).length) > 0){
+			let material_sn = $(this).val().split(',');
+			// show hide serialnumber note
+			showHideSnNote($(this).val());
+
+			let hidden_sn = $('#hidden_sns').val();
+			let hidden_sn_arr = JSON.parse(hidden_sn);
+			let sns =[];
+			hidden_sn_arr.map(function (ele, i) { if(!ele['is_delete']) sns.push(ele['serial_number']) });
+			let removed_sns = sns.filter(x => !material_sn.includes(x));
+			if(removed_sns.length > 0){
+				hidden_sn_arr.map(function (ele, i) { if(removed_sns.includes(ele['serial_number'])) ele['is_delete'] = true; });
+			}
+			let added_sns = material_sn.filter(x => !sns.includes(x));
+			if(added_sns.length > 0){
+				added_sns.map(function (number) { hidden_sn_arr.push({id: '', serial_number: number})});
+			}
+			$('#hidden_sns').val(JSON.stringify(hidden_sn_arr));
+		}
+	});
+
+	$('.itemSN').change(function(){
+		showHideSnNote($(this).val());
+	});
 });
+
+function showHideSnNote(consumed_sn){
+	let sn =[];
+	let product_serial_numbers = $('#product_serial_numbers').val();
+	if(consumed_sn != '' && (JSON.parse(product_serial_numbers).length) > 0){
+		let serial_number = consumed_sn.split(',');
+		serial_number.map(function(number){
+			if(!(JSON.parse(product_serial_numbers)).includes(number.trim())) sn.push(number) ;
+		});
+		sn.length > 0 ? $("#warn_serial_number").show() : $("#warn_serial_number").hide();
+	}
+	else $("#warn_serial_number").hide();
+}
 
 function openReportPopup(){
 	var popupUrl, periodType;
@@ -1291,12 +1339,33 @@ function getAssembleItem(){
 	$("#quantity").val('');
 	$("#serial_no").val('');
 	$("#product_item").val('');
+	$("#avail_quantity").html('');
 	$("#assembleItem").dialog("open");
 }
 
 function deleteItemRow(index){
-	var isDelete = confirm("Are you sure want to delete");
-		if (isDelete == true) {
+	let isDelete = confirm("Are you sure want to delete");
+		if (isDelete) {
 			$("#assembleItemTable tr:eq("+index+")").remove();
 		}
+}
+
+function itemChanged(id)
+{
+	$.ajax({
+	url: productItemUrl,
+	type: 'get',
+	data: {id: id },
+	success: function(data){
+		let item = data.item;
+		let product_serial_numbers = [];
+		if(item.running_sn) product_serial_numbers = getSerialNumbersRange(item.serial_number, item.running_sn, item.total_quantity);
+		$('#product_serial_numbers').val(JSON.stringify(product_serial_numbers));
+		$('#avail_quantity').html(item.available_quantity);
+		$('#serial_no').val('');
+		$('#warn_serial_number').hide();
+	},
+	beforeSend: function(){ $(this).addClass('ajax-loading'); },
+	complete: function(){ $(this).removeClass('ajax-loading'); }
+	});
 }

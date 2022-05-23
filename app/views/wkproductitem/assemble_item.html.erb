@@ -2,6 +2,7 @@
 <%= javascript_include_tag 'index', plugin: "redmine_wktime" %>
 <script type="text/javascript">
 	productModifyUrl="<%= "#{url_for(controller: "wklogmaterial", action: 'modifyProductDD')}" %>";
+	productItemUrl="<%= "#{url_for(controller: "wkproductitem", action: 'getItemDetails')}" %>";
 </script>
 <h2><b><%= l(:label_assemble_item) %></b></h2>
 <%= form_tag({controller: controller_name, action: 'update'}, method: :post, id: 'query_form') do %>
@@ -30,9 +31,11 @@
     locationId = locationArr[0][1] || nil
     productId = productArr[0][1] || nil
     itemArr = getPdtItemArr(productId, false, 'I', locationId)
+    productSNs = getProductSNs(itemArr[0][1]) if itemArr.present?
 %>
 <div id="assembleItem">
   <div class="box tabular" style="width: 100%;">
+    <%= hidden_field_tag 'product_serial_numbers', productSNs.to_json || [] %>
     <table style="width: 100%;">
       <tr>
         <th><%= l(:label_location) %></th>
@@ -44,23 +47,18 @@
       </tr>
       <tr>
         <th><%= l(:label_item) %></th>
-        <td><%= select_tag('product_item', options_for_select(itemArr), style: "width:200px;") %></td>
+        <td><%= select_tag('product_item', options_for_select(itemArr), onchange: "itemChanged(this.value);", style: "width:200px;") %></td>
       </tr>
       <tr>
         <th><%= l(:field_quantity) %></th>
-        <td><%= text_field_tag('quantity')%></td>
+        <td><%= text_field_tag('quantity')%> <%= l(:label_available_quantity)%>: <span id="avail_quantity"></span> </td>
       </tr>
       <tr>
         <th><%= l(:label_serial_number) %></th>
-        <td><%= text_area_tag('serial_no')%><div><%= l(:label_serial_number_note) %></div></td>
+        <td><%= text_area_tag('serial_no','', class: 'itemSN')%><div><%= l(:label_serial_number_note) %></div>
+        <span class="icon icon-warning warning" id="warn_serial_number" style="background-color: unset; border: 0;display:none;"><%= l(:warn_sn_range) %></span></td>
+        </td>
       </tr>
     </table>
   </div>
 </div>
-<script>
-  $( "#accordion" ).accordion({
-    icons: { "header": "ui-icon-circle-triangle-e", "activeHeader": "ui-icon-circle-triangle-s" },
-		collapsible: true,
-		heightStyle: "content"
-  });
-</script>

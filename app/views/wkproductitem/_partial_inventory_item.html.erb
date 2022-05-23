@@ -45,7 +45,7 @@ th{
 <tr>
 	<th><%= l(itemType == "I" && invntItem.present? ? :label_available_quantity : :field_quantity) %></th>
 	<td  style="padding-left:40px;" id="productItem">
-		<%= text_field_tag "available_quantity", (invntItem.present? ? "%.2f" % invntItem.available_quantity : (params[:isAssemble] ? 1 : '')), disabled: isDisable && !isTransfer || params[:isAssemble], maxlength: 14 %>&nbsp;&nbsp;
+		<%= params[:isAssemble] || @assembledComponent.present? ? '1' : (text_field_tag "available_quantity", ("%.2f" % invntItem.available_quantity unless invntItem.blank?), :disabled => isDisable && !isTransfer, :maxlength => 14) %>&nbsp;&nbsp;
     <%= link_to l(itemType == "I" ? :label_consumed_items : :label_used_items), "javascript:showQuantityDetails();" if invntItem.present? && !isTransfer %>
 	</td>
 </tr>

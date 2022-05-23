@@ -51,8 +51,7 @@
 		<% if controller.showAssetProperties %>
 			<%= render partial: "wkcrm/accordion_section", locals: { currentObj: @inventoryItem }%>
 		<%else%>
-			<% component = WkInventoryItem.get_assembled_component(@inventoryItem&.id) %>
-			<%= render partial: "child_component", locals: { component: component} if component.present? %>
+			<%= render partial: "child_component", locals: { component: @assembledComponent} if @assembledComponent.present? %>
 		<%end%>
 		</div>
 <% end %>
