@@ -1022,7 +1022,7 @@ function fillInvFields(row){
 }
 
 function saveEntity(){
-	var ret = false;
+	var ret = true;
 	var invoice_item_id = '';
 	var qty = {};
 	$("#invoiceTable [id^='quantity_']").each(function(){
