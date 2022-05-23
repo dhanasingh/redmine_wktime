@@ -50,6 +50,9 @@
 </table>
 
 </div>
+<div class="wk-contextual">
+	<%= link_to l(:button_add_row), "#", { onclick: "javascript:invoiceAddRow('deliveryTable', 'totalrow');",  class: 'icon icon-add' } if params[:delivery_id].blank? %>
+</div style="clear:both">
 <%= hidden_field_tag("totalrow",  row_index-1 )  %>
 <%= hidden_field_tag("delivery_id",  @shipment.id )  %>
 <% unless @deliveryItem.blank?  %>

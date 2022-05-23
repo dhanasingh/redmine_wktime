@@ -443,6 +443,12 @@
 		</table>
 	<% end %>
 </div>
+<div class="wk-contextual">
+	<% if !@preBilling && !isDisable %>
+	<%= link_to l(:button_add_row), "#", { :onclick => "javascript:invoiceAddRow('invoiceTable', 'totalrow');",  :class => 'icon icon-add' } %>
+	<% end %>
+</div>
+<div style="clear:both"></div>
 <%=h hidden_field_tag("totalrow",  row_index-1 )  %>
 <%=h hidden_field_tag("taxrow",  tax_index-1 )  %>
 <%=h hidden_field_tag("invoice_id",  params[:loadUnBilled].present? ? params[:invoice_id] : @invoice.id )  %>
