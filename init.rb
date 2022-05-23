@@ -585,7 +585,7 @@ Redmine::Plugin.register :redmine_wktime do
   name 'ERPmine'
   author 'Adhi Software Pvt Ltd'
   description 'ERPmine is an ERP for Service Industries. It has the following modules: Time & Expense, Attendance, Payroll, CRM, Billing, Accounting, Purchasing, Inventory, Asset , Reports, Dashboards and Survey'
-  version '4.5.2'
+  version '4.6'
   url 'https://www.redmine.org/plugins/wk-time'
   author_url 'http://www.adhisoftware.co.in/'
 
@@ -684,20 +684,20 @@ Redmine::Plugin.register :redmine_wktime do
 	end
 
 	project_module :Accounts do
-		permission :view_accounts, {:wkaccountproject => [:index]}, :public => true
+		permission :view_accounts, {:wkaccountproject => [:index]}, :public => false
 	end
 
 	menu :project_menu, :wkaccountproject, { controller: :wkaccountproject, action: :index },
 	  caption: :label_accounts, param: :project_id, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showCRMModule }
 
 	project_module :Survey do
-		permission :view_survey, {:wksurvey => [:index]}, :public => true
+		permission :view_survey, {:wksurvey => [:index]}, :public => false
 	end
 
 	menu :project_menu, :wksurvey, { :controller => 'wksurvey', :action => 'index' }, :caption => :label_survey, param: :project_id, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showSurvey }
 
 	project_module :Skills do
-		permission :view_skill, {:wkskill => [:index]}, :public => true
+		permission :view_skill, {:wkskill => [:index]}, :public => false
 	end
 
 	menu :project_menu, :wkskill, {:controller => 'wkskill', :action => 'index' }, :caption => :label_wk_skill, :param => :project_id, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission && Object.new.extend(WktimeHelper).showSkill }

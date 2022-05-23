@@ -1,6 +1,6 @@
 <h2><%= @skills.blank? ? l(:label_new_skill) : l(:label_edit_skill) %></h2>
 <%
-	isProjSkill = params[:project_id].present?
+	isProjSkill = @skills&.source_type == "Project"
 	users = User.where(type: "User", status: 1) unless isProjSkill
 	userName = @skills&.user.present? ? @skills&.user&.name : User.current.name
 	user_id = @skills&.user_id || User.current.id
@@ -14,8 +14,8 @@ th{
 
 <%= form_with model: @skills, method: "post", url: {action: "save", project_id: params[:project_id]} do |f| %>
 	<%= f.hidden_field :id  %>
-	<%= f.hidden_field :source_id, value: isProjSkill ? get_project_id : user_id, id: "source_id" %>
-	<%= f.hidden_field :source_type, value: isProjSkill ? "Project" : "User" %>
+	<%= f.hidden_field :source_id, value: @skills&.source_id || isProjSkill ? get_project_id : user_id, id: "source_id" %>
+	<%= f.hidden_field :source_type, value: @skills&.source_type || isProjSkill ? "Project" : "User" %>
 	<fieldset class="box tabular">
 		<table>
 			<tr>
@@ -29,7 +29,7 @@ th{
 						<% end %>
 					</td>
 				<% else %>
-					<th><%= l(:label_project_name) %></th><th><%= params[:project_id] %></th>
+					<th><%= l(:label_project_name) %></th><th><%= @skills&.source&.name %></th>
 					<%= f.hidden_field :user_id, value: user_id %>
 				<% end %>
 			<tr>

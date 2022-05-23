@@ -2,8 +2,8 @@
 <%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
 
 <script type="text/javascript">
-    blgtxnUrl = '<%=url_for(controller: "wkgltransaction", action: "index", tab: "wkgltransaction")%>';
-    blgledgerUrl = '<%=url_for(controller: "wkledger", action: "index", tab: "wkledger")%>';
+    blgtxnUrl = '<%=url_for(controller: "wkgltransaction", tab: "wkgltransaction")%>';
+    blgledgerUrl = '<%=url_for(controller: "wkledger", tab: "wkledger")%>';
     prevTab = 'tab-<%= "#{controller_name}" %>';
 </script>
 

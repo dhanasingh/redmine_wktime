@@ -128,8 +128,6 @@ include ActionView::Helpers::TagHelper
 
 	def edit
 		to = getEndDay(@startday)
-		@holidayEntries = WkPublicHoliday.publicHolidayDetails(@startday, to, params[:user_id])
-		@holidayDate = @holidayEntries.pluck(:holiday_date)
 		@prev_template = false
 		@new_custom_field_values = getNewCustomField
 		setup
@@ -1420,6 +1418,45 @@ include ActionView::Helpers::TagHelper
 			render_403
 			return false
 		end
+	end
+
+	def get_approved_leaves
+		weeklyentries = {}
+		(WkLeaveReq.getApprovedLeaves(@user.id, @startday)).each do |leave|
+			issue_id = leave.leave_type_id
+			(leave.start_date.to_date..leave.end_date.to_date).each do |date|
+				key = update_entry_key(issue_id.to_s+"_"+1.to_s, weeklyentries, date-@startday)
+				entry = TimeEntry.new(project_id: leave&.leave_type&.project_id, issue_id: issue_id, spent_on: date, hours: getLeaveAccural(issue_id), comments: leave.leave_reasons)
+				weeklyentries[key][0][date-@startday] = entry
+			end
+		end
+		weeklyentries.merge(get_holiday)
+	end
+
+	def update_entry_key(key, entries, position)
+		entries[key] ||= []
+		entries[key][0] ||= Array.new(7, nil)
+		if entries[key][0][position].present?
+			keys = key.split("_")
+			key = keys.first+"_"+(keys.last.to_i+1).to_s
+			update_entry_key(key, entries, position)
+		end
+		key
+	end
+
+	def get_holiday
+		issue_id = Setting.plugin_redmine_wktime['wktime_holiday'].to_i
+		issue = Issue.where(id: issue_id).first
+		holidayEntries = {}
+		if issue_id > 0 && issue.present?
+			(WkPublicHoliday.publicHolidayDetails(@startday, @startday+6.days, @user.id)).each do |date_entry|
+				date = date_entry.holiday_date
+				key = update_entry_key(issue_id.to_s+"_"+1.to_s, holidayEntries, date-@startday)
+				entry = TimeEntry.new(project_id: issue&.project_id, issue_id: issue_id, spent_on: date, hours: getLeaveAccural(issue_id), comments: date_entry.description)
+				holidayEntries[key][0][date-@startday] = entry
+			end
+		end
+		holidayEntries
 	end
 
 private

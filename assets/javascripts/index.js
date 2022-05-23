@@ -1186,7 +1186,7 @@ function getSerialNumbersRange(serial_number, running_sn, total_quantity){
 
 function exportReport(format){
 	$('#query_form').append('<input type="hidden" name="format" value='+format+' /> ');
-	$('#query_form').attr('action', 'export').submit();
+	$('#query_form').submit();
 }
 
 function locationChanged(locationId, uid){

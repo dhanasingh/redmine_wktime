@@ -53,11 +53,11 @@
 						<% end %>
 						<td class="lbl-txt-align">
 							<%= link_to image_tag("edit.png"),
-								{controller: "wkcrmactivity", action: "edit", activity_id: entry.id, tab: "wkcrmactivity", controller_from: controller_name, action_from: action_name },
+								{controller: "wkcrmactivity", action: "edit", activity_id: entry.id, tab: "wkcrmactivity", controller_from: controller_name, action_from: action_name, id: entry.id},
 								title: l(:button_edit) if !controller.is_referral || controller.deletePermission %>
 							<% if controller.deletePermission %>
 								<%= link_to image_tag("delete.png"),
-									{controller: "wkcrmactivity", action: "destroy", activity_id: entry.id, tab: "wkcrmactivity", controller_from: controller_name, action_from: action_name},
+									{controller: "wkcrmactivity", action: "destroy", activity_id: entry.id, tab: "wkcrmactivity", controller_from: controller_name, action_from: action_name, id: entry.id},
 									data: {confirm: l(:text_are_you_sure)}, method: :delete, title: l(:button_delete) %>
 							<% end %>
 						</td>

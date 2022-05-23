@@ -70,7 +70,7 @@ class WkskillController < WkbaseController
   end
 
   def edit
-    @skills = WkSkill.new
+    @skills = WkSkill.new(params[:project_id].present? ? {source_type: "Project", source_id: get_project_id} : {})
     getUsersAndGroups
     if params[:id].present?
       @skills = WkSkill.where("id =?", params[:id]).first
@@ -82,10 +82,10 @@ class WkskillController < WkbaseController
     skill.assign_attributes(skill_params(params[:wk_skill]))
     if skill.save
       flash[:notice] = l(:notice_successful_update)
-      redirect_to action: "index", tab: "wkskill"
+      redirect_to action: "index", tab: "wkskill", project_id: params[:project_id]
     else
       flash[:error] = skill.errors.full_messages.join("<br>")
-      redirect_to action: "edit", tab: "wkskill"
+      redirect_to action: "edit", tab: "wkskill", project_id: params[:project_id]
     end
   end
 
@@ -94,10 +94,10 @@ class WkskillController < WkbaseController
     sParams.permit(:id, :user_id, :skill_set_id, :rating, :last_used, :experience, :source_id, :source_type, :interest_level)
   end
 
-  def delete
+  def destroy
     WkSkill.find(params[:id].to_i).destroy
     flash[:notice] = l(:notice_successful_delete)
-    redirect_back_or_default :action => "index", :tab => params[:tab]
+    redirect_back_or_default action: "index", tab: params[:tab], project_id: params[:project_id]
   end
 
 	def set_filter_session

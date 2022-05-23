@@ -295,7 +295,7 @@ class WksurveyController < WkbaseController
             questionID = sel_ids[3]
             questionTypeName = "question_type_" + questionID
             questionType = params[questionTypeName]
-            survey_choice_id = (["RB","CB"].include? questionType) ? choice_nameVal.last : nil
+            survey_choice_id = (["RB","CB"].include? questionType) && choice_nameVal.last.to_i > 0 ? choice_nameVal.last : nil
             choice_text = (["TB","MTB"].include? questionType) ? choice_nameVal.last : nil
             surveyAnswers << {survey_question_id: questionID, survey_choice_id: survey_choice_id, choice_text: choice_text} if to_boolean(params["isReviewerOnly_"+ questionID]) || params[:isReview] == "false"
           end

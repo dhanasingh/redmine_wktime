@@ -24,7 +24,7 @@ end
         <th></th>
     </tr>
     <% @all_surveys.each_with_index do |entry, index| %>
-        <% urlhash = { :survey_id => entry.id, :surveyForType => entry.survey_for_type, :surveyForID => entry.survey_for_id } %>
+        <% urlhash = { :survey_id => entry.id, :surveyForType => entry.survey_for_type, :surveyForID => entry.survey_for_id, id: entry.id} %>
         <% surveyLink = helperObj.get_survey_with_userGroup(entry.id, false) %>
         <tr>
             <td><%=h index+1 %></td>
@@ -51,7 +51,7 @@ end
                     <%= link_to image_tag('edit.png'), url_for(helperObj.get_survey_url(urlhash, params, "edit")),
                         :title => l(:button_edit) %>&emsp;
                     <%= link_to image_tag('delete.png'), url_for(helperObj.get_survey_url(urlhash, params, "destroy")),
-                        :data => {:confirm => l(:text_are_you_sure)}, :title => l(:button_delete) %>
+                        :data => {:confirm => l(:text_are_you_sure)}, method: "delete", :title => l(:button_delete) %>
                 <% end %>
             </td>
         </tr>

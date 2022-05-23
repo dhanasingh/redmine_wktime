@@ -19,6 +19,7 @@ class WkSkill < ActiveRecord::Base
   belongs_to :user
   belongs_to :skill_set, class_name: "WkCrmEnumeration"
   has_many :users_groups, through: :user
+  belongs_to :source, :polymorphic => true
 
   validates_presence_of :skill_set
   validates_numericality_of :rating, :experience

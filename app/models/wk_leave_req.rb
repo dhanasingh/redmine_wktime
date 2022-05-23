@@ -61,6 +61,10 @@ class WkLeaveReq < ActiveRecord::Base
     get_all.where(id: id).first
   }
 
+  scope :dateFilter, ->(from, to){
+    where(" wk_leave_reqs.start_date between ? and ? ", getFromDateTime(from), getToDateTime(to) )
+  }
+
   def startDate
     self ? self.start_date.to_date : nil
   end
@@ -101,10 +105,6 @@ class WkLeaveReq < ActiveRecord::Base
     end
   end
 
-  scope :dateFilter, ->(from, to){
-    where(" wk_leave_reqs.start_date between ? and ? ", getFromDateTime(from), getToDateTime(to) )
-  }
-
 	def self.date_for_user_time_zone(y, m, d)
 		if tz = User.current.time_zone
 		  tz.local y, m, d
@@ -123,5 +123,10 @@ class WkLeaveReq < ActiveRecord::Base
 
   def status
     self.wkstatus.order(status_date: :desc).first&.status
+  end
+
+  def self.getApprovedLeaves(user_id, startdate)
+    WkLeaveReq.joins(:wkstatus).where(user_id: user_id, "wk_statuses.status" => "A",
+      start_date: startdate..(startdate.to_date + 7.days), end_date: startdate..(startdate.to_date + 7.days))
   end
 end

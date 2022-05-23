@@ -1,805 +1,918 @@
-  get 'wktime/index', :to => 'wktime#index'
 
-	get 'wktime/get_issue_loggers', :to => 'wktime#get_issue_loggers'
+# For Dashboard
 
-  get 'wktime/getissues', :to => 'wktime#getissues'
+get 'wkdashboard', :to => 'wkdashboard#index'
 
-  get 'wktime/getactivities', :to => 'wktime#getactivities'
+get 'wkdashboard/graph', :to => 'wkdashboard#graph'
 
-  get 'wktime/getclients', :to => 'wktime#getclients'
+get 'wkdashboard/getGraphs', to: 'wkdashboard#getGraphs'
 
-  get 'wktime/getuserclients', :to => 'wktime#getuserclients'
+get 'wkdashboard/getDetailReport', to: 'wkdashboard#getDetailReport'
 
-  get 'wktime/getuserissues', :to => 'wktime#getuserissues'
+get 'wkdashboard/employee_dashboard', to: 'wkdashboard#employee_dashboard'
 
-  get 'wktime/getusers', :to => 'wktime#getusers'
+# Time
 
-  get 'wktime/getMembersbyGroup', :to => 'wktime#getMembersbyGroup'
+get 'wktime', :to => 'wktime#index'
 
-  get 'wktime/deleterow', :to => 'wktime#deleterow'
+get 'wktime/edit', :to => 'wktime#edit'
 
-  get 'wktime/export', :to => 'wktime#export'
+get 'wktime/:id/edit', :to => 'wktime#edit'
 
-  match 'wktime/edit', :to => 'wktime#edit', :via => [:get, :post]
+post 'wktime/update', :to => 'wktime#update'
 
-  post 'wktime/update', :to => 'wktime#update'
+delete 'wktime/:id', :to => 'wktime#destroy'
 
-  delete 'wktime/destroy', :to => 'wktime#destroy'
+get 'wktime/get_issue_loggers', :to => 'wktime#get_issue_loggers'
 
-  get 'wktime/getStatus', :to => 'wktime#getStatus'
+get 'wktime/getissues', :to => 'wktime#getissues'
 
-  get 'wktime/getTracker', :to => 'wktime#getTracker'
+get 'wktime/getactivities', :to => 'wktime#getactivities'
 
-  delete 'wktime/deleteEntries', :to => 'wktime#deleteEntries'
+get 'wktime/getclients', :to => 'wktime#getclients'
 
-  post 'wktime/sendSubReminderEmail', :to => 'wktime#sendSubReminderEmail'
+get 'wktime/getuserclients', :to => 'wktime#getuserclients'
 
-  post 'wktime/sendApprReminderEmail', :to => 'wktime#sendApprReminderEmail'
+get 'wktime/getuserissues', :to => 'wktime#getuserissues'
 
-  get 'wktime/testapi', :to => 'wktime#testapi'
+get 'wktime/getusers', :to => 'wktime#getusers'
 
-  get 'wktime/getProjects', :to => 'wktime#getProjects'
+get 'wktime/getMembersbyGroup', :to => 'wktime#getMembersbyGroup'
 
-  #get 'wktime/updateAttendance', :to => 'wktime#updateAttendance'
-match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance', :via => [:get]
+get 'wktime/deleterow', :to => 'wktime#deleterow'
 
-  get 'wktime/time_rpt', :to => 'wktime#time_rpt'
+get 'wktime/export', :to => 'wktime#export'
 
-  # For Supervisor feature
-	get 'wktime/getMyReportUsers', :to => 'wktime#getMyReportUsers'
+get 'wktime/getStatus', :to => 'wktime#getStatus'
 
-	get 'wktime/getAPIUsers', to: 'wktime#getAPIUsers'
+get 'wktime/getTracker', :to => 'wktime#getTracker'
 
-  #For Weekly expenses
+delete 'wktime/deleteEntries', :to => 'wktime#deleteEntries'
 
-  get 'wkexpense/index', :to => 'wkexpense#index'
+post 'wktime/sendSubReminderEmail', :to => 'wktime#sendSubReminderEmail'
 
-  get 'wkexpense/new', :to => 'wkexpense#new'
+post 'wktime/sendApprReminderEmail', :to => 'wktime#sendApprReminderEmail'
 
-  get 'wkexpense/getusers', :to => 'wkexpense#getusers'
+get 'wktime/testapi', :to => 'wktime#testapi'
 
-  get 'wkexpense/getMembersbyGroup', :to => 'wkexpense#getMembersbyGroup'
+get 'wktime/getProjects', :to => 'wktime#getProjects'
 
-  match 'wkexpense/edit', :to => 'wkexpense#edit', :via => [:get, :post]
+get 'updateAttendance', :to => 'wktime#updateAttendance'
 
-  delete 'wkexpense/destroy', :to => 'wkexpense#destroy'
+get 'wktime/time_rpt', :to => 'wktime#time_rpt'
 
-  post 'wkexpense/update', :to => 'wkexpense#update'
+get 'wktime/lockte', :to => 'wktime#lockte'
 
-  get 'wkexpense/deleterow', :to => 'wkexpense#deleterow'
+post 'wktime/lockupdate', :to => 'wktime#lockupdate'
 
-  get 'wkexpense/export', :to => 'wkexpense#export'
+# For Time & Expense Supervisor feature
 
-  get 'wkexpense/getissues', :to => 'wkexpense#getissues'
+get 'wktime/getMyReportUsers', :to => 'wktime#getMyReportUsers'
 
-  get 'wkexpense/getactivities', :to => 'wkexpense#getactivities'
+get 'wktime/getAPIUsers', to: 'wktime#getAPIUsers'
 
-  get 'wkexpense/getclients', :to => 'wkexpense#getclients'
+# Expense
 
-  get 'wkexpense/getuserclients', :to => 'wkexpense#getuserclients'
+get 'wkexpense', :to => 'wkexpense#index'
 
-  get 'wkexpense/getuserissues', :to => 'wkexpense#getuserissues'
+get 'wkexpense/edit', :to => 'wkexpense#edit'
 
-  post 'wkexpense/sendSubReminderEmail', :to => 'wkexpense#sendSubReminderEmail'
+get 'wkexpense/:id/edit', :to => 'wkexpense#edit'
 
-  post 'wkexpense/sendApprReminderEmail', :to => 'wkexpense#sendApprReminderEmail'
+post 'wkexpense/update', :to => 'wkexpense#update'
 
-  #For Weekly expense report
+delete 'wkexpense/:id', :to => 'wkexpense#destroy'
 
-  get 'projects/wk_expense_entries/reportdetail' , :to => 'wkexpense#reportdetail'
+get 'wkexpense/new', :to => 'wkexpense#new'
 
-  get 'projects/wk_expense_entries/report' , :to => 'wkexpense#report'
+get 'wkexpense/getusers', :to => 'wkexpense#getusers'
 
-  delete 'wkexpense/deleteEntry', :to => 'wkexpense#deleteEntry'
+get 'wkexpense/getMembersbyGroup', :to => 'wkexpense#getMembersbyGroup'
 
-  delete 'wkexpense/deleteEntries', :to => 'wkexpense#deleteEntries'
+get 'wkexpense/deleterow', :to => 'wkexpense#deleterow'
 
-  get 'wkexpense/time_rpt', :to => 'wkexpense#time_rpt'
+get 'wkexpense/export', :to => 'wkexpense#export'
 
-	get 'wkexpense/getCurrency', :to => 'wkexpense#getCurrency'
+get 'wkexpense/getissues', :to => 'wkexpense#getissues'
 
-  resources :projects do
+get 'wkexpense/getactivities', :to => 'wkexpense#getactivities'
+
+get 'wkexpense/getclients', :to => 'wkexpense#getclients'
+
+get 'wkexpense/getuserclients', :to => 'wkexpense#getuserclients'
+
+get 'wkexpense/getuserissues', :to => 'wkexpense#getuserissues'
+
+post 'wkexpense/sendSubReminderEmail', :to => 'wkexpense#sendSubReminderEmail'
+
+post 'wkexpense/sendApprReminderEmail', :to => 'wkexpense#sendApprReminderEmail'
+
+delete 'wkexpense/deleteEntry', :to => 'wkexpense#deleteEntry'
+
+delete 'wkexpense/deleteEntries', :to => 'wkexpense#deleteEntries'
+
+get 'wkexpense/time_rpt', :to => 'wkexpense#time_rpt'
+
+get 'wkexpense/getCurrency', :to => 'wkexpense#getCurrency'
+
+get 'wkexpense/lockte', :to => 'wkexpense#lockte'
+
+resources :projects do
 	resources :wk_expense_entries, :controller => 'wkexpense' do
 		collection do
 			get 'reportdetail'
 			get 'report'
 		end
 	end
-  end
+end
 
-  #For Attendance
-	resources :wk_attendances, :controller => 'wkimportattendance'  do
-	  collection do
+#For Weekly expense report
+
+get 'projects/wk_expense_entries/reportdetail' , :to => 'wkexpense#reportdetail'
+
+get 'projects/wk_expense_entries/report' , :to => 'wkexpense#report'
+
+#For HR Attendance (Leave & Clock)
+
+resources :wk_attendances, :controller => 'wkimportattendance'  do
+	collection do
 		post 'show'
-	  end
 	end
-  get 'wkattendance/index', :to => 'wkattendance#index'
+end
 
-  post 'wkattendance/index', :to => 'wkattendance#index'
+get 'wkattendance', :to => 'wkattendance#index'
 
-  match 'wkattendance/edit', :to => 'wkattendance#edit', :via => [:get, :post]
+post 'wkattendance', :to => 'wkattendance#index'
 
-  post 'wkattendance/update', :to => 'wkattendance#update'
+get 'wkattendance/edit', :to => 'wkattendance#edit'
 
-  get 'wkattendance/getIssuesByProject', :to => 'wkattendance#getIssuesByProject'
+post 'wkattendance/update', :to => 'wkattendance#update'
 
-  get 'wkattendance/getProjectByIssue', :to => 'wkattendance#getProjectByIssue'
+get 'wkattendance/getIssuesByProject', :to => 'wkattendance#getIssuesByProject'
 
-  get 'wkattendance/clockindex', :to => 'wkattendance#clockindex'
+get 'wkattendance/getProjectByIssue', :to => 'wkattendance#getProjectByIssue'
 
-  post 'wkattendance/clockindex', :to => 'wkattendance#clockindex'
+get 'wkattendance/clockindex', :to => 'wkattendance#clockindex'
 
-  match 'wkattendance/clockedit', :to => 'wkattendance#clockedit', :via => [:get, :post]
+get 'wkattendance/:id/clockedit', :to => 'wkattendance#clockedit'
 
-  get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
+get 'wkattendance/clockedit', :to => 'wkattendance#clockedit'
 
-  get 'wkattendance/getMembersbyGroup', :to => 'wkattendance#getMembersbyGroup'
+get 'wkattendance/getGroupMembers', :to => 'wkattendance#getGroupMembers'
 
-  post 'wkattendance/saveClockInOut', :to => 'wkattendance#saveClockInOut'
+get 'wkattendance/getMembersbyGroup', :to => 'wkattendance#getMembersbyGroup'
 
-  post 'wkattendance/save_bulk_edit', :to => 'wkattendance#save_bulk_edit'
+post 'wkattendance/saveClockInOut', :to => 'wkattendance#saveClockInOut'
 
-  get 'wkattendance/getClockHours', :to => 'wkattendance#getClockHours'
+post 'wkattendance/save_bulk_edit', :to => 'wkattendance#save_bulk_edit'
 
-  #For Report
-  get 'wkreport/index', :to => 'wkreport#index'
+get 'wkattendance/getClockHours', :to => 'wkattendance#getClockHours'
 
-  # get 'wkreport/reportattn', :to => 'wkreport#reportattn'
+get 'wkattendance/leavesettings', to: 'wkattendance#leavesettings'
 
-  get 'wkreport/getGroupMembers', :to => 'wkreport#getGroupMembers'
+post 'wkattendance/leavesettings', to: 'wkattendance#leavesettings'
 
-  get 'wkreport/getMembersbyGroup', :to => 'wkreport#getMembersbyGroup'
+get 'wkattendance/runPeriodEndProcess', :to => 'wkattendance#runPeriodEndProcess'
 
-  get 'wkattendance/runPeriodEndProcess', :to => 'wkattendance#runPeriodEndProcess'
+# For HR Public Holiday
 
-  #For payroll
-  get 'wkpayroll/index', :to => 'wkpayroll#index'
+get 'wkpublicholiday', :to => 'wkpublicholiday#index'
 
-  get 'wkpayroll/edit', :to => 'wkpayroll#edit'
+post 'wkpublicholiday/update', :to => 'wkpublicholiday#update'
 
-  # get 'wkreport/payslip_rpt', :to => 'wkreport#payslip_rpt'
+#For HR Leave Request
 
-  post 'wkpayroll/updateUserSalary', :to => 'wkpayroll#updateUserSalary'
+get 'wkleaverequest', :to => 'wkleaverequest#index'
 
-  get 'wkpayroll/user_salary_settings', :to => 'wkpayroll#user_salary_settings'
+get 'wkleaverequest/:id/edit', :to => 'wkleaverequest#edit'
 
-  get 'wkpayroll/getGroupMembers', :to => 'wkpayroll#getGroupMembers'
+get 'wkleaverequest/edit', :to => 'wkleaverequest#edit'
 
-  get 'wkpayroll/getMembersbyGroup', :to => 'wkpayroll#getMembersbyGroup'
+post 'wkleaverequest/save', :to => 'wkleaverequest#save'
 
-  post 'wkpayroll/generatePayroll', :to => 'wkpayroll#generatePayroll'
+get 'wkleaverequest/getLeaveAvailableHours', :to => 'wkleaverequest#getLeaveAvailableHours'
 
-   # get 'wkreport/payroll_rpt', :to => 'wkreport#payroll_rpt'
+get 'wkleaverequest/getLeaveType', :to => 'wkleaverequest#getLeaveType'
 
-   get 'wkpayroll/usrsettingsindex', :to => 'wkpayroll#usrsettingsindex'
+#For HR payroll
 
-   post 'wkpayroll/usrsettingsindex', :to => 'wkpayroll#usrsettingsindex'
+get 'wkpayroll', :to => 'wkpayroll#index'
 
-   get 'wkpayroll/payrollsettings', :to => 'wkpayroll#payrollsettings'
+get 'wkpayroll/edit', :to => 'wkpayroll#edit'
 
-	 post 'wkpayroll/payrollsettings', :to => 'wkpayroll#payrollsettings'
+post 'wkpayroll/updateUserSalary', :to => 'wkpayroll#updateUserSalary'
 
-	post 'wkpayroll/save_bulk_edit', :to => 'wkpayroll#save_bulk_edit'
+get 'wkpayroll/user_salary_settings', :to => 'wkpayroll#user_salary_settings'
 
-    #For Billing
-    get 'wkbilling/index', :to => 'wkbilling#index'
+get 'wkpayroll/getGroupMembers', :to => 'wkpayroll#getGroupMembers'
 
-	get 'wkcrmaccount/index', :to => 'wkcrmaccount#index'
+get 'wkpayroll/getMembersbyGroup', :to => 'wkpayroll#getMembersbyGroup'
 
-	match 'wkcrmaccount/index', :to => 'wkcrmaccount#index', :via => [:get, :post]
+post 'wkpayroll/generatePayroll', :to => 'wkpayroll#generatePayroll'
 
-	post 'wkcrmaccount/update', :to => 'wkcrmaccount#update'
+get 'wkpayroll/usrsettingsindex', :to => 'wkpayroll#usrsettingsindex'
 
-	get 'wkcrmaccount/edit', :to => 'wkcrmaccount#edit'
+match 'wkpayroll/payrollsettings', :to => 'wkpayroll#payrollsettings', :via => [:get, :post]
 
-	delete 'wkcrmaccount/destroy', :to => 'wkcrmaccount#destroy'
+post 'wkpayroll/save_bulk_edit', :to => 'wkpayroll#save_bulk_edit'
 
-	get 'wkcontracts/index', :to => 'wkcontracts#index'
+get 'wkpayroll/export', :to => 'wkpayroll#export'
 
+get 'wkpayroll/income_tax', :to => 'wkpayroll#income_tax'
 
-	get 'wkaccountproject/index', :to => 'wkaccountproject#index'
+post 'wkpayroll/income_tax', :to => 'wkpayroll#income_tax'
 
-	get 'wktax/index', :to => 'wktax#index'
+get 'wkpayroll/getRecursiveComp', :to => 'wkpayroll#getRecursiveComp'
 
-	get 'wkinvoice/index', :to => 'wkinvoice#index'
+delete 'wkpayroll/destroy', to: 'wkpayroll#destroy'
 
-	post 'wktax/index', :to => 'wktax#index'
+# For HR Scheduling
 
-	get 'wkinvoice/invoiceedit', :to => 'wkinvoice#invoiceedit'
+get 'wkscheduling', :to => 'wkscheduling#index'
 
-	get 'wkinvoice/getAccountProjIds', :to => 'wkinvoice#getAccountProjIds'
+get 'wkscheduling/edit', :to => 'wkscheduling#edit'
 
-	get 'wktax/edit', :to => 'wktax#edit'
+post 'wkscheduling/update', :to => 'wkscheduling#update'
 
-	post 'wktax/update', :to => 'wktax#update'
+# For HR Scheduling Shift
 
-	delete 'wktax/destroy', :to => 'wktax#destroy'
+get 'wkshift', :to => 'wkshift#index'
 
-	get 'wkinvoice/edit', :to => 'wkinvoice#edit'
+get 'wkshift/edit', :to => 'wkshift#edit'
 
-	post 'wkinvoice/update', :to => 'wkinvoice#update'
+get 'wkshift/:id/edit', :to => 'wkshift#edit'
 
-	delete 'wkinvoice/destroy', :to => 'wkinvoice#destroy'
+get 'wkshift/update', :to => 'wkshift#update'
 
-	get 'wkaccountproject/edit', :to => 'wkaccountproject#edit'
+post 'wkshift/shiftRoleUpdate', :to => 'wkshift#shiftRoleUpdate'
 
-	delete 'wkaccountproject/destroy', :to => 'wkaccountproject#destroy'
+# For HR Skills
 
-	post 'wkaccountproject/update', :to => 'wkaccountproject#update'
+get 'wkskill', :to => 'wkskill#index'
 
-	get 'wkcontract/index', :to => 'wkcontract#index'
+get 'projects/:project_id/wkskill', :to => 'wkskill#index'
 
-	get 'wkcontract/edit', :to => 'wkcontract#edit'
+get 'wkskill/edit', :to => 'wkskill#edit'
 
-	post 'wkcontract/update', :to => 'wkcontract#update'
+get 'wkskill/:id/edit', :to => 'wkskill#edit'
 
-	delete 'wkcontract/destroy', :to => 'wkcontract#destroy'
+post 'wkskill/save', :to => 'wkskill#save'
 
-	get 'wkinvoice/invreport', :to => 'wkinvoice#invreport'
+delete 'wkskill/:id', :to => 'wkskill#destroy'
 
-	# For Accounting
+# For HR Referrals
 
-	get 'wkgltransaction/index', :to => 'wkgltransaction#index'
+get 'wkreferrals', to: 'wkreferrals#index'
 
-	get 'wkgltransaction/edit', :to => 'wkgltransaction#edit'
+get 'wkreferrals/edit', to: 'wkreferrals#edit'
 
-	get 'wkgltransaction/update', :to => 'wkgltransaction#update'
+get 'wkreferrals/:id/edit', to: 'wkreferrals#edit'
 
-	delete 'wkgltransaction/destroy', :to => 'wkgltransaction#destroy'
+post 'wkreferrals/update', to: 'wkreferrals#update'
 
-	get 'wkledger/index', :to => 'wkledger#index'
+delete 'wkreferrals/:id', to: 'wkreferrals#destroy'
 
-	get 'wkledger/edit', :to => 'wkledger#edit'
+get 'wkreferrals/convert', to: 'wkreferrals#convert'
 
-	get 'wkledger/update', :to => 'wkledger#update'
+get 'wkreferrals/getEmpDetails', to: 'wkreferrals#getEmpDetails'
 
-	delete 'wkledger/destroy', :to => 'wkledger#destroy'
+#For CRM Lead
 
-	# get 'wkreport/pl_rpt', :to => 'wkreport#pl_rpt'
+get 'wklead', :to => 'wklead#index'
 
-	# get 'wkreport/balance_sheet', :to => 'wkreport#balance_sheet'
+get 'wklead/:id', :to => 'wklead#show'
 
-	post 'wkbase/updateClockInOut', :to => 'wkbase#updateClockInOut'
+get 'wklead/:id/edit', :to => 'wklead#edit'
 
-	# For CRM
+get 'wklead/edit', :to => 'wklead#edit'
 
-	get 'wkcrm/index', :to => 'wkcrm#index'
+post 'wklead/update', :to => 'wklead#update'
 
-	get 'wkcrm/getCrmUsers', to: 'wkcrm#getCrmUsers'
+get 'wklead/covert', :to => 'wklead#convert'
 
-	get 'wklead/index', :to => 'wklead#index'
+delete 'wklead/:id', :to => 'wklead#destroy'
 
-	post 'wklead/index', :to => 'wklead#index'
+# For CRM Account
 
-	post 'wklead/update', :to => 'wklead#update'
+get 'wkcrmaccount', :to => 'wkcrmaccount#index'
 
-	get 'wklead/edit', :to => 'wklead#edit'
+post 'wkcrmaccount/update', :to => 'wkcrmaccount#update'
 
-	get 'wklead/show', :to => 'wklead#show'
+get 'wkcrmaccount/:id/edit', :to => 'wkcrmaccount#edit'
 
-	get 'wklead/covert', :to => 'wklead#convert'
+get 'wkcrmaccount/edit', :to => 'wkcrmaccount#edit'
 
-	delete 'wklead/destroy', :to => 'wklead#destroy'
+delete 'wkcrmaccount/:id', :to => 'wkcrmaccount#destroy'
 
-	get 'wkopportunity/index', :to => 'wkopportunity#index'
+# For CRM Opportunity
 
-	get 'wkcrmactivity/index', :to => 'wkcrmactivity#index'
+get 'wkopportunity', :to => 'wkopportunity#index'
 
-	get 'wkcrmcontact/index', :to => 'wkcrmcontact#index'
+get 'wkopportunity/edit', :to => 'wkopportunity#edit'
 
-    get 'wkcrmactivity/edit', :to => 'wkcrmactivity#edit'
+get 'wkopportunity/:id/edit', :to => 'wkopportunity#edit'
 
-	get 'wkcrm/getActRelatedIds', :to => 'wkcrm#getActRelatedIds'
+get 'wkopportunity/update', :to => 'wkopportunity#update'
 
-	post 'wkcrmactivity/update', :to => 'wkcrmactivity#update'
+delete 'wkopportunity/:id', :to => 'wkopportunity#destroy'
 
-	delete 'wkcrmactivity/destroy', :to => 'wkcrmactivity#destroy'
+# For CRM
 
-	get 'wkopportunity/edit', :to => 'wkopportunity#edit'
+get 'wkcrmactivity', :to => 'wkcrmactivity#index'
 
-	get 'wkopportunity/update', :to => 'wkopportunity#update'
+get 'wkcrmactivity/:id/edit', :to => 'wkcrmactivity#edit'
 
-    delete 'wkopportunity/destroy', :to => 'wkopportunity#destroy'
+get 'wkcrmactivity/edit', :to => 'wkcrmactivity#edit'
 
-	post 'wkopportunity/index', :to => 'wkopportunity#index'
+post 'wkcrmactivity/update', :to => 'wkcrmactivity#update'
 
-	get 'wkcrmcontact/edit', :to => 'wkcrmcontact#edit'
+delete 'wkcrmactivity/:id', :to => 'wkcrmactivity#destroy'
 
-	post 'wkcrmcontact/update', :to => 'wkcrmcontact#update'
+# For CRM Contact
 
-	delete 'wkcrmcontact/destroy', :to => 'wkcrmcontact#destroy'
+get 'wkcrmcontact', :to => 'wkcrmcontact#index'
 
-	get 'wkcrmenumeration/index', :to => 'wkcrmenumeration#index'
+get 'wkcrmcontact/edit', :to => 'wkcrmcontact#edit'
 
-	get 'wkcrmenumeration/edit', :to => 'wkcrmenumeration#edit'
+get 'wkcrmcontact/:id/edit', :to => 'wkcrmcontact#edit'
 
-	post 'wkcrmenumeration/update', :to => 'wkcrmenumeration#update'
+post 'wkcrmcontact/update', :to => 'wkcrmcontact#update'
 
-	delete 'wkcrmenumeration/destroy', :to => 'wkcrmenumeration#destroy'
+delete 'wkcrmcontact/:id', :to => 'wkcrmcontact#destroy'
 
-	get 'wkcrmenumeration/getCrmEnumerations', to: 'wkcrmenumeration#getCrmEnumerations'
+# For CRM Account Project
 
-	get 'wkreport/report', :to => 'wkreport#report'
+resources :projects do
+	resource :wkaccountproject, :only => [:index], :controller => :wkaccountproject do
+		get :index
+	end
+end
 
-	# get 'wkreport/sales_act_rpt', :to => 'wkreport#sales_act_rpt'
+get 'wkaccountproject/edit', :to => 'wkaccountproject#edit'
 
-	# For Payment
+get 'wkaccountproject/:id/edit', :to => 'wkaccountproject#edit'
 
-	get 'wkpayment/index', :to => 'wkpayment#index'
+delete 'wkaccountproject/:id', :to => 'wkaccountproject#destroy'
 
-	get 'wkpayment/edit', :to => 'wkpayment#edit'
+post 'wkaccountproject/update', :to => 'wkaccountproject#update'
 
-	post 'wkpayment/update', :to => 'wkpayment#update'
 
-	#get 'wkpayment/getBillableProjIds', :to => 'wkpayment#getBillableProjIds'
+# CRM
 
-	get 'wkpaymententity/getBillableProjIds', :to => 'wkpaymententity#getBillableProjIds'
+get 'wkcrm/getActRelatedIds', :to => 'wkcrm#getActRelatedIds'
 
-	#get 'wkpayment/showInvoices', :to => 'wkpayment#showInvoices'
+get 'wkcrm/getCrmUsers', to: 'wkcrm#getCrmUsers'
 
-	get 'wkpaymententity/showInvoices', :to => 'wkpaymententity#showInvoices'
+# For Billing Invoice
 
-	get 'wkexchangerate/index', :to => 'wkexchangerate#index'
+get 'wkinvoice', :to => 'wkinvoice#index'
 
-	get 'wkexchangerate/update', :to => 'wkexchangerate#update'
+get 'wkinvoice/new', :to => 'wkinvoice#new'
 
-	get 'wkinvoice/new', :to => 'wkinvoice#new'
+get 'wkinvoice/edit', :to => 'wkinvoice#edit'
 
-	get 'wkrfq/index', :to => 'wkrfq#index'
+get 'wkinvoice/:id/edit', :to => 'wkinvoice#edit'
 
-	post 'wkrfq/index', :to => 'wkrfq#index'
+post 'wkinvoice/update', :to => 'wkinvoice#update'
 
-	get 'wkrfq/edit', :to => 'wkrfq#edit'
+delete 'wkinvoice/:id', :to => 'wkinvoice#destroy'
 
-	post 'wkrfq/update', :to => 'wkrfq#update'
+get 'wkinvoice/invoiceedit', :to => 'wkinvoice#invoiceedit'
 
-	delete 'wkrfq/destroy', :to => 'wkrfq#destroy'
+get 'wkinvoice/getAccountProjIds', :to => 'wkinvoice#getAccountProjIds'
 
-	get 'wkquote/index', :to => 'wkquote#index'
+get 'wkinvoice/getQuantityDetails', to: 'wkinvoice#getQuantityDetails'
 
-	get 'wkquote/new', :to => 'wkquote#new'
+get 'wkinvoice/getUnbilledQtyDetails', to: 'wkinvoice#getUnbilledQtyDetails'
 
-	get 'wkquote/edit', :to => 'wkquote#edit'
+get 'wkinvoice/generateTimeEntries', to: 'wkinvoice#generateTimeEntries'
 
-	post 'wkquote/update', :to => 'wkquote#update'
+get 'wkinvoice/invoice_components', to: 'wkinvoice#invoice_components'
 
-	delete 'wkquote/destroy', :to => 'wkquote#destroy'
+post 'wkinvoice/saveInvoiceComponents', to: 'wkinvoice#saveInvoiceComponents'
 
-	get 'wkquote/invreport', :to => 'wkquote#invreport'
+get 'wkinvoice/invreport', :to => 'wkinvoice#invreport'
 
-	get 'wkpurchaseorder/index', :to => 'wkpurchaseorder#index'
+get 'wkinvoice/getInvProj', :to => 'wkinvoice#getInvProj'
 
-	get 'wkpurchaseorder/new', :to => 'wkpurchaseorder#new'
+get 'wkinvoice/export', :to => 'wkinvoice#export'
 
-	get 'wkpurchaseorder/edit', :to => 'wkpurchaseorder#edit'
+get 'wkorderentity/get_product_tax', to: 'wkorderentity#get_product_tax'
 
-	post 'wkpurchaseorder/update', :to => 'wkpurchaseorder#update'
+get 'wkorderentity/get_project_tax', to: 'wkorderentity#get_project_tax'
 
-	delete 'wkpurchaseorder/destroy', :to => 'wkpurchaseorder#destroy'
+get 'wkorderentity/getIssueDD', to: 'wkorderentity#getIssueDD'
 
-	get 'wkpurchaseorder/invreport', :to => 'wkpurchaseorder#invreport'
+get 'wkorderentity/checkQty', to: 'wkorderentity#checkQty'
 
-	get 'wksupplierinvoice/index', :to => 'wksupplierinvoice#index'
+get 'wkorderentity/getInvDetals', to: 'wkorderentity#getInvDetals'
 
-	get 'wksupplierinvoice/new', :to => 'wksupplierinvoice#new'
+# For Billing Payment
 
-	get 'wksupplierinvoice/edit', :to => 'wksupplierinvoice#edit'
+get 'wkpayment', :to => 'wkpayment#index'
 
-	post 'wksupplierinvoice/update', :to => 'wksupplierinvoice#update'
+get 'wkpayment/edit', :to => 'wkpayment#edit'
 
-	delete 'wksupplierinvoice/destroy', :to => 'wksupplierinvoice#destroy'
+get 'wkpayment/:id/edit', :to => 'wkpayment#edit'
 
-	get 'wksupplierinvoice/invreport', :to => 'wksupplierinvoice#invreport'
+post 'wkpayment/update', :to => 'wkpayment#update'
 
-	get 'wksupplierpayment/index', :to => 'wksupplierpayment#index'
+delete 'wkpayment/:id', to: 'wkpayment#destroy'
 
-	get 'wksupplieraccount/index', :to => 'wksupplieraccount#index'
+get 'wkpaymententity/getBillableProjIds', :to => 'wkpaymententity#getBillableProjIds'
 
-	match 'wksupplieraccount/index', :to => 'wksupplieraccount#index', :via => [:get, :post]
+get 'wkpaymententity/showInvoices', :to => 'wkpaymententity#showInvoices'
 
-	post 'wksupplieraccount/update', :to => 'wksupplieraccount#update'
+# For Billing Contracts
 
-	get 'wksupplieraccount/edit', :to => 'wksupplieraccount#edit'
+get 'wkcontract', :to => 'wkcontract#index'
 
-	delete 'wksupplieraccount/destroy', :to => 'wksupplieraccount#destroy'
+get 'wkcontract/edit', :to => 'wkcontract#edit'
 
-	get 'wksuppliercontact/index', :to => 'wksuppliercontact#index'
+get 'wkcontract/:id/edit', :to => 'wkcontract#edit'
 
-	get 'wksuppliercontact/edit', :to => 'wksuppliercontact#edit'
+post 'wkcontract/update', :to => 'wkcontract#update'
 
-	post 'wksuppliercontact/update', :to => 'wksuppliercontact#update'
+delete 'wkcontract/:id', :to => 'wkcontract#destroy'
 
-	delete 'wksuppliercontact/destroy', :to => 'wksuppliercontact#destroy'
+# For Accounting Transaction
 
-	get 'wkpurchaseorder/getRfqQuoteIds', :to => 'wkpurchaseorder#getRfqQuoteIds'
+get 'wkgltransaction', :to => 'wkgltransaction#index'
 
-	get 'wksupplierinvoice/getRfqPoIds', :to => 'wksupplierinvoice#getRfqPoIds'
+get 'wkgltransaction/edit', :to => 'wkgltransaction#edit'
 
-	get 'wksupplierpayment/edit', :to => 'wksupplierpayment#edit'
+get 'wkgltransaction/:id/edit', :to => 'wkgltransaction#edit'
 
-	post 'wksupplierpayment/update', :to => 'wksupplierpayment#update'
+get 'wkgltransaction/update', :to => 'wkgltransaction#update'
 
-	get 'wktime/lockte', :to => 'wktime#lockte'
+delete 'wkgltransaction/:id', :to => 'wkgltransaction#destroy'
 
-	 get 'wkexpense/lockte', :to => 'wkexpense#lockte'
+get 'wkgltransaction/graph', to: 'wkgltransaction#graph'
 
-	post 'wktime/lockupdate', :to => 'wktime#lockupdate'
+post 'wkgltransaction/update', to: 'wkgltransaction#update'
 
-	get 'wklocation/index', :to => 'wklocation#index'
+get 'wkgltransaction/export', :to => 'wkgltransaction#export'
 
-	#get 'wkproductcatagory/index', :to => 'wkproductcatagory#index'
+# For Accounting Ledger
 
-	get 'wkproduct/index', :to => 'wkproduct#index'
+get 'wkledger', :to => 'wkledger#index'
 
-	post 'wkproduct/index', :to => 'wkproduct#index'
+get 'wkledger/edit', :to => 'wkledger#edit'
 
-	get 'wkproduct/edit', :to => 'wkproduct#edit'
+get 'wkledger/:id/edit', :to => 'wkledger#edit'
 
-	post 'wkproduct/update', :to => 'wkproduct#update'
+get 'wkledger/update', :to => 'wkledger#update'
 
-	delete 'wkproduct/destroy', :to => 'wkproduct#destroy'
+delete 'wkledger/:id', :to => 'wkledger#destroy'
 
-	get 'wkproduct/category', :to => 'wkproduct#category'
+# For Purchasing RFQ
 
-	get 'wkproduct/updateCategory', :to => 'wkproduct#updateCategory'
+get 'wkrfq', :to => 'wkrfq#index'
 
-	post 'wkproduct/updateCategory', :to => 'wkproduct#updateCategory'
+post 'wkrfq/index', :to => 'wkrfq#index'
 
-	#delete 'wkproduct/destroyCategory', :to => 'wkproduct#destroyCategory'
+get 'wkrfq/edit', :to => 'wkrfq#edit'
 
-	get 'wkproductitem/index', :to => 'wkproductitem#index'
+get 'wkrfq/:id/edit', :to => 'wkrfq#edit'
 
-	get 'wkshipment/index', :to => 'wkshipment#index'
+post 'wkrfq/update', :to => 'wkrfq#update'
 
-	get 'wkshipment/new', :to => 'wkshipment#new'
+delete 'wkrfq/:id', :to => 'wkrfq#destroy'
 
-	get 'wkshipment/edit', :to => 'wkshipment#edit'
+# For Purchasing Quote
 
-	post 'wkshipment/update', :to => 'wkshipment#update'
+get 'wkquote', :to => 'wkquote#index'
 
-	delete 'wkshipment/destroy', :to => 'wkshipment#destroy'
+get 'wkquote/new', :to => 'wkquote#new'
 
-	get 'wkunitofmeasurement/index', :to => 'wkunitofmeasurement#index'
+get 'wkquote/edit', :to => 'wkquote#edit'
 
-	get 'wklogmaterial/modifyProductDD', :to => 'wklogmaterial#modifyProductDD'
+get 'wkquote/:id/edit', :to => 'wkquote#edit'
 
-	get 'wkshipment/populateProductItemDD', :to => 'wkshipment#populateProductItemDD'
+post 'wkquote/update', :to => 'wkquote#update'
 
-	get 'wkproductitem/index', :to => 'wkproductitem#index'
+delete 'wkquote/:id', :to => 'wkquote#destroy'
 
-	post 'wkproductitem/index', :to => 'wkproductitem#index'
+get 'wkquote/invreport', :to => 'wkquote#invreport'
 
-	get 'wkproductitem/edit', :to => 'wkproductitem#edit'
+get 'wkquote/export', :to => 'wkquote#export'
 
-	post 'wkproductitem/update', :to => 'wkproductitem#update'
+# For Purchasing Purchase Order
 
-	delete 'wkproductitem/destroy', :to => 'wkproductitem#destroy'
+get 'wkpurchaseorder', :to => 'wkpurchaseorder#index'
 
-	get 'wkproductitem/transfer', :to => 'wkproductitem#transfer'
+get 'wkpurchaseorder/new', :to => 'wkpurchaseorder#new'
 
-	post 'wkproductitem/updateTransfer', :to => 'wkproductitem#updateTransfer'
+get 'wkpurchaseorder/edit', :to => 'wkpurchaseorder#edit'
 
-	get 'wkasset/index', :to => 'wkasset#index'
+get 'wkpurchaseorder/:id/edit', :to => 'wkpurchaseorder#edit'
 
-	post 'wkasset/index', :to => 'wkasset#index'
+post 'wkpurchaseorder/update', :to => 'wkpurchaseorder#update'
 
-	get 'wkasset/edit', :to => 'wkasset#edit'
+delete 'wkpurchaseorder/:id', :to => 'wkpurchaseorder#destroy'
 
-	post 'wkasset/update', :to => 'wkasset#update'
+get 'wkpurchaseorder/invreport', :to => 'wkpurchaseorder#invreport'
 
-	delete 'wkasset/destroy', :to => 'wkasset#destroy'
+get 'wkpurchaseorder/getRfqQuoteIds', :to => 'wkpurchaseorder#getRfqQuoteIds'
 
-	get 'wkasset/transfer', :to => 'wkasset#transfer'
+get 'wkpurchaseorder/export', :to => 'wkpurchaseorder#export'
 
-	post 'wkasset/updateTransfer', :to => 'wkasset#updateTransfer'
+# For Purchasing Supplier Invoice
 
-	get 'wkasset/dispose_asset', to: 'wkasset#dispose_asset'
+get 'wksupplierinvoice', :to => 'wksupplierinvoice#index'
 
-	post 'wkasset/updateDisposedAsset', to: 'wkasset#updateDisposedAsset'
+get 'wksupplierinvoice/new', :to => 'wksupplierinvoice#new'
 
-	get 'wkbrand/index', :to => 'wkbrand#index'
+get 'wksupplierinvoice/edit', :to => 'wksupplierinvoice#edit'
 
-	post 'wkbrand/index', :to => 'wkbrand#index'
+get 'wksupplierinvoice/:id/edit', :to => 'wksupplierinvoice#edit'
 
-	get 'wkbrand/edit', :to => 'wkbrand#edit'
+post 'wksupplierinvoice/update', :to => 'wksupplierinvoice#update'
 
-	post 'wkbrand/update', :to => 'wkbrand#update'
+delete 'wksupplierinvoice/:id', :to => 'wksupplierinvoice#destroy'
 
-	delete 'wkbrand/destroy', :to => 'wkbrand#destroy'
+get 'wksupplierinvoice/invreport', :to => 'wksupplierinvoice#invreport'
 
-	get 'wkbrand/edit_product_model', :to => 'wkbrand#edit_product_model'
+get 'wksupplierinvoice/getRfqPoIds', :to => 'wksupplierinvoice#getRfqPoIds'
 
-	post 'wkbrand/updateProductModel', :to => 'wkbrand#updateProductModel'
+get 'wksupplierinvoice/export', :to => 'wksupplierinvoice#export'
 
-	delete 'wkbrand/destroyProductModel', :to => 'wkbrand#destroyProductModel'
+# For Purchasing Supplier Payment
 
-	#get 'wkproductmodel/index', :to => 'wkproductmodel#index'
+get 'wksupplierpayment', :to => 'wksupplierpayment#index'
 
-	#get 'wkproductattribute/index', :to => 'wkproductattribute#index'
+get 'wksupplierpayment/edit', :to => 'wksupplierpayment#edit'
 
-	get 'wkattributegroup/index', :to => 'wkattributegroup#index'
+get 'wksupplierpayment/:id/edit', :to => 'wksupplierpayment#edit'
 
-	post 'wkattributegroup/index', :to => 'wkattributegroup#index'
+post 'wksupplierpayment/update', :to => 'wksupplierpayment#update'
 
-	get 'wkattributegroup/edit', :to => 'wkattributegroup#edit'
+delete 'wksupplierpayment/:id', to: 'wksupplierpayment#destroy'
 
-	post 'wkattributegroup/update', :to => 'wkattributegroup#update'
+# For Purchasing Supplier Account
 
-	delete 'wkattributegroup/destroy', :to => 'wkattributegroup#destroy'
+get 'wksupplieraccount', :to => 'wksupplieraccount#index'
 
-	get 'wkattributegroup/edit_product_attribute', :to => 'wkattributegroup#edit_product_attribute'
+get 'wksupplieraccount/edit', :to => 'wksupplieraccount#edit'
 
-	post 'wkattributegroup/updateProductAttribute', :to => 'wkattributegroup#updateProductAttribute'
+get 'wksupplieraccount/:id/edit', :to => 'wksupplieraccount#edit'
 
-	delete 'wkattributegroup/destroyProductAttribute', :to => 'wkattributegroup#destroyProductAttribute'
+post 'wksupplieraccount/update', :to => 'wksupplieraccount#update'
 
-	get 'wklocation/edit', :to => 'wklocation#edit'
+delete 'wksupplieraccount/:id', :to => 'wksupplieraccount#destroy'
 
-	post 'wklocation/update', :to => 'wklocation#update'
+# For Purchasing Supplier Contact
 
-	delete 'wklocation/destroy', :to => 'wklocation#destroy'
+get 'wksuppliercontact', :to => 'wksuppliercontact#index'
 
-	get 'wklocation/getlocations', to: 'wklocation#getlocations'
+get 'wksuppliercontact/edit', :to => 'wksuppliercontact#edit'
+
+get 'wksuppliercontact/:id/edit', :to => 'wksuppliercontact#edit'
+
+post 'wksuppliercontact/update', :to => 'wksuppliercontact#update'
+
+delete 'wksuppliercontact/:id', :to => 'wksuppliercontact#destroy'
+
+# For Inventory Product
+
+get 'wkproduct', :to => 'wkproduct#index'
+
+post 'wkproduct/index', :to => 'wkproduct#index'
+
+get 'wkproduct/edit', :to => 'wkproduct#edit'
+
+get 'wkproduct/:id/edit', :to => 'wkproduct#edit'
+
+post 'wkproduct/update', :to => 'wkproduct#update'
+
+delete 'wkproduct/:id', :to => 'wkproduct#destroy'
+
+get 'wkproduct/category', :to => 'wkproduct#category'
+
+get 'wkproduct/updateCategory', :to => 'wkproduct#updateCategory'
+
+post 'wkproduct/updateCategory', :to => 'wkproduct#updateCategory'
+
+# For Inventory Brand
+
+get 'wkbrand', :to => 'wkbrand#index'
+
+post 'wkbrand/index', :to => 'wkbrand#index'
+
+get 'wkbrand/edit', :to => 'wkbrand#edit'
+
+get 'wkbrand/:id/edit', :to => 'wkbrand#edit'
+
+post 'wkbrand/update', :to => 'wkbrand#update'
+
+delete 'wkbrand/:id', :to => 'wkbrand#destroy'
+
+get 'wkbrand/edit_product_model', :to => 'wkbrand#edit_product_model'
+
+get 'wkbrand/:id/edit_product_model', :to => 'wkbrand#edit_product_model'
+
+post 'wkbrand/updateProductModel', :to => 'wkbrand#updateProductModel'
+
+delete 'wkbrand/:id/destroyProductModel', :to => 'wkbrand#destroyProductModel'
+
+# For Inventory Attributes
+
+get 'wkattributegroup', :to => 'wkattributegroup#index'
+
+post 'wkattributegroup/index', :to => 'wkattributegroup#index'
+
+get 'wkattributegroup/edit', :to => 'wkattributegroup#edit'
+
+get 'wkattributegroup/:id/edit', :to => 'wkattributegroup#edit'
+
+post 'wkattributegroup/update', :to => 'wkattributegroup#update'
+
+delete 'wkattributegroup/:id', :to => 'wkattributegroup#destroy'
+
+get 'wkattributegroup/edit_product_attribute', :to => 'wkattributegroup#edit_product_attribute'
+
+get 'wkattributegroup/:id/edit_product_attribute', :to => 'wkattributegroup#edit_product_attribute'
+
+post 'wkattributegroup/updateProductAttribute', :to => 'wkattributegroup#updateProductAttribute'
+
+delete 'wkattributegroup/:id/destroyProductAttribute', :to => 'wkattributegroup#destroyProductAttribute'
+
+	# For Inventory Unit of Measurement
+
+	get 'wkunitofmeasurement', :to => 'wkunitofmeasurement#index'
 
 	get 'wkunitofmeasurement/update', :to => 'wkunitofmeasurement#update'
 
-	get 'wkshipment/getSupplierInvoices', :to => 'wkshipment#getSupplierInvoices'
+# For Inventory Product Item
 
-	get 'wkassetdepreciation/index', :to => 'wkassetdepreciation#index'
+get 'wkproductitem', :to => 'wkproductitem#index'
 
-	post 'wkassetdepreciation/index', :to => 'wkassetdepreciation#index'
+post 'wkproductitem/index', :to => 'wkproductitem#index'
 
-	get 'wkassetdepreciation/new', :to => 'wkassetdepreciation#new'
+get 'wkproductitem/edit', :to => 'wkproductitem#edit'
 
-	get 'wkassetdepreciation/edit', :to => 'wkassetdepreciation#edit'
+get 'wkproductitem/:id/edit', :to => 'wkproductitem#edit'
 
-	post 'wkassetdepreciation/update', :to => 'wkassetdepreciation#update'
+post 'wkproductitem/update', :to => 'wkproductitem#update'
 
-	delete 'wkassetdepreciation/destroy', :to => 'wkassetdepreciation#destroy'
+delete 'wkproductitem/:id', :to => 'wkproductitem#destroy'
 
-	get 'wkgrouppermission/index', :to => 'wkgrouppermission#index'
+delete 'wkproductitem/destroy', :to => 'wkproductitem#destroy'
 
-	get 'wkgrouppermission/edit', :to => 'wkgrouppermission#edit'
+get 'wkproductitem/transfer', :to => 'wkproductitem#transfer'
 
-	post 'wkgrouppermission/update', :to => 'wkgrouppermission#update'
+post 'wkproductitem/updateTransfer', :to => 'wkproductitem#updateTransfer'
 
-	get 'wkasset/getProductAsset', :to => 'wkasset#getProductAsset'
+get 'wkproductitem/:id/get_material_entries', to: 'wkproductitem#get_material_entries'
 
-	get 'wkscheduling/index', :to => 'wkscheduling#index'
+get 'wkproductitem/assemble_item', :to => 'wkproductitem#assemble_item'
 
-	get 'wkshift/index', :to => 'wkshift#index'
+get 'wkproductitem/getItemDetails', :to => 'wkproductitem#getItemDetails'
 
-	get 'wkshift/edit', :to => 'wkshift#edit'
+# For Inventory Receipt
 
-	delete 'wkshift/destroy', :to => 'wkshift#destroy'
+get 'wkshipment', :to => 'wkshipment#index'
 
-	get 'wkshift/update', :to => 'wkshift#update'
+get 'wkshipment/new', :to => 'wkshipment#new'
 
-	post 'wkshift/shiftRoleUpdate', :to => 'wkshift#shiftRoleUpdate'
+get 'wkshipment/edit', :to => 'wkshipment#edit'
 
-	get 'wkscheduling/edit', :to => 'wkscheduling#edit'
+get 'wkshipment/:id/edit', :to => 'wkshipment#edit'
 
-	post 'wkscheduling/update', :to => 'wkscheduling#update'
+post 'wkshipment/update', :to => 'wkshipment#update'
 
-	get 'wkpublicholiday/index', :to => 'wkpublicholiday#index'
+delete 'wkshipment/:id', :to => 'wkshipment#destroy'
 
-	post 'wkpublicholiday/update', :to => 'wkpublicholiday#update'
+get 'wkshipment/populateProductItemDD', :to => 'wkshipment#populateProductItemDD'
 
-	get 'wklogmaterial/loadSpentType', :to => 'wklogmaterial#loadSpentType'
+get 'wkshipment/getSupplierInvoices', :to => 'wkshipment#getSupplierInvoices'
 
-	get 'wklogmaterial/index', to: 'wklogmaterial#index'
+get 'wkshipment/getProductUOMID', to: 'wkshipment#getProductUOMID'
 
-	get 'wklogmaterial/spent_log_edit', :to => 'wklogmaterial#spent_log_edit'
+get 'wkshipment/checkQuantityAndSave', to: 'wkshipment#checkQuantityAndSave'
 
-	get 'wkdashboard/index', :to => 'wkdashboard#index'
+# For Inventory Delivery
 
-	get 'wkdashboard/graph', :to => 'wkdashboard#graph'
+get 'wkdelivery', to: 'wkdelivery#index'
 
-	get 'wkdashboard/getGraphs', to: 'wkdashboard#getGraphs'
+get 'wkdelivery/edit', to: 'wkdelivery#edit'
 
-	get 'wksurvey/survey', :to => 'wksurvey#survey'
+get 'wkdelivery/:id/edit', to: 'wkdelivery#edit'
 
-	get 'wksurvey/index', :to => 'wksurvey#index'
+post 'wkdelivery/update', to: 'wkdelivery#update'
 
-	get 'wksurvey/edit', :to => 'wksurvey#edit'
+delete 'wkdelivery/:id', to: 'wkdelivery#destroy'
 
-	get 'wksurvey/destroy', :to => 'wksurvey#destroy'
+get 'wkdelivery/populateProductItemDD', to: 'wkdelivery#populateProductItemDD'
 
-	post 'wksurvey/save_survey', :to => 'wksurvey#save_survey'
+get 'wkdelivery/delivery_slip', to: 'wkdelivery#delivery_slip'
 
-	post 'wksurvey/update_survey', :to => 'wksurvey#update_survey'
+get 'wkdelivery/getInvoiceNos', to: 'wkdelivery#getInvoiceNos'
 
-	get 'wksurvey/graph', :to => 'wksurvey#graph'
+# For Inventory Assets
 
-	get 'wksurvey/find_survey_for', :to => 'wksurvey#find_survey_for'
+get 'wkasset', :to => 'wkasset#index'
 
-	get 'wksurvey/email_user', :to => 'wksurvey#email_user'
+post 'wkasset/index', :to => 'wkasset#index'
 
-	get 'projects/:project_id/wksurvey', to: 'wksurvey#index'
+get 'wkasset/edit', :to => 'wkasset#edit'
 
-	get 'wksurvey/user_survey', to: 'wksurvey#user_survey'
+get 'wkasset/:id/edit', :to => 'wkasset#edit'
 
-	post 'wksurvey/update_status', :to => 'wksurvey#update_status'
+post 'wkasset/update', :to => 'wkasset#update'
 
-	get 'wksurvey/survey_response', :to => 'wksurvey#survey_response'
+delete 'wkasset/:id', :to => 'wkasset#destroy'
 
-	get 'wksurvey/survey_result', :to => 'wksurvey#survey_result'
+get 'wkasset/transfer', :to => 'wkasset#transfer'
 
-	get 'wkpayroll/export', :to => 'wkpayroll#export'
+post 'wkasset/updateTransfer', :to => 'wkasset#updateTransfer'
 
-	get 'wkgltransaction/export', :to => 'wkgltransaction#export'
+get 'wkasset/dispose_asset', to: 'wkasset#dispose_asset'
 
-	resources :projects do
-    	resource :wkaccountproject, :only => [:index], :controller => :wkaccountproject do
-      		get :index
-		end
-	 end
+post 'wkasset/updateDisposedAsset', to: 'wkasset#updateDisposedAsset'
 
-	get 'wkleaverequest/index', :to => 'wkleaverequest#index'
+get 'wkasset/getProductAsset', :to => 'wkasset#getProductAsset'
 
-	get 'wkleaverequest/edit', :to => 'wkleaverequest#edit'
+get 'wkasset/:id/get_material_entries', to: 'wkasset#get_material_entries'
 
-	post 'wkleaverequest/save', :to => 'wkleaverequest#save'
+# For Inventory Depreciation
 
-	get 'wkdocument/new', :to => 'wkdocument#new'
+get 'wkassetdepreciation', :to => 'wkassetdepreciation#index'
 
-	post 'wkdocument/save', :to => 'wkdocument#save'
+post 'wkassetdepreciation/index', :to => 'wkassetdepreciation#index'
 
-	get 'wkdocument/download', :to => 'wkdocument#download'
+get 'wkassetdepreciation/new', :to => 'wkassetdepreciation#new'
 
-	get 'wkdocument/destroy', :to => 'wkdocument#destroy'
+get 'wkassetdepreciation/edit', :to => 'wkassetdepreciation#edit'
 
-	get 'wkdocument/view', :to => 'wkdocument#view'
+get 'wkassetdepreciation/:id/edit', :to => 'wkassetdepreciation#edit'
 
-  get 'wkdocument/download/:id/:filename', :to => 'wkdocument#download', :id => /\d+/, :filename => /.*/, :as => 'download_location_attachment'
+post 'wkassetdepreciation/update', :to => 'wkassetdepreciation#update'
 
-	post 'wksurvey/close_current_response', :to => 'wksurvey#close_current_response'
+delete 'wkassetdepreciation/:id', :to => 'wkassetdepreciation#destroy'
 
-	get 'wksurvey/print_survey_result', :to => 'wksurvey#print_survey_result'
 
-	get 'wkleaverequest/getLeaveAvailableHours', :to => 'wkleaverequest#getLeaveAvailableHours'
+# For Survey
 
-	get 'wkpayroll/income_tax', :to => 'wkpayroll#income_tax'
+get 'wksurvey', :to => 'wksurvey#index'
 
-	post 'wkpayroll/income_tax', :to => 'wkpayroll#income_tax'
+get 'wksurvey/edit', :to => 'wksurvey#edit'
 
-	get 'wkpayroll/getRecursiveComp', :to => 'wkpayroll#getRecursiveComp'
+get 'wksurvey/:id/edit', :to => 'wksurvey#edit'
 
-	get 'wklocation/getlocations', :to => 'wklocation#getlocations'
+get 'wksurvey/:id/survey_response', :to => 'wksurvey#survey_response'
 
-	get 'wkcrmenumeration/getCrmEnumerations', :to => 'wkcrmenumeration#getCrmEnumerations'
+get 'wksurvey/:id/survey_result', :to => 'wksurvey#survey_result'
 
-	get 'wkinvoice/getInvProj', :to => 'wkinvoice#getInvProj'
+post 'wksurvey/save_survey', :to => 'wksurvey#save_survey'
 
-	get 'wkbase/getUserPermissions', :to => 'wkbase#getUserPermissions'
+post 'wksurvey/update_survey', :to => 'wksurvey#update_survey'
 
-	get 'wkbase/saveIssueTimeLog', :to => 'wkbase#saveIssueTimeLog'
+get 'projects/:project_id/wksurvey', to: 'wksurvey#index'
 
-	get 'wksurvey/print_survey', :to => 'wksurvey#print_survey'
+get 'wksurvey/user_survey', to: 'wksurvey#user_survey'
 
-	post 'wklogmaterial/create', to: 'wklogmaterial#create'
+get 'wksurvey/:id/survey', :to => 'wksurvey#survey'
 
-	post 'wklogmaterial/update', to: 'wklogmaterial#update'
+delete 'wksurvey/:id', :to => 'wksurvey#destroy'
 
-	get 'wknotification/index', :to => 'wknotification#index'
+get 'wksurvey/graph', :to => 'wksurvey#graph'
 
-	post 'wknotification/update', :to => 'wknotification#update'
+get 'wksurvey/find_survey_for', :to => 'wksurvey#find_survey_for'
 
-	get 'wkinvoice/export', :to => 'wkinvoice#export'
+get 'wksurvey/email_user', :to => 'wksurvey#email_user'
 
-	get 'wkquote/export', :to => 'wkquote#export'
+post 'wksurvey/update_status', :to => 'wksurvey#update_status'
 
-	get 'wkpurchaseorder/export', :to => 'wkpurchaseorder#export'
+post 'wksurvey/close_current_response', :to => 'wksurvey#close_current_response'
 
-	get 'wksupplierinvoice/export', :to => 'wksupplierinvoice#export'
+get 'wksurvey/print_survey_result', :to => 'wksurvey#print_survey_result'
 
-	get 'wkleaverequest/getLeaveType', :to => 'wkleaverequest#getLeaveType'
+get 'wksurvey/print_survey', :to => 'wksurvey#print_survey'
 
-	post 'wkgltransaction/update', to: 'wkgltransaction#update'
+#For Report
 
-	get 'wknotification/updateUserNotification', to: 'wknotification#updateUserNotification'
+get 'wkreport', :to => 'wkreport#index'
 
-	get 'wkskill/index', :to => 'wkskill#index'
+get 'wkreport/getGroupMembers', :to => 'wkreport#getGroupMembers'
 
-	get 'wkskill/edit', :to => 'wkskill#edit'
+get 'wkreport/getMembersbyGroup', :to => 'wkreport#getMembersbyGroup'
 
-	delete 'wkskill/delete', :to => 'wkskill#delete'
+get 'wkreport/export', to: 'wkreport#export'
 
-	post 'wkskill/save', :to => 'wkskill#save'
+get 'wkreport/report', :to => 'wkreport#report'
 
-	get 'wkreferrals/index', to: 'wkreferrals#index'
+get 'wkreport/get_reports', to: 'wkreport#get_reports'
 
-	get 'wkreferrals/edit', to: 'wkreferrals#edit'
+get 'wkreport/getReportData', to: 'wkreport#getReportData'
 
-	post 'wkreferrals/update', to: 'wkreferrals#update'
+# For Settings Enumeration
 
-	delete 'wkreferrals/destroy', to: 'wkreferrals#destroy'
+get 'wkcrmenumeration', :to => 'wkcrmenumeration#index'
 
-	get 'wkreferrals/convert', to: 'wkreferrals#convert'
+get 'wkcrmenumeration/:id/edit', :to => 'wkcrmenumeration#edit'
 
-	get 'wkreferrals/getEmpDetails', to: 'wkreferrals#getEmpDetails'
+get 'wkcrmenumeration/edit', :to => 'wkcrmenumeration#edit'
 
-	get 'wkgltransaction/graph', to: 'wkgltransaction#graph'
+post 'wkcrmenumeration/update', :to => 'wkcrmenumeration#update'
 
-	get 'wkshipment/getProductUOMID', to: 'wkshipment#getProductUOMID'
+delete 'wkcrmenumeration/:id', :to => 'wkcrmenumeration#destroy'
 
-	get 'wkreport/get_reports', to: 'wkreport#get_reports'
+get 'wkcrmenumeration/getCrmEnumerations', to: 'wkcrmenumeration#getCrmEnumerations'
 
-	get 'wkreport/getReportData', to: 'wkreport#getReportData'
+get 'wkcrmenumeration/getCrmEnumerations', :to => 'wkcrmenumeration#getCrmEnumerations'
 
-	get 'wkbase/my_account', to: 'wkbase#my_account'
+# For Settings Location
 
-	get 'wkbase/get_groups', to: 'wkbase#get_groups'
+get 'wklocation', :to => 'wklocation#index'
 
-	get 'wkinvoice/getQuantityDetails', to: 'wkinvoice#getQuantityDetails'
+get 'wklocation/edit', :to => 'wklocation#edit'
 
-	get 'wkinvoice/getUnbilledQtyDetails', to: 'wkinvoice#getUnbilledQtyDetails'
+get 'wklocation/:id/edit', :to => 'wklocation#edit'
 
-	get 'wkinvoice/generateTimeEntries', to: 'wkinvoice#generateTimeEntries'
+post 'wklocation/update', :to => 'wklocation#update'
 
-	resources :projects do
-		resource :wkskill, :only => [:index, :edit, :save], :controller => :wkskill do
-			get :index, :edit
-			post :save
-		end
-	end
+delete 'wklocation/:id', :to => 'wklocation#destroy'
 
-	delete 'wkpayroll/destroy', to: 'wkpayroll#destroy'
+get 'wklocation/getlocations', to: 'wklocation#getlocations'
 
-	get 'wkinvoice/invoice_components', to: 'wkinvoice#invoice_components'
+get 'wklocation/getlocations', :to => 'wklocation#getlocations'
 
-	post 'wkinvoice/saveInvoiceComponents', to: 'wkinvoice#saveInvoiceComponents'
+# For Settings Tax
 
-	get 'wkproductitem/get_material_entries', to: 'wkproductitem#get_material_entries'
+get 'wktax', :to => 'wktax#index'
 
-	get 'wkdashboard/getDetailReport', to: 'wkdashboard#getDetailReport'
+get 'wktax/edit', :to => 'wktax#edit'
 
-	delete 'wkpayment/destroy', to: 'wkpayment#destroy'
+get 'wktax/:id/edit', :to => 'wktax#edit'
 
-	delete 'wksupplierpayment/destroy', to: 'wksupplierpayment#destroy'
+post 'wktax/update', :to => 'wktax#update'
 
-	get 'wkdashboard/employee_dashboard', to: 'wkdashboard#employee_dashboard'
+delete 'wktax/:id', :to => 'wktax#destroy'
 
-	get 'wkattendance/leavesettings', to: 'wkattendance#leavesettings'
+# For Settings Exchange Rate
 
-	post 'wkattendance/leavesettings', to: 'wkattendance#leavesettings'
+get 'wkexchangerate', :to => 'wkexchangerate#index'
 
-  get 'wkreport/export', to: 'wkreport#export'
+get 'wkexchangerate/update', :to => 'wkexchangerate#update'
 
-	get 'wkdelivery/index', to: 'wkdelivery#index'
+# For Settings Permission
 
-	get 'wkdelivery/edit', to: 'wkdelivery#edit'
+get 'wkgrouppermission', :to => 'wkgrouppermission#index'
 
-	post 'wkdelivery/update', to: 'wkdelivery#update'
+post 'wkgrouppermission/update', :to => 'wkgrouppermission#update'
 
-	delete 'wkdelivery/destroy', to: 'wkdelivery#destroy'
+# For Settings Notifications
 
-	get 'wkdelivery/populateProductItemDD', to: 'wkdelivery#populateProductItemDD'
+get 'wknotification', :to => 'wknotification#index'
 
-	get 'wkdelivery/delivery_slip', to: 'wkdelivery#delivery_slip'
+post 'wknotification/update', :to => 'wknotification#update'
 
-	get 'wkdelivery/getInvoiceNos', to: 'wkdelivery#getInvoiceNos'
+get 'wknotification/updateUserNotification', to: 'wknotification#updateUserNotification'
 
-	get 'wkbase/getWkuserData', to: 'wkbase#getWkuserData'
+# Others Routes
+# Base Controller
 
-	get 'wkbase/updateWkuserData', to: 'wkbase#updateWkuserData'
+get 'wkbase/getWkuserData', to: 'wkbase#getWkuserData'
 
-	get 'wkbase/updateWkuserVal', to: 'wkbase#updateWkuserVal'
+get 'wkbase/updateWkuserData', to: 'wkbase#updateWkuserData'
 
-	get 'wkasset/get_material_entries', to: 'wkasset#get_material_entries'
+get 'wkbase/updateWkuserVal', to: 'wkbase#updateWkuserVal'
 
-	get 'wkorderentity/get_product_tax', to: 'wkorderentity#get_product_tax'
+get 'wkbase/my_account', to: 'wkbase#my_account'
 
-	get 'wkorderentity/get_project_tax', to: 'wkorderentity#get_project_tax'
+get 'wkbase/get_groups', to: 'wkbase#get_groups'
 
-	get 'wkshipment/checkQuantityAndSave', to: 'wkshipment#checkQuantityAndSave'
+post 'wkbase/updateClockInOut', :to => 'wkbase#updateClockInOut'
 
-	get 'wkproductitem/assemble_item', :to => 'wkproductitem#assemble_item'
+get 'wkbase/getUserPermissions', :to => 'wkbase#getUserPermissions'
 
-	get 'wkproductitem/getItemDetails', :to => 'wkproductitem#getItemDetails'
+get 'wkbase/saveIssueTimeLog', :to => 'wkbase#saveIssueTimeLog'
 
-	get 'wkorderentity/getIssueDD', to: 'wkorderentity#getIssueDD'
+# For Documents
 
-	get 'wkorderentity/checkQty', to: 'wkorderentity#checkQty'
+get 'wkdocument/new', :to => 'wkdocument#new'
 
-	get 'wkorderentity/getInvDetals', to: 'wkorderentity#getInvDetals'
+post 'wkdocument/save', :to => 'wkdocument#save'
+
+get 'wkdocument/download/:id', :to => 'wkdocument#download'
+
+delete 'wkdocument/:id', :to => 'wkdocument#destroy'
+
+get 'wkdocument/:id', :to => 'wkdocument#view'
+
+get 'wkdocument/download/:id/:filename', :to => 'wkdocument#download', :id => /\d+/, :filename => /.*/, :as => 'download_location_attachment'
+
+# Log Material
+
+get 'wklogmaterial/index', to: 'wklogmaterial#index'
+
+post 'wklogmaterial/create', to: 'wklogmaterial#create'
+
+post 'wklogmaterial/update', to: 'wklogmaterial#update'
+
+get 'wklogmaterial/loadSpentType', :to => 'wklogmaterial#loadSpentType'
+
+get 'wklogmaterial/spent_log_edit', :to => 'wklogmaterial#spent_log_edit'
+
+get 'wklogmaterial/modifyProductDD', :to => 'wklogmaterial#modifyProductDD'

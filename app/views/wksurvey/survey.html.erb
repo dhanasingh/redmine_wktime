@@ -2,7 +2,7 @@
 <%= javascript_include_tag 'survey', :plugin => "redmine_wktime" %>
 <%
 	url = url_for(controller: 'wksurvey', action: 'print_survey', survey_id: params[:survey_id], groupName: params[:groupName],
-		surveyForID: params[:surveyForID], surveyForType: params[:surveyForType])
+		surveyForID: params[:surveyForID], surveyForType: params[:surveyForType], response_id: params[:response_id])
 %>
 <script>
 	var warn_survey_mandatory = "<%= l(:warn_survey_mandatory) %>";

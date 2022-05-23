@@ -2,11 +2,11 @@
 <%= stylesheet_link_tag 'wk-time', plugin: "redmine_wktime" %>
 
 <script type="text/javascript">
-    crmleadsUrl = '<%=url_for(controller: "wklead", action: "index", tab: "wklead")%>';
-	blgaccUrl = '<%=url_for(controller: "wkcrmaccount", action: "index", tab: "wkcrmaccount")%>';
-    crmopportunityUrl = '<%=url_for(controller: "wkopportunity", action: "index", tab: "wkopportunity")%>';
-	crmactivityUrl = '<%=url_for(controller: "wkcrmactivity", action: "index", tab: "wkcrmactivity")%>';
-	crmcontactUrl = '<%=url_for(controller: "wkcrmcontact", action: "index", tab: "wkcrmcontact")%>';
+    crmleadsUrl = '<%=url_for(controller: "wklead", tab: "wklead")%>';
+	blgaccUrl = '<%=url_for(controller: "wkcrmaccount", tab: "wkcrmaccount")%>';
+    crmopportunityUrl = '<%=url_for(controller: "wkopportunity", tab: "wkopportunity")%>';
+	crmactivityUrl = '<%=url_for(controller: "wkcrmactivity", tab: "wkcrmactivity")%>';
+	crmcontactUrl = '<%=url_for(controller: "wkcrmcontact", tab: "wkcrmcontact")%>';
     prevTab = 'tab-<%= "#{controller_name}" %>';
 </script>
 

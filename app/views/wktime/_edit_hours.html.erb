@@ -29,12 +29,8 @@
 			holiday = WkPublicHoliday.getHolidays(params[:user_id], (@startday + @wday_index) - 1)
 			holiday = holiday.length > 0
 			hrs = ''
-			if Setting.plugin_redmine_wktime['wktime_holiday'].to_i > 0 && controller.getTELabel == 'Timesheet' && @wktime&.status.blank?
-				@holidayDate.each do |date|
-					hrs = !isTemplate && !@prev_template && (((@startday + @wday_index) - 1) == date) ? getAccuralHours : '' if (((@startday + @wday_index) - 1) == date)
-				end
-			end
-			if entry.present? && entry&.hours.present? && !@prev_template
+			isTemplate ||= false
+			if entry.present? && entry&.hours.present? && (isTemplate || !@prev_template)
 				hrs = "%.2f" % entry.hours
 			end
 			%>
@@ -69,9 +65,9 @@
 				<% if Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? ||
 					Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 0 %>
 					<% show_custfield_img = true %>
-					<%=h hidden_field_tag('comments' + @row.to_s() +'[]', entry.nil? || @prev_template ? '' : entry.comments) %>
+					<%=h hidden_field_tag('comments' + @row.to_s() +'[]', entry.nil? || @prev_template && !isTemplate ? '' : entry.comments) %>
 					<% comment = nil %>
-					<% comment = entry.nil? || @prev_template ? '' : entry.comments %>
+					<% comment = entry.nil? || @prev_template && !isTemplate ? '' : entry.comments %>
 					<% cvs << comment unless comment.blank? %>
 				<% end %>
 
@@ -107,7 +103,7 @@
 						<% if !@new_custom_field_values.blank? || ( Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? ||
 									Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 0)  %>
 								<% image_tg = image_tag("#{imgname}", :id => 'custfield_img' + @row.to_s() +'_', :name => 'custfield_img' + @row.to_s() +'[]',
-									:plugin => "redmine_wktime",:title => "#{entry.nil? || @prev_template || cvs.blank? ? '' : cvs.join(',')}") %>
+									:plugin => "redmine_wktime",:title => "#{entry.nil? || @prev_template && !isTemplate || cvs.blank? ? '' : cvs.join(',')}") %>
 							<% else %>
 								<%= image_tg ="" %>
 							<% end %>

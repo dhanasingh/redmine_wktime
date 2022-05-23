@@ -1,5 +1,5 @@
 <label><%= l(:label_project_plural) %></label>
-<% 
+<%
     if !params[:account_id].blank?
         id = 'account_id'
     elsif !params[:contact_id].blank?
@@ -9,8 +9,7 @@
 
 <div>
     <div class="wk-contextual">
-        <%= link_to l(:label_new_billing_project), url_for(id => params[id], :controller => 'wkaccountproject', :action => 'edit'), :class => 'icon icon-add' %>
+        <%= link_to l(:label_new_billing_project), url_for(id => params[id], :controller => 'wkaccountproject', :action => 'edit', id: nil), :class => 'icon icon-add' %>
     </div>
     <%= render :partial => 'wkaccountproject/account_project_list'%>
-</div>    
-    
+</div>
