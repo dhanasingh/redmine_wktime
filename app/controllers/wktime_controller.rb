@@ -547,16 +547,12 @@ include ActionView::Helpers::TagHelper
 		user = params[:user_id].present? ? User.find(params[:user_id]) : User.current
 		if (!Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].blank? && Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].to_i == 1)
 			# adding additional assignee
-			userIssues = []
-			user_id = params[:user_id] || User.current.id
-			groupIDs = Wktime.getUserGrp(user_id).join(',')
-			userIssues = Wktime.getAssignedIssues(user_id, groupIDs, params[:project_id]) if groupIDs.present?
-			issues = (issues + userIssues).uniq
-			issues
+			userIssues = getGrpUserIssues(params)
+			issues = userIssues.present? ? (issues + userIssues).uniq : issues
 		end
 
-		respond_to do |format|
-			if !params[:autocomplete]
+		if !params[:autocomplete]
+			respond_to do |format|
 				issues = issues.select(&:present?)
 				format.any(:html, :text) do
 					issStr =""
@@ -569,21 +565,20 @@ include ActionView::Helpers::TagHelper
 				format.json do
 					render :json => formatIssue(issues, user)
 				end
+			end
+		else
+			if params[:format] != "json"
+				subject = params[:q].present? ? "%"+(params[:q]).downcase+"%" : ""
+				issues = issues.where("subject like ? OR issues.id = ?", subject, params[:q].to_i) if params[:q].present?
+				issueRlt = (+"").html_safe
+				issues.each do |issue|
+					issueRlt << content_tag("span", "#"+issue.id.to_s+": "+issue.subject, class: "issue_select", id: issue.id ) if issue.visible?(user) && showIssueLogger(issue.project)
+				end
+				issueRlt = content_tag("span", l(:label_no_data)) if issueRlt.blank?
+				issueRlt = "$('#issueLog .drdn-items.issues').html('" + issueRlt + "');"
+				render js: issueRlt
 			else
-				format.any(:html, :text) do
-					subject = params[:q].present? ? "%"+(params[:q]).downcase+"%" : ""
-					issues = issues.where("subject like ? OR issues.id = ?", subject, params[:q].to_i) if params[:q].present?
-					issueRlt = (+"").html_safe
-					issues.each do |issue|
-						issueRlt << content_tag("span", "#"+issue.id.to_s+": "+issue.subject, class: "issue_select", id: issue.id ) if issue.visible?(user) && showIssueLogger(issue.project)
-					end
-					issueRlt = content_tag("span", l(:label_no_data)) if issueRlt.blank?
-					issueRlt = "$('#issueLog .drdn-items.issues').html('" + issueRlt + "');"
-					render js: issueRlt
-				end
-				format.json do
-					render :json => formatIssue(issues, user)
-				end
+				render :json => formatIssue(issues, user)
 			end
 		end
 	end
@@ -2229,12 +2224,8 @@ private
 			end
 			if (!Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].blank? && Setting.plugin_redmine_wktime['wktime_allow_filter_issue'].to_i == 1)
 				# adding additional assignee
-				userIssues = []
-				user_id = params[:user_id] || User.current.id
-				groupIDs = Wktime.getUserGrp(user_id).join(',')
-				userIssues = Wktime.getAssignedIssues(user_id, groupIDs, params[:project_id]) if groupIDs.present?
-				issues = (allIssues + userIssues).uniq
-				issues
+				userIssues = getGrpUserIssues(params)
+				issues = userIssues.present? ? (allIssues + userIssues).uniq : allIssues
 			end
       # find the issues which are visible to the user
 			@projectIssues[project_id] = allIssues.select {|i| i.visible?(@user) }
@@ -2635,5 +2626,12 @@ private
 		issueLogs = get_issue_loggers(true)
 		errorMsg = l(:warn_issuelog_exist) if issueLogs.length > 0
 		errorMsg
+	end
+
+	def getGrpUserIssues(params)
+		user_id = params[:user_id] || User.current.id
+		groupIDs = Wktime.getUserGrp(user_id).join(',')
+		userIssues = Wktime.getAssignedIssues(user_id, groupIDs, params[:project_id]) if groupIDs.present?
+		userIssues ||= []
 	end
 end

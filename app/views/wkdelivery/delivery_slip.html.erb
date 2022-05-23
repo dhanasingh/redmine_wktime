@@ -52,10 +52,13 @@
 						</table>
 					</td>
 				</tr>
-				<tr style="width:100%;">
-					<td align="left" colspan="1" width="20%"><b><%= l(:label_amount_in_words) %></b></td>
-					<td align="left" colspan="3" width="35%"><%= numberInWords(@deliveryItem.sum("selling_price * total_quantity")) + " " + l(:label_only) + "." %></td>
-				</tr>				
+
+				<% if (Setting.plugin_redmine_wktime['wktime_hide_amount_in_words'].to_i != 1) %>
+					<tr style="width:100%;">
+						<td align="left" colspan="1" width="20%"><b><%= l(:label_amount_in_words) %></b></td>
+						<td align="left" colspan="3" width="35%"><%= numberInWords(@deliveryItem.sum("selling_price * total_quantity")) + " " + l(:label_only) + "." %></td>
+					</tr>
+				<% end %>
 				<% notes = "" %>
 				<% @deliveryItem.each{|item| notes += item.notes.present? ? (item.notes + "\n") : "" } %>
 				<tr style="width:100%;">

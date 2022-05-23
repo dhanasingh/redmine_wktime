@@ -90,10 +90,12 @@
 						</table>
 					</td>
 				</tr>
-				<tr style="width:100%;">
-					<td align="left" colspan="1" width="20%"><b><%= l(:label_amount_in_words) %></b></td>
-					<td align="left" colspan="5" width="35%"><%=h numberInWords(@invoiceItem.sum(:original_amount)) + " " + l(:label_only) + "." %></td>
-				</tr>
+				<% if (Setting.plugin_redmine_wktime['wktime_hide_amount_in_words'].to_i != 1) %>
+					<tr style="width:100%;">
+						<td align="left" colspan="1" width="20%"><b><%= l(:label_amount_in_words) %></b></td>
+						<td align="left" colspan="5" width="35%"><%=h numberInWords(@invoiceItem.sum(:original_amount)) + " " + l(:label_only) + "." %></td>
+					</tr>
+				<% end %>
 				<% if invoiceComp.present?
 						invoiceComp.each do |comp| %>
 							<tr style="width:100%;">

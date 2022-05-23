@@ -18,6 +18,5 @@
 class WkConsumedItems < ActiveRecord::Base
 
   belongs_to :consumer, polymorphic: true
-
   scope :get_serial_nos, ->(id, type){ where(consumer_id: id, consumer_type: type)}
 end

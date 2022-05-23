@@ -23,6 +23,7 @@ class WkorderentityController < WkbillingController
 	include WkorderentityHelper
 	include WkreportHelper
 	include WkgltransactionHelper
+	include WklogmaterialHelper
 
 	def index
 		sort_init 'invoice_date', 'desc'
@@ -189,6 +190,7 @@ class WkorderentityController < WkbillingController
 		@invoice = nil
 		@invoiceItem = nil
 		@projectsDD = Array.new
+		@issuesDD = Array.new
 		@productItemsDD = getproductItems
     @currency = nil
 		@preBilling = false
@@ -258,6 +260,7 @@ class WkorderentityController < WkbillingController
 			@invPaymentItems = @invoice.payment_items.current_items
 			pjtList = @invoiceItem.select(:project_id).distinct
 			pjtList.each do |entry|
+				@issuesDD = Issue.where(:project_id => entry.project_id.to_i).pluck(:subject, :id)
 				@projectsDD << [ entry.project.name, entry.project_id ] if !entry.project_id.blank? && entry.project_id != 0
 			end
 		end
@@ -362,6 +365,13 @@ class WkorderentityController < WkbillingController
 					invoiceItem = @invoice.invoice_items.new
 					org_amount = params["rate_#{i}"].to_f * params["quantity_#{i}"].to_f
 					updatedItem = updateInvoiceItem(invoiceItem, pjtId, params["name_#{i}"], params["rate_#{i}"].to_f, params["quantity_#{i}"].to_f, params["original_currency_#{i}"], itemType, org_amount, crInvoiceId, crPaymentId, product_id, params["invoice_item_type_#{i}"], invoice_item_id)
+				end
+				if itemType == 'm'
+					saveConsumedSN(JSON.parse(params["used_serialNo_obj_#{i}"]), updatedItem) if params["used_serialNo_obj_#{i}"].present?
+					inventoryItem = WkInventoryItem.find(invoice_item_id.to_i)
+					availQuantity = inventoryItem.available_quantity - params["quantity_#{i}"].to_i
+					inventoryItem.available_quantity = availQuantity
+					inventoryItem.save
 				end
 				if !params[:populate_unbilled].blank? && params[:populate_unbilled] == "true" && params[:creditfrominvoice].blank? && !params["entry_id_#{i}"].blank?
 					accProject = WkAccountProject.where(:project_id => pjtId)
@@ -669,9 +679,11 @@ class WkorderentityController < WkbillingController
 		listTotal(pdf, columnWidth, @invoiceItem, l(:label_grand_total))
 		pdf.ln(5)
 		pdf.SetFontStyle('B',10)
-		pdf.RDMCell(40, 5, l(:label_amount_in_words) + "  :  ", 1)
-		pdf.SetFontStyle('',10)
-		pdf.RDMCell(table_width - 40, 5, numberInWords(@invoiceItem.sum(:original_amount)) + " " + l(:label_only), 1)
+		if (Setting.plugin_redmine_wktime['wktime_hide_amount_in_words'].to_i != 1)
+			pdf.RDMCell(40, 5, l(:label_amount_in_words) + "  :  ", 1)
+			pdf.SetFontStyle('',10)
+			pdf.RDMCell(table_width - 40, 5, numberInWords(@invoiceItem.sum(:original_amount)) + " " + l(:label_only), 1)
+		end
 		pdf.ln
 		if invoiceComp.present?
 			invoiceComp.each do |comp|
@@ -870,8 +882,10 @@ class WkorderentityController < WkbillingController
 	end
 
 	def get_product_tax
-		data = WkProductItem.getProductTax(params[:product_item_id])
-		render json: data
+		prod_item_id = params[:item_id]
+		prod_item_id = WkInventoryItem.where(id: prod_item_id).pluck(:product_item_id)&.first if params[:invoice_type] == 'I'
+		data = WkProductItem.getProductTax(prod_item_id)
+		render json: data || []
 	end
 
 	def get_project_tax
@@ -885,5 +899,33 @@ class WkorderentityController < WkbillingController
 	end
 
 	def update_status
+	end
+
+	def getIssueDD()
+		issuetArr = ""
+		issuesDD = Issue.where(:project_id => params[:project_id].to_i)
+		issuesDD.each do | entry |
+			issuetArr << entry.id.to_s() + ',' +  entry.subject.to_s()  + "\n"
+		end
+		respond_to do |format|
+			format.text  { render plain: issuetArr }
+		end
+	end
+
+	def getInvDetals()
+		case params[:itemType]
+		when 'a'
+			rates = WkAssetProperty.where(:inventory_item_id => params[:item_id].to_i).pluck(:rate)  if params[:item_id].present?
+		when 'm'
+			rates = WkInventoryItem.where(:id => params[:item_id].to_i).pluck(:selling_price, :available_quantity,:serial_number, :running_sn).first if params[:item_id].present?
+		else
+			rates = WkIssue.where(:issue_id => params[:item_id].to_i).pluck(:rate) if params[:item_id].present?
+		end
+		render json: rates || []
+	end
+
+	def checkQty()
+		invItems = WkInventoryItem.where(:id => params[:inventory_itemID].to_i).pluck(:available_quantity) if params[:inventory_itemID].present?
+		render json: invItems || []
 	end
 end

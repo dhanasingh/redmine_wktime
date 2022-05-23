@@ -29,6 +29,7 @@ class WkinvoiceController < WkorderentityController
 		invIntervals = getIntervals(params[:start_date].to_date, params[:end_date].to_date, invoiceFreq["frequency"], invoiceFreq["start"], true, false)
 		if !params[:project_id].blank? && params[:project_id] != '0'
 			@projectsDD = Project.where(:id => params[:project_id].to_i).pluck(:name, :id)
+			@issuesDD = Issue.where(:project_id => params[:project_id].to_i).pluck(:subject, :id)
 			setTempEntity(invIntervals[0][0], invIntervals[0][1], parentId, parentType, params[:populate_items], params[:project_id])
 		elsif (!params[:project_id].blank? && params[:project_id] == '0') || params[:isAccBilling] == "true"
 			accountProjects = WkAccountProject.where(:parent_type => parentType, :parent_id => parentId.to_i)
@@ -444,5 +445,9 @@ class WkinvoiceController < WkorderentityController
 
 	def storeInvoiceItemTax(totals)
 		saveInvoiceItemTax(totals)
+	end
+
+	def isInvoiceController
+		true
 	end
 end

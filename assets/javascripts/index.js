@@ -224,11 +224,17 @@ $(document).ready(function() {
 	$('.itemSN').change(function(){
 		showHideSnNote($(this).val());
 	});
+	$('#inv_serial_no').change(function(){
+		let fullSerNo = $("#item_serial_no").val();
+		full_serno_ele = fullSerNo.split(',')
+		let serialNumbers = getSerialNumbersRange(full_serno_ele[0], full_serno_ele[1], full_serno_ele[2]);
+		showHideSnNote($(this).val(), JSON.stringify(serialNumbers));
+	});
 });
 
-function showHideSnNote(consumed_sn){
+function showHideSnNote(consumed_sn, serialNumbers=[]){
 	let sn =[];
-	let product_serial_numbers = $('#product_serial_numbers').val();
+	let product_serial_numbers = (serialNumbers.length) > 0 ? serialNumbers : $('#product_serial_numbers').val();
 	if(consumed_sn != '' && (JSON.parse(product_serial_numbers).length) > 0){
 		let serial_number = consumed_sn.split(',');
 		serial_number.map(function(number){
@@ -363,6 +369,7 @@ function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst, bla
 			}
 			if(index != -1){
 				val = items[i].substring(start, index);
+				val = val.replace(/_/g, ",");
 				text = items[i].substring(index+1);
 				dropdown.options[needBlankOption ? i+1 : i] = new Option(
 					text, val, false, val == userid);
@@ -1164,6 +1171,7 @@ function populateSerialNos(serial_number, running_sn, total_quantity){
 }
 
 function getSerialNumbersRange(serial_number, running_sn, total_quantity){
+	console.log("innnnnnnnnnn")
 	let serialNumbers = [];
 	let org_sn_length = running_sn.length;
 	for(i = 0; i < Number(total_quantity); i++){

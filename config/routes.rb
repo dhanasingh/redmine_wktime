@@ -797,3 +797,9 @@ match 'updateAttendance', :controller => 'wktime', :action => 'updateAttendance'
 	get 'wkproductitem/assemble_item', :to => 'wkproductitem#assemble_item'
 
 	get 'wkproductitem/getItemDetails', :to => 'wkproductitem#getItemDetails'
+
+	get 'wkorderentity/getIssueDD', to: 'wkorderentity#getIssueDD'
+
+	get 'wkorderentity/checkQty', to: 'wkorderentity#checkQty'
+
+	get 'wkorderentity/getInvDetals', to: 'wkorderentity#getInvDetals'

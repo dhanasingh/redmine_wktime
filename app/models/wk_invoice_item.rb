@@ -26,6 +26,7 @@ class WkInvoiceItem < ActiveRecord::Base
   belongs_to :invoice_item, :polymorphic => true
   belongs_to :product, class_name: "WkProduct"
   has_many :inventory_items, class_name: "WkInventoryItem", foreign_key: "invoice_item_id"
+  has_many :consumed_items, as: :consumer, class_name: "WkConsumedItems", dependent: :destroy
 
   validates_presence_of :invoice_id
   validates_numericality_of :amount, :allow_nil => true, :message => :invalid
