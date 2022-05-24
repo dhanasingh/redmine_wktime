@@ -31,7 +31,7 @@
 			<%
 				approvalProjects = @approvable_projects.pluck(:id)
 				# To Populate approved leaves
-				approved_leaves = controller.get_approved_leaves if @wktime.nil?
+				approved_leaves = controller.get_approved_leaves if @wktime.nil? && params['sheet_view'] != 'I'
 			%>
 			<% if entries.present? || approved_leaves.present? %>
 				<%

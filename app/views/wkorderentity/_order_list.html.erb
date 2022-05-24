@@ -102,7 +102,7 @@
 								<td class="lbl-txt-align"><%= @currency %> <%=h html_hours("%.2f" % value['amount'] ) unless value['amount'].blank?  %></td>
 								<td class="lbl-txt-align"><%= toCurrency %> <%=h amount %></td>
 								<td class="lbl-txt-align"><%=h User.current.name  %></td>
-								<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :new_invoice => true, :related_to =>  value['parent_type'], :related_parent => value['parent_id'], :project_id => (value['isAccountBilling'] ? 0 : value['project_id']), :start_date => value['start_date'], :end_date => value['end_date'], :populate_items =>1, :preview_billing => true, :tab => controller.controller_name, id: value},
+								<td class="lbl-txt-align"><%= link_to image_tag('edit.png'), {:controller => controller.controller_name, :action => 'edit', :new_invoice => true, :related_to =>  value['parent_type'], :related_parent => value['parent_id'], :project_id => (value['isAccountBilling'] ? 0 : value['project_id']), :start_date => value['start_date'], :end_date => value['end_date'], :populate_items =>1, :preview_billing => true, :tab => controller.controller_name, id: value['id']},
 														:title => l(:button_edit) %>
 								</td>
 							</tr>
