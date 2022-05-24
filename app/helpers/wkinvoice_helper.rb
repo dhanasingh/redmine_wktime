@@ -381,6 +381,8 @@ include WkpayrollHelper
 					@invItems[@itemCount].store 'item_quantity', pjtQuantity.round(4)
 					@invItems[@itemCount].store 'item_amount', itemAmount.round(2)
 					@invItems[@itemCount].store 'issue_id', accountProject.itemized_bill ? entry.issue_id : 0
+					@invItems[@itemCount].store 'invoice_item_type', accountProject.itemized_bill ? 'Issue' : ''
+					@invItems[@itemCount].store 'invoice_item_id', accountProject.itemized_bill ? entry.issue_id : ''
 					@invItems[@itemCount].store 'billing_type', accountProject.billing_type
 					@itemCount = @itemCount + 1
 					oldIssueId = entry.issue_id
@@ -405,7 +407,6 @@ include WkpayrollHelper
 	def updateInvoiceItem(invItem, projectId, description, rate, quantity, org_currency, itemType, org_amount, creditInvoiceId, crPaymentItemId, productId, invoiceItemType=nil, invoiceItemID=nil)
 		toCurrency = Setting.plugin_redmine_wktime['wktime_currency']
 		amount = getExchangedAmount(org_currency, org_amount)
-
 		invItem.project_id = projectId
 		invItem.name = description
 		invItem.rate = rate

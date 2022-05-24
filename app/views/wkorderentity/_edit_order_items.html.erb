@@ -132,7 +132,7 @@
 									<%= hidden_field_tag("invoice_item_type_#{row_index.to_s}", entry.try(:invoice_item_type) || model_name)  %>
 									<%= select_tag("invoice_item_id_#{row_index.to_s}",
 										options_for_select(invoiceItemDD, selected: selected_itemDD_val ),
-										disabled: isDisable, class: "productItemsDD", width: "100%")
+										disabled: isDisable, class: "productItemsDD", style: "width:80%;")
 									%>
 									<span id="serial_number_img_<%= row_index.to_s %>" style="padding-left: 5px, padding-bottom: 0px" onclick="getUsedSerialNumber(this); return false;"><%= link_to image_tag('serialnumber.png', id: "serial_number_img_#{row_index.to_s}", plugin: "redmine_wktime") %></span>
 								</td>
@@ -189,10 +189,12 @@
 							amount = (value['item_amount'] * exchangeRate)
 							if ["i", "e"].include?(value['item_type']) && controller.isInvoiceController
 							invoiceItemDD = @issuesDD
+							selected_itemDD_val = value['issue_id'].to_s
 							model_name = "Issue"
 						elsif ["m", "a"].include?(value['item_type']) && controller.isInvoiceController
 							invoiceItemDD = getItemDD(value['item_type'])
 							invoiceItemDD.prepend([l(:label_select_product_item), ""])
+							selected_itemDD_val = value['product_id'].to_s+", "+value['invoice_item_id'].to_s
 							model_name = "WkInventoryItem"
 						else
 							invoiceItemDD = @productItemsDD
@@ -222,8 +224,8 @@
 								<td class="lbl-txt-align: center" headers="product_item">
 									<%= hidden_field_tag("invoice_item_type_#{row_index.to_s}", value['invoice_item_type'] || model_name)  %>
 									<%= select_tag("invoice_item_id_#{row_index.to_s}",
-										options_for_select(invoiceItemDD, selected: ''),
-										disabled: @preBilling, class: "productItemsDD", width: "100%")
+										options_for_select(invoiceItemDD, selected: selected_itemDD_val),
+										disabled: @preBilling, class: "productItemsDD", style: "width:80%;")
 									%>
 								</td>
 							<% else %>
