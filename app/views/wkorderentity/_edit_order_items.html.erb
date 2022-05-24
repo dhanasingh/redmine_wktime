@@ -8,7 +8,13 @@
 	var label_tax = "<%= l(:label_tax) %>";
 </script>
 <%
-	itemHash = { 'i' => l(:label_invoice), 'c' =>  l(:label_credit), 'e' => l(:label_wkexpense) }
+	itemHash = { 'i' => l(:label_invoice), 'c' =>  l(:label_credit) }
+
+	if controller.addExpenseType
+		asset_hash = {'e' => l(:label_wkexpense)}
+		itemHash.merge!(asset_hash)
+	end
+
  	if  controller.addAdditionalTax
 		tax_hash = {'t' => l(:label_tax)}
 		itemHash.merge!(tax_hash)
@@ -89,9 +95,16 @@
 							if ["i", "e"].include?(entry.item_type) && controller.isInvoiceController
 								invoiceItemDD = @issuesDD
 								selected_itemDD_val = entry.try(:invoice_item_id)
+								model_name = "Issue"
+							elsif ["m", "a"].include?(entry.item_type) && controller.isInvoiceController
+								invoiceItemDD = getItemDD(entry.item_type)
+								invoiceItemDD.prepend([l(:label_select_product_item), ""])
+								selected_itemDD_val = entry.try(:product_id).to_s+", "+entry.try(:invoice_item_id).to_s
+								model_name = "WkInventoryItem"
 							else
 								invoiceItemDD = @productItemsDD
 								selected_itemDD_val = entry.try(:product_id).to_s+", "+entry.try(:invoice_item_id).to_s
+								model_name = "WkProductItem"
 							end
 						%>
 						<tr onclick="row_id = this.rowIndex">
@@ -101,9 +114,9 @@
 								<%=h hidden_field_tag("exchangerate_amount_#{row_index}", exchangeRate ) %>
 								<%=h hidden_field_tag("original_currency_#{row_index}", entry.original_currency ) %>
 								<%= hidden_field_tag("currency_#{row_index}", entry.currency ) %>
-								<%= hidden_field_tag("used_serial_no_#{row_index}")  %>
-								<%= hidden_field_tag("used_serialNo_obj_#{row_index}")  %>
-								<%= hidden_field_tag("product_serial_no_#{row_index}")  %>
+								<%= hidden_field_tag("used_serial_no_#{row_index}") %>
+								<%= hidden_field_tag("used_serialNo_obj_#{row_index}") %>
+								<%= hidden_field_tag("product_serial_no_#{row_index}") %>
 							</td>
 							<% if !@projectsDD.blank? %>
 								<td class="lbl-txt-align: center" headers="project_id">
@@ -174,6 +187,17 @@
 							exchangeRate = getExchangeRate(@currency, toCurrency)
 							exchangeRate = exchangeRate.blank? ? 1 : exchangeRate
 							amount = (value['item_amount'] * exchangeRate)
+							if ["i", "e"].include?(value['item_type']) && controller.isInvoiceController
+							invoiceItemDD = @issuesDD
+							model_name = "Issue"
+						elsif ["m", "a"].include?(value['item_type']) && controller.isInvoiceController
+							invoiceItemDD = getItemDD(value['item_type'])
+							invoiceItemDD.prepend([l(:label_select_product_item), ""])
+							model_name = "WkInventoryItem"
+						else
+							invoiceItemDD = @productItemsDD
+							model_name = "WkProductItem"
+						end
 						%>
 						<tr onclick="  row_id  = this.rowIndex ">
 							<td class="lbl-txt-align" headers="item_index" style="width: 5%">
@@ -184,6 +208,9 @@
 								<%=h hidden_field_tag("exchangerate_amount_#{row_index}", exchangeRate )  %>
 								<%=h hidden_field_tag("original_currency_#{row_index}", @currency ) %>
 								<%= hidden_field_tag("currency_#{row_index}", toCurrency ) %>
+								<%= hidden_field_tag("used_serial_no_#{row_index}") %>
+								<%= hidden_field_tag("used_serialNo_obj_#{row_index}") %>
+								<%= hidden_field_tag("product_serial_no_#{row_index}") %>
 							</td>
 							<td class="lbl-txt-align: center" headers="project_id" style="width: 10%">
 								<%=h select_tag("project_id_#{row_index.to_s}", options_for_select(@projectsDD, :selected=> value['project_id'] ), :disabled => @preBilling ) %>
@@ -195,7 +222,7 @@
 								<td class="lbl-txt-align: center" headers="product_item">
 									<%= hidden_field_tag("invoice_item_type_#{row_index.to_s}", value['invoice_item_type'] || model_name)  %>
 									<%= select_tag("invoice_item_id_#{row_index.to_s}",
-										options_for_select(invoiceItemDD, selected: selected_itemDD_val),
+										options_for_select(invoiceItemDD, selected: ''),
 										disabled: @preBilling, class: "productItemsDD", width: "100%")
 									%>
 								</td>
@@ -250,9 +277,9 @@
 						<%=h hidden_field_tag("item_id_#{row_index}",   "" ) %>
 						<%=h hidden_field_tag("original_currency_#{row_index}", @currency ) %>
 						<%= hidden_field_tag("currency_#{row_index}", toCurrency ) %>
-						<%= hidden_field_tag("used_serial_no_#{row_index}", '') %>
-						<%= hidden_field_tag("used_serialNo_obj_#{row_index}")  %>
-						<%= hidden_field_tag("product_serial_no_#{row_index}")  %>
+						<%= hidden_field_tag("used_serial_no_#{row_index}") %>
+						<%= hidden_field_tag("used_serialNo_obj_#{row_index}") %>
+						<%= hidden_field_tag("product_serial_no_#{row_index}") %>
 					</td>
 					<% if @projectsDD.present? %>
 						<td class="lbl-txt-align: center" headers="project_id">

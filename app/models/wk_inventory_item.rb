@@ -81,4 +81,8 @@ class WkInventoryItem < ActiveRecord::Base
     where(parent_id: id)
   }
 
+  def self.getInventoryItems(item_type)
+    product_type = item_type == 'm' ? 'I' : ['A', 'RA']
+    inv_items = self.where(product_type: product_type)
+  end
 end

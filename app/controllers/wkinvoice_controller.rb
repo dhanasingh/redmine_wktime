@@ -450,4 +450,8 @@ class WkinvoiceController < WkorderentityController
 	def isInvoiceController
 		true
 	end
+
+	def addExpenseType
+		true
+	end
 end

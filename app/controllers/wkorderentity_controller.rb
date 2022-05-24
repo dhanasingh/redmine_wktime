@@ -366,10 +366,10 @@ class WkorderentityController < WkbillingController
 					org_amount = params["rate_#{i}"].to_f * params["quantity_#{i}"].to_f
 					updatedItem = updateInvoiceItem(invoiceItem, pjtId, params["name_#{i}"], params["rate_#{i}"].to_f, params["quantity_#{i}"].to_f, params["original_currency_#{i}"], itemType, org_amount, crInvoiceId, crPaymentId, product_id, params["invoice_item_type_#{i}"], invoice_item_id)
 				end
-				if itemType == 'm'
+				if ["m", "a"].include?(itemType) && invoice_item_id.present?
 					saveConsumedSN(JSON.parse(params["used_serialNo_obj_#{i}"]), updatedItem) if params["used_serialNo_obj_#{i}"].present?
 					inventoryItem = WkInventoryItem.find(invoice_item_id.to_i)
-					availQuantity = inventoryItem.available_quantity - params["quantity_#{i}"].to_i
+					availQuantity = inventoryItem.available_quantity - params["quantity_#{i}"].to_i if inventoryItem.available_quantity > 0
 					inventoryItem.available_quantity = availQuantity
 					inventoryItem.save
 				end
@@ -391,7 +391,6 @@ class WkorderentityController < WkbillingController
 					matterialEntry = WkMaterialEntry.find(params["material_id_#{i}"].to_i)
 					updateBilledEntry(matterialEntry, updatedItem.id)
 				end
-
 				if updatedItem.product_id.present?
 					# set Product Totals
 					total_amounts["product"] = set_product_total(total_amounts["product"], updatedItem)
@@ -914,9 +913,7 @@ class WkorderentityController < WkbillingController
 
 	def getInvDetals()
 		case params[:itemType]
-		when 'a'
-			rates = WkAssetProperty.where(:inventory_item_id => params[:item_id].to_i).pluck(:rate)  if params[:item_id].present?
-		when 'm'
+		when 'a', 'm'
 			rates = WkInventoryItem.where(:id => params[:item_id].to_i).pluck(:selling_price, :available_quantity,:serial_number, :running_sn).first if params[:item_id].present?
 		else
 			rates = WkIssue.where(:issue_id => params[:item_id].to_i).pluck(:rate) if params[:item_id].present?
@@ -931,5 +928,9 @@ class WkorderentityController < WkbillingController
 			invHash[item.id] = {item: item, name: item.product_item.product.name}
 		end
 		render json: invHash
+	end
+
+	def addExpenseType
+		false
 	end
 end

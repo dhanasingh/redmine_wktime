@@ -139,7 +139,7 @@ $(document).ready(function() {
 				$("#invoiceTable #name_"+row).val(text);
 
 				var itemType = $("#invoiceTable #item_type_"+row).val();
-				if ((itemType == 'm' && ["I"].includes($('#invoice_type').val())) || ["SI"].includes($('#invoice_type').val())){
+				if ((["m", "a"].includes(itemType) && ["I"].includes($('#invoice_type').val())) || ["SI"].includes($('#invoice_type').val())){
 					applyTax(this, "invoice_item");
 				}
 				fillInvFields(row);
@@ -151,7 +151,7 @@ $(document).ready(function() {
 
 			//Updating Tax rows
 			$(".item_types").change(function(){
-				if(["i", "e", "a"].includes(this.value)){
+				if(["i", "e"].includes(this.value)){
 					let row = parseInt((this.name).split('_').pop());
 					applyTax(document.getElementById("project_id_"+row), "project");
 					$("#invoice_item_id_"+row).val("");
@@ -953,14 +953,17 @@ function invItemChange(ele){
 	}
 	switch(itemType){
 		case 'm':
+			$("#invoiceTable #invoice_item_type_"+row).val('WkInventoryItem');
 			url = "/wklogmaterial/modifyProductDD";
 			data = {ptype: 'product_item', log_type: 'I', module_type: 'invoice'};
 			break;
 		case 'a':
+			$("#invoiceTable #invoice_item_type_"+row).val('WkInventoryItem');
 			url = "/wklogmaterial/modifyProductDD";
-			data = {ptype: 'product_item', log_type: 'A'};
+			data = {ptype: 'product_item', log_type: 'A', module_type: 'invoice'};
 			break;
 		default:
+			$("#invoiceTable #invoice_item_type_"+row).val('Issue');
 			url = "/wkorderentity/getIssueDD";
 			data = {project_id: $("#invoiceTable #project_id_"+row).val() };
 	}
@@ -972,7 +975,7 @@ function invItemChange(ele){
 			if(additional_item_type && itemType =='a'){
 				$.ajax({
 					url: "/wklogmaterial/modifyProductDD",
-					data: {ptype: 'product_item', log_type: additional_item_type},
+					data: {ptype: 'product_item', log_type: additional_item_type, module_type: 'invoice'},
 					success: function(resData1){
 						resData = resData+resData1
 						updateUserDD(resData, changeDD, 1, true, false, "Select a Product Item");
@@ -1027,7 +1030,7 @@ function saveEntity(){
 	var qty = {};
 	$("#invoiceTable [id^='quantity_']").each(function(){
 		let row = parseInt((this.name).split('_').pop());
-		if(['m'].includes($("#invoiceTable #item_type_"+row).val())){
+		if(['m', 'a'].includes($("#invoiceTable #item_type_"+row).val())){
 			invoice_item_id = $("#invoice_item_id_"+row).val();
 			var inv_id = invoice_item_id && invoice_item_id.split(',').pop().trim()
 			qty[inv_id] = qty[inv_id] || 0

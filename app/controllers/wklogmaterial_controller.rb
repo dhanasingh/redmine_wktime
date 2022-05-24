@@ -61,11 +61,15 @@ class WklogmaterialController < TimelogController
 			pctObj.each do | entry|
 				product = {}
 				if productType == 'A' || productType == hookLogType
-					product = {value: entry.id, label: entry.asset_name.to_s() + ' - ' + entry.rate.to_s() + ' - ' + rateper[entry.rate_per].to_s()}
+					if params[:module_type] == 'invoice'
+						product = {value: entry.product_id.to_s+'_ '+entry.id.to_s, label: entry.asset_name.to_s() + ' - ' + entry.rate.to_s() + ' - ' + rateper[entry.rate_per].to_s()}
+					else
+						product = {value: entry.id, label: entry.asset_name.to_s() + ' - ' + entry.rate.to_s() + ' - ' + rateper[entry.rate_per].to_s()}
+					end
 				else
 					attributeName = entry.product_attribute.blank? ? "" : entry.product_attribute.name
 					if params[:module_type] == 'invoice'
-						product = {value: entry.product_id.to_s+'_ '+entry.id.to_s, label: entry.brand_name.to_s() +' - '+ entry.product_model_name.to_s() +' - '+ entry.part_number.to_s() +' - '+ attributeName  +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s() +' - '+ (entry.serial_number.to_s() + entry.running_sn.to_s() + 'qty ' + entry.available_quantity.to_s()))}
+						product = {value: entry.product_id.to_s+'_ '+entry.id.to_s, label: entry.brand_name.to_s() +' - '+ entry.product_model_name.to_s() +' - '+ entry.part_number.to_s() +' - '+ attributeName  +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s() +' - '+ (entry.serial_number.to_s() + entry.running_sn.to_s() + ' - qty ' + entry.available_quantity.to_s()))}
 					else
 						product = {value: entry.id, label: entry.brand_name.to_s() +' - '+ entry.product_model_name.to_s() +' - '+ entry.part_number.to_s() +' - '+ attributeName  +' - '+  (entry.currency.to_s() + ' ' +  entry.selling_price.to_s() +' - '+ (entry.serial_number.to_s() + entry.running_sn.to_s()))}
 					end

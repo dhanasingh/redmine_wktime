@@ -764,8 +764,8 @@ include WkpayrollHelper
 			@invItems[@itemCount].store 'milestone_id', ''
 			@invItems[@itemCount].store 'project_id', mEntry.project_id
 			@invItems[@itemCount].store 'product_id', productId
-			@invItems[@itemCount].store 'invoice_item_id', mEntry&.inventory_item&.product_item&.id
-			@invItems[@itemCount].store 'invoice_item_type', "WkProductItem"
+			@invItems[@itemCount].store 'invoice_item_id', mEntry&.inventory_item&.id
+			@invItems[@itemCount].store 'invoice_item_type', "WkInventoryItem"
 			@invItems[@itemCount].store 'material_id', mEntry.id
 			@invItems[@itemCount].store 'item_desc', desc
 			@invItems[@itemCount].store 'item_type', productType
@@ -784,8 +784,8 @@ include WkpayrollHelper
 					end
 				end
 				invItem = @invoice.invoice_items.new()
-				invoice_item_id = mEntry&.inventory_item&.product_item&.id || nil
-				invItem = updateInvoiceItem(invItem, mEntry.project_id, desc, rate, qty, curr, productType, amount, nil, nil, productId, "WkProductItem", invoice_item_id)
+				invoice_item_id = mEntry&.inventory_item&.id || nil
+				invItem = updateInvoiceItem(invItem, mEntry.project_id, desc, rate, qty, curr, productType, amount, nil, nil, productId, "WkInventoryItem", invoice_item_id)
 				updateMatterial = WkMaterialEntry.find(mEntry.id)
 				updateBilledEntry(updateMatterial, invItem.id)
 				# updateMatterial.invoice_item_id = invItem.id
