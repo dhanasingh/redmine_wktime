@@ -359,6 +359,7 @@ class WkorderentityController < WkbillingController
 				unless params["item_id_#{i}"].blank?
 					arrId.delete(params["item_id_#{i}"].to_i)
 					invoiceItem = WkInvoiceItem.find(params["item_id_#{i}"].to_i)
+					old_item_quantity = invoiceItem.quantity
 					org_amount = params["rate_#{i}"].to_f * params["quantity_#{i}"].to_f
 					updatedItem = updateInvoiceItem(invoiceItem, pjtId,  params["name_#{i}"], params["rate_#{i}"].to_f, params["quantity_#{i}"].to_f, invoiceItem.original_currency, itemType, org_amount, crInvoiceId, crPaymentId, product_id, params["invoice_item_type_#{i}"], invoice_item_id)
 				else
@@ -368,10 +369,7 @@ class WkorderentityController < WkbillingController
 				end
 				if ["m", "a"].include?(itemType) && invoice_item_id.present?
 					saveConsumedSN(JSON.parse(params["used_serialNo_obj_#{i}"]), updatedItem) if params["used_serialNo_obj_#{i}"].present?
-					inventoryItem = WkInventoryItem.find(invoice_item_id.to_i)
-					availQuantity = inventoryItem.available_quantity - params["quantity_#{i}"].to_i if inventoryItem.available_quantity > 0
-					inventoryItem.available_quantity = availQuantity
-					inventoryItem.save
+					updateParentInventoryItem(invoice_item_id.to_i, params["quantity_#{i}"].to_i, old_item_quantity || '')
 				end
 				if !params[:populate_unbilled].blank? && params[:populate_unbilled] == "true" && params[:creditfrominvoice].blank? && !params["entry_id_#{i}"].blank?
 					accProject = WkAccountProject.where(:project_id => pjtId)
@@ -410,8 +408,16 @@ class WkorderentityController < WkbillingController
 			storeInvoiceItemTax(total_amounts)
 
 			if !arrId.blank?
-				deleteBilledEntries(arrId)
-				WkInvoiceItem.where(:id => arrId).delete_all
+				WkInvoice.transaction do
+					begin
+					deleteBilledEntries(arrId)
+					invoice_items = WkInvoiceItem.where(:id => arrId, item_type: 'm')
+					updateInvItemQuantity(invoice_items)
+					WkInvoiceItem.where(:id => arrId).delete_all
+					rescue => ex
+						raise ActiveRecord::Rollback
+					end
+				end
 			end
 
 			unless @invoice.id.blank?
@@ -496,9 +502,20 @@ class WkorderentityController < WkbillingController
 	end
 
 	def destroy
-		invoice = WkInvoice.find(params[:invoice_id].to_i)#.destroy
-		deleteBilledEntries(invoice.invoice_items.pluck(:id))
-		if invoice.destroy
+		isDelete = true
+		WkInvoice.transaction do
+			begin
+			invoice = WkInvoice.find(params[:invoice_id].to_i)#.destroy
+			deleteBilledEntries(invoice.invoice_items.pluck(:id))
+			invoice_items = invoice.invoice_items.where(item_type: 'm')
+			updateInvItemQuantity(invoice_items)
+			invoice.destroy
+			rescue => ex
+				isDelete = false
+				raise ActiveRecord::Rollback
+			end
+		end
+		if isDelete
 			flash[:notice] = l(:notice_successful_delete)
 		else
 			flash[:error] = invoice.errors.full_messages.join("<br>")
@@ -932,5 +949,15 @@ class WkorderentityController < WkbillingController
 
 	def addExpenseType
 		false
+	end
+
+	def updateInvItemQuantity(invoice_items)
+		invoice_items.each do |i|
+			inv_obj = i.invoice_item
+			if i.invoice_item_id.present? && i.invoice_item_type == 'WkInventoryItem' && inv_obj.present?
+				inv_obj.available_quantity = inv_obj.available_quantity + i.quantity
+				inv_obj.save
+			end
+		end
 	end
 end
