@@ -7,19 +7,17 @@ api.wk_survey do
   api.array :questions do
     @survey.wk_survey_questions.each do |q|
       api.questions do
-        if q.wk_survey_choices.present? || ["TB","MTB"].include?(q.question_type)
-          api.id q.id
-          api.name q.name
-          api.question_type q.question_type
-          api.is_mandatory q.is_mandatory
-          api.is_reviewer_only q.is_reviewer_only
-          api.array :choices do
-            q.wk_survey_choices.each do |c|
-              api.choices do
-                api.id c.id
-                api.name c.name
-                api.points c.points
-              end
+        api.id q.id
+        api.name q.name
+        api.question_type q.question_type
+        api.is_mandatory q.is_mandatory
+        api.is_reviewer_only q.is_reviewer_only
+        api.array :choices do
+          q.wk_survey_choices.each do |c|
+            api.choices do
+              api.id c.id
+              api.name c.name
+              api.points c.points
             end
           end
         end
