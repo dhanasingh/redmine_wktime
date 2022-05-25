@@ -462,7 +462,7 @@ class WksurveyController < WkbaseController
     errMsg = ""
     survey_id = params[:survey_id]
     @survey = WkSurvey.find(survey_id)
-    url = url_for(:controller => "wksurvey", :action => "survey", :survey_id => survey_id, :tab => "wksurvey")
+    url = url_for(:controller => "wksurvey", :action => "survey", :survey_id => survey_id, :tab => "wksurvey", id: survey_id)
     defaultNotes = l(:label_survey_email_notes)
     email_notes = params[:email_notes] + "\n\n" + defaultNotes + "\n" + url  + "\n\n" + l(:label_redmine_administrator)
 

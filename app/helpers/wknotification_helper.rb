@@ -25,7 +25,7 @@ module WknotificationHelper
 		when "fillSurvey"
 			notification.source.survey_for_id ||= User.current.id if notification.source.survey_for_type == 'User'
 			notifyHash['text'] = l(:label_complete_survey)+" "+notification.source.name.to_s
-			notifyHash['url'] = {controller:'wksurvey', action:'survey', surveyForID: notification.source.survey_for_id, surveyForType: notification.source.survey_for_type, survey_id: notification.source_id} if notification.source.survey_for_type.blank? || notification.source.survey_for_type.present? && notification.source.survey_for_id.present?
+			notifyHash['url'] = {controller:'wksurvey', action:'survey', surveyForID: notification.source.survey_for_id, surveyForType: notification.source.survey_for_type, survey_id: notification.source_id, id: notification.source_id} if notification.source.survey_for_type.blank? || notification.source.survey_for_type.present? && notification.source.survey_for_id.present?
 			notifyHash['icon'] = "fa fa-file-text-o"
 		when "leaveRequested"
 			notifyHash['text'] = l(:label_approve_leave)+" "+notification.source.user.name.to_s+" "+l(:label_on)+" "+notification.source.start_date.to_date.to_s
@@ -61,7 +61,7 @@ module WknotificationHelper
 			notifyHash['icon'] = "fa fa-clock-o"
 		when 'surveyClosed'
 			notifyHash['text'] = l(:label_survey)+" "+notification.source.name.to_s+" "+l(:label_has_closed)
-			notifyHash['url'] = {controller:'wksurvey', action:'survey',survey_id: notification.source.id}
+			notifyHash['url'] = {controller:'wksurvey', action:'survey',survey_id: notification.source.id, id: notification.source.id}
 			notifyHash['icon'] = "fa fa-file-text-o"
 		when 'leadGenerated'
 			leadNotifyLabel(notification)
