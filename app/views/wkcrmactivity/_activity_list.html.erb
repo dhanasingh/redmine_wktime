@@ -18,6 +18,7 @@
 		  <% else %>
 				<tr>
 					<% unless controller.is_referral %><th class="lbl-txt-align"><%= l(:label_activity_type) %></th><% end %>
+					<% if controller.is_referral %><th class="lbl-txt-align"><%= l(:field_type) %></th><% end %>
 					<th class="lbl-txt-align"><%= l(:field_subject) %></th>
 					<th class="lbl-txt-align"><%= l(:field_status) %></th>
 					<th class="lbl-txt-align"><%= l(controller.is_referral ? :label_rating : :label_relates_to) %></th>
@@ -36,6 +37,7 @@
 						<% if !show_on_map && !controller.is_referral %>
 							<td class="lbl-txt-align"><%=h acttypeHash[entry.activity_type] %></td>
 						<% end %>
+						<% if !show_on_map && controller.is_referral %><td class="lbl-txt-align"><%= entry&.interview_type&.name %></td><% end %>
 						<td class="lbl-txt-align"><%=h entry.name %></td>
 						<td class="lbl-txt-align">
 							<%= controller.is_referral ? rf_status[entry.status] : (["M", "C"].include?(entry.activity_type) ? meetCallStatusHash[entry.status] : taskStatusHash[entry.status]) %>

@@ -148,11 +148,11 @@ class WkcrmactivityController < WkcrmController
 			format.html {
 				if errorMsg.blank?
 					if params[:controller_from] == 'wksupplieraccount'
-						redirect_to :controller => params[:controller_from],:action => params[:action_from] , :account_id => crmActivity.parent_id
+						redirect_to :controller => params[:controller_from],:action => params[:action_from] , :account_id => crmActivity.parent_id, id: crmActivity.parent_id
 					elsif params[:controller_from] == 'wksuppliercontact'
-						redirect_to :controller => params[:controller_from],:action => params[:action_from] , :contact_id => crmActivity.parent_id
+						redirect_to :controller => params[:controller_from],:action => params[:action_from] , :contact_id => crmActivity.parent_id, id: crmActivity.parent_id
 					elsif params[:controller_from] == 'wkreferrals'
-						redirect_back_or_default :controller => params[:controller_from], :action => 'edit', lead_id: crmActivity.parent_id
+						redirect_back_or_default :controller => params[:controller_from], :action => 'edit', lead_id: crmActivity.parent_id, id: crmActivity.parent_id
 					else
 						redirect_to :controller => 'wkcrmactivity',:action => 'index' , :tab => 'wkcrmactivity'
 					end

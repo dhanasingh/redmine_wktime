@@ -108,7 +108,7 @@ class WkreferralsController < WkleadController
 	end
 
 	def get_activity_label
-		l(:label_interview)
+		l(:label_new_interview)
 	end
 
   private

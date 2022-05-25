@@ -1258,3 +1258,5 @@ it:
   label_invoice_details: Invoice Details
   label_items: Item
   label_hide_amount_in_words: Hide amount in words
+  label_new_interview: New Interview
+  label_edit_interview: Edit Interview

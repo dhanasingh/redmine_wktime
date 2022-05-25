@@ -1,4 +1,5 @@
-<h2><%=@activityEntry.blank? ? controller.get_activity_label : l(:text_edit_activity) %></h2>
+<% @isReferral = params[:controller_from] == "wkreferrals" || @activityEntry&.first&.activity_type == "I" %>
+<h2><%= @activityEntry.present? && (@isReferral ? l(:label_edit_interview) : l(:text_edit_activity) ) || (@isReferral ? l(:label_new_interview) : controller.get_activity_label) %></h2>
 
 <%= form_tag({:controller => 'wkcrmactivity', :action => 'update'}, :method => :post, :id => 'query_form') do %>
 	<%= render :partial => 'wkcrmactivity/activity_edit'%>
