@@ -59,18 +59,19 @@ class WkgltransactionController < WkaccountingController
 			if @summaryTransaction != 'days'
 				if @summaryTransaction == 'month'
 					summary_by = getDatePart('trans_date','year')+', tmonth'
-					alice_name = 'tmonth,' + getDatePart('trans_date','year', 'tyear')
+					alice_name = getDatePart('trans_date','year', 'tyear')+', tmonth'
 				elsif @summaryTransaction == 'week'
 					summary_by = 'tyear, tweek'
-					alice_name = 'tweek, tyear'
+					alice_name = 'tyear, tweek'
 				else @summaryTransaction == 'year'
 					summary_by = getDatePart('trans_date','year')
 					alice_name = getDatePart('trans_date','year', 'tyear')
 				end
 				trans_date = transaction.minimum(:trans_date) - 1 unless transaction.minimum(:trans_date).blank?
 				@transDate = @from.blank? ? trans_date : @from -1
+				order_val = alice_name.split(',').map{|item| (item.split('as').last).strip().to_s + " DESC"}
 				transaction = transaction.group(" #{summary_by}, detail_type, ledger_id")
-					.select(" #{alice_name}, detail_type, ledger_id, sum(amount) as amount").order(" #{summary_by}")
+					.select(" #{alice_name}, detail_type, ledger_id, sum(amount) as amount").order("#{order_val.join(',')}")
 				@summaryHash = Hash.new
 				debitTotal = 0
 				creditTotal = 0

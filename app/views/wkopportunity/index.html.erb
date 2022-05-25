@@ -1,7 +1,7 @@
 <%= title l(:label_opportunity_plural) %>
 <%= render partial: "wkcrm/render_crm_tabs" %>
 
-<%= form_tag({:controller => "wkopportunity", :action => 'index', :tab => "wkopportunity"}, :method => :post, :id => 'query_form') do %>
+<%= form_tag({:controller => "wkopportunity", :action => 'index', :tab => "wkopportunity"}, :method => :get, :id => 'query_form') do %>
 	<%=h hidden_field_tag('tab', "wkopportunity") %>
 	<%= hidden_field_tag "searchlist", controller_name %>
 	<%	accname = session[:wkopportunity].try(:[], :oppname) %>
