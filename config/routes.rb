@@ -280,7 +280,7 @@ get 'wkreferrals/getEmpDetails', to: 'wkreferrals#getEmpDetails'
 
 get 'wklead', :to => 'wklead#index'
 
-get 'wklead/:id', :to => 'wklead#show'
+# get 'wklead/:id', :to => 'wklead#show'
 
 get 'wklead/:id/edit', :to => 'wklead#edit'
 

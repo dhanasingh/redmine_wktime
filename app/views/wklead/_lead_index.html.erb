@@ -4,7 +4,7 @@
 	<%= hidden_field_tag "searchlist", controller_name %>
 	<fieldset>
 		<div style="float:right">
-			<%= link_to l(:label_new_item, l(:label_lead)), url_for(:controller => controller_name, :action => 'edit'), :class => 'icon icon-add' %>
+			<%= link_to l(:label_new_item, l(:label_lead)), url_for(:controller => controller_name, :action => 'edit', id: nil), :class => 'icon icon-add' %>
 		</div>
 		<table>
 			<tr>

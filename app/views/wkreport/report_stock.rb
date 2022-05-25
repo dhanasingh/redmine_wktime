@@ -36,7 +36,7 @@ module ReportStock
 		totalStockVal = 0
 		entries = WkInventoryItem.find_by_sql(sqlStr)
 		entries.each{ |entry| totalStockVal += entry.stock_value ? entry.stock_value.to_f.round(2) : 0 }
-		stock = {stockEntries: entries, totalStockVal: totalStockVal}
+		stock = {stockEntries: entries, totalStockVal: totalStockVal.to_f.round(2)}
 		stock
 	end
 

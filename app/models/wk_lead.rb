@@ -73,8 +73,9 @@ class WkLead < ActiveRecord::Base
 
   def lead_notification
     if status? && status == "C" && WkNotification.notify('leadConverted')
-      emailNotes = l(:label_lead)+ ": " + (self.account ? self.account.name : self.contact.name)+" "+l(:label_has_converted)+" "+ "\n\n" + l(:label_redmine_administrator)
-      subject = l(:label_lead) + " " + l(:label_notification)
+      label = self.contact.contact_type == 'C'? l(:label_lead) : l(:label_referral)
+      emailNotes = label+ ": " + (self.account ? self.account.name : self.contact.name)+" "+l(:label_has_converted)+" "+ "\n\n" + l(:label_redmine_administrator)
+      subject = label + " " + l(:label_notification)
       userId = (WkPermission.permissionUser('B_CRM_PRVLG') + WkPermission.permissionUser('A_CRM_PRVLG')).uniq
       WkNotification.notification(userId, emailNotes, subject, self, 'leadConverted')
     end
