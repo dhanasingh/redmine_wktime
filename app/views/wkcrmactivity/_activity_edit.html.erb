@@ -68,7 +68,7 @@
 
 			<tr>
 				<th align="left"><%= l(:field_subject) %><span style="color:red;">*</span></th>
-				<td align="left" style="padding-left:40px;"><%=h text_field_tag("activity_subject",(!@activityEntry.blank? ? @activityEntry[0].name : ""),:size => 20, :style => "width:180px;") %> </td>
+				<td align="left" style="padding-left:40px;"><%=h text_field_tag("activity_subject",(!@activityEntry.blank? ? @activityEntry[0].name : ""),:size => 20, :style => "width:180px;", maxlength: 255) %> </td>
 				<td></td>
 				<th align="left" style="padding-left:150px;"><label id="lblStatus"><%= l(:field_status) %></label></th>
 				<td align="left" style="padding-left:40px;">
@@ -126,7 +126,7 @@
 			<tr>
 				<th align="left"><span id="lblduration"><%= l(:label_duration) %></span></th>
 				<td align="left" style="padding-left:40px;">
-					<%=h text_field_tag("activity_duration",(!@activityEntry.blank? ? hh  : ""),:size => 20, :style => "width:180px;") %>
+					<%=h text_field_tag("activity_duration",(!@activityEntry.blank? ? hh  : ""),:size => 20, :style => "width:180px;", maxlength: 255) %>
 				</td>
 				<td>
 					<%= select_tag("activity_duration_min", options_for_select([['00',00], [15, 15], [30, 30], [45, 45]],
@@ -136,7 +136,7 @@
 					<th align="left" style="padding-left:150px;"><label id="lblLocation"><%= l(:label_location) %></label></th>
 					<td align="left" style="padding-left:40px;">
 						<%=h text_field_tag("location", !@activityEntry.blank? && !@activityEntry[0].location.blank? ? @activityEntry[0].location :  "",
-							:style => "width:190px;") %>
+							:style => "width:190px;", maxlength: 255) %>
 					</td>
 				<% end %>
 				<td></td>

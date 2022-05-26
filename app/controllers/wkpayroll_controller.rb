@@ -217,7 +217,7 @@ class WkpayrollController < WkbaseController
 					redirect_to :action => 'income_tax', action_type: 'userSettings', user_id: userId, method: 'saveTaxVal',
 												taxsettings: params[:taxsettings].permit!.to_h
 			else
-				redirect_to :action => 'usrsettingsindex'
+				redirect_to :action => 'usrsettingsindex', tab: "payroll"
 				flash[:notice] = l(:notice_successful_update)
 			end
 		else
