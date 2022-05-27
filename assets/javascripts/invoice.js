@@ -104,6 +104,9 @@ $(document).ready(function() {
 				invItemChange(this);
 			});
 		}
+		else{
+			$("[id^='serial_number_img_']").hide();
+		}
 
 		$(".productItemsDD").change(function(){
 			let row = parseInt((this.name).split('_').pop());
@@ -142,7 +145,9 @@ $(document).ready(function() {
 				if ((["m", "a"].includes(itemType) && ["I"].includes($('#invoice_type').val())) || ["SI"].includes($('#invoice_type').val())){
 					applyTax(this, "invoice_item");
 				}
-				fillInvFields(row);
+				if(["I"].includes($('#invoice_type').val())){
+					fillInvFields(row);
+				}
 			});
 
 			$("[id^='project_id_']").change(function(){

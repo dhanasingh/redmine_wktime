@@ -17,7 +17,7 @@ module Wkdashboard
       month_count = @endDate >= Date.today ? Date.today.strftime("%m").to_i - (@endDate.month).to_i : 12
       month_count = month_count == 0 ? 1 : 12+month_count if month_count < 1
       invoiceData = [0]*12
-      invoices.map{|l| invoiceData[@endDate.month - l.month_val] = l.invoice_total}
+      invoices.map{|l| invoiceData[@endDate.month - l.month_val] = l.invoice_total.round(2)}
       invoiceData.reverse!
       invoiceData.each_with_index {|amt, index| invoiceData[index] = ((amt || 0) + invoiceData[index-1]).round(2) if index != 0}
       data[:data1] = invoiceData.first(month_count)
@@ -27,7 +27,7 @@ module Wkdashboard
         .select(getDatePart("wk_payments.payment_date","month", "month_val"), +"sum(wk_payment_items.amount) payment_total")
         .group(getDatePart("wk_payments.payment_date", "month"))
       paymentData = [0]*12
-      payments.map{|l| paymentData[@endDate.month - l.month_val] = l.payment_total}
+      payments.map{|l| paymentData[@endDate.month - l.month_val] = l.payment_total.round(2)}
       paymentData.reverse!
       paymentData.each_with_index {|amt, index| paymentData[index] = ((amt || 0) + paymentData[index-1]).round(2) if index != 0}
       data[:data2] = paymentData.first(month_count)

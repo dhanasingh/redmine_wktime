@@ -533,7 +533,7 @@
 </div>
 
 <div id="serialno-dlg" style="display:none">
-	<%= text_area_tag("inv_serial_no",'',rows:5, cols:35) %>
+	<%= text_area_tag "inv_serial_no",'', size: "35x5", :style => "width:95%;"%>
 	<%= hidden_field_tag("item_serial_no")  %>
 	<p><%= l(:label_serial_number_note) %></p>
 	<span class="icon icon-warning warning" id="warn_serial_number" style="background-color: unset; border: 0;display:none;"><%= l(:warn_sn_range) %></span></td>

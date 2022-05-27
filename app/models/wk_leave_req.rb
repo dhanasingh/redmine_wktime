@@ -25,13 +25,14 @@ class WkLeaveReq < ActiveRecord::Base
   validates_presence_of :leave_type, :start_date, :end_date
 
   scope :get_all, ->{
-    joins(:wkstatus, :user, :leave_type).select("wk_leave_reqs.*, wk_statuses.status")
-    .where("status_date = (
-      SELECT MAX(S.status_date)
-      FROM wk_statuses AS S
-      WHERE S.status_for_id = wk_leave_reqs.id AND S.status_for_type = 'WkLeaveReq'
-      GROUP BY S.status_for_id)"
-    )
+    joins(:wkstatus, :user)
+    .joins("INNER JOIN
+      (SELECT MAX(S.status_date) AS status_date, S.status_for_id
+      FROM wk_leave_reqs AS LR
+      INNER JOIN wk_statuses AS S ON S.status_for_id = LR.id AND S.status_for_type = 'WkLeaveReq'
+      GROUP BY S.status_for_id)
+      AS S ON S.status_for_id = wk_leave_reqs.id AND S.status_date = wk_statuses.status_date")
+    .select("wk_leave_reqs.*, wk_statuses.status")
   }
 
   scope :leaveReqSupervisor, -> {
@@ -126,7 +127,7 @@ class WkLeaveReq < ActiveRecord::Base
   end
 
   def self.getApprovedLeaves(user_id, startdate)
-    WkLeaveReq.joins(:wkstatus).where(user_id: user_id, "wk_statuses.status" => "A",
+    get_all.where(user_id: user_id, "wk_statuses.status" => "A",
       start_date: startdate..(startdate.to_date + 7.days), end_date: startdate..(startdate.to_date + 7.days))
   end
 end
