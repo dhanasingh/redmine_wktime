@@ -63,8 +63,8 @@ include WklogmaterialHelper
 	end
 
 	def getProjectArr
-		projArr = getProjects
-		projArr[0] = [l(:label_all_projects),'AP']
+		projArr = Project.active.order('name').map{ |p| [p.name, p.id]}
+		projArr.unshift([l(:label_all_projects),'AP'])
 		projArr.unshift(["",''])
 		projArr
 	end

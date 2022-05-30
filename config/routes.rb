@@ -20,7 +20,7 @@ get 'wktime/:id/edit', :to => 'wktime#edit'
 
 post 'wktime/update', :to => 'wktime#update'
 
-delete 'wktime/:id', :to => 'wktime#destroy'
+delete 'wktime/:id/destroy', :to => 'wktime#destroy'
 
 get 'wktime/get_issue_loggers', :to => 'wktime#get_issue_loggers'
 
@@ -80,7 +80,7 @@ get 'wkexpense/:id/edit', :to => 'wkexpense#edit'
 
 post 'wkexpense/update', :to => 'wkexpense#update'
 
-delete 'wkexpense/:id', :to => 'wkexpense#destroy'
+delete 'wkexpense/:id/destroy', :to => 'wkexpense#destroy'
 
 get 'wkexpense/new', :to => 'wkexpense#new'
 
