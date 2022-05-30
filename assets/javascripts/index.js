@@ -170,7 +170,7 @@ $(document).ready(function() {
 				let quantity = $("#quantity").val();
 				let tr = '', sn = [], index_no = (rowlength+1);
 				if($('#serial_no').val()){
-					($('#serial_no').val().split(',')).map(function(number){ sn.push({id:'', serial_number: number})});
+					($('#serial_no').val().split(',')).map(function(number){ sn.push({id:'', serial_number: number.trim()})});
 				}
 				if(item_id){
 					let item = {};

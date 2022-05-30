@@ -35,6 +35,7 @@ class WkInventoryItem < ActiveRecord::Base
    scope :inventory, lambda { where(:product_type => 'I') }
    scope :shipment_item, lambda { where(:parent_id => nil) }
    scope :transferred_item, lambda { where.not(:from_id => nil) }
+   belongs_to :from, foreign_key: "from_id", class_name: "WkInventoryItem"
 
 
   before_destroy :add_quantity_to_parent
@@ -46,10 +47,18 @@ class WkInventoryItem < ActiveRecord::Base
   end
 
   def add_quantity_to_parent
-    unless self.parent_id.blank? || self.material_entries.count>0 || self.transferred_items.count>0
-      parentObj = self.parent
-      parentObj.available_quantity = self.total_quantity + parentObj.available_quantity
-      parentObj.save
+    if self.product_type == 'I'
+      parentObj = self.from
+      if parentObj.present? && self.parent_id.present?
+        parentObj.available_quantity = self.total_quantity + parentObj.available_quantity
+        parentObj.save
+      end
+    else
+      unless self.parent_id.blank? || self.material_entries.count>0 || self.transferred_items.count>0
+        parentObj = self.parent
+        parentObj.available_quantity = self.total_quantity + parentObj.available_quantity
+        parentObj.save
+      end
     end
   end
 

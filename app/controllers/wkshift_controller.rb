@@ -79,7 +79,7 @@ class WkshiftController < WkbaseController
 		else
 			flash[:notice] = l(:notice_successful_update)
 		end
-		redirect_to :controller => 'wkshift',:action => 'index' , :tab => 'wkshift'
+		redirect_to :controller => 'wkshift',:action => 'index' , :tab => 'wkscheduling'
 
 
 	end
@@ -117,7 +117,7 @@ class WkshiftController < WkbaseController
 		else
 			flash[:notice] = l(:notice_successful_update)
 		end
-		redirect_to :controller => 'wkshift',:action => 'index' , :tab => 'wkshift'
+		redirect_to :controller => 'wkshift',:action => 'index' , :tab => 'wkscheduling'
 	end
 
 	def formPagination(entries)

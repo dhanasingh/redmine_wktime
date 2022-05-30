@@ -13,7 +13,7 @@ th{
 <%= hidden_field_tag('over_head_price', invntItem.over_head_price, id: 'transfer_over_head') if invntItem.present? && itemType == "I"%>
 <%= hidden_field_tag('per_over_head', invntItem.over_head_price / invntItem&.total_quantity) if invntItem.present? && itemType == "I"%>
 <%= hidden_field_tag('total_quantity', invntItem&.total_quantity, :name => "item_total_quantity") if itemType == "I"%>
-<%= hidden_field_tag('available_quantity', 1) if params[:isAssemble].present? %>
+<%= hidden_field_tag('available_quantity', 1) if params[:isAssemble].present? && itemType == "I" %>
 <tr>
 	<th><%= l(:field_currency) %></th>
 	<td style="padding-left:40px;">
@@ -45,7 +45,7 @@ th{
 <tr>
 	<th><%= l(itemType == "I" && invntItem.present? ? :label_available_quantity : :field_quantity) %></th>
 	<td  style="padding-left:40px;" id="productItem">
-		<%= params[:isAssemble] || @assembledComponent.present? ? '1' : (text_field_tag "available_quantity", ("%.2f" % invntItem.available_quantity unless invntItem.blank?), :disabled => isDisable && !isTransfer, :maxlength => 14) %>&nbsp;&nbsp;
+		<%= (itemType == "I" && (params[:isAssemble] || @assembledComponent.present?)) ? '1' : (text_field_tag "available_quantity", ("%.2f" % invntItem.available_quantity unless invntItem.blank?), :disabled => isDisable && !isTransfer, :maxlength => 14) %>&nbsp;&nbsp;
     <%= link_to l(itemType == "I" ? :label_consumed_items : :label_used_items), "javascript:showQuantityDetails();" if invntItem.present? && !isTransfer %>
 	</td>
 </tr>

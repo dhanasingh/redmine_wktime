@@ -94,6 +94,7 @@ include WklogmaterialHelper
 			if sourceItem.save
 				assembledItem = sourceItem.dup
 				assembledItem.parent_id = inventoryItem.id
+				assembledItem.from_id = sourceItem.id
 				assembledItem.total_quantity = items["quantity"].to_i
 				assembledItem.available_quantity = items["quantity"].to_i
 				assembledItem.supplier_invoice_id = nil
