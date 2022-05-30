@@ -354,8 +354,11 @@ class WkorderentityController < WkbillingController
 
 				invoice_item_id = ((params["invoice_item_id_#{i}"]) || "").split(",").last
 				invoice_item_id = invoice_item_id.present? ? invoice_item_id.to_i : nil
-				product_id = params["product_id_#{i}"].present? ? params["product_id_#{i}"] : ((params["invoice_item_id_#{i}"]) || "").split(",").first
-				product_id = product_id.present? ? product_id.to_i : nil
+				product_id = nil
+				if ["m", "a"].include?(itemType) || !isInvoiceController
+					product_id = params["product_id_#{i}"].present? ? params["product_id_#{i}"] : ((params["invoice_item_id_#{i}"]) || "").split(",").first
+					product_id = product_id.present? ? product_id.to_i : nil
+				end
 				unless params["item_id_#{i}"].blank?
 					arrId.delete(params["item_id_#{i}"].to_i)
 					invoiceItem = WkInvoiceItem.find(params["item_id_#{i}"].to_i)
