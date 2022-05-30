@@ -263,6 +263,7 @@ function invoiceAddRow(tableId, rowCount){
 	if(tableId == "invoiceTable"){
 		if($("#invoice_type").val() == "I"){
 			$("#item_type_"+(rowlength)).val("i");
+			$("#invoice_item_id_"+(rowlength)).val("").select2();
 			applyTax(document.getElementById("project_id_"+(rowlength)), "project");
 		}else{
 			$("#invoice_item_id_"+(rowlength)).val("").select2();
@@ -274,6 +275,18 @@ function invoiceAddRow(tableId, rowCount){
 	}
 	if(tableId == "shipmentTable"){
 		$("#invoice_item_id_"+(rowlength)).val("");
+	}
+
+	// For Load invoice type dropdown
+	if (["I"].includes($('#invoice_type').val())){
+		let changeDD = document.getElementById("invoice_item_id_"+rowlength);
+		$.ajax({
+			url:  "/wkorderentity/getIssueDD",
+			data: {project_id: $("#invoiceTable #project_id_"+rowlength).val() },
+			success: function(resData){
+				updateUserDD(resData, changeDD, 1, true, false, label_prod_item);
+			}
+		});
 	}
 }
 
@@ -983,12 +996,12 @@ function invItemChange(ele){
 					data: {ptype: 'product_item', log_type: additional_item_type, module_type: 'invoice'},
 					success: function(resData1){
 						resData = resData+resData1
-						updateUserDD(resData, changeDD, 1, true, false, "Select a Product Item");
+						updateUserDD(resData, changeDD, 1, true, false, label_prod_item);
 					}
 				});
 			}
 			else{
-				updateUserDD(resData, changeDD, 1, true, false, "Select a Product Item");
+				updateUserDD(resData, changeDD, 1, true, false, label_prod_item);
 			}
 			$("#invoice_item_id_"+row).val(null).trigger('change');
 			$("#name_"+row).val('');

@@ -6,6 +6,7 @@
 	wkInvReportUrl = '<%=url_for(:controller => controller_name, :action => "edit", :tab => controller_name)%>';
 	grpUrl="<%= "#{url_for(:controller => "wkreport", :action => 'getMembersbyGroup')}" %>";
 	var label_tax = "<%= l(:label_tax) %>";
+	var label_prod_item = "<%= l(:label_select_product_item) %>";
 </script>
 <%
 	itemHash = { 'i' => l(:label_invoice), 'c' =>  l(:label_credit) }
