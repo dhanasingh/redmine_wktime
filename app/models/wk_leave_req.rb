@@ -25,8 +25,9 @@ class WkLeaveReq < ActiveRecord::Base
   validates_presence_of :leave_type, :start_date, :end_date
 
   scope :get_all, ->{
-    joins(:wkstatus, :user)
-    .joins("INNER JOIN
+    joins(:user)
+    .joins("INNER JOIN wk_statuses ON wk_statuses.status_for_id = wk_leave_reqs.id AND wk_statuses.status_for_type = 'WkLeaveReq'
+      INNER JOIN
       (SELECT MAX(S.status_date) AS status_date, S.status_for_id
       FROM wk_leave_reqs AS LR
       INNER JOIN wk_statuses AS S ON S.status_for_id = LR.id AND S.status_for_type = 'WkLeaveReq'
