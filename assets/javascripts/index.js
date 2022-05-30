@@ -168,11 +168,18 @@ $(document).ready(function() {
 				let rowlength = $('#assembleItemTable >tbody >tr').length;
 				let item_id = $('#product_item').val();
 				let quantity = $("#quantity").val();
+				let item_avail_quantity = $("#item_avail_quantity").val();
 				let tr = '', sn = [], index_no = (rowlength+1);
 				if($('#serial_no').val()){
 					($('#serial_no').val().split(',')).map(function(number){ sn.push({id:'', serial_number: number.trim()})});
 				}
-				if(item_id){
+				if(!item_id){
+					alert("Item cannot be blank");
+				}
+				else if(parseFloat(quantity) > parseFloat(item_avail_quantity)){
+					alert('Quantity is higher than avilable quantity');
+				}
+				else{
 					let item = {};
 					item = {index_no: index_no, inventory_item_id: item_id, quantity: quantity, location_id: $('#location_id').val(), serial_no: sn}
 					tr += '<tr>';
@@ -186,9 +193,6 @@ $(document).ready(function() {
 					tr += '</tr>';
 					$('#assembleItemTable > tbody:last-child').append(tr);
 					$(this).dialog("close");
-				}
-				else{
-					alert("Item cannot be blank");
 				}
 			},
 			"Cancel": function() {
@@ -1368,8 +1372,10 @@ function itemChanged(id)
 		let product_serial_numbers = [];
 		if(item.running_sn) product_serial_numbers = getSerialNumbersRange(item.serial_number, item.running_sn, item.total_quantity);
 		$('#product_serial_numbers').val(JSON.stringify(product_serial_numbers));
+		$('#item_avail_quantity').val(item.available_quantity);
 		$('#avail_quantity').html(item.available_quantity);
 		$('#serial_no').val('');
+		$('#quantity').val('');
 		$('#warn_serial_number').hide();
 	},
 	beforeSend: function(){ $(this).addClass('ajax-loading'); },

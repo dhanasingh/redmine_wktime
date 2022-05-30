@@ -36,6 +36,7 @@
 <div id="assembleItem">
   <div class="box tabular" style="width: 100%;">
     <%= hidden_field_tag 'product_serial_numbers', productSNs.to_json || [] %>
+    <%= hidden_field_tag 'item_avail_quantity'%>
     <table style="width: 100%;">
       <tr>
         <th><%= l(:label_location) %></th>
