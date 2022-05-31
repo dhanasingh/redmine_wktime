@@ -13,32 +13,30 @@ th:first-child {
 	position: absolute;
 }
 </style>
-<%= form_tag({}) do -%>	
-	<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
-	<% wktime_helper = Object.new.extend(WktimeHelper) %>
-	<% if (wktime_helper.validateERPPermission('A_PAYRL')) %>
-
+<% if validateERPPermission('A_PAYRL') %>
+	<fieldset>
+		<legend><%= l(:label_filter_plural) %></legend>
 		<%= form_tag({:controller => controller_name, :action => 'usrsettingsindex'}, :method => :get) do %>
+			<%= hidden_field_tag 'back_url', url_for(:controller => params[:controller], :action => params[:action]) %>
+			<%= hidden_field_tag('tab', 'payroll') %>
 			<%= hidden_field_tag "searchlist", controller_name %>
 			<%	groupid =session[:wkpayroll].try(:[], :group_id) %>
-			<fieldset><legend><%= l(:label_filter_plural) %></legend>
-				<b><label for='status'><%= l(:field_status) %>:</label></b>
-				<%= select_tag 'status', users_status_options_for_select(@status), :class => "small", :onchange => "this.form.submit(); return false;"  %>
+			<b><label for='status'><%= l(:field_status) %>:</label></b>
+			<%= select_tag 'status', users_status_options_for_select(@status), :class => "small", :onchange => "this.form.submit(); return false;"  %>
 
-				<% if @groups.present? %>
+			<% if @groups.present? %>
 				<b><label for='group_id' style="padding-left: 10px;"><%= l(:label_group) %>:</label></b>
 				<%= select_tag 'group_id', content_tag('option') + options_from_collection_for_select(@groups, :id, :name,  !groupid.nil? ? groupid.to_i: 0), :onchange => "this.form.submit(); return false;"  %>
-				<% end %>
+			<% end %>
 
-				<b><label for='name' style="padding-left: 10px;"><%= l(:label_user) %>:</label></b>
-				<%= text_field_tag 'name', session[controller_name].try(:[], :name), :size => 30 %>
-				<%= submit_tag l(:button_apply), :class => "small", :name => "list" %>
-				<%= link_to l(:button_clear), {tab: 'payroll', clear: true}, class: 'icon icon-reload' %>
-			</fieldset>
-		<%=h hidden_field_tag('tab', 'payroll') %>
+			<b><label for='name' style="padding-left: 10px;"><%= l(:label_user) %>:</label></b>
+			<%= text_field_tag 'name', session[controller_name].try(:[], :name), :size => 30 %>
+			<%= submit_tag l(:button_apply), :class => "small", :name => "list" %>
+			<%= link_to l(:button_clear), {tab: 'payroll', clear: true}, class: 'icon icon-reload' %>
 		<% end %>
+	</fieldset>
+<% end %>
 	&nbsp;
-	<% end %>
 	<div class="table-wrapper">
 		<table class="list odd-even" id="userpayroll">
 			<thead>
@@ -76,4 +74,3 @@ th:first-child {
 			</tbody>
 		</table>
 	</div>
-<% end -%>

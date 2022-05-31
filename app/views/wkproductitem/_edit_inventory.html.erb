@@ -67,7 +67,7 @@
 					<th style="text-align: left"><%= l(:label_location) %></th>
 					<td style="text-align: left;padding-left:40px;">
 						<%=h select_tag("location_id", generic_options_for_select(WkLocation, nil, 'name', 'name', 'id', invntItem.blank? ? nil : invntItem.location_id, false), id: 'locationID', disabled: isDisable && !isTransfer) %>
-						<% unless invntItem.blank? || isTransfer || controller.getItemType != 'I' %>
+						<% if controller.getItemType == 'I' && invntItem.present? && !isTransfer && !@assembledComponent.present? %>
 									<%= link_to l(:button_transfer), url_for(:controller => controller_name, :action => 'transfer', :inventory_item_id => invntItem.id), :class => 'icon icon-bullet-go' %>
 						<% end %>
 					</td>
