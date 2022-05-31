@@ -271,16 +271,6 @@ module WksurveyHelper
         end
       end
 
-      surveyed_employees_per_choice = WkSurvey.find_by_sql("SELECT COUNT(SR.user_id) AS emp_count, SC.id
-        FROM wk_surveys AS S
-        INNER JOIN wk_survey_questions AS SQ ON S.id = SQ.survey_id
-        INNER JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id
-        INNER JOIN wk_survey_answers AS SCC ON SC.id = SCC.survey_choice_id
-        INNER JOIN wk_survey_responses AS SR ON SR.survey_id = S.id	AND SR.id = SCC.survey_response_id " +
-        " WHERE SQ.id = #{question_id} "+ surveyForQry + groupNameCond +
-        "GROUP BY S.id, SQ.id, SC.id
-        ORDER BY SC.id")
-
       question_choices = WkSurvey.find_by_sql("SELECT SC.name, SC.id
         FROM wk_surveys AS S
         INNER JOIN wk_survey_questions AS SQ ON S.id = SQ.survey_id
@@ -288,19 +278,47 @@ module WksurveyHelper
         WHERE SQ.id = #{question_id}
         ORDER BY SC.id")
 
+      if question_choices.length > 0
+        surveyed_employees_per_choice = WkSurvey.find_by_sql("SELECT COUNT(SR.user_id) AS emp_count, SC.id
+          FROM wk_surveys AS S
+          INNER JOIN wk_survey_questions AS SQ ON S.id = SQ.survey_id
+          INNER JOIN wk_survey_choices AS SC ON SQ.id = SC.survey_question_id
+          INNER JOIN wk_survey_answers AS SCC ON SC.id = SCC.survey_choice_id
+          INNER JOIN wk_survey_responses AS SR ON SR.survey_id = S.id	AND SR.id = SCC.survey_response_id " +
+          " WHERE SQ.id = #{question_id} "+ surveyForQry + groupNameCond +
+          "GROUP BY S.id, SQ.id, SC.id
+          ORDER BY SC.id")
+      else
+        surveyed_employees_per_choice = WkSurvey.find_by_sql("SELECT COUNT(SR.user_id) AS emp_count, SQ.id
+        FROM wk_surveys AS S
+        INNER JOIN wk_survey_questions AS SQ ON S.id = SQ.survey_id
+        INNER JOIN wk_survey_answers AS SCC ON SQ.id = SCC.survey_choice_id
+        INNER JOIN wk_survey_responses AS SR ON SR.survey_id = S.id	AND SR.id = SCC.survey_response_id " +
+        " WHERE SQ.id = #{question_id} "+ surveyForQry + groupNameCond +
+        "GROUP BY S.id, SQ.id")
+      end
+
       fields = Array.new
-      question_choices.each {|choice| fields << choice.name}
+      if question_choices.length > 0
+        question_choices.each {|choice| fields << choice.name}
+      else
+        fields << WkSurveyQuestion.question_name(question_id) || ''
+      end
 
       sel_choices = Hash.new
       surveyed_employees_per_choice.each do |choice|
         sel_choices[choice.id] = choice.emp_count
       end
-
       employees_per_choice = Array.new
       totalScore = 0
-      question_choices.each do |choice|
-        employees_per_choice << (sel_choices[choice.id].blank? ? 0 : sel_choices[choice.id])
-        totalScore += choice.name.to_i * sel_choices[choice.id].to_i if validateTrendingChart(@survey.id, question_id)
+
+      if question_choices.length > 0
+        question_choices.each do |choice|
+          employees_per_choice << (sel_choices[choice.id].blank? ? 0 : sel_choices[choice.id])
+          totalScore += choice.name.to_i * sel_choices[choice.id].to_i if validateTrendingChart(@survey.id, question_id)
+        end
+      else
+        employees_per_choice << (sel_choices[question_id.to_i].blank? ? 0 : sel_choices[question_id.to_i])
       end
 
       avgScore = 0
